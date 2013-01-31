@@ -1,0 +1,136 @@
+VERSION
+7
+
+COMMSETTINGS
+0
+2
+2
+9600
+2
+63
+4
+0
+0
+
+COMMDISPLAY
+0
+
+SEND
+0
+Change ID to 0
+FF FF FE 04 03 03 00 F7
+0
+5
+
+SEND
+1
+Change ID to 1
+FF FF FE 04 03 03 01 F6
+0
+5
+
+SEND
+2
+Change ID to 2
+FF FF FE 04 03 03 02 F5
+0
+5
+
+SEND
+3
+Change ID to 3
+FF FF FE 04 03 03 03 F4
+0
+5
+
+SEND
+4
+Change ID to 4
+FF FF FE 04 03 03 04 F3
+0
+5
+
+SEND
+5
+Change ID to 5
+FF FF FE 04 03 03 05 F2
+0
+5
+
+SEND
+6
+Respond only to READ_DATA instructions
+FF FF FE 04 03 10 01 E9
+0
+5
+
+SEND
+7
+Baud Rate to 9600 BPS (ID=0)
+FF FF 00 04 03 04 CF 25
+0
+5
+
+SEND
+8
+Baud Rate to 57600 BPS (ID=0)
+FF FF 00 04 03 04 22 D2
+0
+5
+
+SEND
+9
+Baud Rate to 115200 BPS (ID=0)
+FF FF 00 04 03 04 10 E4
+0
+5
+
+SEND
+10
+Return Delay Time to 200 µs (ID = 0)
+FF FF 00 04 03 05 64 8F
+0
+5
+
+SEND
+11
+Torque Enable (ID=0)
+FF FF 00 04 03 18 01 DF
+0
+5
+
+SEND
+12
+0° and velocity of 057RPM (ID=0)
+FF FF 00 07 03 1E 00 00 00 02 D5
+0
+5
+
+SEND
+13
+180° and velocity of 057RPM (ID=0)
+FF FF 00 07 03 1E 00 02 00 02 D5
+0
+5
+
+SEND
+14
+300° and max velocity  (ID=0)
+FF FF 00 07 03 1E FF 03 FF 03 D3
+0
+5
+
+SEND
+15
+Turn On LED (ID=0)
+FF FF 00 04 03 19 01 DE
+0
+5
+
+SEND
+16
+Turn Off LED (ID=0)
+FF FF 00 04 03 19 00 DF
+0
+5
+

@@ -1,0 +1,11 @@
+<!DOCTYPE script>
+<listeEtapes>
+ <etape num="001" SID="0x0001" data="00 00 00 00 00 00 00 00 00" t="0" />
+ <etape num="001" SID="0x0210" eSID="0x0103" data="000000006" t="0" />
+ <etape num="002" SID="0x0003" data="00 00 00 00 00 00 00 00 01" t="100" />
+ <etape num="003" SID="0x0100" data="02 00 02 00 00 00 00 00 08" t="200" />
+ <etape num="004" SID="0x0102" data="19 21 00 00 00 00 00 00 03" t="0" />
+ <etape num="005" SID="0x0102" data="e7 df 00 00 00 00 00 00 03" t="1000" />
+ <etape num="006" SID="0x0102" eSID="0x0105" data="19 21 00 00 00 00 00 00 03" t="0" />
+ <etape num="007" SID="0x0004" data="000000006" t="0" />
+</listeEtapes>

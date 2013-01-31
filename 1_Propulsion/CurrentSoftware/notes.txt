@@ -1,0 +1,37 @@
+datasheet sortir analogique
+
+il serait interessant de visualiser a l'oscillo la courbe de mouvement du robot pour ajuster le réglage du PID.
+il n'est pas possible de sortir une variable analogique.
+la méthode, évidente (qui est couramment utilisée) consiste à utiliser les PWMs et un filtre passe bas.
+
+on sort l'image de la position souhaitée sur le rapport cyclique d'une PWM HF (par exemple la fréquence actuelle)
+vers un filtre passe bas : 100kOhm * 100nF (fc = 100Hz)... par exemple
+seul gros soucis en vue ; trouver une pwm... les 3 et 4 elles ne sont pas routées !
+on peut sans doute utiliser la carte proto et y rajouter deux fils sur ces sorties PWM3L et PWM4L...
+
+
+
+PIC  -----------   R ----------------------sortie
+						|
+						|
+						C
+						|
+						|
+					  masse
+
+et on obtient la valeur moyenne du signal !
+
+____________________________
+
+autre test interessant et important... :
+utiliser la diode rouge pour mesurer la durée de l'IT
+- éteignez la diode en début d'IT et rallumez la a la fin.
+- si la diode est éteinte a l'oeil, c'est que l'IT est trop longue...
+- avec un oscillo, on peut mesurer ainsi la durée de passage dans la boucle d'IT...
+
+TEST EFFECTUE PAR PIERRE ANTOINE :
+la boucle d'it dure environ 500µs, donc environ 1 dixième du temps... donc c'est cool
+;)
+
+
+

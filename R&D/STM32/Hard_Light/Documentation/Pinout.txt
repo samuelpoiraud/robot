@@ -1,0 +1,10 @@
+1:				GND
+2:				+5V
+3:				CANH
+4:				CANL
+5 - 8: 			4*ADC ou 1*SPI
+9 - 10: 		2*ADC ou 2*Timer
+11 - 12:		2*ADC
+13 - 16:		4*Timer
+17 - 20:		4*GPIO
+

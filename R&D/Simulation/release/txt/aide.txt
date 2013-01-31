@@ -1,0 +1,17 @@
+Version du 02/01/2010 :
+La fenêtre de droite représente le terrain en 2D.
+Click gauche : Placer le robot ( X et Y )
+Click droit : Tourner le robot ( angle )
+Les coordonnées et l'angle sont affichés en bas.
+
+CTRL + Click gauche : Placer le robot adverse (représenté par Wall-E)
+CTRL + Click droit : enlever le robot adverse
+
+A gauche, vous pouvez choisir un ordre de la liste, entrer vos paramètres et cliquer sur envoyer. L'ordre sera envoyé au Robot et au clickodrome.
+Il est aussi possible d'enregistrer cet ordre pour le réutiliser, pour celà, appuyez sur enregistrer.
+
+Pour recevoir le dernier match enregistré par le robot, activez le mode "Replay" dans Edition.
+
+L'éditeur de script permet d'envoyer au robot une séquence d'ordre et est aussi capable d'attendre des réponses du robot et d'agir en conséquence.
+
+L'équipe du Robot ESEO.

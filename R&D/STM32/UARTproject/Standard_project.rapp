@@ -1,0 +1,58 @@
+
+<ApplicationBuild Header="Standard_project" Extern=".\Standard_project.rapp" Path=".\Standard_project.rapp" OutputFile=".\Standard_project.elf" sate="98" >
+	<Options>
+		<Config Header="Standard" >
+			<Set Header="ApplicationBuild" >
+				<Section Header="General" >
+					<Property Header="TargetFamily" Value="ARM" />
+																																																				
+				</Section>
+																																								
+			</Set>
+			<Set Header="Target" >
+				<Section Header="ProcessorARM" >
+					<Property Header="Processor" Value="STM32F107VBT6" />
+					<Property Header="BootMode" Value="0" Removable="1" />
+																									
+				</Section>
+				<Section Header="ToolSetARM" >
+					<Property Header="BuildToolSetARM" Value="ARM\GNU.config" Removable="1" />
+																																																				
+				</Section>
+																			
+			</Set>
+			<Set Header="GCC" >
+				<Section Header="OPTIMIZE" >
+					<Property Header="Optimize" Value="-O2" Removable="1" />
+																																											
+				</Section>
+				<Section Header="WARNINGS" >
+					<Property Header="CONSWARNINGS" Value="-Wall" Removable="1" />
+																																											
+				</Section>
+																																	
+			</Set>
+			<Set Header="LD" >
+				<Section Header="Scripts" >
+					<Property Header="StarterKitLimit" Value="Yes" Removable="1" />
+																																		
+				</Section>
+				<Section Header="Linker" >
+					<Property Header="WARNONCE" Value="-Wl,--warn-once" Removable="1" />
+																									
+				</Section>
+																			
+			</Set>
+										
+		</Config>
+						
+	</Options>
+	<NodeC Path=".\config.c" Header="config.c" Marker="-1" OutputFile=".\config.o" sate="0" />
+	<NodeC Path=".\error.c" Header="error.c" Marker="-1" OutputFile=".\$(NodeName).o" sate="0" />
+	<NodeC Path=".\main.c" Header="main.c" Marker="-1" OutputFile=".\main.o" sate="0" />
+	<NodeC Path=".\utils.c" Header="utils.c" Marker="-1" OutputFile=".\utils.o" sate="0" />
+	<NodeH Path=".\config.h" Header="config.h" Marker="-1" OutputFile="" sate="0" />
+	<NodeH Path=".\error.h" Header="error.h" Marker="-1" OutputFile="" sate="0" />
+	<NodeH Path=".\stm32f10x_conf.h" Header="stm32f10x_conf.h" Marker="-1" OutputFile="" sate="0" />
+	<NodeH Path=".\utils.h" Header="utils.h" Marker="-1" OutputFile="" sate="0" />
+</ApplicationBuild>

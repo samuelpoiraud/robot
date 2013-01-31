@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Bouml (http://bouml.free.fr/) -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="468" height="514" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="322" y="5" width="2" height="30" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="284" y="33" width="40" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="281" y="2" width="41" height="31" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="302" y="6">FenSupprimerParam</text>
+	<line stroke="black" stroke-opacity="1" x1="281" y1="7" x2="322" y2="7" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="282" y="11">parametres</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="282" y="16">supprimer</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="282" y="21">nom</text>
+	<line stroke="black" stroke-opacity="1" x1="281" y1="22" x2="322" y2="22" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="282" y="26">FenSupprimerParam()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="282" y="31">on_supprimer_clicked()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="453" y="55" width="2" height="96" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="419" y="149" width="36" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="416" y="52" width="37" height="97" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="435" y="56">fen2d</text>
+	<line stroke="black" stroke-opacity="1" x1="416" y1="57" x2="453" y2="57" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="61">r_angle</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="66">a_points</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="71">a_pointsMulti</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="76">a_angle</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="81">angleAenvoyer</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="86">a_pointsNumber</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="91">a_pointsNumberMulti</text>
+	<line stroke="black" stroke-opacity="1" x1="416" y1="92" x2="453" y2="92" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="96">fen2d()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="101">sendMessage()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="106">paintEvent()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="111">mousePressEvent()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="116">qt_to_robot()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="121">robot_to_qt()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="126">drawRobot()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="131">deletePoints()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="136">launchPoints()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="141">setPosition()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="417" y="146">setPointMulti()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="186" y="289" width="2" height="30" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="152" y="317" width="36" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="149" y="286" width="37" height="31" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="168" y="290">ReadCANThread</text>
+	<line stroke="black" stroke-opacity="1" x1="149" y1="291" x2="186" y2="291" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="150" y="295">interrompue</text>
+	<line stroke="black" stroke-opacity="1" x1="149" y1="296" x2="186" y2="296" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="150" y="300">run()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="150" y="305">messageRecu()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="150" y="310">messageCANRecu()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="150" y="315">interrompre()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="384" y="152" width="2" height="70" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="350" y="220" width="36" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="347" y="149" width="37" height="71" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="366" y="153">Replay</text>
+	<line stroke="black" stroke-opacity="1" x1="347" y1="154" x2="384" y2="154" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="158">nb_instants</text>
+	<line stroke="black" stroke-opacity="1" x1="347" y1="159" x2="384" y2="159" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="163">sliderDeplace()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="168">getPositionReplay()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="173">Replay()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="178">getInstant()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="183">getTemps()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="188">getPos()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="193">getAngle()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="198">setInstant()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="203">setInstant()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="208">changeMaxSlider()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="213">changeTime()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="348" y="218">sendPositionRobot()</text>
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="169" y1="397" x2="175" y2="391" />
+	<line stroke="black" stroke-opacity="1" x1="169" y1="397" x2="163" y2="391" />
+	<line stroke="black" stroke-opacity="1" x1="169" y1="320" x2="169" y2="397" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="189" y1="302" x2="195" y2="307" />
+	<line stroke="black" stroke-opacity="1" x1="189" y1="302" x2="194" y2="295" />
+	<line stroke="black" stroke-opacity="1" x1="245" y1="301" x2="189" y2="302" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="425" y1="186" x2="419" y2="180" />
+	<line stroke="black" stroke-opacity="1" x1="425" y1="186" x2="419" y2="192" />
+	<line stroke="black" stroke-opacity="1" x1="387" y1="186" x2="425" y2="186" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="387,186 393,180 399,186 393,192" />
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="79" y="19" width="2" height="30" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="29" y="47" width="52" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="26" y="16" width="53" height="31" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="53" y="20">FenSupprimerMessageCAN</text>
+	<line stroke="black" stroke-opacity="1" x1="26" y1="21" x2="79" y2="21" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="27" y="25">messagesCAN</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="27" y="30">supprimer</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="27" y="35">nom</text>
+	<line stroke="black" stroke-opacity="1" x1="26" y1="36" x2="79" y2="36" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="27" y="40">FenSupprimerMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="27" y="45">on_supprimer_clicked()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="242" y="7" width="2" height="40" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="204" y="45" width="40" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="201" y="4" width="41" height="41" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="222" y="8">FenEditer</text>
+	<line stroke="black" stroke-opacity="1" x1="201" y1="9" x2="242" y2="9" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="202" y="13">modifier</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="202" y="18">supprimer</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="202" y="23">ancienAlias</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="202" y="28">nouvelAlias</text>
+	<line stroke="black" stroke-opacity="1" x1="201" y1="29" x2="242" y2="29" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="202" y="33">FenEditer()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="202" y="38">on_modifier_clicked()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="202" y="43">on_supprimer_clicked()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="445" y="174" width="2" height="28" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="429" y="200" width="18" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="426" y="171" width="19" height="29" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" text-anchor="middle" x="436" y="175">&lt;&lt;struct&gt;&gt;</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="436" y="180">Instant</text>
+	<line stroke="black" stroke-opacity="1" x1="426" y1="181" x2="445" y2="181" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="427" y="185">temps</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="427" y="190">pos</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="427" y="195">angle</text>
+	<line stroke="black" stroke-opacity="1" x1="426" y1="196" x2="445" y2="196" />
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="191" y="194" width="2" height="56" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="129" y="248" width="64" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="126" y="191" width="65" height="57" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="159" y="195">FenModifierParam</text>
+	<line stroke="black" stroke-opacity="1" x1="126" y1="196" x2="191" y2="196" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="200">parametres</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="205">modifier</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="210">nom</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="215">type</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="220">taille</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="225">choix</text>
+	<line stroke="black" stroke-opacity="1" x1="126" y1="226" x2="191" y2="226" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="230">FenModifierParam()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="235">on_parametres_currentIndexChanged()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="240">on_type_currentIndexChanged()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="127" y="245">on_modifier_clicked()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="152" y="8" width="2" height="30" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="110" y="36" width="44" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="107" y="5" width="45" height="31" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="130" y="9">FenChangerNumRS232</text>
+	<line stroke="black" stroke-opacity="1" x1="107" y1="10" x2="152" y2="10" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="108" y="14">numPort</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="108" y="19">valider</text>
+	<line stroke="black" stroke-opacity="1" x1="107" y1="20" x2="152" y2="20" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="108" y="24">FenChangerNumRS232()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="108" y="29">sendNumPort()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="108" y="34">on_valider_clicked()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="408" y="6" width="2" height="46" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="356" y="50" width="54" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="353" y="3" width="55" height="47" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="381" y="7">FenAjouterParam</text>
+	<line stroke="black" stroke-opacity="1" x1="353" y1="8" x2="408" y2="8" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="354" y="12">nom</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="354" y="17">type</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="354" y="22">taille</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="354" y="27">ajouter</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="354" y="32">choix</text>
+	<line stroke="black" stroke-opacity="1" x1="353" y1="33" x2="408" y2="33" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="354" y="37">FenAjouterParam()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="354" y="42">on_type_currentIndexChanged()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="354" y="47">on_ajouter_clicked()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="91" y="118" width="2" height="46" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="21" y="162" width="72" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="18" y="115" width="73" height="47" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="55" y="119">FenModifierMessageCAN</text>
+	<line stroke="black" stroke-opacity="1" x1="18" y1="120" x2="91" y2="120" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="19" y="124">messagesCAN</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="19" y="129">modifier</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="19" y="134">nom</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="19" y="139">code</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="19" y="144">parametres</text>
+	<line stroke="black" stroke-opacity="1" x1="18" y1="145" x2="91" y2="145" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="19" y="149">FenModifierMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="19" y="154">on_messagesCAN_currentIndexChanged()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="19" y="159">on_modifier_clicked()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="81" y="173" width="2" height="46" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="43" y="217" width="40" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="40" y="170" width="41" height="47" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="61" y="174">FenEnregistrer</text>
+	<line stroke="black" stroke-opacity="1" x1="40" y1="175" x2="81" y2="175" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="41" y="179">enregistrer</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="41" y="184">code</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="41" y="189">nom</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="41" y="194">parametres</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="41" y="199">nbParametre</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="41" y="204">alias</text>
+	<line stroke="black" stroke-opacity="1" x1="40" y1="205" x2="81" y2="205" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="41" y="209">FenEnregistrer()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="41" y="214">on_enregistrer_clicked()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="74" y="71" width="2" height="36" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="30" y="105" width="46" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="27" y="68" width="47" height="37" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="51" y="72">FenAjouterMessageCAN</text>
+	<line stroke="black" stroke-opacity="1" x1="27" y1="73" x2="74" y2="73" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="28" y="77">nom</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="28" y="82">code</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="28" y="87">parametres</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="28" y="92">ajouter</text>
+	<line stroke="black" stroke-opacity="1" x1="27" y1="93" x2="74" y2="93" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="28" y="97">FenAjouterMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="28" y="102">on_ajouter_clicked()</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="179" y="395">connexion</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="201" y="416">connexion</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="199" y="300">readCANThread</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="296" y="299">envoieDeplacementThread</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="402" y="184">instants</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="399" y="192">[N_MAX]</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="200" y="447">connexion</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="294" y="424">readCANreplayThread</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="187" y="401" width="2" height="100" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="153" y="499" width="36" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="150" y="398" width="37" height="101" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="169" y="402">RS232</text>
+	<line stroke="black" stroke-opacity="1" x1="150" y1="403" x2="187" y2="403" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" text-decoration="underline" x="151" y="407">RX_SIZE</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" text-decoration="underline" x="151" y="412">TX_SIZE</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" text-decoration="underline" x="151" y="417">MAX_WAIT_READ</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="422">m_nId</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="427">m_nBytesWritten</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="432">m_nBytesRead</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="437">g_hCOM</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="442">g_cto</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="447">g_dcb</text>
+	<line stroke="black" stroke-opacity="1" x1="150" y1="448" x2="187" y2="448" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="452">RS232()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="457">~RS232()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="462">getCOMnb()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="467">setCOMnb()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="472">openCOM()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="477">readCOM()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="482">getNbBytesRead()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="487">writeCOM()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="492">getNbBytesWritten()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="151" y="497">closeCOM()</text>
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="190" y1="418" x2="198" y2="417" />
+	<line stroke="black" stroke-opacity="1" x1="190" y1="418" x2="189" y2="409" />
+	<line stroke="black" stroke-opacity="1" x1="245" y1="349" x2="190" y2="418" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="190" y1="449" x2="196" y2="455" />
+	<line stroke="black" stroke-opacity="1" x1="190" y1="449" x2="196" y2="443" />
+	<line stroke="black" stroke-opacity="1" x1="260" y1="449" x2="190" y2="449" />
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="319" y="212" width="2" height="180" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="249" y="390" width="72" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="246" y="209" width="73" height="181" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="283" y="213">FenCAN</text>
+	<line stroke="black" stroke-opacity="1" x1="246" y1="214" x2="319" y2="214" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="218">messagesRecus</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="223">messagesCAN</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="228">listeMessagePredefinis</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="233">parametresSpin</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="238">parametresCombo</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="243">envoyer</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="248">effacer</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="253">envoyer2</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="258">enregistrer</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="263">editer</text>
+	<line stroke="black" stroke-opacity="1" x1="246" y1="264" x2="319" y2="264" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="268">FenCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="273">afficherMessage()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="278">returnNodeMessCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="283">sendAngle()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="288">stopThreadReadCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="293">stopThreadReplay()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="298">trajectoireFinieSignal()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="303">sendPositionRobot()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="308">sendPointMulti()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="313">basculeThreadReplay()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="318">basculeThreadReadCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="323">initialisation()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="328">on_messagesCAN_currentIndexChanged()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="333">on_envoyer_clicked()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="338">on_editer_clicked()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="343">on_envoyer2_clicked()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="348">on_effacer_clicked()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="353">on_enregistrer_clicked()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="358">receiveNumPort()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="363">receiveMessage()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="368">receiveMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="373">trajectoireFinieTrue()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="378">ecritureMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="383">afficherMessageCANString()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="247" y="388">envoiDeplacement()</text>
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="350" y1="301" x2="344" y2="295" />
+	<line stroke="black" stroke-opacity="1" x1="350" y1="301" x2="344" y2="307" />
+	<line stroke="black" stroke-opacity="1" x1="322" y1="301" x2="350" y2="301" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="284" y1="426" x2="290" y2="420" />
+	<line stroke="black" stroke-opacity="1" x1="284" y1="426" x2="278" y2="420" />
+	<line stroke="black" stroke-opacity="1" x1="284" y1="393" x2="284" y2="426" />
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="304" y="430" width="2" height="40" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="264" y="468" width="42" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="261" y="427" width="43" height="41" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="283" y="431">ReadCANreplayThread</text>
+	<line stroke="black" stroke-opacity="1" x1="261" y1="432" x2="304" y2="432" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="262" y="436">interrompue3</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="262" y="441">file</text>
+	<line stroke="black" stroke-opacity="1" x1="261" y1="442" x2="304" y2="442" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="262" y="446">run()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="262" y="451">receiveMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="262" y="456">returnNodeMessCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="262" y="461">sendPositionReplay()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="262" y="466">interrompre()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="313" y="77" width="2" height="82" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="269" y="157" width="46" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="266" y="74" width="47" height="83" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="290" y="78">FenPrincipale</text>
+	<line stroke="black" stroke-opacity="1" x1="266" y1="79" x2="313" y2="79" />
+	<line stroke="black" stroke-opacity="1" x1="266" y1="81" x2="313" y2="81" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="85">FenPrincipale()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="90">givePosition()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="95">creerActions()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="100">basculeReadCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="105">basculeReplay()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="110">aide()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="115">ajouterMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="120">ajouterParametre()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="125">supprimerParametre()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="130">supprimerMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="135">modifierParametre()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="140">modifierMessageCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="145">changerNumRS232()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="150">basculeReadCANReplay()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="267" y="155">modifierMaxSlider()</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="400" y="275" width="2" height="56" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="354" y="329" width="48" height="2" />
+	<rect fill="#ffffc0" stroke="black" stroke-width="1" stroke-opacity="1" x="351" y="272" width="49" height="57" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="376" y="276">EnvoieDeplacementThread</text>
+	<line stroke="black" stroke-opacity="1" x1="351" y1="277" x2="400" y2="277" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="281">points</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="286">pointsNumber</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="291">angle</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="296">trajectoireFinie</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="301">angleAenvoyer</text>
+	<line stroke="black" stroke-opacity="1" x1="351" y1="302" x2="400" y2="302" />
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="306">run()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="311">returnNodeMessCAN()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="316">CANtoString()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="321">ecrireMessage()</text>
+	<text font-family="Helvetica" font-size="3" fill="#000000" xml:space="preserve" x="352" y="326">envoieMessageCANString()</text>
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="84" y1="186" x2="91" y2="189" />
+	<line stroke="black" stroke-opacity="1" x1="84" y1="186" x2="87" y2="178" />
+	<line stroke="black" stroke-opacity="1" x1="265" y1="123" x2="84" y2="186" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="265,123 261,130 253,126 257,119" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="77" y1="90" x2="82" y2="96" />
+	<line stroke="black" stroke-opacity="1" x1="77" y1="90" x2="83" y2="84" />
+	<line stroke="black" stroke-opacity="1" x1="265" y1="113" x2="77" y2="90" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="265,113 258,118 253,111 259,106" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="286" y1="208" x2="292" y2="202" />
+	<line stroke="black" stroke-opacity="1" x1="286" y1="208" x2="280" y2="201" />
+	<line stroke="black" stroke-opacity="1" x1="289" y1="160" x2="286" y2="208" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="289,160 294,166 288,171 282,165" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="346" y1="167" x2="345" y2="158" />
+	<line stroke="black" stroke-opacity="1" x1="346" y1="167" x2="337" y2="167" />
+	<line stroke="black" stroke-opacity="1" x1="316" y1="140" x2="346" y2="167" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="316,140 324,139 324,148 316,148" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="415" y1="103" x2="408" y2="97" />
+	<line stroke="black" stroke-opacity="1" x1="415" y1="103" x2="409" y2="109" />
+	<line stroke="black" stroke-opacity="1" x1="316" y1="114" x2="415" y2="103" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="316,114 321,107 327,112 322,119" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="353" y1="53" x2="344" y2="52" />
+	<line stroke="black" stroke-opacity="1" x1="353" y1="53" x2="352" y2="61" />
+	<line stroke="black" stroke-opacity="1" x1="316" y1="88" x2="353" y2="53" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="316,88 316,79 324,79 324,88" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="300" y1="36" x2="293" y2="41" />
+	<line stroke="black" stroke-opacity="1" x1="300" y1="36" x2="305" y2="42" />
+	<line stroke="black" stroke-opacity="1" x1="296" y1="73" x2="300" y2="36" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="296,73 290,66 297,61 302,67" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="239" y1="48" x2="237" y2="56" />
+	<line stroke="black" stroke-opacity="1" x1="239" y1="48" x2="247" y2="49" />
+	<line stroke="black" stroke-opacity="1" x1="265" y1="82" x2="239" y2="48" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="265,82 256,80 257,72 266,73" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="155" y1="36" x2="157" y2="44" />
+	<line stroke="black" stroke-opacity="1" x1="155" y1="36" x2="163" y2="33" />
+	<line stroke="black" stroke-opacity="1" x1="265" y1="101" x2="155" y2="36" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="265,101 256,103 254,94 262,92" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="94" y1="135" x2="100" y2="140" />
+	<line stroke="black" stroke-opacity="1" x1="94" y1="135" x2="99" y2="128" />
+	<line stroke="black" stroke-opacity="1" x1="265" y1="118" x2="94" y2="135" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="265,118 259,124 253,119 258,112" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="193" y1="190" x2="201" y2="191" />
+	<line stroke="black" stroke-opacity="1" x1="193" y1="190" x2="194" y2="181" />
+	<line stroke="black" stroke-opacity="1" x1="265" y1="136" x2="193" y2="190" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="265,136 263,144 255,143 256,134" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="82" y1="42" x2="85" y2="49" />
+	<line stroke="black" stroke-opacity="1" x1="82" y1="42" x2="89" y2="38" />
+	<line stroke="black" stroke-opacity="1" x1="265" y1="107" x2="82" y2="42" />
+	<polygon fill="#000000" stroke="black" stroke-opacity="1" points="265,107 257,110 253,102 261,99" />
+</g>
+</svg>

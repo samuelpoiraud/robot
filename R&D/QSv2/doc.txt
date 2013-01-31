@@ -1,0 +1,11 @@
+Les IT, de la plus prioritaire à la moins prioritaire sont les suivantes :
+/* 7 */Le timer 0,
+/* 6 */l'IT CAN,
+/* 5 */le timer 1,
+/* 4 */timer 2,
+/* 3 */l'IT UART
+/* 2 */l'IT ADC
+/* 1 */timer 3
+/* 0 */timer 4
+les timers 3 et 4 seront à utiliser pour les ISR 
+dont le temps d'execution dépasse la milliseconde.

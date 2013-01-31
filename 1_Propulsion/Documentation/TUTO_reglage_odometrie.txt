@@ -1,0 +1,55 @@
+Tutoriel: Régler l'Odométrie
+Par Herzaeone
+
+Les coefficients d'Odométrie sont placés au début du fichier _Propulsion_configs.h
+
+Il y a trois types de coefficients à régler : 
+-	ODOMETRY_COEF_TRANSLATION_DEFAULT
+-	ODOMETRY_COEF_ROTATION_DEFAULT
+-	ODOMETRY_COEF_SYM_DEFAULT
+Les deux premiers sont les plus importants.
+
+
+Il faut impérativement régler en premier le coefficient de Translation car les fonctions de rotation sont dépendantes de la rotation et de la translation.
+
+
+Pour régler correctement l’odométrie, il faut dans un premier temps Docklight (téléchargable ici : http://www.docklight.de/ ou sur le SVN).
+Installez Docklight et ouvrez le fichier du SVN : svn\propulsion\Software\test carte asser.ptp
+Branchez vous aux messages CAN, réglez le COM channel  et lancez avec run.
+
+Une liste de messages CAN est déjà réglée à gauche.Il vous suffit de cliquer sur la flèche à gauche du message pour envoyer le message CAN au robot.
+Vous pouvez modifier les valeurs des messages CAN en double cliquant sur le message.
+
+
+
+Attention les messages CAN sont écrits en hexadécimal de la manière suivante : 
+01 AA BB XX XX XX XX XX XX XX XX CC 04
+01: Début du message.
+AA : ID de la carte de destination.
+BB : ID de la fonction.
+XX : Message par groupe d’un octet.
+CC : La taille du message a lire.
+04 : Fin du message.
+
+
+
+# Réglage Odométrie en Translation :
+
+- Calez le robot manuellement sur une paroi du terrain de préférence en direction de la longueur. Placez un réglet à coté du robot.
+- Envoyez le message set position 0 0 0
+- Faites le déplacer en translation grâce à X+=1000 ou X-=1000 (suivant l’orientation) par exemple.
+- Si vous constatez de la différence modifiez la valeur du message CAN : REGLAGE COEFF ODOM TRANSLATION
+- Réitérez l’opération jusqu’à obtenir la valeur la plus exacte.
+
+
+
+# Réglage Odométrie en Rotation :
+
+- Calez le robot manuellement sur une paroi du terrain.
+- Tout en ayant coupé la propulsion, cartes alimentés réglez le zéro par message CAN.
+- Déplacez le manuellement dans une zone dégagée pour la rotation et demandez lui d’effectuer une rotation. Avec  un Go_angle : tour ou autre. De préférence toujours dans le même sens de rotation.
+- Plus le robot a fait de tours, plus la différence est visible!
+- Coupez la propulsion (cartes toujours alimentées) et recalez-le manuellement à sa position de départ : supposée à angle nul.
+- Demandez-lui sa position avec le message Tell_position. L’angle est codé dans le huitième et neuvième octet du message CAN.
+- Suivant la valeur de l’angle donné (son signe) par le robot augmentez ou diminuez la valeur de l’odométrie en rotation.
+- Réitérez l’opération en affinant le coefficient.

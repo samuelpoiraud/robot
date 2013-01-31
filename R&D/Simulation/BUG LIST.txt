@@ -1,0 +1,42 @@
+Non traités :
+
+-----------------------------------------------
+REMARQUE 0: Prise en compte et traitée !
+Il serait très interessant d'exploiter les messages reçus de CARTE_P_ROBOT_FREINE / CARTE_P_ROBOT_ARRIVE et de considérer l'information de position qui y est incluse.
+Le déplacement de l'affichage du robot pourrait ainsi y être fait sans nécessité d'un Auto ASSER_TELL_POSITION... :D
+
+-----------------------------------------------
+OS : WINDOWS XP
+PC de Samuel
+
+-Le double clic ne fonctionne pas sur la liste des messages de gauche ?
+
+
+BUG 0 :
+OS : Windows 7 64 bits edition professionnelle (MSDNAA)
+Système : Dell Precision M4400
+Scénario ayant entrainé le bug :
+-Démarrage du programme simulation.exe (celui dans le dossier release)
+-selection du port série (port 8)
+-démarrage du robot en position bleu, calage via le bouton de la carteP
+-création d'une trajectoire de 7 points et un angle.
+-on clique sur le bouton Lancer
+-On obtient le message Windows simulation.exe a cessé de fonctionné
+-Le robot effectue sa trajectoire de 7 points mais n'effectue pas la rotation finale.
+Informations console : (juste la fin)
+compteur nbrPoint envoyés :i=7
+Envoie Point
+Debut traitement message CAN reçu
+QObject::connect: Cannot queue arguments of type 'QTextCharFormat'
+(Make sure 'QTextCharFormat' is registered using qRegisterMetaType().)
+
+
+-----------------------------------------------
+Traités :
+OS : Windows 7 64 bits edition intégrale Release Client
+Système : Dell Precision M4400
+Bug : quand on clique sur le bouton refresh de la zone de choix du port série, le programme se gèle.
+
+
+-----------------------------------------------
+Non reproductibles :

@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='ISO-8859-15'?>
+<listeMessagePredefini>
+ <messageCANPredefini nom="ASSER_GO_POSITION" alias="GO_320_2777" code="0x0155" >
+  <parametre valeure="0" nom="Config" type="Int" />
+  <parametre valeure="320" nom="X" type="Int" />
+  <parametre valeure="2777" nom="Y" type="Int" />
+  <parametre valeure="0" nom="RAYON DE COURBURE" type="Int" />
+  <parametre valeure="0" nom="VITESSE" type="String" />
+  <parametre valeure="0" nom="DIRECTION" type="String" />
+ </messageCANPredefini>
+ <messageCANPredefini nom="ASSER_GO_ANGLE" alias="azert" code="0x0177" >
+  <parametre valeure="0" nom="Config" type="Int" />
+  <parametre valeure="0" nom="A" type="Int" />
+  <parametre valeure="0" nom="VITESSE" type="String" />
+  <parametre valeure="0" nom="DIRECTION" type="String" />
+ </messageCANPredefini>
+ <messageCANPredefini nom="ASSER_GO_POSITION" alias="2EAZRTY" code="0x0155" >
+  <parametre valeure="0" nom="Config" type="Int" />
+  <parametre valeure="3000" nom="X" type="Int" />
+  <parametre valeure="0" nom="Y" type="Int" />
+  <parametre valeure="0" nom="RAYON DE COURBURE" type="Int" />
+  <parametre valeure="0" nom="VITESSE" type="String" />
+  <parametre valeure="0" nom="DIRECTION" type="String" />
+ </messageCANPredefini>
+ <messageCANPredefini nom="ASSER_GO_POSITION" alias="fdyjfdy" code="0x0155" >
+  <parametre valeure="0" nom="Config" type="Int" />
+  <parametre valeure="0" nom="X" type="Int" />
+  <parametre valeure="0" nom="Y" type="Int" />
+  <parametre valeure="0" nom="RAYON DE COURBURE" type="Int" />
+  <parametre valeure="0" nom="VITESSE" type="String" />
+  <parametre valeure="1" nom="DIRECTION" type="String" />
+ </messageCANPredefini>
+</listeMessagePredefini>

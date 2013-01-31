@@ -1,0 +1,233 @@
+/*
+ *	Club Robot ESEO 2008 - 2010
+ *	Archi'Tech - CHOMP
+ *
+ *	Fichier : avoidance.c
+ *	Package : Carte Principale
+ *	Description : Actions relatives au déplacement avec evitement
+ *	Auteur : Jacen
+ *	Version 20110426
+ */
+
+#include "QS/QS_all.h"
+
+/*	Toutes les fonctions suivantes ont des machines d'état interne à réinitialiser
+ *	entre chaque utilisation. Cette réinitialisation est automatique et s'effectue
+ *	chaque fois que la fonction renvoie un signal de fin, c'est à dire NOT_HANDLED
+ *	END_OK ou END_WITH_TIMEOUT (à l'écriture de ce commentaire. Veuillez consulter
+ *	les commentaires des actions, qui devraient préciser les valeurs de retour des
+ *	actions, au cas par cas.
+ */
+
+#ifndef AVOIDANCE_H
+	#define AVOIDANCE_H
+	
+	#include "asser_types.h"
+
+	#ifdef USE_POLYGON
+		#include "polygon.h"
+	#else
+		#include "Pathfind.h"
+	#endif
+
+	// Macros permettant de symétriser le terrain 
+	#define COLOR_Y(y)		((global.env.color == PURPLE) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
+	#define COLOR_ANGLE(a)	((global.env.color == PURPLE) ? (a) : (-(a)))
+
+	// Macro permettant d'utiliser les courbes ou pas selon USE_ASSER_MULTI_POINT
+	// En effet, on ne fait des courbes que si l'on est en multi-poinrs car sinon 
+	// il est plus rapide de faire une rotation puis une translation
+	#ifdef USE_ASSER_MULTI_POINT
+		#define ASSER_CURVES	1
+	#else
+		#define ASSER_CURVES	0
+	#endif
+
+	typedef enum
+	{
+		END_OK=0,
+		IN_PROGRESS,
+		END_WITH_TIMEOUT,
+		NOT_HANDLED
+	}error_e;
+
+	/* Types d'évitements possibles */
+	typedef enum
+	{
+		NORMAL_WAIT = 0,		// attente normale puis esquive
+		DODGE_AND_WAIT,			// tentative d'évitement immédiate, puis attente
+		DODGE_AND_NO_WAIT,		// tentative d'évitement immédiate, puis NOT_HANDLED
+		NO_DODGE_AND_WAIT,		// attente normale, puis NOT_HANDLED
+		NO_DODGE_AND_NO_WAIT,	// aucune attente, aucune esquive, on détecte, on NOT_HANDLED !
+		NO_AVOIDANCE			// désactive l'évitement
+	} avoidance_type_e;
+	
+	/* Définition du type déplacement */
+	typedef struct
+	{
+		GEOMETRY_point_t point;
+		ASSER_speed_e speed;
+	}displacement_t;
+	
+	/*
+	 * Affecture une trajectoire courbe de la position actuelle. Le robot
+	 * arrive au point x,y avec angle comme incidence. La courbe est divisée
+	 * en plusieurs points (precision = nb de points)
+	 * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT
+	 */
+	error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision);
+	
+	#ifdef USE_POLYGON
+		/**
+		* Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements 
+		* puis seulement avec les notres s'il est impossible de trouver un chemin 
+		*
+		* pre : Etre sur le terrain
+		* post : Robot aux coordonnées voulues
+		* 
+		* param x : Abscisse de la destination
+		* param y : Ordonnée de la destination
+		* param way : sens de déplacement
+		* param speed : vitesse de déplacement
+		* param curve : utilisation ou non des courbes
+		* param element_type : éléments concernés par l'algo de polygones
+		* return IN_PROGRESS : En cours
+		* return END_OK : Terminé
+		* return NOT_HANDLED : Action impossible
+		* return END_WITH_TIMEOUT : Timeout
+		*/
+			error_e goto_polygon_default(Sint16 x, Sint16 y, ASSER_way_e way, ASSER_speed_e speed, Uint8 curve,polygon_elements_type_e element_type);
+
+		/**
+		* Action qui déplace le robot grâce à l'algorithme de polygones 
+		* Les polygones sont construits à partir des valeurs contenues dans le tableau d'élements
+		*
+		* param x : Abscisse de la destination
+		* param y : Ordonnée de la destination
+		* param way : sens de deplacement
+		* param speed : vitesse de deplacement
+		* param curve : utilisation ou non des courbes
+		* param type_elements : type d'éléments utilisés comme polygones
+		*					
+		* return IN_PROGRESS : En cours
+		* return END_OK : Terminé
+		* return NOT_HANDLED : Action impossible
+		* return END_WITH_TIMEOUT : Timeout
+		*/
+		error_e goto_polygon(Sint16 x, Sint16 y, ASSER_way_e way, ASSER_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements);
+
+		error_e goto_node(Uint8 node, ...);
+	#else
+		error_e goto_polygon_default(Sint16 x,...);
+		error_e goto_polygon(Sint16 x,...);
+
+		/**
+		* Amène le robot au noeud spécifié. renvoie NOT_HANDLED si noeud inaccessible
+		*
+		* pre  : le robot doit être à la position global.env.pos
+		* post : la pile ASSER est vidée.
+		* 
+		* param node : noeud de destination
+		* param way : sens de déplacement
+		*
+		* return IN_PROGRESS : En cours
+		* return END_OK : Terminé
+		* return NOT_HANDLED : Action impossible
+		* return END_WITH_TIMEOUT : Timeout
+		*/
+		error_e goto_node (Uint8 node, ASSER_speed_e speed, ASSER_way_e way);
+	#endif /* ndef USE_POLYGON */
+
+	/*
+	 * Envoie le robot à la position spécifiée. renvoie NOT_HANDLED si adversaire en travers du chemin
+	 * pre  : le robot doit être à la position global.env.pos
+	 * post : la pile ASSER est vidée.
+	 * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT, NOT_HANDLED
+	 */
+	error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way);
+
+	/*
+	 * Avance d'une distance d à partir de la position actuelle.
+	 *
+	 * pre    : la position du robot doit être à jour
+	 * post   : la pile asser est vidée
+	 * param d : Distance à parcourir, valeur positive.
+	 * return IN_PROGRESS   : le déplacement est en cours.
+	 * return END_OK		: le robot s'est déplacé de d.
+	 * return NOT_HANDLED   : une des coordonées de destination est négative.
+	 */
+	error_e relative_move (Sint16 d, ASSER_speed_e speed, ASSER_way_e way);
+
+	/*
+	 * Envoie un message CAN à l'asser et attend la reponse
+	 * return IN_PROGRESS   : requete de position envoyée, attente de réponse.
+	 * return END_OK		: la position du robot est à jour
+	 */
+	error_e ACTION_update_position();
+
+	/*
+	 * Envoie un message CAN à l'asser et attend la reponse
+	 * return IN_PROGRESS   : requete d'arret envoyée, attente de réponse.
+	 * return END_OK		: le robot est arrêté et la pile ASSER est vidée
+	 */
+	error_e ACTION_asser_stop();
+
+
+	/***************************** Evitement 2010 **************************/
+
+	/* 
+	* Fonction et merde ya une erreur d'asser 
+	* C'est du made in Christian, faut revoir ça au calme
+	* l'évitement de l'adversaire est plus prioritaire cette année (2011)
+	*/
+	error_e move_colision();
+	
+
+	/***************************** Evitement 2011 **************************/
+
+	/* 
+	* Fonction qui réalise un ASSER_push_goto tout simple avec la gestion de l'évitement (en courbe) 
+	*
+	* pre : Etre sur le terrain
+	* post : Robot aux coordonnées voulues
+	* 
+	* param displacements : deplacements de la trajectoire
+	* param nb_displacement : nombre de deplacements de la trajectoire
+	* param way : sens de déplacement
+	*					
+	* return IN_PROGRESS : En cours
+	* return END_OK : Terminé
+	* return NOT_HANDLED : Action impossible
+	* return END_WITH_TIMEOUT : Timeout
+	*/
+	error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, ASSER_way_e way,
+		avoidance_type_e avoidance_type);
+
+
+typedef enum
+{
+	NORTH_US = 0,
+	NORTH_FOE = 1,
+	SOUTH_US = 2,
+	SOUTH_FOE = 3
+} foe_pos_e;
+
+// Vérifie adversaire dans NORTH_PURPLE, NORTH_RED...
+foe_pos_e AVOIDANCE_where_is_foe();
+
+
+/* 
+* Fonction qui regarde si l'adversaire est devant nous pendant un mouvement, et on l'évite si nécessaire 
+* Elle doit être appelée à la place de STACKS_wait_end_auto_pull (c'est géré dans cette fonction)
+*
+* pre : Etre sur le terrain
+* post : Pile ASSER vidée
+* param : nombre de mouvements chargés dans la pile
+* 				
+* return IN_PROGRESS : En cours
+* return END_OK : Terminé
+* return NOT_HANDLED : Action impossible, ou timeout normal
+* return END_WITH_TIMEOUT : Adversaire rencontré, mais on est arrivé à destination
+*/	
+error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type);
+#endif /* ndef AVOIDANCE_H */

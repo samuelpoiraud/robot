@@ -1,0 +1,201 @@
+[Header]
+MagicCookie={0b13fe8c-dfe0-40eb-8900-6712719559a7}
+Version=1.0
+[File000]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\main.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File001]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\QS_configBits.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File002]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\QS_ports.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File003]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\QS_pwm.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File004]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\QS_timer.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File005]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\QS_uart.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File006]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\EmissionUS.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File007]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\EmissionIR.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File008]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\Synchro.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File009]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\QS_extern_it.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File010]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\QS_global_vars.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File011]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\motor.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File012]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\QS_qei.o
+Folder=Intermediary
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=-g -Wall -W
+TraceCmdString=
+DebugOptions=
+[File013]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\Balise_Emetteur_US.cof
+Folder=Output
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={433C3D55-811D-409D-A6BF-159CF9355B42}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-ld.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=--heap=256 -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem -o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)"
+TraceCmdString=
+DebugOptions=
+[File014]
+Location=M:\___ROBOT\_Codes 2012\balise\Software_Emetteur_US\Balise_Emetteur_US.hex
+Folder=Output
+DeviceName=dsPIC30F6010A
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={433C3D55-811D-409D-A6BF-159CF9355B42}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-ld.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|QS\QS_configBits.c|QS\QS_ports.c|QS\QS_pwm.c|QS\QS_timer.c|QS\QS_uart.c|EmissionUS.c|EmissionIR.c|Synchro.c|QS\QS_extern_it.c|QS\QS_global_vars.c|motor.c|QS\QS_qei.c||<obj>||<lib>|QS\libp30F6010A-coff.a||<lkr>||
+SuiteArgsString=
+ToolArgsString=--heap=256 -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem -o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)"
+TraceCmdString=
+DebugOptions=
+[TOOL_LOC_STAMPS]
+tool_loc{069BD372-6CA0-40D4-BF2F-5DC806D05083}=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+tool_loc{433C3D55-811D-409D-A6BF-159CF9355B42}=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-ld.exe
