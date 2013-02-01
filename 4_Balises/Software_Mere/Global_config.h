@@ -44,7 +44,7 @@
 	
 	#define PORT_C_IO_MASK	0xFFFF
 		
-	#define PORT_D_IO_MASK	0xC8FF	//RD11 en entrée pour test input capture 4.
+	#define PORT_D_IO_MASK	0xC8FF	//RD11, RD14 et RD15 en entrée pour test input capture 4.
 
 	#define PORT_E_IO_MASK	0xFFEA
 		#define SYNCHRO_1	LATEbits.LATE0

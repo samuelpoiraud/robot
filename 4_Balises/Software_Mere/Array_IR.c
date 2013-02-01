@@ -7,7 +7,7 @@
  *	Description : tableaux et fonctions permettant le calcul de la position
  *   				du robot adverse selon les angles mesurés
  *	Auteur : Nirgal
- *	Version 20120219
+ *	Version 201212
  */
 
  

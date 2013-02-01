@@ -143,6 +143,7 @@ void EYES_init(void)
 {
 	Uint16 i;
 	
+	//Le timer 2 est utilisé comme une horloge, pendant les 100ms consacrées à l'adversaire vu.
 	TIMER2_run(150);	// > 100, pour que l'IT ne se déclenche jamais...
 	TIMER3_run_us(1000);	//1ms, pas plus de 4 fronts possible sur cette période.
 
@@ -169,59 +170,100 @@ void EYES_init(void)
 		
 	OpenCapture4(IC_IDLE_CON & IC_TIMER2_SRC & IC_INT_4CAPTURE & IC_EVERY_FALL_EDGE);
 	ConfigIntCapture4(IC_INT_OFF & IC_INT_PRIOR_6);	//Désactivation des IT input capture, on préfère utiliser un timer !
+	
+	OpenCapture7(IC_IDLE_CON & IC_TIMER2_SRC & IC_INT_4CAPTURE & IC_EVERY_FALL_EDGE);
+	ConfigIntCapture7(IC_INT_OFF & IC_INT_PRIOR_6);	//Désactivation des IT input capture, on préfère utiliser un timer !
+	
+	OpenCapture8(IC_IDLE_CON & IC_TIMER2_SRC & IC_INT_4CAPTURE & IC_EVERY_FALL_EDGE);
+	ConfigIntCapture8(IC_INT_OFF & IC_INT_PRIOR_6);	//Désactivation des IT input capture, on préfère utiliser un timer !
 }	
 	
 void _ISR _IC4Interrupt(void)
 {
 	//Ne doit jamais se produire.
-	debug_printf("interrupt input capture\n");
+	debug_printf("interrupt input capture 4\n");
 	IFS1bits.IC4IF = 0;
 }	
+
+void _ISR _IC7Interrupt(void)
+{
+	//Ne doit jamais se produire.
+	debug_printf("interrupt input capture 7\n");
+	IFS1bits.IC4IF = 0;
+}	
+
+void _ISR _IC8Interrupt(void)
+{
+	//Ne doit jamais se produire.
+	debug_printf("interrupt input capture 8\n");
+	IFS1bits.IC4IF = 0;
+}	
+
 
 void _ISR _T3Interrupt(void)
 {
 	Uint8 i;
 	Uint16 buf[10];
-	
-	//ReadCapture4((unsigned int *)&buffer_mother[buffer_index]);
-	while (IC4CONbits.ICBNE)
+	Uint16 * pindex;
+//	LED_RUN = 1;
+
+	pindex = &adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_MOTHER].index;
+	i=0;
+	while (IC4CONbits.ICBNE && i<5)
 	{
-//		adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_MOTHER].buffer[adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_MOTHER].index] = IC4BUF; /* reads the input capture buffer */
-	//	adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_MOTHER].index++;
+		adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_MOTHER].buffer[*pindex] = IC4BUF; /* reads the input capture buffer */
+		*pindex=(*pindex>=99)?99:*pindex+1;
+		i++;
 	}
-	
-	
-	//on place l'index sur la prochaine case vide.
-/*	for(i=0;i<4;i++)
-	{
-		if(buffer_mother[buffer_index] != 0 && buffer_index<400)
-			buffer_index++;		
-		else
-			break;
-	}	
-*/	
 	if(IC4CONbits.ICOV)
+		debug_printf("overflow input capture 4\n"); //Ne doit jamais se produire.
+	
+	
+	pindex = &adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_MIDLE].index;
+	i=0;
+	while (IC7CONbits.ICBNE && i<5)
+	{
+		adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_MIDLE].buffer[*pindex] = IC7BUF; /* reads the input capture buffer */
+		*pindex=(*pindex>=99)?99:*pindex+1;
+		i++;
+	}
+	if(IC7CONbits.ICOV)
+		debug_printf("overflow input capture 7\n"); //Ne doit jamais se produire.
+	
+	
+	pindex = &adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_CORNER].index;
+	i=0;
+	while (IC8CONbits.ICBNE && i<5)
+	{
+		adversaries_eyes_buffers[current_adversary].buffers[BEACON_ID_CORNER].buffer[*pindex] = IC8BUF; /* reads the input capture buffer */
+		*pindex=(*pindex>=99)?99:*pindex+1;
+		i++;
+	}
+	if(IC8CONbits.ICOV)
 		debug_printf("overflow input capture\n"); //Ne doit jamais se produire.
-		
+
+	
+//	LED_RUN = 0;	
 	IFS0bits.T3IF = 0;
 }	
 	
 	void EYES_step(adversary_e new_adversary)
 	{
 		Uint16 i;
+		bool_e b;
 		adversary_e previous_adversary = (new_adversary==ADVERSARY_1)?ADVERSARY_2:ADVERSARY_1;
-
+		LED_RUN = !LED_RUN;
 		TMR2 = 0;	//RAZ de notre horloge...
 		
 		if(current_adversary != new_adversary)	//C'est toujours le cas, sauf peut être au début !
-			BRAIN_IR_task_add((adversary_eyes_buffers_t *)&(adversaries_eyes_buffers[previous_adversary]));
+			b = BRAIN_IR_task_add((adversary_eyes_buffers_t *)&(adversaries_eyes_buffers[previous_adversary]));
 		adversaries_eyes_buffers[previous_adversary].initialized = FALSE;
 		
 		//On vérifie que la structure utilisée actuellement est bien à notre disposition, et initialisée.
 		//Si ce n'est pas le cas, c'est à cause
 		if(adversaries_eyes_buffers[new_adversary].initialized==FALSE)	//N'est jamais censé se produire !
 		{
-			//debug_printf("GRAVE_ERREUR : main bloqué ou trop lent\n");
+			debug_printf("GRAVE_ERREUR : main bloqué ou trop lent\n");
 			EYES_init_adversary_eyes_buffers((adversary_eyes_buffers_t *)&adversaries_eyes_buffers[new_adversary]);	//On initialise tout de même			
 		}
 	

@@ -69,6 +69,8 @@
 	void tests(void)
 	{
 		//ARRAY_US_tests();
+		jeu_test_BRAIN_IR_find_ab();
+		
 	}	
 
 
@@ -187,7 +189,8 @@
 		SYNCHRO_3 = synchro;	//Signal de synchro ! à 1 pendant le premier step...
 		if(synchro)
 		{
-			LED_RUN = !LED_RUN;
+//			LED_RUN = !LED_RUN;
+#warning "rétablir led_run sur synchro"
 		}
 		
 		if(step == 0)

@@ -18,7 +18,6 @@
 		#include "QS/QS_adc.h"
 		#include "QS/QS_can_over_uart.h"
 		#include "QS/QS_extern_it.h"
-		#include "Tableau.h"
 		#include "Beacon_it.h"
 		
 	void Beacon_init(void);

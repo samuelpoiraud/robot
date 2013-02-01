@@ -15,9 +15,10 @@
 
 	void BRAIN_IR_init(void);
  	
- 	void BRAIN_IR_task_add(adversary_eyes_buffers_t * adversary_eyes_buffers);
+ 	bool_e BRAIN_IR_task_add(adversary_eyes_buffers_t * adversary_eyes_buffers);
  	
 	void BRAIN_IR_process_main(void);
+	
 	
 	
 #endif //def BRAIN_US
