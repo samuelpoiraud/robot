@@ -129,8 +129,9 @@
  *****************************************************************/
 
 	
-    #define ACT_AX12 0
+    #define ACT_AX12 0x300
 
+	//Paramètres de ACT_AX12 dans data[0]:
     #define ACT_BALL_GRABBER_GO_UP      1
     #define ACT_BALL_GRABBER_GO_DOWN    2
     #define ACT_BALL_GRABBER_GO_TIDY    3
@@ -138,6 +139,7 @@
     #define ACT_HAMMER_GO_UP            4
     #define ACT_HAMMER_GO_DOWN          5
     #define ACT_HAMMER_GO_TIDY          6
+    //////////////////////////////////////
 
 /*****************************************************************
  *
