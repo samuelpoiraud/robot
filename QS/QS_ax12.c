@@ -46,21 +46,35 @@
 	/** Configuration du timer pour le timeout de réception du status    **/
 	/**********************************************************************/
 
-	#include "QS_timer.h"
-	#include <timer.h>	//Pour DisableIntTx et EnableIntTx
+	#if (!defined(AX12_TIMER_ID) || AX12_TIMER_ID > 4 || AX12_TIMER_ID < 1) && !defined(AX12_USE_WATCHDOG)
+		#error "AX12: AX12_TIMER_ID non défini ou invalide, vous devez choisir le numéro du timer entre 1 et 4 inclus, ou utiliser le watchdog avec AX12_USE_WATCHDOG"
+	#elif defined(AX12_USE_WATCHDOG)
+		#include "QS_watchdog.h"
 
-	#if !defined(AX12_TIMER_ID) || AX12_TIMER_ID > 4 || AX12_TIMER_ID < 1
-		#error "AX12: AX12_TIMER_ID non défini ou invalide, vous devez choisir le numéro du timer entre 1 et 4 inclus"
+		static Uint8 AX12_watchdog_timeout_id;
+		static void AX12_watchdog_timeout_recv();
+
+		#define AX12_TIMER_init() WATCHDOG_init()
+		#define AX12_TIMER_interrupt AX12_watchdog_timeout_recv
+		#define AX12_TIMER_resetFlag()
+		#define AX12_TIMER_start(period_ms) AX12_watchdog_timeout_id = WATCHDOG_create(period_ms, &AX12_watchdog_timeout_recv)
+		#define AX12_TIMER_stop() WATCHDOG_stop(AX12_watchdog_timeout_id)
+		#define AX12_TIMER_DisableIT WATCHDOG_disable_timeout(AX12_watchdog_timeout_id)
+		#define AX12_TIMER_EnableIT WATCHDOG_enable_timeout(AX12_watchdog_timeout_id)
 	#else
+		#include "QS_timer.h"
+		#include <timer.h>	//Pour DisableIntTx et EnableIntTx
+
 		//Pour plus d'info sur la concaténation de variable dans des macros, voir http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation
 		#define AX12_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
 		#define AX12_TEMP_CONCAT(a,b,c) AX12_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
-		#define AX12_TIMER_interrupt AX12_TEMP_CONCAT(_T, AX12_TIMER_ID, Interrupt)
+		#define AX12_TIMER_interrupt _ISR AX12_TEMP_CONCAT(_T, AX12_TIMER_ID, Interrupt)
 		#if AX12_TIMER_ID < 4
-			#define AX12_TIMER_interrupt_flag AX12_TEMP_CONCAT(IFS0bits.T, AX12_TIMER_ID, IF)
+			#define AX12_TIMER_resetFlag() AX12_TEMP_CONCAT(IFS0bits.T, AX12_TIMER_ID, IF) = 0
 		#else
-			#define AX12_TIMER_interrupt_flag AX12_TEMP_CONCAT(IFS1bits.T, AX12_TIMER_ID, IF)
+			#define AX12_TIMER_resetFlag() AX12_TEMP_CONCAT(IFS1bits.T, AX12_TIMER_ID, IF) = 0
 		#endif
+		#define AX12_TIMER_init() TIMER_init()
 		#define AX12_TIMER_start(period_ms) AX12_TEMP_CONCAT(TIMER, AX12_TIMER_ID, _run)(period_ms)
 		#define AX12_TIMER_stop() AX12_TEMP_CONCAT(TIMER, AX12_TIMER_ID, _stop)()
 		#define AX12_TIMER_DisableIT AX12_TEMP_CONCAT(Disable, IntT, AX12_TIMER_ID) //deviens par exemple DisableIntT2
@@ -320,7 +334,7 @@ typedef enum {
 
 // Etat de la machine à états
 typedef enum {
-	AX12_SMS_ReadyToSend,
+	AX12_SMS_ReadyToSend = 0,
 	AX12_SMS_Sending,
 	AX12_SMS_WaitingAnswer
 } AX12_state_machine_state_e;
@@ -341,7 +355,7 @@ typedef struct {
 // Variables globales, toutes les variables sont intialisée a zero, il n'y a pas de {0} ou autre pour eviter les warnings (avec -Wall) et c'est plus simple et pratique de rien mettre que des {{{0}},{0,0},0} et pour eviter d'avoir des warnings car les warnings c'est mal (défini dans l'ainsi C)
 
 static AX12_servo_t AX12_on_the_robot[AX12_NUMBER];	//Tableau de structure contenant les informations liées à chaque AX12
-static AX12_state_machine_t state_machine;	//Machine à états du driver
+static AX12_state_machine_t state_machine = {0};	//Machine à états du driver
 
 //Queue contenant les instructions demandée (ce buffer est géré pas les fonctions/macro AX12_instruction_*, il n'y a qu'un buffer pour tous les AX12)
 static AX12_instruction_buffer AX12_special_instruction_buffer;
@@ -355,7 +369,9 @@ static bool_e AX12_prepare_commands = FALSE;
 static inline Uint16 AX12_decode_value_range(Uint8 mem_addr, bool_e get_max);	//get_max = 1 pour récupérer la valeur max pour une adresse donnée, get_max = 0 pour récupérer le minimum
 static Uint8 AX12_instruction_packet_calc_checksum(AX12_instruction_packet_t* instruction_packet);
 static Uint8 AX12_get_instruction_packet(Uint8 byte_offset, AX12_instruction_packet_t* instruction_packet);				//Renvoi l'octet d'une instruction a envoyer
+#ifdef AX12_STATUS_RETURN_CHECK_CHECKSUM
 static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packet);
+#endif
 static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, AX12_status_packet_t* status_packet);	//retourne FALSE si le paquet est non valide, sinon TRUE
 static void AX12_state_machine(AX12_state_machine_event_e event);
 static void AX12_UART2_init(Uint32 uart_speed);
@@ -695,6 +711,7 @@ static Uint8 AX12_get_instruction_packet(Uint8 byte_offset, AX12_instruction_pac
 	return 0;
 }
 
+#ifdef AX12_STATUS_RETURN_CHECK_CHECKSUM
 static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packet) {
 	Uint8 checksum = 0;
 	Uint8 packet_length = status_packet->size - 4;
@@ -719,6 +736,7 @@ static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packe
 
 	return ~checksum;
 }
+#endif
 
 static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, AX12_status_packet_t* status_packet)
 {
@@ -782,8 +800,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 	#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 		//Pour le deboggage (avec debug_printf à la fin de l'envoi/reception d'un paquet)
-		static Uint8 AX12_UART2_reception_buffer[MAX_STATUS_PACKET_SIZE] = {0};
-		int i;
+		static Uint8 AX12_UART2_reception_buffer[MAX_STATUS_PACKET_SIZE*2] = {0};
+		Uint8 i, pos;
 	#endif
 
 //sécurisation des appels à cette fonction lorsque event == AX12_SME_NoEvent pour eviter que l'état AX12_SMS_ReadyToSend soit exécuté plusieurs fois
@@ -829,6 +847,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						debug_printf(" %02x", AX12_get_instruction_packet(i, &state_machine.current_instruction));
 					debug_printf("\n");
 				#endif
+ 
 
 				AX12_DIRECTION_PORT = TX_DIRECTION;
 
@@ -855,6 +874,9 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						while(!U2STAbits.TRMT);
 
 						AX12_DIRECTION_PORT = RX_DIRECTION;
+						U2STAbits.OERR = 0;
+						U2STAbits.FERR = 0;
+						U2STAbits.PERR = 0;
 						state_machine.state = AX12_SMS_WaitingAnswer;
 						AX12_TIMER_start(AX12_STATUS_RETURN_TIMEOUT);	//Pour le timeout de reception, ne devrait pas arriver
 					}
@@ -864,6 +886,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 							for(i=0; i<MAX_STATUS_PACKET_SIZE; i++)
 								AX12_UART2_reception_buffer[i] = 0;
+							pos = 0;
 						#endif
 						state_machine.state = AX12_SMS_ReadyToSend;
 						AX12_state_machine(AX12_SME_NoEvent);
@@ -881,15 +904,14 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				// Stockage de la réponse dans un buffer, si toute la réponse alors mise à jour des variables du driver et state = AX12_SMS_ReadyToSend avec éxécution
 
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
-				AX12_UART2_reception_buffer[state_machine.receive_index] = getcUART2();
+				AX12_UART2_reception_buffer[pos] = getcUART2();
 
-				if(!AX12_update_status_packet(AX12_UART2_reception_buffer[state_machine.receive_index], state_machine.receive_index, &status_response_packet))
+				if(!AX12_update_status_packet(AX12_UART2_reception_buffer[pos++], state_machine.receive_index, &status_response_packet))
 				#else
-				if(!AX12_update_status_packet(getcUART2(), state_machine.receive_index, &status_response_packet))
+				Uint8 data_byte = getcUART2();
+				if(!AX12_update_status_packet(data_byte, state_machine.receive_index, &status_response_packet))
 				#endif
 				{
-					//state_machine.receive_index = 0;	//si le paquet n'est pas valide, on reinitialise la lecture de paquet
-					state_machine.receive_index++;
 					if(U2STAbits.OERR)
 						debug_printf("AX12: OERR\n");
 					if(U2STAbits.FERR)
@@ -900,6 +922,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					U2STAbits.OERR = 0;
 					U2STAbits.FERR = 0;
 					U2STAbits.PERR = 0;
+					state_machine.receive_index = 0;	//si le paquet n'est pas valide, on reinitialise la lecture de paquet
 					break;
 				}
 				state_machine.receive_index++;
@@ -951,15 +974,15 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 			if(event == AX12_SME_Timeout)
 			{
 				AX12_TIMER_stop();
-				AX12_instruction_queue_next();
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
-					debug_printf("AX12 Rx:");
-					for(i = 0; i<MAX_STATUS_PACKET_SIZE; i++)
+					debug_printf("AX12 timeout Rx:");
+					for(i = 0; i<MAX_STATUS_PACKET_SIZE*2; i++)
 						debug_printf(" %02x", AX12_UART2_reception_buffer[i]);
 					debug_printf("\n");
 				#endif
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 0;
+				AX12_instruction_queue_next();
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
 			}
@@ -1060,10 +1083,10 @@ void _ISR AX12_UART2_TXInterrupt(void)
 	AX12_state_machine(AX12_SME_TxInterrupt);
 }
 
-void _ISR AX12_TIMER_interrupt()
+void AX12_TIMER_interrupt()
 {
 	AX12_state_machine(AX12_SME_Timeout);
-	AX12_TIMER_interrupt_flag = 0;
+	AX12_TIMER_resetFlag();
 }
 
 /**************************************************************************/
@@ -1079,7 +1102,7 @@ void AX12_init() {
 		return;
 
 	AX12_UART2_init(AX12_UART_BAUDRATE);
-	TIMER_init();
+	AX12_TIMER_init();
 	AX12_DIRECTION_PORT = RX_DIRECTION;
 
 	AX12_instruction_async_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
