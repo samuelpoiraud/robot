@@ -55,7 +55,23 @@
 	// Files
 	#define CLOCK_TIMER_run		TIMER3_run
 	#define CLOCK_TIMER_isr		_T3Interrupt
-	#define CLOCK_TIMER_flag	IFS0bits.T3IF		
+	#define CLOCK_TIMER_flag	IFS0bits.T3IF
+
+/* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */
+	#define LONGHAMMER_DCMOTOR_ID           0		//Utilisé pour le module DCMotor
+	#define LONGHAMMER_SENSOR_ADC_ID        0		//Utilisé par ADC_getValue(x)
+	#define LONGHAMMER_ASSER_KP             2
+	#define LONGHAMMER_ASSER_KI             0
+	#define LONGHAMMER_ASSER_KD             0
+	#define LONGHAMMER_TARGET_POS_DOWN      0
+	#define LONGHAMMER_TARGET_POS_UP        300
+	#define LONGHAMMER_TARGET_POS_PARKED    0		//Position quand non utilisé (doit assurer un diamètre du robot minimal)
+	#define LONGHAMMER_DCMOTOR_PWM_NUM      1		//PWM1
+	#define LONGHAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
+	#define LONGHAMMER_DCMOTOR_PORT_WAY_BIT 0
+	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY0 50		//en %
+	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 50		//en %
+/********************************************************************************/
 
 /* Entrées analogiques: attention à la renumérotation des entrées... */	
 	#define USE_ANALOG_EXT_VREF
