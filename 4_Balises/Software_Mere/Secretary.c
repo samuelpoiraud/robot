@@ -124,13 +124,13 @@ void SECRETARY_process_main(void)
 		module_id_e module_id;
 		CAN_msg_t msg;
 		msg.sid = (us_ir)?BEACON_ADVERSARY_POSITION_US_ARROUND_AREA:BEACON_ADVERSARY_POSITION_IR_ARROUND_AREA;
-		msg.size = 0;
+		msg.size = 6;
 		msg.data[0] = adversary;
 		msg.data[1] = fiability;
-		msg.data[2] = LOWINT(x);
-		msg.data[3] = HIGHINT(x);
-		msg.data[4] = LOWINT(y);
-		msg.data[5] = HIGHINT(y);
+		msg.data[2] = HIGHINT(x);
+		msg.data[3] = LOWINT(x);
+		msg.data[4] = HIGHINT(y);
+		msg.data[5] = LOWINT(y);
 		
 		//On envoie le message à tout le monde sur le réseau XBEE 
 		// (la fonction CANMsgToXBee ne fera rien pour des envois vers nous même... ou vers une destination non opérationelle !)
