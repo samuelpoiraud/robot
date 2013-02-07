@@ -26,6 +26,7 @@
 			DCM_WORKING,
 			DCM_TIMEOUT
 		}working_state_e;
+		typedef working_state_e DCM_working_state_e;	//Précise de quel module on parle avec working_state_e, garde la compatibilité avec l'ancien nom.
 
 		typedef struct
 		{

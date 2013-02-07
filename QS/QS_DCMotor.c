@@ -296,6 +296,7 @@ Envoie un retour CAN / signal de fin de parcours
 -----------------------------------------*/
 static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 error)
 {
+	/* //Désactivé
 	#ifdef USE_CAN
 		// Préparation
 		CAN_msg_t msg;
@@ -304,8 +305,9 @@ static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 
 		msg.data[1] = pos;
 		msg.size = 2;
 		// Envoi
-		//CAN_send(&msg);
+		CAN_send(&msg);
 	#endif
+	//*/
 }
 
 #endif /* def USE_DCMOTOR */
