@@ -522,18 +522,34 @@
 		Demande de désactivation d'envois périodiques de la position adverse.
 	*/
 	
+	//Balises autour du terrain avec réception InfraRouge
+	#define BEACON_ADVERSARY_POSITION_IR_ARROUND_AREA		0x252	
+	//Balises autour du terrain avec réception UltraSon
+	#define BEACON_ADVERSARY_POSITION_US_ARROUND_AREA		0x253
+		/* Pour ces deux messages, les arguments sont :
+			(size = 6)
+		0:	bool_e	adversary		0 pour l'adversaire 1, 1 pour l'adversaire 2.
+		1:	Uint8	fiability		0 si la valeur renvoyée est considérée comme fiable
+		2-3:Sint16	x
+		4-5:Sint16 	y
+		*/
+		
+	
 	/* Carte balises vers carte stratégie */
-	#define BEACON_ADVERSARY_POSITION_IR
+	#define BEACON_ADVERSARY_POSITION_IR	0x250
 	/*
 		arguments (size = 8) :
-		Uint8	octet d'erreur		(VOIR dESCRIPTION DES ERREURS CI DESSOUS !)			
-		Sint16	angle de vue de l'adversaire [rad/4096] (de -PI4096 à PI4096)
-		Uint8	distance de vue de l'adversaire [cm] (ATTENTION, unité = cm !!! donc maximum = 2,55m)
-		Sint16	position adverse x	[mm]	(ATTENTION, peut être négatif si on le voit prêt de la bordure avec une petite erreur...)
-		Sint16  position adverse y	[mm]	(idem)
+		Uint8	ADV1 	octet d'erreur		(VOIR DESCRIPTION DES ERREURS CI DESSOUS !)			
+		Sint16	ADV1 	angle de vue de l'adversaire [rad/4096] (de -PI4096 à PI4096)
+		Uint8	ADV1 	distance de vue de l'adversaire [cm] (ATTENTION, unité = cm !!! donc maximum = 2,55m, un écretage est réalisé)
+		
+		Uint8	ADV2 	octet d'erreur		(VOIR DESCRIPTION DES ERREURS CI DESSOUS !)			
+		Sint16	ADV2 	angle de vue de l'adversaire [rad/4096] (de -PI4096 à PI4096)
+		Uint8	ADV2 	distance de vue de l'adversaire [cm] (ATTENTION, unité = cm !!! donc maximum = 2,55m, un écretage est réalisé)
+		
 	*/
 
-	#define BEACON_ADVERSARY_POSITION_US
+	#define BEACON_ADVERSARY_POSITION_US	0x251
 	/*
 		arguments (size = 2) :
 		Uint8	octet d'erreur		(VOIR dESCRIPTION DES ERREURS CI DESSOUS !)			
