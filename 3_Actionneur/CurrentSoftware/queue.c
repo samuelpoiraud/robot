@@ -106,13 +106,15 @@ queue_id_t QUEUE_create()
 	{
 		if(!(queues[i].used))
 			break;
-	}	
+	}
+
+	if(i == NB_QUEUE) return QUEUE_CREATE_FAILED;
 
 	queues[i].head = 0;
 	queues[i].tail = 0;
 	queues[i].used = TRUE;
 
-	return (i!=NB_QUEUE)?i:QUEUE_CREATE_FAILED;	
+	return i;
 }
 
 void QUEUE_run()
