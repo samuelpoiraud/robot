@@ -19,9 +19,9 @@
 	typedef enum 
 	{
 		BALL_GRABBER=0,
-                HAMMER,
-
-                NB_ACT
+		HAMMER,
+		QUEUE_ACT_LongHammer,	//avec QUEUE devant, n'importe ou dans le code on sait que ça fait référence à un actionneur lié à queue.h/c
+		NB_ACT
 		
 	}act_e;
 	
