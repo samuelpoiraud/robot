@@ -11,8 +11,8 @@
 #ifndef LONG_HAMMER_H
 #define	LONG_HAMMER_H
 
-#include "QS/QS_all.h"
-#include "queue.h"
+#include "../QS/QS_all.h"
+#include "../queue.h"
 
 /** Initialisation du gestionnaire du bras.
  *
