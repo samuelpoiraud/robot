@@ -9,10 +9,10 @@
  */
 
 #include "Long_hammer.h"
-#include "QS/QS_DCMotor.h"
-#include "QS/QS_adc.h"
-#include "QS/QS_CANmsgList.h"
-#include "QS/QS_can.h"
+#include "../QS/QS_DCMotor.h"
+#include "../QS/QS_adc.h"
+#include "../QS/QS_CANmsgList.h"
+#include "../QS/QS_can.h"
 
 typedef enum {
 	LH_CMD_GoDown = 0,
@@ -104,10 +104,10 @@ void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(LONGHAMMER_DCMOTOR_ID);
 			if(asserState == DCM_TIMEOUT) {
-				CAN_msg_t timeoutMsg;
 
 				//Envoi du message de timeout
 				/*
+				CAN_msg_t timeoutMsg;
 				timeoutMsg.sid = ACT_LONGHAMMER_RESULT;
 				timeoutMsg.data[0] = ACT_LONGHAMMER_TIMEOUT;
 				timeoutMsg.size = 1;
