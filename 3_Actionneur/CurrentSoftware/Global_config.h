@@ -1,108 +1,56 @@
 /*
- *	Club Robot ESEO 2010 - 2011
- *	Check Norris
+ *	Club Robot ESEO 2010 - 2013
+ *	Krusty & Tiny
  *
  *  Fichier : Global_config.h
  *  Package : Actionneur
- *  Description : Configuration de la carte actionneur
+ *  Description : Configuration des carte actionneur COMMUNE entre les robots
  *  Auteur : Aurélien
- *  Version 20110225
+ *  Version 20130208
+ *  Robot : Tous
  */
 
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
-	#include "QS/QS_types.h"
 
 //	#define VERBOSE_MODE
 
 	/* ID de la carte: cf le type cartes_e de QS_types.h */
 	#define I_AM CARTE_ACT		//A voir avec Gwenn pour changer
 	#define I_AM_CARTE_ACT
+
+	/** Choix du robot cible. Une seule définition n'est possible, commentez l'autre.
+	 * Si I_AM_ROBOT_KRUSTY est défini, le code spécifique au robot est pris dans le dossier Krusty.
+	 * Si I_AM_ROBOT_TINY est défini, le code  sépcifique au robot est pris dans le dossier Tiny.
+	 */
+	#define I_AM_ROBOT_KRUSTY
+	//#define I_AM_ROBOT_TINY
 	
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
 	#define FREQ_10MHZ
-	
-	/* Les instructions ci dessous définissent le comportement des
-	 * entrees sorties du pic. une configuration en entree correspond
-	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
-	 * 0 (Output).
-	 * Toute connection non utilisee doit etre configuree en entree
-	 * (risque de griller ou de faire bruler le pic) 
-	 */
 
-	#define PORT_A_IO_MASK	0xFFFF		
-	#define PORT_B_IO_MASK	0xFFFF
-	#define PORT_C_IO_MASK	0xFFFF
-	#define PORT_D_IO_MASK	0xC0FF
-	#define PORT_E_IO_MASK	0xFF80
-		
-	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFFF3 //Pour avoir la masse sur les switch ascenceur
+	 // DEFINIR LES PORTS DANS Tiny/Global_config.h ou Krusty/Global_config.h selon le robot !
 
-/* Definition des connectiques capteurs et actionneurs de Check Norris */
+/* Definition des connectiques capteurs et actionneurs COMMUN à Tiny et Krusty */
 
 
 /* Actionneurs */
-/*config ax12 a revoir pour le Direction port*/
-        #define USE_AX12_SERVO
-        #define AX12_NUMBER 3
-        #define AX12_TIMER_ID 2
-        #define AX12_DIRECTION_PORT LATEbits.LATE6 // revoir
 
-        #define BALL_GRABBER_ID_SERVO (Uint8) 2
-        #define HAMMER_ID_SERVO  (Uint8) 1
+/* AX-12 */
+//TODO: a déplacer dans Krusty/Global_config.h ou Tiny/Global_config.h
+	#define USE_AX12_SERVO
+	#define AX12_NUMBER 3
+	#define AX12_TIMER_ID 2
+	#define AX12_DIRECTION_PORT LATGbits.LATG8
+
+	#define BALL_GRABBER_ID_SERVO (Uint8) 2
+	#define HAMMER_ID_SERVO  (Uint8) 1
+//Fin TO DO
 
 	// Files
 	#define CLOCK_TIMER_run		TIMER3_run
 	#define CLOCK_TIMER_isr		_T3Interrupt
 	#define CLOCK_TIMER_flag	IFS0bits.T3IF
-
-/* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */
-	#define LONGHAMMER_DCMOTOR_ID           0		//Utilisé pour le module DCMotor
-	#define LONGHAMMER_SENSOR_ADC_ID        0		//Utilisé par ADC_getValue(x)
-	#define LONGHAMMER_ASSER_KP             2
-	#define LONGHAMMER_ASSER_KI             0
-	#define LONGHAMMER_ASSER_KD             0
-	#define LONGHAMMER_TARGET_POS_DOWN      0
-	#define LONGHAMMER_TARGET_POS_UP        300
-	#define LONGHAMMER_TARGET_POS_PARKED    0		//Position quand non utilisé (doit assurer un diamètre du robot minimal)
-	#define LONGHAMMER_DCMOTOR_PWM_NUM      1		//PWM1
-	#define LONGHAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
-	#define LONGHAMMER_DCMOTOR_PORT_WAY_BIT 0
-	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY0 50		//en %
-	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 50		//en %
-/********************************************************************************/
-
-/* Entrées analogiques: attention à la renumérotation des entrées... */	
-	#define USE_ANALOG_EXT_VREF
-	
-	#define USE_AN2
-	#define POTAR_CLAMP_BACK	0
-	#define USE_AN9
-	#define TELEMETER_FRONT_LEFT_ADC 1
-	#define USE_AN10
-	#define TELEMETER_FRONT_RIGHT_ADC 2
-	#define USE_AN11
-	#define POTAR_CLAMP_FRONT 3
-	#define USE_AN12
-	#define CURRENT_CLAMP_BACK  4
-	#define USE_AN13
-	#define CURRENT_CLAMP_FRONT 5
-	#define USE_AN14
-	#define TELEMETER_BACK_RIGHT_ADC 6	
-	#define USE_AN15
-	#define TELEMETER_BACK_LEFT_ADC	7	
-	
-/* Capteurs */
-	
-	//Configuration des télémètres choisie (à voir dans telemeter.h)
-	#define TELE_CONFIG TELE_CONFIG_2
-
-	
-/*QEI sur IT*/
-	#define USE_QEI_ON_IT
-	#define QEI_ON_IT_QA		1
-	#define QEI_ON_IT_QB		2
 	
 /* CAN */
 	#define USE_CAN
@@ -113,30 +61,27 @@
 	#define USE_UART1RXINTERRUPT
 	#define UART_RX_BUF_SIZE	12
 	
-/*Bouton*/
+/* Bouton */
  #define BUTTONS_TIMER 4
  #define USE_BUTTONS
-	
-/* Réglages PWM */
-	//#define DISABLE_PWM4H
-	#define FREQ_PWM_20KHZ
-	
-	/* asservissement en position de moteurs CC */
-	/* déclarer l'utilisation du pilote */
-	#define USE_DCMOTOR
-	/* timer utilisé pour l'asservissement (1, 2, ou 3) */
-	#define DCM_TIMER			1
-	/* définir le nombre d'actionneurs asservis */
-	#define DCM_NUMBER			6 // A voir en fonction du futur asservissement en courant
-	/* Période d'asservisement (en ms) */
-	#define DCM_TIMER_PERIOD	8
-	/* Seuil d'acceptation d'arrivée */
-	#define DCM_EPSILON			8
-	/* nombre maximum de positions à gérer par moteur */
-	#define DCMOTOR_NB_POS		5
 
 /* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
 //	#define FAST_COS_SIN
 //	#define COS_SIN_16384
+
+
+
+
+
+//Test et inclusion des configs spécifiques au robot
+#if (defined(I_AM_ROBOT_KRUSTY) && defined(I_AM_ROBOT_TINY)) || (!defined(I_AM_ROBOT_KRUSTY) && !defined(I_AM_ROBOT_TINY))
+#error "Veuillez définir I_AM_ROBOT_KRUSTY ou I_AM_ROBOT_TINY selon le robot cible."
+#endif
+#if defined(I_AM_ROBOT_KRUSTY)
+#include "./Krusty/KGlobal_config.h"
+#endif
+#if defined(I_AM_ROBOT_TINY)
+#include "./Tiny/TGlobal_config.h"
+#endif
 
 #endif /* ndef GLOBAL_CONFIG_H */

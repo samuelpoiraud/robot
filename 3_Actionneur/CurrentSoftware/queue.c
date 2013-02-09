@@ -26,7 +26,7 @@
 typedef struct{
 	action_t action[QUEUE_SIZE];
 	Sint16 arg[QUEUE_SIZE];
-	act_e act[QUEUE_SIZE];
+	QUEUE_act_e act[QUEUE_SIZE];
 	queue_size_t head;
 	queue_size_t tail;
 	time_t initial_time_of_current_action;
@@ -92,7 +92,7 @@ Sint16 QUEUE_get_arg(queue_id_t queue_id)
 	return queues[queue_id].arg[queues[queue_id].head];
 }		
 
-act_e QUEUE_get_act(queue_id_t queue_id)
+QUEUE_act_e QUEUE_get_act(queue_id_t queue_id)
 {
 	assert((queue_id < NB_QUEUE) && (queues[queue_id].used));
 	return queues[queue_id].act[queues[queue_id].head];
@@ -134,7 +134,7 @@ void QUEUE_run()
 }
 
 
-void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,act_e optionnal_act)
+void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,QUEUE_act_e optionnal_act)
 {
 	queue_t* this=&(queues[queue_id]);
 	//la file doit êre affectée
