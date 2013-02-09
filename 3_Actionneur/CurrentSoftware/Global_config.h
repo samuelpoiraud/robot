@@ -22,8 +22,10 @@
 	/** Choix du robot cible. Une seule définition n'est possible, commentez l'autre.
 	 * Si I_AM_ROBOT_KRUSTY est défini, le code spécifique au robot est pris dans le dossier Krusty.
 	 * Si I_AM_ROBOT_TINY est défini, le code  sépcifique au robot est pris dans le dossier Tiny.
+	 * Pour ceux qui veulent, il est possible de prédéfinir PREDEF_BUILD_TINY ou PREDEF_BUILD_KRUSTY avec le switch -DPREDEF_BUILD_TINY ou -DPREDEF_BUILD_KRUSTY de gcc, permet la creation de plusieurs target dans mplab X au moins.
+	 * PREDEF_BUILD_TINY et PREDEF_BUILD_KRUSTY sont prioritaire sur la définition manuelle.
 	 */
-	#define I_AM_ROBOT_KRUSTY
+	//#define I_AM_ROBOT_KRUSTY
 	//#define I_AM_ROBOT_TINY
 	
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
@@ -71,7 +73,21 @@
 
 
 
-
+#if defined(PREDEF_BUILD_KRUSTY)
+# ifndef I_AM_ROBOT_KRUSTY
+#  define I_AM_ROBOT_KRUSTY
+# endif
+# ifdef I_AM_ROBOT_TINY
+#  undef I_AM_ROBOT_TINY
+# endif
+#elif defined(PREDEF_BUILD_TINY)
+# ifndef I_AM_ROBOT_TINY
+#  define I_AM_ROBOT_TINY
+# endif
+# ifdef I_AM_ROBOT_KRUSTY
+#  undef I_AM_ROBOT_KRUSTY
+# endif
+#endif
 
 //Test et inclusion des configs spécifiques au robot
 #if (defined(I_AM_ROBOT_KRUSTY) && defined(I_AM_ROBOT_TINY)) || (!defined(I_AM_ROBOT_KRUSTY) && !defined(I_AM_ROBOT_TINY))
