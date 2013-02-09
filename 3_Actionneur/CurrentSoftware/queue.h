@@ -16,14 +16,16 @@
 
 #include "clock.h"
 
+	//TODO: A deporter dans *Global_vars_types.h
 	typedef enum 
 	{
 		BALL_GRABBER=0,
 		HAMMER,
-		QUEUE_ACT_LongHammer,	//avec QUEUE devant, n'importe ou dans le code on sait que ça fait référence à un actionneur lié à queue.h/c
+		QUEUE_ACT_BallLauncher,	//avec QUEUE devant, n'importe ou dans le code on sait que ça fait référence à un actionneur lié à queue.h/c
+		QUEUE_ACT_LongHammer,
 		NB_ACT
 		
-	}act_e;
+	} QUEUE_act_e;
 	
 typedef Uint8 queue_size_t;
 typedef Uint8 queue_id_t;
@@ -52,7 +54,7 @@ void QUEUE_init();
 Sint16 QUEUE_get_arg(queue_id_t queue_id);
 
 /*Renvoie l'actionneur utilisé*/
-act_e QUEUE_get_act(queue_id_t queue_id);
+QUEUE_act_e QUEUE_get_act(queue_id_t queue_id);
 
 /*Renvoie si la file rentrée en paramètre est disponible*/
 bool_e is_available(queue_id_t queue_id);
@@ -64,7 +66,7 @@ queue_id_t QUEUE_create();
 void QUEUE_run();
 
 /*Ajout d'une action dans une file*/
-void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,act_e optionnal_act);
+void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,QUEUE_act_e optionnal_act);
 
 /* Retire la fonction en tete de file et reinitialise la suivante. */
 void QUEUE_behead(queue_id_t queue_id);

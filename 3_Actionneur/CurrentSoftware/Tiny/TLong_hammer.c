@@ -1,14 +1,17 @@
 /*  Club Robot ESEO 2012 - 2013
- *	Krusty & Tiny
+ *	Tiny
  *
  *	Fichier : Long_hammer.c
  *	Package : Carte actionneur
  *	Description : Gestion du marteau appuyant sur les bougies du haut
  *  Auteur : Alexis
  *  Version 20130207
+ *  Robot : Tiny
  */
 
-#include "Long_hammer.h"
+#include "TLong_hammer.h"
+#ifdef I_AM_ROBOT_TINY
+
 #include "../QS/QS_DCMotor.h"
 #include "../QS/QS_adc.h"
 #include "../QS/QS_CANmsgList.h"
@@ -45,6 +48,7 @@ void LONGHAMMER_init() {
 	long_hammer_config.way_bit_number = LONGHAMMER_DCMOTOR_PORT_WAY_BIT;
 	long_hammer_config.way0_max_duty = LONGHAMMER_DCMOTOR_MAX_PWM_WAY0;
 	long_hammer_config.way1_max_duty = LONGHAMMER_DCMOTOR_MAX_PWM_WAY1;
+	long_hammer_config.timeout = 2000; //FIXME: Utiliser une valeur correcte (en ms)
 }
 
 void LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
@@ -55,7 +59,7 @@ void LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 				 queueId = QUEUE_create();
 				 assert(queueId != QUEUE_CREATE_FAILED);
 				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, LONGHAMMER_run_command, LH_CMD_GoDown, QUEUE_ACT_LongHammer);
+				 QUEUE_add(queueId, &LONGHAMMER_run_command, LH_CMD_GoDown, QUEUE_ACT_LongHammer);
 				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_LongHammer);
 				 break;
 
@@ -63,7 +67,7 @@ void LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 				 queueId = QUEUE_create();
 				 assert(queueId != QUEUE_CREATE_FAILED);
 				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, LONGHAMMER_run_command, LH_CMD_GoUp, QUEUE_ACT_LongHammer);
+				 QUEUE_add(queueId, &LONGHAMMER_run_command, LH_CMD_GoUp, QUEUE_ACT_LongHammer);
 				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_LongHammer);
 				 break;
 
@@ -71,7 +75,7 @@ void LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 				 queueId = QUEUE_create();
 				 assert(queueId != QUEUE_CREATE_FAILED);
 				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, LONGHAMMER_run_command, LH_CMD_Park, QUEUE_ACT_LongHammer);
+				 QUEUE_add(queueId, &LONGHAMMER_run_command, LH_CMD_Park, QUEUE_ACT_LongHammer);
 				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_LongHammer);
 				 break;
 
@@ -79,12 +83,12 @@ void LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 				 queueId = QUEUE_create();
 				 assert(queueId != QUEUE_CREATE_FAILED);
 				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, LONGHAMMER_run_command, LH_CMD_StopAsser, QUEUE_ACT_LongHammer);
+				 QUEUE_add(queueId, &LONGHAMMER_run_command, LH_CMD_StopAsser, QUEUE_ACT_LongHammer);
 				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_LongHammer);
 				 break;
 
 			default:
-				debug_printf("LH: invalid can msg data[0]=%d !\n", msg->data[0]);
+				debug_printf("LH: invalid CAN msg data[0]=%d !\n", msg->data[0]);
 		}
 	}
 }
@@ -124,3 +128,5 @@ void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
 static Sint16 LONGHAMMER_get_position() {
 	return ADC_getValue(LONGHAMMER_SENSOR_ADC_ID);
 }
+
+#endif	//I_AM_ROBOT_TINY

@@ -1,17 +1,20 @@
 /*  Club Robot ESEO 2012 - 2013
- *	Krusty & Tiny
+ *	Tiny
  *
  *	Fichier : Long_hammer.c
  *	Package : Carte actionneur
  *	Description : Gestion du marteau appuyant sur les bougies du haut
  *  Auteur : Alexis
  *  Version 20130207
+ *  Robot : Tiny
  */
 
 #ifndef LONG_HAMMER_H
 #define	LONG_HAMMER_H
 
 #include "../QS/QS_all.h"
+#ifdef I_AM_ROBOT_TINY
+
 #include "../queue.h"
 
 /** Initialisation du gestionnaire du bras.
@@ -38,5 +41,5 @@ void LONGHAMMER_CAN_process_msg(CAN_msg_t* msg);
  */
 void LONGHAMMER_run_command(queue_id_t queueId, bool_e init);
 
+#endif  /* I_AM_ROBOT_TINY */
 #endif	/* LONG_HAMMER_H */
-
