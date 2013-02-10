@@ -68,7 +68,7 @@
 	#define SUPER_ASK_CONFIG			0x201
 	
 	/* Carte super vers carte actionneur */
-	#define SUPER_ASK_ACT_SELFTEST		0x300
+	#define SUPER_ASK_ACT_SELFTEST		0x300 //<-- PB 0x300 deux foix ?
 	
 	/* Carte super vers carte propulsion */
 	#define SUPER_ASK_ASSER_SELFTEST	0x100
@@ -128,17 +128,36 @@
  *
  *****************************************************************/
 
+<<<<<<< .mine
+	
+    #define ACT_AX12 0x301
+=======
+>>>>>>> .r21
 
+<<<<<<< .mine
+	//Paramètres de ACT_AX12 dans data[0]:
+    #define ACT_BALL_GRABBER_GO_UP      0x302
+    #define ACT_BALL_GRABBER_GO_DOWN    0x303
+    #define ACT_BALL_GRABBER_GO_TIDY    0x304
+	
+=======
 	//////////////// AX12 ////////////////
     #define ACT_AX12 (ACT_FILTER | 0x00)
 		//Paramètres de ACT_AX12 dans data[0]:
 		#define ACT_BALL_GRABBER_GO_UP      1
 		#define ACT_BALL_GRABBER_GO_DOWN    2
 		#define ACT_BALL_GRABBER_GO_TIDY    3
+>>>>>>> .r21
 
+<<<<<<< .mine
+    #define ACT_HAMMER_GO_UP            0x305
+    #define ACT_HAMMER_GO_DOWN          0x306
+    #define ACT_HAMMER_GO_TIDY          0x307
+=======
 		#define ACT_HAMMER_GO_UP            4
 		#define ACT_HAMMER_GO_DOWN          5
 		#define ACT_HAMMER_GO_TIDY          6
+>>>>>>> .r21
     //////////////////////////////////////
 
 	////////////// LONGHAMMER ///////////////
