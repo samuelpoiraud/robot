@@ -18,133 +18,54 @@
 #include "Asser_functions.h"
 #include "act_functions.h"
 
-//Test message can avec carte actionneur
-void TEST_STRAT_act();
-
-void TEST_STRAT_go();
-
-error_e TEST_STRAT_go_score();
-
-/**
-* permet de sortir et d'aller manuellement sur le noeud 4
-*
-*/
-error_e TEST_STRAT_leave_home();
-
 
 #ifdef MODE_HOMOLOGATION
 /**
 * marque les points d'une bouteille et parcours ensuite les noeuds pour l'évitement
 *
 */
-void TEST_STRAT_homolagation();
+//void TEST_STRAT_homolagation();
 #endif
-
-/**
-* Fonction permettant de tester l'évitement en faisant le tour du terrain
-*
-*/
-void TEST_STRAT_evitement();
-
-/**
-* Simule un match pour les JPO
-*
-*/
-void TEST_STRAT_qualif();
-
-/**
-* Permet d'aller taper dans les bouteilles
-*
-*/
-error_e TEST_STRAT_hit_all_bottles();
-
-/**
-* Permet d'aller taper dans la bouteille la plus proche de la cale
-*
-*/
-error_e TEST_STRAT_hit_bottle_deck();
-
-/**
-* Permet d'aller taper dans la bouteille la plus proche du milieu
-*
-*/
-error_e TEST_STRAT_hit_bottle_middle();
-
-/*permet de marquer les points du lingot à l'entré de la cale
-*
-*/
-error_e TEST_STRAT_bullion();
-
-/**
-* Va chercher la carte
-*
-*/
-error_e TEST_STRAT_take_map();
-
-/**
-* Récolte les cd autour d'un totem (coef a régler) fonction non testée
-*
-*/
-error_e TEST_STRAT_score_piece_north();
-
-/**
-* Prend le lingot du totem le plus proche du départ, coté carte
-*
-*/
-error_e TEST_take_bullion_first_totem_north(void);
-
-/*permet de prendre le lingot dans le totem le plus proche de la case et le plus proche de la carte (pour les deux couleurs)
-*
-*/
-error_e TEST_STRAT_first_totem_north();
-
-/*permet de prendre le lingot dans le totem le plus loin de la case et le plus proche de la carte (pour les deux couleurs)
-*
-*/
-error_e TEST_STRAT_second_totem_north();
-
-/*permet de prendre le lingot dans le totem le plus proche de la case et le plus loin de la carte (pour les deux couleurs)
-*
-*/
-error_e TEST_STRAT_first_totem_south();
-
-/*permet de prendre le lingot dans le totem le plus loin de la case et le plus loin de la carte (pour les deux couleurs)
-*
-*/
-error_e TEST_STRAT_second_totem_south();
-
-/*permet de passer près de tout les totems
-*
-*/
-void TEST_STRAT_all_totem();
-/**
-* TEST_STRAT_all_node
-*
-*/
-void TEST_STRAT_all_node();
-
-/**
-* TEST_STRAT_all_asser_functions
-*
-*/
-void TEST_STRAT_all_asser_functions();
-
-/**
-* TEST_STRAT_goto_node
-*
-*/
-void TEST_STRAT_goto_node();
-
-void TEST_test (void);
-
-error_e TEST_STRAT_score_piece_north(void);
-
-error_e TEST_STRAT_score_piece_first_north(void);
-
-void TEST_STRAT_take_point_first_totem(void);
 
 #ifdef ACTIONS_TEST_C
  	#include "telemeter.h"
+        #include "QS_CANmsgList.h"
 #endif /* def ACTION_TEST_C */
+
+
+//Prototypes de fonctions
+//Homologation
+void TEST_STRAT_HOMOLOGATION(void); //by M	
+void TEST_STRAT_homolagation_police(void); //by Amaury alias MOMO = Am qui adorre les T****
+error_e Test_Homologation_Sortie_Base(void); //by Am
+error_e Test_Homologation_Point(void); //by Am
+
+//Tests
+error_e TEST_STRAT_gift1(void);  //begin by micky
+error_e TEST_STRAT_gift2(void);
+error_e TEST_STRAT_gift3(void);
+error_e TEST_STRAT_gift4(void);
+error_e TEST_STRAT_verres(void);
+void TEST_STRAT_gateau(void);
+void TEST_STRAT_gatoacsuba(void);
+error_e TEST_STRAT_in_da_wall(void);
+error_e TEST_STRAT_first_half_cake(void);
+error_e TEST_STRAT_second_half_cake(void);
+void set_calage(void);
+void levi(void);  //end by micky
+
+void strat_verre_assiettes_et_gateau(); //begin by Julien
+
+error_e TEST_STRAT_VERRE1(void);
+error_e TEST_STRAT_VERRE2(void);
+
+error_e STRAT_DEBUT_ASSIETTE(void);
+error_e STRAT_FIN_ASSIETTE(void);
+error_e STRAT_PREMIERE_ASSIETTE(void);
+error_e STRAT_SECONDE_ASSIETTE(void);
+error_e STRAT_TROISIEME_ASSIETTE(void);
+error_e STRAT_DERNIERE_ASSIETTE(void);
+
+error_e STRAT_TIMEOUT_ASSIETTE(void); //end by Julien
 
 #endif /* ACTIONS_TESTS_H */
