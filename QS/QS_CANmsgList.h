@@ -68,7 +68,7 @@
 	#define SUPER_ASK_CONFIG			0x201
 	
 	/* Carte super vers carte actionneur */
-	#define SUPER_ASK_ACT_SELFTEST		0x300 //<-- PB 0x300 deux foix ?
+	#define SUPER_ASK_ACT_SELFTEST		0x300
 	
 	/* Carte super vers carte propulsion */
 	#define SUPER_ASK_ASSER_SELFTEST	0x100
@@ -128,47 +128,16 @@
  *
  *****************************************************************/
 
-<<<<<<< .mine
 	
     #define ACT_AX12 0x301
-=======
->>>>>>> .r21
 
-<<<<<<< .mine
-	//Paramètres de ACT_AX12 dans data[0]:
     #define ACT_BALL_GRABBER_GO_UP      0x302
     #define ACT_BALL_GRABBER_GO_DOWN    0x303
     #define ACT_BALL_GRABBER_GO_TIDY    0x304
-	
-=======
-	//////////////// AX12 ////////////////
-    #define ACT_AX12 (ACT_FILTER | 0x00)
-		//Paramètres de ACT_AX12 dans data[0]:
-		#define ACT_BALL_GRABBER_GO_UP      1
-		#define ACT_BALL_GRABBER_GO_DOWN    2
-		#define ACT_BALL_GRABBER_GO_TIDY    3
->>>>>>> .r21
 
-<<<<<<< .mine
     #define ACT_HAMMER_GO_UP            0x305
     #define ACT_HAMMER_GO_DOWN          0x306
     #define ACT_HAMMER_GO_TIDY          0x307
-=======
-		#define ACT_HAMMER_GO_UP            4
-		#define ACT_HAMMER_GO_DOWN          5
-		#define ACT_HAMMER_GO_TIDY          6
->>>>>>> .r21
-    //////////////////////////////////////
-
-	////////////// LONGHAMMER ///////////////
-	#define ACT_LONGHAMMER (ACT_FILTER | 0x01)	//0x01 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
-		//Paramètres de LONGHAMMER
-		#define ACT_LONGHAMMER_GO_UP   0    // Lever le bras
-		#define ACT_LONGHAMMER_GO_DOWN 1    // Appuyer sur les bougies et les éteindres en descendant le bras
-		#define ACT_LONGHAMMER_GO_PARK 2    // Ranger le bras pour diminuer le diamètre du robot
-		#define ACT_LONGHAMMER_GO_STOP 3    // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
-		                                    //Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
-	/////////////////////////////////////////
 
 /*****************************************************************
  *
