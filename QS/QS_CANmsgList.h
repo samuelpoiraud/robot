@@ -135,6 +135,7 @@
  *****************************************************************/
 
 	
+	//////////////// AX12 ///////////////////
     #define ACT_AX12 0x301
 
     #define ACT_BALL_GRABBER_GO_UP      0x302
@@ -144,6 +145,24 @@
     #define ACT_HAMMER_GO_UP            0x305
     #define ACT_HAMMER_GO_DOWN          0x306
     #define ACT_HAMMER_GO_TIDY          0x307
+    /////////////////////////////////////////
+
+	////////////// LONGHAMMER ///////////////
+	#define ACT_LONGHAMMER (ACT_FILTER | 0x10)	//0x10 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
+		//Paramètres de LONGHAMMER (dans data[0])
+		#define ACT_LONGHAMMER_GO_UP   0    // Lever le bras
+		#define ACT_LONGHAMMER_GO_DOWN 1    // Appuyer sur les bougies et les éteindres en descendant le bras
+		#define ACT_LONGHAMMER_GO_PARK 2    // Ranger le bras pour diminuer le diamètre du robot
+		#define ACT_LONGHAMMER_GO_STOP 3    // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
+		                                    //Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
+	/////////////////////////////////////////
+	
+	////////////// BALLLAUNCHER /////////////
+	#define ACT_BALLLAUNCHER (ACT_FILTER | 0x11)
+		//Paramètres de BALLLAUNCHER (dans data[0])
+		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles
+		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
+	/////////////////////////////////////////
 
 /*****************************************************************
  *

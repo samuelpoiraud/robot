@@ -17,8 +17,8 @@
 	#include "QS/QS_uart.h"
 	#include "QS/QS_timer.h"
 
-        #include "Ball_grabber.h"
-        #include "Hammer.h"
+	#include "Ball_grabber.h"
+	#include "Hammer.h"
 
 	//#include "switch.h"
 	
