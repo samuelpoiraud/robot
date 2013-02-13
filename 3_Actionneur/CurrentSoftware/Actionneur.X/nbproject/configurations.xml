@@ -4,6 +4,42 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f2" displayName="_Krusty" projectFiles="true">
+        <itemPath>../Krusty/KBall_launcher.h</itemPath>
+        <itemPath>../Krusty/KGlobal_config.h</itemPath>
+        <itemPath>../Krusty/KGlobal_flags.h</itemPath>
+        <itemPath>../Krusty/KGlobal_vars.h</itemPath>
+        <itemPath>../Krusty/KGlobal_vars_types.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="_QS" projectFiles="true">
+        <itemPath>../../../QS/p30f6010A.h</itemPath>
+        <itemPath>../../../QS/QS_adc.h</itemPath>
+        <itemPath>../../../QS/QS_all.h</itemPath>
+        <itemPath>../../../QS/QS_ax12.h</itemPath>
+        <itemPath>../../../QS/QS_buttons.h</itemPath>
+        <itemPath>../../../QS/QS_can.h</itemPath>
+        <itemPath>../../../QS/QS_CANmsgDoc.h</itemPath>
+        <itemPath>../../../QS/QS_CANmsgList.h</itemPath>
+        <itemPath>../../../QS/QS_config_doc.h</itemPath>
+        <itemPath>../../../QS/QS_configCheck.h</itemPath>
+        <itemPath>../../../QS/QS_DCMotor.h</itemPath>
+        <itemPath>../../../QS/QS_global_vars.h</itemPath>
+        <itemPath>../../../QS/QS_IC.h</itemPath>
+        <itemPath>../../../QS/QS_macro.h</itemPath>
+        <itemPath>../../../QS/QS_ports.h</itemPath>
+        <itemPath>../../../QS/QS_pwm.h</itemPath>
+        <itemPath>../../../QS/QS_timer.h</itemPath>
+        <itemPath>../../../QS/QS_types.h</itemPath>
+        <itemPath>../../../QS/QS_uart.h</itemPath>
+        <itemPath>../../../QS/QS_watchdog.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="_Tiny" projectFiles="true">
+        <itemPath>../Tiny/TGlobal_config.h</itemPath>
+        <itemPath>../Tiny/TGlobal_flags.h</itemPath>
+        <itemPath>../Tiny/TGlobal_vars.h</itemPath>
+        <itemPath>../Tiny/TGlobal_vars_types.h</itemPath>
+        <itemPath>../Tiny/TLong_hammer.h</itemPath>
+      </logicalFolder>
       <itemPath>../Can_msg_processing.h</itemPath>
       <itemPath>../clock.h</itemPath>
       <itemPath>../Global_config.h</itemPath>
@@ -12,31 +48,6 @@
       <itemPath>../Global_vars_types.h</itemPath>
       <itemPath>../main.h</itemPath>
       <itemPath>../maths_home.h</itemPath>
-      <itemPath>../QS/p30f6010A.h</itemPath>
-      <itemPath>../QS/QS_adc.h</itemPath>
-      <itemPath>../QS/QS_all.h</itemPath>
-      <itemPath>../QS/QS_ax12.h</itemPath>
-      <itemPath>../QS/QS_buttons.h</itemPath>
-      <itemPath>../QS/QS_can.h</itemPath>
-      <itemPath>../QS/QS_can_over_uart.h</itemPath>
-      <itemPath>../QS/QS_CANmsgDoc.h</itemPath>
-      <itemPath>../QS/QS_CANmsgList.h</itemPath>
-      <itemPath>../QS/QS_config_doc.h</itemPath>
-      <itemPath>../QS/QS_configCheck.h</itemPath>
-      <itemPath>../QS/QS_DCMotor.h</itemPath>
-      <itemPath>../QS/QS_extern_it.h</itemPath>
-      <itemPath>../QS/QS_global_vars.h</itemPath>
-      <itemPath>../QS/QS_macro.h</itemPath>
-      <itemPath>../QS/QS_ports.h</itemPath>
-      <itemPath>../QS/QS_pwm.h</itemPath>
-      <itemPath>../QS/QS_qei.h</itemPath>
-      <itemPath>../QS/QS_qei_on_it.h</itemPath>
-      <itemPath>../QS/QS_servo.h</itemPath>
-      <itemPath>../QS/QS_Step_motor.h</itemPath>
-      <itemPath>../QS/QS_timer.h</itemPath>
-      <itemPath>../QS/QS_types.h</itemPath>
-      <itemPath>../QS/QS_uart.h</itemPath>
-      <itemPath>../QS/QS_watchdog.h</itemPath>
       <itemPath>../queue.h</itemPath>
       <itemPath>../Ball_grabber.h</itemPath>
       <itemPath>../Hammer.h</itemPath>
@@ -48,29 +59,32 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="f2" displayName="_Krusty" projectFiles="true">
+        <itemPath>../Krusty/KBall_launcher.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="_QS" projectFiles="true">
+        <itemPath>../../../QS/QS_adc.c</itemPath>
+        <itemPath>../../../QS/QS_ax12.c</itemPath>
+        <itemPath>../../../QS/QS_buttons.c</itemPath>
+        <itemPath>../../../QS/QS_can.c</itemPath>
+        <itemPath>../../../QS/QS_configBits.c</itemPath>
+        <itemPath>../../../QS/QS_DCMotor.c</itemPath>
+        <itemPath>../../../QS/QS_global_vars.c</itemPath>
+        <itemPath>../../../QS/QS_IC.c</itemPath>
+        <itemPath>../../../QS/QS_ports.c</itemPath>
+        <itemPath>../../../QS/QS_pwm.c</itemPath>
+        <itemPath>../../../QS/QS_timer.c</itemPath>
+        <itemPath>../../../QS/QS_uart.c</itemPath>
+        <itemPath>../../../QS/QS_watchdog.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="_Tiny" projectFiles="true">
+        <itemPath>../Tiny/TLong_hammer.c</itemPath>
+      </logicalFolder>
       <itemPath>../Can_msg_processing.c</itemPath>
       <itemPath>../clock.c</itemPath>
       <itemPath>../main.c</itemPath>
       <itemPath>../maths_home.c</itemPath>
-      <itemPath>../QS/QS_adc.c</itemPath>
-      <itemPath>../QS/QS_ax12.c</itemPath>
-      <itemPath>../QS/QS_buttons.c</itemPath>
-      <itemPath>../QS/QS_can.c</itemPath>
-      <itemPath>../QS/QS_can_over_uart.c</itemPath>
-      <itemPath>../QS/QS_DCMotor.c</itemPath>
-      <itemPath>../QS/QS_extern_it.c</itemPath>
-      <itemPath>../QS/QS_global_vars.c</itemPath>
-      <itemPath>../QS/QS_ports.c</itemPath>
-      <itemPath>../QS/QS_pwm.c</itemPath>
-      <itemPath>../QS/QS_qei.c</itemPath>
-      <itemPath>../QS/QS_qei_on_it.c</itemPath>
-      <itemPath>../QS/QS_servo.c</itemPath>
-      <itemPath>../QS/QS_Step_motor.c</itemPath>
-      <itemPath>../QS/QS_timer.c</itemPath>
-      <itemPath>../QS/QS_uart.c</itemPath>
-      <itemPath>../QS/QS_watchdog.c</itemPath>
       <itemPath>../queue.c</itemPath>
-      <itemPath>../QS/QS_configBits.c</itemPath>
       <itemPath>../Ball_grabber.c</itemPath>
       <itemPath>../Hammer.c</itemPath>
     </logicalFolder>
@@ -91,15 +105,14 @@
         <targetDevice>dsPIC30F6010A</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit2PlatformTool</platformTool>
+        <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
-        <languageToolchainVersion>3_31</languageToolchainVersion>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
           <linkerLibItems>
-            <linkerLibFileItem>../QS/libp30F6010A-coff.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
         <loading>
@@ -130,7 +143,7 @@
         <property key="enable-short-double" value="false"/>
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories" value="..;../QS;"/>
+        <property key="extra-include-directories" value=".;./QS"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="0"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -192,11 +205,226 @@
         <property key="legacy-libc" value="false"/>
         <property key="output-file-format" value="coff"/>
       </C30Global>
-      <PICkit2PlatformTool>
-        <property key="tracecontrol.disablemacros" value="true"/>
-        <property key="tracecontrol.medium" value="0"/>
-        <property key="tracecontrol.select" value="0"/>
-      </PICkit2PlatformTool>
+      <ICD3PlatformTool>
+      </ICD3PlatformTool>
+    </conf>
+    <conf name="Krusty" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>dsPIC30F6010A</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>ICD3PlatformTool</platformTool>
+        <languageToolchain>C30</languageToolchain>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>true</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep>echo !!!!!!!!!!!!!!!!!!!! Compilation pour KRUSTY !!!!!!!!!!!!!!!!!!!!</makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <C30>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="default"/>
+        <property key="data-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="extra-include-directories" value=".;./QS"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="optimization-level" value="0"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value="PREDEF_BUILD_KRUSTY"/>
+        <property key="scalar-model" value="default"/>
+      </C30>
+      <C30-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value="..;"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="oXC16asm-list-to-file" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
+        <appendMe value="-g"/>
+      </C30-AS>
+      <C30-LD>
+        <property key="boot-eeprom" value="no_eeprom"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-ram" value="no_ram"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
+        <property key="extra-lib-directories" value="..;"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value="256"/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="&quot;${DISTDIR}/Actionneur.X.${IMAGE_TYPE}.map&quot;"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value=""/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C30-LD>
+      <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="legacy-libc" value="false"/>
+        <property key="output-file-format" value="coff"/>
+      </C30Global>
+      <ICD3PlatformTool>
+      </ICD3PlatformTool>
+    </conf>
+    <conf name="Tiny" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>dsPIC30F6010A</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>ICD3PlatformTool</platformTool>
+        <languageToolchain>C30</languageToolchain>
+        <languageToolchainVersion>3_30b</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>true</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep>echo !!!!!!!!!!!!!!!!!!!! Compilation pour TINY !!!!!!!!!!!!!!!!!!!!</makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <C30>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="default"/>
+        <property key="data-model" value="default"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="extra-include-directories" value=".;./QS"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="optimization-level" value="0"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value="PREDEF_BUILD_TINY"/>
+        <property key="scalar-model" value="default"/>
+      </C30>
+      <C30-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value="..;"/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="oXC16asm-list-to-file" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
+        <appendMe value="-g"/>
+      </C30-AS>
+      <C30-LD>
+        <property key="boot-eeprom" value="no_eeprom"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-ram" value="no_ram"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
+        <property key="extra-lib-directories" value="..;"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value="256"/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="&quot;${DISTDIR}/Actionneur.X.${IMAGE_TYPE}.map&quot;"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value=""/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C30-LD>
+      <C30Global>
+        <property key="fast-math" value="false"/>
+        <property key="legacy-libc" value="false"/>
+        <property key="output-file-format" value="coff"/>
+      </C30Global>
+      <ICD3PlatformTool>
+      </ICD3PlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>
