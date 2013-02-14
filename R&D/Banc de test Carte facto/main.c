@@ -20,10 +20,10 @@ int main (void)
 	init();
 
 	debug_printf("Carte Test, test dispo:\n"
-				 "  Bouton 1: Test ports\n"
-				 "  Bouton 2: Test entrées analogiques\n"
-				 "  Bouton 3: Test UART 1\n"
-				 "  Bouton 4: Test UART 2\n"
+				 "  Bouton 1: Test ports (sauf Bx) par les LEDs\n"
+				 "  Bouton 2: Test entrées analogiques (Bx/ANx), doit être ~= 2.5V\n"
+				 "  Bouton 3: Test UART 1 (echo)\n"
+				 "  Bouton 4: Test UART 2 (echo)\n"
 				 "  Bouton 3 et 4 en même temps (maintenir): Test CAN\n\n");
 	
 	while(1)
