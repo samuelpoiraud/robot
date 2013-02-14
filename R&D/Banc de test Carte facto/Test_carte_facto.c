@@ -12,7 +12,16 @@
  
 #include "Test_carte_facto.h"
  
-	void WATCHDOG_init(void);
+void WATCHDOG_init(void);
+
+static void test_carte_facto_uart2_puts(const char* str) {
+#ifdef VERBOSE_MODE
+	while(*str) {
+		UART2_putc(*str);
+		str++;
+	}
+#endif
+}
  
  void test_carte_facto_init(){
 	WATCHDOG_init();
@@ -73,7 +82,8 @@ void test_carte_facto_update(){
 	enum TEST_etat_test_e {
 		AUCUN_TEST,
 		TEST_SORTIES,
-		TEST_UART,
+		TEST_UART1,
+		TEST_UART2,
 		TEST_CAN
 	};
 	static enum TEST_etat_test_e etat_test_e = 0;
@@ -107,15 +117,6 @@ void test_carte_facto_update(){
 		TEST_TOUTES_SORTIES
 	};
 	static enum TEST_etat_test_sorties_e etat_test_sorties_e = 0;
-
-	enum TEST_test_uart_e {
-		AUCUN_UART,
-		TRANSMISSION_UART1,
-		RECEPTION_UART1,
-		TRANSMISSION_UART2,
-		RECEPTION_UART2
-	};
-	static enum TEST_test_uart_e test_uart_e = 0;
 
 	//Bouton 1: Test des sorties (affichage par LED)
 	if(BUTTON1_PORT == BOUTON_ON && etat_precedent_bp1 == BOUTON_OFF && etat_test_e != TEST_SORTIES){
@@ -180,8 +181,7 @@ void test_carte_facto_update(){
 		}
 		else if(BUTTON3_PORT == BOUTON_OFF && etat_precedent_bp3 == BOUTON_ON){
 			etat_precedent_bp3 = BOUTON_OFF;
-			etat_test_e = TEST_UART;
-			test_uart_e = TRANSMISSION_UART1;
+			etat_test_e = TEST_UART1;
 			debug_printf("  Test UART1: echo\n");
 		}
 
@@ -191,9 +191,9 @@ void test_carte_facto_update(){
 		}
 		else if(BUTTON4_PORT == BOUTON_OFF && etat_precedent_bp4 == BOUTON_ON){
 			etat_precedent_bp4 = BOUTON_OFF;
-			etat_test_e = TEST_UART;
-			test_uart_e = TRANSMISSION_UART2;
-			debug_printf("  Test UART2: echo\n");
+			etat_test_e = TEST_UART2;
+			debug_printf("  Test UART2: echo, branchez vous sur l'uart 2\n");
+			test_carte_facto_uart2_puts("  Test UART2: echo\n");
 		}
 	}
 
@@ -651,7 +651,7 @@ void test_carte_facto_update(){
 						//debug_printf("Test pwm1 port D8\n");
 						debug_printf("Test fini, rebouclage: Test port D8/LED_RUN\n");
 						test_multiple_sorties = 1;
-					}	
+					}
 					else if(BUTTON1_PORT == BOUTON_OFF && etat_precedent_bp1 == BOUTON_ON)
 						etat_precedent_bp1 = BOUTON_OFF;
 					break;
@@ -660,48 +660,23 @@ void test_carte_facto_update(){
 			}
 			break;
 
-		case TEST_UART :
-			switch(test_uart_e)
-			{
-				case AUCUN_UART : etat_test_e = AUCUN_TEST;
-					break;
-				case TRANSMISSION_UART1 :
-					UART1_putc('1');
-					UART1_putc('\r');
-					UART1_putc('\n');
-					test_uart_e = RECEPTION_UART1;
-					break;
-				case RECEPTION_UART1 :
-					if(UART1_data_ready()){
-						msg = UART1_get_next_msg();
-						UART1_putc('1');
-						UART1_putc(msg);
-						UART1_putc('\r');
-						UART1_putc('\n');
-						etat_test_e = AUCUN_TEST;
-						test_uart_e = AUCUN_UART;
-					}
-					break;			
-				case TRANSMISSION_UART2 :
-					UART2_putc('2');
-					UART2_putc('\r');
-					UART2_putc('\n');
-					test_uart_e = RECEPTION_UART2;
-					break;
-				case RECEPTION_UART2 :
-					if(UART2_data_ready())
-					{						
-						msg = UART2_get_next_msg();
-						UART2_putc('2');
-						UART2_putc(msg);
-						UART2_putc('\r');
-						UART2_putc('\n');
-						etat_test_e = AUCUN_TEST;
-						test_uart_e = AUCUN_UART;
-					}
-					break;
-				default :
-					break;
+		case TEST_UART1:
+			if(UART1_data_ready()){
+				msg = UART1_get_next_msg();
+				UART1_putc('1');
+				UART1_putc(msg);
+				UART1_putc('\r');
+				UART1_putc('\n');
+			}
+			break;
+
+		case TEST_UART2:
+			if(UART2_data_ready()){
+				msg = UART2_get_next_msg();
+				UART2_putc('2');
+				UART2_putc(msg);
+				UART2_putc('\r');
+				UART2_putc('\n');
 			}
 			break;
 
