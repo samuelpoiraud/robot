@@ -147,16 +147,18 @@ void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,QUEUE_
 	(this->action[this->tail]) = action;
 	(this->arg[this->tail])= optionnal_arg;
 	(this->act[this->tail])= optionnal_act;
-	
+
+	//On doit le faire avant d'appeler l'action, sinon si l'action appelle une fonction de ce module, il peut y avoir des problèmes. (bug testé avec un appel à QUEUE_behead)
+	this->tail++;
+
 	// si l'action est en tête de file
-	if (this->tail == this->head)
+	if ((this->tail - 1) == this->head)
 	{
 		//on l'initialise
 		//debug_printf("Initialise première action\n\r");
 		action(queue_id,TRUE);
 	}
 	
-	this->tail++;
 }
 
 /* Retire la fonction en tete de file et reinitialise la suivante. */
