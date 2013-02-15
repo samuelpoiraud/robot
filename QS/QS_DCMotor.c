@@ -165,6 +165,22 @@ void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos)
 	this->cmd_flag = DCM_WORKING;
 }
 
+/*-----------------------------------------
+		Changement de la valeur d'une position
+-----------------------------------------*/
+void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value) {
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	this->config.pos[pos_to_update] = new_value;
+}
+
+/*-----------------------------------------
+		Récupération de la valeur d'une position
+-----------------------------------------*/
+Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get) {
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	return this->config.pos[pos_to_get];
+}
+
 
 /*-----------------------------------------
 		Arret de l'asservissement d'un actionneur

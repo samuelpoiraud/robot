@@ -138,6 +138,8 @@
 	//////////////// AX12 ///////////////////
     #define ACT_AX12 0x301
 
+	//FIXME: A CHANGER TANT QUE CES VALEURS CI-DESSOUS SONT UTILISEE DANS DATA[0] (voir Can_msg_processing.c),
+	//       data[0] est de taille 8 bits (Uint8), La valeur doit être <= à 0xFF !!!!
     #define ACT_BALL_GRABBER_GO_UP      0x302
     #define ACT_BALL_GRABBER_GO_DOWN    0x303
     #define ACT_BALL_GRABBER_GO_TIDY    0x304
@@ -160,7 +162,7 @@
 	////////////// BALLLAUNCHER /////////////
 	#define ACT_BALLLAUNCHER (ACT_FILTER | 0x11)
 		//Paramètres de BALLLAUNCHER (dans data[0])
-		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles
+		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000)
 		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
 	/////////////////////////////////////////
 

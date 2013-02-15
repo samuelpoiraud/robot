@@ -56,6 +56,12 @@
 	
 		// configurer un moteur CC après initialisation du module QS
 		void DCM_config ( Uint8 dc_motor_id, DCMotor_config_t* config);
+		
+		//Change la valeur d'une position sans arrêter l'asservissement. Si le moteur était asservi à cette position, l'asservissement prend en compte le changement
+		void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value);
+		
+		//Récupère la valeur d'une position
+		Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get);
 	
 		// Arret de l'asservissement d'un actionneur
 		void DCM_stop(Uint8 dc_motor_id);
