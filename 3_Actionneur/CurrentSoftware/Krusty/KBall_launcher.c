@@ -20,6 +20,9 @@ static Sint16 count_from_last_tick;
 
 static Sint16 BALLLAUNCHER_get_speed();
 
+//Change la vitesse du lanceur de balle. Attention les vitesses peuvent être négative ou positive.
+static void BALLLAUNCHER_set_target_speed(Sint16 tr_min);
+
 void BALLLAUNCHER_init() {
 	ball_launcher_config.sensor_read = &BALLLAUNCHER_get_speed;
 	ball_launcher_config.Kp = BALLLAUNCHER_ASSER_KP*1024;
@@ -48,7 +51,7 @@ void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 				 queueId = QUEUE_create();
 				 assert(queueId != QUEUE_CREATE_FAILED);
 				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_BallLauncher);
-				 QUEUE_add(queueId, &BALLLAUNCHER_run_command, 1, QUEUE_ACT_BallLauncher);
+				 QUEUE_add(queueId, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8), QUEUE_ACT_BallLauncher);
 				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_BallLauncher);
 				 break;
 
@@ -70,10 +73,13 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallLauncher) {
 		if(init == TRUE) {
 			//Send command
-			Sint16 posId = QUEUE_get_arg(queueId);
-			if(posId >= 0 && posId <= 1)
-				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, posId);
-			else debug_printf("BL: Code incohérent, QUEUE_get_arg invalide: %d\n", posId);
+			Sint16 pos_speed = QUEUE_get_arg(queueId);
+			if(pos_speed == 0)
+				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
+			else if(pos_speed > 0) {
+				BALLLAUNCHER_set_target_speed(pos_speed);
+				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
+			} else debug_printf("BL: pos_speed invalide: %u\n", pos_speed);
 			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}
@@ -83,6 +89,11 @@ static Sint16 BALLLAUNCHER_get_speed() {
 	Sint16 val = count_from_last_tick;
 	count_from_last_tick = 0;
 	return val;
+}
+
+static void BALLLAUNCHER_set_target_speed(Sint16 tr_min) {
+	//On doit diviser, sinon le nombre a multiplier est < que 1 (donc c'est 0 pour un entier)
+	DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, tr_min/(60.0/DCM_TIMER_PERIOD*1000/BALLLAUNCHER_EDGE_PER_ROTATION));
 }
 
 void BALLLAUNCHER_HALLSENSOR_INT_ISR() {

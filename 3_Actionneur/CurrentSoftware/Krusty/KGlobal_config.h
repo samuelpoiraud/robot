@@ -94,7 +94,7 @@
 	#define BALLLAUNCHER_ASSER_KP                1
 	#define BALLLAUNCHER_ASSER_KI                0
 	#define BALLLAUNCHER_ASSER_KD                0
-	#define BALLLAUNCHER_TARGET_SPEED            300		//en tr/min
+	#define BALLLAUNCHER_TARGET_SPEED            5000		//en tr/min
 	#define BALLLAUNCHER_DCMOTOR_ID              0			//Doit être unique !
 	#define BALLLAUNCHER_DCMOTOR_PWM_NUM         4
 	#define BALLLAUNCHER_DCMOTOR_PORT_WAY        PORTE
