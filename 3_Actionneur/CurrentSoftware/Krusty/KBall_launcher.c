@@ -46,10 +46,6 @@
 
 static DCMotor_config_t ball_launcher_config;
 
-//données d'aquisition de la vitesse
-static Uint8 timer_overflow_number;	//incrémenté à chaque fois que la fonction de capteur de l'asservissement est appelée (après l'overflow de son timer)
-static Uint32 last_detection_interval; //intervale entre 2 passage d'aimant, en valeur timer
-
 /*
  * Technique de captage de la vitesse:
  * A chaque passage de l'aimant, on récupère la valeur du timer de l'asservissement.
@@ -89,18 +85,6 @@ void BALLLAUNCHER_init() {
 	//il est possible d'avoir une interruption INTx entre l'overflow du timer (donc il recommence a compter a partir de 0) et l'actualisation du nombre d'overflow dans la variable timer_overflow_number.
 	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY >= DCM_TIMER_PRIORITY_REG)
 		debug_printf("BL: Attention ! La priorité de l'interruption INTx devrait être inférieur à celle de l'asservissement (TIMERx)\n");
-
-	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 1;
-	Nop();
-	Nop();
-	Nop();
-	Nop();
-	Nop();
-	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 1;
-	Nop();
-	Nop();
-	Nop();
-	Nop();
 }
 
 void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
@@ -145,7 +129,32 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 	}
 }
 
+static void BALLLAUNCHER_set_target_speed(Sint16 tr_min) {
+	Uint16 val;
+	//On doit diviser, sinon le nombre a multiplier est < que 1 (donc c'est 0 pour un entier)
+
+	//Utilise la fonction de division dans une librarie, potentiellement lente
+	//DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, tr_min / (Uint16)(60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD));
+	//Avec de l'assembleur: division en 18 cycles, mais c'est de l'assembleur
+	//(utilisation de 60.0 et pas 60 pour forcer le compilateur à faire un calcul sans overflow sur la constante)
+	asm("repeat #17\n"
+	    "div.s %[trmin], %[div]\n"
+	    : "=a"(val)	//output
+	    : [trmin] "r"(tr_min), [div] "e"((Uint16)(60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD))	//input
+		: "w1");	//registres modifiés après l'opération: le compilateur ne peu pas l'utiliser pour garder une valeur a travers le code assembleur
+	DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, val);
+}
+
+
+//TODO: en fait utiliser du 32bits n'est pas nécessaire, a revoir cette partie de code
+#ifdef BALLLAUNCHER_USE_HIGH_PRIORITY_TIMER
+
+//données d'aquisition de la vitesse
+static Uint8 timer_overflow_number;	//incrémenté à chaque fois que la fonction de capteur de l'asservissement est appelée (après l'overflow de son timer)
+static Uint32 last_detection_interval; //intervale entre 2 passage d'aimant, en valeur timer
+
 //Vitesse minimale detectable: 35 tr/min = 857 msec/tr
+//Version priorité BALLLAUNCHER_get_speed > BALLLAUNCHER_HALLSENSOR_INT_ISR
 static Sint16 BALLLAUNCHER_get_speed() {
 	//S'il s'est rien passé pendant 850ms, on considère que le moteur est arreté.
 	//Si le temps trouvé entre 2 detections est supérieur à 1048560 us, on considère aussi que le moteur est arreté (pour des raisons de problèmes d'overflow sur des opérations suivantes.)
@@ -176,22 +185,6 @@ static Sint16 BALLLAUNCHER_get_speed() {
 	}
 	
 	//Jamais exécuté ici
-}
-
-static void BALLLAUNCHER_set_target_speed(Sint16 tr_min) {
-	Uint16 val;
-	//On doit diviser, sinon le nombre a multiplier est < que 1 (donc c'est 0 pour un entier)
-
-	//Utilise la fonction de division dans une librarie, potentiellement lente
-	//DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, tr_min / (Uint16)(60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD));
-	//Avec de l'assembleur: division en 18 cycles, mais c'est de l'assembleur
-	//(utilisation de 60.0 et pas 60 pour forcer le compilateur à faire un calcul sans overflow sur la constante)
-	asm("repeat #17\n"
-	    "div.s %[trmin], %[div]\n"
-	    : "=a"(val)	//output
-	    : [trmin] "r"(tr_min), [div] "e"((Uint16)(60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD))	//input
-		: "w1");	//registres modifiés après l'opération: le compilateur ne peu pas l'utiliser pour garder une valeur a travers le code assembleur
-	DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, val);
 }
 
 void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
@@ -233,9 +226,69 @@ void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
 		timer_last_detection = timer_val;
 		timer_last_detection_valid = TRUE;
 	}
-	
+
 	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
 	BALLLAUNCHER_HALLSENSOR_INT_EDGE = !BALLLAUNCHER_HALLSENSOR_INT_EDGE;
 }
+
+#else	//l'IT INTx est de plus haute priorité
+
+
+//FIXME: Ajouter 1 à DCM_TIMER_PERIOD_REG ?
+
+#define TIMECOUNTER_PULSE_PER_UNIT 1
+//#define TIMECOUNTER_PULSE_PER_UNIT 2	//pour 20Mhz  Ces deux comenté ne seront probablement jamais utilisés
+//#define TIMECOUNTER_PULSE_PER_UNIT 4	//pour 40Mhz
+
+static Uint16 last_detection_interval;
+static Uint16 total_elapsed_time_count;	//toujours multiple de DCM_TIMER_PERIOD en ms. compter comme ça évite une multiplication
+static bool_e dont_increment_timer_overflow_count;	//TRUE si on ne doit pas changer total_elapsed_time_count
+
+//Vitesse minimale detectable: 35 tr/min = 857 msec/tr
+//Version priorité BALLLAUNCHER_get_speed < BALLLAUNCHER_HALLSENSOR_INT_ISR
+static Sint16 BALLLAUNCHER_get_speed() {
+	//Si on compte jusqu'a overflow la variable, on considère que la vitesse est 0
+	if(total_elapsed_time_count >= (0xFFFF - (DCM_TIMER_PERIOD_REG/TIMECOUNTER_PULSE_PER_UNIT))) {
+		last_detection_interval = 0;
+	} else {
+		BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 0;
+		if(dont_increment_timer_overflow_count == FALSE)
+			total_elapsed_time_count += (DCM_TIMER_PERIOD_REG/TIMECOUNTER_PULSE_PER_UNIT);
+		DCM_TIMER_OVERFLOW_REG = 0;	//BIDOUILLAGE ICI !!! On met le flag de l'IT de l'asservissement à 0, permet de savoir si total_elapsed_time_count à été mis à jour après un overflow ou pas
+		BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 1;
+		dont_increment_timer_overflow_count = FALSE;
+	}
+
+	//Calcul des tr/min
+	return last_detection_interval;
+
+	//Jamais exécuté ici
+}
+
+void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
+	Uint16 timer_val;
+	Uint16 timer_overflow_number_saved;
+	static Uint16 timer_last_detection = 0; //valeur du timer à la dernière detection
+	static bool_e timer_last_detection_valid = FALSE;
+
+	timer_overflow_number_saved = total_elapsed_time_count;
+	if(DCM_TIMER_OVERFLOW_REG) {
+		timer_overflow_number_saved += (DCM_TIMER_PERIOD_REG/TIMECOUNTER_PULSE_PER_UNIT);
+		total_elapsed_time_count = 0;
+		dont_increment_timer_overflow_count = TRUE;
+	} else total_elapsed_time_count = 0;
+
+	timer_val = (DCM_TIMER_VAL_REG/TIMECOUNTER_PULSE_PER_UNIT);
+
+	if(timer_last_detection_valid)
+		last_detection_interval = timer_overflow_number_saved + timer_val - timer_last_detection;
+	timer_last_detection = timer_val;
+	timer_last_detection_valid = TRUE;
+	
+	BALLLAUNCHER_HALLSENSOR_INT_EDGE = !BALLLAUNCHER_HALLSENSOR_INT_EDGE;
+	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
+}
+
+#endif //BALLLAUNCHER_USE_HIGH_PRIORITY_TIMER
 
 #endif	//I_AM_ROBOT_KRUSTY
