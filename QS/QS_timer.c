@@ -14,21 +14,7 @@
 
 #include <timer.h>
 
-#ifdef FREQ_10MHZ
-	#define PULSE_PER_MS	39.0625
-	#define PULSE_PER_US	10
-#elif defined (FREQ_20MHZ)
-	#define PULSE_PER_MS	78.125
-	#define PULSE_PER_US	20
-#elif defined (FREQ_INTERNAL_CLK)
-	#define PULSE_PER_MS	30.2342
-	#define PULSE_PER_US	7.74		
-#else //40MHz
-	#define PULSE_PER_MS	156.25
-	#define PULSE_PER_US	40
-#endif /* def FREQ_XXMHZ */
-
-
+//Les définitions du nombre de pulse par ms ou us est dans le .h maintenant.
 
 void TIMER_init()
 {
@@ -61,7 +47,7 @@ void TIMER1_run(Uint8 period /* en millisecondes */)
 			T1_PS_1_256 &			/* Prescaler 1:256 */
 			T1_SYNC_EXT_OFF &		/* Do not synch external clk input */
 			T1_SOURCE_INT,			/* Internal clock source */
-			PULSE_PER_MS * period);	/* periode en ms */
+			TIMER_PULSE_PER_MS * period);	/* periode en ms */
 	EnableIntT1;
 }
 
@@ -74,7 +60,7 @@ void TIMER1_run_us (Uint16 period /* en microsecondes */)
 			T1_PS_1_1 &				/* Prescaler 1:1 */
 			T1_SYNC_EXT_OFF &		/* Do not synch external clk input */
 			T1_SOURCE_INT,			/* Internal clock source */
-			PULSE_PER_US * period);	/* periode en ms */
+			TIMER_PULSE_PER_US * period);	/* periode en ms */
 	EnableIntT1;
 }
 
@@ -94,7 +80,7 @@ void TIMER2_run(Uint8 period /* en millisecondes */)
 			T2_PS_1_256 &			/* Prescaler 1:256 */
 			T2_32BIT_MODE_OFF &		/* Timer 2 and Timer 3 form are 2 16 bit Timers */
 			T2_SOURCE_INT,			/* Internal clock source */
-			PULSE_PER_MS * period);	/* periode en ms */
+			TIMER_PULSE_PER_MS * period);	/* periode en ms */
 	EnableIntT2;
 }
 
@@ -107,7 +93,7 @@ void TIMER2_run_us(Uint16 period /* en microsecondes */)
 			T2_PS_1_1 &				/* Prescaler 1:1 */
 			T2_32BIT_MODE_OFF &		/* Timer 2 and Timer 3 form are 2 16 bit Timers */
 			T2_SOURCE_INT,			/* Internal clock source */
-			PULSE_PER_US * period);	/* periode en ms */
+			TIMER_PULSE_PER_US * period);	/* periode en ms */
 	EnableIntT2;
 }
 
@@ -126,7 +112,7 @@ void TIMER3_run(Uint8 period /* en millisecondes */)
 			T3_GATE_OFF &			/* Timer Gate time accumulation disabled */
 			T3_PS_1_256 &			/* Prescaler 1:256 */
 			T3_SOURCE_INT,			/* Internal clock source */
-			PULSE_PER_MS * period);	/* periode en us */
+			TIMER_PULSE_PER_MS * period);	/* periode en us */
 	EnableIntT3;
 }
 void TIMER3_run_us(Uint16 period /* en microsecondes */)
@@ -137,7 +123,7 @@ void TIMER3_run_us(Uint16 period /* en microsecondes */)
 			T3_GATE_OFF &			/* Timer Gate time accumulation disabled */
 			T3_PS_1_1 &				/* Prescaler 1:1 */
 			T3_SOURCE_INT,			/* Internal clock source */
-			PULSE_PER_US * period);	/* periode en us */
+			TIMER_PULSE_PER_US * period);	/* periode en us */
 	EnableIntT3;
 }
 
@@ -159,11 +145,11 @@ void TIMER4_run(Uint16 period /* en millisecondes */)
 			T4_PS_1_256 &			/* Prescaler 1:256 */
 			T4_SOURCE_INT &			/* Internal clock source */
 			T4_32BIT_MODE_ON,		/* Timer 4 and Timer 5 form a 32 bit Timer */
-			PULSE_PER_MS * period);	/* periode en ms */
+			TIMER_PULSE_PER_MS * period);	/* periode en ms */
 	EnableIntT4;
 }
 
 Uint16 TIMER4_read() /* retour en ms*/
 {
-	return TMR4/PULSE_PER_MS;
+	return TMR4/TIMER_PULSE_PER_MS;
 }
