@@ -15,6 +15,23 @@
 
 	#include "QS_all.h"
 
+	//Définitions faites ici pour permettre l'utilisation de ces valeurs hors de ce module. Il est parfois nécessaire d'avoir ces nombres pour d'autre module.
+	//En étant ici, les définitions restent centralisés.
+	//TIMER_ a été ajouté au nom pour éviter de polluer l'espace de noms global, car l'écologie c'est le bien.
+	#ifdef FREQ_10MHZ
+		#define TIMER_PULSE_PER_MS	39.0625
+		#define TIMER_PULSE_PER_US	10
+	#elif defined (FREQ_20MHZ)
+		#define TIMER_PULSE_PER_MS	78.125
+		#define TIMER_PULSE_PER_US	20
+	#elif defined (FREQ_INTERNAL_CLK)
+		#define TIMER_PULSE_PER_MS	30.2342
+		#define TIMER_PULSE_PER_US	7.74
+	#else //40MHz
+		#define TIMER_PULSE_PER_MS	156.25
+		#define TIMER_PULSE_PER_US	40
+	#endif /* def FREQ_XXMHZ */
+
 	void TIMER_init(void);
 	/*	Initialise les timers, l'interruption du timer1 est
 	 *	prioritaire sur celle du timer2, qui est prioritaire
