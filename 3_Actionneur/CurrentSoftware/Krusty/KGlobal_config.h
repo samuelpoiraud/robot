@@ -78,9 +78,9 @@
 	/* définir le nombre d'actionneurs asservis */
 	#define DCM_NUMBER			6 // A voir en fonction du futur asservissement en courant
 	/* Période d'asservisement (en ms) */
-	#define DCM_TIMER_PERIOD	8
+	#define DCM_TIMER_PERIOD	10
 	/* Seuil d'acceptation d'arrivée */
-	#define DCM_EPSILON			8
+	#define DCM_EPSILON			10
 	/* nombre maximum de positions à gérer par moteur */
 	#define DCMOTOR_NB_POS		5
 
