@@ -27,7 +27,7 @@
 	#define BOUTON_ON 1
 	#define BOUTON_OFF 0
 	
-	#define INC_PWM 10 //temps au bout duquel le pourcentage de la PWM incremente de 1 (en ms)
+	#define INC_PWM_PERIOD 10 //temps au bout duquel le pourcentage de la PWM incremente de 1 (en ms)
 
 	//Mesure du coef: Volt = Coef * Entrée_analogique
 	#define COEFF 0.004887
