@@ -16,29 +16,26 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_timer.h"
 
+//Define pour récuperer les valeurs du timer d'asservissement et sa période
 #if DCM_TIMER == 1
 	#define DCM_TIMER_VAL_REG    TMR1
 	#define DCM_TIMER_PERIOD_REG PR1
 	#define DCM_TIMER_PRIORITY_REG IPC0bits.T1IP
-	#define DCM_TIMER_ENABLE_REG IEC0bits.T1IE
 	#define DCM_TIMER_OVERFLOW_REG IFS0bits.T1IF
 #elif DCM_TIMER == 2
 	#define DCM_TIMER_VAL_REG    TMR2
 	#define DCM_TIMER_PERIOD_REG PR2
 	#define DCM_TIMER_PRIORITY_REG IPC1bits.T2IP
-	#define DCM_TIMER_ENABLE_REG IEC0bits.T2IE
 	#define DCM_TIMER_OVERFLOW_REG IFS0bits.T2IF
 #elif DCM_TIMER == 3
 	#define DCM_TIMER_VAL_REG    TMR3
 	#define DCM_TIMER_PERIOD_REG PR3
 	#define DCM_TIMER_PRIORITY_REG IPC1bits.T3IP
-	#define DCM_TIMER_ENABLE_REG IEC0bits.T3IE
 	#define DCM_TIMER_OVERFLOW_REG IFS0bits.T3IF
 #elif DCM_TIMER == 4
 	#define DCM_TIMER_VAL_REG    TMR4
 	#define DCM_TIMER_PERIOD_REG PR4
 	#define DCM_TIMER_PRIORITY_REG IPC5bits.T4IP
-	#define DCM_TIMER_ENABLE_REG IEC1bits.T4IE
 	#define DCM_TIMER_OVERFLOW_REG IFS1bits.T4IF
 #else
 	#error "DCM_TIMER doit etre 1 2 3 ou 4"
@@ -83,8 +80,8 @@ void BALLLAUNCHER_init() {
 
 	//Si la priorité de l'interruption INTx (qui est déclanchée lors d'un passage d'un aimant devant le capteur) est de priorité supérieure à celle du timer gérant l'asservissement,
 	//il est possible d'avoir une interruption INTx entre l'overflow du timer (donc il recommence a compter a partir de 0) et l'actualisation du nombre d'overflow dans la variable timer_overflow_number.
-	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY >= DCM_TIMER_PRIORITY_REG)
-		debug_printf("BL: Attention ! La priorité de l'interruption INTx devrait être inférieur à celle de l'asservissement (TIMERx)\n");
+	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY <= DCM_TIMER_PRIORITY_REG)
+		debug_printf("BL: Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx)\n");
 }
 
 void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
@@ -145,150 +142,90 @@ static void BALLLAUNCHER_set_target_speed(Sint16 tr_min) {
 	DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, val);
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+// Système de captage a base du capteur à effet hall, 1 utilisation MAX par robot.
+///////////////////////////////////////////////////////////////////////////////////
 
-//TODO: en fait utiliser du 32bits n'est pas nécessaire, a revoir cette partie de code
-#ifdef BALLLAUNCHER_USE_HIGH_PRIORITY_TIMER
-
-//données d'aquisition de la vitesse
-static Uint8 timer_overflow_number;	//incrémenté à chaque fois que la fonction de capteur de l'asservissement est appelée (après l'overflow de son timer)
-static Uint32 last_detection_interval; //intervale entre 2 passage d'aimant, en valeur timer
-
-//Vitesse minimale detectable: 35 tr/min = 857 msec/tr
-//Version priorité BALLLAUNCHER_get_speed > BALLLAUNCHER_HALLSENSOR_INT_ISR
-static Sint16 BALLLAUNCHER_get_speed() {
-	//S'il s'est rien passé pendant 850ms, on considère que le moteur est arreté.
-	//Si le temps trouvé entre 2 detections est supérieur à 1048560 us, on considère aussi que le moteur est arreté (pour des raisons de problèmes d'overflow sur des opérations suivantes.)
-	if(timer_overflow_number >= (850/DCM_TIMER_PERIOD) || last_detection_interval >= (65535*16*TIMER_PULSE_PER_US)) {
-		last_detection_interval = 0;
-		return 0;
-	} else timer_overflow_number++;
-
-	//Cas spécial: moteur stoppé
-	if(last_detection_interval == 0)
-		return 0;
-
-	//Vitesse maximale détectable: 32767 tr/min, 1832 us entre chaque tours
-	if(last_detection_interval <= (1832*TIMER_PULSE_PER_US/BALLLAUNCHER_EDGE_PER_ROTATION))
-		return 32767;
-
-	//Calcul des tr/min
-	//60*1000000/BALLLAUNCHER_EDGE_PER_ROTATION est la vitesse en tr/min si entre 2 passage d'aimant il y a 1us
-	//La valeur est grande et en usec, dépasserait 65535, de plus moins de précision est demandée -> division plus forte dès le début
-	//Attention, last_detection_interval ne pas dépasser une valeur corespondant à plus de 1048560usec (on regarde déjà si c'est supérieur à 850000usec avant)
-
-	//__builtin_divud est une division utilisant une instruction et non la librarie qui fait la division sans instruction de division (sauf qu'on a l'instruction)
-	//prototype de la fonction: Uint16 __builtin_divud(Uint32 val1, Uint16 val2), le resultat est val1/val2
-	if(last_detection_interval >= (65535*TIMER_PULSE_PER_US)) {
-		return __builtin_divud((60*1000000/BALLLAUNCHER_EDGE_PER_ROTATION/16), __builtin_divud(last_detection_interval, (TIMER_PULSE_PER_US*16)));
-	} else {
-		return __builtin_divud((60*1000000/BALLLAUNCHER_EDGE_PER_ROTATION), __builtin_divud(last_detection_interval, TIMER_PULSE_PER_US));
-	}
-	
-	//Jamais exécuté ici
-}
-
-void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
-	bool_e dcm_timer_state;
-	Uint16 timer_val;
-	Uint8 timer_overflow_number_saved;
-	static Uint16 timer_last_detection = 0; //valeur du timer à la dernière detection
-	static bool_e timer_last_detection_valid = FALSE;
-
-	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
-
-#ifdef VERBOSE_MODE
-	//Si le timer a overflow, timer_overflow_number doit être strictement supérieur à 1, si c'est pas le cas il y a un bug
-	if(timer_overflow_number == 0 && timer_val < timer_last_detection) {
-		debug_printf("BL: Erreur dans BALLLAUNCHER_HALLSENSOR_INT_ISR: 0 overflow mais la valeur timer est inférieur à l'ancienne !!\n");
-	}
+//Constante permettant d'avoir des valeurs indépendante de la fréquence de la carte
+#if defined(FREQ_10MHZ)
+	#define HALL_TIMECOUNTER_PULSE_PER_UNIT 1
+#elif defined(FREQ_20MHZ)
+	#define HALL_TIMECOUNTER_PULSE_PER_UNIT 2	//pour 20Mhz
+#elif defined(FREQ_40MHZ)
+	#define HALL_TIMECOUNTER_PULSE_PER_UNIT 4	//pour 40Mhz
 #endif
 
-	//section critique, le timer de l'asservissement ne doit pas déclencher une IT a ce moment car timer_overflow_number ne doit pas être modifié
-	dcm_timer_state = DCM_TIMER_ENABLE_REG;
-	DCM_TIMER_ENABLE_REG = 0;
-	timer_val = DCM_TIMER_VAL_REG;
-	//Si il y a eu un overflow entre la désactivation de l'interruption et après la récupération du timer
-	//On ne peut garantir que la valeur récupérée est avant l'overflow, donc on ignore ce passage d'aimant.
-	//Ca ne devrai pas arriver souvent, mais si on ne l'ignore pas, ça peut causer des sauts de vitesse capté plus ou moins importantes ...
-	if(DCM_TIMER_OVERFLOW_REG) {
-		DCM_TIMER_ENABLE_REG = dcm_timer_state;
-		timer_last_detection_valid = FALSE;
-	} else {
-		timer_overflow_number_saved = timer_overflow_number;
-		timer_overflow_number = 0;
-		DCM_TIMER_ENABLE_REG = dcm_timer_state;
+//Incrément de timer par ms
+#define HALL_TIMECOUNTER_PULSE_PER_MS (39.0625)
 
-		//Attention, du 32bits dans l'air
-		//La fonction __builtin force l'utilisation d'une isntruction au lieu d'une librarie pour des raisons de vitesse d'exécution
-		//prototype: unsigned long __builtin_muluu(const unsigned p0, const unsigned p1);, opération: return_value = p0*p1
-		if(timer_last_detection_valid)
-			last_detection_interval = __builtin_muluu(timer_overflow_number_saved, DCM_TIMER_PERIOD_REG) + timer_val - timer_last_detection;
-		timer_last_detection = timer_val;
-		timer_last_detection_valid = TRUE;
-	}
+//Temps avant qu'on considère que la vitesse est nulle
+#define HALL_TIMECOUNTER_MAX_PERIOD_TIME 300 //en ms
 
-	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
-	BALLLAUNCHER_HALLSENSOR_INT_EDGE = !BALLLAUNCHER_HALLSENSOR_INT_EDGE;
-}
+static Uint16 hall_last_detection_interval;
+static Uint16 hall_full_period_elapsed_time;	//toujours multiple de DCM_TIMER_PERIOD en ms. compter comme ça évite une multiplication
+static bool_e hall_dont_update_timer_overflow_count;	//TRUE si on ne doit pas changer total_elapsed_time_count
+static bool_e hall_timer_val_last_detection_valid = FALSE;	//Vrai quand la dernière valeur du timer enregistré lors de la dernière detection est valide.
 
-#else	//l'IT INTx est de plus haute priorité
-
-
-//FIXME: Ajouter 1 à DCM_TIMER_PERIOD_REG ?
-
-#define TIMECOUNTER_PULSE_PER_UNIT 1
-//#define TIMECOUNTER_PULSE_PER_UNIT 2	//pour 20Mhz  Ces deux comenté ne seront probablement jamais utilisés
-//#define TIMECOUNTER_PULSE_PER_UNIT 4	//pour 40Mhz
-
-static Uint16 last_detection_interval;
-static Uint16 total_elapsed_time_count;	//toujours multiple de DCM_TIMER_PERIOD en ms. compter comme ça évite une multiplication
-static bool_e dont_increment_timer_overflow_count;	//TRUE si on ne doit pas changer total_elapsed_time_count
-
-//Vitesse minimale detectable: 35 tr/min = 857 msec/tr
 //Version priorité BALLLAUNCHER_get_speed < BALLLAUNCHER_HALLSENSOR_INT_ISR
 static Sint16 BALLLAUNCHER_get_speed() {
-	//Si on compte jusqu'a overflow la variable, on considère que la vitesse est 0
-	if(total_elapsed_time_count >= (0xFFFF - (DCM_TIMER_PERIOD_REG/TIMECOUNTER_PULSE_PER_UNIT))) {
-		last_detection_interval = 0;
-	} else {
-		BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 0;
-		if(dont_increment_timer_overflow_count == FALSE)
-			total_elapsed_time_count += (DCM_TIMER_PERIOD_REG/TIMECOUNTER_PULSE_PER_UNIT);
-		DCM_TIMER_OVERFLOW_REG = 0;	//BIDOUILLAGE ICI !!! On met le flag de l'IT de l'asservissement à 0, permet de savoir si total_elapsed_time_count à été mis à jour après un overflow ou pas
-		BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 1;
-		dont_increment_timer_overflow_count = FALSE;
+
+	//Section critique
+	BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 0;
+
+	//Mettre à jour le compteur d'overflow que si ça n'a pas déjà été fait par l'IT externe de plus haute priorité
+	if(hall_dont_update_timer_overflow_count == FALSE) {
+		//Si on compte jusqu'a timeout la variable, on considère que la vitesse est 0
+		if(hall_full_period_elapsed_time >= (HALL_TIMECOUNTER_MAX_PERIOD_TIME*HALL_TIMECOUNTER_PULSE_PER_MS)) {
+			hall_last_detection_interval = 0;
+			hall_timer_val_last_detection_valid = FALSE;
+		} else hall_full_period_elapsed_time += ((DCM_TIMER_PERIOD_REG+1)/HALL_TIMECOUNTER_PULSE_PER_UNIT);
 	}
+	DCM_TIMER_OVERFLOW_REG = 0;	//On met le flag de l'IT de l'asservissement à 0, permet de savoir si total_elapsed_time_count à été mis à jour après un overflow ou pas
+	BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 1;
 
-	//Calcul des tr/min
-	return last_detection_interval;
+	hall_dont_update_timer_overflow_count = FALSE;
 
-	//Jamais exécuté ici
+	//Cas spécial: vitesse nulle
+	if(hall_last_detection_interval == 0)
+		return 0;
+
+	//Calcul des tr/min, __builtin_divud permet une division utilisant les instructions du proc et non la librarie, histoire d'éviter de perdre inutilement des cycles processeurs
+	return (Sint16)__builtin_divud((60000*HALL_TIMECOUNTER_PULSE_PER_MS/BALLLAUNCHER_EDGE_PER_ROTATION), hall_last_detection_interval);
 }
 
 void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
-	Uint16 timer_val;
-	Uint16 timer_overflow_number_saved;
-	static Uint16 timer_last_detection = 0; //valeur du timer à la dernière detection
-	static bool_e timer_last_detection_valid = FALSE;
+	Uint16 hall_timer_val_detection;
+	Uint16 hall_full_period_elapsed_time_saved;
+	static Uint16 hall_timer_val_last_detection = 0; //valeur du timer à la dernière detection, valide que si timer_last_detection_valid == TRUE
 
-	timer_overflow_number_saved = total_elapsed_time_count;
+	hall_full_period_elapsed_time_saved = hall_full_period_elapsed_time;
+	hall_timer_val_detection = (DCM_TIMER_VAL_REG/HALL_TIMECOUNTER_PULSE_PER_UNIT);
 	if(DCM_TIMER_OVERFLOW_REG) {
-		timer_overflow_number_saved += (DCM_TIMER_PERIOD_REG/TIMECOUNTER_PULSE_PER_UNIT);
-		total_elapsed_time_count = 0;
-		dont_increment_timer_overflow_count = TRUE;
-	} else total_elapsed_time_count = 0;
+		//On vérifie si notre acquisition est avant ou après l'overflow par comparaison avec la moitié de la période
+		if(hall_timer_val_detection < DCM_TIMER_PERIOD_REG/(2*HALL_TIMECOUNTER_PULSE_PER_UNIT)) {
+			//Mise à jour du compteur d'overflow, BALLLAUNCHER_get_speed() n'a pas eu le temps de le faire, on doit le faire à sa place
+			if(hall_full_period_elapsed_time_saved >= (HALL_TIMECOUNTER_MAX_PERIOD_TIME*HALL_TIMECOUNTER_PULSE_PER_MS)) {
+				hall_last_detection_interval = 0;
+				hall_timer_val_last_detection_valid = FALSE;
+			} else hall_full_period_elapsed_time_saved += ((DCM_TIMER_PERIOD_REG+1)/HALL_TIMECOUNTER_PULSE_PER_UNIT);
 
-	timer_val = (DCM_TIMER_VAL_REG/TIMECOUNTER_PULSE_PER_UNIT);
+			//On indique que BALLLAUNCHER_get_speed() n'aura pas à mettre à jour le compteur d'overflow puisse que c'est déjà fait
+			hall_dont_update_timer_overflow_count = TRUE;
+		}
+	}
 
-	if(timer_last_detection_valid)
-		last_detection_interval = timer_overflow_number_saved + timer_val - timer_last_detection;
-	timer_last_detection = timer_val;
-	timer_last_detection_valid = TRUE;
-	
+	hall_full_period_elapsed_time = 0;
+
+	//Si la dernière detection est valide, on calcule, sinon on fait rien vu qu'on a pas assez d'info
+	if(hall_timer_val_last_detection_valid)
+		hall_last_detection_interval = hall_full_period_elapsed_time_saved + hall_timer_val_detection - hall_timer_val_last_detection;
+
+	hall_timer_val_last_detection = hall_timer_val_detection;
+	hall_timer_val_last_detection_valid = TRUE;
+
+	//Changement de front detecté, on capte le passage de tous les aimants comme ça
 	BALLLAUNCHER_HALLSENSOR_INT_EDGE = !BALLLAUNCHER_HALLSENSOR_INT_EDGE;
 	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
 }
-
-#endif //BALLLAUNCHER_USE_HIGH_PRIORITY_TIMER
 
 #endif	//I_AM_ROBOT_KRUSTY
