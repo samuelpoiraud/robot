@@ -17,11 +17,6 @@
 		#error "Il est interdit d'inclure directement Global_vars.h, lire le CQS."
 	#endif
 		
-	volatile bool_e flag_pwm1;
-	volatile bool_e flag_pwm2;
-	volatile bool_e flag_pwm3;
-	volatile bool_e flag_pwm4;
-	volatile bool_e flag_toutes_pwm;
 	
 		
 	/*  Note : Variables globales communes à tous les codes
