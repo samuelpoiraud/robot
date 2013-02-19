@@ -25,7 +25,7 @@
 	 * Pour ceux qui veulent, il est possible de prédéfinir PREDEF_BUILD_TINY ou PREDEF_BUILD_KRUSTY avec le switch -DPREDEF_BUILD_TINY ou -DPREDEF_BUILD_KRUSTY de gcc, permet la creation de plusieurs target dans mplab X au moins.
 	 * PREDEF_BUILD_TINY et PREDEF_BUILD_KRUSTY sont prioritaire sur la définition manuelle.
 	 */
-	//#define I_AM_ROBOT_KRUSTY
+	#define I_AM_ROBOT_KRUSTY
 	//#define I_AM_ROBOT_TINY
 	
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
@@ -64,14 +64,17 @@
 	#define UART_RX_BUF_SIZE	12
 	
 /* Bouton */
- #define BUTTONS_TIMER 4
- #define USE_BUTTONS
+	#define BUTTONS_TIMER 4
+	#define USE_BUTTONS
 
 /* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
 //	#define FAST_COS_SIN
 //	#define COS_SIN_16384
 
 
+/**************************************************************************************************\
+|   Test du robot cible choisi et prise en charge des targets Krusty et Tiny avec PREDEF_BUILD_*   |
+\**************************************************************************************************/
 
 #if defined(PREDEF_BUILD_KRUSTY)
 # ifndef I_AM_ROBOT_KRUSTY
@@ -91,7 +94,7 @@
 
 //Test et inclusion des configs spécifiques au robot
 #if (defined(I_AM_ROBOT_KRUSTY) && defined(I_AM_ROBOT_TINY)) || (!defined(I_AM_ROBOT_KRUSTY) && !defined(I_AM_ROBOT_TINY))
-#error "Veuillez définir I_AM_ROBOT_KRUSTY ou I_AM_ROBOT_TINY selon le robot cible."
+#error "Veuillez définir I_AM_ROBOT_KRUSTY ou I_AM_ROBOT_TINY selon le robot cible. (Voir ligne ~25)"
 #endif
 #if defined(I_AM_ROBOT_KRUSTY)
 #include "./Krusty/KGlobal_config.h"

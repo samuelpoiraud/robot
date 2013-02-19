@@ -50,29 +50,20 @@
 	#define AN12_ID 4
 
 /**************** Périphériques ****************/
-	/*
-	// QEI sur IT
+
+/* QEI sur IT */
+/*
 	#define USE_QEI_ON_IT
 	#define QEI_ON_IT_QA		1
 	#define QEI_ON_IT_QB		2
-	*/
+*/
 
-	/* Réglages UART */
-	#define USE_UART1
-	#define USE_UART1RXINTERRUPT
-	#define UART_RX_BUF_SIZE	12
+/* Réglages PWM */
+	#define FREQ_PWM_50KHZ
 
-	/* Bouton */
-	 #define BUTTONS_TIMER 4
-	 #define USE_BUTTONS
-
-	/* Réglages PWM */
-	//#define DISABLE_PWM4H
-	#define FREQ_PWM_20KHZ
-
-	/* asservissement en position/vitesse de moteurs CC */
+/* Asservissement en position/vitesse de moteurs CC */
 	/* déclarer l'utilisation du pilote */
-	#define USE_DCMOTOR
+	#define USE_DCMOTOR2
 	/* timer utilisé pour l'asservissement (1, 2, ou 3) */
 	#define DCM_TIMER			1
 	/* définir le nombre d'actionneurs asservis */
@@ -84,17 +75,17 @@
 	/* nombre maximum de positions à gérer par moteur */
 	#define DCMOTOR_NB_POS		5
 
-	/* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
+/* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
 	//	#define FAST_COS_SIN
 	//	#define COS_SIN_16384
 
 /**************** Actionneurs ****************/
 
-	/* Config BALLLAUNCHER */
-	#define BALLLAUNCHER_ASSER_KP                1
-	#define BALLLAUNCHER_ASSER_KI                0
+/* Config BALLLAUNCHER */	//TODO: Changer le numéro de PWM à 4 !!!!!
+	#define BALLLAUNCHER_ASSER_KP                10
+	#define BALLLAUNCHER_ASSER_KI                80
 	#define BALLLAUNCHER_ASSER_KD                0
-	#define BALLLAUNCHER_TARGET_SPEED            5000		//en tr/min
+	#define BALLLAUNCHER_TARGET_SPEED            6000		//en tr/min
 	#define BALLLAUNCHER_DCMOTOR_ID              0			//Doit être unique !
 	#define BALLLAUNCHER_DCMOTOR_PWM_NUM         4
 	#define BALLLAUNCHER_DCMOTOR_PORT_WAY        PORTE
@@ -107,6 +98,23 @@
 	#define BALLLAUNCHER_HALLSENSOR_INT_ENABLE   IEC1bits.INT1IE
 	#define BALLLAUNCHER_HALLSENSOR_INT_EDGE     INTCON2bits.INT1EP
 	#define BALLLAUNCHER_HALLSENSOR_INT_ISR      __attribute__((interrupt, no_auto_psv)) _INT1Interrupt
+
+/* Config BALLLAUNCHER */
+	#define PLATE_ASSER_KP                       1
+	#define PLATE_ASSER_KI                       0
+	#define PLATE_ASSER_KD                       0
+	#define PLATE_HORIZONTAL_POS                 100	//TODO: ajuster ces valeurs !
+	#define PLATE_VERTICAL_POS                   5000
+	#define PLATE_DCMOTOR_ID                     1			//Doit être unique !
+	#define PLATE_DCMOTOR_PWM_NUM                4
+	#define PLATE_DCMOTOR_PORT_WAY               PORTE
+	#define PLATE_DCMOTOR_PORT_WAY_BIT           6
+	#define PLATE_DCMOTOR_MAX_PWM_WAY0           100
+	#define PLATE_DCMOTOR_MAX_PWM_WAY1           0
+	#define PLATE_ROTATION_POTAR_ADC_ID          AN9_ID
+	#define PLATE_PLIER_AX12_ID                  0	//TODO: changer ces valeurs !!!
+	#define PLATE_PLIER_AX12_OPEN_POS            0
+	#define PLATE_PLIER_AX12_CLOSED_POS          0
 	
 /**************** Capteurs ****************/
 

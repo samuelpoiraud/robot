@@ -59,22 +59,13 @@
 	#define QEI_ON_IT_QB		2
 	*/
 
-	/* Réglages UART */
-	#define USE_UART1
-	#define USE_UART1RXINTERRUPT
-	#define UART_RX_BUF_SIZE	12
-
-	/* Bouton */
-	 #define BUTTONS_TIMER 4
-	 #define USE_BUTTONS
-
 	/* Réglages PWM */
 	//#define DISABLE_PWM4H
-	#define FREQ_PWM_20KHZ
+	#define FREQ_PWM_50KHZ
 
 	/* asservissement en position/vitesse de moteurs CC */
 	/* déclarer l'utilisation du pilote */
-	#define USE_DCMOTOR
+	#define USE_DCMOTOR2
 	/* timer utilisé pour l'asservissement (1, 2, ou 3) */
 	#define DCM_TIMER			1
 	/* définir le nombre d'actionneurs asservis */
