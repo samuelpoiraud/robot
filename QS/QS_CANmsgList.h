@@ -166,6 +166,17 @@
 		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
 	/////////////////////////////////////////
 
+	////////////////// PLATE ////////////////
+	#define ACT_PLATE (ACT_FILTER | 0x12)
+		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
+		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette'
+		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
+		#define ACT_PLATE_ROTATE_HORIZONTALLY   0x20	//Amener le bras en position horizontale (pour prendre ou lacher une assiette par ex)
+		#define ACT_PLATE_ROTATE_VERTICALLY     0x21	//Amener le bras en position verticale (pour vider une assiette ou réduire le périmêtre du robot)
+		#define ACT_PLATE_PLIER_STOP            0x12	//Stopper l'asservissement de la pince
+		#define ACT_PLATE_ROTATE_STOP           0x22	//Stopper l'asservissement du bras
+	/////////////////////////////////////////
+
 /*****************************************************************
  *
  *		Messages echangés entre la carte balise

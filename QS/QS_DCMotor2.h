@@ -2,20 +2,20 @@
  *	Club Robot ESEO 2008 - 2010
  *	Archi-Tech', PACMAN
  *
- *	Fichier : QS_DCMotor.h
- *	Package : Qualité Soft
- *	Description : Gestion des moteurs à courant continu asservis en position
+ *	Fichier : QS_DCMotor2.h
+ *	Package : QualitÃ© Soft
+ *	Description : Gestion des moteurs Ã  courant continu asservis en position
  *  Auteur : Gwenn, Jacen
  *	Licence : CeCILL-C (voir LICENCE.txt)
  *  Version 20100620
  */
 
-#ifndef QS_DCMOTOR_H
-	#define QS_DCMOTOR_H
+#ifndef QS_DCMOTOR2_H
+	#define QS_DCMOTOR2_H
 	
 	#include "QS_all.h"
 	
-	#ifdef USE_DCMOTOR
+	#ifdef USE_DCMOTOR2
 
 		//fonction sans argument renvoyant une valeur de type Sint16
 		typedef Sint16(*sensor_read_fun_t)(void);
@@ -25,21 +25,20 @@
 			DCM_IDLE,
 			DCM_WORKING,
 			DCM_TIMEOUT
-		}working_state_e;
-		typedef working_state_e DCM_working_state_e;	//Précise de quel module on parle avec working_state_e, garde la compatibilité avec l'ancien nom.
+		} DCM_working_state_e;	//PrÃ©cise de quel module on parle avec working_state_e, garde la compatibilitÃ© avec l'ancien nom.
 
 		typedef struct
 		{
 			sensor_read_fun_t sensor_read;	//fonction a exectuer pour obtenir la position courante
-			Uint8 pwm_number;				// numero de la sortie PWM à utiliser (conformément à PWM_run(...))
-			Sint16 pos[DCMOTOR_NB_POS];		// valeurs de l'adc pour les différentes positions de l'actionneur
-			Uint8 way0_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens à 0
-			Uint8 way1_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens à 1
+			Uint8 pwm_number;				// numero de la sortie PWM Ã  utiliser (conformÃ©ment Ã  PWM_run(...))
+			Sint16 pos[DCMOTOR_NB_POS];		// valeurs de l'adc pour les diffÃ©rentes positions de l'actionneur
+			Uint8 way0_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens Ã  0
+			Uint8 way1_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens Ã  1
 			Sint16 Kp, Ki, Kd;				// valeurs des gains pour le PID
 			Uint16* way_latch;				// adresse du port contenant le bit de sens de controle du pont en H
 			Uint8 way_bit_number;			// numero du bit de sens dans le port
-			Uint16 timeout;					// timeout en ms, si la position demandée n'est pas atteinte avant ce temps, l'asservissement est arreté (évite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
-			Uint16 epsilon;					// epsilon, si l'erreur devient inférieur à cette variable, la position est considéré comme atteinte
+			Uint16 timeout;					// timeout en ms, si la position demandÃ©e n'est pas atteinte avant ce temps, l'asservissement est arretÃ© (Ã©vite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
+			Uint16 epsilon;					// epsilon, si l'erreur devient infÃ©rieur Ã  cette variable, la position est considÃ©rÃ© comme atteinte
 		}DCMotor_config_t;	
 
 		/*-------------------------------------
@@ -53,15 +52,15 @@
 		void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos);
 
 		// Indique si le moteur a fini son travail
-		working_state_e DCM_get_state (Uint8 dc_motor_id);
+		DCM_working_state_e DCM_get_state (Uint8 dc_motor_id);
 	
-		// configurer un moteur CC après initialisation du module QS
+		// configurer un moteur CC aprÃ¨s initialisation du module QS
 		void DCM_config ( Uint8 dc_motor_id, DCMotor_config_t* config);
 		
-		//Change la valeur d'une position sans arrêter l'asservissement. Si le moteur était asservi à cette position, l'asservissement prend en compte le changement
+		//Change la valeur d'une position sans arrÃªter l'asservissement. Si le moteur Ã©tait asservi Ã  cette position, l'asservissement prend en compte le changement
 		void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value);
 		
-		//Récupère la valeur d'une position
+		//RÃ©cupÃ¨re la valeur d'une position
 		Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get);
 	
 		// Arret de l'asservissement d'un actionneur
@@ -76,5 +75,5 @@
 		// Reactivation de tous les asservissements
 		void DCM_restart_all();
 
-	#endif /* def USE_DCMOTOR */
-#endif /* ndef QS_DCMOTOR_H */
+	#endif /* def USE_DCMOTOR2 */
+#endif /* ndef QS_DCMOTOR2_H */

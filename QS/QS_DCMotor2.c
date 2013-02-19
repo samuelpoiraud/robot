@@ -10,8 +10,8 @@
  *  Version 20100620
  */
 
-#include "QS_DCMotor.h"
-#ifdef USE_DCMOTOR
+#include "QS_DCMotor2.h"
+#ifdef USE_DCMOTOR2
 
 #include "QS_pwm.h"
 #include "QS_timer.h"
@@ -60,7 +60,7 @@
 	typedef struct
 	{
 		DCMotor_config_t config;	// la config du DCMotor
-		working_state_e cmd_flag;	// Flag indiquant que l'actionneur est en mouvement
+		DCM_working_state_e cmd_state;	// Etat de la dernière commande: Position atteinte, en mouvement, timeout
 		Sint32 integrator;			// Integrateur pour le PID
 		Uint16 cmd_time;			// temps depuis la reception de la commande, en ms
 		Uint8 posToGo;				// consigne, en numero de position actionneur
@@ -98,11 +98,11 @@ void DCM_init()
 	DCM_TIMER_RUN(DCM_TIMER_PERIOD);
 }
 
-working_state_e DCM_get_state (Uint8 dc_motor_id)
+DCM_working_state_e DCM_get_state (Uint8 dc_motor_id)
 {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
-	return this->cmd_flag;
+	return this->cmd_state;
 }
 
 
@@ -111,7 +111,7 @@ void DCM_config (Uint8 dc_motor_id, DCMotor_config_t* config)
 {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
 	this->config = *config;
-	this->cmd_flag=DCM_IDLE;
+	this->cmd_state=DCM_IDLE;
 	this->integrator=0;
 	this->cmd_time=0;
 	this->posToGo=0;
@@ -162,7 +162,7 @@ void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos)
 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
 	this->posToGo = pos;
 	this->cmd_time = 0;
-	this->cmd_flag = DCM_WORKING;
+	this->cmd_state = DCM_WORKING;
 }
 
 /*-----------------------------------------
@@ -171,8 +171,10 @@ void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos)
 void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value) {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
 	this->config.pos[pos_to_update] = new_value;
-	this->cmd_time = 0;
-	this->cmd_flag = DCM_WORKING;
+	if(this->posToGo == pos_to_update) {
+		this->cmd_time = 0;
+		this->cmd_state = DCM_WORKING;
+	}
 }
 
 /*-----------------------------------------
@@ -193,7 +195,6 @@ void DCM_stop(Uint8 dc_motor_id)
 	if(this->init_state == INITIALIZED)
 	{
 		this->init_state = STOPPED;
-		this->cmd_flag = DCM_IDLE;
 		PWM_stop(this->config.pwm_number);
 	}	
 }	
@@ -219,8 +220,9 @@ void DCM_restart(Uint8 dc_motor_id)
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
 	if(this->init_state == STOPPED)
 	{
+		this->integrator = 0;
 		this->cmd_time = 0;
-		this->cmd_flag = DCM_WORKING;
+		this->cmd_state = DCM_WORKING;
 		this->init_state = INITIALIZED;
 	}	
 }	
@@ -261,26 +263,28 @@ void _ISR DCM_TIMER_IT()
 			error = config->pos[this->posToGo]-(config->sensor_read)();
 			
 			this->cmd_time += DCM_TIMER_PERIOD;
-			
-			switch(this->cmd_flag) {
+
+			//Gestion des changements d'états
+			switch(this->cmd_state) {
 				case DCM_WORKING:
 					if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon)
-						this->cmd_flag = DCM_IDLE;
+						this->cmd_state = DCM_IDLE;
 					else if(this->cmd_time && this->cmd_time > config->timeout)
-						this->cmd_flag = DCM_TIMEOUT;
+						this->cmd_state = DCM_TIMEOUT;
 					break;
 
 				case DCM_IDLE:
 					this->cmd_time = 0;
 					if(abs(error) >= (Sint16)config->epsilon)
-						this->cmd_flag = DCM_WORKING;
+						this->cmd_state = DCM_WORKING;
 					break;
 
 				case DCM_TIMEOUT:
 					break;
 			}
-			
-			if(this->cmd_flag == DCM_TIMEOUT) {
+
+			//Gestion des actions dans les états
+			if(this->cmd_state == DCM_TIMEOUT) {
 				this->init_state = STOPPED;
 				PWM_stop(config->pwm_number);
 			} else {
@@ -295,9 +299,9 @@ void _ISR DCM_TIMER_IT()
 					//la multiplication par la période se fait après pour éviter que l'incrément soit nul
 				}
 				differential = error - this->previous_error;
-				computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
-								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576)
-								+ (((Sint32)(config->Kd) * differential)/DCM_TIMER_PERIOD) / 1024;
+				computed_cmd = 	(__builtin_mulss(config->Kp, error) >> 10) // / 1024)
+								+ ((__builtin_mulss(config->Ki, this->integrator) * DCM_TIMER_PERIOD) >> 20) // / 1048576)
+								+ (__builtin_divsd(__builtin_mulss(config->Kd, differential), (DCM_TIMER_PERIOD*1024)));
 								
 				// Sens et saturation
 				if (computed_cmd > 0)
@@ -345,4 +349,4 @@ static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 
 	//*/
 }
 
-#endif /* def USE_DCMOTOR */
+#endif /* def USE_DCMOTOR2 */
