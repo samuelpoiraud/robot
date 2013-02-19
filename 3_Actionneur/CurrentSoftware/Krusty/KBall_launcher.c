@@ -12,7 +12,7 @@
 #include "KBall_launcher.h"
 #ifdef I_AM_ROBOT_KRUSTY
 
-#include "../QS/QS_DCMotor.h"
+#include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_timer.h"
 
@@ -61,17 +61,18 @@ static void BALLLAUNCHER_set_target_speed(Sint16 tr_min);
 
 void BALLLAUNCHER_init() {
 	ball_launcher_config.sensor_read = &BALLLAUNCHER_get_speed;
-	ball_launcher_config.Kp = BALLLAUNCHER_ASSER_KP*1024;
-	ball_launcher_config.Ki = BALLLAUNCHER_ASSER_KI*1048576;
-	ball_launcher_config.Kd = BALLLAUNCHER_ASSER_KD*1024;
+	ball_launcher_config.Kp = BALLLAUNCHER_ASSER_KP;
+	ball_launcher_config.Ki = BALLLAUNCHER_ASSER_KI;
+	ball_launcher_config.Kd = BALLLAUNCHER_ASSER_KD;
 	ball_launcher_config.pos[0] = 0;
-	ball_launcher_config.pos[1] = (BALLLAUNCHER_TARGET_SPEED/60.0*DCM_TIMER_PERIOD/1000*BALLLAUNCHER_EDGE_PER_ROTATION);	//BALLLAUNCHER_TARGET_SPEED en tr/min (utilisation de 60.0 et pas 60 pour forcer le compilateur à faire un calcul sans overflow sur la constante)
+	ball_launcher_config.pos[1] = BALLLAUNCHER_TARGET_SPEED;	//en tr/min
 	ball_launcher_config.pwm_number = BALLLAUNCHER_DCMOTOR_PWM_NUM;
 	ball_launcher_config.way_latch = (Uint16*)&BALLLAUNCHER_DCMOTOR_PORT_WAY;
 	ball_launcher_config.way_bit_number = BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT;
 	ball_launcher_config.way0_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0;
 	ball_launcher_config.way1_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1;
-	ball_launcher_config.timeout = 2000; //FIXME: Mettre une valeur appropriée
+	ball_launcher_config.timeout = 2000;
+	ball_launcher_config.epsilon = 500;	//TODO: à ajuster plus correctement
 	DCM_config(BALLLAUNCHER_DCMOTOR_ID, &ball_launcher_config);
 
 	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 4;
@@ -122,6 +123,22 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
 			} else debug_printf("BL: pos_speed invalide: %u\n", pos_speed);
 			QUEUE_behead(queueId);	//gestion terminée
+		} else {
+			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
+			if(asserState == DCM_TIMEOUT) {
+
+				//Envoi du message de timeout
+				/*
+				CAN_msg_t timeoutMsg;
+				timeoutMsg.sid = ACT_LONGHAMMER_RESULT;
+				timeoutMsg.data[0] = ACT_LONGHAMMER_TIMEOUT;
+				timeoutMsg.size = 1;
+				CAN_send(&timeoutMsg);		//*/
+
+				QUEUE_behead(queueId);	//gestion terminée
+			} else if(asserState == DCM_IDLE) {
+				QUEUE_behead(queueId);	//gestion terminée, le bras est à sa position
+			}
 		}
 	}
 }

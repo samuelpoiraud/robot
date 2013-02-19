@@ -12,7 +12,7 @@
 #include "TLong_hammer.h"
 #ifdef I_AM_ROBOT_TINY
 
-#include "../QS/QS_DCMotor.h"
+#include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_adc.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_can.h"

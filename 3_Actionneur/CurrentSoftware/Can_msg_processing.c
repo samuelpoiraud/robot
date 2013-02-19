@@ -13,7 +13,7 @@
 #define CAN_MSG_PROCESSING_C
 
 #include "Can_msg_processing.h"
-#include "QS/QS_DCMotor.h"
+#include "QS/QS_DCMotor2.h"
 
 void CAN_process_msg(CAN_msg_t* msg)
 {
