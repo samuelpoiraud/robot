@@ -149,14 +149,10 @@ static void BALLLAUNCHER_set_target_speed(Sint16 tr_min) {
 
 	//Utilise la fonction de division dans une librarie, potentiellement lente
 	//DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, tr_min / (Uint16)(60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD));
-	//Avec de l'assembleur: division en 18 cycles, mais c'est de l'assembleur
+	//Avec __builtin_divud: division en 18 cycles, beaucoup plus rapide
 	//(utilisation de 60.0 et pas 60 pour forcer le compilateur à faire un calcul sans overflow sur la constante)
-	asm("repeat #17\n"
-	    "div.s %[trmin], %[div]\n"
-	    : "=a"(val)	//output
-	    : [trmin] "r"(tr_min), [div] "e"((Uint16)(60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD))	//input
-		: "w1");	//registres modifiés après l'opération: le compilateur ne peu pas l'utiliser pour garder une valeur a travers le code assembleur
-	DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, val);
+
+	DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, __builtin_divsd((Sint16)tr_min, (60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
