@@ -53,11 +53,7 @@ static DCMotor_config_t ball_launcher_config;
  * Si le temps entre 2 passage d'aimant dépasse 850ms, on considère que le moteur est arreté.
  */
 
-
 static Sint16 BALLLAUNCHER_get_speed();
-
-//Change la vitesse du lanceur de balle. Attention les vitesses peuvent être négative ou positive.
-static void BALLLAUNCHER_set_target_speed(Sint16 tr_min);
 
 void BALLLAUNCHER_init() {
 	ball_launcher_config.sensor_read = &BALLLAUNCHER_get_speed;
@@ -119,7 +115,7 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			if(pos_speed == 0)
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
 			else if(pos_speed > 0) {
-				BALLLAUNCHER_set_target_speed(pos_speed);
+				DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
 			} else debug_printf("BL: pos_speed invalide: %u\n", pos_speed);
 			QUEUE_behead(queueId);	//gestion terminée
@@ -141,18 +137,6 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			}
 		}
 	}
-}
-
-static void BALLLAUNCHER_set_target_speed(Sint16 tr_min) {
-	Uint16 val;
-	//On doit diviser, sinon le nombre a multiplier est < que 1 (donc c'est 0 pour un entier)
-
-	//Utilise la fonction de division dans une librarie, potentiellement lente
-	//DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, tr_min / (Uint16)(60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD));
-	//Avec __builtin_divud: division en 18 cycles, beaucoup plus rapide
-	//(utilisation de 60.0 et pas 60 pour forcer le compilateur à faire un calcul sans overflow sur la constante)
-
-	DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, __builtin_divsd((Sint16)tr_min, (60.0*1000/BALLLAUNCHER_EDGE_PER_ROTATION/DCM_TIMER_PERIOD)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

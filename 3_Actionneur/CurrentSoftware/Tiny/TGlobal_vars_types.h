@@ -17,5 +17,12 @@
 		#error "Global_vars_types est inclu par la QS, ne l'incluez pas vous meme"
 	#endif
 
+	typedef enum {
+		BALL_GRABBER=0,
+		HAMMER,
+		QUEUE_ACT_LongHammer,
+		NB_ACT
+
+	} QUEUE_act_e;
 
 #endif /* ndef TINY_GLOBAL_VARS_TYPES_H && def I_AM_ROBOT_TINY */

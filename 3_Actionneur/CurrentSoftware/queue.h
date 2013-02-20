@@ -16,18 +16,12 @@
 
 #include "clock.h"
 
-	//TODO: A deporter dans *Global_vars_types.h
-	typedef enum 
-	{
-		BALL_GRABBER=0,
-		HAMMER,
-		QUEUE_ACT_BallLauncher,	//avec QUEUE devant, n'importe ou dans le code on sait que ça fait référence à un actionneur lié à queue.h/c
-		QUEUE_ACT_LongHammer,
-		QUEUE_ACT_Plate_Rotation,
-		QUEUE_ACT_Plate_AX12_Plier,
-		NB_ACT
-		
-	} QUEUE_act_e;
+
+/* Info sur l'enum QUEUE_act_e:
+ *  Cet enum est défini dans le fichier Global_vars_types.h du robot compilé et contient la liste des actionneurs utilisés pour effectuer des actions.
+ *  Pour Krusty, voir Krusty/KGLobal_vars_types.h
+ *  Pour Tiny, voir Tiny/TGlobal_vars_types.h
+ */
 	
 typedef Uint8 queue_size_t;
 typedef Uint8 queue_id_t;
