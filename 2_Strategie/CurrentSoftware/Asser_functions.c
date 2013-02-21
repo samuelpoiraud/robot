@@ -285,11 +285,13 @@ void ASSER_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = ASSER_RUSH_IN_THE_WALL;
-	//	order.data[0]= asser_args[STACKS_get_top(stack_id)].way;
-		order.data[0]=1;
-		order.data[1]= 1;
-		order.data[2]= HIGHINT(PI4096) ;
-		order.data[3]= LOWINT(PI4096);
+
+                //way
+                order.data[0]= asser_args[STACKS_get_top(stack_id)].way;
+                //speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
+                order.data[1]=asser_args[STACKS_get_top(stack_id)].speed;
+		order.data[2]= HIGHINT(asser_args[STACKS_get_top(stack_id)].angle) ;
+                order.data[3]= LOWINT(asser_args[STACKS_get_top(stack_id)].angle);
 
 		//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
 //		order.data[1]=asser_args[STACKS_get_top(stack_id)].speed;
@@ -302,7 +304,7 @@ void ASSER_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 		{
 			STACKS_pull(ASSER);
 		}
-		else 
+		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(stack_id)) >= (RUSH_TIMEOUT_TIME)))
 			{
@@ -310,7 +312,7 @@ void ASSER_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 				asser_fun_printf("\nASSER_timeout : RUSH\n");
 				STACKS_set_timeout(stack_id,RUSH_TIMEOUT);
 			}
-		}			
+		}
 	}
 }
 //fonction dégeulasse coder a 4 heure du mat le dernier jour de la coupe , ne jamais réutiliser cette version du code !!!
@@ -454,15 +456,18 @@ void ASSER_push_relative_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run)
 }
 
 /* ajoute une instruction rush_in_the_wall sur la pile asser */
-void ASSER_push_rush_in_the_wall (ASSER_way_e way, bool_e asser_rotate, bool_e run)
+void ASSER_push_rush_in_the_wall (ASSER_way_e way, bool_e asser_rotate,Sint16 angle, bool_e run)
 {
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
 
 	pos->way = way;
 	//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
 	pos->speed= asser_rotate;
+        pos->angle = angle;
 	STACKS_push (ASSER, &ASSER_rush_in_the_wall, run);
 }
+
+
 
 void ASSER_push_rush_in_the_totem_south (ASSER_way_e way, bool_e asser_rotate, bool_e run)
 {

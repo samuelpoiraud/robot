@@ -60,7 +60,7 @@ void BUTTON_change_color()
 {
 	debug_printf("COLOR\r\n");
 	global.env.color_updated = TRUE;
-	global.env.wanted_color = ((global.env.color!=RED)?RED:PURPLE);
+	global.env.wanted_color = ((global.env.color!=RED)?RED:BLUE);
 }
 
 void BUTTON_rotation()

@@ -32,7 +32,7 @@ void any_match(ia_fun_t strategy, time32_t match_duration)
 			return;
 		}
 
-		/* accepter et prévenir des mises à jour de couleur (PURPLE par défaut) */
+		/* accepter et prévenir des mises à jour de couleur (BLUE par défaut) */
 		if(global.env.color_updated && !global.env.asser.calibrated && !global.env.ask_asser_calibration)
 		{
 			ENV_set_color(global.env.wanted_color);
@@ -48,7 +48,7 @@ void any_match(ia_fun_t strategy, time32_t match_duration)
 		{
 			CAN_msg_t msg;
 			msg.sid = ASSER_CALIBRATION;
-			msg.data[0] = global.env.color == PURPLE?REAR:FORWARD;
+			msg.data[0] = global.env.color == BLUE?REAR:FORWARD;
 			msg.size = 1;
 			CAN_send(&msg);
 		}

@@ -65,7 +65,7 @@
 	void ASSER_push_relative_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);
 	
 	/* ajoute une instruction rush_in_the_wall sur la pile asser */
-	void ASSER_push_rush_in_the_wall (ASSER_way_e way, bool_e asservissement_en_rotation, bool_e run);
+	void ASSER_push_rush_in_the_wall (ASSER_way_e way, bool_e asser_rotate,Sint16 angle, bool_e run);
 	
 
 void ASSER_rush_in_the_totem_north (stack_id_e stack_id, bool_e init);
