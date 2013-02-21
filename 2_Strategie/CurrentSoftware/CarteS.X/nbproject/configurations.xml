@@ -142,7 +142,7 @@
         <property key="enable-short-double" value="false"/>
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories" value="..;../QS;"/>
+        <property key="extra-include-directories" value="..;../QS"/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="2"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -179,8 +179,7 @@
         <property key="enable-default-isr" value="true"/>
         <property key="enable-handles" value="true"/>
         <property key="enable-pack-data" value="true"/>
-        <property key="extra-lib-directories"
-                  value="../../../../../../../../Program Files/Microchip/MPLAB C30/lib;"/>
+        <property key="extra-lib-directories" value=""/>
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="general-write-protect" value="no_write_protect"/>
         <property key="generate-cross-reference-file" value="false"/>
@@ -262,11 +261,6 @@
         <property key="programoptions.uselvpprogramming" value="false"/>
         <property key="voltagevalue" value="5.0"/>
       </ICD3PlatformTool>
-      <PICkit2PlatformTool>
-        <property key="tracecontrol.medium" value="1"/>
-        <property key="tracecontrol.portselect" value="0"/>
-        <property key="tracecontrol.select" value="0"/>
-      </PICkit2PlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>

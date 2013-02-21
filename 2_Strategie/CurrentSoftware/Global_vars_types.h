@@ -16,12 +16,6 @@
 
 	// time_t à l'origine, mais modifié pour être compatible avec le simulateur EVE
 	typedef Uint32 time32_t;
-
-	// Type d'actionneur
-	typedef enum 
-	{
-		BROOM_LEFT = 0, BROOM_RIGHT, F, NB_ACT
-	}ACT_id_e;
 	
 	//Position de l'ascenseur et de la pince
 	typedef enum
