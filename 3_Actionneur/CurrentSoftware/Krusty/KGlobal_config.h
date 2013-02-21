@@ -31,7 +31,7 @@
 	#define PORT_E_IO_MASK	0xFF80
 		
 	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFFF3 //Pour avoir la masse sur les switch ascenceur
+	#define PORT_G_IO_MASK	0xFEFF //Pour avoir la masse sur les switch ascenceur
 
 /* Definition des périphériques, connectiques capteurs et actionneurs de Krusty */
 

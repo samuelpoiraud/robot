@@ -13,7 +13,7 @@
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
 
-//	#define VERBOSE_MODE
+	#define VERBOSE_MODE
 
 	/* ID de la carte: cf le type cartes_e de QS_types.h */
 	#define I_AM CARTE_ACT		//A voir avec Gwenn pour changer
@@ -46,7 +46,7 @@
 	#define AX12_DIRECTION_PORT LATGbits.LATG8
 
 	#define BALL_GRABBER_ID_SERVO (Uint8) 2
-	#define HAMMER_ID_SERVO  (Uint8) 1
+	#define HAMMER_ID_SERVO  (Uint8) 0
 //Fin TO DO
 
 	// Files
