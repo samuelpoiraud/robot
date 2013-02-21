@@ -95,7 +95,7 @@
 		position_t foe[NB_FOES];		//comme son nom l'indique, c'est la position de l'adversaire
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
-		act_t act[NB_ACT];	// actionneurs
+		act_t act[ACTUATORS_NB];	// actionneurs
 	}environment_t;
 
 	/* baisse les drapeaux d'environnement pour préparer la prochaine MaJ */

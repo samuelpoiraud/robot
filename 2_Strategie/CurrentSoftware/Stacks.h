@@ -18,7 +18,7 @@
 
 typedef enum
 {
-	ASSER, ACT_STACK_BROOM_LEFT, ACT_STACK_BROOM_RIGHT, ACT_STACK_F, ACTUATORS_NB
+	ASSER, ACT_STACK_BallLauncher, ACT_STACK_Assiette, ACT_STACK_AssiettePince, ACTUATORS_NB
 }stack_id_e;
 
 /*

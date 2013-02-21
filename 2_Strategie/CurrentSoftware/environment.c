@@ -270,7 +270,7 @@ void ENV_clean ()
 	global.env.foe[FOE_2].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	
-	global.env.act[BROOM_LEFT].ready == TRUE;
+	/*global.env.act[BROOM_LEFT].ready == TRUE;
 	global.env.act[BROOM_RIGHT].ready == TRUE;
 	global.env.act[F].ready == TRUE;
 	global.env.act[BROOM_LEFT].closed == TRUE;
@@ -281,7 +281,7 @@ void ENV_clean ()
 	global.env.act[F].opened == TRUE;
 	global.env.act[BROOM_LEFT].failure == TRUE;
 	global.env.act[BROOM_RIGHT].failure == TRUE;
-	global.env.act[F].failure == TRUE;
+	global.env.act[F].failure == TRUE;*/
 }
 
 
