@@ -1,0 +1,18 @@
+Utiliser junction.exe de cette façon pour creer un lien dur vers une fichier ou dossier:
+
+junction.exe <nom du nouveau lien> <cible>
+
+Les dossiers QS des différent projet Prop, Strat, Act et Supervision sont en fait des liens vers la QS du svn. De cette façon modifier un fichier de la QS du svn se répercute sur les QS dans tous les projets. En fait modifier n'importe quoi dans le dossier svn2/QS se vera aussi sans opération suplémentaire dans le dossier QS de chaque projet.
+
+(Voir "lien dur" dans linux/unix)
+
+--------------------------------- Scripts pré-fait: --------------------------------
+LES DOSSIERS QS DE CHAQUE PROJET DEVRAIENT ETRE SUPPRIMER AVANT D'UTILISER CES SCRIPTS !!! (dans le cas ou le dossier QS en question n'a pas été créé par les scripts ou junction.exe)
+
+Doit être exécuté à partir de la racine du svn. junction.exe doit être à la racine du svn aussi
+
+ create-junctions.bat  Crée tous les liens vers la QS dans tous les projets.
+ delete-junctions.bat  Supprime tous les liens vers la QS créés par create-junctions.bat. Seulement les liens sont supprimé, la QS reste disponible à partir de la racine du svn.
+
+
+Lien vers la page de l'outil junction.exe: http://technet.microsoft.com/en-us/sysinternals/bb896768
