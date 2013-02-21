@@ -75,6 +75,13 @@
 		volatile bool_e ready;
 	}act_t;
 
+        //enum utilisé par le tableau d'états du terrain
+        typedef enum{
+            TODO = 0,
+            DONE,
+            NON //Non applicable
+        }map_state_e;
+
 	typedef struct
 	{
 		detection_information_t sensor [SENSOR_NB];
@@ -96,7 +103,11 @@
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
 		act_t act[ACTUATORS_NB];	// actionneurs
+                /*Tableau d'états du terrain */
+                map_state_e map_elements[38]; //Voir doc pour connaitre les éléments associés
 	}environment_t;
+
+        //NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
 
 	/* baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
 	void ENV_clean();
