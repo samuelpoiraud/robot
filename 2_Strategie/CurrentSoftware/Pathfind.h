@@ -17,7 +17,7 @@
 /* 
  * La formule pour changer le numéro du noeud (parallélisme)
  */
-#define COLOR_NODE(n)	((global.env.color == PURPLE || n<=2) ? (n) : (n<=7 ? (n+5) : (n-5)))
+#define COLOR_NODE(n)	((global.env.color == BLUE || n<=2) ? (n) : (n<=7 ? (n+5) : (n-5)))
 
 #define PATHFIND_NODE_NB 14
 

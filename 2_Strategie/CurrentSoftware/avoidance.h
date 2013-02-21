@@ -31,8 +31,8 @@
 	#endif
 
 	// Macros permettant de symétriser le terrain 
-	#define COLOR_Y(y)		((global.env.color == PURPLE) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
-	#define COLOR_ANGLE(a)	((global.env.color == PURPLE) ? (a) : (-(a)))
+	#define COLOR_Y(y)		((global.env.color == BLUE) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
+	#define COLOR_ANGLE(a)	((global.env.color == BLUE) ? (a) : (-(a)))
 
 	// Macro permettant d'utiliser les courbes ou pas selon USE_ASSER_MULTI_POINT
 	// En effet, on ne fait des courbes que si l'on est en multi-poinrs car sinon 
@@ -212,7 +212,7 @@ typedef enum
 	SOUTH_FOE = 3
 } foe_pos_e;
 
-// Vérifie adversaire dans NORTH_PURPLE, NORTH_RED...
+// Vérifie adversaire dans NORTH_BLUE, NORTH_RED...
 foe_pos_e AVOIDANCE_where_is_foe();
 
 

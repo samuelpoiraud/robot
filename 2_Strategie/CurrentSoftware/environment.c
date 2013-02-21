@@ -297,7 +297,7 @@ void ENV_init()
 
 	ENV_clean();
 	global.env.config=(config_t){/*strategie*/0, /*evitement*/TRUE, /*balise*/TRUE};
-	global.env.wanted_color=PURPLE;
+	global.env.wanted_color=BLUE;
 	global.env.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
 	global.env.color_updated = TRUE;
 	global.env.match_started = FALSE;
@@ -318,7 +318,7 @@ void ENV_set_color(color_e color)
 	/* changer la couleur */
 	global.env.color = color;
 	/* changer les LEDs de couleur */
-	if(global.env.color!=PURPLE)
+	if(global.env.color!=BLUE)
 	{
 		BLUE_LEDS=0;
 		RED_LEDS=1;
