@@ -21,6 +21,9 @@
 	//void ACT_push_set_pos(ACT_id_e act, ACT_position_e position, bool_e run);
 	
 	//void ACT_set_pos(stack_id_e stack_id, bool_e init);
+
+	// Gère les messages de retour de la carte actionneur lorsque une action s'est terminé ou à échouée
+	void ACT_process_result(Uint8 can_act_id, Uint8 can_result);
 	
 	//simple envoi du message 
 	void ACT_hammer_up(void);

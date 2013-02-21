@@ -33,17 +33,27 @@
  *	le code de gestion des actionneurs à chaque boucle
  */
 
+//Pour timeout: utiliser ACT_ARG_NOTIMEOUT pour ne pas mettre de timeout
 typedef struct {
 	Uint32 param;
+	time32_t timeout;
 } act_arg_t;
+
+#define ACT_ARG_NOTIMEOUT ((time32_t)-1)*
+#define ACT_ARG_USE_DEFAULT 0
+#define ACT_STACK_TIMEOUT_MS 3000
 
 //static act_arg_t act_args[NB_ACT][STACKS_SIZE];
 static act_arg_t act_args[ACTUATORS_NB][STACKS_SIZE];
 
+// Verifie s'il y a eu un timeout et met à jour l'état de la pile en conséquence.
+// Si l'état de l'actionneur n'est pas normal ou qu'il y a eu une erreur, cette fonction affiche un message d'erreur
+static bool_e ACT_check_result(stack_id_e act_id, const char* command);
+
 /* Accesseur en lecture sur les arguments des piles ACT */
-static act_arg_t ACT_get_stack_arg(stack_id_e act_id);
+static act_arg_t* ACT_get_stack_arg(stack_id_e act_id);
 /* Accesseur en écriture sur les arguments des piles ACT */
-static void ACT_set_stack_arg(stack_id_e act_id, act_arg_t arg);
+static void ACT_set_stack_arg(stack_id_e act_id, const act_arg_t* arg);
 
 static void ACT_run_ball_launcher_run(stack_id_e stack_id, bool_e init);
 static void ACT_run_ball_launcher_stop(stack_id_e stack_id, bool_e init);
@@ -101,12 +111,37 @@ void ACT_ball_grabber_tidy(void){
 void ACT_push_ball_launcher_run(Uint16 speed, bool_e run) {
 	act_arg_t args;
 	args.param = speed;
-	ACT_set_stack_arg(ACT_STACK_BallLauncher, args);
+	args.timeout = 3000;
+	ACT_set_stack_arg(ACT_STACK_BallLauncher, &args);
+	global.env.act[ACT_STACK_BallLauncher].lastOperationResult = ACT_RESULT_Idle;
 	STACKS_push(ACT_STACK_BallLauncher, &ACT_run_ball_launcher_run, run);
 }
 
 void ACT_push_ball_launcher_stop(bool_e run) {
 	STACKS_push(ACT_STACK_BallLauncher, &ACT_run_ball_launcher_stop, run);
+}
+
+void ACT_process_result(Uint8 can_act_id, Uint8 can_result) {
+	stack_id_e act_id = ACTUATORS_NB;
+
+	switch(can_act_id) {
+		case ACT_BALLLAUNCHER & 0xFF:
+			act_id = ACT_STACK_BallLauncher;
+			break;
+
+		case ACT_PLATE & 0xFF:
+			act_id = ACT_STACK_Plate;
+			break;
+	}
+
+	if(act_id < ACTUATORS_NB) {
+		if(can_result == ACT_RESULT_DONE)
+			global.env.act[act_id].lastOperationResult = ACT_RESULT_Ok;
+		else if(can_result == ACT_RESULT_FAILED)
+			global.env.act[act_id].lastOperationResult = ACT_RESULT_Fail;
+	} else {
+		act_fun_printf("Unknown act result, can_act_id: %d, can_result: %d", can_act_id, can_result);
+	}
 }
 
 static void ACT_run_ball_launcher_run(stack_id_e stack_id, bool_e init) {
@@ -115,13 +150,14 @@ static void ACT_run_ball_launcher_run(stack_id_e stack_id, bool_e init) {
 			CAN_msg_t order;
 			order.sid = ACT_BALLLAUNCHER;
 			order.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
-			order.data[1] = LOWINT(ACT_get_stack_arg(stack_id).param);
-			order.data[2] = HIGHINT(ACT_get_stack_arg(stack_id).param);
+			order.data[1] = LOWINT(ACT_get_stack_arg(stack_id)->param);
+			order.data[2] = HIGHINT(ACT_get_stack_arg(stack_id)->param);
 			order.size = 3;
 			CAN_send(&order);
-			STACKS_pull(stack_id);
+			global.env.act[ACT_STACK_BallLauncher].lastOperationResult = ACT_RESULT_Working;
 		} else {
-
+			if(ACT_check_result(stack_id, "balllauncher_run"))
+				STACKS_pull(stack_id);
 		}
 	}
 }
@@ -139,17 +175,51 @@ static void ACT_run_ball_launcher_stop(stack_id_e stack_id, bool_e init) {
 	}
 }
 
+//Retourne TRUE si l'opération s'est terminée correctement
+static bool_e ACT_check_result(stack_id_e act_id, const char* command) {
+	if(global.env.match_time >= ACT_get_stack_arg(act_id)->timeout) {
+		STACKS_set_timeout(act_id, TRUE);
+		return FALSE;
+	} else {
+		switch(global.env.act[act_id].lastOperationResult) {
+			case ACT_RESULT_Fail:
+				if(command)
+					act_fun_printf("Operation failed act id: %d, cmd: %s\n", act_id, command);
+				else act_fun_printf("Operation failed act id: %d\n", act_id);
+				STACKS_set_timeout(act_id, TRUE);
+				return FALSE;
+
+			case ACT_RESULT_Ok:
+				return TRUE;
+
+			case ACT_RESULT_Working:
+				return FALSE;
+
+			case ACT_RESULT_Idle:
+				if(command)
+					act_fun_printf("Warning: act should be in working/finished mode but was in Idle mode, act id: %d, cmd: %s\n", act_id, command);
+				else act_fun_printf("Warning: act should be in working/finished mode but was in Idle mode, act id: %d\n", act_id);
+				STACKS_set_timeout(act_id, TRUE);
+				return FALSE;
+		}
+	}
+
+	return FALSE;
+}
 
 /* Accesseur sur les arguments des piles ACT */
-act_arg_t ACT_get_stack_arg(stack_id_e act_id)
+act_arg_t* ACT_get_stack_arg(stack_id_e act_id)
 {
-	return act_args[act_id][STACKS_get_top(act_id)];
+	return &act_args[act_id][STACKS_get_top(act_id)];
 }
 
 // Accesseur en écriture sur les arguments des piles ACT
-void ACT_set_stack_arg(stack_id_e act_id, act_arg_t arg)
-{
-	act_args[act_id][STACKS_get_top(act_id)+1] = arg;
+// arg->timeout doit contenir le timeout relatif, 0 pour pas de timeout géré par la carte stratégie
+void ACT_set_stack_arg(stack_id_e act_id, const act_arg_t* arg) {
+	act_args[act_id][STACKS_get_top(act_id)+1] = *arg;
+	if(arg->timeout)
+		act_args[act_id][STACKS_get_top(act_id)+1].timeout = global.env.match_time + arg->timeout;
+	else act_args[act_id][STACKS_get_top(act_id)+1].timeout = global.env.match_time + ACT_STACK_TIMEOUT_MS;
 }
 
 /*void ACT_set_pos(stack_id_e stack_id, bool_e init)

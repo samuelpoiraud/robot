@@ -12,6 +12,7 @@
 #define ENVIRONMENT_C
 
 #include "environment.h"
+#include "act_functions.h"
 
 void ENV_update()
 {
@@ -99,67 +100,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		break;
 
 //****************************** Messages de la carte actionneur *************************/
-/*		case ACT_DCM_POS:
-			global.env.act[F].closed = TRUE;
-			global.env.act[F].opened = TRUE;
+		case ACT_RESULT:
+			ACT_process_result(incoming_msg->data[0], incoming_msg->data[1]);
 			break;
-		case ACT_READY:
-			switch (incoming_msg->data[0])
-			{
-				case ACT_BROOM_L: 
-					global.env.act[BROOM_LEFT].ready == TRUE;
-					break;	
-				case ACT_BROOM_R:
-					global.env.act[BROOM_RIGHT].ready == TRUE;
-					break;
-				case ACT_FRONT:
-					global.env.act[F].ready == TRUE;
-					break;			
-			}	
-			break;
-		case ACT_OPENED:
-			switch (incoming_msg->data[0])
-			{
-				case ACT_BROOM_L: 
-					global.env.act[BROOM_LEFT].opened == TRUE;
-					break;	
-				case ACT_BROOM_R:
-					global.env.act[BROOM_RIGHT].opened == TRUE;
-					break;
-				case ACT_FRONT:
-					global.env.act[F].opened == TRUE;
-					break;			
-			}
-			break;
-		case ACT_CLOSED:
-			switch (incoming_msg->data[0])
-			{
-				case ACT_BROOM_L: 
-					global.env.act[BROOM_LEFT].closed == TRUE;
-					break;	
-				case ACT_BROOM_R:
-					global.env.act[BROOM_RIGHT].closed == TRUE;
-					break;
-				case ACT_FRONT:
-					global.env.act[F].closed == TRUE;
-					break;			
-			}
-			break;
-		case ACT_FAILURE:
-			switch (incoming_msg->data[0])
-			{
-				case ACT_BROOM_L: 
-					global.env.act[BROOM_LEFT].failure == TRUE;
-					break;	
-				case ACT_BROOM_R:
-					global.env.act[BROOM_RIGHT].failure == TRUE;
-					break;
-				case ACT_FRONT:
-					global.env.act[F].failure == TRUE;
-					break;			
-			}
-			break;
-	*/
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:
 			ENV_pos_foe_update(incoming_msg);

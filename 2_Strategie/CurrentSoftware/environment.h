@@ -67,12 +67,16 @@
 		volatile bool_e updated;
 	}position_t;
 
+	typedef enum {
+		ACT_RESULT_Idle,
+		ACT_RESULT_Working,
+		ACT_RESULT_Ok,
+		ACT_RESULT_Fail
+	} act_result_e;
+
 	typedef struct
 	{
-		volatile bool_e opened;
-		volatile bool_e closed;
-		volatile bool_e failure;
-		volatile bool_e ready;
+		act_result_e lastOperationResult;
 	}act_t;
 
         //enum utilisé par le tableau d'états du terrain

@@ -134,23 +134,29 @@
  *
  *****************************************************************/
 
+	//////////////// Results ////////////////
+	//Définir un SID du type ACT_nom_actionneur_RESULT avec un nombre de type (STRAT_FILTER | (ACT_FILTER >> 4) | valeur)
+	//avec valeur différente pour chaque message de la carte actionneur à la carte strat
+	#define ACT_RESULT (STRAT_FILTER | (ACT_FILTER >> 4) | 0)
+	//Dans data[0]: le sid actionneur && 0xFF, dans data[1]: une de ces valeurs:
+		#define ACT_RESULT_DONE		0
+		#define ACT_RESULT_FAILED	1
+    /////////////////////////////////////////
 	
 	//////////////// AX12 ///////////////////
-    #define ACT_AX12 0x301
+    #define ACT_AX12 (ACT_FILTER | 0)
 
-	//FIXME: A CHANGER TANT QUE CES VALEURS CI-DESSOUS SONT UTILISEE DANS DATA[0] (voir Can_msg_processing.c),
-	//       data[0] est de taille 8 bits (Uint8), La valeur doit être <= à 0xFF !!!!
-    #define ACT_BALL_GRABBER_GO_UP      0x02
-    #define ACT_BALL_GRABBER_GO_DOWN    0x03
-    #define ACT_BALL_GRABBER_GO_TIDY    0x04
+		#define ACT_BALL_GRABBER_GO_UP      0x02
+		#define ACT_BALL_GRABBER_GO_DOWN    0x03
+		#define ACT_BALL_GRABBER_GO_TIDY    0x04
 
-    #define ACT_HAMMER_GO_UP            0x05
-    #define ACT_HAMMER_GO_DOWN          0x06
-    #define ACT_HAMMER_GO_TIDY          0x07
+		#define ACT_HAMMER_GO_UP            0x05
+		#define ACT_HAMMER_GO_DOWN          0x06
+		#define ACT_HAMMER_GO_TIDY          0x07
     /////////////////////////////////////////
 
 	////////////// LONGHAMMER ///////////////
-	#define ACT_LONGHAMMER (ACT_FILTER | 0x10)	//0x10 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
+	#define ACT_LONGHAMMER (ACT_FILTER | 1)	//0x10 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
 		//Paramètres de LONGHAMMER (dans data[0])
 		#define ACT_LONGHAMMER_GO_UP   0    // Lever le bras
 		#define ACT_LONGHAMMER_GO_DOWN 1    // Appuyer sur les bougies et les éteindres en descendant le bras
@@ -160,14 +166,14 @@
 	/////////////////////////////////////////
 	
 	////////////// BALLLAUNCHER /////////////
-	#define ACT_BALLLAUNCHER (ACT_FILTER | 0x11)
+	#define ACT_BALLLAUNCHER (ACT_FILTER | 2)
 		//Paramètres de BALLLAUNCHER (dans data[0])
 		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000)
 		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
 	/////////////////////////////////////////
 
 	////////////////// PLATE ////////////////
-	#define ACT_PLATE (ACT_FILTER | 0x12)
+	#define ACT_PLATE (ACT_FILTER | 3)
 		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
 		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette'
 		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette

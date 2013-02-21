@@ -18,7 +18,7 @@
 
 typedef enum
 {
-	ASSER, ACT_STACK_BallLauncher, ACT_STACK_Assiette, ACT_STACK_AssiettePince, ACTUATORS_NB
+	ASSER, ACT_STACK_BallLauncher, ACT_STACK_Plate, ACTUATORS_NB
 }stack_id_e;
 
 /*
@@ -83,7 +83,7 @@ generic_fun_t STACKS_get_action(stack_id_e stack, Uint8 index);
 time32_t STACKS_get_action_initial_time(stack_id_e stack, Uint8 index);
 
 /* affecte le timeout à la pile désignée */
-void STACKS_set_timeout(stack_id_e stack, timeout_e timeout);
+void STACKS_set_timeout(stack_id_e stack, bool_e timeout);
 
 /* ajoute une commande en sommet de pile et l'initialise */
 void STACKS_push(stack_id_e stack_id, generic_fun_t command, bool_e init);
