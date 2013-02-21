@@ -13,6 +13,7 @@
 #ifdef I_AM_ROBOT_KRUSTY
 
 #include "../QS/QS_DCMotor2.h"
+#include "../QS/QS_can.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_timer.h"
 
@@ -118,21 +119,25 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
 			} else debug_printf("BL: pos_speed invalide: %u\n", pos_speed);
-			QUEUE_behead(queueId);	//gestion terminée
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
 			if(asserState == DCM_TIMEOUT) {
-
-				//Envoi du message de timeout
-				/*
 				CAN_msg_t timeoutMsg;
-				timeoutMsg.sid = ACT_LONGHAMMER_RESULT;
-				timeoutMsg.data[0] = ACT_LONGHAMMER_TIMEOUT;
-				timeoutMsg.size = 1;
-				CAN_send(&timeoutMsg);		//*/
+				timeoutMsg.sid = ACT_RESULT;
+				timeoutMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
+				timeoutMsg.data[1] = ACT_RESULT_FAILED;
+				timeoutMsg.size = 2;
+				CAN_send(&timeoutMsg);
 
 				QUEUE_behead(queueId);	//gestion terminée
 			} else if(asserState == DCM_IDLE) {
+				CAN_msg_t resultMsg;
+				resultMsg.sid = ACT_RESULT;
+				resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
+				resultMsg.data[1] = ACT_RESULT_DONE;
+				resultMsg.size = 2;
+				CAN_send(&resultMsg);
+
 				QUEUE_behead(queueId);	//gestion terminée, le bras est à sa position
 			}
 		}

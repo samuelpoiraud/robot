@@ -83,7 +83,7 @@ time32_t STACKS_get_action_initial_time(stack_id_e stack, Uint8 index)
 }
 
 /* affecte le timeout à la pile désignée */
-void STACKS_set_timeout(stack_id_e stack, timeout_e timeout)
+void STACKS_set_timeout(stack_id_e stack, bool_e timeout)
 {
 	stacks[stack].timeout=timeout;
 }
