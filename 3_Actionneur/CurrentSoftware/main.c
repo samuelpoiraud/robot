@@ -109,12 +109,7 @@ int main (void)
 		
 		if(!button4_pos && BUTTON4_PORT)
 		{
-			debug_printf("Valeur Potar CLAMP_FRONT : %d\r\n",CLAMP_FRONT_getPos());
-			debug_printf("Valeur Potar CLAMP_BACK : %d\r\n",CLAMP_BACK_getPos());
-			debug_printf("Valeur codeur Avant : %d\r\n",LIFT_FRONT_getPos());
-			debug_printf("Valeur codeur Arrière : %d\r\n",LIFT_BACK_getPos());
-			debug_printf("Valeur telemetre Avant gauche : %d \r\n",TELEMETER_get_value(0));
-			debug_printf("Valeur telemetre Avant droit : %d \r\n",TELEMETER_get_value(1));
+			
 			LED_USER2 = BUTTON4_PORT;
 			button4_pos = BUTTON4_PORT;
 		}

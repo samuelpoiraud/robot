@@ -287,6 +287,15 @@ error_e Test_Homologation_Sortie_Base(void)
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
 
+void TEST_STRAT_lever_le_kiki(void){
+    static int a=1;
+    if(a==1){
+        ACT_hammer_up();
+        a=0;
+    }
+    
+}
+
 void levi(void){
     goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(1500)},VERY_SLOW}}, 1,FORWARD,NO_DODGE_AND_WAIT);
 

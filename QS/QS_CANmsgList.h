@@ -140,13 +140,13 @@
 
 	//FIXME: A CHANGER TANT QUE CES VALEURS CI-DESSOUS SONT UTILISEE DANS DATA[0] (voir Can_msg_processing.c),
 	//       data[0] est de taille 8 bits (Uint8), La valeur doit être <= à 0xFF !!!!
-    #define ACT_BALL_GRABBER_GO_UP      0x302
-    #define ACT_BALL_GRABBER_GO_DOWN    0x303
-    #define ACT_BALL_GRABBER_GO_TIDY    0x304
+    #define ACT_BALL_GRABBER_GO_UP      0x02
+    #define ACT_BALL_GRABBER_GO_DOWN    0x03
+    #define ACT_BALL_GRABBER_GO_TIDY    0x04
 
-    #define ACT_HAMMER_GO_UP            0x305
-    #define ACT_HAMMER_GO_DOWN          0x306
-    #define ACT_HAMMER_GO_TIDY          0x307
+    #define ACT_HAMMER_GO_UP            0x05
+    #define ACT_HAMMER_GO_DOWN          0x06
+    #define ACT_HAMMER_GO_TIDY          0x07
     /////////////////////////////////////////
 
 	////////////// LONGHAMMER ///////////////

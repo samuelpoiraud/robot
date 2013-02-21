@@ -69,7 +69,7 @@ int main (void)
 //		{
 //			global.env.config.strategie = 1;
 //		}
-//		any_match(STRAT_derniere_chance, MATCH_DURATION);
+		any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION);
 	}
 	return 0;
 }

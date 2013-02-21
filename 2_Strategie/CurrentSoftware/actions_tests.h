@@ -41,6 +41,7 @@ error_e Test_Homologation_Sortie_Base(void); //by Am
 error_e Test_Homologation_Point(void); //by Am
 
 //Tests
+void TEST_STRAT_lever_le_kiki(void);
 error_e TEST_STRAT_gift1(void);  //begin by micky
 error_e TEST_STRAT_gift2(void);
 error_e TEST_STRAT_gift3(void);
