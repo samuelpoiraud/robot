@@ -15,14 +15,6 @@
 #ifndef MAIN_H
 	#define MAIN_H
 	
-	#include "QS/QS_ports.h"
-	#include "QS/QS_uart.h"
-	#include "Stacks.h"
-	#include "environment.h"
-	#include "brain.h"
-	#include "clock.h"
-	#include "actions_tests.h"
-	#include "actions.h"
 	
 	void RCON_read();
 	void _ISR _MathError();

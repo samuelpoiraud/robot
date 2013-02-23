@@ -30,6 +30,6 @@
 	void BUTTON_servo();
 	void BUTTON_pi_rotation();
 	void BUTTON_translation();
-;
+	void SWITCH_change_color(void);
 	
 #endif /* ndef BUTTON_H */

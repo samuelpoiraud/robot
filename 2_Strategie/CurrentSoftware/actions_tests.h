@@ -29,7 +29,7 @@
 
 #ifdef ACTIONS_TEST_C
  	#include "telemeter.h"
-        #include "QS_CANmsgList.h"
+        #include "QS/QS_CANmsgList.h"
 #endif /* def ACTION_TEST_C */
 
 

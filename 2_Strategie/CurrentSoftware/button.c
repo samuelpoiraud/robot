@@ -18,7 +18,9 @@ void BUTTON_init()
 	ADC_init();
 	BUTTONS_init();
 	BUTTONS_define_actions(BUTTON1,BUTTON_start,NULL,1);
+#ifndef FDP_2013
 	BUTTONS_define_actions(BUTTON2,BUTTON_change_color, BUTTON_calibration,1);
+#endif
 //	BUTTONS_define_actions(BUTTON3,BUTTON_servo,NULL,1);
 	BUTTONS_define_actions(BUTTON4,BUTTON_pi_rotation,BUTTON_translation,1);
 }
@@ -62,6 +64,16 @@ void BUTTON_change_color()
 	global.env.color_updated = TRUE;
 	global.env.wanted_color = ((global.env.color!=RED)?RED:BLUE);
 }
+
+void SWITCH_change_color()
+{
+	if(SWITCH_COLOR == global.env.color)	
+	{	
+		global.env.color_updated = TRUE;
+		global.env.wanted_color = ((SWITCH_COLOR==1)?RED:BLUE);
+		debug_printf("COLOR\r\n");
+	}	
+}	
 
 void BUTTON_rotation()
 {

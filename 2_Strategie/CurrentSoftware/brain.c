@@ -32,6 +32,9 @@ void any_match(ia_fun_t strategy, time32_t match_duration)
 			return;
 		}
 
+		#ifdef FDP_2013
+			SWITCH_change_color();	//Check the Color switch
+		#endif
 		/* accepter et prévenir des mises à jour de couleur (BLUE par défaut) */
 		if(global.env.color_updated && !global.env.asser.calibrated && !global.env.ask_asser_calibration)
 		{

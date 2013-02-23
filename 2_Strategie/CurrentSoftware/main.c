@@ -11,7 +11,15 @@
 
 #define MAIN_C
 #include "main.h"
-
+	#include "QS/QS_ports.h"
+	#include "QS/QS_uart.h"
+	#include "Stacks.h"
+	#include "environment.h"
+	#include "brain.h"
+	#include "clock.h"
+	#include "actions_tests.h"
+	#include "actions.h"
+	#include "QS/QS_who_am_i.h"
 int main (void)
 {
 
@@ -42,6 +50,12 @@ int main (void)
 	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
 	RCON_read(); //permet de voir le type du dernier reset
 	
+	//Sur quel robot est-on ?
+	#ifdef FDP_2013	//Pour rétrocompatibilité.
+		QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+	#endif
+	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
+	
 	//on passe la config actuelle à la Super
 	ENV_dispatch_config();
 	
@@ -69,7 +83,14 @@ int main (void)
 //		{
 //			global.env.config.strategie = 1;
 //		}
-		any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION);
+#ifdef FDP_2013	//Pour rétrocompatibilité...
+	#warning "Pensez à créer des stratégies différentes pour Tiny et Krusty... et à les inclure ci-dessous avant de virer ce warning."
+		if(QS_WHO_AM_I_get()==TINY)
+			any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //TINY
+		else
+#endif
+			any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //KRUSTY
+		
 	}
 	return 0;
 }
