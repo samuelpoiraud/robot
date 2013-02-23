@@ -23,7 +23,12 @@
 	void QS_WHO_AM_I_find(void)
 	{
 		assert(!found);		//Vous ne devez appeler QS_WHO_AM_I_find qu'une seule fois !
-		
+		#ifndef FDP_2013	//Retrocompatibilité : on renvoie
+			//Par défaut, sur un FDP!=2013 le robot est KRUSTY.
+			robot_id = KRUSTY;
+			found = TRUE;
+			return;
+		#endif
 		//Le port robot_id_output est mis en sortie 5V.
 		TRIS_ROBOT_ID_OUTPUT 	= 0;
 		LAT_ROBOT_ID_OUTPUT 	= 1;
@@ -50,7 +55,7 @@
 	robot_id_e QS_WHO_AM_I_get(void)
 	{
 		assert(found);		//Vous devez appeler QS_WHO_AM_I_find dans l'initialisation avant tout appel à QS_WHO_AM_I_get.
-		
+	
 		return robot_id;
 	}
 	
