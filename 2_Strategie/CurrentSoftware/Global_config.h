@@ -29,16 +29,34 @@
 	 * Toute connection non utilisee doit etre configuree en entree
 	 * (risque de griller ou de faire bruler le pic)
 	 */
+	#define FDP_2013
 	
 	#define PORT_A_IO_MASK	0xFFFF
 	#define PORT_B_IO_MASK	0xFFFF
 	#define PORT_C_IO_MASK	0xFFFF
 	#define PORT_D_IO_MASK	0xC0FF
 	#define PORT_E_IO_MASK	0xFFFF
+		#define SWITCH_STRAT_1	PORTEbits.RE0
+		#define SWITCH_STRAT_2	PORTEbits.RE1
+		#define SWITCH_STRAT_3	PORTEbits.RE2
+		#define SWITCH_EVIT		PORTEbits.RE3
+		#define SWITCH_COLOR	PORTEbits.RE4
+		#define SWITCH_STRAT_4	PORTEbits.RE6
+		#define LAT_ROBOT_ID_OUTPUT		LATEbits.LATE7
+		#define TRIS_ROBOT_ID_OUTPUT	TRISEbits.TRISE7
+		#define PORT_ROBOT_ID_INPUT		PORTEbits.RE5
+		#define TRIS_ROBOT_ID_INPUT		TRISEbits.TRISE5
 	#define PORT_F_IO_MASK	0xFFFF
 	#define PORT_G_IO_MASK	0xFF3F
-	#define BLUE_LEDS	LATGbits.LATG6
-	#define RED_LEDS	LATGbits.LATG7
+		#define SWITCH_RG0	PORTGbits.RG0
+		#define SWITCH_RG1	PORTGbits.RG1
+	#ifdef FDP_2013
+		#define BLUE_LEDS	LATGbits.LATG7
+		#define RED_LEDS	LATGbits.LATG6
+	#else
+		#define BLUE_LEDS	LATGbits.LATG6
+		#define RED_LEDS	LATGbits.LATG7
+	#endif
 	#define PIN_BIROUTE	PORTGbits.RG8
 		
 	
