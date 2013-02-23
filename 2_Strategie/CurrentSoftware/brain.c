@@ -13,6 +13,13 @@
 
 #include "brain.h"
 
+#include "can_utils.h"
+#include "Stacks.h"
+#include "actions.h"
+#include "clock.h"
+#include "QS/QS_CANmsgList.h"
+#include "button.h"	//pour SWITCH_change_color
+
 /* 	execute un match de match_duration secondes à partir de la 
 	liberation de la biroute. Arrete le robot à la fin du match.
 	Appelle une autre routine pour l'IA pendant le match.
