@@ -40,6 +40,7 @@ void IT_init(void)
 	//Note : run_us 5000 est beaucoup plus précis que run tout court à 5...
 	TIMER1_run_us(PERIODE_IT_ASSER*1000);			//IT trajectoire et Correcteur
 	TIMER2_run(100);		//Affichage Leds...
+	global.flag_recouvrement_IT = FALSE;
 }
 
 
@@ -65,7 +66,7 @@ void _ISR _T1Interrupt()
 									#endif
 {
 	LED_USER = 0; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
-	
+	IFS0bits.T1IF=0; /* interruption traitée */
 	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
 	ODOMETRY_update();
 	
@@ -96,7 +97,8 @@ void _ISR _T1Interrupt()
 	
 	g2 = global;
 	LED_USER = 1; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
-	IFS0bits.T1IF=0; /* interruption traitée */
+	if(IFS0bits.T1IF)	//L'IT est trop longue ! il y a recouvrement !!!
+		global.flag_recouvrement_IT = TRUE;
 }
 
 
