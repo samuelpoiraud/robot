@@ -11,6 +11,8 @@
 #include "debug.h"
 #include "pilot.h"
 #include "odometry.h"
+#include "QS/QS_CANmsgList.h"
+#include "QS/QS_CAN.h"
 
 	#ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 		void debug_save_structure_global(void);
@@ -80,6 +82,23 @@ void DEBUG_init(void)
 
 void DEBUG_process_main(void)
 {
+	CAN_msg_t msg;
+	if(global.flag_recouvrement_IT)
+	{
+		debug_printf("prévenez samuelp5@gmail.com, recouvrement IT !");//Fuck, il y a des IT trop longues... on remonte l'info au développeur !
+		msg.sid = DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT;
+		msg.size = 8;
+		msg.data[0] = 'E';
+		msg.data[1] = 'R';
+		msg.data[2] = 'R';
+		msg.data[3] = 'O';
+		msg.data[4] = 'R';
+		msg.data[5] = 'P';
+		msg.data[6] = 'R';
+		msg.data[7] = 'O';
+		CAN_send(&msg);
+	}	
+		
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 		DEBUG_envoi_point_fictif_process_main();
 	#endif

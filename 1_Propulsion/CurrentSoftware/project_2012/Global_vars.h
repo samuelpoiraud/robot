@@ -43,7 +43,7 @@
 	 *	Uint16 ADCResult[16];
 	 *	
 	 */
-		
+		volatile bool_e flag_recouvrement_IT;
 	
 		///REFERENTIEL GENERAL/////////(x, y, teta...)///////////////////
 		
