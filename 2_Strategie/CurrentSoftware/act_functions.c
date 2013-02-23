@@ -10,23 +10,26 @@
  *	Version 20110313
  */
 
-#define ACT_FUNCTIONS_C
-
 #include "act_functions.h"
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "Stacks.h"
+#include "output_log.h"
+
+#define LOG_PREFIX "act_f: "
 
 //Timeout en ms
 #define ACT_SET_POS_TIMEOUT_TIME  	10000
 
 // Timeout en ms
 
-#ifdef DEBUG_ACT_FUN
+//Utilisez OUTPUT_printf plutot
+/*#ifdef DEBUG_ACT_FUN
 	#define act_fun_printf(...)	debug_printf("Act: "__VA_ARGS__)
 #else
 	#define act_fun_printf(...)	(void)0
 #endif
+*/
 
 /*	Piles conservant les eventuels arguments pour les fonctions des actionneurs
  *	tout en conservant le meme prototype pour tous les actionneurs, reduisant
@@ -39,7 +42,7 @@ typedef struct {
 	time32_t timeout;
 } act_arg_t;
 
-#define ACT_ARG_NOTIMEOUT ((time32_t)-1)*
+#define ACT_ARG_NOTIMEOUT ((time32_t)-1)
 #define ACT_ARG_USE_DEFAULT 0
 #define ACT_STACK_TIMEOUT_MS 3000
 
@@ -111,13 +114,15 @@ void ACT_ball_grabber_tidy(void){
 void ACT_push_ball_launcher_run(Uint16 speed, bool_e run) {
 	act_arg_t args;
 	args.param = speed;
-	args.timeout = 3000;
+	args.timeout = ACT_ARG_USE_DEFAULT;
 	ACT_set_stack_arg(ACT_STACK_BallLauncher, &args);
 	global.env.act[ACT_STACK_BallLauncher].lastOperationResult = ACT_RESULT_Idle;
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Run cmd, speed: %u", speed);
 	STACKS_push(ACT_STACK_BallLauncher, &ACT_run_ball_launcher_run, run);
 }
 
 void ACT_push_ball_launcher_stop(bool_e run) {
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Stop cmd");
 	STACKS_push(ACT_STACK_BallLauncher, &ACT_run_ball_launcher_stop, run);
 }
 
@@ -140,7 +145,7 @@ void ACT_process_result(Uint8 can_act_id, Uint8 can_result) {
 		else if(can_result == ACT_RESULT_FAILED)
 			global.env.act[act_id].lastOperationResult = ACT_RESULT_Fail;
 	} else {
-		act_fun_printf("Unknown act result, can_act_id: %d, can_result: %d", can_act_id, can_result);
+		OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Unknown act result, can_act_id: %hhu, can_result: %hhu", can_act_id, can_result);
 	}
 }
 
@@ -153,6 +158,7 @@ static void ACT_run_ball_launcher_run(stack_id_e stack_id, bool_e init) {
 			order.data[1] = LOWINT(ACT_get_stack_arg(stack_id)->param);
 			order.data[2] = HIGHINT(ACT_get_stack_arg(stack_id)->param);
 			order.size = 3;
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending BallLauncher Run cmd, speed: %u", ACT_get_stack_arg(stack_id)->param);
 			CAN_send(&order);
 			global.env.act[ACT_STACK_BallLauncher].lastOperationResult = ACT_RESULT_Working;
 		} else {
@@ -169,6 +175,7 @@ static void ACT_run_ball_launcher_stop(stack_id_e stack_id, bool_e init) {
 			order.sid = ACT_BALLLAUNCHER;
 			order.data[0] = ACT_BALLLAUNCHER_STOP;
 			order.size = 1;
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending BallLauncher Stop cmd");
 			CAN_send(&order);
 			STACKS_pull(stack_id);
 		}
@@ -178,14 +185,17 @@ static void ACT_run_ball_launcher_stop(stack_id_e stack_id, bool_e init) {
 //Retourne TRUE si l'opération s'est terminée correctement
 static bool_e ACT_check_result(stack_id_e act_id, const char* command) {
 	if(global.env.match_time >= ACT_get_stack_arg(act_id)->timeout) {
+		if(command)
+			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation timeout act id: %u, cmd: %s\n", act_id, command);
+		else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation timeout act id: %u\n", act_id);
 		STACKS_set_timeout(act_id, TRUE);
 		return FALSE;
 	} else {
 		switch(global.env.act[act_id].lastOperationResult) {
 			case ACT_RESULT_Fail:
 				if(command)
-					act_fun_printf("Operation failed act id: %d, cmd: %s\n", act_id, command);
-				else act_fun_printf("Operation failed act id: %d\n", act_id);
+					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation failed act id: %u, cmd: %s\n", act_id, command);
+				else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation failed act id: %u\n", act_id);
 				STACKS_set_timeout(act_id, TRUE);
 				return FALSE;
 
@@ -197,8 +207,8 @@ static bool_e ACT_check_result(stack_id_e act_id, const char* command) {
 
 			case ACT_RESULT_Idle:
 				if(command)
-					act_fun_printf("Warning: act should be in working/finished mode but was in Idle mode, act id: %d, cmd: %s\n", act_id, command);
-				else act_fun_printf("Warning: act should be in working/finished mode but was in Idle mode, act id: %d\n", act_id);
+					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Warning: act should be in working/finished mode but was in Idle mode, act id: %u, cmd: %s\n", act_id, command);
+				else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Warning: act should be in working/finished mode but was in Idle mode, act id: %u\n", act_id);
 				STACKS_set_timeout(act_id, TRUE);
 				return FALSE;
 		}
