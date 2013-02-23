@@ -158,7 +158,7 @@ static void ACT_run_ball_launcher_run(stack_id_e stack_id, bool_e init) {
 			order.data[1] = LOWINT(ACT_get_stack_arg(stack_id)->param);
 			order.data[2] = HIGHINT(ACT_get_stack_arg(stack_id)->param);
 			order.size = 3;
-			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending BallLauncher Run cmd, speed: %u", ACT_get_stack_arg(stack_id)->param);
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending BallLauncher Run cmd, speed: %u", (Uint16)ACT_get_stack_arg(stack_id)->param);
 			CAN_send(&order);
 			global.env.act[ACT_STACK_BallLauncher].lastOperationResult = ACT_RESULT_Working;
 		} else {
