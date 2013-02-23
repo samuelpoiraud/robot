@@ -56,7 +56,8 @@
 //POUR REGLER L'ODOMETRIE:
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
-	#define ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C0F
+	#define TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C0F
+	#define KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C0F
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
@@ -66,10 +67,11 @@
 	//Si le robot va trop loin, il faut diminuer le coeff et vice versa
 	
 
-	#define ODOMETRY_COEF_SYM_DEFAULT (0)
+	#define TINY_ODOMETRY_COEF_SYM_DEFAULT (0)
+	#define KRUSTY_ODOMETRY_COEF_SYM_DEFAULT (0)
 
-
-	#define ODOMETRY_COEF_ROTATION_DEFAULT 0x9F27//0XA054	//(CHOMP : 43632)	Théorique : 41335
+	#define TINY_ODOMETRY_COEF_ROTATION_DEFAULT 0x9F27//0XA054	//(CHOMP : 43632)	Théorique : 41335
+	#define KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT 0x9F27
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
 	// COEF_ODOMETRIE_ROTATION = 1024*4096*16*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
 	// d : diametre des roues codeuse en mm = 60
@@ -87,7 +89,8 @@
 	//Amusez vous !
 
 	//COEF_ODOMETRIE_CENTRIFUGE permet de régler la variation d'odométrie en courbe
-	#define ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (-8)
+	#define TINY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (-8)
+	#define KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (-8)
 	
 	//à regler avec éléments mécaniques de blocages extrèmement parallèles à l'axe des codeurs !
 	#define CALIBRATION_BACKWARD_BORDER_DISTANCE 	140 		//distance entre le 'centre' du robot et l'arrière en calage
@@ -96,15 +99,27 @@
 	#define FIELD_SIZE_Y 3000	//[mm]
 	#define FIELD_SIZE_X 2000	//[mm]
 	
-	// RED
-	#define RED_START_X  	12582912 //9830400				//même position qu'en rouge
-	#define RED_START_Y  	(196608000-16842752) //(196608000-39321600)//symétrique
-	#define RED_START_TETA 	-6588416//-PI/2 //(-3294199)		// -pi/4
+	//TINY
+		// RED
+		#define TINY_RED_START_X  	12582912 //9830400				//même position qu'en rouge
+		#define TINY_RED_START_Y  	(196608000-16842752) //(196608000-39321600)//symétrique
+		#define TINY_RED_START_TETA 	-6588416//-PI/2 //(-3294199)		// -pi/4
+		
+		// BLUE
+		#define TINY_BLUE_START_X 12582912 //check 192*65536 //chomp 9830400 = 150*65536
+		#define TINY_BLUE_START_Y 16842752 //check 257*65536 //chomp 39321600
+		#define TINY_BLUE_START_TETA 6588416	// PI/2 //3294199				//angle de Pi/4 * 4096 * 1024
 	
-	// BLUE
-	#define BLUE_START_X 12582912 //check 192*65536 //chomp 9830400 = 150*65536
-	#define BLUE_START_Y 16842752 //check 257*65536 //chomp 39321600
-	#define BLUE_START_TETA 6588416	// PI/2 //3294199				//angle de Pi/4 * 4096 * 1024
+	//KRUSTY
+	// RED
+		#define KRUSTY_RED_START_X  	12582912 //9830400				//même position qu'en rouge
+		#define KRUSTY_RED_START_Y  	(196608000-16842752) //(196608000-39321600)//symétrique
+		#define KRUSTY_RED_START_TETA 	-6588416//-PI/2 //(-3294199)		// -pi/4
+		
+		// BLUE
+		#define KRUSTY_BLUE_START_X 12582912 //check 192*65536 //chomp 9830400 = 150*65536
+		#define KRUSTY_BLUE_START_Y 16842752 //check 257*65536 //chomp 39321600
+		#define KRUSTY_BLUE_START_TETA 6588416	// PI/2 //3294199				//angle de Pi/4 * 4096 * 1024
 
 
 /////BUFFER////////////////////////////////////////////						
@@ -115,15 +130,19 @@
 	
 		
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
-	#define KD_TRANSLATION 	(0x36) //0x80
-	#define KP_TRANSLATION 	(0x02) //0x03
-		
+	#define TINY_KD_TRANSLATION 	(0x36) //0x80
+	#define KRUSTY_KD_TRANSLATION 	(0x36) //0x80
+	
+	#define TINY_KP_TRANSLATION 	(0x02) //0x03
+	#define KRUSTY_KP_TRANSLATION 	(0x02) //0x03	
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
-	#define KD_ROTATION 	(0x5C0) //0x800
-	#define KP_ROTATION 	(0x40) //0x80
+	#define TINY_KD_ROTATION 	(0x5C0) //0x800
+	#define KRUSTY_KD_ROTATION 	(0x5C0) //0x800
 	
+	#define TINY_KP_ROTATION 	(0x40) //0x80
+	#define KRUSTY_KP_ROTATION 	(0x40) //0x80
 	
 	//Ordre de grandeur :
 	//A la vitesse lumière, KV_TRANSLATION * vitesse_translation doit valoir 100*4096
@@ -131,16 +150,25 @@
 	//KVtrans  	= 16
 	//KVrot = 1
 
-	#define KV_ROTATION 	1//CHOMP 1
-	#define KV_TRANSLATION 	19
+	#define TINY_KV_ROTATION 	1//CHOMP 1
+	#define KRUSTY_KV_ROTATION 	1//CHOMP 1
+	
+	#define TINY_KV_TRANSLATION 	19
+	#define KRUSTY_KV_TRANSLATION 	19
 	
 	#ifdef CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION
 		#warning "mode non utilisé jusqu'à maintenant : coefs non reglés"
-		#define KA_ROTATION 	0
-		#define KA_TRANSLATION 	(200)
+		#define TINY_KA_ROTATION 	0
+		#define KRUSTY_KA_ROTATION 	0
+		
+		#define TINY_KA_TRANSLATION 	(200)
+		#define KRUSTY_KA_TRANSLATION 	(200)	
 	#else
-		#define KA_ROTATION 	0
-		#define KA_TRANSLATION 	0
+		#define TINY_KA_ROTATION 	0
+		#define KRUSTY_KA_ROTATION 	0
+		
+		#define TINY_KA_TRANSLATION 	0
+		#define KRUSTY_KA_TRANSLATION 	0
 	#endif
 
 	
