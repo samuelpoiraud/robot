@@ -95,6 +95,7 @@
 		Uint8 minutes
 		Uint8 hours
 		Uint8 day
+		Uint8 date
 		Uint8 months
 		Uint8 year	(11 pour 2011)
 	*/

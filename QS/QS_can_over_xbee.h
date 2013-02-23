@@ -21,9 +21,6 @@
 	#error "Pour cela, définissez XBEE_PLUGGED_ON_UART1 ou XBEE_PLUGGED_ON_UART2"
 #endif
 
-#ifndef I_AM_MODULE
-	#error "Vous devez définir quel module XBee vous êtes (voir liste dans QS_can_over_xbee.h"
-#endif
 #define SOH 0x01
 #define EOT 0x04
 #define STX 0x02

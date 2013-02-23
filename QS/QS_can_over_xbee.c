@@ -50,7 +50,6 @@
 volatile static bool_e initialized = FALSE;
 volatile static bool_e module_reachable[MODULE_NUMBER];	//Etat des autres modules (joignables ou non...)
 volatile static bool_e flag_1s = FALSE;
-volatile static bool_e match_started = FALSE;
 
 void CAN_over_XBee_every_second(void)
 {
@@ -68,7 +67,7 @@ void XBee_Pong(module_id_e module)
 	if(module >= MODULE_NUMBER)
 		return;
 	msg.sid = XBEE_PONG;
-	msg.data[0] = I_AM_MODULE;
+	msg.data[0] = global.XBEE_i_am_module;
 	msg.size = 1;
 	CANMsgToXbee(&msg, module);
 }	
@@ -79,7 +78,7 @@ void XBee_Ping(module_id_e  module)
 	if(module >= MODULE_NUMBER)
 		return;
 	msg.sid = XBEE_PING;
-	msg.data[0] = I_AM_MODULE;
+	msg.data[0] = global.XBEE_i_am_module;
 	msg.size = 1;
 	CANMsgToXbee(&msg, module);
 }
@@ -117,7 +116,9 @@ void CAN_over_XBee_process_main(void)
 				XBee_state = WAIT_BEFORE_RELEASE_RESET;
 				for(module = 0; module<MODULE_NUMBER; module++)
 					 module_reachable[module] = FALSE;		//Tout les modules sont injoignables.
-				module_reachable[I_AM_MODULE] = TRUE;	//En principe, on a pas besoin de vérifier qu'on peut se parler à soit-même.
+				assert(global.XBEE_i_am_module < MODULE_NUMBER);
+				module_reachable[global.XBEE_i_am_module] = TRUE;	//En principe, on a pas besoin de vérifier qu'on peut se parler à soit-même.
+
 				
 				//RESET du module XBee
 				RESET_XBEE = 1;
@@ -141,10 +142,10 @@ void CAN_over_XBee_process_main(void)
 					{
 						everyone_is_reachable = FALSE;	//si quelqu'un n'est pas joignable, alors tout le monde ne l'est pas !
 						XBee_Ping(module);
-						debug_printf("ping %d->%d\n",I_AM_MODULE, module);
+						debug_printf("ping %d->%d\n",global.XBEE_i_am_module, module);
 					}	
 				}
-				if(everyone_is_reachable || match_started)
+				if(everyone_is_reachable || global.match_started)
 					XBee_state = IDLE;
 			break;
 			case IDLE:
@@ -174,15 +175,9 @@ bool_e process_received_can_msg(CAN_msg_t * msg)
 			{
 				module_reachable[msg->data[0]] = TRUE;
 				XBee_Pong(msg->data[0]);
-				debug_printf("pong %d->%d\n",I_AM_MODULE, msg->data[0]);
+				debug_printf("pong %d->%d\n",global.XBEE_i_am_module, msg->data[0]);
 			}
 			return FALSE;	//Le message ne sera pas transmis au reste du code.
-		break;
-		case BROADCAST_START:
-			match_started = TRUE;
-		break;
-		case BROADCAST_STOP_ALL:
-			match_started = FALSE;
 		break;
 		default:
 		break;
