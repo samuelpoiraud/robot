@@ -21,12 +21,13 @@
 		TINY
 	}robot_id_e;
 	
-	//@brief 	Cette fonction doit être appelée lors de l'initialisation.
-	//@pre 		le fond de panier sur lequel la carte est branché doit être cablé conformément à "_PORTS.xlsx"
-	//@post		Le module QS_WHO_AM_I sait alors sur quel robot la carte est branchée
+	/** @brief  Cette fonction doit être appelée lors de l'initialisation.
+	 *  @pre    Le fond de panier sur lequel la carte est branché doit être cablé conformément à "_PORTS.xlsx"
+	 *  @post   Le module QS_WHO_AM_I sait alors sur quel robot la carte est branchée
+	 */
 	void QS_WHO_AM_I_find(void);
 	
-	//@return	L'identifiant du robot sur lequel est branchée la carte qui exécute ce code !
+	/** @return L'identifiant du robot sur lequel est branchée la carte qui exécute ce code ! */
 	robot_id_e QS_WHO_AM_I_get(void);
 	
 	
