@@ -14,7 +14,7 @@
 	#include "QS/QS_types.h"
 
 	//mode d'activation des sorties debug_printf
-//	#define VERBOSE_MODE
+	#define VERBOSE_MODE
 	
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
@@ -23,6 +23,7 @@
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
 	#define FREQ_10MHZ
 	
+	#define FDP_2013
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
 	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
@@ -38,6 +39,10 @@
 	#define PORT_E_IO_MASK	0xFFF0
 		#define SENS_MOTEUR_1 LATEbits.LATE0
 		#define SENS_MOTEUR_2 LATEbits.LATE2
+		#define LAT_ROBOT_ID_OUTPUT		LATEbits.LATE7
+		#define TRIS_ROBOT_ID_OUTPUT	TRISEbits.TRISE7
+		#define PORT_ROBOT_ID_INPUT		PORTEbits.RE5
+		#define TRIS_ROBOT_ID_INPUT		TRISEbits.TRISE5
 	#define PORT_F_IO_MASK	0xFFF5	/*(can tx et uart tx)*/
 	#define PORT_G_IO_MASK	0xFE3F
 		#define SEL_OCTET_CPLD	 	PORTGbits.RG8

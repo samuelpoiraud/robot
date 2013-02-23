@@ -28,6 +28,7 @@
 #include "QS/QS_uart.h"
 #include "QS/QS_buttons.h"
 #include "QS/QS_CANmsgList.h"
+#include "QS/QS_who_am_i.h"
 
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
@@ -59,6 +60,18 @@ void initialisation(void){
 	//> ceci est utile pour le stockage d'un tableau de boeuf dans la mémoire programme
 	CORCONbits.PSV=1;					
 	
+	UART_init(); //Si les résistances de tirages uart ne sont pas reliées, le code bloque ici si aucun cable n'y est relié.		
+	Uint16 delay;
+	for(delay = 1;delay;delay++);	//attente pour que l'UART soit bien prete...
+	RCON_read();
+	
+	//Sur quel robot est-on ?
+	#ifdef FDP_2013	//Pour rétrocompatibilité.
+		QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+		//Doit se faire AVANT ODOMETRY_init() !!!
+	#endif
+	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
+	
 	ODOMETRY_init();
 	SUPERVISOR_init();
 	COPILOT_init();
@@ -67,13 +80,7 @@ void initialisation(void){
 	ROADMAP_init();
 	WARNER_init();
 
-	  
-	UART_init(); //Si les résistances de tirages uart ne sont pas reliées, le code bloque ici si aucun cable n'y est relié.		
-	Uint16 delay;
-	for(delay = 1;delay;delay++);	//attente pour que l'UART soit bien prete...
-	RCON_read();
-
-		JOYSTICK_init();
+	JOYSTICK_init();
 	DEBUG_init();
 	
 	BUTTONS_init();

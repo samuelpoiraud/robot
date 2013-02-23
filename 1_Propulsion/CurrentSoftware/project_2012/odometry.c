@@ -19,6 +19,7 @@
 #include "cos_sin.h"
 #include "debug.h"
 #include "supervisor.h"
+#include "QS/QS_who_am_i.h"
 
 volatile static Sint32 coefs[ODOMETRY_NUMBER_COEFS];
 
@@ -33,10 +34,22 @@ void ODOMETRY_init()
 {
 	ENCODERS_init();
 	ODOMETRY_set_color(RED);
-	coefs[ODOMETRY_COEF_TRANSLATION] = 	ODOMETRY_COEF_TRANSLATION_DEFAULT;
-	coefs[ODOMETRY_COEF_SYM] = 		ODOMETRY_COEF_SYM_DEFAULT;
-	coefs[ODOMETRY_COEF_ROTATION] = 	ODOMETRY_COEF_ROTATION_DEFAULT;
-	coefs[ODOMETRY_COEF_CENTRIFUGAL] = 	ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+	if(QS_WHO_AM_I_get()==TINY)
+	{
+		//TINY
+		coefs[ODOMETRY_COEF_TRANSLATION] 	= 	TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT;
+		coefs[ODOMETRY_COEF_SYM] 			= 	TINY_ODOMETRY_COEF_SYM_DEFAULT;
+		coefs[ODOMETRY_COEF_ROTATION] 		= 	TINY_ODOMETRY_COEF_ROTATION_DEFAULT;
+		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	= 	TINY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+	}
+	else
+	{
+		//KRUSTY
+		coefs[ODOMETRY_COEF_TRANSLATION] 	= 	KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT;
+		coefs[ODOMETRY_COEF_SYM] 			= 	KRUSTY_ODOMETRY_COEF_SYM_DEFAULT;
+		coefs[ODOMETRY_COEF_ROTATION] 		= 	KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT;
+		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	= 	KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+	}	
 }
 
 void ODOMETRY_set_coef(ODOMETRY_coef_e coef, Sint32 value)
@@ -47,18 +60,39 @@ void ODOMETRY_set_coef(ODOMETRY_coef_e coef, Sint32 value)
 void ODOMETRY_set_color(color_e new_color)
 {
 	color = new_color;
-	if (new_color == BLUE)
+	
+	if(QS_WHO_AM_I_get()==TINY)
 	{
-		x32	= BLUE_START_X;		//[mm/65536]		(<<16)
-		y32	= BLUE_START_Y;		//[mm/65536]		(<<16)
-		teta32 = BLUE_START_TETA;		//[rad/4096/1024]	(<<22)
-	}	
-	else
-	{
-		x32	= RED_START_X ;		//[mm/65536]		(<<16)
-		y32	= RED_START_Y ;		//[mm/65536]		(<<16)
-		teta32 = RED_START_TETA ;		//[rad/4096/1024]	(<<22)
+		//TINY
+		if (new_color == BLUE)
+		{
+			x32	= TINY_BLUE_START_X;		//[mm/65536]		(<<16)
+			y32	= TINY_BLUE_START_Y;		//[mm/65536]		(<<16)
+			teta32 = TINY_BLUE_START_TETA;		//[rad/4096/1024]	(<<22)
+		}	
+		else
+		{
+			x32	= TINY_RED_START_X ;		//[mm/65536]		(<<16)
+			y32	= TINY_RED_START_Y ;		//[mm/65536]		(<<16)
+			teta32 = TINY_RED_START_TETA ;		//[rad/4096/1024]	(<<22)
+		}
 	}
+	else
+	{	
+		//KRUSTY
+		if (new_color == BLUE)
+		{
+			x32	= KRUSTY_BLUE_START_X;		//[mm/65536]		(<<16)
+			y32	= KRUSTY_BLUE_START_Y;		//[mm/65536]		(<<16)
+			teta32 = KRUSTY_BLUE_START_TETA;		//[rad/4096/1024]	(<<22)
+		}	
+		else
+		{
+			x32	= KRUSTY_RED_START_X ;		//[mm/65536]		(<<16)
+			y32	= KRUSTY_RED_START_Y ;		//[mm/65536]		(<<16)
+			teta32 = KRUSTY_RED_START_TETA ;		//[rad/4096/1024]	(<<22)
+		}
+	}		
 	global.position.x	= x32  >> 16;	//[mm]
 	global.position.y	= y32  >> 16;	//[mm]
 	global.position.teta = teta32 >> 10;	//[rad/4096]	(<<12)
