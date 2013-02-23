@@ -46,6 +46,8 @@
       <itemPath>../QS/QS_uart.h</itemPath>
       <itemPath>../polygon.h</itemPath>
       <itemPath>../QS/QS_buttons.h</itemPath>
+	  <itemPath>../output_log.h</itemPath>
+	  <itemPath>../QS/QS_who_am_i.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -83,6 +85,8 @@
       <itemPath>../polygon.c</itemPath>
       <itemPath>../QS/QS_buttons.c</itemPath>
       <itemPath>../actions.c</itemPath>
+      <itemPath>../output_log.c</itemPath>
+	  <itemPath>../QS/QS_who_am_i.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -142,7 +146,7 @@
         <property key="enable-short-double" value="false"/>
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories" value="..;../QS"/>
+        <property key="extra-include-directories" value="."/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="2"/>
         <property key="post-instruction-scheduling" value="default"/>
