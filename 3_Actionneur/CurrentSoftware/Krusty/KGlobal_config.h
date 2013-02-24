@@ -15,6 +15,7 @@
 	#define KRUSTY_GLOBAL_CONFIG_H
 
 //	#define VERBOSE_MODE
+#define OUTPUT_LOG
 	
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
@@ -75,6 +76,9 @@
 	/* nombre maximum de positions à gérer par moteur */
 	#define DCMOTOR_NB_POS		5
 
+/* Servo-Moteurs AX12 */
+	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
+
 /* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
 	//	#define FAST_COS_SIN
 	//	#define COS_SIN_16384
@@ -104,7 +108,9 @@
 	#define PLATE_ASSER_KI                       0
 	#define PLATE_ASSER_KD                       0
 	#define PLATE_HORIZONTAL_POS                 100	//TODO: ajuster ces valeurs !
-	#define PLATE_VERTICAL_POS                   5000
+	#define PLATE_PREPARE_POS                    300
+	#define PLATE_PARKED_POS                     4000
+	#define PLATE_VERTICAL_POS                   5000	/////////////////////////////
 	#define PLATE_DCMOTOR_ID                     1			//Doit être unique !
 	#define PLATE_DCMOTOR_PWM_NUM                4
 	#define PLATE_DCMOTOR_PORT_WAY               PORTE
@@ -113,8 +119,10 @@
 	#define PLATE_DCMOTOR_MAX_PWM_WAY1           0
 	#define PLATE_ROTATION_POTAR_ADC_ID          AN9_ID
 	#define PLATE_PLIER_AX12_ID                  0	//TODO: changer ces valeurs !!!
+	#define PLATE_PLIER_AX12_POS_EPSILON         5
 	#define PLATE_PLIER_AX12_OPEN_POS            0
 	#define PLATE_PLIER_AX12_CLOSED_POS          0
+	#define PLATE_PLIER_AX12_PARKED_POS          0
 	
 /**************** Capteurs ****************/
 
