@@ -24,6 +24,9 @@
 	#define SUPER_FILTER				0x500
 	#define DEBUG_FILTER				0x700
 	
+	#define XBEE_FILTER					0x5A0	//Seuls les messages commencant par 5A seront transmis par XBee !
+	//PS : les messages PING et PONG ne sont pas soumis à cette règlementation car envoyés par le fichier QS_CAN_OVER_XBEE
+					
 	/* Message pour tous */
 	#define BROADCAST_START	 			0x001
 	#define BROADCAST_STOP_ALL 			0x002
