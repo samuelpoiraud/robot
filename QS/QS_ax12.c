@@ -404,9 +404,10 @@ static bool_e AX12_instruction_async_prepare_write8(Uint8 id_servo, Uint8 addres
 static bool_e AX12_instruction_async_prepare_write16(Uint8 id_servo, Uint8 address, Uint16 value);
 static bool_e AX12_instruction_async_execute_write();
 static bool_e AX12_instruction_ping(Uint8 id_servo);
-static bool_e AX12_instruction_wait();
+static bool_e AX12_instruction_wait(Uint8 id_servo);
 static bool_e AX12_instruction_buffer_is_full();
 static AX12_status_t AX12_instruction_get_last_status(Uint8 id_servo);
+static void AX12_instruction_reset_last_status(Uint8 id_servo);
 
 static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* inst);
 #define AX12_status_packet_is_full(status_packet, bytes_received) (((bytes_received) >= 4) && ((bytes_received) >= status_packet.size))	//on doit avoir lu la taille du paquet (>= 4) et avoir lu tous les octets du paquet
@@ -529,12 +530,12 @@ static Uint8 AX12_instruction_read8(Uint8 id_servo, Uint8 address, bool_e *isOk)
 		return 0;
 	}
 
-	if(!AX12_instruction_wait()) {
+	if(!AX12_instruction_wait(id_servo)) {
 		if(isOk) *isOk = FALSE;
 		return 0;
 	}
 
-	*isOk = TRUE;
+	if(isOk) *isOk = TRUE;
 	return AX12_instruction_get_last_status(id_servo).param_1;
 }
 
@@ -544,12 +545,12 @@ static Uint16 AX12_instruction_read16(Uint8 id_servo, Uint8 address, bool_e *isO
 		return 0;
 	}
 
-	if(!AX12_instruction_wait()) {
+	if(!AX12_instruction_wait(id_servo)) {
 		if(isOk) *isOk = FALSE;
 		return 0;
 	}
 
-	*isOk = TRUE;
+	if(isOk) *isOk = TRUE;
 	return AX12_instruction_get_last_status(id_servo).param;
 }
 #endif
@@ -566,7 +567,7 @@ static bool_e AX12_instruction_write8(Uint8 id_servo, Uint8 address, Uint8 value
 	#if AX12_STATUS_RETURN_MODE == AX12_STATUS_RETURN_ALWAYS
 		if(id_servo == AX12_BROADCAST_ID)
 			return TRUE;
-		if(!AX12_instruction_wait())
+		if(!AX12_instruction_wait(id_servo))
 			return FALSE;
 		return AX12_instruction_get_last_status(id_servo).error == 0;
 	#endif
@@ -586,7 +587,7 @@ static bool_e AX12_instruction_write16(Uint8 id_servo, Uint8 address, Uint16 val
 	#if AX12_STATUS_RETURN_MODE == AX12_STATUS_RETURN_ALWAYS
 		if(id_servo == AX12_BROADCAST_ID)
 			return TRUE;
-		if(!AX12_instruction_wait())
+		if(!AX12_instruction_wait(id_servo))
 			return FALSE;
 		return AX12_instruction_get_last_status(id_servo).error == 0;
 	#endif
@@ -604,7 +605,7 @@ static bool_e AX12_instruction_ping(Uint8 id_servo) {
 	if(!AX12_instruction_queue_insert(&inst))
 		return FALSE;
 
-	if(!AX12_instruction_wait())
+	if(!AX12_instruction_wait(id_servo))
 		return FALSE;
 
 	return (AX12_instruction_get_last_status(id_servo).error & AX12_ERROR_TIMEOUT) == 0;
@@ -614,19 +615,26 @@ static bool_e AX12_instruction_buffer_is_full() {
 	return AX12_instruction_queue_is_full();
 }
 
-static bool_e AX12_instruction_wait()
-{
+static bool_e AX12_instruction_wait(Uint8 id_servo) {
 	Uint16 i = 0;
 	while(!AX12_instruction_queue_is_empty() && i < 65000)	//si i atteint 65000, on stop, on a attendu trop longtemps (au moins 6,5ms à une clock de 10Mhz, mais ce bout de code ne fait qu'une instruction)
 		i++;
 		
 	if(i < 65000) return TRUE;
+
+	AX12_on_the_robot[id_servo].last_status.error = AX12_ERROR_TIMEOUT | AX12_ERROR_RANGE;	//On a attendu trop longtemps, le buffer est toujours plein
+	AX12_on_the_robot[id_servo].last_status.param = 0;
 	return FALSE;
 }
 
 static AX12_status_t AX12_instruction_get_last_status(Uint8 id_servo)
 {
 	return AX12_on_the_robot[id_servo].last_status;
+}
+
+static void AX12_instruction_reset_last_status(Uint8 id_servo) {
+	AX12_on_the_robot[id_servo].last_status.error = AX12_ERROR_OK;
+	AX12_on_the_robot[id_servo].last_status.param = 0;
 }
 
 /*****************************************************************************/
@@ -963,7 +971,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						if(status_response_packet.error & 0x80)
 							debug_printf("AX12 Fatal: Unknown (0x80) error\n");
 						if(status_response_packet.error)
-							debug_printf("AX12 Info: Errors occured, see datasheet for more informations\n");
+							debug_printf("AX12 Info: Errors occured, see QS_ax12.h (at AX12_ERROR_* constants) for more informations\n");
 					#endif
 					
 					AX12_instruction_queue_next();
@@ -1006,7 +1014,11 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 	while(AX12_instruction_queue_is_full() && i < 65000)	//boucle 65000 fois si le buffer reste full, si on atteint 65000, on échoue et retourne FALSE
 		i++;
 		
-	if(i >= 65000) return FALSE;	//return false, on a pas réussi a insérer l'instruction, problème de priorité d'interruptions ?
+	if(i >= 65000) {
+		AX12_on_the_robot[inst->id_servo].last_status.error = AX12_ERROR_TIMEOUT | AX12_ERROR_RANGE;
+		AX12_on_the_robot[inst->id_servo].last_status.param = 0;
+		return FALSE;	//return false, on a pas réussi a insérer l'instruction, problème de priorité d'interruptions ?
+	}
 
 	AX12_special_instruction_buffer.buffer[AX12_special_instruction_buffer.end_index] = *inst;
 	AX12_special_instruction_buffer.end_index = INC_WITH_MOD(AX12_special_instruction_buffer.end_index, AX12_INSTRUCTION_REAL_NEEDED_BUFFER_SIZE);
@@ -1105,7 +1117,8 @@ void AX12_init() {
 	AX12_TIMER_init();
 	AX12_DIRECTION_PORT = RX_DIRECTION;
 
-	AX12_instruction_async_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
+	AX12_prepare_commands = FALSE;
+	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
 
 	for(i=0; i<AX12_NUMBER; i++) {
 		AX12_config_set_minimal_angle(i, 0);
@@ -1114,8 +1127,7 @@ void AX12_init() {
 		AX12_on_the_robot[i].angle_limit[1] = 300;
 
 		AX12_on_the_robot[i].is_wheel_enabled = FALSE;
-		AX12_on_the_robot[i].last_status.error = 0;
-		AX12_on_the_robot[i].last_status.param = 0;
+		AX12_instruction_reset_last_status(i);
 	}
 }
 
@@ -1154,6 +1166,10 @@ bool_e AX12_is_ready(Uint8 id_servo) {
 
 AX12_status_t AX12_get_last_error(Uint8 id_servo) {
 	return AX12_instruction_get_last_status(id_servo);
+}
+
+void AX12_reset_last_error(Uint8 id_servo) {
+	AX12_instruction_reset_last_status(id_servo);
 }
 
 bool_e AX12_is_buffer_full() {
@@ -1486,7 +1502,7 @@ bool_e AX12_set_torque_response(Uint8 id_servo, Uint16 A, Uint16 B, Uint16 C, Ui
 		return FALSE;
 
 	#if AX12_STATUS_RETURN_MODE == AX12_STATUS_RETURN_ALWAYS
-		if(!AX12_instruction_wait() || AX12_instruction_get_last_status(id_servo).error == 0)
+		if(!AX12_instruction_wait(id_servo) || AX12_instruction_get_last_status(id_servo).error == 0)
 			return FALSE;
 	#endif
 
