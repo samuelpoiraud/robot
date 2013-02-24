@@ -24,9 +24,5 @@
 		Une durée de 0 indique un match infini
 	*/
 	void any_match(ia_fun_t, time32_t match_duration);
-
-	#ifdef BRAIN_C
-		//Pourquoi tant de complication ? Les includes qui étaient ici sont dans 'brain.c'. mailto:alexis.murzeau@reseau.eseo.fr si jamais yavais une raison valable pour mettre les includes uniquement utilisés par le .c ici car je vois pas pourquoi a l'instant ou j'écris cette ligne de commentaire de 15 km.
-	#endif /* def BRAIN_C */
 	
 #endif /* ndef BRAIN_H */

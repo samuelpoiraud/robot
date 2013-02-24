@@ -71,20 +71,30 @@
 		ACT_RESULT_Idle,
 		ACT_RESULT_Working,
 		ACT_RESULT_Ok,
-		ACT_RESULT_Fail
+		ACT_RESULT_Failed,
+		ACT_RESULT_NotHandled
 	} act_result_e;
 
-	typedef struct
-	{
-		act_result_e lastOperationResult;
+	typedef enum {
+		ACT_BEHAVIOR_Ok,                       //Pas d'erreur (ACT_RESULT_ERROR_OK)
+		ACT_BEHAVIOR_DisableAct,               //L'actionneur est inutilisable
+		ACT_BEHAVIOR_RetryLater,               //Ressayer plus tard les commandes, si arrive plusieurs fois de suite, passer à ACT_ERROR_DisableAct (ACT_RESULT_ERROR_NO_RESOURCES)
+		ACT_BEHAVIOR_GoalUnreachable,          //ACT_RESULT_ERROR_TIMEOUT la première fois. Tenter de retourner à la position en mode non-déployé. Si une autre erreur survient,passer à ACT_ERROR_DisableAct Sinon essayer la strat qui l'utilise plus tard, et si l'erreur revient, refaire la procédure mais au lieu de ressayer la strat plus tard, desactiver l'actionneur.
+		                                       //Si ACT_RESULT_ERROR_NOT_HERE, envoyer une commande de retour en mode déployé et passer directement à ACT_ERROR_DisableAct. Esperons que l'actionneur reçevra la commande et restera pas déployé.
+	} act_error_recommended_behavior_e;
+
+	typedef struct {
+		bool_e disabled;	//TRUE si l'actionneur est désactivé car inutilisable
+		act_result_e operationResult;	//Resultat de la derrnière opération faite
+		act_error_recommended_behavior_e recommendedBehavior;		//Quoi faire suite à l'opération faite
 	}act_t;
 
-        //enum utilisé par le tableau d'états du terrain
-        typedef enum{
-            TODO = 0,
-            DONE,
-            NON //Non applicable
-        }map_state_e;
+	//enum utilisé par le tableau d'états du terrain
+	typedef enum{
+		TODO = 0,
+		DONE,
+		NON //Non applicable
+	}map_state_e;
 
 	typedef struct
 	{
@@ -107,11 +117,11 @@
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
 		act_t act[ACTUATORS_NB];	// actionneurs
-                /*Tableau d'états du terrain */
-                map_state_e map_elements[38]; //Voir doc pour connaitre les éléments associés
+		/*Tableau d'états du terrain */
+		map_state_e map_elements[38]; //Voir doc pour connaitre les éléments associés
 	}environment_t;
 
-        //NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
+	//NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
 
 	/* baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
 	void ENV_clean();
@@ -132,7 +142,7 @@
    (ATTENTION : le message n'est pas placé dans le buffer) */
 	bool_e CAN_fast_update(CAN_msg_t* msg);
 	
-    /* Fonction de filtrage des points appartenants au terrain.
+	/* Fonction de filtrage des points appartenants au terrain.
 	Elle renvoie si le point est valide ou non càd hors des zones de départ, des zones sécurisées 
 	et écarté de delta des bordures du terrain */
 	bool_e ENV_game_zone_filter(Sint16 x, Sint16 y, Uint16 delta);
