@@ -236,6 +236,8 @@
 	 *
 	 * Un paquet de status était censé être envoyé par le servo, mais le driver n'a rien reçu durant le temps imparti.
 	 * Utilisez #AX12_is_ready pour savoir si le servo est connecté et répond correctement.
+	 * Si erreur est définie avec AX12_ERROR_RANGE en même temps, c'est que le driver à attendu trop longtemps pour bufferiser la commande et l'a annulé.
+	 * Cette erreur est toujours seule autrement (pas d'autre bit défini que celui là)
 	 * @see AX12_STATUS_RETURN_TIMEOUT
 	 * @see AX12_STATUS_RETURN_MODE
 	 */
@@ -262,8 +264,18 @@
 	 * ansi que du define #AX12_STATUS_RETURN_MODE.
 	 * @param id_servo numéro du servo à verifier
 	 * @return dernier status du servo indiqué
+	 * @see AX12_reset_last_error
 	 */
 	AX12_status_t AX12_get_last_error(Uint8 id_servo);
+
+	/**
+	 * Réinitialise la dernière information de status à #AX12_ERROR_OK.
+	 *
+	 * Cette fonction ne devrait pas servir, mais aucune vérification du code concernant la remise à zero si une instruction s'est bien executée dans tous les cas n'a été faite
+	 * @param id_servo numéro du servo dont il faut reinitialiser le status
+	 * @see AX12_get_last_error
+	 */
+	void AX12_reset_last_error(Uint8 id_servo);
 
 	/**
 	 * Permet de savoir si le buffer d'instruction interne du driver est plein.

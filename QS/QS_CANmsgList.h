@@ -139,9 +139,21 @@
 	//Définir un SID du type ACT_nom_actionneur_RESULT avec un nombre de type (STRAT_FILTER | (ACT_FILTER >> 4) | valeur)
 	//avec valeur différente pour chaque message de la carte actionneur à la carte strat
 	#define ACT_RESULT (STRAT_FILTER | (ACT_FILTER >> 4) | 0)
-	//Dans data[0]: le sid actionneur && 0xFF, dans data[1]: une de ces valeurs:
-		#define ACT_RESULT_DONE		0
-		#define ACT_RESULT_FAILED	1
+	//Dans data[0]: le sid actionneur & 0xFF (on ne garde que l'octet de poid faible, l'octet de poids fort contient le filtre et on en a pas besoin)
+	//Dans data[1]: la commande dont en envoi le résultat. Par ex: ACT_BALLLAUNCHER_ACTIVATE
+	//Dans data[2]: état de la commande, une de ces valeurs:
+		#define ACT_RESULT_DONE        0	//Tout s'est bien passé
+		#define ACT_RESULT_FAILED      1	//La commande s'est mal passé et on ne sait pas dans quel état est l'actionneur (par: les capteurs ne fonctionnent plus)
+		#define ACT_RESULT_NOT_HANDLED 2	//La commande ne s'est pas effectué correctement et on sait que l'actionneur n'a pas bougé (ou quand la commande a été ignorée)
+	//Dans data[3]: la raison du problème (si pas DONE), une de ces valeurs:
+		#define ACT_RESULT_ERROR_OK           0	//Quand pas d'erreur
+		#define ACT_RESULT_ERROR_TIMEOUT      1	//Il y a eu timeout, par ex l'asservissement prend trop de temps
+		#define ACT_RESULT_ERROR_OTHER        2	//La commande était lié à une autre qui ne s'est pas effectué correctement, utilisé avec ACT_RESULT_NOT_HANDLED
+		#define ACT_RESULT_ERROR_NOT_HERE     3	//L'actionneur ou le capteur ne répond plus (on le sait par un autre moyen que le timeout, par exemple l'AX12 ne renvoie plus d'info après l'envoi d'une commande.)
+		#define ACT_RESULT_ERROR_LOGIC        4	//Erreur de logique interne à la carte actionneur, probablement une erreur de codage (par exemple un état qui n'aurait jamais dû arrivé)
+		#define ACT_RESULT_ERROR_NO_RESOURCES 5 //La carte n'a pas assez de resource pour gérer la commande. Commande à renvoyer plus tard.
+			//Ajoutez-en si nécessaire
+		#define ACT_RESULT_ERROR_UNKNOWN      255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
     /////////////////////////////////////////
 	
 	//////////////// AX12 ///////////////////
