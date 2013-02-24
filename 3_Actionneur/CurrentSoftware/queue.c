@@ -21,6 +21,7 @@
  * -index de la queue
  * -instant de départ de l'action
  * -état de la queue (utilisée ou non)
+ * -si une erreur est survenue lors de l'execution des fonctions dans la queue (erreur indiqué par QUEUE_set_error(queue_id))
  */
  
 typedef struct{
@@ -31,6 +32,7 @@ typedef struct{
 	queue_size_t tail;
 	time_t initial_time_of_current_action;
 	bool_e used;
+	bool_e error_occured;
 } queue_t;
 
 
@@ -55,7 +57,7 @@ static volatile Uint16 time = 0;
 
 void QUEUE_init()
 {
-	//debug_printf("Init file\r\n");
+	//debug_printf("Init file\n");
 	static bool_e initialized = FALSE;
 	if (initialized)
 		return;
@@ -81,7 +83,7 @@ void QUEUE_init()
 	}
 
 	CLOCK_init();
-	//debug_printf("QUEUE_init\r\n");
+	//debug_printf("QUEUE_init\n");
 	initialized = TRUE;
 }
 
@@ -112,6 +114,7 @@ queue_id_t QUEUE_create()
 
 	queues[i].head = 0;
 	queues[i].tail = 0;
+	queues[i].error_occured = FALSE;
 	queues[i].used = TRUE;
 
 	return i;
@@ -128,7 +131,7 @@ void QUEUE_run()
 		{
 			this=&(queues[queue_id]);
 			(this->action[this->head])(queue_id, FALSE);
-			//debug_printf("QUEUE%d_run\r\n", queue_id);
+			//debug_printf("QUEUE%d_run\n", queue_id);
 		}
 	}
 }
@@ -155,7 +158,7 @@ void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,QUEUE_
 	if ((this->tail - 1) == this->head)
 	{
 		//on l'initialise
-		//debug_printf("Initialise première action\n\r");
+		//debug_printf("Initialise première action\n");
 		action(queue_id,TRUE);
 	}
 	
@@ -178,9 +181,34 @@ void QUEUE_behead(queue_id_t queue_id)
 	else
 	{
 		//on supprime la file
-		debug_printf("Suppression file %d\r\n",queue_id);
+		debug_printf("Suppression file %d\n",queue_id);
 		this->used = FALSE;
 	}
+}
+
+/* Indique qu'une erreur est survenue lors de l'execution d'une fonction dans la file indiquée. Les fonctions suivant dans la file pourront agir en conséquence. */
+void QUEUE_set_error(queue_id_t queue_id) {
+	assert(queue_id < NB_QUEUE);
+
+	if(queues[queue_id].used) {
+		queues[queue_id].error_occured = TRUE;
+		debug_printf("Erreur déclarée dans la file %d\n", queue_id);
+	} else {
+		debug_printf("Erreur dans la file %d non utilisée !\n", queue_id);
+	}
+}
+
+/* Retourne TRUE si une erreur est survenue lors de l'execution d'un fonction dans la file indiquée. */
+bool_e QUEUE_has_error(queue_id_t queue_id) {
+	assert(queue_id < NB_QUEUE);
+
+	if(queues[queue_id].used) {
+		return queues[queue_id].error_occured;
+	} else {
+		debug_printf("QUEUE_has_error sur la file %d non utilisée !\n", queue_id);
+	}
+
+	return FALSE;
 }
 
 /* vide la file */
@@ -190,13 +218,13 @@ void QUEUE_flush(queue_id_t queue_id)
 	//On flush seulement les files utilisées
 	if(queues[queue_id].used)
 	{
-		debug_printf("Queue %d flush\r\n",queue_id);
+		debug_printf("Queue %d flush\n",queue_id);
 		sems[QUEUE_get_act(queue_id)].token= TRUE;	//On rend la sémaphore utilisée par l'actionneur
 		queues[queue_id].used = FALSE; //On rend la file
 	}
 	else
 	{
-		debug_printf("File %d non utilisée \r\n",queue_id);
+		debug_printf("File %d non utilisée\n",queue_id);
 	}
 }
 
@@ -216,24 +244,24 @@ void QUEUE_take_sem(queue_id_t this, bool_e init)
 		{
 			if((sems[QUEUE_get_act(this)].token))
 			{
-				debug_printf("Prise sémaphore actionneur %d\n\r",QUEUE_get_act(this));
+				debug_printf("Prise sémaphore actionneur %d\n",QUEUE_get_act(this));
 				sems[QUEUE_get_act(this)].token = FALSE;
 				QUEUE_behead(this);
 			}	
 			else
-				debug_printf("Actuator %d already used\r\n",this);
+				debug_printf("Actuator %d already used\n",this);
 		}
 		else//Sémaphore de synchronisation
 		{
 			if((sems[QUEUE_get_arg(this)].token))
 			{
-				debug_printf("Prise sémaphore synchro %d\n\r",QUEUE_get_arg(this));
+				debug_printf("Prise sémaphore synchro %d\n",QUEUE_get_arg(this));
 				sems[QUEUE_get_arg(this)].token = FALSE;
 				QUEUE_behead(this);
 			}	
 			else
 			{
-				debug_printf("Synchro %d already used",QUEUE_get_arg(this));
+				debug_printf("Synchro %d already used\n",QUEUE_get_arg(this));
 			}
 		}
 	}
@@ -245,13 +273,13 @@ void QUEUE_give_sem(queue_id_t this, bool_e init)
 		//Sémaphore pour file
 		if(QUEUE_get_arg(this)==0)
 		{
-				debug_printf("Sémaphore actionneur %d rendue\n\r",QUEUE_get_act(this));
+				debug_printf("Sémaphore actionneur %d rendue\n",QUEUE_get_act(this));
 				sems[QUEUE_get_act(this)].token = TRUE;
 				QUEUE_behead(this);
 		}
 		else//Sémaphore de synchronisation
 		{
-				debug_printf("Sémaphore synchro %d rendue\n\r",QUEUE_get_arg(this));
+				debug_printf("Sémaphore synchro %d rendue\n",QUEUE_get_arg(this));
 				sems[QUEUE_get_arg(this)].token = TRUE;
 				QUEUE_behead(this);
 		}
@@ -270,7 +298,7 @@ sem_id_t QUEUE_sem_create()
 	assert(i>=NB_ACT); //Pour ne pas prendre les sémaphores réservées aux actionneurs
 	sems[i].used = TRUE;
 	sems[i].token = TRUE;
-	debug_printf("Creation synchro %d \r\n",i);
+	debug_printf("Creation synchro %d\n",i);
 		
 	return (i!=NB_ACT+NB_SYNCHRO)?i:QUEUE_SEM_CREATE_FAILED;
 }
@@ -289,20 +317,20 @@ void QUEUE_wait_synchro(queue_id_t this, bool_e init)
 	static time_t initial_time;
 	if(init)
 	{
-		debug_printf("Départ Attente synchro\r\n");
+		debug_printf("Départ Attente synchro\n");
 		initial_time = CLOCK_get_time();
 	}
 	else
 	{
-		debug_printf("Attente synchro\r\n");
+		debug_printf("Attente synchro\n");
 		if ((sems[QUEUE_get_arg(this)].used && sems[QUEUE_get_arg(this)].token)) //jeton rendu ou timout
 		{	
-			debug_printf("Synchro finie\r\n");
+			debug_printf("Synchro finie\n");
 			QUEUE_behead(this);
 		}
 		if(CLOCK_get_time() - initial_time > QUEUE_SYNCHRO_TIMEOUT)
 		{
-			debug_printf("Synchro timeout\r\n");
+			debug_printf("Synchro timeout\n");
 			//On supprime la synchro qu'on attend
 			sems[QUEUE_get_arg(this)].used = FALSE;
 			sems[QUEUE_get_arg(this)].token = TRUE;

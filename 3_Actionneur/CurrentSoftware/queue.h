@@ -67,6 +67,12 @@ void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,QUEUE_
 /* Retire la fonction en tete de file et reinitialise la suivante. */
 void QUEUE_behead(queue_id_t queue_id);
 
+/* Indique qu'une erreur est survenue lors de l'execution d'une fonction dans la file indiquée. Les fonctions suivant dans la file pourront agir en conséquence. */
+void QUEUE_set_error(queue_id_t queue_id);
+
+/* Retourne TRUE si une erreur est survenue lors de l'execution d'un fonction dans la file indiquée. */
+bool_e QUEUE_has_error(queue_id_t queue_id);
+
 /* vide la file et rend la semaphore de l'actionneur associé*/
 void QUEUE_flush(queue_id_t queue_id);
 

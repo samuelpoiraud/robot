@@ -16,6 +16,9 @@
 #include "../QS/QS_can.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_timer.h"
+#include "../output_log.h"
+
+#define LOG_PREFIX "BL: "
 
 //Define pour récuperer les valeurs du timer d'asservissement et sa période
 #if DCM_TIMER == 1
@@ -79,7 +82,7 @@ void BALLLAUNCHER_init() {
 	//Si la priorité de l'interruption INTx (qui est déclanchée lors d'un passage d'un aimant devant le capteur) est de priorité supérieure à celle du timer gérant l'asservissement,
 	//il est possible d'avoir une interruption INTx entre l'overflow du timer (donc il recommence a compter a partir de 0) et l'actualisation du nombre d'overflow dans la variable timer_overflow_number.
 	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY <= DCM_TIMER_PRIORITY_REG)
-		debug_printf("BL: Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx)\n");
+		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx) (et si le code marche, qui l'a apporté à lourdes ?)\n");
 }
 
 void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
@@ -103,7 +106,7 @@ void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 				 break;
 
 			default:
-				debug_printf("BL: invalid CAN msg data[0]=%d !\n", msg->data[0]);
+				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%hhu !\n", msg->data[0]);
 		}
 	}
 }
@@ -118,28 +121,30 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			else if(pos_speed > 0) {
 				DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
-			} else debug_printf("BL: pos_speed invalide: %u\n", pos_speed);
+			} else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"pos_speed invalide: %u\n", (Uint16)pos_speed);
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
-			if(asserState == DCM_TIMEOUT) {
-				CAN_msg_t timeoutMsg;
-				timeoutMsg.sid = ACT_RESULT;
-				timeoutMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
-				timeoutMsg.data[1] = ACT_RESULT_FAILED;
-				timeoutMsg.size = 2;
-				CAN_send(&timeoutMsg);
+			CAN_msg_t resultMsg;
 
-				QUEUE_behead(queueId);	//gestion terminée
+			if(QUEUE_has_error(queueId)) {
+				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+			} else if(asserState == DCM_TIMEOUT) {
+				resultMsg.data[2] = ACT_RESULT_FAILED;
+				resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
+				QUEUE_set_error(queueId);
 			} else if(asserState == DCM_IDLE) {
-				CAN_msg_t resultMsg;
-				resultMsg.sid = ACT_RESULT;
-				resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
-				resultMsg.data[1] = ACT_RESULT_DONE;
-				resultMsg.size = 2;
-				CAN_send(&resultMsg);
+				resultMsg.data[2] = ACT_RESULT_DONE;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+			} else return;	//Operation is not finished, do nothing
 
-				QUEUE_behead(queueId);	//gestion terminée, le bras est à sa position
-			}
+
+			resultMsg.sid = ACT_RESULT;
+			resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
+			resultMsg.size = 4;
+
+			CAN_send(&resultMsg);
+			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}
 }
