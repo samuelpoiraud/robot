@@ -18,30 +18,20 @@
 
 #define LOG_PREFIX "act_f: "
 
-//Timeout en ms
-#define ACT_SET_POS_TIMEOUT_TIME  	10000
-
-// Timeout en ms
-
-//Utilisez OUTPUT_printf plutot
-/*#ifdef DEBUG_ACT_FUN
-	#define act_fun_printf(...)	debug_printf("Act: "__VA_ARGS__)
-#else
-	#define act_fun_printf(...)	(void)0
-#endif
-*/
-
-/*	Piles conservant les eventuels arguments pour les fonctions des actionneurs
- *	tout en conservant le meme prototype pour tous les actionneurs, reduisant
- *	le code de gestion des actionneurs à chaque boucle
+/* Pile contenant les arguments d'une demande d'opération
+ * Contient les messages CAN à envoyer à la carte actionneur pour exécuter l'action.
+ * fallbackMsg contient le message CAN lorsque l'opération demandé par le message CAN msg ne peut pas être complété (bras bloqué, robot adverse qui bloque l'actionneur par exemple)
+ * On utilise une structure différente de CAN_msg_t pour économiser la RAM (voir matrice act_args)
+ *
+ * Pour chaque fonction appelée par le code stratégie pour empiler une action, on remplie les messages CAN à enovoyer et on empile l'action.
+ * Un timeout est disponible si jamais la carte actionneur ne renvoie pas de message CAN ACT_RESULT (elle le devrait, mais on sait jamais)
+ *
+ * Le code de ACT_check_result() gère le renvoi de message lorsque la carte actionneur indique qu'il n'y avait pas assez de ressource ou l'envoi du message fallback si la position demandé par le message CAN msg n'est pas atteignable.
+ * Ce le message fallback se solve par un echec aussi, on indique le code de stratégie que cet actionneur n'est pas dispo maintenant et de réessayer plus tard (il faut faire une autre strat pendant ce temps, si c'est un robot qui bloque le bras, il faut que l'environnement du jeu bouge)
+ * Si le renvoi du message à cause du manque de ressource cause la même erreur, on marque l'actionneur comme inutilisable (ce cas est grave, il y a probablement un problème dans le code actionneur ou un flood de demande d'opération de la carte stratégie)
  */
 
-/* TODO:
- *  - Finir gestion fallbackMsg quand GoalUnreachable
- *  - Pareil pour RetryLater
- *  - Clean le code
- */
-
+//Version allégé pour nos besoin d'un message CAN, histoire de pas prendre trop de RAM dans la variable act_args ...
 typedef struct {
 	Uint11 sid;
 	Uint8 data[3];
@@ -49,11 +39,10 @@ typedef struct {
 } ACT_can_msg_t;
 
 //Pour timeout: utiliser ACT_ARG_NOTIMEOUT pour ne pas mettre de timeout
-//FIXME: Ceci bouffe de la RAM ... (la structure est utilisé ACTUATORS_NB*STACKS_SIZE fois)
 typedef struct {
 	Uint16 timeout;         //Temps avant timeout de l'action en ms (relatif au démarrage de l'execution de l'action).
 	ACT_can_msg_t msg;          //Message à envoyer pour executer l'action
-	ACT_can_msg_t fallbackMsg;  //Quand on ne peut pas aller a la position demandé, envoyer ce message. Utilisé pour ACT_BEHAVIOR_GoalUnreachable. Si le SID est 0xFFF, l'actionneur sera directement désactivé et aucun message de sera envoyé.
+	ACT_can_msg_t fallbackMsg;  //Quand on ne peut pas aller a la position demandé, envoyer ce message. Utilisé pour ACT_BEHAVIOR_GoalUnreachable. Si le SID est ACT_ARG_NOFALLBACK_SID, aucun message de sera envoyé et l'erreur indiqué au code de strat sera de reessayer la la strat qui utilise cette commande plus tard (ACT_FUNCTION_RetryLater).
 } act_arg_t;
 
 #define ACT_ARG_NOFALLBACK_SID 0xFFF
@@ -61,13 +50,25 @@ typedef struct {
 #define ACT_ARG_USE_DEFAULT 0
 #define ACT_STACK_TIMEOUT_MS 3000
 
+//Décommentez ce paramêtre ou mettez le dans Global_config pour empêcher un actionneur d'être désactivé
+//De cette façon, si cette constante est définie, une demande d'opération ne sera jamais refusée
+//#define ACT_NEVER_DISABLE
+
+//Décommentez ce paramêtre ou mettez le dans Global_config pour désactiver la gestion d'erreur. (dangereux)
+//De cette façon, si cette constante est définie, tout renvoi de résultat par la carte actionneur sera considéré comme une réussite. Le timeout de la carte strat n'est pas désactivé.
+//#define ACT_NO_ERROR_HANDLING
+
+#ifdef ACT_NO_ERROR_HANDLING
+	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c, constante: ACT_NO_ERROR_HANDLING"
+#endif
+
 
 static act_arg_t act_args[ACTUATORS_NB][STACKS_SIZE];
 static ACT_function_result_e act_states[ACTUATORS_NB];	//resultat de la dernière action exécuté pour chaque pile
 
 // Verifie s'il y a eu un timeout et met à jour l'état de la pile en conséquence.
 // Si l'état de l'actionneur n'est pas normal ou qu'il y a eu une erreur, cette fonction affiche un message d'erreur
-static bool_e ACT_check_result(stack_id_e act_id, const char* command);
+static void ACT_check_result(stack_id_e act_id);
 
 static bool_e ACT_push_operation(stack_id_e act_id, act_arg_t* arg, bool_e run_now);
 static void ACT_run_operation(stack_id_e stack_id, bool_e init);
@@ -76,9 +77,6 @@ static void ACT_run_operation(stack_id_e stack_id, bool_e init);
 static act_arg_t* ACT_get_stack_arg(stack_id_e act_id);
 /* Accesseur en écriture sur les arguments des piles ACT */
 static void ACT_set_stack_arg(stack_id_e act_id, const act_arg_t* arg);
-
-static void ACT_run_ball_launcher_run(stack_id_e stack_id, bool_e init);
-static void ACT_run_ball_launcher_stop(stack_id_e stack_id, bool_e init);
 
 void ACT_hammer_up(void){
 
@@ -133,12 +131,17 @@ void ACT_ball_grabber_tidy(void){
 bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run) {
 	act_arg_t args;
 
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
 	args.msg.sid = ACT_BALLLAUNCHER;
 	args.msg.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
 	args.msg.data[1] = LOWINT(speed);
 	args.msg.data[2] = HIGHINT(speed);
 	args.msg.size = 3;
-	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.fallbackMsg.sid = ACT_BALLLAUNCHER;
+	args.fallbackMsg.data[0] = ACT_BALLLAUNCHER_STOP;
+	args.fallbackMsg.size = 1;
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Run cmd, speed: %u", speed);
 	return ACT_push_operation(ACT_STACK_BallLauncher, &args, run);
@@ -147,15 +150,183 @@ bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run) {
 bool_e ACT_push_ball_launcher_stop(bool_e run) {
 	act_arg_t args;
 
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
 	args.msg.sid = ACT_BALLLAUNCHER;
 	args.msg.data[0] = ACT_BALLLAUNCHER_STOP;
 	args.msg.size = 1;
-	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Stop cmd");
 	return ACT_push_operation(ACT_STACK_BallLauncher, &args, run);
 }
 
+ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
+	assert(act_id < ACTUATORS_NB);
+	return act_states[act_id];
+}
+
+//Prépare une action correctement et l'envoie sur la pile
+static bool_e ACT_push_operation(stack_id_e act_id, act_arg_t* args, bool_e run_now) {
+#ifndef ACT_NEVER_DISABLE
+	if(global.env.act[act_id].disabled == TRUE) {
+		OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX"Ignoring push_operation, act %d is disabled\n", act_id);
+		return FALSE;
+	}
+#endif
+
+	ACT_set_stack_arg(act_id, args);
+	STACKS_push(act_id, ACT_run_operation, run_now);
+
+	return TRUE;
+}
+
+//Gère le déroulement d'une action coté strat: initialisation = envoi du message CAN de l'action, suite = vérification du résultat si reçu (par msg CAN) ou si timeout (géré ici en strat, si jamais quelque chose ne va pas en actionneur)
+//Cette fonction est appelée par le module STACKS, STACKS_run en particulié quand init vaut FALSE
+static void ACT_run_operation(stack_id_e act_id, bool_e init) {
+	if(init) {
+		ACT_can_msg_t* command = &(ACT_get_stack_arg(act_id)->msg);
+		CAN_msg_t msg;
+
+		global.env.act[ACT_STACK_BallLauncher].operationResult = ACT_RESULT_Working;
+		act_states[act_id] = ACT_FUNCTION_InProgress;
+
+		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending operation, act_id: %d, sid: %u, data[0]: %hhu, data[1]: %hhu, data[2]: %hhu", act_id, command->sid, command->data[0], command->data[1], command->data[2]);
+
+		//Copie des élements de notre structure à celle accepté par CAN_send, la notre est plus petite pour économiser la RAM
+		msg.sid     = command->sid;
+		msg.data[0] = command->data[0];
+		msg.data[1] = command->data[1];
+		msg.data[2] = command->data[2];
+		msg.size    = command->size;
+		CAN_send(&msg);
+
+	} else {
+		ACT_check_result(act_id);
+	}
+}
+
+//Gère l'état d'une opération.
+//Pour les renvois de messages on ne reinitialise pas le timeout histoire d'eviter les boucles si il y en a
+static void ACT_check_result(stack_id_e act_id) {
+	act_arg_t* argument = ACT_get_stack_arg(act_id);
+
+	//L'état à déja été géré, mais l'erreur n'a pas encore été géré par le reste du code stratégie
+	//Si c'est ACT_FUNCTION_Done on ne passe pas ici (a moins d'un gros problème de conception / amnésie
+	if(act_states[act_id] != ACT_FUNCTION_InProgress) {
+		if(act_states[act_id] == ACT_FUNCTION_Done)
+			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Begin check but already in Done state, act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+		return;
+	}
+
+	if(global.env.match_time >= argument->timeout) {
+		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation timeout (by strat) act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+		global.env.act[act_id].disabled = TRUE;
+		act_states[act_id] = ACT_FUNCTION_ActDisabled;
+		STACKS_set_timeout(act_id, TRUE);
+	} else {
+#ifdef ACT_NO_ERROR_HANDLING
+		global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
+		act_states[act_id] = ACT_FUNCTION_Done;
+		STACKS_pull(act_id);
+#else
+		switch(global.env.act[act_id].operationResult) {
+			case ACT_RESULT_Failed:
+				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Operation failed act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+				switch(global.env.act[act_id].recommendedBehavior) {
+					case ACT_BEHAVIOR_DisableAct:
+						global.env.act[act_id].disabled = TRUE;
+						act_states[act_id] = ACT_FUNCTION_ActDisabled;
+						STACKS_set_timeout(act_id, TRUE);
+						break;
+
+					case ACT_BEHAVIOR_GoalUnreachable:	//Envoyer le message fallback, s'il redonne une erreur, ACT_process_result s'occupera de désactiver l'actionneur
+						if(argument->fallbackMsg.sid != ACT_ARG_NOFALLBACK_SID) {
+							CAN_msg_t msg;
+							msg.sid     = argument->fallbackMsg.sid;
+							msg.data[0] = argument->fallbackMsg.data[0];
+							msg.data[1] = argument->fallbackMsg.data[1];
+							msg.data[2] = argument->fallbackMsg.data[2];
+							msg.size    = argument->fallbackMsg.size;
+							CAN_send(&msg);
+							//On ne change pas act_states[act_id] car on n'a pas encore terminé avec l'opération
+						} else {	//Si on n'a pas de message fallback, (car par exemple, ça aurait été le même message) on déclare une erreur indiquant d'essayer plus tard
+							global.env.act[act_id].disabled = TRUE;
+							act_states[act_id] = ACT_FUNCTION_RetryLater;
+							STACKS_set_timeout(act_id, TRUE);
+						}
+						break;
+
+					case ACT_BEHAVIOR_RetryLater: {
+							static time32_t waitMsCount = 0;
+							if(waitMsCount == 0) {
+								waitMsCount = global.env.match_time + 3;	//Attendre 3ms avant de ressayer
+							}else if(global.env.match_time >= waitMsCount) {  //Après un certain temps défini juste avant, renvoyer la commande en espérant que ça passe cette fois
+								CAN_msg_t msg;
+
+								waitMsCount = 0;
+
+								msg.sid     = argument->msg.sid;
+								msg.data[0] = argument->msg.data[0];
+								msg.data[1] = argument->msg.data[1];
+								msg.data[2] = argument->msg.data[2];
+								msg.size    = argument->msg.size;
+								CAN_send(&msg);
+							}	//On ne change pas act_states[act_id] car on n'a pas encore terminé avec l'opération
+						}
+						break;
+
+					default:	//Cas inexistant
+						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation failed but behavior is Ok, act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+						break;
+				}
+				break;
+
+			case ACT_RESULT_Ok:
+				if(global.env.act[act_id].recommendedBehavior == ACT_BEHAVIOR_GoalUnreachable) {	//Dans ce cas, le result_ok  est en fait celui de la commande de déplacement a la position fallback, donc indiquer qu'il y a eu un problème pour atteindre la position et de reessayer plus tard
+					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Fallback position Ok, act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
+					act_states[act_id] = ACT_FUNCTION_RetryLater;
+					STACKS_set_timeout(act_id, TRUE);
+				} else {	//Sinon c'est bien la commande voulue qui s'est bien terminée
+					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Operation Ok, act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
+					act_states[act_id] = ACT_FUNCTION_Done;
+					STACKS_pull(act_id);
+				}
+				break;
+
+			case ACT_RESULT_Working:	//Pas encore fini l'opération, on a pas reçu de message de la carte actionneur
+				break;
+
+			case ACT_RESULT_Idle:		//Ne devrait jamais arriver, sinon erreur dans le code
+			default:
+				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Warning: act should be in working/finished mode but wasn't, mode: %d, act id: %u, sid: %u, cmd: %hhu\n", global.env.act[act_id].operationResult, act_id, argument->msg.sid, argument->msg.data[0]);
+				STACKS_set_timeout(act_id, TRUE);
+				break;
+		}
+#endif /* not def ACT_NO_ERROR_HANDLING */
+	}
+}
+
+/* Accesseur sur les arguments des piles ACT */
+static act_arg_t* ACT_get_stack_arg(stack_id_e act_id) {
+	return &act_args[act_id][STACKS_get_top(act_id)];
+}
+
+// Accesseur en écriture sur les arguments des piles ACT
+// arg->timeout doit contenir le timeout relatif, ACT_ARG_USE_DEFAULT pour le temps par défaut (ACT_STACK_TIMEOUT_MS)
+static void ACT_set_stack_arg(stack_id_e act_id, const act_arg_t* arg) {
+	Uint8 stack_top_pos = STACKS_get_top(act_id)+1;
+
+	act_args[act_id][stack_top_pos] = *arg;
+	if(arg->timeout != ACT_ARG_USE_DEFAULT)
+		act_args[act_id][stack_top_pos].timeout = global.env.match_time + arg->timeout;
+	else act_args[act_id][stack_top_pos].timeout = global.env.match_time + ACT_STACK_TIMEOUT_MS;
+}
+
+// Gere les messages CAN ACT_RESULT contenant des infos sur le déroulement d'une action
 void ACT_process_result(const CAN_msg_t* msg) {
 	stack_id_e act_id = ACTUATORS_NB;
 
@@ -183,17 +354,23 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"act is not in working mode but received result, act: %hhu, cmd: %hhu, result: %hhu, reason: %hhu, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], global.env.act[act_id].operationResult);
 	}
 
+#ifdef ACT_NO_ERROR_HANDLING
+	global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
+	global.env.act[act_id].operationResult = ACT_RESULT_Ok;
+#else
 	switch(msg->data[2]) {
 		case ACT_RESULT_DONE:
-			global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
+			//On n'affecte pas global.env.act[act_id].recommendedBehavior pour garder une trace des erreurs précédentes (dans le cas ou on a renvoyé une commande par exemple, permet de savoir l'erreur d'origine)
+			//global.env.act[act_id].recommendedBehavior est affecté à ACT_BEHAVIOR_Ok dans
 			global.env.act[act_id].operationResult = ACT_RESULT_Ok;
 			break;
 
 		default:	//ACT_RESULT_NOT_HANDLED et ACT_RESULT_NOT_FAILED (et les autres si ajouté)
 			switch(msg->data[3]) {
 				case ACT_RESULT_ERROR_OK:
-					OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Reason Ok with result Failed, act_id: %hhu, cmd: %hhu\n", msg->data[0], msg->data[1]);
+					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Reason Ok with result Failed, act_id: %hhu, cmd: %hhu\n", msg->data[0], msg->data[1]);
 					break;
+
 				case ACT_RESULT_ERROR_TIMEOUT:
 				case ACT_RESULT_ERROR_NOT_HERE:
 					if(global.env.act[act_id].recommendedBehavior == ACT_BEHAVIOR_GoalUnreachable) {	//On a déjà reçu cette erreur, aucun déplacement possible de l'actionneur -> désactivation
@@ -202,6 +379,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 					} else global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_GoalUnreachable;
 					OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Goal unreachable ! act_id: %hhu, cmd: %hhu, reason: %hhu\n", msg->data[0], msg->data[1], msg->data[3]);
 					break;
+
 				case ACT_RESULT_ERROR_NO_RESOURCES:
 					if(global.env.act[act_id].recommendedBehavior == ACT_BEHAVIOR_RetryLater) {	//Bug surement dans la carte actionneur, il n'y a pas assez de ressources pour gérer la commande
 						global.env.act[act_id].disabled = TRUE;
@@ -209,293 +387,21 @@ void ACT_process_result(const CAN_msg_t* msg) {
 					} else global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_RetryLater;
 					OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"NoResource error ! act_id: %hhu, cmd: %hhu\n", msg->data[0], msg->data[1]);	//Notifier le cas, il faudra par la suite augmenter les resources dispo ...
 					break;
+
 				case ACT_RESULT_ERROR_LOGIC:
 					global.env.act[act_id].disabled = TRUE;
 					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Logic error ! act_id: %hhu, cmd: %hhu\n", msg->data[0], msg->data[1]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 					break;
+
 				default:
 					global.env.act[act_id].disabled = TRUE;
 					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Unknown error ! act_id: %hhu, cmd: %hhu, reason: %hhu\n", msg->data[0], msg->data[1], msg->data[3]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 			}
 
-			if(msg->data[2] == ACT_RESULT_NOT_HANDLED)
-				global.env.act[act_id].operationResult = ACT_RESULT_NotHandled;
-			else global.env.act[act_id].operationResult = ACT_RESULT_Failed;
+			global.env.act[act_id].operationResult = ACT_RESULT_Failed;
 			break;
 	}
+#endif /* not def ACT_NO_ERROR_HANDLING */
 }
-
-ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
-	assert(act_id < ACTUATORS_NB);
-	return act_states[act_id];
-}
-
-static void ACT_run_operation(stack_id_e stack_id, bool_e init) {
-	if(init) {
-		ACT_can_msg_t* command = &(ACT_get_stack_arg(stack_id)->msg);
-		CAN_msg_t msg;
-
-		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending BallLauncher Run cmd, speed: %u", (Uint16)ACT_get_stack_arg(stack_id)->param);
-
-		msg.sid     = command->sid;
-		msg.data[0] = command->data[0];
-		msg.data[1] = command->data[1];
-		msg.data[2] = command->data[2];
-		msg.size    = command->size;
-		CAN_send(&msg);
-
-		global.env.act[ACT_STACK_BallLauncher].operationResult = ACT_RESULT_Working;
-		act_states[stack_id] = ACT_FUNCTION_InProgress;
-	} else {
-		ACT_check_result(stack_id, "balllauncher_run");
-	}
-}
-
-static void ACT_run_ball_launcher_run(stack_id_e stack_id, bool_e init) {
-	if(stack_id == ACT_STACK_BallLauncher) {
-		if(init) {
-			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending BallLauncher Run cmd, speed: %u", (Uint16)ACT_get_stack_arg(stack_id)->param);
-			//CAN_send(&(ACT_get_stack_arg(stack_id)->msg));
-			global.env.act[ACT_STACK_BallLauncher].operationResult = ACT_RESULT_Working;
-			act_states[stack_id] = ACT_FUNCTION_InProgress;
-		} else {
-			ACT_check_result(stack_id, "balllauncher_run");
-		}
-	}
-}
-
-static void ACT_run_ball_launcher_stop(stack_id_e stack_id, bool_e init) {
-	if(stack_id == ACT_STACK_BallLauncher) {
-		if(init) {
-			CAN_msg_t order;
-			order.sid = ACT_BALLLAUNCHER;
-			order.data[0] = ACT_BALLLAUNCHER_STOP;
-			order.size = 1;
-			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending BallLauncher Stop cmd");
-			CAN_send(&order);
-			STACKS_pull(stack_id);
-			act_states[stack_id] = ACT_FUNCTION_InProgress;
-		}
-	}
-}
-
-static bool_e ACT_push_operation(stack_id_e act_id, act_arg_t* args, bool_e run_now) {
-	if(global.env.act[act_id].disabled == TRUE) {
-		OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX"Ignoring push_operation, act %d is disabled\n", act_id);
-		return FALSE;
-	}
-
-	ACT_set_stack_arg(act_id, args);
-	global.env.act[act_id].operationResult = ACT_RESULT_Idle;
-	STACKS_push(act_id, ACT_run_operation, run_now);
-
-	return TRUE;
-}
-
-//Retourne TRUE si l'opération s'est terminée correctement
-static bool_e ACT_check_result(stack_id_e act_id, const char* command) {
-	if(global.env.match_time >= ACT_get_stack_arg(act_id)->timeout) {
-		if(command)
-			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation timeout act id: %u, cmd: %s\n", act_id, command);
-		else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation timeout act id: %u\n", act_id);
-		STACKS_set_timeout(act_id, TRUE);
-		return FALSE;
-	} else {
-		switch(global.env.act[act_id].operationResult) {
-			case ACT_RESULT_Failed:
-			case ACT_RESULT_NotHandled:
-				if(command)
-					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation failed act id: %u, cmd: %s\n", act_id, command);
-				else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation failed act id: %u\n", act_id);
-				switch(global.env.act[act_id].recommendedBehavior) {
-					case ACT_BEHAVIOR_DisableAct:
-						global.env.act[act_id].disabled = TRUE;
-						act_states[act_id] = ACT_FUNCTION_ActDisabled;
-						break;
-
-					case ACT_BEHAVIOR_GoalUnreachable:
-						act_states[act_id] = ACT_FUNCTION_RetryLater;
-						break;
-
-					case ACT_BEHAVIOR_RetryLater: {
-							static time32_t waitMsCount = 0;
-							if(waitMsCount == 0) {
-								waitMsCount = global.env.match_time + 3;	//Attendre 3ms avant de ressayer
-							}else if(global.env.match_time >= waitMsCount) {
-
-							}
-						}
-					default:
-						break;
-				}
-				STACKS_set_timeout(act_id, TRUE);
-				return FALSE;
-
-			case ACT_RESULT_Ok:
-				STACKS_pull(act_id);
-				return TRUE;
-
-			case ACT_RESULT_Working:
-				return FALSE;
-
-			case ACT_RESULT_Idle:
-				if(command)
-					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Warning: act should be in working/finished mode but was in Idle mode, act id: %u, cmd: %s\n", act_id, command);
-				else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Warning: act should be in working/finished mode but was in Idle mode, act id: %u\n", act_id);
-				STACKS_set_timeout(act_id, TRUE);
-				return FALSE;
-		}
-	}
-
-	return FALSE;
-}
-
-/* Accesseur sur les arguments des piles ACT */
-act_arg_t* ACT_get_stack_arg(stack_id_e act_id)
-{
-	return &act_args[act_id][STACKS_get_top(act_id)];
-}
-
-// Accesseur en écriture sur les arguments des piles ACT
-// arg->timeout doit contenir le timeout relatif, 0 pour pas de timeout géré par la carte stratégie
-void ACT_set_stack_arg(stack_id_e act_id, const act_arg_t* arg) {
-	act_args[act_id][STACKS_get_top(act_id)+1] = *arg;
-	if(arg->timeout)
-		act_args[act_id][STACKS_get_top(act_id)+1].timeout = global.env.match_time + arg->timeout;
-	else act_args[act_id][STACKS_get_top(act_id)+1].timeout = global.env.match_time + ACT_STACK_TIMEOUT_MS;
-}
-
-/*void ACT_set_pos(stack_id_e stack_id, bool_e init)
-{
-	CAN_msg_t order;
-
-	if(init)
-	{
-		order.sid = ACT_position_data(stack_id);
-		order.size=1;
-		order.data[0]=ACT_id_data(stack_id);
-		CAN_send(&order);
-	}
-	else
-	{
-		// ACT_position_data(stack_id) incorrecte
-		if (global.env.act[ACT_id_data(stack_id)].opened && ACT_position_data(stack_id)==ACT_OPEN)
-		{
-			act_fun_printf("ACT_set_pos ACT OPENED\n");
-			STACKS_pull(stack_id);
-		}
-		else if (global.env.act[ACT_id_data(stack_id)].closed && ACT_position_data(stack_id)==ACT_CLOSE)
-		{
-			act_fun_printf("ACT_set_pos ACT CLOSED\n");
-			STACKS_pull(stack_id);
-		}
-		else if (global.env.act[ACT_id_data(stack_id)].ready && ACT_position_data(stack_id)==ACT_PREPARE)
-		{
-			act_fun_printf("ACT_set_pos ACT PREPARED\n");
-			STACKS_pull(stack_id);
-		}
-		else if(global.env.act[ACT_id_data(stack_id)].failure)
-		{
-			act_fun_printf("ACT_set_pos ACT FAILURE\n");
-			STACKS_set_timeout(stack_id, ACT_SET_POS_TIMEOUT_TIME);
-		}
-		else if (global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(stack_id))
-				 > (ACT_SET_POS_TIMEOUT_TIME))
-		{
-			act_fun_printf("ACT_set_pos ACT TIMEOUT\n");
-			STACKS_set_timeout(stack_id,ACT_SET_POS_TIMEOUT_TIME);
-		}
-	}
-}*/
-
-
-//Fonction générique permettant de positionner les actionneurs
-/*void ACT_push_set_pos(ACT_id_e act, ACT_position_e position, bool_e run)
-{
-	stack_id_e stack_id;
-	act_arg_t* arg;
-
-	if(act == BROOM_LEFT)
-	{
-			stack_id = ACT_STACK_BROOM_LEFT;
-	}
-	else if(act == BROOM_RIGHT)
-	{
-			stack_id = ACT_STACK_BROOM_RIGHT;
-	}
-	else
-	{
-			stack_id = ACT_STACK_F;
-	}
-
-	arg = &act_args[act][STACKS_get_top(stack_id)+1];
-	arg->act_id = act,
-	arg->position = position;
-	STACKS_push(stack_id, &ACT_set_pos, run);
-}*/
-
-
-/* Fonctions empilables */
-/* ATTENTION  : pas de variables statiques pour les fonctions qui sont éxécutées dans deux piles */
-
-// Renvoie la position demandée
-/*Uint16 ACT_position_data(stack_id_e stack_id)
-{
-	Uint16 data = 0xFFFF;
-	act_arg_t* act_arg = NULL;
-	ACT_id_e act=NULL;
-
-	switch (stack_id)
-	{
-		case ACT_STACK_BROOM_LEFT:
-			act=BROOM_LEFT;
-			break;
-		case ACT_STACK_BROOM_RIGHT:
-			act=BROOM_RIGHT;
-			break;
-		case ACT_STACK_F:
-			act = F;
-			break;
-		default : break;
-	}
-
-	act_arg = &act_args[act][STACKS_get_top(stack_id)];
-	switch(act_arg->position)
-	{
-		case PREPARE:
-//			data = ACT_PREPARE;
-			break;
-		case OPEN:
-//			data = ACT_OPEN;
-			break;
-		case CLOSE:
-//			data = ACT_CLOSE;
-			break;
-		default:
-			break;
-	}
-	return data;
-}*/
-
-// Renvoie l'actionneur demandé
-/*Uint8 ACT_id_data(stack_id_e stack_id)
-{
-	Uint8 data = 0xFF;
-
-	switch (stack_id)
-	{
-		case ACT_STACK_BROOM_LEFT:
-		//	data=ACT_BROOM_L;
-			break;
-		case ACT_STACK_BROOM_RIGHT:
-//			data=ACT_BROOM_R;
-			break;
-		case ACT_STACK_F:
-//			data = ACT_F;
-			break;
-		default : break;
-	}
-	return data;
-}*/

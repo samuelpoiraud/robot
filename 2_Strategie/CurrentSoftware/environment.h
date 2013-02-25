@@ -67,12 +67,17 @@
 		volatile bool_e updated;
 	}position_t;
 
+
+	//Info sur la gestion d'erreur des actionneurs:
+	//La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT
+	//La fonction ACT_process_result (act_function.c) converti les messages ACT_RESULT en ces valeurs dans act_t::operationResult et act_t::recommendedBehavior (environnement.h)
+	//La fonction ACT_check_result (act_function.c) converti et gère les messages act_t::operationResult et act_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
+
 	typedef enum {
-		ACT_RESULT_Idle,
-		ACT_RESULT_Working,
-		ACT_RESULT_Ok,
-		ACT_RESULT_Failed,
-		ACT_RESULT_NotHandled
+		ACT_RESULT_Idle,	//Etat au démarage, par la suite ce sera le resultat de la dernière opération effectuée
+		ACT_RESULT_Working,	//L'opération n'est pas terminée
+		ACT_RESULT_Ok,		//L'opération s'est terminée correctement
+		ACT_RESULT_Failed	//Une erreur est survenue, voir details dans act_error_recommended_behavior_e
 	} act_result_e;
 
 	typedef enum {
@@ -87,7 +92,9 @@
 		bool_e disabled;	//TRUE si l'actionneur est désactivé car inutilisable
 		act_result_e operationResult;	//Resultat de la derrnière opération faite
 		act_error_recommended_behavior_e recommendedBehavior;		//Quoi faire suite à l'opération faite
-	}act_t;
+	} act_state_info_t;
+	
+	///////////////////////////////
 
 	//enum utilisé par le tableau d'états du terrain
 	typedef enum{
@@ -116,7 +123,7 @@
 		position_t foe[NB_FOES];		//comme son nom l'indique, c'est la position de l'adversaire
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
-		act_t act[ACTUATORS_NB];	// actionneurs
+		act_state_info_t act[ACTUATORS_NB];	// actionneurs
 		/*Tableau d'états du terrain */
 		map_state_e map_elements[38]; //Voir doc pour connaitre les éléments associés
 	}environment_t;
