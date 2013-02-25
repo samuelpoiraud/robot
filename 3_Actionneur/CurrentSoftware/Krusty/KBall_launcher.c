@@ -75,7 +75,7 @@ void BALLLAUNCHER_init() {
 	ball_launcher_config.epsilon = 500;	//TODO: à ajuster plus correctement
 	DCM_config(BALLLAUNCHER_DCMOTOR_ID, &ball_launcher_config);
 
-	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 4;
+	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 5;
 	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
 	BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 1;
 
@@ -90,20 +90,30 @@ void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLLAUNCHER) {
 		switch(msg->data[0]) {
 			case ACT_BALLLAUNCHER_ACTIVATE:
-				 queueId = QUEUE_create();
-				 assert(queueId != QUEUE_CREATE_FAILED);
-				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_BallLauncher);
-				 QUEUE_add(queueId, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8), QUEUE_ACT_BallLauncher);
-				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_BallLauncher);
-				 break;
+				queueId = QUEUE_create();
+				assert(queueId != QUEUE_CREATE_FAILED);
+				if(queueId != QUEUE_CREATE_FAILED) {	//Si on est pas en verbose_mode, l'assert sera ignoré et la suite risque de vraiment planter ...
+					 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_BallLauncher);
+					 QUEUE_add(queueId, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8), QUEUE_ACT_BallLauncher);
+					 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_BallLauncher);
+				} else {	//on indique qu'on a pas géré la commande
+					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLLAUNCHER & 0xFF, ACT_BALLLAUNCHER_ACTIVATE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
+					CAN_send(&resultMsg);
+				}
+				break;
 
 			case ACT_BALLLAUNCHER_STOP:
-				 queueId = QUEUE_create();
-				 assert(queueId != QUEUE_CREATE_FAILED);
-				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_BallLauncher);
-				 QUEUE_add(queueId, &BALLLAUNCHER_run_command, 0, QUEUE_ACT_BallLauncher);
-				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_BallLauncher);
-				 break;
+				queueId = QUEUE_create();
+				assert(queueId != QUEUE_CREATE_FAILED);
+				if(queueId != QUEUE_CREATE_FAILED) {
+					QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_BallLauncher);
+					QUEUE_add(queueId, &BALLLAUNCHER_run_command, 0, QUEUE_ACT_BallLauncher);
+					QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_BallLauncher);
+				} else {	//on indique qu'on a pas géré la commande
+					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLLAUNCHER & 0xFF, ACT_BALLLAUNCHER_STOP, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
+					CAN_send(&resultMsg);
+				}
+				break;
 
 			default:
 				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%hhu !\n", msg->data[0]);
@@ -117,10 +127,12 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			//Send command
 			Sint16 pos_speed = QUEUE_get_arg(queueId);
 			if(pos_speed == 0)
-				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
+				//DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
+				DCM_stop(BALLLAUNCHER_DCMOTOR_ID);	//On est sur de l'arreter comme ça, même en cas de problème capteur
 			else if(pos_speed > 0) {
 				DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
+				DCM_restart(BALLLAUNCHER_DCMOTOR_ID); //Redémarrage si on l'avait arrêté avec DCM_stop, sinon ne fait rien
 			} else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"pos_speed invalide: %u\n", (Uint16)pos_speed);
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
@@ -138,9 +150,9 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 			} else return;	//Operation is not finished, do nothing
 
-
 			resultMsg.sid = ACT_RESULT;
 			resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
+			resultMsg.data[1] = (QUEUE_get_arg(queueId) == 0)? ACT_BALLLAUNCHER_STOP : ACT_BALLLAUNCHER_ACTIVATE;
 			resultMsg.size = 4;
 
 			CAN_send(&resultMsg);

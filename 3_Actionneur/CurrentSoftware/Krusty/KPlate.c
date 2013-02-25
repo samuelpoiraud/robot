@@ -9,6 +9,8 @@
  *  Robot : Krusty
  */
 
+//TODO: Gérer les positions prepare et parked pour la rotation de l'assiette et la position parked pour la pince + gérer le timeout pour la pince (le même typ de timeout que dcmotor)
+
 #include "KPlate.h"
 #ifdef I_AM_ROBOT_KRUSTY
 
@@ -16,6 +18,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
+#include "../QS/QS_adc.h"
 #include "../output_log.h"
 
 #define LOG_PREFIX "PL: "
@@ -231,12 +234,11 @@ void PLATE_run_command(queue_id_t queueId, bool_e init) {
 			} else if(asserState & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_NOT_HERE;
-
-				//FIXME: A faire en strat ou ici ?
-				//AX12_set_position(PLATE_PLIER_AX12_ID, PLATE_PLIER_AX12_OPEN_POS);	//dans le doute on ouvre la pince, histoire de pas prendre l'assiette en déplacement, si jamais l'AX12 reçoi bien les instructions
+				QUEUE_set_error(queueId);
 			} else if(asserState) {							//autres erreurs
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+				QUEUE_set_error(queueId);
 			} else if(abs((Sint16)ax12Pos - (Sint16)goalPosition) <= PLATE_PLIER_AX12_POS_EPSILON) {	//Fin du mouvement
 				resultMsg.data[2] = ACT_RESULT_DONE;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
@@ -254,7 +256,7 @@ void PLATE_run_command(queue_id_t queueId, bool_e init) {
 }
 
 static Sint16 PLATE_getRotationAngle() {
-	return 0;
+	return ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID);
 }
 
 #endif  /* I_AM_ROBOT_KRUSTY */
