@@ -14,6 +14,7 @@
 	#include "QS/QS_types.h"
 
 	#define VERBOSE_MODE
+	#define OUTPUT_LOG
 
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */

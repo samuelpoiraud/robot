@@ -17,6 +17,12 @@
 #ifndef ACT_FUNCTIONS_H
 	#define ACT_FUNCTIONS_H
 
+	//Info sur la gestion d'erreur des actionneurs:
+	//La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT
+	//La fonction ACT_process_result (act_function.c) converti les messages ACT_RESULT en ces valeurs dans act_t::operationResult et act_t::recommendedBehavior (environnement.h)
+	//La fonction ACT_check_result (act_function.c) converti et gère les messages act_t::operationResult et act_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
+
+
 	//Resultat de la dernière opération en cours d'exécution. Utilisé pour connaitre l'état après une erreur surtout.
 	typedef enum {
 		ACT_FUNCTION_InProgress,   //L'opération ne s'est pas encore finie
@@ -46,17 +52,10 @@
 	void ACT_ball_grabber_down(void);
 	void ACT_ball_grabber_tidy(void);
 
+	/* Fonctions empilables */
 
 	//Actionneur associé: ACT_STACK_BallLauncher
 	bool_e ACT_push_ball_launcher_stop(bool_e run);
 	bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run);
-	/* Fonctions empilables */
-	/* ATTENTION  : pas de variables statiques pour les fonctions qui sont éxécutées dans deux piles */
-	
-	// Renvoie l'actionneur demandé
-	//Uint8 ACT_id_data(stack_id_e stack_id);
-	
-	// Renvoie la position demandée
-	//Uint16 ACT_position_data(stack_id_e stack_id);
 
 #endif /* ndef ACT_FUNCTIONS_H */
