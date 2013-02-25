@@ -9,6 +9,8 @@
  *  Robot : Tiny
  */
 
+//TODO: gérer les erreurs détaillées et changer l'argument dans QUEUE_get_arg(queueId), gérer le cas ou queueId == QUEUE_CREATE_FAILED
+
 #include "TLong_hammer.h"
 #ifdef I_AM_ROBOT_TINY
 
@@ -106,21 +108,44 @@ void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
 				QUEUE_behead(queueId);	//gestion terminée
 			}
 		} else {
-			DCM_working_state_e asserState = DCM_get_state(LONGHAMMER_DCMOTOR_ID);
+			/*DCM_working_state_e asserState = DCM_get_state(LONGHAMMER_DCMOTOR_ID);
 			if(asserState == DCM_TIMEOUT) {
 
 				//Envoi du message de timeout
-				/*
-				CAN_msg_t timeoutMsg;
-				timeoutMsg.sid = ACT_LONGHAMMER_RESULT;
-				timeoutMsg.data[0] = ACT_LONGHAMMER_TIMEOUT;
-				timeoutMsg.size = 1;
-				CAN_send(&timeoutMsg);		//*/
+				
+				//CAN_msg_t timeoutMsg;
+				//timeoutMsg.sid = ACT_LONGHAMMER_RESULT;
+				//timeoutMsg.data[0] = ACT_LONGHAMMER_TIMEOUT;
+				//timeoutMsg.size = 1;
+				//CAN_send(&timeoutMsg);
 				
 				QUEUE_behead(queueId);	//gestion terminée
 			} else if(asserState == DCM_IDLE) {
 				QUEUE_behead(queueId);	//gestion terminée, le bras est à sa position
-			}
+			}*/
+
+			DCM_working_state_e asserState = DCM_get_state(LONGHAMMER_DCMOTOR_ID);
+			CAN_msg_t resultMsg;
+
+			if(QUEUE_has_error(queueId)) {
+				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+			} else if(asserState == DCM_TIMEOUT) {
+				resultMsg.data[2] = ACT_RESULT_FAILED;
+				resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
+				QUEUE_set_error(queueId);
+			} else if(asserState == DCM_IDLE) {
+				resultMsg.data[2] = ACT_RESULT_DONE;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+			} else return;	//Operation is not finished, do nothing
+
+			resultMsg.sid = ACT_RESULT;
+			resultMsg.data[0] = ACT_LONGHAMMER & 0xFF;
+			resultMsg.data[1] = QUEUE_get_arg(queueId);
+			resultMsg.size = 4;
+
+			CAN_send(&resultMsg);
+			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}
 }
