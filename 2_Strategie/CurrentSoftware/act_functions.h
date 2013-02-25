@@ -58,4 +58,8 @@
 	bool_e ACT_push_ball_launcher_stop(bool_e run);
 	bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run);
 
+	//Actionneur associé: ACT_STACK_Plate
+	bool_e ACT_push_plate_rotate_horizontally(bool_e run);
+	bool_e ACT_push_plate_rotate_vertically(bool_e run);
+
 #endif /* ndef ACT_FUNCTIONS_H */
