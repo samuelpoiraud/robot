@@ -11,10 +11,10 @@
 
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
-	#include "QS/QS_types.h"
 
 	#define VERBOSE_MODE
 	#define OUTPUT_LOG
+	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */

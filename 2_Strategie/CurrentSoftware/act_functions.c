@@ -78,6 +78,14 @@ static act_arg_t* ACT_get_stack_arg(stack_id_e act_id);
 /* Accesseur en écriture sur les arguments des piles ACT */
 static void ACT_set_stack_arg(stack_id_e act_id, const act_arg_t* arg);
 
+ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
+	assert(act_id < ACTUATORS_NB);
+	return act_states[act_id];
+}
+
+
+// FONCTIONS D'ACTIONNEURS PUBLIQUES
+
 void ACT_hammer_up(void){
 
     CAN_msg_t order;
@@ -162,10 +170,42 @@ bool_e ACT_push_ball_launcher_stop(bool_e run) {
 	return ACT_push_operation(ACT_STACK_BallLauncher, &args, run);
 }
 
-ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
-	assert(act_id < ACTUATORS_NB);
-	return act_states[act_id];
+
+bool_e ACT_push_plate_rotate_horizontally(bool_e run) {
+	act_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = ACT_PLATE;
+	args.msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
+	args.msg.size = 1;
+
+	//Si on ne peut pas aller en position horizontale, revenir en vertical et la strat pourra passer à autre chose (au lieu de défoncer le décor)
+	args.fallbackMsg.sid = ACT_PLATE;
+	args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+	args.fallbackMsg.size = 1;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate vertically cmd");
+	return ACT_push_operation(ACT_STACK_Plate, &args, run);
 }
+
+bool_e ACT_push_plate_rotate_vertically(bool_e run) {
+	act_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = ACT_PLATE;
+	args.msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+	args.msg.size = 1;
+
+	//Que faire si on ne peut pas se replier ... (rien ici)
+	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate horizontally Stop cmd");
+	return ACT_push_operation(ACT_STACK_Plate, &args, run);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Prépare une action correctement et l'envoie sur la pile
 static bool_e ACT_push_operation(stack_id_e act_id, act_arg_t* args, bool_e run_now) {
