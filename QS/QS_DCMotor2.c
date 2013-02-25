@@ -170,6 +170,7 @@ void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos)
 -----------------------------------------*/
 void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value) {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
 	this->config.pos[pos_to_update] = new_value;
 	if(this->posToGo == pos_to_update) {
 		this->cmd_time = 0;
@@ -182,6 +183,7 @@ void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value) {
 -----------------------------------------*/
 Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get) {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
 	return this->config.pos[pos_to_get];
 }
 
@@ -195,6 +197,7 @@ void DCM_stop(Uint8 dc_motor_id)
 	if(this->init_state == INITIALIZED)
 	{
 		this->init_state = STOPPED;
+		this->cmd_state = DCM_IDLE;
 		PWM_stop(this->config.pwm_number);
 	}	
 }	
@@ -261,12 +264,11 @@ void _ISR DCM_TIMER_IT()
 		{
 			// Acquisition de la position pour la détection de l'arrêt du moteur
 			error = config->pos[this->posToGo]-(config->sensor_read)();
-			
-			this->cmd_time += DCM_TIMER_PERIOD;
 
 			//Gestion des changements d'états
 			switch(this->cmd_state) {
 				case DCM_WORKING:
+					this->cmd_time += DCM_TIMER_PERIOD;
 					if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon)
 						this->cmd_state = DCM_IDLE;
 					else if(this->cmd_time && this->cmd_time > config->timeout)
@@ -285,7 +287,6 @@ void _ISR DCM_TIMER_IT()
 
 			//Gestion des actions dans les états
 			if(this->cmd_state == DCM_TIMEOUT) {
-				this->init_state = STOPPED;
 				PWM_stop(config->pwm_number);
 			} else {
 				// Asservissement PID

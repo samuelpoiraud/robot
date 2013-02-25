@@ -184,7 +184,7 @@
 	////////////// BALLLAUNCHER /////////////
 	#define ACT_BALLLAUNCHER (ACT_FILTER | 2)
 		//Paramètres de BALLLAUNCHER (dans data[0])
-		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000)
+		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000 et non nul)
 		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
 	/////////////////////////////////////////
 
@@ -195,8 +195,8 @@
 		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
 		#define ACT_PLATE_ROTATE_HORIZONTALLY   0x20	//Amener le bras en position horizontale (pour prendre ou lacher une assiette par ex)
 		#define ACT_PLATE_ROTATE_VERTICALLY     0x21	//Amener le bras en position verticale (pour vider une assiette ou réduire le périmêtre du robot)
-		#define ACT_PLATE_PLIER_STOP            0x12	//Stopper l'asservissement de la pince
-		#define ACT_PLATE_ROTATE_STOP           0x22	//Stopper l'asservissement du bras
+		#define ACT_PLATE_PLIER_STOP            0x12	//Stopper l'asservissement de la pince (en urgence) (ce message va être supprimé dans quelque temps, ne pas utiliser, il sont la parce que la nuit on devrait dormir :o)
+		#define ACT_PLATE_ROTATE_STOP           0x22	//Stopper l'asservissement du bras (en urgence) (ce message va être supprimé dans quelque temps, ne pas utiliser, il sont la parce que la nuit on devrait dormir :o)
 	/////////////////////////////////////////
 
 /*****************************************************************
