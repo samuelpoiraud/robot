@@ -52,6 +52,7 @@
       <itemPath>../queue.h</itemPath>
       <itemPath>../Ball_grabber.h</itemPath>
       <itemPath>../Hammer.h</itemPath>
+      <itemPath>../output_log.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -89,6 +90,7 @@
       <itemPath>../queue.c</itemPath>
       <itemPath>../Ball_grabber.c</itemPath>
       <itemPath>../Hammer.c</itemPath>
+      <itemPath>../output_log.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
