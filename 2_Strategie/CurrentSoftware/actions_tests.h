@@ -56,6 +56,9 @@ error_e TEST_STRAT_second_half_cake(void);
 void set_calage(void);
 void levi(void);  //end by micky
 
+//Alexis, test act_function
+void TEST_STRAT_balllauncher_run();
+
 void strat_verre_assiettes_et_gateau(); //begin by Julien
 
 error_e TEST_STRAT_VERRE1(void);

@@ -865,6 +865,17 @@ error_e TEST_STRAT_second_half_cake(void)
     return IN_PROGRESS;
 }
 
+//Alexis; test des fonctions act_function
+void TEST_STRAT_balllauncher_run(void){
+    static int pushed = 1;
+    if(pushed == 1){
+		debug_printf("Send ball launcher request to run\n");
+        ACT_push_ball_launcher_run(6000, TRUE);
+        pushed = 0;
+    }
+
+}
+
 /* ----------------------------------------------------------------------------- */
 /* 								Fonction diverses                     			 */
 /* ----------------------------------------------------------------------------- */

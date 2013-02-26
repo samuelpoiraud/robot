@@ -89,7 +89,8 @@ int main (void)
 			any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //TINY
 		else
 #endif
-			any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //KRUSTY
+			//any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //KRUSTY
+		    any_match(TEST_STRAT_balllauncher_run, MATCH_DURATION);
 		
 	}
 	return 0;

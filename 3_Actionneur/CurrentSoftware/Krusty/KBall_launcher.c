@@ -60,6 +60,8 @@ static DCMotor_config_t ball_launcher_config;
 static Sint16 BALLLAUNCHER_get_speed();
 
 void BALLLAUNCHER_init() {
+	DCM_init();
+
 	ball_launcher_config.sensor_read = &BALLLAUNCHER_get_speed;
 	ball_launcher_config.Kp = BALLLAUNCHER_ASSER_KP;
 	ball_launcher_config.Ki = BALLLAUNCHER_ASSER_KI;
@@ -71,8 +73,8 @@ void BALLLAUNCHER_init() {
 	ball_launcher_config.way_bit_number = BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT;
 	ball_launcher_config.way0_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0;
 	ball_launcher_config.way1_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1;
-	ball_launcher_config.timeout = 2000;
-	ball_launcher_config.epsilon = 500;	//TODO: à ajuster plus correctement
+	ball_launcher_config.timeout = 100;
+	ball_launcher_config.epsilon = 1;	//TODO: à ajuster plus correctement
 	DCM_config(BALLLAUNCHER_DCMOTOR_ID, &ball_launcher_config);
 
 	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 5;
@@ -93,9 +95,10 @@ void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
 				if(queueId != QUEUE_CREATE_FAILED) {	//Si on est pas en verbose_mode, l'assert sera ignoré et la suite risque de vraiment planter ...
-					 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_BallLauncher);
-					 QUEUE_add(queueId, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8), QUEUE_ACT_BallLauncher);
-					 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_BallLauncher);
+					QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_BallLauncher);
+					QUEUE_add(queueId, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8), QUEUE_ACT_BallLauncher);
+					QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_BallLauncher);
+					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing run action\n");
 				} else {	//on indique qu'on a pas géré la commande
 					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLLAUNCHER & 0xFF, ACT_BALLLAUNCHER_ACTIVATE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
 					CAN_send(&resultMsg);
@@ -109,6 +112,7 @@ void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 					QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_BallLauncher);
 					QUEUE_add(queueId, &BALLLAUNCHER_run_command, 0, QUEUE_ACT_BallLauncher);
 					QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_BallLauncher);
+					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing stop action\n");
 				} else {	//on indique qu'on a pas géré la commande
 					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLLAUNCHER & 0xFF, ACT_BALLLAUNCHER_STOP, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
 					CAN_send(&resultMsg);
@@ -116,7 +120,7 @@ void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%hhu !\n", msg->data[0]);
+				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=0x%x !\n", msg->data[0]);
 		}
 	}
 }
@@ -126,10 +130,12 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 		if(init == TRUE) {
 			//Send command
 			Sint16 pos_speed = QUEUE_get_arg(queueId);
-			if(pos_speed == 0)
+			if(pos_speed == 0) {
+				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Motor stoped\n");
 				//DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
 				DCM_stop(BALLLAUNCHER_DCMOTOR_ID);	//On est sur de l'arreter comme ça, même en cas de problème capteur
-			else if(pos_speed > 0) {
+			} else if(pos_speed > 0) {
+				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Run motor\n");
 				DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
 				DCM_restart(BALLLAUNCHER_DCMOTOR_ID); //Redémarrage si on l'avait arrêté avec DCM_stop, sinon ne fait rien
@@ -149,6 +155,9 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				resultMsg.data[2] = ACT_RESULT_DONE;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 			} else return;	//Operation is not finished, do nothing
+
+
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"End, sending result: %u, reason: %u\n", resultMsg.data[2], resultMsg.data[3]);
 
 			resultMsg.sid = ACT_RESULT;
 			resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;

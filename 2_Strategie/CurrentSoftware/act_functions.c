@@ -151,7 +151,7 @@ bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run) {
 	args.fallbackMsg.data[0] = ACT_BALLLAUNCHER_STOP;
 	args.fallbackMsg.size = 1;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Run cmd, speed: %u", speed);
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Run cmd, speed: %u\n", speed);
 	return ACT_push_operation(ACT_STACK_BallLauncher, &args, run);
 }
 
@@ -166,7 +166,7 @@ bool_e ACT_push_ball_launcher_stop(bool_e run) {
 
 	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Stop cmd");
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Stop cmd\n");
 	return ACT_push_operation(ACT_STACK_BallLauncher, &args, run);
 }
 
@@ -185,7 +185,7 @@ bool_e ACT_push_plate_rotate_horizontally(bool_e run) {
 	args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
 	args.fallbackMsg.size = 1;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate vertically cmd");
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate vertically cmd\n");
 	return ACT_push_operation(ACT_STACK_Plate, &args, run);
 }
 
@@ -201,7 +201,7 @@ bool_e ACT_push_plate_rotate_vertically(bool_e run) {
 	//Que faire si on ne peut pas se replier ... (rien ici)
 	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate horizontally Stop cmd");
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate horizontally Stop cmd\n");
 	return ACT_push_operation(ACT_STACK_Plate, &args, run);
 }
 
@@ -232,7 +232,7 @@ static void ACT_run_operation(stack_id_e act_id, bool_e init) {
 		global.env.act[ACT_STACK_BallLauncher].operationResult = ACT_RESULT_Working;
 		act_states[act_id] = ACT_FUNCTION_InProgress;
 
-		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending operation, act_id: %d, sid: %u, data[0]: %hhu, data[1]: %hhu, data[2]: %hhu", act_id, command->sid, command->data[0], command->data[1], command->data[2]);
+		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending operation, act_id: %d, sid: 0x%x, size: %d, data[0]: 0x%x, data[1]: 0x%x, data[2]: 0x%x\n", act_id, command->sid, command->size, command->data[0], command->data[1], command->data[2]);
 
 		//Copie des élements de notre structure à celle accepté par CAN_send, la notre est plus petite pour économiser la RAM
 		msg.sid     = command->sid;
@@ -256,12 +256,12 @@ static void ACT_check_result(stack_id_e act_id) {
 	//Si c'est ACT_FUNCTION_Done on ne passe pas ici (a moins d'un gros problème de conception / amnésie
 	if(act_states[act_id] != ACT_FUNCTION_InProgress) {
 		if(act_states[act_id] == ACT_FUNCTION_Done)
-			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Begin check but already in Done state, act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Begin check but already in Done state, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 		return;
 	}
 
 	if(global.env.match_time >= argument->timeout) {
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation timeout (by strat) act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation timeout (by strat) act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 		global.env.act[act_id].disabled = TRUE;
 		act_states[act_id] = ACT_FUNCTION_ActDisabled;
 		STACKS_set_timeout(act_id, TRUE);
@@ -273,7 +273,7 @@ static void ACT_check_result(stack_id_e act_id) {
 #else
 		switch(global.env.act[act_id].operationResult) {
 			case ACT_RESULT_Failed:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Operation failed act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Operation failed act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 				switch(global.env.act[act_id].recommendedBehavior) {
 					case ACT_BEHAVIOR_DisableAct:
 						global.env.act[act_id].disabled = TRUE;
@@ -284,6 +284,9 @@ static void ACT_check_result(stack_id_e act_id) {
 					case ACT_BEHAVIOR_GoalUnreachable:	//Envoyer le message fallback, s'il redonne une erreur, ACT_process_result s'occupera de désactiver l'actionneur
 						if(argument->fallbackMsg.sid != ACT_ARG_NOFALLBACK_SID) {
 							CAN_msg_t msg;
+
+							global.env.act[act_id].operationResult = ACT_RESULT_Working;
+
 							msg.sid     = argument->fallbackMsg.sid;
 							msg.data[0] = argument->fallbackMsg.data[0];
 							msg.data[1] = argument->fallbackMsg.data[1];
@@ -306,6 +309,7 @@ static void ACT_check_result(stack_id_e act_id) {
 								CAN_msg_t msg;
 
 								waitMsCount = 0;
+								global.env.act[act_id].operationResult = ACT_RESULT_Working;
 
 								msg.sid     = argument->msg.sid;
 								msg.data[0] = argument->msg.data[0];
@@ -318,19 +322,19 @@ static void ACT_check_result(stack_id_e act_id) {
 						break;
 
 					default:	//Cas inexistant
-						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation failed but behavior is Ok, act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation failed but behavior is Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 						break;
 				}
 				break;
 
 			case ACT_RESULT_Ok:
 				if(global.env.act[act_id].recommendedBehavior == ACT_BEHAVIOR_GoalUnreachable) {	//Dans ce cas, le result_ok  est en fait celui de la commande de déplacement a la position fallback, donc indiquer qu'il y a eu un problème pour atteindre la position et de reessayer plus tard
-					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Fallback position Ok, act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Fallback position Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->fallbackMsg.sid, argument->fallbackMsg.data[0]);
 					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
 					act_states[act_id] = ACT_FUNCTION_RetryLater;
 					STACKS_set_timeout(act_id, TRUE);
 				} else {	//Sinon c'est bien la commande voulue qui s'est bien terminée
-					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Operation Ok, act id: %u, sid: %u, cmd: %hhu\n", act_id, argument->msg.sid, argument->msg.data[0]);
+					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Operation Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
 					act_states[act_id] = ACT_FUNCTION_Done;
 					STACKS_pull(act_id);
@@ -342,7 +346,7 @@ static void ACT_check_result(stack_id_e act_id) {
 
 			case ACT_RESULT_Idle:		//Ne devrait jamais arriver, sinon erreur dans le code
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Warning: act should be in working/finished mode but wasn't, mode: %d, act id: %u, sid: %u, cmd: %hhu\n", global.env.act[act_id].operationResult, act_id, argument->msg.sid, argument->msg.data[0]);
+				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Warning: act should be in working/finished mode but wasn't, mode: %d, act id: %u, sid: 0x%x, cmd: 0x%x\n", global.env.act[act_id].operationResult, act_id, argument->msg.sid, argument->msg.data[0]);
 				STACKS_set_timeout(act_id, TRUE);
 				break;
 		}
@@ -372,7 +376,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 
 	assert(msg->sid == ACT_RESULT);
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Received result: act: %hhu, cmd: %hhu, result: %hhu, reason: %hhu\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Received result: act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
 
 	switch(msg->data[0]) {
 		case ACT_BALLLAUNCHER & 0xFF:
@@ -385,13 +389,13 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	}
 
 	if(act_id >= ACTUATORS_NB) {
-		OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Unknown act result, can_act_id: %hhu, can_result: %hhu\n", msg->data[0], msg->data[2]);
+		OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Unknown act result, can_act_id: 0x%x, can_result: %u\n", msg->data[0], msg->data[2]);
 		return;
 	}
 
 	//Erreur de codage, ça ne devrait jamais arriver
 	if(global.env.act[act_id].operationResult != ACT_RESULT_Working) {
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"act is not in working mode but received result, act: %hhu, cmd: %hhu, result: %hhu, reason: %hhu, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], global.env.act[act_id].operationResult);
+		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"act is not in working mode but received result, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], global.env.act[act_id].operationResult);
 	}
 
 #ifdef ACT_NO_ERROR_HANDLING
@@ -408,7 +412,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		default:	//ACT_RESULT_NOT_HANDLED et ACT_RESULT_NOT_FAILED (et les autres si ajouté)
 			switch(msg->data[3]) {
 				case ACT_RESULT_ERROR_OK:
-					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Reason Ok with result Failed, act_id: %hhu, cmd: %hhu\n", msg->data[0], msg->data[1]);
+					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Reason Ok with result Failed, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);
 					break;
 
 				case ACT_RESULT_ERROR_TIMEOUT:
@@ -417,7 +421,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 						global.env.act[act_id].disabled = TRUE;
 						global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					} else global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_GoalUnreachable;
-					OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Goal unreachable ! act_id: %hhu, cmd: %hhu, reason: %hhu\n", msg->data[0], msg->data[1], msg->data[3]);
+					OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Goal unreachable ! act_id: 0x%x, cmd: 0x%x, reason: %u\n", msg->data[0], msg->data[1], msg->data[3]);
 					break;
 
 				case ACT_RESULT_ERROR_NO_RESOURCES:
@@ -425,19 +429,19 @@ void ACT_process_result(const CAN_msg_t* msg) {
 						global.env.act[act_id].disabled = TRUE;
 						global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					} else global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_RetryLater;
-					OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"NoResource error ! act_id: %hhu, cmd: %hhu\n", msg->data[0], msg->data[1]);	//Notifier le cas, il faudra par la suite augmenter les resources dispo ...
+					OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"NoResource error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//Notifier le cas, il faudra par la suite augmenter les resources dispo ...
 					break;
 
 				case ACT_RESULT_ERROR_LOGIC:
 					global.env.act[act_id].disabled = TRUE;
 					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
-					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Logic error ! act_id: %hhu, cmd: %hhu\n", msg->data[0], msg->data[1]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
+					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Logic error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 					break;
 
 				default:
 					global.env.act[act_id].disabled = TRUE;
 					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
-					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Unknown error ! act_id: %hhu, cmd: %hhu, reason: %hhu\n", msg->data[0], msg->data[1], msg->data[3]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
+					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Unknown error ! act_id: 0x%x, cmd: 0x%x, reason: %u\n", msg->data[0], msg->data[1], msg->data[3]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 			}
 
 			global.env.act[act_id].operationResult = ACT_RESULT_Failed;

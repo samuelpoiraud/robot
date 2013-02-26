@@ -14,10 +14,13 @@
 
 #include "Can_msg_processing.h"
 #include "QS/QS_DCMotor2.h"
+#include "Krusty/KBall_launcher.h"
 
 void CAN_process_msg(CAN_msg_t* msg)
 {
 	queue_id_t queue_id;
+
+	BALLLAUNCHER_CAN_process_msg(msg);
 	
 	// Traitement des messages reçus
 	switch (msg->sid)
