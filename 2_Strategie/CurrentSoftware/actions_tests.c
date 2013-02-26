@@ -867,12 +867,27 @@ error_e TEST_STRAT_second_half_cake(void)
 
 //Alexis; test des fonctions act_function
 void TEST_STRAT_balllauncher_run(void){
-    static int pushed = 1;
-    if(pushed == 1){
+    static int pushed = 0;
+    if(pushed == 0){
 		debug_printf("Send ball launcher request to run\n");
         ACT_push_ball_launcher_run(6000, TRUE);
-        pushed = 0;
+        pushed = 1;
     }
+
+	if(pushed == 1 && ACT_get_last_action_result(ACT_STACK_BallLauncher) != ACT_FUNCTION_InProgress) {
+		ACT_function_result_e result = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+		switch(result) {
+			case ACT_FUNCTION_Done:
+				debug_printf("Operation done\n");
+				break;
+			case ACT_FUNCTION_ActDisabled:
+				debug_printf("Operation failed, act is disabled\n");
+				break;
+			case ACT_FUNCTION_RetryLater:
+				debug_printf("Operation failed, strat should try later\n");
+		}
+		pushed = 2;
+	}
 
 }
 

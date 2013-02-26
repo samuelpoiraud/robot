@@ -273,19 +273,14 @@ static void ACT_check_result(stack_id_e act_id) {
 #else
 		switch(global.env.act[act_id].operationResult) {
 			case ACT_RESULT_Failed:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Operation failed act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 				switch(global.env.act[act_id].recommendedBehavior) {
-					case ACT_BEHAVIOR_DisableAct:
-						global.env.act[act_id].disabled = TRUE;
-						act_states[act_id] = ACT_FUNCTION_ActDisabled;
-						STACKS_set_timeout(act_id, TRUE);
-						break;
 
 					case ACT_BEHAVIOR_GoalUnreachable:	//Envoyer le message fallback, s'il redonne une erreur, ACT_process_result s'occupera de désactiver l'actionneur
 						if(argument->fallbackMsg.sid != ACT_ARG_NOFALLBACK_SID) {
 							CAN_msg_t msg;
 
 							global.env.act[act_id].operationResult = ACT_RESULT_Working;
+							OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"GoalUnreachable, sending fallback message, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->fallbackMsg.sid, argument->fallbackMsg.data[0]);
 
 							msg.sid     = argument->fallbackMsg.sid;
 							msg.data[0] = argument->fallbackMsg.data[0];
@@ -295,6 +290,7 @@ static void ACT_check_result(stack_id_e act_id) {
 							CAN_send(&msg);
 							//On ne change pas act_states[act_id] car on n'a pas encore terminé avec l'opération
 						} else {	//Si on n'a pas de message fallback, (car par exemple, ça aurait été le même message) on déclare une erreur indiquant d'essayer plus tard
+							OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"GoalUnreachable, no fallback message to send, disabling act, act id: %u\n", act_id);
 							global.env.act[act_id].disabled = TRUE;
 							act_states[act_id] = ACT_FUNCTION_RetryLater;
 							STACKS_set_timeout(act_id, TRUE);
@@ -304,12 +300,14 @@ static void ACT_check_result(stack_id_e act_id) {
 					case ACT_BEHAVIOR_RetryLater: {
 							static time32_t waitMsCount = 0;
 							if(waitMsCount == 0) {
+								OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"RetryLater, will retry 3ms later, act id: %u\n", act_id);
 								waitMsCount = global.env.match_time + 3;	//Attendre 3ms avant de ressayer
 							}else if(global.env.match_time >= waitMsCount) {  //Après un certain temps défini juste avant, renvoyer la commande en espérant que ça passe cette fois
 								CAN_msg_t msg;
 
 								waitMsCount = 0;
 								global.env.act[act_id].operationResult = ACT_RESULT_Working;
+								OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"RetryLater, time to resend message, act id: %u\n", act_id);
 
 								msg.sid     = argument->msg.sid;
 								msg.data[0] = argument->msg.data[0];
@@ -323,6 +321,12 @@ static void ACT_check_result(stack_id_e act_id) {
 
 					default:	//Cas inexistant
 						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation failed but behavior is Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+						//pas de break ici, si la raison n'est pas connue de ce code, considerer l'erreur comme grave et desactiver l'actionneur
+					case ACT_BEHAVIOR_DisableAct:
+						OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"Bad act behavior, act disabled, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+						global.env.act[act_id].disabled = TRUE;
+						act_states[act_id] = ACT_FUNCTION_ActDisabled;
+						STACKS_set_timeout(act_id, TRUE);
 						break;
 				}
 				break;
@@ -409,7 +413,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			global.env.act[act_id].operationResult = ACT_RESULT_Ok;
 			break;
 
-		default:	//ACT_RESULT_NOT_HANDLED et ACT_RESULT_NOT_FAILED (et les autres si ajouté)
+		default:	//ACT_RESULT_NOT_HANDLED et ACT_RESULT_FAILED (et les autres si ajouté)
 			switch(msg->data[3]) {
 				case ACT_RESULT_ERROR_OK:
 					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Reason Ok with result Failed, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);
