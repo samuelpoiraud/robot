@@ -30,7 +30,7 @@ void BALLLAUNCHER_init();
  * (TODO: Ajouter la gestion de passage des balles)
  * @param msg le message CAN
  */
-void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg);
+//void BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg);
 
 /**
  * Active ou non le moteur du lanceur de balle.
