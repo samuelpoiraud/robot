@@ -14,8 +14,9 @@
 #if !defined(KRUSTY_GLOBAL_CONFIG_H) && defined(I_AM_ROBOT_KRUSTY)
 	#define KRUSTY_GLOBAL_CONFIG_H
 
-//	#define VERBOSE_MODE
-#define OUTPUT_LOG
+	#define VERBOSE_MODE
+	#define OUTPUT_LOG
+	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 	
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond

@@ -11,6 +11,11 @@
 
 #define MAIN_C
 #include "main.h"
+#include "Krusty/KBall_launcher.h"
+#include "QS/QS_buttons.h"
+#include "QS/QS_DCMotor2.h"
+#include "QS/QS_ax12.h"
+#include "QS/QS_adc.h"
 
 int main (void)
 {
@@ -23,9 +28,15 @@ int main (void)
 	static Uint8 button4_pos = 0;
 		
 	//initialisations
-	PORTS_init();	
+	PORTS_init();
 	LED_RUN = 1;
 	UART_init();
+	TIMER_init();
+	BUTTONS_init();
+	QUEUE_init();
+	ADC_init();
+	AX12_init();
+	DCM_init();
 	LED_CAN = 1;
 	#ifdef USE_CAN
 		CAN_init();
@@ -39,10 +50,11 @@ int main (void)
 	LED_RUN = 0;
 	LED_USER = 1;
 
-        //init actioneur
-         BALL_GRABBER_init();
-         HAMMER_init();
-         //inti fin
+	//init actioneur
+	BALLLAUNCHER_init();
+	BALL_GRABBER_init();
+	HAMMER_init();
+	//inti fin
 
 	debug_printf("Hello, I'm ACT\r\n");
 	RCON_read();
