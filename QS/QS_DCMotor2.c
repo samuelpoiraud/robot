@@ -271,7 +271,7 @@ void _ISR DCM_TIMER_IT()
 					this->cmd_time += DCM_TIMER_PERIOD;
 					if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon)
 						this->cmd_state = DCM_IDLE;
-					else if(this->cmd_time && this->cmd_time > config->timeout)
+					else if(this->cmd_time && this->cmd_time >= config->timeout)
 						this->cmd_state = DCM_TIMEOUT;
 					break;
 
