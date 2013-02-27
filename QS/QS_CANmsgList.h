@@ -184,19 +184,21 @@
 	////////////// BALLLAUNCHER /////////////
 	#define ACT_BALLLAUNCHER (ACT_FILTER | 2)
 		//Paramètres de BALLLAUNCHER (dans data[0])
-		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000 et non nul)
+		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000). si la vitesse indiquée est 0, la vitesse par defaut est utilisée. (voir BALLLAUNCHER_DEFAULT_TARGET_SPEED dans KGlobal_config.h)
 		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
 	/////////////////////////////////////////
 
 	////////////////// PLATE ////////////////
 	#define ACT_PLATE (ACT_FILTER | 3)
 		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
-		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette'
+		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette
 		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
+		#define ACT_PLATE_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Implémtenté finalement. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
+
 		#define ACT_PLATE_ROTATE_HORIZONTALLY   0x20	//Amener le bras en position horizontale (pour prendre ou lacher une assiette par ex)
-		#define ACT_PLATE_ROTATE_VERTICALLY     0x21	//Amener le bras en position verticale (pour vider une assiette ou réduire le périmêtre du robot)
-		#define ACT_PLATE_PLIER_STOP            0x12	//Stopper l'asservissement de la pince (en urgence) (ce message va être supprimé dans quelque temps, ne pas utiliser, il sont la parce que la nuit on devrait dormir :o)
-		#define ACT_PLATE_ROTATE_STOP           0x22	//Stopper l'asservissement du bras (en urgence) (ce message va être supprimé dans quelque temps, ne pas utiliser, il sont la parce que la nuit on devrait dormir :o)
+		#define ACT_PLATE_ROTATE_PREPARE        0x21	//Amener le bras en position intermédiaire (45°) pour préparer un mouvement vers l'horizontale ou verticale
+		#define ACT_PLATE_ROTATE_VERTICALLY     0x22	//Amener le bras en position verticale. Ferme la pince si elle ne l'est pas avant d'effectuer le mouvement (meca oblige) (pour vider une assiette ou réduire le périmêtre du robot)
+		#define ACT_PLATE_ROTATE_STOP           0x2F	//Stopper l'asservissement du bras. Implémtenté finalement, mais à éviter, dans les virages il ne faudrait pas que l'actionneur tombe (même si gros reducteur ...)
 	/////////////////////////////////////////
 
 /*****************************************************************

@@ -51,7 +51,7 @@
 	#elif defined(AX12_USE_WATCHDOG)
 		#include "QS_watchdog.h"
 
-		static Uint8 AX12_watchdog_timeout_id;
+		static volatile Uint8 AX12_watchdog_timeout_id;
 		static void AX12_watchdog_timeout_recv();
 
 		#define AX12_TIMER_init() WATCHDOG_init()
@@ -279,7 +279,7 @@
 	/***********************************************************************/
 	
 typedef struct{
-	AX12_status_t last_status;
+	volatile AX12_status_t last_status;
 	Uint16 angle_limit[2];	//sauvegarde des angles limites lors d'un passage en mode wheel (rotation complète en continue) Si l'AX12 était déja dans ce mode, les angles limites défini à 0°-300°.
     bool_e is_wheel_enabled;
 	// Possibilité d'ajout de membres ...	
@@ -341,8 +341,8 @@ typedef enum {
 
 
 typedef struct {
-	AX12_state_machine_state_e state;
-	Uint16 timeout_counter;	//compteur décrémenté par le timer lorsque que l'état est AX12_SMS_WaitingAnswer
+	volatile AX12_state_machine_state_e state;
+	volatile Uint16 timeout_counter;	//compteur décrémenté par le timer lorsque que l'état est AX12_SMS_WaitingAnswer
 
 	AX12_instruction_packet_t current_instruction;
 
@@ -358,7 +358,7 @@ static AX12_servo_t AX12_on_the_robot[AX12_NUMBER];	//Tableau de structure conte
 static AX12_state_machine_t state_machine = {0};	//Machine à états du driver
 
 //Queue contenant les instructions demandée (ce buffer est géré pas les fonctions/macro AX12_instruction_*, il n'y a qu'un buffer pour tous les AX12)
-static AX12_instruction_buffer AX12_special_instruction_buffer;
+static volatile AX12_instruction_buffer AX12_special_instruction_buffer;
 //Cette variable est à TRUE si le driver est en mode préparation de commandes. Voir doc de AX12_start_command_block dans le .h
 static bool_e AX12_prepare_commands = FALSE;
 
@@ -1223,7 +1223,9 @@ Uint8  AX12_config_get_highest_voltage(Uint8 id_servo) {
 }
 
 Uint8 AX12_config_get_maximum_torque(Uint8 id_servo) {
-	return (Uint8)AX12_1024_TO_PERCENTAGE(AX12_instruction_read16(id_servo, AX12_MAX_TORQUE_L, NULL));
+	Uint16 value;    //voir AX12_config_set_maximum_torque pour le pourquoi pas de lecture 16bits
+	value = AX12_instruction_read8(id_servo, AX12_MAX_TORQUE_L, NULL) | (AX12_instruction_read8(id_servo, AX12_MAX_TORQUE_H, NULL) << 8);
+	return (Uint8)AX12_1024_TO_PERCENTAGE(value);
 }
 
 Uint8  AX12_config_get_status_return_mode(Uint8 id_servo) {
@@ -1271,7 +1273,8 @@ bool_e AX12_config_set_highest_voltage(Uint8 id_servo, Uint8 voltage) {
 }
 
 bool_e AX12_config_set_maximum_torque_percentage(Uint8 id_servo, Uint8 percentage) {
-	return AX12_instruction_write16(id_servo, AX12_MAX_TORQUE_L, AX12_PERCENTAGE_TO_1024(percentage));
+	Uint16 value = AX12_PERCENTAGE_TO_1024(percentage);    //On ne peut pas utiliser l'ecriture 16bits a cause d'un bug de l'AX12 (voir https://sites.google.com/site/robotsaustralia/ax-12dynamixelinformation)
+	return AX12_instruction_write8(id_servo, AX12_MAX_TORQUE_L, value & 0xFF) && AX12_instruction_write8(id_servo, AX12_MAX_TORQUE_H, value >> 8);
 }
 
 bool_e AX12_config_set_status_return_mode(Uint8 id_servo, Uint8 mode) {
