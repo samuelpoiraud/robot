@@ -62,6 +62,7 @@
 
 static Sint16 BALLLAUNCHER_get_speed();
 
+
 void BALLLAUNCHER_init() {
 	DCMotor_config_t ball_launcher_config;
 	static bool_e initialized = FALSE;
@@ -87,7 +88,9 @@ void BALLLAUNCHER_init() {
 	ball_launcher_config.epsilon = BALLLAUNCHER_ASSER_POS_EPSILON;
 	DCM_config(BALLLAUNCHER_DCMOTOR_ID, &ball_launcher_config);
 
-	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 6;
+	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 7;
+	DCM_TIMER_PRIORITY_REG = 6;
+	BALLLAUNCHER_HALLSENSOR_INT_EDGE = 1;  //interrupt on falling edge
 	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
 	BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 1;
 
@@ -119,6 +122,12 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
+static volatile Sint16 current_speed = 0;
+static volatile Uint16 max_value = 0, min_value = 9000;
+static volatile Uint16 last_raw_value = 0;
+static volatile Uint8 probleme_possible;
+static volatile bool_e intxnested;
+
 void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallLauncher) {
 		if(init == TRUE) {
@@ -135,10 +144,37 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				DCM_restart(BALLLAUNCHER_DCMOTOR_ID); //Redémarrage si on l'avait arrêté avec DCM_stop, sinon ne fait rien
 			} else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"pos_speed invalide: %u\n", (Uint16)pos_speed);
 		} else {
+			static bool_e sent = FALSE;
 			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
 			CAN_msg_t resultMsg;
 
-			if(asserState == DCM_IDLE) {
+			if(current_speed) {
+				OUTPUTLOG_printf(LOG_LEVEL_Debug, "Current speed: %u, raw=%u, min=%u, max=%u\n", current_speed, last_raw_value, min_value, max_value);
+				current_speed = 0;
+			}
+			if(intxnested) {
+				intxnested = FALSE;
+				OUTPUTLOG_printf(LOG_LEVEL_Debug, "INTx while probelm\n");
+			}
+			if(probleme_possible) {
+				OUTPUTLOG_printf(LOG_LEVEL_Debug, "problem %d\n",probleme_possible);
+				probleme_possible = 0;
+			}
+
+			if(sent == FALSE) {
+				resultMsg.data[2] = ACT_RESULT_DONE;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+				resultMsg.sid = ACT_RESULT;
+				resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
+				resultMsg.data[1] = (QUEUE_get_arg(queueId) == 0)? ACT_BALLLAUNCHER_STOP : ACT_BALLLAUNCHER_ACTIVATE;
+				resultMsg.size = 4;
+
+				CAN_send(&resultMsg);
+				sent = TRUE;
+			}
+			return;
+
+			if(1/*asserState == DCM_IDLE*/) {
 				resultMsg.data[2] = ACT_RESULT_DONE;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 			} else if(QUEUE_has_error(queueId)) {
@@ -189,7 +225,6 @@ static volatile bool_e hall_timer_val_last_detection_valid = FALSE;	//Vrai quand
 
 //Version priorité BALLLAUNCHER_get_speed < BALLLAUNCHER_HALLSENSOR_INT_ISR
 static Sint16 BALLLAUNCHER_get_speed() {
-
 	//Section critique
 	BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 0;
 
@@ -199,19 +234,28 @@ static Sint16 BALLLAUNCHER_get_speed() {
 		if(hall_full_period_elapsed_time >= (HALL_TIMECOUNTER_MAX_PERIOD_TIME*HALL_TIMECOUNTER_PULSE_PER_MS)) {
 			hall_last_detection_interval = 0;
 			hall_timer_val_last_detection_valid = FALSE;
-		} else hall_full_period_elapsed_time += ((DCM_TIMER_PERIOD_REG+1)/HALL_TIMECOUNTER_PULSE_PER_UNIT);
+		} else hall_full_period_elapsed_time += ((391)/HALL_TIMECOUNTER_PULSE_PER_UNIT);
+		DCM_TIMER_OVERFLOW_REG = 0;	//On met le flag de l'IT de l'asservissement à 0, permet de savoir si total_elapsed_time_count à été mis à jour après un overflow ou pas
 	}
-	DCM_TIMER_OVERFLOW_REG = 0;	//On met le flag de l'IT de l'asservissement à 0, permet de savoir si total_elapsed_time_count à été mis à jour après un overflow ou pas
 	BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 1;
 
 	hall_dont_update_timer_overflow_count = FALSE;
 
 	//Cas spécial: vitesse nulle
-	if(hall_last_detection_interval == 0)
+	if(hall_last_detection_interval == 0) {
 		return 0;
+	}
+current_speed = hall_last_detection_interval;
+	/*last_raw_value = hall_last_detection_interval;
+	if(max_value < hall_last_detection_interval)
+		max_value = hall_last_detection_interval;
+	if(min_value > hall_last_detection_interval)
+		min_value = hall_last_detection_interval;*/
 
 	//Calcul des tr/min, __builtin_divud permet une division utilisant les instructions du proc et non la librarie, histoire d'éviter de perdre inutilement des cycles processeurs
-	return (Sint16)__builtin_divud((60000*HALL_TIMECOUNTER_PULSE_PER_MS/BALLLAUNCHER_EDGE_PER_ROTATION), hall_last_detection_interval);
+	return  (Sint16)__builtin_divud((60000*HALL_TIMECOUNTER_PULSE_PER_MS/BALLLAUNCHER_EDGE_PER_ROTATION), hall_last_detection_interval);
+
+	return current_speed;
 }
 
 void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
@@ -228,24 +272,36 @@ void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
 			if(hall_full_period_elapsed_time_saved >= (HALL_TIMECOUNTER_MAX_PERIOD_TIME*HALL_TIMECOUNTER_PULSE_PER_MS)) {
 				hall_last_detection_interval = 0;
 				hall_timer_val_last_detection_valid = FALSE;
-			} else hall_full_period_elapsed_time_saved += ((DCM_TIMER_PERIOD_REG+1)/HALL_TIMECOUNTER_PULSE_PER_UNIT);
+			} else hall_full_period_elapsed_time_saved += ((391)/HALL_TIMECOUNTER_PULSE_PER_UNIT);
 
 			//On indique que BALLLAUNCHER_get_speed() n'aura pas à mettre à jour le compteur d'overflow puisse que c'est déjà fait
 			hall_dont_update_timer_overflow_count = TRUE;
 		}
+		intxnested = TRUE;
+	} else {
+		/*if(hall_timer_val_last_detection == 390)
+			hall_full_period_elapsed_time_saved += 391;
+		if(hall_timer_val_detection == 390)
+			hall_full_period_elapsed_time_saved -= 391;*/
 	}
 
 	hall_full_period_elapsed_time = 0;
 
 	//Si la dernière detection est valide, on calcule, sinon on fait rien vu qu'on a pas assez d'info
-	if(hall_timer_val_last_detection_valid)
+	if(hall_timer_val_last_detection_valid) {
 		hall_last_detection_interval = hall_full_period_elapsed_time_saved + hall_timer_val_detection - hall_timer_val_last_detection;
+	}
 
+	if(hall_last_detection_interval > 400) {
+		last_raw_value =hall_full_period_elapsed_time_saved;
+		min_value = hall_timer_val_detection;
+		max_value = hall_timer_val_last_detection;
+	}
 	hall_timer_val_last_detection = hall_timer_val_detection;
 	hall_timer_val_last_detection_valid = TRUE;
 
 	//Changement de front detecté, on capte le passage de tous les aimants comme ça
-	BALLLAUNCHER_HALLSENSOR_INT_EDGE = !BALLLAUNCHER_HALLSENSOR_INT_EDGE;
+	//BALLLAUNCHER_HALLSENSOR_INT_EDGE = !BALLLAUNCHER_HALLSENSOR_INT_EDGE;
 	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
 }
 

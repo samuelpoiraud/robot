@@ -35,8 +35,8 @@ void CAN_process_msg(CAN_msg_t* msg)
 		//Fin de la partie
 		case BROADCAST_STOP_ALL :
 			debug_printf("C:BROADCAST_STOP_ALL\r\n");
-			QUEUE_flush_all();
-			DCM_stop_all();
+			//QUEUE_flush_all();
+			//DCM_stop_all();
 			break;
 		
 		//Reprise de la partie

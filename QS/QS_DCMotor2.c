@@ -271,7 +271,7 @@ void _ISR DCM_TIMER_IT()
 					this->cmd_time += DCM_TIMER_PERIOD;
 					if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon)
 						this->cmd_state = DCM_IDLE;
-					else if(this->cmd_time && this->cmd_time >= config->timeout)
+					else if(config->timeout && this->cmd_time >= config->timeout)
 						this->cmd_state = DCM_TIMEOUT;
 					break;
 
@@ -300,9 +300,13 @@ void _ISR DCM_TIMER_IT()
 					//la multiplication par la période se fait après pour éviter que l'incrément soit nul
 				}
 				differential = error - this->previous_error;
-				computed_cmd = 	(__builtin_mulss(config->Kp, error) >> 10) // / 1024)
+				/*computed_cmd = 	(__builtin_mulss(config->Kp, error) >> 10) // / 1024)
 								+ ((__builtin_mulss(config->Ki, this->integrator) * DCM_TIMER_PERIOD) >> 20) // / 1048576)
 								+ (__builtin_divsd(__builtin_mulss(config->Kd, differential), (DCM_TIMER_PERIOD*1024)));
+				 */
+				computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+							+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576)
+							+ (((Sint32)(config->Kd) * differential)/DCM_TIMER_PERIOD) / 1024;
 								
 				// Sens et saturation
 				if (computed_cmd > 0)

@@ -67,7 +67,7 @@
 	/* définir le nombre d'actionneurs asservis */
 	#define DCM_NUMBER			6 // A voir en fonction du futur asservissement en courant
 	/* Période d'asservisement (en ms) */
-	#define DCM_TIMER_PERIOD	10
+	#define DCM_TIMER_PERIOD	2
 	/* Seuil d'acceptation d'arrivée */
 	//#define DCM_EPSILON			10
 	/* nombre maximum de positions à gérer par moteur */
@@ -86,16 +86,16 @@
 	#define BALLLAUNCHER_ASSER_KP                10
 	#define BALLLAUNCHER_ASSER_KI                80
 	#define BALLLAUNCHER_ASSER_KD                0
-	#define BALLLAUNCHER_ASSER_TIMEOUT           2000       //en ms
+	#define BALLLAUNCHER_ASSER_TIMEOUT           0       //en ms
 	#define BALLLAUNCHER_ASSER_POS_EPSILON       100
 	#define BALLLAUNCHER_DEFAULT_TARGET_SPEED    6000		//en tr/min
 	#define BALLLAUNCHER_DCMOTOR_ID              0			//Doit être unique !
 	#define BALLLAUNCHER_DCMOTOR_PWM_NUM         4
 	#define BALLLAUNCHER_DCMOTOR_PORT_WAY        PORTE
 	#define BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT    6
-	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0    100
+	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0    50
 	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1    0
-	#define BALLLAUNCHER_EDGE_PER_ROTATION       2			//nombre d'inversion de champ magnétique par tour (2 aimants de sens opposé = 2 inversions / tour)
+	#define BALLLAUNCHER_EDGE_PER_ROTATION       1			//nombre d'inversion de champ magnétique par tour (2 aimants de sens opposé = 2 inversions / tour)
 	#define BALLLAUNCHER_HALLSENSOR_INT_FLAG     IFS1bits.INT1IF
 	#define BALLLAUNCHER_HALLSENSOR_INT_PRIORITY IPC4bits.INT1IP
 	#define BALLLAUNCHER_HALLSENSOR_INT_ENABLE   IEC1bits.INT1IE
