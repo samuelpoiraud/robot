@@ -11,6 +11,7 @@
         <itemPath>../Krusty/KGlobal_vars.h</itemPath>
         <itemPath>../Krusty/KGlobal_vars_types.h</itemPath>
         <itemPath>../Krusty/KPlate.h</itemPath>
+        <itemPath>../Krusty/KActManager.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="_QS" projectFiles="true">
         <itemPath>../QS/p30f6010A.h</itemPath>
@@ -40,6 +41,7 @@
         <itemPath>../Tiny/TGlobal_vars.h</itemPath>
         <itemPath>../Tiny/TGlobal_vars_types.h</itemPath>
         <itemPath>../Tiny/TLong_hammer.h</itemPath>
+        <itemPath>../Tiny/TActManager.h</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.h</itemPath>
       <itemPath>../clock.h</itemPath>
@@ -64,6 +66,7 @@
       <logicalFolder name="f2" displayName="_Krusty" projectFiles="true">
         <itemPath>../Krusty/KBall_launcher.c</itemPath>
         <itemPath>../Krusty/KPlate.c</itemPath>
+        <itemPath>../Krusty/KActManager.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="_QS" projectFiles="true">
         <itemPath>../QS/QS_adc.c</itemPath>
@@ -82,6 +85,7 @@
       </logicalFolder>
       <logicalFolder name="f3" displayName="_Tiny" projectFiles="true">
         <itemPath>../Tiny/TLong_hammer.c</itemPath>
+        <itemPath>../Tiny/TActManager.c</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.c</itemPath>
       <itemPath>../clock.c</itemPath>
@@ -147,7 +151,7 @@
         <property key="enable-short-double" value="false"/>
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories" value=".;./QS"/>
+        <property key="extra-include-directories" value="."/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="0"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -311,7 +315,7 @@
         <property key="enable-short-double" value="false"/>
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories" value=".;./QS"/>
+        <property key="extra-include-directories" value="."/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="0"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -420,7 +424,7 @@
         <property key="enable-short-double" value="false"/>
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
-        <property key="extra-include-directories" value=".;./QS"/>
+        <property key="extra-include-directories" value="."/>
         <property key="isolate-each-function" value="false"/>
         <property key="optimization-level" value="0"/>
         <property key="post-instruction-scheduling" value="default"/>
