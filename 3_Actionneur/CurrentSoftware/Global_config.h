@@ -14,6 +14,8 @@
 	#define GLOBAL_CONFIG_H
 
 	#define VERBOSE_MODE
+	#define OUTPUT_LOG
+	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 
 	/* ID de la carte: cf le type cartes_e de QS_types.h */
 	#define I_AM CARTE_ACT		//A voir avec Gwenn pour changer

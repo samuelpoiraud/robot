@@ -27,8 +27,9 @@ void LONGHAMMER_init();
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'asservir le bras à la position voulue.
  * @param msg le message CAN
+ * @return TRUE si le message CAN a été géré par cet actionneur, FALSE sinon
  */
-void LONGHAMMER_CAN_process_msg(CAN_msg_t* msg);
+bool_e LONGHAMMER_CAN_process_msg(CAN_msg_t* msg);
 
 /**
  * Change la position du bras.

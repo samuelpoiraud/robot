@@ -15,29 +15,21 @@
 #include "Can_msg_processing.h"
 #include "QS/QS_DCMotor2.h"
 #include "QS/QS_can.h"
-#include "Krusty/KBall_launcher.h"
+#include "QS/QS_CANmsgList.h"
+#include "queue.h"
+#include "Ball_grabber.h"
+#include "Hammer.h"
 
-//Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
-void CAN_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Sint16 param) {
-	queue_id_t queueId = QUEUE_create();
-	assert(queueId != QUEUE_CREATE_FAILED);
-	if(queueId != QUEUE_CREATE_FAILED) {	//Si on est pas en verbose_mode, l'assert sera ignoré et la suite risque de vraiment planter ...
-		QUEUE_add(queueId, &QUEUE_take_sem, 0, act_id);
-		QUEUE_add(queueId, act_function_ptr, param, act_id);
-		QUEUE_add(queueId, &QUEUE_give_sem, 0, act_id);
-	} else {	//on indique qu'on a pas géré la commande
-		CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
-		CAN_send(&resultMsg);
-	}
-}
+#include "Krusty/KActManager.h"
+#include "Tiny/TActManager.h"
 
 void CAN_process_msg(CAN_msg_t* msg)
 {
 	queue_id_t queue_id;
 
-	//BALLLAUNCHER_CAN_process_msg(msg);
+	ACTMGR_process_msg(msg);
 	
-	// Traitement des messages reçus
+	// Traitement des autres messages reçus
 	switch (msg->sid)
 	{
 		//Fin de la partie
@@ -50,10 +42,6 @@ void CAN_process_msg(CAN_msg_t* msg)
 		//Reprise de la partie
 		case BROADCAST_START :
 			debug_printf("C:BROADCAST_START\r\n");
-			break;
-
-		case ACT_BALLLAUNCHER:
-			CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8));
 			break;
 
 		case ACT_AX12:
@@ -111,4 +99,19 @@ void CAN_process_msg(CAN_msg_t* msg)
 			//debug_printf("SID:%x\r\n",msg->sid);
 			break;
 	}//End switch
+}
+
+//Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
+//Cette fonction est appelée par les fonctions de traitement des messages CAN de chaque actionneur.
+void CAN_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Sint16 param) {
+	queue_id_t queueId = QUEUE_create();
+	assert(queueId != QUEUE_CREATE_FAILED);
+	if(queueId != QUEUE_CREATE_FAILED) {	//Si on est pas en verbose_mode, l'assert sera ignoré et la suite risque de vraiment planter ...
+		QUEUE_add(queueId, &QUEUE_take_sem, 0, act_id);
+		QUEUE_add(queueId, act_function_ptr, param, act_id);
+		QUEUE_add(queueId, &QUEUE_give_sem, 0, act_id);
+	} else {	//on indique qu'on a pas géré la commande
+		CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
+		CAN_send(&resultMsg);
+	}
 }

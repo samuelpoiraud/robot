@@ -1,7 +1,7 @@
 /*  Club Robot ESEO 2012 - 2013
  *	Krusty
  *
- *	Fichier : Long_launcher.c
+ *	Fichier : Ball_launcher.c
  *	Package : Carte actionneur
  *	Description : Asservissement du lanceur de balle
  *  Auteur : Alexis
@@ -17,6 +17,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_timer.h"
 #include "../output_log.h"
+#include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "BL: "
 
@@ -45,7 +46,9 @@
 	#error "DCM_TIMER doit etre 1 2 3 ou 4"
 #endif /* DCM_TIMER == n */
 
-static DCMotor_config_t ball_launcher_config;
+#if DCMOTOR_NB_POS < 2
+#error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
+#endif
 
 /*
  * Technique de captage de la vitesse:
@@ -60,6 +63,13 @@ static DCMotor_config_t ball_launcher_config;
 static Sint16 BALLLAUNCHER_get_speed();
 
 void BALLLAUNCHER_init() {
+	DCMotor_config_t ball_launcher_config;
+	static bool_e initialized = FALSE;
+
+	if(initialized)
+		return;
+	initialized = TRUE;
+
 	DCM_init();
 
 	ball_launcher_config.sensor_read = &BALLLAUNCHER_get_speed;
@@ -67,14 +77,14 @@ void BALLLAUNCHER_init() {
 	ball_launcher_config.Ki = BALLLAUNCHER_ASSER_KI;
 	ball_launcher_config.Kd = BALLLAUNCHER_ASSER_KD;
 	ball_launcher_config.pos[0] = 0;
-	ball_launcher_config.pos[1] = BALLLAUNCHER_TARGET_SPEED;	//en tr/min
+	ball_launcher_config.pos[1] = BALLLAUNCHER_DEFAULT_TARGET_SPEED;	//en tr/min
 	ball_launcher_config.pwm_number = BALLLAUNCHER_DCMOTOR_PWM_NUM;
-	ball_launcher_config.way_latch = (Uint16*)&BALLLAUNCHER_DCMOTOR_PORT_WAY;
+	ball_launcher_config.way_latch = &BALLLAUNCHER_DCMOTOR_PORT_WAY;
 	ball_launcher_config.way_bit_number = BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT;
 	ball_launcher_config.way0_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0;
 	ball_launcher_config.way1_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1;
-	ball_launcher_config.timeout = 100;
-	ball_launcher_config.epsilon = 1;	//TODO: à ajuster plus correctement
+	ball_launcher_config.timeout = BALLLAUNCHER_ASSER_TIMEOUT;
+	ball_launcher_config.epsilon = BALLLAUNCHER_ASSER_POS_EPSILON;
 	DCM_config(BALLLAUNCHER_DCMOTOR_ID, &ball_launcher_config);
 
 	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 6;
@@ -85,6 +95,28 @@ void BALLLAUNCHER_init() {
 	//il est possible d'avoir une interruption INTx entre l'overflow du timer (donc il recommence a compter a partir de 0) et l'actualisation du nombre d'overflow dans la variable timer_overflow_number.
 	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY <= DCM_TIMER_PRIORITY_REG)
 		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx) (et si le code marche, qui l'a apporté à lourdes ?)\n");
+}
+
+bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
+	if(msg->sid == ACT_BALLLAUNCHER) {
+		switch(msg->data[0]) {
+			case ACT_BALLLAUNCHER_ACTIVATE:
+				if(msg->data[1] == 0 && msg->data[2] == 0)
+					CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, BALLLAUNCHER_DEFAULT_TARGET_SPEED);
+				else CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8));
+				break;
+
+			case ACT_BALLLAUNCHER_STOP:
+				CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, 0);
+				break;
+
+			default:
+				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+		}
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
@@ -106,16 +138,16 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
 			CAN_msg_t resultMsg;
 
-			if(QUEUE_has_error(queueId)) {
+			if(asserState == DCM_IDLE) {
+				resultMsg.data[2] = ACT_RESULT_DONE;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+			} else if(QUEUE_has_error(queueId)) {
 				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
 			} else if(asserState == DCM_TIMEOUT) {
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
 				QUEUE_set_error(queueId);
-			} else if(asserState == DCM_IDLE) {
-				resultMsg.data[2] = ACT_RESULT_DONE;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 			} else return;	//Operation is not finished, do nothing
 
 			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"End, sending result: %u, reason: %u\n", resultMsg.data[2], resultMsg.data[3]);
@@ -150,10 +182,10 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 //Temps avant qu'on considère que la vitesse est nulle
 #define HALL_TIMECOUNTER_MAX_PERIOD_TIME 300 //en ms
 
-static Uint16 hall_last_detection_interval;
-static Uint16 hall_full_period_elapsed_time;	//toujours multiple de DCM_TIMER_PERIOD en ms. compter comme ça évite une multiplication
-static bool_e hall_dont_update_timer_overflow_count;	//TRUE si on ne doit pas changer total_elapsed_time_count
-static bool_e hall_timer_val_last_detection_valid = FALSE;	//Vrai quand la dernière valeur du timer enregistré lors de la dernière detection est valide.
+static volatile Uint16 hall_last_detection_interval;
+static volatile Uint16 hall_full_period_elapsed_time;	//toujours multiple de DCM_TIMER_PERIOD en ms. compter comme ça évite une multiplication
+static volatile bool_e hall_dont_update_timer_overflow_count;	//TRUE si on ne doit pas changer total_elapsed_time_count
+static volatile bool_e hall_timer_val_last_detection_valid = FALSE;	//Vrai quand la dernière valeur du timer enregistré lors de la dernière detection est valide.
 
 //Version priorité BALLLAUNCHER_get_speed < BALLLAUNCHER_HALLSENSOR_INT_ISR
 static Sint16 BALLLAUNCHER_get_speed() {
