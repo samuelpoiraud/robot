@@ -9,8 +9,6 @@
  *  Robot : Tiny
  */
 
-//TODO: gérer les erreurs détaillées et changer l'argument dans QUEUE_get_arg(queueId), gérer le cas ou queueId == QUEUE_CREATE_FAILED
-
 #include "TLong_hammer.h"
 #ifdef I_AM_ROBOT_TINY
 
@@ -18,20 +16,27 @@
 #include "../QS/QS_adc.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_can.h"
+#include "../output_log.h"
+#include "../Can_msg_processing.h"
 
-typedef enum {
-	LH_CMD_GoDown = 0,
-	LH_CMD_GoUp = 1,
-	LH_CMD_Park = 2,
-	LH_CMD_StopAsser
-} LONGHAMMER_command_e;
+#define LOG_PREFIX "LH: "
 
-static DCMotor_config_t long_hammer_config;
+#define LONGHAMMER_NUM_POS           3
+	#define LONGHAMMER_PARKED_POS_ID 0
+	#define LONGHAMMER_UP_POS_ID     1
+	#define LONGHAMMER_DOWN_POS_ID   2
+
+
+#if DCMOTOR_NB_POS < LONGHAMMER_NUM_POS
+#error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
+#endif
 
 static Sint16 LONGHAMMER_get_position();
 
 void LONGHAMMER_init() {
+	DCMotor_config_t long_hammer_config;
 	static bool_e initialized = FALSE;
+
 	if(initialized)
 		return;
 	initialized = TRUE;
@@ -42,101 +47,77 @@ void LONGHAMMER_init() {
 	long_hammer_config.Kp = LONGHAMMER_ASSER_KP*1024;
 	long_hammer_config.Ki = LONGHAMMER_ASSER_KI*1048576;
 	long_hammer_config.Kd = LONGHAMMER_ASSER_KD*1024;
-	long_hammer_config.pos[0] = LONGHAMMER_TARGET_POS_DOWN;
-	long_hammer_config.pos[1] = LONGHAMMER_TARGET_POS_UP;
-	long_hammer_config.pos[2] = LONGHAMMER_TARGET_POS_PARKED;
+	long_hammer_config.pos[LONGHAMMER_PARKED_POS_ID] = LONGHAMMER_TARGET_POS_PARKED;
+	long_hammer_config.pos[LONGHAMMER_UP_POS_ID] = LONGHAMMER_TARGET_POS_UP;
+	long_hammer_config.pos[LONGHAMMER_DOWN_POS_ID] = LONGHAMMER_TARGET_POS_DOWN;
 	long_hammer_config.pwm_number = LONGHAMMER_DCMOTOR_PWM_NUM;
-	long_hammer_config.way_latch = (Uint16*)&LONGHAMMER_DCMOTOR_PORT_WAY;
+	long_hammer_config.way_latch = &LONGHAMMER_DCMOTOR_PORT_WAY;
 	long_hammer_config.way_bit_number = LONGHAMMER_DCMOTOR_PORT_WAY_BIT;
 	long_hammer_config.way0_max_duty = LONGHAMMER_DCMOTOR_MAX_PWM_WAY0;
 	long_hammer_config.way1_max_duty = LONGHAMMER_DCMOTOR_MAX_PWM_WAY1;
-	long_hammer_config.timeout = 2000; //FIXME: Utiliser une valeur correcte (en ms)
+	long_hammer_config.timeout = LONGHAMMER_ASSER_TIMEOUT;
+	long_hammer_config.epsilon = LONGHAMMER_ASSER_POS_EPSILON;
+	DCM_config(LONGHAMMER_DCMOTOR_ID, &long_hammer_config);
 }
 
-void LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
-	queue_id_t queueId;
+bool_e LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_LONGHAMMER) {
 		switch(msg->data[0]) {
 			case ACT_LONGHAMMER_GO_DOWN:
-				 queueId = QUEUE_create();
-				 assert(queueId != QUEUE_CREATE_FAILED);
-				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, &LONGHAMMER_run_command, LH_CMD_GoDown, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_LongHammer);
-				 break;
-
 			case ACT_LONGHAMMER_GO_UP:
-				 queueId = QUEUE_create();
-				 assert(queueId != QUEUE_CREATE_FAILED);
-				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, &LONGHAMMER_run_command, LH_CMD_GoUp, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_LongHammer);
-				 break;
-
 			case ACT_LONGHAMMER_GO_PARK:
-				 queueId = QUEUE_create();
-				 assert(queueId != QUEUE_CREATE_FAILED);
-				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, &LONGHAMMER_run_command, LH_CMD_Park, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_LongHammer);
-				 break;
-
 			case ACT_LONGHAMMER_GO_STOP:
-				 queueId = QUEUE_create();
-				 assert(queueId != QUEUE_CREATE_FAILED);
-				 QUEUE_add(queueId, QUEUE_take_sem, 0, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, &LONGHAMMER_run_command, LH_CMD_StopAsser, QUEUE_ACT_LongHammer);
-				 QUEUE_add(queueId, QUEUE_give_sem, 0, QUEUE_ACT_LongHammer);
-				 break;
+				CAN_push_operation_from_msg(msg, QUEUE_ACT_LongHammer, &LONGHAMMER_run_command, msg->data[0]);
+				break;
 
 			default:
-				debug_printf("LH: invalid CAN msg data[0]=%d !\n", msg->data[0]);
+				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
+		return TRUE;
 	}
+
+	return FALSE;
 }
 
 void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_LongHammer) {
 		if(init == TRUE) {
 			//Send command
-			LONGHAMMER_command_e cmd = QUEUE_get_arg(queueId);
-			if(cmd == LH_CMD_GoUp || cmd == LH_CMD_GoDown || cmd == LH_CMD_Park)
-				DCM_goToPos(LONGHAMMER_DCMOTOR_ID, (Uint8)cmd);	// 2 == Park, 1 == GoUp, 0 == GoDown, voir .h
-			else {	//LH_CMD_StopAsser
-				debug_printf("LH: bras désasservi !\n");
-				DCM_stop(LONGHAMMER_DCMOTOR_ID);
-				QUEUE_behead(queueId);	//gestion terminée
+			Sint16 command = QUEUE_get_arg(queueId);
+			Uint8 wantedPosition;
+			switch(command) {
+				case ACT_LONGHAMMER_GO_DOWN: wantedPosition = LONGHAMMER_DOWN_POS_ID;   break;
+				case ACT_LONGHAMMER_GO_UP:   wantedPosition = LONGHAMMER_UP_POS_ID;     break;
+				case ACT_LONGHAMMER_GO_PARK: wantedPosition = LONGHAMMER_PARKED_POS_ID; break;
+				case ACT_LONGHAMMER_GO_STOP:
+					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"bras désasservi !\n");
+					DCM_stop(LONGHAMMER_DCMOTOR_ID);
+					return;
+
+				default: {
+						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+						CAN_send(&resultMsg);
+						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid rotation command: %u, code is broken !\n", command);
+						QUEUE_set_error(queueId);
+						QUEUE_behead(queueId);
+						return;
+					}
 			}
+			DCM_goToPos(LONGHAMMER_DCMOTOR_ID, wantedPosition);
 		} else {
-			/*DCM_working_state_e asserState = DCM_get_state(LONGHAMMER_DCMOTOR_ID);
-			if(asserState == DCM_TIMEOUT) {
-
-				//Envoi du message de timeout
-				
-				//CAN_msg_t timeoutMsg;
-				//timeoutMsg.sid = ACT_LONGHAMMER_RESULT;
-				//timeoutMsg.data[0] = ACT_LONGHAMMER_TIMEOUT;
-				//timeoutMsg.size = 1;
-				//CAN_send(&timeoutMsg);
-				
-				QUEUE_behead(queueId);	//gestion terminée
-			} else if(asserState == DCM_IDLE) {
-				QUEUE_behead(queueId);	//gestion terminée, le bras est à sa position
-			}*/
-
 			DCM_working_state_e asserState = DCM_get_state(LONGHAMMER_DCMOTOR_ID);
 			CAN_msg_t resultMsg;
 
-			if(QUEUE_has_error(queueId)) {
+			if(asserState == DCM_IDLE) {
+				resultMsg.data[2] = ACT_RESULT_DONE;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+			} else if(QUEUE_has_error(queueId)) {
 				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
 			} else if(asserState == DCM_TIMEOUT) {
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
 				QUEUE_set_error(queueId);
-			} else if(asserState == DCM_IDLE) {
-				resultMsg.data[2] = ACT_RESULT_DONE;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 			} else return;	//Operation is not finished, do nothing
 
 			resultMsg.sid = ACT_RESULT;

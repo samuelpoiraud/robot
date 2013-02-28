@@ -13,8 +13,6 @@
 
 #if !defined(TINY_GLOBAL_CONFIG_H) && defined(I_AM_ROBOT_TINY)
 	#define TINY_GLOBAL_CONFIG_H
-
-//	#define VERBOSE_MODE
 	
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
@@ -31,7 +29,7 @@
 	#define PORT_E_IO_MASK	0xFF80
 		
 	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFFF3 //Pour avoir la masse sur les switch ascenceur
+	#define PORT_G_IO_MASK	0xFFFF
 
 /* Definition des périphériques, connectiques capteurs et actionneurs de Tiny */
 
@@ -89,14 +87,16 @@
 	#define LONGHAMMER_ASSER_KP             2
 	#define LONGHAMMER_ASSER_KI             0
 	#define LONGHAMMER_ASSER_KD             0
+	#define LONGHAMMER_ASSER_TIMEOUT        3000    //en ms
+	#define LONGHAMMER_ASSER_POS_EPSILON    20
 	#define LONGHAMMER_TARGET_POS_DOWN      0
 	#define LONGHAMMER_TARGET_POS_UP        300
 	#define LONGHAMMER_TARGET_POS_PARKED    0		//Position quand non utilisé (doit assurer un diamètre du robot minimal)
 	#define LONGHAMMER_DCMOTOR_PWM_NUM      1		//PWM1
 	#define LONGHAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
 	#define LONGHAMMER_DCMOTOR_PORT_WAY_BIT 0
-	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY0 50		//en %
-	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 50		//en %
+	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY0 30		//en %
+	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
 /********************************************************************************/
 
 	

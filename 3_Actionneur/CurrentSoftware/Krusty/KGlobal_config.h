@@ -14,10 +14,6 @@
 #if !defined(KRUSTY_GLOBAL_CONFIG_H) && defined(I_AM_ROBOT_KRUSTY)
 	#define KRUSTY_GLOBAL_CONFIG_H
 
-	#define VERBOSE_MODE
-	#define OUTPUT_LOG
-	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
-	
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
 	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
@@ -86,11 +82,13 @@
 
 /**************** Actionneurs ****************/
 
-/* Config BALLLAUNCHER */	//TODO: Changer le numéro de PWM à 4 !!!!!
+/* Config BALLLAUNCHER */
 	#define BALLLAUNCHER_ASSER_KP                10
 	#define BALLLAUNCHER_ASSER_KI                80
 	#define BALLLAUNCHER_ASSER_KD                0
-	#define BALLLAUNCHER_TARGET_SPEED            6000		//en tr/min
+	#define BALLLAUNCHER_ASSER_TIMEOUT           2000       //en ms
+	#define BALLLAUNCHER_ASSER_POS_EPSILON       100
+	#define BALLLAUNCHER_DEFAULT_TARGET_SPEED    6000		//en tr/min
 	#define BALLLAUNCHER_DCMOTOR_ID              0			//Doit être unique !
 	#define BALLLAUNCHER_DCMOTOR_PWM_NUM         4
 	#define BALLLAUNCHER_DCMOTOR_PORT_WAY        PORTE
@@ -105,25 +103,28 @@
 	#define BALLLAUNCHER_HALLSENSOR_INT_ISR      __attribute__((interrupt, no_auto_psv)) _INT1Interrupt
 
 /* Config BALLLAUNCHER */
-	#define PLATE_ASSER_KP                       1
+	#define PLATE_ASSER_KP                       2
 	#define PLATE_ASSER_KI                       0
 	#define PLATE_ASSER_KD                       0
-	#define PLATE_HORIZONTAL_POS                 100	//TODO: ajuster ces valeurs !
+	#define PLATE_ASSER_TIMEOUT                  3000   //en ms
+	#define PLATE_ASSER_POS_EPSILON              1      //TODO: à ajuster plus correctement
+	#define PLATE_HORIZONTAL_POS                 100    //TODO: ajuster ces valeurs ! (unité: potarland)
 	#define PLATE_PREPARE_POS                    300
 	#define PLATE_PARKED_POS                     4000
-	#define PLATE_VERTICAL_POS                   5000	/////////////////////////////
-	#define PLATE_DCMOTOR_ID                     1			//Doit être unique !
-	#define PLATE_DCMOTOR_PWM_NUM                4
+	#define PLATE_VERTICAL_POS                   5000   /////////////////////////////
+	#define PLATE_DCMOTOR_ID                     1      //Doit être unique !
+	#define PLATE_DCMOTOR_PWM_NUM                3
 	#define PLATE_DCMOTOR_PORT_WAY               PORTE
-	#define PLATE_DCMOTOR_PORT_WAY_BIT           6
+	#define PLATE_DCMOTOR_PORT_WAY_BIT           4
 	#define PLATE_DCMOTOR_MAX_PWM_WAY0           100
 	#define PLATE_DCMOTOR_MAX_PWM_WAY1           0
 	#define PLATE_ROTATION_POTAR_ADC_ID          AN9_ID
-	#define PLATE_PLIER_AX12_ID                  0	//TODO: changer ces valeurs !!!
-	#define PLATE_PLIER_AX12_POS_EPSILON         5
-	#define PLATE_PLIER_AX12_OPEN_POS            0
-	#define PLATE_PLIER_AX12_CLOSED_POS          0
-	#define PLATE_PLIER_AX12_PARKED_POS          0
+	#define PLATE_PLIER_AX12_ASSER_TIMEOUT       20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define PLATE_PLIER_AX12_ID                  0	    //TODO: changer ces valeurs !!!
+	#define PLATE_PLIER_AX12_ASSER_POS_EPSILON   10     //en degré
+	#define PLATE_PLIER_AX12_OPEN_POS            0      //en degré
+	#define PLATE_PLIER_AX12_CLOSED_POS          0      //en degré
+	#define PLATE_PLIER_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 	
 /**************** Capteurs ****************/
 
