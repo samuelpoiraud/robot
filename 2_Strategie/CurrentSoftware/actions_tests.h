@@ -36,12 +36,15 @@
 
 //Prototypes de fonctions
 //Homologation
-void TEST_STRAT_HOMOLOGATION(void); //by M	
-void TEST_STRAT_homolagation_police(void); //by Amaury alias MOMO = Am qui adorre les T****
-error_e Test_Homologation_Sortie_Base(void); //by Am
-error_e Test_Homologation_Point(void); //by Am
+void TEST_STRAT_HOMOLOGATION(void);
+void TEST_STRAT_homolagation_fonctionnelle(void);
+error_e Test_Homologation_Sortie_Base(void); 
+error_e Test_Homologation_Point(void);
 
 //Tests
+void TEST_STRAT_strat_selector_1(void);
+void TEST_STRAT_strat_selector_2(void);
+void TEST_STRAT_strat_selector_3(void);
 void TEST_STRAT_lever_le_kiki(void);
 error_e TEST_STRAT_gift1(void);  //begin by micky
 error_e TEST_STRAT_gift2(void);

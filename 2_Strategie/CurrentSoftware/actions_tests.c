@@ -173,11 +173,32 @@ void TEST_STRAT_homolagation_police(void) //by Amaury
 
 
 		case AVOIDANCE:
-//			TEST_STRAT_AVOIDANCE();
+			sub_action = goto_pos_with_scan_foe
+			((displacement_t[]){{{350,COLOR_Y(800)},SLOW},{{1575,COLOR_Y(800)},SLOW}},2,FORWARD,NORMAL_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state = AVOIDANCE;
+					break;
+				case END_WITH_TIMEOUT:
+					timeout = TRUE;
+					state = AVOIDANCE;
+					break;
+				case NOT_HANDLED:
+					state = AVOIDANCE;
+					break;
+				case IN_PROGRESS:
+					break;
+				default:
+					break;
+			}
 			break;
 	}
 }
+error_e Test_Homologation_Sortie_Base()
+error_e Test_Homologation_Point(void){
 
+}
 
 /* ----------------------------------------------------------------------------- */
 /* 					Sous Strat homologation                     			 */
@@ -286,6 +307,19 @@ error_e Test_Homologation_Sortie_Base(void)
 /* ----------------------------------------------------------------------------- */
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
+
+void TEST_STRAT_strat_selector_1(void){
+	LED_USER2 = 1;
+	LED_ERROR = 0;
+}
+void TEST_STRAT_strat_selector_2(void){
+	LED_USER2 = 1;
+	LED_ERROR = 1;
+}
+void TEST_STRAT_strat_selector_3(void){
+	LED_USER2 = 0;
+	LED_ERROR = 1;
+}
 
 void TEST_STRAT_lever_le_kiki(void){
     static int a=1;

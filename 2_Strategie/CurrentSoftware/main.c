@@ -17,9 +17,8 @@
 	#include "environment.h"
 	#include "brain.h"
 	#include "clock.h"
-	#include "actions_tests.h"
-	#include "actions.h"
 	#include "QS/QS_who_am_i.h"
+	
 int main (void)
 {
 
@@ -83,15 +82,18 @@ int main (void)
 //		{
 //			global.env.config.strategie = 1;
 //		}
-#ifdef FDP_2013	//Pour rétrocompatibilité...
+/*#ifdef FDP_2013	//Pour rétrocompatibilité...
 	#warning "Pensez à créer des stratégies différentes pour Tiny et Krusty... et à les inclure ci-dessous avant de virer ce warning."
+
 		if(QS_WHO_AM_I_get()==TINY)
-			any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //TINY
+
+			any_match(MATCH_DURATION); //TINY
 		else
 #endif
 			//any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //KRUSTY
-		    any_match(TEST_STRAT_balllauncher_run, MATCH_DURATION);
-		
+		    any_match(MATCH_DURATION);
+	*/
+		any_match(MATCH_DURATION);
 	}
 	return 0;
 }
