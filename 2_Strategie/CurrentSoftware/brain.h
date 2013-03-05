@@ -23,6 +23,9 @@
 		Appelle une autre routine pour l'IA pendant le match.
 		Une durée de 0 indique un match infini
 	*/
-	void any_match(ia_fun_t, time32_t match_duration);
+	void any_match(time32_t match_duration);
+
+	//Fonction qui lit la strat choisie: FDP2013
+	Uint8 strat_number();
 	
 #endif /* ndef BRAIN_H */

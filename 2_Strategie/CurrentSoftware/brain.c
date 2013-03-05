@@ -18,6 +18,9 @@
 #include "actions.h"
 #include "clock.h"
 #include "QS/QS_CANmsgList.h"
+#include "actions_tests.h"
+#include "actions.h"
+#include "QS/QS_who_am_i.h"
 #include "button.h"	//pour SWITCH_change_color
 
 /* 	execute un match de match_duration secondes à partir de la 
@@ -25,8 +28,9 @@
 	Appelle une autre routine pour l'IA pendant le match.
 	Une durée de 0 indique un match infini
 */
-void any_match(ia_fun_t strategy, time32_t match_duration)
+void any_match(time32_t match_duration)
 {
+	static ia_fun_t strategy;
 	if (!global.env.match_started)
 	{
 		/* we are before the match */
@@ -42,26 +46,66 @@ void any_match(ia_fun_t strategy, time32_t match_duration)
 		#ifdef FDP_2013
 			SWITCH_change_color();	//Check the Color switch
 		#endif
+
 		/* accepter et prévenir des mises à jour de couleur (BLUE par défaut) */
 		if(global.env.color_updated && !global.env.asser.calibrated && !global.env.ask_asser_calibration)
 		{
 			ENV_set_color(global.env.wanted_color);
 		}
+
 		/* mise à jour de la configuration de match */
 		if(global.env.config_updated)
 		{
 			global.env.config = global.env.wanted_config;
 			ENV_dispatch_config();
 		}
+
 		/* demande de calibration */
 		if(global.env.ask_asser_calibration && !global.env.asser.calibrated)
 		{
 			CAN_msg_t msg;
 			msg.sid = ASSER_CALIBRATION;
 			msg.data[0] = global.env.color == BLUE?REAR:FORWARD;
-			msg.size = 1;
+			msg.data[1] = strat_number();
+			msg.size = 2;
 			CAN_send(&msg);
 		}
+
+		/*************************/
+		/* Choix de la stratégie */
+		/*************************/
+		#ifdef FDP_2013	//Pour rétrocompatibilité...
+	#warning "Pensez à créer des stratégies différentes pour Tiny et Krusty... et à les inclure ci-dessous avant de virer ce warning."
+
+		if(QS_WHO_AM_I_get()==TINY){
+			if(strat_number()==0x01)
+					//STRAT_1
+					strategy = TEST_STRAT_strat_selector_1;
+			if(strat_number()==0x02)
+					//STRAT_2
+					strategy = TEST_STRAT_strat_selector_2;
+			if(strat_number()==0x03)
+					//STRAT_3
+					strategy = TEST_STRAT_strat_selector_3;
+
+
+		}else{
+		#endif
+			if(strat_number()==0x01)
+					//STRAT_1
+					strategy = TEST_STRAT_lever_le_kiki;
+			if(strat_number()==0x02)
+					//STRAT_2
+					strategy = TEST_STRAT_lever_le_kiki;
+			if(strat_number()==0x03)
+					//STRAT_3
+					strategy = TEST_STRAT_lever_le_kiki;
+
+
+		#ifdef FDP_2013 //Pas très propre mais pas trop le choix
+		}
+		#endif
+
 	}
 	else
 	{
@@ -117,4 +161,18 @@ void any_match(ia_fun_t strategy, time32_t match_duration)
 			/* match is over */
 		}	
 	}
+}
+
+Uint8 strat_number(){
+	if(SWITCH_STRAT_1)
+		return 0x01;
+	else{
+		if(SWITCH_STRAT_2)
+			return 0x02;
+		else{
+			if(SWITCH_STRAT_3)
+				return 0x03;
+		}
+	}
+	return 0x01;
 }

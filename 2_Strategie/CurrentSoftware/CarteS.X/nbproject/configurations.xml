@@ -46,8 +46,8 @@
       <itemPath>../QS/QS_uart.h</itemPath>
       <itemPath>../polygon.h</itemPath>
       <itemPath>../QS/QS_buttons.h</itemPath>
-	  <itemPath>../output_log.h</itemPath>
-	  <itemPath>../QS/QS_who_am_i.h</itemPath>
+      <itemPath>../output_log.h</itemPath>
+      <itemPath>../QS/QS_who_am_i.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -86,7 +86,7 @@
       <itemPath>../QS/QS_buttons.c</itemPath>
       <itemPath>../actions.c</itemPath>
       <itemPath>../output_log.c</itemPath>
-	  <itemPath>../QS/QS_who_am_i.c</itemPath>
+      <itemPath>../QS/QS_who_am_i.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -254,7 +254,7 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.end" value="0x17fff"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="poweroptions.powerenable" value="false"/>
+        <property key="poweroptions.powerenable" value="true"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="programoptions.preserveprogramrange" value="false"/>

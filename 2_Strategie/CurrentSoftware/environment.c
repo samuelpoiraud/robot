@@ -110,6 +110,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case BEACON_ADVERSARY_POSITION_US:
 			ENV_pos_foe_update(incoming_msg);
 			break;
+/************************************* Récupération des envois de l'autre robot ***************************/
+		case STRAT_ELTS_UPDATE:
+			break;
 		default:
 			break;
 	}
@@ -252,7 +255,24 @@ void ENV_init()
 	global.env.ask_start = FALSE;
 	global.env.asser.change_point = FALSE;
 	global.env.asser.calibrated = FALSE;
-	
+
+	//Initialisation des elemnts du terrain
+	int i;
+	for(i=0; i<4; i++){
+		global.env.map_elements[i] = TODO;
+	}
+	for(i=14; i<40; i++){
+		global.env.map_elements[i] = TODO;
+	}
+	//Attention la suite n'est pas definitive et necessitera un changement en fonction des positions de calage
+	global.env.map_elements[4] = NON;
+	global.env.map_elements[5] = NON;
+	global.env.map_elements[6] = TODO;
+	global.env.map_elements[7] = TODO;
+	global.env.map_elements[8] = TODO;
+	for(i=9; i<14;i++){
+		global.env.map_elements[i] = NON;
+	}
 }
 
 /* envoie un message CAN BROADCAST_COULEUR à jour */

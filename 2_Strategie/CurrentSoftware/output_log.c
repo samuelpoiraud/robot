@@ -14,6 +14,7 @@
 #ifdef OUTPUT_LOG
 
 #include <stdio.h>
+#include <stdarg.h>
 
 #ifndef ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL
 #define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning

@@ -124,8 +124,8 @@
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
 		act_state_info_t act[ACTUATORS_NB];	// actionneurs
-		/*Tableau d'états du terrain */
-		map_state_e map_elements[38]; //Voir doc pour connaitre les éléments associés
+		/*Tableau d'état des elements du terrain */
+		map_state_e map_elements[40]; //Voir doc pour connaitre les éléments associés
 	}environment_t;
 
 	//NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
