@@ -24,9 +24,6 @@
 	#define SUPER_FILTER				0x500
 	#define DEBUG_FILTER				0x700
 	
-	#define XBEE_FILTER					0x5A0	//Seuls les messages commencant par 5A seront transmis par XBee !
-	//PS : les messages PING et PONG ne sont pas soumis à cette règlementation car envoyés par le fichier QS_CAN_OVER_XBEE
-					
 	/* Message pour tous */
 	#define BROADCAST_START	 			0x001
 	#define BROADCAST_STOP_ALL 			0x002
@@ -58,7 +55,22 @@
 	#define SUPER_RTC_GET				(0x780)	
 	#define SUPER_RTC_SET				(0x781)
 	#define	SUPER_RTC_TIME				(0x782)
-	
+
+	#define XBEE_FILTER					0x5A0	//Seuls les messages commencant par 5A seront transmis par XBee !
+	//PS : les messages PING et PONG ne sont pas soumis à cette règlementation car envoyés par le fichier QS_CAN_OVER_XBEE
+
+/*****************************************************************
+ *
+ *		Messages echangés entre les cartes stratégies des
+ *		deux robots via le Xbee: TESTS
+ *			(les messages vont par pair)
+ *****************************************************************/
+/*	Envoi d'update des elements de l'environnement	*/
+	//Envois
+	#define XBEE_ENV_UPDATE					0x5A1
+
+	//Reception: La super se charge de transformer le message recu par xbee et qui commence par le sid precedent
+	#define STRAT_ELTS_UPDATE				0x231
 
  /*****************************************************************
  *
