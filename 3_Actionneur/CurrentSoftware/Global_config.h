@@ -39,18 +39,6 @@
 
 
 /* Actionneurs */
-
-/* AX-12 */
-//TODO: a déplacer dans Krusty/Global_config.h ou Tiny/Global_config.h
-	#define USE_AX12_SERVO
-	#define AX12_NUMBER 3
-	#define AX12_TIMER_ID 2
-	#define AX12_DIRECTION_PORT LATGbits.LATG8
-
-	#define BALL_GRABBER_ID_SERVO (Uint8) 2
-	#define HAMMER_ID_SERVO  (Uint8) 0
-//Fin TO DO
-
 	// Files
 	#define CLOCK_TIMER_run		TIMER3_run
 	#define CLOCK_TIMER_isr		_T3Interrupt

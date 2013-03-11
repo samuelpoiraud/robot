@@ -33,6 +33,7 @@
 #endif
 
 static Sint16 PLATE_getRotationAngle();
+static void PLATE_run_command(queue_id_t queueId, bool_e init);
 static void PLATE_rotation_command_init(queue_id_t queueId);
 static void PLATE_rotation_command_run(queue_id_t queueId);
 static void PLATE_plier_command_init(queue_id_t queueId);
@@ -90,19 +91,19 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_PLATE_ROTATE_HORIZONTALLY:
 			case ACT_PLATE_ROTATE_PREPARE:
 			case ACT_PLATE_ROTATE_STOP:
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_Plate_Rotation, &PLATE_run_command, msg->data[0]);
+				CAN_push_operation_from_msg(msg, QUEUE_ACT_Plate_Rotation, &PLATE_run_command, 0);
 				break;
 
-			case ACT_PLATE_ROTATE_VERTICALLY:    //Cas spécial: fermer la pince avant de tourner en vertical (sinon ça rentrera pas dans le robot)
+			case ACT_PLATE_ROTATE_VERTICALLY:    //Cas spécial: fermer la pince avant de tourner en vertical (sinon ça ne rentrera pas dans le robot)
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
 				if(queueId != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId, &QUEUE_take_sem, 0, QUEUE_ACT_Plate_AX12_Plier);
-					QUEUE_add(queueId, &QUEUE_take_sem, 0, QUEUE_ACT_Plate_Rotation);
-					QUEUE_add(queueId, &PLATE_run_command, ACT_PLATE_PLIER_CLOSE, QUEUE_ACT_Plate_AX12_Plier);
-					QUEUE_add(queueId, &PLATE_run_command, msg->data[0], QUEUE_ACT_Plate_Rotation);
-					QUEUE_add(queueId, &QUEUE_give_sem, 0, QUEUE_ACT_Plate_Rotation);
-					QUEUE_add(queueId, &QUEUE_give_sem, 0, QUEUE_ACT_Plate_AX12_Plier);
+					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0}, QUEUE_ACT_Plate_AX12_Plier);
+					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0}, QUEUE_ACT_Plate_Rotation);
+					QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_PLIER_CLOSE, 0}, QUEUE_ACT_Plate_AX12_Plier);
+					QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){msg->data[0], 0}, QUEUE_ACT_Plate_Rotation);
+					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0}, QUEUE_ACT_Plate_Rotation);
+					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0}, QUEUE_ACT_Plate_AX12_Plier);
 				} else {	//on indique qu'on a pas géré la commande
 					CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
 					CAN_send(&resultMsg);
@@ -112,7 +113,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_PLATE_PLIER_CLOSE:
 			case ACT_PLATE_PLIER_OPEN:
 			case ACT_PLATE_PLIER_STOP:
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_Plate_AX12_Plier, &PLATE_run_command, msg->data[0]);
+				CAN_push_operation_from_msg(msg, QUEUE_ACT_Plate_AX12_Plier, &PLATE_run_command, 0);
 				break;
 
 			default:
@@ -124,7 +125,11 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-void PLATE_run_command(queue_id_t queueId, bool_e init) {
+static Sint16 PLATE_getRotationAngle() {
+	return ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID);
+}
+
+static void PLATE_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_Plate_Rotation) {    // Gestion des mouvements de rotation de l'assiette
 		if(init && !QUEUE_has_error(queueId))
 			PLATE_rotation_command_init(queueId);
@@ -138,13 +143,9 @@ void PLATE_run_command(queue_id_t queueId, bool_e init) {
 	}
 }
 
-static Sint16 PLATE_getRotationAngle() {
-	return ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID);
-}
-
 //Initialisation d'une commande de rotation du bras
 static void PLATE_rotation_command_init(queue_id_t queueId) {
-	Sint16 command = QUEUE_get_arg(queueId);
+	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 	Uint8 wantedPosition;
 	switch(command) {
 		case ACT_PLATE_ROTATE_HORIZONTALLY: wantedPosition = PLATE_HORIZONTAL_POS_ID; break;
@@ -172,40 +173,37 @@ static void PLATE_rotation_command_run(queue_id_t queueId) {
 	CAN_msg_t resultMsg;
 
 	if(asserState == DCM_IDLE) {
-	resultMsg.data[2] = ACT_RESULT_DONE;
-	resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+		resultMsg.data[2] = ACT_RESULT_DONE;
+		resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 	} else if(QUEUE_has_error(queueId)) {
-	resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-	resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
+		resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
 	} else if(asserState == DCM_TIMEOUT) {
-	resultMsg.data[2] = ACT_RESULT_FAILED;
-	resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
+		resultMsg.data[2] = ACT_RESULT_FAILED;
+		resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
 	QUEUE_set_error(queueId);
 	} else return;	//Operation is not finished, do nothing
 
 	resultMsg.sid = ACT_RESULT;
 	resultMsg.data[0] = ACT_PLATE & 0xFF;
-	resultMsg.data[1] = QUEUE_get_arg(queueId);
+	resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
 	resultMsg.size = 4;
 
 	CAN_send(&resultMsg);
 	QUEUE_behead(queueId);	//gestion terminée
 }
 
-
-static Uint16 ax12_goalPosition;
-static time_t ax12_timeout_time;  //Pour pouvoir avoir un timeout
-
 //Initialise une commande de la pince à assiette
 static void PLATE_plier_command_init(queue_id_t queueId) {
-	Sint16 command = QUEUE_get_arg(queueId);
+	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 	bool_e cmdOk;
+	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 
-	ax12_goalPosition = 0xFFFF;
+	*ax12_goalPosition = 0xFFFF;
 
 	switch(command) {
-		case ACT_PLATE_PLIER_OPEN:  ax12_goalPosition = PLATE_PLIER_AX12_OPEN_POS; break;
-		case ACT_PLATE_PLIER_CLOSE: ax12_goalPosition = PLATE_PLIER_AX12_CLOSED_POS; break;
+		case ACT_PLATE_PLIER_OPEN:  *ax12_goalPosition = PLATE_PLIER_AX12_OPEN_POS; break;
+		case ACT_PLATE_PLIER_CLOSE: *ax12_goalPosition = PLATE_PLIER_AX12_CLOSED_POS; break;
 		case ACT_PLATE_PLIER_STOP:
 			AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12 qui gère la pince
 			return;
@@ -219,13 +217,13 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 				return;
 			}
 	}
-	if(ax12_goalPosition == 0xFFFF) {
+	if(*ax12_goalPosition == 0xFFFF) {
 		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid plier position: %u, code is broken !\n", command);
 		return;
 	}
-	ax12_timeout_time = CLOCK_get_time() + PLATE_PLIER_AX12_ASSER_TIMEOUT;  //Calcul du timeout
+	//ax12_timeout_time = CLOCK_get_time() + PLATE_PLIER_AX12_ASSER_TIMEOUT;  //Calcul du timeout
 	AX12_reset_last_error(PLATE_PLIER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
-	cmdOk = AX12_set_position(PLATE_PLIER_AX12_ID, ax12_goalPosition);
+	cmdOk = AX12_set_position(PLATE_PLIER_AX12_ID, *ax12_goalPosition);
 	if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE}, 4};
 		CAN_send(&resultMsg);
@@ -241,12 +239,13 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 	Uint8 error;
 	Uint16 ax12Pos;
 	CAN_msg_t resultMsg;
+	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 
 	AX12_reset_last_error(PLATE_PLIER_AX12_ID);
 	ax12Pos = AX12_get_position(PLATE_PLIER_AX12_ID); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
 	error = AX12_get_last_error(PLATE_PLIER_AX12_ID).error;
 
-	if(abs((Sint16)ax12Pos - (Sint16)ax12_goalPosition) <= PLATE_PLIER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
+	if(abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= PLATE_PLIER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
 	//if(AX12_is_moving(PLATE_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
 		resultMsg.data[2] = ACT_RESULT_DONE;
 		resultMsg.data[3] = ACT_RESULT_ERROR_OK;
@@ -261,7 +260,7 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 		resultMsg.data[2] = ACT_RESULT_FAILED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_NOT_HERE;
 		QUEUE_set_error(queueId);
-	} else if(CLOCK_get_time() >= ax12_timeout_time) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
+	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + PLATE_PLIER_AX12_ASSER_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 		resultMsg.data[2] = ACT_RESULT_FAILED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
 		QUEUE_set_error(queueId);
@@ -273,7 +272,7 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 
 	resultMsg.sid = ACT_RESULT;
 	resultMsg.data[0] = ACT_PLATE & 0xFF;
-	resultMsg.data[1] = QUEUE_get_arg(queueId);
+	resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
 	resultMsg.size = 4;
 
 	CAN_send(&resultMsg);

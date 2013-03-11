@@ -71,6 +71,7 @@
 
 static Uint16 DCM_timer_period_predivised;
 
+static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init);
 static Sint16 BALLLAUNCHER_get_speed();
 
 void BALLLAUNCHER_init() {
@@ -117,9 +118,7 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLLAUNCHER) {
 		switch(msg->data[0]) {
 			case ACT_BALLLAUNCHER_ACTIVATE:
-				if(msg->data[1] == 0 && msg->data[2] == 0)
-					CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, BALLLAUNCHER_DEFAULT_TARGET_SPEED);
-				else CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8));
+				CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8));
 				break;
 
 			case ACT_BALLLAUNCHER_STOP:
@@ -135,21 +134,21 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
+static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallLauncher) {
 		if(init == TRUE) {
 			//Send command
-			Sint16 pos_speed = QUEUE_get_arg(queueId);
+			Uint16 pos_speed = QUEUE_get_arg(queueId)->param;
 			if(pos_speed == 0) {
 				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Motor stoped\n");
 				//DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
 				DCM_stop(BALLLAUNCHER_DCMOTOR_ID);	//On est sur de l'arreter comme ça, même en cas de problème capteur
-			} else if(pos_speed > 0) {
+			} else {
 				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Run motor at speed: %d\n", pos_speed);
 				DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
 				DCM_restart(BALLLAUNCHER_DCMOTOR_ID); //Redémarrage si on l'avait arrêté avec DCM_stop, sinon ne fait rien
-			} else OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"pos_speed invalide: %u\n", (Uint16)pos_speed);
+			}
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
 			CAN_msg_t resultMsg;
@@ -170,7 +169,7 @@ void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 			resultMsg.sid = ACT_RESULT;
 			resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
-			resultMsg.data[1] = (QUEUE_get_arg(queueId) == 0)? ACT_BALLLAUNCHER_STOP : ACT_BALLLAUNCHER_ACTIVATE;
+			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
 			resultMsg.size = 4;
 
 			CAN_send(&resultMsg);

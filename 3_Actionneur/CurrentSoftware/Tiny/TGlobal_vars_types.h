@@ -18,9 +18,8 @@
 	#endif
 
 	typedef enum {
-		BALL_GRABBER=0,
-		HAMMER,
 		QUEUE_ACT_LongHammer,
+		QUEUE_ACT_BallInflater,
 		NB_ACT
 
 	} QUEUE_act_e;

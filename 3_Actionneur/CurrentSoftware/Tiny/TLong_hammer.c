@@ -31,6 +31,7 @@
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
 #endif
 
+static void LONGHAMMER_run_command(queue_id_t queueId, bool_e init);
 static Sint16 LONGHAMMER_get_position();
 
 void LONGHAMMER_init() {
@@ -67,7 +68,7 @@ bool_e LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_LONGHAMMER_GO_UP:
 			case ACT_LONGHAMMER_GO_PARK:
 			case ACT_LONGHAMMER_GO_STOP:
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_LongHammer, &LONGHAMMER_run_command, msg->data[0]);
+				CAN_push_operation_from_msg(msg, QUEUE_ACT_LongHammer, &LONGHAMMER_run_command, 0);
 				break;
 
 			default:
@@ -79,11 +80,11 @@ bool_e LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
+static void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_LongHammer) {
 		if(init == TRUE) {
 			//Send command
-			Sint16 command = QUEUE_get_arg(queueId);
+			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			Uint8 wantedPosition;
 			switch(command) {
 				case ACT_LONGHAMMER_GO_DOWN: wantedPosition = LONGHAMMER_DOWN_POS_ID;   break;
@@ -122,7 +123,7 @@ void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
 
 			resultMsg.sid = ACT_RESULT;
 			resultMsg.data[0] = ACT_LONGHAMMER & 0xFF;
-			resultMsg.data[1] = QUEUE_get_arg(queueId);
+			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
 			resultMsg.size = 4;
 
 			CAN_send(&resultMsg);

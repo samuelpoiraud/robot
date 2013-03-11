@@ -22,10 +22,15 @@
  *  Pour Krusty, voir Krusty/KGLobal_vars_types.h
  *  Pour Tiny, voir Tiny/TGlobal_vars_types.h
  */
-	
+
 typedef Uint8 queue_size_t;
 typedef Uint8 queue_id_t;
 typedef Sint16 sem_id_t;
+
+typedef struct {
+	Uint8 canCommand;
+	Uint16 param;
+} QUEUE_arg_t;
 
 #define NB_QUEUE	8 
 #define QUEUE_SIZE	64
@@ -46,11 +51,14 @@ typedef void(*action_t)(queue_id_t this, bool_e init);
 
 void QUEUE_init();
 
-/*Renvoie l'argument associé à la fonction*/
-Sint16 QUEUE_get_arg(queue_id_t queue_id);
+/*Renvoie l'argument associé à la fonction, le contenu peut être modifié*/
+QUEUE_arg_t* QUEUE_get_arg(queue_id_t queue_id);
 
 /*Renvoie l'actionneur utilisé*/
 QUEUE_act_e QUEUE_get_act(queue_id_t queue_id);
+
+/*Renvoie le moment ou l'action a été initialisée*/
+time_t QUEUE_get_initial_time(queue_id_t queue_id);
 
 /*Renvoie si la file rentrée en paramètre est disponible*/
 bool_e is_available(queue_id_t queue_id);
@@ -62,7 +70,7 @@ queue_id_t QUEUE_create();
 void QUEUE_run();
 
 /*Ajout d'une action dans une file*/
-void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,QUEUE_act_e optionnal_act);
+void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, QUEUE_act_e optionnal_act);
 
 /* Retire la fonction en tete de file et reinitialise la suivante. */
 void QUEUE_behead(queue_id_t queue_id);
@@ -79,10 +87,10 @@ void QUEUE_flush(queue_id_t queue_id);
 /* vide toutes les files */
 void QUEUE_flush_all();
 
-/*Prend l'actionneur (sémaphore)*/
+/*Prend l'actionneur (sémaphore), le numéro du semaphore doit être mis dans le paramètre param (voir QUEUE_arg_t), 0 si on utilise le semaphore de l'actionneur*/
 void QUEUE_take_sem(queue_id_t this, bool_e init);
 
-/*Libère l'actionneur*/
+/*Libère l'actionneur, le numéro du semaphore doit être mis dans le paramètre param (voir QUEUE_arg_t), 0 si on utilise le semaphore de l'actionneur*/
 void QUEUE_give_sem(queue_id_t this, bool_e init);
 
 /*Prend la sémaphore de synchronisation*/
