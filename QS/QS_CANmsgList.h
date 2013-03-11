@@ -58,7 +58,7 @@
 
 	#define XBEE_FILTER					0x5A0	//Seuls les messages commencant par 5A seront transmis par XBee !
 	//PS : les messages PING et PONG ne sont pas soumis à cette règlementation car envoyés par le fichier QS_CAN_OVER_XBEE
-
+	#define STRAT_XBEE_FILTER			0x2A0	//Un message reàu 5Ax par XBEE sera propagé 2Ax vers la strat du robot local.
 /*****************************************************************
  *
  *		Messages echangés entre les cartes stratégies des
@@ -70,7 +70,7 @@
 	#define XBEE_ENV_UPDATE					0x5A1
 
 	//Reception: La super se charge de transformer le message recu par xbee et qui commence par le sid precedent
-	#define STRAT_ELTS_UPDATE				0x231
+	#define STRAT_ELTS_UPDATE				0x2A1
 
  /*****************************************************************
  *
