@@ -172,7 +172,7 @@
     /////////////////////////////////////////
 	
 	//////////////// AX12 ///////////////////
-    #define ACT_AX12 (ACT_FILTER | 0)
+    #define ACT_AX12 (ACT_FILTER | 0xFF)
 
 		#define ACT_BALL_GRABBER_GO_UP      0x02
 		#define ACT_BALL_GRABBER_GO_DOWN    0x03
@@ -183,9 +183,19 @@
 		#define ACT_HAMMER_GO_TIDY          0x07
     /////////////////////////////////////////
 
+// Code des SID des messages: 0x30x = message pour Tiny, 0x31x = message pour Krusty.
+// Le SID 0x300 est reservé pour le self_test
 /* Messages pour Tiny */
+	//////////////// HAMMER /////////////////
+	#define ACT_HAMMER (ACT_FILTER | 0x01)    //0x01 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
+		//Paramètres de HAMMER (dans data[0])
+		#define ACT_HAMMER_MOVE_TO     0   // Changer la position du bras
+		#define ACT_HAMMER_STOP        3   // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
+		                                   //Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
+	/////////////////////////////////////////
+
 	////////////// LONGHAMMER ///////////////
-	#define ACT_LONGHAMMER (ACT_FILTER | 1)	//0x10 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
+	#define ACT_LONGHAMMER (ACT_FILTER | 0x02)
 		//Paramètres de LONGHAMMER (dans data[0])
 		#define ACT_LONGHAMMER_GO_UP   0    // Lever le bras
 		#define ACT_LONGHAMMER_GO_DOWN 1    // Appuyer sur les bougies et les éteindres en descendant le bras
@@ -195,7 +205,7 @@
 	/////////////////////////////////////////
 
 	///////////// BALLINFLATER //////////////
-	#define ACT_BALLINFLATER (ACT_FILTER | 5)
+	#define ACT_BALLINFLATER (ACT_FILTER | 0x03)
 		//Paramètres de LONGHAMMER (dans data[0])
 		#define ACT_BALLINFLATER_START 0    // Gonfler le ballon pendant data[1] secondes (Uint8)
 		#define ACT_BALLINFLATER_STOP  1    // Stopper le gonflage
@@ -203,14 +213,14 @@
 
 /* Messages pour Krusty */
 	////////////// BALLLAUNCHER /////////////
-	#define ACT_BALLLAUNCHER (ACT_FILTER | 2)
+	#define ACT_BALLLAUNCHER (ACT_FILTER | 0x11)
 		//Paramètres de BALLLAUNCHER (dans data[0])
 		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
 		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
 	/////////////////////////////////////////
 
 	////////////////// PLATE ////////////////
-	#define ACT_PLATE (ACT_FILTER | 3)
+	#define ACT_PLATE (ACT_FILTER | 0x12)
 		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
 		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette
 		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
