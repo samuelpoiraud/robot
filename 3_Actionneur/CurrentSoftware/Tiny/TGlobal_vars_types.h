@@ -18,6 +18,7 @@
 	#endif
 
 	typedef enum {
+		QUEUE_ACT_Hammer,
 		QUEUE_ACT_LongHammer,
 		QUEUE_ACT_BallInflater,
 		NB_ACT

@@ -45,9 +45,9 @@ void LONGHAMMER_init() {
 	DCM_init();
 
 	long_hammer_config.sensor_read = &LONGHAMMER_get_position;
-	long_hammer_config.Kp = LONGHAMMER_ASSER_KP*1024;
-	long_hammer_config.Ki = LONGHAMMER_ASSER_KI*1048576;
-	long_hammer_config.Kd = LONGHAMMER_ASSER_KD*1024;
+	long_hammer_config.Kp = LONGHAMMER_ASSER_KP;
+	long_hammer_config.Ki = LONGHAMMER_ASSER_KI;
+	long_hammer_config.Kd = LONGHAMMER_ASSER_KD;
 	long_hammer_config.pos[LONGHAMMER_PARKED_POS_ID] = LONGHAMMER_TARGET_POS_PARKED;
 	long_hammer_config.pos[LONGHAMMER_UP_POS_ID] = LONGHAMMER_TARGET_POS_UP;
 	long_hammer_config.pos[LONGHAMMER_DOWN_POS_ID] = LONGHAMMER_TARGET_POS_DOWN;
@@ -67,8 +67,14 @@ bool_e LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_LONGHAMMER_GO_DOWN:
 			case ACT_LONGHAMMER_GO_UP:
 			case ACT_LONGHAMMER_GO_PARK:
-			case ACT_LONGHAMMER_GO_STOP:
 				CAN_push_operation_from_msg(msg, QUEUE_ACT_LongHammer, &LONGHAMMER_run_command, 0);
+				break;
+
+			case ACT_LONGHAMMER_GO_STOP:	//Ne pas passer par la pile pour le cas d'urgence
+				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"bras désasservi !\n");
+				DCM_stop(LONGHAMMER_DCMOTOR_ID);
+				CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
+				CAN_send(&resultMsg);
 				break;
 
 			default:

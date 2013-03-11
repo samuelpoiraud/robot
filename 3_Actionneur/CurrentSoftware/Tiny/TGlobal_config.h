@@ -81,8 +81,23 @@
 
 /**************** Actionneurs ****************/
 
+/* Config HAMMER: bras long utilisé pour éteindre les bougies du 1er étage */
+	#define HAMMER_DCMOTOR_ID           0		//Utilisé pour le module DCMotor
+	#define HAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x), A DEFINIR !!!
+	#define HAMMER_ASSER_KP             2
+	#define HAMMER_ASSER_KI             0
+	#define HAMMER_ASSER_KD             0
+	#define HAMMER_ASSER_TIMEOUT        3000    //en ms
+	#define HAMMER_ASSER_POS_EPSILON    20
+	#define HAMMER_DCMOTOR_PWM_NUM      2		//PWM1
+	#define HAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
+	#define HAMMER_DCMOTOR_PORT_WAY_BIT 2
+	#define HAMMER_DCMOTOR_MAX_PWM_WAY0 30		//en %
+	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
+/********************************************************************************/
+
 /* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */
-	#define LONGHAMMER_DCMOTOR_ID           0		//Utilisé pour le module DCMotor
+	#define LONGHAMMER_DCMOTOR_ID           1		//Utilisé pour le module DCMotor
 	#define LONGHAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x)
 	#define LONGHAMMER_ASSER_KP             2
 	#define LONGHAMMER_ASSER_KI             0
@@ -99,7 +114,7 @@
 	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
 /********************************************************************************/
 
-/*Config BALLINFLATER: gonfleur du ballon */
+/* Config BALLINFLATER: gonfleur du ballon */
 	#define BALLINFLATER_PIN                PORTGbits.RG6
 	#define BALLINFLATER_ON                 1
 	#define BALLINFLATER_OFF                0

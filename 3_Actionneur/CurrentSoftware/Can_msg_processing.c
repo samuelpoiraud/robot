@@ -53,13 +53,13 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 //Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
 //Cette fonction est appelée par les fonctions de traitement des messages CAN de chaque actionneur.
-void CAN_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Sint16 param) {
+void CAN_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Uint16 param) {
 	queue_id_t queueId = QUEUE_create();
 	assert(queueId != QUEUE_CREATE_FAILED);
 	if(queueId != QUEUE_CREATE_FAILED) {	//Si on est pas en verbose_mode, l'assert sera ignoré et la suite risque de vraiment planter ...
-		QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0}, act_id);
+		QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, act_id);
 		QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data[0], param}, act_id);
-		QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0}, act_id);
+		QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, act_id);
 	} else {	//on indique qu'on a pas géré la commande
 		CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
 		CAN_send(&resultMsg);

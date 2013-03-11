@@ -16,7 +16,7 @@
 
 	//Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
 	//Cette fonction est appelée par les fonctions de traitement des messages CAN de chaque actionneur.
-	void CAN_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Sint16 param);
+	void CAN_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Uint16 param);
 	void CAN_process_msg(CAN_msg_t* msg_to_process);	
 	
 #endif /* ndef CAN_MSG_PROCESSING_H */
