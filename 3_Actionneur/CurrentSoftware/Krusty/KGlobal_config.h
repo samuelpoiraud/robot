@@ -74,6 +74,10 @@
 	#define DCMOTOR_NB_POS		5
 
 /* Servo-Moteurs AX12 */
+	#define USE_AX12_SERVO
+	#define AX12_NUMBER 7
+	#define AX12_TIMER_ID 2
+	#define AX12_DIRECTION_PORT LATGbits.LATG8
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 
 /* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
@@ -88,7 +92,7 @@
 	#define BALLLAUNCHER_ASSER_KD                0
 	#define BALLLAUNCHER_ASSER_TIMEOUT           0       //en ms
 	#define BALLLAUNCHER_ASSER_POS_EPSILON       100
-	#define BALLLAUNCHER_DEFAULT_TARGET_SPEED    6000		//en tr/min
+	#define BALLLAUNCHER_DEFAULT_TARGET_SPEED    6000		//en tr/min, non utilisé car on définie la vitesse avec l'argument du msg CAN ...
 	#define BALLLAUNCHER_DCMOTOR_ID              0			//Doit être unique !
 	#define BALLLAUNCHER_DCMOTOR_PWM_NUM         4
 	#define BALLLAUNCHER_DCMOTOR_PORT_WAY        PORTE

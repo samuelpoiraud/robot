@@ -1,7 +1,7 @@
 /*  Club Robot ESEO 2012 - 2013
  *	Tiny
  *
- *	Fichier : Long_hammer.c
+ *	Fichier : Long_hammer.h
  *	Package : Carte actionneur
  *	Description : Gestion du marteau appuyant sur les bougies du haut
  *  Auteur : Alexis
@@ -30,17 +30,6 @@ void LONGHAMMER_init();
  * @return TRUE si le message CAN a été géré par cet actionneur, FALSE sinon
  */
 bool_e LONGHAMMER_CAN_process_msg(CAN_msg_t* msg);
-
-/**
- * Change la position du bras.
- * Cette fonction est appelée par QUEUE_run(), elle ne devrait pas être appelée à la main.
- * Quand init est TRUE, la commande de changement de position est faite.
- * Après, quand init est FALSE, on regarde si le bras à atteint sa position ou qu'il y a eu TIMEOUT,
- * si oui on fini la queue associée et si c'est un TIMEOUT on envoie un message CAN indiquant l'évènement (optionel, voir le .c dans LONGHAMMER_run_command).
- * @param queueId le numéro de la queue
- * @param init TRUE si la commande doit être initialisée, FALSE sinon
- */
-void LONGHAMMER_run_command(queue_id_t queueId, bool_e init);
 
 #endif  /* I_AM_ROBOT_TINY */
 #endif	/* LONG_HAMMER_H */

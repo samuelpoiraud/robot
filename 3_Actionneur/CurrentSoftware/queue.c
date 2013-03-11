@@ -26,7 +26,7 @@
  
 typedef struct{
 	action_t action[QUEUE_SIZE];
-	Sint16 arg[QUEUE_SIZE];
+	QUEUE_arg_t arg[QUEUE_SIZE];
 	QUEUE_act_e act[QUEUE_SIZE];
 	queue_size_t head;
 	queue_size_t tail;
@@ -88,16 +88,22 @@ void QUEUE_init()
 }
 
 
-Sint16 QUEUE_get_arg(queue_id_t queue_id)
+QUEUE_arg_t* QUEUE_get_arg(queue_id_t queue_id)
 {
 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
-	return queues[queue_id].arg[queues[queue_id].head];
+	return &(queues[queue_id].arg[queues[queue_id].head]);
 }		
 
 QUEUE_act_e QUEUE_get_act(queue_id_t queue_id)
 {
 	assert((queue_id < NB_QUEUE) && (queues[queue_id].used));
 	return queues[queue_id].act[queues[queue_id].head];
+}
+
+/*Renvoie le moment ou l'action a été initialisée*/
+time_t QUEUE_get_initial_time(queue_id_t queue_id) {
+	assert((queue_id < NB_QUEUE) && (queues[queue_id].used));
+	return queues[queue_id].initial_time_of_current_action;
 }
 
 queue_id_t QUEUE_create()
@@ -137,7 +143,7 @@ void QUEUE_run()
 }
 
 
-void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,QUEUE_act_e optionnal_act)
+void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, QUEUE_act_e optionnal_act)
 {
 	queue_t* this=&(queues[queue_id]);
 	//la file doit êre affectée
@@ -159,6 +165,7 @@ void QUEUE_add(queue_id_t queue_id, action_t action, Sint16 optionnal_arg,QUEUE_
 	{
 		//on l'initialise
 		//debug_printf("Initialise première action\n");
+		this->initial_time_of_current_action = CLOCK_get_time();
 		action(queue_id,TRUE);
 	}
 	
@@ -175,6 +182,7 @@ void QUEUE_behead(queue_id_t queue_id)
 	if(this->tail != this->head)
 	{
 		//on initialise l'action suivante
+		this->initial_time_of_current_action = CLOCK_get_time();
 		(this->action[this->head])(queue_id,TRUE);
 		//debug_printf("Off with his head ! %d\n", queue_id);
 	}
@@ -240,11 +248,11 @@ void QUEUE_take_sem(queue_id_t this, bool_e init)
 	if(!init)
 	{
 		//Sémaphore pour actionneur
-		if(QUEUE_get_arg(this)==0)
+		if(QUEUE_get_arg(this)->param == 0)
 		{
 			if((sems[QUEUE_get_act(this)].token))
 			{
-				debug_printf("Prise sémaphore actionneur %d\n",QUEUE_get_act(this));
+				debug_printf("Prise sémaphore actionneur %d\n", QUEUE_get_act(this));
 				sems[QUEUE_get_act(this)].token = FALSE;
 				QUEUE_behead(this);
 			}	
@@ -253,15 +261,15 @@ void QUEUE_take_sem(queue_id_t this, bool_e init)
 		}
 		else//Sémaphore de synchronisation
 		{
-			if((sems[QUEUE_get_arg(this)].token))
+			if((sems[QUEUE_get_arg(this)->param].token))
 			{
-				debug_printf("Prise sémaphore synchro %d\n",QUEUE_get_arg(this));
-				sems[QUEUE_get_arg(this)].token = FALSE;
+				debug_printf("Prise sémaphore synchro %d\n", QUEUE_get_arg(this)->param);
+				sems[QUEUE_get_arg(this)->param].token = FALSE;
 				QUEUE_behead(this);
 			}	
 			else
 			{
-				debug_printf("Synchro %d already used\n",QUEUE_get_arg(this));
+				debug_printf("Synchro %d already used\n", QUEUE_get_arg(this)->param);
 			}
 		}
 	}
@@ -271,16 +279,16 @@ void QUEUE_give_sem(queue_id_t this, bool_e init)
 	if(!init)
 	{
 		//Sémaphore pour file
-		if(QUEUE_get_arg(this)==0)
+		if(QUEUE_get_arg(this)->param == 0)
 		{
-				debug_printf("Sémaphore actionneur %d rendue\n",QUEUE_get_act(this));
+				debug_printf("Sémaphore actionneur %d rendue\n", QUEUE_get_act(this));
 				sems[QUEUE_get_act(this)].token = TRUE;
 				QUEUE_behead(this);
 		}
 		else//Sémaphore de synchronisation
 		{
-				debug_printf("Sémaphore synchro %d rendue\n",QUEUE_get_arg(this));
-				sems[QUEUE_get_arg(this)].token = TRUE;
+				debug_printf("Sémaphore synchro %d rendue\n", QUEUE_get_arg(this)->param);
+				sems[QUEUE_get_arg(this)->param].token = TRUE;
 				QUEUE_behead(this);
 		}
 	}
@@ -307,7 +315,7 @@ void QUEUE_sem_delete(queue_id_t this, bool_e init)
 {
 	if(!init)
 	{
-		sems[QUEUE_get_arg(this)].used = FALSE;
+		sems[QUEUE_get_arg(this)->param].used = FALSE;
 		QUEUE_behead(this);
 	}
 }
@@ -323,7 +331,7 @@ void QUEUE_wait_synchro(queue_id_t this, bool_e init)
 	else
 	{
 		debug_printf("Attente synchro\n");
-		if ((sems[QUEUE_get_arg(this)].used && sems[QUEUE_get_arg(this)].token)) //jeton rendu ou timout
+		if ((sems[QUEUE_get_arg(this)->param].used && sems[QUEUE_get_arg(this)->param].token)) //jeton rendu ou timout
 		{	
 			debug_printf("Synchro finie\n");
 			QUEUE_behead(this);
@@ -332,8 +340,8 @@ void QUEUE_wait_synchro(queue_id_t this, bool_e init)
 		{
 			debug_printf("Synchro timeout\n");
 			//On supprime la synchro qu'on attend
-			sems[QUEUE_get_arg(this)].used = FALSE;
-			sems[QUEUE_get_arg(this)].token = TRUE;
+			sems[QUEUE_get_arg(this)->param].used = FALSE;
+			sems[QUEUE_get_arg(this)->param].token = TRUE;
 			QUEUE_flush(this);
 		}
 	}	

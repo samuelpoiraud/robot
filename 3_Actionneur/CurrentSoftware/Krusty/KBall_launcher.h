@@ -33,14 +33,5 @@ void BALLLAUNCHER_init();
  */
 bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg);
 
-/**
- * Active ou non le moteur du lanceur de balle.
- * Cette fonction est appelée par QUEUE_run(), elle ne devrait pas être appelée à la main.
- * Quand init est TRUE, la commande est envoyé au module DCMotor
- * @param queueId le numéro de la queue
- * @param init TRUE si la commande doit être initialisée, FALSE sinon
- */
-void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init);
-
 #endif	/* I_AM_ROBOT_KRUSTY */
 #endif	/* BALL_LAUNCHER_H */

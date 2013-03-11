@@ -183,6 +183,7 @@
 		#define ACT_HAMMER_GO_TIDY          0x07
     /////////////////////////////////////////
 
+/* Messages pour Tiny */
 	////////////// LONGHAMMER ///////////////
 	#define ACT_LONGHAMMER (ACT_FILTER | 1)	//0x10 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
 		//Paramètres de LONGHAMMER (dans data[0])
@@ -192,11 +193,19 @@
 		#define ACT_LONGHAMMER_GO_STOP 3    // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
 		                                    //Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
 	/////////////////////////////////////////
-	
+
+	///////////// BALLINFLATER //////////////
+	#define ACT_BALLINFLATER (ACT_FILTER | 5)
+		//Paramètres de LONGHAMMER (dans data[0])
+		#define ACT_BALLINFLATER_START 0    // Gonfler le ballon pendant data[1] secondes (Uint8)
+		#define ACT_BALLINFLATER_STOP  1    // Stopper le gonflage
+	/////////////////////////////////////////
+
+/* Messages pour Krusty */
 	////////////// BALLLAUNCHER /////////////
 	#define ACT_BALLLAUNCHER (ACT_FILTER | 2)
 		//Paramètres de BALLLAUNCHER (dans data[0])
-		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000). si la vitesse indiquée est 0, la vitesse par defaut est utilisée. (voir BALLLAUNCHER_DEFAULT_TARGET_SPEED dans KGlobal_config.h)
+		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
 		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
 	/////////////////////////////////////////
 

@@ -65,11 +65,8 @@ int main (void)
 	LED_RUN = 0;
 	LED_USER = 1;
 
-	//init actioneur
+	//init actioneurs
 	ACTMGR_init();
-	BALL_GRABBER_init();
-	HAMMER_init();
-	//inti fin
 
 	debug_printf("Hello, I'm ACT\r\n");
 	RCON_read();
