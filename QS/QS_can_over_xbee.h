@@ -48,9 +48,9 @@
 
 
 	//Possibilité pour faire correspondre l'applicatif aux modules utilisés :
-	#define BALISE_MERE	MODULE_C
-	#define ROBOT_1	MODULE_1
-	#define ROBOT_2	MODULE_2
+	#define BALISE_MERE	MODULE_2
+	#define ROBOT_1	MODULE_C	//Robot 1 is Tiny
+	#define ROBOT_2	MODULE_1	//Robot 2 is Krusty	
 	
 		
 	
