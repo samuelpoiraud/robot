@@ -78,7 +78,7 @@
 	static void DCM_setWay(Uint8 dc_motor_id, Uint8 value);
 	static Uint8 DCM_getWay(Uint8 dc_motor_id);
 	// Envoie un message CAN pour informer de la position des ascenseurs
-	static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 error);
+	//static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 error);
 	// Baisse les drapeaux d'initialisation des moteurs
 	static void DCM_uninitialize_all();
 /*-----------------------------------------
@@ -338,9 +338,10 @@ void _ISR DCM_TIMER_IT()
 /*-----------------------------------------
 Envoie un retour CAN / signal de fin de parcours
 -----------------------------------------*/
+//Désactivé
+/*
 static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 error)
 {
-	/* //Désactivé
 	#ifdef USE_CAN
 		// Préparation
 		CAN_msg_t msg;
@@ -351,7 +352,8 @@ static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 
 		// Envoi
 		CAN_send(&msg);
 	#endif
-	//*/
+	
 }
+//*/
 
 #endif /* def USE_DCMOTOR2 */
