@@ -25,11 +25,11 @@
 	#define PORT_A_IO_MASK	0xFFFF		
 	#define PORT_B_IO_MASK	0xFFFF
 	#define PORT_C_IO_MASK	0xFFFF
-	#define PORT_D_IO_MASK	0xC0FF
-	#define PORT_E_IO_MASK	0xFF80
+	#define PORT_D_IO_MASK	0xC0FF  //C0xx: LED de la carte en sortie
+	#define PORT_E_IO_MASK	0xFF80  //xx80: PWMx/sensx en sortie
 		
 	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFFFF
+	#define PORT_G_IO_MASK	0xFEBF  //Port RG6 en sortie pour le gonfleur, RG8 en sortie pour le sens du bus des AX12
 
 /* Definition des périphériques, connectiques capteurs et actionneurs de Tiny */
 
@@ -67,13 +67,19 @@
 	/* timer utilisé pour l'asservissement (1, 2, ou 3) */
 	#define DCM_TIMER			1
 	/* définir le nombre d'actionneurs asservis */
-	#define DCM_NUMBER			6 // A voir en fonction du futur asservissement en courant
+	#define DCM_NUMBER			5
 	/* Période d'asservisement (en ms) */
 	#define DCM_TIMER_PERIOD	8
-	/* Seuil d'acceptation d'arrivée */
-	#define DCM_EPSILON			8
 	/* nombre maximum de positions à gérer par moteur */
 	#define DCMOTOR_NB_POS		5
+
+/* Servo-Moteurs AX12 */
+	#define USE_AX12_SERVO
+	#define AX12_NUMBER 7
+	#define AX12_TIMER_ID 2
+	#define AX12_DIRECTION_PORT LATGbits.LATG8
+	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
+
 
 	/* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
 	//	#define FAST_COS_SIN
@@ -89,14 +95,15 @@
 	#define HAMMER_ASSER_KD             0
 	#define HAMMER_ASSER_TIMEOUT        3000    //en ms
 	#define HAMMER_ASSER_POS_EPSILON    20
-	#define HAMMER_DCMOTOR_PWM_NUM      2		//PWM1
+	#define HAMMER_DCMOTOR_PWM_NUM      1		//PWM1
 	#define HAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
-	#define HAMMER_DCMOTOR_PORT_WAY_BIT 2
+	#define HAMMER_DCMOTOR_PORT_WAY_BIT 0
 	#define HAMMER_DCMOTOR_MAX_PWM_WAY0 30		//en %
 	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
 /********************************************************************************/
 
 /* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */
+// Non utilisé
 	#define LONGHAMMER_DCMOTOR_ID           1		//Utilisé pour le module DCMotor
 	#define LONGHAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x)
 	#define LONGHAMMER_ASSER_KP             2
@@ -107,9 +114,9 @@
 	#define LONGHAMMER_TARGET_POS_DOWN      0
 	#define LONGHAMMER_TARGET_POS_UP        300
 	#define LONGHAMMER_TARGET_POS_PARKED    0		//Position quand non utilisé (doit assurer un diamètre du robot minimal)
-	#define LONGHAMMER_DCMOTOR_PWM_NUM      1		//PWM1
+	#define LONGHAMMER_DCMOTOR_PWM_NUM      2		//PWM1
 	#define LONGHAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
-	#define LONGHAMMER_DCMOTOR_PORT_WAY_BIT 0
+	#define LONGHAMMER_DCMOTOR_PORT_WAY_BIT 2
 	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY0 30		//en %
 	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
 /********************************************************************************/

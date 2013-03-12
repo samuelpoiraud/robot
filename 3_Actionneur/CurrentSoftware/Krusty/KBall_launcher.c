@@ -101,6 +101,7 @@ void BALLLAUNCHER_init() {
 	ball_launcher_config.timeout = BALLLAUNCHER_ASSER_TIMEOUT;
 	ball_launcher_config.epsilon = BALLLAUNCHER_ASSER_POS_EPSILON;
 	DCM_config(BALLLAUNCHER_DCMOTOR_ID, &ball_launcher_config);
+	DCM_stop(BALLLAUNCHER_DCMOTOR_ID);
 
 	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 6;
 	DCM_TIMER_PRIORITY_REG = 5;

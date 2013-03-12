@@ -32,6 +32,7 @@
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
 #endif
 
+static void PLATE_initAX12();
 static Sint16 PLATE_getRotationAngle();
 static void PLATE_run_command(queue_id_t queueId, bool_e init);
 static void PLATE_rotation_command_init(queue_id_t queueId);
@@ -69,24 +70,36 @@ void PLATE_init() {
 	DCM_config(PLATE_DCMOTOR_ID, &plate_rotation_config);
 	DCM_stop(PLATE_DCMOTOR_ID);
 
-	AX12_config_set_highest_voltage(PLATE_PLIER_AX12_ID, 136);
-	AX12_config_set_lowest_voltage(PLATE_PLIER_AX12_ID, 75);
-	AX12_config_set_maximum_torque_percentage(PLATE_PLIER_AX12_ID, PLATE_PLIER_AX12_MAX_TORQUE_PERCENT);
-
-	//Fixme: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
-//	AX12_config_set_maximal_angle(PLATE_PLIER_AX12_ID, (PLATE_PLIER_AX12_CLOSED_POS > PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
-//	AX12_config_set_minimal_angle(PLATE_PLIER_AX12_ID, (PLATE_PLIER_AX12_CLOSED_POS < PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
-
-	AX12_config_set_error_before_led(PLATE_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE | AX12_ERROR_VOLTAGE);
-	AX12_config_set_error_before_shutdown(PLATE_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+	PLATE_initAX12();
 
 	OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX"actionneur assiette initialisé\n");
+}
+
+//Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
+static void PLATE_initAX12() {
+	static bool_e ax12_is_initialized = FALSE;
+	if(ax12_is_initialized == FALSE && AX12_is_ready(PLATE_PLIER_AX12_ID) == TRUE) {
+		ax12_is_initialized = TRUE;
+		AX12_config_set_highest_voltage(PLATE_PLIER_AX12_ID, 136);
+		AX12_config_set_lowest_voltage(PLATE_PLIER_AX12_ID, 70);
+		AX12_config_set_maximum_torque_percentage(PLATE_PLIER_AX12_ID, PLATE_PLIER_AX12_MAX_TORQUE_PERCENT);
+
+		//Fixme: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
+	//	AX12_config_set_maximal_angle(PLATE_PLIER_AX12_ID, (PLATE_PLIER_AX12_CLOSED_POS > PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
+	//	AX12_config_set_minimal_angle(PLATE_PLIER_AX12_ID, (PLATE_PLIER_AX12_CLOSED_POS < PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
+
+		AX12_config_set_error_before_led(PLATE_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
+		AX12_config_set_error_before_shutdown(PLATE_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+	}
 }
 
 bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 	queue_id_t queueId;
 
 	if(msg->sid == ACT_PLATE) {
+		//Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
+		PLATE_initAX12(); 
+
 		switch(msg->data[0]) {
 			case ACT_PLATE_ROTATE_HORIZONTALLY:
 			case ACT_PLATE_ROTATE_PREPARE:
@@ -98,12 +111,12 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
 				if(queueId != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0}, QUEUE_ACT_Plate_AX12_Plier);
-					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0}, QUEUE_ACT_Plate_Rotation);
+					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_AX12_Plier);
+					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_Rotation);
 					QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_PLIER_CLOSE, 0}, QUEUE_ACT_Plate_AX12_Plier);
 					QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){msg->data[0], 0}, QUEUE_ACT_Plate_Rotation);
-					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0}, QUEUE_ACT_Plate_Rotation);
-					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0}, QUEUE_ACT_Plate_AX12_Plier);
+					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_Rotation);
+					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_AX12_Plier);
 				} else {	//on indique qu'on a pas géré la commande
 					CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
 					CAN_send(&resultMsg);
@@ -153,6 +166,7 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 		case ACT_PLATE_ROTATE_VERTICALLY:   wantedPosition = PLATE_VERTICAL_POS_ID;   break;
 		case ACT_PLATE_ROTATE_STOP:
 			DCM_stop(PLATE_DCMOTOR_ID);
+			//Le moteur atteindra l'état IDLE automatiquement et le message de retour sera envoyé, voir PLATE_rotation_command_run
 			return;
 
 		default: {
@@ -165,6 +179,7 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 			}
 	}
 	DCM_goToPos(PLATE_DCMOTOR_ID, wantedPosition);
+	DCM_restart(PLATE_DCMOTOR_ID);
 }
 
 //Gestion des états en cours d'exécution de la commande de rotation
@@ -206,6 +221,9 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 		case ACT_PLATE_PLIER_CLOSE: *ax12_goalPosition = PLATE_PLIER_AX12_CLOSED_POS; break;
 		case ACT_PLATE_PLIER_STOP:
 			AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12 qui gère la pince
+			CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
+			CAN_send(&resultMsg);
+			QUEUE_behead(queueId);
 			return;
 
 		default: {
