@@ -76,15 +76,15 @@ int main (void)
 		/*-------------------------------------
 			Gestion des DELs, boutons, etc 
 		-------------------------------------*/	
-		/*Prepare clamp Front Bottom*/
-		//debug_printf("Valeur codeur Arrière : %d\r\n",LIFT_BACK_getPos());
+
 		if(!button1_pos && BUTTON1_PORT)
 		{
-			//msg.sid = ACT_PREPARE_CLAMP ;
-			//msg.data[0] = ACT_BACK;
-			//msg.data[1] = ACT_LIFT_BOTTOM;
-			//msg.size = 2;
-			//CAN_process_msg(&msg);
+			msg.sid = ACT_BALLLAUNCHER;
+			msg.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
+			msg.data[1] = LOWINT(6000);
+			msg.data[2] = HIGHINT(6000);
+			msg.size = 3;
+			CAN_process_msg(&msg);
 			LED_USER2 = BUTTON1_PORT;
 			button1_pos = BUTTON1_PORT;
 		}
@@ -93,16 +93,13 @@ int main (void)
 			LED_USER2 = BUTTON1_PORT;
 			button1_pos = BUTTON1_PORT;
 		}	
-		
-		/*Take pawn Front Middle*/
+
 		if(!button2_pos && BUTTON2_PORT)
 		{
-			//msg.sid = ACT_TAKE_PAWN;
-			//msg.data[0] = ACT_BACK;
-			//msg.data[1] = ACT_LIFT_MIDDLE;
-			//msg.data[2] = ACK_CLAMP_ACTION;
-			//msg.size = 3;
-			//CAN_process_msg(&msg);
+			msg.sid = ACT_BALLLAUNCHER;
+			msg.data[0] = ACT_BALLLAUNCHER_STOP;
+			msg.size = 1;
+			CAN_process_msg(&msg);
 			LED_USER2 = BUTTON2_PORT;
 			button2_pos = BUTTON2_PORT;
 		}

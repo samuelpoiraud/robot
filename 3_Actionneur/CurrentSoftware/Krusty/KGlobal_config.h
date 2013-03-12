@@ -29,7 +29,7 @@
 	#define PORT_E_IO_MASK	0xFF80
 		
 	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFEFF //Pour avoir la masse sur les switch ascenceur
+	#define PORT_G_IO_MASK	0xFEFF
 
 /* Definition des périphériques, connectiques capteurs et actionneurs de Krusty */
 
@@ -88,7 +88,7 @@
 
 /* Config BALLLAUNCHER */
 	#define BALLLAUNCHER_ASSER_KP                10
-	#define BALLLAUNCHER_ASSER_KI                80
+	#define BALLLAUNCHER_ASSER_KI                60
 	#define BALLLAUNCHER_ASSER_KD                0
 	#define BALLLAUNCHER_ASSER_TIMEOUT           0       //en ms
 	#define BALLLAUNCHER_ASSER_POS_EPSILON       100
