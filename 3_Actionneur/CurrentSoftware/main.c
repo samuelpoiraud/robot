@@ -12,6 +12,7 @@
 #include "QS/QS_all.h"
 #include "QS/QS_buttons.h"
 #include "QS/QS_ports.h"
+#include "QS/QS_adc.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_timer.h"
 
@@ -20,6 +21,9 @@
 
 #include "Ball_grabber.h"
 #include "Hammer.h"
+
+//Debug position ax12, à enlever
+#include "QS/QS_ax12.h"
 
 //#include "switch.h"
 
@@ -67,8 +71,14 @@ int main (void)
 
 	//init actioneurs
 	ACTMGR_init();
+#if defined(I_AM_ROBOT_KRUSTY)
+	debug_printf("--- Hello, I'm ACT (Krusty) ---\n");
+#elif defined(I_AM_ROBOT_TINY)
+	debug_printf("--- Hello, I'm ACT (Tiny) ---\n");
+#else
+	debug_printf("--- Hello, I'm ACT ---\n");
+#endif
 
-	debug_printf("Hello, I'm ACT\r\n");
 	RCON_read();
 	
 	while(1)
@@ -96,8 +106,8 @@ int main (void)
 
 		if(!button2_pos && BUTTON2_PORT)
 		{
-			msg.sid = ACT_BALLLAUNCHER;
-			msg.data[0] = ACT_BALLLAUNCHER_STOP;
+			msg.sid = ACT_PLATE;
+			msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
 			msg.size = 1;
 			CAN_process_msg(&msg);
 			LED_USER2 = BUTTON2_PORT;
@@ -109,16 +119,14 @@ int main (void)
 			button2_pos = BUTTON2_PORT;
 		}	
 
-		/*File pawn Front Bottom*/
 		if(!button3_pos && BUTTON3_PORT)
 		{
-			//msg.sid = ACT_FILE_PAWN;
-			//msg.data[0] = ACT_BACK;
-			//msg.data[1] = ACT_LIFT_BOTTOM;
-			//msg.data[2] = ACK_LIFT_ACTION;
-			//msg.size = 3;
-			//CAN_process_msg(&msg);
-			//debug_printf("Valeur potar CLAMP_FRONT %d ",CLAMP_FRONT_getPos());
+#ifdef PLATE_ROTATION_POTAR_ADC_ID
+			debug_printf("Plate potar val: %d, ax12 val: %u\n", ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID), AX12_get_position(PLATE_PLIER_AX12_ID));
+#endif
+#ifdef HAMMER_SENSOR_ADC_ID
+			debug_printf("Hammer potar val: %d\n", ADC_getValue(HAMMER_SENSOR_ADC_ID));
+#endif
 			LED_USER2 = BUTTON3_PORT;
 			button3_pos = BUTTON3_PORT;
 		}
@@ -165,25 +173,25 @@ int main (void)
 }
 void RCON_read()
 {
-	debug_printf("dsPIC30F reset source :\r\n");
+	debug_printf("dsPIC30F reset source :\n");
 	if(RCON & 0x8000)
-		debug_printf("- Trap conflict event\r\n");
+		debug_printf("- Trap conflict event\n");
 	if(RCON & 0x4000)
-		debug_printf("- Illegal opcode or uninitialized W register access\r\n");
+		debug_printf("- Illegal opcode or uninitialized W register access\n");
 	if(RCON & 0x80)
-		debug_printf("- MCLR Reset\r\n");
+		debug_printf("- MCLR Reset\n");
 	if(RCON & 0x40)
-		debug_printf("- RESET instruction\r\n");
+		debug_printf("- RESET instruction\n");
 	if(RCON & 0x10)
-		debug_printf("- WDT time-out\r\n");
+		debug_printf("- WDT time-out\n");
 	if(RCON & 0x8)
-		debug_printf("- PWRSAV #SLEEP instruction\r\n");
+		debug_printf("- PWRSAV #SLEEP instruction\n");
 	if(RCON & 0x4)
-		debug_printf("- PWRSAV #IDLE instruction\r\n");
+		debug_printf("- PWRSAV #IDLE instruction\n");
 	if(RCON & 0x2)
-		debug_printf("- POR, BOR\r\n");
+		debug_printf("- POR, BOR\n");
 	if(RCON & 0x1)
-		debug_printf("- POR\r\n");
+		debug_printf("- POR\n");
 	RCON=0;
 }
 /* Trap pour debug reset */
@@ -191,7 +199,7 @@ void _ISR _MathError()
 {
   _MATHERR = 0;
   LED_ERROR = 1;
-  debug_printf("Trap Math\r\n");
+  debug_printf("Trap Math\n");
   while(1) Nop();
 }
 
@@ -199,7 +207,7 @@ void _ISR _StackError()
 {
   _STKERR = 0;
   LED_ERROR = 1;
-  debug_printf("Trap Stack\r\n");
+  debug_printf("Trap Stack\n");
   while(1) Nop();
 }
 
@@ -207,7 +215,7 @@ void _ISR _AddressError()
 {
   _ADDRERR = 0;
   LED_ERROR = 1;
-  debug_printf("Trap Address\r\n");
+  debug_printf("Trap Address\n");
   while(1) Nop();
 }
 
@@ -215,6 +223,6 @@ void _ISR _OscillatorFail()
 {
   _OSCFAIL = 0;
   LED_ERROR = 1;
-  debug_printf("Trap OscFail\r\n");
+  debug_printf("Trap OscFail\n");
   while(1) Nop();
 }

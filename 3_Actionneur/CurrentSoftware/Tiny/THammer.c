@@ -47,6 +47,7 @@ void HAMMER_init() {
 	hammer_config.timeout = HAMMER_ASSER_TIMEOUT;
 	hammer_config.epsilon = HAMMER_ASSER_POS_EPSILON;
 	DCM_config(HAMMER_DCMOTOR_ID, &hammer_config);
+	DCM_stop(HAMMER_DCMOTOR_ID);
 }
 
 bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
@@ -92,6 +93,7 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 			}
 			DCM_setPosValue(HAMMER_DCMOTOR_ID, 0, wantedPosition);
 			DCM_goToPos(HAMMER_DCMOTOR_ID, 0);
+			DCM_restart(HAMMER_DCMOTOR_ID);
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(HAMMER_DCMOTOR_ID);
 			CAN_msg_t resultMsg;

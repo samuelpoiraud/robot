@@ -25,11 +25,11 @@
 	#define PORT_A_IO_MASK	0xFFFF		
 	#define PORT_B_IO_MASK	0xFFFF
 	#define PORT_C_IO_MASK	0xFFFF
-	#define PORT_D_IO_MASK	0xC0FF
-	#define PORT_E_IO_MASK	0xFF80
+	#define PORT_D_IO_MASK	0xC0FF  //C0xx: LED de la carte en sortie
+	#define PORT_E_IO_MASK	0xFF80  //xx80: PWMx/sensx en sortie
 		
 	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFEFF
+	#define PORT_G_IO_MASK	0xFEFF  //G8 en sortie: direction AX12
 
 /* Definition des périphériques, connectiques capteurs et actionneurs de Krusty */
 
@@ -46,6 +46,8 @@
 	#define AN9_ID  3
 	#define USE_AN12
 	#define AN12_ID 4
+	#define USE_AN13
+	#define AN13_ID 5
 
 /**************** Périphériques ****************/
 
@@ -65,11 +67,9 @@
 	/* timer utilisé pour l'asservissement (1, 2, ou 3) */
 	#define DCM_TIMER			1
 	/* définir le nombre d'actionneurs asservis */
-	#define DCM_NUMBER			6 // A voir en fonction du futur asservissement en courant
+	#define DCM_NUMBER			5
 	/* Période d'asservisement (en ms) */
-	#define DCM_TIMER_PERIOD	2
-	/* Seuil d'acceptation d'arrivée */
-	//#define DCM_EPSILON			10
+	#define DCM_TIMER_PERIOD	2  //Elevé pour le lanceur de balle ...
 	/* nombre maximum de positions à gérer par moteur */
 	#define DCMOTOR_NB_POS		5
 
