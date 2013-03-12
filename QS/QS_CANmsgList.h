@@ -207,7 +207,7 @@
 	///////////// BALLINFLATER //////////////
 	#define ACT_BALLINFLATER (ACT_FILTER | 0x03)
 		//Paramètres de LONGHAMMER (dans data[0])
-		#define ACT_BALLINFLATER_START 0    // Gonfler le ballon pendant data[1] secondes (Uint8)
+		#define ACT_BALLINFLATER_START 0    // Gonfler le ballon pendant data[1] secondes (Uint8). Le message de retour n'attend pas la fin du gonflage.
 		#define ACT_BALLINFLATER_STOP  1    // Stopper le gonflage
 	/////////////////////////////////////////
 
