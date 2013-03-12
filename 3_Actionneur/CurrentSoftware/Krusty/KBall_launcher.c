@@ -134,6 +134,8 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
+static Sint16 last_speed_detected;
+
 static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallLauncher) {
 		if(init == TRUE) {
@@ -152,6 +154,12 @@ static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
 			CAN_msg_t resultMsg;
+			static Sint16 lastlast_speed = 0;
+
+			if(last_speed_detected != lastlast_speed) {
+				lastlast_speed = last_speed_detected;
+				OUTPUTLOG_printf(LOG_LEVEL_Debug, "Current speed: %d\n", lastlast_speed);
+			}
 
 			if(asserState == DCM_IDLE) {
 				resultMsg.data[2] = ACT_RESULT_DONE;
@@ -217,7 +225,7 @@ static Sint16 BALLLAUNCHER_get_speed() {
 		return 0;
 
 	//Calcul des tr/min, __builtin_divud permet une division utilisant les instructions du proc et non la librarie, histoire d'éviter de perdre inutilement des cycles processeurs
-	return (Sint16)__builtin_divud((60000*HALL_TIMECOUNTER_PULSE_PER_MS/BALLLAUNCHER_EDGE_PER_ROTATION), hall_last_detection_interval);
+	return (last_speed_detected = (Sint16)__builtin_divud((60000*HALL_TIMECOUNTER_PULSE_PER_MS/BALLLAUNCHER_EDGE_PER_ROTATION), hall_last_detection_interval));
 }
 
 void BALLLAUNCHER_HALLSENSOR_INT_ISR() {

@@ -43,6 +43,7 @@
         <itemPath>../Tiny/TLong_hammer.h</itemPath>
         <itemPath>../Tiny/TActManager.h</itemPath>
         <itemPath>../Tiny/THammer.h</itemPath>
+        <itemPath>../Tiny/TBall_inflater.h</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.h</itemPath>
       <itemPath>../clock.h</itemPath>
@@ -86,6 +87,7 @@
         <itemPath>../Tiny/TLong_hammer.c</itemPath>
         <itemPath>../Tiny/TActManager.c</itemPath>
         <itemPath>../Tiny/THammer.c</itemPath>
+        <itemPath>../Tiny/TBall_inflater.c</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.c</itemPath>
       <itemPath>../clock.c</itemPath>
@@ -278,7 +280,7 @@
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
-        <platform>2</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
