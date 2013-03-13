@@ -43,11 +43,15 @@ void SEQUENCES_calibrate(way_e way,case_e case_calibrage)
 		color_e color;
 		color = ODOMETRY_get_color();
 
+                //on le fait avancer de 55 cm par rapport au bord du plateau (la ou il doit etre mis en pos de départ)
+                x_or_y = 550;
+                ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, x_or_y, 0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE);
+
 	if(color == BLUE)
 	{
-		ODOMETRY_set(0, 0, (way == FORWARD)?PI4096:0);
+		ODOMETRY_set(0, 0, (way == FORWARD)?-PI4096:0);
 
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 170, 0, 0, RELATIVE, NOT_NOW, FORWARD_OR_BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
+		//ROADMAP_add_order(TRAJECTORY_TRANSLATION, 170, 0, 0, RELATIVE, NOT_NOW, FORWARD_OR_BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
 		teta = 0;
 
@@ -78,7 +82,7 @@ void SEQUENCES_calibrate(way_e way,case_e case_calibrage)
 	{
 		ODOMETRY_set(0, 0, (way == FORWARD)?PI4096:0);
 
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 170, 0, 0, RELATIVE, NOT_NOW, FORWARD_OR_BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
+		//ROADMAP_add_order(TRAJECTORY_TRANSLATION, 170, 0, 0, RELATIVE, NOT_NOW, FORWARD_OR_BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
 		//teta = (way == FORWARD)?PI4096:0;
                 teta = 0;
@@ -111,14 +115,14 @@ void SEQUENCES_calibrate(way_e way,case_e case_calibrage)
                 //Calibrage en Y;
 		SEQUENCES_rush_in_the_wall(teta, FORWARD_OR_BACKWARD, NO_ACKNOWLEDGE, 0, x_or_y, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
 
-                //Jle fait avancer de 10 centimetres xD.
-		x_or_y = (color == BLUE)? -100:100;
+                //Jle fait avancer de 0 centimetres (collé au mur : obligation de match) xD.
+		x_or_y = (color == BLUE)? -0:0;
 
                 ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, x_or_y, 0, RELATIVE, NOT_NOW, FORWARD_OR_BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE);
 
-                //Et jlui fait faire un 180.
-               
-                ROADMAP_add_order(TRAJECTORY_ROTATION, 0, 0,PI4096, RELATIVE, NOT_NOW, FORWARD_OR_BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE);
+                
+                //finalement on ne le fait pas tourner car on est collé au mur
+                //ROADMAP_add_order(TRAJECTORY_ROTATION, 0, 0,PI4096, RELATIVE, NOT_NOW, FORWARD_OR_BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE);
 	
 }
 
