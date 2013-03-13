@@ -56,8 +56,8 @@
 //POUR REGLER L'ODOMETRIE:
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
-	#define TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C0F
-	#define KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C0F
+	#define TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C4C
+	#define KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C4C
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
@@ -70,8 +70,8 @@
 	#define TINY_ODOMETRY_COEF_SYM_DEFAULT (0)
 	#define KRUSTY_ODOMETRY_COEF_SYM_DEFAULT (0)
 
-	#define TINY_ODOMETRY_COEF_ROTATION_DEFAULT 0x9F27//0XA054	//(CHOMP : 43632)	Théorique : 41335
-	#define KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT 0x9F27
+	#define TINY_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010B19//0XA054	//(CHOMP : 43632)	Théorique : 41335
+	#define KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000C600
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
 	// COEF_ODOMETRIE_ROTATION = 1024*4096*16*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
 	// d : diametre des roues codeuse en mm = 60
@@ -93,8 +93,8 @@
 	#define KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (-8)
 	
 	//à regler avec éléments mécaniques de blocages extrèmement parallèles à l'axe des codeurs !
-	#define CALIBRATION_BACKWARD_BORDER_DISTANCE 	140 		//distance entre le 'centre' du robot et l'arrière en calage
-	#define CALIBRATION_FORWARD_BORDER_DISTANCE 	140 		//distance entre le 'centre' du robot et l'avant en calage
+	#define CALIBRATION_BACKWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'arrière en calage
+	#define CALIBRATION_FORWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'avant en calage
 		
 	#define FIELD_SIZE_Y 3000	//[mm]
 	#define FIELD_SIZE_X 2000	//[mm]
@@ -112,14 +112,14 @@
 	
 	//KRUSTY
 	// RED
-		#define KRUSTY_RED_START_X  	12582912 //9830400				//même position qu'en rouge
-		#define KRUSTY_RED_START_Y  	(196608000-16842752) //(196608000-39321600)//symétrique
-		#define KRUSTY_RED_START_TETA 	-6588416//-PI/2 //(-3294199)		// -pi/4
+		#define KRUSTY_RED_START_X  	39321600 //600mm				//même position qu'en rouge
+		#define KRUSTY_RED_START_Y  	1966080 //(120mm)//symétrique
+		#define KRUSTY_RED_START_TETA 	6588416//-PI/2
 		
 		// BLUE
-		#define KRUSTY_BLUE_START_X 12582912 //check 192*65536 //chomp 9830400 = 150*65536
-		#define KRUSTY_BLUE_START_Y 16842752 //check 257*65536 //chomp 39321600
-		#define KRUSTY_BLUE_START_TETA 6588416	// PI/2 //3294199				//angle de Pi/4 * 4096 * 1024
+		#define KRUSTY_BLUE_START_X 39321600 //600mm
+		#define KRUSTY_BLUE_START_Y (196608000-1966080) //2000-120mm
+		#define KRUSTY_BLUE_START_TETA -6588416	// PI/2 			// * 4096 * 1024
 
 
 /////BUFFER////////////////////////////////////////////						
@@ -139,10 +139,10 @@
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
 	#define TINY_KD_ROTATION 	(0x5C0) //0x800
-	#define KRUSTY_KD_ROTATION 	(0x5C0) //0x800
+	#define KRUSTY_KD_ROTATION 	(0x800) //0x800
 	
 	#define TINY_KP_ROTATION 	(0x40) //0x80
-	#define KRUSTY_KP_ROTATION 	(0x40) //0x80
+	#define KRUSTY_KP_ROTATION 	(0xA0) //0x80
 	
 	//Ordre de grandeur :
 	//A la vitesse lumière, KV_TRANSLATION * vitesse_translation doit valoir 100*4096
