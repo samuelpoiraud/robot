@@ -19,9 +19,6 @@
 #include "Krusty/KActManager.h"
 #include "Tiny/TActManager.h"
 
-#include "Ball_grabber.h"
-#include "Hammer.h"
-
 //Debug position ax12, à enlever
 #include "QS/QS_ax12.h"
 

@@ -106,22 +106,21 @@
 	#define BALLLAUNCHER_HALLSENSOR_INT_EDGE     INTCON2bits.INT1EP
 	#define BALLLAUNCHER_HALLSENSOR_INT_ISR      __attribute__((interrupt, no_auto_psv)) _INT1Interrupt
 
-/* Config BALLLAUNCHER */
-	#define PLATE_ASSER_KP                       2
+/* Config PLATE */
+	#define PLATE_ASSER_KP                       3000
 	#define PLATE_ASSER_KI                       0
 	#define PLATE_ASSER_KD                       0
 	#define PLATE_ASSER_TIMEOUT                  3000   //en ms
-	#define PLATE_ASSER_POS_EPSILON              1      //TODO: à ajuster plus correctement
-	#define PLATE_HORIZONTAL_POS                 100    //TODO: ajuster ces valeurs ! (unité: potarland)
-	#define PLATE_PREPARE_POS                    300
-	#define PLATE_PARKED_POS                     4000
-	#define PLATE_VERTICAL_POS                   5000   /////////////////////////////
+	#define PLATE_ASSER_POS_EPSILON              5      //TODO: à ajuster plus correctement
+	#define PLATE_HORIZONTAL_POS                 85    //TODO: ajuster ces valeurs ! (unité: potarland)
+	#define PLATE_PREPARE_POS                    263
+	#define PLATE_VERTICAL_POS                   402   /////////////////////////////
 	#define PLATE_DCMOTOR_ID                     1      //Doit être unique !
 	#define PLATE_DCMOTOR_PWM_NUM                3
 	#define PLATE_DCMOTOR_PORT_WAY               PORTE
 	#define PLATE_DCMOTOR_PORT_WAY_BIT           4
-	#define PLATE_DCMOTOR_MAX_PWM_WAY0           100
-	#define PLATE_DCMOTOR_MAX_PWM_WAY1           0
+	#define PLATE_DCMOTOR_MAX_PWM_WAY0           10
+	#define PLATE_DCMOTOR_MAX_PWM_WAY1           10
 	#define PLATE_ROTATION_POTAR_ADC_ID          AN9_ID
 	#define PLATE_PLIER_AX12_ASSER_TIMEOUT       20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 	#define PLATE_PLIER_AX12_ID                  0	    //TODO: changer ces valeurs !!!
@@ -129,7 +128,52 @@
 	#define PLATE_PLIER_AX12_OPEN_POS            0      //en degré
 	#define PLATE_PLIER_AX12_CLOSED_POS          0      //en degré
 	#define PLATE_PLIER_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
-	
+
+/* Config LIFT */
+	#define LIFT_LEFT_ASSER_KP                       3000
+	#define LIFT_LEFT_ASSER_KI                       0
+	#define LIFT_LEFT_ASSER_KD                       0
+	#define LIFT_LEFT_ASSER_TIMEOUT                  3000   //en ms
+	#define LIFT_LEFT_ASSER_POS_EPSILON              5      //TODO: à ajuster plus correctement
+	#define LIFT_LEFT_UP_POS                         85    //TODO: ajuster ces valeurs ! (unité: potarland)
+	#define LIFT_LEFT_MID_POS                        263
+	#define LIFT_LEFT_DOWN_POS                       402   /////////////////////////////
+	#define LIFT_LEFT_DCMOTOR_ID                     1      //Doit être unique !
+	#define LIFT_LEFT_DCMOTOR_PWM_NUM                3
+	#define LIFT_LEFT_DCMOTOR_PORT_WAY               PORTE
+	#define LIFT_LEFT_DCMOTOR_PORT_WAY_BIT           4
+	#define LIFT_LEFT_DCMOTOR_MAX_PWM_WAY0           10
+	#define LIFT_LEFT_DCMOTOR_MAX_PWM_WAY1           10
+	#define LIFT_LEFT_TRANSLATION_POTAR_ADC_ID       AN9_ID
+	#define LIFT_LEFT_PLIER_AX12_ASSER_TIMEOUT       20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define LIFT_LEFT_PLIER_AX12_ID                  0	    //TODO: changer ces valeurs !!!
+	#define LIFT_LEFT_PLIER_AX12_ASSER_POS_EPSILON   10     //en degré
+	#define LIFT_LEFT_PLIER_AX12_OPEN_POS            0      //en degré
+	#define LIFT_LEFT_PLIER_AX12_CLOSED_POS          0      //en degré
+	#define LIFT_LEFT_PLIER_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+
+	#define LIFT_RIGHT_ASSER_KP                       3000
+	#define LIFT_RIGHT_ASSER_KI                       0
+	#define LIFT_RIGHT_ASSER_KD                       0
+	#define LIFT_RIGHT_ASSER_TIMEOUT                  3000   //en ms
+	#define LIFT_RIGHT_ASSER_POS_EPSILON              5      //TODO: à ajuster plus correctement
+	#define LIFT_RIGHT_UP_POS                         85    //TODO: ajuster ces valeurs ! (unité: potarland)
+	#define LIFT_RIGHT_MID_POS                        263
+	#define LIFT_RIGHT_DOWN_POS                       402   /////////////////////////////
+	#define LIFT_RIGHT_DCMOTOR_ID                     1      //Doit être unique !
+	#define LIFT_RIGHT_DCMOTOR_PWM_NUM                3
+	#define LIFT_RIGHT_DCMOTOR_PORT_WAY               PORTE
+	#define LIFT_RIGHT_DCMOTOR_PORT_WAY_BIT           4
+	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY0           10
+	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY1           10
+	#define LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID       AN9_ID
+	#define LIFT_RIGHT_PLIER_AX12_ASSER_TIMEOUT       20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define LIFT_RIGHT_PLIER_AX12_ID                  0	    //TODO: changer ces valeurs !!!
+	#define LIFT_RIGHT_PLIER_AX12_ASSER_POS_EPSILON   10     //en degré
+	#define LIFT_RIGHT_PLIER_AX12_OPEN_POS            0      //en degré
+	#define LIFT_RIGHT_PLIER_AX12_CLOSED_POS          0      //en degré
+	#define LIFT_RIGHT_PLIER_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+
 /**************** Capteurs ****************/
 
 

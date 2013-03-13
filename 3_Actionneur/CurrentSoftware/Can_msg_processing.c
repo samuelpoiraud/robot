@@ -17,7 +17,6 @@
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "queue.h"
-#include "Hammer.h"
 
 #include "Krusty/KActManager.h"
 #include "Tiny/TActManager.h"
