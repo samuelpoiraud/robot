@@ -80,7 +80,6 @@
 	#define AX12_DIRECTION_PORT LATGbits.LATG8
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 
-
 	/* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
 	//	#define FAST_COS_SIN
 	//	#define COS_SIN_16384
@@ -121,15 +120,32 @@
 	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
 /********************************************************************************/
 
-/* Config BALLINFLATER: gonfleur du ballon */
+/* Config BALLINFLATER: gonfleur du ballon *******************/
 	#define BALLINFLATER_PIN                PORTGbits.RG6
 	#define BALLINFLATER_ON                 1
 	#define BALLINFLATER_OFF                0
+/*************************************************************/
+
+/* Config CANDLECOLOR: capteur tritronics CW2 pour la couleur des bougies */
+	#define CANDLECOLOR_CW_ID                0
+	#define CANDLECOLOR_CW_PIN_ADC_X         AN2_ID  //TODO: a changer
+	#define CANDLECOLOR_CW_PIN_ADC_Y         AN12_ID
+	#define CANDLECOLOR_CW_PIN_ADC_Z         AN13_ID
+	#define CANDLECOLOR_AX12_ID              0
+	#define CANDLECOLOR_AX12_TIMEOUT         30  //en centaine de ms, une valeur de 20 correspond à 2secondes
+	#define CANDLECOLOR_AX12_POS_EPSILON     5
+	#define CANDLECOLOR_AX12_HIGH_CANDLE_POS 0  //TODO: a changer
+	#define CANDLECOLOR_AX12_LOW_CANDLE_POS  0
+/**************************************************************************/
 
 	
 /**************** Capteurs ****************/
 	
 	//Configuration des télémètres choisie (à voir dans telemeter.h)
 	#define TELE_CONFIG TELE_CONFIG_2
+
+/* Capteur Tritronics CW2 */
+	#define USE_CW_SENSOR
+	#define CW_SENSOR_NUMBER 1
 
 #endif /* ndef TINY_GLOBAL_CONFIG_H && def I_AM_ROBOT_TINY */
