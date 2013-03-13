@@ -59,7 +59,7 @@ typedef enum {
 	CW_PP_Channel4 = 3,
 	CW_PP_Gate = 4,
 	CW_PP_RemoteControl = 5,
-	CW_PP_MAXPORTNUM = 5
+	CW_PP_MAXPORTNUM = 6
 } CW_port_e;
 
 /** Informations de configuration d'un capteur.

@@ -119,8 +119,8 @@
 	#define PLATE_DCMOTOR_PWM_NUM                3
 	#define PLATE_DCMOTOR_PORT_WAY               PORTE
 	#define PLATE_DCMOTOR_PORT_WAY_BIT           4
-	#define PLATE_DCMOTOR_MAX_PWM_WAY0           10
-	#define PLATE_DCMOTOR_MAX_PWM_WAY1           10
+	#define PLATE_DCMOTOR_MAX_PWM_WAY0           30
+	#define PLATE_DCMOTOR_MAX_PWM_WAY1           30
 	#define PLATE_ROTATION_POTAR_ADC_ID          AN9_ID
 	#define PLATE_PLIER_AX12_ASSER_TIMEOUT       20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 	#define PLATE_PLIER_AX12_ID                  0	    //TODO: changer ces valeurs !!!
@@ -138,13 +138,13 @@
 	#define LIFT_LEFT_UP_POS                         85    //TODO: ajuster ces valeurs ! (unité: potarland)
 	#define LIFT_LEFT_MID_POS                        263
 	#define LIFT_LEFT_DOWN_POS                       402   /////////////////////////////
-	#define LIFT_LEFT_DCMOTOR_ID                     1      //Doit être unique !
-	#define LIFT_LEFT_DCMOTOR_PWM_NUM                3
+	#define LIFT_LEFT_DCMOTOR_ID                     2      //Doit être unique !
+	#define LIFT_LEFT_DCMOTOR_PWM_NUM                1
 	#define LIFT_LEFT_DCMOTOR_PORT_WAY               PORTE
-	#define LIFT_LEFT_DCMOTOR_PORT_WAY_BIT           4
+	#define LIFT_LEFT_DCMOTOR_PORT_WAY_BIT           0
 	#define LIFT_LEFT_DCMOTOR_MAX_PWM_WAY0           10
 	#define LIFT_LEFT_DCMOTOR_MAX_PWM_WAY1           10
-	#define LIFT_LEFT_TRANSLATION_POTAR_ADC_ID       AN9_ID
+	#define LIFT_LEFT_TRANSLATION_POTAR_ADC_ID       AN3_ID
 	#define LIFT_LEFT_PLIER_AX12_ASSER_TIMEOUT       20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 	#define LIFT_LEFT_PLIER_AX12_ID                  0	    //TODO: changer ces valeurs !!!
 	#define LIFT_LEFT_PLIER_AX12_ASSER_POS_EPSILON   10     //en degré
@@ -160,13 +160,13 @@
 	#define LIFT_RIGHT_UP_POS                         85    //TODO: ajuster ces valeurs ! (unité: potarland)
 	#define LIFT_RIGHT_MID_POS                        263
 	#define LIFT_RIGHT_DOWN_POS                       402   /////////////////////////////
-	#define LIFT_RIGHT_DCMOTOR_ID                     1      //Doit être unique !
-	#define LIFT_RIGHT_DCMOTOR_PWM_NUM                3
+	#define LIFT_RIGHT_DCMOTOR_ID                     3      //Doit être unique !
+	#define LIFT_RIGHT_DCMOTOR_PWM_NUM                2
 	#define LIFT_RIGHT_DCMOTOR_PORT_WAY               PORTE
-	#define LIFT_RIGHT_DCMOTOR_PORT_WAY_BIT           4
+	#define LIFT_RIGHT_DCMOTOR_PORT_WAY_BIT           2
 	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY0           10
 	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY1           10
-	#define LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID       AN9_ID
+	#define LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID       AN2_ID
 	#define LIFT_RIGHT_PLIER_AX12_ASSER_TIMEOUT       20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 	#define LIFT_RIGHT_PLIER_AX12_ID                  0	    //TODO: changer ces valeurs !!!
 	#define LIFT_RIGHT_PLIER_AX12_ASSER_POS_EPSILON   10     //en degré

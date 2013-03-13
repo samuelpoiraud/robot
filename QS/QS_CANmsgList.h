@@ -211,6 +211,20 @@
 		#define ACT_BALLINFLATER_STOP  1    // Stopper le gonflage
 	/////////////////////////////////////////
 
+
+	///////////// CANDLECOLOR ///////////////
+	#define ACT_CANDLECOLOR (ACT_FILTER | 0x04)
+		//Paramètres de CANDLECOLOR (dans data[0])
+		#define ACT_CANDLECOLOR_GET_LOW  0  //Bouge le capteur et récupère la couleur d'une bougie à l'étage bas
+		#define ACT_CANDLECOLOR_GET_HIGH   1  //Bouge le capteur et récupère la couleur d'une bougie à l'étage haut
+		//Color result dans data[4]:
+		#define ACT_CANDLECOLOR_COLOR_BLUE   0
+		#define ACT_CANDLECOLOR_COLOR_RED    1
+		#define ACT_CANDLECOLOR_COLOR_YELLOW 2
+		#define ACT_CANDLECOLOR_COLOR_WHITE  3
+		#define ACT_CANDLECOLOR_COLOR_OTHER  4
+	/////////////////////////////////////////
+
 /* Messages pour Krusty */
 	////////////// BALLLAUNCHER /////////////
 	#define ACT_BALLLAUNCHER (ACT_FILTER | 0x11)
