@@ -224,12 +224,26 @@
 		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
 		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette
 		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
-		#define ACT_PLATE_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Implémtenté finalement. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
+		#define ACT_PLATE_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
 
 		#define ACT_PLATE_ROTATE_HORIZONTALLY   0x20	//Amener le bras en position horizontale (pour prendre ou lacher une assiette par ex)
 		#define ACT_PLATE_ROTATE_PREPARE        0x21	//Amener le bras en position intermédiaire (45°) pour préparer un mouvement vers l'horizontale ou verticale
 		#define ACT_PLATE_ROTATE_VERTICALLY     0x22	//Amener le bras en position verticale. Ferme la pince si elle ne l'est pas avant d'effectuer le mouvement (meca oblige) (pour vider une assiette ou réduire le périmêtre du robot)
-		#define ACT_PLATE_ROTATE_STOP           0x2F	//Stopper l'asservissement du bras. Implémtenté finalement, mais à éviter, dans les virages il ne faudrait pas que l'actionneur tombe (même si gros reducteur ...)
+		#define ACT_PLATE_ROTATE_STOP           0x2F	//Stopper l'asservissement du bras. A éviter, dans les virages il ne faudrait pas que l'actionneur tombe (même si gros reducteur ...)
+	/////////////////////////////////////////
+
+	////////////////// LIFT /////////////////
+	#define ACT_LIFT_RIGHT (ACT_FILTER | 0x13)
+	#define ACT_LIFT_LEFT (ACT_FILTER | 0x14)
+		//Paramètres de LIFT (dans data[0]) (0x1x: Pince, 0x2x: mouvement ascenseur)
+		#define ACT_LIFT_PLIER_CLOSE           0x10	//Fermer la pince et serrer le verre
+		#define ACT_LIFT_PLIER_OPEN            0x11	//Ouvrir la pince et lacher le verre
+		#define ACT_LIFT_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
+
+		#define ACT_LIFT_GO_UP                 0x20	//Amener l'ascenseur en position haute.
+		#define ACT_LIFT_GO_MID                0x21	//Amener l'ascenseur en position intermédiaire pour préparer un mouvement vers haut ou bas.
+		#define ACT_LIFT_GO_DOWN               0x22	//Amener l'ascenseur en position basse.
+		#define ACT_LIFT_STOP                  0x2F	//Stopper l'asservissement de l'ascenseur.
 	/////////////////////////////////////////
 
 /*****************************************************************

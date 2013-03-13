@@ -12,6 +12,7 @@
         <itemPath>../Krusty/KGlobal_vars_types.h</itemPath>
         <itemPath>../Krusty/KPlate.h</itemPath>
         <itemPath>../Krusty/KActManager.h</itemPath>
+        <itemPath>../Krusty/KLift.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="_QS" projectFiles="true">
         <itemPath>../QS/p30f6010A.h</itemPath>
@@ -67,6 +68,7 @@
         <itemPath>../Krusty/KBall_launcher.c</itemPath>
         <itemPath>../Krusty/KPlate.c</itemPath>
         <itemPath>../Krusty/KActManager.c</itemPath>
+        <itemPath>../Krusty/KLift.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="_QS" projectFiles="true">
         <itemPath>../QS/QS_adc.c</itemPath>

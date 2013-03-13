@@ -22,11 +22,10 @@
 
 #define LOG_PREFIX "PL: "
 
-#define PLATE_NUM_POS           4
-	#define PLATE_PARKED_POS_ID     0
-	#define PLATE_HORIZONTAL_POS_ID 1
-	#define PLATE_PREPARE_POS_ID    2
-	#define PLATE_VERTICAL_POS_ID   3
+#define PLATE_NUM_POS           3
+	#define PLATE_HORIZONTAL_POS_ID 0
+	#define PLATE_PREPARE_POS_ID    1
+	#define PLATE_VERTICAL_POS_ID   2
 
 #if DCMOTOR_NB_POS < PLATE_NUM_POS
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
@@ -56,7 +55,6 @@ void PLATE_init() {
 	plate_rotation_config.Kp = PLATE_ASSER_KP;
 	plate_rotation_config.Ki = PLATE_ASSER_KI;
 	plate_rotation_config.Kd = PLATE_ASSER_KD;
-	plate_rotation_config.pos[PLATE_PARKED_POS_ID] = PLATE_PARKED_POS;
 	plate_rotation_config.pos[PLATE_HORIZONTAL_POS_ID] = PLATE_HORIZONTAL_POS;
 	plate_rotation_config.pos[PLATE_PREPARE_POS_ID] = PLATE_PREPARE_POS;
 	plate_rotation_config.pos[PLATE_VERTICAL_POS_ID] = PLATE_VERTICAL_POS;
