@@ -42,11 +42,11 @@ void ENCODERS_get(Sint32 * left, Sint32 * right)
 
 		#ifdef USE_CODEUR_SUR_IT_ET_QE
 			//Lire les roues codeuses
-			count_right=QEI_get_count();
-			count_left=QEI_ON_IT_get_count();
+			count_right=-QEI_get_count();
+			count_left=-QEI_ON_IT_get_count();
 		#else
-			count_right=CPLD_get_count(CPLD_RIGHT_WHEEL);
-			count_left=CPLD_get_count(CPLD_LEFT_WHEEL);
+			count_right=-CPLD_get_count(CPLD_RIGHT_WHEEL);
+			count_left=-CPLD_get_count(CPLD_LEFT_WHEEL);
 	#endif
 
 	//Mise a jour des deltas des roues...
