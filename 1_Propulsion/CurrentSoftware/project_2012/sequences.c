@@ -44,7 +44,7 @@ void SEQUENCES_calibrate(way_e way,case_e case_calibrage)
 		color = ODOMETRY_get_color();
 
                 //on le fait avancer de 55 cm par rapport au bord du plateau (la ou il doit etre mis en pos de départ)
-                x_or_y = 550;
+                x_or_y = 0;
                 ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, x_or_y, 0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE);
 
 	if(color == BLUE)
