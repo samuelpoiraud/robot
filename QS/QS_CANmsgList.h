@@ -170,18 +170,6 @@
 			//Ajoutez-en si nécessaire
 		#define ACT_RESULT_ERROR_UNKNOWN      255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
     /////////////////////////////////////////
-	
-	//////////////// AX12 ///////////////////
-    #define ACT_AX12 (ACT_FILTER | 0xFF)
-
-		#define ACT_BALL_GRABBER_GO_UP      0x02
-		#define ACT_BALL_GRABBER_GO_DOWN    0x03
-		#define ACT_BALL_GRABBER_GO_TIDY    0x04
-
-		#define ACT_HAMMER_GO_UP            0x05
-		#define ACT_HAMMER_GO_DOWN          0x06
-		#define ACT_HAMMER_GO_TIDY          0x07
-    /////////////////////////////////////////
 
 // Code des SID des messages: 0x30x = message pour Tiny, 0x31x = message pour Krusty.
 // Le SID 0x300 est reservé pour le self_test
@@ -190,7 +178,7 @@
 	#define ACT_HAMMER (ACT_FILTER | 0x01)    //0x01 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
 		//Paramètres de HAMMER (dans data[0])
 		#define ACT_HAMMER_MOVE_TO     0   // Changer la position du bras
-		#define ACT_HAMMER_STOP        3   // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
+		#define ACT_HAMMER_STOP        1   // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
 		                                   //Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
 	/////////////////////////////////////////
 
