@@ -80,26 +80,26 @@ void any_match(time32_t match_duration)
 		if(QS_WHO_AM_I_get()==TINY){
 			if(strat_number()==0x00)
 					//STRAT_1
-					strategy = strat_verre_assiettes_et_gateau;
+					strategy = test_strat_verrre;
 			if(strat_number()==0x01)
 					//STRAT_2
 					strategy = TEST_STRAT_strat_selector_2;
 			if(strat_number()==0x02)
 					//STRAT_3
-					strategy = TEST_STRAT_homolagation_police;
+					strategy =TEST_STRAT_homolagation_police;
 
 
 		}else{
 		#endif
 			if(strat_number()==0x00)
 					//STRAT_1
-					strategy = strat_verre_assiettes_et_gateau;
+					strategy = test_strat_verrre;
 			if(strat_number()==0x01)
 					//STRAT_2
-					strategy = strat_verre_assiettes_et_gateau;
+					strategy = test_strat_verrre;
 			if(strat_number()==0x02)
 					//STRAT_3
-					strategy = strat_verre_assiettes_et_gateau;
+					strategy =test_strat_verrre;
 
 
 		#ifdef FDP_2013 //Pas très propre mais pas trop le choix
@@ -174,5 +174,5 @@ Uint8 strat_number(){
 				return 0x02;
 		}
 	}
-	return 0x01;
+	return 0x00;
 }
