@@ -33,7 +33,8 @@
 	
 	//Les coordonnées courantes x et y (sans correction due à la couleur...)
 
-
+	volatile module_id_e XBEE_i_am_module;
+	volatile bool_e match_started;
 
 	/*
 		Une détection est un couple levée + descente de signal recu. 

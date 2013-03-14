@@ -12,7 +12,7 @@
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
 	#include "QS/QS_types.h"
-
+	
 	/* En premier lieu, choisir si on souhaite executer un code de
 	 * test ou le code de match */
 

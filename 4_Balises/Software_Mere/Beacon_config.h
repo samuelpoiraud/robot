@@ -12,8 +12,9 @@
 #ifndef BEACON_CONFIG_H
 	#define BEACON_CONFIG_H
 
+	#define ENABLE_XBEE
 	#define XBEE_PLUGGED_ON_UART2
-	#define I_AM_MODULE MODULE_2	//Qui suis-je ?	(en pratique, s'envoyer un message à soit même est possible... et on le reçoit !)
+	#include "QS/QS_can_over_xbee.h"
 	
 	#define QS_CAN_RX_IT_PRI CAN_INT_PRI_5 //Il est impératif que l'IT timer1 (de priorité 6) soit LA PLUS PRIORITAIRE !
 

@@ -69,7 +69,7 @@
 	void tests(void)
 	{
 		//ARRAY_US_tests();
-		jeu_test_BRAIN_IR_find_ab();
+		//jeu_test_BRAIN_IR_find_ab();
 		
 	}	
 
@@ -103,7 +103,7 @@
 				count_2ms = 0;
 				msg.sid = 0xCAFE;
 				msg.size = 0;
-				CANMsgToXbee(&msg, (I_AM_MODULE == MODULE_C)?MODULE_2:MODULE_C);	//on cause à l'autre.
+				CANMsgToXbee(&msg, (BALISE_MERE == MODULE_C)?MODULE_2:MODULE_C);	//on cause à l'autre.
 			}
 			*/
 //			process_beacon();
@@ -111,7 +111,9 @@
 			
 			if(flag_1sec)
 			{
-				CAN_over_XBee_every_second();
+				#ifdef ENABLE_XBEE
+					CAN_over_XBee_every_second();
+				#endif
 				flag_1sec = FALSE;
 				vbat = ADC_getValue(0);	//Mesure tension batterie...
 				if(vbat < SEUIL_VBAT_FAIBLE)
