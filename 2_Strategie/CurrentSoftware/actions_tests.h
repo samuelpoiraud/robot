@@ -46,6 +46,7 @@ void TEST_STRAT_strat_selector_1(void);
 void TEST_STRAT_strat_selector_2(void);
 void TEST_STRAT_strat_selector_3(void);
 void TEST_STRAT_lever_le_kiki(void);
+void TEST_STRAT_premier_deplacement(void);
 error_e TEST_STRAT_gift1(void);  //begin by micky
 error_e TEST_STRAT_gift2(void);
 error_e TEST_STRAT_gift3(void);

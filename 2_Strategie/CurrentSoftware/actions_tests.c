@@ -328,6 +328,28 @@ void TEST_STRAT_lever_le_kiki(void){
     
 }
 
+void TEST_STRAT_premier_deplacement(void){
+	/*static enum{
+		GO,
+		WENT,
+		GONE,
+	}state = GO;*/
+
+	//static bool_e timeout;
+	static error_e sub_action;
+	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{500,COLOR_Y(1000)},SLOW}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+	switch(sub_action){
+		case IN_PROGRESS:
+			break;
+		case END_OK:
+			break;
+		case END_WITH_TIMEOUT:
+			break;
+		case NOT_HANDLED:
+			break;
+	}
+}
+
 void levi(void){
     goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(1500)},VERY_SLOW}}, 1,FORWARD,NO_DODGE_AND_WAIT);
 

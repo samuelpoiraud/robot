@@ -100,18 +100,18 @@ void any_match(time32_t match_duration)
 		#endif
 			if(strat_number()==0x00){
 					//STRAT_1
-				calibration = 0x00;
-					strategy = test_strat_verrre;
+				calibration = 0x01;
+					strategy = TEST_STRAT_premier_deplacement;
 			}
 			if(strat_number()==0x01){
 					//STRAT_2
 					calibration = 0x00;
-					strategy = test_strat_verrre;
+					strategy = strat_verre_assiettes_et_gateau;
 			}
 			if(strat_number()==0x02){
 					//STRAT_3
-					calibration = 0x00;
-					strategy =test_strat_verrre;
+					calibration = 0x02;
+					strategy = TEST_STRAT_premier_deplacement;
 			}
 
 
