@@ -78,28 +78,28 @@ void any_match(time32_t match_duration)
 	#warning "Pensez à créer des stratégies différentes pour Tiny et Krusty... et à les inclure ci-dessous avant de virer ce warning."
 
 		if(QS_WHO_AM_I_get()==TINY){
-			if(strat_number()==0x01)
+			if(strat_number()==0x00)
 					//STRAT_1
-					strategy = TEST_STRAT_strat_selector_1;
-			if(strat_number()==0x02)
+					strategy = strat_verre_assiettes_et_gateau;
+			if(strat_number()==0x01)
 					//STRAT_2
 					strategy = TEST_STRAT_strat_selector_2;
-			if(strat_number()==0x03)
+			if(strat_number()==0x02)
 					//STRAT_3
-					strategy = TEST_STRAT_strat_selector_3;
+					strategy = TEST_STRAT_homolagation_police;
 
 
 		}else{
 		#endif
-			if(strat_number()==0x01)
+			if(strat_number()==0x00)
 					//STRAT_1
-					strategy = TEST_STRAT_lever_le_kiki;
-			if(strat_number()==0x02)
+					strategy = strat_verre_assiettes_et_gateau;
+			if(strat_number()==0x01)
 					//STRAT_2
-					strategy = TEST_STRAT_lever_le_kiki;
-			if(strat_number()==0x03)
+					strategy = strat_verre_assiettes_et_gateau;
+			if(strat_number()==0x02)
 					//STRAT_3
-					strategy = TEST_STRAT_lever_le_kiki;
+					strategy = strat_verre_assiettes_et_gateau;
 
 
 		#ifdef FDP_2013 //Pas très propre mais pas trop le choix
@@ -165,13 +165,13 @@ void any_match(time32_t match_duration)
 
 Uint8 strat_number(){
 	if(SWITCH_STRAT_1)
-		return 0x01;
+		return 0x00;
 	else{
 		if(SWITCH_STRAT_2)
-			return 0x02;
+			return 0x01;
 		else{
 			if(SWITCH_STRAT_3)
-				return 0x03;
+				return 0x02;
 		}
 	}
 	return 0x01;

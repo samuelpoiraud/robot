@@ -13,6 +13,7 @@
 	#define GLOBAL_CONFIG_H
 
 	#define VERBOSE_MODE
+	#define MODE_HOMOLOGATION
 	#define OUTPUT_LOG
 	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 

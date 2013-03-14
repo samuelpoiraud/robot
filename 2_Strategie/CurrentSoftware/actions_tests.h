@@ -37,7 +37,7 @@
 //Prototypes de fonctions
 //Homologation
 void TEST_STRAT_HOMOLOGATION(void);
-void TEST_STRAT_homolagation_fonctionnelle(void);
+void TEST_STRAT_homolagation_police(void);
 error_e Test_Homologation_Sortie_Base(void); 
 error_e Test_Homologation_Point(void);
 

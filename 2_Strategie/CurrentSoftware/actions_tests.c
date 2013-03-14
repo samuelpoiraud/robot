@@ -116,7 +116,7 @@ void TEST_STRAT_HOMOLOGATION(void){  //by micky
     }
 }
 
-void TEST_STRAT_homolagation_police(void) //by Amaury
+void TEST_STRAT_homolagation_police(void)
 {
 	static enum
 	{
@@ -126,6 +126,7 @@ void TEST_STRAT_homolagation_police(void) //by Amaury
 	}state = START;
 
 	static error_e sub_action;
+	static bool_e timeout= FALSE;
 
 	switch(state)
 	{
@@ -174,7 +175,7 @@ void TEST_STRAT_homolagation_police(void) //by Amaury
 
 		case AVOIDANCE:
 			sub_action = goto_pos_with_scan_foe
-			((displacement_t[]){{{350,COLOR_Y(800)},SLOW},{{1575,COLOR_Y(800)},SLOW}},2,FORWARD,NORMAL_WAIT);
+			((displacement_t[]){{{350,COLOR_Y(800)},SLOW},{{1575,COLOR_Y(800)},SLOW}},2,FORWARD,NO_DODGE_AND_WAIT);
 			switch(sub_action)
 			{
 				case END_OK:
@@ -195,10 +196,7 @@ void TEST_STRAT_homolagation_police(void) //by Amaury
 			break;
 	}
 }
-error_e Test_Homologation_Sortie_Base()
-error_e Test_Homologation_Point(void){
 
-}
 
 /* ----------------------------------------------------------------------------- */
 /* 					Sous Strat homologation                     			 */
@@ -237,7 +235,7 @@ error_e Test_Homologation_Point(void) //by Amaury
 				break;
 
 			case POINT_CADEAU :
-				//sub_action = /*actionneur cadeau*/;
+				//sub_action = actionneur cadeau;
 
 				switch(sub_action){
 					case END_OK:
