@@ -93,8 +93,11 @@
 	#define KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (-8)
 	
 	//à regler avec éléments mécaniques de blocages extrèmement parallèles à l'axe des codeurs !
-	#define CALIBRATION_BACKWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'arrière en calage
-	#define CALIBRATION_FORWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'avant en calage
+	#define TINY_CALIBRATION_BACKWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'arrière en calage
+	#define TINY_CALIBRATION_FORWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'avant en calage
+	
+	#define KRUSTY_CALIBRATION_BACKWARD_BORDER_DISTANCE 120 		//distance entre le 'centre' du robot et l'arrière en calage
+	#define KRUSTY_CALIBRATION_FORWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'avant en calage
 		
 	#define FIELD_SIZE_Y 3000	//[mm]
 	#define FIELD_SIZE_X 2000	//[mm]
