@@ -31,6 +31,7 @@
 void any_match(time32_t match_duration)
 {
 	static ia_fun_t strategy;
+	static Uint8 calibration = 0x01;
 	if (!global.env.match_started)
 	{
 		/* we are before the match */
@@ -66,7 +67,7 @@ void any_match(time32_t match_duration)
 			CAN_msg_t msg;
 			msg.sid = ASSER_CALIBRATION;
 			msg.data[0] = global.env.color == BLUE?REAR:FORWARD;
-			msg.data[1] = strat_number();
+			msg.data[1] = calibration;
 			msg.size = 2;
 			CAN_send(&msg);
 		}
@@ -78,28 +79,40 @@ void any_match(time32_t match_duration)
 	#warning "Pensez à créer des stratégies différentes pour Tiny et Krusty... et à les inclure ci-dessous avant de virer ce warning."
 
 		if(QS_WHO_AM_I_get()==TINY){
-			if(strat_number()==0x00)
+			if(strat_number()==0x00){
 					//STRAT_1
+					calibration = 0x00;
 					strategy = test_strat_verrre;
-			if(strat_number()==0x01)
+			}
+			if(strat_number()==0x01){
 					//STRAT_2
+					calibration = 0x01;
 					strategy = TEST_STRAT_strat_selector_2;
-			if(strat_number()==0x02)
+			}
+			if(strat_number()==0x02){
 					//STRAT_3
-					strategy =TEST_STRAT_homolagation_police;
+					calibration = 0x00;
+					strategy = TEST_STRAT_homolagation_police;
+			}
 
 
 		}else{
 		#endif
-			if(strat_number()==0x00)
+			if(strat_number()==0x00){
 					//STRAT_1
+				calibration = 0x00;
 					strategy = test_strat_verrre;
-			if(strat_number()==0x01)
+			}
+			if(strat_number()==0x01){
 					//STRAT_2
+					calibration = 0x00;
 					strategy = test_strat_verrre;
-			if(strat_number()==0x02)
+			}
+			if(strat_number()==0x02){
 					//STRAT_3
+					calibration = 0x00;
 					strategy =test_strat_verrre;
+			}
 
 
 		#ifdef FDP_2013 //Pas très propre mais pas trop le choix
