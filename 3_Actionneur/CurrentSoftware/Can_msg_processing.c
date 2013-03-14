@@ -30,6 +30,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 	{
 		//Fin de la partie
 		case BROADCAST_STOP_ALL :
+			global.match_started = FALSE;
 			debug_printf("C:BROADCAST_STOP_ALL\r\n");
 			//QUEUE_flush_all();
 			//DCM_stop_all();
@@ -38,6 +39,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		//Reprise de la partie
 		case BROADCAST_START :
 			debug_printf("C:BROADCAST_START\r\n");
+			global.match_started = TRUE;
 			break;
 
 		case BROADCAST_POSITION_ROBOT:
