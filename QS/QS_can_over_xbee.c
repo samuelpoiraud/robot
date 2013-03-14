@@ -152,7 +152,8 @@ void CAN_over_XBee_process_main(void)
 				//Soit le match à commencé, soit tout le monde a été joint -> on arrête les pings...
 				//TOUT LES MESSAGES CAN ENVOYES SONT ALORS CONSECUTIFS A UNE DEMANDE PROVENANT DU DESTINATAIRE DES MESSAGES !
 				//ces demandes sont périssables en quelques secondes. Ceci afin d'éviter qu'un flux de donnée ne soit actif longtemps vers un destinataire qui a été éteint.
-				
+				if(global.match_started == FALSE)
+					XBee_state = INIT;
 			break;
 			default:
 			break;
