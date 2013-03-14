@@ -16,13 +16,8 @@
 	#ifndef QS_GLOBAL_VARS_H
 		#error "Il est interdit d'inclure directement Global_vars.h, lire le CQS."
 	#endif
-	
-	bool_e pawn_front_detected;
-	bool_e pawn_back_detected;
-	bool_e switch_clamp_front;
-	bool_e switch_clamp_back;
 
-
+	bool_e match_started;
 
 	//Test et inclusion des vars spécifiques au robot
 	#if (defined(I_AM_ROBOT_KRUSTY) && defined(I_AM_ROBOT_TINY)) || (!defined(I_AM_ROBOT_KRUSTY) && !defined(I_AM_ROBOT_TINY))
