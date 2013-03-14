@@ -16,9 +16,13 @@
 
 #include "QS/QS_can.h"
 
-typedef enum
-{
-	ASSER, ACT_STACK_BallLauncher, ACT_STACK_Plate, ACTUATORS_NB
+typedef enum {
+	ASSER,
+	ACT_STACK_BallLauncher,
+	ACT_STACK_Plate,
+	ACT_STACK_Hammer,
+	ACT_STACK_BallInflater,
+	ACTUATORS_NB
 }stack_id_e;
 
 /*

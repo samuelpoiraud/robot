@@ -50,16 +50,8 @@ typedef struct {
 #define ACT_ARG_USE_DEFAULT 0
 #define ACT_STACK_TIMEOUT_MS 3000
 
-//Décommentez ce paramêtre ou mettez le dans Global_config pour empêcher un actionneur d'être désactivé
-//De cette façon, si cette constante est définie, une demande d'opération ne sera jamais refusée
-//#define ACT_NEVER_DISABLE
-
-//Décommentez ce paramêtre ou mettez le dans Global_config pour désactiver la gestion d'erreur. (dangereux)
-//De cette façon, si cette constante est définie, tout renvoi de résultat par la carte actionneur sera considéré comme une réussite. Le timeout de la carte strat n'est pas désactivé.
-//#define ACT_NO_ERROR_HANDLING
-
 #ifdef ACT_NO_ERROR_HANDLING
-	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c, constante: ACT_NO_ERROR_HANDLING"
+	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c, constante: ACT_NO_ERROR_HANDLING)"
 #endif
 
 
@@ -84,57 +76,8 @@ ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
 }
 
 
-// FONCTIONS D'ACTIONNEURS PUBLIQUES
-
-void ACT_hammer_up(void){
-
-    CAN_msg_t order;
-    order.sid = ACT_AX12;
-    order.size=1;
-    order.data[0]=ACT_HAMMER_GO_UP;
-    CAN_send(&order);
-}
-void ACT_hammer_down(void){
-
-    CAN_msg_t order;
-    order.sid = ACT_AX12;
-    order.size=1;
-    order.data[0]=ACT_HAMMER_GO_DOWN;
-    CAN_send(&order);
-}
-void ACT_hammer_tidy(void){
-
-    CAN_msg_t order;
-    order.sid = ACT_AX12;
-    order.size=1;
-    order.data[0]=ACT_HAMMER_GO_TIDY;
-    CAN_send(&order);
-}
-
-void ACT_ball_grabber_up(void){
-
-    CAN_msg_t order;
-    order.sid = ACT_AX12;
-    order.size=1;
-    order.data[0]= ACT_BALL_GRABBER_GO_UP;
-    CAN_send(&order);
-}
-void ACT_ball_grabber_down(void){
-
-    CAN_msg_t order;
-    order.sid = ACT_AX12;
-    order.size=1;
-    order.data[0]= ACT_BALL_GRABBER_GO_DOWN;
-    CAN_send(&order);
-}
-void ACT_ball_grabber_tidy(void){
-
-    CAN_msg_t order;
-    order.sid = ACT_AX12;
-    order.size=1;
-    order.data[0]= ACT_BALL_GRABBER_GO_TIDY;
-    CAN_send(&order);
-}
+//FONCTIONS D'ACTIONNEURS PUBLIQUES
+// <editor-fold desc="Krusty">
 
 bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run) {
 	act_arg_t args;
@@ -223,7 +166,83 @@ bool_e ACT_push_plate_rotate_vertically(bool_e run) {
 	return ACT_push_operation(ACT_STACK_Plate, &args, run);
 }
 
+// </editor-fold>
+
+// <editor-fold desc="Tiny">
+bool_e ACT_push_hammer_goto(Uint16 position, bool_e run) {
+	act_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = ACT_HAMMER;
+	args.msg.data[0] = ACT_HAMMER_MOVE_TO;
+	args.msg.data[1] = LOWINT(position);
+	args.msg.data[2] = HIGHINT(position);
+	args.msg.size = 3;
+
+	//Que faire si on ne peut pas bouger le bras ... (rien ici)
+	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer moveto cmd\n");
+	return ACT_push_operation(ACT_STACK_Hammer, &args, run);
+}
+
+bool_e ACT_push_hammer_stop(bool_e run) {
+	act_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = ACT_HAMMER;
+	args.msg.data[0] = ACT_HAMMER_STOP;
+	args.msg.size = 1;
+
+	//Que faire si on ne peut pas bouger le bras ... (rien ici)
+	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer stop asser cmd\n");
+	return ACT_push_operation(ACT_STACK_Hammer, &args, run);
+}
+
+bool_e ACT_push_ball_inflater_inflate(Uint8 duration_sec, bool_e run) {
+	act_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = ACT_BALLINFLATER;
+	args.msg.data[0] = ACT_BALLINFLATER_START;
+	args.msg.data[1] = duration_sec;
+	args.msg.size = 2;
+
+	//Que faire si on ne peut pas bouger le bras ... (rien ici)
+	args.fallbackMsg.sid = ACT_BALLINFLATER;
+	args.fallbackMsg.data[0] = ACT_BALLINFLATER_STOP;
+	args.fallbackMsg.size = 1;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer stop asser cmd\n");
+	return ACT_push_operation(ACT_STACK_BallInflater, &args, run);
+}
+
+bool_e ACT_push_ball_inflater_stop(bool_e run) {
+	act_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = ACT_BALLINFLATER;
+	args.msg.data[0] = ACT_BALLINFLATER_STOP;
+	args.msg.size = 1;
+
+	//Que faire si on ne peut pas bouger le bras ... (rien ici)
+	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer stop asser cmd\n");
+	return ACT_push_operation(ACT_STACK_BallInflater, &args, run);
+}
+
+// </editor-fold>
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Gestion des actions et de leur résultat (privé)
+// <editor-fold defaultstate="collapsed">
 
 //Prépare une action correctement et l'envoie sur la pile
 static bool_e ACT_push_operation(stack_id_e act_id, act_arg_t* args, bool_e run_now) {
@@ -309,7 +328,7 @@ static void ACT_check_result(stack_id_e act_id) {
 							//On ne change pas act_states[act_id] car on n'a pas encore terminé avec l'opération
 						} else {	//Si on n'a pas de message fallback, (car par exemple, ça aurait été le même message) on déclare une erreur indiquant d'essayer plus tard
 							OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"GoalUnreachable, no fallback message to send, disabling act, act id: %u\n", act_id);
-							global.env.act[act_id].disabled = TRUE;
+							//global.env.act[act_id].disabled = TRUE;
 							act_states[act_id] = ACT_FUNCTION_RetryLater;
 							STACKS_set_timeout(act_id, TRUE);
 						}
@@ -318,8 +337,8 @@ static void ACT_check_result(stack_id_e act_id) {
 					case ACT_BEHAVIOR_RetryLater: {
 							static time32_t waitMsCount = 0;
 							if(waitMsCount == 0) {
-								OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"RetryLater, will retry 3ms later, act id: %u\n", act_id);
-								waitMsCount = global.env.match_time + 3;	//Attendre 3ms avant de ressayer
+								OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"RetryLater, will retry 10ms later, act id: %u\n", act_id);
+								waitMsCount = global.env.match_time + 10;	//Attendre 3ms avant de ressayer
 							}else if(global.env.match_time >= waitMsCount) {  //Après un certain temps défini juste avant, renvoyer la commande en espérant que ça passe cette fois
 								CAN_msg_t msg;
 
@@ -401,12 +420,22 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Received result: act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
 
 	switch(msg->data[0]) {
+		//Krusty
 		case ACT_BALLLAUNCHER & 0xFF:
 			act_id = ACT_STACK_BallLauncher;
 			break;
 
 		case ACT_PLATE & 0xFF:
 			act_id = ACT_STACK_Plate;
+			break;
+
+		//Tiny
+		case ACT_HAMMER & 0xFF:
+			act_id = ACT_STACK_Hammer;
+			break;
+
+		case ACT_BALLINFLATER & 0xFF:
+			act_id = ACT_STACK_BallInflater;
 			break;
 	}
 
@@ -432,9 +461,13 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			break;
 
 		default:	//ACT_RESULT_NOT_HANDLED et ACT_RESULT_FAILED (et les autres si ajouté)
+			global.env.act[act_id].operationResult = ACT_RESULT_Failed;
 			switch(msg->data[3]) {
 				case ACT_RESULT_ERROR_OK:
 					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Reason Ok with result Failed, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);
+					break;
+
+				case ACT_RESULT_ERROR_OTHER: //Keep last error, do nothing
 					break;
 
 				case ACT_RESULT_ERROR_TIMEOUT:
@@ -465,9 +498,9 @@ void ACT_process_result(const CAN_msg_t* msg) {
 					global.env.act[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Unknown error ! act_id: 0x%x, cmd: 0x%x, reason: %u\n", msg->data[0], msg->data[1], msg->data[3]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 			}
-
-			global.env.act[act_id].operationResult = ACT_RESULT_Failed;
 			break;
 	}
 #endif /* not def ACT_NO_ERROR_HANDLING */
 }
+
+// </editor-fold>

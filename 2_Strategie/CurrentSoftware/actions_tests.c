@@ -322,10 +322,11 @@ void TEST_STRAT_strat_selector_3(void){
 void TEST_STRAT_lever_le_kiki(void){
     static int a=1;
     if(a==1){
-        ACT_hammer_up();
+        //TEST_STRAT_lever_le_kiki: si vous voulez utiliser cette strat, il va faloir changer la position a quelque chose de correct
+        //ACT_push_hammer_goto(0, TRUE);
+	#warning "Todo: Il faut changer la position du hammer pour l'utiliser"
         a=0;
     }
-    
 }
 
 void TEST_STRAT_premier_deplacement(void){
@@ -756,9 +757,12 @@ error_e TEST_ACT(void){
         switch (state)
         {
             case ACT_HAMMER_DOWN:
-                ACT_hammer_down();
+                //ACT_hammer_down();
+                #warning "Todo: Il faut changer la position du hammer pour l'utiliser"
+                return NOT_HANDLED;
+                //ACT_push_hammer_goto(0, TRUE);
 
-                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_Hammer);
                 switch(sub_action_act)
                 {
                         case ACT_FUNCTION_InProgress:
@@ -788,8 +792,11 @@ error_e TEST_ACT(void){
                 break;
 
             case ACT_HAMMER_TIDY:
-                ACT_hammer_tidy();
-                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                //ACT_hammer_tidy();
+                #warning "Todo: Il faut changer la position du hammer pour l'utiliser"
+                return NOT_HANDLED;
+                //ACT_push_hammer_goto(0, TRUE);
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_Hammer);
                 switch(sub_action_act)
                 {
                         case ACT_FUNCTION_InProgress:
@@ -818,8 +825,11 @@ error_e TEST_ACT(void){
                 break;
 
             case ACT_HAMMER_UP:
-                ACT_hammer_up();
-                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                //ACT_hammer_up();
+                #warning "Todo: Il faut changer la position du hammer pour l'utiliser"
+                return NOT_HANDLED;
+                //ACT_push_hammer_goto(0, TRUE);
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_Hammer);
                 switch(sub_action_act)
                 {
                         case ACT_FUNCTION_InProgress:
@@ -848,8 +858,9 @@ error_e TEST_ACT(void){
                 break;
 
             case ACT_BALL_GRABBER_DOWN:
-                ACT_ball_grabber_down();
-                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                //ACT_ball_grabber_down);
+		ACT_push_plate_rotate_horizontally(TRUE);
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
                 switch(sub_action_act)
                 {
                         case ACT_FUNCTION_InProgress:
@@ -878,8 +889,9 @@ error_e TEST_ACT(void){
                 break;
 
             case ACT_BALL_GRABBER_TIDY:
-                ACT_ball_grabber_tidy();
-                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                //ACT_ball_grabber_tidy();
+                ACT_push_plate_rotate_prepare(TRUE);
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
                 switch(sub_action_act)
                 {
                         case ACT_FUNCTION_InProgress:
@@ -908,8 +920,9 @@ error_e TEST_ACT(void){
                 break;
 
             case ACT_BALL_GRABBER_UP:
-                ACT_ball_grabber_up();
-                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                //ACT_ball_grabber_up();
+                ACT_push_plate_rotate_vertically(TRUE);
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
                 switch(sub_action_act)
                 {
                         case ACT_FUNCTION_InProgress:
@@ -1206,8 +1219,9 @@ error_e TEST_STRAT_PREMIERE_ASSIETTE_EVITEMENT(void){
             break;
 		case ACT_DOWN:
 
-			ACT_ball_grabber_down();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_down();
+			ACT_push_plate_rotate_horizontally(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1237,8 +1251,9 @@ error_e TEST_STRAT_PREMIERE_ASSIETTE_EVITEMENT(void){
 
 		case ACT_UP:
 
-			ACT_ball_grabber_up();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_up();
+			ACT_push_plate_rotate_vertically(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1359,8 +1374,9 @@ error_e TEST_STRAT_SECONDE_ASSIETTE_EVITEMENT(void){
             break;
 		case ACT_DOWN:
 
-			ACT_ball_grabber_down();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_down();
+			ACT_push_plate_rotate_horizontally(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1389,8 +1405,9 @@ error_e TEST_STRAT_SECONDE_ASSIETTE_EVITEMENT(void){
 
 		case ACT_UP:
 
-			ACT_ball_grabber_up();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_up();
+			ACT_push_plate_rotate_vertically(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1513,8 +1530,9 @@ error_e TEST_STRAT_TROISIEME_ASSIETTE_EVITEMENT(void){
             break;
 		case ACT_DOWN:
 
-			ACT_ball_grabber_down();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_down();
+			ACT_push_plate_rotate_horizontally(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1543,8 +1561,9 @@ error_e TEST_STRAT_TROISIEME_ASSIETTE_EVITEMENT(void){
 
 		case ACT_UP:
 
-			ACT_ball_grabber_up();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_up();
+			ACT_push_plate_rotate_vertically(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1667,8 +1686,9 @@ error_e TEST_STRAT_QUATRIEME_ASSIETTE_EVITEMENT(void){
             break;
 		case ACT_DOWN:
 
-			ACT_ball_grabber_down();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_down();
+			ACT_push_plate_rotate_horizontally(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1697,8 +1717,9 @@ error_e TEST_STRAT_QUATRIEME_ASSIETTE_EVITEMENT(void){
 
 		case ACT_UP:
 
-			ACT_ball_grabber_up();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_up();
+			ACT_push_plate_rotate_vertically(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1821,8 +1842,9 @@ error_e TEST_STRAT_CINQUIEME_ASSIETTE_EVITEMENT(void){
             break;
 		case ACT_DOWN:
 
-			ACT_ball_grabber_down();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_down();
+			ACT_push_plate_rotate_horizontally(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1851,8 +1873,9 @@ error_e TEST_STRAT_CINQUIEME_ASSIETTE_EVITEMENT(void){
 
 		case ACT_UP:
 
-			ACT_ball_grabber_up();
-			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			//ACT_ball_grabber_up();
+			ACT_push_plate_rotate_vertically(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
 			switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -2139,8 +2162,9 @@ error_e TEST_STRAT_CADEAU_1(void){
             }
             break;
         case GRABBER_TIDY:
-            ACT_ball_grabber_tidy();
-            sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+            //ACT_ball_grabber_tidy();
+            ACT_push_plate_rotate_prepare(TRUE);
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -2277,8 +2301,9 @@ error_e TEST_STRAT_CADEAU_2(void){
             }
             break;
         case GRABBER_TIDY:
-            ACT_ball_grabber_tidy();
-            sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+            //ACT_ball_grabber_tidy();
+            ACT_push_plate_rotate_prepare(TRUE);
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -2415,8 +2440,9 @@ error_e TEST_STRAT_CADEAU_3(void){
             }
             break;
         case GRABBER_TIDY:
-            ACT_ball_grabber_tidy();
-            sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+            //ACT_ball_grabber_tidy();
+            ACT_push_plate_rotate_prepare(TRUE);
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -2553,8 +2579,9 @@ error_e TEST_STRAT_CADEAU_4(void){
             }
             break;
         case GRABBER_TIDY:
-            ACT_ball_grabber_tidy();
-            sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+            //ACT_ball_grabber_tidy();
+            ACT_push_plate_rotate_prepare(TRUE);
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
