@@ -102,7 +102,7 @@ static void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
 					return;
 
 				default: {
-						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_LONGHAMMER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 						CAN_send(&resultMsg);
 						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);

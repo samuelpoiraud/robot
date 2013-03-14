@@ -102,10 +102,12 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_PLATE_ROTATE_HORIZONTALLY:
 			case ACT_PLATE_ROTATE_PREPARE:
 			case ACT_PLATE_ROTATE_STOP:
+			case ACT_PLATE_ROTATE_VERTICALLY:
 				CAN_push_operation_from_msg(msg, QUEUE_ACT_Plate_Rotation, &PLATE_run_command, 0);
 				break;
 
-			case ACT_PLATE_ROTATE_VERTICALLY:    //Cas spécial: fermer la pince avant de tourner en vertical (sinon ça ne rentrera pas dans le robot)
+				//TODO: decommenter le code gérant l'AX12 avec ACT_PLATE_ROTATE_VERTICALLY
+			/*case ACT_PLATE_ROTATE_VERTICALLY:    //Cas spécial: fermer la pince avant de tourner en vertical (sinon ça ne rentrera pas dans le robot)
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
 				if(queueId != QUEUE_CREATE_FAILED) {
@@ -119,7 +121,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 					CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
 					CAN_send(&resultMsg);
 				}
-				break;
+				break;*/
 
 			case ACT_PLATE_PLIER_CLOSE:
 			case ACT_PLATE_PLIER_OPEN:

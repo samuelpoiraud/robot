@@ -57,7 +57,7 @@ int main (void)
 	#ifdef USE_CAN
 		CAN_init();
 	#endif
-	
+
 	// Gestion du CAN
 	#ifdef USE_CAN
 		CAN_msg_t msg;
@@ -86,12 +86,21 @@ int main (void)
 
 		if(!button1_pos && BUTTON1_PORT)
 		{
-			msg.sid = ACT_BALLLAUNCHER;
-			msg.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
+			//msg.sid = ACT_BALLLAUNCHER;
+			//msg.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
+
+			/*msg.sid = ACT_BALLINFLATER;
+			msg.data[0] = ACT_BALLINFLATER_STOP;
 			msg.data[1] = LOWINT(6000);
 			msg.data[2] = HIGHINT(6000);
 			msg.size = 3;
+			CAN_process_msg(&msg);*/
+
+			msg.sid = ACT_PLATE;
+			msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+			msg.size = 1;
 			CAN_process_msg(&msg);
+
 			LED_USER2 = BUTTON1_PORT;
 			button1_pos = BUTTON1_PORT;
 		}
@@ -135,7 +144,17 @@ int main (void)
 		
 		if(!button4_pos && BUTTON4_PORT)
 		{
-			
+			/*msg.sid = ACT_BALLINFLATER;
+			msg.data[0] = ACT_BALLINFLATER_START;
+			msg.data[1] = 3;  //secondes
+			msg.size = 2;
+			CAN_process_msg(&msg);*/
+
+			msg.sid = ACT_PLATE;
+			msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
+			msg.size = 1;
+			CAN_process_msg(&msg);
+
 			LED_USER2 = BUTTON4_PORT;
 			button4_pos = BUTTON4_PORT;
 		}

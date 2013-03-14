@@ -44,7 +44,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 		case BROADCAST_POSITION_ROBOT:
 			//Rien, mais pas inclus dans le cas default où l'on peut afficher le sid...
-			break;	
+			break;
 		
 		default: 
 			//debug_printf("SID:%x\r\n",msg->sid);

@@ -107,14 +107,14 @@
 	#define BALLLAUNCHER_HALLSENSOR_INT_ISR      __attribute__((interrupt, no_auto_psv)) _INT1Interrupt
 
 /* Config PLATE */
-	#define PLATE_ASSER_KP                       3000
+	#define PLATE_ASSER_KP                       400
 	#define PLATE_ASSER_KI                       0
 	#define PLATE_ASSER_KD                       0
-	#define PLATE_ASSER_TIMEOUT                  3000   //en ms
-	#define PLATE_ASSER_POS_EPSILON              5      //TODO: à ajuster plus correctement
-	#define PLATE_HORIZONTAL_POS                 85    //TODO: ajuster ces valeurs ! (unité: potarland)
-	#define PLATE_PREPARE_POS                    263
-	#define PLATE_VERTICAL_POS                   402   /////////////////////////////
+	#define PLATE_ASSER_TIMEOUT                  0   //en ms
+	#define PLATE_ASSER_POS_EPSILON              60  //TODO: à ajuster plus correctement
+	#define PLATE_HORIZONTAL_POS                 460    //TODO: ajuster ces valeurs ! (unité: potarland)
+	#define PLATE_PREPARE_POS                    548
+	#define PLATE_VERTICAL_POS                   750   /////////////////////////////
 	#define PLATE_DCMOTOR_ID                     1      //Doit être unique !
 	#define PLATE_DCMOTOR_PWM_NUM                3
 	#define PLATE_DCMOTOR_PORT_WAY               PORTE
