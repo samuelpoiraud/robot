@@ -8,7 +8,6 @@
       <itemPath>../Global_flags.h</itemPath>
       <itemPath>../Global_vars.h</itemPath>
       <itemPath>../Global_vars_types.h</itemPath>
-      <itemPath>../Tableau.h</itemPath>
       <itemPath>../Beacon.h</itemPath>
       <itemPath>../Beacon_it.h</itemPath>
       <itemPath>../Beacon_config.h</itemPath>
@@ -36,6 +35,7 @@
       <itemPath>../Array_US.h</itemPath>
       <itemPath>../Eyes.h</itemPath>
       <itemPath>../Brain_IR.h</itemPath>
+      <itemPath>../Array_IR.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -44,7 +44,6 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>../Tableau.c</itemPath>
       <itemPath>../Beacon.c</itemPath>
       <itemPath>../Beacon_it.c</itemPath>
       <itemPath>../QS/QS_adc.c</itemPath>
@@ -64,6 +63,7 @@
       <itemPath>../Array_US.c</itemPath>
       <itemPath>../Eyes.c</itemPath>
       <itemPath>../Brain_IR.c</itemPath>
+      <itemPath>../Array_IR.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -81,7 +81,8 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>dsPIC30F6010A</targetDevice>
         <targetHeader></targetHeader>
-        <platformTool>PICkit3PlatformTool</platformTool>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion></languageToolchainVersion>
         <platform>3</platform>
@@ -91,15 +92,19 @@
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>true</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
-        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
         <property key="code-model" value="default"/>
