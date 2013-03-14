@@ -28,6 +28,8 @@ volatile Sint32 x32;		//Position précise en x [mm/65536]		<<16
 volatile Sint32 y32;		//Position précise en y [mm/65536]		<<16
 volatile Sint32 teta32;		//Position précise en teta [rad/4096/1024]	<<22
 volatile color_e color;
+volatile Sint16 calibration_backward_border_distance;
+volatile Sint16 calibration_forward_border_distance;
 
 		
 void ODOMETRY_init()
@@ -37,18 +39,22 @@ void ODOMETRY_init()
 	if(QS_WHO_AM_I_get()==TINY)
 	{
 		//TINY
-		coefs[ODOMETRY_COEF_TRANSLATION] 	= 	TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT;
-		coefs[ODOMETRY_COEF_SYM] 			= 	TINY_ODOMETRY_COEF_SYM_DEFAULT;
-		coefs[ODOMETRY_COEF_ROTATION] 		= 	TINY_ODOMETRY_COEF_ROTATION_DEFAULT;
-		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	= 	TINY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+		coefs[ODOMETRY_COEF_TRANSLATION] 	 = 	TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT;
+		coefs[ODOMETRY_COEF_SYM] 		 	 = 	TINY_ODOMETRY_COEF_SYM_DEFAULT;
+		coefs[ODOMETRY_COEF_ROTATION] 		 = 	TINY_ODOMETRY_COEF_ROTATION_DEFAULT;
+		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	 = 	TINY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+		calibration_backward_border_distance = 	TINY_CALIBRATION_BACKWARD_BORDER_DISTANCE;
+		calibration_forward_border_distance  = 	TINY_CALIBRATION_FORWARD_BORDER_DISTANCE;
 	}
 	else
 	{
 		//KRUSTY
-		coefs[ODOMETRY_COEF_TRANSLATION] 	= 	KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT;
-		coefs[ODOMETRY_COEF_SYM] 			= 	KRUSTY_ODOMETRY_COEF_SYM_DEFAULT;
-		coefs[ODOMETRY_COEF_ROTATION] 		= 	KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT;
-		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	= 	KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+		coefs[ODOMETRY_COEF_TRANSLATION] 	 = 	KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT;
+		coefs[ODOMETRY_COEF_SYM] 			 = 	KRUSTY_ODOMETRY_COEF_SYM_DEFAULT;
+		coefs[ODOMETRY_COEF_ROTATION] 		 = 	KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT;
+		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	 = 	KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+		calibration_backward_border_distance = 	KRUSTY_CALIBRATION_BACKWARD_BORDER_DISTANCE;
+		calibration_forward_border_distance  = 	KRUSTY_CALIBRATION_FORWARD_BORDER_DISTANCE;
 	}	
 }
 
@@ -126,24 +132,24 @@ void ODOMETRY_correct_with_border(way_e way)
 	if(way == BACKWARD)
 	{
 		if(angle32 >= -(Sint32)PI4096/4 && angle32 <= (Sint32)PI4096/4)
-			ODOMETRY_set(CALIBRATION_BACKWARD_BORDER_DISTANCE, global.position.y, 0);									//pas de changement en y.
+			ODOMETRY_set(calibration_backward_border_distance, global.position.y, 0);									//pas de changement en y.
 		else if(angle32 >= (Sint32)PI4096/4 && angle32 <= (Sint32)PI4096*3/4)
-			ODOMETRY_set(global.position.x, CALIBRATION_BACKWARD_BORDER_DISTANCE, PI4096/2);							//pas de changement en x.
+			ODOMETRY_set(global.position.x, calibration_backward_border_distance, PI4096/2);							//pas de changement en x.
 		else if(angle32 >= (Sint32)PI4096*3/4 || angle32 <= -(Sint32)PI4096*3/4)
-			ODOMETRY_set(FIELD_SIZE_X - CALIBRATION_BACKWARD_BORDER_DISTANCE, global.position.y, PI4096);			//pas de changement en y.
+			ODOMETRY_set(FIELD_SIZE_X - calibration_backward_border_distance, global.position.y, PI4096);			//pas de changement en y.
 		else //(angle32 >= -PI4096/4*3 && angle32 <= -PI4096/4)
-			ODOMETRY_set(global.position.x, FIELD_SIZE_Y - CALIBRATION_BACKWARD_BORDER_DISTANCE, -(PI4096/2));	//pas de changement en x.
+			ODOMETRY_set(global.position.x, FIELD_SIZE_Y - calibration_backward_border_distance, -(PI4096/2));	//pas de changement en x.
 	}		
 	else	//global.sens_marche == AVANCER
 	{
 		if(angle32 >= -PI4096/4 && angle32 <= PI4096/4)
-			ODOMETRY_set(FIELD_SIZE_X - CALIBRATION_FORWARD_BORDER_DISTANCE, global.position.y, 0);				//pas de changement en y.
+			ODOMETRY_set(FIELD_SIZE_X - calibration_forward_border_distance, global.position.y, 0);				//pas de changement en y.
 		else if(angle32 >= PI4096/4 && angle32 <= PI4096/4*3)
-			ODOMETRY_set(global.position.x, FIELD_SIZE_Y - CALIBRATION_FORWARD_BORDER_DISTANCE, PI4096/2);			//pas de changement en x.
+			ODOMETRY_set(global.position.x, FIELD_SIZE_Y - calibration_forward_border_distance, PI4096/2);			//pas de changement en x.
 		else if(angle32 >= PI4096/4*3 || angle32 <= -PI4096/4*3)
-			ODOMETRY_set(CALIBRATION_FORWARD_BORDER_DISTANCE, global.position.y, PI4096);								//pas de changement en y.
+			ODOMETRY_set(calibration_forward_border_distance, global.position.y, PI4096);								//pas de changement en y.
 		else //(angle32 >= -PI4096/4*3 && angle32 <= -PI4096/4)
-			ODOMETRY_set(global.position.x, CALIBRATION_FORWARD_BORDER_DISTANCE, -(PI4096/2));							//pas de changement en x.
+			ODOMETRY_set(global.position.x, calibration_forward_border_distance, -(PI4096/2));							//pas de changement en x.
 	}
 }
 
