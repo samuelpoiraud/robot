@@ -675,14 +675,1940 @@ error_e TEST_STRAT_gift4(void){
 }
 
 
+void test_strat_verrre(){
+    static error_e sub_action;
+    static enum
+    {
+        VERRES = 0,
+        DONE,
+    }state=DONE;
 
+    switch (state)
+    {
+        case VERRES:
+            sub_action = TEST_STRAT_verres();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case DONE:
+            break;
+        default:
+            break;
+    }
+}
+
+error_e TEST_ACT(void){
+
+        static ACT_function_result_e sub_action_act;
+        static bool_e timeout = FALSE;
+	static enum {
+            ACT_HAMMER_DOWN = 0,
+            ACT_HAMMER_TIDY,
+            ACT_HAMMER_UP,
+            ACT_BALL_GRABBER_DOWN,
+            ACT_BALL_GRABBER_TIDY,
+            ACT_BALL_GRABBER_UP,
+            ACT_BALL_LAUNCHER_RUN,
+            ACT_BALL_LAUNCHER_STOP,
+            DONE,
+	} state = ACT_HAMMER_DOWN;
+
+        switch (state)
+        {
+            case ACT_HAMMER_DOWN:
+                ACT_hammer_down();
+
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                switch(sub_action_act)
+                {
+                        case ACT_FUNCTION_InProgress:
+                            break;
+
+                        case ACT_FUNCTION_Done:
+                            state=ACT_HAMMER_TIDY;
+                            break;
+
+                        case ACT_FUNCTION_ActDisabled:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        case ACT_FUNCTION_RetryLater:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        default:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                }
+
+                break;
+
+            case ACT_HAMMER_TIDY:
+                ACT_hammer_tidy();
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                switch(sub_action_act)
+                {
+                        case ACT_FUNCTION_InProgress:
+                            break;
+
+                        case ACT_FUNCTION_Done:
+                            state=ACT_HAMMER_UP;
+                            break;
+
+                        case ACT_FUNCTION_ActDisabled:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        case ACT_FUNCTION_RetryLater:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        default:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                }
+                break;
+
+            case ACT_HAMMER_UP:
+                ACT_hammer_up();
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                switch(sub_action_act)
+                {
+                        case ACT_FUNCTION_InProgress:
+                            break;
+
+                        case ACT_FUNCTION_Done:
+                            state=ACT_BALL_GRABBER_DOWN;
+                            break;
+
+                        case ACT_FUNCTION_ActDisabled:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        case ACT_FUNCTION_RetryLater:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        default:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                }
+                break;
+
+            case ACT_BALL_GRABBER_DOWN:
+                ACT_ball_grabber_down();
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                switch(sub_action_act)
+                {
+                        case ACT_FUNCTION_InProgress:
+                            break;
+
+                        case ACT_FUNCTION_Done:
+                            state=ACT_BALL_GRABBER_TIDY;
+                            break;
+
+                        case ACT_FUNCTION_ActDisabled:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        case ACT_FUNCTION_RetryLater:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        default:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                }
+                break;
+
+            case ACT_BALL_GRABBER_TIDY:
+                ACT_ball_grabber_tidy();
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                switch(sub_action_act)
+                {
+                        case ACT_FUNCTION_InProgress:
+                            break;
+
+                        case ACT_FUNCTION_Done:
+                            state=ACT_BALL_GRABBER_UP;
+                            break;
+
+                        case ACT_FUNCTION_ActDisabled:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        case ACT_FUNCTION_RetryLater:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        default:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                }
+                break;
+
+            case ACT_BALL_GRABBER_UP:
+                ACT_ball_grabber_up();
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                switch(sub_action_act)
+                {
+                        case ACT_FUNCTION_InProgress:
+                            break;
+
+                        case ACT_FUNCTION_Done:
+                            state=ACT_BALL_LAUNCHER_RUN;
+                            break;
+
+                        case ACT_FUNCTION_ActDisabled:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        case ACT_FUNCTION_RetryLater:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        default:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                }
+                break;
+
+            case ACT_BALL_LAUNCHER_RUN:
+                ACT_push_ball_launcher_run(6000,TRUE);
+
+
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                switch(sub_action_act)
+                {
+                        case ACT_FUNCTION_InProgress:
+                            break;
+
+                        case ACT_FUNCTION_Done:
+                            state=ACT_BALL_LAUNCHER_STOP;
+                            break;
+
+                        case ACT_FUNCTION_ActDisabled:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        case ACT_FUNCTION_RetryLater:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        default:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                }
+                break;
+
+            case ACT_BALL_LAUNCHER_STOP:
+                ACT_push_ball_launcher_stop(TRUE);
+
+                sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+                switch(sub_action_act)
+                {
+                        case ACT_FUNCTION_InProgress:
+                         break;
+
+                         case ACT_FUNCTION_Done:
+                            state=DONE;
+                            break;
+
+                        case ACT_FUNCTION_ActDisabled:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        case ACT_FUNCTION_RetryLater:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+
+                        default:
+                            state = 0;
+                            return NOT_HANDLED;
+                            break;
+                }
+                break;
+                
+            case DONE:
+                return (timeout) ? END_WITH_TIMEOUT : END_OK;
+                break;
+            default :
+                state=0;
+                return NOT_HANDLED;
+                break;
+
+        }
+
+}
+
+
+
+
+
+
+
+
+void TEST_STRAT_assiettes_evitement(void) {
+
+    static enum {
+        ASSIETTE_1,
+        ASSIETTE_2,
+        ASSIETTE_3,
+        ASSIETTE_4,
+        ASSIETTE_5,
+        DONE
+    } state = ASSIETTE_1;
+
+    static error_e sub_action;
+
+    switch (state) {
+        case ASSIETTE_1:
+            sub_action = TEST_STRAT_PREMIERE_ASSIETTE_EVITEMENT() ;
+            switch (sub_action) {
+                case END_OK:
+                    state = ASSIETTE_2;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state = ASSIETTE_2;
+                    break;
+                case NOT_HANDLED:
+                    state = ASSIETTE_2;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    state = 0;
+                    break;
+            }
+            break;
+
+        case ASSIETTE_2:
+
+            sub_action = TEST_STRAT_SECONDE_ASSIETTE_EVITEMENT() ;
+            switch (sub_action) {
+                case END_OK:
+                    state = ASSIETTE_3;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state = ASSIETTE_3;
+                    break;
+                case NOT_HANDLED:
+                    state = ASSIETTE_3;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    state = 0;
+                    break;
+            }
+            break;
+
+        case ASSIETTE_3:
+            sub_action = TEST_STRAT_TROISIEME_ASSIETTE_EVITEMENT() ;
+            switch (sub_action) {
+                case END_OK:
+                    state = ASSIETTE_4;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state = ASSIETTE_4;
+                    break;
+                case NOT_HANDLED:
+                    state = ASSIETTE_4;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    state = 0;
+                    break;
+            }
+            break;
+
+        case ASSIETTE_4:
+            sub_action = TEST_STRAT_QUATRIEME_ASSIETTE_EVITEMENT() ;
+            switch (sub_action) {
+                case END_OK:
+                    state = ASSIETTE_5;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state = ASSIETTE_5;
+                    break;
+                case NOT_HANDLED:
+                    state = ASSIETTE_5;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    state = 0;
+                    break;
+            }
+            break;
+
+        case ASSIETTE_5:
+            sub_action = TEST_STRAT_CINQUIEME_ASSIETTE_EVITEMENT() ;
+            switch (sub_action) {
+                case END_OK:
+                    state = DONE;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state = DONE;
+                    break;
+                case NOT_HANDLED:
+                    state = DONE;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    state = 0;
+                    break;
+            }
+            break;
+
+        case DONE:
+            break;
+
+        default:
+            break;
+
+
+    }
+}
+
+
+
+//assiettes avec evitement
+error_e TEST_STRAT_PREMIERE_ASSIETTE_EVITEMENT(void){
+
+    static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+    static enum {
+		POS_MOVE = 0,
+        PUSH_MOVE ,
+		WAIT_END_OF_MOVE,
+		ACT_DOWN,
+		ACT_UP,
+        MOVE_REAR,
+        DONE,
+    } state = PUSH_MOVE;
+
+    static bool_e timeout = FALSE;
+
+    switch (state) {
+        case POS_MOVE:
+
+            //pour les test uniquement
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{500,COLOR_Y(1000)}}, {{250,COLOR_Y(600)}}},2,FORWARD,NORMAL_WAIT);
+            //pour la vrai strat : sub_action = goto_pos_with_scan_foe((displacement_t[]){ {{250,COLOR_Y(600)}},{{250,COLOR_Y(380)}}},2,FORWARD,NORMAL_WAIT);
+			switch(sub_action)
+            {
+                case END_OK:
+                    state=PUSH_MOVE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=PUSH_MOVE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case PUSH_MOVE:
+
+            // ATTENTION : PAS D'EVITEMENT SUR CETTE FONCTION
+            ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,FALSE);
+            state=WAIT_END_OF_MOVE;
+            break;
+
+        case WAIT_END_OF_MOVE:
+            if (STACKS_wait_end_auto_pull(ASSER, &timeout)) {
+                state = ACT_DOWN;
+            }
+            break;
+		case ACT_DOWN:
+
+			ACT_ball_grabber_down();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=ACT_UP;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+
+			break;
+
+		case ACT_UP:
+
+			ACT_ball_grabber_up();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_REAR;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+        case MOVE_REAR:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+        default:
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+error_e TEST_STRAT_SECONDE_ASSIETTE_EVITEMENT(void){
+
+    static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+    static enum {
+		POS_MOVE = 0,
+        PUSH_MOVE ,
+		WAIT_END_OF_MOVE,
+		ACT_DOWN,
+		ACT_UP,
+        MOVE_REAR,
+        DONE,
+    } state = POS_MOVE;
+
+    static bool_e timeout = FALSE;
+
+    switch (state) {
+		case POS_MOVE:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){ {{600,COLOR_Y(600)}}},1,FORWARD,NORMAL_WAIT);
+			switch(sub_action)
+            {
+                case END_OK:
+                    state=PUSH_MOVE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=PUSH_MOVE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case PUSH_MOVE:
+
+            // ATTENTION : PAS D'EVITEMENT SUR CETTE FONCTION
+            ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,FALSE);
+            state=WAIT_END_OF_MOVE;
+            break;
+
+        case WAIT_END_OF_MOVE:
+            if (STACKS_wait_end_auto_pull(ASSER, &timeout)) {
+                state = ACT_DOWN;
+            }
+            break;
+		case ACT_DOWN:
+
+			ACT_ball_grabber_down();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=ACT_UP;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+		case ACT_UP:
+
+			ACT_ball_grabber_up();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_REAR;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+        case MOVE_REAR:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+        default:
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+error_e TEST_STRAT_TROISIEME_ASSIETTE_EVITEMENT(void){
+
+    static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+    static enum {
+		POS_MOVE = 0,
+        PUSH_MOVE ,
+		WAIT_END_OF_MOVE,
+		ACT_DOWN,
+		ACT_UP,
+        MOVE_REAR,
+        DONE,
+    } state = PUSH_MOVE;
+
+    static bool_e timeout = FALSE;
+
+    switch (state) {
+        case POS_MOVE:
+
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){ {{1000,COLOR_Y(600)}}},1,FORWARD,NORMAL_WAIT);
+ 			switch(sub_action)
+            {
+                case END_OK:
+                    state=PUSH_MOVE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=PUSH_MOVE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case PUSH_MOVE:
+
+            // ATTENTION : PAS D'EVITEMENT SUR CETTE FONCTION
+            ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,FALSE);
+            state=WAIT_END_OF_MOVE;
+            break;
+
+        case WAIT_END_OF_MOVE:
+            if (STACKS_wait_end_auto_pull(ASSER, &timeout)) {
+                state = ACT_DOWN;
+            }
+            break;
+		case ACT_DOWN:
+
+			ACT_ball_grabber_down();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=ACT_UP;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+		case ACT_UP:
+
+			ACT_ball_grabber_up();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_REAR;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+        case MOVE_REAR:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+        default:
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+error_e TEST_STRAT_QUATRIEME_ASSIETTE_EVITEMENT(void){
+
+    static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+    static enum {
+		POS_MOVE = 0,
+        PUSH_MOVE ,
+		WAIT_END_OF_MOVE,
+		ACT_DOWN,
+		ACT_UP,
+        MOVE_REAR,
+        DONE,
+    } state = PUSH_MOVE;
+
+    static bool_e timeout = FALSE;
+
+    switch (state) {
+        case POS_MOVE:
+
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){ {{1400,COLOR_Y(600)}}},1,FORWARD,NORMAL_WAIT);
+			switch(sub_action)
+            {
+                case END_OK:
+                    state=PUSH_MOVE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=PUSH_MOVE;
+                    break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case PUSH_MOVE:
+
+            // ATTENTION : PAS D'EVITEMENT SUR CETTE FONCTION
+            ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,FALSE);
+            state=WAIT_END_OF_MOVE;
+            break;
+
+        case WAIT_END_OF_MOVE:
+            if (STACKS_wait_end_auto_pull(ASSER, &timeout)) {
+                state = ACT_DOWN;
+            }
+            break;
+		case ACT_DOWN:
+
+			ACT_ball_grabber_down();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=ACT_UP;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+		case ACT_UP:
+
+			ACT_ball_grabber_up();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_REAR;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+        case MOVE_REAR:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+        default:
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+error_e TEST_STRAT_CINQUIEME_ASSIETTE_EVITEMENT(void){
+
+    static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+    static enum {
+		POS_MOVE = 0,
+        PUSH_MOVE ,
+		WAIT_END_OF_MOVE,
+		ACT_DOWN,
+		ACT_UP,
+        MOVE_REAR,
+        DONE,
+    } state = PUSH_MOVE;
+
+    static bool_e timeout = FALSE;
+
+    switch (state) {
+        case POS_MOVE:
+
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){ {{1730,COLOR_Y(600)}}},1,FORWARD,NORMAL_WAIT);
+ 			switch(sub_action)
+            {
+                case END_OK:
+                    state=PUSH_MOVE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=PUSH_MOVE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case PUSH_MOVE:
+
+            // ATTENTION : PAS D'EVITEMENT SUR CETTE FONCTION
+            ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,FALSE);
+            state=WAIT_END_OF_MOVE;
+            break;
+
+        case WAIT_END_OF_MOVE:
+            if (STACKS_wait_end_auto_pull(ASSER, &timeout)) {
+                state = ACT_DOWN;
+            }
+            break;
+		case ACT_DOWN:
+
+			ACT_ball_grabber_down();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=ACT_UP;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+		case ACT_UP:
+
+			ACT_ball_grabber_up();
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_REAR;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+
+        case MOVE_REAR:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1730,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+					break;
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+        default:
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+
+
+void TEST_LAUNCH_BALL(void){
+
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
+		GO_POS = 0,
+		GO_ANGLE,
+		LAUNCH_RUN,
+		WAIT,
+		LAUNCH_STOP,
+		DONE,
+	} state = GO_POS;
+
+	static bool_e timeout = FALSE;
+
+	switch(state){
+		case GO_POS:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1730,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GO_ANGLE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GO_ANGLE;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+		case GO_ANGLE:
+		sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1800,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GO_ANGLE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GO_ANGLE;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+		case LAUNCH_RUN:
+
+			ACT_push_ball_launcher_run(6000,TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=WAIT;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			break;
+		case WAIT:
+
+
+
+			//si plus de balle
+			//state=LAUNCH_STOP;
+
+			break;
+		case LAUNCH_STOP:
+
+			ACT_push_ball_launcher_stop(TRUE);
+			sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+			            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=DONE;
+					break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+					break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+			 break;
+
+		case DONE:
+			return (timeout) ? END_WITH_TIMEOUT : END_OK;
+			break;
+
+		default :
+			state = 0;
+			return NOT_HANDLED;
+			break;
+	}
+}
+
+
+
+//micro strat cadeau par amaury
+error_e TEST_STRAT_CADEAU_1(void){
+        static bool_e timeout = FALSE;
+        static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        GO_POS = 0,
+        GRABBER_TIDY,
+        MOVE_PUSH,
+        MOVE_BACK,
+        DONE,
+    }state = GO_POS;
+
+    switch(state)
+    {
+        case GO_POS:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(490)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=MOVE_PUSH;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=MOVE_PUSH;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case MOVE_PUSH:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(490)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_TIDY;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_TIDY;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case GRABBER_TIDY:
+            ACT_ball_grabber_tidy();
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_BACK;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+
+
+            break;
+        case MOVE_BACK:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(489)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+
+	default :
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+error_e TEST_STRAT_CADEAU_2(void){
+        static bool_e timeout = FALSE;
+        static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        GO_POS = 0,
+        GRABBER_TIDY,
+        MOVE_PUSH,
+        MOVE_BACK,
+        DONE,
+    }state = GO_POS;
+
+    switch(state)
+    {
+        case GO_POS:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=MOVE_PUSH;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=MOVE_PUSH;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case MOVE_PUSH:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_TIDY;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_TIDY;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case GRABBER_TIDY:
+            ACT_ball_grabber_tidy();
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_BACK;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+
+
+            break;
+        case MOVE_BACK:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+
+	default :
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+error_e TEST_STRAT_CADEAU_3(void){
+        static bool_e timeout = FALSE;
+        static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        GO_POS = 0,
+        GRABBER_TIDY,
+        MOVE_PUSH,
+        MOVE_BACK,
+        DONE,
+    }state = GO_POS;
+
+    switch(state)
+    {
+        case GO_POS:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=MOVE_PUSH;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=MOVE_PUSH;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case MOVE_PUSH:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_TIDY;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_TIDY;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case GRABBER_TIDY:
+            ACT_ball_grabber_tidy();
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_BACK;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+
+
+            break;
+        case MOVE_BACK:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+
+	default :
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+error_e TEST_STRAT_CADEAU_4(void){
+        static bool_e timeout = FALSE;
+        static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        GO_POS = 0,
+        GRABBER_TIDY,
+        MOVE_PUSH,
+        MOVE_BACK,
+        DONE,
+    }state = GO_POS;
+
+    switch(state)
+    {
+        case GO_POS:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=MOVE_PUSH;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=MOVE_PUSH;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case MOVE_PUSH:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_TIDY;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_TIDY;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case GRABBER_TIDY:
+            ACT_ball_grabber_tidy();
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state=MOVE_BACK;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+
+
+            break;
+        case MOVE_BACK:
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(650)}}},1,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case DONE:
+            return (timeout) ? END_WITH_TIMEOUT : END_OK;
+            break;
+
+	default :
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+
+}
+
+
+//micro strat verre refait par amaury
 
 error_e TEST_STRAT_verres(void){
+    static error_e sub_action;
     static enum{
         PUSH_MOVE1 = 0,
         PUSH_MOVE2,
-	WAIT_END_OF_MOVE1,
-        WAIT_END_OF_MOVE2,
 	DONE,
     }state = PUSH_MOVE1;
 
@@ -690,31 +2616,72 @@ error_e TEST_STRAT_verres(void){
 
     switch(state){
         case PUSH_MOVE1:
-            ASSER_push_goto_multi_point(680,COLOR_Y(2405),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
-            ASSER_push_goto_multi_point(675,COLOR_Y(2400),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
-            ASSER_push_goto_multi_point(300,COLOR_Y(2300),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
-            ASSER_push_goto_multi_point(300,COLOR_Y(580),FAST,FORWARD,ASSER_CURVES,NOW,FALSE);
-            ASSER_push_goangle(PI4096/2,SLOW,TRUE);
-            state = WAIT_END_OF_MOVE1;
+            //ASSER_push_goto_multi_point(680,COLOR_Y(2405),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
+            //ASSER_push_goto_multi_point(675,COLOR_Y(2400),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
+            //ASSER_push_goto_multi_point(300,COLOR_Y(2300),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
+            //ASSER_push_goto_multi_point(300,COLOR_Y(580),FAST,FORWARD,ASSER_CURVES,NOW,FALSE);
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(580)}},{{300,COLOR_Y(2300)}},{{675,COLOR_Y(2400)}},{{680,COLOR_Y(2405)}}},4,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=PUSH_MOVE2;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=PUSH_MOVE2;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+            }
             break;
         case PUSH_MOVE2:
-            ASSER_push_goto_multi_point(700,COLOR_Y(420),FAST,REAR,ASSER_CURVES,END_OF_BUFFER,FALSE);
-            ASSER_push_goto_multi_point(1000,COLOR_Y(1000),FAST,REAR,ASSER_CURVES,END_OF_BUFFER,FALSE);
-            ASSER_push_goto_multi_point(1000,COLOR_Y(2200),FAST,REAR,ASSER_CURVES,END_OF_BUFFER,FALSE);
-            ASSER_push_goto_multi_point(1200,COLOR_Y(2400),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
-            ASSER_push_goto_multi_point(675,COLOR_Y(2200),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
-            ASSER_push_goto_multi_point(675,COLOR_Y(400),FAST,REAR,ASSER_CURVES,NOW,TRUE);
-            state = WAIT_END_OF_MOVE2;
-            break;
-        case WAIT_END_OF_MOVE1:
-            if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
-                state = PUSH_MOVE2;
+            //ASSER_push_goto_multi_point(700,COLOR_Y(420),FAST,REAR,ASSER_CURVES,END_OF_BUFFER,FALSE);
+            //ASSER_push_goto_multi_point(1000,COLOR_Y(1000),FAST,REAR,ASSER_CURVES,END_OF_BUFFER,FALSE);
+            //ASSER_push_goto_multi_point(1000,COLOR_Y(2200),FAST,REAR,ASSER_CURVES,END_OF_BUFFER,FALSE);
+            //ASSER_push_goto_multi_point(1200,COLOR_Y(2400),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
+            //ASSER_push_goto_multi_point(675,COLOR_Y(2200),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
+            //ASSER_push_goto_multi_point(675,COLOR_Y(400),FAST,REAR,ASSER_CURVES,NOW,TRUE);
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{675,COLOR_Y(400)}},{{675,COLOR_Y(2200)}},{{1200,COLOR_Y(2400)}},{{1000,COLOR_Y(2200)}},{{1000,COLOR_Y(1000)}},{{700,COLOR_Y(420)}}},6,REAR,NORMAL_WAIT);
+
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    break;
+
+                case NOT_HANDLED:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    state = 0;
+                    return NOT_HANDLED;
+                    break;
             }
             break;
-        case WAIT_END_OF_MOVE2:
-            if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
-                state = DONE;
-            }
+
         case DONE:
             state = PUSH_MOVE1;
             return (timeout)?END_WITH_TIMEOUT:END_OK;
