@@ -20,6 +20,11 @@ void BUTTON_init()
 	BUTTONS_define_actions(BUTTON1,BUTTON_start, NULL, 1);
 	BUTTONS_define_actions(BUTTON2,BUTTON_calibration, NULL, 1);
 
+	BUTTONS_define_actions(BUTTON1,BUTTON_start,NULL,1);
+
+	BUTTONS_define_actions(BUTTON2,BUTTON_calibration,NULL,1);
+        
+
 //	BUTTONS_define_actions(BUTTON3,BUTTON_servo,NULL,1);
 	BUTTONS_define_actions(BUTTON4,BUTTON_pi_rotation,BUTTON_translation,1);
 }
