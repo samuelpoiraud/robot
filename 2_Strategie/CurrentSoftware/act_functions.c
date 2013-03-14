@@ -189,6 +189,24 @@ bool_e ACT_push_plate_rotate_horizontally(bool_e run) {
 	return ACT_push_operation(ACT_STACK_Plate, &args, run);
 }
 
+bool_e ACT_push_plate_rotate_prepare(bool_e run) {
+	act_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = ACT_PLATE;
+	args.msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
+	args.msg.size = 1;
+
+	//Si on ne peut pas aller en position intermediaire, revenir en vertical et la strat pourra passer à autre chose (au lieu de défoncer le décor)
+	args.fallbackMsg.sid = ACT_PLATE;
+	args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+	args.fallbackMsg.size = 1;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate vertically cmd\n");
+	return ACT_push_operation(ACT_STACK_Plate, &args, run);
+}
+
 bool_e ACT_push_plate_rotate_vertically(bool_e run) {
 	act_arg_t args;
 

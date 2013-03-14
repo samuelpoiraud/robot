@@ -38,6 +38,12 @@
 /* Definition des connectiques capteurs et actionneurs COMMUN à Tiny et Krusty */
 
 
+/* Watchdog */
+	//#define USE_WATCHDOG
+	//#define WATCHDOG_TIMER 3
+	//#define WATCHDOG_MAX_COUNT 5
+	//#define WATCHDOG_QUANTUM 1
+
 /* Actionneurs */
 	// Files
 	#define CLOCK_TIMER_run		TIMER3_run

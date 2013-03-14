@@ -29,6 +29,8 @@ void BALLINFLATER_init() {
 	initialized = TRUE;
 }
 
+static bool_e BALLINFLATER_emerg_stop_inflater = FALSE;
+
 bool_e BALLINFLATER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLINFLATER) {
 		switch(msg->data[0]) {
@@ -37,7 +39,9 @@ bool_e BALLINFLATER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			case ACT_BALLINFLATER_STOP:
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_BallInflater, &BALLINFLATER_run_command, 0);
+				BALLINFLATER_emerg_stop_inflater = TRUE;
+				BALLINFLATER_PIN = BALLINFLATER_OFF;
+				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"gonfleur stoppé !\n");
 				break;
 
 			default:
@@ -49,13 +53,11 @@ bool_e BALLINFLATER_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-static bool_e BALLINFLATER_emerg_stop_inflater = FALSE;
-
 static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_LongHammer) {
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallInflater) {
 		if(init == TRUE) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-			CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
+			CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
 
 			switch(command) {
 				case ACT_BALLINFLATER_START:
@@ -66,14 +68,11 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 					break;
 
 				case ACT_BALLINFLATER_STOP:
-					BALLINFLATER_emerg_stop_inflater = TRUE;
-					BALLINFLATER_PIN = BALLINFLATER_OFF;
-					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"gonfleur stoppé !\n");
 					QUEUE_behead(queueId);
 					break;
 
 				default: {
-						CAN_msg_t errorMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+						CAN_msg_t errorMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 						CAN_send(&errorMsg);
 						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);
@@ -86,6 +85,7 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 			CAN_send(&resultMsg);
 		} else {
 			//Si on doit arreter le gonflage maintenant ou si le temps s'est écoulé complètement
+			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"clock: %d, param: %d, initial: %d\n", CLOCK_get_time(), QUEUE_get_arg(queueId)->param, QUEUE_get_initial_time(queueId));
 			if(BALLINFLATER_emerg_stop_inflater == TRUE ||
 					CLOCK_get_time() >= (QUEUE_get_arg(queueId)->param*10 + QUEUE_get_initial_time(queueId)) )
 			{
