@@ -698,7 +698,6 @@ void test_strat_verrre(){
 					break;
                 case NOT_HANDLED:
                     state = 0;
-                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -706,7 +705,6 @@ void test_strat_verrre(){
 
                 default:
                     state = 0;
-                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -988,7 +986,7 @@ error_e TEST_ACT(void){
                 break;
 
         }
-
+		return NOT_HANDLED;
 }
 
 
@@ -1279,7 +1277,7 @@ error_e TEST_STRAT_PREMIERE_ASSIETTE_EVITEMENT(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 error_e TEST_STRAT_SECONDE_ASSIETTE_EVITEMENT(void){
@@ -1431,7 +1429,7 @@ error_e TEST_STRAT_SECONDE_ASSIETTE_EVITEMENT(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 error_e TEST_STRAT_TROISIEME_ASSIETTE_EVITEMENT(void){
@@ -1585,7 +1583,7 @@ error_e TEST_STRAT_TROISIEME_ASSIETTE_EVITEMENT(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 error_e TEST_STRAT_QUATRIEME_ASSIETTE_EVITEMENT(void){
@@ -1739,7 +1737,7 @@ error_e TEST_STRAT_QUATRIEME_ASSIETTE_EVITEMENT(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 error_e TEST_STRAT_CINQUIEME_ASSIETTE_EVITEMENT(void){
@@ -1893,12 +1891,12 @@ error_e TEST_STRAT_CINQUIEME_ASSIETTE_EVITEMENT(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 
 
-void TEST_LAUNCH_BALL(void){
+error_e TEST_LAUNCH_BALL(void){
 
 	static error_e sub_action;
 	static ACT_function_result_e sub_action_act;
@@ -2044,6 +2042,7 @@ void TEST_LAUNCH_BALL(void){
 			return NOT_HANDLED;
 			break;
 	}
+	return NOT_HANDLED;
 }
 
 
@@ -2184,7 +2183,7 @@ error_e TEST_STRAT_CADEAU_1(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 error_e TEST_STRAT_CADEAU_2(void){
@@ -2322,7 +2321,7 @@ error_e TEST_STRAT_CADEAU_2(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 error_e TEST_STRAT_CADEAU_3(void){
@@ -2460,7 +2459,7 @@ error_e TEST_STRAT_CADEAU_3(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 error_e TEST_STRAT_CADEAU_4(void){
@@ -2598,7 +2597,7 @@ error_e TEST_STRAT_CADEAU_4(void){
             return NOT_HANDLED;
             break;
     }
-
+	return NOT_HANDLED;
 }
 
 
@@ -2884,6 +2883,8 @@ void TEST_STRAT_balllauncher_run(void){
 				break;
 			case ACT_FUNCTION_RetryLater:
 				debug_printf("Operation failed, strat should try later\n");
+			case ACT_FUNCTION_InProgress:
+				break;
 		}
 		pushed = 2;
 	}
