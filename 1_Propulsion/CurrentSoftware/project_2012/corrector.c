@@ -119,7 +119,7 @@ void CORRECTOR_update(void)
 	global.ecart_rotation = global.position_rotation - (global.real_position_rotation >> 10);  //positif pour rotation dans le sens trigo
 
 
-	commande_translation = (	(global.acceleration_translation						 * coefs[CORRECTOR_COEF_KA_TRANSLATION])  +
+	commande_translation = -(	(global.acceleration_translation						 * coefs[CORRECTOR_COEF_KA_TRANSLATION])  +
 									(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+ 
 									(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION]) 	+ 
 									(global.ecart_translation-global.ecart_translation_prec) * coefs[CORRECTOR_COEF_KD_TRANSLATION] 
