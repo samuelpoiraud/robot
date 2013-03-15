@@ -360,6 +360,10 @@ void TEST_STRAT_premier_deplacement(void){
 		SORTIR,
 		PREMIER,
 		SECOND,
+		SECONDBIS,
+		TROIS,
+		QUATRE,
+		
 				DONE,
 	}state = SORTIR;
 
@@ -385,7 +389,13 @@ void TEST_STRAT_premier_deplacement(void){
 			}
 			break;
 		case PREMIER:
-			sub_action = TEST_STRAT_VERRE1();
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{300, COLOR_Y(580)},FAST},
+					{{300, COLOR_Y(2300)},FAST},
+					{{675, COLOR_Y(2400)},FAST},
+					{{680, COLOR_Y(2405)},
+							FAST}},4,REAR,NO_AVOIDANCE);
+			//TEST_STRAT_VERRE1();
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -401,18 +411,66 @@ void TEST_STRAT_premier_deplacement(void){
 			}
 			break;
 		case SECOND:
-			sub_action = TEST_STRAT_VERRE2();
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{675, COLOR_Y(400)},FAST}},
+							1,FORWARD,NO_AVOIDANCE);
+					//TEST_STRAT_VERRE2();
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
 				case END_OK:
-					state = SECOND;
+					state = TROIS;
 					break;
 				case END_WITH_TIMEOUT:
-					state = SECOND;
+					state = TROIS;
 					break;
 				case NOT_HANDLED:
-					state = SECOND;
+					state = TROIS;
+					break;
+			}
+			break;
+		case SECONDBIS:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{1200, COLOR_Y(2400)},FAST}},
+							1,REAR,NO_AVOIDANCE);
+
+			break;
+		case TROIS:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{675, COLOR_Y(2200)},FAST},
+					{{1200, COLOR_Y(2400)},FAST}},
+							2,REAR,NO_AVOIDANCE);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = QUATRE;
+					break;
+				case END_WITH_TIMEOUT:
+					state = QUATRE;
+					break;
+				case NOT_HANDLED:
+					state = QUATRE;
+					break;
+			}
+			break;
+		case QUATRE:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{1000, COLOR_Y(2200)},FAST},
+					{{1000, COLOR_Y(1000)},FAST},
+					{{700, COLOR_Y(420)},FAST}},
+					2,FORWARD,NO_AVOIDANCE);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = DONE;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					break;
+				case NOT_HANDLED:
+					state = DONE;
 					break;
 			}
 			break;
@@ -3239,6 +3297,7 @@ error_e TEST_STRAT_VERRE1(void) {
             ASSER_push_goto_multi_point(675, COLOR_Y(2400), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
             ASSER_push_goto_multi_point(300, COLOR_Y(2300), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
             ASSER_push_goto_multi_point(300, COLOR_Y(580), FAST, REAR, ASSER_CURVES, NOW, TRUE);
+
            //ASSER_push_goangle(PI4096 / 2, SLOW, TRUE);
             state = WAIT;
             break;
@@ -3281,6 +3340,10 @@ error_e TEST_STRAT_VERRE2(void) {
             ASSER_push_goto_multi_point(675, COLOR_Y(2200), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
             ASSER_push_goto_multi_point(675, COLOR_Y(400), FAST, FORWARD, ASSER_CURVES, NOW, TRUE);
             state = WAIT;
+
+
+
+
             break;
         case WAIT:
             if (STACKS_wait_end_auto_pull(ASSER, &timeout)) {
