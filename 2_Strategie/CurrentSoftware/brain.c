@@ -80,17 +80,17 @@ void any_match(time32_t match_duration)
 
 		if(QS_WHO_AM_I_get()==TINY){
 			if(strat_number()==0x00){
-					//STRAT_1
+					//STRAT_1_TINY
 					calibration = 0x00;
 					strategy = test_strat_verrre;
 			}
 			if(strat_number()==0x01){
-					//STRAT_2
+					//STRAT_2_TINY
 					calibration = 0x01;
 					strategy = TEST_STRAT_strat_selector_2;
 			}
 			if(strat_number()==0x02){
-					//STRAT_3
+					//STRAT_3_TINY
 					calibration = 0x00;
 					strategy = TEST_STRAT_homolagation_police;
 			}
@@ -99,17 +99,17 @@ void any_match(time32_t match_duration)
 		}else{
 		#endif
 			if(strat_number()==0x00){
-					//STRAT_1
+					//STRAT_1_KRUSTY
 				calibration = 0x00;
-					strategy = test_qui_sert_pas;
+					strategy = TEST_STRAT_premier_deplacement;
 			}
 			if(strat_number()==0x01){
-					//STRAT_2
+					//STRAT_2_KRUSTY
 					calibration = 0x00;
 					strategy = strat_verre_assiettes_et_gateau;
 			}
 			if(strat_number()==0x02){
-					//STRAT_3
+					//STRAT_3_KRUSTY
 					calibration = 0x02;
 					strategy = test_strat_verrre;
 			}
