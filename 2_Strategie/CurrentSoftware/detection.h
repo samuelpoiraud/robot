@@ -29,11 +29,11 @@ trajectoire pour l'information de position de l'adversaire */
 	
 	typedef enum
 	{
-		TELE_FRONT_LEFT = 0,
+		/*TELE_FRONT_LEFT = 0,
 		TELE_FRONT_RIGHT,
 		TELE_BACK_LEFT,
 		TELE_BACK_RIGHT,
-		BEACON_IR_FOE_1,
+		*/BEACON_IR_FOE_1,
 		BEACON_US_FOE_1,
 		BEACON_IR_FOE_2,
 		BEACON_US_FOE_2,

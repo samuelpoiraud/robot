@@ -59,12 +59,12 @@ void DETECTION_update(void)
 		{
 			//Mise à jour grâce aux balises et télémètres
 			DETECTION_update_foe_by_beacon();
-			DETECTION_update_foe_by_telemeter();
+			//DETECTION_update_foe_by_telemeter();
 		}
 		else
 		{
 			//Mise à jour seulement grâce aux telemetres.
-			DETECTION_update_foe_only_by_telemeter();
+			//DETECTION_update_foe_only_by_telemeter();
 		}
 		
 		for (i=0; i < NB_FOES; i++)
