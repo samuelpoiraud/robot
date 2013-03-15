@@ -392,8 +392,8 @@ void TEST_STRAT_premier_deplacement(void){
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{300, COLOR_Y(580)},FAST},
 					{{300, COLOR_Y(2300)},FAST},
-					{{675, COLOR_Y(2400)},FAST},
-					{{680, COLOR_Y(2405)},
+					{{550, COLOR_Y(2400)},FAST},
+					{{600, COLOR_Y(2405)},
 							FAST}},4,REAR,NO_AVOIDANCE);
 			//TEST_STRAT_VERRE1();
 			switch(sub_action){
@@ -412,7 +412,7 @@ void TEST_STRAT_premier_deplacement(void){
 			break;
 		case SECOND:
 			sub_action = goto_pos_with_scan_foe(
-					(displacement_t[]){{{675, COLOR_Y(400)},FAST}},
+					(displacement_t[]){{{550, COLOR_Y(400)},FAST}},
 							1,FORWARD,NO_AVOIDANCE);
 					//TEST_STRAT_VERRE2();
 			switch(sub_action){
@@ -437,7 +437,7 @@ void TEST_STRAT_premier_deplacement(void){
 			break;
 		case TROIS:
 			sub_action = goto_pos_with_scan_foe(
-					(displacement_t[]){{{675, COLOR_Y(2200)},FAST},
+					(displacement_t[]){{{550, COLOR_Y(2200)},FAST},
 					{{1200, COLOR_Y(2400)},FAST}},
 							2,REAR,NO_AVOIDANCE);
 			switch(sub_action){
@@ -456,10 +456,10 @@ void TEST_STRAT_premier_deplacement(void){
 			break;
 		case QUATRE:
 			sub_action = goto_pos_with_scan_foe(
-					(displacement_t[]){{{1000, COLOR_Y(2200)},FAST},
-					{{1000, COLOR_Y(1000)},FAST},
+					(displacement_t[]){{{800, COLOR_Y(2200)},FAST},
+					{{800, COLOR_Y(1000)},FAST},
 					{{700, COLOR_Y(420)},FAST}},
-					2,FORWARD,NO_AVOIDANCE);
+					3,FORWARD,NO_AVOIDANCE);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
