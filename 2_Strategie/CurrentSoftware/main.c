@@ -22,7 +22,7 @@
 int main (void)
 {
 
-	Uint16 i;
+	Uint16 i,j;
 
 	// Commandes pour EVE
 	#ifdef USE_QSx86
@@ -40,10 +40,9 @@ int main (void)
 		
 	//retard pour attendre l'initialisation des autres cartes
 	// voir si on peut faire mieux
-	for(i=1;i;i++);
-	for(i=1;i;i++);
-	for(i=1;i;i++);
-	for(i=1;i;i++);
+	for(j=0;j<40;j++)
+		for(i=1;i;i++);
+
 
 	LED_RUN=1;
 	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
