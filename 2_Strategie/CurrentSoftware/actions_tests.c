@@ -305,7 +305,33 @@ error_e Test_Homologation_Sortie_Base(void)
 /* ----------------------------------------------------------------------------- */
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
+void test_qui_sert_pas(){ //Ceci n'a rien a voir avec le robot
+	Uint8 x,y;
+	static bool_e s=1;
+	
+	if(s){
+		x = 0x00;
+		y = 0x03;
 
+		x = y+3;
+		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
+		x |= 0xC3;
+		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
+		x = x&0b10001010;
+		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
+		x <<= y;
+		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
+		y ^= 0x1;
+		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
+		x >>= y;
+		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
+		y =~ x;
+		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
+		x = !y;
+		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
+		s=0;
+	}
+}
 void TEST_STRAT_strat_selector_1(void){
 	LED_USER2 = 1;
 	LED_ERROR = 0;
@@ -330,23 +356,67 @@ void TEST_STRAT_lever_le_kiki(void){
 }
 
 void TEST_STRAT_premier_deplacement(void){
-	/*static enum{
-		GO,
-		WENT,
-		GONE,
-	}state = GO;*/
+	static enum{
+		SORTIR,
+		PREMIER,
+		SECOND,
+				DONE,
+	}state = SORTIR;
 
 	//static bool_e timeout;
 	static error_e sub_action;
-	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{500,COLOR_Y(1000)},SLOW}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
-	switch(sub_action){
-		case IN_PROGRESS:
+	
+	
+	switch(state){
+		case SORTIR:
+			sub_action = goto_pos(580,COLOR_Y(450),FAST,FORWARD);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = PREMIER;
+					break;
+				case END_WITH_TIMEOUT:
+					state = PREMIER;
+					break;
+				case NOT_HANDLED:
+					state = PREMIER;
+					break;
+			}
 			break;
-		case END_OK:
+		case PREMIER:
+			sub_action = TEST_STRAT_VERRE1();
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = SECOND;
+					break;
+				case END_WITH_TIMEOUT:
+					state = SECOND;
+					break;
+				case NOT_HANDLED:
+					state = SECOND;
+					break;
+			}
 			break;
-		case END_WITH_TIMEOUT:
+		case SECOND:
+			sub_action = TEST_STRAT_VERRE2();
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = SECOND;
+					break;
+				case END_WITH_TIMEOUT:
+					state = SECOND;
+					break;
+				case NOT_HANDLED:
+					state = SECOND;
+					break;
+			}
 			break;
-		case NOT_HANDLED:
+		case DONE:
 			break;
 	}
 }
@@ -2669,24 +2739,28 @@ error_e TEST_STRAT_verres(void){
             //ASSER_push_goto_multi_point(300,COLOR_Y(2300),FAST,FORWARD,ASSER_CURVES,END_OF_BUFFER,FALSE);
             //ASSER_push_goto_multi_point(300,COLOR_Y(580),FAST,FORWARD,ASSER_CURVES,NOW,FALSE);
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(580)}},{{300,COLOR_Y(2300)}},{{675,COLOR_Y(2400)}},{{680,COLOR_Y(2405)}}},4,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(580)},FAST},{{300,COLOR_Y(2300)},FAST},{{675,COLOR_Y(2400)},FAST},{{680,COLOR_Y(2405)},FAST}},4,FORWARD,NO_AVOIDANCE);
 
             switch(sub_action)
             {
                 case END_OK:
+					debug_printf("endok\n");
                     state=PUSH_MOVE2;
                     break;
 
                 case END_WITH_TIMEOUT:
+					debug_printf("TIMOUT\n");
                     state=PUSH_MOVE2;
                     break;
 
                 case NOT_HANDLED:
                     state = 0;
+					debug_printf("NH\n");
                     return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
+					debug_printf("PROGRESS\n");
                     break;
 
                 default:
@@ -3161,11 +3235,11 @@ error_e TEST_STRAT_VERRE1(void) {
     switch (state) {
         case EMPILE:
 
-            ASSER_push_goto_multi_point(680, COLOR_Y(2405), FAST, FORWARD, ASSER_CURVES, END_OF_BUFFER, FALSE);
-            ASSER_push_goto_multi_point(675, COLOR_Y(2400), FAST, FORWARD, ASSER_CURVES, END_OF_BUFFER, FALSE);
-            ASSER_push_goto_multi_point(300, COLOR_Y(2300), FAST, FORWARD, ASSER_CURVES, END_OF_BUFFER, FALSE);
-            ASSER_push_goto_multi_point(300, COLOR_Y(580), FAST, FORWARD, ASSER_CURVES, NOW, FALSE);
-            ASSER_push_goangle(PI4096 / 2, SLOW, TRUE);
+            ASSER_push_goto_multi_point(680, COLOR_Y(2405), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
+            ASSER_push_goto_multi_point(675, COLOR_Y(2400), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
+            ASSER_push_goto_multi_point(300, COLOR_Y(2300), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
+            ASSER_push_goto_multi_point(300, COLOR_Y(580), FAST, REAR, ASSER_CURVES, NOW, TRUE);
+           //ASSER_push_goangle(PI4096 / 2, SLOW, TRUE);
             state = WAIT;
             break;
         case WAIT:
@@ -3200,12 +3274,12 @@ error_e TEST_STRAT_VERRE2(void) {
     switch (state) {
         case EMPILE:
 
-            ASSER_push_goto_multi_point(700, COLOR_Y(420), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
-            ASSER_push_goto_multi_point(1000, COLOR_Y(1000), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
-            ASSER_push_goto_multi_point(1000, COLOR_Y(2200), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
-            ASSER_push_goto_multi_point(1200, COLOR_Y(2400), FAST, FORWARD, ASSER_CURVES, END_OF_BUFFER, FALSE);
-            ASSER_push_goto_multi_point(675, COLOR_Y(2200), FAST, FORWARD, ASSER_CURVES, END_OF_BUFFER, FALSE);
-            ASSER_push_goto_multi_point(675, COLOR_Y(400), FAST, REAR, ASSER_CURVES, NOW, TRUE);
+            ASSER_push_goto_multi_point(700, COLOR_Y(420), FAST, FORWARD, ASSER_CURVES, END_OF_BUFFER, FALSE);
+            ASSER_push_goto_multi_point(1000, COLOR_Y(1000), FAST, FORWARD, ASSER_CURVES, END_OF_BUFFER, FALSE);
+            ASSER_push_goto_multi_point(1000, COLOR_Y(2200), FAST, FORWARD, ASSER_CURVES, END_OF_BUFFER, FALSE);
+            ASSER_push_goto_multi_point(1200, COLOR_Y(2400), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
+            ASSER_push_goto_multi_point(675, COLOR_Y(2200), FAST, REAR, ASSER_CURVES, END_OF_BUFFER, FALSE);
+            ASSER_push_goto_multi_point(675, COLOR_Y(400), FAST, FORWARD, ASSER_CURVES, NOW, TRUE);
             state = WAIT;
             break;
         case WAIT:
