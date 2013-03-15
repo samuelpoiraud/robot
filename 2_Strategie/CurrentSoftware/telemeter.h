@@ -42,7 +42,7 @@
 		#define TELEMETER_THRESHOLD 450
 	
 		/*localisation des capteurs*/
-		#define TELEMETER_NUMBER	4
+		#define TELEMETER_NUMBER	0
 		/*attention, code lié à detection_sensor_e dans detection.h */
 
 		/*type de capteur : */

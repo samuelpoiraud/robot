@@ -22,34 +22,35 @@ void TELEMETER_init(void)
 		
 	TIMER_init();
 	ADC_init();
-	/*intitialisation du télémètre TELE_FRONT_LEFT*/
-	telemeter[TELE_FRONT_LEFT].pinADC = ADC_PIN_DT10_0;
-	telemeter[TELE_FRONT_LEFT].type = TELE_SICK_DT10;
-	telemeter[TELE_FRONT_LEFT].x = 136;
-	telemeter[TELE_FRONT_LEFT].y = 137;
-	telemeter[TELE_FRONT_LEFT].angle = 5L*PI4096/36;	
+	#if TELEMETER_NUMBER != 0
+		/*intitialisation du télémètre TELE_FRONT_LEFT*/
+		telemeter[TELE_FRONT_LEFT].pinADC = ADC_PIN_DT10_0;
+		telemeter[TELE_FRONT_LEFT].type = TELE_SICK_DT10;
+		telemeter[TELE_FRONT_LEFT].x = 136;
+		telemeter[TELE_FRONT_LEFT].y = 137;
+		telemeter[TELE_FRONT_LEFT].angle = 5L*PI4096/36;	
+		
+		/*intitialisation du télémètre TELE_FRONT_RIGHT*/
+		telemeter[TELE_FRONT_RIGHT].pinADC = ADC_PIN_DT10_1;
+		telemeter[TELE_FRONT_RIGHT].type = TELE_SICK_DT10;
+		telemeter[TELE_FRONT_RIGHT].x = 136;
+		telemeter[TELE_FRONT_RIGHT].y = -137;
+		telemeter[TELE_FRONT_RIGHT].angle = -5L*PI4096/36;	
 	
-	/*intitialisation du télémètre TELE_FRONT_RIGHT*/
-	telemeter[TELE_FRONT_RIGHT].pinADC = ADC_PIN_DT10_1;
-	telemeter[TELE_FRONT_RIGHT].type = TELE_SICK_DT10;
-	telemeter[TELE_FRONT_RIGHT].x = 136;
-	telemeter[TELE_FRONT_RIGHT].y = -137;
-	telemeter[TELE_FRONT_RIGHT].angle = -5L*PI4096/36;	
-
-	/*intitialisation du télémètre TELE_BACK_LEFT*/
-	telemeter[TELE_BACK_LEFT].pinADC = ADC_PIN_DT10_2;
-	telemeter[TELE_BACK_LEFT].type = TELE_SICK_DT10;
-	telemeter[TELE_BACK_LEFT].x = -136;
-	telemeter[TELE_BACK_LEFT].y = 137;
-	telemeter[TELE_BACK_LEFT].angle = 31L*PI4096/36;
-
-	/*intitialisation du télémètre TELE_BACK_RIGHT*/
-	telemeter[TELE_BACK_RIGHT].pinADC = ADC_PIN_DT10_3;
-	telemeter[TELE_BACK_RIGHT].type = TELE_SICK_DT10;
-	telemeter[TELE_BACK_RIGHT].x = -136;
-	telemeter[TELE_BACK_RIGHT].y = -137;
-	telemeter[TELE_BACK_RIGHT].angle = -31L*PI4096/36;
-
+		/*intitialisation du télémètre TELE_BACK_LEFT*/
+		telemeter[TELE_BACK_LEFT].pinADC = ADC_PIN_DT10_2;
+		telemeter[TELE_BACK_LEFT].type = TELE_SICK_DT10;
+		telemeter[TELE_BACK_LEFT].x = -136;
+		telemeter[TELE_BACK_LEFT].y = 137;
+		telemeter[TELE_BACK_LEFT].angle = 31L*PI4096/36;
+	
+		/*intitialisation du télémètre TELE_BACK_RIGHT*/
+		telemeter[TELE_BACK_RIGHT].pinADC = ADC_PIN_DT10_3;
+		telemeter[TELE_BACK_RIGHT].type = TELE_SICK_DT10;
+		telemeter[TELE_BACK_RIGHT].x = -136;
+		telemeter[TELE_BACK_RIGHT].y = -137;
+		telemeter[TELE_BACK_RIGHT].angle = -31L*PI4096/36;
+	#endif
 	TELEMETER_init_Measure();
 	TIMER3_run(100);
 }
@@ -232,7 +233,7 @@ static void TELEMETER_update_value()
 {
 	Uint8 i;
 	telemeter_device_t* device; /*pointeur de travail pour l'utilisation des télémètres*/
-
+#if TELEMETER_NUMBER != 0
 	for(i = 0; i < TELEMETER_NUMBER ; i++)
 	{
 		/*initialisation*/
@@ -242,4 +243,5 @@ static void TELEMETER_update_value()
 		device->measures_index++;
 		device->measures_index %= TELEMETER_BUFFER_SIZE;
 	}
+#endif
 }
