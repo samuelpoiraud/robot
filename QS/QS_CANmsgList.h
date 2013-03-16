@@ -234,9 +234,18 @@
 		#define ACT_PLATE_ROTATE_STOP           0x2F	//Stopper l'asservissement du bras. A éviter, dans les virages il ne faudrait pas que l'actionneur tombe (même si gros reducteur ...)
 	/////////////////////////////////////////
 
+	/////////////// BALLSORTER //////////////
+	#define ACT_BALLSORTER (ACT_FILTER | 0x13)
+		//Paramètres de BALLSORTER (dans data[0])
+		#define ACT_BALLSORTER_TAKE_NEXT_CHERRY 0    //Ejecter la cerise et en prendre une autre pour la detecter
+		//Résultat de la detection de la cerise de ACT_BALLSORTER_TAKE_NEXT_CHERRY dans ACT_RESULT data[4]:
+		#define ACT_BALLSORTER_WHITE_CHERRY     0
+		#define ACT_BALLSORTER_NO_CHERRY        1
+	/////////////////////////////////////////
+
 	////////////////// LIFT /////////////////
-	#define ACT_LIFT_RIGHT (ACT_FILTER | 0x13)
-	#define ACT_LIFT_LEFT (ACT_FILTER | 0x14)
+	#define ACT_LIFT_RIGHT (ACT_FILTER | 0x14)
+	#define ACT_LIFT_LEFT (ACT_FILTER | 0x15)
 		//Paramètres de LIFT (dans data[0]) (0x1x: Pince, 0x2x: mouvement ascenseur)
 		#define ACT_LIFT_PLIER_CLOSE           0x10	//Fermer la pince et serrer le verre
 		#define ACT_LIFT_PLIER_OPEN            0x11	//Ouvrir la pince et lacher le verre
