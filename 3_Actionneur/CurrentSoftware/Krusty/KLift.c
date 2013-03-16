@@ -305,28 +305,32 @@ static void LIFT_plier_command_run(queue_id_t queueId) {
 	ax12Pos = AX12_get_position(ax12Id); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
 	error = AX12_get_last_error(ax12Id).error;
 
-	if(abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= posEpsilon) {	//Fin du mouvement
+	if(QUEUE_has_error(queueId)) {
+		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
+		resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+	} else if(abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= posEpsilon) {	//Fin du mouvement
 	//if(AX12_is_moving(LIFT_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
 		resultMsg.data[2] = ACT_RESULT_DONE;
 		resultMsg.data[3] = ACT_RESULT_ERROR_OK;
-	} else if(QUEUE_has_error(queueId)) {
-		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-		resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
 	} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
 		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
+		AX12_set_torque_enabled(ax12Id, FALSE);
 		QUEUE_set_error(queueId);
 	} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
 		resultMsg.data[2] = ACT_RESULT_FAILED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_NOT_HERE;
+		AX12_set_torque_enabled(ax12Id, FALSE);
 		QUEUE_set_error(queueId);
 	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + asserTimeout) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 		resultMsg.data[2] = ACT_RESULT_FAILED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+		AX12_set_torque_enabled(ax12Id, FALSE);
 		QUEUE_set_error(queueId);
 	} else if(error & ~AX12_ERROR_OVERLOAD) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
 		resultMsg.data[2] = ACT_RESULT_FAILED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+		AX12_set_torque_enabled(ax12Id, FALSE);
 		QUEUE_set_error(queueId);
 	} else return;	//Operation is not finished, do nothing
 

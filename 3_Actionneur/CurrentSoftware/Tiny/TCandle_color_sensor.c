@@ -37,6 +37,7 @@
 #  define CANDLECOLOR_CW_PIN_GATE CW_UNUSED_PORT
 #endif
 
+static void CANDLECOLOR_initAX12();
 static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init);
 
 void CANDLECOLOR_init() {
@@ -47,6 +48,7 @@ void CANDLECOLOR_init() {
 		return;
 	initialized = TRUE;
 
+	AX12_init();
 	CW_init();
 
 	sensorConfig.analog_X = CANDLECOLOR_CW_PIN_ADC_X;
@@ -62,8 +64,28 @@ void CANDLECOLOR_init() {
 	CW_config_sensor(CANDLECOLOR_CW_ID, &sensorConfig);
 }
 
+static void CANDLECOLOR_initAX12() {
+	static bool_e ax12_is_initialized = FALSE;
+	if(ax12_is_initialized == FALSE && AX12_is_ready(CANDLECOLOR_AX12_ID) == TRUE) {
+		ax12_is_initialized = TRUE;
+		AX12_config_set_highest_voltage(CANDLECOLOR_AX12_ID, 136);
+		AX12_config_set_lowest_voltage(CANDLECOLOR_AX12_ID, 70);
+		AX12_config_set_maximum_torque_percentage(CANDLECOLOR_AX12_ID, CANDLECOLOR_AX12_MAX_TORQUE_PERCENT);
+
+		//Fixme: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
+	//	AX12_config_set_maximal_angle(CANDLECOLOR_AX12_ID, (CANDLECOLOR_AX12_CLOSED_POS > PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
+	//	AX12_config_set_minimal_angle(CANDLECOLOR_AX12_ID, (CANDLECOLOR_AX12_CLOSED_POS < PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
+
+		AX12_config_set_error_before_led(CANDLECOLOR_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
+		AX12_config_set_error_before_shutdown(CANDLECOLOR_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERHEATING);
+	}
+}
+
 bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_CANDLECOLOR) {
+		//Initialise l'AX12 s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
+		CANDLECOLOR_initAX12();
+
 		switch(msg->data[0]) {
 			case ACT_CANDLECOLOR_GET_LOW:
 			case ACT_CANDLECOLOR_GET_HIGH:
@@ -81,7 +103,7 @@ bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 
 static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_Hammer) {
-		if(init == TRUE) {
+		if(init == TRUE && !QUEUE_has_error(queueId)) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			Sint16* wantedPosition = (Sint16*) &QUEUE_get_arg(queueId)->param;
 			bool_e cmdOk;
@@ -123,29 +145,33 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 			error = AX12_get_last_error(CANDLECOLOR_AX12_ID).error;
 
 			resultMsg.size = 4;
-			if(abs((Sint16)ax12Pos - (Sint16)(wantedPosition)) <= CANDLECOLOR_AX12_POS_EPSILON) {
+			if(QUEUE_has_error(queueId)) {
+				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+			} else if(abs((Sint16)ax12Pos - (Sint16)(wantedPosition)) <= CANDLECOLOR_AX12_POS_EPSILON) {
 				resultMsg.data[2] = ACT_RESULT_DONE;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 				resultMsg.data[4] = 0; //TODO: lire la couleur
 				resultMsg.size = 5;
-			} else if(QUEUE_has_error(queueId)) {
-				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
 			} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
 				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
+				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
 			} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_NOT_HERE;
+				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
 			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + CANDLECOLOR_AX12_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
-			} else if(error & ~AX12_ERROR_OVERLOAD) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
+			} else if(error) {							//autres erreurs
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
 			} else return;	//Operation is not finished, do nothing
 

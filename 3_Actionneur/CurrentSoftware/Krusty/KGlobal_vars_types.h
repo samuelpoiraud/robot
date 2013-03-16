@@ -21,6 +21,7 @@
 		QUEUE_ACT_BallLauncher,	//avec QUEUE devant, n'importe ou dans le code on sait que ça fait référence à un actionneur lié à queue.h/c
 		QUEUE_ACT_Plate_Rotation,
 		QUEUE_ACT_Plate_AX12_Plier,
+		QUEUE_ACT_BallSorter,
 		QUEUE_ACT_Lift_Left_Translation,
 		QUEUE_ACT_Lift_Left_AX12_Plier,
 		QUEUE_ACT_Lift_Right_Translation,

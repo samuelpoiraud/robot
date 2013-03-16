@@ -136,6 +136,7 @@
 	#define CANDLECOLOR_AX12_POS_EPSILON     5
 	#define CANDLECOLOR_AX12_HIGH_CANDLE_POS 0  //TODO: a changer
 	#define CANDLECOLOR_AX12_LOW_CANDLE_POS  0
+	#define CANDLECOLOR_AX12_MAX_TORQUE_PERCENT 100
 /**************************************************************************/
 
 	
