@@ -13,6 +13,7 @@
         <itemPath>../Krusty/KPlate.h</itemPath>
         <itemPath>../Krusty/KActManager.h</itemPath>
         <itemPath>../Krusty/KLift.h</itemPath>
+        <itemPath>../Krusty/KBall_sorter.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="_QS" projectFiles="true">
         <itemPath>../QS/p30f6010A.h</itemPath>
@@ -35,6 +36,7 @@
         <itemPath>../QS/QS_types.h</itemPath>
         <itemPath>../QS/QS_uart.h</itemPath>
         <itemPath>../QS/QS_watchdog.h</itemPath>
+        <itemPath>../QS/QS_CapteurCouleurCW.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="_Tiny" projectFiles="true">
         <itemPath>../Tiny/TGlobal_config.h</itemPath>
@@ -45,6 +47,7 @@
         <itemPath>../Tiny/TActManager.h</itemPath>
         <itemPath>../Tiny/THammer.h</itemPath>
         <itemPath>../Tiny/TBall_inflater.h</itemPath>
+        <itemPath>../Tiny/TCandle_color_sensor.h</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.h</itemPath>
       <itemPath>../clock.h</itemPath>
@@ -69,6 +72,7 @@
         <itemPath>../Krusty/KPlate.c</itemPath>
         <itemPath>../Krusty/KActManager.c</itemPath>
         <itemPath>../Krusty/KLift.c</itemPath>
+        <itemPath>../Krusty/KBall_sorter.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="_QS" projectFiles="true">
         <itemPath>../QS/QS_adc.c</itemPath>
@@ -84,12 +88,14 @@
         <itemPath>../QS/QS_timer.c</itemPath>
         <itemPath>../QS/QS_uart.c</itemPath>
         <itemPath>../QS/QS_watchdog.c</itemPath>
+        <itemPath>../QS/QS_CapteurCouleurCW.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="_Tiny" projectFiles="true">
         <itemPath>../Tiny/TLong_hammer.c</itemPath>
         <itemPath>../Tiny/TActManager.c</itemPath>
         <itemPath>../Tiny/THammer.c</itemPath>
         <itemPath>../Tiny/TBall_inflater.c</itemPath>
+        <itemPath>../Tiny/TCandle_color_sensor.c</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.c</itemPath>
       <itemPath>../clock.c</itemPath>
@@ -118,7 +124,7 @@
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -282,7 +288,7 @@
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>

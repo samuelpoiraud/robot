@@ -40,14 +40,12 @@
 	#define AN2_ID  0
 	#define USE_AN3
 	#define AN3_ID  1
-	#define USE_AN8
-	#define AN8_ID  2
 	#define USE_AN9
-	#define AN9_ID  3
+	#define AN9_ID  2
 	#define USE_AN12
-	#define AN12_ID 4
+	#define AN12_ID 3
 	#define USE_AN13
-	#define AN13_ID 5
+	#define AN13_ID 4
 
 /**************** Périphériques ****************/
 
@@ -128,6 +126,17 @@
 	#define PLATE_PLIER_AX12_OPEN_POS            0      //en degré
 	#define PLATE_PLIER_AX12_CLOSED_POS          0      //en degré
 	#define PLATE_PLIER_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+
+/* Config BALLSORTER */
+	#define BALLSORTER_AX12_ID                   0      //TODO: changer ces valeurs !!!
+	#define BALLSORTER_AX12_MAX_TORQUE_PERCENT   100
+	#define BALLSORTER_AX12_ASSER_POS_EPSILON    5      //en degré
+	#define BALLSORTER_AX12_ASSER_TIMEOUT        20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define BALLSORTER_AX12_EJECT_CHERRY_POS     0      //TODO: changer ces valeurs !!! (en degré)
+	#define BALLSORTER_AX12_NEXT_CHERRY_POS      0
+	#define BALLSORTER_AX12_DETECT_CHERRY_POS    0
+	#define BALLSORTER_SENSOR_PIN                PORTBbits.RB8
+	#define BALLSORTER_SENSOR_DETECTED_LEVEL     1      //Niveau de BALLSORTER_SENSOR_PIN quand une cerise blanche est détectée
 
 /* Config LIFT */
 	#define LIFT_LEFT_ASSER_KP                       3000

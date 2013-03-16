@@ -75,7 +75,7 @@ bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 
 static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_Hammer) {
-		if(init == TRUE) {
+		if(init == TRUE && !QUEUE_has_error(queueId)) {
 			//Send command
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			Sint16 wantedPosition;
@@ -98,12 +98,12 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 			DCM_working_state_e asserState = DCM_get_state(HAMMER_DCMOTOR_ID);
 			CAN_msg_t resultMsg;
 
-			if(asserState == DCM_IDLE) {
-				resultMsg.data[2] = ACT_RESULT_DONE;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
-			} else if(QUEUE_has_error(queueId)) {
+			if(QUEUE_has_error(queueId)) {
 				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+			} else if(asserState == DCM_IDLE) {
+				resultMsg.data[2] = ACT_RESULT_DONE;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 			} else if(asserState == DCM_TIMEOUT) {
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;

@@ -139,7 +139,7 @@ static Sint16 last_speed_detected;
 
 static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallLauncher) {
-		if(init == TRUE) {
+		if(init == TRUE && !QUEUE_has_error(queueId)) {
 			//Send command
 			Uint16 pos_speed = QUEUE_get_arg(queueId)->param;
 			if(pos_speed == 0) {
@@ -162,12 +162,12 @@ static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				OUTPUTLOG_printf(LOG_LEVEL_Debug, "Current speed: %d\n", lastlast_speed);
 			}
 
-			if(asserState == DCM_IDLE) {
-				resultMsg.data[2] = ACT_RESULT_DONE;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
-			} else if(QUEUE_has_error(queueId)) {
+			if(QUEUE_has_error(queueId)) {
 				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+			} else if(asserState == DCM_IDLE) {
+				resultMsg.data[2] = ACT_RESULT_DONE;
+				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
 			} else if(asserState == DCM_TIMEOUT) {
 				resultMsg.data[2] = ACT_RESULT_FAILED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
