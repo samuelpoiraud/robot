@@ -127,23 +127,6 @@ int main (void)
 
 		if(!button3_pos && BUTTON3_PORT)
 		{
-#ifdef PLATE_ROTATION_POTAR_ADC_ID
-			debug_printf("Plate potar val: %d, ax12 val: %u\n", ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID), AX12_get_position(PLATE_PLIER_AX12_ID));
-#endif
-#ifdef HAMMER_SENSOR_ADC_ID
-			debug_printf("Hammer potar val: %d\n", ADC_getValue(HAMMER_SENSOR_ADC_ID));
-#endif
-			LED_USER2 = BUTTON3_PORT;
-			button3_pos = BUTTON3_PORT;
-		}
-		else if (button3_pos && !BUTTON3_PORT)
-		{
-			LED_USER2 = BUTTON3_PORT;
-			button3_pos = BUTTON3_PORT;
-		}	
-		
-		if(!button4_pos && BUTTON4_PORT)
-		{
 			/*msg.sid = ACT_BALLINFLATER;
 			msg.data[0] = ACT_BALLINFLATER_START;
 			msg.data[1] = 3;  //secondes
@@ -154,6 +137,40 @@ int main (void)
 			msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
 			msg.size = 1;
 			CAN_process_msg(&msg);
+
+			LED_USER2 = BUTTON3_PORT;
+			button3_pos = BUTTON3_PORT;
+		}
+		else if (button3_pos && !BUTTON3_PORT)
+		{
+			LED_USER2 = BUTTON3_PORT;
+			button3_pos = BUTTON3_PORT;
+		}	
+
+		//Affichage des valeurs des capteurs
+		if(!button4_pos && BUTTON4_PORT)
+		{
+			Uint8 i;
+			debug_printf("Sensor vals:\n");
+#ifdef I_AM_ROBOT_KRUSTY
+			debug_printf("- Plate potar val:      %d\n", ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID));
+			debug_printf("- Lift left potar val:  %d\n", ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID));
+			debug_printf("- Lift right potar val: %d\n", ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID));
+			debug_printf("- Capteur cerise: %d\n", BALLSORTER_SENSOR_PIN);
+
+			for(i=0; i<7; i++)
+				debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
+#endif
+#ifdef I_AM_ROBOT_TINY
+			debug_printf("- Hammer potar val: %d\n", ADC_getValue(HAMMER_SENSOR_ADC_ID));
+			debug_printf("- CW[x] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_x));
+			debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_y));
+			debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));
+
+			for(i=0; i<7; i++)
+				debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
+#endif
+			debug_printf("\n");
 
 			LED_USER2 = BUTTON4_PORT;
 			button4_pos = BUTTON4_PORT;
