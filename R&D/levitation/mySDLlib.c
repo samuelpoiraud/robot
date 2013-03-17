@@ -2,14 +2,14 @@
 /*	Auteur: Herzaeone                                             */
 /*	Date: Friday October 26, 2012                                 */
 /*	File: mySDLlib.c                                             */
-/******************************************************************/
+/******************************************************************/ 
 
 /******************************************************************/
-/*	Ce fichier nécessite l'instalation des
-/*	bibliothèques SDL
-/*	Installation:
-/*	Pour Ubuntu: sudo apt-get 
-/* Pour Fedora: sudo yum install 
+/*	Ce fichier nécessite l'instalation des			*/
+/*	bibliothèques SDL					*/
+/*	Installation:						*/
+/*	Pour Ubuntu: sudo apt-get  				*/
+/* Pour Fedora: sudo yum install 				*/
 /******************************************************************/
 
 /******************************************************************/
@@ -60,14 +60,17 @@ void clear_scrColor(SDL_Surface* screen, int Red, int Green, int Blue){
 }
 
 //Créé une surface rectangle de la couleur,à la position et aux dimensions spécifiées
-SDL_Surface* fill_rect(SDL_Surface* screen, int Xsize, int Ysize, int Xpos, int Ypos, int Red, int Green, int Blue){
-	surface rectangle = SDL_CreateRGBSurface(SDL_HWSURFACE, Xsize, Ysize, NCOLOR, 0, 0, 0, 0);
-	SDL_FillRect(rectangle, NULL, SDL_MapRGB(screen->format, Red, Green, Blue));
-	SDL_Rect position;
-	position.x = Xpos;
-	position.y = Ypos;
-	SDL_BlitSurface(rectangle, NULL, screen, &position);
-	return rectangle;
+void fill_rect(SDL_Rect * rect, SDL_Surface* screen, int Xsize, int Ysize, int Xpos, int Ypos, int Red, int Green, int Blue){
+	rect->x = Xpos;
+	rect->y = Ypos;
+	rect->w = Xsize;
+	rect->h = Ysize;
+	SDL_FillRect(screen, rect, SDL_MapRGB(screen->format, Red, Green, Blue));
+	//SDL_Rect position;
+	//position.x = Xpos;
+	//position.y = Ypos;
+	//SDL_BlitSurface(rect, NULL, screen, &position);
+	return;
 }
 
 
@@ -75,8 +78,9 @@ SDL_Surface* fill_rect(SDL_Surface* screen, int Xsize, int Ysize, int Xpos, int 
 //Fonctions relatives à l'affichage d'images
 
 //Affiche une image à la position spécifiée
-SDL_Surface* load_image(char* img_name, SDL_Surface* screen, int Xpos, int Ypos, int transparency){
-	surface image = IMG_Load(img_name);
+SDL_Surface * load_image(char* img_name, SDL_Surface* screen, int Xpos, int Ypos, int transparency){
+	SDL_Surface * image;
+	image = IMG_Load(img_name);
 	SDL_Rect position;
 	position.x = Xpos;
 	position.y = Ypos;
@@ -86,8 +90,9 @@ SDL_Surface* load_image(char* img_name, SDL_Surface* screen, int Xpos, int Ypos,
 }
 
 //Affiche une image à la position spécifiée avec ablation de la couleur demandée
-SDL_Surface* load_abl_image(char* img_name, SDL_Surface* screen, int Xpos, int Ypos, int Red, int Green, int Blue, int transparency){
-	surface image = IMG_Load(img_name);
+SDL_Surface * load_abl_image(char* img_name, SDL_Surface* screen, int Xpos, int Ypos, int Red, int Green, int Blue, int transparency){
+	SDL_Surface * image;
+	image = IMG_Load(img_name);
 	SDL_Rect position;
 	position.x = Xpos;
 	position.y = Ypos;
@@ -117,6 +122,7 @@ int focus_stop(SDL_Event event){
 		else
 			return 0;
 	}
+	return 0;
 }
 
 //Vérifie si le pointeur de la souris se situe une surface rectangulaire spécifiée
