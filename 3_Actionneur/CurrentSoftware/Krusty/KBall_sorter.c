@@ -59,7 +59,7 @@ static void BALLSORTER_initAX12() {
 		AX12_config_set_lowest_voltage(BALLSORTER_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(BALLSORTER_AX12_ID, BALLSORTER_AX12_MAX_TORQUE_PERCENT);
 
-		//Fixme: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
+		//FIXME: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
 	//	AX12_config_set_maximal_angle(BALLSORTER_PLIER_AX12_ID, (BALLSORTER_AX12_CLOSED_POS > BALLSORTER_PLIER_AX12_OPEN_POS)? BALLSORTER_PLIER_AX12_CLOSED_POS : BALLSORTER_PLIER_AX12_OPEN_POS);
 	//	AX12_config_set_minimal_angle(BALLSORTER_PLIER_AX12_ID, (BALLSORTER_AX12_CLOSED_POS < BALLSORTER_PLIER_AX12_OPEN_POS)? BALLSORTER_PLIER_AX12_CLOSED_POS : BALLSORTER_PLIER_AX12_OPEN_POS);
 
@@ -128,8 +128,10 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 					break;
 
 				case BALLSORTER_CS_DetectCherry:
-				{
-					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, BALLSORTER_SENSOR_PIN}, 5};
+				{   //Envoyer le message du resultat de la detection puis le message de resultat de l'opération demandé par la strat
+					CAN_msg_t detectionResultMsg = {ACT_BALLSORTER_RESULT, {(BALLSORTER_SENSOR_PIN == BALLSORTER_SENSOR_DETECTED_LEVEL)? ACT_BALLSORTER_WHITE_CHERRY : ACT_BALLSORTER_NO_CHERRY}, 1};
+					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
+					CAN_send(&detectionResultMsg);
 					CAN_send(&resultMsg);
 					QUEUE_behead(queueId);
 					return; //La suite c'est les commandes AX12

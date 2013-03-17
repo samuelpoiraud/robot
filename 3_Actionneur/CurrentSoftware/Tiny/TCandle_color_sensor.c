@@ -21,6 +21,9 @@
 
 #define LOG_PREFIX "CC: "
 
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL0
+#  define CANDLECOLOR_CW_PIN_CHANNEL0 CW_UNUSED_PORT
+#endif
 #ifndef CANDLECOLOR_CW_PIN_CHANNEL1
 #  define CANDLECOLOR_CW_PIN_CHANNEL1 CW_UNUSED_PORT
 #endif
@@ -30,15 +33,55 @@
 #ifndef CANDLECOLOR_CW_PIN_CHANNEL3
 #  define CANDLECOLOR_CW_PIN_CHANNEL3 CW_UNUSED_PORT
 #endif
-#ifndef CANDLECOLOR_CW_PIN_CHANNEL4
-#  define CANDLECOLOR_CW_PIN_CHANNEL4 CW_UNUSED_PORT
-#endif
 #ifndef CANDLECOLOR_CW_PIN_GATE
-#  define CANDLECOLOR_CW_PIN_GATE CW_UNUSED_PORT
+#  define CANDLECOLOR_CW_PIN_GATE     CW_UNUSED_PORT
+#endif
+
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL0_BIT
+#  define CANDLECOLOR_CW_PIN_CHANNEL0_BIT 0
+#endif
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL1_BIT
+#  define CANDLECOLOR_CW_PIN_CHANNEL1_BIT 0
+#endif
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL2_BIT
+#  define CANDLECOLOR_CW_PIN_CHANNEL2_BIT 0
+#endif
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL3_BIT
+#  define CANDLECOLOR_CW_PIN_CHANNEL3_BIT 0
+#endif
+#ifndef CANDLECOLOR_CW_PIN_GATE_BIT
+#  define CANDLECOLOR_CW_PIN_GATE_BIT     0
+#endif
+
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC
+#  define CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC FALSE
+#endif
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL1_INVERTED_LOGIC
+#  define CANDLECOLOR_CW_PIN_CHANNEL1_INVERTED_LOGIC FALSE
+#endif
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL2_INVERTED_LOGIC
+#  define CANDLECOLOR_CW_PIN_CHANNEL2_INVERTED_LOGIC FALSE
+#endif
+#ifndef CANDLECOLOR_CW_PIN_CHANNEL3_INVERTED_LOGIC
+#  define CANDLECOLOR_CW_PIN_CHANNEL3_INVERTED_LOGIC FALSE
+#endif
+#ifndef CANDLECOLOR_CW_PIN_GATE_BIT
+#  define CANDLECOLOR_CW_PIN_GATE_BIT     0
+#endif
+
+#ifndef CANDLECOLOR_CW_PIN_ADC_X
+#  define CANDLECOLOR_CW_PIN_ADC_X    CW_UNUSED_ANALOG_PORT
+#endif
+#ifndef CANDLECOLOR_CW_PIN_ADC_Y
+#  define CANDLECOLOR_CW_PIN_ADC_Y    CW_UNUSED_ANALOG_PORT
+#endif
+#ifndef CANDLECOLOR_CW_PIN_ADC_Z
+#  define CANDLECOLOR_CW_PIN_ADC_Z    CW_UNUSED_ANALOG_PORT
 #endif
 
 static void CANDLECOLOR_initAX12();
 static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init);
+static Uint8 CANDLECOLOR_process_color();
 
 void CANDLECOLOR_init() {
 	static bool_e initialized = FALSE;
@@ -55,12 +98,21 @@ void CANDLECOLOR_init() {
 	sensorConfig.analog_Y = CANDLECOLOR_CW_PIN_ADC_Y;
 	sensorConfig.analog_Z = CANDLECOLOR_CW_PIN_ADC_Z;
 
-	//Fixme: ajouter bit_number
+	sensorConfig.digital_ports[CW_PP_Channel0].port = CANDLECOLOR_CW_PIN_CHANNEL0;
+	sensorConfig.digital_ports[CW_PP_Channel0].bit_number = CANDLECOLOR_CW_PIN_CHANNEL0_BIT;
+	sensorConfig.digital_ports[CW_PP_Channel0].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC;
 	sensorConfig.digital_ports[CW_PP_Channel1].port = CANDLECOLOR_CW_PIN_CHANNEL1;
+	sensorConfig.digital_ports[CW_PP_Channel1].bit_number = CANDLECOLOR_CW_PIN_CHANNEL1_BIT;
+	sensorConfig.digital_ports[CW_PP_Channel1].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC;
 	sensorConfig.digital_ports[CW_PP_Channel2].port = CANDLECOLOR_CW_PIN_CHANNEL2;
+	sensorConfig.digital_ports[CW_PP_Channel2].bit_number = CANDLECOLOR_CW_PIN_CHANNEL2_BIT;
+	sensorConfig.digital_ports[CW_PP_Channel2].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC;
 	sensorConfig.digital_ports[CW_PP_Channel3].port = CANDLECOLOR_CW_PIN_CHANNEL3;
-	sensorConfig.digital_ports[CW_PP_Channel4].port = CANDLECOLOR_CW_PIN_CHANNEL4;
+	sensorConfig.digital_ports[CW_PP_Channel3].bit_number = CANDLECOLOR_CW_PIN_CHANNEL3_BIT;
+	sensorConfig.digital_ports[CW_PP_Channel3].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC;
 	sensorConfig.digital_ports[CW_PP_Gate].port = CANDLECOLOR_CW_PIN_GATE;
+	sensorConfig.digital_ports[CW_PP_Gate].bit_number = CANDLECOLOR_CW_PIN_GATE_BIT;
+
 	CW_config_sensor(CANDLECOLOR_CW_ID, &sensorConfig);
 }
 
@@ -72,12 +124,11 @@ static void CANDLECOLOR_initAX12() {
 		AX12_config_set_lowest_voltage(CANDLECOLOR_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(CANDLECOLOR_AX12_ID, CANDLECOLOR_AX12_MAX_TORQUE_PERCENT);
 
-		//Fixme: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
-	//	AX12_config_set_maximal_angle(CANDLECOLOR_AX12_ID, (CANDLECOLOR_AX12_CLOSED_POS > PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
-	//	AX12_config_set_minimal_angle(CANDLECOLOR_AX12_ID, (CANDLECOLOR_AX12_CLOSED_POS < PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
+		AX12_config_set_maximal_angle(CANDLECOLOR_AX12_ID, CANDLECOLOR_AX12_ANGLE_MAX);
+		AX12_config_set_minimal_angle(CANDLECOLOR_AX12_ID, CANDLECOLOR_AX12_ANGLE_MIN);
 
 		AX12_config_set_error_before_led(CANDLECOLOR_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
-		AX12_config_set_error_before_shutdown(CANDLECOLOR_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERHEATING);
+		AX12_config_set_error_before_shutdown(CANDLECOLOR_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD);
 	}
 }
 
@@ -144,15 +195,18 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 			ax12Pos = AX12_get_position(CANDLECOLOR_AX12_ID);
 			error = AX12_get_last_error(CANDLECOLOR_AX12_ID).error;
 
-			resultMsg.size = 4;
 			if(QUEUE_has_error(queueId)) {
 				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
 			} else if(abs((Sint16)ax12Pos - (Sint16)(wantedPosition)) <= CANDLECOLOR_AX12_POS_EPSILON) {
 				resultMsg.data[2] = ACT_RESULT_DONE;
 				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
-				resultMsg.data[4] = 0; //TODO: lire la couleur
-				resultMsg.size = 5;
+
+				CAN_msg_t colorDetectedMsg;   //Envoyer la couleur detectée
+				colorDetectedMsg.sid = ACT_CANDLECOLOR_RESULT;
+				colorDetectedMsg.data[0] = CANDLECOLOR_process_color();
+				colorDetectedMsg.size = 1;
+				CAN_send(&colorDetectedMsg);
 			} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
 				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 				resultMsg.data[3] = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
@@ -178,11 +232,54 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 			resultMsg.sid = ACT_RESULT;
 			resultMsg.data[0] = ACT_CANDLECOLOR & 0xFF;
 			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
+			resultMsg.size = 4;
 
 			CAN_send(&resultMsg);
 			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}
+}
+
+static Uint8 CANDLECOLOR_process_color() {
+	Uint16 x, y, z, Y;
+
+#ifdef CANDLECOLOR_CW_USE_DIGITAL
+	if(CW_is_color_detected(CANDLECOLOR_CW_ID, CANDLECOLOR_CW_CHANNEL_RED))
+		return ACT_CANDLECOLOR_COLOR_RED;
+
+	if(CW_is_color_detected(CANDLECOLOR_CW_ID, CANDLECOLOR_CW_CHANNEL_BLUE))
+		return ACT_CANDLECOLOR_COLOR_BLUE;
+
+	if(CW_is_color_detected(CANDLECOLOR_CW_ID, CANDLECOLOR_CW_CHANNEL_YELLOW))
+		return ACT_CANDLECOLOR_COLOR_YELLOW;
+
+	if(CW_is_color_detected(CANDLECOLOR_CW_ID, CANDLECOLOR_CW_CHANNEL_WHITE))
+		return ACT_CANDLECOLOR_COLOR_WHITE;
+#endif
+
+#ifdef CANDLECOLOR_CW_USE_ANALOG
+	x = CW_get_color_intensity(CANDLECOLOR_CW_ID, CW_AC_xyY_x);
+	y = CW_get_color_intensity(CANDLECOLOR_CW_ID, CW_AC_xyY_y);
+	Y = CW_get_color_intensity(CANDLECOLOR_CW_ID, CW_AC_xyY_Y);
+	z = 1024 - x - y;
+
+	if( x > CANDLECOLOR_CW_YELLOW_MIN_xy && y > CANDLECOLOR_CW_YELLOW_MIN_xy && abs(y-x) < CANDLECOLOR_CW_YELLOW_MAX_DIFF_xy)
+		return ACT_CANDLECOLOR_COLOR_YELLOW;
+
+	if(x > CANDLECOLOR_CW_RED_MIN_x)
+		return ACT_CANDLECOLOR_COLOR_RED;
+
+	if(z > CANDLECOLOR_CW_BLUE_MIN_z)
+		return ACT_CANDLECOLOR_COLOR_BLUE;
+
+	if(y > CANDLECOLOR_CW_GREEN_MIN_y)
+		return ACT_CANDLECOLOR_COLOR_OTHER;
+
+	if(Y > CANDLECOLOR_CW_WHITE_MIN_Y)
+		return ACT_CANDLECOLOR_COLOR_WHITE;
+#endif
+
+	return ACT_CANDLECOLOR_COLOR_OTHER;
 }
 
 #endif	//I_AM_ROBOT_TINY

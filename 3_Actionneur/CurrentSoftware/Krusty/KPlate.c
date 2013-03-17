@@ -82,7 +82,7 @@ static void PLATE_initAX12() {
 		AX12_config_set_lowest_voltage(PLATE_PLIER_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(PLATE_PLIER_AX12_ID, PLATE_PLIER_AX12_MAX_TORQUE_PERCENT);
 
-		//Fixme: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
+		//FIXME: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
 	//	AX12_config_set_maximal_angle(PLATE_PLIER_AX12_ID, (PLATE_PLIER_AX12_CLOSED_POS > PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
 	//	AX12_config_set_minimal_angle(PLATE_PLIER_AX12_ID, (PLATE_PLIER_AX12_CLOSED_POS < PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
 
@@ -106,7 +106,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 				CAN_push_operation_from_msg(msg, QUEUE_ACT_Plate_Rotation, &PLATE_run_command, 0);
 				break;
 
-				//TODO: decommenter le code gérant l'AX12 avec ACT_PLATE_ROTATE_VERTICALLY
+				//FIXME: decommenter le code gérant l'AX12 avec ACT_PLATE_ROTATE_VERTICALLY
 			/*case ACT_PLATE_ROTATE_VERTICALLY:    //Cas spécial: fermer la pince avant de tourner en vertical (sinon ça ne rentrera pas dans le robot)
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
