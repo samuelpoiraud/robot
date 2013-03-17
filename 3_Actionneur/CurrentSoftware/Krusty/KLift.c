@@ -108,7 +108,7 @@ static void LIFT_initAX12() {
 		AX12_config_set_lowest_voltage(LIFT_LEFT_PLIER_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(LIFT_LEFT_PLIER_AX12_ID, LIFT_LEFT_PLIER_AX12_MAX_TORQUE_PERCENT);
 
-		//Fixme: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
+		//FIXME: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
 	//	AX12_config_set_maximal_angle(LIFT_LEFT_PLIER_AX12_ID, (LIFT_LEFT_PLIER_AX12_CLOSED_POS > LIFT_LEFT_PLIER_AX12_OPEN_POS)? LIFT_PLIER_AX12_CLOSED_POS : LIFT_PLIER_AX12_OPEN_POS);
 	//	AX12_config_set_minimal_angle(LIFT_LEFT_PLIER_AX12_ID, (LIFT_LEFT_PLIER_AX12_CLOSED_POS < LIFT_LEFT_PLIER_AX12_OPEN_POS)? LIFT_PLIER_AX12_CLOSED_POS : LIFT_PLIER_AX12_OPEN_POS);
 

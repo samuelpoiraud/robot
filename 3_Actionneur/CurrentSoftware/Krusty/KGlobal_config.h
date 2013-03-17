@@ -110,7 +110,7 @@
 	#define PLATE_ASSER_KD                       0
 	#define PLATE_ASSER_TIMEOUT                  0   //en ms
 	#define PLATE_ASSER_POS_EPSILON              60  //TODO: à ajuster plus correctement
-	#define PLATE_HORIZONTAL_POS                 460    //TODO: ajuster ces valeurs ! (unité: potarland)
+	#define PLATE_HORIZONTAL_POS                 460
 	#define PLATE_PREPARE_POS                    548
 	#define PLATE_VERTICAL_POS                   750   /////////////////////////////
 	#define PLATE_DCMOTOR_ID                     1      //Doit être unique !

@@ -27,7 +27,6 @@ void BALLLAUNCHER_init();
 /** Gère les messages CAN liés au lanceur de balle.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'asservir le moteur.
- * (TODO: Ajouter la gestion de passage des balles)
  * @param msg le message CAN
  * @return TRUE si le message CAN a été géré par cet actionneur, FALSE sinon
  */
