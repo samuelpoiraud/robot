@@ -41,11 +41,21 @@
 
 #ifdef USE_CW_SENSOR
 
+/** Décrit un port d'entrée/sortie */
+typedef struct {
+	volatile unsigned int* port;
+	Uint8 bit_number;
+	bool_e is_inverted_logic; //TRUE s'il y a detection quand le port est au niveau 0
+} CW_port_t;
+
 /** Composante couleurs. Utilisé pour la lecture des valeurs analogiques. */
 typedef enum {
-	CW_AC_X,
-	CW_AC_Y,
-	CW_AC_Z
+	CW_AC_XYZ_X,  //Couleur XYZ RGB (voir http://en.wikipedia.org/wiki/CIE_1931_color_space)
+	CW_AC_XYZ_Y,
+	CW_AC_XYZ_Z,
+	CW_AC_xyY_x = CW_AC_XYZ_X,  //Couleurs xyY
+	CW_AC_xyY_y = CW_AC_XYZ_Y,
+	CW_AC_xyY_Y = CW_AC_XYZ_Z
 } CW_analog_color_e;
 
 /** Constante des ports pour la configuration.
@@ -53,10 +63,10 @@ typedef enum {
  * @see CW_config_t
  */
 typedef enum {
-	CW_PP_Channel1 = 0,
-	CW_PP_Channel2 = 1,
-	CW_PP_Channel3 = 2,
-	CW_PP_Channel4 = 3,
+	CW_PP_Channel0 = 0,
+	CW_PP_Channel1 = 1,
+	CW_PP_Channel2 = 2,
+	CW_PP_Channel3 = 3,
 	CW_PP_Gate = 4,
 	CW_PP_RemoteControl = 5,
 	CW_PP_MAXPORTNUM = 6
@@ -74,10 +84,7 @@ typedef enum {
  * @see CW_config_sensor
  */
 typedef struct {
-	struct {
-		volatile unsigned int* port;
-		Uint8 bit_number;
-	} digital_ports[CW_PP_MAXPORTNUM];
+	CW_port_t digital_ports[CW_PP_MAXPORTNUM];
 	Uint8 analog_X;
 	Uint8 analog_Y;
 	Uint8 analog_Z;
@@ -102,7 +109,7 @@ void CW_init();
 
 /**
  * Configure un capteur couleur pour pouvoir l'utiliser.
- * @param id_sensor Numero du capteur à configurer. Ce nombre doit être inférieur à #CW_SENSOR_NUMBER.
+ * @param id_sensor Numero du capteur à configurer. Ce nombre doit être entre 0 (inclu) et #CW_SENSOR_NUMBER (exclu).
  * @param config
  */
 void CW_config_sensor(Uint8 id_sensor, CW_config_t* config);
@@ -112,8 +119,8 @@ void CW_config_sensor(Uint8 id_sensor, CW_config_t* config);
  *
  * Chaque canal doit être configuré sur le capteur a l'aide des bouton Select et Next.
  * Cette fonction renvoie TRUE si la couleur à été detectée.
- * @param id_sensor Numero du capteur. Ce nombre doit être inférieur à #CW_SENSOR_NUMBER.
- * @param canal Numero du canal à checker
+ * @param id_sensor Numero du capteur. Ce nombre doit être entre 0 (inclu) et #CW_SENSOR_NUMBER (exclu).
+ * @param canal Numero du canal à checker entre 0 et 3 inclu
  * @return TRUE si la couleur a été detectée sinon FALSE
  */
 bool_e CW_is_color_detected(Uint8 id_sensor, Uint8 canal);
@@ -126,9 +133,9 @@ bool_e CW_is_color_detected(Uint8 id_sensor, Uint8 canal);
  * Si les couleurs renvoyées sont en mode "C", les composantes X, Y, Z sont les couleurs RGB.
  * Si les couleurs renvoyées sont en mode "CI", les composantes sont x, y, Y et correspondent
  * aux coordonées x et y de la couleur et à l'intensitée lumineuse Y.
- * @param id_sensor Numero du capteur. Ce nombre doit être inférieur à #CW_SENSOR_NUMBER.
+ * @param id_sensor Numero du capteur. Ce nombre doit être entre 0 (inclu) et #CW_SENSOR_NUMBER (exclu).
  * @param composante Couleur à checker
- * @return Intensité de la composante entre 0 et ????
+ * @return Intensité de la composante entre 0 et 1024
  */
 Uint16 CW_get_color_intensity(Uint8 id_sensor, CW_analog_color_e composante);
 
