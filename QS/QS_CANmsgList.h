@@ -205,12 +205,14 @@
 		//Paramètres de CANDLECOLOR (dans data[0])
 		#define ACT_CANDLECOLOR_GET_LOW  0  //Bouge le capteur et récupère la couleur d'une bougie à l'étage bas
 		#define ACT_CANDLECOLOR_GET_HIGH   1  //Bouge le capteur et récupère la couleur d'une bougie à l'étage haut
-		//Color result dans data[4]:
-		#define ACT_CANDLECOLOR_COLOR_BLUE   0
-		#define ACT_CANDLECOLOR_COLOR_RED    1
-		#define ACT_CANDLECOLOR_COLOR_YELLOW 2
-		#define ACT_CANDLECOLOR_COLOR_WHITE  3
-		#define ACT_CANDLECOLOR_COLOR_OTHER  4
+
+	#define ACT_CANDLECOLOR_RESULT (STRAT_FILTER | (ACT_FILTER >> 4) | 0x1)
+		//Couleur detectée dans data[0]:
+		#define ACT_CANDLECOLOR_COLOR_BLUE   0  //Couleur bleue detectée
+		#define ACT_CANDLECOLOR_COLOR_RED    1  //Couleur rouge detectée
+		#define ACT_CANDLECOLOR_COLOR_YELLOW 2  //Couleur jaune detectée
+		#define ACT_CANDLECOLOR_COLOR_WHITE  3  //Couleur blanche detectée
+		#define ACT_CANDLECOLOR_COLOR_OTHER  4  //Pas de couleur parmi les précédentes detectée
 	/////////////////////////////////////////
 
 /* Messages pour Krusty */
@@ -238,7 +240,9 @@
 	#define ACT_BALLSORTER (ACT_FILTER | 0x13)
 		//Paramètres de BALLSORTER (dans data[0])
 		#define ACT_BALLSORTER_TAKE_NEXT_CHERRY 0    //Ejecter la cerise et en prendre une autre pour la detecter
-		//Résultat de la detection de la cerise de ACT_BALLSORTER_TAKE_NEXT_CHERRY dans ACT_RESULT data[4]:
+
+	#define ACT_BALLSORTER_RESULT (STRAT_FILTER | (ACT_FILTER >> 4) | 0xA)
+		//Résultat de la detection de la cerise dans data[0]:
 		#define ACT_BALLSORTER_WHITE_CHERRY     0
 		#define ACT_BALLSORTER_NO_CHERRY        1
 	/////////////////////////////////////////
