@@ -305,33 +305,7 @@ error_e Test_Homologation_Sortie_Base(void)
 /* ----------------------------------------------------------------------------- */
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
-void test_qui_sert_pas(){ //Ceci n'a rien a voir avec le robot
-	Uint8 x,y;
-	static bool_e s=1;
-	
-	if(s){
-		x = 0x00;
-		y = 0x03;
 
-		x = y+3;
-		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
-		x |= 0xC3;
-		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
-		x = x&0b10001010;
-		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
-		x <<= y;
-		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
-		y ^= 0x1;
-		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
-		x >>= y;
-		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
-		y =~ x;
-		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
-		x = !y;
-		debug_printf("x = 0x%x	y = 0x%x\n",x,y);
-		s=0;
-	}
-}
 void TEST_STRAT_strat_selector_1(void){
 	LED_USER2 = 1;
 	LED_ERROR = 0;
@@ -363,7 +337,8 @@ void TEST_STRAT_premier_deplacement(void){
 		SECONDBIS,
 		TROIS,
 		QUATRE,
-		
+				CINQ,
+				SIX,
 				DONE,
 	}state = SORTIR;
 
@@ -373,7 +348,7 @@ void TEST_STRAT_premier_deplacement(void){
 	
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(580,COLOR_Y(450),FAST,FORWARD);
+			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -392,9 +367,9 @@ void TEST_STRAT_premier_deplacement(void){
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{300, COLOR_Y(580)},FAST},
 					{{300, COLOR_Y(2300)},FAST},
-					{{550, COLOR_Y(2400)},FAST},
-					{{600, COLOR_Y(2405)},
-							FAST}},4,REAR,NO_AVOIDANCE);
+					//{{550, COLOR_Y(2400)},FAST},
+					{{575, COLOR_Y(2405)},
+							FAST}},3,REAR,NO_AVOIDANCE);
 			//TEST_STRAT_VERRE1();
 			switch(sub_action){
 				case IN_PROGRESS:
@@ -412,8 +387,9 @@ void TEST_STRAT_premier_deplacement(void){
 			break;
 		case SECOND:
 			sub_action = goto_pos_with_scan_foe(
-					(displacement_t[]){{{550, COLOR_Y(400)},FAST}},
-							1,FORWARD,NO_AVOIDANCE);
+					(displacement_t[]){{{548, COLOR_Y(600)},FAST},
+							{{550, COLOR_Y(400)},FAST}},
+							2,FORWARD,NO_AVOIDANCE);
 					//TEST_STRAT_VERRE2();
 			switch(sub_action){
 				case IN_PROGRESS:
@@ -431,14 +407,14 @@ void TEST_STRAT_premier_deplacement(void){
 			break;
 		case SECONDBIS:
 			sub_action = goto_pos_with_scan_foe(
-					(displacement_t[]){{{1200, COLOR_Y(2400)},FAST}},
-							1,REAR,NO_AVOIDANCE);
+					(displacement_t[]){{{555, COLOR_Y(2400)},FAST}},
+					1,REAR,NO_AVOIDANCE);
 
 			break;
 		case TROIS:
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{550, COLOR_Y(2200)},FAST},
-					{{1200, COLOR_Y(2400)},FAST}},
+					{{1000, COLOR_Y(2400)},FAST}},
 							2,REAR,NO_AVOIDANCE);
 			switch(sub_action){
 				case IN_PROGRESS:
@@ -456,24 +432,65 @@ void TEST_STRAT_premier_deplacement(void){
 			break;
 		case QUATRE:
 			sub_action = goto_pos_with_scan_foe(
-					(displacement_t[]){{{800, COLOR_Y(2200)},FAST},
-					{{800, COLOR_Y(1000)},FAST},
-					{{700, COLOR_Y(420)},FAST}},
-					3,FORWARD,NO_AVOIDANCE);
-			switch(sub_action){
-				case IN_PROGRESS:
-					break;
-				case END_OK:
-					state = DONE;
-					break;
-				case END_WITH_TIMEOUT:
-					state = DONE;
-					break;
-				case NOT_HANDLED:
-					state = DONE;
-					break;
-			}
+					(displacement_t[]){{{850, COLOR_Y(2200)},FAST},
+					{{850, COLOR_Y(1000)},FAST},
+					{{850, COLOR_Y(600)},FAST},
+					{{805, COLOR_Y(400)},FAST}},
+					4,FORWARD,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = CINQ;
+						break;
+					case END_WITH_TIMEOUT:
+						state = CINQ;
+						break;
+					case NOT_HANDLED:
+						state = CINQ;
+						break;
+				}
 			break;
+			case CINQ:
+				sub_action = goto_pos_with_scan_foe(
+				(displacement_t[]){{{800, COLOR_Y(2400)},FAST},
+					{{1200, COLOR_Y(2500)},FAST}},
+							2,REAR,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = SIX;
+						break;
+					case END_WITH_TIMEOUT:
+						state = SIX;
+						break;
+					case NOT_HANDLED:
+						state = SIX;
+						break;
+				}
+			break;
+			case SIX:
+				sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{1075, COLOR_Y(2200)},FAST},
+					{{1100, COLOR_Y(1000)},FAST},
+					{{1075, COLOR_Y(600)},FAST},
+					{{1050, COLOR_Y(400)},FAST}},
+					4,FORWARD,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = DONE;
+						break;
+					case END_WITH_TIMEOUT:
+						state = DONE;
+						break;
+					case NOT_HANDLED:
+						state = DONE;
+						break;
+				}
+				break;
 		case DONE:
 			break;
 	}
