@@ -25,35 +25,11 @@
 #include "avoidance.h"
 #include "act_functions.h"
 
-error_e STRAT_debut_match();
 
-void STRAT_match_global();
-
-error_e STRAT_hit_bottle_middle();
-
-void STRAT_money_time();
-
-
-error_e STRAT_retour_de_bouteille_avec_adversaire_proche();
 /********************************************************************************* 
-					Actions elementaires specifiques 2012
+					Actions elementaires specifiques 2013
 **********************************************************************************/
-	//Prend des cd et des lingots à proximité de la face sud de notre totem
-	error_e STRAT_own_totem_south();
-	//Prend des cd et des lingots à proximité de la face nord de notre totem
-	error_e STRAT_own_totem_north();
-	//va taper la bouteille numéro 2, commencant en 1700, 742
-	error_e STRAT_hit_bottle_middle();
-	
-	error_e STRAT_hit_bottle_deck_and_take_own_south_totem();
-	
-	error_e STRAT_bullion_own_totem_south();
-	
-	error_e STRAT_bullion_own_totem_north();
-	
-	void TEST_strat_test();
 
-	error_e rammassage_devant_carte();
 	
 /* ----------------------------------------------------------------------------- */
 /* 								Fonctions d'homologation		  		         */
@@ -69,10 +45,10 @@ error_e STRAT_retour_de_bouteille_avec_adversaire_proche();
 		 *
 		 * post : robot homologué
 		 */
-		error_e ACTION_homologation();
+		
 	#endif
-
-void STRAT_derniere_chance();
+//A ne pas réutiliser
+void STRAT_Lannion(void);
 
 	#ifdef ACTIONS_C
 	
