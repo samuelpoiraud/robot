@@ -42,7 +42,6 @@ error_e Test_Homologation_Sortie_Base(void);
 error_e Test_Homologation_Point(void);
 
 
-void test_qui_sert_pas();
 //Tests
 void TEST_STRAT_strat_selector_1(void);
 void TEST_STRAT_strat_selector_2(void);
