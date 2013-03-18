@@ -128,7 +128,7 @@ bool_e ACT_push_plate_rotate_horizontally(bool_e run) {
 	args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
 	args.fallbackMsg.size = 1;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate vertically cmd\n");
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate horizontally cmd\n");
 	return ACT_push_operation(ACT_STACK_Plate, &args, run);
 }
 
@@ -146,7 +146,7 @@ bool_e ACT_push_plate_rotate_prepare(bool_e run) {
 	args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
 	args.fallbackMsg.size = 1;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate vertically cmd\n");
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate prepare cmd\n");
 	return ACT_push_operation(ACT_STACK_Plate, &args, run);
 }
 
@@ -162,7 +162,7 @@ bool_e ACT_push_plate_rotate_vertically(bool_e run) {
 	//Que faire si on ne peut pas se replier ... (rien ici)
 	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate horizontally Stop cmd\n");
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate vertically cmd\n");
 	return ACT_push_operation(ACT_STACK_Plate, &args, run);
 }
 
@@ -266,7 +266,7 @@ static void ACT_run_operation(stack_id_e act_id, bool_e init) {
 		ACT_can_msg_t* command = &(ACT_get_stack_arg(act_id)->msg);
 		CAN_msg_t msg;
 
-		global.env.act[ACT_STACK_BallLauncher].operationResult = ACT_RESULT_Working;
+		global.env.act[act_id].operationResult = ACT_RESULT_Working;
 		act_states[act_id] = ACT_FUNCTION_InProgress;
 
 		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Sending operation, act_id: %d, sid: 0x%x, size: %d, data[0]: 0x%x, data[1]: 0x%x, data[2]: 0x%x\n", act_id, command->sid, command->size, command->data[0], command->data[1], command->data[2]);

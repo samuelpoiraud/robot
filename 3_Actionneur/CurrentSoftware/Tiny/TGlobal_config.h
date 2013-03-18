@@ -153,7 +153,7 @@
 	#define CANDLECOLOR_CW_GREEN_MIN_y          512   //valeur mini de y pour detecter du vert
 	#define CANDLECOLOR_CW_WHITE_MIN_Y          512   //Valeur mini de Y pour detecter du blanc (il ne faut pas qu'on detecte une autre couleur pour le detecter)
 
-	#define CANDLECOLOR_AX12_ID                 0
+	#define CANDLECOLOR_AX12_ID                 6
 	#define CANDLECOLOR_AX12_TIMEOUT            30  //en centaine de ms, une valeur de 20 correspond à 2secondes
 	#define CANDLECOLOR_AX12_POS_EPSILON        5
 	#define CANDLECOLOR_AX12_HIGH_CANDLE_POS    0  //TODO: a changer
