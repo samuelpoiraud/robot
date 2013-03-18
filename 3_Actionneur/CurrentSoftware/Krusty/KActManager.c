@@ -15,11 +15,13 @@
 #include "KBall_launcher.h"
 #include "KPlate.h"
 #include "KLift.h"
+#include "KBall_sorter.h"
 
 void ACTMGR_init() {
 	BALLLAUNCHER_init();
 	PLATE_init();
 	LIFT_init();
+	BALLSORTER_init();
 }
 
 //Gère les messages CAN des actionneurs. Si le message à été géré, cette fonction renvoie TRUE, sinon FALSE.
@@ -30,6 +32,8 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 	if(PLATE_CAN_process_msg(msg))
 		return TRUE;
 	if(LIFT_CAN_process_msg(msg))
+		return TRUE;
+	if(BALLSORTER_CAN_process_msg(msg))
 		return TRUE;
 
 	return FALSE;
