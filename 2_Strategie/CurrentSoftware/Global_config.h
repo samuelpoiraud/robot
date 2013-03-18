@@ -107,8 +107,13 @@
 	 *
 	 *
 	 */
-	 
-	#define STACKS_SIZE 32 //doit être < à 256
+
+	 //FIXME: ça marche d'avoir 16 au lieu de 32 ? Jean Claude: Mais oui bien sur !
+	//On utilise très rarement plus de 5 empilement donc 16 devrait suffire (et puis il manquait de place en mémoire ...)
+	#define STACKS_SIZE 16 //doit être < à 256
+
+	//Utilisé par act_function
+	#define QUEUE_SIZE	16
 
 	//utilisation du module BUTTONS
 	#define USE_BUTTONS
