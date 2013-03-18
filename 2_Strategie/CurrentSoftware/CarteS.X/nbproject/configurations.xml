@@ -48,6 +48,7 @@
       <itemPath>../QS/QS_buttons.h</itemPath>
       <itemPath>../output_log.h</itemPath>
       <itemPath>../QS/QS_who_am_i.h</itemPath>
+      <itemPath>../queue.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -87,6 +88,7 @@
       <itemPath>../actions.c</itemPath>
       <itemPath>../output_log.c</itemPath>
       <itemPath>../QS/QS_who_am_i.c</itemPath>
+      <itemPath>../queue.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

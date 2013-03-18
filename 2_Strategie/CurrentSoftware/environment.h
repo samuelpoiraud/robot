@@ -66,33 +66,6 @@
 		volatile time32_t update_time;
 		volatile bool_e updated;
 	}position_t;
-
-
-	//Info sur la gestion d'erreur des actionneurs:
-	//La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT
-	//La fonction ACT_process_result (act_function.c) converti les messages ACT_RESULT en ces valeurs dans act_t::operationResult et act_t::recommendedBehavior (environnement.h)
-	//La fonction ACT_check_result (act_function.c) converti et gère les messages act_t::operationResult et act_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
-
-	typedef enum {
-		ACT_RESULT_Idle,	//Etat au démarage, par la suite ce sera le resultat de la dernière opération effectuée
-		ACT_RESULT_Working,	//L'opération n'est pas terminée
-		ACT_RESULT_Ok,		//L'opération s'est terminée correctement
-		ACT_RESULT_Failed	//Une erreur est survenue, voir details dans act_error_recommended_behavior_e
-	} act_result_e;
-
-	typedef enum {
-		ACT_BEHAVIOR_Ok,                       //Pas d'erreur (ACT_RESULT_ERROR_OK)
-		ACT_BEHAVIOR_DisableAct,               //L'actionneur est inutilisable
-		ACT_BEHAVIOR_RetryLater,               //Ressayer plus tard les commandes, si arrive plusieurs fois de suite, passer à ACT_ERROR_DisableAct (ACT_RESULT_ERROR_NO_RESOURCES)
-		ACT_BEHAVIOR_GoalUnreachable,          //ACT_RESULT_ERROR_TIMEOUT la première fois. Tenter de retourner à la position en mode non-déployé. Si une autre erreur survient,passer à ACT_ERROR_DisableAct Sinon essayer la strat qui l'utilise plus tard, et si l'erreur revient, refaire la procédure mais au lieu de ressayer la strat plus tard, desactiver l'actionneur.
-		                                       //Si ACT_RESULT_ERROR_NOT_HERE, envoyer une commande de retour en mode déployé et passer directement à ACT_ERROR_DisableAct. Esperons que l'actionneur reçevra la commande et restera pas déployé.
-	} act_error_recommended_behavior_e;
-
-	typedef struct {
-		bool_e disabled;	//TRUE si l'actionneur est désactivé car inutilisable
-		act_result_e operationResult;	//Resultat de la derrnière opération faite
-		act_error_recommended_behavior_e recommendedBehavior;		//Quoi faire suite à l'opération faite
-	} act_state_info_t;
 	
 	///////////////////////////////
 
@@ -123,7 +96,6 @@
 		position_t foe[NB_FOES];		//comme son nom l'indique, c'est la position de l'adversaire
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
-		act_state_info_t act[ACTUATORS_NB];	// actionneurs
 		/*Tableau d'état des elements du terrain */
 		map_state_e map_elements[40]; //Voir doc pour connaitre les éléments associés
 	}environment_t;

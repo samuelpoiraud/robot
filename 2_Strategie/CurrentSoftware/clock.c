@@ -15,6 +15,11 @@
 
 void CLOCK_init()
 {
+	bool_e initialized = FALSE;
+	if(initialized)
+		return;
+	initialized = TRUE;
+
 	TIMER_init();
 	TIMER1_stop();
 	global.env.match_time = 0;
