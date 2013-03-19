@@ -12,6 +12,10 @@
 #define BUTTON_C
  
 #include "button.h"
+#include "act_functions.h"
+
+static void BUTTON_TEST_button3();
+static void BUTTON_TEST_button4();
 
 void BUTTON_init()
 {
@@ -19,14 +23,12 @@ void BUTTON_init()
 	BUTTONS_init();
 	BUTTONS_define_actions(BUTTON1,BUTTON_start, NULL, 1);
 	BUTTONS_define_actions(BUTTON2,BUTTON_calibration, NULL, 1);
-
-	BUTTONS_define_actions(BUTTON1,BUTTON_start,NULL,1);
-
-	BUTTONS_define_actions(BUTTON2,BUTTON_calibration,NULL,1);
         
 
 //	BUTTONS_define_actions(BUTTON3,BUTTON_servo,NULL,1);
-	BUTTONS_define_actions(BUTTON4,BUTTON_pi_rotation,BUTTON_translation,1);
+//	BUTTONS_define_actions(BUTTON4,BUTTON_pi_rotation,BUTTON_translation,1);
+	BUTTONS_define_actions(BUTTON3,BUTTON_TEST_button3, NULL, 1);
+	BUTTONS_define_actions(BUTTON4,BUTTON_TEST_button4, NULL, 1);
 }
 
 void BUTTON_update() 
@@ -91,4 +93,15 @@ void BUTTON_pi_rotation()
 void BUTTON_translation()
 {
 	relative_move (1000, FAST, TRUE);
+}
+
+static Uint16 speed = 6000;
+static void BUTTON_TEST_button3() {
+	ACT_push_ball_launcher_run(speed, TRUE);
+	speed += 50;
+}
+
+static void BUTTON_TEST_button4() {
+	ACT_push_ball_launcher_run(speed, TRUE);
+	speed -= 50;
 }
