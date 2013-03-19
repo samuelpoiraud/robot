@@ -18,6 +18,7 @@
 	#include "brain.h"
 	#include "clock.h"
 	#include "QS/QS_who_am_i.h"
+	#include "queue.h"
 	
 int main (void)
 {
@@ -70,6 +71,7 @@ int main (void)
 		/* Execution des routines de supervision des piles
 		actionneurs */
 		STACKS_run();
+		QUEUE_run();
 		
 		
 		/* Execution de la routine d'IA */

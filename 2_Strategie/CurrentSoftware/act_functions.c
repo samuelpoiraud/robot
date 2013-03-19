@@ -459,6 +459,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			//On n'affecte pas act_states[act_id].recommendedBehavior pour garder une trace des erreurs précédentes (dans le cas ou on a renvoyé une commande par exemple, permet de savoir l'erreur d'origine)
 			//act_states[act_id].recommendedBehavior est affecté à ACT_BEHAVIOR_Ok dans
 			act_states[act_id].operationResult = ACT_RESULT_Ok;
+			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Reason Ok, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);
 			break;
 
 		default:	//ACT_RESULT_NOT_HANDLED et ACT_RESULT_FAILED (et les autres si ajouté)

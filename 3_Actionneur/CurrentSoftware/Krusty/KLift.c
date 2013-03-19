@@ -164,7 +164,7 @@ bool_e LIFT_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 static Sint16 LIFT_LEFT_getTranslationPos() {
-	return ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID);
+	return -ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID);
 }
 
 static Sint16 LIFT_RIGHT_getTranslationPos() {

@@ -96,9 +96,14 @@ int main (void)
 			msg.size = 3;
 			CAN_process_msg(&msg);*/
 
-			msg.sid = ACT_PLATE;
+			/*msg.sid = ACT_PLATE;
 			msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+			msg.size = 1;*/
+
+			msg.sid = ACT_LIFT_LEFT;
+			msg.data[0] = ACT_LIFT_GO_UP;
 			msg.size = 1;
+
 			CAN_process_msg(&msg);
 
 			LED_USER2 = BUTTON1_PORT;
@@ -112,10 +117,17 @@ int main (void)
 
 		if(!button2_pos && BUTTON2_PORT)
 		{
-			msg.sid = ACT_PLATE;
+			/*msg.sid = ACT_PLATE;
 			msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
+			msg.size = 1;*/
+
+			msg.sid = ACT_LIFT_LEFT;
+			msg.data[0] = ACT_LIFT_GO_MID;
 			msg.size = 1;
+
 			CAN_process_msg(&msg);
+
+			
 			LED_USER2 = BUTTON2_PORT;
 			button2_pos = BUTTON2_PORT;
 		}
@@ -133,9 +145,14 @@ int main (void)
 			msg.size = 2;
 			CAN_process_msg(&msg);*/
 
-			msg.sid = ACT_PLATE;
+			/*msg.sid = ACT_PLATE;
 			msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
+			msg.size = 1;*/
+
+			msg.sid = ACT_LIFT_LEFT;
+			msg.data[0] = ACT_LIFT_GO_DOWN;
 			msg.size = 1;
+
 			CAN_process_msg(&msg);
 
 			LED_USER2 = BUTTON3_PORT;

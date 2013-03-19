@@ -149,13 +149,16 @@ void QUEUE_next(queue_id_e queue_id)
 	assert(queue_id < NB_QUEUE);
 	queue_t* this = &(queues[queue_id]);
 
+	debug_printf("queue: before inc\n");
 	QUEUE_inc_index(&this->end_index);
+	debug_printf("queue: after inc\n");
 
 	if(!QUEUE_is_empty(queue_id))
-	{
+	{debug_printf("queue: not empty\n");
 		//on initialise l'action suivante
 		this->initial_time_of_current_action = global.env.match_time;
-		(this->action[this->start_index])(queue_id, TRUE);
+		(this->action[this->end_index])(queue_id, TRUE);
+		debug_printf("queue: act called\n");
 		//debug_printf("Off with his head ! %d\n", queue_id);
 	}
 }
