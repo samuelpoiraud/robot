@@ -242,7 +242,8 @@ void STRAT_Lannion(void){
             break;
 
         case GRABBER_TIDY:
-            ACT_push_plate_rotate_prepare(TRUE);
+            //ACT_push_plate_rotate_prepare(TRUE);
+			
 
             state = MOVE_PUSH;
 
@@ -551,7 +552,7 @@ void STRAT_Lannion(void){
             }
             break;
         case GRABBER_UP:
-            ACT_push_plate_rotate_vertically(TRUE);
+            //ACT_push_plate_rotate_vertically(TRUE);
             state = GO_POS5;
         case GO_POS5:
             sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(2000)}}},1,FORWARD,NORMAL_WAIT);

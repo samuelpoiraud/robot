@@ -18,6 +18,7 @@
 	#define ACT_FUNCTIONS_H
 
 	#include "queue.h"
+	#include "QS/QS_CANmsgList.h"
 
 	//Info sur la gestion d'erreur des actionneurs:
 	//La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT
@@ -62,13 +63,41 @@
 	bool_e ACT_push_ball_launcher_stop(bool_e run);
 
 /* Actionneur associé: ACT_QUEUE_Plate */
-	//Amener le bras en position horizontale (pour prendre ou lacher une assiette par ex)
-	bool_e ACT_push_plate_rotate_horizontally(bool_e run);
-	//Amener le bras en position intermédiaire (45°) pour préparer un mouvement vers l'horizontale ou verticale
-	bool_e ACT_push_plate_rotate_prepare(bool_e run);
-	//Amener le bras en position verticale. Ferme la pince si elle ne l'est pas avant d'effectuer le mouvement (meca oblige) (pour vider une assiette ou réduire le périmêtre du robot)
-	bool_e ACT_push_plate_rotate_vertically(bool_e run);
+	typedef enum {
+		ACT_PLATE_RotateUp = ACT_PLATE_ROTATE_VERTICALLY,
+		ACT_PLATE_RotateMid = ACT_PLATE_ROTATE_PREPARE,
+		ACT_PLATE_RotateDown = ACT_PLATE_ROTATE_HORIZONTALLY,
+		ACT_PLATE_RotateRanger = ACT_PLATE_RotateUp,
+		ACT_PLATE_RotateLuckyLuke = ACT_PLATE_RotateUp
+	} ACT_plate_rotate_cmd_t;
 
+	typedef enum {
+		ACT_PLATE_PlierOpen = ACT_PLATE_PLIER_OPEN,
+		ACT_PLATE_PlierClose = ACT_PLATE_PLIER_CLOSE
+	} ACT_plate_plier_cmd_t;
+
+	bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd);
+	bool_e ACT_plate_plier(ACT_plate_plier_cmd_t cmd);
+
+/* Actionneur associé: ACT_QUEUE_LiftRight et ACT_QUEUE_LiftLeft */
+	typedef enum {
+		ACT_LIFT_Left = ACT_LIFT_LEFT,
+		ACT_LIFT_Right = ACT_LIFT_RIGHT
+	} ACT_lift_pos_t;
+
+	typedef enum {
+		ACT_LIFT_TranslateUp = ACT_LIFT_GO_UP,
+		ACT_LIFT_TranslateMid = ACT_LIFT_GO_MID,
+		ACT_LIFT_TranslateDown = ACT_LIFT_GO_DOWN
+	} ACT_lift_translate_cmd_t;
+
+	typedef enum {
+		ACT_LIFT_PlierOpen = ACT_LIFT_PLIER_OPEN,
+		ACT_LIFT_PlierClose = ACT_LIFT_PLIER_CLOSE
+	} ACT_lift_plier_cmd_t;
+
+	bool_e ACT_lift_translate(ACT_lift_pos_t lift_id, ACT_lift_translate_cmd_t cmd);
+	bool_e ACT_lift_plier(ACT_lift_pos_t lift_id, ACT_lift_plier_cmd_t cmd);
 
 	///////////////// TINY /////////////////
 
