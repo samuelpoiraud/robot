@@ -25,6 +25,8 @@ typedef enum {
 	ACT_QUEUE_Plate,
 	ACT_QUEUE_Hammer,
 	ACT_QUEUE_BallInflater,
+	ACT_QUEUE_LiftLeft,
+	ACT_QUEUE_LiftRight,
 	NB_QUEUE
 } queue_id_e;
 

@@ -123,57 +123,84 @@ bool_e ACT_push_ball_launcher_stop(bool_e run) {
 	return ACT_push_operation(ACT_QUEUE_BallLauncher, &args, run);
 }
 
-
-bool_e ACT_push_plate_rotate_horizontally(bool_e run) {
+bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd) {
 	QUEUE_arg_t args;
 
 	args.timeout = ACT_ARG_USE_DEFAULT;
 
 	args.msg.sid = ACT_PLATE;
-	args.msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
+	args.msg.data[0] = cmd;
 	args.msg.size = 1;
 
-	//Si on ne peut pas aller en position horizontale, revenir en vertical et la strat pourra passer à autre chose (au lieu de défoncer le décor)
-	args.fallbackMsg.sid = ACT_PLATE;
-	args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
-	args.fallbackMsg.size = 1;
+	//Si on ne peut pas aller en position, revenir en vertical et la strat pourra passer à autre chose (au lieu de défoncer le décor)
+	if(cmd != ACT_PLATE_RotateUp) {
+		args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+	} else {
+		args.fallbackMsg.sid = ACT_PLATE;
+		args.fallbackMsg.size = 1;
+		args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+	}
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate horizontally cmd\n");
-	return ACT_push_operation(ACT_QUEUE_Plate, &args, run);
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate cmd: %d\n", cmd);
+	return ACT_push_operation(ACT_QUEUE_Plate, &args, TRUE);
 }
 
-bool_e ACT_push_plate_rotate_prepare(bool_e run) {
+bool_e ACT_plate_plier(ACT_plate_plier_cmd_t cmd) {
 	QUEUE_arg_t args;
 
 	args.timeout = ACT_ARG_USE_DEFAULT;
 
 	args.msg.sid = ACT_PLATE;
-	args.msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
+	args.msg.data[0] = cmd;
 	args.msg.size = 1;
 
-	//Si on ne peut pas aller en position intermediaire, revenir en vertical et la strat pourra passer à autre chose (au lieu de défoncer le décor)
-	args.fallbackMsg.sid = ACT_PLATE;
-	args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
-	args.fallbackMsg.size = 1;
+	//Si on ne peut pas aller en position, revenir en vertical et la strat pourra passer à autre chose (au lieu de défoncer le décor)
+	if(cmd != ACT_PLATE_PlierClose) {
+		args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+	} else {
+		args.fallbackMsg.sid = ACT_PLATE;
+		args.fallbackMsg.size = 1;
+		args.fallbackMsg.data[0] = ACT_PLATE_PLIER_CLOSE;
+	}
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate prepare cmd\n");
-	return ACT_push_operation(ACT_QUEUE_Plate, &args, run);
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate plier cmd: %d\n", cmd);
+	return ACT_push_operation(ACT_QUEUE_Plate, &args, TRUE);
 }
 
-bool_e ACT_push_plate_rotate_vertically(bool_e run) {
+bool_e ACT_lift_translate(ACT_lift_pos_t lift_id, ACT_lift_translate_cmd_t cmd) {
 	QUEUE_arg_t args;
 
 	args.timeout = ACT_ARG_USE_DEFAULT;
 
-	args.msg.sid = ACT_PLATE;
-	args.msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+	args.msg.sid = lift_id;
+	args.msg.data[0] = cmd;
 	args.msg.size = 1;
 
-	//Que faire si on ne peut pas se replier ... (rien ici)
 	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate vertically cmd\n");
-	return ACT_push_operation(ACT_QUEUE_Plate, &args, run);
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Lift id %d, translate cmd: %d\n", lift_id, cmd);
+	if(lift_id == ACT_LIFT_Left)
+		return ACT_push_operation(ACT_QUEUE_LiftLeft, &args, TRUE);
+	else
+		return ACT_push_operation(ACT_QUEUE_LiftRight, &args, TRUE);
+}
+
+bool_e ACT_lift_plier(ACT_lift_pos_t lift_id, ACT_lift_plier_cmd_t cmd) {
+	QUEUE_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = lift_id;
+	args.msg.data[0] = cmd;
+	args.msg.size = 1;
+
+	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Lift id %d, plier cmd: %d\n", lift_id, cmd);
+	if(lift_id == ACT_LIFT_Left)
+		return ACT_push_operation(ACT_QUEUE_LiftLeft, &args, TRUE);
+	else
+		return ACT_push_operation(ACT_QUEUE_LiftRight, &args, TRUE);
 }
 
 // </editor-fold>
