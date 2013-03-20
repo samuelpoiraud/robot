@@ -45,6 +45,7 @@
 	
 	/* Va a l'angle indiquée, se termine à l'arret */
 	void ASSER_goangle (stack_id_e stack_id, bool_e init);
+
 	
 	/* Tourne par rapport à l'angle actuel, se termine à l'arret */
 	void ASSER_relative_goangle (stack_id_e stack_id, bool_e init);
@@ -60,6 +61,7 @@
 	
 	/* ajoute une instruction goangle sur la pile asser */
 	void ASSER_push_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);
+	
 	
 	/* ajoute une instruction relative_goangle sur la pile asser */
 	void ASSER_push_relative_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);

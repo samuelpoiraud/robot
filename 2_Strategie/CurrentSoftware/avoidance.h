@@ -139,6 +139,14 @@
 	#endif /* ndef USE_POLYGON */
 
 	/*
+	 * Envoie le robot à l'angle spécifiée.
+	 * pre  : le robot doit être à la position global.env.pos
+	 * post : la pile ASSER est vidée.
+	 * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT, NOT_HANDLED
+	 */
+	error_e goto_angle (Sint16 angle, ASSER_speed_e speed);
+
+	/*
 	 * Envoie le robot à la position spécifiée. renvoie NOT_HANDLED si adversaire en travers du chemin
 	 * pre  : le robot doit être à la position global.env.pos
 	 * post : la pile ASSER est vidée.

@@ -13,6 +13,7 @@
 #define ASSER_FUNCTIONS_C
 
 #include "Asser_functions.h"
+#include "avoidance.h"
 
 /*	Pile conservant les eventuels arguments pour les fonctions des actionneurs
  *	tout en conservant le meme prototype pour tous les actionneurs, reduisant
@@ -444,6 +445,8 @@ void ASSER_push_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run)
 	pos->speed = speed;
 	STACKS_push (ASSER, &ASSER_goangle, run);
 }
+
+
 
 /* ajoute une instruction relative_goangle sur la pile asser */
 void ASSER_push_relative_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run)

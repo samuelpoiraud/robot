@@ -647,6 +647,39 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 #endif
 
 
+/*Equivalent de ASSER_goangle avec gestion de pile*/
+error_e goto_angle (Sint16 angle, ASSER_speed_e speed){
+	static enum{
+		EMPILE,
+		WAIT,
+		DONE,
+	}state = EMPILE;
+
+	static bool_e timeout;
+
+	switch(state){
+		case EMPILE:
+			ASSER_push_goangle(angle, speed, TRUE);
+			state = WAIT;
+			return IN_PROGRESS;
+			break;
+		case WAIT:
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+				state = DONE;
+			}
+			return IN_PROGRESS;
+			break;
+		case DONE:
+			state = EMPILE;
+			return (timeout)? END_WITH_TIMEOUT : END_OK;
+			break;
+		default:
+			return NOT_HANDLED;
+	}
+	return NOT_HANDLED;
+}
+
+
 /* Equivalent d'un ASSER_push_goto avec la gestion de la pile */
 error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way)
 {
