@@ -98,6 +98,7 @@
 		time32_t match_time; //temps de match en ms.
 		/*Tableau d'état des elements du terrain */
 		map_state_e map_elements[40]; //Voir doc pour connaitre les éléments associés
+                Uint8 color_ball;
 	}environment_t;
 
 	//NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
