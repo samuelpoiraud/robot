@@ -896,6 +896,11 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 								AX12_UART2_reception_buffer[i] = 0;
 							pos = 0;
 						#endif
+						
+						//flush recv buffer
+						while(U2STAbits.URXDA)
+							getcUART2();
+
 						state_machine.state = AX12_SMS_ReadyToSend;
 						AX12_state_machine(AX12_SME_NoEvent);
 					}
