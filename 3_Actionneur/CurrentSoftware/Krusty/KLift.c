@@ -168,7 +168,7 @@ static Sint16 LIFT_LEFT_getTranslationPos() {
 }
 
 static Sint16 LIFT_RIGHT_getTranslationPos() {
-	return ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID);
+	return -ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID);
 }
 
 static void LIFT_run_command(queue_id_t queueId, bool_e init) {

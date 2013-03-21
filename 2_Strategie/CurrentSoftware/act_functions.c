@@ -76,14 +76,14 @@ static void ACT_check_result(queue_id_e act_id);
 static bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* arg, bool_e run_now);
 static void ACT_run_operation(queue_id_e act_id, bool_e init);
 
-ACT_function_result_e ACT_get_last_action_result2(queue_id_e act_id) {
+ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id) {
 	assert(act_id < NB_QUEUE);
 	return act_states[act_id].lastResult;
 }
 
-ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
+/*ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
 	return ACT_get_last_action_result2(act_id - 1); //FIXME: GROSSE BIDOUILLE ICI !!!
-}
+}*/
 
 
 //FONCTIONS D'ACTIONNEURS PUBLIQUES
