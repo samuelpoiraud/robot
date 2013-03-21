@@ -858,7 +858,11 @@ void TEST_STRAT_assiettes_evitement(void){
                 POS_MOVE3,
                 GRABBER_DOWN ,
                 GRABBER_DOWN_ATT,
+                GRABBER_OPEN,
+                GRABBER_OPEN_ATT,
 		PUSH,
+                GRABBER_CRUSH,
+                GRABBER_CRUSH_ATT,
 		GRABBER_UP,
                 GRABBER_UP_ATT,
                 BACK,
@@ -937,18 +941,18 @@ void TEST_STRAT_assiettes_evitement(void){
 
         case GRABBER_DOWN:
 
-            ACT_push_plate_rotate_horizontally(TRUE);
+            ACT_plate_rotate(ACT_PLATE_RotateDown);
             state =GRABBER_DOWN_ATT;
             break;
          case GRABBER_DOWN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
+            sub_action_act = ACT_get_last_action_result2(ACT_QUEUE_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = PUSH;
+                    state = GRABBER_OPEN;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
@@ -965,17 +969,49 @@ void TEST_STRAT_assiettes_evitement(void){
             }
             break;
 
+       
+            
+        case GRABBER_OPEN:
+
+            ACT_plate_plier(ACT_PLATE_PlierOpen);
+            state =GRABBER_OPEN_ATT;
+            break;
+         case GRABBER_OPEN_ATT:
+            sub_action_act = ACT_get_last_action_result2(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = PUSH;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = PUSH;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = PUSH;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
         case PUSH:
 
             sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,REAR,NORMAL_WAIT);
             switch(sub_action)
             {
                 case END_OK:
-                    state=GRABBER_UP;
+                    state=GRABBER_CRUSH;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_UP;
+                    state=GRABBER_CRUSH;
                     break;
                 case NOT_HANDLED:
                     break;
@@ -987,13 +1023,44 @@ void TEST_STRAT_assiettes_evitement(void){
                     break;
             }
             break;
+
+        case GRABBER_CRUSH:
+
+            ACT_plate_plier(ACT_PLATE_PlierClose);
+            state =GRABBER_CRUSH_ATT;
+            break;
+         case GRABBER_CRUSH_ATT:
+            sub_action_act = ACT_get_last_action_result2(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = GRABBER_UP;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = GRABBER_UP;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = GRABBER_UP;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
         case GRABBER_UP:
 
-            ACT_push_plate_rotate_vertically(TRUE);
+            ACT_plate_rotate(ACT_PLATE_RotateUp);
             state =GRABBER_UP_ATT;
             break;
          case GRABBER_UP_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
+            sub_action_act = ACT_get_last_action_result2(ACT_QUEUE_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1044,3 +1111,4 @@ void TEST_STRAT_assiettes_evitement(void){
             break;
     }
 }
+
