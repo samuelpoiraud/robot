@@ -77,12 +77,19 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 
 		switch(msg->data[0]) {
 			case ACT_BALLSORTER_TAKE_NEXT_CHERRY:
-				QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_BallSorter);
-				QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_EjectCherry}   , QUEUE_ACT_BallSorter);
-				QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_GotoNextCherry}, QUEUE_ACT_BallSorter);
-				QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_TakeCherry}    , QUEUE_ACT_BallSorter);
-				QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry}  , QUEUE_ACT_BallSorter);
-				QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_BallSorter);
+				queueId = QUEUE_create();
+				assert(queueId != QUEUE_CREATE_FAILED);
+				if(queueId != QUEUE_CREATE_FAILED) {
+					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_EjectCherry}   , QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_GotoNextCherry}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_TakeCherry}    , QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry}  , QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_BallSorter);
+				} else {	//on indique qu'on a pas géré la commande
+					CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
+					CAN_send(&resultMsg);
+				}
 				break;
 
 			default:
@@ -114,6 +121,8 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				return;
 			}
 
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"state: %d, ax12 pos: %d\n", state, AX12_get_position(BALLSORTER_AX12_ID));
+
 			switch(state) {
 				case BALLSORTER_CS_EjectCherry:
 					wantedPosition = BALLSORTER_AX12_EJECT_CHERRY_POS;
@@ -137,6 +146,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 					return; //La suite c'est les commandes AX12
 				}
 			}
+
 			if(wantedPosition == 0xFFFF) {
 				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid AX12 position: %u, code is broken !\n", command);
 				return;
