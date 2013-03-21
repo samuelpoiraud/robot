@@ -151,7 +151,7 @@ void TEST_STRAT_kdo(void){
 			break;
 			
 		case KDO1:
-			sub_action = K_ASSIETE1();
+			sub_action = K_CADEAU1();
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -171,7 +171,7 @@ void TEST_STRAT_kdo(void){
 			break;
 
 		case KDO2:
-			sub_action = K_ASSIETE2();
+			sub_action = K_CADEAU2();
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -191,7 +191,7 @@ void TEST_STRAT_kdo(void){
 			break;
 
 		case KDO3:
-			sub_action = K_ASSIETE3();
+			sub_action = K_CADEAU3();
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -211,7 +211,7 @@ void TEST_STRAT_kdo(void){
 			break;
 
 		case KDO4:
-			sub_action = K_ASSIETE4();
+			sub_action = K_CADEAU4();
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -239,7 +239,7 @@ void TEST_STRAT_kdo(void){
 /* 						Actions élémentaires de construction                     */
 /* ----------------------------------------------------------------------------- */
 
-error_e K_ASSIETE1(void){
+error_e K_CADEAU1(void){
 	static enum{
 		MOVE = 0,
 				ANGLE,
@@ -387,7 +387,7 @@ error_e K_ASSIETE1(void){
 	return NOT_HANDLED;
 }
 
-error_e K_ASSIETE2(void){
+error_e K_CADEAU2(void){
 	static enum{
 		MOVE = 0,
 				ANGLE,
@@ -535,7 +535,7 @@ error_e K_ASSIETE2(void){
 	return NOT_HANDLED;
 }
 
-error_e K_ASSIETE3(void){
+error_e K_CADEAU3(void){
 	static enum{
 		MOVE = 0,
 				ANGLE,
@@ -683,7 +683,7 @@ error_e K_ASSIETE3(void){
 	return NOT_HANDLED;
 }
 
-error_e K_ASSIETE4(void){
+error_e K_CADEAU4(void){
 	static enum{
 		MOVE = 0,
 				ANGLE,
