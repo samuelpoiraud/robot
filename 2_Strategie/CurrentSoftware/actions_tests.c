@@ -845,3 +845,202 @@ error_e K_CADEAU4(void){
 /* ----------------------------------------------------------------------------- */
 /* 							Tests state_machines multiple              			 */
 /* ----------------------------------------------------------------------------- */
+
+
+
+void TEST_STRAT_assiettes_evitement(void){
+
+    static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+		POS_MOVE = 0,
+                POS_MOVE2,
+                POS_MOVE3,
+                GRABBER_DOWN ,
+                GRABBER_DOWN_ATT,
+		PUSH,
+		GRABBER_UP,
+                GRABBER_UP_ATT,
+                BACK,
+                DONE,
+    } state = POS_MOVE;
+
+//    static bool_e timeout = FALSE;
+
+    switch (state) {
+        case POS_MOVE:
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=POS_MOVE2;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=POS_MOVE2;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+         case POS_MOVE2:
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=POS_MOVE3;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=POS_MOVE3;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+        case POS_MOVE3:
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_DOWN;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_DOWN;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        case GRABBER_DOWN:
+
+            ACT_push_plate_rotate_horizontally(TRUE);
+            state =GRABBER_DOWN_ATT;
+            break;
+         case GRABBER_DOWN_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = PUSH;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    //state = GRABBER_TIDY_2;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     //state = GRABBER_TIDY_2;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case PUSH:
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,REAR,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_UP;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_UP;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+        case GRABBER_UP:
+
+            ACT_push_plate_rotate_vertically(TRUE);
+            state =GRABBER_UP_ATT;
+            break;
+         case GRABBER_UP_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_STACK_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = BACK;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    //state = GRABBER_TIDY_2;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     //state = GRABBER_TIDY_2;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case BACK:
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+        case DONE:
+            break;
+        default:
+            break;
+    }
+}
