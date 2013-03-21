@@ -22,6 +22,7 @@
 typedef Uint8 queue_size_t;
 typedef enum {
 	ACT_QUEUE_BallLauncher,
+	ACT_QUEUE_BallSorter,
 	ACT_QUEUE_Plate,
 	ACT_QUEUE_Hammer,
 	ACT_QUEUE_BallInflater,
