@@ -123,6 +123,21 @@ bool_e ACT_push_ball_launcher_stop(bool_e run) {
 	return ACT_push_operation(ACT_QUEUE_BallLauncher, &args, run);
 }
 
+bool_e ACT_ball_sorter_next() {
+	QUEUE_arg_t args;
+
+	args.timeout = ACT_ARG_USE_DEFAULT;
+
+	args.msg.sid = ACT_BALLSORTER;
+	args.msg.data[0] = ACT_BALLSORTER_TAKE_NEXT_CHERRY;
+	args.msg.size = 1;
+
+	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallSorter next cmd\n");
+	return ACT_push_operation(ACT_QUEUE_BallSorter, &args, run);
+}
+
 bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd) {
 	QUEUE_arg_t args;
 
