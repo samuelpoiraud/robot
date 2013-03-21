@@ -480,6 +480,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		case ACT_BALLINFLATER & 0xFF:
 			act_id = ACT_QUEUE_BallInflater;
 			break;
+
+		case ACT_BALLSORTER & 0xFF:
+			act_id = ACT_QUEUE_BallSorter;
+			break;
 	}
 
 	if(act_id >= NB_QUEUE) {
