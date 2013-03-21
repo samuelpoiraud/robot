@@ -128,7 +128,7 @@ void ODOMETRY_correct_with_border(way_e way)
 {	
 	Sint32 angle32;
 	angle32 = (Sint32)(global.position.teta);
-#warning "passer le CALIBRATION_BACKWARD_BORDER_DISTANCE en variable dépendant du robot."
+
 	if(way == BACKWARD)
 	{
 		if(angle32 >= -(Sint32)PI4096/4 && angle32 <= (Sint32)PI4096/4)
