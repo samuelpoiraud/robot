@@ -49,8 +49,8 @@
 	// A utiliser après la detection d'une erreur lors de l'exécution d'une pile pour savoir quoi faire par la suite (reporter l'action ou l'annuler)
 
 	// !!!!!!! CETTE FONCTION UTILISE ACT_QUEUE_* AU LIEU DE ACT_STACK_* COMME L'ANCIENNE ACT_get_last_action_result !!!!!!
-	ACT_function_result_e ACT_get_last_action_result2(queue_id_e act_id);
-	ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id);
+	ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
+	//ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id);
 
 /* Fonctions empilables */
 
