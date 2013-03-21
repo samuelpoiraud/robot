@@ -85,6 +85,7 @@ void DEBUG_process_main(void)
 	CAN_msg_t msg;
 	if(global.flag_recouvrement_IT)
 	{
+		global.flag_recouvrement_IT = FALSE;	
 		debug_printf("prévenez samuelp5@gmail.com, recouvrement IT !");//Fuck, il y a des IT trop longues... on remonte l'info au développeur !
 		msg.sid = DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT;
 		msg.size = 8;
