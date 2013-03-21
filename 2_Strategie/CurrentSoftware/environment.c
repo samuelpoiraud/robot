@@ -103,6 +103,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case ACT_RESULT:
 			ACT_process_result(incoming_msg);
 			break;
+            case ACT_BALLSORTER_RESULT:
+                        
+                        break;
+
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:
 			ENV_pos_foe_update(incoming_msg);

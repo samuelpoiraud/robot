@@ -879,6 +879,7 @@ void TEST_STRAT_assiettes_evitement(void){
             {
                 case END_OK:
                     state=POS_MOVE2;
+
                     break;
 
                 case END_WITH_TIMEOUT:
@@ -1112,3 +1113,163 @@ void TEST_STRAT_assiettes_evitement(void){
     }
 }
 
+
+
+void TEST_Launcher_ball(void){
+    static Uint8 nb_ball=0;
+    static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        GO_POS = 0,
+        GO_ANGLE,
+        LAUNCH_BALL_NORMAL,
+        LAUNCH_BALL_SLOW,
+        LAUNCH_BALL_ATT,
+        WAIT_BALL,
+        WAIT_BALL_ATT,
+        STOP_LAUNCH,
+        STOP_LAUNCH_ATT,
+        DONE,
+    } state = GO_POS;
+
+    switch(state){
+        case GO_POS :
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GO_ANGLE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GO_ANGLE;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        case GO_ANGLE:
+            sub_action = goto_angle(-9646, FAST);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state = LAUNCH_BALL_NORMAL;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state = LAUNCH_BALL_NORMAL;
+                    break;
+
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        case LAUNCH_BALL_NORMAL:
+            ACT_push_ball_launcher_run(6350,TRUE);  // a 66cm du bord du gateau
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_SLOW:
+            ACT_push_ball_launcher_run(3000,TRUE);
+            state=LAUNCH_BALL_ATT;
+            break;
+            
+        case LAUNCH_BALL_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = WAIT_BALL;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case WAIT_BALL:
+            nb_ball=nb_ball+1;
+            
+
+            ACT_ball_sorter_next();
+            state=WAIT_BALL_ATT;
+            break;
+
+        case WAIT_BALL_ATT:
+
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    if (nb_ball>=8) state=STOP_LAUNCH;
+                    else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case STOP_LAUNCH:
+            ACT_push_ball_launcher_stop(TRUE);
+            state=STOP_LAUNCH_ATT;
+            break;
+
+        case STOP_LAUNCH_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = DONE;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case DONE:
+            break;
+
+    }
+
+}
