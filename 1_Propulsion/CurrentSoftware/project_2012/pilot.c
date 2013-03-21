@@ -21,6 +21,7 @@
 #include "cos_sin.h"
 #include "calculator.h"
 #include "joystick.h"
+#include "QS/QS_who_am_i.h"
 
 typedef enum {
 		ACCELERATION_NULLE,
@@ -62,6 +63,8 @@ volatile e_acceleration etat_acceleration_rotation;
 volatile Sint32 vitesse_translation_max;
 volatile Sint32 vitesse_rotation_max;
 
+volatile Sint32 coefs[PILOT_NUMBER_COEFS];
+
 #define SOUS_QUANTIFICATION (2)	//Simplification de la courbe (permet de réduire le nombre de calculs de sinus..) Doit être une puissance de 2...
 
 void PILOT_init(void)
@@ -70,9 +73,43 @@ void PILOT_init(void)
 	MOTORS_init();
 	PILOT_set_speed(FAST);
 	PILOT_referential_init();
-
+	if(QS_WHO_AM_I_get()==TINY)
+	{
+		coefs[PILOT_ACCELERATION_NORMAL] 				= TINY_ACCELERATION_NORMAL;
+		coefs[PILOT_ACCELERATION_ROTATION_TRANSLATION] 	= TINY_ACCELERATION_ROTATION_TRANSLATION;
+		coefs[PILOT_TRANSLATION_SPEED_LIGHT] 			= TINY_TRANSLATION_SPEED_LIGHT;
+		coefs[PILOT_TRANSLATION_SPEED_MAX] 				= TINY_TRANSLATION_SPEED_MAX;
+		coefs[PILOT_TRANSLATION_SPEED_LOW] 				= TINY_TRANSLATION_SPEED_LOW;
+		coefs[PILOT_TRANSLATION_SPEED_VERY_LOW] 		= TINY_TRANSLATION_SPEED_VERY_LOW;
+		coefs[PILOT_TRANSLATION_SPEED_SNAIL] 			= TINY_TRANSLATION_SPEED_SNAIL;
+		coefs[PILOT_ROTATION_SPEED_LIGHT] 				= TINY_ROTATION_SPEED_LIGHT;
+		coefs[PILOT_ROTATION_SPEED_MAX] 				= TINY_ROTATION_SPEED_MAX;
+		coefs[PILOT_ROTATION_SPEED_LOW] 				= TINY_ROTATION_SPEED_LOW;
+		coefs[PILOT_ROTATION_SPEED_VERY_LOW] 			= TINY_ROTATION_SPEED_VERY_LOW;
+		coefs[PILOT_ROTATION_SPEED_SNAIL] 				= TINY_ROTATION_SPEED_SNAIL;
+	}	
+	else
+	{
+		coefs[PILOT_ACCELERATION_NORMAL] 				= KRUSTY_ACCELERATION_NORMAL;
+		coefs[PILOT_ACCELERATION_ROTATION_TRANSLATION] 	= KRUSTY_ACCELERATION_ROTATION_TRANSLATION;
+		coefs[PILOT_TRANSLATION_SPEED_LIGHT] 			= KRUSTY_TRANSLATION_SPEED_LIGHT;
+		coefs[PILOT_TRANSLATION_SPEED_MAX] 				= KRUSTY_TRANSLATION_SPEED_MAX;
+		coefs[PILOT_TRANSLATION_SPEED_LOW] 				= KRUSTY_TRANSLATION_SPEED_LOW;
+		coefs[PILOT_TRANSLATION_SPEED_VERY_LOW] 		= KRUSTY_TRANSLATION_SPEED_VERY_LOW;
+		coefs[PILOT_TRANSLATION_SPEED_SNAIL] 			= KRUSTY_TRANSLATION_SPEED_SNAIL;
+		coefs[PILOT_ROTATION_SPEED_LIGHT] 				= KRUSTY_ROTATION_SPEED_LIGHT;
+		coefs[PILOT_ROTATION_SPEED_MAX] 				= KRUSTY_ROTATION_SPEED_MAX;
+		coefs[PILOT_ROTATION_SPEED_LOW] 				= KRUSTY_ROTATION_SPEED_LOW;
+		coefs[PILOT_ROTATION_SPEED_VERY_LOW] 			= KRUSTY_ROTATION_SPEED_VERY_LOW;
+		coefs[PILOT_ROTATION_SPEED_SNAIL] 				= KRUSTY_ROTATION_SPEED_SNAIL;
+	}	
 }
 
+Sint32 PILOT_get_coef(PILOT_coef_e id)
+{
+	return coefs[id];
+}
+	
 void PILOT_referential_init(void)
 {
 	global.vitesse_rotation = 0;
@@ -217,7 +254,7 @@ void PILOT_update_acceleration_state(void)
 			//Calculs
 			if(vrot < (Sint32)(vitesse_rotation_max))
 			{
-				vrot += (Sint32)(ACCELERATION_NORMAL * COEFF_ACCELERATION_ROTATION_TRANSLATION) << SOUS_QUANTIFICATION;
+				vrot += (Sint32)(coefs[PILOT_ACCELERATION_NORMAL] * coefs[PILOT_ACCELERATION_ROTATION_TRANSLATION]) << SOUS_QUANTIFICATION;
 			}
 			if(vrot > (Sint32)(vitesse_rotation_max))
 			{
@@ -271,7 +308,7 @@ void PILOT_update_acceleration_state(void)
 			//Calculs
 			if(vrot > -(Sint32)(vitesse_rotation_max))
 			{
-				vrot -= (Sint32)(ACCELERATION_NORMAL * COEFF_ACCELERATION_ROTATION_TRANSLATION) << SOUS_QUANTIFICATION;
+				vrot -= (Sint32)(coefs[PILOT_ACCELERATION_NORMAL] * coefs[PILOT_ACCELERATION_ROTATION_TRANSLATION]) << SOUS_QUANTIFICATION;
 			}
 			if(vrot < -(Sint32)(vitesse_rotation_max))
 			{
@@ -462,11 +499,11 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 		ptrans = ptrans * 2; // 3/2
 	}
 
-	global.acceleration_translation = (ACCELERATION_NORMAL * ptrans) / 64;
-	global.acceleration_rotation = (ACCELERATION_NORMAL * prot) / 64;
+	global.acceleration_translation = (coefs[PILOT_ACCELERATION_NORMAL] * ptrans) / 64;
+	global.acceleration_rotation = (coefs[PILOT_ACCELERATION_NORMAL] * prot) / 64;
 
 	//ce coeff dï¿½pend de la distance entre les roues de propulsions...
-	global.acceleration_rotation *= COEFF_ACCELERATION_ROTATION_TRANSLATION;
+	global.acceleration_rotation *= coefs[PILOT_ACCELERATION_ROTATION_TRANSLATION];
 }
 
 void PILOT_update_speed_translation() {
@@ -533,30 +570,30 @@ void PILOT_set_speed(speed_e speed)
 	switch(speed)
 	{
 		case FAST:
-			vitesse_rotation_max = ROTATION_SPEED_MAX;
-			vitesse_translation_max = TRANSLATION_SPEED_MAX;
+			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_MAX];
+			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_MAX];
 		break;
 		case EXTREMELY_VERY_SLOW:
-			vitesse_rotation_max = ROTATION_SPEED_SNAIL;
-			vitesse_translation_max = TRANSLATION_SPEED_SNAIL;
+			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_SNAIL];
+			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_SNAIL];
 		break;
 		case SLOW_TRANSLATION_AND_FAST_ROTATION:
 			//Très lent est utilisé pour du calage, la rotation peut etre rapide ?
-			vitesse_rotation_max = ROTATION_SPEED_MAX;
-			vitesse_translation_max = TRANSLATION_SPEED_VERY_LOW;
+			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_MAX];
+			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_VERY_LOW];
 		break;
 		case SLOW:
-			vitesse_rotation_max = ROTATION_SPEED_LOW;
-			vitesse_translation_max = TRANSLATION_SPEED_LOW;
+			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_LOW];
+			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_LOW];
 		break;
 				case CUSTOM:
 		default:
 			vitesse_translation_max = (Sint32)(speed-8) * 128;	//"vitesse" varie de 8 à 255 et la vitesse finallement obtenue varie de 0 à 32702
 			vitesse_rotation_max = (Sint32)(speed-8) * 1024;	//"vitesse" varie de 8 à 255 et la vitesse finallement obtenue varie de 0 à 252928 (c'est trop ! mais il y a un écretage ensuite)
-			if(vitesse_translation_max > TRANSLATION_SPEED_LIGHT)
-				vitesse_translation_max = TRANSLATION_SPEED_LIGHT;
-			if(vitesse_rotation_max > ROTATION_SPEED_LIGHT)
-				vitesse_rotation_max = ROTATION_SPEED_LIGHT;
+			if(vitesse_translation_max > coefs[PILOT_TRANSLATION_SPEED_LIGHT])
+				vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_LIGHT];
+			if(vitesse_rotation_max > coefs[PILOT_ROTATION_SPEED_LIGHT])
+				vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_LIGHT];
 		break;
 	}
 }

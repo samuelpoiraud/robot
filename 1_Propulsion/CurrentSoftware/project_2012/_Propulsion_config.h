@@ -187,8 +187,12 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 	
 	// de combien on accelere à chaque boucle d'asser
-	#define ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define COEFF_ACCELERATION_ROTATION_TRANSLATION 10//8			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
+	#define TINY_ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define TINY_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
+	
+	#define KRUSTY_ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 8
+	
 	// 13 = (1024 / (distance entre les roues de propulsions divisée par 2 ) )
 	//sur archi'tech : 2*80mm entre les roues
 	//explication : une accélération de 1 en translation = une accélération de 13 en rotation 
@@ -205,26 +209,41 @@
 			8192  = 2[mm/5ms] = 0,4m/s
 		*/
 	// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
-	#define TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
-	#define TRANSLATION_SPEED_MAX 		(Sint32)(20448)		 	//environ = 5[mm/5ms] = 1,0m/s
-	#define TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
-	#define TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
-	#define TRANSLATION_SPEED_SNAIL		(Sint32)(516)
+	#define TINY_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
+	#define TINY_TRANSLATION_SPEED_MAX 		(Sint32)(20448)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define TINY_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
+	#define TINY_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
+	#define TINY_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
 	
 	//Une vitesse de 1024[rad/4096/1024/5ms] en rotation correspond à un déplacement des roues de 80[mm/4096/5ms]
-	#define ROTATION_SPEED_LIGHT 		(Sint32)(135160)			//[rad/4096/1024/5ms]
-	#define ROTATION_SPEED_MAX 			(Sint32)(135160)			//[rad/4096/1024/5ms]
-	#define ROTATION_SPEED_LOW 			(Sint32)(21120)			//environ 1,5 rad/s
-	#define ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
-	#define ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
+	#define TINY_ROTATION_SPEED_LIGHT 		(Sint32)(92920)			//[rad/4096/1024/5ms]
+	#define TINY_ROTATION_SPEED_MAX 			(Sint32)(92920)			//[rad/4096/1024/5ms]
+	#define TINY_ROTATION_SPEED_LOW 			(Sint32)(21120)			//environ 1,5 rad/s
+	#define TINY_ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
+	#define TINY_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
+	
+		// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
+	#define KRUSTY_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
+	#define KRUSTY_TRANSLATION_SPEED_MAX 		(Sint32)(20448)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define KRUSTY_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
+	#define KRUSTY_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
+	#define KRUSTY_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
+	
+	//Une vitesse de 1024[rad/4096/1024/5ms] en rotation correspond à un déplacement des roues de 80[mm/4096/5ms]
+	#define KRUSTY_ROTATION_SPEED_LIGHT 		(Sint32)(135160)			//[rad/4096/1024/5ms]
+	#define KRUSTY_ROTATION_SPEED_MAX 			(Sint32)(135160)			//[rad/4096/1024/5ms]
+	#define KRUSTY_ROTATION_SPEED_LOW 			(Sint32)(21120)			//environ 1,5 rad/s
+	#define KRUSTY_ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
+	#define KRUSTY_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
+	
 	
 	
 	//Le robot est 'arrivé' lorsque sa vitesse est faible et sa position proche :
 	#define PRECISION_ARRIVE_POSITION_TRANSLATION 40960	//1cm		//81920 //2cm
-	#define PRECISION_ARRIVE_SPEED_TRANSLATION (ACCELERATION_NORMAL*2)	//1mm/5ms = 2cm/s
+	#define PRECISION_ARRIVE_SPEED_TRANSLATION (PILOT_get_coef(PILOT_ACCELERATION_NORMAL)*2)	//1mm/5ms = 2cm/s
 
-	#define PRECISION_ARRIVE_POSITION_ROTATION (2*(ROTATION_SPEED_MAX/1024)+1) 		//TODO le 2* n'est pas justifié, mais nécessaire, coupe 2012...
-	#define PRECISION_ARRIVE_SPEED_ROTATION (ACCELERATION_NORMAL*COEFF_ACCELERATION_ROTATION_TRANSLATION*2)	// rad/1024/5ms = 0,2rad/s
+	#define PRECISION_ARRIVE_POSITION_ROTATION (2*(PILOT_get_coef(PILOT_ROTATION_SPEED_MAX)/1024)+1) 		//TODO le 2* n'est pas justifié, mais nécessaire, coupe 2012...
+	#define PRECISION_ARRIVE_SPEED_ROTATION (PILOT_get_coef(PILOT_ACCELERATION_NORMAL)*PILOT_get_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION)*2)	// rad/1024/5ms = 0,2rad/s
 
 	
 	//a partir de cette distance de l'arrivée, on cesse de recalculer l'angle de vue...

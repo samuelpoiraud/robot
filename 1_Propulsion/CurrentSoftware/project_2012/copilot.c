@@ -651,7 +651,7 @@ braking_e COPILOT_update_brake_state_rotation()
 //
 	Sint32 angle_frein;
 	angle_frein = (global.vitesse_rotation >> 2)*(global.vitesse_rotation >> 2);
-	angle_frein /= (2*ACCELERATION_NORMAL*COEFF_ACCELERATION_ROTATION_TRANSLATION);
+	angle_frein /= (2*PILOT_get_coef(PILOT_ACCELERATION_NORMAL)*PILOT_get_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION));
 	angle_frein -= abs(global.vitesse_rotation/2 >> 4);
 	angle_frein >>= 6;
 
@@ -682,7 +682,7 @@ braking_e COPILOT_update_brake_state_translation(void)
 	}
 
 	Sint32 translation_frein, translation_restante;
-	translation_frein = abs(((global.vitesse_translation*global.vitesse_translation)/(ACCELERATION_NORMAL))/2);
+	translation_frein = abs(((global.vitesse_translation*global.vitesse_translation)/(PILOT_get_coef(PILOT_ACCELERATION_NORMAL)))/2);
 	translation_frein -= abs(global.vitesse_translation/2);
 
 	translation_restante = abs(PILOT_get_destination_translation() - global.position_translation);
