@@ -56,7 +56,7 @@
 //POUR REGLER L'ODOMETRIE:
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
-	#define TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C4C
+	#define TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C10
 	#define KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C4C
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
@@ -133,7 +133,7 @@
 	
 		
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
-	#define TINY_KD_TRANSLATION 	(0x36) //0x80
+	#define TINY_KD_TRANSLATION 	(0x20) //0x80
 	#define KRUSTY_KD_TRANSLATION 	(0x36) //0x80
 	
 	#define TINY_KP_TRANSLATION 	(0x02) //0x03
@@ -141,7 +141,7 @@
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
-	#define TINY_KD_ROTATION 	(0x5C0) //0x800
+	#define TINY_KD_ROTATION 	(0x400) //0x800
 	#define KRUSTY_KD_ROTATION 	(0x800) //0x800
 	
 	#define TINY_KP_ROTATION 	(0x40) //0x80
@@ -188,7 +188,7 @@
 	
 	// de combien on accelere à chaque boucle d'asser
 	#define TINY_ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define TINY_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
+	#define TINY_ACCELERATION_ROTATION_TRANSLATION 7			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 	
 	#define KRUSTY_ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
 	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 8
