@@ -697,6 +697,7 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way)
 		case PUSH_MOVE:
 			timeout = FALSE;
 			ASSER_push_goto(x,y,speed,way, 0, TRUE);
+
 			state = WAIT_END_OF_MOVE;
 			break;
 
@@ -1324,6 +1325,7 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 				ASSER_push_goto
 					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0, TRUE);
 			#endif
+                        debug_printf("goto_pos_with_scan_foe : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
 
@@ -1359,6 +1361,7 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 			break;
 
 		case DONE:
+
 			state = LOAD_MOVE;
 			return timeout?END_WITH_TIMEOUT:END_OK;
 			break;

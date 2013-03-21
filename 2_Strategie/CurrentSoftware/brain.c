@@ -82,17 +82,17 @@ void any_match(time32_t match_duration)
 			if(strat_number()==0x00){
 					//STRAT_1_TINY
 					calibration = 0x00;
-					strategy = TEST_STRAT_avoidance;
+					strategy = TEST_Launcher_ball;
 			}
 			if(strat_number()==0x01){
 					//STRAT_2_TINY
 					calibration = 0x01;
-					strategy = TEST_STRAT_avoidance;
+					strategy = TEST_Launcher_ball;
 			}
 			if(strat_number()==0x02){
 					//STRAT_3_TINY
 					calibration = 0x00;
-					strategy = TEST_STRAT_avoidance;
+					strategy = TEST_Launcher_ball;
 			}
 
 
@@ -101,17 +101,17 @@ void any_match(time32_t match_duration)
 			if(strat_number()==0x00){
 					//STRAT_1_KRUSTY
 				calibration = 0x00;
-					strategy = TEST_STRAT_kdo;
+					strategy = TEST_Launcher_ball;
 			}
 			if(strat_number()==0x01){
 					//STRAT_2_KRUSTY
 					calibration = 0x00;
-					strategy = TEST_STRAT_kdo;
+					strategy = TEST_Launcher_ball;
 			}
 			if(strat_number()==0x02){
 					//STRAT_3_KRUSTY
 					calibration = 0x02;
-					strategy = TEST_STRAT_kdo;
+					strategy = TEST_Launcher_ball;
 			}
 
 

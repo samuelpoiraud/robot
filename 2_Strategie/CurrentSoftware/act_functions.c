@@ -82,7 +82,7 @@ ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id) {
 }
 
 /*ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
-	return ACT_get_last_action_result2(act_id - 1); //FIXME: GROSSE BIDOUILLE ICI !!!
+	return ACT_get_last_action_result(act_id - 1); //FIXME: GROSSE BIDOUILLE ICI !!!
 }*/
 
 
@@ -126,7 +126,7 @@ bool_e ACT_push_ball_launcher_stop(bool_e run) {
 bool_e ACT_ball_sorter_next() {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
+	args.timeout = 5000;
 
 	args.msg.sid = ACT_BALLSORTER;
 	args.msg.data[0] = ACT_BALLSORTER_TAKE_NEXT_CHERRY;
@@ -135,7 +135,7 @@ bool_e ACT_ball_sorter_next() {
 	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallSorter next cmd\n");
-	return ACT_push_operation(ACT_QUEUE_BallSorter, &args, run);
+	return ACT_push_operation(ACT_QUEUE_BallSorter, &args, TRUE);
 }
 
 bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd) {
