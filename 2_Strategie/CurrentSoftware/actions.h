@@ -1,61 +1,47 @@
 /*
  *	Club Robot ESEO 2008 - 2010
- *	Archi'Tech - CHOMP
+ *	Archi'Tech - CHOMP, Shark & Fish
  *
- *	Fichier : actions.h
+ *	Fichier : actions_tests.h
  *	Package : Carte Principale
- *	Description : Actions réalisables par le robot sur commande de brain.c
- *	Auteur : Jacen (Modifié par Julien)
- *	Version 20110313
+ *	Description : Test des actions réalisables par le robot
+ *	Auteur : Cyril, modifié par Gonsevi
+ *	Version 2012/01/14
  */
 
 #include "QS/QS_all.h"
 
-/*	Toutes les fonctions suivantes ont des machines d'état interne à réinitialiser
- *	entre chaque utilisation. Cette réinitialisation est automatique et s'effectue
- *	chaque fois que la fonction renvoie un signal de fin, c'est à dire NOT_HANDLED
- *	END_OK ou END_WITH_TIMEOUT (à l'écriture de ce commentaire. Veuillez consulter
- *	les commentaires des actions, qui devraient préciser les valeurs de retour des
- *	actions, au cas par cas.
- */
-
-#ifndef ACTIONS_H
-#define ACTIONS_H
-
-#include "avoidance.h"
+#ifndef ACTIONS_TESTS_H
+#define ACTIONS_TESTS_H
+	
+#include "actions.h"
+#include "Asser_functions.h"
 #include "act_functions.h"
 
 
-/********************************************************************************* 
-					Actions elementaires specifiques 2013
-**********************************************************************************/
+#ifdef MODE_HOMOLOGATION
+/**
+* marque les points d'une bouteille et parcours ensuite les noeuds pour l'évitement
+*
+*/
+//void TEST_STRAT_homolagation();
+#endif
 
-	
-/* ----------------------------------------------------------------------------- */
-/* 								Fonctions d'homologation		  		         */
-/* ----------------------------------------------------------------------------- */
-	#ifdef MODE_HOMOLOGATION
-		/**
-		 * Fonction d'homologation du robot
-		 * pre : être à la coupe
-		 * return IN_PROGRESS : En cours
-		 * return END_OK : Terminé
-		 * return NOT_HANDLED : Action impossible
-		 * return END_WITH_TIMEOUT : Timeout
-		 *
-		 * post : robot homologué
-		 */
-		
-	#endif
-//A ne pas réutiliser
-void STRAT_Lannion(void);
+#ifdef ACTIONS_TEST_C
+ 	#include "telemeter.h"
+        #include "QS/QS_CANmsgList.h"
+#endif /* def ACTION_TEST_C */
 
-	#ifdef ACTIONS_C
-	
-		#include "Asser_functions.h"
-		#include "act_functions.h"
-		#include "actions_tests.h"
+void TEST_STRAT_avoidance(void);
+void TEST_STRAT_kdo(void);
 
-	#endif /* def ACTION_C */
+error_e K_CADEAU1(void);
+error_e K_CADEAU2(void);
+error_e K_CADEAU3(void);
+error_e K_CADEAU4(void);
 
-#endif /* ndef ACTIONS_H */
+void TEST_STRAT_assiettes_evitement(void);
+
+
+
+#endif /* ACTIONS_TESTS_H */
