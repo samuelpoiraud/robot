@@ -61,7 +61,8 @@
 	bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run);
 	//Stopper le lanceur de balle
 	bool_e ACT_push_ball_launcher_stop(bool_e run);
-
+        //camembert
+        bool_e ACT_ball_sorter_next();
 /* Actionneur associé: ACT_QUEUE_Plate */
 	typedef enum {
 		ACT_PLATE_RotateUp = ACT_PLATE_ROTATE_VERTICALLY,

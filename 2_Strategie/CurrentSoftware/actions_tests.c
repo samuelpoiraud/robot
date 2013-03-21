@@ -313,7 +313,7 @@ error_e K_CADEAU1(void){
 
 		case OPEN_ACT:
 			state = PUSH;
-			ACT_push_plate_rotate_prepare(TRUE);
+			ACT_plate_rotate(ACT_PLATE_RotateMid);
 			return IN_PROGRESS;
 			break;
 
@@ -324,19 +324,19 @@ error_e K_CADEAU1(void){
             {
                 case END_OK:
                     state = EXTRACT;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return IN_PROGRESS;
                     break;
 
                 case END_WITH_TIMEOUT:
 					state = DONE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return END_WITH_TIMEOUT;
                     break;
 
                 case NOT_HANDLED:
 					state = MOVE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
                     break;
 
@@ -346,7 +346,7 @@ error_e K_CADEAU1(void){
 
                 default:
 					state = MOVE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
                     break;
             }
@@ -461,7 +461,7 @@ error_e K_CADEAU2(void){
 
 		case OPEN_ACT:
 			state = PUSH;
-			ACT_push_plate_rotate_prepare(TRUE);
+			ACT_plate_rotate(ACT_PLATE_RotateMid);
 			return IN_PROGRESS;
 			break;
 
@@ -472,19 +472,19 @@ error_e K_CADEAU2(void){
             {
                 case END_OK:
                     state = EXTRACT;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return IN_PROGRESS;
                     break;
 
                 case END_WITH_TIMEOUT:
 					state = DONE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return END_WITH_TIMEOUT;
                     break;
 
                 case NOT_HANDLED:
 					state = MOVE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
                     break;
 
@@ -494,7 +494,7 @@ error_e K_CADEAU2(void){
 
                 default:
 					state = MOVE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
                     break;
             }
@@ -609,7 +609,7 @@ error_e K_CADEAU3(void){
 
 		case OPEN_ACT:
 			state = PUSH;
-			ACT_push_plate_rotate_prepare(TRUE);
+			ACT_plate_rotate(ACT_PLATE_RotateMid);
 			return IN_PROGRESS;
 			break;
 
@@ -620,19 +620,19 @@ error_e K_CADEAU3(void){
             {
                 case END_OK:
                     state = EXTRACT;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return IN_PROGRESS;
                     break;
 
                 case END_WITH_TIMEOUT:
 					state = DONE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return END_WITH_TIMEOUT;
                     break;
 
                 case NOT_HANDLED:
 					state = MOVE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
                     break;
 
@@ -642,7 +642,7 @@ error_e K_CADEAU3(void){
 
                 default:
 					state = MOVE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
                     break;
             }
@@ -757,7 +757,7 @@ error_e K_CADEAU4(void){
 
 		case OPEN_ACT:
 			state = PUSH;
-			ACT_push_plate_rotate_prepare(TRUE);
+			ACT_plate_rotate(ACT_PLATE_RotateMid);
 			return IN_PROGRESS;
 			break;
 
@@ -768,19 +768,19 @@ error_e K_CADEAU4(void){
             {
                 case END_OK:
                     state = EXTRACT;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return IN_PROGRESS;
                     break;
 
                 case END_WITH_TIMEOUT:
 					state = DONE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return END_WITH_TIMEOUT;
                     break;
 
                 case NOT_HANDLED:
 					state = MOVE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
                     break;
 
@@ -790,7 +790,7 @@ error_e K_CADEAU4(void){
 
                 default:
 					state = MOVE;
-					ACT_push_plate_rotate_vertically(TRUE);
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
                     break;
             }
@@ -946,7 +946,7 @@ void TEST_STRAT_assiettes_evitement(void){
             state =GRABBER_DOWN_ATT;
             break;
          case GRABBER_DOWN_ATT:
-            sub_action_act = ACT_get_last_action_result2(ACT_QUEUE_Plate);
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -978,7 +978,7 @@ void TEST_STRAT_assiettes_evitement(void){
             state =GRABBER_OPEN_ATT;
             break;
          case GRABBER_OPEN_ATT:
-            sub_action_act = ACT_get_last_action_result2(ACT_QUEUE_Plate);
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1031,7 +1031,7 @@ void TEST_STRAT_assiettes_evitement(void){
             state =GRABBER_CRUSH_ATT;
             break;
          case GRABBER_CRUSH_ATT:
-            sub_action_act = ACT_get_last_action_result2(ACT_QUEUE_Plate);
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
@@ -1061,7 +1061,7 @@ void TEST_STRAT_assiettes_evitement(void){
             state =GRABBER_UP_ATT;
             break;
          case GRABBER_UP_ATT:
-            sub_action_act = ACT_get_last_action_result2(ACT_QUEUE_Plate);
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
