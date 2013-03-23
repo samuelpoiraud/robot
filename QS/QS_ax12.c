@@ -34,6 +34,10 @@
 		#define AX12_STATUS_RETURN_TIMEOUT 5
 	#endif
 
+	#ifndef AX12_STATUS_SEND_TIMEOUT
+		#define AX12_STATUS_SEND_TIMEOUT 5
+	#endif
+
 	#ifndef AX12_STATUS_RETURN_MODE
 		#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ONREAD
 	#endif
@@ -822,10 +826,12 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 //3) Si une IT arrive a ce moment, elle s'executera entièrement car processing_state == 0, l'état passera de AX12_SMS_ReadyToSend à AX12_SMS_Sending et cet appel de fonction ne fera rien comme au 1)
 		processing_state = 1; //cette instruction DOIT être atomique
 //4) Si une IT arrive a ce moment, elle ne s'executera pas car processing_state > 0
-	} else if(event == AX12_SME_Timeout)
+	} else if(event == AX12_SME_Timeout) {
 		DisableIntU2RX;
-	else if(event == AX12_SME_RxInterrupt)
+		DisableIntU2TX;
+	} else if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterrupt) {
 		AX12_TIMER_DisableIT;
+	}
 
 //Si une IT arrive avec event == AX12_SME_TxInterrupt, elle n'aura un effet que dans l'état AX12_SMS_Sending (et cette interruption ne devrai être lancée que après le putcUART2 dans AX12_SMS_ReadyToSend et pas dans AX12_SMS_Sending car une interruption n'est pas prioritaire sur elle-même)
 //Si une IT arrive avec event == AX12_SME_RxInterrupt, elle n'aura un effet que dans l'état AX12_SMS_WaitingAnswer. Elle ne peut être lancée que si le timer n'a pas eu d'interruption et désactive l'interruption du timer
@@ -858,6 +864,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
  
 
 				AX12_DIRECTION_PORT = TX_DIRECTION;
+				
+				AX12_TIMER_start(AX12_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
 
 				state_machine.sending_index++;	//Attention! Nous devons incrementer sending_index AVANT car il y a un risque que l'interuption Tx arrive avant l'incrementation lorsque cette fonction est appellée par AX12_init() (qui n'est pas dans une interruption)
 
@@ -882,9 +890,14 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						while(!U2STAbits.TRMT);
 
 						AX12_DIRECTION_PORT = RX_DIRECTION;
+
 						U2STAbits.OERR = 0;
-						U2STAbits.FERR = 0;
-						U2STAbits.PERR = 0;
+
+						//flush recv buffer
+						#warning "boucle while sur FERR, ça marche ? Si oui enlever ce warning"
+						while(U2STAbits.URXDA || U2STAbits.FERR)
+							getcUART2();
+
 						state_machine.state = AX12_SMS_WaitingAnswer;
 						AX12_TIMER_start(AX12_STATUS_RETURN_TIMEOUT);	//Pour le timeout de reception, ne devrait pas arriver
 					}
@@ -896,16 +909,19 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 								AX12_UART2_reception_buffer[i] = 0;
 							pos = 0;
 						#endif
-						
-						//flush recv buffer
-						while(U2STAbits.URXDA)
-							getcUART2();
 
 						state_machine.state = AX12_SMS_ReadyToSend;
 						AX12_state_machine(AX12_SME_NoEvent);
 					}
 
 				}
+			} else if(event == AX12_SME_Timeout) {
+				AX12_TIMER_stop();
+				debug_printf("AX12[%d]: send timeout !!\n", state_machine.current_instruction.id_servo);
+				U2MODEbits.UARTEN = 0;
+				AX12_UART2_init(AX12_BAUD_RATE);
+				state_machine.state = AX12_SMS_ReadyToSend;
+				AX12_state_machine(AX12_SME_NoEvent);
 			}
 		break;
 
@@ -916,6 +932,11 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				static AX12_status_packet_t status_response_packet;
 				// Stockage de la réponse dans un buffer, si toute la réponse alors mise à jour des variables du driver et state = AX12_SMS_ReadyToSend avec éxécution
 
+				if(U2STAbits.FERR) { //ignore error bits
+					getcUART2();
+					break;
+				}
+
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 				AX12_UART2_reception_buffer[pos] = getcUART2();
 
@@ -925,20 +946,16 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				if(!AX12_update_status_packet(data_byte, state_machine.receive_index, &status_response_packet))
 				#endif
 				{
-					if(U2STAbits.OERR)
-						debug_printf("AX12: OERR\n");
-					if(U2STAbits.FERR)
-						debug_printf("AX12: FERR\n");
-					if(U2STAbits.PERR)
-						debug_printf("AX12: PERR\n");
 					//debug_printf("AX12: invalid packet, reinit reception\n");
-					U2STAbits.OERR = 0;
-					U2STAbits.FERR = 0;
-					U2STAbits.PERR = 0;
 					state_machine.receive_index = 0;	//si le paquet n'est pas valide, on reinitialise la lecture de paquet
 					break;
+				} else {
+					state_machine.receive_index++;
 				}
-				state_machine.receive_index++;
+
+
+				if(U2STAbits.OERR && U2STAbits.URXDA)
+					U2STAbits.OERR = 0;
 
 					
 				if(AX12_status_packet_is_full(status_response_packet, state_machine.receive_index))
@@ -960,23 +977,23 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 					#ifdef VERBOSE_MODE
 						if(status_response_packet.error & AX12_ERROR_VOLTAGE)
-							debug_printf("AX12 Fatal: Voltage error\n");
+							debug_printf("AX12[%d] Fatal: Voltage error\n", status_response_packet.id_servo);
 						if(status_response_packet.error & AX12_ERROR_ANGLE)
-							debug_printf("AX12 Error: Angle error\n");
+							debug_printf("AX12[%d] Error: Angle error\n", status_response_packet.id_servo);
 						if(status_response_packet.error & AX12_ERROR_OVERHEATING)
-							debug_printf("AX12 Fatal: Overheating error\n");
+							debug_printf("AX12[%d] Fatal: Overheating error\n", status_response_packet.id_servo);
 						if(status_response_packet.error & AX12_ERROR_RANGE)
-							debug_printf("AX12 Error: Range error\n");
+							debug_printf("AX12[%d] Error: Range error\n", status_response_packet.id_servo);
 						if(status_response_packet.error & AX12_ERROR_CHECKSUM)
-							debug_printf("AX12 Error: Checksum error\n");
+							debug_printf("AX12[%d] Error: Checksum error\n", status_response_packet.id_servo);
 						if(status_response_packet.error & AX12_ERROR_OVERLOAD)
-							debug_printf("AX12 Fatal: Overload error\n");
+							debug_printf("AX12[%d] Fatal: Overload error\n", status_response_packet.id_servo);
 						if(status_response_packet.error & AX12_ERROR_INSTRUCTION)
-							debug_printf("AX12 Error: Instruction error\n");
+							debug_printf("AX12[%d] Error: Instruction error\n", status_response_packet.id_servo);
 						if(status_response_packet.error & 0x80)
-							debug_printf("AX12 Fatal: Unknown (0x80) error\n");
+							debug_printf("AX12[%d] Fatal: Unknown (0x80) error\n", status_response_packet.id_servo);
 						if(status_response_packet.error)
-							debug_printf("AX12 Info: Errors occured, see QS_ax12.h (at AX12_ERROR_* constants) for more informations\n");
+							debug_printf("AX12[%d] Info: Errors occured, see QS_ax12.h (at AX12_ERROR_* constants) for more informations\n", status_response_packet.id_servo);
 					#endif
 					
 					AX12_instruction_queue_next();
@@ -988,7 +1005,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 			{
 				AX12_TIMER_stop();
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
-					debug_printf("AX12 timeout Rx:");
+					debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
 					for(i = 0; i<MAX_STATUS_PACKET_SIZE*2; i++)
 						debug_printf(" %02x", AX12_UART2_reception_buffer[i]);
 					debug_printf("\n");
@@ -1002,12 +1019,14 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 		break;
 	}
 
-	if(event == AX12_SME_RxInterrupt)
+	if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterrupt) {
 		AX12_TIMER_EnableIT;
-	else if(event == AX12_SME_Timeout)
+	} else if(event == AX12_SME_Timeout) {
 		EnableIntU2RX;
-	else if(event == AX12_SME_NoEvent)
+		EnableIntU2TX;
+	} else if(event == AX12_SME_NoEvent) {
 		processing_state = 0;
+	}
 }
 
 /*********************************************************************************/
@@ -1046,12 +1065,8 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 
 static void AX12_UART2_init(Uint32 uart_speed)
 {
-	static bool_e initialized = FALSE;
 	Uint16 uart_brg_speed = (CLK_FREQ-8*uart_speed)/(16*uart_speed);	//equivalent a CLK_FREQ/(16*AX12_UART_BAUDRATE)-1 + 0.5 sans nombre floatant (+0.5 pour que la troncation du nombre réel donne l'arrondi
 	Uint32 uart_real_speed = CLK_FREQ/(16*(uart_brg_speed+1));
-	if(initialized)
-		return;
-	initialized = TRUE;
 
 	Uint16 U2MODEvalue;
 	Uint16 U2STAvalue;
