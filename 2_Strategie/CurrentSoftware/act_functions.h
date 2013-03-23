@@ -27,7 +27,7 @@
 
 	//Décommentez ce paramêtre ou mettez le dans Global_config pour empêcher un actionneur d'être désactivé
 	//De cette façon, si cette constante est définie, une demande d'opération ne sera jamais refusée
-	//#define ACT_NEVER_DISABLE
+	#define ACT_NEVER_DISABLE
 
 	//Décommentez ce paramêtre ou mettez le dans Global_config pour désactiver la gestion d'erreur. (dangereux)
 	//De cette façon, si cette constante est définie, tout renvoi de résultat par la carte actionneur sera considéré comme une réussite. Le timeout de la carte strat n'est pas désactivé.
@@ -50,19 +50,19 @@
 
 	// !!!!!!! CETTE FONCTION UTILISE ACT_QUEUE_* AU LIEU DE ACT_STACK_* COMME L'ANCIENNE ACT_get_last_action_result !!!!!!
 	ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
-	//ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id);
 
 /* Fonctions empilables */
 
+	////////////////////////////////////////
 	//////////////// KRUSTY ////////////////
+	////////////////////////////////////////
 
 /* Actionneur associé: ACT_QUEUE_BallLauncher */
 	//Lancer le lanceur de balle à la vitesse indiquée (tr/min)
-	bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run);
+	bool_e ACT_ball_launcher_run(Uint16 speed);
 	//Stopper le lanceur de balle
-	bool_e ACT_push_ball_launcher_stop(bool_e run);
-        //camembert
-        bool_e ACT_ball_sorter_next();
+	bool_e ACT_ball_launcher_stop();
+
 /* Actionneur associé: ACT_QUEUE_Plate */
 	typedef enum {
 		ACT_PLATE_RotateUp = ACT_PLATE_ROTATE_VERTICALLY,
@@ -72,12 +72,15 @@
 		ACT_PLATE_RotateLuckyLuke = ACT_PLATE_RotateUp
 	} ACT_plate_rotate_cmd_t;
 
+	//Rotation de la pince à assiette
+	bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd);
+
 	typedef enum {
 		ACT_PLATE_PlierOpen = ACT_PLATE_PLIER_OPEN,
 		ACT_PLATE_PlierClose = ACT_PLATE_PLIER_CLOSE
 	} ACT_plate_plier_cmd_t;
 
-	bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd);
+	//Prendre ou lacher l'assiette (avec l'AX12)
 	bool_e ACT_plate_plier(ACT_plate_plier_cmd_t cmd);
 
 /* Actionneur associé: ACT_QUEUE_LiftRight et ACT_QUEUE_LiftLeft */
@@ -92,27 +95,49 @@
 		ACT_LIFT_TranslateDown = ACT_LIFT_GO_DOWN
 	} ACT_lift_translate_cmd_t;
 
+	//Monter ou descendre l'ascenseur à verres
+	bool_e ACT_lift_translate(ACT_lift_pos_t lift_id, ACT_lift_translate_cmd_t cmd);
+
 	typedef enum {
 		ACT_LIFT_PlierOpen = ACT_LIFT_PLIER_OPEN,
 		ACT_LIFT_PlierClose = ACT_LIFT_PLIER_CLOSE
 	} ACT_lift_plier_cmd_t;
 
-	bool_e ACT_lift_translate(ACT_lift_pos_t lift_id, ACT_lift_translate_cmd_t cmd);
+	//Lacher ou prendre un verre
 	bool_e ACT_lift_plier(ACT_lift_pos_t lift_id, ACT_lift_plier_cmd_t cmd);
 
+/* Actionneur associé: ACT_QUEUE_BallSorter */
+	//Passe a la cerise suivant. La précédente est envoyée par le lanceur de balle.
+	//A la fin de l'execution de cette action, la couleur de la balle est renvoyée par message CAN avec le sid ACT_BALLSORTER_RESULT
+	bool_e ACT_ball_sorter_next();
+
+	////////////////////////////////////////
 	///////////////// TINY /////////////////
+	////////////////////////////////////////
 
 /* Actionneur associé: ACT_QUEUE_Hammer */
 	//Changer la position du bras
-	bool_e ACT_push_hammer_goto(Uint16 position, bool_e run);
+	bool_e ACT_hammer_goto(Uint16 position_en_degre);
+
 	//Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
 	//Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
-	bool_e ACT_push_hammer_stop(bool_e run);
+	bool_e ACT_hammer_stop();
 
 /* Actionneur associé: ACT_QUEUE_BallInflater */
 	//Gonfler le ballon pendant duration_sec secondes. Le message de retour n'attend pas la fin du gonflage.
-	bool_e ACT_push_ball_inflater_inflate(Uint8 duration_sec, bool_e run);
+	bool_e ACT_ball_inflater_inflate(Uint8 duration_sec);
+
 	//Stopper le gonflage
-	bool_e ACT_push_ball_inflater_stop(bool_e run);
+	bool_e ACT_ball_inflater_stop();
+
+/* Actionneur associé: ACT_QUEUE_CandleColor */
+	typedef enum {
+		ACT_CANDLECOLOR_Low = ACT_CANDLECOLOR_GET_LOW,
+		ACT_CANDLECOLOR_High = ACT_CANDLECOLOR_GET_HIGH
+	} ACT_candlecolor_pos_t;
+
+	//Récupère la couleur d'une bougie à l'étage candle_pos du gateau.
+	//La couleur est renvoyée par le message CAN avec le sid ACT_CANDLECOLOR_RESULT
+	bool_e ACT_candlecolor_get_color_at(ACT_candlecolor_pos_t candle_pos);
 
 #endif /* ndef ACT_FUNCTIONS_H */

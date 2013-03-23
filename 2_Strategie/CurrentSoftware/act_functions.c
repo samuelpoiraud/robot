@@ -63,7 +63,7 @@ typedef struct {
 #define ACT_STACK_TIMEOUT_MS 3000
 
 #ifdef ACT_NO_ERROR_HANDLING
-	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c, constante: ACT_NO_ERROR_HANDLING)"
+	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c/h, constante: ACT_NO_ERROR_HANDLING)"
 #endif
 
 
@@ -73,7 +73,14 @@ static act_state_info_t act_states[NB_QUEUE];  //Info lié a chaque actionneur
 // Si l'état de l'actionneur n'est pas normal ou qu'il y a eu une erreur, cette fonction affiche un message d'erreur
 static void ACT_check_result(queue_id_e act_id);
 
-static bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* arg, bool_e run_now);
+//__attribute__((unused)) permet d'eviter d'avoir des warning lorsque ces fonctions ne sont pas utilisée. N'empeche pas que le code ne soit pas généré si elles ne sont pas utilisées
+static void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);                                     __attribute__((unused))
+static void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param);            __attribute__((unused))
+static void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout);                                     __attribute__((unused))
+static void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);                          __attribute__((unused))
+static void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param); __attribute__((unused))
+
+static bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* arg);
 static void ACT_run_operation(queue_id_e act_id, bool_e init);
 
 ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id) {
@@ -81,213 +88,142 @@ ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id) {
 	return act_states[act_id].lastResult;
 }
 
-/*ACT_function_result_e ACT_get_last_action_result(stack_id_e act_id) {
-	return ACT_get_last_action_result(act_id - 1); //FIXME: GROSSE BIDOUILLE ICI !!!
-}*/
-
 
 //FONCTIONS D'ACTIONNEURS PUBLIQUES
 // <editor-fold desc="Krusty">
 
-bool_e ACT_push_ball_launcher_run(Uint16 speed, bool_e run) {
+bool_e ACT_ball_launcher_run(Uint16 speed) {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
-
-	args.msg.sid = ACT_BALLLAUNCHER;
-	args.msg.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
-	args.msg.data[1] = LOWINT(speed);
-	args.msg.data[2] = HIGHINT(speed);
-	args.msg.size = 3;
-
-	args.fallbackMsg.sid = ACT_BALLLAUNCHER;
-	args.fallbackMsg.data[0] = ACT_BALLLAUNCHER_STOP;
-	args.fallbackMsg.size = 1;
+	ACT_arg_init_with_param(&args, ACT_BALLLAUNCHER, ACT_BALLLAUNCHER_ACTIVATE, speed);
+	ACT_arg_set_fallbackmsg(&args, ACT_BALLLAUNCHER, ACT_BALLLAUNCHER_STOP);
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Run cmd, speed: %u\n", speed);
-	return ACT_push_operation(ACT_QUEUE_BallLauncher, &args, run);
+	return ACT_push_operation(ACT_QUEUE_BallLauncher, &args);
 }
 
-bool_e ACT_push_ball_launcher_stop(bool_e run) {
+bool_e ACT_ball_launcher_stop() {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
-
-	args.msg.sid = ACT_BALLLAUNCHER;
-	args.msg.data[0] = ACT_BALLLAUNCHER_STOP;
-	args.msg.size = 1;
-
-	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+	ACT_arg_init(&args, ACT_BALLLAUNCHER, ACT_BALLLAUNCHER_STOP);
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallLauncher Stop cmd\n");
-	return ACT_push_operation(ACT_QUEUE_BallLauncher, &args, run);
-}
-
-bool_e ACT_ball_sorter_next() {
-	QUEUE_arg_t args;
-
-	args.timeout = 5000;
-
-	args.msg.sid = ACT_BALLSORTER;
-	args.msg.data[0] = ACT_BALLSORTER_TAKE_NEXT_CHERRY;
-	args.msg.size = 1;
-
-	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
-
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallSorter next cmd\n");
-	return ACT_push_operation(ACT_QUEUE_BallSorter, &args, TRUE);
+	return ACT_push_operation(ACT_QUEUE_BallLauncher, &args);
 }
 
 bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd) {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
-
-	args.msg.sid = ACT_PLATE;
-	args.msg.data[0] = cmd;
-	args.msg.size = 1;
+	ACT_arg_init(&args, ACT_PLATE, cmd);
 
 	//Si on ne peut pas aller en position, revenir en vertical et la strat pourra passer à autre chose (au lieu de défoncer le décor)
-	if(cmd != ACT_PLATE_RotateUp) {
-		args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
-	} else {
-		args.fallbackMsg.sid = ACT_PLATE;
-		args.fallbackMsg.size = 1;
-		args.fallbackMsg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
-	}
+	if(cmd != ACT_PLATE_RotateUp)
+		ACT_arg_set_fallbackmsg(&args, ACT_PLATE, ACT_PLATE_ROTATE_VERTICALLY);
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate rotate cmd: %d\n", cmd);
-	return ACT_push_operation(ACT_QUEUE_Plate, &args, TRUE);
+	return ACT_push_operation(ACT_QUEUE_Plate, &args);
 }
 
 bool_e ACT_plate_plier(ACT_plate_plier_cmd_t cmd) {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
+	ACT_arg_init(&args, ACT_PLATE, cmd);
 
-	args.msg.sid = ACT_PLATE;
-	args.msg.data[0] = cmd;
-	args.msg.size = 1;
-
-	//Si on ne peut pas aller en position, revenir en vertical et la strat pourra passer à autre chose (au lieu de défoncer le décor)
-	if(cmd != ACT_PLATE_PlierClose) {
-		args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
-	} else {
-		args.fallbackMsg.sid = ACT_PLATE;
-		args.fallbackMsg.size = 1;
-		args.fallbackMsg.data[0] = ACT_PLATE_PLIER_CLOSE;
-	}
+	//Si on ne peut pas aller en position, fermer la pince et la strat pourra passer à autre chose (au lieu de défoncer le robot en remontant la pince en étant ouverte (ça passe pas))
+	if(cmd != ACT_PLATE_PlierClose)
+		ACT_arg_set_fallbackmsg(&args, ACT_PLATE, ACT_PLATE_PLIER_CLOSE);
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Plate plier cmd: %d\n", cmd);
-	return ACT_push_operation(ACT_QUEUE_Plate, &args, TRUE);
+	return ACT_push_operation(ACT_QUEUE_Plate, &args);
 }
 
 bool_e ACT_lift_translate(ACT_lift_pos_t lift_id, ACT_lift_translate_cmd_t cmd) {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
+	ACT_arg_init(&args, lift_id, cmd);
 
-	args.msg.sid = lift_id;
-	args.msg.data[0] = cmd;
-	args.msg.size = 1;
-
-	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
-
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Lift id %d, translate cmd: %d\n", lift_id, cmd);
-	if(lift_id == ACT_LIFT_Left)
-		return ACT_push_operation(ACT_QUEUE_LiftLeft, &args, TRUE);
-	else
-		return ACT_push_operation(ACT_QUEUE_LiftRight, &args, TRUE);
+	if(lift_id == ACT_LIFT_Left) {
+		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing left Lift translate cmd: %d\n", cmd);
+		return ACT_push_operation(ACT_QUEUE_LiftLeft, &args);
+	} else {
+		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing right Lift translate cmd: %d\n", cmd);
+		return ACT_push_operation(ACT_QUEUE_LiftRight, &args);
+	}
 }
 
 bool_e ACT_lift_plier(ACT_lift_pos_t lift_id, ACT_lift_plier_cmd_t cmd) {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
+	ACT_arg_init(&args, lift_id, cmd);
 
-	args.msg.sid = lift_id;
-	args.msg.data[0] = cmd;
-	args.msg.size = 1;
+	if(lift_id == ACT_LIFT_Left) {
+		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing left Lift plier cmd: %d\n", cmd);
+		return ACT_push_operation(ACT_QUEUE_LiftLeft, &args);
+	} else {
+		OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing right Lift plier cmd: %d\n", cmd);
+		return ACT_push_operation(ACT_QUEUE_LiftRight, &args);
+	}
+}
 
-	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+bool_e ACT_ball_sorter_next() {
+	QUEUE_arg_t args;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Lift id %d, plier cmd: %d\n", lift_id, cmd);
-	if(lift_id == ACT_LIFT_Left)
-		return ACT_push_operation(ACT_QUEUE_LiftLeft, &args, TRUE);
-	else
-		return ACT_push_operation(ACT_QUEUE_LiftRight, &args, TRUE);
+	ACT_arg_init(&args, ACT_BALLSORTER, ACT_BALLSORTER_TAKE_NEXT_CHERRY);
+	ACT_arg_set_timeout(&args, 5000);
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallSorter next cmd\n");
+	return ACT_push_operation(ACT_QUEUE_BallSorter, &args);
 }
 
 // </editor-fold>
 
 // <editor-fold desc="Tiny">
-bool_e ACT_push_hammer_goto(Uint16 position, bool_e run) {
+bool_e ACT_hammer_goto(Uint16 position) {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
-
-	args.msg.sid = ACT_HAMMER;
-	args.msg.data[0] = ACT_HAMMER_MOVE_TO;
-	args.msg.data[1] = LOWINT(position);
-	args.msg.data[2] = HIGHINT(position);
-	args.msg.size = 3;
+	ACT_arg_init_with_param(&args, ACT_HAMMER, ACT_HAMMER_MOVE_TO, position);
 
 	//Que faire si on ne peut pas bouger le bras ... (rien ici)
-	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer moveto cmd\n");
-	return ACT_push_operation(ACT_QUEUE_Hammer, &args, run);
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer goto cmd\n");
+	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
 }
 
-bool_e ACT_push_hammer_stop(bool_e run) {
+bool_e ACT_hammer_stop() {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
-
-	args.msg.sid = ACT_HAMMER;
-	args.msg.data[0] = ACT_HAMMER_STOP;
-	args.msg.size = 1;
-
-	//Que faire si on ne peut pas bouger le bras ... (rien ici)
-	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+	ACT_arg_init(&args, ACT_HAMMER, ACT_HAMMER_STOP);
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer stop asser cmd\n");
-	return ACT_push_operation(ACT_QUEUE_Hammer, &args, run);
+	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
 }
 
-bool_e ACT_push_ball_inflater_inflate(Uint8 duration_sec, bool_e run) {
+bool_e ACT_ball_inflater_inflate(Uint8 duration_sec) {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
+	ACT_arg_init_with_param(&args, ACT_BALLINFLATER, ACT_BALLINFLATER_START, duration_sec);
+	ACT_arg_set_fallbackmsg(&args, ACT_BALLINFLATER, ACT_BALLINFLATER_STOP);
 
-	args.msg.sid = ACT_BALLINFLATER;
-	args.msg.data[0] = ACT_BALLINFLATER_START;
-	args.msg.data[1] = duration_sec;
-	args.msg.size = 2;
-
-	//Que faire si on ne peut pas bouger le bras ... (rien ici)
-	args.fallbackMsg.sid = ACT_BALLINFLATER;
-	args.fallbackMsg.data[0] = ACT_BALLINFLATER_STOP;
-	args.fallbackMsg.size = 1;
-
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer stop asser cmd\n");
-	return ACT_push_operation(ACT_QUEUE_BallInflater, &args, run);
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallInflater inflate cmd\n");
+	return ACT_push_operation(ACT_QUEUE_BallInflater, &args);
 }
 
-bool_e ACT_push_ball_inflater_stop(bool_e run) {
+bool_e ACT_ball_inflater_stop() {
 	QUEUE_arg_t args;
 
-	args.timeout = ACT_ARG_USE_DEFAULT;
+	ACT_arg_init(&args, ACT_BALLINFLATER, ACT_BALLINFLATER_STOP);
 
-	args.msg.sid = ACT_BALLINFLATER;
-	args.msg.data[0] = ACT_BALLINFLATER_STOP;
-	args.msg.size = 1;
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing BallInflater stop cmd\n");
+	return ACT_push_operation(ACT_QUEUE_BallInflater, &args);
+}
 
-	//Que faire si on ne peut pas bouger le bras ... (rien ici)
-	args.fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+bool_e ACT_candlecolor_get_color_at(ACT_candlecolor_pos_t candle_pos) {
+	QUEUE_arg_t args;
 
-	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing Hammer stop asser cmd\n");
-	return ACT_push_operation(ACT_QUEUE_BallInflater, &args, run);
+	ACT_arg_init(&args, ACT_CANDLECOLOR, candle_pos);
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Pushing CandleColor get color at %d cmd\n", candle_pos);
+	return ACT_push_operation(ACT_QUEUE_CandleColor, &args);
 }
 
 // </editor-fold>
@@ -296,8 +232,46 @@ bool_e ACT_push_ball_inflater_stop(bool_e run) {
 // Gestion des actions et de leur résultat (privé)
 // <editor-fold defaultstate="collapsed">
 
+
+static void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
+	arg->msg.sid = sid;
+	arg->msg.data[0] = cmd;
+	arg->msg.size = 1;
+	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+	arg->timeout = ACT_ARG_USE_DEFAULT;
+}
+
+static void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param) {
+	arg->msg.sid = sid;
+	arg->msg.data[0] = cmd;
+	arg->msg.data[1] = LOWINT(param);
+	arg->msg.data[2] = HIGHINT(param);
+	arg->msg.size = 3;
+	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+	arg->timeout = ACT_ARG_USE_DEFAULT;
+}
+
+static void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout) {
+	arg->timeout = timeout;
+}
+
+static void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
+	arg->fallbackMsg.sid = sid;
+	arg->fallbackMsg.data[0] = cmd;
+	arg->fallbackMsg.size = 1;
+}
+
+static void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param) {
+	arg->fallbackMsg.sid = sid;
+	arg->fallbackMsg.data[0] = cmd;
+	arg->fallbackMsg.data[1] = LOWINT(param);
+	arg->fallbackMsg.data[2] = HIGHINT(param);
+	arg->fallbackMsg.size = 3;
+}
+
+
 //Prépare une action correctement et l'envoie sur la pile
-static bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* args, bool_e run_now) {
+static bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* args) {
 #ifndef ACT_NEVER_DISABLE
 	if(act_states[act_id].disabled == TRUE) {
 		OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX"Ignoring push_operation, act %d is disabled\n", act_id);
@@ -343,11 +317,11 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 static void ACT_check_result(queue_id_e act_id) {
 	QUEUE_arg_t* argument = QUEUE_get_arg(act_id);
 
-	//L'état à déja été géré, mais l'erreur n'a pas encore été géré par le reste du code stratégie
-	//Si c'est ACT_FUNCTION_Done on ne passe pas ici (a moins d'un gros problème de conception / amnésie
+	//L'opération est terminée mais on passe encore ici, ya t-il un bug ?
+	//Si ce bug arrive, il est probablement lié à l'init de l'action (qui définie lastResult à ACT_FUNCTION_InProgress)
 	if(act_states[act_id].lastResult != ACT_FUNCTION_InProgress) {
-		if(act_states[act_id].lastResult == ACT_FUNCTION_Done)
-			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Begin check but already in Done state, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Begin check but not in ACT_FUNCTION_InProgress state, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+		QUEUE_next(act_id);
 		return;
 	}
 
@@ -462,6 +436,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 
 	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Received result: act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
 
+#ifdef ACT_NO_ERROR_HANDLING
+	act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
+	act_states[act_id].operationResult = ACT_RESULT_Ok;
+#else
 	switch(msg->data[0]) {
 		//Krusty
 		case ACT_BALLLAUNCHER & 0xFF:
@@ -470,6 +448,14 @@ void ACT_process_result(const CAN_msg_t* msg) {
 
 		case ACT_PLATE & 0xFF:
 			act_id = ACT_QUEUE_Plate;
+			break;
+
+		case ACT_LIFT_LEFT & 0xFF:
+			act_id = ACT_QUEUE_LiftLeft;
+			break;
+
+		case ACT_LIFT_RIGHT & 0xFF:
+			act_id = ACT_QUEUE_LiftRight;
 			break;
 
 		//Tiny
@@ -484,6 +470,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		case ACT_BALLSORTER & 0xFF:
 			act_id = ACT_QUEUE_BallSorter;
 			break;
+
+		case ACT_CANDLECOLOR & 0xFF:
+			act_id = ACT_QUEUE_CandleColor;
+			break;
 	}
 
 	if(act_id >= NB_QUEUE) {
@@ -496,10 +486,6 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"act is not in working mode but received result, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], act_states[act_id].operationResult);
 	}
 
-#ifdef ACT_NO_ERROR_HANDLING
-	act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
-	act_states[act_id].operationResult = ACT_RESULT_Ok;
-#else
 	switch(msg->data[2]) {
 		case ACT_RESULT_DONE:
 			//On n'affecte pas act_states[act_id].recommendedBehavior pour garder une trace des erreurs précédentes (dans le cas ou on a renvoyé une commande par exemple, permet de savoir l'erreur d'origine)

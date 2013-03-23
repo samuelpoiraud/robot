@@ -97,11 +97,11 @@ void BUTTON_translation()
 
 static Uint16 speed = 6000;
 static void BUTTON_TEST_button3() {
-	ACT_push_ball_launcher_run(speed, TRUE);
+	ACT_ball_launcher_run(speed);
 	speed += 50;
 }
 
 static void BUTTON_TEST_button4() {
-	ACT_push_ball_launcher_run(speed, TRUE);
+	ACT_ball_launcher_run(speed);
 	speed -= 50;
 }

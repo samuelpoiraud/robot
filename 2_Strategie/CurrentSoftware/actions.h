@@ -11,12 +11,13 @@
 
 #include "QS/QS_all.h"
 
-#ifndef ACTIONS_TESTS_H
-#define ACTIONS_TESTS_H
+#ifndef ACTIONS_H
+#define ACTIONS_H
 	
 #include "actions.h"
 #include "Asser_functions.h"
 #include "act_functions.h"
+#include "avoidance.h" //pour error_e
 
 
 #ifdef MODE_HOMOLOGATION
@@ -44,4 +45,4 @@ void TEST_STRAT_assiettes_evitement(void);
 
 
 
-#endif /* ACTIONS_TESTS_H */
+#endif /* ACTIONS_H */

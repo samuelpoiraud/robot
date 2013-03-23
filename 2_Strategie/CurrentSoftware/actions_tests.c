@@ -1179,12 +1179,12 @@ void TEST_Launcher_ball(void){
             break;
 
         case LAUNCH_BALL_NORMAL:
-            ACT_push_ball_launcher_run(6350,TRUE);  // a 66cm du bord du gateau
+            ACT_ball_launcher_run(6350);  // a 66cm du bord du gateau
             state=LAUNCH_BALL_ATT;
             break;
 
         case LAUNCH_BALL_SLOW:
-            ACT_push_ball_launcher_run(3000,TRUE);
+            ACT_ball_launcher_run(3000);
             state=LAUNCH_BALL_ATT;
             break;
             
@@ -1242,7 +1242,7 @@ void TEST_Launcher_ball(void){
             break;
 
         case STOP_LAUNCH:
-            ACT_push_ball_launcher_stop(TRUE);
+            ACT_ball_launcher_stop();
             state=STOP_LAUNCH_ATT;
             break;
 
