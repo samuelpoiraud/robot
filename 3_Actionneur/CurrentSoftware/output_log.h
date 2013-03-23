@@ -36,19 +36,20 @@ typedef enum {
 } log_print_e;
 
 #ifdef OUTPUT_LOG
-	//__attribute__((format (printf, 2, 3)))  permet au compilateur de verifier l'argument format avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
+	//__attribute__((format (printf, 3, 4)))  permet au compilateur de verifier l'argument format avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
 	void OUTPUTLOG_printf(log_print_e printthis, log_level_e level, const char * format, ...) __attribute__((format (printf, 3, 4)));
 	void OUTPUTLOG_set_level(log_level_e level);
 	log_level_e OUTPUTLOG_get_level();
 	#define OUTPUTLOG_STRINGIFY(x) #x
 	#define OUTPUTLOG_TOSTRING(x) OUTPUTLOG_STRINGIFY(x)
-	#define OUTPUTLOG_trace() OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: " __func__  " line: " OUTPUTLOG_TOSTRING(__LINE__))
-	#define OUTPUTLOG_trace_with_filename() OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: " __func__  " line: " OUTPUTLOG_TOSTRING(__LINE__) " in " __FILE__)
+	#define OUTPUTLOG_trace(printthis) OUTPUTLOG_printf(printthis, LOG_LEVEL_Trace, "Trace: " __func__  " line: " OUTPUTLOG_TOSTRING(__LINE__))
+	#define OUTPUTLOG_trace_with_filename(printthis) OUTPUTLOG_printf(printthis, LOG_LEVEL_Trace, "Trace: " __func__  " line: " OUTPUTLOG_TOSTRING(__LINE__) " in " __FILE__)
 #else
 	#define OUTPUTLOG_printf(...) (void)0
 	#define OUTPUTLOG_set_level(...) (void)0
-	#define OUTPUTLOG_get_level() 0
-	#define OUTPUTLOG_trace()
+	#define OUTPUTLOG_get_level() LOG_LEVEL_Warning   //Niveau par defaut
+	#define OUTPUTLOG_trace(...) (void)0
+	#define OUTPUTLOG_trace_with_filename(...) (void)0
 #endif  /* OUTPUT_LOG */
 
 #endif	/* OUTPUTLOG_PRINTF_H */
