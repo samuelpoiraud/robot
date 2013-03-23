@@ -39,6 +39,7 @@
 typedef struct
 {
 	bool_e initialized;
+	bool_e enabled;
 	timeout_t timeout;
 	watchdog_callback_fun_t callback;
 	bool_e* flag;
@@ -90,6 +91,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 			watchdog[i].callback = func;
 			watchdog[i].flag = flag;
 			id = i;
+			watchdog[i].enabled = TRUE;
 			watchdog[i].initialized = TRUE;
 			break;
 		}
@@ -119,6 +121,13 @@ void WATCHDOG_stop(watchdog_id_t id)
 	watchdog[id].initialized = FALSE;
 }
 
+void WATCHDOG_disable_timeout(watchdog_id_t id) {
+	watchdog[id].enabled = FALSE;
+}
+
+void WATCHDOG_enable_timeout(watchdog_id_t id) {
+	watchdog[id].enabled = TRUE;
+}
 
 /* Interruption appellée toutes les QUANTUM ms */
 void _ISR WATCHDOG_TIMER_IT()
@@ -135,7 +144,7 @@ void _ISR WATCHDOG_TIMER_IT()
 			{
 				watchdog[i].timeout -= WATCHDOG_QUANTUM;
 			}
-			else
+			else if(watchdog[i].enabled)
 			{
 				callback = watchdog[i].callback;
 				

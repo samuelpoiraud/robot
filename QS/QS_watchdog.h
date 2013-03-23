@@ -47,7 +47,16 @@
 	/** Désarme un watchdog
 		* param id Identifiant du watchdog à annuler
 	 **/
-	void WATCHDOG_stop(watchdog_id_t id);	
+	void WATCHDOG_stop(watchdog_id_t id);
+
+	/** Desactive le déclenchement du watchdog lors d'un timeout.
+	 * Le declenchement est effectué lorsqu'il sera réactivé si le timeout arrive alors que le watchdog est désactivé
+	 */
+	void WATCHDOG_disable_timeout(watchdog_id_t id);
+
+	/** Réactive le declenchement du watchdog lors d'un timeout.
+	 */
+	void WATCHDOG_enable_timeout(watchdog_id_t id);
 	
 	#endif /* def USE_WATCHDOG */
 #endif
