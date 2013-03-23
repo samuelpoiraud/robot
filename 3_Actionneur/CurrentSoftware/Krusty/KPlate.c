@@ -21,6 +21,7 @@
 #include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "PL: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_PLATE, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 #define PLATE_NUM_POS           3
 	#define PLATE_HORIZONTAL_POS_ID 0
@@ -70,7 +71,7 @@ void PLATE_init() {
 
 	PLATE_initAX12();
 
-	OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX"actionneur assiette initialisé\n");
+	COMPONENT_log(LOG_LEVEL_Info, "actionneur assiette initialisé\n");
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
@@ -129,7 +130,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -171,7 +172,7 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 		default: {
 				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 				CAN_send(&resultMsg);
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid rotation command: %u, code is broken !\n", command);
+				COMPONENT_log(LOG_LEVEL_Error, "Invalid rotation command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
@@ -228,14 +229,14 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 		default: {
 				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 				CAN_send(&resultMsg);
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid plier command: %u, code is broken !\n", command);
+				COMPONENT_log(LOG_LEVEL_Error, "Invalid plier command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid plier position: %u, code is broken !\n", command);
+		COMPONENT_log(LOG_LEVEL_Error, "Invalid plier position: %u, code is broken !\n", command);
 		return;
 	}
 	//ax12_timeout_time = CLOCK_get_time() + PLATE_PLIER_AX12_ASSER_TIMEOUT;  //Calcul du timeout

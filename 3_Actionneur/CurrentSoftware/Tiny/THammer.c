@@ -20,6 +20,7 @@
 #include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "H: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_HAMMER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 static void HAMMER_run_command(queue_id_t queueId, bool_e init);
 static Sint16 HAMMER_get_position();
@@ -59,14 +60,14 @@ bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			case ACT_HAMMER_STOP:	//Ne pas passer par la pile pour le cas d'urgence
-				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"bras désasservi !\n");
+				COMPONENT_log(LOG_LEVEL_Debug, "bras désasservi !\n");
 				DCM_stop(HAMMER_DCMOTOR_ID); //S'il y a eu une commande en cours, elle se terminera par un idle et donc renvera un message identique au suivant (mais pour la commande d'asservissement)
 				CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
 				CAN_send(&resultMsg);
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -88,7 +89,7 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 				default: {
 						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 						CAN_send(&resultMsg);
-						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid rotation command: %u, code is broken !\n", command);
+						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);
 						QUEUE_behead(queueId);
 						return;

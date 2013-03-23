@@ -20,6 +20,7 @@
 #include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "CC: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_CANDLECOLOR, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 #ifndef CANDLECOLOR_CW_PIN_CHANNEL0
 #  define CANDLECOLOR_CW_PIN_CHANNEL0 CW_UNUSED_PORT
@@ -144,7 +145,7 @@ bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -166,14 +167,14 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 				default: {
 						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_CANDLECOLOR & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 						CAN_send(&resultMsg);
-						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid rotation command: %u, code is broken !\n", command);
+						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);
 						QUEUE_behead(queueId);
 						return;
 					}
 			}
 			if(*wantedPosition == 0xFFFF) {
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid plier position: %u, code is broken !\n", command);
+				COMPONENT_log(LOG_LEVEL_Error, "invalid plier position: %u, code is broken !\n", command);
 				return;
 			}
 			//ax12_timeout_time = CLOCK_get_time() + PLATE_PLIER_AX12_ASSER_TIMEOUT;  //Calcul du timeout

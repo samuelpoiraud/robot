@@ -18,6 +18,7 @@
 #include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "BI: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLINFLATER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init);
 
@@ -41,11 +42,11 @@ bool_e BALLINFLATER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_BALLINFLATER_STOP:
 				BALLINFLATER_emerg_stop_inflater = TRUE;
 				BALLINFLATER_PIN = BALLINFLATER_OFF;
-				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"gonfleur stoppé !\n");
+				COMPONENT_log(LOG_LEVEL_Debug, "gonfleur stoppé !\n");
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -63,7 +64,7 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 				case ACT_BALLINFLATER_START:
 					BALLINFLATER_emerg_stop_inflater = FALSE;
 					BALLINFLATER_PIN = BALLINFLATER_ON;
-					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"gonfleur démarré\n");
+					COMPONENT_log(LOG_LEVEL_Debug, "gonfleur démarré\n");
 					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 					break;
 
@@ -74,7 +75,7 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 				default: {
 						CAN_msg_t errorMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 						CAN_send(&errorMsg);
-						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid command: %u, code is broken !\n", command);
+						COMPONENT_log(LOG_LEVEL_Error, "invalid command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);
 						QUEUE_behead(queueId);
 						return;

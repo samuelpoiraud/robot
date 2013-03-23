@@ -21,6 +21,7 @@
 #include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "LH: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_LONGHAMMER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 #define LONGHAMMER_NUM_POS           3
 	#define LONGHAMMER_PARKED_POS_ID 0
@@ -74,14 +75,14 @@ bool_e LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			case ACT_LONGHAMMER_GO_STOP:	//Ne pas passer par la pile pour le cas d'urgence
-				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"bras désasservi !\n");
+				COMPONENT_log(LOG_LEVEL_Debug, "bras désasservi !\n");
 				DCM_stop(LONGHAMMER_DCMOTOR_ID);
 				CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
 				CAN_send(&resultMsg);
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -100,14 +101,14 @@ static void LONGHAMMER_run_command(queue_id_t queueId, bool_e init) {
 				case ACT_LONGHAMMER_GO_UP:   wantedPosition = LONGHAMMER_UP_POS_ID;     break;
 				case ACT_LONGHAMMER_GO_PARK: wantedPosition = LONGHAMMER_PARKED_POS_ID; break;
 				case ACT_LONGHAMMER_GO_STOP:
-					OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"bras désasservi !\n");
+					COMPONENT_log(LOG_LEVEL_Debug, "bras désasservi !\n");
 					DCM_stop(LONGHAMMER_DCMOTOR_ID);
 					return;
 
 				default: {
 						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_LONGHAMMER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 						CAN_send(&resultMsg);
-						OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid rotation command: %u, code is broken !\n", command);
+						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);
 						QUEUE_behead(queueId);
 						return;

@@ -20,6 +20,7 @@
 #include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "BL: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLLAUNCHER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 //Define pour récuperer les valeurs du timer d'asservissement et sa période
 #if DCM_TIMER == 1
@@ -112,7 +113,7 @@ void BALLLAUNCHER_init() {
 	//Si la priorité de l'interruption INTx (qui est déclanchée lors d'un passage d'un aimant devant le capteur) est de priorité supérieure à celle du timer gérant l'asservissement,
 	//il est possible d'avoir une interruption INTx entre l'overflow du timer (donc il recommence a compter a partir de 0) et l'actualisation du nombre d'overflow dans la variable timer_overflow_number.
 	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY <= DCM_TIMER_PRIORITY_REG)
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx) (et si le code marche, qui l'a apporté à lourdes ?)\n");
+		COMPONENT_log(LOG_LEVEL_Error, "Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx) (et si le code marche, qui l'a apporté à lourdes ?)\n");
 }
 
 bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
@@ -127,7 +128,7 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -143,11 +144,11 @@ static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			//Send command
 			Uint16 pos_speed = QUEUE_get_arg(queueId)->param;
 			if(pos_speed == 0) {
-				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Motor stoped\n");
+				COMPONENT_log(LOG_LEVEL_Debug, "Motor stoped\n");
 				//DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
 				DCM_stop(BALLLAUNCHER_DCMOTOR_ID);	//On est sur de l'arreter comme ça, même en cas de problème capteur
 			} else {
-				OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Run motor at speed: %d\n", pos_speed);
+				COMPONENT_log(LOG_LEVEL_Debug, "Run motor at speed: %d\n", pos_speed);
 				DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
 				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
 				DCM_restart(BALLLAUNCHER_DCMOTOR_ID); //Redémarrage si on l'avait arrêté avec DCM_stop, sinon ne fait rien
@@ -159,7 +160,7 @@ static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 			if(last_speed_detected != lastlast_speed) {
 				lastlast_speed = last_speed_detected;
-				OUTPUTLOG_printf(LOG_LEVEL_Debug, "Current speed: %d\n", lastlast_speed);
+				COMPONENT_log(LOG_LEVEL_Debug, "Current speed: %d\n", lastlast_speed);
 			}
 
 			if(QUEUE_has_error(queueId)) {
@@ -174,7 +175,7 @@ static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				QUEUE_set_error(queueId);
 			} else return;	//Operation is not finished, do nothing
 
-			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"End, sending result: %u, reason: %u\n", resultMsg.data[2], resultMsg.data[3]);
+			COMPONENT_log(LOG_LEVEL_Debug, "End, sending result: %u, reason: %u\n", resultMsg.data[2], resultMsg.data[3]);
 
 			resultMsg.sid = ACT_RESULT;
 			resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
