@@ -31,8 +31,8 @@ typedef enum {
 } log_level_e;
 
 typedef enum {
-	LOG_PRINT_On,
-	LOG_PRINT_Off
+	LOG_PRINT_Off = 0,
+	LOG_PRINT_On = 1
 } log_print_e;
 
 #ifdef OUTPUT_LOG
