@@ -231,9 +231,9 @@ void _ISR _T3Interrupt (void)
 
 static void TELEMETER_update_value()
 {
+#if TELEMETER_NUMBER != 0
 	Uint8 i;
 	telemeter_device_t* device; /*pointeur de travail pour l'utilisation des télémètres*/
-#if TELEMETER_NUMBER != 0
 	for(i = 0; i < TELEMETER_NUMBER ; i++)
 	{
 		/*initialisation*/
