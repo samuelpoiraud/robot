@@ -10,7 +10,8 @@
  */
 
 #include "TLong_hammer.h"
-#ifdef I_AM_ROBOT_TINY
+//#ifdef I_AM_ROBOT_TINY
+#if 0 //Long_hammer non utilisé
 
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_adc.h"
@@ -43,6 +44,7 @@ void LONGHAMMER_init() {
 	initialized = TRUE;
 
 	DCM_init();
+	ADC_init();
 
 	long_hammer_config.sensor_read = &LONGHAMMER_get_position;
 	long_hammer_config.Kp = LONGHAMMER_ASSER_KP;
@@ -59,6 +61,7 @@ void LONGHAMMER_init() {
 	long_hammer_config.timeout = LONGHAMMER_ASSER_TIMEOUT;
 	long_hammer_config.epsilon = LONGHAMMER_ASSER_POS_EPSILON;
 	DCM_config(LONGHAMMER_DCMOTOR_ID, &long_hammer_config);
+	DCM_stop(LONGHAMMER_DCMOTOR_ID);
 }
 
 bool_e LONGHAMMER_CAN_process_msg(CAN_msg_t* msg) {

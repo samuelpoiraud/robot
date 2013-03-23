@@ -82,9 +82,8 @@ static void PLATE_initAX12() {
 		AX12_config_set_lowest_voltage(PLATE_PLIER_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(PLATE_PLIER_AX12_ID, PLATE_PLIER_AX12_MAX_TORQUE_PERCENT);
 
-		//FIXME: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
-	//	AX12_config_set_maximal_angle(PLATE_PLIER_AX12_ID, (PLATE_PLIER_AX12_CLOSED_POS > PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
-	//	AX12_config_set_minimal_angle(PLATE_PLIER_AX12_ID, (PLATE_PLIER_AX12_CLOSED_POS < PLATE_PLIER_AX12_OPEN_POS)? PLATE_PLIER_AX12_CLOSED_POS : PLATE_PLIER_AX12_OPEN_POS);
+		AX12_config_set_maximal_angle(PLATE_PLIER_AX12_ID, 300);
+		AX12_config_set_minimal_angle(PLATE_PLIER_AX12_ID, 0);
 
 		AX12_config_set_error_before_led(PLATE_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(PLATE_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
@@ -172,7 +171,7 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 		default: {
 				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 				CAN_send(&resultMsg);
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid rotation command: %u, code is broken !\n", command);
+				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid rotation command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
@@ -229,14 +228,14 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 		default: {
 				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 				CAN_send(&resultMsg);
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid plier command: %u, code is broken !\n", command);
+				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid plier command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid plier position: %u, code is broken !\n", command);
+		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid plier position: %u, code is broken !\n", command);
 		return;
 	}
 	//ax12_timeout_time = CLOCK_get_time() + PLATE_PLIER_AX12_ASSER_TIMEOUT;  //Calcul du timeout
@@ -266,6 +265,7 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 	if(QUEUE_has_error(queueId)) {
 		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 	} else if(abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= PLATE_PLIER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
 	//if(AX12_is_moving(PLATE_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
 		resultMsg.data[2] = ACT_RESULT_DONE;

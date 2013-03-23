@@ -67,7 +67,7 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 					break;
 
-				case ACT_BALLINFLATER_STOP:
+				case ACT_BALLINFLATER_STOP: //La queue n'est pas utilisée pour cette commande
 					QUEUE_behead(queueId);
 					break;
 

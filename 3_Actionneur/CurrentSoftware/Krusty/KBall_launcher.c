@@ -265,7 +265,9 @@ void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
 
 	//Changement de front detecté, on capte le passage de tous les aimants comme ça
 	//Mais en fait non, les temps de chargements du condensateur de filtrage sont non symétriques ...
-	//BALLLAUNCHER_HALLSENSOR_INT_EDGE = !BALLLAUNCHER_HALLSENSOR_INT_EDGE;
+#if BALLLAUNCHER_EDGE_PER_ROTATION == 2
+	BALLLAUNCHER_HALLSENSOR_INT_EDGE = !BALLLAUNCHER_HALLSENSOR_INT_EDGE;
+#endif
 	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
 }
 

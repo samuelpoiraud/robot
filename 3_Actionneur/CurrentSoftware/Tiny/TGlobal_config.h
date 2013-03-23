@@ -94,6 +94,8 @@
 	#define HAMMER_ASSER_KD             0
 	#define HAMMER_ASSER_TIMEOUT        3000    //en ms
 	#define HAMMER_ASSER_POS_EPSILON    20
+	#define HAMMER_UNITS_PER_128_DEGRE  100     //TODO: A changer
+	#define HAMMER_UNITS_AT_0_DEGRE     0
 	#define HAMMER_DCMOTOR_PWM_NUM      1		//PWM1
 	#define HAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
 	#define HAMMER_DCMOTOR_PORT_WAY_BIT 0
@@ -103,6 +105,7 @@
 
 /* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */
 // Non utilisé
+/*
 	#define LONGHAMMER_DCMOTOR_ID           1		//Utilisé pour le module DCMotor
 	#define LONGHAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x)
 	#define LONGHAMMER_ASSER_KP             2
@@ -118,7 +121,7 @@
 	#define LONGHAMMER_DCMOTOR_PORT_WAY_BIT 2
 	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY0 30		//en %
 	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
-
+*/
 /********************************************************************************/
 
 /* Config BALLINFLATER: gonfleur du ballon *******************/
