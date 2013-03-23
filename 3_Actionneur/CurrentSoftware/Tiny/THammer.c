@@ -22,6 +22,13 @@
 #define LOG_PREFIX "H: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_HAMMER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
+#if DCMOTOR_NB_POS < 1
+#error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
+#endif
+#if DCM_NUMBER <= HAMMER_DCMOTOR_ID
+#error "Le nombre de DCMotor disponible n'est pas suffisant, veuillez augmenter DCM_NUMBER"
+#endif
+
 static void HAMMER_run_command(queue_id_t queueId, bool_e init);
 static Sint16 HAMMER_get_position();
 

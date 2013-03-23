@@ -26,7 +26,7 @@
 	#define PORT_B_IO_MASK	0xFFFF
 	#define PORT_C_IO_MASK	0xFFFF
 	#define PORT_D_IO_MASK	0xC0FF  //C0xx: LED de la carte en sortie
-	#define PORT_E_IO_MASK	0xFF80  //xx80: PWMx/sensx en sortie
+	#define PORT_E_IO_MASK	0xFF00  //xx00: PWMx/sensx en sortie
 		
 	#define PORT_F_IO_MASK	0xFFFF
 	#define PORT_G_IO_MASK	0xFEBF  //Port RG6 en sortie pour le gonfleur, RG8 en sortie pour le sens du bus des AX12
@@ -67,16 +67,16 @@
 	/* timer utilisé pour l'asservissement (1, 2, ou 3) */
 	#define DCM_TIMER			1
 	/* définir le nombre d'actionneurs asservis */
-	#define DCM_NUMBER			5
+	#define DCM_NUMBER			1
 	/* Période d'asservisement (en ms) */
 	#define DCM_TIMER_PERIOD	8
 	/* nombre maximum de positions à gérer par moteur */
-	#define DCMOTOR_NB_POS		5
+	#define DCMOTOR_NB_POS		3
 
 /* Servo-Moteurs AX12 */
 	#define USE_AX12_SERVO
 	#define AX12_NUMBER 7
-	#define AX12_TIMER_ID 2
+	#define AX12_USE_WATCHDOG
 	#define AX12_DIRECTION_PORT LATGbits.LATG8
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 

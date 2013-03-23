@@ -31,6 +31,9 @@
 #if DCMOTOR_NB_POS < PLATE_NUM_POS
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
 #endif
+#if DCM_NUMBER <= PLATE_DCMOTOR_ID
+#error "Le nombre de DCMotor disponible n'est pas suffisant, veuillez augmenter DCM_NUMBER"
+#endif
 
 static void PLATE_initAX12();
 static Sint16 PLATE_getRotationAngle();

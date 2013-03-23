@@ -32,6 +32,9 @@
 #if DCMOTOR_NB_POS < LONGHAMMER_NUM_POS
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
 #endif
+#if DCM_NUMBER <= LONGHAMMER_DCMOTOR_ID
+#error "Le nombre de DCMotor disponible n'est pas suffisant, veuillez augmenter DCM_NUMBER"
+#endif
 
 static void LONGHAMMER_run_command(queue_id_t queueId, bool_e init);
 static Sint16 LONGHAMMER_get_position();

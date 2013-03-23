@@ -65,16 +65,16 @@
 	/* timer utilisé pour l'asservissement (1, 2, ou 3) */
 	#define DCM_TIMER			1
 	/* définir le nombre d'actionneurs asservis */
-	#define DCM_NUMBER			5
+	#define DCM_NUMBER			4
 	/* Période d'asservisement (en ms) */
 	#define DCM_TIMER_PERIOD	2  //Bas pour le lanceur de balle ...
 	/* nombre maximum de positions à gérer par moteur */
-	#define DCMOTOR_NB_POS		5
+	#define DCMOTOR_NB_POS		3
 
 /* Servo-Moteurs AX12 */
 	#define USE_AX12_SERVO
 	#define AX12_NUMBER 7
-	#define AX12_TIMER_ID 2
+	#define AX12_USE_WATCHDOG
 	#define AX12_DIRECTION_PORT LATGbits.LATG8
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 
@@ -97,7 +97,7 @@
 	#define BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT    6
 	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0    50
 	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1    0
-	#define BALLLAUNCHER_EDGE_PER_ROTATION       1			//nombre d'inversion de champ magnétique par tour (2 aimants de sens opposé = 2 inversions / tour)
+	#define BALLLAUNCHER_EDGE_PER_ROTATION       2			//nombre d'inversion de champ magnétique par tour (2 aimants de sens opposé = 2 inversions / tour)
 	#define BALLLAUNCHER_HALLSENSOR_INT_FLAG     IFS1bits.INT1IF
 	#define BALLLAUNCHER_HALLSENSOR_INT_PRIORITY IPC4bits.INT1IP
 	#define BALLLAUNCHER_HALLSENSOR_INT_ENABLE   IEC1bits.INT1IE

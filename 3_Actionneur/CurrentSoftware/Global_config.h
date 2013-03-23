@@ -56,16 +56,14 @@
 
 
 /* Watchdog */
-	//#define USE_WATCHDOG
-	//#define WATCHDOG_TIMER 3
-	//#define WATCHDOG_MAX_COUNT 5
-	//#define WATCHDOG_QUANTUM 1
+	#define USE_WATCHDOG
+	#define WATCHDOG_TIMER 4
+	#define WATCHDOG_MAX_COUNT 5
+	#define WATCHDOG_QUANTUM 1
 
-/* Actionneurs */
-	// Files
-	#define CLOCK_TIMER_run		TIMER3_run
-	#define CLOCK_TIMER_isr		_T3Interrupt
-	#define CLOCK_TIMER_flag	IFS0bits.T3IF
+/* Clock */
+	#define CLOCK_USE_WATCHDOG
+	#define CLOCK_UPDATE_BUTTONS_PRESS_TIME
 	
 /* CAN */
 	#define USE_CAN
@@ -77,7 +75,7 @@
 	#define UART_RX_BUF_SIZE	12
 	
 /* Bouton */
-	#define BUTTONS_TIMER 4
+	#define I_ASSUME_I_WILL_CALL_BUTTONS_PROCESS_IT_ON_MY_OWN //Fait par clock.h/c
 	#define USE_BUTTONS
 
 /* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */

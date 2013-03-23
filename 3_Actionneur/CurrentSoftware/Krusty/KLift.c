@@ -32,6 +32,9 @@
 #if DCMOTOR_NB_POS < LIFT_NUM_POS
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
 #endif
+#if DCM_NUMBER <= LIFT_LEFT_DCMOTOR_ID || DCM_NUMBER <= LIFT_RIGHT_DCMOTOR_ID
+#error "Le nombre de DCMotor disponible n'est pas suffisant, veuillez augmenter DCM_NUMBER"
+#endif
 
 #define LIFT_IS_LEFT(param_queueId) (QUEUE_get_act(param_queueId) == QUEUE_ACT_Lift_Left_Translation || QUEUE_get_act(param_queueId) == QUEUE_ACT_Lift_Left_AX12_Plier)
 #define LIFT_IS_RIGHT(param_queueId) (QUEUE_get_act(param_queueId) == QUEUE_ACT_Lift_Right_Translation || QUEUE_get_act(param_queueId) == QUEUE_ACT_Lift_Right_AX12_Plier)

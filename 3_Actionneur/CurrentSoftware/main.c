@@ -30,6 +30,11 @@
 	#include "QS/QS_CANmsgList.h"
 #endif
 
+static void MAIN_onButton1();
+static void MAIN_onButton2();
+static void MAIN_onButton3();
+static void MAIN_onButton4();
+
 void RCON_read();
 void _ISR _MathError();
 void _ISR _StackError();
@@ -41,18 +46,23 @@ int main (void)
 	/*-------------------------------------
 		Démarrage
 	-------------------------------------*/
-	static Uint8 button1_pos = 0;
-	static Uint8 button2_pos = 0;
-	static Uint8 button3_pos = 0;
-	static Uint8 button4_pos = 0;
 		
 	//initialisations
 	PORTS_init();
 	LED_RUN = 1;
+	LED_USER = 0;
 	UART_init();
 	TIMER_init();
 	BUTTONS_init();
 	QUEUE_init();
+	//init actioneurs
+	ACTMGR_init();
+
+	BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 0);
+	BUTTONS_define_actions(BUTTON2, &MAIN_onButton2, NULL, 0);
+	BUTTONS_define_actions(BUTTON3, &MAIN_onButton3, NULL, 0);
+	BUTTONS_define_actions(BUTTON4, &MAIN_onButton4, NULL, 0);
+
 	LED_CAN = 1;
 	#ifdef USE_CAN
 		CAN_init();
@@ -66,8 +76,6 @@ int main (void)
 	LED_RUN = 0;
 	LED_USER = 1;
 
-	//init actioneurs
-	ACTMGR_init();
 #if defined(I_AM_ROBOT_KRUSTY)
 	debug_printf("--- Hello, I'm ACT (Krusty) ---\n");
 #elif defined(I_AM_ROBOT_TINY)
@@ -82,129 +90,11 @@ int main (void)
 	{
 		/*-------------------------------------
 			Gestion des DELs, boutons, etc 
-		-------------------------------------*/	
+		-------------------------------------*/
 
-		if(!button1_pos && BUTTON1_PORT)
-		{
-			//msg.sid = ACT_BALLLAUNCHER;
-			//msg.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
-
-			/*msg.sid = ACT_BALLINFLATER;
-			msg.data[0] = ACT_BALLINFLATER_STOP;
-			msg.data[1] = LOWINT(6000);
-			msg.data[2] = HIGHINT(6000);
-			msg.size = 3;
-			CAN_process_msg(&msg);*/
-
-			/*msg.sid = ACT_PLATE;
-			msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
-			msg.size = 1;*/
-
-			msg.sid = ACT_LIFT_LEFT;
-			msg.data[0] = ACT_LIFT_GO_UP;
-			msg.size = 1;
-
-			CAN_process_msg(&msg);
-
-			LED_USER2 = BUTTON1_PORT;
-			button1_pos = BUTTON1_PORT;
-		}
-		else if (button1_pos && !BUTTON1_PORT)
-		{
-			LED_USER2 = BUTTON1_PORT;
-			button1_pos = BUTTON1_PORT;
-		}	
-
-		if(!button2_pos && BUTTON2_PORT)
-		{
-			/*msg.sid = ACT_PLATE;
-			msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
-			msg.size = 1;*/
-
-			msg.sid = ACT_LIFT_LEFT;
-			msg.data[0] = ACT_LIFT_GO_MID;
-			msg.size = 1;
-
-			CAN_process_msg(&msg);
-
-			
-			LED_USER2 = BUTTON2_PORT;
-			button2_pos = BUTTON2_PORT;
-		}
-		else if (button2_pos && !BUTTON2_PORT)
-		{
-			LED_USER2 = BUTTON2_PORT;
-			button2_pos = BUTTON2_PORT;
-		}	
-
-		if(!button3_pos && BUTTON3_PORT)
-		{
-			/*msg.sid = ACT_BALLINFLATER;
-			msg.data[0] = ACT_BALLINFLATER_START;
-			msg.data[1] = 3;  //secondes
-			msg.size = 2;
-			CAN_process_msg(&msg);*/
-
-			/*msg.sid = ACT_PLATE;
-			msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
-			msg.size = 1;*/
-
-			msg.sid = ACT_LIFT_LEFT;
-			msg.data[0] = ACT_LIFT_GO_DOWN;
-			msg.size = 1;
-
-			CAN_process_msg(&msg);
-
-			LED_USER2 = BUTTON3_PORT;
-			button3_pos = BUTTON3_PORT;
-		}
-		else if (button3_pos && !BUTTON3_PORT)
-		{
-			LED_USER2 = BUTTON3_PORT;
-			button3_pos = BUTTON3_PORT;
-		}	
-
-		//Affichage des valeurs des capteurs
-		if(!button4_pos && BUTTON4_PORT)
-		{
-			Uint8 i;
-			debug_printf("Sensor vals:\n");
-#ifdef I_AM_ROBOT_KRUSTY
-			debug_printf("- Plate potar val:      %d\n", ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID));
-			debug_printf("- Lift left potar val:  %d\n", ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID));
-			debug_printf("- Lift right potar val: %d\n", ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID));
-			debug_printf("- Capteur cerise: %d\n", BALLSORTER_SENSOR_PIN);
-
-			for(i=0; i<7; i++)
-				debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
-#endif
-#ifdef I_AM_ROBOT_TINY
-			debug_printf("- Hammer potar val: %d\n", ADC_getValue(HAMMER_SENSOR_ADC_ID));
-			debug_printf("- CW[x] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_x));
-			debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_y));
-			debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));
-
-			for(i=0; i<7; i++)
-				debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
-#endif
-			debug_printf("\n");
-
-			LED_USER2 = BUTTON4_PORT;
-			button4_pos = BUTTON4_PORT;
-		}
-		else if (button4_pos && !BUTTON4_PORT)
-		{
-			LED_USER2 = BUTTON4_PORT;
-			button4_pos = BUTTON4_PORT;
-		}	
+		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
 		
 		QUEUE_run();
-		
-		//Scrutation avec les sharps pour savoir si un pion a été aimanté
-//		TELEMETER_pawn_detection();
-		
-		//Scrutation des changement d'états des microrupteurs des pinces
-//		SWITCH_microswitch_scan();
 
 		/*-------------------------------------
 			Réception CAN et exécution
@@ -221,6 +111,95 @@ int main (void)
 	}//Endloop
 	return 0;
 }
+
+static void MAIN_onButton1() {
+#ifdef USE_CAN
+	CAN_msg_t msg;
+
+//	msg.sid = ACT_BALLLAUNCHER;
+//	msg.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
+
+//	msg.sid = ACT_BALLINFLATER;
+//	msg.data[0] = ACT_BALLINFLATER_STOP;
+//	msg.data[1] = LOWINT(6000);
+//	msg.data[2] = HIGHINT(6000);
+//	msg.size = 3;
+//
+//	msg.sid = ACT_PLATE;
+//	msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+//	msg.size = 1;
+
+	msg.sid = ACT_LIFT_LEFT;
+	msg.data[0] = ACT_LIFT_GO_UP;
+	msg.size = 1;
+
+	CAN_process_msg(&msg);
+#endif
+}
+
+static void MAIN_onButton2() {
+#ifdef USE_CAN
+	CAN_msg_t msg;
+
+//	msg.sid = ACT_PLATE;
+//	msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
+//	msg.size = 1;
+
+	msg.sid = ACT_LIFT_LEFT;
+	msg.data[0] = ACT_LIFT_GO_MID;
+	msg.size = 1;
+
+	CAN_process_msg(&msg);
+#endif
+}
+
+static void MAIN_onButton3() {
+#ifdef USE_CAN
+	CAN_msg_t msg;
+
+//	msg.sid = ACT_BALLINFLATER;
+//	msg.data[0] = ACT_BALLINFLATER_START;
+//	msg.data[1] = 3;  //secondes
+//	msg.size = 2;
+//
+//	msg.sid = ACT_PLATE;
+//	msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
+//	msg.size = 1;
+
+	msg.sid = ACT_LIFT_LEFT;
+	msg.data[0] = ACT_LIFT_GO_DOWN;
+	msg.size = 1;
+
+	CAN_process_msg(&msg);
+#endif
+}
+
+static void MAIN_onButton4() {
+	Uint8 i;
+
+	debug_printf("Sensor vals:\n");
+#ifdef I_AM_ROBOT_KRUSTY
+	debug_printf("- Plate potar val:      %d\n", ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID));
+	debug_printf("- Lift left potar val:  %d\n", ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID));
+	debug_printf("- Lift right potar val: %d\n", ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID));
+	debug_printf("- Capteur cerise: %d\n", BALLSORTER_SENSOR_PIN);
+
+	for(i=0; i<7; i++)
+		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
+#endif
+#ifdef I_AM_ROBOT_TINY
+	debug_printf("- Hammer potar val: %d\n", ADC_getValue(HAMMER_SENSOR_ADC_ID));
+	debug_printf("- CW[x] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_x));
+	debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_y));
+	debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));
+
+	for(i=0; i<7; i++)
+		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
+#endif
+	debug_printf("\n");
+}
+
+
 void RCON_read()
 {
 	debug_printf("dsPIC30F reset source :\n");
