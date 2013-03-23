@@ -77,19 +77,19 @@ void LIFT_init() {
 	DCM_stop(LIFT_LEFT_DCMOTOR_ID);
 
 	right_lift_translation_config.sensor_read = &LIFT_RIGHT_getTranslationPos;
-	right_lift_translation_config.Kp = LIFT_LEFT_ASSER_KP;
-	right_lift_translation_config.Ki = LIFT_LEFT_ASSER_KI;
-	right_lift_translation_config.Kd = LIFT_LEFT_ASSER_KD;
-	right_lift_translation_config.pos[LIFT_UP_POS_ID] = LIFT_LEFT_UP_POS;
-	right_lift_translation_config.pos[LIFT_MID_POS_ID] = LIFT_LEFT_MID_POS;
-	right_lift_translation_config.pos[LIFT_DOWN_POS_ID] = LIFT_LEFT_DOWN_POS;
-	right_lift_translation_config.pwm_number = LIFT_LEFT_DCMOTOR_PWM_NUM;
-	right_lift_translation_config.way_latch = &LIFT_LEFT_DCMOTOR_PORT_WAY;
-	right_lift_translation_config.way_bit_number = LIFT_LEFT_DCMOTOR_PORT_WAY_BIT;
-	right_lift_translation_config.way0_max_duty = LIFT_LEFT_DCMOTOR_MAX_PWM_WAY0;
-	right_lift_translation_config.way1_max_duty = LIFT_LEFT_DCMOTOR_MAX_PWM_WAY1;
-	right_lift_translation_config.timeout = LIFT_LEFT_ASSER_TIMEOUT;
-	right_lift_translation_config.epsilon = LIFT_LEFT_ASSER_POS_EPSILON;
+	right_lift_translation_config.Kp = LIFT_RIGHT_ASSER_KP;
+	right_lift_translation_config.Ki = LIFT_RIGHT_ASSER_KI;
+	right_lift_translation_config.Kd = LIFT_RIGHT_ASSER_KD;
+	right_lift_translation_config.pos[LIFT_UP_POS_ID] = LIFT_RIGHT_UP_POS;
+	right_lift_translation_config.pos[LIFT_MID_POS_ID] = LIFT_RIGHT_MID_POS;
+	right_lift_translation_config.pos[LIFT_DOWN_POS_ID] = LIFT_RIGHT_DOWN_POS;
+	right_lift_translation_config.pwm_number = LIFT_RIGHT_DCMOTOR_PWM_NUM;
+	right_lift_translation_config.way_latch = &LIFT_RIGHT_DCMOTOR_PORT_WAY;
+	right_lift_translation_config.way_bit_number = LIFT_RIGHT_DCMOTOR_PORT_WAY_BIT;
+	right_lift_translation_config.way0_max_duty = LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY0;
+	right_lift_translation_config.way1_max_duty = LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY1;
+	right_lift_translation_config.timeout = LIFT_RIGHT_ASSER_TIMEOUT;
+	right_lift_translation_config.epsilon = LIFT_RIGHT_ASSER_POS_EPSILON;
 	DCM_config(LIFT_RIGHT_DCMOTOR_ID, &right_lift_translation_config);
 	DCM_stop(LIFT_RIGHT_DCMOTOR_ID);
 
@@ -108,9 +108,8 @@ static void LIFT_initAX12() {
 		AX12_config_set_lowest_voltage(LIFT_LEFT_PLIER_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(LIFT_LEFT_PLIER_AX12_ID, LIFT_LEFT_PLIER_AX12_MAX_TORQUE_PERCENT);
 
-		//FIXME: A voir, l'angle effectif n'est pas super précis pour pouvoir utiliser directement les positions sans prendre de marge.
-	//	AX12_config_set_maximal_angle(LIFT_LEFT_PLIER_AX12_ID, (LIFT_LEFT_PLIER_AX12_CLOSED_POS > LIFT_LEFT_PLIER_AX12_OPEN_POS)? LIFT_PLIER_AX12_CLOSED_POS : LIFT_PLIER_AX12_OPEN_POS);
-	//	AX12_config_set_minimal_angle(LIFT_LEFT_PLIER_AX12_ID, (LIFT_LEFT_PLIER_AX12_CLOSED_POS < LIFT_LEFT_PLIER_AX12_OPEN_POS)? LIFT_PLIER_AX12_CLOSED_POS : LIFT_PLIER_AX12_OPEN_POS);
+		AX12_config_set_maximal_angle(LIFT_LEFT_PLIER_AX12_ID, 300);
+		AX12_config_set_minimal_angle(LIFT_LEFT_PLIER_AX12_ID, 0);
 
 		AX12_config_set_error_before_led(LIFT_LEFT_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(LIFT_LEFT_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
@@ -120,6 +119,9 @@ static void LIFT_initAX12() {
 		AX12_config_set_highest_voltage(LIFT_RIGHT_PLIER_AX12_ID, 136);
 		AX12_config_set_lowest_voltage(LIFT_RIGHT_PLIER_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(LIFT_RIGHT_PLIER_AX12_ID, LIFT_RIGHT_PLIER_AX12_MAX_TORQUE_PERCENT);
+
+		AX12_config_set_maximal_angle(LIFT_RIGHT_PLIER_AX12_ID, 300);
+		AX12_config_set_minimal_angle(LIFT_RIGHT_PLIER_AX12_ID, 0);
 
 		AX12_config_set_error_before_led(LIFT_RIGHT_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(LIFT_RIGHT_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
@@ -164,7 +166,7 @@ bool_e LIFT_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 static Sint16 LIFT_LEFT_getTranslationPos() {
-	return -ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID);
+	return ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID);
 }
 
 static Sint16 LIFT_RIGHT_getTranslationPos() {
@@ -182,6 +184,11 @@ static void LIFT_run_command(queue_id_t queueId, bool_e init) {
 			LIFT_plier_command_init(queueId);
 		else
 			LIFT_plier_command_run(queueId);
+	} else {
+		Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+		CAN_msg_t resultMsg = {ACT_RESULT, {canSid, QUEUE_get_arg(queueId)->canCommand, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+		CAN_send(&resultMsg);
+		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid act: %d\n", QUEUE_get_act(queueId));
 	}
 }
 
@@ -229,7 +236,7 @@ static void LIFT_translation_command_run(queue_id_t queueId) {
 	} else if(asserState == DCM_TIMEOUT) {
 		resultMsg.data[2] = ACT_RESULT_FAILED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
-	QUEUE_set_error(queueId);
+		QUEUE_set_error(queueId);
 	} else return;	//Operation is not finished, do nothing
 
 	resultMsg.sid = ACT_RESULT;
@@ -266,14 +273,14 @@ static void LIFT_plier_command_init(queue_id_t queueId) {
 		default: {
 				CAN_msg_t resultMsg = {ACT_RESULT, {canSid, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 				CAN_send(&resultMsg);
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid plier command: %u, code is broken !\n", command);
+				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid plier command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid plier position: %u, code is broken !\n", command);
+		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid plier position: %u, code is broken !\n", command);
 		return;
 	}
 
@@ -308,6 +315,7 @@ static void LIFT_plier_command_run(queue_id_t queueId) {
 	if(QUEUE_has_error(queueId)) {
 		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
 		resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+		AX12_set_torque_enabled(ax12Id, FALSE);
 	} else if(abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= posEpsilon) {	//Fin du mouvement
 	//if(AX12_is_moving(LIFT_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
 		resultMsg.data[2] = ACT_RESULT_DONE;

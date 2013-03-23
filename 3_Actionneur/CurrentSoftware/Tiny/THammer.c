@@ -33,6 +33,7 @@ void HAMMER_init() {
 	initialized = TRUE;
 
 	DCM_init();
+	ADC_init();
 
 	hammer_config.sensor_read = &HAMMER_get_position;
 	hammer_config.Kp = HAMMER_ASSER_KP;
@@ -79,6 +80,8 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 			//Send command
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			Sint16 wantedPosition;
+			Sint16 realPosition; //use potar units
+
 			switch(command) {
 				case ACT_HAMMER_MOVE_TO: wantedPosition = QUEUE_get_arg(queueId)->param;   break;
 
@@ -91,7 +94,9 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 						return;
 					}
 			}
-			DCM_setPosValue(HAMMER_DCMOTOR_ID, 0, wantedPosition);
+
+			realPosition = ((Sint32)wantedPosition)*HAMMER_UNITS_PER_128_DEGRE + HAMMER_UNITS_AT_0_DEGRE;
+			DCM_setPosValue(HAMMER_DCMOTOR_ID, 0, realPosition);
 			DCM_goToPos(HAMMER_DCMOTOR_ID, 0);
 			DCM_restart(HAMMER_DCMOTOR_ID);
 		} else {
