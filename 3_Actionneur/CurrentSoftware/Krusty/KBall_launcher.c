@@ -59,6 +59,9 @@
 #if DCMOTOR_NB_POS < 2
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
 #endif
+#if DCM_NUMBER <= BALLLAUNCHER_DCMOTOR_ID
+#error "Le nombre de DCMotor disponible n'est pas suffisant, veuillez augmenter DCM_NUMBER"
+#endif
 
 /*
  * Technique de captage de la vitesse:

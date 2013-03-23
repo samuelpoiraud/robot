@@ -198,6 +198,8 @@ void QUEUE_behead(queue_id_t queue_id)
 void QUEUE_set_error(queue_id_t queue_id) {
 	assert(queue_id < NB_QUEUE);
 
+	LED_ERROR = 1;
+
 	if(queues[queue_id].used) {
 		queues[queue_id].error_occured = TRUE;
 		debug_printf("Erreur déclarée dans la file %d\n", queue_id);
