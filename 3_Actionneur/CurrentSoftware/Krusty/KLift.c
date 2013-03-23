@@ -22,6 +22,7 @@
 #include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "LI: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_LIFT, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 #define LIFT_NUM_POS           3
 	#define LIFT_UP_POS_ID     0
@@ -95,7 +96,7 @@ void LIFT_init() {
 
 	LIFT_initAX12();
 
-	OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX"actionneur ascenseur initialisé\n");
+	COMPONENT_log(LOG_LEVEL_Info, "actionneur ascenseur initialisé\n");
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
@@ -157,7 +158,7 @@ bool_e LIFT_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -188,7 +189,7 @@ static void LIFT_run_command(queue_id_t queueId, bool_e init) {
 		Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
 		CAN_msg_t resultMsg = {ACT_RESULT, {canSid, QUEUE_get_arg(queueId)->canCommand, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 		CAN_send(&resultMsg);
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid act: %d\n", QUEUE_get_act(queueId));
+		COMPONENT_log(LOG_LEVEL_Error, "Invalid act: %d\n", QUEUE_get_act(queueId));
 	}
 }
 
@@ -210,7 +211,7 @@ static void LIFT_translation_command_init(queue_id_t queueId) {
 				Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
 				CAN_msg_t resultMsg = {ACT_RESULT, {canSid, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 				CAN_send(&resultMsg);
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid translation command: %u, code is broken !\n", command);
+				COMPONENT_log(LOG_LEVEL_Error, "invalid translation command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
@@ -273,14 +274,14 @@ static void LIFT_plier_command_init(queue_id_t queueId) {
 		default: {
 				CAN_msg_t resultMsg = {ACT_RESULT, {canSid, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 				CAN_send(&resultMsg);
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid plier command: %u, code is broken !\n", command);
+				COMPONENT_log(LOG_LEVEL_Error, "Invalid plier command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Invalid plier position: %u, code is broken !\n", command);
+		COMPONENT_log(LOG_LEVEL_Error, "Invalid plier position: %u, code is broken !\n", command);
 		return;
 	}
 

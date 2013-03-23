@@ -21,6 +21,7 @@
 #include "../Can_msg_processing.h"
 
 #define LOG_PREFIX "BS: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLSORTER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 //Etape d'un passage de cerise (demandé par la strat)
 typedef enum {
@@ -45,7 +46,7 @@ void BALLSORTER_init() {
 
 	BALLSORTER_initAX12();
 
-	OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX"actionneur séquenceur de cerise initialisé\n");
+	COMPONENT_log(LOG_LEVEL_Info, "actionneur séquenceur de cerise initialisé\n");
 	//a faire: RAM de cerise, registres de cerise, ALU de cerise, GPIO de cerise, bras de cerise, pieds de cerise, firmware groupama(c)(r)(tm) 3.1.2 de cerise
 	//groupama est une marque déposée sur le bord de la route actuellement orpheline, pour des demandes d'adoption, veuillez vous renseigner à: www.jadoptemabankdememoire.com
 }
@@ -92,7 +93,7 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX"invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -114,13 +115,13 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			if(command != ACT_BALLSORTER_TAKE_NEXT_CHERRY) {
 				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 				CAN_send(&resultMsg);
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid translation command: %u, code is broken !\n", command);
+				COMPONENT_log(LOG_LEVEL_Error, "invalid translation command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
 			}
 
-			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"state: %d, ax12 pos: %d\n", state, AX12_get_position(BALLSORTER_AX12_ID));
+			COMPONENT_log(LOG_LEVEL_Debug, "state: %d, ax12 pos: %d\n", state, AX12_get_position(BALLSORTER_AX12_ID));
 
 			switch(state) {
 				case BALLSORTER_CS_EjectCherry:
@@ -147,7 +148,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			}
 
 			if(wantedPosition == 0xFFFF) {
-				OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"invalid AX12 position: %u, code is broken !\n", command);
+				COMPONENT_log(LOG_LEVEL_Error, "invalid AX12 position: %u, code is broken !\n", command);
 				return;
 			}
 

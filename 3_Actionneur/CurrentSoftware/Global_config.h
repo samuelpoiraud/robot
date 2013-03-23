@@ -13,10 +13,6 @@
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
 
-	#define VERBOSE_MODE
-	#define OUTPUT_LOG
-	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
-
 	/* ID de la carte: cf le type cartes_e de QS_types.h */
 	#define I_AM CARTE_ACT		//A voir avec Gwenn pour changer
 	#define I_AM_CARTE_ACT
@@ -34,6 +30,27 @@
 	#define FREQ_10MHZ
 
 	 // DEFINIR LES PORTS DANS Tiny/Global_config.h ou Krusty/Global_config.h selon le robot !
+
+/* Message debug sur l'uart 1 */
+	#define VERBOSE_MODE
+	#define OUTPUT_LOG
+	#define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
+
+	//Décommenter pour afficher tout quelque soit les OUTPUT_LOG_COMPONENT_*
+	#define OUTPUT_LOG_PRINT_ALL_COMPONENTS
+
+	//Composants (chosir entre LOG_PRINT_On et LOG_PRINT_Off):
+	//LOG_PRINT_On active l'affiche par OUTPUT_printf du composant, LOG_PRINT_Off le desactive (permet de cibler facilement certains message sans tout mettre en commentaire)
+	#define OUTPUT_LOG_COMPONENT_BALLLAUNCHER  LOG_PRINT_Off
+	#define OUTPUT_LOG_COMPONENT_BALLSORTER    LOG_PRINT_Off
+	#define OUTPUT_LOG_COMPONENT_LIFT          LOG_PRINT_Off
+	#define OUTPUT_LOG_COMPONENT_PLATE         LOG_PRINT_Off
+
+	#define OUTPUT_LOG_COMPONENT_BALLINFLATER  LOG_PRINT_Off
+	#define OUTPUT_LOG_COMPONENT_CANDLECOLOR   LOG_PRINT_Off
+	#define OUTPUT_LOG_COMPONENT_HAMMER        LOG_PRINT_Off
+	#define OUTPUT_LOG_COMPONENT_LONGHAMMER    LOG_PRINT_Off
+
 
 /* Definition des connectiques capteurs et actionneurs COMMUN à Tiny et Krusty */
 
