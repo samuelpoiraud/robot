@@ -14,6 +14,8 @@
 #if !defined(KRUSTY_GLOBAL_CONFIG_H) && defined(I_AM_ROBOT_KRUSTY)
 	#define KRUSTY_GLOBAL_CONFIG_H
 
+//#define AX12_DEBUG_PACKETS
+
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
 	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
@@ -22,7 +24,7 @@
 	 * (risque de griller ou de faire bruler le pic) 
 	 */
 
-	#define PORT_A_IO_MASK	0xFFFF		
+	#define PORT_A_IO_MASK	0xFFFF
 	#define PORT_B_IO_MASK	0xFFFF
 	#define PORT_C_IO_MASK	0xFFFF
 	#define PORT_D_IO_MASK	0xC0FF  //C0xx: LED de la carte en sortie
@@ -132,9 +134,9 @@
 	#define BALLSORTER_AX12_MAX_TORQUE_PERCENT   100
 	#define BALLSORTER_AX12_ASSER_POS_EPSILON    5      //en degré
 	#define BALLSORTER_AX12_ASSER_TIMEOUT        20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
-	#define BALLSORTER_AX12_EJECT_CHERRY_POS     105      //TODO: changer ces valeurs !!! (en degré)
-	#define BALLSORTER_AX12_NEXT_CHERRY_POS      195
-	#define BALLSORTER_AX12_DETECT_CHERRY_POS    150
+	#define BALLSORTER_AX12_EJECT_CHERRY_POS     132      //TODO: changer ces valeurs !!! (en degré)
+	#define BALLSORTER_AX12_NEXT_CHERRY_POS      207
+	#define BALLSORTER_AX12_DETECT_CHERRY_POS    157
 	#define BALLSORTER_SENSOR_PIN                PORTBbits.RB8
 	#define BALLSORTER_SENSOR_DETECTED_LEVEL     1      //Niveau de BALLSORTER_SENSOR_PIN quand une cerise blanche est détectée
 
@@ -143,9 +145,9 @@
 	#define LIFT_LEFT_ASSER_KP                       300
 	#define LIFT_LEFT_ASSER_KI                       0
 	#define LIFT_LEFT_ASSER_KD                       0
-	#define LIFT_LEFT_ASSER_TIMEOUT                  3000 //en ms
-	#define LIFT_LEFT_ASSER_POS_EPSILON              75   //TODO: à ajuster plus correctement
-	#define LIFT_LEFT_UP_POS                         800  //TODO: ajuster ces valeurs ! (unité: potarland)
+	#define LIFT_LEFT_ASSER_TIMEOUT                  3000   //en ms
+	#define LIFT_LEFT_ASSER_POS_EPSILON              75      //TODO: à ajuster plus correctement
+	#define LIFT_LEFT_UP_POS                         800    //TODO: ajuster ces valeurs ! (unité: potarland)
 	#define LIFT_LEFT_MID_POS                        400
 	#define LIFT_LEFT_DOWN_POS                       50   /////////////////////////////
 	#define LIFT_LEFT_DCMOTOR_PWM_NUM                1
@@ -166,8 +168,8 @@
 	#define LIFT_RIGHT_ASSER_KI                       0
 	#define LIFT_RIGHT_ASSER_KD                       0
 	#define LIFT_RIGHT_ASSER_TIMEOUT                  3000   //en ms
-	#define LIFT_RIGHT_ASSER_POS_EPSILON              75     //TODO: à ajuster plus correctement
-	#define LIFT_RIGHT_UP_POS                         -800   //TODO: ajuster ces valeurs ! (unité: potarland)
+	#define LIFT_RIGHT_ASSER_POS_EPSILON              75      //TODO: à ajuster plus correctement
+	#define LIFT_RIGHT_UP_POS                         -800    //TODO: ajuster ces valeurs ! (unité: potarland)
 	#define LIFT_RIGHT_MID_POS                        -400
 	#define LIFT_RIGHT_DOWN_POS                       -50    /////////////////////////////
 	#define LIFT_RIGHT_DCMOTOR_PWM_NUM                2

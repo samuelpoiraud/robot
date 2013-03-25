@@ -220,6 +220,7 @@ static void LIFT_translation_command_init(queue_id_t queueId) {
 				return;
 			}
 	}
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Lift translate motor id %d, pos %d\n", dcMotorId, wantedPosition);
 	DCM_goToPos(dcMotorId, wantedPosition);
 	DCM_restart(dcMotorId);
 }
@@ -230,6 +231,8 @@ static void LIFT_translation_command_run(queue_id_t queueId) {
 	Uint8 dcMotorId = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_DCMOTOR_ID : LIFT_RIGHT_DCMOTOR_ID;
 	DCM_working_state_e asserState = DCM_get_state(dcMotorId);
 	CAN_msg_t resultMsg;
+
+	OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX"Lift translate motor id %d, pos %d\n", dcMotorId, LIFT_RIGHT_getTranslationPos());
 
 	if(asserState == DCM_IDLE) {
 		resultMsg.data[2] = ACT_RESULT_DONE;

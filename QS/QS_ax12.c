@@ -764,13 +764,14 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 	switch(byte_offset)
 	{
 		case 0:
-			if(receive_byte != 0xFF)
-				return FALSE;
 			//Initialisation de a structure a des valeurs par défaut
 			status_packet->id_servo = 0;
 			status_packet->size = 0;
 			status_packet->error = 0;
 			status_packet->param = 0;
+			
+			if(receive_byte != 0xFF)
+				return FALSE;
 			break;
 
 		case 1:
@@ -948,6 +949,9 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				{
 					//debug_printf("AX12: invalid packet, reinit reception\n");
 					state_machine.receive_index = 0;	//si le paquet n'est pas valide, on reinitialise la lecture de paquet
+					//pos = 0;
+					//for(i=0; i<MAX_STATUS_PACKET_SIZE*2; i++)
+					//	AX12_UART2_reception_buffer[i] = 0;
 					break;
 				} else {
 					state_machine.receive_index++;
@@ -1008,7 +1012,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
 					for(i = 0; i<MAX_STATUS_PACKET_SIZE*2; i++)
 						debug_printf(" %02x", AX12_UART2_reception_buffer[i]);
-					debug_printf("\n");
+					debug_printf("\n, recv idx: %d\n", state_machine.receive_index);
 				#endif
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 0;
