@@ -883,6 +883,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				}
 				else	//Le dernier paquet a été envoyé, passage en mode reception et attente de la réponse dans l'état AX12_SMS_WaitingAnswer s'il y a ou enchainement sur le prochain paquet à evnoyer (AX12_SMS_ReadyToSend)
 				{
+					AX12_TIMER_stop();
 					if(AX12_instruction_has_status_packet(state_machine.current_instruction))
 					{
 						//Attente de la fin de la transmition des octets
@@ -896,7 +897,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 						//flush recv buffer
 						#warning "boucle while sur FERR, ça marche ? Si oui enlever ce warning"
-						while(U2STAbits.URXDA || U2STAbits.FERR)
+						while(U2STAbits.URXDA && U2STAbits.FERR)
 							getcUART2();
 
 						state_machine.state = AX12_SMS_WaitingAnswer;
@@ -914,13 +915,14 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						state_machine.state = AX12_SMS_ReadyToSend;
 						AX12_state_machine(AX12_SME_NoEvent);
 					}
-
 				}
 			} else if(event == AX12_SME_Timeout) {
 				AX12_TIMER_stop();
 				debug_printf("AX12[%d]: send timeout !!\n", state_machine.current_instruction.id_servo);
-				U2MODEbits.UARTEN = 0;
-				AX12_UART2_init(AX12_BAUD_RATE);
+				//U2MODEbits.UARTEN = 0;
+				//AX12_UART2_init(AX12_BAUD_RATE);
+
+				AX12_instruction_queue_next();
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
 			}
@@ -958,7 +960,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				}
 
 
-				if(U2STAbits.OERR && U2STAbits.URXDA)
+				if(U2STAbits.OERR && !U2STAbits.URXDA)
 					U2STAbits.OERR = 0;
 
 					

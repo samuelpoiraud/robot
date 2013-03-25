@@ -33,6 +33,7 @@
 
 /* Message debug sur l'uart 1 */
 	#define VERBOSE_MODE
+//#define AX12_DEBUG_PACKETS
 	#define OUTPUT_LOG
 	#define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 
@@ -56,13 +57,14 @@
 
 
 /* Watchdog */
-	#define USE_WATCHDOG
-	#define WATCHDOG_TIMER 4
-	#define WATCHDOG_MAX_COUNT 5
-	#define WATCHDOG_QUANTUM 1
+	//#define USE_WATCHDOG
+	//#define WATCHDOG_TIMER 4
+	//#define WATCHDOG_MAX_COUNT 5
+	//#define WATCHDOG_QUANTUM 1
 
 /* Clock */
-	#define CLOCK_USE_WATCHDOG
+	//#define CLOCK_USE_WATCHDOG
+	#define CLOCK_TIMER_ID 4
 	#define CLOCK_UPDATE_BUTTONS_PRESS_TIME
 	
 /* CAN */

@@ -76,7 +76,8 @@
 /* Servo-Moteurs AX12 */
 	#define USE_AX12_SERVO
 	#define AX12_NUMBER 7
-	#define AX12_USE_WATCHDOG
+	//#define AX12_USE_WATCHDOG
+	#define AX12_TIMER_ID 2
 	#define AX12_DIRECTION_PORT LATGbits.LATG8
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 
@@ -138,14 +139,14 @@
 	#define BALLSORTER_AX12_NEXT_CHERRY_POS      207
 	#define BALLSORTER_AX12_DETECT_CHERRY_POS    157
 	#define BALLSORTER_SENSOR_PIN                PORTBbits.RB8
-	#define BALLSORTER_SENSOR_DETECTED_LEVEL     1      //Niveau de BALLSORTER_SENSOR_PIN quand une cerise blanche est détectée
+	#define BALLSORTER_SENSOR_DETECTED_LEVEL     0      //Niveau de BALLSORTER_SENSOR_PIN quand une cerise blanche est détectée
 
 /* Config LIFT */
 	#define LIFT_LEFT_DCMOTOR_ID                     2    //Doit être unique !
 	#define LIFT_LEFT_ASSER_KP                       300
 	#define LIFT_LEFT_ASSER_KI                       0
 	#define LIFT_LEFT_ASSER_KD                       0
-	#define LIFT_LEFT_ASSER_TIMEOUT                  3000   //en ms
+	#define LIFT_LEFT_ASSER_TIMEOUT                  0   //en ms
 	#define LIFT_LEFT_ASSER_POS_EPSILON              75      //TODO: à ajuster plus correctement
 	#define LIFT_LEFT_UP_POS                         800    //TODO: ajuster ces valeurs ! (unité: potarland)
 	#define LIFT_LEFT_MID_POS                        400
