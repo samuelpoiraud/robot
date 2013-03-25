@@ -29,7 +29,10 @@
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
 	#define FREQ_10MHZ
 
-	 // DEFINIR LES PORTS DANS Tiny/Global_config.h ou Krusty/Global_config.h selon le robot !
+	// DEFINIR LES PORTS DANS Tiny/Global_config.h ou Krusty/Global_config.h selon le robot !
+
+	#define SWITCH_RG0 PORTGbits.RG0
+	#define SWITCH_RG1 PORTGbits.RG1
 
 /* Message debug sur l'uart 1 */
 	#define VERBOSE_MODE
