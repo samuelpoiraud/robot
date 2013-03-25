@@ -52,11 +52,18 @@ static time_t time=0;
 
 void CLOCK_init()
 {
+	static bool_e initialized = FALSE;
+	if(initialized)
+		return;
+	initialized = TRUE;
+
 #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)
 	BUTTONS_init();
 #endif
 	CLOCK_TIMER_init();
 	CLOCK_TIMER_start(100);
+
+	debug_printf("Clock initialized\n");
 }
 
 #include "QS/QS_uart.h"

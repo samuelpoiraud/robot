@@ -58,6 +58,8 @@ int main (void)
 	//init actioneurs
 	ACTMGR_init();
 
+	CLOCK_init();
+
 	BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 0);
 	BUTTONS_define_actions(BUTTON2, &MAIN_onButton2, NULL, 0);
 	BUTTONS_define_actions(BUTTON3, &MAIN_onButton3, NULL, 0);
@@ -73,7 +75,6 @@ int main (void)
 		CAN_msg_t msg;
 	#endif
 	
-	LED_RUN = 0;
 	LED_USER = 1;
 
 #if defined(I_AM_ROBOT_KRUSTY)
@@ -95,6 +96,7 @@ int main (void)
 		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
 		
 		QUEUE_run();
+		BUTTONS_update();
 
 		/*-------------------------------------
 			Réception CAN et exécution
@@ -112,6 +114,7 @@ int main (void)
 	return 0;
 }
 
+#ifdef I_AM_ROBOT_KRUSTY
 static void MAIN_onButton1() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
@@ -125,13 +128,13 @@ static void MAIN_onButton1() {
 //	msg.data[2] = HIGHINT(6000);
 //	msg.size = 3;
 //
-//	msg.sid = ACT_PLATE;
-//	msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
-//	msg.size = 1;
-
-	msg.sid = ACT_LIFT_LEFT;
-	msg.data[0] = ACT_LIFT_GO_UP;
+	msg.sid = ACT_PLATE;
+	msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
 	msg.size = 1;
+//
+//	msg.sid = ACT_LIFT_LEFT;
+//	msg.data[0] = ACT_LIFT_GO_UP;
+//	msg.size = 1;
 
 	CAN_process_msg(&msg);
 #endif
@@ -141,13 +144,13 @@ static void MAIN_onButton2() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
-//	msg.sid = ACT_PLATE;
-//	msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
-//	msg.size = 1;
-
-	msg.sid = ACT_LIFT_LEFT;
-	msg.data[0] = ACT_LIFT_GO_MID;
+	msg.sid = ACT_PLATE;
+	msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
 	msg.size = 1;
+
+//	msg.sid = ACT_LIFT_LEFT;
+//	msg.data[0] = ACT_LIFT_GO_MID;
+//	msg.size = 1;
 
 	CAN_process_msg(&msg);
 #endif
@@ -162,13 +165,13 @@ static void MAIN_onButton3() {
 //	msg.data[1] = 3;  //secondes
 //	msg.size = 2;
 //
-//	msg.sid = ACT_PLATE;
-//	msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
-//	msg.size = 1;
-
-	msg.sid = ACT_LIFT_LEFT;
-	msg.data[0] = ACT_LIFT_GO_DOWN;
+	msg.sid = ACT_PLATE;
+	msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
 	msg.size = 1;
+
+//	msg.sid = ACT_LIFT_LEFT;
+//	msg.data[0] = ACT_LIFT_GO_DOWN;
+//	msg.size = 1;
 
 	CAN_process_msg(&msg);
 #endif
@@ -198,6 +201,72 @@ static void MAIN_onButton4() {
 #endif
 	debug_printf("\n");
 }
+#else
+static void MAIN_onButton1() {
+#ifdef USE_CAN
+	CAN_msg_t msg;
+
+//	msg.sid = ACT_BALLLAUNCHER;
+//	msg.data[0] = ACT_BALLLAUNCHER_ACTIVATE;
+
+//	msg.sid = ACT_BALLINFLATER;
+//	msg.data[0] = ACT_BALLINFLATER_STOP;
+//	msg.data[1] = LOWINT(6000);
+//	msg.data[2] = HIGHINT(6000);
+//	msg.size = 3;
+//
+//	msg.sid = ACT_PLATE;
+//	msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+//	msg.size = 1;
+
+	msg.sid = ACT_LIFT_LEFT;
+	msg.data[0] = ACT_LIFT_GO_UP;
+	msg.size = 1;
+
+	CAN_process_msg(&msg);
+#endif
+}
+
+static void MAIN_onButton2() {
+#ifdef USE_CAN
+	CAN_msg_t msg;
+
+	msg.sid = ACT_HAMMER;
+	msg.data[0] = ACT_HAMMER_MOVE_TO;
+	msg.data[1] = LOWINT(1000);
+	msg.data[2] = HIGHINT(1000);
+	msg.size = 3;
+
+	CAN_process_msg(&msg);
+#endif
+}
+
+static void MAIN_onButton3() {
+#ifdef USE_CAN
+	CAN_msg_t msg;
+
+	msg.sid = ACT_HAMMER;
+	msg.data[0] = ACT_HAMMER_MOVE_TO;
+	msg.data[1] = LOWINT(500);
+	msg.data[2] = HIGHINT(500);
+	msg.size = 3;
+
+	CAN_process_msg(&msg);
+#endif
+}
+
+static void MAIN_onButton4() {
+	Uint8 i;
+	debug_printf("- Hammer potar val: %d\n", ADC_getValue(HAMMER_SENSOR_ADC_ID));
+	debug_printf("- CW[x] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_x));
+	debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_y));
+	debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));
+
+	for(i=0; i<7; i++)
+		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
+	debug_printf("\n");
+}
+#endif
 
 
 void RCON_read()
