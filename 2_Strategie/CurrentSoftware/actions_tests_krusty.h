@@ -2,7 +2,7 @@
  *	Club Robot ESEO 2008 - 2010
  *	Archi'Tech - CHOMP, Shark & Fish
  *
- *	Fichier : actions_tests.h
+ *	Fichier : actions_tests_krusty.h
  *	Package : Carte Principale
  *	Description : Test des actions réalisables par le robot
  *	Auteur : Cyril, modifié par Gonsevi
@@ -11,12 +11,13 @@
 
 #include "QS/QS_all.h"
 
-#ifndef ACTIONS_TESTS_H
-#define ACTIONS_TESTS_H
+#ifndef ACTIONS_TESTS_KRUSTY_H
+#define ACTIONS_TESTS_KRUSTY_H
 	
 #include "actions.h"
 #include "Asser_functions.h"
 #include "act_functions.h"
+#include "actions_tests_krusty_micro.h"
 
 
 #ifdef MODE_HOMOLOGATION
@@ -35,9 +36,6 @@
 void TEST_STRAT_avoidance(void);
 void TEST_STRAT_kdo(void);
 
-error_e K_CADEAU1(void);
-error_e K_CADEAU2(void);
-error_e K_CADEAU3(void);
-error_e K_CADEAU4(void);
+
 void TEST_Launcher_ball(void);
-#endif /* ACTIONS_TESTS_H */
+#endif /* ACTIONS_TESTS_KRUSTY_H */

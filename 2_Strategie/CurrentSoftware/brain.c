@@ -18,7 +18,8 @@
 #include "actions.h"
 #include "clock.h"
 #include "QS/QS_CANmsgList.h"
-#include "actions_tests.h"
+#include "actions_tests_krusty.h"
+#include "actions_tests_tiny.h"
 #include "actions.h"
 #include "QS/QS_who_am_i.h"
 #include "button.h"	//pour SWITCH_change_color
