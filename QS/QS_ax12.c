@@ -975,12 +975,15 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						debug_printf("\n");
 					#endif
 
-					//pour être sur de ne pas avoir le bit 7 a 1, si l'AX12 le met a 1, on met tous les bits a 1
-					if(status_response_packet.error & 0x80)
-						AX12_on_the_robot[status_response_packet.id_servo].last_status.error = 0xFF;
-					else AX12_on_the_robot[status_response_packet.id_servo].last_status.error = status_response_packet.error & 0x7F;
-					AX12_on_the_robot[status_response_packet.id_servo].last_status.param = status_response_packet.param;
-
+					if(status_response_packet.id_servo != state_machine.current_instruction.id_servo) {
+						debug_printf("Wrong servo ID: %d instead of %d\n", status_response_packet.id_servo, state_machine.current_instruction.id_servo);
+					} else {
+						//pour être sur de ne pas avoir le bit 7 a 1, si l'AX12 le met a 1, on met tous les bits a 1
+						if(status_response_packet.error & 0x80)
+							AX12_on_the_robot[status_response_packet.id_servo].last_status.error = 0xFF;
+						else AX12_on_the_robot[status_response_packet.id_servo].last_status.error = status_response_packet.error & 0x7F;
+						AX12_on_the_robot[status_response_packet.id_servo].last_status.param = status_response_packet.param;
+					}
 					#ifdef VERBOSE_MODE
 						if(status_response_packet.error & AX12_ERROR_VOLTAGE)
 							debug_printf("AX12[%d] Fatal: Voltage error\n", status_response_packet.id_servo);
@@ -998,8 +1001,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 							debug_printf("AX12[%d] Error: Instruction error\n", status_response_packet.id_servo);
 						if(status_response_packet.error & 0x80)
 							debug_printf("AX12[%d] Fatal: Unknown (0x80) error\n", status_response_packet.id_servo);
-						if(status_response_packet.error)
-							debug_printf("AX12[%d] Info: Errors occured, see QS_ax12.h (at AX12_ERROR_* constants) for more informations\n", status_response_packet.id_servo);
+						//if(status_response_packet.error)
+						//	debug_printf("AX12[%d] Info: Errors occured, see QS_ax12.h (at AX12_ERROR_* constants) for more informations\n", status_response_packet.id_servo);
 					#endif
 					
 					AX12_instruction_queue_next();
