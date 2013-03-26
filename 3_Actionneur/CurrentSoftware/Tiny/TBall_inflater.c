@@ -13,7 +13,7 @@
 #ifdef I_AM_ROBOT_TINY
 
 #include "../QS/QS_CANmsgList.h"
-#include "../QS/QS_can.h"
+//#include "../QS/QS_can.h"
 #include "../output_log.h"
 #include "../Can_msg_processing.h"
 
@@ -58,13 +58,13 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallInflater) {
 		if(init == TRUE && !QUEUE_has_error(queueId)) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-			CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
+			//CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
 
 			switch(command) {
 				case ACT_BALLINFLATER_START:
 					BALLINFLATER_emerg_stop_inflater = FALSE;
 					BALLINFLATER_PIN = BALLINFLATER_ON;
-					COMPONENT_log(LOG_LEVEL_Debug, "gonfleur démarré\n");
+					COMPONENT_log(LOG_LEVEL_Debug, "Gonfleur démarré\n");
 					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 					break;
 
@@ -73,9 +73,10 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 					break;
 
 				default: {
-						CAN_msg_t errorMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-						CAN_send(&errorMsg);
-						COMPONENT_log(LOG_LEVEL_Error, "invalid command: %u, code is broken !\n", command);
+//						CAN_msg_t errorMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+//						CAN_send(&errorMsg);
+						CAN_sendResultWithLine(ACT_BALLINFLATER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
+						COMPONENT_log(LOG_LEVEL_Error, "Invalid command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);
 						QUEUE_behead(queueId);
 						return;
@@ -83,16 +84,18 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 			}
 
 			//La commande ne peut pas fail (on a aucun retour sur ce qu'il se passe avec le ballon)
-			CAN_send(&resultMsg);
+			//CAN_send(&resultMsg);
+			CAN_sendResultWithLine(ACT_BALLINFLATER, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
 		} else {
 			if(QUEUE_has_error(queueId)) {
-				CAN_msg_t resultMsg;
-				resultMsg.data[0] = ACT_BALLINFLATER & 0xFF;
-				resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
-				resultMsg.size = 4;
-				CAN_send(&resultMsg);
+//				CAN_msg_t resultMsg;
+//				resultMsg.data[0] = ACT_BALLINFLATER & 0xFF;
+//				resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
+//				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
+//				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+//				resultMsg.size = 4;
+//				CAN_send(&resultMsg);
+				CAN_sendResultWithLine(ACT_BALLINFLATER, QUEUE_get_arg(queueId)->canCommand, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_OTHER);
 				QUEUE_behead(queueId);
 				return;
 			}
@@ -102,6 +105,7 @@ static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 					CLOCK_get_time() >= (QUEUE_get_arg(queueId)->param*10 + QUEUE_get_initial_time(queueId)) )
 			{
 				BALLINFLATER_PIN = BALLINFLATER_OFF;
+				COMPONENT_log(LOG_LEVEL_Debug, "Gonfleur stoppé\n");
 				QUEUE_behead(queueId);	//gestion terminée
 			}
 

@@ -115,6 +115,10 @@ void CANDLECOLOR_init() {
 	sensorConfig.digital_ports[CW_PP_Gate].bit_number = CANDLECOLOR_CW_PIN_GATE_BIT;
 
 	CW_config_sensor(CANDLECOLOR_CW_ID, &sensorConfig);
+
+	COMPONENT_log(LOG_LEVEL_Info, "Capteur couleur de bougie initialisé (sensor)\n");
+
+	CANDLECOLOR_initAX12();
 }
 
 static void CANDLECOLOR_initAX12() {
@@ -130,6 +134,8 @@ static void CANDLECOLOR_initAX12() {
 
 		AX12_config_set_error_before_led(CANDLECOLOR_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(CANDLECOLOR_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD);
+
+		COMPONENT_log(LOG_LEVEL_Info, "AX12 initialisé\n");
 	}
 }
 
@@ -154,7 +160,7 @@ bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_Hammer) {
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_CandleColor) {
 		if(init == TRUE && !QUEUE_has_error(queueId)) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			Sint16* wantedPosition = (Sint16*) &QUEUE_get_arg(queueId)->param;
@@ -165,8 +171,9 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 				case ACT_CANDLECOLOR_GET_HIGH: *wantedPosition = ACT_CANDLECOLOR_GET_HIGH; break;
 
 				default: {
-						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_CANDLECOLOR & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-						CAN_send(&resultMsg);
+//						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_CANDLECOLOR & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+//						CAN_send(&resultMsg);
+						CAN_sendResultWithLine(ACT_CANDLECOLOR, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);
 						QUEUE_behead(queueId);
@@ -174,15 +181,20 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 					}
 			}
 			if(*wantedPosition == 0xFFFF) {
-				COMPONENT_log(LOG_LEVEL_Error, "invalid plier position: %u, code is broken !\n", command);
+				COMPONENT_log(LOG_LEVEL_Error, "Invalid AX12 position: %u, code is broken !\n", command);
+				CAN_sendResultWithLine(ACT_CANDLECOLOR, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
+				QUEUE_set_error(queueId);
+				QUEUE_behead(queueId);
 				return;
 			}
-			//ax12_timeout_time = CLOCK_get_time() + PLATE_PLIER_AX12_ASSER_TIMEOUT;  //Calcul du timeout
+
 			AX12_reset_last_error(CANDLECOLOR_AX12_ID);
 			cmdOk = AX12_set_position(CANDLECOLOR_AX12_ID, *wantedPosition);
 			if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_CANDLECOLOR & 0xFF, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE}, 4};
-				CAN_send(&resultMsg);
+//				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_CANDLECOLOR & 0xFF, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE}, 4};
+//				CAN_send(&resultMsg);
+				CAN_sendResultWithLine(ACT_CANDLECOLOR, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE);
+				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(CANDLECOLOR_AX12_ID).error);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
@@ -191,17 +203,18 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 			Sint16 wantedPosition = QUEUE_get_arg(queueId)->param;
 			Uint16 ax12Pos;
 			Uint8 error;
-			CAN_msg_t resultMsg;
+			//CAN_msg_t resultMsg;
+			Uint8 result, errorCode;
 
 			ax12Pos = AX12_get_position(CANDLECOLOR_AX12_ID);
 			error = AX12_get_last_error(CANDLECOLOR_AX12_ID).error;
 
 			if(QUEUE_has_error(queueId)) {
-				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+				result =    ACT_RESULT_NOT_HANDLED;
+				errorCode = ACT_RESULT_ERROR_OTHER;
 			} else if(abs((Sint16)ax12Pos - (Sint16)(wantedPosition)) <= CANDLECOLOR_AX12_POS_EPSILON) {
-				resultMsg.data[2] = ACT_RESULT_DONE;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+				result =    ACT_RESULT_DONE;
+				errorCode = ACT_RESULT_ERROR_OK;
 
 				CAN_msg_t colorDetectedMsg;   //Envoyer la couleur detectée
 				colorDetectedMsg.sid = ACT_CANDLECOLOR_RESULT;
@@ -209,33 +222,35 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 				colorDetectedMsg.size = 1;
 				CAN_send(&colorDetectedMsg);
 			} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
-				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
+				result =    ACT_RESULT_NOT_HANDLED;
+				errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
 				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
 			} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
-				resultMsg.data[2] = ACT_RESULT_FAILED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_NOT_HERE;
+				result =    ACT_RESULT_FAILED;
+				errorCode = ACT_RESULT_ERROR_NOT_HERE;
 				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
 			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + CANDLECOLOR_AX12_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-				resultMsg.data[2] = ACT_RESULT_FAILED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+				result =    ACT_RESULT_FAILED;
+				errorCode = ACT_RESULT_ERROR_UNKNOWN;
 				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
 			} else if(error) {							//autres erreurs
-				resultMsg.data[2] = ACT_RESULT_FAILED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+				result =    ACT_RESULT_FAILED;
+				errorCode = ACT_RESULT_ERROR_UNKNOWN;
 				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
 			} else return;	//Operation is not finished, do nothing
 
-			resultMsg.sid = ACT_RESULT;
-			resultMsg.data[0] = ACT_CANDLECOLOR & 0xFF;
-			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-			resultMsg.size = 4;
+//			resultMsg.sid = ACT_RESULT;
+//			resultMsg.data[0] = ACT_CANDLECOLOR & 0xFF;
+//			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
+//			resultMsg.size = 4;
+//
+//			CAN_send(&resultMsg);
 
-			CAN_send(&resultMsg);
+			CAN_sendResultWithLine(ACT_CANDLECOLOR, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
 			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}

@@ -13,7 +13,7 @@
 #ifdef I_AM_ROBOT_KRUSTY
 
 #include "../QS/QS_DCMotor2.h"
-#include "../QS/QS_can.h"
+//#include "../QS/QS_can.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_timer.h"
 #include "../output_log.h"
@@ -117,6 +117,8 @@ void BALLLAUNCHER_init() {
 	//il est possible d'avoir une interruption INTx entre l'overflow du timer (donc il recommence a compter a partir de 0) et l'actualisation du nombre d'overflow dans la variable timer_overflow_number.
 	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY <= DCM_TIMER_PRIORITY_REG)
 		COMPONENT_log(LOG_LEVEL_Error, "Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx) (et si le code marche, qui l'a apporté à lourdes ?)\n");
+
+	COMPONENT_log(LOG_LEVEL_Info, "Lanceur de balle initialisé\n");
 }
 
 bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
@@ -158,34 +160,34 @@ static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			}
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
-			CAN_msg_t resultMsg;
+			//CAN_msg_t resultMsg;
+			Uint8 result, errorCode;
 			static Sint16 lastlast_speed = 0;
 
 			if(last_speed_detected != lastlast_speed) {
 				lastlast_speed = last_speed_detected;
-				COMPONENT_log(LOG_LEVEL_Debug, "Current speed: %d\n", lastlast_speed);
+				COMPONENT_log(LOG_LEVEL_Trace, "Current speed: %d\n", lastlast_speed);
 			}
 
 			if(QUEUE_has_error(queueId)) {
-				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+				result =    ACT_RESULT_NOT_HANDLED;
+				errorCode = ACT_RESULT_ERROR_OTHER;
 			} else if(asserState == DCM_IDLE) {
-				resultMsg.data[2] = ACT_RESULT_DONE;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+				result =    ACT_RESULT_DONE;
+				errorCode = ACT_RESULT_ERROR_OK;
 			} else if(asserState == DCM_TIMEOUT) {
-				resultMsg.data[2] = ACT_RESULT_FAILED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
+				result =    ACT_RESULT_FAILED;
+				errorCode = ACT_RESULT_ERROR_TIMEOUT;
 				QUEUE_set_error(queueId);
 			} else return;	//Operation is not finished, do nothing
 
-			COMPONENT_log(LOG_LEVEL_Debug, "End, sending result: %u, reason: %u\n", resultMsg.data[2], resultMsg.data[3]);
-
-			resultMsg.sid = ACT_RESULT;
-			resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
-			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-			resultMsg.size = 4;
-
-			CAN_send(&resultMsg);
+//			resultMsg.sid = ACT_RESULT;
+//			resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
+//			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
+//			resultMsg.size = 4;
+//
+//			CAN_send(&resultMsg);
+			CAN_sendResultWithLine(ACT_BALLLAUNCHER, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
 			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}

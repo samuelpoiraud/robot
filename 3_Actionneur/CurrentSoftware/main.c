@@ -192,7 +192,7 @@ static void MAIN_onButton3() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
-	if(SWTICH_RG0) {
+	if(SWITCH_RG0) {
 		msg.sid = ACT_PLATE;
 		if(SWITCH_RG1) {
 			debug_printf("Main: Plate rotate horizontally\n");
