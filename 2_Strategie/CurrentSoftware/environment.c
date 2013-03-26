@@ -103,9 +103,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case ACT_RESULT:
 			ACT_process_result(incoming_msg);
 			break;
-            case ACT_BALLSORTER_RESULT:
-                        
-                        break;
+
+		case ACT_BALLSORTER_RESULT:
+			global.env.color_ball = incoming_msg->data[0];
+			break;
 
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:

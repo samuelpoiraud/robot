@@ -34,6 +34,12 @@ error_e K_CADEAU2(void);
 error_e K_CADEAU3(void);
 error_e K_CADEAU4(void);
 
+error_e K_ASSIETE1(void);
+error_e K_ASSIETE2(void);
+error_e K_ASSIETE3(void);
+error_e K_ASSIETE4(void);
+error_e K_ASSIETE5(void);
+
 
 #endif /* ACTIONS_TESTS__KRUSTY_MICRO_H */
 
