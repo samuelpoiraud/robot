@@ -230,6 +230,64 @@ void TEST_STRAT_kdo(void){
 }
 
 
+void TEST_STRAT_assiettes(void){
+	static enum{
+		SORTIR = 0,
+				ASSIETTE1,
+				DONE,
+	}state = SORTIR;
+
+	static error_e sub_action;
+
+	switch(state){
+		case SORTIR:
+			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case NOT_HANDLED:
+					state = ASSIETTE1;
+					break;
+				case END_OK:
+					state = ASSIETTE1;
+					break;
+				case END_WITH_TIMEOUT:
+					state = ASSIETTE1;
+					break;
+				default:
+					state = ASSIETTE1;
+					break;
+			}
+			break;
+
+		case ASSIETTE1:
+			sub_action = K_ASSIETE1();
+
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case NOT_HANDLED:
+					state = DONE;
+					break;
+				case END_OK:
+					state = DONE;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					break;
+				default:
+					state = DONE;
+					break;
+			}
+			break;
+		case DONE:
+			debug_printf("finihaut\n");
+			break;
+	}
+
+}
+
+
 
 
 

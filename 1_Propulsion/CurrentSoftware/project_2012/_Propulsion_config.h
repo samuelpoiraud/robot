@@ -57,7 +57,7 @@
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
 	#define TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C10
-	#define KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C4C
+	#define KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C47
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
@@ -71,7 +71,7 @@
 	#define KRUSTY_ODOMETRY_COEF_SYM_DEFAULT (0)
 
 	#define TINY_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010B19//0XA054	//(CHOMP : 43632)	Théorique : 41335
-	#define KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000C600
+	#define KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000C5A2
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
 	// COEF_ODOMETRIE_ROTATION = 1024*4096*16*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
 	// d : diametre des roues codeuse en mm = 60

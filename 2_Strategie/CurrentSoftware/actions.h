@@ -33,15 +33,8 @@
         #include "QS/QS_CANmsgList.h"
 #endif /* def ACTION_TEST_C */
 
-void TEST_STRAT_avoidance(void);
-void TEST_STRAT_kdo(void);
 
-error_e K_CADEAU1(void);
-error_e K_CADEAU2(void);
-error_e K_CADEAU3(void);
-error_e K_CADEAU4(void);
 
-void TEST_STRAT_assiettes_evitement(void);
 
 
 
