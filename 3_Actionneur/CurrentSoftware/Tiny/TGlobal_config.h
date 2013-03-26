@@ -95,8 +95,8 @@
 	#define HAMMER_ASSER_KD             0
 	#define HAMMER_ASSER_TIMEOUT        3000    //en ms
 	#define HAMMER_ASSER_POS_EPSILON    20
-	#define HAMMER_UNITS_PER_128_DEGRE  100     //TODO: A changer
-	#define HAMMER_UNITS_AT_0_DEGRE     0
+	#define HAMMER_UNITS_PER_128_DEGRE  704     //TODO: A changer
+	#define HAMMER_UNITS_AT_0_DEGRE     203
 	#define HAMMER_DCMOTOR_PWM_NUM      1		//PWM1
 	#define HAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
 	#define HAMMER_DCMOTOR_PORT_WAY_BIT 0
