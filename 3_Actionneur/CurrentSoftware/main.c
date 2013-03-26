@@ -252,8 +252,8 @@ static void MAIN_onButton1() {
 
 	msg.sid = ACT_HAMMER;
 	msg.data[0] = ACT_HAMMER_MOVE_TO;
-	msg.data[1] = LOWINT(1000);
-	msg.data[2] = HIGHINT(1000);
+	msg.data[1] = LOWINT(0);
+	msg.data[2] = HIGHINT(0);
 	msg.size = 3;
 
 	CAN_process_msg(&msg);
@@ -266,8 +266,8 @@ static void MAIN_onButton2() {
 
 	msg.sid = ACT_HAMMER;
 	msg.data[0] = ACT_HAMMER_MOVE_TO;
-	msg.data[1] = LOWINT(300);
-	msg.data[2] = HIGHINT(300);
+	msg.data[1] = LOWINT(10);
+	msg.data[2] = HIGHINT(0);
 	msg.size = 3;
 
 	CAN_process_msg(&msg);
@@ -280,8 +280,8 @@ static void MAIN_onButton3() {
 
 	msg.sid = ACT_HAMMER;
 	msg.data[0] = ACT_HAMMER_MOVE_TO;
-	msg.data[1] = LOWINT(100);
-	msg.data[2] = HIGHINT(100);
+	msg.data[1] = LOWINT(90);
+	msg.data[2] = HIGHINT(0);
 	msg.size = 3;
 
 	CAN_process_msg(&msg);
