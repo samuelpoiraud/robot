@@ -12,7 +12,7 @@
 #include "KPlate.h"
 #ifdef I_AM_ROBOT_KRUSTY
 
-#include "../QS/QS_can.h"
+//#include "../QS/QS_can.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
@@ -72,9 +72,9 @@ void PLATE_init() {
 	DCM_config(PLATE_DCMOTOR_ID, &plate_rotation_config);
 	DCM_stop(PLATE_DCMOTOR_ID);
 
-	PLATE_initAX12();
+	COMPONENT_log(LOG_LEVEL_Info, "Pince à assiette initialisé (DCMotor)\n");
 
-	COMPONENT_log(LOG_LEVEL_Info, "actionneur assiette initialisé\n");
+	PLATE_initAX12();
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
@@ -91,6 +91,7 @@ static void PLATE_initAX12() {
 
 		AX12_config_set_error_before_led(PLATE_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(PLATE_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+		COMPONENT_log(LOG_LEVEL_Info, "Pince AX12 initialisé\n");
 	}
 }
 
@@ -121,8 +122,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_Rotation);
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_AX12_Plier);
 				} else {	//on indique qu'on a pas géré la commande
-					CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
-					CAN_send(&resultMsg);
+					CAN_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				}
 				break;
 
@@ -173,14 +173,16 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 			return;
 
 		default: {
-				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-				CAN_send(&resultMsg);
+//				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+//				CAN_send(&resultMsg);
+				CAN_sendResultWithLine(ACT_PLATE, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 				COMPONENT_log(LOG_LEVEL_Error, "Invalid rotation command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
 			}
 	}
+	COMPONENT_log(LOG_LEVEL_Debug, "Rotation at position %d\n", DCM_getPosValue(PLATE_DCMOTOR_ID, wantedPosition));
 	DCM_goToPos(PLATE_DCMOTOR_ID, wantedPosition);
 	DCM_restart(PLATE_DCMOTOR_ID);
 }
@@ -188,26 +190,31 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 //Gestion des états en cours d'exécution de la commande de rotation
 static void PLATE_rotation_command_run(queue_id_t queueId) {
 	DCM_working_state_e asserState = DCM_get_state(PLATE_DCMOTOR_ID);
-	CAN_msg_t resultMsg;
+//	CAN_msg_t resultMsg;
+	Uint8 result, errorCode;
+
+	COMPONENT_log(LOG_LEVEL_Trace, "At position %d\n", PLATE_getRotationAngle());
 
 	if(QUEUE_has_error(queueId)) {
-		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-		resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+		result =    ACT_RESULT_NOT_HANDLED;
+		errorCode = ACT_RESULT_ERROR_OTHER;
 	} else if(asserState == DCM_IDLE) {
-		resultMsg.data[2] = ACT_RESULT_DONE;
-		resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+		result =    ACT_RESULT_DONE;
+		errorCode = ACT_RESULT_ERROR_OK;
 	} else if(asserState == DCM_TIMEOUT) {
-		resultMsg.data[2] = ACT_RESULT_FAILED;
-		resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
-	QUEUE_set_error(queueId);
+		result =    ACT_RESULT_FAILED;
+		errorCode = ACT_RESULT_ERROR_TIMEOUT;
+		QUEUE_set_error(queueId);
 	} else return;	//Operation is not finished, do nothing
 
-	resultMsg.sid = ACT_RESULT;
-	resultMsg.data[0] = ACT_PLATE & 0xFF;
-	resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-	resultMsg.size = 4;
+//	resultMsg.sid = ACT_RESULT;
+//	resultMsg.data[0] = ACT_PLATE & 0xFF;
+//	resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
+//	resultMsg.size = 4;
+//
+//	CAN_send(&resultMsg);
 
-	CAN_send(&resultMsg);
+	CAN_sendResultWithLine(ACT_PLATE, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
 	QUEUE_behead(queueId);	//gestion terminée
 }
 
@@ -224,14 +231,16 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 		case ACT_PLATE_PLIER_CLOSE: *ax12_goalPosition = PLATE_PLIER_AX12_CLOSED_POS; break;
 		case ACT_PLATE_PLIER_STOP:
 			AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12 qui gère la pince
-			CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
-			CAN_send(&resultMsg);
+//			CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
+//			CAN_send(&resultMsg);
+			CAN_sendResultWithLine(ACT_PLATE, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
 			QUEUE_behead(queueId);
 			return;
 
 		default: {
-				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-				CAN_send(&resultMsg);
+//				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+//				CAN_send(&resultMsg);
+				CAN_sendResultWithLine(ACT_PLATE, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 				COMPONENT_log(LOG_LEVEL_Error, "Invalid plier command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
@@ -240,14 +249,19 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
 		COMPONENT_log(LOG_LEVEL_Error, "Invalid plier position: %u, code is broken !\n", command);
+		CAN_sendResultWithLine(ACT_PLATE, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
+		QUEUE_set_error(queueId);
+		QUEUE_behead(queueId);
 		return;
 	}
-	//ax12_timeout_time = CLOCK_get_time() + PLATE_PLIER_AX12_ASSER_TIMEOUT;  //Calcul du timeout
+
 	AX12_reset_last_error(PLATE_PLIER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	cmdOk = AX12_set_position(PLATE_PLIER_AX12_ID, *ax12_goalPosition);
 	if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-		CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE}, 4};
-		CAN_send(&resultMsg);
+//		CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE}, 4};
+//		CAN_send(&resultMsg);
+		CAN_sendResultWithLine(ACT_PLATE, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE);
+		COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(PLATE_PLIER_AX12_ID).error);
 		QUEUE_set_error(queueId);
 		QUEUE_behead(queueId);
 		return;
@@ -259,49 +273,53 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 static void PLATE_plier_command_run(queue_id_t queueId) {
 	Uint8 error;
 	Uint16 ax12Pos;
-	CAN_msg_t resultMsg;
+//	CAN_msg_t resultMsg;
+	Uint8 result, errorCode;
 	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 
 	AX12_reset_last_error(PLATE_PLIER_AX12_ID);
 	ax12Pos = AX12_get_position(PLATE_PLIER_AX12_ID); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
 	error = AX12_get_last_error(PLATE_PLIER_AX12_ID).error;
+	if(error)
+		COMPONENT_log(LOG_LEVEL_Error, "AX12_get_position error: 0x%x\n", error);
 
 	if(QUEUE_has_error(queueId)) {
-		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-		resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+		result =    ACT_RESULT_NOT_HANDLED;
+		errorCode = ACT_RESULT_ERROR_OTHER;
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 	} else if(abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= PLATE_PLIER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
 	//if(AX12_is_moving(PLATE_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
-		resultMsg.data[2] = ACT_RESULT_DONE;
-		resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+		result =    ACT_RESULT_DONE;
+		errorCode = ACT_RESULT_ERROR_OK;
 	} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
-		resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-		resultMsg.data[3] = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
+		result =    ACT_RESULT_NOT_HANDLED;
+		errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 		QUEUE_set_error(queueId);
 	} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
-		resultMsg.data[2] = ACT_RESULT_FAILED;
-		resultMsg.data[3] = ACT_RESULT_ERROR_NOT_HERE;
+		result =    ACT_RESULT_FAILED;
+		errorCode = ACT_RESULT_ERROR_NOT_HERE;
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 		QUEUE_set_error(queueId);
 	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + PLATE_PLIER_AX12_ASSER_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-		resultMsg.data[2] = ACT_RESULT_FAILED;
-		resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+		result =    ACT_RESULT_FAILED;
+		errorCode = ACT_RESULT_ERROR_UNKNOWN;
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 		QUEUE_set_error(queueId);
 	} else if(error & ~AX12_ERROR_OVERLOAD) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
-		resultMsg.data[2] = ACT_RESULT_FAILED;
-		resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+		result =   ACT_RESULT_FAILED;
+		errorCode = ACT_RESULT_ERROR_UNKNOWN;
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 		QUEUE_set_error(queueId);
 	} else return;	//Operation is not finished, do nothing
 
-	resultMsg.sid = ACT_RESULT;
-	resultMsg.data[0] = ACT_PLATE & 0xFF;
-	resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-	resultMsg.size = 4;
-
-	CAN_send(&resultMsg);
+//	resultMsg.sid = ACT_RESULT;
+//	resultMsg.data[0] = ACT_PLATE & 0xFF;
+//	resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
+//	resultMsg.size = 4;
+//
+//	CAN_send(&resultMsg);
+	CAN_sendResultWithLine(ACT_PLATE, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
 	QUEUE_behead(queueId);	//gestion terminée
 }
 

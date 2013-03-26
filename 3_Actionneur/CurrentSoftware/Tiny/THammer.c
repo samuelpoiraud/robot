@@ -15,7 +15,7 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_adc.h"
 #include "../QS/QS_CANmsgList.h"
-#include "../QS/QS_can.h"
+//#include "../QS/QS_can.h"
 #include "../output_log.h"
 #include "../Can_msg_processing.h"
 
@@ -57,6 +57,8 @@ void HAMMER_init() {
 	hammer_config.epsilon = HAMMER_ASSER_POS_EPSILON;
 	DCM_config(HAMMER_DCMOTOR_ID, &hammer_config);
 	DCM_stop(HAMMER_DCMOTOR_ID);
+
+	COMPONENT_log(LOG_LEVEL_Info, "Hammer initialisé\n");
 }
 
 bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
@@ -69,8 +71,9 @@ bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_HAMMER_STOP:	//Ne pas passer par la pile pour le cas d'urgence
 				COMPONENT_log(LOG_LEVEL_Debug, "bras désasservi !\n");
 				DCM_stop(HAMMER_DCMOTOR_ID); //S'il y a eu une commande en cours, elle se terminera par un idle et donc renvera un message identique au suivant (mais pour la commande d'asservissement)
-				CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
-				CAN_send(&resultMsg);
+//				CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
+//				CAN_send(&resultMsg);
+				CAN_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
 				break;
 
 			default:
@@ -94,8 +97,9 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 				case ACT_HAMMER_MOVE_TO: wantedPosition = QUEUE_get_arg(queueId)->param;   break;
 
 				default: {
-						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_PLATE & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-						CAN_send(&resultMsg);
+//						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_HAMMER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+//						CAN_send(&resultMsg);
+						CAN_sendResultWithLine(ACT_HAMMER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_set_error(queueId);
 						QUEUE_behead(queueId);
@@ -109,26 +113,29 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 			DCM_restart(HAMMER_DCMOTOR_ID);
 		} else {
 			DCM_working_state_e asserState = DCM_get_state(HAMMER_DCMOTOR_ID);
-			CAN_msg_t resultMsg;
+			//CAN_msg_t resultMsg;
+			Uint8 result, errorCode;
 
 			if(QUEUE_has_error(queueId)) {
-				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+				result =    ACT_RESULT_NOT_HANDLED;
+				errorCode = ACT_RESULT_ERROR_OTHER;
 			} else if(asserState == DCM_IDLE) {
-				resultMsg.data[2] = ACT_RESULT_DONE;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+				result =    ACT_RESULT_DONE;
+				errorCode = ACT_RESULT_ERROR_OK;
 			} else if(asserState == DCM_TIMEOUT) {
-				resultMsg.data[2] = ACT_RESULT_FAILED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_TIMEOUT;
+				result =    ACT_RESULT_FAILED;
+				errorCode = ACT_RESULT_ERROR_TIMEOUT;
 				QUEUE_set_error(queueId);
 			} else return;	//Operation is not finished, do nothing
 
-			resultMsg.sid = ACT_RESULT;
-			resultMsg.data[0] = ACT_HAMMER & 0xFF;
-			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-			resultMsg.size = 4;
+//			resultMsg.sid = ACT_RESULT;
+//			resultMsg.data[0] = ACT_HAMMER & 0xFF;
+//			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
+//			resultMsg.size = 4;
+//
+//			CAN_send(&resultMsg);
 
-			CAN_send(&resultMsg);
+			CAN_sendResultWithLine(ACT_HAMMER, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
 			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}

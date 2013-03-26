@@ -46,7 +46,7 @@ void BALLSORTER_init() {
 
 	BALLSORTER_initAX12();
 
-	COMPONENT_log(LOG_LEVEL_Info, "actionneur séquenceur de cerise initialisé\n");
+	COMPONENT_log(LOG_LEVEL_Info, "Séquenceur de cerise initialisé\n");
 	//a faire: RAM de cerise, registres de cerise, ALU de cerise, GPIO de cerise, bras de cerise, pieds de cerise, firmware groupama(c)(r)(tm) 3.1.2 de cerise
 	//groupama est une marque déposée sur le bord de la route actuellement orpheline, pour des demandes d'adoption, veuillez vous renseigner à: www.jadoptemabankdememoire.com
 }
@@ -65,6 +65,7 @@ static void BALLSORTER_initAX12() {
 
 		AX12_config_set_error_before_led(BALLSORTER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(BALLSORTER_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD);
+		COMPONENT_log(LOG_LEVEL_Info, "AX12 initialisé\n");
 	}
 }
 
@@ -87,8 +88,9 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry}  , QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_BallSorter);
 				} else {	//on indique qu'on a pas géré la commande
-					CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
-					CAN_send(&resultMsg);
+//					CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
+//					CAN_send(&resultMsg);
+					CAN_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				}
 				break;
 
@@ -113,8 +115,9 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			wantedPosition = 0xFFFF;
 
 			if(command != ACT_BALLSORTER_TAKE_NEXT_CHERRY) {
-				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-				CAN_send(&resultMsg);
+//				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+//				CAN_send(&resultMsg);
+				CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				COMPONENT_log(LOG_LEVEL_Error, "invalid translation command: %u, code is broken !\n", command);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
@@ -139,24 +142,41 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				case BALLSORTER_CS_DetectCherry:
 				{   //Envoyer le message du resultat de la detection puis le message de resultat de l'opération demandé par la strat
 					CAN_msg_t detectionResultMsg = {ACT_BALLSORTER_RESULT, {(BALLSORTER_SENSOR_PIN == BALLSORTER_SENSOR_DETECTED_LEVEL)? ACT_BALLSORTER_WHITE_CHERRY : ACT_BALLSORTER_NO_CHERRY}, 1};
-					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
 					CAN_send(&detectionResultMsg);
-					CAN_send(&resultMsg);
+					CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
+
+//					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
+//					CAN_send(&resultMsg);
+
 					QUEUE_behead(queueId);
 					return; //La suite c'est les commandes AX12
+				}
+				default: {
+//					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
+//					CAN_send(&resultMsg);
+					CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
+					COMPONENT_log(LOG_LEVEL_Error, "Invalid command: %u, code is broken !\n", command);
+					QUEUE_set_error(queueId);
+					QUEUE_behead(queueId);
+					return;
 				}
 			}
 
 			if(wantedPosition == 0xFFFF) {
+				CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 				COMPONENT_log(LOG_LEVEL_Error, "invalid AX12 position: %u, code is broken !\n", command);
+				QUEUE_set_error(queueId);
+				QUEUE_behead(queueId);
 				return;
 			}
 
 			AX12_reset_last_error(BALLSORTER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 			cmdOk = AX12_set_position(BALLSORTER_AX12_ID, wantedPosition);
 			if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE}, 4};
-				CAN_send(&resultMsg);
+//				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE}, 4};
+//				CAN_send(&resultMsg);
+				CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE);
+				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(BALLSORTER_AX12_ID).error);
 				QUEUE_set_error(queueId);
 				QUEUE_behead(queueId);
 				return;
@@ -164,43 +184,45 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 		} else {
 			Uint8 error;
 			Uint16 ax12Pos;
-			CAN_msg_t resultMsg;
+			//CAN_msg_t resultMsg;
+			Uint8 result, errorCode;
 
 			AX12_reset_last_error(BALLSORTER_AX12_ID);
 			ax12Pos = AX12_get_position(BALLSORTER_AX12_ID); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
 			error = AX12_get_last_error(BALLSORTER_AX12_ID).error;
 
 			if(QUEUE_has_error(queueId)) {
-				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OTHER;
+				result =    ACT_RESULT_NOT_HANDLED;
+				errorCode = ACT_RESULT_ERROR_OTHER;
 			} else if(abs((Sint16)ax12Pos - (Sint16)wantedPosition) <= BALLSORTER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
 			//if(AX12_is_moving(BALLSORTER_AX12_ID) == FALSE) {  //Fin du mouvement
-				resultMsg.data[2] = ACT_RESULT_DONE;
-				resultMsg.data[3] = ACT_RESULT_ERROR_OK;
+				result =    ACT_RESULT_DONE;
+				errorCode = ACT_RESULT_ERROR_OK;
 			} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
-				resultMsg.data[2] = ACT_RESULT_NOT_HANDLED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
+				result =    ACT_RESULT_NOT_HANDLED;
+				errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
 			} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
-				resultMsg.data[2] = ACT_RESULT_FAILED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_NOT_HERE;
+				result =    ACT_RESULT_FAILED;
+				errorCode = ACT_RESULT_ERROR_NOT_HERE;
 			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + BALLSORTER_AX12_ASSER_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-				resultMsg.data[2] = ACT_RESULT_FAILED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+				result =    ACT_RESULT_FAILED;
+				errorCode = ACT_RESULT_ERROR_UNKNOWN;
 			} else if(error) {							//autres erreurs
-				resultMsg.data[2] = ACT_RESULT_FAILED;
-				resultMsg.data[3] = ACT_RESULT_ERROR_UNKNOWN;
+				result =    ACT_RESULT_FAILED;
+				errorCode = ACT_RESULT_ERROR_UNKNOWN;
 			} else return;	//Operation is not finished, do nothing
 
 			//On envoie le message CAN de retour que si l'opération a fail et que ce n'est pas a cause d'une opération antérieure (ACT_RESULT_ERROR_OTHER)
-			if(resultMsg.data[2] != ACT_RESULT_DONE && resultMsg.data[3] != ACT_RESULT_ERROR_OTHER) {
+			if(result != ACT_RESULT_DONE && errorCode != ACT_RESULT_ERROR_OTHER) {
 				QUEUE_set_error(queueId);
 
-				resultMsg.sid = ACT_RESULT;
-				resultMsg.data[0] = ACT_BALLSORTER & 0xFF;
-				resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-				resultMsg.size = 4;
-
-				CAN_send(&resultMsg);
+//				resultMsg.sid = ACT_RESULT;
+//				resultMsg.data[0] = ACT_BALLSORTER & 0xFF;
+//				resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
+//				resultMsg.size = 4;
+//
+//				CAN_send(&resultMsg);
+				CAN_sendResultWithLine(ACT_BALLSORTER, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
 			}
 			QUEUE_behead(queueId);	//gestion terminée
 		}

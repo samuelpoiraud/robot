@@ -13,13 +13,11 @@
 #ifdef I_AM_ROBOT_TINY
 
 #include "THammer.h"
-#include "TLong_hammer.h"
 #include "TBall_inflater.h"
 
 //Initialise les actionneurs
 void ACTMGR_init() {
 	HAMMER_init();
-	//LONGHAMMER_init();
 	BALLINFLATER_init();
 }
 
@@ -27,8 +25,6 @@ void ACTMGR_init() {
 bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 	if(HAMMER_CAN_process_msg(msg))
 		return TRUE;
-	//if(LONGHAMMER_CAN_process_msg(msg))
-	//	return TRUE;
 	if(BALLINFLATER_CAN_process_msg(msg))
 		return TRUE;
 
