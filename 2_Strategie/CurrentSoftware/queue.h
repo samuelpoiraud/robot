@@ -21,8 +21,8 @@
 
 typedef Uint8 queue_size_t;
 typedef enum {
-	//Krusty
-	ACT_QUEUE_BallLauncher,
+	//Krustyà
+	ACT_QUEUE_BallLauncher =0,
 	ACT_QUEUE_BallSorter,
 	ACT_QUEUE_Plate,
 	ACT_QUEUE_LiftLeft,
