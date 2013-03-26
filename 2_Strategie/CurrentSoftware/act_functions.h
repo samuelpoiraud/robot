@@ -19,6 +19,7 @@
 
 	#include "queue.h"
 	#include "QS/QS_CANmsgList.h"
+	#include "avoidance.h" //pour l'enum de status de l'opération (ACT_function_result_e)
 
 	//Info sur la gestion d'erreur des actionneurs:
 	//La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT
@@ -35,11 +36,12 @@
 
 
 	//Resultat de la dernière opération en cours d'exécution. Utilisé pour connaitre l'état après une erreur surtout.
+	//Vous pouvez aussi utiliser l'enum de avoidance (IN_PROGRESS, END_OK, END_WITH_TIMEOUT ou NOT_HANDLED) si vous voulez
 	typedef enum {
-		ACT_FUNCTION_InProgress,   //L'opération ne s'est pas encore finie
-		ACT_FUNCTION_Done,         //L'opération s'est finie correctement. C'est aussi la valeur au démarrage lorsque aucune action n'a encore été faite.
-		ACT_FUNCTION_ActDisabled,  //L'opération n'a pas pu se terminer: l'actionneur ne marche plus
-		ACT_FUNCTION_RetryLater    //L'opération n'a pas pu se terminer: il faudra retenter plus tard (plus tard = faire autre chose avant de retest, pas juste 3ms, causé par un position impossible à atteindre, robot adverse qui bloque ? positionnement en mode loto trop près du bord ?)
+		ACT_FUNCTION_InProgress = IN_PROGRESS,        //L'opération ne s'est pas encore finie
+		ACT_FUNCTION_Done = END_OK,                   //L'opération s'est finie correctement. C'est aussi la valeur au démarrage lorsque aucune action n'a encore été faite.
+		ACT_FUNCTION_ActDisabled = END_WITH_TIMEOUT,  //L'opération n'a pas pu se terminer: l'actionneur ne marche plus
+		ACT_FUNCTION_RetryLater = NOT_HANDLED         //L'opération n'a pas pu se terminer: il faudra retenter plus tard (plus tard = faire autre chose avant de retest, pas juste 3ms, causé par un position impossible à atteindre, robot adverse qui bloque ? positionnement en mode loto trop près du bord ?)
 	} ACT_function_result_e;
 
 	// Gère les messages de retour de la carte actionneur lorsque une action s'est terminé ou à échouée

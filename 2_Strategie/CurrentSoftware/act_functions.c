@@ -320,11 +320,16 @@ static void ACT_check_result(queue_id_e act_id) {
 	//L'opération est terminée mais on passe encore ici, ya t-il un bug ?
 	//Si ce bug arrive, il est probablement lié à l'init de l'action (qui définie lastResult à ACT_FUNCTION_InProgress)
 	if(act_states[act_id].lastResult != ACT_FUNCTION_InProgress) {
-		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Begin check but not in ACT_FUNCTION_InProgress state, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+		OUTPUTLOG_printf(LOG_LEVEL_Fatal, LOG_PREFIX"Begin check but not in ACT_FUNCTION_InProgress state, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 		QUEUE_next(act_id);
 		return;
 	}
 
+#ifdef ACT_NO_ERROR_HANDLING
+		act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
+		act_states[act_id].lastResult = ACT_FUNCTION_Done;
+		QUEUE_next(act_id);
+#else
 	if(global.env.match_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
 		OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX"Operation timeout (by strat) act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 		act_states[act_id].disabled = TRUE;
@@ -332,11 +337,6 @@ static void ACT_check_result(queue_id_e act_id) {
 		QUEUE_set_error(act_id, TRUE);
 		QUEUE_next(act_id);
 	} else {
-#ifdef ACT_NO_ERROR_HANDLING
-		act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
-		act_states[act_id].lastResult = ACT_FUNCTION_Done;
-		QUEUE_next(act_id);
-#else
 		switch(act_states[act_id].operationResult) {
 			case ACT_RESULT_Failed:
 				switch(act_states[act_id].recommendedBehavior) {
