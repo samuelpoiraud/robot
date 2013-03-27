@@ -80,6 +80,7 @@
 	#define AX12_TIMER_ID 2
 	#define AX12_DIRECTION_PORT LATGbits.LATG8
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
+	#define AX12_STATUS_RETURN_CHECK_CHECKSUM
 
 /* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
 	//	#define FAST_COS_SIN
@@ -89,10 +90,10 @@
 
 /* Config BALLLAUNCHER */
 	#define BALLLAUNCHER_DCMOTOR_ID              0			//Doit être unique !
-	#define BALLLAUNCHER_ASSER_KP                15
-	#define BALLLAUNCHER_ASSER_KI                40
+	#define BALLLAUNCHER_ASSER_KP                10
+	#define BALLLAUNCHER_ASSER_KI                60
 	#define BALLLAUNCHER_ASSER_KD                0
-	#define BALLLAUNCHER_ASSER_TIMEOUT           0       //en ms
+	#define BALLLAUNCHER_ASSER_TIMEOUT           3000       //en ms
 	#define BALLLAUNCHER_ASSER_POS_EPSILON       100
 	#define BALLLAUNCHER_DEFAULT_TARGET_SPEED    6000		//en tr/min, non utilisé car on définie la vitesse avec l'argument du msg CAN ...
 	#define BALLLAUNCHER_DCMOTOR_PWM_NUM         4
@@ -100,7 +101,7 @@
 	#define BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT    6
 	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0    50
 	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1    0
-	#define BALLLAUNCHER_EDGE_PER_ROTATION       2			//nombre d'inversion de champ magnétique par tour (2 aimants de sens opposé = 2 inversions / tour)
+	#define BALLLAUNCHER_EDGE_PER_ROTATION       1			//nombre d'inversion de champ magnétique par tour (2 aimants de sens opposé = 2 inversions / tour)
 	#define BALLLAUNCHER_HALLSENSOR_INT_FLAG     IFS1bits.INT1IF
 	#define BALLLAUNCHER_HALLSENSOR_INT_PRIORITY IPC4bits.INT1IP
 	#define BALLLAUNCHER_HALLSENSOR_INT_ENABLE   IEC1bits.INT1IE
@@ -116,7 +117,7 @@
 	#define PLATE_ASSER_POS_EPSILON              60  //TODO: à ajuster plus correctement
 	#define PLATE_HORIZONTAL_POS                 500
 	#define PLATE_PREPARE_POS                    548
-	#define PLATE_VERTICAL_POS                   820   /////////////////////////////
+	#define PLATE_VERTICAL_POS                   870   /////////////////////////////
 	#define PLATE_DCMOTOR_PWM_NUM                3
 	#define PLATE_DCMOTOR_PORT_WAY               PORTE
 	#define PLATE_DCMOTOR_PORT_WAY_BIT           4

@@ -753,12 +753,16 @@ static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packe
 static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, AX12_status_packet_t* status_packet)
 {
 	//Si c'est le dernier octet, verifier le checksum si AX12_STATUS_RETURN_CHECK_CHECKSUM est defini
-	if(byte_offset > 3 && byte_offset == status_packet->size - 1)
+	if(byte_offset > 3 && byte_offset == status_packet->size - 1) {
 	#ifdef AX12_STATUS_RETURN_CHECK_CHECKSUM
-		return receive_byte == AX12_status_packet_calc_checksum(status_packet);
+		if(receive_byte != AX12_status_packet_calc_checksum(status_packet)) {
+			debug_printf("AX12: invalid checksum\n");
+			return FALSE;
+		} else return TRUE;
 	#else
 		return TRUE;
 	#endif
+	}
 
 	//mise a jour de la structure instruction avec les octets reçus
 	switch(byte_offset)
@@ -842,6 +846,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 		case AX12_SMS_ReadyToSend:
 			if(event == AX12_SME_NoEvent)
 			{
+				//Empeche des bugs, a voir pourquoi ...
+				debug_printf("ax12debug\n");
 				// Choix du paquet à envoyer et début d'envoi
 				if(!AX12_instruction_queue_is_empty())
 					state_machine.current_instruction = AX12_instruction_queue_get_current();
@@ -896,7 +902,6 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						U2STAbits.OERR = 0;
 
 						//flush recv buffer
-						#warning "boucle while sur FERR, ça marche ? Si oui enlever ce warning"
 						while(U2STAbits.URXDA && U2STAbits.FERR)
 							getcUART2();
 
@@ -983,28 +988,32 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 							AX12_on_the_robot[status_response_packet.id_servo].last_status.error = 0xFF;
 						else AX12_on_the_robot[status_response_packet.id_servo].last_status.error = status_response_packet.error & 0x7F;
 						AX12_on_the_robot[status_response_packet.id_servo].last_status.param = status_response_packet.param;
+
+						#ifdef VERBOSE_MODE
+							if(status_response_packet.error & AX12_ERROR_VOLTAGE)
+								debug_printf("AX12[%d] Fatal: Voltage error\n", status_response_packet.id_servo);
+							if(status_response_packet.error & AX12_ERROR_ANGLE)
+								debug_printf("AX12[%d] Error: Angle error\n", status_response_packet.id_servo);
+							if(status_response_packet.error & AX12_ERROR_OVERHEATING)
+								debug_printf("AX12[%d] Fatal: Overheating error\n", status_response_packet.id_servo);
+							if(status_response_packet.error & AX12_ERROR_RANGE)
+								debug_printf("AX12[%d] Error: Range error\n", status_response_packet.id_servo);
+							if(status_response_packet.error & AX12_ERROR_CHECKSUM)
+								debug_printf("AX12[%d] Error: Checksum error\n", status_response_packet.id_servo);
+							if(status_response_packet.error & AX12_ERROR_OVERLOAD)
+								debug_printf("AX12[%d] Fatal: Overload error\n", status_response_packet.id_servo);
+							if(status_response_packet.error & AX12_ERROR_INSTRUCTION)
+								debug_printf("AX12[%d] Error: Instruction error\n", status_response_packet.id_servo);
+							if(status_response_packet.error & 0x80)
+								debug_printf("AX12[%d] Fatal: Unknown (0x80) error\n", status_response_packet.id_servo);
+							if(status_response_packet.error)
+								debug_printf("AX12[%d] Cmd: %d, addr: 0x%x, param: 0x%x\n",
+										state_machine.current_instruction.id_servo,
+										state_machine.current_instruction.type,
+										state_machine.current_instruction.address,
+										state_machine.current_instruction.param);
+						#endif
 					}
-					#ifdef VERBOSE_MODE
-						if(status_response_packet.error & AX12_ERROR_VOLTAGE)
-							debug_printf("AX12[%d] Fatal: Voltage error\n", status_response_packet.id_servo);
-						if(status_response_packet.error & AX12_ERROR_ANGLE)
-							debug_printf("AX12[%d] Error: Angle error\n", status_response_packet.id_servo);
-						if(status_response_packet.error & AX12_ERROR_OVERHEATING)
-							debug_printf("AX12[%d] Fatal: Overheating error\n", status_response_packet.id_servo);
-						if(status_response_packet.error & AX12_ERROR_RANGE)
-							debug_printf("AX12[%d] Error: Range error\n", status_response_packet.id_servo);
-						if(status_response_packet.error & AX12_ERROR_CHECKSUM)
-							debug_printf("AX12[%d] Error: Checksum error\n", status_response_packet.id_servo);
-						if(status_response_packet.error & AX12_ERROR_OVERLOAD)
-							debug_printf("AX12[%d] Fatal: Overload error\n", status_response_packet.id_servo);
-						if(status_response_packet.error & AX12_ERROR_INSTRUCTION)
-							debug_printf("AX12[%d] Error: Instruction error\n", status_response_packet.id_servo);
-						if(status_response_packet.error & 0x80)
-							debug_printf("AX12[%d] Fatal: Unknown (0x80) error\n", status_response_packet.id_servo);
-						//if(status_response_packet.error)
-						//	debug_printf("AX12[%d] Info: Errors occured, see QS_ax12.h (at AX12_ERROR_* constants) for more informations\n", status_response_packet.id_servo);
-					#endif
-					
 					AX12_instruction_queue_next();
 					state_machine.state = AX12_SMS_ReadyToSend;
 					AX12_state_machine(AX12_SME_NoEvent);
@@ -1019,6 +1028,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						debug_printf(" %02x", AX12_UART2_reception_buffer[i]);
 					debug_printf("\n, recv idx: %d\n", state_machine.receive_index);
 				#endif
+				debug_printf("AX12[%d] timeout Rx\n", state_machine.current_instruction.id_servo);
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 0;
 				AX12_instruction_queue_next();
@@ -1303,6 +1313,8 @@ bool_e AX12_config_set_highest_voltage(Uint8 id_servo, Uint8 voltage) {
 
 bool_e AX12_config_set_maximum_torque_percentage(Uint8 id_servo, Uint8 percentage) {
 	Uint16 value = AX12_PERCENTAGE_TO_1024(percentage);    //On ne peut pas utiliser l'ecriture 16bits a cause d'un bug de l'AX12 (voir https://sites.google.com/site/robotsaustralia/ax-12dynamixelinformation)
+	if(value == 1024)
+		value = 1023;
 	return AX12_instruction_write8(id_servo, AX12_MAX_TORQUE_L, value & 0xFF) && AX12_instruction_write8(id_servo, AX12_MAX_TORQUE_H, value >> 8);
 }
 

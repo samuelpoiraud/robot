@@ -107,7 +107,8 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 					}
 			}
 
-			realPosition = ((Sint32)wantedPosition)*HAMMER_UNITS_PER_128_DEGRE + HAMMER_UNITS_AT_0_DEGRE;
+			realPosition = (((Sint32)wantedPosition)*HAMMER_UNITS_PER_128_DEGRE) / 128 + HAMMER_UNITS_AT_0_DEGRE;
+			COMPONENT_log(LOG_LEVEL_Debug, "Rotation to: %d (angle: %d)\n", realPosition, wantedPosition);
 			DCM_setPosValue(HAMMER_DCMOTOR_ID, 0, realPosition);
 			DCM_goToPos(HAMMER_DCMOTOR_ID, 0);
 			DCM_restart(HAMMER_DCMOTOR_ID);
@@ -142,7 +143,7 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 }
 
 static Sint16 HAMMER_get_position() {
-	return ADC_getValue(HAMMER_SENSOR_ADC_ID);
+	return -ADC_getValue(HAMMER_SENSOR_ADC_ID);
 }
 
 #endif	//I_AM_ROBOT_TINY
