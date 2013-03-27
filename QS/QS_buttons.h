@@ -36,6 +36,7 @@
 		button_action_t direct_push;
 	 	button_action_t after_long_push;
 		Uint8 long_push_time;
+		bool_e long_push_already_detected;
 	}button_t;
 
 	void BUTTONS_init();
