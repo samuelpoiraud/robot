@@ -90,18 +90,18 @@
 /* Config HAMMER: bras long utilisé pour éteindre les bougies du 1er étage */
 	#define HAMMER_DCMOTOR_ID           0		//Utilisé pour le module DCMotor
 	#define HAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x), A DEFINIR !!!
-	#define HAMMER_ASSER_KP             2
+	#define HAMMER_ASSER_KP             400
 	#define HAMMER_ASSER_KI             0
 	#define HAMMER_ASSER_KD             0
 	#define HAMMER_ASSER_TIMEOUT        3000    //en ms
 	#define HAMMER_ASSER_POS_EPSILON    20
-	#define HAMMER_UNITS_PER_128_DEGRE  704     //TODO: A changer
-	#define HAMMER_UNITS_AT_0_DEGRE     203
+	#define HAMMER_UNITS_PER_128_DEGRE  -494     //TODO: A changer
+	#define HAMMER_UNITS_AT_0_DEGRE     -203
 	#define HAMMER_DCMOTOR_PWM_NUM      1		//PWM1
 	#define HAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
 	#define HAMMER_DCMOTOR_PORT_WAY_BIT 0
-	#define HAMMER_DCMOTOR_MAX_PWM_WAY0 30		//en %
-	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
+	#define HAMMER_DCMOTOR_MAX_PWM_WAY0 20		//en %
+	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 20		//en %
 /********************************************************************************/
 
 /* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */

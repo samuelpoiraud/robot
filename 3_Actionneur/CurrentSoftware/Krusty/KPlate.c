@@ -255,6 +255,7 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 		return;
 	}
 
+	COMPONENT_log(LOG_LEVEL_Debug, "Move plier ax12 to %d\n", *ax12_goalPosition);
 	AX12_reset_last_error(PLATE_PLIER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	cmdOk = AX12_set_position(PLATE_PLIER_AX12_ID, *ax12_goalPosition);
 	if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie

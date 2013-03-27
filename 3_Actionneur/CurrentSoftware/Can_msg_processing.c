@@ -46,8 +46,8 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case BROADCAST_STOP_ALL :
 			global.match_started = FALSE;
 			COMPONENT_log(LOG_LEVEL_Info, "C:BROADCAST_STOP_ALL\n");
-			//QUEUE_flush_all();
-			//DCM_stop_all();
+			QUEUE_flush_all();
+			DCM_stop_all();
 			break;
 		
 		//Reprise de la partie
