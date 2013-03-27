@@ -24,11 +24,11 @@
 
 //#include "switch.h"
 
-#ifdef USE_CAN
+//#ifdef USE_CAN
 	#include "QS/QS_can.h"
+//#endif
 	#include "Can_msg_processing.h"
 	#include "QS/QS_CANmsgList.h"
-#endif
 
 static void MAIN_onButton1();
 static void MAIN_onButton2();
@@ -75,6 +75,8 @@ int main (void)
 	#ifdef USE_CAN
 		CAN_msg_t msg;
 	#endif
+
+		AX12_init();
 
 #if defined(I_AM_ROBOT_KRUSTY)
 	debug_printf("--- Hello, I'm ACT (Krusty) ---\n");

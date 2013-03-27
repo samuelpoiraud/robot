@@ -191,3 +191,19 @@ static void CAN_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 res
 	}
 #endif
 }
+
+//CAN is not enabled, declare functions so compilation won't fail
+//FIXME: should be in QS_can.c ...
+#ifndef USE_CAN
+void CAN_send(CAN_msg_t* msg) {}
+
+CAN_msg_t CAN_get_next_msg() {
+	return ((CAN_msg_t){0});
+}
+
+bool_e CAN_data_ready() {
+	return FALSE;
+}
+
+void CAN_set_direct_treatment_function(direct_treatment_function_pt func) {}
+#endif

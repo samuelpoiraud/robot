@@ -32,5 +32,16 @@
 
 	//Macro pour avoir la ligne a laquelle cette macro est utilisé comme paramètre à CAN_sendResultWithParam
 	#define CAN_sendResultWithLine(originalSid, originalCommand, result, errorCode) CAN_sendResultWitExplicitLine(originalSid, originalCommand, result, errorCode, __LINE__)
+
+	//CAN is not enabled, declare functions so compilation won't fail
+	#ifndef USE_CAN
+	#include "QS/QS_can.h"
+		void CAN_send(CAN_msg_t* can_msg);
+		CAN_msg_t CAN_get_next_msg();
+		bool_e CAN_data_ready();
+		/* Permet le traitement direct des messages CAN */
+//		typedef bool_e (*direct_treatment_function_pt)(CAN_msg_t* msg);
+		void CAN_set_direct_treatment_function(direct_treatment_function_pt fct);
+	#endif
 	
 #endif /* ndef CAN_MSG_PROCESSING_H */
