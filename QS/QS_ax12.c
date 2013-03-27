@@ -756,7 +756,7 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 	if(byte_offset > 3 && byte_offset == status_packet->size - 1) {
 	#ifdef AX12_STATUS_RETURN_CHECK_CHECKSUM
 		if(receive_byte != AX12_status_packet_calc_checksum(status_packet)) {
-			debug_printf("AX12: invalid checksum\n");
+			debug_printf("AX12[%d]: invalid checksum\n", status_packet->id_servo);
 			return FALSE;
 		} else return TRUE;
 	#else
@@ -846,8 +846,20 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 		case AX12_SMS_ReadyToSend:
 			if(event == AX12_SME_NoEvent)
 			{
-				//Empeche des bugs, a voir pourquoi ...
-				debug_printf("ax12debug\n");
+				//FIXME: Empeche des bugs, a voir pourquoi ... (juste le fait d'ajouter le debug_printf, une histoire de timings ...)
+				//FIXME: Bugs constatés: (Ce code est appelée par le code à la ligne 1033 de ce fichier, après la reception d'un paquet de retour)
+				//Reception de paquet douteux contenant des ID invalides (par ex, ID broadcast alors que justement, avec cet ID aucun renvoi n'est censé être fait ...)
+				//Pas de problème de checksum à priori (donc l'AX12 envoi volontairement des ID dans le paquet de retour invalide ?) (à revérifier quand même, si c'est le cas, on va trop vite pour l'AX12)
+
+				debug_printf("ax12 RIDLE: %d\n", U2STAbits.RIDLE);
+				while(U2STAbits.URXDA)
+					debug_printf("%d ", getcUART2());
+
+				//FIXME: à tester sans le debug_printf d'au-dessus, mais je doute que cette verif règle le problème (RIDLE doit passer à 1 au début du bit de stop reçu d'après ce que j'ai compris)
+				//Attend la fin d'une réception eventuelle d'un octet précédent
+				//while(!U2STAbits.RIDLE);
+
+
 				// Choix du paquet à envoyer et début d'envoi
 				if(!AX12_instruction_queue_is_empty())
 					state_machine.current_instruction = AX12_instruction_queue_get_current();
@@ -890,6 +902,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				else	//Le dernier paquet a été envoyé, passage en mode reception et attente de la réponse dans l'état AX12_SMS_WaitingAnswer s'il y a ou enchainement sur le prochain paquet à evnoyer (AX12_SMS_ReadyToSend)
 				{
 					AX12_TIMER_stop();
+					AX12_TIMER_resetFlag();
+
 					if(AX12_instruction_has_status_packet(state_machine.current_instruction))
 					{
 						//Attente de la fin de la transmition des octets
@@ -923,6 +937,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				}
 			} else if(event == AX12_SME_Timeout) {
 				AX12_TIMER_stop();
+				AX12_TIMER_resetFlag();
 				debug_printf("AX12[%d]: send timeout !!\n", state_machine.current_instruction.id_servo);
 				//U2MODEbits.UARTEN = 0;
 				//AX12_UART2_init(AX12_BAUD_RATE);
@@ -972,6 +987,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				if(AX12_status_packet_is_full(status_response_packet, state_machine.receive_index))
 				{
 					AX12_TIMER_stop();
+					AX12_TIMER_resetFlag();
 
 					#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 						debug_printf("AX12 Rx:");
@@ -1018,10 +1034,9 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					state_machine.state = AX12_SMS_ReadyToSend;
 					AX12_state_machine(AX12_SME_NoEvent);
 				}
-			}	
-			if(event == AX12_SME_Timeout)
-			{
+			} else if(event == AX12_SME_Timeout) {
 				AX12_TIMER_stop();
+				AX12_TIMER_resetFlag();
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 					debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
 					for(i = 0; i<MAX_STATUS_PACKET_SIZE*2; i++)

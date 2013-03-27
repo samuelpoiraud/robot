@@ -79,13 +79,13 @@ void BUTTONS_update()
 	button_t* button = NULL;
 	Uint8 i;
 	
-	buttons_pressed = (BUTTON1_PORT)?1:0;
-	buttons_pressed = (BUTTON2_PORT)?buttons_pressed|2:buttons_pressed;
-	buttons_pressed = (BUTTON3_PORT)?buttons_pressed|4:buttons_pressed;
-	buttons_pressed = (BUTTON4_PORT)?buttons_pressed|8:buttons_pressed;
+	buttons_pressed = (BUTTON1_PORT)? 1 : 0;
+	buttons_pressed = (BUTTON2_PORT)? buttons_pressed|2 : buttons_pressed;
+	buttons_pressed = (BUTTON3_PORT)? buttons_pressed|4 : buttons_pressed;
+	buttons_pressed = (BUTTON4_PORT)? buttons_pressed|8 : buttons_pressed;
 
 	//détection des fronts montant
-	buttons_rising_edge = (~buttons_were_pressed)&buttons_pressed; 
+	buttons_rising_edge = (~buttons_were_pressed) & buttons_pressed;
 	
 	for(i=0;i<BUTTONS_NUMBER;i++)
 	{		
@@ -93,14 +93,38 @@ void BUTTONS_update()
 		if(buttons_rising_edge&(1<<i))
 		{			
 			push_time[i]=button->long_push_time;
+			button->long_push_already_detected = FALSE;
 		}
 		else
 		{
-			buttons_falling_edge = buttons_were_pressed&(~buttons_pressed); 
-			if(buttons_falling_edge&(1<<i))
+			buttons_falling_edge = buttons_were_pressed & (~buttons_pressed);
+
+			//Nouveau code pour detecter les appui long sans avoir besoin de relacher le bouton avant
+			//Prise en compte de l'appui long lorsque le compteur est passé à 0 (temps necessaire avant appui long detecté écoulé)
+			//Et bouton pressé (et fonction action non nulle)
+
+//			if(button->long_push_already_detected = FALSE) {
+//				action = button->after_long_push;
+//				if((buttons_pressed & (1<<i)) && action != NULL && push_time[i] == 0)
+//				{
+//					button->long_push_already_detected = TRUE;
+//					(*action)();
+//				}
+//				else if(buttons_falling_edge & (1<<i))
+//				{
+//					action = button->direct_push;
+//					if(action != NULL)
+//					{
+//						(*action)();
+//					}
+//				}
+//			}
+
+			//Ancien code
+			if(buttons_falling_edge & (1<<i))
 			{
 				action = button->after_long_push;
-				if(action != NULL && push_time[i]==0)
+				if(action != NULL && push_time[i] == 0)
 				{
 					(*action)();
 				}
@@ -110,8 +134,8 @@ void BUTTONS_update()
 					if(action != NULL)
 					{
 						(*action)();
-					}					
-				}				
+					}
+				}
 			}
 		}
 	}
@@ -124,7 +148,7 @@ void BUTTONS_process_it(void)
 	Uint8 i;
 	for(i=0;i<BUTTONS_NUMBER;i++)
 	{
-		if(push_time[i]!=0)
+		if(push_time[i] != 0)
 		{		
 			push_time[i]--;
 		}
