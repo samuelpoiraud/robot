@@ -897,6 +897,594 @@ error_e K_ASSIETE1(void){
 	}
 }
 
+error_e TEST_Launcher_ball_mid(void){
+    static Uint8 nb_ball=0;
+    static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        MOVE = 0,
+        ANGLE,
+        LAUNCH_BALL_NORMAL,
+        LAUNCH_BALL_SLOW,
+        LAUNCH_BALL_ATT,
+        WAIT_BALL,
+        WAIT_BALL_ATT,
+        STOP_LAUNCH,
+        STOP_LAUNCH_ATT,
+        DONE,
+    } state = MOVE;
+
+    switch(state){
+        case MOVE :
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ANGLE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case ANGLE:
+            sub_action = goto_angle(((global.env.color == BLUE) ? -9646 : -3215), FAST);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state = LAUNCH_BALL_NORMAL;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state = DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+
+                case NOT_HANDLED:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case LAUNCH_BALL_NORMAL:
+           ACT_ball_launcher_run(6400);  // a 66cm du bord du gateau
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_SLOW:
+            ACT_ball_launcher_run(4000);
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = WAIT_BALL;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;;
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case WAIT_BALL:
+            nb_ball=nb_ball+1;
+
+
+            ACT_ball_sorter_next();
+            state=WAIT_BALL_ATT;
+            break;
+
+        case WAIT_BALL_ATT:
+
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    if (nb_ball>=8) state=STOP_LAUNCH;
+                    else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case STOP_LAUNCH:
+            ACT_ball_launcher_stop();
+            state=STOP_LAUNCH_ATT;
+            break;
+
+        case STOP_LAUNCH_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = DONE;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case DONE:
+            return END_OK;
+            break;
+        default :
+            state=MOVE;
+            return NOT_HANDLED;
+
+    }
+    return IN_PROGRESS;
+}
+
+
+error_e TEST_Launcher_ball_cadeau(void){
+    static Uint8 nb_ball=0;
+    static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        MOVE = 0,
+        ANGLE,
+        LAUNCH_BALL_NORMAL,
+        LAUNCH_BALL_SLOW,
+        LAUNCH_BALL_ATT,
+        WAIT_BALL,
+        WAIT_BALL_ATT,
+        STOP_LAUNCH,
+        STOP_LAUNCH_ATT,
+        DONE,
+    } state = MOVE;
+
+    switch(state){
+        case MOVE :
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ANGLE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case ANGLE:
+            sub_action = goto_angle(((global.env.color == BLUE) ? -9145 : -2714), FAST);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state = LAUNCH_BALL_NORMAL;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state = MOVE;
+                    return END_WITH_TIMEOUT;
+                    break;
+
+                case NOT_HANDLED:
+                    state=DONE;
+                    return NOT_HANDLED;
+                    
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=DONE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case LAUNCH_BALL_NORMAL:
+           ACT_ball_launcher_run(6900);
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_SLOW:
+            ACT_ball_launcher_run(4000);
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = WAIT_BALL;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case WAIT_BALL:
+            nb_ball=nb_ball+1;
+
+
+            ACT_ball_sorter_next();
+            state=WAIT_BALL_ATT;
+            break;
+
+        case WAIT_BALL_ATT:
+
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    if (nb_ball>=8) state=STOP_LAUNCH;
+                    else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case STOP_LAUNCH:
+            ACT_ball_launcher_stop();
+            state=STOP_LAUNCH_ATT;
+            break;
+
+        case STOP_LAUNCH_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = DONE;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case DONE:
+            return END_OK;
+            break;
+        default :
+            state=MOVE;
+            return NOT_HANDLED;
+            break;
+    }
+    return IN_PROGRESS;
+
+}
+
+error_e TEST_Launcher_ball_gateau(void){
+    static Uint8 nb_ball=0;
+    static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        MOVE = 0,
+        ANGLE,
+        LAUNCH_BALL_NORMAL,
+        LAUNCH_BALL_SLOW,
+        LAUNCH_BALL_ATT,
+        WAIT_BALL,
+        WAIT_BALL_ATT,
+        STOP_LAUNCH,
+        STOP_LAUNCH_ATT,
+        DONE,
+    } state = MOVE;
+
+    switch(state){
+        case MOVE :
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1350,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ANGLE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case ANGLE:
+            sub_action = goto_angle(((global.env.color == BLUE) ? -9750 : -3320), FAST);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state = LAUNCH_BALL_NORMAL;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state = MOVE;
+                    return END_WITH_TIMEOUT;
+                    break;
+
+                case NOT_HANDLED:
+                    state=DONE;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=DONE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case LAUNCH_BALL_NORMAL:
+           ACT_ball_launcher_run(6050);
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_SLOW:
+            ACT_ball_launcher_run(4000);
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = WAIT_BALL;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case WAIT_BALL:
+            nb_ball=nb_ball+1;
+
+
+            ACT_ball_sorter_next();
+            state=WAIT_BALL_ATT;
+            break;
+
+        case WAIT_BALL_ATT:
+
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    if (nb_ball>=8) state=STOP_LAUNCH;
+                    else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case STOP_LAUNCH:
+            ACT_ball_launcher_stop();
+            state=STOP_LAUNCH_ATT;
+            break;
+
+        case STOP_LAUNCH_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = DONE;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case DONE:
+            return END_OK;
+            break;
+        default :
+            state=MOVE;
+            return NOT_HANDLED;
+    }
+    return IN_PROGRESS;
+
+}
 /* ----------------------------------------------------------------------------- */
 /* 								Fonction diverses                     			 */
 /* ----------------------------------------------------------------------------- */
