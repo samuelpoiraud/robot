@@ -385,7 +385,7 @@ static void CAN_error_processing();
 			debug_printf("Error RX1IF\r\n");
 		if( C1INTFbits.RX0IF)
 			debug_printf("Error RX0IF\r\n");
-	//	CAN_reinit();
+		CAN_reinit();
 		debug_printf("End Error List\r\n");
 	}
 
@@ -413,12 +413,21 @@ static void CAN_error_processing();
 					m_can_rx_num%=CAN_BUF_SIZE;		
 					m_canrx=TRUE;
 				}
+				C1INTFbits.RX0IF = 0; // Add code to read buffer 0
+				C1RX0CONbits.RXFUL = 0;
+				C1INTFbits.RX1IF = 0; // Add code to read buffer 1
+				C1RX1CONbits.RXFUL = 0;
 				break;
 			case ERROR_INTERRUPT:
 				CAN_error_processing();
+				C1INTFbits.ERRIF = 0;
 				break;
 			default:
-				debug_printf("default interrupt\n");
+				debug_printf("default interrupt %d\n",C1CTRLbits.ICODE);
+				C1INTFbits.TX0IF = 0;
+				C1INTFbits.TX1IF = 0;
+				C1INTFbits.TX2IF = 0;
+				C1INTFbits.WAKIF = 0;
 				break;
 		}
 	}
