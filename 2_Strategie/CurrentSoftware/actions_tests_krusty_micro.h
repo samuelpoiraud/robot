@@ -40,7 +40,9 @@ error_e K_ASSIETE3(void);
 error_e K_ASSIETE4(void);
 error_e K_ASSIETE5(void);
 
-
+error_e TEST_Launcher_ball_mid(void);
+error_e TEST_Launcher_ball_cadeau(void);
+error_e TEST_Launcher_ball_gateau(void);
 #endif /* ACTIONS_TESTS__KRUSTY_MICRO_H */
 
 
