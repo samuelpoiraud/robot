@@ -251,8 +251,8 @@
 	#define ACT_LIFT_RIGHT (ACT_FILTER | 0x14)
 	#define ACT_LIFT_LEFT (ACT_FILTER | 0x15)
 		//Paramètres de LIFT (dans data[0]) (0x1x: Pince, 0x2x: mouvement ascenseur)
-		#define ACT_LIFT_PLIER_OPEN            0x10	//Fermer la pince et serrer le verre
-		#define ACT_LIFT_PLIER_CLOSE           0x11	//Ouvrir la pince et lacher le verre
+		#define ACT_LIFT_PLIER_OPEN            0x10	//Ouvrir la pince et lacher le verre
+		#define ACT_LIFT_PLIER_CLOSE           0x11	//Fermer la pince et serrer le verre
 		#define ACT_LIFT_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
 
 		#define ACT_LIFT_GO_UP                 0x20	//Amener l'ascenseur en position haute.
