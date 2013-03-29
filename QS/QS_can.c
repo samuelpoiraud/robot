@@ -322,6 +322,9 @@ static void CAN_error_processing();
 		CAN_msg_t* msgToReturn;
 		if (next_to_read != m_can_rx_num)
 		{
+			#ifdef USE_CAN
+				DisableIntCAN1;
+			#endif
 			// récupérer le prochain message à lire
 			msgToReturn = (m_can_buffer + (next_to_read++));
 			next_to_read %= CAN_BUF_SIZE;
@@ -329,7 +332,9 @@ static void CAN_error_processing();
 			// si on lit le dernier message, abaisser le drapeau.
 			if (m_can_rx_num == next_to_read)
 				m_canrx = FALSE;
-
+			#ifdef USE_CAN
+				EnableIntCAN1;
+			#endif
 			return *msgToReturn;
 		}
 		else
@@ -414,9 +419,9 @@ static void CAN_error_processing();
 					m_canrx=TRUE;
 				}
 				C1INTFbits.RX0IF = 0; // Add code to read buffer 0
-				C1RX0CONbits.RXFUL = 0;
+
 				C1INTFbits.RX1IF = 0; // Add code to read buffer 1
-				C1RX1CONbits.RXFUL = 0;
+
 				break;
 			case ERROR_INTERRUPT:
 				CAN_error_processing();

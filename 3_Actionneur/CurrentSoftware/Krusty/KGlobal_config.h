@@ -116,7 +116,7 @@
 	#define PLATE_ASSER_TIMEOUT                  0   //en ms
 	#define PLATE_ASSER_POS_EPSILON              60  //TODO: à ajuster plus correctement
 	#define PLATE_HORIZONTAL_POS                 500
-	#define PLATE_PREPARE_POS                    548
+	#define PLATE_PREPARE_POS                    680
 	#define PLATE_VERTICAL_POS                   870   /////////////////////////////
 	#define PLATE_DCMOTOR_PWM_NUM                3
 	#define PLATE_DCMOTOR_PORT_WAY               PORTE
@@ -138,7 +138,7 @@
 	#define BALLSORTER_AX12_ASSER_TIMEOUT        20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 	#define BALLSORTER_AX12_EJECT_CHERRY_POS     132      //TODO: changer ces valeurs !!! (en degré)
 	#define BALLSORTER_AX12_NEXT_CHERRY_POS      207
-	#define BALLSORTER_AX12_DETECT_CHERRY_POS    157
+	#define BALLSORTER_AX12_DETECT_CHERRY_POS    160
 	#define BALLSORTER_SENSOR_PIN                PORTBbits.RB8
 	#define BALLSORTER_SENSOR_DETECTED_LEVEL     0      //Niveau de BALLSORTER_SENSOR_PIN quand une cerise blanche est détectée
 

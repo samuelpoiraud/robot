@@ -252,11 +252,16 @@ static void MAIN_onButton1() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
-	msg.sid = ACT_HAMMER;
-	msg.data[0] = ACT_HAMMER_MOVE_TO;
-	msg.data[1] = LOWINT(0);
-	msg.data[2] = HIGHINT(0);
-	msg.size = 3;
+//	msg.sid = ACT_HAMMER;
+//	msg.data[0] = ACT_HAMMER_MOVE_TO;
+//	msg.data[1] = LOWINT(0);
+//	msg.data[2] = HIGHINT(0);
+//	msg.size = 3;
+
+	msg.sid = ACT_BALLINFLATER;
+	msg.data[0] = ACT_BALLINFLATER_START;
+	msg.data[1] = 3;
+	msg.size = 2;
 
 	CAN_process_msg(&msg);
 #endif
@@ -266,11 +271,15 @@ static void MAIN_onButton2() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
-	msg.sid = ACT_HAMMER;
-	msg.data[0] = ACT_HAMMER_MOVE_TO;
-	msg.data[1] = LOWINT(10);
-	msg.data[2] = HIGHINT(0);
-	msg.size = 3;
+//	msg.sid = ACT_HAMMER;
+//	msg.data[0] = ACT_HAMMER_MOVE_TO;
+//	msg.data[1] = LOWINT(10);
+//	msg.data[2] = HIGHINT(0);
+//	msg.size = 3;
+
+	msg.sid = ACT_BALLINFLATER;
+	msg.data[0] = ACT_BALLINFLATER_STOP;
+	msg.size = 1;
 
 	CAN_process_msg(&msg);
 #endif
@@ -280,11 +289,11 @@ static void MAIN_onButton3() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
-	msg.sid = ACT_HAMMER;
-	msg.data[0] = ACT_HAMMER_MOVE_TO;
-	msg.data[1] = LOWINT(90);
-	msg.data[2] = HIGHINT(0);
-	msg.size = 3;
+//	msg.sid = ACT_HAMMER;
+//	msg.data[0] = ACT_HAMMER_MOVE_TO;
+//	msg.data[1] = LOWINT(90);
+//	msg.data[2] = HIGHINT(0);
+//	msg.size = 3;
 
 	CAN_process_msg(&msg);
 #endif

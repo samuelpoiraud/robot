@@ -126,6 +126,7 @@
 /********************************************************************************/
 
 /* Config BALLINFLATER: gonfleur du ballon *******************/
+	#define BALLINFLATER_TIMER_ID           3
 	#define BALLINFLATER_PIN                PORTGbits.RG6
 	#define BALLINFLATER_ON                 1
 	#define BALLINFLATER_OFF                0
