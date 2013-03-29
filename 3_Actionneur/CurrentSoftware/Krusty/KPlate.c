@@ -28,6 +28,8 @@
 	#define PLATE_PREPARE_POS_ID    1
 	#define PLATE_VERTICAL_POS_ID   2
 
+#define PLATE_PLIER_DONT_SEND_RESULT 1
+
 #if DCMOTOR_NB_POS < PLATE_NUM_POS
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
 #endif
@@ -117,7 +119,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 				if(queueId != QUEUE_CREATE_FAILED) {
 					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_AX12_Plier);
 					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_Rotation);
-					QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_PLIER_CLOSE, 0}, QUEUE_ACT_Plate_AX12_Plier);
+					QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_PLIER_CLOSE, PLATE_PLIER_DONT_SEND_RESULT}, QUEUE_ACT_Plate_AX12_Plier);
 					QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){msg->data[0], 0}, QUEUE_ACT_Plate_Rotation);
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_Rotation);
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_Plate_AX12_Plier);
@@ -320,7 +322,8 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 //	resultMsg.size = 4;
 //
 //	CAN_send(&resultMsg);
-	CAN_sendResultWithLine(ACT_PLATE, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
+	if(QUEUE_get_arg(queueId)->param != PLATE_PLIER_DONT_SEND_RESULT)
+		CAN_sendResultWithLine(ACT_PLATE, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
 	QUEUE_behead(queueId);	//gestion terminée
 }
 

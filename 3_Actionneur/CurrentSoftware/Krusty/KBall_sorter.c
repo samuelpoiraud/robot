@@ -128,14 +128,17 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 
 			switch(state) {
 				case BALLSORTER_CS_EjectCherry:
+					AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 500);
 					wantedPosition = BALLSORTER_AX12_EJECT_CHERRY_POS;
 					break;
 
 				case BALLSORTER_CS_GotoNextCherry:
+					AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 500);
 					wantedPosition = BALLSORTER_AX12_NEXT_CHERRY_POS;
 					break;
 
 				case BALLSORTER_CS_TakeCherry:
+					AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 50);
 					wantedPosition = BALLSORTER_AX12_DETECT_CHERRY_POS;
 					break;
 
