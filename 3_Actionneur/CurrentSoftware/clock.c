@@ -62,8 +62,6 @@ void CLOCK_init()
 #endif
 	CLOCK_TIMER_init();
 	CLOCK_TIMER_start(100);
-
-	debug_printf("Clock initialized\n");
 }
 
 #include "QS/QS_uart.h"

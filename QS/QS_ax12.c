@@ -31,11 +31,11 @@
 	#endif
 
 	#ifndef AX12_STATUS_RETURN_TIMEOUT
-		#define AX12_STATUS_RETURN_TIMEOUT 5
+		#define AX12_STATUS_RETURN_TIMEOUT 50	//Ne pas mettre une valeur trop proche de celle prévue, l'AX12 répond parfois avec un delai plus long
 	#endif
 
 	#ifndef AX12_STATUS_SEND_TIMEOUT
-		#define AX12_STATUS_SEND_TIMEOUT 5
+		#define AX12_STATUS_SEND_TIMEOUT 10
 	#endif
 
 	#ifndef AX12_STATUS_RETURN_MODE
@@ -110,7 +110,7 @@
 	#elif (defined FREQ_40MHZ)
 		#define CLK_FREQ	40000000
 	#elif (defined FREQ_INTERNAL_CLK)
-		#define CLK_FREQ	8000000	//fixme: pas sur
+		#define CLK_FREQ	8000000	//FIXME: pas sur
 	#endif
 
 	#define AX12_UART2_RXInterrupt			_U2RXInterrupt
@@ -829,7 +829,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 //2) Si une IT arrive a ce moment, elle s'executera pas, elle retournera sans rien faire car processing_state est > 0
 			return;
 //3) Si une IT arrive a ce moment, elle s'executera entièrement car processing_state == 0, l'état passera de AX12_SMS_ReadyToSend à AX12_SMS_Sending et cet appel de fonction ne fera rien comme au 1)
-		processing_state = 1; //cette instruction DOIT être atomique
+		processing_state = 1;
 //4) Si une IT arrive a ce moment, elle ne s'executera pas car processing_state > 0
 	} else if(event == AX12_SME_Timeout) {
 		DisableIntU2RX;
@@ -840,26 +840,12 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 //Si une IT arrive avec event == AX12_SME_TxInterrupt, elle n'aura un effet que dans l'état AX12_SMS_Sending (et cette interruption ne devrai être lancée que après le putcUART2 dans AX12_SMS_ReadyToSend et pas dans AX12_SMS_Sending car une interruption n'est pas prioritaire sur elle-même)
 //Si une IT arrive avec event == AX12_SME_RxInterrupt, elle n'aura un effet que dans l'état AX12_SMS_WaitingAnswer. Elle ne peut être lancée que si le timer n'a pas eu d'interruption et désactive l'interruption du timer
-	
+
 	switch(state_machine.state)
 	{
 		case AX12_SMS_ReadyToSend:
 			if(event == AX12_SME_NoEvent)
 			{
-				//FIXME: Empeche des bugs, a voir pourquoi ... (juste le fait d'ajouter le debug_printf, une histoire de timings ...)
-				//FIXME: Bugs constatés: (Ce code est appelée par le code à la ligne 1033 de ce fichier, après la reception d'un paquet de retour)
-				//Reception de paquet douteux contenant des ID invalides (par ex, ID broadcast alors que justement, avec cet ID aucun renvoi n'est censé être fait ...)
-				//Pas de problème de checksum à priori (donc l'AX12 envoi volontairement des ID dans le paquet de retour invalide ?) (à revérifier quand même, si c'est le cas, on va trop vite pour l'AX12)
-
-				debug_printf("ax12 RIDLE: %d\n", U2STAbits.RIDLE);
-				while(U2STAbits.URXDA)
-					debug_printf("%d ", getcUART2());
-
-				//FIXME: à tester sans le debug_printf d'au-dessus, mais je doute que cette verif règle le problème (RIDLE doit passer à 1 au début du bit de stop reçu d'après ce que j'ai compris)
-				//Attend la fin d'une réception eventuelle d'un octet précédent
-				//while(!U2STAbits.RIDLE);
-
-
 				// Choix du paquet à envoyer et début d'envoi
 				if(!AX12_instruction_queue_is_empty())
 					state_machine.current_instruction = AX12_instruction_queue_get_current();
@@ -906,6 +892,12 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 					if(AX12_instruction_has_status_packet(state_machine.current_instruction))
 					{
+						#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
+							for(i=0; i<MAX_STATUS_PACKET_SIZE*2; i++)
+								AX12_UART2_reception_buffer[i] = 0;
+							pos = 0;
+						#endif
+
 						//Attente de la fin de la transmition des octets
 						//TRMT passe a 1 quand tout est envoyé (bit de stop inclu)
 						//plus d'info ici: http://books.google.fr/books?id=ZNngQv_E0_MC&lpg=PA250&ots=_ZTiXKt-8p&hl=fr&pg=PA250
@@ -920,17 +912,12 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 							getcUART2();
 
 						state_machine.state = AX12_SMS_WaitingAnswer;
+
 						AX12_TIMER_start(AX12_STATUS_RETURN_TIMEOUT);	//Pour le timeout de reception, ne devrait pas arriver
 					}
 					else
 					{
 						AX12_instruction_queue_next();
-						#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
-							for(i=0; i<MAX_STATUS_PACKET_SIZE; i++)
-								AX12_UART2_reception_buffer[i] = 0;
-							pos = 0;
-						#endif
-
 						state_machine.state = AX12_SMS_ReadyToSend;
 						AX12_state_machine(AX12_SME_NoEvent);
 					}
@@ -996,7 +983,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						debug_printf("\n");
 					#endif
 
-					if(status_response_packet.id_servo != state_machine.current_instruction.id_servo) {
+					if(status_response_packet.id_servo != state_machine.current_instruction.id_servo || status_response_packet.id_servo >= AX12_NUMBER) {
 						debug_printf("Wrong servo ID: %d instead of %d\n", status_response_packet.id_servo, state_machine.current_instruction.id_servo);
 					} else {
 						//pour être sur de ne pas avoir le bit 7 a 1, si l'AX12 le met a 1, on met tous les bits a 1
@@ -1037,13 +1024,18 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 			} else if(event == AX12_SME_Timeout) {
 				AX12_TIMER_stop();
 				AX12_TIMER_resetFlag();
+
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 					debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
-					for(i = 0; i<MAX_STATUS_PACKET_SIZE*2; i++)
+					for(i = 0; i<pos; i++)
 						debug_printf(" %02x", AX12_UART2_reception_buffer[i]);
-					debug_printf("\n, recv idx: %d\n", state_machine.receive_index);
+					debug_printf(", recv idx: %d\n", state_machine.receive_index);
+					debug_printf(" Original cmd: Id: %02x Cmd: %02x Addr: %02x param: %04x\n", state_machine.current_instruction.id_servo, state_machine.current_instruction.type, state_machine.current_instruction.address, state_machine.current_instruction.param);
 				#endif
-				debug_printf("AX12[%d] timeout Rx\n", state_machine.current_instruction.id_servo);
+				
+				if(U2STAbits.URXDA)
+					debug_printf("AX12 timeout too small\n");
+
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 0;
 				AX12_instruction_queue_next();
@@ -1139,20 +1131,37 @@ static void AX12_UART2_init(Uint32 uart_speed)
 //(car le caractère envoyé est envoyé plus vite que le retour de la fonction AX12_state_machine)
 void _ISR AX12_UART2_RXInterrupt(void)
 {
+	LED_ERROR = 1;
 	AX12_UART2_RXInterrupt_flag = 0;
-	AX12_state_machine(AX12_SME_RxInterrupt);
+	while(U2STAbits.URXDA) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
+		if(state_machine.state != AX12_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
+			getcUART2();
+		} else {
+			AX12_state_machine(AX12_SME_RxInterrupt);
+			if(AX12_UART2_RXInterrupt_flag) {
+				//debug_printf("Overinterrupt RX !\n");
+				AX12_UART2_RXInterrupt_flag = 0;
+				break; //force 0, on va perdre des caractères, mais c'est mieux que de boucler ici ...
+			}
+		}
+	}
+	LED_ERROR = 0;
 }
 
 void _ISR AX12_UART2_TXInterrupt(void)
 {
+	//LED_ERROR = 1;
 	AX12_UART2_TXInterrupt_flag = 0;
 	AX12_state_machine(AX12_SME_TxInterrupt);
+	LED_ERROR = 0;
 }
 
 void AX12_TIMER_interrupt()
 {
+	//LED_ERROR = 1;
 	AX12_state_machine(AX12_SME_Timeout);
 	AX12_TIMER_resetFlag();
+	LED_ERROR = 0;
 }
 
 /**************************************************************************/
@@ -1203,6 +1212,7 @@ void AX12_init() {
 #define AX12_DEGRE_TO_ANGLE(angle) ((((Uint16)(angle)) << 7) / 38)
 
 //Vitesse max: 500°/seconde (83 tours/minute) (maximum supporté par la macro)
+//Le max de l'ax12 indiqué par la datasheet est de environ 360°/s (60 tr/min)
 #define AX12_MAX_DPS 500
 #define AX12_SPEED_TO_DPS(angle_speed) ((((Uint16)(angle_speed))*85) >> 7) // >> 7 <=> / 128, 85/256 = 0.664 degres per second ~= 0.111 rpm (tours par minute)
 #define AX12_DPS_TO_SPEED(angle_speed) ((((Uint16)(angle_speed)) << 7) / 85)
@@ -1277,7 +1287,7 @@ Uint8  AX12_config_get_highest_voltage(Uint8 id_servo) {
 }
 
 Uint8 AX12_config_get_maximum_torque(Uint8 id_servo) {
-	Uint16 value;    //voir AX12_config_set_maximum_torque pour le pourquoi pas de lecture 16bits
+	Uint16 value;    //On ne peut pas utiliser la lecture 16bits a cause d'un bug de l'AX12 (voir https://sites.google.com/site/robotsaustralia/ax-12dynamixelinformation)
 	value = AX12_instruction_read8(id_servo, AX12_MAX_TORQUE_L, NULL) | (AX12_instruction_read8(id_servo, AX12_MAX_TORQUE_H, NULL) << 8);
 	return (Uint8)AX12_1024_TO_PERCENTAGE(value);
 }
@@ -1327,10 +1337,8 @@ bool_e AX12_config_set_highest_voltage(Uint8 id_servo, Uint8 voltage) {
 }
 
 bool_e AX12_config_set_maximum_torque_percentage(Uint8 id_servo, Uint8 percentage) {
-	Uint16 value = AX12_PERCENTAGE_TO_1024(percentage);    //On ne peut pas utiliser l'ecriture 16bits a cause d'un bug de l'AX12 (voir https://sites.google.com/site/robotsaustralia/ax-12dynamixelinformation)
-	if(value == 1024)
-		value = 1023;
-	return AX12_instruction_write8(id_servo, AX12_MAX_TORQUE_L, value & 0xFF) && AX12_instruction_write8(id_servo, AX12_MAX_TORQUE_H, value >> 8);
+	Uint16 value = AX12_PERCENTAGE_TO_1024(percentage);
+	return AX12_instruction_write16(id_servo, AX12_MAX_TORQUE_L, value);
 }
 
 bool_e AX12_config_set_status_return_mode(Uint8 id_servo, Uint8 mode) {

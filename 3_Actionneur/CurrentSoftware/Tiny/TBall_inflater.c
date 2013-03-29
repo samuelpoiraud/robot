@@ -146,6 +146,10 @@ void BALLINFLATER_TIMER_interrupt() {
 
 	if(i > 800)
 		pwm_percentage = 50;
+	if(i > 1600)
+		pwm_percentage = 75;
+	if(i > 2400)
+		pwm_percentage = 100;
 
 	if(i < 32000)
 		i++;
