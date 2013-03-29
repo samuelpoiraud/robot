@@ -34,6 +34,8 @@ static void MAIN_onButton1();
 static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
+static void MAIN_onLongPush();
+
 
 void RCON_read();
 void _ISR _MathError();
@@ -52,19 +54,12 @@ int main (void)
 	PORTS_init();
 	LED_RUN = 1;
 	LED_USER = 0;
+
 	UART_init();
 	TIMER_init();
-	BUTTONS_init();
-	QUEUE_init();
-	//init actioneurs
-	ACTMGR_init();
-
 	CLOCK_init();
-
-	BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 0);
-	BUTTONS_define_actions(BUTTON2, &MAIN_onButton2, NULL, 0);
-	BUTTONS_define_actions(BUTTON3, &MAIN_onButton3, NULL, 0);
-	BUTTONS_define_actions(BUTTON4, &MAIN_onButton4, NULL, 0);
+	QUEUE_init();
+	BUTTONS_init();
 
 	LED_CAN = 1;
 	#ifdef USE_CAN
@@ -76,8 +71,6 @@ int main (void)
 		CAN_msg_t msg;
 	#endif
 
-		AX12_init();
-
 #if defined(I_AM_ROBOT_KRUSTY)
 	debug_printf("--- Hello, I'm ACT (Krusty) ---\n");
 #elif defined(I_AM_ROBOT_TINY)
@@ -87,7 +80,16 @@ int main (void)
 #endif
 
 	RCON_read();
-	
+
+	//Init actioneurs
+	ACTMGR_init();
+
+	BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 1);
+	BUTTONS_define_actions(BUTTON2, &MAIN_onButton2, NULL, 1);
+	BUTTONS_define_actions(BUTTON3, &MAIN_onButton3, NULL, 1);
+	BUTTONS_define_actions(BUTTON4, &MAIN_onButton4, NULL, 1);
+
+	debug_printf("---   ACT Ready    ---\n");
 	
 	while(1)
 	{
@@ -145,7 +147,7 @@ static void MAIN_onButton1() {
 		}
 		msg.size = 1;
 	} else {
-		msg.sid = ACT_LIFT_LEFT;
+		msg.sid = ACT_LIFT_RIGHT;
 		if(SWITCH_RG1) {
 			debug_printf("Main: Lift left go up\n");
 			msg.data[0] = ACT_LIFT_GO_UP;
@@ -175,7 +177,7 @@ static void MAIN_onButton2() {
 		}
 		msg.size = 1;
 	} else {
-		msg.sid = ACT_LIFT_LEFT;
+		msg.sid = ACT_LIFT_RIGHT;
 		if(SWITCH_RG1) {
 			debug_printf("Main: Lift left go middle\n");
 			msg.data[0] = ACT_LIFT_GO_MID;
@@ -205,7 +207,7 @@ static void MAIN_onButton3() {
 		}
 		msg.size = 1;
 	} else {
-		msg.sid = ACT_LIFT_LEFT;
+		msg.sid = ACT_LIFT_RIGHT;
 		if(SWITCH_RG1) {
 			debug_printf("Main: Lift left go down\n");
 			msg.data[0] = ACT_LIFT_GO_DOWN;
@@ -230,7 +232,7 @@ static void MAIN_onButton4() {
 	msg.data[0] = ACT_PLATE_ROTATE_STOP;
 	msg.size = 1;
 	CAN_process_msg(&msg);
-	msg.sid = ACT_LIFT_LEFT;
+	msg.sid = ACT_LIFT_RIGHT ;
 	msg.data[0] = ACT_LIFT_STOP;
 	msg.size = 1;
 	CAN_process_msg(&msg);
@@ -244,6 +246,10 @@ static void MAIN_onButton4() {
 	for(i=0; i<7; i++)
 		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
 	debug_printf("\n");
+}
+
+static void MAIN_onLongPush() {
+	debug_printf("Main: LongPush ---------------------------------\n");
 }
 
 #else // Tiny
@@ -295,6 +301,11 @@ static void MAIN_onButton3() {
 //	msg.data[2] = HIGHINT(0);
 //	msg.size = 3;
 
+	msg.sid = ACT_BALLINFLATER;
+	msg.data[0] = ACT_BALLINFLATER_START;
+	msg.data[1] = 10;
+	msg.size = 2;
+
 	CAN_process_msg(&msg);
 #endif
 }
@@ -311,7 +322,6 @@ static void MAIN_onButton4() {
 	debug_printf("\n");
 }
 #endif
-
 
 void RCON_read()
 {

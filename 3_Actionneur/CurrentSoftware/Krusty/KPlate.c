@@ -280,7 +280,9 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 
-	AX12_reset_last_error(PLATE_PLIER_AX12_ID);
+	//AX12_reset_last_error(PLATE_PLIER_AX12_ID);
+
+	//FIXME: commentaire debuggage, a enlever
 	ax12Pos = AX12_get_position(PLATE_PLIER_AX12_ID); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
 	error = AX12_get_last_error(PLATE_PLIER_AX12_ID).error;
 	if(error)

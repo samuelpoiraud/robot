@@ -899,7 +899,7 @@
 	 *
 	 * Ne fait rien si le servo n'est pas en mode asservissement en position.
 	 * @param id_servo numéro du servo à contrôler
-	 * @param degre_per_sec vitesse en degrés par seconde
+	 * @param degre_per_sec vitesse en degrés par seconde, maximum: 500
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
 	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.

@@ -103,32 +103,14 @@ void BUTTONS_update()
 			//Prise en compte de l'appui long lorsque le compteur est passé à 0 (temps necessaire avant appui long detecté écoulé)
 			//Et bouton pressé (et fonction action non nulle)
 
-//			if(button->long_push_already_detected = FALSE) {
-//				action = button->after_long_push;
-//				if((buttons_pressed & (1<<i)) && action != NULL && push_time[i] == 0)
-//				{
-//					button->long_push_already_detected = TRUE;
-//					(*action)();
-//				}
-//				else if(buttons_falling_edge & (1<<i))
-//				{
-//					action = button->direct_push;
-//					if(action != NULL)
-//					{
-//						(*action)();
-//					}
-//				}
-//			}
-
-			//Ancien code
-			if(buttons_falling_edge & (1<<i))
-			{
+			if(button->long_push_already_detected == FALSE) {
 				action = button->after_long_push;
-				if(action != NULL && push_time[i] == 0)
+				if((buttons_pressed & (1<<i)) && action != NULL && push_time[i] == 0)
 				{
+					button->long_push_already_detected = TRUE;
 					(*action)();
 				}
-				else
+				else if(buttons_falling_edge & (1<<i))
 				{
 					action = button->direct_push;
 					if(action != NULL)
@@ -137,6 +119,24 @@ void BUTTONS_update()
 					}
 				}
 			}
+
+			//Ancien code
+//			if(buttons_falling_edge & (1<<i))
+//			{
+//				action = button->after_long_push;
+//				if(action != NULL && push_time[i] == 0)
+//				{
+//					(*action)();
+//				}
+//				else
+//				{
+//					action = button->direct_push;
+//					if(action != NULL)
+//					{
+//						(*action)();
+//					}
+//				}
+//			}
 		}
 	}
 
