@@ -554,10 +554,13 @@
 	#define BEACON_ADVERSARY_POSITION_US	0x251
 	/*
 		arguments (size = 2) :
-		Uint8	octet d'erreur		(VOIR dESCRIPTION DES ERREURS CI DESSOUS !)			
-		Uint8	distance de vue de l'adversaire [cm] MSB (ATTENTION, unité = cm !!!)
-		Uint8	distance de vue de l'adversaire [cm] LSB (ATTENTION, unité = cm !!!)
-	*/
+		Uint8	octet d'erreur	robot adverse 1	(VOIR dESCRIPTION DES ERREURS CI DESSOUS !)			
+		Uint16	distance de vue de l'adversaire 1 [mm]
+		Uint8	beacon_id (numéro de la balise qui envoie ce message)
+		Uint8 octet d'erreur robot adverse 2
+		Uint16	distance de vue de l'adversaire 2 [mm]
+		Uint8 RFU (0xEE) : Reserved for futur use
+	 	*/
 
 	/* DEFINITION DES ERREURS RENVOYEES PAR LA BALISE : 
 		###ATTENTION : ce texte est une copie extraite du fichier "balise_config.h" du projet balise.
