@@ -36,6 +36,8 @@
 void TEST_STRAT_avoidance(void);
 void TEST_STRAT_kdo(void);
 void TEST_STRAT_assiettes(void);
+void TEST_STRAT_verres(void);
+
 
 void TEST_STRAT_assiettes_evitement(void);
 void TEST_Launcher_ball(void);

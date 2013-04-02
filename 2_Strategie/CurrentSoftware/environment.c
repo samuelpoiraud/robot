@@ -163,22 +163,22 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 {
 	if(msg->sid==BEACON_ADVERSARY_POSITION_IR)
 	{
-		if(msg->data[0]==AUCUNE_ERREUR)
+		if((msg->data[0] & 0xFE) == AUCUNE_ERREUR)	//Si l'octet de fiabilité vaut SIGNAL_INSUFFISANT, on le laisse passer quand même
 		{
 			global.env.sensor[BEACON_IR_FOE_1].angle = U16FROMU8(msg->data[1],msg->data[2]);
 			/* Pour gérer l'inversion de la balise */
-			global.env.sensor[BEACON_IR_FOE_1].angle += (global.env.sensor[BEACON_IR_FOE_1].angle > 0)?-PI4096:PI4096;
-			global.env.sensor[BEACON_IR_FOE_1].distance = (Uint16)(msg->data[3])*20;
+			//global.env.sensor[BEACON_IR_FOE_1].angle += (global.env.sensor[BEACON_IR_FOE_1].angle > 0)?-PI4096:PI4096;
+			global.env.sensor[BEACON_IR_FOE_1].distance = (Uint16)(msg->data[3])*10;
 			global.env.sensor[BEACON_IR_FOE_1].update_time = global.env.match_time;
 			global.env.sensor[BEACON_IR_FOE_1].updated = TRUE;
 			//debug_printf("Distance Foe 1 = %d", global.env.sensor[BEACON_IR_FOE_1].distance);
 		}
-		if(msg->data[4]==AUCUNE_ERREUR)
+		if((msg->data[4] & 0xFE) == AUCUNE_ERREUR)
 		{
 			global.env.sensor[BEACON_IR_FOE_2].angle = U16FROMU8(msg->data[5],msg->data[6]);
 			/* Pour gérer l'inversion de la balise */
-			global.env.sensor[BEACON_IR_FOE_2].angle += (global.env.sensor[BEACON_IR_FOE_2].angle > 0)?-PI4096:PI4096;
-			global.env.sensor[BEACON_IR_FOE_2].distance = (Uint16)(msg->data[7])*20;
+			//global.env.sensor[BEACON_IR_FOE_2].angle += (global.env.sensor[BEACON_IR_FOE_2].angle > 0)?-PI4096:PI4096;
+			global.env.sensor[BEACON_IR_FOE_2].distance = (Uint16)(msg->data[7])*10;
 			global.env.sensor[BEACON_IR_FOE_2].update_time = global.env.match_time;
 			global.env.sensor[BEACON_IR_FOE_2].updated = TRUE;
 			//debug_printf("DIstance FOe 2 = %d", global.env.sensor[BEACON_IR_FOE_2].distance);

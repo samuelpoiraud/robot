@@ -424,8 +424,8 @@ static void ACT_check_result(queue_id_e act_id) {
 				QUEUE_next(act_id);
 				break;
 		}
-#endif /* not def ACT_NO_ERROR_HANDLING */
 	}
+#endif /* not def ACT_NO_ERROR_HANDLING */
 }
 
 // Gere les messages CAN ACT_RESULT contenant des infos sur le déroulement d'une action

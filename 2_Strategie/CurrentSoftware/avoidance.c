@@ -1406,17 +1406,18 @@ static void foe_in_path(ASSER_way_e* move_way_indicator, bool_e *in_path)
 		in_path[i] = FALSE; //On initialise à faux
 		if ((global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
 		{
+
 			// on regarde en fonction de notre sens de déplacement
 			if(move_way == FORWARD || move_way == ANY_WAY)
 			{
-		//		debug_printf("F_%d\n",global.env.foe.angle);
+				//debug_printf("F_%d\nG_%d\n",global.env.foe[0].angle,global.env.foe[1].angle);
 				/* On regarde si l'adversaire est dans un gabarit devant nous */
 				if((global.env.foe[i].dist < distance_computed) && (global.env.foe[i].angle > (-DETECTION_ANGLE) 
 					&& global.env.foe[i].angle < DETECTION_ANGLE))
 				{
 					in_path[i] = TRUE;
 					avoidance_printf("F_");
-					CAN_send_debug("FFFFFF");
+					//CAN_send_debug("FFFFFF");
 				}//else debug_printf("O_ ");
 			}
 		
