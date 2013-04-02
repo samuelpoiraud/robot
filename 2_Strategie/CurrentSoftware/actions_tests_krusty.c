@@ -41,6 +41,7 @@ void TEST_STRAT_avoidance(void){
 		SORTIR,
 				DEPLACEMENT1,
 				DEPLACEMENT2,
+				DONE,
 	}state = SORTIR;
 
 	static error_e sub_action;
@@ -74,15 +75,19 @@ void TEST_STRAT_avoidance(void){
 					break;
 				case NOT_HANDLED:
 					state = DEPLACEMENT2;
+					state = DONE;
 					break;
 				case END_OK:
 					state = DEPLACEMENT2;
+					state = DONE;
 					break;
 				case END_WITH_TIMEOUT:
 					state = DEPLACEMENT2;
+					state = DONE;
 					break;
 				default:
 					state = DEPLACEMENT2;
+					state = DONE;
 					break;
 			}
 			break;
@@ -107,6 +112,11 @@ void TEST_STRAT_avoidance(void){
 					break;
 			}
 			break;
+		case DONE:
+			break;
+		default:
+			break;
+			
 	}
 
 
@@ -281,7 +291,6 @@ void TEST_STRAT_assiettes(void){
 			}
 			break;
 		case DONE:
-			debug_printf("finihaut\n");
 			break;
 	}
 
