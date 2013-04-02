@@ -41,6 +41,7 @@ error_e K_ASSIETE4(void);
 error_e K_ASSIETE5(void);
 
 error_e K_verres(void);
+error_e K_push_half_row_glasses(void);
 
 
 error_e TEST_Launcher_ball_mid(void);

@@ -74,19 +74,15 @@ void TEST_STRAT_avoidance(void){
 				case IN_PROGRESS:
 					break;
 				case NOT_HANDLED:
-					state = DEPLACEMENT2;
 					state = DONE;
 					break;
 				case END_OK:
-					state = DEPLACEMENT2;
 					state = DONE;
 					break;
 				case END_WITH_TIMEOUT:
-					state = DEPLACEMENT2;
 					state = DONE;
 					break;
 				default:
-					state = DEPLACEMENT2;
 					state = DONE;
 					break;
 			}
@@ -399,6 +395,52 @@ void TEST_Launcher_ball(void){
             break;
 
     }
+}
+
+void TEST_STRAT_verres(void){
+	static enum{
+		SORTIR = 0,
+		GO,
+		DONE
+	}state = GO;
+
+	static error_e sub_action;
+
+	switch(state){
+		case SORTIR:
+			sub_action = goto_pos(1000,COLOR_Y(350),FAST,FORWARD);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = GO;
+					break;
+				case END_WITH_TIMEOUT:
+					state = GO;
+					break;
+				case NOT_HANDLED:
+					state = GO;
+					break;
+			}
+		case GO:
+			sub_action = K_verres();
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case END_OK:
+				default:
+					state = DONE;
+					break;
+			}
+			break;
+		case DONE:
+			break;
+		default:
+			debug_printf("fuyez ca va peter");
+			break;
+	}
 }
 
 
