@@ -854,6 +854,7 @@ error_e K_ASSIETE1(void){
 
 		case EAT_BALLS:
 			state = EAT_BALLS;
+			state = WAIT_EAT_BALLS;
 			ACT_plate_rotate(ACT_PLATE_RotateLuckyLuke);
 			return IN_PROGRESS;
 			break;
@@ -896,6 +897,595 @@ error_e K_ASSIETE1(void){
 
 	}
 }
+
+
+error_e K_verres(void){
+	static enum{
+		SORTIR=0,
+		PREMIER,
+		SECOND,
+		SECONDBIS,
+		TROIS,
+		QUATRE,
+		CINQ,
+		SIX,
+        SEPT,
+		DONE,
+	}state = SORTIR;
+
+	static error_e sub_action;
+
+
+	switch(state){
+		case SORTIR:
+			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = PREMIER;
+					break;
+				case END_WITH_TIMEOUT:
+					state = PREMIER;
+					break;
+				case NOT_HANDLED:
+					state = PREMIER;
+					break;
+			}
+			break;
+		case PREMIER:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{300, COLOR_Y(580)},FAST},
+					{{300, COLOR_Y(2300)},FAST},
+					//{{550, COLOR_Y(2400)},FAST},
+					{{575, COLOR_Y(2405)},
+							FAST}},3,REAR,NO_AVOIDANCE);
+			//TEST_STRAT_VERRE1();
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = SECOND;
+					break;
+				case END_WITH_TIMEOUT:
+					state = SECOND;
+					break;
+				case NOT_HANDLED:
+					state = SECOND;
+					break;
+			}
+			break;
+		case SECOND:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{548, COLOR_Y(600)},FAST},
+							{{550, COLOR_Y(400)},FAST}},
+							2,FORWARD,NO_AVOIDANCE);
+					//TEST_STRAT_VERRE2();
+			switch(sub_action){
+				case IN_PROGRESS:
+				{
+					static int left=1;
+					static int right=1;
+					if(left && PORTBbits.RB5){
+						left=0;
+						debug_printf("Detected left verre");
+						ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+						ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
+
+					}
+					if(right && !PORTBbits.RB3){
+						right=0;
+						debug_printf("Detected right verre");
+						ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierClose);
+						ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);
+					}
+					break;
+				}
+				case END_OK:
+					ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
+					ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierOpen);
+					state = TROIS;
+					break;
+				case END_WITH_TIMEOUT:
+					state = TROIS;
+					break;
+				case NOT_HANDLED:
+					state = TROIS;
+					break;
+			}
+			break;
+		case SECONDBIS:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{555, COLOR_Y(2400)},FAST}},
+					1,REAR,NO_AVOIDANCE);
+
+			break;
+		case TROIS:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{550, COLOR_Y(2200)},FAST},
+					{{1000, COLOR_Y(2400)},FAST}},
+							2,REAR,NO_AVOIDANCE);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = QUATRE;
+					break;
+				case END_WITH_TIMEOUT:
+					state = QUATRE;
+					break;
+				case NOT_HANDLED:
+					state = QUATRE;
+					break;
+			}
+			break;
+		case QUATRE:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{850, COLOR_Y(2200)},FAST},
+					{{850, COLOR_Y(1000)},FAST},
+					{{850, COLOR_Y(600)},FAST},
+					{{805, COLOR_Y(400)},FAST}},
+					4,FORWARD,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = CINQ;
+						break;
+					case END_WITH_TIMEOUT:
+						state = CINQ;
+						break;
+					case NOT_HANDLED:
+						state = CINQ;
+						break;
+				}
+			break;
+			case CINQ:
+				sub_action = goto_pos_with_scan_foe(
+				(displacement_t[]){{{800, COLOR_Y(2400)},FAST},
+					{{1200, COLOR_Y(2500)},FAST}},
+							2,REAR,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = SIX;
+						break;
+					case END_WITH_TIMEOUT:
+						state = SIX;
+						break;
+					case NOT_HANDLED:
+						state = SIX;
+						break;
+				}
+			break;
+		case SIX:
+				sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{1075, COLOR_Y(2200)},FAST},
+					{{1100, COLOR_Y(1000)},FAST},
+					{{1075, COLOR_Y(600)},FAST},
+					{{1050, COLOR_Y(400)},FAST}},
+					4,FORWARD,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = SEPT;
+						break;
+					case END_WITH_TIMEOUT:
+						state = SEPT;
+						break;
+					case NOT_HANDLED:
+						state = SEPT;
+						break;
+				}
+				break;
+                    case SEPT:
+				sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{1050, COLOR_Y(700)},FAST}},
+					1,REAR,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = DONE;
+						break;
+					case END_WITH_TIMEOUT:
+						state = DONE;
+						break;
+					case NOT_HANDLED:
+						state = DONE;
+						break;
+				}
+				break;
+		case DONE:
+			return END_OK;
+			break;
+	}
+	return IN_PROGRESS;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 error_e TEST_Launcher_ball_mid(void){
     static Uint8 nb_ball=0;
