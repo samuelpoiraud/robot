@@ -186,7 +186,7 @@ void DETECTION_update_foe_by_beacon()
 				}
 			}
 			global.env.foe[foe_id].angle = global.env.sensor[BEACON_IR(foe_id)].angle;		
-			detection_printf("IR Foe_%d is x:%d y:%d dist:%d angle:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, global.env.foe[foe_id].angle);	
+			detection_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 		
 		if(global.env.sensor[BEACON_US(foe_id)].updated)
@@ -210,7 +210,7 @@ void DETECTION_update_foe_by_beacon()
 			}
 			/* On mets a jour la distance */
 			global.env.foe[foe_id].dist = global.env.sensor[BEACON_US(foe_id)].distance;
-			detection_printf("US Foe_%d is x:%d y:%d dist:%d angle:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, global.env.foe[foe_id].angle);	
+			detection_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist,((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 	}
 }

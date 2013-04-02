@@ -1107,384 +1107,65 @@ error_e K_verres(void){
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+error_e K_push_half_row_glasses(void){
+	static enum{
+		PUSH_ROW,
+		DONE
+	}state = PUSH_ROW;
+
+	static error_e sub_action;
+
+	switch(state){
+		case PUSH_ROW:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{1110, COLOR_Y(2150)},FAST},
+					{{1010, COLOR_Y(1855)},FAST}}
+					//{{550, COLOR_Y(2400)},FAST},
+					,2,FORWARD,NO_AVOIDANCE);
+			switch(sub_action){
+				case IN_PROGRESS:
+				{
+					static int left=1;
+					static int right=1;
+					if(left && PORTBbits.RB5){
+						left=0;
+						debug_printf("Detected left verre");
+						ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+						ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
+
+					}
+					if(right && !PORTBbits.RB3){
+						right=0;
+						debug_printf("Detected right verre");
+						ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierClose);
+						ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);
+					}
+					break;
+				}
+				case END_OK:
+					state = DONE;
+					break;
+				case NOT_HANDLED:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+
+			}
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+	}
+	return IN_PROGRESS;
+}
 
 
 error_e TEST_Launcher_ball_mid(void){
