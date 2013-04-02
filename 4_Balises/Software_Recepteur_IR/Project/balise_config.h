@@ -124,7 +124,7 @@
 	// > combien de récepteurs captent au plus près
 	//Si ce nombre de récepteur ont recu du signal (ils appartiennent tous à la tache) >> état d'erreur levé !
 	
-	#define PRODUIT_DISTANCE_EVIT_PUISSANCE_EVIT	7200
+	#define PRODUIT_DISTANCE_EVIT_PUISSANCE_EVIT	10800
 	//  = "distance d'évitement souhaitée" * "PuissanceReçue mesurée à cette distance"
 	//Ce coefficient permet la mesure de distance... 
 	//La distance étant déterminée par une courbe en 1/P, il faut connaitre le produit Puissance*Distance
