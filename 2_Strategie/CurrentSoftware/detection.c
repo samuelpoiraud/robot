@@ -70,6 +70,7 @@ void DETECTION_update(void)
 		for (i=0; i < NB_FOES; i++)
 		{
 			if(global.env.foe[i].updated)
+		#warning attention: A désactiver en match pour eviter de flooder
 				detection_printf("\r\nFoe_%d is x:%d y:%d dist:%d angle:%d\r\n", i, global.env.foe[i].x, global.env.foe[i].y, global.env.foe[i].dist, global.env.foe[i].angle);
 				CAN_send_foe_pos();	
 		}			
@@ -172,8 +173,10 @@ void DETECTION_update_foe_by_beacon()
 				/* L'ancienne distance est conservee */
 				beacon_foe_x = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.cosAngle 
 					- (global.env.foe[foe_id].dist * sin4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.sinAngle + global.env.pos.x;
+
 				beacon_foe_y  = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.sinAngle 
 					+ (global.env.foe[foe_id].dist * sin4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.cosAngle + global.env.pos.y;
+
 				if(ENV_game_zone_filter(beacon_foe_x,beacon_foe_y,BORDER_DELTA))
 				{
 					global.env.foe[foe_id].x = beacon_foe_x;
@@ -193,8 +196,10 @@ void DETECTION_update_foe_by_beacon()
 			{
 				beacon_foe_x = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.cosAngle 
 					- (global.env.sensor[BEACON_US(foe_id)].distance * sin4096(global.env.foe[foe_id].angle)) * global.env.pos.sinAngle + global.env.pos.x;
+
 				beacon_foe_y  = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.sinAngle 
 					+ (global.env.sensor[BEACON_US(foe_id)].distance * sin4096(global.env.foe[foe_id].angle)) * global.env.pos.cosAngle + global.env.pos.y;
+
 				if(ENV_game_zone_filter(beacon_foe_x,beacon_foe_y,BORDER_DELTA))
 				{
 					global.env.foe[foe_id].x = beacon_foe_x;

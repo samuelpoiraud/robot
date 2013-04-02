@@ -87,18 +87,18 @@
 
 	#define ADC_PIN_DT10_0		0 		
 		#define USE_AN2 			// DT10 0
-	#define ADC_PIN_DT10_1 	 	1
-		#define USE_AN3	 			// DT10 1
-	#define ADC_PIN_DT10_2		2
+	//#define ADC_PIN_DT10_1 	 	1
+		//#define USE_AN3	 			// DT10 1
+	#define ADC_PIN_DT10_2		1
 		#define USE_AN4 			// DT10	2
-	#define ADC_PIN_DT10_3		3
-		#define USE_AN5 			// DT10	3
+	//#define ADC_PIN_DT10_3		3
+		//#define USE_AN5 			// DT10	3
 		
-	#define ADC_PIN_DT50_FRONT 	4
+	#define ADC_PIN_DT50_FRONT 	2
 		#define USE_AN13 			// DT50 droit
-	#define ADC_PIN_DT50_LEFT	5
+	#define ADC_PIN_DT50_LEFT	3
 		#define USE_AN14 			// DT50 left
-	#define ADC_PIN_DT50_TOP	6     
+	#define ADC_PIN_DT50_TOP	4
 		#define USE_AN15 			// DT50 top
 		
 	/*
@@ -122,12 +122,12 @@
 		
 	//demande à l'asser d'envoyer regulierement la position du robot
 	//utilisé en 2010-2011 pour la détection des pions avec les capteurs de distance SICK (cf. brain.c)
-	#define USE_SCHEDULED_POSITION_REQUEST
+	//#define USE_SCHEDULED_POSITION_REQUEST
 	
 	//utilisation des télémètres laser SICK
-	#define USE_SICK_DT50_LEFT
-	#define USE_SICK_DT50_RIGHT
-	#define USE_SICK_DT50_TOP
+	//#define USE_SICK_DT50_LEFT
+	//#define USE_SICK_DT50_RIGHT
+	//#define USE_SICK_DT50_TOP
 	#define USE_SICK_DT10_0
 	#define USE_SICK_DT10_1
 	#define USE_SICK_DT10_2
@@ -135,13 +135,13 @@
 	
 	//utilisation du lecteur de codes-barres
 //	#define USE_BARCODE_ON_UART1
-	#define USE_BARCODE_ON_UART2
+	//#define USE_BARCODE_ON_UART2
 	
 	//envoi des messages de debug de timeout et activité des piles
 //	#define USE_SEND_CAN_DEBUG
 
 	//envoie la position de l'adversaire sur le bus à chaque update (max 1 fois par seconde (a l'ecriture de ce commentaire))
-//	#define USE_FOE_POS_CAN_DEBUG
+	#define USE_FOE_POS_CAN_DEBUG
 	
 	//envoie de l'ajout, la mise a jour ou la suppresion d'un element de jeu sur le CAN
 //	#define USE_ELEMENT_CAN_DEBUG

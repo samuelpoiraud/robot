@@ -102,12 +102,12 @@ void any_match(time32_t match_duration)
 			if(strat_number()==0x00){
 					//STRAT_1_KRUSTY
 				calibration = 0x00;
-					strategy = TEST_STRAT_assiettes;
+					strategy = TEST_STRAT_verres;
 			}
 			if(strat_number()==0x01){
 					//STRAT_2_KRUSTY
 					calibration = 0x00;
-					strategy = TEST_Launcher_ball;
+					strategy = TEST_STRAT_verres;
 			}
 			if(strat_number()==0x02){
 					//STRAT_3_KRUSTY
