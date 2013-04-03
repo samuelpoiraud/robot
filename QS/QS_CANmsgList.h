@@ -69,10 +69,14 @@
 	//Envois
 	#define XBEE_ENV_UPDATE					0x5A1
 	#define XBEE_START_MATCH				0x5A4	//Ce message est envoyé pour lancer le match de l'autre robot
+	#define XBEE_PING_OTHER_STRAT			0x5A6	//Ce message est envoyé pour pinger l'autre carte stratégie
+	#define XBEE_PONG_OTHER_STRAT			0x5A7	//Ce message est envoyé en réponse d'un ping vers l'autre carte stratégie
 
 	//Reception: La super se charge de transformer le message recu par xbee et qui commence par le sid precedent
 	#define STRAT_ELTS_UPDATE				0x2A1
 	#define STRAT_START_MATCH				0x2A4	//Ce message est envoyé pour demander à une carte S de lancer le match
+	#define XBEE_PING_FROM_OTHER_STRAT		0x2A6	//Ce message est reçu par la strat, en provenance de l'autre strat
+	#define XBEE_PONG_FROM_OTHER_STRAT		0x2A7	//Ce message est reçu en réponse d'un ping en provenance de l'autre carte stratégie
 
  /*****************************************************************
  *
