@@ -118,6 +118,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case STRAT_ELTS_UPDATE:
 			break;
+		case STRAT_START_MATCH:
+			global.env.ask_start = TRUE;
+			break;
 		default:
 			break;
 	}
