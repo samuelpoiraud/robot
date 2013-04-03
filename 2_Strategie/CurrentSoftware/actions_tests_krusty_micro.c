@@ -1187,7 +1187,7 @@ error_e TEST_Launcher_ball_mid(void){
 
     switch(state){
         case MOVE :
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -1244,7 +1244,7 @@ error_e TEST_Launcher_ball_mid(void){
             break;
 
         case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run(6400);  // a 66cm du bord du gateau
+           ACT_ball_launcher_run(6300);  // a 66cm du bord du gateau
             state=LAUNCH_BALL_ATT;
             break;
 
@@ -1384,7 +1384,7 @@ error_e TEST_Launcher_ball_cadeau(void){
 
     switch(state){
         case MOVE :
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -1581,7 +1581,7 @@ error_e TEST_Launcher_ball_gateau(void){
 
     switch(state){
         case MOVE :
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1350,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1350,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -1609,7 +1609,7 @@ error_e TEST_Launcher_ball_gateau(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9750 : -3320), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -11080 : -4649), FAST);
             switch(sub_action)
             {
                 case END_OK:
