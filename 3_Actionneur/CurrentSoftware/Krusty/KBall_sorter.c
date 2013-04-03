@@ -105,11 +105,12 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 
 static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 	static Uint16 wantedPosition;
+	static time_t detection_end_time; //pour attendre un certain temps sur la position detect de l'ax12
+	BALLSORTER_command_state_e state = QUEUE_get_arg(queueId)->param;
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallSorter) {    // Gestion des mouvements de rotation de l'AX12 et de la detection des cerises
 		if(init && !QUEUE_has_error(queueId)) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-			BALLSORTER_command_state_e state = QUEUE_get_arg(queueId)->param;
 			bool_e cmdOk;
 
 			wantedPosition = 0xFFFF;
@@ -138,22 +139,14 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 					break;
 
 				case BALLSORTER_CS_TakeCherry:
-					AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 50);
+					AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 100);
 					wantedPosition = BALLSORTER_AX12_DETECT_CHERRY_POS;
 					break;
 
 				case BALLSORTER_CS_DetectCherry:
-				{   //Envoyer le message du resultat de la detection puis le message de resultat de l'opération demandé par la strat
-					CAN_msg_t detectionResultMsg = {ACT_BALLSORTER_RESULT, {(BALLSORTER_SENSOR_PIN == BALLSORTER_SENSOR_DETECTED_LEVEL)? ACT_BALLSORTER_WHITE_CHERRY : ACT_BALLSORTER_NO_CHERRY}, 1};
-					CAN_send(&detectionResultMsg);
-					CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
-
-//					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
-//					CAN_send(&resultMsg);
-
-					QUEUE_behead(queueId);
+					detection_end_time = CLOCK_get_time() + BALLSORTER_DETECT_TIME;
 					return; //La suite c'est les commandes AX12
-				}
+
 				default: {
 //					CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLSORTER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
 //					CAN_send(&resultMsg);
@@ -184,7 +177,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				QUEUE_behead(queueId);
 				return;
 			}
-		} else {
+		} else if(state != BALLSORTER_CS_DetectCherry) {
 			Uint8 error;
 			Uint16 ax12Pos;
 			//CAN_msg_t resultMsg;
@@ -213,7 +206,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			} else if(error) {							//autres erreurs
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_UNKNOWN;
-			} else return;	//Operation is not finished, do nothing
+			} else return; 	//Operation is not finished, do nothing but get last not ok value
 
 			//On envoie le message CAN de retour que si l'opération a fail et que ce n'est pas a cause d'une opération antérieure (ACT_RESULT_ERROR_OTHER)
 			if(result != ACT_RESULT_DONE && errorCode != ACT_RESULT_ERROR_OTHER) {
@@ -228,6 +221,14 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				CAN_sendResultWithLine(ACT_BALLSORTER, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
 			}
 			QUEUE_behead(queueId);	//gestion terminée
+		} else { //BALLSORTER_CS_DetectCherry
+			if(CLOCK_get_time() > detection_end_time) {   //Envoyer le message du resultat de la detection qu'après la fin du temps BALLSORTER_DETECT_TIME
+				CAN_msg_t detectionResultMsg = {ACT_BALLSORTER_RESULT, {(BALLSORTER_SENSOR_PIN == BALLSORTER_SENSOR_DETECTED_LEVEL)? ACT_BALLSORTER_WHITE_CHERRY : ACT_BALLSORTER_NO_CHERRY}, 1};
+				CAN_send(&detectionResultMsg);
+				CAN_sendResultWithLine(ACT_BALLSORTER, QUEUE_get_arg(queueId)->canCommand, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
+
+				QUEUE_behead(queueId);
+			}
 		}
 	}
 }

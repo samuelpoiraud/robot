@@ -135,11 +135,12 @@
 /* Config BALLSORTER */
 	#define BALLSORTER_AX12_ID                   5      //TODO: changer ces valeurs !!!
 	#define BALLSORTER_AX12_MAX_TORQUE_PERCENT   100
-	#define BALLSORTER_AX12_ASSER_POS_EPSILON    5      //en degré
-	#define BALLSORTER_AX12_ASSER_TIMEOUT        20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define BALLSORTER_AX12_ASSER_POS_EPSILON    2      //en degré
+	#define BALLSORTER_AX12_ASSER_TIMEOUT        30     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 	#define BALLSORTER_AX12_EJECT_CHERRY_POS     132      //TODO: changer ces valeurs !!! (en degré)
-	#define BALLSORTER_AX12_NEXT_CHERRY_POS      207
+	#define BALLSORTER_AX12_NEXT_CHERRY_POS      220
 	#define BALLSORTER_AX12_DETECT_CHERRY_POS    160
+	#define BALLSORTER_DETECT_TIME               4   //Attend x * 0.1 s après que l'AX12 soit rendu à sa position avant de capter (unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms))
 	#define BALLSORTER_SENSOR_PIN                PORTBbits.RB8
 	#define BALLSORTER_SENSOR_DETECTED_LEVEL     0      //Niveau de BALLSORTER_SENSOR_PIN quand une cerise blanche est détectée
 
@@ -148,7 +149,7 @@
 	#define LIFT_LEFT_ASSER_KP                       300
 	#define LIFT_LEFT_ASSER_KI                       0
 	#define LIFT_LEFT_ASSER_KD                       0
-	#define LIFT_LEFT_ASSER_TIMEOUT                  0   //en ms
+	#define LIFT_LEFT_ASSER_TIMEOUT                  3000   //en ms
 	#define LIFT_LEFT_ASSER_POS_EPSILON              75      //TODO: à ajuster plus correctement
 	#define LIFT_LEFT_UP_POS                         -950    //TODO: ajuster ces valeurs ! (unité: potarland)
 	#define LIFT_LEFT_MID_POS                        -400
@@ -173,13 +174,13 @@
 	#define LIFT_RIGHT_ASSER_TIMEOUT                  3000   //en ms
 	#define LIFT_RIGHT_ASSER_POS_EPSILON              75      //TODO: à ajuster plus correctement
 	#define LIFT_RIGHT_UP_POS                         -800    //TODO: ajuster ces valeurs ! (unité: potarland)
-	#define LIFT_RIGHT_MID_POS                        -4x00
+	#define LIFT_RIGHT_MID_POS                        -400
 	#define LIFT_RIGHT_DOWN_POS                       -50    /////////////////////////////
 	#define LIFT_RIGHT_DCMOTOR_PWM_NUM                2
 	#define LIFT_RIGHT_DCMOTOR_PORT_WAY               PORTE
 	#define LIFT_RIGHT_DCMOTOR_PORT_WAY_BIT           2
-	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY0           20
-	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY1           20
+	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY0           40
+	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY1           40
 	#define LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID       AN2_ID
 	#define LIFT_RIGHT_PLIER_AX12_ASSER_TIMEOUT       20    //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 	#define LIFT_RIGHT_PLIER_AX12_ID                  1	    //TODO: changer ces valeurs !!!

@@ -136,6 +136,7 @@ static void MAIN_onButton1() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
+	msg.size = 1;
 	if(SWITCH_RG0) {
 		msg.sid = ACT_PLATE;
 		if(SWITCH_RG1) {
@@ -145,9 +146,8 @@ static void MAIN_onButton1() {
 			debug_printf("Main: Plate plier close\n");
 			msg.data[0] = ACT_PLATE_PLIER_CLOSE;
 		}
-		msg.size = 1;
+		CAN_process_msg(&msg);
 	} else {
-		msg.sid = ACT_LIFT_RIGHT;
 		if(SWITCH_RG1) {
 			debug_printf("Main: Lift left go up\n");
 			msg.data[0] = ACT_LIFT_GO_UP;
@@ -155,10 +155,12 @@ static void MAIN_onButton1() {
 			debug_printf("Main: Lift left plier close\n");
 			msg.data[0] = ACT_LIFT_PLIER_CLOSE;
 		}
-		msg.size = 1;
+		msg.sid = ACT_LIFT_RIGHT;
+		CAN_process_msg(&msg);
+		msg.sid = ACT_LIFT_LEFT;
+		CAN_process_msg(&msg);
 	}
 
-	CAN_process_msg(&msg);
 #endif
 }
 
@@ -166,6 +168,7 @@ static void MAIN_onButton2() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
+	msg.size = 1;
 	if(SWITCH_RG0) {
 		msg.sid = ACT_PLATE;
 		if(SWITCH_RG1) {
@@ -175,9 +178,8 @@ static void MAIN_onButton2() {
 			debug_printf("Main: Plate plier stop asser\n");
 			msg.data[0] = ACT_PLATE_PLIER_STOP;
 		}
-		msg.size = 1;
+		CAN_process_msg(&msg);
 	} else {
-		msg.sid = ACT_LIFT_RIGHT;
 		if(SWITCH_RG1) {
 			debug_printf("Main: Lift left go middle\n");
 			msg.data[0] = ACT_LIFT_GO_MID;
@@ -185,10 +187,12 @@ static void MAIN_onButton2() {
 			debug_printf("Main: Lift left plier stop asser\n");
 			msg.data[0] = ACT_LIFT_PLIER_STOP;
 		}
-		msg.size = 1;
+		msg.sid = ACT_LIFT_RIGHT;
+		CAN_process_msg(&msg);
+		msg.sid = ACT_LIFT_LEFT;
+		CAN_process_msg(&msg);
 	}
 
-	CAN_process_msg(&msg);
 #endif
 }
 
@@ -196,6 +200,7 @@ static void MAIN_onButton3() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
+	msg.size = 1;
 	if(SWITCH_RG0) {
 		msg.sid = ACT_PLATE;
 		if(SWITCH_RG1) {
@@ -205,7 +210,7 @@ static void MAIN_onButton3() {
 			debug_printf("Main: Plate plier open\n");
 			msg.data[0] = ACT_PLATE_PLIER_OPEN;
 		}
-		msg.size = 1;
+		CAN_process_msg(&msg);
 	} else {
 		msg.sid = ACT_LIFT_RIGHT;
 		if(SWITCH_RG1) {
@@ -215,10 +220,12 @@ static void MAIN_onButton3() {
 			debug_printf("Main: Lift left plier open\n");
 			msg.data[0] = ACT_LIFT_PLIER_OPEN;
 		}
-		msg.size = 1;
+		msg.sid = ACT_LIFT_RIGHT;
+		CAN_process_msg(&msg);
+		msg.sid = ACT_LIFT_LEFT;
+		CAN_process_msg(&msg);
 	}
 
-	CAN_process_msg(&msg);
 #endif
 }
 
