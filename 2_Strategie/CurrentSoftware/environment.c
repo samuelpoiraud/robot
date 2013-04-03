@@ -121,6 +121,16 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_START_MATCH:
 			global.env.ask_start = TRUE;
 			break;
+		case XBEE_PING_FROM_OTHER_STRAT:
+			//On recoit un ping, on répond par un PONG.
+			//Le lien est établi
+			global.env.xbee_is_linked = TRUE;
+			CAN_send_sid(XBEE_PONG_OTHER_STRAT);
+			break;
+		case XBEE_PONG_FROM_OTHER_STRAT:
+			//On reçoit un pong, tant mieux, le lien est établi
+			global.env.xbee_is_linked = TRUE;
+			break;
 		default:
 			break;
 	}
@@ -265,9 +275,11 @@ void ENV_init()
 	global.env.match_time = 0;
 	global.env.pos.dist = 0;
 	global.env.ask_start = FALSE;
+	global.env.xbee_is_linked = FALSE;
+	global.env.flag_for_ping_xbee = 0;
 	global.env.asser.change_point = FALSE;
 	global.env.asser.calibrated = FALSE;
-
+	
 	//Initialisation des elemnts du terrain
 	int i;
 	for(i=0; i<4; i++){
@@ -292,17 +304,7 @@ void ENV_set_color(color_e color)
 {
 	/* changer la couleur */
 	global.env.color = color;
-	/* changer les LEDs de couleur */
-	if(global.env.color!=BLUE)
-	{
-		BLUE_LEDS=0;
-		RED_LEDS=1;
-	}
-	else
-	{
-		RED_LEDS=0;
-		BLUE_LEDS=1;
-	}
+	
 	/* indiquer au monde la nouvelle couleur */
 	CAN_msg_t msg;
 	msg.sid=BROADCAST_COULEUR;
@@ -310,6 +312,23 @@ void ENV_set_color(color_e color)
 	msg.size=1;
 	CAN_send(&msg);
 }
+
+
+void ENV_XBEE_ping_process(void)
+{
+	/* changer les LEDs de couleur */
+	if(global.env.flag_for_ping_xbee >= 2)	//Toutes les secondes
+	{
+		global.env.flag_for_ping_xbee = 0;
+		if(global.env.xbee_is_linked == FALSE)
+		{	
+			//Si le lien n'est pas avéré, on ping l'autre carte stratégie	
+			CAN_send_sid(XBEE_PING_OTHER_STRAT);	
+		}		
+	}	
+	
+}
+	
 
 /* envoie la config actuelle sur le CAN (pour la super) */
 void ENV_dispatch_config()
