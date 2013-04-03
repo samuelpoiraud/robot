@@ -88,6 +88,8 @@
 		bool_e color_updated;
 		bool_e ask_asser_calibration;
 		bool_e ask_start;
+		bool_e xbee_is_linked;
+		Uint8 flag_for_ping_xbee;
 		config_t config;
 		config_t wanted_config;
 		bool_e config_updated;
@@ -117,6 +119,9 @@
 
 	/* envoie la config actuelle sur le CAN (pour la super) */
 	void ENV_dispatch_config();
+
+	/* Cause à l'autre robot pour savoir s'il est présent...*/
+	void ENV_XBEE_ping_process(void);
 
 	/* Permet d'éxécuter un traitement rapide dans l'interruption suivantle message CAN reçu 
    (ATTENTION : le message n'est pas placé dans le buffer) */
