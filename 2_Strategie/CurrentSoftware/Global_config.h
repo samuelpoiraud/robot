@@ -14,7 +14,7 @@
 
 	#define VERBOSE_MODE
 	#define MODE_HOMOLOGATION
-	#define OUTPUT_LOG
+//	#define OUTPUT_LOG  //utilisé dans act_function.h/c seulement actuellement
 	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 
 	/* Pour certaines config particulieres, il faut definir qui on est

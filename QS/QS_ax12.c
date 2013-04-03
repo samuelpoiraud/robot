@@ -1131,7 +1131,6 @@ static void AX12_UART2_init(Uint32 uart_speed)
 //(car le caractère envoyé est envoyé plus vite que le retour de la fonction AX12_state_machine)
 void _ISR AX12_UART2_RXInterrupt(void)
 {
-	LED_ERROR = 1;
 	AX12_UART2_RXInterrupt_flag = 0;
 	while(U2STAbits.URXDA) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
 		if(state_machine.state != AX12_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
@@ -1145,23 +1144,18 @@ void _ISR AX12_UART2_RXInterrupt(void)
 			}
 		}
 	}
-	LED_ERROR = 0;
 }
 
 void _ISR AX12_UART2_TXInterrupt(void)
 {
-	//LED_ERROR = 1;
 	AX12_UART2_TXInterrupt_flag = 0;
 	AX12_state_machine(AX12_SME_TxInterrupt);
-	LED_ERROR = 0;
 }
 
 void AX12_TIMER_interrupt()
 {
-	//LED_ERROR = 1;
 	AX12_state_machine(AX12_SME_Timeout);
 	AX12_TIMER_resetFlag();
-	LED_ERROR = 0;
 }
 
 /**************************************************************************/
@@ -1184,8 +1178,10 @@ void AX12_init() {
 	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
 
 	for(i=0; i<AX12_NUMBER; i++) {
-		AX12_config_set_minimal_angle(i, 0);
-		AX12_config_set_maximal_angle(i, 300);
+#warning "Les angles min et max ne sont plus définis par defaut (mais doivent être définis dans le code qui l'utilise si on veux être sur des angles"
+//Cela gagne beaucoup de temps au démarrage ...
+//		AX12_config_set_minimal_angle(i, 0);
+//		AX12_config_set_maximal_angle(i, 300);
 		AX12_on_the_robot[i].angle_limit[0] = 0;
 		AX12_on_the_robot[i].angle_limit[1] = 300;
 
