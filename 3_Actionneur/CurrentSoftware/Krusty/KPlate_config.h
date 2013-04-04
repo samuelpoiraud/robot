@@ -17,9 +17,9 @@
 	#define PLATE_ASSER_KD                       0
 	#define PLATE_ASSER_TIMEOUT                  0   //en ms
 	#define PLATE_ASSER_POS_EPSILON              60  //TODO: à ajuster plus correctement
-	#define PLATE_HORIZONTAL_POS                 500
-	#define PLATE_PREPARE_POS                    680
-	#define PLATE_VERTICAL_POS                   870   /////////////////////////////
+	#define PLATE_HORIZONTAL_POS                 40
+	#define PLATE_PREPARE_POS                    170
+	#define PLATE_VERTICAL_POS                   390   /////////////////////////////
 	#define PLATE_DCMOTOR_MAX_PWM_WAY0           30
 	#define PLATE_DCMOTOR_MAX_PWM_WAY1           30
 	#define PLATE_PLIER_AX12_ASSER_TIMEOUT       5      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
