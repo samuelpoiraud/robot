@@ -1182,12 +1182,12 @@ error_e TEST_Launcher_ball_mid(void){
         WAIT_BALL_ATT,
         STOP_LAUNCH,
         STOP_LAUNCH_ATT,
-        DONE,
+        DONE
     } state = MOVE;
 
     switch(state){
         case MOVE :
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,NO_DODGE_AND_WAIT);
+           // sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:

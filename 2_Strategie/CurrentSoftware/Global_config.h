@@ -122,7 +122,7 @@
 		
 	//demande à l'asser d'envoyer regulierement la position du robot
 	//utilisé en 2010-2011 pour la détection des pions avec les capteurs de distance SICK (cf. brain.c)
-	//#define USE_SCHEDULED_POSITION_REQUEST
+	#define USE_SCHEDULED_POSITION_REQUEST
 	
 	//utilisation des télémètres laser SICK
 	//#define USE_SICK_DT50_LEFT
