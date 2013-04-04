@@ -137,9 +137,9 @@ void CAN_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, Ui
 
 static void CAN_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param) {
 #ifdef OUTPUT_LOG
-	const char* originalSidStr;
-	const char* resultStr;
-	const char* errorCodeStr;
+	const char* originalSidStr = "Unknown";
+	const char* resultStr = "Unknown";
+	const char* errorCodeStr ="Unknown error";
 
 	switch(originalSid) {
 		case ACT_BALLINFLATER:       originalSidStr = "BallInflater"; break;
