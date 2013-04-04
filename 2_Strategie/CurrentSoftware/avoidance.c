@@ -988,7 +988,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 
 		case NO_FOE:
 			foe_in_path(&move_way, is_in_path);//Regarde si les adversaires sont sur le chemin
-			//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
+			debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 			if((is_in_path[FOE_1] || is_in_path[FOE_2]) && AVOIDANCE_robot_translation_move())
 			{
 				debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
@@ -1397,8 +1397,8 @@ static void foe_in_path(ASSER_way_e* move_way_indicator, bool_e *in_path)
 
 	// on identifie une distance par rapport à la distance
 	//distance_computed = ((speed_indicator*52) >>2) + 400;		// DISTANCE 2011
-	distance_computed = ((speed_indicator*52) >>2) + 240;
-	//distance_computed = 800;
+	//distance_computed = ((speed_indicator*52) >>2) + 240;
+	distance_computed = 400;
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
 
 	for (i=0; i<NB_FOES; i++)
@@ -1412,8 +1412,8 @@ static void foe_in_path(ASSER_way_e* move_way_indicator, bool_e *in_path)
 			{
 				//debug_printf("F_%d\nG_%d\n",global.env.foe[0].angle,global.env.foe[1].angle);
 				/* On regarde si l'adversaire est dans un gabarit devant nous */
-				if((global.env.foe[i].dist < distance_computed) && (global.env.foe[i].angle > (-DETECTION_ANGLE) 
-					&& global.env.foe[i].angle < DETECTION_ANGLE))
+				if((global.env.foe[i].dist < distance_computed) )//&& (global.env.foe[i].angle > (-DETECTION_ANGLE)
+					//&& global.env.foe[i].angle < DETECTION_ANGLE))
 				{
 					in_path[i] = TRUE;
 					avoidance_printf("F_");

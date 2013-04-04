@@ -72,6 +72,7 @@ void TEST_STRAT_avoidance(void){
 					{{500, COLOR_Y(2500)},SLOW}},2,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action){
 				case IN_PROGRESS:
+                                    debug_printf("INPROGRESS");
 					break;
 				case NOT_HANDLED:
 					state = DONE;
