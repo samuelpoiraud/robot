@@ -139,7 +139,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 					break;
 
 				case BALLSORTER_CS_TakeCherry:
-					AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 100);
+					AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 150);
 					wantedPosition = BALLSORTER_AX12_DETECT_CHERRY_POS;
 					break;
 

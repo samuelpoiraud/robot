@@ -168,22 +168,25 @@ static void CAN_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 res
 		case ACT_RESULT_ERROR_UNKNOWN:      errorCodeStr = "Unknown";       break;
 		default:                            errorCodeStr = "Unknown error"; break;
 	}
+	log_level_e level = LOG_LEVEL_Debug;
+	if(result != ACT_RESULT_DONE)
+		level = LOG_LEVEL_Error;
 	if(paramType == CAN_TPT_Normal) {
-		COMPONENT_log(LOG_LEVEL_Debug, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), param: 0x%x(%u)\n",
+		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), param: 0x%x(%u)\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
 			errorCodeStr, errorCode,
 			param, param);
 	} else if(paramType == CAN_TPT_Line) {
-		COMPONENT_log(LOG_LEVEL_Debug, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), line: %u\n",
+		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), line: %u\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
 			errorCodeStr, errorCode,
 			param);
 	} else {
-		COMPONENT_log(LOG_LEVEL_Debug, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u)\n",
+		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u)\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
