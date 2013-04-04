@@ -279,6 +279,7 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 //	CAN_msg_t resultMsg;
 	Uint8 result, errorCode;
 	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
+	Uint16 line;
 
 	//AX12_reset_last_error(PLATE_PLIER_AX12_ID);
 
@@ -292,30 +293,39 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 		result =    ACT_RESULT_NOT_HANDLED;
 		errorCode = ACT_RESULT_ERROR_OTHER;
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
-	} else if(abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= PLATE_PLIER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
+		line = __LINE__;
+	} else if((error & AX12_ERROR_OVERLOAD) || (abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= PLATE_PLIER_AX12_ASSER_POS_EPSILON)) {	//Fin du mouvement
 	//if(AX12_is_moving(PLATE_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
 		result =    ACT_RESULT_DONE;
 		errorCode = ACT_RESULT_ERROR_OK;
+		line = __LINE__;
 	} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
 		result =    ACT_RESULT_NOT_HANDLED;
 		errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 		QUEUE_set_error(queueId);
+		line = __LINE__;
 	} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
 		result =    ACT_RESULT_FAILED;
 		errorCode = ACT_RESULT_ERROR_NOT_HERE;
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 		QUEUE_set_error(queueId);
+		line = __LINE__;
 	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + PLATE_PLIER_AX12_ASSER_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-		result =    ACT_RESULT_FAILED;
-		errorCode = ACT_RESULT_ERROR_UNKNOWN;
-		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
-		QUEUE_set_error(queueId);
-	} else if(error & ~AX12_ERROR_OVERLOAD) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
+//		result =    ACT_RESULT_FAILED;
+//		errorCode = ACT_RESULT_ERROR_UNKNOWN;
+		//Si on ne peut pas atteindre la position alors que l'ax12 à bien compris la commande, on considère qu'une assiette bloque l'ax12 -> tout est Ok
+		result =    ACT_RESULT_DONE;
+		errorCode = ACT_RESULT_ERROR_OK;
+		//AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
+		//QUEUE_set_error(queueId);
+		line = __LINE__;
+	} else if(error) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
 		result =   ACT_RESULT_FAILED;
 		errorCode = ACT_RESULT_ERROR_UNKNOWN;
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 		QUEUE_set_error(queueId);
+		line = error;
 	} else return;	//Operation is not finished, do nothing
 
 //	resultMsg.sid = ACT_RESULT;
@@ -325,7 +335,7 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 //
 //	CAN_send(&resultMsg);
 	if(QUEUE_get_arg(queueId)->param != PLATE_PLIER_DONT_SEND_RESULT)
-		CAN_sendResultWithLine(ACT_PLATE, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
+		CAN_sendResultWithParam(ACT_PLATE, QUEUE_get_arg(queueId)->canCommand, result, errorCode, line);
 	QUEUE_behead(queueId);	//gestion terminée
 }
 

@@ -336,7 +336,7 @@ static void LIFT_plier_command_run(queue_id_t queueId) {
 		result =    ACT_RESULT_NOT_HANDLED;
 		errorCode = ACT_RESULT_ERROR_OTHER;
 		AX12_set_torque_enabled(ax12Id, FALSE);
-	} else if(abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= posEpsilon) {	//Fin du mouvement
+	} else if((error & AX12_ERROR_OVERLOAD) || (abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= posEpsilon)) {	//Fin du mouvement
 	//if(AX12_is_moving(LIFT_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
 		result =    ACT_RESULT_DONE;
 		errorCode = ACT_RESULT_ERROR_OK;
@@ -355,7 +355,7 @@ static void LIFT_plier_command_run(queue_id_t queueId) {
 		errorCode = ACT_RESULT_ERROR_UNKNOWN;
 		AX12_set_torque_enabled(ax12Id, FALSE);
 		QUEUE_set_error(queueId);
-	} else if(error & ~AX12_ERROR_OVERLOAD) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
+	} else if(error) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
 		result =    ACT_RESULT_FAILED;
 		errorCode = ACT_RESULT_ERROR_UNKNOWN;
 		AX12_set_torque_enabled(ax12Id, FALSE);
