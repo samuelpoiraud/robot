@@ -14,6 +14,10 @@
         <itemPath>../Krusty/KActManager.h</itemPath>
         <itemPath>../Krusty/KLift.h</itemPath>
         <itemPath>../Krusty/KBall_sorter.h</itemPath>
+        <itemPath>../Krusty/KPlate_config.h</itemPath>
+        <itemPath>../Krusty/KLift_config.h</itemPath>
+        <itemPath>../Krusty/KBall_sorter_config.h</itemPath>
+        <itemPath>../Krusty/KBall_launcher_config.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="_QS" projectFiles="true">
         <itemPath>../QS/p30f6010A.h</itemPath>
@@ -47,6 +51,8 @@
         <itemPath>../Tiny/THammer.h</itemPath>
         <itemPath>../Tiny/TBall_inflater.h</itemPath>
         <itemPath>../Tiny/TCandle_color_sensor.h</itemPath>
+        <itemPath>../Tiny/THammer_config.h</itemPath>
+        <itemPath>../Tiny/TCandle_color_sensor_config.h</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.h</itemPath>
       <itemPath>../clock.h</itemPath>
@@ -122,7 +128,7 @@
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
-        <platform>2</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -286,7 +292,7 @@
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion>3_30b</languageToolchainVersion>
-        <platform>2</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>

@@ -18,6 +18,7 @@
 //#include "../QS/QS_can.h"
 #include "../output_log.h"
 #include "../Can_msg_processing.h"
+#include "THammer_config.h"
 
 #define LOG_PREFIX "H: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_HAMMER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
