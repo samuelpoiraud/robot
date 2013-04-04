@@ -40,5 +40,14 @@ void TEST_STRAT_verres(void);
 
 
 void TEST_STRAT_assiettes_evitement(void);
+void TEST_STRAT_assiettes_lanceur(void);
 void TEST_Launcher_ball(void);
+
+void Test_STRAT_COUPE(void);
+error_e Assiete1_lanceur(void);
+error_e Assiete2_lanceur(void);
+error_e Assiete3_lanceur(void);
+error_e Assiete4_lanceur(void);
+error_e Cadeau(void);
+
 #endif /* ACTIONS_TESTS_KRUSTY_H */
