@@ -18,6 +18,7 @@
 #include "../QS/QS_timer.h"
 #include "../output_log.h"
 #include "../Can_msg_processing.h"
+#include "KBall_launcher_config.h"
 
 #define LOG_PREFIX "BL: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLLAUNCHER, log_level, LOG_PREFIX format, ## __VA_ARGS__)

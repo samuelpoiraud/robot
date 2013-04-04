@@ -89,19 +89,10 @@
 
 /* Config HAMMER: bras long utilisé pour éteindre les bougies du 1er étage */
 	#define HAMMER_DCMOTOR_ID           0		//Utilisé pour le module DCMotor
-	#define HAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x), A DEFINIR !!!
-	#define HAMMER_ASSER_KP             400
-	#define HAMMER_ASSER_KI             0
-	#define HAMMER_ASSER_KD             0
-	#define HAMMER_ASSER_TIMEOUT        3000    //en ms
-	#define HAMMER_ASSER_POS_EPSILON    20
-	#define HAMMER_UNITS_PER_128_DEGRE  -494     //TODO: A changer
-	#define HAMMER_UNITS_AT_0_DEGRE     -203
 	#define HAMMER_DCMOTOR_PWM_NUM      1		//PWM1
 	#define HAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
 	#define HAMMER_DCMOTOR_PORT_WAY_BIT 0
-	#define HAMMER_DCMOTOR_MAX_PWM_WAY0 20		//en %
-	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 20		//en %
+	#define HAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x), A DEFINIR !!!
 /********************************************************************************/
 
 /* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */
@@ -137,35 +128,7 @@
 	#define CANDLECOLOR_CW_PIN_ADC_x            AN2_ID  //TODO: a changer
 	#define CANDLECOLOR_CW_PIN_ADC_y            AN12_ID
 	#define CANDLECOLOR_CW_PIN_ADC_Y            AN13_ID
-
-	//Detection digitale des couleurs (entre 0 et 3 inclus)
-	//#define CANDLECOLOR_CW_USE_DIGITAL   //Si défini, on utilise la detection digitale des couleurs. Si aucune n'est detectée, une detection analogique sera faite si activé
-	#define CANDLECOLOR_CW_CHANNEL_WHITE        0
-	#define CANDLECOLOR_CW_CHANNEL_BLUE         1
-	#define CANDLECOLOR_CW_CHANNEL_RED          2
-	#define CANDLECOLOR_CW_CHANNEL_YELLOW       3
-
-	//Detection analogique des couleurs
-	#define CANDLECOLOR_CW_USE_ANALOG   //Si défini, on utilise la detection analogique des couleurs (seulement si aucune couleur n'ont té detecté par le mode digital)
-	//Pour les couleurs, voir http://www.efg2.com/Lab/Graphics/Colors/CIE1931.jpg
-	//Les valeurs sont en pourcentage*1024
-	//Defines dans l'ordre de detection, la premiere est prioritaire
-	//TODO: ajuster les valeurs
-	#define CANDLECOLOR_CW_YELLOW_MIN_xy        409   //valeur mini de x et y pour pouvoir detecter du jaune (CANDLECOLOR_CW_YELLOW_MAX_DIFF_xy doit corespondre aussi pour detecter du jaune)
-	#define CANDLECOLOR_CW_YELLOW_MAX_DIFF_xy   51    //différence maximale entre x et y  pour pouvoir detecter du jaune
-	#define CANDLECOLOR_CW_RED_MIN_x            512   //valeur mini de x pour detecter du rouge (x+y+z=1)
-	#define CANDLECOLOR_CW_BLUE_MIN_z           512   //valeur mini de z pour detecter du bleue
-	#define CANDLECOLOR_CW_GREEN_MIN_y          512   //valeur mini de y pour detecter du vert
-	#define CANDLECOLOR_CW_WHITE_MIN_Y          512   //Valeur mini de Y pour detecter du blanc (il ne faut pas qu'on detecte une autre couleur pour le detecter)
-
 	#define CANDLECOLOR_AX12_ID                 6
-	#define CANDLECOLOR_AX12_TIMEOUT            30  //en centaine de ms, une valeur de 20 correspond à 2secondes
-	#define CANDLECOLOR_AX12_POS_EPSILON        5
-	#define CANDLECOLOR_AX12_HIGH_CANDLE_POS    0  //TODO: a changer
-	#define CANDLECOLOR_AX12_LOW_CANDLE_POS     0
-	#define CANDLECOLOR_AX12_ANGLE_MIN          0
-	#define CANDLECOLOR_AX12_ANGLE_MAX          300
-	#define CANDLECOLOR_AX12_MAX_TORQUE_PERCENT 100
 /**************************************************************************/
 
 	

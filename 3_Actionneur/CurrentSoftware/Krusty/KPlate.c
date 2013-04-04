@@ -19,6 +19,7 @@
 #include "../QS/QS_adc.h"
 #include "../output_log.h"
 #include "../Can_msg_processing.h"
+#include "KPlate_config.h"
 
 #define LOG_PREFIX "PL: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_PLATE, log_level, LOG_PREFIX format, ## __VA_ARGS__)

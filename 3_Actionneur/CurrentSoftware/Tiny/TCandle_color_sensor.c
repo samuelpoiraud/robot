@@ -18,6 +18,7 @@
 #include "../QS/QS_ax12.h"
 #include "../output_log.h"
 #include "../Can_msg_processing.h"
+#include "TCandle_color_sensor_config.h"
 
 #define LOG_PREFIX "CC: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_CANDLECOLOR, log_level, LOG_PREFIX format, ## __VA_ARGS__)
