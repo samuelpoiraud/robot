@@ -31,9 +31,9 @@
 /** Tension maximale en pourcentage de 24V autorisée dans le sens horizontal -> vertical */
 	#define PLATE_DCMOTOR_MAX_PWM_WAY0           30
 /** Tension maximale en pourcentage de 24V autorisée dans le sens vertical -> horizontal */
-	#define PLATE_DCMOTOR_MAX_PWM_WAY1           30
+	#define PLATE_DCMOTOR_MAX_PWM_WAY1           15
 /** Si l'ax12 (pour pincer l'assiette et la tenir) n'atteint pas la position demandée avant ce temps, on considèer qu'il y a un problème. Temps en centaine de ms. */
-	#define PLATE_PLIER_AX12_ASSER_TIMEOUT       5      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define PLATE_PLIER_AX12_ASSER_TIMEOUT       7      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 /** Lorsque l'ax12 atteint sa position avec +/- PLATE_PLIER_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define PLATE_PLIER_AX12_ASSER_POS_EPSILON   2     //en degré
 /** Position en degré de l'ax12 lorsque la pince est ouverte */

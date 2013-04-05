@@ -97,11 +97,13 @@ void BUTTON_translation()
 
 static Uint16 speed = 6000;
 static void BUTTON_TEST_button3() {
-	ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);
-	ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);
+//	ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);
+//	ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);
+	ACT_plate_plier(ACT_PLATE_PlierOpen);
 }
 
 static void BUTTON_TEST_button4() {
-	ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
-	ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
+//	ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
+//	ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
+	ACT_plate_plier(ACT_PLATE_PlierClose);
 }
