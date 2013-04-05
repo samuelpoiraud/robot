@@ -97,7 +97,7 @@ void BALLLAUNCHER_init() {
 	ball_launcher_config.Ki = BALLLAUNCHER_ASSER_KI;
 	ball_launcher_config.Kd = BALLLAUNCHER_ASSER_KD;
 	ball_launcher_config.pos[0] = 0;
-	ball_launcher_config.pos[1] = BALLLAUNCHER_DEFAULT_TARGET_SPEED;	//en tr/min
+	ball_launcher_config.pos[1] = 0;	//en tr/min
 	ball_launcher_config.pwm_number = BALLLAUNCHER_DCMOTOR_PWM_NUM;
 	ball_launcher_config.way_latch = &BALLLAUNCHER_DCMOTOR_PORT_WAY;
 	ball_launcher_config.way_bit_number = BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT;
