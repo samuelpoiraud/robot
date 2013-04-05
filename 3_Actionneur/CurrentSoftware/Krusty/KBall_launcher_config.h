@@ -16,8 +16,7 @@
 	#define BALLLAUNCHER_ASSER_KI                60
 	#define BALLLAUNCHER_ASSER_KD                0
 	#define BALLLAUNCHER_ASSER_TIMEOUT           3000       //en ms
-	#define BALLLAUNCHER_ASSER_POS_EPSILON       100
-	#define BALLLAUNCHER_DEFAULT_TARGET_SPEED    6000		//en tr/min, non utilisé car on définie la vitesse avec l'argument du msg CAN ...
+	#define BALLLAUNCHER_ASSER_POS_EPSILON       100		//en tr/min
 	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0    50
 	#define BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1    0
 	#define BALLLAUNCHER_EDGE_PER_ROTATION       1			//nombre d'inversion de champ magnétique par tour (2 aimants de sens opposé = 2 inversions / tour)
