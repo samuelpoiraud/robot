@@ -12,6 +12,8 @@
 #ifndef KLIFT_CONFIG_H
 #define	KLIFT_CONFIG_H
 
+//Pour des indications sur les constantes ici
+
 	#define LIFT_LEFT_ASSER_KP                       300
 	#define LIFT_LEFT_ASSER_KI                       0
 	#define LIFT_LEFT_ASSER_KD                       0
