@@ -198,7 +198,7 @@
  *				ANY_WAY,						// Peu importe le sens de déplacement
  *				BACKWARD,							// En arrière uniquement
  *				FORWARD							// En avant uniquement
- *			}ASSER_way_e;
+ *			}way_e;
  *
  *			typedef enum
  *			{
@@ -374,12 +374,12 @@
 	*/
 	#define ASSER_RUSH_IN_THE_WALL
 	/*
-		SENS : ASSER_way_e Uint8
+		SENS : way_e Uint8
 		asservissement en rotation on (1)/off(0) : Uint8
 	*/
 	#define ASSER_CALIBRATION
 	/* argument :
-		SENS : ASSER_way_e (Uint8)
+		SENS : way_e (Uint8)
 		0 pour demander un désarmement !!!
 	*/
 	#define ASSER_WARN_ANGLE
