@@ -22,10 +22,4 @@
 void TEST_STRAT_T_homologation(void);
 void STRAT_TINY_gifts_and_cake(void);
 
-
-#ifdef ACTIONS_TEST_C
-        #include "QS/QS_CANmsgList.h"
-#endif /* def ACTION_TEST_C */
-
-
 #endif /* ACTIONS_TESTS_TINY_H */

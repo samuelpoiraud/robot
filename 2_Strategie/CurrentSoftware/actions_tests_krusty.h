@@ -19,11 +19,6 @@
 #include "act_functions.h"
 #include "actions_tests_krusty_micro.h"
 
-
-#ifdef ACTIONS_TEST_C
-        #include "QS/QS_CANmsgList.h"
-#endif /* def ACTION_TEST_C */
-
 void TEST_STRAT_K_homologation(void);
 void TEST_STRAT_avoidance(void);
 void TEST_STRAT_kdo(void);

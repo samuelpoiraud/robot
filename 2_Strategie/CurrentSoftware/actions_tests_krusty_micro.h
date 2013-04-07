@@ -18,12 +18,6 @@
 #include "Asser_functions.h"
 #include "act_functions.h"
 
-
-
-#ifdef ACTIONS_TEST_C
-        #include "QS/QS_CANmsgList.h"
-#endif /* def ACTION_TEST_C */
-
 //Insérez ici vos micro_strat et découpes de strat
 error_e K_CADEAU1(void);
 error_e K_CADEAU2(void);

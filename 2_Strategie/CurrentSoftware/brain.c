@@ -141,6 +141,7 @@ void any_match(time32_t match_duration)
 				CAN_send_sid(BROADCAST_STOP_ALL);
 				global.env.match_over = TRUE;
 				STACKS_flush_all();
+				QUEUE_reset_all();
 				CLOCK_stop();
 				
 				if(QS_WHO_AM_I_get()==TINY)
