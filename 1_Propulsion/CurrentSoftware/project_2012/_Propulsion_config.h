@@ -104,25 +104,25 @@
 	
 	//TINY
 		// RED
-		#define TINY_RED_START_X  	12582912 //9830400				//même position qu'en rouge
-		#define TINY_RED_START_Y  	(196608000-16842752) //(196608000-39321600)//symétrique
-		#define TINY_RED_START_TETA 	-6588416//-PI/2 //(-3294199)		// -pi/4
+		#define TINY_RED_START_X  		16384000 			//250mm
+		#define TINY_RED_START_Y  		4718592				//72mm
+		#define TINY_RED_START_TETA 	(-6588416)			//-PI/2 //(-3294199)
 		
 		// BLUE
-		#define TINY_BLUE_START_X 12582912 //check 192*65536 //chomp 9830400 = 150*65536
-		#define TINY_BLUE_START_Y 16842752 //check 257*65536 //chomp 39321600
-		#define TINY_BLUE_START_TETA 6588416	// PI/2 //3294199				//angle de Pi/4 * 4096 * 1024
+		#define TINY_BLUE_START_X 		16384000 			//250mm
+		#define TINY_BLUE_START_Y 		(196608000-4718592)	//(3000-72)mm
+		#define TINY_BLUE_START_TETA 	6588416				// PI/2 //3294199
 	
 	//KRUSTY
-	// RED
-		#define KRUSTY_RED_START_X  	39321600 //600mm				//même position qu'en rouge
-		#define KRUSTY_RED_START_Y  	7864200 //(120mm)//symétrique
-		#define KRUSTY_RED_START_TETA 	6588416//-PI/2
+		// RED
+		#define KRUSTY_RED_START_X  	39321600 			//600mm
+		#define KRUSTY_RED_START_Y  	7864200 			//(120mm)//symétrique
+		#define KRUSTY_RED_START_TETA 	6588416				//-PI/2
 		
 		// BLUE
-		#define KRUSTY_BLUE_START_X 39321600 //600mm
-		#define KRUSTY_BLUE_START_Y (196608000-7864200) //2000-120mm
-		#define KRUSTY_BLUE_START_TETA -6588416	// PI/2 			// * 4096 * 1024
+		#define KRUSTY_BLUE_START_X 	39321600 			//600mm
+		#define KRUSTY_BLUE_START_Y 	(196608000-7864200) //2000-120mm
+		#define KRUSTY_BLUE_START_TETA 	(-6588416)			// PI/2
 
 
 /////BUFFER////////////////////////////////////////////						
