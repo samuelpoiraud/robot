@@ -70,6 +70,9 @@ static void BALLSORTER_initAX12() {
 	}
 }
 
+void BALLSORTER_stop() {
+}
+
 bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 	queue_id_t queueId;
 

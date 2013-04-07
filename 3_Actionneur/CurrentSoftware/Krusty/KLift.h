@@ -23,6 +23,12 @@
  */
 void LIFT_init();
 
+/** Stoppe l'actionneur.
+ *
+ * Cette fonction est appelée en fin de match
+ */
+void LIFT_stop();
+
 /** Gère les messages CAN liés au ascenseurs.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'agir en conséquence.

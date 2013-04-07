@@ -62,6 +62,10 @@ void HAMMER_init() {
 	COMPONENT_log(LOG_LEVEL_Info, "Hammer initialisé\n");
 }
 
+void HAMMER_stop() {
+	DCM_stop(HAMMER_DCMOTOR_ID);
+}
+
 bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_HAMMER) {
 		switch(msg->data[0]) {

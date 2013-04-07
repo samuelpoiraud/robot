@@ -140,6 +140,10 @@ static void CANDLECOLOR_initAX12() {
 	}
 }
 
+void CANDLECOLOR_stop() {
+	
+}
+
 bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_CANDLECOLOR) {
 		//Initialise l'AX12 s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien

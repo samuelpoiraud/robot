@@ -122,6 +122,10 @@ void BALLLAUNCHER_init() {
 	COMPONENT_log(LOG_LEVEL_Info, "Lanceur de balle initialisé\n");
 }
 
+void BALLLAUNCHER_stop() {
+	DCM_stop(BALLLAUNCHER_DCMOTOR_ID);
+}
+
 bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLLAUNCHER) {
 		switch(msg->data[0]) {

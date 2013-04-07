@@ -23,6 +23,12 @@
  */
 void BALLSORTER_init();
 
+/** Stoppe l'actionneur.
+ *
+ * Cette fonction est appelée en fin de match
+ */
+void BALLSORTER_stop();
+
 /** Gère les messages CAN liés à la gestion des cerises à envoyer.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'agir en conséquence.

@@ -23,6 +23,12 @@
  */
 void CANDLECOLOR_init();
 
+/** Stoppe l'actionneur.
+ *
+ * Cette fonction est appelée en fin de match
+ */
+void CANDLECOLOR_stop();
+
 /** Gère les messages CAN liés au bras.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'asservir le bras à la position voulue.

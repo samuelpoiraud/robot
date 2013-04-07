@@ -31,10 +31,11 @@
 	#define BALLINFLATER_TIMER_resetFlag() BALLINFLATER_TEMP_CONCAT(IFS0bits.T, BALLINFLATER_TIMER_ID, IF) = 0
 	#define BALLINFLATER_TIMER_init() TIMER_init()
 	#define BALLINFLATER_TIMER_start(period_us) BALLINFLATER_TEMP_CONCAT(TIMER, BALLINFLATER_TIMER_ID, _run_us)(period_us)
-	//#define BALLINFLATER_TIMER_stop() BALLINFLATER_TEMP_CONCAT(TIMER, BALLINFLATER_TIMER_ID, _stop)()
+	#define BALLINFLATER_TIMER_stop() BALLINFLATER_TEMP_CONCAT(TIMER, BALLINFLATER_TIMER_ID, _stop)()
 #endif
 
-static bool_e ballinflater_state = FALSE;
+static bool_e ballinflater_state = BALLINFLATER_OFF;
+static bool_e BALLINFLATER_emerg_stop_inflater = FALSE;
 
 static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init);
 
@@ -49,7 +50,12 @@ void BALLINFLATER_init() {
 	BALLINFLATER_TIMER_start(100);
 }
 
-static bool_e BALLINFLATER_emerg_stop_inflater = FALSE;
+void BALLINFLATER_stop() {
+	ballinflater_state = BALLINFLATER_OFF;
+	//BALLINFLATER_emerg_stop_inflater = TRUE;
+	BALLINFLATER_PIN = BALLINFLATER_OFF;
+}
+
 
 bool_e BALLINFLATER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLINFLATER) {
