@@ -101,37 +101,43 @@ void LIFT_init() {
 	COMPONENT_log(LOG_LEVEL_Info, "Ascenseur à verres initialisés (DCMotor)\n");
 
 	LIFT_initAX12();
+
+	CAN_msg_t msg;
+	msg.size = 1;
+
+	msg.sid = ACT_LIFT_LEFT;
+	msg.data[0] = LIFT_LEFT_ACT_GO_INIT_POS;
+	LIFT_CAN_process_msg(&msg);
+
+	msg.sid = ACT_LIFT_RIGHT;
+	msg.data[0] = LIFT_RIGHT_ACT_GO_INIT_POS;
+	LIFT_CAN_process_msg(&msg);
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void LIFT_initAX12() {
-	static bool_e left_ax12_is_initialized = FALSE;
-	static bool_e right_ax12_is_initialized = FALSE;
-	if(left_ax12_is_initialized == FALSE && AX12_is_ready(LIFT_LEFT_PLIER_AX12_ID) == TRUE) {
-		left_ax12_is_initialized = TRUE;
-		AX12_config_set_highest_voltage(LIFT_LEFT_PLIER_AX12_ID, 136);
-		AX12_config_set_lowest_voltage(LIFT_LEFT_PLIER_AX12_ID, 70);
-		AX12_config_set_maximum_torque_percentage(LIFT_LEFT_PLIER_AX12_ID, LIFT_LEFT_PLIER_AX12_MAX_TORQUE_PERCENT);
+	static bool_e ax12_is_initialized[2] = {FALSE, FALSE};
+	Uint8 ax12_id[2] =             {LIFT_LEFT_PLIER_AX12_ID,                 LIFT_RIGHT_PLIER_AX12_ID};
+	Uint8 ax12_max_torque[2] =     {LIFT_LEFT_PLIER_AX12_MAX_TORQUE_PERCENT, LIFT_RIGHT_PLIER_AX12_MAX_TORQUE_PERCENT};
+	Uint16 ax12_init_position[2] = {LIFT_LEFT_ACT_PLIER_AX12_INIT_POS,       LIFT_RIGHT_ACT_PLIER_AX12_INIT_POS};
+	Uint8 i;
+	for(i = 0; i < 2; i++) { //Init des 2 ax12, gauche et droite
+		if(ax12_is_initialized[i] == FALSE && AX12_is_ready(ax12_id[i]) == TRUE) {
+			ax12_is_initialized[i] = TRUE;
 
-		AX12_config_set_maximal_angle(LIFT_LEFT_PLIER_AX12_ID, 300);
-		AX12_config_set_minimal_angle(LIFT_LEFT_PLIER_AX12_ID, 0);
+			AX12_config_set_highest_voltage(ax12_id[i], 136);
+			AX12_config_set_lowest_voltage(ax12_id[i], 70);
+			AX12_config_set_maximum_torque_percentage(ax12_id[i], ax12_max_torque[i]);
 
-		AX12_config_set_error_before_led(LIFT_LEFT_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
-		AX12_config_set_error_before_shutdown(LIFT_LEFT_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
-		COMPONENT_log(LOG_LEVEL_Info, "AX12 Gauche initialisé\n");
-	}
-	if(right_ax12_is_initialized == FALSE && AX12_is_ready(LIFT_RIGHT_PLIER_AX12_ID) == TRUE) {
-		right_ax12_is_initialized = TRUE;
-		AX12_config_set_highest_voltage(LIFT_RIGHT_PLIER_AX12_ID, 136);
-		AX12_config_set_lowest_voltage(LIFT_RIGHT_PLIER_AX12_ID, 70);
-		AX12_config_set_maximum_torque_percentage(LIFT_RIGHT_PLIER_AX12_ID, LIFT_RIGHT_PLIER_AX12_MAX_TORQUE_PERCENT);
+			AX12_config_set_maximal_angle(ax12_id[i], 300);
+			AX12_config_set_minimal_angle(ax12_id[i], 0);
 
-		AX12_config_set_maximal_angle(LIFT_RIGHT_PLIER_AX12_ID, 300);
-		AX12_config_set_minimal_angle(LIFT_RIGHT_PLIER_AX12_ID, 0);
+			AX12_config_set_error_before_led(ax12_id[i], AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
+			AX12_config_set_error_before_shutdown(ax12_id[i], AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
 
-		AX12_config_set_error_before_led(LIFT_RIGHT_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
-		AX12_config_set_error_before_shutdown(LIFT_RIGHT_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
-		COMPONENT_log(LOG_LEVEL_Info, "AX12 Droite initialisé\n");
+			AX12_set_position(ax12_id[i], ax12_init_position[i]);
+			COMPONENT_log(LOG_LEVEL_Info, "AX12 %s initialisé\n", (i == 0)? "Gauche" : "Droite");
+		}
 	}
 }
 

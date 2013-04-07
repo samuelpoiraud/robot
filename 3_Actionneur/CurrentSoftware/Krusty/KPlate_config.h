@@ -42,6 +42,10 @@
 	#define PLATE_PLIER_AX12_CLOSED_POS          195    //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur lorsque l'on serre une assiette en continu */
 	#define PLATE_PLIER_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+/** Position initiale du moteur DC. Doit être un message CAN de commande ACT_PLATE_ROTATE_* */
+	#define PLATE_ACT_ROTATE_INIT_POS            ACT_PLATE_ROTATE_VERTICALLY
+/** Position initiale de l'AX12. Doit être un define du type PLATE_PLIER_AX12_* */
+	#define PLATE_ACT_PLIER_AX12_INIT_POS        PLATE_PLIER_AX12_CLOSED_POS
 
 #endif	/* KPLATE_CONFIG_H */
 
