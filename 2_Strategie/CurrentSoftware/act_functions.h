@@ -125,8 +125,8 @@
 	//Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
 	bool_e ACT_hammer_stop();
 
-/* Actionneur associé: ACT_QUEUE_BallInflater */
-	//Gonfler le ballon pendant duration_sec secondes. Le message de retour n'attend pas la fin du gonflage.
+/* Ces fonctions ne sont pas bloquante et n'utilise pas le système de retour -> vous ne pouvez pas utiliser ACT_get_last_action_result() */
+	//Gonfler le ballon pendant duration_sec secondes.
 	void ACT_ball_inflater_inflate(Uint8 duration_sec);
 
 	//Stopper le gonflage

@@ -9,10 +9,7 @@
  *	Version 2012/01/14
  */
 
-#define ACTIONS_TEST_TINY_C
-
 #include "actions_tests_tiny.h"
-
 
 #define DEFAULT_SPEED	(SLOW)
 

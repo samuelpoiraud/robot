@@ -9,8 +9,6 @@
  *	Version 2012/01/14
  */
 
-#define ACTIONS_TEST_KRUSTY_MICRO_C
-
 #include "actions_tests_krusty_micro.h"
 
 
