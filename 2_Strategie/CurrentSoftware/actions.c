@@ -16,7 +16,8 @@
 
 
 //ATTENTION: Fonction codé dégueu pour la coupe de Lannion Totalement linéaire et sans évitement.
-void STRAT_Lannion(void){
+void STRAT_Lannion(void)
+	{
 	static enum{
 		SORTIR=0,
 		PREMIER,
@@ -75,7 +76,7 @@ void STRAT_Lannion(void){
 					{{300, COLOR_Y(2300)},FAST},
 					//{{550, COLOR_Y(2400)},FAST},
 					{{575, COLOR_Y(2405)},
-							FAST}},3,REAR,NO_AVOIDANCE);
+							FAST}},3,BACKWARD,NO_AVOIDANCE);
 			//TEST_STRAT_VERRE1();
 			switch(sub_action){
 				case IN_PROGRESS:
@@ -114,14 +115,14 @@ void STRAT_Lannion(void){
 		case SECONDBIS:
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{555, COLOR_Y(2400)},FAST}},
-					1,REAR,NO_AVOIDANCE);
+					1,BACKWARD,NO_AVOIDANCE);
 
 			break;
 		case TROIS:
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{550, COLOR_Y(2200)},FAST},
 					{{1000, COLOR_Y(2400)},FAST}},
-							2,REAR,NO_AVOIDANCE);
+							2,BACKWARD,NO_AVOIDANCE);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -161,7 +162,7 @@ void STRAT_Lannion(void){
 				sub_action = goto_pos_with_scan_foe(
 				(displacement_t[]){{{800, COLOR_Y(2400)},FAST},
 					{{1200, COLOR_Y(2500)},FAST}},
-							2,REAR,NO_AVOIDANCE);
+							2,BACKWARD,NO_AVOIDANCE);
 				switch(sub_action){
 					case IN_PROGRESS:
 						break;
@@ -200,7 +201,7 @@ void STRAT_Lannion(void){
                     case SEPT:
 				sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{1050, COLOR_Y(700)},FAST}},
-					1,REAR,NO_AVOIDANCE);
+					1,BACKWARD,NO_AVOIDANCE);
 				switch(sub_action){
 					case IN_PROGRESS:
 						break;
@@ -248,7 +249,7 @@ void STRAT_Lannion(void){
             state = MOVE_PUSH;
 
         case MOVE_PUSH:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(1080)}}},1,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(1080)}}},1,BACKWARD,NORMAL_WAIT);
 
             switch(sub_action)
             {
@@ -324,7 +325,7 @@ void STRAT_Lannion(void){
             }
             break;
          case MOVE_PUSH2:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(1680)}}},1,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(1680)}}},1,BACKWARD,NORMAL_WAIT);
 
             switch(sub_action)
             {
@@ -400,7 +401,7 @@ void STRAT_Lannion(void){
             }
             break;
          case MOVE_PUSH3:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(2280)}}},1,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(2280)}}},1,BACKWARD,NORMAL_WAIT);
 
             switch(sub_action)
             {
@@ -476,7 +477,7 @@ void STRAT_Lannion(void){
             }
             break;
          case GO_POS4bis:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(490)}}},1,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(490)}}},1,BACKWARD,NORMAL_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -501,7 +502,7 @@ void STRAT_Lannion(void){
             }
             break;
          case MOVE_PUSH4:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(490)}}},1,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{260,COLOR_Y(490)}}},1,BACKWARD,NORMAL_WAIT);
 
             switch(sub_action)
             {

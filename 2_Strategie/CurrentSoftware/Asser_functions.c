@@ -316,6 +316,7 @@ void ASSER_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 		}
 	}
 }
+/*
 //fonction dégeulasse coder a 4 heure du mat le dernier jour de la coupe , ne jamais réutiliser cette version du code !!!
 void ASSER_rush_in_the_totem_north (stack_id_e stack_id, bool_e init)
 {
@@ -388,6 +389,7 @@ void ASSER_rush_in_the_totem_south (stack_id_e stack_id, bool_e init)
 		}			
 	}
 }
+*/
 
 /*
 	Fonction permettant d'armer un avertisseur sur la propulsion. 
@@ -449,7 +451,7 @@ void ASSER_stop ()
 }
 
 /* ajoute une instruction goto sur la pile asser */
-void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way, Uint8 curve, bool_e run)
+void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run)
 {
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
 
@@ -462,7 +464,7 @@ void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way, 
 }
 
 #ifdef USE_ASSER_MULTI_POINT
-void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way, Uint8 curve, Uint8 priority_order, bool_e run)
+void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, bool_e run)
 {
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
 
@@ -508,7 +510,7 @@ void ASSER_push_relative_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run)
 }
 
 /* ajoute une instruction rush_in_the_wall sur la pile asser */
-void ASSER_push_rush_in_the_wall (ASSER_way_e way, bool_e asser_rotate,Sint16 angle, bool_e run)
+void ASSER_push_rush_in_the_wall (way_e way, bool_e asser_rotate,Sint16 angle, bool_e run)
 {
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
 
@@ -520,8 +522,8 @@ void ASSER_push_rush_in_the_wall (ASSER_way_e way, bool_e asser_rotate,Sint16 an
 }
 
 
-
-void ASSER_push_rush_in_the_totem_south (ASSER_way_e way, bool_e asser_rotate, bool_e run)
+/*
+void ASSER_push_rush_in_the_totem_south (way_e way, bool_e asser_rotate, bool_e run)
 {
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
 
@@ -531,7 +533,7 @@ void ASSER_push_rush_in_the_totem_south (ASSER_way_e way, bool_e asser_rotate, b
 	STACKS_push (ASSER, &ASSER_rush_in_the_totem_south, run);
 }
 
-void ASSER_push_rush_in_the_totem_north (ASSER_way_e way, bool_e asser_rotate, bool_e run)
+void ASSER_push_rush_in_the_totem_north (way_e way, bool_e asser_rotate, bool_e run)
 {
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
 
@@ -541,7 +543,7 @@ void ASSER_push_rush_in_the_totem_north (ASSER_way_e way, bool_e asser_rotate, b
 	STACKS_push (ASSER, &ASSER_rush_in_the_totem_north, run);
 }
 
-
+*/
 /* fonction retournant si on se situe à moins de 30 cm de la destination.
    (distance Manhattan) */
 bool_e ASSER_near_destination()
@@ -605,7 +607,7 @@ void ASSER_dump_statck ()
 		}
 		switch (args.way) {
 			case FORWARD : way = "FORWARD"; break;
-			case REAR    : way = "REAR"; break;
+			case BACKWARD    : way = "BACKWARD"; break;
 			default      : way = "undefined"; break;
 		}
 		switch (args.priority_order) {

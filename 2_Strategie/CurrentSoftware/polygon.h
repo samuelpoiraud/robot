@@ -153,7 +153,7 @@
 	
 
 	/* Charge dans la pile les goto avec le meilleur chemin */
-	Uint16 POLYGON_compute(Sint16 xFrom, Sint16 yFrom, Sint16 xDestination, Sint16 yDestination, ASSER_way_e way, ASSER_speed_e speed, bool_e curve, polygon_elements_type_e typeElements, bool_e use_opponent);
+	Uint16 POLYGON_compute(Sint16 xFrom, Sint16 yFrom, Sint16 xDestination, Sint16 yDestination, way_e way, ASSER_speed_e speed, bool_e curve, polygon_elements_type_e typeElements, bool_e use_opponent);
 
 	#ifdef POLYGON_C
 

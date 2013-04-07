@@ -20,6 +20,7 @@
 #include "actions_tests_tiny_micro.h"
 
 void TEST_STRAT_T_homologation(void);
+void STRAT_TINY_gifts_and_cake(void);
 
 
 #ifdef ACTIONS_TEST_C

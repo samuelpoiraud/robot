@@ -26,6 +26,8 @@
 //Insérez ici vos micro_strat et découpes de strat
 void T_BALLINFLATER_start(void);
 
+error_e TINY_open_all_gifts(void);
+
 #endif /* ACTIONS_TESTS_TINY_MICRO_H */
 
 

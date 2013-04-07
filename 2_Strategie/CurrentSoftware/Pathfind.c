@@ -210,7 +210,7 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 }
 
 
-Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER_speed_e speed, ASSER_way_e way, bool_e handleOpponent)
+Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER_speed_e speed, way_e way, bool_e handleOpponent)
 {
 	pathfind_node_id_t from, n, current;
 
