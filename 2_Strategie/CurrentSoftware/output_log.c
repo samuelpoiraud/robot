@@ -16,18 +16,23 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifndef ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL
-#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning
+#ifndef OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL
+#define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning
 #endif
 
-static log_level_e current_max_log_level = ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL;
+static log_level_e current_max_log_level = OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL;
 
-void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
+void OUTPUTLOG_printf(log_print_e printthis, log_level_e level, const char * format, ...) {
 	va_list args_list;
 
-	//level trop haut, on n'affiche pas
+	//level trop haut ou affichage desactivé, on n'affiche pas
+#ifndef OUTPUT_LOG_PRINT_ALL_COMPONENTS
+	if(printthis == LOG_PRINT_Off || level > current_max_log_level)
+		return;
+#else
 	if(level > current_max_log_level)
 		return;
+#endif
 
 	va_start(args_list, format);
 	vprintf(format, args_list);
