@@ -106,8 +106,8 @@ void SEQUENCES_calibrate(way_e way, calibration_square_e calibration_square)
 	//Jle fait avancer de 0 centimetres (collé au mur : obligation de match) xD.
 	//x_or_y = (color == BLUE)? -0:0;
 	
-	//Trajectoire factice simplement pour générer l'acquittement de la calibration
-	ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, 0, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE);
+	//Trajectoire sans effet simplement pour générer l'acquittement de la calibration
+	ROADMAP_add_order(TRAJECTORY_STOP, 0, 0, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE);
 	
 	
 	
