@@ -237,7 +237,7 @@
 						
 					typedef enum 
 					{
-						FORWARD_OR_BACKWARD=0,
+						ANY_WAY=0,
 						BACKWARD,
 						FORWARD
 					} way_e;	
