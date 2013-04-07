@@ -88,14 +88,16 @@ void CAN_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t ac
 void CAN_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode) {
 	CAN_msg_t resultMsg;
 
-	resultMsg.sid = ACT_RESULT;
-	resultMsg.data[0] = originalSid & 0xFF;
-	resultMsg.data[1] = originalCommand;
-	resultMsg.data[2] = result;
-	resultMsg.data[3] = errorCode;
-	resultMsg.size = 4;
+	if(global.match_started == TRUE) {
+		resultMsg.sid = ACT_RESULT;
+		resultMsg.data[0] = originalSid & 0xFF;
+		resultMsg.data[1] = originalCommand;
+		resultMsg.data[2] = result;
+		resultMsg.data[3] = errorCode;
+		resultMsg.size = 4;
 
-	CAN_send(&resultMsg);
+		CAN_send(&resultMsg);
+	}
 
 	CAN_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_NoParam, 0);
 }

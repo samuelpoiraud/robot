@@ -59,6 +59,14 @@ void HAMMER_init() {
 	DCM_config(HAMMER_DCMOTOR_ID, &hammer_config);
 	DCM_stop(HAMMER_DCMOTOR_ID);
 
+	CAN_msg_t msg;
+	msg.sid = ACT_HAMMER;
+	msg.data[0] = ACT_HAMMER_MOVE_TO;
+	msg.data[1] = LOWINT(HAMMER_ACT_MOVE_TO_INIT_POS);
+	msg.data[2] = HIGHINT(HAMMER_ACT_MOVE_TO_INIT_POS);
+	msg.size = 3;
+	HAMMER_CAN_process_msg(&msg);
+
 	COMPONENT_log(LOG_LEVEL_Info, "Hammer initialisé\n");
 }
 

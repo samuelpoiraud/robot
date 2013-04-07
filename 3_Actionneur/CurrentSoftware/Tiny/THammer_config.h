@@ -21,6 +21,7 @@
 	#define HAMMER_UNITS_AT_0_DEGRE     -203    //Unité potar quand le bras est à 0° (vertical vers le bas, rangé)
 	#define HAMMER_DCMOTOR_MAX_PWM_WAY0 20		//en %
 	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 20		//en %
+	#define HAMMER_ACT_MOVE_TO_INIT_POS 90      //en degré, 90° = vertical vers le bas, 0° = horizontal sorti
 
 #endif	/* TBALL_INFLATER_CONFIG_H */
 

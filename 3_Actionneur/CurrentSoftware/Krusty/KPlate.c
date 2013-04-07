@@ -78,6 +78,13 @@ void PLATE_init() {
 	COMPONENT_log(LOG_LEVEL_Info, "Pince à assiette initialisé (DCMotor)\n");
 
 	PLATE_initAX12();
+
+	CAN_msg_t msg;
+
+	msg.sid = ACT_PLATE;
+	msg.data[0] = PLATE_ACT_ROTATE_INIT_POS;
+	msg.size = 1;
+	PLATE_CAN_process_msg(&msg);
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
@@ -94,6 +101,8 @@ static void PLATE_initAX12() {
 
 		AX12_config_set_error_before_led(PLATE_PLIER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(PLATE_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+
+		AX12_set_position(PLATE_PLIER_AX12_ID, PLATE_ACT_PLIER_AX12_INIT_POS);
 		COMPONENT_log(LOG_LEVEL_Info, "Pince AX12 initialisé\n");
 	}
 }

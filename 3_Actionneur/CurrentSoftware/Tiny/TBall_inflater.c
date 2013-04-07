@@ -34,7 +34,7 @@
 	#define BALLINFLATER_TIMER_stop() BALLINFLATER_TEMP_CONCAT(TIMER, BALLINFLATER_TIMER_ID, _stop)()
 #endif
 
-static bool_e ballinflater_state = BALLINFLATER_OFF;
+static bool_e ballinflater_state;
 static bool_e BALLINFLATER_emerg_stop_inflater = FALSE;
 
 static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init);
@@ -46,6 +46,7 @@ void BALLINFLATER_init() {
 		return;
 	initialized = TRUE;
 
+	ballinflater_state = BALLINFLATER_OFF;
 	BALLINFLATER_TIMER_init();
 	BALLINFLATER_TIMER_start(100);
 }
