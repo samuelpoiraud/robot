@@ -254,7 +254,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								0,					//teta
 								NOT_RELATIVE,		//relative
 								NOW,			//maintenant
-								FORWARD_OR_BACKWARD,	//sens de marche
+								ANY_WAY,	//sens de marche
 								NOT_BORDER_MODE,	//mode bordure
 								NO_MULTIPOINT, 	//mode multipoints
 								FAST,				//Vitesse
@@ -271,7 +271,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								(msg->data[1] <<8) + msg->data[2],	//teta
 								(msg->data[0] & 0x01)?RELATIVE:NOT_RELATIVE,	//relative
 								(msg->data[0] & 0x10)?NOT_NOW:NOW,//maintenant
-								FORWARD_OR_BACKWARD,					//sens de marche
+								ANY_WAY,					//sens de marche
 								NOT_BORDER_MODE,					//mode bordure
 								(msg->data[0] & 0x20)?MULTIPOINT:NO_MULTIPOINT, 	//mode multi points
 								//NOT_MULTIPOINT,
@@ -284,12 +284,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case ASSER_GO_POSITION:
 			
 			//Réglage sens:		
-			if ((msg->data[6] & 0xF0)&&!(msg->data[6] & 0x0F))
-				sens_marche = BACKWARD;	//ON IMPOSE LE SENS MARCHE ARRIERE
-			else if (!(msg->data[6] & 0xF0)&&(msg->data[6] & 0x0F))
-				sens_marche = FORWARD;	//ON IMPOSE LE SENS MARCHE AVANT
-			else
-				sens_marche = FORWARD_OR_BACKWARD;	//ON SE FICHE DU SENS
+			if ((msg->data[6] == BACKWARD) || (msg->data[6] == FORWARD))
+				sens_marche = msg->data[6];	//LE SENS EST imposé
+			else 
+				sens_marche = ANY_WAY;	//ON SE FICHE DU SENS
 				
 			ROADMAP_add_order(  	(msg->data[7] !=0)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
 								(msg->data[1] <<8) + msg->data[2],	//x
@@ -305,48 +303,19 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								(corrector_e)((msg->data[0] & 0x0C)>>2)
 							);
 		break;	
-		
 
-		//demande d'autocalage
-		case ASSER_CALIBRATION:
-			//Réglage sens:
-			if ((msg->data[0] & 0xF0)&&!(msg->data[0] & 0x0F))	//ON IMPOSE L'autocalage ARRIERE
-                        {
-                            if(msg->data[1] == case_calibrage_1)
-				SEQUENCES_calibrate(BACKWARD,case_calibrage_1);     //calibrage sur la case 1 blanche
-                            else if (msg->data[1] ==case_calibrage_2)
-                                SEQUENCES_calibrate(BACKWARD,case_calibrage_2);     //calibrage sur la case 2
-                            else SEQUENCES_calibrate(BACKWARD,case_calibrage_3);    //calibrage sur la case 3
-                        }
+		case ASSER_CALIBRATION:	//Autocalage !
+			if (msg->data[0] == FORWARD) //ON IMPOSE L'autocalage AVANT
+				SEQUENCES_calibrate(FORWARD,msg->data[1]);
+			else	//Par défaut, l'autocallage est arrière.
+				SEQUENCES_calibrate(BACKWARD,msg->data[1]);
 
-			else if (!(msg->data[0] & 0xF0)&&(msg->data[0] & 0x0F)) //ON IMPOSE L'autocalage AVANT
-                        {
-                             if(msg->data[1] == case_calibrage_1)
-				SEQUENCES_calibrate(BACKWARD,case_calibrage_1);     //calibrage sur la case 1 blanche
-                            else if (msg->data[1] == case_calibrage_2)
-                                SEQUENCES_calibrate(BACKWARD,case_calibrage_2);     //calibrage sur la case 2
-                            else SEQUENCES_calibrate(BACKWARD,case_calibrage_3);    //calibrage sur la case 3
-                        }
-
-			else                                                    //ON IMPOSE L'autocalage ARRIERE
-                        {
-				 if(msg->data[1] == case_calibrage_1)
-				SEQUENCES_calibrate(BACKWARD,case_calibrage_1);     //calibrage sur la case 1 blanche
-                            else if (msg->data[1] == case_calibrage_2)
-                                SEQUENCES_calibrate(BACKWARD,case_calibrage_2);     //calibrage sur la case 2
-                            else SEQUENCES_calibrate(BACKWARD,case_calibrage_3);    //calibrage sur la case 3
-                        }
-				//Autocalage !
 		break;
 		
 		//demande de selftest pour la propulsion
-				case SUPER_ASK_ASSER_SELFTEST:
-			if ((msg->data[0] & 0xF0)&&!(msg->data[0] & 0x0F))
-				SEQUENCES_calibrate(FORWARD,case_calibrage_1);	//ON IMPOSE L'autocalage ARRIERE
-			else if (!(msg->data[0] & 0xF0)&&(msg->data[0] & 0x0F))
-				SEQUENCES_calibrate(FORWARD,case_calibrage_1);	//ON IMPOSE L'autocalage AVANT
-			else
-				SEQUENCES_calibrate(FORWARD,case_calibrage_1);	//ON IMPOSE L'autocalage ARRIERE
+		case SUPER_ASK_ASSER_SELFTEST:
+			//SELFTEST désactivé, car l'autocallage qui y était fait dépend maintenant de la stratégie !!!
+		
 		break;
 			
 		// Modifie la position de départ en fonction de la couleur 
