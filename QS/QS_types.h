@@ -61,5 +61,10 @@
 		BEACONS_NUMBER
 	} beacon_id_e;	
 
+	typedef enum {
+		ANY_WAY=0,
+		BACKWARD,
+		FORWARD
+	} way_e;
 	
 #endif /* ndef QS_TYPES_H */
