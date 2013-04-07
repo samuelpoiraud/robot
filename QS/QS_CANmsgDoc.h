@@ -130,7 +130,7 @@
 	/* Carte super vers carte propulsion */
 	#define SUPER_ASK_ASSER_SELFTEST	
 	/*
-		sens : Uint8 (FORWARD|REAR)
+		sens : Uint8 (FORWARD|BACKWARD)
 	*/
 	
 	/* Carte super vers carte balise */
@@ -196,7 +196,7 @@
  *			typedef enum
  *			{
  *				ANY_WAY,						// Peu importe le sens de déplacement
- *				REAR,							// En arrière uniquement
+ *				BACKWARD,							// En arrière uniquement
  *				FORWARD							// En avant uniquement
  *			}ASSER_way_e;
  *
@@ -262,13 +262,11 @@
 			Remarque : Il est possible de CUMULER plusieurs raisons !!!
 						#define WARNING_NO					(0b00000000)
 						#define WARNING_TIMER				(0b00000001)
-						#define WARNING_TRANSLATION			(0b00000010)
-						#define WARNING_ROTATION			(0b00000100)
+						#define WARNING_TRANSLATION			(0b00000010)		//Nous venons de nous déplacer sur une grille virtuelle en distance pour laquelle on nous a demandé une surveillance.		
+						#define WARNING_ROTATION			(0b00000100)		//Nous venons de nous déplacer sur une grille virtuelle en angle pour laquelle on nous a demandé une surveillance.		
 						#define WARNING_REACH_X				(0b00001000)		//Nous venons d'atteindre une position en X pour laquelle on nous a demandé une surveillance.
 						#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
-						#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
-						#define WARNING_MOVE				(0b01000000)		//Nous venons de nous déplacer sur une grille virtuelle pour laquelle on nous a demandé une surveillance.
-						#define WARNING_BRAKE				(0b10000000)		
+						#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.		
 	*/
  	#define CARTE_P_ROBOT_FREINE
 	/*
