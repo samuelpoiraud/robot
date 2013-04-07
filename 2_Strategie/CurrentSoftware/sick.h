@@ -14,6 +14,8 @@
 #ifndef SICK_H
 	#define SICK_H
 
+	#ifdef USE_SICK
+	
 	#include "Geometry.h"
 	
 	#if (defined(USE_SICK_DT50_LEFT) || defined(USE_SICK_DT50_RIGHT) || defined(USE_SICK_DT50_TOP)) && !defined(USE_SCHEDULED_POSITION_REQUEST)	
@@ -117,4 +119,5 @@
         		
 	#endif /* def SICK_C */
 
+	#endif /* USE_SICK */
 #endif /* ndef SICK_H */

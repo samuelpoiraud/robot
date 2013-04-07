@@ -13,6 +13,8 @@
 
 #include "telemeter.h"
 
+#ifdef USE_TELEMETER
+
 /* Initialisation des télémètres */
 void TELEMETER_init(void)
 {
@@ -245,3 +247,5 @@ static void TELEMETER_update_value()
 	}
 #endif
 }
+
+#endif //USE_TELEMETER

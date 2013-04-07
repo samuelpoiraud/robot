@@ -95,7 +95,6 @@ void BUTTON_translation()
 	relative_move (1000, FAST, TRUE);
 }
 
-static Uint16 speed = 6000;
 static void BUTTON_TEST_button3() {
 //	ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);
 //	ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);

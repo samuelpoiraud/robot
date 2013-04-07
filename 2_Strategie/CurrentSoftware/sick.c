@@ -13,6 +13,8 @@
 
 #include "sick.h"
 
+#ifdef USE_SICK
+
 distance_sensor_config_t const distance_sensor_config[NB_DISTANCE_SENSOR] =
 {
 	/*A modifier*/
@@ -52,6 +54,7 @@ void SICK_init(void)
 	distance_sensor[DT50_TOP].nb_points = 0;
 	distance_sensor[DT50_TOP].locked = FALSE;
 }
+
 
 void SICK_update(void)
 {
@@ -168,4 +171,5 @@ static GEOMETRY_point_t SICK_get_point(sick_distance_sensor_e sick_sensor)
 	}
 	return point;
 }
+#endif
 

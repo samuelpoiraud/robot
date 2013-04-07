@@ -13,7 +13,7 @@
 	#define GLOBAL_CONFIG_H
 
 	#define VERBOSE_MODE
-	#define MODE_HOMOLOGATION
+
 //	#define OUTPUT_LOG  //utilisé dans act_function.h/c seulement actuellement
 	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 
@@ -122,14 +122,20 @@
 	//utilisé en 2010-2011 pour la détection des pions avec les capteurs de distance SICK (cf. brain.c)
 	#define USE_SCHEDULED_POSITION_REQUEST
 	
-	//utilisation des télémètres laser SICK
-	//#define USE_SICK_DT50_LEFT
-	//#define USE_SICK_DT50_RIGHT
-	//#define USE_SICK_DT50_TOP
-	#define USE_SICK_DT10_0
-	#define USE_SICK_DT10_1
-	#define USE_SICK_DT10_2
-	#define USE_SICK_DT10_3
+	//#define USE_TELEMETER
+	#ifdef USE_TELEMETER
+		//utilisation des télémètres laser SICK
+		//#define USE_SICK_DT50_LEFT
+		//#define USE_SICK_DT50_RIGHT
+		//#define USE_SICK_DT50_TOP
+		#define USE_SICK_DT10_0
+		#define USE_SICK_DT10_1
+		#define USE_SICK_DT10_2
+		#define USE_SICK_DT10_3
+	#endif
+	
+	//Module de gestion des capteurs SICK pour scan de la zone de jeu... Ce module est très dépendant du règlement et du robot !
+	//#define USE_SICK
 	
 	//utilisation du lecteur de codes-barres
 //	#define USE_BARCODE_ON_UART1
@@ -144,8 +150,6 @@
 	//envoie de l'ajout, la mise a jour ou la suppresion d'un element de jeu sur le CAN
 //	#define USE_ELEMENT_CAN_DEBUG
 
-	//mode homologation (évitement très simple)
-//	#define MODE_HOMOLOGATION
 
 	//utilise le mode de déplacement avec les polygones
 	//si cette ligne est commentée, on utilise par défaut le mode de déplacement avec pathfind

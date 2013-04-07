@@ -20,14 +20,6 @@
 #include "avoidance.h" //pour error_e
 
 
-#ifdef MODE_HOMOLOGATION
-/**
-* marque les points d'une bouteille et parcours ensuite les noeuds pour l'évitement
-*
-*/
-//void TEST_STRAT_homolagation();
-#endif
-
 #ifdef ACTIONS_TEST_C
  	#include "telemeter.h"
         #include "QS/QS_CANmsgList.h"

@@ -20,19 +20,11 @@
 #include "actions_tests_krusty_micro.h"
 
 
-#ifdef MODE_HOMOLOGATION
-/**
-* marque les points d'une bouteille et parcours ensuite les noeuds pour l'évitement
-*
-*/
-//void TEST_STRAT_homolagation();
-#endif
-
 #ifdef ACTIONS_TEST_C
- 	#include "telemeter.h"
         #include "QS/QS_CANmsgList.h"
 #endif /* def ACTION_TEST_C */
 
+void TEST_STRAT_K_homologation(void);
 void TEST_STRAT_avoidance(void);
 void TEST_STRAT_kdo(void);
 void TEST_STRAT_assiettes(void);

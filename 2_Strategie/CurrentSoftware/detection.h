@@ -29,60 +29,20 @@ trajectoire pour l'information de position de l'adversaire */
 	
 	typedef enum
 	{
-		/*TELE_FRONT_LEFT = 0,
-		TELE_FRONT_RIGHT,
-		TELE_BACK_LEFT,
-		TELE_BACK_RIGHT,
-		*/BEACON_IR_FOE_1,
+		#ifdef USE_TELEMETER	
+		/* attention, code lié à TELEMETER_NUMBER dans telemeter.h */
+		/* les telemetres doivent rester en tête de liste */
+			TELE_FRONT_LEFT = 0,
+			TELE_FRONT_RIGHT,
+			TELE_BACK_LEFT,
+			TELE_BACK_RIGHT,
+		#endif
+		BEACON_IR_FOE_1,
 		BEACON_US_FOE_1,
 		BEACON_IR_FOE_2,
 		BEACON_US_FOE_2,
 		SENSOR_NB
 	}detection_sensor_e;
-	/* attention, code lié à TELEMETER_NUMBER dans telemeter.h */
-	/* les telemetres doivent rester en tête de liste */
-	
-
-	/*type enum qui représente les positions des différents lingots*/
-	/*les quatres dernieres valeurs sert a indiquer lorsque le lingots n'est plus dans le totem*/
-	typedef enum
-	{
-		NO_DETECTION,
-		/*lingot dans le totem*/
-		FIRST_TOTEM_NORTH,
-		FIRST_TOTEM_SOUTH,
-		SECOND_TOTEM_NORTH,
-		SECOND_TOTEM_SOUTH,
-		/*plus de lingot dans le totem*/
-		FIRST_TOTEM_NORTH_EMPTY,
-		FIRST_TOTEM_SOUTH_EMPTY,
-		SECOND_TOTEM_NORTH_EMPTY,
-		SECOND_TOTEM_SOUTH_EMPTY
-	}detection_totem_e;
-
-//déclaration des zones de détection des lingots dans les différents totems
-	#define FIRST_TOTEM_Y_MIN 1000
-	#define FIRST_TOTEM_Y_MAX 1250
-	#define SECOND_TOTEM_Y_MIN 1750
-	#define SECOND_TOTEM_Y_MAX 2000
-	#define NORTH_TOTEM_X_MIN 875
-	#define NORTH_TOTEM_X_MAX 945
-	#define SOUTH_TOTEM_X_MIN 1055
-	#define SOUTH_TOTEM_X_MAX 1125
-
-	/*déclaration des zones du centres des totems, 
-	si un point est détecté dans cette zone, 
-	on est sur qu'il n'y a plus de lingot à cette position*/
-	#define FIRST_TOTEM_CENTER_Y_MIN 1090
-	#define FIRST_TOTEM_CENTER_Y_MAX 1180
-	#define SECOND_TOTEM_CENTER_Y_MIN 1840
-	#define SECOND_TOTEM_CENTER_Y_MAX 1910
-	/*definition de la zone de tolerence de la detection */
-	#define TOTEM_NORTH_CENTER_X_MIN 955
-	#define TOTEM_NORTH_CENTER_X_MAX 975
-	#define TOTEM_SOUTH_CENTER_X_MIN 1025
-	#define TOTEM_SOUTH_CENTER_X_MAX 1045
-
 
 
 	/* informations d'un capteur */
@@ -110,10 +70,6 @@ trajectoire pour l'information de position de l'adversaire */
 	
 	/*	mise à jour de l'information de la position des adversaires à l'aide des telemetres et des balises*/
 	void DETECTION_update_foe_by_telemeter();
-
-	/* détection des lingots dans totems*/
-	detection_totem_e DETECTION_bullion_update();
-
 	
 	/* nettoyage des flags dans l'environnement */
 	void DETECTION_clear_updates();

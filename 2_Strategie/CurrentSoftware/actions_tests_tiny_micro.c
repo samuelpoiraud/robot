@@ -22,22 +22,19 @@
 
 
 
-#ifdef MODE_HOMOLOGATION
-
-
-
-
-/* ----------------------------------------------------------------------------- */
-/* 					Sous Strat homologation                     			 */
-/* ----------------------------------------------------------------------------- */
-
-
-
-#endif
-
 /* ----------------------------------------------------------------------------- */
 /* 						Actions élémentaires de construction                     */
 /* ----------------------------------------------------------------------------- */
+
+//Cette fonction est appelée sur TINY à la fin du match.
+void T_BALLINFLATER_start(void)
+{
+	CAN_msg_t msg;
+	msg.sid = ACT_BALLINFLATER;
+	msg.data[0] = ACT_BALLINFLATER_START;
+	msg.data[1] = 10;	//[sec]
+	CAN_send(&msg);
+}	
 
 /* ----------------------------------------------------------------------------- */
 /* 								Fonction diverses                     			 */
