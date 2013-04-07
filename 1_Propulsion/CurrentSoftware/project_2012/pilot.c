@@ -202,7 +202,7 @@ void PILOT_update_acceleration_state(void)
 	alpha = CALCULATOR_modulo_angle(alpha);
 
 	//Calcul de la destination dans le repère local cartésien
-	if(((alpha<-HALF_PI4096 || alpha > HALF_PI4096) && COPILOT_get_way() == FORWARD_OR_BACKWARD) || COPILOT_get_way() == BACKWARD)
+	if(((alpha<-HALF_PI4096 || alpha > HALF_PI4096) && COPILOT_get_way() == ANY_WAY) || COPILOT_get_way() == BACKWARD)
 	{
 		alpha += PI4096;
 		vtrans=-vtrans;

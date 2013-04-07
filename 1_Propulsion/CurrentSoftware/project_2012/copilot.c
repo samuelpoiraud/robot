@@ -775,7 +775,7 @@ void COPILOT_destination_angle(Sint16 x, Sint16 y, Sint16 * angle_a_parcourir, S
 	*angle_a_parcourir = *teta_destination - global.position.teta;
 	*angle_a_parcourir = CALCULATOR_modulo_angle(*angle_a_parcourir);
 
-	if(way == FORWARD_OR_BACKWARD)
+	if(way == ANY_WAY)
 	{
 		//supposons que l'on soit en marche avant...
 		*chosen_way = FORWARD;

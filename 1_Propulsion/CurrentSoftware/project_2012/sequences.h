@@ -10,7 +10,8 @@
  
 #ifndef _SEQUENCES_H
 	#define _SEQUENCES_H
-
+#include "QS/QS_all.h"
+#include "QS/QS_CANmsgList.h"
 #include "roadmap.h"
 
 	void SEQUENCES_border_calibration(Sint16 angle, way_e direction, acknowledge_e acknowledge, Sint32 far_point_x, Sint32 far_point_y);
@@ -19,5 +20,5 @@
 
 	void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, acknowledge_e acquittement, Sint32 consigne_point_eloigne_x, Sint32 consigne_point_eloigne_y, border_mode_e border_mode, corrector_e corrector);
 
-        void SEQUENCES_calibrate(way_e way,case_e case_calibrage);
+    void SEQUENCES_calibrate(way_e way, calibration_square_e calibration_square);
 #endif /*def _SEQUENCES_H*/

@@ -38,18 +38,6 @@
 			TRAJECTORY_NONE
 	} trajectory_e;
 
-	typedef enum {
-			FORWARD_OR_BACKWARD=0,
-			BACKWARD,
-			FORWARD
-	} way_e;
-
-        /* la case de calibrage du robot*/
-        typedef enum {
-                    case_calibrage_1 = 0,
-                    case_calibrage_2,
-                    case_calibrage_3,
-        }case_e;
 
 	typedef enum {
 			NO_ACKNOWLEDGE = 0,	 //Aucun acquittement demandé
