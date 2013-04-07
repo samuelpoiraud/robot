@@ -17,8 +17,8 @@
 	#define HAMMER_ASSER_KD             0
 	#define HAMMER_ASSER_TIMEOUT        3000    //en ms
 	#define HAMMER_ASSER_POS_EPSILON    20
-	#define HAMMER_UNITS_PER_128_DEGRE  -494     //TODO: A changer
-	#define HAMMER_UNITS_AT_0_DEGRE     -203
+	#define HAMMER_UNITS_PER_128_DEGRE  -494    //Unité potar par 128°
+	#define HAMMER_UNITS_AT_0_DEGRE     -203    //Unité potar quand le bras est à 0° (vertical vers le bas, rangé)
 	#define HAMMER_DCMOTOR_MAX_PWM_WAY0 20		//en %
 	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 20		//en %
 

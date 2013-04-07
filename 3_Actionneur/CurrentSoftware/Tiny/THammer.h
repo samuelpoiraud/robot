@@ -29,6 +29,10 @@ void HAMMER_init();
  */
 void HAMMER_stop();
 
+/** Récupère la position courant du bras en degrés.
+ */
+Uint16 HAMMER_get_pos();
+
 /** Gère les messages CAN liés au bras.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'asservir le bras à la position voulue.

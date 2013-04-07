@@ -34,7 +34,6 @@ static void MAIN_onButton1();
 static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
-static void MAIN_onLongPush();
 
 
 void RCON_read();
@@ -255,11 +254,9 @@ static void MAIN_onButton4() {
 	debug_printf("\n");
 }
 
-static void MAIN_onLongPush() {
-	debug_printf("Main: LongPush ---------------------------------\n");
-}
-
 #else // Tiny
+
+#include "Tiny/THammer.h" //pour HAMMER_get_pos()
 
 static void MAIN_onButton1() {
 #ifdef USE_CAN
@@ -273,7 +270,7 @@ static void MAIN_onButton1() {
 
 	msg.sid = ACT_BALLINFLATER;
 	msg.data[0] = ACT_BALLINFLATER_START;
-	msg.data[1] = 3;
+	msg.data[1] = 10;
 	msg.size = 2;
 
 	CAN_process_msg(&msg);
@@ -301,25 +298,43 @@ static void MAIN_onButton2() {
 static void MAIN_onButton3() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
+	static Uint8 hammer_next_pos = 0;
 
-//	msg.sid = ACT_HAMMER;
-//	msg.data[0] = ACT_HAMMER_MOVE_TO;
-//	msg.data[1] = LOWINT(90);
-//	msg.data[2] = HIGHINT(0);
-//	msg.size = 3;
-
-	msg.sid = ACT_BALLINFLATER;
-	msg.data[0] = ACT_BALLINFLATER_START;
-	msg.data[1] = 10;
-	msg.size = 2;
+	msg.sid = ACT_HAMMER;
+	msg.data[0] = ACT_HAMMER_MOVE_TO;
+	msg.data[1] = LOWINT(hammer_next_pos);
+	msg.data[2] = HIGHINT(hammer_next_pos);
+	msg.size = 3;
 
 	CAN_process_msg(&msg);
+
+	switch(hammer_next_pos) {
+		case 0:
+			hammer_next_pos = 20;
+			break;
+
+		case 20:
+			hammer_next_pos = 0;
+			break;
+
+		default:
+			hammer_next_pos = 0;
+			break;
+	}
+
 #endif
 }
 
 static void MAIN_onButton4() {
 	Uint8 i;
-	debug_printf("- Hammer potar val: %d\n", ADC_getValue(HAMMER_SENSOR_ADC_ID));
+	CAN_msg_t msg;
+
+	msg.sid = ACT_HAMMER;
+	msg.data[0] = ACT_HAMMER_STOP;
+	msg.size = 1;
+	CAN_process_msg(&msg);
+
+	debug_printf("- Hammer pos en degres: %d\n", HAMMER_get_pos());
 	debug_printf("- CW[x] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_x));
 	debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_y));
 	debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));
@@ -328,7 +343,7 @@ static void MAIN_onButton4() {
 		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
 	debug_printf("\n");
 }
-#endif
+#endif // Tiny ou Krusty
 
 void RCON_read()
 {

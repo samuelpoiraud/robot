@@ -85,6 +85,10 @@ static void CANDLECOLOR_initAX12();
 static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init);
 static Uint8 CANDLECOLOR_process_color();
 
+#ifdef CANDLECOLOR_CW_DEBUG_COLOR
+	static void CANDLECOLOR_debug_color_run(queue_id_t queueId, bool_e init);
+#endif
+
 void CANDLECOLOR_init() {
 	static bool_e initialized = FALSE;
 	CW_config_t sensorConfig;
@@ -120,6 +124,10 @@ void CANDLECOLOR_init() {
 	COMPONENT_log(LOG_LEVEL_Info, "Capteur couleur de bougie initialisé (sensor)\n");
 
 	CANDLECOLOR_initAX12();
+
+#ifdef CANDLECOLOR_CW_DEBUG_COLOR
+	QUEUE_add(QUEUE_create(), &CANDLECOLOR_debug_color_run, (QUEUE_arg_t){0}, -1);
+#endif
 }
 
 static void CANDLECOLOR_initAX12() {
@@ -261,44 +269,81 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 	}
 }
 
+#ifdef CANDLECOLOR_CW_DEBUG_COLOR
+static void CANDLECOLOR_debug_color_run(queue_id_t queueId, bool_e init) {
+	switch(CANDLECOLOR_process_color()) {
+		case ACT_CANDLECOLOR_COLOR_YELLOW: COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: yellow\n");  break;
+		case ACT_CANDLECOLOR_COLOR_BLUE:   COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: blue\n");    break;
+		case ACT_CANDLECOLOR_COLOR_OTHER:  COMPONENT_log(LOG_LEVEL_Debug, "  No color detected\n");       break;
+		case ACT_CANDLECOLOR_COLOR_RED:    COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: red\n");     break;
+		case ACT_CANDLECOLOR_COLOR_WHITE:  COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: white\n");   break;
+		default:                           COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: unknown\n"); break;
+	}
+}
+#endif
+
 static Uint8 CANDLECOLOR_process_color() {
-	Uint16 x, y, z, Y;
+	Uint16 x, y, z, Y, L; //L = light power = Y/y = X+Y+Z
 
 #ifdef CANDLECOLOR_CW_USE_DIGITAL
+	#ifdef CANDLECOLOR_CW_CHANNEL_RED
 	if(CW_is_color_detected(CANDLECOLOR_CW_ID, CANDLECOLOR_CW_CHANNEL_RED))
 		return ACT_CANDLECOLOR_COLOR_RED;
+	#endif
 
+	#ifdef CANDLECOLOR_CW_CHANNEL_BLUE
 	if(CW_is_color_detected(CANDLECOLOR_CW_ID, CANDLECOLOR_CW_CHANNEL_BLUE))
 		return ACT_CANDLECOLOR_COLOR_BLUE;
+	#endif
 
+	#ifdef CANDLECOLOR_CW_CHANNEL_YELLOW
 	if(CW_is_color_detected(CANDLECOLOR_CW_ID, CANDLECOLOR_CW_CHANNEL_YELLOW))
 		return ACT_CANDLECOLOR_COLOR_YELLOW;
+	#endif
 
+	#ifdef CANDLECOLOR_CW_CHANNEL_WHITE
 	if(CW_is_color_detected(CANDLECOLOR_CW_ID, CANDLECOLOR_CW_CHANNEL_WHITE))
 		return ACT_CANDLECOLOR_COLOR_WHITE;
-#endif
+	#endif
+#endif //CANDLECOLOR_CW_USE_DIGITAL
 
 #ifdef CANDLECOLOR_CW_USE_ANALOG
 	x = CW_get_color_intensity(CANDLECOLOR_CW_ID, CW_AC_xyY_x);
 	y = CW_get_color_intensity(CANDLECOLOR_CW_ID, CW_AC_xyY_y);
 	Y = CW_get_color_intensity(CANDLECOLOR_CW_ID, CW_AC_xyY_Y);
 	z = 1024 - x - y;
+	L = (((Uint32)Y)*1024)/y;
+	COMPONENT_log(LOG_LEVEL_Debug, "Detected color [%d,%d,%d] / 1024, Y: %d, L: %d\n", x, y, z, Y, L);
 
+	#if defined(CANDLECOLOR_CW_YELLOW_MIN_xy) && defined(CANDLECOLOR_CW_YELLOW_MAX_DIFF_xy)
 	if( x > CANDLECOLOR_CW_YELLOW_MIN_xy && y > CANDLECOLOR_CW_YELLOW_MIN_xy && abs(y-x) < CANDLECOLOR_CW_YELLOW_MAX_DIFF_xy)
 		return ACT_CANDLECOLOR_COLOR_YELLOW;
+	#endif
 
+	#ifdef CANDLECOLOR_CW_RED_MIN_x
 	if(x > CANDLECOLOR_CW_RED_MIN_x)
 		return ACT_CANDLECOLOR_COLOR_RED;
+	#endif
 
+	#ifdef CANDLECOLOR_CW_BLUE_MIN_z
 	if(z > CANDLECOLOR_CW_BLUE_MIN_z)
 		return ACT_CANDLECOLOR_COLOR_BLUE;
+	#endif
 
+	#ifdef CANDLECOLOR_CW_GREEN_MIN_y
 	if(y > CANDLECOLOR_CW_GREEN_MIN_y)
 		return ACT_CANDLECOLOR_COLOR_OTHER;
+	#endif
 
+	#ifdef CANDLECOLOR_CW_WHITE_MIN_Y
 	if(Y > CANDLECOLOR_CW_WHITE_MIN_Y)
 		return ACT_CANDLECOLOR_COLOR_WHITE;
-#endif
+	#endif
+	#ifdef CANDLECOLOR_CW_WHITE_MIN_L
+	if(L > CANDLECOLOR_CW_WHITE_MIN_L)
+		return ACT_CANDLECOLOR_COLOR_WHITE;
+	#endif
+#endif // CANDLECOLOR_CW_USE_ANALOG
 
 	return ACT_CANDLECOLOR_COLOR_OTHER;
 }
