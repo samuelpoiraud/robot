@@ -1,4 +1,0 @@
-TODO list : stratégie
-
-- Pathfind à vérifier et à tester
-- Définir les noeuds du pathfind
