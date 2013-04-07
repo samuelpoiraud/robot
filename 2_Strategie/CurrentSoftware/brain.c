@@ -33,7 +33,8 @@
 void any_match(time32_t match_duration)
 {
 	static ia_fun_t strategy;
-	static Uint8 calibration = 0x01;
+	static calibration_square_e calibration = ASSER_CALIBRATION_SQUARE_1;
+	static way_e calibration_way = ANY_WAY;
 	if (!global.env.match_started)
 	{
 		/* we are before the match */
@@ -69,8 +70,8 @@ void any_match(time32_t match_duration)
 		{
 			CAN_msg_t msg;
 			msg.sid = ASSER_CALIBRATION;
-			msg.data[0] = global.env.color == BLUE?REAR:FORWARD;
-			msg.data[1] = calibration;
+			msg.data[0] = (Uint8)calibration_way;
+			msg.data[1] = (Uint8)calibration;
 			msg.size = 2;
 			CAN_send(&msg);
 		}
@@ -81,49 +82,49 @@ void any_match(time32_t match_duration)
 
 		if(QS_WHO_AM_I_get()==TINY)
 		{
+			calibration_way = (global.env.color == BLUE)?FORWARD:BACKWARD;	//En bleu, TINY se cale en avant pour avoir son bras coté cadeaux.
+			calibration = ASSER_CALIBRATION_SQUARE_0;						//Sauf si décision contraire dans certaines stratégies... Tiny est par défaut dans la case 0.
+			
 			switch(strat_number())
 			{
 				case 0x01:	//STRAT_1_TINY
-					
-					calibration = 0x00;
 					strategy = TEST_Launcher_ball;
 				break;
 				case 0x02:	//STRAT_2_TINY
-					calibration = 0x01;
-					strategy = TEST_Launcher_ball;
+					strategy = STRAT_TINY_gifts_and_cake;
 				break;
 				case 0x03:	//STRAT_3_TINY
-					calibration = 0x00;
 					strategy = TEST_Launcher_ball;
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;
 				default:
-					calibration = 0x00;
 					strategy = TEST_STRAT_T_homologation;
 				break;
 			}			
 		}
 		else
 		{
+			calibration_way = BACKWARD;	//Krusty se cale TOUJOURS en backward (pas de callage contre l'ascenseur à verres)
+			
 			switch(strat_number())
 			{
 				case 0x01:	//STRAT_1_KRUSTY
-					calibration = 0x00;
+					calibration = ASSER_CALIBRATION_SQUARE_1;
 					strategy = TEST_STRAT_avoidance;
 				break;
 				case 0x02:	//STRAT_2_KRUSTY
-					calibration = 0x01;
+					calibration = ASSER_CALIBRATION_SQUARE_2;
 					strategy = TEST_Launcher_ball;
 				break;
 				case 0x03:	//STRAT_3_KRUSTY
-					calibration = 0x00;
+					calibration = ASSER_CALIBRATION_SQUARE_1;
 					strategy = TEST_STRAT_verres;
 				break;
 				case 0x00:	//STRAT_0_KRUSTY (aucun switch)
 				//no break;
 				default:
-					calibration = 0x00;
+					calibration = ASSER_CALIBRATION_SQUARE_1;
 					strategy = TEST_STRAT_K_homologation;
 				break;
 			}

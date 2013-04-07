@@ -22,7 +22,7 @@
 		Uint16 x,y;
 		Sint16 angle;
 		ASSER_speed_e speed;
-		ASSER_way_e way;
+		way_e way;
 		Uint8 curve;
 		Uint8 priority_order; 
 	}asser_arg_t;
@@ -38,7 +38,7 @@
 
 	#ifdef USE_ASSER_MULTI_POINT
 		void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init);
-		void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way, Uint8 curve, Uint8 priority_order, bool_e run);
+		void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, bool_e run);
 		void ASSER_relative_goangle_multi_point (stack_id_e stack_id, bool_e init);
 		void ASSER_push_relative_goangle_multi_point (Sint16 angle, ASSER_speed_e speed, bool_e run);
 	#endif /* def USE_ASSER_MULTI_POINT */
@@ -57,7 +57,7 @@
 	void ASSER_stop ();
 	
 	/* ajoute une instruction goto sur la pile asser */
-	void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way, Uint8 curve, bool_e run);
+	void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run);
 	
 	/* ajoute une instruction goangle sur la pile asser */
 	void ASSER_push_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);
@@ -67,18 +67,14 @@
 	void ASSER_push_relative_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);
 	
 	/* ajoute une instruction rush_in_the_wall sur la pile asser */
-	void ASSER_push_rush_in_the_wall (ASSER_way_e way, bool_e asser_rotate,Sint16 angle, bool_e run);
+	void ASSER_push_rush_in_the_wall (way_e way, bool_e asser_rotate,Sint16 angle, bool_e run);
 	
-
-void ASSER_rush_in_the_totem_north (stack_id_e stack_id, bool_e init);
-
-
-void ASSER_rush_in_the_totem_south (stack_id_e stack_id, bool_e init);
-
-void ASSER_push_rush_in_the_totem_north (ASSER_way_e way, bool_e asser_rotate, bool_e run);
-
-void ASSER_push_rush_in_the_totem_south (ASSER_way_e way, bool_e asser_rotate, bool_e run);
-
+	void ASSER_WARNER_arm_x(Sint16 x);
+	
+	void ASSER_WARNER_arm_y(Sint16 y);
+	
+	void ASSER_WARNER_arm_teta(Sint16 teta);
+	
 	/* fonction retournant si on se situe à moins de 15 cm de la destination.
 	Fonctionne en distance Manhattan */
 	bool_e ASSER_near_destination();

@@ -31,11 +31,5 @@
 		VERY_SLOW
 	} ASSER_speed_e;
 	
-	typedef enum
-	{
-		ANY_WAY=0x00,
-		REAR=0x10,
-		FORWARD=0x01
-	} ASSER_way_e;
 
 #endif /* ndef ASSER_TYPES_H */

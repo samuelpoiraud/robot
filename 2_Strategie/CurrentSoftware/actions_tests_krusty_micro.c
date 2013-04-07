@@ -638,7 +638,7 @@ error_e K_ASSIETE1(void){
 
 	switch(state){
 		case MOVE:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(800)}}}, 1, REAR, NO_DODGE_AND_NO_WAIT);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(800)}}}, 1, BACKWARD, NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
             {
                 case END_OK:
@@ -772,7 +772,7 @@ error_e K_ASSIETE1(void){
 			break;
 
 		case PUSH:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,REAR,NORMAL_WAIT);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -925,7 +925,7 @@ error_e K_verres(void){
 					{{300, COLOR_Y(2300)},FAST},
 					//{{550, COLOR_Y(2400)},FAST},
 					{{575, COLOR_Y(2405)},
-							FAST}},3,REAR,NO_AVOIDANCE);
+							FAST}},3,BACKWARD,NO_AVOIDANCE);
 			//TEST_STRAT_VERRE1();
 			switch(sub_action){
 				case IN_PROGRESS:
@@ -983,14 +983,14 @@ error_e K_verres(void){
 		case SECONDBIS:
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{555, COLOR_Y(2400)},FAST}},
-					1,REAR,NO_AVOIDANCE);
+					1,BACKWARD,NO_AVOIDANCE);
 
 			break;
 		case TROIS:
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{550, COLOR_Y(2200)},FAST},
 					{{1000, COLOR_Y(2400)},FAST}},
-							2,REAR,NO_AVOIDANCE);
+							2,BACKWARD,NO_AVOIDANCE);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -1030,7 +1030,7 @@ error_e K_verres(void){
 				sub_action = goto_pos_with_scan_foe(
 				(displacement_t[]){{{800, COLOR_Y(2400)},FAST},
 					{{1200, COLOR_Y(2500)},FAST}},
-							2,REAR,NO_AVOIDANCE);
+							2,BACKWARD,NO_AVOIDANCE);
 				switch(sub_action){
 					case IN_PROGRESS:
 						break;
@@ -1069,7 +1069,7 @@ error_e K_verres(void){
                     case SEPT:
 				sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{1050, COLOR_Y(700)},FAST}},
-					1,REAR,NO_AVOIDANCE);
+					1,BACKWARD,NO_AVOIDANCE);
 				switch(sub_action){
 					case IN_PROGRESS:
 						break;

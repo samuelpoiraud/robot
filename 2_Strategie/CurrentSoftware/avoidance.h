@@ -96,7 +96,7 @@
 		* return NOT_HANDLED : Action impossible
 		* return END_WITH_TIMEOUT : Timeout
 		*/
-			error_e goto_polygon_default(Sint16 x, Sint16 y, ASSER_way_e way, ASSER_speed_e speed, Uint8 curve,polygon_elements_type_e element_type);
+			error_e goto_polygon_default(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve,polygon_elements_type_e element_type);
 
 		/**
 		* Action qui déplace le robot grâce à l'algorithme de polygones 
@@ -114,7 +114,7 @@
 		* return NOT_HANDLED : Action impossible
 		* return END_WITH_TIMEOUT : Timeout
 		*/
-		error_e goto_polygon(Sint16 x, Sint16 y, ASSER_way_e way, ASSER_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements);
+		error_e goto_polygon(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements);
 
 		error_e goto_node(Uint8 node, ...);
 	#else
@@ -135,7 +135,7 @@
 		* return NOT_HANDLED : Action impossible
 		* return END_WITH_TIMEOUT : Timeout
 		*/
-		error_e goto_node (Uint8 node, ASSER_speed_e speed, ASSER_way_e way);
+		error_e goto_node (Uint8 node, ASSER_speed_e speed, way_e way);
 	#endif /* ndef USE_POLYGON */
 
 	/*
@@ -152,7 +152,7 @@
 	 * post : la pile ASSER est vidée.
 	 * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT, NOT_HANDLED
 	 */
-	error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way);
+	error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way);
 
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.
@@ -164,7 +164,7 @@
 	 * return END_OK		: le robot s'est déplacé de d.
 	 * return NOT_HANDLED   : une des coordonées de destination est négative.
 	 */
-	error_e relative_move (Sint16 d, ASSER_speed_e speed, ASSER_way_e way);
+	error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way);
 
 	/*
 	 * Envoie un message CAN à l'asser et attend la reponse
@@ -208,7 +208,7 @@
 	* return NOT_HANDLED : Action impossible
 	* return END_WITH_TIMEOUT : Timeout
 	*/
-	error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, ASSER_way_e way,
+	error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, way_e way,
 		avoidance_type_e avoidance_type);
 
 

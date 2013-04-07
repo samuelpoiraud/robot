@@ -127,10 +127,10 @@
 
 /* Actionneur associé: ACT_QUEUE_BallInflater */
 	//Gonfler le ballon pendant duration_sec secondes. Le message de retour n'attend pas la fin du gonflage.
-	bool_e ACT_ball_inflater_inflate(Uint8 duration_sec);
+	void ACT_ball_inflater_inflate(Uint8 duration_sec);
 
 	//Stopper le gonflage
-	bool_e ACT_ball_inflater_stop();
+	void ACT_ball_inflater_stop(void);
 
 /* Actionneur associé: ACT_QUEUE_CandleColor */
 	typedef enum {

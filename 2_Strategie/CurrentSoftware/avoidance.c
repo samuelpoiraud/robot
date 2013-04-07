@@ -59,7 +59,7 @@
 #define FORWARD_COLISION_MOVE 200
 		
 /* distance de recul si asser erreur */
-#define REAR_COLISION_MOVE	200
+#define BACKWARD_COLISION_MOVE	200
 
 /* temps maximum pour aller à un noeud */
 #define GO_TO_NODE_TIMEOUT 	10000 //10s
@@ -74,12 +74,12 @@
 * in_path = TRUE Quand l'adversaire est sur notre chemin
 * in_path = FALSE Quand l'adversaire n'est pas sur le chemin
 */
-static void foe_in_path(ASSER_way_e* move_way_indicator, bool_e in_path[NB_FOES]);
+static void foe_in_path(way_e* move_way_indicator, bool_e in_path[NB_FOES]);
 
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot 
  * move_way = retourne le sens de déplacement
  */
-static Uint16 AVOIDANCE_speed_indicator_compute(ASSER_way_e* move_way);
+static Uint16 AVOIDANCE_speed_indicator_compute(way_e* move_way);
 
 /* ----------------------------------------------------------------------------- */
 /* 				Fonctions de génération de la trajectoire à 3 points             */
@@ -88,7 +88,7 @@ static Uint16 AVOIDANCE_speed_indicator_compute(ASSER_way_e* move_way);
 /* Fonction qui exécute une esquive du robot adverse en 3 points 
  * La fonction charge la pile !
  */
-static bool_e AVOIDANCE_foe_complex_dodge(ASSER_way_e move_way, bool_e in_path[NB_FOES]);
+static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES]);
 
 /* Fonction qui calcule les 3 points d'esquive de l'adversaire 
  * move_way : sens de déplacement
@@ -97,7 +97,7 @@ static bool_e AVOIDANCE_foe_complex_dodge(ASSER_way_e move_way, bool_e in_path[N
  * second_point : deuxième point calculé
  * third_point : troisième point calculé
  */
-static bool_e AVOIDANCE_dodge_triple_points_compute(ASSER_way_e move_way, Sint16 avoidance_way,
+static bool_e AVOIDANCE_dodge_triple_points_compute(way_e move_way, Sint16 avoidance_way,
 	GEOMETRY_point_t* first_point, GEOMETRY_point_t* second_point, GEOMETRY_point_t* third_point, foe_e foe_id);
 
 /* Fonction de calcul d'un point d'esquive de l'adversaire
@@ -110,7 +110,7 @@ static bool_e AVOIDANCE_dodge_triple_points_compute(ASSER_way_e move_way, Sint16
  * return : TRUE = point valide
  * 			FALSE = point invalide hors du terrain
  */
-static bool_e AVOIDANCE_compute_dodge_point(ASSER_way_e move_way, Sint16 x_distance, 
+static bool_e AVOIDANCE_compute_dodge_point(way_e move_way, Sint16 x_distance, 
 	Sint16 y_distance, Sint16 computed_way, GEOMETRY_point_t* result_point);
 
 static error_e AVOIDANCE_move_colision();
@@ -238,7 +238,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 
 	/* Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements 
 	puis seulement avec les notres s'il est impossible de trouver un chemin */
-	error_e goto_polygon_default(Sint16 x, Sint16 y, ASSER_way_e way, ASSER_speed_e speed, Uint8 curve,polygon_elements_type_e element_type)
+	error_e goto_polygon_default(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve,polygon_elements_type_e element_type)
 	{
 		static enum 
 		{
@@ -377,7 +377,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 	}
 		
 	/* Action qui déplace le robot grâce à l'algorithme des polygones en choisissant le type d'elements */
-	error_e goto_polygon(Sint16 x, Sint16 y, ASSER_way_e way, ASSER_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements)
+	error_e goto_polygon(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements)
 	{
 		/* Gestion de la machine à états */
 		static enum 
@@ -472,7 +472,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 	}
 
 	/* Action qui va à un noeud */
-	error_e goto_node (Uint8 node, ASSER_speed_e speed, ASSER_way_e way)
+	error_e goto_node (Uint8 node, ASSER_speed_e speed, way_e way)
 	{
 		Uint8 i;
 
@@ -678,7 +678,7 @@ error_e goto_angle (Sint16 angle, ASSER_speed_e speed){
 
 
 /* Equivalent d'un ASSER_push_goto avec la gestion de la pile */
-error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way)
+error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way)
 {
 	static enum
 	{
@@ -719,7 +719,7 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way)
 }
 
 /* Action va à une position relative */
-error_e relative_move (Sint16 d, ASSER_speed_e speed, ASSER_way_e way)
+error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way)
 {
 	/* Gestion de la machine à états */
 	static enum {
@@ -736,11 +736,11 @@ error_e relative_move (Sint16 d, ASSER_speed_e speed, ASSER_way_e way)
 			//STACKS_flush(ASSER);
 			/* Si la distance fournie est négative, on inverse la direction */
 			if (d < 0) {
-				if (way == REAR) way = FORWARD;
-				if (way == FORWARD) way = REAR;
+				if (way == BACKWARD) way = FORWARD;
+				if (way == FORWARD) way = BACKWARD;
 			}
 			/* Si l'utilisateur demande d'aller en arrière, on inverse la direction */
-			else if (way == REAR) {
+			else if (way == BACKWARD) {
 				d = -d;
 			}
 			x = ((double)global.env.pos.x) + ((double)d) * cos4096(global.env.pos.angle);
@@ -873,7 +873,7 @@ error_e move_colision()
 			break;
 
 		case MOVE_BACK:
-			sub_action = relative_move(REAR_COLISION_MOVE,FAST,REAR);
+			sub_action = relative_move(BACKWARD_COLISION_MOVE,FAST,BACKWARD);
 			switch(sub_action)
 			{
 				case END_OK : 
@@ -961,7 +961,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 	static bool_e timeout;
 	static Uint16 nb_detection;
 	static time32_t detection_time;
-	static ASSER_way_e move_way;
+	static way_e move_way;
 	static bool_e dodge_wait;
 	static bool_e is_in_path[NB_FOES]; //Nous indique si l'adversaire est sur le chemin
 
@@ -1287,7 +1287,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 }
 
 /* Fonction qui réalise un ASSER_push_goto tout simple avec la gestion de l'évitement */
-error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, ASSER_way_e way, avoidance_type_e avoidance_type)
+error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type)
 {
 	static enum
 	{
@@ -1376,12 +1376,12 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 /* ----------------------------------------------------------------------------- */
 
 /* Fonction qui regarde si le robot est dans notre chemin */
-static void foe_in_path(ASSER_way_e* move_way_indicator, bool_e *in_path)
+static void foe_in_path(way_e* move_way_indicator, bool_e *in_path)
 {
 	// variables
 	Uint16 speed_indicator, distance_computed;
 	Uint8 i;
-	ASSER_way_e move_way;
+	way_e move_way;
 
 	/* Si on n'a pas d'évitement, l'adversaire n'est jamais devant nous */
 	if (!global.env.config.evitement)
@@ -1418,7 +1418,7 @@ static void foe_in_path(ASSER_way_e* move_way_indicator, bool_e *in_path)
 				}//else debug_printf("O_ ");
 			}
 		
-			if(move_way == REAR || move_way == ANY_WAY)
+			if(move_way == BACKWARD || move_way == ANY_WAY)
 			{
 		//		debug_printf("B_%d\n",global.env.foe.angle);
 				/* On regarde si l'adversaire est dans un gabarit devant nous */
@@ -1435,12 +1435,12 @@ static void foe_in_path(ASSER_way_e* move_way_indicator, bool_e *in_path)
 }
 
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot */
-static Uint16 AVOIDANCE_speed_indicator_compute(ASSER_way_e* move_way)
+static Uint16 AVOIDANCE_speed_indicator_compute(way_e* move_way)
 {
 	// Surveiller les initialisations
 	static time32_t last_time_compute = 0;
 	static GEOMETRY_point_t old_pos = {0,0};
-	static ASSER_way_e old_move_way = ANY_WAY;
+	static way_e old_move_way = ANY_WAY;
 
 	// On met une première valeur super élevée pour éviter d'éviter au début (si on veut éviter, ce qui n'est pas encore le cas)
 	static Uint16 speed_computed = 100;
@@ -1479,7 +1479,7 @@ static Uint16 AVOIDANCE_speed_indicator_compute(ASSER_way_e* move_way)
 /* Fonction qui exécute une esquive du robot adverse en 3 points 
  * La fonction charge la pile !
  */
-static bool_e AVOIDANCE_foe_complex_dodge(ASSER_way_e move_way, bool_e in_path[NB_FOES])
+static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES])
 {
 	GEOMETRY_point_t first_point, second_point, third_point;
 	bool_e result_compute;
@@ -1523,7 +1523,7 @@ static bool_e AVOIDANCE_foe_complex_dodge(ASSER_way_e move_way, bool_e in_path[N
 }
 
 /* Fonction qui calcule les 3 points d'esquive de l'adversaire */
-static bool_e AVOIDANCE_dodge_triple_points_compute(ASSER_way_e move_way, Sint16 avoidance_way, GEOMETRY_point_t* first_point, GEOMETRY_point_t* second_point, GEOMETRY_point_t* third_point, foe_e foe_id)
+static bool_e AVOIDANCE_dodge_triple_points_compute(way_e move_way, Sint16 avoidance_way, GEOMETRY_point_t* first_point, GEOMETRY_point_t* second_point, GEOMETRY_point_t* third_point, foe_e foe_id)
 {
 	GEOMETRY_point_t first_compute, second_compute, third_compute;
 	bool_e result_compute;
@@ -1559,7 +1559,7 @@ static bool_e AVOIDANCE_dodge_triple_points_compute(ASSER_way_e move_way, Sint16
 }
 
 /* Fonction de calcul d'un point d'esquive de l'adversaire */
-static bool_e AVOIDANCE_compute_dodge_point(ASSER_way_e move_way, Sint16 x_distance, Sint16 y_distance, Sint16 computed_way, GEOMETRY_point_t* result_point)
+static bool_e AVOIDANCE_compute_dodge_point(way_e move_way, Sint16 x_distance, Sint16 y_distance, Sint16 computed_way, GEOMETRY_point_t* result_point)
 {
 	Sint16 x_new_destination, y_new_destination;
 	GEOMETRY_point_t result;
@@ -1570,7 +1570,7 @@ static bool_e AVOIDANCE_compute_dodge_point(ASSER_way_e move_way, Sint16 x_dista
 		x_new_destination = global.env.pos.x + global.env.pos.cosAngle*x_distance - (computed_way*(global.env.pos.sinAngle*y_distance));
 		y_new_destination = global.env.pos.y + global.env.pos.sinAngle*x_distance + (computed_way*(global.env.pos.cosAngle*y_distance));
 	}
-	else if(move_way == REAR)
+	else if(move_way == BACKWARD)
 	{
 		// robot en arrière, on inverse les cos et les sin
 		x_new_destination = global.env.pos.x - global.env.pos.cosAngle*x_distance + (computed_way*(global.env.pos.sinAngle*y_distance)/10);
@@ -1688,7 +1688,7 @@ static error_e AVOIDANCE_move_colision()
 		WAIT,
 		SWITCH_CURRENT_MOVE,
 		MOVE_FORWARD,
-		MOVE_REAR,
+		MOVE_BACKWARD,
 		WAIT_END_ROTATION,
 		DONE,
 		ROTATE_THE_OTHER_WAY
@@ -1730,9 +1730,9 @@ static error_e AVOIDANCE_move_colision()
 			if ((global.env.asser.vitesse_translation_erreur > 10 || !first_attempt)
 				&& !move_rear_tested)
 			{
-				debug_printf("MOVE_REAR\r\n");
+				debug_printf("MOVE_BACKWARD\r\n");
 				move_rear_tested = TRUE;
-				state = MOVE_REAR;
+				state = MOVE_BACKWARD;
 			}
 			else if ((global.env.asser.vitesse_translation_erreur < -10  || !first_attempt)
 				&& !move_forward_tested)
@@ -1790,8 +1790,8 @@ static error_e AVOIDANCE_move_colision()
 	 		}
 	 		break;
 		
-		case MOVE_REAR:
-			sub_action = relative_move(REAR_COLISION_MOVE,FAST,REAR);
+		case MOVE_BACKWARD:
+			sub_action = relative_move(BACKWARD_COLISION_MOVE,FAST,BACKWARD);
 			switch(sub_action)
 			{
 				case END_OK : 
@@ -1809,7 +1809,7 @@ static error_e AVOIDANCE_move_colision()
 			
  			if (global.env.asser.erreur)
  			{
-	 			debug_printf("Error MOVE_REAR\r\n");
+	 			debug_printf("Error MOVE_BACKWARD\r\n");
 	 			STACKS_pull(ASSER);
 	 			erreur_time = global.env.match_time;
 	 			state = WAIT;
@@ -1866,7 +1866,7 @@ static error_e AVOIDANCE_watch_asser_stack ()
 			}
 			else if (global.env.asser.erreur)
 			{
-				STACKS_push(ASSER, wait_forever, FALSE);
+				STACKS_push(ASSER, &wait_forever, FALSE);
 				state = IN_ERROR;
 			}	
 			break;
@@ -1897,7 +1897,7 @@ static error_e AVOIDANCE_watch_asser_stack ()
 	return IN_PROGRESS;
 }
 
-/*error_e AVOIDANCE_homologation(Sint16 x, Sint16 y, ASSER_speed_e speed, ASSER_way_e way, Uint8 curve, bool_e run)
+/*error_e AVOIDANCE_homologation(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run)
 {
 	static enum
 	{

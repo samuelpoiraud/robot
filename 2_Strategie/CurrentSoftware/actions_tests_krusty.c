@@ -56,7 +56,7 @@ void TEST_STRAT_avoidance(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -141,7 +141,7 @@ void TEST_STRAT_kdo(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -256,7 +256,7 @@ void TEST_STRAT_assiettes(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -313,7 +313,7 @@ void TEST_STRAT_assiettes_lanceur(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -610,7 +610,7 @@ void TEST_STRAT_assiettes_evitement(void){
             break;
         case POS_MOVE3:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(600)}}},1,BACKWARD,NORMAL_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -695,7 +695,7 @@ void TEST_STRAT_assiettes_evitement(void){
 
         case PUSH:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -820,7 +820,7 @@ void Test_STRAT_COUPE(void){
 
     switch(state){
         case SORTIE:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(600)}}},1,REAR,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(600)}}},1,BACKWARD,NORMAL_WAIT);
             switch(sub_action)
             {
                 case END_OK:

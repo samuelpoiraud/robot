@@ -204,6 +204,25 @@ bool_e ACT_hammer_stop() {
 	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
 }
 
+void ACT_ball_inflater_inflate(Uint8 duration_sec) 
+{
+	CAN_msg_t msg;
+	msg.sid = ACT_BALLINFLATER;
+	msg.data[0] = ACT_BALLINFLATER_START;
+	msg.data[1] = duration_sec;	//[sec]
+	CAN_send(&msg);
+}	
+
+void ACT_ball_inflater_stop(void) 
+{
+	CAN_msg_t msg;
+	msg.sid = ACT_BALLINFLATER;
+	msg.data[0] = ACT_BALLINFLATER_STOP;
+	CAN_send(&msg);
+}	
+/*
+//Le gonflage du ballon doit se produire à la fin du match : les fonctionnalités de QUEUE n'y sont plus opérationelles !
+// -> voir T_BALLINFLATER_start() !
 bool_e ACT_ball_inflater_inflate(Uint8 duration_sec) {
 	QUEUE_arg_t args;
 
@@ -222,7 +241,7 @@ bool_e ACT_ball_inflater_stop() {
 	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallInflater stop cmd\n");
 	return ACT_push_operation(ACT_QUEUE_BallInflater, &args);
 }
-
+*/
 bool_e ACT_candlecolor_get_color_at(ACT_candlecolor_pos_t candle_pos) {
 	QUEUE_arg_t args;
 
