@@ -39,4 +39,11 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
+void ACTMGR_stop() {
+	BALLLAUNCHER_stop();
+	PLATE_stop();
+	LIFT_stop();
+	BALLSORTER_stop();
+}
+
 #endif  /* I_AM_ROBOT_KRUSTY */

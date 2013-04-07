@@ -98,6 +98,10 @@ static void PLATE_initAX12() {
 	}
 }
 
+void PLATE_stop() {
+	DCM_stop(PLATE_DCMOTOR_ID);
+}
+
 bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 	queue_id_t queueId;
 

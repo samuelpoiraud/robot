@@ -24,6 +24,12 @@
  */
 void BALLLAUNCHER_init();
 
+/** Stoppe l'actionneur.
+ *
+ * Cette fonction est appelée en fin de match
+ */
+void BALLLAUNCHER_stop();
+
 /** Gère les messages CAN liés au lanceur de balle.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'asservir le moteur.

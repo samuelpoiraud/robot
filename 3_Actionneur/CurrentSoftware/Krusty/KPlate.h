@@ -23,6 +23,12 @@
  */
 void PLATE_init();
 
+/** Stoppe l'actionneur.
+ *
+ * Cette fonction est appelée en fin de match
+ */
+void PLATE_stop();
+
 /** Gère les messages CAN liés à l'assiette.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'agir en conséquence.

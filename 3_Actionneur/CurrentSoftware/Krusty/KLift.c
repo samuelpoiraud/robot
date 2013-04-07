@@ -135,6 +135,11 @@ static void LIFT_initAX12() {
 	}
 }
 
+void LIFT_stop() {
+	DCM_stop(LIFT_LEFT_DCMOTOR_ID);
+	DCM_stop(LIFT_RIGHT_DCMOTOR_ID);
+}
+
 bool_e LIFT_CAN_process_msg(CAN_msg_t* msg) {
 
 	if(msg->sid == ACT_LIFT_LEFT || msg->sid == ACT_LIFT_RIGHT) {

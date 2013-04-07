@@ -21,6 +21,9 @@
 	//Gère les messages CAN des actionneurs. Si le message à été géré, cette fonction renvoie TRUE, sinon FALSE.
 	bool_e ACTMGR_process_msg(CAN_msg_t* msg);
 
+	//Stop tous les actionneurs
+	void ACTMGR_stop();
+
 #endif  /* I_AM_ROBOT_KRUSTY */
 
 
