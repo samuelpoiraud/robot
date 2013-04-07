@@ -4,6 +4,7 @@
 #include "roadmap.h"
 #include "QS/QS_macro.h"
 #include "QS/QS_CANmsgList.h"
+#include "QS/QS_who_am_i.h"
 #include "cos_sin.h"
 #include "odometry.h"
 
@@ -58,22 +59,27 @@ void SEQUENCES_calibrate(way_e way, calibration_square_e calibration_square)
 	switch (calibration_square)
 	{
 		case ASSER_CALIBRATION_SQUARE_0:
-			x = 180;
+			x = 250;
 		break;
 		case ASSER_CALIBRATION_SQUARE_1 :
-			x = 460;
+			x = 600;
 		break;
 		case ASSER_CALIBRATION_SQUARE_2 :
-			x = 860;
+			x = 1000;
 		break;
 		case ASSER_CALIBRATION_SQUARE_3 :
-			x = 1260;
+			x = 1400;
 		break;
 		default :
-			x = 460;
+			x = 600;
 		break;
 	}
-	
+	//On retranche du x voulu la coordonnée x qui sera atteinte lors du callage car on est obligés de faire un move relative !
+	if(QS_WHO_AM_I_get()==TINY)
+		x -=  TINY_CALIBRATION_BACKWARD_BORDER_DISTANCE;
+	else
+		x -= KRUSTY_CALIBRATION_BACKWARD_BORDER_DISTANCE;
+		
 	//On avance jusqu'au X souhaité
 	ROADMAP_add_order(TRAJECTORY_TRANSLATION, x, 0, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 	
