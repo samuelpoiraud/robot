@@ -10,6 +10,17 @@
  */
 
 #include "queue.h"
+#include "output_log.h"
+
+#ifndef OUTPUT_LOG_COMPONENT_QUEUE
+#  define OUTPUT_LOG_COMPONENT_QUEUE LOG_PRINT_Off
+#  warning "OUTPUT_LOG_COMPONENT_QUEUE is not defined, defaulting to Off"
+#endif
+
+#define LOG_PREFIX "queue: "
+#define COMPONENT_log_global(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_QUEUE, log_level, LOG_PREFIX "[all] " format, ## __VA_ARGS__)
+#define COMPONENT_log_queue(log_level, queueId, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_QUEUE, log_level, LOG_PREFIX "[%d] " format, queueId, ## __VA_ARGS__)
+
 
 //Il y aura toujours une case vide pour pouvoir detecter quand la file est vide ou pleine.
 #define REAL_QUEUE_SIZE (QUEUE_SIZE+1)
@@ -46,7 +57,7 @@ static void   QUEUE_inc_index(queue_size_t* index);
 
 void QUEUE_init()
 {
-	//debug_printf("Init file\n");
+	COMPONENT_log_global(LOG_LEVEL_Debug, "Init file\n");
 	static bool_e initialized = FALSE;
 	if (initialized)
 		return;
@@ -67,7 +78,7 @@ void QUEUE_init()
 	}
 
 	CLOCK_init();
-	//debug_printf("QUEUE_init\n");
+	COMPONENT_log_global(LOG_LEVEL_Debug, "File initialisé\n");
 }
 
 static bool_e QUEUE_is_full(queue_id_e queue_id) {
@@ -106,7 +117,7 @@ void QUEUE_run()
 		{
 			this = &(queues[queue_id]);
 			(this->action[this->end_index])(queue_id, FALSE);
-			//debug_printf("QUEUE%d_run\n", queue_id);
+			COMPONENT_log_queue(LOG_LEVEL_Trace, queue_id, "Run\n");
 		}
 	}
 }
@@ -118,8 +129,12 @@ bool_e QUEUE_add(queue_id_e queue_id, action_function_t action, QUEUE_arg_t arg)
 	bool_e is_first_action;
 	assert(queue_id < NB_QUEUE);
 
-	if(QUEUE_is_full(queue_id))
+	if(QUEUE_is_full(queue_id)) {
+		COMPONENT_log_queue(LOG_LEVEL_Warning, queue_id, "Can't add: queue is full\n");
 		return FALSE;
+	} else {
+		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Add\n");
+	}
 
 	is_first_action = QUEUE_is_empty(queue_id); //Si oui, on execute directement l'intialisation de l'action ajouté
 	
@@ -135,7 +150,7 @@ bool_e QUEUE_add(queue_id_e queue_id, action_function_t action, QUEUE_arg_t arg)
 	if(is_first_action)
 	{
 		//on l'initialise
-		//debug_printf("Initialise première action\n");
+		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
 		this->initial_time_of_current_action = global.env.match_time;
 		action(queue_id, TRUE);
 	}
@@ -148,18 +163,18 @@ void QUEUE_next(queue_id_e queue_id)
 {
 	assert(queue_id < NB_QUEUE);
 	queue_t* this = &(queues[queue_id]);
+	COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Next\n");
 
-	debug_printf("queue: before inc\n");
 	QUEUE_inc_index(&this->end_index);
-	debug_printf("queue: after inc\n");
 
 	if(!QUEUE_is_empty(queue_id))
-	{debug_printf("queue: not empty\n");
+	{
 		//on initialise l'action suivante
+		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
 		this->initial_time_of_current_action = global.env.match_time;
 		(this->action[this->end_index])(queue_id, TRUE);
-		debug_printf("queue: act called\n");
-		//debug_printf("Off with his head ! %d\n", queue_id);
+	} else {
+		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
 	}
 }
 
@@ -168,7 +183,7 @@ void QUEUE_set_error(queue_id_e queue_id, bool_e error) {
 	assert(queue_id < NB_QUEUE);
 
 	queues[queue_id].error_occured = error;
-	debug_printf("Erreur déclarée dans la file %d\n", queue_id);
+	COMPONENT_log_queue(LOG_LEVEL_Warning, queue_id, "Error declared\n");
 }
 
 /* Retourne TRUE si une erreur est survenue lors de l'execution d'un fonction dans la file indiquée. */
@@ -187,14 +202,16 @@ void QUEUE_reset(queue_id_e queue_id)
 	queues[queue_id].end_index = 0;
 	queues[queue_id].error_occured = FALSE;
 
-	debug_printf("/!\\ Queue %d flush\n",queue_id);
-	//TODO: finish here
+	COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Queue reset\n");
 }
 
 /* vide toutes les files */
 void QUEUE_reset_all()
 {
 	Uint8 i;
-	for (i=0; i<NB_QUEUE; i++)
+
+	COMPONENT_log_global(LOG_LEVEL_Info, "Reseting all queues\n");
+
+	for(i = 0; i < NB_QUEUE; i++)
 		QUEUE_reset(i);
 }

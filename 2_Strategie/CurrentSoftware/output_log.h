@@ -14,9 +14,12 @@
 
 #include "QS/QS_all.h"
 
-// la constante ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL est utilisé pour définir le niveau d'affichage.
-//Par ex: #define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning indique de n'afficher les logs de gravité supérieure ou égale à LOG_LEVEL_Warning.
-//Le niveau maximum affiché par défaut est LOG_LEVEL_Warning. act_debug_printf n'affichera donc les messages de niveau LOG_LEVEL_Warning, LOG_LEVEL_Error ou LOG_LEVEL_Fatal seulement.
+// La constante OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL est utilisé pour définir le niveau d'affichage.
+//Par ex: #define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning indique de n'afficher les logs de gravité supérieure ou égale à LOG_LEVEL_Warning.
+//Le niveau maximum affiché par défaut est LOG_LEVEL_Warning. OUTPUTLOG_printf n'affichera donc les messages de niveau LOG_LEVEL_Warning, LOG_LEVEL_Error ou LOG_LEVEL_Fatal seulement.
+
+// La constante OUTPUT_LOG_PRINT_ALL_COMPONENTS permet d'afficher ou non les infos quelque soit printthis.
+//Utilisable pour afficher tous les textes de tous les composants.
 
 typedef enum {
 	LOG_LEVEL_Fatal,	//Le fatal devrait utilisé pour des asserts, le programme ne peut plus continuer suite à une erreur.
@@ -27,15 +30,26 @@ typedef enum {
 	LOG_LEVEL_Trace		//Affichage d'info concernant le flot d'exécution du programme, quelles fonctions sont appellée par ex. Lorsque du texte doit être affiché en masse, utilisez ce niveau la plutot que debug.
 } log_level_e;
 
+typedef enum {
+	LOG_PRINT_Off = 0,
+	LOG_PRINT_On = 1
+} log_print_e;
+
 #ifdef OUTPUT_LOG
-	//__attribute__((format (printf, 2, 3)))  permet au compilateur de verifier l'argument format avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
-	void OUTPUTLOG_printf(log_level_e level, const char * format, ...) __attribute__((format (printf, 2, 3)));
+	//__attribute__((format (printf, 3, 4)))  permet au compilateur de verifier l'argument format avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
+	void OUTPUTLOG_printf(log_print_e printthis, log_level_e level, const char * format, ...) __attribute__((format (printf, 3, 4)));
 	void OUTPUTLOG_set_level(log_level_e level);
 	log_level_e OUTPUTLOG_get_level();
+	#define OUTPUTLOG_STRINGIFY(x) #x
+	#define OUTPUTLOG_TOSTRING(x) OUTPUTLOG_STRINGIFY(x)
+	#define OUTPUTLOG_trace(printthis) OUTPUTLOG_printf(printthis, LOG_LEVEL_Trace, "Trace: " __func__  " line: " OUTPUTLOG_TOSTRING(__LINE__))
+	#define OUTPUTLOG_trace_with_filename(printthis) OUTPUTLOG_printf(printthis, LOG_LEVEL_Trace, "Trace: " __func__  " line: " OUTPUTLOG_TOSTRING(__LINE__) " in " __FILE__)
 #else
 	#define OUTPUTLOG_printf(...) (void)0
 	#define OUTPUTLOG_set_level(...) (void)0
-	#define OUTPUTLOG_get_level() 0
+	#define OUTPUTLOG_get_level() LOG_LEVEL_Warning   //Niveau par defaut
+	#define OUTPUTLOG_trace(...) (void)0
+	#define OUTPUTLOG_trace_with_filename(...) (void)0
 #endif  /* OUTPUT_LOG */
 
 #endif	/* OUTPUTLOG_PRINTF_H */
