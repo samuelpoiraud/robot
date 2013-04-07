@@ -20,7 +20,7 @@
 #include "../Can_msg_processing.h"
 #include "THammer_config.h"
 
-#define LOG_PREFIX "H: "
+#define LOG_PREFIX "Ha: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_HAMMER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 #if DCMOTOR_NB_POS < 1
@@ -145,6 +145,11 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}
+}
+
+Uint16 HAMMER_get_pos() {
+	Sint16 rawPos = HAMMER_get_position();
+	return ((Sint32)(rawPos - HAMMER_UNITS_AT_0_DEGRE))*128/HAMMER_UNITS_PER_128_DEGRE;
 }
 
 static Sint16 HAMMER_get_position() {
