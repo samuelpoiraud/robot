@@ -70,86 +70,88 @@ void DETECTION_update(void)
 		for (i=0; i < NB_FOES; i++)
 		{
 			if(global.env.foe[i].updated)
-		#warning attention: A désactiver en match pour eviter de flooder
+		#warning "attention: A désactiver en match pour eviter de flooder"
 				detection_printf("\r\nFoe_%d is x:%d y:%d dist:%d angle:%d\r\n", i, global.env.foe[i].x, global.env.foe[i].y, global.env.foe[i].dist, global.env.foe[i].angle);
 				CAN_send_foe_pos();	
 		}			
 	}	
 }
 
-void DETECTION_update_foe_only_by_telemeter()
-{
-	Uint8 i;
-	foe_e foe_id = FOE_1;
-	
-	for(i=0; i<TELEMETER_NUMBER; i++)
+#ifdef USE_TELEMETER
+	void DETECTION_update_foe_only_by_telemeter()
 	{
-		if(global.env.sensor[i].updated)
+		Uint8 i;
+		foe_e foe_id = FOE_1;
+		
+		for(i=0; i<TELEMETER_NUMBER; i++)
 		{
-			global.env.foe[foe_id].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
-			global.env.foe[foe_id].angle = global.env.sensor[i].angle;
-			global.env.foe[foe_id].x = global.env.sensor[i].foeX;
-			global.env.foe[foe_id].y = global.env.sensor[i].foeY;
-			global.env.foe[foe_id].update_time = global.env.match_time;
-			global.env.foe[foe_id].updated = TRUE;
-			detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, global.env.foe[foe_id].angle);
-			foe_id++;
-		}
-		if (foe_id == NB_FOES) return; //Sécurité, vue l'orientation des dt10, on ne peut recevoir 2 informations pour le meme adversaire
-	}	
-}
-
-void DETECTION_update_foe_by_telemeter()
-{
-	Uint8 i, j;
-	GEOMETRY_point_t pos_telemeter_adversary;//Position de l'adversaire renvoyé par le telemetre
-	GEOMETRY_point_t pos_adversary[NB_FOES] = {{global.env.foe[FOE_1].x,global.env.foe[FOE_1].y},//Dernière position connue de l'adversaire 1
-											 {global.env.foe[FOE_2].x,global.env.foe[FOE_2].y}};//Dernière position connue de l'adversaire 2
-	bool_e processed;//Permet de savoir si l'information a bien ete traitée
-	
-	for(i=0; i<TELEMETER_NUMBER; i++)
-	{
-		if(global.env.sensor[i].updated)
-		{
-			processed = FALSE;
-			pos_telemeter_adversary.x = global.env.sensor[i].foeX;
-			pos_telemeter_adversary.y = global.env.sensor[i].foeY;
-			
-			for (j=0; j<NB_FOES; j++)//On regarde si on repère un des deux robots sur le terrain
+			if(global.env.sensor[i].updated)
 			{
-				if (GEOMETRY_distance (pos_adversary[j], pos_telemeter_adversary) < 250 //On regarde si on récupère le bon robot 
-				&& global.env.sensor[BEACON_IR(j)].updated // des infos de la balise a infrarouges 
-				&& global.env.sensor[BEACON_IR(j)].distance < BEACON_FAR_THRESHOLD) // la balise a infrarouges donne un adversaire proche
-				{
-					global.env.foe[j].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
-					global.env.foe[j].angle = global.env.sensor[BEACON_IR(j)].angle;
-					global.env.foe[j].x = global.env.sensor[i].foeX;
-					global.env.foe[j].y = global.env.sensor[i].foeY;
-					global.env.foe[j].update_time = global.env.match_time;
-					global.env.foe[j].updated = TRUE;
-					detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", j, global.env.foe[j].x, global.env.foe[j].y, global.env.foe[j].dist, global.env.foe[j].angle);
-					processed = TRUE; //Informations de position exploitées
-				}
+				global.env.foe[foe_id].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
+				global.env.foe[foe_id].angle = global.env.sensor[i].angle;
+				global.env.foe[foe_id].x = global.env.sensor[i].foeX;
+				global.env.foe[foe_id].y = global.env.sensor[i].foeY;
+				global.env.foe[foe_id].update_time = global.env.match_time;
+				global.env.foe[foe_id].updated = TRUE;
+				detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, global.env.foe[foe_id].angle);
+				foe_id++;
 			}
-
-			for (j=0; j<NB_FOES; j++)
+			if (foe_id == NB_FOES) return; //Sécurité, vue l'orientation des dt10, on ne peut recevoir 2 informations pour le meme adversaire
+		}	
+	}
+	
+	void DETECTION_update_foe_by_telemeter()
+	{
+		Uint8 i, j;
+		GEOMETRY_point_t pos_telemeter_adversary;//Position de l'adversaire renvoyé par le telemetre
+		GEOMETRY_point_t pos_adversary[NB_FOES] = {{global.env.foe[FOE_1].x,global.env.foe[FOE_1].y},//Dernière position connue de l'adversaire 1
+												 {global.env.foe[FOE_2].x,global.env.foe[FOE_2].y}};//Dernière position connue de l'adversaire 2
+		bool_e processed;//Permet de savoir si l'information a bien ete traitée
+		
+		for(i=0; i<TELEMETER_NUMBER; i++)
+		{
+			if(global.env.sensor[i].updated)
 			{
-				if(!processed && //Non traité
-				global.env.match_time - global.env.sensor[BEACON_IR(j)].update_time > MAXIMUM_TIME_FOR_BEACON_REFRESH)//Non mis à jour depuis 500ms
+				processed = FALSE;
+				pos_telemeter_adversary.x = global.env.sensor[i].foeX;
+				pos_telemeter_adversary.y = global.env.sensor[i].foeY;
+				
+				for (j=0; j<NB_FOES; j++)//On regarde si on repère un des deux robots sur le terrain
 				{
-					global.env.foe[j].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
-					global.env.foe[j].angle = global.env.sensor[i].angle;
-					global.env.foe[j].x = global.env.sensor[i].foeX;
-					global.env.foe[j].y = global.env.sensor[i].foeY;
-					global.env.foe[j].update_time = global.env.match_time;
-					global.env.foe[j].updated = TRUE;
-					detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", j, global.env.foe[j].x, global.env.foe[j].y, global.env.foe[j].dist, global.env.foe[j].angle);
-					processed = TRUE;
+					if (GEOMETRY_distance (pos_adversary[j], pos_telemeter_adversary) < 250 //On regarde si on récupère le bon robot 
+					&& global.env.sensor[BEACON_IR(j)].updated // des infos de la balise a infrarouges 
+					&& global.env.sensor[BEACON_IR(j)].distance < BEACON_FAR_THRESHOLD) // la balise a infrarouges donne un adversaire proche
+					{
+						global.env.foe[j].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
+						global.env.foe[j].angle = global.env.sensor[BEACON_IR(j)].angle;
+						global.env.foe[j].x = global.env.sensor[i].foeX;
+						global.env.foe[j].y = global.env.sensor[i].foeY;
+						global.env.foe[j].update_time = global.env.match_time;
+						global.env.foe[j].updated = TRUE;
+						detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", j, global.env.foe[j].x, global.env.foe[j].y, global.env.foe[j].dist, global.env.foe[j].angle);
+						processed = TRUE; //Informations de position exploitées
+					}
+				}
+	
+				for (j=0; j<NB_FOES; j++)
+				{
+					if(!processed && //Non traité
+					global.env.match_time - global.env.sensor[BEACON_IR(j)].update_time > MAXIMUM_TIME_FOR_BEACON_REFRESH)//Non mis à jour depuis 500ms
+					{
+						global.env.foe[j].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
+						global.env.foe[j].angle = global.env.sensor[i].angle;
+						global.env.foe[j].x = global.env.sensor[i].foeX;
+						global.env.foe[j].y = global.env.sensor[i].foeY;
+						global.env.foe[j].update_time = global.env.match_time;
+						global.env.foe[j].updated = TRUE;
+						detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", j, global.env.foe[j].x, global.env.foe[j].y, global.env.foe[j].dist, global.env.foe[j].angle);
+						processed = TRUE;
+					}
 				}
 			}
 		}
 	}
-}
+#endif //USE_TELEMETER
 
 void DETECTION_update_foe_by_beacon()
 {
@@ -223,43 +225,6 @@ void DETECTION_clear_updates()
 }	
 
 
-/*fonction qui retourne un type enum qui permet de savoir on détect un lingot et ça position dans le totem
-et egalement si il n'y a plus de lingot dans le totem*/
-detection_totem_e DETECTION_bullion_update()
-{
-
-	GEOMETRY_point_t point ;
-	point = SICK_get_point_position(DT50_TOP);
-	if(point.x>NORTH_TOTEM_X_MIN && point.x<NORTH_TOTEM_X_MAX)
-	{
-		if(point.y>FIRST_TOTEM_Y_MIN && point.y<FIRST_TOTEM_Y_MAX)
-			return FIRST_TOTEM_NORTH;
-		if(point.y>SECOND_TOTEM_Y_MIN && point.y<SECOND_TOTEM_Y_MAX)
-			return SECOND_TOTEM_NORTH;
-	}
-	else if(point.x>SOUTH_TOTEM_X_MIN && point.x<SOUTH_TOTEM_X_MAX)
-	{
-		if(point.y>FIRST_TOTEM_Y_MIN && point.y<FIRST_TOTEM_Y_MAX)
-			return FIRST_TOTEM_SOUTH;
-		if(point.y>SECOND_TOTEM_Y_MIN && point.y<SECOND_TOTEM_Y_MAX)
-			return SECOND_TOTEM_SOUTH;
-	}
-	else if(point.x>TOTEM_NORTH_CENTER_X_MIN && point.x<TOTEM_NORTH_CENTER_X_MAX)
-	{
-		if(point.y>FIRST_TOTEM_CENTER_Y_MIN && point.y<FIRST_TOTEM_CENTER_Y_MAX)
-			return FIRST_TOTEM_NORTH_EMPTY;
-		if(point.y>SECOND_TOTEM_CENTER_Y_MIN && point.y<SECOND_TOTEM_CENTER_Y_MAX)
-			return SECOND_TOTEM_NORTH_EMPTY;
-	}
-	else if(point.x>TOTEM_SOUTH_CENTER_X_MIN && point.x<TOTEM_SOUTH_CENTER_X_MAX)
-	{
-		if(point.y>FIRST_TOTEM_CENTER_Y_MIN && point.y<FIRST_TOTEM_CENTER_Y_MAX)
-			return FIRST_TOTEM_SOUTH_EMPTY;
-		if(point.y>SECOND_TOTEM_CENTER_Y_MIN && point.y<SECOND_TOTEM_CENTER_Y_MAX)
-			return SECOND_TOTEM_SOUTH_EMPTY;
-	}
-	return NO_DETECTION;
-}	
 
 #include "QS/QS_CANmsgList.h"
 //envoi de la position du robot adverse sur le CAN

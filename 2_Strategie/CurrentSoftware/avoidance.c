@@ -30,11 +30,8 @@
 /* Angle d'ouverture de vision */
 #define DETECTION_ANGLE		1900
 
-#ifdef MODE_HOMOLOGATION
-	#define WAIT_TIME_DETECTION			30000UL	// en ms, spécifique homologation
-#else
-	#define WAIT_TIME_DETECTION			3000	// en ms
-#endif
+#define WAIT_TIME_DETECTION			3000	// en ms
+
 
 /* Constantes relatives à l'évitement */
 #define MAX_AVOIDANCE_DETECTION			20		// nombre de détections maximal

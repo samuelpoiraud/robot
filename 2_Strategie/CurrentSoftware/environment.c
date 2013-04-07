@@ -5,14 +5,15 @@
  *	Fichier : environment.c
  *	Package : Carte Principale
  *	Description : 	Fonctions de supervision de l'environnement
- *	Auteur : Jacen
- *	Version 20100420
+ *	Auteur : Jacen, Nirgal
+ *	Version 20100420, modifs 201304
  */
 
 #define ENVIRONMENT_C
 
 #include "environment.h"
 #include "act_functions.h"
+#include "can_utils.h"
 
 void ENV_update()
 {
@@ -31,7 +32,9 @@ void ENV_update()
 	}
 	
 	/* Récupération des données des télémètres*/
-	TELEMETER_update();
+	#ifdef USE_TELEMETER
+		TELEMETER_update();
+	#endif
 	
 	/* Récupération des données des boutons */
 	BUTTON_update();
@@ -43,7 +46,9 @@ void ENV_update()
 
 	/* Traitement des données des capteurs Sick (télémètres LASER)
 	obtenues lors de la réception d'un message CAN d'avancement/de rotation de la propulsion */
-	SICK_update();
+	#ifdef USE_SICK
+		SICK_update();
+	#endif
 }
 
 /* met à jour l'environnement en fonction du message CAN reçu */
@@ -73,6 +78,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ENV_pos_update(incoming_msg);
 			break;
 		case CARTE_P_ASSER_ERREUR:
+			ENV_pos_update(incoming_msg);
 			global.env.asser.erreur = TRUE;
 			global.env.asser.vitesse_translation_erreur = 
 				((Sint32)U16FROMU8(incoming_msg->data[1],incoming_msg->data[0]) << 16) 
@@ -83,22 +89,29 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case CARTE_P_ROBOT_CALIBRE:
 			global.env.asser.calibrated = TRUE;
+			ENV_pos_update(incoming_msg);
 			break;
 		case BROADCAST_POSITION_ROBOT:
-			/* Si c'est un message de changement de point en mode multipoints */
-			if(incoming_msg->data[6] & RAISON_CHANGE_POINT_MULTI)
-			{
-				global.env.asser.change_point = TRUE;	
-			}
-			/* Si c'est un message de freinage en mode multipoints */
-			if(incoming_msg->data[6] & RAISON_FREINE_MULTI)
-			{
-				global.env.asser.freine = TRUE;
-				global.env.asser.freine_multi_point = TRUE;	
-			}
+			//Remarque : Si USE_SICK... si un broadcast_position est arrivé avec pour seule(s) raison(s) WARNING_ROTATION et WARNING_TRANSLATION, il est traité dès réception par CAN_fast_update, et n'arrive pas ici !
+			
+			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
+			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
 			ENV_pos_update(incoming_msg);
-		break;
+			
+			if(incoming_msg->data[7] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
+				global.env.asser.reach_x = TRUE;
 
+			if(incoming_msg->data[7] & WARNING_REACH_Y)		//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
+				global.env.asser.reach_y = TRUE;
+
+			if(incoming_msg->data[7] & WARNING_REACH_TETA)	//Nous venons d'atteindre une position en Teta pour laquelle on a demandé une surveillance à la propulsion.
+				global.env.asser.reach_teta = TRUE;
+			
+			break;
+		case CARTE_P_ROBOT_FREINE:
+			global.env.asser.freine = TRUE;
+			ENV_pos_update(incoming_msg);
+			break;
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
 			ACT_process_result(incoming_msg);
@@ -141,21 +154,29 @@ void CAN_update (CAN_msg_t* incoming_msg)
    le message CAN reçu et renvoie si le message doit être placé dans le buffer */
 bool_e CAN_fast_update(CAN_msg_t* msg)
 {
-	switch (msg->sid)
-	{
-		case BROADCAST_POSITION_ROBOT:
-			/* Si c'est un message de type delta translation ou rotation */ 
-			if(msg->data[6] & (RAISON_TRANSLATION | RAISON_ROTATION))
-			{
-				ENV_pos_update(msg);
-				SICK_update_points();
-				return FALSE;
-			}
-			return TRUE;	
-			
-		default:
-			return TRUE;		
-	}	
+	#ifdef USE_SICK	
+	//Samuel : je préfère conditionner cette fonction à l'utilisation des SICK...
+	// 			par peur qu'elle génère des situations foireuses où la position est mise à jour en pleine mauvaise préemption...
+		switch (msg->sid)
+		{
+			case BROADCAST_POSITION_ROBOT:
+				/* Si c'est un message de type delta translation ou rotation, ou sans raison */ 
+				/*	Attention, les raisons peuvent être cumulées... d'ou le '&' : si une autre raison est vraie, on propage le message !*/
+				if(msg->data[6] & (WARNING_TRANSLATION | WARNING_ROTATION))
+				{
+					ENV_pos_update(msg);
+					SICK_update_points();
+					
+					return FALSE;
+				}
+				return TRUE;	
+				
+			default:
+				return TRUE;		
+		}
+	#else
+		return TRUE;	
+	#endif
 }
 
 /* met a jour la position a partir d'un message asser la délivrant */
@@ -231,8 +252,9 @@ void ENV_clean ()
 	global.env.asser.fini = FALSE;
 	global.env.asser.erreur = FALSE;
 	global.env.asser.freine = FALSE;
-	global.env.asser.freine_multi_point = FALSE;
-	global.env.asser.change_point = FALSE;
+	global.env.asser.reach_x = FALSE;
+	global.env.asser.reach_y = FALSE;
+	global.env.asser.reach_teta = FALSE;
 	global.env.pos.updated = FALSE;
 	global.env.foe[FOE_1].updated = FALSE;
 	global.env.foe[FOE_2].updated = FALSE;
@@ -256,11 +278,15 @@ void ENV_clean ()
 /* initialise les variables d'environnement */
 void ENV_init()
 {
-	CAN_init();
-	CAN_set_direct_treatment_function(CAN_fast_update);
-//	SICK_init();
+	CAN_init();	
 	BUTTON_init();
-	TELEMETER_init();
+	#ifdef USE_SICK	
+		CAN_set_direct_treatment_function(CAN_fast_update);
+		SICK_init();
+	#endif
+	#ifdef USE_TELEMETER
+		TELEMETER_init();
+	#endif
 	DETECTION_init();
 
 	ENV_clean();
@@ -277,7 +303,6 @@ void ENV_init()
 	global.env.ask_start = FALSE;
 	global.env.xbee_is_linked = FALSE;
 	global.env.flag_for_ping_xbee = 0;
-	global.env.asser.change_point = FALSE;
 	global.env.asser.calibrated = FALSE;
 	
 	//Initialisation des elemnts du terrain

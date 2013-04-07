@@ -24,14 +24,22 @@
 /* 							Fonctions d'homologation			                 */
 /* ----------------------------------------------------------------------------- */
 
+/*
+	Stratégie d'homologation. Marque quelques points faciles.
+	Evite l'adversaire à coup sur !
+*/
+void TEST_STRAT_K_homologation(void)
+{
+	#warning "TODO stratégie simple d'homologation... reprendre un bout des stratégies plus compliquées"
+	/*
+		REMARQUE : en homologation, l'idéal est de produire une stratégie semblable à celle visée en match.
+		Cependant, si on se prend une remarque, ou qu'un truc foire, il peut être TRES intéressant d'avoir sous le coude
+		 une stratégie élémentaire qui permet d'être homologable
+		 	- sortir de la zone, marquer 1 point
+		 	- éviter correctement un adversaire (donc il faut un minimum de déplacement quand même)
+	*/
+}	
 
-#ifdef MODE_HOMOLOGATION
-
-
-
-
-
-#endif
 /* ----------------------------------------------------------------------------- */
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */

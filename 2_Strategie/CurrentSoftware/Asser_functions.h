@@ -102,11 +102,11 @@ void ASSER_push_rush_in_the_totem_south (ASSER_way_e way, bool_e asser_rotate, b
 		{CONFIG, XMSB, XLSB, YMSB, YLSB, VITESSE, MARCHE, RAYONCRB} ASSER_CAN_msg_bytes_e;
 	
 		// Timeout en ms
-		#define GOTO_TIMEOUT_TIME							9000	// On n'attend que 3 secondes sur les ASSER_push_goto cette année
+		#define GOTO_TIMEOUT_TIME							5000	// On n'attend que 3 secondes sur les ASSER_push_goto cette année
 																	// car on ne fait pas de gros déplacements sur le terrain
 			
-		#define GOTO_MULTI_POINT_TIMEOUT_TIME				8000
-		#define RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME	8000
+		#define GOTO_MULTI_POINT_TIMEOUT_TIME				2000	//Nombre de secondes de timeout PAR POINT en mode multipoint.
+		#define RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME	3000
 				
 		#define RUSH_TIMEOUT_TIME							2500
 		// suffisant pour un demi tour en vitesse lente

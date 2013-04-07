@@ -20,6 +20,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "actions_tests_krusty.h"
 #include "actions_tests_tiny.h"
+#include "actions_tests_tiny_micro.h" // pour T_BALLINFLATER_start
 #include "actions.h"
 #include "QS/QS_who_am_i.h"
 #include "button.h"	//pour SWITCH_change_color
@@ -46,9 +47,7 @@ void any_match(time32_t match_duration)
 			return;
 		}
 
-		#ifdef FDP_2013
-			SWITCH_change_color();	//Check the Color switch
-		#endif
+		SWITCH_change_color();	//Check the Color switch
 
 		/* accepter et prévenir des mises à jour de couleur (BLUE par défaut) */
 		if(global.env.color_updated && !global.env.asser.calibrated && !global.env.ask_asser_calibration)
@@ -79,50 +78,56 @@ void any_match(time32_t match_duration)
 		/*************************/
 		/* Choix de la stratégie */
 		/*************************/
-		#ifdef FDP_2013	//Pour rétrocompatibilité...
-	#warning "Pensez à créer des stratégies différentes pour Tiny et Krusty... et à les inclure ci-dessous avant de virer ce warning."
 
-		if(QS_WHO_AM_I_get()==TINY){
-			if(strat_number()==0x00){
-					//STRAT_1_TINY
+		if(QS_WHO_AM_I_get()==TINY)
+		{
+			switch(strat_number())
+			{
+				case 0x01:	//STRAT_1_TINY
+					
 					calibration = 0x00;
 					strategy = TEST_Launcher_ball;
-			}
-			if(strat_number()==0x01){
-					//STRAT_2_TINY
+				break;
+				case 0x02:	//STRAT_2_TINY
 					calibration = 0x01;
 					strategy = TEST_Launcher_ball;
-			}
-			if(strat_number()==0x02){
-					//STRAT_3_TINY
+				break;
+				case 0x03:	//STRAT_3_TINY
 					calibration = 0x00;
 					strategy = TEST_Launcher_ball;
-			}
-
-
-		}else{
-		#endif
-			if(strat_number()==0x00){
-					//STRAT_1_KRUSTY
-				calibration = 0x00;
+				break;
+				case 0x00:	//STRAT_0_TINY (aucun switch)
+				//no break;
+				default:
+					calibration = 0x00;
+					strategy = TEST_STRAT_T_homologation;
+				break;
+			}			
+		}
+		else
+		{
+			switch(strat_number())
+			{
+				case 0x01:	//STRAT_1_KRUSTY
+					calibration = 0x00;
 					strategy = TEST_STRAT_avoidance;
-			}
-			if(strat_number()==0x01){
-					//STRAT_2_KRUSTY
-					calibration = 0x00;
+				break;
+				case 0x02:	//STRAT_2_KRUSTY
+					calibration = 0x01;
 					strategy = TEST_Launcher_ball;
-			}
-			if(strat_number()==0x02){
-					//STRAT_3_KRUSTY
+				break;
+				case 0x03:	//STRAT_3_KRUSTY
 					calibration = 0x00;
 					strategy = TEST_STRAT_verres;
+				break;
+				case 0x00:	//STRAT_0_KRUSTY (aucun switch)
+				//no break;
+				default:
+					calibration = 0x00;
+					strategy = TEST_STRAT_K_homologation;
+				break;
 			}
-
-
-		#ifdef FDP_2013 //Pas très propre mais pas trop le choix
 		}
-		#endif
-
 	}
 	else
 	{
@@ -130,14 +135,19 @@ void any_match(time32_t match_duration)
 		if(!global.env.match_over)
 		{
 			if(match_duration != 0 && (global.env.match_time >= (match_duration)))
-			{
+			{	
+				//MATCH QUI SE TERMINE
 				CAN_send_sid(BROADCAST_STOP_ALL);
 				global.env.match_over = TRUE;
 				STACKS_flush_all();
 				CLOCK_stop();
+				
+				if(QS_WHO_AM_I_get()==TINY)
+					T_BALLINFLATER_start();	//Fin du match -> On gonfle le ballon	
 			}
 			else
 			{
+				//MATCH EN ATTENTE DE LANCEMENT
 				#ifdef USE_SCHEDULED_POSITION_REQUEST
 					static bool_e initialized = FALSE;
 					CAN_msg_t msg;
@@ -146,7 +156,7 @@ void any_match(time32_t match_duration)
 						initialized = TRUE;
 						msg.sid = ASSER_SEND_PERIODICALLY_POSITION;
 						msg.data[0] = 0; 
-						msg.data[1] = 20; 					//toutes les 20ms
+						msg.data[1] = 0; 					//toutes les XX ms -> si 0, pas de msg en fonction du temps.
 						msg.data[2] = HIGHINT(20);
 						msg.data[3] = LOWINT(20); 			//tout les 20 mm
 						msg.data[4] = HIGHINT(PI4096/180);
@@ -180,16 +190,14 @@ void any_match(time32_t match_duration)
 	}
 }
 
-Uint8 strat_number(){
+Uint8 strat_number(void)
+{
 	if(SWITCH_STRAT_1)
-		return 0x00;
-	else{
-		if(SWITCH_STRAT_2)
-			return 0x01;
-		else{
-			if(SWITCH_STRAT_3)
-				return 0x02;
-		}
-	}
-	return 0x00;
+		return 0x01;
+	else if(SWITCH_STRAT_2)
+		return 0x02;
+	else if(SWITCH_STRAT_3)
+		return 0x03;
+		
+	return 0x00;	//Aucun switch -> stratégie 0.
 }

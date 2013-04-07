@@ -19,17 +19,10 @@
 #include "act_functions.h"
 #include "actions_tests_tiny_micro.h"
 
+void TEST_STRAT_T_homologation(void);
 
-#ifdef MODE_HOMOLOGATION
-/**
-* marque les points d'une bouteille et parcours ensuite les noeuds pour l'évitement
-*
-*/
-//void TEST_STRAT_homolagation();
-#endif
 
 #ifdef ACTIONS_TEST_C
- 	#include "telemeter.h"
         #include "QS/QS_CANmsgList.h"
 #endif /* def ACTION_TEST_C */
 

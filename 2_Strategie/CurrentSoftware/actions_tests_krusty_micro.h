@@ -19,12 +19,8 @@
 #include "act_functions.h"
 
 
-#ifdef MODE_HOMOLOGATION
-
-#endif
 
 #ifdef ACTIONS_TEST_C
- 	#include "telemeter.h"
         #include "QS/QS_CANmsgList.h"
 #endif /* def ACTION_TEST_C */
 

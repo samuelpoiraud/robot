@@ -119,7 +119,7 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 		}
 		
 			/*
-			 * On s'arrêtre quand le haut de la pile n'est plus un ASSER_multi_point_goto,
+			 * On s'arrête quand le haut de la pile n'est plus un ASSER_multi_point_goto,
 			 * c'est à dire un cran trop loin.
 			 */
 
@@ -138,8 +138,8 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 			STACKS_set_top(stack_id,save_stack_bottom);
 			STACKS_pull(ASSER);
 		}
-		else if (global.env.asser.change_point)
-		{
+		else if (global.env.asser.freine)
+		{		//La réception d'un message de freinage nous permet de considérer que la propulsion à changé de point.
 			STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1);
 			asser_fun_printf("\nASSER_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(ASSER));
 		}
@@ -188,7 +188,7 @@ void ASSER_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.asser.fini || (global.env.asser.freine && ASSER_near_destination_angle()))
+		if (global.env.asser.fini/* || (global.env.asser.freine && ASSER_near_destination_angle())*/)
 		{
 			STACKS_pull(ASSER);
 		}
@@ -389,6 +389,55 @@ void ASSER_rush_in_the_totem_south (stack_id_e stack_id, bool_e init)
 	}
 }
 
+/*
+	Fonction permettant d'armer un avertisseur sur la propulsion. 
+	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_X sera envoyé dès que le robot atteindra cette ligne virtuelle...
+	Ce message déclenchera la levée en environnement stratégie du flag global.env.asser.reach_x
+	@param : 0 permet de demander un désarmement de l'avertisseur.
+*/
+void ASSER_WARNER_arm_x(Sint16 x)
+{
+	CAN_msg_t msg;
+	msg.sid = ASSER_WARN_X;
+	msg.data[0] = HIGHINT(x);
+	msg.data[1] = LOWINT(x);
+	msg.size = 2;
+	CAN_send(&msg);
+}	
+
+/*
+	Fonction permettant d'armer un avertisseur sur la propulsion. 
+	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_Y sera envoyé dès que le robot atteindra cette ligne virtuelle...
+	Ce message déclenchera la levée en environnement stratégie du flag global.env.asser.reach_y
+	@param : 0 permet de demander un désarmement de l'avertisseur.
+*/
+void ASSER_WARNER_arm_y(Sint16 y)
+{
+	CAN_msg_t msg;
+	msg.sid = ASSER_WARN_Y;
+	msg.data[0] = HIGHINT(y);
+	msg.data[1] = LOWINT(y);
+	msg.size = 2;
+	CAN_send(&msg);
+}	
+
+/*
+	Fonction permettant d'armer un avertisseur sur la propulsion. 
+	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_TETA sera envoyé dès que le robot atteindra cette ligne angulaire virtuelle...
+	Ce message déclenchera la levée en environnement stratégie du flag global.env.asser.reach_teta
+	@param : 0 permet de demander un désarmement de l'avertisseur.
+*/
+void ASSER_WARNER_arm_teta(Sint16 teta)
+{
+	CAN_msg_t msg;
+	msg.sid = ASSER_WARN_ANGLE;
+	msg.data[0] = HIGHINT(teta);
+	msg.data[1] = LOWINT(teta);
+	msg.size = 2;
+	CAN_send(&msg);
+}	
+
+
 
 
 void ASSER_stop ()
@@ -506,7 +555,7 @@ bool_e ASSER_near_destination()
 	return ((abs(y2-y1)+abs(x2-x1))<100); /* mm */
 }
 
-/* fonction retournant si on se situe à moins de 2 degrés cm de la destination. */
+/* fonction retournant si on se situe à moins de 2 degrés de la destination. */
 bool_e ASSER_near_destination_angle()
 {
 	Sint16 angle1, angle2;

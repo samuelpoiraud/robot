@@ -39,11 +39,12 @@
 	typedef struct
 	{
 		volatile bool_e freine;
-		volatile bool_e freine_multi_point;
-		volatile bool_e change_point;
 		volatile bool_e fini;
 		volatile bool_e calibrated;
 		volatile bool_e erreur;
+		volatile bool_e reach_x;
+		volatile bool_e reach_y;
+		volatile bool_e reach_teta;
 		volatile Sint32 vitesse_translation_erreur;
 		volatile Sint32 vitesse_rotation_erreur;
 	}asser_env_t;
@@ -148,15 +149,15 @@
 
 		/* met a jour la position a partir d'un message asser la délivrant */
 		void ENV_pos_update (CAN_msg_t* msg);
-			/* Liste des raisons de l'envoi d'un message de BROADCAST_POSITION */
-			#define RAISON_TEMPS_ECOULE						(0b00000001)
-			#define RAISON_TRANSLATION							(0b00000010)
-			#define RAISON_ROTATION							(0b00000100)
-			#define RAISON_ATTEINTE_X							(0b00001000)
-			#define RAISON_ATTEINTE_Y							(0b00010000)
-			#define RAISON_ATTEINTE_TETA						(0b00100000)
-			#define RAISON_CHANGE_POINT_MULTI					(0b01000000)
-			#define RAISON_FREINE_MULTI 						(0b10000000)
+			#define WARNING_NO					(0b00000000)
+			#define WARNING_TIMER				(0b00000001)
+			#define WARNING_TRANSLATION			(0b00000010)
+			#define WARNING_ROTATION			(0b00000100)
+			#define WARNING_REACH_X				(0b00001000)		//Nous venons d'atteindre une position en X pour laquelle on nous a demandé une surveillance.
+			#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
+			#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
+			#define WARNING_MOVE				(0b01000000)		//Nous venons de nous déplacer sur une grille virtuelle pour laquelle on nous a demandé une surveillance.		
+	
 		/* met a jour la position de l'adversaire à partir des balises */
 		void ENV_pos_foe_update (CAN_msg_t* msg);
 			/* Liste des messages de definition d'erreur --- Pour plus de doc, consulter QS_CANmsgDoc.h */
