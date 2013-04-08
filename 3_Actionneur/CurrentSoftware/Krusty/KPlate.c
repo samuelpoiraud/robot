@@ -180,9 +180,22 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 	Uint8 wantedPosition;
 	switch(command) {
-		case ACT_PLATE_ROTATE_HORIZONTALLY: wantedPosition = PLATE_HORIZONTAL_POS_ID; break;
-		case ACT_PLATE_ROTATE_PREPARE:      wantedPosition = PLATE_PREPARE_POS_ID;    break;
-		case ACT_PLATE_ROTATE_VERTICALLY:   wantedPosition = PLATE_VERTICAL_POS_ID;   break;
+		case ACT_PLATE_ROTATE_HORIZONTALLY:
+			wantedPosition = PLATE_HORIZONTAL_POS_ID;
+			//Coefs différents pour la descente car on sinon on tape trop fort le sol a cause du poids de l'assiette entre autres
+			DCM_setCoefs(PLATE_DCMOTOR_ID, PLATE_ASSER_AMORTIZED_KP, PLATE_ASSER_AMORTIZED_KI, PLATE_ASSER_AMORTIZED_KD);
+			break;
+
+		case ACT_PLATE_ROTATE_PREPARE:
+			wantedPosition = PLATE_PREPARE_POS_ID;
+			DCM_setCoefs(PLATE_DCMOTOR_ID, PLATE_ASSER_KP, PLATE_ASSER_KI, PLATE_ASSER_KD);
+			break;
+
+		case ACT_PLATE_ROTATE_VERTICALLY:
+			wantedPosition = PLATE_VERTICAL_POS_ID;
+			DCM_setCoefs(PLATE_DCMOTOR_ID, PLATE_ASSER_KP, PLATE_ASSER_KI, PLATE_ASSER_KD);
+			break;
+
 		case ACT_PLATE_ROTATE_STOP:
 			DCM_stop(PLATE_DCMOTOR_ID);
 			//Le moteur atteindra l'état IDLE automatiquement et le message de retour sera envoyé, voir PLATE_rotation_command_run
