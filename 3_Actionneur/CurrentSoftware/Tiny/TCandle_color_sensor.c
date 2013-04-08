@@ -216,6 +216,7 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 			Sint16 wantedPosition = QUEUE_get_arg(queueId)->param;
 			Uint16 ax12Pos;
 			Uint8 error;
+			Uint16 line;
 			//CAN_msg_t resultMsg;
 			Uint8 result, errorCode;
 
@@ -225,9 +226,11 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 			if(QUEUE_has_error(queueId)) {
 				result =    ACT_RESULT_NOT_HANDLED;
 				errorCode = ACT_RESULT_ERROR_OTHER;
+				line = __LINE__;
 			} else if(abs((Sint16)ax12Pos - (Sint16)(wantedPosition)) <= CANDLECOLOR_AX12_POS_EPSILON) {
 				result =    ACT_RESULT_DONE;
 				errorCode = ACT_RESULT_ERROR_OK;
+				line = __LINE__;
 
 				CAN_msg_t colorDetectedMsg;   //Envoyer la couleur detectée
 				colorDetectedMsg.sid = ACT_CANDLECOLOR_RESULT;
@@ -239,21 +242,25 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 				errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
 				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
+				line = __LINE__;
 			} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_NOT_HERE;
 				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
+				line = __LINE__;
 			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + CANDLECOLOR_AX12_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_UNKNOWN;
 				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
-			} else if(error) {							//autres erreurs
+				line = __LINE__;
+			} else if(error & AX12_ERROR_OVERHEATING || error & AX12_ERROR_OVERLOAD) {  //autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_UNKNOWN;
 				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
 				QUEUE_set_error(queueId);
+				line = error;
 			} else return;	//Operation is not finished, do nothing
 
 //			resultMsg.sid = ACT_RESULT;
@@ -263,7 +270,7 @@ static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 //
 //			CAN_send(&resultMsg);
 
-			CAN_sendResultWithLine(ACT_CANDLECOLOR, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
+			CAN_sendResultWithParam(ACT_CANDLECOLOR, QUEUE_get_arg(queueId)->canCommand, result, errorCode, line);
 			QUEUE_behead(queueId);	//gestion terminée
 		}
 	}

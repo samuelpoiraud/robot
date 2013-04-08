@@ -126,7 +126,6 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 				CAN_push_operation_from_msg(msg, QUEUE_ACT_Plate_Rotation, &PLATE_run_command, 0);
 				break;
 
-				//FIXME: decommenter le code gérant l'AX12 avec ACT_PLATE_ROTATE_VERTICALLY
 			case ACT_PLATE_ROTATE_VERTICALLY:    //Cas spécial: fermer la pince avant de tourner en vertical (sinon ça ne rentrera pas dans le robot)
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
@@ -308,9 +307,8 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 	Uint16 line;
 
-	//AX12_reset_last_error(PLATE_PLIER_AX12_ID);
+	AX12_reset_last_error(PLATE_PLIER_AX12_ID);
 
-	//FIXME: commentaire debuggage, a enlever
 	ax12Pos = AX12_get_position(PLATE_PLIER_AX12_ID); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
 	error = AX12_get_last_error(PLATE_PLIER_AX12_ID).error;
 	if(error)
@@ -326,6 +324,11 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 		result =    ACT_RESULT_DONE;
 		errorCode = ACT_RESULT_ERROR_OK;
 		line = __LINE__;
+	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + PLATE_PLIER_AX12_ASSER_TIMEOUT) {
+		//Si on ne peut pas atteindre la position alors que l'ax12 à bien compris la commande, on considère qu'une assiette bloque l'ax12 -> tout est Ok
+		result =    ACT_RESULT_DONE;
+		errorCode = ACT_RESULT_ERROR_OK;
+		line = __LINE__;
 	} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
 		result =    ACT_RESULT_NOT_HANDLED;
 		errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
@@ -338,16 +341,7 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
 		QUEUE_set_error(queueId);
 		line = __LINE__;
-	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + PLATE_PLIER_AX12_ASSER_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-//		result =    ACT_RESULT_FAILED;
-//		errorCode = ACT_RESULT_ERROR_UNKNOWN;
-		//Si on ne peut pas atteindre la position alors que l'ax12 à bien compris la commande, on considère qu'une assiette bloque l'ax12 -> tout est Ok
-		result =    ACT_RESULT_DONE;
-		errorCode = ACT_RESULT_ERROR_OK;
-		//AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);
-		//QUEUE_set_error(queueId);
-		line = __LINE__;
-	} else if(error) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
+	} else if(error & AX12_ERROR_OVERHEATING) {	   //Ne verifie que l'overheating, les autres ne sont pas normales donc on les ignore
 		result =   ACT_RESULT_FAILED;
 		errorCode = ACT_RESULT_ERROR_UNKNOWN;
 		AX12_set_torque_enabled(PLATE_PLIER_AX12_ID, FALSE);

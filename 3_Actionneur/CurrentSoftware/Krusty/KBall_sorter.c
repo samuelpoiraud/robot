@@ -186,6 +186,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 		} else if(state != BALLSORTER_CS_DetectCherry) {
 			Uint8 error;
 			Uint16 ax12Pos;
+			Uint16 line;
 			//CAN_msg_t resultMsg;
 			Uint8 result, errorCode;
 
@@ -196,22 +197,33 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			if(QUEUE_has_error(queueId)) {
 				result =    ACT_RESULT_NOT_HANDLED;
 				errorCode = ACT_RESULT_ERROR_OTHER;
+				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
+				line = __LINE__;
 			} else if(abs((Sint16)ax12Pos - (Sint16)wantedPosition) <= BALLSORTER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
 			//if(AX12_is_moving(BALLSORTER_AX12_ID) == FALSE) {  //Fin du mouvement
 				result =    ACT_RESULT_DONE;
 				errorCode = ACT_RESULT_ERROR_OK;
+				line = __LINE__;
 			} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
 				result =    ACT_RESULT_NOT_HANDLED;
 				errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
+				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
+				line = __LINE__;
 			} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_NOT_HERE;
+				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
+				line = __LINE__;
 			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + BALLSORTER_AX12_ASSER_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_UNKNOWN;
-			} else if(error) {							//autres erreurs
+				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
+				line = __LINE__;
+			} else if(error & AX12_ERROR_OVERHEATING || error & AX12_ERROR_OVERLOAD) {  //autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_UNKNOWN;
+				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
+				line = error;
 			} else return; 	//Operation is not finished, do nothing but get last not ok value
 
 			//On envoie le message CAN de retour que si l'opération a fail et que ce n'est pas a cause d'une opération antérieure (ACT_RESULT_ERROR_OTHER)
@@ -224,7 +236,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 //				resultMsg.size = 4;
 //
 //				CAN_send(&resultMsg);
-				CAN_sendResultWithLine(ACT_BALLSORTER, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
+				CAN_sendResultWithParam(ACT_BALLSORTER, QUEUE_get_arg(queueId)->canCommand, result, errorCode, line);
 			}
 			QUEUE_behead(queueId);	//gestion terminée
 		} else { //BALLSORTER_CS_DetectCherry

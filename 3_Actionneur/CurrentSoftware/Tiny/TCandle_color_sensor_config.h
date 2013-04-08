@@ -33,7 +33,7 @@
 	#define CANDLECOLOR_CW_WHITE_MIN_Y          512   //Valeur mini de Y pour detecter du blanc (il ne faut pas qu'on detecte une autre couleur pour le detecter)
 //	#define CANDLECOLOR_CW_WHITE_MIN_L          512   //Valeur mini de L (X+Y+Z) pour detecter du blanc (a tester VS Y pour la valeur la plus pertinante)
 
-	#define CANDLECOLOR_AX12_TIMEOUT            30  //en centaine de ms, une valeur de 20 correspond à 2secondes
+	#define CANDLECOLOR_AX12_TIMEOUT            10  //en centaine de ms, une valeur de 20 correspond à 2secondes
 	#define CANDLECOLOR_AX12_POS_EPSILON        5
 	#define CANDLECOLOR_AX12_HIGH_CANDLE_POS    0  //TODO: a changer
 	#define CANDLECOLOR_AX12_LOW_CANDLE_POS     0

@@ -109,10 +109,10 @@
 	#define PLATE_DCMOTOR_PORT_WAY               PORTE
 	#define PLATE_DCMOTOR_PORT_WAY_BIT           4
 	#define PLATE_ROTATION_POTAR_ADC_ID          AN9_ID
-	#define PLATE_PLIER_AX12_ID                  3	    //TODO: changer ces valeurs !!!
+	#define PLATE_PLIER_AX12_ID                  3
 
 /* Config BALLSORTER */
-	#define BALLSORTER_AX12_ID                   5      //TODO: changer ces valeurs !!!
+	#define BALLSORTER_AX12_ID                   5
 	#define BALLSORTER_SENSOR_PIN                PORTBbits.RB8
 	#define BALLSORTER_SENSOR_DETECTED_LEVEL     0      //Niveau de BALLSORTER_SENSOR_PIN quand une cerise blanche est détectée
 
@@ -122,7 +122,7 @@
 	#define LIFT_LEFT_DCMOTOR_PORT_WAY               PORTE
 	#define LIFT_LEFT_DCMOTOR_PORT_WAY_BIT           0
 	#define LIFT_LEFT_TRANSLATION_POTAR_ADC_ID       AN3_ID
-	#define LIFT_LEFT_PLIER_AX12_ID                  4	    //TODO: changer ces valeurs !!!
+	#define LIFT_LEFT_PLIER_AX12_ID                  4
 
 
 	#define LIFT_RIGHT_DCMOTOR_ID                     3      //Doit être unique !
@@ -130,7 +130,7 @@
 	#define LIFT_RIGHT_DCMOTOR_PORT_WAY               PORTE
 	#define LIFT_RIGHT_DCMOTOR_PORT_WAY_BIT           2
 	#define LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID       AN2_ID
-	#define LIFT_RIGHT_PLIER_AX12_ID                  1	    //TODO: changer ces valeurs !!!
+	#define LIFT_RIGHT_PLIER_AX12_ID                  1
 
 /**************** Capteurs ****************/
 
