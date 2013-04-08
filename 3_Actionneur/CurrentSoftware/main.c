@@ -22,6 +22,10 @@
 //Debug position ax12, à enlever
 #include "QS/QS_ax12.h"
 
+//TODO: SelfTest
+//TODO: Test coefs avec Kd pour KPlate
+
+
 //#include "switch.h"
 
 //#ifdef USE_CAN

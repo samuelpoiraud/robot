@@ -333,6 +333,7 @@ static void LIFT_plier_command_run(queue_id_t queueId) {
 	Uint8 ax12Id = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ID : LIFT_RIGHT_PLIER_AX12_ID;
 	Uint16 posEpsilon = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ASSER_POS_EPSILON : LIFT_RIGHT_PLIER_AX12_ASSER_POS_EPSILON;
 	Uint16 asserTimeout = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ASSER_TIMEOUT : LIFT_RIGHT_PLIER_AX12_ASSER_TIMEOUT;
+	Uint16 line;
 
 	Uint8 error;
 	Uint16 ax12Pos;
@@ -348,30 +349,35 @@ static void LIFT_plier_command_run(queue_id_t queueId) {
 		result =    ACT_RESULT_NOT_HANDLED;
 		errorCode = ACT_RESULT_ERROR_OTHER;
 		AX12_set_torque_enabled(ax12Id, FALSE);
+		line = __LINE__;
 	} else if((error & AX12_ERROR_OVERLOAD) || (abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= posEpsilon)) {	//Fin du mouvement
 	//if(AX12_is_moving(LIFT_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
 		result =    ACT_RESULT_DONE;
 		errorCode = ACT_RESULT_ERROR_OK;
+		line = __LINE__;
+	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + asserTimeout) {
+		//Si on ne peut pas atteindre la position alors que l'ax12 à bien compris la commande, on considère qu'une assiette bloque l'ax12 -> tout est Ok
+		result =    ACT_RESULT_DONE;
+		errorCode = ACT_RESULT_ERROR_OK;
+		line = __LINE__;
 	} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
 		result =    ACT_RESULT_NOT_HANDLED;
 		errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
 		AX12_set_torque_enabled(ax12Id, FALSE);
 		QUEUE_set_error(queueId);
+		line = __LINE__;
 	} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
 		result =    ACT_RESULT_FAILED;
 		errorCode = ACT_RESULT_ERROR_NOT_HERE;
 		AX12_set_torque_enabled(ax12Id, FALSE);
 		QUEUE_set_error(queueId);
-	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + asserTimeout) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
+		line = __LINE__;
+	} else if(error & AX12_ERROR_OVERHEATING) {	   //Ne verifie que l'overheating, les autres ne sont pas normales donc on les ignore
 		result =    ACT_RESULT_FAILED;
 		errorCode = ACT_RESULT_ERROR_UNKNOWN;
 		AX12_set_torque_enabled(ax12Id, FALSE);
 		QUEUE_set_error(queueId);
-	} else if(error) {							//autres erreurs (sans compter l'overload si on force sur la pince pour serrer l'assiette)
-		result =    ACT_RESULT_FAILED;
-		errorCode = ACT_RESULT_ERROR_UNKNOWN;
-		AX12_set_torque_enabled(ax12Id, FALSE);
-		QUEUE_set_error(queueId);
+		line = error;
 	} else return;	//Operation is not finished, do nothing
 
 //	resultMsg.sid = ACT_RESULT;
@@ -381,7 +387,7 @@ static void LIFT_plier_command_run(queue_id_t queueId) {
 //
 //	CAN_send(&resultMsg);
 
-	CAN_sendResultWithLine(canSid, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
+	CAN_sendResultWithParam(canSid, QUEUE_get_arg(queueId)->canCommand, result, errorCode, line);
 	QUEUE_behead(queueId);	//gestion terminée
 }
 
