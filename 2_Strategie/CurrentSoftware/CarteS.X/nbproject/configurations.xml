@@ -52,6 +52,7 @@
       <itemPath>../actions_tests_krusty.h</itemPath>
       <itemPath>../actions_tests_krusty_micro.h</itemPath>
       <itemPath>../actions_tests_tiny_micro.h</itemPath>
+      <itemPath>../grille.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
