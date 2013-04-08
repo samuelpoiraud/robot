@@ -17,6 +17,7 @@
 	#include "detection.h"
 	#include "sick.h"
 	#include "elements.h"
+	#include "grille.h"
 	
 	/* #define communs à plusieurs modules */
 	#define MATCH_DURATION 				90000UL //90 secondes)
@@ -100,7 +101,7 @@
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
 		/*Tableau d'état des elements du terrain */
-		map_state_e map_elements[40]; //Voir doc pour connaitre les éléments associés
+		map_state_e map_elements[(map_goal_e)40]; //Voir doc pour connaitre les éléments associés
 		Uint8 color_ball;
 	}environment_t;
 
