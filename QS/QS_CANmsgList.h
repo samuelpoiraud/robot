@@ -192,7 +192,7 @@
 	//////////////// HAMMER /////////////////
 	#define ACT_HAMMER (ACT_FILTER | 0x01)    //0x01 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
 		//Paramètres de HAMMER (dans data[0])
-		#define ACT_HAMMER_MOVE_TO     0   // Changer la position du bras
+		#define ACT_HAMMER_MOVE_TO     0   // Changer la position du bras, angle en degré dans data[1] (poids faible) et data[2]. 90° = bras vertical, 0° = bras rentré
 		#define ACT_HAMMER_STOP        1   // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
 		                                   //Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
 	/////////////////////////////////////////

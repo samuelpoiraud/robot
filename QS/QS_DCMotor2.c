@@ -187,6 +187,35 @@ Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get) {
 	return this->config.pos[pos_to_get];
 }
 
+/*-----------------------------------------
+        Change les coefs d'asservissement.
+-----------------------------------------*/
+void DCM_setCoefs(Uint8 dc_motor_id, Sint16 Kp, Sint16 Ki, Sint16 Kd) {
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state == STOPPED));
+	init_state_e previousState = this->init_state;
+
+	this->init_state = STOPPED; //Aucun calcul d'asservissement ne doit être fait pendant ce temps
+
+	this->config.Kp = Kp;
+	this->config.Ki = Ki;
+	this->config.Kd = Kd;
+
+	this->init_state = previousState;
+}
+
+/*-----------------------------------------
+        Récupère les coefs d'asservissement.
+-----------------------------------------*/
+void DCM_getCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd) {
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state == STOPPED));
+
+	if(Kp) *Kp = this->config.Kp;
+	if(Ki) *Ki = this->config.Ki;
+	if(Kd) *Kd = this->config.Kd;
+}
+
 
 /*-----------------------------------------
 		Arret de l'asservissement d'un actionneur
@@ -307,6 +336,8 @@ void _ISR DCM_TIMER_IT()
 				computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
 							+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576)
 							+ (((Sint32)(config->Kd) * differential)/DCM_TIMER_PERIOD) / 1024;
+
+				this->previous_error = error;
 								
 				// Sens et saturation
 				if (computed_cmd > 0)
