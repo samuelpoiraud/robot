@@ -62,6 +62,12 @@
 		
 		//Récupère la valeur d'une position
 		Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get);
+
+		//Change les coefs d'asservissement. si le moteur était asservis, les nouveaux coef sont automatiquement pris en compte.
+		void DCM_setCoefs(Uint8 dc_motor_id, Sint16 Kp, Sint16 Ki, Sint16 Kd);
+
+		//Récupère les coefs d'asservissement.
+		void DCM_getCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd);
 	
 		// Arret de l'asservissement d'un actionneur
 		void DCM_stop(Uint8 dc_motor_id);
