@@ -1395,7 +1395,7 @@ static void foe_in_path(way_e* move_way_indicator, bool_e *in_path)
 	// on identifie une distance par rapport à la distance
 	//distance_computed = ((speed_indicator*52) >>2) + 400;		// DISTANCE 2011
 	//distance_computed = ((speed_indicator*52) >>2) + 240;
-	distance_computed = 400;
+	distance_computed = 600;
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
 
 	for (i=0; i<NB_FOES; i++)
