@@ -889,7 +889,6 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				{
 					AX12_TIMER_stop();
 					AX12_TIMER_resetFlag();
-					debug_printf("AX12 End msg %d\n", state_machine.current_instruction.id_servo);
 
 					if(AX12_instruction_has_status_packet(state_machine.current_instruction))
 					{
