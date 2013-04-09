@@ -338,7 +338,7 @@ static void MAIN_onButton4() {
 	msg.size = 1;
 	CAN_process_msg(&msg);
 
-	debug_printf("- Hammer pos en degres: %d\n", HAMMER_get_pos());
+	debug_printf("- Hammer pos en degres: %d, potar val: %d\n", HAMMER_get_pos(), ADC_getValue(HAMMER_SENSOR_ADC_ID));
 	debug_printf("- CW[x] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_x));
 	debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_y));
 	debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));

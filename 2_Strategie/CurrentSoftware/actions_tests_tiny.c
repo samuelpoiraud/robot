@@ -179,7 +179,7 @@ void STRAT_TINY_gifts_and_cake(void)
 			//Ramasser les verres proprement.
 		break;
 		case BRING_GLASS:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,400},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
 			switch(sub_action)
             {
 				case END_OK:
