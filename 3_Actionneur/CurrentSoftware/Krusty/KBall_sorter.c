@@ -193,6 +193,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			AX12_reset_last_error(BALLSORTER_AX12_ID);
 			ax12Pos = AX12_get_position(BALLSORTER_AX12_ID); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
 			error = AX12_get_last_error(BALLSORTER_AX12_ID).error;
+				debug_printf("Error AX12 %d\n", error);
 
 			if(QUEUE_has_error(queueId)) {
 				result =    ACT_RESULT_NOT_HANDLED;
@@ -224,6 +225,8 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				errorCode = ACT_RESULT_ERROR_UNKNOWN;
 				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
 				line = error;
+			} else if(error) {
+				debug_printf("Error AX12 %d\n", error);
 			} else return; 	//Operation is not finished, do nothing but get last not ok value
 
 			//On envoie le message CAN de retour que si l'opération a fail et que ce n'est pas a cause d'une opération antérieure (ACT_RESULT_ERROR_OTHER)

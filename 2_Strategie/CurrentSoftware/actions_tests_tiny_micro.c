@@ -37,7 +37,7 @@ void T_BALLINFLATER_start(void)
 /* ----------------------------------------------------------------------------- */
 
 #define HAMMER_POSITION_UP		(0)
-#define HAMMER_POSITION_DOWN	(30)
+#define HAMMER_POSITION_DOWN	(85)
 #define HAMMER_POSITION_HOME	(90)
 				
 void TINY_hammer_open_all_gift(bool_e reset)
@@ -69,7 +69,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(500));
+				ASSER_WARNER_arm_y(COLOR_Y(600));
 				state = OPENING_FIRST_GIFT;
 			}			
 		break;
@@ -87,7 +87,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(1100));
+				ASSER_WARNER_arm_y(COLOR_Y(1200));
 				state = OPENING_SECOND_GIFT;
 			}			
 		break;
@@ -105,7 +105,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(1700));
+				ASSER_WARNER_arm_y(COLOR_Y(1800));
 				state = OPENING_THIRD_GIFT;
 			}			
 		break;
@@ -123,7 +123,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(2300));
+				ASSER_WARNER_arm_y(COLOR_Y(2400));
 				state = OPENING_FOURTH_GIFT;
 			}			
 		break;
@@ -156,7 +156,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 3- A la fin du travail -> OK
 -> A chaque cadeau descendu : mise à jour de l'environnement.
 */
-error_e TINY_open_all_gifts(void)
+error_e TINY_open_all_gifts_without_pause(void)
 {
 	static enum
 	{
@@ -183,7 +183,7 @@ error_e TINY_open_all_gifts(void)
 				||	(global.env.color == RED && (global.env.pos.y > 1200))  )
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 		
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},FAST},{{200,COLOR_Y(600)},FAST},{{200,COLOR_Y(2400)},FAST}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},FAST},{{140,COLOR_Y(600)},FAST},{{140,COLOR_Y(2400)},FAST}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
             {
 				case END_OK:
@@ -209,6 +209,240 @@ error_e TINY_open_all_gifts(void)
 	return ret;	
 	
 	
+}
+
+#define X_TO_OPEN_GIFT	160
+error_e TINY_open_all_gifts(void)
+{
+	static enum
+	{
+		INIT=0,
+		GET_OUT,
+		GOTO_FIRST_GIFT,
+		ANGLE_FIRST_GIFT,
+		OPEN_FIRST_GIFT,
+		HAMMER_FIRST_GIFT,
+		WAIT_HAMMER_DOWN_FIRST_GIFT,
+		GOTO_SECOND_GIFT,
+		OPEN_SECOND_GIFT,
+		HAMMER_SECOND_GIFT,
+		WAIT_HAMMER_DOWN_SECOND_GIFT,
+		GOTO_THIRD_GIFT,
+		OPEN_THIRD_GIFT,
+		HAMMER_THIRD_GIFT,
+		WAIT_HAMMER_DOWN_THIRD_GIFT,
+		GOTO_FOURTH_GIFT,
+		OPEN_FOURTH_GIFT,
+		HAMMER_FOURTH_GIFT,
+		WAIT_HAMMER_DOWN_FOURTH_GIFT,
+		ALL_GIFTS_OPENED,
+	}state = INIT;
+
+	error_e ret = IN_PROGRESS;
+	error_e sub_action;
+	static avoidance_type_e avoidance = NO_AVOIDANCE;
+
+	if(		(global.env.color == BLUE && (global.env.pos.y < 1500))
+				||	(global.env.color == RED && (global.env.pos.y > 1500))  )
+				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
+
+	switch(state)
+	{
+		case INIT:
+
+			avoidance = NO_AVOIDANCE;
+			state = GET_OUT;
+		break;
+		case GET_OUT:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(350)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = ANGLE_FIRST_GIFT;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+				case NOT_HANDLED:		//Echec de la mission
+					ret = sub_action;
+					state = INIT;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+		case ANGLE_FIRST_GIFT:
+			sub_action = goto_angle(PI4096/2,FAST);
+			
+			switch(sub_action)
+            {
+				case END_OK:
+					state = GOTO_FIRST_GIFT;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+				case NOT_HANDLED:		//Echec de la mission
+					ret = sub_action;
+					state = INIT;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+		case GOTO_FIRST_GIFT:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(500)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = OPEN_FIRST_GIFT;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+				case NOT_HANDLED:		//Echec de la mission
+					ret = sub_action;
+					state = INIT;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+		case OPEN_FIRST_GIFT:
+			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
+			state = HAMMER_FIRST_GIFT;
+		break;
+		case HAMMER_FIRST_GIFT:
+			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
+			{
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+				state = WAIT_HAMMER_DOWN_FIRST_GIFT;
+			}
+		break;
+		case WAIT_HAMMER_DOWN_FIRST_GIFT:
+			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
+			{
+				state = GOTO_SECOND_GIFT;
+			}
+		break;
+
+
+		case GOTO_SECOND_GIFT:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(1100)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = OPEN_SECOND_GIFT;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+				case NOT_HANDLED:		//Echec de la mission
+					ret = sub_action;
+					state = INIT;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+		case OPEN_SECOND_GIFT:
+			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
+			state = HAMMER_SECOND_GIFT;
+		break;
+		case HAMMER_SECOND_GIFT:
+			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
+			{
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+				state = WAIT_HAMMER_DOWN_SECOND_GIFT;
+			}
+		break;
+		case WAIT_HAMMER_DOWN_SECOND_GIFT:
+			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
+			{
+				state = GOTO_THIRD_GIFT;
+			}
+		break;
+
+		case GOTO_THIRD_GIFT:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(1700)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = OPEN_THIRD_GIFT;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+				case NOT_HANDLED:		//Echec de la mission
+					ret = sub_action;
+					state = INIT;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+		case OPEN_THIRD_GIFT:
+			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
+			state = HAMMER_THIRD_GIFT;
+		break;
+		case HAMMER_THIRD_GIFT:
+			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
+			{
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+				state = WAIT_HAMMER_DOWN_THIRD_GIFT;
+			}
+		break;
+		case WAIT_HAMMER_DOWN_THIRD_GIFT:
+			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
+			{
+				state = GOTO_FOURTH_GIFT;
+			}
+		break;
+
+		case GOTO_FOURTH_GIFT:	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(2300)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = OPEN_FOURTH_GIFT;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+				case NOT_HANDLED:		//Echec de la mission
+					ret = sub_action;
+					state = INIT;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+		case OPEN_FOURTH_GIFT:
+			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
+			state = HAMMER_FOURTH_GIFT;
+		break;
+		case HAMMER_FOURTH_GIFT:
+			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
+			{
+				ACT_hammer_goto(HAMMER_POSITION_HOME); 	//BAISSER BRAS
+				state = WAIT_HAMMER_DOWN_FOURTH_GIFT;
+			}
+		break;
+		case WAIT_HAMMER_DOWN_FOURTH_GIFT:
+			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
+			{
+				state = ALL_GIFTS_OPENED;
+			}
+		break;
+		case ALL_GIFTS_OPENED:
+			ret = END_OK;
+		break;
+		default:
+		break;
+
+	}
+	return ret;
+
+
 }
 
 	
