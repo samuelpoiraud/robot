@@ -67,6 +67,7 @@ static void BALLSORTER_initAX12() {
 		AX12_config_set_error_before_led(BALLSORTER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(BALLSORTER_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD);
 
+		AX12_set_torque_enabled(BALLSORTER_AX12_ID, TRUE);
 		AX12_set_position(BALLSORTER_AX12_ID, BALLSORTER_AX12_EJECT_CHERRY_POS);
 		COMPONENT_log(LOG_LEVEL_Info, "AX12 initialisé\n");
 	}
@@ -193,12 +194,11 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			AX12_reset_last_error(BALLSORTER_AX12_ID);
 			ax12Pos = AX12_get_position(BALLSORTER_AX12_ID); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
 			error = AX12_get_last_error(BALLSORTER_AX12_ID).error;
-				debug_printf("Error AX12 %d\n", error);
+			if(error) debug_printf("Error AX12 %d, %d\n", error, ax12Pos); //TODO: enlever ça ...
 
 			if(QUEUE_has_error(queueId)) {
 				result =    ACT_RESULT_NOT_HANDLED;
 				errorCode = ACT_RESULT_ERROR_OTHER;
-				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
 				line = __LINE__;
 			} else if(abs((Sint16)ax12Pos - (Sint16)wantedPosition) <= BALLSORTER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
 			//if(AX12_is_moving(BALLSORTER_AX12_ID) == FALSE) {  //Fin du mouvement
@@ -208,30 +208,35 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
 				result =    ACT_RESULT_NOT_HANDLED;
 				errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
-				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
 				line = __LINE__;
 			} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_NOT_HERE;
-				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
 				line = __LINE__;
 			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + BALLSORTER_AX12_ASSER_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-				result =    ACT_RESULT_FAILED;
-				errorCode = ACT_RESULT_ERROR_UNKNOWN;
-				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
-				line = __LINE__;
+				if(abs((Sint16)ax12Pos - (Sint16)wantedPosition) <= BALLSORTER_AX12_ASSER_POS_LARGE_EPSILON) {
+					result =    ACT_RESULT_DONE;
+					errorCode = ACT_RESULT_ERROR_OK;
+					line = __LINE__;
+					debug_printf("OKOKOKOK !!!!!\n"); //TODO: enlever ça ...
+					//La position après timeout est assez proche, on considère que la précision de BALLSORTER_AX12_ASSER_POS_EPSILON était trop forte et qu'en fait la position est atteinte.
+				} else {
+					result =    ACT_RESULT_FAILED;
+					errorCode = ACT_RESULT_ERROR_UNKNOWN;
+					line = __LINE__;
+				}
 			} else if(error & AX12_ERROR_OVERHEATING || error & AX12_ERROR_OVERLOAD) {  //autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
 				result =    ACT_RESULT_FAILED;
 				errorCode = ACT_RESULT_ERROR_UNKNOWN;
-				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
 				line = error;
 			} else if(error) {
-				debug_printf("Error AX12 %d\n", error);
+				COMPONENT_log(LOG_LEVEL_Error, "Error AX12 %d\n", error);
 			} else return; 	//Operation is not finished, do nothing but get last not ok value
 
 			//On envoie le message CAN de retour que si l'opération a fail et que ce n'est pas a cause d'une opération antérieure (ACT_RESULT_ERROR_OTHER)
 			if(result != ACT_RESULT_DONE && errorCode != ACT_RESULT_ERROR_OTHER) {
 				QUEUE_set_error(queueId);
+				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
 
 //				resultMsg.sid = ACT_RESULT;
 //				resultMsg.data[0] = ACT_BALLSORTER & 0xFF;
