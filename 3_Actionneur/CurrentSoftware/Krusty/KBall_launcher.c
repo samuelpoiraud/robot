@@ -130,7 +130,7 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLLAUNCHER) {
 		switch(msg->data[0]) {
 			case ACT_BALLLAUNCHER_ACTIVATE:
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, msg->data[1] | (msg->data[2] << 8));
+				CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, msg->data[1] | ((Uint16)(msg->data[2]) << 8));
 				break;
 
 			case ACT_BALLLAUNCHER_STOP:

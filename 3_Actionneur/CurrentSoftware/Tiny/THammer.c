@@ -78,7 +78,7 @@ bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_HAMMER) {
 		switch(msg->data[0]) {
 			case ACT_HAMMER_MOVE_TO:   //Position dans data[1] et data[2]
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_Hammer, &HAMMER_run_command, msg->data[1] | (msg->data[2] << 8));
+				CAN_push_operation_from_msg(msg, QUEUE_ACT_Hammer, &HAMMER_run_command, msg->data[1] | ((Uint16)(msg->data[2]) << 8));
 				break;
 
 			case ACT_HAMMER_STOP:	//Ne pas passer par la pile pour le cas d'urgence

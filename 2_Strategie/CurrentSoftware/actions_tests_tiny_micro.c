@@ -183,7 +183,7 @@ error_e TINY_open_all_gifts(void)
 				||	(global.env.color == RED && (global.env.pos.y > 1200))  )
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 		
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(300)},FAST},{{200,COLOR_Y(600)},FAST},{{200,COLOR_Y(2400)},FAST}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},FAST},{{200,COLOR_Y(600)},FAST},{{200,COLOR_Y(2400)},FAST}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
             {
 				case END_OK:

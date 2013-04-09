@@ -206,26 +206,32 @@ void WARNER_process_it(void)
 	//	
 	
 	if(warner_teta)
+	{
 		if( abs(global.position.teta - warner_teta) <=  (PILOT_get_coef(PILOT_ROTATION_SPEED_MAX)/1024)*2)
 		{
 			warner_teta = 0;
 			warnings |= WARNING_REACH_TETA;
 		}
+	}
 	
 	if(warner_x)
+	{
 		if( abs(global.position.x - warner_x) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2 )
 		{
 			warner_x = 0;
 			warnings |= WARNING_REACH_X;
 		}	
-			
+	}
+
 	if(warner_y)
+	{
 		if( abs(global.position.y - warner_y) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2 )
 		{
 			warner_y = 0;
 			warnings |= WARNING_REACH_Y;
 		}
-		
+	}
+
 	if(warner_timer)	//le minuteur est actif.
 	{
 		temps+=5;	//on ajoute 5ms !
@@ -256,7 +262,6 @@ void WARNER_process_it(void)
 		if(warnings & (WARNING_ROTATION | WARNING_TRANSLATION))
 		{
 					position_saved = global.position;
-
 		}
 	}	
 }

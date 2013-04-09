@@ -17,6 +17,8 @@
 	#define HIGHINT(x)				(((x) >> 8) & 0xFF)
 	#define LOWINT(x)				((x) & 0xFF)
 	#define U16FROMU8(high,low)		((((Uint16)(high))<<8)|(Uint16)(low))
+	#define U32FROMU16(high,low)		((((Uint32)(high))<<16)|(Uint32)(low))
+	#define U32FROMU8(higher,high,low,lower)		((((Uint32)(higher))<<24)|(((Uint32)(high))<<16)|(((Uint32)(low))<<8)|(Uint32)(lower))
 	#define BITS_ON(var, mask)		((var) |= (mask))
 	/* ~0 est le complement à 1 de 0, donc pour 16 bits OxFFFF) */
 	/* ~0 ^ mask permet d'etre indépendant de la taille (en bits) de ~mask */

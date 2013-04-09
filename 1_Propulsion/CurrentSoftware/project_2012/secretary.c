@@ -268,7 +268,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			ROADMAP_add_order( 	TRAJECTORY_ROTATION,							// type trajectoire
 								0,									//x
 								0,									//y
-								(msg->data[1] <<8) + msg->data[2],	//teta
+								(U16FROMU8(msg->data[1],msg->data[2])),	//teta
 								(msg->data[0] & 0x01)?RELATIVE:NOT_RELATIVE,	//relative
 								(msg->data[0] & 0x10)?NOT_NOW:NOW,//maintenant
 								ANY_WAY,					//sens de marche
@@ -290,8 +290,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 				sens_marche = ANY_WAY;	//ON SE FICHE DU SENS
 				
 			ROADMAP_add_order(  	(msg->data[7] !=0)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
-								(msg->data[1] <<8) + msg->data[2],	//x
-								(msg->data[3] <<8) + msg->data[4],	//y
+								(U16FROMU8(msg->data[1],msg->data[2])),	//x
+								(U16FROMU8(msg->data[3],msg->data[4])),	//y
 								0,									//teta
 								(msg->data[0] & 0x01)?RELATIVE:NOT_RELATIVE,	//relative
 								(msg->data[0] & 0x10)?NOT_NOW:NOW,//maintenant
@@ -328,15 +328,15 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		// Impose une position (uniquement pour les tests !!!) 
 		case ASSER_SET_POSITION:
 			ODOMETRY_set(
-							(msg->data[0] <<8) + msg->data[1],	//x
-							(msg->data[2] <<8) + msg->data[3], 	//y
-							(msg->data[4] <<8) + msg->data[5]	//teta
+							(U16FROMU8(msg->data[0],msg->data[1])),	//x
+							(U16FROMU8(msg->data[2],msg->data[3])), 	//y
+							(U16FROMU8(msg->data[4],msg->data[5]))	//teta
 						);
 			COPILOT_reset_absolute_destination();
 
 		break;
 		case ASSER_RUSH_IN_THE_WALL:
-			SEQUENCES_rush_in_the_wall((msg->data[2] <<8) + msg->data[3], msg->data[0], ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data[1])?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
+			SEQUENCES_rush_in_the_wall((U16FROMU8(msg->data[2],msg->data[3])), msg->data[0], ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data[1])?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
 		break;
 		
 		//Stop tout
@@ -354,18 +354,18 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		
 		//Une carte nous demande de l'avertir lorsque nous serons en approche d'une position...
 		case ASSER_WARN_ANGLE:
-			WARNER_arm_teta((msg->data[0] <<8) + msg->data[1]);
+			WARNER_arm_teta(U16FROMU8(msg->data[0],msg->data[1]));
 		break;
 		case ASSER_WARN_X:
-			WARNER_arm_x((msg->data[0] <<8) + msg->data[1]);
+			WARNER_arm_x(U16FROMU8(msg->data[0],msg->data[1]));
 		break;
 		case ASSER_WARN_Y:
-			WARNER_arm_y((msg->data[0] <<8) + msg->data[1]);
+			WARNER_arm_y(U16FROMU8(msg->data[0],msg->data[1]));
 		break;
 		case ASSER_SEND_PERIODICALLY_POSITION:
-			WARNER_arm_timer((msg->data[0] <<8) + msg->data[1]);
-			WARNER_arm_translation((msg->data[2] <<8) + msg->data[3]);
-			WARNER_arm_rotation((msg->data[4] <<8) + msg->data[5]);
+			WARNER_arm_timer(U16FROMU8(msg->data[0],msg->data[1]));
+			WARNER_arm_translation(U16FROMU8(msg->data[2],msg->data[3]));
+			WARNER_arm_rotation(U16FROMU8(msg->data[4],msg->data[5]));
 		break;
 
 		case ASSER_JOYSTICK:
@@ -375,34 +375,34 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		
 		//REGLAGES DES COEFFICIENTS !!!!!!!!
 		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_SYM:
-			ODOMETRY_set_coef(ODOMETRY_COEF_SYM,(Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			ODOMETRY_set_coef(ODOMETRY_COEF_SYM,(Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION:
-			ODOMETRY_set_coef(ODOMETRY_COEF_ROTATION, (Sint32)((Uint16)((msg->data[0] << 8) + msg->data[1])));
+			ODOMETRY_set_coef(ODOMETRY_COEF_ROTATION, (Sint32)(U32FROMU8(msg->data[0], msg->data[1], msg->data[2], msg->data[3])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_TRANSLATION:
-			ODOMETRY_set_coef(ODOMETRY_COEF_TRANSLATION, (Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			ODOMETRY_set_coef(ODOMETRY_COEF_TRANSLATION, (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_CENTRIFUGE:
-			ODOMETRY_set_coef(ODOMETRY_COEF_CENTRIFUGAL,(Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			ODOMETRY_set_coef(ODOMETRY_COEF_CENTRIFUGAL,(Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_KP_ROTATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KP_ROTATION, (Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			CORRECTOR_set_coef(CORRECTOR_COEF_KP_ROTATION, (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_KD_ROTATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KD_ROTATION,  (Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			CORRECTOR_set_coef(CORRECTOR_COEF_KD_ROTATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_KP_TRANSLATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KP_TRANSLATION,  (Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			CORRECTOR_set_coef(CORRECTOR_COEF_KP_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_KD_TRANSLATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KD_TRANSLATION,  (Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			CORRECTOR_set_coef(CORRECTOR_COEF_KD_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_KV_ROTATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KV_ROTATION,  (Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			CORRECTOR_set_coef(CORRECTOR_COEF_KV_ROTATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_KV_TRANSLATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KV_TRANSLATION,  (Sint32)((Sint16)((msg->data[0] << 8) + msg->data[1])));
+			CORRECTOR_set_coef(CORRECTOR_COEF_KV_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case CARTE_ASSER_FIN_ERREUR:
 			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
