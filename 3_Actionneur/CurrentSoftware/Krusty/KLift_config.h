@@ -19,9 +19,9 @@
 	#define LIFT_LEFT_ASSER_KD                       0
 	#define LIFT_LEFT_ASSER_TIMEOUT                  3000   //en ms
 	#define LIFT_LEFT_ASSER_POS_EPSILON              75
-	#define LIFT_LEFT_UP_POS                         -950   //unité: potarland
+	#define LIFT_LEFT_UP_POS                         -1000   //unité: potarland
 	#define LIFT_LEFT_MID_POS                        -425
-	#define LIFT_LEFT_DOWN_POS                       -75
+	#define LIFT_LEFT_DOWN_POS                       -40
 	#define LIFT_LEFT_DCMOTOR_MAX_PWM_WAY0           40
 	#define LIFT_LEFT_DCMOTOR_MAX_PWM_WAY1           40
 	#define LIFT_LEFT_PLIER_AX12_ASSER_TIMEOUT       20     //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
@@ -37,9 +37,9 @@
 	#define LIFT_RIGHT_ASSER_KD                      0
 	#define LIFT_RIGHT_ASSER_TIMEOUT                 3000   //en ms
 	#define LIFT_RIGHT_ASSER_POS_EPSILON             75
-	#define LIFT_RIGHT_UP_POS                        -800   //unité: potarland
+	#define LIFT_RIGHT_UP_POS                        -950   //unité: potarland
 	#define LIFT_RIGHT_MID_POS                       -400
-	#define LIFT_RIGHT_DOWN_POS                      -22
+	#define LIFT_RIGHT_DOWN_POS                      10
 	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY0          40
 	#define LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY1          40
 	#define LIFT_RIGHT_PLIER_AX12_ASSER_TIMEOUT      20    //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)

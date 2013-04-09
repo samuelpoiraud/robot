@@ -70,7 +70,7 @@
 	#define TINY_ODOMETRY_COEF_SYM_DEFAULT (0)
 	#define KRUSTY_ODOMETRY_COEF_SYM_DEFAULT (0)
 
-	#define TINY_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010B19//0XA054	//(CHOMP : 43632)	Théorique : 41335
+	#define TINY_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010B81//0XA054	//(CHOMP : 43632)	Théorique : 41335
 	#define KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000C5A2
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
 	// COEF_ODOMETRIE_ROTATION = 1024*4096*16*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
@@ -89,8 +89,8 @@
 	//Amusez vous !
 
 	//COEF_ODOMETRIE_CENTRIFUGE permet de régler la variation d'odométrie en courbe
-	#define TINY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (-8)
-	#define KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (-8)
+	#define TINY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
+	#define KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
 	
 	//à regler avec éléments mécaniques de blocages extrèmement parallèles à l'axe des codeurs !
 	#define TINY_CALIBRATION_BACKWARD_BORDER_DISTANCE 	74 		//distance entre le 'centre' du robot et l'arrière en calage
@@ -106,23 +106,23 @@
 		// RED
 		#define TINY_RED_START_X  		16384000 			//250mm
 		#define TINY_RED_START_Y  		4718592				//72mm
-		#define TINY_RED_START_TETA 	(-6588416)			//-PI/2 //(-3294199)
+		#define TINY_RED_START_TETA 	(6588416)			//-PI/2 //(-3294199)
 		
 		// BLUE
 		#define TINY_BLUE_START_X 		16384000 			//250mm
 		#define TINY_BLUE_START_Y 		(196608000-4718592)	//(3000-72)mm
-		#define TINY_BLUE_START_TETA 	6588416				// PI/2 //3294199
+		#define TINY_BLUE_START_TETA 	(-6588416)				//-PI/2 //3294199
 	
 	//KRUSTY
 		// RED
 		#define KRUSTY_RED_START_X  	39321600 			//600mm
 		#define KRUSTY_RED_START_Y  	7864200 			//(120mm)//symétrique
-		#define KRUSTY_RED_START_TETA 	6588416				//-PI/2
+		#define KRUSTY_RED_START_TETA 	6588416				//PI/2
 		
 		// BLUE
 		#define KRUSTY_BLUE_START_X 	39321600 			//600mm
 		#define KRUSTY_BLUE_START_Y 	(196608000-7864200) //2000-120mm
-		#define KRUSTY_BLUE_START_TETA 	(-6588416)			// PI/2
+		#define KRUSTY_BLUE_START_TETA 	(-6588416)			//-PI/2
 
 
 /////BUFFER////////////////////////////////////////////						
@@ -141,10 +141,10 @@
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
-	#define TINY_KD_ROTATION 	(0x400) //0x800
+	#define TINY_KD_ROTATION 	(0x200) //0x800
 	#define KRUSTY_KD_ROTATION 	(0x800) //0x800
 	
-	#define TINY_KP_ROTATION 	(0x40) //0x80
+	#define TINY_KP_ROTATION 	(0x80) //0x80
 	#define KRUSTY_KP_ROTATION 	(0xA0) //0x80
 	
 	//Ordre de grandeur :

@@ -21,7 +21,7 @@
 /** Coefs pour la descente de l'assiette afin d'amortir le mouvement et ne pas trop taper le sol */
 	#define PLATE_ASSER_AMORTIZED_KP             400
 	#define PLATE_ASSER_AMORTIZED_KI             0
-	#define PLATE_ASSER_AMORTIZED_KD             3000 //TODO: ajuster
+	#define PLATE_ASSER_AMORTIZED_KD             20000 //TODO: ajuster
 /** Si le moteur n'atteint pas la position demandée avant ce temps, on considèer qu'il y a un problème. Temps en ms */
 	#define PLATE_ASSER_TIMEOUT                  0   //en ms
 /** Lorsque le moteur atteint sa position avec +/- PLATE_ASSER_POS_EPSILON d'unité potar d'écart max, on considère qu'il a atteint sa position. Angle en unité potar. */

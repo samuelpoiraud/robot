@@ -104,7 +104,8 @@ void STRAT_TINY_gifts_and_cake(void)
             }
 		break;
 		case TURN_IF_NO_CALIBRATION:
-			sub_action = goto_angle(PI4096/2, FAST);			switch(sub_action)
+			sub_action = goto_angle(PI4096/2, FAST);
+			switch(sub_action)
             {
 				case END_OK:
 				case END_WITH_TIMEOUT:	//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
@@ -161,7 +162,7 @@ void STRAT_TINY_gifts_and_cake(void)
             }
 		break;
 		case FULL_COMING_BACK:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{550,global.env.pos.y},FAST},{{550,COLOR_Y(900)},FAST}},2,ANY_WAY,NO_DODGE_AND_WAIT);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{550,global.env.pos.y},FAST},{{550,COLOR_Y(900)},FAST}},2,FORWARD,NO_DODGE_AND_WAIT);
 			switch(sub_action)
             {
 				case END_OK:
