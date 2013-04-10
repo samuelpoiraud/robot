@@ -210,6 +210,7 @@ void ACT_ball_inflater_inflate(Uint8 duration_sec)
 	msg.sid = ACT_BALLINFLATER;
 	msg.data[0] = ACT_BALLINFLATER_START;
 	msg.data[1] = duration_sec;	//[sec]
+	msg.size = 2;
 	CAN_send(&msg);
 }	
 
@@ -218,6 +219,7 @@ void ACT_ball_inflater_stop(void)
 	CAN_msg_t msg;
 	msg.sid = ACT_BALLINFLATER;
 	msg.data[0] = ACT_BALLINFLATER_STOP;
+	msg.size = 1;
 	CAN_send(&msg);
 }	
 /*

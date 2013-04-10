@@ -229,6 +229,7 @@ static void PLATE_rotation_command_run(queue_id_t queueId) {
 	} else if(asserState == DCM_IDLE) {
 		result =    ACT_RESULT_DONE;
 		errorCode = ACT_RESULT_ERROR_OK;
+		//DCM_setCoefs(PLATE_DCMOTOR_ID, PLATE_ASSER_KP, PLATE_ASSER_KI, PLATE_ASSER_KD); // pour eviter que l'asservissement fasse des micro oscillation a cause de Kd //TODO: gérer ça en DCMotor
 	} else if(asserState == DCM_TIMEOUT) {
 		result =    ACT_RESULT_FAILED;
 		errorCode = ACT_RESULT_ERROR_TIMEOUT;
