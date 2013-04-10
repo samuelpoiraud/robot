@@ -57,7 +57,7 @@
 				#ifdef USE_ASSER_MULTI_POINT
 					ASSER_push_goto_multi_point((*point).x,(*point).y, speed, way, curve,END_OF_BUFFER,FALSE);
 				#else
-					ASSER_push_goto((*point).x, (*point).y, speed, way, curve, FALSE);
+					ASSER_push_goto((*point).x, (*point).y, speed, way, curve,END_AT_LAST_POINT, FALSE);
 				#endif
 				minimal.destination.cost -= minimal.destination.cost - (*point).cost;
 				current = (*point).parent;	

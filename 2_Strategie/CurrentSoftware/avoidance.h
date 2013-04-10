@@ -152,7 +152,7 @@
 	 * post : la pile ASSER est vidée.
 	 * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT, NOT_HANDLED
 	 */
-	error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way);
+	error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition);
 
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.

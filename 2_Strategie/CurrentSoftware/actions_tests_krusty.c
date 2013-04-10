@@ -45,16 +45,16 @@ void TEST_STRAT_K_homologation(void)
 void TEST_STRAT_avoidance(void){
 	static enum{
 		SORTIR,
-				DEPLACEMENT1,
-				DEPLACEMENT2,
-				DONE,
+		DEPLACEMENT1,
+		DEPLACEMENT2,
+		DONE,
 	}state = SORTIR;
 
 	static error_e sub_action;
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD,END_AT_BREAK);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -139,7 +139,7 @@ void TEST_STRAT_kdo(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD,END_AT_BREAK);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -254,7 +254,7 @@ void TEST_STRAT_assiettes(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD,END_AT_BREAK);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -311,7 +311,7 @@ void TEST_STRAT_assiettes_lanceur(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD,END_AT_BREAK);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -494,7 +494,7 @@ void TEST_STRAT_verres(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(1000,COLOR_Y(350),FAST,FORWARD);
+			sub_action = goto_pos(1000,COLOR_Y(350),FAST,FORWARD,END_AT_BREAK);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
