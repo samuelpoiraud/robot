@@ -1093,39 +1093,81 @@ error_e K_verres(void){
 
 error_e K_push_half_row_glasses(void){
 	static enum{
+		ASK_WARNER = 0,
 		PUSH_ROW,
+		BACK_ROW,
 		DONE
-	}state = PUSH_ROW;
+	}state = ASK_WARNER;
+
+	enum action_verre{
+		WAIT_EVENT = 0,
+		ACT_UP,
+		WAIT_ACT_UP,
+		WAIT_NEXT_EVENT,
+		ACT_DOWN,
+		WAIT_ACT_DOWN,
+		ACT_UP_BIS,
+		ACT_DONE
+	};
+	static enum action_verre lift_left = WAIT_EVENT;
+	static enum action_verre lift_right = WAIT_EVENT;
 
 	static error_e sub_action;
+	static error_e act_left;
+	static error_e act_right;
+	static bool_e captor_ok;
+
+	if(global.env.asser.reach_y){
+		captor_ok = TRUE;
+	}
+
 
 	switch(state){
+		case ASK_WARNER:
+			ASSER_WARNER_arm_y(COLOR_Y(690));
+			state = PUSH_ROW;
+			break;
+
 		case PUSH_ROW:
 			sub_action = goto_pos_with_scan_foe(
-					(displacement_t[]){{{1110, COLOR_Y(2150)},FAST},
-					{{1010, COLOR_Y(1855)},FAST}}
-					//{{550, COLOR_Y(2400)},FAST},
-					,2,FORWARD,NO_AVOIDANCE);
+					(displacement_t[]){{{975, COLOR_Y(500)},FAST},
+					{{1000, COLOR_Y(790)},FAST},
+					{{1070, COLOR_Y(1070)},FAST},
+					{{1112, COLOR_Y(1310)},FAST},
+					{{1040, COLOR_Y(1510)},FAST}},
+					5,FORWARD,NO_AVOIDANCE);
+
 			switch(sub_action){
 				case IN_PROGRESS:
-				{
-					static int left=1;
-					static int right=1;
-					if(left && PORTBbits.RB5){
-						left=0;
-						debug_printf("Detected left verre");
-						ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
-						ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
-
-					}
-					if(right && !PORTBbits.RB3){
-						right=0;
-						debug_printf("Detected right verre");
-						ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierClose);
-						ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);
-					}
 					break;
-				}
+				case END_OK:
+					state = BACK_ROW;
+					break;
+				case NOT_HANDLED:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case BACK_ROW:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{882, COLOR_Y(1370)},FAST},
+					{{782, COLOR_Y(1145)},FAST},
+					{{760, COLOR_Y(990)},SLOW}},
+					3,FORWARD,NO_AVOIDANCE);
+
+					switch(sub_action){
+				case IN_PROGRESS:
+					break;
 				case END_OK:
 					state = DONE;
 					break;
@@ -1140,7 +1182,7 @@ error_e K_push_half_row_glasses(void){
 				default:
 					state = PUSH_ROW;
 					return NOT_HANDLED;
-
+					break;
 			}
 			break;
 
@@ -1148,6 +1190,391 @@ error_e K_push_half_row_glasses(void){
 			return END_OK;
 			break;
 	}
+
+	//Ascenceur gauche
+	switch(lift_left){
+		case WAIT_EVENT:
+			if(captor_ok)
+			{
+				if(PORTBbits.RB5 && state == PUSH_ROW){
+					lift_left = ACT_UP;
+				}
+			}
+			break;
+
+		case ACT_UP:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
+			lift_left = WAIT_ACT_UP;
+			break;
+
+		case WAIT_ACT_UP:
+			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
+			switch(act_left){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_left = WAIT_NEXT_EVENT;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_left = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_left = WAIT_EVENT;
+					break;
+				default:
+					break;
+			}
+
+		case WAIT_NEXT_EVENT:
+			if(PORTBbits.RB5 && state == BACK_ROW){
+				lift_left = ACT_DOWN;
+			}
+			break;
+
+		case ACT_DOWN:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PLIER_OPEN);
+			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateDown);
+			lift_left = WAIT_ACT_DOWN;
+			break;
+
+		case WAIT_ACT_DOWN:
+			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
+			switch(act_left){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_left = ACT_UP_BIS;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_left = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_left = ACT_DOWN;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+			break;
+
+		case ACT_UP_BIS:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
+			lift_left = ACT_DONE;
+			break;
+			
+		case ACT_DONE:
+			break;
+	}
+
+	//Ascenceur droite
+	switch(lift_right){
+		case WAIT_EVENT:
+			if(captor_ok)
+			{
+				if(!PORTBbits.RB3 && state == PUSH_ROW){
+					lift_right = ACT_UP;
+				}
+			}
+			break;
+
+		case ACT_UP:
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
+			ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateUp);
+			lift_right = WAIT_ACT_UP;
+			break;
+
+		case WAIT_ACT_UP:
+			act_right = ACT_get_last_action_result(ACT_QUEUE_LiftRight);
+			switch(act_right){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_right = WAIT_NEXT_EVENT;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_right = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_right = WAIT_EVENT;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+
+		case WAIT_NEXT_EVENT:
+			if(!PORTBbits.RB3 && state == BACK_ROW){
+				lift_right = ACT_DOWN;
+			}
+			break;
+
+		case ACT_DOWN:
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PLIER_OPEN);
+			ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateDown);
+			lift_right = WAIT_ACT_DOWN;
+			break;
+
+		case WAIT_ACT_DOWN:
+			act_right = ACT_get_last_action_result(ACT_QUEUE_LiftRight);
+			switch(act_right){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_right = ACT_UP_BIS;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_right = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_right = ACT_DOWN;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+			break;
+
+		case ACT_UP_BIS:
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
+			ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateUp);
+			lift_right = ACT_DONE;
+			break;
+
+		case ACT_DONE:
+			break;
+	}
+
+
+	return IN_PROGRESS;
+}
+
+
+error_e K_push_back_row_glasses(void){
+	static enum{
+		PUSH_ROW = 0,
+		BACK_ROW,
+		LUCKY_LUKE,
+		DONE_AND_WAIT,
+		DONE
+	}state = PUSH_ROW;
+
+	enum action_verre{
+		WAIT_EVENT = 0,
+		ACT_DOWN,
+		WAIT_ACT_DOWN,
+		ACT_GRAB_ROW,
+		ACT_OPEN,
+		ACT_DONE
+	};
+
+	static enum action_verre lift_left = WAIT_EVENT;
+	static enum action_verre lift_right = WAIT_EVENT;
+	static error_e act_left;
+	static error_e act_right;
+
+	static error_e sub_action;
+
+	switch(state){
+		case PUSH_ROW:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{750, COLOR_Y(1280)},FAST}},
+					1,BACKWARD,NO_AVOIDANCE);
+
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = BACK_ROW;
+					break;
+				case NOT_HANDLED:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case BACK_ROW:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{615, COLOR_Y(1170)},FAST},
+					{{505, COLOR_Y(910)},FAST}},
+					2,FORWARD,NO_AVOIDANCE);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = LUCKY_LUKE;
+					break;
+				case NOT_HANDLED:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case LUCKY_LUKE:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{740, COLOR_Y(555)},FAST},
+					{{955, COLOR_Y(323)},FAST}},
+					2,FORWARD,NO_AVOIDANCE);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = DONE_AND_WAIT;
+					break;
+				case NOT_HANDLED:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case DONE_AND_WAIT:
+			if(lift_left == ACT_DONE && lift_right == ACT_DONE)
+				state = DONE;
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+
+		default:
+			break;
+	}
+
+
+
+	switch(lift_left){
+		case WAIT_EVENT:
+			if(PORTBbits.RB5 && state == BACK_ROW){
+				lift_left = ACT_DOWN;
+			}
+			break;
+
+		case ACT_DOWN:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PLIER_OPEN);
+			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateDown);
+			lift_left = WAIT_ACT_DOWN;
+			
+		case WAIT_ACT_DOWN:
+			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
+			switch(act_left){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_left = ACT_GRAB_ROW;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_left = ACT_GRAB_ROW;
+					break;
+				case NOT_HANDLED:
+					lift_left = ACT_GRAB_ROW;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+			break;
+
+
+		case ACT_GRAB_ROW:
+				//ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+				lift_left = ACT_OPEN;
+			break;
+
+		case ACT_OPEN:
+			if(state == DONE_AND_WAIT){
+				ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierOpen);
+				lift_left = ACT_DONE;
+			}
+
+		case ACT_DONE:
+			break;
+
+		default:
+			break;
+	}
+
+
+
+
+	switch(lift_right){
+		case WAIT_EVENT:
+			if(!PORTBbits.RB3 && state == BACK_ROW){
+				lift_right = ACT_DOWN;
+			}
+			break;
+
+		case ACT_DOWN:
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PLIER_OPEN);
+			ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateDown);
+			lift_right = WAIT_ACT_DOWN;
+
+		case WAIT_ACT_DOWN:
+			act_right = ACT_get_last_action_result(ACT_QUEUE_LiftRight);
+			switch(act_right){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_right = ACT_GRAB_ROW;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_right = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_right = ACT_DOWN;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+			break;
+
+
+		case ACT_GRAB_ROW:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
+			lift_right = ACT_OPEN;
+			break;
+
+		case ACT_OPEN:
+			if(state == DONE_AND_WAIT){
+				ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierOpen);
+				lift_right = ACT_DONE;
+			}
+		case ACT_DONE:
+			break;
+
+		default:
+			break;
+	}
+
 	return IN_PROGRESS;
 }
 

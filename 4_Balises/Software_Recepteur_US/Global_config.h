@@ -24,10 +24,10 @@
 	//Envoi textuel des msg can sur l'UART1 (compréhensible par un humain normal)
 	//#define VERBOSE_CAN_OVER_UART1
 
-	#define MY_BEACON_ID 	BEACON_ID_MOTHER	
+	//#define MY_BEACON_ID 	BEACON_ID_MOTHER
 	//#define MY_BEACON_ID 	BEACON_ID_CORNER	
 	//#define MY_BEACON_ID 	BEACON_ID_MIDLE  	
-	//#define MY_BEACON_ID 	BEACON_ID_ROBOT_1 	
+	#define MY_BEACON_ID 	BEACON_ID_ROBOT_1 	
 	//#define MY_BEACON_ID 	BEACON_ID_ROBOT_2 	
 	
 	/* Pour certaines config particulieres, il faut definir qui on est
