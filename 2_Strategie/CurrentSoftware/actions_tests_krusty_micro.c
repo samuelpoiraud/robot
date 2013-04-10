@@ -2133,6 +2133,365 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
 
          case POS_MOVE1:
 
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=POS_MOVE3;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=POS_MOVE3;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+        case POS_MOVE2:
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,BACKWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_DOWN;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_DOWN;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        case GRABBER_DOWN:
+
+            ACT_plate_rotate(ACT_PLATE_RotateDown);
+            state =GRABBER_DOWN_ATT;
+            break;
+         case GRABBER_DOWN_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = GRABBER_OPEN;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    //state = GRABBER_TIDY_2;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     //state = GRABBER_TIDY_2;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+
+
+        case GRABBER_OPEN:
+
+            ACT_plate_plier(ACT_PLATE_PlierOpen);
+            state =GRABBER_OPEN_ATT;
+            break;
+         case GRABBER_OPEN_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = PUSH;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = PUSH;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = PUSH;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+
+
+
+
+
+        case PUSH:
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
+            //sub_action= TEST_STRAT_in_da_wall();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_UP;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_UP;
+                    break;
+                case NOT_HANDLED:
+                    state=GRABBER_UP;
+                    break;
+
+                case IN_PROGRESS:
+
+                    if(global.env.pos.y<580){
+                        static Uint8 crush=0;
+                        if(crush==0){
+                           ACT_plate_plier(ACT_PLATE_PlierClose);
+                           crush=1;
+                        }
+
+                     }
+                     break;
+
+                default:
+                     break;
+                    }
+                  break;
+
+        case GRABBER_UP:
+
+            ACT_plate_rotate(ACT_PLATE_RotateUp);
+            state =GRABBER_UP_ATT;
+            break;
+         case GRABBER_UP_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = BACK;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = BACK;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = BACK;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case BACK:
+
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=GRABBER_MID;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=GRABBER_MID;
+                    break;
+                case NOT_HANDLED:
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        case GRABBER_MID:
+
+            ACT_plate_rotate(ACT_PLATE_RotateMid);
+            state =GRABBER_MID_ATT;
+            break;
+         case GRABBER_MID_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = GRABBER_OPEN2;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    //state = GRABBER_TIDY_2;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     //state = GRABBER_TIDY_2;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+
+        case GRABBER_OPEN2:
+
+            ACT_plate_plier(ACT_PLATE_PlierOpen);
+            state =GRABBER_OPEN2_ATT;
+            break;
+         case GRABBER_OPEN2_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = GRABBER_CLOSE2;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = GRABBER_CLOSE2;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = GRABBER_CLOSE2;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+         case GRABBER_CLOSE2:
+
+            ACT_plate_plier(ACT_PLATE_PlierClose);
+            state =GRABBER_CLOSE2_ATT;
+            break;
+         case GRABBER_CLOSE2_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = GRABBER_UP2;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = GRABBER_UP2;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = GRABBER_UP2;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case GRABBER_UP2:
+
+            ACT_plate_rotate(ACT_PLATE_RotateUp);
+            state =GRABBER_UP2_ATT;
+            break;
+         case GRABBER_UP2_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = ANGLE;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state = ANGLE;
+
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                     state = ANGLE;
+
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+
+        case DONE:
+            break;
+        default:
+            break;
+    }
+}
+
+error_e TEST_STRAT_assiettes_evitement_3(void){
+
+    static Uint8 nb_ball=0;
+    static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+				POS_MOVE1 = 0,
+                POS_MOVE2,
+                GRABBER_DOWN ,
+                GRABBER_DOWN_ATT,
+                GRABBER_OPEN,
+                GRABBER_OPEN_ATT,
+				PUSH,
+				GRABBER_UP,
+                GRABBER_UP_ATT,
+                BACK,
+                GRABBER_MID,
+                GRABBER_MID_ATT,
+                GRABBER_OPEN2,
+                GRABBER_OPEN2_ATT,
+                GRABBER_CLOSE2,
+                GRABBER_CLOSE2_ATT,
+                GRABBER_UP2,
+                GRABBER_UP2_ATT,
+                DONE,
+    } state = POS_MOVE;
+
+//    static bool_e timeout = FALSE;
+
+    switch (state) {
+
+         case POS_MOVE1:
+
             sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
             switch(sub_action)
             {
@@ -2459,7 +2818,7 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
     }
 }
 
-error_e TEST_STRAT_assiettes_evitement_3(void){
+error_e TEST_STRAT_assiettes_evitement_4(void){
 
     static Uint8 nb_ball=0;
     static error_e sub_action;
@@ -2818,7 +3177,7 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
     }
 }
 
-error_e TEST_STRAT_assiettes_evitement_4(void){
+error_e TEST_STRAT_assiettes_evitement_5(void){
 
     static Uint8 nb_ball=0;
     static error_e sub_action;
