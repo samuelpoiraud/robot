@@ -31,5 +31,10 @@
 		VERY_SLOW
 	} ASSER_speed_e;
 	
+	typedef enum
+	{
+		END_AT_LAST_POINT = 0,
+		END_AT_BREAK
+	} ASSER_end_condition_e;
 
 #endif /* ndef ASSER_TYPES_H */

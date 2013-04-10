@@ -902,7 +902,7 @@ error_e K_verres(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD);
+			sub_action = goto_pos(580,COLOR_Y(380),FAST,FORWARD,END_AT_BREAK);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;

@@ -84,6 +84,46 @@ void ASSER_goto (stack_id_e stack_id, bool_e init)
 	}
 }
 
+/* Va a la position indiquée, se termine dès le freinage de la propulsion */
+/* Permet d'enchainer manuellement des ordres sans s'arrêter*/
+/* Cette fonction EST TRES SEMBLABLE a ASSER_goto()*/
+void ASSER_goto_until_break (stack_id_e stack_id, bool_e init)
+{
+	CAN_msg_t order;
+
+	if (init)
+	{
+		order.sid = ASSER_GO_POSITION;
+		order.data[CONFIG]=NOW+NO_MULTIPOINT+ABSOLUTE;
+		order.data[XMSB]=HIGHINT(asser_args[STACKS_get_top(stack_id)].x);
+		order.data[XLSB]=LOWINT(asser_args[STACKS_get_top(stack_id)].x);
+		order.data[YMSB]=HIGHINT(asser_args[STACKS_get_top(stack_id)].y);
+		order.data[YLSB]=LOWINT(asser_args[STACKS_get_top(stack_id)].y);
+		order.data[VITESSE]=asser_args[STACKS_get_top(stack_id)].speed;
+		order.data[MARCHE]=asser_args[STACKS_get_top(stack_id)].way;
+		order.data[RAYONCRB]=asser_args[STACKS_get_top(stack_id)].curve;
+		order.size = 8;
+		CAN_send (&order);
+	}
+	else
+	{
+		if (global.env.asser.fini || global.env.asser.freine)
+		{
+			STACKS_pull(ASSER);
+		}
+		else
+		{
+			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(ASSER)) >= (GOTO_TIMEOUT_TIME)))
+			{
+				CAN_send_debug("0000000");
+				asser_fun_printf("\nASSER_timeout : GOTO\n");
+				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);
+			}
+		}
+	}
+}
+
+
 #ifdef USE_ASSER_MULTI_POINT
 void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 {
@@ -139,9 +179,14 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 			STACKS_pull(ASSER);
 		}
 		else if (global.env.asser.freine)
-		{		//La réception d'un message de freinage nous permet de considérer que la propulsion à changé de point.
-			STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1);
-			asser_fun_printf("\nASSER_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(ASSER));
+		{	
+			//La réception d'un message de freinage nous permet de considérer que la propulsion à changé de point.
+			//On dépile alors l'ordre MULTIPOINT SI il ne s'agit pas du dernier point.
+			if(STACKS_get_top(stack_id)-1 != save_stack_bottom)	//S'il ne s'agit pas du dernier point...
+			{
+				STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1);
+				asser_fun_printf("\nASSER_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(ASSER));
+			}
 		}
 		else 
 		{
@@ -451,7 +496,7 @@ void ASSER_stop ()
 }
 
 /* ajoute une instruction goto sur la pile asser */
-void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run)
+void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, ASSER_end_condition_e end_condition ,bool_e run)
 {
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
 
@@ -460,8 +505,14 @@ void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 
 	pos->speed = speed;
 	pos->way = way;
 	pos->curve = curve;
-	STACKS_push (ASSER, &ASSER_goto, run);
+	if(end_condition == END_AT_LAST_POINT)
+		STACKS_push (ASSER, &ASSER_goto, run);
+	else
+		STACKS_push (ASSER, &ASSER_goto_until_break, run);
 }
+
+
+
 
 #ifdef USE_ASSER_MULTI_POINT
 void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, bool_e run)

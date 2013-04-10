@@ -179,8 +179,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 		
 			TINY_hammer_open_all_gift(FALSE);	//Gestion du mouvement du bras...
 			
-			if(		(global.env.color == BLUE && (global.env.pos.y < 1800))
-				||	(global.env.color == RED && (global.env.pos.y > 1200))  )
+			if(COLOR_Y(global.env.pos.y) > 1200)
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 		
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},FAST},{{140,COLOR_Y(600)},FAST},{{140,COLOR_Y(2400)},FAST}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
@@ -211,10 +210,31 @@ error_e TINY_open_all_gifts_without_pause(void)
 	
 }
 
+Uint16 wait_hammer(Uint16 progress, Uint16 success, Uint16 fail)
+{
+	Uint16 ret = progress;
+	switch(ACT_get_last_action_result(ACT_QUEUE_Hammer))
+	{
+		case ACT_FUNCTION_Done:
+			ret = success;
+		break;
+		case ACT_FUNCTION_ActDisabled:
+		case ACT_FUNCTION_RetryLater:
+			ret = fail;
+		break;
+		case ACT_FUNCTION_InProgress:
+		break;
+		default:
+		break;
+	}
+	return ret;
+}
+
 #define X_TO_OPEN_GIFT	160
+#define OPEN_ALL_GIFTS_NB_TRY 3
 error_e TINY_open_all_gifts(void)
 {
-	static enum
+	typedef enum
 	{
 		INIT=0,
 		GET_OUT,
@@ -235,35 +255,69 @@ error_e TINY_open_all_gifts(void)
 		OPEN_FOURTH_GIFT,
 		HAMMER_FOURTH_GIFT,
 		WAIT_HAMMER_DOWN_FOURTH_GIFT,
+		HAMMER_FAIL,
+		PROPULSION_OR_AVOIDANCE_FAIL,
+		TIMEOUT_FAIL,
 		ALL_GIFTS_OPENED,
-	}state = INIT;
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
 
 	error_e ret = IN_PROGRESS;
 	error_e sub_action;
 	static avoidance_type_e avoidance = NO_AVOIDANCE;
+	static Uint8 nb_try = 0;
 
-	if(		(global.env.color == BLUE && (global.env.pos.y < 1500))
-				||	(global.env.color == RED && (global.env.pos.y > 1500))  )
-				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
+	if(COLOR_Y(global.env.pos.y) > 1200)
+		avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 
 	switch(state)
 	{
 		case INIT:
-
 			avoidance = NO_AVOIDANCE;
+			nb_try = 0;
+			previous_state = INIT;	//facultatif
 			state = GET_OUT;
 		break;
 		case GET_OUT:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(350)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			sub_action = goto_pos(250,COLOR_Y(350),FAST,(global.env.color==BLUE)?BACKWARD:FORWARD,END_AT_LAST_POINT);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = GOTO_FIRST_GIFT;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
+				case NOT_HANDLED:		//Echec de la mission
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+
+
+		//-------------------------CADEAU n°1--------------------------------------
+
+		case GOTO_FIRST_GIFT:
+			sub_action = goto_pos(X_TO_OPEN_GIFT,COLOR_Y(500),FAST,(global.env.color==BLUE)?BACKWARD:FORWARD,END_AT_LAST_POINT);
 			switch(sub_action)
             {
 				case END_OK:
 					state = ANGLE_FIRST_GIFT;
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
 				case NOT_HANDLED:		//Echec de la mission
-					ret = sub_action;
-					state = INIT;
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
 				case IN_PROGRESS:
 				break;
@@ -277,30 +331,15 @@ error_e TINY_open_all_gifts(void)
 			switch(sub_action)
             {
 				case END_OK:
-					state = GOTO_FIRST_GIFT;
-				break;
-				case END_WITH_TIMEOUT:	//Echec de la mission
-				case NOT_HANDLED:		//Echec de la mission
-					ret = sub_action;
-					state = INIT;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-            }
-		break;
-		case GOTO_FIRST_GIFT:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(500)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
-			switch(sub_action)
-            {
-				case END_OK:
 					state = OPEN_FIRST_GIFT;
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
 				case NOT_HANDLED:		//Echec de la mission
-					ret = sub_action;
-					state = INIT;
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
 				case IN_PROGRESS:
 				break;
@@ -313,31 +352,34 @@ error_e TINY_open_all_gifts(void)
 			state = HAMMER_FIRST_GIFT;
 		break;
 		case HAMMER_FIRST_GIFT:
-			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
-			{
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	HAMMER_FIRST_GIFT,		WAIT_HAMMER_DOWN_FIRST_GIFT,	HAMMER_FAIL);
+			if(state == WAIT_HAMMER_DOWN_FIRST_GIFT)
 				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
-				state = WAIT_HAMMER_DOWN_FIRST_GIFT;
-			}
 		break;
 		case WAIT_HAMMER_DOWN_FIRST_GIFT:
-			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
-			{
-				state = GOTO_SECOND_GIFT;
-			}
+			//						->In progress					->Success			->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_FIRST_GIFT,	GOTO_SECOND_GIFT,	HAMMER_FAIL);
 		break;
 
 
+
+		//-------------------------CADEAU n°2--------------------------------------
+
 		case GOTO_SECOND_GIFT:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(1100)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			sub_action = goto_pos(X_TO_OPEN_GIFT,COLOR_Y(1100),FAST,(global.env.color==BLUE)?BACKWARD:FORWARD,END_AT_LAST_POINT);
 			switch(sub_action)
             {
 				case END_OK:
 					state = OPEN_SECOND_GIFT;
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
 				case NOT_HANDLED:		//Echec de la mission
-					ret = sub_action;
-					state = INIT;
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
 				case IN_PROGRESS:
 				break;
@@ -350,20 +392,21 @@ error_e TINY_open_all_gifts(void)
 			state = HAMMER_SECOND_GIFT;
 		break;
 		case HAMMER_SECOND_GIFT:
-			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
-			{
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	HAMMER_SECOND_GIFT,		WAIT_HAMMER_DOWN_SECOND_GIFT,	HAMMER_FAIL);
+			if(state == WAIT_HAMMER_DOWN_SECOND_GIFT)
 				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
-				state = WAIT_HAMMER_DOWN_SECOND_GIFT;
-			}
 		break;
 		case WAIT_HAMMER_DOWN_SECOND_GIFT:
-			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
-			{
-				state = GOTO_THIRD_GIFT;
-			}
+			//						->In progress					->Success			->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_SECOND_GIFT,	GOTO_THIRD_GIFT,	HAMMER_FAIL);
 		break;
 
+
+		//-------------------------CADEAU n°3--------------------------------------
+
 		case GOTO_THIRD_GIFT:
+		//Cette action doit se terminer lorsque le robot arrive, et pas lorsqu'il freine.
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(1700)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
             {
@@ -371,9 +414,12 @@ error_e TINY_open_all_gifts(void)
 					state = OPEN_THIRD_GIFT;
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
 				case NOT_HANDLED:		//Echec de la mission
-					ret = sub_action;
-					state = INIT;
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
 				case IN_PROGRESS:
 				break;
@@ -386,18 +432,17 @@ error_e TINY_open_all_gifts(void)
 			state = HAMMER_THIRD_GIFT;
 		break;
 		case HAMMER_THIRD_GIFT:
-			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
-			{
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	HAMMER_THIRD_GIFT,		WAIT_HAMMER_DOWN_THIRD_GIFT,	HAMMER_FAIL);
+			if(state == WAIT_HAMMER_DOWN_THIRD_GIFT)
 				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
-				state = WAIT_HAMMER_DOWN_THIRD_GIFT;
-			}
 		break;
 		case WAIT_HAMMER_DOWN_THIRD_GIFT:
-			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
-			{
-				state = GOTO_FOURTH_GIFT;
-			}
+			//						->In progress					->Success			->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_THIRD_GIFT,	GOTO_FOURTH_GIFT,	HAMMER_FAIL);
 		break;
+
+		//-------------------------CADEAU n°4--------------------------------------
 
 		case GOTO_FOURTH_GIFT:	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(2300)},FAST}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
@@ -406,9 +451,12 @@ error_e TINY_open_all_gifts(void)
 					state = OPEN_FOURTH_GIFT;
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
 				case NOT_HANDLED:		//Echec de la mission
-					ret = sub_action;
-					state = INIT;
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
 				case IN_PROGRESS:
 				break;
@@ -421,28 +469,45 @@ error_e TINY_open_all_gifts(void)
 			state = HAMMER_FOURTH_GIFT;
 		break;
 		case HAMMER_FOURTH_GIFT:
-			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
-			{
-				ACT_hammer_goto(HAMMER_POSITION_HOME); 	//BAISSER BRAS
-				state = WAIT_HAMMER_DOWN_FOURTH_GIFT;
-			}
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	HAMMER_FOURTH_GIFT,		WAIT_HAMMER_DOWN_FOURTH_GIFT,	HAMMER_FAIL);
+			if(state == WAIT_HAMMER_DOWN_FOURTH_GIFT)
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
 		break;
 		case WAIT_HAMMER_DOWN_FOURTH_GIFT:
-			if(ACT_get_last_action_result(ACT_QUEUE_Hammer)== ACT_FUNCTION_Done)
-			{
-				state = ALL_GIFTS_OPENED;
-			}
+			//						->In progress					->Success			->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_FOURTH_GIFT,	ALL_GIFTS_OPENED,	HAMMER_FAIL);
 		break;
+
+
+
 		case ALL_GIFTS_OPENED:
 			ret = END_OK;
+		break;
+		case HAMMER_FAIL:
+			ret = NOT_HANDLED;
+		break;
+		case TIMEOUT_FAIL:					//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
+			nb_try++;
+			if(nb_try < OPEN_ALL_GIFTS_NB_TRY)
+				state = previous_state;	//Timeout ?? -> On y retourne !
+			else
+				ret = END_WITH_TIMEOUT;
+		break;
+		case PROPULSION_OR_AVOIDANCE_FAIL:	//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
+			nb_try++;
+			if(nb_try < OPEN_ALL_GIFTS_NB_TRY)
+				state = previous_state;	//Failed ?? -> On y retourne !
+			else
+				ret = NOT_HANDLED;
 		break;
 		default:
 		break;
 
 	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
 	return ret;
-
-
 }
 
 	

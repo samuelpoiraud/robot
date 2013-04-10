@@ -208,7 +208,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 				ASSER_push_goto(
 					Ax*a*a*a + Bx*3*a*a*b + Cx*3*a*b*b + Dx*b*b*b, // x
 					Ay*a*a*a + By*3*a*a*b + Cy*3*a*b*b + Dy*b*b*b, // y
-					SLOW, ANY_WAY, 0,TRUE
+					SLOW, ANY_WAY, 0,END_AT_LAST_POINT,TRUE
 				);
 
 				a -= 1.0 / precision;
@@ -678,7 +678,7 @@ error_e goto_angle (Sint16 angle, ASSER_speed_e speed){
 
 
 /* Equivalent d'un ASSER_push_goto avec la gestion de la pile */
-error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way)
+error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition)
 {
 	static enum
 	{
@@ -693,7 +693,7 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way)
 	{
 		case PUSH_MOVE:
 			timeout = FALSE;
-			ASSER_push_goto(x,y,speed,way, 0, TRUE);
+			ASSER_push_goto(x,y,speed,way, 0, end_condition,TRUE);
 
 			state = WAIT_END_OF_MOVE;
 			break;
@@ -749,7 +749,7 @@ error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way)
 			//debug_printf("relative_move::current_pos x=%d y=%d\n", global.env.pos.x, global.env.pos.y);
 			//debug_printf("relative_move::x=%f y=%f\n", x, y);
 			if (x >= 0 && y >= 0) {	
-				ASSER_push_goto((Sint16)x, (Sint16)y, speed, way, 0, TRUE);
+				ASSER_push_goto((Sint16)x, (Sint16)y, speed, way, 0,END_AT_LAST_POINT, TRUE);
 				state = GOING;
 				return IN_PROGRESS;
 			}
@@ -1312,7 +1312,7 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, ASSER_CURVES, END_OF_BUFFER, FALSE);
 				#else
 					ASSER_push_goto
-						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, 0, FALSE);
+						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, 0,END_AT_LAST_POINT, FALSE);
 				#endif
 			}
 			#ifdef USE_ASSER_MULTI_POINT
@@ -1320,7 +1320,7 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, ASSER_CURVES, END_OF_BUFFER, TRUE);
 			#else
 				ASSER_push_goto
-					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0, TRUE);
+					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0,END_AT_LAST_POINT, TRUE);
 			#endif
                         debug_printf("goto_pos_with_scan_foe : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
@@ -1513,9 +1513,9 @@ static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES
 		ASSER_push_goto_multi_point(second_point.x, second_point.y, FAST, move_way, ASSER_CURVES, END_OF_BUFFER, FALSE);
 		ASSER_push_goto_multi_point(first_point.x, first_point.y, FAST, move_way, ASSER_CURVES, NOW, FALSE);
 	#else
-		ASSER_push_goto(third_point.x, third_point.y, FAST, move_way, ASSER_CURVES, FALSE);
-		ASSER_push_goto(second_point.x, second_point.y, FAST, move_way, ASSER_CURVES, FALSE);
-		ASSER_push_goto(first_point.x, first_point.y, FAST, move_way, ASSER_CURVES, FALSE);
+		ASSER_push_goto(third_point.x, third_point.y, FAST, move_way, ASSER_CURVES, END_AT_LAST_POINT,FALSE);
+		ASSER_push_goto(second_point.x, second_point.y, FAST, move_way, ASSER_CURVES,END_AT_LAST_POINT, FALSE);
+		ASSER_push_goto(first_point.x, first_point.y, FAST, move_way, ASSER_CURVES,END_AT_LAST_POINT, FALSE);
 	#endif
 
 	// on a correctement chargé la pile, et lancé l'action !
@@ -1910,7 +1910,7 @@ static error_e AVOIDANCE_watch_asser_stack ()
 	switch (state)
 	{
 		case INIT:
-			ASSER_push_goto(x, y,speed,way,curve,run);
+			ASSER_push_goto(x, y,speed,way,curve,END_AT_LAST_POINT,run);
 			state = GO;
 			break;
 		case GO:

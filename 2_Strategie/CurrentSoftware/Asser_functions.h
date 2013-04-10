@@ -57,7 +57,7 @@
 	void ASSER_stop ();
 	
 	/* ajoute une instruction goto sur la pile asser */
-	void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run);
+	void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, ASSER_end_condition_e end_condition ,bool_e run);
 	
 	/* ajoute une instruction goangle sur la pile asser */
 	void ASSER_push_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);

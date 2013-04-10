@@ -316,7 +316,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 		#ifdef USE_ASSER_MULTI_POINT
 			ASSER_push_goto_multi_point(nodes[n].x, nodes[n].y, speed, way, 0, END_OF_BUFFER, FALSE);
 		#else
-			ASSER_push_goto(nodes[n].x, nodes[n].y, speed, way, 0, FALSE);
+			ASSER_push_goto(nodes[n].x, nodes[n].y, speed, way, 0,END_AT_LAST_POINT, FALSE);
 		#endif
 		nodes[to].cost -= PATHFIND_STEP_COST;
 	}
@@ -329,7 +329,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 			#ifdef USE_ASSER_MULTI_POINT
 				ASSER_push_goto_multi_point(nodes[from].x, nodes[from].y, speed, way, 1, END_OF_BUFFER, FALSE);
 			#else
-				ASSER_push_goto(nodes[from].x, nodes[from].y, speed, way, 1, FALSE);
+				ASSER_push_goto(nodes[from].x, nodes[from].y, speed, way, 1, END_AT_LAST_POINT, FALSE);
 			#endif
 		// on ne renvoie que le coût supplémentaire, on enlève donc le coût normal
 		// pour passer d'un noeud à l'autre
