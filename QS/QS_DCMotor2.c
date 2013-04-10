@@ -333,9 +333,15 @@ void _ISR DCM_TIMER_IT()
 								+ ((__builtin_mulss(config->Ki, this->integrator) * DCM_TIMER_PERIOD) >> 20) // / 1048576)
 								+ (__builtin_divsd(__builtin_mulss(config->Kd, differential), (DCM_TIMER_PERIOD*1024)));
 				 */
-				computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
-							+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576)
-							+ (((Sint32)(config->Kd) * differential)/DCM_TIMER_PERIOD) / 1024;
+				//TODO: clean ça, pas de Kd quand on est a la bonne position
+//				if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon) {
+//					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+//								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576);
+//				} else {
+					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576)
+								+ (((Sint32)(config->Kd) * differential)/DCM_TIMER_PERIOD) / 1024;
+//				}
 
 				this->previous_error = error;
 								
