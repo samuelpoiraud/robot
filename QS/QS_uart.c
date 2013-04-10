@@ -99,11 +99,6 @@ void UART_init(void)
 
 
 #ifdef USE_UART1
-	void UART1_putc(Uint8 mes)
-	{
-		while(BusyUART1());
-		putcUART1(mes);
-	}
 
 	#ifdef USE_UART1RXINTERRUPT
 
@@ -142,6 +137,51 @@ void UART_init(void)
 				return 0;
 		}
 	#endif /* def USE_UART1RXINTERRUPT */
+	
+	
+	#ifdef USE_UART1TXINTERRUPT
+		#warning "USE_UART1TXINTERRUPT défini... Ce mode n'est pas testé... et même qu'en plus il est même pas implémenté !"
+		#warning "USE_UART1TXINTERRUPT : ce mode a un impact qui doit être assumé par l'utilisateur. (risque de Buffer Overflow)"
+		
+		//fonction dont on ne choisi par le nom, appelée par fprintf(_H_USER...) pour chaque caractère à envoyer.
+		void _user_putc(char c)
+		{
+			UART1_putc(c);	//On bufferise...
+		}
+			
+		void _ISR _U1RXInterrupt(void)
+		{
+			//debufferiser. 
+			
+			//Si buffer vide -> désactiver IT TX.
+		}	
+		
+		//Fonction non blocante, mais risque de buffer overflow.
+		void UART1_putc(Uint8 mes)
+		{
+			
+				//mise en buffer + activation IT U1TX.
+		}
+	
+
+	#else	/* def USE_UART1TXINTERRUPT */
+	
+		//Fonction blocante
+		void UART1_putc(Uint8 mes)
+		{
+			while(BusyUART1());
+			putcUART1(mes);
+		}
+
+	
+	
+	#endif /* def USE_UART1TXINTERRUPT */
+		
+	
+		
+	
+	
+	
 #endif /* def USE_UART1 */
 
 #ifdef USE_UART2
