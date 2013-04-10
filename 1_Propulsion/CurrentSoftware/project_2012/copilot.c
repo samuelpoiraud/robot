@@ -557,7 +557,7 @@ arrived_e Decision_robot_arrive_rotation(void)
 	
 	//CONDITION DE CONSIDERATION ROBOT ARRIVE SUR ROTATION = vitesse faible et position proche
 	if (abs(global.real_speed_rotation) < PRECISION_ARRIVE_SPEED_ROTATION/*/diviseur*/ &&
-		CALCULATOR_modulo_angle(abs(global.real_position_rotation - PILOT_get_destination_rotation()) < PRECISION_ARRIVE_POSITION_ROTATION  ))
+		CALCULATOR_modulo_angle(abs((global.real_position_rotation >> 10) - PILOT_get_destination_rotation()) < PRECISION_ARRIVE_POSITION_ROTATION  ))
 		return ARRIVED;
 	else
 		return NOT_ARRIVED;
