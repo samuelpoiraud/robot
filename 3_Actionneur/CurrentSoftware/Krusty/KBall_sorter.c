@@ -67,8 +67,8 @@ static void BALLSORTER_initAX12() {
 		AX12_config_set_error_before_led(BALLSORTER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(BALLSORTER_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD);
 
-		AX12_set_torque_enabled(BALLSORTER_AX12_ID, TRUE);
-		AX12_set_position(BALLSORTER_AX12_ID, BALLSORTER_AX12_EJECT_CHERRY_POS);
+		//AX12_set_torque_enabled(BALLSORTER_AX12_ID, TRUE);
+		//AX12_set_position(BALLSORTER_AX12_ID, BALLSORTER_AX12_EJECT_CHERRY_POS);
 		COMPONENT_log(LOG_LEVEL_Info, "AX12 initialisé\n");
 	}
 }
@@ -173,6 +173,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				return;
 			}
 
+			debug_printf("AX12 moveto %d\n", wantedPosition);
 			AX12_reset_last_error(BALLSORTER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 			cmdOk = AX12_set_position(BALLSORTER_AX12_ID, wantedPosition);
 			if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie

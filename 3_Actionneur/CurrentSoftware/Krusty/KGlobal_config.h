@@ -76,6 +76,7 @@
 /* Servo-Moteurs AX12 */
 	#define USE_AX12_SERVO
 	#define AX12_NUMBER 7
+	#define AX12_INSTRUCTION_BUFFER_SIZE 200
 	//#define AX12_USE_WATCHDOG
 	#define AX12_TIMER_ID 2
 	#define AX12_DIRECTION_PORT LATGbits.LATG8
