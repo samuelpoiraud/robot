@@ -78,7 +78,7 @@ void TEST_STRAT_avoidance(void){
 					{{500, COLOR_Y(2500)},SLOW}},2,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action){
 				case IN_PROGRESS:
-                                    debug_printf("INPROGRESS");
+					debug_printf("INPROGRESS");
 					break;
 				case NOT_HANDLED:
 					state = DONE;
@@ -487,6 +487,7 @@ void TEST_STRAT_verres(void){
 	static enum{
 		SORTIR = 0,
 		GO,
+		NEXT,
 		DONE
 	}state = GO;
 
@@ -509,7 +510,21 @@ void TEST_STRAT_verres(void){
 					break;
 			}
 		case GO:
-			sub_action = K_verres();
+			sub_action = K_push_half_row_glasses();
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case END_OK:
+				default:
+					state = NEXT;
+					break;
+			}
+			break;
+
+		case NEXT:
+			sub_action = K_push_back_row_glasses();
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -521,6 +536,7 @@ void TEST_STRAT_verres(void){
 					break;
 			}
 			break;
+
 		case DONE:
 			break;
 		default:

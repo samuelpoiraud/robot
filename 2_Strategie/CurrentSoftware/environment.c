@@ -101,8 +101,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			if(incoming_msg->data[6] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_x = TRUE;
 
-			if(incoming_msg->data[6] & WARNING_REACH_Y)		//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
+			if(incoming_msg->data[6] & WARNING_REACH_Y){	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_y = TRUE;
+			}
+			
 
 			if(incoming_msg->data[6] & WARNING_REACH_TETA)	//Nous venons d'atteindre une position en Teta pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_teta = TRUE;

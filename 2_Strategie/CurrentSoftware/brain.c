@@ -118,7 +118,7 @@ void any_match(time32_t match_duration)
 					strategy = TEST_Launcher_ball;
 				break;
 				case 0x03:	//STRAT_3_KRUSTY
-					calibration = ASSER_CALIBRATION_SQUARE_1;
+					calibration = ASSER_CALIBRATION_SQUARE_2;
 					strategy = TEST_STRAT_verres;
 				break;
 				case 0x00:	//STRAT_0_KRUSTY (aucun switch)
