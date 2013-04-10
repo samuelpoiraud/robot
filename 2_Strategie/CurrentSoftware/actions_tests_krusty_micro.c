@@ -1172,6 +1172,7 @@ error_e TEST_Launcher_ball_mid(void){
     switch(state){
         case MOVE :
             sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+            debug_printf("launcher ball go_to_pos %d\n",sub_action);
             switch(sub_action)
             {
                 case END_OK:
@@ -1207,14 +1208,13 @@ error_e TEST_Launcher_ball_mid(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state = DONE;
+                    state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
 
                 case NOT_HANDLED:
                     state=MOVE;
                     return NOT_HANDLED;
-                    break;
 
                 case IN_PROGRESS:
                     return IN_PROGRESS;
@@ -1369,6 +1369,7 @@ error_e TEST_Launcher_ball_cadeau(void){
     switch(state){
         case MOVE :
             sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+            debug_printf("launcher ball go_to_pos %d\n",sub_action);
             switch(sub_action)
             {
                 case END_OK:
@@ -1404,12 +1405,12 @@ error_e TEST_Launcher_ball_cadeau(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state = MOVE;
+                    state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
 
                 case NOT_HANDLED:
-                    state=DONE;
+                    state=MOVE;
                     return NOT_HANDLED;
                     
                     break;
@@ -1566,6 +1567,7 @@ error_e TEST_Launcher_ball_gateau(void){
     switch(state){
         case MOVE :
             sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1350,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+            debug_printf("launcher ball go_to_pos %d \n",sub_action);
             switch(sub_action)
             {
                 case END_OK:
@@ -1601,14 +1603,13 @@ error_e TEST_Launcher_ball_gateau(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state = MOVE;
+                    state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
 
                 case NOT_HANDLED:
-                    state=DONE;
+                    state=MOVE;
                     return NOT_HANDLED;
-                    break;
 
                 case IN_PROGRESS:
                     return IN_PROGRESS;

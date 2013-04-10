@@ -445,7 +445,7 @@ void TEST_Launcher_ball(void){
                     state=STOP_ACT;
                     break;
                 case NOT_HANDLED:
-                    state=DONE;
+                    state=LANCEUR_CADEAU;
                     break;
 
                 case IN_PROGRESS:
