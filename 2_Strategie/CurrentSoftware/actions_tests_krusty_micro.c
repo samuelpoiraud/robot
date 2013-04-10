@@ -1200,7 +1200,7 @@ error_e TEST_Launcher_ball_mid(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -3900), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -4400), FAST);
             switch(sub_action)
             {
                 case END_OK:
@@ -1397,7 +1397,7 @@ error_e TEST_Launcher_ball_cadeau(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -8845 : -3615), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -8845 : -4015), FAST);
             switch(sub_action)
             {
                 case END_OK:
@@ -1595,7 +1595,7 @@ error_e TEST_Launcher_ball_gateau(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9880 : -4550), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -9880 : -5050), FAST);
             switch(sub_action)
             {
                 case END_OK:
