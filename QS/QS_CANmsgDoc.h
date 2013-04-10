@@ -266,7 +266,27 @@
 						#define WARNING_ROTATION			(0b00000100)		//Nous venons de nous déplacer sur une grille virtuelle en angle pour laquelle on nous a demandé une surveillance.		
 						#define WARNING_REACH_X				(0b00001000)		//Nous venons d'atteindre une position en X pour laquelle on nous a demandé une surveillance.
 						#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
-						#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.		
+						#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
+		 Status : Uint8 (état actuel de la carte propulsion...)
+			error_byte = ((Uint8)(COPILOT_get_trajectory()) << 5 | (Uint8)(COPILOT_get_way())) << 3 | (Uint8)(error_source);
+		 8 bits  : T T T W W E E E
+			TTT : trajectoire actuelle
+				TRAJECTORY_TRANSLATION		= 0,
+				TRAJECTORY_ROTATION			= 1,
+				TRAJECTORY_STOP				= 2,
+				TRAJECTORY_AUTOMATIC_CURVE	= 3,
+				TRAJECTORY_NONE				= 4
+			 WW : Way, sens actuel
+				ANY_WAY						= 0,
+				BACKWARD					= 1,
+				FORWARD						= 2,
+			 EEE : Erreur
+				NO_ERROR = 0,
+				UNABLE_TO_GO_ERROR,
+				IMMOBILITY_ERROR,
+				ROUNDS_RETURNS_ERROR,
+				UNKNOW_ERROR
+
 	*/
  	#define CARTE_P_ROBOT_FREINE
 	/*

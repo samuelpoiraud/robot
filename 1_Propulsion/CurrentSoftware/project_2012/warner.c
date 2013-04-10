@@ -62,12 +62,15 @@ volatile Sint16 delta_teta_pour_envoi;
 volatile Sint16 count_D_prev;
 volatile Sint16 count_G_prev;
 
+volatile static SUPERVISOR_error_source_e error_source;
+
+
 //Cette fonction DOIT être appelée à l'initialisation. (après l'init de l'odométrie !)
 void WARNER_init()
 {
 	
 	warnings = WARNING_NO;
-	
+	error_source = NO_ERROR;
 
 	
 	//Désactiver tout les avertisseurs...
@@ -89,7 +92,6 @@ volatile static bool_e flag_arrived = FALSE;
 volatile static bool_e flag_brake = FALSE;
 volatile static bool_e flag_error = FALSE;
 volatile static bool_e flag_calibration = FALSE;
-volatile static Uint8 error_byte = 0x00;
 
 //cette fonction sert à avertir, en envoyant des messages CAN de position si nécessaire
 void WARNER_process_main(void)
@@ -97,30 +99,30 @@ void WARNER_process_main(void)
 	if(flag_arrived)
 	{
 		flag_arrived = FALSE;
-		SECRETARY_process_send(CARTE_P_TRAJ_FINIE,(Uint8)(warnings), error_byte);
+		SECRETARY_process_send(CARTE_P_TRAJ_FINIE,(Uint8)(warnings), error_source);
 	}	
 
 	if(flag_calibration)
 	{
 		flag_calibration = FALSE;
-		SECRETARY_process_send(CARTE_P_ROBOT_CALIBRE,0, error_byte);
+		SECRETARY_process_send(CARTE_P_ROBOT_CALIBRE,0, error_source);
 	}
 
 	if(flag_error)
 	{
 		flag_error = FALSE;
-		SECRETARY_process_send(CARTE_P_ASSER_ERREUR,0, error_byte);
+		SECRETARY_process_send(CARTE_P_ASSER_ERREUR,0, error_source);
 	}
 	
 	if(flag_brake)
 	{
 		flag_brake = FALSE;
-		SECRETARY_process_send(CARTE_P_ROBOT_FREINE,0,error_byte);
+		SECRETARY_process_send(CARTE_P_ROBOT_FREINE,0,error_source);
 	}	
 		
 	if(warnings != WARNING_NO)
 	{
-			SECRETARY_process_send(CARTE_P_POSITION_ROBOT,(Uint8)(warnings & 0xFF), error_byte);
+			SECRETARY_process_send(CARTE_P_POSITION_ROBOT,(Uint8)(warnings & 0xFF), error_source);
 			warnings = WARNING_NO; 	//WORK DONE !!!
 	}
 }
@@ -128,9 +130,9 @@ void WARNER_process_main(void)
 /////////////////////////////////////////////////////////////////////////////
 
 
-void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e error_source)
+void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e new_error_source)
 {
-	error_byte = ((Uint8)(COPILOT_get_trajectory()) << 5 | (Uint8)(COPILOT_get_way())) << 3 | (Uint8)(error_source);
+	error_source = new_error_source;
 	switch(new_warnings)
 	{
 		case WARNING_ARRIVED:

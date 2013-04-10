@@ -97,7 +97,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
 			ENV_pos_update(incoming_msg);
-			
+
 			if(incoming_msg->data[6] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_x = TRUE;
 
@@ -187,7 +187,28 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.env.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
 	global.env.pos.cosAngle = cos4096(global.env.pos.angle);
 	global.env.pos.sinAngle = sin4096(global.env.pos.angle);
-
+	
+	global.env.asser.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
+	global.env.asser.current_trajectory = (trajectory_e)((msg->data[7] >> 5) & 0x07);
+	global.env.asser.current_status = (SUPERVISOR_error_source_e)((msg->data[7] >> 3) & 0x07);
+			/*incoming_msg->data[7] : 8 bits  : T T T W W E E E
+			TTT : trajectoire actuelle
+				TRAJECTORY_TRANSLATION		= 0,
+				TRAJECTORY_ROTATION			= 1,
+				TRAJECTORY_STOP				= 2,
+				TRAJECTORY_AUTOMATIC_CURVE	= 3,
+				TRAJECTORY_NONE				= 4
+			 WW : Way, sens actuel
+				ANY_WAY						= 0,
+				BACKWARD					= 1,
+				FORWARD						= 2,
+			 EEE : Erreur
+				SUPERVISOR_INIT				= 0,
+				SUPERVISOR_IDLE				= 1,		//Rien à faire
+				SUPERVISOR_TRAJECTORY		= 2,		//Trajectoire en cours
+				SUPERVISOR_ERROR			= 3,		//Carte en erreur - attente d'un nouvel ordre pour en sortir
+				SUPERVISOR_MATCH_ENDED		= 4			//Match terminé
+			*/
 	//debug_printf("\n Pos update :  (%lf : %lf)\n",global.env.pos.cosAngle,global.env.pos.sinAngle);
 	global.env.pos.updated = TRUE;
 }
@@ -305,6 +326,10 @@ void ENV_init()
 	global.env.flag_for_ping_xbee = 0;
 	global.env.asser.calibrated = FALSE;
 	
+	global.env.asser.current_way = ANY_WAY;
+	global.env.asser.current_trajectory = TRAJECTORY_NONE;
+	global.env.asser.current_status = NO_ERROR;
+
 	//Initialisation des elemnts du terrain
 	int i;
 	//Init cadeaux

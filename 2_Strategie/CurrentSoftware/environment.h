@@ -48,6 +48,10 @@
 		volatile bool_e reach_teta;
 		volatile Sint32 vitesse_translation_erreur;
 		volatile Sint32 vitesse_rotation_erreur;
+		volatile way_e						current_way;
+		volatile trajectory_e				current_trajectory;
+		volatile SUPERVISOR_error_source_e	current_status;
+		
 	}asser_env_t;
 
 	typedef struct

@@ -27,7 +27,7 @@
 	Selon le message indiqué en paramètre, un certain nombre 
 	d'arguments seront ajoutés et envoyés, conformément à la QS.
 	*/
-	void SECRETARY_process_send(Uint11 sid, Uint8 reason, Uint8 error_byte);
+	void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e error_source);
 	
 		void SECRETARY_process_it(void);
 		

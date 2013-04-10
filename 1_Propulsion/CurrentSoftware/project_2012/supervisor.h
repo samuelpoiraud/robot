@@ -14,6 +14,8 @@
 	#include "QS/QS_all.h"
 		
 	
+
+	
 	typedef enum {
 		SUPERVISOR_INIT = 0,
 		SUPERVISOR_IDLE,
@@ -21,15 +23,6 @@
 		SUPERVISOR_ERROR,
 		SUPERVISOR_MATCH_ENDED
 	} SUPERVISOR_state_e;
-	
-	typedef enum
-	{
-		NO_ERROR = 0,
-		UNABLE_TO_GO_ERROR,
-		IMMOBILITY_ERROR,
-		ROUNDS_RETURNS_ERROR,
-		UNKNOW_ERROR
-	}SUPERVISOR_error_source_e;
 		
 	typedef enum
 	{
