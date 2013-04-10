@@ -1200,7 +1200,7 @@ error_e TEST_Launcher_ball_mid(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9646 : -3215), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -3900), FAST);
             switch(sub_action)
             {
                 case END_OK:
@@ -1228,7 +1228,7 @@ error_e TEST_Launcher_ball_mid(void){
             break;
 
         case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run(6300);  // a 66cm du bord du gateau
+           ACT_ball_launcher_run(6900);  // a 66cm du bord du gateau
             state=LAUNCH_BALL_ATT;
             break;
 
@@ -1397,7 +1397,7 @@ error_e TEST_Launcher_ball_cadeau(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9145 : -2714), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -8845 : -3615), FAST);
             switch(sub_action)
             {
                 case END_OK:
@@ -1427,7 +1427,7 @@ error_e TEST_Launcher_ball_cadeau(void){
             break;
 
         case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run(6900);
+           ACT_ball_launcher_run(7800);
             state=LAUNCH_BALL_ATT;
             break;
 
@@ -1595,7 +1595,7 @@ error_e TEST_Launcher_ball_gateau(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -11080 : -4649), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -9880 : -4550), FAST);
             switch(sub_action)
             {
                 case END_OK:
@@ -1623,7 +1623,7 @@ error_e TEST_Launcher_ball_gateau(void){
             break;
 
         case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run(6050);
+           ACT_ball_launcher_run(6300);
             state=LAUNCH_BALL_ATT;
             break;
 
@@ -1744,7 +1744,6 @@ error_e TEST_Launcher_ball_gateau(void){
 
 error_e TEST_STRAT_assiettes_evitement_1(void){
 
-    static Uint8 nb_ball=0;
     static error_e sub_action;
     static ACT_function_result_e sub_action_act;
     static enum {
@@ -1767,30 +1766,35 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                 GRABBER_UP2,
                 GRABBER_UP2_ATT,
                 DONE,
-    } state = POS_MOVE;
+    } state = POS_MOVE1;
 
 //    static bool_e timeout = FALSE;
 
     switch (state) {
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:
-                    state=POS_MOVE3;
+                    state=POS_MOVE2;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=POS_MOVE3;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    return NOT_HANDLED;
+                    state=POS_MOVE1;
                     break;
             }
             break;
@@ -1804,9 +1808,12 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_DOWN;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -1827,22 +1834,25 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN;
+                    state =GRABBER_OPEN;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -1857,24 +1867,27 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
          case GRABBER_OPEN_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = PUSH;
+                    state =PUSH;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = PUSH;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = PUSH;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -1895,10 +1908,12 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_UP;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
-                    state=GRABBER_UP;
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -1911,9 +1926,11 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                         }
 
                      }
+                    return IN_PROGRESS;
                      break;
 
                 default:
+                    return NOT_HANDLED;
                      break;
                     }
                   break;
@@ -1928,22 +1945,25 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = BACK;
+                    state =BACK;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = BACK;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = BACK;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -1958,15 +1978,21 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_MID;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -1981,22 +2007,25 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN2;
+                    state =GRABBER_OPEN2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2010,24 +2039,27 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
          case GRABBER_OPEN2_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_CLOSE2;
+                    state =GRABBER_CLOSE2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_CLOSE2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_CLOSE2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2042,22 +2074,25 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_UP2;
+                    state =GRABBER_UP2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_UP2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_UP2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2072,37 +2107,43 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = ANGLE;
+                    state =DONE;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = ANGLE;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = ANGLE;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
 
 
         case DONE:
+            return END_OK;
             break;
         default:
+            state=POS_MOVE1;
+            return NOT_HANDLED;
             break;
     }
+    return IN_PROGRESS;
 }
 
 error_e TEST_STRAT_assiettes_evitement_2(void){
 
-    static Uint8 nb_ball=0;
     static error_e sub_action;
     static ACT_function_result_e sub_action_act;
     static enum {
@@ -2125,31 +2166,35 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                 GRABBER_UP2,
                 GRABBER_UP2_ATT,
                 DONE,
-    } state = POS_MOVE;
+    } state = POS_MOVE1;
 
 //    static bool_e timeout = FALSE;
 
     switch (state) {
-
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:
-                    state=POS_MOVE3;
+                    state=POS_MOVE2;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=POS_MOVE3;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    return NOT_HANDLED;
+                    state=POS_MOVE1;
                     break;
             }
             break;
@@ -2163,9 +2208,12 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_DOWN;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -2186,22 +2234,25 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN;
+                    state =GRABBER_OPEN;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2216,24 +2267,27 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
          case GRABBER_OPEN_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = PUSH;
+                    state =PUSH;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = PUSH;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = PUSH;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2254,10 +2308,12 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_UP;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
-                    state=GRABBER_UP;
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -2270,9 +2326,11 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                         }
 
                      }
+                    return IN_PROGRESS;
                      break;
 
                 default:
+                    return NOT_HANDLED;
                      break;
                     }
                   break;
@@ -2287,22 +2345,25 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = BACK;
+                    state =BACK;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = BACK;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = BACK;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2317,15 +2378,21 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_MID;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2340,22 +2407,25 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN2;
+                    state =GRABBER_OPEN2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2369,24 +2439,27 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
          case GRABBER_OPEN2_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_CLOSE2;
+                    state =GRABBER_CLOSE2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_CLOSE2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_CLOSE2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2401,22 +2474,25 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_UP2;
+                    state =GRABBER_UP2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_UP2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_UP2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2431,37 +2507,43 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = ANGLE;
+                    state =DONE;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = ANGLE;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = ANGLE;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
 
 
         case DONE:
+            return END_OK;
             break;
         default:
+            state=POS_MOVE1;
+            return NOT_HANDLED;
             break;
     }
+    return IN_PROGRESS;
 }
 
 error_e TEST_STRAT_assiettes_evitement_3(void){
 
-    static Uint8 nb_ball=0;
     static error_e sub_action;
     static ACT_function_result_e sub_action_act;
     static enum {
@@ -2484,31 +2566,35 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
                 GRABBER_UP2,
                 GRABBER_UP2_ATT,
                 DONE,
-    } state = POS_MOVE;
+    } state = POS_MOVE1;
 
 //    static bool_e timeout = FALSE;
 
     switch (state) {
-
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:
-                    state=POS_MOVE3;
+                    state=POS_MOVE2;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=POS_MOVE3;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    return NOT_HANDLED;
+                    state=POS_MOVE1;
                     break;
             }
             break;
@@ -2522,9 +2608,12 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_DOWN;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -2545,22 +2634,25 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN;
+                    state =GRABBER_OPEN;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2575,24 +2667,27 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
          case GRABBER_OPEN_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = PUSH;
+                    state =PUSH;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = PUSH;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = PUSH;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2613,10 +2708,12 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_UP;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
-                    state=GRABBER_UP;
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -2629,9 +2726,11 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
                         }
 
                      }
+                    return IN_PROGRESS;
                      break;
 
                 default:
+                    return NOT_HANDLED;
                      break;
                     }
                   break;
@@ -2646,22 +2745,25 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = BACK;
+                    state =BACK;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = BACK;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = BACK;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2676,15 +2778,21 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_MID;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2699,22 +2807,25 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN2;
+                    state =GRABBER_OPEN2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2728,24 +2839,27 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
          case GRABBER_OPEN2_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_CLOSE2;
+                    state =GRABBER_CLOSE2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_CLOSE2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_CLOSE2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2760,22 +2874,25 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_UP2;
+                    state =GRABBER_UP2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_UP2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_UP2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2790,37 +2907,43 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = ANGLE;
+                    state =DONE;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = ANGLE;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = ANGLE;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
 
 
         case DONE:
+            return END_OK;
             break;
         default:
+            state=POS_MOVE1;
+            return NOT_HANDLED;
             break;
     }
+    return IN_PROGRESS;
 }
 
 error_e TEST_STRAT_assiettes_evitement_4(void){
 
-    static Uint8 nb_ball=0;
     static error_e sub_action;
     static ACT_function_result_e sub_action_act;
     static enum {
@@ -2843,31 +2966,35 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                 GRABBER_UP2,
                 GRABBER_UP2_ATT,
                 DONE,
-    } state = POS_MOVE;
+    } state = POS_MOVE1;
 
 //    static bool_e timeout = FALSE;
 
     switch (state) {
-
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:
-                    state=POS_MOVE3;
+                    state=POS_MOVE2;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=POS_MOVE3;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    return NOT_HANDLED;
+                    state=POS_MOVE1;
                     break;
             }
             break;
@@ -2881,9 +3008,12 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_DOWN;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -2904,22 +3034,25 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN;
+                    state =GRABBER_OPEN;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2934,24 +3067,27 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
          case GRABBER_OPEN_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = PUSH;
+                    state =PUSH;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = PUSH;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = PUSH;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -2972,10 +3108,12 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_UP;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
-                    state=GRABBER_UP;
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -2988,9 +3126,11 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                         }
 
                      }
+                    return IN_PROGRESS;
                      break;
 
                 default:
+                    return NOT_HANDLED;
                      break;
                     }
                   break;
@@ -3005,22 +3145,25 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = BACK;
+                    state =BACK;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = BACK;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = BACK;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3035,15 +3178,21 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_MID;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3058,22 +3207,25 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN2;
+                    state =GRABBER_OPEN2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3087,24 +3239,27 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
          case GRABBER_OPEN2_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_CLOSE2;
+                    state =GRABBER_CLOSE2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_CLOSE2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_CLOSE2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3119,22 +3274,25 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_UP2;
+                    state =GRABBER_UP2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_UP2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_UP2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3149,37 +3307,43 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = ANGLE;
+                    state =DONE;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = ANGLE;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = ANGLE;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
 
 
         case DONE:
+            return END_OK;
             break;
         default:
+            state=POS_MOVE1;
+            return NOT_HANDLED;
             break;
     }
+    return IN_PROGRESS;
 }
 
 error_e TEST_STRAT_assiettes_evitement_5(void){
 
-    static Uint8 nb_ball=0;
     static error_e sub_action;
     static ACT_function_result_e sub_action_act;
     static enum {
@@ -3202,30 +3366,35 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                 GRABBER_UP2,
                 GRABBER_UP2_ATT,
                 DONE,
-    } state = POS_MOVE;
+    } state = POS_MOVE1;
 
 //    static bool_e timeout = FALSE;
 
     switch (state) {
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1750,COLOR_Y(800)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1750,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
             switch(sub_action)
             {
                 case END_OK:
-                    state=POS_MOVE3;
+                    state=POS_MOVE2;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=POS_MOVE3;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    return NOT_HANDLED;
+                    state=POS_MOVE1;
                     break;
             }
             break;
@@ -3239,9 +3408,12 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_DOWN;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -3262,22 +3434,25 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN;
+                    state =GRABBER_OPEN;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3292,24 +3467,27 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
          case GRABBER_OPEN_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = PUSH;
+                    state =PUSH;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = PUSH;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = PUSH;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3330,14 +3508,16 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_UP;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
-                    state=GRABBER_UP;
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
-
+                    
                     if(global.env.pos.y<580){
                         static Uint8 crush=0;
                         if(crush==0){
@@ -3346,9 +3526,11 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                         }
 
                      }
+                    return IN_PROGRESS;
                      break;
 
                 default:
+                    return NOT_HANDLED;
                      break;
                     }
                   break;
@@ -3363,22 +3545,25 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = BACK;
+                    state =BACK;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = BACK;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = BACK;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3393,15 +3578,21 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=GRABBER_MID;
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
+                    return IN_PROGRESS;
                     break;
 
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3416,22 +3607,25 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_OPEN2;
+                    state =GRABBER_OPEN2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    //state = GRABBER_TIDY_2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     //state = GRABBER_TIDY_2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3445,24 +3639,27 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
          case GRABBER_OPEN2_ATT:
             sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
             switch(sub_action_act)
-            {
+           {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_CLOSE2;
+                    state =GRABBER_CLOSE2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_CLOSE2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_CLOSE2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3477,22 +3674,25 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = GRABBER_UP2;
+                    state =GRABBER_UP2;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = GRABBER_UP2;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = GRABBER_UP2;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
@@ -3507,32 +3707,39 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
             switch(sub_action_act)
             {
                 case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
                     break;
 
                 case ACT_FUNCTION_Done:
-                    state = ANGLE;
+                    state =DONE;
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state = ANGLE;
-
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                     state = ANGLE;
-
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
                     break;
                 default:
+                    state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
             }
             break;
 
 
         case DONE:
+            return END_OK;
             break;
         default:
+            state=POS_MOVE1;
+            return NOT_HANDLED;
             break;
     }
+    return IN_PROGRESS;
 }
 /* ----------------------------------------------------------------------------- */
 /* 								Fonction diverses                     			 */
