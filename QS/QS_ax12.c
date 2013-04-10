@@ -621,11 +621,13 @@ static bool_e AX12_instruction_buffer_is_full() {
 
 static bool_e AX12_instruction_wait(Uint8 id_servo) {
 	Uint16 i = 0;
+	//debug_printf("+1\n");
 	while(!AX12_instruction_queue_is_empty() && i < 65000)	//si i atteint 65000, on stop, on a attendu trop longtemps (au moins 6,5ms à une clock de 10Mhz, mais ce bout de code ne fait qu'une instruction)
 		i++;
 		
 	if(i < 65000) return TRUE;
 
+	debug_printf("FATAL 2 %d / %d\n", AX12_special_instruction_buffer.start_index, AX12_special_instruction_buffer.end_index);
 	AX12_on_the_robot[id_servo].last_status.error = AX12_ERROR_TIMEOUT | AX12_ERROR_RANGE;	//On a attendu trop longtemps, le buffer est toujours plein
 	AX12_on_the_robot[id_servo].last_status.param = 0;
 	return FALSE;
@@ -1061,19 +1063,24 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* inst) {	//utilisation d'un pointeur pour eviter de provoquer une copie intégrale de la structure, qui pourrait prendre du temps si elle est trop grande
 	Uint16 i = 0;
+	Uint16 truc;
+
 	while(AX12_instruction_queue_is_full() && i < 65000)	//boucle 65000 fois si le buffer reste full, si on atteint 65000, on échoue et retourne FALSE
 		i++;
 		
 	if(i >= 65000) {
 		AX12_on_the_robot[inst->id_servo].last_status.error = AX12_ERROR_TIMEOUT | AX12_ERROR_RANGE;
 		AX12_on_the_robot[inst->id_servo].last_status.param = 0;
+		debug_printf("FATAL\n");
 		return FALSE;	//return false, on a pas réussi a insérer l'instruction, problème de priorité d'interruptions ?
 	}
 
 	AX12_special_instruction_buffer.buffer[AX12_special_instruction_buffer.end_index] = *inst;
 	AX12_special_instruction_buffer.end_index = INC_WITH_MOD(AX12_special_instruction_buffer.end_index, AX12_INSTRUCTION_REAL_NEEDED_BUFFER_SIZE);
-	if(state_machine.state == AX12_SMS_ReadyToSend)
+	truc = state_machine.state;
+	//if(truc == AX12_SMS_ReadyToSend)
 		AX12_state_machine(AX12_SME_NoEvent);
+	//else debug_printf("ax12 not ready, in state %d\n", truc);
 		
 	return TRUE;
 }
@@ -1154,6 +1161,21 @@ void _ISR AX12_UART2_TXInterrupt(void)
 
 void AX12_TIMER_interrupt()
 {
+	Uint8 data;
+	while(U2STAbits.URXDA) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
+		data = 0;
+		if(state_machine.state != AX12_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
+			data = getcUART2();
+		} else {
+			AX12_state_machine(AX12_SME_RxInterrupt);
+			if(AX12_UART2_RXInterrupt_flag) {
+				debug_printf("Overinterrupt RX !\n");
+				AX12_UART2_RXInterrupt_flag = 0;
+				break; //force 0, on va perdre des caractères, mais c'est mieux que de boucler ici ...
+			}
+		}
+		debug_printf("zef %d\n", data);
+	}
 	AX12_state_machine(AX12_SME_Timeout);
 	AX12_TIMER_resetFlag();
 }
