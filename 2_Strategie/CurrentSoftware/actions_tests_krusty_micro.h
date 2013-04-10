@@ -30,6 +30,12 @@ error_e K_ASSIETE3(void);
 error_e K_ASSIETE4(void);
 error_e K_ASSIETE5(void);
 
+error_e TEST_STRAT_assiettes_evitement_1(void);
+error_e TEST_STRAT_assiettes_evitement_2(void);
+error_e TEST_STRAT_assiettes_evitement_3(void);
+error_e TEST_STRAT_assiettes_evitement_4(void);
+error_e TEST_STRAT_assiettes_evitement_5(void);
+
 error_e K_verres(void);
 error_e K_push_half_row_glasses(void);
 

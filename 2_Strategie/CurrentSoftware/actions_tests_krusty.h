@@ -35,6 +35,7 @@ error_e Assiete1_lanceur(void);
 error_e Assiete2_lanceur(void);
 error_e Assiete3_lanceur(void);
 error_e Assiete4_lanceur(void);
+error_e Assiete5_lanceur(void);
 error_e Cadeau(void);
 
 #endif /* ACTIONS_TESTS_KRUSTY_H */
