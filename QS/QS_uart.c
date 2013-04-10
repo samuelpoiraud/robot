@@ -80,6 +80,7 @@ void UART_init(void)
 		#else
 			DisableIntU1RX;
 		#endif /* def USE_UART1RXINTERRUPT */
+	
 	#endif /* def USE_UART1 */
 
 	#ifdef USE_UART2
@@ -140,28 +141,148 @@ void UART_init(void)
 	
 	
 	#ifdef USE_UART1TXINTERRUPT
-		#warning "USE_UART1TXINTERRUPT défini... Ce mode n'est pas testé... et même qu'en plus il est même pas implémenté !"
-		#warning "USE_UART1TXINTERRUPT : ce mode a un impact qui doit être assumé par l'utilisateur. (risque de Buffer Overflow)"
-		
-		//fonction dont on ne choisi par le nom, appelée par fprintf(_H_USER...) pour chaque caractère à envoyer.
-		void _user_putc(char c)
+		#warning "USE_UART1TXINTERRUPT défini... Ce mode n'est pas testé... "
+	
+		typedef struct
 		{
-			UART1_putc(c);	//On bufferise...
+			volatile Uint8 * datas;
+			Uint8 size;
+			Uint8 nb_datas;
+			Uint8 index_read;
+			Uint8 index_write;
+		}buffer_t;
+		volatile Uint8 b1tx[BUFFER_TX_SIZE];
+		volatile buffer_t buffer1tx = {b1tx,BUFFER_TX_SIZE,0,0,0};
+		extern int __C30_UART;
+		
+		bool_e IsFull_buffer(volatile buffer_t * b)
+
+		{
+			if(buffer1tx.nb_datas >= buffer1tx.size)
+				return TRUE;
+			else
+				return FALSE;
 		}
-			
-		void _ISR _U1RXInterrupt(void)
+
+		bool_e IsNotEmpty_buffer(volatile buffer_t * b)
 		{
-			//debufferiser. 
-			
-			//Si buffer vide -> désactiver IT TX.
-		}	
+
+			if(buffer1tx.nb_datas > (Uint8)0)
+				return TRUE;
+			else
+				return FALSE;
+		}
+
+
+		int __attribute__((__weak__, __section__(".libc")))	write(int handle, void *buffer, unsigned int len)
+		{
+		  int i;
+		  volatile UxMODEBITS *umode = &U1MODEbits;
+		  volatile UxSTABITS *ustatus = &U1STAbits;
+		  volatile unsigned int *txreg = &U1TXREG;
+		  volatile unsigned int *brg = &U1BRG;
+
+		  switch (handle)
+		  {
+			case 0:
+			case 1:
+			case 2:
+			  if ((__C30_UART != 1) && (&U2BRG)) {
+				umode = &U2MODEbits;
+				ustatus = &U2STAbits;
+				txreg = &U2TXREG;
+				brg = &U2BRG;
+			  }
+			  if ((umode->UARTEN) == 0)
+			  {
+				*brg = 0;
+				umode->UARTEN = 1;
+			  }
+			  if ((ustatus->UTXEN) == 0)
+			  {
+				ustatus->UTXEN = 1;
+			  }
+			  for (i = len; i; --i)
+			  {
+				  UART1_putc(*(char*)buffer++);	//MODIFICATION APPORTEE AU CODE DE MICROCHIP...
+			  }
+			  break;
+
+			default:
+			/*{
+			  SIMIO simio;
+			  register PSIMIO psimio asm("w0") = &simio;
+
+			  simio.method = SIM_WRITE;
+			  simio.u.write.handle = handle;
+			  simio.u.write.buffer = buffer;
+			  simio.u.write.len = len;
+			  dowrite(psimio);
+			  len = simio.u.write.len;
+			  break;
+			}
+			 */
+				break;
+		  }
+		  return(len);
+		}
+
+
+
+
 		
-		//Fonction non blocante, mais risque de buffer overflow.
-		void UART1_putc(Uint8 mes)
+		void UART1_putc(Uint8 c)
 		{
-			
+			if(!BusyUART1())
+				putcUART1(c);
+			else
+			{
+				assert(buffer1tx.nb_datas < buffer1tx.size + 1);
+				//Critical section (Interrupt inibition)
+
+				while(buffer1tx.nb_datas >= buffer1tx.size);	//ON BLOQUE ICI
+
+				DisableIntU1TX;	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+
+
+
+				if(buffer1tx.nb_datas < buffer1tx.size)
+					{
+						buffer1tx.datas[buffer1tx.index_write] = c;
+						buffer1tx.index_write = (buffer1tx.index_write>=buffer1tx.size-1)?0:(buffer1tx.index_write + 1);
+						buffer1tx.nb_datas++;
+					}
+				EnableIntU1TX;	//On active l'IT sur TX... lors du premier caractère à envoyer...
+			}
 				//mise en buffer + activation IT U1TX.
 		}
+
+		
+			
+		void _ISR _U1TXInterrupt(void)
+		{
+			Uint8 c;
+			
+			//debufferiser. 
+			if(!BusyUART1() && IsNotEmpty_buffer(&buffer1tx))
+			{
+				assert (buffer1tx.index_read < buffer1tx.size);
+				//Critical section
+				if(buffer1tx.nb_datas > (Uint8)0)
+				{
+					c = buffer1tx.datas[buffer1tx.index_read];
+					buffer1tx.index_read = (buffer1tx.index_read>=buffer1tx.size-1)?0:(buffer1tx.index_read + 1);
+					buffer1tx.nb_datas--;
+					putcUART1(c);
+				}
+				//Critical section
+				
+			}
+			else if(!BusyUART1() && !IsNotEmpty_buffer(&buffer1tx))
+				DisableIntU1TX;	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+		}	
+		
+		
 	
 
 	#else	/* def USE_UART1TXINTERRUPT */
