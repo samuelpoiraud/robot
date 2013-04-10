@@ -34,11 +34,7 @@
 	#define abs(x)					(((x) >= 0) ? (x) : (-(x)))
 	#ifdef VERBOSE_MODE
 	
-		#ifdef USE_UART1TXINTERRUPT
-			#define debug_printf(...)	fprintf(_H_USER,__VA_ARGS__)
-		#else
-			#define debug_printf(...)	printf(__VA_ARGS__)
-		#endif //def USE_UART1TXINTERRUPT
+		#define debug_printf(...)	printf(__VA_ARGS__)
 		
 		#define assert(condition) \
 			if(!(condition)) {printf("assert failed file " __FILE__ " line %d : %s", __LINE__ , #condition ); __asm__("reset");}
