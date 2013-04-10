@@ -89,7 +89,7 @@ void STRAT_TINY_gifts_and_cake(void)
 				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !
 		break;
 		case GET_OUT_IF_NO_CALIBRATION:
-			sub_action = goto_pos(250,COLOR_Y(300),FAST,ANY_WAY,END_AT_LAST_POINT);
+			sub_action = goto_pos(250,COLOR_Y(150),FAST,ANY_WAY,END_AT_LAST_POINT);
 			switch(sub_action)
             {
 				case END_OK:

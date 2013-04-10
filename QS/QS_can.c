@@ -265,7 +265,9 @@ static void CAN_error_processing();
 					#endif
 					return;
 				}
-			}	
+			}
+			if(can_msg->size > 8)
+				can_msg->size = 0;
 			CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
 							(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, 0);
 							
@@ -280,7 +282,9 @@ static void CAN_error_processing();
 	#else	//Rétrocompatibilité...
 		void CAN_send(CAN_msg_t* can_msg)
 		{
-			while(!CAN1IsTXReady(0));	
+			while(!CAN1IsTXReady(0));
+			if(can_msg->size > 8)	//sécurité si l'utilisateur fait des betises.
+				can_msg->size = 0;
 			CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
 							(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, 0);
 		}

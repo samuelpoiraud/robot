@@ -28,15 +28,7 @@
 
 
 
-	/*type de trajectoire */
-	typedef enum
-	{
-			TRAJECTORY_TRANSLATION = 0,
-			TRAJECTORY_ROTATION,
-			TRAJECTORY_STOP,
-			TRAJECTORY_AUTOMATIC_CURVE,
-			TRAJECTORY_NONE
-	} trajectory_e;
+
 
 
 	typedef enum {

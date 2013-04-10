@@ -159,9 +159,13 @@ void SECRETARY_CAN_send(Uint16 sid, Uint8* data,Uint8 taille)
 }
 
 
-void SECRETARY_process_send(Uint11 sid, Uint8 reason, Uint8 error_byte)	//La raison de l'envoi est définie dans avertisseur.h
+void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
 {
 	Uint8 tabTemp[8];
+	Uint8 error_byte;
+
+	error_byte = ((Uint8)(COPILOT_get_trajectory()) << 5 | (Uint8)(COPILOT_get_way())) << 3 | (Uint8)(error_source & 0x07);
+
 	tabTemp[0] = HIGHINT(global.position.x);
 	tabTemp[1] = LOWINT(global.position.x);
 	tabTemp[2] = HIGHINT(global.position.y);

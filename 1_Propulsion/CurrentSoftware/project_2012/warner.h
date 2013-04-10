@@ -60,7 +60,7 @@
 	//cette fonction sert à avertir, en envoyant des messages CAN d'asser position si nécessaire
 	WARNER_state_t WARNER_get_warning_state(void);
 	
-	void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e error_source);
+	void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e new_error_source);
 
 
 #endif //ndef WARNER_H

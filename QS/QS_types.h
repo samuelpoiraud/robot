@@ -61,10 +61,32 @@
 		BEACONS_NUMBER
 	} beacon_id_e;	
 
+	/*sens de trajectoire - utilisé dans le code propulsion et partagé pour la stratégie... */
 	typedef enum {
 		ANY_WAY=0,
 		BACKWARD,
 		FORWARD
 	} way_e;
-	
+
+	/*état de la carte propulsion - utilisé dans le code propulsion et partagé pour la stratégie... */
+	typedef enum
+	{
+		NO_ERROR = 0,
+		UNABLE_TO_GO_ERROR,
+		IMMOBILITY_ERROR,
+		ROUNDS_RETURNS_ERROR,
+		UNKNOW_ERROR
+	}SUPERVISOR_error_source_e;
+
+	/*type de trajectoire - utilisé dans le code propulsion et partagé pour la stratégie... */
+	typedef enum
+	{
+			TRAJECTORY_TRANSLATION = 0,
+			TRAJECTORY_ROTATION,
+			TRAJECTORY_STOP,
+			TRAJECTORY_AUTOMATIC_CURVE,
+			TRAJECTORY_NONE
+	} trajectory_e;
+
+
 #endif /* ndef QS_TYPES_H */
