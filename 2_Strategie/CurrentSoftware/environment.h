@@ -51,7 +51,7 @@
 		volatile way_e						current_way;
 		volatile trajectory_e				current_trajectory;
 		volatile SUPERVISOR_error_source_e	current_status;
-		
+		volatile time32_t	last_time_pos_updated;
 	}asser_env_t;
 
 	typedef struct
@@ -153,7 +153,7 @@
 		void CAN_update (CAN_msg_t* incoming_msg);
 
 		/* met a jour la position a partir d'un message asser la délivrant */
-		void ENV_pos_update (CAN_msg_t* msg);
+		void ENV_pos_update (CAN_msg_t* msg, bool_e on_it);
 			#define WARNING_NO					(0b00000000)
 			#define WARNING_TIMER				(0b00000001)
 			#define WARNING_TRANSLATION			(0b00000010)

@@ -21,7 +21,8 @@ void ENV_update()
 
 	/* RAZ des drapeaux temporaires pour la prochaine itération */
 	ENV_clean();
-
+	ENV_pos_update((CAN_msg_t *)NULL, FALSE);	//On récupère l'éventuel position sauvée en IT...
+	
 	/* Récuperation de l'évolution de l'environnement
 	renseignee par les messages CAN */
 	while (CAN_data_ready())
@@ -95,7 +96,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
-//			ENV_pos_update(incoming_msg);   //a déjà été fait en CAN_fast_...
 
 			if(incoming_msg->data[6] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_x = TRUE;
@@ -155,30 +155,19 @@ void CAN_update (CAN_msg_t* incoming_msg)
    le message CAN reçu et renvoie si le message doit être placé dans le buffer */
 bool_e CAN_fast_update(CAN_msg_t* msg)
 {
-	//Samuel : je préfère conditionner cette fonction à l'utilisation des SICK...
-	// 			par peur qu'elle génère des situations foireuses où la position est mise à jour en pleine mauvaise préemption...
+	//Samuel : TODO cette fonction peut génèrer des situations foireuses où la position est mise à jour en pleine mauvaise préemption...
 		switch (msg->sid)
-		{
-
-			case BROADCAST_POSITION_ROBOT:
-                                ENV_pos_update(msg);
-
-				/* Si c'est un message de type delta translation ou rotation, ou sans raison */ 
-				/*	Attention, les raisons peuvent être cumulées... d'ou le '&' : si une autre raison est vraie, on propage le message !*/
-				if(msg->data[6] & (WARNING_TRANSLATION | WARNING_ROTATION))
-				{
-					#ifdef USE_SICK
-                                            SICK_update_points();
-                                        #endif
-					return TRUE;    //Les raisons seront ensuite traitees dans la tache de fond
-				}
-				return TRUE;	
-                        case CARTE_P_ROBOT_FREINE:
-                        case CARTE_P_ROBOT_CALIBRE:
-                        case CARTE_P_ASSER_ERREUR:
-                        case CARTE_P_TRAJ_FINIE:
-                            ENV_pos_update(msg);
-                        break;
+		{		
+			case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond	
+			case CARTE_P_ROBOT_FREINE:
+			case CARTE_P_ROBOT_CALIBRE:
+			case CARTE_P_ASSER_ERREUR:
+			case CARTE_P_TRAJ_FINIE:
+				ENV_pos_update(msg, TRUE);
+				#ifdef USE_SICK
+					SICK_update_points();
+                #endif
+			break;
 			default:
 				return TRUE;		
 		}
@@ -186,42 +175,68 @@ bool_e CAN_fast_update(CAN_msg_t* msg)
 		return TRUE;	
 	
 }
+#include <timer.h>
 
 /* met a jour la position a partir d'un message asser la délivrant */
-void ENV_pos_update (CAN_msg_t* msg)
+void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 {
-	global.env.pos.x = U16FROMU8(msg->data[0],msg->data[1]);
-	global.env.pos.y = U16FROMU8(msg->data[2],msg->data[3]);
-	global.env.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
-	global.env.pos.cosAngle = cos4096(global.env.pos.angle);
-	global.env.pos.sinAngle = sin4096(global.env.pos.angle);
+	volatile static bool_e new_pos_available = FALSE;
+	static position_t new_pos;
+	static time32_t new_time;
+	static way_e new_way;
+	static SUPERVISOR_error_source_e new_status;
+	Uint16 save_int_t1;
 
+	if(on_it == TRUE)
+	{
+		new_pos.x = U16FROMU8(msg->data[0],msg->data[1]);
+		new_pos.y = U16FROMU8(msg->data[2],msg->data[3]);
+		new_pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
+		new_pos.cosAngle = cos4096(global.env.pos.angle);
+		new_pos.sinAngle = sin4096(global.env.pos.angle);
+		new_time = global.env.match_time;
+		new_way = (way_e)((msg->data[7] >> 3) & 0x03);
+		new_status = (SUPERVISOR_error_source_e)((msg->data[7] >> 3) & 0x07);
+			/*msg->data[7] : 8 bits  : T T T W W E E E
+				TTT : trajectoire actuelle
+					TRAJECTORY_TRANSLATION		= 0,
+					TRAJECTORY_ROTATION			= 1,
+					TRAJECTORY_STOP				= 2,
+					TRAJECTORY_AUTOMATIC_CURVE	= 3,
+					TRAJECTORY_NONE				= 4
+				 WW : Way, sens actuel
+					ANY_WAY						= 0,
+					BACKWARD					= 1,
+					FORWARD						= 2,
+				 EEE : Erreur
+					SUPERVISOR_INIT				= 0,
+					SUPERVISOR_IDLE				= 1,		//Rien à faire
+					SUPERVISOR_TRAJECTORY		= 2,		//Trajectoire en cours
+					SUPERVISOR_ERROR			= 3,		//Carte en erreur - attente d'un nouvel ordre pour en sortir
+					SUPERVISOR_MATCH_ENDED		= 4			//Match terminé
+				*/
+		new_pos_available = TRUE;
+	}
+	else		//En tache de fond.
+	{
+		save_int_t1 = _T1IE;
+		if(save_int_t1)
+			DisableIntT1;
+		if(new_pos_available)
+		{
+			new_pos_available = FALSE;
+			global.env.asser.last_time_pos_updated = new_time;
+			global.env.asser.current_way = new_way;
+			global.env.asser.current_status = new_status;
+			global.env.pos = new_pos;
+			//debug_printf("\n Pos update :  (%lf : %lf)\n",global.env.pos.cosAngle,global.env.pos.sinAngle);
+			global.env.pos.updated = TRUE;
+		}
+		if(save_int_t1)
+			EnableIntT1;
 
+	}
 
-        global.env.asser.last_time_pos_updated = global.env.match_time;
-        global.env.asser.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
-
-	global.env.asser.current_status = (SUPERVISOR_error_source_e)((msg->data[7] >> 3) & 0x07);
-			/*incoming_msg->data[7] : 8 bits  : T T T W W E E E
-			TTT : trajectoire actuelle
-				TRAJECTORY_TRANSLATION		= 0,
-				TRAJECTORY_ROTATION			= 1,
-				TRAJECTORY_STOP				= 2,
-				TRAJECTORY_AUTOMATIC_CURVE	= 3,
-				TRAJECTORY_NONE				= 4
-			 WW : Way, sens actuel
-				ANY_WAY						= 0,
-				BACKWARD					= 1,
-				FORWARD						= 2,
-			 EEE : Erreur
-				SUPERVISOR_INIT				= 0,
-				SUPERVISOR_IDLE				= 1,		//Rien à faire
-				SUPERVISOR_TRAJECTORY		= 2,		//Trajectoire en cours
-				SUPERVISOR_ERROR			= 3,		//Carte en erreur - attente d'un nouvel ordre pour en sortir
-				SUPERVISOR_MATCH_ENDED		= 4			//Match terminé
-			*/
-	//debug_printf("\n Pos update :  (%lf : %lf)\n",global.env.pos.cosAngle,global.env.pos.sinAngle);
-	global.env.pos.updated = TRUE;
 }
 
 /* met a jour la position de l'adversaire à partir des balises */
