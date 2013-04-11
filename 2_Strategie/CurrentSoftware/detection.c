@@ -71,7 +71,7 @@ void DETECTION_update(void)
 		{
 			if(global.env.foe[i].updated)
 		#warning "attention: A désactiver en match pour eviter de flooder"
-				detection_printf("\r\nFoe_%d is x:%d y:%d dist:%d angle:%d\r\n", i, global.env.foe[i].x, global.env.foe[i].y, global.env.foe[i].dist, global.env.foe[i].angle);
+				//detection_printf("\r\nFoe_%d is x:%d y:%d dist:%d angle:%d\r\n", i, global.env.foe[i].x, global.env.foe[i].y, global.env.foe[i].dist, global.env.foe[i].angle);
 				CAN_send_foe_pos();	
 		}			
 	}	
@@ -188,7 +188,7 @@ void DETECTION_update_foe_by_beacon()
 				}
 			}
 			global.env.foe[foe_id].angle = global.env.sensor[BEACON_IR(foe_id)].angle;		
-			detection_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
+			//detection_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 		
 		if(global.env.sensor[BEACON_US(foe_id)].updated)
@@ -212,7 +212,7 @@ void DETECTION_update_foe_by_beacon()
 			}
 			/* On mets a jour la distance */
 			global.env.foe[foe_id].dist = global.env.sensor[BEACON_US(foe_id)].distance;
-			detection_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist,((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
+			//detection_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist,((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 	}
 }

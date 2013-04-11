@@ -75,10 +75,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 //****************************** Messages carte propulsion/asser *************************/	
 		case CARTE_P_TRAJ_FINIE:
 			global.env.asser.fini = TRUE;
-			ENV_pos_update(incoming_msg);
 			break;
 		case CARTE_P_ASSER_ERREUR:
-			ENV_pos_update(incoming_msg);
+			
 			global.env.asser.erreur = TRUE;
 			global.env.asser.vitesse_translation_erreur = 
 				((Sint32)U16FROMU8(incoming_msg->data[1],incoming_msg->data[0]) << 16) 
@@ -89,14 +88,14 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case CARTE_P_ROBOT_CALIBRE:
 			global.env.asser.calibrated = TRUE;
-			ENV_pos_update(incoming_msg);
+			
 			break;
 		case BROADCAST_POSITION_ROBOT:
 			//Remarque : Si USE_SICK... si un broadcast_position est arrivé avec pour seule(s) raison(s) WARNING_ROTATION et WARNING_TRANSLATION, il est traité dès réception par CAN_fast_update, et n'arrive pas ici !
 			
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
-			ENV_pos_update(incoming_msg);
+//			ENV_pos_update(incoming_msg);   //a déjà été fait en CAN_fast_...
 
 			if(incoming_msg->data[6] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_x = TRUE;
@@ -112,7 +111,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case CARTE_P_ROBOT_FREINE:
 			global.env.asser.freine = TRUE;
-			ENV_pos_update(incoming_msg);
+			
 			break;
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
@@ -156,29 +155,36 @@ void CAN_update (CAN_msg_t* incoming_msg)
    le message CAN reçu et renvoie si le message doit être placé dans le buffer */
 bool_e CAN_fast_update(CAN_msg_t* msg)
 {
-	#ifdef USE_SICK	
 	//Samuel : je préfère conditionner cette fonction à l'utilisation des SICK...
 	// 			par peur qu'elle génère des situations foireuses où la position est mise à jour en pleine mauvaise préemption...
 		switch (msg->sid)
 		{
+
 			case BROADCAST_POSITION_ROBOT:
+                                ENV_pos_update(msg);
+
 				/* Si c'est un message de type delta translation ou rotation, ou sans raison */ 
 				/*	Attention, les raisons peuvent être cumulées... d'ou le '&' : si une autre raison est vraie, on propage le message !*/
 				if(msg->data[6] & (WARNING_TRANSLATION | WARNING_ROTATION))
 				{
-					ENV_pos_update(msg);
-					SICK_update_points();
-					
-					return FALSE;
+					#ifdef USE_SICK
+                                            SICK_update_points();
+                                        #endif
+					return TRUE;    //Les raisons seront ensuite traitees dans la tache de fond
 				}
 				return TRUE;	
-				
+                        case CARTE_P_ROBOT_FREINE:
+                        case CARTE_P_ROBOT_CALIBRE:
+                        case CARTE_P_ASSER_ERREUR:
+                        case CARTE_P_TRAJ_FINIE:
+                            ENV_pos_update(msg);
+                        break;
 			default:
 				return TRUE;		
 		}
-	#else
+	
 		return TRUE;	
-	#endif
+	
 }
 
 /* met a jour la position a partir d'un message asser la délivrant */
@@ -189,9 +195,12 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.env.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
 	global.env.pos.cosAngle = cos4096(global.env.pos.angle);
 	global.env.pos.sinAngle = sin4096(global.env.pos.angle);
-	
-	global.env.asser.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
-	global.env.asser.current_trajectory = (trajectory_e)((msg->data[7] >> 5) & 0x07);
+
+
+
+        global.env.asser.last_time_pos_updated = global.env.match_time;
+        global.env.asser.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
+
 	global.env.asser.current_status = (SUPERVISOR_error_source_e)((msg->data[7] >> 3) & 0x07);
 			/*incoming_msg->data[7] : 8 bits  : T T T W W E E E
 			TTT : trajectoire actuelle
@@ -278,6 +287,7 @@ void ENV_clean ()
 	global.env.asser.reach_x = FALSE;
 	global.env.asser.reach_y = FALSE;
 	global.env.asser.reach_teta = FALSE;
+        //global.env.asser.last_time_pos_updated = 0;
 	global.env.pos.updated = FALSE;
 	global.env.foe[FOE_1].updated = FALSE;
 	global.env.foe[FOE_2].updated = FALSE;
@@ -303,8 +313,9 @@ void ENV_init()
 {
 	CAN_init();	
 	BUTTON_init();
+        CAN_set_direct_treatment_function(CAN_fast_update);
+
 	#ifdef USE_SICK	
-		CAN_set_direct_treatment_function(CAN_fast_update);
 		SICK_init();
 	#endif
 	#ifdef USE_TELEMETER
