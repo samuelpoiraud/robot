@@ -615,3 +615,149 @@ error_e TINY_open_all_gifts_homolog(void)
 
 }
 
+
+
+
+
+
+
+
+error_e TINY_white_candles(void)
+{
+	typedef enum
+	{
+		INIT=0,
+                OPEN_HAMMER_FIRST_CANDLE_1,
+                        GOTO_FIRST_WHITE_CANDLE,
+		HAMMER_FIRST_CANDLE,
+		WAIT_HAMMER_DOWN_FIRST_CANDLE,
+		OPEN_HAMMER_FIRST_CANDLE_2,
+                /*        GOTO_SECOND_WHITE_CANDLE,
+		OPEN_HAMMER_SECOND_CANDLE_1,
+		HAMMER_SECOND_CANDLE,
+		WAIT_HAMMER_DOWN_SECOND_CANDLE,
+		OPEN_HAMMER_SECOND_CANDLE_2,
+                        GOTO_THIRD_WHITE_CANDLE,
+		OPEN_HAMMER_THIRD_CANDLE_1,
+		HAMMER_THIRD_CANDLE,
+		WAIT_HAMMER_DOWN_THIRD_CANDLE,
+		OPEN_HAMMER_THIRD_CANDLE_2,
+                        GOTO_FOURTH_WHITE_CANDLE,
+		OPEN_HAMMER_FOURTH_CANDLE_1,
+		HAMMER_FOURTH_CANDLE,
+		WAIT_HAMMER_DOWN_FOURTH_CANDLE,
+		OPEN_HAMMER_FOURTH_CANDLE_2,*/
+		HAMMER_FAIL,
+		PROPULSION_OR_AVOIDANCE_FAIL,
+		TIMEOUT_FAIL,
+		ALL_CANDLES_BLOWN,
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
+
+	error_e ret = IN_PROGRESS;
+	error_e sub_action;
+	static avoidance_type_e avoidance = NO_DODGE_AND_NO_WAIT;
+	static Uint8 nb_try = 0;
+
+
+	switch(state)
+	{
+		case INIT:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1700,COLOR_Y(800)},FAST}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,avoidance);
+			switch(sub_action)
+                        {
+				case END_OK:
+					state = OPEN_HAMMER_FIRST_CANDLE_1;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+                                        state = OPEN_HAMMER_FIRST_CANDLE_1;
+					//previous_state = state;
+					//state = TIMEOUT_FAIL;
+				break;
+				case NOT_HANDLED:		//Echec de la mission
+                                        state = OPEN_HAMMER_FIRST_CANDLE_1;
+					//previous_state = state;
+					//state = PROPULSION_OR_AVOIDANCE_FAIL;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+                         }
+                        break;
+
+                case OPEN_HAMMER_FIRST_CANDLE_1:
+			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
+			state = GOTO_FIRST_WHITE_CANDLE;
+		break;
+
+		//-------------------------FIRST GODAMN WHITY CANDLE--------------------------------------
+
+		case GOTO_FIRST_WHITE_CANDLE:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1369,COLOR_Y(1346)},FAST}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,avoidance);
+			switch(sub_action)
+                        {
+				case END_OK:
+					state = HAMMER_FIRST_CANDLE;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
+				case NOT_HANDLED:		//Echec de la mission
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+                        }
+                        break;
+
+		case HAMMER_FIRST_CANDLE:
+			state = wait_hammer(	HAMMER_FIRST_CANDLE,		WAIT_HAMMER_DOWN_FIRST_CANDLE,	HAMMER_FAIL);
+			if(state == WAIT_HAMMER_DOWN_FIRST_CANDLE)
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+		break;
+		case WAIT_HAMMER_DOWN_FIRST_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_FIRST_CANDLE,	OPEN_HAMMER_FIRST_CANDLE_2,	HAMMER_FAIL);
+		break;
+		case OPEN_HAMMER_FIRST_CANDLE_2:
+			//						->In progress					->Success			->Fail
+			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS ENCORE UNE FOIS
+			state = ALL_CANDLES_BLOWN;
+		break;
+
+
+		case ALL_CANDLES_BLOWN:
+			ret = END_OK;
+		break;
+		case HAMMER_FAIL:
+			ret = NOT_HANDLED;
+		break;
+		case TIMEOUT_FAIL:					//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
+			nb_try++;
+			if(nb_try < OPEN_ALL_GIFTS_NB_TRY)
+				state = previous_state;	//Timeout ?? -> On y retourne !
+			else
+				ret = END_WITH_TIMEOUT;
+		break;
+		case PROPULSION_OR_AVOIDANCE_FAIL:	//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
+			nb_try++;
+			if(nb_try < OPEN_ALL_GIFTS_NB_TRY)
+				state = previous_state;	//Failed ?? -> On y retourne !
+			else
+				ret = NOT_HANDLED;
+		break;
+		default:
+		break;
+
+	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
+	return ret;
+}
+
