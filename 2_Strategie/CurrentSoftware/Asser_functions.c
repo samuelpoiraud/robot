@@ -182,7 +182,7 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 		{	
 			//La réception d'un message de freinage nous permet de considérer que la propulsion à changé de point.
 			//On dépile alors l'ordre MULTIPOINT SI il ne s'agit pas du dernier point.
-			if(STACKS_get_top(stack_id)-1 != save_stack_bottom)	//S'il ne s'agit pas du dernier point...
+			if(STACKS_get_top(stack_id) != save_stack_bottom)	//S'il ne s'agit pas du dernier point...
 			{
 				STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1);
 				asser_fun_printf("\nASSER_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(ASSER));
