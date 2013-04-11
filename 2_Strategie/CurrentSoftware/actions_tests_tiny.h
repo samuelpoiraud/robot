@@ -22,4 +22,6 @@
 void TEST_STRAT_T_homologation(void);
 void STRAT_TINY_gifts_and_cake(void);
 void TEST_STRAT_avoidance(void);
+
+void STRAT_TINY_whity_candles(void);
 #endif /* ACTIONS_TESTS_TINY_H */
