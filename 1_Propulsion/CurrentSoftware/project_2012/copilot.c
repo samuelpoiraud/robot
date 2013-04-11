@@ -239,6 +239,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 				//On réécrit le reste de la trajectoire pour la suite...
 				BUFFER_add_begin(order);	//On remet l'ordre en l'état dans le buffer...
 				order->trajectory = TRAJECTORY_STOP;
+				order->acknowledge = NO_ACKNOWLEDGE;
 				order->x = 0;
 				order->y = 0;
 			}	
@@ -501,43 +502,23 @@ braking_e Decision_robot_proche_pour_carte_p()
 
 
 	
-// Cette décision concerne le ROBOT et non le point fictif...	
-void COPILOT_update_arrived(void)
-{
-	
-//	if(arrived_rotation  != ARRIVED)
-	if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
-		arrived_rotation 	= ARRIVED;
-	else
-		arrived_rotation 	= Decision_robot_arrive_rotation();
-	
-	if(arrived_translation != ARRIVED)
-		arrived_translation = Decision_robot_arrive_translation();
-		
-	if(arrived == ARRIVED)
-		return;
-	
-	if(current_order.trajectory == TRAJECTORY_ROTATION)
-		arrived = arrived_rotation;
-	else
-		arrived = arrived_translation;
-	
-	//si le mode bordure est actif
-	if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
-		if(arrived != ARRIVED)	//MAINTIENT DE ROBOT ARRIVE
-			arrived = Decision_robot_arrive_bordure();
-
-}
-
 
 	
 // Cette décision concerne le ROBOT et non le point fictif...
 arrived_e Decision_robot_arrive_arret(void)
 {
-	if( 	abs(global.real_speed_rotation) < PRECISION_ARRIVE_SPEED_ROTATION
-		&&  abs(global.real_speed_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION )
+	if( abs(global.real_speed_rotation) < PRECISION_ARRIVE_SPEED_ROTATION )
+		arrived_rotation = ARRIVED;
+	else
+		arrived_rotation = NOT_ARRIVED;
+
+	if( abs(global.real_speed_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION )
+		arrived_translation = ARRIVED;
+	else
+		arrived_translation = NOT_ARRIVED;
+
+	if((arrived_translation == ARRIVED) && (arrived_rotation == ARRIVED))
 	{
-		
 		COPILOT_reset_absolute_destination();
 		return ARRIVED;
 	}	
@@ -546,6 +527,37 @@ arrived_e Decision_robot_arrive_arret(void)
 }
 
 
+// Cette décision concerne le ROBOT et non le point fictif...
+void COPILOT_update_arrived(void)
+{
+	if(current_order.trajectory == TRAJECTORY_STOP)
+	{
+		arrived = Decision_robot_arrive_arret();
+		return;
+	}
+
+//	if(arrived_rotation  != ARRIVED)
+	if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
+		arrived_rotation 	= ARRIVED;
+	else
+		arrived_rotation 	= Decision_robot_arrive_rotation();
+
+	if(arrived_translation != ARRIVED)
+		arrived_translation = Decision_robot_arrive_translation();
+
+	if(arrived == ARRIVED)
+		return;
+
+	if (current_order.trajectory == TRAJECTORY_ROTATION)
+		arrived = arrived_rotation;
+	else
+		arrived = arrived_translation;
+
+	//si le mode bordure est actif
+	if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
+		if(arrived != ARRIVED)	//MAINTIENT DE ROBOT ARRIVE
+			arrived = Decision_robot_arrive_bordure();
+}
 
 
 
