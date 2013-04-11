@@ -378,3 +378,136 @@ void TEST_STRAT_avoidance(void){
 /* ----------------------------------------------------------------------------- */
 /* 							Tests state_machines multiple              			 */
 /* ----------------------------------------------------------------------------- */
+
+void TEST_STRAT_gato(void){
+	static enum{
+		SORTIR = 0
+	}state = SORTIR;
+
+	static error_e sub_action;
+
+	switch(state){
+		case SORTIR:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(801)}}
+                        ,{{1728,COLOR_Y(801)}}
+                        ,{{1764,COLOR_Y(894)}}
+                        ,{{1627,COLOR_Y(968)}}
+                        ,{{1511,COLOR_Y(1071)}}
+                        ,{{1423,COLOR_Y(1200)}}
+                        ,{{1369,COLOR_Y(1346)}}
+                        ,{{1350,COLOR_Y(1500)}}
+                        ,{{1369,COLOR_Y(1654)}}
+                        ,{{1423,COLOR_Y(1800)}}}
+                        ,10,FORWARD,NORMAL_WAIT);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case NOT_HANDLED:
+					state = DONE;
+					break;
+				case END_OK:
+					state = DONE;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					break;
+				default:
+					state = DONE;
+					break;
+			}
+			break;
+
+		case DONE:
+			break;
+	}
+}
+
+/* ----------------------------------------------------------------------------- */
+/* 							Tests state_machines multiple              			 */
+/* ----------------------------------------------------------------------------- */
+
+
+void STRAT_TINY_whity_candles(void)
+{
+	static enum
+	{
+		GET_OUT = 0,
+		GOTO_CAKE,
+		BLOW_ALL_WHITY_CANDLES,
+		FAIL_TO_BLOW_CANDLES,
+		DONE
+	}state = GET_OUT;
+
+	error_e sub_action;
+
+	switch(state)
+	{
+					
+		case GET_OUT:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(600)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = GOTO_CAKE;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+					state = GOTO_CAKE;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
+
+		break;
+
+		case GOTO_CAKE:    // ehhhhh GATOOOO
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1700,COLOR_Y(600)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = BLOW_ALL_WHITY_CANDLES;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+					state = BLOW_ALL_WHITY_CANDLES;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
+
+		break;
+
+
+		case BLOW_ALL_WHITY_CANDLES:	 // EHHHH SOUFFLER BOUGIES BLANCHES 
+			sub_action = TINY_white_candles();
+			switch(sub_action)
+            {
+				case END_OK:
+					state=DONE;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+					state = FAIL_TO_BLOW_CANDLES;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
+		break;
+
+
+
+
+		case FAIL_TO_BLOW_CANDLES:		
+
+		break;
+
+
+		case DONE:
+		break;
+		default:
+		break;
+	}
+}
