@@ -20,7 +20,7 @@
 #include "actions_tests_krusty_micro.h"
 
 void TEST_STRAT_K_homologation(void);
-void TEST_STRAT_avoidance(void);
+//void TEST_STRAT_avoidance(void);
 void TEST_STRAT_kdo(void);
 void TEST_STRAT_assiettes(void);
 void TEST_STRAT_verres(void);

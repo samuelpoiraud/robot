@@ -20,6 +20,14 @@ Uint16 GEOMETRY_distance(GEOMETRY_point_t a, GEOMETRY_point_t b)
 	return sqrt(dx*dx+dy*dy);
 }
 
+Uint32 GEOMETRY_distance_square(GEOMETRY_point_t a, GEOMETRY_point_t b)
+{
+	double dx = a.x - b.x;
+	double dy = a.y - b.y;
+	return (dx*dx+dy*dy);
+}
+
+
 Uint32 GEOMETRY_squared_distance(GEOMETRY_point_t a, GEOMETRY_point_t b)
 {
 	Sint32 dx = a.x - b.x;

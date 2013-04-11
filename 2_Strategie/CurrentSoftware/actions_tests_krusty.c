@@ -42,6 +42,7 @@ void TEST_STRAT_K_homologation(void)
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
 
+/*
 void TEST_STRAT_avoidance(void){
 	static enum{
 		SORTIR,
@@ -54,7 +55,8 @@ void TEST_STRAT_avoidance(void){
 
 	switch(state){
 		case SORTIR:
-			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD,END_AT_BREAK);
+
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -75,13 +77,14 @@ void TEST_STRAT_avoidance(void){
 
 		case DEPLACEMENT1:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{500, COLOR_Y(700)},SLOW},
-					{{500, COLOR_Y(2500)},SLOW}},2,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+					{{500, COLOR_Y(2500)},SLOW}},2,ANY_WAY,NO_DODGE_AND_WAIT);
 			switch(sub_action){
 				case IN_PROGRESS:
 					debug_printf("INPROGRESS");
 					break;
 				case NOT_HANDLED:
-					state = DONE;
+
+					state = DEPLACEMENT2;
 					break;
 				case END_OK:
 					state = DONE;
@@ -96,22 +99,21 @@ void TEST_STRAT_avoidance(void){
 			break;
 
 		case DEPLACEMENT2:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000, COLOR_Y(700)},SLOW},
-					{{1000, COLOR_Y(2500)},SLOW}},2,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
 				case NOT_HANDLED:
-					state = DEPLACEMENT1;
+					state = DONE;
 					break;
 				case END_OK:
-					state = DEPLACEMENT1;
+					state = DONE;
 					break;
 				case END_WITH_TIMEOUT:
-					state = DEPLACEMENT1;
+					state = DONE;
 					break;
 				default:
-					state = DEPLACEMENT1;
+					state = DONE;
 					break;
 			}
 			break;
@@ -124,7 +126,7 @@ void TEST_STRAT_avoidance(void){
 
 
 }
-
+*/
 void TEST_STRAT_kdo(void){
 	static enum{
 		SORTIR = 0,

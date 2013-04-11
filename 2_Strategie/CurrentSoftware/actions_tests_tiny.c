@@ -35,6 +35,81 @@ void TEST_STRAT_T_homologation(void)
 		 	- sortir de la zone, marquer 1 point
 		 	- éviter correctement un adversaire (donc il faut un minimum de déplacement quand même)
 	*/
+static enum
+	{
+		GET_OUT = 0,
+		GET_OUT_IF_NO_CALIBRATION,
+		TURN_IF_NO_CALIBRATION,
+		SUBACTION_OPEN_ALL_GIFTS,
+		FAIL_TO_OPEN_GIFTS
+		
+	}state = GET_OUT;
+
+	error_e sub_action;
+
+	switch(state)
+	{
+						//Sortie de la zone de départ, on rejoint le point de départ pour les cadeaux
+			//POSITION DE DEPART :  x=250 | y= collé contre bordure | sens = bras du coté des cadeaux (ou pas si lancement sans calibration)
+			//REMARQUE
+			/*
+				SI la calibration est effectuée, on est dans le bon sens quelque soit la couleur
+				SINON, (hors match... pour gain de temps) une rotation aura lieu dès qu'on est "extrait" de la bordure (sens imposé) !
+			*/
+		case GET_OUT:
+			if(global.env.asser.calibrated || global.env.color == RED)
+				state = SUBACTION_OPEN_ALL_GIFTS;
+			else
+				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !
+		break;
+		case GET_OUT_IF_NO_CALIBRATION:
+			sub_action = goto_pos(250,COLOR_Y(300),FAST,ANY_WAY);
+			switch(sub_action)
+            {
+				case END_OK:
+				case END_WITH_TIMEOUT:	//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
+				case NOT_HANDLED:		//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
+					state = TURN_IF_NO_CALIBRATION;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+		case TURN_IF_NO_CALIBRATION:
+			sub_action = goto_angle(PI4096/2, FAST);
+			switch(sub_action)
+            {
+				case END_OK:
+				case END_WITH_TIMEOUT:	//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
+				case NOT_HANDLED:		//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
+					state = SUBACTION_OPEN_ALL_GIFTS;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
+		break;
+		case SUBACTION_OPEN_ALL_GIFTS:	//Subaction d'ouverture des cadeaux
+			sub_action = TINY_open_all_gifts_homolog();
+			switch(sub_action)
+            {
+				case END_OK:
+					state = FAIL_TO_OPEN_GIFTS;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+					state = FAIL_TO_OPEN_GIFTS;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
+            case FAIL_TO_OPEN_GIFTS:
+                        
+            break;
+        }
 }
 
 
@@ -216,7 +291,90 @@ void STRAT_TINY_gifts_and_cake(void)
 		break;
 	}	
 }
+void TEST_STRAT_avoidance(void){
+	static enum{
+		SORTIR = 0,
+		DEPLACEMENT1,
+		DEPLACEMENT2,
+		DONE
+	}state = SORTIR;
 
+	static error_e sub_action;
+
+	switch(state){
+		case SORTIR:
+                    debug_printf("S\n");
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case NOT_HANDLED:
+					state = DEPLACEMENT1;
+					break;
+				case END_OK:
+					state = DEPLACEMENT1;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DEPLACEMENT1;
+					break;
+				default:
+					state = DEPLACEMENT1;
+					break;
+			}
+			break;
+
+		case DEPLACEMENT1:
+                        debug_printf("D1\n");
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{500, COLOR_Y(700)},SLOW},
+					{{500, COLOR_Y(2500)},SLOW}},2,ANY_WAY,NO_DODGE_AND_WAIT);
+			switch(sub_action){
+				case IN_PROGRESS:
+                                    //debug_printf("INPROGRESS");
+					break;
+				case NOT_HANDLED:
+                                    debug_printf("on retourne");
+					state = DEPLACEMENT2;
+					break;
+				case END_OK:
+					state = DONE;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					break;
+				default:
+					state = DONE;
+					break;
+			}
+			break;
+
+		case DEPLACEMENT2:
+			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case NOT_HANDLED:
+					state = DONE;
+					break;
+				case END_OK:
+					state = DONE;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					break;
+				default:
+					state = DONE;
+					break;
+			}
+			break;
+		case DONE:
+			break;
+		default:
+			break;
+
+	}
+
+
+}
 /* ----------------------------------------------------------------------------- */
 /* 							Tests state_machines multiple              			 */
 /* ----------------------------------------------------------------------------- */

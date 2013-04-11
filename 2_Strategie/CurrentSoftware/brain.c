@@ -88,13 +88,13 @@ void any_match(time32_t match_duration)
 			switch(strat_number())
 			{
 				case 0x01:	//STRAT_1_TINY
-					strategy = TEST_Launcher_ball;
+					strategy = TEST_STRAT_T_homologation;
 				break;
 				case 0x02:	//STRAT_2_TINY
-					strategy = STRAT_TINY_gifts_and_cake;
+					strategy = TEST_STRAT_T_homologation;
 				break;
 				case 0x03:	//STRAT_3_TINY
-					strategy = TEST_Launcher_ball;
+					strategy = TEST_STRAT_T_homologation;
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;

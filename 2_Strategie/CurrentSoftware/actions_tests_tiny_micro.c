@@ -560,5 +560,58 @@ error_e TINY_blow_quater(cake_part_e cake_part)
 }
 	
 
+error_e TINY_open_all_gifts_homolog(void)
+{
+	static enum
+	{
+		INIT=0,
+		OPENING_GIFTS
+	}state = INIT;
 
+	error_e ret = IN_PROGRESS;
+	error_e sub_action;
+	static avoidance_type_e avoidance = NO_AVOIDANCE;
+
+	switch(state)
+	{
+		case INIT:
+			TINY_hammer_open_all_gift(TRUE);
+			avoidance = DODGE_AND_NO_WAIT;
+			state = OPENING_GIFTS;
+		break;
+		case OPENING_GIFTS:
+
+			TINY_hammer_open_all_gift(FALSE);	//Gestion du mouvement du bras...
+
+			if(		(global.env.color == BLUE && (global.env.pos.y < 1800))
+				||	(global.env.color == RED && (global.env.pos.y > 1200))  )
+				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
+
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},FAST},{{200,COLOR_Y(600)},FAST},{{200,COLOR_Y(2400)},FAST}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			switch(sub_action)
+            {
+				case END_OK:
+					ret = END_OK;
+					state = INIT;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+				case NOT_HANDLED:		//Echec de la mission
+					ret = sub_action;
+					state = INIT;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+
+		default:
+		break;
+
+	}
+	return ret;
+
+
+}
 
