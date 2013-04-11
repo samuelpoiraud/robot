@@ -1491,10 +1491,10 @@ error_e K_push_back_row_glasses(void){
 					lift_left = ACT_GRAB_ROW;
 					break;
 				case END_WITH_TIMEOUT:
-					lift_left = ACT_GRAB_ROW;
+					lift_right = ACT_DONE;
 					break;
 				case NOT_HANDLED:
-					lift_left = ACT_GRAB_ROW;
+					lift_right = ACT_DOWN;
 					break;
 				default:
 					debug_printf("Fuyez cava peter!!");
@@ -1504,7 +1504,7 @@ error_e K_push_back_row_glasses(void){
 
 
 		case ACT_GRAB_ROW:
-				//ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+				ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
 				lift_left = ACT_OPEN;
 			break;
 
@@ -1558,7 +1558,7 @@ error_e K_push_back_row_glasses(void){
 
 
 		case ACT_GRAB_ROW:
-			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+			//ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
 			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
 			lift_right = ACT_OPEN;
 			break;
