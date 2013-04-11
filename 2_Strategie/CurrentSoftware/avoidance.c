@@ -79,7 +79,7 @@ static void foe_in_path(way_e* move_way_indicator, bool_e in_path[NB_FOES]);
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot 
  * move_way = retourne le sens de déplacement
  */
-static Uint16 AVOIDANCE_speed_indicator_compute(way_e* move_way);
+static Uint16 AVOIDANCE_speed_indicator_compute(void);
 
 /* ----------------------------------------------------------------------------- */
 /* 				Fonctions de génération de la trajectoire à 3 points             */
@@ -1391,13 +1391,14 @@ static void foe_in_path(way_e* move_way_indicator, bool_e *in_path)
 	Uint16 speed_indicator, distance_computed;
 	Uint8 i;
 	way_e move_way;
+	move_way = global.env.asser.current_way;	//TODO cracra.. a nettoyer ultérieurement.
 
 	/* Si on n'a pas d'évitement, l'adversaire n'est jamais devant nous */
 	if (!global.env.config.evitement)
 		return;
 
 	// on regarde notre indicateur de vitesse et notre sens de direction
-	speed_indicator = AVOIDANCE_speed_indicator_compute(&move_way);
+	speed_indicator = AVOIDANCE_speed_indicator_compute();
 	// on transmet l'information
 	*move_way_indicator = move_way;
 
@@ -1444,12 +1445,11 @@ static void foe_in_path(way_e* move_way_indicator, bool_e *in_path)
 }
 
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot */
-static Uint16 AVOIDANCE_speed_indicator_compute(way_e* move_way)
+static Uint16 AVOIDANCE_speed_indicator_compute(void)
 {
 	// Surveiller les initialisations
 	static time32_t last_time_compute = 0;
 	static GEOMETRY_point_t old_pos = {0,0};
-	static way_e old_move_way = ANY_WAY;
 
 	// On met une première valeur super élevée pour éviter d'éviter au début (si on veut éviter, ce qui n'est pas encore le cas)
 	static Uint16 speed_computed = 100;
@@ -1473,9 +1473,6 @@ static Uint16 AVOIDANCE_speed_indicator_compute(way_e* move_way)
 		old_pos.y = new_pos.y;
 		//debug_printf("NS=%d\n",speed_computed);
 	}
-
-	// on passe le sens de déplacement
-	*move_way = global.env.asser.current_way;
 
 	// on retourne la valeur de la vitesse
 	return speed_computed;
