@@ -362,25 +362,25 @@ void ENV_init()
 	int i;
 	//Init cadeaux
 	for(i=GOAL_Cadeau0; i <= GOAL_Cadeau3; i++){
-		global.env.map_elements[i] = TODO;
+		global.env.map_elements[i] = ELEMENT_TODO;
 	}
 	//Init Verre + VerreEnnemi + Bougies
 	for(i=GOAL_Verres0; i <= GOAL_Etage2Bougie11; i++){
-		global.env.map_elements[i] = TODO;
+		global.env.map_elements[i] = ELEMENT_TODO;
 	}
 	//Attention la suite n'est pas definitive et necessitera un changement en fonction des positions de calage
-//	global.env.map_elements[4] = NON;
-//	global.env.map_elements[5] = NON;
-//	global.env.map_elements[6] = TODO;
-//	global.env.map_elements[7] = TODO;
-//	global.env.map_elements[8] = TODO;
+//	global.env.map_elements[4] = ELEMENT_NONE;
+//	global.env.map_elements[5] = ELEMENT_NONE;
+//	global.env.map_elements[6] = ELEMENT_TODO;
+//	global.env.map_elements[7] = ELEMENT_TODO;
+//	global.env.map_elements[8] = ELEMENT_TODO;
 	for(i = GOAL_Assiette0; i <= GOAL_Assiette4; i++) {
 		#warning "Position initiale des robots fixe ou disponible par un DEFINE ? (pour savoir l'état initial des assiettes)"
 		if(i != GOAL_Assiette0 && i != GOAL_Assiette1)
-			global.env.map_elements[i] = TODO;
+			global.env.map_elements[i] = ELEMENT_TODO;
 	}
 	for(i = GOAL_AssietteEnnemi0; i <= GOAL_AssietteEnnemi4; i++){
-		global.env.map_elements[i] = NON;
+		global.env.map_elements[i] = ELEMENT_NONE;
 	}
 }
 

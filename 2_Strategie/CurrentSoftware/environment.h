@@ -77,9 +77,9 @@
 
 	//enum utilisé par le tableau d'états du terrain
 	typedef enum{
-		TODO = 0,
-		DONE,
-		NON //Non applicable
+		ELEMENT_TODO = 0,
+		ELEMENT_DONE,
+		ELEMENT_NONE //Non applicable
 	}map_state_e;
 
 	typedef struct
