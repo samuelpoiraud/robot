@@ -175,7 +175,7 @@ bool_e CAN_fast_update(CAN_msg_t* msg)
 		return TRUE;	
 	
 }
-#include <timer.h>
+#include <can.h>
 
 /* met a jour la position a partir d'un message asser la délivrant */
 void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
@@ -185,7 +185,7 @@ void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 	static time32_t new_time;
 	static way_e new_way;
 	static SUPERVISOR_error_source_e new_status;
-	Uint16 save_int_t1;
+	Uint16 save_int;
 
 	if(on_it == TRUE)
 	{
@@ -219,9 +219,9 @@ void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 	}
 	else		//En tache de fond.
 	{
-		save_int_t1 = _T1IE;
-		if(save_int_t1)
-			DisableIntT1;
+		save_int = _C1IE;
+		if(save_int == 1)
+			_C1IE = 0;
 		if(new_pos_available)
 		{
 			new_pos_available = FALSE;
@@ -232,8 +232,8 @@ void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 			//debug_printf("\n Pos update :  (%lf : %lf)\n",global.env.pos.cosAngle,global.env.pos.sinAngle);
 			global.env.pos.updated = TRUE;
 		}
-		if(save_int_t1)
-			EnableIntT1;
+		if(save_int == 1)
+			_C1IE = 1;
 
 	}
 
