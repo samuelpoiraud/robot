@@ -20,8 +20,8 @@
 	#define OUTPUT_LOG  //utilisé dans act_function et queue
 	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 //	#define OUTPUT_LOG_PRINT_ALL_COMPONENTS  //Si défini, affiche les messages de tous les composants (OUTPUT_LOG_COMPONENT_* ne sont pas pris en compte, les niveau de débuggage le sont par contre)
-	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION LOG_PRINT_On  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
-	#define OUTPUT_LOG_COMPONENT_QUEUE       LOG_PRINT_On
+	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION LOG_PRINT_Off  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
+	#define OUTPUT_LOG_COMPONENT_QUEUE       LOG_PRINT_Off
 
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
@@ -151,7 +151,7 @@
 //	#define USE_SEND_CAN_DEBUG
 
 	//envoie la position de l'adversaire sur le bus à chaque update (max 1 fois par seconde (a l'ecriture de ce commentaire))
-	#define USE_FOE_POS_CAN_DEBUG
+//	#define USE_FOE_POS_CAN_DEBUG
 	
 	//envoie de l'ajout, la mise a jour ou la suppresion d'un element de jeu sur le CAN
 //	#define USE_ELEMENT_CAN_DEBUG
@@ -173,7 +173,7 @@
 //	#define DEBUG_SICK
 //	#define DEBUG_ELEMENTS
 //	#define DEBUG_BARCODE
-	#define DEBUG_DETECTION
+//	#define DEBUG_DETECTION
 	#define DEBUG_AVOIDANCE
 //	#define DEBUG_POLYGON
 //	#define DEBUG_TELEMETER

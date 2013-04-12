@@ -261,7 +261,9 @@ void STRAT_TINY_gifts_and_cake(void)
 			switch(sub_action)
             {
 				case END_OK:
-					state = SUB_WHITE_CANDLE;
+					//state = SUB_WHITE_CANDLE;
+					#warning "pour belgique, code qui s'arrete au milieu du terrain"
+					state = DONE;
 				break;				
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:

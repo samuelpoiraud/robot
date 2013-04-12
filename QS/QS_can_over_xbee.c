@@ -53,8 +53,8 @@ volatile static bool_e flag_1s = FALSE;
 
 void CAN_over_XBee_every_second(void)
 {
-	if(flag_1s == TRUE)
-		debug_printf("Attention, vous n'avez pas appelé CAN_over_XBee_process_main depuis 1 seconde !\n");
+	//if(flag_1s == TRUE)
+	//	debug_printf("Attention, vous n'avez pas appelé CAN_over_XBee_process_main depuis 1 seconde !\n");
 	flag_1s = TRUE;
 }
 
