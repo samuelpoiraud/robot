@@ -37,6 +37,7 @@ void T_BALLINFLATER_start(void)
 /* ----------------------------------------------------------------------------- */
 
 #define HAMMER_POSITION_UP		(0)
+#define HAMMER_POSITION_CANDLE	(30)
 #define HAMMER_POSITION_DOWN	(85)
 #define HAMMER_POSITION_HOME	(90)
 				
@@ -627,30 +628,19 @@ error_e TINY_white_candles(void)
 	typedef enum
 	{
 		INIT=0,
-                OPEN_HAMMER_FIRST_CANDLE_1,
-                        GOTO_FIRST_WHITE_CANDLE,
+        OPEN_HAMMER_FIRST_CANDLE_1,
+		GOTO_FIRST_WHITE_CANDLE,
+		ANGLE_FIRST_CANDLE,
 		HAMMER_FIRST_CANDLE,
 		WAIT_HAMMER_DOWN_FIRST_CANDLE,
-		OPEN_HAMMER_FIRST_CANDLE_2,
-                /*        GOTO_SECOND_WHITE_CANDLE,
-		OPEN_HAMMER_SECOND_CANDLE_1,
-		HAMMER_SECOND_CANDLE,
-		WAIT_HAMMER_DOWN_SECOND_CANDLE,
-		OPEN_HAMMER_SECOND_CANDLE_2,
-                        GOTO_THIRD_WHITE_CANDLE,
-		OPEN_HAMMER_THIRD_CANDLE_1,
-		HAMMER_THIRD_CANDLE,
-		WAIT_HAMMER_DOWN_THIRD_CANDLE,
-		OPEN_HAMMER_THIRD_CANDLE_2,
-                        GOTO_FOURTH_WHITE_CANDLE,
-		OPEN_HAMMER_FOURTH_CANDLE_1,
-		HAMMER_FOURTH_CANDLE,
-		WAIT_HAMMER_DOWN_FOURTH_CANDLE,
-		OPEN_HAMMER_FOURTH_CANDLE_2,*/
-		HAMMER_FAIL,
-		PROPULSION_OR_AVOIDANCE_FAIL,
-		TIMEOUT_FAIL,
+		WAIT_HAMMER_FIRST_CANDLE_REUP,
 		ALL_CANDLES_BLOWN,
+		LAST_ROTATION,
+		LAST_WAIT_HAMMER_DOWN,
+		HAMMER_FAIL,
+		TIMEOUT_FAIL,
+		PROPULSION_OR_AVOIDANCE_FAIL,
+		DONE
 	}state_e;
 	static state_e state = INIT;
 	static state_e previous_state = INIT;
@@ -664,7 +654,7 @@ error_e TINY_white_candles(void)
 	switch(state)
 	{
 		case INIT:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1700,COLOR_Y(800)},FAST}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,avoidance);
+			/*sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1700,COLOR_Y(800)},FAST}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,avoidance);
 			switch(sub_action)
                         {
 				case END_OK:
@@ -685,9 +675,11 @@ error_e TINY_white_candles(void)
 				default:
 				break;
                          }
-                        break;
-
-                case OPEN_HAMMER_FIRST_CANDLE_1:
+                  
+			*/     
+			state = OPEN_HAMMER_FIRST_CANDLE_1;
+			break;
+        case OPEN_HAMMER_FIRST_CANDLE_1:
 			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
 			state = GOTO_FIRST_WHITE_CANDLE;
 		break;
@@ -695,9 +687,31 @@ error_e TINY_white_candles(void)
 		//-------------------------FIRST GODAMN WHITY CANDLE--------------------------------------
 
 		case GOTO_FIRST_WHITE_CANDLE:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1369,COLOR_Y(1346)},FAST}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,avoidance);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1369,COLOR_Y(1346)},FAST}},1,FORWARD,avoidance);
 			switch(sub_action)
-                        {
+			{
+				case END_OK:
+					state = ANGLE_FIRST_CANDLE;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
+				case NOT_HANDLED:		//Echec de la mission
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+			}
+        break;
+		case ANGLE_FIRST_CANDLE:
+			sub_action = goto_angle(-PI4096/2,FAST);
+
+			switch(sub_action)
+            {
 				case END_OK:
 					state = HAMMER_FIRST_CANDLE;
 				break;
@@ -713,28 +727,55 @@ error_e TINY_white_candles(void)
 				break;
 				default:
 				break;
-                        }
-                        break;
-
+            }
+		break;
 		case HAMMER_FIRST_CANDLE:
+			//						->In progress			->Success						->Fail
 			state = wait_hammer(	HAMMER_FIRST_CANDLE,		WAIT_HAMMER_DOWN_FIRST_CANDLE,	HAMMER_FAIL);
 			if(state == WAIT_HAMMER_DOWN_FIRST_CANDLE)
-				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
 		break;
 		case WAIT_HAMMER_DOWN_FIRST_CANDLE:
 			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_DOWN_FIRST_CANDLE,	OPEN_HAMMER_FIRST_CANDLE_2,	HAMMER_FAIL);
+			state = wait_hammer(	WAIT_HAMMER_DOWN_FIRST_CANDLE,	WAIT_HAMMER_FIRST_CANDLE_REUP,	HAMMER_FAIL);
+			if(state == WAIT_HAMMER_FIRST_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
 		break;
-		case OPEN_HAMMER_FIRST_CANDLE_2:
-			//						->In progress					->Success			->Fail
-			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS ENCORE UNE FOIS
+		case WAIT_HAMMER_FIRST_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_FIRST_CANDLE_REUP,	ALL_CANDLES_BLOWN,	HAMMER_FAIL);
 			state = ALL_CANDLES_BLOWN;
 		break;
-
-
 		case ALL_CANDLES_BLOWN:
-			ret = END_OK;
+			state = LAST_ROTATION;
 		break;
+		case LAST_ROTATION:
+			sub_action = goto_angle(0,FAST);
+			switch(sub_action)
+            {
+				case END_OK:
+					ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+					state = LAST_WAIT_HAMMER_DOWN;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = TIMEOUT_FAIL;
+				break;
+				case NOT_HANDLED:		//Echec de la mission
+					previous_state = state;
+					state = PROPULSION_OR_AVOIDANCE_FAIL;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+		case LAST_WAIT_HAMMER_DOWN:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,	HAMMER_FAIL);
+		break;
+
 		case HAMMER_FAIL:
 			ret = NOT_HANDLED;
 		break;
@@ -743,14 +784,23 @@ error_e TINY_white_candles(void)
 			if(nb_try < OPEN_ALL_GIFTS_NB_TRY)
 				state = previous_state;	//Timeout ?? -> On y retourne !
 			else
+			{
 				ret = END_WITH_TIMEOUT;
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			}
 		break;
 		case PROPULSION_OR_AVOIDANCE_FAIL:	//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
 			nb_try++;
 			if(nb_try < OPEN_ALL_GIFTS_NB_TRY)
 				state = previous_state;	//Failed ?? -> On y retourne !
 			else
+			{
 				ret = NOT_HANDLED;
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			}
+		break;
+		case DONE:
+			ret = END_OK;
 		break;
 		default:
 		break;

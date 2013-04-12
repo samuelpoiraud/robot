@@ -137,6 +137,8 @@ void STRAT_TINY_gifts_and_cake(void)
 		ALL_GIFTS_OPENED,
 		PARTIAL_COMING_BACK,
 		FULL_COMING_BACK,
+		GOTO_MIDLE_OF_AREA,
+		SUB_WHITE_CANDLE,
 		BRING_GLASS,
 		GOTO_CAKE,
 		BLOW_ALL_CANDLES,
@@ -237,15 +239,16 @@ void STRAT_TINY_gifts_and_cake(void)
             }
 		break;
 		case FULL_COMING_BACK:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{550,global.env.pos.y},FAST},{{550,COLOR_Y(900)},FAST}},2,FORWARD,NO_DODGE_AND_WAIT);
+			//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{550,global.env.pos.y},FAST},{{550,COLOR_Y(900)},FAST}},2,FORWARD,NO_DODGE_AND_WAIT);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(1500)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
 			switch(sub_action)
             {
 				case END_OK:
-					state = BRING_GLASS;
+					state = GOTO_MIDLE_OF_AREA;
 				break;				
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
-					state = BRING_GLASS;	//Ras le bol, je tente quand même !	
+					state = GOTO_MIDLE_OF_AREA;	//Ras le bol, je tente quand même !
 				break;
 				case IN_PROGRESS:	
 				default:
@@ -253,24 +256,37 @@ void STRAT_TINY_gifts_and_cake(void)
             }
 			//Ramasser les verres proprement.
 		break;
-		case BRING_GLASS:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
+		case GOTO_MIDLE_OF_AREA:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(1500)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
 			switch(sub_action)
             {
 				case END_OK:
-					state = GOTO_CAKE;
+					state = SUB_WHITE_CANDLE;
 				break;				
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
-					state = GOTO_CAKE;	//Ras le bol, je tente quand même !	
+					state = FULL_COMING_BACK;	//Ras le bol, je tente quand même !
 				break;
 				case IN_PROGRESS:	
 				default:
 				break;
             }
 		break;
-		case GOTO_CAKE:					//Déplacement vers le gateau
-			
+		case SUB_WHITE_CANDLE:					//Souffler bougies
+			sub_action = TINY_white_candles();
+			switch(sub_action)
+            {
+				case END_OK:
+					state = DONE;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+					state = GOTO_MIDLE_OF_AREA;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
 		
 		break;
 		case BLOW_ALL_CANDLES:			//Subaction de soufflage des bougies
