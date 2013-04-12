@@ -133,7 +133,7 @@ void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
 	UART##uartId##_putc(SOH);												\
 	UART##uartId##_putc((Uint8)(src->sid >>8));								\
 	UART##uartId##_putc((Uint8)src->sid);									\
-	for (i=0; i<src->size; i++)												\
+	for (i=0; i<src->size && i<8; i++)										\
 		UART##uartId##_putc(src->data[i]);									\
 	for (i=src->size; i<8; i++)												\
 		UART##uartId##_putc(0xFF);											\
@@ -178,7 +178,7 @@ void CANmsgToU1txAndU2tx (CAN_msg_t* src)
 	UART2_putc((Uint8)(src->sid >>8));
 	UART1_putc((Uint8)src->sid);		
 	UART2_putc((Uint8)src->sid);	
-	for (i=0; i<src->size; i++)												
+	for (i=0; i<src->size && i<8; i++)
 	{
 		UART1_putc(src->data[i]);	
 		UART2_putc(src->data[i]);		
@@ -188,7 +188,7 @@ void CANmsgToU1txAndU2tx (CAN_msg_t* src)
 		UART1_putc(0xFF);											
 		UART2_putc(0xFF);											
 	}
-	UART1_putc(src->size);		
+	UART1_putc(src->size);		//Si par erreur la size est >8, on l'affiche quand même telle qu'elle pour que l'erreur soit vue !
 	UART2_putc(src->size);
 	/* Envoi de l'octet EOT cf : protocole de communication QS */			
 	UART1_putc(EOT);	

@@ -227,7 +227,9 @@ bool_e APIFrameToCANmsg(Uint8 * frame, CAN_msg_t * dest)
 				dest->sid |= (Uint16)byte_read;								
 				break;														
 			case SIZE_FIELD:	/*lecture du champs size */					
-				dest->size = byte_read;										
+				dest->size = byte_read;
+				if(dest->size > 8)
+					return FALSE;
 				break;														
 			case FOOTER:													
 				if(byte_read != EOT)												
@@ -270,7 +272,8 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 	static Uint8 frame_api[32];		
 	Uint8 byte_read;																										
 
-	if(XBee_data_ready())											
+
+	while(XBee_data_ready())
 	{																		
 		byte_read = XBee_get_next_msg();							
 																			
@@ -279,7 +282,10 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 			case START_DELIMITER:
 				checksum = 0;
 				if(byte_read != 0x7E)
+				{
+					next_byte_to_read = 0;	//Ce n'est pas le début d'une trame... on refuse de continuer..
 					return FALSE;
+				}
 				break;
 			case LENGTH_MSB:
 				length = (Uint16)byte_read <<8;	
@@ -293,17 +299,18 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 				checksum += byte_read;
 			break;
 		}
-		if(next_byte_to_read == length + HEADER_SIZE)	//Dernier octet (qui est d'ailleurs le checksum
+		if(next_byte_to_read == length + HEADER_SIZE)	//Dernier octet (qui est d'ailleurs le checksum)
 		{
+			next_byte_to_read = 0;	//Pour le prochain passage...
 			if(checksum	== 0xFF)	//Tout va bien !
 			{
-				next_byte_to_read = 0;	//Pour le prochain passage...
 				if(frame_api[0] != 0x90)
 					return FALSE;
+
 				if(APIFrameToCANmsg(frame_api+12, dest))	//Recherche d'un message can dans la frame reçue.
 				{
 					//On a reçu un message CAN !!!!!!!
-					return process_received_can_msg(dest);	//Si cette fonction traite un message qui n'est destiné qu'à ce fichier, elle renvoie false, et le message n'est pas remontté à l'applicatif !
+					return  process_received_can_msg(dest);	//Si cette fonction traite un message qui n'est destiné qu'à ce fichier, elle renvoie false, et le message n'est pas remontté à l'applicatif !
 				}	
 			}	
 		}																				
@@ -311,8 +318,9 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 		{
 			next_byte_to_read++;
 		}														
-	}																		
-	return FALSE;															
+	}
+
+	return FALSE;
 }
 
 
@@ -369,7 +377,7 @@ void CANMsgToXbee(CAN_msg_t * src, module_id_e module_dest)
 		SEND(SOH);									
 		SEND((Uint8)(src->sid >>8));								
 		SEND((Uint8)src->sid);									
-		for (i=0; i<src->size; i++)												
+		for (i=0; i<src->size && i<8; i++)
 		{	//Les accollades sont importantes (à cause du fait que SEND est une macro à deux instructions.
 			SEND(src->data[i]);									
 		}	
