@@ -382,7 +382,7 @@ void TEST_STRAT_avoidance(void){
 void TEST_STRAT_gato(void){
 	static enum{
 		SORTIR = 0,
-		ACTION_DONE
+		DONE
 	}state = SORTIR;
 
 	static error_e sub_action;
@@ -418,7 +418,7 @@ void TEST_STRAT_gato(void){
 			}
 			break;
 
-		case ACTION_DONE:
+		case DONE:
 			break;
 	}
 }

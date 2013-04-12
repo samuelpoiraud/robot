@@ -77,7 +77,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				//TODO prévenir environnement
-				global.env.map_elements[GOAL_Cadeau0] = DONE;
+				global.env.map_elements[GOAL_Cadeau0] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
 				ASSER_WARNER_arm_y(COLOR_Y(1000));
 				state = WAIT_SECOND_GIFT;
@@ -95,7 +95,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				//TODO prévenir environnement
-				global.env.map_elements[GOAL_Cadeau1] = DONE;
+				global.env.map_elements[GOAL_Cadeau1] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
 				ASSER_WARNER_arm_y(COLOR_Y(1600));
 				state = WAIT_THIRD_GIFT;
@@ -113,7 +113,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				//TODO prévenir environnement
-				global.env.map_elements[GOAL_Cadeau2] = DONE;
+				global.env.map_elements[GOAL_Cadeau2] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
 				ASSER_WARNER_arm_y(COLOR_Y(2200));
 				state = WAIT_FOURTH_GIFT;
@@ -131,7 +131,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				//TODO prévenir environnement
-				global.env.map_elements[GOAL_Cadeau3] = DONE;
+				global.env.map_elements[GOAL_Cadeau3] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_HOME);		//BAISSER BRAS
 				state = ALL_GIFTS_OPENED;
 			}

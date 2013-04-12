@@ -46,7 +46,7 @@ void STRAT_Lannion(void)
                         GO_POS5,
                         GO_POS5bis,
                         GO_POS5final,
-				DONE,
+				WORK_DONE,
 	}state = SORTIR;
 
 	//static bool_e timeout;
@@ -610,15 +610,15 @@ void STRAT_Lannion(void)
             switch(sub_action)
             {
                 case END_OK:
-                    state=DONE;
+                    state=WORK_DONE;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
+                    state=WORK_DONE;
                     break;
 
                 case NOT_HANDLED:
-                    state=DONE;
+                    state=WORK_DONE;
 
                     break;
 
@@ -630,7 +630,7 @@ void STRAT_Lannion(void)
                     break;
             }
             break;
-        case DONE:
+        case WORK_DONE:
             break;
 	}
 }
