@@ -181,6 +181,16 @@ bool_e ACT_ball_sorter_next() {
 	return ACT_push_operation(ACT_QUEUE_BallSorter, &args);
 }
 
+bool_e ACT_ball_sorter_next_autoset_speed(Uint16 ball_launcher_speed_white_cherry__tr_min) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init_with_param(&args, ACT_BALLSORTER, ACT_BALLSORTER_TAKE_NEXT_CHERRY, ball_launcher_speed_white_cherry__tr_min);
+	ACT_arg_set_timeout(&args, 5000);
+
+	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallSorter next autoset speed cmd\n");
+	return ACT_push_operation(ACT_QUEUE_BallSorter, &args);
+}
+
 // </editor-fold>
 
 // <editor-fold desc="Tiny">

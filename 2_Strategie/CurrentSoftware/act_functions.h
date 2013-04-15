@@ -109,9 +109,15 @@
 	bool_e ACT_lift_plier(ACT_lift_pos_t lift_id, ACT_lift_plier_cmd_t cmd);
 
 /* Actionneur associé: ACT_QUEUE_BallSorter */
-	//Passe a la cerise suivant. La précédente est envoyée par le lanceur de balle.
+	//Passe a la cerise suivante. La précédente est envoyée par le lanceur de balle.
 	//A la fin de l'execution de cette action, la couleur de la balle est renvoyée par message CAN avec le sid ACT_BALLSORTER_RESULT
 	bool_e ACT_ball_sorter_next();
+
+	//Comme ACT_ball_sorter_next() mais change la vitesse automatiquement du lanceur de balle après la detection.
+	//Cette fonction fait donc automatiquement une demande d'ejection de la cerise prise à la bonne vitesse et en prend une autre.
+	//Le message CAN ACT_BALLSORTER_RESULT contenant la couleur de la cerise est quand même envoyé à la strat.
+	//Lorsque la cerise est detectée comme pourie (pas blanche) la vitesse utilisé est ball_launcher_speed_white_cherry / 2.
+	bool_e ACT_ball_sorter_next_autoset_speed(Uint16 ball_launcher_speed_white_cherry__tr_min);
 
 	////////////////////////////////////////
 	///////////////// TINY /////////////////
