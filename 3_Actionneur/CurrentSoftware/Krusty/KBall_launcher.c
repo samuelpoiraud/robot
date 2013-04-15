@@ -126,6 +126,18 @@ void BALLLAUNCHER_stop() {
 	DCM_stop(BALLLAUNCHER_DCMOTOR_ID);
 }
 
+void BALLLAUNCHER_set_speed(Uint16 tr_per_min) {
+	if(tr_per_min == 0) {
+		COMPONENT_log(LOG_LEVEL_Debug, "Direct cmd: Motor stoped\n");
+		DCM_stop(BALLLAUNCHER_DCMOTOR_ID);	//On est sur de l'arreter comme ça, même en cas de problème capteur
+	} else {
+		COMPONENT_log(LOG_LEVEL_Debug, "Direct cmd: Run motor at speed: %d\n", tr_per_min);
+		DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, tr_per_min);
+		DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
+		DCM_restart(BALLLAUNCHER_DCMOTOR_ID); //Redémarrage si on l'avait arrêté avec DCM_stop, sinon ne fait rien
+	}
+}
+
 bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLLAUNCHER) {
 		switch(msg->data[0]) {
