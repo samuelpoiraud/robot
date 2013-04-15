@@ -15,15 +15,15 @@
 	#define HAMMER_ASSER_KP             400
 	#define HAMMER_ASSER_KI             0
 	#define HAMMER_ASSER_KD             0
-	#define HAMMER_ASSER_TIMEOUT        3000    //en ms
-	#define HAMMER_ASSER_POS_EPSILON    80
-	#define HAMMER_UNITS_PER_128_DEGRE  -468    //Unité potar par 128°
-	#define HAMMER_UNITS_AT_0_DEGRE     -115    //Unité potar quand le bras est à 0° (vertical vers le bas, rangé)
+	#define HAMMER_ASSER_TIMEOUT        1000    //en ms
+	#define HAMMER_ASSER_POS_EPSILON    18
+	#define HAMMER_UNITS_PER_128_DEGRE  -468    //Unit? potar par 128?
+	#define HAMMER_UNITS_AT_0_DEGRE     -115    //Unit? potar quand le bras est ? 0? (vertical vers le bas, rang?)
 	#define HAMMER_DCMOTOR_MAX_PWM_WAY0 30		//en %
-	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 12		//en %
-	#define HAMMER_ACT_MOVE_TO_INIT_POS 90      //en degré, 90° = vertical vers le bas, 0° = horizontal sorti
+	#define HAMMER_DCMOTOR_MAX_PWM_WAY1 20		//en %
+	#define HAMMER_ACT_MOVE_TO_INIT_POS 90      //en degr?, 90? = vertical vers le bas, 0? = horizontal sorti
 
-	//maintenir en position avec force 1V~: 90+2°
+	//maintenir en position avec force 1V~: 90+2?
 
 #endif	/* TBALL_INFLATER_CONFIG_H */
 

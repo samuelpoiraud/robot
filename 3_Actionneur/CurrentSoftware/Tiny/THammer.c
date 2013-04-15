@@ -137,8 +137,10 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 				result =    ACT_RESULT_DONE;
 				errorCode = ACT_RESULT_ERROR_OK;
 			} else if(asserState == DCM_TIMEOUT) {
-				result =    ACT_RESULT_FAILED;
-				errorCode = ACT_RESULT_ERROR_TIMEOUT;
+				result =    ACT_RESULT_DONE;
+				errorCode = ACT_RESULT_ERROR_OK;
+//				result =    ACT_RESULT_FAILED;
+//				errorCode = ACT_RESULT_ERROR_TIMEOUT;
 				QUEUE_set_error(queueId);
 			} else return;	//Operation is not finished, do nothing
 
