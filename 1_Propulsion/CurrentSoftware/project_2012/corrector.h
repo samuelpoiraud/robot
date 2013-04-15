@@ -51,5 +51,7 @@
 	bool_e CORRECTOR_PD_enable_get_translation(void);
 
 	void CORRECTOR_update(void);
+
+	void CORRECTOR_mode_reglage_kv(void);
 	
 #endif //def _CORRECTOR_H
