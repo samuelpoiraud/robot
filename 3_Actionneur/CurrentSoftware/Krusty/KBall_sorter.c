@@ -92,7 +92,7 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
 				if(queueId != QUEUE_CREATE_FAILED) {
-					if(msg->size >= 2) //Compatibilité avec l'ancien message CAN qui ne gérait pas le lanceur de balle
+					if(msg->size >= 3) //Compatibilité avec l'ancien message CAN qui ne gérait pas le lanceur de balle
 						desired_ball_launcher_speed = U16FROMU8(msg->data[2], msg->data[1]);
 					else desired_ball_launcher_speed = 0;
 					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_BallSorter);
