@@ -30,6 +30,16 @@ void BALLLAUNCHER_init();
  */
 void BALLLAUNCHER_stop();
 
+/** Change la vitesse du lanceur de balle instantanément.
+ *
+ * Cette fonction est appelée par KBall_sorter après une detection de couleur.
+ * Si le lanceur de balle était en cours d'asservissement à une vitesse donné
+ * par message CAN (et donc en passant par la pile), la nouvelle vitesse donnée par
+ * la nouvelle fonction sera prise en compte et le message CAN de resultat
+ * retournera Ok quand le lanceur de balle aura atteint la nouvelle vitesse.
+ */
+void BALLLAUNCHER_set_speed(Uint16 tr_per_min);
+
 /** Gère les messages CAN liés au lanceur de balle.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'asservir le moteur.
