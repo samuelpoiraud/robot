@@ -312,16 +312,12 @@ static void MAIN_onButton3() {
 	CAN_process_msg(&msg);
 
 	switch(hammer_next_pos) {
-		case 0:
-			hammer_next_pos = 20;
-			break;
-
-		case 20:
+		case 35:
 			hammer_next_pos = 0;
 			break;
 
 		default:
-			hammer_next_pos = 0;
+			hammer_next_pos = 35;
 			break;
 	}
 
