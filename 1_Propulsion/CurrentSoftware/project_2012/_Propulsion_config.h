@@ -31,7 +31,13 @@
 //	#define CAN_SEND_OVER_UART		//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
 //	#define VERBOSE_MSG_SEND_OVER_UART	//A la place d'un envoi CAN, envoi d'un texte explicite sur l'UART : "Position : " ou "TrajFinie : ....."
 			//ATTENTION, INCOMPATIBLE AVEC L'ENVOI PERIODIQUE EN IT !!!!!!!!!
-		
+
+	#define MODE_REGLAGE_KV
+	#ifdef MODE_REGLAGE_KV
+		#ifndef VERBOSE_MODE
+			#warning "Le mode réglage KV a besoin du VERBOSE_MODE"
+		#endif
+	#endif
 //	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 
 //	#define MODE_PRINTF_TABLEAU		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...

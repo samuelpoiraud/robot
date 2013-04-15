@@ -125,6 +125,9 @@ void WARNER_process_main(void)
 			SECRETARY_process_send(CARTE_P_POSITION_ROBOT,(Uint8)(warnings & 0xFF), error_source);
 			warnings = WARNING_NO; 	//WORK DONE !!!
 	}
+	#ifdef MODE_REGLAGE_KV
+		CORRECTOR_mode_reglage_kv();
+	#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////

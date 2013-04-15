@@ -41,6 +41,7 @@
 	 defined(MODE_PRINTF_TABLEAU) ||					\
 	 defined(MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT) ||	\
 	 defined(SUPERVISOR_DISABLE_ERROR_DETECTION) ||		\
+	 defined(MODE_REGLAGE_KV) ||						\
 	 !defined(ENABLE_CAN)
 	#warning "SOYEZ CONSCIENT QUE VOUS NE COMPILEZ PAS EN MODE MATCH..."
 #endif

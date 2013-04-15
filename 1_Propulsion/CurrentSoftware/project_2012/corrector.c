@@ -98,6 +98,34 @@ bool_e CORRECTOR_PD_enable_get_translation(void)
 	return corrector_pd_rotation;
 }
 
+void CORRECTOR_mode_reglage_kv(void)
+{
+	#ifdef MODE_REGLAGE_KV
+		#warning "vous compilez en mode Réglage KV... Ce mode affiche des printf régulièrement qui vous permettrons de régler les Kv."
+		Sint32 commande_translation;		//[% moteurs]
+		Sint32 commande_rotation;			//[% moteurs]
+		commande_translation = -(		(global.acceleration_translation						 * coefs[CORRECTOR_COEF_KA_TRANSLATION])	+
+										(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+
+										(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION]) 	+
+										(global.ecart_translation-global.ecart_translation_prec) * coefs[CORRECTOR_COEF_KD_TRANSLATION]
+									  )>>12;
+
+		commande_rotation 	= (			(global.acceleration_rotation							 * coefs[CORRECTOR_COEF_KA_ROTATION])		+
+										(global.vitesse_rotation								 * coefs[CORRECTOR_COEF_KV_ROTATION])/2		+
+										(global.ecart_rotation 									 * coefs[CORRECTOR_COEF_KP_ROTATION])		+
+										((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION])
+									  )>>10;
+
+		debug_printf("T:%d Vt*Kvt=%d% | R:%d Vr*Kvr=%d%\n",
+						(Uint16) commande_translation,
+						(Uint16) (((100 * global.vitesse_translation * coefs[CORRECTOR_COEF_KV_TRANSLATION])/commande_translation)>>12),
+						(Uint16) commande_rotation,
+						(Uint16) (((100 * global.vitesse_rotation * coefs[CORRECTOR_COEF_KV_ROTATION]/2)/commande_rotation)>>10)
+					);
+			//Le pourcentage affiché doit être proche de 100 en moyenne sur la trajectoire pour considérer que le Kv est bien calibré.
+			//Dans ce cas, c'est bien le Kv qui est l'auteur de la commande... cette commande étant CORRIGEE par les autres coefs.
+	#endif
+}
 void CORRECTOR_update(void)
 {
 	Sint16 duty_left, duty_right;
@@ -123,13 +151,13 @@ void CORRECTOR_update(void)
 									(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+ 
 									(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION]) 	+ 
 									(global.ecart_translation-global.ecart_translation_prec) * coefs[CORRECTOR_COEF_KD_TRANSLATION] 
-								  )/4096;
+								  )>>12;
 								  
 	commande_rotation 	= (	(global.acceleration_rotation							 * coefs[CORRECTOR_COEF_KA_ROTATION])		+
 									(global.vitesse_rotation								 * coefs[CORRECTOR_COEF_KV_ROTATION])/2	+
 									(global.ecart_rotation 									 * coefs[CORRECTOR_COEF_KP_ROTATION]) 	+ 
 									((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION])
-								  )/1024;
+								  )>>10;
 
 		//sauvegarde des valeurs actuelles pour la prochaine boucle
 	global.ecart_translation_prec = global.ecart_translation;
