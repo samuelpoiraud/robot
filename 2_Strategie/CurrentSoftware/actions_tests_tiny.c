@@ -11,7 +11,7 @@
 
 #include "actions_tests_tiny.h"
 
-#define DEFAULT_SPEED	(SLOW)
+#define DEFAULT_SPEED	(FAST)
 
 #define USE_CURVE	0
 
@@ -148,6 +148,8 @@ void STRAT_TINY_gifts_and_cake(void)
 		DONE
 	}state = GET_OUT;
 
+	avoidance_type_e avoidance_after_gift_before_candles = NO_DODGE_AND_WAIT; //NO_AVOIDANCE;  //evitement a utiliser pourles deplacement entre les cadeaux et le gateau (quand tiny passe au milieu du terrain)
+
 	error_e sub_action;
 	
 	switch(state)
@@ -211,11 +213,12 @@ void STRAT_TINY_gifts_and_cake(void)
             }
 		break;
 		case FAIL_TO_OPEN_GIFTS:		//Echec d'ouverture d'un (des) cadeau(x)
+                        state = FULL_COMING_BACK;
 			//Echec de la mission... en fonction de ma position, je recule puis, je tenterais de me diriger vers le gateau.
-			if(COLOR_Y(global.env.pos.y)<1500)	//Je suis "dans mon camp", il abuse l'adversaire !
-				state = PARTIAL_COMING_BACK;		//Je tente quand même
-			else
-				state = FULL_COMING_BACK;		//Si c'est moi qui ai abusé, je recule un poil... pour faire bien devant l'arbitre
+			//if(COLOR_Y(global.env.pos.y)<1500)	//Je suis "dans mon camp", il abuse l'adversaire !
+			//	state = FULL_COMING_BACK;		//Je tente quand même
+			//else
+			//	state = FULL_COMING_BACK;		//Si c'est moi qui ai abusé, je recule un poil... pour faire bien devant l'arbitre
 		break;
 		case ALL_GIFTS_OPENED:			//Cadeaux terminés
 			state = FULL_COMING_BACK;	//C'est parti pour de nouvelles aventures.
@@ -223,7 +226,7 @@ void STRAT_TINY_gifts_and_cake(void)
 		case PARTIAL_COMING_BACK:
 			//Je recule de 200
 			//Je ramasse les verres que je peux...
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{global.env.pos.x,COLOR_Y(COLOR_Y(global.env.pos.y)-200)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{global.env.pos.x,COLOR_Y(COLOR_Y(global.env.pos.y)-200)},FAST}},1,ANY_WAY,avoidance_after_gift_before_candles);
 			switch(sub_action)
             {
 				case END_OK:
@@ -231,7 +234,7 @@ void STRAT_TINY_gifts_and_cake(void)
 				break;				
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
-					state = FULL_COMING_BACK;	//Ras le bol, je tente quand même !	
+					state = FULL_COMING_BACK;	//Ras le bol, je tente quand même !
 				break;
 				case IN_PROGRESS:	
 				default:
@@ -240,7 +243,7 @@ void STRAT_TINY_gifts_and_cake(void)
 		break;
 		case FULL_COMING_BACK:
 			//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{550,global.env.pos.y},FAST},{{550,COLOR_Y(900)},FAST}},2,FORWARD,NO_DODGE_AND_WAIT);
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(1500)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(1500)},SLOW}},1,ANY_WAY,avoidance_after_gift_before_candles);
 			switch(sub_action)
             {
 				case END_OK:
@@ -256,39 +259,40 @@ void STRAT_TINY_gifts_and_cake(void)
             }
 			//Ramasser les verres proprement.
 		break;
+		
 		case GOTO_MIDLE_OF_AREA:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(1500)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
+			//if(global.env.match_time > 30000) {
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1300,COLOR_Y(1500)},SLOW}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,avoidance_after_gift_before_candles);
 			switch(sub_action)
             {
 				case END_OK:
-					//state = SUB_WHITE_CANDLE;
-					#warning "pour belgique, code qui s'arrete au milieu du terrain"
-					state = DONE;
+					state = SUB_WHITE_CANDLE;
 				break;				
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
-					state = FULL_COMING_BACK;	//Ras le bol, je tente quand même !
+					state = SUB_WHITE_CANDLE;	//Ras le bol, je tente quand même !
 				break;
 				case IN_PROGRESS:	
 				default:
 				break;
             }
 		break;
+
 		case SUB_WHITE_CANDLE:					//Souffler bougies
-			sub_action = TINY_white_candles();
-			switch(sub_action)
-            {
-				case END_OK:
-					state = DONE;
-				break;
-				case END_WITH_TIMEOUT:
-				case NOT_HANDLED:
-					state = GOTO_MIDLE_OF_AREA;
-				break;
-				case IN_PROGRESS:
-				default:
-				break;
-            }
+				sub_action = TINY_white_candles();
+				switch(sub_action)
+				{
+					case END_OK:
+						state = DONE;
+					break;
+					case END_WITH_TIMEOUT:
+					case NOT_HANDLED:
+						state = DONE;
+					break;
+					case IN_PROGRESS:
+					default:
+					break;
+				}
 		
 		break;
 		case BLOW_ALL_CANDLES:			//Subaction de soufflage des bougies
@@ -309,90 +313,10 @@ void STRAT_TINY_gifts_and_cake(void)
 		break;
 	}	
 }
-void TEST_STRAT_avoidance(void){
-	static enum{
-		SORTIR = 0,
-		DEPLACEMENT1,
-		DEPLACEMENT2,
-		DONE
-	}state = SORTIR;
-
-	static error_e sub_action;
-
-	switch(state){
-		case SORTIR:
-                    debug_printf("S\n");
-			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD,END_AT_LAST_POINT);
-			switch(sub_action){
-				case IN_PROGRESS:
-					break;
-				case NOT_HANDLED:
-					state = DEPLACEMENT1;
-					break;
-				case END_OK:
-					state = DEPLACEMENT1;
-					break;
-				case END_WITH_TIMEOUT:
-					state = DEPLACEMENT1;
-					break;
-				default:
-					state = DEPLACEMENT1;
-					break;
-			}
-			break;
-
-		case DEPLACEMENT1:
-                        debug_printf("D1\n");
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{500, COLOR_Y(700)},SLOW},
-					{{500, COLOR_Y(2500)},SLOW}},2,ANY_WAY,NO_DODGE_AND_WAIT);
-			switch(sub_action){
-				case IN_PROGRESS:
-                                    //debug_printf("INPROGRESS");
-					break;
-				case NOT_HANDLED:
-                                    debug_printf("on retourne");
-					state = DEPLACEMENT2;
-					break;
-				case END_OK:
-					state = DONE;
-					break;
-				case END_WITH_TIMEOUT:
-					state = DONE;
-					break;
-				default:
-					state = DONE;
-					break;
-			}
-			break;
-
-		case DEPLACEMENT2:
-			sub_action = goto_pos(600,COLOR_Y(380),FAST,FORWARD,END_AT_LAST_POINT);
-			switch(sub_action){
-				case IN_PROGRESS:
-					break;
-				case NOT_HANDLED:
-					state = DONE;
-					break;
-				case END_OK:
-					state = DONE;
-					break;
-				case END_WITH_TIMEOUT:
-					state = DONE;
-					break;
-				default:
-					state = DONE;
-					break;
-			}
-			break;
-		case DONE:
-			break;
-		default:
-			break;
-
-	}
 
 
-}
+
+
 /* ----------------------------------------------------------------------------- */
 /* 							Tests state_machines multiple              			 */
 /* ----------------------------------------------------------------------------- */
@@ -451,7 +375,7 @@ void STRAT_TINY_whity_candles(void)
 	static enum
 	{
 		GET_OUT = 0,
-		GOTO_CAKE,
+                GOTO_CAKE,
 		BLOW_ALL_WHITY_CANDLES,
 		FAIL_TO_BLOW_CANDLES,
 		DONE
@@ -463,25 +387,7 @@ void STRAT_TINY_whity_candles(void)
 	{
 					
 		case GET_OUT:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(600)}}},1,FORWARD,NO_DODGE_AND_WAIT);
-			switch(sub_action)
-            {
-				case END_OK:
-					state = GOTO_CAKE;
-				break;
-				case END_WITH_TIMEOUT:
-				case NOT_HANDLED:
-					state = GOTO_CAKE;
-				break;
-				case IN_PROGRESS:
-				default:
-				break;
-            }
-
-		break;
-
-		case GOTO_CAKE:    // ehhhhh GATOOOO
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1700,COLOR_Y(600)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(1500)},SLOW},{{1300,COLOR_Y(1500)},SLOW}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 			switch(sub_action)
             {
 				case END_OK:
@@ -498,6 +404,7 @@ void STRAT_TINY_whity_candles(void)
 
 		break;
 
+               
 
 		case BLOW_ALL_WHITY_CANDLES:	 // EHHHH SOUFFLER BOUGIES BLANCHES 
 			sub_action = TINY_white_candles();
@@ -508,7 +415,7 @@ void STRAT_TINY_whity_candles(void)
 				break;
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
-					state = FAIL_TO_BLOW_CANDLES;
+					state = DONE;
 				break;
 				case IN_PROGRESS:
 				default:
@@ -520,6 +427,20 @@ void STRAT_TINY_whity_candles(void)
 
 
 		case FAIL_TO_BLOW_CANDLES:		
+                sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(1500)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+            {
+				case END_OK:
+					state = BLOW_ALL_WHITY_CANDLES;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+					state = BLOW_ALL_WHITY_CANDLES;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
 
 		break;
 
