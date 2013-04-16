@@ -91,7 +91,7 @@ void any_match(time32_t match_duration)
 					strategy = TEST_STRAT_T_homologation;
 				break;
 				case 0x02:	//STRAT_2_TINY
-					strategy = TEST_STRAT_T_homologation;
+					strategy = STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait;
 				break;
 				case 0x03:	//STRAT_3_TINY
 					strategy = TEST_STRAT_T_homologation;
@@ -111,7 +111,7 @@ void any_match(time32_t match_duration)
 			{
 				case 0x01:	//STRAT_1_KRUSTY
 					calibration = ASSER_CALIBRATION_SQUARE_1;
-					strategy = TEST_STRAT_avoidance;
+					//strategy = TEST_STRAT_avoidance;
 				break;
 				case 0x02:	//STRAT_2_KRUSTY
 					calibration = ASSER_CALIBRATION_SQUARE_2;
