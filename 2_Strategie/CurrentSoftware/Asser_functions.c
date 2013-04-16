@@ -498,8 +498,9 @@ void ASSER_stop ()
 /* ajoute une instruction goto sur la pile asser */
 void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, ASSER_end_condition_e end_condition ,bool_e run)
 {
+	debug_printf("\nD=%d\n",x);
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
-
+	debug_printf("\nE=%d\n",x);
 	pos->x = x;
 	pos->y = y;
 	pos->speed = speed;

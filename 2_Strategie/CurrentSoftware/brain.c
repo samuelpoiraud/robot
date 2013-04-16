@@ -113,18 +113,22 @@ void any_match(time32_t match_duration)
 					calibration = ASSER_CALIBRATION_SQUARE_1;
 					//strategy = TEST_STRAT_avoidance;
 				break;
+
 				case 0x02:	//STRAT_2_KRUSTY
 					calibration = ASSER_CALIBRATION_SQUARE_2;
-					strategy = TEST_Launcher_ball;
+					strategy = Test_STRAT_COUPE;
 				break;
+
 				case 0x03:	//STRAT_3_KRUSTY
 					calibration = ASSER_CALIBRATION_SQUARE_2;
-					strategy = TEST_STRAT_verres;
+					strategy = Test_STRAT_COUPE_2;
 				break;
+
 				case 0x00:	//STRAT_0_KRUSTY (aucun switch)
 				//no break;
+
 				default:
-					calibration = ASSER_CALIBRATION_SQUARE_1;
+					calibration = ASSER_CALIBRATION_SQUARE_2;
 					strategy = TEST_STRAT_K_homologation;
 				break;
 			}

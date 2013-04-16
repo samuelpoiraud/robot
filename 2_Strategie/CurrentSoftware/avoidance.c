@@ -680,6 +680,7 @@ error_e goto_angle (Sint16 angle, ASSER_speed_e speed){
 /* Equivalent d'un ASSER_push_goto avec la gestion de la pile */
 error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition)
 {
+	debug_printf("\nA=%d\n",x);
 	static enum
 	{
 		PUSH_MOVE = 0,
@@ -1401,8 +1402,8 @@ static void foe_in_path(bool_e *in_path)
 
 	// on identifie une distance par rapport à la distance
 	//distance_computed = ((speed_indicator*52) >>2) + 400;		// DISTANCE 2011
-	distance_computed = ((speed_indicator*52) >>2) + 240;
-	//distance_computed = 600;
+	//distance_computed = ((speed_indicator*52) >>2) + 240;
+	distance_computed = 800;
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
     //debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
 	for (i=0; i<NB_FOES; i++)
