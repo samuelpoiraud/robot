@@ -1116,6 +1116,561 @@ error_e K_push_half_row_glasses(void){
 	static error_e act_left;
 	static error_e act_right;
 	static bool_e captor_ok;
+	static avoidance_type_e avoidance=NO_AVOIDANCE;
+	if(global.env.asser.reach_y){
+		captor_ok = TRUE;
+	}
+
+
+	switch(state){
+		case ASK_WARNER:
+			ASSER_WARNER_arm_y(COLOR_Y(690));
+			state = PUSH_ROW;
+			break;
+
+		case PUSH_ROW:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{975, COLOR_Y(500)},FAST},
+					{{1000, COLOR_Y(790)},FAST},
+					{{1070, COLOR_Y(1070)},FAST},
+					{{1112, COLOR_Y(1310)},FAST},
+					{{1040, COLOR_Y(1510)},FAST}},
+					5,FORWARD,avoidance);
+
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = BACK_ROW;
+					break;
+				case NOT_HANDLED:
+					state = DONE;
+					return NOT_HANDLED;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case BACK_ROW:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{882, COLOR_Y(1370)},FAST},
+					{{782, COLOR_Y(1145)},FAST},
+					{{760, COLOR_Y(990)},SLOW}},
+					3,FORWARD,avoidance);
+
+					switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = DONE;
+					return END_OK;
+                                        break;
+				case NOT_HANDLED:
+					state = DONE;
+					return NOT_HANDLED;
+					break;
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state = DONE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+	}
+
+	//Ascenceur gauche
+	switch(lift_left){
+		case WAIT_EVENT:
+			if(captor_ok)
+			{
+				if(PORTBbits.RB5 && state == PUSH_ROW){
+					lift_left = ACT_UP;
+				}
+			}
+			break;
+
+		case ACT_UP:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
+			lift_left = WAIT_ACT_UP;
+			break;
+
+		case WAIT_ACT_UP:
+			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
+			switch(act_left){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_left = WAIT_NEXT_EVENT;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_left = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_left = WAIT_EVENT;
+					break;
+				default:
+					break;
+			}
+
+		case WAIT_NEXT_EVENT:
+			if(PORTBbits.RB5 && state == BACK_ROW){
+				lift_left = ACT_DOWN;
+			}
+			break;
+
+		case ACT_DOWN:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PLIER_OPEN);
+			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateDown);
+			lift_left = WAIT_ACT_DOWN;
+			break;
+
+		case WAIT_ACT_DOWN:
+			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
+			switch(act_left){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_left = ACT_UP_BIS;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_left = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_left = ACT_DOWN;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+			break;
+
+		case ACT_UP_BIS:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
+			lift_left = ACT_DONE;
+			break;
+
+		case ACT_DONE:
+			break;
+	}
+
+	//Ascenceur droite
+	switch(lift_right){
+		case WAIT_EVENT:
+			if(captor_ok)
+			{
+				if(!PORTBbits.RB3 && state == PUSH_ROW){
+					lift_right = ACT_UP;
+				}
+			}
+			break;
+
+		case ACT_UP:
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
+			ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateUp);
+			lift_right = WAIT_ACT_UP;
+			break;
+
+		case WAIT_ACT_UP:
+			act_right = ACT_get_last_action_result(ACT_QUEUE_LiftRight);
+			switch(act_right){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_right = WAIT_NEXT_EVENT;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_right = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_right = WAIT_EVENT;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+
+		case WAIT_NEXT_EVENT:
+			if(!PORTBbits.RB3 && state == BACK_ROW){
+				lift_right = ACT_DOWN;
+			}
+			break;
+
+		case ACT_DOWN:
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PLIER_OPEN);
+			ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateDown);
+			lift_right = WAIT_ACT_DOWN;
+			break;
+
+		case WAIT_ACT_DOWN:
+			act_right = ACT_get_last_action_result(ACT_QUEUE_LiftRight);
+			switch(act_right){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_right = ACT_UP_BIS;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_right = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_right = ACT_DOWN;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+			break;
+
+		case ACT_UP_BIS:
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
+			ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateUp);
+			lift_right = ACT_DONE;
+			break;
+
+		case ACT_DONE:
+			break;
+	}
+
+
+	return IN_PROGRESS;
+}
+
+
+error_e K_push_back_row_glasses(void){
+	static enum{
+		PUSH_ROW = 0,
+		BACK_ROW,
+		LUCKY_LUKE,
+        LUCKY_LUKE2,
+		DONE_AND_WAIT,
+		EXTRACT,
+		DONE
+	}state = PUSH_ROW;
+
+	enum action_verre{
+		WAIT_EVENT = 0,
+		ACT_DOWN,
+		WAIT_ACT_DOWN,
+		ACT_GRAB_ROW,
+		ACT_OPEN,
+		ACT_DONE
+	};
+
+	static enum action_verre lift_left = ACT_OPEN;
+	static enum action_verre lift_right = ACT_OPEN;
+	static error_e act_left;
+	static error_e act_right;
+
+	static error_e sub_action;
+
+	switch(state){
+		case PUSH_ROW:
+
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{750, COLOR_Y(1280)},FAST}},
+					1,BACKWARD,NO_AVOIDANCE);
+
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = BACK_ROW;
+					break;
+				case NOT_HANDLED:
+
+					state = LUCKY_LUKE2;
+					break;
+				case END_WITH_TIMEOUT:
+					state = LUCKY_LUKE2;
+					break;
+				default:
+					state = LUCKY_LUKE2;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case BACK_ROW:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{615, COLOR_Y(1170)},FAST},
+					{{505, COLOR_Y(910)},FAST}},
+					2,FORWARD,NO_AVOIDANCE);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = LUCKY_LUKE;
+					break;
+				case NOT_HANDLED:
+					state = LUCKY_LUKE2;
+					break;
+				case END_WITH_TIMEOUT:
+					state = LUCKY_LUKE2;
+					break;
+				default:
+					state = PUSH_ROW;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case LUCKY_LUKE:
+				sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{740, COLOR_Y(555)}}},
+					1,FORWARD,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = LUCKY_LUKE2;
+						break;
+					case NOT_HANDLED:
+						state = LUCKY_LUKE2;
+						break;
+					case END_WITH_TIMEOUT:
+						state = LUCKY_LUKE2;
+						break;
+					default:
+						state = LUCKY_LUKE2;
+						//return NOT_HANDLED;
+						break;
+				}
+                        
+			break;
+                        case LUCKY_LUKE2:
+                            sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{955, COLOR_Y(323)},FAST}},
+					1,FORWARD,NO_AVOIDANCE);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = EXTRACT;
+						break;
+					case NOT_HANDLED:
+						state = EXTRACT;
+						break;
+					case END_WITH_TIMEOUT:
+						state = EXTRACT;
+						break;
+					default:
+						state = PUSH_ROW;
+                                            return NOT_HANDLED;
+						break;
+				}
+
+			break;
+
+		case DONE_AND_WAIT:
+			if(lift_left == ACT_DONE && lift_right == ACT_DONE )
+				state = EXTRACT;
+			break;
+
+		case EXTRACT:
+			sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{800, COLOR_Y(500)},FAST}},
+					1,BACKWARD,NO_AVOIDANCE);
+
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:					
+				case NOT_HANDLED:					
+				case END_WITH_TIMEOUT:
+					state = DONE;
+                    return END_OK;
+					break;
+				default:
+					state = DONE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+
+		default:
+			break;
+	}
+
+
+/* ASCENCEUR gauche */
+	switch(lift_left){
+		case WAIT_EVENT:
+			if(state == LUCKY_LUKE2)
+				lift_left = ACT_OPEN;
+			if(PORTBbits.RB5 && state == BACK_ROW){
+				lift_left = ACT_DOWN;
+			}
+			break;
+
+		case ACT_DOWN:
+			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PLIER_OPEN);
+			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateDown);
+			lift_left = WAIT_ACT_DOWN;
+
+		case WAIT_ACT_DOWN:
+			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
+			switch(act_left){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					lift_left = ACT_GRAB_ROW;
+					ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+					break;
+				case END_WITH_TIMEOUT:
+					lift_right = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_right = ACT_DOWN;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+			break;
+
+
+		case ACT_GRAB_ROW:
+			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
+				switch(act_left){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				default:
+					lift_left = ACT_OPEN;
+					break;
+			}
+			break;
+
+
+
+		case ACT_OPEN:
+				if(state == EXTRACT){
+				ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierOpen);
+				lift_left = ACT_DONE;
+			}
+
+		case ACT_DONE:
+			break;
+
+		default:
+			break;
+	}
+
+
+
+
+	switch(lift_right){
+		case WAIT_EVENT:
+			if(state == LUCKY_LUKE)
+				lift_right = ACT_OPEN;
+			if(!PORTBbits.RB3 && state == BACK_ROW){
+				lift_right = ACT_DOWN;
+			}
+			break;
+
+		case ACT_DOWN:
+			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PLIER_OPEN);
+			ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateDown);
+			lift_right = WAIT_ACT_DOWN;
+
+		case WAIT_ACT_DOWN:
+			act_right = ACT_get_last_action_result(ACT_QUEUE_LiftRight);
+			switch(act_right){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
+					lift_right = ACT_GRAB_ROW;
+					break;
+				case END_WITH_TIMEOUT:
+					lift_right = ACT_DONE;
+					break;
+				case NOT_HANDLED:
+					lift_right = ACT_DOWN;
+					break;
+				default:
+					debug_printf("Fuyez cava peter!!");
+					break;
+			}
+			break;
+
+
+		case ACT_GRAB_ROW:
+			act_right = ACT_get_last_action_result(ACT_QUEUE_LiftRight);
+			switch(act_right){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				default:
+					lift_right = ACT_OPEN;
+					break;
+			}
+			break;
+
+		case ACT_OPEN:
+			if(state == EXTRACT){
+				ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierOpen);
+				lift_right = ACT_DONE;
+			}
+		case ACT_DONE:
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e K_push_half_row_glasses_HOMOLO(void){
+	static enum{
+		ASK_WARNER = 0,
+		PUSH_ROW,
+		BACK_ROW,
+		DONE
+	}state = ASK_WARNER;
+
+	enum action_verre{
+		WAIT_EVENT = 0,
+		ACT_UP,
+		WAIT_ACT_UP,
+		WAIT_NEXT_EVENT,
+		ACT_DOWN,
+		WAIT_ACT_DOWN,
+		ACT_UP_BIS,
+		ACT_DONE
+	};
+	static enum action_verre lift_left = WAIT_EVENT;
+	static enum action_verre lift_right = WAIT_EVENT;
+
+	static error_e sub_action;
+	static error_e act_left;
+	static error_e act_right;
+	static bool_e captor_ok;
 
 	if(global.env.asser.reach_y){
 		captor_ok = TRUE;
@@ -1135,7 +1690,7 @@ error_e K_push_half_row_glasses(void){
 					{{1070, COLOR_Y(1070)},FAST},
 					{{1112, COLOR_Y(1310)},FAST},
 					{{1040, COLOR_Y(1510)},FAST}},
-					5,FORWARD,NO_AVOIDANCE);
+					5,FORWARD,NO_DODGE_AND_NO_WAIT);
 
 			switch(sub_action){
 				case IN_PROGRESS:
@@ -1163,7 +1718,7 @@ error_e K_push_half_row_glasses(void){
 					(displacement_t[]){{{882, COLOR_Y(1370)},FAST},
 					{{782, COLOR_Y(1145)},FAST},
 					{{760, COLOR_Y(990)},SLOW}},
-					3,FORWARD,NO_AVOIDANCE);
+					3,FORWARD,NO_DODGE_AND_NO_WAIT);
 
 					switch(sub_action){
 				case IN_PROGRESS:
@@ -1263,7 +1818,7 @@ error_e K_push_half_row_glasses(void){
 			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
 			lift_left = ACT_DONE;
 			break;
-			
+
 		case ACT_DONE:
 			break;
 	}
@@ -1351,12 +1906,14 @@ error_e K_push_half_row_glasses(void){
 }
 
 
-error_e K_push_back_row_glasses(void){
+error_e K_push_back_row_glasses_HOMOLO(void){
 	static enum{
 		PUSH_ROW = 0,
 		BACK_ROW,
 		LUCKY_LUKE,
+                        LUCKY_LUKE2,
 		DONE_AND_WAIT,
+		EXTRACT,
 		DONE
 	}state = PUSH_ROW;
 
@@ -1378,9 +1935,10 @@ error_e K_push_back_row_glasses(void){
 
 	switch(state){
 		case PUSH_ROW:
+
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{750, COLOR_Y(1280)},FAST}},
-					1,BACKWARD,NO_AVOIDANCE);
+					1,BACKWARD,NO_DODGE_AND_NO_WAIT);
 
 			switch(sub_action){
 				case IN_PROGRESS:
@@ -1389,15 +1947,14 @@ error_e K_push_back_row_glasses(void){
 					state = BACK_ROW;
 					break;
 				case NOT_HANDLED:
-					state = PUSH_ROW;
-					return NOT_HANDLED;
+
+					state = LUCKY_LUKE2;
 					break;
 				case END_WITH_TIMEOUT:
-					state = DONE;
-					return END_WITH_TIMEOUT;
+					state = LUCKY_LUKE2;
 					break;
 				default:
-					state = PUSH_ROW;
+					state = LUCKY_LUKE2;
 					return NOT_HANDLED;
 					break;
 			}
@@ -1407,7 +1964,7 @@ error_e K_push_back_row_glasses(void){
 			sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{615, COLOR_Y(1170)},FAST},
 					{{505, COLOR_Y(910)},FAST}},
-					2,FORWARD,NO_AVOIDANCE);
+					2,FORWARD,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
@@ -1415,12 +1972,10 @@ error_e K_push_back_row_glasses(void){
 					state = LUCKY_LUKE;
 					break;
 				case NOT_HANDLED:
-					state = PUSH_ROW;
-					return NOT_HANDLED;
+					state = LUCKY_LUKE2;
 					break;
 				case END_WITH_TIMEOUT:
-					state = DONE;
-					return END_WITH_TIMEOUT;
+					state = LUCKY_LUKE2;
 					break;
 				default:
 					state = PUSH_ROW;
@@ -1430,34 +1985,75 @@ error_e K_push_back_row_glasses(void){
 			break;
 
 		case LUCKY_LUKE:
+				sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{740, COLOR_Y(555)}}},
+					1,FORWARD,NO_DODGE_AND_NO_WAIT);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = LUCKY_LUKE2;
+						break;
+					case NOT_HANDLED:
+						state = LUCKY_LUKE2;
+						break;
+					case END_WITH_TIMEOUT:
+						state = LUCKY_LUKE2;
+						break;
+					default:
+						state = LUCKY_LUKE2;
+						//return NOT_HANDLED;
+						break;
+				}
+
+			break;
+                        case LUCKY_LUKE2:
+                            sub_action = goto_pos_with_scan_foe(
+					(displacement_t[]){{{955, COLOR_Y(323)},FAST}},
+					1,BACKWARD,NO_DODGE_AND_NO_WAIT);
+				switch(sub_action){
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = DONE_AND_WAIT;
+						break;
+					case NOT_HANDLED:
+						state = EXTRACT;
+						break;
+					case END_WITH_TIMEOUT:
+						state = EXTRACT;
+						break;
+					default:
+						state = PUSH_ROW;
+						//return NOT_HANDLED;
+						break;
+				}
+
+			break;
+
+		case DONE_AND_WAIT:
+			if(lift_left == ACT_DONE && lift_right == ACT_DONE )
+				state = EXTRACT;
+			break;
+
+		case EXTRACT:
 			sub_action = goto_pos_with_scan_foe(
-					(displacement_t[]){{{740, COLOR_Y(555)},FAST},
-					{{955, COLOR_Y(323)},FAST}},
-					2,FORWARD,NO_AVOIDANCE);
+					(displacement_t[]){{{800, COLOR_Y(500)},FAST}},
+					1,BACKWARD,NO_DODGE_AND_NO_WAIT);
+
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
 				case END_OK:
-					state = DONE_AND_WAIT;
-					break;
 				case NOT_HANDLED:
-					state = PUSH_ROW;
-					return NOT_HANDLED;
-					break;
 				case END_WITH_TIMEOUT:
 					state = DONE;
-					return END_WITH_TIMEOUT;
 					break;
 				default:
-					state = PUSH_ROW;
+					state = DONE;
 					return NOT_HANDLED;
 					break;
 			}
-			break;
-
-		case DONE_AND_WAIT:
-			if(lift_left == ACT_DONE && lift_right == ACT_DONE)
-				state = DONE;
 			break;
 
 		case DONE:
@@ -1469,9 +2065,11 @@ error_e K_push_back_row_glasses(void){
 	}
 
 
-
+/* ASCENCEUR gauche */
 	switch(lift_left){
 		case WAIT_EVENT:
+			if(state == LUCKY_LUKE/*2*/)
+				lift_left = ACT_OPEN;
 			if(PORTBbits.RB5 && state == BACK_ROW){
 				lift_left = ACT_DOWN;
 			}
@@ -1481,7 +2079,7 @@ error_e K_push_back_row_glasses(void){
 			ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PLIER_OPEN);
 			ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateDown);
 			lift_left = WAIT_ACT_DOWN;
-			
+
 		case WAIT_ACT_DOWN:
 			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
 			switch(act_left){
@@ -1489,6 +2087,7 @@ error_e K_push_back_row_glasses(void){
 					break;
 				case END_OK:
 					lift_left = ACT_GRAB_ROW;
+					ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
 					break;
 				case END_WITH_TIMEOUT:
 					lift_right = ACT_DONE;
@@ -1504,9 +2103,20 @@ error_e K_push_back_row_glasses(void){
 
 
 		case ACT_GRAB_ROW:
-				ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
-				lift_left = ACT_OPEN;
+			act_left = ACT_get_last_action_result(ACT_QUEUE_LiftLeft);
+				switch(act_left){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				default:
+					lift_left = ACT_OPEN;
+					break;
+			}
 			break;
+
+
 
 		case ACT_OPEN:
 			if(state == DONE_AND_WAIT){
@@ -1526,6 +2136,8 @@ error_e K_push_back_row_glasses(void){
 
 	switch(lift_right){
 		case WAIT_EVENT:
+			if(state == LUCKY_LUKE)
+				lift_right = ACT_OPEN;
 			if(!PORTBbits.RB3 && state == BACK_ROW){
 				lift_right = ACT_DOWN;
 			}
@@ -1542,6 +2154,7 @@ error_e K_push_back_row_glasses(void){
 				case IN_PROGRESS:
 					break;
 				case END_OK:
+					ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
 					lift_right = ACT_GRAB_ROW;
 					break;
 				case END_WITH_TIMEOUT:
@@ -1558,9 +2171,17 @@ error_e K_push_back_row_glasses(void){
 
 
 		case ACT_GRAB_ROW:
-			//ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
-			ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
-			lift_right = ACT_OPEN;
+			act_right = ACT_get_last_action_result(ACT_QUEUE_LiftRight);
+			switch(act_right){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				default:
+					lift_right = ACT_OPEN;
+					break;
+			}
 			break;
 
 		case ACT_OPEN:
@@ -1577,7 +2198,6 @@ error_e K_push_back_row_glasses(void){
 
 	return IN_PROGRESS;
 }
-
 
 error_e TEST_Launcher_ball_mid(void){
     static Uint8 nb_ball=0;
@@ -1598,8 +2218,8 @@ error_e TEST_Launcher_ball_mid(void){
 
     switch(state){
         case MOVE :
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_WAIT);
-            debug_printf("launcher ball go_to_pos %d\n",sub_action);
+            nb_ball=0;
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -1627,11 +2247,12 @@ error_e TEST_Launcher_ball_mid(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -4400), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -4150), FAST);
             switch(sub_action)
             {
                 case END_OK:
-                    state = LAUNCH_BALL_NORMAL;
+                    if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
                     break;
 
                 case END_WITH_TIMEOUT:
@@ -1655,7 +2276,7 @@ error_e TEST_Launcher_ball_mid(void){
             break;
 
         case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run(6900);  // a 66cm du bord du gateau
+           ACT_ball_launcher_run((global.env.color == BLUE) ? 6300:6500);  // a 66cm du bord du gateau
             state=LAUNCH_BALL_ATT;
             break;
 
@@ -1710,7 +2331,7 @@ error_e TEST_Launcher_ball_mid(void){
                     break;
 
                 case ACT_FUNCTION_Done:
-                    if (nb_ball>=8) state=STOP_LAUNCH;
+                    if (nb_ball>=9) state=STOP_LAUNCH;
                     else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
                     else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
                     break;
@@ -1765,6 +2386,7 @@ error_e TEST_Launcher_ball_mid(void){
             break;
 
         case DONE:
+            state = MOVE;
             return END_OK;
             break;
         default :
@@ -1795,8 +2417,8 @@ error_e TEST_Launcher_ball_cadeau(void){
 
     switch(state){
         case MOVE :
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_WAIT);
-            debug_printf("launcher ball go_to_pos %d\n",sub_action);
+            nb_ball=0;
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 615 : 590,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -1824,11 +2446,13 @@ error_e TEST_Launcher_ball_cadeau(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -8845 : -4015), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -8505 : -4600), FAST);
             switch(sub_action)
             {
                 case END_OK:
-                    state = LAUNCH_BALL_NORMAL;
+                    if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+                    
                     break;
 
                 case END_WITH_TIMEOUT:
@@ -1854,7 +2478,7 @@ error_e TEST_Launcher_ball_cadeau(void){
             break;
 
         case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run(7800);
+           ACT_ball_launcher_run((global.env.color == BLUE) ? 7100 : 7200);
             state=LAUNCH_BALL_ATT;
             break;
 
@@ -1909,9 +2533,10 @@ error_e TEST_Launcher_ball_cadeau(void){
                     break;
 
                 case ACT_FUNCTION_Done:
-                    if (nb_ball>=8) state=STOP_LAUNCH;
+                    if (nb_ball>=9) state=STOP_LAUNCH;
                     else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
                     else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+                    
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
@@ -1963,6 +2588,7 @@ error_e TEST_Launcher_ball_cadeau(void){
             break;
 
         case DONE:
+            state = MOVE;
             return END_OK;
             break;
         default :
@@ -1993,8 +2619,8 @@ error_e TEST_Launcher_ball_gateau(void){
 
     switch(state){
         case MOVE :
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1350,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_WAIT);
-            debug_printf("launcher ball go_to_pos %d \n",sub_action);
+            nb_ball=0;
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ?1365 : 1340 ,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -2022,11 +2648,12 @@ error_e TEST_Launcher_ball_gateau(void){
             break;
 
         case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9880 : -5050), FAST);
+            sub_action = goto_angle(((global.env.color == BLUE) ? -10000 : -3100), FAST);
             switch(sub_action)
             {
                 case END_OK:
-                    state = LAUNCH_BALL_NORMAL;
+                    if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
                     break;
 
                 case END_WITH_TIMEOUT:
@@ -2050,7 +2677,7 @@ error_e TEST_Launcher_ball_gateau(void){
             break;
 
         case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run(6300);
+           ACT_ball_launcher_run((global.env.color == BLUE) ?5850:5950);
             state=LAUNCH_BALL_ATT;
             break;
 
@@ -2105,7 +2732,207 @@ error_e TEST_Launcher_ball_gateau(void){
                     break;
 
                 case ACT_FUNCTION_Done:
-                    if (nb_ball>=8) state=STOP_LAUNCH;
+                    if (nb_ball>=13) state=STOP_LAUNCH;
+                    else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+                    
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case STOP_LAUNCH:
+            ACT_ball_launcher_stop();
+            state=STOP_LAUNCH_ATT;
+            break;
+
+        case STOP_LAUNCH_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = DONE;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case DONE:
+            state = MOVE;
+            return END_OK;
+            break;
+        default :
+            state=MOVE;
+            return NOT_HANDLED;
+    }
+    return IN_PROGRESS;
+
+}
+
+error_e TEST_Launcher_ball_gateau2(void){
+    static Uint8 nb_ball=0;
+    static error_e sub_action;
+    static ACT_function_result_e sub_action_act;
+    static enum {
+        MOVE = 0,
+        ANGLE,
+        LAUNCH_BALL_NORMAL,
+        LAUNCH_BALL_SLOW,
+        LAUNCH_BALL_ATT,
+        WAIT_BALL,
+        WAIT_BALL_ATT,
+        STOP_LAUNCH,
+        STOP_LAUNCH_ATT,
+        DONE,
+    } state = MOVE;
+
+    switch(state){
+        case MOVE :
+            nb_ball=0;
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1450 : 1340,COLOR_Y(700)}}},1,BACKWARD,NO_DODGE_AND_NO_WAIT);
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ANGLE;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case ANGLE:
+            sub_action = goto_angle(((global.env.color == BLUE) ? -10000 : -3100), FAST);
+            switch(sub_action)
+            {
+                case END_OK:
+                   if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+                    
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+
+                case NOT_HANDLED:
+                    state=MOVE;
+                    return NOT_HANDLED;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=DONE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case LAUNCH_BALL_NORMAL:
+           ACT_ball_launcher_run((global.env.color == BLUE) ? 5850:5950);
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_SLOW:
+            ACT_ball_launcher_run(4000);
+            state=LAUNCH_BALL_ATT;
+            break;
+
+        case LAUNCH_BALL_ATT:
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+                    state = WAIT_BALL;
+                    break;
+
+                case ACT_FUNCTION_ActDisabled:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+
+                case ACT_FUNCTION_RetryLater:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                default:
+                    state=MOVE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case WAIT_BALL:
+            nb_ball=nb_ball+1;
+
+
+            ACT_ball_sorter_next();
+            state=WAIT_BALL_ATT;
+            break;
+
+        case WAIT_BALL_ATT:
+
+            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+            switch(sub_action_act)
+            {
+                case ACT_FUNCTION_InProgress:
+                    return IN_PROGRESS;
+                    break;
+
+                case ACT_FUNCTION_Done:
+
+                    if (nb_ball>=13) state=STOP_LAUNCH;
                     else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
                     else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
                     break;
@@ -2159,6 +2986,7 @@ error_e TEST_Launcher_ball_gateau(void){
             break;
 
         case DONE:
+            state = MOVE;
             return END_OK;
             break;
         default :
@@ -2200,7 +3028,7 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
     switch (state) {
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ?  265: 240,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -2213,6 +3041,7 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                     break;
                 case NOT_HANDLED:
                     state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -2227,10 +3056,11 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
             break;
         case POS_MOVE2:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(700)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265: 240,COLOR_Y(700)}}},1,BACKWARD,NO_AVOIDANCE);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateDown);
                     state=GRABBER_DOWN;
                     break;
 
@@ -2239,7 +3069,8 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                     return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
-                    state=POS_MOVE1;
+                    ACT_plate_rotate(ACT_PLATE_RotateDown);
+                    state=GRABBER_DOWN;
                     return NOT_HANDLED;
                     break;
 
@@ -2253,7 +3084,7 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
 
         case GRABBER_DOWN:
 
-            ACT_plate_rotate(ACT_PLATE_RotateDown);
+            
             state =GRABBER_DOWN_ATT;
             break;
          case GRABBER_DOWN_ATT:
@@ -2265,6 +3096,7 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                     break;
 
                 case ACT_FUNCTION_Done:
+                    ACT_plate_plier(ACT_PLATE_PlierOpen);
                     state =GRABBER_OPEN;
                     break;
 
@@ -2288,7 +3120,6 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
 
         case GRABBER_OPEN:
 
-            ACT_plate_plier(ACT_PLATE_PlierOpen);
             state =GRABBER_OPEN_ATT;
             break;
          case GRABBER_OPEN_ATT:
@@ -2326,17 +3157,17 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
 
         case PUSH:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265: 240,COLOR_Y(390)}}},1,BACKWARD,NO_AVOIDANCE);
             //sub_action= TEST_STRAT_in_da_wall();
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateUp);
                     state=GRABBER_UP;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    state=BACK;
                     break;
                 case NOT_HANDLED:
                     state=POS_MOVE1;
@@ -2364,7 +3195,7 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
 
         case GRABBER_UP:
 
-            ACT_plate_rotate(ACT_PLATE_RotateUp);
+            
             state =GRABBER_UP_ATT;
             break;
          case GRABBER_UP_ATT:
@@ -2397,10 +3228,11 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
 
         case BACK:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265 : 240,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateMid);
                     state=GRABBER_MID;
                     break;
 
@@ -2426,7 +3258,7 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
 
         case GRABBER_MID:
 
-            ACT_plate_rotate(ACT_PLATE_RotateMid);
+            
             state =GRABBER_MID_ATT;
             break;
          case GRABBER_MID_ATT:
@@ -2600,7 +3432,7 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
     switch (state) {
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 615 : 590,COLOR_Y(800)}}},1,FORWARD,NO_AVOIDANCE);
             switch(sub_action)
             {
                 case END_OK:
@@ -2608,11 +3440,10 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    state=POS_MOVE2;
                     break;
                 case NOT_HANDLED:
-                    state=POS_MOVE1;
+                    state=POS_MOVE2;
                     break;
 
                 case IN_PROGRESS:
@@ -2620,17 +3451,17 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                     break;
 
                 default:
-                    return NOT_HANDLED;
-                    state=POS_MOVE1;
+                    state=POS_MOVE2;
                     break;
             }
             break;
         case POS_MOVE2:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 615 : 590,COLOR_Y(700)}}},1,BACKWARD,NO_AVOIDANCE);
             switch(sub_action)
             {
                 case END_OK:
+                     ACT_plate_rotate(ACT_PLATE_RotateDown);
                     state=GRABBER_DOWN;
                     break;
 
@@ -2653,7 +3484,7 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
 
         case GRABBER_DOWN:
 
-            ACT_plate_rotate(ACT_PLATE_RotateDown);
+           
             state =GRABBER_DOWN_ATT;
             break;
          case GRABBER_DOWN_ATT:
@@ -2669,13 +3500,11 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                     break;
 
                 case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
+                    state=GRABBER_OPEN;
                     break;
 
                 case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                   state=GRABBER_OPEN;
                     break;
                 default:
                     state=POS_MOVE1;
@@ -2726,17 +3555,17 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
 
         case PUSH:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 615 : 590,COLOR_Y(390)}}},1,BACKWARD,NO_AVOIDANCE);
             //sub_action= TEST_STRAT_in_da_wall();
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateUp);
                     state=GRABBER_UP;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    state=GRABBER_UP;
                     break;
                 case NOT_HANDLED:
                     state=POS_MOVE1;
@@ -2764,7 +3593,7 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
 
         case GRABBER_UP:
 
-            ACT_plate_rotate(ACT_PLATE_RotateUp);
+            
             state =GRABBER_UP_ATT;
             break;
          case GRABBER_UP_ATT:
@@ -2797,10 +3626,11 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
 
         case BACK:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 615 : 590,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateMid);
                     state=GRABBER_MID;
                     break;
 
@@ -2826,7 +3656,7 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
 
         case GRABBER_MID:
 
-            ACT_plate_rotate(ACT_PLATE_RotateMid);
+            
             state =GRABBER_MID_ATT;
             break;
          case GRABBER_MID_ATT:
@@ -3000,7 +3830,7 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
     switch (state) {
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990 ,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -3013,6 +3843,7 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
                     break;
                 case NOT_HANDLED:
                     state=POS_MOVE1;
+                    return NOT_HANDLED;
                     break;
 
                 case IN_PROGRESS:
@@ -3027,10 +3858,11 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
             break;
         case POS_MOVE2:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(700)}}},1,BACKWARD,NO_AVOIDANCE);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateDown);
                     state=GRABBER_DOWN;
                     break;
 
@@ -3053,7 +3885,7 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
 
         case GRABBER_DOWN:
 
-            ACT_plate_rotate(ACT_PLATE_RotateDown);
+            
             state =GRABBER_DOWN_ATT;
             break;
          case GRABBER_DOWN_ATT:
@@ -3126,17 +3958,17 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
 
         case PUSH:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(390)}}},1,BACKWARD,NO_AVOIDANCE);
             //sub_action= TEST_STRAT_in_da_wall();
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateUp);
                     state=GRABBER_UP;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    state=BACK;
                     break;
                 case NOT_HANDLED:
                     state=POS_MOVE1;
@@ -3164,7 +3996,7 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
 
         case GRABBER_UP:
 
-            ACT_plate_rotate(ACT_PLATE_RotateUp);
+            
             state =GRABBER_UP_ATT;
             break;
          case GRABBER_UP_ATT:
@@ -3197,10 +4029,11 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
 
         case BACK:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateMid);
                     state=GRABBER_MID;
                     break;
 
@@ -3226,7 +4059,7 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
 
         case GRABBER_MID:
 
-            ACT_plate_rotate(ACT_PLATE_RotateMid);
+            
             state =GRABBER_MID_ATT;
             break;
          case GRABBER_MID_ATT:
@@ -3400,7 +4233,7 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
     switch (state) {
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1405 : 1390,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -3408,11 +4241,10 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    state=POS_MOVE2;
                     break;
                 case NOT_HANDLED:
-                    state=POS_MOVE1;
+                    state=POS_MOVE2;
                     break;
 
                 case IN_PROGRESS:
@@ -3420,27 +4252,25 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                     break;
 
                 default:
-                    return NOT_HANDLED;
-                    state=POS_MOVE1;
+                    state=POS_MOVE2;
                     break;
             }
             break;
         case POS_MOVE2:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400,COLOR_Y(700)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1405 : 1390,COLOR_Y(700)}}},1,BACKWARD,NORMAL_WAIT);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateDown);
                     state=GRABBER_DOWN;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    ACT_plate_rotate(ACT_PLATE_RotateDown);
                     break;
                 case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
+                     ACT_plate_rotate(ACT_PLATE_RotateDown);
                     break;
 
                 case IN_PROGRESS:
@@ -3453,7 +4283,7 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
 
         case GRABBER_DOWN:
 
-            ACT_plate_rotate(ACT_PLATE_RotateDown);
+            
             state =GRABBER_DOWN_ATT;
             break;
          case GRABBER_DOWN_ATT:
@@ -3526,21 +4356,22 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
 
         case PUSH:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1405 : 1390,COLOR_Y(388)}}},1,BACKWARD,NO_AVOIDANCE);
             //sub_action= TEST_STRAT_in_da_wall();
             switch(sub_action)
             {
                 case END_OK:
+                     ACT_plate_rotate(ACT_PLATE_RotateUp);
                     state=GRABBER_UP;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    ACT_plate_rotate(ACT_PLATE_RotateUp);
+                    state=GRABBER_UP;
                     break;
                 case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
+                    ACT_plate_rotate(ACT_PLATE_RotateUp);
+                    state=GRABBER_UP;
                     break;
 
                 case IN_PROGRESS:
@@ -3564,7 +4395,7 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
 
         case GRABBER_UP:
 
-            ACT_plate_rotate(ACT_PLATE_RotateUp);
+           
             state =GRABBER_UP_ATT;
             break;
          case GRABBER_UP_ATT:
@@ -3597,10 +4428,11 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
 
         case BACK:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1405 : 1390,COLOR_Y(700)}}},1,FORWARD,NO_AVOIDANCE);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateMid);
                     state=GRABBER_MID;
                     break;
 
@@ -3626,7 +4458,7 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
 
         case GRABBER_MID:
 
-            ACT_plate_rotate(ACT_PLATE_RotateMid);
+            
             state =GRABBER_MID_ATT;
             break;
          case GRABBER_MID_ATT:
@@ -3800,7 +4632,7 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
     switch (state) {
          case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1750,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1750 : 1740,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
@@ -3808,11 +4640,10 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    state=POS_MOVE2;
                     break;
                 case NOT_HANDLED:
-                    state=POS_MOVE1;
+                    state=POS_MOVE2;
                     break;
 
                 case IN_PROGRESS:
@@ -3820,27 +4651,27 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                     break;
 
                 default:
-                    return NOT_HANDLED;
-                    state=POS_MOVE1;
+                    state=POS_MOVE2;
                     break;
             }
             break;
         case POS_MOVE2:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1750,COLOR_Y(700)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1750 : 1740,COLOR_Y(700)}}},1,BACKWARD,NO_AVOIDANCE);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateDown);
                     state=GRABBER_DOWN;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    ACT_plate_rotate(ACT_PLATE_RotateDown);
+                    state=GRABBER_DOWN;
                     break;
                 case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
+                    ACT_plate_rotate(ACT_PLATE_RotateDown);
+                    state=GRABBER_DOWN;
                     break;
 
                 case IN_PROGRESS:
@@ -3853,7 +4684,7 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
 
         case GRABBER_DOWN:
 
-            ACT_plate_rotate(ACT_PLATE_RotateDown);
+            
             state =GRABBER_DOWN_ATT;
             break;
          case GRABBER_DOWN_ATT:
@@ -3926,17 +4757,18 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
 
         case PUSH:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1750,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1750 : 1740,COLOR_Y(400)}}},1,BACKWARD,NO_AVOIDANCE);
             //sub_action= TEST_STRAT_in_da_wall();
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateUp);
                     state=GRABBER_UP;
                     break;
 
                 case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+                    ACT_plate_rotate(ACT_PLATE_RotateUp);
+                    state=GRABBER_UP;
                     break;
                 case NOT_HANDLED:
                     state=POS_MOVE1;
@@ -3964,7 +4796,7 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
 
         case GRABBER_UP:
 
-            ACT_plate_rotate(ACT_PLATE_RotateUp);
+            
             state =GRABBER_UP_ATT;
             break;
          case GRABBER_UP_ATT:
@@ -3997,10 +4829,11 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
 
         case BACK:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1750,COLOR_Y(700)}}},1,FORWARD,NORMAL_WAIT);
+            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1750 : 1740,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
             switch(sub_action)
             {
                 case END_OK:
+                    ACT_plate_rotate(ACT_PLATE_RotateMid);
                     state=GRABBER_MID;
                     break;
 
@@ -4026,7 +4859,7 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
 
         case GRABBER_MID:
 
-            ACT_plate_rotate(ACT_PLATE_RotateMid);
+            
             state =GRABBER_MID_ATT;
             break;
          case GRABBER_MID_ATT:
