@@ -67,6 +67,8 @@
 		volatile Sint16 dist;
 		volatile Sint16 x;
 		volatile Sint16 y;
+		volatile Sint16 translation_speed;
+		volatile Sint16 rotation_speed;
 		volatile double cosAngle;/*cosinus de l'angle du robot*/
 		volatile double sinAngle;/*sinus de l'angle du robot*/
 		volatile time32_t update_time;

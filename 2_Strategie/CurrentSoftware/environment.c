@@ -100,14 +100,13 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			if(incoming_msg->data[6] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_x = TRUE;
 
-			if(incoming_msg->data[6] & WARNING_REACH_Y){	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
+			if(incoming_msg->data[6] & WARNING_REACH_Y)	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_y = TRUE;
-			}
 			
-
 			if(incoming_msg->data[6] & WARNING_REACH_TETA)	//Nous venons d'atteindre une position en Teta pour laquelle on a demandé une surveillance à la propulsion.
 				global.env.asser.reach_teta = TRUE;
-			
+
+
 			break;
 		case CARTE_P_ROBOT_FREINE:
 			global.env.asser.freine = TRUE;
@@ -194,8 +193,10 @@ void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 
 	if(on_it == TRUE)
 	{
-		new_pos.x = U16FROMU8(msg->data[0],msg->data[1]);
-		new_pos.y = U16FROMU8(msg->data[2],msg->data[3]);
+		new_pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
+		new_pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
+		new_pos.translation_speed = ((Uint16)(msg->data[0] >> 5))*250;	// [mm/sec]
+		new_pos.rotation_speed =	((Uint16)(msg->data[2] >> 5));		// [rad/sec]
 		new_pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
 		new_pos.cosAngle = cos4096(global.env.pos.angle);
 		new_pos.sinAngle = sin4096(global.env.pos.angle);
