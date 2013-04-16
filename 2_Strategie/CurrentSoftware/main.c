@@ -19,7 +19,19 @@
 	#include "clock.h"
 	#include "QS/QS_who_am_i.h"
 	#include "queue.h"
-	
+
+void process_measure_loop_duration(void)
+{
+	static time32_t previous_time = 0;
+	if(global.env.match_time > 0)
+	{
+		//Décommenter ce printf pour afficher la mesure de la durée de la boucle.
+		//ATTENTION, cet affichage est hors de la mesure... (donc elle impacte le code hors de cette mesure).
+	//	debug_printf("L%d\n",global.env.match_time-previous_time);
+		previous_time = global.env.match_time;
+	}
+}
+
 int main (void)
 {
 
@@ -95,9 +107,12 @@ int main (void)
 		    any_match(MATCH_DURATION);
 	*/
 		any_match(MATCH_DURATION);
+
+		process_measure_loop_duration();
 	}
 	return 0;
 }
+
 
 void RCON_read()
 {
