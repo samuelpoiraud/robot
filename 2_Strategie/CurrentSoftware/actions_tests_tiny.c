@@ -318,12 +318,13 @@ void STRAT_TINY_gifts_and_cake(void)
 
 
 
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 success_state, Uint8 fail_state, way_e way)
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way)
 {
 	error_e sub_action;
 	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,NO_DODGE_AND_WAIT);
 	switch(sub_action){
 		case IN_PROGRESS:
+			return in_progress;
 		break;
 		case NOT_HANDLED:
 			return fail_state;
@@ -367,16 +368,16 @@ void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 			}
 		break;
 		case GOTO_A:
-			try_going(1000, COLOR_Y(1000), GOTO_B, GOTO_D, FORWARD);
+			state = try_going(500, COLOR_Y(500), GOTO_A, GOTO_B, GOTO_D, FORWARD);
 		break;
 		case GOTO_B:
-			try_going(2000, COLOR_Y(1000), GOTO_C, GOTO_A, FORWARD);
+			state = try_going(1000, COLOR_Y(500), GOTO_B, GOTO_C, GOTO_A, FORWARD);
 		break;
 		case GOTO_C:
-			try_going(2000, COLOR_Y(1000), GOTO_D, GOTO_B, BACKWARD);
+			state = try_going(1000, COLOR_Y(2000), GOTO_C, GOTO_D, GOTO_B, BACKWARD);
 		break;
 		case GOTO_D:
-			try_going(2000, COLOR_Y(1000), GOTO_A, GOTO_C, BACKWARD);
+			state = try_going(500, COLOR_Y(2000), GOTO_D, GOTO_A, GOTO_C, BACKWARD);
 		break;
 		case DONE:	//Never happen dans cette strat de test.
 		break;
@@ -387,7 +388,7 @@ void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 
 	if(previous_state != state)
 	{
-		debug_printf("%c->%c\n", 'A' + previous_state - GOTO_A,  'A' + state - GOTO_A);
+		debug_printf("%d %c->%c\n",(Uint16)(global.env.match_time & 0xFFFF), 'A' + previous_state - GOTO_A,  'A' + state - GOTO_A);
 		previous_state = state;
 	}
 

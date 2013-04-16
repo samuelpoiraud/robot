@@ -27,7 +27,8 @@ void process_measure_loop_duration(void)
 	{
 		//Décommenter ce printf pour afficher la mesure de la durée de la boucle.
 		//ATTENTION, cet affichage est hors de la mesure... (donc elle impacte le code hors de cette mesure).
-	//	debug_printf("L%d\n",global.env.match_time-previous_time);
+		if(global.env.match_time-previous_time > 5)
+			debug_printf("L%d\n",(Uint16)(global.env.match_time-previous_time));
 		previous_time = global.env.match_time;
 	}
 }

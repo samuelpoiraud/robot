@@ -1069,7 +1069,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 						break;
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
-						state = 0;
+						state = INITIALIZATION;
 						return NOT_HANDLED;
 						break;
 					case IN_PROGRESS:
@@ -1875,7 +1875,7 @@ static error_e AVOIDANCE_watch_asser_stack ()
 			break;
 	
 		case IN_ERROR:
-			switch (AVOIDANCE_move_colision())
+			/*switch (AVOIDANCE_move_colision())
 			{
 				case IN_PROGRESS:
 					break;
@@ -1889,7 +1889,11 @@ static error_e AVOIDANCE_watch_asser_stack ()
 					break;
 				default:
 					break;
-			}	
+			}
+			*/
+			STACKS_flush(ASSER);
+			state = NORMAL;
+			return NOT_HANDLED;
 			break;
 			
 		case DONE:
