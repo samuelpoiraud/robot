@@ -28,7 +28,7 @@
 #define SPEED_COMPUTE_TIME	50		// en ms
 
 /* Angle d'ouverture de vision */
-#define DETECTION_ANGLE		1900
+#define DETECTION_ANGLE		1900	//1900 = 20°
 
 #define WAIT_TIME_DETECTION			3000	// en ms
 
@@ -74,7 +74,7 @@
 * in_path = TRUE Quand l'adversaire est sur notre chemin
 * in_path = FALSE Quand l'adversaire n'est pas sur le chemin
 */
-static void foe_in_path(way_e* move_way_indicator, bool_e in_path[NB_FOES]);
+static void foe_in_path(bool_e in_path[NB_FOES]);
 
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot 
  * move_way = retourne le sens de déplacement
@@ -961,7 +961,6 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 	static bool_e timeout;
 	static Uint16 nb_detection;
 	static time32_t detection_time;
-	static way_e move_way;
 	static bool_e dodge_wait;
 	static bool_e is_in_path[NB_FOES]; //Nous indique si l'adversaire est sur le chemin
 
@@ -975,7 +974,6 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 			// initialisation des variables statiques
 			timeout = FALSE;
 			nb_detection = 0;
-			move_way = ANY_WAY;
 			detection_time = 0;
 			dodge_wait = FALSE;
 
@@ -984,7 +982,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 			break;
 
 		case NO_FOE:
-			foe_in_path(&move_way, is_in_path);//Regarde si les adversaires sont sur le chemin
+			foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
 			//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 			if((is_in_path[FOE_1] || is_in_path[FOE_2]) && AVOIDANCE_robot_translation_move())
 			{
@@ -1083,7 +1081,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 			break;
 
 		case WAIT_FOE:
-			foe_in_path(&move_way, is_in_path);//Regarde si les adversaires sont sur le chemin
+			foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
 			//debug_printf("Test 2: IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 			// on va attendre que l'ennemi sorte de notre chemin
 			/*if((is_in_path[FOE_1] && !AVOIDANCE_foe_not_move(FOE_1)) || 
@@ -1385,7 +1383,7 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 /* ----------------------------------------------------------------------------- */
 
 /* Fonction qui regarde si le robot est dans notre chemin */
-static void foe_in_path(way_e* move_way_indicator, bool_e *in_path)
+static void foe_in_path(bool_e *in_path)
 {
 	// variables
 	Uint16 speed_indicator, distance_computed;
@@ -1399,15 +1397,14 @@ static void foe_in_path(way_e* move_way_indicator, bool_e *in_path)
 
 	// on regarde notre indicateur de vitesse et notre sens de direction
 	speed_indicator = AVOIDANCE_speed_indicator_compute();
-	// on transmet l'information
-	*move_way_indicator = move_way;
+#warning "cette fonction ne peut pas, fonctionner... Suggestion : utiliser plutot le type de trajectoire en cours...?"
 
 	// on identifie une distance par rapport à la distance
 	//distance_computed = ((speed_indicator*52) >>2) + 400;		// DISTANCE 2011
 	distance_computed = ((speed_indicator*52) >>2) + 240;
 	//distance_computed = 600;
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
-        debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
+    //debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
 	for (i=0; i<NB_FOES; i++)
 	{
 		in_path[i] = FALSE; //On initialise à faux
@@ -1419,8 +1416,8 @@ static void foe_in_path(way_e* move_way_indicator, bool_e *in_path)
 			{
 				//debug_printf("F_%d\nG_%d\n",global.env.foe[0].angle,global.env.foe[1].angle);
 				/* On regarde si l'adversaire est dans un gabarit devant nous */
-				if((global.env.foe[i].dist < distance_computed) )//&& (global.env.foe[i].angle > (-DETECTION_ANGLE)
-					//&& global.env.foe[i].angle < DETECTION_ANGLE))
+				if((global.env.foe[i].dist < distance_computed) && ((global.env.foe[i].angle > (-DETECTION_ANGLE)
+					&& global.env.foe[i].angle < DETECTION_ANGLE)))
 				{
 					in_path[i] = TRUE;
 					avoidance_printf("F_");
