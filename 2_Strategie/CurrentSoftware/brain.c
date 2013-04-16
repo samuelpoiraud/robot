@@ -165,8 +165,8 @@ void any_match(time32_t match_duration)
 						msg.data[1] = 0; 					//toutes les XX ms -> si 0, pas de msg en fonction du temps.
 						msg.data[2] = HIGHINT(20);
 						msg.data[3] = LOWINT(20); 			//tout les 20 mm
-						msg.data[4] = HIGHINT(PI4096/180);
-						msg.data[5] = LOWINT(PI4096/180);  	//tout les 2°
+						msg.data[4] = HIGHINT(PI4096/45);
+						msg.data[5] = LOWINT(PI4096/45);  	//tout les 4°
 						msg.size = 6;
 						CAN_send(&msg);
 					}	
