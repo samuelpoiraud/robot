@@ -71,6 +71,8 @@
 		volatile Sint16 rotation_speed;
 		volatile double cosAngle;/*cosinus de l'angle du robot*/
 		volatile double sinAngle;/*sinus de l'angle du robot*/
+		volatile Sint8  translation_speed; // en cm/sec
+		volatile Sint8  rotation_speed;
 		volatile time32_t update_time;
 		volatile bool_e updated;
 	}position_t;

@@ -12,6 +12,7 @@
 #include "avoidance.h"
 #include "can_utils.h"
 #include "maths_home.h"
+#include "QS/QS_who_am_i.h"
 
 
 /* Ne tient plus compte de la position de l'adversaire quand elle date
@@ -19,6 +20,9 @@
  * à la base de temps de la carte stratégie)
  */
 #define DETECTION_TIMEOUT				600 	// ancienne valeur : 375
+
+#define DETECTION_DISTANCE_KRUSTY       600
+#define DETECTION_DISTANCE_TINY         600
 
 
 /***************************** Evitement 2011 **************************/
@@ -1393,8 +1397,11 @@ static void foe_in_path(bool_e *in_path)
 	move_way = global.env.asser.current_way;	//TODO cracra.. a nettoyer ultérieurement.
 
 	/* Si on n'a pas d'évitement, l'adversaire n'est jamais devant nous */
-	if (!global.env.config.evitement)
+	if (!global.env.config.evitement) {
+		for (i=0; i<NB_FOES; i++)
+			in_path[i] = FALSE;
 		return;
+	}
 
 	// on regarde notre indicateur de vitesse et notre sens de direction
 	speed_indicator = AVOIDANCE_speed_indicator_compute();
@@ -1403,7 +1410,12 @@ static void foe_in_path(bool_e *in_path)
 	// on identifie une distance par rapport à la distance
 	//distance_computed = ((speed_indicator*52) >>2) + 400;		// DISTANCE 2011
 	//distance_computed = ((speed_indicator*52) >>2) + 240;
-	distance_computed = 800;
+	//distance_computed = 600;
+
+	if(QS_WHO_AM_I_get() == TINY)
+		distance_computed = DETECTION_DISTANCE_TINY;
+	else distance_computed = DETECTION_DISTANCE_KRUSTY;
+
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
     //debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
 	for (i=0; i<NB_FOES; i++)
