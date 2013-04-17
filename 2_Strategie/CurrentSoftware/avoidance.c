@@ -1864,56 +1864,19 @@ static error_e AVOIDANCE_move_colision()
  */
 static error_e AVOIDANCE_watch_asser_stack ()
 {
-	static enum
+	bool_e timeout = FALSE;
+	
+	if (STACKS_wait_end_auto_pull(ASSER,&timeout))
 	{
-		NORMAL,
-		IN_ERROR,
-		DONE
-	} state = NORMAL;
-	
-	static bool_e timeout;
-	
-	switch(state)
-	{			
-		case NORMAL:
-			if (STACKS_wait_end_auto_pull(ASSER,&timeout))
-			{
-				state = DONE;
-			}
-			else if (global.env.asser.erreur)
-			{
-				STACKS_push(ASSER, &wait_forever, FALSE);
-				state = IN_ERROR;
-			}	
-			break;
-	
-		case IN_ERROR:
-			/*switch (AVOIDANCE_move_colision())
-			{
-				case IN_PROGRESS:
-					break;
-				case END_OK:
-				case END_WITH_TIMEOUT:
-				case NOT_HANDLED:
-					// On supprime les actions que l'on devait faire 
-					STACKS_flush(ASSER);
-					state = NORMAL;
-					return NOT_HANDLED;
-					break;
-				default:
-					break;
-			}
-			*/
-			STACKS_flush(ASSER);
-			state = NORMAL;
-			return NOT_HANDLED;
-			break;
-			
-		case DONE:
-			state = NORMAL;
-			return timeout?END_WITH_TIMEOUT:END_OK;
-			break;
+		return timeout?END_WITH_TIMEOUT:END_OK;
+	}
+	else if (global.env.asser.erreur)
+	{
+		STACKS_flush(ASSER);
+		state = NORMAL;
+		return NOT_HANDLED;
 	}	
+	
 	return IN_PROGRESS;
 }
 
