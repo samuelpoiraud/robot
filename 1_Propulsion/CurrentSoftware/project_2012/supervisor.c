@@ -65,6 +65,7 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 		case EVENT_NEW_ORDER:
 			current_acknowledge = ack;
 			SUPERVISOR_error_check(TRUE);	//Remise à zéro de la vérif d'erreur
+			WARNER_inform(WARNING_NEW_TRAJECTORY, error_source);
 			state = SUPERVISOR_TRAJECTORY;
 		break;
 	

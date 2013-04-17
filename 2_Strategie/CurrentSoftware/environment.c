@@ -188,6 +188,7 @@ void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 	static position_t new_pos;
 	static time32_t new_time;
 	static way_e new_way;
+	static trajectory_e new_trajectory;
 	static SUPERVISOR_error_source_e new_status;
 	Uint16 save_int;
 
@@ -202,7 +203,8 @@ void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 		new_pos.sinAngle = sin4096(global.env.pos.angle);
 		new_time = global.env.match_time;
 		new_way = (way_e)((msg->data[7] >> 3) & 0x03);
-		new_status = (SUPERVISOR_error_source_e)((msg->data[7] >> 3) & 0x07);
+		new_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
+		new_trajectory = (trajectory_e)((msg->data[7] >> 5) & 0x07);
 			/*msg->data[7] : 8 bits  : T T T W W E E E
 				TTT : trajectoire actuelle
 					TRAJECTORY_TRANSLATION		= 0,
@@ -234,6 +236,7 @@ void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 			global.env.asser.last_time_pos_updated = new_time;
 			global.env.asser.current_way = new_way;
 			global.env.asser.current_status = new_status;
+			global.env.asser.current_trajectory = new_trajectory;
 			global.env.pos = new_pos;
 			//debug_printf("\n Pos update :  (%lf : %lf)\n",global.env.pos.cosAngle,global.env.pos.sinAngle);
 			global.env.pos.updated = TRUE;

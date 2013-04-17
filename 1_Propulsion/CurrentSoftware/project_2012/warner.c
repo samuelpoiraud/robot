@@ -119,7 +119,8 @@ void WARNER_process_main(void)
 		flag_brake = FALSE;
 		SECRETARY_process_send(CARTE_P_ROBOT_FREINE,0,error_source);
 	}	
-		
+
+
 	if(warnings != WARNING_NO)
 	{
 			SECRETARY_process_send(CARTE_P_POSITION_ROBOT,(Uint8)(warnings & 0xFF), error_source);
@@ -150,6 +151,7 @@ void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e new_er
 		case WARNING_CALIBRATION_FINISHED:
 			flag_calibration = TRUE;
 		break;
+		case WARNING_NEW_TRAJECTORY:
 		default:
 			warnings |= new_warnings;	//Seul les 8 bits faibles seront transmis !
 		break;
