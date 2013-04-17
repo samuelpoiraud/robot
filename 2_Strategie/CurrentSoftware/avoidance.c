@@ -21,8 +21,10 @@
  */
 #define DETECTION_TIMEOUT				600 	// ancienne valeur : 375
 
-#define DETECTION_DISTANCE_KRUSTY       600
-#define DETECTION_DISTANCE_TINY         600
+#define DETECTION_DIST_MIN_KRUSTY       600  // distance minimale d'évitement sans compter la vitesse du robot, en mm
+#define DETECTION_DIST_MIN_TINY         600
+#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  0  //temps pour que le robot s'arrete, en ms
+#define DETECTION_DIST_SPEED_FACTOR_TINY    0
 
 
 /***************************** Evitement 2011 **************************/
@@ -1391,7 +1393,8 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 static void foe_in_path(bool_e *in_path)
 {
 	// variables
-	Uint16 speed_indicator, distance_computed;
+	//Uint16 speed_indicator;
+	Uint16 distance_computed;
 	Uint8 i;
 	way_e move_way;
 	move_way = global.env.asser.current_way;	//TODO cracra.. a nettoyer ultérieurement.
@@ -1404,7 +1407,7 @@ static void foe_in_path(bool_e *in_path)
 	}
 
 	// on regarde notre indicateur de vitesse et notre sens de direction
-	speed_indicator = AVOIDANCE_speed_indicator_compute();
+	//speed_indicator = AVOIDANCE_speed_indicator_compute();
 #warning "cette fonction ne peut pas, fonctionner... Suggestion : utiliser plutot le type de trajectoire en cours...?"
 
 	// on identifie une distance par rapport à la distance
@@ -1412,9 +1415,10 @@ static void foe_in_path(bool_e *in_path)
 	//distance_computed = ((speed_indicator*52) >>2) + 240;
 	//distance_computed = 600;
 
+	#warning "Ce code utilise des int32 avec des divisions, ce qui peut être lent ... a changer"
 	if(QS_WHO_AM_I_get() == TINY)
-		distance_computed = DETECTION_DISTANCE_TINY;
-	else distance_computed = DETECTION_DISTANCE_KRUSTY;
+		distance_computed = DETECTION_DIST_MIN_TINY + ((Uint32)(DETECTION_DIST_SPEED_FACTOR_TINY*abs(global.env.pos.translation_speed)))/1000;
+	else distance_computed = DETECTION_DIST_MIN_KRUSTY + ((Uint32)(DETECTION_DIST_SPEED_FACTOR_KRUSTY*abs(global.env.pos.translation_speed)))/1000;
 
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
     //debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
@@ -1950,4 +1954,3 @@ foe_pos_e AVOIDANCE_where_is_foe(foe_e foe_id)
 		}
 	}
 }
-

@@ -893,6 +893,9 @@ void Test_STRAT_homolo(void){
                     break;
             }
             break;
+
+		case DONE:
+			break;
     }
 }
 
