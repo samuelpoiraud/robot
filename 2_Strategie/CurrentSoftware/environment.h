@@ -163,7 +163,7 @@
 			#define WARNING_REACH_X				(0b00001000)		//Nous venons d'atteindre une position en X pour laquelle on nous a demandé une surveillance.
 			#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
 			#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
-			#define WARNING_MOVE				(0b01000000)		//Nous venons de nous déplacer sur une grille virtuelle pour laquelle on nous a demandé une surveillance.		
+			#define WARNING_NEW_TRAJECTORY		(0b01000000)		//Changement de trajectoire (attention, cela inclue les trajectoires préalables ajoutées en propulsion...)
 	
 		/* met a jour la position de l'adversaire à partir des balises */
 		void ENV_pos_foe_update (CAN_msg_t* msg);

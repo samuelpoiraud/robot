@@ -1877,7 +1877,6 @@ static error_e AVOIDANCE_watch_asser_stack ()
 	else if (global.env.asser.erreur)
 	{
 		STACKS_flush(ASSER);
-		state = NORMAL;
 		return NOT_HANDLED;
 	}	
 	
