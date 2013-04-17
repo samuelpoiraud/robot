@@ -71,7 +71,7 @@
 		
 		//Vitesse réelle du robot mesurée pour 5ms
 		volatile Sint32 real_speed_translation;		//[mm/4096/5ms]		<<12 /5ms
-		volatile Sint32 real_speed_rotation;		// [rad/4096/1024]	<<22
+		volatile Sint32 real_speed_rotation;		// [rad/4096/1024/5ms]	<<22
 		
 		//Distance et Angle réellement parcourue par le robot mesurée pour 5ms
 		//Dans le référentiel IT
