@@ -34,6 +34,7 @@
 	#define DEBUG_CARTE_P				0x742
 	#define DEBUG_FOE_POS				0x748
 	#define DEBUG_ELEMENT_UPDATED		0x749
+
 	
 	#define DEBUG_ASSER_POINT_FICTIF								0x701
 	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_SYM 			0x702
@@ -59,6 +60,10 @@
 	#define XBEE_FILTER					0x5A0	//Seuls les messages commencant par 5A seront transmis par XBee !
 	//PS : les messages PING et PONG ne sont pas soumis à cette règlementation car envoyés par le fichier QS_CAN_OVER_XBEE
 	#define STRAT_XBEE_FILTER			0x2A0	//Un message reçu 5Ax par XBEE sera propagé 2Ax vers la strat du robot local.
+
+	//message pour debug strategie
+
+	#define DEBUG_DETECT_FOE			0x270
 /*****************************************************************
  *
  *		Messages echangés entre les cartes stratégies des

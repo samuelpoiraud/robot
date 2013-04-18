@@ -984,6 +984,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 	GEOMETRY_point_t current_point, destination_point;
 	Sint16 distance_before_destination;
 
+
 	switch(state)
 	{
 		case INITIALIZATION:
@@ -1325,6 +1326,15 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 	
 	Uint8 i;
 
+	if(global.env.debug_force_foe){
+		ASSER_stop();
+		STACKS_flush(ASSER);
+		state = LOAD_MOVE;
+		global.env.debug_force_foe = FALSE;
+		return NOT_HANDLED;
+	}
+
+
 	switch(state)
 	{
 		case LOAD_MOVE:
@@ -1346,7 +1356,7 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 				ASSER_push_goto
 					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0,END_AT_LAST_POINT, TRUE);
 			#endif
-                        debug_printf("goto_pos_with_scan_foe : load_move\n");
+                        avoidance_printf("goto_pos_with_scan_foe : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
 
@@ -1355,18 +1365,18 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 			switch(sub_action)
 			{
 				case END_OK:
-					debug_printf("wait_move_and_scan_foe -- fini\n");
+					avoidance_printf("wait_move_and_scan_foe -- fini\n");
 					state = DONE;
 					break;
 
 				case END_WITH_TIMEOUT:
 					timeout = TRUE;
-					debug_printf("wait_move_and_scan_foe -- timeout\n");
+					avoidance_printf("wait_move_and_scan_foe -- timeout\n");
 					state = DONE;
 					break;
 
 				case NOT_HANDLED:
-					debug_printf("wait_move_and_scan_foe -- probleme\n");
+					avoidance_printf("wait_move_and_scan_foe -- probleme\n");
 					state = LOAD_MOVE;
 					return NOT_HANDLED;
 					break;
