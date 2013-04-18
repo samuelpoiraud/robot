@@ -149,6 +149,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			//On reçoit un pong, tant mieux, le lien est établi
 			global.env.xbee_is_linked = TRUE;
 			break;
+		case DEBUG_DETECT_FOE:
+			global.env.debug_force_foe = TRUE;
+			break;
 		default:
 			break;
 	}
@@ -316,6 +319,7 @@ void ENV_clean ()
 	global.env.foe[FOE_1].updated = FALSE;
 	global.env.foe[FOE_2].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
+	global.env.debug_force_foe = FALSE;
 	
 	/*global.env.act[BROOM_LEFT].ready == TRUE;
 	global.env.act[BROOM_RIGHT].ready == TRUE;

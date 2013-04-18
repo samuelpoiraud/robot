@@ -109,6 +109,7 @@
 		/*Tableau d'état des elements du terrain */
 		map_state_e map_elements[(map_goal_e)40]; //Voir doc pour connaitre les éléments associés
 		Uint8 color_ball;
+		bool_e debug_force_foe;
 	}environment_t;
 
 	//NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
