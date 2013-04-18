@@ -250,7 +250,7 @@ static void MAIN_onButton4() {
 	debug_printf("- Plate potar val:      %d\n", ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID));
 	debug_printf("- Lift left potar val:  %d\n", ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID));
 	debug_printf("- Lift right potar val: %d\n", ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID));
-	debug_printf("- Capteur cerise: %d\n", BALLSORTER_SENSOR_PIN);
+	debug_printf("- Capteur cerise White(Q1): %d, Red(Q2): %d, Blue(Q3): %d\n", BALLSORTER_SENSOR_PIN_WHITE_CHERRY, BALLSORTER_SENSOR_PIN_RED_CHERRY, BALLSORTER_SENSOR_PIN_BLUE_CHERRY);
 
 	for(i=0; i<7; i++)
 		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));

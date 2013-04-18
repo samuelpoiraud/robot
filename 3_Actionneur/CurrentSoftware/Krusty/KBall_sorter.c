@@ -255,7 +255,21 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			QUEUE_behead(queueId);	//gestion terminée
 		} else { //BALLSORTER_CS_DetectCherry
 			if(CLOCK_get_time() > detection_end_time) {   //Envoyer le message du resultat de la detection qu'après la fin du temps BALLSORTER_DETECT_TIME
+				Uint8 cherry_color;
 				CAN_msg_t detectionResultMsg = {ACT_BALLSORTER_RESULT, {(BALLSORTER_SENSOR_PIN == BALLSORTER_SENSOR_DETECTED_LEVEL)? ACT_BALLSORTER_WHITE_CHERRY : ACT_BALLSORTER_NO_CHERRY}, 1};
+
+#ifndef BALLSORTER_USE_SICK_SENSOR
+				if(BALLSORTER_SENSOR_PIN)
+					cherry_color = ACT_BALLSORTER_WHITE_CHERRY;
+				else cherry_color = ACT_BALLSORTER_NO_CHERRY;
+#else
+
+				if(BALLSORTER_SENSOR_PIN_WHITE_CHERRY)
+					cherry_color = ACT_BALLSORTER_WHITE_CHERRY;
+				else if(BALLSORTER_SENSOR_PIN_RED_CHERRY || BALLSORTER_SENSOR_PIN_BLUE_CHERRY)
+					cherry_color = ACT_BALLSORTER_BAD_CHERRY;
+				else cherry_color = ACT_BALLSORTER_NO_CHERRY;
+#endif
 
 				if(desired_ball_launcher_speed >= 0) {
 					if(detectionResultMsg.data[0] == ACT_BALLSORTER_WHITE_CHERRY)

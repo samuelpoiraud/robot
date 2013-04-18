@@ -261,6 +261,7 @@
 		//Résultat de la detection de la cerise dans data[0]:
 		#define ACT_BALLSORTER_WHITE_CHERRY     0
 		#define ACT_BALLSORTER_NO_CHERRY        1
+		#define ACT_BALLSORTER_BAD_CHERRY       2
 	/////////////////////////////////////////
 
 	////////////////// LIFT /////////////////
