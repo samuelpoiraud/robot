@@ -44,10 +44,6 @@
 	#define AN3_ID  1
 	#define USE_AN9
 	#define AN9_ID  2
-	#define USE_AN12
-	#define AN12_ID 3
-	#define USE_AN13
-	#define AN13_ID 4
 
 /**************** Périphériques ****************/
 
@@ -114,8 +110,8 @@
 
 /* Config BALLSORTER */
 	#define BALLSORTER_AX12_ID                   5
-	#define BALLSORTER_SENSOR_PIN_WHITE_CHERRY   PORTBbits.RB8  //Si utilisation du gros sick (capteur couleur, voir BALLSORTER_USE_SICK_SENSOR dans KBall_sorter_config.h)
-	#define BALLSORTER_SENSOR_PIN_RED_CHERRY     PORTBbits.RB12
+	#define BALLSORTER_SENSOR_PIN_RED_CHERRY     PORTBbits.RB8  //Si utilisation du gros sick (capteur couleur, voir BALLSORTER_USE_SICK_SENSOR dans KBall_sorter_config.h)
+	#define BALLSORTER_SENSOR_PIN_WHITE_CHERRY   PORTBbits.RB12
 	#define BALLSORTER_SENSOR_PIN_BLUE_CHERRY    PORTBbits.RB13
 	#define BALLSORTER_SENSOR_PIN                PORTBbits.RB8  //Si utilisation du sick wt100
 	#define BALLSORTER_SENSOR_DETECTED_LEVEL     0      //Niveau de BALLSORTER_SENSOR_PIN quand une cerise blanche est détectée

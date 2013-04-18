@@ -69,6 +69,9 @@
 		GEOMETRY_point_t point;
 		ASSER_speed_e speed;
 	}displacement_t;
+
+	//Pour tester la fonction
+	void foe_in_path(bool_e in_path[NB_FOES]);
 	
 	/*
 	 * Affecture une trajectoire courbe de la position actuelle. Le robot
