@@ -48,7 +48,8 @@
 		END_OK=0,
 		IN_PROGRESS,
 		END_WITH_TIMEOUT,
-		NOT_HANDLED
+		NOT_HANDLED,
+		FOE_IN_PATH
 	}error_e;
 
 	/* Types d'évitements possibles */
