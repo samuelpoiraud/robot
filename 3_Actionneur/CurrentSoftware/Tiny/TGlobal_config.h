@@ -125,9 +125,9 @@
 
 /* Config CANDLECOLOR: capteur tritronics CW2 pour la couleur des bougies */
 	#define CANDLECOLOR_CW_ID                   0
-	#define CANDLECOLOR_CW_PIN_ADC_x            AN13_ID
-	#define CANDLECOLOR_CW_PIN_ADC_y            AN12_ID
-	#define CANDLECOLOR_CW_PIN_ADC_Y            AN2_ID
+	#define CANDLECOLOR_CW_PIN_ADC_X            AN13_ID
+	#define CANDLECOLOR_CW_PIN_ADC_Y            AN12_ID
+	#define CANDLECOLOR_CW_PIN_ADC_Z            AN2_ID
 	#define CANDLECOLOR_AX12_ID                 6
 /**************************************************************************/
 

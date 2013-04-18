@@ -20,6 +20,8 @@
 #include "actions_tests_krusty_micro.h"
 
 void TEST_STRAT_K_homologation(void);
+
+void TEST_START_avoidance_distance(); //Test de la detection d'adversaire, utilisez docklight pour voir si Foe 1 ou 2 est detecté
 void K_TEST_STRAT_avoidance(void);//
 void TEST_STRAT_kdo(void);
 void TEST_STRAT_assiettes(void);

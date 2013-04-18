@@ -120,10 +120,12 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case ACT_BALLSORTER_RESULT:
 #warning a restaurer apres la belgique
 			if(global.env.color == BLUE){
-                        global.env.color_ball = incoming_msg->data[0];
-                        } else {
-                            global.env.color_ball=0;
-                        }
+				if(incoming_msg->data[0] == ACT_BALLSORTER_WHITE_CHERRY)
+					global.env.color_ball = 0;
+				else global.env.color_ball = 1;
+			} else {
+				global.env.color_ball=0;
+			}
 			break;
 
 /************************************ Récupération des données de la balise *******************************/

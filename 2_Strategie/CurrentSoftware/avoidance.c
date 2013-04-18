@@ -80,7 +80,8 @@
 * in_path = TRUE Quand l'adversaire est sur notre chemin
 * in_path = FALSE Quand l'adversaire n'est pas sur le chemin
 */
-static void foe_in_path(bool_e in_path[NB_FOES]);
+//static void foe_in_path(bool_e in_path[NB_FOES]);
+//Dans le .h
 
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot 
  * move_way = retourne le sens de déplacement
@@ -122,8 +123,6 @@ static bool_e AVOIDANCE_compute_dodge_point(way_e move_way, Sint16 x_distance,
 static error_e AVOIDANCE_move_colision();
 
 static error_e AVOIDANCE_watch_asser_stack();
-
-
 	
 /* Fonction qui regarde si l'adversaire a bougé durant l'intervalle de temps précédent 
  * time_for_analyse : temps entre les analyses de position
@@ -247,13 +246,14 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 	puis seulement avec les notres s'il est impossible de trouver un chemin */
 	error_e goto_polygon_default(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve,polygon_elements_type_e element_type)
 	{
-		static enum 
+		enum state_e
 		{
 			GOTO_POLYGON_WITH_ALL_ELEMENTS = 0,
 			GOTO_POLYGON_WITH_OUR_AND_OPPONENT_ELEMENTS,
 			GOTO_POLYGON_WITH_OUR_ELEMENTS,
 			DONE
-		} state = GOTO_POLYGON_WITH_ALL_ELEMENTS; 
+		};
+		static enum state_e state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
 		
 		static error_e sub_action;
 		static bool_e timeout = FALSE;
@@ -376,7 +376,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 				break;
 
 			default:
-				state = 0;
+				state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
 				return NOT_HANDLED;
 				break;
 		}
@@ -387,13 +387,14 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 	error_e goto_polygon(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements)
 	{
 		/* Gestion de la machine à états */
-		static enum 
+		enum state_e
 		{
 			INIT = 0,
 			COMPUTE,
 			WAIT_GO_POLYGON,
 			DONE
-		} state = 0; 
+		};
+		static enum state_e state = INIT;
 	
 		Uint16 cost;
 		
@@ -432,11 +433,14 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 						debug_printf("Pas d'adversaire sur polygone\n");
 						state = DONE;
 						break;
-					case NOT_HANDLED :
+
+					case NOT_HANDLED:
+					case FOE_IN_PATH:
 						debug_printf("Adversaire detecte sur polygon!\r\n");
 						use_opponent = TRUE;
 						state = COMPUTE;
 						break;
+
 					case IN_PROGRESS :
 					default :
 						break; 
@@ -449,7 +453,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 				break;
 	
 			default :
-				state = 0;
+				state = INIT;
 				break;
 		}
 		return IN_PROGRESS;
@@ -491,7 +495,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 			WAIT_FOE,
 			STOP_UPDATE_POS_THEN_COMPUTE_AND_GO
 		};
-		static enum state_e state = 0;
+		static enum state_e state = RESTART_STATE_MACHINE;
 	
 		/* Prend en compte l'évitement */
 		static bool_e enable_avoidance[NB_FOES];
@@ -629,7 +633,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 				}
 				else if (global.env.match_time - avoidance_start_time > 3000)
 				{
-					return NOT_HANDLED;	
+					return FOE_IN_PATH;
 				}
 				return IN_PROGRESS;
 				break;
@@ -680,6 +684,7 @@ error_e goto_angle (Sint16 angle, ASSER_speed_e speed){
 			return (timeout)? END_WITH_TIMEOUT : END_OK;
 			break;
 		default:
+			state = EMPILE;
 			return NOT_HANDLED;
 	}
 	return NOT_HANDLED;
@@ -696,7 +701,7 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_c
 		WAIT_END_OF_MOVE,
 		DONE
 	};
-	static enum state_e state = 0;
+	static enum state_e state = PUSH_MOVE;
 	
 	static bool_e timeout=FALSE;
 
@@ -722,7 +727,7 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_c
 			break;
 
 		default : 
-			state = 0;
+			state = PUSH_MOVE;
 			return NOT_HANDLED;
 			break;
 	}
@@ -887,7 +892,7 @@ error_e move_colision()
 		GOTO_NODE,
 		DONE
 	};
-	static enum state_e state = 0;
+	static enum state_e state = WAIT_COLISION;
 	
 	error_e sub_action;
 
@@ -946,10 +951,11 @@ error_e move_colision()
 					break;
 
 				case END_WITH_TIMEOUT :
+				case NOT_HANDLED :
 					state = COMPUTE; 
 					break;
 
-				case NOT_HANDLED :
+				case FOE_IN_PATH :
 					/*si l'ennemi est encore sur ma route (enfoiré ^^) */
 					state = COMPUTE;
 					break;
@@ -980,7 +986,8 @@ error_e move_colision()
  * En retour, on a :
  * END_OK : on est arrivé à destination dans les temps
  * END_WITH_TIMEOUT : soit on est arrivé à destination en ayant évité l'adversaire, soit on a eu un timeout de la pile ASSER
- * NOT_HANDLED : l'évitement est trop long à se faire correctement, on prévient la fonction au dessus qui doit agir en conséquence 
+ * NOT_HANDLED : Erreur déplacement impossible
+ * FOE_IN_PATH : l'évitement est trop long à se faire correctement, on prévient la fonction au dessus qui doit agir en conséquence
  */
 error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 {
@@ -1037,7 +1044,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 						if(nb_detection > MAX_AVOIDANCE_DETECTION)
 						{
 							// on a fait des évitements trop souvent, il faut faire autre chose
-							avoidance_printf("Ennemi détecté trop de fois, point inatteignable : NOT_HANDLED\n");
+							avoidance_printf("Ennemi détecté trop de fois, point inatteignable : FOE_IN_PATH\n");
 							STACKS_flush(ASSER);
 							state = INITIALIZATION;
 							return FOE_IN_PATH;
@@ -1059,7 +1066,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 						if(nb_detection > MAX_AVOIDANCE_DETECTION)
 						{
 							// on a fait des évitements trop souvent, il faut faire autre chose
-							avoidance_printf("Ennemi détecté trop de fois, point inatteignable : NOT_HANDLED\n");
+							avoidance_printf("Ennemi détecté trop de fois, point inatteignable : FOE_IN_PATH\n");
 							STACKS_flush(ASSER);
 							state = INITIALIZATION;
 							return FOE_IN_PATH;
@@ -1091,7 +1098,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 						}
 						break;
 					default:
-						state = 0;
+						state = INITIALIZATION;
 						break;
 				}
 			}
@@ -1138,7 +1145,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 					{
 						if(avoidance_type == NO_DODGE_AND_WAIT || avoidance_type == NO_DODGE_AND_NO_WAIT)
 						{
-							// on va sortir de la fonction en retournant NOT_HANDLED
+							// on va sortir de la fonction en retournant FOE_IN_PATH
 							avoidance_printf("Pas d'esquive après attente, on sort\n");
 							STACKS_flush(ASSER);
 							state = INITIALIZATION;
@@ -1203,7 +1210,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
                                         //    avoidance_printf("il n'y a pas de chemain posible donc on stop\n");
                                         //    STACKS_flush(ASSER);
                                         //    state = INITIALIZATION;
-                                         //   return NOT_HANDLED;}
+                                         //   return FOE_IN_PATH;}
 					}
 				}
                             
@@ -1326,7 +1333,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 			debug_printf("PROBLEME, on est dans le default !\n");
 			state = INITIALIZATION;
 			return NOT_HANDLED;
-			break;				
+			break;
 	}
 	return IN_PROGRESS;
 }
@@ -1352,9 +1359,8 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 		STACKS_flush(ASSER);
 		state = LOAD_MOVE;
 		global.env.debug_force_foe = FALSE;
-		return NOT_HANDLED;
+		return FOE_IN_PATH;
 	}
-
 
 	switch(state)
 	{
@@ -1437,7 +1443,8 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 /* ----------------------------------------------------------------------------- */
 
 /* Fonction qui regarde si le robot est dans notre chemin */
-static void foe_in_path(bool_e *in_path)
+//Pas en static pour tests
+/*static*/ void foe_in_path(bool_e *in_path)
 {
 	// variables
 	//Uint16 speed_indicator;
@@ -1759,7 +1766,7 @@ static error_e AVOIDANCE_move_colision()
 		DONE,
 		ROTATE_THE_OTHER_WAY
 	};
-	static enum state_e state = 0;
+	static enum state_e state = INITIALIZATION;
 	
 	error_e sub_action;
 	static bool_e timeout;
@@ -1899,12 +1906,12 @@ static error_e AVOIDANCE_move_colision()
 			break;
 			
 		case DONE:
-			state = 0;
+			state = INITIALIZATION;
 			return timeout?END_WITH_TIMEOUT:END_OK;
 			break;
 
 		default :
-			state = 0;
+			state = INITIALIZATION;
 			break;
 	}
 	return IN_PROGRESS;

@@ -94,7 +94,8 @@ void any_match(time32_t match_duration)
 					strategy = STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait;
 				break;
 				case 0x03:	//STRAT_3_TINY
-					strategy = TEST_STRAT_T_homologation;
+					//strategy = TEST_STRAT_T_homologation;
+					strategy = &TEST_START_avoidance_distance;
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;
@@ -110,8 +111,9 @@ void any_match(time32_t match_duration)
 			switch(strat_number())
 			{
 				case 0x01:	//STRAT_1_KRUSTY
-					calibration = ASSER_CALIBRATION_SQUARE_1;
+					calibration = ASSER_CALIBRATION_SQUARE_2;
 					//strategy = TEST_STRAT_avoidance;
+					strategy = &TEST_START_avoidance_distance;
 				break;
 
 				case 0x02:	//STRAT_2_KRUSTY
