@@ -123,7 +123,7 @@ void any_match(time32_t match_duration)
 
 				case 0x03:	//STRAT_3_KRUSTY
 					calibration = ASSER_CALIBRATION_SQUARE_2;
-					strategy = Test_STRAT_COUPE_2;
+					strategy = K_test_strat_unitaire;
 				break;
 
 				case 0x00:	//STRAT_0_KRUSTY (aucun switch)

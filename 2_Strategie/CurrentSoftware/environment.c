@@ -118,7 +118,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 		case ACT_BALLSORTER_RESULT:
-#warning a restaurer apres la belgique
 			if(global.env.color == BLUE){
 				if(incoming_msg->data[0] == ACT_BALLSORTER_WHITE_CHERRY)
 					global.env.color_ball = 0;

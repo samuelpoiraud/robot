@@ -27,6 +27,96 @@
 /* 							Pour France											*/
 /* ----------------------------------------------------------------------------- */
 
+bool_e act_go_on(queue_id_e act_id){
+	error_e sub_actionner = ACT_get_last_action_result(act_id);
+	bool_e ret = FALSE;
+		switch(sub_actionner){
+		case IN_PROGRESS:
+			break;
+		case END_OK:
+		case END_WITH_TIMEOUT:
+		case NOT_HANDLED:
+		default:
+		ret = 1;
+			break;
+	}
+	return ret;
+}
+
+error_e two_first_rows(void){
+	static enum{
+		ASK_WARNER,
+		FIRST_ROW,
+		SECOND_ROW,
+	}state = ASK_WARNER;
+
+	static enum{
+		FIRST_LIFT,
+		WAIT_FIRST_LIFT,
+		SECOND_LIFT,
+		WAIT_SECOND_LIFT,
+		ACT_DONE
+	}actionneur_state = FIRST_LIFT;
+
+	static error_e sub_action;
+	error_e ret = IN_PROGRESS;
+
+
+	switch(state){
+		case ASK_WARNER:
+			ASSER_WARNER_arm_y(COLOR_Y(900));
+			state =FIRST_ROW;
+		case FIRST_ROW:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{900,COLOR_Y(950)},FAST},
+				//{{1100,COLOR_Y(1050)},FAST},
+				{{1000,COLOR_Y(1500)},FAST}},
+				2,FORWARD,NO_AVOIDANCE);
+			if(sub_action != IN_PROGRESS)
+				state = SECOND_ROW;
+			break;
+		case SECOND_ROW:
+			return END_OK;
+			break;
+		default:
+			break;
+	}
+
+	switch(actionneur_state){
+		case FIRST_LIFT:
+			if(global.env.asser.reach_y){
+				ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+				state = WAIT_FIRST_LIFT;
+				ASSER_WARNER_arm_y(COLOR_Y(1200));
+			}
+			break;
+		case WAIT_FIRST_LIFT:
+			if(act_go_on(ACT_QUEUE_LiftLeft)){
+				ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
+				state = SECOND_LIFT;
+			}
+			break;
+		case SECOND_LIFT:
+			if(global.env.asser.reach_y){
+				ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
+				state = WAIT_SECOND_LIFT;
+			}
+			break;
+		case WAIT_SECOND_LIFT:
+			if(act_go_on(ACT_QUEUE_LiftLeft)){
+				ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
+				state = ACT_DONE;
+			}
+			break;
+		case ACT_DONE:
+		default:
+			break;
+	}
+
+	return ret;
+}
+
+
+
 Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed){
 	error_e sub_action;
 	sub_action = goto_angle(angle, speed);
@@ -51,7 +141,7 @@ Uint8 wait_plier(Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 	switch(sub_action)
 		{
                 case ACT_FUNCTION_Done:
-					return in_progress;
+					return success_state;
                     break;
                 case ACT_FUNCTION_ActDisabled:
                 case ACT_FUNCTION_RetryLater:
@@ -64,6 +154,7 @@ Uint8 wait_plier(Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 					return fail_state;
                     break;
             }
+	return in_progress;
 }
 
 error_e Lacher_verres(Uint8 type){
