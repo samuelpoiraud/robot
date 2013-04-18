@@ -23,6 +23,104 @@
 /* 						Actions élémentaires de construction                     */
 /* ----------------------------------------------------------------------------- */
 
+/* ----------------------------------------------------------------------------- */
+/* 							Pour France											*/
+/* ----------------------------------------------------------------------------- */
+
+Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed){
+	error_e sub_action;
+	sub_action = goto_angle(angle, speed);
+	switch(sub_action){
+		case IN_PROGRESS:
+			return in_progress;
+		break;
+		case NOT_HANDLED:
+			return fail_state;
+		break;
+		case END_OK:
+		case END_WITH_TIMEOUT:
+		default:
+			return success_state;
+		break;
+	}
+}
+
+Uint8 wait_plier(Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static error_e sub_action;
+	sub_action = ACT_get_last_action_result(ACT_QUEUE_Plate);
+	switch(sub_action)
+		{
+                case ACT_FUNCTION_Done:
+					return in_progress;
+                    break;
+                case ACT_FUNCTION_ActDisabled:
+                case ACT_FUNCTION_RetryLater:
+					return fail_state;
+                    break;
+                case ACT_FUNCTION_InProgress:
+					return in_progress;
+                    break;
+                default:
+                    break;
+            }
+}
+
+error_e Lacher_verres(Uint8 type){
+	static enum{
+		INIT,
+		ANGLE_TYPE1,
+		ANGLE_TYPE2,
+		OPEN_PLIER,
+		WAIT_PLIER,
+		EXTRACT_TYPE1,
+		EXTRACT_TYPE2
+	}state = INIT;
+
+	static error_e sub_action;
+	error_e ret = IN_PROGRESS;
+
+	switch(state){
+		case INIT:
+			if(type == 0)
+				state = ANGLE_TYPE1;
+			else
+				state = ANGLE_TYPE2;
+			break;
+		case ANGLE_TYPE1:
+			state = try_go_angle(COLOR_ANGLE(-PI4096), ANGLE_TYPE1, OPEN_PLIER, OPEN_PLIER, FAST);
+			break;
+		case ANGLE_TYPE2:
+			state = try_go_angle(COLOR_ANGLE(-PI4096/2), ANGLE_TYPE2, OPEN_PLIER, OPEN_PLIER, FAST);
+			break;
+		case OPEN_PLIER:
+			ACT_plate_plier(ACT_PLATE_PLIER_OPEN);
+			state = WAIT_PLIER;
+			break;
+		case WAIT_PLIER:
+			//Si l'action s'est bien déroulée ou non on se dirige versl'extraction correspondante à l'argument type
+			state = wait_plier(WAIT_PLIER, (!type)? EXTRACT_TYPE1 : EXTRACT_TYPE2, (!type)? EXTRACT_TYPE1 : EXTRACT_TYPE2);
+			break;
+		case EXTRACT_TYPE1:
+			sub_action = goto_pos(1005, COLOR_Y(323), SLOW, BACKWARD, END_AT_LAST_POINT);
+			if(sub_action != IN_PROGRESS)
+				state = INIT;
+				ret = END_OK;
+			break;
+		case EXTRACT_TYPE2:
+			sub_action = goto_pos(955, COLOR_Y(340), SLOW, BACKWARD, END_AT_LAST_POINT);
+			if(sub_action != IN_PROGRESS)
+				state = INIT;
+				ret = END_OK;
+			break;
+	}
+	return ret;
+}
+
+
+/* ----------------------------------------------------------------------------- */
+/* 							Before Belgique                    			 */
+/* ----------------------------------------------------------------------------- */
+
 error_e K_CADEAU1(void){
 	static enum{
 		MOVE = 0,
@@ -912,6 +1010,7 @@ error_e K_verres(void){
 				case END_WITH_TIMEOUT:
 					state = PREMIER;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = PREMIER;
 					break;
@@ -934,6 +1033,7 @@ error_e K_verres(void){
 				case END_WITH_TIMEOUT:
 					state = SECOND;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = SECOND;
 					break;
@@ -973,6 +1073,7 @@ error_e K_verres(void){
 				case END_WITH_TIMEOUT:
 					state = TROIS;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = TROIS;
 					break;
@@ -998,6 +1099,7 @@ error_e K_verres(void){
 				case END_WITH_TIMEOUT:
 					state = QUATRE;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = QUATRE;
 					break;
@@ -1019,6 +1121,7 @@ error_e K_verres(void){
 					case END_WITH_TIMEOUT:
 						state = CINQ;
 						break;
+					case FOE_IN_PATH:
 					case NOT_HANDLED:
 						state = CINQ;
 						break;
@@ -1038,6 +1141,7 @@ error_e K_verres(void){
 					case END_WITH_TIMEOUT:
 						state = SIX;
 						break;
+					case FOE_IN_PATH:
 					case NOT_HANDLED:
 						state = SIX;
 						break;
@@ -1059,6 +1163,7 @@ error_e K_verres(void){
 					case END_WITH_TIMEOUT:
 						state = SEPT;
 						break;
+					case FOE_IN_PATH:
 					case NOT_HANDLED:
 						state = SEPT;
 						break;
@@ -1077,6 +1182,7 @@ error_e K_verres(void){
 					case END_WITH_TIMEOUT:
 						state = DONE;
 						break;
+					case FOE_IN_PATH:
 					case NOT_HANDLED:
 						state = DONE;
 						break;
@@ -1645,6 +1751,9 @@ error_e K_push_back_row_glasses(void){
 
 	return IN_PROGRESS;
 }
+
+
+
 
 error_e K_push_half_row_glasses_HOMOLO(void){
 	static enum{
@@ -5000,6 +5109,7 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
             break;
     }
     return IN_PROGRESS;
+
 }
 /* ----------------------------------------------------------------------------- */
 /* 								Fonction diverses                     			 */

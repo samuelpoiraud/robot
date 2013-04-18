@@ -363,6 +363,7 @@ void TEST_STRAT_assiettes_lanceur(void){
 
                         state=DONE;
                         break;
+					case FOE_IN_PATH:
                     case NOT_HANDLED:
                         state=DONE;
                         break;
@@ -402,6 +403,7 @@ void TEST_Launcher_ball(void){
                     
                     state=STOP_ACT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=LANCEUR_GATEAU;
                     break;
@@ -422,6 +424,7 @@ void TEST_Launcher_ball(void){
                     ACT_ball_launcher_stop();
                     state=STOP_ACT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=LANCEUR_GATEAU;
                     break;
@@ -442,6 +445,7 @@ void TEST_Launcher_ball(void){
                     ACT_ball_launcher_stop();
                     state=STOP_ACT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=LANCEUR_CADEAU;
                     break;
@@ -503,6 +507,7 @@ void TEST_STRAT_verres(void){
 				case END_WITH_TIMEOUT:
 					state = GO;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = GO;
 					break;

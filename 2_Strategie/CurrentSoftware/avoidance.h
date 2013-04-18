@@ -154,6 +154,16 @@
 	 * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT, NOT_HANDLED
 	 */
 	error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition);
+	
+	/*
+	 * Avance d'une distance d à partir de la position actuelle.
+	 *
+	 * pre    : la position du robot doit être à jour
+	 * post   : la pile asser est vidée
+	 * param d : Distance à parcourir, valeur positive.
+	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
+	 */
+	Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way);
 
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.

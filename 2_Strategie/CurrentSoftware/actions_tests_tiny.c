@@ -315,28 +315,6 @@ void STRAT_TINY_gifts_and_cake(void)
 }
 
 
-
-
-
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way)
-{
-	error_e sub_action;
-	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,NO_DODGE_AND_WAIT);
-	switch(sub_action){
-		case IN_PROGRESS:
-			return in_progress;
-		break;
-		case NOT_HANDLED:
-			return fail_state;
-		break;
-		case END_OK:
-		case END_WITH_TIMEOUT:
-		default:
-			return success_state;
-		break;
-	}
-}
-
 void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 {
 	typedef enum{
