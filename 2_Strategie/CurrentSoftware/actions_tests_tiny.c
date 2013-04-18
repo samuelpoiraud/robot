@@ -376,63 +376,18 @@ void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 /* 							Tests state_machines multiple              			 */
 /* ----------------------------------------------------------------------------- */
 
-void TEST_STRAT_gato(void){
-	static enum{
-		SORTIR = 0,
-		DONE
-	}state = SORTIR;
-
-	static error_e sub_action;
-
-	switch(state){
-		case SORTIR:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(801)}}
-                        ,{{1728,COLOR_Y(801)}}
-                        ,{{1764,COLOR_Y(894)}}
-                        ,{{1627,COLOR_Y(968)}}
-                        ,{{1511,COLOR_Y(1071)}}
-                        ,{{1423,COLOR_Y(1200)}}
-                        ,{{1369,COLOR_Y(1346)}}
-                        ,{{1350,COLOR_Y(1500)}}
-                        ,{{1369,COLOR_Y(1654)}}
-                        ,{{1423,COLOR_Y(1800)}}}
-                        ,10,FORWARD,NORMAL_WAIT);
-			switch(sub_action){
-				case IN_PROGRESS:
-					break;
-				case NOT_HANDLED:
-					state = DONE;
-					break;
-				case END_OK:
-					state = DONE;
-					break;
-				case END_WITH_TIMEOUT:
-					state = DONE;
-					break;
-				default:
-					state = DONE;
-					break;
-			}
-			break;
-
-		case DONE:
-			break;
-	}
-}
-
-/* ----------------------------------------------------------------------------- */
-/* 							Tests state_machines multiple              			 */
-/* ----------------------------------------------------------------------------- */
-
-
-void STRAT_TINY_whity_candles(void)
+void STRAT_TINY_all_candles(void)
 {
 	static enum
 	{
 		GET_OUT = 0,
                 GOTO_CAKE,
+				POS_MID,
+	    TINY_BLUESIDE_BLOWJOB,
 		BLOW_ALL_WHITY_CANDLES,
-		FAIL_TO_BLOW_CANDLES,
+		COMEBACK2MID,
+		TINY_REDSIDE_BLOWJOB,
+		COMEBACK2CODEUR,
 		DONE
 	}state = GET_OUT;
 
@@ -442,22 +397,35 @@ void STRAT_TINY_whity_candles(void)
 	{
 					
 		case GET_OUT:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(1500)},SLOW},{{1300,COLOR_Y(1500)},SLOW}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(250, COLOR_Y(2135), GET_OUT, POS_MID, POS_MID, (global.env.color==BLUE)?BACKWARD:FORWARD);
+
+		break;
+
+		case POS_MID:
+			state = try_going(1380, COLOR_Y(2135),POS_MID, TINY_BLUESIDE_BLOWJOB, TINY_BLUESIDE_BLOWJOB, (global.env.color==BLUE)?FORWARD:BACKWARD);
+
+		break;
+
+
+
+		case TINY_BLUESIDE_BLOWJOB:
+			sub_action = TINY_BLUESIDE_candles();
 			switch(sub_action)
             {
 				case END_OK:
-					state = BLOW_ALL_WHITY_CANDLES;
+					state=BLOW_ALL_WHITY_CANDLES;
 				break;
 				case END_WITH_TIMEOUT:
+					state=BLOW_ALL_WHITY_CANDLES;
 				case NOT_HANDLED:
-					state = BLOW_ALL_WHITY_CANDLES;
+					state =BLOW_ALL_WHITY_CANDLES;
 				break;
 				case IN_PROGRESS:
 				default:
 				break;
             }
-
 		break;
+
 
                
 
@@ -466,11 +434,12 @@ void STRAT_TINY_whity_candles(void)
 			switch(sub_action)
             {
 				case END_OK:
-					state=DONE;
+					state=COMEBACK2MID;
 				break;
 				case END_WITH_TIMEOUT:
+					state=COMEBACK2MID;
 				case NOT_HANDLED:
-					state = DONE;
+					state = COMEBACK2MID;
 				break;
 				case IN_PROGRESS:
 				default:
@@ -478,24 +447,32 @@ void STRAT_TINY_whity_candles(void)
             }
 		break;
 
+		case COMEBACK2MID:
+             state = try_going(1380, COLOR_Y(865), COMEBACK2MID, TINY_REDSIDE_BLOWJOB, TINY_REDSIDE_BLOWJOB, (global.env.color==BLUE)?BACKWARD:FORWARD);
+
+		break;
 
 
-
-		case FAIL_TO_BLOW_CANDLES:		
-                sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(1500)},FAST}},1,ANY_WAY,NO_DODGE_AND_WAIT);
+		case TINY_REDSIDE_BLOWJOB:
+			sub_action = TINY_REDSIDE_candles();
 			switch(sub_action)
             {
 				case END_OK:
-					state = BLOW_ALL_WHITY_CANDLES;
+					state=COMEBACK2CODEUR;
 				break;
 				case END_WITH_TIMEOUT:
+					state=COMEBACK2CODEUR;
 				case NOT_HANDLED:
-					state = BLOW_ALL_WHITY_CANDLES;
+					state = COMEBACK2CODEUR;
 				break;
 				case IN_PROGRESS:
 				default:
 				break;
             }
+		break;
+
+		case COMEBACK2CODEUR:
+             state = try_going(500, COLOR_Y(500), COMEBACK2CODEUR, DONE, DONE, (global.env.color==BLUE)?FORWARD:BACKWARD);
 
 		break;
 

@@ -628,10 +628,8 @@ error_e TINY_white_candles(void)
 	typedef enum
 	{
 		INIT=0,
-                OPEN_HAMMER_FIRST_CANDLE_1,
 		GOTO_FIRST_WHITE_CANDLE,
 		ANGLE_FIRST_CANDLE,
-		OPEN_FIRST_CANDLE,
 		WAIT_HAMMER,
 		HAMMER_FIRST_CANDLE,
 		WAIT_HAMMER_DOWN_FIRST_CANDLE,
@@ -648,26 +646,8 @@ error_e TINY_white_candles(void)
 		HAMMER_FOURTH_CANDLE,
 		WAIT_HAMMER_DOWN_FOURTH_CANDLE,
 		WAIT_HAMMER_FOURTH_CANDLE_REUP,
-
-		HAMMER_FOURTH_CANDLE_AGAIN,
-		WAIT_HAMMER_DOWN_FOURTH_CANDLE_AGAIN,
-		WAIT_HAMMER_FOURTH_CANDLE_REUP_AGAIN,
-                GOTO_THIRD_WHITE_CANDLE_AGAIN,
-		HAMMER_THIRD_CANDLE_AGAIN,
-		WAIT_HAMMER_DOWN_THIRD_CANDLE_AGAIN,
-		WAIT_HAMMER_THIRD_CANDLE_REUP_AGAIN,
-                GOTO_SECOND_WHITE_CANDLE_AGAIN,
-		HAMMER_SECOND_CANDLE_AGAIN,
-		WAIT_HAMMER_DOWN_SECOND_CANDLE_AGAIN,
-		WAIT_HAMMER_SECOND_CANDLE_REUP_AGAIN,
-                GOTO_FIRST_WHITE_CANDLE_AGAIN,
-		HAMMER_FIRST_CANDLE_AGAIN,
-		WAIT_HAMMER_DOWN_FIRST_CANDLE_AGAIN,
-		WAIT_HAMMER_FIRST_CANDLE_REUP_AGAIN,
-
 		ALL_CANDLES_BLOWN,
 		RETURN_HOME,
-		HAMMER_FINAL_POS,
 		LAST_WAIT_HAMMER_DOWN,
 		HAMMER_FAIL,
 		TIMEOUT_FAIL,
@@ -679,52 +659,32 @@ error_e TINY_white_candles(void)
 
 	error_e ret = IN_PROGRESS;
 	error_e sub_action;
-	static avoidance_type_e avoidance = NO_DODGE_AND_WAIT;
 	static Uint8 nb_try = 0;
 
 
 	switch(state)
 	{
 		case INIT:    
-			state = OPEN_FIRST_CANDLE;
+			state = GOTO_FIRST_WHITE_CANDLE;
 			break;
                         
-        case OPEN_FIRST_CANDLE:
-			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-			state = WAIT_HAMMER;
-		break;
-
-		case WAIT_HAMMER:
-			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER,	GOTO_FIRST_WHITE_CANDLE,	GOTO_FIRST_WHITE_CANDLE); //L'autre robot aka pa faire iech.
-		break;
-
 
 	
 
 		//-------------------------FIRST GODAMN WHITY CANDLE--------------------------------------
 
 		case GOTO_FIRST_WHITE_CANDLE:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1670)},SLOW}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,avoidance);
-			switch(sub_action)
-			{
-				case END_OK:
-					state = ANGLE_FIRST_CANDLE;
-				break;
-				case END_WITH_TIMEOUT:	//Echec de la mission
-					previous_state = state;
-					state = ANGLE_FIRST_CANDLE;
-				break;
-				case NOT_HANDLED:		//Echec de la mission
-					previous_state = state;
-					state = ANGLE_FIRST_CANDLE;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-			}
-                break;
+			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1670), GOTO_FIRST_WHITE_CANDLE, WAIT_HAMMER, WAIT_HAMMER,(global.env.color==BLUE)?BACKWARD:FORWARD);
+				if(state==WAIT_HAMMER){
+					ACT_hammer_goto(HAMMER_POSITION_UP);
+				}
+			break;
+
+		case WAIT_HAMMER:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER,	ANGLE_FIRST_CANDLE,	ANGLE_FIRST_CANDLE); //L'autre robot aka pa faire iech.
+		break;
+
 
 	    case ANGLE_FIRST_CANDLE:
 			sub_action = goto_angle(-PI4096/2,VERY_SLOW);
@@ -768,26 +728,8 @@ error_e TINY_white_candles(void)
                 
                 //Deuxieme bougie
                 
-                case GOTO_SECOND_WHITE_CANDLE:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1555)},SLOW}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
-			switch(sub_action)
-			{
-				case END_OK:
-					state = HAMMER_SECOND_CANDLE;
-				break;
-				case END_WITH_TIMEOUT:	//Echec de la mission
-					previous_state = state;
-					state = HAMMER_SECOND_CANDLE;
-				break;
-				case NOT_HANDLED:		//Echec de la mission
-					previous_state = state;
-					state = HAMMER_SECOND_CANDLE;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-			}
+        case GOTO_SECOND_WHITE_CANDLE:
+			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1555), GOTO_SECOND_WHITE_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
                 break;
 
 		case HAMMER_SECOND_CANDLE:
@@ -807,26 +749,8 @@ error_e TINY_white_candles(void)
                 
                 //troisieme bougie
 
-                 case GOTO_THIRD_WHITE_CANDLE:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1445)},SLOW}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
-			switch(sub_action)
-			{
-				case END_OK:
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case END_WITH_TIMEOUT:	//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case NOT_HANDLED:		//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-			}
+        case GOTO_THIRD_WHITE_CANDLE:
+			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1445), GOTO_THIRD_WHITE_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
                 break;
 
 		case HAMMER_THIRD_CANDLE:
@@ -847,26 +771,8 @@ error_e TINY_white_candles(void)
 
                 //quatrieme bougie
 
-                 case GOTO_FOURTH_WHITE_CANDLE:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1330)},SLOW}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
-			switch(sub_action)
-			{
-				case END_OK:
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case END_WITH_TIMEOUT:	//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case NOT_HANDLED:		//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-			}
+        case GOTO_FOURTH_WHITE_CANDLE:
+			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1330), GOTO_FOURTH_WHITE_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
                 break;
 
 		case HAMMER_FOURTH_CANDLE:
@@ -884,185 +790,533 @@ error_e TINY_white_candles(void)
 
 		case WAIT_HAMMER_FOURTH_CANDLE_REUP:
 			//						->In progress					->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_FOURTH_CANDLE_REUP,	HAMMER_FOURTH_CANDLE_AGAIN,	HAMMER_FOURTH_CANDLE_AGAIN);
+			state = wait_hammer(	WAIT_HAMMER_FOURTH_CANDLE_REUP,	ALL_CANDLES_BLOWN,	ALL_CANDLES_BLOWN);
 		break;
 
 		
-		// !!!!!
-                //ET je repasse encore une fois dessus
-		//4e bougie encore
-
-		case HAMMER_FOURTH_CANDLE_AGAIN:
-
-				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
-				state=WAIT_HAMMER_DOWN_FOURTH_CANDLE_AGAIN;
-		break;
-
-		case WAIT_HAMMER_DOWN_FOURTH_CANDLE_AGAIN:
-			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_DOWN_FOURTH_CANDLE_AGAIN,	WAIT_HAMMER_FOURTH_CANDLE_REUP_AGAIN,	WAIT_HAMMER_FOURTH_CANDLE_REUP_AGAIN);
-			if(state == WAIT_HAMMER_DOWN_FOURTH_CANDLE_AGAIN)
-				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
-		break;
-
-		case WAIT_HAMMER_FOURTH_CANDLE_REUP_AGAIN:
-			//						->In progress					->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_FOURTH_CANDLE_REUP_AGAIN,GOTO_THIRD_WHITE_CANDLE_AGAIN,GOTO_THIRD_WHITE_CANDLE_AGAIN);
-		break;
-
-		//3e bougie encore
-
-		case GOTO_THIRD_WHITE_CANDLE_AGAIN:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1330)},SLOW}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
-			switch(sub_action)
-			{
-				case END_OK:
-					state = HAMMER_THIRD_CANDLE_AGAIN;
-				break;
-				case END_WITH_TIMEOUT:	//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE_AGAIN;
-				break;
-				case NOT_HANDLED:		//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE_AGAIN;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-			}
-                break;
-
-		case HAMMER_THIRD_CANDLE_AGAIN:
-
-				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
-				state=WAIT_HAMMER_DOWN_THIRD_CANDLE_AGAIN;
-		break;
-
-		case WAIT_HAMMER_DOWN_THIRD_CANDLE_AGAIN:
-			//						->In progress			->Success						->Fail
-			state = wait_hammer(WAIT_HAMMER_DOWN_THIRD_CANDLE_AGAIN,	WAIT_HAMMER_FOURTH_CANDLE_REUP,	WAIT_HAMMER_FOURTH_CANDLE_REUP);
-			if(state ==WAIT_HAMMER_THIRD_CANDLE_REUP_AGAIN)
-				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
-		break;
-
-		case WAIT_HAMMER_THIRD_CANDLE_REUP_AGAIN:
-			//						->In progress					->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_FOURTH_CANDLE_REUP,	ALL_CANDLES_BLOWN,	ALL_CANDLES_BLOWN);
-		break;
-
-		//2e bougie encore
-
-		case GOTO_SECOND_WHITE_CANDLE_AGAIN:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1330)},SLOW}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
-			switch(sub_action)
-			{
-				case END_OK:
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case END_WITH_TIMEOUT:	//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case NOT_HANDLED:		//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-			}
-                break;
-
-		case HAMMER_SECOND_CANDLE_AGAIN:
-
-				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
-				state=WAIT_HAMMER_DOWN_FOURTH_CANDLE;
-		break;
-
-		case WAIT_HAMMER_DOWN_SECOND_CANDLE_AGAIN:
-			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_DOWN_FOURTH_CANDLE,	WAIT_HAMMER_FOURTH_CANDLE_REUP,	WAIT_HAMMER_FOURTH_CANDLE_REUP);
-			if(state == WAIT_HAMMER_FOURTH_CANDLE_REUP)
-				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
-		break;
-
-		case WAIT_HAMMER_SECOND_CANDLE_REUP_AGAIN:
-			//						->In progress					->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_FOURTH_CANDLE_REUP,	ALL_CANDLES_BLOWN,	ALL_CANDLES_BLOWN);
-		break;
-
-
-		//1ere bougie encore
-		case GOTO_FIRST_WHITE_CANDLE_AGAIN:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_BLOW_WHITE_CANDLES,COLOR_Y(1330)},SLOW}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
-			switch(sub_action)
-			{
-				case END_OK:
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case END_WITH_TIMEOUT:	//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case NOT_HANDLED:		//Echec de la mission
-					previous_state = state;
-					state = HAMMER_THIRD_CANDLE;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-			}
-                break;
-
-		case HAMMER_FIRST_CANDLE_AGAIN:
-
-				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
-				state=WAIT_HAMMER_DOWN_FOURTH_CANDLE;
-		break;
-
-		case WAIT_HAMMER_DOWN_FIRST_CANDLE_AGAIN:
-			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_DOWN_FOURTH_CANDLE,	WAIT_HAMMER_FOURTH_CANDLE_REUP,	WAIT_HAMMER_FOURTH_CANDLE_REUP);
-			if(state == WAIT_HAMMER_FOURTH_CANDLE_REUP)
-				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
-		break;
-
-		case WAIT_HAMMER_FIRST_CANDLE_REUP_AGAIN:
-			//						->In progress					->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_FOURTH_CANDLE_REUP,	ALL_CANDLES_BLOWN,	ALL_CANDLES_BLOWN);
-		break;
-
+		
 
 		//FINISH
 
 		case ALL_CANDLES_BLOWN:
-			state = RETURN_HOME;
+			state = DONE;
 		break;
+		
 		case RETURN_HOME:
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(1500)},SLOW}},1,ANY_WAY,NO_DODGE_AND_WAIT);
+			state=try_going(1000,COLOR_Y(1500), RETURN_HOME, LAST_WAIT_HAMMER_DOWN, LAST_WAIT_HAMMER_DOWN,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			if(state==LAST_WAIT_HAMMER_DOWN){
+				ACT_hammer_goto(HAMMER_POSITION_DOWN);
+			}
+			break;
+
+		case LAST_WAIT_HAMMER_DOWN:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,	DONE);
+		break;
+
+		case HAMMER_FAIL:
+			ret = NOT_HANDLED;
+		break;
+		case TIMEOUT_FAIL:					//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
+			nb_try++;
+			if(nb_try < 5)
+				state = previous_state;	//Timeout ?? -> On y retourne !
+			else
+			{
+				ret = END_WITH_TIMEOUT;
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			}
+		break;
+		case PROPULSION_OR_AVOIDANCE_FAIL:	//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
+			nb_try++;
+			if(nb_try < 5)
+				state = previous_state;	//Failed ?? -> On y retourne !
+			else
+			{
+				ret = NOT_HANDLED;
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			}
+		break;
+		case DONE:
+			ret = END_OK;
+		break;
+
+            default:
+		break;
+
+	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
+	return ret;
+}
+
+
+
+//LES BOUGIES COTE BLEUES !!!!!!!!!!!!!!!!!!!!
+
+error_e TINY_BLUESIDE_candles(void)
+{
+	typedef enum
+	{
+		INIT=0,
+		GOTO_FIRST_BLUE_CANDLE,
+		ANGLE_HAMMER,
+		HAMMER_UP,
+	    WAIT_HAMMER,
+		ANGLE_FIRST_CANDLE,
+		HAMMER_FIRST_CANDLE,
+		WAIT_HAMMER_DOWN_FIRST_CANDLE,
+		WAIT_HAMMER_FIRST_CANDLE_REUP,
+                GOTO_SECOND_BLUE_CANDLE,
+		HAMMER_SECOND_CANDLE,
+		WAIT_HAMMER_DOWN_SECOND_CANDLE,
+		WAIT_HAMMER_SECOND_CANDLE_REUP,
+                GOTO_THIRD_BLUE_CANDLE,
+		HAMMER_THIRD_CANDLE,
+		WAIT_HAMMER_DOWN_THIRD_CANDLE,
+		WAIT_HAMMER_THIRD_CANDLE_REUP,
+                GOTO_FOURTH_BLUE_CANDLE,
+		HAMMER_FOURTH_CANDLE,
+		WAIT_HAMMER_DOWN_FOURTH_CANDLE,
+		WAIT_HAMMER_FOURTH_CANDLE_REUP,
+		ALL_CANDLES_BLOWN,
+		RETURN_HOME,
+		HAMMER_FINAL_POS,
+		LAST_WAIT_HAMMER_DOWN,
+		HAMMER_FAIL,
+		TIMEOUT_FAIL,
+		PROPULSION_OR_AVOIDANCE_FAIL,
+		DONE
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
+
+	error_e ret = IN_PROGRESS;
+	error_e sub_action;
+	static Uint8 nb_try = 0;
+
+
+	switch(state)
+	{
+		case INIT:
+			state = GOTO_FIRST_BLUE_CANDLE;
+			break;
+
+
+
+
+		//-------------------------FIRST GODAMN BLOU CANDLE--------------------------------------
+
+		case GOTO_FIRST_BLUE_CANDLE:
+			state=try_going(1916,COLOR_Y(2135), GOTO_FIRST_BLUE_CANDLE, ANGLE_HAMMER, ANGLE_HAMMER,(global.env.color==BLUE)?FORWARD:BACKWARD);
+			break;
+
+
+	    case ANGLE_HAMMER:
+			sub_action = goto_angle(-PI4096/2,VERY_SLOW);
+
 			switch(sub_action)
             {
 				case END_OK:
-					ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
-					state = HAMMER_FINAL_POS;
+					state = HAMMER_UP;
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
 					previous_state = state;
-					state =HAMMER_FINAL_POS;
+					state = HAMMER_UP;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
 					previous_state = state;
-					state =HAMMER_FINAL_POS;
+					state = HAMMER_UP;
 				break;
 				case IN_PROGRESS:
 				break;
 				default:
 				break;
             }
+		break;
+
+		case HAMMER_UP:
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//BAISSER BRAS
+				state=WAIT_HAMMER;
+		break;
+
+		case WAIT_HAMMER:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER,	ANGLE_FIRST_CANDLE,	ANGLE_FIRST_CANDLE); //L'autre robot aka pa faire iech.
+		break;
+
+	    case ANGLE_FIRST_CANDLE:
+			sub_action = goto_angle(PI4096+1608,SLOW);
+
+			switch(sub_action)
+            {
+				case END_OK:
+					state = HAMMER_FIRST_CANDLE;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = HAMMER_FIRST_CANDLE;
+				break;
+				case NOT_HANDLED:		//Echec de la mission
+					previous_state = state;
+					state = HAMMER_FIRST_CANDLE;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+
+		case HAMMER_FIRST_CANDLE:
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_FIRST_CANDLE;
+		break;
+		case WAIT_HAMMER_DOWN_FIRST_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_FIRST_CANDLE,	WAIT_HAMMER_FIRST_CANDLE_REUP,	WAIT_HAMMER_FIRST_CANDLE_REUP);
+			if(state == WAIT_HAMMER_FIRST_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
+		break;
+		case WAIT_HAMMER_FIRST_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_FIRST_CANDLE_REUP,	GOTO_SECOND_BLUE_CANDLE,	GOTO_SECOND_BLUE_CANDLE);
+		break;
+
+
+
+                //Deuxieme bougie
+
+        case GOTO_SECOND_BLUE_CANDLE:
+			state=try_going(1768,COLOR_Y(2096), GOTO_SECOND_BLUE_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+                break;
+
+		case HAMMER_SECOND_CANDLE:
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_SECOND_CANDLE;
+		break;
+		case WAIT_HAMMER_DOWN_SECOND_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_SECOND_CANDLE,	WAIT_HAMMER_SECOND_CANDLE_REUP,	WAIT_HAMMER_SECOND_CANDLE_REUP);
+			if(state == WAIT_HAMMER_SECOND_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
+		break;
+		case WAIT_HAMMER_SECOND_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_SECOND_CANDLE_REUP,	GOTO_THIRD_BLUE_CANDLE,	GOTO_THIRD_BLUE_CANDLE);
+		break;
+
+                //troisieme bougie
+
+        case GOTO_THIRD_BLUE_CANDLE:
+			state=try_going(1633,COLOR_Y(2024), GOTO_THIRD_BLUE_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+                break;
+
+		case HAMMER_THIRD_CANDLE:
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_THIRD_CANDLE;
+		break;
+		case WAIT_HAMMER_DOWN_THIRD_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_THIRD_CANDLE,	WAIT_HAMMER_THIRD_CANDLE_REUP,	WAIT_HAMMER_THIRD_CANDLE_REUP);
+			if(state == WAIT_HAMMER_THIRD_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
+		break;
+		case WAIT_HAMMER_THIRD_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_THIRD_CANDLE_REUP,	GOTO_FOURTH_BLUE_CANDLE,	GOTO_FOURTH_BLUE_CANDLE);
+		break;
+
+
+                //quatrieme bougie
+
+        case GOTO_FOURTH_BLUE_CANDLE:
+			state=try_going(1519,COLOR_Y(1922), GOTO_FOURTH_BLUE_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+                break;
+
+		case HAMMER_FOURTH_CANDLE:
+
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_FOURTH_CANDLE;
+		break;
+
+		case WAIT_HAMMER_DOWN_FOURTH_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_FOURTH_CANDLE,	WAIT_HAMMER_FOURTH_CANDLE_REUP,	WAIT_HAMMER_FOURTH_CANDLE_REUP);
+			if(state == WAIT_HAMMER_FOURTH_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
+		break;
+
+		case WAIT_HAMMER_FOURTH_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_FOURTH_CANDLE_REUP,	ALL_CANDLES_BLOWN,	ALL_CANDLES_BLOWN);
+		break;
+
+
+
+
+		//FINISH
+
+		case ALL_CANDLES_BLOWN:
+			state = DONE;
+		break;
+
+		case HAMMER_FINAL_POS:
+			ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			state=LAST_WAIT_HAMMER_DOWN;
+			break;
+		case LAST_WAIT_HAMMER_DOWN:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,	DONE);
+		break;
+
+		case HAMMER_FAIL:
+			ret = NOT_HANDLED;
+		break;
+		case TIMEOUT_FAIL:					//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
+			nb_try++;
+			if(nb_try < 5)
+				state = previous_state;	//Timeout ?? -> On y retourne !
+			else
+			{
+				ret = END_WITH_TIMEOUT;
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			}
+		break;
+		case PROPULSION_OR_AVOIDANCE_FAIL:	//@pre IL FAUT AVOIR RENSEIGNE LE previous_state
+			nb_try++;
+			if(nb_try < 5)
+				state = previous_state;	//Failed ?? -> On y retourne !
+			else
+			{
+				ret = NOT_HANDLED;
+				ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			}
+		break;
+		case DONE:
+			ret = END_OK;
+		break;
+
+            default:
+		break;
+
+	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
+	return ret;
+}
+
+
+
+
+
+//LES BOUGIES COTE RED !!!!!!!!!!!!!!!!!!!!
+
+error_e TINY_REDSIDE_candles(void)
+{
+	typedef enum
+	{
+		INIT=0,
+		GOTO_FIRST_RED_CANDLE,
+		ANGLE_HAMMER,
+		HAMMER_UP,
+	    WAIT_HAMMER,
+		ANGLE_FIRST_CANDLE,
+		HAMMER_FIRST_CANDLE,
+		WAIT_HAMMER_DOWN_FIRST_CANDLE,
+		WAIT_HAMMER_FIRST_CANDLE_REUP,
+                GOTO_SECOND_RED_CANDLE,
+		HAMMER_SECOND_CANDLE,
+		WAIT_HAMMER_DOWN_SECOND_CANDLE,
+		WAIT_HAMMER_SECOND_CANDLE_REUP,
+                GOTO_THIRD_RED_CANDLE,
+		HAMMER_THIRD_CANDLE,
+		WAIT_HAMMER_DOWN_THIRD_CANDLE,
+		WAIT_HAMMER_THIRD_CANDLE_REUP,
+                GOTO_FOURTH_RED_CANDLE,
+		HAMMER_FOURTH_CANDLE,
+		WAIT_HAMMER_DOWN_FOURTH_CANDLE,
+		WAIT_HAMMER_FOURTH_CANDLE_REUP,
+		ALL_CANDLES_BLOWN,
+		RETURN_HOME,
+		HAMMER_FINAL_POS,
+		LAST_WAIT_HAMMER_DOWN,
+		HAMMER_FAIL,
+		TIMEOUT_FAIL,
+		PROPULSION_OR_AVOIDANCE_FAIL,
+		DONE
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
+
+	error_e ret = IN_PROGRESS;
+	error_e sub_action;
+	static Uint8 nb_try = 0;
+
+
+	switch(state)
+	{
+		case INIT:
+			state = GOTO_FIRST_RED_CANDLE;
+			break;
+
+
+
+
+		//-------------------------FIRST GODAMN RED CANDLE--------------------------------------
+
+		case GOTO_FIRST_RED_CANDLE:
+			state=try_going(1916,COLOR_Y(865), GOTO_FIRST_RED_CANDLE, ANGLE_HAMMER, ANGLE_HAMMER,(global.env.color==RED)?FORWARD:BACKWARD);
+			break;
+
+
+	    case ANGLE_HAMMER:
+			sub_action = goto_angle(-PI4096/2,VERY_SLOW);
+
+			switch(sub_action)
+            {
+				case END_OK:
+					state = HAMMER_UP;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = HAMMER_UP;
+				break;
+				case NOT_HANDLED:		//Echec de la mission
+					previous_state = state;
+					state = HAMMER_UP;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+
+		case HAMMER_UP:
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//BAISSER BRAS
+				state=WAIT_HAMMER;
+		break;
+
+		case WAIT_HAMMER:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER,	ANGLE_FIRST_CANDLE,	ANGLE_FIRST_CANDLE); //L'autre robot aka pa faire iech.
+		break;
+
+	    case ANGLE_FIRST_CANDLE:
+			sub_action = goto_angle(-PI4096/8,SLOW);
+
+			switch(sub_action)
+            {
+				case END_OK:
+					state = HAMMER_FIRST_CANDLE;
+				break;
+				case END_WITH_TIMEOUT:	//Echec de la mission
+					previous_state = state;
+					state = HAMMER_FIRST_CANDLE;
+				break;
+				case NOT_HANDLED:		//Echec de la mission
+					previous_state = state;
+					state = HAMMER_FIRST_CANDLE;
+				break;
+				case IN_PROGRESS:
+				break;
+				default:
+				break;
+            }
+		break;
+
+		case HAMMER_FIRST_CANDLE:
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_FIRST_CANDLE;
+		break;
+		case WAIT_HAMMER_DOWN_FIRST_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_FIRST_CANDLE,	WAIT_HAMMER_FIRST_CANDLE_REUP,	WAIT_HAMMER_FIRST_CANDLE_REUP);
+			if(state == WAIT_HAMMER_FIRST_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
+		break;
+		case WAIT_HAMMER_FIRST_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_FIRST_CANDLE_REUP,	GOTO_SECOND_RED_CANDLE,	GOTO_SECOND_RED_CANDLE);
+		break;
+
+
+
+                //Deuxieme bougie
+
+        case GOTO_SECOND_RED_CANDLE:
+			state=try_going(1768,COLOR_Y(904), GOTO_SECOND_RED_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD);
+                break;
+
+		case HAMMER_SECOND_CANDLE:
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_SECOND_CANDLE;
+		break;
+		case WAIT_HAMMER_DOWN_SECOND_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_SECOND_CANDLE,	WAIT_HAMMER_SECOND_CANDLE_REUP,	WAIT_HAMMER_SECOND_CANDLE_REUP);
+			if(state == WAIT_HAMMER_SECOND_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
+		break;
+		case WAIT_HAMMER_SECOND_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_SECOND_CANDLE_REUP,	GOTO_THIRD_RED_CANDLE,	GOTO_THIRD_RED_CANDLE);
+		break;
+
+                //troisieme bougie
+
+        case GOTO_THIRD_RED_CANDLE:
+			state=try_going(1633,COLOR_Y(976), GOTO_THIRD_RED_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD);
+                break;
+
+		case HAMMER_THIRD_CANDLE:
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_THIRD_CANDLE;
+		break;
+		case WAIT_HAMMER_DOWN_THIRD_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_THIRD_CANDLE,	WAIT_HAMMER_THIRD_CANDLE_REUP,	WAIT_HAMMER_THIRD_CANDLE_REUP);
+			if(state == WAIT_HAMMER_THIRD_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
+		break;
+		case WAIT_HAMMER_THIRD_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_THIRD_CANDLE_REUP,	GOTO_FOURTH_RED_CANDLE,	GOTO_FOURTH_RED_CANDLE);
+		break;
+
+
+                //quatrieme bougie
+
+        case GOTO_FOURTH_RED_CANDLE:
+			state=try_going(1519,COLOR_Y(1078), GOTO_FOURTH_RED_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD);
+                break;
+
+		case HAMMER_FOURTH_CANDLE:
+
+				ACT_hammer_goto(HAMMER_POSITION_CANDLE); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_FOURTH_CANDLE;
+		break;
+
+		case WAIT_HAMMER_DOWN_FOURTH_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_FOURTH_CANDLE,	WAIT_HAMMER_FOURTH_CANDLE_REUP,	WAIT_HAMMER_FOURTH_CANDLE_REUP);
+			if(state == WAIT_HAMMER_FOURTH_CANDLE_REUP)
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//RELEVER BRAS
+		break;
+
+		case WAIT_HAMMER_FOURTH_CANDLE_REUP:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_FOURTH_CANDLE_REUP,	ALL_CANDLES_BLOWN,	ALL_CANDLES_BLOWN);
+		break;
+
+
+
+
+		//FINISH
+
+		case ALL_CANDLES_BLOWN:
+			state = DONE;
 		break;
 
 		case HAMMER_FINAL_POS:
