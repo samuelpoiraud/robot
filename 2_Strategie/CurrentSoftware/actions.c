@@ -65,6 +65,7 @@ void STRAT_Lannion(void)
 				case END_WITH_TIMEOUT:
 					state = PREMIER;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = PREMIER;
 					break;
@@ -87,6 +88,7 @@ void STRAT_Lannion(void)
 				case END_WITH_TIMEOUT:
 					state = SECOND;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = SECOND;
 					break;
@@ -107,6 +109,7 @@ void STRAT_Lannion(void)
 				case END_WITH_TIMEOUT:
 					state = TROIS;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = TROIS;
 					break;
@@ -132,6 +135,7 @@ void STRAT_Lannion(void)
 				case END_WITH_TIMEOUT:
 					state = QUATRE;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					state = QUATRE;
 					break;
@@ -153,6 +157,7 @@ void STRAT_Lannion(void)
 					case END_WITH_TIMEOUT:
 						state = CINQ;
 						break;
+					case FOE_IN_PATH:
 					case NOT_HANDLED:
 						state = CINQ;
 						break;
@@ -172,6 +177,7 @@ void STRAT_Lannion(void)
 					case END_WITH_TIMEOUT:
 						state = SIX;
 						break;
+					case FOE_IN_PATH:
 					case NOT_HANDLED:
 						state = SIX;
 						break;
@@ -193,6 +199,7 @@ void STRAT_Lannion(void)
 					case END_WITH_TIMEOUT:
 						state = SEPT;
 						break;
+					case FOE_IN_PATH:
 					case NOT_HANDLED:
 						state = SEPT;
 						break;
@@ -211,6 +218,7 @@ void STRAT_Lannion(void)
 					case END_WITH_TIMEOUT:
 						state = GO_POS;
 						break;
+					case FOE_IN_PATH:
 					case NOT_HANDLED:
 						state = GO_POS;
 						break;
