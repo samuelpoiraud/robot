@@ -23,6 +23,8 @@ void T_BALLINFLATER_start(void);
 
 error_e TINY_open_all_gifts(void);
 error_e TINY_white_candles(void);
+error_e TINY_BLUESIDE_candles(void);
+error_e TINY_REDSIDE_candles(void);
 error_e TINY_open_all_gifts_homolog(void);
 
 #endif /* ACTIONS_TESTS_TINY_MICRO_H */
