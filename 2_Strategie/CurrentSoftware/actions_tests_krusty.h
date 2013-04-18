@@ -40,4 +40,29 @@ error_e Assiete4_lanceur(void);
 error_e Assiete5_lanceur(void);
 error_e Cadeau(void);
 
+#include "Asser_functions.h"
+#include "act_functions.h"
+#include "actions_tests_krusty_micro.h"
+
+void TEST_STRAT_K_homologation(void);
+void TEST_STRAT_avoidance(void);//
+void TEST_STRAT_kdo(void);
+void TEST_STRAT_assiettes(void);
+void TEST_STRAT_verres(void);
+
+
+void TEST_STRAT_assiettes_evitement(void);
+void TEST_STRAT_assiettes_lanceur(void);
+void TEST_Launcher_ball(void);
+
+void Test_STRAT_homolo(void);
+void Test_STRAT_COUPE(void);
+void Test_STRAT_COUPE_2(void);
+error_e Assiete1_lanceur(void);
+error_e Assiete2_lanceur(void);
+error_e Assiete3_lanceur(void);
+error_e Assiete4_lanceur(void);
+error_e Assiete5_lanceur(void);
+error_e Cadeau(void);
+
 #endif /* ACTIONS_TESTS_KRUSTY_H */
