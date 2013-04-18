@@ -19,6 +19,10 @@
 #include "act_functions.h"
 
 //Insérez ici vos micro_strat et découpes de strat
+error_e two_first_rows(void);
+
+
+
 error_e K_CADEAU1(void);
 error_e K_CADEAU2(void);
 error_e K_CADEAU3(void);

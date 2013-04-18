@@ -36,11 +36,59 @@ void TEST_STRAT_K_homologation(void)
 		 	- sortir de la zone, marquer 1 point
 		 	- éviter correctement un adversaire (donc il faut un minimum de déplacement quand même)
 	*/
+}	
 }
 
 /* ----------------------------------------------------------------------------- */
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
+
+void K_test_strat_unitaire(void){
+	static enum{
+		SORTIR,
+		ACTION,
+		DONE
+	}state = SORTIR;
+
+	static error_e sub_action;
+
+	switch(state){
+		case SORTIR:
+			sub_action = goto_pos(1000,COLOR_Y(380),FAST,FORWARD,END_AT_BREAK);
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case NOT_HANDLED:
+					state = ACTION;
+					break;
+				case END_OK:
+					state = ACTION;
+					break;
+				case END_WITH_TIMEOUT:
+					state = ACTION;
+					break;
+				default:
+					state = ACTION;
+					break;
+			}
+			break;
+		case ACTION:
+			sub_action = two_first_rows(); //Mettez ici le nom de votre micro-strat à tester
+			switch(sub_action){
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+				case NOT_HANDLED:
+				case END_WITH_TIMEOUT:
+				default:
+					state = DONE;
+					break;
+			}
+			break;
+		case DONE:
+			break;
+	}
+}
 
 void TEST_START_avoidance_distance() {
 	bool_e in_path[NB_FOES];
