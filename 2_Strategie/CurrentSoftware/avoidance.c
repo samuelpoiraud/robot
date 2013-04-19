@@ -1477,6 +1477,9 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
     //debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
 	for (i=0; i<NB_FOES; i++)
 	{
+		//TODO: a enlever
+		if(global.env.foe[i].dist < 5000)
+			debug_printf("FOE[%d] dist = %d mm, angle: %d\n", i, global.env.foe[i].dist, global.env.foe[i].angle);
 		in_path[i] = FALSE; //On initialise à faux
 		if ((global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
 		{
@@ -1508,7 +1511,7 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 				}//else debug_printf("O_ ");
 			}
 		}
-	}		
+	}
 }
 
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot */

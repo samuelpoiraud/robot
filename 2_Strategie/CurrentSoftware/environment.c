@@ -255,49 +255,58 @@ void ENV_pos_update (CAN_msg_t* msg, bool_e on_it)
 /* met a jour la position de l'adversaire à partir des balises */
 void ENV_pos_foe_update (CAN_msg_t* msg)
 {
+	bool_e slashn;
 	if(msg->sid==BEACON_ADVERSARY_POSITION_IR)
 	{
+		slashn = FALSE;
 		if((msg->data[0] & 0xFE) == AUCUNE_ERREUR)	//Si l'octet de fiabilité vaut SIGNAL_INSUFFISANT, on le laisse passer quand même
 		{
+			//slashn = TRUE;
 			global.env.sensor[BEACON_IR_FOE_1].angle = U16FROMU8(msg->data[1],msg->data[2]);
 			/* Pour gérer l'inversion de la balise */
 			//global.env.sensor[BEACON_IR_FOE_1].angle += (global.env.sensor[BEACON_IR_FOE_1].angle > 0)?-PI4096:PI4096;
 			global.env.sensor[BEACON_IR_FOE_1].distance = (Uint16)(msg->data[3])*10;
 			global.env.sensor[BEACON_IR_FOE_1].update_time = global.env.match_time;
 			global.env.sensor[BEACON_IR_FOE_1].updated = TRUE;
-			debug_printf("IR1=%dmm", global.env.sensor[BEACON_IR_FOE_1].distance);
-			debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_1].angle))*180/PI4096))));
+			//debug_printf("IR1=%dmm", global.env.sensor[BEACON_IR_FOE_1].distance);
+			//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_1].angle))*180/PI4096))));
 		}
 		if((msg->data[4] & 0xFE) == AUCUNE_ERREUR)
 		{
+			//slashn = TRUE;
 			global.env.sensor[BEACON_IR_FOE_2].angle = (Sint16)(U16FROMU8(msg->data[5],msg->data[6]));
 			/* Pour gérer l'inversion de la balise */
 			//global.env.sensor[BEACON_IR_FOE_2].angle += (global.env.sensor[BEACON_IR_FOE_2].angle > 0)?-PI4096:PI4096;
 			global.env.sensor[BEACON_IR_FOE_2].distance = (Uint16)(msg->data[7])*10;
 			global.env.sensor[BEACON_IR_FOE_2].update_time = global.env.match_time;
 			global.env.sensor[BEACON_IR_FOE_2].updated = TRUE;
-			debug_printf(" IR2=%dmm", global.env.sensor[BEACON_IR_FOE_2].distance);
-			debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_2].angle))*180/PI4096))));
+			//debug_printf(" IR2=%dmm", global.env.sensor[BEACON_IR_FOE_2].distance);
+			//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_2].angle))*180/PI4096))));
 		}
-		debug_printf("\n");
+		if(slashn)
+			debug_printf("\n");
 	}
 	else if(msg->sid==BEACON_ADVERSARY_POSITION_US)
-	{		
+	{
+		slashn = FALSE;
 		if(msg->data[0]==AUCUNE_ERREUR) 
 		{
+			//slashn = TRUE;
 			global.env.sensor[BEACON_US_FOE_1].distance = U16FROMU8(msg->data[1],msg->data[2]);//*10;
 			global.env.sensor[BEACON_US_FOE_1].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_1].updated = TRUE;
-			debug_printf("US1=%dmm", global.env.sensor[BEACON_US_FOE_1].distance);
+			//debug_printf("US1=%dmm", global.env.sensor[BEACON_US_FOE_1].distance);
 		}
 		if(msg->data[4]==AUCUNE_ERREUR) 
 		{
+			//slashn = TRUE;
 			global.env.sensor[BEACON_US_FOE_2].distance = U16FROMU8(msg->data[5],msg->data[6]);//*10;
 			global.env.sensor[BEACON_US_FOE_2].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_2].updated = TRUE;
-			debug_printf(" US2=%dmm", global.env.sensor[BEACON_US_FOE_2].distance);
+			//debug_printf(" US2=%dmm", global.env.sensor[BEACON_US_FOE_2].distance);
 		}
-		debug_printf("\n");
+		if(slashn)
+			debug_printf("\n");
 	}
 }
 

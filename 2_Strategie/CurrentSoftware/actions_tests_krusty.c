@@ -36,7 +36,6 @@ void TEST_STRAT_K_homologation(void)
 		 	- sortir de la zone, marquer 1 point
 		 	- éviter correctement un adversaire (donc il faut un minimum de déplacement quand même)
 	*/
-}	
 }
 
 /* ----------------------------------------------------------------------------- */
