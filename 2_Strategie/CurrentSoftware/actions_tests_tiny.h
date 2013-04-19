@@ -20,7 +20,7 @@
 #include "actions_tests_tiny_micro.h"
 
 void TEST_STRAT_T_homologation(void);
-void STRAT_TINY_gifts_and_cake(void);
+void STRAT_TINY_gifts_and_cakecooking(void);
 void T_TEST_STRAT_avoidance(void);
 void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void);
 

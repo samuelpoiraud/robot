@@ -125,7 +125,7 @@ static enum
 -> Il souffle les bougies
 
 */
-void STRAT_TINY_gifts_and_cake(void)
+void STRAT_TINY_gifts_and_cakecooking(void)
 {
 	static enum
 	{
@@ -135,22 +135,34 @@ void STRAT_TINY_gifts_and_cake(void)
 		SUBACTION_OPEN_ALL_GIFTS,
 		FAIL_TO_OPEN_GIFTS,
 		ALL_GIFTS_OPENED,
-		PARTIAL_COMING_BACK,
-		FULL_COMING_BACK,
-		GOTO_MIDLE_OF_AREA,
-		SUB_WHITE_CANDLE,
-		BRING_GLASS,
-		GOTO_CAKE,
-		BLOW_ALL_CANDLES,
+
+		SAFE_TERRITORY_CAKE_POS,
+		ENNEMY_TERRITORY_CAKE_POS,
+	    SAFE_TERRITORY_GIFTS_POS,
+		ENNEMY_TERRITORY_GIFTS_POS,
+				ENNEMY_TERRITORY_CAKE_PART,
+				SAFE_TERRITORY_CAKE_PART,
+				MID_GIFTS_POS,
+				MID_CAKE_POS,
+				SUB_WHITE_CANDLES,
+				SUB_RED_CANDLES,
+				SUB_BLUE_CANDLES,
+				ENNEMY_TERRITORY_CAKE_REFLEXION,
+				SAFE_TERRITORY_CAKE_REFLEXION,
+		TEPU_MODE,
+				TRY_4_GIFT_AGAIN,
 		FAIL_TO_BLOW_CANDLES,
 		TRY_OPEN_FORGOT_GIFT,
 		TRY_BLOW_FORGOT_CAKE_PART,
 		DONE
 	}state = GET_OUT;
 
-	avoidance_type_e avoidance_after_gift_before_candles = NO_DODGE_AND_WAIT; //NO_AVOIDANCE;  //evitement a utiliser pourles deplacement entre les cadeaux et le gateau (quand tiny passe au milieu du terrain)
+	//avoidance_type_e avoidance_after_gift_before_candles = NO_DODGE_AND_WAIT; //NO_AVOIDANCE;  //evitement a utiliser pourles deplacement entre les cadeaux et le gateau (quand tiny passe au milieu du terrain)
 
 	error_e sub_action;
+	bool_e GOTO_4_GIFT;
+	bool_e BLOW_RED_CAKE;
+	bool_e BLOW_BLUE_CAKE;
 	
 	switch(state)
 	{
@@ -213,81 +225,85 @@ void STRAT_TINY_gifts_and_cake(void)
             }
 		break;
 		case FAIL_TO_OPEN_GIFTS:		//Echec d'ouverture d'un (des) cadeau(x)
-                        state = FULL_COMING_BACK;
-			//Echec de la mission... en fonction de ma position, je recule puis, je tenterais de me diriger vers le gateau.
-			//if(COLOR_Y(global.env.pos.y)<1500)	//Je suis "dans mon camp", il abuse l'adversaire !
-			//	state = FULL_COMING_BACK;		//Je tente quand même
-			//else
-			//	state = FULL_COMING_BACK;		//Si c'est moi qui ai abusé, je recule un poil... pour faire bien devant l'arbitre
-		break;
-		case ALL_GIFTS_OPENED:			//Cadeaux terminés
-			state = FULL_COMING_BACK;	//C'est parti pour de nouvelles aventures.
-		break;
-		case PARTIAL_COMING_BACK:
-			//Je recule de 200
-			//Je ramasse les verres que je peux...
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{global.env.pos.x,COLOR_Y(COLOR_Y(global.env.pos.y)-200)},FAST}},1,ANY_WAY,avoidance_after_gift_before_candles);
-			switch(sub_action)
-            {
-				case END_OK:
-					state=FULL_COMING_BACK;
-				break;				
-				case END_WITH_TIMEOUT:
-				case NOT_HANDLED:
-					state = FULL_COMING_BACK;	//Ras le bol, je tente quand même !
-				break;
-				case IN_PROGRESS:	
-				default:
-				break;
-            }
-		break;
-		case FULL_COMING_BACK:
-			//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{550,global.env.pos.y},FAST},{{550,COLOR_Y(900)},FAST}},2,FORWARD,NO_DODGE_AND_WAIT);
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{300,COLOR_Y(1500)},SLOW}},1,ANY_WAY,avoidance_after_gift_before_candles);
-			switch(sub_action)
-            {
-				case END_OK:
-					state = GOTO_MIDLE_OF_AREA;
-				break;				
-				case END_WITH_TIMEOUT:
-				case NOT_HANDLED:
-					state = GOTO_MIDLE_OF_AREA;	//Ras le bol, je tente quand même !
-				break;
-				case IN_PROGRESS:	
-				default:
-				break;
-            }
-			//Ramasser les verres proprement.
-		break;
-		
-		case GOTO_MIDLE_OF_AREA:
-			//if(global.env.match_time > 30000) {
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1300,COLOR_Y(1500)},SLOW}},1,(global.env.color==BLUE)?FORWARD:BACKWARD,avoidance_after_gift_before_candles);
-			switch(sub_action)
-            {
-				case END_OK:
-					state = SUB_WHITE_CANDLE;
-				break;				
-				case END_WITH_TIMEOUT:
-				case NOT_HANDLED:
-					state = SUB_WHITE_CANDLE;	//Ras le bol, je tente quand même !
-				break;
-				case IN_PROGRESS:	
-				default:
-				break;
-            }
+			 GOTO_4_GIFT=FALSE;
+             state = MID_GIFTS_POS;			//Jme replie.
 		break;
 
-		case SUB_WHITE_CANDLE:					//Souffler bougies
-				sub_action = TINY_white_candles();
+		case ALL_GIFTS_OPENED:			//Cadeaux terminés
+			state = ENNEMY_TERRITORY_GIFTS_POS;	//J'attaque
+		break;
+
+		//POSITIONS Coté CADEAUX
+		case ENNEMY_TERRITORY_GIFTS_POS:
+			state = try_going(1380, COLOR_Y(2135), ENNEMY_TERRITORY_GIFTS_POS, ENNEMY_TERRITORY_CAKE_POS, MID_GIFTS_POS, (global.env.color==BLUE)?FORWARD:BACKWARD);
+		break;
+
+		case MID_GIFTS_POS:
+			state = try_going(160, COLOR_Y(1500), MID_GIFTS_POS, MID_CAKE_POS, MID_CAKE_POS, (global.env.color==BLUE)?FORWARD:BACKWARD); //Je dois passer par le milieu a tt prix !
+		break;
+
+		case SAFE_TERRITORY_GIFTS_POS:
+			state = try_going(1380, COLOR_Y(865), SAFE_TERRITORY_GIFTS_POS, MID_GIFTS_POS, MID_GIFTS_POS, (global.env.color==BLUE)?FORWARD:BACKWARD);
+		break;
+
+		//POSITIONS Coté GATEAU
+		case ENNEMY_TERRITORY_CAKE_POS:
+			state = try_going(1380, COLOR_Y(2135), ENNEMY_TERRITORY_CAKE_POS, ENNEMY_TERRITORY_CAKE_PART, MID_CAKE_POS, (global.env.color==BLUE)?FORWARD:BACKWARD);
+		break;
+
+		case MID_CAKE_POS:
+			state = try_going(1380, COLOR_Y(1500), MID_CAKE_POS, ENNEMY_TERRITORY_CAKE_POS, SAFE_TERRITORY_CAKE_POS, (global.env.color==BLUE)?FORWARD:BACKWARD);
+		break;
+		
+		case SAFE_TERRITORY_CAKE_POS:
+			state = try_going(1380, COLOR_Y(865), SAFE_TERRITORY_CAKE_POS, SAFE_TERRITORY_CAKE_PART,SAFE_TERRITORY_CAKE_PART , (global.env.color==BLUE)?FORWARD:BACKWARD); // Je suis dans mon camp !!! si ya un robot, jle bloque.
+		break;
+
+
+		//Choix de la part de gateau a souffler.
+		case ENNEMY_TERRITORY_CAKE_PART:
+			state = (global.env.color==BLUE)?SUB_RED_CANDLES:SUB_BLUE_CANDLES;
+		break;
+
+		case SAFE_TERRITORY_CAKE_PART:
+			state = (global.env.color==BLUE)?SUB_BLUE_CANDLES:SUB_RED_CANDLES;
+		break;
+
+		//Mode tepu (juste avant la fin de match si on a marqué des points).
+		case TEPU_MODE:
+			state = try_going(1000, COLOR_Y(2000), TEPU_MODE, DONE, DONE, (global.env.color==BLUE)?FORWARD:BACKWARD);
+		break;
+
+		//Mode réflexion si on a des not handled ou timeout;
+		case ENNEMY_TERRITORY_CAKE_REFLEXION:
+			if(GOTO_4_GIFT==FALSE){
+				state=TRY_4_GIFT_AGAIN;
+			}
+			state = (global.env.color==BLUE)?ENNEMY_TERRITORY_CAKE_POS:SAFE_TERRITORY_CAKE_POS;
+		break;
+
+		case SAFE_TERRITORY_CAKE_REFLEXION:
+			state = (global.env.color==BLUE)?SAFE_TERRITORY_CAKE_POS:ENNEMY_TERRITORY_CAKE_POS;
+		break;
+
+		//SUB ACTIONS QUAND YA EU DES FAILS.
+		case TRY_4_GIFT_AGAIN:
+			//Je retente le 4e cadeau que j'ai raté.
+		break;
+
+		//SUB_ACTIONS des bougies !
+		
+
+		case SUB_WHITE_CANDLES:					//Souffler bougies
+				sub_action = TINY_white_candles(TRUE);
 				switch(sub_action)
 				{
 					case END_OK:
-						state = DONE;
+						state = SAFE_TERRITORY_CAKE_POS;
 					break;
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
-						state = DONE;
+						state = MID_CAKE_POS;
 					break;
 					case IN_PROGRESS:
 					default:
@@ -295,9 +311,45 @@ void STRAT_TINY_gifts_and_cake(void)
 				}
 		
 		break;
-		case BLOW_ALL_CANDLES:			//Subaction de soufflage des bougies
-		
+
+		case SUB_RED_CANDLES:					//Souffler bougies coté rouge
+				sub_action = TINY_REDSIDE_candles();
+				switch(sub_action)
+				{
+					case END_OK:
+						BLOW_RED_CAKE=TRUE;
+						state = (global.env.color==BLUE)?SUB_WHITE_CANDLES:TEPU_MODE;
+					break;
+					case END_WITH_TIMEOUT:
+					case NOT_HANDLED:
+						state= (global.env.color==BLUE)?ENNEMY_TERRITORY_CAKE_REFLEXION:SAFE_TERRITORY_CAKE_REFLEXION;
+					break;
+					case IN_PROGRESS:
+					default:
+					break;
+				}
+
 		break;
+
+		case SUB_BLUE_CANDLES:					//Souffler bougies bleu
+				sub_action = TINY_BLUESIDE_candles();
+				switch(sub_action)
+				{
+					case END_OK:
+						BLOW_BLUE_CAKE=TRUE;
+						state = (global.env.color==BLUE)?TEPU_MODE:SUB_WHITE_CANDLES;
+					break;
+					case END_WITH_TIMEOUT:
+					case NOT_HANDLED:
+						state= (global.env.color==BLUE)?SAFE_TERRITORY_CAKE_REFLEXION:ENNEMY_TERRITORY_CAKE_REFLEXION;
+					break;
+					case IN_PROGRESS:
+					default:
+					break;
+				}
+
+		break;
+
 		case FAIL_TO_BLOW_CANDLES:		//Echec lors du gateau
 		
 		break;
@@ -430,7 +482,7 @@ void STRAT_TINY_all_candles(void)
                
 
 		case BLOW_ALL_WHITY_CANDLES:	 // EHHHH SOUFFLER BOUGIES BLANCHES 
-			sub_action = TINY_white_candles();
+			sub_action = TINY_white_candles(TRUE);
 			switch(sub_action)
             {
 				case END_OK:
