@@ -173,6 +173,16 @@
 	 *
 	 * pre    : la position du robot doit être à jour
 	 * post   : la pile asser est vidée
+	 * param d : Angle en PI4096.
+	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
+	 */
+	Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed);
+
+	/*
+	 * Avance d'une distance d à partir de la position actuelle.
+	 *
+	 * pre    : la position du robot doit être à jour
+	 * post   : la pile asser est vidée
 	 * param d : Distance à parcourir, valeur positive.
 	 * return IN_PROGRESS   : le déplacement est en cours.
 	 * return END_OK		: le robot s'est déplacé de d.

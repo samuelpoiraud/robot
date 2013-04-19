@@ -115,26 +115,6 @@ error_e two_first_rows(void){
 	return ret;
 }
 
-
-
-Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed){
-	error_e sub_action;
-	sub_action = goto_angle(angle, speed);
-	switch(sub_action){
-		case IN_PROGRESS:
-			return in_progress;
-		break;
-		case NOT_HANDLED:
-			return fail_state;
-		break;
-		case END_OK:
-		case END_WITH_TIMEOUT:
-		default:
-			return success_state;
-		break;
-	}
-}
-
 Uint8 wait_plier(Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 	static error_e sub_action;
 	sub_action = ACT_get_last_action_result(ACT_QUEUE_Plate);
