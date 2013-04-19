@@ -235,7 +235,7 @@ void STRAT_TINY_gifts_and_cakecooking(void)
 
 		//POSITIONS Coté CADEAUX
 		case ENNEMY_TERRITORY_GIFTS_POS:
-			state = try_going(1380, COLOR_Y(2135), ENNEMY_TERRITORY_GIFTS_POS, ENNEMY_TERRITORY_CAKE_POS, MID_GIFTS_POS, (global.env.color==BLUE)?FORWARD:BACKWARD);
+			state = try_going(160, COLOR_Y(2135), ENNEMY_TERRITORY_GIFTS_POS, ENNEMY_TERRITORY_CAKE_POS, MID_GIFTS_POS, (global.env.color==BLUE)?FORWARD:BACKWARD);
 		break;
 
 		case MID_GIFTS_POS:
@@ -243,7 +243,7 @@ void STRAT_TINY_gifts_and_cakecooking(void)
 		break;
 
 		case SAFE_TERRITORY_GIFTS_POS:
-			state = try_going(1380, COLOR_Y(865), SAFE_TERRITORY_GIFTS_POS, MID_GIFTS_POS, MID_GIFTS_POS, (global.env.color==BLUE)?FORWARD:BACKWARD);
+			state = try_going(160, COLOR_Y(865), SAFE_TERRITORY_GIFTS_POS, MID_GIFTS_POS, MID_GIFTS_POS, (global.env.color==BLUE)?FORWARD:BACKWARD);
 		break;
 
 		//POSITIONS Coté GATEAU
