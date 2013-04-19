@@ -296,7 +296,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_US_FOE_1].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_1].updated = TRUE;
 			//debug_printf("US1=%dmm", global.env.sensor[BEACON_US_FOE_1].distance);
-		}
+		} else debug_printf("NO US!\n");
 		if(msg->data[4]==AUCUNE_ERREUR) 
 		{
 			//slashn = TRUE;
@@ -304,7 +304,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_US_FOE_2].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_2].updated = TRUE;
 			//debug_printf(" US2=%dmm", global.env.sensor[BEACON_US_FOE_2].distance);
-		}
+		} else debug_printf("NO US!\n");
 		if(slashn)
 			debug_printf("\n");
 	}

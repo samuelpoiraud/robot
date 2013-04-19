@@ -15,7 +15,7 @@
 
 	#define GLOBAL_CONFIG_H
 
-	//#define VERBOSE_MODE
+	#define VERBOSE_MODE
 
 	#define OUTPUT_LOG  //utilisé dans act_function et queue
 	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)

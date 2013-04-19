@@ -82,7 +82,6 @@
 #endif
 
 static void CANDLECOLOR_initAX12();
-static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init);
 static Uint8 CANDLECOLOR_process_color();
 
 #ifdef CANDLECOLOR_CW_DEBUG_COLOR
@@ -172,7 +171,7 @@ bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-static void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
+void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_CandleColor) {
 		if(init == TRUE && !QUEUE_has_error(queueId)) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
