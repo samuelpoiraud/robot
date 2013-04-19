@@ -37,5 +37,11 @@ void CANDLECOLOR_stop();
  */
 bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg);
 
+/** Gère les commandes demandées.
+ *
+ * Fonction publique car utilisé par Hammer pour les bougies
+ */
+void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init);
+
 #endif  /* I_AM_ROBOT_TINY */
 #endif	/* CANDLECOLOR_H */
