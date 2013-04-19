@@ -174,7 +174,7 @@
 //	#define DEBUG_ELEMENTS
 //	#define DEBUG_BARCODE
 //	#define DEBUG_DETECTION
-	#define DEBUG_AVOIDANCE
+//	#define DEBUG_AVOIDANCE
 //	#define DEBUG_POLYGON
 //	#define DEBUG_TELEMETER
 
