@@ -19,7 +19,7 @@
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_adc.h"
 #include "../output_log.h"
-#include "../Can_msg_processing.h"
+#include "../act_queue_utils.h"
 #include "KLift_config.h"
 
 #define LOG_PREFIX "LI: "
@@ -162,7 +162,7 @@ bool_e LIFT_CAN_process_msg(CAN_msg_t* msg) {
 				if(msg->sid == ACT_LIFT_LEFT)
 					liftAct = QUEUE_ACT_Lift_Left_Translation;
 				else liftAct = QUEUE_ACT_Lift_Right_Translation;
-				CAN_push_operation_from_msg(msg, liftAct, &LIFT_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, liftAct, &LIFT_run_command, 0);
 				break;
 
 			case ACT_LIFT_PLIER_CLOSE:
@@ -171,7 +171,7 @@ bool_e LIFT_CAN_process_msg(CAN_msg_t* msg) {
 				if(msg->sid == ACT_LIFT_LEFT)
 					liftAct = QUEUE_ACT_Lift_Left_AX12_Plier;
 				else liftAct = QUEUE_ACT_Lift_Right_AX12_Plier;
-				CAN_push_operation_from_msg(msg, liftAct, &LIFT_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, liftAct, &LIFT_run_command, 0);
 				break;
 
 			default:
@@ -192,22 +192,25 @@ static Sint16 LIFT_RIGHT_getTranslationPos() {
 }
 
 static void LIFT_run_command(queue_id_t queueId, bool_e init) {
+	if(QUEUE_has_error(queueId)) {
+		QUEUE_behead(queueId);
+		return;
+	}
+
 	if(LIFT_IS_DCMOTOR(queueId)) {    // Gestion des mouvements de translation d'un ascenseur
-		if(init && !QUEUE_has_error(queueId))
+		if(init)
 			LIFT_translation_command_init(queueId);
 		else
 			LIFT_translation_command_run(queueId);
 	} else if(LIFT_IS_AX12(queueId)) {    // Gestion des mouvements de la pince a verre
-		if(init && !QUEUE_has_error(queueId))
+		if(init)
 			LIFT_plier_command_init(queueId);
 		else
 			LIFT_plier_command_run(queueId);
 	} else {
 		Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
-//		CAN_msg_t resultMsg = {ACT_RESULT, {canSid, QUEUE_get_arg(queueId)->canCommand, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-//		CAN_send(&resultMsg);
-		CAN_sendResultWithLine(canSid, QUEUE_get_arg(queueId)->canCommand, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 		COMPONENT_log(LOG_LEVEL_Error, "Invalid act: %d\n", QUEUE_get_act(queueId));
+		QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 	}
 }
 
@@ -227,12 +230,8 @@ static void LIFT_translation_command_init(queue_id_t queueId) {
 
 		default: {
 				Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
-//				CAN_msg_t resultMsg = {ACT_RESULT, {canSid, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-//				CAN_send(&resultMsg);
-				CAN_sendResultWithLine(canSid, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 				COMPONENT_log(LOG_LEVEL_Error, "invalid translation command: %u, code is broken !\n", command);
-				QUEUE_set_error(queueId);
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
@@ -245,33 +244,13 @@ static void LIFT_translation_command_init(queue_id_t queueId) {
 static void LIFT_translation_command_run(queue_id_t queueId) {
 	Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
 	Uint8 dcMotorId = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_DCMOTOR_ID : LIFT_RIGHT_DCMOTOR_ID;
-	DCM_working_state_e asserState = DCM_get_state(dcMotorId);
-	//CAN_msg_t resultMsg;
 	Uint8 result, errorCode;
+	Uint16 line;
 
 	COMPONENT_log(LOG_LEVEL_Debug, LOG_PREFIX"Lift translate motor id %d, pos %d\n", dcMotorId, (LIFT_IS_LEFT(queueId))? LIFT_LEFT_getTranslationPos() : LIFT_RIGHT_getTranslationPos());
 
-	if(asserState == DCM_IDLE) {
-		result =    ACT_RESULT_DONE;
-		errorCode = ACT_RESULT_ERROR_OK;
-	} else if(QUEUE_has_error(queueId)) {
-		result =    ACT_RESULT_NOT_HANDLED;
-		errorCode = ACT_RESULT_ERROR_OTHER;
-	} else if(asserState == DCM_TIMEOUT) {
-		result =    ACT_RESULT_FAILED;
-		errorCode = ACT_RESULT_ERROR_TIMEOUT;
-		QUEUE_set_error(queueId);
-	} else return;	//Operation is not finished, do nothing
-
-//	resultMsg.sid = ACT_RESULT;
-//	resultMsg.data[0] = canSid;
-//	resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-//	resultMsg.size = 4;
-//
-//	CAN_send(&resultMsg);
-
-	CAN_sendResultWithLine(canSid, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
-	QUEUE_behead(queueId);	//gestion terminée
+	if(ACTQ_check_status_dcmotor(dcMotorId, FALSE, &result, &errorCode, &line))
+		QUEUE_next(queueId, canSid, result, errorCode, line);
 }
 
 //Initialise une commande de la pince à assiette
@@ -281,7 +260,6 @@ static void LIFT_plier_command_init(queue_id_t queueId) {
 	Uint16 ax12OpenPos = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_OPEN_POS : LIFT_RIGHT_PLIER_AX12_OPEN_POS;
 	Uint16 ax12ClosedPos = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_CLOSED_POS : LIFT_RIGHT_PLIER_AX12_CLOSED_POS;
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	bool_e cmdOk;
 	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 
 	*ax12_goalPosition = 0xFFFF;
@@ -291,37 +269,25 @@ static void LIFT_plier_command_init(queue_id_t queueId) {
 		case ACT_LIFT_PLIER_CLOSE: *ax12_goalPosition = ax12ClosedPos; break;
 		case ACT_LIFT_PLIER_STOP:
 			AX12_set_torque_enabled(ax12Id, FALSE); //Stopper l'asservissement de l'AX12 qui gère la pince
-//			CAN_msg_t resultMsg = {ACT_RESULT, {canSid, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
-//			CAN_send(&resultMsg);
-			CAN_sendResultWithLine(canSid, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
-			QUEUE_behead(queueId);
+			QUEUE_next(queueId, canSid, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			return;
 
 		default: {
-//				CAN_msg_t resultMsg = {ACT_RESULT, {canSid, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-//				CAN_send(&resultMsg);
-				CAN_sendResultWithLine(canSid, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 				COMPONENT_log(LOG_LEVEL_Error, "Invalid plier command: %u, code is broken !\n", command);
-				QUEUE_set_error(queueId);
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		CAN_sendResultWithLine(canSid, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 		COMPONENT_log(LOG_LEVEL_Error, "Invalid plier position: %u, code is broken !\n", command);
-		QUEUE_set_error(queueId);
-		QUEUE_behead(queueId);
+		QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
 
 	AX12_reset_last_error(ax12Id); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
-	cmdOk = AX12_set_position(ax12Id, *ax12_goalPosition);
-	if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-		CAN_sendResultWithLine(canSid, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE);
+	if(!AX12_set_position(ax12Id, *ax12_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(ax12Id).error);
-		QUEUE_set_error(queueId);
-		QUEUE_behead(queueId);
+		QUEUE_next(queueId, canSid, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
 	//La commande a été envoyée et l'AX12 l'a bien reçu
@@ -333,62 +299,12 @@ static void LIFT_plier_command_run(queue_id_t queueId) {
 	Uint8 ax12Id = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ID : LIFT_RIGHT_PLIER_AX12_ID;
 	Uint16 posEpsilon = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ASSER_POS_EPSILON : LIFT_RIGHT_PLIER_AX12_ASSER_POS_EPSILON;
 	Uint16 asserTimeout = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ASSER_TIMEOUT : LIFT_RIGHT_PLIER_AX12_ASSER_TIMEOUT;
+	Uint8 result, errorCode;
 	Uint16 line;
 
-	Uint8 error;
-	Uint16 ax12Pos;
-	//CAN_msg_t resultMsg;
-	Uint8 result, errorCode;
-	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
-
-	AX12_reset_last_error(ax12Id);
-	ax12Pos = AX12_get_position(ax12Id); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
-	error = AX12_get_last_error(ax12Id).error;
-
-	if(QUEUE_has_error(queueId)) {
-		result =    ACT_RESULT_NOT_HANDLED;
-		errorCode = ACT_RESULT_ERROR_OTHER;
-		AX12_set_torque_enabled(ax12Id, FALSE);
-		line = __LINE__;
-	} else if((error & AX12_ERROR_OVERLOAD) || (abs((Sint16)ax12Pos - (Sint16)(*ax12_goalPosition)) <= posEpsilon)) {	//Fin du mouvement
-	//if(AX12_is_moving(LIFT_PLIER_AX12_ID) == FALSE) {  //Fin du mouvement
-		result =    ACT_RESULT_DONE;
-		errorCode = ACT_RESULT_ERROR_OK;
-		line = __LINE__;
-	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + asserTimeout) {
-		//Si on ne peut pas atteindre la position alors que l'ax12 à bien compris la commande, on considère qu'une assiette bloque l'ax12 -> tout est Ok
-		result =    ACT_RESULT_DONE;
-		errorCode = ACT_RESULT_ERROR_OK;
-		line = __LINE__;
-	} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
-		result =    ACT_RESULT_NOT_HANDLED;
-		errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
-		AX12_set_torque_enabled(ax12Id, FALSE);
-		QUEUE_set_error(queueId);
-		line = __LINE__;
-	} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
-		result =    ACT_RESULT_FAILED;
-		errorCode = ACT_RESULT_ERROR_NOT_HERE;
-		AX12_set_torque_enabled(ax12Id, FALSE);
-		QUEUE_set_error(queueId);
-		line = __LINE__;
-	} else if(error & AX12_ERROR_OVERHEATING) {	   //Ne verifie que l'overheating, les autres ne sont pas normales donc on les ignore
-		result =    ACT_RESULT_FAILED;
-		errorCode = ACT_RESULT_ERROR_UNKNOWN;
-		AX12_set_torque_enabled(ax12Id, FALSE);
-		QUEUE_set_error(queueId);
-		line = error;
-	} else return;	//Operation is not finished, do nothing
-
-//	resultMsg.sid = ACT_RESULT;
-//	resultMsg.data[0] = canSid;
-//	resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-//	resultMsg.size = 4;
-//
-//	CAN_send(&resultMsg);
-
-	CAN_sendResultWithParam(canSid, QUEUE_get_arg(queueId)->canCommand, result, errorCode, line);
-	QUEUE_behead(queueId);	//gestion terminée
+	//360° of large_epsilon, quand on a un timeout, on a forcément un resultat Ok (et pas d'erreur, on considère qu'on serre le verre)
+	if(ACTQ_check_status_ax12(queueId, ax12Id, QUEUE_get_arg(queueId)->param, posEpsilon, asserTimeout, 360, &result, &errorCode, &line))
+		QUEUE_next(queueId, canSid, result, errorCode, line);
 }
 
 

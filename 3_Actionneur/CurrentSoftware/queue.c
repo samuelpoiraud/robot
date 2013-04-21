@@ -213,6 +213,20 @@ void QUEUE_behead(queue_id_t queue_id)
 	}
 }
 
+/* Appelle la fonction OperationFinishedCallback et passe à la fonction suivante. Voir en haut du .h */
+void QUEUE_next(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param) {
+	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
+
+	//Si il n'y a pas de fonction callback ou qu'elle retourne TRUE, on passe a l'action suivante. Sinon on indique une erreur dans la file
+	if(QUEUE_get_arg(queue_id)->callback != NULL &&
+	  !(QUEUE_get_arg(queue_id)->callback)(queue_id, act_sid, result, error_code, param))
+	{
+		QUEUE_set_error(queue_id);
+	}
+
+	QUEUE_behead(queue_id);
+}
+
 /* Indique qu'une erreur est survenue lors de l'execution d'une fonction dans la file indiquée. Les fonctions suivant dans la file pourront agir en conséquence. */
 void QUEUE_set_error(queue_id_t queue_id) {
 	assert(queue_id < NB_QUEUE);

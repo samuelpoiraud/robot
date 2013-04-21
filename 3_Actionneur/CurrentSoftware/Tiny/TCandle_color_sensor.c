@@ -17,7 +17,7 @@
 #include "../QS/QS_can.h"
 #include "../QS/QS_ax12.h"
 #include "../output_log.h"
-#include "../Can_msg_processing.h"
+#include "../act_queue_utils.h"
 #include "TCandle_color_sensor_config.h"
 
 #define LOG_PREFIX "CC: "
@@ -108,13 +108,13 @@ void CANDLECOLOR_init() {
 	sensorConfig.digital_ports[CW_PP_Channel0].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC;
 	sensorConfig.digital_ports[CW_PP_Channel1].port = CANDLECOLOR_CW_PIN_CHANNEL1;
 	sensorConfig.digital_ports[CW_PP_Channel1].bit_number = CANDLECOLOR_CW_PIN_CHANNEL1_BIT;
-	sensorConfig.digital_ports[CW_PP_Channel1].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC;
+	sensorConfig.digital_ports[CW_PP_Channel1].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL1_INVERTED_LOGIC;
 	sensorConfig.digital_ports[CW_PP_Channel2].port = CANDLECOLOR_CW_PIN_CHANNEL2;
 	sensorConfig.digital_ports[CW_PP_Channel2].bit_number = CANDLECOLOR_CW_PIN_CHANNEL2_BIT;
-	sensorConfig.digital_ports[CW_PP_Channel2].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC;
+	sensorConfig.digital_ports[CW_PP_Channel2].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL2_INVERTED_LOGIC;
 	sensorConfig.digital_ports[CW_PP_Channel3].port = CANDLECOLOR_CW_PIN_CHANNEL3;
 	sensorConfig.digital_ports[CW_PP_Channel3].bit_number = CANDLECOLOR_CW_PIN_CHANNEL3_BIT;
-	sensorConfig.digital_ports[CW_PP_Channel3].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL0_INVERTED_LOGIC;
+	sensorConfig.digital_ports[CW_PP_Channel3].is_inverted_logic = CANDLECOLOR_CW_PIN_CHANNEL3_INVERTED_LOGIC;
 	sensorConfig.digital_ports[CW_PP_Gate].port = CANDLECOLOR_CW_PIN_GATE;
 	sensorConfig.digital_ports[CW_PP_Gate].bit_number = CANDLECOLOR_CW_PIN_GATE_BIT;
 
@@ -125,7 +125,7 @@ void CANDLECOLOR_init() {
 	CANDLECOLOR_initAX12();
 
 #ifdef CANDLECOLOR_CW_DEBUG_COLOR
-	QUEUE_add(QUEUE_create(), &CANDLECOLOR_debug_color_run, (QUEUE_arg_t){0}, -1);
+	QUEUE_add(QUEUE_create(), &CANDLECOLOR_debug_color_run, (QUEUE_arg_t){0, 0, &ACTQ_finish_SendNothing}, QUEUE_ACT_CandleColor);
 #endif
 }
 
@@ -159,7 +159,7 @@ bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data[0]) {
 			case ACT_CANDLECOLOR_GET_LOW:
 			case ACT_CANDLECOLOR_GET_HIGH:
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_CandleColor, &CANDLECOLOR_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_CandleColor, &CANDLECOLOR_run_command, 0);
 				break;
 
 			default:
@@ -173,6 +173,11 @@ bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 
 void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_CandleColor) {
+		if(QUEUE_has_error(queueId)) {
+			QUEUE_behead(queueId);
+			return;
+		}
+
 		if(init == TRUE && !QUEUE_has_error(queueId)) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			Sint16* wantedPosition = (Sint16*) &QUEUE_get_arg(queueId)->param;
@@ -183,94 +188,36 @@ void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 				case ACT_CANDLECOLOR_GET_HIGH: *wantedPosition = ACT_CANDLECOLOR_GET_HIGH; break;
 
 				default: {
-//						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_CANDLECOLOR & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-//						CAN_send(&resultMsg);
-						CAN_sendResultWithLine(ACT_CANDLECOLOR, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
-						QUEUE_set_error(queueId);
-						QUEUE_behead(queueId);
+						QUEUE_next(queueId, ACT_CANDLECOLOR, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 						return;
 					}
 			}
 			if(*wantedPosition == 0xFFFF) {
 				COMPONENT_log(LOG_LEVEL_Error, "Invalid AX12 position: %u, code is broken !\n", command);
-				CAN_sendResultWithLine(ACT_CANDLECOLOR, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
-				QUEUE_set_error(queueId);
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, ACT_CANDLECOLOR, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 
 			AX12_reset_last_error(CANDLECOLOR_AX12_ID);
 			cmdOk = AX12_set_position(CANDLECOLOR_AX12_ID, *wantedPosition);
 			if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-//				CAN_msg_t resultMsg = {ACT_RESULT, {ACT_CANDLECOLOR & 0xFF, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE}, 4};
-//				CAN_send(&resultMsg);
-				CAN_sendResultWithLine(ACT_CANDLECOLOR, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE);
 				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(CANDLECOLOR_AX12_ID).error);
-				QUEUE_set_error(queueId);
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, ACT_CANDLECOLOR, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 				return;
 			}
 		} else {
-			Sint16 wantedPosition = QUEUE_get_arg(queueId)->param;
-			Uint16 ax12Pos;
-			Uint8 error;
+			Uint8 result, error_code;
 			Uint16 line;
-			//CAN_msg_t resultMsg;
-			Uint8 result, errorCode;
 
-			ax12Pos = AX12_get_position(CANDLECOLOR_AX12_ID);
-			error = AX12_get_last_error(CANDLECOLOR_AX12_ID).error;
-
-			if(QUEUE_has_error(queueId)) {
-				result =    ACT_RESULT_NOT_HANDLED;
-				errorCode = ACT_RESULT_ERROR_OTHER;
-				line = __LINE__;
-			} else if(abs((Sint16)ax12Pos - (Sint16)(wantedPosition)) <= CANDLECOLOR_AX12_POS_EPSILON) {
-				result =    ACT_RESULT_DONE;
-				errorCode = ACT_RESULT_ERROR_OK;
-				line = __LINE__;
-
-				CAN_msg_t colorDetectedMsg;   //Envoyer la couleur detectée
-				colorDetectedMsg.sid = ACT_CANDLECOLOR_RESULT;
-				colorDetectedMsg.data[0] = CANDLECOLOR_process_color();
-				colorDetectedMsg.size = 1;
-				CAN_send(&colorDetectedMsg);
-			} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
-				result =    ACT_RESULT_NOT_HANDLED;
-				errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
-				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
-				QUEUE_set_error(queueId);
-				line = __LINE__;
-			} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
-				result =    ACT_RESULT_FAILED;
-				errorCode = ACT_RESULT_ERROR_NOT_HERE;
-				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
-				QUEUE_set_error(queueId);
-				line = __LINE__;
-			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + CANDLECOLOR_AX12_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-				result =    ACT_RESULT_FAILED;
-				errorCode = ACT_RESULT_ERROR_UNKNOWN;
-				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
-				QUEUE_set_error(queueId);
-				line = __LINE__;
-			} else if(error & AX12_ERROR_OVERHEATING || error & AX12_ERROR_OVERLOAD) {  //autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
-				result =    ACT_RESULT_FAILED;
-				errorCode = ACT_RESULT_ERROR_UNKNOWN;
-				AX12_set_torque_enabled(CANDLECOLOR_AX12_ID, FALSE);
-				QUEUE_set_error(queueId);
-				line = error;
-			} else return;	//Operation is not finished, do nothing
-
-//			resultMsg.sid = ACT_RESULT;
-//			resultMsg.data[0] = ACT_CANDLECOLOR & 0xFF;
-//			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-//			resultMsg.size = 4;
-//
-//			CAN_send(&resultMsg);
-
-			CAN_sendResultWithParam(ACT_CANDLECOLOR, QUEUE_get_arg(queueId)->canCommand, result, errorCode, line);
-			QUEUE_behead(queueId);	//gestion terminée
+			if(ACTQ_check_status_ax12(queueId, CANDLECOLOR_AX12_ID, QUEUE_get_arg(queueId)->param, CANDLECOLOR_AX12_POS_EPSILON, CANDLECOLOR_AX12_TIMEOUT, 0, &result, &error_code, &line)) {
+				if(result == ACT_RESULT_DONE) {
+					Uint8 color = CANDLECOLOR_process_color();
+					CAN_msg_t colorDetectedMsg = {ACT_CANDLECOLOR_RESULT, {color}, 1};   //Envoyer la couleur detectée
+					CAN_send(&colorDetectedMsg);
+					QUEUE_next(queueId, ACT_CANDLECOLOR, result, error_code, color); //param vaut la couleur si il n'y a pas eu d'erreur
+				} else QUEUE_next(queueId, ACT_CANDLECOLOR, result, error_code, line);
+			}
 		}
 	}
 }

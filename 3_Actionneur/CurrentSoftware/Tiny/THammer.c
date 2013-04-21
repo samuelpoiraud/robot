@@ -15,10 +15,10 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_adc.h"
 #include "../QS/QS_CANmsgList.h"
-//#include "../QS/QS_can.h"
 #include "../output_log.h"
-#include "../Can_msg_processing.h"
+#include "../act_queue_utils.h"
 #include "THammer_config.h"
+#include "TCandle_color_sensor.h"
 
 #define LOG_PREFIX "Ha: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_HAMMER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
@@ -31,7 +31,12 @@
 #endif
 
 static void HAMMER_run_command(queue_id_t queueId, bool_e init);
+static bool_e HAMMER_checkCandleColorFinished(queue_id_t queueId, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
 static Sint16 HAMMER_get_position();
+
+
+//Couleur correspondante a celle du robot
+static Uint8 good_candle_color = ACT_CANDLECOLOR_COLOR_WHITE;
 
 void HAMMER_init() {
 	DCMotor_config_t hammer_config;
@@ -75,18 +80,33 @@ void HAMMER_stop() {
 }
 
 bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
+	queue_id_t queueId;
+
 	if(msg->sid == ACT_HAMMER) {
 		switch(msg->data[0]) {
 			case ACT_HAMMER_MOVE_TO:   //Position dans data[1] et data[2]
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_Hammer, &HAMMER_run_command, msg->data[1] | ((Uint16)(msg->data[2]) << 8));
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Hammer, &HAMMER_run_command, msg->data[1] | ((Uint16)(msg->data[2]) << 8));
 				break;
+
+			case ACT_HAMMER_BLOW_CANDLE:
+				if(msg->data[1] == BLUE)
+					good_candle_color = ACT_CANDLECOLOR_COLOR_BLUE;
+				else good_candle_color = ACT_CANDLECOLOR_COLOR_RED;
+
+				queueId = QUEUE_create();
+				assert(queueId != QUEUE_CREATE_FAILED);
+				if(queueId != QUEUE_CREATE_FAILED) {
+					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_CandleColor);
+					QUEUE_add(queueId, &CANDLECOLOR_run_command, (QUEUE_arg_t){msg->data[0], 0, &HAMMER_checkCandleColorFinished}, QUEUE_ACT_CandleColor);
+					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_CandleColor);
+				} else {	//on indique qu'on a pas géré la commande
+					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
+				}
 
 			case ACT_HAMMER_STOP:	//Ne pas passer par la pile pour le cas d'urgence
 				COMPONENT_log(LOG_LEVEL_Debug, "bras désasservi !\n");
 				DCM_stop(HAMMER_DCMOTOR_ID); //S'il y a eu une commande en cours, elle se terminera par un idle et donc renvera un message identique au suivant (mais pour la commande d'asservissement)
-//				CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
-//				CAN_send(&resultMsg);
-				CAN_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
+				ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
 				break;
 
 			default:
@@ -100,22 +120,24 @@ bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 
 static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_Hammer) {
-		if(init == TRUE && !QUEUE_has_error(queueId)) {
+		if(QUEUE_has_error(queueId)) {
+			QUEUE_behead(queueId);
+			return;
+		}
+
+		if(init == TRUE) {
 			//Send command
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			Sint16 wantedPosition;
 			Sint16 realPosition; //use potar units
 
 			switch(command) {
+				case ACT_HAMMER_BLOW_CANDLE: //pas de break, on utilise les mêmes paramètre (angle) pour le HAMMER_run_command (pas comme le msg can)
 				case ACT_HAMMER_MOVE_TO: wantedPosition = QUEUE_get_arg(queueId)->param;   break;
 
 				default: {
-//						CAN_msg_t resultMsg = {ACT_RESULT, {ACT_HAMMER & 0xFF, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC}, 4};
-//						CAN_send(&resultMsg);
-						CAN_sendResultWithLine(ACT_HAMMER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
-						QUEUE_set_error(queueId);
-						QUEUE_behead(queueId);
+						QUEUE_next(queueId, ACT_HAMMER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 						return;
 					}
 			}
@@ -126,35 +148,28 @@ static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 			DCM_goToPos(HAMMER_DCMOTOR_ID, 0);
 			DCM_restart(HAMMER_DCMOTOR_ID);
 		} else {
-			DCM_working_state_e asserState = DCM_get_state(HAMMER_DCMOTOR_ID);
-			//CAN_msg_t resultMsg;
 			Uint8 result, errorCode;
+			Uint16 line;
 
-			if(QUEUE_has_error(queueId)) {
-				result =    ACT_RESULT_NOT_HANDLED;
-				errorCode = ACT_RESULT_ERROR_OTHER;
-			} else if(asserState == DCM_IDLE) {
-				result =    ACT_RESULT_DONE;
-				errorCode = ACT_RESULT_ERROR_OK;
-			} else if(asserState == DCM_TIMEOUT) {
-				result =    ACT_RESULT_DONE;
-				errorCode = ACT_RESULT_ERROR_OK;
-//				result =    ACT_RESULT_FAILED;
-//				errorCode = ACT_RESULT_ERROR_TIMEOUT;
-				QUEUE_set_error(queueId);
-			} else return;	//Operation is not finished, do nothing
-
-//			resultMsg.sid = ACT_RESULT;
-//			resultMsg.data[0] = ACT_HAMMER & 0xFF;
-//			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-//			resultMsg.size = 4;
-//
-//			CAN_send(&resultMsg);
-
-			CAN_sendResultWithLine(ACT_HAMMER, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
-			QUEUE_behead(queueId);	//gestion terminée
+			if(ACTQ_check_status_dcmotor(HAMMER_DCMOTOR_ID, TRUE, &result, &errorCode, &line))
+				QUEUE_next(queueId, ACT_HAMMER, result, errorCode, line);
 		}
 	}
+}
+
+//Fonction appelée quand le module Candle_color_sensor à terminé de récupérer la couleur de la bougie
+static bool_e HAMMER_checkCandleColorFinished(queue_id_t queueId, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param) {
+	if(result == ACT_RESULT_DONE) {
+		//Si la couleur de la bougie est bonne, souffler la bougie avec le bras
+		if(param == ACT_CANDLECOLOR_COLOR_WHITE || param == good_candle_color)
+		{
+			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Hammer);
+			QUEUE_add(queueId, &HAMMER_run_command, (QUEUE_arg_t){ACT_HAMMER_BLOW_CANDLE, HAMMER_CANDLE_POS_BLOWING, &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_Hammer);
+			QUEUE_add(queueId, &HAMMER_run_command, (QUEUE_arg_t){ACT_HAMMER_BLOW_CANDLE, HAMMER_CANDLE_POS_UP     , &ACTQ_finish_SendResult}      , QUEUE_ACT_Hammer);
+			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Hammer);
+		}
+		return TRUE;
+	} else return ACTQ_finish_SendResult(queueId, ACT_HAMMER_BLOW_CANDLE, result, error_code, param);
 }
 
 Uint16 HAMMER_get_pos() {
