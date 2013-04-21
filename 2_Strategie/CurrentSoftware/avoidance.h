@@ -166,7 +166,7 @@
 	 * param d : Distance à parcourir, valeur positive.
 	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
 	 */
-	Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way);
+	Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
 
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.

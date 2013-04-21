@@ -675,7 +675,7 @@ error_e TINY_white_candles(bool_e tobase)
 		//-------------------------FIRST GODAMN WHITY CANDLE--------------------------------------
 
 		case GOTO_FIRST_WHITE_CANDLE:
-			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y((tobase==TRUE)?1670:1330), GOTO_FIRST_WHITE_CANDLE, WAIT_HAMMER, WAIT_HAMMER,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y((tobase==TRUE)?1670:1330), GOTO_FIRST_WHITE_CANDLE, WAIT_HAMMER, WAIT_HAMMER,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 				if(state==WAIT_HAMMER){
 					ACT_hammer_goto(HAMMER_POSITION_UP);
 				}
@@ -730,7 +730,7 @@ error_e TINY_white_candles(bool_e tobase)
                 //Deuxieme bougie
                 
         case GOTO_SECOND_WHITE_CANDLE:
-			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y((tobase==TRUE)?1555:1445), GOTO_SECOND_WHITE_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y((tobase==TRUE)?1555:1445), GOTO_SECOND_WHITE_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_SECOND_CANDLE:
@@ -751,7 +751,7 @@ error_e TINY_white_candles(bool_e tobase)
                 //troisieme bougie
 
         case GOTO_THIRD_WHITE_CANDLE:
-			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y((tobase==TRUE)?1445:1555), GOTO_THIRD_WHITE_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y((tobase==TRUE)?1445:1555), GOTO_THIRD_WHITE_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_THIRD_CANDLE:
@@ -773,7 +773,7 @@ error_e TINY_white_candles(bool_e tobase)
                 //quatrieme bougie
 
         case GOTO_FOURTH_WHITE_CANDLE:
-			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y((tobase==TRUE)?1330:1670), GOTO_FOURTH_WHITE_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			state=try_going(X_TO_BLOW_WHITE_CANDLES,COLOR_Y((tobase==TRUE)?1330:1670), GOTO_FOURTH_WHITE_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_FOURTH_CANDLE:
@@ -804,7 +804,7 @@ error_e TINY_white_candles(bool_e tobase)
 		break;
 		
 		case RETURN_HOME:
-			state=try_going(1000,COLOR_Y(1500), RETURN_HOME, LAST_WAIT_HAMMER_DOWN, LAST_WAIT_HAMMER_DOWN,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			state=try_going(1000,COLOR_Y(1500), RETURN_HOME, LAST_WAIT_HAMMER_DOWN, LAST_WAIT_HAMMER_DOWN,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 			if(state==LAST_WAIT_HAMMER_DOWN){
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);
 			}
@@ -909,7 +909,7 @@ error_e TINY_BLUESIDE_candles(void)
 		//-------------------------FIRST GODAMN BLOU CANDLE--------------------------------------
 
 		case GOTO_FIRST_BLUE_CANDLE:
-			state=try_going(1916,COLOR_Y((global.env.color==BLUE)?865:2135), GOTO_FIRST_BLUE_CANDLE, ANGLE_HAMMER, ANGLE_HAMMER,(global.env.color==BLUE)?FORWARD:BACKWARD);
+			state=try_going(1916,COLOR_Y((global.env.color==BLUE)?865:2135), GOTO_FIRST_BLUE_CANDLE, ANGLE_HAMMER, ANGLE_HAMMER,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 
@@ -989,7 +989,7 @@ error_e TINY_BLUESIDE_candles(void)
                 //Deuxieme bougie
 
         case GOTO_SECOND_BLUE_CANDLE:
-			state=try_going(1768,COLOR_Y((global.env.color==BLUE)?904:2096), GOTO_SECOND_BLUE_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			state=try_going(1768,COLOR_Y((global.env.color==BLUE)?904:2096), GOTO_SECOND_BLUE_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_SECOND_CANDLE:
@@ -1010,7 +1010,7 @@ error_e TINY_BLUESIDE_candles(void)
                 //troisieme bougie
 
         case GOTO_THIRD_BLUE_CANDLE:
-			state=try_going(1633,COLOR_Y((global.env.color==BLUE)?976:2024), GOTO_THIRD_BLUE_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			state=try_going(1633,COLOR_Y((global.env.color==BLUE)?976:2024), GOTO_THIRD_BLUE_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_THIRD_CANDLE:
@@ -1032,7 +1032,7 @@ error_e TINY_BLUESIDE_candles(void)
                 //quatrieme bougie
 
         case GOTO_FOURTH_BLUE_CANDLE:
-			state=try_going(1519,COLOR_Y((global.env.color==BLUE)?1078:1922), GOTO_FOURTH_BLUE_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD);
+			state=try_going(1519,COLOR_Y((global.env.color==BLUE)?1078:1922), GOTO_FOURTH_BLUE_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_FOURTH_CANDLE:
@@ -1167,7 +1167,7 @@ error_e TINY_REDSIDE_candles(void)
 		//-------------------------FIRST GODAMN RED CANDLE--------------------------------------
 
 		case GOTO_FIRST_RED_CANDLE:
-			state=try_going(1916,COLOR_Y((global.env.color==BLUE)?2135:865), GOTO_FIRST_RED_CANDLE, ANGLE_HAMMER, ANGLE_HAMMER,(global.env.color==RED)?FORWARD:BACKWARD);
+			state=try_going(1916,COLOR_Y((global.env.color==BLUE)?2135:865), GOTO_FIRST_RED_CANDLE, ANGLE_HAMMER, ANGLE_HAMMER,(global.env.color==RED)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 
@@ -1247,7 +1247,7 @@ error_e TINY_REDSIDE_candles(void)
                 //Deuxieme bougie
 
         case GOTO_SECOND_RED_CANDLE:
-			state=try_going(1768,COLOR_Y((global.env.color==BLUE)?2096:904), GOTO_SECOND_RED_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD);
+			state=try_going(1768,COLOR_Y((global.env.color==BLUE)?2096:904), GOTO_SECOND_RED_CANDLE, HAMMER_SECOND_CANDLE, HAMMER_SECOND_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_SECOND_CANDLE:
@@ -1268,7 +1268,7 @@ error_e TINY_REDSIDE_candles(void)
                 //troisieme bougie
 
         case GOTO_THIRD_RED_CANDLE:
-			state=try_going(1633,COLOR_Y((global.env.color==BLUE)?2024:976), GOTO_THIRD_RED_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD);
+			state=try_going(1633,COLOR_Y((global.env.color==BLUE)?2024:976), GOTO_THIRD_RED_CANDLE, HAMMER_THIRD_CANDLE, HAMMER_THIRD_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_THIRD_CANDLE:
@@ -1290,7 +1290,7 @@ error_e TINY_REDSIDE_candles(void)
                 //quatrieme bougie
 
         case GOTO_FOURTH_RED_CANDLE:
-			state=try_going(1519,COLOR_Y((global.env.color==BLUE)?1922:1078), GOTO_FOURTH_RED_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD);
+			state=try_going(1519,COLOR_Y((global.env.color==BLUE)?1922:1078), GOTO_FOURTH_RED_CANDLE, HAMMER_FOURTH_CANDLE, HAMMER_FOURTH_CANDLE,(global.env.color==RED)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
                 break;
 
 		case HAMMER_FOURTH_CANDLE:

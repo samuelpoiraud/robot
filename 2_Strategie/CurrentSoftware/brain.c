@@ -89,14 +89,14 @@ void any_match(time32_t match_duration)
 			{
 				case 0x01:	//STRAT_1_TINY
 					//strategy = STRAT_TINY_gifts_and_cake;
-					strategy = STRAT_TINY_gifts_and_cakecooking;
+					strategy = STRAT_TINY_gifts_cake_and_steal;
 				break;
 				case 0x02:	//STRAT_2_TINY
 					strategy = STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait;
 				break;
 				case 0x03:	//STRAT_3_TINY
 					//strategy = TEST_STRAT_T_homologation;
-					strategy = &TEST_START_avoidance_distance;
+					strategy = TEST_START_avoidance_distance;
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;
