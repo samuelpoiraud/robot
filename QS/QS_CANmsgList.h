@@ -199,7 +199,9 @@
 		//Paramètres de HAMMER (dans data[0])
 		#define ACT_HAMMER_MOVE_TO     0   // Changer la position du bras, angle en degré dans data[1] (poids faible) et data[2]. 90° = bras vertical, 0° = bras rentré
 		#define ACT_HAMMER_STOP        1   // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
-		                                   //Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
+		                                   //  Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
+		#define ACT_HAMMER_BLOW_CANDLE 2   // Souffler une bougie. La couleur est automatiquement gérée et si on ne doit pas la souffler, rien ne se passera.
+		                                   //  Dans data[1]: couleur du robot, RED (0) pour rouge, BLUE (1) pour bleu (comme l'enum color_e dans QS_types.h)
 	/////////////////////////////////////////
 
 	////////////// LONGHAMMER ///////////////
