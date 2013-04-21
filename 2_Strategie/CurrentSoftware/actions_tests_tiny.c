@@ -127,7 +127,8 @@ static enum
 */
 void STRAT_TINY_gifts_and_cakecooking(void)
 {
-	static enum
+	//Le type avec les états est défini séparément de la variable pour que mplab x comprenne ce qu'on veut faire ...
+	enum state_e
 	{
 		GET_OUT = 0,
 		GET_OUT_IF_NO_CALIBRATION,
@@ -155,14 +156,17 @@ void STRAT_TINY_gifts_and_cakecooking(void)
 		TRY_OPEN_FORGOT_GIFT,
 		TRY_BLOW_FORGOT_CAKE_PART,
 		DONE
-	}state = GET_OUT;
+	};
+	static enum state_e state = GET_OUT;
 
 	//avoidance_type_e avoidance_after_gift_before_candles = NO_DODGE_AND_WAIT; //NO_AVOIDANCE;  //evitement a utiliser pourles deplacement entre les cadeaux et le gateau (quand tiny passe au milieu du terrain)
 
 	error_e sub_action;
-	bool_e GOTO_4_GIFT;
-	bool_e BLOW_RED_CAKE;
-	bool_e BLOW_BLUE_CAKE;
+
+	//Les variables en minuscule pour pas confondre avec des états et static pour garder la valeur entre plusieurs appel de la fonction (et donc entre plusieurs états)
+	static bool_e gift_4_done = TRUE; //De base on fait tous les cadeaux, le 4ème inclu. Si on ne pourra pas le faire, cette variable sera mise à FALSE (voir l'état FAIL_TO_OPEN_GIFTS)
+	static bool_e red_cake_blowed = FALSE;  //TRUE quand on a fait la partie du gateau coté rouge, sinon FALSE
+	static bool_e blue_cake_blowed = FALSE;  //TRUE quand on a fait la partie du gateau coté bleu, sinon FALSE
 	
 	switch(state)
 	{
@@ -225,7 +229,7 @@ void STRAT_TINY_gifts_and_cakecooking(void)
             }
 		break;
 		case FAIL_TO_OPEN_GIFTS:		//Echec d'ouverture d'un (des) cadeau(x)
-			 GOTO_4_GIFT=FALSE;
+			 gift_4_done=FALSE;
              state = MID_GIFTS_POS;			//Jme replie.
 		break;
 
@@ -276,7 +280,7 @@ void STRAT_TINY_gifts_and_cakecooking(void)
 
 		//Mode réflexion si on a des not handled ou timeout;
 		case ENNEMY_TERRITORY_CAKE_REFLEXION:
-			if(GOTO_4_GIFT==FALSE){
+			if(gift_4_done==FALSE){
 				state=TRY_4_GIFT_AGAIN;
 			}
 			state = (global.env.color==BLUE)?ENNEMY_TERRITORY_CAKE_POS:SAFE_TERRITORY_CAKE_POS;
@@ -317,7 +321,7 @@ void STRAT_TINY_gifts_and_cakecooking(void)
 				switch(sub_action)
 				{
 					case END_OK:
-						BLOW_RED_CAKE=TRUE;
+						red_cake_blowed=TRUE;
 						state = (global.env.color==BLUE)?SUB_WHITE_CANDLES:TEPU_MODE;
 					break;
 					case END_WITH_TIMEOUT:
@@ -336,7 +340,7 @@ void STRAT_TINY_gifts_and_cakecooking(void)
 				switch(sub_action)
 				{
 					case END_OK:
-						BLOW_BLUE_CAKE=TRUE;
+						blue_cake_blowed=TRUE;
 						state = (global.env.color==BLUE)?TEPU_MODE:SUB_WHITE_CANDLES;
 					break;
 					case END_WITH_TIMEOUT:
@@ -430,7 +434,7 @@ void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 
 void STRAT_TINY_all_candles(void)
 {
-	static enum
+	enum state_e
 	{
 		GET_OUT = 0,
                 GOTO_CAKE,
@@ -441,7 +445,8 @@ void STRAT_TINY_all_candles(void)
 		TINY_REDSIDE_BLOWJOB,
 		COMEBACK2CODEUR,
 		DONE
-	}state = GET_OUT;
+	};
+	static enum state_e state = GET_OUT;
 
 	error_e sub_action;
 

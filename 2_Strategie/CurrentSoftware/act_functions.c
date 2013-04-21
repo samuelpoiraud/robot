@@ -205,6 +205,15 @@ bool_e ACT_hammer_goto(Uint16 position) {
 	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
 }
 
+bool_e ACT_hammer_blow_candle() {
+	QUEUE_arg_t args;
+
+	ACT_arg_init_with_param(&args, ACT_HAMMER, ACT_HAMMER_BLOW_CANDLE, global.env.color);
+
+	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Hammer blow candle cmd\n");
+	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
+}
+
 bool_e ACT_hammer_stop() {
 	QUEUE_arg_t args;
 

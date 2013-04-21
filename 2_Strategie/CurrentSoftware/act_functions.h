@@ -127,6 +127,9 @@
 	//Changer la position du bras
 	bool_e ACT_hammer_goto(Uint16 position_en_degre);
 
+	//Soufle une bougie suivant sa couleur (géré coté actionneur). Le robot doit être a coté d'une bougie avec le bras au dessus pret à la taper pour la souffler si elle est de la bonne couleur.
+	bool_e ACT_hammer_blow_candle();
+
 	//Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
 	//Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
 	bool_e ACT_hammer_stop();
