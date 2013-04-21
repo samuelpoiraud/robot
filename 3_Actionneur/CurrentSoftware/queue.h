@@ -27,9 +27,13 @@ typedef Uint8 queue_size_t;
 typedef Uint8 queue_id_t;
 typedef Sint16 sem_id_t;
 
+//Retourn FALSE quand il y a erreur, TRUE sinon.
+typedef bool_e (*OperationFinishedCallback)(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
+
 typedef struct {
 	Uint8 canCommand;
 	Uint16 param;
+	OperationFinishedCallback callback; //function called when operation is finished, can be NULL
 } QUEUE_arg_t;
 
 #define NB_QUEUE	8 
@@ -74,6 +78,9 @@ void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, 
 
 /* Retire la fonction en tete de file et reinitialise la suivante. */
 void QUEUE_behead(queue_id_t queue_id);
+
+/* Appelle la fonction OperationFinishedCallback et passe à la fonction suivante. Voir en haut du .h */
+void QUEUE_next(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
 
 /* Indique qu'une erreur est survenue lors de l'execution d'une fonction dans la file indiquée. Les fonctions suivant dans la file pourront agir en conséquence. */
 void QUEUE_set_error(queue_id_t queue_id);

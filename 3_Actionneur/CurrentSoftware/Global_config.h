@@ -47,6 +47,7 @@
 	//Composants (chosir entre LOG_PRINT_On et LOG_PRINT_Off):
 	//LOG_PRINT_On active l'affiche par OUTPUT_printf du composant, LOG_PRINT_Off le desactive (permet de cibler facilement certains message sans tout mettre en commentaire)
 	#define OUTPUT_LOG_COMPONENT_CANPROCESSMSG LOG_PRINT_On
+	#define OUTPUT_LOG_COMPONENT_ACTQUEUEUTILS LOG_PRINT_On
 	#define OUTPUT_LOG_COMPONENT_QUEUE         LOG_PRINT_Off
 
 	//Krusty

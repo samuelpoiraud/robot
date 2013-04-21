@@ -15,12 +15,15 @@
 #include "QS/QS_adc.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_timer.h"
+#include "queue.h"
+#include "clock.h"
 
 #include "Krusty/KActManager.h"
 #include "Tiny/TActManager.h"
 
-//Debug position ax12, à enlever
+//Information pour le bouton 4
 #include "QS/QS_ax12.h"
+#include "QS/QS_CapteurCouleurCW.h"
 
 //TODO: SelfTest
 
@@ -307,25 +310,13 @@ static void MAIN_onButton2() {
 static void MAIN_onButton3() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
-	static Uint8 hammer_next_pos = 0;
 
 	msg.sid = ACT_HAMMER;
-	msg.data[0] = ACT_HAMMER_MOVE_TO;
-	msg.data[1] = LOWINT(hammer_next_pos);
-	msg.data[2] = HIGHINT(hammer_next_pos);
-	msg.size = 3;
+	msg.data[0] = ACT_HAMMER_BLOW_CANDLE;
+	msg.data[1] = BLUE;
+	msg.size = 2;
 
 	CAN_process_msg(&msg);
-
-	switch(hammer_next_pos) {
-		case 35:
-			hammer_next_pos = 0;
-			break;
-
-		default:
-			hammer_next_pos = 35;
-			break;
-	}
 
 #endif
 }
@@ -343,6 +334,15 @@ static void MAIN_onButton4() {
 	debug_printf("- CW[x] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_X));
 	debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));
 	debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Z));
+	debug_printf("- CW digital:\n"
+	             " CH0: %d\n"
+	             " CH1: %d\n"
+	             " CH2: %d\n"
+	             " CH3: %d\n",
+			CW_is_color_detected(CANDLECOLOR_CW_ID, 0),
+			CW_is_color_detected(CANDLECOLOR_CW_ID, 1),
+			CW_is_color_detected(CANDLECOLOR_CW_ID, 2),
+			CW_is_color_detected(CANDLECOLOR_CW_ID, 3));
 
 	for(i=0; i<7; i++)
 		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));

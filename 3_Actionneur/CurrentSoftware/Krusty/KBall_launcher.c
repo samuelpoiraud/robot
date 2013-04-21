@@ -17,7 +17,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_timer.h"
 #include "../output_log.h"
-#include "../Can_msg_processing.h"
+#include "../act_queue_utils.h"
 #include "KBall_launcher_config.h"
 
 #define LOG_PREFIX "BL: "
@@ -142,11 +142,11 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLLAUNCHER) {
 		switch(msg->data[0]) {
 			case ACT_BALLLAUNCHER_ACTIVATE:
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, msg->data[1] | ((Uint16)(msg->data[2]) << 8));
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, U16FROMU8(msg->data[2], msg->data[1]));
 				break;
 
 			case ACT_BALLLAUNCHER_STOP:
-				CAN_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, 0);
 				break;
 
 			default:
@@ -161,52 +161,36 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 static Sint16 last_speed_detected;
 
 static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallLauncher) {
-		if(init == TRUE && !QUEUE_has_error(queueId)) {
-			//Send command
-			Uint16 pos_speed = QUEUE_get_arg(queueId)->param;
-			if(pos_speed == 0) {
-				COMPONENT_log(LOG_LEVEL_Debug, "Motor stoped\n");
-				//DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
-				DCM_stop(BALLLAUNCHER_DCMOTOR_ID);	//On est sur de l'arreter comme ça, même en cas de problème capteur
-			} else {
-				COMPONENT_log(LOG_LEVEL_Debug, "Run motor at speed: %d\n", pos_speed);
-				DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
-				DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
-				DCM_restart(BALLLAUNCHER_DCMOTOR_ID); //Redémarrage si on l'avait arrêté avec DCM_stop, sinon ne fait rien
-			}
+	if(QUEUE_has_error(queueId)) {
+		QUEUE_behead(queueId);
+		return;
+	}
+
+	if(init == TRUE) {
+		//Send command
+		Uint16 pos_speed = QUEUE_get_arg(queueId)->param;
+		if(pos_speed == 0) {
+			COMPONENT_log(LOG_LEVEL_Debug, "Motor stoped\n");
+			//DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 0);
+			DCM_stop(BALLLAUNCHER_DCMOTOR_ID);	//On est sur de l'arreter comme ça, même en cas de problème capteur
 		} else {
-			DCM_working_state_e asserState = DCM_get_state(BALLLAUNCHER_DCMOTOR_ID);
-			//CAN_msg_t resultMsg;
-			Uint8 result, errorCode;
-			static Sint16 lastlast_speed = 0;
-
-			if(last_speed_detected != lastlast_speed) {
-				lastlast_speed = last_speed_detected;
-				COMPONENT_log(LOG_LEVEL_Trace, "Current speed: %d\n", lastlast_speed);
-			}
-
-			if(QUEUE_has_error(queueId)) {
-				result =    ACT_RESULT_NOT_HANDLED;
-				errorCode = ACT_RESULT_ERROR_OTHER;
-			} else if(asserState == DCM_IDLE) {
-				result =    ACT_RESULT_DONE;
-				errorCode = ACT_RESULT_ERROR_OK;
-			} else if(asserState == DCM_TIMEOUT) {
-				result =    ACT_RESULT_FAILED;
-				errorCode = ACT_RESULT_ERROR_TIMEOUT;
-				QUEUE_set_error(queueId);
-			} else return;	//Operation is not finished, do nothing
-
-//			resultMsg.sid = ACT_RESULT;
-//			resultMsg.data[0] = ACT_BALLLAUNCHER & 0xFF;
-//			resultMsg.data[1] = QUEUE_get_arg(queueId)->canCommand;
-//			resultMsg.size = 4;
-//
-//			CAN_send(&resultMsg);
-			CAN_sendResultWithLine(ACT_BALLLAUNCHER, QUEUE_get_arg(queueId)->canCommand, result, errorCode);
-			QUEUE_behead(queueId);	//gestion terminée
+			COMPONENT_log(LOG_LEVEL_Debug, "Run motor at speed: %d\n", pos_speed);
+			DCM_setPosValue(BALLLAUNCHER_DCMOTOR_ID, 1, pos_speed);
+			DCM_goToPos(BALLLAUNCHER_DCMOTOR_ID, 1);
+			DCM_restart(BALLLAUNCHER_DCMOTOR_ID); //Redémarrage si on l'avait arrêté avec DCM_stop, sinon ne fait rien
 		}
+	} else {
+		Uint8 result, errorCode;
+		Uint16 line;
+		static Sint16 lastlast_speed = 0;
+
+		if(last_speed_detected != lastlast_speed) {
+			lastlast_speed = last_speed_detected;
+			COMPONENT_log(LOG_LEVEL_Trace, "Current speed: %d\n", lastlast_speed);
+		}
+
+		if(ACTQ_check_status_dcmotor(BALLLAUNCHER_DCMOTOR_ID, FALSE, &result, &errorCode, &line))
+			QUEUE_next(queueId, ACT_BALLLAUNCHER, result, errorCode, line);
 	}
 }
 

@@ -18,7 +18,7 @@
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_adc.h"
 #include "../output_log.h"
-#include "../Can_msg_processing.h"
+#include "../act_queue_utils.h"
 #include "KBall_sorter_config.h"
 #include "KBall_launcher.h"
 
@@ -95,15 +95,15 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 					if(msg->size >= 3) //Compatibilité avec l'ancien message CAN qui ne gérait pas le lanceur de balle
 						desired_ball_launcher_speed = U16FROMU8(msg->data[2], msg->data[1]);
 					else desired_ball_launcher_speed = 0;
-					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_CheckLauncherSpeed}, QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_EjectCherry}       , QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_GotoNextCherry}    , QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_TakeCherry}        , QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry}      , QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_CheckLauncherSpeed, &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_EjectCherry       , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_GotoNextCherry    , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_TakeCherry        , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry      , &ACTQ_finish_SendResult}      , QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
 				} else {	//on indique qu'on a pas géré la commande
-					CAN_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
+					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				}
 				break;
 
@@ -122,17 +122,19 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 	BALLSORTER_command_state_e state = QUEUE_get_arg(queueId)->param;
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallSorter) {    // Gestion des mouvements de rotation de l'AX12 et de la detection des cerises
-		if(init && !QUEUE_has_error(queueId)) {
+		if(QUEUE_has_error(queueId)) {
+			QUEUE_behead(queueId);
+			return;
+		}
+
+		if(init) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-			bool_e cmdOk;
 
 			wantedPosition = 0xFFFF;
 
 			if(command != ACT_BALLSORTER_TAKE_NEXT_CHERRY) {
-				CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				COMPONENT_log(LOG_LEVEL_Error, "invalid translation command: %u, code is broken !\n", command);
-				QUEUE_set_error(queueId);
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 
@@ -162,30 +164,23 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 					return; //La suite c'est les commandes AX12
 
 				default: {
-					CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 					COMPONENT_log(LOG_LEVEL_Error, "Invalid command: %u, code is broken !\n", command);
-					QUEUE_set_error(queueId);
-					QUEUE_behead(queueId);
+					QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 					return;
 				}
 			}
 
 			if(wantedPosition == 0xFFFF) {
-				CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC);
 				COMPONENT_log(LOG_LEVEL_Error, "invalid AX12 position: %u, code is broken !\n", command);
-				QUEUE_set_error(queueId);
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 
 			debug_printf("AX12 moveto %d\n", wantedPosition);
 			AX12_reset_last_error(BALLSORTER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
-			cmdOk = AX12_set_position(BALLSORTER_AX12_ID, wantedPosition);
-			if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-				CAN_sendResultWithLine(ACT_BALLSORTER, command, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE);
+			if(!AX12_set_position(BALLSORTER_AX12_ID, wantedPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(BALLSORTER_AX12_ID).error);
-				QUEUE_set_error(queueId);
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 				return;
 			}
 		} else if(state == BALLSORTER_CS_CheckLauncherSpeed) {
@@ -193,66 +188,19 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			//Tant que on a pas atteint la bonne vitesse du lanceur de balle
 			//On ne passe pas a l'état suivant qui envoie la cerise dans le lanceur pour être éjectée dans le gateau
 			if(ball_launcher_state == DCM_IDLE) {
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			} else if(ball_launcher_state == DCM_TIMEOUT) {
-				QUEUE_set_error(queueId);
-				CAN_sendResultWithLine(ACT_BALLSORTER, QUEUE_get_arg(queueId)->canCommand, ACT_RESULT_FAILED, ACT_RESULT_ERROR_TIMEOUT);
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_TIMEOUT, __LINE__);
 			}
 		} else if(state != BALLSORTER_CS_DetectCherry) {
-			Uint8 error;
-			Uint16 ax12Pos;
 			Uint16 line;
 			Uint8 result, errorCode;
 
-			AX12_reset_last_error(BALLSORTER_AX12_ID);
-			ax12Pos = AX12_get_position(BALLSORTER_AX12_ID); //même si non utilisé, permet de faire un ping en même temps. S'il n'est plus là (parce que kingkong l'a kidnappé par exemple) il ne répondra plus.
-			error = AX12_get_last_error(BALLSORTER_AX12_ID).error;
-			if(error) debug_printf("Error AX12 %d, %d\n", error, ax12Pos); //TODO: enlever ça ...
+			//On envoie le message CAN de retour que si l'opération a fail
 
-			if(QUEUE_has_error(queueId)) {
-				result =    ACT_RESULT_NOT_HANDLED;
-				errorCode = ACT_RESULT_ERROR_OTHER;
-				line = __LINE__;
-			} else if(abs((Sint16)ax12Pos - (Sint16)wantedPosition) <= BALLSORTER_AX12_ASSER_POS_EPSILON) {	//Fin du mouvement
-			//if(AX12_is_moving(BALLSORTER_AX12_ID) == FALSE) {  //Fin du mouvement
-				result =    ACT_RESULT_DONE;
-				errorCode = ACT_RESULT_ERROR_OK;
-				line = __LINE__;
-			} else if((error & AX12_ERROR_TIMEOUT) && (error & AX12_ERROR_RANGE)) {
-				result =    ACT_RESULT_NOT_HANDLED;
-				errorCode = ACT_RESULT_ERROR_LOGIC;	//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
-				line = __LINE__;
-			} else if(error & AX12_ERROR_TIMEOUT) {	//L'ax12 n'a pas répondu à la commande
-				result =    ACT_RESULT_FAILED;
-				errorCode = ACT_RESULT_ERROR_NOT_HERE;
-				line = __LINE__;
-			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + BALLSORTER_AX12_ASSER_TIMEOUT) {    //Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-				if(abs((Sint16)ax12Pos - (Sint16)wantedPosition) <= BALLSORTER_AX12_ASSER_POS_LARGE_EPSILON) {
-					result =    ACT_RESULT_DONE;
-					errorCode = ACT_RESULT_ERROR_OK;
-					line = __LINE__;
-					//La position après timeout est assez proche, on considère que la précision de BALLSORTER_AX12_ASSER_POS_EPSILON était trop forte et qu'en fait la position est atteinte.
-				} else {
-					result =    ACT_RESULT_FAILED;
-					errorCode = ACT_RESULT_ERROR_UNKNOWN;
-					line = __LINE__;
-				}
-			} else if(error & AX12_ERROR_OVERHEATING || error & AX12_ERROR_OVERLOAD) {  //autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
-				result =    ACT_RESULT_FAILED;
-				errorCode = ACT_RESULT_ERROR_UNKNOWN;
-				line = error;
-			} else if(error) {
-				COMPONENT_log(LOG_LEVEL_Error, "Error AX12 %d\n", error);
-			} else return; 	//Operation is not finished, do nothing but get last not ok value
+			if(ACTQ_check_status_ax12(queueId, BALLSORTER_AX12_ID, wantedPosition, BALLSORTER_AX12_ASSER_POS_EPSILON, BALLSORTER_AX12_ASSER_TIMEOUT, BALLSORTER_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+				QUEUE_next(queueId, ACT_BALLSORTER, result, errorCode, line);
 
-			//On envoie le message CAN de retour que si l'opération a fail et que ce n'est pas a cause d'une opération antérieure (ACT_RESULT_ERROR_OTHER)
-			if(result != ACT_RESULT_DONE && errorCode != ACT_RESULT_ERROR_OTHER) {
-				QUEUE_set_error(queueId);
-				AX12_set_torque_enabled(BALLSORTER_AX12_ID, FALSE);
-				CAN_sendResultWithParam(ACT_BALLSORTER, QUEUE_get_arg(queueId)->canCommand, result, errorCode, line);
-			}
-			QUEUE_behead(queueId);	//gestion terminée
 		} else { //BALLSORTER_CS_DetectCherry
 			if(CLOCK_get_time() > detection_end_time) {   //Envoyer le message du resultat de la detection qu'après la fin du temps BALLSORTER_DETECT_TIME
 				Uint8 cherry_color;
@@ -278,9 +226,8 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				}
 
 				CAN_send(&detectionResultMsg);
-				CAN_sendResultWithLine(ACT_BALLSORTER, QUEUE_get_arg(queueId)->canCommand, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
 
-				QUEUE_behead(queueId);
+				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, cherry_color); //param vaut la couleur de la cerise s'il n'y a pas eu d'erreur avant
 			}
 		}
 	}

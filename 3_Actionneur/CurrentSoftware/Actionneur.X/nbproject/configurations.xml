@@ -64,6 +64,7 @@
       <itemPath>../maths_home.h</itemPath>
       <itemPath>../queue.h</itemPath>
       <itemPath>../output_log.h</itemPath>
+      <itemPath>../act_queue_utils.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -107,6 +108,7 @@
       <itemPath>../maths_home.c</itemPath>
       <itemPath>../queue.c</itemPath>
       <itemPath>../output_log.c</itemPath>
+      <itemPath>../act_queue_utils.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
