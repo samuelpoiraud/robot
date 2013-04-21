@@ -736,10 +736,10 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_c
 
 
 //Action qui gere un déplacement et renvoi le state rentré en arg
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way)
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
 {
 	error_e sub_action;
-	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,NO_DODGE_AND_WAIT);
+	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -757,7 +757,8 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 
 
 
-Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed){
+Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed)
+{
 	error_e sub_action;
 	sub_action = goto_angle(angle, speed);
 	switch(sub_action){
