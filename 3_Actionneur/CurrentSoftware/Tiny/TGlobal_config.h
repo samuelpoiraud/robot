@@ -128,6 +128,10 @@
 	#define CANDLECOLOR_CW_PIN_ADC_X            AN13_ID
 	#define CANDLECOLOR_CW_PIN_ADC_Y            AN12_ID
 	#define CANDLECOLOR_CW_PIN_ADC_Z            AN2_ID
+	#define CANDLECOLOR_CW_PIN_CHANNEL0         &PORTE
+	#define CANDLECOLOR_CW_PIN_CHANNEL0_BIT     8
+	#define CANDLECOLOR_CW_PIN_CHANNEL1         &PORTE
+	#define CANDLECOLOR_CW_PIN_CHANNEL1_BIT     9
 	#define CANDLECOLOR_AX12_ID                 6
 /**************************************************************************/
 
