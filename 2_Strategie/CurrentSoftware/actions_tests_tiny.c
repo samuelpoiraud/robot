@@ -273,7 +273,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
 			#warning "TODO... une subaction qui va faire les bougies oubliées... et seulement celles ci... "
 		//case SUB_WHITE_CANDLES:					//Souffler bougies
-				sub_action = TINY_white_candles(TRUE);
+				sub_action = TINY_blow_all_candles();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
@@ -322,26 +322,26 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 -> Il souffle les bougies
 
 */
+
+
 error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 {
 	//Le type avec les états est défini séparément de la variable pour que mplab x comprenne ce qu'on veut faire ...
 	typedef enum
 	{
 		INIT,
-		ENNEMY_TERRITORY_GIFTS_POS,
-		MID_GIFTS_POS,
-		SAFE_TERRITORY_GIFTS_POS,
-		ENNEMY_TERRITORY_CAKE_POS,
-		MID_CAKE_POS,
-		SAFE_TERRITORY_CAKE_POS,
-		ENNEMY_TERRITORY_CAKE_PART,
-		SAFE_TERRITORY_CAKE_PART,
+		EA,
+		MA,
+		EB,
+		MB,
+		SB,
+		E_C,	//on peut pas utiliser EC (défini ds les libs microchip)
+		SC,
 		BLOW_ALL_CANDLES,
 		SUBACTION_BLOW_CANDLES,
 		CANDLES_FAIL,
 		CANDLES_SUCCESS,
-		GOTO_O,
-		GOTO_F,
+		BP,
 		END_STATE
 	}state_e;
 	static state_e state = INIT;
@@ -351,8 +351,8 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	static state_e end_ok_state = INIT;
 	static bool_e entrance = TRUE;
 	static bool_e goto_end = FALSE;
-	static bool_e all_candles_blowed = FALSE;
-	static bool_e color_begin_cake = BLUE;
+	static bool_e all_candles_blown = FALSE;
+	static bool_e color_begin_cake = TRUE; //TRUE pour le coté Obskur FALSE pour le coté des gentils
 	//avoidance_type_e avoidance_after_gift_before_candles = NO_DODGE_AND_WAIT; //NO_AVOIDANCE;  //evitement a utiliser pourles deplacement entre les cadeaux et le gateau (quand tiny passe au milieu du terrain)
 
 	error_e sub_action;
@@ -368,14 +368,14 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				if(COLOR_Y(global.env.pos.y) > 1800)	//On est plus près de la position visée pour le gateau adverse
 				{
 					debug_printf("ENNEMY_TERRITORY_CAKE_POS\n");
-					state = ENNEMY_TERRITORY_CAKE_POS;
-					from = ENNEMY_TERRITORY_GIFTS_POS;	//On fait comme si on venait du cadeau
+					state = EB;
+					from = EA;	//On fait comme si on venait du cadeau
 				}
 				else
 				{
 					debug_printf("MID_CAKE_POS\n");
-					state = MID_CAKE_POS;
-					from = MID_GIFTS_POS;	//On fait comme si on venait du cadeau
+					state = MB;
+					from = MA;	//On fait comme si on venait du cadeau
 				}
 			}
 			else
@@ -383,31 +383,31 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				if(COLOR_Y(global.env.pos.y) > 2135)	//Le cas nominal correspond à 2300 (pour la position du cadeau 4).
 				{
 					debug_printf("ENNEMY_TERRITORY_GIFTS_POS\n");
-					state = ENNEMY_TERRITORY_GIFTS_POS;	//Je tente d'aller vers le gateau adverse
-					from = MID_GIFTS_POS;
+					state = EA;	//Je tente d'aller vers le gateau adverse
+					from = MA;
 				}
 				else
 				{
 					debug_printf("MID_GIFTS_POS\n");
-					state = MID_GIFTS_POS;				//Je me replie pour aller vers mon coté du gateau.
-					from = ENNEMY_TERRITORY_GIFTS_POS;
+					state = MA;				//Je me replie pour aller vers mon coté du gateau.
+					from = EA;
 				}
 			}
 		break;
 		
 		//POSITIONS Coté CADEAUX
-		case ENNEMY_TERRITORY_GIFTS_POS:
+		case EA:
 			//										in_progress					success						failed
-			state = try_going(360, COLOR_Y(2135),	ENNEMY_TERRITORY_GIFTS_POS,	ENNEMY_TERRITORY_CAKE_POS,	MID_GIFTS_POS, ANY_WAY, NO_DODGE_AND_WAIT);
-			if(state == ENNEMY_TERRITORY_CAKE_POS)
-				from = ENNEMY_TERRITORY_GIFTS_POS;
+			state = try_going(360, COLOR_Y(2135),	EA,	EB,	MA, ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state == EB)
+				from = EA;
 		break;
 
-		case MID_GIFTS_POS:
+		case MA:
 			//										in_progress					success						failed
-			state = try_going(360, COLOR_Y(1500),	MID_GIFTS_POS,				MID_CAKE_POS,				ENNEMY_TERRITORY_GIFTS_POS, ANY_WAY, NO_DODGE_AND_WAIT); //Je dois passer par le milieu a tt prix !
-			if(state == MID_CAKE_POS)
-				from = MID_GIFTS_POS;
+			state = try_going(360, COLOR_Y(1500),	MA,				MB,				EA, ANY_WAY, NO_DODGE_AND_WAIT); //Je dois passer par le milieu a tt prix !
+			if(state == MB)
+				from = MA;
 		break;
 
 		
@@ -420,91 +420,110 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		break;
 */
 		//POSITIONS Coté GATEAU
-		case ENNEMY_TERRITORY_CAKE_POS:
+		case EB:
 			if(goto_end)	//On va bientôt quitter cette sub_action, mais il faut la finir proprement.
 			{
-				failed_state = GOTO_O;
+				failed_state = BP;
 				end_ok_state = END_STATE;
 			}
 			else
 			{
-				end_ok_state = ENNEMY_TERRITORY_CAKE_PART;
-				if(from==ENNEMY_TERRITORY_GIFTS_POS)
-					failed_state = MID_GIFTS_POS;
+				end_ok_state = E_C;
+				if(from==EA)
+					failed_state = MA;
 				else //A priori, c'est que (from==ENNEMY_TERRITORY_CAKE_PART)
-					failed_state = MID_CAKE_POS;
+					failed_state = MB;
 			}
 
 			//										in_progress					success			failed
-			state = try_going(1380, COLOR_Y(2135),	ENNEMY_TERRITORY_CAKE_POS,	end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
-			if(state != ENNEMY_TERRITORY_CAKE_POS)
-				from = ENNEMY_TERRITORY_CAKE_POS;	//On sort..alors on sauvegarde d'où on vient.
+			state = try_going(1380, COLOR_Y(2135),	EB,	end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != EB)
+				from = EB;	//On sort..alors on sauvegarde d'où on vient.
 		break;
 
-		case MID_CAKE_POS:
+		case MB:
 			if(goto_end)	//On va bientôt quitter cette sub_action, mais il faut la finir proprement.
 			{
 				end_ok_state = END_STATE;
 				if(COLOR_Y(global.env.pos.y) < 1500)
-					failed_state = GOTO_F;
+					failed_state = SB;
 				else
-					failed_state = GOTO_O;
+					failed_state = BP;
 			}
 			else
 			{
-				end_ok_state = SAFE_TERRITORY_CAKE_PART;
-				if(from==MID_GIFTS_POS)
-					failed_state = ENNEMY_TERRITORY_GIFTS_POS;
+				if(from==SB)
+					end_ok_state = EB;
+				else
+					end_ok_state = SB;
+				if(from==MA)
+					failed_state = EA;
 				else //A priori, c'est que (from==SAFE_TERRITORY_CAKE_PART)
-					failed_state = ENNEMY_TERRITORY_CAKE_POS;
+					failed_state = EB;
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1380, COLOR_Y(1500),	MID_CAKE_POS,	end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1380, COLOR_Y(1500),	MB,	end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 			
-			if(state != MID_CAKE_POS)	//Sortie de l'état...
-				from = MID_CAKE_POS;	//On sort..alors on sauvegarde d'où on vient.
+			if(state != MB)	//Sortie de l'état...
+				from = MB;	//On sort..alors on sauvegarde d'où on vient.
 
 		break;
+		case SB:
+			if(from==MB)
+			{
+				end_ok_state = SC;
+				failed_state = MB;
+			}
+			else
+			{
+				end_ok_state = MB;
+				failed_state = SC;
+			}
 
+			//										in_progress		success			failed
+			state = try_going(1380, COLOR_Y(865),	SB,	end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != SB)
+				from = SB;
+		break;
 		//Approche du gateau
-		case ENNEMY_TERRITORY_CAKE_PART:
+		case E_C:
 			//									in_progress						success						failed
-			state=try_going(1916,COLOR_Y(2135), ENNEMY_TERRITORY_CAKE_PART,		BLOW_ALL_CANDLES,			ENNEMY_TERRITORY_CAKE_POS,	FORWARD, NO_DODGE_AND_WAIT);
-			if(state != ENNEMY_TERRITORY_CAKE_PART)
-				from = ENNEMY_TERRITORY_CAKE_PART;
+			state=try_going(1916,COLOR_Y(2135), E_C,		BLOW_ALL_CANDLES,			EB,	ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != E_C)
+				from = E_C;
 
 		break;
 
-		case SAFE_TERRITORY_CAKE_PART:
+		case SC:
 			//									in_progress						success						failed
-			state=try_going(1916,COLOR_Y(865), SAFE_TERRITORY_CAKE_PART,		BLOW_ALL_CANDLES,			MID_CAKE_POS,				BACKWARD, NO_DODGE_AND_WAIT);
-			if(state != SAFE_TERRITORY_CAKE_PART)
-				from = SAFE_TERRITORY_CAKE_PART;
+			state=try_going(1916,COLOR_Y(865), SC,		BLOW_ALL_CANDLES,			SB,				ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != SC)
+				from = SC;
 		break;
 
 		case BLOW_ALL_CANDLES:
-			if(global.env.pos.y > 1500)	//Nous sommes a coté du gateau, près du coté Bleu (quelque soit notre couleur)
-				color_begin_cake = BLUE;
-			else							//Nous sommes a coté du gateau, près du coté Rouge (quelque soit notre couleur)
-				color_begin_cake = RED;
+			if(global.env.pos.y > 1500)	//Nous sommes a coté du gateau, près du coté obscure (quelque soit notre couleur)
+				color_begin_cake = TRUE;
+			else							//Nous sommes a coté du gateau, près du coté des gentils (quelque soit notre couleur)
+				color_begin_cake = FALSE;
 			state = SUBACTION_BLOW_CANDLES;
 		break;
 
 	
 
-		case SUBACTION_BLOW_CANDLES:					//Souffler bougies coté rouge
-				if(color_begin_cake == BLUE)
-					sub_action = TINY_BLUESIDE_candles();
+		case SUBACTION_BLOW_CANDLES:					//Souffler bougies 
+				if(color_begin_cake == TRUE)
+					sub_action = TINY_blow_all_candles();
 				else
-					sub_action = TINY_REDSIDE_candles();
+					sub_action = TINY_blow_all_candles();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
 					break;
 					case END_OK:
 						state = CANDLES_SUCCESS;
-						all_candles_blowed=TRUE;
+						all_candles_blown=TRUE;
 					break;
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
@@ -519,24 +538,27 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			//On vient de terminer (en échec ou pas.. de souffler les bougies...)
 			//En fonction de notre position, on rejoint un point éloigné du gateau pour terminer les choses proprement
 			if(COLOR_Y(global.env.pos.y) > 1500)	//Je suis plus près de chez l'adversaire
-				state = ENNEMY_TERRITORY_CAKE_POS;
+			{
+				state = EB;
+				from = E_C;
+			}
 			else
-				state = MID_CAKE_POS;
+			{
+				state = SB;
+				from = SC;
+			}
 			goto_end = TRUE;	//On va terminer cette MAE proprement... on se dirige vers les points de FIN...
 		break;
-		case GOTO_O:
+		case BP:
 			//									in_progress		success			failed
-			state=try_going(870,COLOR_Y(1800),	GOTO_O,			END_STATE,		ENNEMY_TERRITORY_CAKE_POS,	ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(870,COLOR_Y(1800),	BP,			END_STATE,		EB,	ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
-		case GOTO_F:
-			//									in_progress		success			failed
-			state=try_going(1600,COLOR_Y(1200),	GOTO_F,			END_STATE,		GOTO_O,						ANY_WAY, NO_DODGE_AND_WAIT);
-		break;
+		
 		case END_STATE:
 			//Nous sommes soit en F, soit en O, soit en ENNEMY_TERRITORY_CAKE_POS. On arrête là.
 			state = INIT;
 			entrance = TRUE;
-			if(all_candles_blowed)
+			if(all_candles_blown)
 				return END_OK;	//On a fait le boulot.
 			else
 				return NOT_HANDLED; //On a pas fait le boulot.
@@ -555,44 +577,40 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		debug_printf("STATE :");
 		switch(previous_state)
 		{
-			case INIT:						debug_printf("INIT");							break;
-			case ENNEMY_TERRITORY_GIFTS_POS:debug_printf("ENNEMY_TERRITORY_GIFTS_POS");		break;
-			case MID_GIFTS_POS:				debug_printf("MID_GIFTS_POS");					break;
-			case SAFE_TERRITORY_GIFTS_POS:	debug_printf("SAFE_TERRITORY_GIFTS_POS");		break;
-			case ENNEMY_TERRITORY_CAKE_POS:	debug_printf("ENNEMY_TERRITORY_CAKE_POS");		break;
-			case MID_CAKE_POS:				debug_printf("MID_CAKE_POS");					break;
-			case SAFE_TERRITORY_CAKE_POS:	debug_printf("SAFE_TERRITORY_CAKE_POS");		break;
-			case ENNEMY_TERRITORY_CAKE_PART:debug_printf("ENNEMY_TERRITORY_CAKE_PART");		break;
-			case SAFE_TERRITORY_CAKE_PART:	debug_printf("SAFE_TERRITORY_CAKE_PART");		break;
-			case BLOW_ALL_CANDLES:			debug_printf("BLOW_ALL_CANDLES");				break;
-			case SUBACTION_BLOW_CANDLES:	debug_printf("SUBACTION_BLOW_CANDLES");			break;
-			case CANDLES_FAIL:				debug_printf("CANDLES_FAIL");					break;
-			case CANDLES_SUCCESS:			debug_printf("CANDLES_SUCCESS");				break;
-			case GOTO_O:					debug_printf("GOTO_O");							break;
-			case GOTO_F:					debug_printf("GOTO_F");							break;
-			case END_STATE:					debug_printf("END_STATE");						break;
-			default:						debug_printf("???");							break;
+			case INIT:						debug_printf("INIT");					break;
+			case EA:						debug_printf("EA");						break;
+			case MA:						debug_printf("MA");						break;
+			case EB:						debug_printf("EB");						break;
+			case MB:						debug_printf("MB");						break;
+			case SB:						debug_printf("SB");						break;
+			case E_C:						debug_printf("EC");						break;
+			case SC:						debug_printf("SC");						break;
+			case BLOW_ALL_CANDLES:			debug_printf("BLOW_ALL_CANDLES");		break;
+			case SUBACTION_BLOW_CANDLES:	debug_printf("SUBACTION_BLOW_CANDLES");	break;
+			case CANDLES_FAIL:				debug_printf("CANDLES_FAIL");			break;
+			case CANDLES_SUCCESS:			debug_printf("CANDLES_SUCCESS");		break;
+			case BP:						debug_printf("BP");						break;
+			case END_STATE:					debug_printf("END_STATE");				break;
+			default:						debug_printf("???");					break;
 		}
 		debug_printf("->");
 		switch(state)
 		{
-			case INIT:						debug_printf("INIT");							break;
-			case ENNEMY_TERRITORY_GIFTS_POS:debug_printf("ENNEMY_TERRITORY_GIFTS_POS");		break;
-			case MID_GIFTS_POS:				debug_printf("MID_GIFTS_POS");					break;
-			case SAFE_TERRITORY_GIFTS_POS:	debug_printf("SAFE_TERRITORY_GIFTS_POS");		break;
-			case ENNEMY_TERRITORY_CAKE_POS:	debug_printf("ENNEMY_TERRITORY_CAKE_POS");		break;
-			case MID_CAKE_POS:				debug_printf("MID_CAKE_POS");					break;
-			case SAFE_TERRITORY_CAKE_POS:	debug_printf("SAFE_TERRITORY_CAKE_POS");		break;
-			case ENNEMY_TERRITORY_CAKE_PART:debug_printf("ENNEMY_TERRITORY_CAKE_PART");		break;
-			case SAFE_TERRITORY_CAKE_PART:	debug_printf("SAFE_TERRITORY_CAKE_PART");		break;
-			case BLOW_ALL_CANDLES:			debug_printf("BLOW_ALL_CANDLES");				break;
-			case SUBACTION_BLOW_CANDLES:	debug_printf("SUBACTION_BLOW_CANDLES");			break;
-			case CANDLES_FAIL:				debug_printf("CANDLES_FAIL");					break;
-			case CANDLES_SUCCESS:			debug_printf("CANDLES_SUCCESS");				break;
-			case GOTO_O:					debug_printf("GOTO_O");							break;
-			case GOTO_F:					debug_printf("GOTO_F");							break;
-			case END_STATE:					debug_printf("END_STATE");						break;
-			default:						debug_printf("???");							break;
+			case INIT:						debug_printf("INIT");					break;
+			case EA:						debug_printf("EA");						break;
+			case MA:						debug_printf("MA");						break;
+			case EB:						debug_printf("EB");						break;
+			case MB:						debug_printf("MB");						break;
+			case SB:						debug_printf("SB");						break;
+			case E_C:						debug_printf("EC");						break;
+			case SC:						debug_printf("SC");						break;
+			case BLOW_ALL_CANDLES:			debug_printf("BLOW_ALL_CANDLES");		break;
+			case SUBACTION_BLOW_CANDLES:	debug_printf("SUBACTION_BLOW_CANDLES");	break;
+			case CANDLES_FAIL:				debug_printf("CANDLES_FAIL");			break;
+			case CANDLES_SUCCESS:			debug_printf("CANDLES_SUCCESS");		break;
+			case BP:						debug_printf("BP");						break;
+			case END_STATE:					debug_printf("END_STATE");				break;
+			default:						debug_printf("???");					break;
 		}
 		debug_printf("\n");
 	}
@@ -601,6 +619,13 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	
 	return ret;
 }
+
+
+/* ----------------------------------------------------------------------------- */
+/* 							Autre strats de test             			 */
+/* ----------------------------------------------------------------------------- */
+
+
 
 
 void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
@@ -664,86 +689,30 @@ void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 /* 							Tests state_machines multiple              			 */
 /* ----------------------------------------------------------------------------- */
 
+
 void STRAT_TINY_all_candles(void)
 {
-	enum state_e
+	static enum
 	{
 		GET_OUT = 0,
                 GOTO_CAKE,
-				POS_MID,
-	    TINY_BLUESIDE_BLOWJOB,
-		BLOW_ALL_WHITY_CANDLES,
-		COMEBACK2MID,
-		TINY_REDSIDE_BLOWJOB,
+	    TINY_CANDLES,
 		COMEBACK2CODEUR,
 		DONE
-	};
-	static enum state_e state = GET_OUT;
+	}state = GET_OUT;
 
 	error_e sub_action;
 
 	switch(state)
 	{
-					
+
 		case GET_OUT:
-			state = try_going(250, COLOR_Y(2135), GET_OUT, POS_MID, POS_MID, (global.env.color==BLUE)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(250, COLOR_Y(2135), GET_OUT, TINY_CANDLES,TINY_CANDLES, (global.env.color==BLUE)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
 
 		break;
 
-		case POS_MID:
-			state = try_going(1380, COLOR_Y(2135),POS_MID, TINY_BLUESIDE_BLOWJOB, TINY_BLUESIDE_BLOWJOB, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
-
-		break;
-
-
-
-		case TINY_BLUESIDE_BLOWJOB:
-			sub_action = TINY_BLUESIDE_candles();
-			switch(sub_action)
-            {
-				case END_OK:
-					state=BLOW_ALL_WHITY_CANDLES;
-				break;
-				case END_WITH_TIMEOUT:
-					state=BLOW_ALL_WHITY_CANDLES;
-				case NOT_HANDLED:
-					state =BLOW_ALL_WHITY_CANDLES;
-				break;
-				case IN_PROGRESS:
-				default:
-				break;
-            }
-		break;
-
-
-               
-
-		case BLOW_ALL_WHITY_CANDLES:	 // EHHHH SOUFFLER BOUGIES BLANCHES 
-			sub_action = TINY_white_candles(TRUE);
-			switch(sub_action)
-            {
-				case END_OK:
-					state=COMEBACK2MID;
-				break;
-				case END_WITH_TIMEOUT:
-					state=COMEBACK2MID;
-				case NOT_HANDLED:
-					state = COMEBACK2MID;
-				break;
-				case IN_PROGRESS:
-				default:
-				break;
-            }
-		break;
-
-		case COMEBACK2MID:
-             state = try_going(1380, COLOR_Y(865), COMEBACK2MID, TINY_REDSIDE_BLOWJOB, TINY_REDSIDE_BLOWJOB, (global.env.color==BLUE)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
-
-		break;
-
-
-		case TINY_REDSIDE_BLOWJOB:
-			sub_action = TINY_REDSIDE_candles();
+		case TINY_CANDLES:
+			sub_action = TINY_blow_all_candles();
 			switch(sub_action)
             {
 				case END_OK:
@@ -752,13 +721,14 @@ void STRAT_TINY_all_candles(void)
 				case END_WITH_TIMEOUT:
 					state=COMEBACK2CODEUR;
 				case NOT_HANDLED:
-					state = COMEBACK2CODEUR;
+					state =COMEBACK2CODEUR;
 				break;
 				case IN_PROGRESS:
 				default:
 				break;
             }
 		break;
+
 
 		case COMEBACK2CODEUR:
              state = try_going(500, COLOR_Y(500), COMEBACK2CODEUR, DONE, DONE, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
