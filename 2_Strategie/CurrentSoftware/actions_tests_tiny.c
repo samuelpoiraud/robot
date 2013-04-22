@@ -273,7 +273,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
 			#warning "TODO... une subaction qui va faire les bougies oubliées... et seulement celles ci... "
 		//case SUB_WHITE_CANDLES:					//Souffler bougies
-				sub_action = TINY_blow_all_candles(TRUE);
+				sub_action = TINY_blow_all_candles();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
@@ -352,7 +352,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	static bool_e entrance = TRUE;
 	static bool_e goto_end = FALSE;
 	static bool_e all_candles_blown = FALSE;
-	static bool_e color_begin_cake = TRUE; //TRUE pour le coté Obskur FALSE pour le coté des gentils
+
 	//avoidance_type_e avoidance_after_gift_before_candles = NO_DODGE_AND_WAIT; //NO_AVOIDANCE;  //evitement a utiliser pourles deplacement entre les cadeaux et le gateau (quand tiny passe au milieu du terrain)
 
 	error_e sub_action;
@@ -367,13 +367,13 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			{	//C'est le cas lorsqu'on vient d'un STEAL
 				if(COLOR_Y(global.env.pos.y) > 1800)	//On est plus près de la position visée pour le gateau adverse
 				{
-					debug_printf("ENNEMY_TERRITORY_CAKE_POS\n");
+					debug_printf("EB\n");
 					state = EB;
 					from = EA;	//On fait comme si on venait du cadeau
 				}
 				else
 				{
-					debug_printf("MID_CAKE_POS\n");
+					debug_printf("MB\n");
 					state = MB;
 					from = MA;	//On fait comme si on venait du cadeau
 				}
@@ -382,13 +382,13 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			{	//C'est le cas lorsqu'on vient d'avoir ouvert des cadeaux
 				if(COLOR_Y(global.env.pos.y) > 2135)	//Le cas nominal correspond à 2300 (pour la position du cadeau 4).
 				{
-					debug_printf("ENNEMY_TERRITORY_GIFTS_POS\n");
+					debug_printf("EA\n");
 					state = EA;	//Je tente d'aller vers le gateau adverse
 					from = MA;
 				}
 				else
 				{
-					debug_printf("MID_GIFTS_POS\n");
+					debug_printf("MA\n");
 					state = MA;				//Je me replie pour aller vers mon coté du gateau.
 					from = EA;
 				}
@@ -397,28 +397,19 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		
 		//POSITIONS Coté CADEAUX
 		case EA:
-			//										in_progress					success						failed
-			state = try_going(360, COLOR_Y(2135),	EA,	EB,	MA, ANY_WAY, NO_DODGE_AND_WAIT);
+			//										in_progress		success		failed
+			state = try_going(360, COLOR_Y(2135),	EA,				EB,			MA,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state == EB)
 				from = EA;
 		break;
 
 		case MA:
-			//										in_progress					success						failed
-			state = try_going(360, COLOR_Y(1500),	MA,				MB,				EA, ANY_WAY, NO_DODGE_AND_WAIT); //Je dois passer par le milieu a tt prix !
+			//										in_progress		success		failed
+			state = try_going(360, COLOR_Y(1500),	MA,				MB,			EA,		ANY_WAY, NO_DODGE_AND_WAIT); //Je dois passer par le milieu a tt prix !
 			if(state == MB)
 				from = MA;
 		break;
 
-		
-		
-		
-		
-		/*case SAFE_TERRITORY_GIFTS_POS:
-			//										in_progress					success						failed
-			state = try_going(160, COLOR_Y(865),	SAFE_TERRITORY_GIFTS_POS,	MID_GIFTS_POS,				MID_GIFTS_POS, ANY_WAY, NO_DODGE_AND_WAIT);
-		break;
-*/
 		//POSITIONS Coté GATEAU
 		case EB:
 			if(goto_end)	//On va bientôt quitter cette sub_action, mais il faut la finir proprement.
@@ -435,8 +426,8 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 					failed_state = MB;
 			}
 
-			//										in_progress					success			failed
-			state = try_going(1380, COLOR_Y(2135),	EB,	end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			//										in_progress		success			failed
+			state = try_going(1380, COLOR_Y(2135),	EB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != EB)
 				from = EB;	//On sort..alors on sauvegarde d'où on vient.
 		break;
@@ -463,7 +454,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1380, COLOR_Y(1500),	MB,	end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1380, COLOR_Y(1500),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 			
 			if(state != MB)	//Sortie de l'état...
 				from = MB;	//On sort..alors on sauvegarde d'où on vient.
@@ -482,41 +473,36 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1380, COLOR_Y(865),	SB,	end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1380, COLOR_Y(865),	SB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != SB)
 				from = SB;
 		break;
 		//Approche du gateau
 		case E_C:
-			//									in_progress						success						failed
-			state=try_going(1916,COLOR_Y(2135), E_C,		BLOW_ALL_CANDLES,			EB,	ANY_WAY, NO_DODGE_AND_WAIT);
+			//									in_progress		success				failed
+			state=try_going(1916,COLOR_Y(2135), E_C,			BLOW_ALL_CANDLES,	EB,	ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != E_C)
 				from = E_C;
 
 		break;
 
 		case SC:
-			//									in_progress						success						failed
-			state=try_going(1916,COLOR_Y(865), SC,		BLOW_ALL_CANDLES,			SB,				ANY_WAY, NO_DODGE_AND_WAIT);
+			//									in_progress		success				failed
+			state=try_going(1916,COLOR_Y(865),	SC,				BLOW_ALL_CANDLES,	SB,				ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != SC)
 				from = SC;
 		break;
 
 		case BLOW_ALL_CANDLES:
-			if(global.env.pos.y > 1500)	//Nous sommes a coté du gateau, près du coté obscure (quelque soit notre couleur)
-				color_begin_cake = TRUE;
-			else							//Nous sommes a coté du gateau, près du coté des gentils (quelque soit notre couleur)
-				color_begin_cake = FALSE;
+			
 			state = SUBACTION_BLOW_CANDLES;
 		break;
 
 	
 
 		case SUBACTION_BLOW_CANDLES:					//Souffler bougies 
-				if(color_begin_cake == TRUE)
-					sub_action = TINY_blow_all_candles(TRUE);
-				else
-					sub_action = TINY_blow_all_candles(FALSE);
+				sub_action = TINY_blow_all_candles();
+				
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
@@ -551,7 +537,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		break;
 		case BP:
 			//									in_progress		success			failed
-			state=try_going(870,COLOR_Y(1800),	BP,			END_STATE,		EB,	ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(870,COLOR_Y(1800),	BP,				END_STATE,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 		
 		case END_STATE:
@@ -712,7 +698,7 @@ void STRAT_TINY_all_candles(void)
 		break;
 
 		case TINY_CANDLES:
-			sub_action = TINY_blow_all_candles(TRUE);
+			sub_action = TINY_blow_all_candles();
 			switch(sub_action)
             {
 				case END_OK:
