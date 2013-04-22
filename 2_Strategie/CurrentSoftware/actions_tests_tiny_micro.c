@@ -43,7 +43,7 @@ void T_BALLINFLATER_start(void)
 				
 void TINY_hammer_open_all_gift(bool_e reset)
 {
-	static enum
+	typedef enum
 	{
 		INIT=0,
 		WAIT_FIRST_GIFT,
@@ -55,7 +55,8 @@ void TINY_hammer_open_all_gift(bool_e reset)
 		WAIT_FOURTH_GIFT,
 		OPENING_FOURTH_GIFT,
 		ALL_GIFTS_OPENED
-	}state = INIT;
+	}state_e;
+	static state_e state = INIT;
 
 	if(reset)
 		state = INIT;
@@ -159,11 +160,12 @@ void TINY_hammer_open_all_gift(bool_e reset)
 */
 error_e TINY_open_all_gifts_without_pause(void)
 {
-	static enum
+	typedef enum
 	{
 		INIT=0,
 		OPENING_GIFTS
-	}state = INIT;	
+	}state_e;
+	static state_e state = INIT;
 
 	error_e ret = IN_PROGRESS;
 	error_e sub_action;
@@ -563,11 +565,12 @@ error_e TINY_blow_quater(cake_part_e cake_part)
 
 error_e TINY_open_all_gifts_homolog(void)
 {
-	static enum
+	typedef enum
 	{
 		INIT=0,
 		OPENING_GIFTS
-	}state = INIT;
+	}state_e;
+	static state_e state = INIT;
 
 	error_e ret = IN_PROGRESS;
 	error_e sub_action;
@@ -628,7 +631,7 @@ typedef struct{
 }candle_t;
 
 const candle_t candles[12]=
-{{1916,865,-536},  //la plus proche bougie
+{{1916,865,-536},  //bougie coté rouge
 {1768,904,-1608},
 {1633,976,-2680},
 {1519,1078,-3752},
@@ -639,57 +642,130 @@ const candle_t candles[12]=
 {1519,1922,-9112},
 {1633,2024,-10184},
 {1768,2096,-11256},
-{1916,2135,-12328}};  // la plus éloignée.
+{1916,2135,-12328}};  //bougie coté bleu.
 
-error_e TINY_blow_all_candles(bool_e sens){
+
+
+//Way vaut soit +1 (rouge vers bleu), soit -1 (bleu vers rouge).
+error_e TINY_blow_one_candle(Uint8 i, Sint8 way)
+{
+	typedef enum
+	{
+		INIT,
+		GOTO_CANDLE,
+		ANGLE_CANDLE,
+		HAMMER_CANDLE,
+		WAIT_HAMMER_DOWN_CANDLE,
+		HAMMER_FAIL,
+		GOTO_FAIL,
+		DONE
+	}state_e;
+
+	static state_e state = INIT;
+
+	error_e ret = IN_PROGRESS;
+
+	switch(state)
+	{
+		case INIT:
+			if( (way == 1 && i==0) || (way == -1 && i==11) )
+				state = ANGLE_CANDLE;	//Première bougie -> angle directement.
+			else
+				state = GOTO_CANDLE;	//Bougies suivantes -> goto bougie, puis angle.
+		break;
+		case GOTO_CANDLE:
+			state=try_going(candles[i].x,candles[i].y,GOTO_CANDLE, ANGLE_CANDLE, GOTO_FAIL,(way==1)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+		break;
+
+	    case ANGLE_CANDLE:
+			state=try_go_angle(candles[i].teta, ANGLE_CANDLE, HAMMER_CANDLE, GOTO_FAIL, FAST);
+		break;
+
+		case HAMMER_CANDLE:
+				ACT_hammer_blow_candle(); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_CANDLE;
+		break;
+		case WAIT_HAMMER_DOWN_CANDLE:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER_DOWN_CANDLE,DONE,DONE);
+			//TODO : prévenir l'environnement à chaque bougie soufflée !
+		break;
+
+		case HAMMER_FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
+		case GOTO_FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
+		case DONE:
+			state = INIT;
+			ret = END_OK;
+		break;
+
+        default:
+			state = INIT;
+		break;
+
+	}
+	return ret;
+}
+
+
+
+
+error_e TINY_blow_all_candles(void)
+{
 	typedef enum
 	{
 		INIT=0,
-				GOTO_FIRST_POS,
+		GOTO_FIRST_POS,
 		HAMMER_UP,
 	    WAIT_HAMMER,
-				GOTO_CAKE_POS,
-				
-		REFLEXION_ALL_CANDLES,
-		SUB_BLOW_CANDLES,
-				
+		GOTO_CAKE_POS,
+		SUB_BLOW_CANDLES,	
 		ALL_CANDLES_BLOWN,
 		RETURN_HOME,
 		HAMMER_FINAL_POS,
 		LAST_WAIT_HAMMER_DOWN,
+		FAIL,
 		DONE
 	}state_e;
 	static state_e state = INIT;
-	static bool_e sens_e;
-	static Uint8 i;
-	static Uint8 j;
+	static Sint8 way;
+	static color_e color_begin_cake;
+	static Uint8 candle_index;
+	static Uint8 last_candle;
 
 	error_e ret = IN_PROGRESS;
-	//error_e sub_action;
+	error_e sub_action;
 
-	
-	if(sens==TRUE){    //Cas ou on commence le gateau chez l'ennemi
-		i=11;
-		j=-1;
-		sens_e=TRUE;
-	}else{
-		i=0;
-		j=12;
-		sens_e=FALSE;
-	}
-	
-
-switch(state)
+	switch(state)
 	{
 		case INIT:
+			//EN arrivant dans cette fonction, on est d'un des cotés du gateau... on observe ici lequel... et on fait le gateau dans le sens qui va bien.
+
+			if(global.env.pos.y > 1500)	//Nous sommes a coté du gateau, près du coté obscure (bleu) (quelque soit notre couleur)
+			{
+				color_begin_cake = BLUE;
+				candle_index=11;	//On commence par la bougie 11
+				last_candle = 0;
+				way = -1;	//On décrémente les bougies
+			}
+			else						//Nous sommes a coté du gateau, près du coté des gentils (rouge) (quelque soit notre couleur)
+			{
+				color_begin_cake = RED;
+				candle_index=0;	//On commence par la bougie 0
+				last_candle = 11;
+				way = 1;	//On incrémente les bougies
+			}
 			state = GOTO_FIRST_POS;
 			break;
 
-
 		case GOTO_FIRST_POS:
-			state=try_going(1450,COLOR_Y((sens==TRUE)?2135:865),GOTO_FIRST_POS, HAMMER_UP, HAMMER_UP,(sens==TRUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			state=try_going(1450,((color_begin_cake==BLUE)?2135:865),GOTO_FIRST_POS, HAMMER_UP, HAMMER_UP,ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
-
 
 		case HAMMER_UP:
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER le bras
@@ -702,26 +778,36 @@ switch(state)
 		break;
 
 		case GOTO_CAKE_POS:
-			state=try_going(1916,COLOR_Y((sens==TRUE)?2135:865),GOTO_CAKE_POS, REFLEXION_ALL_CANDLES, REFLEXION_ALL_CANDLES,(sens==TRUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
-		break;
-
-
-	    case REFLEXION_ALL_CANDLES:
-					if (i==j) state=ALL_CANDLES_BLOWN;
-					else state=SUB_BLOW_CANDLES;
+			state=try_going(1916,((color_begin_cake==BLUE)?2135:865),GOTO_CAKE_POS, SUB_BLOW_CANDLES, SUB_BLOW_CANDLES,(color_begin_cake==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 		break;
 
 		case SUB_BLOW_CANDLES:
-			TINY_blow_one_candle(i,sens_e);
-			if(sens==TRUE) i--;
-			else i++;
-			state=REFLEXION_ALL_CANDLES;
+			sub_action = TINY_blow_one_candle(candle_index,way);	//On souffle une bougie
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					if(candle_index == last_candle)
+						state = ALL_CANDLES_BLOWN;	//On vient de faire la dernière bougie
+					else
+						candle_index += way;	//On reste ici pour la prochaine bougie...
+				break;
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+				case END_WITH_TIMEOUT:
+					state = FAIL;
+				break;
+				default:
+				break;
+			}
 		break;
 
 		 //FINISH
 
 		case ALL_CANDLES_BLOWN:
 			state = DONE;
+			//TODO : prévenir l'environnement que le gateau est fini !
 		break;
 
 		case HAMMER_FINAL_POS:
@@ -732,8 +818,13 @@ switch(state)
 			//						->In progress					->Success						->Fail
 			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,	DONE);
 		break;
+		case FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
 
 		case DONE:
+			state = INIT;
 			ret = END_OK;
 		break;
 
@@ -748,65 +839,6 @@ switch(state)
 
 
 
-error_e TINY_blow_one_candle(Uint8 i,bool_e sens){
-	typedef enum
-	{
-		GOTO_CANDLE,
-		ANGLE_CANDLE,
-		HAMMER_CANDLE,
-		WAIT_HAMMER_DOWN_CANDLE,
-		HAMMER_FAIL,
-		DONE
-	}state_e;
-
-	static state_e state;
-	static Uint8 j;
-
-	if(sens==TRUE) j=11;
-	else j=0;
-
-
-	if(i==j){
-		state = ANGLE_CANDLE;
-	}else{
-		state = GOTO_CANDLE;
-	}
-
-	error_e ret = IN_PROGRESS;
-
-switch(state)
-	{
-		case GOTO_CANDLE:
-			state=try_going(candles[i].x,COLOR_Y(candles[i].y),GOTO_CANDLE, ANGLE_CANDLE, ANGLE_CANDLE,(sens==TRUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-	    case ANGLE_CANDLE:
-			state=try_go_angle(candles[i].teta, ANGLE_CANDLE, HAMMER_CANDLE, HAMMER_CANDLE, SLOW);
-		break;
-
-		case HAMMER_CANDLE:
-				ACT_hammer_blow_candle(); 	//BAISSER BRAS
-				state=WAIT_HAMMER_DOWN_CANDLE;
-		break;
-		case WAIT_HAMMER_DOWN_CANDLE:
-			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_DOWN_CANDLE,DONE,DONE);
-		 break;
-
-		 //
-		case HAMMER_FAIL:
-			ret = NOT_HANDLED;
-		break;
-		case DONE:
-			ret = END_OK;
-		break;
-
-            default:
-		break;
-
-	}
-	return ret;
-}
 
 
 
