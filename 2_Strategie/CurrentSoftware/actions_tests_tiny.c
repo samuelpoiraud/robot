@@ -273,7 +273,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
 			#warning "TODO... une subaction qui va faire les bougies oubliées... et seulement celles ci... "
 		//case SUB_WHITE_CANDLES:					//Souffler bougies
-				sub_action = TINY_blow_all_candles();
+				sub_action = TINY_blow_all_candles(TRUE);
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
@@ -514,9 +514,9 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 		case SUBACTION_BLOW_CANDLES:					//Souffler bougies 
 				if(color_begin_cake == TRUE)
-					sub_action = TINY_blow_all_candles();
+					sub_action = TINY_blow_all_candles(TRUE);
 				else
-					sub_action = TINY_blow_all_candles();
+					sub_action = TINY_blow_all_candles(FALSE);
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
@@ -712,7 +712,7 @@ void STRAT_TINY_all_candles(void)
 		break;
 
 		case TINY_CANDLES:
-			sub_action = TINY_blow_all_candles();
+			sub_action = TINY_blow_all_candles(TRUE);
 			switch(sub_action)
             {
 				case END_OK:

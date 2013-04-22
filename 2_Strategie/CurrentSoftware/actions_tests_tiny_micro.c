@@ -641,9 +641,7 @@ const candle_t candles[12]=
 {1768,2096,-11256},
 {1916,2135,-12328}};  // la plus éloignée.
 
-static bool_e sens;
-
-error_e TINY_blow_all_candles(void){
+error_e TINY_blow_all_candles(bool_e sens){
 	typedef enum
 	{
 		INIT=0,
@@ -652,7 +650,8 @@ error_e TINY_blow_all_candles(void){
 	    WAIT_HAMMER,
 				GOTO_CAKE_POS,
 				
-		SUB_ALL_CANDLES,
+		REFLEXION_ALL_CANDLES,
+		SUB_BLOW_CANDLES,
 				
 		ALL_CANDLES_BLOWN,
 		RETURN_HOME,
@@ -661,10 +660,24 @@ error_e TINY_blow_all_candles(void){
 		DONE
 	}state_e;
 	static state_e state = INIT;
+	static bool_e sens_e;
+	static Uint8 i;
+	static Uint8 j;
 
 	error_e ret = IN_PROGRESS;
 	//error_e sub_action;
-	static Uint8 i;
+
+	
+	if(sens==TRUE){    //Cas ou on commence le gateau chez l'ennemi
+		i=11;
+		j=-1;
+		sens_e=TRUE;
+	}else{
+		i=0;
+		j=12;
+		sens_e=FALSE;
+	}
+	
 
 switch(state)
 	{
@@ -674,7 +687,7 @@ switch(state)
 
 
 		case GOTO_FIRST_POS:
-			state=try_going(1380,COLOR_Y(2135),GOTO_FIRST_POS, HAMMER_UP, HAMMER_UP,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			state=try_going(1450,COLOR_Y((sens==TRUE)?2135:865),GOTO_FIRST_POS, HAMMER_UP, HAMMER_UP,(sens==TRUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 		break;
 
 
@@ -689,15 +702,20 @@ switch(state)
 		break;
 
 		case GOTO_CAKE_POS:
-			state=try_going(1916,COLOR_Y(2135),GOTO_CAKE_POS, SUB_ALL_CANDLES, SUB_ALL_CANDLES,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			state=try_going(1916,COLOR_Y((sens==TRUE)?2135:865),GOTO_CAKE_POS, REFLEXION_ALL_CANDLES, REFLEXION_ALL_CANDLES,(sens==TRUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 		break;
 
 
-	    case SUB_ALL_CANDLES:
-			for(i=12;i>0;i--) {
-				TINY_blow_candles(i-1);
-				if(i==1) state=ALL_CANDLES_BLOWN;
-			}
+	    case REFLEXION_ALL_CANDLES:
+					if (i==j) state=ALL_CANDLES_BLOWN;
+					else state=SUB_BLOW_CANDLES;
+		break;
+
+		case SUB_BLOW_CANDLES:
+			TINY_blow_one_candle(i,sens_e);
+			if(sens==TRUE) i--;
+			else i++;
+			state=REFLEXION_ALL_CANDLES;
 		break;
 
 		 //FINISH
@@ -730,7 +748,7 @@ switch(state)
 
 
 
-error_e TINY_blow_candles(Uint8 i){
+error_e TINY_blow_one_candle(Uint8 i,bool_e sens){
 	typedef enum
 	{
 		GOTO_CANDLE,
@@ -742,8 +760,13 @@ error_e TINY_blow_candles(Uint8 i){
 	}state_e;
 
 	static state_e state;
+	static Uint8 j;
 
-	if(i==11){
+	if(sens==TRUE) j=11;
+	else j=0;
+
+
+	if(i==j){
 		state = ANGLE_CANDLE;
 	}else{
 		state = GOTO_CANDLE;
@@ -754,7 +777,7 @@ error_e TINY_blow_candles(Uint8 i){
 switch(state)
 	{
 		case GOTO_CANDLE:
-			state=try_going(candles[i].x,COLOR_Y(candles[i].y),GOTO_CANDLE, ANGLE_CANDLE, ANGLE_CANDLE,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			state=try_going(candles[i].x,COLOR_Y(candles[i].y),GOTO_CANDLE, ANGLE_CANDLE, ANGLE_CANDLE,(sens==TRUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 	    case ANGLE_CANDLE:
