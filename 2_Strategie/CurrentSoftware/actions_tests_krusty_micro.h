@@ -19,6 +19,8 @@
 #include "act_functions.h"
 
 //Insérez ici vos micro_strat et découpes de strat
+
+/*Fonction de ramassage de verre à n'appeler qu'une seule fois en début de match car ignore tout évitement pour favoriser la rapidité*/
 error_e two_first_rows(void);
 
 
