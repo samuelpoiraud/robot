@@ -127,14 +127,14 @@ bool_e STACKS_wait_end_auto_pull (stack_id_e stack_id, bool_e* got_timeout)
 {
 	stacks_t* stack=&stacks[stack_id]; 
 	*got_timeout=FALSE;	//On suppose qu'il n'y a pas de timeout.
-	if (STACKS_get_action(stack_id,STACKS_get_top(stack_id))==&wait_forever)
+	if (stack->timeout)
+	{
+		*got_timeout=TRUE;	//En fait, il y a un timeout.
+		if(STACKS_get_action(stack_id,STACKS_get_top(stack_id))!=&wait_forever)
+			STACKS_pull(stack_id);
+	} else if (STACKS_get_action(stack_id,STACKS_get_top(stack_id))==&wait_forever)
 	{
 		return TRUE;	//On a atteint le bas de la pile.
-	}
-	else if (stack->timeout)
-	{
-		STACKS_pull(stack_id);
-		*got_timeout=TRUE;	//En fait, il y a un timeout.
 	}
 	return FALSE;
 }

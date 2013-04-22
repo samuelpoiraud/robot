@@ -41,5 +41,11 @@ Uint16 HAMMER_get_pos();
  */
 bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg);
 
+/** Gère les commandes demandées.
+ *
+ * Fonction à mettre sur la file pour demander une action.
+ */
+void HAMMER_run_command(queue_id_t queueId, bool_e init);
+
 #endif  /* I_AM_ROBOT_TINY */
 #endif	/* HAMMER_H */

@@ -18,6 +18,9 @@
 	//Initialise les actionneurs
 	void ACTMGR_init();
 
+	//Met les actionneurs en position de départ
+	void ACTMGR_reset_act();
+
 	//Gère les messages CAN des actionneurs. Si le message à été géré, cette fonction renvoie TRUE, sinon FALSE.
 	bool_e ACTMGR_process_msg(CAN_msg_t* msg);
 

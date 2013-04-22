@@ -48,5 +48,11 @@ void BALLLAUNCHER_set_speed(Uint16 tr_per_min);
  */
 bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg);
 
+/** Gère les commandes demandées.
+ *
+ * Fonction à mettre sur la file pour demander une action.
+ */
+void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init);
+
 #endif	/* I_AM_ROBOT_KRUSTY */
 #endif	/* BALL_LAUNCHER_H */

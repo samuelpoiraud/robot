@@ -25,7 +25,7 @@ typedef enum {
 	CAN_TPT_Line,    //Le paramètre est une ligne
 	CAN_TPT_Normal   //Le paramètre est un nombre normal sans signification particulière pour nous (ce code)
 } CAN_result_param_type_t;
-static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param);
+static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param, bool_e sended_can_result);
 
 
 //Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
@@ -59,7 +59,7 @@ void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Ui
 		CAN_send(&resultMsg);
 	}
 
-	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_NoParam, 0);
+	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_NoParam, 0, TRUE);
 }
 
 //Comme CAN_sendResult mais ajoute un paramètre au message. Peut servir pour debuggage.
@@ -77,7 +77,7 @@ void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 r
 
 	CAN_send(&resultMsg);
 
-	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Normal, param);
+	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Normal, param, TRUE);
 }
 
 //Comme CAN_sendResultWithParam mais le paramètre est considéré comme étant un numéro de ligne.
@@ -95,7 +95,7 @@ void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, U
 
 	CAN_send(&resultMsg);
 
-	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Line, line);
+	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Line, line, TRUE);
 }
 
 bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms_x100, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
@@ -121,23 +121,22 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*error_code = ACT_RESULT_ERROR_LOGIC;
 		*line = 0x0200;
 	} else if(error & AX12_ERROR_TIMEOUT) {
-		//L'ax12 n'a pas répondu à la commande
+		AX12_set_torque_enabled(ax12Id, FALSE);
+		*result = ACT_RESULT_FAILED;
+		*error_code = ACT_RESULT_ERROR_NOT_HERE;
+		*line = 0x0300;
+	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + timeout_ms_x100) {
+		//Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 		if(abs((Sint16)current_pos - (Sint16)(wantedPosition)) <= large_epsilon) {
 			*result = ACT_RESULT_DONE;
 			*error_code = ACT_RESULT_ERROR_OK;
-			*line = 0x0300;
+			*line = 0x0400;
 		} else {
 			AX12_set_torque_enabled(ax12Id, FALSE);
 			*result = ACT_RESULT_FAILED;
-			*error_code = ACT_RESULT_ERROR_NOT_HERE;
-			*line = 0x0400;
+			*error_code = ACT_RESULT_ERROR_UNKNOWN;
+			*line = 0x0500;
 		}
-	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + timeout_ms_x100) {
-		//Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-		AX12_set_torque_enabled(ax12Id, FALSE);
-		*result = ACT_RESULT_FAILED;
-		*error_code = ACT_RESULT_ERROR_UNKNOWN;
-		*line = 0x0500;
 	} else if(error & AX12_ERROR_OVERHEATING) {
 		//autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
 		AX12_set_torque_enabled(ax12Id, FALSE);
@@ -194,7 +193,7 @@ bool_e ACTQ_finish_SendResultIfFail(queue_id_t queue_id, Uint11 act_sid, Uint8 r
 	if(result != ACT_RESULT_DONE && error_code != ACT_RESULT_ERROR_OTHER) {
 		ACTQ_sendResultWithParam(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, param);
 		return FALSE;
-	}
+	} else ACTQ_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
 
 	return TRUE;
 }
@@ -204,34 +203,37 @@ bool_e ACTQ_finish_SendResultIfSuccess(queue_id_t queue_id, Uint11 act_sid, Uint
 	if(result == ACT_RESULT_DONE) {
 		ACTQ_sendResultWithParam(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, param);
 		return TRUE;
-	}
+	} else ACTQ_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
 
 	return FALSE;
 }
 
 //Ne fait aucun retour
 bool_e ACTQ_finish_SendNothing(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param) {
+	ACTQ_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
 	if(result == ACT_RESULT_DONE)
 		return TRUE;
 
 	return FALSE;
 }
 
-static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param) {
+static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param, bool_e sended_can_result) {
 #ifdef OUTPUT_LOG
 	const char* originalSidStr = "Unknown";
 	const char* resultStr = "Unknown";
-	const char* errorCodeStr ="Unknown error";
+	const char* errorCodeStr = "Unknown error";
+	const char* sendedStr = (sended_can_result == TRUE)? "sent" : "not sent";
 
+	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
-		case ACT_BALLINFLATER:       originalSidStr = "BallInflater"; break;
-		case ACT_BALLLAUNCHER:       originalSidStr = "BallLauncher"; break;
-		case ACT_BALLSORTER:         originalSidStr = "BallSorter";   break;
-		case ACT_CANDLECOLOR:        originalSidStr = "CandleColor";  break;
-		case ACT_HAMMER:             originalSidStr = "Hammer";       break;
-		case ACT_LIFT_LEFT:          originalSidStr = "LiftLeft";     break;
-		case ACT_LIFT_RIGHT:         originalSidStr = "LiftRight";    break;
-		case ACT_PLATE:              originalSidStr = "Plate";        break;
+		case ACT_BALLINFLATER & 0xFF:       originalSidStr = "BallInflater"; break;
+		case ACT_BALLLAUNCHER & 0xFF:       originalSidStr = "BallLauncher"; break;
+		case ACT_BALLSORTER & 0xFF:         originalSidStr = "BallSorter";   break;
+		case ACT_CANDLECOLOR & 0xFF:        originalSidStr = "CandleColor";  break;
+		case ACT_HAMMER & 0xFF:             originalSidStr = "Hammer";       break;
+		case ACT_LIFT_LEFT & 0xFF:          originalSidStr = "LiftLeft";     break;
+		case ACT_LIFT_RIGHT & 0xFF:         originalSidStr = "LiftRight";    break;
+		case ACT_PLATE & 0xFF:              originalSidStr = "Plate";        break;
 		default:                     originalSidStr = "Unknown";      break;
 	}
 	switch(result) {
@@ -254,25 +256,28 @@ static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 re
 	if(result != ACT_RESULT_DONE)
 		level = LOG_LEVEL_Error;
 	if(paramType == CAN_TPT_Normal) {
-		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), param: 0x%x(%u)\n",
+		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), param: 0x%x(%u) (%s)\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
 			errorCodeStr, errorCode,
-			param, param);
+			param, param,
+			sendedStr);
 	} else if(paramType == CAN_TPT_Line) {
-		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), line: %u\n",
+		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), line: %u (%s)\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
 			errorCodeStr, errorCode,
-			param);
+			param,
+			sendedStr);
 	} else {
-		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u)\n",
+		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u) (%s)\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
-			errorCodeStr, errorCode);
+			errorCodeStr, errorCode,
+			sendedStr);
 	}
 #endif
 }

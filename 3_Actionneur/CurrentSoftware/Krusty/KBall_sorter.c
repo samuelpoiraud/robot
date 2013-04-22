@@ -25,19 +25,9 @@
 #define LOG_PREFIX "BS: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLSORTER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-//Etape d'un passage de cerise (demandé par la strat)
-typedef enum {
-	BALLSORTER_CS_CheckLauncherSpeed = 0, //Verifie que le lanceur de balle à atteint sa vitesse (avant d'envoyer la cerise)
-	BALLSORTER_CS_EjectCherry = 1,        //Ejecte la cerise prise
-	BALLSORTER_CS_GotoNextCherry = 2,     //Va prendre une nouvelle cerise dans le bac
-	BALLSORTER_CS_TakeCherry = 3,         //Met la cerise prise devant le capteur
-	BALLSORTER_CS_DetectCherry = 4        //Detecte la cerise pour savoir si elle est blanche ou pas et renvoi le resultat à la strat
-} BALLSORTER_command_state_e;
-
 static Uint16 desired_ball_launcher_speed = 0;
 
 static void BALLSORTER_initAX12();
-static void BALLSORTER_run_command(queue_id_t queueId, bool_e init);
 
 void BALLSORTER_init() {
 	static bool_e initialized = FALSE;
@@ -71,8 +61,6 @@ static void BALLSORTER_initAX12() {
 		AX12_config_set_error_before_led(BALLSORTER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(BALLSORTER_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD);
 
-		//AX12_set_torque_enabled(BALLSORTER_AX12_ID, TRUE);
-		//AX12_set_position(BALLSORTER_AX12_ID, BALLSORTER_AX12_EJECT_CHERRY_POS);
 		COMPONENT_log(LOG_LEVEL_Info, "AX12 initialisé\n");
 	}
 }
@@ -116,7 +104,7 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
+void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 	static Uint16 wantedPosition;
 	static time_t detection_end_time; //pour attendre un certain temps sur la position detect de l'ax12
 	BALLSORTER_command_state_e state = QUEUE_get_arg(queueId)->param;
@@ -176,7 +164,7 @@ static void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				return;
 			}
 
-			debug_printf("AX12 moveto %d\n", wantedPosition);
+			COMPONENT_log(LOG_LEVEL_Debug, "AX12 moveto %d\n", wantedPosition);
 			AX12_reset_last_error(BALLSORTER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 			if(!AX12_set_position(BALLSORTER_AX12_ID, wantedPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(BALLSORTER_AX12_ID).error);

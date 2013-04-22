@@ -92,7 +92,8 @@
 	#define HAMMER_DCMOTOR_PWM_NUM      1		//PWM1
 	#define HAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
 	#define HAMMER_DCMOTOR_PORT_WAY_BIT 0
-	#define HAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x), A DEFINIR !!!
+	#define HAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x)
+	#define HAMMER_ACT_MOVE_TO_INIT_POS 85      //en degré, 90° = vertical vers le bas, 0° = horizontal sorti
 /********************************************************************************/
 
 /* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */
