@@ -21,10 +21,12 @@
 //Insérez ici vos micro_strat et découpes de strat
 void T_BALLINFLATER_start(void);
 
+error_e TINY_blow_all_candles(void);
+error_e TINY_blow_candles(Uint8 i);
+
+
 error_e TINY_open_all_gifts(void);
-error_e TINY_white_candles(bool_e tobase);
-error_e TINY_BLUESIDE_candles(void);
-error_e TINY_REDSIDE_candles(void);
+error_e old_TINY_all_candles(void);
 error_e TINY_open_all_gifts_homolog(void);
 
 #endif /* ACTIONS_TESTS_TINY_MICRO_H */
