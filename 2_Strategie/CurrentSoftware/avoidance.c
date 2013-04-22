@@ -1362,25 +1362,18 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 
 //Version simplifiée de wait_move_and_scan_foe. on esquive pas la cible ici. (pas de dodge)
 error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
-
 	enum state_e
 	{
 		INITIALIZATION = 0,
 		NO_FOE,
-		WAIT_FOE,
-		DONE
+		WAIT_FOE
 	};
 	static enum state_e state = INITIALIZATION;
 
 	static bool_e timeout;
 	static time32_t avoidance_timeout_time;
 	static bool_e foe_detected_during_avoidance;
-	static time32_t detection_time;
 	static bool_e is_in_path[NB_FOES]; //Nous indique si l'adversaire est sur le chemin
-
-	asser_arg_t	asser_args;
-	GEOMETRY_point_t current_point, destination_point;
-	Sint16 distance_before_destination;
 
 
 	//Si pas d'évitement, on fait pas d'évitement
@@ -1392,10 +1385,19 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 		return IN_PROGRESS;
 	}
 
+	//Vérification du timeout
 	if(global.env.match_time > avoidance_timeout_time) {
-		if(foe_detected_during_avoidance)
+		ASSER_stop();
+		STACKS_flush(ASSER);
+		state = INITIALIZATION;
+
+		if(foe_detected_during_avoidance) {
+			avoidance_printf("wait_move_and_scan_foe timeout avec ennemi sur path\n");
 			return FOE_IN_PATH;
-		else return END_WITH_TIMEOUT;
+		} else {
+			avoidance_printf("wait_move_and_scan_foe timeout sans ennemi !\n");
+			return END_WITH_TIMEOUT;
+		}
 	}
 
 	switch(state)
@@ -1474,9 +1476,12 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			// Adversaire devant nous !
 			if(is_in_path[FOE_1] || is_in_path[FOE_2])
 			{
-				/*
+/*
 				if(AVOIDANCE_foe_not_move(FOE_1) && AVOIDANCE_foe_not_move(FOE_2))
 				{
+					asser_arg_t	asser_args;
+					GEOMETRY_point_t destination_point;
+
 					// L'adversaire ne bouge plus... on va regarder si le point d'arrivée est atteignable sans toucher l'adversaire
 					// Donc en gros, le point est entre nous et l'adversaire (qui ne bouge pas !) et on a la place de s'y mettre
 					debug_printf(" FOE 1 ou 2 bouge plus \n");
@@ -1529,7 +1534,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 //						}
 					}
 				}
-				*/
+				//*/
 
 			}
 			else
@@ -1658,7 +1663,8 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 
 /* Fonction qui regarde si le robot est dans notre chemin */
 //Pas en static pour tests
-/*static*/ void foe_in_path(bool_e *in_path)
+/*static*/
+void foe_in_path(bool_e *in_path)
 {
 	// variables
 	//Uint16 speed_indicator;
