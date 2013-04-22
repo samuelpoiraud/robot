@@ -40,7 +40,6 @@
 
 static void PLATE_initAX12();
 static Sint16 PLATE_getRotationAngle();
-static void PLATE_run_command(queue_id_t queueId, bool_e init);
 static void PLATE_rotation_command_init(queue_id_t queueId);
 static void PLATE_rotation_command_run(queue_id_t queueId);
 static void PLATE_plier_command_init(queue_id_t queueId);
@@ -78,13 +77,6 @@ void PLATE_init() {
 	COMPONENT_log(LOG_LEVEL_Info, "Pince à assiette initialisé (DCMotor)\n");
 
 	PLATE_initAX12();
-
-	CAN_msg_t msg;
-
-	msg.sid = ACT_PLATE;
-	msg.data[0] = PLATE_ACT_ROTATE_INIT_POS;
-	msg.size = 1;
-	PLATE_CAN_process_msg(&msg);
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
@@ -160,7 +152,7 @@ static Sint16 PLATE_getRotationAngle() {
 	return ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID);
 }
 
-static void PLATE_run_command(queue_id_t queueId, bool_e init) {
+void PLATE_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
 		return;

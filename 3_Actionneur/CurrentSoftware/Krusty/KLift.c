@@ -45,7 +45,6 @@
 static void LIFT_initAX12();
 static Sint16 LIFT_LEFT_getTranslationPos();
 static Sint16 LIFT_RIGHT_getTranslationPos();
-static void LIFT_run_command(queue_id_t queueId, bool_e init);
 static void LIFT_translation_command_init(queue_id_t queueId);
 static void LIFT_translation_command_run(queue_id_t queueId);
 static void LIFT_plier_command_init(queue_id_t queueId);
@@ -101,17 +100,6 @@ void LIFT_init() {
 	COMPONENT_log(LOG_LEVEL_Info, "Ascenseur à verres initialisés (DCMotor)\n");
 
 	LIFT_initAX12();
-
-	CAN_msg_t msg;
-	msg.size = 1;
-
-	msg.sid = ACT_LIFT_LEFT;
-	msg.data[0] = LIFT_LEFT_ACT_GO_INIT_POS;
-	LIFT_CAN_process_msg(&msg);
-
-	msg.sid = ACT_LIFT_RIGHT;
-	msg.data[0] = LIFT_RIGHT_ACT_GO_INIT_POS;
-	LIFT_CAN_process_msg(&msg);
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
@@ -119,7 +107,7 @@ static void LIFT_initAX12() {
 	static bool_e ax12_is_initialized[2] = {FALSE, FALSE};
 	Uint8 ax12_id[2] =             {LIFT_LEFT_PLIER_AX12_ID,                 LIFT_RIGHT_PLIER_AX12_ID};
 	Uint8 ax12_max_torque[2] =     {LIFT_LEFT_PLIER_AX12_MAX_TORQUE_PERCENT, LIFT_RIGHT_PLIER_AX12_MAX_TORQUE_PERCENT};
-	Uint16 ax12_init_position[2] = {LIFT_LEFT_ACT_PLIER_AX12_INIT_POS,       LIFT_RIGHT_ACT_PLIER_AX12_INIT_POS};
+//	Uint16 ax12_init_position[2] = {LIFT_LEFT_ACT_PLIER_AX12_INIT_POS,       LIFT_RIGHT_ACT_PLIER_AX12_INIT_POS};
 	Uint8 i;
 	for(i = 0; i < 2; i++) { //Init des 2 ax12, gauche et droite
 		if(ax12_is_initialized[i] == FALSE && AX12_is_ready(ax12_id[i]) == TRUE) {
@@ -135,7 +123,6 @@ static void LIFT_initAX12() {
 			AX12_config_set_error_before_led(ax12_id[i], AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 			AX12_config_set_error_before_shutdown(ax12_id[i], AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
 
-			AX12_set_position(ax12_id[i], ax12_init_position[i]);
 			COMPONENT_log(LOG_LEVEL_Info, "AX12 %s initialisé\n", (i == 0)? "Gauche" : "Droite");
 		}
 	}
@@ -191,7 +178,7 @@ static Sint16 LIFT_RIGHT_getTranslationPos() {
 	return -ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID);
 }
 
-static void LIFT_run_command(queue_id_t queueId, bool_e init) {
+void LIFT_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
 		return;

@@ -30,7 +30,6 @@
 #error "Le nombre de DCMotor disponible n'est pas suffisant, veuillez augmenter DCM_NUMBER"
 #endif
 
-static void HAMMER_run_command(queue_id_t queueId, bool_e init);
 static bool_e HAMMER_checkCandleColorFinished(queue_id_t queueId, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
 static Sint16 HAMMER_get_position();
 
@@ -64,14 +63,6 @@ void HAMMER_init() {
 	DCM_config(HAMMER_DCMOTOR_ID, &hammer_config);
 	DCM_stop(HAMMER_DCMOTOR_ID);
 
-	CAN_msg_t msg;
-	msg.sid = ACT_HAMMER;
-	msg.data[0] = ACT_HAMMER_MOVE_TO;
-	msg.data[1] = LOWINT(HAMMER_ACT_MOVE_TO_INIT_POS);
-	msg.data[2] = HIGHINT(HAMMER_ACT_MOVE_TO_INIT_POS);
-	msg.size = 3;
-	HAMMER_CAN_process_msg(&msg);
-
 	COMPONENT_log(LOG_LEVEL_Info, "Hammer initialisé\n");
 }
 
@@ -97,11 +88,12 @@ bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 				assert(queueId != QUEUE_CREATE_FAILED);
 				if(queueId != QUEUE_CREATE_FAILED) {
 					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_CandleColor);
-					QUEUE_add(queueId, &CANDLECOLOR_run_command, (QUEUE_arg_t){msg->data[0], 0, &HAMMER_checkCandleColorFinished}, QUEUE_ACT_CandleColor);
+					QUEUE_add(queueId, &CANDLECOLOR_run_command, (QUEUE_arg_t){ACT_CANDLECOLOR_GET_LOW, 0, &HAMMER_checkCandleColorFinished}, QUEUE_ACT_CandleColor);
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_CandleColor);
 				} else {	//on indique qu'on a pas géré la commande
 					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				}
+				break;
 
 			case ACT_HAMMER_STOP:	//Ne pas passer par la pile pour le cas d'urgence
 				COMPONENT_log(LOG_LEVEL_Debug, "bras désasservi !\n");
@@ -118,7 +110,7 @@ bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-static void HAMMER_run_command(queue_id_t queueId, bool_e init) {
+void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_Hammer) {
 		if(QUEUE_has_error(queueId)) {
 			QUEUE_behead(queueId);
@@ -167,9 +159,12 @@ static bool_e HAMMER_checkCandleColorFinished(queue_id_t queueId, Uint11 act_sid
 			QUEUE_add(queueId, &HAMMER_run_command, (QUEUE_arg_t){ACT_HAMMER_BLOW_CANDLE, HAMMER_CANDLE_POS_BLOWING, &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_Hammer);
 			QUEUE_add(queueId, &HAMMER_run_command, (QUEUE_arg_t){ACT_HAMMER_BLOW_CANDLE, HAMMER_CANDLE_POS_UP     , &ACTQ_finish_SendResult}      , QUEUE_ACT_Hammer);
 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Hammer);
+
+			return TRUE;
 		}
-		return TRUE;
-	} else return ACTQ_finish_SendResult(queueId, ACT_HAMMER_BLOW_CANDLE, result, error_code, param);
+	}
+
+	return ACTQ_finish_SendResult(queueId, ACT_HAMMER_BLOW_CANDLE, result, error_code, param);
 }
 
 Uint16 HAMMER_get_pos() {

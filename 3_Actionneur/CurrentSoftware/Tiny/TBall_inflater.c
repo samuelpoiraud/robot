@@ -37,8 +37,6 @@
 static bool_e ballinflater_state;
 static bool_e BALLINFLATER_emerg_stop_inflater = FALSE;
 
-static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init);
-
 void BALLINFLATER_init() {
 	static bool_e initialized = FALSE;
 
@@ -81,7 +79,7 @@ bool_e BALLINFLATER_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-static void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
+void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallInflater) {
 		if(QUEUE_has_error(queueId)) {
 			QUEUE_behead(queueId);

@@ -76,7 +76,6 @@
 
 static Uint16 DCM_timer_period_predivised;
 
-static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init);
 static Sint16 BALLLAUNCHER_get_speed();
 
 void BALLLAUNCHER_init() {
@@ -160,7 +159,7 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 
 static Sint16 last_speed_detected;
 
-static void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
+void BALLLAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
 		return;

@@ -39,7 +39,7 @@ bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg);
 
 /** Gère les commandes demandées.
  *
- * Fonction publique car utilisé par Hammer pour les bougies
+ * Fonction à mettre sur la file pour demander une action.
  */
 void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init);
 

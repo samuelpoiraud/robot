@@ -181,7 +181,7 @@ void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 		if(init == TRUE && !QUEUE_has_error(queueId)) {
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			Sint16* wantedPosition = (Sint16*) &QUEUE_get_arg(queueId)->param;
-			bool_e cmdOk;
+			//bool_e cmdOk;
 
 			switch(command) {
 				case ACT_CANDLECOLOR_GET_LOW:  *wantedPosition = ACT_CANDLECOLOR_GET_LOW;  break;
@@ -199,25 +199,28 @@ void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 				return;
 			}
 
-			AX12_reset_last_error(CANDLECOLOR_AX12_ID);
-			cmdOk = AX12_set_position(CANDLECOLOR_AX12_ID, *wantedPosition);
-			if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(CANDLECOLOR_AX12_ID).error);
-				QUEUE_next(queueId, ACT_CANDLECOLOR, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
-				return;
-			}
+//			AX12_reset_last_error(CANDLECOLOR_AX12_ID);
+//			cmdOk = AX12_set_position(CANDLECOLOR_AX12_ID, *wantedPosition);
+//			if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
+//				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(CANDLECOLOR_AX12_ID).error);
+//				QUEUE_next(queueId, ACT_CANDLECOLOR, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+//				return;
+//			}
 		} else {
 			Uint8 result, error_code;
 			Uint16 line;
 
-			if(ACTQ_check_status_ax12(queueId, CANDLECOLOR_AX12_ID, QUEUE_get_arg(queueId)->param, CANDLECOLOR_AX12_POS_EPSILON, CANDLECOLOR_AX12_TIMEOUT, 0, &result, &error_code, &line)) {
+			result = ACT_RESULT_DONE;
+			error_code = ACT_RESULT_ERROR_OK;
+
+			//if(ACTQ_check_status_ax12(queueId, CANDLECOLOR_AX12_ID, QUEUE_get_arg(queueId)->param, CANDLECOLOR_AX12_POS_EPSILON, CANDLECOLOR_AX12_TIMEOUT, 0, &result, &error_code, &line)) {
 				if(result == ACT_RESULT_DONE) {
 					Uint8 color = CANDLECOLOR_process_color();
 					CAN_msg_t colorDetectedMsg = {ACT_CANDLECOLOR_RESULT, {color}, 1};   //Envoyer la couleur detectée
 					CAN_send(&colorDetectedMsg);
 					QUEUE_next(queueId, ACT_CANDLECOLOR, result, error_code, color); //param vaut la couleur si il n'y a pas eu d'erreur
 				} else QUEUE_next(queueId, ACT_CANDLECOLOR, result, error_code, line);
-			}
+			//}
 		}
 	}
 }
@@ -225,12 +228,12 @@ void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 #ifdef CANDLECOLOR_CW_DEBUG_COLOR
 static void CANDLECOLOR_debug_color_run(queue_id_t queueId, bool_e init) {
 	switch(CANDLECOLOR_process_color()) {
-		case ACT_CANDLECOLOR_COLOR_YELLOW: COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: yellow\n");  break;
-		case ACT_CANDLECOLOR_COLOR_BLUE:   COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: blue\n");    break;
-		case ACT_CANDLECOLOR_COLOR_OTHER:  COMPONENT_log(LOG_LEVEL_Debug, "  No color detected\n");       break;
-		case ACT_CANDLECOLOR_COLOR_RED:    COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: red\n");     break;
-		case ACT_CANDLECOLOR_COLOR_WHITE:  COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: white\n");   break;
-		default:                           COMPONENT_log(LOG_LEVEL_Debug, "  Color detected: unknown\n"); break;
+		case ACT_CANDLECOLOR_COLOR_YELLOW: COMPONENT_log(LOG_LEVEL_Error, "  Color detected: yellow\n");  break;
+		case ACT_CANDLECOLOR_COLOR_BLUE:   COMPONENT_log(LOG_LEVEL_Error, "  Color detected: blue\n");    break;
+		case ACT_CANDLECOLOR_COLOR_OTHER:  COMPONENT_log(LOG_LEVEL_Error, "  No color detected\n");       break;
+		case ACT_CANDLECOLOR_COLOR_RED:    COMPONENT_log(LOG_LEVEL_Error, "  Color detected: red\n");     break;
+		case ACT_CANDLECOLOR_COLOR_WHITE:  COMPONENT_log(LOG_LEVEL_Error, "  Color detected: white\n");   break;
+		default:                           COMPONENT_log(LOG_LEVEL_Error, "  Color detected: unknown\n"); break;
 	}
 }
 #endif
@@ -273,14 +276,17 @@ static Uint8 CANDLECOLOR_process_color() {
 		return ACT_CANDLECOLOR_COLOR_YELLOW;
 	#endif
 
-	#ifdef CANDLECOLOR_CW_RED_MIN_x
-	if(x > CANDLECOLOR_CW_RED_MIN_x)
-		return ACT_CANDLECOLOR_COLOR_RED;
-	#endif
+	if(Y < CANDLECOLOR_CW_MIN_Y)
+		return ACT_CANDLECOLOR_COLOR_OTHER;
 
 	#ifdef CANDLECOLOR_CW_BLUE_MIN_z
 	if(z > CANDLECOLOR_CW_BLUE_MIN_z)
 		return ACT_CANDLECOLOR_COLOR_BLUE;
+	#endif
+
+	#ifdef CANDLECOLOR_CW_RED_MIN_x
+	if(x > CANDLECOLOR_CW_RED_MIN_x)
+		return ACT_CANDLECOLOR_COLOR_RED;
 	#endif
 
 	#ifdef CANDLECOLOR_CW_GREEN_MIN_y

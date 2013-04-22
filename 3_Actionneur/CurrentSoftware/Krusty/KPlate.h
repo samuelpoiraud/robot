@@ -37,6 +37,12 @@ void PLATE_stop();
  */
 bool_e PLATE_CAN_process_msg(CAN_msg_t* msg);
 
+/** Gère les commandes demandées.
+ *
+ * Fonction à mettre sur la file pour demander une action.
+ */
+void PLATE_run_command(queue_id_t queueId, bool_e init);
+
 #endif  /* I_AM_ROBOT_KRUSTY */
 #endif	/* KPLATE_H */
 
