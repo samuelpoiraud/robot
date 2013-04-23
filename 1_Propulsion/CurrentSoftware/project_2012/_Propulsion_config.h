@@ -32,7 +32,7 @@
 //	#define VERBOSE_MSG_SEND_OVER_UART	//A la place d'un envoi CAN, envoi d'un texte explicite sur l'UART : "Position : " ou "TrajFinie : ....."
 			//ATTENTION, INCOMPATIBLE AVEC L'ENVOI PERIODIQUE EN IT !!!!!!!!!
 
-	#define MODE_REGLAGE_KV
+	//#define MODE_REGLAGE_KV
 	#ifdef MODE_REGLAGE_KV
 		#ifndef VERBOSE_MODE
 			#warning "Le mode réglage KV a besoin du VERBOSE_MODE"

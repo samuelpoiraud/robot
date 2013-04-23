@@ -156,7 +156,7 @@
 		void CAN_update (CAN_msg_t* incoming_msg);
 
 		/* met a jour la position a partir d'un message asser la délivrant */
-		void ENV_pos_update (CAN_msg_t* msg, bool_e on_it);
+		void ENV_pos_update (CAN_msg_t* msg);
 			#define WARNING_NO					(0b00000000)
 			#define WARNING_TIMER				(0b00000001)
 			#define WARNING_TRANSLATION			(0b00000010)
@@ -165,7 +165,7 @@
 			#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
 			#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
 			#define WARNING_NEW_TRAJECTORY		(0b01000000)		//Changement de trajectoire (attention, cela inclue les trajectoires préalables ajoutées en propulsion...)
-	
+
 		/* met a jour la position de l'adversaire à partir des balises */
 		void ENV_pos_foe_update (CAN_msg_t* msg);
 			/* Liste des messages de definition d'erreur --- Pour plus de doc, consulter QS_CANmsgDoc.h */
