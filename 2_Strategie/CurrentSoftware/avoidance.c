@@ -1371,10 +1371,8 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	};
 	static enum state_e state = INITIALIZATION;
 
-	bool_e timeout = FALSE;
-	static time32_t avoidance_timeout_time = 0;
-	static bool_e foe_detected_during_avoidance;
 	static bool_e is_in_path[NB_FOES]; //Nous indique si l'adversaire est sur le chemin
+	static time32_t avoidance_timeout_time = 0;
 	static time32_t last_match_time;
 	time32_t current_match_time = global.env.match_time;
 
@@ -1384,6 +1382,9 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 		error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
 		switch(asser_stack_state)
 		{
+			case IN_PROGRESS:
+				break;
+
 			case END_OK:
 			case END_WITH_TIMEOUT:
 			case NOT_HANDLED:
@@ -1391,18 +1392,20 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				state = INITIALIZATION;
 				return asser_stack_state;
 
-			case IN_PROGRESS:
-				break;
-			default:
+			default: //Ne devrait jamais arriver, AVOIDANCE_watch_asser_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
+				avoidance_printf("wait_move_and_scan_foe: DEFAULT asser_stack_state = %d!!\n", asser_stack_state);
+				state = INITIALIZATION;
+				return NOT_HANDLED;
 				break;
 		}
+
+		return IN_PROGRESS;
 	}
 
 	switch(state)
 	{
 		case INITIALIZATION:
 			// initialisation des variables statiques
-			foe_detected_during_avoidance = FALSE;
 			avoidance_timeout_time = 0;
 
 			avoidance_printf("wait_move_and_scan_foe: initialized\n");
@@ -1451,7 +1454,6 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 						state = INITIALIZATION;
 						break;
 				}
-				foe_detected_during_avoidance = TRUE;
 			}
 			else
 			{
@@ -1479,10 +1481,6 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
 			//debug_printf("Test 2: IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 			// on va attendre que l'ennemi sorte de notre chemin
-			/*if((is_in_path[FOE_1] && !AVOIDANCE_foe_not_move(FOE_1)) ||
-				(is_in_path[FOE_2] && !AVOIDANCE_foe_not_move(FOE_2)))
-			*/
-			// Adversaire devant nous !
 			//On ne regarde pas ici si le robot pointe vers le point d'arrivée car il a été arreté en pleine translation vers ce point
 
 			avoidance_timeout_time += current_match_time - last_match_time;
@@ -1497,6 +1495,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 			if(is_in_path[FOE_1] || is_in_path[FOE_2])
 			{
+			// Adversaire devant nous !
 /*
 				if(AVOIDANCE_foe_not_move(FOE_1) && AVOIDANCE_foe_not_move(FOE_2))
 				{
