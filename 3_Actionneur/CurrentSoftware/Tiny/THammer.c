@@ -164,7 +164,8 @@ static bool_e HAMMER_checkCandleColorFinished(queue_id_t queueId, Uint11 act_sid
 		}
 	}
 
-	return ACTQ_finish_SendResult(queueId, ACT_HAMMER_BLOW_CANDLE, result, error_code, param);
+	QUEUE_get_arg(queueId)->canCommand = ACT_HAMMER_BLOW_CANDLE;
+	return ACTQ_finish_SendResult(queueId, ACT_HAMMER, result, error_code, param);
 }
 
 Uint16 HAMMER_get_pos() {
