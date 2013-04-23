@@ -116,7 +116,7 @@ void CORRECTOR_mode_reglage_kv(void)
 										((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION])
 									  )>>10;
 
-		debug_printf("T:%d Vt*Kvt=%d% | R:%d Vr*Kvr=%d%\n",
+		debug_printf("T:%d Vt*Kvt=%d%% | R:%d Vr*Kvr=%d%%\n",
 						(Uint16) commande_translation,
 						(Uint16) (((100 * global.vitesse_translation * coefs[CORRECTOR_COEF_KV_TRANSLATION])/commande_translation)>>12),
 						(Uint16) commande_rotation,
