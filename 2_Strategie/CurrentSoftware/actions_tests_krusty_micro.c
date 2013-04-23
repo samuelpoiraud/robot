@@ -45,13 +45,14 @@ bool_e act_go_on(queue_id_e act_id){
 
 error_e two_first_rows(void){
 	static enum{
-		ASK_WARNER,
+		INIT = 0,
 		FIRST_ROW,
 		SECOND_ROW,
-	}state = ASK_WARNER;
+		DONE
+	}state = INIT;
 
 	enum actionneur_state{
-		GRAB,
+		GRAB = 0,
 		WAIT_GRAB,
 		LIFT_DOWN,
 		WAIT_LIFT_DOWN,
@@ -60,7 +61,7 @@ error_e two_first_rows(void){
 	};
 
 
-	static error_e act_left = GRAB;
+	static error_e act_prioritaire = GRAB;
 	/*static error_e act_previous_left = GRAB;
 	static error_e act_entrance_left;
 	//Mise a jour
@@ -68,13 +69,19 @@ error_e two_first_rows(void){
 	act_previous_left = act_left;
 	*/
 	
-	static error_e act_right = GRAB;
+	static error_e act_secondaire = GRAB;
 	/*static error_e act_previous_right = GRAB;
 	static error_e act_entrance_right;
 	//Mise a jour
 	act_entrance_right = (act_previous_right == act_right)? FALSE : TRUE;
 	act_previous_right = act_right;
 	*/
+
+	static ACT_lift_pos_t prioritaire;
+	static ACT_lift_pos_t secondaire;
+	static queue_id_e ret_prioritaire;
+	static queue_id_e ret_secondaire;
+
 	static bool_e right_ok = FALSE; //Flag qui sert à  faire patienter l'ascenseur de droite pour ne pas réagir au premier reach_y
 	
 	static error_e sub_action;
@@ -83,14 +90,19 @@ error_e two_first_rows(void){
 
  // MAE de déplacements
 	switch(state){
-		case ASK_WARNER:
+		case INIT:
 			//debug_printf("state = ASK_WARNER");
+			prioritaire = (global.env.color == BLUE)? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+			secondaire = (global.env.color == RED)? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+			ret_prioritaire = (global.env.color == BLUE)? ACT_QUEUE_LiftLeft : ACT_QUEUE_LiftRight;
+			ret_secondaire = (global.env.color == RED)? ACT_QUEUE_LiftRight : ACT_QUEUE_LiftLeft;
+
 			ASSER_WARNER_arm_y(COLOR_Y(900));
 			state =FIRST_ROW;
 
 		case FIRST_ROW:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(950)},FAST},
-				{{1100,COLOR_Y(1500)},FAST}},
+				{{1050,COLOR_Y(1500)},FAST}},
 				2,FORWARD,NO_AVOIDANCE);
 			if(sub_action != IN_PROGRESS){
 				state = SECOND_ROW;
@@ -101,55 +113,58 @@ error_e two_first_rows(void){
 
 		case SECOND_ROW:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{820,COLOR_Y(1330)},FAST},
-				{{750,COLOR_Y(1130)},FAST}},
-				2,FORWARD,NO_AVOIDANCE);
+				{{750,COLOR_Y(1130)},FAST},
+				{{750,COLOR_Y(750)},FAST}},
+				3,FORWARD,NO_AVOIDANCE);
 			if(sub_action != IN_PROGRESS)
-				return END_OK;
+				state = DONE;
+			//	ret = END_OK;
 			break;
-
+		case DONE:
+			break;
 		default:
 			break;
 	}
 
- // MAE de l'ascenseur gauche
-	switch(act_left){
+ // MAE de l'ascenseur principale
+	switch(act_prioritaire){
 		case GRAB:
 			if(global.env.asser.reach_y){
 				//debug_printf("fst warner recieved");
-				ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
-				act_left = WAIT_GRAB;
+				ACT_lift_plier(prioritaire, ACT_LIFT_PlierClose);
+				act_prioritaire = WAIT_GRAB;
 				ASSER_WARNER_arm_y(COLOR_Y(1200));
 			}
 			break;
 		case WAIT_GRAB:
 			right_ok = TRUE;
-			if(act_go_on(ACT_QUEUE_LiftLeft) == TRUE){
+			if(act_go_on(ret_prioritaire) == TRUE){
 				//debug_printf("retour lift left:ok");
-				ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
-				act_left = LIFT_DOWN;
+				ACT_lift_translate(prioritaire,ACT_LIFT_TranslateUp);
+				act_prioritaire = LIFT_DOWN;
 			}
 			break;
 		case LIFT_DOWN:
 			if(state == SECOND_ROW){
 				if(global.env.asser.reach_y){
-					ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierOpen);
-					ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateDown);
+					ACT_lift_plier(prioritaire, ACT_LIFT_PlierOpen);
+					ACT_lift_translate(prioritaire, ACT_LIFT_TranslateDown);
 					ASSER_WARNER_arm_y(COLOR_Y(1050));
-					act_left = WAIT_LIFT_DOWN;
+					act_prioritaire = WAIT_LIFT_DOWN;
 				}
 			}
 			break;
 		case WAIT_LIFT_DOWN:
 			right_ok = TRUE;
-			if(act_go_on(ACT_QUEUE_LiftLeft) == TRUE){
-				ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
-				act_left = LIFT_UP;
+			if(act_go_on(ret_prioritaire) == TRUE){
+				ACT_lift_plier(prioritaire, ACT_LIFT_PlierClose);
+				act_prioritaire = LIFT_UP;
 			}
 			break;
 		case LIFT_UP:
-			if(act_go_on(ACT_QUEUE_LiftLeft) == TRUE){
-				ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
-				act_left = ACT_DONE;
+			if(act_go_on(ret_prioritaire) == TRUE){
+				ACT_lift_translate(prioritaire, ACT_LIFT_TranslateUp);
+				act_prioritaire = ACT_DONE;
 			}
 			break;
 		case ACT_DONE:
@@ -158,46 +173,48 @@ error_e two_first_rows(void){
 			break;
 	}
 
-	switch(act_right){
+ // MAE du second ascenseur
+	switch(act_secondaire){
 		case GRAB:
 			if(right_ok){
 				if(global.env.asser.reach_y){
 					//debug_printf("snd warner recieved");
-					ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierClose);
-					act_right = WAIT_GRAB;
+					ACT_lift_plier(secondaire, ACT_LIFT_PlierClose);
+					act_secondaire = WAIT_GRAB;
 				}
 			}
 			break;
 		case WAIT_GRAB:
-			if(act_go_on(ACT_QUEUE_LiftRight) == TRUE){
+			if(act_go_on(ret_secondaire) == TRUE){
 				//debug_printf("retour lift right:ok");
-				ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);
-				act_right = ACT_DONE;
+				ACT_lift_translate(secondaire, ACT_LIFT_TranslateUp);
+				act_secondaire = LIFT_DOWN;
 			}
 			break;
 		case LIFT_DOWN:
 			if(state == SECOND_ROW && right_ok){
 				if(global.env.asser.reach_y){
-					ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierOpen);
-					ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateDown);
+					ACT_lift_plier(secondaire, ACT_LIFT_PlierOpen);
+					ACT_lift_translate(secondaire, ACT_LIFT_TranslateDown);
 					ASSER_WARNER_arm_y(COLOR_Y(1050));
-					act_right = WAIT_LIFT_DOWN;
+					act_secondaire = WAIT_LIFT_DOWN;
 				}
 			}
 			break;
 		case WAIT_LIFT_DOWN:
-			if(act_go_on(ACT_QUEUE_LiftRight) == TRUE){
-				ACT_lift_plier(ACT_LIFT_Right,ACT_LIFT_PlierClose);
-				act_right = LIFT_UP;
+			if(act_go_on(ret_secondaire) == TRUE){
+				ACT_lift_plier(secondaire, ACT_LIFT_PlierClose);
+				act_secondaire = LIFT_UP;
 			}
 			break;
 		case LIFT_UP:
-			if(act_go_on(ACT_QUEUE_LiftRight) == TRUE){
-				ACT_lift_translate(ACT_LIFT_Right,ACT_LIFT_TranslateUp);
-				act_right = ACT_DONE;
+			if(act_go_on(ret_secondaire) == TRUE){
+				ACT_lift_translate(secondaire, ACT_LIFT_TranslateUp);
+				act_secondaire = ACT_DONE;
 			}
 			break;
 		case ACT_DONE:
+			ret = END_OK;
 			break;
 		default:
 			break;
@@ -205,6 +222,26 @@ error_e two_first_rows(void){
 
 	return ret;
 }
+
+
+//Fonction qui va chercher la dernière rangée de verres du côté cadeau jusqu'à évitement dans le sens avant vers l'adversaire
+error_e try_last_row(void){
+	static enum{
+		PUSH = 0,
+		STOP_AND_WAIT
+	}asser_state = PUSH;
+
+	enum actionneur_state{
+		WAIT_CAPTOR,
+		LIFT_DOWN,
+		GRAB
+	};
+
+	static enum actionneur_state act_left = WAIT_CAPTOR;
+	static enum actionneur_state act_right = WAIT_CAPTOR;
+}
+
+
 
 Uint8 wait_plier(Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 	static error_e sub_action;
