@@ -123,7 +123,7 @@ void WARNER_process_main(void)
 
 	if(warnings != WARNING_NO)
 	{
-			SECRETARY_process_send(CARTE_P_POSITION_ROBOT,(Uint8)(warnings & 0xFF), error_source);
+			SECRETARY_process_send(BROADCAST_POSITION_ROBOT,(Uint8)(warnings & 0xFF), error_source);
 			warnings = WARNING_NO; 	//WORK DONE !!!
 	}
 	#ifdef MODE_REGLAGE_KV

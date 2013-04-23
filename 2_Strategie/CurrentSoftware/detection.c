@@ -11,6 +11,8 @@
 
 #define DETECTION_C
 #include "detection.h"
+#include "QS/QS_CANmsgList.h"
+#include "can_utils.h"
 
 void DETECTION_init(void)
 {
@@ -43,6 +45,14 @@ void DETECTION_update(void)
 {
 	Uint8 i;
 	bool_e must_update=FALSE;
+
+
+	//Necessaire pour des match infini de test, on reactive les balises toutes les 90sec
+	static time32_t last_beacon_activate_msg = 0;
+	if(global.env.match_started && !global.env.match_over && global.env.match_time > last_beacon_activate_msg + 90000) {
+		last_beacon_activate_msg = global.env.match_time;
+		CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
+	}
 	
 	/* on teste si il y a une nouvelle information pour mettre à jour la position de l'adversaire */
 	for(i=0; i< SENSOR_NB; i++)
@@ -225,8 +235,6 @@ void DETECTION_clear_updates()
 }	
 
 
-
-#include "QS/QS_CANmsgList.h"
 //envoi de la position du robot adverse sur le CAN
 static void CAN_send_foe_pos()
 {

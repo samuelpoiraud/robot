@@ -131,7 +131,7 @@ void SECRETARY_CAN_send(Uint16 sid, Uint8* data,Uint8 taille)
 	#ifdef VERBOSE_MSG_SEND_OVER_UART
 		switch(sid)
 		{
-			case CARTE_P_POSITION_ROBOT:
+			case BROADCAST_POSITION_ROBOT:
 				debug_printf("Pos:");
 			break;
 			case CARTE_P_TRAJ_FINIE:
@@ -329,7 +329,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case BROADCAST_COULEUR :
 			//Le type couleur est normalisé en QS...
 			ODOMETRY_set_color((color_e)(msg->data[0]));
-			SECRETARY_process_send(CARTE_P_POSITION_ROBOT, WARNING_NO, 0);
+			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
 
 		// Impose une position (uniquement pour les tests !!!) 
@@ -356,7 +356,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 
 		//Carte stratégie demande la position
 		case ASSER_TELL_POSITION:
-			SECRETARY_process_send(CARTE_P_POSITION_ROBOT, WARNING_NO, 0);
+			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
 		
 		//Une carte nous demande de l'avertir lorsque nous serons en approche d'une position...
