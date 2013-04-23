@@ -96,7 +96,7 @@ void any_match(time32_t match_duration)
 				break;
 				case 0x03:	//STRAT_3_TINY
 					//strategy = TEST_STRAT_T_homologation;
-					strategy = TEST_START_avoidance_distance;
+					strategy = STRAT_TINY_all_candles;
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;
