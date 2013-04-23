@@ -633,13 +633,13 @@ typedef struct{
 const candle_t candles[12]=
 {{1916,865,-536},  //bougie coté rouge
 {1768,904,-1608},
-{1633,976,-2680},
-{1519,1078,-3752},
+{1633,976,-2380},
+{1519,1078,-3052},
 {1380,1330,-PI4096/2},
 {1380,1445,-PI4096/2},
 {1380,1555,-PI4096/2},
 {1380,1670,-PI4096/2},
-{1519,1922,-9112},
+{1519,1922,-9726},
 {1633,2024,-10184},
 {1768,2096,-11256},
 {1916,2135,-12328}};  //bougie coté bleu.
@@ -674,7 +674,7 @@ error_e TINY_blow_one_candle(Uint8 i, Sint8 way)
 				state = GOTO_CANDLE;	//Bougies suivantes -> goto bougie, puis angle.
 		break;
 		case GOTO_CANDLE:
-			state=try_going(candles[i].x,candles[i].y,GOTO_CANDLE, ANGLE_CANDLE, GOTO_FAIL,(way==1)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			state=try_going(candles[i].x,candles[i].y,GOTO_CANDLE, ANGLE_CANDLE, GOTO_FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 	    case ANGLE_CANDLE:
@@ -687,7 +687,7 @@ error_e TINY_blow_one_candle(Uint8 i, Sint8 way)
 		break;
 		case WAIT_HAMMER_DOWN_CANDLE:
 			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER_DOWN_CANDLE,DONE,DONE);
+			state = wait_hammer(	WAIT_HAMMER_DOWN_CANDLE, DONE, DONE);
 			//TODO : prévenir l'environnement à chaque bougie soufflée !
 		break;
 
@@ -709,6 +709,8 @@ error_e TINY_blow_one_candle(Uint8 i, Sint8 way)
 		break;
 
 	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
 	return ret;
 }
 
@@ -720,10 +722,9 @@ error_e TINY_blow_all_candles(void)
 	typedef enum
 	{
 		INIT=0,
-		GOTO_FIRST_POS,
+		ANGLE_HAMMER,
 		HAMMER_UP,
 	    WAIT_HAMMER,
-		GOTO_CAKE_POS,
 		SUB_BLOW_CANDLES,	
 		ALL_CANDLES_BLOWN,
 		RETURN_HOME,
@@ -746,25 +747,25 @@ error_e TINY_blow_all_candles(void)
 		case INIT:
 			//EN arrivant dans cette fonction, on est d'un des cotés du gateau... on observe ici lequel... et on fait le gateau dans le sens qui va bien.
 
-			if(global.env.pos.y > 1500)	//Nous sommes a coté du gateau, près du coté obscure (bleu) (quelque soit notre couleur)
+			if(global.env.pos.y > 1500)	//Nous sommes a coté du gateau, près du coté obscure (bleu) (quelle que soit notre couleur)
 			{
 				color_begin_cake = BLUE;
 				candle_index=11;	//On commence par la bougie 11
 				last_candle = 0;
 				way = -1;	//On décrémente les bougies
 			}
-			else						//Nous sommes a coté du gateau, près du coté des gentils (rouge) (quelque soit notre couleur)
+			else						//Nous sommes a coté du gateau, près du coté des gentils (rouge) (quelle que soit notre couleur)
 			{
 				color_begin_cake = RED;
 				candle_index=0;	//On commence par la bougie 0
 				last_candle = 11;
 				way = 1;	//On incrémente les bougies
 			}
-			state = GOTO_FIRST_POS;
+			state = ANGLE_HAMMER;
 			break;
 
-		case GOTO_FIRST_POS:
-			state=try_going(1450,((color_begin_cake==BLUE)?2135:865),GOTO_FIRST_POS, HAMMER_UP, HAMMER_UP,ANY_WAY, NO_DODGE_AND_WAIT);
+		case ANGLE_HAMMER:
+			state=try_go_angle((color_begin_cake==BLUE)?-9726:-3752, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
 		break;
 
 		case HAMMER_UP:
@@ -774,11 +775,7 @@ error_e TINY_blow_all_candles(void)
 
 		case WAIT_HAMMER:
 			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER,	GOTO_CAKE_POS,	GOTO_CAKE_POS);
-		break;
-
-		case GOTO_CAKE_POS:
-			state=try_going(1916,((color_begin_cake==BLUE)?2135:865),GOTO_CAKE_POS, SUB_BLOW_CANDLES, SUB_BLOW_CANDLES,(color_begin_cake==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			state = wait_hammer(	WAIT_HAMMER,	SUB_BLOW_CANDLES,	SUB_BLOW_CANDLES);
 		break;
 
 		case SUB_BLOW_CANDLES:
@@ -806,7 +803,7 @@ error_e TINY_blow_all_candles(void)
 		 //FINISH
 
 		case ALL_CANDLES_BLOWN:
-			state = DONE;
+			state = try_go_angle((color_begin_cake==BLUE)?-3752:-9726, ALL_CANDLES_BLOWN,  HAMMER_FINAL_POS,  HAMMER_FINAL_POS, FAST);
 			//TODO : prévenir l'environnement que le gateau est fini !
 		break;
 

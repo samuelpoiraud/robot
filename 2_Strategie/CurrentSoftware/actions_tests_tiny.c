@@ -196,6 +196,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				break;
             }
 		break;
+		
 		case SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES:
 			sub_action = STRAT_TINY_goto_cake_and_blow_candles();
 			switch(sub_action)
@@ -226,6 +227,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				break;
             }
 		break;
+		
 		case SUBACTION_STEAL_ADVERSARY_GLASSES:
 			//TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			#warning "subaction à faire !"
@@ -460,6 +462,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				from = MB;	//On sort..alors on sauvegarde d'où on vient.
 
 		break;
+
 		case SB:
 			if(from==MB)
 			{
@@ -480,7 +483,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		//Approche du gateau
 		case E_C:
 			//									in_progress		success				failed
-			state=try_going(1916,COLOR_Y(2135), E_C,			BLOW_ALL_CANDLES,	EB,	ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(1916,COLOR_Y(2135), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 			if(state != E_C)
 				from = E_C;
 
@@ -488,18 +491,16 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 		case SC:
 			//									in_progress		success				failed
-			state=try_going(1916,COLOR_Y(865),	SC,				BLOW_ALL_CANDLES,	SB,				ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(1916,COLOR_Y(865),	SC,				BLOW_ALL_CANDLES,	SB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 			if(state != SC)
 				from = SC;
 		break;
 
 		case BLOW_ALL_CANDLES:
-			
 			state = SUBACTION_BLOW_CANDLES;
 		break;
 
 	
-
 		case SUBACTION_BLOW_CANDLES:					//Souffler bougies 
 				sub_action = TINY_blow_all_candles();
 				
@@ -519,7 +520,9 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 					break;
 				}
 		break;
+
 		case CANDLES_FAIL:	//No break...
+			
 		case CANDLES_SUCCESS:
 			//On vient de terminer (en échec ou pas.. de souffler les bougies...)
 			//En fonction de notre position, on rejoint un point éloigné du gateau pour terminer les choses proprement
@@ -693,10 +696,9 @@ void STRAT_TINY_all_candles(void)
 	{
 
 		case GET_OUT:
+
 			state = try_going(250, COLOR_Y(2135), GET_OUT, TINY_CANDLES,TINY_CANDLES, (global.env.color==BLUE)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
-
 		break;
-
 		case TINY_CANDLES:
 			sub_action = TINY_blow_all_candles();
 			switch(sub_action)
