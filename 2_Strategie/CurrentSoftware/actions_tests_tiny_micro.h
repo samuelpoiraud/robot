@@ -32,6 +32,12 @@ error_e TINY_open_all_gifts_homolog(void);
 error_e TINY_forgotten_third_gift(void)
 error_e TINY_forgotten_fourth_gift(void);
 
+
+
+error_e TINY_warner_blow_one_candle(Uint8 i, Sint8 way);
+error_e TINY_warner_around_cake(Uint8 i,Sint8 way);
+error_e TINY_warner_blow_all_candles(void);
+
 #endif /* ACTIONS_TESTS_TINY_MICRO_H */
 
 
