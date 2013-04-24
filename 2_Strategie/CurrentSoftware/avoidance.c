@@ -21,10 +21,10 @@
  */
 #define DETECTION_TIMEOUT				600 	// ancienne valeur : 375
 
-#define DETECTION_DIST_MIN_KRUSTY       600  // distance minimale d'évitement sans compter la vitesse du robot, en mm
-#define DETECTION_DIST_MIN_TINY         600
-#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  0  //temps pour que le robot s'arrete, en ms (max: 500, sinon il y aura overflow)
-#define DETECTION_DIST_SPEED_FACTOR_TINY    0
+#define DETECTION_DIST_MIN_KRUSTY       500  // distance minimale d'évitement sans compter la vitesse du robot, en mm
+#define DETECTION_DIST_MIN_TINY         400
+#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  600  //temps pour que le robot s'arrete, en ms (max: 500, sinon il y aura overflow)
+#define DETECTION_DIST_SPEED_FACTOR_TINY    500
 
 
 /***************************** Evitement 2011 **************************/
@@ -36,7 +36,7 @@
 /* Angle d'ouverture de vision */
 #define DETECTION_ANGLE		1900	//1900 = 20°
 
-#define WAIT_TIME_DETECTION			3000	// en ms
+#define WAIT_TIME_DETECTION			20000	// en ms //TODO: diminuer ce coef (c'etait pour des tests de wait et distance d'evitement)
 
 
 /* Constantes relatives à l'évitement */
@@ -140,7 +140,7 @@ static bool_e AVOIDANCE_robot_translation_move();
 
 
 #ifdef DEBUG_AVOIDANCE
-	#define avoidance_printf(...)	debug_printf(__VA_ARGS__)
+	#define avoidance_printf(format, ...)	debug_printf("t=%lums " format, global.env.match_time, ##__VA_ARGS__)
 #else
 	#define avoidance_printf(...)	(void)0
 #endif
@@ -609,7 +609,7 @@ error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision)
 				{
 					avoidance_printf("FOE DETECTED\n");
 					STACKS_push(ASSER, &wait_forever, TRUE);
-					ASSER_stop();
+					ASSER_push_stop();
 					avoidance_start_time = global.env.match_time;
 					state = WAIT_FOE;
 				}	
@@ -1061,7 +1061,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 					case NO_DODGE_AND_WAIT:
 						// adversaire détecté ! on s'arrête !
 						STACKS_push(ASSER, &wait_forever, FALSE);
-						ASSER_stop();
+						ASSER_push_stop();
 
 						if(nb_detection > MAX_AVOIDANCE_DETECTION)
 						{
@@ -1107,7 +1107,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 						break;
 					case NO_DODGE_AND_NO_WAIT:
 						avoidance_printf("Aucune esquive, aucune attente !\n");
-						ASSER_stop();
+						ASSER_push_stop();
 						STACKS_flush(ASSER);
 						state = INITIALIZATION;
 						return FOE_IN_PATH;
@@ -1267,7 +1267,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 			{
 				// la destination est trop près, l'adversaire nous gène
 				avoidance_printf("Adverse trop près de la destination !\n");
-				ASSER_stop();
+				ASSER_push_stop();
 				STACKS_flush(ASSER);
 				state = INITIALIZATION;
 				return FOE_IN_PATH;
@@ -1285,7 +1285,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 				else
 				{
 					STACKS_push(ASSER, &wait_forever, FALSE);
-					ASSER_stop();
+					ASSER_push_stop();
 
 					switch(avoidance_type)
 					{
@@ -1316,7 +1316,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 						case NO_DODGE_AND_NO_WAIT:
 							avoidance_printf("Pas d'esquive, mauvais endroit -- Line %d\n",__LINE__);
 							STACKS_flush(ASSER);
-							ASSER_stop();
+							ASSER_push_stop();
 							state = INITIALIZATION;
 							return NOT_HANDLED;
 							break;
@@ -1367,6 +1367,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	{
 		INITIALIZATION = 0,
 		NO_FOE,
+		WAIT_STOP,
 		WAIT_FOE
 	};
 	static enum state_e state = INITIALIZATION;
@@ -1375,6 +1376,8 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	static time32_t avoidance_timeout_time = 0;
 	static time32_t last_match_time;
 	time32_t current_match_time = global.env.match_time;
+
+	bool_e timeout;
 
 
 	//Si pas d'évitement, on fait pas d'évitement
@@ -1423,7 +1426,8 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 //				avoidance_printf("Not in translation but foe in path\n");
 
 			if((is_in_path[FOE_1] || is_in_path[FOE_2]) &&
-			   (global.env.asser.current_trajectory == TRAJECTORY_TRANSLATION || global.env.asser.current_trajectory == TRAJECTORY_AUTOMATIC_CURVE))
+			  // (global.env.asser.current_trajectory == TRAJECTORY_TRANSLATION || global.env.asser.current_trajectory == TRAJECTORY_AUTOMATIC_CURVE))
+				(global.env.asser.current_trajectory & 0b100))
 			{
 				//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 
@@ -1436,14 +1440,14 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 						// adversaire détecté ! on s'arrête !
 						STACKS_push(ASSER, &wait_forever, FALSE);
-						ASSER_stop();
-						// un adversaire est détecté devant nous
-						state = WAIT_FOE;
+						ASSER_push_stop();
+						// un adversaire est détecté devant nous, on attend de s'arreter avant de voir s'il est toujours la
+						state = WAIT_STOP;
 						break;
 					case DODGE_AND_NO_WAIT:
 					case NO_DODGE_AND_NO_WAIT:
 						avoidance_printf("wait_move_and_scan_foe: foe detected\n");
-						ASSER_stop();
+						ASSER_push_stop();
 						STACKS_flush(ASSER);
 						state = INITIALIZATION;
 						return FOE_IN_PATH;
@@ -1477,6 +1481,12 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			}
 			break;
 
+		case WAIT_STOP:
+			//Quand on s'est arreté, on regarde si l'adversaire est toujours devant nous avant de redémarrer
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout))
+				state = WAIT_FOE;
+			break;
+
 		case WAIT_FOE:
 			foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
 			//debug_printf("Test 2: IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
@@ -1485,7 +1495,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 			avoidance_timeout_time += current_match_time - last_match_time;
 			if(avoidance_timeout_time >= WAIT_TIME_DETECTION) {
-				ASSER_stop();
+				ASSER_push_stop();
 				STACKS_flush(ASSER);
 				state = INITIALIZATION;
 
@@ -1597,8 +1607,8 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 	Uint8 i;
 
 	if(global.env.debug_force_foe){
-		ASSER_stop();
 		STACKS_flush(ASSER);
+		ASSER_push_stop();
 		state = LOAD_MOVE;
 		global.env.debug_force_foe = FALSE;
 		return FOE_IN_PATH;
@@ -1730,13 +1740,13 @@ void foe_in_path(bool_e *in_path)
 		if(global.env.match_time > last_printf + 1000) {
 			last_printf = global.env.match_time;
 			if(global.env.foe[i].dist < 5000)
-				avoidance_printf("FOE[%d] dist = %d mm, angle: %d, way: %d, current_traj: %d\n", i, global.env.foe[i].dist, global.env.foe[i].angle, move_way, global.env.asser.current_trajectory);
+				avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d, current_traj: %d\n", i, global.env.foe[i].dist, distance_computed, global.env.foe[i].angle, move_way, global.env.asser.current_trajectory);
 		}
 		in_path[i] = FALSE; //On initialise à faux
 		if ((global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
 		{
-
 			// on regarde en fonction de notre sens de déplacement
+			//Si on a un ANY_WAY, c'est que la prop ne fait pas de translation => pas de detection d'ennemi dans ce cas
 			if(move_way == FORWARD || move_way == ANY_WAY)
 			{
 				//debug_printf("F_%d\nG_%d\n",global.env.foe[0].angle,global.env.foe[1].angle);

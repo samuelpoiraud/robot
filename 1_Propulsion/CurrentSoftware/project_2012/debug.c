@@ -98,7 +98,7 @@ void DEBUG_process_main(void)
 		msg.data[6] = 'R';
 		msg.data[7] = 'O';
 		CAN_send(&msg);
-	}	
+	}
 		
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 		DEBUG_envoi_point_fictif_process_main();
