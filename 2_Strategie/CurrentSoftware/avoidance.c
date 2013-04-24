@@ -1425,9 +1425,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 //				(is_in_path[FOE_1] || is_in_path[FOE_2]))
 //				avoidance_printf("Not in translation but foe in path\n");
 
-			if((is_in_path[FOE_1] || is_in_path[FOE_2]) &&
-			  // (global.env.asser.current_trajectory == TRAJECTORY_TRANSLATION || global.env.asser.current_trajectory == TRAJECTORY_AUTOMATIC_CURVE))
-				(global.env.asser.current_trajectory & 0b100))
+			if((is_in_path[FOE_1] || is_in_path[FOE_2]) && global.env.asser.is_in_translation)
 			{
 				//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 
@@ -1740,7 +1738,7 @@ void foe_in_path(bool_e *in_path)
 		if(global.env.match_time > last_printf + 1000) {
 			last_printf = global.env.match_time;
 			if(global.env.foe[i].dist < 5000)
-				avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d, current_traj: %d\n", i, global.env.foe[i].dist, distance_computed, global.env.foe[i].angle, move_way, global.env.asser.current_trajectory);
+				avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d%s%s\n", i, global.env.foe[i].dist, distance_computed, global.env.foe[i].angle, move_way, (global.env.asser.is_in_translation)? ", in_translation" : "", (global.env.asser.is_in_translation)? ", in_rotation" : "");
 		}
 		in_path[i] = FALSE; //On initialise à faux
 		if ((global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))

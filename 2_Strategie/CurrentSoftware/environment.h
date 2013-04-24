@@ -49,8 +49,9 @@
 		volatile Sint32 vitesse_translation_erreur;
 		volatile Sint32 vitesse_rotation_erreur;
 		volatile way_e						current_way;
-		volatile trajectory_e				current_trajectory;
 		volatile SUPERVISOR_error_source_e	current_status;
+		volatile bool_e is_in_translation;  //TRUE si le robot est en translation
+		volatile bool_e is_in_rotation;		//TRUE si le robot est en rotation
 		volatile time32_t	last_time_pos_updated;
 	}asser_env_t;
 
