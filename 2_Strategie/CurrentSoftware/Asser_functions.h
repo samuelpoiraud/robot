@@ -54,7 +54,9 @@
 	void ASSER_rush_in_the_wall(stack_id_e stack_id, bool_e init);
 	
 	/* Arrête le robot, ne touche pas à la pile */
-	void ASSER_stop ();
+	void ASSER_push_stop ();
+	//Ancienne fonction n'utilisant pas la pile.
+	void ASSER_stop () __attribute__ ((deprecated)); //veuillez utiliser ASSER_push_stop maintenant
 	
 	/* ajoute une instruction goto sur la pile asser */
 	void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, ASSER_end_condition_e end_condition ,bool_e run);

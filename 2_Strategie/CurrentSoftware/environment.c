@@ -286,6 +286,7 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.env.asser.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
 	global.env.asser.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
 	global.env.asser.current_trajectory = (trajectory_e)((msg->data[7] >> 5) & 0x07);
+	//debug_printf("Robot is:                 %s%s %s\n", (global.env.asser.current_trajectory & 0b100)? "Translating" : "",  ((global.env.asser.current_trajectory & 0b110) == 0b110)? " &" : "", (global.env.asser.current_trajectory & 0b010)? "Rotating" : "");
 
 	global.env.pos.updated = TRUE;
 			/*msg->data[7] : 8 bits  : T T T W W E E E
@@ -434,7 +435,7 @@ void ENV_init()
 	global.env.asser.calibrated = FALSE;
 	
 	global.env.asser.current_way = ANY_WAY;
-	global.env.asser.current_trajectory = TRAJECTORY_NONE;
+	global.env.asser.current_trajectory = 0; //TRAJECTORY_NONE; //FIXME
 	global.env.asser.current_status = NO_ERROR;
 
 	//Initialisation des elemnts du terrain

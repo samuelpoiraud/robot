@@ -35,6 +35,34 @@ void ASSER_set_stack_arg(asser_arg_t arg, Uint8 index)
 	asser_args[index] = arg;
 }
 
+/* Arrete le robot. L'opération se termine lorsque le robot est arreté */
+//FIXME: uniformiser le nom de cette fonction à ASSER_stop et changer ASSER_stop en ASSER_push_stop ?
+void ASSER_stop_stack(stack_id_e stack_id, bool_e init) {
+	if(init) {
+		CAN_msg_t msg;
+
+		msg.sid = ASSER_STOP;
+		msg.size = 0;
+		CAN_send(&msg);
+	} else {
+		if (global.env.asser.fini)
+		{
+			asser_fun_printf("\nASSER_stop : fini\n");
+			STACKS_pull(ASSER);
+		}
+		else
+		{
+			//FIXME: changer le temps de timeout ?
+			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(ASSER)) >= (GOTO_TIMEOUT_TIME)))
+			{
+				CAN_send_debug("0000000");
+				asser_fun_printf("\nASSER_stop : GOTO\n");
+				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);
+			}
+		}
+	}
+}
+
 /* Va a la position indiquée, se termine à l'arret */
 void ASSER_goto (stack_id_e stack_id, bool_e init)
 {
@@ -486,13 +514,18 @@ void ASSER_WARNER_arm_teta(Sint16 teta)
 
 
 
-
-void ASSER_stop ()
+void __attribute__ ((deprecated)) ASSER_stop ()
 {
 	CAN_msg_t msg;
+
 	msg.sid = ASSER_STOP;
 	msg.size = 0;
 	CAN_send(&msg);
+}
+
+void ASSER_push_stop ()
+{
+	STACKS_push (ASSER, &ASSER_stop_stack, TRUE);
 }
 
 /* ajoute une instruction goto sur la pile asser */

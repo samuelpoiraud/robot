@@ -654,10 +654,10 @@ void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 			state = try_going(1000, COLOR_Y(500), GOTO_B, GOTO_C, GOTO_A, FORWARD,NO_DODGE_AND_WAIT);
 		break;
 		case GOTO_C:
-			state = try_going(1000, COLOR_Y(2000), GOTO_C, GOTO_D, GOTO_B, BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(1000, COLOR_Y(1000), GOTO_C, GOTO_D, GOTO_B, BACKWARD,NO_DODGE_AND_WAIT);
 		break;
 		case GOTO_D:
-			state = try_going(500, COLOR_Y(2000), GOTO_D, GOTO_A, GOTO_C, BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(500, COLOR_Y(1000), GOTO_D, GOTO_A, GOTO_C, BACKWARD,NO_DODGE_AND_WAIT);
 		break;
 		case DONE:	//Never happen dans cette strat de test.
 		break;

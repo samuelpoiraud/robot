@@ -164,7 +164,10 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 	Uint8 tabTemp[8];
 	Uint8 error_byte;
 	Sint32 rot_speed;
-	error_byte = ((Uint8)(COPILOT_get_trajectory()) << 5 | (Uint8)(COPILOT_get_way())) << 3 | (Uint8)(error_source & 0x07);
+	Uint8 trajectory_status; //3 bits
+
+	trajectory_status = (global.vitesse_translation != 0) << 2 | (global.vitesse_rotation != 0) << 1;
+	error_byte = ((Uint8)(trajectory_status) << 5) | (Uint8)(COPILOT_get_way()) << 3 | (Uint8)(error_source & 0x07);
 
 	tabTemp[0] = (HIGHINT(global.position.x) & 0x1F) | (((global.real_speed_translation>>10)/5) << 5);	//Vitesse sur 3 bits forts, en [250mm/s]
 	tabTemp[1] = LOWINT(global.position.x);
