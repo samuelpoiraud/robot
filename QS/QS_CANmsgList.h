@@ -237,6 +237,14 @@
 		#define ACT_CANDLECOLOR_COLOR_OTHER  4  //Pas de couleur parmi les précédentes detectée
 	/////////////////////////////////////////
 
+
+	//////////// PLIER //////////////////////
+	#define ACT_PLIER (ACT_FILTER | 0x05)
+		//PAramètre de PLIER (dans data[0])
+		#define ACT_PLIER_OPEN         0    //Ouvre les pinces à verres
+		#define ACT_PLIER_CLOSE        1    //Ferme les pinces à verres
+	/////////////////////////////////////////
+
 /* Messages pour Krusty */
 	////////////// BALLLAUNCHER /////////////
 	#define ACT_BALLLAUNCHER (ACT_FILTER | 0x11)
