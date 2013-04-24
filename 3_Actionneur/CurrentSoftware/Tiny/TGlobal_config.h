@@ -136,6 +136,11 @@
 	#define CANDLECOLOR_AX12_ID                 6
 /**************************************************************************/
 
+/* Config PLIER: pince devant Tiny permettant de prendre des verres */
+	#define PLIER_LEFT_AX12_ID                  2
+	#define PLIER_RIGHT_AX12_ID                 3
+/**************************************************************************/
+
 	
 /**************** Capteurs ****************/
 

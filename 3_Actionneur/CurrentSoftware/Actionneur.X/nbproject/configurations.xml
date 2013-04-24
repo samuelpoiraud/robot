@@ -53,6 +53,8 @@
         <itemPath>../Tiny/TCandle_color_sensor.h</itemPath>
         <itemPath>../Tiny/THammer_config.h</itemPath>
         <itemPath>../Tiny/TCandle_color_sensor_config.h</itemPath>
+        <itemPath>../Tiny/TPlier.h</itemPath>
+        <itemPath>../Tiny/TPlier_config.h</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.h</itemPath>
       <itemPath>../clock.h</itemPath>
@@ -101,6 +103,7 @@
         <itemPath>../Tiny/THammer.c</itemPath>
         <itemPath>../Tiny/TBall_inflater.c</itemPath>
         <itemPath>../Tiny/TCandle_color_sensor.c</itemPath>
+        <itemPath>../Tiny/TPlier.c</itemPath>
       </logicalFolder>
       <itemPath>../Can_msg_processing.c</itemPath>
       <itemPath>../clock.c</itemPath>
