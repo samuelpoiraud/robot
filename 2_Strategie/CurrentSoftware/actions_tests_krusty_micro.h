@@ -24,6 +24,12 @@
 error_e two_first_rows(void);
 
 
+error_e K_Sortie(void);
+error_e K_push_half_row_glasses(void);
+error_e K_push_back_row_glasses(void);
+error_e TEST_STRAT_assiettes_evitement_2(void);
+error_e TEST_STRAT_assiettes_evitement_4(void);
+error_e TEST_STRAT_assiettes_evitement_5(void);
 
 error_e K_CADEAU1(void);
 error_e K_CADEAU2(void);
@@ -37,21 +43,18 @@ error_e K_ASSIETE4(void);
 error_e K_ASSIETE5(void);
 
 error_e TEST_STRAT_assiettes_evitement_1(void);
-error_e TEST_STRAT_assiettes_evitement_2(void);
 error_e TEST_STRAT_assiettes_evitement_3(void);
-error_e TEST_STRAT_assiettes_evitement_4(void);
-error_e TEST_STRAT_assiettes_evitement_5(void);
 
 error_e K_verres(void);
-error_e K_push_half_row_glasses(void);
-error_e K_push_back_row_glasses(void);
 error_e K_push_half_row_glasses_HOMOLO(void);
 error_e K_push_back_row_glasses_HOMOLO(void);
 
 
 error_e TEST_Launcher_ball_mid(void);
+error_e TEST_Launcher_ball_mid_double(void);
 error_e TEST_Launcher_ball_cadeau(void);
 error_e TEST_Launcher_ball_gateau(void);
+error_e TEST_Launcher_ball_gateau_double(void);
 error_e TEST_Launcher_ball_gateau2(void);
 #endif /* ACTIONS_TESTS__KRUSTY_MICRO_H */
 

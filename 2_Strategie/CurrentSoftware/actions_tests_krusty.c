@@ -42,6 +42,409 @@ void TEST_STRAT_K_homologation(void)
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
 
+
+void K_Strat_Coupe(void){
+    static enum{
+        SORTIR = 0,
+        VERRE_1,
+        VERRE_2,
+        POSER_VERRE,
+        ASSIETTE_2,
+        ASSIETTE_4,
+        ASSIETTE_5,
+        DONE,
+    }state=SORTIR;
+
+    static error_e sub_action;
+
+    switch(state){
+        case SORTIR :
+            sub_action = K_Sortie();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ASSIETTE_2;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state=ASSIETTE_2;
+                    break;
+                case NOT_HANDLED:
+                    state=ASSIETTE_2;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case VERRE_1 :
+            sub_action = K_push_half_row_glasses();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=VERRE_2;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state=VERRE_2;
+                    break;
+                case NOT_HANDLED:
+                    state=VERRE_2;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case VERRE_2 :
+            sub_action = K_push_back_row_glasses();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ASSIETTE_2;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state=ASSIETTE_2;
+                    break;
+                case NOT_HANDLED:
+                    state=ASSIETTE_2;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case ASSIETTE_2 :
+            sub_action = TEST_STRAT_assiettes_evitement_2();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ASSIETTE_4;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state=ASSIETTE_4;
+                    break;
+                case NOT_HANDLED:
+                    state=ASSIETTE_4;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case POSER_VERRE :
+            //sub_action = Lacher_verres();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ASSIETTE_4;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state=ASSIETTE_4;
+                    break;
+                case NOT_HANDLED:
+                    state=ASSIETTE_4;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case ASSIETTE_4 :
+            sub_action = Assiete_2_4_lanceur();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ASSIETTE_5;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state=ASSIETTE_5;
+                    break;
+                case NOT_HANDLED:
+                    state=ASSIETTE_5;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case ASSIETTE_5 :
+            sub_action = Assiete_5_lanceur();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    break;
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    break;
+                case NOT_HANDLED:
+                    state=DONE;
+                    break;
+                case IN_PROGRESS:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case DONE :
+            break;
+        default :
+            break;
+    }
+
+
+}
+
+error_e Assiete_2_4_lanceur(void){
+    static error_e sub_action;
+    static enum{
+        ASSIETTE_2=0,
+        ASSIETTE_4,
+        LANCEUR,
+                LANCEUR2,
+        DONE,
+    }state=ASSIETTE_2;
+
+    switch (state)
+    {
+        case ASSIETTE_2:
+            sub_action=TEST_STRAT_assiettes_evitement_2();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=ASSIETTE_4;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+
+                case NOT_HANDLED:
+                    state=ASSIETTE_2;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=ASSIETTE_2;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case ASSIETTE_4:
+            sub_action=TEST_STRAT_assiettes_evitement_4();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=LANCEUR;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+
+                case NOT_HANDLED:
+                    state=LANCEUR;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=ASSIETTE_2;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+        case LANCEUR:
+            sub_action=TEST_Launcher_ball_gateau_double();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    return END_OK;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=LANCEUR2;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=ASSIETTE_2;
+                    return NOT_HANDLED;
+                    break;
+            }
+
+            break;
+
+            case LANCEUR2:
+            sub_action=TEST_Launcher_ball_mid_double();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    return END_OK;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=LANCEUR;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=ASSIETTE_2;
+                    return NOT_HANDLED;
+                    break;
+            }
+
+            break;
+
+        case DONE:
+            return END_OK;
+            break;
+    }
+    return IN_PROGRESS;
+}
+
+error_e Assiete_5_lanceur(void){
+    static error_e sub_action;
+    static enum{
+        ASSIETTE=0,
+        LANCEUR,
+                LANCEUR2,
+        DONE,
+    }state=ASSIETTE;
+
+    switch (state)
+    {
+        case ASSIETTE:
+            sub_action=TEST_STRAT_assiettes_evitement_5();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=LANCEUR;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=ASSIETTE;
+                    return NOT_HANDLED;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=ASSIETTE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case LANCEUR:
+            sub_action=TEST_Launcher_ball_gateau();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    return END_OK;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=LANCEUR2;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=ASSIETTE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case LANCEUR2:
+            sub_action=TEST_Launcher_ball_gateau();
+            switch(sub_action)
+            {
+                case END_OK:
+                    state=DONE;
+                    return END_OK;
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    state=DONE;
+                    return END_WITH_TIMEOUT;
+                    break;
+                case NOT_HANDLED:
+                    state=LANCEUR;
+                    break;
+
+                case IN_PROGRESS:
+                    return IN_PROGRESS;
+                    break;
+
+                default:
+                    state=ASSIETTE;
+                    return NOT_HANDLED;
+                    break;
+            }
+            break;
+
+        case DONE:
+            return END_OK;
+            break;
+    }
+    return IN_PROGRESS;
+}
+
+
+
 void K_test_strat_unitaire(void){
 	static enum{
 		SORTIR,
@@ -1146,7 +1549,7 @@ void Test_STRAT_COUPE(void){
             break;
 
         case ASSIETTE_GATEAU_BLEUE:
-            sub_action=Assiete5_lanceur();
+            sub_action=Assiete_5_lanceur();
             switch(sub_action)
             {
                 case END_OK:
@@ -1406,7 +1809,7 @@ void Test_STRAT_COUPE_2(void){
             break;
 
         case ASSIETTE_GATEAU_BLEUE:
-            sub_action=Assiete5_lanceur();
+            sub_action=Assiete_5_lanceur();
             switch(sub_action)
             {
                 case END_OK:
@@ -1475,105 +1878,6 @@ void Test_STRAT_COUPE_2(void){
             break;
     }
     //state=ASSIETTE_CADEAU_BLANC;
-}
-
-error_e Assiete5_lanceur(void){
-    static error_e sub_action;
-    static enum{
-        ASSIETTE=0,
-        LANCEUR_1,
-        LANCEUR_2,
-        DONE,
-    }state=ASSIETTE;
-
-    switch (state)
-    {
-        case ASSIETTE:
-            sub_action=TEST_STRAT_assiettes_evitement_5();
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=LANCEUR_1;
-                    break;
-
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=ASSIETTE;
-                    return NOT_HANDLED;
-                    break;
-
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
-
-                default:
-                    state=ASSIETTE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-        case LANCEUR_1:
-            sub_action=TEST_Launcher_ball_gateau2();
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=DONE;
-                    break;
-
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=LANCEUR_2;
-                    break;
-
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
-
-                default:
-                    state=ASSIETTE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-        case LANCEUR_2:
-            sub_action=TEST_Launcher_ball_mid();
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=DONE;
-                    break;
-
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=LANCEUR_1;
-                    break;
-
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
-
-                default:
-                    state=ASSIETTE;
-                    return NOT_HANDLED;
-                    break;
-            }
-
-            break;
-        case DONE:
-            return END_OK;
-            break;
-    }
-    return IN_PROGRESS;
 }
 
 error_e Assiete4_lanceur(void){
