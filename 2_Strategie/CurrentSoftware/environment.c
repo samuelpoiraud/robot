@@ -260,7 +260,8 @@ void ENV_fast_pos_update (CAN_msg_t* msg, bool_e on_it)
 			global.env.asser.last_time_pos_updated = new_time;
 			global.env.asser.current_way = new_way;
 			global.env.asser.current_status = new_status;
-			global.env.asser.current_trajectory = new_trajectory;
+			global.env.asser.is_in_translation = (new_trajectory >> 2) & 1;
+			global.env.asser.is_in_rotation = (new_trajectory >> 1) & 1;
 			global.env.pos = new_pos;
 			//debug_printf("\n Pos update :  (%lf : %lf)\n",global.env.pos.cosAngle,global.env.pos.sinAngle);
 			global.env.pos.updated = TRUE;
@@ -285,17 +286,15 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.env.asser.last_time_pos_updated = global.env.match_time;
 	global.env.asser.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
 	global.env.asser.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
-	global.env.asser.current_trajectory = (trajectory_e)((msg->data[7] >> 5) & 0x07);
+	global.env.asser.is_in_translation = (((msg->data[7] >> 5) & 0x07) >> 2) & 1;
+	global.env.asser.is_in_rotation = (((msg->data[7] >> 5) & 0x07) >> 1) & 1;
 	//debug_printf("Robot is:                 %s%s %s\n", (global.env.asser.current_trajectory & 0b100)? "Translating" : "",  ((global.env.asser.current_trajectory & 0b110) == 0b110)? " &" : "", (global.env.asser.current_trajectory & 0b010)? "Rotating" : "");
 
 	global.env.pos.updated = TRUE;
-			/*msg->data[7] : 8 bits  : T T T W W E E E
-				TTT : trajectoire actuelle
-					TRAJECTORY_TRANSLATION		= 0,
-					TRAJECTORY_ROTATION			= 1,
-					TRAJECTORY_STOP				= 2,
-					TRAJECTORY_AUTOMATIC_CURVE	= 3,
-					TRAJECTORY_NONE				= 4
+			/*msg->data[7] : 8 bits  : T R x W W E E E
+				 T : TRUE si robot en translation
+				 R : TRUE si robot en rotation
+				 x : non utilisé
 				 WW : Way, sens actuel
 					ANY_WAY						= 0,
 					BACKWARD					= 1,
@@ -435,7 +434,8 @@ void ENV_init()
 	global.env.asser.calibrated = FALSE;
 	
 	global.env.asser.current_way = ANY_WAY;
-	global.env.asser.current_trajectory = 0; //TRAJECTORY_NONE; //FIXME
+	global.env.asser.is_in_translation = FALSE;
+	global.env.asser.is_in_rotation = FALSE;
 	global.env.asser.current_status = NO_ERROR;
 
 	//Initialisation des elemnts du terrain

@@ -29,7 +29,7 @@ error_e TINY_open_all_gifts(void);
 error_e old_TINY_all_candles(void);
 error_e TINY_open_all_gifts_homolog(void);
 
-error_e TINY_forgotten_third_gift(void)
+error_e TINY_forgotten_third_gift(void);
 error_e TINY_forgotten_fourth_gift(void);
 
 
