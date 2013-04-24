@@ -836,9 +836,143 @@ error_e TINY_blow_all_candles(void)
 
 
 
+error_e TINY_forgotten_third_gift(void)
+{
+	typedef enum
+	{
+		INIT=0,
+		GOTO_GIFT,
+		ANGLE_HAMMER,
+		HAMMER_UP,
+	    WAIT_HAMMER,
+		HAMMER_DOWN,
+		WAIT_HAMMER_DOWN,
+		FAIL,
+		DONE
+	}state_e;
+
+	static state_e state = INIT;
+	error_e ret = IN_PROGRESS;
+
+	switch(state)
+	{
+		case INIT:
+			state = GOTO_GIFT;
+			break;
+
+		case GOTO_GIFT:
+			try_going(160, COLOR_Y(1700),GOTO_GIFT,ANGLE_HAMMER,FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+
+		case ANGLE_HAMMER:
+			state=try_go_angle(PI4096/2, ANGLE_HAMMER, HAMMER_UP, FAIL, FAST);
+		break;
+
+		case HAMMER_UP:
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER le bras
+				state=WAIT_HAMMER;
+		break;
+
+		case WAIT_HAMMER:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER,	HAMMER_DOWN,	FAIL);
+		break;
+		case HAMMER_DOWN:
+			ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			state=WAIT_HAMMER_DOWN;
+			break;
+		case WAIT_HAMMER_DOWN:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(WAIT_HAMMER_DOWN,	DONE,	FAIL);
+		break;
+		case FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
+
+		case DONE:
+			state = INIT;
+			ret = END_OK;
+		break;
+
+            default:
+		break;
+
+	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
+	return ret;
+}
 
 
 
+error_e TINY_forgotten_fourth_gift(void)
+{
+	typedef enum
+	{
+		INIT=0,
+		GOTO_GIFT,
+		ANGLE_HAMMER,
+		HAMMER_UP,
+	    WAIT_HAMMER,
+		HAMMER_DOWN,
+		WAIT_HAMMER_DOWN,
+		FAIL,
+		DONE
+	}state_e;
+
+	static state_e state = INIT;
+	error_e ret = IN_PROGRESS;
+
+	switch(state)
+	{
+		case INIT:
+			state = GOTO_GIFT;
+			break;
+
+		case GOTO_GIFT:
+			try_going(160, COLOR_Y(2300),GOTO_GIFT,ANGLE_HAMMER,FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+
+		case ANGLE_HAMMER:
+			state=try_go_angle(PI4096/2, ANGLE_HAMMER, HAMMER_UP, FAIL, FAST);
+		break;
+
+		case HAMMER_UP:
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER le bras
+				state=WAIT_HAMMER;
+		break;
+
+		case WAIT_HAMMER:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER,	HAMMER_DOWN,	FAIL);
+		break;
+		case HAMMER_DOWN:
+			ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			state=WAIT_HAMMER_DOWN;
+			break;
+		case WAIT_HAMMER_DOWN:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(WAIT_HAMMER_DOWN,	DONE,	FAIL);
+		break;
+		case FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
+
+		case DONE:
+			state = INIT;
+			ret = END_OK;
+		break;
+
+            default:
+		break;
+
+	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
+	return ret;
+}
 
 
 
