@@ -223,6 +223,24 @@ bool_e ACT_hammer_stop() {
 	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
 }
 
+bool_e ACT_plier_open() {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_PLIER, ACT_PLIER_OPEN);
+
+	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Plier open cmd\n");
+	return ACT_push_operation(ACT_QUEUE_Plier, &args);
+}
+
+bool_e ACT_plier_close() {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_PLIER, ACT_PLIER_CLOSE);
+
+	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Plier close cmd\n");
+	return ACT_push_operation(ACT_QUEUE_Plier, &args);
+}
+
 void ACT_ball_inflater_inflate(Uint8 duration_sec) 
 {
 	CAN_msg_t msg;
