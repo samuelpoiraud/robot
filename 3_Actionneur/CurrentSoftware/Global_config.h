@@ -60,6 +60,8 @@
 	#define OUTPUT_LOG_COMPONENT_BALLINFLATER  LOG_PRINT_On
 	#define OUTPUT_LOG_COMPONENT_CANDLECOLOR   LOG_PRINT_On
 	#define OUTPUT_LOG_COMPONENT_HAMMER        LOG_PRINT_On
+	#define OUTPUT_LOG_COMPONENT_PLIER         LOG_PRINT_On
+
 
 
 /* Definition des connectiques capteurs et actionneurs COMMUN à Tiny et Krusty */
