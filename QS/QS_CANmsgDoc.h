@@ -221,19 +221,16 @@
 		Angle : Sint16 (RAD4096)
 		0x00  : Uint8 RFU (Reserved for Future Use)
 		Error : Octet caractérisant l'erreur rencontrée :
-				0bTTTWWEEE	
-					 TTT = trajectory_e  
+				0bTRxWWEEE	
+					 T = bool_e
+					 R = bool_e
+					 x = non utilisé
 					 WW  = way_e
 					 EEE = SUPERVISOR_error_source_e
 				avec : 
-					typedef enum
-					{
-						TRAJECTORY_TRANSLATION = 0,		//Translation -> on peut envisager rattraper une erreur en effectuant une translation dans l'autre sens
-						TRAJECTORY_ROTATION,			//Rotation    -> on peut envisager rattraper une erreur en effectuant une rotation dans l'autre sens
-						TRAJECTORY_STOP,				//Trajectoire avec pour objectif d'avoir un robot à l'arrêt. -> Aucune trajectoire de rattrapage, le robot est forcément à l'arrêt maintenant.
-						TRAJECTORY_AUTOMATIC_CURVE,		//Courbe	  -> on peut envisager rattraper une erreur en effectuant une TRANSLATION dans l'autre sens
-						TRAJECTORY_NONE					//Aucune trajectoire en cours -> Aucune trajectoire de rattrapage
-					} trajectory_e;		
+					T = 1 si robot en translation
+					R = 1 si robot en rotation
+					La combinaison des 2 bit T et R est possible lors de courbe ou correction d'angle lors d'un mouvement
 						
 					typedef enum 
 					{
@@ -269,13 +266,10 @@
 						#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
 		 Status : Uint8 (état actuel de la carte propulsion...)
 			error_byte = ((Uint8)(COPILOT_get_trajectory()) << 5 | (Uint8)(COPILOT_get_way())) << 3 | (Uint8)(error_source);
-		 8 bits  : T T T W W E E E
-			TTT : trajectoire actuelle
-				TRAJECTORY_TRANSLATION		= 0,
-				TRAJECTORY_ROTATION			= 1,
-				TRAJECTORY_STOP				= 2,
-				TRAJECTORY_AUTOMATIC_CURVE	= 3,
-				TRAJECTORY_NONE				= 4
+		 8 bits  : T R x W W E E E
+			 T : TRUE si robot en translation
+			 R : TRUE si robot en rotation
+			 x : non utilisé
 			 WW : Way, sens actuel
 				ANY_WAY						= 0,
 				BACKWARD					= 1,
