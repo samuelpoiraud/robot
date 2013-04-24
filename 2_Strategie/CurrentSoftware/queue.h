@@ -32,6 +32,7 @@ typedef enum {
 	ACT_QUEUE_Hammer,
 	ACT_QUEUE_BallInflater,
 	ACT_QUEUE_CandleColor,
+	ACT_QUEUE_Plier,
 
 	NB_QUEUE
 } queue_id_e;
