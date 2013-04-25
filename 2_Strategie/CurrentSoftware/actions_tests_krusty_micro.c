@@ -408,7 +408,7 @@ error_e Lacher_verres(Uint8 type){
 		WAIT_PLIER,
 		EXTRACT_TYPE1,
 		EXTRACT_TYPE2
-	}state = INIT;
+	}state = OPEN_PLIER;
 
 	static error_e sub_action;
 	error_e ret = IN_PROGRESS;
@@ -427,8 +427,8 @@ error_e Lacher_verres(Uint8 type){
 			state = try_go_angle(COLOR_ANGLE(-PI4096/2), ANGLE_TYPE2, OPEN_PLIER, OPEN_PLIER, FAST);
 			break;
 		case OPEN_PLIER:
-			ACT_lift_plier(ACT_LIFT_RIGHT, ACT_LIFT_PlierClose);
-			ACT_lift_plier(ACT_LIFT_LEFT, ACT_LIFT_PlierClose);
+			ACT_lift_plier(ACT_LIFT_RIGHT, ACT_LIFT_PlierOpen);
+			ACT_lift_plier(ACT_LIFT_LEFT, ACT_LIFT_PlierOpen);
 			state = WAIT_PLIER;
 			break;
 		case WAIT_PLIER:
@@ -442,7 +442,7 @@ error_e Lacher_verres(Uint8 type){
 				ret = END_OK;
 			break;
 		case EXTRACT_TYPE2:
-			sub_action = goto_pos(955, COLOR_Y(340), SLOW, BACKWARD, END_AT_LAST_POINT);
+			sub_action = goto_pos(1000, COLOR_Y(400), SLOW, BACKWARD, END_AT_LAST_POINT);
 			if(sub_action != IN_PROGRESS)
 				state = INIT;
 				ret = END_OK;
