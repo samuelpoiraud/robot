@@ -12,14 +12,14 @@
 #include "QS/QS_ports.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_timer.h"
-#include "QS/QS_ADC.h"
+#include "QS/QS_adc.h"
 #include "ports.h"
 #include "ReceptionUS.h"
 #include "Synchro.h"
 #include "QS/QS_spi.h"
 #include "PGA.h"
 #include "Secretary.h"
-#include "QS/QS_CAN.h"
+#include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 
 int main (void)

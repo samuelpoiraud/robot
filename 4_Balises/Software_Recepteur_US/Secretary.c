@@ -11,7 +11,7 @@
 
 #include "QS/QS_all.h"
 #include "ReceptionUS.h"
-#include "QS/QS_CAN.h"
+#include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_uart.h"
 #include "QS/QS_timer.h"

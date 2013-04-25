@@ -15,7 +15,7 @@
 #include "QS/QS_extern_it.h"
 #include "ports.h"
 #include "QS/QS_timer.h"
-#include "QS/QS_ADC.h"
+#include "QS/QS_adc.h"
 #include "PGA.h"
 #include "Secretary.h"
 #include "QS_can.h"
