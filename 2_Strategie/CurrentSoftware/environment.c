@@ -288,7 +288,6 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.env.asser.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
 	global.env.asser.is_in_translation = (((msg->data[7] >> 5) & 0x07) >> 2) & 1;
 	global.env.asser.is_in_rotation = (((msg->data[7] >> 5) & 0x07) >> 1) & 1;
-	//debug_printf("Robot is:                 %s%s %s\n", (global.env.asser.current_trajectory & 0b100)? "Translating" : "",  ((global.env.asser.current_trajectory & 0b110) == 0b110)? " &" : "", (global.env.asser.current_trajectory & 0b010)? "Rotating" : "");
 
 	global.env.pos.updated = TRUE;
 			/*msg->data[7] : 8 bits  : T R x W W E E E
@@ -338,7 +337,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_IR_FOE_2].updated = TRUE;
 			//debug_printf(" IR2=%dmm", global.env.sensor[BEACON_IR_FOE_2].distance);
 			//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_2].angle))*180/PI4096))));
-		} else debug_printf("NO IR 2 err %d!\n", msg->data[0]);
+		} else debug_printf("NO IR 2 err %d!\n", msg->data[4]);
 		if(slashn)
 			debug_printf("\n");
 	}
@@ -352,7 +351,16 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_US_FOE_1].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_1].updated = TRUE;
 			//debug_printf("US1=%dmm", global.env.sensor[BEACON_US_FOE_1].distance);
-		} else debug_printf("NO US 1 err %d!\n", msg->data[0]);
+		} else if(msg->data[0] == TROP_DE_SIGNAL) {
+			#warning "Fiable ?"
+			global.env.sensor[BEACON_US_FOE_1].distance = 0;
+			global.env.sensor[BEACON_US_FOE_1].update_time = global.env.match_time;
+			global.env.sensor[BEACON_US_FOE_1].updated = TRUE;
+			debug_printf("US1: TROP DE SIGNAL\n");
+		} else {
+			debug_printf("NO US 1 err %d!\n", msg->data[0]);
+			CAN_send_sid(DEBUG_BEACON_US1_ERROR);
+		}
 		if(msg->data[4]==AUCUNE_ERREUR) 
 		{
 			//slashn = TRUE;
@@ -360,7 +368,16 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_US_FOE_2].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_2].updated = TRUE;
 			//debug_printf(" US2=%dmm", global.env.sensor[BEACON_US_FOE_2].distance);
-		} else debug_printf("NO US 2 err %d!\n", msg->data[0]);
+		} else if(msg->data[4] == TROP_DE_SIGNAL) {
+			#warning "Fiable ?"
+			global.env.sensor[BEACON_US_FOE_2].distance = 0;
+			global.env.sensor[BEACON_US_FOE_2].update_time = global.env.match_time;
+			global.env.sensor[BEACON_US_FOE_2].updated = TRUE;
+			debug_printf("US2: TROP DE SIGNAL\n");
+		} else {
+			debug_printf("NO US 2 err %d!\n", msg->data[4]);
+			CAN_send_sid(DEBUG_BEACON_US2_ERROR);
+		}
 		if(slashn)
 			debug_printf("\n");
 	}
