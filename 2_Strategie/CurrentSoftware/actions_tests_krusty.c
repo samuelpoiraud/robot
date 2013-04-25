@@ -444,6 +444,38 @@ error_e Assiete_5_lanceur(void){
 }
 
 
+error_e drink(void){
+	static enum{
+		DRINK,
+		ALCOOLIC,
+		DROP
+	}state = DRINK;
+
+	static error_e sub_action;
+	error_e ret = IN_PROGRESS;
+
+	switch(state){
+		case DRINK:
+			sub_action = two_first_rows();
+			if(sub_action != IN_PROGRESS)
+				state = ALCOOLIC;
+			break;
+		case ALCOOLIC:
+			sub_action = try_last_row();
+			if(sub_action != IN_PROGRESS)
+				state = DROP;
+			break;
+		case DROP:
+			sub_action = Lacher_verres(1);
+			if(sub_action != IN_PROGRESS)
+				ret = END_OK;
+			break;
+		default:
+			break;
+	}
+	return ret;
+}
+
 
 void K_test_strat_unitaire(void){
 	static enum{
@@ -454,6 +486,15 @@ void K_test_strat_unitaire(void){
 
 	static error_e sub_action;
 
+	/*if(PORTBbits.RB3)//gauche
+		LED_ERROR = 1;
+	else
+		LED_ERROR = 0;
+
+	if(PORTBbits.RB5)//droite
+		LED_USER2 = 1;
+	else
+		LED_USER2 = 0;*/
 	switch(state){
 		case SORTIR:
 			sub_action = goto_pos(1000,COLOR_Y(380),FAST,FORWARD,END_AT_BREAK);
@@ -475,7 +516,7 @@ void K_test_strat_unitaire(void){
 			}
 			break;
 		case ACTION:
-			sub_action = two_first_rows(); //Mettez ici le nom de votre micro-strat à tester
+			sub_action = drink(); //Mettez ici le nom de votre micro-strat à tester
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;
