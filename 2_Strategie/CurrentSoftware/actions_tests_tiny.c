@@ -681,26 +681,32 @@ void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 
 void STRAT_TINY_all_candles(void)
 {
-	static enum
+	typedef enum
 	{
 		GET_OUT = 0,
-                GOTO_CAKE,
+		POS,
 	    TINY_CANDLES,
 		COMEBACK2CODEUR,
 		DONE
-	}state = GET_OUT;
+	}state_e;
 
 	error_e sub_action;
+	static state_e state = GET_OUT;
 
 	switch(state)
 	{
 
 		case GET_OUT:
 
-			state = try_going(250, COLOR_Y(2135), GET_OUT, TINY_CANDLES,TINY_CANDLES, (global.env.color==BLUE)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(250, COLOR_Y(865), GET_OUT, POS,POS,FORWARD,NO_DODGE_AND_WAIT);
+		break;
+
+		case POS:
+
+			state = try_going(1914, COLOR_Y(865), POS, TINY_CANDLES,TINY_CANDLES,FORWARD,NO_DODGE_AND_WAIT);
 		break;
 		case TINY_CANDLES:
-			sub_action = TINY_blow_all_candles();
+			sub_action = TINY_warner_blow_all_candles();
 			switch(sub_action)
             {
 				case END_OK:
@@ -719,7 +725,7 @@ void STRAT_TINY_all_candles(void)
 
 
 		case COMEBACK2CODEUR:
-             state = try_going(500, COLOR_Y(500), COMEBACK2CODEUR, DONE, DONE, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
+             state = try_going(500, COLOR_Y(2154), COMEBACK2CODEUR, DONE, DONE, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 
 		break;
 
