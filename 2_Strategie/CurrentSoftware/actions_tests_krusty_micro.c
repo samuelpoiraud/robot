@@ -224,21 +224,155 @@ error_e two_first_rows(void){
 }
 
 
+Uint8 lift_process(Uint8 progress, Uint8 fail, Uint8 success){
+	
+	static enum{
+		WATCH,
+		LIFT_DOWN,
+		GRAB
+	}state = WATCH;
+	Uint8 ret = progress;
+	static bool_e right_captor = 0;
+	static bool_e left_captor = 0;
+	
+	switch(state){
+		case WATCH:
+			if(!PORTBbits.RB3){
+				ACT_lift_plier(ACT_LIFT_LEFT, ACT_LIFT_PlierOpen);
+				ACT_lift_translate(ACT_LIFT_LEFT, ACT_LIFT_TranslateDown);
+				right_captor = 1;
+			}
+
+			if(!PORTBbits.RB5){
+				ACT_lift_plier(ACT_LIFT_RIGHT, ACT_LIFT_PlierOpen);
+				ACT_lift_translate(ACT_LIFT_RIGHT, ACT_LIFT_TranslateDown);
+				left_captor = 1;
+			}
+			if(!right_captor || !left_captor)
+				ret = fail;
+			state = LIFT_DOWN;
+			break;
+
+		case LIFT_DOWN:
+		{
+			static bool_e okr = FALSE;
+			static bool_e okl = FALSE;
+			if(right_captor){
+				if(act_go_on(ACT_QUEUE_LiftLeft)){
+					ACT_lift_plier(ACT_LIFT_RIGHT, ACT_LIFT_PlierClose);
+					if(!left_captor)
+						state = GRAB;
+					else
+						okr = TRUE;
+				}
+			}
+
+			if(left_captor){
+				if(act_go_on(ACT_QUEUE_LiftRight)){
+					ACT_lift_plier(ACT_LIFT_LEFT, ACT_LIFT_PlierClose);
+					if(!right_captor)
+						state = GRAB;
+					else
+						okl = TRUE;
+				}
+			}
+
+			if(okr && okl)
+				state = GRAB;
+			break;
+		}
+		case GRAB:
+			{
+			static bool_e okr = FALSE;
+			static bool_e okl = FALSE;
+			if(right_captor){
+				if(act_go_on(ACT_QUEUE_LiftLeft)){
+					ACT_lift_plier(ACT_LIFT_RIGHT, ACT_LIFT_PlierClose);
+					if(!left_captor)
+						ret = success;
+					else
+						okr = TRUE;
+				}
+			}
+
+			if(left_captor){
+				if(act_go_on(ACT_QUEUE_LiftRight)){
+					if(!right_captor)
+						ret = success;
+					else
+						okl = TRUE;
+				}
+			}
+
+			if(okr && okl)
+				ret = success;
+			break;
+		}
+
+		default:
+			break;
+	}
+		
+
+	return ret;
+}
+
+
 //Fonction qui va chercher la dernière rangée de verres du côté cadeau jusqu'à évitement dans le sens avant vers l'adversaire
 error_e try_last_row(void){
 	static enum{
 		PUSH = 0,
-		STOP_AND_WAIT
-	}asser_state = PUSH;
+		PUSH_SLOW,
+		STOP_AND_WATCH,
+		TURN,
+		BACK,
+		DONE
+	}state = PUSH;
 
-	enum actionneur_state{
+	static error_e sub_action;
+	error_e ret = IN_PROGRESS;
+
+	/*enum actionneur_state{
 		WAIT_CAPTOR,
 		LIFT_DOWN,
 		GRAB
 	};
 
 	static enum actionneur_state act_left = WAIT_CAPTOR;
-	static enum actionneur_state act_right = WAIT_CAPTOR;
+	static enum actionneur_state act_right = WAIT_CAPTOR;*/
+	switch(state){
+		case PUSH:
+			state = try_going(550,COLOR_Y(1000),PUSH,PUSH_SLOW,PUSH_SLOW,FORWARD,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case PUSH_SLOW:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{500,COLOR_Y(1100)},SLOW}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+
+			if(sub_action != IN_PROGRESS)
+				state = STOP_AND_WATCH;
+			break;
+
+		case STOP_AND_WATCH:
+			state = lift_process(STOP_AND_WATCH,TURN,TURN);
+			break;
+
+		case TURN:
+			state = try_go_angle( COLOR_ANGLE(-PI4096/2),TURN,BACK,BACK,FAST);
+			break;
+
+		case BACK:
+			state = try_going(1000,COLOR_Y(300),BACK,DONE,DONE,FORWARD,NO_AVOIDANCE);
+			break;
+
+		case DONE:
+			ret = END_OK;
+			break;
+
+		default:
+			break;
+	}
+
+	return ret;
 }
 
 
@@ -293,7 +427,8 @@ error_e Lacher_verres(Uint8 type){
 			state = try_go_angle(COLOR_ANGLE(-PI4096/2), ANGLE_TYPE2, OPEN_PLIER, OPEN_PLIER, FAST);
 			break;
 		case OPEN_PLIER:
-			ACT_plate_plier(ACT_PLATE_PLIER_OPEN);
+			ACT_lift_plier(ACT_LIFT_RIGHT, ACT_LIFT_PlierClose);
+			ACT_lift_plier(ACT_LIFT_LEFT, ACT_LIFT_PlierClose);
 			state = WAIT_PLIER;
 			break;
 		case WAIT_PLIER:
