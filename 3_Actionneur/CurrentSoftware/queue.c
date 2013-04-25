@@ -292,7 +292,6 @@ void QUEUE_take_sem(queue_id_t this, bool_e init)
 			}	
 			else
 			{
-				debug_printf("Actuator %d already used\n",this);
 				COMPONENT_log_sem(LOG_LEVEL_Debug, this, QUEUE_get_act(this), "Act semaphore locked\n");
 			}
 		}

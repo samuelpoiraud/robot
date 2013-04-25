@@ -23,8 +23,8 @@
 
 #define DETECTION_DIST_MIN_KRUSTY       500  // distance minimale d'évitement sans compter la vitesse du robot, en mm
 #define DETECTION_DIST_MIN_TINY         400
-#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  600  //temps pour que le robot s'arrete, en ms (max: 500, sinon il y aura overflow)
-#define DETECTION_DIST_SPEED_FACTOR_TINY    500
+#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  1000  //temps pour que le robot s'arrete, en ms
+#define DETECTION_DIST_SPEED_FACTOR_TINY    1000
 
 
 /***************************** Evitement 2011 **************************/
@@ -36,7 +36,7 @@
 /* Angle d'ouverture de vision */
 #define DETECTION_ANGLE		1900	//1900 = 20°
 
-#define WAIT_TIME_DETECTION			20000	// en ms //TODO: diminuer ce coef (c'etait pour des tests de wait et distance d'evitement)
+#define WAIT_TIME_DETECTION			3000	// en ms //TODO: diminuer ce coef (c'etait pour des tests de wait et distance d'evitement)
 
 
 /* Constantes relatives à l'évitement */
@@ -1726,8 +1726,8 @@ void foe_in_path(bool_e *in_path)
 	//distance_computed = 600;
 
 	if(QS_WHO_AM_I_get() == TINY)
-		distance_computed = DETECTION_DIST_MIN_TINY + ((Uint16)DETECTION_DIST_SPEED_FACTOR_TINY)*(abs(global.env.pos.translation_speed)/8)/125;  //8*125 = 1000, DETECTION_DIST_SPEED_FACTOR_TINY est en milisecondes
-	else distance_computed = DETECTION_DIST_MIN_KRUSTY + ((Uint16)DETECTION_DIST_SPEED_FACTOR_KRUSTY)*(abs(global.env.pos.translation_speed)/8)/125;
+		distance_computed = DETECTION_DIST_MIN_TINY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_TINY)*(abs(global.env.pos.translation_speed))/1000;  //8*125 = 1000, DETECTION_DIST_SPEED_FACTOR_TINY est en milisecondes
+	else distance_computed = DETECTION_DIST_MIN_KRUSTY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_KRUSTY)*(abs(global.env.pos.translation_speed))/1000;
 
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
     //debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
