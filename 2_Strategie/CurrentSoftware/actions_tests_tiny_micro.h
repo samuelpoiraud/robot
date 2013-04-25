@@ -19,6 +19,13 @@
 #include "act_functions.h"
 
 //Insérez ici vos micro_strat et découpes de strat
+
+typedef enum
+{
+  THIRD_GIFT  = 0,
+  FOURTH_GIFT
+}forgotten_gift_e;
+
 void T_BALLINFLATER_start(void);
 
 error_e TINY_blow_all_candles(void);
@@ -29,13 +36,12 @@ error_e TINY_open_all_gifts(void);
 error_e old_TINY_all_candles(void);
 error_e TINY_open_all_gifts_homolog(void);
 
-error_e TINY_forgotten_third_gift(void);
-error_e TINY_forgotten_fourth_gift(void);
+error_e TINY_forgotten_gift(forgotten_gift_e forgotten_gift);
 
 
 
-error_e TINY_warner_blow_one_candle(Uint8 i, Sint8 way);
-error_e TINY_warner_around_cake(Uint8 i,Sint8 way);
+error_e TINY_warner_blow_one_candle(bool_e reset);
+error_e TINY_warner_around_cake(Sint8 way);
 error_e TINY_warner_blow_all_candles(void);
 
 #endif /* ACTIONS_TESTS_TINY_MICRO_H */
