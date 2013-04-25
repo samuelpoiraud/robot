@@ -18,8 +18,8 @@
 #include "QS/QS_adc.h"
 #include "PGA.h"
 #include "Secretary.h"
-#include "QS_can.h"
-#include "QS_CANmsgList.h"
+#include "QS/QS_can.h"
+#include "QS/QS_CANmsgList.h"
 
 #define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
 
@@ -132,6 +132,7 @@ void ReceptionUS_traiter_signal(void)
 	Uint16 s, m = 0, nombre_valeurs_saturees;
 	Sint16 max = 0;
 	Sint16 max2 = 0;
+	Sint16 min = 0;
 	
 /*	for(s=0;s<TAILLE_ACQUISITION; s++)
 	{
@@ -168,12 +169,14 @@ void ReceptionUS_traiter_signal(void)
 			max = convolution[s];
 			m = s;	//Ca va plus vite sans passer par la variable volatile position_pic...
 		}
+		if(convolution[s] < min)
+			min = convolution[s];
 	}
 	position_pic = m;
 	max1visu = convolution[m];
 
-	//Si le max est trop faible, on place le flag SIGNAL_INSUFFISANT
-	if(max < CONVOLUTION_VALEUR_MINI)
+	//Si la diff entre max et min est trop faible, on place le flag SIGNAL_INSUFFISANT
+	if(max - min < CONVOLUTION_VALEUR_MINI)
 		fiabilite |= ERREUR_SIGNAL_INSUFFISANT;
 	else fiabilite &= ~ERREUR_SIGNAL_INSUFFISANT;
 	
@@ -189,7 +192,7 @@ void ReceptionUS_traiter_signal(void)
 			max2 = convolution[s];
 			#warning "temporaire :"	
 				indexmax2visu = s;
-		}	
+		}
 	}
 	#warning "temporaire :" 
 		max2visu = max2;
