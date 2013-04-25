@@ -34,6 +34,9 @@
 	#define DEBUG_CARTE_P				0x742
 	#define DEBUG_FOE_POS				0x748
 	#define DEBUG_ELEMENT_UPDATED		0x749
+	#define DEBUG_BEACON_US1_ERROR      0x750  //Envoyé par la strat
+	#define DEBUG_BEACON_US2_ERROR      0x751  //Envoyé par la strat
+	#define DEBUG_BEACON_US_POWER       0x752  //Enovyé par la balise receptrice US (mais non activé actuellement)
 
 	
 	#define DEBUG_ASSER_POINT_FICTIF								0x701

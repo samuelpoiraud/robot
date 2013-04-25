@@ -18,6 +18,8 @@
 #include "QS/QS_ADC.h"
 #include "PGA.h"
 #include "Secretary.h"
+#include "QS_can.h"
+#include "QS_CANmsgList.h"
 
 #define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
 
@@ -83,7 +85,7 @@ Uint16 calcul_distance(Uint16 position_pic)
 
 
 void ReceptionUS_process_main(void)
-{			
+{
 	if(!measures_ready) 	//Si pas de données dispo, on se casse !
 		return;
 	//Chouette, des données sont disponibles !
@@ -97,11 +99,10 @@ void ReceptionUS_process_main(void)
 				//	debug_printf("\n\nSIGNAL CONVOLUE");
 				//	ReceptionUS_afficher_signal(convolution, TAILLE_CONVOLUTION);
 				//	debug_printf("\nposition_pic:%d",position_pic);
-	
-	
+
 	distance = calcul_distance(position_pic);						//Calcul de la distance.
 	if(distance == 0)
-		fiabilite |= ERREUR_PAS_DE_SYNCHRO;
+		fiabilite |= ERREUR_TROP_PROCHE;
 	SECRETARY_add_datas(current_adversary, distance, fiabilite);	//On informe le secrétaire qu'une série de mesure a été effectuée et traitée.
 	
 	ReceptionUS_init();
@@ -122,8 +123,10 @@ void ReceptionUS_process_main(void)
 													// En cas de pic secondaire plus élevé que le pic attendu, la fausse information sera considérée valide si le pic secondaire dépasse le pic attendu de plus que ce coeff !
 													// En cas de pic attendu plus élevé que le pic secondaire, la bonne information sera considérée comme invalide si le pic attendu ne dépasse pas le pic secondaire de plus que ce coeff !
 #define SEUIL_SATURATION				(100)		//((1023 - OFFSET_MASSE_VIRTUELLE)/4 - 28)	//20 : valeur grosso modo pour dire "pas trop loin de la saturation"
+#define CONVOLUTION_VALEUR_MINI         (256)		//Valeur minimale du max de la convolution. Si le max de la convolution est en dessous de cette valeur, le signal de la balise est insuffisant pour mesurer une distance. (ou correspond à du bruit)
 #define NOMBRE_MAXIMAL_VALEURS_SATUREES	(350)	// 16 bits * 14 symboles "1" + un chouilla
-#define MINI_POSITION_PIC				(3)		//en dessous, on est trop proche pour pouvoir fournir un résultat fiable	
+#define MINI_POSITION_PIC				(TAILLE_FENETRE+1)//(3)		//en dessous, on est trop proche pour pouvoir fournir un résultat fiable
+
 void ReceptionUS_traiter_signal(void)
 {
 	Uint16 s, m = 0, nombre_valeurs_saturees;
@@ -164,16 +167,15 @@ void ReceptionUS_traiter_signal(void)
 		{
 			max = convolution[s];
 			m = s;	//Ca va plus vite sans passer par la variable volatile position_pic...
-		}	
-	}			
-	position_pic = m;	
+		}
+	}
+	position_pic = m;
 	max1visu = convolution[m];
 
-	if(position_pic < MINI_POSITION_PIC)
-		fiabilite |= ERREUR_TROP_PROCHE;
-	else
-		fiabilite &= ~ERREUR_TROP_PROCHE;
-
+	//Si le max est trop faible, on place le flag SIGNAL_INSUFFISANT
+	if(max < CONVOLUTION_VALEUR_MINI)
+		fiabilite |= ERREUR_SIGNAL_INSUFFISANT;
+	else fiabilite &= ~ERREUR_SIGNAL_INSUFFISANT;
 	
 	//On a détecté un maximum. On cherche maintenant à qualifier ce maximum, en cherchant s'il s'agit d'un pic franc ou pas.
 	//on reparcourt l'ensemble du produit de convolution SAUF la zone autour du PIC.
@@ -192,11 +194,19 @@ void ReceptionUS_traiter_signal(void)
 	#warning "temporaire :" 
 		max2visu = max2;
 	
-	if(max - max2 < ECART_MINI_ENTRE_DEUX_PICS)
-		fiabilite |= ERREUR_CONVOLUTION_NON_CONFORME;
-	else
-		fiabilite &= ~ERREUR_CONVOLUTION_NON_CONFORME; 
+//	if(max - max2 < ECART_MINI_ENTRE_DEUX_PICS)
+//		fiabilite |= ERREUR_CONVOLUTION_NON_CONFORME;
+//	else
+//		fiabilite &= ~ERREUR_CONVOLUTION_NON_CONFORME;
 
+	#warning "if(max - max2 < ECART_MINI_ENTRE_DEUX_PICS): changement par Alexis"
+	if(max - max2 < ECART_MINI_ENTRE_DEUX_PICS)             //SI LES DEUX PICS SONT PROCHES EN "puissance"
+		position_pic = MIN(position_pic, indexmax2visu);   //ALORS, on choisit le premier des deux, dans le temps !
+
+	if(position_pic < MINI_POSITION_PIC)
+		fiabilite |= ERREUR_TROP_PROCHE;
+	else
+		fiabilite &= ~ERREUR_TROP_PROCHE;
 }
 
 volatile bool_e request_reset_step = FALSE;
