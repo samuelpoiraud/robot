@@ -997,14 +997,14 @@ error_e TINY_warner_blow_one_candle(bool_e reset)
 			if(global.env.pos.y > 1500)	//Nous sommes a coté du gateau, près du coté obscure (bleu) (quelle que soit notre couleur)
 			{
 				color_begin_cake = BLUE;
-				candle_index=10;	//On commence par la bougie 11
+				candle_index=10;	//On commence par la bougie 10
 				last_candle = 0;
 				way = -1;	//On décrémente les bougies
 			}
 			else						//Nous sommes a coté du gateau, près du coté des gentils (rouge) (quelle que soit notre couleur)
 			{
 				color_begin_cake = RED;
-				candle_index=1;	//On commence par la bougie 0
+				candle_index=1;	//On commence par la bougie 1
 				last_candle = 11;
 				way = 1;	//On incrémente les bougies
 			}
@@ -1048,7 +1048,7 @@ error_e TINY_warner_blow_one_candle(bool_e reset)
 
 error_e TINY_warner_around_cake(Sint8 way)
 {
-	//if(way == 1)
+	if(way == 1){
 		return goto_pos_with_scan_foe((displacement_t[]){
 
 			//{{wcandles[0].x,wcandles[0].y},SLOW},
@@ -1082,6 +1082,42 @@ error_e TINY_warner_around_cake(Sint8 way)
 			{{wcandles[28].x,wcandles[28].y},SLOW},
 			{{wcandles[29].x,wcandles[29].y},SLOW}
 			},29,BACKWARD,NO_DODGE_AND_WAIT);
+	}else{
+		return goto_pos_with_scan_foe((displacement_t[]){
+
+			//{{wcandles[29].x,wcandles[0].y},SLOW},
+			{{wcandles[28].x,wcandles[28].y},SLOW},
+			{{wcandles[27].x,wcandles[27].y},SLOW},
+			{{wcandles[26].x,wcandles[26].y},SLOW},
+			{{wcandles[25].x,wcandles[25].y},SLOW},
+			{{wcandles[24].x,wcandles[24].y},SLOW},
+			{{wcandles[23].x,wcandles[23].y},SLOW},
+			{{wcandles[22].x,wcandles[22].y},SLOW},
+			{{wcandles[21].x,wcandles[21].y},SLOW},
+			{{wcandles[20].x,wcandles[20].y},SLOW},
+			{{wcandles[19].x,wcandles[19].y},SLOW},
+			{{wcandles[18].x,wcandles[18].y},SLOW},
+			{{wcandles[17].x,wcandles[17].y},SLOW},
+			{{wcandles[16].x,wcandles[16].y},SLOW},
+			{{wcandles[15].x,wcandles[15].y},SLOW},
+			{{wcandles[14].x,wcandles[14].y},SLOW},
+			{{wcandles[13].x,wcandles[13].y},SLOW},
+			{{wcandles[12].x,wcandles[12].y},SLOW},
+			{{wcandles[11].x,wcandles[11].y},SLOW},
+			{{wcandles[10].x,wcandles[10].y},SLOW},
+			{{wcandles[9].x,wcandles[9].y},SLOW},
+			{{wcandles[8].x,wcandles[8].y},SLOW},
+			{{wcandles[7].x,wcandles[7].y},SLOW},
+			{{wcandles[6].x,wcandles[6].y},SLOW},
+			{{wcandles[5].x,wcandles[5].y},SLOW},
+			{{wcandles[4].x,wcandles[4].y},SLOW},
+			{{wcandles[3].x,wcandles[3].y},SLOW},
+			{{wcandles[2].x,wcandles[2].y},SLOW},
+			{{wcandles[1].x,wcandles[1].y},SLOW},
+			{{wcandles[0].x,wcandles[0].y},SLOW}
+			},29,FORWARD,NO_DODGE_AND_WAIT);
+
+	}
 
 }
 
