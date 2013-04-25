@@ -86,7 +86,6 @@
       <compileType>
         <linkerTool>
           <linkerLibItems>
-            <linkerLibFileItem>../QS/libp30F6010A-coff.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
         <loading>
