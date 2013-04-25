@@ -10,7 +10,7 @@
  */
 #define PGA_C
 #include "PGA.h"
-#include "QS/QS_SPI.h"
+#include "QS/QS_spi.h"
 
 
 volatile Uint8 ampli = 0;
