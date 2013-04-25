@@ -169,7 +169,6 @@ void K_Strat_Coupe(void){
                     state=ASSIETTE_5;
                     break;
                 case NOT_HANDLED:
-                    state=ASSIETTE_5;
                     break;
                 case IN_PROGRESS:
                     break;
@@ -189,7 +188,6 @@ void K_Strat_Coupe(void){
                     state=DONE;
                     break;
                 case NOT_HANDLED:
-                    state=DONE;
                     break;
                 case IN_PROGRESS:
                     break;
@@ -233,7 +231,6 @@ error_e Assiete_2_4_lanceur(void){
                     break;
 
                 case NOT_HANDLED:
-                    state=ASSIETTE_2;
                     return NOT_HANDLED;
                     break;
 
@@ -262,7 +259,6 @@ error_e Assiete_2_4_lanceur(void){
                     break;
 
                 case NOT_HANDLED:
-                    state=LANCEUR;
                     return NOT_HANDLED;
                     break;
 
@@ -365,7 +361,6 @@ error_e Assiete_5_lanceur(void){
                     return END_WITH_TIMEOUT;
                     break;
                 case NOT_HANDLED:
-                    state=ASSIETTE;
                     return NOT_HANDLED;
                     break;
 
@@ -409,7 +404,7 @@ error_e Assiete_5_lanceur(void){
             break;
 
         case LANCEUR2:
-            sub_action=TEST_Launcher_ball_gateau();
+            sub_action=TEST_Launcher_ball_mid();
             switch(sub_action)
             {
                 case END_OK:
