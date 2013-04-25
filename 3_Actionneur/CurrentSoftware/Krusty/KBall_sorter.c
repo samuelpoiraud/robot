@@ -80,15 +80,13 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
 				if(queueId != QUEUE_CREATE_FAILED) {
-					if(msg->size >= 3) //Compatibilité avec l'ancien message CAN qui ne gérait pas le lanceur de balle
-						desired_ball_launcher_speed = U16FROMU8(msg->data[2], msg->data[1]);
-					else desired_ball_launcher_speed = 0;
+					desired_ball_launcher_speed = U16FROMU8(msg->data[2], msg->data[1]);
 					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_CheckLauncherSpeed, &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_EjectCherry       , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_GotoNextCherry    , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_TakeCherry        , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
-					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry      , &ACTQ_finish_SendResult}      , QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry      , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_CheckLauncherSpeed, &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
+					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_EjectCherry       , &ACTQ_finish_SendResult}      , QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
 				} else {	//on indique qu'on a pas géré la commande
 					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
