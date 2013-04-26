@@ -114,7 +114,7 @@ void any_match(time32_t match_duration)
 				case 0x01:	//STRAT_1_KRUSTY
 					calibration = ASSER_CALIBRATION_SQUARE_2;
 					//strategy = TEST_STRAT_avoidance;
-					strategy = &STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait;
+					strategy = &TEST_STRAT_ALEXIS;
 				break;
 
 				case 0x02:	//STRAT_2_KRUSTY

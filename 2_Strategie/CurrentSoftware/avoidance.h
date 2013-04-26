@@ -68,7 +68,7 @@
 	{
 		GEOMETRY_point_t point;
 		ASSER_speed_e speed;
-	}displacement_t;
+	} displacement_t;
 
 	//Pour tester la fonction
 	void foe_in_path(bool_e in_path[NB_FOES]);
@@ -168,6 +168,21 @@
 	 */
 	Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
 
+	/*
+	 * Comme try_going mais avec le support du multipoint
+	 *
+	 * pre : Etre sur le terrain
+	 * post : Robot aux coordonnées voulues
+	 *
+	 * param displacements : deplacements de la trajectoire
+	 * param nb_displacement : nombre de deplacements de la trajectoire
+	 * param way : sens de déplacement
+	 * param avoidance: type d'evitement à faire
+	 * param in_progress état en cours
+	 * param success_state état à retourner si le déplacement s'est terminé correctement
+	 * param fail_state état à retourner si le déplacement ne s'est pas terminé correctement
+	 */
+	Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.
 	 *

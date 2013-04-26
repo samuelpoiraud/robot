@@ -438,6 +438,12 @@ error_e Assiete_5_lanceur(void){
     return IN_PROGRESS;
 }
 
+void TEST_STRAT_ALEXIS() {
+	static error_e last_result = IN_PROGRESS;
+	if(last_result == IN_PROGRESS)
+		last_result = strat_glasses_alexis();
+}
+
 
 error_e drink(void){
 	static enum{
@@ -451,7 +457,7 @@ error_e drink(void){
 
 	switch(state){
 		case DRINK:
-			sub_action = two_first_rows();
+			sub_action = TEST_SAMUEL_two_first_rows();//two_first_rows();
 			if(sub_action != IN_PROGRESS)
 				state = ALCOOLIC;
 			break;
@@ -528,19 +534,6 @@ void K_test_strat_unitaire(void){
 		case DONE:
 			break;
 	}
-}
-
-void TEST_START_avoidance_distance() {
-	bool_e in_path[NB_FOES];
-
-	global.env.asser.current_way = FORWARD;
-	foe_in_path(in_path);
-	
-	if(in_path[FOE_1] == TRUE)
-		debug_printf("Foe 1 in path\n");
-
-	if(in_path[FOE_2] == TRUE)
-		debug_printf("Foe 2 in path\n");
 }
 
 void K_TEST_STRAT_avoidance(void){

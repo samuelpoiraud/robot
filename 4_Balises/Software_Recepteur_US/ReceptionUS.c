@@ -101,6 +101,11 @@ void ReceptionUS_process_main(void)
 				//	debug_printf("\nposition_pic:%d",position_pic);
 
 	distance = calcul_distance(position_pic);						//Calcul de la distance.
+
+	//TODO: a enlever !!! DEBUG
+	if(distance == 0)
+		ReceptionUS_afficher_signal(convolution, TAILLE_CONVOLUTION);
+
 	if(distance == 0)
 		fiabilite |= ERREUR_TROP_PROCHE;
 	SECRETARY_add_datas(current_adversary, distance, fiabilite);	//On informe le secrétaire qu'une série de mesure a été effectuée et traitée.
@@ -132,7 +137,7 @@ void ReceptionUS_traiter_signal(void)
 	Uint16 s, m = 0, nombre_valeurs_saturees;
 	Sint16 max = 0;
 	Sint16 max2 = 0;
-	Sint16 min = 0;
+	Sint16 min;
 	
 /*	for(s=0;s<TAILLE_ACQUISITION; s++)
 	{
@@ -161,7 +166,8 @@ void ReceptionUS_traiter_signal(void)
 		fiabilite |= ERREUR_SIGNAL_SATURE;
 	else
 		fiabilite &= ~ERREUR_SIGNAL_SATURE;
-		
+
+	min = convolution[0];
 	for(s=0;s<TAILLE_CONVOLUTION; s++)	//Recherche du pic de convolution....
 	{
 		if(convolution[s] > max)
@@ -175,7 +181,7 @@ void ReceptionUS_traiter_signal(void)
 	position_pic = m;
 	max1visu = convolution[m];
 
-	//Si la diff entre max et min est trop faible, on place le flag SIGNAL_INSUFFISANT
+	//Si le max est trop faible, on place le flag SIGNAL_INSUFFISANT
 	if(max - min < CONVOLUTION_VALEUR_MINI)
 		fiabilite |= ERREUR_SIGNAL_INSUFFISANT;
 	else fiabilite &= ~ERREUR_SIGNAL_INSUFFISANT;
