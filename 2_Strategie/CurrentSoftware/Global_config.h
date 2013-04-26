@@ -20,8 +20,9 @@
 	#define OUTPUT_LOG  //utilisé dans act_function et queue
 	#define ACT_DEBUG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 //	#define OUTPUT_LOG_PRINT_ALL_COMPONENTS  //Si défini, affiche les messages de tous les composants (OUTPUT_LOG_COMPONENT_* ne sont pas pris en compte, les niveau de débuggage le sont par contre)
-	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION LOG_PRINT_Off  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
-	#define OUTPUT_LOG_COMPONENT_QUEUE       LOG_PRINT_Off
+	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION         LOG_PRINT_Off  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
+	#define OUTPUT_LOG_COMPONENT_QUEUE               LOG_PRINT_Off
+	#define OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES LOG_PRINT_On   //Changement d'état de la strat
 
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
@@ -44,6 +45,10 @@
 	#define PORT_C_IO_MASK	0xFFFF
 	#define PORT_D_IO_MASK	0xC0FF
 	#define PORT_E_IO_MASK	0xFFFF
+	#define PORT_F_IO_MASK	0xFFFF
+	#define PORT_G_IO_MASK	0xFF3F
+
+	#ifdef FDP_2013
 		#define SWITCH_STRAT_1	PORTEbits.RE0
 		#define SWITCH_STRAT_2	PORTEbits.RE1
 		#define SWITCH_STRAT_3	PORTEbits.RE2
@@ -54,19 +59,21 @@
 		#define TRIS_ROBOT_ID_OUTPUT	TRISEbits.TRISE7
 		#define PORT_ROBOT_ID_INPUT		PORTEbits.RE5
 		#define TRIS_ROBOT_ID_INPUT		TRISEbits.TRISE5
-	#define SICK_SENSOR_FOE_GLASSES_PIN PORTBbits.RB15
-	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFF3F
 		#define SWITCH_RG0	PORTGbits.RG0
 		#define SWITCH_RG1	PORTGbits.RG1
-	#ifdef FDP_2013
+
 		#define BLUE_LEDS	LATGbits.LATG7
 		#define RED_LEDS	LATGbits.LATG6
 	#else
 		#define BLUE_LEDS	LATGbits.LATG6
 		#define RED_LEDS	LATGbits.LATG7
 	#endif
+
 	#define PIN_BIROUTE	PORTGbits.RG8
+
+	#define SICK_SENSOR_FOE_GLASSES_PIN PORTBbits.RB15   //sur Tiny
+	#define GLASS_SENSOR_LEFT			(!PORTBbits.RB3)    //sur Krusty, en logique inversée
+	#define GLASS_SENSOR_RIGHT			(!PORTBbits.RB5)    //sur Krusty, en logique inversée
 		
 	
 	/* Les instructions suivantes permettent de configurer certaines

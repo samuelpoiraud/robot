@@ -10,14 +10,12 @@
  */
 
 #include "actions_tests_krusty_micro.h"
+#include "output_log.h"
 
 
 #define DEFAULT_SPEED	(SLOW)
 
 #define USE_CURVE	0
-
-
-
 
 /* ----------------------------------------------------------------------------- */
 /* 						Actions élémentaires de construction                     */
@@ -224,7 +222,248 @@ error_e two_first_rows(void){
 }
 
 
+#define LOG_PREFIX "m_strat: "
+#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define STATE_STR_DECLARE(tableau, state)  tableau[state] = #state;
+#define STATE_STR_INIT_UNDECLARED(tableau, nbstate) \
+	do {\
+		Uint8 i; \
+		for(i=0; i<(nbstate); i++) {\
+			if(tableau[i] == 0) \
+				tableau[i] = "Unknown"; \
+		} \
+	}while(0)
 
+//Cette sub_action prend des verres quand il y en a avec les ascensseurs (lift).
+//Dans les autres strat, il se peut que la fin de cette sub_action ne soit pas obligatoire ...
+//Renvoie END_OK si on a fini de prendre un verre ou qu'il n'y en a pas a prendre (en gros quand les actionneurs ne bouge pas)
+error_e grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos) {
+	//GL pour Glass Lift
+	enum state_lift_e {
+		GL_WAIT_FIRST_GLASS = 0,   //L'ascensseur est en bas, on attend un premier verre pour le prendre
+		GL_WAIT_GLASS_GRABED,      //On attend d'avoir pris le verre et l'avoir monté. Si le nombre de verre pris >= 3, on passe à GL_DONE
+		GL_WAIT_NEXT_GLASSES,      //On attend autre verre, on descendra l'ascensseur avant de le prendre contrairement au premier
+		GL_DONE,
+		GL_NBSTATE   //Pas un état mais indique le nombre d'état
+	};
+
+	static enum state_lift_e state_act_left = GL_WAIT_FIRST_GLASS;
+	static Uint8 number_of_grabed_glass_left = 0;
+
+	static enum state_lift_e state_act_right = GL_WAIT_FIRST_GLASS;
+	static Uint8 number_of_grabed_glass_right = 0;
+	
+	enum state_lift_e* current_act_state;
+	enum state_lift_e current_act_last_state;
+	Uint8* current_act_grabed_glasses;
+	queue_id_e current_act;
+	bool_e current_act_is_glass_detected;
+
+	//choix des variables a utiliser, évite d'avoir 2 fonction avec juste des Left remplacé en Right ...
+	if(lift_pos == ACT_LIFT_Left) {
+		current_act_is_glass_detected = GLASS_SENSOR_LEFT;
+		current_act = ACT_QUEUE_LiftLeft;
+		current_act_state = &state_act_left;
+		current_act_grabed_glasses = &number_of_grabed_glass_left;
+	} else {
+		current_act_is_glass_detected = GLASS_SENSOR_RIGHT;
+		current_act = ACT_QUEUE_LiftRight;
+		current_act_state = &state_act_right;
+		current_act_grabed_glasses = &number_of_grabed_glass_right;
+	}
+
+	current_act_last_state = *current_act_state;
+
+	//Reset de l'état, avant de prendre des verres
+	if(reset_state) {
+		*current_act_state = GL_WAIT_FIRST_GLASS;
+		*current_act_grabed_glasses = 0;
+		return END_OK;
+	}
+
+	switch(*current_act_state){
+		case GL_WAIT_FIRST_GLASS:
+			if(current_act_is_glass_detected) {
+				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierClose);
+				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);  //Mise en queue
+				*current_act_state = GL_WAIT_GLASS_GRABED;
+			} else return END_OK;  //Pas de verre à prendre, donc a fini
+			break;
+		case GL_WAIT_GLASS_GRABED:
+			if(act_go_on(current_act) == TRUE){   //Si l'ascensseur est en haut avec un verre, on est prêt pour en prendre un autre
+				(*current_act_grabed_glasses)++;   //Un verre de pris de plus
+				if(*current_act_grabed_glasses < 3) //On en a pas pris 3, donc on peut en prendre d'autre
+					*current_act_state = GL_WAIT_NEXT_GLASSES;
+				else *current_act_state = GL_DONE;  //Sinon on peut pas en prendre d'autre, donc fin
+			}
+			break;
+		case GL_WAIT_NEXT_GLASSES:
+			if(current_act_is_glass_detected) {
+				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
+				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
+				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierClose);
+				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);  //Mise en queue
+				*current_act_state = GL_WAIT_GLASS_GRABED;
+			} else return END_OK;  //On a fini de prendre un verre si on en prend pas d'autre
+			break;
+		case GL_DONE:
+			return END_OK;
+			break;
+
+		default:
+			break;
+	}
+
+	//On a changé d'état, on l'indique sur l'UART pour débugage
+	if(*current_act_state != current_act_last_state) {
+		static const char* state_str[GL_NBSTATE] = {0};
+		bool_e state_str_initialized = FALSE;
+
+		if(state_str_initialized == FALSE) {
+			STATE_STR_DECLARE(state_str, GL_WAIT_FIRST_GLASS);
+			STATE_STR_DECLARE(state_str, GL_WAIT_GLASS_GRABED);
+			STATE_STR_DECLARE(state_str, GL_WAIT_NEXT_GLASSES);
+			STATE_STR_DECLARE(state_str, GL_DONE);
+			STATE_STR_INIT_UNDECLARED(state_str, GL_NBSTATE);
+			state_str_initialized = TRUE;
+		}
+
+		COMPONENT_log(LOG_LEVEL_Debug, "grab_glass: state changed: %s(%d) -> %s(%d)\n",
+			state_str[current_act_last_state], current_act_last_state,
+			state_str[*current_act_state], *current_act_state);
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_glasses_alexis(void){
+	//GM pour Glass Move
+	enum state_e {
+		GM_INIT = 0,
+		GM_FIRST_ROW,
+		GM_SECOND_ROW,
+		GM_THIRD_ROW,
+		GM_WAIT_ACT,    //Attent que les actionneurs des ascensseurs aient fini de bouger, l'état suivant est dans la variable what_to_do_after_act
+		GM_GO_HOME,
+		GM_DONE,
+		GM_NBSTATE   //Pas un état mais indique le nombre d'état
+	};
+	static enum state_e state = GM_INIT;
+	static enum state_e last_state = GM_INIT;
+
+	//Pour l'état GL_WAIT_ACT:
+	static enum state_e what_to_do_after_act;
+
+ // MAE de déplacements
+	switch(state) {
+		case GM_INIT:
+			//On reset l'état des machines à état des prise de verre pour les 2 cotés
+			grab_glass(TRUE, ACT_LIFT_Left);
+			grab_glass(TRUE, ACT_LIFT_Right);
+			state = GM_FIRST_ROW;
+			break;
+
+		case GM_FIRST_ROW:
+			state = try_going_multipoint((displacement_t[])
+					{ {{1000, COLOR_Y(950)} , FAST},
+					  {{1050, COLOR_Y(1500)}, FAST} },
+					2,                               //2 points
+					GM_FIRST_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
+					FORWARD, NO_AVOIDANCE);
+
+			if(state == GM_WAIT_ACT)
+			  what_to_do_after_act = GM_SECOND_ROW; //Quand les ascensseurs auront fini de bouger, on passera a l'etat SECOND_ROW
+			else if(state == GM_FIRST_ROW) {
+				//On tente de prendre des verres pendant le déplacement ...
+				grab_glass(FALSE, ACT_LIFT_Left);
+				grab_glass(FALSE, ACT_LIFT_Right);
+			}
+			break;
+
+		case GM_SECOND_ROW:
+			state = try_going_multipoint((displacement_t[])
+					{ {{820, COLOR_Y(1330)}, FAST},
+					  {{750, COLOR_Y(1130)}, FAST},
+					  {{750, COLOR_Y(750)} , FAST} },
+					3,
+					GM_SECOND_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
+					FORWARD, NO_AVOIDANCE);
+			if(state == GM_WAIT_ACT)
+			  what_to_do_after_act = GM_THIRD_ROW; //Quand les ascensseurs auront fini de bouger, on passera a l'etat GM_DONE
+			else if(state == GM_SECOND_ROW) {
+				//On tente de prendre des verres pendant le déplacement ...
+				grab_glass(FALSE, ACT_LIFT_Left);
+				grab_glass(FALSE, ACT_LIFT_Right);
+			}
+			break;
+
+		case GM_THIRD_ROW:
+			state = try_going_multipoint((displacement_t[])
+					{ {{550, COLOR_Y(1000)}, FAST},
+					  {{500, COLOR_Y(1100)}, SLOW} },
+					2,
+					GM_THIRD_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
+					FORWARD, NO_AVOIDANCE);
+			if(state == GM_WAIT_ACT)
+			  what_to_do_after_act = GM_DONE; //Quand les ascensseurs auront fini de bouger, on passera a l'etat GM_DONE
+			else if(state == GM_THIRD_ROW) {
+				//On tente de prendre des verres pendant le déplacement ...
+				grab_glass(FALSE, ACT_LIFT_Left);
+				grab_glass(FALSE, ACT_LIFT_Right);
+			}
+			break;
+
+		case GM_WAIT_ACT:
+			//On attend que les actionneurs aient fini de prendre les verres avant de faire autre chose
+			if(act_go_on(ACT_QUEUE_LiftLeft) && act_go_on(ACT_QUEUE_LiftRight))
+				state = what_to_do_after_act;
+			break;
+
+		case GM_GO_HOME:
+			state = try_going(1000, COLOR_Y(300), GM_GO_HOME, GM_WAIT_ACT, GM_WAIT_ACT, FORWARD, NO_AVOIDANCE);
+			if(state == GM_WAIT_ACT) {
+				what_to_do_after_act = GM_DONE;   //Après que les actionneurs auront fini leur mouvement, la micro_strat sera finie
+				if(!GLASS_SENSOR_LEFT)  //S'il n'y a pas de verre en bas, on descend l'ascensseur avant
+					ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
+				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
+				if(!GLASS_SENSOR_RIGHT)  //S'il n'y a pas de verre en bas, on descend l'ascensseur avant
+					ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
+				ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierOpen);
+			}
+			break;
+
+		case GM_DONE:
+			return END_OK;
+			break;
+
+		default:
+			break;
+	}
+
+	//On a changé d'état, on l'indique sur l'UART pour débugage
+	if(state != last_state) {
+		static const char* state_str[GM_NBSTATE] = {0};
+		bool_e state_str_initialized = FALSE;
+
+		if(state_str_initialized == FALSE) {
+			STATE_STR_DECLARE(state_str, GM_INIT);
+			STATE_STR_DECLARE(state_str, GM_FIRST_ROW);
+			STATE_STR_DECLARE(state_str, GM_SECOND_ROW);
+			STATE_STR_DECLARE(state_str, GM_THIRD_ROW);
+			STATE_STR_DECLARE(state_str, GM_WAIT_ACT);
+			STATE_STR_DECLARE(state_str, GM_GO_HOME);
+			STATE_STR_DECLARE(state_str, GM_DONE);
+			STATE_STR_INIT_UNDECLARED(state_str, GM_NBSTATE);
+			state_str_initialized = TRUE;
+		}
+
+		COMPONENT_log(LOG_LEVEL_Debug, "strat_glasses_alexis: state changed: %s(%d) -> %s(%d)\n",
+			state_str[last_state], last_state,
+			state_str[state], state);
+	}
+
+	return IN_PROGRESS;
+}
 
 error_e TEST_SAMUEL_two_first_rows(void){
 	static enum{
