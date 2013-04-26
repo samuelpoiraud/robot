@@ -796,6 +796,27 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 	}
 }
 
+Uint8 try_relative_move(Sint16 distance, ASSER_speed_e speed, way_e way, Uint8 in_progress, Uint8 success_state, Uint8 fail_state) {
+	error_e sub_action;
+	sub_action = relative_move(distance, speed, way);
+	switch(sub_action){
+		case IN_PROGRESS:
+			return in_progress;
+			break;
+
+		case FOE_IN_PATH:
+		case NOT_HANDLED:
+			return fail_state;
+			break;
+
+		case END_OK:
+		case END_WITH_TIMEOUT:
+		default:
+			return success_state;
+			break;
+	}
+}
+
 /* Action va à une position relative */
 error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way)
 {

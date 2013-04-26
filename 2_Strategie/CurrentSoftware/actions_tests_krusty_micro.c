@@ -284,8 +284,8 @@ error_e grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos) {
 	switch(*current_act_state){
 		case GL_WAIT_FIRST_GLASS:
 			if(current_act_is_glass_detected) {
-				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierClose);
-				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);  //Mise en queue
+				ACT_lift_plier(lift_pos, ACT_LIFT_PlierClose);
+				ACT_lift_translate(lift_pos, ACT_LIFT_TranslateUp);  //Mise en queue
 				*current_act_state = GL_WAIT_GLASS_GRABED;
 			} else return END_OK;  //Pas de verre à prendre, donc a fini
 			break;
@@ -299,10 +299,12 @@ error_e grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos) {
 			break;
 		case GL_WAIT_NEXT_GLASSES:
 			if(current_act_is_glass_detected) {
-				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
-				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
-				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierClose);
-				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);  //Mise en queue
+				ACT_lift_plier(lift_pos, ACT_LIFT_PlierOpen);
+				ACT_lift_translate(lift_pos, ACT_LIFT_TranslateDown);
+				ACT_lift_plier(lift_pos, ACT_LIFT_PlierClose);
+				if(*current_act_grabed_glasses < 2) //Si on en a pas déjà 2, on monte l'ascensseur au plus haut, sinon on pourra pas tenir 2 verres tout en haut
+					ACT_lift_translate(lift_pos, ACT_LIFT_TranslateUp);  //Mise en queue
+				else ACT_lift_translate(lift_pos, ACT_LIFT_TranslateMid);
 				*current_act_state = GL_WAIT_GLASS_GRABED;
 			} else return END_OK;  //On a fini de prendre un verre si on en prend pas d'autre
 			break;
@@ -345,6 +347,7 @@ error_e strat_glasses_alexis(void){
 		GM_THIRD_ROW,
 		GM_WAIT_ACT,    //Attent que les actionneurs des ascensseurs aient fini de bouger, l'état suivant est dans la variable what_to_do_after_act
 		GM_GO_HOME,
+		GM_EXTRACT_FROM_GLASSES,
 		GM_DONE,
 		GM_NBSTATE   //Pas un état mais indique le nombre d'état
 	};
@@ -353,6 +356,10 @@ error_e strat_glasses_alexis(void){
 
 	//Pour l'état GL_WAIT_ACT:
 	static enum state_e what_to_do_after_act;
+
+	static const bool_e first_row_avoidance_mode = NO_AVOIDANCE;    //Vers l'ennemi
+	static const bool_e second_row_avoidance_mode = NO_AVOIDANCE;   //Vers chez nous
+	static const bool_e third_row_avoidance_mode = NO_DODGE_AND_WAIT;  //Vers l'ennemi
 
  // MAE de déplacements
 	switch(state) {
@@ -369,7 +376,7 @@ error_e strat_glasses_alexis(void){
 					  {{1050, COLOR_Y(1500)}, FAST} },
 					2,                               //2 points
 					GM_FIRST_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
-					FORWARD, NO_AVOIDANCE);
+					FORWARD, first_row_avoidance_mode);
 
 			if(state == GM_WAIT_ACT)
 			  what_to_do_after_act = GM_SECOND_ROW; //Quand les ascensseurs auront fini de bouger, on passera a l'etat SECOND_ROW
@@ -387,7 +394,7 @@ error_e strat_glasses_alexis(void){
 					  {{750, COLOR_Y(750)} , FAST} },
 					3,
 					GM_SECOND_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
-					FORWARD, NO_AVOIDANCE);
+					FORWARD, second_row_avoidance_mode);
 			if(state == GM_WAIT_ACT)
 			  what_to_do_after_act = GM_THIRD_ROW; //Quand les ascensseurs auront fini de bouger, on passera a l'etat GM_DONE
 			else if(state == GM_SECOND_ROW) {
@@ -399,13 +406,13 @@ error_e strat_glasses_alexis(void){
 
 		case GM_THIRD_ROW:
 			state = try_going_multipoint((displacement_t[])
-					{ {{550, COLOR_Y(1000)}, FAST},
-					  {{500, COLOR_Y(1100)}, SLOW} },
-					2,
+					{ {{500, COLOR_Y(1134)}, FAST},
+					  {{446, COLOR_Y(1220)}, SLOW} },
+					1,
 					GM_THIRD_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
-					FORWARD, NO_AVOIDANCE);
+					FORWARD, third_row_avoidance_mode);
 			if(state == GM_WAIT_ACT)
-			  what_to_do_after_act = GM_DONE; //Quand les ascensseurs auront fini de bouger, on passera a l'etat GM_DONE
+			  what_to_do_after_act = GM_GO_HOME; //Quand les ascensseurs auront fini de bouger, on passera a l'etat GM_DONE
 			else if(state == GM_THIRD_ROW) {
 				//On tente de prendre des verres pendant le déplacement ...
 				grab_glass(FALSE, ACT_LIFT_Left);
@@ -422,7 +429,7 @@ error_e strat_glasses_alexis(void){
 		case GM_GO_HOME:
 			state = try_going(1000, COLOR_Y(300), GM_GO_HOME, GM_WAIT_ACT, GM_WAIT_ACT, FORWARD, NO_AVOIDANCE);
 			if(state == GM_WAIT_ACT) {
-				what_to_do_after_act = GM_DONE;   //Après que les actionneurs auront fini leur mouvement, la micro_strat sera finie
+				what_to_do_after_act = GM_EXTRACT_FROM_GLASSES;   //Après que les actionneurs auront fini leur mouvement, la micro_strat sera finie
 				if(!GLASS_SENSOR_LEFT)  //S'il n'y a pas de verre en bas, on descend l'ascensseur avant
 					ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
 				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
@@ -430,6 +437,10 @@ error_e strat_glasses_alexis(void){
 					ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
 				ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierOpen);
 			}
+			break;
+
+		case GM_EXTRACT_FROM_GLASSES:
+			state = try_relative_move(200, FAST, BACKWARD, GM_EXTRACT_FROM_GLASSES, GM_DONE, GM_DONE);
 			break;
 
 		case GM_DONE:
@@ -452,6 +463,7 @@ error_e strat_glasses_alexis(void){
 			STATE_STR_DECLARE(state_str, GM_THIRD_ROW);
 			STATE_STR_DECLARE(state_str, GM_WAIT_ACT);
 			STATE_STR_DECLARE(state_str, GM_GO_HOME);
+			STATE_STR_DECLARE(state_str, GM_EXTRACT_FROM_GLASSES);
 			STATE_STR_DECLARE(state_str, GM_DONE);
 			STATE_STR_INIT_UNDECLARED(state_str, GM_NBSTATE);
 			state_str_initialized = TRUE;

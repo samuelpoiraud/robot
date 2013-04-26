@@ -27,7 +27,7 @@
 /** Lorsque le moteur atteint sa position avec +/- PLATE_ASSER_POS_EPSILON d'unité potar d'écart max, on considère qu'il a atteint sa position. Angle en unité potar. */
 	#define PLATE_ASSER_POS_EPSILON              60
 /** Position en unité potar lorsque la pince à assiette est en position horizontale */
-	#define PLATE_HORIZONTAL_POS                 720
+	#define PLATE_HORIZONTAL_POS                 710
 /** Position en unité potar lorsque la pince à assiette est en position oblique (utilisé pour préparer une action ou pour taper les cadeaux) */
 	#define PLATE_PREPARE_POS                    855
 /** Position en unité potar lorsque la pince à assiette est en position verticale */

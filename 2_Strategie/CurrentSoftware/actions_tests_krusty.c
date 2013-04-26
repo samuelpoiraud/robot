@@ -53,7 +53,7 @@ void K_Strat_Coupe(void){
         ASSIETTE_4,
         ASSIETTE_5,
         DONE,
-    }state=SORTIR;
+    }state=ASSIETTE_2;  //SORTIR
 
     static error_e sub_action;
 
@@ -439,9 +439,35 @@ error_e Assiete_5_lanceur(void){
 }
 
 void TEST_STRAT_ALEXIS() {
-	static error_e last_result = IN_PROGRESS;
-	if(last_result == IN_PROGRESS)
-		last_result = strat_glasses_alexis();
+//	static bool_e must_init = TRUE;
+//	if(must_init) {
+//		must_init = FALSE;
+//		grab_glass(TRUE, ACT_LIFT_Left);
+//		grab_glass(TRUE, ACT_LIFT_Right);
+//	}
+//
+//	grab_glass(FALSE, ACT_LIFT_Left);
+//	grab_glass(FALSE, ACT_LIFT_Right);
+	
+	enum state_e {
+		DO_GLASSES,
+		DO_PLATES
+	};
+	static enum state_e state = DO_GLASSES;
+	error_e sub_action;
+
+	switch(state) {
+		case DO_GLASSES:
+			sub_action = strat_glasses_alexis();
+			if(sub_action != IN_PROGRESS)
+				state = DO_PLATES;
+			break;
+
+		case DO_PLATES:
+			K_Strat_Coupe();
+			break;
+	}
+
 }
 
 

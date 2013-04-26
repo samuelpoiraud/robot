@@ -538,6 +538,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		case ACT_CANDLECOLOR & 0xFF:
 			act_id = ACT_QUEUE_CandleColor;
 			break;
+
+		case ACT_PLIER & 0xFF:
+			act_id = ACT_QUEUE_Plier;
+			break;
 	}
 
 	if(act_id >= NB_QUEUE) {

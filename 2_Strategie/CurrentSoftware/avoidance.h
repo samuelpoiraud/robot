@@ -193,6 +193,8 @@
 	 */
 	Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed);
 
+	Uint8 try_relative_move(Sint16 distance, ASSER_speed_e speed, way_e way, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.
 	 *
