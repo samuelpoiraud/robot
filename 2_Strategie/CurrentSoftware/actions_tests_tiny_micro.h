@@ -33,6 +33,8 @@ error_e TINY_blow_one_candle(Uint8 i, Sint8 way);
 
 
 error_e TINY_open_all_gifts(void);
+error_e TINY_open_all_gifts_without_pause();
+
 error_e old_TINY_all_candles(void);
 error_e TINY_open_all_gifts_homolog(void);
 

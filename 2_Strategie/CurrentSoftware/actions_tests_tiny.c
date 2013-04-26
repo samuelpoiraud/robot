@@ -176,7 +176,8 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			state = try_go_angle(PI4096/2, TURN_IF_NO_CALIBRATION, SUBACTION_OPEN_ALL_GIFTS, SUBACTION_OPEN_ALL_GIFTS, FAST);
 		break;
 		case SUBACTION_OPEN_ALL_GIFTS:	//Subaction d'ouverture des cadeaux
-			sub_action = TINY_open_all_gifts();
+			//sub_action = TINY_open_all_gifts();
+			sub_action = TINY_open_all_gifts_without_pause();
 			switch(sub_action)
             {
 				case IN_PROGRESS:
@@ -522,7 +523,6 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		break;
 
 		case CANDLES_FAIL:	//No break...
-			
 		case CANDLES_SUCCESS:
 			//On vient de terminer (en échec ou pas.. de souffler les bougies...)
 			//En fonction de notre position, on rejoint un point éloigné du gateau pour terminer les choses proprement
