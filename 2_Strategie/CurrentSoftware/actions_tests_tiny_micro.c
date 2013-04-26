@@ -1184,7 +1184,7 @@ error_e TINY_warner_blow_all_candles(void)
 		break;
 
 		case ANGLE_HAMMER_READY:
-			state=try_go_angle((color_begin_cake==BLUE)?-536:-12328,ANGLE_HAMMER_READY,HAMMER_CANDLE,HAMMER_CANDLE, FAST);
+			state=try_go_angle((color_begin_cake==BLUE)?-12328:-536,ANGLE_HAMMER_READY,HAMMER_CANDLE,HAMMER_CANDLE, FAST);
 		break;
 
 		case HAMMER_CANDLE:

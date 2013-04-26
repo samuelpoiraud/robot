@@ -502,7 +502,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 	
 		case SUBACTION_BLOW_CANDLES:					//Souffler bougies 
-				sub_action = TINY_blow_all_candles();
+				sub_action = TINY_warner_blow_all_candles();
 				
 				switch(sub_action)
 				{
@@ -687,6 +687,9 @@ void STRAT_TINY_all_candles(void)
 		POS,
 	    TINY_CANDLES,
 		COMEBACK2CODEUR,
+				test1,
+				test2,
+				mid,
 		DONE
 	}state_e;
 
@@ -725,11 +728,52 @@ void STRAT_TINY_all_candles(void)
 
 
 		case COMEBACK2CODEUR:
-             state = try_going(500, COLOR_Y(2154), COMEBACK2CODEUR, DONE, DONE, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
+             state = try_going(500, COLOR_Y(2154), COMEBACK2CODEUR, test1, test1, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 
 		break;
 
+		case test1:
+			sub_action=TINY_forgotten_gift(THIRD_GIFT);
+			switch(sub_action)
+            {
+				case END_OK:
+					state=mid;
+				break;
+				case END_WITH_TIMEOUT:
+					state=mid;
+				case NOT_HANDLED:
+					state =mid;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
+   
+		break;
 
+		case mid:
+             state = try_going(1000, COLOR_Y(1500), mid,test2, test2, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
+
+		break;
+
+		case test2:
+             sub_action=TINY_forgotten_gift(FOURTH_GIFT);
+			switch(sub_action)
+            {
+				case END_OK:
+					state=DONE;
+				break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+				case NOT_HANDLED:
+					state =DONE;
+				break;
+				case IN_PROGRESS:
+				default:
+				break;
+            }
+
+		break;
 		case DONE:
 		break;
 		default:
