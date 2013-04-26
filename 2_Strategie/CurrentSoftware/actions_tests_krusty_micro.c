@@ -692,7 +692,7 @@ error_e TEST_SAMUEL_two_first_rows(void){
 
 	entrance_prior = (act_prioritaire == previous_act_prioritaire)?FALSE:TRUE;
 	entrance_second = (act_secondaire == previous_act_secondaire)?FALSE:TRUE;
-	previous_act_prioritaire = act_prior;
+	previous_act_prioritaire = act_prioritaire;
 	previous_act_secondaire = act_secondaire;
 
 	if(state == DONE && act_prioritaire == ACT_DONE && act_secondaire == ACT_DONE)
