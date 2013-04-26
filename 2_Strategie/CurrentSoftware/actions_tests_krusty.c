@@ -512,6 +512,8 @@ void K_test_strat_unitaire(void){
 			break;
 		case ACTION:
 			sub_action = drink(); //Mettez ici le nom de votre micro-strat à tester
+			//sub_action = two_first_rows(); //Mettez ici le nom de votre micro-strat à tester
+			sub_action = TEST_SAMUEL_two_first_rows(); //Mettez ici le nom de votre micro-strat à tester
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;

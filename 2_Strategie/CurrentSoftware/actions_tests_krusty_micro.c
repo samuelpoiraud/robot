@@ -224,6 +224,236 @@ error_e two_first_rows(void){
 }
 
 
+
+
+error_e TEST_SAMUEL_two_first_rows(void){
+	static enum{
+		INIT = 0,
+		FIRST_ROW,
+		SECOND_ROW,
+		DONE
+	}state = INIT;
+
+	enum actionneur_state{
+		ACT_INIT = 0,
+		WAIT_GLASS,
+		WAIT_FIRST_RIGHT,
+		GRAB,
+		FIRST_LIFT_UP,
+		WAIT_SECOND_ROW,
+		WAIT_SECOND_GLASS,
+		LIFT_DOWN_AND_GRAB,
+		WAIT_SECOND_RIGHT,
+		CLOSE,
+		SECOND_LIFT_UP,
+		ACT_DONE
+	};
+
+	static error_e act_prioritaire = INIT;
+	static error_e previous_act_prioritaire = INIT;
+	static error_e act_secondaire = INIT;
+	static error_e previous_act_secondaire = INIT;
+	
+	static ACT_lift_pos_t prioritaire;
+	static ACT_lift_pos_t secondaire;
+	static queue_id_e ret_prioritaire;
+	static queue_id_e ret_secondaire;
+	static bool_e entrance_prior = TRUE;
+	static bool_e entrance_second = TRUE;
+	static bool_e right_ok = FALSE; //Flag qui sert à  faire patienter l'ascenseur de droite pour ne pas réagir au premier reach_y
+
+	static error_e sub_action;
+
+	error_e ret = IN_PROGRESS;
+
+ // MAE de déplacements
+	switch(state)
+	{
+		case INIT:
+			//debug_printf("state = ASK_WARNER");
+			prioritaire = (global.env.color == BLUE)? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+			secondaire = (global.env.color == RED)? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+			ret_prioritaire = (global.env.color == BLUE)? ACT_QUEUE_LiftLeft : ACT_QUEUE_LiftRight;
+			ret_secondaire = (global.env.color == RED)? ACT_QUEUE_LiftRight : ACT_QUEUE_LiftLeft;
+			state = FIRST_ROW;
+		break;
+		case FIRST_ROW:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(950)},FAST},
+				{{1050,COLOR_Y(1500)},FAST}},
+				2,FORWARD,NO_AVOIDANCE);
+			if(sub_action != IN_PROGRESS)
+				state = SECOND_ROW;
+		break;
+
+		case SECOND_ROW:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{820,COLOR_Y(1330)},FAST},
+				{{750,COLOR_Y(1130)},FAST},
+				{{750,COLOR_Y(750)},FAST}},
+				3,FORWARD,NO_AVOIDANCE);
+			if(sub_action != IN_PROGRESS)
+				state = DONE;
+		break;
+		case DONE:
+		break;
+		default:
+		break;
+	}
+
+ // MAE de l'ascenseur principal
+	switch(act_prioritaire)
+	{
+		case ACT_INIT:
+			act_prioritaire = WAIT_GLASS;
+		break;
+		case WAIT_GLASS:	//On attend le premier verre
+			if(entrance_prior)
+				ASSER_WARNER_arm_y(COLOR_Y(900));
+			if(global.env.asser.reach_y)
+				act_prioritaire = GRAB;
+		break;
+		case GRAB:					//On ferme la pince, on donne la main au second actionneur.
+			if(entrance_prior)
+			{
+				ACT_lift_plier(prioritaire, ACT_LIFT_PlierClose);
+				right_ok = TRUE;	//On débloque l'autre actionneur qui était en attente.
+			}
+			if(act_go_on(ret_prioritaire) == TRUE)
+				act_prioritaire = FIRST_LIFT_UP;
+		break;
+		case FIRST_LIFT_UP:			//On lève l'ascenseur
+			if(entrance_prior)
+				ACT_lift_translate(prioritaire,ACT_LIFT_TranslateUp);
+			if(act_go_on(ret_prioritaire) == TRUE)
+				act_prioritaire = WAIT_SECOND_ROW;
+		break;
+		case WAIT_SECOND_ROW:		//On attend la seconde trajectoire
+			if(state == SECOND_ROW)
+				act_prioritaire = WAIT_SECOND_GLASS;
+		break;
+		case WAIT_SECOND_GLASS:		//On attend le second verre
+			if(entrance_prior)
+				ASSER_WARNER_arm_y(COLOR_Y(1350));
+			if(global.env.asser.reach_y)
+				act_prioritaire = LIFT_DOWN_AND_GRAB;
+		break;
+		case LIFT_DOWN_AND_GRAB:				//On redescend l'ascenseur en ouvrant la pince
+			if(entrance_prior)
+			{
+				ACT_lift_plier(prioritaire, ACT_LIFT_PlierOpen);
+				ACT_lift_translate(prioritaire, ACT_LIFT_TranslateDown);
+				right_ok = TRUE;	//On débloque l'autre actionneur qui était en attente.
+			}
+			if(act_go_on(ret_prioritaire) == TRUE)
+				act_prioritaire = CLOSE;
+		break;
+		case CLOSE:					//On referme la pince
+			if(entrance_prior)
+				ACT_lift_plier(prioritaire, ACT_LIFT_PlierClose);
+			if(act_go_on(ret_prioritaire) == TRUE)
+				act_prioritaire = SECOND_LIFT_UP;
+
+		break;
+		case SECOND_LIFT_UP:
+			if(entrance_prior)
+				ACT_lift_plier(prioritaire, ACT_LIFT_TranslateUp);
+			if(act_go_on(ret_prioritaire) == TRUE)
+				act_prioritaire = ACT_DONE;
+			break;
+		case ACT_DONE:				//On a fini !
+		break;
+		default:
+		break;
+	}
+
+
+
+ // MAE du second ascenseur
+	switch(act_secondaire)
+	{
+		case ACT_INIT:
+			act_secondaire = WAIT_FIRST_RIGHT;
+		break;
+		case WAIT_FIRST_RIGHT:				//On attend que le premier actionneur nous donne la main.
+			if(right_ok)
+			{
+				right_ok = FALSE;	//Merci !
+				act_secondaire = WAIT_GLASS;
+			}
+		break;
+		case WAIT_GLASS:				//On attend notre premier verre
+			if(entrance_second)
+				ASSER_WARNER_arm_y(COLOR_Y(1200));
+			if(global.env.asser.reach_y)
+				act_secondaire = GRAB;
+		break;
+		case GRAB:						//On serre la pince
+			if(entrance_second)
+				ACT_lift_plier(secondaire, ACT_LIFT_PlierClose);
+			if(act_go_on(ret_secondaire) == TRUE)
+				act_secondaire = FIRST_LIFT_UP;
+		break;
+		case FIRST_LIFT_UP:
+			if(entrance_second)
+				ACT_lift_translate(secondaire, ACT_LIFT_TranslateUp);
+			if(act_go_on(ret_secondaire) == TRUE)
+				act_secondaire = WAIT_SECOND_RIGHT;
+		break;
+		case WAIT_SECOND_RIGHT:
+			if(right_ok)
+			{
+				right_ok = FALSE;	//Merci !
+				act_secondaire = WAIT_SECOND_GLASS;
+			}
+		break;
+		case WAIT_SECOND_GLASS:
+			if(entrance_second)
+				ASSER_WARNER_arm_y(COLOR_Y(1050));
+			if(global.env.asser.reach_y)
+				act_prioritaire = LIFT_DOWN_AND_GRAB;
+		break;
+		case LIFT_DOWN_AND_GRAB:
+			if(entrance_second)
+			{
+				ACT_lift_plier(secondaire, ACT_LIFT_PlierOpen);
+				ACT_lift_translate(secondaire, ACT_LIFT_TranslateDown);
+			}
+			if(act_go_on(ret_secondaire) == TRUE)
+				act_secondaire = CLOSE;
+		break;
+		case CLOSE:
+			if(entrance_second)
+				ACT_lift_plier(secondaire, ACT_LIFT_PlierClose);
+			if(act_go_on(ret_secondaire) == TRUE)
+				act_secondaire = SECOND_LIFT_UP;
+		break;
+		case SECOND_LIFT_UP:
+			if(entrance_second)
+				ACT_lift_translate(secondaire, ACT_LIFT_TranslateUp);
+			if(act_go_on(ret_secondaire) == TRUE)
+				act_secondaire = ACT_DONE;
+		break;
+		case ACT_DONE:
+			
+		break;
+		default:
+		break;
+	}
+
+	entrance_prior = (act_prioritaire == previous_act_prioritaire)?FALSE:TRUE;
+	entrance_second = (act_secondaire == previous_act_secondaire)?FALSE:TRUE;
+
+	if(state == DONE && act_prioritaire == ACT_DONE && act_secondaire == ACT_DONE)
+	{
+		ret = END_OK;
+		state = INIT;
+		act_prioritaire = ACT_INIT;
+		act_secondaire = ACT_INIT;
+	}
+	return ret;
+}
+
+
+
 Uint8 lift_process(Uint8 progress, Uint8 fail, Uint8 success){
 	
 	static enum{
