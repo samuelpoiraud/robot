@@ -1085,7 +1085,7 @@ error_e TINY_warner_around_cake(Sint8 way)
 	}else{
 		return goto_pos_with_scan_foe((displacement_t[]){
 
-			//{{wcandles[29].x,wcandles[0].y},SLOW},
+			//{{wcandles[29].x,wcandles[29].y},SLOW},
 			{{wcandles[28].x,wcandles[28].y},SLOW},
 			{{wcandles[27].x,wcandles[27].y},SLOW},
 			{{wcandles[26].x,wcandles[26].y},SLOW},
@@ -1186,7 +1186,6 @@ error_e TINY_warner_blow_all_candles(void)
 		case ANGLE_HAMMER_READY:
 			state=try_go_angle((color_begin_cake==BLUE)?-536:-12328,ANGLE_HAMMER_READY,HAMMER_CANDLE,HAMMER_CANDLE, FAST);
 		break;
-
 
 		case HAMMER_CANDLE:
 				ACT_hammer_blow_candle(); 	//BAISSER BRAS
