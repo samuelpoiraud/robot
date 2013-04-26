@@ -64,14 +64,14 @@ void TINY_hammer_open_all_gift(bool_e reset)
 	{
 		case INIT:
 			ACT_hammer_goto(HAMMER_POSITION_DOWN);		//Bras : READY !
-			ASSER_WARNER_arm_y(COLOR_Y(400));	//On arme et on attend le premier cadeau.
+			ASSER_WARNER_arm_y(COLOR_Y(450));	//On arme et on attend le premier cadeau.
 			state = WAIT_FIRST_GIFT;
 		break;
 		case WAIT_FIRST_GIFT:		
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(600));
+				ASSER_WARNER_arm_y(COLOR_Y(800));
 				state = OPENING_FIRST_GIFT;
 			}			
 		break;
@@ -89,7 +89,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(1200));
+				ASSER_WARNER_arm_y(COLOR_Y(1400));
 				state = OPENING_SECOND_GIFT;
 			}			
 		break;
@@ -107,7 +107,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(1800));
+				ASSER_WARNER_arm_y(COLOR_Y(2000));
 				state = OPENING_THIRD_GIFT;
 			}			
 		break;
@@ -125,18 +125,19 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(2400));
-				state = OPENING_FOURTH_GIFT;
+				ASSER_WARNER_arm_y(COLOR_Y(2600));
+				state = ALL_GIFTS_OPENED;
 			}			
 		break;
 		case OPENING_FOURTH_GIFT:
-			if(global.env.asser.reach_y)
+		/*	if(global.env.asser.reach_y)
 			{
 				//TODO prévenir environnement
 				global.env.map_elements[GOAL_Cadeau3] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_HOME);		//BAISSER BRAS
 				state = ALL_GIFTS_OPENED;
 			}
+			*/
 		break;
 		case ALL_GIFTS_OPENED:
 			//Nothing to do.
@@ -163,7 +164,11 @@ error_e TINY_open_all_gifts_without_pause(void)
 	typedef enum
 	{
 		INIT=0,
-		OPENING_GIFTS
+		OPENING_GIFTS,
+		HAMMER_HOME,
+		FAIL,
+		FAIL_HAMMER_HOME,
+		DONE
 	}state_e;
 	static state_e state = INIT;
 
@@ -185,17 +190,15 @@ error_e TINY_open_all_gifts_without_pause(void)
 			if(COLOR_Y(global.env.pos.y) > 600)
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 		
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},SLOW},{{140,COLOR_Y(600)},SLOW},{{140,COLOR_Y(2400)},SLOW}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(2300)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
             {
 				case END_OK:
-					ret = END_OK;
-					state = INIT;
+					state = HAMMER_HOME;
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
 				case NOT_HANDLED:		//Echec de la mission
-					ret = sub_action;
-					state = INIT;
+					state = FAIL;
 				break;
 				case IN_PROGRESS:
 				break;	
@@ -203,7 +206,21 @@ error_e TINY_open_all_gifts_without_pause(void)
 				break;
             }
 		break;
-		
+		case HAMMER_HOME:
+			ACT_hammer_goto(HAMMER_POSITION_HOME);		//BAISSER BRAS
+			state = DONE;
+		break;
+		case DONE:
+			ret = END_OK;
+			state = INIT;
+		break;
+		case FAIL:
+			state = try_go_angle(0, FAIL, FAIL_HAMMER_HOME, FAIL_HAMMER_HOME, FAST);
+		break;
+		case FAIL_HAMMER_HOME:
+			ACT_hammer_goto(HAMMER_POSITION_HOME);		//BAISSER BRAS
+			state = INIT;
+			ret = NOT_HANDLED;
 		default:
 		break;
 		

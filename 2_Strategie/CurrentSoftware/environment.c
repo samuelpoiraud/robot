@@ -359,7 +359,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			debug_printf("US1: TROP DE SIGNAL\n");
 		} else {
 			debug_printf("NO US 1 err %d!\n", msg->data[0]);
-			CAN_send_sid(DEBUG_BEACON_US1_ERROR);
+//			CAN_send_sid(DEBUG_BEACON_US1_ERROR);
 		}
 		if(msg->data[4]==AUCUNE_ERREUR) 
 		{
@@ -376,7 +376,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			debug_printf("US2: TROP DE SIGNAL\n");
 		} else {
 			debug_printf("NO US 2 err %d!\n", msg->data[4]);
-			CAN_send_sid(DEBUG_BEACON_US2_ERROR);
+//			CAN_send_sid(DEBUG_BEACON_US2_ERROR);
 		}
 		if(slashn)
 			debug_printf("\n");
