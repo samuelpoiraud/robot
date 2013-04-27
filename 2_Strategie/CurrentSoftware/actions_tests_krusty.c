@@ -54,7 +54,7 @@ void K_Strat_Coupe(void){
         ASSIETTE_4,
         ASSIETTE_5,
         DONE,
-    }state=ASSIETTE_2;  //SORTIR
+    }state=SORTIR;
 
     static error_e sub_action;
 
