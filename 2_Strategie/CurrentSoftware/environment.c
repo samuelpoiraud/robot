@@ -351,15 +351,14 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_US_FOE_1].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_1].updated = TRUE;
 			//debug_printf("US1=%dmm", global.env.sensor[BEACON_US_FOE_1].distance);
-		} else if(msg->data[0] == TROP_DE_SIGNAL) {
-			#warning "Fiable ?"
-			global.env.sensor[BEACON_US_FOE_1].distance = 0;
-			global.env.sensor[BEACON_US_FOE_1].update_time = global.env.match_time;
-			global.env.sensor[BEACON_US_FOE_1].updated = TRUE;
-			debug_printf("US1: TROP DE SIGNAL\n");
+//		} else if(msg->data[0] == TROP_DE_SIGNAL) {
+//			#warning "Fiable ?"
+//			global.env.sensor[BEACON_US_FOE_1].distance = 0;
+//			global.env.sensor[BEACON_US_FOE_1].update_time = global.env.match_time;
+//			global.env.sensor[BEACON_US_FOE_1].updated = TRUE;
+//			debug_printf("US1: TROP DE SIGNAL\n");
 		} else {
 			debug_printf("NO US 1 err %d!\n", msg->data[0]);
-//			CAN_send_sid(DEBUG_BEACON_US1_ERROR);
 		}
 		if(msg->data[4]==AUCUNE_ERREUR) 
 		{
@@ -368,15 +367,14 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_US_FOE_2].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_2].updated = TRUE;
 			//debug_printf(" US2=%dmm", global.env.sensor[BEACON_US_FOE_2].distance);
-		} else if(msg->data[4] == TROP_DE_SIGNAL) {
-			#warning "Fiable ?"
-			global.env.sensor[BEACON_US_FOE_2].distance = 0;
-			global.env.sensor[BEACON_US_FOE_2].update_time = global.env.match_time;
-			global.env.sensor[BEACON_US_FOE_2].updated = TRUE;
-			debug_printf("US2: TROP DE SIGNAL\n");
+//		} else if(msg->data[4] == TROP_DE_SIGNAL) {
+//			#warning "Fiable ?"
+//			global.env.sensor[BEACON_US_FOE_2].distance = 0;
+//			global.env.sensor[BEACON_US_FOE_2].update_time = global.env.match_time;
+//			global.env.sensor[BEACON_US_FOE_2].updated = TRUE;
+//			debug_printf("US2: TROP DE SIGNAL\n");
 		} else {
 			debug_printf("NO US 2 err %d!\n", msg->data[4]);
-//			CAN_send_sid(DEBUG_BEACON_US2_ERROR);
 		}
 		if(slashn)
 			debug_printf("\n");
