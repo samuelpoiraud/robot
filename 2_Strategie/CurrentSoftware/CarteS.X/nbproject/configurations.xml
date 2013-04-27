@@ -53,6 +53,7 @@
       <itemPath>../actions_tests_krusty_micro.h</itemPath>
       <itemPath>../actions_tests_tiny_micro.h</itemPath>
       <itemPath>../grille.h</itemPath>
+      <itemPath>../actions_glasses.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -96,6 +97,7 @@
       <itemPath>../actions_tests_krusty_micro.c</itemPath>
       <itemPath>../actions_tests_tiny.c</itemPath>
       <itemPath>../actions_tests_tiny_micro.c</itemPath>
+      <itemPath>../actions_glasses.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

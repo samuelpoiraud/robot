@@ -1652,6 +1652,10 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 		return FOE_IN_PATH;
 	}
 
+	//Si nouveau déplacement et qu'aucun point n'est donné, on a rien a faire
+	if(state == LOAD_MOVE && nb_displacements == 0)
+		return END_OK;
+
 	switch(state)
 	{
 		case LOAD_MOVE:
@@ -1758,7 +1762,7 @@ void foe_in_path(bool_e *in_path)
 
 	// on regarde notre indicateur de vitesse et notre sens de direction
 	//speed_indicator = AVOIDANCE_speed_indicator_compute();
-#warning "cette fonction ne peut pas, fonctionner... Suggestion : utiliser plutot le type de trajectoire en cours...?"
+//#warning "cette fonction ne peut pas, fonctionner... Suggestion : utiliser plutot le type de trajectoire en cours...?"
 
 	// on identifie une distance par rapport à la distance
 	//distance_computed = ((speed_indicator*52) >>2) + 400;		// DISTANCE 2011
