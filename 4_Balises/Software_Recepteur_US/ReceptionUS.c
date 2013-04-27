@@ -18,8 +18,6 @@
 #include "QS/QS_adc.h"
 #include "PGA.h"
 #include "Secretary.h"
-#include "QS/QS_can.h"
-#include "QS/QS_CANmsgList.h"
 
 #define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
 
@@ -103,8 +101,8 @@ void ReceptionUS_process_main(void)
 	distance = calcul_distance(position_pic);						//Calcul de la distance.
 
 	//TODO: a enlever !!! DEBUG
-	if(distance == 0)
-		ReceptionUS_afficher_signal(convolution, TAILLE_CONVOLUTION);
+//	if(distance == 0)
+//		ReceptionUS_afficher_signal(convolution, TAILLE_CONVOLUTION);
 
 	if(distance == 0)
 		fiabilite |= ERREUR_TROP_PROCHE;
@@ -130,7 +128,7 @@ void ReceptionUS_process_main(void)
 #define SEUIL_SATURATION				(100)		//((1023 - OFFSET_MASSE_VIRTUELLE)/4 - 28)	//20 : valeur grosso modo pour dire "pas trop loin de la saturation"
 #define CONVOLUTION_VALEUR_MINI         (256)		//Valeur minimale du max de la convolution. Si le max de la convolution est en dessous de cette valeur, le signal de la balise est insuffisant pour mesurer une distance. (ou correspond à du bruit)
 #define NOMBRE_MAXIMAL_VALEURS_SATUREES	(350)	// 16 bits * 14 symboles "1" + un chouilla
-#define MINI_POSITION_PIC				(TAILLE_FENETRE+1)//(3)		//en dessous, on est trop proche pour pouvoir fournir un résultat fiable
+#define MINI_POSITION_PIC				(TAILLE_FENETRE+3)	//en dessous, on est trop proche pour pouvoir fournir un résultat fiable
 
 void ReceptionUS_traiter_signal(void)
 {
