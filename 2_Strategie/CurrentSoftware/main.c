@@ -107,9 +107,9 @@ int main (void)
 			//any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //KRUSTY
 		    any_match(MATCH_DURATION);
 	*/
-		//any_match(MATCH_DURATION);
-		any_match(0);
-#warning "MATCH INFINI pour test evitement !!!"
+		any_match(MATCH_DURATION);
+//		any_match(0);
+//#warning "MATCH INFINI pour test evitement !!!"
 
 		process_measure_loop_duration();
 	}

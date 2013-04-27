@@ -80,7 +80,7 @@ void DETECTION_update(void)
 		for (i=0; i < NB_FOES; i++)
 		{
 			if(global.env.foe[i].updated)
-		#warning "attention: A désactiver en match pour eviter de flooder"
+//		#warning "attention: A désactiver en match pour eviter de flooder"
 				//detection_printf("\r\nFoe_%d is x:%d y:%d dist:%d angle:%d\r\n", i, global.env.foe[i].x, global.env.foe[i].y, global.env.foe[i].dist, global.env.foe[i].angle);
 				CAN_send_foe_pos();	
 		}			

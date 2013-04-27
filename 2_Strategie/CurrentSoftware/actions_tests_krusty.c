@@ -10,6 +10,7 @@
  */
 
 #include "actions_tests_krusty.h"
+#include "actions_glasses.h"
 
 
 #define DEFAULT_SPEED	(SLOW)
@@ -458,7 +459,7 @@ void TEST_STRAT_ALEXIS() {
 
 	switch(state) {
 		case DO_GLASSES:
-			sub_action = strat_glasses_alexis();
+			sub_action = K_STRAT_sub_glasses_alexis();
 			if(sub_action != IN_PROGRESS)
 				state = DO_PLATES;
 			break;
