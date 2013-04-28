@@ -31,7 +31,7 @@
 	#define ACT_NEVER_DISABLE
 
 	//Décommentez ce paramêtre ou mettez le dans Global_config pour désactiver la gestion d'erreur. (dangereux)
-	//De cette façon, si cette constante est définie, tout renvoi de résultat par la carte actionneur sera considéré comme une réussite. Le timeout de la carte strat n'est pas désactivé.
+	//De cette façon, si cette constante est définie, tout renvoi de résultat par la carte actionneur sera considéré comme une réussite. Le timeout de la carte strat est désactivé.
 	//#define ACT_NO_ERROR_HANDLING
 
 	//Décommentez ce paramètre ou mettez le dans Global_config pour désactiver les actions fallback en cas d'erreur.

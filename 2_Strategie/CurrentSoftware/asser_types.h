@@ -30,7 +30,7 @@
 		SLOW,
 		VERY_SLOW_TRANSLATION_AND_FAST_ROTATION,  //comme en calibrage
 		EXTREMELY_VERY_SLOW,
-		CUSTOM	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
+		CUSTOM	//Les valeurs a partir de 8 sont valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
 	} ASSER_speed_e;
 	
 	typedef enum
