@@ -1006,7 +1006,7 @@ error_e move_colision()
 			break;
 
 		case GOTO_NODE:
-			switch (goto_node(bestNode, VERY_SLOW, ANY_WAY))
+			switch (goto_node(bestNode, VERY_SLOW_TRANSLATION_AND_FAST_ROTATION, ANY_WAY))
 			{	
 				case END_OK :
 					state = DONE;

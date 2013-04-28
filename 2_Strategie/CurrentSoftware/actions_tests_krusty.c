@@ -11,6 +11,8 @@
 
 #include "actions_tests_krusty.h"
 #include "actions_glasses.h"
+#include "actions_cherries.h"
+#include "actions_utils.h"
 
 
 #define DEFAULT_SPEED	(SLOW)
@@ -440,35 +442,38 @@ error_e Assiete_5_lanceur(void){
 }
 
 void TEST_STRAT_ALEXIS() {
-//	static bool_e must_init = TRUE;
-//	if(must_init) {
-//		must_init = FALSE;
-//		grab_glass(TRUE, ACT_LIFT_Left);
-//		grab_glass(TRUE, ACT_LIFT_Right);
-//	}
-//
-//	grab_glass(FALSE, ACT_LIFT_Left);
-//	grab_glass(FALSE, ACT_LIFT_Right);
-	
 	enum state_e {
-		DO_GLASSES,
-		DO_PLATES
+		DO_GLASSES,	//Faire les verres
+		DO_PLATES,	//Faire les assiettes & lancer les cerises
+		PROTECT_GLASSES,	//On va dans notre zone de départ pour proteger les verres
+		DONE		//On a fini
 	};
 	static enum state_e state = DO_GLASSES;
 	error_e sub_action;
 
 	switch(state) {
+		//Faire les verres
 		case DO_GLASSES:
 			sub_action = K_STRAT_sub_glasses_alexis();
-			if(sub_action != IN_PROGRESS)
-				state = DO_PLATES;
+			state = check_sub_action_result(sub_action, DO_GLASSES, DO_PLATES, DO_PLATES);	//Dans tous les cas on fait la suite ...
 			break;
 
+		//Faire les assiettes & lancer les cerises
 		case DO_PLATES:
-			K_Strat_Coupe();
+			sub_action = K_STRAT_sub_cherries_alexis();
+			state = check_sub_action_result(sub_action, DO_PLATES, PROTECT_GLASSES, PROTECT_GLASSES);	//Idem
+			break;
+
+		//On va dans notre zone de départ pour proteger les verres
+		case PROTECT_GLASSES:
+			state = try_going(1000, COLOR_Y(400), PROTECT_GLASSES, DONE, DONE, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		//On a fini
+		case DONE:
+			//Rien a faire on attend la fin de match
 			break;
 	}
-
 }
 
 

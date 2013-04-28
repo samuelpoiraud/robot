@@ -32,7 +32,7 @@
 
 	// Macros permettant de symétriser le terrain 
 	#define COLOR_Y(y)		((global.env.color == RED) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
-	#define COLOR_ANGLE(a)	((global.env.color == BLUE) ? (a) : (-(a)))
+	#define COLOR_ANGLE(a)	((global.env.color == RED) ? (a) : (-(a)))
 
 	// Macro permettant d'utiliser les courbes ou pas selon USE_ASSER_MULTI_POINT
 	// En effet, on ne fait des courbes que si l'on est en multi-poinrs car sinon 

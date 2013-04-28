@@ -10,7 +10,6 @@
  */
 
 #include "actions_tests_krusty_micro.h"
-#include "output_log.h"
 
 
 #define DEFAULT_SPEED	(SLOW)
