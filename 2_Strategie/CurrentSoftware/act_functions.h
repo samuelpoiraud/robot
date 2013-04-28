@@ -34,6 +34,11 @@
 	//De cette façon, si cette constante est définie, tout renvoi de résultat par la carte actionneur sera considéré comme une réussite. Le timeout de la carte strat n'est pas désactivé.
 	//#define ACT_NO_ERROR_HANDLING
 
+	//Décommentez ce paramètre ou mettez le dans Global_config pour désactiver les actions fallback en cas d'erreur.
+	//Par exemple si la pince à assiette n'arrive pas a se baisser, elle se remontera automatiquement et retournera RetryLater si elle reussie ou ActDisabled si elle ne reussi pas a remonter le bras.
+	//Activer ce define fait que aucune action n'est entreprit automatiquement, et en cas de problème RetryLater est retourné
+	//#define ACT_DONT_TRY_FALLBACK
+
 
 	//Resultat de la dernière opération en cours d'exécution. Utilisé pour connaitre l'état après une erreur surtout.
 	//Vous pouvez aussi utiliser l'enum de avoidance (IN_PROGRESS, END_OK, END_WITH_TIMEOUT ou NOT_HANDLED) si vous voulez

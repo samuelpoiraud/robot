@@ -3,8 +3,8 @@
  *	Krusty & Tiny
  *
  *	Fichier : actions_glasses.h
- *	Package : 
- *	Description : 
+ *	Package : Carte Strategie
+ *	Description : Contient des sub_actions ou micro strat concernant la gestion des verres par Krusty
  *	Auteur : amurzeau
  *	Version 26 avril 2013
  */

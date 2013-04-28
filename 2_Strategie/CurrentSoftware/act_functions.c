@@ -320,17 +320,21 @@ static void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout) {
 }
 
 static void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
+#ifndef ACT_DONT_TRY_FALLBACK
 	arg->fallbackMsg.sid = sid;
 	arg->fallbackMsg.data[0] = cmd;
 	arg->fallbackMsg.size = 1;
+#endif
 }
 
 static void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param) {
+#ifndef ACT_DONT_TRY_FALLBACK
 	arg->fallbackMsg.sid = sid;
 	arg->fallbackMsg.data[0] = cmd;
 	arg->fallbackMsg.data[1] = LOWINT(param);
 	arg->fallbackMsg.data[2] = HIGHINT(param);
 	arg->fallbackMsg.size = 3;
+#endif
 }
 
 
@@ -510,6 +514,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			act_id = ACT_QUEUE_BallLauncher;
 			break;
 
+		case ACT_BALLSORTER & 0xFF:
+			act_id = ACT_QUEUE_BallSorter;
+			break;
+
 		case ACT_PLATE & 0xFF:
 			act_id = ACT_QUEUE_Plate;
 			break;
@@ -529,10 +537,6 @@ void ACT_process_result(const CAN_msg_t* msg) {
 
 		case ACT_BALLINFLATER & 0xFF:
 			act_id = ACT_QUEUE_BallInflater;
-			break;
-
-		case ACT_BALLSORTER & 0xFF:
-			act_id = ACT_QUEUE_BallSorter;
 			break;
 
 		case ACT_CANDLECOLOR & 0xFF:

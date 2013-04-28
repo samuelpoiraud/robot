@@ -138,13 +138,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 		case ACT_BALLSORTER_RESULT:
-			if(global.env.color == BLUE){
-				if(incoming_msg->data[0] == ACT_BALLSORTER_WHITE_CHERRY)
-					global.env.color_ball = 0;
-				else global.env.color_ball = 1;
-			} else {
-				global.env.color_ball=0;
-			}
+			global.env.color_ball = incoming_msg->data[0];
 			break;
 
 /************************************ Récupération des données de la balise *******************************/
@@ -452,6 +446,8 @@ void ENV_init()
 	global.env.asser.is_in_translation = FALSE;
 	global.env.asser.is_in_rotation = FALSE;
 	global.env.asser.current_status = NO_ERROR;
+
+	global.env.color_ball = ACT_BALLSORTER_NO_CHERRY;
 
 	//Initialisation des elemnts du terrain
 	int i;

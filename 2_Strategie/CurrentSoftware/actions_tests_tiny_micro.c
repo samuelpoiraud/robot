@@ -346,7 +346,7 @@ error_e TINY_open_all_gifts(void)
             }
 		break;
 		case ANGLE_FIRST_GIFT:
-			sub_action = goto_angle(PI4096/2,VERY_SLOW);
+			sub_action = goto_angle(PI4096/2,VERY_SLOW_TRANSLATION_AND_FAST_ROTATION);
 			
 			switch(sub_action)
             {
@@ -1386,7 +1386,7 @@ error_e old_TINY_all_candles(void){
 
 
 	    case ANGLE_HAMMER:
-			sub_action = goto_angle(-PI4096/2,VERY_SLOW);
+			sub_action = goto_angle(-PI4096/2,VERY_SLOW_TRANSLATION_AND_FAST_ROTATION);
 
 			switch(sub_action)
             {
@@ -1520,7 +1520,7 @@ error_e old_TINY_all_candles(void){
 
 
 	    case ANGLE_FIFTH_CANDLE:
-			sub_action = goto_angle(-PI4096/2,VERY_SLOW);
+			sub_action = goto_angle(-PI4096/2,VERY_SLOW_TRANSLATION_AND_FAST_ROTATION);
 
 			switch(sub_action)
             {
