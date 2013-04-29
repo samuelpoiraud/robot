@@ -302,7 +302,7 @@ static void EVE_timers_update()
 		if(eve_global.timers[i].timer_run == TRUE)	
 		{
 			// On vérifie si on est arrivé au terme du timer
-			if((global_clock_time - eve_global.timers[i].init_value) > eve_global.timers[i].user_period)
+			if((global_clock_time - eve_global.timers[i].init_value) >= eve_global.timers[i].user_period)
 			{
 				// On n'active pas les IFS0 correspondants, ça ne sert à rien
 				// On lance directement l'interruption correspondante :D

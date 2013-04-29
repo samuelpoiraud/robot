@@ -80,9 +80,11 @@ Uint16 EVE_read_new_msg_QS(Uint32 queue_id, EVE_QS_data_msg_t* data)
 Uint16 EVE_write_new_msg_QS(Uint32 queue_id, EVE_QS_data_msg_t data)
 {
 	data.mtype = QUEUE_QS_DATA_MTYPE;
-	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_QS_DATA_MSG_T_SIZE,IPC_NOWAIT) == -1)
+	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_QS_DATA_MSG_T_SIZE, IPC_NOWAIT) == -1)
 	{
-		return EVE_MESSAGES_errors(ERROR_SEND_QUEUE,"QS data not sent");
+		//Si c'est EAGAIN, le buffer d'envoi est plein => l'interface ne lis pas les messages qu'on envoie, donc c'est normal qu'on ai EAGAIN
+		if(errno != EAGAIN)
+			return EVE_MESSAGES_errors(ERROR_SEND_QUEUE,"QS data not sent");
 	}
 	return END_SUCCESS;
 }
@@ -110,7 +112,7 @@ Uint16 EVE_read_new_msg_UART(Uint32 queue_id, EVE_UART_msg_t* data)
 Uint16 EVE_write_new_msg_UART(Uint32 queue_id, EVE_UART_msg_t data)
 {
 	data.mtype = QUEUE_UART_MTYPE;
-	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_UART_MSG_T_SIZE,IPC_NOWAIT) == -1)
+	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_UART_MSG_T_SIZE, IPC_NOWAIT) == -1)
 	{
 		return EVE_MESSAGES_errors(ERROR_SEND_QUEUE,"UART msg not sent");
 	}
@@ -140,7 +142,7 @@ Uint16 EVE_read_new_msg_CAN(Uint32 queue_id, EVE_CAN_msg_t* data)
 Uint16 EVE_write_new_msg_CAN(Uint32 queue_id, EVE_CAN_msg_t data)
 {
 	data.mtype = QUEUE_CAN_MTYPE;
-	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_CAN_MSG_T_SIZE,IPC_NOWAIT) == -1)
+	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_CAN_MSG_T_SIZE, IPC_NOWAIT) == -1)
 	{
 		return EVE_MESSAGES_errors(ERROR_SEND_QUEUE,"CAN msg not sent");
 	}

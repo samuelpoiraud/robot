@@ -30,8 +30,8 @@
 		// Fonction de chargement des filtres contenus dans le fichier filtres.config
 		static void CAN_load_filters();
 
-		// Fonction qui envoie un message CAN à toutes les cartes (actives)
-		static void CAN_broadcast_msg(EVE_CAN_msg_t can_msg);
+		// Fonction qui envoie un message CAN à toutes les cartes (actives) sauf celle qui à envoyé le message (originating_card)
+		static void CAN_broadcast_msg(EVE_CAN_msg_t can_msg, cards_id_e originating_card);
 
 		// Fonction qui met à jour l'IHM après un filtrage selon les filtres imposés par le fichier
 		static Uint16 CAN_ihm_send_with_filter(EVE_CAN_msg_t can_msg);
