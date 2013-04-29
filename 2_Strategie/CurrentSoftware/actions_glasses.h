@@ -15,8 +15,8 @@
 #include "QS/QS_all.h"
 #include "act_functions.h"
 
+error_e K_STRAT_sub_glasses_alexis(bool_e use_alternate_positions);
 error_e K_STRAT_micro_grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos);
-error_e K_STRAT_sub_glasses_alexis(void);
 
 
 #endif	/* ACTIONS_GLASSES_H */
