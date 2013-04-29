@@ -74,7 +74,7 @@ void* CAN_thread()
 					for(i=0;i<nb_can_msg;i++)
 					{
 						EVE_read_new_msg_CAN(bal_id_actionneurs_to_can,&can_msg);	// Réception
-						CAN_broadcast_msg(can_msg);									// Broadcast à toutes les cartes
+						CAN_broadcast_msg(can_msg, ACTIONNEURS);						// Broadcast à toutes les cartes
 						CAN_ihm_send_with_filter(can_msg);							// Envoi à l'IHM
 					}
 				}
@@ -88,7 +88,7 @@ void* CAN_thread()
 					for(i=0;i<nb_can_msg;i++)
 					{
 						EVE_read_new_msg_CAN(bal_id_balises_to_can,&can_msg);		// Réception
-						CAN_broadcast_msg(can_msg);									// Broadcast à toutes les cartes
+						CAN_broadcast_msg(can_msg, BALISES);							// Broadcast à toutes les cartes
 						CAN_ihm_send_with_filter(can_msg);							// Envoi à l'IHM
 					}
 				}
@@ -102,7 +102,7 @@ void* CAN_thread()
 					for(i=0;i<nb_can_msg;i++)
 					{
 						EVE_read_new_msg_CAN(bal_id_propulsion_to_can,&can_msg);	// Réception
-						CAN_broadcast_msg(can_msg);									// Broadcast à toutes les cartes
+						CAN_broadcast_msg(can_msg, PROPULSION);						// Broadcast à toutes les cartes
 						CAN_ihm_send_with_filter(can_msg);							// Envoi à l'IHM
 					}
 				}
@@ -116,7 +116,7 @@ void* CAN_thread()
 					for(i=0;i<nb_can_msg;i++)
 					{
 						EVE_read_new_msg_CAN(bal_id_strategie_to_can,&can_msg);		// Réception
-						CAN_broadcast_msg(can_msg);									// Broadcast à toutes les cartes
+						CAN_broadcast_msg(can_msg, STRATEGIE);						// Broadcast à toutes les cartes
 						CAN_ihm_send_with_filter(can_msg);							// Envoi à l'IHM
 					}
 				}
@@ -130,7 +130,7 @@ void* CAN_thread()
 					for(i=0;i<nb_can_msg;i++)
 					{
 						EVE_read_new_msg_CAN(bal_id_supervision_to_can,&can_msg);	// Réception
-						CAN_broadcast_msg(can_msg);									// Broadcast à toutes les cartes
+						CAN_broadcast_msg(can_msg, SUPERVISION);						// Broadcast à toutes les cartes
 						CAN_ihm_send_with_filter(can_msg);							// Envoi à l'IHM
 					}
 				}
@@ -339,25 +339,25 @@ static void CAN_load_filters()
 }
 
 // Fonction qui envoie un message CAN à toutes les cartes (actives)
-static void CAN_broadcast_msg(EVE_CAN_msg_t can_msg)
+static void CAN_broadcast_msg(EVE_CAN_msg_t can_msg, cards_id_e originating_card)
 {
-	if(GLOBAL_VARS_get_use_cards(ACTIONNEURS) == 1)
+	if(originating_card != ACTIONNEURS && GLOBAL_VARS_get_use_cards(ACTIONNEURS) == 1)
 	{
 		EVE_write_new_msg_CAN(bal_id_can_to_actionneurs,can_msg);
 	}	
-	if(GLOBAL_VARS_get_use_cards(BALISES) == 1)
+	if(originating_card != BALISES && GLOBAL_VARS_get_use_cards(BALISES) == 1)
 	{
 		EVE_write_new_msg_CAN(bal_id_can_to_balises,can_msg);
 	}
-	if(GLOBAL_VARS_get_use_cards(PROPULSION) == 1)
+	if(originating_card != PROPULSION && GLOBAL_VARS_get_use_cards(PROPULSION) == 1)
 	{
 		EVE_write_new_msg_CAN(bal_id_can_to_propulsion,can_msg);
 	}
-	if(GLOBAL_VARS_get_use_cards(STRATEGIE) == 1)
+	if(originating_card != STRATEGIE && GLOBAL_VARS_get_use_cards(STRATEGIE) == 1)
 	{
 		EVE_write_new_msg_CAN(bal_id_can_to_strategie,can_msg);
 	}
-	if(GLOBAL_VARS_get_use_cards(SUPERVISION) == 1)
+	if(originating_card != SUPERVISION && GLOBAL_VARS_get_use_cards(SUPERVISION) == 1)
 	{
 		EVE_write_new_msg_CAN(bal_id_can_to_supervision,can_msg);
 	}

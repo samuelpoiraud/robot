@@ -5,35 +5,45 @@
 # Auteur : Julien
 
 eve:
-	gcc -Wall -o EVE *.c EVE_QS/*.c IHM/*.c -lm -lpthread `pkg-config --cflags --libs gtk+-2.0`
+	gcc -Wall -o EVE *.c EVE_QS/*.c IHM/*.c `pkg-config --cflags gtk+-2.0` -lm -lpthread `pkg-config --cflags --libs gtk+-2.0`
 
-compile_actionneurs:
-	gcc -Wall -c CodesCartes/Actionneurs/*.c CodesCartes/Actionneurs/QS/*.c EVE_QS/*.c
-	gcc -o CodeActionneurs *.o -lm
-	rm *.o
+compile_actionneurs: CodeActionneurs
 
-compile_balises:
-	gcc -Wall -c CodesCartes/Balises/*.c CodesCartes/Balises/QS/*.c EVE_QS/*.c
-	gcc -o CodeBalises *.o -lm
-	rm *.o
+CodeActionneurs:
+	gcc  -w  -o CodeActionneurs ../Robot/CarteActionneur/*.c ../Robot/CarteActionneur/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+#	gcc -o CodeActionneurs *.o -lm
+#	rm *.o
 
-compile_propulsion:
-	gcc -Wall -c ../../../../propulsion/Software/project_2011/*.c ../../../../propulsion/Software/project_2011/QS/*.c ../../../../propulsion/Software/project_2011/QS/EVE_QS/*.c
-	gcc -o CodePropulsion *.o -lm
-	rm *.o
+compile_balises: CodeBalises
 
-compile_strategie_old:
-	gcc -Wall -c CodesCartes/Strategie/*.c CodesCartes/Strategie/QS/*.c EVE_QS/*.c
-	gcc -o CodeStrategie *.o -lm
-	rm *.o
+CodeBalises:
+	gcc  -w  -o CodeBalises ../Robot/CarteBaliseReceptriceUS/*.c ../Robot/CarteBaliseReceptriceUS/QS/*.c EVE_QS/*.c  -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+#	gcc -o CodeBalises *.o -lm
+#	rm *.o
 
-compile_strategie:
-	gcc -Wall -c ../../../../carteS/Software\(2011-2012\)/Project/*.c ../../../../carteS/Software\(2011-2012\)/Project/QS/*.c ../../../../carteS/Software\(2011-2012\)/Project/QS/EVE_QS/*.c
-	gcc -o CodeStrategie *.o -lm
-	rm *.o
+compile_propulsion: CodePropulsion
 
-compile_supervision:
-	gcc -Wall -c CodesCartes/Supervision/*.c CodesCartes/Supervision/QS/*.c EVE_QS/*.c
-	gcc -o CodeSupervision *.o -lm
-	rm *.o
+CodePropulsion:
+	gcc  -w  -o CodePropulsion ../Robot/CartePropulsion/*.c ../Robot/CartePropulsion/QS/*.c EVE_QS/*.c -I. -Ihard_includes -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+#	gcc -o CodePropulsion *.o -lm
+#	rm *.o
+
+CodeStrategie_old:
+	gcc  -w  -o CodeStrategie ../Robot/CarteStrategie/*.c ../Robot/CarteStrategie/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+#	gcc -o CodeStrategie *.o -lm
+#	rm *.o
+
+compile_strategie: CodeStrategie
+
+CodeStrategie:
+	gcc  -w  -o CodeStrategie ../Robot/CarteStrategie/*.c ../Robot/CarteStrategie/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+#	gcc -o CodeStrategie *.o -lm
+#	rm *.o
+
+compile_supervision: CodeSupervision
+
+CodeSupervision:
+	gcc  -w -o CodeSupervision ../Robot/CarteSupervision/*.c ../Robot/CarteSupervision/QS/*.c EVE_QS/*.c  -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+#	gcc -o CodeSupervision *.o -lm
+#	rm *.o
 
