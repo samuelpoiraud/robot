@@ -1,12 +1,14 @@
 /*
- *	PFE Simulateur QSx86 2011-2012
- *	Logiciel EVE
+ *  Club Robot ESEO 2006 - 2010
+ *  Game Hoover, Phoboss, Archi-Tech', PACMAN
  *
- *	Fichier : QS_types.h
- *	Package : QSx86
- *	Description : Définition des types du code
- *	Auteurs : Julien Franchineau & François Even
- *	Version 20111206
+ *  Fichier : QS_types.h
+ *  Package : Qualité Soft
+ *  Description : Définition des types pour tout code du robot
+ *  Auteur : Axel Voitier (et un peu savon aussi)
+ *	Revision 2008-2009 : Jacen
+ *	Licence : CeCILL-C (voir LICENCE.txt)
+ *  Version 20100415
  */
 
 #ifndef QS_TYPES_H
@@ -30,7 +32,7 @@
 	
 	typedef enum
 	{
-		RED=0, PURPLE=1
+		RED=0, BLUE=1
 	} color_e;
 	
 	typedef struct 
@@ -44,9 +46,49 @@
 	{ 	
 		CARTE_ASSER, 
 		CARTE_ACT, 
-		CARTE_STRAT,
+		CARTE_P,
 		CARTE_SUPER,
-		CARTE_BALISE
+		CARTE_BALISE,
+		CARTE_STRAT = CARTE_P,		//Compatibilité
+		CARTE_PROP = CARTE_ASSER		//Compatibilité
 	} cartes_e;
+
+	typedef enum
+	{
+		BEACON_ID_MOTHER = 0,
+		BEACON_ID_CORNER = 1,
+		BEACON_ID_MIDLE = 2,
+		BEACON_ID_ROBOT_1 = 3,
+		BEACON_ID_ROBOT_2 = 4,
+		BEACONS_NUMBER
+	} beacon_id_e;	
+
+	/*sens de trajectoire - utilisé dans le code propulsion et partagé pour la stratégie... */
+	typedef enum {
+		ANY_WAY=0,
+		BACKWARD,
+		FORWARD
+	} way_e;
+
+	/*état de la carte propulsion - utilisé dans le code propulsion et partagé pour la stratégie... */
+	typedef enum
+	{
+		NO_ERROR = 0,
+		UNABLE_TO_GO_ERROR,
+		IMMOBILITY_ERROR,
+		ROUNDS_RETURNS_ERROR,
+		UNKNOW_ERROR
+	}SUPERVISOR_error_source_e;
+
+	/*type de trajectoire - utilisé dans le code propulsion et partagé pour la stratégie... */
+	typedef enum
+	{
+			TRAJECTORY_TRANSLATION = 0,
+			TRAJECTORY_ROTATION,
+			TRAJECTORY_STOP,
+			TRAJECTORY_AUTOMATIC_CURVE,
+			TRAJECTORY_NONE
+	} trajectory_e;
+
 
 #endif /* ndef QS_TYPES_H */

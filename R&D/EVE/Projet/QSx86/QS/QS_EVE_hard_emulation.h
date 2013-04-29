@@ -34,8 +34,56 @@
 	#define _ADDRERR	addrerr_dsPIC
 	Uint16 oscfail_dsPIC;
 	#define _OSCFAIL	oscfail_dsPIC
+	
+	Uint16 _C1IE_dsPIC;
+	#define _C1IE _C1IE_dsPIC
 
 	/************************** REDEFINITION DES PORTS **************************************/
+	
+	//Port B
+	typedef struct
+	{
+		Uint8 RB0;
+		Uint8 RB1;
+		Uint8 RB2;
+		Uint8 RB3;
+		Uint8 RB4;
+		Uint8 RB5;
+		Uint8 RB6;
+		Uint8 RB7;
+		Uint8 RB8;
+		Uint8 RB9;
+		Uint8 RB10;
+		Uint8 RB11;
+		Uint8 RB12;
+		Uint8 RB13;
+		Uint8 RB14;
+		Uint8 RB15;
+	} PORTBbits_t;
+	PORTBbits_t PORTBbits;
+	
+	//Port E
+	typedef struct
+	{
+		Uint8 RE0;
+		Uint8 RE1;
+		Uint8 RE2;
+		Uint8 RE3;
+		Uint8 RE4;
+		Uint8 RE5;
+		Uint8 RE6;
+		Uint8 RE7;
+		Uint8 RE8;
+		Uint8 RE9;
+		Uint8 RE10;
+		Uint8 RE11;
+		Uint8 RE12;
+		Uint8 RE13;
+		Uint8 RE14;
+		Uint8 RE15;
+	} PORTEbits_t;
+	PORTEbits_t PORTEbits;
+
 	// Structure des ports des LEDs
 	typedef struct
 	{
