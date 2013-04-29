@@ -51,6 +51,11 @@ void button_autocalage_avant(void);
 void button_autocalage_arriere(void);
 
 void initialisation(void){
+
+	#ifdef USE_QSx86
+		// Initialisation pour EVE
+		EVE_manager_card_init();
+	#endif	/* USE_QSx86 */
 	
 	// Config des ports
 	PORTS_init();			
@@ -87,11 +92,6 @@ void initialisation(void){
 	BUTTONS_init();
 //	BUTTONS_define_actions(BUTTON3,button_autocalage_avant, NULL, 0);
 //	BUTTONS_define_actions(BUTTON1,button_autocalage_arriere, NULL, 0);
-	
-	#ifdef USE_QSx86
-		// Initialisation pour EVE
-		EVE_manager_card_init();
-	#endif	/* USE_QSx86 */
 
 	
 	IT_init();
