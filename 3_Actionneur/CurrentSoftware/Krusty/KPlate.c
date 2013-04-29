@@ -261,7 +261,7 @@ static void PLATE_plier_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	//360° of large_epsilon, quand on a un timeout, on a forcément un resultat Ok (et pas d'erreur, on considère qu'on serre le verre)
+	//360° of large_epsilon, quand on a un timeout, on a forcément un resultat Ok (et pas d'erreur, on considère qu'on serre l'assiette)
 	if(ACTQ_check_status_ax12(queueId, PLATE_PLIER_AX12_ID, QUEUE_get_arg(queueId)->param, PLATE_PLIER_AX12_ASSER_POS_EPSILON, PLATE_PLIER_AX12_ASSER_TIMEOUT, 360, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_PLATE, result, errorCode, line);
 }
