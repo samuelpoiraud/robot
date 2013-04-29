@@ -55,7 +55,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 	//La pince à assiette n'est pas symétrique ni centrée sur le robot, on doit avoir un offset en X pour que la pince ne tappe pas l'assiette alors qu'elle est ouverte
 	static const Sint16 OFFSET_X_ROBOT = -30;
 	//Décalage dans le cas de l'assiette coté bleu - gateau. Avec l'offset normal on taperait dans le buffet. L'offset est quand même celui qu'on aurait du coté rouge, pour un souci d'avoir un code partout pareil
-	static const Sint16 OFFSET_X_ROBOT_FAR_CORNER = -8;
+	static const Sint16 OFFSET_X_ROBOT_FAR_CORNER = -12;
 	static const Sint16 POSITION_Y_ROBOT_BEFORE_DOING_PLATE = 550; //Position en Y du robot prêt à faire une assiette
 
 	////////////////////////////////////////////////////////////////
@@ -63,10 +63,35 @@ error_e K_STRAT_sub_cherries_alexis() {
 	//Variables utilisées par certains état:
 	static Uint8 current_plate;		//Numéro de l'assiette en train d'être faite, entre 0 et 2 inclus (voir plate_x_positons pour les positions)
 	static error_e last_action_result;	//Contient la dernière erreur retournée par un micro strat. Utilisé dans l'état DP_FAILED pour savoir quoi faire lors d'un problème
+	static Sint16 real_x_offset;	//En static pour calculer l'offset qu'une seule fois
 
 	//Si l'état à changé, on rentre dans un nouvel état
 	bool_e entrance = last_state_for_check_entrance != state;
 	last_state_for_check_entrance = state;
+
+	error_e return_value = IN_PROGRESS;
+
+	//On a changé d'état, on l'indique sur l'UART pour débugage
+	if(entrance) {
+		static const char* state_str[DP_NBSTATE] = {0};
+		bool_e state_str_initialized = FALSE;
+
+		if(state_str_initialized == FALSE) {
+			STATE_STR_DECLARE(state_str, DP_INIT);
+			STATE_STR_DECLARE(state_str, DP_GO_NEXT_PLATE);
+			STATE_STR_DECLARE(state_str, DP_PROCESS_PLATE);
+			STATE_STR_DECLARE(state_str, DP_LAUNCH_CHERRIES);
+			STATE_STR_DECLARE(state_str, DP_DROP_PLATE_AND_CHECK_NEXT);
+			STATE_STR_DECLARE(state_str, DP_FAILED);
+			STATE_STR_DECLARE(state_str, DP_DONE);
+			STATE_STR_INIT_UNDECLARED(state_str, DP_NBSTATE);
+			state_str_initialized = TRUE;
+		}
+
+		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_sub_cherries_alexis: state changed: %s(%d) -> %s(%d)\n",
+			state_str[last_state], last_state,
+			state_str[state], state);
+	}
 
 	switch(state) {
 		//Initialise la machine à état.
@@ -79,9 +104,6 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 		//On va devant l'assiette à faire (current_plate)
 		case DP_GO_NEXT_PLATE:
-		{
-			static Sint16 real_x_offset;	//En static pour calculer l'offset qu'une seule fois
-
 			if(entrance) {
 				//Si on est rouge, on prend l'offset donné
 				if(global.env.color == RED)
@@ -94,13 +116,12 @@ error_e K_STRAT_sub_cherries_alexis() {
 			}
 			state = try_going(PLATE_INFOS[current_plate].x + real_x_offset, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE), DP_GO_NEXT_PLATE, DP_PROCESS_PLATE, DP_FAILED, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
-		}
 
 		//On prend les cerises de l'assiette
 		case DP_PROCESS_PLATE:
 			//On peut prendre 2 assiette d'un coup, la deuxième on la garde comme paroi donc.
 
-			last_action_result = K_STRAT_micro_grab_plate(PLATE_INFOS[current_plate].keep_plate, PLATE_INFOS[current_plate].x, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE));
+			last_action_result = K_STRAT_micro_grab_plate(PLATE_INFOS[current_plate].keep_plate, PLATE_INFOS[current_plate].x + real_x_offset, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE));
 			state = check_sub_action_result(last_action_result, DP_PROCESS_PLATE, DP_LAUNCH_CHERRIES, DP_FAILED);
 			break;
 
@@ -109,7 +130,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 			if(PLATE_INFOS[current_plate].launch_cherries_after) {
 				last_action_result = K_STRAT_micro_launch_cherries(STRAT_LC_PositionNear, 8, FALSE);
 				state = check_sub_action_result(last_action_result, DP_LAUNCH_CHERRIES, DP_DROP_PLATE_AND_CHECK_NEXT, DP_FAILED);
-			}
+			} else state = DP_DROP_PLATE_AND_CHECK_NEXT;
 			break;
 
 		//On lache l'assiette si on l'avait gardé et on passe à la suivante si c'est pas fini
@@ -136,7 +157,6 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 		//Gère les cas d'erreurs
 		case DP_FAILED:
-			state = DP_INIT;
 			switch(last_state) {
 				//On à pas pu aller à l'assiette suivante, un ennemi nous bloque ?
 				//On tente la suivante, mais ça risque de fail aussi ...
@@ -170,15 +190,17 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 				//Fausse erreur, mais une vrai dans le code, on retourne END_WITH_TIMEOUT
 				default:
-					return END_WITH_TIMEOUT;
+					return_value = END_WITH_TIMEOUT;
 
 			}
+			if(return_value != IN_PROGRESS)
+				state = DP_INIT;
 			break;
 
 		//On a fini de faire les assiettes
 		case DP_DONE:
 			state = DP_INIT;
-			return END_OK;
+			return_value = END_OK;
 
 		//Pas un état, utilisé pour connaitre le nombre d'état
 		case DP_NBSTATE:
@@ -187,29 +209,9 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
 
-	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(state != last_state) {
-		static const char* state_str[DP_NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, DP_INIT);
-			STATE_STR_DECLARE(state_str, DP_GO_NEXT_PLATE);
-			STATE_STR_DECLARE(state_str, DP_PROCESS_PLATE);
-			STATE_STR_DECLARE(state_str, DP_LAUNCH_CHERRIES);
-			STATE_STR_DECLARE(state_str, DP_DROP_PLATE_AND_CHECK_NEXT);
-			STATE_STR_DECLARE(state_str, DP_FAILED);
-			STATE_STR_DECLARE(state_str, DP_DONE);
-			STATE_STR_INIT_UNDECLARED(state_str, DP_NBSTATE);
-			state_str_initialized = TRUE;
-		}
-
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_sub_cherries_alexis: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
-	}
-
-	return IN_PROGRESS;
+	if(return_value != IN_PROGRESS)
+		state = DP_INIT;
+	return return_value;
 }
 
 //On est devant une assiette, cette fonction prend l'assiette et les cerises qu'il y a dedans.
@@ -265,16 +267,45 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 	bool_e entrance = last_state_for_check_entrance != state;
 	last_state_for_check_entrance = state;
 
+	error_e return_value = IN_PROGRESS;
+
+	//On a changé d'état, on l'indique sur l'UART pour débugage
+	if(entrance) {
+		static const char* state_str[GP_NBSTATE] = {0};
+		bool_e state_str_initialized = FALSE;
+
+		if(state_str_initialized == FALSE) {
+			STATE_STR_DECLARE(state_str, GP_INIT);
+			STATE_STR_DECLARE(state_str, GP_ADJUST_ANGLE);
+			STATE_STR_DECLARE(state_str, GP_PREPARE_PLIER);
+			STATE_STR_DECLARE(state_str, GP_CATCH_PLATE);
+			STATE_STR_DECLARE(state_str, GP_TAKING_CHERRIES);
+			STATE_STR_DECLARE(state_str, GP_PULL_OUT);
+			STATE_STR_DECLARE(state_str, GP_DROP_PLATE);
+			STATE_STR_DECLARE(state_str, GP_FAILED);
+			STATE_STR_DECLARE(state_str, GP_TURN_90_AND_DROP);
+			STATE_STR_DECLARE(state_str, GP_WAIT_PLATE_MVT);
+			STATE_STR_DECLARE(state_str, GP_DONE);
+			STATE_STR_INIT_UNDECLARED(state_str, GP_NBSTATE);
+			state_str_initialized = TRUE;
+		}
+
+		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_grab_plate: state changed: %s(%d) -> %s(%d)\n",
+			state_str[last_state], last_state,
+			state_str[state], state);
+	}
+
 	switch(state) {
 		//Initialise la machine à état
 		case GP_INIT:
 			plate_vertical_begin_time = 0;
 			what_to_return_after_end = END_OK;
+			state = GP_ADJUST_ANGLE;
 			break;
 
 		//Ajuste l'angle, on doit être bien droit avant de prendre l'assiette
 		case GP_ADJUST_ANGLE:
-			state = try_go_angle(COLOR_ANGLE(90), GP_ADJUST_ANGLE, GP_PREPARE_PLIER, GP_FAILED, FAST);
+			state = try_go_angle(COLOR_ANGLE(PI4096/2), GP_ADJUST_ANGLE, GP_PREPARE_PLIER, GP_FAILED, FAST);
 			break;
 
 		//Descend la pince a la hauteur de l'assiette
@@ -365,11 +396,10 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 
 		//On a eu un problème, cet état analyse la situation et gère les cas
 		case GP_FAILED:
-			state = GP_INIT;  //Si on return direct, on repasse à l'init pour les actions suivantes
 			switch(last_state) {
 				//On a pas pu faire notre angle WTF?? Quelqu'un nous bloque ? On peut pas faire l'assiette    //pas implémenté car tiré par les cheveux: si notre angle est trop loin de 90°, sinon on fait comme si rien était et on avant vers l'assiette
 				case GP_ADJUST_ANGLE:
-					return NOT_HANDLED;
+					return_value = NOT_HANDLED;
 
 				//On a pas pu bouger la pince correctement,
 				//un adversaire est chez nous à la place de l'assiette et bloque son mouvement ??
@@ -392,7 +422,7 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 				//Tant pis, on peu se déplacer autre part sans taper dans nos verres vu qu'on est déjà asser loin du bord
 				//On indique quand même à la strat supérieure qu'on a vu un ennemi ... (ça pourrait aussi être une erreur prop, mais en quel honneur ? même si on a déjà eu des problèmes, ce mvt est relativement simple et pas long normalement ...)
 				case GP_PULL_OUT:
-					return FOE_IN_PATH;
+					return_value = FOE_IN_PATH;
 					break;
 
 				//On a pas pu jeter l'assiette ... qqun est sur l'emplacement de l'assiette ?
@@ -425,26 +455,30 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 					state = GP_WAIT_PLATE_MVT;
 					break;
 			}
+			//Si on return direct, on repasse à l'init pour les actions suivantes
+			if(return_value != IN_PROGRESS)
+				state = GP_INIT;
 			break;
 
 		case GP_TURN_90_AND_DROP:
 			//On attend le RotateUp fait dans GP_FAILED, un coup fini on fait le mouvement
 			if(ACT_get_last_action_result(ACT_QUEUE_Plate) != ACT_FUNCTION_InProgress) {
-				state = try_go_angle(COLOR_ANGLE(90), GP_TURN_90_AND_DROP, GP_DROP_PLATE, GP_FAILED, FAST);
+				state = try_go_angle(COLOR_ANGLE(PI4096/2), GP_TURN_90_AND_DROP, GP_DROP_PLATE, GP_FAILED, FAST);
 			}
 			break;
 
 		//Attend les derniers mouvement de la pince à assiette avant de terminer l'opération. error_e à retourner dans what_to_return_after_end
 		case GP_WAIT_PLATE_MVT:
 			if(ACT_get_last_action_result(ACT_QUEUE_Plate) != ACT_FUNCTION_InProgress) {
-				return what_to_return_after_end;
+				state = GP_INIT;
+				return_value = what_to_return_after_end;
 			}
 			break;
 
 		//Fin de l'action, on retourne END_OK
 		case GP_DONE:
 			state = GP_INIT;
-			return END_OK;
+			return_value = END_OK;
 
 		//Pas un état, utilisé pour connaitre le nombre d'état
 		case GP_NBSTATE:
@@ -454,33 +488,9 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 
 	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
 
-	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(state != last_state) {
-		static const char* state_str[GP_NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, GP_INIT);
-			STATE_STR_DECLARE(state_str, GP_ADJUST_ANGLE);
-			STATE_STR_DECLARE(state_str, GP_PREPARE_PLIER);
-			STATE_STR_DECLARE(state_str, GP_CATCH_PLATE);
-			STATE_STR_DECLARE(state_str, GP_TAKING_CHERRIES);
-			STATE_STR_DECLARE(state_str, GP_PULL_OUT);
-			STATE_STR_DECLARE(state_str, GP_DROP_PLATE);
-			STATE_STR_DECLARE(state_str, GP_FAILED);
-			STATE_STR_DECLARE(state_str, GP_TURN_90_AND_DROP);
-			STATE_STR_DECLARE(state_str, GP_WAIT_PLATE_MVT);
-			STATE_STR_DECLARE(state_str, GP_DONE);
-			STATE_STR_INIT_UNDECLARED(state_str, GP_NBSTATE);
-			state_str_initialized = TRUE;
-		}
-
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_grab_plate: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
-	}
-
-	return IN_PROGRESS;
+	if(return_value != IN_PROGRESS)
+		state = GP_INIT;
+	return return_value;
 }
 
 
@@ -540,6 +550,31 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 	bool_e entrance = last_state_for_check_entrance != state;
 	last_state_for_check_entrance = state;
 
+	error_e return_value = IN_PROGRESS;
+
+	//On a changé d'état, on l'indique sur l'UART pour débugage
+	if(entrance) {
+		static const char* state_str[LC_NBSTATE] = {0};
+		bool_e state_str_initialized = FALSE;
+
+		if(state_str_initialized == FALSE) {
+			STATE_STR_DECLARE(state_str, LC_INIT);
+			STATE_STR_DECLARE(state_str, LC_PREPARE_POS);
+			STATE_STR_DECLARE(state_str, LC_AIM);
+			STATE_STR_DECLARE(state_str, LC_FIRE);
+			STATE_STR_DECLARE(state_str, LC_CHECK_CHERRY);
+			STATE_STR_DECLARE(state_str, LC_SHAKE_CHERRIES);
+			STATE_STR_DECLARE(state_str, LC_FAILED);
+			STATE_STR_DECLARE(state_str, LC_DONE);
+			STATE_STR_INIT_UNDECLARED(state_str, LC_NBSTATE);
+			state_str_initialized = TRUE;
+		}
+
+		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_launch_cherries: state changed: %s(%d) -> %s(%d)\n",
+			state_str[last_state], last_state,
+			state_str[state], state);
+	}
+
 	switch(state) {
 		//Initialise un nouveau lancé de cerise
 		case LC_INIT:
@@ -549,6 +584,7 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 			ball_continuous_fail = 0;
 			blocked_ax12_situation_count = 0;
 			ball_fail_count_before_shake = MAX_FAILED_LAUNCH_BEFORE_SHAKE;
+			state = LC_PREPARE_POS;
 			break;
 
 		//Va à la position demandée (dans position) ou une autre si on a fail sur une des positions
@@ -626,7 +662,6 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 
 		//Gère les cas d'erreur
 		case LC_FAILED:
-			state = LC_INIT;
 			switch(last_state) {
 				//On a pas pu se mettre à une position pour lancer les cerises, on en tente une autre.
 				//Si on a déjà essayé toutes les positions, on retourne erreur (NOT_HANDLED)
@@ -635,7 +670,7 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 				case LC_AIM:
 					current_position = (current_position+1) % STRAT_LC_NumberOfPosition;
 					if(current_position == original_position)
-						return NOT_HANDLED;
+						return_value = NOT_HANDLED;
 					else state = LC_PREPARE_POS;
 					break;
 
@@ -644,7 +679,7 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 				case LC_FIRE:
 					blocked_ax12_situation_count++;
 					if(blocked_ax12_situation_count > MAX_BLOCKED_AX12)
-						return END_WITH_TIMEOUT;
+						return_value = END_WITH_TIMEOUT;
 					else state = LC_SHAKE_CHERRIES;
 					break;
 
@@ -656,14 +691,16 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 
 				//Fausse erreur, mais une vrai dans le code, on retourne le cas fatal: END_WITH_TIMEOUT.
 				default:
-					return END_WITH_TIMEOUT;
+					return_value = END_WITH_TIMEOUT;
 			}
+			if(return_value != IN_PROGRESS)
+				state = LC_INIT;
 			break;
 
 		//Lancé terminé
 		case LC_DONE:
 			state = LC_INIT;
-			return END_OK;
+			return_value = END_OK;
 
 		//Pas un état, utilisé pour connaitre le nombre d'état
 		case LC_NBSTATE:
@@ -672,30 +709,9 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 
 	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
 
-	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(state != last_state) {
-		static const char* state_str[LC_NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, LC_INIT);
-			STATE_STR_DECLARE(state_str, LC_PREPARE_POS);
-			STATE_STR_DECLARE(state_str, LC_AIM);
-			STATE_STR_DECLARE(state_str, LC_FIRE);
-			STATE_STR_DECLARE(state_str, LC_CHECK_CHERRY);
-			STATE_STR_DECLARE(state_str, LC_SHAKE_CHERRIES);
-			STATE_STR_DECLARE(state_str, LC_FAILED);
-			STATE_STR_DECLARE(state_str, LC_DONE);
-			STATE_STR_INIT_UNDECLARED(state_str, LC_NBSTATE);
-			state_str_initialized = TRUE;
-		}
-
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_launch_cherries: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
-	}
-
-	return IN_PROGRESS;
+	if(return_value != IN_PROGRESS)
+		state = LC_INIT;
+	return return_value;
 }
 
 //Lache un assiette du coté de notre zone de départ (mais ne se rapproche pas)
@@ -715,53 +731,10 @@ error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop) {
 	bool_e entrance = last_state_for_check_entrance != state;
 	last_state_for_check_entrance = state;
 
-	switch(state) {
-		case DP_TURN:
-			if(turn_before_drop)
-				state = try_go_angle(COLOR_ANGLE(90), DP_TURN, DP_DROP, DP_FAILED, FAST);
-			else state = DP_DROP;
-			break;
-
-		case DP_DROP:
-			if(entrance) {
-				ACT_plate_rotate(ACT_PLATE_RotateMid);
-				ACT_plate_plier(ACT_PLATE_PlierOpen);
-				//ACT_plate_plier(ACT_PLATE_PlierClose); //Non utile, le fait de remonter l'assiette implique que la pince se serre
-				ACT_plate_rotate(ACT_PLATE_RotateUp);
-			}
-			state = check_act_status(ACT_QUEUE_Plate, DP_DROP, DP_DONE, DP_FAILED);  //Fail possible si une cerise s'est coincée entre la pince et le robot ...
-			break;
-
-		case DP_FAILED:
-			state = DP_TURN;
-			switch(last_state) {
-				//On a pas pu tourner, on retourne NOT_HANDLED
-				case DP_TURN:
-					return NOT_HANDLED;
-
-				//On a pas pu lacher l'assiette, on retourne END_WITH_TIMEOUT
-				case DP_DROP:
-					return END_WITH_TIMEOUT;
-
-				//Fausse erreur, mais une vrai dans le code, on retourne  END_WITH_TIMEOUT après avoir remonté l'assiette dans le doute. (Faudrait pas tout défoncer ...)
-				default:
-					return END_WITH_TIMEOUT;
-			}
-			break;
-
-		case DP_DONE:
-			state = DP_TURN;
-			return END_OK;
-
-		//Pas un état, utilisé pour connaitre le nombre d'état
-		case DP_NBSTATE:
-			break;
-	}
-
-	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
+	error_e return_value = IN_PROGRESS;
 
 	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(state != last_state) {
+	if(entrance) {
 		static const char* state_str[DP_NBSTATE] = {0};
 		bool_e state_str_initialized = FALSE;
 
@@ -779,5 +752,53 @@ error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop) {
 			state_str[state], state);
 	}
 
-	return IN_PROGRESS;
+	switch(state) {
+		case DP_TURN:
+			if(turn_before_drop)
+				state = try_go_angle(COLOR_ANGLE(PI4096/2), DP_TURN, DP_DROP, DP_FAILED, FAST);
+			else state = DP_DROP;
+			break;
+
+		case DP_DROP:
+			if(entrance) {
+				ACT_plate_rotate(ACT_PLATE_RotateMid);
+				ACT_plate_plier(ACT_PLATE_PlierOpen);
+				//ACT_plate_plier(ACT_PLATE_PlierClose); //Non utile, le fait de remonter l'assiette implique que la pince se serre
+				ACT_plate_rotate(ACT_PLATE_RotateUp);
+			}
+			state = check_act_status(ACT_QUEUE_Plate, DP_DROP, DP_DONE, DP_FAILED);  //Fail possible si une cerise s'est coincée entre la pince et le robot ...
+			break;
+
+		case DP_FAILED:
+			switch(last_state) {
+				//On a pas pu tourner, on retourne NOT_HANDLED
+				case DP_TURN:
+					return_value = NOT_HANDLED;
+
+				//On a pas pu lacher l'assiette, on retourne END_WITH_TIMEOUT
+				case DP_DROP:
+					return_value = END_WITH_TIMEOUT;
+
+				//Fausse erreur, mais une vrai dans le code, on retourne  END_WITH_TIMEOUT après avoir remonté l'assiette dans le doute. (Faudrait pas tout défoncer ...)
+				default:
+					return_value = END_WITH_TIMEOUT;
+			}
+			if(return_value != IN_PROGRESS)
+				state = DP_TURN;
+			break;
+
+		case DP_DONE:
+			state = DP_TURN;
+			return_value = END_OK;
+
+		//Pas un état, utilisé pour connaitre le nombre d'état
+		case DP_NBSTATE:
+			break;
+	}
+
+	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
+
+	if(return_value != IN_PROGRESS)
+		state = DP_TURN;
+	return return_value;
 }

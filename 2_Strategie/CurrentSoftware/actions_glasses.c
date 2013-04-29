@@ -38,7 +38,7 @@
 
 //strat de niveau 2 (appelée par un strat de niveau 1 qui est appelée par brain.c)
 //Prend tous les verres et les met dans la zone de départ.
-error_e K_STRAT_sub_glasses_alexis(void) {
+error_e K_STRAT_sub_glasses_alexis(bool_e use_alternate_positions) {
 	//GM pour Glass Move
 	enum state_e {
 		GM_INIT = 0,   //Initialisation: on initialise la sous-strat grab_glass: on a pris 0 verre et l'ascenseur est en bas et ouvert
@@ -75,37 +75,62 @@ error_e K_STRAT_sub_glasses_alexis(void) {
 	// Soit être à y >= 180mm
 
 	//Choix de position 1 (original)
-//	const Uint8 row1_nbpos = 2;
-//	displacement_t row1_pos[2] =
-//				{ {{1000, COLOR_Y(950)} , FAST},
-//				  {{1050, COLOR_Y(1500)}, FAST} };
-//	const Uint8 row2_nbpos = 3;
-//	displacement_t row2_pos[3] =
-//				{ {{820, COLOR_Y(1330)}, FAST},
-//				  {{750, COLOR_Y(1130)}, FAST},
-//				  {{750, COLOR_Y(750)} , FAST} };
-//	const Uint8 row3_nbpos = 2;
-//	displacement_t row3_pos[2] =
-//				{ {{500, COLOR_Y(1134)}, FAST},
-//				  {{446, COLOR_Y(1220)}, SLOW} };
+	const Uint8 row1_nbpos_normal = 2;
+	displacement_t row1_pos_normal[2] =
+				{ {{1000, COLOR_Y(950)} , FAST},
+				  {{1050, COLOR_Y(1500)}, FAST} };
+	const Uint8 row2_nbpos_normal = 3;
+	displacement_t row2_pos_normal[3] =
+				{ {{820, COLOR_Y(1330)}, FAST},
+				  {{750, COLOR_Y(1130)}, FAST},
+				  {{750, COLOR_Y(750)} , FAST} };
+	const Uint8 row3_nbpos_normal = 2;
+	displacement_t row3_pos_normal[2] =
+				{ {{500, COLOR_Y(1134)}, FAST},
+				  {{446, COLOR_Y(1220)}, SLOW} };
 
 	//Choix 2, pas testé
-	const Uint8 row1_nbpos = 7;
-	displacement_t row1_pos[7] =
+	const Uint8 row1_nbpos_alternate = 6;
+	displacement_t row1_pos_alternate[6] =
 				{ {{1000, COLOR_Y(190)} , FAST},    //En face pour prendre verre 1.1 dans lift left
-				  {{1215, COLOR_Y(800)} , FAST},
-				  {{1000, COLOR_Y(1134)} , FAST},
-				  {{800, COLOR_Y(1294)} , FAST},
-				  {{650, COLOR_Y(1315)} , SLOW},
-				  {{524, COLOR_Y(1256)} , SLOW},
-				  {{431, COLOR_Y(1214)} , SLOW}};   //Verre 1.1 pris à gauche
-	const Uint8 row2_nbpos = 0;
-	displacement_t row2_pos[1] = {{{431, COLOR_Y(1214)} , SLOW}};  //Coord non utilisé
-	const Uint8 row3_nbpos = 3;
-	displacement_t row3_pos[3] =
-				{ {{534, COLOR_Y(957)}, FAST},
-				  {{793, COLOR_Y(996)}, FAST},
-				  {{890, COLOR_Y(1000)}, SLOW} };
+				  {{1140, COLOR_Y(780)} , FAST},
+				  {{1016, COLOR_Y(1155)} , FAST},
+				  {{796, COLOR_Y(1281)} , SLOW},
+				  //{{545, COLOR_Y(1279)} , FAST},
+				  {{557, COLOR_Y(1258)} , SLOW},
+				  {{297, COLOR_Y(978)} , SLOW}};   //Verre 1.1 pris à gauche
+	const Uint8 row2_nbpos_alternate = 0;
+	displacement_t row2_pos_alternate[1] = {{{431, COLOR_Y(1214)} , SLOW}};  //Coord non utilisé
+	const Uint8 row3_nbpos_alternate = 3;
+	displacement_t row3_pos_alternate[3] =
+				{ {{536, COLOR_Y(966)}, FAST},
+				  {{782, COLOR_Y(980)}, FAST},
+				  {{950, COLOR_Y(898)}, FAST} };
+	
+	Uint8 row1_nbpos;
+	Uint8 row2_nbpos;
+	Uint8 row3_nbpos;
+	displacement_t *row1_pos;
+	displacement_t *row2_pos;
+	displacement_t *row3_pos;
+
+	if(use_alternate_positions) {
+		row1_nbpos = row1_nbpos_alternate;
+		row2_nbpos = row2_nbpos_alternate;
+		row3_nbpos = row3_nbpos_alternate;
+		row1_pos = row1_pos_alternate;
+		row2_pos = row2_pos_alternate;
+		row3_pos = row3_pos_alternate;
+	} else {
+		row1_nbpos = row1_nbpos_normal;
+		row2_nbpos = row2_nbpos_normal;
+		row3_nbpos = row3_nbpos_normal;
+		row1_pos = row1_pos_normal;
+		row2_pos = row2_pos_normal;
+		row3_pos = row3_pos_normal;
+	}
+
+	last_state = state;
 
 	switch(state) {
 		case GM_INIT:
@@ -182,6 +207,7 @@ error_e K_STRAT_sub_glasses_alexis(void) {
 			break;
 
 		case GM_DONE:
+			state = GM_INIT;
 			return END_OK;
 			break;
 

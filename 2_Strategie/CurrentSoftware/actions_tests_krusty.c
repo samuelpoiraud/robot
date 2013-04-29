@@ -13,6 +13,10 @@
 #include "actions_glasses.h"
 #include "actions_cherries.h"
 #include "actions_utils.h"
+#include "output_log.h"
+
+#define LOG_PREFIX "strat_tests: "
+#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 
 #define DEFAULT_SPEED	(SLOW)
@@ -446,21 +450,45 @@ void TEST_STRAT_ALEXIS() {
 		DO_GLASSES,	//Faire les verres
 		DO_PLATES,	//Faire les assiettes & lancer les cerises
 		PROTECT_GLASSES,	//On va dans notre zone de départ pour proteger les verres
-		DONE		//On a fini
+		DONE,		//On a fini
+		NBSTATE		//Pas un état, utilisé pour savoir le nombre d'état
 	};
 	static enum state_e state = DO_GLASSES;
+	static enum state_e last_state = DO_GLASSES;
 	error_e sub_action;
+
+	//On a changé d'état, on l'indique sur l'UART pour débugage
+	if(state != last_state) {
+		static const char* state_str[NBSTATE] = {0};
+		bool_e state_str_initialized = FALSE;
+
+		if(state_str_initialized == FALSE) {
+			STATE_STR_DECLARE(state_str, DO_GLASSES);
+			STATE_STR_DECLARE(state_str, DO_PLATES);
+			STATE_STR_DECLARE(state_str, PROTECT_GLASSES);
+			STATE_STR_DECLARE(state_str, DONE);
+			STATE_STR_INIT_UNDECLARED(state_str, NBSTATE);
+			state_str_initialized = TRUE;
+		}
+
+		STATECHANGE_log(LOG_LEVEL_Debug, "TEST_STRAT_ALEXIS: state changed: %s(%d) -> %s(%d)\n",
+			state_str[last_state], last_state,
+			state_str[state], state);
+	}
+
+	last_state = state;
 
 	switch(state) {
 		//Faire les verres
 		case DO_GLASSES:
-			sub_action = K_STRAT_sub_glasses_alexis();
+			sub_action = K_STRAT_sub_glasses_alexis(TRUE);
 			state = check_sub_action_result(sub_action, DO_GLASSES, DO_PLATES, DO_PLATES);	//Dans tous les cas on fait la suite ...
 			break;
 
 		//Faire les assiettes & lancer les cerises
 		case DO_PLATES:
 			sub_action = K_STRAT_sub_cherries_alexis();
+			//sub_action = K_STRAT_sub_glasses_alexis(FALSE);
 			state = check_sub_action_result(sub_action, DO_PLATES, PROTECT_GLASSES, PROTECT_GLASSES);	//Idem
 			break;
 
@@ -472,6 +500,10 @@ void TEST_STRAT_ALEXIS() {
 		//On a fini
 		case DONE:
 			//Rien a faire on attend la fin de match
+			break;
+
+		//Non utilisé
+		case NBSTATE:
 			break;
 	}
 }
