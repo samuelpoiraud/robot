@@ -15,6 +15,12 @@
 
 EVE_global_vars_t eve_global;
 
+extern void _T1interrupt() __attribute__((weak));
+extern void _T2Interrupt() __attribute__((weak));
+extern void _T3Interrupt() __attribute__((weak));
+extern void _T4Interrupt() __attribute__((weak));
+
+
 // Initialisation des fonctions relatives au fonctionnement d'EVE
 Uint16 EVE_manager_card_init()
 {
@@ -302,8 +308,11 @@ static void EVE_timers_update()
 				// On lance directement l'interruption correspondante :D
 				switch(i)
 				{
+					//Les interruptions sont déclarée en weak symbol, le symbol peut être nul si il n'y a pas de fonction associé. comme ça on sait si la carte compilé implémente le timer
 					case ID_TIMER_1:
 						#ifdef USE_T1Interrupt
+							if(!_T1Interrupt)
+								break;
 							_T1Interrupt();
 							eve_global.timers[ID_TIMER_1].init_value = global_clock_time;
 						#endif /* USE_T1Interrupt */
@@ -311,6 +320,8 @@ static void EVE_timers_update()
 
 					case ID_TIMER_2:
 						#ifdef USE_T2Interrupt
+							if(!_T2Interrupt)
+								break;
 							_T2Interrupt();
 							eve_global.timers[ID_TIMER_2].init_value = global_clock_time;
 						#endif /* USE_T2Interrupt */
@@ -318,6 +329,8 @@ static void EVE_timers_update()
 
 					case ID_TIMER_3:
 						#ifdef USE_T3Interrupt
+							if(!_T3Interrupt)
+								break;
 							_T3Interrupt();
 							eve_global.timers[ID_TIMER_3].init_value = global_clock_time;
 						#endif/* USE_T3Interrupt */
@@ -325,6 +338,8 @@ static void EVE_timers_update()
 
 					case ID_TIMER_4:
 						#ifdef USE_T4Interrupt
+							if(!_T4Interrupt)
+								break;
 							_T4Interrupt();
 							eve_global.timers[ID_TIMER_4].init_value = global_clock_time;
 						#endif /* USE_T4Interrupt */

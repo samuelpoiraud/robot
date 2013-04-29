@@ -61,6 +61,18 @@ void EVE_HARD_init()
 	LATGbits.LATG6 = 0;
 	LATGbits.LATG7 = 0;
 	PORTGbits.RG8 = 0;
+	
+	//Switch strat
+	PORTEbits.RE0 = 1;
+	PORTEbits.RE1 = 0;
+	PORTEbits.RE2 = 0;
+	
+	//Switch color
+	PORTEbits.RE4 = 1;
+	
+	//Detection des verres, 1 par defaut
+	PORTBbits.RB3 = 1;
+	PORTBbits.RB5 = 1;
 
 
 

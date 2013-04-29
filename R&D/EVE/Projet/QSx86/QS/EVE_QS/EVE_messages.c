@@ -12,6 +12,7 @@
 #define EVE_MESSAGES_C
 
 #include "EVE_messages.h"
+#include <errno.h>
 
 /**************************** Fonctions relatives aux BAL de communication ****************************/
 
@@ -78,6 +79,7 @@ Uint16 EVE_read_new_msg_QS(Uint32 queue_id, EVE_QS_data_msg_t* data)
 // Fonction d'écriture de la BAL spécifique aux données QS
 Uint16 EVE_write_new_msg_QS(Uint32 queue_id, EVE_QS_data_msg_t data)
 {
+	data.mtype = QUEUE_QS_DATA_MTYPE;
 	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_QS_DATA_MSG_T_SIZE,IPC_NOWAIT) == -1)
 	{
 		return EVE_MESSAGES_errors(ERROR_SEND_QUEUE,"QS data not sent");
@@ -107,6 +109,7 @@ Uint16 EVE_read_new_msg_UART(Uint32 queue_id, EVE_UART_msg_t* data)
 // Fonction d'écriture de la BAL spécifique aux données UART
 Uint16 EVE_write_new_msg_UART(Uint32 queue_id, EVE_UART_msg_t data)
 {
+	data.mtype = QUEUE_UART_MTYPE;
 	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_UART_MSG_T_SIZE,IPC_NOWAIT) == -1)
 	{
 		return EVE_MESSAGES_errors(ERROR_SEND_QUEUE,"UART msg not sent");
@@ -136,6 +139,7 @@ Uint16 EVE_read_new_msg_CAN(Uint32 queue_id, EVE_CAN_msg_t* data)
 // Fonction d'écriture de la BAL spécifique aux données CAN
 Uint16 EVE_write_new_msg_CAN(Uint32 queue_id, EVE_CAN_msg_t data)
 {
+	data.mtype = QUEUE_CAN_MTYPE;
 	if(msgsnd(queue_id,(struct msgbuf*) &data, EVE_CAN_MSG_T_SIZE,IPC_NOWAIT) == -1)
 	{
 		return EVE_MESSAGES_errors(ERROR_SEND_QUEUE,"CAN msg not sent");
@@ -197,44 +201,44 @@ static Uint16 EVE_MESSAGES_errors(Uint16 error_id, char* commentary)
 			break;
 
 		case ERROR_SHMGET:
-			printf("ERROR_SHMGET : %s\n",commentary);
+			printf("ERROR_SHMGET : %s, errno = %d\n",commentary, errno);
 			break;
 
 		case ERROR_SHMAT:
-			printf("ERROR_SHMAT : %s\n",commentary);
+			printf("ERROR_SHMAT : %s, errno = %d\n",commentary, errno);
 			perror("shmat");
 			break;
 
 		case ERROR_SHMDT:
-			printf("ERROR_SHMDT : %s\n",commentary);
+			printf("ERROR_SHMDT : %s, errno = %d\n",commentary, errno);
 			break;
 
 		case ERROR_CREATE_QUEUE:
-			printf("ERROR_CREATE_QUEUE : %s\n",commentary);
+			printf("ERROR_CREATE_QUEUE : %s, errno = %d\n",commentary, errno);
 			break;
 
 		case ERROR_DESTROY_QUEUE:
-			printf("ERROR_DESTROY_QUEUE : %s\n",commentary);
+			printf("ERROR_DESTROY_QUEUE : %s, errno = %d\n",commentary, errno);
 			break;
 
 		case ERROR_SEND_QUEUE:
-			printf("ERROR_SEND_QUEUE : %s\n",commentary);
+			printf("ERROR_SEND_QUEUE : %s, errno = %d\n",commentary, errno);
 			break;
 
 		case ERROR_RECEIVE_QUEUE:
-			printf("ERROR_RECEIVE_QUEUE : %s\n",commentary);
+			printf("ERROR_RECEIVE_QUEUE : %s, errno = %d\n",commentary, errno);
 			break;
 
 		case ERROR_NO_MESSAGE_QUEUE:
-			printf("ERROR_NO_MESSAGE_QUEUE : %s\n",commentary);
+			printf("ERROR_NO_MESSAGE_QUEUE : %s, errno = %d\n",commentary, errno);
 			break;
 
 		case ERROR_CHECK_QUEUE:
-			printf("ERROR_CHECK_QUEUE : %s\n",commentary);
+			printf("ERROR_CHECK_QUEUE : %s, errno = %d\n",commentary, errno);
 			break;
 
 		default:
-			printf("error_id inconnu : %d, %s\n",error_id,commentary);
+			printf("error_id inconnu : %d, %s, errno = %d\n",error_id,commentary, errno);
 			break;
 	}
 
