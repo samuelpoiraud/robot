@@ -70,7 +70,7 @@
 	// COEF_ODOMETRIE_TRANSLATION = 16*4096*(PI*d)/c;	 	[mm/16/4096/impulsion/5ms]
 	//		on le calcule pour l'approcher, et on le détermine ensuite par l'expérience !
 	//COEF_ODOMETRIE_TRANSLATION est le premier des coeffs a régler... il suffit d'envoyer le robot très loin et de regarder s'il arrive assez loin.
-	//Si le robot va trop loin, il faut diminuer le coeff et vice versa
+	//Si le robot va trop loin, il faut augmenter le coeff et vice versa
 	
 
 	#define TINY_ODOMETRY_COEF_SYM_DEFAULT (0)
