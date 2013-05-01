@@ -92,7 +92,7 @@ void BUTTON_pi_rotation()
 }
 void BUTTON_translation()
 {
-	relative_move (1000, FAST, TRUE);
+	relative_move (1000, FAST, FORWARD, END_AT_LAST_POINT);
 }
 
 static void BUTTON_TEST_button3() {

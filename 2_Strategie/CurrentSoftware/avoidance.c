@@ -138,6 +138,9 @@ static bool_e AVOIDANCE_foe_not_move(foe_e foe_id);
  */
 static bool_e AVOIDANCE_robot_translation_move();
 
+//Comme goto_pos_with_scan_foe mais avec choix de la fin, je savais pas quoi mettre comme nom ... si quelqu'un a une idée de nom utile, go changer ça :)
+static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
+
 
 #ifdef DEBUG_AVOIDANCE
 	#define avoidance_printf(format, ...)	debug_printf("t=%lums " format, global.env.match_time, ##__VA_ARGS__)
@@ -757,20 +760,20 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 }
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Cette fonction permet le multipoint.
-Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
+Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition, Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 {
 	error_e sub_action;
-	sub_action = goto_pos_with_scan_foe(displacements, nb_displacements, way, avoidance);
+	sub_action = goto_pos_with_avoidance(displacements, nb_displacements, way, avoidance, end_condition);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
 			break;
 		case FOE_IN_PATH:
 		case NOT_HANDLED:
+		case END_WITH_TIMEOUT:
 			return fail_state;
 			break;
 		case END_OK:
-		case END_WITH_TIMEOUT:
 		default:
 			return success_state;
 			break;
@@ -796,9 +799,9 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 	}
 }
 
-Uint8 try_relative_move(Sint16 distance, ASSER_speed_e speed, way_e way, Uint8 in_progress, Uint8 success_state, Uint8 fail_state) {
+Uint8 try_relative_move(Sint16 distance, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition, Uint8 in_progress, Uint8 success_state, Uint8 fail_state) {
 	error_e sub_action;
-	sub_action = relative_move(distance, speed, way);
+	sub_action = relative_move(distance, speed, way, end_condition);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -818,7 +821,7 @@ Uint8 try_relative_move(Sint16 distance, ASSER_speed_e speed, way_e way, Uint8 i
 }
 
 /* Action va à une position relative */
-error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way)
+error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition)
 {
 	/* Gestion de la machine à états */
 	enum state_e {
@@ -848,8 +851,12 @@ error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way)
 
 			//debug_printf("relative_move::current_pos x=%d y=%d\n", global.env.pos.x, global.env.pos.y);
 			//debug_printf("relative_move::x=%f y=%f\n", x, y);
-			if (x >= 0 && y >= 0) {	
-				ASSER_push_goto((Sint16)x, (Sint16)y, speed, way, 0,END_AT_LAST_POINT, TRUE);
+			if (x >= 0 && y >= 0) {
+#ifdef USE_ASSER_MULTI_POINT
+				ASSER_push_goto_multi_point((Sint16)x, (Sint16)y, speed, way, 0, END_OF_BUFFER, end_condition, TRUE);
+#else
+				ASSER_push_goto((Sint16)x, (Sint16)y, speed, way, 0, end_condition, TRUE);
+#endif
 				state = GOING;
 				return IN_PROGRESS;
 			}
@@ -976,7 +983,7 @@ error_e move_colision()
 			break;
 
 		case MOVE_BACK:
-			sub_action = relative_move(BACKWARD_COLISION_MOVE,FAST,BACKWARD);
+			sub_action = relative_move(BACKWARD_COLISION_MOVE,FAST,BACKWARD,END_AT_LAST_POINT);
 			switch(sub_action)
 			{
 				case END_OK : 
@@ -1400,6 +1407,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 	return IN_PROGRESS;
 }
 
+static Uint16 wait_timeout = WAIT_TIME_DETECTION;
 
 //Version simplifiée de wait_move_and_scan_foe. on esquive pas la cible ici. (pas de dodge)
 error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
@@ -1532,7 +1540,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			//On ne regarde pas ici si le robot pointe vers le point d'arrivée car il a été arreté en pleine translation vers ce point
 
 			avoidance_timeout_time += current_match_time - last_match_time;
-			if(avoidance_timeout_time >= WAIT_TIME_DETECTION) {
+			if(avoidance_timeout_time >= wait_timeout) {
 				ASSER_push_stop();
 				STACKS_flush(ASSER);
 				state = INITIALIZATION;
@@ -1628,8 +1636,20 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	return IN_PROGRESS;
 }
 
+error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type) {
+	return goto_pos_with_avoidance(displacements, nb_displacements, way, avoidance_type, END_AT_LAST_POINT);
+}
+
+error_e goto_pos_with_scan_foe_until_break(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type) {
+	return goto_pos_with_avoidance(displacements, nb_displacements, way, avoidance_type, END_AT_BREAK);
+}
+
+void AVOIDANCE_set_timeout(Uint16 msec) {
+	wait_timeout = msec;
+}
+
 /* Fonction qui réalise un ASSER_push_goto tout simple avec la gestion de l'évitement */
-error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type)
+static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
 {
 	enum state_e
 	{
@@ -1664,18 +1684,18 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 			{
 				#ifdef USE_ASSER_MULTI_POINT
 					ASSER_push_goto_multi_point
-						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, ASSER_CURVES, END_OF_BUFFER, FALSE);
+						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, FALSE);
 				#else
 					ASSER_push_goto
-						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, 0,END_AT_LAST_POINT, FALSE);
+						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, 0,END_AT_BREAK, FALSE);
 				#endif
 			}
 			#ifdef USE_ASSER_MULTI_POINT
 				ASSER_push_goto_multi_point
-					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, ASSER_CURVES, END_OF_BUFFER, TRUE);
+					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, TRUE);
 			#else
 				ASSER_push_goto
-					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0,END_AT_LAST_POINT, TRUE);
+					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0, end_condition, TRUE);
 			#endif
                         avoidance_printf("goto_pos_with_scan_foe : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
@@ -1698,12 +1718,14 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 
 				case NOT_HANDLED:
 					avoidance_printf("wait_move_and_scan_foe -- probleme\n");
+					wait_timeout = WAIT_TIME_DETECTION;
 					state = LOAD_MOVE;
 					return NOT_HANDLED;
 					break;
 
 				case FOE_IN_PATH:
 					debug_printf("wait_move_and_scan_foe -- foe in path\n");
+					wait_timeout = WAIT_TIME_DETECTION;
 					state = LOAD_MOVE;
 					return FOE_IN_PATH;
 					break;
@@ -1719,7 +1741,7 @@ error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displace
 			break;
 
 		case DONE:
-
+			wait_timeout = WAIT_TIME_DETECTION;
 			state = LOAD_MOVE;
 			return timeout?END_WITH_TIMEOUT:END_OK;
 			break;
@@ -1889,9 +1911,9 @@ static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES
 	
 	avoidance_printf("Points valides trouvés, on charge la pile\n");
 	#ifdef USE_ASSER_MULTI_POINT
-		ASSER_push_goto_multi_point(third_point.x, third_point.y, FAST, move_way, ASSER_CURVES, END_OF_BUFFER, FALSE);
-		ASSER_push_goto_multi_point(second_point.x, second_point.y, FAST, move_way, ASSER_CURVES, END_OF_BUFFER, FALSE);
-		ASSER_push_goto_multi_point(first_point.x, first_point.y, FAST, move_way, ASSER_CURVES, NOW, FALSE);
+		ASSER_push_goto_multi_point(third_point.x, third_point.y, FAST, move_way, ASSER_CURVES, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
+		ASSER_push_goto_multi_point(second_point.x, second_point.y, FAST, move_way, ASSER_CURVES, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
+		ASSER_push_goto_multi_point(first_point.x, first_point.y, FAST, move_way, ASSER_CURVES, NOW, END_AT_LAST_POINT, FALSE);
 	#else
 		ASSER_push_goto(third_point.x, third_point.y, FAST, move_way, ASSER_CURVES, END_AT_LAST_POINT,FALSE);
 		ASSER_push_goto(second_point.x, second_point.y, FAST, move_way, ASSER_CURVES,END_AT_LAST_POINT, FALSE);
@@ -2146,7 +2168,7 @@ static error_e AVOIDANCE_move_colision()
 			break;
 			
 		case MOVE_FORWARD:
-			sub_action = relative_move(FORWARD_COLISION_MOVE,FAST,FORWARD);
+			sub_action = relative_move(FORWARD_COLISION_MOVE,FAST,FORWARD,END_AT_LAST_POINT);
 			switch(sub_action)
 			{
 				case END_OK : 
@@ -2173,7 +2195,7 @@ static error_e AVOIDANCE_move_colision()
 	 		break;
 		
 		case MOVE_BACKWARD:
-			sub_action = relative_move(BACKWARD_COLISION_MOVE,FAST,BACKWARD);
+			sub_action = relative_move(BACKWARD_COLISION_MOVE,FAST,BACKWARD,END_AT_LAST_POINT);
 			switch(sub_action)
 			{
 				case END_OK : 

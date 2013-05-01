@@ -60,7 +60,7 @@
 		DODGE_AND_NO_WAIT,		// tentative d'évitement immédiate, puis NOT_HANDLED
 		NO_DODGE_AND_WAIT,		// attente normale, puis NOT_HANDLED
 		NO_DODGE_AND_NO_WAIT,	// aucune attente, aucune esquive, on détecte, on NOT_HANDLED !
-		NO_AVOIDANCE			// désactive l'évitement
+		NO_AVOIDANCE,			// désactive l'évitement
 	} avoidance_type_e;
 	
 	/* Définition du type déplacement */
@@ -182,7 +182,7 @@
 	 * param success_state état à retourner si le déplacement s'est terminé correctement
 	 * param fail_state état à retourner si le déplacement ne s'est pas terminé correctement
 	 */
-	Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
+	Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.
 	 *
@@ -193,7 +193,7 @@
 	 */
 	Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed);
 
-	Uint8 try_relative_move(Sint16 distance, ASSER_speed_e speed, way_e way, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+	Uint8 try_relative_move(Sint16 distance, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.
@@ -205,7 +205,7 @@
 	 * return END_OK		: le robot s'est déplacé de d.
 	 * return NOT_HANDLED   : une des coordonées de destination est négative.
 	 */
-	error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way);
+	error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition);
 
 	/*
 	 * Envoie un message CAN à l'asser et attend la reponse
@@ -243,14 +243,22 @@
 	* param displacements : deplacements de la trajectoire
 	* param nb_displacement : nombre de deplacements de la trajectoire
 	* param way : sens de déplacement
+	* end_condition : doit on finir quand on freine sur le dernier point ou quand on y est ?
 	*					
 	* return IN_PROGRESS : En cours
 	* return END_OK : Terminé
 	* return NOT_HANDLED : Action impossible
 	* return END_WITH_TIMEOUT : Timeout
+	* return FOE_IN_PATH : un adversaire nous bloque
 	*/
 	error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, way_e way,
-		avoidance_type_e avoidance_type);
+			avoidance_type_e avoidance_type);
+
+	error_e goto_pos_with_scan_foe_until_break(displacement_t displacements[], Uint8 nb_displacements, way_e way,
+			avoidance_type_e avoidance_type);
+
+	//Défini le temps de timeout d'evitement (pour *AND_WAIT). Ce temps est valide que pour le prochain mouvement, il est réinitialisé après.
+	void AVOIDANCE_set_timeout(Uint16 msec);
 
 
 typedef enum
