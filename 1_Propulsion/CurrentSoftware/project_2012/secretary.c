@@ -26,7 +26,8 @@
 #include "joystick.h"
 #include <timer.h>
 
-#define SECRETARY_MAILBOX_SIZE (8)
+//Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
+#define SECRETARY_MAILBOX_SIZE (32)
 
 void SECRETARY_process_CANmsg(CAN_msg_t * msg);
 void SECRETARY_mailbox_add(CAN_msg_t * msg);

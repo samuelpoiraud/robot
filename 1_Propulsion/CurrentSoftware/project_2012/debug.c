@@ -12,7 +12,7 @@
 #include "pilot.h"
 #include "odometry.h"
 #include "QS/QS_CANmsgList.h"
-#include "QS/QS_CAN.h"
+#include "QS/QS_can.h"
 
 	#ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 		void debug_save_structure_global(void);
