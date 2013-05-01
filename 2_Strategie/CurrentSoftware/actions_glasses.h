@@ -15,7 +15,14 @@
 #include "QS/QS_all.h"
 #include "act_functions.h"
 
-error_e K_STRAT_sub_glasses_alexis(bool_e use_alternate_positions);
+typedef struct {
+	avoidance_type_e avoidance_type;
+	Uint8 nb_points;
+	Uint8 move_points_begin_index;
+} displacement_block_t;
+
+error_e K_STRAT_sub_glasses_alexis();
+error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displacement_block_t trajectories_to_home[], Uint8 trajectory_number, const displacement_block_t trajectories[], displacement_t move_points[]);
 error_e K_STRAT_micro_grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos);
 
 

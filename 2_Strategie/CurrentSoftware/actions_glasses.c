@@ -35,145 +35,139 @@
 		} \
 	}while(0)
 
+error_e K_STRAT_sub_glasses_alexis() {
+	//Trajectoire 1
+	displacement_t MOVE_POINTS_1[11] = {
+		//Row 1
+		{{1000, COLOR_Y(950 )}, FAST},		// 0
+		{{1050, COLOR_Y(1500)}, FAST},		// 1
+		//Row 2
+		{{820 , COLOR_Y(1330)}, FAST},		// 2
+		{{750 , COLOR_Y(1130)}, FAST},		// 3
+		{{750 , COLOR_Y(750 )}, FAST},		// 4
+		//Row 3
+		{{500 , COLOR_Y(1134)}, FAST},		// 5
+		{{446 , COLOR_Y(1220)}, SLOW},		// 6
 
-//strat de niveau 2 (appelée par un strat de niveau 1 qui est appelée par brain.c)
-//Prend tous les verres et les met dans la zone de départ.
-error_e K_STRAT_sub_glasses_alexis(bool_e use_alternate_positions) {
+		//Go home
+		//Case Krusty
+		{{980 , COLOR_Y(220 )}, FAST},		// 7
+		{{1000, COLOR_Y(190 )}, FAST},		// 8
+
+		//Case Tiny
+		{{250 , COLOR_Y(400 )}, FAST},		// 9
+		{{270 , COLOR_Y(190 )}, FAST}		// 10
+	};
+
+	static const Uint8 TRAJECTORY_NUMBER_1 = 3;
+	static const displacement_block_t TRAJECTORIES_1[3] = {
+	//    avoidance_type     , nb_points , move_points_begin_index
+		{NO_AVOIDANCE        ,    2      ,           0            },	//Row 1
+		{NO_AVOIDANCE        ,    3      ,           2            },	//Row 2
+		{NO_DODGE_AND_WAIT   ,    2      ,           5            }		//Row 3
+	};
+	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_1 = 2;
+	static const displacement_block_t TRAJECTORIES_TO_HOME_1[2] = {
+		{NO_AVOIDANCE        ,    2      ,           7            },	//Go home Krusty
+		{NO_AVOIDANCE        ,    2      ,           9            }		//Go home Tiny
+	};
+
+	//Trajectoire 2
+	displacement_t MOVE_POINTS_2[13] = {
+		//Phase 1: on prend 4 verres
+		{{1000, COLOR_Y(190 )}, FAST},	// 0
+		{{1140, COLOR_Y(780 )}, FAST},	// 1
+		{{1016, COLOR_Y(1155)}, FAST},	// 2
+		{{796 , COLOR_Y(1281)}, SLOW},	// 3
+		{{557 , COLOR_Y(1258)}, SLOW},	// 4
+		{{297 , COLOR_Y(978 )}, SLOW},	// 5
+
+		//Phase 2: 2 verres restants
+		{{536 , COLOR_Y(966 )}, FAST},	// 6
+		{{782 , COLOR_Y(980 )}, FAST},	// 7
+		{{950 , COLOR_Y(898 )}, FAST},	// 8
+
+		//Go home
+		//Case Krusty
+		{{980 , COLOR_Y(220 )}, FAST},	// 9
+		{{1000, COLOR_Y(190 )}, FAST},	// 10
+
+		//Case Tiny
+		{{250 , COLOR_Y(400 )}, FAST},	// 11
+		{{270 , COLOR_Y(190 )}, FAST}	// 12
+	};
+
+	static const Uint8 TRAJECTORY_NUMBER_2 = 2;
+	static const displacement_block_t TRAJECTORIES_2[2] = {
+	//    avoidance_type     , nb_points , move_points_begin_index
+		{NO_AVOIDANCE        ,    6      ,           0            },	//Phase 1
+		{NO_AVOIDANCE        ,    3      ,           6            }		//Phase 2
+	};
+	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_2 = 2;
+	static const displacement_block_t TRAJECTORIES_TO_HOME_2[2] = {
+		{NO_AVOIDANCE        ,    2      ,           9            },	//Go home Krusty
+		{NO_AVOIDANCE        ,    2      ,           11           }		//Go home Tiny
+	};
+
+//	return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_1, TRAJECTORIES_TO_HOME_1, TRAJECTORY_NUMBER_1, TRAJECTORIES_1, MOVE_POINTS_1);
+	return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_2, TRAJECTORIES_TO_HOME_2, TRAJECTORY_NUMBER_2, TRAJECTORIES_2, MOVE_POINTS_2);
+}
+
+//Prend tous les verres en suivant une trajectoire données. A la fin les verres sont posé (après la dernière position)
+error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displacement_block_t trajectories_to_home[], Uint8 trajectory_number, const displacement_block_t trajectories[], displacement_t move_points[]) {
 	//GM pour Glass Move
 	enum state_e {
-		GM_INIT = 0,   //Initialisation: on initialise la sous-strat grab_glass: on a pris 0 verre et l'ascenseur est en bas et ouvert
-		GM_FIRST_ROW,  //On va vers le milieu du terrain pour prendre les verres de la première rangée
-		GM_SECOND_ROW, //On reviens vers notre zone de départ pour prendre la 2ème rangée
-		GM_THIRD_ROW,  //Et on repart vers la zone ennemie pour la dernière rangée. Après ça on a pris tout nos verres (sauf peut être si evitement)
-		GM_WAIT_ACT,    //Attent que les actionneurs des ascenseurs aient fini de bouger, l'état suivant est dans la variable what_to_do_after_act
-		GM_GO_HOME,    //Ramene les verres a la zone de départ et les laches
-		GM_EXTRACT_FROM_GLASSES,  //Recule le robot pour pouvoir faire d'autre mouvement librement sans toucher les verres ramenés
-		GM_DONE,       //Les verres on été ramassé
-		GM_NBSTATE   //Pas un état mais indique le nombre d'état
+		GM_INIT = 0,				//Initialisation: on initialise la sous-strat grab_glass: on a pris 0 verre et l'ascenseur est en bas et ouvert
+		GM_CATCH_GLASSES,			//Avance et prend des verres en même temps
+		GM_WAIT_ACT,				//Attent que les actionneurs des ascenseurs aient fini de bouger, l'état suivant est dans la variable what_to_do_after_act
+		GM_GO_HOME,					//Va à une case départ pour déposer les verres
+		GM_PUT_DOWN_GLASSES,		//Dépose les verres
+		GM_EXTRACT_FROM_GLASSES,	//Recule le robot pour pouvoir faire d'autre mouvement librement sans toucher les verres ramenés
+		GM_FAILED,					//Gère les cas d'erreur / évitement
+		GM_DONE,					//Les verres on été ramassé
+		GM_NBSTATE					//Pas un état mais indique le nombre d'état
 	};
 	static enum state_e state = GM_INIT;
+	static enum state_e last_state_for_check_entrance = GM_INIT;
 	static enum state_e last_state = GM_INIT;
+
+
+	////// Paramètres /////
+	static const Uint8 FIRST_SAFE_HOME = 1;
+	static const Sint16 SAFE_Y_ZONE = 450;
 
 	//Pour l'état GL_WAIT_ACT:
 	static enum state_e what_to_do_after_act;
+	static Uint8 current_displacement_block;
+	static Uint8 current_dest_home;				//Numero de la trajectoire pour aller à une case départ pour poser les verres. Si on ne peut pas, on en tentera une autre.
 
-	static const bool_e first_row_avoidance_mode = NO_AVOIDANCE;    //Vers l'ennemi
-	static const bool_e second_row_avoidance_mode = NO_AVOIDANCE;   //Vers chez nous
-	static const bool_e third_row_avoidance_mode = NO_DODGE_AND_WAIT;  //Vers l'ennemi
+	//Si l'état à changé, on rentre dans un nouvel état
+	bool_e entrance = last_state_for_check_entrance != state;
+	last_state_for_check_entrance = state;
 
-	//Info sur le robot et les verres:
-	//Distance centre robot - centre verre: dx = +/- 56mm (source: mise en plan Krusty sur google drive, 28 janvier 2013)
-	//Départ Krusty: x = 1000mm
-	// Positions: rangée.num_verre
-	//Pos verre 1.1: x = 1050mm y = 900mm
-	//Pos verre 1.2: x = 1050mm y = 1200mm
-	//Pos verre 2.1: x = 800mm  y = 1050mm
-	//Pos verre 2.2: x = 800mm  y = 1350mm
-	//Pos verre 3.1: x = 550mm  y = 900mm
-	//Pos verre 3.2: x = 550mm  y = 1200mm
-	//Pour tourner correctement le robot, il faut avancer de 60mm mini à partir de la position "robot calibré colé au mur"
-	// Soit être à y >= 180mm
-
-	//Choix de position 1 (original)
-	const Uint8 row1_nbpos_normal = 2;
-	displacement_t row1_pos_normal[2] =
-				{ {{1000, COLOR_Y(950)} , FAST},
-				  {{1050, COLOR_Y(1500)}, FAST} };
-	const Uint8 row2_nbpos_normal = 3;
-	displacement_t row2_pos_normal[3] =
-				{ {{820, COLOR_Y(1330)}, FAST},
-				  {{750, COLOR_Y(1130)}, FAST},
-				  {{750, COLOR_Y(750)} , FAST} };
-	const Uint8 row3_nbpos_normal = 2;
-	displacement_t row3_pos_normal[2] =
-				{ {{500, COLOR_Y(1134)}, FAST},
-				  {{446, COLOR_Y(1220)}, SLOW} };
-
-	//Choix 2, pas testé
-	const Uint8 row1_nbpos_alternate = 6;
-	displacement_t row1_pos_alternate[6] =
-				{ {{1000, COLOR_Y(190)} , FAST},    //En face pour prendre verre 1.1 dans lift left
-				  {{1140, COLOR_Y(780)} , FAST},
-				  {{1016, COLOR_Y(1155)} , FAST},
-				  {{796, COLOR_Y(1281)} , SLOW},
-				  //{{545, COLOR_Y(1279)} , FAST},
-				  {{557, COLOR_Y(1258)} , SLOW},
-				  {{297, COLOR_Y(978)} , SLOW}};   //Verre 1.1 pris à gauche
-	const Uint8 row2_nbpos_alternate = 0;
-	displacement_t row2_pos_alternate[1] = {{{431, COLOR_Y(1214)} , SLOW}};  //Coord non utilisé
-	const Uint8 row3_nbpos_alternate = 3;
-	displacement_t row3_pos_alternate[3] =
-				{ {{536, COLOR_Y(966)}, FAST},
-				  {{782, COLOR_Y(980)}, FAST},
-				  {{950, COLOR_Y(898)}, FAST} };
-	
-	Uint8 row1_nbpos;
-	Uint8 row2_nbpos;
-	Uint8 row3_nbpos;
-	displacement_t *row1_pos;
-	displacement_t *row2_pos;
-	displacement_t *row3_pos;
-
-	if(use_alternate_positions) {
-		row1_nbpos = row1_nbpos_alternate;
-		row2_nbpos = row2_nbpos_alternate;
-		row3_nbpos = row3_nbpos_alternate;
-		row1_pos = row1_pos_alternate;
-		row2_pos = row2_pos_alternate;
-		row3_pos = row3_pos_alternate;
-	} else {
-		row1_nbpos = row1_nbpos_normal;
-		row2_nbpos = row2_nbpos_normal;
-		row3_nbpos = row3_nbpos_normal;
-		row1_pos = row1_pos_normal;
-		row2_pos = row2_pos_normal;
-		row3_pos = row3_pos_normal;
-	}
-
-	last_state = state;
+	error_e return_value = IN_PROGRESS;
 
 	switch(state) {
 		case GM_INIT:
 			//On reset l'état des machines à état des prise de verre pour les 2 cotés
 			K_STRAT_micro_grab_glass(TRUE, ACT_LIFT_Left);
 			K_STRAT_micro_grab_glass(TRUE, ACT_LIFT_Right);
-			state = GM_FIRST_ROW;
+			current_displacement_block = 0;
+			current_dest_home = 0;
+			state = GM_CATCH_GLASSES;
 			break;
 
-		case GM_FIRST_ROW:
-			state = try_going_multipoint(row1_pos, row1_nbpos,
-					GM_FIRST_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
-					FORWARD, first_row_avoidance_mode);
+		case GM_CATCH_GLASSES:
+			state = try_going_multipoint(&(move_points[trajectories[current_displacement_block].move_points_begin_index]), trajectories[current_displacement_block].nb_points,
+					FORWARD, trajectories[current_displacement_block].avoidance_type, END_AT_LAST_POINT,
+					GM_CATCH_GLASSES, GM_WAIT_ACT, GM_FAILED);   //Etats suivant: in_progress, success, fail
 
-			if(state == GM_WAIT_ACT)
-			  what_to_do_after_act = GM_SECOND_ROW; //Quand les ascenseurs auront fini de bouger, on passera a l'etat SECOND_ROW
-			else if(state == GM_FIRST_ROW) {
-				//On tente de prendre des verres pendant le déplacement ...
-				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Left);
-				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Right);
-			}
-			break;
-
-		case GM_SECOND_ROW:
-			state = try_going_multipoint(row2_pos, row2_nbpos,
-					GM_SECOND_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
-					FORWARD, second_row_avoidance_mode);
-			if(state == GM_WAIT_ACT)
-			  what_to_do_after_act = GM_THIRD_ROW; //Quand les ascenseurs auront fini de bouger, on passera a l'etat GM_DONE
-			else if(state == GM_SECOND_ROW) {
-				//On tente de prendre des verres pendant le déplacement ...
-				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Left);
-				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Right);
-			}
-			break;
-
-		case GM_THIRD_ROW:
-			state = try_going_multipoint(row3_pos, row3_nbpos,
-					GM_THIRD_ROW, GM_WAIT_ACT, GM_WAIT_ACT,   //Etats suivant: in_progress, success, fail
-					FORWARD, third_row_avoidance_mode);
-			if(state == GM_WAIT_ACT)
-			  what_to_do_after_act = GM_GO_HOME; //Quand les ascenseurs auront fini de bouger, on passera a l'etat GM_DONE
-			else if(state == GM_THIRD_ROW) {
+			if(state == GM_WAIT_ACT) {
+				current_displacement_block++;
+				if(current_displacement_block < trajectory_number)
+					what_to_do_after_act = GM_CATCH_GLASSES; //Quand les ascenseurs auront fini de bouger, on continuera les autres déplacements
+				else what_to_do_after_act = GM_GO_HOME;	//Si aucun autre déplacement après ça, on va déposer les verres
+			} else if(state == GM_CATCH_GLASSES) {
 				//On tente de prendre des verres pendant le déplacement ...
 				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Left);
 				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Right);
@@ -190,25 +184,79 @@ error_e K_STRAT_sub_glasses_alexis(bool_e use_alternate_positions) {
 			break;
 
 		case GM_GO_HOME:
-			state = try_going(1000, COLOR_Y(300), GM_GO_HOME, GM_WAIT_ACT, GM_WAIT_ACT, FORWARD, NO_AVOIDANCE);
-			if(state == GM_WAIT_ACT) {
-				what_to_do_after_act = GM_EXTRACT_FROM_GLASSES;   //Après que les actionneurs auront fini leur mouvement, la micro_strat sera finie
-				if(!GLASS_SENSOR_LEFT)  //S'il n'y a pas de verre en bas, on descend l'ascenseur avant
-					ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
-				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
-				if(!GLASS_SENSOR_RIGHT)  //S'il n'y a pas de verre en bas, on descend l'ascenseur avant
-					ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
-				ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierOpen);
+			state = try_going_multipoint(&(move_points[trajectories_to_home[current_dest_home].move_points_begin_index]), trajectories_to_home[current_dest_home].nb_points,
+					FORWARD, trajectories_to_home[current_dest_home].avoidance_type, END_AT_LAST_POINT,
+					GM_GO_HOME, GM_PUT_DOWN_GLASSES, GM_FAILED);   //Etats suivant: in_progress, success, fail
+			if(state == GM_GO_HOME) {
+				//On tente de prendre des verres pendant le déplacement ...
+				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Left);
+				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Right);
 			}
 			break;
 
+		case GM_PUT_DOWN_GLASSES:
+			if(!GLASS_SENSOR_LEFT)  //S'il n'y a pas de verre en bas, on descend l'ascenseur avant
+				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
+			ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
+			if(!GLASS_SENSOR_RIGHT)  //S'il n'y a pas de verre en bas, on descend l'ascenseur avant
+				ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
+			ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierOpen);
+			state = GM_WAIT_ACT;
+			what_to_do_after_act = GM_EXTRACT_FROM_GLASSES;   //Après que les actionneurs auront fini leur mouvement, la micro_strat sera finie
+			break;
+
 		case GM_EXTRACT_FROM_GLASSES:
-			state = try_relative_move(200, FAST, BACKWARD, GM_EXTRACT_FROM_GLASSES, GM_DONE, GM_DONE);
+			state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(SAFE_Y_ZONE)}, FAST}}, 1, BACKWARD, NO_AVOIDANCE, END_AT_BREAK, GM_EXTRACT_FROM_GLASSES, GM_DONE, GM_FAILED);
+			break;
+
+		case GM_FAILED:
+			state = GM_INIT;
+			switch(last_state) {
+
+				case GM_CATCH_GLASSES:
+					
+					break;
+
+				//On a un problème: evitement (ou on s'est planté dans le mur en arrivant la ou on dépose les verres)
+				case GM_GO_HOME:
+					//On regarde si on est déjà dans la zone de départ
+					if(COLOR_Y(global.env.pos.x) < SAFE_Y_ZONE) {
+						//On est proche, on a du taper dans le mur ... Donc pas grave on continue la strat normalement en reculant
+						state = GM_PUT_DOWN_GLASSES;
+					} else {
+						//On est loin, on tente un autre choix d'arrivée
+						current_dest_home++;
+						if(current_dest_home < trajectory_to_home_number) {
+							state = GM_GO_HOME;
+						} else {
+							//En fait on a déjà fait tous les choix ! => on ne peut pas revenir chez nous normalement
+							//FIXME: on boucle ...
+							current_dest_home = FIRST_SAFE_HOME;
+							state = GM_GO_HOME;
+						}
+					}
+					break;
+
+				//On a eu un problème en reculant, on a foncé dans quelque chose ?
+				case GM_EXTRACT_FROM_GLASSES:
+
+					break;
+
+				//Fausse erreur, mais une vrai dans le code, on retourne le cas fatal: END_WITH_TIMEOUT
+				default:
+					state = GM_INIT;
+					return_value = END_WITH_TIMEOUT;
+					break;
+			}
+			if(state == GM_INIT)
+				return_value = NOT_HANDLED;
+			else if(return_value != IN_PROGRESS)
+				state = GM_INIT;
 			break;
 
 		case GM_DONE:
 			state = GM_INIT;
-			return END_OK;
+			return_value = END_OK;
 			break;
 
 		case GM_NBSTATE:
@@ -222,11 +270,10 @@ error_e K_STRAT_sub_glasses_alexis(bool_e use_alternate_positions) {
 
 		if(state_str_initialized == FALSE) {
 			STATE_STR_DECLARE(state_str, GM_INIT);
-			STATE_STR_DECLARE(state_str, GM_FIRST_ROW);
-			STATE_STR_DECLARE(state_str, GM_SECOND_ROW);
-			STATE_STR_DECLARE(state_str, GM_THIRD_ROW);
+			STATE_STR_DECLARE(state_str, GM_CATCH_GLASSES);
 			STATE_STR_DECLARE(state_str, GM_WAIT_ACT);
 			STATE_STR_DECLARE(state_str, GM_GO_HOME);
+			STATE_STR_DECLARE(state_str, GM_PUT_DOWN_GLASSES);
 			STATE_STR_DECLARE(state_str, GM_EXTRACT_FROM_GLASSES);
 			STATE_STR_DECLARE(state_str, GM_DONE);
 			STATE_STR_INIT_UNDECLARED(state_str, GM_NBSTATE);
@@ -238,7 +285,11 @@ error_e K_STRAT_sub_glasses_alexis(bool_e use_alternate_positions) {
 			state_str[state], state);
 	}
 
-	return IN_PROGRESS;
+	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
+
+	if(return_value != IN_PROGRESS)
+		state = GM_INIT;
+	return return_value;
 }
 
 //Cette micro strat prend des verres quand il y en a avec les ascensseurs (lift).

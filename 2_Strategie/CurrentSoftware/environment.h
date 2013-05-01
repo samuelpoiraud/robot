@@ -68,6 +68,7 @@
 		volatile Sint16 dist;
 		volatile Sint16 x;
 		volatile Sint16 y;
+		volatile Uint8 nb_points_reached;	//Nombre de point atteint d'un ensemble de point multipoint, pour savoir à quel moment on s'est arreté en cas d'évitement
 		volatile Sint16 translation_speed;
 		volatile Sint16 rotation_speed;
 		volatile double cosAngle;/*cosinus de l'angle du robot*/

@@ -38,7 +38,8 @@
 
 	#ifdef USE_ASSER_MULTI_POINT
 		void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init);
-		void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, bool_e run);
+		void ASSER_goto_multi_point_until_break(stack_id_e stack_id, bool_e init);
+		void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, ASSER_end_condition_e end_condition, bool_e run);
 		void ASSER_relative_goangle_multi_point (stack_id_e stack_id, bool_e init);
 		void ASSER_push_relative_goangle_multi_point (Sint16 angle, ASSER_speed_e speed, bool_e run);
 	#endif /* def USE_ASSER_MULTI_POINT */
@@ -59,7 +60,7 @@
 	void ASSER_stop () __attribute__ ((deprecated)); //veuillez utiliser ASSER_push_stop maintenant
 	
 	/* ajoute une instruction goto sur la pile asser */
-	void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, ASSER_end_condition_e end_condition ,bool_e run);
+	void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, ASSER_end_condition_e end_condition, bool_e run);
 	
 	/* ajoute une instruction goangle sur la pile asser */
 	void ASSER_push_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);

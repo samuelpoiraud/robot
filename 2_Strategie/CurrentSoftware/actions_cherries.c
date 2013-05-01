@@ -242,15 +242,15 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 
 	//Ce n'est pas mis en define pour garder ça en interne dans la fonction
 
-	//En vitesse CUSTOM de 25 [mm/32/5ms]: 3200 [mm/4096/5ms] soit 156mm/s
+	//En vitesse CUSTOM de 8 [mm/32/5ms]: 1024 [mm/4096/5ms] soit 50mm/s
 	//Temps pour serrer une assiette: < 0.4s
-	//Distance parcourue pendant ce temps en VERY_SLOW: 63mm
-	//On ferme l'ax12 sur une distance de 70mm pour fermer pendant le mouvement, entre y = 450 et y = 520 sachant qu'on fait 5mm sans avoir l'assiette au bout
+	//Distance parcourue pendant ce temps: 20mm
+	//On ferme l'ax12 sur une distance de 20mm pour fermer pendant le mouvement, entre y = 500 et y = 520 sachant qu'on fait 5mm sans avoir l'assiette au bout
 
 	static const Sint16 Y_POS_AX12_CLOSING   = 520;   //Début du serrage de l'assiette
 	static const Sint16 Y_POS_CATCHING_PLATE = 520;   //Début de la vitesse lente
-	static const Sint16 Y_POS_CATCHED_PLATE  = 450;   //Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises
-	static const Uint8 CATCHING_PLATE_SPEED = 8 + 25; //vitesse de 25 [mm/32/5ms] == 156mm/s, le 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
+	static const Sint16 Y_POS_CATCHED_PLATE  = 500;   //Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises
+	static const Uint8 CATCHING_PLATE_SPEED = 8 + 8; //vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
 	static const bool_e USE_DOUBLE_CLOSE_AX12 = TRUE; //Si TRUE, on serre 2 fois l'assiette pour mieux la prendre
 	static const time32_t TIME_BEFORE_DROP_DURATION = 1000;  //Temps d'attente pendant que les cerises tombe de l'assiette en position verticale dans la tremie
@@ -332,9 +332,8 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 			state = try_going_multipoint((displacement_t[]){
 				{{initial_x_position, COLOR_Y(Y_POS_CATCHING_PLATE)}, FAST},					//On avance rapidement sur l'assiette
 				{{initial_x_position, COLOR_Y(Y_POS_CATCHED_PLATE)} , CATCHING_PLATE_SPEED}},	//Puis on la pousse (en la serrant) doucement
-				2,
-				GP_CATCH_PLATE, GP_TAKING_CHERRIES, GP_FAILED,
-				BACKWARD, NO_AVOIDANCE);
+				2, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT,
+				GP_CATCH_PLATE, GP_TAKING_CHERRIES, GP_FAILED);
 
 			//Gestion du serrage en parallèle quand on atteint la position Y_POS_AX12_CLOSING ou quand on change d'état sans que le warner n'ait été déclenché
 			//si Y_POS_AX12_CLOSING vaut 0, on n'utilise pas le warner et on fait le serrage systématiquement à la fin du mouvement
@@ -370,7 +369,8 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 		//Sort de la zone à assiette à la position d'origine (initial_y_position, position absolue, pas de COLOR_Y !!)
 		case GP_PULL_OUT:
 			//Si évitement: l'adversaire est dans notre zone !!!!
-			state = try_going(initial_x_position, initial_y_position, GP_PULL_OUT, GP_DROP_PLATE, GP_FAILED, FORWARD, NO_DODGE_AND_NO_WAIT);
+			//state = try_going(initial_x_position, initial_y_position, GP_PULL_OUT, GP_DROP_PLATE, GP_FAILED, FORWARD, NO_DODGE_AND_NO_WAIT);
+			state = try_going_multipoint((displacement_t[]){{{initial_x_position, initial_y_position}, FAST}}, 1, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BREAK, GP_PULL_OUT, GP_DROP_PLATE, GP_FAILED);
 			break;
 
 		//Lache l'assiette et remonte la pince verticallement, pour être près pour d'autre actions
@@ -420,9 +420,11 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 
 				//On peut pas se barrer !!! Du monde est derrière nous avec un strat comme notre Tiny ?
 				//Tant pis, on peu se déplacer autre part sans taper dans nos verres vu qu'on est déjà asser loin du bord
-				//On indique quand même à la strat supérieure qu'on a vu un ennemi ... (ça pourrait aussi être une erreur prop, mais en quel honneur ? même si on a déjà eu des problèmes, ce mvt est relativement simple et pas long normalement ...)
+				//Donc on continue en lachant l'assiette si on doit le faire ...
+				//   //On indique quand même à la strat supérieure qu'on a vu un ennemi ... (ça pourrait aussi être une erreur prop, mais en quel honneur ? même si on a déjà eu des problèmes, ce mvt est relativement simple et pas long normalement ...)
 				case GP_PULL_OUT:
-					return_value = FOE_IN_PATH;
+					//return_value = FOE_IN_PATH;
+					state = GP_DROP_PLATE;
 					break;
 
 				//On a pas pu jeter l'assiette ... qqun est sur l'emplacement de l'assiette ?
