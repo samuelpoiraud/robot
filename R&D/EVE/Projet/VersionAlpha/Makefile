@@ -10,40 +10,40 @@ eve:
 compile_actionneurs: CodeActionneurs
 
 CodeActionneurs:
-	gcc  -w  -o CodeActionneurs ../Robot/CarteActionneur/*.c ../Robot/CarteActionneur/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+	gcc  -Wall  -o CodeActionneurs ../Robot/CarteActionneur/*.c ../Robot/CarteActionneur/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
 #	gcc -o CodeActionneurs *.o -lm
 #	rm *.o
 
 compile_balises: CodeBalises
 
 CodeBalises:
-	gcc  -w  -o CodeBalises ../Robot/CarteBaliseReceptriceUS/*.c ../Robot/CarteBaliseReceptriceUS/QS/*.c EVE_QS/*.c  -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+	gcc  -Wall  -o CodeBalises ../Robot/CarteBaliseReceptriceUS/*.c ../Robot/CarteBaliseReceptriceUS/QS/*.c EVE_QS/*.c  -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
 #	gcc -o CodeBalises *.o -lm
 #	rm *.o
 
 compile_propulsion: CodePropulsion
 
 CodePropulsion:
-	gcc  -w  -o CodePropulsion ../Robot/CartePropulsion/*.c ../Robot/CartePropulsion/QS/*.c EVE_QS/*.c -I. -Ihard_includes -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+	gcc  -Wall  -o CodePropulsion ../Robot/CartePropulsion/*.c ../Robot/CartePropulsion/QS/*.c EVE_QS/*.c -I. -Ihard_includes -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
 #	gcc -o CodePropulsion *.o -lm
 #	rm *.o
 
 CodeStrategie_old:
-	gcc  -w  -o CodeStrategie ../Robot/CarteStrategie/*.c ../Robot/CarteStrategie/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+	gcc  -Wall  -o CodeStrategie ../Robot/CarteStrategie/*.c ../Robot/CarteStrategie/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
 #	gcc -o CodeStrategie *.o -lm
 #	rm *.o
 
 compile_strategie: CodeStrategie
 
 CodeStrategie:
-	gcc  -w  -o CodeStrategie ../Robot/CarteStrategie/*.c ../Robot/CarteStrategie/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+	gcc  -Wall  -o CodeStrategie ../Robot/CarteStrategie/*.c ../Robot/CarteStrategie/QS/*.c EVE_QS/*.c -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
 #	gcc -o CodeStrategie *.o -lm
 #	rm *.o
 
 compile_supervision: CodeSupervision
 
 CodeSupervision:
-	gcc  -w -o CodeSupervision ../Robot/CarteSupervision/*.c ../Robot/CarteSupervision/QS/*.c EVE_QS/*.c  -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
+	gcc  -Wall -o CodeSupervision ../Robot/CarteSupervision/*.c ../Robot/CarteSupervision/QS/*.c EVE_QS/*.c  -I. -lm `pkg-config --cflags gtk+-2.0` `pkg-config --cflags --libs gtk+-2.0`
 #	gcc -o CodeSupervision *.o -lm
 #	rm *.o
 

@@ -10,6 +10,8 @@
  */
 #define IHM_CALLBACKS_C
 #include "IHM_callbacks.h"
+#include "../can.h"
+#include <stdlib.h>
 
 
 void on_nouveau1_activate(GtkMenuItem *menuitem,gpointer user_data)
@@ -139,9 +141,44 @@ void on_can_send_button_add_clicked         (GtkButton       *button,
 
 void on_can_send_button_send_clicked        (GtkButton       *button,gpointer         user_data)
 {
-	//GtkWidget *entry = lookup_widget(GTK_WIDGET(button),"can_send_st_main");
-	//const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+	GtkWidget *entry = lookup_widget(GTK_WIDGET(button),"can_send_st_main");
+	const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
 	//envoi du message au CAN TODO
+	EVE_CAN_msg_t eve_can_msg;
+	int i;   
+	char hexByte[3] = {0};
+	
+	eve_can_msg.mtype = QUEUE_CAN_MTYPE;
+	eve_can_msg.start_msg = CAN_MESSAGE_START;
+	eve_can_msg.sid = 0;
+	eve_can_msg.size = 0;
+	eve_can_msg.end_msg = CAN_MESSAGE_STOP;
+	
+	for(i=0;i<CAN_MSG_DATA_SIZE;i++)
+	{
+		eve_can_msg.data[i] = 0;
+	}
+	
+	printf("CAN Message send:");
+	for(i = 1; i < 12; i++) {
+		unsigned int val;
+		hexByte[0] = entry_text[i*2];
+		hexByte[1] = entry_text[i*2+1];
+		hexByte[2] = 0;
+		val = strtoul(hexByte, NULL, 16);
+		printf(" %02X", val);
+		if(i == 1)
+			eve_can_msg.sid = val << 8;
+		else if(i == 2)
+			eve_can_msg.sid |= val;
+		else if(i >= 3 && i <= 10)
+			eve_can_msg.data[i - 3] = val;
+		else if(i == 11)
+			eve_can_msg.size = val;
+	}
+	printf("\n");
+	
+	CAN_broadcast_msg(eve_can_msg, -1);
 }
 
 

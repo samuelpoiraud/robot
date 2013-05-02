@@ -80,11 +80,18 @@
 	#define XBEE_PING_OTHER_STRAT			0x5A6	//Ce message est envoyé pour pinger l'autre carte stratégie
 	#define XBEE_PONG_OTHER_STRAT			0x5A7	//Ce message est envoyé en réponse d'un ping vers l'autre carte stratégie
 
+	#define XBEE_ZONE_COMMAND				0x5AA	//Effectue une demande lié au zones (un SID pour toute la gestion des zones comme ça)
+	//Commande dans data[0]:
+		#define XBEE_ZONE_TRY_LOCK       0	//Dans data[1]: la zone, type: map_zone_e. La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT
+		#define XBEE_ZONE_LOCK_RESULT    1	//Dans data[1]: la zone concernée, data[2]: TRUE/FALSE suivant si le verouillage à été accepté ou non
+		#define XBEE_ZONE_UNLOCK         2  //Dans data[1]: la zone libérée. Libère une zone qui a été verouillée
+
 	//Reception: La super se charge de transformer le message recu par xbee et qui commence par le sid precedent
 	#define STRAT_ELTS_UPDATE				0x2A1
 	#define STRAT_START_MATCH				0x2A4	//Ce message est envoyé pour demander à une carte S de lancer le match
 	#define XBEE_PING_FROM_OTHER_STRAT		0x2A6	//Ce message est reçu par la strat, en provenance de l'autre strat
 	#define XBEE_PONG_FROM_OTHER_STRAT		0x2A7	//Ce message est reçu en réponse d'un ping en provenance de l'autre carte stratégie
+	#define XBEE_ZONE_COMMAND_RECV			0x2AA	//Un message XBEE_ZONE_COMMAND reçu, voir info sur le message XBEE_ZONE_COMMAND
 
  /*****************************************************************
  *
