@@ -113,7 +113,7 @@ error_e K_STRAT_sub_glasses_alexis() {
 	static const Uint8 TRAJECTORY_NUMBER_2 = 2;
 	static const displacement_block_t TRAJECTORIES_2[2] = {
 	//    avoidance_type     , nb_points , move_points_begin_index
-		{NO_AVOIDANCE        ,    6      ,           0            },	//Phase 1
+		{NO_DODGE_AND_NO_WAIT,    6      ,           0            },	//Phase 1
 		{NO_AVOIDANCE        ,    3      ,           6            }		//Phase 2
 	};
 	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_2 = 3;
