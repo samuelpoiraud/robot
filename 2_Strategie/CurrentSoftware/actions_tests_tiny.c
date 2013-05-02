@@ -15,7 +15,7 @@
 
 #define USE_CURVE	0
 
-
+error_e STRAT_TINY_goto_forgotten_gift(void);
 
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions d'homologation			                 */
@@ -69,6 +69,7 @@ static enum
 				case END_OK:
 				case END_WITH_TIMEOUT:	//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
 				case NOT_HANDLED:		//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
+				case FOE_IN_PATH:
 					state = TURN_IF_NO_CALIBRATION;
 				break;
 				case IN_PROGRESS:
@@ -271,7 +272,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
 			#warning "TODO... une subaction qui va faire les bougies oubliées... et seulement celles ci... "
-				sub_action = TINY_blow_all_candles();
+				sub_action = STRAT_TINY_goto_cake_and_blow_candles();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
@@ -281,6 +282,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 						//no break !
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
+					case FOE_IN_PATH:
 						if(all_gifts_done() == FALSE)
 							state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 						else
@@ -292,32 +294,15 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 		break;
 		case SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS:
-			#warning "TODO... une subaction qui va faire les cadeaux oubliés... et seulement ceux là... "
-			
-			if(global.env.map_elements[GOAL_Cadeau2] == ELEMENT_TODO)
-				sub_action=TINY_forgotten_gift(THIRD_GIFT);
-			else if(global.env.map_elements[GOAL_Cadeau3] == ELEMENT_TODO)
-				sub_action=TINY_forgotten_gift(FOURTH_GIFT);
-			else
-				sub_action = END_OK;	//On a plus rien à faire ici...
-					
+			sub_action = STRAT_TINY_goto_forgotten_gift();
 			switch(sub_action)
 			{
 				case IN_PROGRESS:
 				break;
 				case END_OK:
-					if(all_gifts_done() == FALSE)
-						state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//ON RESTE ICI, IL RESTE UN CADEAU A FAIRE !
-					else
-					{
-						if(all_candles_done == FALSE)
-							state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//Il reste des bougies à souffler... on y retourne.
-						else
-							state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
-					}
-				break;
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
+				case FOE_IN_PATH:
 					if(all_candles_done == FALSE)
 						state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//Il reste des bougies à souffler... on y retourne.
 					else
@@ -449,7 +434,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 		case MA:
 			//										in_progress		success		failed
-			state = try_going(360, COLOR_Y(1500),	MA,				MB,			EA,		ANY_WAY, NO_DODGE_AND_WAIT); //Je dois passer par le milieu a tt prix !
+			state = try_going(600, COLOR_Y(1650),	MA,				MB,			EA,		ANY_WAY, NO_DODGE_AND_WAIT); //Je dois passer par le milieu a tt prix !
 			if(state == MB)
 				from = MA;
 		break;
@@ -463,10 +448,13 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 			else
 			{
-				end_ok_state = E_C;
+				if(from == E_C)
+					end_ok_state = MB;
+				else
+					end_ok_state = E_C;
 				if(from==EA)
 					failed_state = MA;
-				else //A priori, c'est que (from==ENNEMY_TERRITORY_CAKE_PART)
+				else //A priori, c'est que (from==EC ou MB)
 					failed_state = MB;
 			}
 
@@ -498,7 +486,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1380, COLOR_Y(1500),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1380, COLOR_Y(1600),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 			
 			if(state != MB)	//Sortie de l'état...
 				from = MB;	//On sort..alors on sauvegarde d'où on vient.
@@ -544,23 +532,22 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 	
 		case SUBACTION_BLOW_CANDLES:					//Souffler bougies 
-				sub_action = TINY_warner_blow_all_candles();
-				
-				switch(sub_action)
-				{
-					case IN_PROGRESS:
-					break;
-					case END_OK:
-						state = CANDLES_SUCCESS;
-						all_candles_blown=TRUE;
-					break;
-					case END_WITH_TIMEOUT:
-					case NOT_HANDLED:
-					case FOE_IN_PATH:
-					default:
-						state = CANDLES_FAIL;
-					break;
-				}
+			sub_action = TINY_warner_blow_all_candles();
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					state = CANDLES_SUCCESS;
+					all_candles_blown=TRUE;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+				default:
+					state = CANDLES_FAIL;
+				break;
+			}
 		break;
 
 		case CANDLES_FAIL:	//No break...
@@ -596,34 +583,13 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		default:
 		break;
 	}
-
-	#warning "Samuel : on pourrait ajouter la gestion d'un timeout pour cette subaction... mais je crois que c'est inutile, compte tenu de son placement dans le match"
-
+	
 	entrance = (previous_state != state)?TRUE:FALSE;	//Pour le prochain passage dans la machine.
 	if(entrance)
 	{
 		//Ces printf ne sont pas trop génant, car ils ne sont affichés que sur des évènements "rares"...
 		//Ils sont très importants pour savoir ce que le robot à fait, du point de vue STRAT HAUT NIVEAU !
-		debug_printf("STATE :");
-	/*	switch(previous_state)
-		{
-			case INIT:						debug_printf("INIT");					break;
-			case EA:						debug_printf("EA");						break;
-			case MA:						debug_printf("MA");						break;
-			case EB:						debug_printf("EB");						break;
-			case MB:						debug_printf("MB");						break;
-			case SB:						debug_printf("SB");						break;
-			case E_C:						debug_printf("EC");						break;
-			case SC:						debug_printf("SC");						break;
-			case BLOW_ALL_CANDLES:			debug_printf("BLOW_ALL_CANDLES");		break;
-			case SUBACTION_BLOW_CANDLES:	debug_printf("SUBACTION_BLOW_CANDLES");	break;
-			case CANDLES_FAIL:				debug_printf("CANDLES_FAIL");			break;
-			case CANDLES_SUCCESS:			debug_printf("CANDLES_SUCCESS");		break;
-			case BP:						debug_printf("BP");						break;
-			case END_STATE:					debug_printf("END_STATE");				break;
-			default:						debug_printf("???");					break;
-		}
-	*/	debug_printf("->");
+		debug_printf("Cake ->");
 		switch(state)
 		{
 			case INIT:						debug_printf("INIT");					break;
@@ -650,6 +616,169 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	return ret;
 }
 
+
+
+
+
+error_e STRAT_TINY_goto_forgotten_gift(void)
+{
+	//Le type avec les états est défini séparément de la variable pour que mplab x comprenne ce qu'on veut faire ...
+	typedef enum
+	{
+		INIT,
+		BP,
+		EA,
+		GA,
+		EB,
+		MB,
+		SUBACTION_FORGOTTEN_GIFT,
+		FAIL,
+		SUCCESS
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
+	static state_e from = INIT;
+	static map_goal_e goal;
+
+	error_e sub_action;
+	error_e ret = IN_PROGRESS;
+	switch(state)
+	{
+		case INIT:		//Décision initiale de trajet		
+			if(	global.env.map_elements[GOAL_Cadeau3] == ELEMENT_DONE
+					&&
+				global.env.map_elements[GOAL_Cadeau2] == ELEMENT_DONE	)
+			{
+				goal = 0;
+				ret = END_OK;	//Ne devrait pas arriver... nous appeler alors qu'il n'y a pas de cadeau à faire.. ? cela n'a pas de sens.
+			}
+			else
+			{			
+				if(global.env.map_elements[GOAL_Cadeau2] == ELEMENT_DONE)
+					goal = GOAL_Cadeau3;	//Cadeau 2 est fait -> on va au cadeau 3.
+				else
+					goal = GOAL_Cadeau2;	//Cadeau 2 pas fait (ou les deux !) -> on va au cadeau 2.
+				
+				debug_printf("point de départ vers le cadeau %d : ", goal);
+
+				if(global.env.pos.x > 800)
+				{
+					state = BP;
+					if(COLOR_Y(global.env.pos.y) > 1800)
+						from = EB;	//On fait comme si on venait de EB
+					else
+						from = MB;	//On fait comme si on venait de MB
+				}
+				else
+				{
+					if(goal == GOAL_Cadeau2)
+						state = GA;
+					else
+						state = EA;			
+					from = BP;
+				}
+			}
+		break;
+		/////////////////////////////////////////
+		case BP:
+			//									in_progress		success							failed
+			state=try_going(870,COLOR_Y(1800),	BP,				(goal == GOAL_Cadeau2)? GA:EA,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != BP)
+				from = BP;
+		break;
+		case GA:
+			//										in_progress		success						failed
+			state = try_going(360, COLOR_Y(1700),	GA,				SUBACTION_FORGOTTEN_GIFT,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != GA)
+				from = GA;
+		break;
+		case EA:
+			//										in_progress		success						failed
+			state = try_going(360, COLOR_Y(2135),	EA,				SUBACTION_FORGOTTEN_GIFT,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != EA)
+				from = EA;
+		break;
+
+		/////////////////////////////////////////
+		//POINTS DE REPLI...
+		case EB:
+			//										in_progress	success	failed
+			state = try_going(1380, COLOR_Y(2135),	EB,			BP,		MB,		ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != EB)
+				from = EB;
+		break;
+		case MB:
+			//										in_progress	success	failed
+			state = try_going(1380, COLOR_Y(1500),	MB,			BP,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != MB)
+				from = MB;
+
+		break;
+
+		case SUBACTION_FORGOTTEN_GIFT:
+			sub_action = TINY_forgotten_gift(goal);
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					state = SUCCESS;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+				default:
+					state = FAIL;
+				break;
+			}
+		break;
+		case FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
+		case SUCCESS:
+			if(global.env.map_elements[GOAL_Cadeau3] != ELEMENT_DONE)
+			{
+				goal = GOAL_Cadeau3;
+				state = SUBACTION_FORGOTTEN_GIFT;
+			}
+			else if(global.env.map_elements[GOAL_Cadeau2] != ELEMENT_DONE)
+			{
+				goal = GOAL_Cadeau2;
+				state = SUBACTION_FORGOTTEN_GIFT;
+			}
+			else
+			{
+				//Fini pour les cadeaux !
+				state = INIT;
+				ret = END_OK;
+			}
+		break;
+		default:
+			state = INIT;
+		break;
+	}
+	
+	if(previous_state != state)
+	{
+		debug_printf("forgGift ->");
+		switch(state)
+		{
+			case INIT:						debug_printf("INIT");					break;
+			case BP:						debug_printf("BP");						break;
+			case GA:						debug_printf("GA");						break;
+			case EB:						debug_printf("EB");						break;
+			case MB:						debug_printf("MB");						break;
+			case SUBACTION_FORGOTTEN_GIFT:	debug_printf("SUBACTION_FORGOTTEN_GIFT");	break;
+			case FAIL:						debug_printf("FAIL");					break;
+			case SUCCESS:					debug_printf("SUCCESS");				break;
+			default:						debug_printf("???");					break;
+		}
+		debug_printf("\n");
+	}
+	previous_state = state;
+	return ret;
+}
 
 /* ----------------------------------------------------------------------------- */
 /* 							Autre strats de test             			 */
@@ -683,6 +812,7 @@ void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
 				case NOT_HANDLED:
 				case END_OK:
 				case END_WITH_TIMEOUT:
+				case FOE_IN_PATH:
 				default:
 					state = GOTO_A;
 					break;
@@ -759,6 +889,7 @@ void STRAT_TINY_all_candles(void)
 				case END_WITH_TIMEOUT:
 					state=COMEBACK2CODEUR;
 				case NOT_HANDLED:
+				case FOE_IN_PATH:
 					state =COMEBACK2CODEUR;
 				break;
 				case IN_PROGRESS:
@@ -774,7 +905,7 @@ void STRAT_TINY_all_candles(void)
 		break;
 
 		case test1:
-			sub_action=TINY_forgotten_gift(THIRD_GIFT);
+			sub_action=TINY_forgotten_gift(GOAL_Cadeau2);
 			switch(sub_action)
             {
 				case END_OK:
@@ -783,6 +914,7 @@ void STRAT_TINY_all_candles(void)
 				case END_WITH_TIMEOUT:
 					state=mid;
 				case NOT_HANDLED:
+				case FOE_IN_PATH:
 					state =mid;
 				break;
 				case IN_PROGRESS:
@@ -798,7 +930,7 @@ void STRAT_TINY_all_candles(void)
 		break;
 
 		case test2:
-             sub_action=TINY_forgotten_gift(FOURTH_GIFT);
+             sub_action=TINY_forgotten_gift(GOAL_Cadeau3);
 			switch(sub_action)
             {
 				case END_OK:
@@ -807,6 +939,7 @@ void STRAT_TINY_all_candles(void)
 				case END_WITH_TIMEOUT:
 					state=DONE;
 				case NOT_HANDLED:
+				case FOE_IN_PATH:
 					state =DONE;
 				break;
 				case IN_PROGRESS:

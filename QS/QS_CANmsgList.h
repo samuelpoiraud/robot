@@ -66,7 +66,7 @@
 
 	//message pour debug strategie
 
-	#define DEBUG_DETECT_FOE			0x270
+	#define DEBUG_DETECT_FOE			0x799	//Déclenchement manuel d'un évitement.
 /*****************************************************************
  *
  *		Messages echangés entre les cartes stratégies des

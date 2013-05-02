@@ -63,9 +63,8 @@ int main (void)
 	RCON_read(); //permet de voir le type du dernier reset
 	
 	//Sur quel robot est-on ?
-	#ifdef FDP_2013	//Pour rétrocompatibilité.
-		QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-	#endif
+	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+
 	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
 	
 	//on passe la config actuelle à la Super

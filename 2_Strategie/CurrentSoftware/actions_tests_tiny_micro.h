@@ -20,11 +20,6 @@
 
 //Insérez ici vos micro_strat et découpes de strat
 
-typedef enum
-{
-  THIRD_GIFT  = 0,
-  FOURTH_GIFT
-}forgotten_gift_e;
 
 void T_BALLINFLATER_start(void);
 
@@ -38,7 +33,7 @@ error_e TINY_open_all_gifts_without_pause();
 error_e old_TINY_all_candles(void);
 error_e TINY_open_all_gifts_homolog(void);
 
-error_e TINY_forgotten_gift(forgotten_gift_e forgotten_gift);
+error_e TINY_forgotten_gift(map_goal_e forgotten_gift);
 
 
 

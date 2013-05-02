@@ -24,8 +24,8 @@
 	{
 		assert(!found);		//Vous ne devez appeler QS_WHO_AM_I_find qu'une seule fois !
 		#ifndef FDP_2013	//Retrocompatibilité : on renvoie
-			//Par défaut, sur un FDP!=2013 le robot est KRUSTY.
-			robot_id = KRUSTY;
+			//Par défaut, sur un FDP!=2013 le robot est ...
+			robot_id = TINY;
 			found = TRUE;
 			return;
 		#endif
@@ -55,7 +55,6 @@
 	robot_id_e QS_WHO_AM_I_get(void)
 	{
 		assert(found);		//Vous devez appeler QS_WHO_AM_I_find dans l'initialisation avant tout appel à QS_WHO_AM_I_get.
-	
 		return robot_id;
 	}
 	
