@@ -16,6 +16,8 @@
 #define USE_CURVE	0
 
 error_e STRAT_TINY_goto_forgotten_gift(void);
+error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset);
+
 
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions d'homologation			                 */
@@ -35,7 +37,7 @@ void TEST_STRAT_T_homologation(void)
 		 	- sortir de la zone, marquer 1 point
 		 	- éviter correctement un adversaire (donc il faut un minimum de déplacement quand même)
 	*/
-static enum
+	typedef enum
 	{
 		GET_OUT = 0,
 		GET_OUT_IF_NO_CALIBRATION,
@@ -43,7 +45,8 @@ static enum
 		SUBACTION_OPEN_ALL_GIFTS,
 		FAIL_TO_OPEN_GIFTS
 		
-	}state = GET_OUT;
+	}state_e;
+	state_e state = GET_OUT;
 
 	error_e sub_action;
 
@@ -238,7 +241,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		case SUBACTION_STEAL_ADVERSARY_GLASSES:
 			//TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			#warning "subaction à faire !"
-			sub_action = END_OK;	//Temporaire
+			sub_action = STRAT_TINY_scan_and_steal_adversary_glasses(FALSE);
 			
 			if(global.env.match_time >= 70000)	//S'il reste des chose à faire et qu'on a plus que 20 secondes... on abandonne le vol et on y va..
 			{
@@ -246,7 +249,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				{
 					sub_action = END_OK;
 					debug_printf("Il reste 20 sec..\n");
-					#warning "il faut penser à reseter la MAE de la sub_action pour pouvoir y retourner sans tout péter !"
+					STRAT_TINY_scan_and_steal_adversary_glasses(TRUE);	//Reset forcé de la MAE !
 				}
 			}
 			switch(sub_action)
@@ -779,6 +782,130 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 	previous_state = state;
 	return ret;
 }
+
+
+
+error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
+{
+		//Le type avec les états est défini séparément de la variable pour que mplab x comprenne ce qu'on veut faire ...
+	typedef enum
+	{
+		INIT,
+		BP,
+		SA,
+		SC,
+		GO_ANGLE,
+		SCAN_GLASSES,
+		DECISION,
+		SUBACTION_STEAL,
+		COME_BACK_HOME,
+		FAIL,
+		SUCCESS
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
+	static state_e from = INIT;
+	static bool_e entrance = TRUE;
+	error_e sub_action;
+	error_e ret = IN_PROGRESS;
+	switch(state)
+	{
+		case INIT:		//Décision initiale de trajet
+			debug_printf("point de départ du steal : ");
+			from = BP;
+			if(global.env.pos.x > 1000)
+				state = SC;
+			else
+				state = SA;
+		break;
+		/////////////////////////////////////////
+		case SA:
+			//										in_progress		success		failed
+			state = try_going(160, COLOR_Y(2480),	SA,				GO_ANGLE,	BP,		ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != SA)
+				from = SA;
+		break;
+		case SC:
+			//										in_progress		success		failed
+			state = try_going(1840, COLOR_Y(2480),	SC,				GO_ANGLE,	BP,		ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != SC)
+				from = SC;
+		break;
+		case BP:
+			//									in_progress		success					failed
+			state=try_going(1000,COLOR_Y(1800),	BP,				(from == SA)? SC:SA,	(from == SA)?SA:SC,		ANY_WAY, NO_DODGE_AND_WAIT);
+			if(state != BP)
+				from = BP;
+		break;
+
+		case GO_ANGLE:
+			state = try_go_angle((global.env.color == RED)?PI4096:0, GO_ANGLE, SCAN_GLASSES, SCAN_GLASSES, FAST);
+		break;
+		
+		case SCAN_GLASSES:
+			if(entrance)
+				scan_for_glasses(TRUE);
+			state = try_going((from == SC)?160:1840, COLOR_Y(2480),	SCAN_GLASSES, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
+
+			if(global.env.pos.updated)
+				scan_for_glasses(FALSE);
+
+			if(state != SCAN_GLASSES)
+				from = (global.env.pos.x>1000)?SC:SA;
+
+		break;
+		case DECISION:
+			//TODO prendre une décision
+			//if(scan_for_glasses(FALSE))
+			//	state = SUBACTION_STEAL;
+			//Si pas de décision positive.. on scanne dans l'autre sens...
+
+			state = SCAN_GLASSES;
+		break;
+		case SUBACTION_STEAL:
+			state = COME_BACK_HOME;
+		break;
+		case COME_BACK_HOME:
+			state = SUCCESS;
+		break;
+		case FAIL:
+			state = INIT;	//Où que je sois, je m'arrête là... (ca fera une occasion de réfléchir à faire autre chose...)
+			ret = NOT_HANDLED;
+		break;
+		case SUCCESS:
+			//Là, c'est vraiment la fête du slip !!!
+			state = INIT;
+			ret = END_OK;
+		break;
+		default:
+			state = INIT;
+		break;
+	}
+	entrance = (state != previous_state)?TRUE:FALSE;
+	if(previous_state != state)
+	{
+		debug_printf("Scan&Steal->");
+		switch(state)
+		{
+			case INIT:						debug_printf("INIT");				break;
+			case BP:						debug_printf("BP");					break;
+			case SA:						debug_printf("SA");					break;
+			case SC:						debug_printf("SC");					break;
+			case GO_ANGLE:					debug_printf("GO_ANGLE");			break;
+			case SCAN_GLASSES:				debug_printf("SCAN_GLASSES");		break;
+			case DECISION:					debug_printf("DECISION");			break;
+			case SUBACTION_STEAL:			debug_printf("SUBACTION_STEAL");	break;
+			case COME_BACK_HOME:			debug_printf("COME_BACK_HOME");		break;
+			case FAIL:						debug_printf("FAIL");				break;
+			case SUCCESS:					debug_printf("SUCCESS");			break;
+			default:						debug_printf("???");				break;
+		}
+		debug_printf("\n");
+	}
+	previous_state = state;
+	return ret;
+}
+
 
 /* ----------------------------------------------------------------------------- */
 /* 							Autre strats de test             			 */
