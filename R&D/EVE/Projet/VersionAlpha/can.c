@@ -339,7 +339,7 @@ static void CAN_load_filters()
 }
 
 // Fonction qui envoie un message CAN à toutes les cartes (actives)
-static void CAN_broadcast_msg(EVE_CAN_msg_t can_msg, cards_id_e originating_card)
+void CAN_broadcast_msg(EVE_CAN_msg_t can_msg, cards_id_e originating_card)
 {
 	if(originating_card != ACTIONNEURS && GLOBAL_VARS_get_use_cards(ACTIONNEURS) == 1)
 	{
