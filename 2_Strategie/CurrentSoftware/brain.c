@@ -101,7 +101,8 @@ void any_match(time32_t match_duration)
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;
 				default:
-					strategy = TEST_STRAT_T_homologation;
+					//strategy = TEST_STRAT_T_homologation;
+					strategy = STRAT_TINY_gifts_cake_and_steal;
 				break;
 			}			
 		}
@@ -201,12 +202,15 @@ void any_match(time32_t match_duration)
 
 Uint8 strat_number(void)
 {
-	if(SWITCH_STRAT_1)
-		return 0x01;
-	else if(SWITCH_STRAT_2)
-		return 0x02;
-	else if(SWITCH_STRAT_3)
-		return 0x03;
-		
+	#ifndef FDP_2013
+		return 0x00;
+	#else
+		if(SWITCH_STRAT_1)
+			return 0x01;
+		else if(SWITCH_STRAT_2)
+			return 0x02;
+		else if(SWITCH_STRAT_3)
+			return 0x03;
+	#endif	
 	return 0x00;	//Aucun switch -> stratégie 0.
 }

@@ -195,7 +195,9 @@ static void CAN_error_processing();
 				CAN1SetTXMode(i,CAN_TX_STOP_REQ & CAN_TX_PRIORITY_HIGH );
 
 			CAN1SetOperationMode(CANModeOperating);
-			while(C1CTRLbits.OPMODE !=0);
+			#ifndef MODE_SIMULATION
+				while(C1CTRLbits.OPMODE !=0);
+			#endif
 		#endif /* def USE_CAN */
 
 		#ifdef USE_CAN2
@@ -248,47 +250,53 @@ static void CAN_error_processing();
 	{
 		return m_canrx;
 	}	
-
-	#ifdef CAN_SEND_TIMEOUT_ENABLE
-	#define TIMEOUT_CAN_SEND 4196	//10ms de timeout sur la disponibilité du périph CAN...
+	#ifdef MODE_SIMULATION
 		void CAN_send(CAN_msg_t* can_msg)
 		{
-			Uint16 time;
-			time = TIMEOUT_CAN_SEND;
-			while(!CAN1IsTXReady(0))
+			//Nothing...
+		}	
+	#else
+		#ifdef CAN_SEND_TIMEOUT_ENABLE
+		#define TIMEOUT_CAN_SEND 4196	//10ms de timeout sur la disponibilité du périph CAN...
+			void CAN_send(CAN_msg_t* can_msg)
 			{
-				time--;
-				if(!time)
+				Uint16 time;
+				time = TIMEOUT_CAN_SEND;
+				while(!CAN1IsTXReady(0))
 				{
-					#ifdef LED_ERROR
-						LED_ERROR = 1;
-					#endif
-					return;
+					time--;
+					if(!time)
+					{
+						#ifdef LED_ERROR
+							LED_ERROR = 1;
+						#endif
+						return;
+					}
 				}
+				if(can_msg->size > 8)
+					can_msg->size = 0;
+				CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
+								(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, 0);
+								
+				//Solution alternative non tetée :	
+				/*	Sint8 used_buffer;
+				for(used_buffer=0; !CAN1IsTXReady(used_buffer); used_buffer=(used_buffer+1)%3);
+				//void CAN1SendMessage(unsigned int sid, unsigned long eid, unsigned char * data, unsigned char  datalen, char MsgFlag) __attribute__ ((section (".libperi")));
+				CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
+							(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, used_buffer);
+				*/
 			}
-			if(can_msg->size > 8)
-				can_msg->size = 0;
-			CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
-							(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, 0);
-							
-			//Solution alternative non tetée :	
-			/*	Sint8 used_buffer;
-			for(used_buffer=0; !CAN1IsTXReady(used_buffer); used_buffer=(used_buffer+1)%3);
-			//void CAN1SendMessage(unsigned int sid, unsigned long eid, unsigned char * data, unsigned char  datalen, char MsgFlag) __attribute__ ((section (".libperi")));
-			CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
-						(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, used_buffer);
-			*/
-		}
-	#else	//Rétrocompatibilité...
-		void CAN_send(CAN_msg_t* can_msg)
-		{
-			while(!CAN1IsTXReady(0));
-			if(can_msg->size > 8)	//sécurité si l'utilisateur fait des betises.
-				can_msg->size = 0;
-			CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
-							(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, 0);
-		}
-	
+		#else	//Rétrocompatibilité...
+			void CAN_send(CAN_msg_t* can_msg)
+			{
+				while(!CAN1IsTXReady(0));
+				if(can_msg->size > 8)	//sécurité si l'utilisateur fait des betises.
+					can_msg->size = 0;
+				CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
+								(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, 0);
+			}
+		
+		#endif
 	#endif
 	//verifiée
 	static void CAN_receive(CAN_msg_t* can_msg)

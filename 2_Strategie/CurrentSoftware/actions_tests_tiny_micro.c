@@ -178,7 +178,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 		
 			TINY_hammer_open_all_gift(FALSE);	//Gestion du mouvement du bras...
 			
-			if(COLOR_Y(global.env.pos.y) > 1600)
+			if(COLOR_Y(global.env.pos.y) > 1000)
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 		
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(2300)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
@@ -189,6 +189,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					state = FAIL;
 				break;
 				case IN_PROGRESS:
@@ -207,7 +208,8 @@ error_e TINY_open_all_gifts_without_pause(void)
 			state = INIT;
 		break;
 		case FAIL:
-			state = try_go_angle(0, FAIL, FAIL_HAMMER_HOME, FAIL_HAMMER_HOME, FAST);
+			//L'angle choisi en cas de rencontre avec l'adversaire est celui dans lequel le bras est du coté de notre zone !
+			state = try_go_angle((global.env.color == RED)?PI4096:0, FAIL, FAIL_HAMMER_HOME, FAIL_HAMMER_HOME, FAST);
 		break;
 		case FAIL_HAMMER_HOME:
 			ACT_hammer_goto(HAMMER_POSITION_HOME);		//BAISSER BRAS
@@ -319,6 +321,7 @@ error_e TINY_open_all_gifts(void)
 					state = TIMEOUT_FAIL;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
@@ -344,6 +347,7 @@ error_e TINY_open_all_gifts(void)
 					state = TIMEOUT_FAIL;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
@@ -406,6 +410,7 @@ error_e TINY_open_all_gifts(void)
 					state = TIMEOUT_FAIL;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
@@ -446,6 +451,7 @@ error_e TINY_open_all_gifts(void)
 					state = TIMEOUT_FAIL;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
@@ -483,6 +489,7 @@ error_e TINY_open_all_gifts(void)
 					state = TIMEOUT_FAIL;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = PROPULSION_OR_AVOIDANCE_FAIL;
 				break;
@@ -625,6 +632,7 @@ error_e TINY_open_all_gifts_homolog(void)
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					ret = sub_action;
 					state = INIT;
 				break;
@@ -875,7 +883,7 @@ error_e TINY_blow_all_candles(void)
 
 
 
-error_e TINY_forgotten_gift(forgotten_gift_e forgotten_gift)
+error_e TINY_forgotten_gift(map_goal_e forgotten_gift)
 {
 	typedef enum
 	{
@@ -900,7 +908,7 @@ error_e TINY_forgotten_gift(forgotten_gift_e forgotten_gift)
 			break;
 
 		case GOTO_GIFT:
-			state=try_going(160, COLOR_Y((forgotten_gift==THIRD_GIFT)?1700:2300),GOTO_GIFT,ANGLE_HAMMER,FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(160, COLOR_Y((forgotten_gift==GOAL_Cadeau2)?1700:2300),GOTO_GIFT,ANGLE_HAMMER,FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 
 		case ANGLE_HAMMER:
@@ -930,10 +938,7 @@ error_e TINY_forgotten_gift(forgotten_gift_e forgotten_gift)
 		break;
 
 		case DONE:
-			if(forgotten_gift == THIRD_GIFT)
-				global.env.map_elements[GOAL_Cadeau2] = ELEMENT_DONE;	//3ème Cadeau (n°2)
-			else
-				global.env.map_elements[GOAL_Cadeau3] = ELEMENT_DONE;	//4ème Cadeau (n°3)
+			global.env.map_elements[forgotten_gift] = ELEMENT_DONE;
 			state = INIT;
 			ret = END_OK;
 		break;
@@ -1170,6 +1175,8 @@ error_e TINY_warner_blow_all_candles(void)
 		HAMMER_FINAL_POS,
 		LAST_WAIT_HAMMER_DOWN,
 		FAIL,
+		FAIL_GO_ANGLE,
+		FAIL_HAMMER_DOWN,
 		DONE
 	}state_e;
 	static state_e state = INIT;
@@ -1258,14 +1265,22 @@ error_e TINY_warner_blow_all_candles(void)
 			state=LAST_WAIT_HAMMER_DOWN;
 			break;
 		case LAST_WAIT_HAMMER_DOWN:
-			//						->In progress					->Success						->Fail
-			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,	DONE);
+			//						->In progress			->Success	->Fail
+			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,		DONE);
 		break;
 		case FAIL:
+			state = FAIL_GO_ANGLE;
+			
+		break;
+		case FAIL_GO_ANGLE:
+			//En cas d'échec, on rejoint un angle pour baisser le bras.
+			state = try_go_angle((global.env.pos.y > 1500)?0:PI4096, FAIL_GO_ANGLE,  FAIL_HAMMER_DOWN,  FAIL_HAMMER_DOWN, FAST);
+		break;
+		case FAIL_HAMMER_DOWN:
+			ACT_hammer_goto(HAMMER_POSITION_HOME); 	//RANGER BRAS
 			state = INIT;
 			ret = NOT_HANDLED;
 		break;
-
 		case DONE:
 			state = INIT;
 			ret = END_OK;
@@ -1410,6 +1425,7 @@ error_e old_TINY_all_candles(void){
 					state = HAMMER_UP;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = HAMMER_UP;
 				break;
@@ -1443,6 +1459,7 @@ error_e old_TINY_all_candles(void){
 					state = HAMMER_FIRST_CANDLE;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = HAMMER_FIRST_CANDLE;
 				break;
@@ -1544,6 +1561,7 @@ error_e old_TINY_all_candles(void){
 					state = HAMMER_FIFTH_CANDLE;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = HAMMER_FIFTH_CANDLE;
 				break;
@@ -1669,6 +1687,7 @@ error_e old_TINY_all_candles(void){
 					state = HAMMER_UP;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = HAMMER_UP;
 				break;
@@ -1702,6 +1721,7 @@ error_e old_TINY_all_candles(void){
 					state = HAMMER_FIRST_CANDLE;
 				break;
 				case NOT_HANDLED:		//Echec de la mission
+				case FOE_IN_PATH:
 					previous_state = state;
 					state = HAMMER_FIRST_CANDLE;
 				break;

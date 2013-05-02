@@ -210,7 +210,7 @@ void affichage_global(void)
 
 	
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-			
+		#include "Copilot.h"
 			//Dans ce mode de debug très spécial, on fait croire au code que la position/vitesse réelle du robot est celle du point fictif.
 			//Ainsi, les écarts sont nuls, il n'y a pas d'erreur, et les commandes moteurs sont nulles.
 			//Le robot semble "parfait"............c'est un robot virtuel qui se déplace
@@ -255,7 +255,11 @@ void affichage_global(void)
 			if(envoyer_point_fictif == TRUE)
 			{
 				envoyer_point_fictif = FALSE;
-				printf("%d\t, %d\t, %d\t, %ld\t, %ld\n", global.position.x, global.position.y, global.position.teta, (Sint32)PILOT_get_destination_rotation(), (Sint32)global.ecart_rotation_prec);
+				Sint16 teta;
+				teta = (((Sint32)(global.position.teta))*180)/PI4096;
+				if(teta <0)
+					teta += 360;
+				printf("%d\t, %d\t, %d\t, %ld\t, %ld\n", global.position.x, global.position.y, teta, (Sint32)PILOT_get_destination_rotation(), (Sint32)global.ecart_rotation_prec);
 //				CAN_send_point_fictif(global.position.x, global.position.y, global.position.teta);
 			}
 		}

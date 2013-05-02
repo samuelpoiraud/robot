@@ -186,9 +186,6 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 								 WW  = way_e
 								 EEE = SUPERVISOR_error_source_e
 								 	*/
-	#warning "le code stratégie ne prend pas encore correctement cet octet d'erreur. Merci de leur rappeler... avant d'enlever ce warning"
-	#warning "ils doivent notamment intégrer la récup des infos de way_e et trajectory a la place du code actuel qui bricole des vitesses d'erreurs pour déduire du déplacement du robot avant l'erreur l'action a effectuer pour se sortir du blocage !"
-	
 	SECRETARY_CAN_send(sid,tabTemp,8);
 	
 }
