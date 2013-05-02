@@ -112,6 +112,9 @@
 		map_state_e map_elements[(map_goal_e)40]; //Voir doc pour connaitre les éléments associés
 		Uint8 color_ball;
 		bool_e debug_force_foe;
+
+		//Strat verres: on a gardé les verres car on a pas pu les ranger, il faudra les poser a la fin
+		bool_e must_drop_glasses_at_end;
 	}environment_t;
 
 	//NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
