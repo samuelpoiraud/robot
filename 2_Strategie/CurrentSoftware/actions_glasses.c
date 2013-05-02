@@ -13,6 +13,7 @@
 #include "avoidance.h"
 #include "act_functions.h"
 #include "output_log.h"
+#include "zone_mutex.h"
 
 #define LOG_PREFIX "strat_glasses: "
 #define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
@@ -116,11 +117,12 @@ error_e K_STRAT_sub_glasses_alexis() {
 		{NO_DODGE_AND_NO_WAIT,    6      ,           0            },	//Phase 1
 		{NO_AVOIDANCE        ,    3      ,           6            }		//Phase 2
 	};
-	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_2 = 3;
-	static const displacement_block_t TRAJECTORIES_TO_HOME_2[3] = {
-		{NO_AVOIDANCE        ,    3      ,           9            },	//Go home Tiny
-		{NO_AVOIDANCE        ,    3      ,           14           },	//Go home Krusty safe
-		{NO_AVOIDANCE        ,    3      ,           17           }		//Go home Tiny safe
+	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_2 = 4;
+	static const displacement_block_t TRAJECTORIES_TO_HOME_2[4] = {
+		{NO_DODGE_AND_NO_WAIT,    3      ,           9            },	//Go home Tiny
+		{NO_DODGE_AND_NO_WAIT,    2      ,           12           },	//Go home Krusty
+		{NO_DODGE_AND_NO_WAIT,    3      ,           14           },	//Go home Krusty safe
+		{NO_DODGE_AND_NO_WAIT,    3      ,           17           }		//Go home Tiny safe
 	};
 
 //	return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_1, TRAJECTORIES_TO_HOME_1, TRAJECTORY_NUMBER_1, TRAJECTORIES_1, MOVE_POINTS_1);
@@ -134,6 +136,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 		GM_INIT = 0,				//Initialisation: on initialise la sous-strat grab_glass: on a pris 0 verre et l'ascenseur est en bas et ouvert
 		GM_CATCH_GLASSES,			//Avance et prend des verres en même temps
 		GM_WAIT_ACT,				//Attent que les actionneurs des ascenseurs aient fini de bouger, l'état suivant est dans la variable what_to_do_after_act
+		GM_CHECK_TINY_ZONE,			//Vérifie que la zone de Tiny est dispo. Si c'est pas le cas, on va sur la zone de Krusty.
 		GM_GO_HOME,					//Va à une case départ pour déposer les verres
 		GM_ROTATE,					//Se tourne pour être bien droit, pour en sortant, ne pas pousser les verres en tournant ...
 		GM_PUT_DOWN_GLASSES,		//Dépose les verres
@@ -148,7 +151,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 
 
 	////// Paramètres /////
-	static const Uint8 FIRST_SAFE_HOME = 1;
+	static const Uint8 FIRST_SAFE_HOME = 2;
 	static const Sint16 SAFE_Y_ZONE = 450;
 	static const avoidance_type_e AVOIDANCE_TYPE_ON_EXTRACT = NO_DODGE_AND_WAIT;
 	static const Uint16 AVOIDANCE_MAX_WAIT_ON_EXTRACT = 1000;
@@ -158,6 +161,8 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 	static Uint8 current_displacement_block;
 	static Uint8 force_first_point;				//Si != 0, on force le premier point à force_first_point. Utilisé pour reprendre une trajectoire a moitié faite
 	static Uint8 current_dest_home;				//Numero de la trajectoire pour aller à une case départ pour poser les verres. Si on ne peut pas, on en tentera une autre.
+
+	static error_e zone_starttiny_lock_state;
 
 	//Si l'état à changé, on rentre dans un nouvel état
 	bool_e entrance = last_state_for_check_entrance != state;
@@ -198,27 +203,26 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			current_displacement_block = 0;
 			current_dest_home = 0;
 			force_first_point = 0;
+			zone_starttiny_lock_state = IN_PROGRESS;
+			global.env.must_drop_glasses_at_end = FALSE;
 			state = GM_CATCH_GLASSES;
 			break;
 
 		case GM_CATCH_GLASSES:
-			if(1) {
-				static bool_e avoidance_done = FALSE;
-				if(!avoidance_done && global.env.pos.nb_points_reached == 4) {
-					global.env.debug_force_foe = TRUE;
-					avoidance_done = TRUE;
-				}
-			}
 			state = try_going_multipoint(&(move_points[trajectories[current_displacement_block].move_points_begin_index + force_first_point]), trajectories[current_displacement_block].nb_points - force_first_point,
 					FORWARD, trajectories[current_displacement_block].avoidance_type, END_AT_LAST_POINT,
 					GM_CATCH_GLASSES, GM_WAIT_ACT, GM_FAILED);   //Etats suivant: in_progress, success, fail
+
+			//Temps qu'on a pas la zone, on tente de la prendre ... pendant le deplacmenet
+			if(zone_starttiny_lock_state != END_OK)
+				zone_starttiny_lock_state = ZONE_try_lock(MZ_StartTiny, 0);
 
 			if(state == GM_WAIT_ACT) {
 				force_first_point = 0;
 				current_displacement_block++;
 				if(current_displacement_block < trajectory_number)
 					what_to_do_after_act = GM_CATCH_GLASSES; //Quand les ascenseurs auront fini de bouger, on continuera les autres déplacements
-				else what_to_do_after_act = GM_GO_HOME;	//Si aucun autre déplacement après ça, on va déposer les verres
+				else what_to_do_after_act = GM_CHECK_TINY_ZONE;	//Si aucun autre déplacement après ça, on va déposer les verres
 			} else if(state == GM_CATCH_GLASSES) {
 				//On tente de prendre des verres pendant le déplacement ...
 				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Left);
@@ -232,6 +236,27 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			   ACT_get_last_action_result(ACT_QUEUE_LiftRight) != ACT_FUNCTION_InProgress)
 			{
 				state = what_to_do_after_act;
+			}
+			break;
+
+		case GM_CHECK_TINY_ZONE:
+			if(zone_starttiny_lock_state != IN_PROGRESS && zone_starttiny_lock_state != END_OK)
+				zone_starttiny_lock_state = ZONE_try_lock(MZ_StartTiny, 0);
+			switch(zone_starttiny_lock_state) {
+				case IN_PROGRESS: break;
+				case END_OK: state = GM_GO_HOME;
+
+				case NOT_HANDLED:
+				case END_WITH_TIMEOUT:
+				default:
+					current_dest_home = 1;	//On passe a la zone de Krusty
+					if(trajectory_to_home_number > 1)
+						state = GM_GO_HOME;
+					else {		//Pas d'autre choix, donc on fera a la fin
+						global.env.must_drop_glasses_at_end = TRUE;
+						state = GM_DONE;
+					}
+					break;
 			}
 			break;
 
@@ -286,19 +311,20 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 				//On a un problème: evitement (ou on s'est planté dans le mur en arrivant la ou on dépose les verres)
 				case GM_GO_HOME:
 					//On regarde si on est déjà dans la zone de départ
-					if(COLOR_Y(global.env.pos.x) < SAFE_Y_ZONE) {
-						//On est proche, on a du taper dans le mur ... Donc pas grave on continue la strat normalement en reculant
+					if(COLOR_Y(global.env.pos.y) < SAFE_Y_ZONE) {
+						//On est proche, on a du taper dans le mur ... Donc pas grave on continue la strat normalement
 						state = GM_ROTATE;
 					} else {
-						//On est loin, on tente un autre choix d'arrivée
-						current_dest_home++;
+						//On est loin, on tente un autre choix d'arrivée en mode safe
+						if(current_dest_home == FIRST_SAFE_HOME)
+							current_dest_home++;
+						else current_dest_home = FIRST_SAFE_HOME;
 						if(current_dest_home < trajectory_to_home_number) {
 							state = GM_GO_HOME;
 						} else {
-							//En fait on a déjà fait tous les choix ! => on ne peut pas revenir chez nous normalement
-							//FIXME: on boucle ...
-							current_dest_home = FIRST_SAFE_HOME;
-							state = GM_GO_HOME;
+							//En fait on a déjà fait tous les choix ! => on ne peut pas revenir chez nous, on le fera a la fin
+							global.env.must_drop_glasses_at_end = TRUE;
+							state = GM_DONE;
 						}
 					}
 					break;

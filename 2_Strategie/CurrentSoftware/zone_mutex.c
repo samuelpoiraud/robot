@@ -17,13 +17,6 @@
 #define RESPONSE_WAIT_TIMEOUT	3000
 #define RETRY_TIMEOUT			300
 
-typedef enum {
-	ZS_Free,			//La zone est libre, on ne se base pas sur cette info, on demandera toujours à l'autre robot si on peut y aller dans la zone
-	ZS_OwnedByMe,		//La zone est occupée par nous-même
-	ZS_OwnedByOther,	//La zone est occupée par l'autre robot
-	ZS_Acquiring		//On a demandé le verrouillage de la zone, on attend une réponse de l'autre robot
-} zone_state_e;
-
 //Zone ou les 2 robots peuvent passer, donc on doit éviter le cas ou les 2 robots sont en même temps dans la même zone
 static zone_state_e zones[ZONE_NUMBER];
 static const zone_info_t ZONE_INITIAL_STATE[ZONE_NUMBER] = ZONE_INITIAL_STATE_DATA;
@@ -102,12 +95,14 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 			if(zones[zone] == ZS_OwnedByMe) {		//C'est bon, on a verrouillé la zone pour nous
 				state = TL_LOCKED;
 			} else if(zones[zone] == ZS_OwnedByOther && global.env.match_time >= last_try_time + RETRY_TIMEOUT) {
-				//La zone est verrouillée par l'autre robot, on peut pas passer, on retente après un certain temps
-				state = TL_SEND_REQUEST;
+				//La zone est verrouillée par l'autre robot, on peut pas passer, on retente après un certain temps si on a pas mis timeout_ms à 0
+				if(timeout_ms > 0)
+					state = TL_SEND_REQUEST;
+				else state = TL_TIMEOUT;
 			} else if(zones[zone] == ZS_Acquiring && global.env.match_time >= last_try_time + RESPONSE_WAIT_TIMEOUT) {
 				//On a pas eu de réponse depuis trop de temps, l'autre robot ne répond pas ...
 				state = TL_NO_RESPONSE;
-			} else if(global.env.match_time >= begin_lock_time + timeout_ms) {
+			} else if(timeout_ms && global.env.match_time >= begin_lock_time + timeout_ms) {
 				//On est en train de tenter de verrouiller la zone depuis trop longtemps
 				state = TL_TIMEOUT;
 			}
@@ -145,6 +140,10 @@ void ZONE_unlock(map_zone_e zone) {
 
 bool_e ZONE_is_free(map_zone_e zone) {
 	return zones[zone] == ZS_Free || zones[zone] == ZS_OwnedByMe;
+}
+
+zone_state_e ZONE_get_status(map_zone_e zone) {
+	return zones[zone];
 }
 
 void ZONE_CAN_process_msg(CAN_msg_t *msg) {

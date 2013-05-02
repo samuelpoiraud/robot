@@ -30,6 +30,13 @@ typedef enum {
 	ZIS_Tiny		//La zone est initialement à Tiny
 } zone_initial_state_e;
 
+typedef enum {
+	ZS_Free,			//La zone est libre, on ne se base pas sur cette info, on demandera toujours à l'autre robot si on peut y aller dans la zone
+	ZS_OwnedByMe,		//La zone est occupée par nous-même
+	ZS_OwnedByOther,	//La zone est occupée par l'autre robot
+	ZS_Acquiring		//On a demandé le verrouillage de la zone, on attend une réponse de l'autre robot
+} zone_state_e;
+
 typedef struct {
 	zone_initial_state_e init_state;
 	robot_id_e owner;
@@ -64,6 +71,9 @@ void ZONE_unlock(map_zone_e zone);
 //Renvoi TRUE si on a verrouillé la zone pour nous ou si la zone est dispo.
 //Il faut quand même faire un try_lock pour aller dans la zone !
 bool_e ZONE_is_free(map_zone_e zone);
+
+//Récupère l'état d'une zone
+zone_state_e ZONE_get_status(map_zone_e zone);
 
 //Gère les messages CAN liés au zones
 void ZONE_CAN_process_msg(CAN_msg_t *msg);
