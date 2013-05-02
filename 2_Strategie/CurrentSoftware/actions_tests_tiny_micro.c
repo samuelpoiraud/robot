@@ -1306,13 +1306,16 @@ error_e TINY_warner_blow_all_candles(void)
 
 
 
+//Return TRUE si des verres ont été vus depuis le reset du scan.
+//reset : TRUE pour mettre à 0 l'ensemble des acquisitions
+bool_e scan_for_glasses(bool_e reset)
+{
 
+	//SCAN...
+	//Lecture d'un point.
+	//Si le point peut être un verre... on stocke sa position...
 
-
-
-
-
-
+}
 
 
 
