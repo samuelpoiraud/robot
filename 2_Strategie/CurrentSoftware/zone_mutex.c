@@ -13,6 +13,11 @@
 #include "QS/QS_CANmsgList.h"
 #include "avoidance.h"
 #include "QS/QS_who_am_i.h"
+#include "actions_utils.h"
+#include "output_log.h"
+
+#define LOG_PREFIX "zone_mutex: "
+#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 #define RESPONSE_WAIT_TIMEOUT	3000
 #define RETRY_TIMEOUT			300
@@ -66,12 +71,37 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 		TL_WAIT_RESPONSE,
 		TL_LOCKED,
 		TL_TIMEOUT,
-		TL_NO_RESPONSE
+		TL_NO_RESPONSE,
+		TL_NBSTATE			//Pas un état, pour compter le nombre d'état
 	};
-	static enum state_e state;
+	static enum state_e state = TL_INIT;
+	static enum state_e last_state = TL_INIT;
 
 	static time32_t last_try_time;
 	static time32_t begin_lock_time;
+
+	//On a changé d'état, on l'indique sur l'UART pour débugage
+	if(last_state != state) {
+		static const char* state_str[TL_NBSTATE] = {0};
+		bool_e state_str_initialized = FALSE;
+
+		if(state_str_initialized == FALSE) {
+			STATE_STR_DECLARE(state_str, TL_INIT);
+			STATE_STR_DECLARE(state_str, TL_SEND_REQUEST);
+			STATE_STR_DECLARE(state_str, TL_WAIT_RESPONSE);
+			STATE_STR_DECLARE(state_str, TL_LOCKED);
+			STATE_STR_DECLARE(state_str, TL_TIMEOUT);
+			STATE_STR_DECLARE(state_str, TL_NO_RESPONSE);
+			STATE_STR_INIT_UNDECLARED(state_str, TL_NBSTATE);
+			state_str_initialized = TRUE;
+		}
+
+		STATECHANGE_log(LOG_LEVEL_Debug, "ZONE_try_lock: state changed: %s(%d) -> %s(%d)\n",
+			state_str[last_state], last_state,
+			state_str[state], state);
+	}
+
+	last_state = state;
 
 	switch(state) {
 		case TL_INIT:
@@ -162,7 +192,11 @@ void ZONE_CAN_process_msg(CAN_msg_t *msg) {
 						zones[msg->data[1]] = ZS_OwnedByMe;
 					else zones[msg->data[1]] = ZS_OwnedByOther;
 				} else {
-					debug_printf("zone: INCOHERENT STATE !! zones[%d] = %d, but response = %d\n", msg->data[1], zones[msg->data[1]], msg->data[2]);
+					if(msg->data[2] == TRUE && zones[msg->data[1]] != ZS_OwnedByMe ||
+					   msg->data[2] != TRUE && zones[msg->data[1]] != ZS_OwnedByOther)
+					{
+						debug_printf("zone: INCOHERENT STATE !! zones[%d] = %d, but response = %d\n", msg->data[1], zones[msg->data[1]], msg->data[2]);
+					}
 				}
 				break;
 

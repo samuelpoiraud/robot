@@ -161,8 +161,8 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 	static Uint8 current_displacement_block;
 	static Uint8 force_first_point;				//Si != 0, on force le premier point à force_first_point. Utilisé pour reprendre une trajectoire a moitié faite
 	static Uint8 current_dest_home;				//Numero de la trajectoire pour aller à une case départ pour poser les verres. Si on ne peut pas, on en tentera une autre.
-
 	static error_e zone_starttiny_lock_state;
+	static bool_e must_unlock_starttiny;
 
 	//Si l'état à changé, on rentre dans un nouvel état
 	bool_e entrance = last_state_for_check_entrance != state;
@@ -180,6 +180,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			STATE_STR_DECLARE(state_str, GM_INIT);
 			STATE_STR_DECLARE(state_str, GM_CATCH_GLASSES);
 			STATE_STR_DECLARE(state_str, GM_WAIT_ACT);
+			STATE_STR_DECLARE(state_str, GM_CHECK_TINY_ZONE);
 			STATE_STR_DECLARE(state_str, GM_GO_HOME);
 			STATE_STR_DECLARE(state_str, GM_ROTATE);
 			STATE_STR_DECLARE(state_str, GM_PUT_DOWN_GLASSES);
@@ -204,6 +205,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			current_dest_home = 0;
 			force_first_point = 0;
 			zone_starttiny_lock_state = IN_PROGRESS;
+			must_unlock_starttiny = FALSE;
 			global.env.must_drop_glasses_at_end = FALSE;
 			state = GM_CATCH_GLASSES;
 			break;
@@ -240,11 +242,16 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			break;
 
 		case GM_CHECK_TINY_ZONE:
-			if(zone_starttiny_lock_state != IN_PROGRESS && zone_starttiny_lock_state != END_OK)
+			if(zone_starttiny_lock_state != END_OK)
 				zone_starttiny_lock_state = ZONE_try_lock(MZ_StartTiny, 0);
 			switch(zone_starttiny_lock_state) {
-				case IN_PROGRESS: break;
-				case END_OK: state = GM_GO_HOME;
+				case IN_PROGRESS:
+					break;
+
+				case END_OK:
+					state = GM_GO_HOME;
+					must_unlock_starttiny = TRUE;
+					break;
 
 				case NOT_HANDLED:
 				case END_WITH_TIMEOUT:
@@ -362,8 +369,12 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 
 	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
 
-	if(return_value != IN_PROGRESS)
+	if(return_value != IN_PROGRESS) {
 		state = GM_INIT;
+		if(must_unlock_starttiny)
+			ZONE_unlock(MZ_StartTiny);
+		must_unlock_starttiny = FALSE;
+	}
 	return return_value;
 }
 
