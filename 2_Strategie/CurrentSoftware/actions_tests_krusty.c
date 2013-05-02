@@ -448,8 +448,10 @@ error_e Assiete_5_lanceur(void){
 void TEST_STRAT_ALEXIS() {
 	enum state_e {
 		DO_GLASSES,	//Faire les verres
-		DO_PLATES,	//Faire les assiettes & lancer les cerises
+		DO_PLATES,	//Faire les assiettes & lancer les cerises,
 		PROTECT_GLASSES,	//On va dans notre zone de départ pour proteger les verres
+		PUT_DOWN_GLASSES,	//Va poser les verres dans la zone de Krusty si on ne l'avait pas fait. Ce n'est fait que a la fin du match et si on ne l'a pas déjà fait
+		EXTRACT_FROM_GLASSES,	//S'écarte des verres si on les a posé a la fin du match
 		DONE,		//On a fini
 		NBSTATE		//Pas un état, utilisé pour savoir le nombre d'état
 	};
@@ -481,20 +483,56 @@ void TEST_STRAT_ALEXIS() {
 	switch(state) {
 		//Faire les verres
 		case DO_GLASSES:
-			sub_action = K_STRAT_sub_glasses_alexis(TRUE);
+			sub_action = K_STRAT_sub_glasses_alexis();
 			state = check_sub_action_result(sub_action, DO_GLASSES, DO_PLATES, DO_PLATES);	//Dans tous les cas on fait la suite ...
 			break;
 
 		//Faire les assiettes & lancer les cerises
 		case DO_PLATES:
-			sub_action = K_STRAT_sub_cherries_alexis();
-			//sub_action = K_STRAT_sub_glasses_alexis(FALSE);
-			state = check_sub_action_result(sub_action, DO_PLATES, PROTECT_GLASSES, PROTECT_GLASSES);	//Idem
+			if(global.env.must_drop_glasses_at_end && global.env.match_time > (MATCH_DURATION - 10000))
+				state = PUT_DOWN_GLASSES;
+			else {
+				sub_action = K_STRAT_sub_cherries_alexis();
+				state = check_sub_action_result(sub_action, DO_PLATES, PROTECT_GLASSES, PROTECT_GLASSES);	//Idem
+
+				if(state == PROTECT_GLASSES && global.env.must_drop_glasses_at_end)
+					state = PUT_DOWN_GLASSES;
+			}
 			break;
 
 		//On va dans notre zone de départ pour proteger les verres
 		case PROTECT_GLASSES:
-			state = try_going(1000, COLOR_Y(400), PROTECT_GLASSES, DONE, DONE, ANY_WAY, NO_DODGE_AND_WAIT);
+		{
+			static bool_e timeout_set = FALSE;
+			if(timeout_set == FALSE) {
+				AVOIDANCE_set_timeout(MATCH_DURATION - global.env.match_time);
+				timeout_set = TRUE;
+			}
+			if(global.env.glasses_x_pos > 600)
+				state = try_going(1000, COLOR_Y(400), PROTECT_GLASSES, DONE, DONE, ANY_WAY, NO_DODGE_AND_WAIT);
+			else state = try_going(280, COLOR_Y(400), PROTECT_GLASSES, DONE, DONE, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+		}
+
+		//Va poser les verres dans la zone de Krusty si on ne l'avait pas fait. Ce n'est fait que a la fin du match et si on ne l'a pas déjà fait
+		//Si on fail, on tente quand même, il ne reste que 10sec !!!!
+		case PUT_DOWN_GLASSES:
+			state = try_going_multipoint((displacement_t[]){{{1000, COLOR_Y(430)}, FAST}, {{1000, COLOR_Y(220)}, FAST}}, 2,
+					FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT, PUT_DOWN_GLASSES, EXTRACT_FROM_GLASSES, PUT_DOWN_GLASSES);
+
+			//Si on a fini, on pose les verres
+			if(state == EXTRACT_FROM_GLASSES) {
+				if(!GLASS_SENSOR_LEFT)  //S'il n'y a pas de verre en bas, on descend l'ascenseur avant
+					ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
+				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
+				if(!GLASS_SENSOR_RIGHT)  //S'il n'y a pas de verre en bas, on descend l'ascenseur avant
+					ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
+				ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierOpen);
+			}
+			break;
+
+		case EXTRACT_FROM_GLASSES:
+			state = try_relative_move(50, FAST, BACKWARD, END_AT_LAST_POINT, EXTRACT_FROM_GLASSES, DONE, DONE);
 			break;
 
 		//On a fini

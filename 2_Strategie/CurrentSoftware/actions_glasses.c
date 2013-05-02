@@ -38,40 +38,40 @@
 
 error_e K_STRAT_sub_glasses_alexis() {
 	//Trajectoire 1
-	displacement_t MOVE_POINTS_1[11] = {
-		//Row 1
-		{{1000, COLOR_Y(950 )}, FAST},		// 0
-		{{1050, COLOR_Y(1500)}, FAST},		// 1
-		//Row 2
-		{{820 , COLOR_Y(1330)}, FAST},		// 2
-		{{750 , COLOR_Y(1130)}, FAST},		// 3
-		{{750 , COLOR_Y(750 )}, FAST},		// 4
-		//Row 3
-		{{500 , COLOR_Y(1134)}, FAST},		// 5
-		{{446 , COLOR_Y(1220)}, SLOW},		// 6
-
-		//Go home
-		//Case Krusty
-		{{980 , COLOR_Y(220 )}, FAST},		// 7
-		{{1000, COLOR_Y(190 )}, FAST},		// 8
-
-		//Case Tiny
-		{{250 , COLOR_Y(400 )}, FAST},		// 9
-		{{270 , COLOR_Y(190 )}, FAST}		// 10
-	};
-
-	static const Uint8 TRAJECTORY_NUMBER_1 = 3;
-	static const displacement_block_t TRAJECTORIES_1[3] = {
-	//    avoidance_type     , nb_points , move_points_begin_index
-		{NO_AVOIDANCE        ,    2      ,           0            },	//Row 1
-		{NO_AVOIDANCE        ,    3      ,           2            },	//Row 2
-		{NO_DODGE_AND_WAIT   ,    2      ,           5            }		//Row 3
-	};
-	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_1 = 2;
-	static const displacement_block_t TRAJECTORIES_TO_HOME_1[2] = {
-		{NO_AVOIDANCE        ,    2      ,           7            },	//Go home Krusty
-		{NO_AVOIDANCE        ,    2      ,           9            }		//Go home Tiny
-	};
+//	displacement_t MOVE_POINTS_1[11] = {
+//		//Row 1
+//		{{1000, COLOR_Y(950 )}, FAST},		// 0
+//		{{1050, COLOR_Y(1500)}, FAST},		// 1
+//		//Row 2
+//		{{820 , COLOR_Y(1330)}, FAST},		// 2
+//		{{750 , COLOR_Y(1130)}, FAST},		// 3
+//		{{750 , COLOR_Y(750 )}, FAST},		// 4
+//		//Row 3
+//		{{500 , COLOR_Y(1134)}, FAST},		// 5
+//		{{446 , COLOR_Y(1220)}, SLOW},		// 6
+//
+//		//Go home
+//		//Case Krusty
+//		{{980 , COLOR_Y(220 )}, FAST},		// 7
+//		{{1000, COLOR_Y(190 )}, FAST},		// 8
+//
+//		//Case Tiny
+//		{{250 , COLOR_Y(400 )}, FAST},		// 9
+//		{{270 , COLOR_Y(190 )}, FAST}		// 10
+//	};
+//
+//	static const Uint8 TRAJECTORY_NUMBER_1 = 3;
+//	static const displacement_block_t TRAJECTORIES_1[3] = {
+//	//    avoidance_type     , nb_points , move_points_begin_index
+//		{NO_AVOIDANCE        ,    2      ,           0            },	//Row 1
+//		{NO_AVOIDANCE        ,    3      ,           2            },	//Row 2
+//		{NO_DODGE_AND_WAIT   ,    2      ,           5            }		//Row 3
+//	};
+//	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_1 = 2;
+//	static const displacement_block_t TRAJECTORIES_TO_HOME_1[2] = {
+//		{NO_AVOIDANCE        ,    2      ,           7            },	//Go home Krusty
+//		{NO_AVOIDANCE        ,    2      ,           9            }		//Go home Tiny
+//	};
 
 	//Trajectoire 2
 	displacement_t MOVE_POINTS_2[20] = {
@@ -268,9 +268,16 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			break;
 
 		case GM_GO_HOME:
+				global.env.debug_force_foe = TRUE;
+
 			state = try_going_multipoint(&(move_points[trajectories_to_home[current_dest_home].move_points_begin_index]), trajectories_to_home[current_dest_home].nb_points,
 					FORWARD, trajectories_to_home[current_dest_home].avoidance_type, END_AT_LAST_POINT,
 					GM_GO_HOME, GM_ROTATE, GM_FAILED);   //Etats suivant: in_progress, success, fail
+
+			if(global.env.pos.nb_points_reached == 1) {
+				global.env.debug_force_foe = TRUE;
+			}
+
 			if(state == GM_GO_HOME) {
 				//On tente de prendre des verres pendant le déplacement ...
 				K_STRAT_micro_grab_glass(FALSE, ACT_LIFT_Left);
@@ -283,6 +290,8 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			break;
 
 		case GM_PUT_DOWN_GLASSES:
+			global.env.glasses_x_pos = global.env.pos.x;
+
 			if(!GLASS_SENSOR_LEFT)  //S'il n'y a pas de verre en bas, on descend l'ascenseur avant
 				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
 			ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
@@ -323,9 +332,9 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 						state = GM_ROTATE;
 					} else {
 						//On est loin, on tente un autre choix d'arrivée en mode safe
-						if(current_dest_home == FIRST_SAFE_HOME)
-							current_dest_home++;
-						else current_dest_home = FIRST_SAFE_HOME;
+						if(current_dest_home < FIRST_SAFE_HOME)
+							current_dest_home = FIRST_SAFE_HOME;
+						else current_dest_home++;
 						if(current_dest_home < trajectory_to_home_number) {
 							state = GM_GO_HOME;
 						} else {
