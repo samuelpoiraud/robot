@@ -1429,12 +1429,13 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	bool_e timeout;
 
 	if(global.env.debug_force_foe){
+		avoidance_printf("wait_move_and_scan_foe: forced foe detection\n");
 		STACKS_flush(ASSER);
 		ASSER_push_stop();
 		state = WAIT_STOP;
 		global.env.debug_force_foe = FALSE;
 		debug_foe_forced = TRUE;
-	} else if(avoidance_type == NO_AVOIDANCE) {	//Si pas d'évitement, on fait pas d'évitement
+	} else if(!debug_foe_forced && avoidance_type == NO_AVOIDANCE) {	//Si pas d'évitement, on fait pas d'évitement (et si on fait pas de forcage d'évitement ...)
 		error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
 		switch(asser_stack_state)
 		{
@@ -1535,6 +1536,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			//Quand on s'est arreté, on regarde si l'adversaire est toujours devant nous avant de redémarrer
 			if(STACKS_wait_end_auto_pull(ASSER, &timeout)) {
 				if(debug_foe_forced) {			//L'evitement a été forcé pour debuggage, on sort direct
+					avoidance_printf("wait_move_and_scan_foe: forced foe detection, returning FOE_IN_PATH\n");
 					debug_foe_forced = FALSE;
 					state = INITIALIZATION;
 					return FOE_IN_PATH;
