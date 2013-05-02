@@ -113,6 +113,17 @@ static enum
 }
 
 
+bool_e all_gifts_done(void)
+{
+	if( /*(global.env.map_elements[GOAL_Cadeau0] == ELEMENT_DONE) && 
+		(global.env.map_elements[GOAL_Cadeau1] == ELEMENT_DONE) && 
+		*/(global.env.map_elements[GOAL_Cadeau2] == ELEMENT_DONE) && 
+		(global.env.map_elements[GOAL_Cadeau3] == ELEMENT_DONE)		)
+		return TRUE;
+	else
+		return FALSE;
+}	
+
 /* ----------------------------------------------------------------------------- */
 /* 								La strat haut niveau de TINY          			 */
 /*		3 grandes actions :														 */
@@ -139,10 +150,11 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES
 	}state_e;
 	static state_e state = GET_OUT;
+	static state_e previous_state = GET_OUT;
+	
 	error_e sub_action;
 
 	//Les variables en minuscule pour pas confondre avec des états et static pour garder la valeur entre plusieurs appel de la fonction (et donc entre plusieurs états)
-	static bool_e all_gifts_done = FALSE; //De base on fait tous les cadeaux, le 4ème inclu. Si on ne pourra pas le faire, cette variable sera mise à FALSE (voir l'état FAIL_TO_OPEN_GIFTS)
 	static bool_e all_candles_done = FALSE;
 
 	//Mieux vaut utiliser l'environnement qui doit être correctement informé que ces booléens redondants...
@@ -183,14 +195,13 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				case IN_PROGRESS:
 				break;
 				case END_OK:
-					all_gifts_done = TRUE;	//On pourrait remplacer ceci par un accès à environnement.c
-					debug_printf("J'ai fini les cadeaux. Je vais m'occuper des bougies.\n");
+					debug_printf("J'ai fini les cadeaux.\n");
 					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;
 				break;
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
-					debug_printf("Je n'ai pas fini les cadeaux. Je vais m'occuper des bougies.\n");
+					debug_printf("Je n'ai pas fini les cadeaux.\n");
 					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;
 				break;
 				default:
@@ -211,16 +222,10 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
-					if(all_gifts_done)
-					{
-						debug_printf("Je vais emmerder l'adversaire.\n");
+					if(all_gifts_done())
 						state = SUBACTION_STEAL_ADVERSARY_GLASSES;	//Cas nominal -> on a mis tout nos points.
-					}
 					else
-					{
-						debug_printf("Je retourne m'occuper des cadeaux.\n");
 						state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
-					}
 				break;
 				
 				break;
@@ -234,12 +239,12 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			#warning "subaction à faire !"
 			sub_action = END_OK;	//Temporaire
 			
-			if(global.env.match_time >= 80000)	//S'il reste des chose à faire et qu'on a plus que 10 secondes... on abandonne le vol et on y va..
+			if(global.env.match_time >= 70000)	//S'il reste des chose à faire et qu'on a plus que 20 secondes... on abandonne le vol et on y va..
 			{
-				if( (all_gifts_done == FALSE) ||  (all_candles_done == FALSE) )
+				if( all_gifts_done()==FALSE ||  (all_candles_done == FALSE) )
 				{
 					sub_action = END_OK;
-					debug_printf("Il reste 10 sec..\n");
+					debug_printf("Il reste 20 sec..\n");
 					#warning "il faut penser à reseter la MAE de la sub_action pour pouvoir y retourner sans tout péter !"
 				}
 			}
@@ -252,21 +257,12 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
-					if(!all_gifts_done)
-					{
+					if(all_gifts_done() == FALSE)
 						state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
-						debug_printf("Je retourne m'occuper des cadeaux.\n");
-					}
 					else if(!all_candles_done)
-					{
 						state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;	//Il reste des bougies à souffler... on y retourne.
-						debug_printf("Je retourne m'occuper des bougies.\n");
-					}
 					else
-					{
 						state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
-						debug_printf("Je continue d'emmerder l'adversaire.\n");
-					}
 				break;
 				default:
 				break;
@@ -275,7 +271,6 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
 			#warning "TODO... une subaction qui va faire les bougies oubliées... et seulement celles ci... "
-		//case SUB_WHITE_CANDLES:					//Souffler bougies
 				sub_action = TINY_blow_all_candles();
 				switch(sub_action)
 				{
@@ -286,16 +281,10 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 						//no break !
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
-						if(!all_candles_done)
-						{
-							state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;	//Il reste des bougies à souffler... on y retourne.
-							debug_printf("Je retourne m'occuper des bougies.\n");
-						}
+						if(all_gifts_done() == FALSE)
+							state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 						else
-						{
 							state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
-							debug_printf("Je vais emmerder l'adversaire.\n");
-						}
 					break;
 					default:
 					break;
@@ -304,11 +293,63 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		break;
 		case SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS:
 			#warning "TODO... une subaction qui va faire les cadeaux oubliés... et seulement ceux là... "
+			
+			if(global.env.map_elements[GOAL_Cadeau2] == ELEMENT_TODO)
+				sub_action=TINY_forgotten_gift(THIRD_GIFT);
+			else if(global.env.map_elements[GOAL_Cadeau3] == ELEMENT_TODO)
+				sub_action=TINY_forgotten_gift(FOURTH_GIFT);
+			else
+				sub_action = END_OK;	//On a plus rien à faire ici...
+					
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					if(all_gifts_done() == FALSE)
+						state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//ON RESTE ICI, IL RESTE UN CADEAU A FAIRE !
+					else
+					{
+						if(all_candles_done == FALSE)
+							state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//Il reste des bougies à souffler... on y retourne.
+						else
+							state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+					}
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+					if(all_candles_done == FALSE)
+						state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//Il reste des bougies à souffler... on y retourne.
+					else
+						state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+				break;
+				default:
+				break;
+			}
+			
 		break;
 		default:
 			state = SUBACTION_STEAL_ADVERSARY_GLASSES;
 		break;
 	}
+	
+	if(previous_state != state)
+	{
+		debug_printf("T_STRAT->");
+		switch(state)
+		{
+			case GET_OUT:									debug_printf("get_out\n");											break;
+			case GET_OUT_IF_NO_CALIBRATION:					debug_printf("get_out_if_no_calibration\n");						break;
+			case TURN_IF_NO_CALIBRATION:					debug_printf("turn_if_no_calibration\n");							break;
+			case SUBACTION_OPEN_ALL_GIFTS:					debug_printf("open_all_gifts\n");									break;
+			case SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES:		debug_printf("goto_cake_and_blow_candles\n");						break;
+			case SUBACTION_STEAL_ADVERSARY_GLASSES:			debug_printf("steal_aversary_glasses\n");							break;
+			case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:		debug_printf("open_some_forgotten_candles\n");						break;
+			case SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS:		debug_printf("open_some_forgotten_gifts\n");						break;
+			default:										debug_printf("???\n");												break;
+		}
+	}	
+	previous_state = state;
 }
 
 
@@ -564,7 +605,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		//Ces printf ne sont pas trop génant, car ils ne sont affichés que sur des évènements "rares"...
 		//Ils sont très importants pour savoir ce que le robot à fait, du point de vue STRAT HAUT NIVEAU !
 		debug_printf("STATE :");
-		switch(previous_state)
+	/*	switch(previous_state)
 		{
 			case INIT:						debug_printf("INIT");					break;
 			case EA:						debug_printf("EA");						break;
@@ -582,7 +623,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			case END_STATE:					debug_printf("END_STATE");				break;
 			default:						debug_printf("???");					break;
 		}
-		debug_printf("->");
+	*/	debug_printf("->");
 		switch(state)
 		{
 			case INIT:						debug_printf("INIT");					break;
