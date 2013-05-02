@@ -1423,13 +1423,18 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	static bool_e is_in_path[NB_FOES]; //Nous indique si l'adversaire est sur le chemin
 	static time32_t avoidance_timeout_time = 0;
 	static time32_t last_match_time;
+	static bool_e debug_foe_forced = FALSE;
 	time32_t current_match_time = global.env.match_time;
 
 	bool_e timeout;
 
-
-	//Si pas d'évitement, on fait pas d'évitement
-	if(avoidance_type == NO_AVOIDANCE) {
+	if(global.env.debug_force_foe){
+		STACKS_flush(ASSER);
+		ASSER_push_stop();
+		state = WAIT_STOP;
+		global.env.debug_force_foe = FALSE;
+		debug_foe_forced = TRUE;
+	} else if(avoidance_type == NO_AVOIDANCE) {	//Si pas d'évitement, on fait pas d'évitement
 		error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
 		switch(asser_stack_state)
 		{
@@ -1458,6 +1463,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 		case INITIALIZATION:
 			// initialisation des variables statiques
 			avoidance_timeout_time = 0;
+			debug_foe_forced = FALSE;
 
 			avoidance_printf("wait_move_and_scan_foe: initialized\n");
 			state = NO_FOE;
@@ -1476,7 +1482,6 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			if((is_in_path[FOE_1] || is_in_path[FOE_2]) && global.env.asser.is_in_translation)
 			{
 				//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
-
 				switch(avoidance_type)
 				{
 					case NORMAL_WAIT:
@@ -1493,10 +1498,9 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 					case DODGE_AND_NO_WAIT:
 					case NO_DODGE_AND_NO_WAIT:
 						avoidance_printf("wait_move_and_scan_foe: foe detected\n");
-						ASSER_push_stop();
 						STACKS_flush(ASSER);
-						state = INITIALIZATION;
-						return FOE_IN_PATH;
+						ASSER_push_stop();
+						state = WAIT_STOP;
 						break;
 
 					case NO_AVOIDANCE: //Géré au début de la fonction
@@ -1529,8 +1533,31 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 		case WAIT_STOP:
 			//Quand on s'est arreté, on regarde si l'adversaire est toujours devant nous avant de redémarrer
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout))
-				state = WAIT_FOE;
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout)) {
+				if(debug_foe_forced) {			//L'evitement a été forcé pour debuggage, on sort direct
+					debug_foe_forced = FALSE;
+					state = INITIALIZATION;
+					return FOE_IN_PATH;
+				} else {
+					switch(avoidance_type) {
+						case NORMAL_WAIT:
+						case NO_DODGE_AND_WAIT:
+						case DODGE_AND_WAIT:
+							state = WAIT_FOE;
+							break;
+
+						case DODGE_AND_NO_WAIT:
+						case NO_DODGE_AND_NO_WAIT:
+							state = INITIALIZATION;
+							return FOE_IN_PATH;
+
+						case NO_AVOIDANCE: //Géré au début de la fonction
+						default:
+							state = INITIALIZATION;
+							break;
+					}
+				}
+			}
 			break;
 
 		case WAIT_FOE:
@@ -1541,8 +1568,9 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 			avoidance_timeout_time += current_match_time - last_match_time;
 			if(avoidance_timeout_time >= wait_timeout) {
-				ASSER_push_stop();
-				STACKS_flush(ASSER);
+				//On est déjà arreté
+//				STACKS_flush(ASSER);
+//				ASSER_push_stop();
 				state = INITIALIZATION;
 
 				avoidance_printf("wait_move_and_scan_foe: timeout avec ennemi sur path\n");
@@ -1663,14 +1691,6 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 	static error_e sub_action;
 	
 	Uint8 i;
-
-	if(global.env.debug_force_foe){
-		STACKS_flush(ASSER);
-		ASSER_push_stop();
-		state = LOAD_MOVE;
-		global.env.debug_force_foe = FALSE;
-		return FOE_IN_PATH;
-	}
 
 	//Si nouveau déplacement et qu'aucun point n'est donné, on a rien a faire
 	if(state == LOAD_MOVE && nb_displacements == 0)

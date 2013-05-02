@@ -634,7 +634,7 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 						OUTPUTLOG_printf(TRUE, LOG_LEVEL_Debug, LOG_PREFIX"global.env.color_ball: invalid value %d\n", global.env.color_ball);
 				}
 				//On a fini de lancer des cerises quand on a lancé le nombre prévu de cerise ou si on a eu MAX_FAILED_LAUNCH à la suite
-				if(ball_launched >= expected_cherry_number || ball_continuous_fail > MAX_FAILED_LAUNCH)
+				if(ball_launched >= expected_cherry_number || ball_continuous_fail >= MAX_FAILED_LAUNCH)
 					state = LC_DONE;
 				//Si on n'a rien pris avec l'ax12 un certain nombre de fois de suite, on secoue les cerises
 				else if(ball_fail_count_before_shake == 0) {
