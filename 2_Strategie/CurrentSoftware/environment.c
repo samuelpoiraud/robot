@@ -14,6 +14,7 @@
 #include "environment.h"
 #include "act_functions.h"
 #include "can_utils.h"
+#include "zone_mutex.h"
 
 void ENV_update()
 {
@@ -167,6 +168,11 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case DEBUG_DETECT_FOE:
 			global.env.debug_force_foe = TRUE;
 			break;
+
+		case XBEE_ZONE_COMMAND_RECV:
+			ZONE_CAN_process_msg(incoming_msg);
+			break;
+
 		default:
 			break;
 	}

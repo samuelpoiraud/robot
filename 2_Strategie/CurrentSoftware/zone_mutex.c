@@ -26,9 +26,27 @@ typedef enum {
 
 //Zone ou les 2 robots peuvent passer, donc on doit éviter le cas ou les 2 robots sont en même temps dans la même zone
 static zone_state_e zones[ZONE_NUMBER];
+static const zone_info_t ZONE_INITIAL_STATE[ZONE_NUMBER] = ZONE_INITIAL_STATE_DATA;
 
 static void ZONE_send_lock_request(map_zone_e zone);
 static void ZONE_send_lock_response(map_zone_e zone);
+
+void ZONE_init() {
+	Uint8 i;
+	robot_id_e me = QS_WHO_AM_I_get();
+
+	for(i = 0; i < ZONE_NUMBER; i++) {
+		if(ZONE_INITIAL_STATE[i].init_state == ZIS_Free)
+			zones[i] = ZS_Free;
+		else if((ZONE_INITIAL_STATE[i].init_state == ZIS_Krusty && me == KRUSTY) ||
+				(ZONE_INITIAL_STATE[i].init_state == ZIS_Tiny   && me == TINY))
+		{
+			zones[i] = ZS_OwnedByMe;
+		}
+		else
+			zones[i] = ZS_OwnedByOther;
+	}
+}
 
 Uint8 try_lock_zone(map_zone_e zone, Uint8 timeout_msec, Uint8 in_progress_state, Uint8 success_state, Uint8 cant_lock_state, Uint8 no_response_state) {
 	switch(ZONE_try_lock(zone, timeout_msec)) {
@@ -111,6 +129,20 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 	return IN_PROGRESS;
 }
 
+void ZONE_unlock(map_zone_e zone) {
+	if(zones[zone] == ZS_OwnedByMe) {
+		CAN_msg_t msg;
+		msg.sid = XBEE_ZONE_COMMAND;
+		msg.data[0] = XBEE_ZONE_UNLOCK;
+		msg.data[1] = zone;
+		msg.size = 2;
+		CAN_send(&msg);
+		zones[zone] = ZS_Free;
+	} else {
+		debug_printf("zone: unlock zone %d not owned !!!, state = %d\n", zone, zones[zone]);
+	}
+}
+
 bool_e ZONE_is_free(map_zone_e zone) {
 	return zones[zone] == ZS_Free || zones[zone] == ZS_OwnedByMe;
 }
@@ -120,7 +152,7 @@ void ZONE_CAN_process_msg(CAN_msg_t *msg) {
 	   ((msg->sid & 0x00F) == (XBEE_ZONE_COMMAND & 0x00F)))	//Et que le SID correspond à une commande liée au zones
 	{
 		if(msg->data[1] >= ZONE_NUMBER) {
-			debug_printf("zone: zone %d inconnue !!!\n", msg->data[1]);
+			debug_printf("zone: unknown zone %d !!!\n", msg->data[1]);
 			return;
 		}
 
@@ -168,10 +200,8 @@ static void ZONE_send_lock_response(map_zone_e zone) {
 	//L'autre robot veut verrouiller la zone, mais nous aussi !!!
 	//On autorise le propriétaire (il faut surtout que ce soit le même pour les 2 robots, et pas que les 2 robots disent Ok a l'autre)
 	if(zones[zone] == ZS_Acquiring) {
-		//Si on est Krusty et que la zone est paire ou qu'on est Tiny et que la zone est impaire, on prend la zone
-		if((QS_WHO_AM_I_get() == KRUSTY && (zone & 1) == 0) ||
-		   (QS_WHO_AM_I_get() == TINY   && (zone & 1) == 1))
-		{
+		//Si on est le robot propriétaire de la zone, on passe, sinon on passe pas
+		if(QS_WHO_AM_I_get() == ZONE_INITIAL_STATE[zone].owner) {
 			msg.data[2] = TRUE;
 			zones[zone] = ZS_OwnedByMe;
 		} else {
