@@ -1423,19 +1423,14 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	static bool_e is_in_path[NB_FOES]; //Nous indique si l'adversaire est sur le chemin
 	static time32_t avoidance_timeout_time = 0;
 	static time32_t last_match_time;
-	static bool_e debug_foe_forced = FALSE;
+	static bool_e debug_avoidance_asked = FALSE;
 	time32_t current_match_time = global.env.match_time;
 
 	bool_e timeout;
 
-	if(global.env.debug_force_foe){
-		avoidance_printf("wait_move_and_scan_foe: forced foe detection\n");
-		STACKS_flush(ASSER);
-		ASSER_push_stop();
-		state = WAIT_STOP;
-		global.env.debug_force_foe = FALSE;
-		debug_foe_forced = TRUE;
-	} else if(!debug_foe_forced && avoidance_type == NO_AVOIDANCE) {	//Si pas d'évitement, on fait pas d'évitement (et si on fait pas de forcage d'évitement ...)
+
+	//Si pas d'évitement, on fait pas d'évitement
+	if(avoidance_type == NO_AVOIDANCE) {
 		error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
 		switch(asser_stack_state)
 		{
@@ -1464,13 +1459,23 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 		case INITIALIZATION:
 			// initialisation des variables statiques
 			avoidance_timeout_time = 0;
-			debug_foe_forced = FALSE;
+			debug_avoidance_asked = FALSE;
 
 			avoidance_printf("wait_move_and_scan_foe: initialized\n");
 			state = NO_FOE;
 			break;
 
 		case NO_FOE:
+		
+			if(global.env.debug_force_foe)	//Evitement manuel forcé !
+			{
+				STACKS_flush(ASSER);
+				ASSER_push_stop();
+				state = WAIT_STOP;
+				global.env.debug_force_foe = FALSE;
+				debug_avoidance_asked = TRUE;	//Nous allons juste attendre le stop.. et puis on retournera un NOT_HANDLED.
+			}
+
 			foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
 			//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 			//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
@@ -1535,7 +1540,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 		case WAIT_STOP:
 			//Quand on s'est arreté, on regarde si l'adversaire est toujours devant nous avant de redémarrer
 			if(STACKS_wait_end_auto_pull(ASSER, &timeout)) {
-				if(debug_foe_forced) {			//L'evitement a été forcé pour debuggage, on sort direct
+				if(debug_avoidance_asked) {			//L'evitement a été forcé pour debuggage, on sort direct
 					avoidance_printf("wait_move_and_scan_foe: forced foe detection, returning FOE_IN_PATH\n");
 					debug_foe_forced = FALSE;
 					state = INITIALIZATION;
@@ -1746,7 +1751,7 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 					break;
 
 				case FOE_IN_PATH:
-					debug_printf("wait_move_and_scan_foe -- foe in path\n");
+					avoidance_printf("wait_move_and_scan_foe -- foe in path\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					state = LOAD_MOVE;
 					return FOE_IN_PATH;

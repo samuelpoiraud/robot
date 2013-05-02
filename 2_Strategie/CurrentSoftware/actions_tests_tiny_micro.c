@@ -78,7 +78,6 @@ void TINY_hammer_open_all_gift(bool_e reset)
 		case OPENING_FIRST_GIFT:
 			if(global.env.asser.reach_y)
 			{
-				//TODO prévenir environnement
 				global.env.map_elements[GOAL_Cadeau0] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
 				ASSER_WARNER_arm_y(COLOR_Y(1000));
@@ -96,7 +95,6 @@ void TINY_hammer_open_all_gift(bool_e reset)
 		case OPENING_SECOND_GIFT:
 			if(global.env.asser.reach_y)
 			{
-				//TODO prévenir environnement
 				global.env.map_elements[GOAL_Cadeau1] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
 				ASSER_WARNER_arm_y(COLOR_Y(1600));
@@ -114,7 +112,6 @@ void TINY_hammer_open_all_gift(bool_e reset)
 		case OPENING_THIRD_GIFT:
 			if(global.env.asser.reach_y)
 			{
-				//TODO prévenir environnement
 				global.env.map_elements[GOAL_Cadeau2] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
 				ASSER_WARNER_arm_y(COLOR_Y(2200));
@@ -126,18 +123,11 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
 				ASSER_WARNER_arm_y(COLOR_Y(2600));
-				state = ALL_GIFTS_OPENED;
+				state = OPENING_FOURTH_GIFT;
 			}			
 		break;
 		case OPENING_FOURTH_GIFT:
-		/*	if(global.env.asser.reach_y)
-			{
-				//TODO prévenir environnement
-				global.env.map_elements[GOAL_Cadeau3] = ELEMENT_DONE;
-				ACT_hammer_goto(HAMMER_POSITION_HOME);		//BAISSER BRAS
-				state = ALL_GIFTS_OPENED;
-			}
-			*/
+			state = ALL_GIFTS_OPENED;
 		break;
 		case ALL_GIFTS_OPENED:
 			//Nothing to do.
@@ -171,7 +161,8 @@ error_e TINY_open_all_gifts_without_pause(void)
 		DONE
 	}state_e;
 	static state_e state = INIT;
-
+	static state_e previous_state = INIT;
+	
 	error_e ret = IN_PROGRESS;
 	error_e sub_action;
 	static avoidance_type_e avoidance = NO_AVOIDANCE;
@@ -187,7 +178,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 		
 			TINY_hammer_open_all_gift(FALSE);	//Gestion du mouvement du bras...
 			
-			if(COLOR_Y(global.env.pos.y) > 600)
+			if(COLOR_Y(global.env.pos.y) > 1600)
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 		
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(2300)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
@@ -207,6 +198,7 @@ error_e TINY_open_all_gifts_without_pause(void)
             }
 		break;
 		case HAMMER_HOME:
+			global.env.map_elements[GOAL_Cadeau3] = ELEMENT_DONE;	//C'est bon pour le 4ème cadeau !
 			ACT_hammer_goto(HAMMER_POSITION_HOME);		//BAISSER BRAS
 			state = DONE;
 		break;
@@ -225,9 +217,25 @@ error_e TINY_open_all_gifts_without_pause(void)
 		break;
 		
 	}
+	
+	if(state != previous_state)
+	{
+		debug_printf("T_gifts->");
+		switch(state)
+		{
+			case INIT:				debug_printf("INIT\n");			 	break;
+			case OPENING_GIFTS:		debug_printf("OPENING_GIFTS\n");	break;
+			case HAMMER_HOME:		debug_printf("HAMMER_HOME\n");		break;
+			case DONE:				debug_printf("DONE\n");			 	break;
+			case FAIL:				debug_printf("FAIL\n");			 	break;
+			case FAIL_HAMMER_HOME:	debug_printf("FAIL_HAMMER_HOME\n");	break;
+			default:				debug_printf("???\n");				break;	
+		}	
+	
+	}	
+	previous_state = state;
+	
 	return ret;	
-	
-	
 }
 
 Uint16 wait_hammer(Uint16 progress, Uint16 success, Uint16 fail)
@@ -905,7 +913,7 @@ error_e TINY_forgotten_gift(forgotten_gift_e forgotten_gift)
 		break;
 
 		case WAIT_HAMMER:
-			//						->In progress			->Success						->Fail
+			//						->In progress	->Success		->Fail
 			state = wait_hammer(	WAIT_HAMMER,	HAMMER_DOWN,	FAIL);
 		break;
 		case HAMMER_DOWN:
@@ -913,8 +921,8 @@ error_e TINY_forgotten_gift(forgotten_gift_e forgotten_gift)
 			state=WAIT_HAMMER_DOWN;
 			break;
 		case WAIT_HAMMER_DOWN:
-			//						->In progress					->Success						->Fail
-			state = wait_hammer(WAIT_HAMMER_DOWN,	DONE,	FAIL);
+			//					->In progress		->Success	->Fail
+			state = wait_hammer(WAIT_HAMMER_DOWN,	DONE,		FAIL);
 		break;
 		case FAIL:
 			state = INIT;
@@ -922,11 +930,15 @@ error_e TINY_forgotten_gift(forgotten_gift_e forgotten_gift)
 		break;
 
 		case DONE:
+			if(forgotten_gift == THIRD_GIFT)
+				global.env.map_elements[GOAL_Cadeau2] = ELEMENT_DONE;	//3ème Cadeau (n°2)
+			else
+				global.env.map_elements[GOAL_Cadeau3] = ELEMENT_DONE;	//4ème Cadeau (n°3)
 			state = INIT;
 			ret = END_OK;
 		break;
 
-            default:
+        default:
 		break;
 
 	}
