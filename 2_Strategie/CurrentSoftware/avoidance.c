@@ -1473,7 +1473,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				ASSER_push_stop();
 				state = WAIT_STOP;
 				global.env.debug_force_foe = FALSE;
-				debug_foe_forced = TRUE;	//Nous allons juste attendre le stop.. et puis on retournera un NOT_HANDLED.
+				debug_foe_forced = TRUE;	//Nous allons juste attendre le stop.. et puis on retournera un FOE_IN_PATH.
 			}
 			else
 			{

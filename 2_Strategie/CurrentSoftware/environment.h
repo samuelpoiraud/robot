@@ -115,6 +115,7 @@
 
 		//Strat verres: on a gardé les verres car on a pas pu les ranger, il faudra les poser a la fin
 		bool_e must_drop_glasses_at_end;
+		Sint16 glasses_x_pos;			//Position en X des verres. Pour savoir ou ils sont pour les proteger à la fin du match
 	}environment_t;
 
 	//NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements

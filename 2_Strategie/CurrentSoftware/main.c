@@ -19,6 +19,7 @@
 	#include "clock.h"
 	#include "QS/QS_who_am_i.h"
 	#include "queue.h"
+#include "zone_mutex.h"
 
 void process_measure_loop_duration(void)
 {
@@ -64,6 +65,8 @@ int main (void)
 	
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+
+	ZONE_init();
 
 	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
 	

@@ -19,7 +19,7 @@
 #define LOG_PREFIX "zone_mutex: "
 #define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-#define RESPONSE_WAIT_TIMEOUT	3000
+#define RESPONSE_WAIT_TIMEOUT	1000
 #define RETRY_TIMEOUT			300
 
 //Zone ou les 2 robots peuvent passer, donc on doit éviter le cas ou les 2 robots sont en même temps dans la même zone
@@ -192,8 +192,8 @@ void ZONE_CAN_process_msg(CAN_msg_t *msg) {
 						zones[msg->data[1]] = ZS_OwnedByMe;
 					else zones[msg->data[1]] = ZS_OwnedByOther;
 				} else {
-					if(msg->data[2] == TRUE && zones[msg->data[1]] != ZS_OwnedByMe ||
-					   msg->data[2] != TRUE && zones[msg->data[1]] != ZS_OwnedByOther)
+					if((msg->data[2] == TRUE && zones[msg->data[1]] != ZS_OwnedByMe) ||
+					   (msg->data[2] != TRUE && zones[msg->data[1]] != ZS_OwnedByOther))
 					{
 						debug_printf("zone: INCOHERENT STATE !! zones[%d] = %d, but response = %d\n", msg->data[1], zones[msg->data[1]], msg->data[2]);
 					}
