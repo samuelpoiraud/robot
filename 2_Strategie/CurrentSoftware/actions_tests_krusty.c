@@ -559,7 +559,7 @@ error_e drink(void){
 
 	switch(state){
 		case DRINK:
-			sub_action = TEST_SAMUEL_two_first_rows();//two_first_rows();
+			sub_action = two_first_rows();
 			if(sub_action != IN_PROGRESS)
 				state = ALCOOLIC;
 			break;
@@ -621,7 +621,6 @@ void K_test_strat_unitaire(void){
 		case ACTION:
 			sub_action = drink(); //Mettez ici le nom de votre micro-strat à tester
 			//sub_action = two_first_rows(); //Mettez ici le nom de votre micro-strat à tester
-			sub_action = TEST_SAMUEL_two_first_rows(); //Mettez ici le nom de votre micro-strat à tester
 			switch(sub_action){
 				case IN_PROGRESS:
 					break;

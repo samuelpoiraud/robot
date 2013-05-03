@@ -17,29 +17,16 @@
 #include "actions.h"
 #include "Asser_functions.h"
 #include "act_functions.h"
-
-//Insérez ici vos micro_strat et découpes de strat
-
+#include "actions_cake.h"
+#include "actions_gifts.h"
 
 void T_BALLINFLATER_start(void);
-
-error_e TINY_blow_all_candles(void);
-error_e TINY_blow_one_candle(Uint8 i, Sint8 way);
-
-
-error_e TINY_open_all_gifts(void);
-error_e TINY_open_all_gifts_without_pause();
-
-error_e old_TINY_all_candles(void);
-error_e TINY_open_all_gifts_homolog(void);
-
-error_e TINY_forgotten_gift(map_goal_e forgotten_gift);
+error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset);
+error_e STRAT_TINY_goto_forgotten_gift(void);
+error_e STRAT_TINY_goto_cake_and_blow_candles(void);
+bool_e scan_for_glasses(bool_e reset);
 
 
-
-error_e TINY_warner_blow_one_candle(bool_e reset);
-error_e TINY_warner_around_cake(Sint8 way);
-error_e TINY_warner_blow_all_candles(void);
 
 #endif /* ACTIONS_TESTS_TINY_MICRO_H */
 
