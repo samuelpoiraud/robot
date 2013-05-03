@@ -268,15 +268,9 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			break;
 
 		case GM_GO_HOME:
-				global.env.debug_force_foe = TRUE;
-
 			state = try_going_multipoint(&(move_points[trajectories_to_home[current_dest_home].move_points_begin_index]), trajectories_to_home[current_dest_home].nb_points,
 					FORWARD, trajectories_to_home[current_dest_home].avoidance_type, END_AT_LAST_POINT,
 					GM_GO_HOME, GM_ROTATE, GM_FAILED);   //Etats suivant: in_progress, success, fail
-
-			if(global.env.pos.nb_points_reached == 1) {
-				global.env.debug_force_foe = TRUE;
-			}
 
 			if(state == GM_GO_HOME) {
 				//On tente de prendre des verres pendant le déplacement ...
