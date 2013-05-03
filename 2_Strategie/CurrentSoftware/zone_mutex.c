@@ -46,7 +46,7 @@ void ZONE_init() {
 	}
 }
 
-Uint8 try_lock_zone(map_zone_e zone, Uint8 timeout_msec, Uint8 in_progress_state, Uint8 success_state, Uint8 cant_lock_state, Uint8 no_response_state) {
+Uint8 try_lock_zone(map_zone_e zone, Uint16 timeout_msec, Uint8 in_progress_state, Uint8 success_state, Uint8 cant_lock_state, Uint8 no_response_state) {
 	switch(ZONE_try_lock(zone, timeout_msec)) {
 		case IN_PROGRESS:
 			return in_progress_state;

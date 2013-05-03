@@ -22,6 +22,7 @@ typedef enum {
 } STRAT_launch_cherries_positions_e;
 
 error_e K_STRAT_sub_cherries_alexis();
+error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx);
 error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, Sint16 initial_y_position);
 error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position, Uint8 expected_cherry_number, bool_e smooth_shake);
 error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop);
