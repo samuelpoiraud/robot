@@ -24,7 +24,20 @@ void T_BALLINFLATER_start(void);
 error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset);
 error_e STRAT_TINY_goto_forgotten_gift(void);
 error_e STRAT_TINY_goto_cake_and_blow_candles(void);
+
+
+
+	typedef struct
+	{
+		Uint8 nb_glasses;
+		Sint16 x_begin;
+		Sint16 x_end;
+		Sint32 y_middle;
+	}girafe_t;
+	//Une girafe est un ensemble de verres... au deuxième étage.
+
 bool_e scan_for_glasses(bool_e reset);
+girafe_t * look_for_the_best_girafe(void);
 
 
 
