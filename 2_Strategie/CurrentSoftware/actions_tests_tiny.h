@@ -18,11 +18,13 @@
 #include "Asser_functions.h"
 #include "act_functions.h"
 #include "actions_tests_tiny_micro.h"
+#include "actions_cake.h"
+#include "actions_gifts.h"
 
-void TEST_STRAT_T_homologation(void);
 void STRAT_TINY_gifts_cake_and_steal(void);
-void T_TEST_STRAT_avoidance(void);
+void TEST_STRAT_T_homologation(void);
 void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void);
-error_e STRAT_TINY_goto_cake_and_blow_candles(void);
 void STRAT_TINY_all_candles(void);
+
+
 #endif /* ACTIONS_TESTS_TINY_H */

@@ -38,5 +38,20 @@ Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 s
 Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state);
 
 
+
+
+
+#define HAMMER_POSITION_UP		(0)
+#define HAMMER_POSITION_CANDLE	(35)
+#define HAMMER_POSITION_DOWN	(85)
+#define HAMMER_POSITION_HOME	(90)
+
+
+Uint16 wait_hammer(Uint16 progress, Uint16 success, Uint16 fail);
+
+
+bool_e all_gifts_done(void);
+
+
 #endif	/* ACTIONS_UTILS_H */
 

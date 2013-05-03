@@ -22,8 +22,8 @@
 
 /*Fonction de ramassage de verre à n'appeler qu'une seule fois en début de match car ignore tout évitement pour favoriser la rapidité*/
 error_e two_first_rows(void);
-
-error_e TEST_SAMUEL_two_first_rows(void);
+error_e try_last_row(void);
+error_e Lacher_verres(Uint8 type);
 
 error_e K_Sortie(void);
 error_e K_push_half_row_glasses(void);
