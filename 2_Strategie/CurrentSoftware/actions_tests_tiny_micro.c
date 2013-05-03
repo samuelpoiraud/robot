@@ -36,7 +36,136 @@ void T_BALLINFLATER_start(void)
 /* 								Fonction diverses                     			 */
 /* ----------------------------------------------------------------------------- */
 
+error_e steal_glasses(girafe_t * g, bool_e reset)
+{
+		//Le type avec les états est défini séparément de la variable pour que mplab x comprenne ce qu'on veut faire ...
+	typedef enum
+	{
+		INIT,
+		TA,
+		TB,
+		OPEN_HAMMERS,
+		TC,
+		TD,
+		FAIL,
+		SUCCESS
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
 
+	typedef struct
+	{
+		Sint16 x;
+		Sint16 y;
+	}point_t;
+	static point_t ta;
+	static point_t tb;
+	static point_t tc;
+	static point_t td;
+
+	error_e ret = IN_PROGRESS;
+
+	if(reset)
+	{
+		state = INIT;
+		return END_OK;
+	}
+	switch(state)
+	{
+		case INIT:
+			//calcul des points selon la position de la girafe...
+			ta.x = (g->x_end+g->x_begin)/2;
+			ta.y = g->y_middle + (global.env.color == RED)?-300:300;
+			td.y = ta.y;
+
+			//B est du coté où on a le plus de place pour reculer.
+			//C est de l'autre coté... un peu plus loin que les verres...
+			if(ta.x < 1000)
+			{
+				tb.x = MAX(g->x_end, g->x_begin) + 200;
+				tc.x = MIN(g->x_end, g->x_begin) - 100;
+				td.x = tc.x - 200;
+			}
+			else
+			{
+				tb.x = MIN(g->x_end, g->x_begin) - 200;
+				tc.x = MAX(g->x_end, g->x_begin) + 100;
+				td.x = tc.x + 200;
+			}
+
+			//ECRETAGE...
+			tb.y = g->y_middle;
+			if(tb.y < 150)	tb.y = 150;
+			if(tb.y > 2850)	tb.y = 2850;
+			tc.y = tb.y;
+
+			if(tb.x < 250)	tb.x = 250;
+			if(tb.x > 2750)	tb.x = 2750;
+			if(tc.x < 250)	tc.x = 250;
+			if(tc.x > 2750)	tc.x = 2750;
+			if(td.x < 250)	tc.x = 250;
+			if(td.x > 2750)	tc.x = 2750;
+
+			debug_printf("STEAL : ta=(%d,%d) tb=(%d,%d) tc=(%d,%d) td(%d,%d)\n", ta.x, ta.y, tb.x, tb.y, tc.x, tc.y, td.x, td.y);
+
+			state = TA;
+		break;
+		case TA:
+			//On se place à coté de la girafe... pour faire un créneau et la surprendre par derrière...
+			state = try_going(ta.x, ta.y,	TA, TB,	FAIL,	ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+		case TB:
+			//On recule "derrière" la girafe
+			//Le point visé dépend d'où on se trouve.. pour favoriser le fait de reculer du coté où il y a le plus de place.
+			state = try_going(tb.x, tb.y,	TB, OPEN_HAMMERS,	FAIL,	BACKWARD, NO_DODGE_AND_WAIT);
+		break;
+		case OPEN_HAMMERS:
+			ACT_plier_open();
+			state = TC;
+		break;
+		case TC:
+			//On ramasse la girafe...
+			state = try_going(tc.x, tc.y,	TC, TD,	FAIL,	FORWARD, NO_DODGE_AND_WAIT);
+		break;
+		case TD:
+			//On ressort...
+			state = try_going(td.x, td.y,	TD, SUCCESS,	FAIL,	FORWARD, NO_DODGE_AND_WAIT);
+		break;
+		case FAIL:
+			ACT_plier_close();
+			state = INIT;	//Où que je sois, je m'arrête là... (ca fera une occasion de réfléchir à faire autre chose...)
+			ret = NOT_HANDLED;
+		break;
+		case SUCCESS:
+			//Là, c'est vraiment la fête du slip !!!
+			state = INIT;
+			ret = END_OK;
+		break;
+		default:
+			state = INIT;
+		break;
+	}
+
+	if(previous_state != state)
+	{
+		debug_printf("Steal->");
+		switch(state)
+		{
+			case INIT:						debug_printf("INIT");				break;
+			case TA:						debug_printf("TA");					break;
+			case TB:						debug_printf("TB");					break;
+			case OPEN_HAMMERS:				debug_printf("OPEN_HAMMERS");		break;
+			case TC:						debug_printf("TC");					break;
+			case TD:						debug_printf("TD");					break;
+			case FAIL:						debug_printf("FAIL");				break;
+			case SUCCESS:					debug_printf("SUCCESS");			break;
+			default:						debug_printf("???");				break;
+		}
+		debug_printf("\n");
+	}
+	previous_state = state;
+	return ret;
+}
 
 /* ----------------------------------------------------------------------------- */
 /* 							Découpe de stratégies                     			 */
@@ -66,6 +195,13 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 	static bool_e entrance = TRUE;
 	error_e sub_action;
 	error_e ret = IN_PROGRESS;
+	static girafe_t * g;
+
+	if(reset)
+	{
+		state = INIT;
+		return END_OK;
+	}
 	switch(state)
 	{
 		case INIT:		//Décision initiale de trajet
@@ -113,24 +249,62 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 
 		break;
 		case DECISION:
-			//TODO prendre une décision
-			//if(scan_for_glasses(FALSE))
-			//	state = SUBACTION_STEAL;
 			//Si pas de décision positive.. on scanne dans l'autre sens...
+			g = look_for_the_best_girafe();
+			if(g->nb_glasses > 0)
+			{
+				state = SUBACTION_STEAL;
+			}
+			else
+				state = SCAN_GLASSES;
 
-			state = SCAN_GLASSES;
+			#ifndef I_HAVE_TESTED_THE_FOLLOWING_PART_OF_THIS_FUNCTION
+				#warning "ce bouchon pourra etre desactive quand le reste de la fonction sera teste correctement !!!"
+				//En l'état, on refuse d'aller plus loin... pour ne pas comprommetre une homologation par exemple !
+				state = SCAN_GLASSES;
+			#endif
 		break;
 		case SUBACTION_STEAL:
-			state = COME_BACK_HOME;
+			if(entrance)
+				steal_glasses(g,TRUE);	//reset MAE.
+			sub_action = steal_glasses(g, FALSE);
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					state = COME_BACK_HOME;
+				break;
+				default:
+					state = FAIL;
+				break;
+			}
 		break;
 		case COME_BACK_HOME:
+			//Point 1 : chez l'adversaire, en X = 250.
+			//Point 2 : la dépose dans la zone de départ TINY (début de zone !) ATTENTION A NE PAS DETRUIRE NOS VERRES.
+			//Point 3 : on retourne sur la ligne du SCAN
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(2135)},SLOW},{{250,COLOR_Y(450)},SLOW},{{250,COLOR_Y(2135)},FAST}},3,FORWARD,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					state = SUCCESS;
+				break;
+				default:
+					state = FAIL;
+				break;
+			}
 			state = SUCCESS;
 		break;
 		case FAIL:
+			ACT_plier_close();
 			state = INIT;	//Où que je sois, je m'arrête là... (ca fera une occasion de réfléchir à faire autre chose...)
 			ret = NOT_HANDLED;
 		break;
 		case SUCCESS:
+			ACT_plier_close();
 			//Là, c'est vraiment la fête du slip !!!
 			state = INIT;
 			ret = END_OK;
@@ -600,17 +774,19 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 
 
-
-
 #define NB_MAX_GLASSES ((Uint8)(32))
-//Return TRUE si des verres ont été vus depuis le reset du scan.
-//reset : TRUE pour mettre à 0 l'ensemble des acquisitions
-bool_e scan_for_glasses(bool_e reset)
-{
 	static Uint8 nb_glasses = 0;
 	static Sint16 glasses_y[NB_MAX_GLASSES];
 	static Sint16 glasses_x[NB_MAX_GLASSES];
 	static bool_e glasses_seen = FALSE;
+
+
+	static girafe_t best_girafe;
+
+//Return TRUE si des verres ont été vus depuis le reset du scan.
+//reset : TRUE pour mettre à 0 l'ensemble des acquisitions
+bool_e scan_for_glasses(bool_e reset)
+{
 	Uint16 value;
 	Sint32 value32;
 	if(reset)
@@ -641,7 +817,37 @@ bool_e scan_for_glasses(bool_e reset)
 	return glasses_seen;
 }
 
+#define DISTANCE_TWO_GLASSES_IN_GIRAFE	(100)	//mm
+girafe_t * look_for_the_best_girafe(void)
+{
+	static girafe_t g;
+	Uint8 i;
+	best_girafe = (girafe_t){0,0,0,0};
+	if(nb_glasses == 0)
+		return &best_girafe;
+	for(i=0;i<nb_glasses;i++)
+	{
+		g.nb_glasses = 1;
+		g.x_begin = glasses_x[i];
+		g.x_end = glasses_x[i];
+		g.y_middle = glasses_y[i];
 
+		for(;i+1<nb_glasses && abs(glasses_x[i+1] - glasses_x[i])< DISTANCE_TWO_GLASSES_IN_GIRAFE;i++)
+		{
+			g.nb_glasses++;
+			g.y_middle += glasses_y[i];
+			g.x_end = glasses_x[i];
+		}
+		g.y_middle /= g.nb_glasses;	//On calcule la moyenne des y.
+		if(g.nb_glasses >= best_girafe.nb_glasses)
+			best_girafe = g;		//On garde la plus grande girafe. En cas d'égalité, on garde LA DERNIERE (car + proche de nous).
+	}
+	return &best_girafe;
+	/*best_girafe contient :
+	 * -> les x_begin et x_end de la girafe (peuvent être identiques si un seul verre)
+	 * -> le y moyen de la girafe
+	*/
+}
 
 
 
