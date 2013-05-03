@@ -12,6 +12,7 @@
 #include "actions_cherries.h"
 #include "actions_utils.h"
 #include "output_log.h"
+#include "zone_mutex.h"
 
 #define LOG_PREFIX "strat_cherries: "
 #define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
@@ -23,7 +24,8 @@ error_e K_STRAT_sub_cherries_alexis() {
 		DP_GO_NEXT_PLATE,	//On va devant l'assiette à faire (current_plate)
 		DP_PROCESS_PLATE,	//On prend les cerises de l'assiette
 		DP_LAUNCH_CHERRIES,	//On lance les cerises dans le gateau
-		DP_DROP_PLATE_AND_CHECK_NEXT,		//On lache l'assiette si on l'avait gardé et on passe à la suivante si c'est pas fini
+		DP_DROP_PLATE,		//On lache l'assiette si on l'avait gardé
+		DP_CHOOSE_NEXT_PLATE,	//On change d'assiette, choisi une assiette à faire
 		DP_FAILED,			//Gère les cas d'erreurs
 		DP_DONE,			//On a fini de faire les assiettes
 		DP_NBSTATE			//Pas un état, utilisé pour connaitre le nombre d'état
@@ -45,8 +47,8 @@ error_e K_STRAT_sub_cherries_alexis() {
 	} CA_plate_data_e;
 
 	//Position en X des assiettes
-	static const Uint8 PLATE_NUMBER = 3;		//Nombre d'assiette à faire
-	static const CA_plate_data_e PLATE_INFOS[3] = {	//Info sur les assiettes. Il doit y avoir autant de case dans ce tableau que PLATE_NUMBER.
+	static const Uint8 PLATE_NUMBER = 5;		//Nombre d'assiette à faire
+	/*static const CA_plate_data_e PLATE_INFOS[3] = {	//Info sur les assiettes. Il doit y avoir autant de case dans ce tableau que PLATE_NUMBER.
 	//  { x   , keep_plate, launch_cherries_after}
 		{600  ,   FALSE   ,      FALSE           },
 		{1400 ,   TRUE    ,      TRUE            },
@@ -57,6 +59,8 @@ error_e K_STRAT_sub_cherries_alexis() {
 	//Décalage dans le cas de l'assiette coté bleu - gateau. Avec l'offset normal on taperait dans le buffet. L'offset est quand même celui qu'on aurait du coté rouge, pour un souci d'avoir un code partout pareil
 	static const Sint16 OFFSET_X_ROBOT_FAR_CORNER = -12;
 	static const Sint16 POSITION_Y_ROBOT_BEFORE_DOING_PLATE = 550; //Position en Y du robot prêt à faire une assiette
+	*/
+	static const Uint8 LAUNCH_EVERY_NUM_PLATE = 2;
 
 	////////////////////////////////////////////////////////////////
 
@@ -64,6 +68,8 @@ error_e K_STRAT_sub_cherries_alexis() {
 	static Uint8 current_plate;		//Numéro de l'assiette en train d'être faite, entre 0 et 2 inclus (voir plate_x_positons pour les positions)
 	static error_e last_action_result;	//Contient la dernière erreur retournée par un micro strat. Utilisé dans l'état DP_FAILED pour savoir quoi faire lors d'un problème
 	static Sint16 real_x_offset;	//En static pour calculer l'offset qu'une seule fois
+	static Uint8 plate_number_in_stock;		//Nombre d'assiette qu'on a prise sans lancer les cerises
+	static bool_e keep_plate;				//TRUE quand on garde l'assiette pendant qu'on lance les cerises
 
 	//Si l'état à changé, on rentre dans un nouvel état
 	bool_e entrance = last_state_for_check_entrance != state;
@@ -78,10 +84,12 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 		if(state_str_initialized == FALSE) {
 			STATE_STR_DECLARE(state_str, DP_INIT);
+			STATE_STR_DECLARE(state_str, DP_CHOOSE_NEXT_PLATE);
 			STATE_STR_DECLARE(state_str, DP_GO_NEXT_PLATE);
 			STATE_STR_DECLARE(state_str, DP_PROCESS_PLATE);
 			STATE_STR_DECLARE(state_str, DP_LAUNCH_CHERRIES);
-			STATE_STR_DECLARE(state_str, DP_DROP_PLATE_AND_CHECK_NEXT);
+			STATE_STR_DECLARE(state_str, DP_DROP_PLATE);
+			STATE_STR_DECLARE(state_str, DP_GO_NEXT_PLATE);
 			STATE_STR_DECLARE(state_str, DP_FAILED);
 			STATE_STR_DECLARE(state_str, DP_DONE);
 			STATE_STR_INIT_UNDECLARED(state_str, DP_NBSTATE);
@@ -96,15 +104,42 @@ error_e K_STRAT_sub_cherries_alexis() {
 	switch(state) {
 		//Initialise la machine à état.
 		case DP_INIT:
-			current_plate = 0;
+			current_plate = PLATE_NUMBER;	//Doit être >= PLATE_NUMBER au début pour indiqué qu'il est invalide
 			last_action_result = END_OK;
+			plate_number_in_stock = 0;
 
-			state = DP_GO_NEXT_PLATE;
+			state = DP_CHOOSE_NEXT_PLATE;
 			break;
+
+		//On change d'assiette, choisi une assiette à faire différente de celle d'avant
+		case DP_CHOOSE_NEXT_PLATE: {
+			Uint8 i;
+			Uint8 last_plate = current_plate;
+
+			//Cherche une assiette qui n'a pas été faite. Si on n'en trouve pas, on a fini
+			state = DP_DONE;
+			for(i = 0; i < PLATE_NUMBER /*&& state != DP_GO_NEXT_PLATE*/; i++) {
+				if(i != last_plate && global.env.map_elements[GOAL_Assiette0 + i] == ELEMENT_TODO) {
+					current_plate = i;
+					state = DP_GO_NEXT_PLATE;
+				}
+			}
+			if(state == DP_DONE && last_plate < PLATE_NUMBER && global.env.map_elements[GOAL_Assiette0 + last_plate] == ELEMENT_TODO) {
+				current_plate = last_plate;
+				state = DP_GO_NEXT_PLATE;
+			}
+
+			//On a des cerises non lancé restante, on les lances
+			if(state == DP_DONE && plate_number_in_stock != 0) {
+				plate_number_in_stock = LAUNCH_EVERY_NUM_PLATE;
+				state = DP_LAUNCH_CHERRIES;
+			}
+			break;
+		}
 
 		//On va devant l'assiette à faire (current_plate)
 		case DP_GO_NEXT_PLATE:
-			if(entrance) {
+			/*if(entrance) {
 				//Si on est rouge, on prend l'offset donné
 				if(global.env.color == RED)
 					real_x_offset = OFFSET_X_ROBOT;
@@ -114,28 +149,45 @@ error_e K_STRAT_sub_cherries_alexis() {
 				//Sinon on prend le normal
 				else real_x_offset = -OFFSET_X_ROBOT;
 			}
-			state = try_going(PLATE_INFOS[current_plate].x + real_x_offset, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE), DP_GO_NEXT_PLATE, DP_PROCESS_PLATE, DP_FAILED, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(PLATE_INFOS[current_plate].x + real_x_offset, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE), DP_GO_NEXT_PLATE, DP_PROCESS_PLATE, DP_FAILED, ANY_WAY, NO_DODGE_AND_WAIT);*/
+			
+			last_action_result = K_STRAT_micro_move_to_plate(current_plate);
+			state = check_sub_action_result(last_action_result, DP_GO_NEXT_PLATE, DP_PROCESS_PLATE, DP_FAILED);
+			if(state == DP_PROCESS_PLATE)
+				plate_number_in_stock++;
 			break;
 
 		//On prend les cerises de l'assiette
 		case DP_PROCESS_PLATE:
 			//On peut prendre 2 assiette d'un coup, la deuxième on la garde comme paroi donc.
 
-			last_action_result = K_STRAT_micro_grab_plate(PLATE_INFOS[current_plate].keep_plate, PLATE_INFOS[current_plate].x + real_x_offset, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE));
+			//last_action_result = K_STRAT_micro_grab_plate(PLATE_INFOS[current_plate].keep_plate, PLATE_INFOS[current_plate].x + real_x_offset, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE));
+
+			//Si on va lancer les cerises après, on garde l'assiette (pour gagner de la place dans le robot, sinon les cerises pourront tomber ...)
+			if(plate_number_in_stock >= LAUNCH_EVERY_NUM_PLATE)
+				keep_plate = TRUE;
+			else keep_plate = FALSE;
+			last_action_result = K_STRAT_micro_grab_plate(keep_plate, global.env.pos.x, global.env.pos.y);
 			state = check_sub_action_result(last_action_result, DP_PROCESS_PLATE, DP_LAUNCH_CHERRIES, DP_FAILED);
+
+			//On l'a fait, on indique donc l'environnement qu'elle est faite
+			if(state == DP_LAUNCH_CHERRIES)
+				global.env.map_elements[GOAL_Assiette0 + current_plate] = ELEMENT_DONE;
 			break;
 
 		//On lance les cerises dans le gateau
 		case DP_LAUNCH_CHERRIES:
-			if(PLATE_INFOS[current_plate].launch_cherries_after) {
+			if(plate_number_in_stock >= LAUNCH_EVERY_NUM_PLATE) {
 				last_action_result = K_STRAT_micro_launch_cherries(STRAT_LC_PositionNear, 8, FALSE);
-				state = check_sub_action_result(last_action_result, DP_LAUNCH_CHERRIES, DP_DROP_PLATE_AND_CHECK_NEXT, DP_FAILED);
-			} else state = DP_DROP_PLATE_AND_CHECK_NEXT;
+				state = check_sub_action_result(last_action_result, DP_LAUNCH_CHERRIES, DP_DROP_PLATE, DP_FAILED);
+				if(state != DP_LAUNCH_CHERRIES)
+					plate_number_in_stock = 0;
+			} else state = DP_DROP_PLATE;
 			break;
 
 		//On lache l'assiette si on l'avait gardé et on passe à la suivante si c'est pas fini
-		case DP_DROP_PLATE_AND_CHECK_NEXT:
-			if(PLATE_INFOS[current_plate].keep_plate) {
+		case DP_DROP_PLATE:
+			if(keep_plate) {
 				switch(K_STRAT_micro_drop_plate(TRUE)) {
 					case IN_PROGRESS: break;
 
@@ -143,16 +195,12 @@ error_e K_STRAT_sub_cherries_alexis() {
 					case FOE_IN_PATH:
 					case END_WITH_TIMEOUT: state = DP_FAILED; break;
 
-					case END_OK: state = DP_DONE; break;
+					case END_OK:
+						keep_plate = FALSE;
+						state = DP_CHOOSE_NEXT_PLATE;
+						break;
 				}
-			} else state = DP_DONE;
-
-			//Les cerises sont lancées et on a laché l'assiette, on regarde si on a vraiment fini
-			if(state == DP_DONE) {
-				current_plate++;
-				if(current_plate < PLATE_NUMBER)
-					state = DP_GO_NEXT_PLATE;		//En fait c'est pas fini, il nous reste d'autre assiette à faire
-			}
+			} else state = DP_CHOOSE_NEXT_PLATE;
 			break;
 
 		//Gère les cas d'erreurs
@@ -162,7 +210,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 				//On tente la suivante, mais ça risque de fail aussi ...
 				//On ne peut pas avoir une assiette d'avance car on l'a déjà drop ... (ou jamais ramassée)
 				case DP_GO_NEXT_PLATE:
-					state = DP_DROP_PLATE_AND_CHECK_NEXT;
+					state = DP_CHOOSE_NEXT_PLATE;
 					break;
 
 				//On a eu un problème lors de la prise des cerises
@@ -170,22 +218,18 @@ error_e K_STRAT_sub_cherries_alexis() {
 				case DP_PROCESS_PLATE:
 					if(last_action_result != NOT_HANDLED)
 						state = DP_LAUNCH_CHERRIES;
-					else state = DP_DROP_PLATE_AND_CHECK_NEXT;
+					else state = DP_DROP_PLATE;
 					break;
 
 				//On a pas pu lancer les cerises, tant pis, on prie pour que ça passe pour la prochaine assiette ...
 				case DP_LAUNCH_CHERRIES:
-					state = DP_DROP_PLATE_AND_CHECK_NEXT;
+					state = DP_DROP_PLATE;
 					break;
 
 				//On a pas pu lacher l'assiette, un adversaire nous bloque ?
 				//On passe a la suivante, mais ya des chances que ça foire ...
-				#warning "Cas foireux: on a pas laché l'assiette et on passe à la suivante .. à régler prochainement"
-				case DP_DROP_PLATE_AND_CHECK_NEXT:
-					current_plate++;
-					if(current_plate < PLATE_NUMBER)
-						state = DP_GO_NEXT_PLATE;		//On fait les autres restante quand même
-					else state = DP_DONE;
+				case DP_DROP_PLATE:
+					state = DP_CHOOSE_NEXT_PLATE;
 					break;
 
 				//Fausse erreur, mais une vrai dans le code, on retourne END_WITH_TIMEOUT
@@ -211,6 +255,259 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 	if(return_value != IN_PROGRESS)
 		state = DP_INIT;
+	return return_value;
+}
+
+
+error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
+	enum state_e {
+		MP_INIT,				//Initialise la machine à état
+		MP_WHERE_TO_GO_NEXT,	//Choisi ou aller pour atteindre la position voulue
+		MP_SWITCH_LINE,			//Change de ligne en restant sur la même position en X
+		MP_GO_TO_CURRENT_POS,	//Va à la position indiqué par current_plate et current_line
+		MP_CHECK_TINY_ZONE,		//Vérifie si la zone sous le gateau est dispo, la ou Tiny passe pour faire les bougies
+		MP_FAILED,				//Gère les cas d'erreur
+		MP_DONE,				//On est devant l'assiette cible
+		MP_NBSTATE				//Pas un état, pour compter le nombre d'état
+	};
+	static enum state_e state = MP_INIT;
+	static enum state_e last_state = MP_INIT;
+	static enum state_e last_state_for_check_entrance = MP_INIT;
+
+	typedef enum {
+		LP_Far,
+		LP_Near
+	} line_pos_t;
+
+	typedef struct {
+		Sint16 x;
+		Sint16 y_near;
+		Sint16 y_far;
+		bool_e far_line_check_tiny;
+	} plate_info_t;
+
+	static const Uint8 PLATE_NUMBER = 5;
+	static const plate_info_t PLATE_INFOS[5] = {
+	//       x      ,   y_near   ,   y_far   , far_line_check_tiny  }
+		{ 250       ,    520     ,   1000    ,      FALSE           },
+		{ 600       ,    520     ,   1000    ,      FALSE           },
+		{ 1000      ,    520     ,   1000    ,      FALSE           },
+		{ 1400      ,    520     ,   1000    ,      TRUE            },
+		{ 1750      ,    520     ,   840     ,      TRUE            }
+	};
+	static const Uint8 MAX_UNREACHABLE_PATH = 3;
+	static const Uint16 MAX_WAIT_LOCK_CAKE_ZONE = 5000;	//Temps d'attente max pour pouvoir passer dans la zone critique en dessous du gateau
+
+	static bool_e has_locked_tinyzone;
+	static line_pos_t current_line;
+	static Uint8 current_plate;
+
+	static Uint8 unreachable_path_count;	//Nombre de chemin don on a pas pu empreinter. Remis à zero quand on change de position en X (current_plate), incrémenté quand on fail (peut importe le mouvement)
+	static Uint8 last_plate_pos;			//Contient la position précédente (current_plate)
+
+	//Si l'état à changé, on rentre dans un nouvel état
+	bool_e entrance = last_state_for_check_entrance != state;
+	last_state_for_check_entrance = state;
+
+	error_e return_value = IN_PROGRESS;
+
+	//On a changé d'état, on l'indique sur l'UART pour débugage
+	if(entrance) {
+		static const char* state_str[MP_NBSTATE] = {0};
+		bool_e state_str_initialized = FALSE;
+
+		if(state_str_initialized == FALSE) {
+			STATE_STR_DECLARE(state_str, MP_INIT);
+			STATE_STR_DECLARE(state_str, MP_SWITCH_LINE);
+			STATE_STR_DECLARE(state_str, MP_GO_TO_CURRENT_POS);
+			STATE_STR_DECLARE(state_str, MP_WHERE_TO_GO_NEXT);
+			STATE_STR_DECLARE(state_str, MP_CHECK_TINY_ZONE);
+			STATE_STR_DECLARE(state_str, MP_FAILED);
+			STATE_STR_DECLARE(state_str, MP_DONE);
+			STATE_STR_INIT_UNDECLARED(state_str, MP_NBSTATE);
+			state_str_initialized = TRUE;
+		}
+
+		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: state changed: %s(%d) -> %s(%d)\n",
+			state_str[last_state], last_state,
+			state_str[state], state);
+	}
+
+	switch(state) {
+		//Initialise la machine à état
+		case MP_INIT:
+		{
+			Uint8 i;
+			Sint16 min;
+
+			min = abs(global.env.pos.x - PLATE_INFOS[0].x);
+			current_plate = 0;
+
+			for(i = 1; i < PLATE_NUMBER; i++) {
+				//On cherche l'assiette la plus proche (en X)
+				if(min > abs(global.env.pos.x - PLATE_INFOS[i].x)) {
+					min = abs(global.env.pos.x - PLATE_INFOS[i].x);
+					current_plate = i;
+				}
+			}
+			last_plate_pos = current_plate;
+
+			//On regarde la ligne la plus proche (en Y)
+			if(abs(global.env.pos.y - COLOR_Y(PLATE_INFOS[current_plate].y_far)) > abs(global.env.pos.y - COLOR_Y(PLATE_INFOS[current_plate].y_near)))
+				current_line = LP_Near;
+			else current_line = LP_Far;
+
+			has_locked_tinyzone = FALSE;
+			unreachable_path_count = 0;
+
+			STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: init: line %d, plate %d, goal_plate %d\n", current_line, current_plate, plate_goal_idx);
+
+			state = MP_WHERE_TO_GO_NEXT;
+			break;
+		}
+
+		//Choisi ou aller pour atteindre la position voulue
+		case MP_WHERE_TO_GO_NEXT:
+			if(current_plate == plate_goal_idx) {
+				//On est devant la bonne assiette et proche => on a fini les mouvements
+				if(current_line == LP_Near) {
+					state = MP_DONE;
+				} else {	//Sinon on se rapproche
+					current_line = LP_Near;
+					state = MP_GO_TO_CURRENT_POS;
+				}
+			} else {
+				last_plate_pos = current_plate;
+				//On a pas à la bonne position en X => on s'approche
+				if(current_plate > plate_goal_idx)
+					current_plate--;
+				else current_plate++;
+
+				//S'il faut vérifier que la zone est dispo, on le fait
+				if(current_line == LP_Far && PLATE_INFOS[current_plate].far_line_check_tiny)
+					state = MP_CHECK_TINY_ZONE;
+				else state = MP_GO_TO_CURRENT_POS;
+			}
+			break;
+
+		//Change de ligne en restant sur la même position en X
+		case MP_SWITCH_LINE:
+			if(entrance) {
+				AVOIDANCE_set_timeout(1000);
+				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: switch to line %d\n", current_line);
+			}
+
+			if(current_line == LP_Far)
+				state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(PLATE_INFOS[current_plate].y_far)}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BREAK, MP_SWITCH_LINE, MP_GO_TO_CURRENT_POS, MP_FAILED);
+			else
+				state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(PLATE_INFOS[current_plate].y_near)}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BREAK, MP_SWITCH_LINE, MP_GO_TO_CURRENT_POS, MP_FAILED);
+
+			//Si on a fini le déplacement et qu'on est sorti de la zone mutex, on libère la zone
+			if(state == MP_GO_TO_CURRENT_POS && has_locked_tinyzone && (current_line == LP_Near || !PLATE_INFOS[current_plate].far_line_check_tiny)) {
+				ZONE_unlock(MZ_CakeNearUs);
+				has_locked_tinyzone = FALSE;
+			}
+			break;
+
+		//Va à la position indiqué par current_plate et current_line
+		case MP_GO_TO_CURRENT_POS:
+			if(entrance) {
+				AVOIDANCE_set_timeout(1000);
+				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", current_line, current_plate);
+			}
+
+			if(current_line == LP_Far)
+				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[current_plate].x, COLOR_Y(PLATE_INFOS[current_plate].y_far)}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT, (current_plate == plate_goal_idx)? END_AT_LAST_POINT : END_AT_BREAK, MP_GO_TO_CURRENT_POS, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+			else
+				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[current_plate].x, COLOR_Y(PLATE_INFOS[current_plate].y_near)}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT, (current_plate == plate_goal_idx)? END_AT_LAST_POINT : END_AT_BREAK, MP_GO_TO_CURRENT_POS, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+
+			//Si on a fini le déplacement et qu'on est sorti de la zone mutex, on libère la zone
+			if(state == MP_GO_TO_CURRENT_POS && has_locked_tinyzone && (current_line == LP_Near || !PLATE_INFOS[current_plate].far_line_check_tiny)) {
+				ZONE_unlock(MZ_CakeNearUs);
+				has_locked_tinyzone = FALSE;
+			}
+			break;
+
+		//Vérifie si la zone sous le gateau est dispo, la ou Tiny passe pour faire les bougies
+		case MP_CHECK_TINY_ZONE:
+			state = try_lock_zone(MZ_CakeNearUs, MAX_WAIT_LOCK_CAKE_ZONE, MP_CHECK_TINY_ZONE, MP_GO_TO_CURRENT_POS, MP_FAILED, MP_FAILED);
+
+			//On a réussi à verrouiller la zone pour nous, on devra libérer la zone après !
+			if(state == MP_GO_TO_CURRENT_POS)
+				has_locked_tinyzone = TRUE;
+			break;
+
+		//Gère les cas d'erreur
+		case MP_FAILED:
+			state = MP_INIT;
+			switch(last_state) {
+				//On a pas pu aller au point suivant ...
+				//On tente de passer par autre part
+				case MP_SWITCH_LINE:
+				case MP_GO_TO_CURRENT_POS:
+					unreachable_path_count++;
+					if(unreachable_path_count < MAX_UNREACHABLE_PATH) {
+						//On a fail, on tente de passer par une autre ligne
+						if(current_line == LP_Far)
+							current_line = LP_Near;
+						else current_line = LP_Far;
+						if(current_line == LP_Far && PLATE_INFOS[current_plate].far_line_check_tiny)
+							state = MP_CHECK_TINY_ZONE;
+						else state = MP_SWITCH_LINE;
+					} else {
+						//Impossible d'aller devant l'assiette demandée
+						return_value = NOT_HANDLED;
+					}
+					break;
+
+				//On ne peut pas aller dans la zone de Tiny
+				case MP_CHECK_TINY_ZONE:
+					unreachable_path_count++;
+					if(unreachable_path_count < MAX_UNREACHABLE_PATH) {
+						//On tente de passer par une autre ligne
+						if(current_line == LP_Far) {
+							current_line = LP_Near;
+							state = MP_SWITCH_LINE;
+						} else {
+							state = MP_GO_TO_CURRENT_POS;
+						}
+					} else {
+						//Impossible d'aller devant l'assiette demandée
+						return_value = NOT_HANDLED;
+					}
+					break;
+
+				//Fausse erreur, mais une vrai dans le code, on retourne END_WITH_TIMEOUT
+				default:
+					return_value = END_WITH_TIMEOUT;
+			}
+			if(return_value != IN_PROGRESS)
+				state = MP_INIT;
+			break;
+
+		//On est devant l'assiette cible
+		case MP_DONE:
+			state = MP_INIT;
+			return_value = END_OK;
+			break;
+
+		//Pas un état, pour compter le nombre d'état
+		case MP_NBSTATE:
+			return_value = NOT_HANDLED;
+			break;
+	}
+
+	last_state = last_state_for_check_entrance;
+
+	if(return_value != IN_PROGRESS) {
+		state = MP_INIT;
+		if(has_locked_tinyzone)
+			ZONE_unlock(MZ_CakeNearUs);
+	}
 	return return_value;
 }
 

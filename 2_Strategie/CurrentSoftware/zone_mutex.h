@@ -55,7 +55,7 @@ typedef struct {
 void ZONE_init();
 
 //Tente de verrouiller une zone. Cette fonction marche comme try_goto et autre, on donne des états, elle retourne le bon état suivant l'état de l'action.
-Uint8 try_lock_zone(map_zone_e zone, Uint8 timeout_msec, Uint8 in_progress_state, Uint8 success_state, Uint8 cant_lock_state, Uint8 no_response_state);
+Uint8 try_lock_zone(map_zone_e zone, Uint16 timeout_msec, Uint8 in_progress_state, Uint8 success_state, Uint8 cant_lock_state, Uint8 no_response_state);
 
 //Tente de prendre une zone.
 //Retourne:

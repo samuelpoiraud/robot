@@ -473,8 +473,9 @@ void ENV_init()
 //	global.env.map_elements[8] = ELEMENT_TODO;
 	for(i = GOAL_Assiette0; i <= GOAL_Assiette4; i++) {
 		#warning "Position initiale des robots fixe ou disponible par un DEFINE ? (pour savoir l'état initial des assiettes)"
-		if(i != GOAL_Assiette0 && i != GOAL_Assiette1)
+		if(i != GOAL_Assiette0 && i != GOAL_Assiette2)
 			global.env.map_elements[i] = ELEMENT_TODO;
+		else global.env.map_elements[i] = ELEMENT_NONE;
 	}
 	for(i = GOAL_AssietteEnnemi0; i <= GOAL_AssietteEnnemi4; i++){
 		global.env.map_elements[i] = ELEMENT_NONE;
