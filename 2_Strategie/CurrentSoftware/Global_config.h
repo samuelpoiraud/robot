@@ -14,11 +14,12 @@
 	#define GLOBAL_CONFIG_H
 
 	#define VERBOSE_MODE
+//	#define MODE_SIMULATION
 
 	#define OUTPUT_LOG  //utilisé dans act_function et queue
 	#define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 //	#define OUTPUT_LOG_PRINT_ALL_COMPONENTS  //Si défini, affiche les messages de tous les composants (OUTPUT_LOG_COMPONENT_* ne sont pas pris en compte, les niveau de débuggage le sont par contre)
-	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION         LOG_PRINT_On  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
+	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION         LOG_PRINT_Off  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
 	#define OUTPUT_LOG_COMPONENT_QUEUE               LOG_PRINT_Off
 	#define OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES LOG_PRINT_On   //Changement d'état de la strat
 
@@ -46,7 +47,7 @@
 	#define PORT_F_IO_MASK	0xFFFF
 	#define PORT_G_IO_MASK	0xFF3F
 
-	#ifdef FDP_2013
+	//#ifdef FDP_2013
 		#define SWITCH_STRAT_1	PORTEbits.RE0
 		#define SWITCH_STRAT_2	PORTEbits.RE1
 		#define SWITCH_STRAT_3	PORTEbits.RE2
@@ -62,11 +63,11 @@
 
 		#define BLUE_LEDS	LATGbits.LATG7
 		#define RED_LEDS	LATGbits.LATG6
-	#else
+	/*#else
 		#define BLUE_LEDS	LATGbits.LATG6
 		#define RED_LEDS	LATGbits.LATG7
 	#endif
-
+	*/
 	#define PIN_BIROUTE	PORTGbits.RG8
 
 	#define SICK_SENSOR_FOE_GLASSES_PIN PORTBbits.RB15   //sur Tiny
@@ -97,22 +98,25 @@
 /* Utilisation des entrées analogiques */
 	#define USE_ANALOG_EXT_VREF
 
-	#define ADC_PIN_DT10_0		0 		
-		#define USE_AN2 			// DT10 0
+	#define ADC_PIN_DT10_GLASSES	0
+		#define USE_AN15 			// DT10 glasses sur TINY
+	//#define ADC_PIN_DT10_0		0
+		//#define USE_AN2 			// DT10 0
 	//#define ADC_PIN_DT10_1 	 	1
 		//#define USE_AN3	 			// DT10 1
-	#define ADC_PIN_DT10_2		1
-		#define USE_AN4 			// DT10	2
+	//#define ADC_PIN_DT10_2		1
+		//#define USE_AN4 			// DT10	2
 	//#define ADC_PIN_DT10_3		3
 		//#define USE_AN5 			// DT10	3
 		
-	#define ADC_PIN_DT50_FRONT 	2
+	/*
+	 #define ADC_PIN_DT50_FRONT 	2
 		#define USE_AN13 			// DT50 droit
 	#define ADC_PIN_DT50_LEFT	3
 		#define USE_AN14 			// DT50 left
 	#define ADC_PIN_DT50_TOP	4
 		#define USE_AN15 			// DT50 top
-		
+	*/
 	/*
 	 *
 	 *	La section config carte P
@@ -180,7 +184,7 @@
 //	#define DEBUG_ELEMENTS
 //	#define DEBUG_BARCODE
 //	#define DEBUG_DETECTION
-	#define DEBUG_AVOIDANCE
+//	#define DEBUG_AVOIDANCE
 //	#define DEBUG_POLYGON
 //	#define DEBUG_TELEMETER
 
