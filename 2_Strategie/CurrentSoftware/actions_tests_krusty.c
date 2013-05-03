@@ -489,7 +489,7 @@ void TEST_STRAT_ALEXIS() {
 
 		//Faire les assiettes & lancer les cerises
 		case DO_PLATES:
-			if(global.env.must_drop_glasses_at_end && global.env.match_time > (MATCH_DURATION - 10000))
+			if(global.env.must_drop_glasses_at_end && global.env.match_time > (MATCH_DURATION - 20000))
 				state = PUT_DOWN_GLASSES;
 			else {
 				sub_action = K_STRAT_sub_cherries_alexis();

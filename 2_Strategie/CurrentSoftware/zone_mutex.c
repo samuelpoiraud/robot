@@ -149,6 +149,10 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 		case TL_NO_RESPONSE:
 			state = TL_INIT;
 			return END_WITH_TIMEOUT;
+
+		case TL_NBSTATE:
+			state = TL_INIT;
+			return END_WITH_TIMEOUT;
 	}
 
 	return IN_PROGRESS;

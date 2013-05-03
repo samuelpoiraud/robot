@@ -58,7 +58,7 @@ error_e two_first_rows(void){
 	};
 
 
-	static error_e act_prioritaire = GRAB;
+	static enum actionneur_state act_prioritaire = GRAB;
 	/*static error_e act_previous_left = GRAB;
 	static error_e act_entrance_left;
 	//Mise a jour
@@ -66,7 +66,7 @@ error_e two_first_rows(void){
 	act_previous_left = act_left;
 	*/
 	
-	static error_e act_secondaire = GRAB;
+	static enum actionneur_state act_secondaire = GRAB;
 	/*static error_e act_previous_right = GRAB;
 	static error_e act_entrance_right;
 	//Mise a jour
