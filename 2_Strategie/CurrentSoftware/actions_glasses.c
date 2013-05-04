@@ -153,6 +153,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 	////// Paramètres /////
 	static const Uint8 FIRST_SAFE_HOME = 2;
 	static const Sint16 SAFE_Y_ZONE = 450;
+	static const Sint16 EXTRACT_Y_POS = 540;
 	static const avoidance_type_e AVOIDANCE_TYPE_ON_EXTRACT = NO_DODGE_AND_WAIT;
 	static const Uint16 AVOIDANCE_MAX_WAIT_ON_EXTRACT = 1000;
 
@@ -299,7 +300,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 		case GM_EXTRACT_FROM_GLASSES:
 			if(entrance)
 				AVOIDANCE_set_timeout(AVOIDANCE_MAX_WAIT_ON_EXTRACT);
-			state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(SAFE_Y_ZONE)}, FAST}}, 1, BACKWARD, AVOIDANCE_TYPE_ON_EXTRACT, END_AT_BREAK, GM_EXTRACT_FROM_GLASSES, GM_DONE, GM_FAILED);
+			state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(EXTRACT_Y_POS)}, FAST}}, 1, BACKWARD, AVOIDANCE_TYPE_ON_EXTRACT, END_AT_LAST_POINT, GM_EXTRACT_FROM_GLASSES, GM_DONE, GM_FAILED);
 			break;
 
 		case GM_FAILED:

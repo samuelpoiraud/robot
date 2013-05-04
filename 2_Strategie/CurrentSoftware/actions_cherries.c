@@ -38,28 +38,8 @@ error_e K_STRAT_sub_cherries_alexis() {
 	////////////// Paramètre de la machine à état  /////////////////
 
 	//Ce n'est pas mis en define pour garder ça en interne dans la fonction
-	//Toutes les positons et angle sont ceux correspondant au coté rouge
 
-	typedef struct {
-		Sint16 x;						//Position en X de l'assiette.
-		bool_e keep_plate;				//TRUE si on doit garder l'assiette pendant le lancé des cerises
-		bool_e launch_cherries_after;	//TRUE si on doit lancer les cerises après avoir fait l'assiette
-	} CA_plate_data_e;
-
-	//Position en X des assiettes
 	static const Uint8 PLATE_NUMBER = 5;		//Nombre d'assiette à faire
-	/*static const CA_plate_data_e PLATE_INFOS[3] = {	//Info sur les assiettes. Il doit y avoir autant de case dans ce tableau que PLATE_NUMBER.
-	//  { x   , keep_plate, launch_cherries_after}
-		{600  ,   FALSE   ,      FALSE           },
-		{1400 ,   TRUE    ,      TRUE            },
-		{1750 ,   FALSE   ,      TRUE            }
-	};
-	//La pince à assiette n'est pas symétrique ni centrée sur le robot, on doit avoir un offset en X pour que la pince ne tappe pas l'assiette alors qu'elle est ouverte
-	static const Sint16 OFFSET_X_ROBOT = -30;
-	//Décalage dans le cas de l'assiette coté bleu - gateau. Avec l'offset normal on taperait dans le buffet. L'offset est quand même celui qu'on aurait du coté rouge, pour un souci d'avoir un code partout pareil
-	static const Sint16 OFFSET_X_ROBOT_FAR_CORNER = -12;
-	static const Sint16 POSITION_Y_ROBOT_BEFORE_DOING_PLATE = 550; //Position en Y du robot prêt à faire une assiette
-	*/
 	static const Uint8 LAUNCH_EVERY_NUM_PLATE = 2;
 
 	////////////////////////////////////////////////////////////////
@@ -67,7 +47,6 @@ error_e K_STRAT_sub_cherries_alexis() {
 	//Variables utilisées par certains état:
 	static Uint8 current_plate;		//Numéro de l'assiette en train d'être faite, entre 0 et 2 inclus (voir plate_x_positons pour les positions)
 	static error_e last_action_result;	//Contient la dernière erreur retournée par un micro strat. Utilisé dans l'état DP_FAILED pour savoir quoi faire lors d'un problème
-	static Sint16 real_x_offset;	//En static pour calculer l'offset qu'une seule fois
 	static Uint8 plate_number_in_stock;		//Nombre d'assiette qu'on a prise sans lancer les cerises
 	static bool_e keep_plate;				//TRUE quand on garde l'assiette pendant qu'on lance les cerises
 
@@ -116,10 +95,13 @@ error_e K_STRAT_sub_cherries_alexis() {
 			Uint8 i;
 			Uint8 last_plate = current_plate;
 
+			if(last_plate >= PLATE_NUMBER)
+				last_plate = PLATE_NUMBER - 1;
+
 			//Cherche une assiette qui n'a pas été faite. Si on n'en trouve pas, on a fini
 			state = DP_DONE;
-			for(i = 0; i < PLATE_NUMBER /*&& state != DP_GO_NEXT_PLATE*/; i++) {
-				if(i != last_plate && global.env.map_elements[GOAL_Assiette0 + i] == ELEMENT_TODO) {
+			for(i = (last_plate + 1) % PLATE_NUMBER; i != last_plate /*&& state != DP_GO_NEXT_PLATE*/; i = (i + 1) % PLATE_NUMBER) {
+				if(global.env.map_elements[GOAL_Assiette0 + i] == ELEMENT_TODO) {
 					current_plate = i;
 					state = DP_GO_NEXT_PLATE;
 				}
@@ -139,18 +121,6 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 		//On va devant l'assiette à faire (current_plate)
 		case DP_GO_NEXT_PLATE:
-			/*if(entrance) {
-				//Si on est rouge, on prend l'offset donné
-				if(global.env.color == RED)
-					real_x_offset = OFFSET_X_ROBOT;
-				//Si on est bleu et qu'on est à la derniere assiette, on prend l'offset spécial, avec - car on veux l'offset pour le coté bleu
-				else if(current_plate == PLATE_NUMBER - 1)
-					real_x_offset = -OFFSET_X_ROBOT_FAR_CORNER;
-				//Sinon on prend le normal
-				else real_x_offset = -OFFSET_X_ROBOT;
-			}
-			state = try_going(PLATE_INFOS[current_plate].x + real_x_offset, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE), DP_GO_NEXT_PLATE, DP_PROCESS_PLATE, DP_FAILED, ANY_WAY, NO_DODGE_AND_WAIT);*/
-			
 			last_action_result = K_STRAT_micro_move_to_plate(current_plate);
 			state = check_sub_action_result(last_action_result, DP_GO_NEXT_PLATE, DP_PROCESS_PLATE, DP_FAILED);
 			if(state == DP_PROCESS_PLATE)
@@ -160,9 +130,6 @@ error_e K_STRAT_sub_cherries_alexis() {
 		//On prend les cerises de l'assiette
 		case DP_PROCESS_PLATE:
 			//On peut prendre 2 assiette d'un coup, la deuxième on la garde comme paroi donc.
-
-			//last_action_result = K_STRAT_micro_grab_plate(PLATE_INFOS[current_plate].keep_plate, PLATE_INFOS[current_plate].x + real_x_offset, COLOR_Y(POSITION_Y_ROBOT_BEFORE_DOING_PLATE));
-
 			//Si on va lancer les cerises après, on garde l'assiette (pour gagner de la place dans le robot, sinon les cerises pourront tomber ...)
 			if(plate_number_in_stock >= LAUNCH_EVERY_NUM_PLATE)
 				keep_plate = TRUE;
@@ -264,7 +231,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
 		MP_INIT,				//Initialise la machine à état
 		MP_WHERE_TO_GO_NEXT,	//Choisi ou aller pour atteindre la position voulue
 		MP_SWITCH_LINE,			//Change de ligne en restant sur la même position en X
-		MP_GO_TO_CURRENT_POS,	//Va à la position indiqué par current_plate et current_line
+		MP_SWITCH_PLATE,	//Va à la position indiqué par current_plate et current_line
 		MP_CHECK_TINY_ZONE,		//Vérifie si la zone sous le gateau est dispo, la ou Tiny passe pour faire les bougies
 		MP_FAILED,				//Gère les cas d'erreur
 		MP_DONE,				//On est devant l'assiette cible
@@ -275,9 +242,13 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
 	static enum state_e last_state_for_check_entrance = MP_INIT;
 
 	typedef enum {
-		LP_Far,
-		LP_Near
+		LP_Near,
+		LP_Far
 	} line_pos_t;
+
+	////////////// Paramètre de la machine à état  /////////////////
+
+	//Toutes les positons et angle sont ceux correspondant au coté rouge
 
 	typedef struct {
 		Sint16 x;
@@ -287,23 +258,49 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
 	} plate_info_t;
 
 	static const Uint8 PLATE_NUMBER = 5;
-	static const plate_info_t PLATE_INFOS[5] = {
+	static plate_info_t PLATE_INFOS[5] = {
 	//       x      ,   y_near   ,   y_far   , far_line_check_tiny  }
-		{ 250       ,    520     ,   1000    ,      FALSE           },
-		{ 600       ,    520     ,   1000    ,      FALSE           },
-		{ 1000      ,    520     ,   1000    ,      FALSE           },
-		{ 1400      ,    520     ,   1000    ,      TRUE            },
-		{ 1750      ,    520     ,   840     ,      TRUE            }
+		{ 250       ,    540     ,   1000    ,      FALSE           },
+		{ 600       ,    540     ,   1000    ,      FALSE           },
+		{ 1000      ,    540     ,   1000    ,      FALSE           },
+		{ 1400      ,    540     ,   1000    ,      TRUE            },
+		{ 1750      ,    540     ,   840     ,      TRUE            }
 	};
+	//La pince à assiette n'est pas symétrique ni centrée sur le robot, on doit avoir un offset en X pour que la pince ne tappe pas l'assiette alors qu'elle est ouverte
+	static const Sint16 PLATE_OFFSET_X_ROBOT = -30;
+	//Décalage dans le cas de l'assiette coté bleu - gateau. Avec l'offset normal on taperait dans le buffet. L'offset est quand même celui qu'on aurait du coté rouge, pour un souci d'avoir un code partout pareil
+	static const Sint16 PLATE_OFFSET_X_ROBOT_FAR_CORNER = -12;
+	static const Sint16 ROBOT_X_POS_EPSILON = 10;	//Si on est pas à moins de 10mm = 1cm près de la bonne position, on bouge le robot
+
 	static const Uint8 MAX_UNREACHABLE_PATH = 3;
 	static const Uint16 MAX_WAIT_LOCK_CAKE_ZONE = 5000;	//Temps d'attente max pour pouvoir passer dans la zone critique en dessous du gateau
 
-	static bool_e has_locked_tinyzone;
-	static line_pos_t current_line;
-	static Uint8 current_plate;
+	//Initialisation des positions en X des assiettes, on doit ajouter un offset.
+	static bool_e plate_infos_initialized = FALSE;
+	if(plate_infos_initialized == FALSE) {
+		plate_infos_initialized = TRUE;
+		Uint8 i;
+		for(i = 0; i < PLATE_NUMBER; i++) {
+			if(global.env.color == BLUE && i == PLATE_NUMBER - 1)
+				PLATE_INFOS[i].x -= PLATE_OFFSET_X_ROBOT_FAR_CORNER;
+			else if(global.env.color == BLUE)
+				PLATE_INFOS[i].x -= PLATE_OFFSET_X_ROBOT;
+			else
+				PLATE_INFOS[i].x += PLATE_OFFSET_X_ROBOT;
+		}
+	}
 
+	/////////////////////////////////////////////////////////////
+
+	static line_pos_t current_line;			//Position en Y
+	static Uint8 current_plate;				//Position en X
+	static line_pos_t dest_line;			//Destination en Y
+	static Uint8 dest_plate;				//Destination en X
+	static bool_e error_on_dest_line;		//A-t-on eu une erreur quand on a voulu aller à dest_line ?
+	static bool_e error_on_dest_plate;		//A-t-on eu une erreur quand on a voulu aller à dest_plate ?
+	static bool_e has_locked_tinyzone;		//TRUE si on a verrouillé la zone de Tiny sous le gateau
+	static enum state_e state_after_zonelock;	//Etat à faire après avoir lock la zone critique
 	static Uint8 unreachable_path_count;	//Nombre de chemin don on a pas pu empreinter. Remis à zero quand on change de position en X (current_plate), incrémenté quand on fail (peut importe le mouvement)
-	static Uint8 last_plate_pos;			//Contient la position précédente (current_plate)
 
 	//Si l'état à changé, on rentre dans un nouvel état
 	bool_e entrance = last_state_for_check_entrance != state;
@@ -319,7 +316,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
 		if(state_str_initialized == FALSE) {
 			STATE_STR_DECLARE(state_str, MP_INIT);
 			STATE_STR_DECLARE(state_str, MP_SWITCH_LINE);
-			STATE_STR_DECLARE(state_str, MP_GO_TO_CURRENT_POS);
+			STATE_STR_DECLARE(state_str, MP_SWITCH_PLATE);
 			STATE_STR_DECLARE(state_str, MP_WHERE_TO_GO_NEXT);
 			STATE_STR_DECLARE(state_str, MP_CHECK_TINY_ZONE);
 			STATE_STR_DECLARE(state_str, MP_FAILED);
@@ -350,14 +347,18 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
 					current_plate = i;
 				}
 			}
-			last_plate_pos = current_plate;
 
 			//On regarde la ligne la plus proche (en Y)
 			if(abs(global.env.pos.y - COLOR_Y(PLATE_INFOS[current_plate].y_far)) > abs(global.env.pos.y - COLOR_Y(PLATE_INFOS[current_plate].y_near)))
 				current_line = LP_Near;
 			else current_line = LP_Far;
 
+			dest_line = current_line;
+			dest_plate = current_plate;
+			error_on_dest_line = FALSE;
+			error_on_dest_plate = FALSE;
 			has_locked_tinyzone = FALSE;
+			state_after_zonelock = MP_SWITCH_PLATE;
 			unreachable_path_count = 0;
 
 			STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: init: line %d, plate %d, goal_plate %d\n", current_line, current_plate, plate_goal_idx);
@@ -368,76 +369,154 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
 
 		//Choisi ou aller pour atteindre la position voulue
 		case MP_WHERE_TO_GO_NEXT:
-			if(current_plate == plate_goal_idx) {
+			if(current_plate == plate_goal_idx && current_line == LP_Near) {
+				state = MP_DONE;	//On est arrivé
+			} else if(error_on_dest_plate && error_on_dest_line) {
+				//On a eu des erreurs dans les 2 sens => on ne peut pas se rapporcher de l'assiette cible !
+				//On bouge de manière aléatoire ...
+				bool_e do_plate_move = (global.env.match_time & 1) == 0; //On considère que l'unité du temps de match est assez rapide (ms) pour être "aléatoire"
+
+				if(do_plate_move && dest_plate < current_plate && current_plate + 1 < PLATE_NUMBER) { //On vérifie les bord en même temps ...
+					dest_plate = current_plate + 1;
+					state = MP_SWITCH_PLATE;
+				} else if(do_plate_move && dest_plate >= current_plate && current_plate > 0) {
+					dest_plate = current_plate - 1;
+					state = MP_SWITCH_PLATE;
+				} else {
+					//On retente le déplacement sur l'autre ligne
+					if(current_line == LP_Near)
+						dest_line = LP_Far;
+					else dest_line = LP_Near;
+					state = MP_SWITCH_LINE;
+				}
+			} else if(error_on_dest_plate && !error_on_dest_line) {
+				//On a pas pu se déplacer devant l'assiette suivante, on change de ligne
+				if(current_line == LP_Near)
+					dest_line = LP_Far;
+				else dest_line = LP_Near;
+				state = MP_SWITCH_LINE;
+			} else if(!error_on_dest_plate && error_on_dest_line) {
+				//On a pas pu changer de ligne, mais on a pas tenté de changer de d'assiette
+				//On choisi aléatoirement un déplacement
+				bool_e move_decrement_plate = (global.env.match_time & 1) == 0; //On considère que l'unité du temps de match est assez rapide (ms) pour être "aléatoire"
+
+				//On vérifie les bord
+				if(current_plate == 0 && move_decrement_plate == TRUE)
+					move_decrement_plate = FALSE;
+				else if(current_plate + 1 < PLATE_NUMBER && move_decrement_plate == FALSE)
+					move_decrement_plate = TRUE;
+
+				if(move_decrement_plate == FALSE) {
+					dest_plate = current_plate + 1;
+					state = MP_SWITCH_PLATE;
+				} else {
+					dest_plate = current_plate - 1;
+					state = MP_SWITCH_PLATE;
+				}
+			} else if(current_line != dest_line) {	//On vérifie si on a des déplacements restant à faire (après des erreurs)
+				state = MP_SWITCH_LINE;
+			} else if(current_plate != dest_plate) {
+				state = MP_SWITCH_PLATE;
+			} else if(current_plate == plate_goal_idx) {
 				//On est devant la bonne assiette et proche => on a fini les mouvements
-				if(current_line == LP_Near) {
+				if(current_line == LP_Near && abs(global.env.pos.x - PLATE_INFOS[current_plate].x) < ROBOT_X_POS_EPSILON) {
 					state = MP_DONE;
 				} else {	//Sinon on se rapproche
-					current_line = LP_Near;
-					state = MP_GO_TO_CURRENT_POS;
+					dest_line = LP_Near;
+					state = MP_SWITCH_LINE;
 				}
 			} else {
-				last_plate_pos = current_plate;
 				//On a pas à la bonne position en X => on s'approche
 				if(current_plate > plate_goal_idx)
-					current_plate--;
-				else current_plate++;
-
-				//S'il faut vérifier que la zone est dispo, on le fait
-				if(current_line == LP_Far && PLATE_INFOS[current_plate].far_line_check_tiny)
-					state = MP_CHECK_TINY_ZONE;
-				else state = MP_GO_TO_CURRENT_POS;
+					dest_plate = current_plate - 1;
+				else dest_plate = current_plate + 1;
+				state = MP_SWITCH_PLATE;
 			}
+
+			//S'il faut vérifier que la zone est dispo, on le fait
+			state_after_zonelock = state;
+			if(!has_locked_tinyzone && state == MP_SWITCH_PLATE && current_line == LP_Far && PLATE_INFOS[dest_plate].far_line_check_tiny)
+				state = MP_CHECK_TINY_ZONE;
+			else if(!has_locked_tinyzone && state == MP_SWITCH_LINE && dest_line == LP_Far && PLATE_INFOS[current_plate].far_line_check_tiny)
+				state = MP_CHECK_TINY_ZONE;
 			break;
 
 		//Change de ligne en restant sur la même position en X
 		case MP_SWITCH_LINE:
 			if(entrance) {
 				AVOIDANCE_set_timeout(1000);
-				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: switch to line %d\n", current_line);
+				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", dest_line, current_plate);
 			}
 
-			if(current_line == LP_Far)
+			//FIXME: debug
+			if(current_plate == 3 && dest_line == LP_Near) {
+				state = MP_FAILED;
+				break;
+			}
+
+			if(dest_line == LP_Far)
 				state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(PLATE_INFOS[current_plate].y_far)}, FAST}}, 1,
-						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BREAK, MP_SWITCH_LINE, MP_GO_TO_CURRENT_POS, MP_FAILED);
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_SWITCH_LINE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
 			else
 				state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(PLATE_INFOS[current_plate].y_near)}, FAST}}, 1,
-						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BREAK, MP_SWITCH_LINE, MP_GO_TO_CURRENT_POS, MP_FAILED);
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_SWITCH_LINE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
 
 			//Si on a fini le déplacement et qu'on est sorti de la zone mutex, on libère la zone
-			if(state == MP_GO_TO_CURRENT_POS && has_locked_tinyzone && (current_line == LP_Near || !PLATE_INFOS[current_plate].far_line_check_tiny)) {
+			if(state == MP_WHERE_TO_GO_NEXT && has_locked_tinyzone && (dest_line == LP_Near || !PLATE_INFOS[current_plate].far_line_check_tiny)) {
 				ZONE_unlock(MZ_CakeNearUs);
 				has_locked_tinyzone = FALSE;
+			}
+			//On a pu changé de ligne, on clear les erreurs (peut être que maintenant on peut changer d'assiette)
+			if(state == MP_WHERE_TO_GO_NEXT) {
+				current_line = dest_line;
+				error_on_dest_line = FALSE;
+				error_on_dest_plate = FALSE;
 			}
 			break;
 
 		//Va à la position indiqué par current_plate et current_line
-		case MP_GO_TO_CURRENT_POS:
+		case MP_SWITCH_PLATE:
 			if(entrance) {
 				AVOIDANCE_set_timeout(1000);
-				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", current_line, current_plate);
+				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", current_line, dest_plate);
+			}
+
+			//FIXME: debug
+			if(dest_plate == 3 && current_line == LP_Near) {
+				state = MP_FAILED;
+				break;
 			}
 
 			if(current_line == LP_Far)
-				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[current_plate].x, COLOR_Y(PLATE_INFOS[current_plate].y_far)}, FAST}}, 1,
-						ANY_WAY, NO_DODGE_AND_WAIT, (current_plate == plate_goal_idx)? END_AT_LAST_POINT : END_AT_BREAK, MP_GO_TO_CURRENT_POS, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[dest_plate].x, COLOR_Y(PLATE_INFOS[dest_plate].y_far}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_SWITCH_PLATE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
 			else
-				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[current_plate].x, COLOR_Y(PLATE_INFOS[current_plate].y_near)}, FAST}}, 1,
-						ANY_WAY, NO_DODGE_AND_WAIT, (current_plate == plate_goal_idx)? END_AT_LAST_POINT : END_AT_BREAK, MP_GO_TO_CURRENT_POS, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[dest_plate].x, COLOR_Y(PLATE_INFOS[dest_plate].y_near}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_SWITCH_PLATE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
 
 			//Si on a fini le déplacement et qu'on est sorti de la zone mutex, on libère la zone
-			if(state == MP_GO_TO_CURRENT_POS && has_locked_tinyzone && (current_line == LP_Near || !PLATE_INFOS[current_plate].far_line_check_tiny)) {
+			if(state == MP_WHERE_TO_GO_NEXT && has_locked_tinyzone && (current_line == LP_Near || !PLATE_INFOS[dest_plate].far_line_check_tiny)) {
 				ZONE_unlock(MZ_CakeNearUs);
 				has_locked_tinyzone = FALSE;
+			}
+			//On a pu changé d'assiette, on clear les erreurs (peut être que maintenant on peut changer de ligne)
+			if(state == MP_WHERE_TO_GO_NEXT) {
+				current_plate = dest_plate;
+				error_on_dest_line = FALSE;
+				error_on_dest_plate = FALSE;
 			}
 			break;
 
 		//Vérifie si la zone sous le gateau est dispo, la ou Tiny passe pour faire les bougies
 		case MP_CHECK_TINY_ZONE:
-			state = try_lock_zone(MZ_CakeNearUs, MAX_WAIT_LOCK_CAKE_ZONE, MP_CHECK_TINY_ZONE, MP_GO_TO_CURRENT_POS, MP_FAILED, MP_FAILED);
+			//FIXME: debug
+			//state = try_lock_zone(MZ_CakeNearUs, MAX_WAIT_LOCK_CAKE_ZONE, MP_CHECK_TINY_ZONE, state_after_zonelock, MP_FAILED, MP_FAILED);
+
+			//FIXME: debug
+			state = state_after_zonelock;
 
 			//On a réussi à verrouiller la zone pour nous, on devra libérer la zone après !
-			if(state == MP_GO_TO_CURRENT_POS)
+			if(state == state_after_zonelock)
 				has_locked_tinyzone = TRUE;
 			break;
 
@@ -446,35 +525,38 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
 			state = MP_INIT;
 			switch(last_state) {
 				//On a pas pu aller au point suivant ...
-				//On tente de passer par autre part
+				//On informe l'erreur et on continu la réflexion (MP_WHERE_TO_GO_NEXT)
 				case MP_SWITCH_LINE:
-				case MP_GO_TO_CURRENT_POS:
 					unreachable_path_count++;
 					if(unreachable_path_count < MAX_UNREACHABLE_PATH) {
-						//On a fail, on tente de passer par une autre ligne
-						if(current_line == LP_Far)
-							current_line = LP_Near;
-						else current_line = LP_Far;
-						if(current_line == LP_Far && PLATE_INFOS[current_plate].far_line_check_tiny)
-							state = MP_CHECK_TINY_ZONE;
-						else state = MP_SWITCH_LINE;
+						error_on_dest_line = TRUE;
+						state = MP_WHERE_TO_GO_NEXT;
 					} else {
 						//Impossible d'aller devant l'assiette demandée
 						return_value = NOT_HANDLED;
 					}
 					break;
 
-				//On ne peut pas aller dans la zone de Tiny
+				case MP_SWITCH_PLATE:
+					unreachable_path_count++;
+					if(unreachable_path_count < MAX_UNREACHABLE_PATH) {
+						error_on_dest_plate = TRUE;
+						state = MP_WHERE_TO_GO_NEXT;
+					} else {
+						//Impossible d'aller devant l'assiette demandée
+						return_value = NOT_HANDLED;
+					}
+					break;
+
+				//On ne peut pas aller dans la zone de Tiny, on traite le cas comme un evitement (mais de Tiny)
 				case MP_CHECK_TINY_ZONE:
 					unreachable_path_count++;
 					if(unreachable_path_count < MAX_UNREACHABLE_PATH) {
-						//On tente de passer par une autre ligne
-						if(current_line == LP_Far) {
-							current_line = LP_Near;
-							state = MP_SWITCH_LINE;
-						} else {
-							state = MP_GO_TO_CURRENT_POS;
-						}
+						if(state_after_zonelock == MP_SWITCH_LINE)
+							error_on_dest_line++;
+						else if(state_after_zonelock == MP_SWITCH_PLATE)
+							error_on_dest_plate++;
+						state = MP_WHERE_TO_GO_NEXT;
 					} else {
 						//Impossible d'aller devant l'assiette demandée
 						return_value = NOT_HANDLED;
@@ -519,6 +601,7 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 	enum state_e {
 		GP_INIT,			//Initialise la machine à état
 		GP_ADJUST_ANGLE,	//Ajuste l'angle, on doit être bien droit avant de prendre l'assiette
+		GP_ADJUST_POS,		//Ajuste la position du robot, on doit être à Y >= 520
 		GP_PREPARE_PLIER,	//Descend la pince a la hauteur de l'assiette
 		GP_CATCH_PLATE,		//Avance et serre l'assiette 2 fois pour être sur de bien la prendre
 		GP_TAKING_CHERRIES,	//Leve l'assiette et prend les cerises
@@ -544,8 +627,8 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 	//Distance parcourue pendant ce temps: 20mm
 	//On ferme l'ax12 sur une distance de 20mm pour fermer pendant le mouvement, entre y = 500 et y = 520 sachant qu'on fait 5mm sans avoir l'assiette au bout
 
-	static const Sint16 Y_POS_AX12_CLOSING   = 520;   //Début du serrage de l'assiette
-	static const Sint16 Y_POS_CATCHING_PLATE = 520;   //Début de la vitesse lente
+	static const Sint16 Y_POS_AX12_CLOSING   = 540;   //Début du serrage de l'assiette
+	static const Sint16 Y_POS_CATCHING_PLATE = 535;   //Début de la vitesse lente
 	static const Sint16 Y_POS_CATCHED_PLATE  = 500;   //Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises
 	static const Uint8 CATCHING_PLATE_SPEED = 8 + 8; //vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
@@ -574,6 +657,7 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 		if(state_str_initialized == FALSE) {
 			STATE_STR_DECLARE(state_str, GP_INIT);
 			STATE_STR_DECLARE(state_str, GP_ADJUST_ANGLE);
+			STATE_STR_DECLARE(state_str, GP_ADJUST_POS);
 			STATE_STR_DECLARE(state_str, GP_PREPARE_PLIER);
 			STATE_STR_DECLARE(state_str, GP_CATCH_PLATE);
 			STATE_STR_DECLARE(state_str, GP_TAKING_CHERRIES);
@@ -602,8 +686,22 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 
 		//Ajuste l'angle, on doit être bien droit avant de prendre l'assiette
 		case GP_ADJUST_ANGLE:
-			state = try_go_angle(COLOR_ANGLE(PI4096/2), GP_ADJUST_ANGLE, GP_PREPARE_PLIER, GP_FAILED, FAST);
+			state = try_go_angle(COLOR_ANGLE(PI4096/2), GP_ADJUST_ANGLE, GP_ADJUST_POS, GP_FAILED, FAST);
 			break;
+
+		//Ajuste la position du robot, on doit être à Y >= Y_POS_CATCHING_PLATE
+		case GP_ADJUST_POS: {
+			static bool_e must_adjust_pos = FALSE;
+			if(entrance) {
+				if(COLOR_Y(global.env.pos.y) < Y_POS_CATCHING_PLATE)
+					must_adjust_pos = TRUE;
+				else must_adjust_pos = FALSE;
+			}
+			if(must_adjust_pos)
+				state = try_going(global.env.pos.x, COLOR_Y(Y_POS_CATCHING_PLATE+20), GP_ADJUST_POS, GP_ADJUST_ANGLE, GP_ADJUST_ANGLE, ANY_WAY, NO_AVOIDANCE);
+			else state = GP_PREPARE_PLIER;
+			break;
+		}
 
 		//Descend la pince a la hauteur de l'assiette
 		case GP_PREPARE_PLIER:
@@ -629,7 +727,7 @@ error_e K_STRAT_micro_grab_plate(bool_e keep_plate, Sint16 initial_x_position, S
 			state = try_going_multipoint((displacement_t[]){
 				{{initial_x_position, COLOR_Y(Y_POS_CATCHING_PLATE)}, FAST},					//On avance rapidement sur l'assiette
 				{{initial_x_position, COLOR_Y(Y_POS_CATCHED_PLATE)} , CATCHING_PLATE_SPEED}},	//Puis on la pousse (en la serrant) doucement
-				2, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT,
+				2, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT,		//ANY_WAY si jamais le premier point est derrière nous ...
 				GP_CATCH_PLATE, GP_TAKING_CHERRIES, GP_FAILED);
 
 			//Gestion du serrage en parallèle quand on atteint la position Y_POS_AX12_CLOSING ou quand on change d'état sans que le warner n'ait été déclenché
