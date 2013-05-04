@@ -488,10 +488,10 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal_idx) {
 			}
 
 			if(current_line == LP_Far)
-				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[dest_plate].x, COLOR_Y(PLATE_INFOS[dest_plate].y_far}, FAST}}, 1,
+				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[dest_plate].x, COLOR_Y(PLATE_INFOS[dest_plate].y_far)}, FAST}}, 1,
 						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_SWITCH_PLATE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
 			else
-				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[dest_plate].x, COLOR_Y(PLATE_INFOS[dest_plate].y_near}, FAST}}, 1,
+				state = try_going_multipoint((displacement_t[]){{{PLATE_INFOS[dest_plate].x, COLOR_Y(PLATE_INFOS[dest_plate].y_near)}, FAST}}, 1,
 						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_SWITCH_PLATE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
 
 			//Si on a fini le déplacement et qu'on est sorti de la zone mutex, on libère la zone
