@@ -19,7 +19,7 @@
 	#define OUTPUT_LOG  //utilisé dans act_function et queue
 	#define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 //	#define OUTPUT_LOG_PRINT_ALL_COMPONENTS  //Si défini, affiche les messages de tous les composants (OUTPUT_LOG_COMPONENT_* ne sont pas pris en compte, les niveau de débuggage le sont par contre)
-	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION         LOG_PRINT_Off  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
+	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION         LOG_PRINT_On  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
 	#define OUTPUT_LOG_COMPONENT_QUEUE               LOG_PRINT_Off
 	#define OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES LOG_PRINT_On   //Changement d'état de la strat
 
