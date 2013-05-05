@@ -119,8 +119,6 @@ error_e two_first_rows(void){
 			break;
 		case DONE:
 			break;
-		default:
-			break;
 	}
 
  // MAE de l'ascenseur principale
@@ -166,8 +164,6 @@ error_e two_first_rows(void){
 			break;
 		case ACT_DONE:
 			break;
-		default:
-			break;
 	}
 
  // MAE du second ascenseur
@@ -212,8 +208,6 @@ error_e two_first_rows(void){
 			break;
 		case ACT_DONE:
 			ret = END_OK;
-			break;
-		default:
 			break;
 	}
 
@@ -306,8 +300,6 @@ Uint8 lift_process(Uint8 progress, Uint8 fail, Uint8 success){
 			break;
 		}
 
-		default:
-			break;
 	}
 		
 
@@ -365,8 +357,6 @@ error_e try_last_row(void){
 			ret = END_OK;
 			break;
 
-		default:
-			break;
 	}
 
 	return ret;
@@ -462,10 +452,11 @@ error_e K_Sortie(void){
         case NOT_HANDLED:
               return NOT_HANDLED;
               break;
+        case FOE_IN_PATH:
+              return FOE_IN_PATH;
+              break;
         case IN_PROGRESS:
             return IN_PROGRESS;
-              break;
-        default:
               break;
 
     }
@@ -601,10 +592,9 @@ error_e K_push_half_row_glasses(void){
 				case END_WITH_TIMEOUT:
 					lift_left = ACT_DONE;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					lift_left = WAIT_EVENT;
-					break;
-				default:
 					break;
 			}
 
@@ -887,8 +877,6 @@ error_e K_push_back_row_glasses(void){
 			return END_OK;
 			break;
 
-		default:
-			break;
 	}
 
 
@@ -954,8 +942,6 @@ error_e K_push_back_row_glasses(void){
 		case ACT_DONE:
 			break;
 
-		default:
-			break;
 	}
 
 
@@ -1019,8 +1005,6 @@ error_e K_push_back_row_glasses(void){
 		case ACT_DONE:
 			break;
 
-		default:
-			break;
 	}
 
 	return IN_PROGRESS;
@@ -1086,6 +1070,7 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                     state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=POS_MOVE1;
                     return NOT_HANDLED;
@@ -1094,8 +1079,6 @@ error_e TEST_STRAT_assiettes_evitement_2(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1413,6 +1396,7 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                     state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=POS_MOVE1;
                     return NOT_HANDLED;
@@ -1421,8 +1405,6 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
             case POS_MOVE2:
@@ -1439,6 +1421,7 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                     state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=POS_MOVE1;
                     return NOT_HANDLED;
@@ -1447,8 +1430,6 @@ error_e TEST_STRAT_assiettes_evitement_4(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1648,6 +1629,7 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                     state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=POS_MOVE1;
                     return NOT_HANDLED;
@@ -1656,8 +1638,6 @@ error_e TEST_STRAT_assiettes_evitement_5(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -2388,8 +2368,6 @@ error_e TEST_Launcher_ball_gateau(void){
                     state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
-                default:
-                    break;
             }
             break;
 
@@ -2824,8 +2802,6 @@ error_e TEST_Launcher_ball_gateau_double(void){
                 case ACT_FUNCTION_RetryLater:
                     state=DONE;
                     return END_WITH_TIMEOUT;
-                    break;
-                default:
                     break;
             }
             break;
@@ -4193,10 +4169,9 @@ error_e K_push_half_row_glasses_HOMOLO(void){
 				case END_WITH_TIMEOUT:
 					lift_left = ACT_DONE;
 					break;
+				case FOE_IN_PATH:
 				case NOT_HANDLED:
 					lift_left = WAIT_EVENT;
-					break;
-				default:
 					break;
 			}
 
@@ -4479,8 +4454,6 @@ error_e K_push_back_row_glasses_HOMOLO(void){
 			return END_OK;
 			break;
 
-		default:
-			break;
 	}
 
 
@@ -4546,8 +4519,6 @@ error_e K_push_back_row_glasses_HOMOLO(void){
 		case ACT_DONE:
 			break;
 
-		default:
-			break;
 	}
 
 
@@ -4611,8 +4582,6 @@ error_e K_push_back_row_glasses_HOMOLO(void){
 		case ACT_DONE:
 			break;
 
-		default:
-			break;
 	}
 
 	return IN_PROGRESS;
@@ -4802,8 +4771,6 @@ error_e TEST_Launcher_ball_cadeau(void){
                 case ACT_FUNCTION_RetryLater:
                     state=DONE;
                     return END_WITH_TIMEOUT;
-                    break;
-                default:
                     break;
             }
             break;
@@ -5003,8 +4970,6 @@ error_e TEST_Launcher_ball_gateau2(void){
                     state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
-                default:
-                    break;
             }
             break;
 
@@ -5091,6 +5056,7 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                     state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     ACT_plate_rotate(ACT_PLATE_RotateDown);
                     state=GRABBER_DOWN;
@@ -5100,8 +5066,6 @@ error_e TEST_STRAT_assiettes_evitement_1(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -5495,6 +5459,7 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
                     state=DONE;
                     return END_WITH_TIMEOUT;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=POS_MOVE1;
                     return NOT_HANDLED;
@@ -5503,8 +5468,6 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
