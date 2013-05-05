@@ -52,7 +52,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 			if(COLOR_Y(global.env.pos.y) > 1000)
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(2300)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(((SWITCH_STRAT_2)?1050:2300))},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
             {
 				case END_OK:
@@ -70,7 +70,10 @@ error_e TINY_open_all_gifts_without_pause(void)
             }
 		break;
 		case HAMMER_HOME:
-			global.env.map_elements[GOAL_Cadeau3] = ELEMENT_DONE;	//C'est bon pour le 4ème cadeau !
+			if(SWITCH_STRAT_2)
+				global.env.map_elements[GOAL_Cadeau1] = ELEMENT_DONE;	//C'est bon pour le 2ème cadeau !
+			else
+				global.env.map_elements[GOAL_Cadeau3] = ELEMENT_DONE;	//C'est bon pour le 4ème cadeau !
 			ACT_hammer_goto(HAMMER_POSITION_HOME);		//BAISSER BRAS
 			state = DONE;
 		break;
@@ -264,7 +267,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(2600));
+				//ASSER_WARNER_arm_y(COLOR_Y(2600));
 				state = OPENING_FOURTH_GIFT;
 			}
 		break;
