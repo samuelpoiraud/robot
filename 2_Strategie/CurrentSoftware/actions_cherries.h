@@ -34,9 +34,9 @@ typedef enum {
 
 error_e K_STRAT_sub_cherries_alexis();
 error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool_e immediate_fail);
-error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, bool_e keep_plate, bool_e auto_pull, Sint16 plate_x_position, Sint16 plate_y_position);
+error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_axis_e drop_plate_axis, bool_e keep_plate, bool_e auto_pull, Sint16 plate_x_position, Sint16 plate_y_position);
 error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position, Uint8 expected_cherry_number, bool_e smooth_shake);
-error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop);
+error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop, Sint16 angle);
 
 #endif	/* ACTIONS_CHERRIES_H */
 
