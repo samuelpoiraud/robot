@@ -96,14 +96,14 @@ error_e K_STRAT_sub_glasses_alexis() {
 		{{250 , COLOR_Y(140 )}, FAST},	// 11
 
 		//Case Krusty
-		{{1000, COLOR_Y(400 )}, FAST},	// 12
-		{{1000, COLOR_Y(140 )}, FAST},	// 13
+		{{930, COLOR_Y(400 )}, FAST},	// 12
+		{{930, COLOR_Y(140 )}, FAST},	// 13
 
 		//Autres choix: en mode safe pour y  aller (on s'écarte un peut si yavais un ennemi qui nous bloquait)
 		//Case Krusty
 		{{960 , COLOR_Y(800 )}, FAST},	// 14
-		{{1000, COLOR_Y(400 )}, FAST},	// 15
-		{{1000, COLOR_Y(140 )}, FAST},	// 16
+		{{930 , COLOR_Y(400 )}, FAST},	// 15
+		{{930 , COLOR_Y(140 )}, FAST},	// 16
 
 		//Case Tiny
 		{{315 , COLOR_Y(800 )}, FAST},	// 17
