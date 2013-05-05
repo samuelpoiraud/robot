@@ -24,6 +24,7 @@ error_e Assiete_2_4_lanceur(void);
 error_e Assiete_5_lanceur(void);
 
 void K_test_strat_unitaire(void);
+
 void TEST_STRAT_ALEXIS();
 
 void TEST_STRAT_K_homologation(void);
@@ -51,10 +52,6 @@ error_e Assiete3_lanceur(void);
 error_e Assiete4_lanceur(void);
 error_e Assiete5_lanceur(void);
 error_e Cadeau(void);
-
-#include "Asser_functions.h"
-#include "act_functions.h"
-#include "actions_tests_krusty_micro.h"
 
 void TEST_STRAT_K_homologation(void);
 void TEST_STRAT_avoidance(void);//

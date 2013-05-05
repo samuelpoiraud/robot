@@ -106,25 +106,23 @@ void any_match(time32_t match_duration)
 				break;
 			}			
 		}
-		else
+		else	//Krusty
 		{
 			calibration_way = BACKWARD;	//Krusty se cale TOUJOURS en backward (pas de callage contre l'ascenseur à verres)
+			calibration = ASSER_CALIBRATION_SQUARE_2; //Et toujours à l'assiette 2 (sachant que Tiny est sur la 0)
 			
 			switch(strat_number())
 			{
 				case 0x01:	//STRAT_1_KRUSTY
-					calibration = ASSER_CALIBRATION_SQUARE_2;
 					//strategy = TEST_STRAT_avoidance;
 					strategy = &TEST_STRAT_ALEXIS;
 				break;
 
 				case 0x02:	//STRAT_2_KRUSTY
-					calibration = ASSER_CALIBRATION_SQUARE_2;
 					strategy = K_Strat_Coupe;
 				break;
 
 				case 0x03:	//STRAT_3_KRUSTY
-					calibration = ASSER_CALIBRATION_SQUARE_2;
 					strategy = K_test_strat_unitaire;
 				break;
 
@@ -132,7 +130,6 @@ void any_match(time32_t match_duration)
 				//no break;
 
 				default:
-					calibration = ASSER_CALIBRATION_SQUARE_2;
 					strategy = TEST_STRAT_K_homologation;
 				break;
 			}
