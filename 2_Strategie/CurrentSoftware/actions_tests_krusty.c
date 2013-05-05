@@ -89,12 +89,11 @@ void K_Strat_Coupe(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_2;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_2;
                     break;
                 case IN_PROGRESS:
-                    break;
-                default:
                     break;
             }
             break;
@@ -109,12 +108,11 @@ void K_Strat_Coupe(void){
                 case END_WITH_TIMEOUT:
                     state=VERRE_2;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=VERRE_2;
                     break;
                 case IN_PROGRESS:
-                    break;
-                default:
                     break;
             }
             break;
@@ -129,12 +127,11 @@ void K_Strat_Coupe(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_2;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_2;
                     break;
                 case IN_PROGRESS:
-                    break;
-                default:
                     break;
             }
             break;
@@ -149,12 +146,11 @@ void K_Strat_Coupe(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_4;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_4;
                     break;
                 case IN_PROGRESS:
-                    break;
-                default:
                     break;
             }
             break;
@@ -169,12 +165,11 @@ void K_Strat_Coupe(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_4;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_4;
                     break;
                 case IN_PROGRESS:
-                    break;
-                default:
                     break;
             }
             break;
@@ -189,11 +184,11 @@ void K_Strat_Coupe(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_5;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=ASSIETTE_5;
                     break;
                 case IN_PROGRESS:
-                    break;
-                default:
                     break;
             }
             break;
@@ -208,18 +203,16 @@ void K_Strat_Coupe(void){
                 case END_WITH_TIMEOUT:
                     state=DONE;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=DONE;
                     break;
                 case IN_PROGRESS:
-                    break;
-                default:
                     break;
             }
             break;
 
         case DONE :
-            break;
-        default :
             break;
     }
 
@@ -589,8 +582,6 @@ error_e drink(void){
 			if(sub_action != IN_PROGRESS)
 				ret = END_OK;
 			break;
-		default:
-			break;
 	}
 	return ret;
 }
@@ -700,6 +691,10 @@ void K_TEST_STRAT_avoidance(void){
 				case END_WITH_TIMEOUT:
 					state = DONE;
 					break;
+				case FOE_IN_PATH:
+					state = DONE;
+					break;
+
 				default:
 					state = DONE;
 					break;
@@ -720,14 +715,15 @@ void K_TEST_STRAT_avoidance(void){
 				case END_WITH_TIMEOUT:
 					state = DONE;
 					break;
+				case FOE_IN_PATH:
+					state = DONE;
+					break;
 				default:
 					state = DONE;
 					break;
 			}
 			break;
 		case DONE:
-			break;
-		default:
 			break;
 			
 	}
@@ -1091,8 +1087,6 @@ void TEST_Launcher_ball(void){
             break;
         case DONE:
             break;
-        default:
-            break;
 
     }
 }
@@ -1205,14 +1199,14 @@ void TEST_STRAT_assiettes_evitement(void){
                 case END_WITH_TIMEOUT:
                     state=POS_MOVE2;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=POS_MOVE2;
                     break;
 
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
          case POS_MOVE2:
@@ -1227,14 +1221,14 @@ void TEST_STRAT_assiettes_evitement(void){
                 case END_WITH_TIMEOUT:
                     state=POS_MOVE3;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=POS_MOVE3;
                     break;
 
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
         case POS_MOVE3:
@@ -1249,14 +1243,14 @@ void TEST_STRAT_assiettes_evitement(void){
                 case END_WITH_TIMEOUT:
                     state=GRABBER_DOWN;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=GRABBER_DOWN;
                     break;
 
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1284,8 +1278,6 @@ void TEST_STRAT_assiettes_evitement(void){
                 case ACT_FUNCTION_RetryLater:
                      //state = GRABBER_TIDY_2;
 
-                    break;
-                default:
                     break;
             }
             break;
@@ -1317,8 +1309,6 @@ void TEST_STRAT_assiettes_evitement(void){
                      state = PUSH;
 
                     break;
-                default:
-                    break;
             }
             break;
 
@@ -1334,14 +1324,14 @@ void TEST_STRAT_assiettes_evitement(void){
                 case END_WITH_TIMEOUT:
                     state=GRABBER_CRUSH;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=GRABBER_CRUSH;
                     break;
 
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1368,8 +1358,6 @@ void TEST_STRAT_assiettes_evitement(void){
                 case ACT_FUNCTION_RetryLater:
                      state = GRABBER_UP;
 
-                    break;
-                default:
                     break;
             }
             break;
@@ -1399,8 +1387,6 @@ void TEST_STRAT_assiettes_evitement(void){
                      //state = GRABBER_TIDY_2;
 
                     break;
-                default:
-                    break;
             }
             break;
         case BACK:
@@ -1415,19 +1401,17 @@ void TEST_STRAT_assiettes_evitement(void){
                 case END_WITH_TIMEOUT:
                     state=DONE;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=DONE;
                     break;
 
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
         case DONE:
-            break;
-        default:
             break;
     }
 }
@@ -1454,6 +1438,7 @@ void Test_STRAT_homolo(void){
                 case END_WITH_TIMEOUT:
                     state=DONE;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=DONE;
                     break;
@@ -1461,8 +1446,6 @@ void Test_STRAT_homolo(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1477,6 +1460,7 @@ void Test_STRAT_homolo(void){
                 case END_WITH_TIMEOUT:
                     state=VERRE_RETOUR;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state = VERRE_RETOUR;
                     break;
@@ -1484,8 +1468,6 @@ void Test_STRAT_homolo(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
         case VERRE_RETOUR:
@@ -1499,6 +1481,7 @@ void Test_STRAT_homolo(void){
                 case END_WITH_TIMEOUT:
                     state= DONE;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state = DONE;
                     break;
@@ -1506,12 +1489,9 @@ void Test_STRAT_homolo(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 		case DONE:
-		default:
 			break;
     }
 }
@@ -1545,6 +1525,7 @@ void Test_STRAT_COUPE(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_CADEAU_BLANC;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=ASSIETTE_CADEAU_BLANC;
                     break;
@@ -1552,8 +1533,6 @@ void Test_STRAT_COUPE(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1615,6 +1594,7 @@ void Test_STRAT_COUPE(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
@@ -1622,8 +1602,6 @@ void Test_STRAT_COUPE(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1638,6 +1616,7 @@ void Test_STRAT_COUPE(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
@@ -1645,8 +1624,6 @@ void Test_STRAT_COUPE(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1661,6 +1638,7 @@ void Test_STRAT_COUPE(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
@@ -1668,8 +1646,6 @@ void Test_STRAT_COUPE(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1684,6 +1660,7 @@ void Test_STRAT_COUPE(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_GATEAU_BLEUE;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=ASSIETTE_GATEAU_BLEUE;
                     break;
@@ -1691,8 +1668,6 @@ void Test_STRAT_COUPE(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1707,6 +1682,7 @@ void Test_STRAT_COUPE(void){
                 case END_WITH_TIMEOUT:
                     state=VERRE_ALLER;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=VERRE_ALLER;
                     break;
@@ -1714,8 +1690,6 @@ void Test_STRAT_COUPE(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1730,14 +1704,14 @@ void Test_STRAT_COUPE(void){
                 case END_WITH_TIMEOUT:
                     state=CADEAU;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=CADEAU;
                     break;
 
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
         case MOVE_FINAL :
@@ -1751,6 +1725,7 @@ void Test_STRAT_COUPE(void){
                 case END_WITH_TIMEOUT:
                     state=DONE;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=DONE;
                     break;
@@ -1758,8 +1733,6 @@ void Test_STRAT_COUPE(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
         case DONE:
@@ -1797,6 +1770,7 @@ void Test_STRAT_COUPE_2(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_CADEAU_BLANC;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=ASSIETTE_CADEAU_BLANC;
                     break;
@@ -1804,8 +1778,6 @@ void Test_STRAT_COUPE_2(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1875,6 +1847,7 @@ void Test_STRAT_COUPE_2(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
@@ -1882,8 +1855,6 @@ void Test_STRAT_COUPE_2(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1898,6 +1869,7 @@ void Test_STRAT_COUPE_2(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
@@ -1905,8 +1877,6 @@ void Test_STRAT_COUPE_2(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1921,6 +1891,7 @@ void Test_STRAT_COUPE_2(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                     state=ASSIETTE_GATEAU_BLANC;
                     break;
@@ -1928,8 +1899,6 @@ void Test_STRAT_COUPE_2(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1944,6 +1913,7 @@ void Test_STRAT_COUPE_2(void){
                 case END_WITH_TIMEOUT:
                     state=ASSIETTE_GATEAU_BLEUE;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=ASSIETTE_GATEAU_BLEUE;
                     break;
@@ -1951,8 +1921,6 @@ void Test_STRAT_COUPE_2(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1967,6 +1935,7 @@ void Test_STRAT_COUPE_2(void){
                 case END_WITH_TIMEOUT:
                     state=MOVE_FINAL;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=MOVE_FINAL;
                     break;
@@ -1974,8 +1943,6 @@ void Test_STRAT_COUPE_2(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
 
@@ -1990,14 +1957,14 @@ void Test_STRAT_COUPE_2(void){
                 case END_WITH_TIMEOUT:
                     state=CADEAU;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
+					state=CADEAU;
                     break;
 
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
         case MOVE_FINAL :
@@ -2011,6 +1978,7 @@ void Test_STRAT_COUPE_2(void){
                 case END_WITH_TIMEOUT:
                     state=DONE;
                     break;
+				case FOE_IN_PATH:
                 case NOT_HANDLED:
                      state=DONE;
                     break;
@@ -2018,8 +1986,6 @@ void Test_STRAT_COUPE_2(void){
                 case IN_PROGRESS:
                     break;
 
-                default:
-                    break;
             }
             break;
         case DONE:
