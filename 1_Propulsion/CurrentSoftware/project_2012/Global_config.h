@@ -11,7 +11,6 @@
 
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
-	#include "QS/QS_types.h"
 
 	//mode d'activation des sorties debug_printf
 	#define VERBOSE_MODE
