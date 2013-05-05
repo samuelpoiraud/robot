@@ -36,7 +36,7 @@
 		} \
 	}while(0)
 
-error_e K_STRAT_sub_glasses_alexis() {
+error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode) {
 	//Trajectoire 1
 //	displacement_t MOVE_POINTS_1[11] = {
 //		//Row 1
@@ -125,8 +125,18 @@ error_e K_STRAT_sub_glasses_alexis() {
 		{NO_DODGE_AND_NO_WAIT,    3      ,           17           }		//Go home Tiny safe
 	};
 
+	//Phases de prise de verres en homologation
+	static const displacement_block_t TRAJECTORIES_2_HOMOLOGATION[2] = {
+	//    avoidance_type     , nb_points , move_points_begin_index
+		{NO_DODGE_AND_NO_WAIT,    6      ,           0            },	//Phase 1
+		{NO_DODGE_AND_NO_WAIT,    3      ,           6            }		//Phase 2
+	};
+
 //	return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_1, TRAJECTORIES_TO_HOME_1, TRAJECTORY_NUMBER_1, TRAJECTORIES_1, MOVE_POINTS_1);
-	return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_2, TRAJECTORIES_TO_HOME_2, TRAJECTORY_NUMBER_2, TRAJECTORIES_2, MOVE_POINTS_2);
+
+	if(homologation_mode)
+		return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_2, TRAJECTORIES_TO_HOME_2, TRAJECTORY_NUMBER_2, TRAJECTORIES_2_HOMOLOGATION, MOVE_POINTS_2);
+	else return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_2, TRAJECTORIES_TO_HOME_2, TRAJECTORY_NUMBER_2, TRAJECTORIES_2, MOVE_POINTS_2);
 }
 
 //Prend tous les verres en suivant une trajectoire données. A la fin les verres sont posé (après la dernière position)
