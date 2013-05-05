@@ -239,6 +239,10 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		case SCAN_GLASSES:
 			if(entrance)
 				scan_for_glasses(TRUE);
+
+			if(SWITCH_STRAT_3 == 0)	//Désactivation du Steal.
+				state = COME_BACK_HOME;
+
 			state = try_going((from == SC)?160:1840, COLOR_Y(2480),	SCAN_GLASSES, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
 
 			if(global.env.pos.updated)
