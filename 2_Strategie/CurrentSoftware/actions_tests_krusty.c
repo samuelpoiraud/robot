@@ -43,6 +43,20 @@ void TEST_STRAT_K_homologation(void)
 		 	- sortir de la zone, marquer 1 point
 		 	- éviter correctement un adversaire (donc il faut un minimum de déplacement quand même)
 	*/
+	enum state_e {
+		DO_GLASSES,
+		DONE
+	};
+	static enum state_e state = DO_GLASSES;
+
+	switch(state) {
+		case DO_GLASSES:
+			state = check_sub_action_result(K_STRAT_sub_glasses_alexis(TRUE), DO_GLASSES, DONE, DONE);	//Dans tous les cas on fini
+			break;
+
+		case DONE:
+			break;
+	}
 }
 
 /* ----------------------------------------------------------------------------- */
@@ -485,7 +499,7 @@ void TEST_STRAT_ALEXIS() {
 	switch(state) {
 		//Faire les verres
 		case DO_GLASSES:
-			sub_action = K_STRAT_sub_glasses_alexis();
+			sub_action = K_STRAT_sub_glasses_alexis(FALSE);
 			state = check_sub_action_result(sub_action, DO_GLASSES, DO_PLATES, DO_PLATES);	//Dans tous les cas on fait la suite ...
 			break;
 
