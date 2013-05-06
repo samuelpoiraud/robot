@@ -261,11 +261,12 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			}
 			else
 				state = SCAN_GLASSES;
-
+//#define I_HAVE_TESTED_THE_FOLLOWING_PART_OF_THIS_FUNCTION
+#warning "attention code non debogue"
 			#ifndef I_HAVE_TESTED_THE_FOLLOWING_PART_OF_THIS_FUNCTION
 				#warning "ce bouchon pourra etre desactive quand le reste de la fonction sera teste correctement !!!"
 				//En l'état, on refuse d'aller plus loin... pour ne pas comprommetre une homologation par exemple !
-				state = SCAN_GLASSES;
+				state = FAIL;
 			#endif
 		break;
 		case SUBACTION_STEAL:
@@ -431,7 +432,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 		break;
 		case MB:
 			//										in_progress	success	failed
-			state = try_going(1380, COLOR_Y(1500),	MB,			BP,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1340, COLOR_Y(1500),	MB,			BP,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != MB)
 				from = MB;
 
@@ -646,7 +647,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1380, COLOR_Y(1600),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1340, COLOR_Y(1600),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 
 			if(state != MB)	//Sortie de l'état...
 				from = MB;	//On sort..alors on sauvegarde d'où on vient.
