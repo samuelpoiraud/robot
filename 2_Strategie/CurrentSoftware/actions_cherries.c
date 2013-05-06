@@ -675,9 +675,9 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 	//Offset théorique auquel on touche l'assiette tout juste: 315
 
 	static const Sint16 SAFE_INIT_POS_OFFSET  = 350;	//Si on est trop près de l'assiette, on va a cette position
-	static const Sint16 CLOSING_AX12_OFFSET   = 340;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
-	static const Sint16 CATCHING_PLATE_OFFSET = 335;	//Début de la vitesse lente, relatif au milieu de l'assiette
-	static const Sint16 CATCHED_PLATE_OFFSET  = 290;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
+	static const Sint16 CLOSING_AX12_OFFSET   = 315;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
+	static const Sint16 CATCHING_PLATE_OFFSET = 320;	//Début de la vitesse lente, relatif au milieu de l'assiette
+	static const Sint16 CATCHED_PLATE_OFFSET  = 250;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
 	static const Sint16 DROP_PLATE_OFFSET     = -60;	//Position pour lacher les assiettes (uniquement dans un axe X, pas Y)
 	static const Uint8 CATCHING_PLATE_SPEED = 8 + 8;	//vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
