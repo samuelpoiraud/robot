@@ -437,6 +437,55 @@ void ASSER_relative_goangle (stack_id_e stack_id, bool_e init)
 	}
 }
 
+/* Va a la position relative indiquée, se termine à l'arret */
+void ASSER_relative_goto (stack_id_e stack_id, bool_e init)
+{
+	CAN_msg_t order;
+
+	if (init)
+	{
+		order.sid = ASSER_GO_POSITION;
+		order.data[CONFIG]=NOW+NO_MULTIPOINT+RELATIVE;
+		order.data[XMSB]=HIGHINT(asser_args[STACKS_get_top(stack_id)].x);
+		order.data[XLSB]=LOWINT(asser_args[STACKS_get_top(stack_id)].x);
+		order.data[YMSB]=HIGHINT(asser_args[STACKS_get_top(stack_id)].y);
+		order.data[YLSB]=LOWINT(asser_args[STACKS_get_top(stack_id)].y);
+		order.data[VITESSE]=asser_args[STACKS_get_top(stack_id)].speed;
+		order.data[MARCHE]=asser_args[STACKS_get_top(stack_id)].way;
+		order.data[RAYONCRB]=asser_args[STACKS_get_top(stack_id)].curve;
+		order.size = 8;
+		CAN_send (&order);
+	}
+	else
+	{
+		if (global.env.asser.fini)
+		{
+			if (ASSER_near_destination())
+			{
+				asser_fun_printf("\nASSER_relative_goto : fini\n");
+				STACKS_pull(ASSER);
+			}
+			else
+			{
+				asser_fun_printf("\nASSER_relative_goto : far_from_destination\n");
+				CAN_send_debug("CCCCCCC");
+				#ifdef ASSER_PULL_EVEN_WHEN_FAR_FROM_DESTINATION
+				STACKS_pull(ASSER);
+				#endif /* def ASSER_PULL_EVEN_WHEN_FAR_FROM_DESTINATION */
+			}
+		}
+		else 
+		{
+			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(ASSER)) >= (GOTO_TIMEOUT_TIME)))
+			{
+				CAN_send_debug("0000000");
+				asser_fun_printf("\nASSER_timeout : GOTO\n");
+				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);
+			}
+		}
+	}
+}
+
 /* Va se caler contre le mur */
 void ASSER_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 {
@@ -631,8 +680,15 @@ void ASSER_push_goto (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 
 		STACKS_push (ASSER, &ASSER_goto_until_break, run);
 }
 
-
-
+void ASSER_push_relative_goto(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run) {
+	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
+	pos->x = x;
+	pos->y = y;
+	pos->speed = speed;
+	pos->way = way;
+	pos->curve = curve;
+	STACKS_push (ASSER, &ASSER_relative_goto, run);
+}
 
 #ifdef USE_ASSER_MULTI_POINT
 void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, ASSER_end_condition_e end_condition ,bool_e run)
