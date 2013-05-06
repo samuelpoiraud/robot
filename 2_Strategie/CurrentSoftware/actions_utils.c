@@ -11,6 +11,7 @@
 
 #include "actions_utils.h"
 #include "act_functions.h"
+#include "output_log.h"
 
 Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state) {
 	ACT_function_result_e result = ACT_get_last_action_result(act_queue_id);
@@ -82,4 +83,36 @@ bool_e all_gifts_done(void)
 		return TRUE;
 	else
 		return FALSE;
+}
+
+void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint8 new_state, Uint8 nb_params, ...) {
+	va_list l;
+	CAN_msg_t msg;
+	Uint8 i;
+
+	msg.sid = DEBUG_STRAT_STATE_CHANGED;
+	msg.data[0] = HIGHINT(state_machine_id);
+	msg.data[1] = LOWINT(state_machine_id);
+	msg.data[2] = old_state;
+	msg.data[3] = new_state;
+	va_start(l, nb_params);
+
+	if(nb_params > 4)
+		nb_params = 4;
+
+	for(i = 0; i < nb_params; i++)
+		msg.data[4 + i] = va_arg(l, Uint8);
+
+	msg.size = i + 4;
+	CAN_send(&msg);
+
+	va_end(l);
+}
+
+void UTILS_LOG_state_changed(const char* sm_name, Uint16 sm_id, const char* old_state_name, Uint8 old_state_id, const char* new_state_name, Uint8 new_state_id) {
+	UTILS_CAN_send_state_changed(sm_id, old_state_id, new_state_id, 0);
+	OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, LOG_LEVEL_Info, "state change: %s(0x04%X): %s(%d) -> %s(%d)\n",
+			sm_name, sm_id,
+			old_state_name, old_state_id,
+			new_state_name, new_state_id);
 }

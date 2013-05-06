@@ -34,6 +34,25 @@
 		} \
 	}while(0)
 
+#define STATECHANGE_log(state_define, old_state_name, old_state_id, new_state_name, new_state_id) \
+	UTILS_LOG_state_changed(#state_define, state_define, old_state_name, old_state_id, new_state_name, new_state_id)
+
+void UTILS_LOG_state_changed(const char* sm_name, Uint16 sm_id, const char* old_state_name, Uint8 old_state_id, const char* new_state_name, Uint8 new_state_id);
+void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint8 new_state, Uint8 nb_params, ...);
+
+//ID des machines à états, sur 16 bits.
+//0xRSMM: R: numéro de robot, S: numéro de strat (strat globale comme faire les cadeaux), MM: un octet pour un numéro de machine à état d'un truc précis...
+//R = 0 Pour Krusty, 1 pour Tiny, numéro suivant pour autre chose ...
+#define SM_ID_KRUSTY_STRAT_ALEXIS	0x0000
+#define SM_ID_GLASSES_DO		0x0101
+#define SM_ID_GLASSES_GRAB		0x0102
+#define SM_ID_CHERRIES_MAIN		0x0200
+#define SM_ID_CHERRIES_MOVE		0x0201
+#define SM_ID_CHERRIES_GRAB		0x0202
+#define SM_ID_CHERRIES_LAUNCH	0x0203
+#define SM_ID_CHERRIES_DROP		0x0204
+#define SM_ID_ZONE_TRY_LOCK		0x0301
+
 Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state);
 Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state);
 
@@ -51,7 +70,6 @@ Uint16 wait_hammer(Uint16 progress, Uint16 success, Uint16 fail);
 
 
 bool_e all_gifts_done(void);
-
 
 #endif	/* ACTIONS_UTILS_H */
 
