@@ -91,6 +91,9 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init);
 
 ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id) {
 	assert(act_id < NB_QUEUE);
+#ifdef MODE_SIMULATION
+	return ACT_FUNCTION_Done;	//En mode simulation, l'action demandée se termine immédiatement.
+#endif
 	return act_states[act_id].lastResult;
 }
 
