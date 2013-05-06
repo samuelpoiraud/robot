@@ -62,7 +62,7 @@ typedef struct{
 
 const candle_warner wcandles[30]=
 {							//bougie coté rouge
-			{1916,865},
+			{1916,865},//{1916,865},
 			{1854,877},
 			{1793,894},
 			{1734,918},
@@ -101,7 +101,7 @@ error_e TINY_warner_around_cake(Sint8 way)
 		return goto_pos_with_scan_foe((displacement_t[]){
 
 			//{{wcandles[0].x,wcandles[0].y},SLOW},
-			{{wcandles[1].x,wcandles[1].y},SLOW},
+			//{{wcandles[1].x,wcandles[1].y},SLOW},
 			{{wcandles[2].x,wcandles[2].y},SLOW},
 			{{wcandles[3].x,wcandles[3].y},SLOW},
 			{{wcandles[4].x,wcandles[4].y},SLOW},
@@ -130,12 +130,12 @@ error_e TINY_warner_around_cake(Sint8 way)
 			{{wcandles[27].x,wcandles[27].y},SLOW},
 			{{wcandles[28].x,wcandles[28].y},SLOW},
 			{{wcandles[29].x,wcandles[29].y},SLOW}
-			},29,BACKWARD,NO_DODGE_AND_WAIT);
+			},28,BACKWARD,NO_DODGE_AND_WAIT);
 	}else{
 		return goto_pos_with_scan_foe((displacement_t[]){
 
 			//{{wcandles[29].x,wcandles[29].y},SLOW},
-			{{wcandles[28].x,wcandles[28].y},SLOW},
+			//{{wcandles[28].x,wcandles[28].y},SLOW},
 			{{wcandles[27].x,wcandles[27].y},SLOW},
 			{{wcandles[26].x,wcandles[26].y},SLOW},
 			{{wcandles[25].x,wcandles[25].y},SLOW},
@@ -164,7 +164,7 @@ error_e TINY_warner_around_cake(Sint8 way)
 			{{wcandles[2].x,wcandles[2].y},SLOW},
 			{{wcandles[1].x,wcandles[1].y},SLOW},
 			{{wcandles[0].x,wcandles[0].y},SLOW}
-			},29,FORWARD,NO_DODGE_AND_WAIT);
+			},28,FORWARD,NO_DODGE_AND_WAIT);
 
 	}
 
@@ -219,7 +219,7 @@ error_e TINY_warner_blow_all_candles(void)
 			break;
 
 		case ANGLE_HAMMER:
-			state=try_go_angle((color_begin_cake==BLUE)?-8579:-4289, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
+			state=try_go_angle((color_begin_cake==BLUE)?-7863:-5004, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
 		break;
 
 		case HAMMER_UP:
@@ -233,7 +233,8 @@ error_e TINY_warner_blow_all_candles(void)
 		break;
 
 		case ANGLE_HAMMER_READY:
-			state=try_go_angle((color_begin_cake==BLUE)?-12328:-536,ANGLE_HAMMER_READY,HAMMER_CANDLE,HAMMER_CANDLE, FAST);
+			//state=try_go_angle((color_begin_cake==BLUE)?-12328:-536,ANGLE_HAMMER_READY,HAMMER_CANDLE,HAMMER_CANDLE, FAST);
+			state=try_go_angle((color_begin_cake==BLUE)?-10437:-2430,ANGLE_HAMMER_READY,HAMMER_CANDLE,HAMMER_CANDLE, FAST);
 		break;
 
 		case HAMMER_CANDLE:

@@ -75,7 +75,7 @@ error_e steal_glasses(girafe_t * g, bool_e reset)
 		case INIT:
 			//calcul des points selon la position de la girafe...
 			ta.x = (g->x_end+g->x_begin)/2;
-			ta.y = g->y_middle + (global.env.color == RED)?-300:300;
+			ta.y = g->y_middle + (global.env.color == RED)?(-300):300;
 			td.y = ta.y;
 
 			//B est du coté où on a le plus de place pour reculer.
@@ -241,9 +241,12 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 				scan_for_glasses(TRUE);
 
 			if(SWITCH_STRAT_3 == 0)	//Désactivation du Steal.
+			{
 				state = COME_BACK_HOME;
+				break;
+			}	
 
-			state = try_going((from == SC)?160:1840, COLOR_Y(2480),	SCAN_GLASSES, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going((from == SC)?170:1830, COLOR_Y(2480),	SCAN_GLASSES, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
 
 			if(global.env.pos.updated)
 				scan_for_glasses(FALSE);
@@ -674,7 +677,8 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		//Approche du gateau
 		case E_C:
 			//									in_progress		success				failed
-			state=try_going(1916,COLOR_Y(2135), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			state=try_going(1830,COLOR_Y(2115), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			//state=try_going(1916,COLOR_Y(2135), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 			if(state != E_C)
 				from = E_C;
 
@@ -682,7 +686,8 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 		case SC:
 			//									in_progress		success				failed
-			state=try_going(1916,COLOR_Y(865),	SC,				BLOW_ALL_CANDLES,	SB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			state=try_going(1830,COLOR_Y(885),	SC,				BLOW_ALL_CANDLES,	SB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			//state=try_going(1916,COLOR_Y(865),	SC,				BLOW_ALL_CANDLES,	SB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 			if(state != SC)
 				from = SC;
 		break;
@@ -844,9 +849,12 @@ girafe_t * look_for_the_best_girafe(void)
 			g.x_end = glasses_x[i];
 		}
 		g.y_middle /= g.nb_glasses;	//On calcule la moyenne des y.
+		debug_printf("n%d: x%d %d y%ld\n",g.nb_glasses, g.x_begin, g.x_end, g.y_middle);
 		if(g.nb_glasses >= best_girafe.nb_glasses)
 			best_girafe = g;		//On garde la plus grande girafe. En cas d'égalité, on garde LA DERNIERE (car + proche de nous).
 	}
+	debug_printf("BEST n%d: x%d %d y%ld\n",best_girafe.nb_glasses, best_girafe.x_begin, best_girafe.x_end, best_girafe.y_middle);	
+
 	return &best_girafe;
 	/*best_girafe contient :
 	 * -> les x_begin et x_end de la girafe (peuvent être identiques si un seul verre)
