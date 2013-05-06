@@ -65,9 +65,10 @@
 	/* ajoute une instruction goangle sur la pile asser */
 	void ASSER_push_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);
 	
-	
 	/* ajoute une instruction relative_goangle sur la pile asser */
 	void ASSER_push_relative_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run);
+	
+	void ASSER_push_relative_goto(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run);
 	
 	/* ajoute une instruction rush_in_the_wall sur la pile asser */
 	void ASSER_push_rush_in_the_wall (way_e way, bool_e asser_rotate,Sint16 angle, bool_e run);
