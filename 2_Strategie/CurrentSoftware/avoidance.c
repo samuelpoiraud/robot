@@ -831,13 +831,41 @@ error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way, ASSER_end_condi
 	static enum state_e state = COMPUTE_AND_GO;
 
 	static bool_e timeout=FALSE;
+	double x,y;
 
 	switch (state) 
 	{
 		case COMPUTE_AND_GO :
-			ASSER_push_relative_goto(d, 0, speed, way, 0, TRUE);
-			break;
+			//STACKS_flush(ASSER);
+			/* Si la distance fournie est négative, on inverse la direction */
+			if (d < 0) {
+				if (way == BACKWARD) way = FORWARD;
+				if (way == FORWARD) way = BACKWARD;
+			}
+			/* Si l'utilisateur demande d'aller en arrière, on inverse la direction */
+			else if (way == BACKWARD) {
+				d = -d;
+			}
+			x = ((double)global.env.pos.x) + ((double)d) * cos4096(global.env.pos.angle);
+			y = ((double)global.env.pos.y) + ((double)d) * sin4096(global.env.pos.angle);
 
+			//debug_printf("relative_move::current_pos x=%d y=%d\n", global.env.pos.x, global.env.pos.y);
+			//debug_printf("relative_move::x=%f y=%f\n", x, y);
+			if (x >= 0 && y >= 0) {
+#ifdef USE_ASSER_MULTI_POINT
+				ASSER_push_goto_multi_point((Sint16)x, (Sint16)y, speed, way, 0, END_OF_BUFFER, end_condition, TRUE);
+#else
+				ASSER_push_goto((Sint16)x, (Sint16)y, speed, way, 0, end_condition, TRUE);
+#endif
+				state = GOING;
+				return IN_PROGRESS;
+			}
+			else {
+				/* On ne gère pas les x ou y négatifs */
+				state = COMPUTE_AND_GO;
+				return NOT_HANDLED;
+			}
+			break;
 		case GOING :
 			if (STACKS_wait_end_auto_pull (ASSER, &timeout))
 			{
