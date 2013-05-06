@@ -38,6 +38,9 @@
 	#define DEBUG_BEACON_US2_ERROR      0x751  //Envoyé par la strat
 	#define DEBUG_BEACON_US_POWER       0x752  //Enovyé par la balise receptrice US (mais non activé actuellement)
 
+	#define DEBUG_STRAT_STATE_CHANGED	0x760  //Envoyé par la strat quand un état change d'une machine à état
+		//Paramètres: data[0]:data[1] = ID d'une machine à état (data[0] le poids fort), data[2] = old_state, data[3] = new_state, data suivant: paramètres divers
+
 	
 	#define DEBUG_ASSER_POINT_FICTIF								0x701
 	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_SYM 			0x702
