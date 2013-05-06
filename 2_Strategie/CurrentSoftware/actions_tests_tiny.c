@@ -46,7 +46,8 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		SUBACTION_OPEN_ALL_GIFTS,
 		SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES,
 		SUBACTION_STEAL_ADVERSARY_GLASSES,
-		
+		BP,
+		WAIT,
 		//FAILING PARTIAL ACTIONS...
 		SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS,
 		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES
@@ -137,9 +138,17 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		break;
 		
 		case SUBACTION_STEAL_ADVERSARY_GLASSES:
+			if(SWITCH_STRAT_3 == 0)	//Désactivation du Steal.
+			{
+				state = BP;
+				break;
+			}
+
 			sub_action = STRAT_TINY_scan_and_steal_adversary_glasses(FALSE);
 			
-			if(global.env.match_time >= 70000)	//S'il reste des chose à faire et qu'on a plus que 20 secondes... on abandonne le vol et on y va..
+			/* Code commenté car trop dangereux d'arreter sans reset de TOUTES les machines a état d'en dessous !
+			 * Ce n'est pas très génant d'attendre la fin du STEAL (échec ou réussite) avant de prendre une décision...
+			 if(global.env.match_time >= 70000)	//S'il reste des chose à faire et qu'on a plus que 20 secondes... on abandonne le vol et on y va..
 			{
 				if( all_gifts_done()==FALSE ||  (all_candles_done == FALSE) )
 				{
@@ -147,7 +156,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 					debug_printf("Il reste 20 sec..\n");
 					STRAT_TINY_scan_and_steal_adversary_glasses(TRUE);	//Reset forcé de la MAE !
 				}
-			}
+			}*/
 			switch(sub_action)
             {
 				case IN_PROGRESS:
@@ -168,7 +177,19 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				break;
             }
 		break;
-
+		case BP:
+			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
+			state = try_going(1000,COLOR_Y(1800), BP, WAIT, WAIT, ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+		case WAIT:
+			if(global.env.match_time >= 60000)	//S'il reste des chose à faire et qu'on a plus que 30 secondes... on abandonne le vol et on y va..
+			{
+				if(all_gifts_done() == FALSE)
+					state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
+				else if(!all_candles_done)
+					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;	//Il reste des bougies à souffler... on y retourne.
+			}
+		break;
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
 			#warning "TODO... une subaction qui va faire les bougies oubliées... et seulement celles ci... "
 				sub_action = STRAT_TINY_goto_cake_and_blow_candles();
@@ -230,6 +251,8 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			case SUBACTION_STEAL_ADVERSARY_GLASSES:			debug_printf("steal_aversary_glasses\n");							break;
 			case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:		debug_printf("open_some_forgotten_candles\n");						break;
 			case SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS:		debug_printf("open_some_forgotten_gifts\n");						break;
+			case BP:										debug_printf("BP\n");												break;
+			case WAIT:										debug_printf("Wait\n");												break;
 			default:										debug_printf("???\n");												break;
 		}
 	}	

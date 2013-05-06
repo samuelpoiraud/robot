@@ -239,12 +239,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		case SCAN_GLASSES:
 			if(entrance)
 				scan_for_glasses(TRUE);
-
-			if(SWITCH_STRAT_3 == 0)	//Désactivation du Steal.
-			{
-				state = COME_BACK_HOME;
-				break;
-			}	
+	
 
 			state = try_going((from == SC)?170:1830, COLOR_Y(2480),	SCAN_GLASSES, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
 
@@ -545,8 +540,6 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	static bool_e entrance = TRUE;
 	static bool_e goto_end = FALSE;
 	static bool_e all_candles_blown = FALSE;
-
-	//avoidance_type_e avoidance_after_gift_before_candles = NO_DODGE_AND_WAIT; //NO_AVOIDANCE;  //evitement a utiliser pourles deplacement entre les cadeaux et le gateau (quand tiny passe au milieu du terrain)
 
 	error_e sub_action;
 	error_e ret = IN_PROGRESS;
