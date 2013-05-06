@@ -140,7 +140,7 @@ error_e TINY_forgotten_gift(map_goal_e forgotten_gift)
 			break;
 
 		case GOTO_GIFT:
-			state=try_going(160, COLOR_Y((forgotten_gift==GOAL_Cadeau2)?1700:2300),GOTO_GIFT,ANGLE_HAMMER,FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(200, COLOR_Y((forgotten_gift==GOAL_Cadeau2)?1700:2300),GOTO_GIFT,ANGLE_HAMMER,FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 
 		case ANGLE_HAMMER:
@@ -209,7 +209,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 	{
 		case INIT:
 			ACT_hammer_goto(HAMMER_POSITION_DOWN);		//Bras : READY !
-			ASSER_WARNER_arm_y(COLOR_Y(450));	//On arme et on attend le premier cadeau.
+			ASSER_WARNER_arm_y(COLOR_Y(480));	//On arme et on attend le premier cadeau.
 			state = WAIT_FIRST_GIFT;
 		break;
 		case WAIT_FIRST_GIFT:
@@ -242,7 +242,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			{
 				global.env.map_elements[GOAL_Cadeau1] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(1600));
+				ASSER_WARNER_arm_y(COLOR_Y(1580));
 				state = WAIT_THIRD_GIFT;
 			}
 		break;
@@ -259,7 +259,7 @@ void TINY_hammer_open_all_gift(bool_e reset)
 			{
 				global.env.map_elements[GOAL_Cadeau2] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(2200));
+				ASSER_WARNER_arm_y(COLOR_Y(2180));
 				state = WAIT_FOURTH_GIFT;
 			}
 		break;

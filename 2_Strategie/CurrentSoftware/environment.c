@@ -325,7 +325,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_IR_FOE_1].updated = TRUE;
 			//debug_printf("IR1=%dmm", global.env.sensor[BEACON_IR_FOE_1].distance);
 			//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_1].angle))*180/PI4096))));
-		} else debug_printf("NO IR 1 err %d!\n", msg->data[0]);
+		} //else debug_printf("NO IR 1 err %d!\n", msg->data[0]);
 		if((msg->data[4] & 0xFE) == AUCUNE_ERREUR)
 		{
 			//slashn = TRUE;
@@ -337,7 +337,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_IR_FOE_2].updated = TRUE;
 			//debug_printf(" IR2=%dmm", global.env.sensor[BEACON_IR_FOE_2].distance);
 			//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_2].angle))*180/PI4096))));
-		} else debug_printf("NO IR 2 err %d!\n", msg->data[4]);
+		} //else debug_printf("NO IR 2 err %d!\n", msg->data[4]);
 		if(slashn)
 			debug_printf("\n");
 	}

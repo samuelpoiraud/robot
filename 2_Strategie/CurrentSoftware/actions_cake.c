@@ -219,7 +219,7 @@ error_e TINY_warner_blow_all_candles(void)
 			break;
 
 		case ANGLE_HAMMER:
-			state=try_go_angle((color_begin_cake==BLUE)?-9726:-3752, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
+			state=try_go_angle((color_begin_cake==BLUE)?-8579:-4289, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
 		break;
 
 		case HAMMER_UP:
@@ -283,7 +283,9 @@ error_e TINY_warner_blow_all_candles(void)
 		break;
 		case FAIL:
 			state = FAIL_GO_ANGLE;
-
+			//TODO en fonction de là où on en est... on peut décider que le gateau est fait, même s'il est à peine fini..
+			//(genre qd il reste que deux bougies)
+			#warning "TODO màj environnement cake directement dans cette fonction..; et pas par la strat haut niveau"
 		break;
 		case FAIL_GO_ANGLE:
 			//En cas d'échec, on rejoint un angle pour baisser le bras.
