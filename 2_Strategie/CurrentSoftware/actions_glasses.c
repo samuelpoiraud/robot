@@ -14,67 +14,81 @@
 #include "act_functions.h"
 #include "output_log.h"
 #include "zone_mutex.h"
+#include "actions_utils.h"
 
-#define LOG_PREFIX "strat_glasses: "
-#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+//#define LOG_PREFIX "strat_glasses: "
+//#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-//Défini un nom d'état dans un tableau de string. Utilisé pour afficher le nom d'une valeur d'un enum, par exemple:
-//Pour que tableau[UN_ETAT_OU_ENUM] = "UN_ETAT_OU_ENUM", il faut faire STATE_STR_DECLARE(tableau, UN_ETAT_OU_ENUM)
-#define STATE_STR_DECLARE(tableau, state)  tableau[state] = #state;
 
-//Le bloc de code est dans une do {} while(0) pour pouvoir être mis dans un if sans accolade du genre if(condition) STATE_STR_INIT_UNDECLARED(tableau, nbstate);
-//Initialise les états non défini d'un tableau de string.
-//Les noms des états non définis est mis à "Unknown"
-//Pour définir un état dans un tableau de nom d'état, veuillez utiliser STATE_STR_DECLARE(tableau, etat)
-//Un exemple est dispo dans K_STRAT_sub_glasses_alexis
-#define STATE_STR_INIT_UNDECLARED(tableau, nbstate) \
-	do {\
-		Uint8 i; \
-		for(i=0; i<(nbstate); i++) {\
-			if(tableau[i] == 0) \
-				tableau[i] = "Unknown"; \
-		} \
-	}while(0)
 
 error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode) {
-	//Trajectoire 1
-//	displacement_t MOVE_POINTS_1[11] = {
+//	//Trajectoire 1
+//	displacement_t MOVE_POINTS[18] = {
 //		//Row 1
-//		{{1000, COLOR_Y(950 )}, FAST},		// 0
-//		{{1050, COLOR_Y(1500)}, FAST},		// 1
+//		{{1000, COLOR_Y(950 )}, FAST},	// 0
+//		{{1050, COLOR_Y(1500)}, FAST},	// 1
 //		//Row 2
-//		{{820 , COLOR_Y(1330)}, FAST},		// 2
-//		{{750 , COLOR_Y(1130)}, FAST},		// 3
-//		{{750 , COLOR_Y(750 )}, FAST},		// 4
+//		{{820 , COLOR_Y(1330)}, FAST},	// 2
+//		{{750 , COLOR_Y(1130)}, FAST},	// 3
+//		{{750 , COLOR_Y(750 )}, FAST},	// 4
 //		//Row 3
-//		{{500 , COLOR_Y(1134)}, FAST},		// 5
-//		{{446 , COLOR_Y(1220)}, SLOW},		// 6
+//		{{500 , COLOR_Y(1134)}, FAST},	// 5
+//		{{446 , COLOR_Y(1220)}, SLOW},	// 6
 //
 //		//Go home
+//		//Premier choix de case
+//		//Case Tiny
+//		{{308 , COLOR_Y(578 )}, FAST},	// 7
+//		{{250 , COLOR_Y(400 )}, FAST},	// 8
+//		{{250 , COLOR_Y(155 )}, FAST},	// 9
+//
 //		//Case Krusty
-//		{{980 , COLOR_Y(220 )}, FAST},		// 7
-//		{{1000, COLOR_Y(190 )}, FAST},		// 8
+//		{{930, COLOR_Y(400 )}, FAST},	// 10
+//		{{930, COLOR_Y(155 )}, FAST},	// 11
+//
+//		//Autres choix: en mode safe pour y  aller (on s'écarte un peut si yavais un ennemi qui nous bloquait)
+//		//Case Krusty
+//		{{960 , COLOR_Y(800 )}, FAST},	// 12
+//		{{930 , COLOR_Y(400 )}, FAST},	// 13
+//		{{930 , COLOR_Y(155 )}, FAST},	// 14
 //
 //		//Case Tiny
-//		{{250 , COLOR_Y(400 )}, FAST},		// 9
-//		{{270 , COLOR_Y(190 )}, FAST}		// 10
+//		{{315 , COLOR_Y(800 )}, FAST},	// 15
+//		{{250 , COLOR_Y(400 )}, FAST},	// 16
+//		{{250 , COLOR_Y(155 )}, FAST},	// 17
 //	};
 //
-//	static const Uint8 TRAJECTORY_NUMBER_1 = 3;
-//	static const displacement_block_t TRAJECTORIES_1[3] = {
+//	static const Uint8 TRAJECTORY_NUMBER = 3;
+//	static const displacement_block_t TRAJECTORIES[3] = {
 //	//    avoidance_type     , nb_points , move_points_begin_index
 //		{NO_AVOIDANCE        ,    2      ,           0            },	//Row 1
 //		{NO_AVOIDANCE        ,    3      ,           2            },	//Row 2
 //		{NO_DODGE_AND_WAIT   ,    2      ,           5            }		//Row 3
 //	};
-//	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_1 = 2;
-//	static const displacement_block_t TRAJECTORIES_TO_HOME_1[2] = {
+//	static const Uint8 TRAJECTORY_TO_HOME_NUMBER = 2;
+//	static const displacement_block_t TRAJECTORIES_TO_HOME[2] = {
 //		{NO_AVOIDANCE        ,    2      ,           7            },	//Go home Krusty
 //		{NO_AVOIDANCE        ,    2      ,           9            }		//Go home Tiny
 //	};
+//
+//	static const Uint8 TRAJECTORY_TO_HOME_NUMBER = 4;
+//	static const displacement_block_t TRAJECTORIES_TO_HOME[4] = {
+//		{NO_DODGE_AND_NO_WAIT,    3      ,           7            },	//Go home Tiny
+//		{NO_DODGE_AND_NO_WAIT,    2      ,           10           },	//Go home Krusty
+//		{NO_DODGE_AND_NO_WAIT,    3      ,           12           },	//Go home Krusty safe
+//		{NO_DODGE_AND_NO_WAIT,    3      ,           15           }		//Go home Tiny safe
+//	};
+//
+//	//Phases de prise de verres en homologation
+//	static const displacement_block_t TRAJECTORIES_HOMOLOGATION[2] = {
+//	//    avoidance_type     , nb_points , move_points_begin_index
+//		{NO_DODGE_AND_WAIT   ,    2      ,           0            },	//Row 1
+//		{NO_DODGE_AND_WAIT   ,    3      ,           2            },	//Row 2
+//		{NO_DODGE_AND_WAIT   ,    2      ,           5            }		//Row 3
+//	};
 
 	//Trajectoire 2
-	displacement_t MOVE_POINTS_2[20] = {
+	displacement_t MOVE_POINTS[20] = {
 		//Phase 1: on prend 4 verres
 		{{1000, COLOR_Y(190 )}, FAST},	// 0
 		{{1140, COLOR_Y(780 )}, FAST},	// 1
@@ -84,41 +98,41 @@ error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode) {
 		{{297 , COLOR_Y(978 )}, SLOW},	// 5
 
 		//Phase 2: 2 verres restants
-		{{536 , COLOR_Y(966 )}, FAST},	// 6
-		{{782 , COLOR_Y(980 )}, FAST},	// 7
-		{{950 , COLOR_Y(898 )}, FAST},	// 8
+		{{536 , COLOR_Y(966 )}, SLOW},	// 6
+		{{782 , COLOR_Y(980 )}, SLOW},	// 7
+		{{950 , COLOR_Y(898 )}, SLOW},	// 8
 
 		//Go home
 		//Premier choix de case
 		//Case Tiny
 		{{308 , COLOR_Y(578 )}, FAST},	// 9
 		{{250 , COLOR_Y(400 )}, FAST},	// 10
-		{{250 , COLOR_Y(140 )}, FAST},	// 11
+		{{250 , COLOR_Y(155 )}, FAST},	// 11
 
 		//Case Krusty
 		{{930, COLOR_Y(400 )}, FAST},	// 12
-		{{930, COLOR_Y(140 )}, FAST},	// 13
+		{{930, COLOR_Y(155 )}, FAST},	// 13
 
 		//Autres choix: en mode safe pour y  aller (on s'écarte un peut si yavais un ennemi qui nous bloquait)
 		//Case Krusty
 		{{960 , COLOR_Y(800 )}, FAST},	// 14
 		{{930 , COLOR_Y(400 )}, FAST},	// 15
-		{{930 , COLOR_Y(140 )}, FAST},	// 16
+		{{930 , COLOR_Y(155 )}, FAST},	// 16
 
 		//Case Tiny
 		{{315 , COLOR_Y(800 )}, FAST},	// 17
 		{{250 , COLOR_Y(400 )}, FAST},	// 18
-		{{250 , COLOR_Y(140 )}, FAST},	// 19
+		{{250 , COLOR_Y(155 )}, FAST},	// 19
 	};
 
-	static const Uint8 TRAJECTORY_NUMBER_2 = 2;
-	static const displacement_block_t TRAJECTORIES_2[2] = {
+	static const Uint8 TRAJECTORY_NUMBER = 2;
+	static const displacement_block_t TRAJECTORIES[2] = {
 	//    avoidance_type     , nb_points , move_points_begin_index
 		{NO_DODGE_AND_NO_WAIT,    6      ,           0            },	//Phase 1
 		{NO_AVOIDANCE        ,    3      ,           6            }		//Phase 2
 	};
-	static const Uint8 TRAJECTORY_TO_HOME_NUMBER_2 = 4;
-	static const displacement_block_t TRAJECTORIES_TO_HOME_2[4] = {
+	static const Uint8 TRAJECTORY_TO_HOME_NUMBER = 4;
+	static const displacement_block_t TRAJECTORIES_TO_HOME[4] = {
 		{NO_DODGE_AND_NO_WAIT,    3      ,           9            },	//Go home Tiny
 		{NO_DODGE_AND_NO_WAIT,    2      ,           12           },	//Go home Krusty
 		{NO_DODGE_AND_NO_WAIT,    3      ,           14           },	//Go home Krusty safe
@@ -126,17 +140,15 @@ error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode) {
 	};
 
 	//Phases de prise de verres en homologation
-	static const displacement_block_t TRAJECTORIES_2_HOMOLOGATION[2] = {
+	static const displacement_block_t TRAJECTORIES_HOMOLOGATION[2] = {
 	//    avoidance_type     , nb_points , move_points_begin_index
 		{NO_DODGE_AND_NO_WAIT,    6      ,           0            },	//Phase 1
 		{NO_DODGE_AND_NO_WAIT,    3      ,           6            }		//Phase 2
 	};
 
-//	return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_1, TRAJECTORIES_TO_HOME_1, TRAJECTORY_NUMBER_1, TRAJECTORIES_1, MOVE_POINTS_1);
-
 	if(homologation_mode)
-		return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_2, TRAJECTORIES_TO_HOME_2, TRAJECTORY_NUMBER_2, TRAJECTORIES_2_HOMOLOGATION, MOVE_POINTS_2);
-	else return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER_2, TRAJECTORIES_TO_HOME_2, TRAJECTORY_NUMBER_2, TRAJECTORIES_2, MOVE_POINTS_2);
+		return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER, TRAJECTORIES_TO_HOME, TRAJECTORY_NUMBER, TRAJECTORIES_HOMOLOGATION, MOVE_POINTS);
+	else return K_STRAT_micro_do_glasses(TRAJECTORY_TO_HOME_NUMBER, TRAJECTORIES_TO_HOME, TRAJECTORY_NUMBER, TRAJECTORIES, MOVE_POINTS);
 }
 
 //Prend tous les verres en suivant une trajectoire données. A la fin les verres sont posé (après la dernière position)
@@ -202,9 +214,10 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			state_str_initialized = TRUE;
 		}
 
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_sub_glasses_alexis: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
+//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_sub_glasses_alexis: state changed: %s(%d) -> %s(%d)\n",
+//			state_str[last_state], last_state,
+//			state_str[state], state);
+		STATECHANGE_log(SM_ID_GLASSES_DO, state_str[last_state], last_state, state_str[state], state);
 	}
 
 	switch(state) {
@@ -488,9 +501,10 @@ error_e K_STRAT_micro_grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos) {
 			state_str_initialized = TRUE;
 		}
 
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_grab_glass: state changed: %s(%d) -> %s(%d)\n",
-			state_str[current_act_last_state], current_act_last_state,
-			state_str[*current_act_state], *current_act_state);
+//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_grab_glass: state changed: %s(%d) -> %s(%d)\n",
+//			state_str[current_act_last_state], current_act_last_state,
+//			state_str[*current_act_state], *current_act_state);
+		STATECHANGE_log(SM_ID_GLASSES_GRAB, state_str[current_act_last_state], current_act_last_state, state_str[*current_act_state], *current_act_state);
 	}
 
 	return IN_PROGRESS;

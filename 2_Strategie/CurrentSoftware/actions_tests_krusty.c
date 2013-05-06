@@ -15,8 +15,8 @@
 #include "actions_utils.h"
 #include "output_log.h"
 
-#define LOG_PREFIX "strat_tests: "
-#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+//#define LOG_PREFIX "strat_tests: "
+//#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 
 #define DEFAULT_SPEED	(SLOW)
@@ -482,9 +482,10 @@ void TEST_STRAT_ALEXIS() {
 			state_str_initialized = TRUE;
 		}
 
-		STATECHANGE_log(LOG_LEVEL_Debug, "TEST_STRAT_ALEXIS: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
+//		STATECHANGE_log(LOG_LEVEL_Debug, "TEST_STRAT_ALEXIS: state changed: %s(%d) -> %s(%d)\n",
+//			state_str[last_state], last_state,
+//			state_str[state], state);
+		STATECHANGE_log(SM_ID_KRUSTY_STRAT_ALEXIS, state_str[last_state], last_state, state_str[state], state);
 	}
 
 	last_state = state;

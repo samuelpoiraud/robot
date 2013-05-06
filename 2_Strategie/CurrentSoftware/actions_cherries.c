@@ -14,8 +14,8 @@
 #include "output_log.h"
 #include "zone_mutex.h"
 
-#define LOG_PREFIX "strat_cherries: "
-#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+//#define LOG_PREFIX "strat_cherries: "
+//#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 //Toutes les positons et angle sont ceux correspondant au coté rouge
 
@@ -110,9 +110,10 @@ error_e K_STRAT_sub_cherries_alexis() {
 			state_str_initialized = TRUE;
 		}
 
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_sub_cherries_alexis: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
+//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_sub_cherries_alexis: state changed: %s(%d) -> %s(%d)\n",
+//			state_str[last_state], last_state,
+//			state_str[state], state);
+		STATECHANGE_log(SM_ID_CHERRIES_MAIN, state_str[last_state], last_state, state_str[state], state);
 	}
 
 	switch(state) {
@@ -382,10 +383,11 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 			STATE_STR_INIT_UNDECLARED(state_str, MP_NBSTATE);
 			state_str_initialized = TRUE;
 		}
-
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
+//
+//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: state changed: %s(%d) -> %s(%d)\n",
+//			state_str[last_state], last_state,
+//			state_str[state], state);
+		STATECHANGE_log(SM_ID_CHERRIES_MOVE, state_str[last_state], last_state, state_str[state], state);
 	}
 
 	switch(state) {
@@ -401,7 +403,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 			state_after_zonelock = MP_SWITCH_PLATE;
 			unreachable_path_count = 0;
 
-			STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: init: line %d, plate %d, goal_plate %d\n", current_line, current_plate, plate_goal);
+//			STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: init: line %d, plate %d, goal_plate %d\n", current_line, current_plate, plate_goal);
 
 			state = MP_WHERE_TO_GO_NEXT;
 			break;
@@ -490,7 +492,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 		case MP_SWITCH_LINE:
 			if(entrance) {
 				AVOIDANCE_set_timeout(1000);
-				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", dest_line, current_plate);
+//				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", dest_line, current_plate);
 			}
 
 			//FIXME: debug
@@ -523,7 +525,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 		case MP_SWITCH_PLATE:
 			if(entrance) {
 				AVOIDANCE_set_timeout(1000);
-				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", current_line, dest_plate);
+//				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", current_line, dest_plate);
 			}
 
 			//FIXME: debug
@@ -731,9 +733,10 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 			state_str_initialized = TRUE;
 		}
 
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_grab_plate: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
+//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_grab_plate: state changed: %s(%d) -> %s(%d)\n",
+//			state_str[last_state], last_state,
+//			state_str[state], state);
+		STATECHANGE_log(SM_ID_CHERRIES_GRAB, state_str[last_state], last_state, state_str[state], state);
 	}
 
 	switch(state) {
@@ -744,14 +747,14 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 
 			//On précalcule les positions des points de la trajectoire a faire pour prendre l'assiette suivant l'axe
 			if(axis == STRAT_PGA_Y) {
-				Sint16 real_x_pos = PLATE_real_pos_x(axis, plate_x_position);
+				Sint16 real_x_pos = global.env.pos.x;
 
 				grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHING_PLATE_OFFSET};
 				grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHED_PLATE_OFFSET};
 				grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {real_x_pos, plate_y_position + CLOSING_AX12_OFFSET};
 				grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {real_x_pos, plate_y_position + SAFE_INIT_POS_OFFSET};
 			} else {
-				Sint16 real_y_pos = PLATE_real_pos_y(axis, plate_y_position);
+				Sint16 real_y_pos = global.env.pos.y;
 
 				if(axis == STRAT_PGA_XNeg) {
 					grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {plate_x_position + CATCHING_PLATE_OFFSET, real_y_pos};
@@ -1078,9 +1081,10 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 			state_str_initialized = TRUE;
 		}
 
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_launch_cherries: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
+//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_launch_cherries: state changed: %s(%d) -> %s(%d)\n",
+//			state_str[last_state], last_state,
+//			state_str[state], state);
+		STATECHANGE_log(SM_ID_CHERRIES_LAUNCH, state_str[last_state], last_state, state_str[state], state);
 	}
 
 	switch(state) {
@@ -1157,7 +1161,7 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 						break;
 
 					default:
-						OUTPUTLOG_printf(TRUE, LOG_LEVEL_Debug, LOG_PREFIX"global.env.color_ball: invalid value %d\n", global.env.color_ball);
+						debug_printf("strat_cherries: global.env.color_ball: invalid value %d\n", global.env.color_ball);
 				}
 				//On a fini de lancer des cerises quand on a lancé le nombre prévu de cerise ou si on a eu MAX_FAILED_LAUNCH à la suite
 				if(ball_launched >= expected_cherry_number || ball_continuous_fail >= MAX_FAILED_LAUNCH)
@@ -1285,9 +1289,10 @@ error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop, Sint16 angle) {
 			state_str_initialized = TRUE;
 		}
 
-		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_drop_plate: state changed: %s(%d) -> %s(%d)\n",
-			state_str[last_state], last_state,
-			state_str[state], state);
+//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_drop_plate: state changed: %s(%d) -> %s(%d)\n",
+//			state_str[last_state], last_state,
+//			state_str[state], state);
+		STATECHANGE_log(SM_ID_CHERRIES_DROP, state_str[last_state], last_state, state_str[state], state);
 	}
 
 	switch(state) {
