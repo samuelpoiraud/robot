@@ -12,6 +12,7 @@
 #include "actions_utils.h"
 #include "act_functions.h"
 #include "output_log.h"
+#include "stdarg.h"
 
 Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state) {
 	ACT_function_result_e result = ACT_get_last_action_result(act_queue_id);
