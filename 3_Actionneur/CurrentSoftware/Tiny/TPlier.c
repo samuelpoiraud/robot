@@ -68,12 +68,12 @@ void PLIER_stop() {
 bool_e PLIER_CAN_process_msg(CAN_msg_t* msg) {
 	queue_id_t queueId;
 
-#warning TEMPORAIRE: A enlever si plier operationel
+/*#warning TEMPORAIRE: A enlever si plier operationel
 	if(msg->sid == ACT_PLIER) {
 		ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
 		return TRUE;
 	}
-	return FALSE;
+	return FALSE;*/
 	///////////////////////////////////////////////
 
 	if(msg->sid == ACT_PLIER) {
