@@ -24,7 +24,7 @@ void T_BALLINFLATER_start(void);
 error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset);
 error_e STRAT_TINY_goto_forgotten_gift(void);
 error_e STRAT_TINY_goto_cake_and_blow_candles(void);
-
+error_e TINY_rush();
 
 
 	typedef struct

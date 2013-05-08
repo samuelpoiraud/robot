@@ -524,6 +524,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		SB,
 		E_C,	//on peut pas utiliser EC (défini ds les libs microchip)
 		SC,
+		RUSH,
 		BLOW_ALL_CANDLES,
 		SUBACTION_BLOW_CANDLES,
 		CANDLES_FAIL,
@@ -548,6 +549,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			goto_end = FALSE;
 			debug_printf("choix du point de départ vers le gateau : ");
 			//4 zones sont définies... en fonction de l'endroit où on est, on vise un point ou un autre...
+
 			if(global.env.pos.x > 400)
 			{	//C'est le cas lorsqu'on vient d'un STEAL
 				if(COLOR_Y(global.env.pos.y) > 1800)	//On est plus près de la position visée pour le gateau adverse
@@ -558,9 +560,9 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				}
 				else
 				{
-					debug_printf("MB\n");
-					state = MB;
-					from = MA;	//On fait comme si on venait du cadeau
+						debug_printf("MB\n");
+						state = MB;
+						from = MA;	//On fait comme si on venait du cadeau
 				}
 			}
 			else
@@ -578,6 +580,31 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 					from = EA;
 				}
 			}
+			if(SWITCH_STRAT_2 == 1){
+						state=RUSH;
+						from = MA;
+			}
+		break;
+
+		case RUSH:
+			sub_action = TINY_rush();	//On rush les verres de l'ennemi
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					state = E_C;
+				break;
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+				case END_WITH_TIMEOUT:
+					state = MA;
+				break;
+				default:
+				break;
+			}
+			if(state == E_C)
+				from = RUSH;
 		break;
 
 		//POSITIONS Coté CADEAUX
@@ -668,9 +695,12 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		break;
 		//Approche du gateau
 		case E_C:
+			if(SWITCH_STRAT_2 == 1){
+				state=try_going(1830,COLOR_Y(2115), E_C,			BLOW_ALL_CANDLES,	EB,ANY_WAY, NO_DODGE_AND_WAIT);
+			}else{
 			//									in_progress		success				failed
-			state=try_going(1830,COLOR_Y(2115), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
-			//state=try_going(1916,COLOR_Y(2135), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+				state=try_going(1830,COLOR_Y(2115), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			}
 			if(state != E_C)
 				from = E_C;
 
@@ -856,7 +886,15 @@ girafe_t * look_for_the_best_girafe(void)
 
 
 
-
+error_e TINY_rush()
+{
+		return goto_pos_with_scan_foe((displacement_t[]){
+			{{550,1800},FAST},
+			{{800,1950},FAST},
+			{{1050,2100},FAST},
+			{{1380,2135},FAST},
+			},4,(global.env.color == RED)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
+}
 
 
 
