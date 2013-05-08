@@ -38,9 +38,9 @@ static const plate_info_t PLATE_INFOS[5] = {
 	{ 1400      ,    540     ,   1000    ,      TRUE            },
 	{ 1750      ,    540     ,   840     ,      TRUE            }
 };
-static const Sint16 PLATE_Y_POS = 200;	//Position en Y des assiettes
+static const Sint16 PLATE_Y_POS = 190;	//Position en Y des assiettes
 //La pince à assiette n'est pas symétrique ni centrée sur le robot, on doit avoir un offset en X pour que la pince ne tappe pas l'assiette alors qu'elle est ouverte
-static const Sint16 PLATE_OFFSET_X_ROBOT = -30;
+static const Sint16 PLATE_OFFSET_X_ROBOT = -15;
 //Décalage dans le cas de l'assiette coté bleu - gateau. Avec l'offset normal on taperait dans le buffet. L'offset est quand même celui qu'on aurait du coté rouge, pour un souci d'avoir un code partout pareil
 static const Sint16 PLATE_OFFSET_X_ROBOT_FAR_CORNER = -12;
 static const Sint16 ROBOT_X_POS_EPSILON = 10;	//Si on est pas à moins de 10mm = 1cm près de la bonne position, on bouge le robot
@@ -71,7 +71,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 	//Ce n'est pas mis en define pour garder ça en interne dans la fonction
 
-	static const Uint8 LAUNCH_EVERY_NUM_PLATE = 2;
+	static const Uint8 LAUNCH_EVERY_NUM_PLATE = 1;
 
 	////////////////////////////////////////////////////////////////
 
@@ -84,6 +84,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 	static bool_e doing_special_plate_3;	//Cas spécial pour l'assiette 3 coté bleu
 	static bool_e doing_special_plate_4;	//Pareil pour l'assiette 4
 	static enum state_e state_after_launched_cherries;	//Etat a prendre après avoir lancé les cerises.
+	static Uint8 plates_begun;				//Nombre d'assiette
 
 	//Si l'état à changé, on rentre dans un nouvel état
 	bool_e entrance = last_state_for_check_entrance != state;
@@ -125,6 +126,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 			continuous_move_fails = 0;
 			doing_special_plate_4 = FALSE;
 			doing_special_plate_3 = FALSE;
+			plates_begun = 0;
 
 			state = DP_CHOOSE_NEXT_PLATE;
 			break;
@@ -188,6 +190,9 @@ error_e K_STRAT_sub_cherries_alexis() {
 				state_after_launched_cherries = DP_GO_NEXT_PLATE;
 				state = DP_LAUNCH_CHERRIES;
 			}
+
+			if(current_plate != last_plate)
+				plates_begun++;
 			break;
 		}
 
@@ -206,7 +211,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 			//Si on va lancer les cerises après, on garde l'assiette (pour gagner de la place dans le robot, sinon les cerises pourront tomber ...)
 			if(entrance) {
 				plate_number_in_stock++;
-				if(plate_number_in_stock >= LAUNCH_EVERY_NUM_PLATE && !doing_special_plate_3)	//On doit jeter l'assiette si on fait la 3 coté bleu pour pouvoir prendre la 4 !
+				if((plate_number_in_stock >= LAUNCH_EVERY_NUM_PLATE || TRUE) && !doing_special_plate_3)	//On doit jeter l'assiette si on fait la 3 coté bleu pour pouvoir prendre la 4 !
 					keep_plate = TRUE;
 				else keep_plate = FALSE;
 
@@ -245,7 +250,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 		//On lance les cerises dans le gateau
 		case DP_LAUNCH_CHERRIES:
 			//On ne lance pas les cerises quand on fait l'assiette 3 coté bleu dans tous les cas !
-			if(plate_number_in_stock >= LAUNCH_EVERY_NUM_PLATE) {
+			if(plate_number_in_stock >= LAUNCH_EVERY_NUM_PLATE && !doing_special_plate_3) {
 				last_action_result = K_STRAT_micro_launch_cherries(STRAT_LC_PositionNear, 8, FALSE);
 				state = check_sub_action_result(last_action_result, DP_LAUNCH_CHERRIES, state_after_launched_cherries, DP_FAILED);
 				if(state != DP_LAUNCH_CHERRIES)
@@ -256,7 +261,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 		//On lache l'assiette si on l'avait gardé et on passe à la suivante si c'est pas fini
 		case DP_DROP_PLATE:
 			if(keep_plate) {
-				switch(K_STRAT_micro_drop_plate(TRUE, PI4096/2)) {
+				switch(K_STRAT_micro_drop_plate(TRUE, 0)) {
 					case IN_PROGRESS: break;
 
 					case NOT_HANDLED:
@@ -677,9 +682,9 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 	//Offset théorique auquel on touche l'assiette tout juste: 315
 
 	static const Sint16 SAFE_INIT_POS_OFFSET  = 350;	//Si on est trop près de l'assiette, on va a cette position
-	static const Sint16 CLOSING_AX12_OFFSET   = 315;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
+	static const Sint16 CLOSING_AX12_OFFSET   = 300;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
 	static const Sint16 CATCHING_PLATE_OFFSET = 320;	//Début de la vitesse lente, relatif au milieu de l'assiette
-	static const Sint16 CATCHED_PLATE_OFFSET  = 250;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
+	static const Sint16 CATCHED_PLATE_OFFSET  = 270;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
 	static const Sint16 DROP_PLATE_OFFSET     = -60;	//Position pour lacher les assiettes (uniquement dans un axe X, pas Y)
 	static const Uint8 CATCHING_PLATE_SPEED = 8 + 8;	//vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
@@ -745,37 +750,6 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 			plate_vertical_begin_time = 0;
 			what_to_return_after_end = END_OK;
 
-			//On précalcule les positions des points de la trajectoire a faire pour prendre l'assiette suivant l'axe
-			if(axis == STRAT_PGA_Y) {
-				Sint16 real_x_pos = global.env.pos.x;
-
-				grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHING_PLATE_OFFSET};
-				grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHED_PLATE_OFFSET};
-				grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {real_x_pos, plate_y_position + CLOSING_AX12_OFFSET};
-				grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {real_x_pos, plate_y_position + SAFE_INIT_POS_OFFSET};
-			} else {
-				Sint16 real_y_pos = global.env.pos.y;
-
-				if(axis == STRAT_PGA_XNeg) {
-					grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {plate_x_position + CATCHING_PLATE_OFFSET, real_y_pos};
-					grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {plate_x_position + CATCHED_PLATE_OFFSET , real_y_pos};
-					grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {plate_x_position + CLOSING_AX12_OFFSET  , real_y_pos};
-					grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {plate_x_position + SAFE_INIT_POS_OFFSET , real_y_pos};
-				} else {	//STRAT_PGA_XPos
-					grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {plate_x_position - CATCHING_PLATE_OFFSET, real_y_pos};
-					grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {plate_x_position - CATCHED_PLATE_OFFSET , real_y_pos};
-					grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {plate_x_position - CLOSING_AX12_OFFSET  , real_y_pos};
-					grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {plate_x_position - SAFE_INIT_POS_OFFSET , real_y_pos};
-				}
-			}
-			if(drop_plate_axis == STRAT_PGA_Y) {
-				grab_trajectory[GRAB_DropPos] = grab_trajectory[GRAB_BeginCatch];
-			} else if(drop_plate_axis == STRAT_PGA_XNeg) {
-				grab_trajectory[GRAB_DropPos] = (GEOMETRY_point_t) {plate_x_position + DROP_PLATE_OFFSET, PLATE_real_pos_y(drop_plate_axis, plate_y_position)};
-			} else {
-				grab_trajectory[GRAB_DropPos] = (GEOMETRY_point_t) {plate_x_position - DROP_PLATE_OFFSET, PLATE_real_pos_y(drop_plate_axis, plate_y_position)};
-			}
-
 			state = GP_ADJUST_ANGLE;
 			break;
 
@@ -806,6 +780,37 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 				else if(axis == STRAT_PGA_XPos && global.env.pos.x > grab_trajectory[GRAB_BeginCatch].x)
 					must_adjust_pos = TRUE;
 				else must_adjust_pos = FALSE;
+
+				//On précalcule les positions des points de la trajectoire a faire pour prendre l'assiette suivant l'axe
+				if(axis == STRAT_PGA_Y) {
+					Sint16 real_x_pos = global.env.pos.x;
+
+					grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHING_PLATE_OFFSET};
+					grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHED_PLATE_OFFSET};
+					grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {real_x_pos, plate_y_position + CLOSING_AX12_OFFSET};
+					grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {real_x_pos, plate_y_position + SAFE_INIT_POS_OFFSET};
+				} else {
+					Sint16 real_y_pos = COLOR_Y(global.env.pos.y);
+
+					if(axis == STRAT_PGA_XNeg) {
+						grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {plate_x_position + CATCHING_PLATE_OFFSET, real_y_pos};
+						grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {plate_x_position + CATCHED_PLATE_OFFSET , real_y_pos};
+						grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {plate_x_position + CLOSING_AX12_OFFSET  , real_y_pos};
+						grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {plate_x_position + SAFE_INIT_POS_OFFSET , real_y_pos};
+					} else {	//STRAT_PGA_XPos
+						grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {plate_x_position - CATCHING_PLATE_OFFSET, real_y_pos};
+						grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {plate_x_position - CATCHED_PLATE_OFFSET , real_y_pos};
+						grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {plate_x_position - CLOSING_AX12_OFFSET  , real_y_pos};
+						grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {plate_x_position - SAFE_INIT_POS_OFFSET , real_y_pos};
+					}
+				}
+				if(drop_plate_axis == STRAT_PGA_Y) {
+					grab_trajectory[GRAB_DropPos] = grab_trajectory[GRAB_BeginCatch];
+				} else if(drop_plate_axis == STRAT_PGA_XNeg) {
+					grab_trajectory[GRAB_DropPos] = (GEOMETRY_point_t) {plate_x_position + DROP_PLATE_OFFSET, PLATE_real_pos_y(drop_plate_axis, plate_y_position)};
+				} else {
+					grab_trajectory[GRAB_DropPos] = (GEOMETRY_point_t) {plate_x_position - DROP_PLATE_OFFSET, PLATE_real_pos_y(drop_plate_axis, plate_y_position)};
+				}
 			}
 			if(must_adjust_pos)
 				state = try_going(grab_trajectory[GRAB_SafePos].x, COLOR_Y(grab_trajectory[GRAB_SafePos].y), GP_ADJUST_POS, GP_ADJUST_ANGLE, GP_ADJUST_ANGLE, ANY_WAY, NO_AVOIDANCE);
@@ -1034,12 +1039,13 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 
 	static const bool_e USE_INTELLIGENT_MOVE = TRUE;	//Si TRUE, on essaye de se déplacer avec K_STRAT_micro_move_to_plate pour aller a la position de lancé
 	static const bool_e BLIND_LAUNCH = FALSE;	//Si TRUE, on lance un nombre fixe de fois, peut importe ce qu'on lance même si on lance rien
-	static const Uint8 MAX_FAILED_LAUNCH_BEFORE_SHAKE = 2;	//Nombre de lancé raté avant de secouer les cerises. Le compteur est reinitialisé a chaque secouage pour pas secouer après chaque fail
-	static const Uint8 MAX_FAILED_LAUNCH = 3;	//Nombre maximum de lancé raté possible (raté dans le sens aucune cerise n'a été prise)
+	static const Uint8 MAX_FAILED_LAUNCH_BEFORE_SHAKE = 100;	//Nombre de lancé raté avant de secouer les cerises. Le compteur est reinitialisé a chaque secouage pour pas secouer après chaque fail
+	static const Uint8 MAX_FAILED_LAUNCH = 5;	//Nombre maximum de lancé raté possible (raté dans le sens aucune cerise n'a été prise)
 	static const Uint8 MAX_BLOCKED_AX12 = 2;	//Maximum de fois que le lancé de balle peut fail. Après ça on arrete de secouer le robot et on retourne a la strat supérieur qu'on a fail.
+	static const Uint16 WAIT_TIME_LAST_CHERRY_SENT = 1000;	//Temps d'attente avant de finir, on doit attendre que la dernière cerise soit lancée
 	static const LC_position_t POSITIONS[STRAT_LC_NumberOfPosition] = {	//Paramètres lié à chaque position. Y est indiqué pour le coté rouge, il faut donc utiliser COLOR_Y.
 	//  { x  ,  y  , angle_red,angle_blue,ball_launcher_speed}
-		{1015, 700 ,   -4150  ,  -9400   ,    6300           },		//STRAT_LC_PositionMid
+		{1015, 700 ,   -4150  ,  -9400   ,    6400           },		//STRAT_LC_PositionMid
 		{1400, 620 ,   -2900  , -10549   ,    5850           }		//STRAT_LC_PositionNear
 	};
 	static const ASSER_speed_e AIM_ROTATION_SPEED = FAST;	//Vitesse de rotation pour viser le gateau
@@ -1240,9 +1246,17 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 			break;
 
 		//Lancé terminé
-		case LC_DONE:
-			state = LC_INIT;
-			return_value = END_OK;
+		case LC_DONE: {
+			static time32_t begin_wait_time;
+
+			if(entrance)
+				begin_wait_time = global.env.match_time;
+
+			if(global.env.match_time > begin_wait_time + WAIT_TIME_LAST_CHERRY_SENT) {
+				state = LC_INIT;
+				return_value = END_OK;
+			}
+		}
 
 		//Pas un état, utilisé pour connaitre le nombre d'état
 		case LC_NBSTATE:

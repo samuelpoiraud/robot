@@ -88,55 +88,54 @@ error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode) {
 //	};
 
 	//Trajectoire 2
-	displacement_t MOVE_POINTS[20] = {
+	displacement_t MOVE_POINTS[19] = {
 		//Phase 1: on prend 4 verres
-		{{1000, COLOR_Y(190 )}, FAST},	// 0
-		{{1140, COLOR_Y(780 )}, FAST},	// 1
-		{{1016, COLOR_Y(1155)}, FAST},	// 2
-		{{796 , COLOR_Y(1281)}, SLOW},	// 3
-		{{557 , COLOR_Y(1258)}, SLOW},	// 4
-		{{297 , COLOR_Y(978 )}, SLOW},	// 5
+		{{1140, COLOR_Y(780 )}, FAST},	// 0
+		{{1016, COLOR_Y(1155)}, FAST},	// 1
+		{{796 , COLOR_Y(1281)}, SLOW},	// 2
+		{{557 , COLOR_Y(1258)}, SLOW},	// 3
+		{{297 , COLOR_Y(978 )}, SLOW},	// 4
 
 		//Phase 2: 2 verres restants
-		{{536 , COLOR_Y(966 )}, SLOW},	// 6
-		{{782 , COLOR_Y(980 )}, SLOW},	// 7
-		{{950 , COLOR_Y(898 )}, SLOW},	// 8
+		{{536 , COLOR_Y(966 )}, SLOW},	// 5
+		{{782 , COLOR_Y(980 )}, SLOW},	// 6
+		{{950 , COLOR_Y(898 )}, SLOW},	// 7
 
 		//Go home
 		//Premier choix de case
 		//Case Tiny
-		{{308 , COLOR_Y(578 )}, FAST},	// 9
-		{{250 , COLOR_Y(400 )}, FAST},	// 10
-		{{250 , COLOR_Y(155 )}, FAST},	// 11
+		{{308 , COLOR_Y(578 )}, FAST},	// 8
+		{{250 , COLOR_Y(400 )}, FAST},	// 9
+		{{250 , COLOR_Y(155 )}, FAST},	// 10
 
 		//Case Krusty
-		{{930, COLOR_Y(400 )}, FAST},	// 12
-		{{930, COLOR_Y(155 )}, FAST},	// 13
+		{{930, COLOR_Y(400 )}, FAST},	// 11
+		{{930, COLOR_Y(155 )}, FAST},	// 12
 
 		//Autres choix: en mode safe pour y  aller (on s'écarte un peut si yavais un ennemi qui nous bloquait)
 		//Case Krusty
-		{{960 , COLOR_Y(800 )}, FAST},	// 14
-		{{930 , COLOR_Y(400 )}, FAST},	// 15
-		{{930 , COLOR_Y(155 )}, FAST},	// 16
+		{{960 , COLOR_Y(800 )}, FAST},	// 13
+		{{930 , COLOR_Y(400 )}, FAST},	// 14
+		{{930 , COLOR_Y(160 )}, FAST},	// 15
 
 		//Case Tiny
-		{{315 , COLOR_Y(800 )}, FAST},	// 17
-		{{250 , COLOR_Y(400 )}, FAST},	// 18
-		{{250 , COLOR_Y(155 )}, FAST},	// 19
+		{{315 , COLOR_Y(800 )}, FAST},	// 16
+		{{250 , COLOR_Y(400 )}, FAST},	// 17
+		{{250 , COLOR_Y(160 )}, FAST},	// 18
 	};
 
 	static const Uint8 TRAJECTORY_NUMBER = 2;
 	static const displacement_block_t TRAJECTORIES[2] = {
 	//    avoidance_type     , nb_points , move_points_begin_index
-		{NO_DODGE_AND_NO_WAIT,    6      ,           0            },	//Phase 1
-		{NO_AVOIDANCE        ,    3      ,           6            }		//Phase 2
+		{NO_DODGE_AND_NO_WAIT,    5      ,           0            },	//Phase 1
+		{NO_AVOIDANCE        ,    3      ,           5            }		//Phase 2
 	};
 	static const Uint8 TRAJECTORY_TO_HOME_NUMBER = 4;
 	static const displacement_block_t TRAJECTORIES_TO_HOME[4] = {
-		{NO_DODGE_AND_NO_WAIT,    3      ,           9            },	//Go home Tiny
-		{NO_DODGE_AND_NO_WAIT,    2      ,           12           },	//Go home Krusty
-		{NO_DODGE_AND_NO_WAIT,    3      ,           14           },	//Go home Krusty safe
-		{NO_DODGE_AND_NO_WAIT,    3      ,           17           }		//Go home Tiny safe
+		{NO_DODGE_AND_NO_WAIT,    3      ,           8            },	//Go home Tiny
+		{NO_DODGE_AND_NO_WAIT,    2      ,           11           },	//Go home Krusty
+		{NO_DODGE_AND_NO_WAIT,    3      ,           13           },	//Go home Krusty safe
+		{NO_DODGE_AND_NO_WAIT,    3      ,           16           }		//Go home Tiny safe
 	};
 
 	//Phases de prise de verres en homologation

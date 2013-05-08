@@ -13,7 +13,7 @@
 
 	#define GLOBAL_CONFIG_H
 
-	#define VERBOSE_MODE
+//	#define VERBOSE_MODE
 //	#define MODE_SIMULATION
 
 	#define OUTPUT_LOG  //utilisé dans act_function et queue

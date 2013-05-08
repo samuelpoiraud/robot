@@ -454,6 +454,7 @@ error_e Assiete_5_lanceur(void){
 
 void TEST_STRAT_ALEXIS() {
 	enum state_e {
+		EXTRACT,	//Avance devant pour pouvoir tourner après le début du match (on est collé au mur après calibration)
 		DO_GLASSES,	//Faire les verres
 		DO_PLATES,	//Faire les assiettes & lancer les cerises,
 		PROTECT_GLASSES,	//On va dans notre zone de départ pour proteger les verres
@@ -462,8 +463,8 @@ void TEST_STRAT_ALEXIS() {
 		DONE,		//On a fini
 		NBSTATE		//Pas un état, utilisé pour savoir le nombre d'état
 	};
-	static enum state_e state = DO_GLASSES;
-	static enum state_e last_state = DO_GLASSES;
+	static enum state_e state = EXTRACT;
+	static enum state_e last_state = EXTRACT;
 	error_e sub_action;
 
 	//On a changé d'état, on l'indique sur l'UART pour débugage
@@ -491,6 +492,11 @@ void TEST_STRAT_ALEXIS() {
 	last_state = state;
 
 	switch(state) {
+		//Avance devant pour pouvoir tourner après le début du match (on est collé au mur après calibration)
+		case EXTRACT:
+			state = try_relative_move(70, FAST, FORWARD, END_AT_LAST_POINT, EXTRACT, DO_GLASSES, DO_GLASSES);
+			break;
+
 		//Faire les verres
 		case DO_GLASSES:
 			sub_action = K_STRAT_sub_glasses_alexis(FALSE);
