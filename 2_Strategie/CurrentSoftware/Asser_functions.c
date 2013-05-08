@@ -228,6 +228,7 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 			}
 		}
 	}
+	debug_printf("nb_points: %d\n", global.env.pos.nb_points_reached);
 }
 
 //Execute une courbe multipoint et fini quand on freine sur le dernier point.
@@ -242,6 +243,7 @@ void ASSER_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 
 	if (init)
 	{
+		global.env.pos.nb_points_reached = 0;
 		timeout = global.env.match_time + 2000;
 		save_stack_top = STACKS_get_top(stack_id);
 
