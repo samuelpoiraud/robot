@@ -16,8 +16,6 @@
 
 	#include "QS/QS_CANmsgList.h"
 	
-	/* envoie un message CAN sans données avec le sid spécifié */
-	void CAN_send_sid(Uint11 sid);
 	
 	/* envoie un message CAN contenant le texte spécifié */
 	void CAN_send_debug(char* string);
