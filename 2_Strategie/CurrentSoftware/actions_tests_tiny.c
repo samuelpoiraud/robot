@@ -188,10 +188,13 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 					state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 				else if(!all_candles_done)
 					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;	//Il reste des bougies à souffler... on y retourne.
+				else if(SWITCH_STRAT_3 == 1)
+					state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment de (re)faire un scan
 			}
 		break;
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
-				sub_action = TINY_forgotten_candles();
+				sub_action = STRAT_TINY_goto_cake_and_blow_candles();
+				//sub_action = TINY_forgotten_candles();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:

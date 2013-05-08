@@ -240,8 +240,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			if(entrance)
 				scan_for_glasses(TRUE);
 	
-
-			state = try_going((from == SC)?170:1830, COLOR_Y(2480),	SCAN_GLASSES, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going_slow((from == SC)?170:1830, COLOR_Y(2480),	SCAN_GLASSES, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
 
 			if(global.env.pos.updated)
 				scan_for_glasses(FALSE);

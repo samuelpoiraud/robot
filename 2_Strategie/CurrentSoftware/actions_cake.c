@@ -492,7 +492,7 @@ error_e TINY_forgotten_candles()
 				way = 1;	//On incrémente les bougies
 			}
 			first_candle=candle_index;
-			state = ANGLE_HAMMER;
+			state = GOTO_CANDLE;
 			break;
 
 		case GOTO_CANDLE:
