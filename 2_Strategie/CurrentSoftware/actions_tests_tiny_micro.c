@@ -75,36 +75,36 @@ error_e steal_glasses(girafe_t * g, bool_e reset)
 		case INIT:
 			//calcul des points selon la position de la girafe...
 			ta.x = (g->x_end+g->x_begin)/2;
-			ta.y = g->y_middle + (global.env.color == RED)?(-300):300;
+			ta.y = g->y_middle + ((global.env.color == RED)?(-400):400);
 			td.y = ta.y;
 
 			//B est du coté où on a le plus de place pour reculer.
 			//C est de l'autre coté... un peu plus loin que les verres...
 			if(ta.x < 1000)
 			{
-				tb.x = MAX(g->x_end, g->x_begin) + 200;
+				tb.x = MAX(g->x_end, g->x_begin) + 300;
 				tc.x = MIN(g->x_end, g->x_begin) - 100;
 				td.x = tc.x - 200;
 			}
 			else
 			{
-				tb.x = MIN(g->x_end, g->x_begin) - 200;
+				tb.x = MIN(g->x_end, g->x_begin) - 300;
 				tc.x = MAX(g->x_end, g->x_begin) + 100;
 				td.x = tc.x + 200;
 			}
 
 			//ECRETAGE...
 			tb.y = g->y_middle;
-			if(tb.y < 150)	tb.y = 150;
-			if(tb.y > 2850)	tb.y = 2850;
+			if(tb.y < 220)	tb.y = 220;
+			if(tb.y > 2780)	tb.y = 2780;
 			tc.y = tb.y;
 
 			if(tb.x < 250)	tb.x = 250;
 			if(tb.x > 2750)	tb.x = 2750;
 			if(tc.x < 250)	tc.x = 250;
 			if(tc.x > 2750)	tc.x = 2750;
-			if(td.x < 250)	tc.x = 250;
-			if(td.x > 2750)	tc.x = 2750;
+			if(td.x < 250)	td.x = 250;
+			if(td.x > 2750)	td.x = 2750;
 
 			debug_printf("STEAL : ta=(%d,%d) tb=(%d,%d) tc=(%d,%d) td(%d,%d)\n", ta.x, ta.y, tb.x, tb.y, tc.x, tc.y, td.x, td.y);
 
@@ -185,7 +185,9 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		SCAN_GLASSES,
 		DECISION,
 		SUBACTION_STEAL,
+		GOTO_4TH_GIFT,
 		COME_BACK_HOME,
+		RETURNING_FOR_SCAN,
 		FAIL,
 		SUCCESS
 	}state_e;
@@ -258,7 +260,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			}
 			else
 				state = SCAN_GLASSES;
-//#define I_HAVE_TESTED_THE_FOLLOWING_PART_OF_THIS_FUNCTION
+#define I_HAVE_TESTED_THE_FOLLOWING_PART_OF_THIS_FUNCTION
 #warning "attention code non debogue"
 			#ifndef I_HAVE_TESTED_THE_FOLLOWING_PART_OF_THIS_FUNCTION
 				#warning "ce bouchon pourra etre desactive quand le reste de la fonction sera teste correctement !!!"
@@ -282,23 +284,20 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 				break;
 			}
 		break;
-		case COME_BACK_HOME:
+		case GOTO_4TH_GIFT:
 			//Point 1 : chez l'adversaire, en X = 250.
+			state = try_going_slow(250,COLOR_Y(2135),	GOTO_4TH_GIFT, COME_BACK_HOME,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+		break;
+		case COME_BACK_HOME:
 			//Point 2 : la dépose dans la zone de départ TINY (début de zone !) ATTENTION A NE PAS DETRUIRE NOS VERRES.
+			state = try_going_slow(250,COLOR_Y(450),	COME_BACK_HOME, RETURNING_FOR_SCAN,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+
+		break;
+		case RETURNING_FOR_SCAN:
 			//Point 3 : on retourne sur la ligne du SCAN
-			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(2135)},SLOW},{{250,COLOR_Y(450)},SLOW},{{250,COLOR_Y(2135)},FAST}},3,FORWARD,NO_DODGE_AND_WAIT);
-			switch(sub_action)
-			{
-				case IN_PROGRESS:
-				break;
-				case END_OK:
-					state = SUCCESS;
-				break;
-				default:
-					state = FAIL;
-				break;
-			}
-			state = SUCCESS;
+			if(entrance)
+				ACT_plier_close();
+			state = try_going_slow(250,COLOR_Y(2135),	RETURNING_FOR_SCAN, SUCCESS,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
 		break;
 		case FAIL:
 			ACT_plier_close();
@@ -306,7 +305,6 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			ret = NOT_HANDLED;
 		break;
 		case SUCCESS:
-			ACT_plier_close();
 			//Là, c'est vraiment la fête du slip !!!
 			state = INIT;
 			ret = END_OK;
@@ -329,7 +327,9 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			case SCAN_GLASSES:				debug_printf("SCAN_GLASSES");		break;
 			case DECISION:					debug_printf("DECISION");			break;
 			case SUBACTION_STEAL:			debug_printf("SUBACTION_STEAL");	break;
+			case GOTO_4TH_GIFT:				debug_printf("GOTO_4TH_GIFT");		break;
 			case COME_BACK_HOME:			debug_printf("COME_BACK_HOME");		break;
+			case RETURNING_FOR_SCAN:		debug_printf("RETURNING_FOR_SCAN");	break;
 			case FAIL:						debug_printf("FAIL");				break;
 			case SUCCESS:					debug_printf("SUCCESS");			break;
 			default:						debug_printf("???");				break;
@@ -805,12 +805,12 @@ bool_e scan_for_glasses(bool_e reset)
 		if(global.env.color == RED)
 		{
 			glasses_y[nb_glasses] = global.env.pos.y + (Sint16)(value32) + 100;	//TODO + delta entre capteur et centre robot
-			glasses_x[nb_glasses] = global.env.pos.x;						//TODO + delta entre capteur et centre robot
+			glasses_x[nb_glasses] = global.env.pos.x + 30;						//TODO + delta entre capteur et centre robot
 		}
 		else
 		{
 			glasses_y[nb_glasses] = global.env.pos.y - (Sint16)(value32) - 100;	//TODO - delta entre capteur et centre robot
-			glasses_x[nb_glasses] = global.env.pos.x;						//TODO + delta entre capteur et centre robot
+			glasses_x[nb_glasses] = global.env.pos.x - 30;						//TODO + delta entre capteur et centre robot
 		}
 		glasses_seen = TRUE;
 		nb_glasses++;
