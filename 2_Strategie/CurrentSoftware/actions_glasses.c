@@ -352,7 +352,9 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 						if(current_dest_home < FIRST_SAFE_HOME)
 							current_dest_home = FIRST_SAFE_HOME;
 						else current_dest_home++;
-						if(current_dest_home < trajectory_to_home_number) {
+
+						//FIXME: numéro de case en dur !!!
+						if((current_dest_home == 1 || current_dest_home == 2 || zone_starttiny_lock_state == END_OK) && current_dest_home < trajectory_to_home_number) {
 							state = GM_GO_HOME;
 						} else {
 							//En fait on a déjà fait tous les choix ! => on ne peut pas revenir chez nous, on le fera a la fin

@@ -40,7 +40,7 @@ static const plate_info_t PLATE_INFOS[5] = {
 };
 static const Sint16 PLATE_Y_POS = 205;	//Position en Y des assiettes
 //La pince à assiette n'est pas symétrique ni centrée sur le robot, on doit avoir un offset en X pour que la pince ne tappe pas l'assiette alors qu'elle est ouverte
-static const Sint16 PLATE_OFFSET_X_ROBOT = -15;
+static const Sint16 PLATE_OFFSET_X_ROBOT = -10;
 //Décalage dans le cas de l'assiette coté bleu - gateau. Avec l'offset normal on taperait dans le buffet. L'offset est quand même celui qu'on aurait du coté rouge, pour un souci d'avoir un code partout pareil
 static const Sint16 PLATE_OFFSET_X_ROBOT_FAR_CORNER = -12;
 static const Sint16 ROBOT_X_POS_EPSILON = 10;	//Si on est pas à moins de 10mm = 1cm près de la bonne position, on bouge le robot
@@ -72,6 +72,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 	//Ce n'est pas mis en define pour garder ça en interne dans la fonction
 
 	static const Uint8 LAUNCH_EVERY_NUM_PLATE = 1;
+	static const bool_e USE_SPECIAL_CASE_PLATE_BLEU = FALSE;
 
 	////////////////////////////////////////////////////////////////
 
@@ -173,15 +174,17 @@ error_e K_STRAT_sub_cherries_alexis() {
 			}
 
 			//Si on a choisi la 4 et qu'on est bleu, on commence par faire la 3
-			if(global.env.color == BLUE && current_plate == 4)
-				current_plate = 3;
+			if(USE_SPECIAL_CASE_PLATE_BLEU) {
+				if(global.env.color == BLUE && current_plate == 4)
+					current_plate = 3;
 
-			if(current_plate == 3 && global.env.color == BLUE) {
-				doing_special_plate_3 = TRUE;
-				doing_special_plate_4 = FALSE;
-			} else {
-				doing_special_plate_3 = FALSE;
-				doing_special_plate_4 = FALSE;
+				if(current_plate == 3 && global.env.color == BLUE) {
+					doing_special_plate_3 = TRUE;
+					doing_special_plate_4 = FALSE;
+				} else {
+					doing_special_plate_3 = FALSE;
+					doing_special_plate_4 = FALSE;
+				}
 			}
 
 			//On vide le robot avant de faire l'assiette 3 et 4 d'un coup
@@ -264,7 +267,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 		//On lache l'assiette si on l'avait gardé et on passe à la suivante si c'est pas fini
 		case DP_DROP_PLATE:
 			if(keep_plate) {
-				switch(K_STRAT_micro_drop_plate(TRUE, 0)) {
+				switch(K_STRAT_micro_drop_plate(TRUE, PI4096/4)) {
 					case IN_PROGRESS: break;
 
 					case NOT_HANDLED:
