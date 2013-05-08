@@ -1887,8 +1887,8 @@ void foe_in_path(bool_e *in_path)
 			{
 		//		debug_printf("B_%d\n",global.env.foe.angle);
 				/* On regarde si l'adversaire est dans un gabarit devant nous */
-				if(((global.env.foe[i].dist < distance_computed_narrow) && (global.env.foe[i].angle > (-DETECTION_ANGLE_NARROW) && global.env.foe[i].angle < DETECTION_ANGLE_NARROW)) ||
-				   ((global.env.foe[i].dist < distance_computed_wide)   && (global.env.foe[i].angle > (-DETECTION_ANGLE_WIDE)   && global.env.foe[i].angle < DETECTION_ANGLE_WIDE)  )    )
+				if(((global.env.foe[i].dist < distance_computed_narrow) && (global.env.foe[i].angle < (-PI4096+DETECTION_ANGLE_NARROW) && global.env.foe[i].angle > PI4096-DETECTION_ANGLE_NARROW)) ||
+				   ((global.env.foe[i].dist < distance_computed_wide)   && (global.env.foe[i].angle < (-PI4096+DETECTION_ANGLE_WIDE)   && global.env.foe[i].angle > PI4096-DETECTION_ANGLE_WIDE)  )    )
 				{
 					in_path[i] = TRUE;
 					//avoidance_printf("B_");
