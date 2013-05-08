@@ -295,6 +295,15 @@ static void CAN_error_processing();
 				CAN1SendMessage((CAN_TX_SID(can_msg->sid)) & (CAN_TX_EID_DIS) & (CAN_SUB_NOR_TX_REQ),
 								(CAN_TX_EID(12344)) & (CAN_NOR_TX_REQ),can_msg->data, can_msg->size, 0);
 			}
+
+			/* envoie un message CAN sans données avec le sid spécifié */
+			void CAN_send_sid(Uint11 sid)
+			{
+				CAN_msg_t msg;
+				msg.sid = sid;
+				msg.size = 0;
+				CAN_send(&msg);
+			}
 		
 		#endif
 	#endif
