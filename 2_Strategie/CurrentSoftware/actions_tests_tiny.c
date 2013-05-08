@@ -50,7 +50,9 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		WAIT,
 		//FAILING PARTIAL ACTIONS...
 		SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS,
-		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES
+		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES,
+		PROTECT_GLASSES,
+		FTW
 	}state_e;
 	static state_e state = GET_OUT;
 	static state_e previous_state = GET_OUT;
@@ -187,11 +189,26 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				if(all_gifts_done() == FALSE)
 					state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 				else if(!all_candles_done)
-					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;	//Il reste des bougies à souffler... on y retourne.
+					state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//Il reste des bougies à souffler... on y retourne.
 				else if(SWITCH_STRAT_3 == 1)
 					state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment de (re)faire un scan
+				else if(SWITCH_LAST_POS==1)
+					state = PROTECT_GLASSES;
+				else
+					state = FTW;
 			}
 		break;
+
+		case PROTECT_GLASSES:
+			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
+			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?400:450, PROTECT_GLASSES,WAIT, WAIT,FORWARD, NO_DODGE_AND_WAIT);
+		break;
+
+		case FTW:
+			//Position d'attente quand on a plus rien à faire.
+			state = try_going(1380,COLOR_Y(1500), FTW, WAIT, WAIT, ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
 				//sub_action = STRAT_TINY_goto_cake_and_blow_candles();
 				sub_action = TINY_forgotten_candles();
@@ -235,6 +252,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			}
 			
 		break;
+
 		default:
 			state = SUBACTION_STEAL_ADVERSARY_GLASSES;
 		break;
