@@ -260,10 +260,138 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 
 
+void STRAT_TINY_4_gifts_only(void)
+{
+	typedef enum
+	{
+		//STARTER
+		GET_OUT = 0,
+		GET_OUT_IF_NO_CALIBRATION,
+		TURN_IF_NO_CALIBRATION,
+
+		//NOMINAL MATCH
+		SUBACTION_OPEN_ALL_GIFTS,
+		COME_BACK,
+		WAIT,
+	}state_e;
+	static state_e state = GET_OUT;
+	static state_e previous_state = GET_OUT;
+
+	error_e sub_action;
+
+	//Les variables en minuscule pour pas confondre avec des états et static pour garder la valeur entre plusieurs appel de la fonction (et donc entre plusieurs états)
+
+	//Mieux vaut utiliser l'environnement qui doit être correctement informé que ces booléens redondants...
+/*	static bool_e red_cake_blowed = FALSE;  //TRUE quand on a fait la partie du gateau coté rouge, sinon FALSE
+	static bool_e blue_cake_blowed = FALSE;  //TRUE quand on a fait la partie du gateau coté bleu, sinon FALSE
+	static bool_e white_cake_blowed = FALSE;  //TRUE quand on a fait la partie du gateau coté bougies blanches, sinon FALSE
+*/
+
+
+	switch(state)
+	{
+						//Sortie de la zone de départ, on rejoint le point de départ pour les cadeaux
+			//POSITION DE DEPART :  x=250 | y= collé contre bordure | sens = bras du coté des cadeaux (ou pas si lancement sans calibration)
+			//REMARQUE
+			/*
+				SI la calibration est effectuée, on est dans le bon sens quelque soit la couleur
+				SINON, (hors match... pour gain de temps) une rotation aura lieu dès qu'on est "extrait" de la bordure (sens imposé) !
+			*/
+		case GET_OUT:
+			if(global.env.asser.calibrated || global.env.color == RED)
+				state = SUBACTION_OPEN_ALL_GIFTS;
+			else
+				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !
+		break;
+		case GET_OUT_IF_NO_CALIBRATION:
+			//									in_progress					success					failed
+			state = try_going(250, COLOR_Y(150), GET_OUT_IF_NO_CALIBRATION, TURN_IF_NO_CALIBRATION, TURN_IF_NO_CALIBRATION, ANY_WAY, NO_AVOIDANCE);
+		break;
+		case TURN_IF_NO_CALIBRATION:
+			//								in_progress				success						failed
+			state = try_go_angle(PI4096/2, TURN_IF_NO_CALIBRATION, SUBACTION_OPEN_ALL_GIFTS, SUBACTION_OPEN_ALL_GIFTS, FAST);
+		break;
+		case SUBACTION_OPEN_ALL_GIFTS:	//Subaction d'ouverture des cadeaux
+			//sub_action = TINY_open_all_gifts();
+			sub_action = TINY_open_all_gifts_without_pause();
+			switch(sub_action)
+            {
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					debug_printf("J'ai fini les cadeaux.\n");
+					state = COME_BACK;
+				break;
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+					debug_printf("Je n'ai pas fini les cadeaux.\n");
+					state = COME_BACK;
+				break;
+				default:
+				break;
+            }
+		break;
+
+		
+		case COME_BACK:
+			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
+			state = try_going(250,COLOR_Y(450), COME_BACK, WAIT, WAIT, ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+		case WAIT:
+			//NOTHING !
+		break;
+		
+		default:
+			state = WAIT;
+		break;
+	}
+
+	if(previous_state != state)
+	{
+		debug_printf("T_STRAT->");
+		switch(state)
+		{
+			case GET_OUT:									debug_printf("get_out\n");											break;
+			case GET_OUT_IF_NO_CALIBRATION:					debug_printf("get_out_if_no_calibration\n");						break;
+			case TURN_IF_NO_CALIBRATION:					debug_printf("turn_if_no_calibration\n");							break;
+			case SUBACTION_OPEN_ALL_GIFTS:					debug_printf("open_all_gifts\n");									break;
+			case COME_BACK:									debug_printf("COME_BACK\n");										break;
+			case WAIT:										debug_printf("Wait\n");												break;
+			default:										debug_printf("???\n");												break;
+		}
+	}
+	previous_state = state;
+}
 
 
 
+/*
+ Idée de strat (contre un adversaire qui NE COMMENCE PAS PAR LE GATEAU !) :
+ * -> Départ case proche gateau. (bras coté bordure gateau)
+ * -> Avance jusqu'au gateau en sortant le bras
+ * rotation pr bougie 1
+ * soufflage complet
+ * -> goto cadeaux (le 4 de préférence).
+ * -> ouverture des cadeaux.
+ * -> Scan & Steal
+ *
+ * Etapes intermédiaire :
+ *		goto cadeaux + rapide, vers cadeau 4
+ *		ouverture des cadeaux avec warner 4->1... (et 3->1 en cas de pb)
+ * Strat pertinente contre un adversaire qui fonce vers les cadeaux et QU'ON A PEUR D'EVITER !
+ */
 
+/*
+ Autre IdéeS de strat tordue (IDEES EN VRAC !)
+ * -> Foncer déplacer les assiettes adverses à la fin des cadeaux
+ * -> Foncer vers le gateau adverse pour le faire vers nous ?
+ * -> Foncer vers le cadeau 4 pour les faire en revenant (permet d'aller plus vite !)
+ * -> faire que quelques scans... et le reste du temps, empecher l'accès au gateau ou aux cadeaux.. en fonction de ce que l'adverisaire n'a pas encore fait.
+ *     (cette info peut être choisie par config sur la carte strat par exemple)
+ *      Si on sait qu'il font le gateau en dernier... il faut les empecher d'y aller... quitte a faire un scan à 30 sec de la fin (si on a mis tt nos points)
+ *
+ */
 
 /* ----------------------------------------------------------------------------- */
 /* 							Autre strats de test             			 */

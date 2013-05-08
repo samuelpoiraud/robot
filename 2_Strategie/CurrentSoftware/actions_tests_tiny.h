@@ -25,6 +25,6 @@ void STRAT_TINY_gifts_cake_and_steal(void);
 void TEST_STRAT_T_homologation(void);
 void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void);
 void STRAT_TINY_all_candles(void);
-
+void STRAT_TINY_4_gifts_only(void);
 
 #endif /* ACTIONS_TESTS_TINY_H */
