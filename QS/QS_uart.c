@@ -146,10 +146,10 @@ void UART_init(void)
 		typedef struct
 		{
 			volatile Uint8 * datas;
-			Uint8 size;
-			Uint8 nb_datas;
-			Uint8 index_read;
-			Uint8 index_write;
+			Uint16 size;
+			Uint16 nb_datas;
+			Uint16 index_read;
+			Uint16 index_write;
 		}buffer_t;
 		volatile Uint8 b1tx[BUFFER_TX_SIZE];
 		volatile buffer_t buffer1tx = {b1tx,BUFFER_TX_SIZE,0,0,0};
