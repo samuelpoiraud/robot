@@ -663,7 +663,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1380, COLOR_Y(865),	SB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1480, COLOR_Y(990),	SB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != SB)
 				from = SB;
 		break;
