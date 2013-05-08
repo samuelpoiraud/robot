@@ -88,7 +88,7 @@ void any_match(time32_t match_duration)
 			switch(strat_number())
 			{
 				case 0x01:	//STRAT_1_TINY
-					//strategy = STRAT_TINY_gifts_and_cake;
+					//strategy = STRAT_TINY_all_candles;
 					strategy = STRAT_TINY_gifts_cake_and_steal;
 				break;
 				case 0x02:	//STRAT_2_TINY

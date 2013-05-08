@@ -21,6 +21,12 @@ error_e TINY_warner_blow_one_candle(bool_e reset);
 error_e TINY_blow_all_candles(void);
 error_e TINY_blow_one_candle(Uint8 i, Sint8 way);
 
+void TINY_candles_shoutbox(Sint8 index);
+int TINY_forgotten_candles_left_extremity();
+int TINY_forgotten_candles_right_extremity();
+error_e TINY_forgotten_candles();
+error_e TINY_blow_one_forgotten_candle(Sint8 i,Sint8 way,Sint8 first_candle);
+
 typedef enum
 {
 	CAKE_PART_QUATER_BLUE,

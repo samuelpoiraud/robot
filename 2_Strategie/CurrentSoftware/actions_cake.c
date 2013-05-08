@@ -5,7 +5,7 @@
  *	Fichier : actions_cake.c
  *	Package : Carte Strategie
  *	Description : Contient des sub_actions ou micro strat concernant la gestion du gateau pour TINY.
- *	Auteur : nirgal
+ *	Auteur : HoObbes
  *	Version 201305
  */
 
@@ -23,7 +23,7 @@ typedef struct{
 }candle_t;
 
 const candle_t candles[12]=
-{{1916,865,-536},  //bougie coté rouge
+{{1916,865,-2430},  //bougie coté rouge
 {1768,909,-1608},
 {1633,992,-2380},
 {1519,1110,-3052},
@@ -34,7 +34,7 @@ const candle_t candles[12]=
 {1519,1890,-9726},
 {1633,2008,-10184},
 {1768,2091,-11256},
-{1916,2135,-12328}};  //bougie coté bleu.
+{1916,2135,-10437}};  //bougie coté bleu.
 
 
 /*{{1916,865,-536},  //bougie coté rouge
@@ -219,7 +219,7 @@ error_e TINY_warner_blow_all_candles(void)
 			break;
 
 		case ANGLE_HAMMER:
-			state=try_go_angle((color_begin_cake==BLUE)?5897:6965, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
+			state=try_go_angle((color_begin_cake==BLUE)?6965:5897, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
 		break;
 
 		case HAMMER_UP:
@@ -239,12 +239,12 @@ error_e TINY_warner_blow_all_candles(void)
 
 		case HAMMER_CANDLE:
 				ACT_hammer_blow_candle(); 	//BAISSER BRAS
+				//(color_begin_cake==BLUE)? global.env.map_elements[GOAL_Etage1Bougie11]=ELEMENT_DONE : global.env.map_elements[GOAL_Etage1Bougie0]=ELEMENT_DONE;
 				state=WAIT_HAMMER_DOWN_CANDLE;
 		break;
 		case WAIT_HAMMER_DOWN_CANDLE:
 			//						->In progress			->Success						->Fail
 			state = wait_hammer(	WAIT_HAMMER_DOWN_CANDLE,SUB_BLOW_CANDLES, FAIL);
-			//TODO : prévenir l'environnement à chaque bougie soufflée !
 		break;
 
 		case SUB_BLOW_CANDLES:
@@ -270,7 +270,7 @@ error_e TINY_warner_blow_all_candles(void)
 		 //FINISH
 
 		case ALL_CANDLES_BLOWN:
-			state = try_go_angle((color_begin_cake==BLUE)?-3752:-9726, ALL_CANDLES_BLOWN,  HAMMER_FINAL_POS,  HAMMER_FINAL_POS, FAST);
+			state = try_go_angle((color_begin_cake==BLUE)?5897:6965, ALL_CANDLES_BLOWN,  HAMMER_FINAL_POS,  HAMMER_FINAL_POS, FAST);
 			//TODO : prévenir l'environnement que le gateau est fini !
 		break;
 
@@ -368,10 +368,10 @@ error_e TINY_warner_blow_one_candle(bool_e reset)
 			if(global.env.asser.reach_y)
 			{
 				ACT_hammer_blow_candle(); 	//souffler pfuuuuuu pfuuuuuuu
+				TINY_candles_shoutbox(candle_index); // J'ANNONCE a la grille quelles bougies ont été soufflées
 				if(candle_index == last_candle){
 						state = DONE;	//On vient de faire la dernière bougie
 				}else{
-						//global.env.map_elements[GOAL_Etage1Bougie0] = ELEMENT_DONE;
 						candle_index += way;
 						state=WAIT_CANDLE;
 				}
@@ -394,6 +394,283 @@ error_e TINY_warner_blow_one_candle(bool_e reset)
 }
 
 
+//En test xD
+
+void TINY_candles_shoutbox(Sint8 index){
+	if(index==0) global.env.map_elements[GOAL_Etage1Bougie0] = ELEMENT_DONE;
+	if(index==1) global.env.map_elements[GOAL_Etage1Bougie1] = ELEMENT_DONE;
+	if(index==2) global.env.map_elements[GOAL_Etage1Bougie2] = ELEMENT_DONE;
+	if(index==3) global.env.map_elements[GOAL_Etage1Bougie3] = ELEMENT_DONE;
+	if(index==4) global.env.map_elements[GOAL_Etage1Bougie4] = ELEMENT_DONE;
+	if(index==5) global.env.map_elements[GOAL_Etage1Bougie5] = ELEMENT_DONE;
+	if(index==6) global.env.map_elements[GOAL_Etage1Bougie6] = ELEMENT_DONE;
+	if(index==7) global.env.map_elements[GOAL_Etage1Bougie7] = ELEMENT_DONE;
+	if(index==8) global.env.map_elements[GOAL_Etage1Bougie8] = ELEMENT_DONE;
+	if(index==9) global.env.map_elements[GOAL_Etage1Bougie9] = ELEMENT_DONE;
+	if(index==10) global.env.map_elements[GOAL_Etage1Bougie10] = ELEMENT_DONE;
+	if(index==11) global.env.map_elements[GOAL_Etage1Bougie11] = ELEMENT_DONE;
+}
+
+int TINY_forgotten_candles_left_extremity(){
+		int candle_left=-1;
+		if((global.env.map_elements[GOAL_Etage1Bougie11]!= ELEMENT_DONE)) candle_left=11;
+		if((global.env.map_elements[GOAL_Etage1Bougie10]!= ELEMENT_DONE)) candle_left=10;
+		if((global.env.map_elements[GOAL_Etage1Bougie9]!= ELEMENT_DONE)) candle_left=9;
+		if((global.env.map_elements[GOAL_Etage1Bougie8]!= ELEMENT_DONE)) candle_left=8;
+		if((global.env.map_elements[GOAL_Etage1Bougie7]!= ELEMENT_DONE)) candle_left=7;
+		if((global.env.map_elements[GOAL_Etage1Bougie6]!= ELEMENT_DONE)) candle_left=6;
+		if((global.env.map_elements[GOAL_Etage1Bougie5]!= ELEMENT_DONE)) candle_left=5;
+		if((global.env.map_elements[GOAL_Etage1Bougie4]!= ELEMENT_DONE)) candle_left=4;
+		if((global.env.map_elements[GOAL_Etage1Bougie3]!= ELEMENT_DONE)) candle_left=3;
+		if((global.env.map_elements[GOAL_Etage1Bougie2]!= ELEMENT_DONE)) candle_left=2;
+		if((global.env.map_elements[GOAL_Etage1Bougie1]!= ELEMENT_DONE)) candle_left=1;
+		if((global.env.map_elements[GOAL_Etage1Bougie0]!= ELEMENT_DONE)) candle_left=0;
+		return candle_left;
+}
+
+int TINY_forgotten_candles_right_extremity(){
+		int candle_right=-1;
+		if((global.env.map_elements[GOAL_Etage1Bougie0]!= ELEMENT_DONE)) candle_right=0;
+		if((global.env.map_elements[GOAL_Etage1Bougie1]!= ELEMENT_DONE)) candle_right=1;
+		if((global.env.map_elements[GOAL_Etage1Bougie2]!= ELEMENT_DONE)) candle_right=2;
+		if((global.env.map_elements[GOAL_Etage1Bougie3]!= ELEMENT_DONE)) candle_right=3;
+		if((global.env.map_elements[GOAL_Etage1Bougie4]!= ELEMENT_DONE)) candle_right=4;
+		if((global.env.map_elements[GOAL_Etage1Bougie5]!= ELEMENT_DONE)) candle_right=5;
+		if((global.env.map_elements[GOAL_Etage1Bougie6]!= ELEMENT_DONE)) candle_right=6;
+		if((global.env.map_elements[GOAL_Etage1Bougie7]!= ELEMENT_DONE)) candle_right=7;
+		if((global.env.map_elements[GOAL_Etage1Bougie8]!= ELEMENT_DONE)) candle_right=8;
+		if((global.env.map_elements[GOAL_Etage1Bougie9]!= ELEMENT_DONE)) candle_right=9;
+		if((global.env.map_elements[GOAL_Etage1Bougie10]!= ELEMENT_DONE))candle_right=10;
+		if((global.env.map_elements[GOAL_Etage1Bougie11]!= ELEMENT_DONE))candle_right=11;
+		return candle_right;
+}
+
+error_e TINY_forgotten_candles()
+{
+	typedef enum
+	{
+		INIT=0,
+		GOTO_CANDLE,
+		ANGLE_HAMMER,
+		HAMMER_UP,
+	    WAIT_HAMMER,
+		SUB_BLOW_CANDLES,
+		ALL_CANDLES_BLOWN,
+		RETURN_HOME,
+		HAMMER_FINAL_POS,
+		LAST_WAIT_HAMMER_DOWN,
+		FAIL,
+		DONE
+	}state_e;
+	static state_e state = INIT;
+	static Sint8 way;
+	static color_e color_begin_cake;
+	static Uint8 candle_index;
+	static Uint8 last_candle;
+	static Uint8 first_candle;
+
+	error_e ret = IN_PROGRESS;
+	error_e sub_action;
+
+	switch(state)
+	{
+		case INIT:
+			//EN arrivant dans cette fonction, on est d'un des cotés du gateau... on observe ici lequel... et on fait le gateau dans le sens qui va bien.
+
+			if(global.env.pos.y > 1500)	
+			{
+				color_begin_cake = BLUE;
+				candle_index=TINY_forgotten_candles_right_extremity();
+				last_candle =TINY_forgotten_candles_left_extremity();
+				way = -1;	//On décrémente les bougies
+			}
+			else						
+			{
+				color_begin_cake = RED;
+				candle_index=TINY_forgotten_candles_left_extremity();
+				last_candle =TINY_forgotten_candles_right_extremity();
+				way = 1;	//On incrémente les bougies
+			}
+			first_candle=candle_index;
+			state = ANGLE_HAMMER;
+			break;
+
+		case GOTO_CANDLE:
+			state=try_going(candles[candle_index].x,candles[candle_index].y,GOTO_CANDLE, ANGLE_HAMMER, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+		break;
+
+		case ANGLE_HAMMER:
+			state=try_go_angle((color_begin_cake==BLUE)?PI4096/2:PI4096/2, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
+		break;
+
+		case HAMMER_UP:
+				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER le bras
+				state=WAIT_HAMMER;
+		break;
+
+		case WAIT_HAMMER:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(	WAIT_HAMMER,	SUB_BLOW_CANDLES,	SUB_BLOW_CANDLES);
+		break;
+
+		case SUB_BLOW_CANDLES:
+			sub_action = TINY_blow_one_forgotten_candle(candle_index,way,first_candle);	//On souffle une bougie
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					if(candle_index == last_candle)
+						state = ALL_CANDLES_BLOWN;	//On vient de faire la dernière bougie
+					else
+						candle_index += way;	//On reste ici pour la prochaine bougie...
+				break;
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+				case END_WITH_TIMEOUT:
+					state = FAIL;
+				break;
+				default:
+				break;
+			}
+		break;
+
+		 //FINISH
+
+		case ALL_CANDLES_BLOWN:
+			state = try_go_angle((color_begin_cake==BLUE)?PI4096/2:PI4096/2, ALL_CANDLES_BLOWN,  HAMMER_FINAL_POS,  HAMMER_FINAL_POS, FAST);
+			//TODO : prévenir l'environnement que le gateau est fini !
+		break;
+
+		case HAMMER_FINAL_POS:
+			ACT_hammer_goto(HAMMER_POSITION_DOWN); 	//BAISSER BRAS
+			state=LAST_WAIT_HAMMER_DOWN;
+			break;
+		case LAST_WAIT_HAMMER_DOWN:
+			//						->In progress					->Success						->Fail
+			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,	DONE);
+		break;
+		case FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
+
+		case DONE:
+			state = INIT;
+			ret = END_OK;
+		break;
+
+            default:
+		break;
+
+	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
+	return ret;
+}
+
+error_e TINY_blow_one_forgotten_candle(Sint8 i,Sint8 way,Sint8 first_candle)
+{
+	typedef enum
+	{
+		INIT,
+		GOTO_CANDLE,
+		ANGLE_CANDLE,
+		HAMMER_CANDLE,
+		WAIT_HAMMER_DOWN_CANDLE,
+		HAMMER_FAIL,
+		GOTO_FAIL,
+		DONE
+	}state_e;
+
+	static state_e state = INIT;
+
+	error_e ret = IN_PROGRESS;
+
+	switch(state)
+	{
+		case INIT:
+			if((way == 1 && i==first_candle) || (way == -1 && i==first_candle))
+				state = ANGLE_CANDLE;	//Première bougie -> angle directement.
+			else
+				state = GOTO_CANDLE;	//Bougies suivantes -> goto bougie, puis angle.
+		break;
+		case GOTO_CANDLE:
+			state=try_going(candles[i].x,candles[i].y,GOTO_CANDLE, ANGLE_CANDLE, GOTO_FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+		break;
+
+	    case ANGLE_CANDLE:
+			state=try_go_angle(candles[i].teta, ANGLE_CANDLE, HAMMER_CANDLE, GOTO_FAIL, FAST);
+		break;
+
+		case HAMMER_CANDLE:
+				ACT_hammer_blow_candle(); 	//BAISSER BRAS
+				state=WAIT_HAMMER_DOWN_CANDLE;
+		break;
+		case WAIT_HAMMER_DOWN_CANDLE:
+
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(WAIT_HAMMER_DOWN_CANDLE, DONE, DONE);
+			TINY_candles_shoutbox(i);
+		break;
+
+		case HAMMER_FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
+		case GOTO_FAIL:
+			state = INIT;
+			ret = NOT_HANDLED;
+		break;
+		case DONE:
+			state = INIT;
+			ret = END_OK;
+		break;
+
+        default:
+			state = INIT;
+		break;
+
+	}
+	if(ret != IN_PROGRESS)
+		state = INIT;
+	return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//SANS WARNER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// NE FAIT PAS PARTIE DU CODE POUR LA COUPE !!!!!!!!!!!!!!!!!!!!
 
 error_e TINY_blow_all_candles(void)
 {
@@ -441,6 +718,8 @@ error_e TINY_blow_all_candles(void)
 			}
 			state = ANGLE_HAMMER;
 			break;
+
+
 
 		case ANGLE_HAMMER:
 			state=try_go_angle((color_begin_cake==BLUE)?-9726:-3752, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
