@@ -13,14 +13,7 @@
 
 #include "can_utils.h"
 
-/* envoie un message CAN sans données avec le sid spécifié */
-void CAN_send_sid(Uint11 sid)
-{
-	CAN_msg_t msg;
-	msg.sid = sid;
-	msg.size = 0;
-	CAN_send(&msg);
-}
+
 
 /* envoie un message CAN contenant le texte spécifié */
 void CAN_send_debug(char* string)

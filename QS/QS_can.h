@@ -24,6 +24,7 @@
 	
 	#ifdef USE_CAN
 		void CAN_send(CAN_msg_t* can_msg);
+		void CAN_send_sid(Uint11 sid);
 		CAN_msg_t CAN_get_next_msg();
 		bool_e CAN_data_ready();
 		/* Permet le traitement direct des messages CAN */
