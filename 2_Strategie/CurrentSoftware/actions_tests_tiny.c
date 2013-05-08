@@ -191,8 +191,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			}
 		break;
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
-			#warning "TODO... une subaction qui va faire les bougies oubliées... et seulement celles ci... "
-				sub_action = STRAT_TINY_goto_cake_and_blow_candles();
+				sub_action = TINY_forgotten_candles();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
@@ -433,12 +432,8 @@ void STRAT_TINY_all_candles(void)
 	typedef enum
 	{
 		GET_OUT = 0,
-		POS,
 	    TINY_CANDLES,
 		COMEBACK2CODEUR,
-				test1,
-				test2,
-				mid,
 		DONE
 	}state_e;
 
@@ -450,15 +445,11 @@ void STRAT_TINY_all_candles(void)
 
 		case GET_OUT:
 
-			state = try_going(250, COLOR_Y(865), GET_OUT, POS,POS,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(250, COLOR_Y(865), GET_OUT, TINY_CANDLES,TINY_CANDLES,FORWARD,NO_DODGE_AND_WAIT);
 		break;
 
-		case POS:
-
-			state = try_going(1914, COLOR_Y(865), POS, TINY_CANDLES,TINY_CANDLES,FORWARD,NO_DODGE_AND_WAIT);
-		break;
 		case TINY_CANDLES:
-			sub_action = TINY_warner_blow_all_candles();
+			sub_action = TINY_forgotten_candles();
 			switch(sub_action)
             {
 				case END_OK:
@@ -478,52 +469,7 @@ void STRAT_TINY_all_candles(void)
 
 
 		case COMEBACK2CODEUR:
-             state = try_going(500, COLOR_Y(2154), COMEBACK2CODEUR, test1, test1, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
-
-		break;
-
-		case test1:
-			sub_action=TINY_forgotten_gift(GOAL_Cadeau2);
-			switch(sub_action)
-            {
-				case END_OK:
-					state=mid;
-				break;
-				case END_WITH_TIMEOUT:
-					state=mid;
-				case NOT_HANDLED:
-				case FOE_IN_PATH:
-					state =mid;
-				break;
-				case IN_PROGRESS:
-				default:
-				break;
-            }
-   
-		break;
-
-		case mid:
-             state = try_going(1000, COLOR_Y(1500), mid,test2, test2, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
-
-		break;
-
-		case test2:
-             sub_action=TINY_forgotten_gift(GOAL_Cadeau3);
-			switch(sub_action)
-            {
-				case END_OK:
-					state=DONE;
-				break;
-				case END_WITH_TIMEOUT:
-					state=DONE;
-				case NOT_HANDLED:
-				case FOE_IN_PATH:
-					state =DONE;
-				break;
-				case IN_PROGRESS:
-				default:
-				break;
-            }
+             state = try_going(500, COLOR_Y(2154), COMEBACK2CODEUR, DONE, DONE, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 
 		break;
 		case DONE:

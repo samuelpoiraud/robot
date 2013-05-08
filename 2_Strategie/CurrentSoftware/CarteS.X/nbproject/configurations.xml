@@ -129,7 +129,7 @@
         <targetDevice>dsPIC30F6010A</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
+        <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion></languageToolchainVersion>
         <platform>3</platform>
