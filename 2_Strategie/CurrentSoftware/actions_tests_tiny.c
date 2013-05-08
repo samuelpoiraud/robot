@@ -193,8 +193,8 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			}
 		break;
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
-				sub_action = STRAT_TINY_goto_cake_and_blow_candles();
-				//sub_action = TINY_forgotten_candles();
+				//sub_action = STRAT_TINY_goto_cake_and_blow_candles();
+				sub_action = TINY_forgotten_candles();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:

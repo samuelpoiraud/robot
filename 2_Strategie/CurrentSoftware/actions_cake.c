@@ -23,7 +23,7 @@ typedef struct{
 }candle_t;
 
 const candle_t candles[12]=
-{{1916,865,-2430},  //bougie coté rouge
+{{1830,885,-2430},  //bougie coté rouge
 {1768,909,-1608},
 {1633,992,-2380},
 {1519,1110,-3052},
@@ -34,7 +34,21 @@ const candle_t candles[12]=
 {1519,1890,-9726},
 {1633,2008,-10184},
 {1768,2091,-11256},
-{1916,2135,-10437}};  //bougie coté bleu.
+{1830,2115,-10437}};  //bougie coté bleu.
+
+const candle_t fcandles[12]=
+{{1830,885,-2430},  //bougie coté rouge
+{1755,909,-1608},
+{1610,992,-2680},
+{1492,1110,-3752},
+{1409,1255,-4824},
+{1365,1416,-5896},
+{1365,1584,-6968},
+{1409,1745,-8040},
+{1492,1890,-9112},
+{1610,2008,-10184},
+{1755,2091,-11256},
+{1830,2115,-10437}};
 
 
 /*{{1916,865,-536},  //bougie coté rouge
@@ -128,9 +142,9 @@ error_e TINY_warner_around_cake(Sint8 way)
 			{{wcandles[25].x,wcandles[25].y},SLOW},
 			{{wcandles[26].x,wcandles[26].y},SLOW},
 			{{wcandles[27].x,wcandles[27].y},SLOW},
-			{{wcandles[28].x,wcandles[28].y},SLOW},
-			{{wcandles[29].x,wcandles[29].y},SLOW}
-			},28,BACKWARD,NO_DODGE_AND_WAIT);
+			//{{wcandles[28].x,wcandles[28].y},SLOW},
+			//{{wcandles[29].x,wcandles[29].y},SLOW}
+			},26,BACKWARD,NO_DODGE_AND_WAIT);
 	}else{
 		return goto_pos_with_scan_foe((displacement_t[]){
 
@@ -162,9 +176,9 @@ error_e TINY_warner_around_cake(Sint8 way)
 			{{wcandles[4].x,wcandles[4].y},SLOW},
 			{{wcandles[3].x,wcandles[3].y},SLOW},
 			{{wcandles[2].x,wcandles[2].y},SLOW},
-			{{wcandles[1].x,wcandles[1].y},SLOW},
-			{{wcandles[0].x,wcandles[0].y},SLOW}
-			},28,FORWARD,NO_DODGE_AND_WAIT);
+			//{{wcandles[1].x,wcandles[1].y},SLOW},
+			//{{wcandles[0].x,wcandles[0].y},SLOW}
+			},26,FORWARD,NO_DODGE_AND_WAIT);
 
 	}
 
@@ -182,6 +196,8 @@ error_e TINY_warner_blow_all_candles(void)
 		ANGLE_HAMMER_READY,
 		HAMMER_CANDLE,
 		SUB_BLOW_CANDLES,
+		LAST_CANDLE,
+		LAST_CANDLE_ANGLE,
 		WAIT_HAMMER_DOWN_CANDLE,
 		ALL_CANDLES_BLOWN,
 		RETURN_HOME,
@@ -255,7 +271,7 @@ error_e TINY_warner_blow_all_candles(void)
 				case IN_PROGRESS:
 				break;
 				case END_OK:
-					state = ALL_CANDLES_BLOWN;
+					state = LAST_CANDLE;
 				break;
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
@@ -265,6 +281,16 @@ error_e TINY_warner_blow_all_candles(void)
 				default:
 				break;
 			}
+		break;
+
+		case LAST_CANDLE:
+			//									in_progress		success			failed
+			state=try_going(1830,(color_begin_cake==BLUE)?885:2115,LAST_CANDLE,	LAST_CANDLE_ANGLE,DONE,	ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+
+		case LAST_CANDLE_ANGLE:
+			state = try_go_angle((color_begin_cake==BLUE)?-2430:-10437,LAST_CANDLE_ANGLE,ALL_CANDLES_BLOWN,FAIL_GO_ANGLE, FAST);
+			(color_begin_cake==BLUE)? (global.env.map_elements[GOAL_Etage1Bougie0]=ELEMENT_DONE) : (global.env.map_elements[GOAL_Etage1Bougie11]=ELEMENT_DONE);
 		break;
 
 		 //FINISH
@@ -346,14 +372,14 @@ error_e TINY_warner_blow_one_candle(bool_e reset)
 			{
 				color_begin_cake = BLUE;
 				candle_index=10;	//On commence par la bougie 10
-				last_candle = 0;
+				last_candle = 1;
 				way = -1;	//On décrémente les bougies
 			}
 			else						//Nous sommes a coté du gateau, près du coté des gentils (rouge) (quelle que soit notre couleur)
 			{
 				color_begin_cake = RED;
 				candle_index=1;	//On commence par la bougie 1
-				last_candle = 11;
+				last_candle = 10;
 				way = 1;	//On incrémente les bougies
 			}
 			state=WAIT_CANDLE;
@@ -450,7 +476,13 @@ error_e TINY_forgotten_candles()
 	typedef enum
 	{
 		INIT=0,
+		DECISION,
+		SB,
+		EB,
+		MB,
+		DECISION2,
 		GOTO_CANDLE,
+		GOTO_POS,
 		ANGLE_HAMMER,
 		HAMMER_UP,
 	    WAIT_HAMMER,
@@ -475,8 +507,6 @@ error_e TINY_forgotten_candles()
 	switch(state)
 	{
 		case INIT:
-			//EN arrivant dans cette fonction, on est d'un des cotés du gateau... on observe ici lequel... et on fait le gateau dans le sens qui va bien.
-
 			if(global.env.pos.y > 1500)	
 			{
 				color_begin_cake = BLUE;
@@ -492,11 +522,43 @@ error_e TINY_forgotten_candles()
 				way = 1;	//On incrémente les bougies
 			}
 			first_candle=candle_index;
-			state = GOTO_CANDLE;
+			state = DECISION;
 			break;
 
+		case DECISION:
+			if(fcandles[candle_index].x > 1365 ){
+				state=MB;
+			} else {
+				state=GOTO_CANDLE;
+			}
+
+		break;
+
+		case SB:
+				state=try_going(1365,865,SB,GOTO_CANDLE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+		break;
+
+		case EB:
+				state=try_going(1365,2135,EB,GOTO_CANDLE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+		break;
+
+		case MB:
+			state=try_going(1365,1500,MB,DECISION2, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+				
+		break;
+
+		case DECISION2:
+			if(fcandles[candle_index].x >1365 && fcandles[candle_index].y <1500){
+				state=SB;
+			}
+
+			if(fcandles[candle_index].x >1365 && fcandles[candle_index].y >1500){
+				state=EB;
+			}
+		break;
+
 		case GOTO_CANDLE:
-			state=try_going(candles[candle_index].x,candles[candle_index].y,GOTO_CANDLE, ANGLE_HAMMER, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			state=try_going(fcandles[candle_index].x,fcandles[candle_index].y,GOTO_CANDLE, ANGLE_HAMMER, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 		case ANGLE_HAMMER:
@@ -596,11 +658,11 @@ error_e TINY_blow_one_forgotten_candle(Sint8 i,Sint8 way,Sint8 first_candle)
 				state = GOTO_CANDLE;	//Bougies suivantes -> goto bougie, puis angle.
 		break;
 		case GOTO_CANDLE:
-			state=try_going(candles[i].x,candles[i].y,GOTO_CANDLE, ANGLE_CANDLE, GOTO_FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			state=try_going(fcandles[i].x,fcandles[i].y,GOTO_CANDLE, ANGLE_CANDLE, GOTO_FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 	    case ANGLE_CANDLE:
-			state=try_go_angle(candles[i].teta, ANGLE_CANDLE, HAMMER_CANDLE, GOTO_FAIL, FAST);
+			state=try_go_angle(fcandles[i].teta, ANGLE_CANDLE, HAMMER_CANDLE, GOTO_FAIL, FAST);
 		break;
 
 		case HAMMER_CANDLE:
