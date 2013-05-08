@@ -239,7 +239,7 @@ error_e TINY_warner_blow_all_candles(void)
 
 		case HAMMER_CANDLE:
 				ACT_hammer_blow_candle(); 	//BAISSER BRAS
-				//(color_begin_cake==BLUE)? global.env.map_elements[GOAL_Etage1Bougie11]=ELEMENT_DONE : global.env.map_elements[GOAL_Etage1Bougie0]=ELEMENT_DONE;
+				(color_begin_cake==BLUE)? (global.env.map_elements[GOAL_Etage1Bougie11]=ELEMENT_DONE) : (global.env.map_elements[GOAL_Etage1Bougie0]=ELEMENT_DONE);
 				state=WAIT_HAMMER_DOWN_CANDLE;
 		break;
 		case WAIT_HAMMER_DOWN_CANDLE:
