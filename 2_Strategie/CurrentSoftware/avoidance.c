@@ -1445,6 +1445,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	static time32_t avoidance_timeout_time = 0;
 	static time32_t last_match_time;
 	static bool_e debug_foe_forced = FALSE;
+	static time32_t no_foe_count;
 	time32_t current_match_time = global.env.match_time;
 
 	bool_e timeout;
@@ -1577,6 +1578,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 						case NORMAL_WAIT:
 						case NO_DODGE_AND_WAIT:
 						case DODGE_AND_WAIT:
+							no_foe_count = 0;
 							state = WAIT_FOE;
 							break;
 
@@ -1613,6 +1615,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 			if(is_in_path[FOE_1] || is_in_path[FOE_2])
 			{
+				no_foe_count = 0;
 			// Adversaire devant nous !
 /*
 				if(AVOIDANCE_foe_not_move(FOE_1) && AVOIDANCE_foe_not_move(FOE_2))
@@ -1677,12 +1680,15 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			}
 			else
 			{
-				avoidance_printf("wait_move_and_scan_foe: no more foe, continuing\n");
-				// on vire le wait_forever et on lance l'action suivante
-				STACKS_pull(ASSER);
+				no_foe_count += current_match_time - last_match_time;
+				if(no_foe_count >= 1000) {
+					avoidance_printf("wait_move_and_scan_foe: no more foe, continuing\n");
+					// on vire le wait_forever et on lance l'action suivante
+					STACKS_pull(ASSER);
 
-				// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
-				state = NO_FOE;
+					// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
+					state = NO_FOE;
+				}
 			}
 			break;
 
