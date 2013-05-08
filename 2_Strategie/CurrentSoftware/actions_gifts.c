@@ -43,6 +43,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 		case INIT:
 			TINY_hammer_open_all_gift(TRUE);
 			avoidance = NO_AVOIDANCE;
+
 			state = OPENING_GIFTS;
 		break;
 		case OPENING_GIFTS:

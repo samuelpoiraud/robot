@@ -23,7 +23,7 @@
 	}adversary_data_t;
 
 static volatile adversary_data_t adversary_datas[ADVERSARY_NUMBER];
-static bool_e 	flag_adversary_datas_available = FALSE;
+static Uint8	nb_adversary_datas_available = 0;
 volatile Uint16 count_intervalle_envois_can;	
 
 volatile Uint32 periodic_sending_enabled;	//activation de l'envoi périodique pour les X prochaines [ms]
@@ -56,7 +56,7 @@ void SECRETARY_add_datas(adversary_e current_adversary, Uint16 distance, Uint8 f
 {
 	adversary_datas[current_adversary].distance = distance;
 	adversary_datas[current_adversary].fiability = fiability;
-	flag_adversary_datas_available = TRUE;	//Des données sont récemment arrivées.
+	nb_adversary_datas_available++;	//Des données sont récemment arrivées.
 }	
 
 
@@ -139,23 +139,32 @@ void SECRETARY_process_main(void)
 	if(u2rxToCANmsg(&msg_over_uart2))
 		SECRETARY_process_msg(&msg_over_uart2);	
 	#endif
-	
-	
+
+	if(nb_adversary_datas_available >= 2)	//Dès que 2 données sont dispos (pour 2 adversaires, ou deux fois le même), on envoie ce qu'on a...
+	{
+		nb_adversary_datas_available = 0;
+		if(periodic_sending_enabled != 0)
+		{
+			SECRETARY_send_adversary_location();
+		}
+	}
+
+	//Vieux code 
+	/*
 	//Stratégie d'envoi des données (dépend de quel récepteur on est !) :
 	switch(MY_BEACON_ID)
 	{
 		case BEACON_ID_MOTHER:
 		case BEACON_ID_CORNER:
 		case BEACON_ID_MIDLE:
-			if(flag_adversary_datas_available)	//Dès que des données sont dispos, on envoie ce qu'on a...
+			if(nb_adversary_datas_available >= 2)	//Dès que 2 données sont dispos (pour 2 adversaires, ou deux fois le même), on envoie ce qu'on a...
 			{
-				flag_adversary_datas_available = FALSE;
+				nb_adversary_datas_available = 0;
 				if(periodic_sending_enabled != 0)
 				{
 					SECRETARY_send_adversary_location();	
 				}	
-			}	
-		break;
+			}
 		case BEACON_ID_ROBOT_1:
 		case BEACON_ID_ROBOT_2:
 		default:
@@ -165,9 +174,9 @@ void SECRETARY_process_main(void)
 				count_intervalle_envois_can = 3;	//On recharge pour 300ms.
 				SECRETARY_send_adversary_location();
 			}
-		break;
+		break;	
 	}	
-
+	*/
 }	
 	
 

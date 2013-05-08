@@ -20,6 +20,7 @@
 	#define ERREUR_SIGNAL_INSUFFISANT			0b00000010
 	#define	ERREUR_SIGNAL_SATURE				0b00000100
 	#define ERREUR_TROP_PROCHE					0b00001000
+	#define ERREUR_TROP_LOIN					0b00010000
 	#define	ERROR_OBSOLESCENCE					0b10000000
 
 	//#undef abs	//Patch pour pouvoir inclure dsp.h sans craindre une redéfinition de abs(), déjà définit par QS_macro.h !!!
