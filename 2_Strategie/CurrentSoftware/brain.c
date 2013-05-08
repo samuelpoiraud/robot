@@ -91,13 +91,15 @@ void any_match(time32_t match_duration)
 					//strategy = STRAT_TINY_all_candles;
 					strategy = STRAT_TINY_gifts_cake_and_steal;
 				break;
-				case 0x02:	//STRAT_2_TINY
-					strategy = STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait;
-				break;
-				case 0x03:	//STRAT_3_TINY
+				case 0x02:	//STRAT_2_TINY : STRATEGIE DE TEST HORS MATCH
 					//strategy = TEST_STRAT_T_homologation;
 					//strategy = STRAT_TINY_all_candles;
+					//strategy = STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait;
+					strategy = STRAT_TINY_test_steals;
+				break;
+				case 0x03:	//STRAT_3_TINY
 					strategy = STRAT_TINY_4_gifts_only;
+					
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;

@@ -262,7 +262,10 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 }
 
 
-
+/*
+	Stratégie d'homologation. Marque quelques points faciles.
+	Evite l'adversaire à coup sur !
+*/
 void STRAT_TINY_4_gifts_only(void)
 {
 	typedef enum
@@ -401,98 +404,6 @@ void STRAT_TINY_4_gifts_only(void)
 /* ----------------------------------------------------------------------------- */
 
 
-/*
-	Stratégie d'homologation. Marque quelques points faciles.
-	Evite l'adversaire à coup sur !
-*/
-void TEST_STRAT_T_homologation(void)
-{
-	#warning "TODO strategie simple d'homologation... reprendre un bout des strategies plus compliquees"
-	/*
-		REMARQUE : en homologation, l'idéal est de produire une stratégie semblable à celle visée en match.
-		Cependant, si on se prend une remarque, ou qu'un truc foire, il peut être TRES intéressant d'avoir sous le coude
-		 une stratégie élémentaire qui permet d'être homologable
-		 	- sortir de la zone, marquer 1 point
-		 	- éviter correctement un adversaire (donc il faut un minimum de déplacement quand même)
-	*/
-	typedef enum
-	{
-		GET_OUT = 0,
-		GET_OUT_IF_NO_CALIBRATION,
-		TURN_IF_NO_CALIBRATION,
-		SUBACTION_OPEN_ALL_GIFTS,
-		FAIL_TO_OPEN_GIFTS
-
-	}state_e;
-	state_e state = GET_OUT;
-
-	error_e sub_action;
-
-	switch(state)
-	{
-						//Sortie de la zone de départ, on rejoint le point de départ pour les cadeaux
-			//POSITION DE DEPART :  x=250 | y= collé contre bordure | sens = bras du coté des cadeaux (ou pas si lancement sans calibration)
-			//REMARQUE
-			/*
-				SI la calibration est effectuée, on est dans le bon sens quelque soit la couleur
-				SINON, (hors match... pour gain de temps) une rotation aura lieu dès qu'on est "extrait" de la bordure (sens imposé) !
-			*/
-		case GET_OUT:
-			if(global.env.asser.calibrated || global.env.color == RED)
-				state = SUBACTION_OPEN_ALL_GIFTS;
-			else
-				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !
-		break;
-		case GET_OUT_IF_NO_CALIBRATION:
-			sub_action = goto_pos(250,COLOR_Y(300),FAST,ANY_WAY,END_AT_LAST_POINT);
-			switch(sub_action)
-            {
-				case END_OK:
-				case END_WITH_TIMEOUT:	//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
-				case NOT_HANDLED:		//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
-				case FOE_IN_PATH:
-					state = TURN_IF_NO_CALIBRATION;
-				break;
-				case IN_PROGRESS:
-				break;
-				default:
-				break;
-            }
-		break;
-		case TURN_IF_NO_CALIBRATION:
-			sub_action = goto_angle(PI4096/2, FAST);
-			switch(sub_action)
-            {
-				case END_OK:
-				case END_WITH_TIMEOUT:	//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
-				case NOT_HANDLED:		//Je ne sais pas quoi faire d'autre... CA DOIT MARCHER !
-					state = SUBACTION_OPEN_ALL_GIFTS;
-				break;
-				case IN_PROGRESS:
-				default:
-				break;
-            }
-		break;
-		case SUBACTION_OPEN_ALL_GIFTS:	//Subaction d'ouverture des cadeaux
-			sub_action = TINY_open_all_gifts_homolog();
-			switch(sub_action)
-            {
-				case END_OK:
-					state = FAIL_TO_OPEN_GIFTS;
-				break;
-				case END_WITH_TIMEOUT:
-				case NOT_HANDLED:
-					state = FAIL_TO_OPEN_GIFTS;
-				break;
-				case IN_PROGRESS:
-				default:
-				break;
-            }
-            case FAIL_TO_OPEN_GIFTS:
-
-            break;
-        }
-}
 
 
 void STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait(void)
@@ -608,4 +519,87 @@ void STRAT_TINY_all_candles(void)
 		default:
 		break;
 	}
+}
+
+
+//Strat de test qui va faire du steal.
+void STRAT_TINY_test_steals(void)
+{
+	typedef enum
+	{
+		//STARTER
+		GET_OUT = 0,
+		GET_OUT_IF_NO_CALIBRATION,
+		TURN_IF_NO_CALIBRATION,
+
+		//NOMINAL MATCH
+		SUBACTION_STEAL_ADVERSARY_GLASSES,
+	}state_e;
+	static state_e state = GET_OUT;
+	static state_e previous_state = GET_OUT;
+
+	error_e sub_action;
+
+	//Les variables en minuscule pour pas confondre avec des états et static pour garder la valeur entre plusieurs appel de la fonction (et donc entre plusieurs états)
+
+	switch(state)
+	{
+						//Sortie de la zone de départ, on rejoint le point de départ pour les cadeaux
+			//POSITION DE DEPART :  x=250 | y= collé contre bordure | sens = bras du coté des cadeaux (ou pas si lancement sans calibration)
+			//REMARQUE
+			/*
+				SI la calibration est effectuée, on est dans le bon sens quelque soit la couleur
+				SINON, (hors match... pour gain de temps) une rotation aura lieu dès qu'on est "extrait" de la bordure (sens imposé) !
+			*/
+		case GET_OUT:
+			if(global.env.asser.calibrated || global.env.color == RED)
+				state = SUBACTION_STEAL_ADVERSARY_GLASSES;
+			else
+				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !
+		break;
+		case GET_OUT_IF_NO_CALIBRATION:
+			//									in_progress					success					failed
+			state = try_going(250, COLOR_Y(150), GET_OUT_IF_NO_CALIBRATION, TURN_IF_NO_CALIBRATION, TURN_IF_NO_CALIBRATION, ANY_WAY, NO_AVOIDANCE);
+		break;
+		case TURN_IF_NO_CALIBRATION:
+			//								in_progress				success						failed
+			state = try_go_angle(PI4096/2, TURN_IF_NO_CALIBRATION, SUBACTION_STEAL_ADVERSARY_GLASSES, SUBACTION_STEAL_ADVERSARY_GLASSES, FAST);
+		break;
+
+		case SUBACTION_STEAL_ADVERSARY_GLASSES:
+			sub_action = STRAT_TINY_scan_and_steal_adversary_glasses(FALSE);
+			switch(sub_action)
+            {
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					//NO BREAK !!! c'est volontaire...
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+					state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+				break;
+				default:
+				break;
+            }
+		break;
+
+		default:
+			state = SUBACTION_STEAL_ADVERSARY_GLASSES;
+		break;
+	}
+
+	if(previous_state != state)
+	{
+		debug_printf("T_STRAT->");
+		switch(state)
+		{
+			case GET_OUT:									debug_printf("get_out\n");											break;
+			case GET_OUT_IF_NO_CALIBRATION:					debug_printf("get_out_if_no_calibration\n");						break;
+			case TURN_IF_NO_CALIBRATION:					debug_printf("turn_if_no_calibration\n");							break;
+			case SUBACTION_STEAL_ADVERSARY_GLASSES:			debug_printf("steal_aversary_glasses\n");							break;
+			default:										debug_printf("???\n");												break;
+		}
+	}
+	previous_state = state;
 }
