@@ -51,7 +51,7 @@
 		#define SWITCH_STRAT_1	PORTEbits.RE0
 		#define SWITCH_STRAT_2	PORTEbits.RE1
 		#define SWITCH_STRAT_3	PORTEbits.RE2
-		#define SWITCH_EVIT		PORTEbits.RE3
+		#define SWITCH_LAST_POS	PORTEbits.RE3
 		#define SWITCH_COLOR	PORTEbits.RE4
 		#define SWITCH_STRAT_4	PORTEbits.RE6
 		#define LAT_ROBOT_ID_OUTPUT		LATEbits.LATE7

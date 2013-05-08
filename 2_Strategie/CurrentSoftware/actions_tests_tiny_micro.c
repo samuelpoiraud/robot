@@ -593,7 +593,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				case IN_PROGRESS:
 				break;
 				case END_OK:
-					state = E_C;
+					state = BLOW_ALL_CANDLES;
 				break;
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
@@ -603,7 +603,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				default:
 				break;
 			}
-			if(state == E_C)
+			if(state == BLOW_ALL_CANDLES)
 				from = RUSH;
 		break;
 
@@ -695,12 +695,8 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		break;
 		//Approche du gateau
 		case E_C:
-			if(SWITCH_STRAT_2 == 1){
-				state=try_going(1830,COLOR_Y(2115), E_C,			BLOW_ALL_CANDLES,	EB,ANY_WAY, NO_DODGE_AND_WAIT);
-			}else{
-			//									in_progress		success				failed
 				state=try_going(1830,COLOR_Y(2115), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
-			}
+
 			if(state != E_C)
 				from = E_C;
 
@@ -892,8 +888,9 @@ error_e TINY_rush()
 			{{550,1800},FAST},
 			{{800,1950},FAST},
 			{{1050,2100},FAST},
-			{{1380,2135},FAST},
-			},4,(global.env.color == RED)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
+			{{1380,2115},FAST},
+			{{1830,2115},SLOW},
+			},5,(global.env.color == RED)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 }
 
 
