@@ -25,7 +25,6 @@ volatile bool_e measures_ready = FALSE;	//Des données sont prêtes pour être trai
 volatile Uint16 step = 0;			//Déroulement du temps référencé à "step = 0" <=> "instant 0 de l'émetteur"
 volatile Uint16 distance = 0;		//distance entre les deux balises. 0 si distance inconnue.
 volatile Uint16 position_pic = 0;	//Position du maximum de la convolution. (c'est l'index image de la distance !)
-volatile bool_e dataready = FALSE;
 
 //Fiabilité, détection d'erreur...
 
@@ -75,10 +74,24 @@ Uint16 calcul_distance(Uint16 position_pic)
 	//TODO : introduire une correction dans distance par point dépendant de la température
 	
 	ret = ((Sint32)(position_pic) - TAILLE_FENETRE) * DISTANCE_PAR_POINT;
+	ret = ret/4096 - OFFSET_DISTANCE;	//Distance en mm
+
+
+	if(ret > 3600)
+		fiabilite |= ERREUR_TROP_LOIN;
+	else
+		fiabilite &= ~ERREUR_TROP_LOIN;
+
+	if(ret < 0)
+		fiabilite |= ERREUR_TROP_PROCHE;
+	else
+		fiabilite &= ~ERREUR_TROP_PROCHE;
+
+
 	if (ret < 0)
 		return 0;
 	else
-		return (Uint16)(ret/4096) - OFFSET_DISTANCE;	//Distance en mm
+		return (Uint16)(ret);	
 }	
 
 
@@ -100,12 +113,9 @@ void ReceptionUS_process_main(void)
 
 	distance = calcul_distance(position_pic);						//Calcul de la distance.
 
-	//TODO: a enlever !!! DEBUG
 //	if(distance == 0)
 //		ReceptionUS_afficher_signal(convolution, TAILLE_CONVOLUTION);
 
-	if(distance == 0)
-		fiabilite |= ERREUR_TROP_PROCHE;
 	SECRETARY_add_datas(current_adversary, distance, fiabilite);	//On informe le secrétaire qu'une série de mesure a été effectuée et traitée.
 	
 	ReceptionUS_init();
@@ -191,15 +201,12 @@ void ReceptionUS_traiter_signal(void)
 	{
 		if(m - s < OUVERTURE_PIC_CONVOLUTION)
 			s += 2*OUVERTURE_PIC_CONVOLUTION;	//On saute toute une fenetre autour du max de convolution
-		if(convolution[s] > max2)
+		if(s < TAILLE_CONVOLUTION && convolution[s] > max2)
 		{
 			max2 = convolution[s];
-			#warning "temporaire :"	
-				indexmax2visu = s;
+			indexmax2visu = s;
 		}
 	}
-	#warning "temporaire :" 
-		max2visu = max2;
 	
 //	if(max - max2 < ECART_MINI_ENTRE_DEUX_PICS)
 //		fiabilite |= ERREUR_CONVOLUTION_NON_CONFORME;
@@ -210,10 +217,6 @@ void ReceptionUS_traiter_signal(void)
 	if(max - max2 < ECART_MINI_ENTRE_DEUX_PICS)             //SI LES DEUX PICS SONT PROCHES EN "puissance"
 		position_pic = MIN(position_pic, indexmax2visu);   //ALORS, on choisit le premier des deux, dans le temps !
 
-	if(position_pic < MINI_POSITION_PIC)
-		fiabilite |= ERREUR_TROP_PROCHE;
-	else
-		fiabilite &= ~ERREUR_TROP_PROCHE;
 }
 
 volatile bool_e request_reset_step = FALSE;
@@ -256,7 +259,7 @@ void _ISR _T2Interrupt()	//Acquisition à 8kHz...
 	if(acquisition_index < TAILLE_ACQUISITION)
 	{
 		acq = (ADC_getValue(0) - OFFSET_MASSE_VIRTUELLE) >>2;	//On soustrait l'offset de masse virtuelle...
-		//La division par deux permet d'éviter les dépassements de Sint16 sur la convolution.
+		//La division par 4 permet d'éviter les dépassements de Sint16 sur la convolution.
 			//Explication : le max pour une case de convolution = 224 additions de (1023-OFFSET_MASSE_VIRTUELLE)/4
 			//													= 224 * (1023 - environ 500) /4
 													//			= 29288 < 32767 ! ok...
@@ -531,24 +534,3 @@ void ReceptionUS_afficher_signal(Sint16 * signal, Uint16 taille)
 	//	debug_printf("%x\t",signal[i]);		//Hexa pur
 		debug_printf("%d\n",signal[i]);		//décimal pur
 }
-
-bool_e Reception_US_get_dataready(void)
-{
-	return dataready;
-}
-
-void Reception_US_reset_dataready(void)
-{
-	dataready = FALSE;
-}	
-
-Uint16 ReceptionUS_get_distance_cm(void)
-{
-	return distance/10;
-}
-
-Uint8 ReceptionUS_get_fiabilite(void)
-{
-	return fiabilite;
-}	
-

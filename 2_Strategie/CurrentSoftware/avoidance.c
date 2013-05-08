@@ -35,7 +35,7 @@
 
 /* Angle d'ouverture de vision */
 #define DETECTION_ANGLE_NARROW		1900	//1900 = 20°
-#define DETECTION_ANGLE_WIDE		3217	//3217 = 45°
+#define DETECTION_ANGLE_WIDE		4800//3217	//3217 = 45°
 
 #define WAIT_TIME_DETECTION			3000	// en ms //TODO: diminuer ce coef (c'etait pour des tests de wait et distance d'evitement)
 
