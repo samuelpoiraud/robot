@@ -21,10 +21,10 @@
  */
 #define DETECTION_TIMEOUT				600 	// ancienne valeur : 375
 
-#define DETECTION_DIST_MIN_KRUSTY       500  // distance minimale d'évitement sans compter la vitesse du robot, en mm
-#define DETECTION_DIST_MIN_TINY         400
-#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  1000  //temps pour que le robot s'arrete, en ms
-#define DETECTION_DIST_SPEED_FACTOR_TINY    1000
+#define DETECTION_DIST_MIN_KRUSTY       700  // distance minimale d'évitement sans compter la vitesse du robot, en mm
+#define DETECTION_DIST_MIN_TINY         600
+#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  700  //temps pour que le robot s'arrete, en ms
+#define DETECTION_DIST_SPEED_FACTOR_TINY    800
 
 
 /***************************** Evitement 2011 **************************/
@@ -34,7 +34,8 @@
 #define SPEED_COMPUTE_TIME	50		// en ms
 
 /* Angle d'ouverture de vision */
-#define DETECTION_ANGLE		1900	//1900 = 20°
+#define DETECTION_ANGLE_NARROW		1900	//1900 = 20°
+#define DETECTION_ANGLE_WIDE		3217	//3217 = 45°
 
 #define WAIT_TIME_DETECTION			3000	// en ms //TODO: diminuer ce coef (c'etait pour des tests de wait et distance d'evitement)
 
@@ -1818,7 +1819,8 @@ void foe_in_path(bool_e *in_path)
 {
 	// variables
 	//Uint16 speed_indicator;
-	Uint16 distance_computed;
+	Uint16 distance_computed_narrow;
+	Uint16 distance_computed_wide;
 	Uint8 i;
 	way_e move_way;
 	move_way = global.env.asser.current_way;	//TODO cracra.. a nettoyer ultérieurement.
@@ -1845,8 +1847,12 @@ void foe_in_path(bool_e *in_path)
 	//distance_computed = 600;
 
 	if(QS_WHO_AM_I_get() == TINY)
-		distance_computed = DETECTION_DIST_MIN_TINY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_TINY)*(abs(global.env.pos.translation_speed))/1000;  //8*125 = 1000, DETECTION_DIST_SPEED_FACTOR_TINY est en milisecondes
-	else distance_computed = DETECTION_DIST_MIN_KRUSTY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_KRUSTY)*(abs(global.env.pos.translation_speed))/1000;
+		distance_computed_narrow = DETECTION_DIST_MIN_TINY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_TINY)*(abs(global.env.pos.translation_speed))/1000;  //8*125 = 1000, DETECTION_DIST_SPEED_FACTOR_TINY est en milisecondes
+	else distance_computed_narrow = DETECTION_DIST_MIN_KRUSTY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_KRUSTY)*(abs(global.env.pos.translation_speed))/1000;
+	if(QS_WHO_AM_I_get() == TINY)
+		distance_computed_wide = DETECTION_DIST_MIN_TINY;
+	else distance_computed_wide = DETECTION_DIST_MIN_KRUSTY;
+
 
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
     //debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
@@ -1857,7 +1863,7 @@ void foe_in_path(bool_e *in_path)
 		if(global.env.match_time > last_printf + 1000) {
 			last_printf = global.env.match_time;
 			if(global.env.foe[i].dist < 5000)
-				avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d%s%s\n", i, global.env.foe[i].dist, distance_computed, global.env.foe[i].angle, move_way, (global.env.asser.is_in_translation)? ", in_translation" : "", (global.env.asser.is_in_translation)? ", in_rotation" : "");
+				avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d%s%s\n", i, global.env.foe[i].dist, distance_computed_narrow, global.env.foe[i].angle, move_way, (global.env.asser.is_in_translation)? ", in_translation" : "", (global.env.asser.is_in_translation)? ", in_rotation" : "");
 		}
 		in_path[i] = FALSE; //On initialise à faux
 		if ((global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
@@ -1868,8 +1874,8 @@ void foe_in_path(bool_e *in_path)
 			{
 				//debug_printf("F_%d\nG_%d\n",global.env.foe[0].angle,global.env.foe[1].angle);
 				/* On regarde si l'adversaire est dans un gabarit devant nous */
-				if((global.env.foe[i].dist < distance_computed) && ((global.env.foe[i].angle > (-DETECTION_ANGLE)
-					&& global.env.foe[i].angle < DETECTION_ANGLE)))
+				if(((global.env.foe[i].dist < distance_computed_narrow) && (global.env.foe[i].angle > (-DETECTION_ANGLE_NARROW) && global.env.foe[i].angle < DETECTION_ANGLE_NARROW)) ||
+				   ((global.env.foe[i].dist < distance_computed_wide)   && (global.env.foe[i].angle > (-DETECTION_ANGLE_WIDE)   && global.env.foe[i].angle < DETECTION_ANGLE_WIDE)  )    )
 				{
 					in_path[i] = TRUE;
 					//avoidance_printf("F_");
@@ -1881,8 +1887,8 @@ void foe_in_path(bool_e *in_path)
 			{
 		//		debug_printf("B_%d\n",global.env.foe.angle);
 				/* On regarde si l'adversaire est dans un gabarit devant nous */
-				if((global.env.foe[i].dist < distance_computed) && (global.env.foe[i].angle < (-PI4096+DETECTION_ANGLE) 
-				|| global.env.foe[i].angle > (PI4096-DETECTION_ANGLE)))
+				if(((global.env.foe[i].dist < distance_computed_narrow) && (global.env.foe[i].angle > (-DETECTION_ANGLE_NARROW) && global.env.foe[i].angle < DETECTION_ANGLE_NARROW)) ||
+				   ((global.env.foe[i].dist < distance_computed_wide)   && (global.env.foe[i].angle > (-DETECTION_ANGLE_WIDE)   && global.env.foe[i].angle < DETECTION_ANGLE_WIDE)  )    )
 				{
 					in_path[i] = TRUE;
 					//avoidance_printf("B_");

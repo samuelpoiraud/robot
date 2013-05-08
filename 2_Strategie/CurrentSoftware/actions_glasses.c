@@ -331,7 +331,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 
 				//Quelqu'un nous gène ... on va tenter de se déplacer au point suivant en sautant celui qu'on a essayé d'atteindre ...
 				case GM_CATCH_GLASSES:
-					force_first_point = global.env.pos.nb_points_reached + 1;	//On va au suivant après celui qu'on voulait atteindre
+					force_first_point += global.env.pos.nb_points_reached + 1;	//On va au suivant après celui qu'on voulait atteindre
 					if(force_first_point > trajectories[current_displacement_block].nb_points) {
 						//Numero du point incohérent supérieur au nombre de point -> on fait comme si on avait fait la trajectoire entiere,
 						//on s'arrange pour que first_point = nb_points == 0 points à faire.

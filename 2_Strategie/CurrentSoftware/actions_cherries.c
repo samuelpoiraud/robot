@@ -38,7 +38,7 @@ static const plate_info_t PLATE_INFOS[5] = {
 	{ 1400      ,    540     ,   1000    ,      TRUE            },
 	{ 1750      ,    540     ,   840     ,      TRUE            }
 };
-static const Sint16 PLATE_Y_POS = 190;	//Position en Y des assiettes
+static const Sint16 PLATE_Y_POS = 205;	//Position en Y des assiettes
 //La pince à assiette n'est pas symétrique ni centrée sur le robot, on doit avoir un offset en X pour que la pince ne tappe pas l'assiette alors qu'elle est ouverte
 static const Sint16 PLATE_OFFSET_X_ROBOT = -15;
 //Décalage dans le cas de l'assiette coté bleu - gateau. Avec l'offset normal on taperait dans le buffet. L'offset est quand même celui qu'on aurait du coté rouge, pour un souci d'avoir un code partout pareil
@@ -239,9 +239,12 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 			state = check_sub_action_result(last_action_result, DP_PROCESS_PLATE, DP_LAUNCH_CHERRIES, DP_FAILED);
 
-			if(state == DP_LAUNCH_CHERRIES) {
+			if(state == DP_LAUNCH_CHERRIES)
 				state_after_launched_cherries = DP_DROP_PLATE;
-				//On l'a fait, on indique donc l'environnement qu'elle est faite
+
+			//Meme si on fail, on ne souhaite pas refaire l'assiette car on l'a probablement bougée ...
+			if(state != DP_PROCESS_PLATE) {
+				//On indique donc l'environnement qu'elle est faite
 				global.env.map_elements[GOAL_Assiette0 + current_plate] = ELEMENT_DONE;
 			}
 			break;
@@ -410,7 +413,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 
 //			STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: init: line %d, plate %d, goal_plate %d\n", current_line, current_plate, plate_goal);
 
-			state = MP_WHERE_TO_GO_NEXT;
+			state = MP_SWITCH_PLATE;
 			break;
 
 		//Choisi ou aller pour atteindre la position voulue
@@ -561,12 +564,12 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 
 		//Vérifie si la zone sous le gateau est dispo, la ou Tiny passe pour faire les bougies
 		case MP_CHECK_TINY_ZONE:
-			//FIXME: debug
-			//state = try_lock_zone(MZ_CakeNearUs, MAX_WAIT_LOCK_CAKE_ZONE, MP_CHECK_TINY_ZONE, state_after_zonelock, MP_FAILED, MP_FAILED);
+//			//FIXME: debug
+			state = try_lock_zone(MZ_CakeNearUs, MAX_WAIT_LOCK_CAKE_ZONE, MP_CHECK_TINY_ZONE, state_after_zonelock, MP_FAILED, MP_FAILED);
 
-			#warning "Shunt du check de la zone de Tiny pour debug ! A reactiver pour la coupe !!!!!!!!!!!!"
-			//FIXME: debug
-			state = state_after_zonelock;
+//			#warning "Shunt du check de la zone de Tiny pour debug ! A reactiver pour la coupe !!!!!!!!!!!!"
+//			//FIXME: debug
+//			state = state_after_zonelock;
 
 			//On a réussi à verrouiller la zone pour nous, on devra libérer la zone après !
 			if(state == state_after_zonelock)
@@ -682,7 +685,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 	//Offset théorique auquel on touche l'assiette tout juste: 315
 
 	static const Sint16 SAFE_INIT_POS_OFFSET  = 350;	//Si on est trop près de l'assiette, on va a cette position
-	static const Sint16 CLOSING_AX12_OFFSET   = 300;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
+	static const Sint16 CLOSING_AX12_OFFSET   = 290;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
 	static const Sint16 CATCHING_PLATE_OFFSET = 320;	//Début de la vitesse lente, relatif au milieu de l'assiette
 	static const Sint16 CATCHED_PLATE_OFFSET  = 270;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
 	static const Sint16 DROP_PLATE_OFFSET     = -60;	//Position pour lacher les assiettes (uniquement dans un axe X, pas Y)
