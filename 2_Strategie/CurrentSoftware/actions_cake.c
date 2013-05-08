@@ -24,20 +24,6 @@ typedef struct{
 
 const candle_t candles[12]=
 {{1830,885,-2430},  //bougie coté rouge
-{1768,909,-1608},
-{1633,992,-2380},
-{1519,1110,-3052},
-{1380,1255,-PI4096/2},
-{1380,1416,-PI4096/2},
-{1380,1584,-PI4096/2},
-{1380,1745,-PI4096/2},
-{1519,1890,-9726},
-{1633,2008,-10184},
-{1768,2091,-11256},
-{1830,2115,-10437}};  //bougie coté bleu.
-
-const candle_t fcandles[12]=
-{{1830,885,-2430},  //bougie coté rouge
 {1755,909,-1608},
 {1610,992,-2680},
 {1492,1110,-3752},
@@ -50,19 +36,6 @@ const candle_t fcandles[12]=
 {1755,2091,-11256},
 {1830,2115,-10437}};
 
-
-/*{{1916,865,-536},  //bougie coté rouge
-{1768,904,-1608},
-{1633,976,-2380},
-{1519,1078,-3052},
-{1380,1330,-PI4096/2},
-{1380,1445,-PI4096/2},
-{1380,1555,-PI4096/2},
-{1380,1670,-PI4096/2},
-{1519,1922,-9726},
-{1633,2024,-10184},
-{1768,2096,-11256},
-{1916,2135,-12328}};  //bougie coté bleu.*/
 
 
 
@@ -199,6 +172,8 @@ error_e TINY_warner_blow_all_candles(void)
 		LAST_CANDLE,
 		LAST_CANDLE_ANGLE,
 		WAIT_HAMMER_DOWN_CANDLE,
+		HAMMER_CANDLE_LAST,
+		WAIT_HAMMER_DOWN_CANDLE_LAST,
 		ALL_CANDLES_BLOWN,
 		RETURN_HOME,
 		HAMMER_FINAL_POS,
@@ -289,8 +264,18 @@ error_e TINY_warner_blow_all_candles(void)
 		break;
 
 		case LAST_CANDLE_ANGLE:
-			state = try_go_angle((color_begin_cake==BLUE)?-2430:-10437,LAST_CANDLE_ANGLE,ALL_CANDLES_BLOWN,FAIL_GO_ANGLE, FAST);
-			(color_begin_cake==BLUE)? (global.env.map_elements[GOAL_Etage1Bougie0]=ELEMENT_DONE) : (global.env.map_elements[GOAL_Etage1Bougie11]=ELEMENT_DONE);
+			state = try_go_angle((color_begin_cake==BLUE)?-2430:-10437,LAST_CANDLE_ANGLE,HAMMER_CANDLE_LAST,FAIL_GO_ANGLE, FAST);
+		break;
+
+
+		case HAMMER_CANDLE_LAST:
+				ACT_hammer_blow_candle(); 	//BAISSER BRAS
+				(color_begin_cake==BLUE)? (global.env.map_elements[GOAL_Etage1Bougie0]=ELEMENT_DONE) : (global.env.map_elements[GOAL_Etage1Bougie11]=ELEMENT_DONE);
+				state=WAIT_HAMMER_DOWN_CANDLE_LAST;
+		break;
+		case WAIT_HAMMER_DOWN_CANDLE_LAST:
+			//						->In progress			->Success						->Fail
+			state = wait_hammer(WAIT_HAMMER_DOWN_CANDLE_LAST,ALL_CANDLES_BLOWN, FAIL);
 		break;
 
 		 //FINISH
@@ -310,9 +295,6 @@ error_e TINY_warner_blow_all_candles(void)
 		break;
 		case FAIL:
 			state = FAIL_GO_ANGLE;
-			//TODO en fonction de là où on en est... on peut décider que le gateau est fait, même s'il est à peine fini..
-			//(genre qd il reste que deux bougies)
-			#warning "TODO màj environnement cake directement dans cette fonction..; et pas par la strat haut niveau"
 		break;
 		case FAIL_GO_ANGLE:
 			//En cas d'échec, on rejoint un angle pour baisser le bras.
@@ -507,7 +489,7 @@ error_e TINY_forgotten_candles()
 	switch(state)
 	{
 		case INIT:
-			if(global.env.pos.y > 1500)	
+			if(global.env.pos.y > 1500)
 			{
 				color_begin_cake = BLUE;
 				candle_index=TINY_forgotten_candles_right_extremity();
@@ -526,7 +508,7 @@ error_e TINY_forgotten_candles()
 			break;
 
 		case DECISION:
-			if(fcandles[candle_index].x > 1365 ){
+			if(candles[candle_index].x > 1365 ){
 				state=MB;
 			} else {
 				state=GOTO_CANDLE;
@@ -548,17 +530,17 @@ error_e TINY_forgotten_candles()
 		break;
 
 		case DECISION2:
-			if(fcandles[candle_index].x >1365 && fcandles[candle_index].y <1500){
+			if(candles[candle_index].x >1365 && candles[candle_index].y <1500){
 				state=SB;
 			}
 
-			if(fcandles[candle_index].x >1365 && fcandles[candle_index].y >1500){
+			if(candles[candle_index].x >1365 && candles[candle_index].y >1500){
 				state=EB;
 			}
 		break;
 
 		case GOTO_CANDLE:
-			state=try_going(fcandles[candle_index].x,fcandles[candle_index].y,GOTO_CANDLE, ANGLE_HAMMER, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			state=try_going(candles[candle_index].x,candles[candle_index].y,GOTO_CANDLE, ANGLE_HAMMER, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 		case ANGLE_HAMMER:
@@ -658,11 +640,11 @@ error_e TINY_blow_one_forgotten_candle(Sint8 i,Sint8 way,Sint8 first_candle)
 				state = GOTO_CANDLE;	//Bougies suivantes -> goto bougie, puis angle.
 		break;
 		case GOTO_CANDLE:
-			state=try_going(fcandles[i].x,fcandles[i].y,GOTO_CANDLE, ANGLE_CANDLE, GOTO_FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			state=try_going(candles[i].x,candles[i].y,GOTO_CANDLE, ANGLE_CANDLE, GOTO_FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 	    case ANGLE_CANDLE:
-			state=try_go_angle(fcandles[i].teta, ANGLE_CANDLE, HAMMER_CANDLE, GOTO_FAIL, FAST);
+			state=try_go_angle(candles[i].teta, ANGLE_CANDLE, HAMMER_CANDLE, GOTO_FAIL, FAST);
 		break;
 
 		case HAMMER_CANDLE:
