@@ -926,26 +926,28 @@ error_e STRAT_TINY_test_moisson_micro(void){
 	error_e ret = NOT_HANDLED;
 	static state_e state = GO_INIT;
 	static state_e previousState = GO_INIT;
-
 	static Uint8 count = 0;
 
+	if(state != P_2 && state != GO_INIT){
+		count++;
+	}
 	switch(state){
 		case GO_INIT:
 			count = 0;
 			state = P_1;
 			previousState = GO_INIT;
+			ACT_plier_open();
 			ret = IN_PROGRESS;
 			break;
 		case P_1:
-			//									  in_progress	success	failed
+	        //								  in_progress	success	failed
 			state = try_going(300, COLOR_Y(2000), P_1, P_2, GO_HOME,FORWARD,NO_DODGE_AND_WAIT);
 			previousState = P_1;
 			ret = IN_PROGRESS;
 			break;
 		case P_2:
 			if(count < 2){
-				count++;
-				ACT_plier_open();
+				
 				state = try_going(600, COLOR_Y(2000), P_2, GO_HOME, P_4,FORWARD,NO_DODGE_AND_WAIT);
 			}else{
 				state = DONE;
