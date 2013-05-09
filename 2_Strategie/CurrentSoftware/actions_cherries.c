@@ -143,6 +143,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 				doing_special_plate_4 = TRUE;
 				current_plate = 4;
 				state = DP_PROCESS_PLATE;
+				global.env.map_elements[GOAL_Assiette0 + current_plate] = ELEMENT_DONE;
 				break;
 			} else {
 				doing_special_plate_3 = FALSE;
@@ -196,6 +197,8 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 			if(current_plate != last_plate)
 				plates_begun++;
+
+			global.env.map_elements[GOAL_Assiette0 + current_plate] = ELEMENT_DONE;
 			break;
 		}
 
@@ -245,11 +248,11 @@ error_e K_STRAT_sub_cherries_alexis() {
 			if(state == DP_LAUNCH_CHERRIES)
 				state_after_launched_cherries = DP_DROP_PLATE;
 
-			//Meme si on fail, on ne souhaite pas refaire l'assiette car on l'a probablement bougée ...
-			if(state != DP_PROCESS_PLATE) {
-				//On indique donc l'environnement qu'elle est faite
-				global.env.map_elements[GOAL_Assiette0 + current_plate] = ELEMENT_DONE;
-			}
+//			//Meme si on fail, on ne souhaite pas refaire l'assiette car on l'a probablement bougée ...
+//			if(state != DP_PROCESS_PLATE) {
+//				//On indique donc l'environnement qu'elle est faite
+//				global.env.map_elements[GOAL_Assiette0 + current_plate] = ELEMENT_DONE;
+//			}
 			break;
 		}
 
@@ -371,6 +374,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 	static bool_e has_locked_tinyzone;		//TRUE si on a verrouillé la zone de Tiny sous le gateau
 	static enum state_e state_after_zonelock;	//Etat à faire après avoir lock la zone critique
 	static Uint8 unreachable_path_count;	//Nombre de chemin don on a pas pu empreinter. Remis à zero quand on change de position en X (current_plate), incrémenté quand on fail (peut importe le mouvement)
+	static error_e last_action_result;
 
 	//Si l'état à changé, on rentre dans un nouvel état
 	bool_e entrance = last_state_for_check_entrance != state;
@@ -533,8 +537,10 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 			break;
 
 		//Va à la position indiqué par current_plate et current_line
-		case MP_SWITCH_PLATE:
+		case MP_SWITCH_PLATE: {
+			static bool_e retrying_after_asser_error;
 			if(entrance) {
+				retrying_after_asser_error = FALSE;
 				AVOIDANCE_set_timeout(1000);
 //				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", current_line, dest_plate);
 			}
@@ -546,11 +552,22 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 //			}
 
 			if(current_line == LP_Far)
-				state = try_going_multipoint((displacement_t[]){{{PLATE_real_pos_x(STRAT_PGA_Y, PLATE_INFOS[dest_plate].x), COLOR_Y(PLATE_INFOS[dest_plate].y_far)}, FAST}}, 1,
-						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_SWITCH_PLATE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+				last_action_result = goto_pos_with_scan_foe((displacement_t[]){{{PLATE_real_pos_x(STRAT_PGA_Y, PLATE_INFOS[dest_plate].x), COLOR_Y(PLATE_INFOS[dest_plate].y_far)}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT);
 			else
-				state = try_going_multipoint((displacement_t[]){{{PLATE_real_pos_x(STRAT_PGA_Y, PLATE_INFOS[dest_plate].x), COLOR_Y(PLATE_INFOS[dest_plate].y_near)}, FAST}}, 1,
-						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_SWITCH_PLATE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+				last_action_result = goto_pos_with_scan_foe((displacement_t[]){{{PLATE_real_pos_x(STRAT_PGA_Y, PLATE_INFOS[dest_plate].x), COLOR_Y(PLATE_INFOS[dest_plate].y_near)}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT);
+
+			if(last_action_result == END_OK)
+				state = MP_WHERE_TO_GO_NEXT;
+			else if(last_action_result == FOE_IN_PATH)
+				state = MP_FAILED;
+			else if(last_action_result != IN_PROGRESS) {
+				if(retrying_after_asser_error == TRUE)	//Si on avait déja fail on retente pas
+					state = MP_FAILED;
+				else retrying_after_asser_error = TRUE;
+			}
+
 
 			//Si on a fini le déplacement et qu'on est sorti de la zone mutex, on libère la zone
 			if(state == MP_WHERE_TO_GO_NEXT && has_locked_tinyzone && (current_line == LP_Near || !PLATE_INFOS[dest_plate].far_line_check_tiny)) {
@@ -564,6 +581,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 				error_on_dest_plate = FALSE;
 			}
 			break;
+		}
 
 		//Vérifie si la zone sous le gateau est dispo, la ou Tiny passe pour faire les bougies
 		case MP_CHECK_TINY_ZONE:
@@ -690,10 +708,10 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 	static const Sint16 SAFE_INIT_POS_OFFSET  = 350;	//Si on est trop près de l'assiette, on va a cette position
 	static const Sint16 CLOSING_AX12_OFFSET   = 270;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
 	static const Sint16 CATCHING_PLATE_OFFSET = 320;	//Début de la vitesse lente, relatif au milieu de l'assiette
-	static const Sint16 CATCHED_PLATE_OFFSET  = 270;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
+	static const Sint16 CATCHED_PLATE_OFFSET  = 260;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
 	static const Sint16 DROP_PLATE_OFFSET     = -60;	//Position pour lacher les assiettes (uniquement dans un axe X, pas Y)
 	static const Sint16 PLATE_CORECTED_ANGLE_TAN  = 24;	//Angle a avoir pour prendre une assiette bien
-	static const Uint8 CATCHING_PLATE_SPEED = 8 + 8;	//vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
+	static const Uint8 CATCHING_PLATE_SPEED = 8 + 5;	//vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
 	static const bool_e USE_DOUBLE_CLOSE_AX12 = TRUE; //Si TRUE, on serre 2 fois l'assiette pour mieux la prendre
 	static const time32_t TIME_BEFORE_DROP_DURATION = 1000;  //Temps d'attente pendant que les cerises tombe de l'assiette en position verticale dans la tremie
@@ -772,7 +790,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 					goal_angle = 0;				//Vers X = 0
 				else goal_angle = PI4096;		//Vers X = +infini
 			}
-			state = try_go_angle(COLOR_ANGLE(goal_angle), GP_ADJUST_ANGLE, GP_ADJUST_POS, GP_FAILED, FAST);
+			state = try_go_angle(COLOR_ANGLE(goal_angle), GP_ADJUST_ANGLE, GP_ADJUST_POS, GP_FAILED, SLOW);
 			break;
 		}
 
