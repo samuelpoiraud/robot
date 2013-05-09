@@ -222,7 +222,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 						if(all_gifts_done() == FALSE)
 							state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 						else
-							state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+							state = PROTECT_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
 					break;
 					default:
 					break;
