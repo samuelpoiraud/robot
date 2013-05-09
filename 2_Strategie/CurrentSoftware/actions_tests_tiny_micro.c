@@ -902,6 +902,8 @@ error_e TINY_rush()
 			},5,(global.env.color == RED)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 }
 
+#define BCL_EB_BP 3
+
 error_e STRAT_TINY_test_moisson_micro(void){
 
 	typedef enum{
@@ -945,28 +947,43 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			break;
 		case BP:
 			//BP
-			state = try_going(870, COLOR_Y(1800), BP,MA,EB,FORWARD,NO_DODGE_AND_WAIT);
 			previousState = BP;
 			ret = IN_PROGRESS;
+			count ++;
+			if(count < BCL_EB_BP){
+				state = try_going(870, COLOR_Y(1800), BP,MA,EB,FORWARD,NO_DODGE_AND_WAIT);
+			}else{
+				state = DONE;
+			}
 			break;
 		case MA:
 			//MA
-			
-			state = try_going(360, COLOR_Y(1500), MA, GO_HOME, BP,FORWARD,NO_DODGE_AND_WAIT);
+			if(previousState == GO_HOME){
+				state = try_going(360, COLOR_Y(1500), MA, HB, HB,FORWARD,NO_DODGE_AND_WAIT);
+			}else{
+				state = try_going(360, COLOR_Y(1500), MA, GO_HOME, BP,FORWARD,NO_DODGE_AND_WAIT);
+			}
 			previousState = MA;
 			ret = IN_PROGRESS;
 			break;
 
 		case HB:
 			//HB
-			state = try_going(1380, COLOR_Y(1500), HB, GO_HOME,EB,FORWARD,NO_DODGE_AND_WAIT);
+			//on peu metre un count ici
+			if(previousState == MA){
+				state = try_going(1380, COLOR_Y(1500), HB,DONE,HB,FORWARD,NO_DODGE_AND_WAIT);
+			}else{
+				state = try_going(1380, COLOR_Y(1500), HB, BP,DONE,FORWARD,NO_DODGE_AND_WAIT);
+			}
+			
 			previousState = HB;
 			ret = IN_PROGRESS;
 			break;
 
 		case GO_HOME:
-			state = DONE;
+			state = try_going(300, COLOR_Y(450), GO_HOME,MA,HB,FORWARD,NO_DODGE_AND_WAIT);
 			ret = IN_PROGRESS;
+			previousState = GO_HOME;
 			ACT_plier_close();
 			break;
 		case DONE:
