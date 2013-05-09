@@ -984,7 +984,7 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			ret = IN_PROGRESS;
 			break;
 		case GO_HOME:
-			state = try_going(300, COLOR_Y(450), GO_HOME,MA,HB,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(300, COLOR_Y(450), GO_HOME,MA,HB,BACKWARD,NO_DODGE_AND_WAIT);
 			ret = IN_PROGRESS;
 			previousState = GO_HOME;
 			break;
