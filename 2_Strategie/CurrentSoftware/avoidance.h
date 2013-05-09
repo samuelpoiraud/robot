@@ -62,6 +62,13 @@
 		NO_DODGE_AND_NO_WAIT,	// aucune attente, aucune esquive, on détecte, on NOT_HANDLED !
 		NO_AVOIDANCE,			// désactive l'évitement
 	} avoidance_type_e;
+
+	/*Type d'evitement pour construction du message de debug*/
+	typedef enum{
+		FORCED_BY_USER = 0,
+		FOE1,
+		FOE2,
+	} foe_origin_e;
 	
 	/* Définition du type déplacement */
 	typedef struct
@@ -289,4 +296,10 @@ foe_pos_e AVOIDANCE_where_is_foe();
 * return END_WITH_TIMEOUT : Adversaire rencontré, mais on est arrivé à destination
 */	
 error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type);
+
+/*
+ * Envoie un message can lors d'un evitement avec les raisons
+ *
+ */
+void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
 #endif /* ndef AVOIDANCE_H */
