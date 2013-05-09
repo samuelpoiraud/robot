@@ -49,6 +49,10 @@ int main (void)
 	#ifdef VERBOSE_MODE
 		UART_init();
 	#endif /* def VERBOSE_MODE */
+	LED_RUN=1;
+	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
+	RCON_read(); //permet de voir le type du dernier reset
+	
 	STACKS_init();
 	ENV_init();
 	CLOCK_init();
@@ -59,9 +63,7 @@ int main (void)
 		for(i=1;i;i++);
 
 
-	LED_RUN=1;
-	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
-	RCON_read(); //permet de voir le type du dernier reset
+	
 	
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
@@ -123,6 +125,11 @@ int main (void)
 void RCON_read()
 {
 	debug_printf("dsPIC30F reset source :\r\n");
+	if(!(RCON & 0xC0DF))
+	{
+		debug_printf(" - NO SOURCE OF RESET !!!???");
+		ASSER_dump_statck();
+	}
 	if(RCON & 0x8000)
 		debug_printf("- Trap conflict event\r\n");
 	if(RCON & 0x4000)

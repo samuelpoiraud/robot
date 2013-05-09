@@ -122,12 +122,12 @@
 	
 	//KRUSTY
 		// RED
-		#define KRUSTY_RED_START_X  	39321600 			//600mm
+		#define KRUSTY_RED_START_X  	65536000 			//1000mm
 		#define KRUSTY_RED_START_Y  	7864200 			//(120mm)//symétrique
 		#define KRUSTY_RED_START_TETA 	6588416				//PI/2
 		
 		// BLUE
-		#define KRUSTY_BLUE_START_X 	39321600 			//600mm
+		#define KRUSTY_BLUE_START_X 	65536000 			//1000mm
 		#define KRUSTY_BLUE_START_Y 	(196608000-7864200) //2000-120mm
 		#define KRUSTY_BLUE_START_TETA 	(-6588416)			//-PI/2
 
