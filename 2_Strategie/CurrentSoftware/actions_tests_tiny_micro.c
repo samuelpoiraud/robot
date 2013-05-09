@@ -425,13 +425,13 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 		//POINTS DE REPLI...
 		case EB:
 			//										in_progress	success	failed
-			state = try_going(1380, COLOR_Y(2135),	EB,			BP,		MB,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1380, COLOR_Y(2135),	EB,			BP,		FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != EB)
 				from = EB;
 		break;
 		case MB:
 			//										in_progress	success	failed
-			state = try_going(1300, COLOR_Y(1600),	MB,			BP,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1300, COLOR_Y(1600),	MB,			BP,		FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != MB)
 				from = MB;
 
