@@ -658,6 +658,7 @@ void STRAT_TINY_test_moisson(void){
 			break;
 		case P_2:
 			if(count < 2){
+				count++;
 				ACT_plier_open();
 				state = try_going(600, COLOR_Y(2000), P_2, GO_HOME, P_4,FORWARD,NO_DODGE_AND_WAIT);	
 			}else{
