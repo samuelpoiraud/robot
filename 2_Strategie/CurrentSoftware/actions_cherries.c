@@ -118,6 +118,9 @@ error_e K_STRAT_sub_cherries_alexis() {
 		STATECHANGE_log(SM_ID_CHERRIES_MAIN, state_str[last_state], last_state, state_str[state], state);
 	}
 
+	if(state != DP_LAUNCH_CHERRIES && ACT_get_last_action_result(ACT_QUEUE_BallSorter))
+		ACT_ball_sorter_next_autoset_speed(6300, TRUE);	//6300 histoire de
+
 	switch(state) {
 		//Initialise la machine à état.
 		case DP_INIT:
@@ -710,7 +713,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 	static const Sint16 CATCHING_PLATE_OFFSET = 320;	//Début de la vitesse lente, relatif au milieu de l'assiette
 	static const Sint16 CATCHED_PLATE_OFFSET  = 260;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
 	static const Sint16 DROP_PLATE_OFFSET     = -60;	//Position pour lacher les assiettes (uniquement dans un axe X, pas Y)
-	static const Sint16 PLATE_CORECTED_ANGLE_TAN  = 24;	//Angle a avoir pour prendre une assiette bien
+	static const Sint16 PLATE_ANGLE_CORRECTION_X  = 4;	//Angle a avoir pour prendre une assiette bien
 	static const Uint8 CATCHING_PLATE_SPEED = 8 + 5;	//vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
 	static const bool_e USE_DOUBLE_CLOSE_AX12 = TRUE; //Si TRUE, on serre 2 fois l'assiette pour mieux la prendre
@@ -813,8 +816,8 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 					grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHING_PLATE_OFFSET};
 
 					if(global.env.color == RED)
-						grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos + 2, plate_y_position + CATCHED_PLATE_OFFSET};
-					else grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos - 2, plate_y_position + CATCHED_PLATE_OFFSET};
+						grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos + PLATE_ANGLE_CORRECTION_X, plate_y_position + CATCHED_PLATE_OFFSET};
+					else grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos - PLATE_ANGLE_CORRECTION_X, plate_y_position + CATCHED_PLATE_OFFSET};
 
 					grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {real_x_pos, plate_y_position + CLOSING_AX12_OFFSET};
 					grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {real_x_pos, plate_y_position + SAFE_INIT_POS_OFFSET};
@@ -874,7 +877,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 				}
 			}
 			state = try_going_multipoint((displacement_t[]){
-				{{grab_trajectory[GRAB_BeginCatch].x, COLOR_Y(grab_trajectory[GRAB_BeginCatch].y)}, FAST},					//On avance rapidement sur l'assiette
+				{{grab_trajectory[GRAB_BeginCatch].x, COLOR_Y(grab_trajectory[GRAB_BeginCatch].y)}, SLOW},					//On avance rapidement sur l'assiette
 				{{grab_trajectory[GRAB_EndCatch].x, COLOR_Y(grab_trajectory[GRAB_EndCatch].y)} , CATCHING_PLATE_SPEED}},	//Puis on la pousse (en la serrant) doucement
 				2, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT,		//ANY_WAY si jamais le premier point est derrière nous ...
 				GP_CATCH_PLATE, GP_TAKING_CHERRIES, GP_FAILED);
@@ -884,7 +887,6 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 			if((CLOSING_AX12_OFFSET != 0 && (global.env.asser.reach_y || global.env.asser.reach_x)) || (state != GP_CATCH_PLATE && catching_plate == FALSE)) {
 				if(USE_DOUBLE_CLOSE_AX12) {					//Si on fait un double serrage, on serre juste
 					ACT_plate_plier(ACT_PLATE_PlierClose);
-					ACT_plate_plier(ACT_PLATE_PlierOpen);
 				} else {									//Sinon on serre & monte l'assiette directement
 					//ACT_plate_plier(ACT_PLATE_PlierClose); //Non utile, le fait de remonter l'assiette implique que la pince se serre
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
@@ -900,6 +902,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 				//On prend les cerises, si on fait double serrage, il faut ajouter les commandes pour ouvrir et refermer la pince puis monter l'assiette.
 				//On le fait que maintenant quand le robot ne bouge plus.
 				if(USE_DOUBLE_CLOSE_AX12) {
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
 					//ACT_plate_plier(ACT_PLATE_PlierClose); //Non utile, le fait de remonter l'assiette implique que la pince se serre
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 				}
@@ -1177,7 +1180,7 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 		//Lance une cerise (si elle n'est pas blanche elle ne va pas sur le gateau)
 		case LC_FIRE:
 			if(entrance)
-				ACT_ball_sorter_next_autoset_speed(POSITIONS[current_position].ball_launcher_speed);
+				ACT_ball_sorter_next_autoset_speed(POSITIONS[current_position].ball_launcher_speed, FALSE);
 			state = check_act_status(ACT_QUEUE_BallSorter, LC_FIRE, LC_CHECK_CHERRY, LC_FAILED);
 			break;
 

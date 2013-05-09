@@ -2028,7 +2028,7 @@ error_e TEST_Launcher_ball_mid(void){
             nb_ball=nb_ball+1;
 
 
-            ACT_ball_sorter_next_autoset_speed(6300);
+            ACT_ball_sorter_next_autoset_speed(6300, FALSE);
             state=WAIT_BALL_ATT;
             break;
 
@@ -2246,7 +2246,7 @@ error_e TEST_Launcher_ball_gateau(void){
             nb_ball=nb_ball+1;
 
 
-            ACT_ball_sorter_next_autoset_speed(5850);
+            ACT_ball_sorter_next_autoset_speed(5850, FALSE);
             state=WAIT_BALL_ATT;
             break;
 
@@ -2463,7 +2463,7 @@ error_e TEST_Launcher_ball_mid_double(void){
             nb_ball=nb_ball+1;
 
 
-            ACT_ball_sorter_next_autoset_speed(6300);
+            ACT_ball_sorter_next_autoset_speed(6300, FALSE);
             state=WAIT_BALL_ATT;
             break;
 
@@ -2741,7 +2741,7 @@ error_e TEST_Launcher_ball_gateau_double(void){
             nb_ball=nb_ball+1;
 
 
-            ACT_ball_sorter_next_autoset_speed(5850);
+            ACT_ball_sorter_next_autoset_speed(5850, FALSE);
             state=WAIT_BALL_ATT;
             break;
 

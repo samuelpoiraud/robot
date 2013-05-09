@@ -240,7 +240,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?400:450, PROTECT_GLASSES,WAIT_UNTIL_60SEC,TAKE_A_DECISION,FORWARD, NO_DODGE_AND_WAIT);
 			if(state == WAIT_UNTIL_60SEC)
 			{	//On a réussi à protéger nos verres
-				state == TAKE_A_DECISION;
+				state = TAKE_A_DECISION;
 				we_are_protecting_our_glasses = TRUE;
 			}
 		break;
