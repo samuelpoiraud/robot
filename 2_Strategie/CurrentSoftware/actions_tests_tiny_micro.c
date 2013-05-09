@@ -434,7 +434,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 		break;
 		case MB:
 			//										in_progress	success	failed
-			state = try_going(1300, COLOR_Y(1500),	MB,			BP,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1300, COLOR_Y(1600),	MB,			BP,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != MB)
 				from = MB;
 

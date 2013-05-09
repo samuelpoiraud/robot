@@ -140,14 +140,13 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 			else if(!all_candles_done && previous_subaction != SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES && previous_subaction != SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES)
 			{
-				if(TINY_forgotten_candles_left_extremity() == 0 && TINY_forgotten_candles_right_extremity == 11)
+				if(TINY_forgotten_candles_left_extremity() == 0 && TINY_forgotten_candles_right_extremity() == 11)
 					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;	//On va FAIRE le gateau
 				else
 					state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//On va REFAIRE le gateau
 			}
 			else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON)
 				state = SUBACTION_MOISSON;
-			//MOISSON PRIORITAIRE ICI
 			else if(SWITCH_STRAT_3 == 1 && previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
 				state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment d'aller (re)faire un scan
 			else if(we_are_protecting_our_glasses == FALSE)	//On est pas déjà en train de protéger les verres
@@ -263,10 +262,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
 					case FOE_IN_PATH:
-						if(all_gifts_done() == FALSE)
-							state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
-						else
-							state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+						state = TAKE_A_DECISION;
 					break;
 					default:
 					break;
@@ -283,10 +279,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
-					if(all_candles_done == FALSE)
-						state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//Il reste des bougies à souffler... on y retourne.
-					else
-						state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+					state = TAKE_A_DECISION;
 				break;
 				default:
 				break;
@@ -295,7 +288,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		break;
 
 		default:
-			state = SUBACTION_STEAL_ADVERSARY_GLASSES;
+			state = TAKE_A_DECISION;
 		break;
 	}
 
