@@ -396,10 +396,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 				}
 				else
 				{
-					if(goal == GOAL_Cadeau2)
-						state = GA;
-					else
-						state = EA;
+					state = SUBACTION_FORGOTTEN_GIFT;
 					from = BP;
 				}
 			}
@@ -407,7 +404,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 		/////////////////////////////////////////
 		case BP:
 			//									in_progress		success							failed
-			state=try_going(870,COLOR_Y(1800),	BP,				(goal == GOAL_Cadeau2)? GA:EA,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(870,COLOR_Y(1800),	BP,	SUBACTION_FORGOTTEN_GIFT,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != BP)
 				from = BP;
 		break;
