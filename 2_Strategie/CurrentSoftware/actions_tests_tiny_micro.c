@@ -187,6 +187,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		SUBACTION_STEAL,
 		GOTO_4TH_GIFT,
 		COME_BACK_HOME,
+		BACK_TO_CLOSE,
 		RETURNING_FOR_SCAN,
 		FAIL,
 		SUCCESS
@@ -293,11 +294,14 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			state = try_going_slow(250,COLOR_Y(450),	COME_BACK_HOME, RETURNING_FOR_SCAN,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
 
 		break;
+		case BACK_TO_CLOSE:
+			state = try_going_slow(250,COLOR_Y(650),	COME_BACK_HOME, RETURNING_FOR_SCAN,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+		break;
 		case RETURNING_FOR_SCAN:
 			//Point 3 : on retourne sur la ligne du SCAN
 			if(entrance)
 				ACT_plier_close();
-			state = try_going_slow(250,COLOR_Y(2135),	RETURNING_FOR_SCAN, SUCCESS,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going_slow(250,COLOR_Y(1700),	RETURNING_FOR_SCAN, SUCCESS,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
 		break;
 		case FAIL:
 			ACT_plier_close();
@@ -329,6 +333,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			case SUBACTION_STEAL:			debug_printf("SUBACTION_STEAL");	break;
 			case GOTO_4TH_GIFT:				debug_printf("GOTO_4TH_GIFT");		break;
 			case COME_BACK_HOME:			debug_printf("COME_BACK_HOME");		break;
+			case BACK_TO_CLOSE:				debug_printf("BACK_TO_CLOSE");		break;
 			case RETURNING_FOR_SCAN:		debug_printf("RETURNING_FOR_SCAN");	break;
 			case FAIL:						debug_printf("FAIL");				break;
 			case SUCCESS:					debug_printf("SUCCESS");			break;
@@ -402,7 +407,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 		/////////////////////////////////////////
 		case BP:
 			//									in_progress		success							failed
-			state=try_going(870,COLOR_Y(1800),	BP,				((goal == GOAL_Cadeau2)? GA:EA),	from,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(870,COLOR_Y(1800),	BP,				(goal == GOAL_Cadeau2)? GA:EA,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != BP)
 				from = BP;
 		break;
@@ -429,7 +434,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 		break;
 		case MB:
 			//										in_progress	success	failed
-			state = try_going(1340, COLOR_Y(1500),	MB,			BP,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1300, COLOR_Y(1500),	MB,			BP,		EB,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != MB)
 				from = MB;
 
@@ -669,7 +674,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1340, COLOR_Y(1600),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1300, COLOR_Y(1600),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 
 			if(state != MB)	//Sortie de l'état...
 				from = MB;	//On sort..alors on sauvegarde d'où on vient.

@@ -528,7 +528,7 @@ error_e TINY_forgotten_candles()
 		break;
 
 		case MB:
-				state=try_going(1340,1600,MB,(finish==FALSE)?DECISION2:DONE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+				state=try_going(1300,1600,MB,(finish==FALSE)?DECISION2:DONE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 				
 		break;
 
