@@ -928,7 +928,7 @@ error_e STRAT_TINY_test_moisson_micro(void){
 	static state_e previousState = GO_INIT;
 	static Uint8 count = 0;
 
-	if(state != P_2 && state != GO_INIT){
+	if(state != P_1  && state != P_2 && state != GO_INIT){
 		count++;
 	}
 	switch(state){
@@ -947,7 +947,6 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			break;
 		case P_2:
 			if(count < 2){
-				
 				state = try_going(600, COLOR_Y(2000), P_2, GO_HOME, P_4,FORWARD,NO_DODGE_AND_WAIT);
 			}else{
 				state = DONE;
