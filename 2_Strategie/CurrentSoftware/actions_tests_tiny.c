@@ -531,6 +531,9 @@ void STRAT_TINY_all_candles(void)
 	{
 		GET_OUT = 0,
 	    TINY_CANDLES,
+				TURN,
+				TINY_RUSH_IW,
+				RW,
 		COMEBACK2CODEUR,
 		DONE
 	}state_e;
@@ -543,26 +546,33 @@ void STRAT_TINY_all_candles(void)
 
 		case GET_OUT:
 
-			state = try_going(250, COLOR_Y(865), GET_OUT, TINY_CANDLES,TINY_CANDLES,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(250, COLOR_Y(200), GET_OUT, TURN,TURN,ANY_WAY,NO_DODGE_AND_WAIT);
 		break;
 
-		case TINY_CANDLES:
-			sub_action = TINY_forgotten_candles();
+
+		case TURN:
+			//								in_progress				success						failed
+			state = try_go_angle(0, TURN,TINY_RUSH_IW,TINY_RUSH_IW, FAST);
+		break;
+
+		case TINY_RUSH_IW:
+			state = try_going(1350, COLOR_Y(200), TINY_RUSH_IW, DONE,DONE,FORWARD,NO_DODGE_AND_WAIT);
+		break;
+
+		case RW:
+			sub_action = TEST_STRAT_in_da_wall();
 			switch(sub_action)
-            {
-				case END_OK:
-					state=COMEBACK2CODEUR;
-				break;
-				case END_WITH_TIMEOUT:
-					state=COMEBACK2CODEUR;
-				case NOT_HANDLED:
-				case FOE_IN_PATH:
-					state =COMEBACK2CODEUR;
-				break;
+			{
 				case IN_PROGRESS:
+					break;
+				case NOT_HANDLED:
+				case END_OK:
+				case END_WITH_TIMEOUT:
+				case FOE_IN_PATH:
 				default:
-				break;
-            }
+					state = DONE;
+					break;
+			}
 		break;
 
 
@@ -575,6 +585,39 @@ void STRAT_TINY_all_candles(void)
 		default:
 		break;
 	}
+}
+
+error_e TEST_STRAT_in_da_wall(void)
+{
+    typedef enum{
+    PUSH_MOVE = 0,
+	WAIT_END_OF_MOVE,
+	DONE,
+    }state_e;
+
+	static state_e state = PUSH_MOVE;
+    static bool_e timeout=FALSE;
+
+    switch(state){
+        case PUSH_MOVE:
+            ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,TRUE);
+            state = WAIT_END_OF_MOVE;
+            break;
+        case WAIT_END_OF_MOVE:
+            if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+                state = DONE;
+            }
+            break;
+        case DONE:
+            state = PUSH_MOVE;
+            return (timeout)?END_WITH_TIMEOUT:END_OK;
+            break;
+        default:
+            state = 0;
+            return NOT_HANDLED;
+            break;
+    }
+    return IN_PROGRESS;
 }
 
 
