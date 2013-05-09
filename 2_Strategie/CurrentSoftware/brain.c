@@ -214,3 +214,120 @@ Uint8 strat_number(void)
 	#endif	
 	return 0x00;	//Aucun switch -> stratégie 0.
 }
+
+error_e STRAT_TINY_test_moisson_micro(void){
+
+	typedef enum{
+		GO_INIT = 0,
+		GO_HOME,
+		P_1,
+		P_2,
+		P_3,
+		P_4,
+		DONE
+
+	}state_e;
+	/*
+	END_OK=0,
+		IN_PROGRESS,
+		END_WITH_TIMEOUT,
+		NOT_HANDLED,
+		FOE_IN_PATH
+	 */
+
+
+	error_e ret = NOT_HANDLED;
+	static state_e state = GO_INIT;
+	static state_e previousState = GO_INIT;
+
+	static Uint8 count = 0;
+
+	switch(state){
+		case GO_INIT:
+			count = 0;
+			state = P_1;
+			previousState = GO_INIT;
+			ret = IN_PROGRESS;
+			break;
+		case P_1:
+			//									  in_progress	success	failed
+			state = try_going(300, COLOR_Y(2000), P_1, P_2, GO_HOME,FORWARD,NO_DODGE_AND_WAIT);
+			previousState = P_1;
+			ret = IN_PROGRESS;
+			break;
+		case P_2:
+			if(count < 2){
+				count++;
+				ACT_plier_open();
+				state = try_going(600, COLOR_Y(2000), P_2, GO_HOME, P_4,FORWARD,NO_DODGE_AND_WAIT);
+			}else{
+				state = DONE;
+			}
+			previousState = P_2;
+			ret = IN_PROGRESS;
+			break;
+		case P_3:
+			//risque de boucle entre P_2 P_4
+			state = try_going(900, COLOR_Y(2000), P_3, P_4, P_2,FORWARD,NO_DODGE_AND_WAIT);
+			previousState = P_3;
+			ret = IN_PROGRESS;
+			break;
+
+		case P_4:
+			//risque de boucle P_1 P_2 P_4
+			state = try_going(800, COLOR_Y(1000), P_4, GO_HOME,P_1,FORWARD,NO_DODGE_AND_WAIT);
+			previousState = P_4;
+			ret = IN_PROGRESS;
+			break;
+
+		case GO_HOME:
+
+			switch(previousState){
+				case P_1:
+					//non
+					 ret = NOT_HANDLED;
+					state = DONE;
+					break;
+				case P_2:
+					state = try_going(300, COLOR_Y(300), GO_HOME,P_3 ,DONE,FORWARD,NO_DODGE_AND_WAIT);
+					ret = IN_PROGRESS;
+					break;
+				case P_3:
+					//non
+					ret = NOT_HANDLED;
+					state = DONE;
+					break;
+				case P_4:
+					//a la fin
+					state = DONE;
+					break;
+				case GO_INIT:
+					// non pas possible
+					 ret = NOT_HANDLED;
+					state = DONE;
+					break;
+				case GO_HOME:
+					//non pas possible
+					ret = NOT_HANDLED;
+					state = DONE;
+					break;
+				case DONE:
+					state = DONE;
+					break;
+				default:
+					state = DONE;
+					break;
+			}
+			//previousState = GO_HOME;
+			break;
+		case DONE:
+			ret = END_OK;
+			ACT_plier_close();
+			break;
+		default:
+
+			break;
+	}
+	return ret;
+
+}
