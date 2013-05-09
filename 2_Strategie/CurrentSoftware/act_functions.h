@@ -122,7 +122,7 @@
 	//Cette fonction fait donc automatiquement une demande d'ejection de la cerise prise à la bonne vitesse et en prend une autre.
 	//Le message CAN ACT_BALLSORTER_RESULT contenant la couleur de la cerise est quand même envoyé à la strat.
 	//Lorsque la cerise est detectée comme pourie (pas blanche) la vitesse utilisé est ball_launcher_speed_white_cherry / 2.
-	bool_e ACT_ball_sorter_next_autoset_speed(Uint16 ball_launcher_speed_white_cherry__tr_min);
+	bool_e ACT_ball_sorter_next_autoset_speed(Uint16 ball_launcher_speed_white_cherry__tr_min, bool_e keep_white_ball);
 
 	////////////////////////////////////////
 	///////////////// TINY /////////////////
