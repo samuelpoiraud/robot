@@ -53,6 +53,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS,
 		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES,
 		PROTECT_GLASSES,
+				DONE,
 		FTW
 	}state_e;
 	static state_e state = GET_OUT;
@@ -202,12 +203,15 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 		case PROTECT_GLASSES:
 			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
-			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?400:450, PROTECT_GLASSES,WAIT, WAIT,FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?400:450, PROTECT_GLASSES,DONE,DONE,FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 		case FTW:
 			//Position d'attente quand on a plus rien à faire.
-			state = try_going(1380,COLOR_Y(1500), FTW, WAIT, WAIT, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1380,COLOR_Y(1500), FTW,DONE,DONE, ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+
+		case DONE:
 		break;
 
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
