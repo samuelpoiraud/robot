@@ -649,6 +649,7 @@ void STRAT_TINY_test_moisson(void){
 			count = 0;
 			state = P_1;
 			previousState = GO_INIT;
+
 			break;
 		case P_1:
 			//									  in_progress	success	failed
@@ -657,6 +658,7 @@ void STRAT_TINY_test_moisson(void){
 			break;
 		case P_2:
 			if(count < 2){
+				ACT_plier_open();
 				state = try_going(600, COLOR_Y(2000), P_2, GO_HOME, P_4,FORWARD,NO_DODGE_AND_WAIT);	
 			}else{
 				state = DONE;
@@ -712,10 +714,10 @@ void STRAT_TINY_test_moisson(void){
 			//previousState = GO_HOME;
 			break;
 		case DONE:
-
+			ACT_plier_close();
 			break;
 		default:
-			state = DONE;
+			
 			break;
 	}
 
