@@ -23,7 +23,7 @@
 	#define PLATE_ASSER_AMORTIZED_KI             0
 	#define PLATE_ASSER_AMORTIZED_KD             20000
 /** Si le moteur n'atteint pas la position demandée avant ce temps, on considèer qu'il y a un problème. Temps en ms */
-	#define PLATE_ASSER_TIMEOUT                  0   //en ms
+	#define PLATE_ASSER_TIMEOUT                  2000   //en ms
 /** Lorsque le moteur atteint sa position avec +/- PLATE_ASSER_POS_EPSILON d'unité potar d'écart max, on considère qu'il a atteint sa position. Angle en unité potar. */
 	#define PLATE_ASSER_POS_EPSILON              60
 /** Position en unité potar lorsque la pince à assiette est en position horizontale */
@@ -37,13 +37,13 @@
 /** Tension maximale en pourcentage de 24V autorisée dans le sens vertical -> horizontal */
 	#define PLATE_DCMOTOR_MAX_PWM_WAY1           15
 /** Si l'ax12 (pour pincer l'assiette et la tenir) n'atteint pas la position demandée avant ce temps, on considèer qu'il y a un problème. Temps en centaine de ms. */
-	#define PLATE_PLIER_AX12_ASSER_TIMEOUT       7      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define PLATE_PLIER_AX12_ASSER_TIMEOUT       10      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 /** Lorsque l'ax12 atteint sa position avec +/- PLATE_PLIER_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define PLATE_PLIER_AX12_ASSER_POS_EPSILON   2     //en degré
 /** Position en degré de l'ax12 lorsque la pince est ouverte */
 	#define PLATE_PLIER_AX12_OPEN_POS            90    //en degré
 /** Position en degré de l'ax12 lorsque la pince est fermée ou serre une assiette */
-	#define PLATE_PLIER_AX12_CLOSED_POS          195    //en degré
+	#define PLATE_PLIER_AX12_CLOSED_POS          200    //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur lorsque l'on serre une assiette en continu */
 	#define PLATE_PLIER_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 /** Position initiale du moteur DC. Doit être un message CAN de commande ACT_PLATE_ROTATE_* */

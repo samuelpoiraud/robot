@@ -41,6 +41,8 @@ void OUTPUTLOG_printf(log_print_e printthis, log_level_e level, const char * for
 
 void OUTPUTLOG_set_level(log_level_e level) {
 	current_max_log_level = level;
+	if(current_max_log_level > 200)
+		printf("current_max_log_level n'est jamais > 200, mais on est sur de compiler le support du printf ...");
 }
 
 log_level_e OUTPUTLOG_get_level() {
