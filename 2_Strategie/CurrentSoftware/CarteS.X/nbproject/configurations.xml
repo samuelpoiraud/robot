@@ -58,7 +58,6 @@
       <itemPath>../actions_utils.h</itemPath>
       <itemPath>../actions_gifts.h</itemPath>
       <itemPath>../actions_cake.h</itemPath>
-      <itemPath>../zone_mutex.c</itemPath>
       <itemPath>../zone_mutex.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -108,6 +107,7 @@
       <itemPath>../actions_utils.c</itemPath>
       <itemPath>../actions_gifts.c</itemPath>
       <itemPath>../actions_cake.c</itemPath>
+      <itemPath>../zone_mutex.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
