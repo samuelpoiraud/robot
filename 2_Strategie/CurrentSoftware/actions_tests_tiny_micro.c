@@ -971,8 +971,9 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			//on peu metre un count ici
 			if(previousState == MA){
 				state = try_going(1300, COLOR_Y(1600), HB,DONE,HB,BACKWARD,NO_DODGE_AND_WAIT);
+			}else if(previousState == GO_HOME){
+				state = try_going(1300, COLOR_Y(1600), HB,DONE,MA,BACKWARD,NO_DODGE_AND_WAIT);
 			}else{
-
 				state = try_going(1300, COLOR_Y(1600), HB, BP,DONE,BACKWARD,NO_DODGE_AND_WAIT);
 			}
 			if(state != HB){
