@@ -44,26 +44,34 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		TURN_IF_NO_CALIBRATION,
 
 		//NOMINAL MATCH
-		SUBACTION_OPEN_ALL_GIFTS,
+		SUBACTION_OPEN_2_OR_4_GIFTS,
 		SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES,
+
+		TAKE_A_DECISION,
+				
+		//OTHERS SUBACTIONS
 		SUBACTION_STEAL_ADVERSARY_GLASSES,
+		SUBACTION_MOISSON,
 		BP,
-		WAIT,
-		//FAILING PARTIAL ACTIONS...
-		SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS,
-		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES,
+		WAIT_UNTIL_60SEC,
 		PROTECT_GLASSES,
-				DONE,
-		FTW
+		SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS,
+		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES,		
+				
+		DONE
+		
 	}state_e;
 	static state_e state = GET_OUT;
 	static state_e previous_state = GET_OUT;
-	
+	static state_e previous_subaction = GET_OUT;
+	static bool_e entrance = FALSE;
 	error_e sub_action;
 
 	//Les variables en minuscule pour pas confondre avec des états et static pour garder la valeur entre plusieurs appel de la fonction (et donc entre plusieurs états)
 	static bool_e all_candles_done = FALSE;
-
+	static bool_e moisson_done = FALSE;
+	static bool_e we_are_protecting_our_glasses = FALSE;
+	static bool_e we_do_not_want_to_move_anymore = FALSE;
 	//Mieux vaut utiliser l'environnement qui doit être correctement informé que ces booléens redondants...
 /*	static bool_e red_cake_blowed = FALSE;  //TRUE quand on a fait la partie du gateau coté rouge, sinon FALSE
 	static bool_e blue_cake_blowed = FALSE;  //TRUE quand on a fait la partie du gateau coté bleu, sinon FALSE
@@ -82,7 +90,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			*/
 		case GET_OUT:
 			if(global.env.asser.calibrated || global.env.color == RED)
-				state = SUBACTION_OPEN_ALL_GIFTS;
+				state = SUBACTION_OPEN_2_OR_4_GIFTS;
 			else
 				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !
 		break;
@@ -92,9 +100,9 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		break;
 		case TURN_IF_NO_CALIBRATION:
 			//								in_progress				success						failed
-			state = try_go_angle(PI4096/2, TURN_IF_NO_CALIBRATION, SUBACTION_OPEN_ALL_GIFTS, SUBACTION_OPEN_ALL_GIFTS, FAST);
+			state = try_go_angle(PI4096/2, TURN_IF_NO_CALIBRATION, SUBACTION_OPEN_2_OR_4_GIFTS, SUBACTION_OPEN_2_OR_4_GIFTS, FAST);
 		break;
-		case SUBACTION_OPEN_ALL_GIFTS:	//Subaction d'ouverture des cadeaux
+		case SUBACTION_OPEN_2_OR_4_GIFTS:	//Subaction d'ouverture des cadeaux
 			//sub_action = TINY_open_all_gifts();
 			sub_action = TINY_open_all_gifts_without_pause();
 			switch(sub_action)
@@ -103,20 +111,61 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				break;
 				case END_OK:
 					debug_printf("J'ai fini les cadeaux.\n");
-					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;
+					state = TAKE_A_DECISION;
 				break;
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
 					debug_printf("Je n'ai pas fini les cadeaux.\n");
-					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;
+					state = TAKE_A_DECISION;
 				break;
 				default:
 				break;
             }
 		break;
-		
-		case SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES:
+
+
+		case TAKE_A_DECISION:
+			//On dispose de previous_subaction qui contient la précédente actions effectuée.
+
+			if(previous_subaction == PROTECT_GLASSES)
+			{
+				if(all_gifts_done() && all_candles_done && moisson_done)	//SI ON A MIS TOUT NOS POINTS... ON RESTE ICI (la moisson compte, pas le scan)
+					we_do_not_want_to_move_anymore = TRUE;
+			}
+
+
+			//les décisions sont dans l'ordre de la plus prioritaire à la moins prioritaire...
+			if(all_gifts_done() == FALSE && previous_subaction != SUBACTION_OPEN_2_OR_4_GIFTS && previous_subaction != SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS)
+				state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
+			else if(!all_candles_done && previous_subaction != SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES && previous_subaction != SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES)
+			{
+				if(TINY_forgotten_candles_left_extremity() == 0 && TINY_forgotten_candles_right_extremity == 11)
+					state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;	//On va FAIRE le gateau
+				else
+					state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//On va REFAIRE le gateau
+			}
+			else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON)
+				state = SUBACTION_MOISSON;
+			//MOISSON PRIORITAIRE ICI
+			else if(SWITCH_STRAT_3 == 1 && previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
+				state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment d'aller (re)faire un scan
+			else if(we_are_protecting_our_glasses == FALSE)	//On est pas déjà en train de protéger les verres
+				state = PROTECT_GLASSES;
+			else if(we_do_not_want_to_move_anymore == FALSE)
+				state = WAIT_UNTIL_60SEC;
+			else
+				state = DONE;
+
+			//TODO Ajouter les autres subactions... la moisson...
+
+			//Le steal - si activé - est paramétré en interne. pour faire du scan ou d'autres types de vols.
+			//L'idée est de faire une moisson réussie maximum (comme gateau ou cadeaux)
+			//Et de faire des steal de temps en temps ...
+		break;
+
+
+		case SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES:		//PREMIERE FOIS QUE L'ON FAIT LE GATEAU (ou bien on l'a déjà fait, mais sans souffler une seule bougie)
 			sub_action = STRAT_TINY_goto_cake_and_blow_candles();
 			switch(sub_action)
             {
@@ -129,10 +178,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
-					if(all_gifts_done())
-						state = SUBACTION_STEAL_ADVERSARY_GLASSES;	//Cas nominal -> on a mis tout nos points.
-					else
-						state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
+					state = TAKE_A_DECISION;
 				break;
 				
 				break;
@@ -140,27 +186,10 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				break;
             }
 		break;
+
 		
 		case SUBACTION_STEAL_ADVERSARY_GLASSES:
-			if(SWITCH_STRAT_3 == 0)	//Désactivation du Steal.
-			{
-				state = FTW;
-				break;
-			}
-
 			sub_action = STRAT_TINY_scan_and_steal_adversary_glasses(FALSE);
-			
-			/* Code commenté car trop dangereux d'arreter sans reset de TOUTES les machines a état d'en dessous !
-			 * Ce n'est pas très génant d'attendre la fin du STEAL (échec ou réussite) avant de prendre une décision...
-			 if(global.env.match_time >= 70000)	//S'il reste des chose à faire et qu'on a plus que 20 secondes... on abandonne le vol et on y va..
-			{
-				if( all_gifts_done()==FALSE ||  (all_candles_done == FALSE) )
-				{
-					sub_action = END_OK;
-					debug_printf("Il reste 20 sec..\n");
-					STRAT_TINY_scan_and_steal_adversary_glasses(TRUE);	//Reset forcé de la MAE !
-				}
-			}*/
 			switch(sub_action)
             {
 				case IN_PROGRESS:
@@ -170,64 +199,53 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
-					if(all_gifts_done() == FALSE)
-						state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
-					else if(!all_candles_done)
-						state = SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES;	//Il reste des bougies à souffler... on y retourne.
-					else
-						state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+					state = TAKE_A_DECISION;
 				break;
 				default:
 				break;
             }
 		break;
-		case BP:
-			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
-			state = try_going(1000,COLOR_Y(1800), BP, WAIT, WAIT, ANY_WAY, NO_DODGE_AND_WAIT);
-		break;
-		case WAIT:
-			if(global.env.match_time >= 0)	//S'il reste des chose à faire et qu'on a plus que 30 secondes... on abandonne le vol et on y va..
-			{
-				if(all_gifts_done() == FALSE)
-					state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
-				else if(!all_candles_done)
-					state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//Il reste des bougies à souffler... on y retourne.
-				else if(SWITCH_STRAT_3 == 1)
-					state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment de (re)faire un scan
-				else if(SWITCH_LAST_POS==1)
-					state = PROTECT_GLASSES;
-				else
-					state = FTW;
-			}
-		break;
-
-		case PROTECT_GLASSES:
-			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
-			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?400:450, PROTECT_GLASSES,DONE,DONE,FORWARD, NO_DODGE_AND_WAIT);
-		break;
-
-		case FTW:
-			//Position d'attente quand on a plus rien à faire.
+		case SUBACTION_MOISSON:
 			sub_action = STRAT_TINY_test_moisson_micro();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
 					break;
 					case END_OK:
+						moisson_done = TRUE;
 						//no break !
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
 					case FOE_IN_PATH:
-						if(all_gifts_done() == FALSE)
-							state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
-						else
-							state = PROTECT_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+						state = TAKE_A_DECISION;
 					break;
 					default:
 					break;
 				}
-
 		break;
+		case BP:
+			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
+			state = try_going(1000,COLOR_Y(1800), BP, WAIT_UNTIL_60SEC, WAIT_UNTIL_60SEC, ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+		case WAIT_UNTIL_60SEC:
+			if(global.env.match_time >= 60000)	//S'il reste des chose à faire et qu'on a plus que 30 secondes... on abandonne le vol et on y va..
+			{
+				state = TAKE_A_DECISION;
+			}
+		break;
+
+		case PROTECT_GLASSES:
+			if(entrance)
+				we_are_protecting_our_glasses = FALSE;
+			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
+			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?400:450, PROTECT_GLASSES,WAIT_UNTIL_60SEC,TAKE_A_DECISION,FORWARD, NO_DODGE_AND_WAIT);
+			if(state == WAIT_UNTIL_60SEC)
+			{	//On a réussi à protéger nos verres
+				state == TAKE_A_DECISION;
+				we_are_protecting_our_glasses = TRUE;
+			}
+		break;
+
 
 		case DONE:
 		break;
@@ -248,7 +266,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 						if(all_gifts_done() == FALSE)
 							state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 						else
-							state = FTW;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+							state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
 					break;
 					default:
 					break;
@@ -280,8 +298,11 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			state = SUBACTION_STEAL_ADVERSARY_GLASSES;
 		break;
 	}
-	
-	if(previous_state != state)
+
+	if(state == TAKE_A_DECISION)
+		previous_subaction = previous_state;
+	entrance = (previous_state == state)? FALSE:TRUE;
+	if(entrance)
 	{
 		debug_printf("T_STRAT->");
 		switch(state)
@@ -289,13 +310,14 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			case GET_OUT:									debug_printf("get_out\n");											break;
 			case GET_OUT_IF_NO_CALIBRATION:					debug_printf("get_out_if_no_calibration\n");						break;
 			case TURN_IF_NO_CALIBRATION:					debug_printf("turn_if_no_calibration\n");							break;
-			case SUBACTION_OPEN_ALL_GIFTS:					debug_printf("open_all_gifts\n");									break;
+			case SUBACTION_OPEN_2_OR_4_GIFTS:					debug_printf("SUBACTION_OPEN_2_OR_4_GIFTS\n");					break;
 			case SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES:		debug_printf("goto_cake_and_blow_candles\n");						break;
 			case SUBACTION_STEAL_ADVERSARY_GLASSES:			debug_printf("steal_aversary_glasses\n");							break;
 			case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:		debug_printf("open_some_forgotten_candles\n");						break;
 			case SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS:		debug_printf("open_some_forgotten_gifts\n");						break;
+			case SUBACTION_MOISSON:							debug_printf("SUBACTION_MOISSON\n");								break;
 			case BP:										debug_printf("BP\n");												break;
-			case WAIT:										debug_printf("Wait\n");												break;
+			case WAIT_UNTIL_60SEC:										debug_printf("Wait\n");									break;
 			default:										debug_printf("???\n");												break;
 		}
 	}	
