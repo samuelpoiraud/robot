@@ -646,7 +646,7 @@ void STRAT_TINY_test_moisson(void){
 	static state_e state = GO_INIT;
 	static state_e previousState = GO_INIT;
 
-	Uint8 count =0;
+	static Uint8 count = 0;
 
 	switch(state){
 		case GO_INIT:

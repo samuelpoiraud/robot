@@ -402,7 +402,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 		/////////////////////////////////////////
 		case BP:
 			//									in_progress		success							failed
-			state=try_going(870,COLOR_Y(1800),	BP,				(goal == GOAL_Cadeau2)? GA:EA,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(870,COLOR_Y(1800),	BP,				((goal == GOAL_Cadeau2)? GA:EA),	from,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != BP)
 				from = BP;
 		break;
