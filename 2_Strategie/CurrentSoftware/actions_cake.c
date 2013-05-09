@@ -210,7 +210,7 @@ error_e TINY_warner_blow_all_candles(void)
 			break;
 
 		case ANGLE_HAMMER:
-			state=try_go_angle((color_begin_cake==BLUE)?6965:5897, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
+			state=try_go_angle((color_begin_cake==BLUE)?6965:5897, ANGLE_HAMMER, HAMMER_UP,FAIL_GO_ANGLE, FAST);
 		break;
 
 		case HAMMER_UP:
@@ -225,7 +225,7 @@ error_e TINY_warner_blow_all_candles(void)
 
 		case ANGLE_HAMMER_READY:
 			//state=try_go_angle((color_begin_cake==BLUE)?-12328:-536,ANGLE_HAMMER_READY,HAMMER_CANDLE,HAMMER_CANDLE, FAST);
-			state=try_go_angle((color_begin_cake==BLUE)?-10437:-2430,ANGLE_HAMMER_READY,HAMMER_CANDLE,HAMMER_CANDLE, FAST);
+			state=try_go_angle((color_begin_cake==BLUE)?-10437:-2430,ANGLE_HAMMER_READY,HAMMER_CANDLE,FAIL_GO_ANGLE, FAST);
 		break;
 
 		case HAMMER_CANDLE:
@@ -260,7 +260,7 @@ error_e TINY_warner_blow_all_candles(void)
 
 		case LAST_CANDLE:
 			//									in_progress		success			failed
-			state=try_going(1830,(color_begin_cake==BLUE)?885:2115,LAST_CANDLE,	LAST_CANDLE_ANGLE,DONE,	ANY_WAY, NO_DODGE_AND_WAIT);
+			state=try_going(1830,(color_begin_cake==BLUE)?885:2115,LAST_CANDLE,	LAST_CANDLE_ANGLE,FAIL_GO_ANGLE,	ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 
 		case LAST_CANDLE_ANGLE:
@@ -281,7 +281,7 @@ error_e TINY_warner_blow_all_candles(void)
 		 //FINISH
 
 		case ALL_CANDLES_BLOWN:
-			state = try_go_angle((color_begin_cake==BLUE)?5897:6965, ALL_CANDLES_BLOWN,  HAMMER_FINAL_POS,  HAMMER_FINAL_POS, FAST);
+			state = try_go_angle((color_begin_cake==BLUE)?5897:6965, ALL_CANDLES_BLOWN,  HAMMER_FINAL_POS, FAIL_GO_ANGLE, FAST);
 			//TODO : prévenir l'environnement que le gateau est fini !
 		break;
 

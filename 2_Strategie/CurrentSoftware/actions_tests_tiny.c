@@ -208,7 +208,26 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 		case FTW:
 			//Position d'attente quand on a plus rien à faire.
-			state = try_going(1380,COLOR_Y(1500), FTW,DONE,DONE, ANY_WAY, NO_DODGE_AND_WAIT);
+			sub_action = STRAT_TINY_test_moisson_micro();
+				switch(sub_action)
+				{
+					case IN_PROGRESS:
+					break;
+					case END_OK:
+						all_candles_done = TRUE;
+						//no break !
+					case END_WITH_TIMEOUT:
+					case NOT_HANDLED:
+					case FOE_IN_PATH:
+						if(all_gifts_done() == FALSE)
+							state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
+						else
+							state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//On a plus rien à faire.. on continue d'emmerder l'adversaire.
+					break;
+					default:
+					break;
+				}
+
 		break;
 
 		case DONE:
