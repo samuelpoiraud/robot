@@ -494,7 +494,7 @@ void TEST_STRAT_ALEXIS() {
 	switch(state) {
 		//Avance devant pour pouvoir tourner après le début du match (on est collé au mur après calibration)
 		case EXTRACT:
-			state = try_relative_move(70, FAST, FORWARD, END_AT_LAST_POINT, EXTRACT, DO_GLASSES, DO_GLASSES);
+			state = try_relative_move(70, FAST, FORWARD, END_AT_BREAK, EXTRACT, DO_GLASSES, DO_GLASSES);
 			break;
 
 		//Faire les verres

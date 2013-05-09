@@ -32,11 +32,11 @@ typedef struct {
 static const Uint8 PLATE_NUMBER = 5;
 static const plate_info_t PLATE_INFOS[5] = {
 //       x      ,   y_near   ,   y_far   , far_line_check_tiny  }
-	{ 250       ,    540     ,   1000    ,      FALSE           },
-	{ 600       ,    540     ,   1000    ,      FALSE           },
-	{ 1000      ,    540     ,   1000    ,      FALSE           },
-	{ 1400      ,    540     ,   1000    ,      TRUE            },
-	{ 1750      ,    540     ,   840     ,      TRUE            }
+	{ 250       ,    550     ,   1000    ,      FALSE           },
+	{ 600       ,    550     ,   1000    ,      FALSE           },
+	{ 1000      ,    550     ,   1000    ,      FALSE           },
+	{ 1400      ,    550     ,   1000    ,      TRUE            },
+	{ 1750      ,    550     ,   840     ,      TRUE            }
 };
 static const Sint16 PLATE_Y_POS = 205;	//Position en Y des assiettes
 //La pince à assiette n'est pas symétrique ni centrée sur le robot, on doit avoir un offset en X pour que la pince ne tappe pas l'assiette alors qu'elle est ouverte
@@ -267,7 +267,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 		//On lache l'assiette si on l'avait gardé et on passe à la suivante si c'est pas fini
 		case DP_DROP_PLATE:
 			if(keep_plate) {
-				switch(K_STRAT_micro_drop_plate(TRUE, PI4096/4)) {
+				switch(K_STRAT_micro_drop_plate(TRUE, 0)) {
 					case IN_PROGRESS: break;
 
 					case NOT_HANDLED:
@@ -688,15 +688,16 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 	//Offset théorique auquel on touche l'assiette tout juste: 315
 
 	static const Sint16 SAFE_INIT_POS_OFFSET  = 350;	//Si on est trop près de l'assiette, on va a cette position
-	static const Sint16 CLOSING_AX12_OFFSET   = 290;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
+	static const Sint16 CLOSING_AX12_OFFSET   = 270;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
 	static const Sint16 CATCHING_PLATE_OFFSET = 320;	//Début de la vitesse lente, relatif au milieu de l'assiette
 	static const Sint16 CATCHED_PLATE_OFFSET  = 270;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
 	static const Sint16 DROP_PLATE_OFFSET     = -60;	//Position pour lacher les assiettes (uniquement dans un axe X, pas Y)
+	static const Sint16 PLATE_CORECTED_ANGLE_TAN  = 24;	//Angle a avoir pour prendre une assiette bien
 	static const Uint8 CATCHING_PLATE_SPEED = 8 + 8;	//vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
 	static const bool_e USE_DOUBLE_CLOSE_AX12 = TRUE; //Si TRUE, on serre 2 fois l'assiette pour mieux la prendre
 	static const time32_t TIME_BEFORE_DROP_DURATION = 1000;  //Temps d'attente pendant que les cerises tombe de l'assiette en position verticale dans la tremie
-	static const Uint8 MAX_DROP_RETRY_COUNT = 3;	//Nombre d'essai max de lacher l'assiette avant de fail
+	static const Uint8 MAX_DROP_RETRY_COUNT = 1;	//Nombre d'essai max de lacher l'assiette avant de fail
 
 	////////////////////////////////////////////////////////////////
 
@@ -792,9 +793,15 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 					Sint16 real_x_pos = global.env.pos.x;
 
 					grab_trajectory[GRAB_BeginCatch] =       (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHING_PLATE_OFFSET};
-					grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos, plate_y_position + CATCHED_PLATE_OFFSET};
+
+					if(global.env.color == RED)
+						grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos + 2, plate_y_position + CATCHED_PLATE_OFFSET};
+					else grab_trajectory[GRAB_EndCatch] =         (GEOMETRY_point_t) {real_x_pos - 2, plate_y_position + CATCHED_PLATE_OFFSET};
+
 					grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {real_x_pos, plate_y_position + CLOSING_AX12_OFFSET};
 					grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {real_x_pos, plate_y_position + SAFE_INIT_POS_OFFSET};
+					
+
 				} else {
 					Sint16 real_y_pos = COLOR_Y(global.env.pos.y);
 
@@ -859,6 +866,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 			if((CLOSING_AX12_OFFSET != 0 && (global.env.asser.reach_y || global.env.asser.reach_x)) || (state != GP_CATCH_PLATE && catching_plate == FALSE)) {
 				if(USE_DOUBLE_CLOSE_AX12) {					//Si on fait un double serrage, on serre juste
 					ACT_plate_plier(ACT_PLATE_PlierClose);
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
 				} else {									//Sinon on serre & monte l'assiette directement
 					//ACT_plate_plier(ACT_PLATE_PlierClose); //Non utile, le fait de remonter l'assiette implique que la pince se serre
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
@@ -874,7 +882,6 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 				//On prend les cerises, si on fait double serrage, il faut ajouter les commandes pour ouvrir et refermer la pince puis monter l'assiette.
 				//On le fait que maintenant quand le robot ne bouge plus.
 				if(USE_DOUBLE_CLOSE_AX12) {
-					ACT_plate_plier(ACT_PLATE_PlierOpen);
 					//ACT_plate_plier(ACT_PLATE_PlierClose); //Non utile, le fait de remonter l'assiette implique que la pince se serre
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 				}
@@ -1046,7 +1053,7 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 	static const bool_e USE_INTELLIGENT_MOVE = TRUE;	//Si TRUE, on essaye de se déplacer avec K_STRAT_micro_move_to_plate pour aller a la position de lancé
 	static const bool_e BLIND_LAUNCH = FALSE;	//Si TRUE, on lance un nombre fixe de fois, peut importe ce qu'on lance même si on lance rien
 	static const Uint8 MAX_FAILED_LAUNCH_BEFORE_SHAKE = 100;	//Nombre de lancé raté avant de secouer les cerises. Le compteur est reinitialisé a chaque secouage pour pas secouer après chaque fail
-	static const Uint8 MAX_FAILED_LAUNCH = 5;	//Nombre maximum de lancé raté possible (raté dans le sens aucune cerise n'a été prise)
+	static const Uint8 MAX_FAILED_LAUNCH = 3;	//Nombre maximum de lancé raté possible (raté dans le sens aucune cerise n'a été prise)
 	static const Uint8 MAX_BLOCKED_AX12 = 2;	//Maximum de fois que le lancé de balle peut fail. Après ça on arrete de secouer le robot et on retourne a la strat supérieur qu'on a fail.
 	static const Uint16 WAIT_TIME_LAST_CHERRY_SENT = 1000;	//Temps d'attente avant de finir, on doit attendre que la dernière cerise soit lancée
 	static const LC_position_t POSITIONS[STRAT_LC_NumberOfPosition] = {	//Paramètres lié à chaque position. Y est indiqué pour le coté rouge, il faut donc utiliser COLOR_Y.
