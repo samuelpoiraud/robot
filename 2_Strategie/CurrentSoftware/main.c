@@ -75,6 +75,7 @@ int main (void)
 	
 	while(1)
 	{
+		LED_RUN = !LED_RUN;
 		// Commandes pour EVE
 		#ifdef USE_QSx86
 			EVE_manager_card();

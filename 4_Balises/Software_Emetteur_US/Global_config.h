@@ -16,7 +16,7 @@
 	#include "QS/QS_types.h"
 	
 	
-	#define NUMERO_BALISE_EMETTRICE 	(2)	//ATTENTION : 1 ou 2... !!!
+	#define NUMERO_BALISE_EMETTRICE 	(1)	//ATTENTION : 1 ou 2... !!!
 	#define NOMBRE_BALISES_EMETTRICES 	(2)
 
 	/* Le mode verbeux active debug_printf */

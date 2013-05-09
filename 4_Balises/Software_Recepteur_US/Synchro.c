@@ -145,6 +145,7 @@ void Synchro_correction_deviation_timer(void)
 
 void Synchro_process_main(void)
 {
+	static bool_e first_synchro = TRUE;
 	static Sint16 difference_timer;
 		//La correction de la déviation du TMR3 est faite "loin" de ses extrêmes... pour éviter de sauter un step !!!
 	
@@ -156,11 +157,17 @@ void Synchro_process_main(void)
 		
 		if(cable_synchro_present)
 		{
-			
+
 			difference_timer = (Sint16)(TMR1) - (Sint16)(TMR3);		//Mesure de la différence entre les timers.
 			
-			//difference_timer = difference_timer % 20000;
-			correction_timer = Synchro_moyenne_mobile(difference_timer); //on met à jour la moyenne mobile pour pauffiner "correction_timer"
+			if(first_synchro)
+			{
+				//Synchro_moyenne_mobile(0);	//initialiser car valeurs obsolètes !
+				first_synchro = FALSE;
+			}
+			else
+				correction_timer = Synchro_moyenne_mobile(difference_timer); //on met à jour la moyenne mobile pour pauffiner "correction_timer"
+
 			//TODO led qui indique que la synchro est OK...
 			SRbits.IPL = 7;
 			TMR3 = TMR1;	
@@ -168,7 +175,7 @@ void Synchro_process_main(void)
 		}
 		else
 		{
-			Synchro_moyenne_mobile(0);	//initialiser car valeurs obsolètes !
+			first_synchro = TRUE;
 			SRbits.IPL = 7;
 			TMR3 = TMR3 + correction_timer;	
 			SRbits.IPL = 0;

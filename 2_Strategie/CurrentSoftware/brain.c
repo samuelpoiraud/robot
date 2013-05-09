@@ -44,7 +44,7 @@ void any_match(time32_t match_duration)
 			CLOCK_run_match();
 			CAN_send_sid(BROADCAST_START);
 			CAN_send_sid(XBEE_START_MATCH);
-			LED_RUN = 1;
+			
 			return;
 		}
 
