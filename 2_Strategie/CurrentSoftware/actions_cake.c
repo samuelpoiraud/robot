@@ -622,7 +622,6 @@ error_e TINY_forgotten_candles()
 		break;
 
 		case DONE:
-			state = INIT;
 			if(all_candles_blown)
 				ret = END_OK;	//On a fait le boulot.
 			else
