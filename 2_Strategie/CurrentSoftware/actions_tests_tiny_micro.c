@@ -973,10 +973,10 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			//HB
 			//on peu metre un count ici
 			if(previousState == MA){
-				state = try_going(1380, COLOR_Y(1500), HB,DONE,HB,BACKWARD,NO_DODGE_AND_WAIT);
+				state = try_going(1300, COLOR_Y(1600), HB,DONE,HB,BACKWARD,NO_DODGE_AND_WAIT);
 			}else{
 
-				state = try_going(1380, COLOR_Y(1500), HB, BP,DONE,BACKWARD,NO_DODGE_AND_WAIT);
+				state = try_going(1300, COLOR_Y(1600), HB, BP,DONE,BACKWARD,NO_DODGE_AND_WAIT);
 			}
 			if(state != HB){
 				previousState = HB;
@@ -984,7 +984,7 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			ret = IN_PROGRESS;
 			break;
 		case GO_HOME:
-			state = try_going(300, COLOR_Y(450), GO_HOME,MA,HB,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(300, COLOR_Y(450), GO_HOME,MA,HB,FORWARD,NO_DODGE_AND_WAIT);
 			ret = IN_PROGRESS;
 			previousState = GO_HOME;
 			break;
