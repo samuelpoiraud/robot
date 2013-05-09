@@ -291,7 +291,7 @@ error_e TINY_warner_blow_all_candles(void)
 			break;
 		case LAST_WAIT_HAMMER_DOWN:
 			//						->In progress			->Success	->Fail
-			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,		DONE);
+			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,		FAIL);
 		break;
 		case FAIL:
 			state = FAIL_GO_ANGLE;
@@ -472,6 +472,8 @@ error_e TINY_forgotten_candles()
 		SUB_BLOW_CANDLES,
 		ALL_CANDLES_BLOWN,
 		RETURN_HOME,
+		FAIL_HAMMER_DOWN,
+		FAIL_D,
 		HAMMER_FINAL_POS,
 		LAST_WAIT_HAMMER_DOWN,
 		FAIL,
@@ -547,7 +549,7 @@ error_e TINY_forgotten_candles()
 		break;
 
 		case ANGLE_HAMMER:
-			state=try_go_angle((color_begin_cake==BLUE)?PI4096/2:PI4096/2, ANGLE_HAMMER, HAMMER_UP, HAMMER_UP, FAST);
+			state=try_go_angle((color_begin_cake==BLUE)?PI4096/2:PI4096/2, ANGLE_HAMMER, HAMMER_UP, FAIL, FAST);
 		break;
 
 		case HAMMER_UP:
@@ -557,7 +559,7 @@ error_e TINY_forgotten_candles()
 
 		case WAIT_HAMMER:
 			//						->In progress			->Success						->Fail
-			state = wait_hammer(	WAIT_HAMMER,	SUB_BLOW_CANDLES,	SUB_BLOW_CANDLES);
+			state = wait_hammer(	WAIT_HAMMER,	SUB_BLOW_CANDLES,FAIL);
 		break;
 
 		case SUB_BLOW_CANDLES:
@@ -585,7 +587,7 @@ error_e TINY_forgotten_candles()
 		 //FINISH
 
 		case ALL_CANDLES_BLOWN:
-			state = try_go_angle((color_begin_cake==BLUE)?PI4096/2:PI4096/2, ALL_CANDLES_BLOWN,  HAMMER_FINAL_POS,  HAMMER_FINAL_POS, FAST);
+			state = try_go_angle((color_begin_cake==BLUE)?PI4096/2:PI4096/2, ALL_CANDLES_BLOWN,  HAMMER_FINAL_POS, FAIL, FAST);
 			//TODO : prévenir l'environnement que le gateau est fini !
 		break;
 
@@ -597,7 +599,7 @@ error_e TINY_forgotten_candles()
 			finish=TRUE;
 			all_candles_blown=TRUE;
 			//						->In progress					->Success						->Fail
-			state = wait_hammer(LAST_WAIT_HAMMER_DOWN,	BACK,	BACK);
+			state = wait_hammer(LAST_WAIT_HAMMER_DOWN,	BACK,FAIL);
 		break;
 
 		case BACK:
@@ -608,8 +610,16 @@ error_e TINY_forgotten_candles()
 		break;
 
 
-
 		case FAIL:
+			//En cas d'échec, on rejoint un angle pour baisser le bras.
+			state = try_go_angle((global.env.pos.y > 1500)?0:PI4096, FAIL,  FAIL_HAMMER_DOWN,  FAIL_HAMMER_DOWN, FAST);
+		break;
+		case FAIL_HAMMER_DOWN:
+			ACT_hammer_goto(HAMMER_POSITION_HOME); 	//RANGER BRAS
+			state = FAIL_D;
+		break;
+
+		case FAIL_D:
 			finish=TRUE;
 			if((global.env.pos.y) > 1500)	//Je suis plus près de chez l'adversaire
 			{
