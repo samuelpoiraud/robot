@@ -35,7 +35,7 @@
 	#define SWITCH_RG1 PORTGbits.RG1
 
 /* Message debug sur l'uart 1 */
-	#define VERBOSE_MODE
+//	#define VERBOSE_MODE
 //#define AX12_DEBUG_PACKETS
 	#define OUTPUT_LOG
 //	#define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Trace    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)

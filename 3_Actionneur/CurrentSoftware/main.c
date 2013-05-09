@@ -237,6 +237,7 @@ static void MAIN_onButton3() {
 static void MAIN_onButton4() {
 	Uint8 i;
 	CAN_msg_t msg;
+	static Uint16 w;
 	
 	debug_printf("Plate & Lift asser off\n");
 
@@ -248,11 +249,14 @@ static void MAIN_onButton4() {
 	msg.data[0] = ACT_LIFT_STOP;
 	msg.size = 1;
 	CAN_process_msg(&msg);
+
 	msg.sid = ACT_BALLSORTER;
 	msg.data[0] = ACT_BALLSORTER_TAKE_NEXT_CHERRY;
 	msg.data[1] = LOWINT(6300);
 	msg.data[2] = HIGHINT(6300);
-	msg.size = 3;
+	msg.data[3] = (w % 3) == 2;
+	msg.size = 4;
+	w++;
 	CAN_process_msg(&msg);
 
 	debug_printf("Sensor vals:\n");

@@ -13,12 +13,12 @@
 #define	TPLIER_CONFIG_H
 
 	#define PLIER_LEFT_AX12_MAX_TORQUE_PERCENT   50
-	#define PLIER_LEFT_AX12_OPEN_POS             40  //TODO: à regler !!
-	#define PLIER_LEFT_AX12_CLOSED_POS           223  //TODO: à regler !!
+	#define PLIER_LEFT_AX12_OPEN_POS             60  //TODO: à regler !!
+	#define PLIER_LEFT_AX12_CLOSED_POS           196  //TODO: à regler !!
 
 	#define PLIER_RIGHT_AX12_MAX_TORQUE_PERCENT  50
-	#define PLIER_RIGHT_AX12_OPEN_POS            49  //TODO: à regler !!
-	#define PLIER_RIGHT_AX12_CLOSED_POS          237  //TODO: à regler !!
+	#define PLIER_RIGHT_AX12_OPEN_POS            198  //TODO: à regler !!
+	#define PLIER_RIGHT_AX12_CLOSED_POS          59  //TODO: à regler !!
 
 
 	#define PLIER_AX12_ASSER_POS_EPSILON         5

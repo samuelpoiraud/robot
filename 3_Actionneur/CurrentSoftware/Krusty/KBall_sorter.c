@@ -26,6 +26,8 @@
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLSORTER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
 static Uint16 desired_ball_launcher_speed = 0;
+static bool_e cherry_taken = FALSE;
+static bool_e launch_cherry = TRUE;	//Si TRUE on lance les cerises blanches sinon on ne les lance pas (on garde la cerise). Les pourie sont toujours lancées
 
 static void BALLSORTER_initAX12();
 
@@ -80,12 +82,15 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 				queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
 				if(queueId != QUEUE_CREATE_FAILED) {
-					desired_ball_launcher_speed = U16FROMU8(msg->data[2], msg->data[1]);
+					desired_ball_launcher_speed = U16FROMU8(msg->data[2], msg->data[1]) & 0x7FFF;
 					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_GotoNextCherry    , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_TakeCherry        , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry      , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_CheckLauncherSpeed, &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
+					if(msg->size < 4 || (msg->data[2] & 0x8000) != 0)	//Rétrocompatibilité avec ancien msg
+						launch_cherry = TRUE;		//On choisi si on ne doit pas garder les cerises blanches ...
+					else launch_cherry = FALSE;		//... On lance toujours les cerises mauvaises
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_EjectCherry       , &ACTQ_finish_SendResult}      , QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
 				} else {	//on indique qu'on a pas géré la commande
@@ -126,13 +131,24 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 
 			COMPONENT_log(LOG_LEVEL_Debug, "state: %d, ax12 pos: %d\n", state, AX12_get_position(BALLSORTER_AX12_ID));
 
+			//Si on a déjà pris une cerise, on en reprendre pas une autre
+			if(cherry_taken == TRUE && (state == BALLSORTER_CS_GotoNextCherry || state == BALLSORTER_CS_TakeCherry)) {
+				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+				return;
+			}
+
 			switch(state) {
 				case BALLSORTER_CS_CheckLauncherSpeed:
 					return; //La suite c'est les commandes AX12, pas d'init pour cet état, on vérifie juste si le lanceur de balle a atteint sa vitesse avant de passer a l'état suivant
 
 				case BALLSORTER_CS_EjectCherry:
-					AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 500);
-					wantedPosition = BALLSORTER_AX12_EJECT_CHERRY_POS;
+					if(launch_cherry == TRUE) {
+						AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 500);
+						wantedPosition = BALLSORTER_AX12_EJECT_CHERRY_POS;
+					} else {		//Si on ne doit pas lancer la cerise, on la lance pas
+						QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+						return;
+					}
 					break;
 
 				case BALLSORTER_CS_GotoNextCherry:
@@ -182,7 +198,9 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			Uint16 line;
 			Uint8 result, errorCode;
 
-			//On envoie le message CAN de retour que si l'opération a fail
+			if(state == BALLSORTER_CS_EjectCherry) {
+				cherry_taken = FALSE;
+			}
 
 			if(ACTQ_check_status_ax12(queueId, BALLSORTER_AX12_ID, wantedPosition, BALLSORTER_AX12_ASSER_POS_EPSILON, BALLSORTER_AX12_ASSER_TIMEOUT, BALLSORTER_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 				QUEUE_next(queueId, ACT_BALLSORTER, result, errorCode, line);
@@ -208,8 +226,14 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				if(desired_ball_launcher_speed >= 0) {
 					if(cherry_color == ACT_BALLSORTER_WHITE_CHERRY)
 						BALLLAUNCHER_set_speed(desired_ball_launcher_speed);
-					else BALLLAUNCHER_set_speed(desired_ball_launcher_speed >> 1);
+					else {
+						launch_cherry = TRUE;	//Dans tous les cas on lance la cerise prise si elle n'est pas bonne
+						BALLLAUNCHER_set_speed(desired_ball_launcher_speed >> 2);
+					}
 				}
+
+				if(cherry_color != ACT_BALLSORTER_NO_CHERRY)
+					cherry_taken = TRUE;
 
 				CAN_send(&detectionResultMsg);
 
