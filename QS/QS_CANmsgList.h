@@ -284,6 +284,7 @@
 		//Paramètres de BALLSORTER (dans data[0])
 		#define ACT_BALLSORTER_TAKE_NEXT_CHERRY 0    //Ejecter la cerise et en prendre une autre pour la detecter. Après detection, le lanceur de balle change de vitesse automatiquement.
 		                                             //Vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
+		                                             //data[3] bool_e: TRUE si on doit garder une cerise blanche dans le lanceur, si la cerise n'est pas blanche, on la lance. FALSE pour toujours lancer toutes les cerises.
 
 	#define ACT_BALLSORTER_RESULT (STRAT_FILTER | (ACT_FILTER >> 4) | 0xA)
 		//Résultat de la detection de la cerise dans data[0]:
