@@ -70,6 +70,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 	//Les variables en minuscule pour pas confondre avec des états et static pour garder la valeur entre plusieurs appel de la fonction (et donc entre plusieurs états)
 	static bool_e all_candles_done = FALSE;
 	static bool_e moisson_done = FALSE;
+	static bool_e steal_done = FALSE;
 	static bool_e we_are_protecting_our_glasses = FALSE;
 	static bool_e we_do_not_want_to_move_anymore = FALSE;
 	//Mieux vaut utiliser l'environnement qui doit être correctement informé que ces booléens redondants...
@@ -145,9 +146,9 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				else
 					state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//On va REFAIRE le gateau
 			}
-			else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON)
-				state = SUBACTION_MOISSON;
-			else if(SWITCH_STRAT_3 == 1 && previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
+			/*else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON)
+				state = SUBACTION_MOISSON;*/
+			else if(SWITCH_STRAT_3 == 1 && !steal_done && previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
 				state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment d'aller (re)faire un scan
 			else if(we_are_protecting_our_glasses == FALSE)	//On est pas déjà en train de protéger les verres
 				state = PROTECT_GLASSES;
@@ -194,6 +195,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				case IN_PROGRESS:
 				break;
 				case END_OK:
+					steal_done = TRUE;
 					//NO BREAK !!! c'est volontaire...
 				case END_WITH_TIMEOUT:
 				case NOT_HANDLED:
@@ -236,8 +238,11 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		case PROTECT_GLASSES:
 			if(entrance)
 				we_are_protecting_our_glasses = FALSE;
+
+			//TODO ajouter un point intermédiaire pour pas tapper dans krusty.
+			
 			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
-			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?400:450, PROTECT_GLASSES,WAIT_UNTIL_60SEC,TAKE_A_DECISION,FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?2600:450, PROTECT_GLASSES,WAIT_UNTIL_60SEC,TAKE_A_DECISION,FORWARD, NO_DODGE_AND_WAIT);
 			if(state == WAIT_UNTIL_60SEC)
 			{	//On a réussi à protéger nos verres
 				state = TAKE_A_DECISION;
