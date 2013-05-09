@@ -459,6 +459,7 @@ error_e TINY_forgotten_candles()
 	{
 		INIT=0,
 		DECISION,
+		BACK,
 		SB,
 		EB,
 		MB,
@@ -482,6 +483,8 @@ error_e TINY_forgotten_candles()
 	static Uint8 candle_index;
 	static Uint8 last_candle;
 	static Uint8 first_candle;
+	static bool_e finish = FALSE;
+	static bool_e all_candles_blown=FALSE;
 
 	error_e ret = IN_PROGRESS;
 	error_e sub_action;
@@ -517,24 +520,24 @@ error_e TINY_forgotten_candles()
 		break;
 
 		case SB:
-				state=try_going(1365,865,SB,GOTO_CANDLE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+				state=try_going(1480,990,SB,(finish==FALSE)?GOTO_CANDLE:MB, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 		case EB:
-				state=try_going(1365,2135,EB,GOTO_CANDLE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+				state=try_going(1380,2135,EB,(finish==FALSE)?GOTO_CANDLE:DONE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 		case MB:
-			state=try_going(1365,1500,MB,DECISION2, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+				state=try_going(1340,1600,MB,(finish==FALSE)?DECISION2:DONE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 				
 		break;
 
 		case DECISION2:
-			if(candles[candle_index].x >1365 && candles[candle_index].y <1500){
+			if(candles[candle_index].y <1500){
 				state=SB;
 			}
 
-			if(candles[candle_index].x >1365 && candles[candle_index].y >1500){
+			if(candles[candle_index].y >1500){
 				state=EB;
 			}
 		break;
@@ -591,17 +594,39 @@ error_e TINY_forgotten_candles()
 			state=LAST_WAIT_HAMMER_DOWN;
 			break;
 		case LAST_WAIT_HAMMER_DOWN:
+			finish=TRUE;
+			all_candles_blown=TRUE;
 			//						->In progress					->Success						->Fail
-			state = wait_hammer(	LAST_WAIT_HAMMER_DOWN,	DONE,	DONE);
+			state = wait_hammer(LAST_WAIT_HAMMER_DOWN,	BACK,	BACK);
 		break;
+
+		case BACK:
+			if(global.env.pos.y > 1500)
+				state=EB;
+			else
+				state=SB;
+		break;
+
+
+
 		case FAIL:
-			state = INIT;
-			ret = NOT_HANDLED;
+			finish=TRUE;
+			if((global.env.pos.y) > 1500)	//Je suis plus près de chez l'adversaire
+			{
+				state = EB;
+			}
+			else
+			{
+				state = SB;
+			}
 		break;
 
 		case DONE:
 			state = INIT;
-			ret = END_OK;
+			if(all_candles_blown)
+				ret = END_OK;	//On a fait le boulot.
+			else
+				ret = NOT_HANDLED; //On a pas fait le boulot.
 		break;
 
             default:
@@ -612,6 +637,9 @@ error_e TINY_forgotten_candles()
 		state = INIT;
 	return ret;
 }
+
+
+
 
 error_e TINY_blow_one_forgotten_candle(Sint8 i,Sint8 way,Sint8 first_candle)
 {

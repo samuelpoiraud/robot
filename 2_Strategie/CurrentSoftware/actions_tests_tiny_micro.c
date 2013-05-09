@@ -802,6 +802,10 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 
 
+
+
+
+
 #define NB_MAX_GLASSES ((Uint8)(32))
 	static Uint8 nb_glasses = 0;
 	static Sint16 glasses_y[NB_MAX_GLASSES];
