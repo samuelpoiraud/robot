@@ -47,7 +47,7 @@ typedef struct{
 	Sint16 y;
 }candle_warner;
 
-const candle_warner wcandles[27]=
+const candle_warner wcandles[28]=
 {							//bougie coté rouge
 			{1830,885},
 			{1793,894},
