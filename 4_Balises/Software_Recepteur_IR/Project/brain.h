@@ -25,7 +25,7 @@
 
 	typedef struct
 	{
-		Uint8 distance;	//[2cm]
+		Uint8 distance;	//[cm]
 		Sint16 angle;
 		error_t error;
 	}adversary_location_t;	

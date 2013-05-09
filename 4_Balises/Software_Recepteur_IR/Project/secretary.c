@@ -149,7 +149,7 @@ void SECRETARY_send_adversary_location(void)
 	msg.data[1] = HIGHINT(	p_adversary_location[ADVERSARY_1].angle);
 	msg.data[2] = LOWINT (	p_adversary_location[ADVERSARY_1].angle);
 	if(msg.data[0] == AUCUNE_ERREUR || msg.data[0] == SIGNAL_INSUFFISANT)
-		msg.data[3] = 			p_adversary_location[ADVERSARY_1].distance;	//ATTENTION, distance sur 8 bits ! (donc en [2cm])
+		msg.data[3] = 	p_adversary_location[ADVERSARY_1].distance;	//ATTENTION, distance sur 8 bits ! (donc en cm)
 	else
 		msg.data[3] = 0xFF;	//Si la mesure de distance n'est pas fiable, on renvoit 0xFF.
 
@@ -157,7 +157,7 @@ void SECRETARY_send_adversary_location(void)
 	msg.data[5] = HIGHINT(	p_adversary_location[ADVERSARY_2].angle);
 	msg.data[6] = LOWINT (	p_adversary_location[ADVERSARY_2].angle);
 	if(msg.data[4] == AUCUNE_ERREUR || msg.data[4] == SIGNAL_INSUFFISANT)
-		msg.data[7] = LOWINT (	p_adversary_location[ADVERSARY_2].distance);	//ATTENTION, distance sur 8 bits ! (donc en cm)
+		msg.data[7] = 	p_adversary_location[ADVERSARY_2].distance;	//ATTENTION, distance sur 8 bits ! (donc en cm)
 	else
 		msg.data[7] = 0xFF;	//Si la mesure de distance n'est pas fiable, on renvoit 0xFF.
 
