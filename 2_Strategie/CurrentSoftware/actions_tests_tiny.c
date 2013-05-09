@@ -186,7 +186,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			state = try_going(1000,COLOR_Y(1800), BP, WAIT, WAIT, ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 		case WAIT:
-			if(global.env.match_time >= 60000)	//S'il reste des chose à faire et qu'on a plus que 30 secondes... on abandonne le vol et on y va..
+			if(global.env.match_time >= 0)	//S'il reste des chose à faire et qu'on a plus que 30 secondes... on abandonne le vol et on y va..
 			{
 				if(all_gifts_done() == FALSE)
 					state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
@@ -214,7 +214,6 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 					case IN_PROGRESS:
 					break;
 					case END_OK:
-						all_candles_done = TRUE;
 						//no break !
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
