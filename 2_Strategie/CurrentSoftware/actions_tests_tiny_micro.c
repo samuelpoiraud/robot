@@ -907,10 +907,10 @@ error_e STRAT_TINY_test_moisson_micro(void){
 	typedef enum{
 		GO_INIT = 0,
 		GO_HOME,
-		P_1,
-		P_2,
-		P_3,
-		P_4,
+		EB,
+		BP,
+		MA,
+		HB,
 		DONE
 
 	}state_e;
@@ -928,85 +928,46 @@ error_e STRAT_TINY_test_moisson_micro(void){
 	static state_e previousState = GO_INIT;
 	static Uint8 count = 0;
 
-	if(state != P_1  && state != P_2 && state != GO_INIT){
-		count++;
-	}
 	switch(state){
 		case GO_INIT:
 			count = 0;
-			state = P_1;
+			state = EB;
 			previousState = GO_INIT;
 			ACT_plier_open();
 			ret = IN_PROGRESS;
 			break;
-		case P_1:
+		case EB:
+			//EB
 	        //								  in_progress	success	failed
-			state = try_going(300, COLOR_Y(2000), P_1, P_2, GO_HOME,FORWARD,NO_DODGE_AND_WAIT);
-			previousState = P_1;
+			state = try_going(1380, COLOR_Y(2135), EB, BP, HB,BACKWARD,NO_DODGE_AND_WAIT);
+			previousState = EB;
 			ret = IN_PROGRESS;
 			break;
-		case P_2:
-			if(count < 2){
-				state = try_going(600, COLOR_Y(2000), P_2, GO_HOME, P_4,FORWARD,NO_DODGE_AND_WAIT);
-			}else{
-				state = DONE;
-			}
-			previousState = P_2;
+		case BP:
+			//BP
+			state = try_going(870, COLOR_Y(1800), BP,MA,EB,FORWARD,NO_DODGE_AND_WAIT);
+			previousState = BP;
 			ret = IN_PROGRESS;
 			break;
-		case P_3:
-			//risque de boucle entre P_2 P_4
-			state = try_going(900, COLOR_Y(2000), P_3, P_4, P_2,FORWARD,NO_DODGE_AND_WAIT);
-			previousState = P_3;
+		case MA:
+			//MA
+			
+			state = try_going(360, COLOR_Y(1500), MA, GO_HOME, BP,FORWARD,NO_DODGE_AND_WAIT);
+			previousState = MA;
 			ret = IN_PROGRESS;
 			break;
 
-		case P_4:
-			//risque de boucle P_1 P_2 P_4
-			state = try_going(800, COLOR_Y(1000), P_4, GO_HOME,P_1,FORWARD,NO_DODGE_AND_WAIT);
-			previousState = P_4;
+		case HB:
+			//HB
+			state = try_going(1380, COLOR_Y(1500), HB, GO_HOME,EB,FORWARD,NO_DODGE_AND_WAIT);
+			previousState = HB;
 			ret = IN_PROGRESS;
 			break;
 
 		case GO_HOME:
-
-			switch(previousState){
-				case P_1:
-					//non
-					 ret = NOT_HANDLED;
-					state = DONE;
-					break;
-				case P_2:
-					state = try_going(300, COLOR_Y(300), GO_HOME,P_3 ,DONE,FORWARD,NO_DODGE_AND_WAIT);
-					ret = IN_PROGRESS;
-					break;
-				case P_3:
-					//non
-					ret = NOT_HANDLED;
-					state = DONE;
-					break;
-				case P_4:
-					//a la fin
-					state = DONE;
-					break;
-				case GO_INIT:
-					// non pas possible
-					 ret = NOT_HANDLED;
-					state = DONE;
-					break;
-				case GO_HOME:
-					//non pas possible
-					ret = NOT_HANDLED;
-					state = DONE;
-					break;
-				case DONE:
-					state = DONE;
-					break;
-				default:
-					state = DONE;
-					break;
-			}
-			//previousState = GO_HOME;
+			state = DONE;
+			ret = IN_PROGRESS;
+			ACT_plier_close();
 			break;
 		case DONE:
 			ret = END_OK;
