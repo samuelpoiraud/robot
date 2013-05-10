@@ -1048,6 +1048,7 @@ error_e STRAT_TINY_test_moisson_micro(void){
 		BP,
 		MA,
 		HB,
+		POSE_DONE,
 		DONE
 
 	}state_e;
@@ -1074,30 +1075,24 @@ error_e STRAT_TINY_test_moisson_micro(void){
 		case EB:
 			//EB
 	        //								  in_progress	success	failed
-			state = try_going(1380, COLOR_Y(2135), EB,MA, HB,BACKWARD,NO_DODGE_AND_WAIT);
-			previousState = EB;
+			state = try_going(1380, COLOR_Y(2135), EB,MA,HB,BACKWARD,NO_DODGE_AND_WAIT);
+			if(state != EB){
+				previousState = EB;
+			}
 			ret = IN_PROGRESS;
 			break;
 		case BP:
 			//BP
-			if(count < BCL_EB_BP){
-				state = try_going(870, COLOR_Y(1800), BP,MA,EB,FORWARD,NO_DODGE_AND_WAIT);
-			}else{
-				state = DONE;
-			}
+				state = try_going(870, COLOR_Y(1800), BP,MA,DONE,FORWARD,NO_DODGE_AND_WAIT);
 			if(state != BP){
-				count ++;
+				previousState = BP;
 			}
-			previousState = BP;
 			ret = IN_PROGRESS;
 			break;
 		case MA:
 			//MA
-			if(previousState == GO_HOME){
-				state = try_going(360, COLOR_Y(1500), MA, HB, HB,BACKWARD,NO_DODGE_AND_WAIT);
-			}else{
 				state = try_going(360, COLOR_Y(1500), MA, GO_HOME, BP,FORWARD,NO_DODGE_AND_WAIT);
-			}
+			
 			if(state != MA){
 				previousState = MA;
 			}
@@ -1120,9 +1115,18 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			ret = IN_PROGRESS;
 			break;
 		case GO_HOME:
-			state = try_going(300, COLOR_Y(450), GO_HOME,MA,HB,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(300, COLOR_Y(450), GO_HOME,POSE_DONE,HB,FORWARD,NO_DODGE_AND_WAIT);
+			if(state != GO_HOME){
+				previousState = GO_HOME;
+			}
 			ret = IN_PROGRESS;
-			previousState = GO_HOME;
+			break;
+		case POSE_DONE:
+			state = try_going(300, COLOR_Y(1100),MA,DONE,HB,BACKWARD,NO_DODGE_AND_WAIT);
+			if(state != POSE_DONE){
+				previousState = POSE_DONE;
+			}
+			ret = IN_PROGRESS;
 			break;
 		case DONE:
 			ret = END_OK;
