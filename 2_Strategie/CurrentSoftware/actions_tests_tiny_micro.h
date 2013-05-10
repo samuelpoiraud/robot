@@ -26,6 +26,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void);
 error_e STRAT_TINY_goto_cake_and_blow_candles(void);
 error_e TINY_rush();
 error_e STRAT_TINY_test_moisson_micro(void);
+error_e TINY_protect_glasses(void);
 
 	typedef struct
 	{
