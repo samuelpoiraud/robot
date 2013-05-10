@@ -127,22 +127,22 @@ error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode) {
 	static const Uint8 TRAJECTORY_NUMBER = 2;
 	static const displacement_block_t TRAJECTORIES[2] = {
 	//    avoidance_type     , nb_points , move_points_begin_index
-		{NO_DODGE_AND_NO_WAIT,    5      ,           0            },	//Phase 1
+		{NO_DODGE_AND_WAIT   ,    5      ,           0            },	//Phase 1
 		{NO_AVOIDANCE        ,    3      ,           5            }		//Phase 2
 	};
 	static const Uint8 TRAJECTORY_TO_HOME_NUMBER = 4;
 	static const displacement_block_t TRAJECTORIES_TO_HOME[4] = {
-		{NO_DODGE_AND_NO_WAIT,    3      ,           8            },	//Go home Tiny
-		{NO_DODGE_AND_NO_WAIT,    2      ,           11           },	//Go home Krusty
-		{NO_DODGE_AND_NO_WAIT,    3      ,           13           },	//Go home Krusty safe
-		{NO_DODGE_AND_NO_WAIT,    3      ,           16           }		//Go home Tiny safe
+		{NO_DODGE_AND_WAIT,    3      ,           8            },	//Go home Tiny
+		{NO_DODGE_AND_WAIT,    2      ,           11           },	//Go home Krusty
+		{NO_DODGE_AND_WAIT,    3      ,           13           },	//Go home Krusty safe
+		{NO_DODGE_AND_WAIT,    3      ,           16           }		//Go home Tiny safe
 	};
 
 	//Phases de prise de verres en homologation
 	static const displacement_block_t TRAJECTORIES_HOMOLOGATION[2] = {
 	//    avoidance_type     , nb_points , move_points_begin_index
-		{NO_DODGE_AND_NO_WAIT,    6      ,           0            },	//Phase 1
-		{NO_DODGE_AND_NO_WAIT,    3      ,           6            }		//Phase 2
+		{NO_DODGE_AND_WAIT,    6      ,           0            },	//Phase 1
+		{NO_DODGE_AND_WAIT,    3      ,           6            }		//Phase 2
 	};
 
 	if(homologation_mode)
@@ -234,6 +234,9 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			break;
 
 		case GM_CATCH_GLASSES:
+			if(entrance)
+				AVOIDANCE_set_timeout(2000);
+
 			state = try_going_multipoint(&(move_points[trajectories[current_displacement_block].move_points_begin_index + force_first_point]), trajectories[current_displacement_block].nb_points - force_first_point,
 					FORWARD, trajectories[current_displacement_block].avoidance_type, END_AT_LAST_POINT,
 					GM_CATCH_GLASSES, GM_WAIT_ACT, GM_FAILED);   //Etats suivant: in_progress, success, fail

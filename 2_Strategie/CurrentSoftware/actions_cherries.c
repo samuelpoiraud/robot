@@ -117,9 +117,9 @@ error_e K_STRAT_sub_cherries_alexis() {
 //			state_str[state], state);
 		STATECHANGE_log(SM_ID_CHERRIES_MAIN, state_str[last_state], last_state, state_str[state], state);
 	}
-
-	if(state != DP_LAUNCH_CHERRIES && ACT_get_last_action_result(ACT_QUEUE_BallSorter) != ACT_FUNCTION_InProgress)
-		ACT_ball_sorter_next_autoset_speed(6300, TRUE);	//6300 histoire de
+//
+//	if(state != DP_LAUNCH_CHERRIES && ACT_get_last_action_result(ACT_QUEUE_BallSorter) != ACT_FUNCTION_InProgress)
+//		ACT_ball_sorter_next_autoset_speed(6300, TRUE);	//6300 histoire de
 
 	switch(state) {
 		//Initialise la machine à état.
@@ -1299,8 +1299,10 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 
 	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
 
-	if(return_value != IN_PROGRESS)
+	if(return_value != IN_PROGRESS) {
 		state = LC_INIT;
+		ACT_ball_launcher_stop();
+	}
 	return return_value;
 }
 
