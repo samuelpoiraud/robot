@@ -253,9 +253,8 @@ static void MAIN_onButton4() {
 	msg.sid = ACT_BALLSORTER;
 	msg.data[0] = ACT_BALLSORTER_TAKE_NEXT_CHERRY;
 	msg.data[1] = LOWINT(6300);
-	msg.data[2] = HIGHINT(6300);
-	msg.data[3] = (w % 3) == 2;
-	msg.size = 4;
+	msg.data[2] = ((HIGHINT(6300) & 0x7F) | ((Uint16)((w % 3) != 2) << 7));
+	msg.size = 3;
 	w++;
 	CAN_process_msg(&msg);
 

@@ -88,7 +88,7 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_TakeCherry        , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_DetectCherry      , &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_CheckLauncherSpeed, &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_BallSorter);
-					if(msg->size < 4 || (msg->data[2] & 0x8000) != 0)	//Rétrocompatibilité avec ancien msg
+					if((msg->data[2] & 0x80) == 0)	//Rétrocompatibilité avec ancien msg
 						launch_cherry = TRUE;		//On choisi si on ne doit pas garder les cerises blanches ...
 					else launch_cherry = FALSE;		//... On lance toujours les cerises mauvaises
 					QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){msg->data[0], BALLSORTER_CS_EjectCherry       , &ACTQ_finish_SendResult}      , QUEUE_ACT_BallSorter);
@@ -228,7 +228,7 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 						BALLLAUNCHER_set_speed(desired_ball_launcher_speed);
 					else {
 						launch_cherry = TRUE;	//Dans tous les cas on lance la cerise prise si elle n'est pas bonne
-						BALLLAUNCHER_set_speed(desired_ball_launcher_speed >> 2);
+						BALLLAUNCHER_set_speed(2000);
 					}
 				}
 
