@@ -128,7 +128,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 		case TAKE_A_DECISION:
 			//On dispose de previous_subaction qui contient la précédente actions effectuée.
-
+			ASSER_dump_stack ();
 			if(previous_subaction == PROTECT_GLASSES)
 			{
 				if(all_gifts_done() && all_candles_done && moisson_done)	//SI ON A MIS TOUT NOS POINTS... ON RESTE ICI (la moisson compte, pas le scan)

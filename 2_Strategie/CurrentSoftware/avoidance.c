@@ -1451,10 +1451,11 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	time32_t current_match_time = global.env.match_time;
 
 	bool_e timeout;
-
+	error_e ret = IN_PROGRESS;
 
 	//Si pas d'évitement, on fait pas d'évitement
-	if(avoidance_type == NO_AVOIDANCE) {
+	if(avoidance_type == NO_AVOIDANCE)
+	{
 		error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
 		switch(asser_stack_state)
 		{
@@ -1465,248 +1466,236 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			case END_WITH_TIMEOUT:
 			case NOT_HANDLED:
 				avoidance_printf("wait_move_and_scan_foe: end state = %d\n", asser_stack_state);
-				state = INITIALIZATION;
-				return asser_stack_state;
+				ret = asser_stack_state;
+				break;
 
 			default: //Ne devrait jamais arriver, AVOIDANCE_watch_asser_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
 				avoidance_printf("wait_move_and_scan_foe: DEFAULT asser_stack_state = %d!!\n", asser_stack_state);
-				state = INITIALIZATION;
-				return NOT_HANDLED;
+				ret = NOT_HANDLED;
 				break;
 		}
-
-		return IN_PROGRESS;
 	}
-
-	switch(state)
+	else
 	{
-		case INITIALIZATION:
-			// initialisation des variables statiques
-			avoidance_timeout_time = 0;
-			debug_foe_forced = FALSE;
+		switch(state)
+		{
+			case INITIALIZATION:
+				// initialisation des variables statiques
+				avoidance_timeout_time = 0;
+				debug_foe_forced = FALSE;
 
-			avoidance_printf("wait_move_and_scan_foe: initialized\n");
-			state = NO_FOE;
-			break;
+				avoidance_printf("wait_move_and_scan_foe: initialized\n");
+				state = NO_FOE;
+				break;
 
-		case NO_FOE:
-		
-			if(global.env.debug_force_foe)	//Evitement manuel forcé !
-			{
-				STACKS_flush(ASSER);
-				debug_foe_reason(FORCED_BY_USER, 0, 0);
-				ASSER_push_stop();
-				state = WAIT_STOP;
-				global.env.debug_force_foe = FALSE;
-				debug_foe_forced = TRUE;	//Nous allons juste attendre le stop.. et puis on retournera un FOE_IN_PATH.
-			}
-			else
-			{
-				foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
-				//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
-				//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
-				//Necessaire pour que l'angle de detection de l'adversaire soit valide (car sinon on ne pointe pas forcément vers notre point d'arrivé ...)
-				//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
-	//			if((global.env.asser.current_trajectory != TRAJECTORY_TRANSLATION && global.env.asser.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
-	//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
-	//				avoidance_printf("Not in translation but foe in path\n");
-	
-				if((is_in_path[FOE_1] || is_in_path[FOE_2]) && global.env.asser.is_in_translation)
+			case NO_FOE:
+
+				if(global.env.debug_force_foe)	//Evitement manuel forcé !
 				{
-					foe_origin_e foe = (is_in_path[FOE_1])? FOE1 : FOE2;
-					debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
-					//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
-					switch(avoidance_type)
-					{
-						case NORMAL_WAIT:
-						case NO_DODGE_AND_WAIT:
-						case DODGE_AND_WAIT:
-							avoidance_printf("wait_move_and_scan_foe: foe detected, waiting\n");
-	
-							// adversaire détecté ! on s'arrête !
-							STACKS_push(ASSER, &wait_forever, FALSE);
-							ASSER_push_stop();
-							// un adversaire est détecté devant nous, on attend de s'arreter avant de voir s'il est toujours la
-							state = WAIT_STOP;
-							break;
-						case DODGE_AND_NO_WAIT:
-						case NO_DODGE_AND_NO_WAIT:
-							avoidance_printf("wait_move_and_scan_foe: foe detected\n");
-							STACKS_flush(ASSER);
-							ASSER_push_stop();
-							state = WAIT_STOP;
-							break;
-	
-						case NO_AVOIDANCE: //Géré au début de la fonction
-						default:
-							state = INITIALIZATION;
-							break;
-					}
+					STACKS_flush(ASSER);
+					ASSER_push_stop();
+					state = WAIT_STOP;
+					global.env.debug_force_foe = FALSE;
+					debug_foe_forced = TRUE;	//Nous allons juste attendre le stop.. et puis on retournera un FOE_IN_PATH.
 				}
 				else
 				{
-					// aucun adversaire n'est détecté, on fait notre mouvement normalement
-					// on regarde si la pile s'est vidée
-					error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
-					switch(asser_stack_state)
+					foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
+					//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
+					//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
+					//Necessaire pour que l'angle de detection de l'adversaire soit valide (car sinon on ne pointe pas forcément vers notre point d'arrivé ...)
+					//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
+		//			if((global.env.asser.current_trajectory != TRAJECTORY_TRANSLATION && global.env.asser.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
+		//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
+		//				avoidance_printf("Not in translation but foe in path\n");
+
+					if((is_in_path[FOE_1] || is_in_path[FOE_2]) && global.env.asser.is_in_translation)
 					{
-						case END_OK:
-						case END_WITH_TIMEOUT:
-						case NOT_HANDLED:
-							avoidance_printf("wait_move_and_scan_foe: end no foe state = %d\n", asser_stack_state);
-							state = INITIALIZATION;
-							return asser_stack_state;
-	
-						case IN_PROGRESS:
-							break;
-						default:
-							break;
-					}
-				}
-			}	
-			break;
+						//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
+						switch(avoidance_type)
+						{
+							case NORMAL_WAIT:
+							case NO_DODGE_AND_WAIT:
+							case DODGE_AND_WAIT:
+								avoidance_printf("wait_move_and_scan_foe: foe detected, waiting\n");
 
-		case WAIT_STOP:
-			//Quand on s'est arreté, on regarde si l'adversaire est toujours devant nous avant de redémarrer
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout)) 
-			{
-				if(debug_foe_forced) 
-				{			//L'evitement a été forcé pour debuggage, on sort direct
-					avoidance_printf("wait_move_and_scan_foe: forced foe detection, returning FOE_IN_PATH\n");
-					debug_foe_forced = FALSE;
-					state = INITIALIZATION;
-					return FOE_IN_PATH;
-				} 
-				else 
-				{
-					switch(avoidance_type) {
-						case NORMAL_WAIT:
-						case NO_DODGE_AND_WAIT:
-						case DODGE_AND_WAIT:
-							no_foe_count = 0;
-							state = WAIT_FOE;
-							break;
+								// adversaire détecté ! on s'arrête !
+								STACKS_push(ASSER, &wait_forever, FALSE);
+								ASSER_push_stop();
+								// un adversaire est détecté devant nous, on attend de s'arreter avant de voir s'il est toujours la
+								state = WAIT_STOP;
+								break;
+							case DODGE_AND_NO_WAIT:
+							case NO_DODGE_AND_NO_WAIT:
+								avoidance_printf("wait_move_and_scan_foe: foe detected\n");
+								STACKS_flush(ASSER);
+								ASSER_push_stop();
+								state = WAIT_STOP;
+								break;
 
-						case DODGE_AND_NO_WAIT:
-						case NO_DODGE_AND_NO_WAIT:
-							state = INITIALIZATION;
-							return FOE_IN_PATH;
-
-						case NO_AVOIDANCE: //Géré au début de la fonction
-						default:
-							state = INITIALIZATION;
-							break;
-					}
-				}
-			}
-			break;
-
-		case WAIT_FOE:
-			foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
-			//debug_printf("Test 2: IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
-			// on va attendre que l'ennemi sorte de notre chemin
-			//On ne regarde pas ici si le robot pointe vers le point d'arrivée car il a été arreté en pleine translation vers ce point
-
-			avoidance_timeout_time += current_match_time - last_match_time;
-			if(avoidance_timeout_time >= wait_timeout) {
-				//On est déjà arreté
-//				STACKS_flush(ASSER);
-//				ASSER_push_stop();
-				state = INITIALIZATION;
-
-				avoidance_printf("wait_move_and_scan_foe: timeout avec ennemi sur path\n");
-				return FOE_IN_PATH;
-			}
-
-			if(is_in_path[FOE_1] || is_in_path[FOE_2])
-			{
-				no_foe_count = 0;
-			// Adversaire devant nous !
-/*
-				if(AVOIDANCE_foe_not_move(FOE_1) && AVOIDANCE_foe_not_move(FOE_2))
-				{
-					asser_arg_t	asser_args;
-					GEOMETRY_point_t destination_point;
-
-					// L'adversaire ne bouge plus... on va regarder si le point d'arrivée est atteignable sans toucher l'adversaire
-					// Donc en gros, le point est entre nous et l'adversaire (qui ne bouge pas !) et on a la place de s'y mettre
-					debug_printf(" FOE 1 ou 2 bouge plus \n");
-					GEOMETRY_point_t foe_point;
-					foe_e current_foe;
-					if(is_in_path[FOE_1])
-					{
-                                                debug_printf("iiiiii\n");
-						foe_point.x = global.env.foe[FOE_1].x;
-						foe_point.y = global.env.foe[FOE_1].y;
-						current_foe = FOE_1;
+							case NO_AVOIDANCE: //Géré au début de la fonction
+							default:
+								state = INITIALIZATION;
+								break;
+						}
 					}
 					else
 					{
-                                                debug_printf("uuuuu\n");
-						foe_point.x = global.env.foe[FOE_2].x;
-						foe_point.y = global.env.foe[FOE_2].y;
-						current_foe = FOE_2;
-					}
-					// Calcul distance adversaire/destination
-					asser_args = ASSER_get_stack_arg(STACKS_get_top(ASSER));
-					destination_point.x = asser_args.x;
-					destination_point.y = asser_args.y;
-
-					// Si la destination est assez loin de l'adversaire (350 = taille des deux robots + marge)
-					if(GEOMETRY_distance(destination_point,foe_point) > 350)
-					{
-						// La distance est supérieure ! On peut regarder si le point est entre nous et l'adversaire
-						GEOMETRY_point_t us_point;
-						us_point.x = global.env.pos.x;
-						us_point.y = global.env.pos.y;
-						if(GEOMETRY_distance(destination_point, us_point) < global.env.foe[current_foe].dist)
+						// aucun adversaire n'est détecté, on fait notre mouvement normalement
+						// on regarde si la pile s'est vidée
+						error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
+						switch(asser_stack_state)
 						{
-							// On a une distance de nous à la destination inférieure à la distance entre nous et l'adversaire
-							// Donc en gros, la destination est entre nous et l'adversaire
-							// Donc, on y va !
-
-							avoidance_printf("On relance notre chemin ! La dest est entre nous et l'adversaire %d !\n",current_foe);
-							// on vire le wait_forever et on lance l'action suivante
-							STACKS_pull(ASSER);
-
-							// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
-							state = NO_FOE;
+							case END_OK:
+							case END_WITH_TIMEOUT:
+							case NOT_HANDLED:
+								avoidance_printf("wait_move_and_scan_foe: end no foe state = %d\n", asser_stack_state);
+								ret = asser_stack_state;
+								break;
+							case IN_PROGRESS:
+								break;
+							default:
+								break;
 						}
-//						else {
-//                                            avoidance_printf("il n'y a pas de chemain posible donc on stop\n");
-//                                            STACKS_flush(ASSER);
-//                                            state = INITIALIZATION;
-//                                            return FOE_IN_PATH;
-//						}
 					}
 				}
-				//*/
+				break;
 
-			}
-			else
-			{
-				no_foe_count += current_match_time - last_match_time;
-				if(no_foe_count >= 1000) {
-					avoidance_printf("wait_move_and_scan_foe: no more foe, continuing\n");
-					// on vire le wait_forever et on lance l'action suivante
-					STACKS_pull(ASSER);
+			case WAIT_STOP:
+				//Quand on s'est arreté, on regarde si l'adversaire est toujours devant nous avant de redémarrer
+				if(STACKS_wait_end_auto_pull(ASSER, &timeout))
+				{
+					if(debug_foe_forced)
+					{			//L'evitement a été forcé pour debuggage, on sort direct
+						avoidance_printf("wait_move_and_scan_foe: forced foe detection, returning FOE_IN_PATH\n");
+						debug_foe_forced = FALSE;
+						ret = FOE_IN_PATH;
+					}
+					else
+					{
+						switch(avoidance_type) {
+							case NORMAL_WAIT:
+							case NO_DODGE_AND_WAIT:
+							case DODGE_AND_WAIT:
+								no_foe_count = 0;
+								state = WAIT_FOE;
+								break;
 
-					// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
-					state = NO_FOE;
+							case DODGE_AND_NO_WAIT:
+							case NO_DODGE_AND_NO_WAIT:
+								ret = FOE_IN_PATH;
+								break;
+							case NO_AVOIDANCE: //Géré au début de la fonction
+							default:
+								state = INITIALIZATION;
+								break;
+						}
+					}
 				}
-			}
-			break;
+				break;
 
-		default:
-			debug_printf("PROBLEME, on est dans le default !\n");
-			state = INITIALIZATION;
-			return NOT_HANDLED;
-			break;
+			case WAIT_FOE:
+				foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
+				//debug_printf("Test 2: IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
+				// on va attendre que l'ennemi sorte de notre chemin
+				//On ne regarde pas ici si le robot pointe vers le point d'arrivée car il a été arreté en pleine translation vers ce point
+
+				avoidance_timeout_time += current_match_time - last_match_time;
+				if(avoidance_timeout_time >= wait_timeout)
+				{
+					avoidance_printf("wait_move_and_scan_foe: timeout avec ennemi sur path\n");
+					ret = FOE_IN_PATH;
+				}
+				else if(is_in_path[FOE_1] || is_in_path[FOE_2])
+				{
+					no_foe_count = 0;
+				// Adversaire devant nous !
+	/*
+					if(AVOIDANCE_foe_not_move(FOE_1) && AVOIDANCE_foe_not_move(FOE_2))
+					{
+						asser_arg_t	asser_args;
+						GEOMETRY_point_t destination_point;
+
+						// L'adversaire ne bouge plus... on va regarder si le point d'arrivée est atteignable sans toucher l'adversaire
+						// Donc en gros, le point est entre nous et l'adversaire (qui ne bouge pas !) et on a la place de s'y mettre
+						debug_printf(" FOE 1 ou 2 bouge plus \n");
+						GEOMETRY_point_t foe_point;
+						foe_e current_foe;
+						if(is_in_path[FOE_1])
+						{
+													debug_printf("iiiiii\n");
+							foe_point.x = global.env.foe[FOE_1].x;
+							foe_point.y = global.env.foe[FOE_1].y;
+							current_foe = FOE_1;
+						}
+						else
+						{
+													debug_printf("uuuuu\n");
+							foe_point.x = global.env.foe[FOE_2].x;
+							foe_point.y = global.env.foe[FOE_2].y;
+							current_foe = FOE_2;
+						}
+						// Calcul distance adversaire/destination
+						asser_args = ASSER_get_stack_arg(STACKS_get_top(ASSER));
+						destination_point.x = asser_args.x;
+						destination_point.y = asser_args.y;
+
+						// Si la destination est assez loin de l'adversaire (350 = taille des deux robots + marge)
+						if(GEOMETRY_distance(destination_point,foe_point) > 350)
+						{
+							// La distance est supérieure ! On peut regarder si le point est entre nous et l'adversaire
+							GEOMETRY_point_t us_point;
+							us_point.x = global.env.pos.x;
+							us_point.y = global.env.pos.y;
+							if(GEOMETRY_distance(destination_point, us_point) < global.env.foe[current_foe].dist)
+							{
+								// On a une distance de nous à la destination inférieure à la distance entre nous et l'adversaire
+								// Donc en gros, la destination est entre nous et l'adversaire
+								// Donc, on y va !
+
+								avoidance_printf("On relance notre chemin ! La dest est entre nous et l'adversaire %d !\n",current_foe);
+								// on vire le wait_forever et on lance l'action suivante
+								STACKS_pull(ASSER);
+
+								// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
+								state = NO_FOE;
+							}
+	//						else {
+	//                                            avoidance_printf("il n'y a pas de chemain posible donc on stop\n");
+	//                                            ret = FOE_IN_PATH;
+	//						}
+						}
+					}
+					//*/
+
+				}
+				else
+				{
+					no_foe_count += current_match_time - last_match_time;
+					if(no_foe_count >= 1000) {
+						avoidance_printf("wait_move_and_scan_foe: no more foe, continuing\n");
+						// on vire le wait_forever et on lance l'action suivante
+						STACKS_pull(ASSER);
+
+						// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
+						state = NO_FOE;
+					}
+				}
+				break;
+
+			default:
+				debug_printf("PROBLEME, on est dans le default !\n");
+				ret = NOT_HANDLED;
+				break;
+		}
 	}
-
 	last_match_time = current_match_time;
-
-	return IN_PROGRESS;
+	if(ret != IN_PROGRESS)
+	{
+		STACKS_flush(ASSER);	//TIMEOUT -> ON VIDE LE BUFFER PROPREMENT.
+		state = INITIALIZATION;
+	}
+	return ret;
 }
 
 error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type) {
@@ -2407,18 +2396,4 @@ foe_pos_e AVOIDANCE_where_is_foe(foe_e foe_id)
 			return NORTH_US;
 		}
 	}
-}
-
-
-
-void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
-	CAN_msg_t msg_to_send;
-	msg_to_send.sid = DEBUG_FOE_REASON;
-	msg_to_send.size = 5;
-	msg_to_send.data[0] = origin;
-	msg_to_send.data[1] = angle >> 8;
-	msg_to_send.data[2] = angle & 0xFF;
-	msg_to_send.data[3] = distance >> 8;
-	msg_to_send.data[4] = distance & 0xFF;
-	CAN_send(&msg_to_send);
 }

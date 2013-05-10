@@ -228,7 +228,7 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 			}
 		}
 	}
-	debug_printf("nb_points: %d\n", global.env.pos.nb_points_reached);
+	//debug_printf("nb_points: %d\n", global.env.pos.nb_points_reached);
 }
 
 //Execute une courbe multipoint et fini quand on freine sur le dernier point.
@@ -817,7 +817,7 @@ bool_e ASSER_has_goto(Sint16 x, Sint16 y)
 	return FALSE;
 }
 
-void ASSER_dump_statck ()
+void ASSER_dump_stack ()
 {
 	int i;
 	generic_fun_t command;
@@ -826,8 +826,9 @@ void ASSER_dump_statck ()
 	char * way;
 	char * priority_order;
 
-	asser_fun_printf("\n----- ASSER Stack dump -----\n");
-	for (i = STACKS_get_top(ASSER); i >= 0; i--) {
+	debug_printf("\n----- ASSER Stack dump -----\n");
+	debug_printf("stack top : %d/%d",STACKS_get_top(ASSER), STACKS_SIZE);
+	for (i = STACKS_SIZE/*STACKS_get_top(ASSER)*/; i >= 0; i--) {
 
 		command = STACKS_get_action(ASSER,i);
 		args = asser_args[i];
@@ -848,28 +849,22 @@ void ASSER_dump_statck ()
 			default				: priority_order = "undefined"; break;
 		}
 
-
 		if (command == &ASSER_goto)
-		{
-			asser_fun_printf("ASSER_goto (%d, %d, %s, %s)\n", args.x, args.y, speed, way);
-		}
+			debug_printf("ASSER_goto (%d, %d, %s, %s)\n", args.x, args.y, speed, way);
 #ifdef USE_ASSER_MULTI_POINT
 		else if (command == &ASSER_goto_multi_point)
-		{
-			asser_fun_printf("ASSER_multi_point (%d, %d, %s, %s, %s)\n", args.x, args.y, speed, way, priority_order);
-		}
+			debug_printf("ASSER_multi_point (%d, %d, %s, %s, %s)\n", args.x, args.y, speed, way, priority_order);
 #endif /* def #ifdef USE_ASSER_MULTI_POINT */
-		else if (command == &ASSER_goangle) {
-			asser_fun_printf("ASSER_goangle (%d [%.1f°], %s)\n", args.angle, 180 * ((double)args.angle) / PI4096, speed);
-		}
-		else if (command == &wait_forever) {
-			asser_fun_printf("wait_forever\n");
-		}
-		else {
-			asser_fun_printf("undefined function\n");
-		}
+		else if (command == &ASSER_goangle) 
+			debug_printf("ASSER_goangle (%d [%.1f°], %s)\n", args.angle, 180 * ((double)args.angle) / PI4096, speed);
+		else if (command == &wait_forever) 
+			debug_printf("wait_forever\n");
+		else if (command == &ASSER_stop_stack)
+			debug_printf("asser_stop\n");
+		else 
+			debug_printf("undefined function %X\n", command);
 	}
 
-	asser_fun_printf("\n----- End of dump -----\n");
+	debug_printf("\n----- End of dump -----\n");
 }
 

@@ -128,8 +128,9 @@ void RCON_read()
 	if(!(RCON & 0xC0DF))
 	{
 		debug_printf(" - NO SOURCE OF RESET !!!???");
-		ASSER_dump_statck();
-	}
+		ASSER_dump_stack();
+	}	
+	
 	if(RCON & 0x8000)
 		debug_printf("- Trap conflict event\r\n");
 	if(RCON & 0x4000)
