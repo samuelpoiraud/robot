@@ -32,6 +32,8 @@ typedef enum {
 	STRAT_PGA_XNeg		//Axe X, déplacement pour prendre l'assiette vers les cadeaux
 } STRAT_plate_grap_axis_e;
 
+plate_info_t PLATE_get_info(Uint8 plate_id);
+
 error_e K_STRAT_sub_cherries_alexis();
 error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool_e immediate_fail);
 error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_axis_e drop_plate_axis, bool_e keep_plate, bool_e auto_pull, Sint16 plate_x_position, Sint16 plate_y_position);

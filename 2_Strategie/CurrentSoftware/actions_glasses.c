@@ -40,22 +40,22 @@ error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode) {
 //		//Case Tiny
 //		{{308 , COLOR_Y(578 )}, FAST},	// 7
 //		{{250 , COLOR_Y(400 )}, FAST},	// 8
-//		{{250 , COLOR_Y(155 )}, FAST},	// 9
+//		{{250 , COLOR_Y(200 )}, FAST},	// 9
 //
 //		//Case Krusty
 //		{{930, COLOR_Y(400 )}, FAST},	// 10
-//		{{930, COLOR_Y(155 )}, FAST},	// 11
+//		{{930, COLOR_Y(200 )}, FAST},	// 11
 //
 //		//Autres choix: en mode safe pour y  aller (on s'écarte un peut si yavais un ennemi qui nous bloquait)
 //		//Case Krusty
 //		{{960 , COLOR_Y(800 )}, FAST},	// 12
 //		{{930 , COLOR_Y(400 )}, FAST},	// 13
-//		{{930 , COLOR_Y(170 )}, FAST},	// 14
+//		{{930 , COLOR_Y(200 )}, FAST},	// 14
 //
 //		//Case Tiny
 //		{{315 , COLOR_Y(800 )}, FAST},	// 15
 //		{{250 , COLOR_Y(400 )}, FAST},	// 16
-//		{{250 , COLOR_Y(170 )}, FAST},	// 17
+//		{{250 , COLOR_Y(200 )}, FAST},	// 17
 //	};
 //
 //	static const Uint8 TRAJECTORY_NUMBER = 3;
@@ -106,22 +106,22 @@ error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode) {
 		//Case Tiny
 		{{308 , COLOR_Y(578 )}, FAST},	// 8
 		{{250 , COLOR_Y(400 )}, FAST},	// 9
-		{{250 , COLOR_Y(170 )}, FAST},	// 10
+		{{250 , COLOR_Y(200 )}, FAST},	// 10
 
 		//Case Krusty
 		{{930, COLOR_Y(400 )}, FAST},	// 11
-		{{930, COLOR_Y(170 )}, FAST},	// 12
+		{{930, COLOR_Y(200 )}, FAST},	// 12
 
 		//Autres choix: en mode safe pour y  aller (on s'écarte un peut si yavais un ennemi qui nous bloquait)
 		//Case Krusty
 		{{960 , COLOR_Y(800 )}, FAST},	// 13
 		{{930 , COLOR_Y(400 )}, FAST},	// 14
-		{{930 , COLOR_Y(170 )}, FAST},	// 15
+		{{930 , COLOR_Y(200 )}, FAST},	// 15
 
 		//Case Tiny
 		{{315 , COLOR_Y(800 )}, FAST},	// 16
 		{{250 , COLOR_Y(400 )}, FAST},	// 17
-		{{250 , COLOR_Y(170 )}, FAST},	// 18
+		{{250 , COLOR_Y(200 )}, FAST},	// 18
 	};
 
 	static const Uint8 TRAJECTORY_NUMBER = 2;
