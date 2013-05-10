@@ -165,17 +165,38 @@ void DETECTION_update(void)
 
 void DETECTION_update_foe_by_beacon()
 {
+	static bool_e ultrasonic_fiable = TRUE;
 	Sint16 beacon_foe_x, beacon_foe_y;
 	bool_e update_dist_by_ir;
 	Uint8 foe_id;
 	
 	for (foe_id = 0; foe_id < NB_FOES; foe_id++)
 	{
+		if((global.env.match_time - global.env.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
+		   (global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
+		   (global.env.match_started == TRUE) &&
+		   (ultrasonic_fiable == TRUE))
+		{
+			if(abs(global.env.sensor[BEACON_IR(foe_id)].distance - global.env.sensor[BEACON_US(foe_id)].distance) > 1000) {
+				ultrasonic_fiable = FALSE;
+				CAN_msg_t msg;
+				msg.sid = DEBUG_US_NOT_RELIABLE;
+				msg.data[0] = HIGHINT(global.env.sensor[BEACON_IR(foe_id)].distance);
+				msg.data[1] = LOWINT(global.env.sensor[BEACON_IR(foe_id)].distance);
+				msg.data[2] = HIGHINT(global.env.sensor[BEACON_US(foe_id)].distance);
+				msg.data[3] = LOWINT(global.env.sensor[BEACON_US(foe_id)].distance);
+				msg.data[4] = foe_id;
+				msg.size = 4;
+				CAN_send(&msg);
+			}
+		}
+
 		if(global.env.sensor[BEACON_IR(foe_id)].updated)
 		{
 			update_dist_by_ir = FALSE;
 			
-			if(global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time > MAXIMUM_TIME_FOR_BEACON_REFRESH) //Si la balise US n'a rien reçu depuis 500ms
+			if(global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time > MAXIMUM_TIME_FOR_BEACON_REFRESH ||
+				ultrasonic_fiable == FALSE) //Si la balise US n'a rien reçu depuis 500ms
 			{
 				global.env.foe[foe_id].dist = global.env.sensor[BEACON_IR(foe_id)].distance; //On met à jour la distance par infrarouge
 				update_dist_by_ir = TRUE;
@@ -201,7 +222,7 @@ void DETECTION_update_foe_by_beacon()
 			//detection_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 		
-		if(global.env.sensor[BEACON_US(foe_id)].updated)
+		if(global.env.sensor[BEACON_US(foe_id)].updated && ultrasonic_fiable == TRUE)
 		{
 			/* L'ancien angle est conserve */
 			if(global.env.match_time - global.env.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION)
