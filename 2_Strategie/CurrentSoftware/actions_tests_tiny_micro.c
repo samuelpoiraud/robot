@@ -482,7 +482,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 	}state_e;
 	static state_e state = INIT;
 	static state_e previous_state = INIT;
-	static state_e from = INIT;
+	static state_e repli = INIT;
 	static map_goal_e goal;
 
 	error_e sub_action;
@@ -499,62 +499,64 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 			}
 			else
 			{
+				//CHOIX DU CADEAU A ATTEINDRE.
 				if(global.env.map_elements[GOAL_Cadeau2] == ELEMENT_DONE)
 					goal = GOAL_Cadeau3;	//Cadeau 2 est fait -> on va au cadeau 3.
-				else
-					goal = GOAL_Cadeau2;	//Cadeau 2 pas fait (ou les deux !) -> on va au cadeau 2.
+				else if(global.env.map_elements[GOAL_Cadeau3] == ELEMENT_DONE)
+					goal = GOAL_Cadeau2;	//Cadeau 2 pas fait -> on va au cadeau 2.
+				else	//Aucun n'est fait, je choisis le plus proche
+				{
+					if(COLOR_Y(global.env.pos.y) > 2000)
+						goal = GOAL_Cadeau3;
+					else 
+						goal = GOAL_Cadeau2;
+				}
 
-				debug_printf("point de départ vers le cadeau %d : ", goal);
+				debug_printf("choix cadeau %d : ", goal);
+
+				if(goal == GOAL_Cadeau2)
+					state = GA;
+				else
+					state = EA;
+
 
 				if(global.env.pos.x > 800)
 				{
-					state = BP;
 					if(COLOR_Y(global.env.pos.y) > 1800)
-						from = EB;	//On fait comme si on venait de EB
+						repli = EB;	//On fait comme si on venait de EB
 					else
-						from = MB;	//On fait comme si on venait de MB
+						repli = MB;	//On fait comme si on venait de MB
 				}
 				else
 				{
-					state = SUBACTION_FORGOTTEN_GIFT;
-					from = BP;
+					repli = BP;
 				}
 			}
 		break;
 		/////////////////////////////////////////
-		case BP:
-			//									in_progress		success							failed
-			state=try_going(870,COLOR_Y(1800),	BP,	SUBACTION_FORGOTTEN_GIFT,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
-			if(state != BP)
-				from = BP;
-		break;
+		
 		case GA:
 			//										in_progress		success						failed
-			state = try_going(360, COLOR_Y(1700),	GA,				SUBACTION_FORGOTTEN_GIFT,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
-			if(state != GA)
-				from = GA;
+			state = try_going(200, COLOR_Y(1700),	GA,				SUBACTION_FORGOTTEN_GIFT,	repli,		ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 		case EA:
 			//										in_progress		success						failed
-			state = try_going(360, COLOR_Y(2135),	EA,				SUBACTION_FORGOTTEN_GIFT,	from,		ANY_WAY, NO_DODGE_AND_WAIT);
-			if(state != EA)
-				from = EA;
+			state = try_going(200, COLOR_Y(2300),	EA,				SUBACTION_FORGOTTEN_GIFT,	repli,		ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 
 		/////////////////////////////////////////
-		//POINTS DE REPLI...
+		//POINTS DE REPLIS
 		case EB:
 			//										in_progress	success	failed
-			state = try_going(1380, COLOR_Y(2135),	EB,			BP,		FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
-			if(state != EB)
-				from = EB;
+			state = try_going(1380, COLOR_Y(2135),	EB,			FAIL,		FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 		case MB:
 			//										in_progress	success	failed
-			state = try_going(1300, COLOR_Y(1600),	MB,			BP,		FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
-			if(state != MB)
-				from = MB;
-
+			state = try_going(1300, COLOR_Y(1600),	MB,			FAIL,		FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+		case BP:
+			//									in_progress		success							failed
+			state=try_going(870,COLOR_Y(1800),		BP,			FAIL,		FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
 		break;
 
 		case SUBACTION_FORGOTTEN_GIFT:
@@ -570,7 +572,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
 				default:
-					state = FAIL;
+					state = GA;
 				break;
 			}
 		break;
@@ -582,12 +584,14 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 			if(global.env.map_elements[GOAL_Cadeau3] != ELEMENT_DONE)
 			{
 				goal = GOAL_Cadeau3;
-				state = SUBACTION_FORGOTTEN_GIFT;
+				state = EA;
+				repli = BP;
 			}
 			else if(global.env.map_elements[GOAL_Cadeau2] != ELEMENT_DONE)
 			{
 				goal = GOAL_Cadeau2;
-				state = SUBACTION_FORGOTTEN_GIFT;
+				state = GA;
+				repli = BP;
 			}
 			else
 			{
@@ -662,6 +666,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	static bool_e entrance = TRUE;
 	static bool_e goto_end = FALSE;
 	static bool_e all_candles_blown = FALSE;
+	static time32_t start_time = 0;
 
 	error_e sub_action;
 	error_e ret = IN_PROGRESS;
@@ -669,6 +674,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	{
 		case INIT:		//Décision initiale de trajet
 			goto_end = FALSE;
+			start_time = global.env.match_time;
 			debug_printf("choix du point de départ vers le gateau : ");
 			//4 zones sont définies... en fonction de l'endroit où on est, on vise un point ou un autre...
 
@@ -692,7 +698,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				if(COLOR_Y(global.env.pos.y) > 2135)	//Le cas nominal correspond à 2300 (pour la position du cadeau 4).
 				{
 					debug_printf("EA\n");
-					state = EA;	//Je tente d'aller vers le gateau adverse
+					state = EB;	//Je tente d'aller vers le gateau adverse
 					from = MA;
 				}
 				else
@@ -720,7 +726,21 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				case NOT_HANDLED:
 				case FOE_IN_PATH:
 				case END_WITH_TIMEOUT:
-					state = MA;
+					if(global.env.pos.x < 600)
+					{
+						state = EA;
+						from = MA;
+					}
+					else if (global.env.pos.x < 1380)
+					{
+						from = EB;
+						state = MB;
+					}
+					else
+					{
+						state = EB;
+						from = EC;
+					}
 				break;
 				default:
 				break;
@@ -764,7 +784,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1380, COLOR_Y(2135),	EB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1380, COLOR_Y(2135),	EB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != EB)
 				from = EB;	//On sort..alors on sauvegarde d'où on vient.
 		break;
@@ -791,7 +811,10 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1300, COLOR_Y(1600),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			if(from == EB || from == SB)
+				state = try_going_until_break(1300, COLOR_Y(1600),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			else
+				state = try_going(1300, COLOR_Y(1600),	MB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 
 			if(state != MB)	//Sortie de l'état...
 				from = MB;	//On sort..alors on sauvegarde d'où on vient.
@@ -811,7 +834,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 
 			//										in_progress		success			failed
-			state = try_going(1480, COLOR_Y(990),	SB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1480, COLOR_Y(990),	SB,				end_ok_state,	failed_state, ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != SB)
 				from = SB;
 		break;
@@ -878,19 +901,45 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		break;
 
 		case END_STATE:
-			//Nous sommes soit en F, soit en O, soit en ENNEMY_TERRITORY_CAKE_POS. On arrête là.
+			//Nous sommes soit en F, soit en O, soit en EC. On arrête là.
 			state = INIT;
-			entrance = TRUE;
 			if(all_candles_blown)
-				return END_OK;	//On a fait le boulot.
+				ret = END_OK;	//On a fait le boulot.
 			else
-				return NOT_HANDLED; //On a pas fait le boulot.
+				ret = NOT_HANDLED; //On a pas fait le boulot.
 		break;
 		default:
 		break;
 	}
 
 	entrance = (previous_state != state)?TRUE:FALSE;	//Pour le prochain passage dans la machine.
+
+	//GESTION DU TIMEOUT
+	if(entrance)
+	{
+		switch(state)
+		{
+			case INIT:
+			case SUBACTION_BLOW_CANDLES:
+			case E_C:
+			case SC:
+			case SB:
+			case RUSH:
+				//Hors de question de partir en timeout sur ces points... c'est vital pour la suite.
+			break;
+			default:
+				//Je viens de changer d'ordre... c'est le moment de vérifier qu'on est pas en timeout de gateau.
+				if(goto_end == FALSE && ((global.env.match_time - start_time) > 15000))
+				{
+					ret = NOT_HANDLED;
+					state = INIT;
+					debug_printf("CAKE TIMEOUT\n");
+				}
+			break;
+		}
+	}
+			
+	
 	if(entrance)
 	{
 		//Ces printf ne sont pas trop génant, car ils ne sont affichés que sur des évènements "rares"...
@@ -911,6 +960,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			case CANDLES_FAIL:				debug_printf("CANDLES_FAIL");			break;
 			case CANDLES_SUCCESS:			debug_printf("CANDLES_SUCCESS");		break;
 			case BP:						debug_printf("BP");						break;
+			case RUSH:						debug_printf("RUSH");					break;
 			case END_STATE:					debug_printf("END_STATE");				break;
 			default:						debug_printf("???");					break;
 		}
@@ -1029,11 +1079,11 @@ girafe_t * look_for_the_best_girafe(void)
 error_e TINY_rush()
 {
 		return goto_pos_with_scan_foe((displacement_t[]){
-			{{550,1800},FAST},
-			{{800,1950},FAST},
-			{{1050,2100},FAST},
-			{{1380,2115},FAST},
-			{{1830,2115},SLOW},
+			{{550,COLOR_Y(1800)},FAST},
+			{{800,COLOR_Y(1950)},FAST},
+			{{1050,COLOR_Y(2100)},FAST},
+			{{1380,COLOR_Y(2115)},FAST},
+			{{1830,COLOR_Y(2115)},SLOW},
 			},5,(global.env.color == RED)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 }
 
@@ -1124,7 +1174,7 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			ret = IN_PROGRESS;
 			break;
 		case POSE_DONE:
-			state = try_going(300, COLOR_Y(1100),MA,DONE,HB,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(300, COLOR_Y(1100),POSE_DONE,DONE,HB,BACKWARD,NO_DODGE_AND_WAIT);
 			if(state != POSE_DONE){
 				previousState = POSE_DONE;
 			}

@@ -174,7 +174,7 @@
 	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
 	 */
 	Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
-
+	Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
 	Uint8 try_going_slow(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
 	
 	/*

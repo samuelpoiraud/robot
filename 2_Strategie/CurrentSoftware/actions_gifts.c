@@ -137,12 +137,12 @@ error_e TINY_forgotten_gift(map_goal_e forgotten_gift)
 	switch(state)
 	{
 		case INIT:
-			state = GOTO_GIFT;
+			state = ANGLE_HAMMER;
 			break;
 
-		case GOTO_GIFT:
-			state=try_going(200, COLOR_Y((forgotten_gift==GOAL_Cadeau2)?1700:2300),GOTO_GIFT,ANGLE_HAMMER,FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
-		break;
+		//case GOTO_GIFT:
+		//	state=try_going(200, COLOR_Y((forgotten_gift==GOAL_Cadeau2)?1700:2300),GOTO_GIFT,ANGLE_HAMMER,FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
+		//break;
 
 		case ANGLE_HAMMER:
 			state=try_go_angle(PI4096/2, ANGLE_HAMMER, HAMMER_UP, FAIL, FAST);
