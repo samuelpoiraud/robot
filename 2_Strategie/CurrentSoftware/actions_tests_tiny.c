@@ -236,21 +236,25 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		break;
 
 		case PROTECT_GLASSES:
-			if(entrance)
-				we_are_protecting_our_glasses = FALSE;
-
-			//TODO ajouter un point intermédiaire pour pas tapper dans krusty.
-			
 			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
-			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?2600:450, PROTECT_GLASSES,WAIT_UNTIL_60SEC,TAKE_A_DECISION,FORWARD, NO_DODGE_AND_WAIT);
-			if(state == WAIT_UNTIL_60SEC)
-			{	//On a réussi à protéger nos verres
-				state = TAKE_A_DECISION;
-				we_are_protecting_our_glasses = TRUE;
-			}
+			sub_action = TINY_protect_glasses();
+				switch(sub_action)
+				{
+					case IN_PROGRESS:
+					break;
+					case END_OK:
+						we_are_protecting_our_glasses == TRUE;
+						state = TAKE_A_DECISION;
+					break;
+					case END_WITH_TIMEOUT:
+					case NOT_HANDLED:
+					case FOE_IN_PATH:
+						state = WAIT_UNTIL_60SEC;
+					break;
+					default:
+					break;
+				}
 		break;
-
-
 		case DONE:
 		break;
 

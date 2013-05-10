@@ -1142,4 +1142,58 @@ error_e STRAT_TINY_test_moisson_micro(void){
 
 }
 
+
+
+error_e TINY_protect_glasses(void)
+{
+	typedef enum
+	{
+		INIT,
+		GA,
+		BOUCLIER,
+		END_STATE
+	}state_e;
+	static state_e state = INIT;
+	static bool_e bouclier_on = FALSE;
+
+	error_e ret = IN_PROGRESS;
+	switch(state)
+	{
+		case INIT:		//Décision initiale de trajet
+
+			if(global.env.pos.y <1500)
+			{	
+				state = GA;
+			}else{
+				state =	BOUCLIER;
+			}
+
+		break;
+
+		case GA:
+			//										in_progress		success						failed
+			state = try_going(360, COLOR_Y(1700),	GA,	BOUCLIER,	END_STATE,		ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+
+
+		case BOUCLIER:
+			bouclier_on = TRUE;
+			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?2600:450, BOUCLIER,END_STATE,END_STATE,FORWARD, NO_DODGE_AND_WAIT);
+		break;
+
+
+		case END_STATE:
+			state = INIT;
+			if(bouclier_on)
+				ret = END_OK;	//On a fait le boulot.
+			else
+				ret = NOT_HANDLED; //On a pas fait le boulot.
+		break;
+		default:
+		break;
+	}
+
+	return ret;
+}
+
 //END
