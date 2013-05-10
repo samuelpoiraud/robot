@@ -90,7 +90,7 @@
 	bool_e ASSER_has_goto(Sint16 x, Sint16 y);
 	
 	/* Affiche le contenu formaté de la pile asser, le haut de la pile en premier */
-	void ASSER_dump_statck ();
+	void ASSER_dump_stack ();
 	
 	#ifdef ASSER_FUNCTIONS_C
 	

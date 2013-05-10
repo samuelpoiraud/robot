@@ -92,6 +92,7 @@ void STACKS_set_timeout(stack_id_e stack, bool_e timeout)
 void STACKS_push(stack_id_e stack_id, generic_fun_t command, bool_e run)
 {
 	stacks_t* stack=&stacks[stack_id];
+	assert(stack->stack_top < STACKS_SIZE - 1);
 	stack->action[++stack->stack_top].action_function=command;
 	stack->action[stack->stack_top].initial_time=global.env.match_time;
 	if(run)
@@ -104,8 +105,10 @@ void STACKS_pull(stack_id_e stack_id)
 {
 	CAN_send_debug("AAAAAAA");
 	stacks_t* stack=&stacks[stack_id];
+	assert(stack->stack_top > 0);
 	stack->action[--stack->stack_top].initial_time=global.env.match_time;
 	stack->action[stack->stack_top].action_function(stack_id,TRUE);
+
 }
 
 /* vide la pile */

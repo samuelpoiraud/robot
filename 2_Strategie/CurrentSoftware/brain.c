@@ -109,7 +109,7 @@ void any_match(time32_t match_duration)
 				break;
 			}			
 		}
-		else	//Krusty
+	#ifdef CODE_FOR_KRUSTY	else	//Krusty
 		{
 			calibration_way = BACKWARD;	//Krusty se cale TOUJOURS en backward (pas de callage contre l'ascenseur à verres)
 			calibration = ASSER_CALIBRATION_SQUARE_2; //Et toujours à l'assiette 2 (sachant que Tiny est sur la 0)
@@ -137,6 +137,7 @@ void any_match(time32_t match_duration)
 				break;
 			}
 		}
+#endif
 	}
 	else
 	{
