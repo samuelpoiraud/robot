@@ -1161,12 +1161,8 @@ error_e TINY_protect_glasses(void)
 	{
 		case INIT:		//Décision initiale de trajet
 
-			if(global.env.pos.y <1500)
-			{	
-				state = GA;
-			}else{
-				state =	BOUCLIER;
-			}
+			state = GA;
+			
 
 		break;
 
@@ -1178,7 +1174,7 @@ error_e TINY_protect_glasses(void)
 
 		case BOUCLIER:
 			bouclier_on = TRUE;
-			state = try_going((global.env.color==BLUE)?660:700,(global.env.color==BLUE)?2600:450, BOUCLIER,END_STATE,END_STATE,FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(((global.env.color==BLUE)?660:700),((global.env.color==BLUE)?2600:450), BOUCLIER,END_STATE,END_STATE,FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 

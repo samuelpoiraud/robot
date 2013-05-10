@@ -72,6 +72,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 	static bool_e moisson_done = FALSE;
 	static bool_e steal_done = FALSE;
 	static bool_e we_are_protecting_our_glasses = FALSE;
+	static bool_e we_cant_protect_our_glasses = FALSE;
 	static bool_e we_do_not_want_to_move_anymore = FALSE;
 	//Mieux vaut utiliser l'environnement qui doit être correctement informé que ces booléens redondants...
 /*	static bool_e red_cake_blowed = FALSE;  //TRUE quand on a fait la partie du gateau coté rouge, sinon FALSE
@@ -150,7 +151,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				state = SUBACTION_MOISSON;
 			else if(SWITCH_STRAT_3 == 1 && !steal_done && previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
 				state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment d'aller (re)faire un scan
-			else if(we_are_protecting_our_glasses == FALSE)	//On est pas déjà en train de protéger les verres
+			else if(we_are_protecting_our_glasses == FALSE && we_cant_protect_our_glasses != TRUE)	//On est pas déjà en train de protéger les verres
 				state = PROTECT_GLASSES;
 			else if(we_do_not_want_to_move_anymore == FALSE)
 				state = WAIT_UNTIL_60SEC;
@@ -236,6 +237,8 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		break;
 
 		case PROTECT_GLASSES:
+			if(entrance)
+				we_cant_protect_our_glasses = FALSE;
 			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
 			sub_action = TINY_protect_glasses();
 				switch(sub_action)
@@ -243,12 +246,13 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 					case IN_PROGRESS:
 					break;
 					case END_OK:
-						we_are_protecting_our_glasses == TRUE;
+						we_are_protecting_our_glasses = TRUE;
 						state = TAKE_A_DECISION;
 					break;
 					case END_WITH_TIMEOUT:
 					case NOT_HANDLED:
 					case FOE_IN_PATH:
+						we_cant_protect_our_glasses = TRUE;
 						state = WAIT_UNTIL_60SEC;
 					break;
 					default:
@@ -259,8 +263,8 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		break;
 
 		case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:
-				//sub_action = STRAT_TINY_goto_cake_and_blow_candles();
-				sub_action = TINY_forgotten_candles();
+				sub_action = STRAT_TINY_goto_cake_and_blow_candles();
+				//sub_action = TINY_forgotten_candles();
 				switch(sub_action)
 				{
 					case IN_PROGRESS:
