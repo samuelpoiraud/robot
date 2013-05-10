@@ -128,7 +128,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 		case TAKE_A_DECISION:
 			//On dispose de previous_subaction qui contient la précédente actions effectuée.
-			ASSER_dump_stack ();
+			//ASSER_dump_stack ();
 			if(previous_subaction == PROTECT_GLASSES)
 			{
 				if(all_gifts_done() && all_candles_done && moisson_done)	//SI ON A MIS TOUT NOS POINTS... ON RESTE ICI (la moisson compte, pas le scan)
@@ -146,8 +146,8 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				else
 					state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//On va REFAIRE le gateau
 			}
-			/*else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON)
-				state = SUBACTION_MOISSON;*/
+			else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON)
+				state = SUBACTION_MOISSON;
 			else if(SWITCH_STRAT_3 == 1 && !steal_done && previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
 				state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment d'aller (re)faire un scan
 			else if(we_are_protecting_our_glasses == FALSE)	//On est pas déjà en train de protéger les verres

@@ -862,7 +862,7 @@ void ASSER_dump_stack ()
 		else if (command == &ASSER_stop_stack)
 			debug_printf("asser_stop\n");
 		else 
-			debug_printf("undefined function %X\n", command);
+			debug_printf("undefined function %X\n", (Uint16)(command));
 	}
 
 	debug_printf("\n----- End of dump -----\n");

@@ -87,7 +87,7 @@
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot 
  * move_way = retourne le sens de déplacement
  */
-static Uint16 AVOIDANCE_speed_indicator_compute(void);
+//static Uint16 AVOIDANCE_speed_indicator_compute(void);
 
 /* ----------------------------------------------------------------------------- */
 /* 				Fonctions de génération de la trajectoire à 3 points             */
@@ -96,7 +96,7 @@ static Uint16 AVOIDANCE_speed_indicator_compute(void);
 /* Fonction qui exécute une esquive du robot adverse en 3 points 
  * La fonction charge la pile !
  */
-static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES]);
+//static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES]);
 
 /* Fonction qui calcule les 3 points d'esquive de l'adversaire 
  * move_way : sens de déplacement
@@ -105,8 +105,8 @@ static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES
  * second_point : deuxième point calculé
  * third_point : troisième point calculé
  */
-static bool_e AVOIDANCE_dodge_triple_points_compute(way_e move_way, Sint16 avoidance_way,
-	GEOMETRY_point_t* first_point, GEOMETRY_point_t* second_point, GEOMETRY_point_t* third_point, foe_e foe_id);
+//static bool_e AVOIDANCE_dodge_triple_points_compute(way_e move_way, Sint16 avoidance_way,
+//	GEOMETRY_point_t* first_point, GEOMETRY_point_t* second_point, GEOMETRY_point_t* third_point, foe_e foe_id);
 
 /* Fonction de calcul d'un point d'esquive de l'adversaire
  * move_way = sens de déplacement
@@ -118,10 +118,10 @@ static bool_e AVOIDANCE_dodge_triple_points_compute(way_e move_way, Sint16 avoid
  * return : TRUE = point valide
  * 			FALSE = point invalide hors du terrain
  */
-static bool_e AVOIDANCE_compute_dodge_point(way_e move_way, Sint16 x_distance, 
-	Sint16 y_distance, Sint16 computed_way, GEOMETRY_point_t* result_point);
+//static bool_e AVOIDANCE_compute_dodge_point(way_e move_way, Sint16 x_distance,
+//	Sint16 y_distance, Sint16 computed_way, GEOMETRY_point_t* result_point);
 
-static error_e AVOIDANCE_move_colision();
+//static error_e AVOIDANCE_move_colision();
 
 static error_e AVOIDANCE_watch_asser_stack();
 	
@@ -131,13 +131,13 @@ static error_e AVOIDANCE_watch_asser_stack();
  * return TRUE : l'adversaire n'a pas bougé pendant time_for_analyse
  * return FALSE : l'adversaire a bougé pendant time_for_analyse
  */
-static bool_e AVOIDANCE_foe_not_move(foe_e foe_id);
+//static bool_e AVOIDANCE_foe_not_move(foe_e foe_id);
 
 /* Fonction qui regarde si notre robot est immobile ou non 
  * return TRUE : notre robot se déplace en translation
  * return FALSE : notre robot ne se déplace pas en translation (immobile ou rotation)
  */
-static bool_e AVOIDANCE_robot_translation_move();
+//static bool_e AVOIDANCE_robot_translation_move();
 
 //Comme goto_pos_with_scan_foe mais avec choix de la fin, je savais pas quoi mettre comme nom ... si quelqu'un a une idée de nom utile, go changer ça :)
 static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
