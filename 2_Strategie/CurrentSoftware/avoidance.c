@@ -739,6 +739,26 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_c
 }
 
 
+Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
+{
+	error_e sub_action;
+	sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
+	switch(sub_action){
+		case IN_PROGRESS:
+			return in_progress;
+			break;
+		case FOE_IN_PATH:
+		case NOT_HANDLED:
+			return fail_state;
+			break;
+		case END_OK:
+		case END_WITH_TIMEOUT:
+		default:
+			return success_state;
+			break;
+	}
+}
+
 //Action qui gere un déplacement et renvoi le state rentré en arg
 Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
 {
