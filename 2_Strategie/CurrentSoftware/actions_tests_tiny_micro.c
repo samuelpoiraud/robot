@@ -1069,12 +1069,14 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			count = 0;
 			state = EB;
 			previousState = GO_INIT;
-			ACT_plier_open();
+			
 			ret = IN_PROGRESS;
 			break;
 		case EB:
+
 			//EB
 	        //								  in_progress	success	failed
+			ACT_plier_open();
 			state = try_going(1380, COLOR_Y(2135), EB,MA,HB,BACKWARD,NO_DODGE_AND_WAIT);
 			if(state != EB){
 				previousState = EB;
