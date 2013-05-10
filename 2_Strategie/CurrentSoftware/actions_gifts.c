@@ -50,7 +50,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 
 			TINY_hammer_open_all_gift(FALSE);	//Gestion du mouvement du bras...
 
-			if(COLOR_Y(global.env.pos.y) > 1000)
+			if(COLOR_Y(global.env.pos.y) > 1330)
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(((SWITCH_STRAT_2)?1050:2300))},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);

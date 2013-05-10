@@ -512,15 +512,15 @@ error_e TINY_forgotten_candles()
 		break;
 
 		case SB:
-				state=try_going(1480,990,SB,(finish==FALSE)?GOTO_CANDLE:MB, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+				state=try_going(1480,COLOR_Y(990),SB,(finish==FALSE)?GOTO_CANDLE:MB, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 		case EB:
-				state=try_going(1380,2135,EB,(finish==FALSE)?GOTO_CANDLE:DONE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+				state=try_going(1380,COLOR_Y(2135),EB,(finish==FALSE)?GOTO_CANDLE:DONE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 		case MB:
-				state=try_going(1300,1600,MB,(finish==FALSE)?DECISION2:DONE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+				state=try_going(1300,COLOR_Y(1600),MB,(finish==FALSE)?DECISION2:DONE, FAIL,(way==1)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 				
 		break;
 
@@ -593,7 +593,7 @@ error_e TINY_forgotten_candles()
 		break;
 
 		case BACK:
-			if(global.env.pos.y > 1500)
+			if(COLOR_Y(global.env.pos.y) > 1500)
 				state=EB;
 			else
 				state=SB;
@@ -610,8 +610,7 @@ error_e TINY_forgotten_candles()
 		break;
 
 		case FAIL_D:
-			finish=TRUE;
-			if((global.env.pos.y) > 1500)	//Je suis plus près de chez l'adversaire
+			if(COLOR_Y(global.env.pos.y) > 1500)	//Je suis plus près de chez l'adversaire
 			{
 				state = EB;
 			}

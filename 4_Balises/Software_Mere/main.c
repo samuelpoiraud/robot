@@ -85,16 +85,16 @@
 		while(1)
 		{
 			
-			SECRETARY_process_main();
-			BUTTONS_update();
-			BRAIN_US_process_main();
-			BRAIN_IR_process_main();
+		//	SECRETARY_process_main();
+		//	BUTTONS_update();
+		//	BRAIN_US_process_main();
+		//	BRAIN_IR_process_main();
 			
-			if(flag_50ms)
-			{
-				BRAIN_US_timeout_update(50);
-				flag_50ms = FALSE;
-			}	
+		//	if(flag_50ms)
+		//	{
+		//		BRAIN_US_timeout_update(50);
+		//		flag_50ms = FALSE;
+		//	}
 			
 		
 			/*
@@ -112,7 +112,7 @@
 			if(flag_1sec)
 			{
 				#ifdef ENABLE_XBEE
-					CAN_over_XBee_every_second();
+				//	CAN_over_XBee_every_second();
 				#endif
 				flag_1sec = FALSE;
 				vbat = ADC_getValue(0);	//Mesure tension batterie...
@@ -129,7 +129,7 @@
 		while(1)
 		{	
 			
-	
+	/*
 			//S'il est temps d'envoyer les données ou si l'on a recu une donnée à envoyer... on envoi !
 			if(global.flags.timer2 == TRUE || global.flag_envoi == TRUE)
 				process_envoi();
@@ -150,6 +150,9 @@
 				global.flags.timer2 = FALSE;
 				static Uint8 i, balise, j;
 				i = (i + 1) %4;
+
+
+
 			/*	if(!i)
 					for(balise=0;balise<3;balise++)
 						for(j=0;j<NOMBRE_DETECTIONS_PAR_BALISE;j++)	
@@ -161,7 +164,7 @@
 						for(j=0;j<NOMBRE_CYCLES_SAUVES;j++)	
 							debug_printf("b%d\tc%d:\ti%d\n",balise,j, global.buffer_instants[balise][j]);
 			*/				
-			}	
+			//}
 		}
 		
 		return 0;		
@@ -191,15 +194,14 @@
 		SYNCHRO_3 = synchro;	//Signal de synchro ! à 1 pendant le premier step...
 		if(synchro)
 		{
-//			LED_RUN = !LED_RUN;
-#warning "rétablir led_run sur synchro"
+			LED_RUN = !LED_RUN;
 		}
 		
-		if(step == 0)
+	/*	if(step == 0)
 			EYES_step(ADVERSARY_1);	
 		if(step == PERIODE_FLASH)
 			EYES_step(ADVERSARY_2);	
-		
+	*/
 		step++;
 	
 		if(step > PERIODE_FLASH*NOMBRE_BALISES_EMETTRICES - 1)	//Période de 100ms...* nb balises émettrices = 200ms = (5 mesures par seconde !) 
@@ -210,14 +212,14 @@
 		count_for_flag_50ms = (count_for_flag_50ms>=50)?0:(count_for_flag_50ms+1);
 		if(!count_for_flag_50ms)
 			flag_50ms = TRUE;
-		
+	
 		compteur_secondes = (compteur_secondes>=NOMBRE_IT_PAR_SECONDES)?0:(compteur_secondes+1);
 		if(!compteur_secondes)
 			flag_1sec = TRUE;
-	
+	/*
 		
 		BUTTONS_process_it();
-		
+		*/
 		IFS0bits.T1IF	= FALSE;
 	}	
 	
