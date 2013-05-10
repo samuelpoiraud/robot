@@ -118,7 +118,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 		STATECHANGE_log(SM_ID_CHERRIES_MAIN, state_str[last_state], last_state, state_str[state], state);
 	}
 
-	if(state != DP_LAUNCH_CHERRIES && ACT_get_last_action_result(ACT_QUEUE_BallSorter))
+	if(state != DP_LAUNCH_CHERRIES && ACT_get_last_action_result(ACT_QUEUE_BallSorter) != ACT_FUNCTION_InProgress)
 		ACT_ball_sorter_next_autoset_speed(6300, TRUE);	//6300 histoire de
 
 	switch(state) {
@@ -713,7 +713,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 	static const Sint16 CATCHING_PLATE_OFFSET = 320;	//Début de la vitesse lente, relatif au milieu de l'assiette
 	static const Sint16 CATCHED_PLATE_OFFSET  = 260;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
 	static const Sint16 DROP_PLATE_OFFSET     = -60;	//Position pour lacher les assiettes (uniquement dans un axe X, pas Y)
-	static const Sint16 PLATE_ANGLE_CORRECTION_X  = 4;	//Angle a avoir pour prendre une assiette bien
+	static const Sint16 PLATE_ANGLE_CORRECTION_X  = 2;	//Angle a avoir pour prendre une assiette bien
 	static const Uint8 CATCHING_PLATE_SPEED = 8 + 5;	//vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
 	static const bool_e USE_DOUBLE_CLOSE_AX12 = TRUE; //Si TRUE, on serre 2 fois l'assiette pour mieux la prendre
