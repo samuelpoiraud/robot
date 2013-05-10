@@ -1396,6 +1396,11 @@ error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop, Sint16 angle) {
 	return return_value;
 }
 
+//Recupère les infos d'une assiette
+plate_info_t PLATE_get_info(Uint8 plate_id) {
+	return PLATE_INFOS[plate_id];
+}
+
 //Donne l'assiette et la ligne la plus proche de la position du robot actuelle
 static void PLATE_get_nearest_point(Sint16 x, Sint16 y, Uint8* nearest_plate, line_pos_t* nearest_line) {
 	Uint8 i;
