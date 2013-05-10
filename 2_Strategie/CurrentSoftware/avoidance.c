@@ -1493,6 +1493,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				if(global.env.debug_force_foe)	//Evitement manuel forcé !
 				{
 					STACKS_flush(ASSER);
+					debug_foe_reason(FORCED_BY_USER, 0, 0);
 					ASSER_push_stop();
 					state = WAIT_STOP;
 					global.env.debug_force_foe = FALSE;
@@ -1511,6 +1512,8 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 					if((is_in_path[FOE_1] || is_in_path[FOE_2]) && global.env.asser.is_in_translation)
 					{
+						foe_origin_e foe = (is_in_path[FOE_1])? FOE1 : FOE2;
+						debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
 						//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 						switch(avoidance_type)
 						{
@@ -2396,4 +2399,16 @@ foe_pos_e AVOIDANCE_where_is_foe(foe_e foe_id)
 			return NORTH_US;
 		}
 	}
+}
+
+void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
+	CAN_msg_t msg_to_send;
+	msg_to_send.sid = DEBUG_FOE_REASON;
+	msg_to_send.size = 5;
+	msg_to_send.data[0] = origin;
+	msg_to_send.data[1] = angle >> 8;
+	msg_to_send.data[2] = angle & 0xFF;
+	msg_to_send.data[3] = distance >> 8;
+	msg_to_send.data[4] = distance & 0xFF;
+	CAN_send(&msg_to_send);
 }
