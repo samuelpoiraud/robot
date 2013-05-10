@@ -19,7 +19,7 @@
 //#define LOG_PREFIX "zone_mutex: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-#define RESPONSE_WAIT_TIMEOUT	1000
+#define RESPONSE_WAIT_TIMEOUT	0
 #define RETRY_TIMEOUT			300
 
 //Zone ou les 2 robots peuvent passer, donc on doit éviter le cas ou les 2 robots sont en même temps dans la même zone
@@ -79,6 +79,9 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 
 	static time32_t last_try_time;
 	static time32_t begin_lock_time;
+
+	//FIXME: PAS DE GESTION DE ZONE => FAIL
+	return END_WITH_TIMEOUT;
 
 	//On a changé d'état, on l'indique sur l'UART pour débugage
 	if(last_state != state) {

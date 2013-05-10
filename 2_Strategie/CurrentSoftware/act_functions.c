@@ -187,7 +187,7 @@ bool_e ACT_ball_sorter_next() {
 bool_e ACT_ball_sorter_next_autoset_speed(Uint16 ball_launcher_speed_white_cherry__tr_min, bool_e keep_white_ball) {
 	QUEUE_arg_t args;
 
-	ACT_arg_init_with_param(&args, ACT_BALLSORTER, ACT_BALLSORTER_TAKE_NEXT_CHERRY, ((ball_launcher_speed_white_cherry__tr_min & 0x7FFF) | ((keep_white_ball != 0) << 15)));
+	ACT_arg_init_with_param(&args, ACT_BALLSORTER, ACT_BALLSORTER_TAKE_NEXT_CHERRY, ( (ball_launcher_speed_white_cherry__tr_min & 0x7FFF) | ( ((Uint16)(keep_white_ball != 0)) << 15 ) ) );
 	ACT_arg_set_timeout(&args, 5000);
 
 	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallSorter next autoset speed cmd\n");
