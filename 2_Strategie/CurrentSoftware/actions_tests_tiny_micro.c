@@ -83,7 +83,7 @@ error_e steal_glasses(girafe_t * g, bool_e reset)
 	static point_t ta;
 	static point_t tb;
 	static point_t tc;
-	static point_t td;
+//	static point_t td;
 
 	error_e ret = IN_PROGRESS;
 

@@ -23,8 +23,8 @@
 	 * Pour ceux qui veulent, il est possible de prédéfinir PREDEF_BUILD_TINY ou PREDEF_BUILD_KRUSTY avec le switch -DPREDEF_BUILD_TINY ou -DPREDEF_BUILD_KRUSTY de gcc, permet la creation de plusieurs target dans mplab X au moins.
 	 * PREDEF_BUILD_TINY et PREDEF_BUILD_KRUSTY sont prioritaire sur la définition manuelle.
 	 */
-	#define I_AM_ROBOT_KRUSTY
-	//#define I_AM_ROBOT_TINY
+	//#define I_AM_ROBOT_KRUSTY
+	#define I_AM_ROBOT_TINY
 	
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
 	#define FREQ_10MHZ
