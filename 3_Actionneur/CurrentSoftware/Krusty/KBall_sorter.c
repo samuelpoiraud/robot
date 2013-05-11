@@ -143,7 +143,7 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 
 				case BALLSORTER_CS_EjectCherry:
 					if(launch_cherry == TRUE) {
-						AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 500);
+						AX12_set_move_to_position_speed(BALLSORTER_AX12_ID, 250);
 						wantedPosition = BALLSORTER_AX12_EJECT_CHERRY_POS;
 					} else {		//Si on ne doit pas lancer la cerise, on la lance pas
 						QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
@@ -220,6 +220,9 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 					cherry_color = ACT_BALLSORTER_BAD_CHERRY;
 				else cherry_color = ACT_BALLSORTER_NO_CHERRY;
 #endif
+
+				//FIXME on lance TOUTES les cerises
+				cherry_color = ACT_BALLSORTER_WHITE_CHERRY;
 
 				CAN_msg_t detectionResultMsg = {ACT_BALLSORTER_RESULT, {cherry_color}, 1};
 
