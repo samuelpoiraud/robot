@@ -29,6 +29,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 		HAMMER_HOME,
 		FAIL,
 		FAIL_HAMMER_HOME,
+		TURN_FOR_HAMMER_DOWN,
 		DONE
 	}state_e;
 	static state_e state = INIT;
@@ -54,13 +55,16 @@ error_e TINY_open_all_gifts_without_pause(void)
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 
 			if(SWITCH_STRAT_2)	//2 cadeaux
-				sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(1050)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+				sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(1400)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			else	//4 cadeaux
 				sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(2300)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
             {
 				case END_OK:
-					state = HAMMER_HOME;
+					if(SWITCH_STRAT_2)
+						state = TURN_FOR_HAMMER_DOWN;
+					else
+						state = HAMMER_HOME;
 				break;
 				case END_WITH_TIMEOUT:	//Echec de la mission
 				case NOT_HANDLED:		//Echec de la mission
@@ -72,6 +76,9 @@ error_e TINY_open_all_gifts_without_pause(void)
 				default:
 				break;
             }
+		break;
+		case TURN_FOR_HAMMER_DOWN:
+			state = try_go_angle((global.env.color == RED)?PI4096:0, TURN_FOR_HAMMER_DOWN, HAMMER_HOME, HAMMER_HOME, FAST);
 		break;
 		case HAMMER_HOME:
 			if(SWITCH_STRAT_2)
