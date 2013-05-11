@@ -44,8 +44,10 @@ void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint
 //0xRSMM: R: numéro de robot, S: numéro de strat (strat globale comme faire les cadeaux), MM: un octet pour un numéro de machine à état d'un truc précis...
 //R = 0 Pour Krusty, 1 pour Tiny, numéro suivant pour autre chose ...
 #define SM_ID_KRUSTY_STRAT_ALEXIS	0x0000
+#define SM_ID_KRUSTY_STRAT_ALEXIS_FINALE	0x0001
 #define SM_ID_GLASSES_DO		0x0101
 #define SM_ID_GLASSES_GRAB		0x0102
+#define SM_ID_GLASSES_PUT_DOWN	0x0103
 #define SM_ID_CHERRIES_MAIN		0x0200
 #define SM_ID_CHERRIES_MOVE		0x0201
 #define SM_ID_CHERRIES_GRAB		0x0202

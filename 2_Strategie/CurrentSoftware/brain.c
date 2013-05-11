@@ -122,7 +122,8 @@ void any_match(time32_t match_duration)
 				break;
 
 				case 0x02:	//STRAT_2_KRUSTY
-					strategy = K_Strat_Coupe;
+					//strategy = K_Strat_Coupe;
+					strategy = &TEST_STRAT_ALEXIS_FINALE;
 				break;
 
 				case 0x03:	//STRAT_3_KRUSTY

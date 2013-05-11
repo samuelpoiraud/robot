@@ -21,9 +21,10 @@ typedef struct {
 	Uint8 move_points_begin_index;
 } displacement_block_t;
 
-error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode);
-error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displacement_block_t trajectories_to_home[], Uint8 trajectory_number, const displacement_block_t trajectories[], displacement_t move_points[]);
+error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode, bool_e go_home);
+error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displacement_block_t trajectories_to_home[], Uint8 trajectory_number, const displacement_block_t trajectories[], displacement_t move_points[], bool_e go_home);
 error_e K_STRAT_micro_grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos);
+error_e K_STRAT_micro_put_down_glasses();
 
 
 #endif	/* ACTIONS_GLASSES_H */

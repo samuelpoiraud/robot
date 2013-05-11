@@ -32,6 +32,16 @@ typedef enum {
 	STRAT_PGA_XNeg		//Axe X, déplacement pour prendre l'assiette vers les cadeaux
 } STRAT_plate_grap_axis_e;
 
+typedef struct {
+	//Position X de l'assiette
+	Sint16 x;
+	//Lignes de déplacement pour évitement (proche / loin)
+	Sint16 y_near;
+	Sint16 y_far;
+	//Doit on verrouiller la zone sous le gateau pour passer sur la ligne Far ?
+	bool_e far_line_check_tiny;
+} plate_info_t;
+
 plate_info_t PLATE_get_info(Uint8 plate_id);
 
 error_e K_STRAT_sub_cherries_alexis();

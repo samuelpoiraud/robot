@@ -19,16 +19,6 @@
 
 //Toutes les positons et angle sont ceux correspondant au coté rouge
 
-typedef struct {
-	//Position X de l'assiette
-	Sint16 x;
-	//Lignes de déplacement pour évitement (proche / loin)
-	Sint16 y_near;
-	Sint16 y_far;
-	//Doit on verrouiller la zone sous le gateau pour passer sur la ligne Far ?
-	bool_e far_line_check_tiny;
-} plate_info_t;
-
 static const Uint8 PLATE_NUMBER = 5;
 static const plate_info_t PLATE_INFOS[5] = {
 //       x      ,   y_near   ,   y_far   , far_line_check_tiny  }
