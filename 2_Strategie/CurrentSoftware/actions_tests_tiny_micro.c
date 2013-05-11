@@ -20,20 +20,20 @@
 #define USE_CURVE	0
 
 
-//CONFIG DU STEAL
+//CONFIG DU MODE DE STEAL
 
-		//#define STEAL_MODE_WITH_SCAN
-		#define STEAL_CUSTOM
+	#define STEAL_MODE_WITH_SCAN
+	//#define STEAL_CUSTOM
 
-#define BUFFET_GIFT	210
-#define CASE_0_X	250
-#define CASE_1_X	600
-#define CASE_2_X	1000
-#define CASE_3_X	1400
-#define CASE_4_X	1750
-#define BUFFET_CAKE	1790
+		#define BUFFET_GIFT	210
+		#define CASE_0_X	250
+		#define CASE_1_X	600
+		#define CASE_2_X	1000
+		#define CASE_3_X	1400
+		#define CASE_4_X	1750
+		#define BUFFET_CAKE	1790
 
-#define ALL_CASES_Y	(COLOR_Y(2820))
+		#define ALL_CASES_Y	(COLOR_Y(2820))
 
 
 /*  --------------POSITION DES VERRES ENNEMIS------------------------*/
@@ -41,57 +41,44 @@
 #define r3ea_y 370 
 // 1000 370 + 600 200
 
-#define projet_&_tech_x  990
-#define projet_&_tech_y  370
-//990 370
+#define projet_and_tech_x  990
+#define projet_and_tech_y  370
 
 #define pm_robotic_x	1000 
 #define pm_robotic_y	230
-//1000 230
 
-#define	space_crakers_x 250
+#define	space_crakers_x 250		// 250 200 + 1350 190
 #define	space_crakers_y  200
-// 250 200 + 1350 190
 
 #define telecom_robotics_x 600 
 #define telecom_robotics_y 200
-//600 200
 
 #define crap_x  790 
 #define crap_y 370
-//790 370
 
 #define mine_de_douai_x  600
 #define mine_de_douai_y 190
-//600 190
 
 #define unive_angers_x 1200
 #define unive_angers_y  270
-//1200 270 + 1200 160 
 
 #define rcva_x  1100
 #define rcva_y 150
-//1100 150
 
 #define colors_team_x  1000
 #define colors_team_y  320
-//1000 320
 
 #define uart_x  1000
 #define uart_y 150
-// 1000 150 + 1400 150
 
 #define ensim_elec_x 1000
 #define ensim_elec_y  130
-//1000 130
 
 #define oleg_x 700
 #define oleg_y  170
-// 700 170
 
 #define supeaero_x 1200
 #define supeaero_y 140
-// 1200 140
 
 #define insa_toulouse
 #define insa_toulouse
@@ -124,9 +111,9 @@
 #define rir_robotique
 
 /*-----------------------------------------------------------*/
+//REGLAGE DES POSITIONS DE LA TOUR A VOLER
 
-
-#define GIRAFE_X	RCVA_X				//En mode custom, cette position est choisie
+#define GIRAFE_X	RCVA_X	//En mode custom, cette position est choisie
 #define GIRAFE_Y	RCVA_Y	//En mode custom, cette position est choisie
 
 /* ----------------------------------------------------------------------------- */
@@ -163,7 +150,7 @@ Uint16 wait_hammers(Uint16 progress, Uint16 success, Uint16 fail)
 /* 								Fonction diverses                     			 */
 /* ----------------------------------------------------------------------------- */
 
-error_e steal_glasses(girafe_t * g, bool_e reset)
+error_e steal_glasses(girafe_t * g)
 {
 		//Le type avec les états est défini séparément de la variable pour que mplab x comprenne ce qu'on veut faire ...
 	typedef enum
@@ -195,11 +182,7 @@ error_e steal_glasses(girafe_t * g, bool_e reset)
 
 	error_e ret = IN_PROGRESS;
 
-	if(reset)
-	{
-		state = INIT;
-		return END_OK;
-	}
+
 	switch(state)
 	{
 		case INIT:
@@ -358,6 +341,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		SUBACTION_STEAL,
 		GOTO_MIDDLE,
 		COME_BACK_HOME,
+		ANGLE_TO_SEE_HOME,
 		OPEN_HAMMERS_IN_HOME,
 		WAIT_OPEN_HAMMERS_IN_HOME,
 		BACK_TO_CLOSE,
@@ -436,7 +420,6 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		case SCAN_GLASSES_OUTSIDE_ZONE:
 			if(entrance)
 				scan_for_glasses(TRUE);
-	
 			state = try_going_slow((from == SC)?170:1830, COLOR_Y(2480),	SCAN_GLASSES_OUTSIDE_ZONE, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
 
 			if(global.env.pos.updated)
@@ -491,7 +474,9 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		break;
 		case SCAN_GLASSES_INSIDE_ZONE:
 			if(entrance)
+			{
 				scan_for_glasses(TRUE);
+			}
 
 			state = try_going_slow((from == TC)?320:1680, COLOR_Y(2680),	SCAN_GLASSES_INSIDE_ZONE, DECISION,	FAIL, ANY_WAY, NO_DODGE_AND_WAIT);
 
@@ -523,9 +508,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			}
 		break;
 		case SUBACTION_STEAL:
-			if(entrance)
-				steal_glasses(g,TRUE);	//reset MAE.
-			sub_action = steal_glasses(g, FALSE);
+			sub_action = steal_glasses(g);
 			switch(sub_action)
 			{
 				case IN_PROGRESS:
@@ -534,7 +517,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 					if(global.env.pos.x > 1000)
 						state = GOTO_MIDDLE;
 					else
-						state = COME_BACK_HOME;
+						state = ANGLE_TO_SEE_HOME;
 				break;
 				default:
 					state = FAIL;
@@ -543,7 +526,10 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		break;
 		case GOTO_MIDDLE:
 			//Point 1 : chez l'adversaire, en X = 250.
-			state = try_going_slow(800,COLOR_Y(1900),	GOTO_MIDDLE, COME_BACK_HOME,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going_slow(800,COLOR_Y(1900),	GOTO_MIDDLE, ANGLE_TO_SEE_HOME,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+		break;
+		case ANGLE_TO_SEE_HOME:
+			state = try_go_angle(((global.env.color == RED)?(-PI4096):PI4096),ANGLE_TO_SEE_HOME,COME_BACK_HOME,COME_BACK_HOME,SLOW);
 		break;
 		case COME_BACK_HOME:
 			//Point 2 : la dépose dans la zone de départ TINY (début de zone !) ATTENTION A NE PAS DETRUIRE NOS VERRES.
@@ -592,15 +578,16 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			case SA:						debug_printf("SA");					break;
 			case SC:						debug_printf("SC");					break;
 			case GO_ANGLE:					debug_printf("GO_ANGLE");			break;
-			case SCAN_GLASSES_OUTSIDE_ZONE:				debug_printf("SCAN_GLASSES");		break;
+			case SCAN_GLASSES_OUTSIDE_ZONE:	debug_printf("SCAN_GLASSES");		break;
 			case DECISION:					debug_printf("DECISION");			break;
 			case SUBACTION_STEAL:			debug_printf("SUBACTION_STEAL");	break;
 			case GOTO_MIDDLE:				debug_printf("GOTO_4TH_GIFT");		break;
+			case ANGLE_TO_SEE_HOME:			debug_printf("ANGLE_TO_SEE_HOME");	break;
 			case COME_BACK_HOME:			debug_printf("COME_BACK_HOME");		break;
 			case OPEN_HAMMERS_IN_HOME:		debug_printf("OPEN_HAMMERS_IN_HOME");	break;
 			case WAIT_OPEN_HAMMERS_IN_HOME:	debug_printf("WAIT_OPEN_HAMMERS_IN_HOME");	break;
 			case BACK_TO_CLOSE:				debug_printf("BACK_TO_CLOSE");		break;
-			case RETURNING_TO_C2:		debug_printf("RETURNING_FOR_SCAN");	break;
+			case RETURNING_TO_C2:			debug_printf("RETURNING_FOR_SCAN");	break;
 			case FAIL:						debug_printf("FAIL");				break;
 			case SUCCESS:					debug_printf("SUCCESS");			break;
 			default:						debug_printf("???");				break;
