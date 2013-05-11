@@ -33,7 +33,7 @@
 		#define CASE_4_X	1750
 		#define BUFFET_CAKE	1790
 
-		#define ALL_CASES_Y	(COLOR_Y(2820))
+		#define ALL_CASES_Y	(180)
 
 
 /*  --------------POSITION DES VERRES ENNEMIS------------------------*/
@@ -62,7 +62,7 @@
 #define unive_angers_x 1200
 #define unive_angers_y  270
 
-#define rcva_x  1100
+#define rcva_x  1000
 #define rcva_y 150
 
 #define colors_team_x  1000
@@ -113,8 +113,8 @@
 /*-----------------------------------------------------------*/
 //REGLAGE DES POSITIONS DE LA TOUR A VOLER
 
-#define GIRAFE_X	RCVA_X	//En mode custom, cette position est choisie
-#define GIRAFE_Y	RCVA_Y	//En mode custom, cette position est choisie
+#define GIRAFE_X	BUFFET_GIFT	//En mode custom, cette position est choisie
+#define GIRAFE_Y	COLOR_Y(3000-ALL_CASES_Y)	//De la forme : COLOR_Y(3000-le_define)
 
 /* ----------------------------------------------------------------------------- */
 /* 						Actions élémentaires de construction                     */
@@ -269,7 +269,7 @@ error_e steal_glasses(girafe_t * g)
 		
 		case TC:
 			//On ramasse la girafe...
-			state = try_going_slow(tc.x, tc.y,	TC, SUCCESS,	FAIL,	BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_going_slow_until_break(tc.x, tc.y,	TC, SUCCESS,	FAIL,	BACKWARD, NO_DODGE_AND_WAIT);
 		break;
 		/*case TD:
 			//On ressort...
@@ -320,7 +320,7 @@ error_e steal_glasses(girafe_t * g)
 /* ----------------------------------------------------------------------------- */
 
 bool_e scan_for_glasses_on_bar(void);
-
+static bool_e adversary_is_in_zone = FALSE;
 error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 {
 		//Le type avec les états est défini séparément de la variable pour que mplab x comprenne ce qu'on veut faire ...
@@ -396,13 +396,13 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		/////////////////////////////////////////
 		case SA:
 			//										in_progress		success		failed
-			state = try_going(160, COLOR_Y(2480),	SA,				GO_ANGLE,	BP,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(170, COLOR_Y(2480),	SA,				GO_ANGLE,	BP,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != SA)
 				from = SA;
 		break;
 		case SC:
 			//										in_progress		success		failed
-			state = try_going(1840, COLOR_Y(2480),	SC,				GO_ANGLE,	BP,		ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(1830, COLOR_Y(2480),	SC,				GO_ANGLE,	BP,		ANY_WAY, NO_DODGE_AND_WAIT);
 			if(state != SC)
 				from = SC;
 		break;
@@ -505,6 +505,9 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 					state = TA;
 				else //(from == TC ou TA)
 					state = SUCCESS;
+
+				if(adversary_is_in_zone)
+					state = FAIL;
 			}
 		break;
 		case SUBACTION_STEAL:
@@ -526,24 +529,29 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		break;
 		case GOTO_MIDDLE:
 			//Point 1 : chez l'adversaire, en X = 250.
-			state = try_going_slow(800,COLOR_Y(1900),	GOTO_MIDDLE, ANGLE_TO_SEE_HOME,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going_slow_until_break(800,COLOR_Y(1900),	GOTO_MIDDLE, COME_BACK_HOME,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
 		break;
-		case ANGLE_TO_SEE_HOME:
-			state = try_go_angle(((global.env.color == RED)?(-PI4096):PI4096),ANGLE_TO_SEE_HOME,COME_BACK_HOME,COME_BACK_HOME,SLOW);
-		break;
+	//	case ANGLE_TO_SEE_HOME:
+	//		state = try_go_angle(((global.env.color == RED)?(-PI4096):PI4096),ANGLE_TO_SEE_HOME,COME_BACK_HOME,COME_BACK_HOME,SLOW);
+	//	break;
 		case COME_BACK_HOME:
+			if(entrance)
+				ASSER_WARNER_arm_y(COLOR_Y(500));
 			//Point 2 : la dépose dans la zone de départ TINY (début de zone !) ATTENTION A NE PAS DETRUIRE NOS VERRES.
-			state = try_going_slow(300,COLOR_Y(400),	COME_BACK_HOME, OPEN_HAMMERS_IN_HOME,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
-
+			state = try_going_slow(300,COLOR_Y(400),	COME_BACK_HOME, BACK_TO_CLOSE,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+			if(global.env.asser.reach_y)
+				ACT_plier_open();
 		break;
-		case OPEN_HAMMERS_IN_HOME:
-			ACT_plier_open();
-			state = WAIT_OPEN_HAMMERS_IN_HOME;
-		break;
-		case WAIT_OPEN_HAMMERS_IN_HOME:
-			state = wait_hammers(WAIT_OPEN_HAMMERS_IN_HOME, BACK_TO_CLOSE, BACK_TO_CLOSE);
-		break;
+	//	case OPEN_HAMMERS_IN_HOME:
+			
+	//		state = WAIT_OPEN_HAMMERS_IN_HOME;
+	//	break;
+	//	case WAIT_OPEN_HAMMERS_IN_HOME:
+	//		state = wait_hammers(WAIT_OPEN_HAMMERS_IN_HOME, BACK_TO_CLOSE, BACK_TO_CLOSE);
+	//	break;
 		case BACK_TO_CLOSE:
+			if(global.env.asser.reach_y)
+				ACT_plier_open();
 			state = try_going(300,COLOR_Y(650),	BACK_TO_CLOSE, CLOSE_HAMMERS,	FAIL, BACKWARD, NO_DODGE_AND_WAIT);
 		break;
 		case CLOSE_HAMMERS:
@@ -1189,6 +1197,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 
 	static girafe_t best_girafe;
+	
 
 //Return TRUE si des verres ont été vus depuis le reset du scan.
 //reset : TRUE pour mettre à 0 l'ensemble des acquisitions
@@ -1200,8 +1209,10 @@ bool_e scan_for_glasses(bool_e reset)
 	{
 		nb_glasses = 0;
 		glasses_seen = FALSE;
+		adversary_is_in_zone = FALSE;
 	}
-
+	if ((global.env.foe[FOE_1].angle > -2144) || (global.env.foe[FOE_1].angle < -8578) || (global.env.foe[FOE_2].angle > -2144) || (global.env.foe[FOE_2].angle < -8578))
+			adversary_is_in_zone = TRUE;
 	value = ADC_getValue(ADC_PIN_DT10_GLASSES);
 	value32 = ((Sint32)(39970UL * value) >> 16) - 56;
 	//Value 32 est en mm.
@@ -1248,8 +1259,9 @@ girafe_t * look_for_the_best_girafe(void)
 	static girafe_t g;
 	Uint8 i;
 	best_girafe = (girafe_t){0,0,0,0};
-	if(nb_glasses == 0)
+	if(nb_glasses == 0 || adversary_is_in_zone)
 		return &best_girafe;
+
 	for(i=0;i<nb_glasses;i++)
 	{
 		g.nb_glasses = 1;

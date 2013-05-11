@@ -190,7 +190,8 @@ void DETECTION_update_foe_by_beacon()
 				CAN_send(&msg);
 			}
 		}
-
+#warning "DESACTIVATION MANUELLE DES US !!!"
+		ultrasonic_fiable = FALSE;
 		if(global.env.sensor[BEACON_IR(foe_id)].updated)
 		{
 			update_dist_by_ir = FALSE;
@@ -221,7 +222,7 @@ void DETECTION_update_foe_by_beacon()
 			global.env.foe[foe_id].angle = global.env.sensor[BEACON_IR(foe_id)].angle;		
 			//detection_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
-		
+
 		if(global.env.sensor[BEACON_US(foe_id)].updated && ultrasonic_fiable == TRUE)
 		{
 			/* L'ancien angle est conserve */
