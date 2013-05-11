@@ -12,6 +12,7 @@
 #define ACTIONS_TEST_TINY_MICRO_C
 
 #include "actions_tests_tiny_micro.h"
+#include "actions_utils.h"
 #include "QS/QS_adc.h"
 
 #define DEFAULT_SPEED	(SLOW)
@@ -19,8 +20,27 @@
 #define USE_CURVE	0
 
 
+//CONFIG DU STEAL
+
+		//#define STEAL_MODE_WITH_SCAN
+		#define STEAL_CUSTOM
+
+#define BUFFET_GIFT	210
+#define CASE_0_X	250
+#define CASE_1_X	600
+#define CASE_2_X	1000
+#define CASE_3_X	1400
+#define CASE_4_X	1750
+#define BUFFET_CAKE	1790
+
+#define ALL_CASES_Y	(COLOR_Y(2820))
+
+#define RCVA_X		600
+#define RCVA_Y		COLOR_Y(2800)
 
 
+#define GIRAFE_X	RCVA_X				//En mode custom, cette position est choisie
+#define GIRAFE_Y	RCVA_Y	//En mode custom, cette position est choisie
 
 /* ----------------------------------------------------------------------------- */
 /* 						Actions élémentaires de construction                     */
@@ -66,6 +86,7 @@ error_e steal_glasses(girafe_t * g, bool_e reset)
 		ANGLE_GLASSES,
 		OPEN_HAMMERS,
 		TB,
+		BACK_10CM,
 		CLOSE_HAMMERS,
 		TC,
 		TD,
@@ -156,11 +177,19 @@ error_e steal_glasses(girafe_t * g, bool_e reset)
 		break;
 		case OPEN_HAMMERS:
 			if(entrance)
+			{
+				//#ifdef STEAL_MODE_CASE_0
+				//	ACT_hammer_goto(HAMMER_POSITION_CANDLE);
+				//#endif
 				ACT_plier_open();
+			}
 			state = wait_hammers(OPEN_HAMMERS,TB,TB);
 		break;
 		case TB:
-			state = try_going_slow(tb.x, tb.y,	TB, CLOSE_HAMMERS,	FAIL,	FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going_slow(tb.x, tb.y,	TB, CLOSE_HAMMERS,	BACK_10CM,	FORWARD, NO_DODGE_AND_WAIT);
+		break;
+		case BACK_10CM:	//En cas d'erreur, je recule un peu pour pouvoir refermer mes bras
+			state = try_going_slow(tb.x, ((global.env.color == RED)?(tb.y+1000):(tb.y-1000)),	BACK_10CM, FAIL,	FAIL,	BACKWARD, NO_DODGE_AND_WAIT);
 		break;
 		case CLOSE_HAMMERS:
 			if(entrance)
@@ -203,6 +232,7 @@ error_e steal_glasses(girafe_t * g, bool_e reset)
 			case TB:						debug_printf("TB");					break;
 			case OPEN_HAMMERS:				debug_printf("OPEN_HAMMERS");		break;
 			case CLOSE_HAMMERS:				debug_printf("CLOSE_HAMMERS");		break;
+			case BACK_10CM:					debug_printf("BACK_10CM");			break;
 			case TC:						debug_printf("TC");					break;
 			case TD:						debug_printf("TD");					break;
 			case FAIL:						debug_printf("FAIL");				break;
@@ -241,6 +271,8 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		SUBACTION_STEAL,
 		GOTO_MIDDLE,
 		COME_BACK_HOME,
+		OPEN_HAMMERS_IN_HOME,
+		WAIT_OPEN_HAMMERS_IN_HOME,
 		BACK_TO_CLOSE,
 		CLOSE_HAMMERS,
 		RETURNING_TO_C2,
@@ -255,7 +287,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 	error_e sub_action;
 	error_e ret = IN_PROGRESS;
 	static girafe_t * g;
-	static girafe_t girafe_bar;
+	static girafe_t manual_girafe;
 
 	if(reset)
 	{
@@ -265,12 +297,30 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 	switch(state)
 	{
 		case INIT:		//Décision initiale de trajet
-			debug_printf("point de départ du steal : ");
-			from = BP;
-			if(global.env.pos.x > 1000)
-				state = SC;
-			else
-				state = SA;
+			state = SUBACTION_STEAL;	//Default
+
+
+			#if (		!defined(STEAL_MODE_WITH_SCAN)	&&  !defined(STEAL_CUSTOM)			)
+			#warning "VOUS DEVEZ DEFINIR UN MODE DE STEAL. Mode par défaut : STEAL_WITH_SCAN"
+			#define STEAL_MODE_WITH_SCAN
+			#endif
+			#ifdef STEAL_MODE_WITH_SCAN
+				from = BP;
+				if(global.env.pos.x > 1000)
+					state = SC;
+				else
+					state = SA;
+			#endif
+
+				
+
+			#ifdef STEAL_CUSTOM
+				manual_girafe.nb_glasses = 1;
+				g = &manual_girafe;
+				manual_girafe.x_begin = GIRAFE_X;
+				manual_girafe.y_middle = GIRAFE_Y;
+				manual_girafe.x_end = manual_girafe.x_begin;
+			#endif
 		break;
 		/////////////////////////////////////////
 		case SA:
@@ -328,11 +378,11 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			state = try_go_angle(((global.env.color == RED)?PI4096:0),SCAN_GIFT_BAR,SCAN_GLASSES_INSIDE_ZONE,SCAN_GLASSES_INSIDE_ZONE,SLOW);
 			if(state == SCAN_GLASSES_INSIDE_ZONE && glasses_on_bar)
 			{
-				girafe_bar.nb_glasses = 1;
-				girafe_bar.x_begin = 210;
-				girafe_bar.x_end = 210;
-				girafe_bar.y_middle = (global.env.color == RED)?2820:180;
-				g = &girafe_bar;
+				manual_girafe.nb_glasses = 1;
+				manual_girafe.x_begin = 210;
+				manual_girafe.x_end = 210;
+				manual_girafe.y_middle = (global.env.color == RED)?2820:180;
+				g = &manual_girafe;
 				state = SUBACTION_STEAL;
 			}
 		break;
@@ -344,11 +394,11 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			state = try_go_angle(((global.env.color == RED)?PI4096:0),SCAN_CAKE_BAR,SCAN_GLASSES_INSIDE_ZONE,SCAN_GLASSES_INSIDE_ZONE,SLOW);
 			if(state == SCAN_GLASSES_INSIDE_ZONE && glasses_on_bar)
 			{
-				girafe_bar.nb_glasses = 1;
-				girafe_bar.x_begin = 1790;
-				girafe_bar.x_end = 1790;
-				girafe_bar.y_middle = (global.env.color == RED)?2820:180;
-				g = &girafe_bar;
+				manual_girafe.nb_glasses = 1;
+				manual_girafe.x_begin = 1790;
+				manual_girafe.x_end = 1790;
+				manual_girafe.y_middle = (global.env.color == RED)?2820:180;
+				g = &manual_girafe;
 				state = SUBACTION_STEAL;
 			}
 		break;
@@ -410,11 +460,18 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 		break;
 		case COME_BACK_HOME:
 			//Point 2 : la dépose dans la zone de départ TINY (début de zone !) ATTENTION A NE PAS DETRUIRE NOS VERRES.
-			state = try_going_slow(300,COLOR_Y(450),	COME_BACK_HOME, BACK_TO_CLOSE,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going_slow(300,COLOR_Y(400),	COME_BACK_HOME, OPEN_HAMMERS_IN_HOME,	FAIL, FORWARD, NO_DODGE_AND_WAIT);
 
 		break;
+		case OPEN_HAMMERS_IN_HOME:
+			ACT_plier_open();
+			state = WAIT_OPEN_HAMMERS_IN_HOME;
+		break;
+		case WAIT_OPEN_HAMMERS_IN_HOME:
+			state = wait_hammers(WAIT_OPEN_HAMMERS_IN_HOME, BACK_TO_CLOSE, BACK_TO_CLOSE);
+		break;
 		case BACK_TO_CLOSE:
-			state = try_going_slow(300,COLOR_Y(650),	BACK_TO_CLOSE, CLOSE_HAMMERS,	FAIL, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_going(300,COLOR_Y(650),	BACK_TO_CLOSE, CLOSE_HAMMERS,	FAIL, BACKWARD, NO_DODGE_AND_WAIT);
 		break;
 		case CLOSE_HAMMERS:
 			ACT_plier_close();
@@ -453,6 +510,8 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 			case SUBACTION_STEAL:			debug_printf("SUBACTION_STEAL");	break;
 			case GOTO_MIDDLE:				debug_printf("GOTO_4TH_GIFT");		break;
 			case COME_BACK_HOME:			debug_printf("COME_BACK_HOME");		break;
+			case OPEN_HAMMERS_IN_HOME:		debug_printf("OPEN_HAMMERS_IN_HOME");	break;
+			case WAIT_OPEN_HAMMERS_IN_HOME:	debug_printf("WAIT_OPEN_HAMMERS_IN_HOME");	break;
 			case BACK_TO_CLOSE:				debug_printf("BACK_TO_CLOSE");		break;
 			case RETURNING_TO_C2:		debug_printf("RETURNING_FOR_SCAN");	break;
 			case FAIL:						debug_printf("FAIL");				break;
@@ -717,7 +776,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 					from = EA;
 				}
 			}
-			if(SWITCH_STRAT_2 == 1){
+			if(SWITCH_STRAT_4 == 1){
 						state=RUSH;
 						from = MA;
 			}
@@ -768,7 +827,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 
 		case MA:
 			//										in_progress		success		failed
-			state = try_going(600, COLOR_Y(1650),	MA,				MB,			EA,		ANY_WAY, NO_DODGE_AND_WAIT); //Je dois passer par le milieu a tt prix !
+			state = try_going_until_break(600, COLOR_Y(1650),	MA,				MB,			EA,		ANY_WAY, NO_DODGE_AND_WAIT); //Je dois passer par le milieu a tt prix !
 			if(state == MB)
 				from = MA;
 		break;
