@@ -577,23 +577,28 @@ void TEST_STRAT_ALEXIS_FINALE() {
 		DO_PLATE,			//Prend l'assiette
 		PUT_DOWN_GLASSES,	//Pose les verres
 		LAUNCH_CHERRY,		//Lance les cerises
+		MOVE_TO_DROP,		//Va pour lacher l'assiette
 		DROP_PLATE,			//Lache l'assiette
 		DO_NEXT_PLATE,		//Fait la suivante (celle du milieu puis celle coté cadeau)
+		FAILED,				//gère les erreurs
 		DONE,				//On a fini
 		NBSTATE				//Pas un état, utilisé pour savoir le nombre d'état
 	};
 	static enum state_e state = INIT;
 	static enum state_e last_state = INIT;
+	static enum state_e last_state_for_check_entrance = INIT;
 
-	static const Sint16 DROP_ANGLE = -10366;	//10366 rad*4096 == 145°
+	static Sint16 DROP_ANGLE = 6434; //6434 = 90° //10366;	//10366 rad*4096 == 145°
 
 	static Uint8 current_plate;
 	static bool_e glasses_droped;
 
+	bool_e entrance = (state == last_state_for_check_entrance)? FALSE:TRUE;
+	last_state_for_check_entrance = state;
 	error_e sub_action;
 
 	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(state != last_state) {
+	if(entrance) {
 		static const char* state_str[NBSTATE] = {0};
 		bool_e state_str_initialized = FALSE;
 
@@ -603,6 +608,7 @@ void TEST_STRAT_ALEXIS_FINALE() {
 			STATE_STR_DECLARE(state_str, DO_PLATE);
 			STATE_STR_DECLARE(state_str, PUT_DOWN_GLASSES);
 			STATE_STR_DECLARE(state_str, LAUNCH_CHERRY);
+			STATE_STR_DECLARE(state_str, MOVE_TO_DROP);
 			STATE_STR_DECLARE(state_str, DROP_PLATE);
 			STATE_STR_DECLARE(state_str, DO_NEXT_PLATE);
 			STATE_STR_DECLARE(state_str, DONE);
@@ -613,41 +619,39 @@ void TEST_STRAT_ALEXIS_FINALE() {
 		STATECHANGE_log(SM_ID_KRUSTY_STRAT_ALEXIS_FINALE, state_str[last_state], last_state, state_str[state], state);
 	}
 
-	last_state = state;
-
 	switch(state) {
 		case INIT:
 			current_plate = 4;
 			glasses_droped = FALSE;
 			state = EXTRACT;
+			global.env.must_drop_glasses_at_end = TRUE;
 			break;
 
 		//Avance devant pour pouvoir tourner après le début du match (on est collé au mur après calibration)
 		case EXTRACT:
-			state = try_relative_move(70, FAST, FORWARD, END_AT_BREAK, EXTRACT, DO_GLASSES, DO_GLASSES);
+			state = try_relative_move(70, FAST, FORWARD, END_AT_BREAK, EXTRACT, DO_GLASSES, FAILED);
 			break;
 
 		//Faire les verres
 		case DO_GLASSES:
-			//TODO ne pas faire tout des verres
-			#warning "Test voir commentaire"
 			sub_action = K_STRAT_sub_glasses_alexis(FALSE, FALSE);
-			state = check_sub_action_result(sub_action, DO_GLASSES, GOTO_PLATE, GOTO_PLATE);	//Dans tous les cas on fait la suite ...
+			state = check_sub_action_result(sub_action, DO_GLASSES, GOTO_PLATE, FAILED);	//Dans tous les cas on fait la suite ...
 			break;
 
 		//Va a une assiette (coté gateau)
 		case GOTO_PLATE:
 			sub_action = K_STRAT_micro_move_to_plate(current_plate, LP_Near, FALSE);
-			#warning "GOTO_LAST_PLATE: Pas de gestion d'erreur"
-			state = check_sub_action_result(sub_action, GOTO_PLATE, DO_PLATE, DO_PLATE);	//TODO: CAS DERREUR A GERER !!!!!!
+			state = check_sub_action_result(sub_action, GOTO_PLATE, DO_PLATE, FAILED);	//TODO: CAS DERREUR A GERER !!!!!!
 			break;
 
 		//Faire les assiettes
 		case DO_PLATE: {
-			plate_info_t plate_info = PLATE_get_info(current_plate);	//4ème assiette a partir de 0
-			//TODO: #warning "Code moche mais bon il passera pas le concours de beauté de toute façon"
-			sub_action = K_STRAT_micro_grab_plate(STRAT_PGA_Y, STRAT_PGA_Y, TRUE, TRUE, plate_info.x, 200);
-			state = check_sub_action_result(sub_action, DO_PLATE, PUT_DOWN_GLASSES, PUT_DOWN_GLASSES);	//Idem
+			if(current_plate == 3 || current_plate == 4 || current_plate == 1) {
+				plate_info_t plate_info = PLATE_get_info(current_plate);	//4ème assiette a partir de 0
+				//TODO: #warning "Code moche mais bon il passera pas le concours de beauté de toute façon"
+				sub_action = K_STRAT_micro_grab_plate(STRAT_PGA_Y, STRAT_PGA_Y, TRUE, TRUE, plate_info.x, 200);
+				state = check_sub_action_result(sub_action, DO_PLATE, PUT_DOWN_GLASSES, FAILED);	//Idem
+			} else state = PUT_DOWN_GLASSES;
 			break;
 		}
 
@@ -656,8 +660,8 @@ void TEST_STRAT_ALEXIS_FINALE() {
 		case PUT_DOWN_GLASSES:
 			if(glasses_droped == FALSE) {
 				sub_action = K_STRAT_micro_put_down_glasses();
-				state = check_sub_action_result(sub_action, PUT_DOWN_GLASSES, LAUNCH_CHERRY, LAUNCH_CHERRY);	//Idem
-				if(state != PUT_DOWN_GLASSES)
+				state = check_sub_action_result(sub_action, PUT_DOWN_GLASSES, LAUNCH_CHERRY, FAILED);	//Idem
+				if(state == LAUNCH_CHERRY)
 					glasses_droped = TRUE;
 			} else state = LAUNCH_CHERRY;
 			break;
@@ -665,24 +669,73 @@ void TEST_STRAT_ALEXIS_FINALE() {
 		//Lance les cerises
 		case LAUNCH_CHERRY:
 			sub_action = K_STRAT_micro_launch_cherries(STRAT_LC_PositionNear, 8, FALSE);
-			state = check_sub_action_result(sub_action, LAUNCH_CHERRY, DROP_PLATE, DROP_PLATE);	//Idem
+			state = check_sub_action_result(sub_action, LAUNCH_CHERRY, MOVE_TO_DROP, FAILED);	//Idem
+			break;
+
+		case MOVE_TO_DROP:
+			if(entrance)
+				DROP_ANGLE = 6434;
+			sub_action = K_STRAT_micro_move_to_plate(current_plate, LP_Near, FALSE);
+			state = check_sub_action_result(sub_action, MOVE_TO_DROP, DROP_PLATE, FAILED);	//TODO: CAS DERREUR A GERER !!!!!!
 			break;
 
 		//Lache l'assiette
 		case DROP_PLATE:
 			sub_action = K_STRAT_micro_drop_plate(TRUE, DROP_ANGLE);
-			state = check_sub_action_result(sub_action, DROP_PLATE, DO_NEXT_PLATE, DO_NEXT_PLATE);	//Idem
+			state = check_sub_action_result(sub_action, DROP_PLATE, DO_NEXT_PLATE, FAILED);	//Idem
 			break;
 
 		//Fait la suivante (celle du milieu puis celle coté cadeau)
 		case DO_NEXT_PLATE:
 			state = GOTO_PLATE;
-			if(current_plate == 4)
+			if(current_plate == 4 || current_plate == 2)
 				current_plate = 3;
 			else if(current_plate == 3)
 				current_plate = 1;
 			else
-				state = DONE;
+				state = LAUNCH_CHERRY;
+			break;
+
+		case FAILED:
+			state = DONE;
+			switch(last_state) {
+				case DO_GLASSES:
+					state = GOTO_PLATE;
+					break;
+
+				case GOTO_PLATE:
+					if(glasses_droped == FALSE) {
+						current_plate = 2;
+						state = GOTO_PLATE;
+					} else state = DO_NEXT_PLATE;
+					break;
+
+				case DO_PLATE:
+					state = DROP_PLATE;
+					break;
+
+				case PUT_DOWN_GLASSES:
+					current_plate = 2;
+					state = DO_PLATE;
+					break;
+
+				case LAUNCH_CHERRY:
+					state = DROP_PLATE;
+					break;
+
+				case MOVE_TO_DROP:
+					DROP_ANGLE = 10366;
+					state = DROP_PLATE;
+					break;
+
+				case DROP_PLATE:
+					state = DO_NEXT_PLATE;
+					break;
+
+				default:
+					state = DONE;
+					break;
+			}
 			break;
 
 		//On a fini
@@ -694,6 +747,8 @@ void TEST_STRAT_ALEXIS_FINALE() {
 		case NBSTATE:
 			break;
 	}
+
+	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
 }
 
 

@@ -37,7 +37,7 @@
 #define DETECTION_ANGLE_NARROW		1900	//1900 = 20°
 #define DETECTION_ANGLE_WIDE		3217	//3217 = 45°
 
-#define WAIT_TIME_DETECTION			3000	// en ms //TODO: diminuer ce coef (c'etait pour des tests de wait et distance d'evitement)
+#define WAIT_TIME_DETECTION			1000	// en ms
 
 
 /* Constantes relatives à l'évitement */

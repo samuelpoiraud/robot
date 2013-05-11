@@ -421,10 +421,10 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 		case MP_DIRECT_GOTO:
 			if(line_goal == LP_Far)
 				state = try_going_multipoint((displacement_t[]){{{PLATE_real_pos_x(STRAT_PGA_Y, PLATE_INFOS[plate_goal].x), COLOR_Y(PLATE_INFOS[plate_goal].y_far)}, FAST}}, 1,
-						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_DONE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_DIRECT_GOTO, MP_DONE, MP_FAILED);
 			else
 				state = try_going_multipoint((displacement_t[]){{{PLATE_real_pos_x(STRAT_PGA_Y, PLATE_INFOS[plate_goal].x), COLOR_Y(PLATE_INFOS[plate_goal].y_near)}, FAST}}, 1,
-						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_DONE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_DIRECT_GOTO, MP_DONE, MP_FAILED);
 			break;
 
 		//Choisi ou aller pour atteindre la position voulue
@@ -607,6 +607,10 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 			switch(last_state) {
 				//On a pas pu faire le chemin direct, on va reflechir un peu pour savoir ou passer
 				case MP_DIRECT_GOTO:
+					PLATE_get_nearest_point(global.env.pos.x, global.env.pos.y, &current_plate, &current_line);
+					dest_line = current_line;
+					dest_plate = current_plate;
+
 					state = MP_WHERE_TO_GO_NEXT;
 					break;
 
@@ -1354,7 +1358,7 @@ error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop, Sint16 angle) {
 	switch(state) {
 		case DP_TURN:
 			if(turn_before_drop)
-				state = try_go_angle(COLOR_ANGLE(angle), DP_TURN, DP_DROP, DP_FAILED, FAST);
+				state = try_go_angle(COLOR_ANGLE(angle), DP_TURN, DP_DROP, DP_FAILED, SLOW);
 			else state = DP_DROP;
 			break;
 
