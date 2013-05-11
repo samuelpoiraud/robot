@@ -534,8 +534,8 @@ error_e K_STRAT_micro_put_down_glasses(void){
 	static state_e previous_state = GD_INIT;
 	static state_e previous_state_for_check_entrance = GD_INIT;
 
-	static const Sint16 EXTRACT_Y_POS = 540;
-	static const Sint16 PUT_DOWN_Y_POS = 150;
+	static const Sint16 EXTRACT_Y_POS = 550;
+	static const Sint16 PUT_DOWN_Y_POS = 200;
 	static const avoidance_type_e AVOIDANCE_TYPE_ON_EXTRACT = NO_DODGE_AND_WAIT;
 	static const avoidance_type_e AVOIDANCE_TYPE_PUT_DOWN = NO_DODGE_AND_WAIT;
 	static const Uint16 AVOIDANCE_MAX_WAIT_ON_EXTRACT = 1000;
@@ -617,7 +617,7 @@ error_e K_STRAT_micro_put_down_glasses(void){
 		case GD_EXTRACT_FROM_GLASSES:
 			if(entrance)
 				AVOIDANCE_set_timeout(AVOIDANCE_MAX_WAIT_ON_EXTRACT);
-			current_state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(EXTRACT_Y_POS)}, FAST}}, 1,
+			current_state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(EXTRACT_Y_POS)}, SLOW}}, 1,
 				BACKWARD, AVOIDANCE_TYPE_ON_EXTRACT, END_AT_LAST_POINT,
 				GD_EXTRACT_FROM_GLASSES, GD_DONE, GD_FAILED);
 			break;

@@ -105,7 +105,7 @@
 		#define GOTO_TIMEOUT_TIME							5000	// On n'attend que 3 secondes sur les ASSER_push_goto cette année
 																	// car on ne fait pas de gros déplacements sur le terrain
 			
-		#define GOTO_MULTI_POINT_TIMEOUT_TIME				2000	//Nombre de secondes de timeout PAR POINT en mode multipoint.
+		#define GOTO_MULTI_POINT_TIMEOUT_TIME				4000	//Nombre de secondes de timeout PAR POINT en mode multipoint.
 		#define RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME	3000
 				
 		#define RUSH_TIMEOUT_TIME							2500

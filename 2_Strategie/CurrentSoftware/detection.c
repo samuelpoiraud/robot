@@ -192,6 +192,7 @@ void DETECTION_update_foe_by_beacon()
 		}
 #warning "DESACTIVATION MANUELLE DES US !!!"
 		ultrasonic_fiable = FALSE;
+
 		if(global.env.sensor[BEACON_IR(foe_id)].updated)
 		{
 			update_dist_by_ir = FALSE;
