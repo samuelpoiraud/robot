@@ -38,7 +38,6 @@ int main (void)
 {
 
 	Uint16 i,j;
-
 	// Commandes pour EVE
 	#ifdef USE_QSx86
 		// Initialisation des variables utiles
