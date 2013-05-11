@@ -23,7 +23,7 @@
 
 	#define PLIER_AX12_ASSER_POS_EPSILON         5
 	#define PLIER_AX12_ASSER_TIMEOUT             20  //en ms*100, 20 == 2 sec
-	#define PLIER_AX12_POS_LARGE_EPSILON         50
+	#define PLIER_AX12_POS_LARGE_EPSILON         360
 
 
 

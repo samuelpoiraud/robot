@@ -66,40 +66,46 @@ void PLIER_stop() {
 }
 
 bool_e PLIER_CAN_process_msg(CAN_msg_t* msg) {
-	queue_id_t queueId;
-
-/*#warning TEMPORAIRE: A enlever si plier operationel
-	if(msg->sid == ACT_PLIER) {
-		ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
-		return TRUE;
-	}
-	return FALSE;*/
-	///////////////////////////////////////////////
+	queue_id_t queueId1, queueId2;
 
 	if(msg->sid == ACT_PLIER) {
 		switch(msg->data[0]) {
 			case ACT_PLIER_CLOSE:
-				queueId = QUEUE_create();
-				assert(queueId != QUEUE_CREATE_FAILED);
-				if(queueId != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plier);
-					QUEUE_add(queueId, &PLIER_run_command, (QUEUE_arg_t){msg->data[0], PLIER_CS_CloseRightAX12, &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_Plier);
-					QUEUE_add(queueId, &PLIER_run_command, (QUEUE_arg_t){msg->data[0], PLIER_CS_CloseLeftAX12,  &ACTQ_finish_SendResult}      , QUEUE_ACT_Plier);
-					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plier);
+				queueId1 = QUEUE_create();
+				queueId2 = QUEUE_create();
+				if(queueId1 != QUEUE_CREATE_FAILED && queueId2 != QUEUE_CREATE_FAILED) {
+					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierLeft);
+					QUEUE_add(queueId1, &PLIER_run_command, (QUEUE_arg_t){msg->data[0], PLIER_CS_CloseLeftAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_PlierLeft);
+					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierLeft);
+
+					QUEUE_add(queueId2, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierRight);
+					QUEUE_add(queueId2, &PLIER_run_command, (QUEUE_arg_t){msg->data[0], PLIER_CS_CloseRightAX12, &ACTQ_finish_SendResult}, QUEUE_ACT_PlierRight);
+					QUEUE_add(queueId2, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierRight);
 				} else {	//on indique qu'on a pas géré la commande
+					if(queueId1 != QUEUE_CREATE_FAILED)
+						QUEUE_flush(queueId1);
+					if(queueId2 != QUEUE_CREATE_FAILED)
+						QUEUE_flush(queueId2);
 					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				}
 				break;
 
 			case ACT_PLIER_OPEN:
-				queueId = QUEUE_create();
-				assert(queueId != QUEUE_CREATE_FAILED);
-				if(queueId != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plier);
-					QUEUE_add(queueId, &PLIER_run_command, (QUEUE_arg_t){msg->data[0], PLIER_CS_OpenLeftAX12,  &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_Plier);
-					QUEUE_add(queueId, &PLIER_run_command, (QUEUE_arg_t){msg->data[0], PLIER_CS_OpenRightAX12, &ACTQ_finish_SendResult}      , QUEUE_ACT_Plier);
-					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plier);
+				queueId1 = QUEUE_create();
+				queueId2 = QUEUE_create();
+				if(queueId1 != QUEUE_CREATE_FAILED && queueId2 != QUEUE_CREATE_FAILED) {
+					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierLeft);
+					QUEUE_add(queueId1, &PLIER_run_command, (QUEUE_arg_t){msg->data[0], PLIER_CS_OpenLeftAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_PlierLeft);
+					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierLeft);
+
+					QUEUE_add(queueId2, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierRight);
+					QUEUE_add(queueId2, &PLIER_run_command, (QUEUE_arg_t){msg->data[0], PLIER_CS_OpenRightAX12, &ACTQ_finish_SendResult}, QUEUE_ACT_PlierRight);
+					QUEUE_add(queueId2, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierRight);
 				} else {	//on indique qu'on a pas géré la commande
+					if(queueId1 != QUEUE_CREATE_FAILED)
+						QUEUE_flush(queueId1);
+					if(queueId2 != QUEUE_CREATE_FAILED)
+						QUEUE_flush(queueId2);
 					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				}
 				break;
@@ -118,7 +124,7 @@ void PLIER_run_command(queue_id_t queueId, bool_e init) {
 	static Uint8 currentAX12;
 	PLIER_command_state_e state = QUEUE_get_arg(queueId)->param;
 
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_Plier) {
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_PlierLeft || QUEUE_get_act(queueId) == QUEUE_ACT_PlierRight) {
 		if(QUEUE_has_error(queueId)) {
 			QUEUE_behead(queueId);
 			return;
