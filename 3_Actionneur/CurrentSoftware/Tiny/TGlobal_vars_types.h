@@ -22,7 +22,8 @@
 		QUEUE_ACT_LongHammer,
 		QUEUE_ACT_BallInflater,
 		QUEUE_ACT_CandleColor,
-		QUEUE_ACT_Plier,
+		QUEUE_ACT_PlierLeft,
+		QUEUE_ACT_PlierRight,
 		NB_ACT
 
 	} QUEUE_act_e;

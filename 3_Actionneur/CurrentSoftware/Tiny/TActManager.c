@@ -75,12 +75,15 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Hammer);
 
 			//Plier
-			//TODO: ajouter l'init de Plier quand il sera fonctionnel
-//			subQueue = QUEUE_create();
-//			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plier);
-//			QUEUE_add(subQueue, &PLIER_run_command, (QUEUE_arg_t){ACT_PLIER_CLOSE, PLIER_CS_CloseRightAX12, &ACTQ_finish_SendNothing}, QUEUE_ACT_Plier);
-//			QUEUE_add(subQueue, &PLIER_run_command, (QUEUE_arg_t){ACT_PLIER_CLOSE, PLIER_CS_CloseLeftAX12,  &ACTQ_finish_SendNothing}, QUEUE_ACT_Plier);
-//			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plier);
+			subQueue = QUEUE_create();
+			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierRight);
+			QUEUE_add(subQueue, &PLIER_run_command, (QUEUE_arg_t){ACT_PLIER_CLOSE, PLIER_CS_CloseRightAX12, &ACTQ_finish_SendNothing}, QUEUE_ACT_PlierRight);
+			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierRight);
+
+			subQueue = QUEUE_create();
+			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierLeft);
+			QUEUE_add(subQueue, &PLIER_run_command, (QUEUE_arg_t){ACT_PLIER_CLOSE, PLIER_CS_CloseLeftAX12,  &ACTQ_finish_SendNothing}, QUEUE_ACT_PlierLeft);
+			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_PlierLeft);
 
 			QUEUE_behead(queueId);
 
