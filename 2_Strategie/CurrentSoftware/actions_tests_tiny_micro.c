@@ -35,8 +35,95 @@
 
 #define ALL_CASES_Y	(COLOR_Y(2820))
 
-#define RCVA_X		600
-#define RCVA_Y		COLOR_Y(2800)
+
+/*  --------------POSITION DES VERRES ENNEMIS------------------------*/
+#define r3ea_x 1000
+#define r3ea_y 370 
+// 1000 370 + 600 200
+
+#define projet_&_tech_x  990
+#define projet_&_tech_y  370
+//990 370
+
+#define pm_robotic_x	1000 
+#define pm_robotic_y	230
+//1000 230
+
+#define	space_crakers_x 250
+#define	space_crakers_y  200
+// 250 200 + 1350 190
+
+#define telecom_robotics_x 600 
+#define telecom_robotics_y 200
+//600 200
+
+#define crap_x  790 
+#define crap_y 370
+//790 370
+
+#define mine_de_douai_x  600
+#define mine_de_douai_y 190
+//600 190
+
+#define unive_angers_x 1200
+#define unive_angers_y  270
+//1200 270 + 1200 160 
+
+#define rcva_x  1100
+#define rcva_y 150
+//1100 150
+
+#define colors_team_x  1000
+#define colors_team_y  320
+//1000 320
+
+#define uart_x  1000
+#define uart_y 150
+// 1000 150 + 1400 150
+
+#define ensim_elec_x 1000
+#define ensim_elec_y  130
+//1000 130
+
+#define oleg_x 700
+#define oleg_y  170
+// 700 170
+
+#define supeaero_x 1200
+#define supeaero_y 140
+// 1200 140
+
+#define insa_toulouse
+#define insa_toulouse
+
+#define apbteam
+#define apbteam
+
+#define sudriabotik
+#define sudriabotik
+
+#define oufteam
+#define oufteam
+
+#define cybernetique_en_nord
+#define cybernetique_en_nord
+
+#define robotic_system
+#define robotic_system
+
+#define comet
+#define comet
+
+#define bh_team
+#define bh_team
+
+#define linuxteam
+#define linuxteam
+
+#define rir_robotique
+#define rir_robotique
+
+/*-----------------------------------------------------------*/
 
 
 #define GIRAFE_X	RCVA_X				//En mode custom, cette position est choisie
