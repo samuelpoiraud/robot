@@ -339,6 +339,7 @@ error_e K_STRAT_sub_cherries_alexis() {
 error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool_e immediate_fail) {
 	enum state_e {
 		MP_INIT,				//Initialise la machine à état
+		MP_DIRECT_GOTO,			//On va directement là ou on veut aller. Si on fail on passera par les points devant les assiettes
 		MP_WHERE_TO_GO_NEXT,	//Choisi ou aller pour atteindre la position voulue
 		MP_SWITCH_LINE,			//Change de ligne en restant sur la même position en X
 		MP_SWITCH_PLATE,	//Va à la position indiqué par current_plate et current_line
@@ -413,7 +414,17 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 
 //			STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: init: line %d, plate %d, goal_plate %d\n", current_line, current_plate, plate_goal);
 
-			state = MP_SWITCH_PLATE;
+			state = MP_DIRECT_GOTO;
+			break;
+
+		//On va directement là ou on veut aller. Si on fail on passera par les points devant les assiettes
+		case MP_DIRECT_GOTO:
+			if(line_goal == LP_Far)
+				state = try_going_multipoint((displacement_t[]){{{PLATE_real_pos_x(STRAT_PGA_Y, PLATE_INFOS[plate_goal].x), COLOR_Y(PLATE_INFOS[plate_goal].y_far)}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_DONE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
+			else
+				state = try_going_multipoint((displacement_t[]){{{PLATE_real_pos_x(STRAT_PGA_Y, PLATE_INFOS[plate_goal].x), COLOR_Y(PLATE_INFOS[plate_goal].y_near)}, FAST}}, 1,
+						ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT, MP_DONE, MP_WHERE_TO_GO_NEXT, MP_FAILED);
 			break;
 
 		//Choisi ou aller pour atteindre la position voulue
@@ -594,6 +605,11 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 		case MP_FAILED:
 			state = MP_INIT;
 			switch(last_state) {
+				//On a pas pu faire le chemin direct, on va reflechir un peu pour savoir ou passer
+				case MP_DIRECT_GOTO:
+					state = MP_WHERE_TO_GO_NEXT;
+					break;
+
 				//On a pas pu aller au point suivant ...
 				//On informe l'erreur et on continu la réflexion (MP_WHERE_TO_GO_NEXT)
 				case MP_SWITCH_LINE:
