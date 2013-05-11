@@ -649,9 +649,12 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		MB,
 		SB,
 		E_C,	//on peut pas utiliser EC (défini ds les libs microchip)
+		BC,
+		RC,
 		SC,
 		RUSH,
 		BLOW_ALL_CANDLES,
+		BLOW_PARTIAL_CANDLES,
 		SUBACTION_BLOW_CANDLES,
 		CANDLES_FAIL,
 		CANDLES_SUCCESS,
@@ -666,6 +669,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	static bool_e entrance = TRUE;
 	static bool_e goto_end = FALSE;
 	static bool_e all_candles_blown = FALSE;
+	static bool_e pt_EC = FALSE, pt_BC = FALSE, pt_RC = FALSE, pt_SC = FALSE;
 	static time32_t start_time = 0;
 
 	error_e sub_action;
@@ -675,6 +679,11 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		case INIT:		//Décision initiale de trajet
 			goto_end = FALSE;
 			start_time = global.env.match_time;
+			//get_partial_cake(&pt_EC, &pt_BC, &pt_RC, &pt_SC);
+			#warning "temporaire ->"
+			pt_EC = TRUE;
+			pt_SC = TRUE;
+
 			debug_printf("choix du point de départ vers le gateau : ");
 			//4 zones sont définies... en fonction de l'endroit où on est, on vise un point ou un autre...
 
@@ -773,14 +782,26 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 			else
 			{
-				if(from == E_C)
-					end_ok_state = MB;
-				else
-					end_ok_state = E_C;
 				if(from==EA)
 					failed_state = MA;
 				else //A priori, c'est que (from==EC ou MB)
 					failed_state = MB;
+
+				if(from == E_C || from == BC)
+					end_ok_state = MB;
+				else
+				{
+					if(pt_BC)
+						end_ok_state = BC;
+					else if(pt_EC)
+						end_ok_state = E_C;
+					else
+					{
+						failed_state = EB;	//allers-retours .. on doit de toute facon aller en MB... ! car le quart du gateau manquant est coté safe.
+						end_ok_state = MB;
+					}
+				}
+				
 			}
 
 			//										in_progress		success			failed
@@ -800,10 +821,22 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			}
 			else
 			{
-				if(from==SB)
-					end_ok_state = EB;
+				if(from == SB || from == MB)
+				{
+					if(pt_BC)
+						end_ok_state = BC;
+					else
+						end_ok_state = EB;
+				}
 				else
-					end_ok_state = SB;
+				{
+					if(pt_BC)
+						end_ok_state = BC;
+					else if(pt_RC)
+						end_ok_state = RC;
+					else
+						end_ok_state = SB;
+				}
 				if(from==MA)
 					failed_state = EA;
 				else //A priori, c'est que (from==SAFE_TERRITORY_CAKE_PART)
@@ -840,25 +873,54 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 		break;
 		//Approche du gateau
 		case E_C:
-				state=try_going(1830,COLOR_Y(2115), E_C,			BLOW_ALL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			state=try_going(1830,COLOR_Y(2115), E_C,			(pt_EC && pt_SC)?BLOW_ALL_CANDLES:BLOW_PARTIAL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 
 			if(state != E_C)
 				from = E_C;
 
 		break;
+		case BC:
+			state=try_going(1453,COLOR_Y(1832), BC,			BLOW_PARTIAL_CANDLES,	EB,(global.env.color==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+
+			if(state != BC)
+				from = BC;
+		break;
+		case RC:
+			//									in_progress		success				failed
+			state=try_going(1453,COLOR_Y(1168),	RC,				BLOW_PARTIAL_CANDLES,	MB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			//state=try_going(1916,COLOR_Y(865),	SC,				BLOW_ALL_CANDLES,	SB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			if(state != RC)
+				from = RC;
+		break;
 
 		case SC:
 			//									in_progress		success				failed
-			state=try_going(1830,COLOR_Y(885),	SC,				BLOW_ALL_CANDLES,	SB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			state=try_going(1830,COLOR_Y(885),	SC,				(pt_EC && pt_SC)?BLOW_ALL_CANDLES:BLOW_PARTIAL_CANDLES,	SB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 			//state=try_going(1916,COLOR_Y(865),	SC,				BLOW_ALL_CANDLES,	SB,(global.env.color==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 			if(state != SC)
 				from = SC;
 		break;
 
+
 		case BLOW_ALL_CANDLES:
 			state = SUBACTION_BLOW_CANDLES;
 		break;
+		case BLOW_PARTIAL_CANDLES:
+			// argument :
+			/*Uint8 point;
 
+			if(from == E_C)
+				point = POINT_EC;
+			else if(from == BC)
+				point = POINT_BC;
+			else if(from == RC)
+				point = POINT_RC;
+			else
+				point = POINT_SC;
+			blow_partial_candle(point);
+			 */
+
+		break;
 
 		case SUBACTION_BLOW_CANDLES:					//Souffler bougies
 			sub_action = TINY_warner_blow_all_candles();
@@ -919,6 +981,17 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	{
 		switch(state)
 		{
+			case EA:
+			case MA:
+			case EB:
+			case MB:
+				if(goto_end == FALSE && ((global.env.match_time - start_time) > 15000))
+				{
+					ret = NOT_HANDLED;
+					state = INIT;
+					debug_printf("CAKE TIMEOUT\n");
+				}
+			break;
 			case INIT:
 			case SUBACTION_BLOW_CANDLES:
 			case E_C:
@@ -926,15 +999,9 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			case SB:
 			case RUSH:
 				//Hors de question de partir en timeout sur ces points... c'est vital pour la suite.
-			break;
 			default:
 				//Je viens de changer d'ordre... c'est le moment de vérifier qu'on est pas en timeout de gateau.
-				if(goto_end == FALSE && ((global.env.match_time - start_time) > 15000))
-				{
-					ret = NOT_HANDLED;
-					state = INIT;
-					debug_printf("CAKE TIMEOUT\n");
-				}
+				
 			break;
 		}
 	}
@@ -954,8 +1021,11 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			case MB:						debug_printf("MB");						break;
 			case SB:						debug_printf("SB");						break;
 			case E_C:						debug_printf("EC");						break;
+			case BC:						debug_printf("BC");						break;
+			case RC:						debug_printf("RC");						break;
 			case SC:						debug_printf("SC");						break;
 			case BLOW_ALL_CANDLES:			debug_printf("BLOW_ALL_CANDLES");		break;
+			case BLOW_PARTIAL_CANDLES:		debug_printf("BLOW_PARTIAL_CANDLES");	break;
 			case SUBACTION_BLOW_CANDLES:	debug_printf("SUBACTION_BLOW_CANDLES");	break;
 			case CANDLES_FAIL:				debug_printf("CANDLES_FAIL");			break;
 			case CANDLES_SUCCESS:			debug_printf("CANDLES_SUCCESS");		break;
