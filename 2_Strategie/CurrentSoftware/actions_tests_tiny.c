@@ -132,7 +132,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			//ASSER_dump_stack ();
 			if(previous_subaction == PROTECT_GLASSES)
 			{
-				if(all_gifts_done() && all_candles_done && moisson_done)	//SI ON A MIS TOUT NOS POINTS... ON RESTE ICI (la moisson compte, pas le scan)
+				if(all_gifts_done() && all_candles_done && moisson_done && we_are_protecting_our_glasses)	//SI ON A MIS TOUT NOS POINTS... ON RESTE ICI (la moisson compte, pas le scan)
 					we_do_not_want_to_move_anymore = TRUE;
 			}
 
@@ -140,8 +140,6 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			//les décisions sont dans l'ordre de la plus prioritaire à la moins prioritaire...
 			if(all_gifts_done() == FALSE && previous_subaction != SUBACTION_OPEN_2_OR_4_GIFTS && previous_subaction != SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS)
 				state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
-			else if(SWITCH_STRAT_3 == 1 && /*!steal_done &&*/ previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
-				state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment d'aller (re)faire un scan
 			else if(!all_candles_done && previous_subaction != SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES && previous_subaction != SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES)
 			{
 				if(TINY_forgotten_candles_left_extremity() == 0 && TINY_forgotten_candles_right_extremity() == 11)
@@ -149,12 +147,12 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				else
 					state = SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES;	//On va REFAIRE le gateau
 			}
-			else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON)
+			else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON && moisson_done == FALSE)
 				state = SUBACTION_MOISSON;
 			else if(SWITCH_STRAT_3 == 1 && /*!steal_done &&*/ previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
 				state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment d'aller (re)faire un scan
-			//else if(we_are_protecting_our_glasses == FALSE && we_cant_protect_our_glasses != TRUE)	//On est pas déjà en train de protéger les verres
-			//	state = PROTECT_GLASSES;
+			else if(we_are_protecting_our_glasses == FALSE && we_cant_protect_our_glasses != TRUE)	//On est pas déjà en train de protéger les verres
+				state = PROTECT_GLASSES;
 			else if(we_do_not_want_to_move_anymore == FALSE)
 				state = WAIT_UNTIL_60SEC;
 			else

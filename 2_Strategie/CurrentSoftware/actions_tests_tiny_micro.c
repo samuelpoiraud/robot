@@ -1304,7 +1304,7 @@ error_e TINY_rush()
 
 #define BCL_EB_BP 3
 
-error_e STRAT_TINY_test_moisson_micro(void){
+/*error_e STRAT_TINY_test_moisson_micro(void){
 
 	typedef enum{
 		GO_INIT = 0,
@@ -1320,13 +1320,9 @@ error_e STRAT_TINY_test_moisson_micro(void){
 		CLOSE_ACT_FAIL
 
 	}state_e;
-	/*
-	END_OK=0,
-		IN_PROGRESS,
-		END_WITH_TIMEOUT,
-		NOT_HANDLED,
-		FOE_IN_PATH
-	 */
+	
+	
+	 
 	error_e ret = IN_PROGRESS;
 	static state_e state = GO_INIT;
 	static state_e previousState = GO_INIT;
@@ -1435,6 +1431,162 @@ error_e STRAT_TINY_test_moisson_micro(void){
 	return ret;
 
 }
+*/
+
+
+error_e STRAT_TINY_test_moisson_micro(void){
+
+	typedef enum{
+		GO_INIT = 0,
+		GO_HOME,
+		EB,
+		BP,
+		MA,
+		HB,
+		MOVE_FAILED,
+		POSE_DONE,
+		DONE,
+		FAIL_CASE,
+		CLOSE_ACT_FAIL
+
+	}state_e;
+	/*
+	END_OK=0,
+		IN_PROGRESS,
+		END_WITH_TIMEOUT,
+		NOT_HANDLED,
+		FOE_IN_PATH
+	 */
+	error_e ret = IN_PROGRESS;
+	static state_e state = GO_INIT;
+	static state_e previousState = GO_INIT;
+	static state_e from = GO_INIT;
+	static Uint8 count = 0;
+
+	static bool_e entrance = TRUE;
+	error_e success_state;
+	error_e fail_state;
+
+	way_e way;
+
+
+	switch(state){
+		case GO_INIT:
+			count = 0;
+			state = EB;
+			previousState = GO_INIT;
+			from = EB;
+			break;
+		case EB:
+
+			//EB							  in_progress	success	failed
+			success_state = MA;
+			fail_state = HB;
+			state = try_going(1380, COLOR_Y(2135), EB,success_state,fail_state,BACKWARD,NO_DODGE_AND_WAIT);
+			if(state != EB)
+				from = EB;
+			break;
+
+		case BP:
+			//BP
+			success_state = MA;
+			fail_state = DONE;
+			if(from == MA)
+				way = BACKWARD;
+			else
+				way = FORWARD;
+			state = try_going(870, COLOR_Y(1800), BP,success_state,fail_state,way,NO_DODGE_AND_WAIT);
+			if(state != BP)
+				from = BP;
+			break;
+
+		case MA:
+			//MA
+			if(entrance)
+				ACT_plier_open();
+			success_state = GO_HOME;
+			if(from == EB)
+				fail_state = FAIL_CASE;
+			else
+				fail_state = BP;
+				state = try_going(360, COLOR_Y(1500), MA, success_state, fail_state, FORWARD,NO_DODGE_AND_WAIT);
+				if(state != MA)
+				from = MA;
+			break;
+
+		case HB:
+			//HB
+			//on peu metre un count ici
+			if(from == MA){//interet?
+				success_state = DONE;
+				fail_state = HB;
+				way = BACKWARD;
+			}else if(from == GO_HOME){
+				success_state = DONE;
+				fail_state = MA;
+				way = BACKWARD;
+			}else{
+				if(from == EB)
+					way = FORWARD;
+				else
+					way = BACKWARD;
+				success_state = BP;
+				fail_state = DONE;
+			}
+			state = try_going(1300, COLOR_Y(1600), HB, success_state, fail_state,way,NO_DODGE_AND_WAIT);
+			if(state != HB)
+				from = HB;
+			break;
+
+		case GO_HOME:
+			success_state = POSE_DONE;
+			if(from == MA)
+				fail_state = FAIL_CASE;
+			else
+				fail_state = POSE_DONE;
+			state = try_going(300, COLOR_Y(450), GO_HOME,success_state, fail_state,ANY_WAY,NO_DODGE_AND_WAIT);
+			if(state != GO_HOME)
+				from = GO_HOME;
+			break;
+
+		case POSE_DONE:
+			success_state = DONE;
+			fail_state = GO_HOME;
+			state = try_going(300, COLOR_Y(1100),POSE_DONE,success_state, fail_state,ANY_WAY,NO_DODGE_AND_WAIT);
+			if(state != POSE_DONE)
+				from = POSE_DONE;
+			break;
+
+		case DONE:
+			state = GO_INIT;
+			ret = END_OK;
+			ACT_plier_close();
+			break;
+
+		case FAIL_CASE:
+			success_state = CLOSE_ACT_FAIL;
+			fail_state = CLOSE_ACT_FAIL;
+			state = try_relative_move(50,SLOW,BACKWARD,END_AT_LAST_POINT,FAIL_CASE,success_state, fail_state);
+			break;
+
+		case CLOSE_ACT_FAIL:
+			state = GO_INIT;
+			ret = NOT_HANDLED;
+			ACT_plier_close();
+			break;
+
+		default:
+			state = GO_INIT;
+			ret = NOT_HANDLED;
+			break;
+	}
+
+	
+	entrance = (previousState == state)?FALSE:TRUE;
+	previousState = state;
+	return ret;
+
+}
 
 
 
@@ -1454,7 +1606,7 @@ error_e TINY_protect_glasses(void)
 	switch(state)
 	{
 		case INIT:		//Décision initiale de trajet
-
+			bouclier_on = FALSE;
 			state = GA;
 			
 
@@ -1468,7 +1620,7 @@ error_e TINY_protect_glasses(void)
 
 		case BOUCLIER:
 			bouclier_on = TRUE;
-			state = try_going(((global.env.color==BLUE)?660:700),((global.env.color==BLUE)?2600:450), BOUCLIER,END_STATE,END_STATE,FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(350,COLOR_Y(450), BOUCLIER,END_STATE,END_STATE,FORWARD, NO_DODGE_AND_WAIT);
 		break;
 
 
