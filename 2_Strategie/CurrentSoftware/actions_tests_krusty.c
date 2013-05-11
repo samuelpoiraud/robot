@@ -565,9 +565,6 @@ void TEST_STRAT_ALEXIS() {
 
 //////
 //TODO:
-//Lancé gateau Ok
-//Ne prend pas les cerises et va direct lacher les "verres" a la dernière case
-//Assiette Ok
 //Bizarre fin de match tôt
 //Evitement: tourne dans la case, a voir c'est dangereux avec le buffet
 //////
@@ -635,7 +632,6 @@ void TEST_STRAT_ALEXIS_FINALE() {
 			//TODO ne pas faire tout des verres
 			#warning "Test voir commentaire"
 			sub_action = K_STRAT_sub_glasses_alexis(FALSE, FALSE);
-			sub_action = END_OK;
 			state = check_sub_action_result(sub_action, DO_GLASSES, GOTO_PLATE, GOTO_PLATE);	//Dans tous les cas on fait la suite ...
 			break;
 
