@@ -1313,8 +1313,11 @@ error_e STRAT_TINY_test_moisson_micro(void){
 		BP,
 		MA,
 		HB,
+		MOVE_FAILED,
 		POSE_DONE,
-		DONE
+		DONE,
+		FAIL_CASE,
+		CLOSE_ACT_FAIL
 
 	}state_e;
 	/*
@@ -1324,10 +1327,16 @@ error_e STRAT_TINY_test_moisson_micro(void){
 		NOT_HANDLED,
 		FOE_IN_PATH
 	 */
-	error_e ret = NOT_HANDLED;
+	error_e ret = IN_PROGRESS;
 	static state_e state = GO_INIT;
 	static state_e previousState = GO_INIT;
 	static Uint8 count = 0;
+
+	bool_e entrance = (previousState == state)?FALSE:TRUE;
+	error_e success_state;
+	error_e fail_state;
+	way_e way;
+
 
 	switch(state){
 		case GO_INIT:
@@ -1335,74 +1344,94 @@ error_e STRAT_TINY_test_moisson_micro(void){
 			state = EB;
 			previousState = GO_INIT;
 			
-			ret = IN_PROGRESS;
 			break;
 		case EB:
 
-			//EB
-	        //								  in_progress	success	failed
-			ACT_plier_open();
-			state = try_going(1380, COLOR_Y(2135), EB,MA,HB,BACKWARD,NO_DODGE_AND_WAIT);
-			if(state != EB){
-				previousState = EB;
-			}
-			ret = IN_PROGRESS;
+			//EB							  in_progress	success	failed
+			success_state = MA;
+			fail_state = HB;
+			state = try_going(1380, COLOR_Y(2135), EB,success_state,fail_state,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
+
 		case BP:
 			//BP
-				state = try_going(870, COLOR_Y(1800), BP,MA,DONE,FORWARD,NO_DODGE_AND_WAIT);
-			if(state != BP){
-				previousState = BP;
-			}
-			ret = IN_PROGRESS;
+			success_state = MA;
+			fail_state = DONE;
+			if(previousState == MA)
+				way = BACKWARD;
+			else
+				way = FORWARD;
+			state = try_going(870, COLOR_Y(1800), BP,success_state,fail_state,way,NO_DODGE_AND_WAIT);
 			break;
+
 		case MA:
 			//MA
-				state = try_going(360, COLOR_Y(1500), MA, GO_HOME, BP,FORWARD,NO_DODGE_AND_WAIT);
-			
-			if(state != MA){
-				previousState = MA;
-			}
-			ret = IN_PROGRESS;
+			if(entrance)
+				ACT_plier_open();
+			success_state = GO_HOME;
+			fail_state = BP;
+				state = try_going(360, COLOR_Y(1500), MA, success_state, fail_state, FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case HB:
 			//HB
 			//on peu metre un count ici
-			if(previousState == MA){
-				state = try_going(1300, COLOR_Y(1600), HB,DONE,HB,BACKWARD,NO_DODGE_AND_WAIT);
+			if(previousState == MA){//interet?
+				success_state = DONE;
+				fail_state = HB;
+				way = BACKWARD;
 			}else if(previousState == GO_HOME){
-				state = try_going(1300, COLOR_Y(1600), HB,DONE,MA,BACKWARD,NO_DODGE_AND_WAIT);
+				success_state = DONE;
+				fail_state = MA;
+				way = BACKWARD;
 			}else{
-				state = try_going(1300, COLOR_Y(1600), HB, BP,DONE,BACKWARD,NO_DODGE_AND_WAIT);
+				if(previousState == EB)
+					way = FORWARD;
+				else
+					way = BACKWARD;
+				success_state = BP;
+				fail_state = DONE;
 			}
-			if(state != HB){
-				previousState = HB;
-			}
-			ret = IN_PROGRESS;
+			state = try_going(1300, COLOR_Y(1600), HB, success_state, fail_state,way,NO_DODGE_AND_WAIT);
 			break;
+
 		case GO_HOME:
-			state = try_going(300, COLOR_Y(450), GO_HOME,POSE_DONE,HB,FORWARD,NO_DODGE_AND_WAIT);
-			if(state != GO_HOME){
-				previousState = GO_HOME;
-			}
-			ret = IN_PROGRESS;
+			success_state = POSE_DONE;
+			fail_state = HB;
+			state = try_going(300, COLOR_Y(450), GO_HOME,success_state, fail_state,FORWARD,NO_DODGE_AND_WAIT);
 			break;
+
 		case POSE_DONE:
-			state = try_going(300, COLOR_Y(1100),POSE_DONE,DONE,HB,BACKWARD,NO_DODGE_AND_WAIT);
-			if(state != POSE_DONE){
-				previousState = POSE_DONE;
-			}
-			ret = IN_PROGRESS;
+			success_state = DONE;
+			fail_state = HB;
+			state = try_going(300, COLOR_Y(1100),POSE_DONE,success_state, fail_state,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
+
 		case DONE:
+			state = GO_INIT;
 			ret = END_OK;
 			ACT_plier_close();
 			break;
-		default:
 
+		case FAIL_CASE:
+			success_state = CLOSE_ACT_FAIL;
+			fail_state = CLOSE_ACT_FAIL;
+			state = try_relative_move(50,SLOW,BACKWARD,END_AT_LAST_POINT,FAIL_CASE,success_state, fail_state);
+			break;
+
+		case CLOSE_ACT_FAIL:
+			state = GO_INIT;
+			ret = END_WITH_TIMEOUT;
+			ACT_plier_close();
+			break;
+
+		default:
+			state = GO_INIT;
+			ret = NOT_HANDLED;
 			break;
 	}
+
+	previousState = state;
 	return ret;
 
 }
