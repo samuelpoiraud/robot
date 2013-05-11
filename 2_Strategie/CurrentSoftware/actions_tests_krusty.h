@@ -26,6 +26,7 @@ error_e Assiete_5_lanceur(void);
 void K_test_strat_unitaire(void);
 
 void TEST_STRAT_ALEXIS();
+void TEST_STRAT_ALEXIS_FINALE();
 
 void TEST_STRAT_K_homologation(void);
 void K_TEST_STRAT_avoidance(void);
