@@ -800,6 +800,27 @@ Uint8 try_going_slow(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state,
 	}
 }
 
+Uint8 try_going_slow_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
+{
+	error_e sub_action;
+	sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},SLOW}},1,way,avoidance);
+	switch(sub_action){
+		case IN_PROGRESS:
+			return in_progress;
+			break;
+		case FOE_IN_PATH:
+		case NOT_HANDLED:
+			return fail_state;
+			break;
+		case END_OK:
+		case END_WITH_TIMEOUT:
+		default:
+			return success_state;
+			break;
+	}
+}
+
+
 //Action qui gere un déplacement et renvoi le state rentré en arg. Cette fonction permet le multipoint.
 Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition, Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 {

@@ -55,9 +55,9 @@ error_e TINY_open_all_gifts_without_pause(void)
 				avoidance = NO_DODGE_AND_WAIT;	//Activation de l'évitement à partir du franchissement du second cadeau
 
 			if(SWITCH_STRAT_2)	//2 cadeaux
-				sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(1400)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+				sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{170,COLOR_Y(600)},90},{{170,COLOR_Y(1400)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			else	//4 cadeaux
-				sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{160,COLOR_Y(600)},90},{{160,COLOR_Y(2300)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
+				sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{170,COLOR_Y(600)},90},{{170,COLOR_Y(2300)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
             {
 				case END_OK:
