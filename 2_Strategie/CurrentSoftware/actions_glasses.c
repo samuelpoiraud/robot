@@ -604,14 +604,18 @@ error_e K_STRAT_micro_put_down_glasses(void){
 			break;
 
 		case GD_PUT_DOWN_GLASSES:
-			global.env.glasses_x_pos = global.env.pos.x;
-			//On ouvre l'ascenseur de gauche
-			ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
-			//On ouvre l'ascenseur de droite
-			ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierOpen);
+			if(entrance) {
+				global.env.glasses_x_pos = global.env.pos.x;
+				//On ouvre l'ascenseur de gauche
+				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
+				//On ouvre l'ascenseur de droite
+				ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierOpen);
+			}
 
-			current_state = GD_WAIT_ACT;
-			what_to_do_after_act = GD_EXTRACT_FROM_GLASSES;   //Après que les actionneurs auront fini leur mouvement, la micro_strat sera finie
+			if(global.env.color != BLUE) {
+				current_state = GD_WAIT_ACT;
+				what_to_do_after_act = GD_EXTRACT_FROM_GLASSES;   //Après que les actionneurs auront fini leur mouvement, la micro_strat sera finie
+			}
 			break;
 
 		case GD_EXTRACT_FROM_GLASSES:
@@ -640,13 +644,16 @@ error_e K_STRAT_micro_put_down_glasses(void){
 					break;
 					
 				//On a eu un probleme dans le déplacement peut etre collision Il est impératif de reitérer l'action
-				case GD_RELATIVE_MOVE:
-					if(COLOR_Y(global.env.pos.y) < 420) {
+				case GD_RELATIVE_MOVE: {
+					static bool_e already_failed_relative = FALSE;
+					if(COLOR_Y(global.env.pos.y) < 420 && already_failed_relative == FALSE) {
+						already_failed_relative = TRUE;
 						current_state = GD_RECOVER_MOVE;
 					} else {
 						return_value = NOT_HANDLED;
 					}
 					break;
+				}
 
 				case GD_RECOVER_MOVE:
 					#warning "Eitement  / erreur pas géré pour le relative move 5cm"
