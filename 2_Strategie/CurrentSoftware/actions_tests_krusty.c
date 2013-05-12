@@ -621,7 +621,9 @@ void TEST_STRAT_ALEXIS_FINALE() {
 
 	switch(state) {
 		case INIT:
-			current_plate = 4;
+			if(global.env.color == BLUE)
+				current_plate = 2;
+			else current_plate = 4;
 			glasses_droped = FALSE;
 			state = EXTRACT;
 			global.env.must_drop_glasses_at_end = TRUE;

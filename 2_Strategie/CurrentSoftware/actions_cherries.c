@@ -32,7 +32,7 @@ static const Sint16 PLATE_Y_POS = 205;	//Position en Y des assiettes
 //La pince à assiette n'est pas symétrique ni centrée sur le robot, on doit avoir un offset en X pour que la pince ne tappe pas l'assiette alors qu'elle est ouverte
 static const Sint16 PLATE_OFFSET_X_ROBOT = -10;
 //Décalage dans le cas de l'assiette coté bleu - gateau. Avec l'offset normal on taperait dans le buffet. L'offset est quand même celui qu'on aurait du coté rouge, pour un souci d'avoir un code partout pareil
-static const Sint16 PLATE_OFFSET_X_ROBOT_FAR_CORNER = -12;
+static const Sint16 PLATE_OFFSET_X_ROBOT_FAR_CORNER = -5;
 static const Sint16 ROBOT_X_POS_EPSILON = 10;	//Si on est pas à moins de 10mm = 1cm près de la bonne position, on bouge le robot
 
 static void PLATE_get_nearest_point(Sint16 x, Sint16 y, Uint8* nearest_plate, line_pos_t* nearest_line);
@@ -981,6 +981,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 				//On annule et repasse à l'état GP_PULL_OUT et on se barre (en gros on fait le cas normal)
 				case GP_TAKING_CHERRIES:
 				case GP_CATCH_PLATE:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					state = GP_PULL_OUT;
 					break;
 
