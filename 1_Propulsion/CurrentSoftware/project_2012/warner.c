@@ -17,7 +17,7 @@
 #include "calculator.h"
 #include "copilot.h"
 #include "pilot.h"
-
+#include <timer.h>
 /*
 L'avertisseur est une sorte de klaxon très utile pour certaines actions de match....
 
@@ -96,6 +96,7 @@ volatile static bool_e flag_calibration = FALSE;
 //cette fonction sert à avertir, en envoyant des messages CAN de position si nécessaire
 void WARNER_process_main(void)
 {
+	Uint16 warnings_local;
 	if(flag_arrived)
 	{
 		flag_arrived = FALSE;
@@ -123,8 +124,11 @@ void WARNER_process_main(void)
 
 	if(warnings != WARNING_NO)
 	{
-			SECRETARY_process_send(BROADCAST_POSITION_ROBOT,(Uint8)(warnings & 0xFF), error_source);
-			warnings = WARNING_NO; 	//WORK DONE !!!
+		DisableIntT1;
+			warnings_local = warnings;
+			warnings = WARNING_NO;
+		DisableIntT1;
+		SECRETARY_process_send(BROADCAST_POSITION_ROBOT,(Uint8)(warnings_local & 0xFF), error_source);
 	}
 	#ifdef MODE_REGLAGE_KV
 		CORRECTOR_mode_reglage_kv();
