@@ -22,8 +22,8 @@
 
 //CONFIG DU MODE DE STEAL
 
-	#define STEAL_MODE_WITH_SCAN
-	//#define STEAL_CUSTOM
+	//#define STEAL_MODE_WITH_SCAN
+	#define STEAL_CUSTOM
 
 		#define BUFFET_GIFT	210
 		#define CASE_0_X	250
@@ -113,7 +113,7 @@
 /*-----------------------------------------------------------*/
 //REGLAGE DES POSITIONS DE LA TOUR A VOLER
 
-#define GIRAFE_X	BUFFET_GIFT	//En mode custom, cette position est choisie
+#define GIRAFE_X	CASE_1_X	//En mode custom, cette position est choisie
 #define GIRAFE_Y	COLOR_Y(3000-ALL_CASES_Y)	//De la forme : COLOR_Y(3000-le_define)
 
 /* ----------------------------------------------------------------------------- */
