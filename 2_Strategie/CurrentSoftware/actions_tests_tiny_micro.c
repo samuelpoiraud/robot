@@ -22,8 +22,8 @@
 
 //CONFIG DU MODE DE STEAL
 
-	//#define STEAL_MODE_WITH_SCAN
-	#define STEAL_CUSTOM
+	#define STEAL_MODE_WITH_SCAN
+	//#define STEAL_CUSTOM
 
 		#define BUFFET_GIFT	210
 		#define CASE_0_X	250
@@ -506,8 +506,8 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 				else //(from == TC ou TA)
 					state = SUCCESS;
 
-				if(adversary_is_in_zone)
-					state = FAIL;
+				//if(adversary_is_in_zone)
+				//	state = FAIL;
 			}
 		break;
 		case SUBACTION_STEAL:
@@ -767,7 +767,103 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 	return ret;
 }
 
+error_e STRAT_TINY_move_adversary_plates_near_bar(bool_e reset)
+{
+	typedef enum
+    {
+        INIT = 0,
+		GOTO_MIDDLE,
+		ENTER_BETWEEN_TWO_PLATES,
+		FIRST_BAR,
+		SECOND_BAR,		//I'm drunk now
+		SMALL_BACK,
+		GOING_OUT,
+		FAIL,
+		DONE
+    }state_e;
+	static bool_e failed = FALSE;
+    static state_e state = INIT;
+    static state_e previous_state = INIT-1;
+    static state_e from_state = INIT;
+    bool_e entrance = FALSE;
+	error_e ret;
 
+    if(reset == TRUE)
+    {
+        state = INIT;
+        previous_state = INIT;
+         from_state = INIT;
+        entrance = TRUE;
+    }
+    else if(state != previous_state)
+    {
+        entrance = TRUE;
+        from_state = previous_state;
+    }
+    previous_state = state;
+	ret = IN_PROGRESS;
+
+	if(entrance)
+	{
+		debug_printf("Plates ->");
+		switch(state)
+		{
+			case INIT:						debug_printf("INIT");					break;
+			case GOTO_MIDDLE:						debug_printf("GOTO_MIDDLE");						break;
+			case ENTER_BETWEEN_TWO_PLATES:						debug_printf("ENTER_BETWEEN_TWO_PLATES");						break;
+			case FIRST_BAR:						debug_printf("FIRST_BAR");						break;
+			case SECOND_BAR:						debug_printf("SECOND_BAR");						break;
+			case SMALL_BACK:						debug_printf("SMALL_BACK");						break;
+			case GOING_OUT:						debug_printf("GOING_OUT");						break;
+			case FAIL:						debug_printf("FAIL");					break;
+			case DONE:					debug_printf("DONE");				break;
+			default:						debug_printf("???");					break;
+		}
+		debug_printf("\n");
+	}
+
+    switch(state)
+    {
+        case INIT:
+			failed = FALSE;
+			state = GOTO_MIDDLE;
+        break;
+		case GOTO_MIDDLE:
+			state = try_going(1200, COLOR_Y(2550),	GOTO_MIDDLE,				ENTER_BETWEEN_TWO_PLATES,			FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
+        break;
+		case ENTER_BETWEEN_TWO_PLATES:
+			state = try_going(1200, COLOR_Y(2850),	ENTER_BETWEEN_TWO_PLATES,				FIRST_BAR,			FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
+        break;
+		case FIRST_BAR:
+			state = try_going(380, COLOR_Y(2800),	FIRST_BAR,				SECOND_BAR,			FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
+        break;
+		case SECOND_BAR:
+			state = try_going(1450, COLOR_Y(2800),	SECOND_BAR,				SMALL_BACK,			FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
+        break;
+		case SMALL_BACK:
+			state = try_going_until_break(1250, COLOR_Y(2800),	SMALL_BACK,				GOING_OUT,			FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
+        break;
+		case GOING_OUT:
+			state = try_going_until_break(1200, COLOR_Y(2550),	GOING_OUT,				DONE,			FAIL,		ANY_WAY, NO_DODGE_AND_WAIT);
+		break;
+		case FAIL:
+			state = GOING_OUT;
+			failed = TRUE;
+		break;
+		case DONE:
+			if(failed)
+				ret = NOT_HANDLED;
+			else
+				ret = END_OK;
+		break;
+		default:
+		break;
+    }
+	if(ret!=IN_PROGRESS)
+		state = INIT;
+
+	return ret;
+}
 
 /*
 

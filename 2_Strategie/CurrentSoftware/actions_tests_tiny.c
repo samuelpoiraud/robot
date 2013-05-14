@@ -50,6 +50,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		TAKE_A_DECISION,
 				
 		//OTHERS SUBACTIONS
+		SUBACTION_MODE_ADVERSARY_PLATES,
 		SUBACTION_STEAL_ADVERSARY_GLASSES,
 		SUBACTION_MOISSON,
 		BP,
@@ -69,6 +70,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 	//Les variables en minuscule pour pas confondre avec des états et static pour garder la valeur entre plusieurs appel de la fonction (et donc entre plusieurs états)
 	static bool_e all_candles_done = FALSE;
+	static bool_e move_plates_done_or_tried = FALSE;
 	static bool_e moisson_done = FALSE;
 	static bool_e steal_done = FALSE;
 	static bool_e we_are_protecting_our_glasses = FALSE;
@@ -143,7 +145,9 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			if(all_gifts_done() == FALSE && previous_subaction != SUBACTION_OPEN_2_OR_4_GIFTS && previous_subaction != SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS)
 				state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 
-		
+			else if(SWITCH_LAST_POS == 1 && !move_plates_done_or_tried)
+				state = SUBACTION_MODE_ADVERSARY_PLATES;	//On va tenter de bouger les assiettes adverses.
+															//Mode activable en opposition de switch avec la moisson
 			//GATEAUX
 			else if(!all_candles_done && previous_subaction != SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES && previous_subaction != SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES)
 			{
@@ -158,12 +162,12 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				state = SUBACTION_MOISSON;
 
 			//STEAL
-			else if(SWITCH_STRAT_3 == 1 && /*!steal_done &&*/ previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES)
+			else if(SWITCH_STRAT_3 == 1 )//&& /*!steal_done &&*//* previous_subaction != SUBACTION_STEAL_ADVERSARY_GLASSES*/)
 				state = SUBACTION_STEAL_ADVERSARY_GLASSES;		//C'est le moment d'aller (re)faire un scan
 
 
-			else if(we_are_protecting_our_glasses == FALSE && we_cant_protect_our_glasses != TRUE)	//On est pas déjà en train de protéger les verres
-				state = PROTECT_GLASSES;
+			//else if(we_are_protecting_our_glasses == FALSE && we_cant_protect_our_glasses != TRUE)	//On est pas déjà en train de protéger les verres
+			//	state = PROTECT_GLASSES;
 			else if(we_do_not_want_to_move_anymore == FALSE)
 				state = WAIT_UNTIL_60SEC;
 			else
@@ -176,7 +180,26 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			//Et de faire des steal de temps en temps ...
 		break;
 
+		case SUBACTION_MODE_ADVERSARY_PLATES:
+			sub_action = STRAT_TINY_move_adversary_plates_near_bar(FALSE);
+			switch(sub_action)
+            {
+				case IN_PROGRESS:
+				break;
+				case END_OK:
+					//NO BREAK !!! c'est volontaire...
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+					move_plates_done_or_tried = TRUE;
+					state = TAKE_A_DECISION;
+				break;
 
+				break;
+				default:
+				break;
+            }
+		break;
 		case SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES:		//PREMIERE FOIS QUE L'ON FAIT LE GATEAU (ou bien on l'a déjà fait, mais sans souffler une seule bougie)
 			sub_action = STRAT_TINY_goto_cake_and_blow_candles();
 			switch(sub_action)
@@ -332,6 +355,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			case SUBACTION_STEAL_ADVERSARY_GLASSES:			debug_printf("steal_aversary_glasses\n");							break;
 			case SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES:		debug_printf("open_some_forgotten_candles\n");						break;
 			case SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS:		debug_printf("open_some_forgotten_gifts\n");						break;
+			case SUBACTION_MODE_ADVERSARY_PLATES:			debug_printf("SUBACTION_MODE_ADVERSARY_PLATES\n");				break;
 			case SUBACTION_MOISSON:							debug_printf("SUBACTION_MOISSON\n");								break;
 			case BP:										debug_printf("BP\n");												break;
 			case WAIT_UNTIL_60SEC:										debug_printf("Wait\n");									break;

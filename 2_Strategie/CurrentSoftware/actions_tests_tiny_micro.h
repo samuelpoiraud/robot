@@ -27,6 +27,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void);
 error_e TINY_rush();
 error_e STRAT_TINY_test_moisson_micro(void);
 error_e TINY_protect_glasses(void);
+error_e STRAT_TINY_move_adversary_plates_near_bar(bool_e reset);
 
 	typedef struct
 	{
