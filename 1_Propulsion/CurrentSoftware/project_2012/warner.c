@@ -127,7 +127,7 @@ void WARNER_process_main(void)
 		DisableIntT1;
 			warnings_local = warnings;
 			warnings = WARNING_NO;
-		DisableIntT1;
+		EnableIntT1;
 		SECRETARY_process_send(BROADCAST_POSITION_ROBOT,(Uint8)(warnings_local & 0xFF), error_source);
 	}
 	#ifdef MODE_REGLAGE_KV
