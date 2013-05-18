@@ -27,7 +27,7 @@ et seulement une fois dans le projet */
 	#error pas d horloge selectionnee
 #endif /* defined FREQ_xxMHZ */
 _FWDT(WDT_OFF) /* WatchDog off */
-_FBORPOR(PBOR_OFF & PWRT_16 & MCLR_EN) /* MCLR activé & demarrage retardé de 16ms */
+_FBORPOR(BORV_27 & PWRT_16 & MCLR_EN) /* MCLR activé & demarrage retardé de 16ms */
 _FGS(CODE_PROT_OFF) /* Disable code protection */
 
 __asm__(".global HEAPSIZE");
