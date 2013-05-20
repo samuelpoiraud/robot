@@ -57,7 +57,7 @@ void SPI_init(void)
 
 #ifdef USE_SPI1
 
-static Uint8 SPI1_exchange(Uint8 c)
+Uint8 SPI1_exchange(Uint8 c)
 {
 	while(SPI_I2S_GetFlagStatus(SPI1_SPI_HANDLE, SPI_I2S_FLAG_TXE) == RESET);
 
@@ -96,7 +96,7 @@ Uint8 SPI1_read()
 
 #ifdef USE_SPI2
 
-static Uint8 SPI2_exchange(Uint8 c)
+Uint8 SPI2_exchange(Uint8 c)
 {
 	while(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_TXE) == RESET);
 

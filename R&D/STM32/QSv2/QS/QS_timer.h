@@ -38,6 +38,8 @@
 	void TIMER1_run(Uint8 period /* en millisecondes */);
 	void TIMER1_run_us (Uint16 period /* en microsecondes */);
 	void TIMER1_stop(void);
+	void TIMER1_disableInt();
+	void TIMER1_enableInt();
 
 	/*	TIMER2 utilise l'interuption
 	 *	void _ISR _T2Interrupt()
@@ -46,6 +48,8 @@
 	void TIMER2_run(Uint8 period /* en millisecondes */);
 	void TIMER2_stop(void);
 	void TIMER2_run_us (Uint16 period /* en microsecondes */);
+	void TIMER2_disableInt();
+	void TIMER2_enableInt();
 
 	/*	TIMER3 utilise l'interuption
 	 *	void _ISR _T3Interrupt()
@@ -54,6 +58,8 @@
 	void TIMER3_run(Uint8 period /* en millisecondes */);
 	void TIMER3_stop(void);
 	void TIMER3_run_us (Uint16 period /* en microsecondes */);
+	void TIMER3_disableInt();
+	void TIMER3_enableInt();
 
 	/*	TIMER4 utilise l'interuption
 	 *	void _ISR _T4Interrupt()
@@ -62,6 +68,8 @@
 	void TIMER4_run(Uint8 period /* en millisecondes */);
 	void TIMER4_stop(void);
 	void TIMER4_run_us (Uint16 period /* en microsecondes */);
+	void TIMER4_disableInt();
+	void TIMER4_enableInt();
 
 	//Acuittement des IT timer
 	#define TIMER1_AckIT() TIM_ClearITPendingBit(TIM1, TIM_IT_Update)

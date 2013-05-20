@@ -279,15 +279,3 @@ void PORTS_spi_init() {
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
 }
-
-void PORTS_WritePin(GPIO_TypeDef* gpio_port, Uint8 bit, bool_e set_bit) {
-	if(set_bit) {
-		gpio_port->ODR |= ((Uint32)1) << bit;
-	} else {
-		gpio_port->ODR &= ~(((Uint32)1) << bit);
-	}
-}
-
-bool_e PORTS_ReadPin(GPIO_TypeDef* gpio_port, Uint8 bit) {
-	return (gpio_port->ODR >> bit) & 1;
-}

@@ -45,18 +45,17 @@
 	#define PI4096	12868
 
 //TODO: correspondance STM32
-	//Format: PortGPIO, numero_bit
-	#define LED_RUN  GPIOD, 12
-	#define LED_CAN  GPIOD, 13
-	#define LED_UART GPIOD, 14
-	#define LED_USER GPIOD, 15
-	#define LED_USER2 GPIOD, 15
-	#define LED_ERROR GPIOD, 15
+	#define LED_RUN  GPIOD->ODR12
+	#define LED_CAN  GPIOD->ODR13
+	#define LED_UART GPIOD->ODR14
+	#define LED_USER GPIOD->ODR15
+	#define LED_USER2 GPIOD->ODR15
+	#define LED_ERROR GPIOD->ODR15
 
 	// Boutons des cartes génériques (pull_up)
-	#define BUTTON1_PORT	GPIOC, 13
-	#define BUTTON2_PORT	GPIOG, 15
-	#define BUTTON3_PORT	GPIOA, 0
-	#define BUTTON4_PORT	GPIOC, 14
+	#define BUTTON1_PORT	GPIOC->ODR13
+	#define BUTTON2_PORT	GPIOG->ODR15
+	#define BUTTON3_PORT	GPIOA->ODR0
+	#define BUTTON4_PORT	GPIOC->ODR14
 
 #endif /* ndef QS_MACRO_H */

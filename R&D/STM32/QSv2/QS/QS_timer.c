@@ -99,68 +99,113 @@ void TIMER_init(void){
 	initialized = TRUE;
 }
 
+void TIMER_run(TIM_TypeDef* TIMx, Uint8 period /* en millisecondes */) {
+	TIM_PrescalerConfig(TIMx, TIMER_MS_PRESCALER, TIM_PSCReloadMode_Immediate);
+	TIM_SetAutoreload(TIMx,  ((Uint16)period) * TIMER_PULSE_PER_MS);
+	TIM_SetCounter(TIMx, 0);
+	TIM_Cmd(TIMx, ENABLE);
+}
+
+void TIMER_run_us(TIM_TypeDef* TIMx, Uint16 period /* en microsecondes */) {
+	TIM_PrescalerConfig(TIMx, TIMER_US_PRESCALER, TIM_PSCReloadMode_Immediate);
+	TIM_SetAutoreload(TIMx, period * TIMER_PULSE_PER_US);
+	TIM_SetCounter(TIMx, 0);
+	TIM_Cmd(TIMx, ENABLE);
+}
+
+void TIMER_stop(TIM_TypeDef* TIMx) {
+	TIM_Cmd(TIMx, DISABLE);
+}
+
+void TIMER_disableInt(TIM_TypeDef* TIMx) {
+	TIM_ITConfig(TIMx, TIM_IT_Update, DISABLE);
+}
+
+void TIMER_enableInt(TIM_TypeDef* TIMx) {
+	TIM_ITConfig(TIMx, TIM_IT_Update, ENABLE);
+}
+
+
+//Définitions par numéro de timer
+
 void TIMER1_run(Uint8 period /* en millisecondes */) {
-	TIM_PrescalerConfig(TIM11, TIMER_MS_PRESCALER, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIM11,  ((Uint16)period) * TIMER_PULSE_PER_MS);
-	TIM_Cmd(TIM11, ENABLE);
+	TIMER_run(TIM11, period);
 }
 
 void TIMER1_run_us (Uint16 period /* en microsecondes */) {
-	TIM_PrescalerConfig(TIM11, TIMER_US_PRESCALER, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIM11,  period * TIMER_PULSE_PER_US);
-	TIM_Cmd(TIM11, ENABLE);
+	TIMER_run_us(TIM11, period);
 }
 
 void TIMER1_stop(void) {
-	TIM_Cmd(TIM11, DISABLE);
+	TIMER_stop(TIM11);
+}
+
+void TIMER1_disableInt() {
+	TIMER_disableInt(TIM11);
+}
+
+void TIMER1_enableInt() {
+	TIMER_enableInt(TIM11);
 }
 
 void TIMER2_run(Uint8 period /* en millisecondes */) {
-	TIM_PrescalerConfig(TIM12, TIMER_MS_PRESCALER, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIM12,  ((Uint16)period) * TIMER_PULSE_PER_MS);
-	TIM_Cmd(TIM12, ENABLE);
+	TIMER_run(TIM12, period);
 }
 
 void TIMER2_run_us (Uint16 period /* en microsecondes */) {
-	TIM_PrescalerConfig(TIM12, TIMER_US_PRESCALER, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIM12,  period * TIMER_PULSE_PER_US);
-	TIM_Cmd(TIM12, ENABLE);
+	TIMER_run_us(TIM12, period);
 }
 
 void TIMER2_stop(void) {
-	TIM_Cmd(TIM12, DISABLE);
+	TIMER_stop(TIM12);
+}
+
+void TIMER2_disableInt() {
+	TIMER_disableInt(TIM12);
+}
+
+void TIMER2_enableInt() {
+	TIMER_enableInt(TIM12);
 }
 
 void TIMER3_run(Uint8 period /* en millisecondes */) {
-	TIM_PrescalerConfig(TIM13, TIMER_MS_PRESCALER, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIM13,  ((Uint16)period) * TIMER_PULSE_PER_MS);
-	TIM_Cmd(TIM13, ENABLE);
+	TIMER_run(TIM13, period);
 }
 
 void TIMER3_run_us (Uint16 period /* en microsecondes */) {
-	TIM_PrescalerConfig(TIM13, TIMER_US_PRESCALER, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIM13,  period * TIMER_PULSE_PER_US);
-	TIM_Cmd(TIM13, ENABLE);
+	TIMER_run_us(TIM13, period);
 }
 
 void TIMER3_stop(void) {
-	TIM_Cmd(TIM13, DISABLE);
+	TIMER_stop(TIM13);
+}
+
+void TIMER3_disableInt() {
+	TIMER_disableInt(TIM13);
+}
+
+void TIMER3_enableInt() {
+	TIMER_enableInt(TIM13);
 }
 
 void TIMER4_run(Uint8 period /* en millisecondes */) {
-	TIM_PrescalerConfig(TIM14, TIMER_MS_PRESCALER, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIM14,  ((Uint16)period) * TIMER_PULSE_PER_MS);
-	TIM_Cmd(TIM14, ENABLE);
+	TIMER_run(TIM14, period);
 }
 
 void TIMER4_run_us(Uint16 period /* en microsecondes */) {
-	TIM_PrescalerConfig(TIM14, TIMER_US_PRESCALER, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIM14,  period * TIMER_PULSE_PER_US);
-	TIM_Cmd(TIM14, ENABLE);
+	TIMER_run_us(TIM14, period);
 }
 
 void TIMER4_stop(void) {
-	TIM_Cmd(TIM14, DISABLE);
+	TIMER_stop(TIM14);
+}
+
+void TIMER4_disableInt() {
+	TIMER_disableInt(TIM14);
+}
+
+void TIMER4_enableInt() {
+	TIMER_enableInt(TIM14);
 }
 
 //Interrupts management and redirection

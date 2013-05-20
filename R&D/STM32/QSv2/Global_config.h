@@ -38,8 +38,6 @@
 	#define PORT_C_IO_MASK	0xFFFF
 	#define PORT_D_IO_MASK	0xC0FF
 	#define PORT_E_IO_MASK	0xFFFF
-	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFF3F
 	
 	/* Les instructions suivantes permettent de configurer certaines
 	 * entrees/sorties du pic pour realiser des fonctionnalites
@@ -88,6 +86,14 @@
 
 	#define USE_SERVO
 	#define SERVO_TIMER 4
+
+//	#define USE_STEP_MOTOR
+//	#define STEP_MOTOR_TIMER 3
+//	#define STEP_MOTOR_MS_PER_STEP 5
+//	#define STEP_MOTOR1 GPIOE->ODR0
+//	#define STEP_MOTOR2 GPIOE->ODR1
+//	#define STEP_MOTOR3 GPIOE->ODR2
+//	#define STEP_MOTOR4 GPIOE->ODR3
 
 #define USE_SPI
 #define USE_SPI2

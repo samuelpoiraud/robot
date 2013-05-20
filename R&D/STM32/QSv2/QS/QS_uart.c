@@ -131,8 +131,7 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 
 				while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE))
 				{
-					//TODO: reactiver LED uart
-					//LED_UART=!LED_UART;
+					LED_UART=!LED_UART;
 					*(receiveddata++) = USART_ReceiveData(USART1);
 					m_u1rxnum++;
 					m_u1rx =1;
