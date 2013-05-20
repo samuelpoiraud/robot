@@ -1,3 +1,40 @@
-ADC: Pin GPIOA[0:7], GPIOB[0:1], GPIOC[0:5] => 16 ADC Channels, DMA2 Channel 0 Stream 0
-PWM: TIM8 channel[0:3], GPIOC[6:9]
-TIMER: 1-4
+ADC: Pin GPIOA[0:7], GPIOB[0:1], GPIOC[0:5] => 16 ADC Channels, DMA2 Channel 0 Stream 0 NO_IT
+UART1: Pin GPIOB[6:7]
+UART2: Pin GPIOD[5:6]
+PWM: TIM8 channel[0:3], GPIOC[6:9] NO_IT
+TIMER: TIM11-TIM14 WITH_IT
+QEI: TIM2 + TIM4 GPIOB[8:9 + 10:11] NO_IT
+
+
+A[0:7]: ADC
+A[8]: CLK out / GPIO
+A[9:10]: UART TX/RX
+A[11:12]: CAN
+A[13:15]: GPIO
+B[0:1]: ADC
+B[2:3]: GPIO
+B[4:7]: 2x QEI
+B[8]: GPIO
+B[9]: SPI_NSS
+B[10:12]: I2C
+B[13:15]: SPI
+C[0:5]: ADC
+C[6:9]: 4x PWM
+C[10:15]: GPIO
+
+Resultat:
+16 ADC, 1 UART, 1 I2C, 1 SPI, 1 CAN, 2 QEI, 4 PWM, 13 GPIO
+Pour format 64 Pins
+
+Bonus format 100 Pins:
+D[0:4]: GPIO
+D[5:6]: UART2
+D[7]: GPIO
+D[8:9]: UART3
+D[10:11]: GPIO
+D[12:13]: QEI3
+D[14:15]: GPIO
+E[0:15]: GPIO
++ 2 UART, 1 QEI, 26 GPIO
+=>
+16 ADC, 3 UART, 1 I2C, 1 SPI, 1 CAN, 3 QEI, 4 PWM, 39 GPIO
