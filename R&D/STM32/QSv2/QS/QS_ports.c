@@ -9,21 +9,27 @@
  *  Version 20100418
  */
 
-
 #include "QS_ports.h"
 
 
 void PORTS_init(void){
+	static bool_e initialized = FALSE;
+	if(initialized)
+		return;
+
 	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
 	/* Horloges périphériques: tout ce qui est utilisé */
-	RCC_APB2PeriphClockCmd(
+	RCC_AHB1PeriphClockCmd(
 		  RCC_AHB1Periph_GPIOA
 		| RCC_AHB1Periph_GPIOB
 		| RCC_AHB1Periph_GPIOC
 		| RCC_AHB1Periph_GPIOD
 		| RCC_AHB1Periph_GPIOE, ENABLE);
+
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
 	/* GPIOA */
 	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_A_IO_MASK;
@@ -57,17 +63,28 @@ void PORTS_init(void){
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
+	/* GPIOE */
+	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_E_IO_MASK;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)PORT_E_IO_MASK);
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
+
 	PORTS_adc_init(NULL, ADC_SampleTime_28Cycles);
-	PORTS_pwm_init();
+
+	initialized = TRUE;
 }
 
 Uint8 PORTS_adc_init(ADC_TypeDef* ADCx, Uint8 ADC_sampleTime) {
 	Uint8 number_of_channels;
-	GPIO_InitTypeDef      GPIO_InitStructure;
+	GPIO_InitTypeDef GPIO_InitStructure;
 
 	/* Configure ADC1 Channelx pin as analog input ******************************/
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
 
 	number_of_channels = 0;
 
@@ -190,8 +207,8 @@ void PORTS_pwm_init() {
 void PORTS_uarts_init() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_USART1);	//U1TX
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);	//U1RX
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_USART1);	//U1TX
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_USART1);	//U1RX
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource5, GPIO_AF_USART2);	//U2TX
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource6, GPIO_AF_USART2);	//U2RX
 
@@ -201,11 +218,11 @@ void PORTS_uarts_init() {
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 
 	//USART1 TX
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	//USART1 RX
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	//USART2 TX
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
@@ -213,4 +230,64 @@ void PORTS_uarts_init() {
 	//USART2 RX
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+}
+
+void PORTS_qei_init() {
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	GPIO_StructInit(&GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_TIM3);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_TIM3);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_TIM4);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_TIM4);
+}
+
+void PORTS_spi_init() {
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	GPIO_StructInit(&GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_SPI2);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
+}
+
+void PORTS_WritePin(GPIO_TypeDef* gpio_port, Uint8 bit, bool_e set_bit) {
+	if(set_bit) {
+		gpio_port->ODR |= ((Uint32)1) << bit;
+	} else {
+		gpio_port->ODR &= ~(((Uint32)1) << bit);
+	}
+}
+
+bool_e PORTS_ReadPin(GPIO_TypeDef* gpio_port, Uint8 bit) {
+	return (gpio_port->ODR >> bit) & 1;
 }

@@ -63,4 +63,10 @@
 	void TIMER4_stop(void);
 	void TIMER4_run_us (Uint16 period /* en microsecondes */);
 
+	//Acuittement des IT timer
+	#define TIMER1_AckIT() TIM_ClearITPendingBit(TIM1, TIM_IT_Update)
+	#define TIMER2_AckIT() TIM_ClearITPendingBit(TIM2, TIM_IT_Update)
+	#define TIMER3_AckIT() TIM_ClearITPendingBit(TIM3, TIM_IT_Update)
+	#define TIMER4_AckIT() TIM_ClearITPendingBit(TIM4, TIM_IT_Update)
+
 #endif

@@ -10,12 +10,15 @@
  *  Version 20100620
  */
 
+/* 	Ce module ne supporte les créations de Watchdog en IT que sur les IT :
+	INT0 IC1 IC2 OC1 OC2 T1 T2 T3 SPI1 U1RX U1TX AD NVM SI2C MI2C et CN */
+
 #ifndef QS_WATCHDOG_H
 	#define QS_WATCHDOG_H
 
 	#include "QS_all.h"
 
-	#ifdef USE_WATCHDOG
+	#ifdef USE_WATCHDOG	
 	
 	/* Types */
 	typedef Uint16 timeout_t;
@@ -54,6 +57,6 @@
 	/** Réactive le declenchement du watchdog lors d'un timeout.
 	 */
 	void WATCHDOG_enable_timeout(watchdog_id_t id);
-
+	
 	#endif /* def USE_WATCHDOG */
 #endif

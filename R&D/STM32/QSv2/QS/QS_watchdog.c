@@ -18,19 +18,23 @@
 
 #if WATCHDOG_TIMER == 1
 	#define WATCHDOG_TIMER_RUN	TIMER1_run
-	#define WATCHDOG_TIMER_IT	TIM1_UP_TIM10_IRQHandler
+	#define WATCHDOG_TIMER_IT	_T1Interrupt
+	#define WATCHDOG_TIMER_IT_ACK() TIMER1_AckIT()
 	#define WATCHDOG_TIMER_HANDLE TIM1
 #elif WATCHDOG_TIMER == 2
 	#define WATCHDOG_TIMER_RUN	TIMER2_run
-	#define WATCHDOG_TIMER_IT	TIM2_IRQHandler
+	#define WATCHDOG_TIMER_IT	_T2Interrupt
+	#define WATCHDOG_TIMER_IT_ACK()	TIMER2_AckIT()
 	#define WATCHDOG_TIMER_HANDLE TIM2
 #elif WATCHDOG_TIMER == 3
 	#define WATCHDOG_TIMER_RUN	TIMER3_run
-	#define WATCHDOG_TIMER_IT	TIM3_IRQHandler
+	#define WATCHDOG_TIMER_IT	_T3Interrupt
+	#define WATCHDOG_TIMER_IT_ACK()	TIMER3_AckIT()
 	#define WATCHDOG_TIMER_HANDLE TIM3
 #elif WATCHDOG_TIMER == 4
 	#define WATCHDOG_TIMER_RUN	TIMER4_run
-	#define WATCHDOG_TIMER_IT	TIM4_IRQHandler
+	#define WATCHDOG_TIMER_IT	_T4Interrupt
+	#define WATCHDOG_TIMER_IT_ACK()	TIMER4_AckIT()
 	#define WATCHDOG_TIMER_HANDLE TIM4
 #else
 	#error "WATCHDOG_TIMER doit etre 1 2 3 ou 4"
@@ -67,17 +71,15 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 	Uint8 i;
 	watchdog_id_t id = 255;
 	assert(t >= WATCHDOG_QUANTUM);
-
-	TIM_ITConfig(WATCHDOG_TIMER_HANDLE, TIM_IT_Update, DISABLE);
-
 	
+	TIM_ITConfig(WATCHDOG_TIMER_HANDLE, TIM_IT_Update, DISABLE);
 
 	for (i = 0; i < WATCHDOG_MAX_COUNT; i++)
 		if((watchdog[i].initialized) && watchdog[i].callback == func)
 		{
 			return 255;	//PAS DE CREATION !
 		}
-
+		
 
 
 	/* Parcours des watchdogs jusqu'à trouver un espace libre */
@@ -97,8 +99,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 	}	
 	if(id== 255)
 		debug_printf("WD : TABLEAU FULL");
-
-	//FIXME: vérifier si il était déjà activé avant ou pas
+		
 	TIM_ITConfig(WATCHDOG_TIMER_HANDLE, TIM_IT_Update, ENABLE);
 	return id;
 }
@@ -132,37 +133,35 @@ void WATCHDOG_enable_timeout(watchdog_id_t id) {
 /* Interruption appellée toutes les QUANTUM ms */
 void _ISR WATCHDOG_TIMER_IT()
 {
-	if(TIM_GetITStatus(WATCHDOG_TIMER_HANDLE, TIM_IT_Update)) {
-		watchdog_id_t i;
-		watchdog_callback_fun_t callback = 0;
-
-		/* Parcours de tous les watchdogs */
-		for (i = 0; i < WATCHDOG_MAX_COUNT; i++)
+	watchdog_id_t i;
+	watchdog_callback_fun_t callback = 0;
+	
+	/* Parcours de tous les watchdogs */
+	for (i = 0; i < WATCHDOG_MAX_COUNT; i++)
+	{
+		if (watchdog[i].initialized)
 		{
-			if (watchdog[i].initialized)
+			if(watchdog[i].timeout)
 			{
-				if(watchdog[i].timeout)
-				{
-					watchdog[i].timeout -= WATCHDOG_QUANTUM;
-				}
-				else if(watchdog[i].enabled)
-				{
-					callback = watchdog[i].callback;
-
-					if (watchdog[i].flag)
-						*(watchdog[i].flag)=TRUE;
-
-					/* Arrêt du watchdog */
-					WATCHDOG_stop(i);
-
-					/*On appelle la fonction de callback après le stop pour permettre une recréation des fonctions callback par elles-mêmes*/
-					if(callback)
-						callback();
-				}
+				watchdog[i].timeout -= WATCHDOG_QUANTUM;
 			}
+			else if(watchdog[i].enabled)
+			{
+				callback = watchdog[i].callback;
+				
+				if (watchdog[i].flag)
+					*(watchdog[i].flag)=TRUE;
+					
+				/* Arrêt du watchdog */
+				WATCHDOG_stop(i);
+				
+				/*On appelle la fonction de callback après le stop pour permettre une recréation des fonctions callback par elles-mêmes*/
+				if(callback)
+					callback();
+			}	
 		}
-		TIM_ClearITPendingBit(WATCHDOG_TIMER_HANDLE, TIM_IT_Update);
 	}
+	TIMER2_AckIT();
 }
 
 #endif /* def USE_WATCHDOG */
