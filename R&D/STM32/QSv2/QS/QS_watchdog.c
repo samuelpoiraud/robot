@@ -14,31 +14,12 @@
 
 #ifdef USE_WATCHDOG
 
-#include "QS_timer.h"
-
-#if WATCHDOG_TIMER == 1
-	#define WATCHDOG_TIMER_RUN	TIMER1_run
-	#define WATCHDOG_TIMER_IT	_T1Interrupt
-	#define WATCHDOG_TIMER_IT_ACK() TIMER1_AckIT()
-	#define WATCHDOG_TIMER_HANDLE TIM1
-#elif WATCHDOG_TIMER == 2
-	#define WATCHDOG_TIMER_RUN	TIMER2_run
-	#define WATCHDOG_TIMER_IT	_T2Interrupt
-	#define WATCHDOG_TIMER_IT_ACK()	TIMER2_AckIT()
-	#define WATCHDOG_TIMER_HANDLE TIM2
-#elif WATCHDOG_TIMER == 3
-	#define WATCHDOG_TIMER_RUN	TIMER3_run
-	#define WATCHDOG_TIMER_IT	_T3Interrupt
-	#define WATCHDOG_TIMER_IT_ACK()	TIMER3_AckIT()
-	#define WATCHDOG_TIMER_HANDLE TIM3
-#elif WATCHDOG_TIMER == 4
-	#define WATCHDOG_TIMER_RUN	TIMER4_run
-	#define WATCHDOG_TIMER_IT	_T4Interrupt
-	#define WATCHDOG_TIMER_IT_ACK()	TIMER4_AckIT()
-	#define WATCHDOG_TIMER_HANDLE TIM4
+#ifndef WATCHDOG_TIMER
+#error "WATCHDOG_TIMER doit etre 1 2 3 ou 4"
 #else
-	#error "WATCHDOG_TIMER doit etre 1 2 3 ou 4"
-#endif /* WATCHDOG_TIMER == n */
+	#define TIMER_SRC_TIMER_ID WATCHDOG_TIMER
+	#include "QS_setTimerSource.h"
+#endif
 
 typedef struct
 {
@@ -55,10 +36,10 @@ static volatile watchdog_t watchdog[WATCHDOG_MAX_COUNT];
 void WATCHDOG_init(void)
 {
 	watchdog_id_t i;
-	TIMER_init();
+	TIMER_SRC_TIMER_init();
 	for (i=0; i<WATCHDOG_MAX_COUNT; i++)
 		watchdog[i].initialized = FALSE;
-	WATCHDOG_TIMER_RUN(WATCHDOG_QUANTUM);
+	TIMER_SRC_TIMER_start_ms(WATCHDOG_QUANTUM);
 }
 
 
@@ -72,7 +53,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 	watchdog_id_t id = 255;
 	assert(t >= WATCHDOG_QUANTUM);
 	
-	TIM_ITConfig(WATCHDOG_TIMER_HANDLE, TIM_IT_Update, DISABLE);
+	TIMER_SRC_TIMER_DisableIT;
 
 	for (i = 0; i < WATCHDOG_MAX_COUNT; i++)
 		if((watchdog[i].initialized) && watchdog[i].callback == func)
@@ -99,8 +80,8 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 	}	
 	if(id== 255)
 		debug_printf("WD : TABLEAU FULL");
-		
-	TIM_ITConfig(WATCHDOG_TIMER_HANDLE, TIM_IT_Update, ENABLE);
+
+	TIMER_SRC_TIMER_EnableIT;
 	return id;
 }
 
@@ -131,7 +112,7 @@ void WATCHDOG_enable_timeout(watchdog_id_t id) {
 }
 
 /* Interruption appellée toutes les QUANTUM ms */
-void _ISR WATCHDOG_TIMER_IT()
+void TIMER_SRC_TIMER_interrupt()
 {
 	watchdog_id_t i;
 	watchdog_callback_fun_t callback = 0;
@@ -161,7 +142,7 @@ void _ISR WATCHDOG_TIMER_IT()
 			}	
 		}
 	}
-	TIMER2_AckIT();
+	TIMER_SRC_TIMER_resetFlag();
 }
 
 #endif /* def USE_WATCHDOG */

@@ -20,10 +20,10 @@
 	#define I_AM_CARTE_STRAT
 
 	/* Il faut choisir à quelle frequence on fait tourner le STM32 */
-	#define HCLK_FREQUENCY_HZ     48000000	//Max: 168Mhz
-	#define PCLK1_FREQUENCY_HZ    24000000	//Max: 42Mhz
-	#define PCLK2_FREQUENCY_HZ    48000000	//Max: 84Mhz
-	#define CPU_EXTERNAL_CLOCK_HZ 10000000	//Fréquence de l'horloge externe
+	#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
+	#define PCLK1_FREQUENCY_HZ    10000000	//10Mhz, Max: 42Mhz
+	#define PCLK2_FREQUENCY_HZ    40000000	//40Mhz, Max: 84Mhz
+	#define CPU_EXTERNAL_CLOCK_HZ 10000000	//10Mhz, Fréquence de l'horloge externe
 
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
@@ -35,8 +35,8 @@
 	
 	#define PORT_A_IO_MASK	0xFFFF
 	#define PORT_B_IO_MASK	0xFFFF
-	#define PORT_C_IO_MASK	0xFFFF
-	#define PORT_D_IO_MASK	0xC0FF
+	#define PORT_C_IO_MASK	0xFEFF	//C9: MO2 debug clock
+	#define PORT_D_IO_MASK	0xFFFF
 	#define PORT_E_IO_MASK	0xFFFF
 	
 	/* Les instructions suivantes permettent de configurer certaines
@@ -44,7 +44,7 @@
 	 * particulieres comme une entree analogique
 	 */
 
-//	#define USE_CAN
+	#define USE_CAN
 /*	Nombre de messages CAN conservés
 	pour traitement hors interuption */
 	#define CAN_BUF_SIZE		32

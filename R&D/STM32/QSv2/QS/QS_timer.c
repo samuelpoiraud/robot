@@ -118,11 +118,43 @@ void TIMER_stop(TIM_TypeDef* TIMx) {
 }
 
 void TIMER_disableInt(TIM_TypeDef* TIMx) {
-	TIM_ITConfig(TIMx, TIM_IT_Update, DISABLE);
+	switch((int)TIMx) {
+		case (int)TIM11:
+			NVIC_DisableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+			break;
+
+		case (int)TIM12:
+			NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn);
+			break;
+
+		case (int)TIM13:
+			NVIC_DisableIRQ(TIM8_UP_TIM13_IRQn);
+			break;
+
+		case (int)TIM14:
+			NVIC_DisableIRQ(TIM8_TRG_COM_TIM14_IRQn);
+			break;
+	}
 }
 
 void TIMER_enableInt(TIM_TypeDef* TIMx) {
-	TIM_ITConfig(TIMx, TIM_IT_Update, ENABLE);
+	switch((int)TIMx) {
+		case (int)TIM11:
+			NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+			break;
+
+		case (int)TIM12:
+			NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
+			break;
+
+		case (int)TIM13:
+			NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
+			break;
+
+		case (int)TIM14:
+			NVIC_EnableIRQ(TIM8_TRG_COM_TIM14_IRQn);
+			break;
+	}
 }
 
 
