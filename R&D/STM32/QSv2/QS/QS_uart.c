@@ -148,10 +148,10 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 			static Uint32 next_to_read =0;
 			if (m_u1rxnum > next_to_read)
 			{
-				USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+				NVIC_DisableIRQ(USART1_IRQn);
 				if (m_u1rxnum - next_to_read == 1)
 					m_u1rx = 0;
-				USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+				NVIC_EnableIRQ(USART1_IRQn);
 				return m_u1rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
 			}
 			else
@@ -346,8 +346,7 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 
 				while(USART_GetFlagStatus(USART2, USART_FLAG_RXNE))
 				{
-					//TODO: reactiver LED uart
-					//LED_UART=!LED_UART;
+					LED_UART=!LED_UART;
 					*(receiveddata++) = USART_ReceiveData(USART2);
 					m_u2rxnum++;
 					m_u2rx = 1;
@@ -356,6 +355,7 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 						receiveddata = m_u2rxbuf;
 				}
 				USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+				NVIC_ClearPendingIRQ(USART2_IRQn);
 			}
 		}
 
@@ -364,10 +364,10 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 			static Uint32 next_to_read =0;
 			if (m_u2rxnum > next_to_read)
 			{
-				USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
+				NVIC_DisableIRQ(USART2_IRQn);
 				if (m_u2rxnum - next_to_read == 1)
 					m_u2rx = 0;
-				USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+				NVIC_EnableIRQ(USART2_IRQn);
 				return m_u2rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
 			}
 			else

@@ -23,5 +23,6 @@
 	void PORTS_uarts_init();
 	void PORTS_qei_init();
 	void PORTS_spi_init();
+	void PORTS_can_init();
 
 #endif /* ndef QS_PORTS_H */
