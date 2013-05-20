@@ -13,7 +13,7 @@
 	#define QS_ALL_H
 
 	#include "../Global_config.h"	/*	On charge d'abord la configuration globale		*/
-	//#include "QS_configCheck.h"				/*	On verifie que le programmeur a selectionné les	*/
+	#include "QS_configCheck.h"				/*	On verifie que le programmeur a selectionné les	*/
 											/*	elements indispensables 						*/
 	#include "stm32f4xx.h"					/* 	Toujours utile...								*/
 	#define _ISR							/*  attribut d'interruption non utilisé sous STM32  */

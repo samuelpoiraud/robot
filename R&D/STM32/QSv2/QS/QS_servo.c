@@ -25,25 +25,13 @@ static volatile Sint16 m_SERVO_cmd[10];
 -------------------------------------*/
 
 // Fonction d'interruption du timer
-#if SERVO_TIMER == 1
-	#define SERVO_TIMER_RUN_FINE	TIMER1_run_us
-	#define SERVO_TIMER_IT	_T1Interrupt
-	#define SERVO_TIMER_IT_ACK()	TIMER1_AckIT()
-#elif SERVO_TIMER == 2
-	#define SERVO_TIMER_RUN_FINE	TIMER2_run_us
-	#define SERVO_TIMER_IT	_T2Interrupt
-	#define SERVO_TIMER_IT_ACK()	TIMER2_AckIT()
-#elif SERVO_TIMER == 3
-	#define SERVO_TIMER_RUN_FINE	TIMER3_run_us
-	#define SERVO_TIMER_IT	_T3Interrupt
-	#define SERVO_TIMER_IT_ACK()	TIMER3_AckIT()
-#elif SERVO_TIMER == 4
-	#define SERVO_TIMER_RUN_FINE	TIMER4_run_us
-	#define SERVO_TIMER_IT	_T4Interrupt
-	#define SERVO_TIMER_IT_ACK()	TIMER4_AckIT()
+#if !defined(SERVO_TIMER)
+	#error "SERVO_TIMER doit etre 1 2 3 ou 4, le watchdog n'est pas utilisable avec ce module"
 #else
-	#error "SERVO_TIMER doit etre 1 2 3 ou 4"
-#endif /* SERVO_TIMER == n */
+	#define TIMER_SRC_TIMER_ID SERVO_TIMER
+
+	#include "QS_setTimerSource.h"
+#endif
 	
 #define MIN_INTERVAL		1000
 
@@ -52,7 +40,7 @@ static volatile Sint16 m_SERVO_cmd[10];
 //Format port: GPIOx, bit (a partir de 0
 //Par defaut: SERVO sur port C, bit 10
 #ifndef SERVO0
-	#define SERVO0	GPIOC, 10
+	#define SERVO0	GPIOC->ODR10
 #endif
 #ifndef SERVO1
 	#define SERVO1	SERVO0
@@ -98,9 +86,10 @@ void SERVO_init() {
 	// Initialisation de la commande; par défaut 0 (le moteur ne bouge pas)
 	for(i=0;i<10;i++)
 		m_SERVO_cmd[i] = 0 ;
-	TIMER_init();
+
+	TIMER_SRC_TIMER_init();
 	// Lancement du timer
-	SERVO_TIMER_RUN_FINE(MIN_INTERVAL);	
+	TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 }
 		
 /*-------------------------------------
@@ -115,7 +104,7 @@ void SERVO_set_cmd(Uint16 cmd, Uint8 num_servo)
 /*-------------------------------------
 	Timer
 -------------------------------------*/
-void _ISR SERVO_TIMER_IT()
+void TIMER_SRC_TIMER_interrupt()
 {
 	static Uint8 etat=0;
 	static Sint16 blanking=0;
@@ -126,160 +115,160 @@ void _ISR SERVO_TIMER_IT()
 			blanking = 20000; // 20 ms de periode 
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO0, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO0 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 1:
-			PORTS_WritePin(SERVO0, 0);
+			SERVO0 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO1, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO1 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 2:
-			PORTS_WritePin(SERVO1, 0);
+			SERVO1 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO2, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO2 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 3:
-			PORTS_WritePin(SERVO2, 0);
+			SERVO2 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO3, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO3 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 4:
-			PORTS_WritePin(SERVO3, 0);
+			SERVO3 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO4, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO4 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 5:
-			PORTS_WritePin(SERVO4, 0);
+			SERVO4 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO5, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO5 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 6:
-			PORTS_WritePin(SERVO5, 0);
+			SERVO5 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO6, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO6 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 7:
-			PORTS_WritePin(SERVO6, 0);
+			SERVO6 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO7, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO7 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 8:
-			PORTS_WritePin(SERVO7, 0);
+			SERVO7 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO8, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO8 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 			break;
 		case 9:
-			PORTS_WritePin(SERVO8, 0);
+			SERVO8 = 0;
 			if (m_SERVO_cmd[etat])
 			{
-				PORTS_WritePin(SERVO9, 1);
-				SERVO_TIMER_RUN_FINE(m_SERVO_cmd[etat]);
+				SERVO9 = 1;
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
 				blanking -= m_SERVO_cmd[etat];
 			}
 			else
 			{
-				SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 				blanking -= MIN_INTERVAL;
 			}
 			etat++;
 		break;
 		default:
-			PORTS_WritePin(SERVO9, 0);
+			SERVO9 = 0;
 			blanking = (blanking >MIN_INTERVAL)?blanking:MIN_INTERVAL;
-			SERVO_TIMER_RUN_FINE(blanking);
+			TIMER_SRC_TIMER_start_us(blanking);
 			etat = 0;
 			break;
-	}	
-	SERVO_TIMER_IT_ACK();
+	}
+	TIMER_SRC_TIMER_resetFlag();
 }
 
 #endif /* def USE_SERVO */

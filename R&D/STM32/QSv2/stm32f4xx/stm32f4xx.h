@@ -12,8 +12,8 @@
   *          is using in the C source code, usually in main.c. This file contains:
   *           - Configuration section that allows to select:
   *              - The device used in the target application
-  *              - To use or not the peripheralï¿½s drivers in application code(i.e. 
-  *                code will be based on direct access to peripheralï¿½s registers 
+  *              - To use or not the peripheralï¿½s drivers in application code(i.e.
+  *                code will be based on direct access to peripheralï¿½s registers
   *                rather than drivers API), this option is controlled by 
   *                "#define USE_STDPERIPH_DRIVER"
   *              - To change few application-specific parameters such as the HSE 
@@ -97,7 +97,7 @@
   */           
 
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)25000000) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE    ((uint32_t)CPU_EXTERNAL_CLOCK_HZ) /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 /**
@@ -266,37 +266,39 @@ typedef enum IRQn
   * @{
   */  
 /*!< STM32F10x Standard Peripheral Library old types (maintained for legacy purpose) */
+/* Désactivé car non utilisé et peut causer des conflits de noms
 typedef int32_t  s32;
 typedef int16_t s16;
 typedef int8_t  s8;
 
-typedef const int32_t sc32;  /*!< Read Only */
-typedef const int16_t sc16;  /*!< Read Only */
-typedef const int8_t sc8;   /*!< Read Only */
+typedef const int32_t sc32;  //!< Read Only
+typedef const int16_t sc16;  //!< Read Only
+typedef const int8_t sc8;   //!< Read Only
 
 typedef __IO int32_t  vs32;
 typedef __IO int16_t  vs16;
 typedef __IO int8_t   vs8;
 
-typedef __I int32_t vsc32;  /*!< Read Only */
-typedef __I int16_t vsc16;  /*!< Read Only */
-typedef __I int8_t vsc8;   /*!< Read Only */
+typedef __I int32_t vsc32;  //!< Read Only
+typedef __I int16_t vsc16;  //!< Read Only
+typedef __I int8_t vsc8;   //!< Read Only
 
 typedef uint32_t  u32;
 typedef uint16_t u16;
 typedef uint8_t  u8;
 
-typedef const uint32_t uc32;  /*!< Read Only */
-typedef const uint16_t uc16;  /*!< Read Only */
-typedef const uint8_t uc8;   /*!< Read Only */
+typedef const uint32_t uc32;  //!< Read Only
+typedef const uint16_t uc16;  //!< Read Only
+typedef const uint8_t uc8;   //!< Read Only
 
 typedef __IO uint32_t  vu32;
 typedef __IO uint16_t vu16;
 typedef __IO uint8_t  vu8;
 
-typedef __I uint32_t vuc32;  /*!< Read Only */
-typedef __I uint16_t vuc16;  /*!< Read Only */
-typedef __I uint8_t vuc8;   /*!< Read Only */
+typedef __I uint32_t vuc32;  //!< Read Only
+typedef __I uint16_t vuc16;  //!< Read Only
+typedef __I uint8_t vuc8;   //!< Read Only
+*/
 
 typedef enum {RESET = 0, SET = !RESET} FlagStatus, ITStatus;
 
@@ -675,7 +677,43 @@ typedef struct
   __IO uint32_t OSPEEDR;  /*!< GPIO port output speed register,       Address offset: 0x08      */
   __IO uint32_t PUPDR;    /*!< GPIO port pull-up/pull-down register,  Address offset: 0x0C      */
   __IO uint32_t IDR;      /*!< GPIO port input data register,         Address offset: 0x10      */
-  __IO uint32_t ODR;      /*!< GPIO port output data register,        Address offset: 0x14      */
+  __IO union {
+    uint32_t ODR;         /*!< GPIO port output data register,        Address offset: 0x14      */
+    struct __attribute__((packed)) {
+      unsigned int ODR0 : 1;
+      unsigned int ODR1 : 1;
+      unsigned int ODR2 : 1;
+      unsigned int ODR3 : 1;
+      unsigned int ODR4 : 1;
+      unsigned int ODR5 : 1;
+      unsigned int ODR6 : 1;
+      unsigned int ODR7 : 1;
+      unsigned int ODR8 : 1;
+      unsigned int ODR9 : 1;
+      unsigned int ODR10 : 1;
+      unsigned int ODR11 : 1;
+      unsigned int ODR12 : 1;
+      unsigned int ODR13 : 1;
+      unsigned int ODR14 : 1;
+      unsigned int ODR15 : 1;
+      unsigned int ODR16 : 1;
+      unsigned int ODR17 : 1;
+      unsigned int ODR18 : 1;
+      unsigned int ODR19 : 1;
+      unsigned int ODR20 : 1;
+      unsigned int ODR21 : 1;
+      unsigned int ODR22 : 1;
+      unsigned int ODR23 : 1;
+      unsigned int ODR24 : 1;
+      unsigned int ODR25 : 1;
+      unsigned int ODR26 : 1;
+      unsigned int ODR27 : 1;
+      unsigned int ODR28 : 1;
+      unsigned int ODR29 : 1;
+      unsigned int ODR30 : 1;
+      unsigned int ODR31 : 1;
+    };
+  };
   __IO uint16_t BSRRL;    /*!< GPIO port bit set/reset low register,  Address offset: 0x18      */
   __IO uint16_t BSRRH;    /*!< GPIO port bit set/reset high register, Address offset: 0x1A      */
   __IO uint32_t LCKR;     /*!< GPIO port configuration lock register, Address offset: 0x1C      */

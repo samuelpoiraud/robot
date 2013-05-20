@@ -148,7 +148,7 @@ void SYS_init(void)
 	//Pas de subpriority sur les interruptions
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
-	//Config LIBC
+	//Config LibC
 	setvbuf(stdout, NULL, _IONBF, 0 );
 	setvbuf(stderr, NULL, _IONBF, 0 );
 	setvbuf(stdin, NULL, _IONBF, 0 );
@@ -165,8 +165,10 @@ void SYS_init(void)
 char *__env[1] = { 0 };
 char **environ = __env;
 
+__attribute__((weak))
 int _write(int file, char *ptr, int len);
 
+__attribute__((weak))
 void _exit(int status) {
 	_write(1, "exit", 4);
 	while (1) {
@@ -174,6 +176,7 @@ void _exit(int status) {
 	}
 }
 
+__attribute__((weak))
 int _close(int file) {
 	return -1;
 }
@@ -182,6 +185,7 @@ int _close(int file) {
  execve
  Transfer control to a new process. Minimal implementation (for a system without processes):
  */
+__attribute__((weak))
 int _execve(char *name, char **argv, char **env) {
 	errno = ENOMEM;
 	return -1;
@@ -191,6 +195,7 @@ int _execve(char *name, char **argv, char **env) {
  fork
  Create a new process. Minimal implementation (for a system without processes):
  */
+__attribute__((weak))
 int _fork() {
 	errno = EAGAIN;
 	return -1;
@@ -202,6 +207,7 @@ int _fork() {
  all files are regarded as character special devices.
  The `sys/stat.h' header file required is distributed in the `include' subdirectory for this C library.
  */
+__attribute__((weak))
 int _fstat(int file, struct stat *st) {
 	st->st_mode = S_IFCHR;
 	return 0;
@@ -211,6 +217,7 @@ int _fstat(int file, struct stat *st) {
  getpid
  Process-ID; this is sometimes used to generate strings unlikely to conflict with other processes. Minimal implementation, for a system without processes:
  */
+__attribute__((weak))
 int _getpid() {
 	return 1;
 }
@@ -219,6 +226,7 @@ int _getpid() {
  isatty
  Query whether output stream is a terminal. For consistency with the other minimal implementations,
  */
+__attribute__((weak))
 int _isatty(int file) {
 	switch (file){
 		case STDOUT_FILENO:
@@ -236,6 +244,7 @@ int _isatty(int file) {
  kill
  Send a signal. Minimal implementation:
  */
+__attribute__((weak))
 int _kill(int pid, int sig) {
 	errno = EINVAL;
 	return (-1);
@@ -245,6 +254,7 @@ int _kill(int pid, int sig) {
  link
  Establish a new name for an existing file. Minimal implementation:
  */
+__attribute__((weak))
 int _link(char *old, char *new) {
 	errno = EMLINK;
 	return -1;
@@ -254,6 +264,7 @@ int _link(char *old, char *new) {
  lseek
  Set position in a file. Minimal implementation:
  */
+__attribute__((weak))
 int _lseek(int file, int ptr, int dir) {
 	return 0;
 }
@@ -263,6 +274,7 @@ int _lseek(int file, int ptr, int dir) {
  Increase program data space.
  Malloc and related functions depend on this
  */
+__attribute__((weak))
 caddr_t _sbrk(int incr) {
 	extern char _ebss; // Defined by the linker
 	static char *heap_end;
@@ -291,6 +303,7 @@ caddr_t _sbrk(int incr) {
  Read a character to a file. `libc' subroutines will use this system routine for input from all files, including stdin
  Returns -1 on error or blocks until the number of characters have been read.
  */
+__attribute__((weak))
 int _read(int file, char *ptr, int len) {
 	int n;
 	int num = 0;
@@ -323,6 +336,7 @@ int _read(int file, char *ptr, int len) {
  Status of a file (by name). Minimal implementation:
  int    _EXFUN(stat,( const char *__path, struct stat *__sbuf ));
  */
+__attribute__((weak))
 int _stat(const char *filepath, struct stat *st) {
 	st->st_mode = S_IFCHR;
 	return 0;
@@ -332,6 +346,7 @@ int _stat(const char *filepath, struct stat *st) {
  times
  Timing information for current process. Minimal implementation:
  */
+__attribute__((weak))
 clock_t _times(struct tms *buf) {
 	return -1;
 }
@@ -340,6 +355,7 @@ clock_t _times(struct tms *buf) {
  unlink
  Remove a file's directory entry. Minimal implementation:
  */
+__attribute__((weak))
 int _unlink(char *name) {
 	errno = ENOENT;
 	return -1;
@@ -349,6 +365,7 @@ int _unlink(char *name) {
  wait
  Wait for a child process. Minimal implementation:
  */
+__attribute__((weak))
 int _wait(int *status) {
 	errno = ECHILD;
 	return -1;
@@ -359,6 +376,7 @@ int _wait(int *status) {
  Write a character to a file. `libc' subroutines will use this system routine for output to all files, including stdout
  Returns -1 on error or number of bytes sent
  */
+__attribute__((weak))
 int _write(int file, char *ptr, int len) {
 	int n;
 	switch (file) {

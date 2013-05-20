@@ -21,29 +21,16 @@
 #include "QS_CANmsgList.h"
 
 
-
 /*-----------------------------------------
 		Selection du timer
 -----------------------------------------*/
-#if DCM_TIMER == 1
-		#define DCM_TIMER_RUN 	TIMER1_run
-		#define DCM_TIMER_IT	_T1Interrupt
-		#define DCM_TIMER_IT_ACK()	TIMER1_AckIT()
-#elif DCM_TIMER == 2
-		#define DCM_TIMER_RUN	TIMER2_run
-		#define DCM_TIMER_IT	_T2Interrupt
-		#define DCM_TIMER_IT_ACK()	TIMER2_AckIT()
-#elif DCM_TIMER == 3
-		#define DCM_TIMER_RUN	TIMER3_run
-		#define DCM_TIMER_IT	_T3Interrupt
-		#define DCM_TIMER_IT_ACK()	TIMER3_AckIT()
-#elif DCM_TIMER == 4
-		#define DCM_TIMER_RUN	TIMER4_run
-		#define DCM_TIMER_IT	_T4Interrupt
-		#define DCM_TIMER_IT_ACK()	TIMER4_AckIT()
+#if !defined(DCM_TIMER)
+	#error "DCM_TIMER doit etre 1 2 3 ou 4, le watchdog n'est pas utilisable avec ce module"
 #else
-	#error "DCM_TIMER doit etre 1 2 3 ou 4"
-#endif /* DCM_TIMER == n */
+	#define TIMER_SRC_TIMER_ID DCM_TIMER
+
+	#include "QS_setTimerSource.h"
+#endif
 
 
 	typedef enum
@@ -95,7 +82,8 @@ void DCM_init()
 	// Initialisation
 	DCM_uninitialize_all();
 	// Lancement de l'interruption de commande
-	DCM_TIMER_RUN(DCM_TIMER_PERIOD);
+	TIMER_SRC_TIMER_init();
+	TIMER_SRC_TIMER_start_ms(DCM_TIMER_PERIOD);
 }
 
 DCM_working_state_e DCM_get_state (Uint8 dc_motor_id)
@@ -275,7 +263,7 @@ void DCM_restart_all()
 /*-----------------------------------------
 	Interruption de commande
 -----------------------------------------*/
-void _ISR DCM_TIMER_IT()
+void TIMER_SRC_TIMER_interrupt()
 {
 	DCMotor_t* this;
 	DCMotor_config_t* config;
@@ -368,7 +356,7 @@ void _ISR DCM_TIMER_IT()
 		}	
 	}
 	// acquittement de l'interruption
-	DCM_TIMER_IT_ACK();
+	TIMER_SRC_TIMER_resetFlag();
 }
 
 

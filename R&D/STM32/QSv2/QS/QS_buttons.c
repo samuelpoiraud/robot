@@ -17,28 +17,23 @@
 
 #ifdef USE_BUTTONS
 
- 
-#if BUTTONS_TIMER == 1
-	#define BUTTONS_TIMER_RUN	TIMER1_run
-	#define BUTTONS_TIMER_IT	_T1Interrupt
-	#define BUTTONS_TIMER_IT_ACK()	TIMER1_AckIT()
-#elif BUTTONS_TIMER == 2
-	#define BUTTONS_TIMER_RUN	TIMER2_run
-	#define BUTTONS_TIMER_IT	_T2Interrupt
-	#define BUTTONS_TIMER_IT_ACK()	TIMER2_AckIT()
-#elif BUTTONS_TIMER == 3
-	#define BUTTONS_TIMER_RUN	TIMER3_run
-	#define BUTTONS_TIMER_IT	_T3Interrupt
-	#define BUTTONS_TIMER_IT_ACK()	TIMER3_AckIT()
-#elif BUTTONS_TIMER == 4
-	#define BUTTONS_TIMER_RUN	TIMER4_run
-	#define BUTTONS_TIMER_IT	_T4Interrupt
-	#define BUTTONS_TIMER_IT_ACK()	TIMER4_AckIT()
-#elif defined I_ASSUME_I_WILL_CALL_BUTTONS_PROCESS_IT_ON_MY_OWN
+#if !defined(BUTTONS_TIMER) && !defined(BUTTONS_TIMER_USE_WATCHDOG)
+	#define BUTTONS_NO_IT
+
+	#ifndef I_ASSUME_I_WILL_CALL_BUTTONS_PROCESS_IT_ON_MY_OWN
+		#warning "vous avez pris la liberté de ne pas définir de timer pour BUTTONS, ayez au moins le respect d'appeler vous même BUTTONS_process_it() périodiquement..."
+		#warning "BUTTONS_TIMER doit etre 1 2 3 ou 4, sauf si vous ne le définissez pas, volontairement."
+	#endif
 #else
-	#warning "vous avez pris la liberté de ne pas définir de timer pour BUTTONS, ayez au moins le respect d'appeler vous même BUTTONS_process_it() périodiquement..."
-	#warning "BUTTONS_TIMER doit etre 1 2 3 ou 4, sauf si vous ne le définissez pas, volontairement."
-#endif /* BUTTONS_TIMER == n */
+	#ifdef BUTTONS_TIMER
+		#define TIMER_SRC_TIMER_ID BUTTONS_TIMER
+	#endif
+	#ifdef BUTTONS_TIMER_USE_WATCHDOG
+		#define TIMER_SRC_USE_WATCHDOG
+	#endif
+
+	#include "QS_setTimerSource.h"
+#endif
 
 static button_t buttons[4];
 static Uint8 push_time[4]={0};
@@ -55,9 +50,9 @@ void BUTTONS_init()
 	{
 		BUTTONS_define_actions((button_id_e)i,NULL,NULL,0);
 	}
-	#ifdef BUTTONS_TIMER
-		TIMER_init();
-		BUTTONS_TIMER_RUN(100);
+	#ifndef BUTTONS_NO_IT
+		TIMER_SRC_TIMER_init();
+		TIMER_SRC_TIMER_start_ms(100);
 	#endif
 }
 
@@ -80,10 +75,10 @@ void BUTTONS_update()
 	button_t* button = NULL;
 	Uint8 i;
 	
-	buttons_pressed = (PORTS_ReadPin(BUTTON1_PORT))? 1 : 0;
-	buttons_pressed = (PORTS_ReadPin(BUTTON2_PORT))? buttons_pressed|2 : buttons_pressed;
-	buttons_pressed = (PORTS_ReadPin(BUTTON3_PORT))? buttons_pressed|4 : buttons_pressed;
-	buttons_pressed = (PORTS_ReadPin(BUTTON4_PORT))? buttons_pressed|8 : buttons_pressed;
+	buttons_pressed = (BUTTON1_PORT)? 1 : 0;
+	buttons_pressed = (BUTTON2_PORT)? buttons_pressed|2 : buttons_pressed;
+	buttons_pressed = (BUTTON3_PORT)? buttons_pressed|4 : buttons_pressed;
+	buttons_pressed = (BUTTON4_PORT)? buttons_pressed|8 : buttons_pressed;
 
 	//détection des fronts montant
 	buttons_rising_edge = (~buttons_were_pressed) & buttons_pressed;
@@ -120,24 +115,6 @@ void BUTTONS_update()
 					}
 				}
 			}
-
-			//Ancien code
-//			if(buttons_falling_edge & (1<<i))
-//			{
-//				action = button->after_long_push;
-//				if(action != NULL && push_time[i] == 0)
-//				{
-//					(*action)();
-//				}
-//				else
-//				{
-//					action = button->direct_push;
-//					if(action != NULL)
-//					{
-//						(*action)();
-//					}
-//				}
-//			}
 		}
 	}
 
@@ -156,12 +133,12 @@ void BUTTONS_process_it(void)
 	}
 }
 	
-#ifdef BUTTONS_TIMER
+#ifndef BUTTONS_NO_IT
 	
-	void _ISR BUTTONS_TIMER_IT()
+	void TIMER_SRC_TIMER_interrupt()
 	{
 		BUTTONS_process_it();
-		BUTTONS_TIMER_IT_ACK();
+		TIMER_SRC_TIMER_resetFlag();
 	}
 
 #endif
