@@ -11,6 +11,7 @@
 
 
 #include "QS_timer.h"
+#include "stm32f4xx_tim.h"
 
 #if TIMER_MS_PRESCALER <= 0 || TIMER_MS_PRESCALER > 65535
 #error "TIMER_MS_PRESCALER is not > 0 or < 65536"

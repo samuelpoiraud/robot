@@ -12,6 +12,8 @@
 #define QS_SYS_C
 
 #include "QS_sys.h"
+#include "stm32f4xx_usart.h"
+#include "stm32f4xx_flash.h"
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/times.h>

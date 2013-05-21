@@ -12,7 +12,7 @@
 
 #include "QS_pwm.h"
 #include "QS_ports.h"
-#include "system_stm32f4xx.h"
+#include "stm32f4xx_tim.h"
 
 #define FREQ_PWM_50KHZ
 

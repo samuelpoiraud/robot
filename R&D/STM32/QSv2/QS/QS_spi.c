@@ -13,6 +13,7 @@
 #define QS_SPI_C
 #include "QS_spi.h"
 #include "QS_ports.h"
+#include "stm32f4xx_spi.h"
 
 #define SPI1_SPI_HANDLE SPI1
 #define SPI1_SPI_CLOCK  RCC_APB1Periph_SPI1

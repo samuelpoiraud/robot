@@ -13,6 +13,7 @@
 
 #include "QS_qei.h"
 #include "QS_ports.h"
+#include "stm32f4xx_tim.h"
 
 /*-------------------------------------
 	Initialisation de l'interface

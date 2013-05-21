@@ -10,6 +10,8 @@
  */
 
 #include "QS_ports.h"
+#include "stm32f4xx_gpio.h"
+#include "stm32f4xx_adc.h"
 
 
 void PORTS_init(void){

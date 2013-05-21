@@ -36,7 +36,7 @@
 	#define PORT_A_IO_MASK	0xFFFF
 	#define PORT_B_IO_MASK	0xFFFF
 	#define PORT_C_IO_MASK	0xFEFF	//C9: MO2 debug clock
-	#define PORT_D_IO_MASK	0xFFFF
+	#define PORT_D_IO_MASK	0x0FFF	//LEDs
 	#define PORT_E_IO_MASK	0xFFFF
 	
 	/* Les instructions suivantes permettent de configurer certaines
@@ -73,19 +73,19 @@
 
 	//Test debug QS_STM32
 	//On active tout
-	#define USE_WATCHDOG
-	#define WATCHDOG_TIMER 1
-	#define WATCHDOG_MAX_COUNT 5
-	#define WATCHDOG_QUANTUM 1
-	
-	#define USE_DCMOTOR2
-	#define DCM_NUMBER 3
-	#define DCMOTOR_NB_POS 5
-	#define DCM_TIMER 3
-	#define DCM_TIMER_PERIOD 10
-
-	#define USE_SERVO
-	#define SERVO_TIMER 4
+//	#define USE_WATCHDOG
+//	#define WATCHDOG_TIMER 1
+//	#define WATCHDOG_MAX_COUNT 5
+//	#define WATCHDOG_QUANTUM 1
+//
+//	#define USE_DCMOTOR2
+//	#define DCM_NUMBER 3
+//	#define DCMOTOR_NB_POS 5
+//	#define DCM_TIMER 3
+//	#define DCM_TIMER_PERIOD 10
+//
+//	#define USE_SERVO
+//	#define SERVO_TIMER 4
 
 //	#define USE_STEP_MOTOR
 //	#define STEP_MOTOR_TIMER 3
@@ -95,8 +95,8 @@
 //	#define STEP_MOTOR3 GPIOE->ODR2
 //	#define STEP_MOTOR4 GPIOE->ODR3
 
-#define USE_SPI
-#define USE_SPI2
+//	#define USE_SPI
+//	#define USE_SPI2
 
 
 #endif /* ndef GLOBAL_CONFIG_H */
