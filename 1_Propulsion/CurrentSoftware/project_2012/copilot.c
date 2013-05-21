@@ -20,7 +20,6 @@
 #include "cos_sin.h"
 
 volatile order_t current_order;
-
 	
 trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, Sint16 destination_y, Sint16 viewing_angle, way_e way);
 typedef enum {
@@ -74,8 +73,8 @@ void COPILOT_process_it(void)
 	{
 		//la position du point fictif dans le référentiel PD est juste devant nous, à l'écart pret...
 		//si vous comprenez pas, contactez Nirgal : samuelp5@gmail.com
-		global.position_rotation = global.ecart_rotation_prec;
-		global.position_translation = global.ecart_translation_prec;
+		global.position_rotation -= global.real_position_rotation >> 10;	//global.ecart_rotation_prec;
+		global.position_translation -= global.real_position_translation;//global.ecart_translation_prec;
 	
 		//on remet a jour le point destination dans le référentiel IT
 		COPILOT_update_destination_translation();
@@ -84,7 +83,7 @@ void COPILOT_process_it(void)
 		
 	COPILOT_update_arrived();
 	COPILOT_update_brake_state();
-	 
+
 	if(COPILOT_decision_change_order(&change_order_in_multipoint_without_reaching_destination))
 	{
 		if(ROADMAP_get_next(&next_order))
@@ -394,7 +393,7 @@ void COPILOT_update_destination_rotation(void)
 		angle = CALCULATOR_viewing_angle(global.position.x, global.position.y, current_order.x, current_order.y);
 		//supposons qu'on soit en marche avant...
 		//current_order.teta = calcul_angle_de_vue(global.position.x, global.position.y, current_order.x, current_order.y);
-		if(abs(angle) > PI4096/32)
+//		if(abs(angle) > PI4096/32)
 			current_order.teta = angle;
 
 		
@@ -536,12 +535,14 @@ void COPILOT_update_arrived(void)
 		return;
 	}
 
-//	if(arrived_rotation  != ARRIVED)
-	if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
-		arrived_rotation 	= ARRIVED;
-	else
-		arrived_rotation 	= Decision_robot_arrive_rotation();
-
+	if(arrived_rotation  != ARRIVED)	//Maintient du ARRIVED en rotation.
+	{
+		if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
+			arrived_rotation 	= ARRIVED;
+		else
+			arrived_rotation 	= Decision_robot_arrive_rotation();
+	}
+		
 	if(arrived_translation != ARRIVED)
 		arrived_translation = Decision_robot_arrive_translation();
 
@@ -566,7 +567,6 @@ void COPILOT_update_arrived(void)
 // Cette décision concerne le ROBOT et non le point fictif...	
 arrived_e Decision_robot_arrive_rotation(void)
 {
-	
 	//CONDITION DE CONSIDERATION ROBOT ARRIVE SUR ROTATION = vitesse faible et position proche
 	if ((abs(global.real_speed_rotation) < PRECISION_ARRIVE_SPEED_ROTATION/*/diviseur*/) &&
 		(abs(CALCULATOR_modulo_angle((global.real_position_rotation >> 10) - PILOT_get_destination_rotation())) < PRECISION_ARRIVE_POSITION_ROTATION  ))
