@@ -22,7 +22,6 @@
 #include "calculator.h"
 #include "joystick.h"
 #include "QS/QS_who_am_i.h"
-
 typedef enum {
 		ACCELERATION_NULLE,
 		ACCELERATION_POSITIVE,

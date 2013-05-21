@@ -194,11 +194,11 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 	
 	// de combien on accelere à chaque boucle d'asser
-	#define TINY_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define TINY_ACCELERATION_ROTATION_TRANSLATION 7			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
+	#define TINY_ACCELERATION_NORMAL	64	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define TINY_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 	
-	#define KRUSTY_ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 8
+	#define KRUSTY_ACCELERATION_NORMAL	112	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 12
 	
 	// 13 = (1024 / (distance entre les roues de propulsions divisée par 2 ) )
 	//sur archi'tech : 2*80mm entre les roues
@@ -223,10 +223,10 @@
 	#define TINY_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
 	
 	//Une vitesse de 1024[rad/4096/1024/5ms] en rotation correspond à un déplacement des roues de 80[mm/4096/5ms]
-	#define TINY_ROTATION_SPEED_LIGHT 		(Sint32)(92920)			//[rad/4096/1024/5ms]
-	#define TINY_ROTATION_SPEED_MAX 			(Sint32)(92920)			//[rad/4096/1024/5ms]
-	#define TINY_ROTATION_SPEED_LOW 			(Sint32)(21120)			//environ 1,5 rad/s
-	#define TINY_ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
+	#define TINY_ROTATION_SPEED_LIGHT 		(Sint32)(135160)			//[rad/4096/1024/5ms]
+	#define TINY_ROTATION_SPEED_MAX 			(Sint32)(135160)			//[rad/4096/1024/5ms]
+	#define TINY_ROTATION_SPEED_LOW 			(Sint32)(41140)			//environ 1,5 rad/s
+	#define TINY_ROTATION_SPEED_VERY_LOW 	(Sint32)(21120)			//environ 0,75 rad/s
 	#define TINY_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
 	
 		// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...

@@ -86,7 +86,7 @@ void DEBUG_process_main(void)
 	if(global.flag_recouvrement_IT)
 	{
 		global.flag_recouvrement_IT = FALSE;	
-		debug_printf("prévenez samuelp5@gmail.com, recouvrement IT !");//Fuck, il y a des IT trop longues... on remonte l'info au développeur !
+		debug_printf("#");//debug_printf("prévenez samuelp5@gmail.com, recouvrement IT !");//Fuck, il y a des IT trop longues... on remonte l'info au développeur !
 		msg.sid = DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT;
 		msg.size = 8;
 		msg.data[0] = 'E';
@@ -216,10 +216,8 @@ void affichage_global(void)
 			//Le robot semble "parfait"............c'est un robot virtuel qui se déplace
 		void DEBUG_envoi_point_fictif_alteration_coordonnees_reelles(void)
 		{
-
-
-				global.real_speed_translation = global.ecart_translation_prec;
-				global.real_speed_rotation = global.ecart_rotation_prec << 10;
+				global.real_speed_translation = global.position_translation;//global.ecart_translation_prec;
+				global.real_speed_rotation = global.position_rotation << 10;//global.ecart_rotation_prec << 10;
 				if(COPILOT_get_border_mode() == BORDER_MODE_WITH_UPDATE_POSITION)
 				{
 					if(global.position.x < -400)
@@ -248,7 +246,6 @@ void affichage_global(void)
 	
 
 
-	
 
 		void DEBUG_envoi_point_fictif_process_main(void)
 		{
@@ -259,7 +256,13 @@ void affichage_global(void)
 				teta = (((Sint32)(global.position.teta))*180)/PI4096;
 				if(teta <0)
 					teta += 360;
-				printf("%d\t, %d\t, %d\t, %ld\t, %ld\n", global.position.x, global.position.y, teta, (Sint32)PILOT_get_destination_rotation(), (Sint32)global.ecart_rotation_prec);
+		
+				printf("%d\t%d\t%d\tdr%ld\ter%ld\tpr%ld\trpr%ld\n", 
+						global.position.x, global.position.y, teta, 
+						(Sint32)PILOT_get_destination_rotation(), 
+						(Sint32)global.ecart_rotation_prec,
+						global.position_rotation,
+						global.real_position_rotation>>10);	
 //				CAN_send_point_fictif(global.position.x, global.position.y, global.position.teta);
 			}
 		}
