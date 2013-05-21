@@ -13,6 +13,7 @@
 
 #include "QS_uart.h"
 #include "QS_ports.h"
+#include "stm32f4xx_usart.h"
 
 //	Determination de la vitesse de l'uart en fonction
 //	de la PLL utilisée

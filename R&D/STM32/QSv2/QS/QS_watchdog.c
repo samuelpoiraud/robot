@@ -52,8 +52,8 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 	Uint8 i;
 	watchdog_id_t id = 255;
 	assert(t >= WATCHDOG_QUANTUM);
-	
-	TIMER_SRC_TIMER_DisableIT;
+
+	TIMER_SRC_TIMER_DisableIT();
 
 	for (i = 0; i < WATCHDOG_MAX_COUNT; i++)
 		if((watchdog[i].initialized) && watchdog[i].callback == func)
@@ -81,7 +81,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 	if(id== 255)
 		debug_printf("WD : TABLEAU FULL");
 
-	TIMER_SRC_TIMER_EnableIT;
+	TIMER_SRC_TIMER_EnableIT();
 	return id;
 }
 

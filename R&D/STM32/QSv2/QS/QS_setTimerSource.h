@@ -27,6 +27,7 @@
 //TIMER_SRC_TIMER_DisableIT() Désactivation de interruption du timer (mais il continu de compter)
 //TIMER_SRC_TIMER_EnableIT() Réactivation de l'interruption du timer
 
+
 #if (!defined(TIMER_SRC_TIMER_ID) || TIMER_SRC_TIMER_ID > 4 || TIMER_SRC_TIMER_ID < 1) && !defined(TIMER_SRC_USE_WATCHDOG)
 	#error "TIMERSRC: TIMER_SRC_TIMER_ID non défini ou invalide, vous devez choisir le numéro du timer entre 1 et 4 inclus, ou utiliser le watchdog avec TIMER_SRC_USE_WATCHDOG"
 #elif defined(TIMER_SRC_USE_WATCHDOG)
@@ -56,8 +57,8 @@
 	#define TIMER_SRC_TIMER_start_ms(period_ms) TIMER_SRC_TEMP_CONCAT(TIMER, TIMER_SRC_TIMER_ID, _run)(period_ms)
 	#define TIMER_SRC_TIMER_start_us(period_us) TIMER_SRC_TEMP_CONCAT(TIMER, TIMER_SRC_TIMER_ID, _run_us)(period_us)
 	#define TIMER_SRC_TIMER_stop() TIMER_SRC_TEMP_CONCAT(TIMER, TIMER_SRC_TIMER_ID, _stop)()
-	#define TIMER_SRC_TIMER_DisableIT TIMER_SRC_TEMP_CONCAT(TIMER, TIMER_SRC_TIMER_ID, _disableInt)()
-	#define TIMER_SRC_TIMER_EnableIT  TIMER_SRC_TEMP_CONCAT(TIMER, TIMER_SRC_TIMER_ID, _enableInt)()
+	#define TIMER_SRC_TIMER_DisableIT() TIMER_SRC_TEMP_CONCAT(TIMER, TIMER_SRC_TIMER_ID, _disableInt)()
+	#define TIMER_SRC_TIMER_EnableIT()  TIMER_SRC_TEMP_CONCAT(TIMER, TIMER_SRC_TIMER_ID, _enableInt)()
 #endif
 
 

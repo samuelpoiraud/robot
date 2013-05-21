@@ -14,6 +14,7 @@
 	#define QS_TIMER_H
 
 	#include "QS_all.h"
+	#include "stm32f4xx_tim.h"
 
 	//Définitions faites ici pour permettre l'utilisation de ces valeurs hors de ce module. Il est parfois nécessaire d'avoir ces nombres pour d'autre module.
 	//En étant ici, les définitions restent centralisés.

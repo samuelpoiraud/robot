@@ -6,42 +6,42 @@
  */
 
 
-#include "stm32f4xx.h"
-#include "stm32f4xx_gpio.h"
-#include "stm32f4xx_rcc.h"
+#include "QS/QS_sys.h"
+#include "QS/QS_ports.h"
+#include "QS/QS_buttons.h"
+#include "QS/QS_timer.h"
 
+//PORTD
 #define LED_GREEN      12
 #define LED_ORANGE     13
 #define LED_RED        14
 #define LED_BLUE       15
 
+void onButton() {
+	LED_RUN = !LED_RUN;
+}
+
+void _T1Interrupt() {
+	LED_CAN = !LED_CAN;
+}
+
 int main()
 {
-    int pin = LED_ORANGE;
-    uint32_t mode = GPIO_Mode_OUT << (pin * 2);
-    uint32_t speed = GPIO_Speed_100MHz << (pin * 2);
-    uint32_t type = GPIO_OType_PP << pin;
-    uint32_t pullup = GPIO_PuPd_NOPULL << (pin * 2);
-    //
-    //  Initialise the peripheral clock.
-    //
-    RCC->AHB1ENR |= RCC_AHB1Periph_GPIOD;
-    //
-    //  Initilaise the GPIO port.
-    //
-    GPIOD->MODER |= mode;
-    GPIOD->OSPEEDR |= speed;
-    GPIOD->OTYPER |= type;
-    GPIOD->PUPDR |= pullup;
-    //
-    //  Toggle the selected LED indefinitely.
-    //
-    int index;
+	SYS_init();
+	PORTS_init();
+	BUTTONS_init();
+	TIMER_init();
+
+	TIMER1_run(250);
+
+	BUTTONS_define_actions(BUTTON1, &onButton, NULL, 10);
+	BUTTONS_define_actions(BUTTON2, &onButton, NULL, 10);
+	BUTTONS_define_actions(BUTTON3, &onButton, NULL, 10);
+	BUTTONS_define_actions(BUTTON4, &onButton, NULL, 10);
+
     while (1)
     {
-        GPIOD->BSRRL = (1 << pin);
-        for (index = 0; index < 500000; index++);
-        GPIOD->BSRRH = (1 << pin);
-        for (index = 0; index < 500000; index++);
     }
 }
+
+
