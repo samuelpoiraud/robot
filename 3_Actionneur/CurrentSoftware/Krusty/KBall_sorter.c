@@ -221,8 +221,8 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 				else cherry_color = ACT_BALLSORTER_NO_CHERRY;
 #endif
 
-				//FIXME on lance TOUTES les cerises
-				cherry_color = ACT_BALLSORTER_WHITE_CHERRY;
+//				//FIXME on lance TOUTES les cerises
+//				cherry_color = ACT_BALLSORTER_WHITE_CHERRY;
 
 				CAN_msg_t detectionResultMsg = {ACT_BALLSORTER_RESULT, {cherry_color}, 1};
 
