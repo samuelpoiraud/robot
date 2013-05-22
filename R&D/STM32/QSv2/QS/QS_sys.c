@@ -186,10 +186,6 @@ void SYS_init(void)
 	setvbuf(stdout, NULL, _IONBF, 0 );
 	setvbuf(stderr, NULL, _IONBF, 0 );
 	setvbuf(stdin, NULL, _IONBF, 0 );
-
-
-	//Sortie de SYSCLK/4 sur MO2 pour debug clock
-	RCC_MCO2Config (RCC_MCO2Source_SYSCLK, RCC_MCO2Div_4);
 }
 
 

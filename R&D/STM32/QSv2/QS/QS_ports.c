@@ -34,18 +34,18 @@ void PORTS_init(void){
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
 	/* GPIOA */
-	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_A_IO_MASK;
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_A_IO_MASK) & 0xFFFF1FFF;	//JTMS-SWDIO, JTCK-SWCLK, JTDI
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)PORT_A_IO_MASK);
+	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_A_IO_MASK)) & 0xFFFF1FFF;	//JTMS-SWDIO, JTCK-SWCLK, JTDI
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	/* GPIOB */
-	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_B_IO_MASK;
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_B_IO_MASK) & 0xFFFFFFE7; //JTDO/TRACESWO, NJTRST
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)PORT_B_IO_MASK);
+	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_B_IO_MASK)) & 0xFFFFFFE7; //JTDO/TRACESWO, NJTRST
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
@@ -66,10 +66,10 @@ void PORTS_init(void){
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	/* GPIOE */
-	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_E_IO_MASK;
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_E_IO_MASK) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)PORT_E_IO_MASK);
+	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_E_IO_MASK)) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
 
