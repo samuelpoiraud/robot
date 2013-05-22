@@ -23,7 +23,7 @@
 	#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
 	#define PCLK1_FREQUENCY_HZ    10000000	//10Mhz, Max: 42Mhz
 	#define PCLK2_FREQUENCY_HZ    40000000	//40Mhz, Max: 84Mhz
-	#define CPU_EXTERNAL_CLOCK_HZ 10000000	//10Mhz, Fréquence de l'horloge externe
+	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//10Mhz, Fréquence de l'horloge externe
 
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
@@ -35,7 +35,7 @@
 	
 	#define PORT_A_IO_MASK	0xFFFF
 	#define PORT_B_IO_MASK	0xFFFF
-	#define PORT_C_IO_MASK	0xFEFF	//C9: MO2 debug clock
+	#define PORT_C_IO_MASK	0xFDFF	//C9: MO2 debug clock
 	#define PORT_D_IO_MASK	0x0FFF	//LEDs
 	#define PORT_E_IO_MASK	0xFFFF
 	
