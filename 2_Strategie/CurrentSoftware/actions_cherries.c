@@ -721,12 +721,12 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 	static const Sint16 SAFE_INIT_POS_OFFSET  = 350;	//Si on est trop près de l'assiette, on va a cette position
 	static const Sint16 CLOSING_AX12_OFFSET   = 270;	//Début du serrage de l'assiette, relatif au milieu de l'assiette
 	static const Sint16 CATCHING_PLATE_OFFSET = 320;	//Début de la vitesse lente, relatif au milieu de l'assiette
-	static const Sint16 CATCHED_PLATE_OFFSET  = 260;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
+	static const Sint16 CATCHED_PLATE_OFFSET  = 280;	//Fin de la vitesse lente, après on soulève l'assiette pour prendre les cerises, relatif au milieu de l'assiette
 	static const Sint16 DROP_PLATE_OFFSET     = -60;	//Position pour lacher les assiettes (uniquement dans un axe X, pas Y)
 	static const Sint16 PLATE_ANGLE_CORRECTION_X  = 2;	//Angle a avoir pour prendre une assiette bien
 	static const Uint8 CATCHING_PLATE_SPEED = 8 + 5;	//vitesse de 8 [mm/32/5ms] == 50mm/s, le premier 8 c'est un offset nécessaire pour indiquer à la prop que la vitesse est une vitesse "analogique" (voir pilot.c, PILOT_set_speed)
 
-	static const bool_e USE_DOUBLE_CLOSE_AX12 = TRUE; //Si TRUE, on serre 2 fois l'assiette pour mieux la prendre
+	static const bool_e USE_DOUBLE_CLOSE_AX12 = FALSE; //Si TRUE, on serre 2 fois l'assiette pour mieux la prendre
 	static const time32_t TIME_BEFORE_DROP_DURATION = 1000;  //Temps d'attente pendant que les cerises tombe de l'assiette en position verticale dans la tremie
 	static const Uint8 MAX_DROP_RETRY_COUNT = 1;	//Nombre d'essai max de lacher l'assiette avant de fail
 
