@@ -69,7 +69,7 @@
 	//utilisation du module BUTTONS
 	#define USE_BUTTONS
 	//utilise le timer 2 pour les boutons
-	#define BUTTONS_TIMER 2
+	//#define BUTTONS_TIMER 2
 
 	//Test debug QS_STM32
 	//On active tout

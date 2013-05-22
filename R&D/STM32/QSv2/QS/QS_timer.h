@@ -20,7 +20,7 @@
 	//En étant ici, les définitions restent centralisés.
 	//TIMER_ a été ajouté au nom pour éviter de polluer l'espace de noms global, car l'écologie c'est le bien.
 
-	#define TIMER_MS_PRESCALER  (PCLK1_FREQUENCY_HZ / ((65536 / 255) * 1000))
+	#define TIMER_MS_PRESCALER  (PCLK1_FREQUENCY_HZ / ((65536 / 257) * 1000))
 	#define TIMER_US_PRESCALER  (PCLK1_FREQUENCY_HZ / (1000000))
 	#define TIMER_PULSE_PER_MS	(PCLK1_FREQUENCY_HZ / (1000 * TIMER_MS_PRESCALER))
 	#define TIMER_PULSE_PER_US	(PCLK1_FREQUENCY_HZ / (1000000 * TIMER_US_PRESCALER))
@@ -73,9 +73,9 @@
 	void TIMER4_enableInt();
 
 	//Acuittement des IT timer
-	#define TIMER1_AckIT() TIM_ClearITPendingBit(TIM1, TIM_IT_Update)
-	#define TIMER2_AckIT() TIM_ClearITPendingBit(TIM2, TIM_IT_Update)
-	#define TIMER3_AckIT() TIM_ClearITPendingBit(TIM3, TIM_IT_Update)
-	#define TIMER4_AckIT() TIM_ClearITPendingBit(TIM4, TIM_IT_Update)
+	#define TIMER1_AckIT() TIM_ClearITPendingBit(TIM11, TIM_IT_Update)
+	#define TIMER2_AckIT() TIM_ClearITPendingBit(TIM12, TIM_IT_Update)
+	#define TIMER3_AckIT() TIM_ClearITPendingBit(TIM13, TIM_IT_Update)
+	#define TIMER4_AckIT() TIM_ClearITPendingBit(TIM14, TIM_IT_Update)
 
 #endif
