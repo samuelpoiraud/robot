@@ -676,7 +676,43 @@ typedef struct
   __IO uint32_t OTYPER;   /*!< GPIO port output type register,        Address offset: 0x04      */
   __IO uint32_t OSPEEDR;  /*!< GPIO port output speed register,       Address offset: 0x08      */
   __IO uint32_t PUPDR;    /*!< GPIO port pull-up/pull-down register,  Address offset: 0x0C      */
-  __IO uint32_t IDR;      /*!< GPIO port input data register,         Address offset: 0x10      */
+  __IO union {
+    uint32_t IDR;       /*!< GPIO port input data register,         Address offset: 0x10      */
+    struct __attribute__((packed)) {
+      unsigned int IDR0 : 1;
+      unsigned int IDR1 : 1;
+      unsigned int IDR2 : 1;
+      unsigned int IDR3 : 1;
+      unsigned int IDR4 : 1;
+      unsigned int IDR5 : 1;
+      unsigned int IDR6 : 1;
+      unsigned int IDR7 : 1;
+      unsigned int IDR8 : 1;
+      unsigned int IDR9 : 1;
+      unsigned int IDR10 : 1;
+      unsigned int IDR11 : 1;
+      unsigned int IDR12 : 1;
+      unsigned int IDR13 : 1;
+      unsigned int IDR14 : 1;
+      unsigned int IDR15 : 1;
+      unsigned int IDR16 : 1;
+      unsigned int IDR17 : 1;
+      unsigned int IDR18 : 1;
+      unsigned int IDR19 : 1;
+      unsigned int IDR20 : 1;
+      unsigned int IDR21 : 1;
+      unsigned int IDR22 : 1;
+      unsigned int IDR23 : 1;
+      unsigned int IDR24 : 1;
+      unsigned int IDR25 : 1;
+      unsigned int IDR26 : 1;
+      unsigned int IDR27 : 1;
+      unsigned int IDR28 : 1;
+      unsigned int IDR29 : 1;
+      unsigned int IDR30 : 1;
+      unsigned int IDR31 : 1;
+    };
+  };
   __IO union {
     uint32_t ODR;         /*!< GPIO port output data register,        Address offset: 0x14      */
     struct __attribute__((packed)) {

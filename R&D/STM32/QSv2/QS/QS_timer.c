@@ -27,10 +27,10 @@
 #endif
 
 //Interruptions
-__attribute__((weak)) void _T1Interrupt() {}
-__attribute__((weak)) void _T2Interrupt() {}
-__attribute__((weak)) void _T3Interrupt() {}
-__attribute__((weak)) void _T4Interrupt() {}
+__attribute__((weak)) void _T1Interrupt() {TIMER1_AckIT();}
+__attribute__((weak)) void _T2Interrupt() {TIMER2_AckIT();}
+__attribute__((weak)) void _T3Interrupt() {TIMER3_AckIT();}
+__attribute__((weak)) void _T4Interrupt() {TIMER4_AckIT();}
 
 /* Configuation de l'ensemble du bloc timer */
 void TIMER_init(void){
@@ -55,11 +55,11 @@ void TIMER_init(void){
 #if (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 1
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 #elif (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 2
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-#elif (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 4
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV2;
-#elif (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 8
+#elif (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 4
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV4;
+#elif (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 8
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV8;
 #else
 #error "Incorrect HCLK/PCLK1 ratio, must be 1, 2, 4 or 8"
 #endif
@@ -75,22 +75,22 @@ void TIMER_init(void){
 	NVICInit.NVIC_IRQChannelCmd = ENABLE;
 	NVICInit.NVIC_IRQChannelSubPriority = 0;
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 1;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 6;
 	NVICInit.NVIC_IRQChannel = TIM1_TRG_COM_TIM11_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 5;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 10;
 	NVICInit.NVIC_IRQChannel = TIM8_BRK_TIM12_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 6;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 11;
 	NVICInit.NVIC_IRQChannel = TIM8_UP_TIM13_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 7;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 12;
 	NVICInit.NVIC_IRQChannel = TIM8_TRG_COM_TIM14_IRQn;
 	NVIC_Init(&NVICInit);
-	
+
 	TIM_ITConfig(TIM11, TIM_IT_Update, ENABLE);
 	TIM_ITConfig(TIM12, TIM_IT_Update, ENABLE);
 	TIM_ITConfig(TIM13, TIM_IT_Update, ENABLE);
@@ -105,6 +105,7 @@ void TIMER_run(TIM_TypeDef* TIMx, Uint8 period /* en millisecondes */) {
 	TIM_SetAutoreload(TIMx,  ((Uint16)period) * TIMER_PULSE_PER_MS);
 	TIM_SetCounter(TIMx, 0);
 	TIM_Cmd(TIMx, ENABLE);
+	TIM_ITConfig(TIMx, TIM_IT_Update, ENABLE);
 }
 
 void TIMER_run_us(TIM_TypeDef* TIMx, Uint16 period /* en microsecondes */) {

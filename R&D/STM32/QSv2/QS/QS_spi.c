@@ -21,6 +21,8 @@
 #define SPI2_SPI_HANDLE SPI2
 #define SPI2_SPI_CLOCK  RCC_APB1Periph_SPI2
 
+#if defined(USE_SPI1) || defined(USE_SPI2)
+
 void SPI_init(void) 
 {
 	static bool_e initialized = FALSE;
@@ -55,6 +57,8 @@ void SPI_init(void)
 	#endif /* def USE_SPI2 */
 
 }
+
+#endif  /* defined(USE_SPI1) || defined(USE_SPI2) */
 
 #ifdef USE_SPI1
 
@@ -132,5 +136,5 @@ Uint8 SPI2_read()
 	return SPI2_exchange(0x00);
 }
 
-#endif /* def USE_SPI2 */  
+#endif /* defined(USE_SPI2) */
 

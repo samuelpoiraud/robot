@@ -53,9 +53,9 @@
 	#define LED_ERROR GPIOD->ODR15
 
 	// Boutons des cartes génériques (pull_up)
-	#define BUTTON1_PORT	GPIOC->ODR13
-	#define BUTTON2_PORT	GPIOG->ODR15
-	#define BUTTON3_PORT	GPIOA->ODR0
-	#define BUTTON4_PORT	GPIOC->ODR14
+	#define BUTTON1_PORT	GPIOC->IDR13
+	#define BUTTON2_PORT	GPIOG->IDR15
+	#define BUTTON3_PORT	GPIOA->IDR0
+	#define BUTTON4_PORT	GPIOC->IDR14
 
 #endif /* ndef QS_MACRO_H */

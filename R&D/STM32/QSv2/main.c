@@ -12,17 +12,18 @@
 #include "QS/QS_timer.h"
 
 //PORTD
-#define LED_GREEN      12
-#define LED_ORANGE     13
-#define LED_RED        14
-#define LED_BLUE       15
+#define LED_GREEN      12	//LD4
+#define LED_ORANGE     13	//LD3
+#define LED_RED        14	//LD5
+#define LED_BLUE       15	//LD6
 
 void onButton() {
 	LED_RUN = !LED_RUN;
 }
 
-void _T1Interrupt() {
+void _T2Interrupt() {
 	LED_CAN = !LED_CAN;
+	TIMER2_AckIT();
 }
 
 int main()
@@ -32,7 +33,7 @@ int main()
 	BUTTONS_init();
 	TIMER_init();
 
-	TIMER1_run(250);
+	//TIMER2_run(250);
 
 	BUTTONS_define_actions(BUTTON1, &onButton, NULL, 10);
 	BUTTONS_define_actions(BUTTON2, &onButton, NULL, 10);
@@ -41,6 +42,7 @@ int main()
 
     while (1)
     {
+    	BUTTONS_update();
     }
 }
 
