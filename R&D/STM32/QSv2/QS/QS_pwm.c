@@ -17,21 +17,24 @@
 #define FREQ_PWM_50KHZ
 
 /* Configuration du prédiviseur */
-//100000 = 25000 * 4 (period * prescaler)
+//100 = 100 * 1 (period * prescaler)
+#ifdef FREQ_PWM_200KHZ
+	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 200000 / 100)
+#endif
 #ifdef FREQ_PWM_50KHZ
-	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 50000 / 100000)
+	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 50000 / 100)
 #endif
 #ifdef FREQ_PWM_20KHZ
-	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 20000 / 100000)
+	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 20000 / 100)
 #endif
 #ifdef FREQ_PWM_10KHZ
-	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 10000 / 100000)
+	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 10000 / 100)
 #endif
 #ifdef FREQ_PWM_1KHZ
-	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 1000 / 100000)
+	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 1000 / 100)
 #endif
 #ifdef FREQ_PWM_50HZ
-	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 50 / 100000)
+	#define PWM_PRESC (PCLK2_FREQUENCY_HZ / 50 / 100)
 #endif
 
 #if PWM_PRESC > 65535
@@ -55,22 +58,30 @@ void PWM_init(void) {
 	/* Structures */
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef TIM_OCInitStructure;
+	Uint16 prescaler = 1;
+	RCC_ClocksTypeDef clocksSpeed;
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
 
 	PORTS_pwm_init();
 
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV4;
+	RCC_GetClocksFreq(&clocksSpeed);
+
+	if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK2_Frequency > 1)
+		prescaler = 2;
+	prescaler *= PWM_PRESC;
+
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
-	TIM_TimeBaseStructure.TIM_Period        = 25000 - 1;	//Le timer compte de 0 à period inclus
-	TIM_TimeBaseStructure.TIM_Prescaler     = PWM_PRESC - 1;
+	TIM_TimeBaseStructure.TIM_Period        = 100 - 1;	//Le timer compte de 0 à period inclus
+	TIM_TimeBaseStructure.TIM_Prescaler     = prescaler - 1;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
 
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
-	TIM_OCInitStructure.TIM_Pulse = 0;
+	TIM_OCInitStructure.TIM_Pulse = 25;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset;
@@ -104,19 +115,19 @@ void PWM_stop(Uint8 channel) {
 void PWM_run_fine(Uint16 duty, Uint8 channel) {
 	switch(channel) {
 		case 1:
-			TIM8->CCR1 = duty;
+			TIM8->CCR1 = duty/250;
 			break;
 
 		case 2:
-			TIM8->CCR2 = duty;
+			TIM8->CCR2 = duty/250;
 			break;
 
 		case 3:
-			TIM8->CCR3 = duty;
+			TIM8->CCR3 = duty/250;
 			break;
 
 		case 4:
-			TIM8->CCR4 = duty;
+			TIM8->CCR4 = duty/250;
 			break;
 	}
 }

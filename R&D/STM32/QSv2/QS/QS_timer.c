@@ -50,25 +50,27 @@ void TIMER_init(void){
 	TIM_TimeBaseStructure.TIM_Period = 0xFFFF;	//Le moins rapide par défaut
 	TIM_TimeBaseStructure.TIM_Prescaler = 0xFFFF;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 
 	//On s'arrange pour que la clock sur TIM11 soit la même que sur TIM12-14, voir manuel de réference STM32F4xx page 114
-#if (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 1
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-#elif (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 2
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV2;
-#elif (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 4
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV4;
-#elif (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) == 8
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV8;
-#else
-#error "Incorrect HCLK/PCLK1 ratio, must be 1, 2, 4 or 8"
+#if (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) != 1 && (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) != 2 && (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) != 4
+#error "Incorrect HCLK/PCLK1 ratio, must be 1, 2 or 4"
 #endif
-	TIM_TimeBaseInit(TIM11, &TIM_TimeBaseStructure);
 
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseInit(TIM11, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM12, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM13, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM14, &TIM_TimeBaseStructure);
+
+	TIM_UpdateRequestConfig(TIM11, TIM_UpdateSource_Regular);
+	TIM_UpdateRequestConfig(TIM12, TIM_UpdateSource_Regular);
+	TIM_UpdateRequestConfig(TIM13, TIM_UpdateSource_Regular);
+	TIM_UpdateRequestConfig(TIM14, TIM_UpdateSource_Regular);
+
+	TIM_ITConfig(TIM11, TIM_IT_Update, ENABLE);
+	TIM_ITConfig(TIM12, TIM_IT_Update, ENABLE);
+	TIM_ITConfig(TIM13, TIM_IT_Update, ENABLE);
+	TIM_ITConfig(TIM14, TIM_IT_Update, ENABLE);
 
 	/* NVIC: initialisation des IT timer avec les niveaux de priorité adéquats*/
 	NVIC_InitTypeDef NVICInit;
@@ -91,25 +93,49 @@ void TIMER_init(void){
 	NVICInit.NVIC_IRQChannel = TIM8_TRG_COM_TIM14_IRQn;
 	NVIC_Init(&NVICInit);
 
-	TIM_ITConfig(TIM11, TIM_IT_Update, ENABLE);
-	TIM_ITConfig(TIM12, TIM_IT_Update, ENABLE);
-	TIM_ITConfig(TIM13, TIM_IT_Update, ENABLE);
-	TIM_ITConfig(TIM14, TIM_IT_Update, ENABLE);
-
 	/* Fin de la configuration */
 	initialized = TRUE;
 }
 
 void TIMER_run(TIM_TypeDef* TIMx, Uint8 period /* en millisecondes */) {
-	TIM_PrescalerConfig(TIMx, TIMER_MS_PRESCALER, TIM_PSCReloadMode_Immediate);
+	RCC_ClocksTypeDef clocksSpeed;
+	Uint32 prescaler_mul = 1;
+	RCC_GetClocksFreq(&clocksSpeed);
+
+
+	if(TIMx == TIM11) {
+		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK2_Frequency > 1)
+			prescaler_mul = 2;
+		prescaler_mul *= clocksSpeed.PCLK2_Frequency / clocksSpeed.PCLK1_Frequency;
+	} else {
+		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK1_Frequency > 1)
+			prescaler_mul = 2;
+	}
+
+	TIM_PrescalerConfig(TIMx, (prescaler_mul*TIMER_MS_PRESCALER) - 1, TIM_PSCReloadMode_Immediate);
 	TIM_SetAutoreload(TIMx,  ((Uint16)period) * TIMER_PULSE_PER_MS);
+//	TIM_PrescalerConfig(TIMx, 38, TIM_PSCReloadMode_Immediate);
+//	TIM_SetAutoreload(TIMx,  64000);
 	TIM_SetCounter(TIMx, 0);
 	TIM_Cmd(TIMx, ENABLE);
-	TIM_ITConfig(TIMx, TIM_IT_Update, ENABLE);
 }
 
 void TIMER_run_us(TIM_TypeDef* TIMx, Uint16 period /* en microsecondes */) {
-	TIM_PrescalerConfig(TIMx, TIMER_US_PRESCALER, TIM_PSCReloadMode_Immediate);
+	RCC_ClocksTypeDef clocksSpeed;
+	Uint32 prescaler_mul = 1;
+	RCC_GetClocksFreq(&clocksSpeed);
+
+
+	if(TIMx == TIM11) {
+		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK2_Frequency > 1)
+			prescaler_mul = 2;
+		prescaler_mul *= clocksSpeed.PCLK2_Frequency / clocksSpeed.PCLK1_Frequency;
+	} else {
+		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK1_Frequency > 1)
+			prescaler_mul = 2;
+	}
+
+	TIM_PrescalerConfig(TIMx, (prescaler_mul*TIMER_US_PRESCALER) - 1, TIM_PSCReloadMode_Immediate);
 	TIM_SetAutoreload(TIMx, period * TIMER_PULSE_PER_US);
 	TIM_SetCounter(TIMx, 0);
 	TIM_Cmd(TIMx, ENABLE);
