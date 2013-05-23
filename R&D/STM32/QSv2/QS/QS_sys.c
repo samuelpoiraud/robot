@@ -40,7 +40,7 @@ extern int errno;
 
 #define HCLK_CHOOSEN_DIV  1
 #define PCLK1_CHOOSEN_DIV 4
-#define PCLK2_CHOOSEN_DIV 1
+#define PCLK2_CHOOSEN_DIV 2
 
 //L'entrée du VCO doit avoir une freqence entre 1Mhz et 2Mhz
 #define VCO_INPUT_HZ  1000000	//1Mhz
@@ -164,7 +164,7 @@ void SYS_init(void)
 		//Pour savoir si les valeurs sont correctes, veuillez changer HCLK_CHOOSEN_DIV, PCLK1_CHOOSEN_DIV et PCLK2_CHOOSEN_DIV. Une erreur de précompilation indiquera s'il y a un problème
 		RCC_HCLKConfig(RCC_SYSCLK_Div1);
 		RCC_PCLK1Config(RCC_HCLK_Div4);
-        RCC_PCLK2Config(RCC_HCLK_Div1);
+        RCC_PCLK2Config(RCC_HCLK_Div2);
 
 		RCC_PLLConfig(RCC_PLLSource_HSE, PLLM, PLLN, PLLP, PLLQ);
 
