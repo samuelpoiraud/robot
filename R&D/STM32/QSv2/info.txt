@@ -38,3 +38,24 @@ E[0:15]: GPIO
 + 2 UART, 1 QEI, 26 GPIO
 =>
 16 ADC, 3 UART, 1 I2C, 1 SPI, 1 CAN, 3 QEI, 4 PWM, 39 GPIO
+
+
+
+----------------------
+Etat des modules:
+QS_adc        Pas testé
+QS_all        Ok
+QS_button     Ok sauf interruption & gestion appui long (pas testé)
+QS_can        Pas testé
+QS_DCMotor2   Pas testé
+QS_macro      Ok sauf LED/Boutons: définir les bon ports
+QS_ports      Semi-Ok, gestion des périphériques trop différente => a voir comment faire
+QS_pwm        Ok, à rester + run et run_fine
+QS_qei        Pas testé
+QS_servo      Pas testé
+QS_spi        Pas testé
+QS_Step_Motor Pas testé
+QS_sys        Ok
+QS_timer      Ok sauf timer1: pas testé
+QS_uart       Pas testé
+QS_wachdog    Pas testé

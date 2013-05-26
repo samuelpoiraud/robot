@@ -73,7 +73,7 @@ SECTIONS
 	. = ALIGN(4);
     } >FLASH
  
-    
+ 
     /* the program code is stored in the .text section, which goes to Flash */
     .text :
     {
@@ -88,16 +88,29 @@ SECTIONS
 
 	    . = ALIGN(4);
    	 _etext = .;
-	    /* This is used by the startup in order to initialize the .data secion */
-   	 _sidata = _etext;
     } >FLASH
+    
+    .ARM.extab :
+    {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > FLASH
+
+    __exidx_start = .;
+    .ARM.exidx :
+    {
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    } > FLASH
+    __exidx_end = .;
+    
+	/* This is used by the startup in order to initialize the .data secion */
+   	_sidata = __exidx_end;
+    
     
     /* MEMORY_ARRAY */
     .ROarraySection :
     {
             *(.ROarraySection)                          
     } >MEMORY_ARRAY
-     
 
     /* This is the initialized data section
     The program executes knowing that the data is in the RAM

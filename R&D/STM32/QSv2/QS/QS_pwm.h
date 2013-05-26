@@ -14,6 +14,26 @@
 #ifndef QS_PWM_H
 	#define QS_PWM_H
 	#include "QS_all.h"
+
+	#ifdef FREQ_PWM_200KHZ
+		#error "Les ponts en H actuel ne supporte pas cette fréquence. Si c'est le cas un jour, veuillez passer ce #error en #warning. si tout ce qui existe au robot peut supporter 200Khz, veuillez supprimer ce warning/error"
+		#define PWM_FREQ 200000
+	#endif
+	#ifdef FREQ_PWM_50KHZ
+		#define PWM_FREQ 50000
+	#endif
+	#ifdef FREQ_PWM_20KHZ
+		#define PWM_FREQ 20000
+	#endif
+	#ifdef FREQ_PWM_10KHZ
+		#define PWM_FREQ 10000
+	#endif
+	#ifdef FREQ_PWM_1KHZ
+		#define PWM_FREQ 1000
+	#endif
+	#ifdef FREQ_PWM_50HZ
+		#define PWM_FREQ 50
+	#endif
 		
 	/**
 	 * Initialise le module PWM
@@ -28,6 +48,7 @@
 	 */
 	void PWM_stop(Uint8 channel);
 
+	#define PWM_HIGH_SPEED_DUTY 100
 	/**
 	 * Lance une PWM avec un rapport cyclique donné
 	 * @param duty rapport cyclique en pourcent
@@ -35,11 +56,14 @@
 	 */
 	void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel);
 
+	#define PWM_FINE_DUTY 25000
+#if PWM_FREQ <= (TIM_CLK2_FREQUENCY_HZ / PWM_FINE_DUTY)
 	/**
 	 * Lance une PWM avec un rapport cyclique donné
 	 * @param duty rapport cyclique en pour 25000, duty = 25000 <=> rapport cyclique = 100%
 	 * @param channel numéro de la PWM
 	 */
 	void PWM_run_fine (Uint16 duty, Uint8 channel);
+#endif
 
 #endif /* ndef QS_PWM_H */

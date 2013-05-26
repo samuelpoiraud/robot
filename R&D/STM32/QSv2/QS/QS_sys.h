@@ -15,14 +15,8 @@
 	#include "QS_all.h"
 	
 	/**
-		* Configurations essentielles de la carte
-		* HSE = 8MHz
-		* PLLSRC = 8MHz
-		* PLLCLK = 72MHz
-		* SYSCLK = 72MHz
-		* PCLK1 = 36MHz
-		* PCLK2 = 72MHz
-	**/
+	 * Configurations essentielles de la carte
+	 */
 	void SYS_init(void);
 
 #endif /* ndef QS_SYS_H */

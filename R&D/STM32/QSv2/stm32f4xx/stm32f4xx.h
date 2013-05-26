@@ -89,15 +89,12 @@
 #endif /* USE_STDPERIPH_DRIVER */
 
 /**
- * @brief In the following line adjust the value of External High Speed oscillator (HSE)
-   used in your application 
-   
-   Tip: To avoid modifying this file each time you need to use different HSE, you
-        can define the HSE value in your toolchain compiler preprocessor.
-  */           
-
+ * @brief External High Speed oscillator frequency
+ *
+ * To change this value to the real value, use RCC_SetHSEFreq
+ */
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)CPU_EXTERNAL_CLOCK_HZ) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE    ((uint32_t)HSEClockSpeed) /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 /**
@@ -262,11 +259,14 @@ typedef enum IRQn
 #include "system_stm32f4xx.h"
 #include <stdint.h>
 
+
+extern uint32_t HSEClockSpeed;  //Defined in stm32f4xx_rcc.c
+
 /** @addtogroup Exported_types
   * @{
   */  
 /*!< STM32F10x Standard Peripheral Library old types (maintained for legacy purpose) */
-/* Désactivé car non utilisé et peut causer des conflits de noms
+/* Dï¿½sactivï¿½ car non utilisï¿½ et peut causer des conflits de noms
 typedef int32_t  s32;
 typedef int16_t s16;
 typedef int8_t  s8;
