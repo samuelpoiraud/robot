@@ -68,9 +68,9 @@ void ADC_init(void) {
 	ADC_InitStructure.ADC_Resolution = ADC_Resolution_10b;
 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
 #ifdef ADC_CONTINUOUS_CONVERSION
-	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-#else
 	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+#else
+	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
 #endif
 	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_CC1;

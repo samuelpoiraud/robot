@@ -67,7 +67,7 @@ static void CAN_error_processing();
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
 		CAN_DeInit(CAN1);
 
-		CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;
+		CAN_InitStructure.CAN_Mode = CAN_Mode_LoopBack;	//TODO: remettre CAN_Mode_Normal
 		CAN_InitStructure.CAN_Prescaler = PCLK1_FREQUENCY_HZ / 1250000;	//1,25Mhz clk CAN
 		CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;
 		CAN_InitStructure.CAN_BS1 = CAN_BS1_6tq;	//3tq propagation + 3tq segment 1
@@ -257,7 +257,7 @@ static void CAN_error_processing();
 			NVIC_DisableIRQ(CAN1_RX1_IRQn);
 
 			// récupérer le prochain message à lire
-			msgToReturn = (m_can_buffer + (next_to_read++));
+			msgToReturn = &(m_can_buffer[next_to_read++]);
 			next_to_read %= CAN_BUF_SIZE;
 
 			// si on lit le dernier message, abaisser le drapeau.
