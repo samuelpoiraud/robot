@@ -258,6 +258,8 @@
 
 #define __CMSIS_GENERIC         /* disable NVIC and Systick functions */
 
+#define ARM_MATH_CM4
+
 #if defined (ARM_MATH_CM4)
 #include "core_cm4.h"
 #elif defined (ARM_MATH_CM3)
@@ -365,6 +367,8 @@ extern "C"
   /**
    * @brief definition to read/write two 16 bit values.
    */
+//  typedef int32_t __attribute__((__may_alias__)) __int32_a;
+//  typedef int64_t __attribute__((__may_alias__)) __int64_a;
 #if defined  (__GNUC__)
   #define __SIMD32(addr)         (*( int32_t **) & (addr))
   #define  _SIMD32_OFFSET(addr)  (*( int32_t * )   (addr))
@@ -5307,12 +5311,14 @@ extern "C"
 
     /* acc += A1 * x[n-1] + A2 * x[n-2]  */
     acc += (q31_t) S->A1 * S->state[0];
-    acc += (q31_t) S->A2 * S->state[1];
+    acc += (q31_t) S->A1 * S->state[1];
 
 #else
 
     /* acc += A1 * x[n-1] + A2 * x[n-2]  */
-    acc = __SMLALD(S->A1, (q31_t) __SIMD32(S->state), acc);
+//    acc = __SMLALD(S->A1, (q31_t) __SIMD32(S->state), acc);
+    acc += ((short) (S->A1 >> 16) * S->state[1]) +
+                ((short) S->A1 * S->state[0]);
 
 #endif
 

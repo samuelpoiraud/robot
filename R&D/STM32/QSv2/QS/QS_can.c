@@ -167,6 +167,7 @@ static void CAN_error_processing();
 		void CAN_send(CAN_msg_t* can_msg)
 		{
 			CanTxMsg TxMsg;
+			int i;
 
 #ifdef CAN_SEND_TIMEOUT_ENABLE
 			Uint32 time = TIMEOUT_CAN_SEND;
@@ -182,8 +183,12 @@ static void CAN_error_processing();
 			TxMsg.StdId = can_msg->sid;
 
 			//Copie rapide 4 octet d'un coup
-			((Uint32*)TxMsg.Data)[0] = ((Uint32*)can_msg->data)[0];
-			((Uint32*)TxMsg.Data)[1] = ((Uint32*)can_msg->data)[1];
+//			((Uint32*)TxMsg.Data)[0] = ((Uint32*)can_msg->data)[0];
+//			((Uint32*)TxMsg.Data)[1] = ((Uint32*)can_msg->data)[1];
+
+			for(i = 0; i < 8; i++) {
+				TxMsg.Data[i] = can_msg->data[i];
+			}
 
 			TxMsg.DLC = can_msg->size;
 
@@ -213,6 +218,7 @@ static void CAN_error_processing();
 	static void CAN_receive(CAN_msg_t* can_msg)
 	{
 		CanRxMsg msg;
+		int i;
 
 		if(CAN_GetFlagStatus(CAN1, CAN_FLAG_FMP0))
 		{
@@ -234,9 +240,11 @@ static void CAN_error_processing();
 		can_msg->sid = msg.StdId;
 		can_msg->size = msg.DLC;
 
-		//Copie rapide 4 octet d'un coup
-		((Uint32*)can_msg->data)[0] = ((Uint32*)msg.Data)[0];
-		((Uint32*)can_msg->data)[1] = ((Uint32*)msg.Data)[1];
+		for(i = 0; i < 8; i++) {
+			can_msg->data[i] = msg.Data[i];
+		}
+//		((Uint32_a*)can_msg->data)[0] = ((Uint32_a*)msg.Data)[0];
+//		((Uint32_a*)can_msg->data)[1] = ((Uint32_a*)msg.Data)[1];
 	}
 
 	CAN_msg_t CAN_get_next_msg()

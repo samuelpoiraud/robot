@@ -34,28 +34,19 @@
 #undef errno
 extern int errno;
 
-//Pour avoir un PLLP entier, on le force à une valeur, ce qui définira VCO_OUTPUT_HZ en conséquence
-#define FORCED_PLLP  6
-#define FORCED_HCLK_DIV	1
-
 #define HCLK_CHOOSEN_DIV  1
 #define PCLK1_CHOOSEN_DIV 4
 #define PCLK2_CHOOSEN_DIV 2
 
-//L'entrée du VCO doit avoir une freqence entre 1Mhz et 2Mhz
-#define VCO_INPUT_HZ  1000000	//1Mhz
-//La sortie du VCO doit avoir une freqence entre 192Mhz et 432Mhz
-#define VCO_OUTPUT_HZ (HCLK_FREQUENCY_HZ*FORCED_HCLK_DIV*FORCED_PLLP)
-#define SYSCLK_HZ (HCLK_FREQUENCY_HZ*FORCED_HCLK_DIV)
-#define USB_RNG_SDIO_CLK_HZ  48000000	//L'usb doit utiliser une fréquence de 48Mhz, RNG et SDIO <= 48Mhz, donc on prend 48Mhz
+#include "QS_clocks_freq.h"
 
 #if 1      //Pour pouvoir fold le code dessous (car long et utile que en cas de problème ...)
 
 //Vérification des valeurs, si elles sont bien celles voulu par l'utilisateur
 
 #define HCLK_DIV	FORCED_HCLK_DIV	//HCLK = SYSCLK_HZ / HCLK_DIV
-#define PCLK1_DIV	(SYSCLK_HZ/PCLK1_FREQUENCY_HZ)	//PCLK1 = SYSCLK_HZ / PCLK1_DIV
-#define PCLK2_DIV	(SYSCLK_HZ/PCLK2_FREQUENCY_HZ)	//PCLK2 = SYSCLK_HZ / PCLK2_DIV
+#define PCLK1_DIV	(HCLK_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ)	//PCLK1 = HCLK_DIV / PCLK1_DIV
+#define PCLK2_DIV	(HCLK_FREQUENCY_HZ/PCLK2_FREQUENCY_HZ)	//PCLK2 = HCLK_DIV / PCLK2_DIV
 
 //VCO_INPUT_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM
 //VCO_OUTPUT_HZ = VCO_INPUT_HZ * PLLN
@@ -75,11 +66,11 @@ extern int errno;
 #warning "Computed HCLK frequency is not exactly HCLK_FREQUENCY_HZ"
 #endif
 
-#if PCLK1_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / PCLK1_DIV)
+#if PCLK1_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK1_DIV)
 #warning "Computed PCLK1 frequency is not exactly PCLK1_FREQUENCY_HZ"
 #endif
 
-#if PCLK2_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / PCLK2_DIV)
+#if PCLK2_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK2_DIV)
 #warning "Computed PCLK2 frequency is not exactly PCLK2_FREQUENCY_HZ"
 #endif
 
@@ -159,6 +150,9 @@ void SYS_init(void)
 	{
 		//Voir page 60 du manuel de reference
 		FLASH_SetLatency(FLASH_WAIT_CYCLES);
+
+		//Défini la clock HSE pour avoir des valeurs correcte pour RCC_GetClocksFreq()
+		RCC_SetHSEFreq(CPU_EXTERNAL_CLOCK_HZ);
 
 		/* PCLK1 = HCLK/2, PCLK2 = HCLK | HCLK = SYSCLK */
 		//Pour savoir si les valeurs sont correctes, veuillez changer HCLK_CHOOSEN_DIV, PCLK1_CHOOSEN_DIV et PCLK2_CHOOSEN_DIV. Une erreur de précompilation indiquera s'il y a un problème

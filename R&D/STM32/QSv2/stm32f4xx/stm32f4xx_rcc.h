@@ -495,6 +495,8 @@ void    RCC_HCLKConfig(uint32_t RCC_SYSCLK);
 void    RCC_PCLK1Config(uint32_t RCC_HCLK);
 void    RCC_PCLK2Config(uint32_t RCC_HCLK);
 void    RCC_GetClocksFreq(RCC_ClocksTypeDef* RCC_Clocks);
+//Ajouté par Alexis Murzeau: HSE_VALUE n'est pas mis en dur => pour compilation en librarie
+void    RCC_SetHSEFreq(uint32_t HSEFreq);
 
 /* Peripheral clocks configuration functions **********************************/
 void RCC_RTCCLKConfig(uint32_t RCC_RTCCLKSource);
