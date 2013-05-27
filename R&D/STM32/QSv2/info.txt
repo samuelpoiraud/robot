@@ -45,17 +45,17 @@ E[0:15]: GPIO
 Etat des modules:
 QS_adc        Pas testé
 QS_all        Ok
-QS_button     Ok sauf interruption & gestion appui long (pas testé)
-QS_can        Pas testé
+QS_button     Ok
+QS_can        Ok en loopback (filtres ok, contenu pas testé)
 QS_DCMotor2   Pas testé
 QS_macro      Ok sauf LED/Boutons: définir les bon ports
 QS_ports      Semi-Ok, gestion des périphériques trop différente => a voir comment faire
-QS_pwm        Ok, à rester + run et run_fine
+QS_pwm        Ok
 QS_qei        Pas testé
 QS_servo      Pas testé
 QS_spi        Pas testé
 QS_Step_Motor Pas testé
 QS_sys        Ok
-QS_timer      Ok sauf timer1: pas testé
-QS_uart       Pas testé
+QS_timer      Ok
+QS_uart       Ok mais uart 1 sur PB6/7 et uart 2 sur PA2/3 (sinon il y a déjà des leds sur la carte)
 QS_wachdog    Pas testé

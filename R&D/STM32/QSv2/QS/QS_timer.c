@@ -72,6 +72,11 @@ void TIMER_init(void){
 	TIM_ITConfig(TIM13, TIM_IT_Update, ENABLE);
 	TIM_ITConfig(TIM14, TIM_IT_Update, ENABLE);
 
+	TIM_ClearITPendingBit(TIM11, TIM_IT_Update);
+	TIM_ClearITPendingBit(TIM12, TIM_IT_Update);
+	TIM_ClearITPendingBit(TIM13, TIM_IT_Update);
+	TIM_ClearITPendingBit(TIM14, TIM_IT_Update);
+
 	/* NVIC: initialisation des IT timer avec les niveaux de priorité adéquats*/
 	NVIC_InitTypeDef NVICInit;
 	NVICInit.NVIC_IRQChannelCmd = ENABLE;

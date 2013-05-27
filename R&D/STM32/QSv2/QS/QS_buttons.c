@@ -84,7 +84,7 @@ void BUTTONS_update()
 	buttons_rising_edge = (~buttons_were_pressed) & buttons_pressed;
 	
 	for(i=0;i<BUTTONS_NUMBER;i++)
-	{		
+	{
 		button = &(buttons[i]);
 		if(buttons_rising_edge&(1<<i))
 		{			
