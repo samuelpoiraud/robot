@@ -15,6 +15,8 @@
 	#define QS_PWM_H
 	#include "QS_all.h"
 
+	#include "QS_clocks_freq.h"
+
 	#ifdef FREQ_PWM_200KHZ
 		#error "Les ponts en H actuel ne supporte pas cette fréquence. Si c'est le cas un jour, veuillez passer ce #error en #warning. si tout ce qui existe au robot peut supporter 200Khz, veuillez supprimer ce warning/error"
 		#define PWM_FREQ 200000

@@ -107,7 +107,7 @@ void PWM_stop(Uint8 channel) {
 	PWM_run(0, channel);
 }
 
-#if PWM_PERIOD == PWM_FINE_PERIOD
+#if PWM_PERIOD == PWM_FINE_DUTY
 void PWM_run_fine(Uint16 duty, Uint8 channel) {
 	switch(channel) {
 		case 1:

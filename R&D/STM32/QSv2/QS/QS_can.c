@@ -104,6 +104,22 @@ static void CAN_error_processing();
 			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 1;
 			CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 			CAN_FilterInit(&CAN_FilterInitStructure);
+		#else
+			//Message pour la carte & message de debug sur FIFO 0
+			CAN_FilterInitStructure.CAN_FilterNumber = 0;
+			CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
+			CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
+			CAN_FilterInitStructure.CAN_FilterIdHigh = 0;
+			CAN_FilterInitStructure.CAN_FilterIdLow  = 0;
+			CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0;
+			CAN_FilterInitStructure.CAN_FilterMaskIdLow  = 0;
+			CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+
+			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
+			CAN_FilterInit(&CAN_FilterInitStructure);
+
+			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
+			CAN_FilterInit(&CAN_FilterInitStructure);
 		#endif
 			
 		CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);

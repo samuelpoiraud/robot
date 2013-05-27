@@ -17,7 +17,7 @@
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
 	#define I_AM CARTE_STRAT
-	#define I_AM_CARTE_STRAT
+	#define I_AM_CARTE_SUPER //I_AM_CARTE_STRAT
 
 	/* Il faut choisir à quelle frequence on fait tourner le STM32 */
 	#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
@@ -69,7 +69,7 @@
 	//utilisation du module BUTTONS
 	#define USE_BUTTONS
 	//utilise le timer 2 pour les boutons
-	#define BUTTONS_TIMER 1
+	#define BUTTONS_TIMER 3
 
 	//Test debug QS_STM32
 	//On active tout
@@ -98,7 +98,7 @@
 //	#define USE_SPI
 //	#define USE_SPI2
 
-#define FREQ_PWM_50KHZ
+#define FREQ_PWM_50HZ
 
 
 #endif /* ndef GLOBAL_CONFIG_H */
