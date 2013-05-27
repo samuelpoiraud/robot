@@ -41,6 +41,7 @@
 	#define US_ERROR_RESULT				0x754	//Message de la super pour l'EEPROM -> compteur des erreurs de balise
 	#define DEBUG_FOE_REASON			0x755	//Message de debug qui explique la raison d 'un evitement
 	#define DEBUG_US_NOT_RELIABLE		0x756	//Message qui indique que on ne fait plus confiance aux ultrasons
+	#define DEBUG_TEST_HARD				0x757	//Message qui permet de tester l'entrée uart2
 
 	#define DEBUG_STRAT_STATE_CHANGED	0x760  //Envoyé par la strat quand un état change d'une machine à état
 		//Paramètres: data[0]:data[1] = ID d'une machine à état (data[0] le poids fort), data[2] = old_state, data[3] = new_state, data suivant: paramètres divers
@@ -160,6 +161,8 @@
 	#define ASSER_TYPE_ASSERVISSEMENT			0x108
 	#define ASSER_RUSH_IN_THE_WALL				0x109
 	#define ASSER_CALIBRATION					0x10B
+	#define ASSER_RECOVERY_CALIBRATION			0x10F //Datas: [0]->way_e way, [1]->map_border_e wall, [2]->bool_e both_borders, [3]->speed_e speed, size = 4
+
 		typedef enum
 		{
 			ASSER_CALIBRATION_SQUARE_0	= 0,	//Near gifts
@@ -173,11 +176,12 @@
 	#define ASSER_WARN_X						0x10D
 	#define ASSER_WARN_Y						0x10E
 	#define ASSER_JOYSTICK 						0x111
-	
-	//modif amaury pour les 3position de calibrage initiale
-    #define ASSER_CASE_CALIBRAGE_1               0x112
-    #define ASSER_CASE_CALIBRAGE_2               0x113
-    #define ASSER_CASE_CALIBRAGE_3               0x114
+
+		typedef enum
+		{
+			X_AXIS_BORDER = 0,
+			Y_AXIS_BORDER
+		}map_border_e;
 		
 
 /*****************************************************************
