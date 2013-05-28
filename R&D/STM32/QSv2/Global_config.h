@@ -62,8 +62,7 @@
 /* Utilisation des entrées analogiques */
 	#define USE_ANALOG_EXT_VREF
 
-	#define ADC_PIN_DT10_GLASSES	0
-		#define USE_AN15 			// DT10 glasses sur TINY
+	#define USE_AN8
 
 
 	//utilisation du module BUTTONS

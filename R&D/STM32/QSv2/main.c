@@ -12,6 +12,7 @@
 #include "QS/QS_pwm.h"
 #include "QS/QS_can.h"
 #include "QS/QS_uart.h"
+#include "QS/QS_adc.h"
 
 //PORTD
 #define LED_GREEN      12	//LD4
@@ -43,6 +44,7 @@ int main()
 	TIMER_init();
 	CAN_init();
 	UART_init();
+	ADC_init();
 
 	LED_UART = 0;
 
@@ -63,12 +65,9 @@ int main()
 
 	UART2_putc(0x05);
 
-	PWM_run_fine(5000, 1);
-
     while (1)
     {
     	static bool_e led_timer_on = FALSE;
-
 
     	BUTTONS_update();
     	while(CAN_data_ready()) {
@@ -80,6 +79,7 @@ int main()
     		led_timer_on = TRUE;
     		LED_UART = 1;
     	}
+    	PWM_run_fine(((Sint32)ADC_getValue(0))*25000/1024, 1);
     }
 }
 
