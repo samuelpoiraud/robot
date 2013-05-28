@@ -23,7 +23,7 @@
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="${project_name}"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="org.eclipse.cdt.cross.arm.gnu.summon.windows.elf.debug.1286319239"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/${project_name}"/>
+<listEntry value="/QS_STM32"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
