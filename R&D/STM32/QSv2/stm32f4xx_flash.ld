@@ -31,6 +31,8 @@ _Minimum_Stack_Size = 0x100 ;
 /*
 Linker subscript for STM32F4xx definitions with 1024 Flash and 192 Onchip SRAM */
 
+ENTRY(Reset_Handler)
+
 /* Memory Spaces Definitions */
 
 MEMORY
