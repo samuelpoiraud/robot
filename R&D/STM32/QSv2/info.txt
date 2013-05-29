@@ -43,7 +43,7 @@ E[0:15]: GPIO
 
 ----------------------
 Etat des modules:
-QS_adc        Pas testé
+QS_adc        Ok (0-Vdd), à tester la config de la ref externe
 QS_all        Ok
 QS_button     Ok
 QS_can        Ok en loopback (filtres ok, contenu pas testé)
