@@ -137,6 +137,7 @@ void BUTTONS_process_it(void)
 	
 	void TIMER_SRC_TIMER_interrupt()
 	{
+		LED_USER = !LED_USER;
 		BUTTONS_process_it();
 		TIMER_SRC_TIMER_resetFlag();
 	}

@@ -6,14 +6,17 @@ TIMER: TIM11-TIM14 WITH_IT
 QEI: TIM2 + TIM4 GPIOB[8:9 + 10:11] NO_IT
 
 
-A[0:7]: ADC
+A[0:1]: ADC
+A[2:3]: UART 2
+A[4:7]: ADC
 A[8]: CLK out / GPIO
-A[9:10]: UART TX/RX
+A[9:10]: x
 A[11:12]: CAN
 A[13:15]: GPIO
 B[0:1]: ADC
 B[2:3]: GPIO
-B[4:7]: 2x QEI
+B[4:5]: 1x QEI
+B[6:7]: UART 1
 B[8]: GPIO
 B[9]: SPI_NSS
 B[10:12]: I2C
@@ -28,7 +31,7 @@ Pour format 64 Pins
 
 Bonus format 100 Pins:
 D[0:4]: GPIO
-D[5:6]: UART2
+D[5:6]: x
 D[7]: GPIO
 D[8:9]: UART3
 D[10:11]: GPIO
@@ -46,7 +49,7 @@ Etat des modules:
 QS_adc        Ok (Vref- - Vref+ => 0 - (2.4-3.3)), toujours en Vref externe
 QS_all        Ok
 QS_button     Ok
-QS_can        Ok en loopback (filtres ok, contenu pas testé)
+QS_can        Ok en loopback (filtres ok, contenu ok, msg pas dans l'ordre)
 QS_DCMotor2   Pas testé
 QS_macro      Ok sauf LED/Boutons: définir les bon ports
 QS_ports      Ok, gestion des périphériques trop différente => a voir comment faire
@@ -58,4 +61,4 @@ QS_Step_Motor Pas testé
 QS_sys        Ok
 QS_timer      Ok
 QS_uart       Ok mais uart 1 sur PB6/7 et uart 2 sur PA2/3 (sinon il y a déjà des leds sur la carte)
-QS_wachdog    Pas testé
+QS_wachdog    Ok, modif pour avoir une simulation du mode timer (periodique)

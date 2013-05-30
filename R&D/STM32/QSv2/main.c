@@ -73,7 +73,6 @@ int main()
     	while(CAN_data_ready()) {
     		CAN_msg_t msg = CAN_get_next_msg();
     		lastmsg = msg;
-    		LED_USER = !LED_USER;
     	}
     	if(TIM_GetITStatus(TIM11, TIM_IT_Update) && led_timer_on == FALSE) {
     		led_timer_on = TRUE;

@@ -117,9 +117,6 @@ static void CAN_error_processing();
 
 			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
 			CAN_FilterInit(&CAN_FilterInitStructure);
-
-			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
-			CAN_FilterInit(&CAN_FilterInitStructure);
 		#endif
 			
 		CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);

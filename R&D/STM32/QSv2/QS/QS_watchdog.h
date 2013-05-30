@@ -35,7 +35,7 @@
 		* param g Fonction appellée au timeout, de prototype void foobar(void);
 		* return Identifiant du watchdog pour désarmement, 255 si échec
 	 **/
-	watchdog_id_t WATCHDOG_create(timeout_t t, watchdog_callback_fun_t f);
+	watchdog_id_t WATCHDOG_create(timeout_t t, watchdog_callback_fun_t f, bool_e is_periodic);
 
 	/** Ajoute un watchdog :
 		* param t Temps avant exécution, en millisecondes, avec t > QUANTUM
