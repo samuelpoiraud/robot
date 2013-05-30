@@ -68,14 +68,15 @@
 	//utilisation du module BUTTONS
 	#define USE_BUTTONS
 	//utilise le timer 2 pour les boutons
-	#define BUTTONS_TIMER 3
+	//#define BUTTONS_TIMER 3
+	#define BUTTONS_TIMER_USE_WATCHDOG
 
 	//Test debug QS_STM32
 	//On active tout
-//	#define USE_WATCHDOG
-//	#define WATCHDOG_TIMER 1
-//	#define WATCHDOG_MAX_COUNT 5
-//	#define WATCHDOG_QUANTUM 1
+	#define USE_WATCHDOG
+	#define WATCHDOG_TIMER 3
+	#define WATCHDOG_MAX_COUNT 5
+	#define WATCHDOG_QUANTUM 1
 //
 //	#define USE_DCMOTOR2
 //	#define DCM_NUMBER 3
