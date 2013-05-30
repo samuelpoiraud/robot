@@ -87,12 +87,6 @@ void ADC_init(void) {
 	/* Enable ADC1 */
 	ADC_Cmd(ADCx, ENABLE);
 
-	/* Calibrate the ADC */
-	ADC_ResetCalibration(ADC1);
-	while(ADC_GetResetCalibrationStatus(ADC1));
-	ADC_StartCalibration(ADC1);
-	while(ADC_GetCalibrationStatus(ADC1));
-
 #ifdef ADC_CONTINUOUS_CONVERSION
 	ADC_SoftwareStartConv(ADCx);
 #endif

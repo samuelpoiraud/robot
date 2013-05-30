@@ -43,13 +43,13 @@ E[0:15]: GPIO
 
 ----------------------
 Etat des modules:
-QS_adc        Ok (0-Vdd), à tester la config de la ref externe
+QS_adc        Ok (Vref- - Vref+ => 0 - (2.4-3.3)), toujours en Vref externe
 QS_all        Ok
 QS_button     Ok
 QS_can        Ok en loopback (filtres ok, contenu pas testé)
 QS_DCMotor2   Pas testé
 QS_macro      Ok sauf LED/Boutons: définir les bon ports
-QS_ports      Semi-Ok, gestion des périphériques trop différente => a voir comment faire
+QS_ports      Ok, gestion des périphériques trop différente => a voir comment faire
 QS_pwm        Ok
 QS_qei        Pas testé
 QS_servo      Pas testé
