@@ -23,11 +23,13 @@
 
 typedef struct
 {
+	timeout_t timeout;
+	timeout_t counter;
+	watchdog_callback_fun_t callback;
 	bool_e initialized;
 	bool_e enabled;
-	timeout_t timeout;
-	watchdog_callback_fun_t callback;
 	bool_e* flag;
+	bool_e periodic;
 }watchdog_t;
 
 static volatile watchdog_t watchdog[WATCHDOG_MAX_COUNT];
@@ -46,7 +48,7 @@ void WATCHDOG_init(void)
 /** Privée: ajoute un nouveau watchdog
 	* Cette fonction est utilisée pour ajoute un nouveau watchdog avec les caractéristiques spécifiés
 **/
-watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* flag)
+watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* flag, bool_e is_periodic)
 {
 	/* Vars */
 	Uint8 i;
@@ -72,6 +74,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 			watchdog[i].timeout = t - t%WATCHDOG_QUANTUM;
 			watchdog[i].callback = func;
 			watchdog[i].flag = flag;
+			watchdog[i].periodic = is_periodic;
 			id = i;
 			watchdog[i].enabled = TRUE;
 			watchdog[i].initialized = TRUE;
@@ -86,15 +89,15 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, bool_e* fl
 }
 
 
-watchdog_id_t WATCHDOG_create(timeout_t t, watchdog_callback_fun_t f){
+watchdog_id_t WATCHDOG_create(timeout_t t, watchdog_callback_fun_t f, bool_e is_periodic){
 	assert(f != NULL);
- 	return WATCHDOG_new(t, f, NULL);
+ 	return WATCHDOG_new(t, f, NULL, is_periodic);
 }
 
 watchdog_id_t WATCHDOG_create_flag(timeout_t t, bool_e* f){
 	assert(f != NULL);
 	*f = FALSE;
- 	return WATCHDOG_new(t, NULL, f);
+ 	return WATCHDOG_new(t, NULL, f, FALSE);
 }
 
 /* Arrêt d'un watchdog par mise à zéro de ses descripteurs */
@@ -122,20 +125,24 @@ void TIMER_SRC_TIMER_interrupt()
 	{
 		if (watchdog[i].initialized)
 		{
-			if(watchdog[i].timeout)
-			{
-				watchdog[i].timeout -= WATCHDOG_QUANTUM;
-			}
-			else if(watchdog[i].enabled)
+			//si le watchdog est déclenché, pas la peine d'aller prendre un overflow s'il est désactivé (c'est même plutôt conseillé pour éviter les bugs)
+			if(watchdog[i].counter < watchdog[i].timeout)
+				watchdog[i].counter += WATCHDOG_QUANTUM;
+
+			//Si timeout == WATCHDOG_QUANTUM, on doit rentrer dans le if a tous les coups (counter aura été mis de 0 à WATCHDOG_QUANTUM avant)
+			if(watchdog[i].enabled && watchdog[i].counter >= watchdog[i].timeout)
 			{
 				callback = watchdog[i].callback;
 				
 				if (watchdog[i].flag)
 					*(watchdog[i].flag)=TRUE;
 					
-				/* Arrêt du watchdog */
-				WATCHDOG_stop(i);
+				/* Arrêt du watchdog si non périodique */
+				if(watchdog[i].periodic == FALSE)
+					WATCHDOG_stop(i);
 				
+				watchdog[i].counter = 0;
+
 				/*On appelle la fonction de callback après le stop pour permettre une recréation des fonctions callback par elles-mêmes*/
 				if(callback)
 					callback();
