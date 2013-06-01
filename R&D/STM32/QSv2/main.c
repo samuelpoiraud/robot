@@ -14,12 +14,6 @@
 #include "QS/QS_uart.h"
 #include "QS/QS_adc.h"
 
-//PORTD
-#define LED_GREEN      12	//LD4
-#define LED_ORANGE     13	//LD3
-#define LED_RED        14	//LD5
-#define LED_BLUE       15	//LD6
-
 void onButton() {
 	NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
 }
@@ -79,6 +73,7 @@ int main()
     		LED_UART = 1;
     	}
     	PWM_run_fine(((Sint32)ADC_getValue(0))*25000/1024, 1);
+    	debug_printf("test\n");
     }
 }
 

@@ -17,7 +17,7 @@
 
 //	Determination de la vitesse de l'uart en fonction
 //	de la PLL utilisée
-#define UART_BAUDRATE 9600
+#define UART_BAUDRATE 1000000
 
 /* Variables Globales pour l'UART */
 #ifdef USE_UART1RXINTERRUPT
