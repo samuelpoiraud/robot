@@ -77,6 +77,9 @@ int main()
 	dcmotor_pos = 0;
 	DCM_goToPos(0, dcmotor_pos);
 
+	int i = 0;
+	int error = 5/i;	//Test trap division par 0 (UsageFault)
+
     while (1)
     {
     	BUTTONS_update();
@@ -85,7 +88,7 @@ int main()
     		lastmsg = msg;
     	}
     	PWM_run_fine(QEI1_get_count(), 1);
-    	debug_printf("test\n");
+    	debug_printf("test %d\n", error);
     }
 }
 

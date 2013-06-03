@@ -173,7 +173,10 @@ void SYS_init(void)
 	//Pas de subpriority sur les interruptions
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
-	//Config LibC
+	//Activation de l'exception Division par 0
+	SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;	//
+
+	//Config LibC: no buffering
 	setvbuf(stdout, NULL, _IONBF, 0 );
 	setvbuf(stderr, NULL, _IONBF, 0 );
 	setvbuf(stdin, NULL, _IONBF, 0 );
