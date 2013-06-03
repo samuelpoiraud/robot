@@ -13,21 +13,29 @@
 #include "QS/QS_can.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_adc.h"
+#include "QS/QS_DCMotor2.h"
+#include "QS/QS_qei.h"
+
+int dcmotor_pos;
 
 void onButton() {
 	NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+	DCM_goToPos(0, dcmotor_pos);
+	dcmotor_pos++;
 }
 
 void onLongButton() {
 	LED_RUN = !LED_RUN;
 }
 
-void _T1Interrupt() {
-	LED_CAN = !LED_CAN;
-	TIMER1_AckIT();
-}
 
 volatile CAN_msg_t lastmsg;
+
+Sint16 get_qei_value() {
+	LED_UART = !LED_UART;
+
+	return QEI1_get_count();
+}
 
 int main()
 {
@@ -35,12 +43,9 @@ int main()
 	PORTS_init();
 	BUTTONS_init();
 	PWM_init();
-	TIMER_init();
 	CAN_init();
 	UART_init();
-	ADC_init();
-
-	LED_UART = 0;
+	DCM_init();
 
 	CAN_send_sid(123);
 	CAN_send_sid(203);
@@ -48,31 +53,38 @@ int main()
 	CAN_send_sid(602);
 	CAN_send_sid(430);
 
-	TIMER1_run(250);
-	NVIC_DisableIRQ(TIM1_TRG_COM_TIM11_IRQn);
-	//On ne doit pas avoir d'IT timer
-
 	BUTTONS_define_actions(BUTTON1, &onButton, &onLongButton, 1);
 	BUTTONS_define_actions(BUTTON2, &onButton, &onLongButton, 1);
 	BUTTONS_define_actions(BUTTON3, &onButton, &onLongButton, 1);
 	BUTTONS_define_actions(BUTTON4, &onButton, &onLongButton, 1);
 
-	UART2_putc(0x05);
+	DCMotor_config_t motor_config;
+	motor_config.Kd = 0;
+	motor_config.Ki = 0;
+	motor_config.Kp = 100;
+	motor_config.epsilon = 100;
+	motor_config.pos[0] = 0;
+	motor_config.pos[1] = 100;
+	motor_config.pos[2] = 1000;
+	motor_config.pwm_number = 3;
+	motor_config.way_latch = (volatile unsigned int *)&(GPIOC->ODR);
+	motor_config.way_bit_number = 4;
+	motor_config.sensor_read = &get_qei_value;
+	motor_config.timeout = 0;
+	motor_config.way0_max_duty = 30;
+	motor_config.way1_max_duty = 30;
+	DCM_config(0, &motor_config);
+	dcmotor_pos = 0;
+	DCM_goToPos(0, dcmotor_pos);
 
     while (1)
     {
-    	static bool_e led_timer_on = FALSE;
-
     	BUTTONS_update();
     	while(CAN_data_ready()) {
     		CAN_msg_t msg = CAN_get_next_msg();
     		lastmsg = msg;
     	}
-    	if(TIM_GetITStatus(TIM11, TIM_IT_Update) && led_timer_on == FALSE) {
-    		led_timer_on = TRUE;
-    		LED_UART = 1;
-    	}
-    	PWM_run_fine(((Sint32)ADC_getValue(0))*25000/1024, 1);
+    	PWM_run_fine(QEI1_get_count(), 1);
     	debug_printf("test\n");
     }
 }

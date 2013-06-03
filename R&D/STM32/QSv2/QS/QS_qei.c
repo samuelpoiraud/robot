@@ -27,15 +27,15 @@ void QEI_init()
 
 	PORTS_qei_init();
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3  | RCC_APB1Periph_TIM4 , ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3  | RCC_APB1Periph_TIM2 , ENABLE);
 
 	TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
 	TIM_SetAutoreload(TIM3, 0xFFFF);
-	TIM_EncoderInterfaceConfig(TIM4, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
-	TIM_SetAutoreload(TIM4, 0xFFFF);
+	TIM_EncoderInterfaceConfig(TIM2, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
+	TIM_SetAutoreload(TIM2, 0xFFFF);
 
 	TIM_Cmd(TIM3, ENABLE);
-	TIM_Cmd(TIM4, ENABLE);
+	TIM_Cmd(TIM2, ENABLE);
 }
 
 /*-------------------------------------
@@ -53,10 +53,10 @@ void QEI1_set_count(Sint16 count)
 
 Sint16 QEI2_get_count()
 {
-	return (Sint16)TIM_GetCounter(TIM4);
+	return (Sint16)TIM_GetCounter(TIM2);
 }
 
 void QEI2_set_count(Sint16 count)
 {
-	TIM_SetCounter(TIM4, (Sint32)count);
+	TIM_SetCounter(TIM2, (Sint32)count);
 }

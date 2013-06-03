@@ -77,6 +77,13 @@
 	#define WATCHDOG_TIMER 3
 	#define WATCHDOG_MAX_COUNT 5
 	#define WATCHDOG_QUANTUM 1
+
+	#define USE_DCMOTOR2
+	#define DCM_NUMBER 3
+	#define DCM_TIMER_PERIOD 10
+	#define DCMOTOR_NB_POS 3
+	#define DCM_TIMER 4
+
 //
 //	#define USE_DCMOTOR2
 //	#define DCM_NUMBER 3
