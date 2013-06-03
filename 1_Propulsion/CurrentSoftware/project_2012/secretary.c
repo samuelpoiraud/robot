@@ -16,6 +16,7 @@
 #include "QS/QS_can.h"
 #include "QS/QS_can_over_uart.h"
 #include "QS/QS_uart.h"
+#include "QS/QS_timer.h"
 #include "warner.h"
 #include "corrector.h"
 #include "odometry.h"
@@ -24,7 +25,6 @@
 #include "copilot.h"
 #include "supervisor.h"
 #include "joystick.h"
-#include <timer.h>
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -76,9 +76,9 @@ void SECRETARY_mailbox_add(CAN_msg_t * msg) //Fonction appelée en tâche de fond 
 	if(index_nb < SECRETARY_MAILBOX_SIZE)
 	{
 		mailbox[index_write] = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
-		DisableIntT1;
+		TIMER1_disableInt();
 			index_nb++; //Il ne faut pas que la préemption ait lieu maintenant !
-		EnableIntT1;
+		TIMER1_enableInt();
 		index_write = (index_write + 1) % SECRETARY_MAILBOX_SIZE;
 	}
 
@@ -291,7 +291,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		
 		case ASSER_GO_POSITION:
 			
-			//Réglage sens:		
+			//Réglage sens:
 			if ((msg->data[6] == BACKWARD) || (msg->data[6] == FORWARD))
 				sens_marche = msg->data[6];	//LE SENS EST imposé
 			else 
@@ -326,7 +326,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		
 		break;
 			
-		// Modifie la position de départ en fonction de la couleur 
+		// Modifie la position de départ en fonction de la couleur
 		case BROADCAST_COULEUR :
 			//Le type couleur est normalisé en QS...
 			ODOMETRY_set_color((color_e)(msg->data[0]));

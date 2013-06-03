@@ -4,27 +4,31 @@
 
 #ifdef USE_CODEUR_SUR_IT_ET_QE
 	#include "QS/QS_qei.h"
-	#include "QS/QS_qei_on_it.h"
+	#ifdef __dsPIC30F6010A__
+		#include "QS/QS_qei_on_it.h"
+	#endif
 #else
 	#include "cpld.h"
 #endif
 
 
-		
+
 void ENCODERS_init(void)
 {
 	
 	#ifdef USE_CODEUR_SUR_IT_ET_QE
-			QEI_ON_IT_init();
-			QEI_init();
+		QEI_init();
+		#ifdef __dsPIC30F6010A__
+		QEI_ON_IT_init();
 			IPC4bits.INT1IP = 7;	//On monte au maximum les priorités des codeurs !!!	Ils ne doivent pas être préemptés !
 			IPC5bits.INT2IP = 7;
-		#else
-			CPLD_init();
 		#endif
+	#else
+		CPLD_init();
+	#endif
 }
 
-		
+
 /*
 Fonction qui modifie delta_G et delta_D :
 distance parcouru par la roue Gauche et par la roue droite
@@ -69,4 +73,3 @@ void ENCODERS_get(Sint32 * left, Sint32 * right)
 	count_left_prec=count_left;
 	count_right_prec=count_right;
 }
-

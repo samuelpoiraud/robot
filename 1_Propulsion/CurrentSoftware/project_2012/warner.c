@@ -13,11 +13,11 @@
 
 #include "warner.h"
 #include "QS/QS_CANmsgList.h"
+#include "QS/QS_timer.h"
 #include "secretary.h"
 #include "calculator.h"
 #include "copilot.h"
 #include "pilot.h"
-#include <timer.h>
 /*
 L'avertisseur est une sorte de klaxon très utile pour certaines actions de match....
 
@@ -28,8 +28,8 @@ afin de récupérer ces informations de position en temps réel, on utilise l'avert
 
 Il existes différents avertisseurs :
 -> Avertisseur en x : "préviens moi quand la position en X est égale à ..."  (la précision dépend de la vitesse max du robot entre deux IT...)
--> Avertisseur en y : "préviens moi quand la position en Y est égale à ..." 
--> Avertisseur en teta : "préviens moi quand la position en teta est égale à ..." 
+-> Avertisseur en y : "préviens moi quand la position en Y est égale à ..."
+-> Avertisseur en teta : "préviens moi quand la position en teta est égale à ..."
 -> Avertisseur périodique "préviens moi périodiquement tout les ..."  (forcément un multiple de 5ms)
 -> Avertisseur en translation "préviens moi A CHAQUE FOIS que tu t'es déplacé de ...mm"
 -> Avertisseur en rotation "préviens moi A CHAQUE FOIS que tu t'es déplacé de ...rad4096"
@@ -124,10 +124,10 @@ void WARNER_process_main(void)
 
 	if(warnings != WARNING_NO)
 	{
-		DisableIntT1;
+		TIMER1_disableInt();
 			warnings_local = warnings;
 			warnings = WARNING_NO;
-		EnableIntT1;
+		TIMER1_enableInt();
 		SECRETARY_process_send(BROADCAST_POSITION_ROBOT,(Uint8)(warnings_local & 0xFF), error_source);
 	}
 	#ifdef MODE_REGLAGE_KV
@@ -202,7 +202,7 @@ void WARNER_arm_rotation(Sint16 rotation)	//en rad4096
 
 /////////////////////////////////////////////////////////////////////////////
 //cette fonction doit être appelée en IT
-//elle est le coeur de l'avertisseur, et lève les flags nécessaires	
+//elle est le coeur de l'avertisseur, et lève les flags nécessaires
 void WARNER_process_it(void)
 {
 	Sint32 delta_x, delta_y;

@@ -48,6 +48,7 @@
       <itemPath>../warner.h</itemPath>
       <itemPath>../joystick.h</itemPath>
       <itemPath>../QS/QS_who_am_i.h</itemPath>
+      <itemPath>../QS/QS_trap_handler.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -88,6 +89,7 @@
       <itemPath>../warner.c</itemPath>
       <itemPath>../joystick.c</itemPath>
       <itemPath>../QS/QS_who_am_i.c</itemPath>
+      <itemPath>../QS/QS_trap_handler.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

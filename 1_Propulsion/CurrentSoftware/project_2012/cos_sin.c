@@ -15,9 +15,9 @@
 Sint16 array_16384(Sint16 teta);
 Sint16 array_4096(Sint16 teta);
 
-const Sint16 __attribute__ ((space(psv))) tab_4096[];
-const Sint16 __attribute__ ((space(psv))) tab_low[];
-const Sint16 __attribute__ ((space(psv))) tab_high[];
+const Sint16 _LARGEARRAY tab_4096[];
+const Sint16 _LARGEARRAY tab_low[];
+const Sint16 _LARGEARRAY tab_high[];
 
 //Renvoi le cosinus et le sinus de l'angle teta.
 //Procédure très rapide.
@@ -93,7 +93,7 @@ Sint16 array_16384(Sint16 teta)
 
 	Sint16 ret;
 	unsigned psv_shadow;
-	psv_shadow = PSVPAG;
+	psv_shadow = PSV_getCurrent();
 
 	//Deux tableaux sont nécessaires.... Le compilo accèpte pas de tableaux plus grand !
 	//Ces deux tableaux contiennent les cosinus des angles de 0 à PI/2 [rad/16384] exprimés en [/16384]
@@ -101,17 +101,17 @@ Sint16 array_16384(Sint16 teta)
 	if(teta <= QUATER_PI16384)
 	{
 		//Le tab_low contient les cosinus des angles de 0 à 12868 (PI/4) 	[rad/16384] (PI/4 inclus)
-		PSVPAG = __builtin_psvpage (tab_low);
+		PSV_adjust(tab_low);
 		ret = tab_low[teta];
 	}
 	else
 	{
 		//Le tab_high contient les cosinus des angles de 12869 (PI/4+1) à 25736 (PI/2) [rad/16384] (PI/4 non inclus)
-		PSVPAG = __builtin_psvpage (tab_high);
+		PSV_adjust(tab_high);
 		ret = tab_high[teta - QUATER_PI16384 - 1];
 	}
 
-	PSVPAG = psv_shadow;
+	PSV_setCurrent(psv_shadow);
 	return ret;
 }
 
@@ -125,11 +125,11 @@ Sint16 array_4096(Sint16 teta)
 	if (teta < 0 || teta > HALF_PI4096)
 		return 0;
 
-	psv_shadow = PSVPAG;
+	psv_shadow = PSV_getCurrent();
 
-	PSVPAG = __builtin_psvpage (tab_4096);
+	PSV_adjust(tab_4096);
 		ret = tab_4096[teta];
-	PSVPAG = psv_shadow;
+	PSV_setCurrent(psv_shadow);
 	return ret;
 }
 
@@ -138,7 +138,7 @@ Sint16 array_4096(Sint16 teta)
 
 
 
-const Sint16 __attribute__ ((space(psv))) tab_4096[]= 
+const Sint16 _LARGEARRAY tab_4096[]=
 {4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,
 4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,4096,
 4096,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,
@@ -348,7 +348,7 @@ const Sint16 __attribute__ ((space(psv))) tab_4096[]=
 
 
 
-const Sint16 __attribute__ ((space(psv))) tab_low[]= 
+const Sint16 _LARGEARRAY tab_low[]=
 { 
 16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,
 16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,
@@ -1029,7 +1029,7 @@ const Sint16 __attribute__ ((space(psv))) tab_low[]=
 11601,11601,11600,11599,11599,11598,11597,11597,11596,11595,11594,11594,11593,11592,11592,11591,11590,11589,11589,
 11588,11587,11587,11586};	
 
-const Sint16 __attribute__ ((space(psv))) tab_high[]= 
+const Sint16 _LARGEARRAY tab_high[]=
 { 
 11585,11584,11583,11582,11582,11581,11580,11580,11579,11578,11577,11577,11576,11575,11575,11574,11573,11572,11572,
 11571,11570,11570,11569,11568,11568,11567,11566,11565,11565,11564,11563,11563,11562,11561,11560,11560,11559,11558,
