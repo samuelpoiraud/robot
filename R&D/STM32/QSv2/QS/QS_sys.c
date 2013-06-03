@@ -31,9 +31,6 @@
 #define STDIN_USART 1
 #endif
 
-#undef errno
-extern int errno;
-
 #define HCLK_CHOOSEN_DIV  1
 #define PCLK1_CHOOSEN_DIV 4
 #define PCLK2_CHOOSEN_DIV 2

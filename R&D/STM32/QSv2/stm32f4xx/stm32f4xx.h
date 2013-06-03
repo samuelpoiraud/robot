@@ -672,7 +672,43 @@ typedef struct
 
 typedef struct
 {
-  __IO uint32_t MODER;    /*!< GPIO port mode register,               Address offset: 0x00      */
+  __IO union {
+      uint32_t MODER;    /*!< GPIO port mode register,               Address offset: 0x00      */
+      struct __attribute__((packed)) {
+        unsigned int MODER0 : 1;
+        unsigned int MODER1 : 1;
+        unsigned int MODER2 : 1;
+        unsigned int MODER3 : 1;
+        unsigned int MODER4 : 1;
+        unsigned int MODER5 : 1;
+        unsigned int MODER6 : 1;
+        unsigned int MODER7 : 1;
+        unsigned int MODER8 : 1;
+        unsigned int MODER9 : 1;
+        unsigned int MODER10 : 1;
+        unsigned int MODER11 : 1;
+        unsigned int MODER12 : 1;
+        unsigned int MODER13 : 1;
+        unsigned int MODER14 : 1;
+        unsigned int MODER15 : 1;
+        unsigned int MODER16 : 1;
+        unsigned int MODER17 : 1;
+        unsigned int MODER18 : 1;
+        unsigned int MODER19 : 1;
+        unsigned int MODER20 : 1;
+        unsigned int MODER21 : 1;
+        unsigned int MODER22 : 1;
+        unsigned int MODER23 : 1;
+        unsigned int MODER24 : 1;
+        unsigned int MODER25 : 1;
+        unsigned int MODER26 : 1;
+        unsigned int MODER27 : 1;
+        unsigned int MODER28 : 1;
+        unsigned int MODER29 : 1;
+        unsigned int MODER30 : 1;
+        unsigned int MODER31 : 1;
+      };
+    };
   __IO uint32_t OTYPER;   /*!< GPIO port output type register,        Address offset: 0x04      */
   __IO uint32_t OSPEEDR;  /*!< GPIO port output speed register,       Address offset: 0x08      */
   __IO uint32_t PUPDR;    /*!< GPIO port pull-up/pull-down register,  Address offset: 0x0C      */
