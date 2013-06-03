@@ -14,6 +14,7 @@
 	#define QS_TIMER_H
 
 	#include "QS_all.h"
+	#include <timer.h>
 
 	//Définitions faites ici pour permettre l'utilisation de ces valeurs hors de ce module. Il est parfois nécessaire d'avoir ces nombres pour d'autre module.
 	//En étant ici, les définitions restent centralisés.
@@ -46,6 +47,8 @@
 	void TIMER1_run_us (Uint16 period /* en microsecondes */);
 		/* max 65535 / FREQ_DHORLOGE (en MHz) */
 	void TIMER1_stop(void);
+	#define TIMER1_disableInt() DisableIntT1
+	#define TIMER1_enableInt()  EnableIntT1
 
 	/*	TIMER2 utilise l'interuption 
 	 *	void _ISR _T2Interrupt()
@@ -55,6 +58,8 @@
 	void TIMER2_stop(void);
 	void TIMER2_run_us (Uint16 period /* en microsecondes */);
 		/* max 65535 / FREQ_DHORLOGE (en MHz) */
+	#define TIMER2_disableInt() DisableIntT2
+	#define TIMER2_enableInt()  EnableIntT2
 
 	/*	TIMER3 utilise l'interuption 
 	 *	void _ISR _T3Interrupt()
@@ -64,6 +69,8 @@
 	void TIMER3_stop(void);
 	void TIMER3_run_us (Uint16 period /* en microsecondes */);
 		/* max 65535 / FREQ_DHORLOGE (en MHz) */
+	#define TIMER3_disableInt() DisableIntT3
+	#define TIMER3_enableInt()  EnableIntT3
 
 	/*	TIMER4 utilise l'interuption 
 	 *	void _ISR _T4Interrupt()
@@ -73,5 +80,20 @@
 	/* read ne renvoie peut etre pas le bon resultat */
 	Uint16 TIMER4_read(); /* retour en ms*/
 	void TIMER4_stop(void);
+	#define TIMER4_disableInt() DisableIntT4
+	#define TIMER4_enableInt()  EnableIntT4
+
+
+	//Acuittement des IT timer
+	#define TIMER1_AckIT() (IFS0bits.T1IF = 0)
+	#define TIMER2_AckIT() (IFS0bits.T2IF = 0)
+	#define TIMER3_AckIT() (IFS0bits.T3IF = 0)
+	#define TIMER4_AckIT() (IFS1bits.T4IF = 0)
+
+	//Verification de l'état d'une IT, pour detecter un eventuel recouvrement IT
+	#define TIMER1_getITStatus() (IFS0bits.T1IF)
+	#define TIMER2_getITStatus() (IFS0bits.T2IF)
+	#define TIMER3_getITStatus() (IFS0bits.T3IF)
+	#define TIMER4_getITStatus() (IFS1bits.T4IF)
 
 #endif
