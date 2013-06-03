@@ -13,11 +13,12 @@
 #ifndef QS_ALL_H
 	#define QS_ALL_H
 
+	#include "p30f6010A.h"					/* 	Toujours utile... _ISR redéfini en auto_psv		*/
+
 	#include "../Global_config.h"	/*	On charge d'abord la configuration globale		*/
 	#include "QS_configCheck.h"				/*	On verifie que le programmeur a selectionné les	*/
 											/*	elements indispensables 						*/
 
-	#include "p30f6010A.h"					/* 	Toujours utile... _ISR redéfini en auto_psv		*/
 	#include "QS_types.h"					/*	Nos types										*/
 	#include "QS_macro.h"					/*	quelques macro pratiques						*/
 	#include "QS_global_vars.h"				/*	Les variables globales (notamment les drapeaux) */

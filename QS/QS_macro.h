@@ -43,6 +43,12 @@
 		#define assert(condition) (void)0
 	#endif
 	#define PI4096	12868
+
+	//Gestion des gros tableau, il faut changer PSVPAG avec PSV_adjust(tableau) pour être compatible avec d'autre micropro (genre stm32)
+	#define _LARGEARRAY __attribute__ ((space(psv)))
+	#define PSV_getCurrent() PSVPAG
+	#define PSV_setCurrent(newpsvpag) (PSVPAG = newpsvpag)
+	#define PSV_adjust(array) (PSVPAG = __builtin_psvpage(array))
 	
 	#define LED_RUN  LATDbits.LATD8
 	#define LED_CAN  LATDbits.LATD9
