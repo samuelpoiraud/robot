@@ -61,12 +61,14 @@ void initialisation(void){
 	PORTS_init();			
 	
 	LED_RUN = 1;
-		
+
+#ifdef __dsPIC30F6010A__
 	// Pour l'utilisation de la fenetre psv
 	//> ceci est utile pour le stockage d'un tableau de boeuf dans la mémoire programme
-	CORCONbits.PSV=1;					
+	CORCONbits.PSV=1;
+#endif
 	
-	UART_init(); //Si les résistances de tirages uart ne sont pas reliées, le code bloque ici si aucun cable n'y est relié.		
+	UART_init(); //Si les résistances de tirages uart ne sont pas reliées, le code bloque ici si aucun cable n'y est relié.
 	Uint16 delay;
 	for(delay = 1;delay;delay++);	//attente pour que l'UART soit bien prete...
 	RCON_read();
@@ -174,6 +176,7 @@ void button_autocalage_arriere(void)
 */
 void RCON_read(void)
 {
+#if defined(__dsPIC30F6010A__)
 	debug_printf("dsPIC30F reset source :\r\n");
 	if(RCON & 0x8000)
 		debug_printf("- Trap conflict event\r\n");
@@ -194,38 +197,22 @@ void RCON_read(void)
 	if(RCON & 0x1)
 		debug_printf("- POR\r\n");
 	RCON=0;
+#elif defined(STM32F40XX)
+	debug_printf("STM32F4xx reset source :\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_LPWRRST))
+		debug_printf("- Low power management\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_WWDGRST))
+		debug_printf("- Window watchdog time-out\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_IWDGRST))
+		debug_printf("- Independent watchdog time-out\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_SFTRST))
+		debug_printf("- Software reset\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_PORRST))
+		debug_printf("- POR\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_PINRST))
+		debug_printf("- Pin NRST\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_BORRST))
+		debug_printf("- POR or BOR\n");
+	RCC_ClearFlag();
+#endif
 }
-/* Trap pour debug reset */
-void _ISR _MathError()
-{
-  _MATHERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Math\r\n");
-  while(1) Nop();
-}
-
-void _ISR _StackError()
-{
-  _STKERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Stack\r\n");
-  while(1) Nop();
-}
-
-void _ISR _AddressError()
-{
-  _ADDRERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Address\r\n");
-  while(1) Nop();
-}
-
-void _ISR _OscillatorFail()
-{
-  _OSCFAIL = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap OscFail\r\n");
-  while(1) Nop();
-}
-
-

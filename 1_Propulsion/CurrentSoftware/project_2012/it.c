@@ -23,7 +23,7 @@
 #include "warner.h"
 #include "joystick.h"
 #include "secretary.h"
-#ifndef USE_QSx86
+#if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>
 #endif
 #include "debug.h"
@@ -34,9 +34,13 @@ void IT_init(void)
 	//Et c'est parti pour les it !!!
 	//Tache d'interruption principale...
 	TIMER_init();
+#if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 	ConfigIntTimer1(T1_INT_PRIOR_5 & T1_INT_OFF);
-
 //	ConfigIntTimer3(T3_INT_PRIOR_1 & T3_INT_OFF);
+#elif !defined(USE_QSx86) && defined(STM32F40XX)
+	NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 10);
+#endif
+
 	//Note : run_us 5000 est beaucoup plus précis que run tout court à 5...
 	TIMER1_run_us(PERIODE_IT_ASSER*1000);			//IT trajectoire et Correcteur
 	TIMER2_run(100);		//Affichage Leds...
@@ -50,7 +54,7 @@ void IT_init(void)
 
 		
 
-//TEST non concluant réalisé en 2009 : faire l'odométrie plus souvent (toute les 1ms...) 
+//TEST non concluant réalisé en 2009 : faire l'odométrie plus souvent (toute les 1ms...)
 //mais cela change la vitesse_translation_reelle mesurée... REFLECHIR...
 //contactez Samuel ! Ceci est plein de subtilités à la noix de coco...
 //je conseille le passage à 1ms que si on passe TOUTE l'IT à cette période... donc que sur un micro plus puissant que le dsPIC30F6010A...
@@ -66,7 +70,7 @@ void _ISR _T1Interrupt()
 									#endif
 {
 	LED_USER = 0; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
-	IFS0bits.T1IF=0; /* interruption traitée */
+	TIMER1_AckIT(); /* interruption traitée */
 	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
 	ODOMETRY_update();
 	
@@ -97,7 +101,7 @@ void _ISR _T1Interrupt()
 	
 	g2 = global;
 	LED_USER = 1; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
-	if(IFS0bits.T1IF)	//L'IT est trop longue ! il y a recouvrement !!!
+	if(TIMER1_getITStatus())	//L'IT est trop longue ! il y a recouvrement !!!
 		global.flag_recouvrement_IT = TRUE;
 }
 
@@ -179,7 +183,5 @@ void _ISR _T2Interrupt(void)
 		break;
 	}
 
-	IFS0bits.T2IF = 0;
+	TIMER2_AckIT();
 }
-
-
