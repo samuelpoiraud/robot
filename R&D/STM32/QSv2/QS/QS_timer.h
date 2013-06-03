@@ -78,4 +78,10 @@
 	#define TIMER3_AckIT() TIM_ClearITPendingBit(TIM13, TIM_IT_Update)
 	#define TIMER4_AckIT() TIM_ClearITPendingBit(TIM14, TIM_IT_Update)
 
+	//Verification de l'état d'une IT, pour detecter un eventuel recouvrement IT
+	#define TIMER1_getITStatus() TIM_GetITStatus(TIM11, TIM_IT_Update)
+	#define TIMER2_getITStatus() TIM_GetITStatus(TIM12, TIM_IT_Update)
+	#define TIMER3_getITStatus() TIM_GetITStatus(TIM13, TIM_IT_Update)
+	#define TIMER4_getITStatus() TIM_GetITStatus(TIM14, TIM_IT_Update)
+
 #endif

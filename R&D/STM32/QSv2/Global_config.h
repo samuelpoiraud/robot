@@ -19,6 +19,8 @@
 	#define I_AM CARTE_STRAT
 	#define I_AM_CARTE_SUPER //I_AM_CARTE_STRAT
 
+	#define FDP_2013
+
 	/* Il faut choisir à quelle frequence on fait tourner le STM32 */
 	#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
 	#define PCLK1_FREQUENCY_HZ    10000000	//10Mhz, Max: 42Mhz
@@ -38,6 +40,11 @@
 	#define PORT_C_IO_MASK	0xFFBF	//C9: MO2 debug clock
 	#define PORT_D_IO_MASK	0x0FFF	//LEDs
 	#define PORT_E_IO_MASK	0xFFFF
+
+	#define TRIS_ROBOT_ID_OUTPUT GPIOB->MODER11
+	#define LAT_ROBOT_ID_OUTPUT  GPIOB->ODR11
+	#define TRIS_ROBOT_ID_INPUT  GPIOB->MODER12
+	#define PORT_ROBOT_ID_INPUT  GPIOB->IDR12
 	
 	/* Les instructions suivantes permettent de configurer certaines
 	 * entrees/sorties du pic pour realiser des fonctionnalites

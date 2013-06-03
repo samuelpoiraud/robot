@@ -63,3 +63,7 @@ QS_timer      Ok
 QS_uart       Ok mais uart 1 sur PB6/7 et uart 2 sur PA2/3 (sinon il y a déjà des leds sur la carte)
 QS_wachdog    Ok, modif pour avoir une simulation du mode timer (periodique)
 printf        Non testé
+QS_who_am_i   Non testé
+QS_can_over_xbee Non testé
+QS_can_over_uart Non testé
+QS_trap_handler Non testé

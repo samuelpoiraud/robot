@@ -44,6 +44,12 @@
 	#endif
 	#define PI4096	12868
 
+	//Gestion des gros tableau, il faut changer PSVPAG avec PSV_adjust(tableau) pour être compatible avec d'autre micropro (genre stm32)
+	#define _LARGEARRAY
+	#define PSV_getCurrent() 0
+	#define PSV_setCurrent(newpsvpag) (newpsvpag = newpsvpag)
+	#define PSV_adjust(array) (void)0
+
 //TODO: correspondance STM32
 	#define LED_RUN  GPIOD->ODR12
 	#define LED_CAN  GPIOD->ODR13

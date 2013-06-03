@@ -12,11 +12,12 @@
 #ifndef QS_ALL_H
 	#define QS_ALL_H
 
+	#include "stm32f4xx.h"					/* 	Toujours utile...								*/
+	#define _ISR							/*  attribut d'interruption non utilisé sous STM32  */
+
 	#include "../Global_config.h"	/*	On charge d'abord la configuration globale		*/
 	#include "QS_configCheck.h"				/*	On verifie que le programmeur a selectionné les	*/
 											/*	elements indispensables 						*/
-	#include "stm32f4xx.h"					/* 	Toujours utile...								*/
-	#define _ISR							/*  attribut d'interruption non utilisé sous STM32  */
 	
 	#include "QS_types.h"					/*	Nos types										*/
 	#include "QS_macro.h"					/*	quelques macro pratiques						*/
