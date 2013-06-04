@@ -44,11 +44,11 @@
 #if defined(STM32F40XX)
 	#define PORT_A_IO_MASK	0xFFFF
 	#define PORT_B_IO_MASK	0xFFFF
-	#define PORT_C_IO_MASK	0xFFFF
+	#define PORT_C_IO_MASK	0xFCCF
 	#define PORT_D_IO_MASK	0x0FFF
-	#define PORT_E_IO_MASK	0xFFF0
-		#define SENS_MOTEUR_1 GPIOC->ODR8
-		#define SENS_MOTEUR_2 GPIOC->ODR9
+	#define PORT_E_IO_MASK	0xFFFF
+		#define SENS_MOTEUR_1 GPIOC->ODR4
+		#define SENS_MOTEUR_2 GPIOC->ODR5
 
 		//TODO: a définir
 		#define LAT_ROBOT_ID_OUTPUT
