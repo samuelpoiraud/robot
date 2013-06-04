@@ -119,24 +119,6 @@ void BUTTONS_update()
 					}
 				}
 			}
-
-			//Ancien code
-//			if(buttons_falling_edge & (1<<i))
-//			{
-//				action = button->after_long_push;
-//				if(action != NULL && push_time[i] == 0)
-//				{
-//					(*action)();
-//				}
-//				else
-//				{
-//					action = button->direct_push;
-//					if(action != NULL)
-//					{
-//						(*action)();
-//					}
-//				}
-//			}
 		}
 	}
 

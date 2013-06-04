@@ -141,7 +141,6 @@ void UART_init(void)
 	
 	
 	#ifdef USE_UART1TXINTERRUPT
-		#warning "USE_UART1TXINTERRUPT défini... Ce mode n'est pas testé... "
 	
 		typedef struct
 		{
