@@ -74,10 +74,8 @@ void initialisation(void){
 	RCON_read();
 	
 	//Sur quel robot est-on ?
-	#ifdef FDP_2013	//Pour rétrocompatibilité.
-		QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-		//Doit se faire AVANT ODOMETRY_init() !!!
-	#endif
+	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+	//Doit se faire AVANT ODOMETRY_init() !!!
 	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
 	
 	ODOMETRY_init();
