@@ -25,8 +25,8 @@ void MOTORS_init(void)
 void MOTORS_reset(void)
 {
 	//on ne peut pas mettre 0 (car utilisation des PWM L)
-	PWM_run(1,1);
-	PWM_run(1,2);
+	PWM_run(1, PWM_MOTEUR_1);
+	PWM_run(1, PWM_MOTEUR_2);
 }
 
 
@@ -76,11 +76,11 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 	//Commande de la PWM avec écretage de sécurité
 	if (duty_right>CLIPPING_DUTY)
 		duty_right=CLIPPING_DUTY;	/*vitesse max*/
-	PWM_run( (Sint8)duty_right,1);
+	PWM_run( (Sint8)duty_right, PWM_MOTEUR_1);
 	
 	if (duty_left>CLIPPING_DUTY)
 		duty_left=CLIPPING_DUTY;
-	PWM_run( (Sint8)duty_left,2 );
+	PWM_run( (Sint8)duty_left, PWM_MOTEUR_2);
 	/////////////////////////////////////////////////////////	
 }
 

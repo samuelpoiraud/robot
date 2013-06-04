@@ -49,6 +49,8 @@
 	#define PORT_E_IO_MASK	0xFFFF
 		#define SENS_MOTEUR_1 GPIOC->ODR4
 		#define SENS_MOTEUR_2 GPIOC->ODR5
+		#define PWM_MOTEUR_1  3
+		#define PWM_MOTEUR_2  4
 
 		//TODO: a définir
 		#define LAT_ROBOT_ID_OUTPUT
@@ -72,6 +74,8 @@
 	#define PORT_E_IO_MASK	0xFFF0
 		#define SENS_MOTEUR_1 LATEbits.LATE0
 		#define SENS_MOTEUR_2 LATEbits.LATE2
+		#define PWM_MOTEUR_1  1
+		#define PWM_MOTEUR_2  2
 		#define LAT_ROBOT_ID_OUTPUT		LATEbits.LATE7
 		#define TRIS_ROBOT_ID_OUTPUT	TRISEbits.TRISE7
 		#define PORT_ROBOT_ID_INPUT		PORTEbits.RE5
