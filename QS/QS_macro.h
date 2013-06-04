@@ -31,7 +31,7 @@
 
 	#define nop()					__asm__("nop")
 	/* la fonction valeur absolue pour des entiers */
-	#define abs(x)					(((x) >= 0) ? (x) : (-(x)))
+	#define absolute(x)					(((x) >= 0) ? (x) : (-(x)))
 	#ifdef VERBOSE_MODE
 	
 		#define debug_printf(...)	printf(__VA_ARGS__)
