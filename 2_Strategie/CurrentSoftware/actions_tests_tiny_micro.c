@@ -985,7 +985,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 					else
 					{
 						state = EB;
-						from = EC;
+						from = E_C;
 					}
 				break;
 				default:

@@ -83,7 +83,7 @@ typedef struct {
  *
  * TODO Prise en compte de la direction et de la vitesse de l'adversaire
  */
-void PATHFIND_updateOpponentPosition();
+void PATHFIND_updateOpponentPosition(foe_e foe_id);
 /*
  * Calcule la distance approximatique entre deux points : abs(dx) + abs(dy).
  */
@@ -102,12 +102,12 @@ pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, bool_e handleOpponen
 /*
  * Renvoie le noeud le plus proche de l'adversaire
  */
-pathfind_node_id_t PATHFIND_opponent_node();
+pathfind_node_id_t PATHFIND_opponent_node(foe_e foe_id);
 
 /*
  * Renvoie si l'adversaire est sur le chemin
  */
-bool_e PATHFIND_is_opponent_in_path();
+bool_e PATHFIND_is_opponent_in_path(foe_e foe_id);
 
 /*
  * Renvoie un noeud du neighbor du noeud of 
