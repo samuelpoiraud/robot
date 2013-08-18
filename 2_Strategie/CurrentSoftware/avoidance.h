@@ -279,7 +279,7 @@ typedef enum
 } foe_pos_e;
 
 // Vérifie adversaire dans NORTH_BLUE, NORTH_RED...
-foe_pos_e AVOIDANCE_where_is_foe();
+foe_pos_e AVOIDANCE_where_is_foe(foe_e foe_id);
 
 
 /* 

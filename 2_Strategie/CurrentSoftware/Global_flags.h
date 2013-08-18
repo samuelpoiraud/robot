@@ -17,11 +17,4 @@
 		#error "Il est interdit d'inclure directement Global_flags.h, lire le CQS."
 	#endif
 
-	/*  Note : Flags communs à tous les codes
-	 *	volatile bool_e u1rx;	// message reçu sur uart1
-	 *	volatile bool_e u2rx;	// message reçu sur uart2
-	 *	volatile bool_e canrx;	// message reçu sur le bus can
-	 *	volatile bool_e can2rx;	// message reçu sur le bus can2
-	 */
-
 #endif /* ndef GLOBAL_VARS_H */

@@ -16,10 +16,11 @@
 	#ifndef QS_GLOBAL_VARS_H
 		#error "Il est interdit d'inclure directement Global_vars.h, lire le CQS."
 	#endif
-	
+
 	/*	Structure sauvegardant l'evolution de l'environnement 
 	 *	(position, fin de mouvement, ...)
 	 */
+
 	environment_t env;
 		
 	volatile Uint8 chrono_long_push; //compteur des quarts de seconde pout détecté un appui égal à 2 secondes
