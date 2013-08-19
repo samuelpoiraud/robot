@@ -786,7 +786,7 @@ bool_e ASSER_near_destination()
 	y1 = (Sint16) global.env.pos.y;
 	x2 = (Sint16) asser_args[STACKS_get_top(ASSER)].x;
 	y2 = (Sint16) asser_args[STACKS_get_top(ASSER)].y;
-	return ((abs(y2-y1)+abs(x2-x1))<100); /* mm */
+	return ((absolute(y2-y1)+absolute(x2-x1))<100); /* mm */
 }
 
 /* fonction retournant si on se situe à moins de 2 degrés de la destination. */
@@ -796,7 +796,7 @@ bool_e ASSER_near_destination_angle()
 	
 	angle1 = (Sint16) global.env.pos.angle;
 	angle2 = (Sint16) asser_args[STACKS_get_top(ASSER)].angle;
-	return (abs(angle1-angle2)<PI4096/90); 
+	return (absolute(angle1-angle2)<PI4096/90); 
 }
 
 
