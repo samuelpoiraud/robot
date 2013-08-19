@@ -1365,7 +1365,7 @@ girafe_t * look_for_the_best_girafe(void)
 		g.x_end = glasses_x[i];
 		g.y_middle = glasses_y[i];
 
-		for(;i+1<nb_glasses && abs(glasses_x[i+1] - glasses_x[i])< DISTANCE_TWO_GLASSES_IN_GIRAFE;i++)
+		for(;i+1<nb_glasses && absolute(glasses_x[i+1] - glasses_x[i])< DISTANCE_TWO_GLASSES_IN_GIRAFE;i++)
 		{
 			g.nb_glasses++;
 			g.y_middle += glasses_y[i];

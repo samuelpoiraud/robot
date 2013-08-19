@@ -85,7 +85,7 @@ typedef struct {
  */
 void PATHFIND_updateOpponentPosition(foe_e foe_id);
 /*
- * Calcule la distance approximatique entre deux points : abs(dx) + abs(dy).
+ * Calcule la distance approximatique entre deux points : absolute(dx) + absolute(dy).
  */
 Uint16 PATHFIND_manhattan_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 

@@ -177,7 +177,7 @@ void DETECTION_update_foe_by_beacon()
 		   (global.env.match_started == TRUE) &&
 		   (ultrasonic_fiable == TRUE))
 		{
-			if(abs(global.env.sensor[BEACON_IR(foe_id)].distance - global.env.sensor[BEACON_US(foe_id)].distance) > 1000) {
+			if(absolute(global.env.sensor[BEACON_IR(foe_id)].distance - global.env.sensor[BEACON_US(foe_id)].distance) > 1000) {
 				ultrasonic_fiable = FALSE;
 				CAN_msg_t msg;
 				msg.sid = DEBUG_US_NOT_RELIABLE;

@@ -485,7 +485,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 				state = MP_SWITCH_PLATE;
 			} else if(current_plate == plate_goal) {
 				//On est devant la bonne assiette et proche => on a fini les mouvements
-				if(current_line == line_goal && abs(global.env.pos.x - PLATE_INFOS[current_plate].x) < ROBOT_X_POS_EPSILON) {
+				if(current_line == line_goal && absolute(global.env.pos.x - PLATE_INFOS[current_plate].x) < ROBOT_X_POS_EPSILON) {
 					state = MP_DONE;
 				} else {	//Sinon on se rapproche
 					dest_line = line_goal;
@@ -1425,19 +1425,19 @@ static void PLATE_get_nearest_point(Sint16 x, Sint16 y, Uint8* nearest_plate, li
 	if(nearest_line == NULL)
 		nearest_line = &dummy2;
 
-	min = abs(x - PLATE_INFOS[0].x);
+	min = absolute(x - PLATE_INFOS[0].x);
 	*nearest_plate = 0;
 
 	for(i = 1; i < PLATE_NUMBER; i++) {
 		//On cherche l'assiette la plus proche (en X)
-		if(min > abs(x - PLATE_INFOS[i].x)) {
-			min = abs(x - PLATE_INFOS[i].x);
+		if(min > absolute(x - PLATE_INFOS[i].x)) {
+			min = absolute(x - PLATE_INFOS[i].x);
 			*nearest_plate = i;
 		}
 	}
 
 	//On regarde la ligne la plus proche (en Y)
-	if(abs(y - COLOR_Y(PLATE_INFOS[*nearest_plate].y_far)) > abs(y - COLOR_Y(PLATE_INFOS[*nearest_plate].y_near)))
+	if(absolute(y - COLOR_Y(PLATE_INFOS[*nearest_plate].y_far)) > absolute(y - COLOR_Y(PLATE_INFOS[*nearest_plate].y_near)))
 		*nearest_line = LP_Near;
 	else *nearest_line = LP_Far;
 }

@@ -1898,8 +1898,8 @@ void foe_in_path(bool_e *in_path)
 	//distance_computed = 600;
 
 	if(QS_WHO_AM_I_get() == TINY)
-		distance_computed_narrow = DETECTION_DIST_MIN_TINY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_TINY)*(abs(global.env.pos.translation_speed))/1000;  //8*125 = 1000, DETECTION_DIST_SPEED_FACTOR_TINY est en milisecondes
-	else distance_computed_narrow = DETECTION_DIST_MIN_KRUSTY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_KRUSTY)*(abs(global.env.pos.translation_speed))/1000;
+		distance_computed_narrow = DETECTION_DIST_MIN_TINY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_TINY)*(absolute(global.env.pos.translation_speed))/1000;  //8*125 = 1000, DETECTION_DIST_SPEED_FACTOR_TINY est en milisecondes
+	else distance_computed_narrow = DETECTION_DIST_MIN_KRUSTY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_KRUSTY)*(absolute(global.env.pos.translation_speed))/1000;
 	if(QS_WHO_AM_I_get() == TINY)
 		distance_computed_wide = DETECTION_DIST_MIN_TINY;
 	else distance_computed_wide = DETECTION_DIST_MIN_KRUSTY;
@@ -2124,9 +2124,9 @@ static Uint16 AVOIDANCE_speed_indicator_compute(void)
 //
 //	if((global.env.match_time - last_time_compute[foe_id]) > FOE_MOVE_ANALYSE_TIME)
 //	{
-//		if(abs(global.env.foe[foe_id].x - old_foe[foe_id].x) < FOE_MINIMAL_MOVE)
+//		if(absolute(global.env.foe[foe_id].x - old_foe[foe_id].x) < FOE_MINIMAL_MOVE)
 //		{
-//			if(abs(global.env.foe[foe_id].y - old_foe[foe_id].y) < FOE_MINIMAL_MOVE)
+//			if(absolute(global.env.foe[foe_id].y - old_foe[foe_id].y) < FOE_MINIMAL_MOVE)
 //			{
 //				avoidance_printf("L'adversaire n'a pas bougé\n");
 //				result = TRUE;
@@ -2167,9 +2167,9 @@ static bool_e AVOIDANCE_robot_translation_move()
 	if((global.env.match_time - last_time_update) > US_TRANSLATION_ANALYSE_TIME)
 	{
 		// on recalcule si on a fait une translation
-		if(abs(global.env.pos.x - old_pos.x) < US_MINIMAL_MOVE)
+		if(absolute(global.env.pos.x - old_pos.x) < US_MINIMAL_MOVE)
 		{
-			if(abs(global.env.pos.y - old_pos.y) < US_MINIMAL_MOVE)
+			if(absolute(global.env.pos.y - old_pos.y) < US_MINIMAL_MOVE)
 			{
 				result = FALSE;
 			}
