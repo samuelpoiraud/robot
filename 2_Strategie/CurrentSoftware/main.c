@@ -17,9 +17,17 @@
 	#include "environment.h"
 	#include "brain.h"
 	#include "clock.h"
+	#include "zone_mutex.h"
 	#include "QS/QS_who_am_i.h"
 	#include "queue.h"
-#include "zone_mutex.h"
+	#include "QS/QS_buttons.h"
+	#ifdef TARGET_STM32F4DISCOVERY
+		#include "QS/QS_sys.h"
+		#include "stm32f4xx.h"
+		#include "stm32f4xx_gpio.h"
+		#include "stm32f4xx_rcc.h"
+	#endif
+
 
 void process_measure_loop_duration(void)
 {
@@ -43,19 +51,22 @@ int main (void)
 		// Initialisation des variables utiles
 		EVE_manager_card_init();
 	#endif // USE_QSx86
-
+	#ifdef TARGET_STM32F4DISCOVERY
+		SYS_init();
+	#endif
 	PORTS_init();
 	#ifdef VERBOSE_MODE
 		UART_init();
 	#endif /* def VERBOSE_MODE */
 	LED_RUN=1;
 	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
-	RCON_read(); //permet de voir le type du dernier reset
-	
+	#ifdef TARGET_DSPIC30F6010A
+		RCON_read(); //permet de voir le type du dernier reset
+	#endif
 	STACKS_init();
 	ENV_init();
 	CLOCK_init();
-		
+	
 	//retard pour attendre l'initialisation des autres cartes
 	// voir si on peut faire mieux
 	for(j=0;j<40;j++)
@@ -81,7 +92,6 @@ int main (void)
 		#ifdef USE_QSx86
 			EVE_manager_card();
 		#endif // USE_QSx86
-	
 		/* mise à jour de l'environnement */
 		ENV_update();
 
@@ -89,31 +99,9 @@ int main (void)
 		actionneurs */
 		STACKS_run();
 		QUEUE_run();
-		
-		
-		/* Execution de la routine d'IA */
-//		if (global.env.config.strategie < (sizeof(strategies)/sizeof(ia_fun_t)))
-//		{
-//			any_match(strategies[global.env.config.strategie], MATCH_DURATION);
-//		}	
-//		else
-//		{
-//			global.env.config.strategie = 1;
-//		}
-/*#ifdef FDP_2013	//Pour rétrocompatibilité...
-	#warning "Pensez à créer des stratégies différentes pour Tiny et Krusty... et à les inclure ci-dessous avant de virer ce warning."
 
-		if(QS_WHO_AM_I_get()==TINY)
-
-			any_match(MATCH_DURATION); //TINY
-		else
-#endif
-			//any_match(TEST_STRAT_lever_le_kiki, MATCH_DURATION); //KRUSTY
-		    any_match(MATCH_DURATION);
-	*/
 		any_match(MATCH_DURATION);
-//		any_match(0);
-//#warning "MATCH INFINI pour test evitement !!!"
+//		any_match(0);	//#warning "MATCH INFINI pour test evitement !!!"
 
 		process_measure_loop_duration();
 	}
@@ -121,64 +109,67 @@ int main (void)
 }
 
 
-void RCON_read()
-{
-	debug_printf("dsPIC30F reset source :\r\n");
-	if(!(RCON & 0xC0DF))
+#ifdef TARGET_DSPIC30F6010A
+	void RCON_read()
 	{
-		debug_printf(" - NO SOURCE OF RESET !!!???");
-		ASSER_dump_stack();
-	}	
+		debug_printf("dsPIC30F reset source :\r\n");
+		if(!(RCON & 0xC0DF))
+		{
+			debug_printf(" - NO SOURCE OF RESET !!!???");
+			ASSER_dump_stack();
+		}	
+		
+		if(RCON & 0x8000)
+			debug_printf("- Trap conflict event\r\n");
+		if(RCON & 0x4000)
+			debug_printf("- Illegal opcode or uninitialized W register access\r\n");
+		if(RCON & 0x80)
+			debug_printf("- MCLR Reset\r\n");
+		if(RCON & 0x40)
+			debug_printf("- RESET instruction\r\n");
+		if(RCON & 0x10)
+			debug_printf("- WDT time-out\r\n");
+		if(RCON & 0x8)
+			debug_printf("- PWRSAV #SLEEP instruction\r\n");
+		if(RCON & 0x4)
+			debug_printf("- PWRSAV #IDLE instruction\r\n");
+		if(RCON & 0x2)
+			debug_printf("- POR, BOR\r\n");
+		if(RCON & 0x1)
+			debug_printf("- POR\r\n");
+		RCON=0;
+	}
+	/* Trap pour debug reset */
+	void _ISR _MathError()
+	{
+	  _MATHERR = 0;
+	  LED_ERROR = 1;
+	  debug_printf("Trap Math\r\n");
+	  while(1) Nop();
+	}
 	
-	if(RCON & 0x8000)
-		debug_printf("- Trap conflict event\r\n");
-	if(RCON & 0x4000)
-		debug_printf("- Illegal opcode or uninitialized W register access\r\n");
-	if(RCON & 0x80)
-		debug_printf("- MCLR Reset\r\n");
-	if(RCON & 0x40)
-		debug_printf("- RESET instruction\r\n");
-	if(RCON & 0x10)
-		debug_printf("- WDT time-out\r\n");
-	if(RCON & 0x8)
-		debug_printf("- PWRSAV #SLEEP instruction\r\n");
-	if(RCON & 0x4)
-		debug_printf("- PWRSAV #IDLE instruction\r\n");
-	if(RCON & 0x2)
-		debug_printf("- POR, BOR\r\n");
-	if(RCON & 0x1)
-		debug_printf("- POR\r\n");
-	RCON=0;
-}
-/* Trap pour debug reset */
-void _ISR _MathError()
-{
-  _MATHERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Math\r\n");
-  while(1) Nop();
-}
+	void _ISR _StackError()
+	{
+	  _STKERR = 0;
+	  LED_ERROR = 1;
+	  debug_printf("Trap Stack\r\n");
+	  while(1) Nop();
+	}
+	
+	void _ISR _AddressError()
+	{
+	  _ADDRERR = 0;
+	  LED_ERROR = 1;
+	  debug_printf("Trap Address\r\n");
+	  while(1) Nop();
+	}
+	
+	void _ISR _OscillatorFail()
+	{
+	  _OSCFAIL = 0;
+	  LED_ERROR = 1;
+	  debug_printf("Trap OscFail\r\n");
+	  while(1) Nop();
+	}
+#endif
 
-void _ISR _StackError()
-{
-  _STKERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Stack\r\n");
-  while(1) Nop();
-}
-
-void _ISR _AddressError()
-{
-  _ADDRERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Address\r\n");
-  while(1) Nop();
-}
-
-void _ISR _OscillatorFail()
-{
-  _OSCFAIL = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap OscFail\r\n");
-  while(1) Nop();
-}

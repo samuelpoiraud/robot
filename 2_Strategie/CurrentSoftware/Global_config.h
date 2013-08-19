@@ -10,9 +10,11 @@
  */
 
 #ifndef GLOBAL_CONFIG_H
-
 	#define GLOBAL_CONFIG_H
-
+	
+	//#define TARGET_STM32F4DISCOVERY
+	#define TARGET_DSPIC30F6010A
+	
 	#define VERBOSE_MODE
 //	#define MODE_SIMULATION
 
@@ -27,27 +29,19 @@
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
 	#define I_AM CARTE_STRAT
 	#define I_AM_CARTE_STRAT
-	/* Il faut choisir à quelle frequence on fait tourner le PIC */
-	#define FREQ_10MHZ
 
-	/* Les instructions ci dessous définissent le comportement des
-	 * entrees sorties du pic. une configuration en entree correspond
-	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
-	 * 0 (Output).
-	 * Toute connection non utilisee doit etre configuree en entree
-	 * (risque de griller ou de faire bruler le pic)
-	 */
 	#define FDP_2013
-	
-	#define PORT_A_IO_MASK	0xFFFF
-	#define PORT_B_IO_MASK	0xFFFF
-	#define PORT_C_IO_MASK	0xFFFF
-	#define PORT_D_IO_MASK	0xC0FF
-	#define PORT_E_IO_MASK	0xFFFF
-	#define PORT_F_IO_MASK	0xFFFF
-	#define PORT_G_IO_MASK	0xFF3F
+	#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
-	//#ifdef FDP_2013
+	#ifdef TARGET_DSPIC30F6010A
+		#define FREQ_10MHZ
+		#define PORT_A_IO_MASK	0xFFFF
+		#define PORT_B_IO_MASK	0xFFFF
+		#define PORT_C_IO_MASK	0xFFFF
+		#define PORT_D_IO_MASK	0xC0FF
+		#define PORT_E_IO_MASK	0xFFFF
+		#define PORT_F_IO_MASK	0xFFFF
+		#define PORT_G_IO_MASK	0xFF3F
 		#define SWITCH_STRAT_1	PORTEbits.RE0
 		#define SWITCH_STRAT_2	PORTEbits.RE1
 		#define SWITCH_STRAT_3	PORTEbits.RE2
@@ -60,20 +54,75 @@
 		#define TRIS_ROBOT_ID_INPUT		TRISEbits.TRISE5
 		#define SWITCH_RG0	PORTGbits.RG0
 		#define SWITCH_RG1	PORTGbits.RG1
-
 		#define BLUE_LEDS	LATGbits.LATG7
 		#define RED_LEDS	LATGbits.LATG6
-	/*#else
-		#define BLUE_LEDS	LATGbits.LATG6
-		#define RED_LEDS	LATGbits.LATG7
-	#endif
-	*/
-	#define PIN_BIROUTE	PORTGbits.RG8
+		/*#else
+			#define BLUE_LEDS	LATGbits.LATG6
+			#define RED_LEDS	LATGbits.LATG7
+		#endif
+		*/
+		#define PIN_BIROUTE	PORTGbits.RG8
 
-	#define SICK_SENSOR_FOE_GLASSES_PIN PORTBbits.RB15   //sur Tiny
-	#define GLASS_SENSOR_LEFT			(!PORTBbits.RB3)    //sur Krusty, en logique inversée
-	#define GLASS_SENSOR_RIGHT			(!PORTBbits.RB5)    //sur Krusty, en logique inversée
+		#define SICK_SENSOR_FOE_GLASSES_PIN PORTBbits.RB15   //sur Tiny
+		#define GLASS_SENSOR_LEFT			(!PORTBbits.RB3)    //sur Krusty, en logique inversée
+		#define GLASS_SENSOR_RIGHT			(!PORTBbits.RB5)    //sur Krusty, en logique inversée
 		
+	#else // TARGET_STM32F4DISCOVERY
+		/* Les instructions ci dessous définissent le comportement des
+	 * entrees sorties du pic. une configuration en entree correspond
+	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
+	 * 0 (Output).
+	 * Toute connection non utilisee doit etre configuree en entree
+	 * (risque de griller ou de faire bruler le pic)
+	 */
+		#define PORT_A_IO_MASK	0xFFFF
+		#define PORT_B_IO_MASK	0xFFFF
+		#define PORT_C_IO_MASK	0xFFBF	//C9: MO2 debug clock
+		#define PORT_D_IO_MASK	0x0FFF	//LEDs
+		#define PORT_E_IO_MASK	0xFFFF
+		/* Il faut choisir à quelle frequence on fait tourner le STM32 */
+		#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
+		#define PCLK1_FREQUENCY_HZ    10000000	//10Mhz, Max: 42Mhz
+		#define PCLK2_FREQUENCY_HZ    20000000	//40Mhz, Max: 84Mhz
+		#define CPU_EXTERNAL_CLOCK_HZ 8000000	//10Mhz, Fréquence de l'horloge externe
+	
+		#define TRIS_ROBOT_ID_OUTPUT GPIOB->MODER11
+		#define LAT_ROBOT_ID_OUTPUT  GPIOB->ODR11
+		#define TRIS_ROBOT_ID_INPUT  GPIOB->MODER12
+		#define PORT_ROBOT_ID_INPUT  GPIOB->IDR12
+		
+		#define SWITCH_STRAT_1	GPIOB->IDR1
+		#define SWITCH_STRAT_2	GPIOB->IDR2
+		#define SWITCH_STRAT_3	GPIOB->IDR3
+		#define SWITCH_LAST_POS	GPIOB->IDR4
+		#define SWITCH_COLOR	GPIOB->IDR5
+		#define SWITCH_STRAT_4	GPIOB->IDR6
+
+		#define SWITCH_RG0	GPIOB->IDR7
+		#define SWITCH_RG1	GPIOB->IDR8
+		#define TRIS_ROBOT_ID_OUTPUT GPIOB->MODER11
+		#define LAT_ROBOT_ID_OUTPUT  GPIOB->ODR11
+		#define TRIS_ROBOT_ID_INPUT  GPIOB->MODER12
+		#define PORT_ROBOT_ID_INPUT  GPIOB->IDR12
+		#define BLUE_LEDS	GPIOB->ODR9
+		#define RED_LEDS	GPIOB->ODR10
+		#define PIN_BIROUTE	GPIOA->IDR0
+		
+		#define SICK_SENSOR_FOE_GLASSES_PIN FALSE//PORTBbits.RB15   //sur Tiny
+		#define GLASS_SENSOR_LEFT			FALSE//(!PORTBbits.RB3)    //sur Krusty, en logique inversée
+		#define GLASS_SENSOR_RIGHT			FALSE//(!PORTBbits.RB5)    //sur Krusty, en logique inversée
+
+		#define USE_WATCHDOG
+		#define WATCHDOG_TIMER 3
+		#define WATCHDOG_MAX_COUNT 5
+		#define WATCHDOG_QUANTUM 1
+	
+	#endif
+		
+
+	
+	
+	
 	
 	/* Les instructions suivantes permettent de configurer certaines
 	 * entrees/sorties du pic pour realiser des fonctionnalites
@@ -84,7 +133,9 @@
 /*	Nombre de messages CAN conservés
 	pour traitement hors interuption */
 	#define CAN_BUF_SIZE		32
+	#define CAN_SEND_TIMEOUT_ENABLE
 
+	#define UART_BAUDRATE	115200//9600
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
 	
@@ -98,25 +149,54 @@
 /* Utilisation des entrées analogiques */
 	#define USE_ANALOG_EXT_VREF
 
+	#define USE_AN8
+
+
+	//utilisation du module BUTTONS
+	#define USE_BUTTONS
+	//utilise le timer 2 pour les boutons
+	//#define BUTTONS_TIMER 3
+	#define BUTTONS_TIMER_USE_WATCHDOG
+
 	#define ADC_PIN_DT10_GLASSES	0
-		#define USE_AN15 			// DT10 glasses sur TINY
-	//#define ADC_PIN_DT10_0		0
-		//#define USE_AN2 			// DT10 0
-	//#define ADC_PIN_DT10_1 	 	1
-		//#define USE_AN3	 			// DT10 1
-	//#define ADC_PIN_DT10_2		1
-		//#define USE_AN4 			// DT10	2
-	//#define ADC_PIN_DT10_3		3
-		//#define USE_AN5 			// DT10	3
+	#define USE_AN15 			// DT10 glasses sur TINY
 		
-	/*
-	 #define ADC_PIN_DT50_FRONT 	2
-		#define USE_AN13 			// DT50 droit
-	#define ADC_PIN_DT50_LEFT	3
-		#define USE_AN14 			// DT50 left
-	#define ADC_PIN_DT50_TOP	4
-		#define USE_AN15 			// DT50 top
-	*/
+	//Test debug QS_STM32
+	//On active tout
+//	#define USE_WATCHDOG
+//	#define WATCHDOG_TIMER 3
+//	#define WATCHDOG_MAX_COUNT 5
+//	#define WATCHDOG_QUANTUM 1
+
+//	#define USE_DCMOTOR2
+//	#define DCM_NUMBER 3
+//	#define DCM_TIMER_PERIOD 10
+//	#define DCMOTOR_NB_POS 3
+//	#define DCM_TIMER 4
+
+//
+//	#define USE_DCMOTOR2
+//	#define DCM_NUMBER 3
+//	#define DCMOTOR_NB_POS 5
+//	#define DCM_TIMER 3
+//	#define DCM_TIMER_PERIOD 10
+//
+//	#define USE_SERVO
+//	#define SERVO_TIMER 4
+
+//	#define USE_STEP_MOTOR
+//	#define STEP_MOTOR_TIMER 3
+//	#define STEP_MOTOR_MS_PER_STEP 5
+//	#define STEP_MOTOR1 GPIOE->ODR0
+//	#define STEP_MOTOR2 GPIOE->ODR1
+//	#define STEP_MOTOR3 GPIOE->ODR2
+//	#define STEP_MOTOR4 GPIOE->ODR3
+
+//	#define USE_SPI
+//	#define USE_SPI2
+
+//#define FREQ_PWM_50HZ
+	#define FREQ_PWM_50KHZ
 	/*
 	 *
 	 *	La section config carte P
@@ -191,6 +271,7 @@
 	//définition de la précision et des modes de calcul des sinus et cosinus
 //	#define FAST_COS_SIN
 //	#define COS_SIN_16384
+
 
 
 

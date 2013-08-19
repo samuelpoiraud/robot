@@ -228,7 +228,7 @@ static Uint16 TELEMETER_get_value(Uint8 telemeter_id)
 void _ISR _T3Interrupt (void)
 {
 	TELEMETER_update_value();
-	IFS0bits.T3IF = 0;
+	TIMER3_AckIT();
 }
 
 static void TELEMETER_update_value()

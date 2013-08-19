@@ -86,5 +86,5 @@ void _ISR _T1Interrupt()
 			global.env.flag_for_ping_xbee++;	//+500ms
 		}
 	}
-	IFS0bits.T1IF=0;
+	TIMER1_AckIT();
 }
