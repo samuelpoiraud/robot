@@ -1,113 +1,122 @@
-# MPLAB IDE generated this makefile for use with GNU make.
-# Project: CarteS.mcp
-# Date: Tue May 24 19:36:40 2011
+# Fichier : Makefile
 
-AS = pic30-as.exe
-CC = pic30-gcc.exe
-LD = pic30-ld.exe
-AR = pic30-ar.exe
-HX = pic30-bin2hex.exe
-RM = rm
+# permet d'activer la création du fichier de listing (fichiers .d et .lst) -> + long a la compilation, d'où la désactivation possible !
+DEBUG=no
 
-CarteS.hex : CarteS.cof
-	$(HX) "CarteS.cof"
+# Nom du Projet (les fichiers .lst, .elf, .bin portent ce nom).
+PROJ=Strategie
 
-CarteS.cof : Stacks.o Generic_functions.o Asser_functions.o brain.o environment.o clock.o Pathfind.o actions.o actions_tests.o Geometry.o maths_home.o main.o sick.o act_functions.o button.o detection.o telemeter.o avoidance.o can_utils.o QS_adc.o QS_can.o QS_can_over_uart.o QS_configBits.o QS_global_vars.o QS_ports.o QS_timer.o QS_uart.o elements.o barcode.o polygon.o QS_buttons.o
-	$(CC) -mcpu=30F6010A "Stacks.o" "Generic_functions.o" "Asser_functions.o" "brain.o" "environment.o" "clock.o" "Pathfind.o" "actions.o" "actions_tests.o" "Geometry.o" "maths_home.o" "main.o" "sick.o" "act_functions.o" "button.o" "detection.o" "telemeter.o" "avoidance.o" "can_utils.o" "QS_adc.o" "QS_can.o" "QS_can_over_uart.o" "QS_configBits.o" "QS_global_vars.o" "QS_ports.o" "QS_timer.o" "QS_uart.o" "elements.o" "barcode.o" "polygon.o" "QS_buttons.o" "C:\Users\Julien\Julien\Club Robotique\SVN\carteS\Software\Project\QS\libp30F6010A-coff.a" -o"CarteS.cof" -Wl,-L"C:\Program Files\Microchip\MPLAB C30\lib",-Tp30F6010A.gld,--defsym=__MPLAB_BUILD=1,--heap=256,-Map="CarteS.map",--report-mem
+# Liste des fichiers sources assembleur
+S_SRCS=startup_stm32f40xx.S
 
-Stacks.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h Stacks.h Stacks.c
-	$(CC) -mcpu=30F6010A -x c -c "Stacks.c" -o"Stacks.o" -g -Wall -O2
+# Liste des fichiers sources C
+C_SRCS=					\
+./QS/QS_adc.c			\
+./QS/QS_buttons.c  		\
+./QS/QS_can.c  			\
+./QS/QS_can_over_uart.c \
+ ./QS/QS_global_vars.c  \
+ ./QS/QS_ports.c   		\
+ ./QS/QS_sys.c  		\
+ ./QS/QS_timer.c  		\
+ ./QS/QS_trap_handler.c \
+ ./QS/QS_uart.c  		\
+ ./QS/QS_watchdog.c  	\
+ ./QS/QS_who_am_i.c  	\
+ ./Asser_functions.c  	\
+ ./Generic_functions.c  \
+ ./Geometry.c  			\
+ ./Pathfind.c  			\
+ ./Stacks.c  			\
+ ./act_functions.c  	\
+ ./actions.c  			\
+ ./actions_cake.c  		\
+ ./actions_cherries.c  	\
+ ./actions_gifts.c  	\
+ ./actions_glasses.c 	\
+ ./actions_utils.c  	\
+ ./avoidance.c  		\
+ ./brain.c  			\
+ ./button.c  			\
+ ./can_utils.c  		\
+ ./clock.c  			\
+ ./detection.c 		 	\
+ ./elements.c  			\
+ ./environment.c  		\
+ ./main.c  				\
+ ./maths_home.c  		\
+ ./output_log.c  		\
+ ./polygon.c  			\
+ ./queue.c  			\
+ ./sick.c   			\
+ ./system_stm32f4xx.c  	\
+ ./telemeter.c  		\
+ ./zone_mutex.c 		\
+ ./actions_tests_krusty.c  			\
+ ./actions_tests_krusty_micro.c  	\
+ ./actions_tests_tiny.c  			\
+ ./actions_tests_tiny_micro.c
 
-Generic_functions.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h Generic_functions.h Generic_functions.c
-	$(CC) -mcpu=30F6010A -x c -c "Generic_functions.c" -o"Generic_functions.o" -g -Wall -O2
+# Options d'assemblage
+ASFLAGS=-Wall -Wa,$(LSTFLAGS) -c -fmessage-length=0 $(DFLAGS) -mcpu=cortex-m4 -mthumb
 
-Asser_functions.o : QS/QS_CANmsgDoc.h QS/QS_CANmsgList.h QS/QS_can.h asser_types.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h Asser_functions.h Asser_functions.c
-	$(CC) -mcpu=30F6010A -x c -c "Asser_functions.c" -o"Asser_functions.o" -g -Wall -O2
+# Options de compilation
+CFLAGS=-c -I"./stm32f4xx" -O2
 
-brain.o : clock.h asser_types.h Asser_functions.h polygon.h asser_types.h avoidance.h actions.h Stacks.h QS/QS_CANmsgDoc.h QS/QS_CANmsgList.h can_utils.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h brain.h brain.c
-	$(CC) -mcpu=30F6010A -x c -c "brain.c" -o"brain.o" -g -Wall -O2
 
-environment.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h elements.h QS/QS_timer.h QS/QS_buttons.h QS/QS_timer.h button.h telemeter.h sick.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/math.h maths_home.h QS/QS_CANmsgDoc.h QS/QS_CANmsgList.h QS/QS_adc.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h environment.h environment.c
-	$(CC) -mcpu=30F6010A -x c -c "environment.c" -o"environment.o" -g -Wall -O2
+# -------------------------------------------------------
+# Variables privées
+# -------------------------------------------------------
 
-clock.o : QS/QS_all.h QS/QS_timer.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h clock.h clock.c
-	$(CC) -mcpu=30F6010A -x c -c "clock.c" -o"clock.o" -g -Wall -O2
+# Liste des fichiers objets à construire
+OBJS=$(S_SRCS:.S=.o) $(C_SRCS:.c=.o)
 
-Pathfind.o : asser_types.h Asser_functions.h Stacks.h Generic_functions.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h Pathfind.h Pathfind.c
-	$(CC) -mcpu=30F6010A -x c -c "Pathfind.c" -o"Pathfind.o" -g -Wall -O2
+DS = $(OBJS:.o=.d)
+# Inclusion des fichiers de dépendances...
+-include $(DS)
 
-actions.o : QS/QS_all.h QS/QS_adc.h act_functions.h Asser_functions.h asser_types.h Asser_functions.h polygon.h asser_types.h avoidance.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h actions.h actions.c
-	$(CC) -mcpu=30F6010A -x c -c "actions.c" -o"actions.o" -g -Wall -O2
+LSTS = $(OBJS:.o=.lst)
 
-actions_tests.o : act_functions.h Asser_functions.h asser_types.h Asser_functions.h polygon.h asser_types.h avoidance.h actions.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h actions_tests.h actions_tests.c
-	$(CC) -mcpu=30F6010A -x c -c "actions_tests.c" -o"actions_tests.o" -g -Wall -O2
+# Options d'édition des liens
+LDFLAGS=-T"stm32f4xx_flash.ld" -nostartfiles -L"./stm32f4xx" -Wl,-Map,$(PROJ).map -mcpu=cortex-m4 -mthumb 
+DFLAGS=-MMD -MP -MF"$(@:.o=.d)" -MT"$@" 
 
-Geometry.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/math.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h Geometry.h Geometry.c
-	$(CC) -mcpu=30F6010A -x c -c "Geometry.c" -o"Geometry.o" -g -Wall -O2
+ifeq ($(DEBUG),yes)
+	LSTFLAGS= -adhlns="$(@:.o=.lst)"
+	LSTFILE = $(PROJ).lst
+else
+	LSTFLAGS=
+	LSTFILE=
+endif
 
-maths_home.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/math.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h maths_home.h maths_home.c
-	$(CC) -mcpu=30F6010A -x c -c "maths_home.c" -o"maths_home.o" -g -Wall -O2
+# ---------------------------------------------
+# Règles
+# ---------------------------------------------
 
-main.o : act_functions.h Asser_functions.h asser_types.h Asser_functions.h polygon.h asser_types.h avoidance.h actions.h actions_tests.h clock.h brain.h environment.h Stacks.h QS/QS_uart.h QS/QS_all.h QS/QS_ports.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h main.h main.c
-	$(CC) -mcpu=30F6010A -x c -c "main.c" -o"main.o" -g -Wall -O2
+# Règle générique : construire le projet
+all: $(PROJ).bin $(LSTFILE)
 
-sick.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h elements.h QS/QS_adc.h Geometry.h elements.h Geometry.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/math.h maths_home.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h sick.h sick.c
-	$(CC) -mcpu=30F6010A -x c -c "sick.c" -o"sick.o" -g -Wall -O2
+# Règle de construction du .bin à partir du .elf
+$(PROJ).bin: $(PROJ).elf
+	arm-none-eabi-objcopy -Obinary ${PROJ}.elf ${PROJ}.bin
+	
+# Règle d'édition des liens
+$(PROJ).elf: $(OBJS)
+	arm-none-eabi-gcc $(LDFLAGS) -o $(PROJ).elf $(OBJS) -lstm32f4xx
 
-act_functions.o : QS/QS_CANmsgDoc.h QS/QS_CANmsgList.h QS/QS_can.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h act_functions.h act_functions.c
-	$(CC) -mcpu=30F6010A -x c -c "act_functions.c" -o"act_functions.o" -g -Wall -O2
+# Règle de génération du fichier listing
+$(PROJ).lst: $(LSTS)
+	arm-none-eabi-objdump -h -S $(PROJ).elf > "$(PROJ).lst"
+	
+# Règle d'assemblage
+%.o: %.S
+	arm-none-eabi-gcc -x assembler-with-cpp $(ASFLAGS) -o $@ $<
 
-button.o : QS/QS_adc.h QS/QS_timer.h QS/QS_buttons.h QS/QS_all.h QS/QS_timer.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h button.h button.c
-	$(CC) -mcpu=30F6010A -x c -c "button.c" -o"button.o" -g -Wall -O2
-
-detection.o : QS/QS_CANmsgDoc.h QS/QS_CANmsgList.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/math.h maths_home.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h detection.h detection.c
-	$(CC) -mcpu=30F6010A -x c -c "detection.c" -o"detection.o" -g -Wall -O2
-
-telemeter.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/math.h maths_home.h QS/QS_adc.h QS/QS_all.h QS/QS_timer.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h telemeter.h telemeter.c
-	$(CC) -mcpu=30F6010A -x c -c "telemeter.c" -o"telemeter.o" -g -Wall -O2
-
-avoidance.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/math.h maths_home.h QS/QS_CANmsgDoc.h QS/QS_CANmsgList.h can_utils.h asser_types.h Asser_functions.h polygon.h asser_types.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h avoidance.h avoidance.c
-	$(CC) -mcpu=30F6010A -x c -c "avoidance.c" -o"avoidance.o" -g -Wall -O2
-
-can_utils.o : QS/QS_can.h QS/QS_CANmsgDoc.h QS/QS_CANmsgList.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h can_utils.h can_utils.c
-	$(CC) -mcpu=30F6010A -x c -c "can_utils.c" -o"can_utils.o" -g -Wall -O2
-
-QS_adc.o : QS/QS_ports.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/dsPIC30F/h/p30f6010A.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/dsPIC30F/h/p30fxxxx.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/peripheral_30F_24H_33F/adc10.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h QS/QS_adc.h QS/QS_adc.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_adc.c" -o"QS_adc.o" -g -Wall -O2
-
-QS_can.o : QS/QS_CANmsgDoc.h QS/QS_CANmsgList.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/dsPIC30F/h/p30f6010A.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/dsPIC30F/h/p30fxxxx.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/peripheral_30F_24H_33F/can.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h QS/QS_can.h QS/QS_can.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_can.c" -o"QS_can.o" -g -Wall -O2
-
-QS_can_over_uart.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h QS/QS_all.h QS/QS_uart.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h QS/QS_can_over_uart.h QS/QS_can_over_uart.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_can_over_uart.c" -o"QS_can_over_uart.o" -g -Wall -O2
-
-QS_configBits.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h QS/QS_configBits.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_configBits.c" -o"QS_configBits.o" -g -Wall -O2
-
-QS_global_vars.o : Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h Global_config.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h Global_config.h QS/QS_types.h QS/QS_global_vars.h QS/QS_global_vars.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_global_vars.c" -o"QS_global_vars.o" -g -Wall -O2
-
-QS_ports.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h QS/QS_ports.h QS/QS_ports.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_ports.c" -o"QS_ports.o" -g -Wall -O2
-
-QS_timer.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/dsPIC30F/h/p30f6010A.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/dsPIC30F/h/p30fxxxx.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/peripheral_30F_24H_33F/timer.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h QS/QS_timer.h QS/QS_timer.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_timer.c" -o"QS_timer.o" -g -Wall -O2
-
-QS_uart.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/dsPIC30F/h/p30f6010A.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/dsPIC30F/h/p30fxxxx.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/support/peripheral_30F_24H_33F/uart.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h QS/QS_uart.h QS/QS_uart.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_uart.c" -o"QS_uart.o" -g -Wall -O2
-
-elements.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h elements.h elements.c
-	$(CC) -mcpu=30F6010A -x c -c "elements.c" -o"elements.o" -g -Wall -O2
-
-barcode.o : ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h QS/QS_all.h QS/QS_uart.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/string.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h barcode.h barcode.c
-	$(CC) -mcpu=30F6010A -x c -c "barcode.c" -o"barcode.o" -g -Wall -O2
-
-polygon.o : Geometry.h Stacks.h Generic_functions.h asser_types.h Asser_functions.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h polygon.h polygon.c
-	$(CC) -mcpu=30F6010A -x c -c "polygon.c" -o"polygon.o" -g -Wall -O2
-
-QS_buttons.o : QS/QS_timer.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/yvals.h ../../../../../../../../program\ files\ (x86)/microchip/mplab\ c30/include/stdio.h Global_vars.h Global_flags.h barcode.h Geometry.h elements.h sick.h detection.h environment.h Generic_functions.h QS/QS_all.h QS/QS_can.h QS/QS_all.h Stacks.h Global_vars_types.h QS/QS_types.h QS/QS_global_vars.h QS/QS_macro.h QS/QS_types.h QS/p30f6010a.h QS/QS_configCheck.h QS/QS_types.h Global_config.h QS/QS_all.h QS/QS_buttons.h QS/QS_buttons.c
-	$(CC) -mcpu=30F6010A -x c -c "QS\QS_buttons.c" -o"QS_buttons.o" -g -Wall -O2
-
-clean : 
-	$(RM) "Stacks.o" "Generic_functions.o" "Asser_functions.o" "brain.o" "environment.o" "clock.o" "Pathfind.o" "actions.o" "actions_tests.o" "Geometry.o" "maths_home.o" "main.o" "sick.o" "act_functions.o" "button.o" "detection.o" "telemeter.o" "avoidance.o" "can_utils.o" "QS_adc.o" "QS_can.o" "QS_can_over_uart.o" "QS_configBits.o" "QS_global_vars.o" "QS_ports.o" "QS_timer.o" "QS_uart.o" "elements.o" "barcode.o" "polygon.o" "QS_buttons.o" "CarteS.cof" "CarteS.hex"
-
+# Règle de compilation
+%.o: %.c
+	arm-none-eabi-gcc $(CFLAGS) $(ASFLAGS) -o $@ $<
+	
+# Règle de nettoyage du projet
+clean:
+	rm -f $(OBJS) $(PROJ).elf $(PROJ).bin $(PROJ).lst $(DS) $(LSTS)
+	
