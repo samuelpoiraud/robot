@@ -12,9 +12,10 @@
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
 	
-	//#define TARGET_STM32F4DISCOVERY
-	#define TARGET_DSPIC30F6010A
-	
+	#ifndef __dsPIC30F__
+		#define STM32F40XX
+	#endif
+
 	#define VERBOSE_MODE
 //	#define MODE_SIMULATION
 
@@ -33,7 +34,8 @@
 	#define FDP_2013
 	#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
-	#ifdef TARGET_DSPIC30F6010A
+	#ifdef __dsPIC30F__
+
 		#define FREQ_10MHZ
 		#define PORT_A_IO_MASK	0xFFFF
 		#define PORT_B_IO_MASK	0xFFFF
@@ -67,7 +69,7 @@
 		#define GLASS_SENSOR_LEFT			(!PORTBbits.RB3)    //sur Krusty, en logique inversée
 		#define GLASS_SENSOR_RIGHT			(!PORTBbits.RB5)    //sur Krusty, en logique inversée
 		
-	#else // TARGET_STM32F4DISCOVERY
+	#else // STM32F4XX
 		/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
 	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
