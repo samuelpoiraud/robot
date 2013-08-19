@@ -21,7 +21,7 @@
 	#include "QS/QS_who_am_i.h"
 	#include "queue.h"
 	#include "QS/QS_buttons.h"
-	#ifdef TARGET_STM32F4DISCOVERY
+	#ifdef STM32F40XX
 		#include "QS/QS_sys.h"
 		#include "stm32f4xx.h"
 		#include "stm32f4xx_gpio.h"
@@ -51,7 +51,7 @@ int main (void)
 		// Initialisation des variables utiles
 		EVE_manager_card_init();
 	#endif // USE_QSx86
-	#ifdef TARGET_STM32F4DISCOVERY
+	#ifdef STM32F40XX
 		SYS_init();
 	#endif
 	PORTS_init();
@@ -60,7 +60,7 @@ int main (void)
 	#endif /* def VERBOSE_MODE */
 	LED_RUN=1;
 	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
-	#ifdef TARGET_DSPIC30F6010A
+	#ifdef __DSPIC30F__
 		RCON_read(); //permet de voir le type du dernier reset
 	#endif
 	STACKS_init();
@@ -109,7 +109,7 @@ int main (void)
 }
 
 
-#ifdef TARGET_DSPIC30F6010A
+#ifdef __DSPIC30F__
 	void RCON_read()
 	{
 		debug_printf("dsPIC30F reset source :\r\n");
