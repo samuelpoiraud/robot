@@ -228,13 +228,13 @@ Uint8 lift_process(Uint8 progress, Uint8 fail, Uint8 success){
 	
 	switch(state){
 		case WATCH:
-			if(!PORTBbits.RB3){
+			if(!GLASS_SENSOR_LEFT){
 				ACT_lift_plier(ACT_LIFT_LEFT, ACT_LIFT_PlierOpen);
 				ACT_lift_translate(ACT_LIFT_LEFT, ACT_LIFT_TranslateDown);
 				right_captor = 1;
 			}
 
-			if(!PORTBbits.RB5){
+			if(!GLASS_SENSOR_RIGHT){
 				ACT_lift_plier(ACT_LIFT_RIGHT, ACT_LIFT_PlierOpen);
 				ACT_lift_translate(ACT_LIFT_RIGHT, ACT_LIFT_TranslateDown);
 				left_captor = 1;
@@ -569,7 +569,7 @@ error_e K_push_half_row_glasses(void){
 		case WAIT_EVENT:
 			if(captor_ok)
 			{
-				if(PORTBbits.RB5 && state == PUSH_ROW){
+				if(GLASS_SENSOR_RIGHT && state == PUSH_ROW){
 					lift_left = ACT_UP;
 				}
 			}
@@ -599,7 +599,7 @@ error_e K_push_half_row_glasses(void){
 			}
 
 		case WAIT_NEXT_EVENT:
-			if(PORTBbits.RB5 && state == BACK_ROW){
+			if(GLASS_SENSOR_RIGHT && state == BACK_ROW){
 				lift_left = ACT_DOWN;
 			}
 			break;
@@ -645,7 +645,7 @@ error_e K_push_half_row_glasses(void){
 		case WAIT_EVENT:
 			if(captor_ok)
 			{
-				if(!PORTBbits.RB3 && state == PUSH_ROW){
+				if(!GLASS_SENSOR_LEFT && state == PUSH_ROW){
 					lift_right = ACT_UP;
 				}
 			}
@@ -677,7 +677,7 @@ error_e K_push_half_row_glasses(void){
 			}
 
 		case WAIT_NEXT_EVENT:
-			if(!PORTBbits.RB3 && state == BACK_ROW){
+			if(!GLASS_SENSOR_LEFT && state == BACK_ROW){
 				lift_right = ACT_DOWN;
 			}
 			break;
@@ -885,7 +885,7 @@ error_e K_push_back_row_glasses(void){
 		case WAIT_EVENT:
 			if(state == LUCKY_LUKE2)
 				lift_left = ACT_OPEN;
-			if(PORTBbits.RB5 && state == BACK_ROW){
+			if(GLASS_SENSOR_RIGHT && state == BACK_ROW){
 				lift_left = ACT_DOWN;
 			}
 			break;
@@ -951,7 +951,7 @@ error_e K_push_back_row_glasses(void){
 		case WAIT_EVENT:
 			if(state == LUCKY_LUKE)
 				lift_right = ACT_OPEN;
-			if(!PORTBbits.RB3 && state == BACK_ROW){
+			if(!GLASS_SENSOR_LEFT && state == BACK_ROW){
 				lift_right = ACT_DOWN;
 			}
 			break;
@@ -3894,14 +3894,14 @@ error_e K_verres(void){
 				{
 					static int left=1;
 					static int right=1;
-					if(left && PORTBbits.RB5){
+					if(left && GLASS_SENSOR_RIGHT){
 						left=0;
 						debug_printf("Detected left verre");
 						ACT_lift_plier(ACT_LIFT_Left,ACT_LIFT_PlierClose);
 						ACT_lift_translate(ACT_LIFT_Left,ACT_LIFT_TranslateUp);
 
 					}
-					if(right && !PORTBbits.RB3){
+					if(right && !GLASS_SENSOR_LEFT){
 						right=0;
 						debug_printf("Detected right verre");
 						ACT_lift_plier(ACT_LIFT_Right, ACT_LIFT_PlierClose);
@@ -4146,7 +4146,7 @@ error_e K_push_half_row_glasses_HOMOLO(void){
 		case WAIT_EVENT:
 			if(captor_ok)
 			{
-				if(PORTBbits.RB5 && state == PUSH_ROW){
+				if(GLASS_SENSOR_RIGHT && state == PUSH_ROW){
 					lift_left = ACT_UP;
 				}
 			}
@@ -4176,7 +4176,7 @@ error_e K_push_half_row_glasses_HOMOLO(void){
 			}
 
 		case WAIT_NEXT_EVENT:
-			if(PORTBbits.RB5 && state == BACK_ROW){
+			if(GLASS_SENSOR_RIGHT && state == BACK_ROW){
 				lift_left = ACT_DOWN;
 			}
 			break;
@@ -4222,7 +4222,7 @@ error_e K_push_half_row_glasses_HOMOLO(void){
 		case WAIT_EVENT:
 			if(captor_ok)
 			{
-				if(!PORTBbits.RB3 && state == PUSH_ROW){
+				if(!GLASS_SENSOR_LEFT && state == PUSH_ROW){
 					lift_right = ACT_UP;
 				}
 			}
@@ -4254,7 +4254,7 @@ error_e K_push_half_row_glasses_HOMOLO(void){
 			}
 
 		case WAIT_NEXT_EVENT:
-			if(!PORTBbits.RB3 && state == BACK_ROW){
+			if(!GLASS_SENSOR_LEFT && state == BACK_ROW){
 				lift_right = ACT_DOWN;
 			}
 			break;
@@ -4462,7 +4462,7 @@ error_e K_push_back_row_glasses_HOMOLO(void){
 		case WAIT_EVENT:
 			if(state == LUCKY_LUKE/*2*/)
 				lift_left = ACT_OPEN;
-			if(PORTBbits.RB5 && state == BACK_ROW){
+			if(GLASS_SENSOR_RIGHT && state == BACK_ROW){
 				lift_left = ACT_DOWN;
 			}
 			break;
@@ -4528,7 +4528,7 @@ error_e K_push_back_row_glasses_HOMOLO(void){
 		case WAIT_EVENT:
 			if(state == LUCKY_LUKE)
 				lift_right = ACT_OPEN;
-			if(!PORTBbits.RB3 && state == BACK_ROW){
+			if(!GLASS_SENSOR_LEFT && state == BACK_ROW){
 				lift_right = ACT_DOWN;
 			}
 			break;

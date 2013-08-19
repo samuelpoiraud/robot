@@ -794,12 +794,12 @@ void K_test_strat_unitaire(void){
 
 	static error_e sub_action;
 
-	/*if(PORTBbits.RB3)//gauche
+	/*if(GLASS_SENSOR_LEFT)//gauche
 		LED_ERROR = 1;
 	else
 		LED_ERROR = 0;
 
-	if(PORTBbits.RB5)//droite
+	if(GLASS_SENSOR_RIGHT)//droite
 		LED_USER2 = 1;
 	else
 		LED_USER2 = 0;*/
