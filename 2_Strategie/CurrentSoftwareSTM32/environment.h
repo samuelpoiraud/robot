@@ -108,6 +108,7 @@
 		position_t foe[NB_FOES];		//comme son nom l'indique, c'est la position de l'adversaire
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
+		time32_t absolute_time; //temps depuis le lancement du module clock en ms.
 		/*Tableau d'état des elements du terrain */
 		map_state_e map_elements[(map_goal_e)40]; //Voir doc pour connaitre les éléments associés
 		Uint8 color_ball;
@@ -132,8 +133,6 @@
 	/* Change la couleur et prévient tout le monde */
 	void ENV_set_color(color_e color);
 
-	/* envoie la config actuelle sur le CAN (pour la super) */
-	void ENV_dispatch_config();
 
 	/* Cause à l'autre robot pour savoir s'il est présent...*/
 	void ENV_XBEE_ping_process(void);

@@ -656,7 +656,7 @@ error_e K_STRAT_micro_put_down_glasses(void){
 				}
 
 				case GD_RECOVER_MOVE:
-					#warning "Eitement  / erreur pas géré pour le relative move 5cm"
+					#warning "Evitement  / erreur pas géré pour le relative move 5cm"
 					return_value = NOT_HANDLED;
 					break;
 

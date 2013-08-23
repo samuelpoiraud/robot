@@ -43,7 +43,7 @@ void any_match(time32_t match_duration)
 		{
 			CLOCK_run_match();
 			CAN_send_sid(BROADCAST_START);
-			CAN_send_sid(XBEE_START_MATCH);
+			//TODO : CAN_send_sid(XBEE_START_MATCH);
 			
 			return;
 		}
@@ -60,10 +60,7 @@ void any_match(time32_t match_duration)
 		
 		/* mise à jour de la configuration de match */
 		if(global.env.config_updated)
-		{
 			global.env.config = global.env.wanted_config;
-			ENV_dispatch_config();
-		}
 
 		/* demande de calibration */
 		if(global.env.ask_asser_calibration && !global.env.asser.calibrated)

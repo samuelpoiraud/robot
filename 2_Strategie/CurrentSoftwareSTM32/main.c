@@ -21,6 +21,7 @@
 	#include "QS/QS_who_am_i.h"
 	#include "queue.h"
 	#include "QS/QS_buttons.h"
+	#include "Supervision/Supervision.h"
 	#ifdef STM32F40XX
 		#include "QS/QS_sys.h"
 		#include "stm32f4xx.h"
@@ -28,6 +29,8 @@
 		#include "stm32f4xx_rcc.h"
 	#endif
 
+void test_bp_switchs(void);
+void test_leds(void);
 
 void process_measure_loop_duration(void)
 {
@@ -42,10 +45,19 @@ void process_measure_loop_duration(void)
 	}
 }
 
+
+
+void tests(void)
+{
+	//test_bp_switchs();
+	//test_leds();
+}
+
+
 int main (void)
 {
 
-	Uint16 i,j;
+	volatile Uint16 i,j;
 	// Commandes pour EVE
 	#ifdef USE_QSx86
 		// Initialisation des variables utiles
@@ -60,9 +72,8 @@ int main (void)
 	#endif /* def VERBOSE_MODE */
 	LED_RUN=1;
 	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
-	#ifdef __DSPIC30F__
-		RCON_read(); //permet de voir le type du dernier reset
-	#endif
+	tests();
+
 	STACKS_init();
 	ENV_init();
 	CLOCK_init();
@@ -72,19 +83,17 @@ int main (void)
 	for(j=0;j<40;j++)
 		for(i=1;i;i++);
 
-
 	
 	
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-
+	Supervision_init();
 	ZONE_init();
 
 	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
 	
-	//on passe la config actuelle à la Super
-	ENV_dispatch_config();
 	
+
 	while(1)
 	{
 		LED_RUN = !LED_RUN;
@@ -94,6 +103,9 @@ int main (void)
 		#endif // USE_QSx86
 		/* mise à jour de l'environnement */
 		ENV_update();
+
+		/* Code concernant la supervision */
+		Supervision_process_main();
 
 		/* Execution des routines de supervision des piles
 		actionneurs */
@@ -108,68 +120,57 @@ int main (void)
 	return 0;
 }
 
+void big_delay(void)
+{
+	volatile Uint32 i;
+	for(i=0;i<5000000;i++);
+}
 
-#ifdef __DSPIC30F__
-	void RCON_read()
+void test_leds(void)
+{
+	LED_RUN = 0;
+	while(1)
 	{
-		debug_printf("dsPIC30F reset source :\r\n");
-		if(!(RCON & 0xC0DF))
-		{
-			debug_printf(" - NO SOURCE OF RESET !!!???");
-			ASSER_dump_stack();
-		}	
-		
-		if(RCON & 0x8000)
-			debug_printf("- Trap conflict event\r\n");
-		if(RCON & 0x4000)
-			debug_printf("- Illegal opcode or uninitialized W register access\r\n");
-		if(RCON & 0x80)
-			debug_printf("- MCLR Reset\r\n");
-		if(RCON & 0x40)
-			debug_printf("- RESET instruction\r\n");
-		if(RCON & 0x10)
-			debug_printf("- WDT time-out\r\n");
-		if(RCON & 0x8)
-			debug_printf("- PWRSAV #SLEEP instruction\r\n");
-		if(RCON & 0x4)
-			debug_printf("- PWRSAV #IDLE instruction\r\n");
-		if(RCON & 0x2)
-			debug_printf("- POR, BOR\r\n");
-		if(RCON & 0x1)
-			debug_printf("- POR\r\n");
-		RCON=0;
+		LED_RUN 				= !LED_RUN;				big_delay();
+		BLUE_LEDS 				= !BLUE_LEDS;			big_delay();
+		RED_LEDS 				= !RED_LEDS;			big_delay();
+		LED_ERROR 				= !LED_ERROR;			big_delay();
+		LED_SELFTEST 			= !LED_SELFTEST;		big_delay();
+		LED_CAN 				= !LED_CAN;				big_delay();
+		LED_UART 				= !LED_UART;			big_delay();
+		LED_USER 				= !LED_USER;			big_delay();
+		LED_BEACON_IR_GREEN 	= !LED_BEACON_IR_GREEN;	big_delay();
+		LED_BEACON_IR_RED 		= !LED_BEACON_IR_RED;	big_delay();
+		LED_BEACON_US_GREEN 	= !LED_BEACON_US_GREEN;	big_delay();
+		LED_BEACON_US_RED 		= !LED_BEACON_US_RED;	big_delay();
 	}
-	/* Trap pour debug reset */
-	void _ISR _MathError()
+}
+
+
+void test_bp_switchs(void)
+{
+	debug_printf("Test des Entrées BP et Switch\n");
+	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_save=2, sw_color=2, sw_lcd=2, sw_evit=2, sw_strat1=2, sw_strat2=2, sw_strat3=2, port_robot_id=2, biroute=2, bp_run_match=2, bp_selftest=2, bp_calibration=2, bp_menu_m=2, bp_menu_p=2, bp_print_match=2;
+	while(1)
 	{
-	  _MATHERR = 0;
-	  LED_ERROR = 1;
-	  debug_printf("Trap Math\r\n");
-	  while(1) Nop();
+		if(SWITCH_DEBUG 	!= sw_debug		)	{	sw_debug 		= SWITCH_DEBUG;		debug_printf("sw_debug = %s\n"		, (sw_debug		)?"ON":"OFF");	 }
+		if(SWITCH_VERBOSE 	!= sw_verbose	)	{	sw_verbose 		= SWITCH_VERBOSE;	debug_printf("sw_verbose = %s\n"	, (sw_verbose	)?"ON":"OFF");	 }
+		if(SWITCH_XBEE 		!= sw_xbee		)	{	sw_xbee 		= SWITCH_XBEE;		debug_printf("sw_xbee = %s\n"		, (sw_xbee		)?"ON":"OFF");	 }
+		if(SWITCH_SAVE 		!= sw_save		)	{	sw_save 		= SWITCH_SAVE;		debug_printf("sw_save = %s\n"		, (sw_save		)?"ON":"OFF");	 }
+		if(SWITCH_COLOR 	!= sw_color		)	{	sw_color 		= SWITCH_COLOR;		debug_printf("sw_color = %s\n"		, (sw_color		)?"ON":"OFF");	 }
+		if(SWITCH_LCD 		!= sw_lcd		)	{	sw_lcd	 		= SWITCH_LCD;		debug_printf("sw_lcd = %s\n"		, (sw_lcd		)?"ON":"OFF");	 }
+		if(SWITCH_EVIT 		!= sw_evit		)	{	sw_evit 		= SWITCH_EVIT;		debug_printf("sw_evit = %s\n"		, (sw_evit		)?"ON":"OFF");	 }
+		if(SWITCH_STRAT_1 	!= sw_strat1	)	{	sw_strat1 		= SWITCH_STRAT_1;	debug_printf("sw_strat1 = %s\n"		, (sw_strat1	)?"ON":"OFF");	 }
+		if(SWITCH_STRAT_2 	!= sw_strat2	)	{	sw_strat2 		= SWITCH_STRAT_2;	debug_printf("sw_strat2 = %s\n"		, (sw_strat2	)?"ON":"OFF");	 }
+		if(SWITCH_STRAT_3 	!= sw_strat3	)	{	sw_strat3 		= SWITCH_STRAT_3;	debug_printf("sw_strat3 = %s\n"		, (sw_strat3	)?"ON":"OFF");	 }
+		if(PORT_ROBOT_ID 	!= port_robot_id)	{	port_robot_id  	= PORT_ROBOT_ID;	debug_printf("port_robot_id = %s\n"	, (port_robot_id)?"ON":"OFF");	 }
+		if(BIROUTE 			!= biroute		)	{	biroute 	   	= BIROUTE;			debug_printf("biroute = %s\n"		, (biroute		)?"ON":"OFF");	 }
+		if(BUTTON0_PORT 	!= bp_run_match	)	{	bp_run_match   	= BUTTON0_PORT;		debug_printf("bp_run_match = %s\n"	, (bp_run_match	)?"ON":"OFF");	 }
+		if(BUTTON1_PORT 	!= bp_selftest	)	{	bp_selftest    	= BUTTON1_PORT;		debug_printf("bp_selftest = %s\n"	, (bp_selftest	)?"ON":"OFF");	 }
+		if(BUTTON2_PORT 	!= bp_calibration)	{	bp_calibration 	= BUTTON2_PORT;		debug_printf("bp_calibration = %s\n", (bp_calibration)?"ON":"OFF");	 }
+		if(BUTTON3_PORT 	!= bp_menu_p	)	{	bp_menu_p 		= BUTTON3_PORT;		debug_printf("bp_menu_p = %s\n"		, (bp_menu_p	)?"ON":"OFF");	 }
+		if(BUTTON4_PORT 	!= bp_menu_m	)	{	bp_menu_m 		= BUTTON4_PORT;		debug_printf("bp_menu_m = %s\n"		, (bp_menu_m	)?"ON":"OFF");	 }
+		if(BUTTON5_PORT 	!= bp_print_match)	{	bp_print_match 	= BUTTON5_PORT;		debug_printf("bp_print_match = %s\n", (bp_print_match)?"ON":"OFF");	 }
 	}
-	
-	void _ISR _StackError()
-	{
-	  _STKERR = 0;
-	  LED_ERROR = 1;
-	  debug_printf("Trap Stack\r\n");
-	  while(1) Nop();
-	}
-	
-	void _ISR _AddressError()
-	{
-	  _ADDRERR = 0;
-	  LED_ERROR = 1;
-	  debug_printf("Trap Address\r\n");
-	  while(1) Nop();
-	}
-	
-	void _ISR _OscillatorFail()
-	{
-	  _OSCFAIL = 0;
-	  LED_ERROR = 1;
-	  debug_printf("Trap OscFail\r\n");
-	  while(1) Nop();
-	}
-#endif
+}
 

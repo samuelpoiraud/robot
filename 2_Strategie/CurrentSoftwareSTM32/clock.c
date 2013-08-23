@@ -25,6 +25,7 @@ void CLOCK_init()
 	TIMER1_stop();
 	CLOCK_run();	//Lancement du timer pour utilisation avant le début du match.
 	global.env.match_time = 0;
+	global.env.absolute_time = 0;
 }	
 
 void CLOCK_run()
@@ -62,6 +63,7 @@ void CLOCK_stop()
 void _ISR _T1Interrupt()
 {
 	static Uint16 local_time = 0;
+	global.env.absolute_time++;
 	if(global.env.match_started)
 	{
 		//Pendant le match.

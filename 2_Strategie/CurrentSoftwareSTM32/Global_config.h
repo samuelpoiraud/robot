@@ -31,105 +31,152 @@
 	#define I_AM CARTE_STRAT
 	#define I_AM_CARTE_STRAT
 
-	#define FDP_2013
-	#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
+	//#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
-	#ifdef __dsPIC30F__
 
-		#define FREQ_10MHZ
-		#define PORT_A_IO_MASK	0xFFFF
-		#define PORT_B_IO_MASK	0xFFFF
-		#define PORT_C_IO_MASK	0xFFFF
-		#define PORT_D_IO_MASK	0xC0FF
-		#define PORT_E_IO_MASK	0xFFFF
-		#define PORT_F_IO_MASK	0xFFFF
-		#define PORT_G_IO_MASK	0xFF3F
-		#define SWITCH_STRAT_1	PORTEbits.RE0
-		#define SWITCH_STRAT_2	PORTEbits.RE1
-		#define SWITCH_STRAT_3	PORTEbits.RE2
-		#define SWITCH_LAST_POS	PORTEbits.RE3
-		#define SWITCH_COLOR	PORTEbits.RE4
-		#define SWITCH_STRAT_4	PORTEbits.RE6
-		#define LAT_ROBOT_ID_OUTPUT		LATEbits.LATE7
-		#define TRIS_ROBOT_ID_OUTPUT	TRISEbits.TRISE7
-		#define PORT_ROBOT_ID_INPUT		PORTEbits.RE5
-		#define TRIS_ROBOT_ID_INPUT		TRISEbits.TRISE5
-		#define SWITCH_RG0	PORTGbits.RG0
-		#define SWITCH_RG1	PORTGbits.RG1
-		#define BLUE_LEDS	LATGbits.LATG7
-		#define RED_LEDS	LATGbits.LATG6
-		/*#else
-			#define BLUE_LEDS	LATGbits.LATG6
-			#define RED_LEDS	LATGbits.LATG7
-		#endif
-		*/
-		#define PIN_BIROUTE	PORTGbits.RG8
-
-		#define SICK_SENSOR_FOE_GLASSES_PIN PORTBbits.RB15   //sur Tiny
-		#define GLASS_SENSOR_LEFT			(!PORTBbits.RB3)    //sur Krusty, en logique inversée
-		#define GLASS_SENSOR_RIGHT			(!PORTBbits.RB5)    //sur Krusty, en logique inversée
-		
-	#else // STM32F4XX
 		/* Les instructions ci dessous définissent le comportement des
-	 * entrees sorties du pic. une configuration en entree correspond
+	 * entrees sorties du uc. une configuration en entree correspond
 	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
 	 * 0 (Output).
 	 * Toute connection non utilisee doit etre configuree en entree
-	 * (risque de griller ou de faire bruler le pic)
+	 * (risque de griller ou de faire bruler le uc)
 	 */
-		#define PORT_A_IO_MASK	0xFFFF
-		#define PORT_B_IO_MASK	0xFFFF
-		#define PORT_C_IO_MASK	0xFFBF	//C9: MO2 debug clock
-		#define PORT_D_IO_MASK	0x0FFF	//LEDs
-		#define PORT_E_IO_MASK	0xFFFF
+
 		/* Il faut choisir à quelle frequence on fait tourner le STM32 */
 		#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
 		#define PCLK1_FREQUENCY_HZ    10000000	//10Mhz, Max: 42Mhz
 		#define PCLK2_FREQUENCY_HZ    20000000	//40Mhz, Max: 84Mhz
-		#define CPU_EXTERNAL_CLOCK_HZ 8000000	//10Mhz, Fréquence de l'horloge externe
+		#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 	
-		#define TRIS_ROBOT_ID_OUTPUT GPIOB->MODER11
-		#define LAT_ROBOT_ID_OUTPUT  GPIOB->ODR11
-		#define TRIS_ROBOT_ID_INPUT  GPIOB->MODER12
-		#define PORT_ROBOT_ID_INPUT  GPIOB->IDR12
-		
-		#define SWITCH_STRAT_1	GPIOB->IDR1
-		#define SWITCH_STRAT_2	GPIOB->IDR2
-		#define SWITCH_STRAT_3	GPIOB->IDR3
-		#define SWITCH_LAST_POS	GPIOB->IDR4
-		#define SWITCH_COLOR	GPIOB->IDR5
-		#define SWITCH_STRAT_4	GPIOB->IDR6
+		#define PORT_A_IO_MASK	0xFC9B
+			#define BUTTON0_PORT		GPIOA->IDR0
+			#define SWITCH_DEBUG		GPIOA->IDR1
+				//	XBEE/BT/U2TX				  2
+				//	XBEE/BT/U2RX				  3
+				//	-				 			  4
+			#define XBEE_RESET			GPIOA->ODR5
+				//	-				 			  6
+			#define SWITCH_VERBOSE		GPIOA->IDR7
+				//	-	sortie libre 			  8
+				//	-	usb			 			  9
+				//	-	usb			 			  10
+				//	-	usb			 			  11
+				//	-	usb			 			  12
+				//	-	programmation			  13
+				//	-	programmation 			  14
+			#define BUTTON5_PORT		(!GPIOA->IDR15)
+		#define PORT_B_IO_MASK	0x00BF
+				//	Capteur						  0
+				//	Capteur						  1
+			#define POWER_WATCH_INT		GPIOB->IDR2
+				// - programmation -			  3
+			#define SWITCH_XBEE			GPIOB->IDR4
+			#define SWITCH_SAVE			GPIOB->IDR5
+				//	U1TX						  6
+				//	U1RX						  7
+				//	-			 	  			  8
+			#define LCD_RESET_PORT		GPIOB->ODR9
+				//	I2C RTC/LCD	 			  	  10
+				//	I2C RTC/LCD	 			  	  11
+			#define EEPROM_SCK			GPIOB->ODR12
+			#define EEPROM_SDI			GPIOB->ODR13
+			#define EEPROM_SDO			GPIOB->ODR14
+			#define EEPROM_CS 			GPIOB->ODR15
 
-		#define SWITCH_RG0	GPIOB->IDR7
-		#define SWITCH_RG1	GPIOB->IDR8
-		#define TRIS_ROBOT_ID_OUTPUT GPIOB->MODER11
-		#define LAT_ROBOT_ID_OUTPUT  GPIOB->ODR11
-		#define TRIS_ROBOT_ID_INPUT  GPIOB->MODER12
-		#define PORT_ROBOT_ID_INPUT  GPIOB->IDR12
-		#define BLUE_LEDS	GPIOB->ODR9
-		#define RED_LEDS	GPIOB->ODR10
-		#define PIN_BIROUTE	GPIOA->IDR0
-		
-		#define SICK_SENSOR_FOE_GLASSES_PIN FALSE//PORTBbits.RB15   //sur Tiny
-		#define GLASS_SENSOR_LEFT			FALSE//(!PORTBbits.RB3)    //sur Krusty, en logique inversée
-		#define GLASS_SENSOR_RIGHT			FALSE//(!PORTBbits.RB5)    //sur Krusty, en logique inversée
 
-		#define USE_WATCHDOG
-		#define WATCHDOG_TIMER 3
-		#define WATCHDOG_MAX_COUNT 5
-		#define WATCHDOG_QUANTUM 1
-	
+		#define PORT_C_IO_MASK	0x200F
+				//	Capteur			 			  0
+				//	Capteur			 			  1
+				//	Capteur			 			  2
+				//	Capteur			 			  3
+				//	Capteur			 			  4
+				//	Capteur			 			  5
+			#define LED_BEACON_IR_GREEN	GPIOC->ODR6
+			#define LED_BEACON_IR_RED	GPIOC->ODR7
+			#define LED_BEACON_US_GREEN	GPIOC->ODR8
+			#define LED_BEACON_US_RED	GPIOC->ODR9
+				//	-	sortie libre 			  10
+			#define EEPROM_HOLD			GPIOC->ODR11
+			#define EEPROM_WP			GPIOC->ODR12
+			#define PORT_ROBOT_ID  		GPIOC->IDR13
+				//	-	OSC32_in 			  	  14
+				//	-	OSC32_out 			  	  15
+
+
+		#define PORT_D_IO_MASK	0x02C3
+				//	CAN_RX						  0
+				//	CAN_TX						  1
+			#define BLUE_LEDS			GPIOD->ODR2
+			#define RED_LEDS			GPIOD->ODR3
+				//	-							  4
+				//	-	usb led red				  5
+			#define SWITCH_COLOR		GPIOD->IDR6
+			#define BIROUTE				GPIOD->IDR7
+				//	HOKUYO U3TX					  8
+				//	HOKUYO U3RX					  9
+			#define LED_ERROR 			GPIOD->ODR10
+			#define LED_SELFTEST 		GPIOD->ODR11
+			#define LED_RUN  			GPIOD->ODR12
+			#define LED_CAN  			GPIOD->ODR13
+			#define LED_UART 			GPIOD->ODR14
+			#define LED_USER 			GPIOD->ODR15
+
+
+		#define PORT_E_IO_MASK	0xFFFF
+				//	-				 			  0
+				//	-				 			  1
+				// - programmation -			  2
+				// - programmation -			  3
+				// - programmation -			  4
+				// - programmation -			  5
+				// - programmation -			  6
+			#define SWITCH_LCD			GPIOE->IDR7
+			#define SWITCH_EVIT			GPIOE->IDR8
+			#define SWITCH_STRAT_1		GPIOE->IDR9
+			#define SWITCH_STRAT_2		GPIOE->IDR10
+			#define SWITCH_STRAT_3		GPIOE->IDR11
+			#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
+			#define BUTTON2_PORT		(!GPIOE->IDR13)	//Calibration
+			#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
+			#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
+
+		//Nulle part...
+			#define SWITCH_STRAT_4		FALSE	//Temporaire
+			#define SWITCH_STRAT_5		FALSE	//Temporaire
+
+
+	//#define USE_LCD
+	#ifdef USE_RTC
+		#define USE_I2C
 	#endif
-		
 
+	//#define USE_RTC
+	#ifdef USE_RTC
+		#define USE_I2C
+	#endif
+
+	#define USE_SPI2
+	#define SPI_R_BUF_SIZE 16
+
+
+
+	#define SICK_SENSOR_FOE_GLASSES_PIN FALSE//PORTBbits.RB15   //sur Tiny
+	#define GLASS_SENSOR_LEFT			FALSE//(!PORTBbits.RB3)    //sur Krusty, en logique inversée
+	#define GLASS_SENSOR_RIGHT			FALSE//(!PORTBbits.RB5)    //sur Krusty, en logique inversée
+
+	#define USE_WATCHDOG
+	#define WATCHDOG_TIMER 3
+	#define WATCHDOG_MAX_COUNT 5
+	#define WATCHDOG_QUANTUM 1
 	
-	
-	
-	
-	/* Les instructions suivantes permettent de configurer certaines
-	 * entrees/sorties du pic pour realiser des fonctionnalites
-	 * particulieres comme une entree analogique
-	 */
+
+		
+	#define PORT_SWITCH_XBEE	GPIOB->IDR4
+	//#define PORT_SWITCH_XBEE	FALSE	//Utiliser cette ligne pour désactiver le XBee...
+	#define USE_XBEE
+	#define XBEE_PLUGGED_ON_UART2
+	#define RESET_XBEE	GPIOA->ODR5
+
 
 	#define USE_CAN
 /*	Nombre de messages CAN conservés
@@ -137,10 +184,11 @@
 	#define CAN_BUF_SIZE		32
 	#define CAN_SEND_TIMEOUT_ENABLE
 
-	#define UART_BAUDRATE	115200//9600
+	#define UART1_BAUDRATE	115200
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
 	
+	#define UART2_BAUDRATE	9600
 	#define USE_UART2
 	#define USE_UART2RXINTERRUPT
 	
@@ -161,50 +209,18 @@
 	#define BUTTONS_TIMER_USE_WATCHDOG
 
 	#define ADC_PIN_DT10_GLASSES	0
-	#define USE_AN15 			// DT10 glasses sur TINY
+	#define USE_AN9 			// DT10 glasses sur TINY
 		
-	//Test debug QS_STM32
-	//On active tout
-//	#define USE_WATCHDOG
-//	#define WATCHDOG_TIMER 3
-//	#define WATCHDOG_MAX_COUNT 5
-//	#define WATCHDOG_QUANTUM 1
 
-//	#define USE_DCMOTOR2
-//	#define DCM_NUMBER 3
-//	#define DCM_TIMER_PERIOD 10
-//	#define DCMOTOR_NB_POS 3
-//	#define DCM_TIMER 4
-
-//
-//	#define USE_DCMOTOR2
-//	#define DCM_NUMBER 3
-//	#define DCMOTOR_NB_POS 5
-//	#define DCM_TIMER 3
-//	#define DCM_TIMER_PERIOD 10
-//
-//	#define USE_SERVO
-//	#define SERVO_TIMER 4
-
-//	#define USE_STEP_MOTOR
-//	#define STEP_MOTOR_TIMER 3
-//	#define STEP_MOTOR_MS_PER_STEP 5
-//	#define STEP_MOTOR1 GPIOE->ODR0
-//	#define STEP_MOTOR2 GPIOE->ODR1
-//	#define STEP_MOTOR3 GPIOE->ODR2
-//	#define STEP_MOTOR4 GPIOE->ODR3
-
-//	#define USE_SPI
-//	#define USE_SPI2
 
 //#define FREQ_PWM_50HZ
 	#define FREQ_PWM_50KHZ
 	/*
-	 *
-	 *	La section config carte P
-	 *
-	 *
+	 *	La section config carte Stratégie
 	 */
+
+	//Activation du module d'enregistrement des messages CAN reçus pendant les matchs en mémoire EEPROM.
+	#define EEPROM_CAN_MSG_ENABLE
 
 	#define STACKS_SIZE 32 //doit être < à 256
 

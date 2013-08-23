@@ -102,7 +102,7 @@ void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint
 		nb_params = 4;
 
 	for(i = 0; i < nb_params; i++)
-		msg.data[4 + i] = va_arg(l, Uint8);
+		msg.data[4 + i] = va_arg(l, int);
 
 	msg.size = i + 4;
 	CAN_send(&msg);
