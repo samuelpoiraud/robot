@@ -15,10 +15,139 @@
 #include "act_functions.h"
 #include "can_utils.h"
 #include "zone_mutex.h"
+#include "Supervision/Buffer.h"
+#include "Supervision/Eeprom_can_msg.h"
+#include "Supervision/RTC.h"
+#include "Supervision/Selftest.h"
+#include "Supervision/Supervision.h"
+#include "Supervision/Verbose_can_msg.h"
+#include "QS/QS_can_over_uart.h"
+#include "QS/QS_can_over_xbee.h"
+
+
+void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filter, bool_e * bSAVE_filter)
+ {
+	static time32_t filter_beacon_ir = 0;
+	static time32_t filter_beacon_us = 0;
+	static time32_t filter_broadcast_position = 0;
+
+	*bUART_filter = TRUE;	//On suppose que le message est autorisé.
+	*bSAVE_filter = TRUE;
+
+	switch(msg->sid)
+	{
+		//FILTRAGE POUR NE PAS ETRE SPAMMES PAR LE MESSAGE DE POSITION_ROBOT....
+		case BROADCAST_POSITION_ROBOT:
+			if(! (msg->data[6] & 0xF0))	//on ne filtre pas les messages dont l'une des raisons est un WARN.
+			{
+				//On ne propage pas les messages de BROADCAST_POSITION_ROBOT (dans le cas où les raisons ne sont pas des WARN).
+				*bSAVE_filter = FALSE;
+				//Traitement spécial pour les messages d'asser position : maxi 1 par seconde !
+				if(global.env.absolute_time-1000>filter_broadcast_position) //global.compteur_de_secondes est incrémenté toutes les 250 ms ...
+					filter_broadcast_position=global.env.absolute_time;
+				else
+					*bUART_filter = FALSE;	//Ca passe pas...
+			}
+
+		break;
+		case BEACON_ADVERSARY_POSITION_IR:
+			if(global.env.absolute_time-1000>filter_beacon_ir) //global.compteur_de_secondes est incrémenté toutes les 250 ms ...
+				filter_beacon_ir=global.env.absolute_time;
+			else
+				*bUART_filter = FALSE;	//Ca passe pas...
+		break;
+		case BEACON_ADVERSARY_POSITION_US:
+			if(global.env.absolute_time-1000>filter_beacon_us) //global.compteur_de_secondes est incrémenté toutes les 250 ms ...
+				filter_beacon_us=global.env.absolute_time;
+			else
+				*bUART_filter = FALSE;	//Ca passe pas...
+		break;
+		default:
+			//Message autorisé.
+		break;
+	}
+
+	if	( (msg->sid & STRAT_FILTER) ||  (msg->sid & XBEE_FILTER) )
+		*bCAN_filter = FALSE;
+	else
+		*bCAN_filter = TRUE;	//Seuls les messages BROADCAST, DEBUG, ou destinés aux cartes PROPULSION, ACTIONNEUR, BALISES sont transmis sur le bus can.
+}
+
+
+void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool_e bU2, bool_e bXBee)
+{
+	bool_e bUART_filter = FALSE;	//bUART_filter indique si ce message est filtré ou s'il doit être propagé sur les uarts...
+	bool_e bCAN_filter = FALSE;		//bCAN_filter indique si ce message doit être propagé sur le CAN...où s'il nous était directement destiné...
+	bool_e bSAVE_filter = FALSE;	//bEEPROM_filter indique si ce message doit être enregistré en EEPROM
+
+	LED_USER = !LED_USER;
+	CAN_update(incoming_msg);
+	ENV_check_filter(incoming_msg, &bUART_filter, &bCAN_filter, &bSAVE_filter);
+
+	//Enregistrement du message CAN.
+	BUFFER_add(incoming_msg);						//BUFFERISATION
+
+	if(bSAVE_filter && SWITCH_SAVE)
+		EEPROM_CAN_MSG_process_msg(incoming_msg);
+
+	//Propagation du message CAN.
+	if(bCAN && bCAN_filter)
+		CAN_send(incoming_msg);
+
+	if(bUART_filter)
+	{
+		#ifdef USE_XBEE
+			if(bXBee && SWITCH_XBEE)
+			{
+				if((incoming_msg->sid & 0xFF0) == XBEE_FILTER)
+					CANMsgToXbee(incoming_msg,TRUE);	//Envoi en BROADCAST... aux modules joignables
+			}
+		#endif
+		if(SWITCH_DEBUG && bU1)
+		{
+			if(SWITCH_VERBOSE)
+				VERBOSE_CAN_MSG_print(incoming_msg);
+			else
+				CANmsgToU1tx(incoming_msg);
+		}
+
+		if(SWITCH_DEBUG  && !SWITCH_XBEE && bU2)
+		{
+			CANmsgToU2tx(incoming_msg);
+		}
+	}
+}
+
+//Traite les messages que nous venons juste d'envoyer sur le bus can (via un CAN_send)
+void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
+{
+
+	BUFFER_add(sent_msg);	//BUFFERISATION
+	if(SWITCH_SAVE)			//Enregistrement du message CAN.
+		EEPROM_CAN_MSG_process_msg(sent_msg);
+
+	//UART1
+	if(SWITCH_DEBUG)
+	{
+		if(SWITCH_VERBOSE)
+			VERBOSE_CAN_MSG_print(sent_msg);
+		else
+			CANmsgToU1tx(sent_msg);
+	}
+
+	//UART2
+	if(SWITCH_DEBUG  && !SWITCH_XBEE)
+		CANmsgToU2tx(sent_msg);
+
+}
+
+
 
 void ENV_update()
 {
-	CAN_msg_t incoming_msg;
+	CAN_msg_t incoming_msg_from_bus_can;
+	static CAN_msg_t can_msg_from_uart1;
+	static CAN_msg_t can_msg_from_uart2;
 
 	/* RAZ des drapeaux temporaires pour la prochaine itération */
 	ENV_clean();
@@ -29,10 +158,34 @@ void ENV_update()
 	while (CAN_data_ready())
 	{
 		LED_CAN=!LED_CAN;
-		incoming_msg = CAN_get_next_msg();
-		CAN_update(&incoming_msg);
+		incoming_msg_from_bus_can = CAN_get_next_msg();
+		ENV_process_can_msg(&incoming_msg_from_bus_can,FALSE, TRUE, TRUE, TRUE);	//Everywhere except CAN
 	}
-	
+
+
+	if(u1rxToCANmsg(&can_msg_from_uart1))
+		ENV_process_can_msg(&can_msg_from_uart1,TRUE, FALSE, TRUE, TRUE);	//Everywhere except U1.
+
+	if(!SWITCH_XBEE)
+	{
+		if(u2rxToCANmsg(&can_msg_from_uart2))
+			ENV_process_can_msg(&can_msg_from_uart2,TRUE, TRUE, FALSE, FALSE);	//Everywhere except U2 and XBee.
+	}
+
+#ifdef USE_XBEE
+	if(SWITCH_XBEE)
+	{
+
+		if(XBeeToCANmsg(&can_msg_from_uart2))
+		{
+			if((can_msg_from_uart2.sid & 0xFF0) == XBEE_FILTER)
+				can_msg_from_uart2.sid = (can_msg_from_uart2.sid & 0x00F) | STRAT_XBEE_FILTER;
+			ENV_process_can_msg(&can_msg_from_uart2,TRUE, TRUE, FALSE, FALSE);	//Everywhere except U2 and XBee.
+		}
+	}
+#endif
+
+
 	/* Récupération des données des télémètres*/
 	#ifdef USE_TELEMETER
 		TELEMETER_update();
@@ -72,6 +225,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 	switch (incoming_msg->sid)
 	{
+//****************************** Messages venant des geeks du club robot  *************************/
 		case SUPER_ASK_CONFIG:
 			global.env.config_updated=TRUE;
 			global.env.wanted_config.strategie = incoming_msg->data[0];
@@ -85,8 +239,25 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case SUPER_ASK_STRAT_SELFTEST:
 				
+		break;
+		case DEBUG_RTC_SET:
+			RTC_set_time(&(incoming_msg->data[0]), &(incoming_msg->data[1]), &(incoming_msg->data[2]), &(incoming_msg->data[3]), &(incoming_msg->data[4]), &(incoming_msg->data[5]), &(incoming_msg->data[6]));
+					/*
+						Uint8 secondes
+						Uint8 minutes
+						Uint8 hours
+						Uint8 day
+						Uint8 date
+						Uint8 months
+						Uint8 year	(11 pour 2011)
+					*/
+			RTC_can_send();	//Retour ... pour vérifier que ca a fonctionné..
 			break;
-			
+		case DEBUG_RTC_GET:
+			RTC_print_time();
+			RTC_can_send();
+		break;
+
 //****************************** Messages carte propulsion/asser *************************/	
 		case CARTE_P_TRAJ_FINIE:
 			global.env.asser.fini = TRUE;
@@ -145,9 +316,11 @@ void CAN_update (CAN_msg_t* incoming_msg)
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:
 			ENV_pos_foe_update(incoming_msg);
+			Supervision_update_led_beacon(incoming_msg);
 			break;
 		case BEACON_ADVERSARY_POSITION_US:
 			ENV_pos_foe_update(incoming_msg);
+			Supervision_update_led_beacon(incoming_msg);
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case STRAT_ELTS_UPDATE:
@@ -172,7 +345,13 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_ZONE_COMMAND_RECV:
 			ZONE_CAN_process_msg(incoming_msg);
 			break;
-
+/************************************* Récupération des messages liés au selftest ***************************/
+		case BEACON_IR_SELFTEST :
+		case BEACON_US_SELFTEST :
+		case ACT_SELFTEST :
+		case ASSER_SELFTEST :
+			SELFTEST_update(&incoming_msg);
+			break;
 		default:
 			break;
 	}
@@ -214,7 +393,6 @@ void ENV_fast_pos_update (CAN_msg_t* msg, bool_e on_it)
 	static way_e new_way;
 	static trajectory_e new_trajectory;
 	static SUPERVISOR_error_source_e new_status;
-	Uint16 save_int;
 
 	if(on_it == TRUE)
 	{
@@ -421,6 +599,7 @@ void ENV_clean ()
 void ENV_init()
 {
 	CAN_init();	
+	CAN_set_send_callback(ENV_process_can_msg_sent);
 	BUTTON_init();
     //    CAN_set_direct_treatment_function(CAN_fast_update);
 
@@ -472,7 +651,7 @@ void ENV_init()
 //	global.env.map_elements[7] = ELEMENT_TODO;
 //	global.env.map_elements[8] = ELEMENT_TODO;
 	for(i = GOAL_Assiette0; i <= GOAL_Assiette4; i++) {
-		#warning "Position initiale des robots fixe ou disponible par un DEFINE ? (pour savoir l'état initial des assiettes)"
+#warning "Position initiale des robots fixe ou disponible par un DEFINE ? (pour savoir l'état initial des assiettes)"
 		if(i != GOAL_Assiette0 && i != GOAL_Assiette2)
 			global.env.map_elements[i] = ELEMENT_TODO;
 		else global.env.map_elements[i] = ELEMENT_NONE;
@@ -513,19 +692,7 @@ void ENV_XBEE_ping_process(void)
 }
 	
 
-/* envoie la config actuelle sur le CAN (pour la super) */
-void ENV_dispatch_config()
-{
-	CAN_msg_t msg;
-	msg.sid = SUPER_CONFIG_IS;
-	msg.data[0] = global.env.config.strategie;
-	msg.data[2] = global.env.config.evitement;
-	msg.data[3] = global.env.config.balise;
-	msg.size=4;
-	/* gestion couleur */
-	msg.data[1] = (global.env.color==COLOR_INIT_VALUE)?0:global.env.color;
-	CAN_send(&msg);
-}
+
 
 bool_e ENV_game_zone_filter(Sint16 x, Sint16 y, Uint16 delta)
 {

@@ -327,7 +327,6 @@ error_e TINY_warner_blow_one_candle(bool_e reset)
 	static Uint8 candle_index;
 	static Uint8 last_candle;
 	static Uint8 way;
-	static color_e color_begin_cake;
 	error_e ret = IN_PROGRESS;
 
 	if(reset)
@@ -342,14 +341,12 @@ error_e TINY_warner_blow_one_candle(bool_e reset)
 		case INIT:
 			if(global.env.pos.y > 1500)	//Nous sommes a coté du gateau, près du coté obscure (bleu) (quelle que soit notre couleur)
 			{
-				color_begin_cake = BLUE;
 				candle_index=10;	//On commence par la bougie 10
 				last_candle = 1;
 				way = -1;	//On décrémente les bougies
 			}
 			else						//Nous sommes a coté du gateau, près du coté des gentils (rouge) (quelle que soit notre couleur)
 			{
-				color_begin_cake = RED;
 				candle_index=1;	//On commence par la bougie 1
 				last_candle = 10;
 				way = 1;	//On incrémente les bougies

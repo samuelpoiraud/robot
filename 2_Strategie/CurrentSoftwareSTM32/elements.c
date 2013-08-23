@@ -8,7 +8,7 @@
  *	Auteur : Ronan, Adrien
  *	Version 20110430
  */
- 
+#if 0
  #define ELEMENTS_C
  
  #include "elements.h"
@@ -148,7 +148,6 @@ void ELEMENTS_unlock_update()
 
 void ELEMENTS_init()
 {	
-	Uint8 i;
 	static bool_e initialized=FALSE;
 	if(initialized)
 	{
@@ -195,9 +194,9 @@ void ELEMENTS_init()
 
 void ELEMENTS_update()
 {
-	Uint8 i;
-	bool_e delete;
-	time32_t delta_time;
+//	Uint8 i;
+//	bool_e delete;
+//	time32_t delta_time;
 	if(!global.env.match_started)
 	{
 		return;
@@ -316,6 +315,7 @@ void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e buil
 	area_t* area_pt;
 	time32_t max_delta_time=0,delta_time=0;
 	bool_e expiry = FALSE;
+
 	if(!global.env.asser.calibrated)
 	{
 		return;
@@ -1398,3 +1398,4 @@ Uint8 ELEMENT_near_empty_area_compute_foe()
 	debug_printf("Aucune case de trouvée !\n");
 	return NB_SCORING_AREA;
 }
+#endif

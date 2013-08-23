@@ -145,7 +145,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			if(all_gifts_done() == FALSE && previous_subaction != SUBACTION_OPEN_2_OR_4_GIFTS && previous_subaction != SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS)
 				state = SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS;	//Il reste des cadeaux à ouvrir... on y retourne.
 
-			else if(SWITCH_LAST_POS == 1 && !move_plates_done_or_tried)
+			else if(SWITCH_STRAT_4 == 1 && !move_plates_done_or_tried)
 				state = SUBACTION_MODE_ADVERSARY_PLATES;	//On va tenter de bouger les assiettes adverses.
 															//Mode activable en opposition de switch avec la moisson
 			//GATEAUX
@@ -158,7 +158,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			}
 
 			//MOISSON
-			else if(SWITCH_LAST_POS == 0 && previous_subaction != SUBACTION_MOISSON && moisson_done == FALSE)
+			else if(SWITCH_STRAT_4 == 0 && previous_subaction != SUBACTION_MOISSON && moisson_done == FALSE)
 				state = SUBACTION_MOISSON;
 
 			//STEAL

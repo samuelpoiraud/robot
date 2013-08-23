@@ -917,7 +917,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			goto_end = FALSE;
 			start_time = global.env.match_time;
 			//get_partial_cake(&pt_EC, &pt_BC, &pt_RC, &pt_SC);
-			#warning "temporaire ->"
+
 			pt_EC = TRUE;
 			pt_SC = TRUE;
 
@@ -1557,7 +1557,6 @@ error_e STRAT_TINY_test_moisson_micro(void){
 	static state_e state = GO_INIT;
 	static state_e previousState = GO_INIT;
 	static state_e from = GO_INIT;
-	static Uint8 count = 0;
 
 	static bool_e entrance = TRUE;
 	error_e success_state;
@@ -1568,7 +1567,6 @@ error_e STRAT_TINY_test_moisson_micro(void){
 
 	switch(state){
 		case GO_INIT:
-			count = 0;
 			state = EB;
 			previousState = GO_INIT;
 			from = EB;

@@ -13,7 +13,8 @@
  
 #include "button.h"
 #include "act_functions.h"
-
+#include "Supervision\Selftest.h"
+#include "Supervision\Eeprom_can_msg.h"
 static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
 
@@ -21,14 +22,18 @@ void BUTTON_init()
 {
 	ADC_init();
 	BUTTONS_init();
-	BUTTONS_define_actions(BUTTON1,BUTTON_start, NULL, 1);
+
+	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
+	BUTTONS_define_actions(BUTTON1,BUTTON_selftest, NULL, 0);
 	BUTTONS_define_actions(BUTTON2,BUTTON_calibration, NULL, 1);
-        
+	BUTTONS_define_actions(BUTTON3,BUTTON_TEST_button3, NULL, 1);	//TODO : BOUTON MENU LCD
+	BUTTONS_define_actions(BUTTON4,BUTTON_TEST_button4, NULL, 1);	//TODO : BOUTON MENU LCD
+	//BUTTONS_define_actions(BUTTON5,BUFFER_flush, NULL, 0);
+	BUTTONS_define_actions(BUTTON5,EEPROM_CAN_MSG_verbose_previous_match, NULL, 0);
 
 //	BUTTONS_define_actions(BUTTON3,BUTTON_servo,NULL,1);
 //	BUTTONS_define_actions(BUTTON4,BUTTON_pi_rotation,BUTTON_translation,1);
-	BUTTONS_define_actions(BUTTON3,BUTTON_TEST_button3, NULL, 1);
-	BUTTONS_define_actions(BUTTON4,BUTTON_TEST_button4, NULL, 1);
+
 }
 
 void BUTTON_update() 
@@ -36,7 +41,7 @@ void BUTTON_update()
 	static bool_e biroute_forgotten = TRUE;
 	bool_e biroute_current;
 						
-	biroute_current = PIN_BIROUTE;
+	biroute_current = BIROUTE;
 	
 	BUTTONS_update();
 	

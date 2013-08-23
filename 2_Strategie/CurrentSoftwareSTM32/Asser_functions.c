@@ -157,7 +157,7 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 {
 	CAN_msg_t order;
 	asser_arg_t* args;
-	Sint16 distance;
+	//Sint16 distance;
 	static time32_t timeout;
 	static Uint8 save_stack_top, save_stack_bottom;
 
@@ -182,7 +182,7 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 			order.data[RAYONCRB]=args->curve;
 			order.size=8;
 			CAN_send(&order);
-			distance=GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){args->x,args->y});
+			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){args->x,args->y});
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
@@ -237,7 +237,7 @@ void ASSER_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 {
 	CAN_msg_t order;
 	asser_arg_t* args;
-	Sint16 distance;
+	//Sint16 distance;
 	static time32_t timeout;
 	static Uint8 save_stack_top, save_stack_bottom;
 
@@ -262,7 +262,7 @@ void ASSER_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 			order.data[RAYONCRB]=args->curve;
 			order.size=8;
 			CAN_send(&order);
-			distance=GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){args->x,args->y});
+			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){args->x,args->y});
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
@@ -862,7 +862,7 @@ void ASSER_dump_stack ()
 		else if (command == &ASSER_stop_stack)
 			debug_printf("asser_stop\n");
 		else 
-			debug_printf("undefined function %X\n", (Uint16)(command));
+			debug_printf("undefined function %lX\n", (Uint32)(command));
 	}
 
 	debug_printf("\n----- End of dump -----\n");
