@@ -11,7 +11,7 @@
 
 #define EEPROM_CAN_MSG_C
 #include "Eeprom_can_msg.h"
-
+#include "Selftest.h"
 
 
 #define TEST_STRING_ADDRESS		(Uint32)(0x00000000)	//Adresse de la chaine de test de la mémoire EEPROM
@@ -221,7 +221,7 @@ void EEPROM_CAN_MSG_verbose_msg(Uint8 * msg)
 	can_msg.data[7] = msg[13];
 	can_msg.size 	= msg[14];
 	time = U16FROMU8(msg[2], msg[3]);	//[2ms]
-	debug_printf("t=%.2d.%.3ds ",time/500, (time%500)*2);
+	debug_printf("t=%.2d.%03ds ",time/500, (time%500)*2);
 	VERBOSE_CAN_MSG_print(&can_msg);
 }	
 
@@ -289,7 +289,7 @@ void EEPROM_CAN_MSG_verbose_match(Uint16 match_address_x8)
 		 debug_printf("@:%.4x ",msg_address_x16);
 		EEPROM_CAN_MSG_verbose_msg(msg);
 		
-		if(BUTTON4_PORT==1)	//Si on rappuie sur le bouton, on arrête l'affichage du match.
+		if(BUTTON5_PORT)	//Si on rappuie sur le bouton, on arrête l'affichage du match.
 			break;
 	}
 	debug_printf("fin du match en mémoire\n");
@@ -425,26 +425,12 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 	if(msg->sid == BROADCAST_START)
 	{
 		//Dans le cas de la réception d'un broadcast start, on ajoute des informations dans les datas inutilisées afin d'enregistrer des infos sur le match lancé !
-		msg->data[0] = global.config[COLOR];
-		msg->data[1] = global.config[STRATEGIE];
-		msg->data[2] = global.config[EVITEMENT];
-		msg->data[3] = global.config[BALISE];
-		msg->data[4] = global.config[DEBUG];	//pas vraiment utile...		
-		msg->data[5] = 	(Uint8)(global.test_cartes.etat_moteur_gche)		<< 1 |
-						(Uint8)(global.test_cartes.etat_moteur_dt) 			<< 2 |
-						(Uint8)(global.test_cartes.etat_roue_codeuse_gche) 	<< 3 |
-						(Uint8)(global.test_cartes.etat_roue_codeuse_dte)	<< 4;
-	
-		msg->data[6] = 	(Uint8)(global.test_cartes.etats_capteurs) 				 |
-						(Uint8)(global.test_cartes.biroute_placee)			<< 1 |
-						(Uint8)(global.test_cartes.etat_balise_ir) 			<< 2 |
-						(Uint8)(global.test_cartes.etat_balise_us)			<< 3 |
-						(Uint8)(global.test_cartes.synchro_balise) 			<< 4 ;
-						
-		msg->data[7] =	(Uint8)(global.test_cartes.test_strat) 				 	 |
-						(Uint8)(global.test_cartes.test_asser)				<< 1 |
-						(Uint8)(global.test_cartes.test_act) 				<< 2 |
-						(Uint8)(global.test_cartes.test_balise) 			<< 3;
+		msg->data[0] = global.env.color;
+		msg->data[1] = global.env.config.strategie;
+		msg->data[2] = global.env.config.evitement;
+		msg->data[3] = global.env.config.balise;
+		msg->data[4] = SWITCH_DEBUG;
+		get_selftest_result(&msg->data[5], &msg->data[6], &msg->data[7]);
 		msg->size = 8;
 	}	
 	switch(state)
@@ -455,7 +441,7 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 				SELFTEST_beacon_counter_init(); // Peut etre pas la meilleur place mais nécessaire pour le broadcast_stop qui suit
 
 				EEPROM_CAN_MSG_new_match();
-				EEPROM_CAN_MSG_save_msg(current_msg_address_x16, msg, current_match_id,  (Uint16)(global.current_time_ms/2));
+				EEPROM_CAN_MSG_save_msg(current_msg_address_x16, msg, current_match_id,  (Uint16)(global.env.match_time/2));
 				current_msg_address_x16 = (current_msg_address_x16 >= MAX_MSG_ADDRESS_X16)?(MIN_MSG_ADDRESS_X16):(current_msg_address_x16+1);
 				nb_msg_in_match++;
 				state = IN_MATCH;
@@ -466,18 +452,16 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 			{
 				EEPROM_CAN_MSG_finish_match();
 				EEPROM_CAN_MSG_new_match();
-				EEPROM_CAN_MSG_save_msg(current_msg_address_x16, msg, current_match_id,  (Uint16)(global.current_time_ms/2));
+				EEPROM_CAN_MSG_save_msg(current_msg_address_x16, msg, current_match_id,  (Uint16)(global.env.match_time/2));
 				current_msg_address_x16 = (current_msg_address_x16 >= MAX_MSG_ADDRESS_X16)?(MIN_MSG_ADDRESS_X16):(current_msg_address_x16+1);
 				nb_msg_in_match++;
 			}
-			else if(  (msg->sid != BROADCAST_POSITION_ROBOT)
-					 || (msg->sid == BROADCAST_POSITION_ROBOT && (msg->data[6] & 0xF0))
-					) /*&& (msg->sid != BEACON_ADVERSARY_POSITION_IR) && (msg->sid != BEACON_ADVERSARY_POSITION_US)*/	//Filtrage
+			else
 			{
 				//VERBOSE_CAN_MSG_print(msg); 
 				if(nb_msg_in_match < MAX_MSG_IN_MATCH)	//Un nombre max de message par match est autorisé...
 				{
-					EEPROM_CAN_MSG_save_msg(current_msg_address_x16, msg, current_match_id, (Uint16)(global.current_time_ms/2));
+					EEPROM_CAN_MSG_save_msg(current_msg_address_x16, msg, current_match_id, (Uint16)(global.env.match_time/2));
 					current_msg_address_x16 = (current_msg_address_x16 >= MAX_MSG_ADDRESS_X16)?(MIN_MSG_ADDRESS_X16):(current_msg_address_x16+1);
 					nb_msg_in_match++;
 				}	
@@ -486,12 +470,12 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 			if(msg->sid == BROADCAST_STOP_ALL)
 			{
 				SELFTEST_get_match_report_IR(&local_msg);
-				EEPROM_CAN_MSG_save_msg(current_msg_address_x16, &local_msg, current_match_id,  (Uint16)(global.current_time_ms/2));
+				EEPROM_CAN_MSG_save_msg(current_msg_address_x16, &local_msg, current_match_id,  (Uint16)(global.env.match_time/2));
 				current_msg_address_x16 = (current_msg_address_x16 >= MAX_MSG_ADDRESS_X16)?(MIN_MSG_ADDRESS_X16):(current_msg_address_x16+1);
 				nb_msg_in_match++;
 
 				SELFTEST_get_match_report_US(&local_msg);
-				EEPROM_CAN_MSG_save_msg(current_msg_address_x16, &local_msg, current_match_id,  (Uint16)(global.current_time_ms/2));
+				EEPROM_CAN_MSG_save_msg(current_msg_address_x16, &local_msg, current_match_id,  (Uint16)(global.env.match_time/2));
 				current_msg_address_x16 = (current_msg_address_x16 >= MAX_MSG_ADDRESS_X16)?(MIN_MSG_ADDRESS_X16):(current_msg_address_x16+1);
 				nb_msg_in_match++;
 

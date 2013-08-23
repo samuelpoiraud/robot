@@ -11,7 +11,7 @@
 
 #ifndef LCD_MIDAS_4X20_H
 #define	LCD_MIDAS_4X20_H
-
+#include "../QS/QS_all.h"
 #define RESET_PIN	LATGbits.LATG7
 #define RESET_TRIS	TRISGbits.TRISG7
 

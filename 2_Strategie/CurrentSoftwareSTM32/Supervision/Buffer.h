@@ -9,14 +9,17 @@
  *	Version 20090305
  */
  
-	#include "QS/QS_all.h"
+	#include "../QS/QS_all.h"
  #ifndef BUFFER_H
 	#define BUFFER_H
-	#include "QS/QS_timer.h"
-	#include "QS/QS_uart.h"
-	#include "QS/QS_can_over_uart.h"
-	#include "QS/QS_CANmsgList.h"
+
 	
+
+//Taille du buffer de mémorisation des messages CAN pendant le match...
+	//ATTENTION : il faut qu'il soit grand... mais pas trop, sinon il n'y a plus assez de place pour la pile...
+	#define BUFFER_SIZE		20
+
+
 	void BUFFER_init();
 	
 	void BUFFER_add(CAN_msg_t * m);
@@ -26,4 +29,7 @@
 	void BUFFER_flush();
 	/* Cette fonction vide le buffer sur l'UART2
 	 */
+
+
+
 #endif /* ndef BUFFER_H */

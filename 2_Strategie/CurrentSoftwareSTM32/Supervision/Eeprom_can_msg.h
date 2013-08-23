@@ -12,9 +12,9 @@
 #ifndef EEPROM_CAN_MSG_H
 	#define EEPROM_CAN_MSG_H
 	
-	#include "QS/QS_all.h"
-	#include "QS/QS_CANmsgList.h"
-	#include "QS/QS_spi.h"
+	#include "../QS/QS_all.h"
+	#include "../QS/QS_CANmsgList.h"
+	#include "../QS/QS_spi.h"
 	#include "Eeprom.h"
 	#include "Verbose_can_msg.h"
 	#include "RTC.h"

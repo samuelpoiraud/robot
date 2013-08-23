@@ -45,8 +45,8 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 		case SUPER_ASK_ACT_SELFTEST:			debug_printf("%x SUPER_ASK_ACT_SELFTEST           	", SUPER_ASK_ACT_SELFTEST			);	break;
 		case SUPER_ASK_ASSER_SELFTEST:			debug_printf("%x SUPER_ASK_ASSER_SELFTEST         	", SUPER_ASK_ASSER_SELFTEST			);	break;
 		case SUPER_ASK_BEACON_SELFTEST:			debug_printf("%x SUPER_ASK_BEACON_SELFTEST        	", SUPER_ASK_BEACON_SELFTEST		);	break;
-		case SUPER_CONFIG_IS:					debug_printf("%x SUPER_CONFIG_IS                  	", SUPER_CONFIG_IS					);	break;
-		case STRAT_SELFTEST:					debug_printf("%x STRAT_SELFTEST                   	", STRAT_SELFTEST					);	break;
+		//case SUPER_CONFIG_IS:					debug_printf("%x SUPER_CONFIG_IS                  	", SUPER_CONFIG_IS					);	break;
+		//case STRAT_SELFTEST:					debug_printf("%x STRAT_SELFTEST                   	", STRAT_SELFTEST					);	break;
 		case ACT_SELFTEST :						debug_printf("%x ACT_SELFTEST                     	", ACT_SELFTEST 					);	break;
 		case ASSER_SELFTEST :					debug_printf("%x ASSER_SELFTEST                   	", ASSER_SELFTEST 					);	break;
 		case BEACON_IR_SELFTEST:				debug_printf("%x BEACON_IR_SELFTEST               	", BEACON_IR_SELFTEST				);	break;
@@ -254,7 +254,7 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 
 void print_broadcast_start_infos(CAN_msg_t * msg)
 {
-	if(msg->size == 0 || global.match_started == TRUE)
+	if(msg->size == 0 || global.env.match_started == TRUE)
 	{
 		debug_printf("\n");
 		return;	//Ce n'est pas un message broadcast où l'on a ajouté des infos... OU BIEN, le match est commencé, on ne veux pas polluer le mode débug...
