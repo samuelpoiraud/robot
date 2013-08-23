@@ -8,8 +8,7 @@
  *	Auteur : NIRGAL
  *	Version 201307
  */
- 
-#include "QS/QS_all.h"
+#if 0
 #include "LCD_MIDAS_4x20.h"
 #include <i2c.h>
 
@@ -326,4 +325,5 @@ void LCD_test(void)
 	}
 
 }	
+#endif
 

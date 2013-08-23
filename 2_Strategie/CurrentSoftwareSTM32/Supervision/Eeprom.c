@@ -25,14 +25,13 @@
 #include "Eeprom.h"
 
 
-#define EEPROM_CS EEPROM_SPI2_CS
 
 static void WriteEnable(void);
 
 void EEPROM_init(void)
 {
-	EEPROM_SPI2_HOLD = 1;
-	EEPROM_SPI2_WP = 1;
+	EEPROM_HOLD = 1;
+	EEPROM_WP = 1;
 	SPI_init();
 }
 

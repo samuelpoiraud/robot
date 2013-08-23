@@ -12,9 +12,8 @@
  
  #ifndef RTC_H
 	#define RTC_H
-	#include "QS/QS_all.h"
-	#include "QS/QS_CANmsgList.h"
-	#include "QS/QS_can.h"
+	#include "../QS/QS_all.h"
+
 	
 	// Le code assurant le dialogue avec la RTC provient du site www.embedded-code.com.
 	// La license gratuite impose de ne pas effacer le bloc de commentaire suivant.
@@ -82,120 +81,8 @@
 	
 	
 	
-	//*****************************
-	//*****************************
-	//********** DEFINES **********
-	//*****************************
-	//*****************************
-	#ifndef RTC_DS1307_C_INIT		//Do only once the first time this file is used
-	#define	RTC_DS1307_C_INIT
-	
-	#define	DS1307_I2C_ADDRESS			0xd0
-	
-	
-	//------ SELECT COMPILER ------
-	//(Enable one of these only)
-	//#define	RTC_USING_PIC18
-	//#define	RTC_USING_PIC24
-	#define	RTC_USING_PIC30
-	//#define	RTC_USING_PIC32
-	
-	
-	#ifdef RTC_USING_PIC30
-	//##################
-	//##### PIC 30 #####
-	//##################
-	#define	RTC_I2C_START_I2C()					I2CCONbits.SEN = 1										//Generate bus start condition
-	#define	RTC_I2C_START_IN_PROGRESS_BIT		I2CCONbits.SEN											//Bit indicating start is still in progress
-	#define	RTC_I2C_RESTART_I2C()					I2CCONbits.RSEN = 1									//Generate bus restart condition
-	#define	RTC_I2C_RESTART_IN_PROGRESS_BIT		I2CCONbits.RSEN										//Bit indicating re-start is still in progress
-	#define	RTC_I2C_STOP_I2C()					I2CCONbits.PEN = 1										//Generate bus stop condition
-	#define	RTC_I2C_STOP_IN_PROGRESS_BIT		I2CCONbits.PEN											//Bit indicating Stop is still in progress
-	#define	RTC_I2C_WRITE_BYTE(a)				I2CTRN = a												//Write byte to I2C device
-	#define	RTC_I2C_TX_IN_PROGRESS_BIT			I2CSTATbits.TRSTAT										//Bit indicating transmit byte is still in progress
-	#define	RTC_I2C_ACK_NOT_RECEIVED_BIT		I2CSTATbits.ACKSTAT									//Bit that is high when ACK was not received
-	#define	RTC_I2C_READ_BYTE_START				I2CCONbits.RCEN = 1; while(I2CSTATbits.RBF == 0) ;	//Read byte from I2C device function (optional)
-	#define	RTC_I2C_READ_BYTE					I2CRCV													//Read byte from I2C device function / result byte of RTC_I2C_READ_FUNCTION_START
-	#define RTC_I2C_ACK()							I2CCONbits.ACKDT = 0; I2CCONbits.ACKEN = 1			//Generate bus ACK condition
-	#define RTC_I2C_NOT_ACK()						I2CCONbits.ACKDT = 1; I2CCONbits.ACKEN = 1			//Generate bus Not ACK condition
-	#define	RTC_I2C_ACK_IN_PROGRESS_BIT			I2CCONbits.ACKEN										//Bit indicating ACK is still in progress
-	#define	RTC_I2C_IDLE_I2C()					while ((I2CCON & 0x001F) | (I2CSTATbits.R_W))			//Test if I2C1 module is idle (wait until it is ready for next operation)
-	
-	#endif //#ifdef RTC_USING_PIC30
-	
-	
-	#ifdef RTC_USING_PIC24
-	//##################
-	//##### PIC 24 #####
-	//##################
-	#define	RTC_I2C_START_I2C					I2C2CONbits.SEN = 1										//Generate bus start condition
-	#define	RTC_I2C_START_IN_PROGRESS_BIT		I2C2CONbits.SEN											//Bit indicating start is still in progress
-	#define	RTC_I2C_RESTART_I2C					I2C2CONbits.RSEN = 1									//Generate bus restart condition
-	#define	RTC_I2C_RESTART_IN_PROGRESS_BIT		I2C2CONbits.RSEN										//Bit indicating re-start is still in progress
-	#define	RTC_I2C_STOP_I2C					I2C2CONbits.PEN = 1										//Generate bus stop condition
-	#define	RTC_I2C_STOP_IN_PROGRESS_BIT		I2C2CONbits.PEN											//Bit indicating Stop is still in progress
-	#define	RTC_I2C_WRITE_BYTE(a)				I2C2TRN = a												//Write byte to I2C device
-	#define	RTC_I2C_TX_IN_PROGRESS_BIT			I2C2STATbits.TRSTAT										//Bit indicating transmit byte is still in progress
-	#define	RTC_I2C_ACK_NOT_RECEIVED_BIT		I2C2STATbits.ACKSTAT									//Bit that is high when ACK was not received
-	#define	RTC_I2C_READ_BYTE_START				I2C2CONbits.RCEN = 1; while(I2C2STATbits.RBF == 0) ;	//Read byte from I2C device function (optional)
-	#define	RTC_I2C_READ_BYTE					I2C2RCV													//Read byte from I2C device function / result byte of RTC_I2C_READ_FUNCTION_START
-	#define RTC_I2C_ACK							I2C2CONbits.ACKDT = 0; I2C2CONbits.ACKEN = 1			//Generate bus ACK condition
-	#define RTC_I2C_NOT_ACK						I2C2CONbits.ACKDT = 1; I2C2CONbits.ACKEN = 1			//Generate bus Not ACK condition
-	#define	RTC_I2C_ACK_IN_PROGRESS_BIT			I2C2CONbits.ACKEN										//Bit indicating ACK is still in progress
-	#define	RTC_I2C_IDLE_I2C					while ((I2C2CON & 0x001F) | (I2C2STATbits.R_W))			//Test if I2C1 module is idle (wait until it is ready for next operation)
-	
-	#endif //#ifdef RTC_USING_PIC24
-	
-	
-	#ifdef RTC_USING_PIC32
-	//##################
-	//##### PIC 32 #####
-	//##################
-	#define	RTC_I2C_START_I2C					StartI2C1					//Generate bus start condition
-	#define	RTC_I2C_START_IN_PROGRESS_BIT		I2C1CONbits.SEN				//Bit indicating start is still in progress
-	#define	RTC_I2C_RESTART_I2C					RestartI2C1					//Generate bus restart condition
-	#define	RTC_I2C_RESTART_IN_PROGRESS_BIT		I2C1CONbits.RSEN			//Bit indicating re-start is still in progress
-	#define	RTC_I2C_STOP_I2C					StopI2C1					//Generate bus stop condition
-	#define	RTC_I2C_STOP_IN_PROGRESS_BIT		I2C1CONbits.PEN				//Bit indicating Stop is still in progress
-	#define	RTC_I2C_WRITE_BYTE(a)				MasterWriteI2C1(a)			//Write byte to I2C device
-	#define	RTC_I2C_TX_IN_PROGRESS_BIT			I2C1STATbits.TRSTAT			//Bit indicating transmit byte is still in progress
-	#define	RTC_I2C_ACK_NOT_RECEIVED_BIT		I2C1STATbits.ACKSTAT		//Bit that is high when ACK was not received
-	//#define	RTC_I2C_READ_BYTE_START										//Read byte from I2C device function (optional)
-	#define	RTC_I2C_READ_BYTE					MasterReadI2C1()			//Read byte from I2C device function / result byte of RTC_I2C_READ_FUNCTION_START
-	#define RTC_I2C_ACK							AckI2C1						//Generate bus ACK condition
-	#define RTC_I2C_NOT_ACK						NotAckI2C1					//Generate bus Not ACK condition
-	#define	RTC_I2C_ACK_IN_PROGRESS_BIT			I2C1CONbits.ACKEN			//Bit indicating ACK is still in progress
-	#define	RTC_I2C_IDLE_I2C					IdleI2C1					//Test if I2C1 module is idle (wait until it is ready for next operation)
-	
-	#endif //#ifdef RTC_USING_PIC32
-	
-	
-	
-	#endif //RTC_DS1307_C_INIT
-	
-	
-	
-	//*******************************
-	//*******************************
-	//********** FUNCTIONS **********
-	//*******************************
-	//*******************************
-	#ifdef RTC_DS1307_C
-	//-----------------------------------
-	//----- INTERNAL ONLY FUNCTIONS -----
-	//-----------------------------------
-	
-	
-	//-----------------------------------------
-	//----- INTERNAL & EXTERNAL FUNCTIONS -----
-	//-----------------------------------------
-	//(Also defined below as extern)
-	//unsigned char flash_read(unsigned long address);
-	Uint8 RTC_set_time  (Uint8 *seconds, Uint8 *minutes, Uint8 *hours, Uint8 *day, Uint8 *date, Uint8 *month, Uint8 *year);
-	Uint8 RTC_get_time (Uint8 *seconds, Uint8 *minutes, Uint8 *hours, Uint8 *day, Uint8 *date, Uint8 *month, Uint8 *year);
-	
-	
-	#else
+
+
 	//------------------------------
 	//----- EXTERNAL FUNCTIONS -----
 	//------------------------------
@@ -218,10 +105,9 @@
 	extern Uint8 RTC_get_time (Uint8 *seconds, Uint8 *minutes, Uint8 *hours, Uint8 *day, Uint8 *date, Uint8 *month, Uint8 *year);
 	
 	
-	#endif
 
 	/*
-	@brief 	Envoi le message SUPER_RTC_TIME avec les arguments tels que définis dans QSMsgDoc.
+	@brief 	Envoi le message DEBUG_RTC_TIME avec les arguments tels que définis dans QSMsgDoc.
 	@post 	Si le temps est lu comme invalide, les champs sont à 0 sauf la date et le mois qui sont à 1.
 	*/
 	void RTC_can_send(void);

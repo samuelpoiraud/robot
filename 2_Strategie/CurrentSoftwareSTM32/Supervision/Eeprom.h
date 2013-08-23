@@ -11,7 +11,8 @@
 
 #ifndef EEPROM_H
 	#define EEPROM_H
-	#include "QS/QS_spi.h"
+	#include "../QS/QS_all.h"
+	#include "../QS/QS_spi.h"
 	
 	void EEPROM_Write(Uint32 Address, Uint8 * Data, Uint8 size);
 	void EEPROM_Read(Uint32 Address, Uint8 * Data, Uint8 size);

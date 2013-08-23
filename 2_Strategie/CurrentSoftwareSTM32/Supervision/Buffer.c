@@ -11,47 +11,41 @@
 
 #define BUFFER_C
 #include "Buffer.h"
+#include "Verbose_can_msg.h"
 
+#include "../QS/QS_can_over_uart.h"
+
+
+typedef struct			//définition de la structure qui sera stockée dans le buffer circulaire
+{
+	CAN_msg_t message;
+	Uint16 temps;
+} CANtime_t;
+
+typedef struct		//définition de la structure du buffer
+{
+	CANtime_t tab[BUFFER_SIZE];
+	Uint16 indiceDebut;
+	Uint16 indiceFin;
+} bufferCirculaire_t;
+
+bufferCirculaire_t buffer;
 
 void BUFFER_init()
 {
-	global.buffer.indiceDebut = 0;
-	global.buffer.indiceFin = 0;
-	global.compteur_de_secondes = 0;	//On initialise le compteur pour enregistrer le premier message
+	buffer.indiceDebut = 0;
+	buffer.indiceFin = 0;
 }
  
 void BUFFER_add(CAN_msg_t * m)
 {
-	switch(m->sid)		//On trie les messages en fonction de leur sid
-	{
-		case 0:						//ça veut rien dire
-			break;
-			
-		case ASSER_TELL_POSITION:	//On en veut pas
-			break;
-		
-		case BROADCAST_POSITION_ROBOT:
-			if(global.compteur_de_secondes-1000>global.compteur_de_secondes_precedent_buffer) //global.compteur_de_secondes est incrémenté toutes les 1ms ...
-			{
-				(global.buffer.tab[global.buffer.indiceFin]).message = *m;
-				(global.buffer.tab[global.buffer.indiceFin]).temps =  (Uint16)(global.current_time_ms/2); //le timer boucle toutes les 250 ms
-				global.buffer.indiceFin++;
-				global.compteur_de_secondes_precedent_buffer=global.compteur_de_secondes;
-			}
-			break;
-		//case BEACON_ADVERSARY_POSITION_IR:
-		//	break;
-		
-		default:					//Par défaut on enregistre
-			(global.buffer.tab[global.buffer.indiceFin]).message = *m;
-			(global.buffer.tab[global.buffer.indiceFin]).temps =  (Uint16)(global.current_time_ms/2); //le timer boucle toutes les 250 ms
-			global.buffer.indiceFin++;
-			break;
-		
-	}
+	//Enregistrement du message dans le buffer...
+	(buffer.tab[buffer.indiceFin]).message = *m;
+	(buffer.tab[buffer.indiceFin]).temps =  (Uint16)(global.env.match_time/2); //le timer boucle toutes les 250 ms
+	buffer.indiceFin++;
 
-	if (global.buffer.indiceFin >= BUFFER_SIZE-1)		//Si jamais on dépasse la taille du buffer, on écrase le dernier message reçu, BUFFER_SIZE -1 car on incrémente si la condition est vraie
-		global.buffer.indiceFin=BUFFER_SIZE-1;
+	if (buffer.indiceFin >= BUFFER_SIZE-1)		//Si jamais on dépasse la taille du buffer, on écrase le dernier message reçu, BUFFER_SIZE -1 car on incrémente si la condition est vraie
+		buffer.indiceFin=BUFFER_SIZE-1;
 }
 
 #ifdef USE_EEPROM_FOR_BUFFER
@@ -68,13 +62,13 @@ void BUFFER_add(CAN_msg_t * m)
 	{
 		_prog_addressT EE_addr;
 		    
-		if(global.buffer.indiceFin < BUFFER_RAM_SIZE)
+		if(buffer.indiceFin < BUFFER_RAM_SIZE)
 		{
 			//Ecriture en RAM
-			(global.buffer.tab[global.buffer.indiceFin]).message = *msg;
-			(global.buffer.tab[global.buffer.indiceFin]).temps =  (Uint16)(global.current_time_ms/2);
+			(buffer.tab[buffer.indiceFin]).message = *msg;
+			(buffer.tab[buffer.indiceFin]).temps =  (Uint16)(global.match_time/2);
 		}		
-		else if(global.buffer.indiceFin < BUFFER_RAM_SIZE + BUFFER_EEPROM_SIZE)
+		else if(buffer.indiceFin < BUFFER_RAM_SIZE + BUFFER_EEPROM_SIZE)
 		{
 			//Ecriture en EEPROM
 
@@ -94,43 +88,15 @@ void BUFFER_add(CAN_msg_t * m)
 		}	
 	}	
 #endif		
-//#warning "refaire la fonction BUFFER_flush en utilisant le Verbose_can_msg"
+
 void BUFFER_flush()
 {
-	Uint16 i;
-	Uint16 temps = 0xFFFF;
-	Uint16 indice;
-	CAN_msg_t pmsg;
-	
-	indice = global.buffer.indiceDebut;
-	while(indice != global.buffer.indiceFin)
-	{	
-		// Clignotement des LEDS à chaque message !
-		LED_USER=!LED_USER;
-		LED_CAN=!LED_CAN;
-		
-		if((global.buffer.tab[indice]).temps != temps)
-		{
-			temps = (global.buffer.tab[indice]).temps;
-			
-			UART1_putc(STX);
-			UART1_putc((Uint8)(temps>>8));
-			UART1_putc((Uint8)temps);
-			UART1_putc(ETX);	
-		
-			UART2_putc(STX);
-			UART2_putc((Uint8)(temps>>8));
-			UART2_putc((Uint8)temps);
-			UART2_putc(ETX);
-		}
-		//tempo à l'arrache
-		for(i=1;i!=0;i++);
-		
-		pmsg = ((global.buffer.tab[indice]).message);
-		CANmsgToU1txAndU2tx (&pmsg);
-		//tempo à l'arrache
-		for(i=1;i!=0;i++);
-		
-		indice = (indice + 1) % BUFFER_SIZE;
+	Uint16 index;
+	CAN_msg_t * pmsg;
+	for(index = buffer.indiceDebut; index < buffer.indiceFin; index++)
+	{
+		debug_printf("t=%.2d.%03ds ",buffer.tab[index].temps/500, ((buffer.tab[index].temps)%500)*2);
+		pmsg = &(buffer.tab[index].message);
+		VERBOSE_CAN_MSG_print(pmsg);
 	}
 }

@@ -12,8 +12,8 @@
 #ifndef VERBOSE_CAN_MSG_H
 	#define VERBOSE_CAN_MSG_H
 	
-	#include "QS/QS_all.h"
-	#include "QS/QS_CANmsgList.h"
+	#include "../QS/QS_all.h"
+	#include "../QS/QS_CANmsgList.h"
 	
 	/*
 		Affiche le message can sous la forme d'un texte intelligible.
