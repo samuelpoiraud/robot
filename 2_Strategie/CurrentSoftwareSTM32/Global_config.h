@@ -78,10 +78,10 @@
 			#define LCD_RESET_PORT		GPIOB->ODR9
 				//	I2C RTC/LCD	 			  	  10
 				//	I2C RTC/LCD	 			  	  11
-			#define EEPROM_SCK			GPIOB->ODR12
-			#define EEPROM_SDI			GPIOB->ODR13
+			#define EEPROM_CS			GPIOB->ODR12
+			#define EEPROM_SCK			GPIOB->ODR13
 			#define EEPROM_SDO			GPIOB->ODR14
-			#define EEPROM_CS 			GPIOB->ODR15
+			#define EEPROM_SDI			GPIOB->ODR15
 
 
 		#define PORT_C_IO_MASK	0x200F

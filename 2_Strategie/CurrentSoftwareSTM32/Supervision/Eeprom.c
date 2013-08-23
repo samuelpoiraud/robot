@@ -33,6 +33,20 @@ void EEPROM_init(void)
 	EEPROM_HOLD = 1;
 	EEPROM_WP = 1;
 	SPI_init();
+
+	/*Test SPI...
+	while(1)
+	{
+		volatile Uint32 i;
+		Uint8 data;
+		for(i=0;i<500000;i++);
+		SPI2_write(0x52);
+		for(i=0;i<500000;i++);
+		EEPROM_CS = 0;
+		for(i=0;i<500000;i++);
+		EEPROM_CS = 1;
+	}
+	*/
 }
 
 
