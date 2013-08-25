@@ -9,372 +9,221 @@
  *	Version 20110120
  */
 
-#define SELFTEST
-#define TEMPS_WATCHDOG_ACT 30000	// en ms
-#define TEMPS_WATCHDOG_STRAT 1000	// en ms
-#define TEMPS_WATCHDOG_ASSER 10000	// en ms
-#define TEMPS_WATCHDOG_BALISE 12000	// en ms
-#include "Selftest.h"	
 
-volatile bool_e flag_act;
-volatile bool_e flag_asser;
-volatile bool_e flag_strat;
-volatile bool_e flag_beacon;
-volatile bool_e selftest_enable;
+#include "Selftest.h"
 
-typedef struct{
-	bool_e etat_moteur_gche;
-	bool_e etat_moteur_dt;
-	bool_e etat_roue_codeuse_gche;
-	bool_e etat_roue_codeuse_dte;
-	Uint8 etats_capteurs;
-	bool_e biroute_placee;
-	bool_e etat_balise_ir;
-	bool_e etat_balise_us;
-	bool_e synchro_balise;
-	bool_e test_strat;
-	bool_e test_asser;
-	bool_e test_act;
-	bool_e test_balise;
-}test_carte_t;
-volatile test_carte_t test_cartes;
+#define TIMEOUT_SELFTEST_ACT 		20000	// en ms
+#define TIMEOUT_SELFTEST_PROP 		10000	// en ms
+#define TIMEOUT_SELFTEST_BEACON_IR 	1000	// en ms
+#define TIMEOUT_SELFTEST_BEACON_US 	1000	// en ms
+#define MAX_ERRORS_NUMBER 20
 
-void SELFTEST_init()
+volatile bool_e ask_launch_selftest = FALSE;
+
+SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
+volatile Uint8 errors_index = 0;
+
+volatile bool_e selftest_state = FALSE;
+
+void SELFTEST_ask_launch(void)
 {
-	WATCHDOG_init();
-	
-	// initialisation des résultats des tests unitaires de chaque module à ERREUR
-	// (voir définition des tests dans structure test_carte_t dans le header Global_vars_types.h)
-	test_cartes.etat_moteur_gche = FALSE;
-	test_cartes.etat_moteur_dt = FALSE;
-	test_cartes.etat_roue_codeuse_gche = FALSE;
-	test_cartes.etat_roue_codeuse_dte = FALSE;
-	test_cartes.etats_capteurs = FALSE;
-	test_cartes.biroute_placee = FALSE;
-	test_cartes.etat_balise_ir = FALSE;
-	test_cartes.etat_balise_us = FALSE;
-	test_cartes.synchro_balise = FALSE;
-	
-	selftest_enable = FALSE;
-	
-	// initialisation des flags correspondant aux timeout pour les tests de chaque module
-	flag_act = FALSE;
-	flag_strat = FALSE;
-	flag_asser = FALSE;
-	flag_beacon = FALSE;
-	
-	// initialisation des résultats des tests globales de tous les modules à FALSE
-	test_cartes.test_strat = FALSE;
-	test_cartes.test_asser = FALSE;
-	test_cartes.test_act = FALSE;
-	test_cartes.test_balise = FALSE;
-
-	LED_SELFTEST = FALSE;
-
+	ask_launch_selftest = TRUE;
 }
 
+//Fonction privée qui scrute le contenu des messages CAN de réponse au selftest.
+bool_e SELFTEST_read_answer(CAN_msg_t * msg)
+{
+	bool_e ret;
+	Uint8 i;
+	if(msg->size == 0)	//Tout va bien...
+		ret = TRUE;
+	else
+	{
+		for(i=0;i<msg->size;i++)
+		{
+			//Récupération des codes d'erreurs envoyés.
+			errors[errors_index] = msg->data[i];
+			errors_index++;
+			if(errors_index >= MAX_ERRORS_NUMBER)
+				errors_index = MAX_ERRORS_NUMBER - 1;
+		}
+		ret = FALSE;
+	}
+	return ret;
+}
+
+//Machine a état du selftest, doit être appelée : dans le process de tâche de fond ET à chaque réception d'un message can de selftest.
 void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 {
-	static enum
+	static watchdog_id_t watchdog_id;
+	static bool_e flag_timeout;
+	typedef enum
 	{
-		ATTENTE_APPUI_BOUTON,
-		ENVOI_MESSAGE_ACT,
-		ATTENTE_REPONSE_ACT,
-		ENVOI_MESSAGE_STRAT,
-		ATTENTE_REPONSE_STRAT,
-		ENVOI_MESSAGE_ASSER,
-		ATTENTE_REPONSE_ASSER,
-		ENVOI_MESSAGE_BALISE,
-		ATTENTE_REPONSE_BALISE,
-		PROCEDURE_TERMINEE
-	} etat = 0;
+		INIT = 0,
+		WAIT_SELFTEST_LAUNCH,
+		SELFTEST_ACT,
+		SELFTEST_PROP,
+		SELFTEST_BEACON_IR,
+		SELFTEST_BEACON_US,
+		SELFTEST_END
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
+	bool_e entrance;
+
+	entrance = (state != previous_state)?TRUE:FALSE;
+	previous_state = state;
 	
-	Uint8 erreur_reception_ir,erreur_reception_us;
-	Uint16 distance_mm;
-	Uint8 etat_synchro;
-	
-	static Uint8 fin_test_balise = 0;
-	static watchdog_id_t watchdog_selftest;
-	CAN_msg_t CAN_msg_sent;
-	
-	switch(etat)
+	switch(state)
 	{
-		case ATTENTE_APPUI_BOUTON:
-			if(selftest_enable && !global.env.match_started)
+		case INIT:
+			WATCHDOG_init();
+			errors_index = 0;
+			LED_SELFTEST = FALSE;
+			state = WAIT_SELFTEST_LAUNCH;
+		break;
+		case WAIT_SELFTEST_LAUNCH:
+			if(!global.env.match_started)
 			{
-				debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
-				//LED_init(); // Changement d'utilisation voir selftest balises
-				etat = ENVOI_MESSAGE_ACT;
-				//etat = ENVOI_MESSAGE_STRAT;
+				if(ask_launch_selftest)
+				{
+					debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
+					//lcd_printf_last_line("Selftest : launch\n");
+					errors_index = 0;	//On REMET le compteur d'erreur à 0.
+					state = SELFTEST_ACT;
+					selftest_state = TRUE;	//On suppose que le selftest sera réussi. (a la moindre erreur, on le remettra à FALSE).
+					flag_timeout = FALSE;
+				}
 			}	
 			break;
-			
-		case ENVOI_MESSAGE_ACT:
-			CAN_msg_sent.sid = SUPER_ASK_ACT_SELFTEST;
-			CAN_msg_sent.size = 0;
-			debug_printf("-> demande selftest carte actionneur\r\n");
-			//TODO : CAN_send(&CAN_msg_sent);
-			watchdog_selftest = WATCHDOG_create_flag(TEMPS_WATCHDOG_ACT, (bool_e*) &(flag_act));
-			etat = ATTENTE_REPONSE_ACT;
-			break;
-			
-		case ATTENTE_REPONSE_ACT:
-			if(CAN_msg_received != NULL && flag_act == FALSE)
+		case SELFTEST_ACT:
+			if(entrance)
 			{
-				debug_printf("----- Reception resultat test carte actionneur -----\r\n"); 
-				// reception du message CAN et analyse des données
-				
-			
-				WATCHDOG_stop(watchdog_selftest);
-				etat = ENVOI_MESSAGE_STRAT;	
-				
-				//Allumage de la LED verte actionneur si tous les tests sont bons
+				CAN_send_sid(ACT_DO_SELFTEST);
+				flag_timeout = FALSE;
+				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_ACT, (bool_e*) &(flag_timeout));
 			}
-			else if(flag_act == TRUE)
-			{
-				debug_printf("TIMEOUT carte actionneur\r\n");
-				etat = ENVOI_MESSAGE_STRAT;
-			}
-			break;
-			
-		case ENVOI_MESSAGE_STRAT:
-			debug_printf("-> demande selftest carte strategie\r\n");
-			CAN_msg_sent.sid = SUPER_ASK_STRAT_SELFTEST;
-			CAN_msg_sent.size = 0;
-			//TODO : CAN_send(&CAN_msg_sent);
-			watchdog_selftest = WATCHDOG_create_flag(TEMPS_WATCHDOG_STRAT, (bool_e*) &(flag_strat));
-			etat = ATTENTE_REPONSE_STRAT;
-			break;
-			
-		case ATTENTE_REPONSE_STRAT:
-			if(CAN_msg_received != NULL && flag_strat == FALSE){
-				debug_printf("----- Reception resultat test carte strategie -----\r\n");
-				test_cartes.etats_capteurs = CAN_msg_received->data[0];
-				
-				if(test_cartes.etats_capteurs & 0b00000001)
-					debug_printf("Capteur DT50 gauche OK\r\n");
-				else
-					debug_printf("Capteur DT50 gauche ERREUR\r\n");
-					
-				if(test_cartes.etats_capteurs & 0b00000010)
-					debug_printf("Capteur DT50 droit OK\r\n");
-				else
-					debug_printf("Capteur DT50 droit ERREUR\r\n");
-					
-				if(test_cartes.etats_capteurs & 0b00000100)
-					debug_printf("Capteur DT50 avant OK\r\n");
-				else
-					debug_printf("Capteur DT50 avant ERREUR\r\n");
-
-				if(test_cartes.etats_capteurs & 0b00001000)
-					debug_printf("Capteur DT10 0 OK\r\n");
-				else
-					debug_printf("Capteur DT10 0 ERREUR\r\n");
-					
-				if(test_cartes.etats_capteurs & 0b00010000)
-					debug_printf("Capteur DT10 1 OK\r\n");
-				else
-					debug_printf("Capteur DT10 1 ERREUR\r\n");
-
-				if(test_cartes.etats_capteurs & 0b00100000)
-					debug_printf("Capteur DT10 2 OK\r\n");
-				else
-					debug_printf("Capteur DT10 2 ERREUR\r\n");
-
-				if(test_cartes.etats_capteurs & 0b01000000)
-					debug_printf("Capteur DT10 3 OK\r\n");
-				else
-					debug_printf("Capteur DT10 3 ERREUR\r\n");
-					
-				test_cartes.biroute_placee = CAN_msg_received->data[1];
-				if(test_cartes.biroute_placee)
-					debug_printf("Biroute PLACEE\r\n");
-				else
-					debug_printf("Biroute OUBLIEE\r\n");
-				WATCHDOG_stop(watchdog_selftest);
-				etat = ENVOI_MESSAGE_ASSER;
-				if(test_cartes.biroute_placee == TRUE && (test_cartes.etats_capteurs & 0b01111111) == 0b01111111)
+			if(CAN_msg_received != NULL)
+				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
 				{
-					test_cartes.test_strat = TRUE;
+					//Retour de la carte actionneur
+					selftest_state &= SELFTEST_read_answer(CAN_msg_received);
+					WATCHDOG_stop(watchdog_id);
+					state = SELFTEST_PROP;
 				}
+			if(flag_timeout)	//Timeout
+			{
+				state = SELFTEST_PROP;
 			}
-			else if(flag_strat)
-			{
-				debug_printf("TIMEOUT carte strategie\r\n");
-				etat = ENVOI_MESSAGE_ASSER;
-			}	
 			break;
-			
-		case ENVOI_MESSAGE_ASSER:
-			debug_printf("-> demande selftest carte asser\r\n");
-			CAN_msg_sent.sid = SUPER_ASK_ASSER_SELFTEST;
-			CAN_msg_sent.data[0] = (global.env.color==BLUE)?FORWARD:REAR;
-			CAN_msg_sent.size = 1;
-			CAN_send(&CAN_msg_sent);
-			watchdog_selftest = WATCHDOG_create_flag(TEMPS_WATCHDOG_ASSER, (bool_e*) &(flag_asser));
-			etat = ATTENTE_REPONSE_ASSER;
-			break;
-			
-		case ATTENTE_REPONSE_ASSER:
-			if(CAN_msg_received != NULL && flag_asser == FALSE)
+		case SELFTEST_PROP:
+			if(entrance)
 			{
-				debug_printf("----- Reception resultat test carte asser -----\r\n");
-				test_cartes.etat_moteur_gche = CAN_msg_received->data[0];
-				test_cartes.etat_moteur_dt = CAN_msg_received->data[1];
-				test_cartes.etat_roue_codeuse_gche = CAN_msg_received->data[2];
-				test_cartes.etat_roue_codeuse_dte = CAN_msg_received->data[3];
-				
-				if(test_cartes.etat_moteur_gche)
-					debug_printf("Etat moteur gauche OK\r\n");
-				else
-					debug_printf("Etat moteur gauche ERREUR\r\n");
-					
-				if(test_cartes.etat_moteur_dt)
-					debug_printf("Etat moteur droit OK\r\n");
-				else
-					debug_printf("Etat moteur droit ERREUR\r\n");
-					
-				if(test_cartes.etat_roue_codeuse_gche)
-					debug_printf("Etat roue codeuse gauche OK\r\n");
-				else
-					debug_printf("Etat roue codeuse gauche ERREUR\r\n");
-					
-				if(test_cartes.etat_roue_codeuse_dte)
-					debug_printf("Etat roue codeuse droite OK\r\n");
-				else
-					debug_printf("Etat roue codeuse droite ERREUR\r\n");
-					
-				WATCHDOG_stop(watchdog_selftest);
-				etat = ENVOI_MESSAGE_BALISE;
-				
-				if(test_cartes.etat_moteur_gche == TRUE && test_cartes.etat_moteur_dt == TRUE
-					&& test_cartes.etat_roue_codeuse_gche == TRUE && test_cartes.etat_roue_codeuse_dte == TRUE)
+				CAN_send_sid(ACT_DO_SELFTEST);
+				flag_timeout = FALSE;
+				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_PROP, (bool_e*) &(flag_timeout));
+			}
+			if(CAN_msg_received != NULL)
+				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
 				{
-					test_cartes.test_asser = TRUE;
-				}		
-			}
-			else if(flag_asser)
-			{
-				debug_printf("TIMEOUT carte asser\r\n");
-				etat = ENVOI_MESSAGE_BALISE;
-			}
-			break;
-			
-		case ENVOI_MESSAGE_BALISE:
-			CAN_msg_sent.sid = SUPER_ASK_BEACON_SELFTEST;
-			CAN_msg_sent.size = 0;
-			debug_printf("-> demande selftest balise\r\n");
-			//TODO  : CAN_send(&CAN_msg_sent);
-			watchdog_selftest = WATCHDOG_create_flag(TEMPS_WATCHDOG_BALISE, (bool_e*) &(flag_beacon));
-			etat = ATTENTE_REPONSE_BALISE;
-			break; 
-			
-		case ATTENTE_REPONSE_BALISE:
-			if(CAN_msg_received != NULL && flag_beacon == FALSE)
-			{
-				if(CAN_msg_received->sid == BEACON_IR_SELFTEST)
-				{
-					debug_printf("----- Reception resultat test balise IR -----\r\n");
-					fin_test_balise++;
-					erreur_reception_ir = CAN_msg_received->data[0];
-					if(!erreur_reception_ir)
-					{
-						test_cartes.etat_balise_ir = TRUE;
-						debug_printf("test IR OK\r\n");
-					}
-					else
-					{
-						debug_printf("test IR ERREUR\r\n");	
-					}
+					//Retour de la carte Propulsion
+					selftest_state &= SELFTEST_read_answer(CAN_msg_received);
+					WATCHDOG_stop(watchdog_id);
+					state = SELFTEST_BEACON_IR;
 				}
-				if(CAN_msg_received->sid == BEACON_US_SELFTEST)
-				{
-					debug_printf("----- Reception resultat test balise US -----\r\n");
-					fin_test_balise++;
-					erreur_reception_us = CAN_msg_received->data[1];
-					distance_mm = 10*CAN_msg_received->data[2];
-					etat_synchro = CAN_msg_received->data[3];
-					if(!erreur_reception_us)
-					{
-						test_cartes.etat_balise_us = TRUE;
-						debug_printf("test US OK\r\n");
-					}
-					else
-					{
-						debug_printf("test US ERREUR\r\n");
-						debug_printf("erreur_reception_us : %d\r\n",erreur_reception_us);
-					}
-					if(etat_synchro > TEMPS_SYNCHRO)
-					{
-						test_cartes.synchro_balise = TRUE;
-						debug_printf("synchro OK -> nombre de secondes : %d\r\n",etat_synchro);
-					}
-					else
-					{
-						debug_printf("synchro ERREUR -> nombre de secondes : %d\r\n",etat_synchro);
-					}
-					debug_printf("distance estimee : %d mm\r\n",distance_mm);
-				}
-			}
-			if(!flag_beacon && fin_test_balise == NOMBRE_TESTS_BALISE)
+			if(flag_timeout)	//Timeout
 			{
-				fin_test_balise = 0;
-				WATCHDOG_stop(watchdog_selftest);
-				if(test_cartes.synchro_balise && test_cartes.etat_balise_us
-					&& test_cartes.etat_balise_ir)
-				{
-					test_cartes.test_balise = TRUE;
-				}
-				etat = PROCEDURE_TERMINEE;
+				state = SELFTEST_BEACON_IR;
 			}
-			if(flag_beacon)
-			{
-				debug_printf("TIMEOUT balise\r\n");
-				etat = PROCEDURE_TERMINEE;
-			}	
 			break;
-			
-		case PROCEDURE_TERMINEE:
-			if(test_cartes.test_act && test_cartes.test_strat
-				&& test_cartes.test_asser && test_cartes.test_balise)
+		case SELFTEST_BEACON_IR:
+			if(entrance)
+			{
+				CAN_send_sid(ACT_DO_SELFTEST);
+				flag_timeout = FALSE;
+				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_IR, (bool_e*) &(flag_timeout));
+			}
+			if(CAN_msg_received != NULL)
+				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
+				{
+					//Retour de la carte Beacon IR
+					selftest_state &= SELFTEST_read_answer(CAN_msg_received);
+					WATCHDOG_stop(watchdog_id);
+					state = SELFTEST_BEACON_US;
+				}
+			if(flag_timeout)	//Timeout
+			{
+				state = SELFTEST_BEACON_US;
+			}
+			break;
+		case SELFTEST_BEACON_US:
+			if(entrance)
+			{
+				CAN_send_sid(ACT_DO_SELFTEST);
+				flag_timeout = FALSE;
+				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_US, (bool_e*) &(flag_timeout));
+			}
+			if(CAN_msg_received != NULL)
+				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
+				{
+					//Retour de la carte Beacon US
+					selftest_state &= SELFTEST_read_answer(CAN_msg_received);
+					WATCHDOG_stop(watchdog_id);
+					state = SELFTEST_END;
+				}
+			if(flag_timeout)	//Timeout
+			{
+				state = SELFTEST_END;
+			}
+			break;
+		case SELFTEST_END:
+			ask_launch_selftest = FALSE;	//Fin du selftest (et du clignotement de la led selftest).
+			if(selftest_state)//Tout s'est bien passé
 			{
 				LED_SELFTEST = TRUE;
+				debug_printf("SELFTEST : OK !\n");
 			}
-			debug_printf("______________________ FIN SELFTEST ________________________\r\n");
-			etat = ATTENTE_APPUI_BOUTON;
-			selftest_enable = FALSE;
-			break;	
-				
+			else	//Des problèmes ont été rencontrés
+			{
+				LED_SELFTEST = FALSE;
+				SELFTEST_print_errors();
+			}
+			state = WAIT_SELFTEST_LAUNCH;
+			break;
 		default : 
 			break;
 	}
 }
 
-void get_selftest_result(Uint8 * propulsion, Uint8 * various, Uint8 * boards)
+void SELFTEST_print_errors(void)
 {
-	*propulsion = 	(Uint8)(test_cartes.etat_moteur_gche)		<< 1 |
-	(Uint8)(test_cartes.etat_moteur_dt) 			<< 2 |
-	(Uint8)(test_cartes.etat_roue_codeuse_gche) 	<< 3 |
-	(Uint8)(test_cartes.etat_roue_codeuse_dte)	<< 4;
-
-	*various = 	(Uint8)(test_cartes.etats_capteurs) 				 |
-	(Uint8)(test_cartes.biroute_placee)			<< 1 |
-	(Uint8)(test_cartes.etat_balise_ir) 			<< 2 |
-	(Uint8)(test_cartes.etat_balise_us)			<< 3 |
-	(Uint8)(test_cartes.synchro_balise) 			<< 4 ;
-
-	*boards =	(Uint8)(test_cartes.test_strat) 				 	 |
-	(Uint8)(test_cartes.test_asser)				<< 1 |
-	(Uint8)(test_cartes.test_act) 				<< 2 |
-	(Uint8)(test_cartes.test_balise) 			<< 3;
+	Uint8 i;
+	for(i=0;i<errors_index;i++)
+	{
+		debug_printf("Selftest error %d : ",errors[i]);
+		switch(errors[i])
+		{
+			case SELFTEST_NOT_DONE:						debug_printf("NOT_DONE");			break;
+			case SELFTEST_FAIL_UNKNOW_REASON:			debug_printf("FAIL_UNKNOW_REASON");			break;
+			case SELFTEST_NO_POWER:						debug_printf("NO_POWER");			break;
+			case SELFTEST_TIMEOUT:						debug_printf("TIMEOUT");			break;
+			case SELFTEST_PROP_LEFT_MOTOR:				debug_printf("PROP_LEFT_MOTOR");			break;
+			case SELFTEST_PROP_LEFT_ENCODER:			debug_printf("PROP_LEFT_ENCODER");			break;
+			case SELFTEST_PROP_RIGHT_MOTOR:				debug_printf("PROP_RIGHT_MOTOR");			break;
+			case SELFTEST_PROP_RIGHT_ENCODER:			debug_printf("PROP_RIGHT_ENCODER");			break;
+			case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");			break;
+			default:									debug_printf("UNKNOW_ERROR_CODE");			break;
+		}
+		debug_printf("\n");
+	}
 }
 
 //Flag qui permet de lancer la fonction SELFTEST_balise_update
-volatile static bool_e balise_test_flag = FALSE;
+volatile bool_e flag_1s = FALSE;
 
 //Fonction qui leve le flag précédent appelée par le timer4: 250ms
-void beacon_flag_update(){
-	balise_test_flag = TRUE;
+void SELFTEST_process_1sec(){
+	flag_1s = TRUE;
 }
 
 
@@ -427,7 +276,10 @@ void led_ir_update(selftest_beacon_e state)
 void SELFTEST_balise_update(){
 	static Uint8 counter = 8;
 	
-	if(balise_test_flag){
+	if(flag_1s)
+	{
+		if(ask_launch_selftest)
+			LED_SELFTEST = !LED_SELFTEST;	//clignotement de la led pendant le selftest.
 		if(global.env.match_started == FALSE)
 		{
 			counter--;
@@ -437,14 +289,11 @@ void SELFTEST_balise_update(){
 				//TODO : CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
 			}
 		}
-		balise_test_flag = FALSE;
+		flag_1s = FALSE;
 	}
 }
 
-void BUTTON_selftest(void)
-{
-	selftest_enable = TRUE;
-}
+
 
 
 
