@@ -169,7 +169,7 @@ void ZONE_unlock(map_zone_e zone) {
 		msg.data[0] = XBEE_ZONE_UNLOCK;
 		msg.data[1] = zone;
 		msg.size = 2;
-		CAN_send(&msg);
+		CANMsgToXbee(&msg,FALSE);
 		zones[zone] = ZS_Free;
 	} else {
 		debug_printf("zone: unlock zone %d not owned !!!, state = %d\n", zone, zones[zone]);
@@ -185,38 +185,36 @@ zone_state_e ZONE_get_status(map_zone_e zone) {
 }
 
 void ZONE_CAN_process_msg(CAN_msg_t *msg) {
-	if(((msg->sid & 0xFF0) == STRAT_XBEE_FILTER) &&		//Si c'est un message reçu par XBEE
-	   ((msg->sid & 0x00F) == (XBEE_ZONE_COMMAND & 0x00F)))	//Et que le SID correspond à une commande liée au zones
-	{
-		if(msg->data[1] >= ZONE_NUMBER) {
-			debug_printf("zone: unknown zone %d !!!\n", msg->data[1]);
-			return;
-		}
+	assert(msg->sid == XBEE_ZONE_COMMAND)	//Si le SID correspond à une commande liée aux zones
 
-		switch(msg->data[0]) {
-			case XBEE_ZONE_LOCK_RESULT:
-				if(zones[msg->data[1]] == ZS_Acquiring) {
-					if(msg->data[2] == TRUE)
-						zones[msg->data[1]] = ZS_OwnedByMe;
-					else zones[msg->data[1]] = ZS_OwnedByOther;
-				} else {
-					if((msg->data[2] == TRUE && zones[msg->data[1]] != ZS_OwnedByMe) ||
-					   (msg->data[2] != TRUE && zones[msg->data[1]] != ZS_OwnedByOther))
-					{
-						debug_printf("zone: INCOHERENT STATE !! zones[%d] = %d, but response = %d\n", msg->data[1], zones[msg->data[1]], msg->data[2]);
-					}
+	if(msg->data[1] >= ZONE_NUMBER) {
+		debug_printf("zone: unknown zone %d !!!\n", msg->data[1]);
+		return;
+	}
+
+	switch(msg->data[0]) {
+		case XBEE_ZONE_LOCK_RESULT:
+			if(zones[msg->data[1]] == ZS_Acquiring) {
+				if(msg->data[2] == TRUE)
+					zones[msg->data[1]] = ZS_OwnedByMe;
+				else zones[msg->data[1]] = ZS_OwnedByOther;
+			} else {
+				if((msg->data[2] == TRUE && zones[msg->data[1]] != ZS_OwnedByMe) ||
+				   (msg->data[2] != TRUE && zones[msg->data[1]] != ZS_OwnedByOther))
+				{
+					debug_printf("zone: INCOHERENT STATE !! zones[%d] = %d, but response = %d\n", msg->data[1], zones[msg->data[1]], msg->data[2]);
 				}
-				break;
+			}
+			break;
 
-			case XBEE_ZONE_TRY_LOCK:
-				ZONE_send_lock_response(msg->data[1]);
-				break;
+		case XBEE_ZONE_TRY_LOCK:
+			ZONE_send_lock_response(msg->data[1]);
+			break;
 
-			case XBEE_ZONE_UNLOCK:
-				if(zones[msg->data[1]] == ZS_OwnedByOther)
-					zones[msg->data[1]] = ZS_Free;
-				break;
-		}
+		case XBEE_ZONE_UNLOCK:
+			if(zones[msg->data[1]] == ZS_OwnedByOther)
+				zones[msg->data[1]] = ZS_Free;
+			break;
 	}
 }
 
@@ -228,7 +226,7 @@ static void ZONE_send_lock_request(map_zone_e zone) {
 	msg.data[1] = zone;
 	msg.size = 2;
 
-	CAN_send(&msg);
+	CANMsgToXbee(&msg,FALSE);
 }
 
 static void ZONE_send_lock_response(map_zone_e zone) {
@@ -256,5 +254,5 @@ static void ZONE_send_lock_response(map_zone_e zone) {
 
 	msg.size = 3;
 
-	CAN_send(&msg);
+	CANMsgToXbee(&msg,FALSE);
 }
