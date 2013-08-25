@@ -68,7 +68,7 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 	}
 
 	if	( (msg->sid & STRAT_FILTER) ||  (msg->sid & XBEE_FILTER) )
-		*bCAN_filter = FALSE;
+		*bCAN_filter = FALSE;	//On n'envoie pas sur le bus CAN des messages qui nous sont destinés uniquement.
 	else
 		*bCAN_filter = TRUE;	//Seuls les messages BROADCAST, DEBUG, ou destinés aux cartes PROPULSION, ACTIONNEUR, BALISES sont transmis sur le bus can.
 }
@@ -99,7 +99,7 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 		#ifdef USE_XBEE
 			if(bXBee && SWITCH_XBEE)
 			{
-				if((incoming_msg->sid & 0xFF0) == XBEE_FILTER)
+				if((incoming_msg->sid & 0xF00) == XBEE_FILTER)
 					CANMsgToXbee(incoming_msg,TRUE);	//Envoi en BROADCAST... aux modules joignables
 			}
 		#endif
@@ -175,13 +175,8 @@ void ENV_update()
 #ifdef USE_XBEE
 	if(SWITCH_XBEE)
 	{
-
 		if(XBeeToCANmsg(&can_msg_from_uart2))
-		{
-			if((can_msg_from_uart2.sid & 0xFF0) == XBEE_FILTER)
-				can_msg_from_uart2.sid = (can_msg_from_uart2.sid & 0x00F) | STRAT_XBEE_FILTER;
 			ENV_process_can_msg(&can_msg_from_uart2,TRUE, TRUE, FALSE, FALSE);	//Everywhere except U2 and XBee.
-		}
 	}
 #endif
 
@@ -226,20 +221,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 	switch (incoming_msg->sid)
 	{
 //****************************** Messages venant des geeks du club robot  *************************/
-		case SUPER_ASK_CONFIG:
-			global.env.config_updated=TRUE;
-			global.env.wanted_config.strategie = incoming_msg->data[0];
-			global.env.wanted_config.evitement = incoming_msg->data[2];
-			global.env.wanted_config.balise = incoming_msg->data[3];
-			/* gestion de la couleur */
-			global.env.wanted_color=incoming_msg->data[1];
-
-			if(global.env.wanted_color != global.env.color)
-				global.env.color_updated = TRUE;
-			break;
-		case SUPER_ASK_STRAT_SELFTEST:
-				
-		break;
 		case DEBUG_RTC_SET:
 			RTC_set_time(&(incoming_msg->data[0]), &(incoming_msg->data[1]), &(incoming_msg->data[2]), &(incoming_msg->data[3]), &(incoming_msg->data[4]), &(incoming_msg->data[5]), &(incoming_msg->data[6]));
 					/*
@@ -323,18 +304,16 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			Supervision_update_led_beacon(incoming_msg);
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
-		case STRAT_ELTS_UPDATE:
-			break;
-		case STRAT_START_MATCH:
+		case XBEE_START_MATCH:
 			global.env.ask_start = TRUE;
 			break;
-		case XBEE_PING_FROM_OTHER_STRAT:
+		case XBEE_PING:
 			//On recoit un ping, on répond par un PONG.
 			//Le lien est établi
 			global.env.xbee_is_linked = TRUE;
-			CAN_send_sid(XBEE_PONG_OTHER_STRAT);
+			XBEE_send_sid(XBEE_PONG,FALSE);	//Envoi vers l'autre robot
 			break;
-		case XBEE_PONG_FROM_OTHER_STRAT:
+		case XBEE_PONG:
 			//On reçoit un pong, tant mieux, le lien est établi
 			global.env.xbee_is_linked = TRUE;
 			break;
@@ -342,14 +321,14 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.env.debug_force_foe = TRUE;
 			break;
 
-		case XBEE_ZONE_COMMAND_RECV:
+		case XBEE_ZONE_COMMAND:
 			ZONE_CAN_process_msg(incoming_msg);
 			break;
 /************************************* Récupération des messages liés au selftest ***************************/
-		case BEACON_IR_SELFTEST :
-		case BEACON_US_SELFTEST :
-		case ACT_SELFTEST :
-		case ASSER_SELFTEST :
+		case STRAT_BEACON_IR_SELFTEST_DONE :
+		case STRAT_BEACON_US_SELFTEST_DONE :
+		case STRAT_ACT_SELFTEST_DONE :
+		case STRAT_PROP_SELFTEST_DONE :
 			SELFTEST_update(&incoming_msg);
 			break;
 		default:
@@ -678,14 +657,15 @@ void ENV_set_color(color_e color)
 
 void ENV_XBEE_ping_process(void)
 {
+	CAN_msg_t can_msg;
 	/* changer les LEDs de couleur */
 	if(global.env.flag_for_ping_xbee >= 2)	//Toutes les secondes
 	{
 		global.env.flag_for_ping_xbee = 0;
 		if(global.env.xbee_is_linked == FALSE)
 		{	
-			//Si le lien n'est pas avéré, on ping l'autre carte stratégie	
-			CAN_send_sid(XBEE_PING_OTHER_STRAT);	
+			//Si le lien n'est pas avéré, on ping l'autre carte stratégie
+			XBEE_send_sid(XBEE_PING,FALSE);	//Envoi vers l'autre robot
 		}		
 	}	
 	
