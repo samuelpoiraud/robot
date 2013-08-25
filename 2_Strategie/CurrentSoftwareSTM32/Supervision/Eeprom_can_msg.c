@@ -430,7 +430,7 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 		msg->data[2] = global.env.config.evitement;
 		msg->data[3] = global.env.config.balise;
 		msg->data[4] = SWITCH_DEBUG;
-		get_selftest_result(&msg->data[5], &msg->data[6], &msg->data[7]);
+		//TODO : récupérer le résultat du selftest pour enregistrement...
 		msg->size = 8;
 	}	
 	switch(state)

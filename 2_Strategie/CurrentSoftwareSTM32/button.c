@@ -24,7 +24,7 @@ void BUTTON_init()
 	BUTTONS_init();
 
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
-	BUTTONS_define_actions(BUTTON1,BUTTON_selftest, NULL, 0);
+	BUTTONS_define_actions(BUTTON1,SELFTEST_ask_launch, NULL, 0);
 	BUTTONS_define_actions(BUTTON2,BUTTON_calibration, NULL, 1);
 	BUTTONS_define_actions(BUTTON3,BUTTON_TEST_button3, NULL, 1);	//TODO : BOUTON MENU LCD
 	BUTTONS_define_actions(BUTTON4,BUTTON_TEST_button4, NULL, 1);	//TODO : BOUTON MENU LCD

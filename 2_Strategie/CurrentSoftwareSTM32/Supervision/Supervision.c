@@ -26,7 +26,6 @@ void Supervision_init(void)
 	RTC_init();
 	BUFFER_init();
 	EEPROM_CAN_MSG_init();
-	SELFTEST_init();
 
 	#ifdef USE_XBEE
 		if(QS_WHO_AM_I_get() == TINY)
@@ -57,7 +56,7 @@ void Supervision_process_main(void)
 		#ifdef USE_XBEE
 			CAN_over_XBee_every_second();
 		#endif
-		beacon_flag_update();
+		SELFTEST_process_1sec();
 		//AU bout de la première seconde.
 		if(!RTC_time_printed)
 		{
