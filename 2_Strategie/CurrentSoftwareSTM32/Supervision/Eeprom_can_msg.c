@@ -15,9 +15,9 @@
 
 
 #define TEST_STRING_ADDRESS		(Uint32)(0x00000000)	//Adresse de la chaine de test de la mémoire EEPROM
-#define TEST_STRING_SIZE		(Uint8)(8)				//Taille de la chaien de test de la mémoire EEPROM
+#define TEST_STRING_SIZE		(Uint8)(8)				//Taille de la chaine de test de la mémoire EEPROM
 #define MIN_MATCH_ADDRESS_X8 	(Uint16)(1)				//Première adresse dans la table des matchs (en adresse/8)
-#define MAX_MATCH_ADDRESS_X8 	(Uint16)(0x0200)	//0x200		//Dernièer adresse dans la table des matchs (en adresse/8)
+#define MAX_MATCH_ADDRESS_X8 	(Uint16)(0x0200)	//0x200		//Dernière adresse dans la table des matchs (en adresse/8)
 #define MATCH_SIZE				(Uint8)(8)				//Taille d'un header de match
 #define MAX_MSG_IN_MATCH		(Uint16)(2048)			//Nb max de message pour un match
 #define MIN_MSG_ADDRESS_X16		(Uint16)(0x0200)
@@ -71,7 +71,7 @@ Enregistrement des messages CAN
 
 
 */
-
+void EEPROM_CAN_MSG_print_all_msg(void);
 
 //variables de l'objet :
 Uint16 current_match_id;		//Numéro du match en cours ou à venir
@@ -122,7 +122,23 @@ bool_e EEPROM_CAN_MSG_test_eeprom_available()
 }	
 
 
+void EEPROM_test_all_memory(void)
+{
+	Uint32 address;
+	Uint8 msg[16];
+	Uint8 read[16];
+	for(address = 0x200;address < 0x1FFFF;address+=16)
+	{
+		sprintf((char*)msg,"TESTEEPROM_0x%02x",(Uint16)(address/16));
+		EEPROM_Write(address, msg, 16);
+	}
+	for(address = 0x200;address < 0x1FFFF;address+=16)
+	{
+		EEPROM_Read(address, read, 16);
+		debug_printf("%s\n",read);
+	}
 
+}
 
 
 
@@ -417,22 +433,34 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 	if(!initialized)	//Vérification. Si la mémoire n'est pas initialisée, on abandonne.
 		return;
 	
-	if(msg->sid == SUPER_EEPROM_RESET)
-		EEPROM_CAN_MSG_flush_eeprom();
-	if(msg->sid== SUPER_EEPROM_PRINT_MATCH)
-		EEPROM_CAN_MSG_verbose_match(U16FROMU8(msg->data[0],msg->data[1]));
-	
-	if(msg->sid == BROADCAST_START)
+	switch(msg->sid)
 	{
-		//Dans le cas de la réception d'un broadcast start, on ajoute des informations dans les datas inutilisées afin d'enregistrer des infos sur le match lancé !
-		msg->data[0] = global.env.color;
-		msg->data[1] = global.env.config.strategie;
-		msg->data[2] = global.env.config.evitement;
-		msg->data[3] = global.env.config.balise;
-		msg->data[4] = SWITCH_DEBUG;
-		//TODO : récupérer le résultat du selftest pour enregistrement...
-		msg->size = 8;
-	}	
+		case SUPER_EEPROM_RESET:
+			EEPROM_CAN_MSG_flush_eeprom();
+			break;
+		case SUPER_EEPROM_TEST_ALL_MEMORY:
+			EEPROM_test_all_memory();
+			break;
+		case SUPER_EEPROM_PRINT_ALL_MEMORY:
+			EEPROM_CAN_MSG_print_all_msg();
+			break;
+		case SUPER_EEPROM_PRINT_MATCH:
+			EEPROM_CAN_MSG_verbose_match(U16FROMU8(msg->data[0],msg->data[1]));
+			break;
+		case BROADCAST_START:
+			//Dans le cas de la réception d'un broadcast start, on ajoute des informations dans les datas inutilisées afin d'enregistrer des infos sur le match lancé !
+			msg->data[0] = global.env.color;
+			msg->data[1] = global.env.config.strategie;
+			msg->data[2] = global.env.config.evitement;
+			msg->data[3] = global.env.config.balise;
+			msg->data[4] = SWITCH_DEBUG;
+			//TODO : récupérer le résultat du selftest pour enregistrement...
+			msg->size = 8;
+			break;
+		default:
+			break;
+	}
+	
 	switch(state)
 	{
 		case WAIT_MATCH:

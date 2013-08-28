@@ -20,10 +20,6 @@
 	bool_e Memory_busy(void);
 	void EEPROM_init(void);
 	
-	#define STATUS_MASK_WIP	0b00000001
-	#define STATUS_MASK_WEL	0b00000010
-	#define STATUS_MASK_BP0	0b00000100
-	#define STATUS_MASK_BP1	0b00001000
 
 	#define EEPROM_SIZE_OCTETS	(Uint32)(131072)
 #endif /* ndef EEPROM_H */

@@ -67,7 +67,7 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 		break;
 	}
 
-	if	( (msg->sid & STRAT_FILTER) ||  (msg->sid & XBEE_FILTER) )
+	if	( ((msg->sid & 0xF00) == STRAT_FILTER) ||  ((msg->sid & 0xF00) == XBEE_FILTER) )
 		*bCAN_filter = FALSE;	//On n'envoie pas sur le bus CAN des messages qui nous sont destinés uniquement.
 	else
 		*bCAN_filter = TRUE;	//Seuls les messages BROADCAST, DEBUG, ou destinés aux cartes PROPULSION, ACTIONNEUR, BALISES sont transmis sur le bus can.
@@ -232,13 +232,16 @@ void CAN_update (CAN_msg_t* incoming_msg)
 						Uint8 months
 						Uint8 year	(11 pour 2011)
 					*/
+			RTC_print_time();
 			RTC_can_send();	//Retour ... pour vérifier que ca a fonctionné..
 			break;
 		case DEBUG_RTC_GET:
 			RTC_print_time();
 			RTC_can_send();
-		break;
-
+			break;
+		case DEBUG_RTC_TIME:
+			RTC_print_time();
+			break;
 //****************************** Messages carte propulsion/asser *************************/	
 		case CARTE_P_TRAJ_FINIE:
 			global.env.asser.fini = TRUE;
@@ -329,7 +332,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_BEACON_US_SELFTEST_DONE :
 		case STRAT_ACT_SELFTEST_DONE :
 		case STRAT_PROP_SELFTEST_DONE :
-			SELFTEST_update(&incoming_msg);
+			SELFTEST_update(incoming_msg);
 			break;
 		default:
 			break;

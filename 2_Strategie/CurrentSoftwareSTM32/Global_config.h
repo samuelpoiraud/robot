@@ -43,9 +43,9 @@
 	 */
 
 		/* Il faut choisir à quelle frequence on fait tourner le STM32 */
-		#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
-		#define PCLK1_FREQUENCY_HZ    10000000	//10Mhz, Max: 42Mhz
-		#define PCLK2_FREQUENCY_HZ    20000000	//40Mhz, Max: 84Mhz
+		#define HCLK_FREQUENCY_HZ     160000000	//40Mhz, Max: 168Mhz
+		#define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
+		#define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
 		#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 	
 		#define PORT_A_IO_MASK	0xFC9B
@@ -96,8 +96,8 @@
 			#define LED_BEACON_US_GREEN	GPIOC->ODR8
 			#define LED_BEACON_US_RED	GPIOC->ODR9
 				//	-	sortie libre 			  10
-			#define EEPROM_HOLD			GPIOC->ODR11
-			#define EEPROM_WP			GPIOC->ODR12
+			#define EEPROM_WP			GPIOC->ODR11
+			#define EEPROM_HOLD			GPIOC->ODR12
 			#define PORT_ROBOT_ID  		GPIOC->IDR13
 				//	-	OSC32_in 			  	  14
 				//	-	OSC32_out 			  	  15
@@ -147,12 +147,12 @@
 
 	//#define USE_LCD
 	#ifdef USE_RTC
-		#define USE_I2C
+		#define USE_I2C2
 	#endif
 
-	//#define USE_RTC
+	#define USE_RTC
 	#ifdef USE_RTC
-		#define USE_I2C
+		#define USE_I2C2
 	#endif
 
 	#define USE_SPI2

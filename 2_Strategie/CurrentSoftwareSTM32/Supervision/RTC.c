@@ -13,7 +13,8 @@
 #define QS_I2C_C
 #include "RTC.h"
 #ifdef USE_RTC
-	#include <i2c.h>
+	//#include <i2c.h>
+	#include "../QS/QS_i2c.h"
 #endif
 	#include "../QS/QS_CANmsgList.h"
 	#include "../QS/QS_can.h"
@@ -53,9 +54,9 @@
 	//(Enable one of these only)
 	//#define	RTC_USING_PIC18
 	//#define	RTC_USING_PIC24
-	#define	RTC_USING_PIC30
+	//#define	RTC_USING_PIC30
 	//#define	RTC_USING_PIC32
-
+	#define RTC_USING_STM32
 
 	#ifdef RTC_USING_PIC30
 	//##################
@@ -79,6 +80,23 @@
 
 	#endif //#ifdef RTC_USING_PIC30
 
+	#ifdef RTC_USING_STM32
+		#define	RTC_I2C_START_I2C()					I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE)										//Generate bus start condition
+		#define	RTC_I2C_START_IN_PROGRESS_BIT		FALSE											//Bit indicating start is still in progress
+		#define	RTC_I2C_RESTART_I2C()				I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE)								//Generate bus restart condition
+		#define	RTC_I2C_RESTART_IN_PROGRESS_BIT		FALSE									//Bit indicating re-start is still in progress
+		#define	RTC_I2C_STOP_I2C()					I2C_GenerateSTOP(I2C2_I2C_HANDLE, ENABLE)										//Generate bus stop condition
+		#define	RTC_I2C_STOP_IN_PROGRESS_BIT		FALSE									//Bit indicating Stop is still in progress
+		#define	RTC_I2C_WRITE_BYTE(a)				I2C_SendData(I2C2_I2C_HANDLE,a)												//Write byte to I2C device
+		#define	RTC_I2C_TX_IN_PROGRESS_BIT			(!I2C_GetFlagStatus(I2C2_I2C_HANDLE,I2C_FLAG_BTF)										//Bit indicating transmit byte is still in progress
+		#define	RTC_I2C_ACK_NOT_RECEIVED_BIT		I2C_GetFlagStatus(I2C2_I2C_HANDLE,I2C_FLAG_AF)									//Bit that is high when ACK was not received
+		//#define	RTC_I2C_READ_BYTE_START				I2CCONbits.RCEN = 1; while(I2CSTATbits.RBF == 0) ;	//Read byte from I2C device function (optional)
+		#define	RTC_I2C_READ_BYTE					I2C_ReceiveData(I2C2_I2C_HANDLE)													//Read byte from I2C device function / result byte of RTC_I2C_READ_FUNCTION_START
+		#define RTC_I2C_ACK()							I2C_AcknowledgeConfig(I2C2_I2C_HANDLE,ENABLE)			//Generate bus ACK condition
+		#define RTC_I2C_NOT_ACK()						I2C_AcknowledgeConfig(I2C2_I2C_HANDLE,DISABLE)			//Generate bus Not ACK condition
+		//#define	RTC_I2C_ACK_IN_PROGRESS_BIT			I2CCONbits.ACKEN										//Bit indicating ACK is still in progress
+		#define	RTC_I2C_IDLE_I2C()					while (I2C_GetFlagStatus(I2C2_I2C_HANDLE,I2C_FLAG_BUSY))			//Test if I2C1 module is idle (wait until it is ready for next operation)
+	#endif
 
 	#ifdef RTC_USING_PIC24
 	//##################
@@ -132,21 +150,8 @@
 void RTC_init(void) 
 {
 	#ifdef USE_RTC
-	#ifdef USE_I2C
-		// Baud rate is set for 50 Khz 
-		Uint16 config2 = 200;
-		  // Configure I2C for 7 bit address mode 
-		Uint16 config1 = (	I2C_ON & I2C_IDLE_CON & I2C_CLK_HLD &
-					I2C_IPMI_DIS & I2C_7BIT_ADD &
-					I2C_SLW_DIS & I2C_SM_DIS &
-					I2C_GCALL_DIS & I2C_STR_DIS &
-					I2C_NACK & I2C_ACK_DIS & I2C_RCV_DIS &
-					I2C_STOP_DIS & I2C_RESTART_DIS &
-					I2C_START_DIS);
-		OpenI2C(config1,config2);
-		ConfigIntI2C(MI2C_INT_OFF & MI2C_INT_PRI_3
-					& SI2C_INT_OFF & SI2C_INT_PRI_5);
-//		m_s1rnum=0;	
+	#ifdef USE_I2C2
+		I2C_init();
 	#endif // def USE_I2C
 	#endif	//def USE_RTC
 }
@@ -165,151 +170,59 @@ void RTC_init(void)
 //Uses 24 hour clock, not 12 hour
 Uint8 RTC_set_time  (Uint8 *seconds, Uint8 *minutes, Uint8 *hours, Uint8 *day, Uint8 *date, Uint8 *month, Uint8 *year)
 {
+	debug_printf("RTC : nouvelle date demandée : ");
+	switch(*day)
+	{
+		case 1: debug_printf("lundi"); 			break;
+		case 2: debug_printf("mardi"); 			break;
+		case 3: debug_printf("mercredi"); 		break;
+		case 4: debug_printf("jeudi");	 		break;
+		case 5: debug_printf("vendredi"); 		break;
+		case 6: debug_printf("samedi"); 		break;
+		case 7: debug_printf("dimanche"); 		break;
+		default: debug_printf("invalid_day"); break;
+	}
+	debug_printf(" %.2d/%.2d/20%.2d %.2d:%.2d:%.2d\n", *date,*month,*year,*hours,*minutes,*seconds);
+	if (*seconds > 59 || *minutes > 59 || *hours > 23 || *day > 7 || *day == 0 || *date > 31 || *month > 12  || *year > 99)
+	{
+		debug_printf("RTC ERROR : La date demandée n'est pas cohérente. \n");
+		return FALSE;
+	}
 	#ifdef USE_RTC
 	Uint8 temp;
-	Uint8 temp1;
+	Uint8 datas[9];
 
-	//Send the start condition
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_START_I2C();
-	while (RTC_I2C_START_IN_PROGRESS_BIT);
+	datas[0] = 0x00;
 
-	//Send the address with the write bit set
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(DS1307_I2C_ADDRESS & 0xfe);	//Bit 0 low for write
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
+	temp = (*seconds / 10);
+	datas[1] = ((*seconds - (temp * 10)) + (temp << 4)) & 0x7f;	//Bit7 = enable oscillator
 
-	//Send the register address
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(0x00);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
+	temp = (*minutes / 10);
+	datas[2] = (*minutes - (temp * 10)) + (temp << 4);
 
-	//Write seconds
-	if (*seconds > 59)						//Ensure value is in range
-		goto rtc_set_time_fail;
-	temp1 = (*seconds / 10);
-	temp = (*seconds - (temp1 * 10)) + (temp1 << 4);
-	temp &= 0x7f;							//Bit7 = enable oscillator
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(temp);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
+	temp = (*hours / 10);
+	datas[3] = 	((*hours - (temp * 10)) + (temp << 4)) & 0x3f;		//Bit6 low = set format to 24 hour
 
-	//Write minutes
-	if (*minutes > 59)						//Ensure value is in range
-		goto rtc_set_time_fail;
+	temp = (*day / 10);
+	datas[4] = (*day - (temp * 10)) + (temp << 4);
 
-	temp1 = (*minutes / 10);
-	temp = (*minutes - (temp1 * 10)) + (temp1 << 4);
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(temp);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
+	temp = (*date / 10);
+	datas[5] = (*date - (temp * 10)) + (temp << 4);
 
-	//Write hours
-	if (*hours > 23)					//Ensure value is in range
-		goto rtc_set_time_fail;
+	temp = (*month / 10);
+	datas[6] = (*month - (temp * 10)) + (temp << 4);
 
-	temp1 = (*hours / 10);
-	temp = (*hours - (temp1 * 10)) + (temp1 << 4);
-	temp &= 0x3f;						//Bit6 low = set format to 24 hour
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(temp);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
+	temp = (*year / 10);
+	datas[7] = (*year - (temp * 10)) + (temp << 4);
 
-	//Write day
-	if (*day > 7)						//Ensure value is in range
-		goto rtc_set_time_fail;
-	if (*day == 0)
-		goto rtc_set_time_fail;
+	datas[8] = 0x00;
 
-	temp1 = (*day / 10);
-	temp = (*day - (temp1 * 10)) + (temp1 << 4);
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(temp);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
-
-	//Write date
-	if (*date > 31)						//Ensure value is in range
-		goto rtc_set_time_fail;
-
-	temp1 = (*date / 10);
-	temp = (*date - (temp1 * 10)) + (temp1 << 4);
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(temp);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
-
-	//Write month
-	if (*month > 12)					//Ensure value is in range
-		goto rtc_set_time_fail;
-
-	temp1 = (*month / 10);
-	temp = (*month - (temp1 * 10)) + (temp1 << 4);
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(temp);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
-
-	//Write year
-	if (*year > 99)						//Ensure value is in range
-		goto rtc_set_time_fail;
-
-	temp1 = (*year / 10);
-	temp = (*year - (temp1 * 10)) + (temp1 << 4);
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(temp);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
-
-	//Write control
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(0x00);				//0x00 = square wave output off
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_set_time_fail;
-
-	//Send Stop
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_STOP_I2C();
-	while (RTC_I2C_STOP_IN_PROGRESS_BIT)
-		;
-	
-	return (1);
-
-//----- I2C COMMS FAILED -----
-rtc_set_time_fail:
-
-	//Send Stop
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_STOP_I2C();
-	while (RTC_I2C_STOP_IN_PROGRESS_BIT)
-		;
+	return I2C2_write(DS1307_I2C_ADDRESS, datas, 9, TRUE);
+	#else
+		return FALSE;
 	#endif
-	return (0);
+
+	
 }
 
 
@@ -325,140 +238,7 @@ rtc_set_time_fail:
 //Uses 24 hour clock, not 12 hour
 Uint8 RTC_get_time (Uint8 *seconds, Uint8 *minutes, Uint8 *hours, Uint8 *day, Uint8 *date, Uint8 *month, Uint8 *year)
 {
-	#ifdef USE_RTC
-	Uint8 temp;
-
-
-	//Send the start condition
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_START_I2C();
-	while (RTC_I2C_START_IN_PROGRESS_BIT)
-		;
-
-	//Send the address with the write bit set
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(DS1307_I2C_ADDRESS & 0xfe);	//Bit 0 low for write
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_get_time_fail;
-
-	//Send the register address
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(0x00);
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_get_time_fail;
-
-	//Send restart condition
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_RESTART_I2C();
-	while (RTC_I2C_RESTART_IN_PROGRESS_BIT)
-		;
-
-	//Send the address with the read bit set
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_WRITE_BYTE(DS1307_I2C_ADDRESS | 0x01);	//Bit 1 high for read
-	while (RTC_I2C_TX_IN_PROGRESS_BIT)
-		;
-	if (RTC_I2C_ACK_NOT_RECEIVED_BIT)
-		goto rtc_get_time_fail;
-
-	//Read seconds
-	RTC_I2C_IDLE_I2C();
-	#ifdef RTC_I2C_READ_BYTE_START
-		RTC_I2C_READ_BYTE_START
-	#endif
-	temp = RTC_I2C_READ_BYTE;
-	*seconds = (temp & 0x0f) + (((temp & 0x70) >> 4) * 10);		//(Bit 7 is osc flag bit - dump)
-	RTC_I2C_ACK();					//Send Ack
-	while (RTC_I2C_ACK_IN_PROGRESS_BIT)
-		;
-
-	//Read minutes
-	RTC_I2C_IDLE_I2C();
-	#ifdef RTC_I2C_READ_BYTE_START
-		RTC_I2C_READ_BYTE_START
-	#endif
-	temp = RTC_I2C_READ_BYTE;
-	*minutes = (temp & 0x0f) + (((temp & 0x70) >> 4) * 10);
-	RTC_I2C_ACK();					//Send Ack
-	while (RTC_I2C_ACK_IN_PROGRESS_BIT)
-		;
-
-	//Read hours
-	RTC_I2C_IDLE_I2C();
-	#ifdef RTC_I2C_READ_BYTE_START
-		RTC_I2C_READ_BYTE_START
-	#endif
-	temp = RTC_I2C_READ_BYTE;
-	*hours = (temp & 0x0f) + (((temp & 0x30) >> 4) * 10);
-	RTC_I2C_ACK();					//Send Ack
-	while (RTC_I2C_ACK_IN_PROGRESS_BIT)
-		;
-
-	//Read day
-	RTC_I2C_IDLE_I2C();
-	#ifdef RTC_I2C_READ_BYTE_START
-		RTC_I2C_READ_BYTE_START
-	#endif
-	temp = RTC_I2C_READ_BYTE;
-	*day = (temp & 0x07);
-	RTC_I2C_ACK();					//Send Ack
-	while (RTC_I2C_ACK_IN_PROGRESS_BIT)
-		;
-
-	//Read date
-	RTC_I2C_IDLE_I2C();
-	#ifdef RTC_I2C_READ_BYTE_START
-		RTC_I2C_READ_BYTE_START
-	#endif
-	temp = RTC_I2C_READ_BYTE;
-	*date = (temp & 0x0f) + (((temp & 0x30) >> 4) * 10);
-	RTC_I2C_ACK();					//Send Ack
-	while (RTC_I2C_ACK_IN_PROGRESS_BIT)
-		;
-
-	//Read month
-	RTC_I2C_IDLE_I2C();
-	#ifdef RTC_I2C_READ_BYTE_START
-		RTC_I2C_READ_BYTE_START
-	#endif
-	temp = RTC_I2C_READ_BYTE;
-	*month = (temp & 0x0f) + (((temp & 0x10) >> 4) * 10);
-	RTC_I2C_ACK();					//Send Ack
-	while (RTC_I2C_ACK_IN_PROGRESS_BIT)
-		;
-
-	//Read year
-	RTC_I2C_IDLE_I2C();
-	#ifdef RTC_I2C_READ_BYTE_START
-		RTC_I2C_READ_BYTE_START
-	#endif
-	temp = RTC_I2C_READ_BYTE;
-	*year = (temp & 0x0f) + ((temp >> 4) * 10);
-	//RTC_I2C_ACK();					//Send Ack
-	//while (RTC_I2C_ACK_IN_PROGRESS_BIT)
-	//	;
-
-	//Send NAK
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_NOT_ACK();
-	while (RTC_I2C_ACK_IN_PROGRESS_BIT)
-		;
-
-	//Send Stop
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_STOP_I2C();
-	while (RTC_I2C_STOP_IN_PROGRESS_BIT)
-		;
-	
-	return (1);
-
-//----- I2C COMMS FAILED -----
-rtc_get_time_fail:
-
+	Uint8 datas[7];
 	*seconds = 0;
 	*minutes = 0;
 	*hours = 0;
@@ -466,22 +246,24 @@ rtc_get_time_fail:
 	*date = 1;
 	*month = 1;
 	*year = 0;
-
-	//Send Stop
-	RTC_I2C_IDLE_I2C();
-	RTC_I2C_STOP_I2C();
-	while (RTC_I2C_STOP_IN_PROGRESS_BIT)
-		;
-	#else
-		*seconds = 0;
-		*minutes = 0;
-		*hours = 0;
-		*day = 0;
-		*date = 1;
-		*month = 1;
-		*year = 0;
+	#ifdef USE_RTC
+	datas[0] = 0x00;	//@ du premier registre
+	if(I2C2_write(DS1307_I2C_ADDRESS, datas, 1, FALSE))	//Condition de stop non envoyée...
+	{
+		if(I2C2_read(DS1307_I2C_ADDRESS, datas, 7))	//Le START sera donc ici un RESTART
+		{
+			*seconds 	= (datas[0] & 0x0f) + (((datas[0] & 0x70) >> 4) * 10);		//(Bit 7 is osc flag bit - dump)
+			*minutes 	= (datas[1] & 0x0f) + (((datas[1] & 0x70) >> 4) * 10);
+			*hours 		= (datas[2] & 0x0f) + (((datas[2] & 0x30) >> 4) * 10);
+			*day 		= (datas[3] & 0x07);
+			*date 		= (datas[4] & 0x0f) + (((datas[3] & 0x30) >> 4) * 10);
+			*month 		= (datas[5] & 0x0f) + (((datas[5] & 0x10) >> 4) * 10);
+			*year 		= (datas[6] & 0x0f) + ((datas[6] >> 4) * 10);
+			return TRUE;
+		}
+	}
 	#endif
-	return (0);
+	return FALSE;
 }
 
 
