@@ -68,10 +68,14 @@ void EEPROM_Write(Uint32 Address, Uint8 * Data, Uint8 size)
   Uint16 i;
   while(Memory_busy()) debug_printf(".");
   WriteEnable();                      // Write Enable prior to Write
+  i = 4;
   while(!Memory_write_granted())		  // Check for WEL bit set
   {
 	  WriteEnable();                      // Write Enable prior to Write
-	  debug_printf("EEPROM Write FAILED - try again\n");
+	  i--;
+	  debug_printf("EEPROM Write FAILED - %s\n",((i)?"try again":"abort"));
+	  if(!i)
+		  return;
   }
 
 	EEPROM_CS = 0;                             // Select Device
