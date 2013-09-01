@@ -13,6 +13,7 @@
 #include "Supervision.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_can_over_xbee.h"
+#include "SD/SD.h"
 #include "Selftest.h"
 #include "Eeprom_can_msg.h"
 #include "RTC.h"
@@ -26,6 +27,7 @@ void Supervision_init(void)
 	RTC_init();
 	BUFFER_init();
 	EEPROM_CAN_MSG_init();
+	SD_init();
 
 	#ifdef USE_XBEE
 		if(QS_WHO_AM_I_get() == TINY)
@@ -75,6 +77,8 @@ void Supervision_process_main(void)
 		if(PORT_SWITCH_XBEE)
 			CAN_over_XBee_process_main();
 	#endif
+
+
 }
 
 

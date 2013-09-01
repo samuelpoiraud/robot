@@ -100,6 +100,7 @@ void BUTTON_translation()
 	relative_move (1000, FAST, FORWARD, END_AT_LAST_POINT);
 }
 
+
 static void BUTTON_TEST_button3() {
 //	ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);
 //	ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);
