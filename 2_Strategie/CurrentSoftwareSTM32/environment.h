@@ -119,6 +119,14 @@
 		Sint16 glasses_x_pos;			//Position en X des verres. Pour savoir ou ils sont pour les proteger à la fin du match
 	}environment_t;
 
+
+	typedef enum
+	{
+		UART1_MODE_CAN_MSG = 0,
+		UART1_MODE_TERMINAL_SD
+	}ENV_uart1_usage_mode_e;
+
+
 	//NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
 
 	/* baisse les drapeaux d'environnement pour préparer la prochaine MaJ */

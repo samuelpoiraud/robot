@@ -79,6 +79,7 @@
 				//	I2C RTC/LCD	 			  	  10
 				//	I2C RTC/LCD	 			  	  11
 			#define EEPROM_CS			GPIOB->ODR12
+			#define SD_CS			GPIOB->ODR12
 			#define EEPROM_SCK			GPIOB->ODR13
 			#define EEPROM_SDO			GPIOB->ODR14
 			#define EEPROM_SDI			GPIOB->ODR15

@@ -23,6 +23,11 @@
 #include "Supervision/Verbose_can_msg.h"
 #include "QS/QS_can_over_uart.h"
 #include "QS/QS_can_over_xbee.h"
+#include "Supervision/SD/term_io.h"
+
+
+volatile ENV_uart1_usage_mode_e ENV_uart1_usage_mode = UART1_MODE_CAN_MSG;
+
 
 
 void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filter, bool_e * bSAVE_filter)
@@ -148,6 +153,7 @@ void ENV_update()
 	CAN_msg_t incoming_msg_from_bus_can;
 	static CAN_msg_t can_msg_from_uart1;
 	static CAN_msg_t can_msg_from_uart2;
+	char c;
 
 	/* RAZ des drapeaux temporaires pour la prochaine itération */
 	ENV_clean();
@@ -163,8 +169,27 @@ void ENV_update()
 	}
 
 
-	if(u1rxToCANmsg(&can_msg_from_uart1))
-		ENV_process_can_msg(&can_msg_from_uart1,TRUE, FALSE, TRUE, TRUE);	//Everywhere except U1.
+	switch(ENV_uart1_usage_mode)
+	{
+		case UART1_MODE_CAN_MSG:
+			if(u1rxToCANmsg(&can_msg_from_uart1))
+				ENV_process_can_msg(&can_msg_from_uart1,TRUE, FALSE, TRUE, TRUE);	//Everywhere except U1.
+			break;
+		case UART1_MODE_TERMINAL_SD:
+			if(UART1_data_ready())
+			{
+				c = UART1_get_next_msg();
+				SD_char_from_user(c);
+			}
+
+			SD_process_main();
+			break;
+		default:
+			break;
+	}
+
+
+
 
 	if(!SWITCH_XBEE)
 	{
@@ -241,6 +266,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case DEBUG_RTC_TIME:
 			RTC_print_time();
+			break;
+		case DEBUG_UART1_SDCARD_INTERFACE:
+			ENV_uart1_usage_mode = UART1_MODE_TERMINAL_SD;
 			break;
 //****************************** Messages carte propulsion/asser *************************/	
 		case CARTE_P_TRAJ_FINIE:
