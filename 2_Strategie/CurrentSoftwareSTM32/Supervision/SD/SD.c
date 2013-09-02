@@ -1,6 +1,8 @@
 
 #include "SD.h"
 #include "../../QS/QS_ports.h"
+#include "misc_test_term.h"
+#include "ff_test_term.h"
 
 
 void SD_init(void)
@@ -30,9 +32,30 @@ void SD_init(void)
  *
  */
 
+/*	//Exemple pour s'inspirer...
+static void ini_test_create()
+{
+	int res;
+
+	if ( f_mount(0, &fatfs) != FR_OK ) {
+		xprintf("f_mount failed\n");
+	} else {
+		if ( f_open(&file, ini_filename, FA_CREATE_ALWAYS | FA_WRITE ) != FR_OK ) {
+			xprintf("f_open for %s failed\n", ini_filename );
+		} else {
+			res = f_puts("[INFO]\n", &file );
+			if ( res != EOF ) { res = f_puts("company = Martin Thomas Software Engineering\n", &file ); }
+			if ( res != EOF ) { res = f_puts("author = Martin Thomas\n", &file ); }
+			if ( res != EOF ) { res = f_puts("number = 12345678\n", &file ); }
+			f_close( &file );
+			xprintf("%s created\n", ini_filename);
+		}
+	}
+}
+*/
 
 
-int SD_process_main(void)
+void SD_process_main(void)
 {
 	typedef enum { APPSTATE_FF_TERM, APPSTATE_TESTMENU } AppState;
 

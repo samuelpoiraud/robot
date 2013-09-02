@@ -3,7 +3,7 @@
 
 #include "../../QS/QS_all.h"
 void SD_process_1ms(void);
-int SD_process_main(void);
+void SD_process_main(void);
 void SD_init(void);
 
 

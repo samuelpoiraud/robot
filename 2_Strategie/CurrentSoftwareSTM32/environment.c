@@ -24,7 +24,7 @@
 #include "QS/QS_can_over_uart.h"
 #include "QS/QS_can_over_xbee.h"
 #include "Supervision/SD/term_io.h"
-
+#include "Supervision/SD/SD.h"
 
 volatile ENV_uart1_usage_mode_e ENV_uart1_usage_mode = UART1_MODE_CAN_MSG;
 
@@ -688,7 +688,6 @@ void ENV_set_color(color_e color)
 
 void ENV_XBEE_ping_process(void)
 {
-	CAN_msg_t can_msg;
 	/* changer les LEDs de couleur */
 	if(global.env.flag_for_ping_xbee >= 2)	//Toutes les secondes
 	{
