@@ -36,6 +36,7 @@
 #include "../../../../stm32f4xx/stm32f4xx_spi.h"
 #include "../../../../stm32f4xx/stm32f4xx_dma.h"
 #include "../../../../stm32f4xx/stm32f4xx_rcc.h"
+#include "../../../../QS/QS_all.h"
 #include "ffconf.h"
 #include "diskio.h"
 
@@ -50,9 +51,6 @@
 
 /* set to 1 to provide a disk_ioctrl function even if not needed by the FatFs */
 #define STM32_SD_DISK_IOCTRL_FORCE      0
-
-// demo uses a command line option to define this (see Makefile):
-
 
 
 #define CARD_SUPPLY_SWITCHABLE   0
@@ -99,7 +97,7 @@
 #define CMD55	(0x40+55)	/* APP_CMD */
 #define CMD58	(0x40+58)	/* READ_OCR */
 
-#include "../../../../Global_config.h"
+
 /* Card-Select Controls  (Platform dependent) */
 #define SELECT()        SD_CS=0    /* MMC CS = L */
 #define DESELECT()      SD_CS=1     /* MMC CS = H */
@@ -121,14 +119,12 @@
 
 ---------------------------------------------------------------------------*/
 
-static const DWORD socket_state_mask_cp = (1 << 0);
-static const DWORD socket_state_mask_wp = (1 << 1);
+static const Uint32 socket_state_mask_cp = (1 << 0);
+static const Uint32 socket_state_mask_wp = (1 << 1);
 
-static volatile
-DSTATUS Stat = STA_NOINIT;	/* Disk status */
+static volatile DSTATUS Stat = STA_NOINIT;	/* Disk status */
 
-static volatile
-DWORD Timer1, Timer2;	/* 100Hz decrement timers */
+static volatile Uint32 Timer1, Timer2;	/* 100Hz decrement timers */
 
 static
 BYTE CardType;			/* Card type flags */
@@ -137,7 +133,7 @@ enum speed_setting { INTERFACE_SLOW, INTERFACE_FAST };
 
 static void interface_speed( enum speed_setting speed )
 {
-	DWORD tmp;
+	Uint32 tmp;
 
 	tmp = SPI_SD->CR1;
 	if ( speed == INTERFACE_SLOW ) {
@@ -151,70 +147,55 @@ static void interface_speed( enum speed_setting speed )
 }
 
 #if SOCKET_WP_CONNECTED
-/* Socket's Write-Protection Pin: high = write-protected, low = writable */
+	/* Socket's Write-Protection Pin: high = write-protected, low = writable */
 
-static void socket_wp_init(void)
-{
-	GPIO_InitTypeDef GPIO_InitStructure;
+	static void socket_wp_init(void)
+	{
+		GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* Configure I/O for write-protect */
-	RCC_APB2PeriphClockCmd(RCC_APBxPeriph_GPIO_WP, ENABLE);
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_WP;
-	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_WP;
-	GPIO_Init(GPIO_WP, &GPIO_InitStructure);
-}
+		/* Configure I/O for write-protect */
+		RCC_APB2PeriphClockCmd(RCC_APBxPeriph_GPIO_WP, ENABLE);
+		GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_WP;
+		GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_WP;
+		GPIO_Init(GPIO_WP, &GPIO_InitStructure);
+	}
 
-static DWORD socket_is_write_protected(void)
-{
-	return ( GPIO_ReadInputData(GPIO_WP) & GPIO_Pin_WP ) ? socket_state_mask_wp : 0;
-}
-
+	static Uint32 socket_is_write_protected(void)
+	{
+		return ( GPIO_ReadInputData(GPIO_WP) & GPIO_Pin_WP ) ? socket_state_mask_wp : 0;
+	}
 #else
-
-static void socket_wp_init(void)
-{
-	return;
-}
-
-static inline DWORD socket_is_write_protected(void)
-{
-	return 0; /* fake not protected */
-}
-
+	static inline Uint32 socket_is_write_protected(void)
+	{
+		return 0; /* fake not protected */
+	}
 #endif /* SOCKET_WP_CONNECTED */
 
 
 #if SOCKET_CP_CONNECTED
-/* Socket's Card-Present Pin: high = socket empty, low = card inserted */
+	/* Socket's Card-Present Pin: high = socket empty, low = card inserted */
 
-static void socket_cp_init(void)
-{
-	GPIO_InitTypeDef GPIO_InitStructure;
+	static void socket_cp_init(void)
+	{
+		GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* Configure I/O for card-present */
-	RCC_APB2PeriphClockCmd(RCC_APBxPeriph_GPIO_CP, ENABLE);
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_CP;
-	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_CP;
-	GPIO_Init(GPIO_CP, &GPIO_InitStructure);
-}
+		/* Configure I/O for card-present */
+		RCC_APB2PeriphClockCmd(RCC_APBxPeriph_GPIO_CP, ENABLE);
+		GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_CP;
+		GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_CP;
+		GPIO_Init(GPIO_CP, &GPIO_InitStructure);
+	}
 
-static inline DWORD socket_is_empty(void)
-{
-	return ( GPIO_ReadInputData(GPIO_CP) & GPIO_Pin_CP ) ? socket_state_mask_cp : FALSE;
-}
+	static inline Uint32 socket_is_empty(void)
+	{
+		return ( GPIO_ReadInputData(GPIO_CP) & GPIO_Pin_CP ) ? socket_state_mask_cp : FALSE;
+	}
 
 #else
-
-static void socket_cp_init(void)
-{
-	return;
-}
-
-static inline DWORD socket_is_empty(void)
-{
-	return 0; /* fake inserted */
-}
-
+	static inline Uint32 socket_is_empty(void)
+	{
+		return 0; /* fake inserted */
+	}
 #endif /* SOCKET_CP_CONNECTED */
 
 
@@ -222,10 +203,7 @@ static inline DWORD socket_is_empty(void)
 
 #else
 
-static void card_power(BYTE on)
-{
-	on=on;
-}
+
 
 #if (STM32_SD_DISK_IOCTRL == 1)
 static int chk_power(void)
@@ -249,7 +227,7 @@ static BYTE stm32_spi_rw( BYTE out )
 	SPI_I2S_SendData(SPI_SD, out);
 
 	/* Wait to receive a byte */
-	while (SPI_I2S_GetFlagStatus(SPI_SD, SPI_I2S_FLAG_RXNE) == RESET) { ; }
+	while (SPI_I2S_GetFlagStatus(SPI_SD, SPI_I2S_FLAG_RXNE) == RESET);
 
 	/* Return the byte read from the SPI bus */
 	return SPI_I2S_ReceiveData(SPI_SD);
@@ -327,7 +305,7 @@ void stm32_dma_transfer(
 	WORD rw_workbyte[] = { 0xffff };
 
 	/* shared DMA configuration values */
-	DMA_InitStructure.DMA_PeripheralBaseAddr = (DWORD)(&(SPI_SD->DR));
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (Uint32)(&(SPI_SD->DR));
 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
@@ -343,14 +321,14 @@ void stm32_dma_transfer(
 
 		/* DMA1 channel2 configuration SPI1 RX ---------------------------------------------*/
 		/* DMA1 channel4 configuration SPI2 RX ---------------------------------------------*/
-		DMA_InitStructure.DMA_Memory0BaseAddr = (DWORD)buff;
+		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)buff;
 		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 		DMA_Init(DMA_Channel_SPI_SD_RX, &DMA_InitStructure);
 
 		/* DMA1 channel3 configuration SPI1 TX ---------------------------------------------*/
 		/* DMA1 channel5 configuration SPI2 TX ---------------------------------------------*/
-		DMA_InitStructure.DMA_Memory0BaseAddr = (DWORD)rw_workbyte;
+		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
 		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
 		DMA_Init(DMA_Channel_SPI_SD_TX, &DMA_InitStructure);
@@ -360,14 +338,14 @@ void stm32_dma_transfer(
 #if _FS_READONLY == 0
 		/* DMA1 channel2 configuration SPI1 RX ---------------------------------------------*/
 		/* DMA1 channel4 configuration SPI2 RX ---------------------------------------------*/
-		DMA_InitStructure.DMA_Memory0BaseAddr = (DWORD)rw_workbyte;
+		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
 		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
 		DMA_Init(DMA_Channel_SPI_SD_RX, &DMA_InitStructure);
 
 		/* DMA1 channel3 configuration SPI1 TX ---------------------------------------------*/
 		/* DMA1 channel5 configuration SPI2 TX ---------------------------------------------*/
-		DMA_InitStructure.DMA_Memory0BaseAddr = (DWORD)buff;
+		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)buff;
 		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 		DMA_Init(DMA_Channel_SPI_SD_TX, &DMA_InitStructure);
@@ -405,6 +383,8 @@ void stm32_dma_transfer(
 /* Power Control and interface-initialization (Platform dependent)       */
 /*-----------------------------------------------------------------------*/
 #include "../../../../QS/QS_spi.h"
+#include "../../../../QS/QS_ports.h"
+
 
 
 static
@@ -412,6 +392,8 @@ void power_on (void)
 {
 
 	PORTS_spi_init();
+	DESELECT();	//CS high.
+
 	/*
 	SPI_InitTypeDef  SPI_InitStructure;
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -446,20 +428,6 @@ void power_on (void)
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IPU;
 	GPIO_Init(GPIO_SPI_SD, &GPIO_InitStructure);
 
-	// SPI configuration
-	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256; // 72000kHz/256=281kHz < 400kHz
-	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-	SPI_InitStructure.SPI_CRCPolynomial = 7;
-
-	SPI_Init(SPI_SD, &SPI_InitStructure);
-	SPI_CalculateCRC(SPI_SD, DISABLE);
-	SPI_Cmd(SPI_SD, ENABLE);
 
 	// drain SPI
 	while (SPI_I2S_GetFlagStatus(SPI_SD, SPI_I2S_FLAG_TXE) == RESET) { ; }
@@ -586,7 +554,7 @@ BOOL xmit_datablock (
 static
 BYTE send_cmd (
 	BYTE cmd,		/* Command byte */
-	DWORD arg		/* Argument */
+	Uint32 arg		/* Argument */
 )
 {
 	BYTE n, res;
@@ -712,7 +680,7 @@ DSTATUS disk_status (
 DRESULT disk_read (
 	BYTE drv,			/* Physical drive number (0) */
 	BYTE *buff,			/* Pointer to the data buffer to store read data */
-	DWORD sector,		/* Start sector number (LBA) */
+	Uint32 sector,		/* Start sector number (LBA) */
 	BYTE count			/* Sector count (1..255) */
 )
 {
@@ -755,7 +723,7 @@ DRESULT disk_read (
 DRESULT disk_write (
 	BYTE drv,			/* Physical drive number (0) */
 	const BYTE *buff,	/* Pointer to the data to be written */
-	DWORD sector,		/* Start sector number (LBA) */
+	Uint32 sector,		/* Start sector number (LBA) */
 	BYTE count			/* Sector count (1..255) */
 )
 {
@@ -841,11 +809,11 @@ DRESULT disk_ioctl (
 			if ((send_cmd(CMD9, 0) == 0) && rcvr_datablock(csd, 16)) {
 				if ((csd[0] >> 6) == 1) {	/* SDC version 2.00 */
 					csize = csd[9] + ((WORD)csd[8] << 8) + 1;
-					*(DWORD*)buff = (DWORD)csize << 10;
+					*(Uint32*)buff = (Uint32)csize << 10;
 				} else {					/* SDC version 1.XX or MMC*/
 					n = (csd[5] & 15) + ((csd[10] & 128) >> 7) + ((csd[9] & 3) << 1) + 2;
 					csize = (csd[8] >> 6) + ((WORD)csd[7] << 2) + ((WORD)(csd[6] & 3) << 10) + 1;
-					*(DWORD*)buff = (DWORD)csize << (n - 9);
+					*(Uint32*)buff = (Uint32)csize << (n - 9);
 				}
 				res = RES_OK;
 			}
@@ -862,16 +830,16 @@ DRESULT disk_ioctl (
 					rcvr_spi();
 					if (rcvr_datablock(csd, 16)) {				/* Read partial block */
 						for (n = 64 - 16; n; n--) rcvr_spi();	/* Purge trailing data */
-						*(DWORD*)buff = 16UL << (csd[10] >> 4);
+						*(Uint32*)buff = 16UL << (csd[10] >> 4);
 						res = RES_OK;
 					}
 				}
 			} else {					/* SDC version 1.XX or MMC */
 				if ((send_cmd(CMD9, 0) == 0) && rcvr_datablock(csd, 16)) {	/* Read CSD */
 					if (CardType & CT_SD1) {	/* SDC version 1.XX */
-						*(DWORD*)buff = (((csd[10] & 63) << 1) + ((WORD)(csd[11] & 128) >> 7) + 1) << ((csd[13] >> 6) - 1);
+						*(Uint32*)buff = (((csd[10] & 63) << 1) + ((WORD)(csd[11] & 128) >> 7) + 1) << ((csd[13] >> 6) - 1);
 					} else {					/* MMC */
-						*(DWORD*)buff = ((WORD)((csd[10] & 124) >> 2) + 1) * (((csd[11] & 3) << 3) + ((csd[11] & 224) >> 5) + 1);
+						*(Uint32*)buff = ((WORD)((csd[10] & 124) >> 2) + 1) * (((csd[11] & 3) << 3) + ((csd[11] & 224) >> 5) + 1);
 					}
 					res = RES_OK;
 				}
@@ -929,9 +897,10 @@ DRESULT disk_ioctl (
 
 void disk_timerproc (void)
 {
-	static DWORD pv;
-	DWORD ns;
-	BYTE n, s;
+	static Uint32 pv;
+	Uint32 ns;
+	Uint32 n;
+	DSTATUS s;
 
 
 	n = Timer1;                /* 100Hz decrement timers */

@@ -18,6 +18,7 @@
 #include "actions.h"
 #include "clock.h"
 #include "QS/QS_CANmsgList.h"
+#include "QS/QS_can_over_xbee.h"
 #include "actions_tests_krusty.h"
 #include "actions_tests_tiny.h"
 #include "actions_tests_tiny_micro.h" // pour T_BALLINFLATER_start
@@ -43,7 +44,7 @@ void any_match(time32_t match_duration)
 		{
 			CLOCK_run_match();
 			CAN_send_sid(BROADCAST_START);
-			XBEE_send_sid(XBEE_START_MATCH);
+			XBEE_send_sid(XBEE_START_MATCH, TRUE);
 			return;
 		}
 

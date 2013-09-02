@@ -58,7 +58,7 @@ FRESULT scan_files (char* path)
 				*(path+i) = '\0';
 				if (res != FR_OK) break;
 			} else {
-//				xprintf("%s/%s\n", path, fn);
+//				debug_printf("%s/%s\n", path, fn);
 				acc_files++;
 				acc_size += Finfo.fsize;
 			}
@@ -83,7 +83,7 @@ void put_rc (FRESULT rc)
 	for (p = str, i = 0; i != rc && *p; i++) {
 		while(*p++);
 	}
-	xprintf("rc=%u FR_%s\n", (UINT)rc, p);
+	debug_printf("rc=%u FR_%s\n", (UINT)rc, p);
 }
 
 bool_e execute_command(char * ptr)
@@ -118,37 +118,37 @@ bool_e execute_command(char * ptr)
 			case 'd' :	/* dd [<lba>] - Dump sector */
 				if (!xatoi(&ptr, &p2)) p2 = sect;
 				res = disk_read(0, Buff, p2, 1);
-				if (res) { xprintf("rc=%d\n", (WORD)res); break; }
+				if (res) { debug_printf("rc=%d\n", (WORD)res); break; }
 				sect = p2 + 1;
-				xprintf("Sector:%lu\n", p2);
+				debug_printf("Sector:%lu\n", p2);
 				for (ptr=(char*)Buff, ofs = 0; ofs < 0x200; ptr+=16, ofs+=16)
 					put_dump((BYTE*)ptr, ofs, 16);
 				break;
 
 			case 'i' :	/* di - Initialize disk */
-				xprintf("rc=%d\n", (WORD)disk_initialize(0));
+				debug_printf("rc=%d\n", (WORD)disk_initialize(0));
 				break;
 
 			case 's' :	/* ds - Show disk status */
 				Buff[0]=2;
 				if (disk_ioctl(0, CTRL_POWER, Buff) == RES_OK )
-					{ xprintf("Power is %s\n", Buff[1] ? "ON" : "OFF"); }
+					{ debug_printf("Power is %s\n", Buff[1] ? "ON" : "OFF"); }
 				if (disk_ioctl(0, GET_SECTOR_COUNT, &p2) == RES_OK)
-					{ xprintf("Drive size: %lu sectors\n", p2); }
+					{ debug_printf("Drive size: %lu sectors\n", p2); }
 				if (disk_ioctl(0, GET_SECTOR_SIZE, &w1) == RES_OK)
-					{ xprintf("Sector size: %u\n", w1); }
+					{ debug_printf("Sector size: %u\n", w1); }
 				if (disk_ioctl(0, GET_BLOCK_SIZE, &p2) == RES_OK)
-					{ xprintf("Erase block size: %lu sectors\n", p2); }
+					{ debug_printf("Erase block size: %lu sectors\n", p2); }
 				if (disk_ioctl(0, MMC_GET_TYPE, &b1) == RES_OK)
-					{ xprintf("MMC/SDC type: %u\n", b1); }
+					{ debug_printf("MMC/SDC type: %u\n", b1); }
 				if (disk_ioctl(0, MMC_GET_CSD, Buff) == RES_OK)
-					{ xputs("CSD:\n"); put_dump(Buff, 0, 16); }
+					{ debug_printf("CSD:\n"); put_dump(Buff, 0, 16); }
 				if (disk_ioctl(0, MMC_GET_CID, Buff) == RES_OK)
-					{ xputs("CID:\n"); put_dump(Buff, 0, 16); }
+					{ debug_printf("CID:\n"); put_dump(Buff, 0, 16); }
 				if (disk_ioctl(0, MMC_GET_OCR, Buff) == RES_OK)
-					{ xputs("OCR:\n"); put_dump(Buff, 0, 4); }
+					{ debug_printf("OCR:\n"); put_dump(Buff, 0, 4); }
 				if (disk_ioctl(0, MMC_GET_SDSTAT, Buff) == RES_OK) {
-					xputs("SD Status:\n");
+					debug_printf("SD Status:\n");
 					for (s1 = 0; s1 < 64; s1 += 16) put_dump(Buff+s1, s1, 16);
 				}
 				break;
@@ -175,7 +175,7 @@ bool_e execute_command(char * ptr)
 					break;
 				}
 				for (;;) {
-					xprintf("%04X %02X-", (WORD)(p1), (WORD)Buff[p1]);
+					debug_printf("%04X %02X-", (WORD)(p1), (WORD)Buff[p1]);
 					get_line(linebuf, sizeof(linebuf));
 					ptr = linebuf;
 					if (*ptr == '.') break;
@@ -183,21 +183,21 @@ bool_e execute_command(char * ptr)
 					if (xatoi(&ptr, &p2))
 						Buff[p1++] = (BYTE)p2;
 					else
-						xputs("???\n");
+						debug_printf("???\n");
 				}
 				break;
 				*/
-				xputs("Desimplemented function\n");
+				debug_printf("Desimplemented function\n");
 			case 'r' :	/* br <lba> [<num>] - Read disk into R/W buffer */
 				if (!xatoi(&ptr, &p2)) break;
 				if (!xatoi(&ptr, &p3)) p3 = 1;
-				xprintf("rc=%u\n", (WORD)disk_read(0, Buff, p2, p3));
+				debug_printf("rc=%u\n", (WORD)disk_read(0, Buff, p2, p3));
 				break;
 
 			case 'w' :	/* bw <lba> [<num>] - Write R/W buffer into disk */
 				if (!xatoi(&ptr, &p2)) break;
 				if (!xatoi(&ptr, &p3)) p3 = 1;
-				xprintf("rc=%u\n", (WORD)disk_write(0, Buff, p2, p3));
+				debug_printf("rc=%u\n", (WORD)disk_write(0, Buff, p2, p3));
 				break;
 
 			case 'f' :	/* bf <val> - Fill working buffer */
@@ -220,7 +220,7 @@ bool_e execute_command(char * ptr)
 			case 's' :	/* fs - Show logical drive status */
 				res = f_getfree("", (DWORD*)&p2, &fs);
 				if (res) { put_rc(res); break; }
-				xprintf("FAT type = %u (%s)\nBytes/Cluster = %lu\nNumber of FATs = %u\n"
+				debug_printf("FAT type = %u (%s)\nBytes/Cluster = %lu\nNumber of FATs = %u\n"
 						"Root DIR entries = %u\nSectors/FAT = %lu\nNumber of clusters = %lu\n"
 						"FAT start (lba) = %lu\nDIR start (lba,clustor) = %lu\nData start (lba) = %lu\n\n",
 						(WORD)fs->fs_type,
@@ -236,7 +236,7 @@ bool_e execute_command(char * ptr)
 #endif
 				res = scan_files(ptr);
 				if (res) { put_rc(res); break; }
-				xprintf("%u files, %lu bytes.\n%u folders.\n"
+				debug_printf("%u files, %lu bytes.\n%u folders.\n"
 						"%lu KB total disk space.\n%lu KB available.\n",
 						acc_files, acc_size, acc_dirs,
 						(fs->max_clust - 2) * (fs->csize / 2), p2 * (fs->csize / 2)
@@ -260,7 +260,7 @@ bool_e execute_command(char * ptr)
 					} else {
 						s1++; p1 += Finfo.fsize;
 					}
-					xprintf("%c%c%c%c%c %u/%02u/%02u %02u:%02u %9lu  %s",
+					debug_printf("%c%c%c%c%c %u/%02u/%02u %02u:%02u %9lu  %s",
 							(Finfo.fattrib & AM_DIR) ? 'D' : '-',
 							(Finfo.fattrib & AM_RDO) ? 'R' : '-',
 							(Finfo.fattrib & AM_HID) ? 'H' : '-',
@@ -270,14 +270,14 @@ bool_e execute_command(char * ptr)
 							(Finfo.ftime >> 11), (Finfo.ftime >> 5) & 63,
 							Finfo.fsize, &(Finfo.fname[0]));
 #if _USE_LFN
-					xprintf("  %s\n", Lfname);
+					debug_printf("  %s\n", Lfname);
 #else
 					xputc('\n');
 #endif
 				}
-				xprintf("%4u File(s),%10lu bytes total\n%4u Dir(s)", s1, p1, s2);
+				debug_printf("%4u File(s),%10lu bytes total\n%4u Dir(s)", s1, p1, s2);
 				if (f_getfree(ptr, (DWORD*)&p1, &fs) == FR_OK)
-					xprintf(", %10lu bytes free\n", p1 * fs->csize * 512);
+					debug_printf(", %10lu bytes free\n", p1 * fs->csize * 512);
 				break;
 
 			case 'o' :	/* fo <mode> <file> - Open a file */
@@ -295,7 +295,7 @@ bool_e execute_command(char * ptr)
 				res = f_lseek(&File1, p1);
 				put_rc(res);
 				if (res == FR_OK)
-					xprintf("fptr=%lu(0x%lX)\n", File1.fptr, File1.fptr);
+					debug_printf("fptr=%lu(0x%lX)\n", File1.fptr, File1.fptr);
 				break;
 
 			case 'd' :	/* fd <len> - read and dump file from current fp */
@@ -327,7 +327,7 @@ bool_e execute_command(char * ptr)
 					p2 += s2;
 					if (cnt != s2) break;
 				}
-				xprintf("%lu bytes read with %lu kB/sec.\n", p2, p2 / Timer);
+				debug_printf("%lu bytes read with %lu kB/sec.\n", p2, p2 / Timer);
 				break;
 
 			case 'w' :	/* fw <len> <val> - write file */
@@ -346,7 +346,7 @@ bool_e execute_command(char * ptr)
 					p2 += s2;
 					if (cnt != s2) break;
 				}
-				xprintf("%lu bytes written with %lu kB/sec.\n", p2, p2 / Timer);
+				debug_printf("%lu bytes written with %lu kB/sec.\n", p2, p2 / Timer);
 				break;
 
 			case 'n' :	/* fn <old_name> <new_name> - Change file/dir name */
@@ -392,45 +392,45 @@ bool_e execute_command(char * ptr)
 				if (!ptr2) break;
 				*ptr2++ = 0;
 				while (*ptr2 == ' ') ptr2++;
-				xprintf("Opening \"%s\"", ptr);
+				debug_printf("Opening \"%s\"", ptr);
 				res = f_open(&File1, ptr, FA_OPEN_EXISTING | FA_READ);
-				xputc('\n');
+				debug_printf("\n");
 				if (res) {
 					put_rc(res);
 					break;
 				}
-				xprintf("Creating \"%s\"", ptr2);
+				debug_printf("Creating \"%s\"", ptr2);
 				res = f_open(&File2, ptr2, FA_CREATE_ALWAYS | FA_WRITE);
-				xputc('\n');
+				debug_printf("\n");
 				if (res) {
 					put_rc(res);
 					f_close(&File1);
 					break;
 				}
-				xprintf("Copying file...");
+				debug_printf("Copying file...");
 				Timer = 0;
 				p1 = 0;
 				for (;;) {
 					res = f_read(&File1, Buff, blen, &s1);
 					if (res || s1 == 0) {
-						xprintf("EOF\n");
+						debug_printf("EOF\n");
 						break;   /* error or eof */
 					}
 					res = f_write(&File2, Buff, s1, &s2);
 					p1 += s2;
 					if (res || s2 < s1) {
-						xprintf("disk full\n");
+						debug_printf("disk full\n");
 						break;   /* error or disk full */
 					}
 				}
-				xprintf("%lu bytes copied with %lu kB/sec.\n", p1, p1 / Timer);
+				debug_printf("%lu bytes copied with %lu kB/sec.\n", p1, p1 / Timer);
 				f_close(&File1);
 				f_close(&File2);
 				break;
 #if _USE_MKFS
 			case 'm' :	/* fm <partition rule> <cluster size> - Create file system */
 				if (!xatoi(&ptr, &p2) || !xatoi(&ptr, &p3)) break;
-				xprintf("The drive 0 will be formatted. If you are really sure, use the command fmY instead of fm\n");
+				debug_printf("The drive 0 will be formatted. If you are really sure, use the command fmY instead of fm\n");
 				if (*ptr == 'Y')
 					put_rc(f_mkfs(0, (BYTE)p2, (WORD)p3));
 				break;
@@ -438,7 +438,7 @@ bool_e execute_command(char * ptr)
 			case 'z' :	/* fz [<rw size>] - Change R/W length for fr/fw/fx command */
 				if (xatoi(&ptr, &p1) && p1 >= 1 && (size_t)p1 <= sizeof(Buff))
 					blen = p1;
-				xprintf("blen=%u\n", blen);
+				debug_printf("blen=%u\n", blen);
 				break;
 			default:
 				debug_printf("Unknow command\n");
@@ -458,7 +458,7 @@ bool_e execute_command(char * ptr)
 				rtc_settime(&rtc);
 			}
 			rtc_gettime(&rtc);
-			xprintf("%u/%u/%u %02u:%02u:%02u\n", rtc.year, rtc.month, rtc.mday, rtc.hour, rtc.min, rtc.sec);
+			debug_printf("%u/%u/%u %02u:%02u:%02u\n", rtc.year, rtc.month, rtc.mday, rtc.hour, rtc.min, rtc.sec);
 			*/
 			debug_printf("Rtc unimplemented\n");
 			break;
@@ -473,7 +473,7 @@ bool_e execute_command(char * ptr)
 			}
 			Buff[0] = 2;
 			if (disk_ioctl(0, CTRL_POWER, Buff) == RES_OK ) {
-				xprintf("Card Power is %s\n", Buff[1] ? "ON" : "OFF");
+				debug_printf("Card Power is %s\n", Buff[1] ? "ON" : "OFF");
 			}
 			break;
 
@@ -509,11 +509,11 @@ int ff_test_term (void)
 	switch (state)
 	{
 		case INIT:
-			xputs("\nFatFs module test terminal\n");
+			debug_printf("\nFatFs module test terminal\n");
 			state = SEND_PROMPT;
 			break;
 		case SEND_PROMPT:
-			xputc('>');
+			debug_printf(">");
 			ptr = linebuf;
 			state = WAIT_COMMAND;
 			break;

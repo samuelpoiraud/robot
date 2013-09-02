@@ -12,14 +12,11 @@
 #include "../../stm32f4xx/stm32f4xx_gpio.h"
 
 
-#include "comm.h"
 #include "term_io.h"
 #include "misc_test_term.h"
 
 #include "Libraries/fat_sd/ff.h"
 
-
-#include "Libraries/minIni/minIni.h"
 
 //Samuel pr dcompiler :
 #define NumbOfVar 3
@@ -209,27 +206,27 @@ static void my_timer2_stop(void)
 
 static void help(void)
 {
-	xputs("l              LED toggle\n");
-	xputs("l 0|1          LED off/on\n");
-	xputs("t              Show RTC time\n");
-	xputs("t y m d h m s  Set RTC time\n");
-	xputs("x              Exit\n");
-	xputs("b 0|1          LED blink with TIM2/on\n");
-	xputs("a              USE_FULL_ASSERT test\n");
-	xputs("sf [<freq>]    sampling frequency\n");
-	xputs("sp [<bytes>]   file preallocation size\n");
-	xputs("sb             begin sampling\n");
-	xputs("se             end sampling\n");
-	xputs("so             open sample-file for read\n");
-	xputs("sd <num>       dump num records\n");
-	xputs("sc             close sample-file\n");
-	xputs("ic             create test INI-file\n");
-	xputs("ir             read test INI-file\n");
-	xputs("v              view system information\n");
-	xputs("ef             format emulated EEPROM\n");
-	xputs("ew <idx> <v>   write into emulated EEEPROM\n");
-	xputs("er [<idx>]     read from emulated EEEPROM\n");
-	xputs("d              DCC test\n");
+	debug_printf("l              LED toggle\n");
+	debug_printf("l 0|1          LED off/on\n");
+	debug_printf("t              Show RTC time\n");
+	debug_printf("t y m d h m s  Set RTC time\n");
+	debug_printf("x              Exit\n");
+	debug_printf("b 0|1          LED blink with TIM2/on\n");
+	debug_printf("a              USE_FULL_ASSERT test\n");
+	debug_printf("sf [<freq>]    sampling frequency\n");
+	debug_printf("sp [<bytes>]   file preallocation size\n");
+	debug_printf("sb             begin sampling\n");
+	debug_printf("se             end sampling\n");
+	debug_printf("so             open sample-file for read\n");
+	debug_printf("sd <num>       dump num records\n");
+	debug_printf("sc             close sample-file\n");
+	debug_printf("ic             create test INI-file\n");
+	debug_printf("ir             read test INI-file\n");
+	debug_printf("v              view system information\n");
+	debug_printf("ef             format emulated EEPROM\n");
+	debug_printf("ew <idx> <v>   write into emulated EEEPROM\n");
+	debug_printf("er [<idx>]     read from emulated EEEPROM\n");
+	debug_printf("d              DCC test\n");
 }
 
 
@@ -249,56 +246,10 @@ void full_assert_test(void)
 	 not RCC_APB1PeriphClockCmd */
 	RCC_APB1PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 #else
-	xprintf("USE_FULL_ASSERT not defined - test disabled\n");
+	debug_printf("USE_FULL_ASSERT not defined - test disabled\n");
 #endif
 }
 
-static void ini_test_create()
-{
-	int res;
-
-	if ( f_mount(0, &fatfs) != FR_OK ) {
-		xprintf("f_mount failed\n");
-	} else {
-		if ( f_open(&file, ini_filename, FA_CREATE_ALWAYS | FA_WRITE ) != FR_OK ) {
-			xprintf("f_open for %s failed\n", ini_filename );
-		} else {
-			res = f_puts("[INFO]\n", &file );
-			if ( res != EOF ) { res = f_puts("company = Martin Thomas Software Engineering\n", &file ); }
-			if ( res != EOF ) { res = f_puts("author = Martin Thomas\n", &file ); }
-			if ( res != EOF ) { res = f_puts("number = 12345678\n", &file ); }
-			f_close( &file );
-			xprintf("%s created\n", ini_filename);
-		}
-	}
-}
-
-static void ini_test_read()
-{
-	char buf[80];
-
-	if ( f_mount(0, &fatfs) != FR_OK ) {
-			xprintf("f_mount failed\n");
-	} else {
-		if (ini_openread( ini_filename, &file )) {
-			if (ini_gets("INFO", "company", "", buf, sizeof(buf), ini_filename )) {
-				xprintf("INFO/company: %s\n", buf);
-			}
-			if (ini_gets("INFO", "does_not_exist", "<default>", buf, sizeof(buf), ini_filename)) {
-				xprintf("non-existing entry: %s\n", buf);
-			}
-
-			long res = ini_getl("INFO", "number", 99999999L, ini_filename);
-			xprintf("INFO/number: %lu\n", res);
-			if (res == 99999999L ) {
-				xprintf("(default)\n");
-			}
-			ini_close(&file);
-		} else {
-			xprintf("ini_openread failed!\n");
-		}
-	}
-}
 
 static void init_buffers(void)
 {
@@ -317,7 +268,7 @@ static void system_information(void)
 	uint32_t v;
 	volatile uint32_t* pw;
 	volatile uint16_t* ph;
-	xprintf("unimplemented\n");
+	debug_printf("unimplemented\n");
 /*
 	v = SCB->CPUID;
 	xprintf("Implementer %s, ", ((v & SCB_CPUID_IMPLEMENTER) == (0x41 << 24)) ? "ARM" : "unknown" );
@@ -337,11 +288,11 @@ static void system_information(void)
 			__STM32F10X_STDPERIPH_VERSION_SUB2);
 			*/
 #if _FATFS
-	xprintf("ChaN FatFS Version %04X\n", _FATFS);
+	debug_printf("ChaN FatFS Version %04X\n", _FATFS);
 #ifdef STM32_SD_USE_DMA
-	xprintf("STM32 SD/MMC/SDHC Interface uses SPI DMA\n");
+	debug_printf("STM32 SD/MMC/SDHC Interface uses SPI DMA\n");
 #else
-	xprintf("STM32 SD/MMC/SDHC Interface without DMA\n");
+	debug_printf("STM32 SD/MMC/SDHC Interface without DMA\n");
 #endif
 #endif /* _FATFS */
 }
@@ -396,16 +347,6 @@ bool_e misc_execute_command(char * ptr)
 		case 'd':
 			dcc_tests();
 			break;
-		case 'i':
-			switch (*ptr++) {
-				case 'c':
-					ini_test_create();
-					break;
-				case 'r':
-					ini_test_read();
-					break;
-			}
-			break;
 		case 'l':
 			if (xatoi(&ptr, &p1)) {
 				if (p1) {
@@ -459,7 +400,7 @@ bool_e misc_execute_command(char * ptr)
 					soft_prescale = FREQUENCY_TO_SOFTPRESCALE(p1);
 					if ( !soft_prescale ) soft_prescale = 1;
 				}
-				xprintf("Sampling Frequency %lu Hz (soft_prescale %lu)\n",
+				debug_printf("Sampling Frequency %lu Hz (soft_prescale %lu)\n",
 						SOFTPRESCALE_TO_FREQUENCY(soft_prescale),
 						soft_prescale);
 				break;
@@ -467,30 +408,30 @@ bool_e misc_execute_command(char * ptr)
 				if (xatoi(&ptr, &p1)) {
 					pre_allocation_size = p1;
 				}
-				xprintf("Preallocation size %lu Bytes\n", pre_allocation_size);
+				debug_printf("Preallocation size %lu Bytes\n", pre_allocation_size);
 				break;
 			case 'b': // sb - begin sampling
 				init_buffers();
 				if ( f_mount( 0, &fatfs ) != FR_OK ) {
-					xprintf("f_mount failed\n");
+					debug_printf("f_mount failed\n");
 				} else {
 					if ( f_open( &file, SAMPLE_FILENAME, FA_CREATE_ALWAYS | FA_WRITE ) != FR_OK ) {
-						xprintf("f_open failed\n");
+						debug_printf("f_open failed\n");
 					} else {
-						xprintf("Preallocation of %lu Bytes ... ", pre_allocation_size);
+						debug_printf("Preallocation of %lu Bytes ... ", pre_allocation_size);
 						if ( f_lseek( &file, pre_allocation_size ) == FR_OK ) {
 							if ( file.fptr != pre_allocation_size ) {
-								xprintf("failed (size)\n");
+								debug_printf("failed (size)\n");
 							}
 							else {
 								f_lseek( &file, 0L );
 								overrunalerted = FALSE;
 								sampling = true;
 								//my_timer2_start();
-								xprintf("done.\nSampling into file %s started\n", SAMPLE_FILENAME);
+								debug_printf("done.\nSampling into file %s started\n", SAMPLE_FILENAME);
 							}
 						} else {
-							xprintf("failed (seek)\n");
+							debug_printf("failed (seek)\n");
 						}
 					}
 				}
@@ -502,11 +443,11 @@ bool_e misc_execute_command(char * ptr)
 					if ( plb->cnt ) {
 						unsigned int written;
 						FRESULT res;
-						xprintf("Flushing Log-Buffer %u\n", store_buffer_idx);
+						debug_printf("Flushing Log-Buffer %u\n", store_buffer_idx);
 						res = f_write(&file, plb->data, plb->cnt, &written);
 						if ((res != FR_OK) || (written != plb->cnt)) {
 							sampling = FALSE;
-							xprintf("f_write error during shutdown\n");
+							debug_printf("f_write error during shutdown\n");
 						}
 						plb->cnt = 0;
 						if (store_buffer_idx < (NBUFFERS - 1)) {
@@ -518,27 +459,27 @@ bool_e misc_execute_command(char * ptr)
 				}
 				f_truncate(&file);
 				f_close(&file);
-				xprintf("Sampling ended\n");
+				debug_printf("Sampling ended\n");
 				break;
 			case 'i': // si - sampling-buffers state
 				if (sampling) {
 					for (i = 0; i < NBUFFERS; i++) {
-						xprintf("Buffer#%u count=%lu\n", i, (volatile uint32_t) log_buffers[i].cnt);
+						debug_printf("Buffer#%u count=%lu\n", i, (volatile uint32_t) log_buffers[i].cnt);
 					}
-					xprintf("overrun-state: %s\n", (overrun) ? "OVERRUN"
+					debug_printf("overrun-state: %s\n", (overrun) ? "OVERRUN"
 							: "none");
-					xprintf("SampBufIdx %u   StoreBufIdx %u\n", sample_buffer_idx, store_buffer_idx);
+					debug_printf("SampBufIdx %u   StoreBufIdx %u\n", sample_buffer_idx, store_buffer_idx);
 				} else {
-					xprintf("Sampling not active\n");
+					debug_printf("Sampling not active\n");
 				}
 				break;
 			case 'o' : // so - open file for read-access
 				if ( !sampling ) {
 					if ( f_mount( 0, &fatfs ) != FR_OK ) {
-						xprintf("f_mount failed\n");
+						debug_printf("f_mount failed\n");
 					} else {
 						if ( f_open( &file, SAMPLE_FILENAME, FA_READ ) != FR_OK ) {
-							xprintf("f_open failed\n");
+							debug_printf("f_open failed\n");
 						}
 					}
 				}
@@ -551,29 +492,26 @@ bool_e misc_execute_command(char * ptr)
 				bool first = true;
 				for ( i = 0; i < (unsigned)p1; i++ ) {
 					if ( f_read( &file, log_buffers[0].data, RECORD_SIZE, &s2 ) != FR_OK ) {
-						xprintf("f_read error\n");
+						debug_printf("f_read error\n");
 						break;
 					}
 					if ( s2 != RECORD_SIZE ) {
-						xprintf("EOF\n");
+						debug_printf("EOF\n");
 						break;
 					} else {
 						uint32_t ts = BYTEARRAY_TO_DWORD( log_buffers[0].data );
 						uint32_t pl = BYTEARRAY_TO_DWORD( log_buffers[0].data+4 );
 						if ( first ) {
-							xprintf("t:%6lu  l:%6lu\n", ts, pl);
+							debug_printf("t:%6lu  l:%6lu\n", ts, pl);
 							first = FALSE;
 						} else {
 							uint32_t delta = (uint16_t)((uint16_t)ts-(uint16_t)prev);
 							uint32_t delta_us = delta * (1000000UL/BASEFREQUENCY) / CCR1_VAL;
-							xprintf("t:%6lu  l:%6lu (delta %lu, %lu nsec)\n", ts, pl, delta, delta_us);
+							debug_printf("t:%6lu  l:%6lu (delta %lu, %lu nsec)\n", ts, pl, delta, delta_us);
 						}
 						prev = ts;
 					}
-					if ( xavail() ) {
-						xgetc();
-						break;
-					}
+
 				}
 				break;
 			case 'c' : // sc - close file
@@ -591,7 +529,7 @@ bool_e misc_execute_command(char * ptr)
 						//else { xprintf("Format o.k.\n"); }
 						my_FLASH_Lock();
 					} else {
-						xprintf("FLASH_Unlock failed\n");
+						debug_printf("FLASH_Unlock failed\n");
 					}
 					break;
 				case 'w': // ew <idx> <val> - write to virtual EEPROM
@@ -599,23 +537,23 @@ bool_e misc_execute_command(char * ptr)
 					if (xatoi(&ptr, &p1) && xatoi(&ptr, &p2)) {
 						if ( p1 < NumbOfVar ) {
 							p1 = VirtAddVarTab[p1];
-							xprintf("write EEMUL[%d] := %d ", (uint16_t)p1, (uint16_t)p2);
+							debug_printf("write EEMUL[%d] := %d ", (uint16_t)p1, (uint16_t)p2);
 							if ( my_FLASH_Unlock() ) {
 								/*if ( EE_WriteVariable(p1, p2) == FLASH_COMPLETE ) {
 									xprintf("o.k.\n");
 								} else {
 									xprintf("failed\n");
 								}*/
-								xprintf("EEPROM not implemented\n");
+								debug_printf("EEPROM not implemented\n");
 								my_FLASH_Lock();
 							} else {
-								xprintf("FLASH_Unlock failed\n");
+								debug_printf("FLASH_Unlock failed\n");
 							}
 						} else {
-							xprintf("Index out of range\n");
+							debug_printf("Index out of range\n");
 						}
 					} else {
-						xprintf("Parameter error\n");
+						debug_printf("Parameter error\n");
 					}
 					break;
 				case 'r': { // er [<idx>] - read from virtual EEPROM
@@ -629,9 +567,9 @@ bool_e misc_execute_command(char * ptr)
 							} else {
 								xprintf("read EEMUL[%d] failed!\n", (uint16_t)p1);
 							}*/
-							xprintf("EEPROM not implemented\n");
+							debug_printf("EEPROM not implemented\n");
 						} else {
-							xprintf("Index out of range\n");
+							debug_printf("Index out of range\n");
 						}
 					} else {
 						for (i = 0; i < NumbOfVar; i++) {
@@ -642,7 +580,7 @@ bool_e misc_execute_command(char * ptr)
 							} else {
 								xprintf("read EEMUL[%d] failed!\n", (uint16_t)p1);
 							}*/
-							xprintf("EEPROM not implemented\n");
+							debug_printf("EEPROM not implemented\n");
 						}
 					}
 				}
@@ -653,7 +591,7 @@ bool_e misc_execute_command(char * ptr)
 
 
 	if ( overrun && !overrunalerted ) {
-		xprintf("\n*** OVERRUN ***\n");
+		debug_printf("\n*** OVERRUN ***\n");
 		overrunalerted = true;
 	}
 
@@ -666,7 +604,7 @@ bool_e misc_execute_command(char * ptr)
 			res = f_write(&file, plb->data, plb->cnt, &written);
 			if ( ( res != FR_OK ) || ( written != plb->cnt ) ) {
 				sampling = FALSE;
-				xprintf("f_write error - sampling stopped\n");
+				debug_printf("f_write error - sampling stopped\n");
 				f_close(&file);
 			}
 			//xprintf("done\n");
@@ -703,11 +641,11 @@ bool_e misc_test_term (void)
 	switch (state)
 	{
 		case INIT:
-			xputs("\nMisc test terminal (h for help)\n");
+			debug_printf("\nMisc test terminal (h for help)\n");
 			state = SEND_PROMPT;
 			break;
 		case SEND_PROMPT:
-			xputc('>');
+			UART1_putc('>');
 			state = WAIT_COMMAND;
 			break;
 		case WAIT_COMMAND:

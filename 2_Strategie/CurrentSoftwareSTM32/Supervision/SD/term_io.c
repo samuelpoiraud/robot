@@ -1,7 +1,7 @@
 #include <stdarg.h>
 #include "term_io.h"
-#include "comm.h"
 #include "../../QS/QS_all.h"
+#include "../../QS/QS_uart.h"
 
 int xatoi (char **str, long *res)
 {
@@ -56,26 +56,6 @@ int xatoi (char **str, long *res)
 }
 
 
-
-
-void xputc (char c)
-{
-	if (c == '\n') comm_put('\r');
-	comm_put(c);
-}
-
-
-
-
-void xputs (const char* str)
-{
-	while (*str)
-		xputc(*str++);
-}
-
-
-
-
 void xitoa (long val, int radix, int len)
 {
 	BYTE c, r, sgn = 0, pad = ' ';
@@ -108,63 +88,9 @@ void xitoa (long val, int radix, int len)
 	while (i < len)
 		s[i++] = pad;
 	do
-		xputc(s[--i]);
+		UART1_putc(s[--i]);
 	while (i);
 }
-
-void xprintf (const char* str, ...)
-{
-	va_list arp;
-	int d, r, w, s, l;
-
-
-	va_start(arp, str);
-
-	while ((d = *str++) != 0) {
-		if (d != '%') {
-			xputc(d); continue;
-		}
-		d = *str++; w = r = s = l = 0;
-		if (d == '0') {
-			d = *str++; s = 1;
-		}
-		while ((d >= '0')&&(d <= '9')) {
-			w += w * 10 + (d - '0');
-			d = *str++;
-		}
-		if (s) w = -w;
-		if (d == 'l') {
-			l = 1;
-			d = *str++;
-		}
-		if (!d) break;
-		if (d == 's') {
-			xputs(va_arg(arp, char*));
-			continue;
-		}
-		if (d == 'c') {
-			xputc((char)va_arg(arp, int));
-			continue;
-		}
-		if (d == 'u') r = 10;
-		if (d == 'd') r = -10;
-		if (d == 'X' || d == 'x') r = 16; // 'x' added by mthomas in increase compatibility
-		if (d == 'b') r = 2;
-		if (!r) break;
-		if (l) {
-			xitoa((long)va_arg(arp, long), r, w);
-		} else {
-			if (r > 0)
-				xitoa((unsigned long)va_arg(arp, int), r, w);
-			else
-				xitoa((long)va_arg(arp, int), r, w);
-		}
-	}
-
-	va_end(arp);
-}
-
-
 
 
 void put_dump (const BYTE *buff, DWORD ofs, int cnt)
@@ -172,17 +98,18 @@ void put_dump (const BYTE *buff, DWORD ofs, int cnt)
 	BYTE n;
 
 
-	xprintf("%08lX ", ofs);
+	debug_printf("%08lX ", ofs);
 	for(n = 0; n < cnt; n++)
-		xprintf(" %02X", buff[n]);
-	xputc(' ');
+		debug_printf(" %02X", buff[n]);
+	UART1_putc(' ');
 	for(n = 0; n < cnt; n++) {
 		if ((buff[n] < 0x20)||(buff[n] >= 0x7F))
-			xputc('.');
+			UART1_putc('.');
 		else
-			xputc(buff[n]);
+			UART1_putc(buff[n]);
 	}
-	xputc('\n');
+	UART1_putc('\r');
+	UART1_putc('\n');
 }
 
 
@@ -233,37 +160,5 @@ char * get_command (void)
 	else
 		return 0;
 }
-
-
-// function added by mthomas:
-/*
-int get_line_r (char *buff, int len, int* idx)
-{
-	char c;
-	int retval = 0;
-	int myidx;
-
-	if ( xavail() ) {
-		myidx = *idx;
-		c = xgetc();
-		if (c == '\r') {
-			buff[myidx] = 0;
-			xputc('\n');
-			retval = 1;
-		} else {
-			if ((c == '\b') && myidx) {
-				myidx--; xputc(c);
-				xputc(' '); xputc(c); // added by mthomas for Eclipse Terminal plug-in
-			}
-			if (((BYTE)c >= ' ') && (myidx < len - 1)) {
-					buff[myidx++] = c; xputc(c);
-			}
-		}
-		*idx = myidx;
-	}
-
-	return retval;
-}
-*/
 
 

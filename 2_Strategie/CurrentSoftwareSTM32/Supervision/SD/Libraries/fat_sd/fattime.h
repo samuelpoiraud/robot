@@ -1,8 +1,10 @@
 #ifndef FATTIME_H_
 #define FATTIME_H_
 
-#include "integer.h"
+#include "../../../../QS/QS_all.h"
 
-DWORD get_fattime (void);
+typedef Uint32 fattime_t;
+fattime_t get_fattime (void);
+
 
 #endif

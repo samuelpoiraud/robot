@@ -12,6 +12,8 @@
 #define CLOCK_C
 
 #include "clock.h"
+#include "Supervision/SD/SD.h"
+
 void CLOCK_run();
 
 void CLOCK_init()
