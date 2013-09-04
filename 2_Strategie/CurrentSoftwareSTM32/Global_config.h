@@ -79,7 +79,6 @@
 				//	I2C RTC/LCD	 			  	  10
 				//	I2C RTC/LCD	 			  	  11
 			#define EEPROM_CS			GPIOB->ODR12
-			#define SD_CS			GPIOB->ODR12
 			#define EEPROM_SCK			GPIOB->ODR13
 			#define EEPROM_SDO			GPIOB->ODR14
 			#define EEPROM_SDI			GPIOB->ODR15
@@ -98,6 +97,7 @@
 			#define LED_BEACON_US_RED	GPIOC->ODR9
 				//	-	sortie libre 			  10
 			#define EEPROM_WP			GPIOC->ODR11
+			#define SD_CS				GPIOC->ODR11
 			#define EEPROM_HOLD			GPIOC->ODR12
 			#define PORT_ROBOT_ID  		GPIOC->IDR13
 				//	-	OSC32_in 			  	  14
@@ -221,7 +221,8 @@
 	 */
 
 	//Activation du module d'enregistrement des messages CAN reçus pendant les matchs en mémoire EEPROM.
-	#define EEPROM_CAN_MSG_ENABLE
+	//#define EEPROM_CAN_MSG_ENABLE
+	#define SD_ENABLE
 
 	#define STACKS_SIZE 32 //doit être < à 256
 

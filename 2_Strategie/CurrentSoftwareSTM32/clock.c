@@ -65,13 +65,16 @@ void CLOCK_stop()
 void _ISR _T1Interrupt()
 {
 	static Uint16 local_time = 0;
+	static Uint16 count_1sec = 0;
 	global.env.absolute_time++;
+
 	if(global.env.match_started)
 	{
 		//Pendant le match.
 		global.env.match_time++;
-		if(global.env.match_time & 0x100)
-			LED_USER=!LED_USER;
+#warning "remettre ceci :"
+		//if(global.env.match_time & 0x100)
+		//	LED_USER=!LED_USER;
 	}
 	else
 	{	
@@ -90,8 +93,14 @@ void _ISR _T1Interrupt()
 			global.env.flag_for_ping_xbee++;	//+500ms
 		}
 	}
-	SD_process_1ms();
 
+	count_1sec++;
+	if(count_1sec >= 1000)
+	{
+		count_1sec = 0;
+		RTC_process_it_1sec();
+	}
+	SD_process_1ms();
 
 	TIMER1_AckIT();
 }

@@ -11,6 +11,7 @@
 
 
 #include "Selftest.h"
+#include "SD/SD.h"
 
 #define TIMEOUT_SELFTEST_ACT 		20000	// en ms
 #define TIMEOUT_SELFTEST_PROP 		10000	// en ms
@@ -24,6 +25,17 @@ SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
 volatile Uint8 errors_index = 0;
 
 volatile bool_e selftest_state = FALSE;
+
+void SELFTEST_init(void)
+{
+	Uint8 i;
+	errors[0] = SELFTEST_NOT_DONE;	//Cette erreur initiale sera écrasée, puisque l'index est à 0.
+	for(i=1; i<MAX_ERRORS_NUMBER; i++)
+	{
+		errors[i] = SELFTEST_NO_ERROR;
+	}
+	errors_index = 0;
+}
 
 void SELFTEST_ask_launch(void)
 {
@@ -186,7 +198,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			else	//Des problèmes ont été rencontrés
 			{
 				LED_SELFTEST = FALSE;
-				SELFTEST_print_errors();
+				SELFTEST_print_errors(errors, errors_index);
 			}
 			state = WAIT_SELFTEST_LAUNCH;
 			break;
@@ -195,26 +207,30 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 	}
 }
 
-void SELFTEST_print_errors(void)
+void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
-	Uint8 i;
-	for(i=0;i<errors_index;i++)
+	Uint8 i,n;
+	char s[32];
+	for(i=0;i<size;i++)
 	{
-		debug_printf("Selftest error %d : ",errors[i]);
-		switch(errors[i])
+		if(tab_errors[i] != SELFTEST_NO_ERROR)
 		{
-			case SELFTEST_NOT_DONE:						debug_printf("NOT_DONE");			break;
-			case SELFTEST_FAIL_UNKNOW_REASON:			debug_printf("FAIL_UNKNOW_REASON");			break;
-			case SELFTEST_NO_POWER:						debug_printf("NO_POWER");			break;
-			case SELFTEST_TIMEOUT:						debug_printf("TIMEOUT");			break;
-			case SELFTEST_PROP_LEFT_MOTOR:				debug_printf("PROP_LEFT_MOTOR");			break;
-			case SELFTEST_PROP_LEFT_ENCODER:			debug_printf("PROP_LEFT_ENCODER");			break;
-			case SELFTEST_PROP_RIGHT_MOTOR:				debug_printf("PROP_RIGHT_MOTOR");			break;
-			case SELFTEST_PROP_RIGHT_ENCODER:			debug_printf("PROP_RIGHT_ENCODER");			break;
-			case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");			break;
-			default:									debug_printf("UNKNOW_ERROR_CODE");			break;
+			n = sprintf(s,"Selftest error %d : ",errors[i]);
+			switch(errors[i])
+			{
+				case SELFTEST_NOT_DONE:						sprintf(s+n,"NOT_DONE\n");					break;
+				case SELFTEST_FAIL_UNKNOW_REASON:			sprintf(s+n,"FAIL_UNKNOW_REASON\n");		break;
+				case SELFTEST_NO_POWER:						sprintf(s+n,"NO_POWER\n");					break;
+				case SELFTEST_TIMEOUT:						sprintf(s+n,"TIMEOUT\n");					break;
+				case SELFTEST_PROP_LEFT_MOTOR:				sprintf(s+n,"PROP_LEFT_MOTOR\n");			break;
+				case SELFTEST_PROP_LEFT_ENCODER:			sprintf(s+n,"PROP_LEFT_ENCODER\n");			break;
+				case SELFTEST_PROP_RIGHT_MOTOR:				sprintf(s+n,"PROP_RIGHT_MOTOR\n");			break;
+				case SELFTEST_PROP_RIGHT_ENCODER:			sprintf(s+n,"PROP_RIGHT_ENCODER\n");		break;
+				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	sprintf(s+n,"STRAT_BIROUTE_NOT_IN_PLACE\n");break;
+				default:									sprintf(s+n,"UNKNOW_ERROR_CODE\n");			break;
+			}
+			SD_puts(s);
 		}
-		debug_printf("\n");
 	}
 }
 

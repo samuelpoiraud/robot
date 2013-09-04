@@ -391,7 +391,7 @@ static
 void power_on (void)
 {
 
-	PORTS_spi_init();
+	//PORTS_spi_init();
 	DESELECT();	//CS high.
 
 	/*

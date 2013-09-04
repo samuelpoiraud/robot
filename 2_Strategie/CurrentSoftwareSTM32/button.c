@@ -15,6 +15,7 @@
 #include "act_functions.h"
 #include "Supervision\Selftest.h"
 #include "Supervision\Eeprom_can_msg.h"
+#include "Supervision\SD\SD.h"
 static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
 
@@ -29,8 +30,11 @@ void BUTTON_init()
 	BUTTONS_define_actions(BUTTON3,BUTTON_TEST_button3, NULL, 1);	//TODO : BOUTON MENU LCD
 	BUTTONS_define_actions(BUTTON4,BUTTON_TEST_button4, NULL, 1);	//TODO : BOUTON MENU LCD
 	//BUTTONS_define_actions(BUTTON5,BUFFER_flush, NULL, 0);
-	BUTTONS_define_actions(BUTTON5,EEPROM_CAN_MSG_verbose_previous_match, NULL, 0);
-
+	#ifdef EEPROM_CAN_MSG_ENABLE
+		BUTTONS_define_actions(BUTTON5,EEPROM_CAN_MSG_verbose_previous_match, NULL, 0);
+	#else
+		BUTTONS_define_actions(BUTTON5,SD_print_previous_match, NULL, 0);
+	#endif
 //	BUTTONS_define_actions(BUTTON3,BUTTON_servo,NULL,1);
 //	BUTTONS_define_actions(BUTTON4,BUTTON_pi_rotation,BUTTON_translation,1);
 

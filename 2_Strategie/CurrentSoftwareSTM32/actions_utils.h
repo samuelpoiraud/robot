@@ -14,7 +14,7 @@
 
 #include "queue.h"
 #include "avoidance.h"
-
+#include "Supervision/SD/SD.h"
 
 //Défini un nom d'état dans un tableau de string. Utilisé pour afficher le nom d'une valeur d'un enum, par exemple:
 //Pour que tableau[UN_ETAT_OU_ENUM] = "UN_ETAT_OU_ENUM", il faut faire STATE_STR_DECLARE(tableau, UN_ETAT_OU_ENUM)

@@ -36,13 +36,15 @@
 		BEACON_FAR
 	}selftest_beacon_e;	
 		
+	void SELFTEST_init(void);
 
 	void SELFTEST_ask_launch(void);
 
 	//Machine a état du selftest, doit être appelée : dans le process de tâche de fond ET à chaque réception d'un message can de selftest.
 	void SELFTEST_update(CAN_msg_t* CAN_msg_received);
 
-	void SELFTEST_print_errors(void);
+	//Enregistre (et affiche si verbose) la liste des erreurs du selftest.
+	void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size);
 
 	//Fonction qui leve le flag précédent appelée par le timer4: 250ms
 	void SELFTEST_process_1sec();

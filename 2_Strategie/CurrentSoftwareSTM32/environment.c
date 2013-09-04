@@ -85,7 +85,6 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 	bool_e bCAN_filter = FALSE;		//bCAN_filter indique si ce message doit être propagé sur le CAN...où s'il nous était directement destiné...
 	bool_e bSAVE_filter = FALSE;	//bEEPROM_filter indique si ce message doit être enregistré en EEPROM
 
-	LED_USER = !LED_USER;
 	CAN_update(incoming_msg);
 	ENV_check_filter(incoming_msg, &bUART_filter, &bCAN_filter, &bSAVE_filter);
 
@@ -93,7 +92,23 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 	BUFFER_add(incoming_msg);						//BUFFERISATION
 
 	if(bSAVE_filter && SWITCH_SAVE)
-		EEPROM_CAN_MSG_process_msg(incoming_msg);
+	{
+		#ifdef EEPROM_CAN_MSG_ENABLE
+			EEPROM_CAN_MSG_process_msg(incoming_msg);
+		#endif
+		#ifdef SD_ENABLE
+			source_e source;
+			if(bCAN == FALSE)
+				source = FROM_BUS_CAN;
+			else if(bU1 == FALSE)
+				source = FROM_UART1;
+			else if(!SWITCH_XBEE)
+				source = FROM_UART2;
+			else
+				source = FROM_XBEE;
+			SD_new_event(source, incoming_msg, NULL);
+		#endif
+	}
 
 	//Propagation du message CAN.
 	if(bCAN && bCAN_filter)
@@ -129,7 +144,14 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 
 	BUFFER_add(sent_msg);	//BUFFERISATION
 	if(SWITCH_SAVE)			//Enregistrement du message CAN.
-		EEPROM_CAN_MSG_process_msg(sent_msg);
+	{
+		#ifdef EEPROM_CAN_MSG_ENABLE
+			EEPROM_CAN_MSG_process_msg(sent_msg);
+		#endif
+		#ifdef SD_ENABLE
+			SD_new_event(TO_BUSCAN, sent_msg, NULL);
+		#endif
+	}
 
 	//UART1
 	if(SWITCH_DEBUG)
@@ -181,8 +203,6 @@ void ENV_update()
 				c = UART1_get_next_msg();
 				SD_char_from_user(c);
 			}
-
-			SD_process_main();
 			break;
 		default:
 			break;
@@ -229,6 +249,7 @@ void ENV_update()
 /* met à jour l'environnement en fonction du message CAN reçu */
 void CAN_update (CAN_msg_t* incoming_msg)
 {
+	date_t date;
 //****************************** Messages carte supervision *************************/	
 	switch (incoming_msg->sid)
 	{		
@@ -247,16 +268,14 @@ void CAN_update (CAN_msg_t* incoming_msg)
 	{
 //****************************** Messages venant des geeks du club robot  *************************/
 		case DEBUG_RTC_SET:
-			RTC_set_time(&(incoming_msg->data[0]), &(incoming_msg->data[1]), &(incoming_msg->data[2]), &(incoming_msg->data[3]), &(incoming_msg->data[4]), &(incoming_msg->data[5]), &(incoming_msg->data[6]));
-					/*
-						Uint8 secondes
-						Uint8 minutes
-						Uint8 hours
-						Uint8 day
-						Uint8 date
-						Uint8 months
-						Uint8 year	(11 pour 2011)
-					*/
+			date.seconds 	= incoming_msg->data[0];
+			date.minutes 	= incoming_msg->data[1];
+			date.hours 		= incoming_msg->data[2];
+			date.day 		= incoming_msg->data[3];
+			date.date 		= incoming_msg->data[4];
+			date.month 		= incoming_msg->data[5];
+			date.year 		= incoming_msg->data[6];	//13 pour 2013...
+			RTC_set_time(&date);
 			RTC_print_time();
 			RTC_can_send();	//Retour ... pour vérifier que ca a fonctionné..
 			break;

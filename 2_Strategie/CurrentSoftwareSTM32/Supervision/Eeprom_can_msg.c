@@ -177,7 +177,7 @@ void EEPROM_CAN_MSG_save_msg(Uint16 msg_address_x16, CAN_msg_t * msg, Uint16 mat
 */
 void EEPROM_CAN_MSG_new_match()
 {
-	Uint8 seconds, minutes, hours, day, date, month, year;
+	date_t date;
 	Uint16 condensed_time;
 	Uint8 temp[MATCH_SIZE];
 	current_match_address_x8 = (current_match_address_x8 >= MAX_MATCH_ADDRESS_X8)?(MIN_MATCH_ADDRESS_X8):(current_match_address_x8+1);
@@ -194,11 +194,12 @@ void EEPROM_CAN_MSG_new_match()
 	temp[2] = HIGHINT(current_match_id);
 	temp[3] = LOWINT(current_match_id);
 	
-	RTC_get_time(&seconds, &minutes, &hours, &day, &date, &month, &year);
+
+	RTC_get_local_time(&date);
 	condensed_time = 0;
-	condensed_time |= (date		&0x1F) << 11;
-	condensed_time |= (hours	&0x1F) << 6;
-	condensed_time |= (minutes	&0x3F);
+	condensed_time |= (date.date		&0x1F) << 11;
+	condensed_time |= (date.hours	&0x1F) << 6;
+	condensed_time |= (date.minutes	&0x3F);
 	
 	temp[4] = (Uint8)(condensed_time >> 8);
 	temp[5] = (Uint8)(condensed_time);
