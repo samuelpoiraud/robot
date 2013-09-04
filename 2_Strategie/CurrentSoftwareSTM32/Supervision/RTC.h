@@ -80,7 +80,16 @@
 	*/
 	
 	
-	
+	typedef struct
+	{
+		Uint8 seconds;
+		Uint8 minutes;
+		Uint8 hours;
+		Uint8 day;
+		Uint8 date;
+		Uint8 month;
+		Uint8 year;
+	}date_t;
 
 
 	//------------------------------
@@ -94,7 +103,7 @@
 	@param	pointeurs vers les item décrits
 	@return 1 en cas de réussite, 0 en cas d'échec.
 	*/
-	extern Uint8 RTC_set_time  (Uint8 *seconds, Uint8 *minutes, Uint8 *hours, Uint8 *day, Uint8 *date, Uint8 *month, Uint8 *year);
+	extern Uint8 RTC_set_time  (date_t * date);
 	
 	/*
 	@brief Fonction qui lit dans la RTC les date et heure passés en paramètres
@@ -102,8 +111,11 @@
 	@return 1 en cas de réussite, 0 en cas d'échec.
 	@post	les valeurs sont remplies avec des 0 en cas d'échec. (sauf date et mois qui sont mis à 1)
 	*/
-	extern Uint8 RTC_get_time (Uint8 *seconds, Uint8 *minutes, Uint8 *hours, Uint8 *day, Uint8 *date, Uint8 *month, Uint8 *year);
+	extern Uint8 RTC_get_time (date_t * date);
+
 	
+	//Equivalent à un RTC_get_time, sauf si une heure locale existe... (ne met pas à jour en lisant le périphérique RTC)
+	Uint8 RTC_get_local_time(date_t * date);
 	
 
 	/*
@@ -122,5 +134,6 @@
 	void RTC_print_time(void);
 	
 	
+	void RTC_process_it_1sec(void);
 	
 #endif /* ndef RTC_H */
