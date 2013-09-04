@@ -230,12 +230,6 @@ static void help(void)
 }
 
 
-void dcc_tests(void)
-{
-	// to see the message on the OpenOCD console receiving must be enabled:
-	// (monitor) target_request debugmsgs enable
-	//dbg_write_str("Hello from DCC\n");
-}
 
 
 void full_assert_test(void)
@@ -345,7 +339,7 @@ bool_e misc_execute_command(char * ptr)
 			system_information();
 			break;
 		case 'd':
-			dcc_tests();
+			//dcc_tests();
 			break;
 		case 'l':
 			if (xatoi(&ptr, &p1)) {

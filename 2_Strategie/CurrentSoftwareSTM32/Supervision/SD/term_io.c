@@ -116,7 +116,7 @@ void put_dump (const BYTE *buff, DWORD ofs, int cnt)
 #define BUFFER_COMMAND_SIZE 120
 volatile Uint8 buffer_command[BUFFER_COMMAND_SIZE];
 volatile Uint8 index = 0;
-volatile bool_e command_available = TRUE;
+volatile bool_e command_available = FALSE;
 
 void SD_char_from_user(char c)
 {

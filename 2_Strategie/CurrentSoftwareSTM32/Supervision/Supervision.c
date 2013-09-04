@@ -24,9 +24,14 @@
 //@pre : le CAN doit être initialisé...
 void Supervision_init(void)
 {
+	SELFTEST_init();
 	RTC_init();
 	BUFFER_init();
-	EEPROM_CAN_MSG_init();
+	EEPROM_HOLD = 1;
+	EEPROM_CS = 1;
+	#ifdef EEPROM_CAN_MSG_ENABLE
+		EEPROM_CAN_MSG_init();
+	#endif
 	SD_init();
 
 	#ifdef USE_XBEE
@@ -78,6 +83,7 @@ void Supervision_process_main(void)
 			CAN_over_XBee_process_main();
 	#endif
 
+	SD_process_main();
 
 }
 

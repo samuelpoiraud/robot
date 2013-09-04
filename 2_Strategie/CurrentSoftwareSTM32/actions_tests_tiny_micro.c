@@ -1248,30 +1248,28 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	{
 		//Ces printf ne sont pas trop génant, car ils ne sont affichés que sur des évènements "rares"...
 		//Ils sont très importants pour savoir ce que le robot à fait, du point de vue STRAT HAUT NIVEAU !
-		debug_printf("Cake ->");
 		switch(state)
 		{
-			case INIT:						debug_printf("INIT");					break;
-			case EA:						debug_printf("EA");						break;
-			case MA:						debug_printf("MA");						break;
-			case EB:						debug_printf("EB");						break;
-			case MB:						debug_printf("MB");						break;
-			case SB:						debug_printf("SB");						break;
-			case E_C:						debug_printf("EC");						break;
-			case BC:						debug_printf("BC");						break;
-			case RC:						debug_printf("RC");						break;
-			case SC:						debug_printf("SC");						break;
-			case BLOW_ALL_CANDLES:			debug_printf("BLOW_ALL_CANDLES");		break;
-			case BLOW_PARTIAL_CANDLES:		debug_printf("BLOW_PARTIAL_CANDLES");	break;
-			case SUBACTION_BLOW_CANDLES:	debug_printf("SUBACTION_BLOW_CANDLES");	break;
-			case CANDLES_FAIL:				debug_printf("CANDLES_FAIL");			break;
-			case CANDLES_SUCCESS:			debug_printf("CANDLES_SUCCESS");		break;
-			case BP:						debug_printf("BP");						break;
-			case RUSH:						debug_printf("RUSH");					break;
-			case END_STATE:					debug_printf("END_STATE");				break;
-			default:						debug_printf("???");					break;
+			case INIT:						SD_puts("Cake ->INIT\n");					break;
+			case EA:						SD_puts("Cake ->EA\n");						break;
+			case MA:						SD_puts("Cake ->MA\n");						break;
+			case EB:						SD_puts("Cake ->EB\n");						break;
+			case MB:						SD_puts("Cake ->MB\n");						break;
+			case SB:						SD_puts("Cake ->SB\n");						break;
+			case E_C:						SD_puts("Cake ->EC\n");						break;
+			case BC:						SD_puts("Cake ->BC\n");						break;
+			case RC:						SD_puts("Cake ->RC\n");						break;
+			case SC:						SD_puts("Cake ->SC\n");						break;
+			case BLOW_ALL_CANDLES:			SD_puts("Cake ->BLOW_ALL_CANDLES\n");		break;
+			case BLOW_PARTIAL_CANDLES:		SD_puts("Cake ->BLOW_PARTIAL_CANDLES\n");	break;
+			case SUBACTION_BLOW_CANDLES:	SD_puts("Cake ->SUBACTION_BLOW_CANDLES\n");	break;
+			case CANDLES_FAIL:				SD_puts("Cake ->CANDLES_FAIL\n");			break;
+			case CANDLES_SUCCESS:			SD_puts("Cake ->CANDLES_SUCCESS\n");		break;
+			case BP:						SD_puts("Cake ->BP\n");						break;
+			case RUSH:						SD_puts("Cake ->RUSH\n");					break;
+			case END_STATE:					SD_puts("Cake ->END_STATE\n");				break;
+			default:						SD_puts("Cake ->???\n");					break;
 		}
-		debug_printf("\n");
 	}
 
 	previous_state = state;
