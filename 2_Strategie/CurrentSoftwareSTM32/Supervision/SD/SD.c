@@ -4,13 +4,13 @@
 #include "../../QS/QS_CANmsgList.h"
 #include "../../QS/QS_can_over_uart.h"
 #include "../../QS/QS_spi.h"
-#include "../Verbose_can_msg.h""
+#include "../Verbose_can_msg.h"
 #include "misc_test_term.h"
 #include "ff_test_term.h"
 #include "Libraries/fat_sd/ff.h"
 #include "Libraries/fat_sd/diskio.h"
 #include "term_io.h"
-
+#include <stdarg.h>
 
 #define MAX_TIME_BEFORE_SYNC	500	//Durée max entre la demande d'enregistrement d'un message et son enregistrement effectif sur la carte SD.
 
@@ -37,22 +37,46 @@ volatile bool_e sd_ready = FALSE;
 volatile Uint16	match_id = 0xFFFF;
 volatile Uint16	read_match_id = 0xFFFF;
 
-
+//@post	SD_printf peut être appelée... (si tout s'est bien passé, les logs peuvent être enregistrés...)
 void SD_init(void)
 {
 	PORTS_spi_init();
 	SPI_init();
+	SD_process_main();	//Permet d'ouvrir le plus vite possible le fichier de log.
 }
 
-void SD_puts(char * string)
+
+
+/*
+ * Si la chaine fabriquée contient un '\n', l'évènement sera envoyé sur la carte SD avec une info de date et de source... Sinon, le texte demandé sera envoyé tel quel.
+ */
+int SD_printf(char * s, ...)
 {
-	SD_new_event(FROM_SOFT, NULL, string);
+	Uint16 ret;
+	Uint16 i;
+	bool_e b_insert_time;
+	char buf[256];
+
+	va_list args;
+	va_start (args, s);
+	ret = sprintf(buf, s, args);	//Prépare la chaine à envoyer.
+	va_end (args);
+
+	b_insert_time = FALSE;
+	for(i=0;buf[i];i++)
+	{
+		if(buf[i] == '\n')
+			b_insert_time = TRUE;
+	}
+
+	SD_new_event(FROM_SOFT, NULL, buf, b_insert_time);
 	if(SWITCH_VERBOSE)
-		debug_printf(string);	//On en profite pour Verboser l'événement.
+		debug_printf(buf);	//On en profite pour Verboser l'événement.
+	return ret;
 }
 
 //Appeler cette fonction pour chaque nouvel évènement.
-void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string)
+void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool_e insert_time)
 {
 	char string[128];
 	Uint32 n = 0;
@@ -96,7 +120,7 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string)
 		}
 	}
 
-	f_write(&file_match, string, n, &written);
+	f_write(&file_match, string, n, (unsigned int *)&written);
 	if(written != n)
 		debug_printf("WARNING : SD:wrote failed %ld/%ld", written, n);
 
@@ -151,7 +175,7 @@ bool_e SD_analyse(void)
 
 bool_e SD_open_file_for_next_match(void)
 {
-	Uint8 nb_read, nb_written;
+	Uint32 nb_read, nb_written;
 	Uint8 read_buffer[4];
 	char path[32];
 
@@ -161,7 +185,7 @@ bool_e SD_open_file_for_next_match(void)
 	if(f_open(&file_match, "index.inf", FA_READ) == FR_OK)
 	{
 		nb_read = 0;
-		f_read(&file_match, read_buffer, 4, &nb_read);
+		f_read(&file_match, read_buffer, 4, (unsigned int *)&nb_read);
 		if(nb_read == 4)
 		{
 			if(		read_buffer[0] >= '0' && read_buffer[0] <= '9' &&
@@ -187,7 +211,7 @@ bool_e SD_open_file_for_next_match(void)
 	//On enregistre le numéro match_id du nouveau match dans index.inf
 	if(f_open(&file_match, "index.inf", FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
 	{
-		f_write(&file_match, path, 4, &nb_written);	//On écrit les 4 premiers octets (juste le numéro).
+		f_write(&file_match, path, 4, (unsigned int *)&nb_written);	//On écrit les 4 premiers octets (juste le numéro).
 		f_close(&file_match);
 	}
 
@@ -275,7 +299,7 @@ void SD_print_previous_match(void)
 {
 	char path[16];
 	char read_byte;
-	Uint16 nb_read;
+	Uint32 nb_read;
 	Uint8 i;
 	Uint16 t;
 	source_e source;
@@ -308,7 +332,7 @@ void SD_print_previous_match(void)
 		debug_printf("Match : %s\n",path);
 		do
 		{
-			if(f_read(&file_read_match, &read_byte, 1, &nb_read) != FR_OK)
+			if(f_read(&file_read_match, &read_byte, 1, (unsigned int *)&nb_read) != FR_OK)
 			{
 				debug_printf("SD Fail during reading of match %s\n",path);
 				break;

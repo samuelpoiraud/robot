@@ -209,27 +209,26 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
-	Uint8 i,n;
-	char s[32];
+	Uint8 i;
 	for(i=0;i<size;i++)
 	{
 		if(tab_errors[i] != SELFTEST_NO_ERROR)
 		{
-			n = sprintf(s,"Selftest error %d : ",errors[i]);
+			SD_printf("Selftest error %d : ",errors[i]);
 			switch(errors[i])
 			{
-				case SELFTEST_NOT_DONE:						sprintf(s+n,"NOT_DONE\n");					break;
-				case SELFTEST_FAIL_UNKNOW_REASON:			sprintf(s+n,"FAIL_UNKNOW_REASON\n");		break;
-				case SELFTEST_NO_POWER:						sprintf(s+n,"NO_POWER\n");					break;
-				case SELFTEST_TIMEOUT:						sprintf(s+n,"TIMEOUT\n");					break;
-				case SELFTEST_PROP_LEFT_MOTOR:				sprintf(s+n,"PROP_LEFT_MOTOR\n");			break;
-				case SELFTEST_PROP_LEFT_ENCODER:			sprintf(s+n,"PROP_LEFT_ENCODER\n");			break;
-				case SELFTEST_PROP_RIGHT_MOTOR:				sprintf(s+n,"PROP_RIGHT_MOTOR\n");			break;
-				case SELFTEST_PROP_RIGHT_ENCODER:			sprintf(s+n,"PROP_RIGHT_ENCODER\n");		break;
-				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	sprintf(s+n,"STRAT_BIROUTE_NOT_IN_PLACE\n");break;
-				default:									sprintf(s+n,"UNKNOW_ERROR_CODE\n");			break;
+				case SELFTEST_NOT_DONE:						SD_printf("NOT_DONE");					break;
+				case SELFTEST_FAIL_UNKNOW_REASON:			SD_printf("FAIL_UNKNOW_REASON");		break;
+				case SELFTEST_NO_POWER:						SD_printf("NO_POWER");					break;
+				case SELFTEST_TIMEOUT:						SD_printf("TIMEOUT");					break;
+				case SELFTEST_PROP_LEFT_MOTOR:				SD_printf("PROP_LEFT_MOTOR");			break;
+				case SELFTEST_PROP_LEFT_ENCODER:			SD_printf("PROP_LEFT_ENCODER");			break;
+				case SELFTEST_PROP_RIGHT_MOTOR:				SD_printf("PROP_RIGHT_MOTOR");			break;
+				case SELFTEST_PROP_RIGHT_ENCODER:			SD_printf("PROP_RIGHT_ENCODER");		break;
+				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	SD_printf("STRAT_BIROUTE_NOT_IN_PLACE");break;
+				default:									SD_printf("UNKNOW_ERROR_CODE");			break;
 			}
-			SD_puts(s);
+			SD_printf("\n");
 		}
 	}
 }

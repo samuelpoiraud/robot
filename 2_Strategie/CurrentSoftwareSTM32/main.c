@@ -74,6 +74,11 @@ int main (void)
 	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
 	tests();
 
+	//Sur quel robot est-on ?
+	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+	Supervision_init();
+	ZONE_init();
+
 	STACKS_init();
 	ENV_init();
 	CLOCK_init();
@@ -82,18 +87,7 @@ int main (void)
 	// voir si on peut faire mieux
 	for(j=0;j<40;j++)
 		for(i=1;i;i++);
-
 	
-	
-	//Sur quel robot est-on ?
-	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-	Supervision_init();
-	ZONE_init();
-
-	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
-	
-	
-
 	while(1)
 	{
 		LED_RUN = !LED_RUN;

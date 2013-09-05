@@ -25,7 +25,28 @@
 #include "QS/QS_can_over_xbee.h"
 #include "Supervision/SD/term_io.h"
 #include "Supervision/SD/SD.h"
+#include "QS/QS_can.h"
+#include "QS/QS_adc.h"
+#include "QS/QS_CANmsgList.h"
+#include "maths_home.h"
+#include "sick.h"
+#include "telemeter.h"
+#include "button.h"
+#include "elements.h"
 
+/* met à jour l'environnement en fonction du message CAN reçu */
+void CAN_update (CAN_msg_t* incoming_msg);
+
+/* met a jour la position a partir d'un message asser la délivrant */
+void ENV_pos_update (CAN_msg_t* msg);
+
+/* met a jour la position de l'adversaire à partir des balises */
+void ENV_pos_foe_update (CAN_msg_t* msg);
+
+#define ADC_THRESHOLD 10 //Valeur de l'ADC sans dispositif de connecté
+
+		//une couleur erronnée pour forcer la maj de la couleur
+		#define COLOR_INIT_VALUE 0xFF
 volatile ENV_uart1_usage_mode_e ENV_uart1_usage_mode = UART1_MODE_CAN_MSG;
 
 
@@ -106,7 +127,7 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 				source = FROM_UART2;
 			else
 				source = FROM_XBEE;
-			SD_new_event(source, incoming_msg, NULL);
+			SD_new_event(source, incoming_msg, NULL, TRUE);
 		#endif
 	}
 
@@ -149,7 +170,7 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 			EEPROM_CAN_MSG_process_msg(sent_msg);
 		#endif
 		#ifdef SD_ENABLE
-			SD_new_event(TO_BUSCAN, sent_msg, NULL);
+			SD_new_event(TO_BUSCAN, sent_msg, NULL, TRUE);
 		#endif
 	}
 
@@ -680,7 +701,6 @@ void ENV_init()
 //	global.env.map_elements[7] = ELEMENT_TODO;
 //	global.env.map_elements[8] = ELEMENT_TODO;
 	for(i = GOAL_Assiette0; i <= GOAL_Assiette4; i++) {
-#warning "Position initiale des robots fixe ou disponible par un DEFINE ? (pour savoir l'état initial des assiettes)"
 		if(i != GOAL_Assiette0 && i != GOAL_Assiette2)
 			global.env.map_elements[i] = ELEMENT_TODO;
 		else global.env.map_elements[i] = ELEMENT_NONE;

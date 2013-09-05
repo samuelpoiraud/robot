@@ -14,8 +14,8 @@
 	#include "../QS/QS_all.h"
 	#include "../QS/QS_spi.h"
 	
-	void EEPROM_Write(Uint32 Address, Uint8 * Data, Uint8 size);
-	void EEPROM_Read(Uint32 Address, Uint8 * Data, Uint8 size);
+	void EEPROM_write(Uint32 Address, Uint8 * Data, Uint8 size);
+	void EEPROM_read(Uint32 Address, Uint8 * Data, Uint8 size);
 	bool_e Memory_write_granted(void);
 	bool_e Memory_busy(void);
 	void EEPROM_init(void);

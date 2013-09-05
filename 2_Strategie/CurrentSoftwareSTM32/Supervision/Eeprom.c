@@ -62,8 +62,7 @@ void EEPROM_init(void)
 
 //Attention, il est interdit de demander une écriture à cheval sur 2 pages...
 //(les pages font 256 octets... )
-//TODO : renommer en EEPROM_write() et EEPROM_read()
-void EEPROM_Write(Uint32 Address, Uint8 * Data, Uint8 size)
+void EEPROM_write(Uint32 Address, Uint8 * Data, Uint8 size)
 {
   Uint16 i;
   while(Memory_busy()) debug_printf(".");
@@ -103,7 +102,7 @@ void EEPROM_Write(Uint32 Address, Uint8 * Data, Uint8 size)
 
 //Attention, il est interdit de demander une écriture à cheval sur 2 pages...
 //(les pages font 256 octets... )
-void EEPROM_Read(Uint32 Address, Uint8 * Data, Uint8 size)
+void EEPROM_read(Uint32 Address, Uint8 * Data, Uint8 size)
 {
 	Uint16 i;
 	while(Memory_busy()) debug_printf(".");

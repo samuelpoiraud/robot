@@ -223,6 +223,10 @@
 	//Activation du module d'enregistrement des messages CAN reçus pendant les matchs en mémoire EEPROM.
 	//#define EEPROM_CAN_MSG_ENABLE
 	#define SD_ENABLE
+	#ifdef SD_ENABLE
+		extern int SD_printf(char * s, ...);	//Enregistre à la suite du match une chaine de caractère... Utilisable par exemple pour les changements d'états.
+		//Permet à tout le monde d'accéder au SD_printf() pour les logs...
+	#endif
 
 	#define STACKS_SIZE 32 //doit être < à 256
 

@@ -14,12 +14,6 @@
 
 #ifndef MAIN_H
 	#define MAIN_H
-	
-	
-	void RCON_read();
-	void _ISR _MathError();
-	void _ISR _StackError();
-	void _ISR _AddressError();
-	void _ISR _OscillatorFail();
+
 	
 #endif /* ndef MAIN_H */

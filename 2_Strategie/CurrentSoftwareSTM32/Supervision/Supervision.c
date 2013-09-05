@@ -27,18 +27,11 @@ void Supervision_init(void)
 	SELFTEST_init();
 	RTC_init();
 	BUFFER_init();
+
 	EEPROM_HOLD = 1;
 	EEPROM_CS = 1;
 	#ifdef EEPROM_CAN_MSG_ENABLE
 		EEPROM_CAN_MSG_init();
-	#endif
-	SD_init();
-
-	#ifdef USE_XBEE
-		if(QS_WHO_AM_I_get() == TINY)
-			CAN_over_XBee_init(ROBOT_1, ROBOT_2);	//Tiny
-		else
-			CAN_over_XBee_init(ROBOT_2, ROBOT_1);	//Krusty
 	#endif
 	//#define FLUSH_EEPROM
 	#ifdef FLUSH_EEPROM
@@ -46,25 +39,41 @@ void Supervision_init(void)
 		debug_printf("EEPROM_flushed\n");
 	#endif
 
+	SD_init();
+
+	//A partir de maintenant, on peut loguer sur la carte SD...
+	SD_printf("Hello, I am %s\n", (QS_WHO_AM_I_get() == TINY)?"TINY":"KRUSTY");
+
+	#ifdef USE_XBEE
+		if(QS_WHO_AM_I_get() == TINY)
+			CAN_over_XBee_init(ROBOT_1, ROBOT_2);	//Tiny
+		else
+			CAN_over_XBee_init(ROBOT_2, ROBOT_1);	//Krusty
+	#endif
+}
+
+volatile Uint8 flag_1sec = 0;
+void Supervision_process_1sec(void)
+{
+	flag_1sec++;
 }
 
 void Supervision_process_main(void)
 {	
 	static bool_e RTC_time_printed = FALSE;
-	static time32_t absolute_time = 0;
 //	print_all_msg(); //désolé...
 //	EEPROM_CAN_MSG_verbose_all_match_header();
 
 
-	if(global.env.absolute_time/1000 > absolute_time)
+	if(flag_1sec)
 	{
-		absolute_time = global.env.absolute_time;
+		flag_1sec--;
 		//Chaque seconde.
 		#ifdef USE_XBEE
 			CAN_over_XBee_every_second();
 		#endif
 		SELFTEST_process_1sec();
-		//AU bout de la première seconde.
+		//Au bout de la première seconde.
 		if(!RTC_time_printed)
 		{
 			RTC_time_printed = TRUE;
@@ -95,7 +104,7 @@ void Supervision_update_led_beacon(CAN_msg_t * can_msg)
 	{
 		case BEACON_ADVERSARY_POSITION_IR:
 			if(global.env.match_started == TRUE)
-				//Enregistrement dutype d'erreur
+				//Enregistrement du type d'erreur
 				error_counters_update(can_msg);
 			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
 			if(can_msg->data[0] || can_msg->data[4])
@@ -108,7 +117,7 @@ void Supervision_update_led_beacon(CAN_msg_t * can_msg)
 
 		case BEACON_ADVERSARY_POSITION_US:
 			if(global.env.match_started == TRUE)
-				//Enregistrement dutype d'erreur
+				//Enregistrement du type d'erreur
 				error_counters_update(can_msg);
 			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
 			if(can_msg->data[0] || can_msg->data[4])

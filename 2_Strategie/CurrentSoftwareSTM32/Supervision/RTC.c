@@ -157,7 +157,10 @@ Uint8 RTC_get_time (date_t * date)
 Uint8 RTC_get_local_time (date_t * date)
 {
 	if(local_date_updated && periodic_it_was_called)
+	{
 		*date = local_date;
+		return TRUE;
+	}
 	else
 		return RTC_get_time(date);
 }

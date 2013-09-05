@@ -680,7 +680,7 @@ DSTATUS disk_status (
 DRESULT disk_read (
 	BYTE drv,			/* Physical drive number (0) */
 	BYTE *buff,			/* Pointer to the data buffer to store read data */
-	Uint32 sector,		/* Start sector number (LBA) */
+	DWORD sector,		/* Start sector number (LBA) */
 	BYTE count			/* Sector count (1..255) */
 )
 {
@@ -723,7 +723,7 @@ DRESULT disk_read (
 DRESULT disk_write (
 	BYTE drv,			/* Physical drive number (0) */
 	const BYTE *buff,	/* Pointer to the data to be written */
-	Uint32 sector,		/* Start sector number (LBA) */
+	DWORD sector,		/* Start sector number (LBA) */
 	BYTE count			/* Sector count (1..255) */
 )
 {

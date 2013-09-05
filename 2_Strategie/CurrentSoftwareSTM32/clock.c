@@ -13,6 +13,8 @@
 
 #include "clock.h"
 #include "Supervision/SD/SD.h"
+#include "Supervision/RTC.h"
+#include "Supervision/Supervision.h"
 
 void CLOCK_run();
 
@@ -99,6 +101,7 @@ void _ISR _T1Interrupt()
 	{
 		count_1sec = 0;
 		RTC_process_it_1sec();
+		Supervision_process_1sec();
 	}
 	SD_process_1ms();
 
