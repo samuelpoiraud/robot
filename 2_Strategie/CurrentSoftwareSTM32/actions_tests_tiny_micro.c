@@ -231,7 +231,7 @@ error_e steal_glasses(girafe_t * g)
 			if(td.x < 250)	td.x = 250;
 			if(td.x > 2750)	td.x = 2750;
 
-			debug_printf("STEAL : ta=(%d,%d) tb=(%d,%d) tc=(%d,%d) td(%d,%d)\n", ta.x, ta.y, tb.x, tb.y, tc.x, tc.y, td.x, td.y);
+			SD_printf("STEAL : ta=(%d,%d) tb=(%d,%d) tc=(%d,%d) td(%d,%d)\n", ta.x, ta.y, tb.x, tb.y, tc.x, tc.y, td.x, td.y);
 */
 
 
@@ -293,23 +293,23 @@ error_e steal_glasses(girafe_t * g)
 	entrance = (previous_state != state)?TRUE:FALSE;
 	if(previous_state != state)
 	{
-		debug_printf("Steal->");
+		SD_printf("Steal->");
 		switch(state)
 		{
-			case INIT:						debug_printf("INIT");				break;
-			case TA:						debug_printf("TA");					break;
-			case ANGLE_GLASSES:				debug_printf("ANGLE_GLASSES");		break;
-			case TB:						debug_printf("TB");					break;
-			case OPEN_HAMMERS:				debug_printf("OPEN_HAMMERS");		break;
-			case CLOSE_HAMMERS:				debug_printf("CLOSE_HAMMERS");		break;
-			case BACK_10CM:					debug_printf("BACK_10CM");			break;
-			case TC:						debug_printf("TC");					break;
-			case TD:						debug_printf("TD");					break;
-			case FAIL:						debug_printf("FAIL");				break;
-			case SUCCESS:					debug_printf("SUCCESS");			break;
-			default:						debug_printf("???");				break;
+			case INIT:						SD_printf("INIT");				break;
+			case TA:						SD_printf("TA");					break;
+			case ANGLE_GLASSES:				SD_printf("ANGLE_GLASSES");		break;
+			case TB:						SD_printf("TB");					break;
+			case OPEN_HAMMERS:				SD_printf("OPEN_HAMMERS");		break;
+			case CLOSE_HAMMERS:				SD_printf("CLOSE_HAMMERS");		break;
+			case BACK_10CM:					SD_printf("BACK_10CM");			break;
+			case TC:						SD_printf("TC");					break;
+			case TD:						SD_printf("TD");					break;
+			case FAIL:						SD_printf("FAIL");				break;
+			case SUCCESS:					SD_printf("SUCCESS");			break;
+			default:						SD_printf("???");				break;
 		}
-		debug_printf("\n");
+		SD_printf("\n");
 	}
 	previous_state = state;
 	return ret;
@@ -578,29 +578,29 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 	entrance = (state != previous_state)?TRUE:FALSE;
 	if(previous_state != state)
 	{
-		debug_printf("Scan&Steal->");
+		SD_printf("Scan&Steal->");
 		switch(state)
 		{
-			case INIT:						debug_printf("INIT");				break;
-			case BP:						debug_printf("BP");					break;
-			case SA:						debug_printf("SA");					break;
-			case SC:						debug_printf("SC");					break;
-			case GO_ANGLE:					debug_printf("GO_ANGLE");			break;
-			case SCAN_GLASSES_OUTSIDE_ZONE:	debug_printf("SCAN_GLASSES");		break;
-			case DECISION:					debug_printf("DECISION");			break;
-			case SUBACTION_STEAL:			debug_printf("SUBACTION_STEAL");	break;
-			case GOTO_MIDDLE:				debug_printf("GOTO_4TH_GIFT");		break;
-			case ANGLE_TO_SEE_HOME:			debug_printf("ANGLE_TO_SEE_HOME");	break;
-			case COME_BACK_HOME:			debug_printf("COME_BACK_HOME");		break;
-			case OPEN_HAMMERS_IN_HOME:		debug_printf("OPEN_HAMMERS_IN_HOME");	break;
-			case WAIT_OPEN_HAMMERS_IN_HOME:	debug_printf("WAIT_OPEN_HAMMERS_IN_HOME");	break;
-			case BACK_TO_CLOSE:				debug_printf("BACK_TO_CLOSE");		break;
-			case RETURNING_TO_C2:			debug_printf("RETURNING_FOR_SCAN");	break;
-			case FAIL:						debug_printf("FAIL");				break;
-			case SUCCESS:					debug_printf("SUCCESS");			break;
-			default:						debug_printf("???");				break;
+			case INIT:						SD_printf("INIT");				break;
+			case BP:						SD_printf("BP");					break;
+			case SA:						SD_printf("SA");					break;
+			case SC:						SD_printf("SC");					break;
+			case GO_ANGLE:					SD_printf("GO_ANGLE");			break;
+			case SCAN_GLASSES_OUTSIDE_ZONE:	SD_printf("SCAN_GLASSES");		break;
+			case DECISION:					SD_printf("DECISION");			break;
+			case SUBACTION_STEAL:			SD_printf("SUBACTION_STEAL");	break;
+			case GOTO_MIDDLE:				SD_printf("GOTO_4TH_GIFT");		break;
+			case ANGLE_TO_SEE_HOME:			SD_printf("ANGLE_TO_SEE_HOME");	break;
+			case COME_BACK_HOME:			SD_printf("COME_BACK_HOME");		break;
+			case OPEN_HAMMERS_IN_HOME:		SD_printf("OPEN_HAMMERS_IN_HOME");	break;
+			case WAIT_OPEN_HAMMERS_IN_HOME:	SD_printf("WAIT_OPEN_HAMMERS_IN_HOME");	break;
+			case BACK_TO_CLOSE:				SD_printf("BACK_TO_CLOSE");		break;
+			case RETURNING_TO_C2:			SD_printf("RETURNING_FOR_SCAN");	break;
+			case FAIL:						SD_printf("FAIL");				break;
+			case SUCCESS:					SD_printf("SUCCESS");			break;
+			default:						SD_printf("???");				break;
 		}
-		debug_printf("\n");
+		SD_printf("\n");
 	}
 	previous_state = state;
 	return ret;
@@ -653,7 +653,7 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 						goal = GOAL_Cadeau2;
 				}
 
-				debug_printf("choix cadeau %d : ", goal);
+				SD_printf("choix cadeau %d : ", goal);
 
 				if(goal == GOAL_Cadeau2)
 					state = GA;
@@ -748,20 +748,20 @@ error_e STRAT_TINY_goto_forgotten_gift(void)
 
 	if(previous_state != state)
 	{
-		debug_printf("forgGift ->");
+		SD_printf("forgGift ->");
 		switch(state)
 		{
-			case INIT:						debug_printf("INIT");					break;
-			case BP:						debug_printf("BP");						break;
-			case GA:						debug_printf("GA");						break;
-			case EB:						debug_printf("EB");						break;
-			case MB:						debug_printf("MB");						break;
-			case SUBACTION_FORGOTTEN_GIFT:	debug_printf("SUBACTION_FORGOTTEN_GIFT");	break;
-			case FAIL:						debug_printf("FAIL");					break;
-			case SUCCESS:					debug_printf("SUCCESS");				break;
-			default:						debug_printf("???");					break;
+			case INIT:						SD_printf("INIT");					break;
+			case BP:						SD_printf("BP");						break;
+			case GA:						SD_printf("GA");						break;
+			case EB:						SD_printf("EB");						break;
+			case MB:						SD_printf("MB");						break;
+			case SUBACTION_FORGOTTEN_GIFT:	SD_printf("SUBACTION_FORGOTTEN_GIFT");	break;
+			case FAIL:						SD_printf("FAIL");					break;
+			case SUCCESS:					SD_printf("SUCCESS");				break;
+			default:						SD_printf("???");					break;
 		}
-		debug_printf("\n");
+		SD_printf("\n");
 	}
 	previous_state = state;
 	return ret;
@@ -784,7 +784,7 @@ error_e STRAT_TINY_move_adversary_plates_near_bar(bool_e reset)
 	static bool_e failed = FALSE;
     static state_e state = INIT;
     static state_e previous_state = INIT-1;
-    static state_e from_state = INIT;
+    //static state_e from_state = INIT;
     bool_e entrance = FALSE;
 	error_e ret;
 
@@ -792,34 +792,34 @@ error_e STRAT_TINY_move_adversary_plates_near_bar(bool_e reset)
     {
         state = INIT;
         previous_state = INIT;
-         from_state = INIT;
+         //from_state = INIT;
         entrance = TRUE;
     }
     else if(state != previous_state)
     {
         entrance = TRUE;
-        from_state = previous_state;
+        //from_state = previous_state;
     }
     previous_state = state;
 	ret = IN_PROGRESS;
 
 	if(entrance)
 	{
-		debug_printf("Plates ->");
+		SD_printf("Plates ->");
 		switch(state)
 		{
-			case INIT:						debug_printf("INIT");					break;
-			case GOTO_MIDDLE:						debug_printf("GOTO_MIDDLE");						break;
-			case ENTER_BETWEEN_TWO_PLATES:						debug_printf("ENTER_BETWEEN_TWO_PLATES");						break;
-			case FIRST_BAR:						debug_printf("FIRST_BAR");						break;
-			case SECOND_BAR:						debug_printf("SECOND_BAR");						break;
-			case SMALL_BACK:						debug_printf("SMALL_BACK");						break;
-			case GOING_OUT:						debug_printf("GOING_OUT");						break;
-			case FAIL:						debug_printf("FAIL");					break;
-			case DONE:					debug_printf("DONE");				break;
-			default:						debug_printf("???");					break;
+			case INIT:						SD_printf("INIT");					break;
+			case GOTO_MIDDLE:						SD_printf("GOTO_MIDDLE");						break;
+			case ENTER_BETWEEN_TWO_PLATES:						SD_printf("ENTER_BETWEEN_TWO_PLATES");						break;
+			case FIRST_BAR:						SD_printf("FIRST_BAR");						break;
+			case SECOND_BAR:						SD_printf("SECOND_BAR");						break;
+			case SMALL_BACK:						SD_printf("SMALL_BACK");						break;
+			case GOING_OUT:						SD_printf("GOING_OUT");						break;
+			case FAIL:						SD_printf("FAIL");					break;
+			case DONE:					SD_printf("DONE");				break;
+			default:						SD_printf("???");					break;
 		}
-		debug_printf("\n");
+		SD_printf("\n");
 	}
 
     switch(state)
@@ -921,20 +921,20 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			pt_EC = TRUE;
 			pt_SC = TRUE;
 
-			debug_printf("choix du point de départ vers le gateau : ");
+			SD_printf("choix du point de départ vers le gateau : ");
 			//4 zones sont définies... en fonction de l'endroit où on est, on vise un point ou un autre...
 
 			if(global.env.pos.x > 400)
 			{	//C'est le cas lorsqu'on vient d'un STEAL
 				if(COLOR_Y(global.env.pos.y) > 1800)	//On est plus près de la position visée pour le gateau adverse
 				{
-					debug_printf("EB\n");
+					SD_printf("EB\n");
 					state = EB;
 					from = EA;	//On fait comme si on venait du cadeau
 				}
 				else
 				{
-						debug_printf("MB\n");
+						SD_printf("MB\n");
 						state = MB;
 						from = MA;	//On fait comme si on venait du cadeau
 				}
@@ -943,13 +943,13 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 			{	//C'est le cas lorsqu'on vient d'avoir ouvert des cadeaux
 				if(COLOR_Y(global.env.pos.y) > 2135)	//Le cas nominal correspond à 2300 (pour la position du cadeau 4).
 				{
-					debug_printf("EA\n");
+					SD_printf("EA\n");
 					state = EB;	//Je tente d'aller vers le gateau adverse
 					from = MA;
 				}
 				else
 				{
-					debug_printf("MA\n");
+					SD_printf("MA\n");
 					state = MA;				//Je me replie pour aller vers mon coté du gateau.
 					from = EA;
 				}
@@ -1226,7 +1226,7 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 				{
 					ret = NOT_HANDLED;
 					state = INIT;
-					debug_printf("CAKE TIMEOUT\n");
+					SD_printf("CAKE TIMEOUT\n");
 				}
 			break;
 			case INIT:
@@ -1246,29 +1246,30 @@ error_e STRAT_TINY_goto_cake_and_blow_candles(void)
 	
 	if(entrance)
 	{
+		SD_printf("Cake ->");
 		//Ces printf ne sont pas trop génant, car ils ne sont affichés que sur des évènements "rares"...
 		//Ils sont très importants pour savoir ce que le robot à fait, du point de vue STRAT HAUT NIVEAU !
 		switch(state)
 		{
-			case INIT:						SD_puts("Cake ->INIT\n");					break;
-			case EA:						SD_puts("Cake ->EA\n");						break;
-			case MA:						SD_puts("Cake ->MA\n");						break;
-			case EB:						SD_puts("Cake ->EB\n");						break;
-			case MB:						SD_puts("Cake ->MB\n");						break;
-			case SB:						SD_puts("Cake ->SB\n");						break;
-			case E_C:						SD_puts("Cake ->EC\n");						break;
-			case BC:						SD_puts("Cake ->BC\n");						break;
-			case RC:						SD_puts("Cake ->RC\n");						break;
-			case SC:						SD_puts("Cake ->SC\n");						break;
-			case BLOW_ALL_CANDLES:			SD_puts("Cake ->BLOW_ALL_CANDLES\n");		break;
-			case BLOW_PARTIAL_CANDLES:		SD_puts("Cake ->BLOW_PARTIAL_CANDLES\n");	break;
-			case SUBACTION_BLOW_CANDLES:	SD_puts("Cake ->SUBACTION_BLOW_CANDLES\n");	break;
-			case CANDLES_FAIL:				SD_puts("Cake ->CANDLES_FAIL\n");			break;
-			case CANDLES_SUCCESS:			SD_puts("Cake ->CANDLES_SUCCESS\n");		break;
-			case BP:						SD_puts("Cake ->BP\n");						break;
-			case RUSH:						SD_puts("Cake ->RUSH\n");					break;
-			case END_STATE:					SD_puts("Cake ->END_STATE\n");				break;
-			default:						SD_puts("Cake ->???\n");					break;
+			case INIT:						SD_printf("INIT\n");					break;
+			case EA:						SD_printf("EA\n");						break;
+			case MA:						SD_printf("MA\n");						break;
+			case EB:						SD_printf("EB\n");						break;
+			case MB:						SD_printf("MB\n");						break;
+			case SB:						SD_printf("SB\n");						break;
+			case E_C:						SD_printf("EC\n");						break;
+			case BC:						SD_printf("BC\n");						break;
+			case RC:						SD_printf("RC\n");						break;
+			case SC:						SD_printf("SC\n");						break;
+			case BLOW_ALL_CANDLES:			SD_printf("BLOW_ALL_CANDLES\n");		break;
+			case BLOW_PARTIAL_CANDLES:		SD_printf("BLOW_PARTIAL_CANDLES\n");	break;
+			case SUBACTION_BLOW_CANDLES:	SD_printf("SUBACTION_BLOW_CANDLES\n");	break;
+			case CANDLES_FAIL:				SD_printf("CANDLES_FAIL\n");			break;
+			case CANDLES_SUCCESS:			SD_printf("CANDLES_SUCCESS\n");		break;
+			case BP:						SD_printf("BP\n");						break;
+			case RUSH:						SD_printf("RUSH\n");					break;
+			case END_STATE:					SD_printf("END_STATE\n");				break;
+			default:						SD_printf("???\n");					break;
 		}
 	}
 
@@ -1370,11 +1371,11 @@ girafe_t * look_for_the_best_girafe(void)
 			g.x_end = glasses_x[i];
 		}
 		g.y_middle /= g.nb_glasses;	//On calcule la moyenne des y.
-		debug_printf("n%d: x%d %d y%ld\n",g.nb_glasses, g.x_begin, g.x_end, g.y_middle);
+		SD_printf("n%d: x%d %d y%ld\n",g.nb_glasses, g.x_begin, g.x_end, g.y_middle);
 		if(g.nb_glasses >= best_girafe.nb_glasses)
 			best_girafe = g;		//On garde la plus grande girafe. En cas d'égalité, on garde LA DERNIERE (car + proche de nous).
 	}
-	debug_printf("BEST n%d: x%d %d y%ld\n",best_girafe.nb_glasses, best_girafe.x_begin, best_girafe.x_end, best_girafe.y_middle);	
+	SD_printf("BEST n%d: x%d %d y%ld\n",best_girafe.nb_glasses, best_girafe.x_begin, best_girafe.x_end, best_girafe.y_middle);
 
 	return &best_girafe;
 	/*best_girafe contient :

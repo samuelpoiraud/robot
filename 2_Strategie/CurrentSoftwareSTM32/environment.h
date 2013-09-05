@@ -154,48 +154,5 @@
 	et écarté de delta des bordures du terrain */
 	bool_e ENV_game_zone_filter(Sint16 x, Sint16 y, Uint16 delta);
 
-	#ifdef ENVIRONMENT_C
-
-		#include "QS/QS_can.h"
-		#include "QS/QS_adc.h"
-		#include "QS/QS_CANmsgList.h"
-		#include "maths_home.h"
-		#include "sick.h"
-		#include "telemeter.h"
-		#include "button.h"
-		#include "elements.h"
-
-		/* met à jour l'environnement en fonction du message CAN reçu */
-		void CAN_update (CAN_msg_t* incoming_msg);
-
-		/* met a jour la position a partir d'un message asser la délivrant */
-		void ENV_pos_update (CAN_msg_t* msg);
-			#define WARNING_NO					(0b00000000)
-			#define WARNING_TIMER				(0b00000001)
-			#define WARNING_TRANSLATION			(0b00000010)
-			#define WARNING_ROTATION			(0b00000100)
-			#define WARNING_REACH_X				(0b00001000)		//Nous venons d'atteindre une position en X pour laquelle on nous a demandé une surveillance.
-			#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
-			#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
-			#define WARNING_NEW_TRAJECTORY		(0b01000000)		//Changement de trajectoire (attention, cela inclue les trajectoires préalables ajoutées en propulsion...)
-
-		/* met a jour la position de l'adversaire à partir des balises */
-		void ENV_pos_foe_update (CAN_msg_t* msg);
-			/* Liste des messages de definition d'erreur --- Pour plus de doc, consulter QS_CANmsgDoc.h */
-			#define AUCUNE_ERREUR						(0b00000000)
-			#define AUCUN_SIGNAL						(0b00000001)
-			#define SIGNAL_INSUFFISANT					(0b00000010)
-			#define TACHE_TROP_GRANDE					(0b00000100)
-			#define TROP_DE_SIGNAL						(0b00001000)
-			#define ERREUR_POSITION_INCOHERENTE 		(0b00010000)
-			#define OBSOLESCENCE						(0b10000000)
-		
-		#define ADC_THRESHOLD 10 //Valeur de l'ADC sans dispositif de connecté
-		void ENV_release_selftest();
-		
-		//une couleur erronnée pour forcer la maj de la couleur
-		#define COLOR_INIT_VALUE 0xFF
-
-	#endif /* def ENVIRONMENT_C */
 
 #endif /* ndef ENVIRONMENT_H */

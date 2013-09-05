@@ -1951,38 +1951,38 @@ void foe_in_path(bool_e *in_path)
 }
 
 /* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot */
-static Uint16 AVOIDANCE_speed_indicator_compute(void)
-{
-	// Surveiller les initialisations
-	static time32_t last_time_compute = 0;
-	static GEOMETRY_point_t old_pos = {0,0};
-
-	// On met une première valeur super élevée pour éviter d'éviter au début (si on veut éviter, ce qui n'est pas encore le cas)
-	static Uint16 speed_computed = 100;
-	GEOMETRY_point_t new_pos;
-	
-	if((global.env.asser.last_time_pos_updated - last_time_compute) > SPEED_COMPUTE_TIME)
-	{
-		// mise à jour de notre nouvelle position
-		new_pos.x = global.env.pos.x;
-		new_pos.y = global.env.pos.y;
-
-		// calcul de la vitesse
-		speed_computed = (GEOMETRY_distance(old_pos, new_pos));
-
-		// calcul du sens de déplacement
-	//	old_move_way = ASSER_get_stack_arg(STACKS_get_top(ASSER)).way;
-
-		// on met à jour nos valeurs pour la prochaine mise à jour
-		last_time_compute = global.env.asser.last_time_pos_updated;
-		old_pos.x = new_pos.x;
-		old_pos.y = new_pos.y;
-		//debug_printf("NS=%d\n",speed_computed);
-	}
-
-	// on retourne la valeur de la vitesse
-	return speed_computed;
-}
+//static Uint16 AVOIDANCE_speed_indicator_compute(void)
+//{
+//	// Surveiller les initialisations
+//	static time32_t last_time_compute = 0;
+//	static GEOMETRY_point_t old_pos = {0,0};
+//
+//	// On met une première valeur super élevée pour éviter d'éviter au début (si on veut éviter, ce qui n'est pas encore le cas)
+//	static Uint16 speed_computed = 100;
+//	GEOMETRY_point_t new_pos;
+//
+//	if((global.env.asser.last_time_pos_updated - last_time_compute) > SPEED_COMPUTE_TIME)
+//	{
+//		// mise à jour de notre nouvelle position
+//		new_pos.x = global.env.pos.x;
+//		new_pos.y = global.env.pos.y;
+//
+//		// calcul de la vitesse
+//		speed_computed = (GEOMETRY_distance(old_pos, new_pos));
+//
+//		// calcul du sens de déplacement
+//	//	old_move_way = ASSER_get_stack_arg(STACKS_get_top(ASSER)).way;
+//
+//		// on met à jour nos valeurs pour la prochaine mise à jour
+//		last_time_compute = global.env.asser.last_time_pos_updated;
+//		old_pos.x = new_pos.x;
+//		old_pos.y = new_pos.y;
+//		//debug_printf("NS=%d\n",speed_computed);
+//	}
+//
+//	// on retourne la valeur de la vitesse
+//	return speed_computed;
+//}
 
 /* ----------------------------------------------------------------------------- */
 /* 				Fonctions de génération de la trajectoire à 3 points             */
@@ -2158,38 +2158,38 @@ static Uint16 AVOIDANCE_speed_indicator_compute(void)
 //}
 
 /* Fonction qui regarde si notre robot est immobile ou non */
-static bool_e AVOIDANCE_robot_translation_move()
-{
-	static bool_e result = FALSE;
-	static GEOMETRY_point_t old_pos = {0,0};
-	static time32_t last_time_update = 0;
-
-	if((global.env.match_time - last_time_update) > US_TRANSLATION_ANALYSE_TIME)
-	{
-		// on recalcule si on a fait une translation
-		if(absolute(global.env.pos.x - old_pos.x) < US_MINIMAL_MOVE)
-		{
-			if(absolute(global.env.pos.y - old_pos.y) < US_MINIMAL_MOVE)
-			{
-				result = FALSE;
-			}
-			else
-			{
-				result = TRUE;
-			}
-		}
-		else
-		{
-			result = TRUE;
-		}
-		
-		// mise à jour des données sauvegardées
-		last_time_update = global.env.match_time;
-		old_pos.x = global.env.pos.x;
-		old_pos.y = global.env.pos.y;
-	}
-	return result;
-}
+//static bool_e AVOIDANCE_robot_translation_move()
+//{
+//	static bool_e result = FALSE;
+//	static GEOMETRY_point_t old_pos = {0,0};
+//	static time32_t last_time_update = 0;
+//
+//	if((global.env.match_time - last_time_update) > US_TRANSLATION_ANALYSE_TIME)
+//	{
+//		// on recalcule si on a fait une translation
+//		if(absolute(global.env.pos.x - old_pos.x) < US_MINIMAL_MOVE)
+//		{
+//			if(absolute(global.env.pos.y - old_pos.y) < US_MINIMAL_MOVE)
+//			{
+//				result = FALSE;
+//			}
+//			else
+//			{
+//				result = TRUE;
+//			}
+//		}
+//		else
+//		{
+//			result = TRUE;
+//		}
+//
+//		// mise à jour des données sauvegardées
+//		last_time_update = global.env.match_time;
+//		old_pos.x = global.env.pos.x;
+//		old_pos.y = global.env.pos.y;
+//	}
+//	return result;
+//}
 
 /* Gère les colisions */
 //static error_e AVOIDANCE_move_colision()

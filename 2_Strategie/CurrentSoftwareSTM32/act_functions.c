@@ -80,11 +80,11 @@ static act_state_info_t act_states[NB_QUEUE];  //Info lié a chaque actionneur
 static void ACT_check_result(queue_id_e act_id);
 
 //__attribute__((unused)) permet d'eviter d'avoir des warning lorsque ces fonctions ne sont pas utilisée. N'empeche pas que le code ne soit pas généré si elles ne sont pas utilisées
-static void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);                                     __attribute__((unused))
-static void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param);            __attribute__((unused))
-static void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout);                                     __attribute__((unused))
-static void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);                          __attribute__((unused))
-static void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param); __attribute__((unused))
+static void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) 										__attribute__((unused));
+static void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param) 				__attribute__((unused));
+static void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout)										__attribute__((unused));
+static void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd)							__attribute__((unused));
+static void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param) 	__attribute__((unused));
 
 static bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* arg);
 static void ACT_run_operation(queue_id_e act_id, bool_e init);
@@ -308,7 +308,7 @@ static void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
 	arg->timeout = ACT_ARG_USE_DEFAULT;
 }
 
-static void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param) {
+static void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param)  {
 	arg->msg.sid = sid;
 	arg->msg.data[0] = cmd;
 	arg->msg.data[1] = LOWINT(param);
@@ -322,7 +322,7 @@ static void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout) {
 	arg->timeout = timeout;
 }
 
-static void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
+static void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd)  {
 #ifndef ACT_DONT_TRY_FALLBACK
 	arg->fallbackMsg.sid = sid;
 	arg->fallbackMsg.data[0] = cmd;
@@ -330,7 +330,8 @@ static void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
 #endif
 }
 
-static void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param) {
+
+static void ACT_arg_set_fallbackmsg_with_param (QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param)  {
 #ifndef ACT_DONT_TRY_FALLBACK
 	arg->fallbackMsg.sid = sid;
 	arg->fallbackMsg.data[0] = cmd;
@@ -460,6 +461,7 @@ static void ACT_check_result(queue_id_e act_id) {
 					default:	//Cas inexistant
 						COMPONENT_log(LOG_LEVEL_Error, "Operation failed but behavior is Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 						//pas de break ici, si la raison n'est pas connue de ce code, considerer l'erreur comme grave et desactiver l'actionneur
+						//no break
 					case ACT_BEHAVIOR_DisableAct:
 						COMPONENT_log(LOG_LEVEL_Warning, "Bad act behavior, act disabled, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 						act_states[act_id].disabled = TRUE;

@@ -2,6 +2,7 @@
 #define SD_H
 
 #include "../../QS/QS_all.h"
+
 void SD_process_1ms(void);
 void SD_process_main(void);
 void SD_init(void);
@@ -21,9 +22,8 @@ typedef enum
 	TO_XBEE_DESTINATION		//Envoyé par nous, sur le XBee, à la destination par défaut
 }source_e;
 
-void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string);
 
-void SD_puts(char * string);	//Enregistre à la suite du match une chaine de caractère... Utilisable par exemple pour les changements d'états.
+void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool_e insert_time);
 
 
 #endif /* SD_H */

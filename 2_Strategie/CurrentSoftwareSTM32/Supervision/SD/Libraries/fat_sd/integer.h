@@ -4,11 +4,9 @@
 
 #ifndef _INTEGER
 
-#if 0
-#include <windows.h>
-#else
 
 #include "../../../../stm32f4xx/stm32f4xx.h"
+#include "../../../../QS/QS_all.h"
 
 /* These types must be 16-bit, 32-bit or larger integer */
 typedef int				INT;
@@ -32,15 +30,8 @@ typedef unsigned long	DWORD;
 
 /* Boolean type */
 // typedef enum { FALSE = 0, TRUE } BOOL;
-#include <stdbool.h>
-typedef bool BOOL;
-#ifndef FALSE
-//#define FALSE false
-//#define TRUE true
-#endif
-
-
-#endif
+//#include <stdbool.h>
+typedef bool_e BOOL;
 
 #define _INTEGER
 #endif

@@ -13,6 +13,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "avoidance.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_can_over_xbee.h"
 #include "actions_utils.h"
 #include "output_log.h"
 

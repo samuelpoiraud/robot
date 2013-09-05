@@ -19,7 +19,7 @@ FILINFO Finfo;
 char Lfname[512];
 #endif
 
-volatile static char linebuf[120];			/* Console input buffer */
+static char linebuf[120];			/* Console input buffer */
 
 FATFS Fatfs[_DRIVES];		/* File system object for each logical drive */
 FIL File1, File2;			/* File objects */
@@ -188,6 +188,7 @@ bool_e execute_command(char * ptr)
 				break;
 				*/
 				debug_printf("Desimplemented function\n");
+				break;
 			case 'r' :	/* br <lba> [<num>] - Read disk into R/W buffer */
 				if (!xatoi(&ptr, &p2)) break;
 				if (!xatoi(&ptr, &p3)) p3 = 1;
