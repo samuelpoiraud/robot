@@ -59,7 +59,7 @@ int SD_printf(char * s, ...)
 
 	va_list args;
 	va_start (args, s);
-	ret = sprintf(buf, s, args);	//Prépare la chaine à envoyer.
+	ret = vsprintf(buf, s, args);	//Prépare la chaine à envoyer.
 	va_end (args);
 
 	b_insert_time = FALSE;
@@ -125,7 +125,7 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 		debug_printf("WARNING : SD:wrote failed %ld/%ld", written, n);
 
 	if(data_waiting_for_sync == FALSE)	//La synchro était faite, aucune donnée n'était en attente d'écriture... on relance le compteur.
-		time_before_sync = 500;
+		time_before_sync = MAX_TIME_BEFORE_SYNC;
 	data_waiting_for_sync = TRUE;
 
 	if(can_msg && can_msg->sid == BROADCAST_STOP_ALL)
@@ -234,12 +234,9 @@ void SD_process_main(void)
 	{
 		INIT = 0,
 		SD_FAILED,
-		IDLE,
-		APPSTATE_FF_TERM,
-		APPSTATE_TESTMENU
+		IDLE
 	}state_e;
 	static state_e state = INIT;
-
 
 	switch (state)
 	{
@@ -251,46 +248,24 @@ void SD_process_main(void)
 		break;
 		case SD_FAILED:
 			break;
-
 		case IDLE:
-
-			//f_sync est forcé "manuellement" pour éviter une perte de message en cas de reset...
-			//on sauvegarde les données en buffer, et en attente d'écriture : au plus tard MAX_TIME_BEFORE_SYNC ms après leur demande d'enregistrement.
-			if(time_before_sync == 0 && data_waiting_for_sync)
-			{
-				data_waiting_for_sync = FALSE;
-				//LED_USER = 1;
-				if(f_sync(&file_match) != FR_OK)
-					debug_printf("File sync failed\n");
-				else
-				{
-					//LED_USER = 0;
-					//debug_printf("File sync done\n");
-				}
-			}
-			if(get_command())
-			{
-				debug_printf("Command received - switching to Terminal mode for SD management.\n Next events will not be saved.\n");
-				sd_ready = FALSE;
-				state = APPSTATE_FF_TERM;
-			}
-			break;
-		case APPSTATE_FF_TERM:
-			if ( !ff_test_term() )
-			{
-				state = APPSTATE_TESTMENU;
-			}
-			break;
-		case APPSTATE_TESTMENU:
-			if ( !misc_test_term() )
-			{
-				state = APPSTATE_FF_TERM;
-			}
 			break;
 		default:
-			state = APPSTATE_TESTMENU;
+			state = INIT;
 			break;
 	}
+
+	//f_sync est forcé "manuellement" pour éviter une perte de message en cas de reset...
+	//on sauvegarde les données en buffer, et en attente d'écriture : au plus tard MAX_TIME_BEFORE_SYNC ms après leur demande d'enregistrement.
+	if(file_match.fs != NULL && time_before_sync == 0 && data_waiting_for_sync)
+	{
+		data_waiting_for_sync = FALSE;
+		if(f_sync(&file_match) != FR_OK)
+			debug_printf("File sync failed\n");
+	}
+
+	terminal_process_main();
+
 }
 
 

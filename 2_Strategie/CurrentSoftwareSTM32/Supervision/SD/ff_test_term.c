@@ -1,10 +1,12 @@
 /*----------------------------------------------------------------------*/
 /* FAT file system test terminal for FatFs R0.07a  (C)ChaN, 2008        */
 /* modified by Martin Thomas 4/2009 for the STM32 example               */
+/* updated and modified by Samuel Poiraud 9/2013						*/
 /*----------------------------------------------------------------------*/
 
 #include <string.h> /* memset et al*/
 #include "../../QS/QS_all.h"
+#include "../../QS/QS_uart.h"
 #include "Libraries/fat_sd/integer.h"
 #include "Libraries/fat_sd/diskio.h"
 #include "Libraries/fat_sd/ff.h"
@@ -19,7 +21,7 @@ FILINFO Finfo;
 char Lfname[512];
 #endif
 
-static char linebuf[120];			/* Console input buffer */
+
 
 FATFS Fatfs[_DRIVES];		/* File system object for each logical drive */
 FIL File1, File2;			/* File objects */
@@ -34,8 +36,7 @@ void ff_test_term_timerproc (void)
 	Timer++;
 }
 
-static
-FRESULT scan_files (char* path)
+static FRESULT scan_files (char* path)
 {
 	DIR dirs;
 	FRESULT res;
@@ -70,8 +71,7 @@ FRESULT scan_files (char* path)
 
 
 
-static
-void put_rc (FRESULT rc)
+static void put_rc (FRESULT rc)
 {
 	const char *p;
 	static const char str[] =
@@ -86,6 +86,30 @@ void put_rc (FRESULT rc)
 	debug_printf("rc=%u FR_%s\n", (UINT)rc, p);
 }
 
+
+//Show some help content...
+void print_help(void)
+{
+	printf("\nHelp content - Terminal for easy access to the SD card content.\n");
+	printf("\n   ::  TERMINAL_COMMANDS  ::\n");
+	printf("exit                     - exit the terminal\n");
+	printf("help                     - show this command list\n");
+	printf("\n   ::  DISK_COMMANDS  ::\n");
+	printf("di                       - Initialize disk 0\n");
+	printf("fi                       - Force initialized the logical drive\n");
+	printf("ds                       - Show disk status\n");
+	printf("\n   ::  FILE_COMMANDS  ::\n");
+	printf("ls [<path>]              - Directory listing\n");
+	printf("cat <path>               - print the file content\n");
+	printf("cp <src_name> <dst_name> - Copy file\n");
+	printf("rm <name>                - Delete a file or dir (=Unlink)\n");
+	printf("\n   ::  MEMORY_COMMANDS  ::\n");
+	printf("md <address> [<count>]   - Dump memory\n");
+	printf("dd [<lba>]               - Dump sector\n");
+
+}
+
+
 bool_e execute_command(char * ptr)
 {
 	static char *ptr2;
@@ -93,6 +117,7 @@ bool_e execute_command(char * ptr)
 	BYTE res, b1;
 	WORD w1;
 	UINT s1, s2, cnt, blen = sizeof(Buff);
+	Uint32 i;
 	DWORD ofs = 0, sect = 0;
 	FATFS *fs;				/* Pointer to file system object */
 
@@ -112,6 +137,86 @@ bool_e execute_command(char * ptr)
 				break;
 			}
 			break;
+
+		case 'c':
+				if(*ptr == 'p')	/* cp <src_name> <dst_name> - Copy file */
+				{
+					ptr++;
+					while (*ptr == ' ') ptr++;
+					ptr2 = strchr(ptr, ' ');
+					if (!ptr2) break;
+					*ptr2++ = 0;
+					while (*ptr2 == ' ') ptr2++;
+					debug_printf("Opening \"%s\"", ptr);
+					res = f_open(&File1, ptr, FA_OPEN_EXISTING | FA_READ);
+					debug_printf("\n");
+					if (res) {
+						put_rc(res);
+						break;
+					}
+					debug_printf("Creating \"%s\"", ptr2);
+					res = f_open(&File2, ptr2, FA_CREATE_ALWAYS | FA_WRITE);
+					debug_printf("\n");
+					if (res) {
+						put_rc(res);
+						f_close(&File1);
+						break;
+					}
+					debug_printf("Copying file...");
+					Timer = 0;
+					p1 = 0;
+					for (;;) {
+						res = f_read(&File1, Buff, blen, &s1);
+						if (res || s1 == 0) {
+							debug_printf("EOF\n");
+							break;   /* error or eof */
+						}
+						res = f_write(&File2, Buff, s1, &s2);
+						p1 += s2;
+						if (res || s2 < s1) {
+							debug_printf("disk full\n");
+							break;   /* error or disk full */
+						}
+					}
+					debug_printf("%lu bytes copied with %lu kB/sec.\n", p1, p1 / Timer);
+					f_close(&File1);
+					f_close(&File2);
+				}
+				else if(*ptr == 'a')
+				{
+					ptr++;
+					if(*ptr++ == 't')		// cat <path> - print the file content
+					{
+						while (*ptr == ' ') ptr++;
+						res = f_open(&File1, ptr, FA_OPEN_EXISTING | FA_READ);
+						if (res)
+						{
+							put_rc(res);
+							break;
+						}
+
+						debug_printf("Reading file...%s\n",ptr);
+						Timer = 0;
+						p1 = 0;
+						while(1)
+						{
+							res = f_read(&File1, Buff, blen-1, &s1);
+							if(s1 == 0)
+							{
+								debug_printf("\n...End of file %s\n",ptr);
+								break;
+							}
+							if (res) {
+								put_rc(res);
+								break;   /* error or eof */
+							}
+							for(i=0;i<s1;i++)
+								UART1_putc(Buff[i]);
+						}
+						f_close(&File1);
+					}
+				}
+				break;
 
 		case 'd' :
 			switch (*ptr++) {
@@ -244,42 +349,7 @@ bool_e execute_command(char * ptr)
 				);
 				break;
 
-			case 'l' :	/* fl [<path>] - Directory listing */
-				while (*ptr == ' ') ptr++;
-				res = f_opendir(&Dir, ptr);
-				if (res) { put_rc(res); break; }
-				p1 = s1 = s2 = 0;
-				for(;;) {
-#if _USE_LFN
-					Finfo.lfname = Lfname;
-					Finfo.lfsize = sizeof(Lfname);
-#endif
-					res = f_readdir(&Dir, &Finfo);
-					if ((res != FR_OK) || !Finfo.fname[0]) break;
-					if (Finfo.fattrib & AM_DIR) {
-						s2++;
-					} else {
-						s1++; p1 += Finfo.fsize;
-					}
-					debug_printf("%c%c%c%c%c %u/%02u/%02u %02u:%02u %9lu  %s",
-							(Finfo.fattrib & AM_DIR) ? 'D' : '-',
-							(Finfo.fattrib & AM_RDO) ? 'R' : '-',
-							(Finfo.fattrib & AM_HID) ? 'H' : '-',
-							(Finfo.fattrib & AM_SYS) ? 'S' : '-',
-							(Finfo.fattrib & AM_ARC) ? 'A' : '-',
-							(Finfo.fdate >> 9) + 1980, (Finfo.fdate >> 5) & 15, Finfo.fdate & 31,
-							(Finfo.ftime >> 11), (Finfo.ftime >> 5) & 63,
-							Finfo.fsize, &(Finfo.fname[0]));
-#if _USE_LFN
-					debug_printf("  %s\n", Lfname);
-#else
-					xputc('\n');
-#endif
-				}
-				debug_printf("%4u File(s),%10lu bytes total\n%4u Dir(s)", s1, p1, s2);
-				if (f_getfree(ptr, (DWORD*)&p1, &fs) == FR_OK)
-					debug_printf(", %10lu bytes free\n", p1 * fs->csize * 512);
-				break;
+
 
 			case 'o' :	/* fo <mode> <file> - Open a file */
 				if (!xatoi(&ptr, &p1)) break;
@@ -359,10 +429,7 @@ bool_e execute_command(char * ptr)
 				put_rc(f_rename(ptr, ptr2));
 				break;
 
-			case 'u' :	/* fu <name> - Unlink a file or dir */
-				while (*ptr == ' ') ptr++;
-				put_rc(f_unlink(ptr));
-				break;
+
 
 			case 'v' :	/* fv - Truncate file */
 				put_rc(f_truncate(&File1));
@@ -387,47 +454,7 @@ bool_e execute_command(char * ptr)
 				put_rc(f_utime(ptr, &Finfo));
 				break;
 
-			case 'x' : /* fx <src_name> <dst_name> - Copy file */
-				while (*ptr == ' ') ptr++;
-				ptr2 = strchr(ptr, ' ');
-				if (!ptr2) break;
-				*ptr2++ = 0;
-				while (*ptr2 == ' ') ptr2++;
-				debug_printf("Opening \"%s\"", ptr);
-				res = f_open(&File1, ptr, FA_OPEN_EXISTING | FA_READ);
-				debug_printf("\n");
-				if (res) {
-					put_rc(res);
-					break;
-				}
-				debug_printf("Creating \"%s\"", ptr2);
-				res = f_open(&File2, ptr2, FA_CREATE_ALWAYS | FA_WRITE);
-				debug_printf("\n");
-				if (res) {
-					put_rc(res);
-					f_close(&File1);
-					break;
-				}
-				debug_printf("Copying file...");
-				Timer = 0;
-				p1 = 0;
-				for (;;) {
-					res = f_read(&File1, Buff, blen, &s1);
-					if (res || s1 == 0) {
-						debug_printf("EOF\n");
-						break;   /* error or eof */
-					}
-					res = f_write(&File2, Buff, s1, &s2);
-					p1 += s2;
-					if (res || s2 < s1) {
-						debug_printf("disk full\n");
-						break;   /* error or disk full */
-					}
-				}
-				debug_printf("%lu bytes copied with %lu kB/sec.\n", p1, p1 / Timer);
-				f_close(&File1);
-				f_close(&File2);
-				break;
+
 #if _USE_MKFS
 			case 'm' :	/* fm <partition rule> <cluster size> - Create file system */
 				if (!xatoi(&ptr, &p2) || !xatoi(&ptr, &p3)) break;
@@ -445,6 +472,54 @@ bool_e execute_command(char * ptr)
 				debug_printf("Unknow command\n");
 				break;
 			}
+			break;
+
+		case 'h':
+			if(*ptr++ != 'e')
+				break;
+			if(*ptr++ != 'l')
+				break;
+			if(*ptr++ != 'p')
+				break;
+			print_help();
+			break;
+		case 'l' :	/* ls [<path>] - Directory listing */
+			if(*ptr++ != 's')
+				break;
+			while (*ptr == ' ') ptr++;
+			res = f_opendir(&Dir, ptr);
+			if (res) { put_rc(res); break; }
+			p1 = s1 = s2 = 0;
+			for(;;) {
+#if _USE_LFN
+				Finfo.lfname = Lfname;
+				Finfo.lfsize = sizeof(Lfname);
+#endif
+				res = f_readdir(&Dir, &Finfo);
+				if ((res != FR_OK) || !Finfo.fname[0]) break;
+				if (Finfo.fattrib & AM_DIR) {
+					s2++;
+				} else {
+					s1++; p1 += Finfo.fsize;
+				}
+				debug_printf("%c%c%c%c%c %u/%02u/%02u %02u:%02u %9lu  %s",
+						(Finfo.fattrib & AM_DIR) ? 'D' : '-',
+						(Finfo.fattrib & AM_RDO) ? 'R' : '-',
+						(Finfo.fattrib & AM_HID) ? 'H' : '-',
+						(Finfo.fattrib & AM_SYS) ? 'S' : '-',
+						(Finfo.fattrib & AM_ARC) ? 'A' : '-',
+						(Finfo.fdate >> 9) + 1980, (Finfo.fdate >> 5) & 15, Finfo.fdate & 31,
+						(Finfo.ftime >> 11), (Finfo.ftime >> 5) & 63,
+						Finfo.fsize, &(Finfo.fname[0]));
+#if _USE_LFN
+				debug_printf("  %s\n", Lfname);
+#else
+				xputc('\n');
+#endif
+			}
+			debug_printf("%4u File(s),%10lu bytes total\n%4u Dir(s)", s1, p1, s2);
+			if (f_getfree(ptr, (DWORD*)&p1, &fs) == FR_OK)
+				debug_printf(", %10lu bytes free\n", p1 * fs->csize * 512);
 			break;
 
 		case 't' :	/* t [<year> <mon> <mday> <hour> <min> <sec>] */
@@ -465,7 +540,7 @@ bool_e execute_command(char * ptr)
 			break;
 
 		case 'p' : /* p [<0|1>] - Card Power state, Card Power Control off/on */
-			if (xatoi(&ptr, &p1)) {
+			/*if (xatoi(&ptr, &p1)) {
 				if (!p1) {
 					f_sync(&File1);
 				}
@@ -476,9 +551,31 @@ bool_e execute_command(char * ptr)
 			if (disk_ioctl(0, CTRL_POWER, Buff) == RES_OK ) {
 				debug_printf("Card Power is %s\n", Buff[1] ? "ON" : "OFF");
 			}
+			*/
+			debug_printf("Unknow command\n");
 			break;
-
-		case 'x' :
+		case 'r':
+			if(*ptr++ == 'm')	/* rm <name> - Delete a file or dir (=Unlink)*/
+			{
+				while (*ptr == ' ') ptr++;
+				debug_printf("Trying to delete %s\n",ptr);
+				res = f_unlink(ptr);
+				if(res)
+				{
+					debug_printf("Can't delete %s : ",ptr);
+					put_rc(res);
+				}
+				else
+					debug_printf("%s deleted \n",ptr);
+			}
+			break;
+		case 'e' :	//exit...
+			if(*ptr++ != 'x')
+				break;
+			if(*ptr++ != 'i')
+				break;
+			if(*ptr++ != 't')
+				break;
 			return FALSE;
 			break;
 		default:
@@ -488,13 +585,11 @@ bool_e execute_command(char * ptr)
 	return TRUE;
 }
 
-
-int ff_test_term (void)
+//Return false si une sortie du terminal est demandée
+bool_e terminal_process_main (void)
 {
-	static char *ptr;
+	char * ptr;
 	bool_e ret;
-	//RTC_t rtc;
-
 
 	typedef enum
 	{
@@ -506,31 +601,30 @@ int ff_test_term (void)
 	static state_e state = INIT;
 
 	ret = TRUE;	//On garde la main
-
 	switch (state)
 	{
 		case INIT:
-			debug_printf("\nFatFs module test terminal\n");
+			debug_printf("FatFs module terminal :: type \"help\" for command list\n");
 			state = SEND_PROMPT;
 			break;
 		case SEND_PROMPT:
 			debug_printf(">");
-			ptr = linebuf;
 			state = WAIT_COMMAND;
 			break;
 		case WAIT_COMMAND:
 			ptr = get_command();
 			if(ptr)
-				state = EXECUTE_COMMAND;
-			break;
-		case EXECUTE_COMMAND:
-			ret = execute_command(ptr);
-			if(ret)
+			{
+				ret = execute_command(ptr);
 				state = SEND_PROMPT;
-			else
-				state = INIT;
+			}
+			break;
+		default:
+			state = INIT;
 			break;
 	}
+	if(ret == FALSE)
+		state = INIT;	//Une sortie du terminal est demandée...
 	return ret;
 }
 
