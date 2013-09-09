@@ -380,10 +380,10 @@ void PILOT_update_acceleration_state(void)
 		etat_acceleration_translation = ACCELERATION_NULLE;
 
 	//Ecretage vitesse si la vitesse max a changé...
-	if (abs(global.vitesse_rotation) > abs(vitesse_rotation_max))
+	if (absolute(global.vitesse_rotation) > absolute(vitesse_rotation_max))
 		etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
 
-	if (abs(global.vitesse_translation) > abs(vitesse_translation_max))
+	if (absolute(global.vitesse_translation) > absolute(vitesse_translation_max))
 		etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
 		
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
@@ -508,7 +508,7 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 void PILOT_update_speed_translation() {
 
 	if(etat_acceleration_translation == ACCELERATION_FOR_DECREASE_SPEED
-				&& abs(global.vitesse_translation) < abs(global.acceleration_translation))
+				&& absolute(global.vitesse_translation) < absolute(global.acceleration_translation))
 		global.vitesse_translation = 0;	//Dernière étape d'une diminution de vitesse...
 	else 	//mise a jour de la vitesse de translation
 		global.vitesse_translation += global.acceleration_translation;
@@ -520,7 +520,7 @@ void PILOT_update_speed_translation() {
 void PILOT_update_speed_rotation() {
 
 	if(etat_acceleration_rotation == ACCELERATION_FOR_DECREASE_SPEED
-			&& abs(global.vitesse_rotation) < abs(global.acceleration_rotation))
+			&& absolute(global.vitesse_rotation) < absolute(global.acceleration_rotation))
 		global.vitesse_rotation = 0;	//Dernière étape d'une diminution de vitesse...
 	else 	//mise a jour de la vitesse de rotation...
 		global.vitesse_rotation += global.acceleration_rotation;

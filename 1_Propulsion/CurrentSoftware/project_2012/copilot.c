@@ -233,7 +233,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 
 			//si la vitesse en translation est élevée, on commence par s'arreter. Ceci évite l'effet suivant :
 			//on chercherait à tourner autour du point actuel... or si on continue d'avancer, il faut rejoindre ce fameux point...
-			if( abs(global.vitesse_translation) > PRECISION_ARRIVE_SPEED_TRANSLATION)
+			if( absolute(global.vitesse_translation) > PRECISION_ARRIVE_SPEED_TRANSLATION)
 			{
 				//On réécrit le reste de la trajectoire pour la suite...
 				BUFFER_add_begin(order);	//On remet l'ordre en l'état dans le buffer...
@@ -299,9 +299,9 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 		case TRAJECTORY_AUTOMATIC_CURVE:
 			//on commence par calculer l'angle de la direction entre le point actuel et la destination
 			COPILOT_destination_angle(order->x, order->y, &angle_a_parcourir, &(order->teta), order->way, &(order->way));
-			d = abs((Sint32)(CALCULATOR_viewing_algebric_distance (global.position.x, global.position.y, order->x, order->y, angle_a_parcourir))<<12);
+			d = absolute((Sint32)(CALCULATOR_viewing_algebric_distance (global.position.x, global.position.y, order->x, order->y, angle_a_parcourir))<<12);
 
-			if(d < PRECISION_ARRIVE_POSITION_TRANSLATION && abs(global.vitesse_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION)
+			if(d < PRECISION_ARRIVE_POSITION_TRANSLATION && absolute(global.vitesse_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION)
 			{
 				order->trajectory = TRAJECTORY_STOP;
 								order->x = 0;
@@ -324,7 +324,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 					//on ne fait qu'une rotation préalable pour le moment (ou un arrêt si nécessaire...)
 					order->x = global.position.x;
 					order->y = global.position.y;
-					if(abs(global.vitesse_translation) > PRECISION_ARRIVE_SPEED_TRANSLATION)
+					if(absolute(global.vitesse_translation) > PRECISION_ARRIVE_SPEED_TRANSLATION)
 						order->trajectory = TRAJECTORY_STOP;		//Besoin de faire un arrêt préalable à la rotation préalable
 					else
 						order->trajectory = TRAJECTORY_ROTATION;	//Nous sommes bien arretés : nous pouvons faire une rotation préalable !
@@ -387,7 +387,7 @@ void COPILOT_update_destination_rotation(void)
 	if(		current_order.trajectory != TRAJECTORY_ROTATION &&
 			current_order.border_mode == NOT_BORDER_MODE &&
 			arrived == NOT_ARRIVED &&
-			(abs(PILOT_get_destination_translation()) > THRESHOLD_STOPPING_CALCULATION_VIEWING_ANGLE)
+			(absolute(PILOT_get_destination_translation()) > THRESHOLD_STOPPING_CALCULATION_VIEWING_ANGLE)
 		)
 	{
 		angle = CALCULATOR_viewing_angle(global.position.x, global.position.y, current_order.x, current_order.y);
@@ -399,7 +399,7 @@ void COPILOT_update_destination_rotation(void)
 
 		//Si l'angle a parcourir est plus grand que PI/2... on aurait mieux fait de choisir la marche arrière !
 		//l'angle a parcourir sera recalculé ensuite...
-		if(abs(CALCULATOR_modulo_angle(current_order.teta - global.position.teta)) > HALF_PI4096
+		if(absolute(CALCULATOR_modulo_angle(current_order.teta - global.position.teta)) > HALF_PI4096
 			 && current_order.way != FORWARD)
 		{
 			current_order.teta += PI4096;
@@ -453,7 +453,7 @@ arrived_e Decision_robot_arrive_bordure(void)
 {
 
 	//si on est en mode calage, la condition d'arrivée est un écart entre le point fictif et notre position...
-	if(abs(global.ecart_translation)>TRESHOLD_CALIBRATION_TRANSLATION)
+	if(absolute(global.ecart_translation)>TRESHOLD_CALIBRATION_TRANSLATION)
 	{
 		//accepter l'écart obtenu...
 		PILOT_referential_reset();
@@ -506,12 +506,12 @@ braking_e Decision_robot_proche_pour_carte_p()
 // Cette décision concerne le ROBOT et non le point fictif...
 arrived_e Decision_robot_arrive_arret(void)
 {
-	if( abs(global.real_speed_rotation) < PRECISION_ARRIVE_SPEED_ROTATION )
+	if( absolute(global.real_speed_rotation) < PRECISION_ARRIVE_SPEED_ROTATION )
 		arrived_rotation = ARRIVED;
 	else
 		arrived_rotation = NOT_ARRIVED;
 
-	if( abs(global.real_speed_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION )
+	if( absolute(global.real_speed_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION )
 		arrived_translation = ARRIVED;
 	else
 		arrived_translation = NOT_ARRIVED;
@@ -568,8 +568,8 @@ void COPILOT_update_arrived(void)
 arrived_e Decision_robot_arrive_rotation(void)
 {
 	//CONDITION DE CONSIDERATION ROBOT ARRIVE SUR ROTATION = vitesse faible et position proche
-	if ((abs(global.real_speed_rotation) < PRECISION_ARRIVE_SPEED_ROTATION/*/diviseur*/) &&
-		(abs(CALCULATOR_modulo_angle((global.real_position_rotation >> 10) - PILOT_get_destination_rotation())) < PRECISION_ARRIVE_POSITION_ROTATION  ))
+	if ((absolute(global.real_speed_rotation) < PRECISION_ARRIVE_SPEED_ROTATION/*/diviseur*/) &&
+		(absolute(CALCULATOR_modulo_angle((global.real_position_rotation >> 10) - PILOT_get_destination_rotation())) < PRECISION_ARRIVE_POSITION_ROTATION  ))
 		return ARRIVED;
 	else
 		return NOT_ARRIVED;
@@ -583,16 +583,16 @@ arrived_e Decision_robot_arrive_translation(void)
 	if(current_order.trajectory == TRAJECTORY_ROTATION)
 	{
 					//Je n'ai pas d'explication pertinente pour justifier cette division par 4...
-		if ( (abs(global.real_speed_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION/4 ) &&
-				(abs(global.real_position_translation-PILOT_get_destination_translation()) < PRECISION_ARRIVE_POSITION_TRANSLATION)  )	//juste pour qu'il ne pense pas qu'il est arrivé tout au début de la trajectoire, au moment où sa vitesse est nulle !!!
+		if ( (absolute(global.real_speed_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION/4 ) &&
+				(absolute(global.real_position_translation-PILOT_get_destination_translation()) < PRECISION_ARRIVE_POSITION_TRANSLATION)  )	//juste pour qu'il ne pense pas qu'il est arrivé tout au début de la trajectoire, au moment où sa vitesse est nulle !!!
 			return ARRIVED;
 		else
 			return NOT_ARRIVED;
 	}
 	else
 	{
-		if ( (abs(global.real_speed_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION ) &&
-				(abs(global.real_position_translation-PILOT_get_destination_translation()) < PRECISION_ARRIVE_POSITION_TRANSLATION)  )	//juste pour qu'il ne pense pas qu'il est arrivé tout au début de la trajectoire, au moment où sa vitesse est nulle !!!
+		if ( (absolute(global.real_speed_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION ) &&
+				(absolute(global.real_position_translation-PILOT_get_destination_translation()) < PRECISION_ARRIVE_POSITION_TRANSLATION)  )	//juste pour qu'il ne pense pas qu'il est arrivé tout au début de la trajectoire, au moment où sa vitesse est nulle !!!
 			return ARRIVED;
 		else
 			return NOT_ARRIVED;
@@ -654,7 +654,7 @@ braking_e COPILOT_update_brake_state_rotation()
 	//Calcul de la distance entre l'angle actuel et l'angle final
 	//on mesure l'écart réel entre l'angle de destination et l'angle actuel référentiel IT
 
-	rotation_restante = abs(CALCULATOR_modulo_angle( PILOT_get_destination_rotation() - global.position_rotation));
+	rotation_restante = absolute(CALCULATOR_modulo_angle( PILOT_get_destination_rotation() - global.position_rotation));
 
 //	float angle_frein;
 	// Calcul de la distance pour freiner
@@ -664,7 +664,7 @@ braking_e COPILOT_update_brake_state_rotation()
 	Sint32 angle_frein;
 	angle_frein = (global.vitesse_rotation >> 2)*(global.vitesse_rotation >> 2);
 	angle_frein /= (2*PILOT_get_coef(PILOT_ACCELERATION_NORMAL)*PILOT_get_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION));
-	angle_frein -= abs(global.vitesse_rotation/2 >> 4);
+	angle_frein -= absolute(global.vitesse_rotation/2 >> 4);
 	angle_frein >>= 6;
 
 	PILOT_set_extra_braking_rotation((rotation_restante - angle_frein<0)?TRUE:FALSE);
@@ -694,10 +694,10 @@ braking_e COPILOT_update_brake_state_translation(void)
 	}
 
 	Sint32 translation_frein, translation_restante;
-	translation_frein = abs(((global.vitesse_translation*global.vitesse_translation)/(PILOT_get_coef(PILOT_ACCELERATION_NORMAL)))/2);
-	translation_frein -= abs(global.vitesse_translation/2);
+	translation_frein = absolute(((global.vitesse_translation*global.vitesse_translation)/(PILOT_get_coef(PILOT_ACCELERATION_NORMAL)))/2);
+	translation_frein -= absolute(global.vitesse_translation/2);
 
-	translation_restante = abs(PILOT_get_destination_translation() - global.position_translation);
+	translation_restante = absolute(PILOT_get_destination_translation() - global.position_translation);
 
 	PILOT_set_extra_braking_translation((translation_restante - translation_frein < 0)?TRUE:FALSE);
 
@@ -729,7 +729,7 @@ trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, 
 				//donc, on réécrit la traj actuelle, et on ne fait la rotation que SI nos vitesses sont nulles
 				//si ma vitesse en translation est trop grande, je marque un arret...
 	Sint32 d;
-	d = abs((Sint32)(CALCULATOR_viewing_algebric_distance (global.position.x, global.position.y, destination_x, destination_y, angle_a_parcourir))<<12);
+	d = absolute((Sint32)(CALCULATOR_viewing_algebric_distance (global.position.x, global.position.y, destination_x, destination_y, angle_a_parcourir))<<12);
 
 
 	if (global.vitesse_rotation > PRECISION_ARRIVE_SPEED_ROTATION )
@@ -739,16 +739,16 @@ trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, 
 	}
 
 	//Si on est déjà sur le point demandé >>> aucune trajectoire..... on fait donc la trajectoire "AUCUNE", qui arrivera directement.
-	if(d < PRECISION_ARRIVE_POSITION_TRANSLATION && abs(global.vitesse_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION)
+	if(d < PRECISION_ARRIVE_POSITION_TRANSLATION && absolute(global.vitesse_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION)
 	{
 	//	debug_printf("Point trop proche\n");
 		return TRAJECTORY_NONE;
 	}
-	if(abs(angle_a_parcourir) > ANGLE_MAXI_LANCEMENT_TRANSLATION)
+	if(absolute(angle_a_parcourir) > ANGLE_MAXI_LANCEMENT_TRANSLATION)
 	{
 		//larotation préalable doit démarrer par un arrêt si la vitesse est non nulle !
 		//sinon, on voudra tourner sur le point actuel, alors qu'on est encore en train d'avancer !
-		if(abs(global.vitesse_translation) > PRECISION_ARRIVE_SPEED_TRANSLATION)
+		if(absolute(global.vitesse_translation) > PRECISION_ARRIVE_SPEED_TRANSLATION)
 			return TRAJECTORY_STOP;
 		else	//cool, c'est parti pour une rotation préalable !
 			return TRAJECTORY_ROTATION;
@@ -795,7 +795,7 @@ void COPILOT_destination_angle(Sint16 x, Sint16 y, Sint16 * angle_a_parcourir, S
 
 		//Si l'angle a parcourir est plus grand que PI/2... on aurait mieux fait de choisir la marche arrière !
 		//l'angle a parcourir sera recalculé ensuite...
-		if(abs(*angle_a_parcourir) > PI4096/2)
+		if(absolute(*angle_a_parcourir) > PI4096/2)
 		{
 			//et on recalcule tout...
 			*chosen_way = BACKWARD;

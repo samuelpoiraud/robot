@@ -218,7 +218,7 @@ void WARNER_process_it(void)
 	
 	if(warner_teta)
 	{
-		if( abs(global.position.teta - warner_teta) <=  (PILOT_get_coef(PILOT_ROTATION_SPEED_MAX)/1024)*2)
+		if( absolute(global.position.teta - warner_teta) <=  (PILOT_get_coef(PILOT_ROTATION_SPEED_MAX)/1024)*2)
 		{
 			warner_teta = 0;
 			warnings |= WARNING_REACH_TETA;
@@ -227,7 +227,7 @@ void WARNER_process_it(void)
 	
 	if(warner_x)
 	{
-		if( abs(global.position.x - warner_x) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2 )
+		if( absolute(global.position.x - warner_x) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2 )
 		{
 			warner_x = 0;
 			warnings |= WARNING_REACH_X;
@@ -236,7 +236,7 @@ void WARNER_process_it(void)
 
 	if(warner_y)
 	{
-		if( abs(global.position.y - warner_y) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2 )
+		if( absolute(global.position.y - warner_y) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2 )
 		{
 			warner_y = 0;
 			warnings |= WARNING_REACH_Y;
@@ -261,7 +261,7 @@ void WARNER_process_it(void)
 	
 	if(warner_rotation)
 	{
-		delta_teta = abs(CALCULATOR_modulo_angle(global.position.teta -  position_saved.teta));
+		delta_teta = absolute(CALCULATOR_modulo_angle(global.position.teta -  position_saved.teta));
 		if(delta_teta > warner_rotation)
 			warnings |= WARNING_ROTATION;
 	}

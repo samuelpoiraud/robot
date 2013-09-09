@@ -21,10 +21,10 @@
 	#define I_AM_CARTE_ASSER
 
 #if defined(STM32F40XX)
-	#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
-	#define PCLK1_FREQUENCY_HZ    10000000	//10Mhz, Max: 42Mhz
-	#define PCLK2_FREQUENCY_HZ    20000000	//40Mhz, Max: 84Mhz
-	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//10Mhz, Fréquence de l'horloge externe
+	#define HCLK_FREQUENCY_HZ     160000000	//40Mhz, Max: 168Mhz
+	#define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
+	#define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
+	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 #else
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
 	#define FREQ_10MHZ
@@ -42,30 +42,56 @@
 	 */
 
 #if defined(STM32F40XX)
-	#define PORT_A_IO_MASK	0xFFFF
-	#define PORT_B_IO_MASK	0xFFFF
-	#define PORT_C_IO_MASK	0xFCCF
-	#define PORT_D_IO_MASK	0x0FFF
+
+	#define PORT_A_IO_MASK	0xFC9B
+		#define BUTTON0_PORT		GPIOA->IDR0
+			//	XBEE/BT/U2TX				  2
+			//	XBEE/BT/U2RX				  3
+			//	-				 			  4
+			//	-				 			  6
+			//	-	sortie libre 			  8
+			//	-	usb			 			  9
+			//	-	usb			 			  10
+			//	-	usb			 			  11
+			//	-	usb			 			  12
+			//	-	programmation			  13
+			//	-	programmation 			  14
+
+	#define PORT_B_IO_MASK	0x00BF
+			//	U1TX						  6
+			//	U1RX						  7
+
+	#define PORT_C_IO_MASK	0x200F
+			//	Capteur			 			  0
+			//	Capteur			 			  1
+			//	Capteur			 			  2
+			//	Capteur			 			  3
+			#define PWM_MOTEUR_1  3			//8
+			#define PWM_MOTEUR_2  4			//9
+			#define SENS_MOTEUR_1 	GPIOC->ODR11
+			#define SENS_MOTEUR_2 	GPIOC->ODR12
+			#define PORT_ROBOT_ID  	(!GPIOC->IDR13)
+			//	-	OSC32_in 			  	  14
+			//	-	OSC32_out 			  	  15
+
+	#define PORT_D_IO_MASK	0x02C3
+			//	CAN_RX						  0
+			//	CAN_TX						  1
+		#define LED_ERROR 			GPIOD->ODR10
+		#define LED_SELFTEST 		GPIOD->ODR11
+		#define LED_USER2			LED_SELFTEST
+		#define LED_RUN  			GPIOD->ODR12
+		#define LED_CAN  			GPIOD->ODR13
+		#define LED_UART 			GPIOD->ODR14
+		#define LED_USER 			GPIOD->ODR15
+
 	#define PORT_E_IO_MASK	0xFFFF
-		#define SENS_MOTEUR_1 GPIOC->ODR4
-		#define SENS_MOTEUR_2 GPIOC->ODR5
-		#define PWM_MOTEUR_1  3
-		#define PWM_MOTEUR_2  4
+		#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
+		#define BUTTON2_PORT		(!GPIOE->IDR13)	//Calibration
+		#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
+		#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
 
-		//TODO: a définir
-		#define LAT_ROBOT_ID_OUTPUT
-		#define TRIS_ROBOT_ID_OUTPUT
-		#define PORT_ROBOT_ID_INPUT
-		#define TRIS_ROBOT_ID_INPUT
 
-//		#define SEL_OCTET_CPLD	 	PORTGbits.RG8
-//		#define SEL_ROUE_CPLD 	 	PORTGbits.RG7
-//		#define RAZ_CPLD  		 	PORTGbits.RG6
-
-	//Utilisé ou ?
-	//#define PORT_COMPT PORTB
-
-	//#define PORT_LEDS PORTD
 #else
 	#define PORT_A_IO_MASK	0xFFFF
 	#define PORT_B_IO_MASK	0xFFFF
@@ -108,8 +134,11 @@
 #else
 	#define QS_CAN_RX_IT_PRI	CAN_INT_PRI_6	//Modif de la priorité de l'IT can pour rendre la priorité des codeurs plus grande !
 #endif
+
+
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
+	#define UART1_BAUDRATE	115200
 //	#define USE_UART2
 //	#define USE_UART2RXINTERRUPT
 

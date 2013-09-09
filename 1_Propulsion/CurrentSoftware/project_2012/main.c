@@ -29,7 +29,9 @@
 #include "QS/QS_buttons.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_who_am_i.h"
-
+#if defined (STM32F40XX)
+	#include "QS/QS_sys.h"
+#endif
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -56,7 +58,9 @@ void initialisation(void){
 		// Initialisation pour EVE
 		EVE_manager_card_init();
 	#endif	/* USE_QSx86 */
-	
+	#if defined(STM32F40XX)
+		SYS_init();
+	#endif
 	// Config des ports
 	PORTS_init();			
 	

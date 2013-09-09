@@ -172,7 +172,7 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 
 	tabTemp[0] = (HIGHINT(global.position.x) & 0x1F) | (((global.real_speed_translation>>10)/5) << 5);	//Vitesse sur 3 bits forts, en [250mm/s]
 	tabTemp[1] = LOWINT(global.position.x);
-	rot_speed = ((abs(global.real_speed_rotation)>>10)*200)>>12;
+	rot_speed = ((absolute(global.real_speed_rotation)>>10)*200)>>12;
 	if(rot_speed > 7)
 		rot_speed = 7;	//ecretage pour tenir sur 3 bits
 	tabTemp[2] = (HIGHINT(global.position.y) & 0x1F) | ((Uint8)(rot_speed) << 5);	//Vitesse angulaire en radians
@@ -321,10 +321,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 		
 		//demande de selftest pour la propulsion
-		case SUPER_ASK_ASSER_SELFTEST:
+		//case SUPER_ASK_ASSER_SELFTEST:
 			//SELFTEST désactivé, car l'autocallage qui y était fait dépend maintenant de la stratégie !!!
 		
-		break;
+		//break;
 			
 		// Modifie la position de départ en fonction de la couleur
 		case BROADCAST_COULEUR :
