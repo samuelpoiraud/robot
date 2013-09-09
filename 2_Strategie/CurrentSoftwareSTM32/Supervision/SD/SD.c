@@ -13,7 +13,7 @@
 #include <stdarg.h>
 
 #define MAX_TIME_BEFORE_SYNC	500	//Durée max entre la demande d'enregistrement d'un message et son enregistrement effectif sur la carte SD.
-
+#define SIZE_CONSIDERING_NOTHING_IN_MATCH	50	//En octet, la taille en dessous de laquelle on écrase un match "presque vide"...
 
 
 //TODO :
@@ -202,9 +202,19 @@ bool_e SD_open_file_for_next_match(void)
 	else
 		debug_printf("Can't read index.inf : previous match_id is %04d.MCH\n",read_match_id);
 
-		//read_match_id 	correspond au dernier match enregistré (0 si aucun).
-		//match_id 			correspond au prochain match...
-	match_id = read_match_id + 1;
+	//read_match_id 	correspond au dernier match enregistré (0 si aucun).
+	match_id = read_match_id + 1;				//match_id 			correspond à un nouveau numéro de match... si le précédent n'est pas "vide"
+
+	sprintf(path, "%04d.MCH", match_id);
+	if(f_open(&file_match, path, FA_READ) == FR_OK)
+	{
+		if(file_match.fsize < SIZE_CONSIDERING_NOTHING_IN_MATCH)
+			match_id = read_match_id;			//match_id 			correspond au dernier match... si le précédent est "vide"
+		f_close(&file_match);
+	}
+	else
+		debug_printf("Can't read previous match : %s\n",path);
+
 
 	sprintf(path, "%04d.MCH", match_id);
 
