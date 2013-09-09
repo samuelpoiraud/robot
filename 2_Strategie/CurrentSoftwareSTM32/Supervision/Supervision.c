@@ -42,7 +42,7 @@ void Supervision_init(void)
 	SD_init();
 
 	//A partir de maintenant, on peut loguer sur la carte SD...
-	SD_printf("Hello, I am %s\n", (QS_WHO_AM_I_get() == TINY)?"TINY":"KRUSTY");
+	SD_printf("Hello, I am %s\n", ((QS_WHO_AM_I_get() == TINY)?"TINY":"KRUSTY"));
 
 	#ifdef USE_XBEE
 		if(QS_WHO_AM_I_get() == TINY)

@@ -195,7 +195,7 @@
 	
 /*	Taille de la chaine de caracteres memorisant
 	les caracteres recus sur UART */
-	#define UART_RX_BUF_SIZE	12
+	#define UART_RX_BUF_SIZE	32
 	
 /* Utilisation des entrées analogiques */
 	#define USE_ANALOG_EXT_VREF
