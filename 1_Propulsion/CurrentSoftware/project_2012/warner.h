@@ -16,6 +16,7 @@
 	
 	#include "QS/QS_all.h"
 	#include "supervisor.h"
+
 	//Cette fonction DOIT être appelée à l'initialisation.
 	void WARNER_init(void);
 	
@@ -45,14 +46,7 @@
 
 
 	typedef Uint16 WARNER_state_t;
-	#define WARNING_NO				(0b0000000000000000)
-	#define WARNING_TIMER			(0b0000000000000001)
-	#define WARNING_TRANSLATION		(0b0000000000000010)
-	#define WARNING_ROTATION		(0b0000000000000100)
-	#define WARNING_REACH_X			(0b0000000000001000)
-	#define WARNING_REACH_Y			(0b0000000000010000)
-	#define WARNING_REACH_TETA		(0b0000000000100000)
-	#define WARNING_NEW_TRAJECTORY	(0b0000000001000000)
+
 
 	#define WARNING_BRAKE					(0b00000000100000000)
 	#define WARNING_ARRIVED					(0b00000001000000000)

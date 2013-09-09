@@ -31,7 +31,6 @@
 	
 		
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-		#include "can.h"
 		void DEBUG_envoi_point_fictif_alteration_coordonnees_reelles(void);
 		void DEBUG_envoi_point_fictif_process_main(void);
 	#endif

@@ -17,11 +17,11 @@ et calcul de l'angle */
 Sint32 CALCULATOR_viewing_algebric_distance(Sint16 start_x, Sint16 start_y, Sint16 destination_x, Sint16 destination_y, Sint16 angle_de_vue)
 {	
 	Sint32 deltaX,deltaY;
-	deltaX= abs(destination_x - start_x);
-	deltaY= abs(destination_y - start_y);
+	deltaX= absolute(destination_x - start_x);
+	deltaY= absolute(destination_y - start_y);
 	//debug_printf("deltaX %ld, deltaY %ld sqrt %ld", deltaX, deltaY, (Sint32)sqrt( deltaX*deltaX + deltaY*deltaY ));
 	
-	if(abs(angle_de_vue) > PI4096/2)
+	if(absolute(angle_de_vue) > PI4096/2)
 		return -(Sint32)sqrt( deltaX*deltaX + deltaY*deltaY );
 	else
 		return (Sint32)sqrt( deltaX*deltaX + deltaY*deltaY ); 

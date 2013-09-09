@@ -18,6 +18,7 @@
 #include "buffer.h"
 #include "corrector.h"
 #include "pilot.h"
+#include "QS_CANmsgList.h"
 
 //Machine a état générale
 
@@ -148,8 +149,8 @@ void SUPERVISOR_error_check(bool_e reset_error_check)
 
 	//	On regarde si on doit y aller...
 	//ERREUR de point fictif trop loin... on semble bloqués.
-	if (	(CORRECTOR_PD_enable_get_translation()  && abs(global.ecart_translation)>TRESHOLD_ERROR_TRANSLATION ) ||
-			 (CORRECTOR_PD_enable_get_rotation()  && abs(global.ecart_rotation)>THRESHOLD_ERROR_ROTATION)	 )
+	if (	(CORRECTOR_PD_enable_get_translation()  && absolute(global.ecart_translation)>TRESHOLD_ERROR_TRANSLATION ) ||
+			 (CORRECTOR_PD_enable_get_rotation()  && absolute(global.ecart_rotation)>THRESHOLD_ERROR_ROTATION)	 )
 	{
 		error_source = UNABLE_TO_GO_ERROR;
 		 SUPERVISOR_state_machine(EVENT_ERROR, 0);
@@ -158,8 +159,8 @@ void SUPERVISOR_error_check(bool_e reset_error_check)
 	//Conditions : robot non arrivé, mais robot statique depuis trop longtemps
 	if(
 				!COPILOT_is_arrived()
-				&& (abs(global.real_speed_translation) < 4*PRECISION_ARRIVE_SPEED_TRANSLATION)
-				&& (abs(global.real_speed_rotation) < 4*PRECISION_ARRIVE_SPEED_ROTATION)
+				&& (absolute(global.real_speed_translation) < 4*PRECISION_ARRIVE_SPEED_TRANSLATION)
+				&& (absolute(global.real_speed_rotation) < 4*PRECISION_ARRIVE_SPEED_ROTATION)
 		)
 		immobility_counter+=PERIODE_IT_ASSER;
 	else
