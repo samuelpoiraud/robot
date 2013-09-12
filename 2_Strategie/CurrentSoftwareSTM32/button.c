@@ -13,9 +13,9 @@
  
 #include "button.h"
 #include "act_functions.h"
-#include "Supervision\Selftest.h"
-#include "Supervision\Eeprom_can_msg.h"
-#include "Supervision\SD\SD.h"
+#include "Supervision/Selftest.h"
+#include "Supervision/Eeprom_can_msg.h"
+#include "Supervision/SD/SD.h"
 static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
 
