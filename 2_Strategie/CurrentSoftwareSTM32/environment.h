@@ -98,8 +98,6 @@
 		bool_e color_updated;
 		bool_e ask_asser_calibration;
 		bool_e ask_start;
-		bool_e xbee_is_linked;
-		Uint8 flag_for_ping_xbee;
 		config_t config;
 		config_t wanted_config;
 		bool_e config_updated;
