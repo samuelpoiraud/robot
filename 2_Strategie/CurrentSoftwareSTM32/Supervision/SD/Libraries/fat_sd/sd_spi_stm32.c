@@ -41,7 +41,7 @@
 #include "diskio.h"
 
 // demo uses a command line option to define this (see Makefile):
-// #define STM32_SD_USE_DMA
+//#define STM32_SD_USE_DMA
 
 
 #ifdef STM32_SD_USE_DMA
@@ -63,8 +63,8 @@
  #define SPI_SD                   SPI2
  #define GPIO_CS                  SD_CS
  #define RCC_APB2Periph_GPIO_CS   RCC_APB2Periph_GPIOB
- #define DMA_Channel_SPI_SD_RX    DMA_Channel_2
- #define DMA_Channel_SPI_SD_TX    DMA_Channel_3
+ #define DMA_Channel_SPI_SD_RX    DMA1_Stream2_BASE
+ #define DMA_Channel_SPI_SD_TX    DMA1_Stream3_BASE
  #define DMA_FLAG_SPI_SD_TC_RX    DMA_FLAG_TCIF2
  #define DMA_FLAG_SPI_SD_TC_TX    DMA_FLAG_TCIF3
  #define GPIO_SPI_SD              GPIOB
@@ -322,14 +322,14 @@ void stm32_dma_transfer(
 		/* DMA1 channel2 configuration SPI1 RX ---------------------------------------------*/
 		/* DMA1 channel4 configuration SPI2 RX ---------------------------------------------*/
 		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)buff;
-		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 		DMA_Init(DMA_Channel_SPI_SD_RX, &DMA_InitStructure);
 
 		/* DMA1 channel3 configuration SPI1 TX ---------------------------------------------*/
 		/* DMA1 channel5 configuration SPI2 TX ---------------------------------------------*/
 		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
-		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
+		DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
 		DMA_Init(DMA_Channel_SPI_SD_TX, &DMA_InitStructure);
 
@@ -339,14 +339,14 @@ void stm32_dma_transfer(
 		/* DMA1 channel2 configuration SPI1 RX ---------------------------------------------*/
 		/* DMA1 channel4 configuration SPI2 RX ---------------------------------------------*/
 		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
-		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
 		DMA_Init(DMA_Channel_SPI_SD_RX, &DMA_InitStructure);
 
 		/* DMA1 channel3 configuration SPI1 TX ---------------------------------------------*/
 		/* DMA1 channel5 configuration SPI2 TX ---------------------------------------------*/
 		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)buff;
-		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
+		DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 		DMA_Init(DMA_Channel_SPI_SD_TX, &DMA_InitStructure);
 #endif
@@ -364,7 +364,7 @@ void stm32_dma_transfer(
 	/* Wait until DMA1_Channel 3 Transfer Complete */
 	/// not needed: while (DMA_GetFlagStatus(DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
 	/* Wait until DMA1_Channel 2 Receive Complete */
-	while (DMA_GetFlagStatus(DMA1_Stream0,DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
+	while (DMA_GetFlagStatus(DMA_Channel_SPI_SD_RX,DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
 	// same w/o function-call:
 	// while ( ( ( DMA1->ISR ) & DMA_FLAG_SPI_SD_TC_RX ) == RESET ) { ; }
 
@@ -435,7 +435,7 @@ void power_on (void)
 */
 #ifdef STM32_SD_USE_DMA
 	/* enable DMA clock */
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
 #endif
 }
 

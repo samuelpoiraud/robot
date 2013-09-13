@@ -381,12 +381,11 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_PING:
 			//On recoit un ping, on répond par un PONG.
 			//Le lien est établi
-			global.env.xbee_is_linked = TRUE;
-			XBEE_send_sid(XBEE_PONG,FALSE);	//Envoi vers l'autre robot
+			//Le module QS_CanoverXBee se débrouille pour PONGer
 			break;
 		case XBEE_PONG:
 			//On reçoit un pong, tant mieux, le lien est établi
-			global.env.xbee_is_linked = TRUE;
+
 			break;
 		case DEBUG_DETECT_FOE:
 			global.env.debug_force_foe = TRUE;
@@ -673,8 +672,6 @@ void ENV_init()
 	global.env.match_time = 0;
 	global.env.pos.dist = 0;
 	global.env.ask_start = FALSE;
-	global.env.xbee_is_linked = FALSE;
-	global.env.flag_for_ping_xbee = 0;
 	global.env.asser.calibrated = FALSE;
 	
 	global.env.asser.current_way = ANY_WAY;
@@ -725,21 +722,7 @@ void ENV_set_color(color_e color)
 }
 
 
-void ENV_XBEE_ping_process(void)
-{
-	/* changer les LEDs de couleur */
-	if(global.env.flag_for_ping_xbee >= 2)	//Toutes les secondes
-	{
-		global.env.flag_for_ping_xbee = 0;
-		if(global.env.xbee_is_linked == FALSE)
-		{	
-			//Si le lien n'est pas avéré, on ping l'autre carte stratégie
-			XBEE_send_sid(XBEE_PING,FALSE);	//Envoi vers l'autre robot
-		}		
-	}	
-	
-}
-	
+
 
 
 

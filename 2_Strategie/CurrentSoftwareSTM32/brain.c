@@ -56,7 +56,6 @@ void any_match(time32_t match_duration)
 			ENV_set_color(global.env.wanted_color);
 		}
 		
-		ENV_XBEE_ping_process();
 		
 		/* mise à jour de la configuration de match */
 		if(global.env.config_updated)

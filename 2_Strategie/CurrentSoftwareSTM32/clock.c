@@ -87,12 +87,11 @@ void _ISR _T1Interrupt()
 		if(local_time == 500)
 		{
 			local_time = 0;
-			if(global.env.xbee_is_linked == FALSE)
+			if(XBee_is_destination_reachable() == FALSE)
 			{	//On a pas de lien XBEE avec l'autre Robot : les leds clignotent.
 				BLUE_LEDS = 0;
 				RED_LEDS = 0;
 			}
-			global.env.flag_for_ping_xbee++;	//+500ms
 		}
 	}
 
