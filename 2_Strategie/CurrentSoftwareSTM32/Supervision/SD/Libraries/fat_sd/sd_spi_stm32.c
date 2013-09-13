@@ -63,8 +63,8 @@
  #define SPI_SD                   SPI2
  #define GPIO_CS                  SD_CS
  #define RCC_APB2Periph_GPIO_CS   RCC_APB2Periph_GPIOB
- #define DMA_Channel_SPI_SD_RX    DMA1_Stream2_BASE
- #define DMA_Channel_SPI_SD_TX    DMA1_Stream3_BASE
+ #define DMA_Channel_SPI_SD_RX    DMA1_Stream2
+ #define DMA_Channel_SPI_SD_TX    DMA1_Stream3
  #define DMA_FLAG_SPI_SD_TC_RX    DMA_FLAG_TCIF2
  #define DMA_FLAG_SPI_SD_TC_TX    DMA_FLAG_TCIF3
  #define GPIO_SPI_SD              GPIOB
@@ -312,7 +312,12 @@ void stm32_dma_transfer(
 	DMA_InitStructure.DMA_BufferSize = btr;
 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
-	//DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+
+	//Pas configuré, pris de QS_adc.c
+	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
 	DMA_DeInit(DMA_Channel_SPI_SD_RX);
 	DMA_DeInit(DMA_Channel_SPI_SD_TX);
@@ -321,6 +326,7 @@ void stm32_dma_transfer(
 
 		/* DMA1 channel2 configuration SPI1 RX ---------------------------------------------*/
 		/* DMA1 channel4 configuration SPI2 RX ---------------------------------------------*/
+		DMA_InitStructure.DMA_Channel = DMA_Channel_2; //A changer pour la bonne valeur (SPI1 ou 2)
 		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)buff;
 		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
@@ -328,6 +334,7 @@ void stm32_dma_transfer(
 
 		/* DMA1 channel3 configuration SPI1 TX ---------------------------------------------*/
 		/* DMA1 channel5 configuration SPI2 TX ---------------------------------------------*/
+		DMA_InitStructure.DMA_Channel = DMA_Channel_3; //A changer pour la bonne valeur (SPI1 ou 2)
 		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
 		DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
@@ -338,6 +345,7 @@ void stm32_dma_transfer(
 #if _FS_READONLY == 0
 		/* DMA1 channel2 configuration SPI1 RX ---------------------------------------------*/
 		/* DMA1 channel4 configuration SPI2 RX ---------------------------------------------*/
+		DMA_InitStructure.DMA_Channel = DMA_Channel_2; //A changer pour la bonne valeur (SPI1 ou 2)
 		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
 		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
@@ -345,6 +353,7 @@ void stm32_dma_transfer(
 
 		/* DMA1 channel3 configuration SPI1 TX ---------------------------------------------*/
 		/* DMA1 channel5 configuration SPI2 TX ---------------------------------------------*/
+		DMA_InitStructure.DMA_Channel = DMA_Channel_3; //A changer pour la bonne valeur (SPI1 ou 2)
 		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)buff;
 		DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
 		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
