@@ -279,14 +279,15 @@ typedef enum
 	LENGTH_LSB,
 	HEADER_SIZE
 }api_frame_on_char_array_fields_e;
-									
+#define FRAME_API_BUF_SIZE 32
+
 bool_e XBeeToCANmsg (CAN_msg_t* dest)								
 {																			
 																	
 	static api_frame_on_char_array_fields_e next_byte_to_read=0;	
 	static Uint16 length;
 	static Uint8 checksum;	
-	static Uint8 frame_api[32];		
+	static Uint8 frame_api[FRAME_API_BUF_SIZE];
 	Uint8 byte_read;																										
 
 
@@ -301,19 +302,37 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 				if(byte_read != 0x7E)
 				{
 					next_byte_to_read = 0;	//Ce n'est pas le début d'une trame... on refuse de continuer..
-					return FALSE;
+					debug_printf("XBee : invalid start 0x%02x != 0x7E\n",byte_read);
+					continue;	//Prochain caractère !
 				}
 				break;
 			case LENGTH_MSB:
 				length = (Uint16)byte_read <<8;	
 				break;
 			case LENGTH_LSB:
-				length |= (Uint16)byte_read;	
+				length |= (Uint16)byte_read;
+				if(length != 25)
+				{
+					next_byte_to_read = 0;
+					debug_printf("XBee : invalid length %d != 25\n",length);
+					continue;	//Prochain caractère !
+				}
 				break;
 			default:
 				//Réception des datas...
-				frame_api[next_byte_to_read-HEADER_SIZE] = byte_read;
-				checksum += byte_read;
+				if(next_byte_to_read - HEADER_SIZE < FRAME_API_BUF_SIZE)
+				{
+					frame_api[next_byte_to_read-HEADER_SIZE] = byte_read;
+					checksum += byte_read;
+				}
+				else
+				{
+					//Il y a un problème, on a explosé le buffer de réception...
+					next_byte_to_read = 0;
+					debug_printf("XBee : I do not want to explode buffer...\n");
+					continue;	//Prochain caractère !
+				}
+
 			break;
 		}
 		if(next_byte_to_read == length + HEADER_SIZE)	//Dernier octet (qui est d'ailleurs le checksum)
@@ -322,7 +341,7 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 			if(checksum	== 0xFF)	//Tout va bien !
 			{
 				if(frame_api[0] != 0x90)
-					return FALSE;
+					continue;
 
 				if(APIFrameToCANmsg(frame_api+12, dest))	//Recherche d'un message can dans la frame reçue.
 				{
