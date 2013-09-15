@@ -285,9 +285,9 @@ void SD_print_previous_match(void)
 	char path[16];
 	char read_byte;
 	Uint32 nb_read;
-	Uint8 i;
-	Uint16 t;
-	source_e source;
+	Uint8 i = 0;
+	Uint16 t = 0;
+	source_e source = -1;
 	CAN_msg_t msg;
 	typedef enum
 	{
@@ -388,7 +388,10 @@ void SD_print_previous_match(void)
 							state = READ_TEXT;
 							break;
 						default:	//datas...
-							msg.data[i-2] = read_byte;
+							if(i < 10)
+								msg.data[i-2] = read_byte;
+							else
+								debug_printf("Bad CAN_MSG format, i is invalid: %d\n", i);
 							break;
 					}
 					i++;
