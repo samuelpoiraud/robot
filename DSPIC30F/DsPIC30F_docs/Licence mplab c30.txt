@@ -1,0 +1,4 @@
+MTI074042127
+
+
+Faire pic30-lm.exe -u MTI074042127 pour enregistrer la licence (dans le dossier bin de mplab)
