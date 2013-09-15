@@ -18,6 +18,7 @@
 #error "WATCHDOG_TIMER doit etre 1 2 3 ou 4"
 #else
 	#define TIMER_SRC_TIMER_ID WATCHDOG_TIMER
+	#undef TIMER_SRC_USE_WATCHDOG  //On doit être sur de ne pas utiliser un watchdog comme timer pour les watchdog, ce qui ferait une boucle à l'init ...
 	#include "QS_setTimerSource.h"
 #endif
 
