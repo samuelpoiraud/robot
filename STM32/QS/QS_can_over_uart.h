@@ -21,10 +21,24 @@
 #define STX 0x02
 #define ETX 0x03
 
+typedef enum
+{
+	HEADER=0,
+	SID_MSB,
+	SID_LSB,
+	DATA0, DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7,
+	SIZE_FIELD,
+	FOOTER
+}can_msg_on_char_array_fields_e;
+
+#define CAN_MSG_LENGTH	11
+
+bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fields_e * next_byte_to_read);
+
 
 #ifdef USE_UART1
 	#ifdef USE_UART1RXINTERRUPT
-		bool_e u1rxToCANmsg (CAN_msg_t* dest);
+	bool_e u1rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read);
 		/*	
 		 *	cette fonction lit un octet dans le buffer de reception de l'uart1
 		 *	et complète le message CAN passé en argument à partir du point où
@@ -44,7 +58,7 @@
 
 #ifdef USE_UART2
 	#ifdef USE_UART2RXINTERRUPT
-		 bool_e u2rxToCANmsg (CAN_msg_t* dest);
+		bool_e u2rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read);
 		/*	
 		 *	cette fonction lit un octet dans le buffer de reception de l'uart2
 		 *	et complète le message CAN passé en argument à partir du point où
