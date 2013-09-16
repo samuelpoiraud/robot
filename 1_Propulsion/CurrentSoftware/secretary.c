@@ -62,11 +62,16 @@ void SECRETARY_process_main(void)
 		}
 	#endif
 
-	if(UART1_data_ready())
+	while(UART1_data_ready())
 	{
 		LED_UART = !LED_UART;
-		if(u1rxToCANmsg(&receivedCanMsg_over_uart))
+		#if defined(STM32F40XX)
+			if(u1rxToCANmsg(&receivedCanMsg_over_uart, UART1_get_next_msg()))
 				SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
+		#else
+			if(u1rxToCANmsg(&receivedCanMsg_over_uart)
+				SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
+		#endif
 	}
 }
 
