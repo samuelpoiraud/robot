@@ -155,3 +155,5 @@ QS/QS_can_over_uart.c
 QS/QS_can.c
 QS/QS_buttons.c
 QS/QS_adc.c
+QS/QS_ax12.h
+QS/QS_ax12.c
