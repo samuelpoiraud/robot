@@ -231,7 +231,7 @@ static BYTE stm32_spi_rw( BYTE out )
 
 #ifdef STM32_SD_USE_DMA
 	//On attent la fin d'une eventuelle transaction utilisant DMA
-	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_TX) == DISABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
+	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_TX) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
 #endif
 
 	/* Send byte through the SPI peripheral */
@@ -417,12 +417,12 @@ void stm32_dma_transfer(
 	DMA_Cmd(DMA_Stream_SendBuffer, ENABLE);
 
 	//On attend la fin de la copie. Une copie par CPU est plus lente (2 fois plus, mais c'est surement négligeable devant la vitesse de la carte SD (< 1ms pour 800 bytes: http://www.embedds.com/using-direct-memory-access-dma-in-stm23-projects/, mais fréquence inconnue)
-	while (DMA_GetCmdStatus(DMA_Stream_SendBuffer) == DISABLE && DMA_GetFlagStatus(DMA_Stream_SendBuffer, DMA_FLAG_TC_SendBuffer) == RESET) { ; }
+	while (DMA_GetCmdStatus(DMA_Stream_SendBuffer) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SendBuffer, DMA_FLAG_TC_SendBuffer) == RESET) { ; }
 	DMA_ClearFlag(DMA_Stream_SendBuffer, DMA_FLAG_TC_SendBuffer);
 //	DMA_Cmd(DMA_Stream_SendBuffer, DISABLE); //Utile ? Normalement cleared by hardware à la fin du transfert (page 230)
 
 	//On attend que le DMA ait fini d'envoyer les données précédentes.
-	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_TX) == DISABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
+	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_TX) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
 
 	DMA_ClearFlag(DMA_Stream_SPI_SD_RX, DMA_FLAG_SPI_SD_TC_RX);
 	DMA_ClearFlag(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX);
