@@ -88,8 +88,6 @@
 					*/
 	#define	DEBUG_RTC_TIME				(0x782)
 
-	#define DEBUG_UART1_SDCARD_INTERFACE		0x788	//Activer l'interface de commande carte SD...
-
 	//message pour debug strategie
 
 	#define DEBUG_DETECT_FOE			0x799	//Déclenchement manuel d'un évitement.
