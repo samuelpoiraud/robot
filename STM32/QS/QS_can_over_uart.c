@@ -104,7 +104,7 @@ bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fie
 			dest->data[*next_byte_to_read - DATA0]=byte_read;
 			break;
 	}
-	*next_byte_to_read++;																														\
+	*next_byte_to_read = *next_byte_to_read + 1;																														\
 	return FALSE;
 }
 
