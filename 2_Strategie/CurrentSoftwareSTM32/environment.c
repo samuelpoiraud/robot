@@ -47,8 +47,6 @@ void ENV_pos_foe_update (CAN_msg_t* msg);
 
 		//une couleur erronnée pour forcer la maj de la couleur
 		#define COLOR_INIT_VALUE 0xFF
-volatile ENV_uart1_usage_mode_e ENV_uart1_usage_mode = UART1_MODE_CAN_MSG;
-
 
 
 void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filter, bool_e * bSAVE_filter)
@@ -193,6 +191,7 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 
 void ENV_update()
 {
+	static Uint8 u1rx_receiving_can_msg = 0;
 	CAN_msg_t incoming_msg_from_bus_can;
 	static CAN_msg_t can_msg_from_uart1;
 	static CAN_msg_t can_msg_from_uart2;
@@ -211,31 +210,34 @@ void ENV_update()
 		ENV_process_can_msg(&incoming_msg_from_bus_can,FALSE, TRUE, TRUE, TRUE);	//Everywhere except CAN
 	}
 
-
-	switch(ENV_uart1_usage_mode)
+	while(UART1_data_ready())
 	{
-		case UART1_MODE_CAN_MSG:
-			if(u1rxToCANmsg(&can_msg_from_uart1))
-				ENV_process_can_msg(&can_msg_from_uart1,TRUE, FALSE, TRUE, TRUE);	//Everywhere except U1.
-			break;
-		case UART1_MODE_TERMINAL_SD:
-			if(UART1_data_ready())
+		c = UART1_get_next_msg();
+		if(u1rx_receiving_can_msg == 0 && c == SOH)	//Début d'un message CAN détecté : on dirige les 13 prochains octets vers u1rxToCANmsg
+			u1rx_receiving_can_msg = CAN_MSG_LENGTH + 2;	//SOH, EOT
+
+		if(u1rx_receiving_can_msg)
+		{
+			u1rx_receiving_can_msg--;
+			if(u1rxToCANmsg(&can_msg_from_uart1,c))
 			{
-				c = UART1_get_next_msg();
-				SD_char_from_user(c);
+				ENV_process_can_msg(&can_msg_from_uart1,TRUE, FALSE, TRUE, TRUE);	//Everywhere except U1.
+				u1rx_receiving_can_msg = 0;	//où que soit notre compteur, on le remet à 0.
 			}
-			break;
-		default:
-			break;
+		}
+		else
+			SD_char_from_user(c);
+
 	}
-
-
 
 
 	if(!SWITCH_XBEE)
 	{
-		if(u2rxToCANmsg(&can_msg_from_uart2))
-			ENV_process_can_msg(&can_msg_from_uart2,TRUE, TRUE, FALSE, FALSE);	//Everywhere except U2 and XBee.
+		while(UART2_data_ready())
+		{
+			if(u2rxToCANmsg(&can_msg_from_uart2,UART2_get_next_msg()))
+				ENV_process_can_msg(&can_msg_from_uart2,TRUE, TRUE, FALSE, FALSE);	//Everywhere except U2 and XBee.
+		}
 	}
 
 #ifdef USE_XBEE
@@ -306,9 +308,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case DEBUG_RTC_TIME:
 			RTC_print_time();
-			break;
-		case DEBUG_UART1_SDCARD_INTERFACE:
-			ENV_uart1_usage_mode = UART1_MODE_TERMINAL_SD;
 			break;
 //****************************** Messages carte propulsion/asser *************************/	
 		case CARTE_P_TRAJ_FINIE:
