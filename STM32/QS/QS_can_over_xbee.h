@@ -94,7 +94,7 @@
 
 	void CAN_over_XBee_process_main(void);
 	void CAN_over_XBee_every_second(void);
-	
+	bool_e XBee_is_destination_reachable(void);
 	
 #endif // def USE_XBEE
 
