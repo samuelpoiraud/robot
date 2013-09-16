@@ -42,8 +42,8 @@
 	#define TIMER_SRC_TIMER_start_ms(period_ms) TIMER_SRC_watchdog_timeout_id = WATCHDOG_create(period_ms, &TIMER_SRC_watchdog_timeout_recv, TRUE)
 //	#define TIMER_SRC_TIMER_start_us(period_us) TIMER_SRC_watchdog_timeout_id = WATCHDOG_create(period_us/1000, &TIMER_SRC_watchdog_timeout_recv, TRUE)
 	#define TIMER_SRC_TIMER_stop() WATCHDOG_stop(TIMER_SRC_watchdog_timeout_id)
-	#define TIMER_SRC_TIMER_DisableIT WATCHDOG_disable_timeout(TIMER_SRC_watchdog_timeout_id)
-	#define TIMER_SRC_TIMER_EnableIT WATCHDOG_enable_timeout(TIMER_SRC_watchdog_timeout_id)
+	#define TIMER_SRC_TIMER_DisableIT() WATCHDOG_disable_timeout(TIMER_SRC_watchdog_timeout_id)
+	#define TIMER_SRC_TIMER_EnableIT() WATCHDOG_enable_timeout(TIMER_SRC_watchdog_timeout_id)
 #else
 	#include "QS_timer.h"
 
