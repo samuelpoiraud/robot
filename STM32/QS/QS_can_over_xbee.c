@@ -281,7 +281,7 @@ typedef enum
 }api_frame_on_char_array_fields_e;
 #define FRAME_API_BUF_SIZE 32
 
-bool_e XBeeToCANmsg (CAN_msg_t* dest)								
+bool_e XBeeToCANmsg (CAN_msg_t* dest)
 {																			
 																	
 	static api_frame_on_char_array_fields_e next_byte_to_read=0;	
@@ -448,6 +448,16 @@ void XBEE_send_sid(Uint11 sid, bool_e broadcast)
 	msg.size = 0;
 	CANMsgToXbee(&msg, broadcast);
 }
+
+bool_e XBee_is_destination_reachable(void)
+{
+	if(initialized)
+		return module_reachable[XBee_module_id_destination];
+	else
+		return FALSE;
+}
+
+
 #endif //def USE_XBEE
 
 
