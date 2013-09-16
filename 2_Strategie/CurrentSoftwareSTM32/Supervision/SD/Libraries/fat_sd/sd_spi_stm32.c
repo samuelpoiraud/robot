@@ -41,12 +41,16 @@
 #include "diskio.h"
 
 // demo uses a command line option to define this (see Makefile):
-//#define STM32_SD_USE_DMA
+#define STM32_SD_USE_DMA
 
 
 #ifdef STM32_SD_USE_DMA
 // #warning "Information only: using DMA"
 #pragma message "*** Using DMA ***"
+
+Uint8 dma_send_buffer[515] __attribute__ ((aligned(4)));  //Utilisé par le controleur DMA quand on veut écrire un secteur (pendant ce temps le CPU continue d'executer d'autre instructions)
+//515 = 512 (sector size) + 2 CRC reads + 1 response read
+
 #endif
 
 /* set to 1 to provide a disk_ioctrl function even if not needed by the FatFs */
@@ -63,10 +67,12 @@
  #define SPI_SD                   SPI2
  #define GPIO_CS                  SD_CS
  #define RCC_APB2Periph_GPIO_CS   RCC_APB2Periph_GPIOB
- #define DMA_Channel_SPI_SD_RX    DMA1_Stream2
- #define DMA_Channel_SPI_SD_TX    DMA1_Stream3
- #define DMA_FLAG_SPI_SD_TC_RX    DMA_FLAG_TCIF2
- #define DMA_FLAG_SPI_SD_TC_TX    DMA_FLAG_TCIF3
+ #define DMA_Stream_SendBuffer    DMA2_Stream1
+ #define DMA_Stream_SPI_SD_RX     DMA1_Stream3   //voir datasheet, page 218
+ #define DMA_Stream_SPI_SD_TX     DMA1_Stream4
+ #define DMA_FLAG_TC_SendBuffer   DMA_FLAG_TCIF1
+ #define DMA_FLAG_SPI_SD_TC_RX    DMA_FLAG_TCIF3
+ #define DMA_FLAG_SPI_SD_TC_TX    DMA_FLAG_TCIF4
  #define GPIO_SPI_SD              GPIOB
  #define GPIO_Pin_SPI_SD_SCK      GPIO_Pin_13
  #define GPIO_Pin_SPI_SD_MISO     GPIO_Pin_14
@@ -223,6 +229,11 @@ static BYTE stm32_spi_rw( BYTE out )
 	/* Loop while DR register in not empty */
 	/// not needed: while (SPI_I2S_GetFlagStatus(SPI_SD, SPI_I2S_FLAG_TXE) == RESET) { ; }
 
+#ifdef STM32_SD_USE_DMA
+	//On attent la fin d'une eventuelle transaction utilisant DMA
+	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_TX) == DISABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
+#endif
+
 	/* Send byte through the SPI peripheral */
 	SPI_I2S_SendData(SPI_SD, out);
 
@@ -265,7 +276,6 @@ BYTE wait_ready (void)
 {
 	BYTE res;
 
-
 	Timer2 = 50;	/* Wait for ready in timeout of 500ms */
 	rcvr_spi();
 	do
@@ -292,6 +302,58 @@ void release_spi (void)
 /*-----------------------------------------------------------------------*/
 /* Transmit/Receive Block using DMA (Platform dependent. STM32 here)     */
 /*-----------------------------------------------------------------------*/
+
+static void stm32_dma_init() {
+	static Uint8 rw_workbyte; //DOIT ETRE STATIC pour que la variable reste en mémoire après avoir quitter la fonction (le DMA va l'utiliser)
+	static bool_e initialized = FALSE;
+	if(initialized)
+		return;
+
+	initialized = TRUE;
+
+	DMA_InitTypeDef DMA_InitStructure;
+
+	DMA_DeInit(DMA_Stream_SPI_SD_RX);
+	DMA_DeInit(DMA_Stream_SPI_SD_TX);
+
+	/* shared DMA configuration values */
+	DMA_InitStructure.DMA_Channel = DMA_Channel_0;
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (Uint32)(&(SPI_SD->DR));
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	DMA_InitStructure.DMA_BufferSize = 515; //512 sector size + 2 CRC (dummy read) + 1 response (read, ignored)
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+	DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
+
+	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+
+
+	// La lecture par DMA est considérée comme inutile ... car il faut attendre la fin de toute façon
+
+#if _FS_READONLY == 0
+	//discard  RX data
+	DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
+	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
+	DMA_Init(DMA_Stream_SPI_SD_RX, &DMA_InitStructure);
+
+	//send data from buffer (512 bytes)
+	DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)dma_send_buffer;
+	DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	DMA_Init(DMA_Stream_SPI_SD_TX, &DMA_InitStructure);
+#endif
+
+	dma_send_buffer[512] = 0xFF; //CRC LSB read
+	dma_send_buffer[513] = 0xFF; //CRC MSB read
+	dma_send_buffer[514] = 0xFF; //response read
+}
+
+
 static
 void stm32_dma_transfer(
 	BOOL receive,		/* FALSE for buff->SPI, TRUE for SPI->buff               */
@@ -301,89 +363,92 @@ void stm32_dma_transfer(
 						   receive FALSE : Byte count (must be 512)              */
 )
 {
-	DMA_InitTypeDef DMA_InitStructure;
-	WORD rw_workbyte[] = { 0xffff };
 
-	/* shared DMA configuration values */
-	DMA_InitStructure.DMA_PeripheralBaseAddr = (Uint32)(&(SPI_SD->DR));
-	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	DMA_InitStructure.DMA_BufferSize = btr;
+	//On ne veut faire du DMA que en transmission
+	if(receive == TRUE)
+		return;
+
+	assert(btr == 512);
+
+	stm32_dma_init();
+
+	DMA_InitTypeDef DMA_InitStructure;
+
+	DMA_DeInit(DMA_Stream_SendBuffer);
+
+	//Buffer copy DMA, histoire d'aller encore plus vite ...
+	DMA_InitStructure.DMA_Channel = DMA_Channel_0;
+	DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToMemory;
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (Uint32)(buff);
+	DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)dma_send_buffer;
+
+	//check buffer alignement
+	switch((int)buff % 4) {
+		case 0:
+			DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+			break;
+
+		case 1:
+			DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+			break;
+
+		case 2:
+			DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+			break;
+
+		case 3:
+			DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+			break;
+	}
+
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Enable;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	DMA_InitStructure.DMA_BufferSize = 512;  //sector size, last 3 bytes are set in stm32_dma_init()
 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
 
-	//Pas configuré, pris de QS_adc.c
-	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
-	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Enable;
+	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
 	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
 	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
-	DMA_DeInit(DMA_Channel_SPI_SD_RX);
-	DMA_DeInit(DMA_Channel_SPI_SD_TX);
+	DMA_Init(DMA_Stream_SendBuffer, &DMA_InitStructure);
+	DMA_Cmd(DMA_Stream_SendBuffer, ENABLE);
 
-	if ( receive ) {
+	//On attend la fin de la copie. Une copie par CPU est plus lente (2 fois plus, mais c'est surement négligeable devant la vitesse de la carte SD (< 1ms pour 800 bytes: http://www.embedds.com/using-direct-memory-access-dma-in-stm23-projects/, mais fréquence inconnue)
+	while (DMA_GetCmdStatus(DMA_Stream_SendBuffer) == DISABLE && DMA_GetFlagStatus(DMA_Stream_SendBuffer, DMA_FLAG_TC_SendBuffer) == RESET) { ; }
+	DMA_ClearFlag(DMA_Stream_SendBuffer, DMA_FLAG_TC_SendBuffer);
+//	DMA_Cmd(DMA_Stream_SendBuffer, DISABLE); //Utile ? Normalement cleared by hardware à la fin du transfert (page 230)
 
-		/* DMA1 channel2 configuration SPI1 RX ---------------------------------------------*/
-		/* DMA1 channel4 configuration SPI2 RX ---------------------------------------------*/
-		DMA_InitStructure.DMA_Channel = DMA_Channel_2; //A changer pour la bonne valeur (SPI1 ou 2)
-		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)buff;
-		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-		DMA_Init(DMA_Channel_SPI_SD_RX, &DMA_InitStructure);
+	//On attend que le DMA ait fini d'envoyer les données précédentes.
+	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_TX) == DISABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
 
-		/* DMA1 channel3 configuration SPI1 TX ---------------------------------------------*/
-		/* DMA1 channel5 configuration SPI2 TX ---------------------------------------------*/
-		DMA_InitStructure.DMA_Channel = DMA_Channel_3; //A changer pour la bonne valeur (SPI1 ou 2)
-		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
-		DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
-		DMA_Init(DMA_Channel_SPI_SD_TX, &DMA_InitStructure);
-
-	} else {
-
-#if _FS_READONLY == 0
-		/* DMA1 channel2 configuration SPI1 RX ---------------------------------------------*/
-		/* DMA1 channel4 configuration SPI2 RX ---------------------------------------------*/
-		DMA_InitStructure.DMA_Channel = DMA_Channel_2; //A changer pour la bonne valeur (SPI1 ou 2)
-		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)rw_workbyte;
-		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
-		DMA_Init(DMA_Channel_SPI_SD_RX, &DMA_InitStructure);
-
-		/* DMA1 channel3 configuration SPI1 TX ---------------------------------------------*/
-		/* DMA1 channel5 configuration SPI2 TX ---------------------------------------------*/
-		DMA_InitStructure.DMA_Channel = DMA_Channel_3; //A changer pour la bonne valeur (SPI1 ou 2)
-		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)buff;
-		DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-		DMA_Init(DMA_Channel_SPI_SD_TX, &DMA_InitStructure);
-#endif
-
-	}
+	DMA_ClearFlag(DMA_Stream_SPI_SD_RX, DMA_FLAG_SPI_SD_TC_RX);
+	DMA_ClearFlag(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX);
 
 	/* Enable DMA RX Channel */
-	DMA_Cmd(DMA_Channel_SPI_SD_RX, ENABLE);
+	DMA_Cmd(DMA_Stream_SPI_SD_RX, ENABLE);
 	/* Enable DMA TX Channel */
-	DMA_Cmd(DMA_Channel_SPI_SD_TX, ENABLE);
+	DMA_Cmd(DMA_Stream_SPI_SD_TX, ENABLE);
 
 	/* Enable SPI TX/RX request */
 	SPI_I2S_DMACmd(SPI_SD, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, ENABLE);
 
-	/* Wait until DMA1_Channel 3 Transfer Complete */
-	/// not needed: while (DMA_GetFlagStatus(DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
-	/* Wait until DMA1_Channel 2 Receive Complete */
-	while (DMA_GetFlagStatus(DMA_Channel_SPI_SD_RX,DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
-	// same w/o function-call:
-	// while ( ( ( DMA1->ISR ) & DMA_FLAG_SPI_SD_TC_RX ) == RESET ) { ; }
+//	/* Wait until DMA1_Channel 3 Transfer Complete */
+//	/// not needed:
+//	/* Wait until DMA1_Channel 2 Receive Complete */
+//	while (DMA_GetFlagStatus(DMA_Stream_SPI_SD_RX,DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
+//	// same w/o function-call:
+//	// while ( ( ( DMA1->ISR ) & DMA_FLAG_SPI_SD_TC_RX ) == RESET ) { ; }
 
-	/* Disable DMA RX Channel */
-	DMA_Cmd(DMA_Channel_SPI_SD_RX, DISABLE);
-	/* Disable DMA TX Channel */
-	DMA_Cmd(DMA_Channel_SPI_SD_TX, DISABLE);
+//	/* Disable DMA RX Channel */
+//	DMA_Cmd(DMA_Stream_SPI_SD_RX, DISABLE);
+//	/* Disable DMA TX Channel */
+//	DMA_Cmd(DMA_Stream_SPI_SD_TX, DISABLE);
 
-	/* Disable SPI RX/TX request */
-	SPI_I2S_DMACmd(SPI_SD, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, DISABLE);
+//	/* Disable SPI RX/TX request */
+//	SPI_I2S_DMACmd(SPI_SD, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, DISABLE);
 }
 #endif /* STM32_SD_USE_DMA */
 
@@ -493,16 +558,17 @@ BOOL rcvr_datablock (
 	} while ((token == 0xFF) && Timer1);
 	if(token != 0xFE) return FALSE;	/* If not valid data token, return with error */
 
-#ifdef STM32_SD_USE_DMA
-	stm32_dma_transfer( TRUE, buff, btr );
-#else
+	//Jamais de transfert DMA en lecture, on veut le buffer maintenant
+//#ifdef STM32_SD_USE_DMA
+//	stm32_dma_transfer( TRUE, buff, btr );
+//#else
 	do {							/* Receive the data block into buffer */
 		rcvr_spi_m(buff++);
 		rcvr_spi_m(buff++);
 		rcvr_spi_m(buff++);
 		rcvr_spi_m(buff++);
 	} while (btr -= 4);
-#endif /* STM32_SD_USE_DMA */
+//#endif /* STM32_SD_USE_DMA */
 
 	rcvr_spi();						/* Discard CRC */
 	rcvr_spi();
@@ -523,8 +589,8 @@ BOOL xmit_datablock (
 	BYTE token			/* Data/Stop token */
 )
 {
-	BYTE resp;
 #ifndef STM32_SD_USE_DMA
+	BYTE resp;
 	BYTE wc;
 #endif
 
@@ -535,19 +601,20 @@ BOOL xmit_datablock (
 
 #ifdef STM32_SD_USE_DMA
 		stm32_dma_transfer( FALSE, buff, 512 );
+		//Gestion checksum + response par DMA. Donc on refuse jamais ici (dangereux ?)
 #else
 		wc = 0;
 		do {							/* transmit the 512 byte data block to MMC */
 			xmit_spi(*buff++);
 			xmit_spi(*buff++);
 		} while (--wc);
-#endif /* STM32_SD_USE_DMA */
 
 		xmit_spi(0xFF);					/* CRC (Dummy) */
 		xmit_spi(0xFF);
 		resp = rcvr_spi();				/* Receive data response */
 		if ((resp & 0x1F) != 0x05)		/* If not accepted, return with error */
 			return FALSE;
+#endif /* STM32_SD_USE_DMA */
 	}
 
 	return TRUE;
