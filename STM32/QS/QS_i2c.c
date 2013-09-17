@@ -14,7 +14,7 @@
 #include "QS_i2c.h"
 #include "QS_ports.h"
 #include "QS_watchdog.h"
-
+#include "../stm32f4xx/stm32f4xx_i2c.h"
 
 
 #if defined(USE_I2C1) || defined(USE_I2C2)

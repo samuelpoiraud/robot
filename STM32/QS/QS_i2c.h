@@ -13,7 +13,7 @@
  #ifndef QS_I2C_H
 	#define QS_I2C_H
 	#include "QS_all.h"
-	#include "../stm32f4xx/stm32f4xx_i2c.h"
+	
 	void I2C_init(void);
 	#define I2C1_I2C_HANDLE I2C1
 	#define I2C1_I2C_CLOCK  RCC_APB1Periph_I2C1
