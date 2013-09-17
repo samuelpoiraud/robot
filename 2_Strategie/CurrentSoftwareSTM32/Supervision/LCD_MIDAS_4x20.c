@@ -8,9 +8,7 @@
  *	Auteur : NIRGAL
  *	Version 201307
  */
-#if 0
-#include "LCD_MIDAS_4x20.h"
-#include <i2c.h>
+#include "../QS/QS_i2c.h"
 
 #define LCDADDR 0x78
 #define LCD_SIZE_LINE	4
@@ -54,30 +52,10 @@
 
 void LCD_I2C_init(void)
 {
-	// Baud rate is set for 100 Khz
-	Uint16 config2 = 100;
-	  // Configure I2C for 7 bit address mode
-	Uint16 config1 = (	I2C_ON & I2C_IDLE_CON & I2C_CLK_HLD &
-				I2C_IPMI_DIS & I2C_7BIT_ADD &
-				I2C_SLW_DIS & I2C_SM_DIS &
-				I2C_GCALL_DIS & I2C_STR_DIS &
-				I2C_ACK & I2C_ACK_DIS & I2C_RCV_DIS &
-				I2C_STOP_DIS & I2C_RESTART_DIS &
-				I2C_START_DIS);
-	OpenI2C(config1,config2);
-	ConfigIntI2C(MI2C_INT_OFF & MI2C_INT_PRI_3
-				& SI2C_INT_OFF & SI2C_INT_PRI_5);
+	I2C_init();
 }
 
 
-void LCD_I2C_send_byte(Uint8 c)
-{
-	IdleI2C();
-	MasterWriteI2C(c);
-	IdleI2C();
-	if(I2CSTATbits.ACKSTAT)
-		debug_printf("NO_ACK\n");
-}
 
 //rw : 0 to write, 1 to read
 typedef enum
@@ -85,21 +63,6 @@ typedef enum
 	WRITING_FRAME = 0,
 	READING_FRAME = 1
 }read_write_e;
-
-void LCD_I2C_begin_frame(read_write_e rw)
-{
-	IdleI2C();
-	StartI2C();
-	LCD_I2C_send_byte(LCDADDR | rw);		// LCD's I2C slave address
-}
-
-
-
-void LCD_I2C_end_frame(void)
-{
-	IdleI2C();
-	StopI2C();
-}
 
 
 
@@ -123,10 +86,10 @@ Uint8 LCD_I2C_read_byte(bool_e send_ack)
 
 void LCD_send_command(Uint8 command)
 {
-	LCD_I2C_begin_frame(WRITING_FRAME);
-	LCD_I2C_send_byte(CONTROL_BYTE_FOR_COMMAND);		// Control byte (C0 = 0, D/C = C)
-	LCD_I2C_send_byte(command);
-	LCD_I2C_end_frame();	
+	Uint8 datas[3];
+	datas[0] = CONTROL_BYTE_FOR_COMMAND;		// Control byte (C0 = 0, D/C = C)
+	datas[1] = command;
+	I2C2_write(LCDADDR, datas, 2, TRUE);	
 }
 
 
@@ -186,6 +149,7 @@ void LCD_set_contrast(Uint8 contrast)
 
 #define SIZE_READ 160
 //Function used only for debug...
+/*
 void LCD_Dump(void)
 {
 	Uint8 ret[SIZE_READ],i;
@@ -214,6 +178,7 @@ void LCD_Dump(void)
 	}
 	printf("\n");
 }
+*/
 
 void LCD_cursor_display(bool_e show, bool_e blink)
 {
@@ -234,7 +199,7 @@ void LCD_set_cursor(Uint8 line, Uint8 column)
 	LCD_send_command(ADDRESS_DDRAM | (line*0x20 + column));
 }	
 
-
+/*
 Uint8 Read_AC(void)
 {
 	Uint8 ac, id;
@@ -250,44 +215,48 @@ Uint8 Read_AC(void)
 	//printf("ac=%02X | id=%02X\n",ac,id);
 	return ac;
 }	
-
+*/
 /*
  * string ends with '\0'...
  */
 void LCD_Write_text(char * string)
 {
 	Uint16 i;
+	Uint8 datas[20];
+	Uint8 index;
+	index = 0;
 	
-	LCD_I2C_begin_frame(WRITING_FRAME);
-	LCD_I2C_send_byte(CONTROL_BYTE_FOR_DATA);     // Control byte for Data
+	datas[index++] = CONTROL_BYTE_FOR_DATA;     // Control byte for Data
 	
 	for(i=0;string[i];i++)
 	{
+		if(index >= 20)
+			break;
 		switch(string[i])	//For special characters
 		{
-			case 'ü':	LCD_I2C_send_byte(0x5E);	break;
-			case 'é':	LCD_I2C_send_byte(0xA5);	break;
-			case 'ä':	LCD_I2C_send_byte(0x7B);	break;
-			case 'à':	LCD_I2C_send_byte(0x7F);	break;
-			//case '':	LCD_I2C_send_byte(0x86);	break;
-			case 'ç':	LCD_I2C_send_byte(0xA9);	break;
-			case 'ê':	LCD_I2C_send_byte(0xC7);	break;
-			//case 'ë':	LCD_I2C_send_byte(0x89);	break;
-			case 'è':	LCD_I2C_send_byte(0xA4);	break;
-			//case 'ï':	LCD_I2C_send_byte(0x8B);	break;
-			//case 'î':	LCD_I2C_send_byte(0x8C);	break;
-			//case '':	LCD_I2C_send_byte(0x8D);	break;
-			//case 'Ä':	LCD_I2C_send_byte(0x8E);	break;
-			case '|':	LCD_I2C_send_byte(0xFE);	break;
-			case (char)(0xFF):	LCD_I2C_send_byte(0x1F);	break;	//FULL SQUARE
+			case 'ü':	datas[index++] = (0x5E);	break;
+			case 'é':	datas[index++] = (0xA5);	break;
+			case 'ä':	datas[index++] = (0x7B);	break;
+			case 'à':	datas[index++] = (0x7F);	break;
+			//case '':	datas[index++] = (0x86);	break;
+			case 'ç':	datas[index++] = (0xA9);	break;
+			case 'ê':	datas[index++] = (0xC7);	break;
+			//case 'ë':	datas[index++] = (0x89);	break;
+			case 'è':	datas[index++] = (0xA4);	break;
+			//case 'ï':	datas[index++] = (0x8B);	break;
+			//case 'î':	datas[index++] = (0x8C);	break;
+			//case '':	datas[index++] = (0x8D);	break;
+			//case 'Ä':	datas[index++] = (0x8E);	break;
+			case '|':	datas[index++] = (0xFE);	break;
+			case (char)(0xFF):	datas[index++] = (0x1F);	break;	//FULL SQUARE
 
 			default:
-				LCD_I2C_send_byte(string[i]);
+				datas[index++] = string[i];
 			break;
 		}
 	}	
 	
-	LCD_I2C_end_frame();
+	I2C2_write(LCDADDR, datas, index, TRUE);
 }
 
 /*
@@ -325,5 +294,5 @@ void LCD_test(void)
 	}
 
 }	
-#endif
+
 
