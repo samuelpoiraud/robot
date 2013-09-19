@@ -8,6 +8,7 @@
  *	Auteur : NIRGAL
  *	Version 201307
  */
+
 #include "../QS/QS_i2c.h"
 
 #define LCDADDR 0x78
@@ -65,7 +66,7 @@ typedef enum
 }read_write_e;
 
 
-
+/*
 Uint8 LCD_I2C_read_byte(bool_e send_ack)
 {
 	Uint8 ret;
@@ -79,6 +80,7 @@ Uint8 LCD_I2C_read_byte(bool_e send_ack)
 	}
 	return ret;
 }
+*/
 
 ////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS : low level for LCD
@@ -104,11 +106,11 @@ void LCD_clear_display(void)
 void LCD_init(void)
 {
 	Uint32 i;
-	RESET_TRIS = 0;
+//	RESET_TRIS = 0;
 	for(i=0;i<50000;i++);	//Delay > 5ms.
-	RESET_PIN = 0;
+//	RESET_PIN = 0;
 	for(i=0;i<100000;i++);	//Delay > 10ms.
-	RESET_PIN = 1;
+//	RESET_PIN = 1;
 	for(i=0;i<10000;i++);	//Delay > 1ms
 
 	LCD_send_command(COMMAND_CLEAR_DISPLAY);	//Clear display

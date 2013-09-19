@@ -738,11 +738,12 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_c
 	return IN_PROGRESS;
 }
 
-
+//Fonction de déplacement qui renvoie un état de stratégie suivant l'avancement du déplacement. Il s'arrète à la fin du déplacement
 Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
 {
 	error_e sub_action;
-	sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
+	//sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
+	sub_action = goto_pos_with_avoidance((displacement_t[]){{{x, y},FAST}},1,way,avoidance, END_AT_BREAK);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -760,11 +761,12 @@ Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success
 	return in_progress;
 }
 
-//Action qui gere un déplacement et renvoi le state rentré en arg
+//Action qui gere un déplacement et renvoi le state rentré en arg. Ne s'arrète qu'à la fin que si aucun autre déplacement n'est demandé.
 Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
 {
 	error_e sub_action;
-	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
+	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
+	sub_action = goto_pos_with_avoidance((displacement_t[]){{{x, y},FAST}}, 1, way, avoidance, END_AT_LAST_POINT);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -782,10 +784,12 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 	return in_progress;
 }
 
+//Action qui gere un déplacement et renvoi le state rentré en arg. Ne s'arrète qu'à la fin que si aucun autre déplacement n'est demandé. + Vitesse lente
 Uint8 try_going_slow(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
 {
 	error_e sub_action;
-	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},SLOW}},1,way,avoidance);
+	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},SLOW}},1,way,avoidance);
+	sub_action = goto_pos_with_avoidance((displacement_t[]){{{x, y},SLOW}}, 1, way, avoidance, END_AT_LAST_POINT);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -803,10 +807,12 @@ Uint8 try_going_slow(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state,
 	return in_progress;
 }
 
+//Fonction de déplacement qui renvoie un état de stratégie suivant l'avancement du déplacement. Il s'arrète à la fin du déplacement + vitesse lente
 Uint8 try_going_slow_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance)
 {
 	error_e sub_action;
-	sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},SLOW}},1,way,avoidance);
+	//sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},SLOW}},1,way,avoidance);
+	sub_action = goto_pos_with_avoidance((displacement_t[]){{{x, y},SLOW}},1,way,avoidance, END_AT_BREAK);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;

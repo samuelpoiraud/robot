@@ -71,7 +71,7 @@ int main (void)
 		UART_init();
 	#endif /* def VERBOSE_MODE */
 	LED_RUN=1;
-	debug_printf("\n-------\nDemarrage CarteP\n-------\n");
+	debug_printf("\n-------\nDemarrage CarteS\n-------\n");
 	tests();
 
 	//Sur quel robot est-on ?
