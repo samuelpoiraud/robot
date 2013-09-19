@@ -114,23 +114,23 @@ void any_match(time32_t match_duration)
 			{
 				case 0x01:	//STRAT_1_KRUSTY
 					//strategy = TEST_STRAT_avoidance;
-					strategy = &TEST_STRAT_ALEXIS;
+					strategy = K_Strat_Pour_Les_Nuls;
 				break;
 
 				case 0x02:	//STRAT_2_KRUSTY
 					//strategy = K_Strat_Coupe;
-					strategy = &TEST_STRAT_ALEXIS_FINALE;
+					strategy = K_Strat_Pour_Les_Nuls;
 				break;
 
 				case 0x03:	//STRAT_3_KRUSTY
-					strategy = K_test_strat_unitaire;
+					strategy = K_Strat_Pour_Les_Nuls;
 				break;
 
 				case 0x00:	//STRAT_0_KRUSTY (aucun switch)
 				//no break;
 
 				default:
-					strategy = TEST_STRAT_K_homologation;
+					strategy = K_Strat_Pour_Les_Nuls;
 				break;
 			}
 		}
