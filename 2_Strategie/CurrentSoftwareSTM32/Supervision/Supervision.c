@@ -39,6 +39,8 @@ void Supervision_init(void)
 		debug_printf("EEPROM_flushed\n");
 	#endif
 
+	//init_LCD_interface();
+
 	SD_init();
 
 	//A partir de maintenant, on peut loguer sur la carte SD...
@@ -91,6 +93,10 @@ void Supervision_process_main(void)
 		if(PORT_SWITCH_XBEE)
 			CAN_over_XBee_process_main();
 	#endif
+
+
+	/* Mise à jour des informations affichées à l'écran */
+	//LCD_Update();
 
 	SD_process_main();
 
