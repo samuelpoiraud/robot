@@ -19,6 +19,8 @@
 #include "act_functions.h"
 #include "actions_tests_krusty_micro.h"
 
+void K_Strat_Pour_Les_Nuls(void);
+
 void K_Strat_Coupe(void);
 error_e Assiete_2_4_lanceur(void);
 error_e Assiete_5_lanceur(void);

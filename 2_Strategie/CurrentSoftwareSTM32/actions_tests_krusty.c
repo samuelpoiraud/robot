@@ -63,6 +63,22 @@ void TEST_STRAT_K_homologation(void)
 /* ----------------------------------------------------------------------------- */
 
 
+void K_Strat_Pour_Les_Nuls(void){
+	static enum{
+		INIT,
+		//... Ici vous mettez ce que vous voulez
+		DONE
+	}state = INIT;
+
+	switch(state){
+	case INIT:
+		break;
+	default:
+		break;
+	}
+}
+
+
 void K_Strat_Coupe(void){
     static enum{
         SORTIR = 0,
