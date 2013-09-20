@@ -208,8 +208,13 @@ bool_e SD_open_file_for_next_match(void)
 	sprintf(path, "%04d.MCH", match_id);
 	if(f_open(&file_match, path, FA_READ) == FR_OK)
 	{
+		debug_printf("Size of previous match is : %d",file_match.fsize);
 		if(file_match.fsize < SIZE_CONSIDERING_NOTHING_IN_MATCH)
+		{
 			match_id = read_match_id;			//match_id 			correspond au dernier match... si le précédent est "vide"
+			debug_printf(" < %d --> the new match will overwrite this ridiculous small match !");
+		}
+		debug_printf("\n");
 		f_close(&file_match);
 	}
 	else
