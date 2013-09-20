@@ -178,6 +178,7 @@ bool_e SD_open_file_for_next_match(void)
 	Uint32 nb_read, nb_written;
 	Uint8 read_buffer[4];
 	char path[32];
+	FILINFO file_infos;
 
 	//Lit la carte SD et déduit le numéro du fichier à ouvrir.
 	read_match_id = 0;	//Valeur par défaut...
@@ -205,17 +206,17 @@ bool_e SD_open_file_for_next_match(void)
 	//read_match_id 	correspond au dernier match enregistré (0 si aucun).
 	match_id = read_match_id + 1;				//match_id 			correspond à un nouveau numéro de match... si le précédent n'est pas "vide"
 
-	sprintf(path, "%04d.MCH", match_id);
-	if(f_open(&file_match, path, FA_READ) == FR_OK)
+	sprintf(path, "%04d.MCH", read_match_id);
+	file_infos.lfname = 0;
+	if(f_stat(path, &file_infos) == FR_OK)
 	{
-		debug_printf("Size of previous match is : %d",file_match.fsize);
-		if(file_match.fsize < SIZE_CONSIDERING_NOTHING_IN_MATCH)
+		debug_printf("Size of previous match is : %ld",file_infos.fsize);
+		if(file_infos.fsize < SIZE_CONSIDERING_NOTHING_IN_MATCH)
 		{
 			match_id = read_match_id;			//match_id 			correspond au dernier match... si le précédent est "vide"
-			debug_printf(" < %d --> the new match will overwrite this ridiculous small match !");
+			debug_printf(" < %d --> the new match will overwrite this ridiculous small match !",SIZE_CONSIDERING_NOTHING_IN_MATCH);
 		}
 		debug_printf("\n");
-		f_close(&file_match);
 	}
 	else
 		debug_printf("Can't read previous match : %s\n",path);

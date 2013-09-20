@@ -152,7 +152,8 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 
 		if(SWITCH_DEBUG  && !SWITCH_XBEE && bU2)
 		{
-			CANmsgToU2tx(incoming_msg);
+			//Désactivé parce qu'on en a pas besoin...
+			//CANmsgToU2tx(incoming_msg);
 		}
 	}
 }
@@ -181,9 +182,9 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 			CANmsgToU1tx(sent_msg);
 	}
 
-	//UART2
-	if(SWITCH_DEBUG  && !SWITCH_XBEE)
-		CANmsgToU2tx(sent_msg);
+	//UART2 - désactivé volontairement -> parce qu'on en a pas besoin...
+	//if(SWITCH_DEBUG  && !SWITCH_XBEE)
+	//	CANmsgToU2tx(sent_msg);
 
 }
 
@@ -230,15 +231,6 @@ void ENV_update()
 
 	}
 
-
-	if(!SWITCH_XBEE)
-	{
-		while(UART2_data_ready())
-		{
-			if(u2rxToCANmsg(&can_msg_from_uart2,UART2_get_next_msg()))
-				ENV_process_can_msg(&can_msg_from_uart2,TRUE, TRUE, FALSE, FALSE);	//Everywhere except U2 and XBee.
-		}
-	}
 
 #ifdef USE_XBEE
 	if(SWITCH_XBEE)
