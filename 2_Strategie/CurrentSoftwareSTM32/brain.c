@@ -15,14 +15,14 @@
 
 #include "can_utils.h"
 #include "Stacks.h"
-#include "actions.h"
+#include "strats_2013/actions.h"
 #include "clock.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"
-#include "actions_tests_krusty.h"
-#include "actions_tests_tiny.h"
-#include "actions_tests_tiny_micro.h" // pour T_BALLINFLATER_start
-#include "actions.h"
+#include "strats_2013/actions_tests_krusty.h"
+#include "strats_2013/actions_tests_tiny.h"
+#include "strats_2013/actions_tests_tiny_micro.h" // pour T_BALLINFLATER_start
+#include "strats_2013/actions.h"
 #include "QS/QS_who_am_i.h"
 #include "button.h"	//pour SWITCH_change_color
 
