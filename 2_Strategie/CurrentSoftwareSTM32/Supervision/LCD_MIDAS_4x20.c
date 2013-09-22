@@ -53,7 +53,9 @@
 
 void LCD_I2C_init(void)
 {
+#ifdef USE_LCD
 	I2C_init();
+#endif
 }
 
 
@@ -91,7 +93,9 @@ void LCD_send_command(Uint8 command)
 	Uint8 datas[3];
 	datas[0] = CONTROL_BYTE_FOR_COMMAND;		// Control byte (C0 = 0, D/C = C)
 	datas[1] = command;
-	I2C2_write(LCDADDR, datas, 2, TRUE);	
+#ifdef USE_LCD
+	I2C2_write(LCDADDR, datas, 2, TRUE);
+#endif
 }
 
 
@@ -105,12 +109,11 @@ void LCD_clear_display(void)
 */
 void LCD_init(void)
 {
-	Uint32 i;
-//	RESET_TRIS = 0;
-	for(i=0;i<50000;i++);	//Delay > 5ms.
-//	RESET_PIN = 0;
+	volatile Uint32 i;
+
+	LCD_RESET_PORT = 0;
 	for(i=0;i<100000;i++);	//Delay > 10ms.
-//	RESET_PIN = 1;
+	LCD_RESET_PORT = 1;
 	for(i=0;i<10000;i++);	//Delay > 1ms
 
 	LCD_send_command(COMMAND_CLEAR_DISPLAY);	//Clear display
@@ -257,8 +260,9 @@ void LCD_Write_text(char * string)
 			break;
 		}
 	}	
-	
+#ifdef USE_LCD
 	I2C2_write(LCDADDR, datas, index, TRUE);
+#endif
 }
 
 /*
@@ -296,5 +300,4 @@ void LCD_test(void)
 	}
 
 }	
-
 

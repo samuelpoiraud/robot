@@ -41,7 +41,7 @@ typedef enum
 strat_s strat;
 
 const char *strategy[4] = {"STR","KDO","CAK","MOIS"};
-Uint8 strat_number[4];
+Uint8 strat_nb[4];
 
 // Variable de menu
 enum{
@@ -125,7 +125,7 @@ void display_strats(){
 
 	// Affichage de la position actuelle du robot
 	LCD_set_cursor(2, 0);
-	sprintf(buf,"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_number[0], strategy[1], strat_number[1], strategy[2], strat_number[2], strategy[3], strat_number[3]);
+	sprintf(buf,"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2], strategy[3], strat_nb[3]);
 	LCD_Write_text(buf);
 }
 
@@ -164,6 +164,7 @@ void display_menu(void){
 
 ////////////////////////////////////////////////////////////////////////
 /// INIT
+static bool_e initialized = FALSE;
 
 void init_LCD_interface(void){
 	LCD_I2C_init();
@@ -182,8 +183,9 @@ void init_LCD_interface(void){
 	for(i=0; i<4; i++){
 		message.msg[i].sid = i;
 		message.msg[i].size = 0;
-		strat_number[i] = 0;
+		strat_nb[i] = 0;
 	}
+	initialized = TRUE;
 }
 
 
@@ -191,7 +193,8 @@ void init_LCD_interface(void){
 /// REFRESHING
 
 void LCD_Update(void){
-
+	if(!initialized)
+		return;
 	if(LCD_transition())
 		LCD_clear_display();
 
@@ -324,8 +327,8 @@ void LCD_strat_mode(void){
 
 void LCD_strat_number(void){
 	char buf[20];
-	strat_number[strat] = (strat_number[strat]+1)%4;
-	sprintf(buf,"%1d",strat_number[strat]);
+	strat_nb[strat] = (strat_nb[strat]+1)%4;
+	sprintf(buf,"%1d",strat_nb[strat]);
 	switch(strat){
 		case STR:
 			LCD_set_cursor(2, 3);
