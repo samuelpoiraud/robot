@@ -5,7 +5,6 @@
 #include "../../QS/QS_can_over_uart.h"
 #include "../../QS/QS_spi.h"
 #include "../Verbose_can_msg.h"
-#include "misc_test_term.h"
 #include "ff_test_term.h"
 #include "Libraries/fat_sd/ff.h"
 #include "Libraries/fat_sd/diskio.h"
@@ -36,6 +35,7 @@ volatile bool_e data_waiting_for_sync = FALSE;
 volatile bool_e sd_ready = FALSE;
 volatile Uint16	match_id = 0xFFFF;
 volatile Uint16	read_match_id = 0xFFFF;
+static bool_e initialized = FALSE;
 
 //@post	SD_printf peut être appelée... (si tout s'est bien passé, les logs peuvent être enregistrés...)
 void SD_init(void)
@@ -43,6 +43,7 @@ void SD_init(void)
 	PORTS_spi_init();
 	SPI_init();
 	SD_process_main();	//Permet d'ouvrir le plus vite possible le fichier de log.
+	initialized = TRUE;
 }
 
 
@@ -253,7 +254,8 @@ void SD_process_main(void)
 		IDLE
 	}state_e;
 	static state_e state = INIT;
-
+	if(!initialized)
+		return;
 	switch (state)
 	{
 		case INIT:

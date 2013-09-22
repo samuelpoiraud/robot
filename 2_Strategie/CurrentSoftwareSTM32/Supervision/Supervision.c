@@ -39,12 +39,10 @@ void Supervision_init(void)
 		debug_printf("EEPROM_flushed\n");
 	#endif
 
-	//init_LCD_interface();
+	#ifdef USE_LCD
+		init_LCD_interface();
+	#endif
 
-	SD_init();
-
-	//A partir de maintenant, on peut loguer sur la carte SD...
-	SD_printf("Hello, I am %s\n", ((QS_WHO_AM_I_get() == TINY)?"TINY":"KRUSTY"));
 
 	#ifdef USE_XBEE
 		if(QS_WHO_AM_I_get() == TINY)
@@ -62,7 +60,7 @@ void Supervision_process_1sec(void)
 
 void Supervision_process_main(void)
 {	
-	static bool_e RTC_time_printed = FALSE;
+	static bool_e first_second_elapsed = FALSE;
 //	print_all_msg(); //désolé...
 //	EEPROM_CAN_MSG_verbose_all_match_header();
 
@@ -76,10 +74,13 @@ void Supervision_process_main(void)
 		#endif
 		SELFTEST_process_1sec();
 		//Au bout de la première seconde.
-		if(!RTC_time_printed)
+		if(!first_second_elapsed)
 		{
-			RTC_time_printed = TRUE;
+			first_second_elapsed = TRUE;
 			RTC_print_time();	//Si on rajoute pas ce délai d'une seconde, la RTC n'est pas prête quand on vient la lire.
+			SD_init();
+			//A partir de maintenant, on peut loguer sur la carte SD...
+			SD_printf("Hello, I am %s\n", ((QS_WHO_AM_I_get() == TINY)?"TINY":"KRUSTY"));
 		}
 	}
 
@@ -96,7 +97,9 @@ void Supervision_process_main(void)
 
 
 	/* Mise à jour des informations affichées à l'écran */
-	//LCD_Update();
+	#ifdef USE_LCD
+		LCD_Update();
+	#endif
 
 	SD_process_main();
 

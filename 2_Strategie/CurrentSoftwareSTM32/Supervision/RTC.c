@@ -13,7 +13,7 @@
  
 #define QS_I2C_C
 #include "RTC.h"
-#ifdef USE_RTC
+
 	#include "../QS/QS_i2c.h"
 	#include "../QS/QS_CANmsgList.h"
 	#include "../QS/QS_can.h"
@@ -122,7 +122,6 @@ Uint8 RTC_set_time  (date_t * date)
 //Uses 24 hour clock, not 12 hour
 Uint8 RTC_get_time (date_t * date)
 {
-	Uint8 datas[7];
 	date->seconds = 0;
 	date->minutes = 0;
 	date->hours = 0;
@@ -131,6 +130,7 @@ Uint8 RTC_get_time (date_t * date)
 	date->month = 1;
 	date->year = 0;
 	#ifdef USE_RTC
+	Uint8 datas[7];
 	datas[0] = 0x00;	//@ du premier registre
 	if(I2C2_write(DS1307_I2C_ADDRESS, datas, 1, FALSE))	//Condition de stop non envoyée...
 	{
@@ -151,6 +151,7 @@ Uint8 RTC_get_time (date_t * date)
 	#endif
 	return FALSE;
 }
+
 
 //Interroge la RTC SEULEMENT SI nécessaire.
 //  Il n'est pas nécessaire d'interroger la RTC si on dispose de la date en local et que le process_it_1sec a été appelée au moins une fois.
@@ -232,5 +233,5 @@ void RTC_can_send(void)
 	msg.data[6] = date.year;
 	CAN_send(&msg);	
 }	
-#endif
+
 

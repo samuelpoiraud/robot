@@ -147,7 +147,7 @@
 
 
 	//#define USE_LCD
-	#ifdef USE_RTC
+	#ifdef USE_LCD
 		#define USE_I2C2
 	#endif
 

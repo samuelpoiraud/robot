@@ -103,6 +103,7 @@ void print_help(void)
 	printf("cat <path>               - print the file content\n");
 	printf("cp <src_name> <dst_name> - Copy file\n");
 	printf("rm <name>                - Delete a file or dir (=Unlink)\n");
+	printf("clean                    - Delete ALL matchs files and the index - BE SURE !!!\n");
 	printf("\n   ::  MEMORY_COMMANDS  ::\n");
 	printf("md <address> [<count>]   - Dump memory\n");
 	printf("dd [<lba>]               - Dump sector\n");
@@ -215,6 +216,37 @@ bool_e execute_command(char * ptr)
 						}
 						f_close(&File1);
 					}
+				}
+				else if(*ptr == 'l')
+				{
+					ptr++;
+					if(*ptr++ == 'e')
+						if(*ptr++ == 'a')
+							if(*ptr++ == 'n')		// clean - Delete all matchs file
+							{
+								debug_printf("Cleaning all match files - Cela peut prendre plusieurs minutes\n");
+								debug_printf("Si vous ne vouliez pas supprimer les matchs enregistrés, RESETTEZ VITE LA CARTE STRATEGIE !!!\n");
+
+								Sint16 match;
+								char path[12];
+								for(match = 9999; match>=0; match--)
+								{
+									sprintf(path, "%04d.MCH", match);
+									res = f_unlink(path);
+									if(res == RES_OK)
+									{
+										debug_printf("\n%s deleted",path);
+									}
+									if(match == (match/100)*100)
+										debug_printf(".");
+								}
+								res = f_unlink("index.inf");
+								if(res == RES_OK)
+								{
+									debug_printf("\nindex.inf deleted\n");
+								}
+								debug_printf("Vous pouvez maintenant reseter la carte Stratégie (si vous lancez un match maintenant, il ne sera pas enregistré).");
+							}
 				}
 				break;
 

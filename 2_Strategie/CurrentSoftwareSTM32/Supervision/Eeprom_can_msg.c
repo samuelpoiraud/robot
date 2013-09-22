@@ -78,7 +78,7 @@ Uint16 current_match_id;		//Numéro du match en cours ou à venir
 Uint16 current_match_address_x8;		//adresse de l'entête du match en cours où à venir
 Uint16 current_msg_address_x16;	//adresse du prochain message à écrire
 Uint16 nb_msg_in_match;
-bool_e initialized = FALSE;		//Lorsque le module est correctement initialisé (nécessite que la mémoire soit câblée et fonctionne !)
+static bool_e initialized = FALSE;		//Lorsque le module est correctement initialisé (nécessite que la mémoire soit câblée et fonctionne !)
 
 /*
 @return 	TRUE : la mémoire est là et fonctionne
