@@ -54,7 +54,7 @@
 
 
 #define PLLM (CPU_EXTERNAL_CLOCK_HZ / VCO_INPUT_HZ)
-#define PLLN (VCO_OUTPUT_HZ / 10 * PLLM / CPU_EXTERNAL_CLOCK_HZ * 10)	//On utilise pas directement VCO_INPUT_HZ car il peut ne pas pouvoir être exact
+#define PLLN (VCO_OUTPUT_HZ  / CPU_EXTERNAL_CLOCK_HZ * PLLM)	//On utilise pas directement VCO_INPUT_HZ car il peut ne pas pouvoir être exact
 #define PLLP FORCED_PLLP
 #define PLLQ (VCO_OUTPUT_HZ / USB_RNG_SDIO_CLK_HZ)
 
