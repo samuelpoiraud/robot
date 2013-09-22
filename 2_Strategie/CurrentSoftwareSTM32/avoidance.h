@@ -173,11 +173,9 @@
 	 * param d : Distance à parcourir, valeur positive.
 	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
 	 */
-	Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
-	Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
-	Uint8 try_going_slow(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
-	Uint8 try_going_slow_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
-	/*
+	Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
+	Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
+/*
 	 * Comme try_going mais avec le support du multipoint
 	 *
 	 * pre : Etre sur le terrain
@@ -191,7 +189,7 @@
 	 * param success_state état à retourner si le déplacement s'est terminé correctement
 	 * param fail_state état à retourner si le déplacement ne s'est pas terminé correctement
 	 */
-	Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+	Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition);
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.
 	 *
@@ -202,7 +200,7 @@
 	 */
 	Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed);
 
-	Uint8 try_relative_move(Sint16 distance, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+	Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition);
 
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.
