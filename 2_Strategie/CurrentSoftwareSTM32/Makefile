@@ -10,7 +10,9 @@
 PROJECT=SuperStrat
 
 # DEBUG ou RELEASE,  en majuscule !
-BUILD_TYPE = RELEASE
+ifeq ($(BUILD_TYPE),)
+	BUILD_TYPE = RELEASE
+endif
 
 # permet d'activer la création du fichier de listing (fichiers .lst) -> + long a la compilation, d'où la désactivation possible !
 OUTPUT_LST=no
@@ -37,7 +39,7 @@ ASM_FLAGS_DEBUG = -g
 ASM_FLAGS_RELEASE =
 
 LINKER_FLAGS = -Wall -T"./QS/stm32f4xx_flash.ld" -nostartfiles -Wl,-Map,$(DEST_DIR)/$(PROJECT).map
-LINKER_FLAGS_DEBUG = -lstm32f4xx-d
+LINKER_FLAGS_DEBUG = stm32f4xx/libstm32f4xx-d.a
 LINKER_FLAGS_RELEASE = stm32f4xx/libstm32f4xx.a
 
 CC = $(TOOLCHAIN_DIR)arm-none-eabi-gcc
@@ -51,7 +53,15 @@ OBJCOPY = $(TOOLCHAIN_DIR)arm-none-eabi-objcopy
 #fonction qui recupère tous les flags pour le mode demandé (par ex C_FLAGS avec C_FLAGS_DEBUG en mode debug)
 get_final_flags = $($(1)) $($(1)_$(BUILD_TYPE))
 to_lowercase = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
-CMD_CAT = cat
+
+ifeq ($(OS),Windows_NT)
+	CMD_CAT = type
+	CMD_MKDIR = if not exist $(1) mkdir $(1)
+else
+	CMD_CAT = cat
+	CMD_MKDIR = mkdir -p $(1)
+endif
+
 
 ifeq ($(OUTPUT_LST),yes)
 	LINKER_FLAGS += -Wa,-adhlns="$(@:.o=.lst)"
@@ -87,7 +97,7 @@ all: prepare $(DEST_DIR)/$(PROJECT).bin
 -include $(DEP_FILE_LIST)
 
 prepare:
-	mkdir -p $(DEST_DIR)
+	$(call CMD_MKDIR,$(DEST_DIR))
 
 # Règle de construction du .bin à partir du .elf
 $(DEST_DIR)/$(PROJECT).bin: $(DEST_DIR)/$(PROJECT).elf
