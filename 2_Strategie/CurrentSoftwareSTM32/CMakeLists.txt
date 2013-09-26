@@ -4,7 +4,7 @@ project(SuperStrat)
 #include("toolchain-gcc-arm-embedded.cmake")
 set(CMAKE_TOOLCHAIN_FILE "toolchain-gcc-arm-embedded.cmake")
 
-set(CMAKE_VERBOSE_MAKEFILE false)
+set(CMAKE_VERBOSE_MAKEFILE true)
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 get_filename_component(BUILD_DIR_NAME ${CMAKE_BINARY_DIR} NAME)
@@ -31,4 +31,12 @@ string(REGEX REPLACE "${CMAKE_BINARY_DIR}/CMakeFiles/[^;]+;?" "" SRC_LIST "${SRC
 add_executable(${TARGET_NAME} ${SRC_LIST})
 target_link_libraries(${TARGET_NAME} libstm32f4xx.a)
 
-add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND "${CMAKE_OBJDUMP} -Obinary ${EXECUTABLE_OUTPUT_PATH}/${PROJECT}.elf ${EXECUTABLE_OUTPUT_PATH}/${PROJECT}.bin")
+add_custom_command(TARGET ${TARGET_NAME}  POST_BUILD COMMAND ${CMAKE_OBJCOPY} ARGS -Obinary ${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}.elf ${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}.bin)
+
+if(CMAKE_BUILD_TYPE EQUAL Release)
+	add_custom_command(TARGET ${TARGET_NAME}  POST_BUILD COMMAND ${CMAKE_OBJDUMP} ARGS -h -S $(EXECUTABLE_OUTPUT_PATH)/$(PROJECT_NAME).elf > "$(EXECUTABLE_OUTPUT_PATH)/$(PROJECT_NAME).lst")
+endif()
+
+set(OPENOCD_COMMAND "flash write_image erase \\\"${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}.bin\\\" 0x08000000")
+separate_arguments(OPENOCD_COMMAND)
+add_custom_target(program DEPENDS ${TARGET_NAME} COMMAND openocd ARGS -f interface/stlink-v2.cfg -f target/stm32f4x_stlink.cfg -c \"init\" -c \"reset halt\" -c \"${OPENOCD_COMMAND}\" -c \"reset\" -c shutdown)
