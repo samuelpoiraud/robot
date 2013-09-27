@@ -22,10 +22,10 @@
 	#define FDP_2013
 
 	/* Il faut choisir à quelle frequence on fait tourner le STM32 */
-	#define HCLK_FREQUENCY_HZ     40000000	//40Mhz, Max: 168Mhz
-	#define PCLK1_FREQUENCY_HZ    10000000	//10Mhz, Max: 42Mhz
-	#define PCLK2_FREQUENCY_HZ    20000000	//40Mhz, Max: 84Mhz
-	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//10Mhz, Fréquence de l'horloge externe
+	#define HCLK_FREQUENCY_HZ     160000000	//40Mhz, Max: 168Mhz
+	#define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
+	#define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
+	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
@@ -50,6 +50,14 @@
 	 * entrees/sorties du pic pour realiser des fonctionnalites
 	 * particulieres comme une entree analogique
 	 */
+
+	#define LED_ERROR 			GPIOD->ODR10
+	#define LED_SELFTEST 		GPIOD->ODR11
+	#define LED_RUN  			GPIOD->ODR12
+	#define LED_CAN  			GPIOD->ODR13
+	#define LED_UART 			GPIOD->ODR14
+	#define LED_USER 			GPIOD->ODR15
+	#define PORT_ROBOT_ID       GPIOD->ODR0
 
 	#define USE_CAN
 /*	Nombre de messages CAN conservés
@@ -81,6 +89,7 @@
 
 	//Test debug QS_STM32
 	//On active tout
+
 	#define USE_WATCHDOG
 	#define WATCHDOG_TIMER 3
 	#define WATCHDOG_MAX_COUNT 5
@@ -92,10 +101,10 @@
 	#define DCMOTOR_NB_POS 3
 	#define DCM_TIMER 4
 
-//	#define USE_AX12_SERVO
-//	#define AX12_NUMBER 4
-//	#define AX12_USE_WATCHDOG
-//	#define AX12_DIRECTION_PORT GPIOD->ODR5 //au hazard, a changer
+	#define USE_AX12_SERVO
+	#define AX12_NUMBER 4
+	#define AX12_USE_WATCHDOG
+	#define AX12_DIRECTION_PORT GPIOD->ODR5 //au hazard, a changer
 
 //
 //	#define USE_DCMOTOR2

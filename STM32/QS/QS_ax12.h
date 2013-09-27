@@ -25,10 +25,10 @@
  * <li> Les ID des AX-12+ doivent être différents et se suivre (ID = 0 ... n)
  * </ul>
  */
-#ifndef USE_AX12_SERVO
-#define USE_AX12_SERVO
-#undef  USE_AX12_SERVO
-#endif
+//#ifndef USE_AX12_SERVO
+//#define USE_AX12_SERVO
+//#undef  USE_AX12_SERVO
+//#endif
 
 /** @name Paramètres requis
  * Defines à définir obligatoirement dans Global_config pour utiliser ce driver.
@@ -39,29 +39,29 @@
 	 *
 	 * Ce nombre défini la taille des buffers interne. Dans les fonctions, id_servo devra être strictement inférieur à ce nombre.
 	 */
-	#ifndef AX12_NUMBER
-	#define AX12_NUMBER
-	#undef  AX12_NUMBER
-	#endif
+//	#ifndef AX12_NUMBER
+//	#define AX12_NUMBER
+//	#undef  AX12_NUMBER
+//	#endif
 
 	/** Port de contrôle de la direction du bus de données.
 	 *
 	 * Ce port est utilisé pour définir l'état du bus half-duplex, en recpetion, ce port est mis à l'état logique 0,
 	 * en transmission il est mis à 1.
 	 */
-	#ifndef AX12_DIRECTION_PORT
-	#define AX12_DIRECTION_PORT
-	#undef  AX12_DIRECTION_PORT
-	#endif
+//	#ifndef AX12_DIRECTION_PORT
+//	#define AX12_DIRECTION_PORT
+//	#undef  AX12_DIRECTION_PORT
+//	#endif
 
 	/** Numéro du timer utilisé pour le timeout.
 	 *
 	 * Ce timer sera utilisé pour avoir un temps d'attente maximum lorsqu'un paquet de status est censé être enovoyé par l'AX12.
 	 */
-	#ifndef AX12_TIMER_ID
-	#define AX12_TIMER_ID
-	#undef  AX12_TIMER_ID
-	#endif
+//	#ifndef AX12_TIMER_ID
+//	#define AX12_TIMER_ID
+//	#undef  AX12_TIMER_ID
+//	#endif
 ///@}
 
 /** @name Paramètres optionnels
@@ -74,10 +74,10 @@
 	 * L'UART2 est utilisé pour la communication, elle ne doit pas être utiliser par un autre module.
 	 * Sur le robot de 2012-2013, une vitesse de 56700 bauds est utilisée, cette vitesse est aussi celle par défaut.
 	 */
-	#ifndef AX12_UART_BAUDRATE
-	#define AX12_UART_BAUDRATE
-	#undef  AX12_UART_BAUDRATE
-	#endif
+//	#ifndef AX12_UART_BAUDRATE
+//	#define AX12_UART_BAUDRATE
+//	#undef  AX12_UART_BAUDRATE
+//	#endif
 
 	/** Temps d'attente du paquet de status avant timeout.
 	 *
@@ -85,10 +85,10 @@
 	 * Valeur par défaut: 5ms.
 	 * @see AX12_ERROR_TIMEOUT
 	 */
-	#ifndef AX12_STATUS_RETURN_TIMEOUT
-	#define AX12_STATUS_RETURN_TIMEOUT
-	#undef  AX12_STATUS_RETURN_TIMEOUT
-	#endif
+//	#ifndef AX12_STATUS_RETURN_TIMEOUT
+//	#define AX12_STATUS_RETURN_TIMEOUT
+//	#undef  AX12_STATUS_RETURN_TIMEOUT
+//	#endif
 
 
 	/** Politique de retour de paquet status.
@@ -105,10 +105,10 @@
 	 * </ul>
 	 * @see AX12_config_set_status_return_mode
 	 */
-	#ifndef AX12_STATUS_RETURN_MODE
-	#define AX12_STATUS_RETURN_MODE
-	#undef  AX12_STATUS_RETURN_MODE
-	#endif
+//	#ifndef AX12_STATUS_RETURN_MODE
+//	#define AX12_STATUS_RETURN_MODE
+//	#undef  AX12_STATUS_RETURN_MODE
+//	#endif
 
 	/** Taille du buffer interne d'instruction.
 	 *
@@ -116,10 +116,10 @@
 	 * Le buffer interne est commun à tous les AX12.
 	 * Par defaut, la taille du buffer est de 4*AX12_NUMBER.
 	 */
-	#ifndef AX12_INSTRUCTION_BUFFER_SIZE
-	#define AX12_INSTRUCTION_BUFFER_SIZE
-	#undef  AX12_INSTRUCTION_BUFFER_SIZE
-	#endif
+//	#ifndef AX12_INSTRUCTION_BUFFER_SIZE
+//	#define AX12_INSTRUCTION_BUFFER_SIZE
+//	#undef  AX12_INSTRUCTION_BUFFER_SIZE
+//	#endif
 
 
 	/** Mode tracage des paquets.
@@ -127,10 +127,10 @@
 	 * Si ce define est défini, le driver affichera avec debug_printf les paquets envoyés et reçus.
 	 * Attention, debug_printf sera utilisé en interruption, cette fonction n'est pas réentrante.
 	 */
-	#ifndef AX12_DEBUG_PACKETS
-	#define AX12_DEBUG_PACKETS
-	#undef  AX12_DEBUG_PACKETS
-	#endif
+//	#ifndef AX12_DEBUG_PACKETS
+//	#define AX12_DEBUG_PACKETS
+//	#undef  AX12_DEBUG_PACKETS
+//	#endif
 ///@}
 
 

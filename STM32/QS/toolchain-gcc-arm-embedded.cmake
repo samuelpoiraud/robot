@@ -21,7 +21,6 @@ CMAKE_FORCE_C_COMPILER(arm-none-eabi-gcc GNU)
 CMAKE_FORCE_CXX_COMPILER(arm-none-eabi-g++ GNU)
 #set(CMAKE_C_COMPILER       arm-none-eabi-gcc)
 #set(CMAKE_CXX_COMPILER     arm-none-eabi-g++)
-set(CMAKE_ASM_COMPILER     arm-none-eabi-as)
 
 # Find the target environment prefix..
 # First see where gcc is keeping libc.a
@@ -51,7 +50,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 SET(CMAKE_C_FLAGS "-mthumb -mcpu=cortex-m4 -Wall" CACHE INTERNAL "c compiler flags")
 SET(CMAKE_CXX_FLAGS "-mthumb -mcpu=cortex-m4 -Wall" CACHE INTERNAL "cxx compiler flags")
-SET(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m4 -Wall" CACHE INTERNAL "asm compiler flags")
+SET(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m4 -Wall -x assembler-with-cpp" CACHE INTERNAL "asm compiler flags")
 SET(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -mthumb -mcpu=cortex-m4 -Wall -T\"${CMAKE_CURRENT_LIST_DIR}/stm32f4xx_flash.ld\"" CACHE INTERNAL "exe link flags")
 
 # When we break up long strings in CMake we get semicolon
