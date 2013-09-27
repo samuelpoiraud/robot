@@ -68,10 +68,10 @@
 	/** Configuration du timer pour le timeout de réception du status    **/
 	/**********************************************************************/
 
-	#ifdef BUTTONS_TIMER
-		#define TIMER_SRC_TIMER_ID BUTTONS_TIMER
+	#ifdef AX12_TIMER_ID
+		#define TIMER_SRC_TIMER_ID AX12_TIMER_ID
 	#endif
-	#ifdef BUTTONS_TIMER_USE_WATCHDOG
+	#ifdef AX12_TIMER_USE_WATCHDOG
 		#define TIMER_SRC_USE_WATCHDOG
 	#endif
 

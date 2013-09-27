@@ -35,7 +35,7 @@
 			Uint8 way0_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens à 0
 			Uint8 way1_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens à 1
 			Sint16 Kp, Ki, Kd;				// valeurs des gains pour le PID
-			volatile unsigned int* way_latch;	// adresse du port contenant le bit de sens de controle du pont en H (utilisation des types de base pour correspondre à ceux du header du pic)
+			volatile uint32_t* way_latch;	// adresse du port contenant le bit de sens de controle du pont en H (utilisation des types de base pour correspondre à ceux du header du pic)
 			Uint8 way_bit_number;			// numero du bit de sens dans le port
 			Uint16 timeout;					// timeout en ms, si la position demandée n'est pas atteinte avant ce temps, l'asservissement est arreté (évite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
 			Uint16 epsilon;					// epsilon, si l'erreur devient inférieur à cette variable, la position est considéré comme atteinte
