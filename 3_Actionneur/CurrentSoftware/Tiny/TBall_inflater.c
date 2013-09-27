@@ -20,19 +20,15 @@
 #define LOG_PREFIX "BI: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLINFLATER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-#include "../QS/QS_timer.h"
-#if (!defined(BALLINFLATER_TIMER_ID) || BALLINFLATER_TIMER_ID > 3 || BALLINFLATER_TIMER_ID < 1) && !defined(AX12_USE_WATCHDOG)
-		#error "AX12: BALLINFLATER_TIMER_ID non défini ou invalide, vous devez choisir le numéro du timer entre 1 et 3 inclus, ou utiliser le watchdog avec AX12_USE_WATCHDOG"
-#else
-	//Pour plus d'info sur la concaténation de variable dans des macros, voir http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation
-	#define BALLINFLATER_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
-	#define BALLINFLATER_TEMP_CONCAT(a,b,c) BALLINFLATER_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
-	#define BALLINFLATER_TIMER_interrupt _ISR BALLINFLATER_TEMP_CONCAT(_T, BALLINFLATER_TIMER_ID, Interrupt)
-	#define BALLINFLATER_TIMER_resetFlag() BALLINFLATER_TEMP_CONCAT(IFS0bits.T, BALLINFLATER_TIMER_ID, IF) = 0
-	#define BALLINFLATER_TIMER_init() TIMER_init()
-	#define BALLINFLATER_TIMER_start(period_us) BALLINFLATER_TEMP_CONCAT(TIMER, BALLINFLATER_TIMER_ID, _run_us)(period_us)
-	#define BALLINFLATER_TIMER_stop() BALLINFLATER_TEMP_CONCAT(TIMER, BALLINFLATER_TIMER_ID, _stop)()
+
+#ifdef BALLINFLATER_TIMER_ID
+	#define TIMER_SRC_TIMER_ID BALLINFLATER_TIMER_ID
 #endif
+#ifdef BALLINFLATER_TIMER_USE_WATCHDOG
+	#define TIMER_SRC_USE_WATCHDOG
+#endif
+
+#include "../QS/QS_setTimerSource.h"
 
 static bool_e ballinflater_state;
 static bool_e BALLINFLATER_emerg_stop_inflater = FALSE;
@@ -45,8 +41,8 @@ void BALLINFLATER_init() {
 	initialized = TRUE;
 
 	ballinflater_state = BALLINFLATER_OFF;
-	BALLINFLATER_TIMER_init();
-	BALLINFLATER_TIMER_start(100);
+	TIMER_SRC_TIMER_init();
+	TIMER_SRC_TIMER_start_ms(100);
 }
 
 void BALLINFLATER_stop() {
@@ -173,7 +169,7 @@ void BALLINFLATER_TIMER_interrupt() {
 			break;
 	}
 
-	BALLINFLATER_TIMER_resetFlag();
+	TIMER_SRC_TIMER_resetFlag();
 }
 
 #endif	//I_AM_ROBOT_TINY

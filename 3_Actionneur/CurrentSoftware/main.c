@@ -10,6 +10,7 @@
  */
 
 #include "QS/QS_all.h"
+#include "QS/QS_sys.h"
 #include "QS/QS_buttons.h"
 #include "QS/QS_ports.h"
 #include "QS/QS_adc.h"
@@ -41,13 +42,6 @@ static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
 
-
-void RCON_read();
-void _ISR _MathError();
-void _ISR _StackError();
-void _ISR _AddressError();
-void _ISR _OscillatorFail();
-
 int main (void)
 {
 	Sint8 lastSwitchState[2] = {-1, -1};
@@ -56,7 +50,9 @@ int main (void)
 	-------------------------------------*/
 		
 	//initialisations
+	SYS_init();
 	PORTS_init();
+
 	LED_RUN = 1;
 	LED_USER = 0;
 
@@ -83,8 +79,6 @@ int main (void)
 #else
 	debug_printf("--- Hello, I'm ACT ---\n");
 #endif
-
-	RCON_read();
 
 	//Init actioneurs
 	ACTMGR_init();
@@ -352,59 +346,3 @@ static void MAIN_onButton4() {
 	debug_printf("\n");
 }
 #endif // Tiny ou Krusty
-
-void RCON_read()
-{
-	debug_printf("dsPIC30F reset source :\n");
-	if(RCON & 0x8000)
-		debug_printf("- Trap conflict event\n");
-	if(RCON & 0x4000)
-		debug_printf("- Illegal opcode or uninitialized W register access\n");
-	if(RCON & 0x80)
-		debug_printf("- MCLR Reset\n");
-	if(RCON & 0x40)
-		debug_printf("- RESET instruction\n");
-	if(RCON & 0x10)
-		debug_printf("- WDT time-out\n");
-	if(RCON & 0x8)
-		debug_printf("- PWRSAV #SLEEP instruction\n");
-	if(RCON & 0x4)
-		debug_printf("- PWRSAV #IDLE instruction\n");
-	if(RCON & 0x2)
-		debug_printf("- POR, BOR\n");
-	if(RCON & 0x1)
-		debug_printf("- POR\n");
-	RCON=0;
-}
-/* Trap pour debug reset */
-void _ISR _MathError()
-{
-  _MATHERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Math\n");
-  while(1) Nop();
-}
-
-void _ISR _StackError()
-{
-  _STKERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Stack\n");
-  while(1) Nop();
-}
-
-void _ISR _AddressError()
-{
-  _ADDRERR = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap Address\n");
-  while(1) Nop();
-}
-
-void _ISR _OscillatorFail()
-{
-  _OSCFAIL = 0;
-  LED_ERROR = 1;
-  debug_printf("Trap OscFail\n");
-  while(1) Nop();
-}

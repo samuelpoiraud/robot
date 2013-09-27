@@ -12,6 +12,8 @@
 #ifndef BALL_LAUNCHER_H
 #define	BALL_LAUNCHER_H
 
+//TODO: gérer les interruptions externe pour ball launcher
+
 #include "../QS/QS_all.h"
 #ifdef I_AM_ROBOT_KRUSTY
 

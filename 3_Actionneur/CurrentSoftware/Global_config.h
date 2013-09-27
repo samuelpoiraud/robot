@@ -23,16 +23,19 @@
 	 * Pour ceux qui veulent, il est possible de prédéfinir PREDEF_BUILD_TINY ou PREDEF_BUILD_KRUSTY avec le switch -DPREDEF_BUILD_TINY ou -DPREDEF_BUILD_KRUSTY de gcc, permet la creation de plusieurs target dans mplab X au moins.
 	 * PREDEF_BUILD_TINY et PREDEF_BUILD_KRUSTY sont prioritaire sur la définition manuelle.
 	 */
-	//#define I_AM_ROBOT_KRUSTY
-	#define I_AM_ROBOT_TINY
+	#define I_AM_ROBOT_KRUSTY
+	//#define I_AM_ROBOT_TINY
 	
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
-	#define FREQ_10MHZ
+	#define HCLK_FREQUENCY_HZ     160000000	//40Mhz, Max: 168Mhz
+	#define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
+	#define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
+	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 
 	// DEFINIR LES PORTS DANS Tiny/Global_config.h ou Krusty/Global_config.h selon le robot !
 
-	#define SWITCH_RG0 PORTGbits.RG0
-	#define SWITCH_RG1 PORTGbits.RG1
+	#define SWITCH_RG0 FALSE
+	#define SWITCH_RG1 FALSE
 
 /* Message debug sur l'uart 1 */
 	#define VERBOSE_MODE
@@ -65,6 +68,22 @@
 
 
 /* Definition des connectiques capteurs et actionneurs COMMUN à Tiny et Krusty */
+
+/* LEDs */
+	#define LED_ERROR 			GPIOD->ODR10
+	#define LED_SELFTEST 		GPIOD->ODR11
+	#define LED_RUN  			GPIOD->ODR12
+	#define LED_CAN  			GPIOD->ODR13
+	#define LED_UART 			GPIOD->ODR14
+	#define LED_USER 			GPIOD->ODR15
+	#define LED_USER2 			GPIOD->ODR16
+
+/* Buttons */
+	#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
+	#define BUTTON2_PORT		(!GPIOE->IDR13)	//Calibration
+	#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
+	#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
+	#define PORT_ROBOT_ID  		GPIOC->IDR13
 
 
 /* Watchdog */

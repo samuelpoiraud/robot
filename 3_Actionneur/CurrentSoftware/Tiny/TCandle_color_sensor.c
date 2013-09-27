@@ -208,7 +208,7 @@ void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 //			}
 		} else {
 			Uint8 result, error_code;
-			Uint16 line;
+			Uint16 line = __LINE__;
 
 			result = ACT_RESULT_DONE;
 			error_code = ACT_RESULT_ERROR_OK;
