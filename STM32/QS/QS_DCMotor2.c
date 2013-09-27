@@ -286,7 +286,7 @@ void TIMER_SRC_TIMER_interrupt()
 			switch(this->cmd_state) {
 				case DCM_WORKING:
 					this->cmd_time += DCM_TIMER_PERIOD;
-					if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon)
+					if(absolute(error) < (Sint16)config->epsilon && absolute(this->previous_error) < (Sint16)config->epsilon)
 						this->cmd_state = DCM_IDLE;
 					else if(config->timeout && this->cmd_time >= config->timeout)
 						this->cmd_state = DCM_TIMEOUT;
@@ -294,7 +294,7 @@ void TIMER_SRC_TIMER_interrupt()
 
 				case DCM_IDLE:
 					this->cmd_time = 0;
-					if(abs(error) >= (Sint16)config->epsilon)
+					if(absolute(error) >= (Sint16)config->epsilon)
 						this->cmd_state = DCM_WORKING;
 					break;
 
