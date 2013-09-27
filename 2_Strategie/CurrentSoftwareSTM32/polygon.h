@@ -17,7 +17,7 @@
 
 	
 	#include "QS/QS_all.h"
-	#include "Asser_functions.h"
+	#include "asser_functions.h"
 		
 		/* Caractéristiques des polygones */
 		/* Nombres de polygones maximal sur le terrain

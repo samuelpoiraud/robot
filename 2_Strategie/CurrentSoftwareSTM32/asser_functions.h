@@ -2,7 +2,7 @@
  *	Club Robot ESEO 2008 - 2010
  *	Archi'Tech, PACMAN
  *
- *	Fichier : Asser_functions.h
+ *	Fichier : asser_functions.h
  *	Package : Carte Principale
  *	Description : 	Fonctions de gestion de la pile
  *					de l'asser
