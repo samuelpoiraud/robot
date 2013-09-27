@@ -16,10 +16,10 @@
 
 #include "QS/QS_timer.h"
 
-typedef Uint16 time_t;
+typedef Uint16 clock_time_t;
 
 void CLOCK_init();
 
-time_t CLOCK_get_time(); //en centaine de ms, 2 correspond à 200ms
+clock_time_t CLOCK_get_time(); //en centaine de ms, 2 correspond à 200ms
 
 #endif /* ndef ndef CLOCK_H */

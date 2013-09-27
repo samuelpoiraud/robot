@@ -78,7 +78,7 @@
 	#define AX12_NUMBER 7
 	//#define AX12_USE_WATCHDOG
 	#define AX12_TIMER_ID 2
-	#define AX12_DIRECTION_PORT LATGbits.LATG8
+	#define AX12_DIRECTION_PORT GPIOB->ODR11
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 
 	/* Définition de la précision et des modes de calcul des sinus et cosinus (cf. maths_home.c/h) */
@@ -89,37 +89,16 @@
 
 /* Config HAMMER: bras long utilisé pour éteindre les bougies du 1er étage */
 	#define HAMMER_DCMOTOR_ID           0		//Utilisé pour le module DCMotor
-	#define HAMMER_DCMOTOR_PWM_NUM      1		//PWM1
-	#define HAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
-	#define HAMMER_DCMOTOR_PORT_WAY_BIT 0
+	#define HAMMER_DCMOTOR_PWM_NUM      2		//PWM2
+	#define HAMMER_DCMOTOR_PORT_WAY     GPIOC->ODR	//sens2: PC10
+	#define HAMMER_DCMOTOR_PORT_WAY_BIT 10
 	#define HAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x)
 	#define HAMMER_ACT_MOVE_TO_INIT_POS 85      //en degré, 90° = vertical vers le bas, 0° = horizontal sorti
 /********************************************************************************/
 
-/* Config LONGHAMMER: bras long utilisé pour éteindre les bougies du 2ème étage */
-// Non utilisé
-/*
-	#define LONGHAMMER_DCMOTOR_ID           1		//Utilisé pour le module DCMotor
-	#define LONGHAMMER_SENSOR_ADC_ID        AN3_ID	//Utilisé par ADC_getValue(x)
-	#define LONGHAMMER_ASSER_KP             2
-	#define LONGHAMMER_ASSER_KI             0
-	#define LONGHAMMER_ASSER_KD             0
-	#define LONGHAMMER_ASSER_TIMEOUT        3000    //en ms
-	#define LONGHAMMER_ASSER_POS_EPSILON    20
-	#define LONGHAMMER_TARGET_POS_DOWN      0
-	#define LONGHAMMER_TARGET_POS_UP        300
-	#define LONGHAMMER_TARGET_POS_PARKED    0		//Position quand non utilisé (doit assurer un diamètre du robot minimal)
-	#define LONGHAMMER_DCMOTOR_PWM_NUM      2		//PWM1
-	#define LONGHAMMER_DCMOTOR_PORT_WAY     PORTE	//sens1: RE0
-	#define LONGHAMMER_DCMOTOR_PORT_WAY_BIT 2
-	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY0 30		//en %
-	#define LONGHAMMER_DCMOTOR_MAX_PWM_WAY1 30		//en %
-*/
-/********************************************************************************/
-
 /* Config BALLINFLATER: gonfleur du ballon *******************/
 	#define BALLINFLATER_TIMER_ID           3
-	#define BALLINFLATER_PIN                PORTGbits.RG6
+	#define BALLINFLATER_PIN                GPIOD->ODR2
 	#define BALLINFLATER_ON                 1
 	#define BALLINFLATER_OFF                0
 /*************************************************************/
@@ -129,10 +108,10 @@
 	#define CANDLECOLOR_CW_PIN_ADC_X            AN13_ID
 	#define CANDLECOLOR_CW_PIN_ADC_Y            AN12_ID
 	#define CANDLECOLOR_CW_PIN_ADC_Z            AN2_ID
-	#define CANDLECOLOR_CW_PIN_CHANNEL0         &PORTE
-	#define CANDLECOLOR_CW_PIN_CHANNEL0_BIT     8
-	#define CANDLECOLOR_CW_PIN_CHANNEL1         &PORTE
-	#define CANDLECOLOR_CW_PIN_CHANNEL1_BIT     9
+//	#define CANDLECOLOR_CW_PIN_CHANNEL0         &PORTE
+//	#define CANDLECOLOR_CW_PIN_CHANNEL0_BIT     8
+//	#define CANDLECOLOR_CW_PIN_CHANNEL1         &PORTE
+//	#define CANDLECOLOR_CW_PIN_CHANNEL1_BIT     9
 	#define CANDLECOLOR_AX12_ID                 6
 /**************************************************************************/
 

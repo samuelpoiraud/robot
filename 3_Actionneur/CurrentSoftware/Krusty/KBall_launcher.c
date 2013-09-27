@@ -89,34 +89,34 @@ void BALLLAUNCHER_init() {
 	DCM_init();
 
 	//Précalcul de la constante
-	DCM_timer_period_predivised = ((DCM_TIMER_PERIOD_REG+1)/HALL_TIMECOUNTER_PULSE_PER_UNIT);
+//	DCM_timer_period_predivised = ((DCM_TIMER_PERIOD_REG+1)/HALL_TIMECOUNTER_PULSE_PER_UNIT);
 
-	ball_launcher_config.sensor_read = &BALLLAUNCHER_get_speed;
-	ball_launcher_config.Kp = BALLLAUNCHER_ASSER_KP;
-	ball_launcher_config.Ki = BALLLAUNCHER_ASSER_KI;
-	ball_launcher_config.Kd = BALLLAUNCHER_ASSER_KD;
-	ball_launcher_config.pos[0] = 0;
-	ball_launcher_config.pos[1] = 0;	//en tr/min
-	ball_launcher_config.pwm_number = BALLLAUNCHER_DCMOTOR_PWM_NUM;
-	ball_launcher_config.way_latch = &BALLLAUNCHER_DCMOTOR_PORT_WAY;
-	ball_launcher_config.way_bit_number = BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT;
-	ball_launcher_config.way0_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0;
-	ball_launcher_config.way1_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1;
-	ball_launcher_config.timeout = BALLLAUNCHER_ASSER_TIMEOUT;
-	ball_launcher_config.epsilon = BALLLAUNCHER_ASSER_POS_EPSILON;
-	DCM_config(BALLLAUNCHER_DCMOTOR_ID, &ball_launcher_config);
-	DCM_stop(BALLLAUNCHER_DCMOTOR_ID);
+//	ball_launcher_config.sensor_read = &BALLLAUNCHER_get_speed;
+//	ball_launcher_config.Kp = BALLLAUNCHER_ASSER_KP;
+//	ball_launcher_config.Ki = BALLLAUNCHER_ASSER_KI;
+//	ball_launcher_config.Kd = BALLLAUNCHER_ASSER_KD;
+//	ball_launcher_config.pos[0] = 0;
+//	ball_launcher_config.pos[1] = 0;	//en tr/min
+//	ball_launcher_config.pwm_number = BALLLAUNCHER_DCMOTOR_PWM_NUM;
+//	ball_launcher_config.way_latch = &BALLLAUNCHER_DCMOTOR_PORT_WAY;
+//	ball_launcher_config.way_bit_number = BALLLAUNCHER_DCMOTOR_PORT_WAY_BIT;
+//	ball_launcher_config.way0_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY0;
+//	ball_launcher_config.way1_max_duty = BALLLAUNCHER_DCMOTOR_MAX_PWM_WAY1;
+//	ball_launcher_config.timeout = BALLLAUNCHER_ASSER_TIMEOUT;
+//	ball_launcher_config.epsilon = BALLLAUNCHER_ASSER_POS_EPSILON;
+//	DCM_config(BALLLAUNCHER_DCMOTOR_ID, &ball_launcher_config);
+//	DCM_stop(BALLLAUNCHER_DCMOTOR_ID);
 
-	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 6;
-	DCM_TIMER_PRIORITY_REG = 5;
-	BALLLAUNCHER_HALLSENSOR_INT_EDGE = 1;  //interrupt on falling edge
-	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
-	BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 1;
+//	BALLLAUNCHER_HALLSENSOR_INT_PRIORITY = 6;
+//	DCM_TIMER_PRIORITY_REG = 5;
+//	BALLLAUNCHER_HALLSENSOR_INT_EDGE = 1;  //interrupt on falling edge
+//	BALLLAUNCHER_HALLSENSOR_INT_FLAG = 0;
+//	BALLLAUNCHER_HALLSENSOR_INT_ENABLE = 1;
 
 	//Si la priorité de l'interruption INTx (qui est déclanchée lors d'un passage d'un aimant devant le capteur) est de priorité supérieure à celle du timer gérant l'asservissement,
 	//il est possible d'avoir une interruption INTx entre l'overflow du timer (donc il recommence a compter a partir de 0) et l'actualisation du nombre d'overflow dans la variable timer_overflow_number.
-	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY <= DCM_TIMER_PRIORITY_REG)
-		COMPONENT_log(LOG_LEVEL_Error, "Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx) (et si le code marche, qui l'a apporté à lourdes ?)\n");
+//	if(BALLLAUNCHER_HALLSENSOR_INT_PRIORITY <= DCM_TIMER_PRIORITY_REG)
+//		COMPONENT_log(LOG_LEVEL_Error, "Attention ! La priorité de l'interruption INTx doit être supérieur à celle de l'asservissement ! (TIMERx) (et si le code marche, qui l'a apporté à lourdes ?)\n");
 
 	COMPONENT_log(LOG_LEVEL_Info, "Lanceur de balle initialisé\n");
 }
@@ -140,13 +140,13 @@ void BALLLAUNCHER_set_speed(Uint16 tr_per_min) {
 bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_BALLLAUNCHER) {
 		switch(msg->data[0]) {
-			case ACT_BALLLAUNCHER_ACTIVATE:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, U16FROMU8(msg->data[2], msg->data[1]));
-				break;
+//			case ACT_BALLLAUNCHER_ACTIVATE:
+//				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, U16FROMU8(msg->data[2], msg->data[1]));
+//				break;
 
-			case ACT_BALLLAUNCHER_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, 0);
-				break;
+//			case ACT_BALLLAUNCHER_STOP:
+//				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_BallLauncher, &BALLLAUNCHER_run_command, 0);
+//				break;
 
 			default:
 				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
@@ -156,6 +156,8 @@ bool_e BALLLAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 
 	return FALSE;
 }
+
+#if 0
 
 static Sint16 last_speed_detected;
 
@@ -278,3 +280,5 @@ void BALLLAUNCHER_HALLSENSOR_INT_ISR() {
 }
 
 #endif	//I_AM_ROBOT_KRUSTY
+
+#endif

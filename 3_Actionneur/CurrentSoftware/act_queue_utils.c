@@ -110,7 +110,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 	if(!error_code) error_code = (Uint8*)&dummy;
 	if(!line) line = &dummy;
 
-	if(abs((Sint16)current_pos - (Sint16)(wantedPosition)) <= pos_epsilon) {
+	if(absolute((Sint16)current_pos - (Sint16)(wantedPosition)) <= pos_epsilon) {
 		*result = ACT_RESULT_DONE;
 		*error_code = ACT_RESULT_ERROR_OK;
 		*line = 0x0100;
@@ -127,7 +127,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*line = 0x0300;
 	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + timeout_ms_x100) {
 		//Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-		if(abs((Sint16)current_pos - (Sint16)(wantedPosition)) <= large_epsilon) {
+		if(absolute((Sint16)current_pos - (Sint16)(wantedPosition)) <= large_epsilon) {
 			*result = ACT_RESULT_DONE;
 			*error_code = ACT_RESULT_ERROR_OK;
 			*line = 0x0400;
