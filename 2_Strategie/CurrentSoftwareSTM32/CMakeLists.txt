@@ -32,9 +32,6 @@ set(SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 # Flags de compilation
 ########################
 
-# SET(CMAKE_C_FLAGS "-mthumb -mcpu=cortex-m4 -Wall")
-# SET(CMAKE_CXX_FLAGS "-mthumb -mcpu=cortex-m4  -Wall")
-# SET(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m4")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map,\"${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}.map\"")
 
 ########################
