@@ -122,31 +122,10 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 
 
 #ifdef USE_UART1
-
 	#ifdef USE_UART1RXINTERRUPT
-
 		bool_e UART1_data_ready()
 		{
 			return m_u1rx;
-		}
-
-		void _ISR USART1_IRQHandler(void)
-		{
-			if(USART_GetITStatus(USART1, USART_IT_RXNE)) {
-				Uint8 * receiveddata = &(m_u1rxbuf[(m_u1rxnum%UART_RX_BUF_SIZE)]);
-
-				while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE))
-				{
-					LED_UART=!LED_UART;
-					*(receiveddata++) = USART_ReceiveData(USART1);
-					m_u1rxnum++;
-					m_u1rx =1;
-					/* pour eviter les comportements indésirables */
-					if (receiveddata - m_u1rxbuf >= UART_RX_BUF_SIZE)
-						receiveddata = m_u1rxbuf;
-				}
-				USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-			}
 		}
 
 		Uint8 UART1_get_next_msg()
@@ -179,7 +158,6 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 		}buffer_t;
 		volatile Uint8 b1tx[BUFFER_TX_SIZE];
 		volatile buffer_t buffer1tx = {b1tx,BUFFER_TX_SIZE,0,0,0};
-		extern int __C30_UART;
 
 		bool_e IsFull_buffer(volatile buffer_t * b)
 
@@ -199,118 +177,56 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 				return FALSE;
 		}
 
-
-		int __attribute__((__weak__, __section__(".libc")))	write(int handle, void *buffer, unsigned int len)
+		//Appelée par un printf
+		int _write(int file, char *ptr, int len)
 		{
-		  int i;
-		  volatile UxMODEBITS *umode = &U1MODEbits;
-		  volatile UxSTABITS *ustatus = &U1STAbits;
-		  volatile unsigned int *txreg = &U1TXREG;
-		  volatile unsigned int *brg = &U1BRG;
+			int i;
 
-		  switch (handle)
-		  {
-			case 0:
-			case 1:
-			case 2:
-			  if ((__C30_UART != 1) && (&U2BRG)) {
-				umode = &U2MODEbits;
-				ustatus = &U2STAbits;
-				txreg = &U2TXREG;
-				brg = &U2BRG;
-			  }
-			  if ((umode->UARTEN) == 0)
-			  {
-				*brg = 0;
-				umode->UARTEN = 1;
-			  }
-			  if ((ustatus->UTXEN) == 0)
-			  {
-				ustatus->UTXEN = 1;
-			  }
-			  for (i = len; i; --i)
-			  {
-				  UART1_putc(*(char*)buffer++);	//MODIFICATION APPORTEE AU CODE DE MICROCHIP...
-			  }
-			  break;
+			switch (file)
+			{
+				case 0:
+				case 1:
+				case 2:
+					for (i = 0; i < len; ++i)
+					{
+						UART1_putc(*ptr++);	//MODIFICATION APPORTEE AU CODE DE MICROCHIP...
+					}
+					return len;
+					break;
 
-			default:
-			/*{
-			  SIMIO simio;
-			  register PSIMIO psimio asm("w0") = &simio;
-
-			  simio.method = SIM_WRITE;
-			  simio.u.write.handle = handle;
-			  simio.u.write.buffer = buffer;
-			  simio.u.write.len = len;
-			  dowrite(psimio);
-			  len = simio.u.write.len;
-			  break;
+				default:
+					return 0;
+					break;
 			}
-			 */
-				break;
-		  }
-		  return(len);
+			return 0;
 		}
-
-
-
-
 
 		void UART1_putc(Uint8 c)
 		{
-			if(!BusyUART1())
-				putcUART1(c);
+			if(USART_GetFlagStatus(USART1, USART_IT_TXE))
+				USART_SendData(USART1, c);
 			else
 			{
+				//mise en buffer + activation IT U1TX.
+
 				assert(buffer1tx.nb_datas < buffer1tx.size + 1);
 				//Critical section (Interrupt inibition)
 
 				while(buffer1tx.nb_datas >= buffer1tx.size);	//ON BLOQUE ICI
 
-				DisableIntU1TX;	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
-
-
+				NVIC_DisableIRQ(USART1_IRQn);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
 
 				if(buffer1tx.nb_datas < buffer1tx.size)
-					{
-						buffer1tx.datas[buffer1tx.index_write] = c;
-						buffer1tx.index_write = (buffer1tx.index_write>=buffer1tx.size-1)?0:(buffer1tx.index_write + 1);
-						buffer1tx.nb_datas++;
-					}
-				EnableIntU1TX;	//On active l'IT sur TX... lors du premier caractère à envoyer...
-			}
-				//mise en buffer + activation IT U1TX.
-		}
-
-
-
-		void _ISR _U1TXInterrupt(void)
-		{
-			Uint8 c;
-
-			//debufferiser.
-			if(!BusyUART1() && IsNotEmpty_buffer(&buffer1tx))
-			{
-				assert (buffer1tx.index_read < buffer1tx.size);
-				//Critical section
-				if(buffer1tx.nb_datas > (Uint8)0)
 				{
-					c = buffer1tx.datas[buffer1tx.index_read];
-					buffer1tx.index_read = (buffer1tx.index_read>=buffer1tx.size-1)?0:(buffer1tx.index_read + 1);
-					buffer1tx.nb_datas--;
-					putcUART1(c);
+					buffer1tx.datas[buffer1tx.index_write] = c;
+					buffer1tx.index_write = (buffer1tx.index_write>=buffer1tx.size-1)?0:(buffer1tx.index_write + 1);
+					buffer1tx.nb_datas++;
 				}
-				//Critical section
 
+				NVIC_EnableIRQ(USART1_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
+				USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
 			}
-			else if(!BusyUART1() && !IsNotEmpty_buffer(&buffer1tx))
-				DisableIntU1TX;	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 		}
-
-
-	
-
 	#else	/* def USE_UART1TXINTERRUPT */
 
 		//Fonction blocante
@@ -319,15 +235,52 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 			while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
 			USART_SendData(USART1, mes);
 		}
-
-	
-
 	#endif /* def USE_UART1TXINTERRUPT */
 
 
+	void _ISR USART1_IRQHandler(void)
+	{
+		#ifdef USE_UART1RXINTERRUPT
+			if(USART_GetITStatus(USART1, USART_IT_RXNE)) {
+				Uint8 * receiveddata = &(m_u1rxbuf[(m_u1rxnum%UART_RX_BUF_SIZE)]);
 
+				while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE))
+				{
+					LED_UART=!LED_UART;
+					*(receiveddata++) = USART_ReceiveData(USART1);
+					m_u1rxnum++;
+					m_u1rx =1;
+					/* pour eviter les comportements indésirables */
+					if (receiveddata - m_u1rxbuf >= UART_RX_BUF_SIZE)
+						receiveddata = m_u1rxbuf;
+				}
+				USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+			}
+		#endif
+		#ifdef USE_UART1TXINTERRUPT
+			if(USART_GetITStatus(USART1, USART_IT_TXE)) {
+				Uint8 c;
 
+				//debufferiser.
+				if(IsNotEmpty_buffer(&buffer1tx))
+				{
+					assert(buffer1tx.index_read < buffer1tx.size);
+					//Critical section
+					if(buffer1tx.nb_datas > (Uint8)0)
+					{
+						c = buffer1tx.datas[buffer1tx.index_read];
+						buffer1tx.index_read = (buffer1tx.index_read>=buffer1tx.size-1)?0:(buffer1tx.index_read + 1);
+						buffer1tx.nb_datas--;
+						USART_SendData(USART1, c);
+					}
+					//Critical section
 
+				}
+				else if(!IsNotEmpty_buffer(&buffer1tx))
+					USART_ITConfig(USART1, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+			}
+		#endif
+	}
 
 #endif /* def USE_UART1 */
 
