@@ -12,7 +12,7 @@
 
 #include "Generic_functions.h"
 #include "Stacks.h"
-#include "Asser_functions.h"
+#include "asser_functions.h"
 
 /* 
  * La formule pour changer le numéro du noeud (parallélisme)

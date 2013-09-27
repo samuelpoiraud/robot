@@ -12,7 +12,7 @@
 
 #define ASSER_FUNCTIONS_C
 
-#include "Asser_functions.h"
+#include "asser_functions.h"
 #include "avoidance.h"
 
 /*	Pile conservant les eventuels arguments pour les fonctions des actionneurs
