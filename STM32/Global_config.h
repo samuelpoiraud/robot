@@ -36,28 +36,28 @@
 	 */
 	
 	#define PORT_A_IO_MASK	0xFFFF
-	#define PORT_B_IO_MASK	0xFFFF
+	#define PORT_B_IO_MASK	0xF7FF
 	#define PORT_C_IO_MASK	0xFFBF	//C9: MO2 debug clock
 	#define PORT_D_IO_MASK	0x0FFF	//LEDs
 	#define PORT_E_IO_MASK	0xFFFF
 
-	#define TRIS_ROBOT_ID_OUTPUT GPIOB->MODER11
-	#define LAT_ROBOT_ID_OUTPUT  GPIOB->ODR11
-	#define TRIS_ROBOT_ID_INPUT  GPIOB->MODER12
-	#define PORT_ROBOT_ID_INPUT  GPIOB->IDR12
+	#define TRIS_ROBOT_ID_OUTPUT GPIOC->MODER13
+	#define LAT_ROBOT_ID_OUTPUT  GPIOC->ODR13
+	#define TRIS_ROBOT_ID_INPUT  GPIOC->MODER13
+	#define PORT_ROBOT_ID_INPUT  GPIOC->IDR12
 	
 	/* Les instructions suivantes permettent de configurer certaines
 	 * entrees/sorties du pic pour realiser des fonctionnalites
 	 * particulieres comme une entree analogique
 	 */
 
-	#define LED_ERROR 			GPIOD->ODR10
-	#define LED_SELFTEST 		GPIOD->ODR11
-	#define LED_RUN  			GPIOD->ODR12
-	#define LED_CAN  			GPIOD->ODR13
-	#define LED_UART 			GPIOD->ODR14
-	#define LED_USER 			GPIOD->ODR15
-	#define PORT_ROBOT_ID       GPIOD->ODR0
+
+
+
+
+
+
+
 
 	#define USE_CAN
 /*	Nombre de messages CAN conservés
@@ -66,7 +66,7 @@
 
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
-#define BUFFER_TX_SIZE 100
+	#define BUFFER_TX_SIZE 100
 	#define USE_UART1TXINTERRUPT
 	
 //	#define USE_UART2
@@ -81,12 +81,19 @@
 
 	#define USE_AN8
 
+			#define LED_ERROR 			GPIOD->ODR10
+			#define LED_SELFTEST 		GPIOD->ODR11
+			#define LED_RUN  			GPIOD->ODR12
+			#define LED_CAN  			GPIOD->ODR13
+			#define LED_UART 			GPIOD->ODR14
+			#define LED_USER 			GPIOD->ODR15
 
 	//utilisation du module BUTTONS
 	#define USE_BUTTONS
 	//utilise le timer 2 pour les boutons
 	//#define BUTTONS_TIMER 3
 	#define BUTTONS_TIMER_USE_WATCHDOG
+#define BUTTON0_PORT GPIOA->IDR0
 
 	//Test debug QS_STM32
 	//On active tout
@@ -102,10 +109,12 @@
 	#define DCMOTOR_NB_POS 3
 	#define DCM_TIMER 4
 
+	#define AX12_UART_ID 2
 	#define USE_AX12_SERVO
 	#define AX12_NUMBER 4
-	#define AX12_USE_WATCHDOG
-	#define AX12_DIRECTION_PORT GPIOD->ODR5 //au hazard, a changer
+	#define AX12_TIMER_USE_WATCHDOG
+	#define AX12_DIRECTION_PORT GPIOB->ODR11 //au hazard, a changer
+	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_NEVER
 
 //
 //	#define USE_DCMOTOR2

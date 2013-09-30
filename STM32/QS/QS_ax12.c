@@ -850,6 +850,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				state_machine.sending_index++;	//Attention! Nous devons incrementer sending_index AVANT car il y a un risque que l'interuption Tx arrive avant l'incrementation lorsque cette fonction est appellée par AX12_init() (qui n'est pas dans une interruption)
 
 				USART_SendData(AX12_UART_Ptr, AX12_get_instruction_packet(state_machine.sending_index-1, &state_machine.current_instruction));
+				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, ENABLE);
 			}
 		break;
 
@@ -864,6 +865,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				{
 					TIMER_SRC_TIMER_stop();
 					TIMER_SRC_TIMER_resetFlag();
+
+					USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
 
 					if(AX12_instruction_has_status_packet(state_machine.current_instruction))
 					{
@@ -1067,15 +1070,7 @@ static void AX12_UART2_init(Uint32 uart_speed)
 	NVIC_InitTypeDef NVIC_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannel = AX12_UART_Interrupt_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
-
-	NVIC_Init(&NVIC_InitStructure);
-
-
-	//PORTS_uarts_init();
+	PORTS_uarts_init();
 
 #if AX12_UART_ID == 1
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
@@ -1098,7 +1093,14 @@ static void AX12_UART2_init(Uint32 uart_speed)
 	USART_Cmd(AX12_UART_Ptr, ENABLE);
 
 	USART_ITConfig(AX12_UART_Ptr, USART_IT_RXNE, ENABLE);
-	USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, ENABLE);
+	USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
+
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannel = AX12_UART_Interrupt_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
+
+	NVIC_Init(&NVIC_InitStructure);
 }
 
 /*****************************************************************************/
@@ -1113,7 +1115,7 @@ static void AX12_UART2_init(Uint32 uart_speed)
 //(car le caractère envoyé est envoyé plus vite que le retour de la fonction AX12_state_machine)
 void _ISR AX12_UART_Interrupt(void)
 {
-	if(USART_GetITStatus(USART1, USART_IT_RXNE))
+	if(USART_GetITStatus(AX12_UART_Ptr, USART_IT_RXNE))
 	{
 		Uint8 i = 0;
 		while(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
@@ -1129,7 +1131,7 @@ void _ISR AX12_UART_Interrupt(void)
 			i++;
 		}
 	}
-	else if(USART_GetITStatus(USART1, USART_IT_TXE))
+	else if(USART_GetITStatus(AX12_UART_Ptr, USART_IT_TXE))
 	{
 		AX12_state_machine(AX12_SME_TxInterrupt);
 	}
@@ -1172,7 +1174,7 @@ void AX12_init() {
 	AX12_DIRECTION_PORT = RX_DIRECTION;
 
 	AX12_prepare_commands = FALSE;
-	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
+	//AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
 
 	for(i=0; i<AX12_NUMBER; i++) {
 		AX12_on_the_robot[i].angle_limit[0] = 0;
@@ -1471,11 +1473,11 @@ bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled) {
 
 		AX12_on_the_robot[id_servo].is_wheel_enabled = TRUE;
 		
-		min_angle = AX12_config_get_minimal_angle(id_servo);
+		//min_angle = AX12_config_get_minimal_angle(id_servo);
 		if(AX12_get_last_error(id_servo).error)
 			return FALSE;
 		
-		max_angle = AX12_config_get_maximal_angle(id_servo);
+		//max_angle = AX12_config_get_maximal_angle(id_servo);
 		if(AX12_get_last_error(id_servo).error)
 			return FALSE;
 		if(max_angle == 0) max_angle = 1;	//évite les bugs si les 2 angles limites sont à 0 (et donc qu'on était déja en mode wheel mais que le servo ne le savait pas.
