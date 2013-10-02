@@ -35,7 +35,34 @@
 	static volatile Uint32 m_u2rxnum;
 	static volatile bool_e m_u2rx;	// message reçu sur uart2
 #endif /* def USE_UART2RXINTERRUPT */
+#if (defined USE_UART1TXINTERRUPT || defined USE_UART2TXINTERRUPT)
+	typedef struct
+	{
+		volatile Uint8 * datas;
+		Uint16 size;
+		Uint16 nb_datas;
+		Uint16 index_read;
+		Uint16 index_write;
+	}buffer_t;
 
+	bool_e IsFull_buffer(volatile buffer_t * b)
+	{
+		if(b->nb_datas >= b->size)
+			return TRUE;
+		else
+			return FALSE;
+	}
+
+	bool_e IsNotEmpty_buffer(volatile buffer_t * b)
+	{
+
+		if(b->nb_datas > (Uint8)0)
+			return TRUE;
+		else
+			return FALSE;
+	}
+#endif		
+		
 /*	fonction initialisant les uart choisis
 	vitesse : 9600 bauds
 	bits de donnees : 8
@@ -146,37 +173,24 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 	
 	
 	#ifdef USE_UART1TXINTERRUPT
-		#warning "USE_UART1TXINTERRUPT défini... Ce mode n'est pas testé... "
-	
-		typedef struct
-		{
-			volatile Uint8 * datas;
-			Uint16 size;
-			Uint16 nb_datas;
-			Uint16 index_read;
-			Uint16 index_write;
-		}buffer_t;
-		volatile Uint8 b1tx[BUFFER_TX_SIZE];
-		volatile buffer_t buffer1tx = {b1tx,BUFFER_TX_SIZE,0,0,0};
+		#ifndef BUFFER_U1TX_SIZE
+			#warning "Vous devez définir la taille du buffer U1TX."
+		#endif
+		volatile Uint8 b1tx[BUFFER_U1TX_SIZE];
+		volatile buffer_t buffer1tx = {b1tx,BUFFER_U1TX_SIZE,0,0,0};
 
-		bool_e IsFull_buffer(volatile buffer_t * b)
-
+		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
+		bool_e IsNotEmpty_buffer_u1tx(void)
 		{
-			if(buffer1tx.nb_datas >= buffer1tx.size)
-				return TRUE;
-			else
-				return FALSE;
+			return IsNotEmpty_buffer(&buffer1tx);
 		}
-
-		bool_e IsNotEmpty_buffer(volatile buffer_t * b)
+		
+		//Permet de savoir, venant de l'extérieur, si le buffer est plein
+		bool_e IsFull_buffer_u1tx(void)
 		{
-
-			if(buffer1tx.nb_datas > (Uint8)0)
-				return TRUE;
-			else
-				return FALSE;
+			return IsFull_buffer(&buffer1tx);
 		}
-
+		
 		//Appelée par un printf
 		int _write(int file, char *ptr, int len)
 		{
@@ -285,21 +299,62 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 #endif /* def USE_UART1 */
 
 #ifdef USE_UART2
-	void UART2_putc(Uint8 mes)
-	{
-		while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
-		USART_SendData(USART2, mes);
-	}
-
-	#ifdef USE_UART2RXINTERRUPT
-
-		bool_e UART2_data_ready()
+	#ifdef USE_UART2TXINTERRUPT	
+		#ifndef BUFFER_U2TX_SIZE
+			#warning "Vous devez définir la taille du buffer U2TX."
+		#endif
+		volatile Uint8 b2tx[BUFFER_U2TX_SIZE];
+		volatile buffer_t buffer2tx = {b2tx,BUFFER_U2TX_SIZE,0,0,0};
+		
+		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
+		bool_e IsNotEmpty_buffer_u2tx(void)
 		{
-			return m_u2rx;
+			return IsNotEmpty_buffer(&buffer2tx);
 		}
-
-		void _ISR USART2_IRQHandler(void)
+		
+		//Permet de savoir, venant de l'extérieur, si le buffer est plein
+		bool_e IsFull_buffer_u2tx(void)
 		{
+			return IsFull_buffer(&buffer2tx);
+		}
+		
+
+		void UART2_putc(Uint8 c)
+		{
+			if(USART_GetFlagStatus(USART2, USART_IT_TXE))
+				USART_SendData(USART2, c);
+			else
+			{
+				//mise en buffer + activation IT U2TX.
+
+				assert(buffer2tx.nb_datas < buffer2tx.size + 1);
+				//Critical section (Interrupt inibition)
+
+				while(buffer2tx.nb_datas >= buffer2tx.size);	//ON BLOQUE ICI
+
+				NVIC_DisableIRQ(USART2_IRQn);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+
+				if(buffer2tx.nb_datas < buffer2tx.size)
+				{
+					buffer2tx.datas[buffer2tx.index_write] = c;
+					buffer2tx.index_write = (buffer2tx.index_write>=buffer2tx.size-1)?0:(buffer2tx.index_write + 1);
+					buffer2tx.nb_datas++;
+				}
+
+				NVIC_EnableIRQ(USART2_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
+				USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
+			}
+		}
+	#else	/* def USE_UART2TXINTERRUPT */
+		void UART2_putc(Uint8 mes)
+		{
+			while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
+			USART_SendData(USART2, mes);
+		}
+	#endif
+	void _ISR USART2_IRQHandler(void)
+	{
+		#ifdef USE_UART2RXINTERRUPT
 			if(USART_GetITStatus(USART2, USART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u2rxbuf[(m_u2rxnum%UART_RX_BUF_SIZE)]);
 
@@ -316,6 +371,36 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 				USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 				NVIC_ClearPendingIRQ(USART2_IRQn);
 			}
+		#endif	//def USE_UART2RXINTERRUPT
+		#ifdef USE_UART2TXINTERRUPT
+			if(USART_GetITStatus(USART2, USART_IT_TXE)) {
+				Uint8 c;
+
+				//debufferiser.
+				if(IsNotEmpty_buffer(&buffer2tx))
+				{
+					assert(buffer2tx.index_read < buffer2tx.size);
+					//Critical section
+					if(buffer2tx.nb_datas > (Uint8)0)
+					{
+						c = buffer2tx.datas[buffer2tx.index_read];
+						buffer2tx.index_read = (buffer2tx.index_read>=buffer2tx.size-1)?0:(buffer2tx.index_read + 1);
+						buffer2tx.nb_datas--;
+						USART_SendData(USART2, c);
+					}
+					//Critical section
+
+				}
+				else if(!IsNotEmpty_buffer(&buffer2tx))
+					USART_ITConfig(USART2, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+			}
+		#endif
+	}
+
+	#ifdef USE_UART2RXINTERRUPT
+		bool_e UART2_data_ready()
+		{
+			return m_u2rx;
 		}
 
 		Uint8 UART2_get_next_msg()
