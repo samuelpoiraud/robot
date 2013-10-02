@@ -38,25 +38,19 @@
 	#define PORT_A_IO_MASK	0xFFFF
 	#define PORT_B_IO_MASK	0xF7FF
 	#define PORT_C_IO_MASK	0xFFBF	//C9: MO2 debug clock
-	#define PORT_D_IO_MASK	0x0FFF	//LEDs
+	#define PORT_D_IO_MASK	0x03FF	//LEDs
 	#define PORT_E_IO_MASK	0xFFFF
 
 	#define TRIS_ROBOT_ID_OUTPUT GPIOC->MODER13
 	#define LAT_ROBOT_ID_OUTPUT  GPIOC->ODR13
 	#define TRIS_ROBOT_ID_INPUT  GPIOC->MODER13
 	#define PORT_ROBOT_ID_INPUT  GPIOC->IDR12
+	#define PORT_ROBOT_ID GPIOC->IDR12
 	
 	/* Les instructions suivantes permettent de configurer certaines
 	 * entrees/sorties du pic pour realiser des fonctionnalites
 	 * particulieres comme une entree analogique
 	 */
-
-
-
-
-
-
-
 
 
 	#define USE_CAN
@@ -67,7 +61,7 @@
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
 	#define BUFFER_TX_SIZE 100
-	#define USE_UART1TXINTERRUPT
+	//#define USE_UART1TXINTERRUPT
 	
 //	#define USE_UART2
 //	#define USE_UART2RXINTERRUPT
@@ -111,10 +105,10 @@
 
 	#define AX12_UART_ID 2
 	#define USE_AX12_SERVO
-	#define AX12_NUMBER 4
-	#define AX12_TIMER_USE_WATCHDOG
-	#define AX12_DIRECTION_PORT GPIOB->ODR11 //au hazard, a changer
-	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_NEVER
+	#define AX12_NUMBER 7
+	#define AX12_TIMER_ID 2
+	#define AX12_DIRECTION_PORT GPIOB->ODR11
+	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS
 
 //
 //	#define USE_DCMOTOR2
