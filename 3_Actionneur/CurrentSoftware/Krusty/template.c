@@ -34,11 +34,11 @@
 //de ne recompiler que ce fichier quand on change la config (compilation bien plus rapide)
 #include "<act>_config.h"
 
-//Préfixe a tous les messages sur l'UART, pas besoin d'indiquer à la main quel actionneur à affiché tel message
-#define LOG_PREFIX "<act_prefix>: "
 //un petit define pour afficher des messages sur l'uart, exemple utilisation:
-// COMPONENT_log(LOG_LEVEL_Warning, "Un message indiquant que quelquechose ne c'est pas bien passé, mais que c'est pas trop grave (c'est un warning). Fonctionnalitées de printf dispo: 2+2=%d\n", 2+2);
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_<act_component>, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+// COMPONENT_log(LOG_LEVEL_Warning, "Un message indiquant que quelquechose ne c'est pas bien passé, mais que c'est pas trop grave (c'est un warning). Fonctionnalitées de printf dispo: 2+2=%d\n", 2+2)
+#define COMPONENT_log(...) OUTPUTLOG_PRETTY("<act_prefix>: ", OUTPUT_LOG_COMPONENT_<act_component>, ## __VA_ARGS__)
+
+//Exemple: #define COMPONENT_log(...) OUTPUTLOG_PRETTY("PL: ", OUTPUT_LOG_COMPONENT_PLATE, ## __VA_ARGS__)
 
 //Des defines dépendant de l'actionneur (en gros on met ce qu'on veux et ce qu'on a besoin)
 #define PLATE_NUM_POS           3
