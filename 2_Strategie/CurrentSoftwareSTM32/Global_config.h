@@ -93,8 +93,8 @@
 				//	Capteur			 			  5
 			#define LED_BEACON_IR_GREEN	GPIOC->ODR6
 			#define LED_BEACON_IR_RED	GPIOC->ODR7
-			#define LED_BEACON_US_GREEN	GPIOC->ODR8
-			#define LED_BEACON_US_RED	GPIOC->ODR9
+			#define SYNCHRO_BEACON		GPIOC->ODR8
+			#define BUZZER				GPIOC->ODR9
 				//	-	sortie libre 			  10
 			#define EEPROM_WP			GPIOC->ODR11
 			#define SD_CS				GPIOC->ODR11
@@ -176,7 +176,7 @@
 	//#define PORT_SWITCH_XBEE	FALSE	//Utiliser cette ligne pour désactiver le XBee...
 	#define USE_XBEE
 	#define XBEE_PLUGGED_ON_UART2
-	#define RESET_XBEE	GPIOA->ODR5
+	#define RESET_XBEE	XBEE_RESET
 
 
 	#define USE_CAN
@@ -188,10 +188,14 @@
 	#define UART1_BAUDRATE	115200
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
-	
+	#define BUFFER_U1TX_SIZE 128
+	#define USE_UART1TXINTERRUPT
+
 	#define UART2_BAUDRATE	9600
 	#define USE_UART2
 	#define USE_UART2RXINTERRUPT
+	#define BUFFER_U2TX_SIZE 128
+	#define USE_UART2TXINTERRUPT
 	
 /*	Taille de la chaine de caracteres memorisant
 	les caracteres recus sur UART */

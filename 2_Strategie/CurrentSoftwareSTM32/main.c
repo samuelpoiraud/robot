@@ -135,8 +135,8 @@ void test_leds(void)
 		LED_USER 				= !LED_USER;			big_delay();
 		LED_BEACON_IR_GREEN 	= !LED_BEACON_IR_GREEN;	big_delay();
 		LED_BEACON_IR_RED 		= !LED_BEACON_IR_RED;	big_delay();
-		LED_BEACON_US_GREEN 	= !LED_BEACON_US_GREEN;	big_delay();
-		LED_BEACON_US_RED 		= !LED_BEACON_US_RED;	big_delay();
+		//LED_BEACON_US_GREEN 	= !LED_BEACON_US_GREEN;	big_delay();
+		//LED_BEACON_US_RED 		= !LED_BEACON_US_RED;	big_delay();
 	}
 }
 

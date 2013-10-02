@@ -243,7 +243,7 @@ void SELFTEST_process_1sec(){
 
 
 void led_us_update(selftest_beacon_e state){
-		switch(state)
+		/*switch(state)
 		{
 			case BEACON_ERROR:
 				LED_BEACON_US_GREEN = LED_OFF;
@@ -261,7 +261,7 @@ void led_us_update(selftest_beacon_e state){
 				LED_BEACON_US_RED = LED_ON;
 				LED_BEACON_US_GREEN = LED_OFF;
 				break;
-		}
+		}*/
 }
 
 void led_ir_update(selftest_beacon_e state)
