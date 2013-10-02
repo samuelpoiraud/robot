@@ -77,6 +77,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, volatile b
 		{
 			/* On ne veut pas de temps bizzaroïde */
 			watchdog[i].timeout = t - t%WATCHDOG_QUANTUM;
+			watchdog[i].counter = 0;
 			watchdog[i].callback = func;
 			watchdog[i].flag = flag;
 			watchdog[i].periodic = is_periodic;
