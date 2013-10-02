@@ -13,6 +13,7 @@
 //Pour voir l'ancienne version avant les modifications faites pour le robot 2012-2013, utilisez la version SVN 5340
 
 #include "QS_ax12.h"
+#include "QS_ports.h"
 
 #ifdef USE_AX12_SERVO
 
@@ -594,14 +595,14 @@ static bool_e AX12_instruction_buffer_is_full() {
 }
 
 static bool_e AX12_instruction_wait(Uint8 id_servo) {
-	Uint16 i = 0;
+	Uint32 i = 0;
 	//debug_printf("+1\n");
-	while(!AX12_instruction_queue_is_empty() && i < 65000)	//si i atteint 65000, on stop, on a attendu trop longtemps (au moins 6,5ms à une clock de 10Mhz, mais ce bout de code ne fait qu'une instruction)
+	while(!AX12_instruction_queue_is_empty() && i < 65000000)	//si i atteint 65000, on stop, on a attendu trop longtemps (au moins 6,5ms à une clock de 10Mhz, mais ce bout de code ne fait qu'une instruction)
 		i++;
 		
-	if(i < 65000) return TRUE;
+	if(i < 65000000) return TRUE;
 
-	debug_printf("FATAL 2 %d / %d\n", AX12_special_instruction_buffer.start_index, AX12_special_instruction_buffer.end_index);
+	debug_printf("AX12 Wait too long %d / %d\n", AX12_special_instruction_buffer.start_index, AX12_special_instruction_buffer.end_index);
 	AX12_on_the_robot[id_servo].last_status.error = AX12_ERROR_TIMEOUT | AX12_ERROR_RANGE;	//On a attendu trop longtemps, le buffer est toujours plein
 	AX12_on_the_robot[id_servo].last_status.param = 0;
 	return FALSE;
@@ -851,7 +852,9 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 				USART_SendData(AX12_UART_Ptr, AX12_get_instruction_packet(state_machine.sending_index-1, &state_machine.current_instruction));
 				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, ENABLE);
-			}
+			} /*else if(event == AX12_SME_TxInterrupt) {
+				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
+			}*/
 		break;
 
 		case AX12_SMS_Sending:
@@ -865,8 +868,6 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				{
 					TIMER_SRC_TIMER_stop();
 					TIMER_SRC_TIMER_resetFlag();
-
-					USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
 
 					if(AX12_instruction_has_status_packet(state_machine.current_instruction))
 					{
@@ -902,13 +903,14 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				TIMER_SRC_TIMER_stop();
 				TIMER_SRC_TIMER_resetFlag();
 				debug_printf("AX12[%d]: send timeout !!\n", state_machine.current_instruction.id_servo);
-				//U2MODEbits.UARTEN = 0;
-				//AX12_UART2_init(AX12_BAUD_RATE);
 
 				AX12_instruction_queue_next();
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
 			}
+
+			if(state_machine.state != AX12_SMS_Sending)
+				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
 		break;
 
 		case AX12_SMS_WaitingAnswer:
@@ -997,6 +999,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				TIMER_SRC_TIMER_stop();
 				TIMER_SRC_TIMER_resetFlag();
 
+				debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 					debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
 					for(i = 0; i<pos; i++)
@@ -1010,10 +1013,13 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 0;
+
 				AX12_instruction_queue_next();
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
-			}
+			} /*else if(event == AX12_SME_TxInterrupt) {
+				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
+			}*/
 		break;
 	}
 
@@ -1040,7 +1046,7 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 	if(i >= 65000) {
 		AX12_on_the_robot[inst->id_servo].last_status.error = AX12_ERROR_TIMEOUT | AX12_ERROR_RANGE;
 		AX12_on_the_robot[inst->id_servo].last_status.param = 0;
-		debug_printf("FATAL\n");
+		debug_printf("AX12 Fatal: Instruction buffer full !\n");
 		return FALSE;	//return false, on a pas réussi a insérer l'instruction, problème de priorité d'interruptions ?
 	}
 
@@ -1174,7 +1180,7 @@ void AX12_init() {
 	AX12_DIRECTION_PORT = RX_DIRECTION;
 
 	AX12_prepare_commands = FALSE;
-	//AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
+	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
 
 	for(i=0; i<AX12_NUMBER; i++) {
 		AX12_on_the_robot[i].angle_limit[0] = 0;
