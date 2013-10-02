@@ -18,7 +18,6 @@
 //	Determination de la vitesse de l'uart en fonction
 //	de la PLL utilisée
 #ifndef UART1_BAUDRATE
-	#warning "using default uart speed"
 	#define UART1_BAUDRATE 115200
 #endif
 #ifndef UART2_BAUDRATE

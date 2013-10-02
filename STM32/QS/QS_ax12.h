@@ -819,7 +819,25 @@
 	 * @see AX12_set_position
 	 */
 	bool_e AX12_is_moving(Uint8 id_servo);
+
+
+	/**
+	 * Change le mode de fonctionnement du servo.
+	 *
+	 * Le servo peut être asservi en position ou en couple.
+	 * Si le mode défini est le même que le mode actuel, la fonction ne fait rien et retourne TRUE.
+	 * @param id_servo
+	 * @param enabled TRUE pour utiliser le mode d'asservissement en couple, ou FALSE pour l'asservissement en position
+	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
+	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
+	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * @see AX12_is_wheel_mode_enabled
+	 * @see AX12_set_position
+	 * @see AX12_set_speed_percentage
+	 */
+	bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled);
 #endif
+
 	/**
 	 * Défini si la sortie du servo doit être controlée ou non.
 	 *
@@ -953,22 +971,6 @@
 	 * @see AX12_get_punch_torque_percentage
 	 */
 	bool_e AX12_set_punch_torque_percentage(Uint8 id_servo, Uint8 percentage);
-
-	/**
-	 * Change le mode de fonctionnement du servo.
-	 * 
-	 * Le servo peut être asservi en position ou en couple.
-	 * Si le mode défini est le même que le mode actuel, la fonction ne fait rien et retourne TRUE.
-	 * @param id_servo
-	 * @param enabled TRUE pour utiliser le mode d'asservissement en couple, ou FALSE pour l'asservissement en position
-	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
-	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
-	 * @see AX12_is_wheel_mode_enabled
-	 * @see AX12_set_position
-	 * @see AX12_set_speed_percentage
-	 */
-	bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled);
 
 #endif /* def USE_AX12_SERVO */
 #endif /* ndef QS_AX12_H */
