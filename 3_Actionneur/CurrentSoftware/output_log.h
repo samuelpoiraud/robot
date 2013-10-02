@@ -52,5 +52,19 @@ typedef enum {
 	#define OUTPUTLOG_trace_with_filename(...) (void)0
 #endif  /* OUTPUT_LOG */
 
+
+// Simplifie la déclaration de macro de sortie de logs
+// Utilisation:
+// #define COMPONENT_log(...) OUTPUTLOG_PRETTY("prefixe: ", OUTPUT_LOG_COMPONENT_TRUC, ## __VA_ARGS__)
+// ou "prefixe: " sera ajouté devant toutes les sorties utilisant COMPONENT_log, OUTPUT_LOG_COMPONENT_TRUC un #define vers LOG_PRINT_On ou LOG_PRINT_Off pour activer ou non les logs de cette macro (pour activer qu'une partie des logs)
+// Exemple: #define OUTPUT_LOG_COMPONENT_TRUC LOG_PRINT_On
+// ", ## __VA_ARGS__" doit toujours être mis à la fin.
+
+// Pour logger des infos, il faut alors utiliser COMPONENT_log comme si son prototype était:
+// void COMPONENT_log(log_level_e level, const char * format, ...);
+// c'est à dire comme un printf, mais avec le niveau de verbosité "level" (à choisir à partir de l'enum log_level_e déclaré au début de ce fichier)
+// Exemple: COMPONENT_log(LOG_LEVEL_Info, "Pince à assiette initialisé (DCMotor)\n");
+#define OUTPUTLOG_PRETTY(prefix, component, log_level, format, ...) OUTPUTLOG_printf(component, log_level, prefix format, ## __VA_ARGS__)
+
 #endif	/* OUTPUTLOG_PRINTF_H */
 

@@ -21,8 +21,7 @@
 #include "../act_queue_utils.h"
 #include "KPlate_config.h"
 
-#define LOG_PREFIX "PL: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_PLATE, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define COMPONENT_log(...) OUTPUTLOG_PRETTY("PL: ", OUTPUT_LOG_COMPONENT_PLATE, ## __VA_ARGS__)
 
 #define PLATE_NUM_POS           3
 	#define PLATE_HORIZONTAL_POS_ID 0
