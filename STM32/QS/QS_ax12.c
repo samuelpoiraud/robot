@@ -1467,8 +1467,6 @@ bool_e AX12_is_moving(Uint8 id_servo) {
 	return AX12_instruction_read8(id_servo, AX12_MOVING, NULL) != 0;
 }
 
-#endif //AX12_STATUS_RETURN_MODE != AX12_STATUS_RETURN_NEVER
-
 
 bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled) {
 	if(enabled == AX12_on_the_robot[id_servo].is_wheel_enabled)	//mode déja défini
@@ -1478,12 +1476,12 @@ bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled) {
 		Uint16 min_angle, max_angle;
 
 		AX12_on_the_robot[id_servo].is_wheel_enabled = TRUE;
-		
-		//min_angle = AX12_config_get_minimal_angle(id_servo);
+
+		min_angle = AX12_config_get_minimal_angle(id_servo);
 		if(AX12_get_last_error(id_servo).error)
 			return FALSE;
 		
-		//max_angle = AX12_config_get_maximal_angle(id_servo);
+		max_angle = AX12_config_get_maximal_angle(id_servo);
 		if(AX12_get_last_error(id_servo).error)
 			return FALSE;
 		if(max_angle == 0) max_angle = 1;	//évite les bugs si les 2 angles limites sont à 0 (et donc qu'on était déja en mode wheel mais que le servo ne le savait pas.
@@ -1495,6 +1493,7 @@ bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled) {
 
 		AX12_on_the_robot[id_servo].angle_limit[0] = min_angle;
 		AX12_on_the_robot[id_servo].angle_limit[1] = max_angle;
+
 		return TRUE;
 	} else {
 		AX12_on_the_robot[id_servo].is_wheel_enabled = FALSE;
@@ -1505,6 +1504,7 @@ bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled) {
 		return TRUE;
 	}
 }
+#endif //AX12_STATUS_RETURN_MODE != AX12_STATUS_RETURN_NEVER
 
 bool_e AX12_set_torque_enabled(Uint8 id_servo, bool_e enabled) {
 	return AX12_instruction_write8(id_servo, AX12_TORQUE_ENABLE, enabled != 0);
