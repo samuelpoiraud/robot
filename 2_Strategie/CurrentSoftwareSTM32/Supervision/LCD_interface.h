@@ -59,6 +59,11 @@ void LCD_strat_mode(void);
 void LCD_strat_number(void);
 
 /*
+ * Se base sur les switchs pour mettre à jour les infos stratégies
+ */
+void LCD_strat_number_update(void);
+
+/*
  * Passe en mode menu pour acceder au dernier match en eeprom, au selftest et au buffer flush
  */
 void LCD_menu_mode(void);

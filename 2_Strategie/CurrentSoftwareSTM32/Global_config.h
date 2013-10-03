@@ -146,7 +146,7 @@
 			#define SWITCH_STRAT_5		FALSE	//Temporaire
 
 
-	//#define USE_LCD
+	#define USE_LCD
 	#ifdef USE_LCD
 		#define USE_I2C2
 	#endif
