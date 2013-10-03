@@ -18,7 +18,9 @@
 	typedef enum
 	{
 		KRUSTY = 0,
-		TINY
+		TINY,
+		PIERRE = KRUSTY,
+		GUY = TINY
 	}robot_id_e;
 	
 	/** @brief  Cette fonction doit être appelée lors de l'initialisation.
