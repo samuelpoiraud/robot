@@ -133,6 +133,17 @@ bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd) {
 	return ACT_push_operation(ACT_QUEUE_Plate, &args);
 }
 
+bool_e ACT_plate_manual_rotate(Uint16 angle) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init_with_param(&args, ACT_PLATE, ACT_PLATE_ROTATE_ANGLE, angle);
+
+	ACT_arg_set_fallbackmsg(&args, ACT_PLATE, ACT_PLATE_ROTATE_VERTICALLY);
+
+	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Plate rotate angle: %d\n", angle);
+	return ACT_push_operation(ACT_QUEUE_Plate, &args);
+}
+
 bool_e ACT_plate_plier(ACT_plate_plier_cmd_t cmd) {
 	QUEUE_arg_t args;
 
@@ -244,7 +255,7 @@ bool_e ACT_plier_close() {
 	return ACT_push_operation(ACT_QUEUE_Plier, &args);
 }
 
-void ACT_ball_inflater_inflate(Uint8 duration_sec) 
+void ACT_ball_inflater_inflate(Uint8 duration_sec)
 {
 	CAN_msg_t msg;
 	msg.sid = ACT_BALLINFLATER;
@@ -252,16 +263,16 @@ void ACT_ball_inflater_inflate(Uint8 duration_sec)
 	msg.data[1] = duration_sec;	//[sec]
 	msg.size = 2;
 	CAN_send(&msg);
-}	
+}
 
-void ACT_ball_inflater_stop(void) 
+void ACT_ball_inflater_stop(void)
 {
 	CAN_msg_t msg;
 	msg.sid = ACT_BALLINFLATER;
 	msg.data[0] = ACT_BALLINFLATER_STOP;
 	msg.size = 1;
 	CAN_send(&msg);
-}	
+}
 /*
 //Le gonflage du ballon doit se produire à la fin du match : les fonctionnalités de QUEUE n'y sont plus opérationelles !
 // -> voir T_BALLINFLATER_start() !
