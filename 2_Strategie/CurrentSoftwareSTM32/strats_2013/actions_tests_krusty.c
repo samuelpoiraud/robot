@@ -65,17 +65,109 @@ void TEST_STRAT_K_homologation(void)
 
 void K_Strat_Pour_Les_Nuls(void){
 	static enum{
-		INIT,
-		//... Ici vous mettez ce que vous voulez
-		DONE
-	}state = INIT;
+			INIT=0,
+			DEPART,
+			PAS1,
+			PAS2ANGLE1,
+			PAS2ANGLE2,
+			PAS2ANGLE3,
+			PAS2ANGLE4,
+			PAS3,
+			PAS4,
+			PAS5,
+			PAS6,
+			PAS7,
+			PAS8,
+			PAS7,
+			DONE,
+		}state = INIT;
 
-	switch(state){
-	case INIT:
-		break;
-	default:
-		break;
-	}
+		// Multipoints
+		displacement_t tab[8]={{820,2650,SLOW},
+							   {650,2550,SLOW},
+							   {520,2400,SLOW},
+							   {430,2240,SLOW},
+							   {370,2030,SLOW},
+							   {340,1850,SLOW},
+							   {320,1680,SLOW},
+							   {300,1500,SLOW},
+								};
+
+		displacement_t tab6[12]={{620,1420,SLOW},
+									{500,1290,SLOW},
+									{400,1180,SLOW},
+									{320,1060,SLOW},
+									{300,940,SLOW},
+									{300,820,SLOW},
+									{350,700,SLOW},
+									{480,580,SLOW},
+									{620,450,SLOW},
+									{880,370,SLOW},
+									{900,310,SLOW},
+									{1000,300,SLOW},
+									};
+		displacement_t rond[17]={{500,1500,SLOW},
+									{560,1260,SLOW},
+									{680,1100,SLOW},
+									{840,1030,SLOW},
+									{1000,1000,SLOW},
+									{1160,1030,SLOW},
+									{1340,1110,SLOW},
+									{1450,1260,SLOW},
+									{1500,1500,SLOW},
+									{1450,1720,SLOW},
+									{1340,1870,SLOW},
+									{1160,1960,SLOW},
+									{1000,2000,SLOW},
+									{840,1960,SLOW},
+									{680,1870,SLOW},
+									{560,1720,SLOW},
+									{500,1500,SLOW},
+											};
+
+		Uint8 i = 0;
+		switch(state){
+		case INIT:
+			state = DEPART;
+			break;
+		case DEPART:
+			state = try_going(1000,COLOR_Y(500),DEPART,PAS1,PAS1,SLOW,FORWARD,NO_AVOIDANCE);
+			break;
+		case PAS1:
+			state = try_going_multipoint(tab,8,PAS1,PAS2ANGLE1,PAS2ANGLE1,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
+		case PAS2ANGLE1:
+			state = try_go_angle(PI4096/2,PAS2ANGLE1,PAS2ANGLE2,PAS2ANGLE2,SLOW);
+			break;
+		case PAS2ANGLE2:
+			state = try_go_angle(PI4096,PAS2ANGLE2,PAS2ANGLE3,PAS2ANGLE3,SLOW);
+			break;
+		case PAS2ANGLE3:
+			state = try_go_angle(-PI4096/2,PAS2ANGLE3,PAS2ANGLE3,PAS2ANGLE3,SLOW);
+			break;
+		case PAS2ANGLE4:
+			state = try_go_angle(0,PAS2ANGLE4,PAS3,PAS3,SLOW);
+			break;
+		case PAS3:
+			state = try_going(850,COLOR_Y(1500),PAS3,PAS4,PAS4,SLOW,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			break;
+		case PAS4:
+			state = try_going(650,COLOR_Y(1500),PAS4,PAS5,PAS5,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			break;
+		case PAS5:
+			state = try_going(750,COLOR_Y(1500),PAS5,PAS6,PAS6,SLOW,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			break;
+		case PAS6:
+			state = try_going_multipoint(tab6,12,PAS6,PAS6,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+			if(state==PAS6) state = try_go_angle(PI4096/2,PAS6,PAS7,PAS7,SLOW);
+			break;
+		case PAS7:
+			state = try_going_multipoint(rond,17,PAS8,DONE,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		case DONE:
+			break;
+		default :
+			break;
+		}
 }
 
 
