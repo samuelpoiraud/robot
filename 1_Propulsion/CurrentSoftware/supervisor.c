@@ -18,7 +18,7 @@
 #include "buffer.h"
 #include "corrector.h"
 #include "pilot.h"
-#include "QS_CANmsgList.h"
+#include "QS/QS_CANmsgList.h"
 
 //Machine a état générale
 
@@ -69,7 +69,7 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 			WARNER_inform(WARNING_NEW_TRAJECTORY, error_source);
 			state = SUPERVISOR_TRAJECTORY;
 		break;
-	
+
 		//REMONTEE D'INFORMATIONS A TRANSMETTRE.
 		case EVENT_BRAKING:
 			if(current_acknowledge == ACKNOWLEDGE_ASKED)
@@ -88,7 +88,7 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 				current_acknowledge = ACKNOWLEDGED;
 			}
 		break;
-		
+
 		//ERREUR RENCONTREE
 		case EVENT_ERROR:
 			if(error_transmitted == FALSE)
@@ -97,14 +97,14 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 				PILOT_referential_init();
 				PILOT_referential_reset();
 				BUFFER_init();
-				
+
 				WARNER_inform(WARNING_ERROR, error_source);
 				current_acknowledge = NO_ACKNOWLEDGE;
 				error_transmitted = TRUE;
 			}
 			state = SUPERVISOR_ERROR;
 		break;
-		
+
 		//FIN DE MATCH
 		case EVENT_BROADCAST_STOP:
 			state = SUPERVISOR_MATCH_ENDED;
@@ -112,7 +112,7 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 		default:
 		break;
 	}
-	
+
 }
 
 void SUPERVISOR_error_check_enable(bool_e enable)
@@ -137,7 +137,7 @@ void SUPERVISOR_error_check(bool_e reset_error_check)
 		error_source = NO_ERROR;
 		immobility_counter = 0;
 		return;
-	}	
+	}
 	#ifdef SUPERVISOR_DISABLE_ERROR_DETECTION
 		return;											//Les erreurs sont désactivées, 		donc on se casse !
 	#endif
@@ -177,7 +177,7 @@ void SUPERVISOR_error_check(bool_e reset_error_check)
 	{
 		error_source = ROUNDS_RETURNS_ERROR;
 		SUPERVISOR_state_machine(EVENT_ERROR, 0);
-	}	
+	}
 }
 
 
