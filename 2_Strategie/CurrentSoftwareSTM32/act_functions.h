@@ -9,8 +9,8 @@
  *	Auteur : Julien et Ronan
  *	Version 20110313
  */
- 
- 
+
+
 
 #include "QS/QS_all.h"
 
@@ -81,6 +81,8 @@
 
 	//Rotation de la pince à assiette
 	bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd);
+
+	bool_e ACT_plate_manual_rotate(Uint16 angle);
 
 	typedef enum {
 		ACT_PLATE_PlierOpen = ACT_PLATE_PLIER_OPEN,
