@@ -16,6 +16,7 @@
 #include "LCD_CAN_injector.h"
 #include "Buffer.h"
 #include "Eeprom_can_msg.h"
+#include "../Global_vars.h"
 
 // Etats de l'affichage de l'ecran
 typedef enum
@@ -23,7 +24,8 @@ typedef enum
 	INFO_s = 0,
 	CAN_s,
 	STRAT_CHOICE,
-	MENU
+	MENU,
+	INIT = 0XFF
 }lcd_state;
 
 lcd_state state;
@@ -40,7 +42,7 @@ typedef enum
 
 strat_s strat;
 
-const char *strategy[4] = {"STR","KDO","CAK","MOIS"};
+const char *strategy[4] = {"STR","KDO","CAK","MSN"};
 Uint8 strat_nb[4];
 
 // Variable de menu
@@ -51,13 +53,6 @@ enum{
 	RETURN
 }menu_choice;
 
-/* Tableau des 4 messages can à afficher */
-typedef struct{
-	CAN_msg_t msg[4];
-	Uint8 start;
-}can_t;
-
-can_t message;
 
 /* Position du robot sert seulement de buffer intermédiaire entre le can et l'ecran pour eviter certains bug d'interruptions */
 Uint16 x_pos,y_pos,t_angle;
@@ -136,13 +131,13 @@ void display_debug_msg(void){
 }
 
 /* Affiche les quatre derniers messages can en mode CAN */
-void LCD_display_can(){
+void LCD_display_can_msg(){
 	Uint8 start = message.start;
 
-	display_can(message.msg[start], 0);
-	display_can(message.msg[(start+1)%4], 1);
-	display_can(message.msg[(start+1)%4], 2);
-	display_can(message.msg[(start+1)%4], 3);
+	LCD_display_can(message.msg[start], 0);
+	LCD_display_can(message.msg[(start+1)%4], 1);
+	LCD_display_can(message.msg[(start+2)%4], 2);
+	LCD_display_can(message.msg[(start+3)%4], 3);
 }
 
 /* Previent un changement de mode pour le nettoyage de l'afichage et éviter le scintillement */
@@ -174,9 +169,9 @@ void init_LCD_interface(void){
 	state = INFO_s;
 	previous_state = INFO_s;
 	change = TRUE;
-	x_pos = 0;
-	y_pos = 0;
-	t_angle = 360;
+	x_pos = global.env.pos.x;
+	y_pos = global.env.pos.y;
+	t_angle = global.env.pos.angle;
 	message.start = 0;
 	Uint8 i;
 	strat = STR;
@@ -198,6 +193,11 @@ void LCD_Update(void){
 	if(LCD_transition())
 		LCD_clear_display();
 
+	if(global.env.ask_start == FALSE)
+		LCD_strat_number_update();
+
+	LCD_switch_mode();
+
 	switch(state){
 		case INFO_s:
 			if(change == TRUE){
@@ -209,7 +209,7 @@ void LCD_Update(void){
 			}
 			break;
 		case CAN_s:
-			LCD_display_can();
+			//LCD_display_can();
 			break;
 		case STRAT_CHOICE:
 			if(change == TRUE){
@@ -276,34 +276,18 @@ void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t){
 }
 
 void LCD_switch_mode(void){
-	switch(state){
-		case STRAT_CHOICE:
-			LCD_strat_number();
-			break;
-		case MENU:
-			menu_choice = (menu_choice+1)%4;
-			LCD_set_cursor(menu_choice, 0);
-			break;
-		case INFO_s:
+	static lcd_state previous_state = INIT;
+
+	if(state != previous_state){
+#warning 'ajouter le numero du port'
+		if(FALSE){
 			state = CAN_s;
-			break;
-		case CAN_s:
+		}else{
 			state = INFO_s;
-			break;
-		default:
-			break;
+		}
+		change = TRUE;
 	}
-	change = TRUE;
-
-#warning 'pour le test'
-	char chaine[20];
-	sprintf(chaine, "%2d mon message",2),
-	LCD_printf(chaine);
-
-	CAN_msg_t msg;
-	msg.sid = 0x2A;
-	msg.size = 0;
-	LCD_add_can(msg);
+	previous_state = state;
 
 }
 
@@ -325,28 +309,44 @@ void LCD_strat_mode(void){
 	change = TRUE;
 }
 
-void LCD_strat_number(void){
-	char buf[20];
-	strat_nb[strat] = (strat_nb[strat]+1)%4;
-	sprintf(buf,"%1d",strat_nb[strat]);
-	switch(strat){
-		case STR:
-			LCD_set_cursor(2, 3);
-			break;
-		case KDO:
-			LCD_set_cursor(2, 8);
-			break;
-		case CAK:
-			LCD_set_cursor(2, 13);
-			break;
-		case MOIS:
-			LCD_set_cursor(2, 19);
-			break;
-		default:
-			break;
+
+void LCD_strat_number_update(){
+	static Uint8 previous_strat = 0X0;
+	Uint8 new_strat = 0x0;
+	if(TRUE){//Mettre le port du switch str
+		strat_nb[0]=1;
+		new_strat = new_strat | 0x1;
+	}else{
+		strat_nb[0]=0;
+		new_strat = new_strat && 0xFE;
 	}
-	LCD_Write_text(buf);
+	if(TRUE){//Mettre le port du switch KDO
+			strat_nb[1]=1;
+			new_strat = new_strat | 0x2;
+	}else{
+			strat_nb[1]=0;
+			new_strat = new_strat && 0xFD;
+	}
+	if(FALSE){//Mettre le port du switch cak
+			new_strat = new_strat | 0x4;
+			strat_nb[2]=1;
+	}else{
+			strat_nb[2]=0;
+			new_strat = new_strat && 0xFB;
+	}
+	if(TRUE){//Mettre le port du switch mois
+			strat_nb[3]=1;
+			new_strat = new_strat | 0x8;
+	}else{
+			strat_nb[3]=0;
+			new_strat = new_strat && 0xF7;
+	}
+	if(new_strat != previous_strat){
+		change = TRUE;
+		previous_strat = new_strat;
+	}
 }
+
 
 void LCD_menu_mode(){
 	if(state != MENU){
