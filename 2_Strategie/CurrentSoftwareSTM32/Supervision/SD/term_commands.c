@@ -2,133 +2,223 @@
 #include "term_io.h"
 #include "Libraries/fat_sd/ff.h"
 #include "Libraries/fat_sd/diskio.h"
+#include <errno.h>
 #include <string.h>
+#include <stdlib.h>
+#include "../QS/QS_uart.h"
+#include "../asser_functions.h"
 
-volatile UINT Timer;
-BYTE Buff[4*1024] __attribute__ ((aligned (4)));
-/*
-static void put_rc (FRESULT rc)
+#define TERM_DATA_BUFFER_SIZE 4096
+static BYTE data_buffer[TERM_DATA_BUFFER_SIZE] __attribute__ ((aligned (4)));
+
+//Convert error integer to string
+static void put_rc(FRESULT error_id)
 {
-	const char *p;
-	static const char str[] =
-		"OK\0" "NOT_READY\0" "NO_FILE\0" "FR_NO_PATH\0" "INVALID_NAME\0" "INVALID_DRIVE\0"
-		"DENIED\0" "EXIST\0" "RW_ERROR\0" "WRITE_PROTECTED\0" "NOT_ENABLED\0"
-		"NO_FILESYSTEM\0" "INVALID_OBJECT\0" "MKFS_ABORTED\0";
-	FRESULT i;
+	static const char *error_strings[] = {
+		"OK",
+		"NOT_READY",
+		"NO_FILE",
+		"FR_NO_PATH",
+		"INVALID_NAME",
+		"INVALID_DRIVE",
+		"DENIED",
+		"EXIST",
+		"RW_ERROR",
+		"WRITE_PROTECTED",
+		"NOT_ENABLED",
+		"NO_FILESYSTEM",
+		"INVALID_OBJECT",
+		"MKFS_ABORTED",
+		"TIMEOUT"
+	};
+	static const Uint8 errno_count = sizeof(error_strings) / sizeof(const char*);
 
-	for (p = str, i = 0; i != rc && *p; i++) {
-		while(*p++);
-	}
-	debug_printf("rc=%u FR_%s\n", (UINT)rc, p);
+	if(error_id >= errno_count)
+		debug_printf("rc=%u UNKNOWN_ERROR\n", (UINT)error_id);
+	else
+		debug_printf("rc=%u FR_%s\n", (UINT)error_id, error_strings[error_id]);
 }
 
-int term_cmd_md(const char *parameters) {
-	const char* ptr = parameters;
-	long p1, p2;
+static long argtolong(const char *str, int base, bool_e *ok) {
+	char *ptr;
 
-	if (!xatoi(&ptr, &p1)) return 0;
-	if (!xatoi(&ptr, &p2)) p2 = 128;
-	for (ptr=(char*)p1; p2 >= 16; ptr += 16, p2 -= 16)
-		put_dump((BYTE*)ptr, (UINT)ptr, 16);
-	if (p2) put_dump((BYTE*)ptr, (UINT)ptr, p2);
+	if(!str) {
+		if(ok)
+			*ok = FALSE;
+		return 0;
+	}
+
+	long val = strtol(str, &ptr, base);
+	if(ok)
+		*ok = ptr > str;
+
+	return val;
+}
+
+static FRESULT scan_files (const char* path)
+{
+	DIR dirs;
+	FRESULT res;
+	char *fn;
+	static char subdir[128];
+	FILINFO Finfo;
+
+
+	if ((res = f_opendir(&dirs, path)) == FR_OK) {
+		while (((res = f_readdir(&dirs, &Finfo)) == FR_OK) && Finfo.fname[0]) {
+//#if _USE_LFN
+//				fn = *Finfo.lfname ? Finfo.lfname : Finfo.fname;
+//#else
+				fn = Finfo.fname;
+//#endif
+			if (Finfo.fattrib & AM_DIR) {
+//				acc_dirs++;
+				sprintf(subdir, "%s/%s", path, fn);
+				res = scan_files(path);
+				//attention, subdir invalide car static (mis en static pour pas remplir la stack)
+				if (res != FR_OK) break;
+			} else {
+//				debug_printf("%s/%s\n", path, fn);
+//				acc_files++;
+//				acc_size += Finfo.fsize;
+			}
+		}
+	}
+
+	return res;
+}
+
+//Dump memory
+int term_cmd_md(int argc, const char *argv[]) {
+	long address, count;
+	const BYTE* ptr;
+	bool_e conv_ok;
+
+	if(argc < 1)
+		return EINVAL;
+
+	address = argtolong(argv[0], 0, &conv_ok);
+	if(!conv_ok)
+		return EINVAL;
+
+	if(argc < 2) {
+		count = 128;
+	} else {
+		count = argtolong(argv[1], 0, &conv_ok);
+		if(!conv_ok)
+			count = 128;
+	}
+
+	for(ptr = (const BYTE*)address; count >= 16; ptr += 16, count -= 16)
+		put_dump(ptr, (DWORD)ptr, 16);
+	if(count)
+		put_dump(ptr, (DWORD)ptr, count);
 
 	return 0;
 }
 
-int term_cmd_cp(const char *parameters) {
-	const char* ptr = parameters;
-	char *ptr2;
-	long p1;
+//Copy file from 0 to 1
+int term_cmd_cp(int argc, const char *argv[]) {
 	BYTE res;
-	FIL File1, File2;
-	UINT s1, s2, blen = sizeof(Buff);
+	FIL file_src, file_dst;
+	time32_t start_time;
+	UINT bytes_read, bytes_written, total_copied;
 
-	ptr++;
-	while (*ptr == ' ') ptr++;
-	ptr2 = strchr(ptr, ' ');
-	if (!ptr2) return 0;
-	*ptr2++ = 0;
-	while (*ptr2 == ' ') ptr2++;
-	debug_printf("Opening \"%s\"", ptr);
-	res = f_open(&File1, ptr, FA_OPEN_EXISTING | FA_READ);
+	if(argc < 2)
+		return EINVAL;
+
+	debug_printf("Opening \"%s\"", argv[0]);
+	res = f_open(&file_src, argv[0], FA_OPEN_EXISTING | FA_READ);
 	debug_printf("\n");
 	if (res) {
 		put_rc(res);
-		return 0;
+		return ENOENT;
 	}
-	debug_printf("Creating \"%s\"", ptr2);
-	res = f_open(&File2, ptr2, FA_CREATE_ALWAYS | FA_WRITE);
+	debug_printf("Creating \"%s\"", argv[1]);
+	res = f_open(&file_dst, argv[1], FA_CREATE_ALWAYS | FA_WRITE);
 	debug_printf("\n");
 	if (res) {
 		put_rc(res);
-		f_close(&File1);
-		return 0;
+		f_close(&file_src);
+		return EACCES;
 	}
-	debug_printf("Copying file...");
-	Timer = 0;
-	p1 = 0;
+
+	debug_printf("Copying file...\n");
+	start_time = global.env.absolute_time;
+	total_copied = 0;
+
 	for (;;) {
-		res = f_read(&File1, Buff, blen, &s1);
-		if (res || s1 == 0) {
+		res = f_read(&file_src, data_buffer, TERM_DATA_BUFFER_SIZE, &bytes_read);
+		if (res || bytes_read == 0) {
 			debug_printf("EOF\n");
-			return 0;   // error or eof
+			res = 0;
+			break;
 		}
-		res = f_write(&File2, Buff, s1, &s2);
-		p1 += s2;
-		if (res || s2 < s1) {
+		res = f_write(&file_dst, data_buffer, bytes_read, &bytes_written);
+		total_copied += bytes_written;
+		if (res || bytes_written < bytes_read) {
 			debug_printf("disk full\n");
-			return 0;   // error or disk full
+			res = ENOSPC;   // error no space
+			break;
 		}
 	}
-	debug_printf("%lu bytes copied with %lu kB/sec.\n", p1, p1 / Timer);
-	f_close(&File1);
-	f_close(&File2);
+	debug_printf("%u bytes copied with %lu kB/sec.\n", total_copied, total_copied / (global.env.absolute_time - start_time));
 
-	return 0;
+	f_close(&file_dst);
+	f_close(&file_src);
+
+	return res;
 }
 
-int term_cmd_cat(const char *parameters) {
-	const char* ptr = parameters;
-	long p1;
+//Put file content to output
+int term_cmd_cat(int argc, const char *argv[]) {
 	BYTE res;
-	FIL File1;
-	UINT s1, blen = sizeof(Buff);
+	FIL file;
+	UINT bytes_read, i;
 
-	while (*ptr == ' ') ptr++;
-	res = f_open(&File1, ptr, FA_OPEN_EXISTING | FA_READ);
+	if(argc < 1)
+		return EINVAL;
+
+	res = f_open(&file, argv[0], FA_OPEN_EXISTING | FA_READ);
 	if (res)
 	{
 		put_rc(res);
-		return 0;
+		return ENOENT;
 	}
 
-	debug_printf("Reading file...%s\n",ptr);
-	Timer = 0;
-	p1 = 0;
+	debug_printf("Reading file...%s\n", argv[0]);
 	while(1)
 	{
-		res = f_read(&File1, Buff, blen-1, &s1);
-		if(s1 == 0)
+		res = f_read(&file, data_buffer, TERM_DATA_BUFFER_SIZE, &bytes_read);
+		if(bytes_read == 0)
 		{
-			debug_printf("\n...End of file %s\n",ptr);
-			return 0;
+			debug_printf("\n...End of file %s\n", argv[0]);
+			break;
 		}
 		if (res) {
 			put_rc(res);
-			return 0;   // error or eof
+			break;   // error or eof
 		}
-		fwrite(Buff, 1, s1, stdout);
-//		for(i=0;i<s1;i++)
-//			UART1_putc(Buff[i]);
+		for(i=0;i<bytes_read;i++)
+			UART1_putc(data_buffer[i]);
 	}
-	f_close(&File1);
+
+	f_close(&file);
+
+	return 0;
 }
 
-int term_cmd_clean(const char *parameters) {
+//Delete all match files
+int term_cmd_clean(int argc, const char *argv[]) {
 	BYTE res;
+
+	if(argc < 1)
+		return EINVAL;
+	argv = argv; //anti warning argv non utilisé
 
 	debug_printf("Cleaning all match files - Cela peut prendre plusieurs minutes\n");
 	debug_printf("Si vous ne vouliez pas supprimer les matchs enregistrés, RESETTEZ VITE LA CARTE STRATEGIE !!!\n");
+	debug_printf("Un point = 100 fichiers de match traités, commence au match 9999\n");
 
 	Sint16 match;
 	char path[12];
@@ -138,9 +228,9 @@ int term_cmd_clean(const char *parameters) {
 		res = f_unlink(path);
 		if(res == RES_OK)
 		{
-			debug_printf("\n%s deleted",path);
+			debug_printf("\n%s deleted\n",path);
 		}
-		if(match == (match/100)*100)
+		if(match % 100 == 0)
 			debug_printf(".");
 	}
 	res = f_unlink("index.inf");
@@ -149,239 +239,418 @@ int term_cmd_clean(const char *parameters) {
 		debug_printf("\nindex.inf deleted\n");
 	}
 	debug_printf("Vous pouvez maintenant reseter la carte Stratégie (si vous lancez un match maintenant, il ne sera pas enregistré).");
+
+	return 0;
 }
 
-int term_cmd_dd(const char *parameters) {
-	if (!xatoi(&ptr, &p2)) p2 = sect;
-	res = disk_read(0, Buff, p2, 1);
-	if (res) { debug_printf("rc=%d\n", (WORD)res); break; }
-	sect = p2 + 1;
-	debug_printf("Sector:%lu\n", p2);
-	for (ptr=(char*)Buff, ofs = 0; ofs < 0x200; ptr+=16, ofs+=16)
-		put_dump((BYTE*)ptr, ofs, 16);
+//Dump sector
+int term_cmd_dd(int argc, const char *argv[]) {
+	long sect;
+	bool_e conv_ok;
+	static long next_sector = 0;
+	const BYTE* ptr;
+	BYTE res;
+	long ofs;
+
+	if(argc < 1) {
+		sect = next_sector;
+	} else {
+		sect = argtolong(argv[0], 0, &conv_ok);
+		if(!conv_ok)
+			sect = next_sector;
+	}
+
+	next_sector = sect + 1;
+
+#if TERM_DATA_BUFFER_SIZE < 512
+#error "terminal buffer must be > 512 bytes"
+#endif
+
+	res = disk_read(0, data_buffer, sect, 1);
+	if (res) {
+		debug_printf("rc=%d\n", (WORD)res);
+		return EIO;
+	}
+
+	debug_printf("Sector: %lu\n", sect);
+
+	for (ptr=(const BYTE*)data_buffer, ofs = 0; ofs < 0x200; ptr+=16, ofs+=16)
+		put_dump(ptr, ofs, 16);
+
+	return 0;
 }
 
-int term_cmd_di(const char *parameters) {
+//Initialize disk
+int term_cmd_di(int argc, const char *argv[]) {
+	argc = argc;
+	argv = argv;
+
 	debug_printf("rc=%d\n", (WORD)disk_initialize(0));
+
+	return 0;
 }
 
-int term_cmd_ds(const char *parameters) {
-	Buff[0]=2;
-	if (disk_ioctl(0, CTRL_POWER, Buff) == RES_OK )
-		{ debug_printf("Power is %s\n", Buff[1] ? "ON" : "OFF"); }
-	if (disk_ioctl(0, GET_SECTOR_COUNT, &p2) == RES_OK)
-		{ debug_printf("Drive size: %lu sectors\n", p2); }
-	if (disk_ioctl(0, GET_SECTOR_SIZE, &w1) == RES_OK)
-		{ debug_printf("Sector size: %u\n", w1); }
-	if (disk_ioctl(0, GET_BLOCK_SIZE, &p2) == RES_OK)
-		{ debug_printf("Erase block size: %lu sectors\n", p2); }
-	if (disk_ioctl(0, MMC_GET_TYPE, &b1) == RES_OK)
-		{ debug_printf("MMC/SDC type: %u\n", b1); }
-	if (disk_ioctl(0, MMC_GET_CSD, Buff) == RES_OK)
-		{ debug_printf("CSD:\n"); put_dump(Buff, 0, 16); }
-	if (disk_ioctl(0, MMC_GET_CID, Buff) == RES_OK)
-		{ debug_printf("CID:\n"); put_dump(Buff, 0, 16); }
-	if (disk_ioctl(0, MMC_GET_OCR, Buff) == RES_OK)
-		{ debug_printf("OCR:\n"); put_dump(Buff, 0, 4); }
-	if (disk_ioctl(0, MMC_GET_SDSTAT, Buff) == RES_OK) {
+//Show disk status
+int term_cmd_ds(int argc, const char *argv[]) {
+	data_buffer[0] = 2;
+	long data;
+
+	argc = argc;
+	argv = argv;
+
+	if (disk_ioctl(0, CTRL_POWER, data_buffer) == RES_OK )
+		debug_printf("Power is %s\n", data_buffer[1] ? "ON" : "OFF");
+
+	data = 0;
+	if (disk_ioctl(0, GET_SECTOR_COUNT, &data) == RES_OK)
+		debug_printf("Drive size: %lu sectors\n", data);
+
+	data = 0;
+	if (disk_ioctl(0, GET_SECTOR_SIZE, &data) == RES_OK)
+		debug_printf("Sector size: %lu\n", data);
+
+	data = 0;
+	if (disk_ioctl(0, GET_BLOCK_SIZE, &data) == RES_OK)
+		debug_printf("Erase block size: %lu sectors\n", data);
+
+	data = 0;
+	if (disk_ioctl(0, MMC_GET_TYPE, &data) == RES_OK)
+		debug_printf("MMC/SDC type: %lu\n", data);
+
+	if (disk_ioctl(0, MMC_GET_CSD, data_buffer) == RES_OK){
+		debug_printf("CSD:\n");
+		put_dump(data_buffer, 0, 16);
+	}
+
+	if (disk_ioctl(0, MMC_GET_CID, data_buffer) == RES_OK){
+		debug_printf("CID:\n");
+		put_dump(data_buffer, 0, 16);
+	}
+
+	if (disk_ioctl(0, MMC_GET_OCR, data_buffer) == RES_OK){
+		debug_printf("OCR:\n");
+		put_dump(data_buffer, 0, 4);
+	}
+
+	if (disk_ioctl(0, MMC_GET_SDSTAT, data_buffer) == RES_OK) {
 		debug_printf("SD Status:\n");
-		for (s1 = 0; s1 < 64; s1 += 16) put_dump(Buff+s1, s1, 16);
+		for (data = 0; data < 64; data += 16)
+			put_dump(data_buffer+data, data, 16);
 	}
+
+	return 0;
 }
 
-int term_cmd_bd(const char *parameters) {
-	if (!xatoi(&ptr, &p1)) break;
-	for (ptr=(char*)&Buff[p1], ofs = p1, cnt = 32; cnt; cnt--, ptr+=16, ofs+=16)
-		put_dump((BYTE*)ptr, ofs, 16);
-}
+//Dump buffer
+int term_cmd_bd(int argc, const char *argv[]) {
+	static long next_address = 0;
+	long address, count;
+	bool_e conv_ok;
 
-int term_cmd_br(const char *parameters) {
-	if (!xatoi(&ptr, &p2)) break;
-	if (!xatoi(&ptr, &p3)) p3 = 1;
-	debug_printf("rc=%u\n", (WORD)disk_read(0, Buff, p2, p3));
-}
-
-int term_cmd_bw(const char *parameters) {
-	if (!xatoi(&ptr, &p2)) break;
-	if (!xatoi(&ptr, &p3)) p3 = 1;
-	debug_printf("rc=%u\n", (WORD)disk_write(0, Buff, p2, p3));
-}
-
-int term_cmd_bf(const char *parameters) {
-	if (!xatoi(&ptr, &p1)) break;
-	memset(Buff, (BYTE)p1, sizeof(Buff));
-}
-
-int term_cmd_fi(const char *parameters) {
-	put_rc(f_mount(0, &Fatfs[0]));
-}
-
-int term_cmd_fs(const char *parameters) {
-	res = f_getfree("", (DWORD*)&p2, &fs);
-	if (res) { put_rc(res); break; }
-	debug_printf("FAT type = %u (%s)\nBytes/Cluster = %lu\nNumber of FATs = %u\n"
-			"Root DIR entries = %u\nSectors/FAT = %lu\nNumber of clusters = %lu\n"
-			"FAT start (lba) = %lu\nDIR start (lba,clustor) = %lu\nData start (lba) = %lu\n\n",
-			(WORD)fs->fs_type,
-			(fs->fs_type==FS_FAT12) ? "FAT12" : (fs->fs_type==FS_FAT16) ? "FAT16" : "FAT32",
-			(DWORD)fs->csize * 512, (WORD)fs->n_fats,
-			fs->n_rootdir, fs->sects_fat, (DWORD)fs->max_clust - 2,
-			fs->fatbase, fs->dirbase, fs->database
-	);
-	acc_size = acc_files = acc_dirs = 0;
-#if _USE_LFN
-	Finfo.lfname = Lfname;
-	Finfo.lfsize = sizeof(Lfname);
-#endif
-	res = scan_files(ptr);
-	if (res) { put_rc(res); break; }
-	debug_printf("%u files, %lu bytes.\n%u folders.\n"
-			"%lu KB total disk space.\n%lu KB available.\n",
-			acc_files, acc_size, acc_dirs,
-			(fs->max_clust - 2) * (fs->csize / 2), p2 * (fs->csize / 2)
-	);
-}
-
-int term_cmd_fo(const char *parameters) {
-	if (!xatoi(&ptr, &p1)) break;
-	while (*ptr == ' ') ptr++;
-	put_rc(f_open(&File1, ptr, (BYTE)p1));
-}
-
-int term_cmd_fc(const char *parameters) {
-	put_rc(f_close(&File1));
-}
-
-int term_cmd_fe(const char *parameters) {
-	if (!xatoi(&ptr, &p1)) break;
-	res = f_lseek(&File1, p1);
-	put_rc(res);
-	if (res == FR_OK)
-		debug_printf("fptr=%lu(0x%lX)\n", File1.fptr, File1.fptr);
-}
-
-int term_cmd_fd(const char *parameters) {
-	if (!xatoi(&ptr, &p1)) break;
-	ofs = File1.fptr;
-	while (p1) {
-		if ((UINT)p1 >= 16) { cnt = 16; p1 -= 16; }
-		else 				{ cnt = p1; p1 = 0; }
-		res = f_read(&File1, Buff, cnt, &cnt);
-		if (res != FR_OK) { put_rc(res); break; }
-		if (!cnt) break;
-		put_dump(Buff, ofs, cnt);
-		ofs += 16;
+	if(argc < 1) {
+		address = next_address;
+	} else {
+		address = argtolong(argv[0], 0, &conv_ok);
+		if(!conv_ok)
+			return EINVAL;
 	}
-}
 
-int term_cmd_fr(const char *parameters) {
-	if (!xatoi(&ptr, &p1)) break;
-	p2 = 0;
-	Timer = 0;
-	while (p1) {
-		if ((UINT)p1 >= blen) {
-			cnt = blen; p1 -= blen;
-		} else {
-			cnt = p1; p1 = 0;
-		}
-		res = f_read(&File1, Buff, cnt, &s2);
-		if (res != FR_OK) { put_rc(res); break; }
-		p2 += s2;
-		if (cnt != s2) break;
+	next_address = address + 1;
+
+	if(argc < 2) {
+		count = 32;
+	} else {
+		count = argtolong(argv[1], 0, &conv_ok);
+		if(!conv_ok)
+			return EINVAL;
 	}
-	debug_printf("%lu bytes read with %lu kB/sec.\n", p2, p2 / Timer);
+
+	for (; count; count--, address += 16)
+		put_dump(&data_buffer[address], address, 16);
+
+	return 0;
 }
 
-int term_cmd_fw(const char *parameters) {
-	if (!xatoi(&ptr, &p1) || !xatoi(&ptr, &p2)) break;
-	memset(Buff, (BYTE)p2, blen);
-	p2 = 0;
-	Timer = 0;
-	while (p1) {
-		if ((UINT)p1 >= blen) {
-			cnt = blen; p1 -= blen;
-		} else {
-			cnt = p1; p1 = 0;
-		}
-		res = f_write(&File1, Buff, cnt, &s2);
-		if (res != FR_OK) { put_rc(res); break; }
-		p2 += s2;
-		if (cnt != s2) break;
+//Read to buffer
+int term_cmd_br(int argc, const char *argv[]) {
+	static long next_sector = 0;
+	long sector, count;
+	bool_e conv_ok;
+
+	if(argc < 1) {
+		sector = next_sector;
+	} else {
+		sector = argtolong(argv[0], 0, &conv_ok);
+		if(!conv_ok)
+			return EINVAL;
 	}
-	debug_printf("%lu bytes written with %lu kB/sec.\n", p2, p2 / Timer);
+
+	next_sector = sector + 1;
+
+	if(argc < 2) {
+		count = 1;
+	} else {
+		count = argtolong(argv[1], 0, &conv_ok);
+		if(!conv_ok)
+			return EINVAL;
+	}
+
+	if(count > sector*512/TERM_DATA_BUFFER_SIZE)
+		count = sector*512/TERM_DATA_BUFFER_SIZE;
+
+	debug_printf("rc=%u\n", (WORD)disk_read(0, data_buffer, sector, count));
+
+	return 0;
 }
 
-int term_cmd_fn(const char *parameters) {
-	while (*ptr == ' ') ptr++;
-	ptr2 = strchr(ptr, ' ');
-	if (!ptr2) break;
-	*ptr2++ = 0;
-	while (*ptr2 == ' ') ptr2++;
-	put_rc(f_rename(ptr, ptr2));
+//Write buffer
+int term_cmd_bw(int argc, const char *argv[]) {
+	long sector, count;
+	bool_e conv_ok;
+
+	if(argc < 1)
+		return EINVAL;
+
+	sector = argtolong(argv[0], 0, &conv_ok);
+	if(!conv_ok)
+		return EINVAL;
+
+	if(argc < 2) {
+		count = 1;
+	} else {
+		count = argtolong(argv[1], 0, &conv_ok);
+		if(!conv_ok)
+			return EINVAL;
+	}
+
+	if(count > sector*512/TERM_DATA_BUFFER_SIZE)
+		count = sector*512/TERM_DATA_BUFFER_SIZE;
+
+	debug_printf("rc=%u\n", (WORD)disk_write(0, data_buffer, sector, count));
+
+	return 0;
 }
 
-int term_cmd_fv(const char *parameters) {
-	put_rc(f_truncate(&File1));
+//Fill buffer
+int term_cmd_bf(int argc, const char *argv[]) {
+	long value;
+	bool_e conv_ok;
+
+	if(argc < 1)
+		return EINVAL;
+
+	value = argtolong(argv[0], 0, &conv_ok);
+	if(!conv_ok)
+		return EINVAL;
+
+	memset(data_buffer, (BYTE)value, sizeof(TERM_DATA_BUFFER_SIZE));
+
+	return 0;
 }
 
-int term_cmd_fk(const char *parameters) {
-	while (*ptr == ' ') ptr++;
-	put_rc(f_mkdir(ptr));
+//Show logical drive status
+int term_cmd_fs(int argc, const char *argv[]) {
+	long free_space;
+	FATFS *fs;
+	BYTE res;
+//	FILINFO Finfo;
+
+	if(argc < 1)
+		return EINVAL;
+
+	res = f_getfree("", (DWORD*)&free_space, &fs);
+	if (res) {
+		put_rc(res);
+		return EIO;
+	}
+
+	debug_printf("FAT type = %u (%s)\n"
+				 "Bytes/Cluster = %lu\n"
+				 "Number of FATs = %u\n"
+				 "Root DIR entries = %u\n"
+				 "Sectors/FAT = %lu\n"
+				 "Number of clusters = %lu\n"
+				 "FAT start (lba) = %lu\n"
+				 "DIR start (lba,clustor) = %lu\n"
+				 "Data start (lba) = %lu\n\n",
+				 (WORD)fs->fs_type,
+				 (fs->fs_type==FS_FAT12) ? "FAT12" : (fs->fs_type==FS_FAT16) ? "FAT16" : "FAT32",
+				 (DWORD)fs->csize * 512,
+				 (WORD)fs->n_fats,
+				 fs->n_rootdir,
+				 fs->sects_fat,
+				 (DWORD)fs->max_clust - 2,
+				 fs->fatbase,
+				 fs->dirbase,
+				 fs->database);
+
+//	acc_size = acc_files = acc_dirs = 0;
+
+//#if _USE_LFN
+//	Finfo.lfname = Lfname;
+//	Finfo.lfsize = sizeof(Lfname);
+//#endif
+
+	res = scan_files(argv[0]);
+	if (res) {
+		put_rc(res);
+		return EIO;
+	}
+//	debug_printf("%u files, %lu bytes.\n"
+//				 "%u folders.\n"
+//				 "%lu KB total disk space.\n"
+//				 "%lu KB available.\n",
+//				 acc_files,
+//				 acc_size,
+//				 acc_dirs,
+//				 (fs->max_clust - 2) * (fs->csize / 2),
+//				 p2 * (fs->csize / 2) );
+
+	return 0;
 }
 
-int term_cmd_fa(const char *parameters) {
-	if (!xatoi(&ptr, &p1) || !xatoi(&ptr, &p2)) break;
-	while (*ptr == ' ') ptr++;
-	put_rc(f_chmod(ptr, p1, p2));
+//Rename file/dir
+int term_cmd_fn(int argc, const char *argv[]) {
+	if(argc < 2)
+		return EINVAL;
+
+	put_rc(f_rename(argv[0], argv[1]));
+
+	return 0;
 }
 
-int term_cmd_ft(const char *parameters) {
-	if (!xatoi(&ptr, &p1) || !xatoi(&ptr, &p2) || !xatoi(&ptr, &p3)) break;
-	Finfo.fdate = ((p1 - 1980) << 9) | ((p2 & 15) << 5) | (p3 & 31);
-	if (!xatoi(&ptr, &p1) || !xatoi(&ptr, &p2) || !xatoi(&ptr, &p3)) break;
-	Finfo.ftime = ((p1 & 31) << 11) | ((p1 & 63) << 5) | ((p1 >> 1) & 31);
-	put_rc(f_utime(ptr, &Finfo));
+//Truncate file
+int term_cmd_fv(int argc, const char *argv[]) {
+	BYTE res;
+	FIL file;
+
+	if(argc < 1)
+		return EINVAL;
+
+	res = f_open(&file, argv[0], FA_OPEN_ALWAYS | FA_WRITE);
+	if (res)
+	{
+		put_rc(res);
+		return ENOENT;
+	}
+
+	put_rc(f_truncate(&file));
+
+	f_close(&file);
+
+	return 0;
 }
 
-int term_cmd_fm(const char *parameters) {
-	if (!xatoi(&ptr, &p2) || !xatoi(&ptr, &p3)) break;
-	debug_printf("The drive 0 will be formatted. If you are really sure, use the command fmY instead of fm\n");
-	if (*ptr == 'Y')
-		put_rc(f_mkfs(0, (BYTE)p2, (WORD)p3));
+//mkdir
+int term_cmd_fk(int argc, const char *argv[]) {
+	if(argc < 1)
+		return EINVAL;
+
+	put_rc(f_mkdir(argv[0]));
+
+	return 0;
 }
 
-int term_cmd_fz(const char *parameters) {
-	if (xatoi(&ptr, &p1) && p1 >= 1 && (size_t)p1 <= sizeof(Buff))
-		blen = p1;
-	debug_printf("blen=%u\n", blen);
+//chmod
+int term_cmd_fa(int argc, const char *argv[]) {
+	long value, mask;
+	bool_e conv_ok;
+
+	if(argc < 3)
+		return EINVAL;
+
+
+	mask = argtolong(argv[0], 0, &conv_ok);
+	if(!conv_ok)
+		return EINVAL;
+
+	value = argtolong(argv[1], 0, &conv_ok);
+	if(!conv_ok)
+		return EINVAL;
+
+	put_rc(f_chmod(argv[2], value, mask));
+
+	return 0;
 }
 
-int term_cmd_goto(const char *parameters) {
-	if (!xatoi(&ptr, &p1)) break;
-	if (!xatoi(&ptr, &p2)) break;
+//Change timestamp
+int term_cmd_ft(int argc, const char *argv[]) {
+//	if (!xatoi(&ptr, &p1) || !xatoi(&ptr, &p2) || !xatoi(&ptr, &p3)) break;
+//	Finfo.fdate = ((p1 - 1980) << 9) | ((p2 & 15) << 5) | (p3 & 31);
+//	if (!xatoi(&ptr, &p1) || !xatoi(&ptr, &p2) || !xatoi(&ptr, &p3)) break;
+//	Finfo.ftime = ((p1 & 31) << 11) | ((p1 & 63) << 5) | ((p1 >> 1) & 31);
+//	put_rc(f_utime(ptr, &Finfo));
 
-	if(p1 >= 200 && p1 <= 1800 && p2 >= 200 && p2 <= 2800)
-		ASSER_push_goto(p1, p2, FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
+	return 0;
 }
 
-int term_cmd_ls(const char *parameters) {
-	if(*ptr++ != 's')
-		break;
-	while (*ptr == ' ') ptr++;
-	res = f_opendir(&Dir, ptr);
-	if (res) { put_rc(res); break; }
-	p1 = s1 = s2 = 0;
+//format drive
+int term_cmd_fm(int argc, const char *argv[]) {
+//	if (!xatoi(&ptr, &p2) || !xatoi(&ptr, &p3)) break;
+//	debug_printf("The drive 0 will be formatted. If you are really sure, use the command fmY instead of fm\n");
+//	if (*ptr == 'Y')
+//		put_rc(f_mkfs(0, (BYTE)p2, (WORD)p3));
+
+	return 0;
+}
+
+//Move robot to X, Y position
+int term_cmd_goto(int argc, const char *argv[]) {
+	long x, y;
+	bool_e conv_ok;
+
+	if(argc < 2)
+		return EINVAL;
+
+	x = argtolong(argv[0], 0, &conv_ok);
+	if(!conv_ok)
+		return EINVAL;
+
+	y = argtolong(argv[1], 0, &conv_ok);
+	if(!conv_ok)
+		return EINVAL;
+
+
+	if(x >= 200 && x <= 1800 && y >= 200 && y <= 2800)
+		ASSER_push_goto(x, y, FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
+	else
+		return EINVAL;
+
+	return 0;
+}
+
+//list files
+int term_cmd_ls(int argc, const char *argv[]) {
+	BYTE res;
+	DIR dir;
+	FILINFO Finfo;
+	long dir_count, file_count, total_size;
+	FATFS *fs;
+	const char *target;
+
+	if(argc < 1)
+		target = "";
+	else
+		target = argv[0];
+
+	res = f_opendir(&dir, target);
+	if (res) {
+		put_rc(res);
+		return ENOENT;
+	}
+
 	for(;;) {
-#if _USE_LFN
-		Finfo.lfname = Lfname;
-		Finfo.lfsize = sizeof(Lfname);
-#endif
-		res = f_readdir(&Dir, &Finfo);
+//#if _USE_LFN
+//		Finfo.lfname = Lfname;
+//		Finfo.lfsize = sizeof(Lfname);
+//#endif
+		res = f_readdir(&dir, &Finfo);
 		if ((res != FR_OK) || !Finfo.fname[0]) break;
 		if (Finfo.fattrib & AM_DIR) {
-			s2++;
+			dir_count++;
 		} else {
-			s1++; p1 += Finfo.fsize;
+			file_count++;
+			total_size += Finfo.fsize;
 		}
 		debug_printf("%c%c%c%c%c %u/%02u/%02u %02u:%02u %9lu  %s",
 				(Finfo.fattrib & AM_DIR) ? 'D' : '-',
@@ -392,31 +661,46 @@ int term_cmd_ls(const char *parameters) {
 				(Finfo.fdate >> 9) + 1980, (Finfo.fdate >> 5) & 15, Finfo.fdate & 31,
 				(Finfo.ftime >> 11), (Finfo.ftime >> 5) & 63,
 				Finfo.fsize, &(Finfo.fname[0]));
-#if _USE_LFN
-		debug_printf("  %s\n", Lfname);
-#else
-		xputc('\n');
-#endif
+//#if _USE_LFN
+//		debug_printf("  %s\n", Lfname);
+//#else
+		UART1_putc('\n');
+//#endif
 	}
-	debug_printf("%4u File(s),%10lu bytes total\n%4u Dir(s)", s1, p1, s2);
-	if (f_getfree(ptr, (DWORD*)&p1, &fs) == FR_OK)
-		debug_printf(", %10lu bytes free\n", p1 * fs->csize * 512);
+	debug_printf("%4lu File(s), %10lu bytes total\n%4lu Dir(s)", file_count, total_size, dir_count);
+	if (f_getfree(target, (DWORD*)&total_size, &fs) == FR_OK)
+		debug_printf(", %10lu bytes free\n", total_size * fs->csize * 512);
+	else
+		debug_printf("\n");
+
+	return 0;
 }
 
-int term_cmd_rm(const char *parameters) {
-	while (*ptr == ' ') ptr++;
-	debug_printf("Trying to delete %s\n",ptr);
-	res = f_unlink(ptr);
+//remove file
+int term_cmd_rm(int argc, const char *argv[]) {
+	BYTE res;
+
+	if(argc < 1)
+		return EINVAL;
+
+	debug_printf("Trying to delete %s\n", argv[0]);
+	res = f_unlink(argv[0]);
 	if(res)
 	{
-		debug_printf("Can't delete %s : ",ptr);
+		debug_printf("Can't delete %s : ", argv[0]);
 		put_rc(res);
+		return ENOENT;
 	}
 	else
-		debug_printf("%s deleted \n",ptr);
+		debug_printf("%s deleted \n", argv[0]);
+
+	return 0;
 }
 
-int term_cmd_reset(const char *parameters) {
+//Software reset
+int term_cmd_reset(int argc, const char *argv[]) {
 	NVIC_SystemReset();
+
+	return 0;
 }
-*/
+
