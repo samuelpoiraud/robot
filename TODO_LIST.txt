@@ -1,0 +1,51 @@
+Vous pouvez :
+- Supprimer de cette liste les actions lorsqu'elles sont effectuées...
+- Ajouter des idées ou des choses à faire...
+
+__________________
+
+Rénommer KRUSTY en PIERRE et TINY en GUY
+
+XBee
+	- continuer le code pour synchro zigbee ?
+
+RF
+	- acheter des modules
+	- coder un module de CAN_over_RF
+	- coupler les envois de messages entre XBee et RF
+		idée : les Sid étant de la forme 05XX, on a 5 bits (avant le 5), pour une rotation d'ID.. mais comme c'est moche, on en garde que 4...
+			On a alors un buffer de 16 messages... et le '0' est remplacé par un ID tournant.
+			Selon le message (avec ou sans acquittement haut niveau), soit :
+				- un message qui doit être acquitté :
+					- est envoyé sur le canal dispo si un seul canal dispo, ou sur les deux (en même temps ou si échec du premier essai)
+					- est mémorisé par le récepteur dans sa 'case ID'
+					- est mémorisé par l'émetteur dans sa 'case ID' jusqu'à ce que l'acquittement soit reçu. Il est renvoyé périodiquement. Tout départ de nouveau message est bufferisé !
+					- si l'acquittement est reçu par "l'autre canal"
+				- un message qui ne doit pas être acquitté (par exemple message de synchro, ou de position ?) :
+					- est envoyé dès que possible, sans mémorisation ni d'un coté ni de l'autre 
+			
+IT
+	- résumer les niveaux d'IT dans les codes... -> classeur pinout_usages ???
+	
+ZONES
+	- faire des tests de zoning avec les deux robots ? Pour vérifier le bon comportement et la possibilité de croisement
+	
+Réglages coeff
+	- stratégie de réglage des coefs d'odométrie automatique (seule la repro de la carte propulsion est à faire, ou carrément profiter de l'EEPROM du STM32) ! (chiche !)
+		- choix du coef à régler en début de strat, par un menu (la strat prend la main sur l'écran et les boutons !)
+		- ...
+	- stratégie de réglages des coefs du PID de façon automatique ??? (le doux rêve)	
+
+HARD
+	- ajouter capteurs analogiques sur la propulsion pour permettre des scans... réguliers et cohérent en position !
+	- 
+
+	
+	
+	(Carte module HF
+		GND, 5V, RX, TX, 5-12V => 5 points.
+		Eventuellement ajouter : CANH, CANL, SYNCHRO => 8 points, et on va jusqu'à la balise avec des fils...
+		Deux antennes (?) -> 4,25 ou 17 pliées ?
+		Risque de trop proche entre les deux ?
+	)
+	
