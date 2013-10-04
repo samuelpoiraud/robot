@@ -601,18 +601,30 @@ bool_e execute_command(char * ptr)
 			debug_printf("Unknow command\n");
 			break;
 		case 'r':
-			if(*ptr++ == 'm')	/* rm <name> - Delete a file or dir (=Unlink)*/
-			{
-				while (*ptr == ' ') ptr++;
-				debug_printf("Trying to delete %s\n",ptr);
-				res = f_unlink(ptr);
-				if(res)
-				{
-					debug_printf("Can't delete %s : ",ptr);
-					put_rc(res);
-				}
-				else
-					debug_printf("%s deleted \n",ptr);
+			switch(*ptr++) {
+				case 'm':	/* rm <name> - Delete a file or dir (=Unlink)*/
+					while (*ptr == ' ') ptr++;
+					debug_printf("Trying to delete %s\n",ptr);
+					res = f_unlink(ptr);
+					if(res)
+					{
+						debug_printf("Can't delete %s : ",ptr);
+						put_rc(res);
+					}
+					else
+						debug_printf("%s deleted \n",ptr);
+					break;
+
+				case 'e':
+					if(*ptr++ != 's')
+						break;
+					if(*ptr++ != 'e')
+						break;
+					if(*ptr++ != 't')
+						break;
+
+					NVIC_SystemReset();
+					break;
 			}
 			break;
 		case 'e' :	//exit...
