@@ -12,6 +12,7 @@
 #include "Libraries/fat_sd/ff.h"
 #include "term_io.h"
 #include "ff_test_term.h"
+#include "../../asser_functions.h"
 
 
 DWORD acc_size;				/* Work register for fs command */
@@ -504,6 +505,19 @@ bool_e execute_command(char * ptr)
 				debug_printf("Unknow command\n");
 				break;
 			}
+			break;
+
+		case 'g':
+			if(*ptr++ != 'o')
+				break;
+			if(*ptr++ != 't')
+				break;
+			if(*ptr++ != 'o')
+				break;
+
+			if (!xatoi(&ptr, &p1)) break;
+			if (!xatoi(&ptr, &p2)) break;
+			ASSER_push_goto(p1, p2, FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
 			break;
 
 		case 'h':
