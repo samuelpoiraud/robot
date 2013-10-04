@@ -3,7 +3,7 @@
 #include "../../QS/QS_all.h"
 #include "../../QS/QS_uart.h"
 
-int xatoi (char **str, long *res)
+int xatoi (const char **str, long *res)
 {
 	DWORD val;
 	BYTE c, radix, s = 0;

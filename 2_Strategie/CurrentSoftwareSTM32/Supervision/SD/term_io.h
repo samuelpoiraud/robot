@@ -5,7 +5,7 @@
 #include "../../QS/QS_all.h"
 
 
-int xatoi (char**, long*);
+int xatoi (const char **, long*);
 void xitoa (long, int, int);
 void put_dump (const BYTE*, Uint32 ofs, int cnt);
 char * get_command (void);
