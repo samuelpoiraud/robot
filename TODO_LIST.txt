@@ -49,3 +49,16 @@ HARD
 		Risque de trop proche entre les deux ?
 	)
 	
+Capteurs 
+- monter des DT10 sur un robot (carte propulsion stm32 de krusty par exemple)
+		altitudes : objectifs
+		- 15mm : localiser un feu au sol, mesurer notre position par rapport à une bordure ou un foyer
+		- 45mm : localiser un feu sur un foyer, ou une torche seule, voir si une torche fixe est pleine
+		- 80mm : localiser une torche sur un foyer (ou situation anormale), localiser une torche, voir si une torche fixe est pleine, voir un feu debout
+- développer des algos de scan -> pour répondre aux objectifs ci-dessus
+	1 scan =
+		- position du scan connue
+		- trajectoire connue (rotation pour voir autour de soit, ou translation pour voir en avancant)
+		- algo clair sur les points récupérés
+			- on retire les points hors terrain, on regroupe les points en objets... on déduit le type d'objet...et sa position
+	
