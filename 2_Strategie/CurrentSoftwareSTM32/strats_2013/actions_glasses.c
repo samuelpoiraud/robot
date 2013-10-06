@@ -19,8 +19,6 @@
 //#define LOG_PREFIX "strat_glasses: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-
-
 error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode, bool_e go_home) {
 //	//Trajectoire 1
 //	displacement_t MOVE_POINTS[18] = {
@@ -153,23 +151,18 @@ error_e K_STRAT_sub_glasses_alexis(bool_e homologation_mode, bool_e go_home) {
 //Prend tous les verres en suivant une trajectoire données. A la fin les verres sont posé (après la dernière position)
 error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displacement_block_t trajectories_to_home[], Uint8 trajectory_number, const displacement_block_t trajectories[], displacement_t move_points[], bool_e go_home) {
 	//GM pour Glass Move
-	enum state_e {
-		GM_INIT = 0,				//Initialisation: on initialise la sous-strat grab_glass: on a pris 0 verre et l'ascenseur est en bas et ouvert
-		GM_CATCH_GLASSES,			//Avance et prend des verres en même temps
-		GM_WAIT_ACT,				//Attend que les actionneurs des ascenseurs aient fini de bouger, l'état suivant est dans la variable what_to_do_after_act
-		GM_CHECK_TINY_ZONE,			//Vérifie que la zone de Tiny est dispo. Si c'est pas le cas, on va sur la zone de Krusty.
-		GM_GO_HOME,					//Va à une case départ pour déposer les verres
-		GM_ROTATE,					//Se tourne pour être bien droit, pour en sortant, ne pas pousser les verres en tournant ...
-		GM_PUT_DOWN_GLASSES,		//Dépose les verres
-		GM_EXTRACT_FROM_GLASSES,	//Recule le robot pour pouvoir faire d'autre mouvement librement sans toucher les verres ramenés
-		GM_FAILED,					//Gère les cas d'erreur / évitement
-		GM_DONE,					//Les verres on été ramassé
-		GM_NBSTATE					//Pas un état mais indique le nombre d'état
-	};
-	static enum state_e state = GM_INIT;
-	static enum state_e last_state_for_check_entrance = GM_INIT;
-	static enum state_e last_state = GM_INIT;
-
+	CREATE_MAE_WITH_VERBOSE(
+				SM_ID_GLASSES_DO,
+				GM_INIT,					//Initialisation: on initialise la sous-strat grab_glass: on a pris 0 verre et l'ascenseur est en bas et ouvert
+				GM_CATCH_GLASSES,			//Avance et prend des verres en même temps
+				GM_WAIT_ACT,				//Attend que les actionneurs des ascenseurs aient fini de bouger, l'état suivant est dans la variable what_to_do_after_act
+				GM_CHECK_TINY_ZONE,			//Vérifie que la zone de Tiny est dispo. Si c'est pas le cas, on va sur la zone de Krusty.
+				GM_GO_HOME,					//Va à une case départ pour déposer les verres
+				GM_ROTATE,					//Se tourne pour être bien droit, pour en sortant, ne pas pousser les verres en tournant ...
+				GM_PUT_DOWN_GLASSES,		//Dépose les verres
+				GM_EXTRACT_FROM_GLASSES,	//Recule le robot pour pouvoir faire d'autre mouvement librement sans toucher les verres ramenés
+				GM_FAILED,					//Gère les cas d'erreur / évitement
+				GM_DONE);					//Les verres on été ramassé
 
 	////// Paramètres /////
 	static const Uint8 FIRST_SAFE_HOME = 2;
@@ -186,38 +179,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 	static error_e zone_starttiny_lock_state;
 	static bool_e must_unlock_starttiny;
 
-	//Si l'état à changé, on rentre dans un nouvel état
-	bool_e entrance = last_state_for_check_entrance != state;
-	last_state_for_check_entrance = state;
-
 	error_e return_value = IN_PROGRESS;
-
-
-	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(entrance) {
-		static const char* state_str[GM_NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, GM_INIT);
-			STATE_STR_DECLARE(state_str, GM_CATCH_GLASSES);
-			STATE_STR_DECLARE(state_str, GM_WAIT_ACT);
-			STATE_STR_DECLARE(state_str, GM_CHECK_TINY_ZONE);
-			STATE_STR_DECLARE(state_str, GM_GO_HOME);
-			STATE_STR_DECLARE(state_str, GM_ROTATE);
-			STATE_STR_DECLARE(state_str, GM_PUT_DOWN_GLASSES);
-			STATE_STR_DECLARE(state_str, GM_EXTRACT_FROM_GLASSES);
-			STATE_STR_DECLARE(state_str, GM_FAILED);
-			STATE_STR_DECLARE(state_str, GM_DONE);
-			STATE_STR_INIT_UNDECLARED(state_str, GM_NBSTATE);
-			state_str_initialized = TRUE;
-		}
-
-//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_sub_glasses_alexis: state changed: %s(%d) -> %s(%d)\n",
-//			state_str[last_state], last_state,
-//			state_str[state], state);
-		STATECHANGE_log(SM_ID_GLASSES_DO, state_str[last_state], last_state, state_str[state], state);
-	}
 
 	switch(state) {
 		case GM_INIT:
@@ -395,12 +357,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			state = GM_INIT;
 			return_value = END_OK;
 			break;
-
-		case GM_NBSTATE:
-			break;
 	}
-
-	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
 
 	if(return_value != IN_PROGRESS) {
 		state = GM_INIT;
@@ -416,22 +373,20 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 //Renvoie END_OK si on a fini de prendre un verre ou qu'il n'y en a pas a prendre (en gros quand les actionneurs ne bouge pas)
 error_e K_STRAT_micro_grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos) {
 	//GL pour Glass Lift
-	enum state_lift_e {
-		GL_WAIT_FIRST_GLASS = 0,   //L'ascensseur est en bas, on attend un premier verre pour le prendre
-		GL_WAIT_GLASS_GRABED,      //On attend d'avoir pris le verre et l'avoir monté. Si le nombre de verre pris >= 3, on passe à GL_DONE
-		GL_WAIT_NEXT_GLASSES,      //On attend autre verre, on descendra l'ascensseur avant de le prendre contrairement au premier
-		GL_DONE,
-		GL_NBSTATE   //Pas un état mais indique le nombre d'état
-	};
+	DECLARE_STATES(
+				GL_WAIT_FIRST_GLASS,       //L'ascensseur est en bas, on attend un premier verre pour le prendre
+				GL_WAIT_GLASS_GRABED,      //On attend d'avoir pris le verre et l'avoir monté. Si le nombre de verre pris >= 3, on passe à GL_DONE
+				GL_WAIT_NEXT_GLASSES,      //On attend autre verre, on descendra l'ascensseur avant de le prendre contrairement au premier
+				GL_DONE);                  //Pas un état mais indique le nombre d'état
 
-	static enum state_lift_e state_act_left = GL_WAIT_FIRST_GLASS;
+	static enum state_e state_act_left = GL_WAIT_FIRST_GLASS;
 	static Uint8 number_of_grabed_glass_left = 0;
 
-	static enum state_lift_e state_act_right = GL_WAIT_FIRST_GLASS;
+	static enum state_e state_act_right = GL_WAIT_FIRST_GLASS;
 	static Uint8 number_of_grabed_glass_right = 0;
 
-	enum state_lift_e* current_act_state;
-	enum state_lift_e current_act_last_state;
+	enum state_e* current_act_state;
+	enum state_e current_act_last_state;
 	Uint8* current_act_grabed_glasses;
 	queue_id_e current_act;
 	bool_e current_act_is_glass_detected;
@@ -495,21 +450,6 @@ error_e K_STRAT_micro_grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos) {
 
 	//On a changé d'état, on l'indique sur l'UART pour débugage
 	if(*current_act_state != current_act_last_state) {
-		static const char* state_str[GL_NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, GL_WAIT_FIRST_GLASS);
-			STATE_STR_DECLARE(state_str, GL_WAIT_GLASS_GRABED);
-			STATE_STR_DECLARE(state_str, GL_WAIT_NEXT_GLASSES);
-			STATE_STR_DECLARE(state_str, GL_DONE);
-			STATE_STR_INIT_UNDECLARED(state_str, GL_NBSTATE);
-			state_str_initialized = TRUE;
-		}
-
-//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_grab_glass: state changed: %s(%d) -> %s(%d)\n",
-//			state_str[current_act_last_state], current_act_last_state,
-//			state_str[*current_act_state], *current_act_state);
 		STATECHANGE_log(SM_ID_GLASSES_GRAB, state_str[current_act_last_state], current_act_last_state, state_str[*current_act_state], *current_act_state);
 	}
 
@@ -517,22 +457,17 @@ error_e K_STRAT_micro_grab_glass(bool_e reset_state, ACT_lift_pos_t lift_pos) {
 }
 
 error_e K_STRAT_micro_put_down_glasses(void){
-	typedef enum{
-		GD_INIT,
-		GD_ROTATE,
-		GD_RELATIVE_MOVE,
-		GD_RECOVER_MOVE,
-		GD_PUT_DOWN_GLASSES,
-		GD_EXTRACT_FROM_GLASSES,
-		GD_WAIT_ACT,
-		GD_DONE,
-		GD_FAILED,
-		GD_NBSTATE
-	}state_e;
-
-	static state_e current_state = GD_INIT;
-	static state_e previous_state = GD_INIT;
-	static state_e previous_state_for_check_entrance = GD_INIT;
+	CREATE_MAE_WITH_VERBOSE(
+				SM_ID_GLASSES_PUT_DOWN,
+				GD_INIT,
+				GD_ROTATE,
+				GD_RELATIVE_MOVE,
+				GD_RECOVER_MOVE,
+				GD_PUT_DOWN_GLASSES,
+				GD_EXTRACT_FROM_GLASSES,
+				GD_WAIT_ACT,
+				GD_DONE,
+				GD_FAILED);
 
 	static const Sint16 EXTRACT_Y_POS = 550;
 	static const Sint16 PUT_DOWN_Y_POS = 200;
@@ -540,49 +475,18 @@ error_e K_STRAT_micro_put_down_glasses(void){
 	static const avoidance_type_e AVOIDANCE_TYPE_PUT_DOWN = NO_DODGE_AND_WAIT;
 	static const Uint16 AVOIDANCE_MAX_WAIT_ON_EXTRACT = 1000;
 
-	static state_e what_to_do_after_act;
-
-	bool_e entrance = (current_state == previous_state_for_check_entrance)? FALSE:TRUE;
-	previous_state_for_check_entrance = current_state;
+	static enum state_e what_to_do_after_act;
 
 	error_e return_value = IN_PROGRESS;
 
-
-	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(entrance) {
-		static const char* state_str[GD_NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, GD_INIT);
-			STATE_STR_DECLARE(state_str, GD_ROTATE);
-			STATE_STR_DECLARE(state_str, GD_RELATIVE_MOVE);
-			STATE_STR_DECLARE(state_str, GD_RECOVER_MOVE);
-			STATE_STR_DECLARE(state_str, GD_PUT_DOWN_GLASSES);
-			STATE_STR_DECLARE(state_str, GD_EXTRACT_FROM_GLASSES);
-			STATE_STR_DECLARE(state_str, GD_WAIT_ACT);
-			STATE_STR_DECLARE(state_str, GD_DONE);
-			STATE_STR_DECLARE(state_str, GD_FAILED);
-			STATE_STR_INIT_UNDECLARED(state_str, GD_NBSTATE);
-
-			state_str_initialized = TRUE;
-		}
-
-
-//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_sub_glasses_alexis: state changed: %s(%d) -> %s(%d)\n",
-//			state_str[last_state], last_state,
-//			state_str[state], state);
-		STATECHANGE_log(SM_ID_GLASSES_PUT_DOWN, state_str[previous_state], previous_state, state_str[current_state], current_state);
-	}
-
-	switch(current_state){
+	switch(state){
 		case GD_INIT:
 			what_to_do_after_act = GD_EXTRACT_FROM_GLASSES;
-			current_state = GD_ROTATE;
+			state = GD_ROTATE;
 			break;
 
 		case GD_ROTATE:
-			current_state = try_go_angle(COLOR_ANGLE(-PI4096/2), GD_ROTATE, GD_RELATIVE_MOVE, GD_FAILED, FAST);
+			state = try_go_angle(COLOR_ANGLE(-PI4096/2), GD_ROTATE, GD_RELATIVE_MOVE, GD_FAILED, FAST);
 			break;
 
 		case GD_RELATIVE_MOVE:
@@ -593,13 +497,13 @@ error_e K_STRAT_micro_put_down_glasses(void){
 					ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
 			}
 
-			current_state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(PUT_DOWN_Y_POS)},FAST}}, 1,
+			state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(PUT_DOWN_Y_POS)},FAST}}, 1,
 					GD_RELATIVE_MOVE, GD_PUT_DOWN_GLASSES, GD_FAILED,FORWARD, AVOIDANCE_TYPE_PUT_DOWN, END_AT_LAST_POINT
 				);
 			break;
 
 		case GD_RECOVER_MOVE:
-			current_state = try_relative_move(50, GD_RECOVER_MOVE, GD_PUT_DOWN_GLASSES, GD_FAILED,
+			state = try_relative_move(50, GD_RECOVER_MOVE, GD_PUT_DOWN_GLASSES, GD_FAILED,
 					SLOW, BACKWARD, END_AT_LAST_POINT
 					);
 			break;
@@ -614,7 +518,7 @@ error_e K_STRAT_micro_put_down_glasses(void){
 			}
 
 			if(global.env.color != BLUE) {
-				current_state = GD_WAIT_ACT;
+				state = GD_WAIT_ACT;
 				what_to_do_after_act = GD_EXTRACT_FROM_GLASSES;   //Après que les actionneurs auront fini leur mouvement, la micro_strat sera finie
 			}
 			break;
@@ -622,7 +526,7 @@ error_e K_STRAT_micro_put_down_glasses(void){
 		case GD_EXTRACT_FROM_GLASSES:
 			if(entrance)
 				AVOIDANCE_set_timeout(AVOIDANCE_MAX_WAIT_ON_EXTRACT);
-			current_state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(EXTRACT_Y_POS)}, SLOW}}, 1,
+			state = try_going_multipoint((displacement_t[]){{{global.env.pos.x, COLOR_Y(EXTRACT_Y_POS)}, SLOW}}, 1,
 					GD_EXTRACT_FROM_GLASSES, GD_DONE, GD_FAILED,
 					BACKWARD, AVOIDANCE_TYPE_ON_EXTRACT, END_AT_LAST_POINT
 				);
@@ -633,16 +537,16 @@ error_e K_STRAT_micro_put_down_glasses(void){
 			if(ACT_get_last_action_result(ACT_QUEUE_LiftLeft)  != ACT_FUNCTION_InProgress &&
 			   ACT_get_last_action_result(ACT_QUEUE_LiftRight) != ACT_FUNCTION_InProgress)
 			{
-				current_state = what_to_do_after_act;
+				state = what_to_do_after_act;
 			}
 			break;
 
 		case GD_FAILED:
-			current_state = GD_INIT;
-			switch(previous_state){
+			state = GD_INIT;
+			switch(last_state) {
 				//Si on fail, bin tantpis, cet état pour tourner le robot c'est de l'estétique :o
 				case GD_ROTATE:
-					current_state = GD_RELATIVE_MOVE;
+					state = GD_RELATIVE_MOVE;
 					break;
 					
 				//On a eu un probleme dans le déplacement peut etre collision Il est impératif de reitérer l'action
@@ -650,7 +554,7 @@ error_e K_STRAT_micro_put_down_glasses(void){
 					static bool_e already_failed_relative = FALSE;
 					if(COLOR_Y(global.env.pos.y) < 420 && already_failed_relative == FALSE) {
 						already_failed_relative = TRUE;
-						current_state = GD_RECOVER_MOVE;
+						state = GD_RECOVER_MOVE;
 					} else {
 						return_value = NOT_HANDLED;
 					}
@@ -665,29 +569,24 @@ error_e K_STRAT_micro_put_down_glasses(void){
 				//On a pas pu se sortir des verres, mais on les a posé, donc c'est Ok
 				//TODO: verifier si on est quand même sorti un peu ...
 				case GD_EXTRACT_FROM_GLASSES:
-					current_state = GD_DONE;
+					state = GD_DONE;
 					break;
 
 				default: //Erreur au cas ou
 					return_value = END_WITH_TIMEOUT;
 					break;
-		
+
 			}
 			if(return_value != IN_PROGRESS)
-				current_state = GD_INIT;
+				state = GD_INIT;
 			break;
 
 		case GD_DONE:
 			return_value = END_OK;
 			break;
-
-		default:
-			break;
 	}
 
-	previous_state = previous_state_for_check_entrance;
-
 	if(return_value != IN_PROGRESS)
-		current_state = GD_INIT;
+		state = GD_INIT;
 	return return_value;
 }
