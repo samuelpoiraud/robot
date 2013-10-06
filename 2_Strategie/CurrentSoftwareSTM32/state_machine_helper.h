@@ -3,6 +3,7 @@
 
 #include "../queue.h"
 #include "../avoidance.h"
+#include "../foreach_preprocessor.h"
 
 //ID des machines à états, sur 16 bits.
 //0xRSMM: R: numéro de robot, S: numéro de strat (strat globale comme faire les cadeaux), MM: un octet pour un numéro de machine à état d'un truc précis...
@@ -18,6 +19,29 @@
 #define SM_ID_CHERRIES_LAUNCH	0x0203
 #define SM_ID_CHERRIES_DROP		0x0204
 #define SM_ID_ZONE_TRY_LOCK		0x0301
+
+
+#define STATE_CONVERT_TO_STRING(val) #val
+
+//Déclare les états pour une faire une machine à états.
+// Déclare les variables:
+// - state : contient l'état courant. C'est la variable à modifier quand on veut changer d'état.
+// - entrance : vaut TRUE si l'état à changé. Il est possible alors "d'initialiser" le noveau état.
+// - last_state : contient l'état précédent lorsque entrance vaut TRUE.
+//Example d'utilisation: CREATE_MAE_WITH_VERBOSE(SM_ID_CHERRIES_MOVE, INIT, ETAT1, ETAT2, DONE);
+// Le premier argument doit être défini (avec un #define) à un nombre 16 bits max, il identifie la machine à états.
+// Le 2ème argument est l'état à l'initialisation.
+// Les autres arguments sont les autre états de la machine à états.
+#define CREATE_MAE_WITH_VERBOSE(state_machine_id, init_state, ...) \
+	enum state_e { init_state, __VA_ARGS__ }; \
+	const char *state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }; \
+	static enum state_e state = init_state; \
+	static enum state_e last_state = init_state; \
+	static enum state_e last_state_for_check_entrance = init_state; \
+	bool_e entrance = last_state_for_check_entrance != state; \
+	last_state = last_state_for_check_entrance; \
+	last_state_for_check_entrance = state; \
+	if(entrance) UTILS_LOG_state_changed(#state_machine_id, state_machine_id, state_str[last_state], last_state, state_str[state], state)
 
 //Défini un nom d'état dans un tableau de string. Utilisé pour afficher le nom d'une valeur d'un enum, par exemple:
 //Pour que tableau[UN_ETAT_OU_ENUM] = "UN_ETAT_OU_ENUM", il faut faire STATE_STR_DECLARE(tableau, UN_ETAT_OU_ENUM)

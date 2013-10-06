@@ -337,20 +337,16 @@ error_e K_STRAT_sub_cherries_alexis() {
 
 //Se déplace devant une assiette en essayant de contourner les obstacles
 error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool_e immediate_fail) {
-	enum state_e {
-		MP_INIT,				//Initialise la machine à état
-		MP_DIRECT_GOTO,			//On va directement là ou on veut aller. Si on fail on passera par les points devant les assiettes
-		MP_WHERE_TO_GO_NEXT,	//Choisi ou aller pour atteindre la position voulue
-		MP_SWITCH_LINE,			//Change de ligne en restant sur la même position en X
-		MP_SWITCH_PLATE,	//Va à la position indiqué par current_plate et current_line
-		MP_CHECK_TINY_ZONE,		//Vérifie si la zone sous le gateau est dispo, la ou Tiny passe pour faire les bougies
-		MP_FAILED,				//Gère les cas d'erreur
-		MP_DONE,				//On est devant l'assiette cible
-		MP_NBSTATE				//Pas un état, pour compter le nombre d'état
-	};
-	static enum state_e state = MP_INIT;
-	static enum state_e last_state = MP_INIT;
-	static enum state_e last_state_for_check_entrance = MP_INIT;
+	CREATE_MAE_WITH_VERBOSE(
+				SM_ID_CHERRIES_MOVE,
+				MP_INIT,				//Initialise la machine à état
+				MP_DIRECT_GOTO,			//On va directement là ou on veut aller. Si on fail on passera par les points devant les assiettes
+				MP_WHERE_TO_GO_NEXT,	//Choisi ou aller pour atteindre la position voulue
+				MP_SWITCH_LINE,			//Change de ligne en restant sur la même position en X
+				MP_SWITCH_PLATE,		//Va à la position indiqué par current_plate et current_line
+				MP_CHECK_TINY_ZONE,		//Vérifie si la zone sous le gateau est dispo, la ou Tiny passe pour faire les bougies
+				MP_FAILED,				//Gère les cas d'erreur
+				MP_DONE);				//On est devant l'assiette cible
 
 	////////////// Paramètre de la machine à état  /////////////////
 
@@ -370,34 +366,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 	static Uint8 unreachable_path_count;	//Nombre de chemin don on a pas pu empreinter. Remis à zero quand on change de position en X (current_plate), incrémenté quand on fail (peut importe le mouvement)
 	static error_e last_action_result;
 
-	//Si l'état à changé, on rentre dans un nouvel état
-	bool_e entrance = last_state_for_check_entrance != state;
-	last_state_for_check_entrance = state;
-
 	error_e return_value = IN_PROGRESS;
-
-	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(entrance) {
-		static const char* state_str[MP_NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, MP_INIT);
-			STATE_STR_DECLARE(state_str, MP_SWITCH_LINE);
-			STATE_STR_DECLARE(state_str, MP_SWITCH_PLATE);
-			STATE_STR_DECLARE(state_str, MP_WHERE_TO_GO_NEXT);
-			STATE_STR_DECLARE(state_str, MP_CHECK_TINY_ZONE);
-			STATE_STR_DECLARE(state_str, MP_FAILED);
-			STATE_STR_DECLARE(state_str, MP_DONE);
-			STATE_STR_INIT_UNDECLARED(state_str, MP_NBSTATE);
-			state_str_initialized = TRUE;
-		}
-//
-//		STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: state changed: %s(%d) -> %s(%d)\n",
-//			state_str[last_state], last_state,
-//			state_str[state], state);
-		STATECHANGE_log(SM_ID_CHERRIES_MOVE, state_str[last_state], last_state, state_str[state], state);
-	}
 
 	switch(state) {
 		//Initialise la machine à état
@@ -666,14 +635,7 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 			state = MP_INIT;
 			return_value = END_OK;
 			break;
-
-		//Pas un état, pour compter le nombre d'état
-		case MP_NBSTATE:
-			return_value = NOT_HANDLED;
-			break;
 	}
-
-	last_state = last_state_for_check_entrance;
 
 	if(return_value != IN_PROGRESS) {
 		state = MP_INIT;
