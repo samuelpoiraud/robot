@@ -34,7 +34,7 @@
 // Les autres arguments sont les autre états de la machine à états.
 #define CREATE_MAE_WITH_VERBOSE(state_machine_id, init_state, ...) \
 	enum state_e { init_state, __VA_ARGS__ }; \
-	const char *state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }; \
+	static const char * const state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }; \
 	static enum state_e state = init_state; \
 	static enum state_e last_state = init_state; \
 	static enum state_e last_state_for_check_entrance = init_state; \
