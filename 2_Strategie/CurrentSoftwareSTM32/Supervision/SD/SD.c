@@ -13,7 +13,7 @@
 
 #define MAX_TIME_BEFORE_SYNC	500	//Durée max entre la demande d'enregistrement d'un message et son enregistrement effectif sur la carte SD.
 #define SIZE_CONSIDERING_NOTHING_IN_MATCH	50	//En octet, la taille en dessous de laquelle on écrase un match "presque vide"...
-
+#define PRINTF_BUFFER_SIZE 128
 
 //TODO :
 /*
@@ -55,12 +55,13 @@ int SD_printf(char * s, ...)
 {
 	Uint16 ret;
 	Uint16 i;
-	bool_e b_insert_time;
-	char buf[256];
+	char buf[PRINTF_BUFFER_SIZE];  //Pas la peine d'avoir un plus gros buffer que SD_new_event
+//	static bool_e was_newline = TRUE;
+	bool_e b_insert_time;// = was_newline;
 
 	va_list args;
 	va_start (args, s);
-	ret = vsprintf(buf, s, args);	//Prépare la chaine à envoyer.
+	ret = vsnprintf(buf, PRINTF_BUFFER_SIZE, s, args);	//Prépare la chaine à envoyer.
 	va_end (args);
 
 	b_insert_time = FALSE;
@@ -70,16 +71,23 @@ int SD_printf(char * s, ...)
 			b_insert_time = TRUE;
 	}
 
+	//if true, vsnprintf truncated the output
+	if(ret >= PRINTF_BUFFER_SIZE)
+		ret = PRINTF_BUFFER_SIZE-1;
+
 	SD_new_event(FROM_SOFT, NULL, buf, b_insert_time);
 	if(SWITCH_VERBOSE)
-		debug_printf(buf);	//On en profite pour Verboser l'événement.
+		puts(buf);	//On en profite pour Verboser l'événement.
+
+//	was_newline = buf[ret-1] == '\n'; //Si la ligne à un '\n' à la fin, on ajoutera un timestamp au prochain printf
+
 	return ret;
 }
 
 //Appeler cette fonction pour chaque nouvel évènement.
 void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool_e insert_time)
 {
-	char string[128];
+	char string[PRINTF_BUFFER_SIZE];
 	Uint32 n = 0;
 	Uint8 i;
 	Uint32 written = 0;
@@ -433,8 +441,6 @@ void SD_process_1ms(void)
 		time_10ms = 0;
 		disk_timerproc(); /* to be called every 10ms */
 	}
-
-	ff_test_term_timerproc(); /* to be called every ms */
 }
 
 
