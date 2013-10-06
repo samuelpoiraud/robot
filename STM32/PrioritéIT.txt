@@ -1,0 +1,24 @@
+Priorité entre 0 et 15, 0 = priorité max
+
+//UART
+USART1_IRQHandler		2
+USART2_IRQHandler		4
+
+//CAN
+CAN1_RX0_IRQHandler		0
+CAN1_RX1_IRQHandler		0
+CAN1_SCE_IRQHandler (errors)	0
+
+//IT externes (donné par l'utilisateur plutôt ?)
+EXTI0_IRQn - EXTI4_IRQn
+EXTI9_5_IRQn
+EXTI15_10_IRQn
+
+//I2C
+I2C2_ER_IRQHandler		6
+
+//Timers
+TIM1_TRG_COM_TIM11_IRQHandler	8
+TIM8_BRK_TIM12_IRQHandler	10
+TIM8_UP_TIM13_IRQHandler	12
+TIM8_TRG_COM_TIM14_IRQHandler	14
