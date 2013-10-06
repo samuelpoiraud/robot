@@ -14,7 +14,7 @@
 #include "avoidance.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_can_over_xbee.h"
-#include "strats_2013/actions_utils.h"
+#include "state_machine_helper.h"
 #include "output_log.h"
 
 //#define LOG_PREFIX "zone_mutex: "

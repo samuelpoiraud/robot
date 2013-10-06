@@ -32,6 +32,12 @@ typedef enum {
 	ACT_FUNCTION_RetryLater = NOT_HANDLED         //L'opération n'a pas pu se terminer: il faudra retenter plus tard (plus tard = faire autre chose avant de retest, pas juste 3ms, causé par un position impossible à atteindre, robot adverse qui bloque ? positionnement en mode loto trop près du bord ?)
 } ACT_function_result_e;
 
+// Récupère le resultat de la dernière action associé à une pile (non valable pour ASSER) Cette valeur ne change pas tant qu'aucune opération ne commence ou se finie.
+// A utiliser après la detection d'une erreur lors de l'exécution d'une pile pour savoir quoi faire par la suite (reporter l'action ou l'annuler)
+
+// !!!!!!! CETTE FONCTION UTILISE ACT_QUEUE_* AU LIEU DE ACT_STACK_* COMME L'ANCIENNE ACT_get_last_action_result !!!!!!
+ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
+
 void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);
 void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param);
 void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout);
@@ -39,12 +45,6 @@ void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);
 void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param);
 
 bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* arg);
-
-// Récupère le resultat de la dernière action associé à une pile (non valable pour ASSER) Cette valeur ne change pas tant qu'aucune opération ne commence ou se finie.
-// A utiliser après la detection d'une erreur lors de l'exécution d'une pile pour savoir quoi faire par la suite (reporter l'action ou l'annuler)
-
-// !!!!!!! CETTE FONCTION UTILISE ACT_QUEUE_* AU LIEU DE ACT_STACK_* COMME L'ANCIENNE ACT_get_last_action_result !!!!!!
-ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
 
 // Gère les messages de retour de la carte actionneur lorsque une action s'est terminé ou à échouée
 void ACT_process_result(const CAN_msg_t* msg);
