@@ -43,6 +43,10 @@
 	last_state_for_check_entrance = state; \
 	if(entrance) UTILS_LOG_state_changed(#state_machine_id, state_machine_id, state_str[last_state], last_state, state_str[state], state)
 
+#define DECLARE_STATES(...) \
+	enum state_e { __VA_ARGS__ }; \
+	static const char * const state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, __VA_ARGS__) };
+
 //Défini un nom d'état dans un tableau de string. Utilisé pour afficher le nom d'une valeur d'un enum, par exemple:
 //Pour que tableau[UN_ETAT_OU_ENUM] = "UN_ETAT_OU_ENUM", il faut faire STATE_STR_DECLARE(tableau, UN_ETAT_OU_ENUM)
 #define STATE_STR_DECLARE(tableau, state)  tableau[state] = #state;
