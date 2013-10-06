@@ -12,7 +12,7 @@
 #include "actions_tests_krusty.h"
 #include "actions_glasses.h"
 #include "actions_cherries.h"
-#include "actions_utils.h"
+#include "../state_machine_helper.h"
 #include "../output_log.h"
 
 //#define LOG_PREFIX "strat_tests: "
