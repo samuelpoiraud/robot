@@ -21,7 +21,7 @@ int term_cmd_rm(int argc, const char *argv[]) {
 	for(i=0; i < argc; i++) {
 		res = fatfs_err_to_errno(f_unlink(argv[i]));
 		if(res)
-			debug_printf("Impossible de supprimer %s : %s", argv[i], strerror(res));
+			debug_printf("Impossible de supprimer %s : %s\n", argv[i], strerror(res));
 		else
 			debug_printf("%s supprimé\n", argv[i]);
 	}

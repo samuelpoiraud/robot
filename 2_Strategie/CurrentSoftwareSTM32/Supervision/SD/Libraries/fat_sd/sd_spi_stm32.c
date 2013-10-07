@@ -10,14 +10,14 @@
    modification, are permitted provided that the following conditions are met:
 
    * Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
+	 notice, this list of conditions and the following disclaimer.
    * Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in
-     the documentation and/or other materials provided with the
-     distribution.
+	 notice, this list of conditions and the following disclaimer in
+	 the documentation and/or other materials provided with the
+	 distribution.
    * Neither the name of the copyright holders nor the names of
-     contributors may be used to endorse or promote products derived
-     from this software without specific prior written permission.
+	 contributors may be used to endorse or promote products derived
+	 from this software without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -41,7 +41,7 @@
 #include "diskio.h"
 
 // demo uses a command line option to define this (see Makefile):
-//#define STM32_SD_USE_DMA
+#define STM32_SD_USE_DMA
 
 
 #ifdef STM32_SD_USE_DMA
@@ -231,7 +231,7 @@ static BYTE stm32_spi_rw( BYTE out )
 
 #ifdef STM32_SD_USE_DMA
 	//On attent la fin d'une eventuelle transaction utilisant DMA
-	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_TX) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
+	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_RX) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_RX, DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
 #endif
 
 	/* Send byte through the SPI peripheral */
@@ -422,7 +422,7 @@ void stm32_dma_transfer(
 //	DMA_Cmd(DMA_Stream_SendBuffer, DISABLE); //Utile ? Normalement cleared by hardware à la fin du transfert (page 230)
 
 	//On attend que le DMA ait fini d'envoyer les données précédentes.
-	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_TX) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX) == RESET) { ; }
+	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_RX) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_RX, DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
 
 	DMA_ClearFlag(DMA_Stream_SPI_SD_RX, DMA_FLAG_SPI_SD_TC_RX);
 	DMA_ClearFlag(DMA_Stream_SPI_SD_TX, DMA_FLAG_SPI_SD_TC_TX);
@@ -438,7 +438,7 @@ void stm32_dma_transfer(
 //	/* Wait until DMA1_Channel 3 Transfer Complete */
 //	/// not needed:
 //	/* Wait until DMA1_Channel 2 Receive Complete */
-//	while (DMA_GetFlagStatus(DMA_Stream_SPI_SD_RX,DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
+//	while (DMA_GetFlagStatus(DMA_Stream_SPI_SD_RX, DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
 //	// same w/o function-call:
 //	// while ( ( ( DMA1->ISR ) & DMA_FLAG_SPI_SD_TC_RX ) == RESET ) { ; }
 

@@ -14,9 +14,12 @@ term_command_info_t term_commands[] = {
 	DECLARE_CMD(clean),
 	DECLARE_CMD(cp),
 	DECLARE_CMD(disk),
+	DECLARE_CMD(fill),
 	DECLARE_CMD(goto),
+	DECLARE_CMD(help),
 	DECLARE_CMD(ls),
 	DECLARE_CMD(mkdir),
+	DECLARE_CMD(reset),
 	DECLARE_CMD(rm)
 
 //	{"md", &term_cmd_md, NULL, NULL},

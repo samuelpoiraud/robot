@@ -17,6 +17,8 @@
 #include <string.h>
 #include <ctype.h>
 #include "term_commands_array.h"
+#include "commands/help.h"
+#include <string.h>
 
 //Show some help content...
 void print_help(void)
@@ -44,15 +46,25 @@ void print_help(void)
 
 bool_e execute_command(int argc, const char *argv[]) {
 	Uint8 i;
+	int err;
 
 	for(i = 0; i < term_command_info_count; i++) {
 		if(strcmp(argv[0], term_commands[i].name) == 0) {
-			term_commands[i].execute(argc-1, argv+1);
-			break;
+			err = term_commands[i].execute(argc-1, argv+1);
+			if(err) {
+				debug_printf("%s: Error %d: %s\n", argv[0], err, strerror(err));
+			}
+
+			if(err == 22)
+				term_cmd_help(1, argv);
+
+			return TRUE;
 		}
 	}
 
-	return TRUE;
+	debug_printf("Unknown command %s, type help to show all available commands\n", argv[0]);
+
+	return FALSE;
 }
 
 void parse_command(const char *cmd) {
@@ -60,9 +72,8 @@ void parse_command(const char *cmd) {
 	static const char *args[16];
 	Uint8 cmd_idx, arg_idx;
 
-
 	//Copie la ligne de commande en mettant des \0 à la fin des arguments (pour les lires indépendamment à partir de args[])
-	for(cmd_idx = arg_idx = 0; cmd[cmd_idx] && cmd_idx < 128 && arg_idx < 15; cmd_idx++) {
+	for(cmd_idx = arg_idx = 0; cmd[cmd_idx] && cmd_idx < 127 && arg_idx < 15; cmd_idx++) {
 		if(cmd_idx > 0 && !isspace((int)cmd[cmd_idx-1]) && isspace((int)cmd[cmd_idx])) {
 			cmd_buffer[cmd_idx] = '\0';
 		} else {
@@ -72,11 +83,11 @@ void parse_command(const char *cmd) {
 		if((cmd_idx == 0 || isspace((int)cmd[cmd_idx-1])) && !isspace((int)cmd[cmd_idx])) {
 			args[arg_idx] = &cmd_buffer[cmd_idx];
 			arg_idx++;
-
 		}
 
 	}
 	args[arg_idx] = 0;
+	cmd_buffer[cmd_idx] = 0;
 
 	execute_command(arg_idx, args);
 }
