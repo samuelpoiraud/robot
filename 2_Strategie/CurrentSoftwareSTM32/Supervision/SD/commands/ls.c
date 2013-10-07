@@ -58,11 +58,14 @@ int term_cmd_ls(int argc, const char *argv[]) {
 		UART1_putc('\n');
 #endif
 	}
-	debug_printf("%4lu File(s), %10lu bytes total\n%4lu Dir(s)", file_count, total_size, dir_count);
-	if (f_getfree(target, (DWORD*)&total_size, &fs) == FR_OK)
-		debug_printf(", %10lu bytes free\n", total_size * fs->csize * 512);
-	else
-		debug_printf("\n");
+
+	if(!res) {
+		debug_printf("%4lu File(s), %10lu bytes total\n%4lu Dir(s)", file_count, total_size, dir_count);
+		if (f_getfree(target, (DWORD*)&total_size, &fs) == FR_OK)
+			debug_printf(", %10lu bytes free\n", total_size * fs->csize * 512);
+		else
+			debug_printf("\n");
+	}
 
 	return res;
 }

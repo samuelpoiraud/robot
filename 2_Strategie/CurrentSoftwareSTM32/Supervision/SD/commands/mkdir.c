@@ -18,10 +18,10 @@ int term_cmd_mkdir(int argc, const char *argv[]) {
 
 	for(i = 0; i < argc; i++) {
 		res = fatfs_err_to_errno(f_mkdir(argv[i]));
-		if(res)
+		if(res == 0)
 			debug_printf("Dossier %s créé\n", argv[i]);
 		else
-			debug_printf("Impossible de créer le dossier %s: %s", argv[i], strerror(res));
+			debug_printf("Impossible de créer le dossier %s: %s\n", argv[i], strerror(res));
 	}
 
 	return 0;

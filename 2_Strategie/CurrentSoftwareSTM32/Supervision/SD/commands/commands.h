@@ -5,6 +5,7 @@
 #include "clean.h"
 #include "cp.h"
 #include "disk.h"
+#include "fill.h"
 #include "goto.h"
 #include "help.h"
 #include "ls.h"
