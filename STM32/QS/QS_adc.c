@@ -11,6 +11,7 @@
 
 #include "QS_adc.h"
 #include "QS_ports.h"
+#include "QS_all.h"
 #include "stm32f4xx_adc.h"
 #include "stm32f4xx_dma.h"
 

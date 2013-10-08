@@ -78,7 +78,8 @@ void PORTS_init(void){
 	initialized = TRUE;
 }
 
-Uint8 PORTS_adc_init(ADC_TypeDef* ADCx, Uint8 ADC_sampleTime) {
+Uint8 PORTS_adc_init(void* adc_handle, Uint8 ADC_sampleTime) {
+	ADC_TypeDef* ADCx = adc_handle;
 	Uint8 number_of_channels;
 	GPIO_InitTypeDef GPIO_InitStructure;
 
