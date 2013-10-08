@@ -2,7 +2,7 @@
 #define TERM_IO_H_
 
 #include "Libraries/fat_sd/integer.h"
-#include "../../QS/QS_all.h"
+#include "../../QS/QS_types.h"
 
 
 int xatoi (const char **, long*);

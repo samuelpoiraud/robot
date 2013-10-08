@@ -1,8 +1,7 @@
 #include "cat.h"
 #include <errno.h>
 #include "../term_commands_utils.h"
-#include "../../../QS/QS_uart.h"
-#include "../Libraries/fat_sd/ff.h"
+#include "../../../QS/QS_all.h"
 
 const char term_cmd_cat_brief[] = "Affiche un fichier";
 const char term_cmd_cat_help[] =
@@ -34,7 +33,7 @@ int term_cmd_cat(int argc, const char *argv[]) {
 			break;   // error or eof
 		}
 		for(i=0; i<bytes_read; i++)
-			UART1_putc(term_common_buffer[i]);
+			putchar(term_common_buffer[i]);
 	}
 
 	f_close(&file);

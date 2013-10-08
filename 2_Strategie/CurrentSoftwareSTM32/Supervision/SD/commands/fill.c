@@ -1,9 +1,8 @@
 #include "fill.h"
 #include <errno.h>
-#include "../term_commands_utils.h"
-#include "../../../QS/QS_uart.h"
-#include "../Libraries/fat_sd/ff.h"
 #include <string.h>
+#include "../term_commands_utils.h"
+#include "../../../QS/QS_all.h"
 
 const char term_cmd_fill_brief[] = "Rempli un fichier de 0 (pour tester la vitesse SPI)";
 const char term_cmd_fill_help[] =

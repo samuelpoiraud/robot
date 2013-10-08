@@ -1,8 +1,8 @@
 #include "ls.h"
 #include <errno.h>
-#include "../term_commands_array.h"
-#include "../../../QS/QS_uart.h"
 #include <string.h>
+#include "../term_commands_array.h"
+#include "../../../QS/QS_all.h"
 
 const char term_cmd_help_brief[] = "Affiche une aide sur les commandes";
 const char term_cmd_help_help[] =

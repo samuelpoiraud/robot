@@ -1,8 +1,7 @@
 #include "clean.h"
 #include <errno.h>
 #include "../term_commands_utils.h"
-#include "../Libraries/fat_sd/ff.h"
-#include "../../../QS/QS_uart.h"
+#include "../../../QS/QS_all.h"
 
 const char term_cmd_clean_brief[] = "Supprime tous les fichiers de match";
 const char term_cmd_clean_help[] =

@@ -1,9 +1,8 @@
 #include "rm.h"
 #include <errno.h>
-#include "../term_commands_utils.h"
-#include "../Libraries/fat_sd/ff.h"
-#include "../../../QS/QS_uart.h"
 #include <string.h>
+#include "../term_commands_utils.h"
+#include "../../../QS/QS_all.h"
 
 const char term_cmd_rm_brief[] = "Supprime des fichiers";
 const char term_cmd_rm_help[] =

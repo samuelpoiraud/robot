@@ -2,7 +2,7 @@
 #include <errno.h>
 #include "../term_commands_utils.h"
 #include "../../../asser_functions.h"
-#include "../../../QS/QS_uart.h"
+#include "../../../QS/QS_all.h"
 
 const char term_cmd_goto_brief[] = "Déplace le robot à la position voulue";
 const char term_cmd_goto_help[] =
