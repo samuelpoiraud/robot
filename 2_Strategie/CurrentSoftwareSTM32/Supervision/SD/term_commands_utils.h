@@ -3,7 +3,6 @@
 
 #include "Libraries/fat_sd/ff.h"
 #include "Libraries/fat_sd/diskio.h"
-#include "../../QS/QS_uart.h"
 
 extern unsigned char term_common_buffer[];
 extern const int term_common_buffer_size;

@@ -4,9 +4,7 @@
 
 #ifndef _INTEGER
 
-
-#include "../../../../stm32f4xx/stm32f4xx.h"
-#include "../../../../QS/QS_all.h"
+#include "../../../../QS/QS_types.h"
 
 /* These types must be 16-bit, 32-bit or larger integer */
 typedef int				INT;

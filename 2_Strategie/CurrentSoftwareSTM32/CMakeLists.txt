@@ -42,7 +42,7 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map,\"${EXECUTABLE_OU
 
 
 include_directories("${SOURCE_PATH}/provide_parent_dir")
-#include_directories(${CMAKE_CURRENT_BINARY_DIR} "${SOURCE_PATH}/stm32f4xx")
+#include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 include_directories("${SOURCE_PATH}/stm32f4xx")
 link_directories("${SOURCE_PATH}/stm32f4xx")
 
@@ -62,7 +62,7 @@ set(CMAKE_OBJDUMP arm-none-eabi-objdump)
 
 add_executable(${TARGET_ELF} ${SRC_LIST})
 target_link_libraries(${TARGET_ELF} libstm32f4xx.a)
-#add_precompiled_header( ${TARGET_ELF}  stm32f4xx/stm32f4xx.h)
+#add_precompiled_header( ${TARGET_ELF} stm32f4xx/stm32f4xx.h)
 
 add_custom_command(OUTPUT ${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN} DEPENDS ${TARGET_ELF} COMMAND ${CMAKE_OBJCOPY} "-Obinary" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_ELF}" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN}")
 add_custom_target(${TARGET_BIN} ALL DEPENDS ${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN})

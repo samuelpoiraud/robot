@@ -1,8 +1,7 @@
 #include "cp.h"
 #include <errno.h>
 #include "../term_commands_utils.h"
-#include "../Libraries/fat_sd/ff.h"
-#include "../../../QS/QS_uart.h"
+#include "../../../QS/QS_all.h"
 
 const char term_cmd_cp_brief[] = "Copie un fichier";
 const char term_cmd_cp_help[] =
