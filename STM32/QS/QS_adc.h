@@ -11,7 +11,7 @@
 #ifndef QS_ADC_H
 	#define QS_ADC_H
 	
-	#include "QS_all.h"
+	#include "QS_types.h"
 	
 	void ADC_init();
 	

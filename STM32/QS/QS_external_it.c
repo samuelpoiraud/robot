@@ -10,7 +10,6 @@
  */
 
 #include "QS_external_it.h"
-#include "stm32f4xx_rcc.h"
 #include "stm32f4xx_syscfg.h"
 #include "stm32f4xx_exti.h"
 

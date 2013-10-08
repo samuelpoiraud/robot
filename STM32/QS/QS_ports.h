@@ -18,7 +18,7 @@
 	 **/
 	void PORTS_init(void);
 
-	Uint8 PORTS_adc_init(ADC_TypeDef* ADCx, Uint8 ADC_sampleTime);
+	Uint8 PORTS_adc_init(void* adc_handle, Uint8 ADC_sampleTime);
 	void PORTS_pwm_init();
 	void PORTS_uarts_init();
 	void PORTS_qei_init();
