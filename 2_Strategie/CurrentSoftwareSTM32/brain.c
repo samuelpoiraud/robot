@@ -29,7 +29,7 @@
 #include "QS/QS_who_am_i.h"
 #include "button.h"	//pour SWITCH_change_color
 
-/* 	execute un match de match_duration secondes à partir de la 
+/* 	execute un match de match_duration secondes à partir de la
 	liberation de la biroute. Arrete le robot à la fin du match.
 	Appelle une autre routine pour l'IA pendant le match.
 	Une durée de 0 indique un match infini
@@ -58,8 +58,8 @@ void any_match(time32_t match_duration)
 		{
 			ENV_set_color(global.env.wanted_color);
 		}
-		
-		
+
+
 		/* mise à jour de la configuration de match */
 		if(global.env.config_updated)
 			global.env.config = global.env.wanted_config;
@@ -83,7 +83,7 @@ void any_match(time32_t match_duration)
 		{
 			calibration_way = (global.env.color == BLUE)?FORWARD:BACKWARD;	//En bleu, TINY se cale en avant pour avoir son bras coté cadeaux.
 			calibration = ASSER_CALIBRATION_SQUARE_0;						//Sauf si décision contraire dans certaines stratégies... Tiny est par défaut dans la case 0.
-			
+
 			switch(strat_number())
 			{
 				case 0x01:	//STRAT_1_TINY
@@ -98,7 +98,7 @@ void any_match(time32_t match_duration)
 				break;
 				case 0x03:	//STRAT_3_TINY
 					strategy = STRAT_TINY_4_gifts_only;
-					
+
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;
@@ -106,34 +106,41 @@ void any_match(time32_t match_duration)
 					//strategy = TEST_STRAT_T_homologation;
 					strategy = STRAT_TINY_gifts_cake_and_steal;
 				break;
-			}			
+			}
 		}
 		else	//Krusty
 		{
 			calibration_way = BACKWARD;	//Krusty se cale TOUJOURS en backward (pas de callage contre l'ascenseur à verres)
 			calibration = ASSER_CALIBRATION_SQUARE_2; //Et toujours à l'assiette 2 (sachant que Tiny est sur la 0)
-			
-			switch(strat_number())
+
+			static int debug_strat = -1;
+
+			if(debug_strat != strat_number()) {
+				debug_strat = strat_number();
+				debug_printf("Using strat %d\n", debug_strat);
+			}
+
+			switch(debug_strat)
 			{
 				case 0x01:	//STRAT_1_KRUSTY
 					//strategy = TEST_STRAT_avoidance;
-					strategy = K_Strat_Pour_Les_Nuls;
+					strategy = TEST_STRAT_ALEXIS_FINALE;
 				break;
 
 				case 0x02:	//STRAT_2_KRUSTY
 					//strategy = K_Strat_Coupe;
-					strategy = K_Strat_Pour_Les_Nuls;
+					strategy = TEST_STRAT_ALEXIS_FINALE;
 				break;
 
 				case 0x03:	//STRAT_3_KRUSTY
-					strategy = K_Strat_Pour_Les_Nuls;
+					strategy = TEST_STRAT_ALEXIS_FINALE;
 				break;
 
 				case 0x00:	//STRAT_0_KRUSTY (aucun switch)
 				//no break;
 
 				default:
-					strategy = K_Strat_Pour_Les_Nuls;
+					strategy = TEST_STRAT_ALEXIS;
 				break;
 			}
 		}
@@ -145,16 +152,16 @@ void any_match(time32_t match_duration)
 		if(!global.env.match_over)
 		{
 			if(match_duration != 0 && (global.env.match_time >= (match_duration)))
-			{	
+			{
 				//MATCH QUI SE TERMINE
 				CAN_send_sid(BROADCAST_STOP_ALL);
 				global.env.match_over = TRUE;
 				STACKS_flush_all();
 				QUEUE_reset_all();
 				CLOCK_stop();
-				
+
 				if(QS_WHO_AM_I_get()==TINY)
-					T_BALLINFLATER_start();	//Fin du match -> On gonfle le ballon	
+					T_BALLINFLATER_start();	//Fin du match -> On gonfle le ballon
 			}
 			else
 			{
@@ -166,7 +173,7 @@ void any_match(time32_t match_duration)
 					{
 						initialized = TRUE;
 						msg.sid = ASSER_SEND_PERIODICALLY_POSITION;
-						msg.data[0] = 0; 
+						msg.data[0] = 0;
 						msg.data[1] = 0; 					//toutes les XX ms -> si 0, pas de msg en fonction du temps.
 						msg.data[2] = HIGHINT(20);
 						msg.data[3] = LOWINT(20); 			//tout les 20 mm
@@ -174,9 +181,9 @@ void any_match(time32_t match_duration)
 						msg.data[5] = LOWINT(PI4096/45);  	//tout les 4°
 						msg.size = 6;
 						CAN_send(&msg);
-					}	
+					}
 				#endif /* def USE_SCHEDULED_POSITION_REQUEST */
-				
+
 				if(global.env.config.balise)
 				{
 					static bool_e initialized = FALSE;
@@ -185,8 +192,8 @@ void any_match(time32_t match_duration)
 						initialized = TRUE;
 						CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
 					}
-				}	
-							
+				}
+
 				//programme du match
 				if(strategy)
 				{
@@ -197,7 +204,7 @@ void any_match(time32_t match_duration)
 		else
 		{
 			/* match is over */
-		}	
+		}
 	}
 }
 
@@ -212,7 +219,7 @@ Uint8 strat_number(void)
 			return 0x02;
 		else if(SWITCH_STRAT_3)
 			return 0x03;
-	#endif	
+	#endif
 	return 0x00;	//Aucun switch -> stratégie 0.
 }
 
