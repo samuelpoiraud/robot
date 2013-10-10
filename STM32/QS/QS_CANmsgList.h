@@ -12,7 +12,7 @@
 
 #ifndef QS_CANMSGLIST_H
 	#define QS_CANMSGLIST_H
-	#include "../QS/QS_CANmsgDoc.h"
+	#include "QS_CANmsgDoc.h"
 
 	/* Masque des cartes (des destinataires) */
 	#define MASK_BITS					0x700

@@ -16,6 +16,10 @@
 	#define _ISR							/*  attribut d'interruption non utilisé sous STM32  */
 
 	#include "../Global_config.h"	/*	On charge d'abord la configuration globale		*/
+	//#include "config_global.h"
+	#ifdef NEW_CONFIG_ORGANISATION
+		#include "config_qs.h"
+	#endif
 	#include "QS_configCheck.h"				/*	On verifie que le programmeur a selectionné les	*/
 											/*	elements indispensables 						*/
 	

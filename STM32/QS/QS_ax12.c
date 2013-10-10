@@ -13,11 +13,15 @@
 //Pour voir l'ancienne version avant les modifications faites pour le robot 2012-2013, utilisez la version SVN 5340
 
 #include "QS_ax12.h"
-#include "QS_ports.h"
 
 #ifdef USE_AX12_SERVO
 
+#include "QS_ports.h"
 #include "stm32f4xx_usart.h"
+
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
 																			
 	/**********************************************************************/
 	/** Paramètres de configuration du driver AX12                        */

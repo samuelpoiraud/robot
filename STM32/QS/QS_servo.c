@@ -11,10 +11,15 @@
  */
 
 #include "QS_servo.h"
+
+#ifdef USE_SERVO
+
 #include "QS_timer.h"
 #include "QS_ports.h"
 
-#ifdef USE_SERVO
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
 
 /*variables globales pour le pilote de servos */
 static volatile Sint16 m_SERVO_cmd[10];

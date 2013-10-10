@@ -13,6 +13,11 @@
 #include "QS_who_am_i.h"
 
 
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
+
+
 	volatile robot_id_e robot_id = 0;
 	volatile bool_e found = FALSE;
 	

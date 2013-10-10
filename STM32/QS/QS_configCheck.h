@@ -15,6 +15,10 @@
 #ifndef QS_CONFIGCHECK_H
 	#define QS_CONFIGCHECK_H
 
+	#ifdef NEW_CONFIG_ORGANISATION
+		#include "config_pin.h"
+	#endif
+
 	#if !defined(HCLK_FREQUENCY_HZ) || HCLK_FREQUENCY_HZ > 168000000
 		#error "Une frequence d'horloge HCLK < 168Mhz doit être selectionnée"
 	#endif
