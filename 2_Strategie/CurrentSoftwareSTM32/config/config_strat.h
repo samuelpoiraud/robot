@@ -9,19 +9,19 @@
  */
 
 #ifndef CONFIG_STRAT_H
-	#define CONFIG_STRAT_H
-	
-	#define VERBOSE_MODE
-	
-	#define OUTPUT_LOG  //utilisé dans act_function et queue
-	#define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Info    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
+#define CONFIG_STRAT_H
+
+#define VERBOSE_MODE
+
+#define OUTPUT_LOG  //utilisé dans act_function et queue
+#define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Info    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 //	#define OUTPUT_LOG_PRINT_ALL_COMPONENTS  //Si défini, affiche les messages de tous les composants (OUTPUT_LOG_COMPONENT_* ne sont pas pris en compte, les niveau de débuggage le sont par contre)
-	#define OUTPUT_LOG_COMPONENT_ACTFUNCTION         LOG_PRINT_On  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
-	#define OUTPUT_LOG_COMPONENT_QUEUE               LOG_PRINT_Off
-	#define OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES LOG_PRINT_On   //Changement d'état de la strat
-	
-	
-	//active les debug_printf pour les sections concernées
+#define OUTPUT_LOG_COMPONENT_ACTFUNCTION         LOG_PRINT_On  //LOG_PRINT_On: activé, LOG_PRINT_Off: désactivé
+#define OUTPUT_LOG_COMPONENT_QUEUE               LOG_PRINT_Off
+#define OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES LOG_PRINT_On   //Changement d'état de la strat
+
+
+//active les debug_printf pour les sections concernées
 //	#define DEBUG_ASSER_FUN
 //	#define DEBUG_ACT_FUN
 //	#define DEBUG_SICK
@@ -32,15 +32,28 @@
 //	#define DEBUG_POLYGON
 //	#define DEBUG_TELEMETER
 
-	/*
+/*
 	 *	La section config carte Stratégie
 	 */
 
 
-	#define STACKS_SIZE 32 //doit être < à 256
+#define STACKS_SIZE 32 //doit être < à 256
 
-	//Utilisé par act_function
-	#define QUEUE_SIZE	16
+//Utilisé par act_function
+#define QUEUE_SIZE	16
 
-	
+/*
+CAN_send_debug("");
+0 timeout asser goto
+1 timeout asser goangle
+2 timeout asser rush
+3 timeout asser relative go angle
+A pull
+B flush
+C asser far from destination
+
+[a-z] temporaires
+*/
+
+
 #endif /* CONFIG_STRAT_H */
