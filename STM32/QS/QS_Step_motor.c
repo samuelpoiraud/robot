@@ -12,10 +12,15 @@
 
 #define QS_STEP_MOTOR_C
 #include "QS_Step_motor.h"
+
+#ifdef USE_STEP_MOTOR
+
 #include "QS_timer.h"
 #include "QS_ports.h"
 
-#ifdef USE_STEP_MOTOR
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
 
 /*variables globales pour le moteur pas à pas */
 static volatile Sint16 m_order;

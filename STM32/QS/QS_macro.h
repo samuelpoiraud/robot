@@ -14,6 +14,8 @@
 #ifndef QS_MACRO_H
 	#define QS_MACRO_H
 
+	#include "QS_all.h"
+
 	#define HIGHINT(x)				(((x) >> 8) & 0xFF)
 	#define LOWINT(x)				((x) & 0xFF)
 	#define U16FROMU8(high,low)		((((Uint16)(high))<<8)|(Uint16)(low))

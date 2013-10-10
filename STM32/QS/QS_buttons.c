@@ -13,9 +13,14 @@
 #define QS_BUTTONS_C
 
 #include "QS_buttons.h"
-#include "QS_ports.h"
 
 #ifdef USE_BUTTONS
+
+#include "QS_ports.h"
+
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
 
 #if !defined(BUTTONS_TIMER) && !defined(BUTTONS_TIMER_USE_WATCHDOG)
 	#define BUTTONS_NO_IT

@@ -15,6 +15,10 @@
 #include "QS_ports.h"
 #include "stm32f4xx_usart.h"
 
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
+
 //	Determination de la vitesse de l'uart en fonction
 //	de la PLL utilisée
 #ifndef UART1_BAUDRATE

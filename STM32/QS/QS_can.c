@@ -15,6 +15,10 @@
 #include "QS_ports.h"
 #include "stm32f4xx_can.h"
 
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
+
 #define MASK_CAN_S			0x000 /* 0b00000000000 */
 /* on filtre les messages nous meme en aval */
 

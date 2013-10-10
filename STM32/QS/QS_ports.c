@@ -13,6 +13,10 @@
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_adc.h"
 
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
+
 
 void PORTS_init(void){
 	static bool_e initialized = FALSE;
