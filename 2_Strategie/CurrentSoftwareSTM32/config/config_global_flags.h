@@ -6,7 +6,7 @@
  *  Description : Flags définis specifiquement pour
 					le code de la carte l'executant.
  *  Auteur : Jacen
- *  Version $id$
+ *  Version $Id$
  */
 
 #ifndef CONFIG_GLOBAL_FLAGS_H

@@ -6,7 +6,7 @@
  *  Description : Définition de types pour les variables globales
 				définies specifiquement pour ce code.
  *  Auteur : Jacen
- *	Version $id$
+ *	Version $Id$
  */
 
 #ifndef QS_GLOBAL_VARS_H

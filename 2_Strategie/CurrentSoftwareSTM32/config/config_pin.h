@@ -1,12 +1,12 @@
 /*
-				 *  Club Robot ESEO 2013 - 2014
-				 *
-				 *  Fichier : config_pin.h
-				 *  Package : Carte Strategie
-				 *  Description : Configuration des pins
-				 *  Auteur : Jacen, Alexis
-				 *  Version $Id$
-				 */
+ *  Club Robot ESEO 2013 - 2014
+ *
+ *  Fichier : config_pin.h
+ *  Package : Carte Strategie
+ *  Description : Configuration des pins
+ *  Auteur : Jacen, Alexis
+ *  Version $Id$
+ */
 
 #ifndef CONFIG_PIN_H
 #define CONFIG_PIN_H
