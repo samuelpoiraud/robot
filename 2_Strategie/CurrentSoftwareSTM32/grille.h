@@ -1,4 +1,40 @@
-/*
+/*Strat 2014
+	Zone maison (0,color_Y(0)) => (0, color_Y(900))
+	Zone milieu 1 (0,color_Y(900)) => (0,color_Y(2100)) X allant de 0 à 1000
+	Zone milieu 1a (0,color_Y(900)) => (0,color_Y(1500)) X allant de 1000 à 2000
+	Zone milieu 2b (0,color_Y(1500)) => (0,color_Y(2100)) X allant de 1000 à 2000
+	Zone adverse (0,color_Y(2100))=> (0,color_Y(3000))
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*Strat 2013
 
 
           en utilisant (x,color(y))
