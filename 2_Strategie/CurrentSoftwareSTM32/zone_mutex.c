@@ -186,7 +186,7 @@ zone_state_e ZONE_get_status(map_zone_e zone) {
 }
 
 void ZONE_CAN_process_msg(CAN_msg_t *msg) {
-	assert(msg->sid == XBEE_ZONE_COMMAND)	//Si le SID correspond à une commande liée aux zones
+	assert(msg->sid == XBEE_ZONE_COMMAND);	//Si le SID correspond à une commande liée aux zones
 
 	if(msg->data[1] >= ZONE_NUMBER) {
 		debug_printf("zone: unknown zone %d !!!\n", msg->data[1]);

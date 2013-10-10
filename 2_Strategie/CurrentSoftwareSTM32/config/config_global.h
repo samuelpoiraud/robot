@@ -15,4 +15,6 @@
 #	define STM32F40XX
 #endif
 
+#define NEW_CONFIG_ORGANISATION
+
 #endif /* ndef GLOBAL_CONFIG_H */
