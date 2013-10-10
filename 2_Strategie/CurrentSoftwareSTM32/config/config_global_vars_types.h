@@ -1,12 +1,12 @@
 /*
- *  Club Robot ESEO 2013 - 2014
+ *  Club Robot ESEO 2008 - 2014
  *
- *  Fichier : config_global_vars_types.h
+ *  $Id$
+ *
  *  Package : Carte Strategie
  *  Description : Définition de types pour les variables globales
 				définies specifiquement pour ce code.
  *  Auteur : Jacen
- *	Version $Id$
  */
 
 #ifndef QS_GLOBAL_VARS_H

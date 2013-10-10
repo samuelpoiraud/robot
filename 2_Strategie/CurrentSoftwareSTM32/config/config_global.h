@@ -1,11 +1,11 @@
 /*
- *  Club Robot ESEO 2013 - 2014
+ *  Club Robot ESEO 2008 - 2014
  *
- *  Fichier : config_global.h
+ *  $Id$
+ *
  *  Package : Carte Principale
  *  Description : Configuration globale
  *  Auteur : Jacen
- *  Version $Id$
  */
 
 #ifndef CONFIG_GLOBAL_H

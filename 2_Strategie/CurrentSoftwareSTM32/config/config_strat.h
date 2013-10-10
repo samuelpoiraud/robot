@@ -1,11 +1,11 @@
 /*
  *  Club Robot ESEO 2013 - 2014
  *
- *  Fichier : config_strat.h
+ *  $Id$
+ *
  *  Package : Carte Strategie
  *  Description : Configuration des strat et logs
  *  Auteur : Jacen, Alexis
- *  Version $Id$
  */
 
 #ifndef CONFIG_STRAT_H

@@ -1,11 +1,11 @@
 /*
  *  Club Robot ESEO 2013 - 2014
  *
- *  Fichier : config_use.h
+ *  $Id$
+ *
  *  Package : Carte Strategie
  *  Description : Activation de modules et fonctionnalités
  *  Auteur : Jacen, Alexis
- *  Version $Id$
  */
 
 #ifndef CONFIG_PIN_H
