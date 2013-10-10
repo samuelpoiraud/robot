@@ -1,11 +1,11 @@
 /*
  *  Club Robot ESEO 2013 - 2014
  *
- *  Fichier : config_qs.h
+ *  $Id$
+ *
  *  Package : Carte Strategie
  *  Description : Configuration des modules de QS
  *  Auteur : Jacen, Alexis
- *  Version $Id$
  */
 
 #ifndef CONFIG_QS_H

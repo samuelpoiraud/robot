@@ -1,12 +1,12 @@
 /*
- *  Club Robot ESEO 2008 - 2009
+ *  Club Robot ESEO 2008 - 2014
  *
- *  Fichier : config_global_vars.h
+ *  $Id$
+ *
  *  Package : Carte Strategie
  *  Description : Variables globales définies specifiquement pour
 					le code de la carte l'executant.
  *  Auteur : Jacen
- *  Version $Id$
  */
 
 #ifndef CONFIG_GLOBAL_VARS_H
