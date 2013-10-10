@@ -16,7 +16,6 @@
 #include "LCD_CAN_injector.h"
 #include "Buffer.h"
 #include "Eeprom_can_msg.h"
-#include "../Global_vars.h"
 
 // Etats de l'affichage de l'ecran
 typedef enum
@@ -94,7 +93,7 @@ void display_pos(){
 		sprintf(buf,"t%4d",t);
 	else
 		sprintf(buf,"t ERR");
-		
+
 	LCD_Write_text(buf);
 }
 
@@ -239,7 +238,7 @@ void LCD_Update(void){
 				LCD_set_cursor(0,0);
 				menu_choice = SELF_TEST;
 			}
-			
+
 			break;
 		default:
 			break;
