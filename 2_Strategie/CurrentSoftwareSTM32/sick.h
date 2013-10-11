@@ -10,6 +10,7 @@
  */
 
 #include "QS/QS_all.h"
+#include "config_use.h"
 
 #ifndef SICK_H
 	#define SICK_H

@@ -14,6 +14,7 @@
 
 #include "asser_functions.h"
 #include "avoidance.h"
+#include "config_use.h"
 
 /*	Pile conservant les eventuels arguments pour les fonctions des actionneurs
  *	tout en conservant le meme prototype pour tous les actionneurs, reduisant

@@ -14,6 +14,8 @@
 #include "maths_home.h"
 #include "QS/QS_who_am_i.h"
 
+#include "config_use.h"
+
 
 /* Ne tient plus compte de la position de l'adversaire quand elle date
  * de plus de detection_timeout ms (detection_timeout doit etre superieur

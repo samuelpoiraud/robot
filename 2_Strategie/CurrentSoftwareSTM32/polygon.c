@@ -10,6 +10,8 @@
  *	Version 20110227
  */
 
+#include "config_use.h"
+
 #ifdef USE_POLYGON
 	
 	#define POLYGON_C

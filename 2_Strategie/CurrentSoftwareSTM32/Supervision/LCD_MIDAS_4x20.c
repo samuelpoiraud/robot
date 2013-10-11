@@ -10,6 +10,13 @@
  */
 
 #include "../QS/QS_i2c.h"
+#include "config_use.h"
+
+
+#if defined(USE_LCD) && !defined(USE_I2C2)
+	#warning "LCD a besoin de I2C2 pour fonctionner. Veuiller definir USE_I2C2 dans config_qs.h. Le module LCD sera inactif ..."
+	#undef USE_LCD
+#endif
 
 #define LCDADDR 0x78
 #define LCD_SIZE_LINE	4

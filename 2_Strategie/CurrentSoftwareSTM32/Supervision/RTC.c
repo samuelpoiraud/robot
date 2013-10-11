@@ -17,6 +17,12 @@
 	#include "../QS/QS_i2c.h"
 	#include "../QS/QS_CANmsgList.h"
 	#include "../QS/QS_can.h"
+	#include "config_use.h"
+
+	#if defined(USE_RTC) && !defined(USE_I2C2)
+		#warning "RTC a besoin de I2C2 pour fonctionner. Veuiller definir USE_I2C2 dans config_qs.h. Le module RTC sera inactif ..."
+		#undef USE_RTC
+	#endif
 
 	#define	DS1307_I2C_ADDRESS			0xd0
 
@@ -43,9 +49,7 @@ volatile bool_e periodic_it_was_called = FALSE;
 void RTC_init(void) 
 {
 	#ifdef USE_RTC
-	#ifdef USE_I2C2
 		I2C_init();
-	#endif // def USE_I2C
 	#endif	//def USE_RTC
 }
 

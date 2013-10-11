@@ -10,6 +10,7 @@
  */
 
 #include "Pathfind.h"
+#include "config_use.h"
 
 
 #ifndef USE_POLYGON
@@ -274,7 +275,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 					nodes[n].cost = nodes[current].cost + PATHFIND_STEP_COST + heuristic;
 				}
 				/*
-				 * Si elle est deja  dans la liste ouverte, on teste si le
+				 * Si elle est deja  dans la liste ouverte, on teste si le
 				 * chemin passant par la case en cours est meilleur en
 				 * comparant les couts G. Un cout G inferieur signifie un
 				 * meilleur chemin. Si c'est le cas, on change le parent de

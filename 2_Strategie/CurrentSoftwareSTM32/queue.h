@@ -16,6 +16,7 @@
 
 #include "clock.h"
 
+#define QUEUE_SIZE	16
 
 //Ce fichier est lié à act_function.c/h (a cause de l'argument QUEUE_arg_t surtout)
 

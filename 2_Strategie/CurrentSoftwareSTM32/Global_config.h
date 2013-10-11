@@ -146,15 +146,8 @@
 			#define SWITCH_STRAT_5		FALSE	//Temporaire
 
 
-	#define USE_LCD
-	#ifdef USE_LCD
 		#define USE_I2C2
-	#endif
 
-	#define USE_RTC
-	#ifdef USE_RTC
-		#define USE_I2C2
-	#endif
 
 	#define USE_SPI2
 	#define SPI_R_BUF_SIZE 16
@@ -224,47 +217,15 @@
 	 *	La section config carte Stratégie
 	 */
 
-	//Activation du module d'enregistrement des messages CAN reçus pendant les matchs en mémoire EEPROM.
-	//#define EEPROM_CAN_MSG_ENABLE
-	#define SD_ENABLE
-	#ifdef SD_ENABLE
-		extern int SD_printf(char * s, ...);	//Enregistre à la suite du match une chaine de caractère... Utilisable par exemple pour les changements d'états.
-		//Permet à tout le monde d'accéder au SD_printf() pour les logs...
-	#endif
 
-	#define STACKS_SIZE 32 //doit être < à 256
 
-	//Utilisé par act_function
-	#define QUEUE_SIZE	16
 
 	//utilisation du module BUTTONS
 	#define USE_BUTTONS
 	//utilise le timer 2 pour les boutons
 	#define BUTTONS_TIMER 2
-		
-	//demande à l'asser d'envoyer regulierement la position du robot
-	//utilisé en 2010-2011 pour la détection des pions avec les capteurs de distance SICK (cf. brain.c)
-	#define USE_SCHEDULED_POSITION_REQUEST
-	
-	//#define USE_TELEMETER
-	#ifdef USE_TELEMETER
-		//utilisation des télémètres laser SICK
-		//#define USE_SICK_DT50_LEFT
-		//#define USE_SICK_DT50_RIGHT
-		//#define USE_SICK_DT50_TOP
-		#define USE_SICK_DT10_0
-		#define USE_SICK_DT10_1
-		#define USE_SICK_DT10_2
-		#define USE_SICK_DT10_3
-	#endif
-	
-	//Module de gestion des capteurs SICK pour scan de la zone de jeu... Ce module est très dépendant du règlement et du robot !
-	//#define USE_SICK
-	
-	//utilisation du lecteur de codes-barres
-//	#define USE_BARCODE_ON_UART1
-	//#define USE_BARCODE_ON_UART2
-	
+
+
 	//envoi des messages de debug de timeout et activité des piles
 //	#define USE_SEND_CAN_DEBUG
 
@@ -275,16 +236,6 @@
 //	#define USE_ELEMENT_CAN_DEBUG
 
 
-	//utilise le mode de déplacement avec les polygones
-	//si cette ligne est commentée, on utilise par défaut le mode de déplacement avec pathfind
-	//#define USE_POLYGON
-	
-	//utilise le buffer de l'asser pour les trajectoires multi-points et permet d'utiliser les courbes
-	#define USE_ASSER_MULTI_POINT
-	
-	//les ASSER_TRAJECTOIRE_FINIE dépilent les asser goto meme si on est loin de la destination
-	#define ASSER_PULL_EVEN_WHEN_FAR_FROM_DESTINATION
-	
 	//active les debug_printf pour les sections concernées
 //	#define DEBUG_ASSER_FUN
 //	#define DEBUG_ACT_FUN
@@ -295,10 +246,6 @@
 //	#define DEBUG_AVOIDANCE
 //	#define DEBUG_POLYGON
 //	#define DEBUG_TELEMETER
-
-	//définition de la précision et des modes de calcul des sinus et cosinus
-//	#define FAST_COS_SIN
-//	#define COS_SIN_16384
 
 
 

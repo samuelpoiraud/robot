@@ -16,6 +16,8 @@
 #include "Supervision/Selftest.h"
 #include "Supervision/Eeprom_can_msg.h"
 #include "Supervision/SD/SD.h"
+#include "config_use.h"
+
 static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
 

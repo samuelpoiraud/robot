@@ -32,15 +32,14 @@
 //	#define DEBUG_POLYGON
 //	#define DEBUG_TELEMETER
 
-/*
-	 *	La section config carte Stratégie
-	 */
+//envoi des messages de debug de timeout et activité des piles
+//	#define USE_SEND_CAN_DEBUG
 
+//envoie la position de l'adversaire sur le bus à chaque update (max 1 fois par seconde (a l'ecriture de ce commentaire))
+//	#define USE_FOE_POS_CAN_DEBUG
 
-#define STACKS_SIZE 32 //doit être < à 256
-
-//Utilisé par act_function
-#define QUEUE_SIZE	16
+//envoie de l'ajout, la mise a jour ou la suppresion d'un element de jeu sur le CAN
+//	#define USE_ELEMENT_CAN_DEBUG
 
 /*
 CAN_send_debug("");

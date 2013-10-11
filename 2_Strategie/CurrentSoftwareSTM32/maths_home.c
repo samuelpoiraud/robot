@@ -12,6 +12,7 @@
 #define MATHS_HOME_C
 
 #include "maths_home.h"
+#include "config_use.h"
 
 double cos4096(Sint16 angle) 
 {
