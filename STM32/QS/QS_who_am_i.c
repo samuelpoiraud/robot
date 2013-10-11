@@ -40,7 +40,6 @@
 			#warning "Definir DISABLE_WHO_AM_I a KRUSTY ou TINY pour definir le robot explicitement. Ici, TINY sera choisi par defaut."
 			robot_id = TINY;	//Par défaut, le robot est ...
 		#else
-#warning test
 			robot_id = DISABLE_WHO_AM_I;
 		#endif
 	}
