@@ -19,6 +19,7 @@
 	//#include "config_global.h"
 	#ifdef NEW_CONFIG_ORGANISATION
 		#include "config_qs.h"
+		#include "config_pin.h"
 	#endif
 	#include "QS_configCheck.h"				/*	On verifie que le programmeur a selectionné les	*/
 											/*	elements indispensables 						*/
