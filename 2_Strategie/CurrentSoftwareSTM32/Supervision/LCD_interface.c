@@ -17,6 +17,8 @@
 #include "Buffer.h"
 #include "Eeprom_can_msg.h"
 
+#include "config_use.h"
+
 // Etats de l'affichage de l'ecran
 typedef enum
 {

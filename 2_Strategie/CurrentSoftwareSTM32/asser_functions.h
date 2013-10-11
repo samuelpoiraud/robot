@@ -16,6 +16,7 @@
 	#define ASSER_FUNCTIONS_H
 
 	#include "asser_types.h"
+	#include "config_use.h"
 
 	typedef struct
 	{

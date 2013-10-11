@@ -15,19 +15,20 @@
 
 #include "can_utils.h"
 #include "Stacks.h"
-#include "strats_2013/actions.h"
 #include "clock.h"
+#include "button.h"	//pour SWITCH_change_color
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"
+#include "QS/QS_who_am_i.h"
+#include "config_use.h"
+
+#include "strats_2013/actions.h"
 #include "strats_2013/actions_tests_krusty.h"
 #include "strats_2013/actions_tests_tiny.h"
 #include "strats_2013/actions_tests_tiny_micro.h" // pour T_BALLINFLATER_start
-#include "strats_2013/actions.h"
 #include "strats_2014/actions_both_2014.h"
 #include "strats_2014/actions_guy.h"
 #include "strats_2014/actions_pierre.h"
-#include "QS/QS_who_am_i.h"
-#include "button.h"	//pour SWITCH_change_color
 
 /* 	execute un match de match_duration secondes à partir de la
 	liberation de la biroute. Arrete le robot à la fin du match.

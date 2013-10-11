@@ -23,6 +23,8 @@ trajectoire pour l'information de position de l'adversaire */
 
 #ifndef DETECTION_H
 	#define DETECTION_H
+
+	#include "config_use.h"
 	
 	#define BEACON_IR(f)	((f == FOE_1) ? BEACON_IR_FOE_1 : BEACON_IR_FOE_2)
 	#define BEACON_US(f)	((f == FOE_1) ? BEACON_US_FOE_1 : BEACON_US_FOE_2)

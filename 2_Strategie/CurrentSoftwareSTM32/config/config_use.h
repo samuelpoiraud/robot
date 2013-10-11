@@ -8,21 +8,14 @@
  *  Auteur : Jacen, Alexis
  */
 
-#ifndef CONFIG_PIN_H
-#define CONFIG_PIN_H
+#ifndef CONFIG_USE_H
+#define CONFIG_USE_H
 
 //	#define MODE_SIMULATION
 
 #define USE_LCD
-#ifdef USE_LCD
-#define USE_I2C2
-#endif
-
 
 #define USE_RTC
-#ifdef USE_RTC
-#define USE_I2C2
-#endif
 
 //définition de la précision et des modes de calcul des sinus et cosinus
 //	#define FAST_COS_SIN
@@ -48,19 +41,6 @@
 //Module de gestion des capteurs SICK pour scan de la zone de jeu... Ce module est très dépendant du règlement et du robot !
 //#define USE_SICK
 
-//utilisation du lecteur de codes-barres
-//	#define USE_BARCODE_ON_UART1
-//#define USE_BARCODE_ON_UART2
-
-//envoi des messages de debug de timeout et activité des piles
-//	#define USE_SEND_CAN_DEBUG
-
-//envoie la position de l'adversaire sur le bus à chaque update (max 1 fois par seconde (a l'ecriture de ce commentaire))
-//	#define USE_FOE_POS_CAN_DEBUG
-
-//envoie de l'ajout, la mise a jour ou la suppresion d'un element de jeu sur le CAN
-//	#define USE_ELEMENT_CAN_DEBUG
-
 
 //utilise le mode de déplacement avec les polygones
 //si cette ligne est commentée, on utilise par défaut le mode de déplacement avec pathfind
@@ -79,4 +59,4 @@
 //#define EEPROM_CAN_MSG_ENABLE
 
 
-#endif /* CONFIG_PIN_H */
+#endif /* CONFIG_USE_H */

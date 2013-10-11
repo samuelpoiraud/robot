@@ -14,6 +14,8 @@
 #include "QS/QS_CANmsgList.h"
 #include "can_utils.h"
 
+#include "config_use.h"
+
 void DETECTION_init(void)
 {
 	static bool_e initialized = FALSE;

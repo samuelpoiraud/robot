@@ -34,6 +34,8 @@
 #include "button.h"
 #include "elements.h"
 
+#include "config_use.h"
+
 /* met à jour l'environnement en fonction du message CAN reçu */
 void CAN_update (CAN_msg_t* incoming_msg);
 

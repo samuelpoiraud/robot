@@ -18,6 +18,7 @@
 #include "Eeprom_can_msg.h"
 #include "RTC.h"
 #include "Buffer.h"
+#include "config_use.h"
 
 
 //@pre : QS_WHO_I_AM doit être found.

@@ -16,6 +16,8 @@
 
 #include "QS/QS_can.h"
 
+#define STACKS_SIZE 32 //doit être < à 256
+
 typedef enum {
 	ASSER,
 			//Les actionneurs utilisent maintenant queue_id_e (voir dans queue.h)

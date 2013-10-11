@@ -12,6 +12,7 @@
 #define BUFFER_C
 #include "Buffer.h"
 #include "Verbose_can_msg.h"
+#include "config_use.h"
 
 #include "../QS/QS_can_over_uart.h"
 

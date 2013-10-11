@@ -43,6 +43,7 @@
 #define USE_SPI2
 #define SPI_R_BUF_SIZE 16
 
+#define USE_I2C2
 
 #define USE_CAN
 /*	Nombre de messages CAN conservés

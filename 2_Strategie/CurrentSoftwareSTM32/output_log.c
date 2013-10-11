@@ -11,8 +11,7 @@
 
 #include "output_log.h"
 #include "Supervision/SD/SD.h"
-
-#ifdef OUTPUT_LOG
+#include "config_strat.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -26,6 +25,7 @@
 static log_level_e current_max_log_level = OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL;
 
 void OUTPUTLOG_printf(log_print_e printthis, log_level_e level, const char * format, ...) {
+#ifdef OUTPUT_LOG
 	va_list args_list;
 
 	//level trop haut ou affichage desactivé, on n'affiche pas
@@ -54,6 +54,7 @@ void OUTPUTLOG_printf(log_print_e printthis, log_level_e level, const char * for
 	puts(buf);
 
 	was_newline = buf[ret-1] == '\n'; //Si la ligne à un '\n' à la fin, on ajoutera un timestamp au prochain printf
+#endif /* OUTPUT_LOG */
 }
 
 void OUTPUTLOG_set_level(log_level_e level) {
@@ -63,5 +64,3 @@ void OUTPUTLOG_set_level(log_level_e level) {
 log_level_e OUTPUTLOG_get_level() {
 	return current_max_log_level;
 }
-
-#endif  /* OUTPUT_LOG */

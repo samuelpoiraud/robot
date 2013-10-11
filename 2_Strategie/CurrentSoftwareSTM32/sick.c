@@ -13,6 +13,8 @@
 
 #include "sick.h"
 
+#include "config_use.h"
+
 #ifdef USE_SICK
 
 distance_sensor_config_t const distance_sensor_config[NB_DISTANCE_SENSOR] =
