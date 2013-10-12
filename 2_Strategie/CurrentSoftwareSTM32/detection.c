@@ -15,6 +15,7 @@
 #include "can_utils.h"
 
 #include "config_use.h"
+#include "config_debug.h"
 
 void DETECTION_init(void)
 {

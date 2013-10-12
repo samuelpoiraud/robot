@@ -11,6 +11,7 @@
 
 #include "../QS/QS_i2c.h"
 #include "config_use.h"
+#include "config_pin.h"
 
 
 #if defined(USE_LCD) && !defined(USE_I2C2)

@@ -15,6 +15,8 @@
 #include "actions_utils.h"
 #include "../QS/QS_adc.h"
 
+#include "config_pin.h"
+
 #define DEFAULT_SPEED	(SLOW)
 
 #define USE_CURVE	0

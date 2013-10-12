@@ -28,6 +28,8 @@
 		#include "stm32f4xx_gpio.h"
 		#include "stm32f4xx_rcc.h"
 	#endif
+#include "config_pin.h"
+#include "config_use.h"
 
 void test_bp_switchs(void);
 void test_leds(void);

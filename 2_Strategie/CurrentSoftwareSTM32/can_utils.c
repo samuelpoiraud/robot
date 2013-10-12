@@ -12,6 +12,7 @@
 #define CAN_UTILS_C
 
 #include "can_utils.h"
+#include "config_debug.h"
 
 
 

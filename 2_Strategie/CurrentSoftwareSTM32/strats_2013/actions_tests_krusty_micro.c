@@ -11,6 +11,8 @@
 
 #include "actions_tests_krusty_micro.h"
 
+#include "config_pin.h"
+
 
 #define DEFAULT_SPEED	(SLOW)
 

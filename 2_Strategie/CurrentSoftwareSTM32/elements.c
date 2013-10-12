@@ -12,6 +12,7 @@
  #define ELEMENTS_C
  
  #include "elements.h"
+ #include "config_debug.h"
 
 
  /* Pour ce programme de gestion des elements cf. ELEMENTS.png 

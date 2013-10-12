@@ -9,6 +9,11 @@
  *	Version 201308
  */
 
+
+#define EEPROM_C
+#include "Eeprom.h"
+#include "config_pin.h"
+
 #define READ 0x03 	/* Read data from memory array beginning at selected address */
 #define WRITE 0x02 	/* Write data to memory array beginning at selected address */
 #define WEN 0x06 	/* Set the write enable latch (enable write operations) */
@@ -24,8 +29,6 @@
 	#define STATUS_MASK_WEL	0b00000010
 	#define STATUS_MASK_BP0	0b00000100
 	#define STATUS_MASK_BP1	0b00001000
-#define EEPROM_C
-#include "Eeprom.h"
 
 
 static void WriteEnable(void);
