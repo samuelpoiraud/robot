@@ -23,6 +23,7 @@
 	#define AVOIDANCE_H
 	
 	#include "asser_types.h"
+	#include "Geometry.h"
 	#include "config_use.h"
 
 	#ifdef USE_POLYGON
