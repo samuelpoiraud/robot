@@ -1,7 +1,7 @@
 /*
  *  Club Robot ESEO 2008 - 2014
  *
- *  $Id: config_global_vars.h 897 2013-10-10 19:13:19Z amurzeau $
+ *  $Id$
  *
  *  Package : Carte Actionneur
  *  Description : Variables globales définies specifiquement pour

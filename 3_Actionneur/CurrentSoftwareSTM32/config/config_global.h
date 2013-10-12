@@ -1,7 +1,7 @@
 /*
  *  Club Robot ESEO 2008 - 2014
  *
- *  $Id: config_global.h 904 2013-10-12 12:04:27Z amurzeau $
+ *  $Id$
  *
  *  Package : Carte Actionneur
  *  Description : Configuration globale

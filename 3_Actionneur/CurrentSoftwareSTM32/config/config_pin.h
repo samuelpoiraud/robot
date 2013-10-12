@@ -1,7 +1,7 @@
 /*
  *  Club Robot ESEO 2013 - 2014
  *
- *  $Id: config_pin.h 897 2013-10-10 19:13:19Z amurzeau $
+ *  $Id$
  *
  *  Package : Carte Actionneur
  *  Description : Configuration des pins

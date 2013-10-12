@@ -1,7 +1,7 @@
 /*
  *  Club Robot ESEO 2008 - 2014
  *
- *  $Id: config_global_vars_types.h 897 2013-10-10 19:13:19Z amurzeau $
+ *  $Id$
  *
  *  Package : Carte Actionneur
  *  Description : Définition de types pour les variables globales
