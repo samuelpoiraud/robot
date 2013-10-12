@@ -17,6 +17,10 @@
 #ifdef USE_XBEE
 #include "QS_uart.h"
 #include "QS_CANmsgList.h"
+
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_pin.h"
+#endif
 	
 	#include <stdio.h>
 	

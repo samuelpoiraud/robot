@@ -15,14 +15,14 @@
 	#include "stm32f4xx.h"					/* 	Toujours utile...								*/
 	#define _ISR							/*  attribut d'interruption non utilisé sous STM32  */
 
-	#include "../Global_config.h"	/*	On charge d'abord la configuration globale		*/
-	//#include "config_global.h"
-	#ifdef NEW_CONFIG_ORGANISATION
-		#include "config_qs.h"
-		#include "config_pin.h"
+	#ifndef NEW_CONFIG_ORGANISATION
+		#include "../Global_config.h"	/*	On charge d'abord la configuration globale		*/
 	#endif
-	#include "QS_configCheck.h"				/*	On verifie que le programmeur a selectionné les	*/
-											/*	elements indispensables 						*/
+
+	#ifdef NEW_CONFIG_ORGANISATION
+		#include "config_global.h"
+		#include "config_qs.h"
+	#endif
 	
 	#include "QS_types.h"					/*	Nos types										*/
 	#include "QS_macro.h"					/*	quelques macro pratiques						*/

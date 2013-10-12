@@ -15,6 +15,8 @@
 #ifndef QS_CONFIGCHECK_H
 	#define QS_CONFIGCHECK_H
 
+	#include "QS_all.h"
+
 	#ifdef NEW_CONFIG_ORGANISATION
 		#include "config_pin.h"
 	#endif
