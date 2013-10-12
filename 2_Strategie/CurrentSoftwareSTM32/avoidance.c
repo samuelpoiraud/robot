@@ -15,6 +15,7 @@
 #include "QS/QS_who_am_i.h"
 
 #include "config_use.h"
+#include "config_debug.h"
 
 
 /* Ne tient plus compte de la position de l'adversaire quand elle date

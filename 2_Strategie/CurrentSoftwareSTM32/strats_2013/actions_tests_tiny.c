@@ -12,6 +12,8 @@
 #include "actions_tests_tiny.h"
 #include "actions_utils.h"
 
+#include "config_pin.h"
+
 
 #define DEFAULT_SPEED	(FAST)
 

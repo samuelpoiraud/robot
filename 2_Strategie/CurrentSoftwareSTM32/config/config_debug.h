@@ -4,12 +4,12 @@
  *  $Id$
  *
  *  Package : Carte Strategie
- *  Description : Configuration des strat et logs
+ *  Description : Configuration des aides au débuggage
  *  Auteur : Jacen, Alexis
  */
 
-#ifndef CONFIG_STRAT_H
-#define CONFIG_STRAT_H
+#ifndef CONFIG_DEBUG_H
+#define CONFIG_DEBUG_H
 
 #define VERBOSE_MODE
 
@@ -55,4 +55,4 @@ C asser far from destination
 */
 
 
-#endif /* CONFIG_STRAT_H */
+#endif /* CONFIG_DEBUG_H */

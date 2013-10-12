@@ -11,7 +11,7 @@
 #ifndef CONFIG_QS_H
 #define CONFIG_QS_H
 
-#include "config_strat.h" //pour verbose_mode
+#include "config_debug.h" //pour verbose_mode
 
 /* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */

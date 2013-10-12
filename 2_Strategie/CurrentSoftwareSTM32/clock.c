@@ -15,6 +15,8 @@
 #include "Supervision/SD/SD.h"
 #include "Supervision/RTC.h"
 #include "Supervision/Supervision.h"
+#include "config_pin.h"
+#include "QS/QS_can_over_xbee.h"
 
 void CLOCK_run();
 

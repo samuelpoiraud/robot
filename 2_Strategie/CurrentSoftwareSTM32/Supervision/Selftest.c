@@ -12,6 +12,7 @@
 
 #include "Selftest.h"
 #include "SD/SD.h"
+#include "config_pin.h"
 
 #define TIMEOUT_SELFTEST_ACT 		20000	// en ms
 #define TIMEOUT_SELFTEST_PROP 		10000	// en ms

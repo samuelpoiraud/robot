@@ -11,7 +11,7 @@
 
 #include "output_log.h"
 #include "Supervision/SD/SD.h"
-#include "config_strat.h"
+#include "config_debug.h"
 
 #include <stdio.h>
 #include <stdarg.h>

@@ -12,6 +12,7 @@
 #define EEPROM_CAN_MSG_C
 #include "Eeprom_can_msg.h"
 #include "Selftest.h"
+#include "config_pin.h"
 
 
 #define TEST_STRING_ADDRESS		(Uint32)(0x00000000)	//Adresse de la chaine de test de la mémoire EEPROM

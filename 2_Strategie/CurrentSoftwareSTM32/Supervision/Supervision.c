@@ -19,6 +19,8 @@
 #include "RTC.h"
 #include "Buffer.h"
 #include "config_use.h"
+#include "config_pin.h"
+#include "LCD_interface.h"
 
 
 //@pre : QS_WHO_I_AM doit être found.

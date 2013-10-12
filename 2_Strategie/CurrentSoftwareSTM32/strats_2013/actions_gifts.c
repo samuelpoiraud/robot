@@ -12,6 +12,8 @@
 #include "actions_utils.h"
 #include "../act_functions.h"
 
+#include "config_pin.h"
+
 
 /*
 1- ATTENTION, point de départ imposé, du coté de notre couleur
