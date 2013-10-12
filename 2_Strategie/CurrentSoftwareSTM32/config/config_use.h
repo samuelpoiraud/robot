@@ -11,7 +11,6 @@
 #ifndef CONFIG_USE_H
 #define CONFIG_USE_H
 
-//	#define MODE_SIMULATION
 
 #define USE_LCD
 

@@ -13,6 +13,8 @@
 
 #include "config_debug.h" //pour verbose_mode
 
+//	#define MODE_SIMULATION
+
 /* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
 #define I_AM CARTE_STRAT
