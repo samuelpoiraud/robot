@@ -19,6 +19,7 @@
 #include "../QS/QS_adc.h"
 #include "../output_log.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 #include "KBall_sorter_config.h"
 #include "KBall_launcher.h"
 

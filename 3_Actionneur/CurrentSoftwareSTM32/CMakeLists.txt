@@ -40,6 +40,7 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map,\"${EXECUTABLE_OU
 
 
 include_directories("${SOURCE_PATH}/provide_parent_dir")
+include_directories("${SOURCE_PATH}/config")
 include_directories("${SOURCE_PATH}/stm32f4xx")
 link_directories("${SOURCE_PATH}/stm32f4xx")
 

@@ -18,6 +18,7 @@
 #include "../QS/QS_timer.h"
 #include "../output_log.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 #include "KBall_launcher_config.h"
 
 #define LOG_PREFIX "BL: "

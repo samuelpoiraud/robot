@@ -36,6 +36,7 @@
 //#endif
 	#include "Can_msg_processing.h"
 	#include "QS/QS_CANmsgList.h"
+#include "config_pin.h"
 
 static void MAIN_onButton1();
 static void MAIN_onButton2();

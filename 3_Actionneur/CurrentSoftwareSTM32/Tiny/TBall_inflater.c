@@ -16,6 +16,7 @@
 //#include "../QS/QS_can.h"
 #include "../output_log.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 
 #define LOG_PREFIX "BI: "
 #define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLINFLATER, log_level, LOG_PREFIX format, ## __VA_ARGS__)

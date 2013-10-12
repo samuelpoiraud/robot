@@ -19,6 +19,7 @@
 #include "../QS/QS_adc.h"
 #include "../output_log.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 #include "KPlate_config.h"
 
 #define COMPONENT_log(...) OUTPUTLOG_PRETTY("PL: ", OUTPUT_LOG_COMPONENT_PLATE, ## __VA_ARGS__)
