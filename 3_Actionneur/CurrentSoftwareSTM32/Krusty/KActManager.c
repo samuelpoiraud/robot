@@ -19,6 +19,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 

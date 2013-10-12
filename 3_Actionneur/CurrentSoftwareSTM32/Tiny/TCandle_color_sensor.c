@@ -18,6 +18,7 @@
 #include "../QS/QS_ax12.h"
 #include "../output_log.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 #include "TCandle_color_sensor_config.h"
 
 #define LOG_PREFIX "CC: "

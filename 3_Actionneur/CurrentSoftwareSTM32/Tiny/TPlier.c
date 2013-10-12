@@ -16,6 +16,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../output_log.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 #include "TPlier_config.h"
 
 #define LOG_PREFIX "Plier: "

@@ -11,6 +11,7 @@
 
 #include "queue.h"
 #include "output_log.h"
+#include "config_pin.h"
 
 #ifndef OUTPUT_LOG_COMPONENT_QUEUE
 #  define OUTPUT_LOG_COMPONENT_QUEUE LOG_PRINT_Off

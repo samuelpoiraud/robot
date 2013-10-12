@@ -20,6 +20,7 @@
 #include "../QS/QS_adc.h"
 #include "../output_log.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 #include "KLift_config.h"
 
 #define LOG_PREFIX "LI: "

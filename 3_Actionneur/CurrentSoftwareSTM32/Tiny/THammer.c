@@ -17,6 +17,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../output_log.h"
 #include "../act_queue_utils.h"
+#include "config_pin.h"
 #include "THammer_config.h"
 #include "TCandle_color_sensor.h"
 
