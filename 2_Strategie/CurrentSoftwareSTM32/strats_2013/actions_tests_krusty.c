@@ -63,7 +63,6 @@ void TEST_STRAT_K_homologation(void)
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
 
-
 void K_Strat_Pour_Les_Nuls(void){
 	static enum{
 			INIT=0,
@@ -169,6 +168,127 @@ void K_Strat_Pour_Les_Nuls(void){
 			break;
 		}
 }
+
+
+
+void Deplacement_Pierre_Strat_Samuel(void){
+	static enum{
+		INIT,
+		DEPLACEMENT_A_PIERRE,
+		A_viserMur,
+		DEPLACEMENT_B_PIERRE,
+		B_viserTriangle,
+		DEPLACEMENT_C_PIERRE,
+		DEPLACEMENT_D_PIERRE,
+		DEPLACEMENT_E_PIERRE,
+		E_viserArbre,
+		DEPLACEMENT_F_PIERRE,
+		F_viserCoin,
+		DEPLACEMENT_G_PIERRE,
+		G_viserArbre,
+		DEPLACEMENT_H_PIERRE,
+		DEPLACEMENT_I_PIERRE,
+		DONE
+	}state = INIT;
+
+
+	displacement_t INIT_vers_A[]={
+						{448,2498,SLOW},
+						{505,2445,SLOW},
+						{555,2398,SLOW},
+						{626,2291,SLOW}};
+
+	displacement_t A_vers_B[]={
+						{669,2245,SLOW},
+						{708,2188,SLOW},
+						{723,2106,SLOW}};
+
+
+	displacement_t B_vers_C[]={
+						{723,2106,SLOW},
+						{976,2095,SLOW}};
+
+	displacement_t C_vers_D[]={
+						{1000,2000,SLOW},
+						{1000,1900,SLOW},
+						{1100,1800,SLOW},
+						{1200,1900,SLOW},
+						{1339,2017,SLOW},
+						{1457,2017,SLOW},
+						{1589,2038,SLOW} };
+
+	displacement_t D_vers_E[]={
+						{1700,2000,SLOW},
+						{1773,2284,SLOW} };
+
+	displacement_t E_vers_F[]={
+						{1789,2797,SLOW} };
+
+	displacement_t F_vers_G[]={
+						{1297,2813,SLOW}};
+
+	displacement_t G_vers_H[]={
+						{938,2781,SLOW},
+						{740,1589,SLOW},
+						{179,1247,SLOW}};
+
+	displacement_t H_vers_I[]={
+						{152,1717,SLOW}  };
+
+
+	switch(state){
+	case INIT:
+		state = DEPLACEMENT_A_PIERRE;
+		break;
+	case DEPLACEMENT_A_PIERRE:
+		state = try_going_multipoint(INIT_vers_A,4,DEPLACEMENT_A_PIERRE,A_viserMur,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case A_viserMur:
+		state = try_go_angle(-3*PI4096/4,A_viserMur,DEPLACEMENT_B_PIERRE,DONE,SLOW);
+		break;
+	case DEPLACEMENT_B_PIERRE:
+		state = try_going_multipoint(A_vers_B,3,DEPLACEMENT_B_PIERRE,B_viserTriangle,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case B_viserTriangle:
+		state = try_go_angle(-3*PI4096/4,B_viserTriangle,DEPLACEMENT_C_PIERRE,DONE,SLOW);
+		break;
+	case DEPLACEMENT_C_PIERRE:
+		state = try_going_multipoint(B_vers_C,2,DEPLACEMENT_C_PIERRE,DEPLACEMENT_D_PIERRE,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case DEPLACEMENT_D_PIERRE:
+		state = try_going_multipoint(C_vers_D,7,DEPLACEMENT_D_PIERRE,DEPLACEMENT_E_PIERRE,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case DEPLACEMENT_E_PIERRE:
+		state = try_going_multipoint(D_vers_E,2,DEPLACEMENT_E_PIERRE,E_viserArbre,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case E_viserArbre:
+		state = try_go_angle(0,E_viserArbre,DEPLACEMENT_F_PIERRE,DONE,SLOW);
+		break;
+	case DEPLACEMENT_F_PIERRE:
+		state = try_going_multipoint(E_vers_F,1,DEPLACEMENT_F_PIERRE,F_viserCoin,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case F_viserCoin:
+		state = try_go_angle(PI4096/4,F_viserCoin,DEPLACEMENT_G_PIERRE,DONE,SLOW);
+		break;
+	case DEPLACEMENT_G_PIERRE:
+		state = try_going_multipoint(F_vers_G,1,DEPLACEMENT_G_PIERRE,G_viserArbre,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case G_viserArbre:
+		state = try_go_angle(PI4096/2,G_viserArbre,DEPLACEMENT_H_PIERRE,DONE,SLOW);
+		break;
+	case DEPLACEMENT_H_PIERRE:
+		state = try_going_multipoint(G_vers_H,3,DEPLACEMENT_H_PIERRE,DEPLACEMENT_I_PIERRE,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case DEPLACEMENT_I_PIERRE:
+		state = try_going_multipoint(H_vers_I,1,DEPLACEMENT_I_PIERRE,DONE,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
+	case DONE:
+		break;
+	default:
+		break;
+	}
+}
+
 
 
 void K_Strat_Coupe(void){

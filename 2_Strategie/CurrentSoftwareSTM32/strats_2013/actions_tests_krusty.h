@@ -20,6 +20,7 @@
 #include "actions_tests_krusty_micro.h"
 
 void K_Strat_Pour_Les_Nuls(void);
+void Deplacement_Pierre_Strat_Samuel(void);
 
 void K_Strat_Coupe(void);
 error_e Assiete_2_4_lanceur(void);
