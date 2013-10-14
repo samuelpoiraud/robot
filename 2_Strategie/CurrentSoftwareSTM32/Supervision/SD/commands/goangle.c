@@ -23,6 +23,8 @@ int term_cmd_goangle(int argc, const char *argv[]) {
 
 	if(argc < 1)
 		return EINVAL;
+	else if(argc > 1)
+		return EINVAL;
 
 	if(!argtolong(argv[0], 0, &teta))
 		return EINVAL;

@@ -16,5 +16,6 @@
 #include "gohome.h"
 #include "setdate.h"
 #include "date.h"
+#include "launch.h"
 
 #endif // COMMANDS_H
