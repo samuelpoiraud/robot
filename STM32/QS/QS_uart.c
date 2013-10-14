@@ -65,8 +65,8 @@
 		else
 			return FALSE;
 	}
-#endif		
-		
+#endif
+
 /*	fonction initialisant les uart choisis
 	vitesse : 9600 bauds
 	bits de donnees : 8
@@ -174,8 +174,8 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 				return 0;
 		}
 	#endif /* def USE_UART1RXINTERRUPT */
-	
-	
+
+
 	#ifdef USE_UART1TXINTERRUPT
 		#ifndef BUFFER_U1TX_SIZE
 			#warning "Vous devez définir la taille du buffer U1TX."
@@ -188,13 +188,13 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 		{
 			return IsNotEmpty_buffer(&buffer1tx);
 		}
-		
+
 		//Permet de savoir, venant de l'extérieur, si le buffer est plein
 		bool_e IsFull_buffer_u1tx(void)
 		{
 			return IsFull_buffer(&buffer1tx);
 		}
-		
+
 		//Appelée par un printf
 		int _write(int file, char *ptr, int len)
 		{
@@ -303,25 +303,25 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 #endif /* def USE_UART1 */
 
 #ifdef USE_UART2
-	#ifdef USE_UART2TXINTERRUPT	
+	#ifdef USE_UART2TXINTERRUPT
 		#ifndef BUFFER_U2TX_SIZE
 			#warning "Vous devez définir la taille du buffer U2TX."
 		#endif
 		volatile Uint8 b2tx[BUFFER_U2TX_SIZE];
 		volatile buffer_t buffer2tx = {b2tx,BUFFER_U2TX_SIZE,0,0,0};
-		
+
 		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
 		bool_e IsNotEmpty_buffer_u2tx(void)
 		{
 			return IsNotEmpty_buffer(&buffer2tx);
 		}
-		
+
 		//Permet de savoir, venant de l'extérieur, si le buffer est plein
 		bool_e IsFull_buffer_u2tx(void)
 		{
 			return IsFull_buffer(&buffer2tx);
 		}
-		
+
 
 		void UART2_putc(Uint8 c)
 		{
@@ -422,5 +422,126 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 				return 0;
 		}
 	#endif /* def USE_UART2RXINTERRUPT */
-
 #endif /* def USE_UART2 */
+
+#ifdef USE_UART3
+	#ifdef USE_UART3TXINTERRUPT
+		#ifndef BUFFER_U3TX_SIZE
+			#warning "Vous devez définir la taille du buffer U3TX."
+		#endif
+		volatile Uint8 b3tx[BUFFER_U3TX_SIZE];
+		volatile buffer_t buffer3tx = {b3tx,BUFFER_U3TX_SIZE,0,0,0};
+
+		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
+		bool_e IsNotEmpty_buffer_u3tx(void)
+		{
+			return IsNotEmpty_buffer(&buffer3tx);
+		}
+
+		//Permet de savoir, venant de l'extérieur, si le buffer est plein
+		bool_e IsFull_buffer_u3tx(void)
+		{
+			return IsFull_buffer(&buffer3tx);
+		}
+
+
+		void UART3_putc(Uint8 c)
+		{
+			if(USART_GetFlagStatus(USART3, USART_IT_TXE))
+				USART_SendData(USART3, c);
+			else
+			{
+				//mise en buffer + activation IT U3TX.
+
+				assert(buffer3tx.nb_datas < buffer3tx.size + 1);
+				//Critical section (Interrupt inibition)
+
+				while(buffer3tx.nb_datas >= buffer3tx.size);	//ON BLOQUE ICI
+
+				NVIC_DisableIRQ(USART3_IRQn);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+
+				if(buffer3tx.nb_datas < buffer3tx.size)
+				{
+					buffer3tx.datas[buffer3tx.index_write] = c;
+					buffer3tx.index_write = (buffer3tx.index_write>=buffer3tx.size-1)?0:(buffer3tx.index_write + 1);
+					buffer3tx.nb_datas++;
+				}
+
+				NVIC_EnableIRQ(USART3_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
+				USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
+			}
+		}
+	#else	/* def USE_UART3TXINTERRUPT */
+		void UART3_putc(Uint8 mes)
+		{
+			while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
+			USART_SendData(USART3, mes);
+		}
+	#endif
+	void _ISR USART3_IRQHandler(void)
+	{
+		#ifdef USE_UART3RXINTERRUPT
+			if(USART_GetITStatus(USART3, USART_IT_RXNE)) {
+				Uint8 * receiveddata = &(m_u3rxbuf[(m_u3rxnum%UART_RX_BUF_SIZE)]);
+
+				while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE))
+				{
+					LED_UART=!LED_UART;
+					*(receiveddata++) = USART_ReceiveData(USART3);
+					m_u3rxnum++;
+					m_u3rx = 1;
+					/* pour eviter les comportements indésirables */
+					if (receiveddata - m_u3rxbuf >= UART_RX_BUF_SIZE)
+						receiveddata = m_u3rxbuf;
+				}
+				USART_ClearITPendingBit(USART3, USART_IT_RXNE);
+				NVIC_ClearPendingIRQ(USART3_IRQn);
+			}
+		#endif	//def USE_UART3RXINTERRUPT
+		#ifdef USE_UART3TXINTERRUPT
+			if(USART_GetITStatus(USART3, USART_IT_TXE)) {
+				Uint8 c;
+
+				//debufferiser.
+				if(IsNotEmpty_buffer(&buffer3tx))
+				{
+					assert(buffer3tx.index_read < buffer3tx.size);
+					//Critical section
+					if(buffer3tx.nb_datas > (Uint8)0)
+					{
+						c = buffer3tx.datas[buffer3tx.index_read];
+						buffer3tx.index_read = (buffer3tx.index_read>=buffer3tx.size-1)?0:(buffer3tx.index_read + 1);
+						buffer3tx.nb_datas--;
+						USART_SendData(USART3, c);
+					}
+					//Critical section
+
+				}
+				else if(!IsNotEmpty_buffer(&buffer3tx))
+					USART_ITConfig(USART3, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+			}
+		#endif
+	}
+
+	#ifdef USE_UART3RXINTERRUPT
+		bool_e UART3_data_ready()
+		{
+			return m_u3rx;
+		}
+
+		Uint8 UART3_get_next_msg()
+		{
+			static Uint32 next_to_read =0;
+			if (m_u3rxnum > next_to_read)
+			{
+				NVIC_DisableIRQ(USART3_IRQn);
+				if (m_u3rxnum - next_to_read == 1)
+					m_u3rx = 0;
+				NVIC_EnableIRQ(USART3_IRQn);
+				return m_u3rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
+			}
+			else
+				return 0;
+		}
+	#endif /* def USE_UART3RXINTERRUPT */
+#endif /* def USE_UART3 */

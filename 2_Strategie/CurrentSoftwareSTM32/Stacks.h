@@ -28,7 +28,7 @@ typedef enum {
  *	Modèle de déclaration d'un pointeur sur fonction
  *	int (*pt2Function)(float, char, char) = NULL;
  */
- 
+
 /* ATTENTION toute action contenant des variables statiques doit être
    utilisée avec un seul actionneur */
 typedef void (*action_fun_t)(stack_id_e this, bool_e init);
@@ -46,7 +46,7 @@ typedef void (*action_fun_t)(stack_id_e this, bool_e init);
 *  par les actionneurs.
 *  Dans la dimension de ACTUATORS_NB, on choisira la pile de l'actionneur
 *  et la dimension de STACKS_SIZE indique la hauteur des piles d'actions
-*	 
+*
 *  void (*stacks[ACTUATORS_NB][STACKS_SIZE])(bool_e init);	//j'adore cette déclaration
 */
 
@@ -59,8 +59,8 @@ typedef struct
 typedef enum
 {
 	NO_TIMEOUT=0,
-	GOTO_TIMEOUT, GOTO_MULTI_POINT_TIMEOUT, RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT, 
-	GOANGLE_TIMEOUT, RUSH_TIMEOUT,ACT_PREPARE_CLAMP_FRONT_TIMEOUT, 
+	GOTO_TIMEOUT, GOTO_MULTI_POINT_TIMEOUT, RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT,
+	GOANGLE_TIMEOUT, RUSH_TIMEOUT,ACT_PREPARE_CLAMP_FRONT_TIMEOUT,
 	ACT_PREPARE_CLAMP_BACK_TIMEOUT, ACT_TAKE_FRONT_PAWN_TIMEOUT,
 	ACT_TAKE_BACK_PAWN_TIMEOUT, ACT_FILED_FRONT_PAWN_TIMEOUT,
 	ACT_FILED_BACK_PAWN_TIMEOUT, ACT_DCM_SET_POS_TIMEOUT
