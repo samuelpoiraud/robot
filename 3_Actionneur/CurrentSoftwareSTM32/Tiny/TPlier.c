@@ -14,13 +14,13 @@
 
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_CANmsgList.h"
-#include "../output_log.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 #include "TPlier_config.h"
 
 #define LOG_PREFIX "Plier: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_PLIER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PLIER
+#include "../QS/QS_outputlog.h"
 
 static void PLIER_initAX12();
 
@@ -35,7 +35,7 @@ void PLIER_init() {
 
 	PLIER_initAX12();
 
-	COMPONENT_log(LOG_LEVEL_Info, "PLIER initialisé\n");
+	component_printf(LOG_LEVEL_Info, "PLIER initialisé\n");
 }
 
 static void PLIER_initAX12() {
@@ -57,7 +57,7 @@ static void PLIER_initAX12() {
 			AX12_config_set_error_before_led(ax12_id[i], AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 			AX12_config_set_error_before_shutdown(ax12_id[i], AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir serrer des verres
 
-			COMPONENT_log(LOG_LEVEL_Info, "AX12 %s initialisé\n", (i == 0)? "Gauche" : "Droite");
+			component_printf(LOG_LEVEL_Info, "AX12 %s initialisé\n", (i == 0)? "Gauche" : "Droite");
 		}
 	}
 }
@@ -112,7 +112,7 @@ bool_e PLIER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -157,7 +157,7 @@ void PLIER_run_command(queue_id_t queueId, bool_e init) {
 					break;
 
 				default: {
-						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
+						component_printf(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_next(queueId, ACT_PLIER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 						return;
 					}
@@ -165,7 +165,7 @@ void PLIER_run_command(queue_id_t queueId, bool_e init) {
 
 			AX12_reset_last_error(currentAX12);
 			if(!AX12_set_position(currentAX12, wantedPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position(%d) error: 0x%x\n", currentAX12, AX12_get_last_error(currentAX12).error);
+				component_printf(LOG_LEVEL_Error, "AX12_set_position(%d) error: 0x%x\n", currentAX12, AX12_get_last_error(currentAX12).error);
 				QUEUE_next(queueId, ACT_PLIER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 			}
 		} else {

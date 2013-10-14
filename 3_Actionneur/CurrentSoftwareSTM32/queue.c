@@ -10,7 +10,6 @@
  */
 
 #include "queue.h"
-#include "output_log.h"
 #include "config_pin.h"
 
 #ifndef OUTPUT_LOG_COMPONENT_QUEUE
@@ -19,10 +18,11 @@
 #endif
 
 #define LOG_PREFIX "queue: "
-#define LOG_PREFIX_SEM "queue_sem: "
-#define COMPONENT_log_global(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_QUEUE, log_level, LOG_PREFIX "[all] " format, ## __VA_ARGS__)
-#define COMPONENT_log_queue(log_level, queueId, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_QUEUE, log_level, LOG_PREFIX "[%d] " format, queueId, ## __VA_ARGS__)
-#define COMPONENT_log_sem(log_level, queueId, semId, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_QUEUE, log_level, LOG_PREFIX_SEM "[%d,s%d] " format, queueId, semId, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_QUEUE
+#include "QS/QS_outputlog.h"
+#define component_printf_global(log_level, format, ...) component_printf(log_level, "[all] " format, ## __VA_ARGS__)
+#define component_printf_queue(log_level, queueId, format, ...) component_printf(log_level, "[%d] " format, queueId, ## __VA_ARGS__)
+#define component_printf_sem(log_level, queueId, semId, format, ...) component_printf(log_level, "[%d,s%d] " format, queueId, semId, ## __VA_ARGS__)
 
 
 /* Structure queue qui comprend: 
@@ -69,7 +69,7 @@ static volatile Uint16 time = 0;
 
 void QUEUE_init()
 {
-	COMPONENT_log_global(LOG_LEVEL_Debug, "Init queues\n");
+	component_printf_global(LOG_LEVEL_Debug, "Init queues\n");
 	static bool_e initialized = FALSE;
 	if (initialized)
 		return;
@@ -95,7 +95,7 @@ void QUEUE_init()
 	}
 
 	CLOCK_init();
-	COMPONENT_log_global(LOG_LEVEL_Debug, "Initialized\n");
+	component_printf_global(LOG_LEVEL_Debug, "Initialized\n");
 	initialized = TRUE;
 }
 
@@ -129,7 +129,7 @@ queue_id_t QUEUE_create()
 	}
 
 	if(i == NB_QUEUE) {
-		COMPONENT_log_global(LOG_LEVEL_Warning, "No resource, can't create queue!\n");
+		component_printf_global(LOG_LEVEL_Warning, "No resource, can't create queue!\n");
 		return QUEUE_CREATE_FAILED;
 	}
 
@@ -138,7 +138,7 @@ queue_id_t QUEUE_create()
 	queues[i].error_occured = FALSE;
 	queues[i].used = TRUE;
 
-	COMPONENT_log_queue(LOG_LEVEL_Info, i, "Created\n");
+	component_printf_queue(LOG_LEVEL_Info, i, "Created\n");
 
 	return i;
 }
@@ -154,7 +154,7 @@ void QUEUE_run()
 		{
 			this=&(queues[queue_id]);
 			(this->action[this->head])(queue_id, FALSE);
-			COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Run\n");
+			component_printf_queue(LOG_LEVEL_Debug, queue_id, "Run\n");
 		}
 	}
 }
@@ -168,7 +168,7 @@ void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, 
 	// la file ne doit pas etre pleine
 	assert((this->tail)< QUEUE_SIZE);
 
-	COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Add\n");
+	component_printf_queue(LOG_LEVEL_Debug, queue_id, "Add\n");
 
 	// on ajoute l'action à la file
 	(this->action[this->tail]) = action;
@@ -182,7 +182,7 @@ void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, 
 	if ((this->tail - 1) == this->head)
 	{
 		//on l'initialise
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
 		this->initial_time_of_current_action = CLOCK_get_time();
 		action(queue_id,TRUE);
 	}
@@ -194,22 +194,22 @@ void QUEUE_behead(queue_id_t queue_id)
 {
 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
 	queue_t* this=&(queues[queue_id]);
-	COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Next\n");
+	component_printf_queue(LOG_LEVEL_Debug, queue_id, "Next\n");
 
 	this->head++;
 
 	if(this->tail != this->head)
 	{
 		//on initialise l'action suivante
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
 		this->initial_time_of_current_action = CLOCK_get_time();
 		(this->action[this->head])(queue_id,TRUE);
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
 	}
 	else
 	{
 		//on supprime la file
-		COMPONENT_log_queue(LOG_LEVEL_Info, queue_id, "Deleting\n");
+		component_printf_queue(LOG_LEVEL_Info, queue_id, "Deleting\n");
 		this->used = FALSE;
 	}
 }
@@ -236,9 +236,9 @@ void QUEUE_set_error(queue_id_t queue_id) {
 
 	if(queues[queue_id].used) {
 		queues[queue_id].error_occured = TRUE;
-		COMPONENT_log_queue(LOG_LEVEL_Warning, queue_id, "Error declared\n");
+		component_printf_queue(LOG_LEVEL_Warning, queue_id, "Error declared\n");
 	} else {
-		COMPONENT_log_queue(LOG_LEVEL_Error, queue_id, "Error in unused queue !\n");
+		component_printf_queue(LOG_LEVEL_Error, queue_id, "Error in unused queue !\n");
 	}
 }
 
@@ -260,13 +260,13 @@ void QUEUE_flush(queue_id_t queue_id)
 	//On flush seulement les files utilisées
 	if(queues[queue_id].used)
 	{
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, " Queue reset\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, " Queue reset\n");
 		sems[QUEUE_get_act(queue_id)].token = TRUE;	//On rend la sémaphore utilisée par l'actionneur
 		queues[queue_id].used = FALSE; //On rend la file
 	}
 	else
 	{
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, " Reset unused queue\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, " Reset unused queue\n");
 	}
 }
 
@@ -274,7 +274,7 @@ void QUEUE_flush(queue_id_t queue_id)
 void QUEUE_flush_all()
 {
 	Uint8 i;
-	COMPONENT_log_global(LOG_LEVEL_Info, "Reseting all queues\n");
+	component_printf_global(LOG_LEVEL_Info, "Reseting all queues\n");
 	for (i=0; i<NB_QUEUE; i++)
 		QUEUE_flush(i);
 }
@@ -287,26 +287,26 @@ void QUEUE_take_sem(queue_id_t this, bool_e init)
 		{
 			if((sems[QUEUE_get_act(this)].token))
 			{
-				COMPONENT_log_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Acquiring act semaphore\n");
+				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Acquiring act semaphore\n");
 				sems[QUEUE_get_act(this)].token = FALSE;
 				QUEUE_behead(this);
 			}	
 			else
 			{
-				COMPONENT_log_sem(LOG_LEVEL_Debug, this, QUEUE_get_act(this), "Act semaphore locked\n");
+				component_printf_sem(LOG_LEVEL_Debug, this, QUEUE_get_act(this), "Act semaphore locked\n");
 			}
 		}
 		else//Sémaphore de synchronisation
 		{
 			if((sems[QUEUE_get_arg(this)->param].token))
 			{
-				COMPONENT_log_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Acquiring sync semaphore\n");
+				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Acquiring sync semaphore\n");
 				sems[QUEUE_get_arg(this)->param].token = FALSE;
 				QUEUE_behead(this);
 			}	
 			else
 			{
-				COMPONENT_log_sem(LOG_LEVEL_Debug, this, QUEUE_get_arg(this)->param, "Sync semaphore locked\n");
+				component_printf_sem(LOG_LEVEL_Debug, this, QUEUE_get_arg(this)->param, "Sync semaphore locked\n");
 			}
 		}
 	}
@@ -318,13 +318,13 @@ void QUEUE_give_sem(queue_id_t this, bool_e init)
 		//Sémaphore pour file
 		if(QUEUE_get_arg(this)->param == 0)
 		{
-				COMPONENT_log_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Releasing act semaphore\n");
+				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Releasing act semaphore\n");
 				sems[QUEUE_get_act(this)].token = TRUE;
 				QUEUE_behead(this);
 		}
 		else//Sémaphore de synchronisation
 		{
-				COMPONENT_log_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Releasing sync semaphore\n");
+				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Releasing sync semaphore\n");
 				sems[QUEUE_get_arg(this)->param].token = TRUE;
 				QUEUE_behead(this);
 		}

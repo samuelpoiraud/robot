@@ -14,12 +14,12 @@
 
 #include "../QS/QS_CANmsgList.h"
 //#include "../QS/QS_can.h"
-#include "../output_log.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 
 #define LOG_PREFIX "BI: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLINFLATER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BALLINFLATER
+#include "../QS/QS_outputlog.h"
 
 
 #ifdef BALLINFLATER_TIMER_ID
@@ -64,11 +64,11 @@ bool_e BALLINFLATER_CAN_process_msg(CAN_msg_t* msg) {
 				BALLINFLATER_emerg_stop_inflater = TRUE;
 				ballinflater_state = BALLINFLATER_OFF;
 				BALLINFLATER_PIN = BALLINFLATER_OFF;
-				COMPONENT_log(LOG_LEVEL_Debug, "gonfleur stoppé !\n");
+				component_printf(LOG_LEVEL_Debug, "gonfleur stoppé !\n");
 				break;
 
 			default:
-				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -91,7 +91,7 @@ void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 				case ACT_BALLINFLATER_START:
 					BALLINFLATER_emerg_stop_inflater = FALSE;
 					ballinflater_state = BALLINFLATER_ON;
-					COMPONENT_log(LOG_LEVEL_Debug, "Gonfleur démarré\n");
+					component_printf(LOG_LEVEL_Debug, "Gonfleur démarré\n");
 					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 					break;
 
@@ -100,7 +100,7 @@ void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 					break;
 
 				default: {
-						COMPONENT_log(LOG_LEVEL_Error, "Invalid command: %u, code is broken !\n", command);
+						component_printf(LOG_LEVEL_Error, "Invalid command: %u, code is broken !\n", command);
 						QUEUE_next(queueId, ACT_BALLINFLATER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 						return;
 					}
@@ -111,7 +111,7 @@ void BALLINFLATER_run_command(queue_id_t queueId, bool_e init) {
 					CLOCK_get_time() >= (QUEUE_get_arg(queueId)->param + QUEUE_get_initial_time(queueId)) )
 			{
 				ballinflater_state = BALLINFLATER_OFF;
-				COMPONENT_log(LOG_LEVEL_Debug, "Gonfleur stoppé\n");
+				component_printf(LOG_LEVEL_Debug, "Gonfleur stoppé\n");
 				//La commande ne peut pas fail (on a aucun retour sur ce qu'il se passe avec le ballon)
 				QUEUE_next(queueId, ACT_BALLINFLATER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			}

@@ -15,14 +15,14 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_adc.h"
 #include "../QS/QS_CANmsgList.h"
-#include "../output_log.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 #include "THammer_config.h"
 #include "TCandle_color_sensor.h"
 
 #define LOG_PREFIX "Ha: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_HAMMER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_HAMMER
+#include "../QS/QS_outputlog.h"
 
 #if DCMOTOR_NB_POS < 1
 #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
@@ -64,7 +64,7 @@ void HAMMER_init() {
 	DCM_config(HAMMER_DCMOTOR_ID, &hammer_config);
 	DCM_stop(HAMMER_DCMOTOR_ID);
 
-	COMPONENT_log(LOG_LEVEL_Info, "Hammer initialisé\n");
+	component_printf(LOG_LEVEL_Info, "Hammer initialisé\n");
 }
 
 void HAMMER_stop() {
@@ -97,13 +97,13 @@ bool_e HAMMER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			case ACT_HAMMER_STOP:	//Ne pas passer par la pile pour le cas d'urgence
-				COMPONENT_log(LOG_LEVEL_Debug, "bras désasservi !\n");
+				component_printf(LOG_LEVEL_Debug, "bras désasservi !\n");
 				DCM_stop(HAMMER_DCMOTOR_ID); //S'il y a eu une commande en cours, elle se terminera par un idle et donc renvera un message identique au suivant (mais pour la commande d'asservissement)
 				ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
 				break;
 
 			default:
-				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -129,14 +129,14 @@ void HAMMER_run_command(queue_id_t queueId, bool_e init) {
 				case ACT_HAMMER_MOVE_TO: wantedPosition = QUEUE_get_arg(queueId)->param;   break;
 
 				default: {
-						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
+						component_printf(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_next(queueId, ACT_HAMMER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 						return;
 					}
 			}
 
 			realPosition = (((Sint32)wantedPosition)*HAMMER_UNITS_PER_128_DEGRE) / 128 + HAMMER_UNITS_AT_0_DEGRE;
-			COMPONENT_log(LOG_LEVEL_Debug, "Rotation to: %d (angle: %d)\n", realPosition, wantedPosition);
+			component_printf(LOG_LEVEL_Debug, "Rotation to: %d (angle: %d)\n", realPosition, wantedPosition);
 			DCM_setPosValue(HAMMER_DCMOTOR_ID, 0, realPosition);
 			DCM_goToPos(HAMMER_DCMOTOR_ID, 0);
 			DCM_restart(HAMMER_DCMOTOR_ID);
