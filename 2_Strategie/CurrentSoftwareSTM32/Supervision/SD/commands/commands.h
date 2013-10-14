@@ -14,5 +14,7 @@
 #include "rm.h"
 #include "goangle.h"
 #include "gohome.h"
+#include "setdate.h"
+#include "date.h"
 
 #endif // COMMANDS_H
