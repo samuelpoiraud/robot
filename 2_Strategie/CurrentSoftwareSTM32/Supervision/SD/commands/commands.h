@@ -12,5 +12,7 @@
 #include "mkdir.h"
 #include "reset.h"
 #include "rm.h"
+#include "goangle.h"
+#include "gohome.h"
 
 #endif // COMMANDS_H

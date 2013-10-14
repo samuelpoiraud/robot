@@ -20,7 +20,9 @@ term_command_info_t term_commands[] = {
 	DECLARE_CMD(ls),
 	DECLARE_CMD(mkdir),
 	DECLARE_CMD(reset),
-	DECLARE_CMD(rm)
+	DECLARE_CMD(rm),
+	DECLARE_CMD(goangle),
+	DECLARE_CMD(gohome)
 
 //	{"md", &term_cmd_md, NULL, NULL},
 //	{"dd", &term_cmd_dd, NULL, NULL},
