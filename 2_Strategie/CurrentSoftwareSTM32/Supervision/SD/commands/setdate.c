@@ -24,7 +24,9 @@ int term_cmd_setdate(int argc, const char *argv[]) {
 	long temp;
 	date.seconds = 0;
 
-	if(argc < 6)
+	if(argc > 6)
+		return EINVAL;
+	else if(argc < 6)
 		return EINVAL;
 
 	if(!argtolong(argv[0], 0, &temp))
