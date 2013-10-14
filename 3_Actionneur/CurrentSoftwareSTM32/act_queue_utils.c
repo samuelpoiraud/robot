@@ -10,15 +10,14 @@
  */
 
 #include "act_queue_utils.h"
-#include "output_log.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can.h"
 #include "QS/QS_ax12.h"
 #include "QS/QS_DCMotor2.h"
 
 #define LOG_PREFIX "ActUtils: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_ACTQUEUEUTILS, log_level, LOG_PREFIX format, ## __VA_ARGS__)
-
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTQUEUEUTILS
+#include "QS/QS_outputlog.h"
 
 typedef enum {
 	CAN_TPT_NoParam, //Pas de paramètre
@@ -144,7 +143,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*error_code = ACT_RESULT_ERROR_UNKNOWN;
 		*line = error; //0x00xx avec xx = error
 	} else if(error) {
-		COMPONENT_log(LOG_LEVEL_Error, "Error AX12 %d\n", error);
+		component_printf(LOG_LEVEL_Error, "Error AX12 %d\n", error);
 		return FALSE;
 	} else return FALSE;
 
@@ -256,7 +255,7 @@ static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 re
 	if(result != ACT_RESULT_DONE)
 		level = LOG_LEVEL_Error;
 	if(paramType == CAN_TPT_Normal) {
-		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), param: 0x%x(%u) (%s)\n",
+		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), param: 0x%x(%u) (%s)\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
@@ -264,7 +263,7 @@ static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 re
 			param, param,
 			sendedStr);
 	} else if(paramType == CAN_TPT_Line) {
-		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), line: %u (%s)\n",
+		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), line: %u (%s)\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
@@ -272,7 +271,7 @@ static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 re
 			param,
 			sendedStr);
 	} else {
-		COMPONENT_log(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u) (%s)\n",
+		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u) (%s)\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,

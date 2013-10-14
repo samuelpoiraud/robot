@@ -17,17 +17,17 @@
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "queue.h"
-#include "output_log.h"
 
 #include "Krusty/KActManager.h"
 #include "Tiny/TActManager.h"
 
 #define LOG_PREFIX "CANProcess: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_CANPROCESSMSG, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANPROCESSMSG
+#include "QS/QS_outputlog.h"
 
 void CAN_process_msg(CAN_msg_t* msg) {
 	if(ACTMGR_process_msg(msg)) {
-		COMPONENT_log(LOG_LEVEL_Debug, "Act Msg SID: 0x%x, cmd: 0x%x(%u)\n", msg->sid, msg->data[0], msg->data[0]);
+		component_printf(LOG_LEVEL_Debug, "Act Msg SID: 0x%x, cmd: 0x%x(%u)\n", msg->sid, msg->data[0], msg->data[0]);
 		return;  //Le message a déja été géré
 	}
 
@@ -38,7 +38,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		//Fin de la partie
 		case BROADCAST_STOP_ALL :
 			global.match_started = FALSE;
-			COMPONENT_log(LOG_LEVEL_Info, "C:BROADCAST_STOP_ALL\n");
+			component_printf(LOG_LEVEL_Info, "C:BROADCAST_STOP_ALL\n");
 			QUEUE_flush_all();
 			ACTMGR_stop();
 			DCM_stop_all();
@@ -46,7 +46,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		
 		//Reprise de la partie
 		case BROADCAST_START :
-			COMPONENT_log(LOG_LEVEL_Info, "C:BROADCAST_START\n");
+			component_printf(LOG_LEVEL_Info, "C:BROADCAST_START\n");
 			global.match_started = TRUE;
 			break;
 
@@ -56,7 +56,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		
 		default: 
 			//debug_printf("SID:%x\r\n",msg->sid);
-			COMPONENT_log(LOG_LEVEL_Trace, "Msg SID: 0x%x(%u)\n", msg->sid, msg->sid);
+			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%x(%u)\n", msg->sid, msg->sid);
 			break;
 	}//End switch
 }

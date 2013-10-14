@@ -16,13 +16,13 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_can.h"
 #include "../QS/QS_ax12.h"
-#include "../output_log.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 #include "TCandle_color_sensor_config.h"
 
 #define LOG_PREFIX "CC: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_CANDLECOLOR, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANDLECOLOR
+#include "../QS/QS_outputlog.h"
 
 #ifndef CANDLECOLOR_CW_PIN_CHANNEL0
 #  define CANDLECOLOR_CW_PIN_CHANNEL0 CW_UNUSED_PORT
@@ -121,7 +121,7 @@ void CANDLECOLOR_init() {
 
 	CW_config_sensor(CANDLECOLOR_CW_ID, &sensorConfig);
 
-	COMPONENT_log(LOG_LEVEL_Info, "Capteur couleur de bougie initialisé (sensor)\n");
+	component_printf(LOG_LEVEL_Info, "Capteur couleur de bougie initialisé (sensor)\n");
 
 	CANDLECOLOR_initAX12();
 
@@ -144,7 +144,7 @@ static void CANDLECOLOR_initAX12() {
 		AX12_config_set_error_before_led(CANDLECOLOR_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(CANDLECOLOR_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD);
 
-		COMPONENT_log(LOG_LEVEL_Info, "AX12 initialisé\n");
+		component_printf(LOG_LEVEL_Info, "AX12 initialisé\n");
 	}
 }
 
@@ -164,7 +164,7 @@ bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -189,13 +189,13 @@ void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 				case ACT_CANDLECOLOR_GET_HIGH: *wantedPosition = ACT_CANDLECOLOR_GET_HIGH; break;
 
 				default: {
-						COMPONENT_log(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
+						component_printf(LOG_LEVEL_Error, "invalid rotation command: %u, code is broken !\n", command);
 						QUEUE_next(queueId, ACT_CANDLECOLOR, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 						return;
 					}
 			}
 			if(*wantedPosition == 0xFFFF) {
-				COMPONENT_log(LOG_LEVEL_Error, "Invalid AX12 position: %u, code is broken !\n", command);
+				component_printf(LOG_LEVEL_Error, "Invalid AX12 position: %u, code is broken !\n", command);
 				QUEUE_next(queueId, ACT_CANDLECOLOR, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
@@ -203,7 +203,7 @@ void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 //			AX12_reset_last_error(CANDLECOLOR_AX12_ID);
 //			cmdOk = AX12_set_position(CANDLECOLOR_AX12_ID, *wantedPosition);
 //			if(!cmdOk) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-//				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(CANDLECOLOR_AX12_ID).error);
+//				component_printf(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(CANDLECOLOR_AX12_ID).error);
 //				QUEUE_next(queueId, ACT_CANDLECOLOR, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 //				return;
 //			}
@@ -229,12 +229,12 @@ void CANDLECOLOR_run_command(queue_id_t queueId, bool_e init) {
 #ifdef CANDLECOLOR_CW_DEBUG_COLOR
 static void CANDLECOLOR_debug_color_run(queue_id_t queueId, bool_e init) {
 	switch(CANDLECOLOR_process_color()) {
-		case ACT_CANDLECOLOR_COLOR_YELLOW: COMPONENT_log(LOG_LEVEL_Error, "  Color detected: yellow\n");  break;
-		case ACT_CANDLECOLOR_COLOR_BLUE:   COMPONENT_log(LOG_LEVEL_Error, "  Color detected: blue\n");    break;
-		case ACT_CANDLECOLOR_COLOR_OTHER:  COMPONENT_log(LOG_LEVEL_Error, "  No color detected\n");       break;
-		case ACT_CANDLECOLOR_COLOR_RED:    COMPONENT_log(LOG_LEVEL_Error, "  Color detected: red\n");     break;
-		case ACT_CANDLECOLOR_COLOR_WHITE:  COMPONENT_log(LOG_LEVEL_Error, "  Color detected: white\n");   break;
-		default:                           COMPONENT_log(LOG_LEVEL_Error, "  Color detected: unknown\n"); break;
+		case ACT_CANDLECOLOR_COLOR_YELLOW: component_printf(LOG_LEVEL_Error, "  Color detected: yellow\n");  break;
+		case ACT_CANDLECOLOR_COLOR_BLUE:   component_printf(LOG_LEVEL_Error, "  Color detected: blue\n");    break;
+		case ACT_CANDLECOLOR_COLOR_OTHER:  component_printf(LOG_LEVEL_Error, "  No color detected\n");       break;
+		case ACT_CANDLECOLOR_COLOR_RED:    component_printf(LOG_LEVEL_Error, "  Color detected: red\n");     break;
+		case ACT_CANDLECOLOR_COLOR_WHITE:  component_printf(LOG_LEVEL_Error, "  Color detected: white\n");   break;
+		default:                           component_printf(LOG_LEVEL_Error, "  Color detected: unknown\n"); break;
 	}
 }
 #endif
@@ -270,7 +270,7 @@ static Uint8 CANDLECOLOR_process_color() {
 	Y = CW_get_color_intensity(CANDLECOLOR_CW_ID, CW_AC_xyY_Y);
 	z = 1024 - x - y;
 	L = (((Uint32)Y)*1024)/y;
-	COMPONENT_log(LOG_LEVEL_Debug, "Detected color [%d,%d,%d] / 1024, Y: %d, L: %d\n", x, y, z, Y, L);
+	component_printf(LOG_LEVEL_Debug, "Detected color [%d,%d,%d] / 1024, Y: %d, L: %d\n", x, y, z, Y, L);
 
 	#if defined(CANDLECOLOR_CW_YELLOW_MIN_xy) && defined(CANDLECOLOR_CW_YELLOW_MAX_DIFF_xy)
 	if( x > CANDLECOLOR_CW_YELLOW_MIN_xy && y > CANDLECOLOR_CW_YELLOW_MIN_xy && abs(y-x) < CANDLECOLOR_CW_YELLOW_MAX_DIFF_xy)
