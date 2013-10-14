@@ -90,7 +90,6 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 {
 	char string[PRINTF_BUFFER_SIZE*2];
 	char *p = string;
-	Uint32 n = 0;
 	Uint8 i;
 	Uint32 written = 0;
 
@@ -101,7 +100,7 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 		return;	//Nothing todo...
 
 	//Source et instant de l'événement.
-	n=0;
+//	n=0;
 //	string[n++] = STX;	//Début de l'info de temps.
 //	string[n++] = source;
 //	string[n++] = HIGHINT(time_ms/2);
@@ -159,8 +158,8 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 //	}
 
 	f_write(&file_match, string, p-string, (unsigned int *)&written);
-	if(written != n)
-		debug_printf("WARNING : SD:wrote failed %ld/%ld", written, n);
+	if(written != p-string)
+		debug_printf("WARNING : SD:wrote failed %ld/%ld", written, p-string);
 
 	if(data_waiting_for_sync == FALSE)	//La synchro était faite, aucune donnée n'était en attente d'écriture... on relance le compteur.
 		time_before_sync = MAX_TIME_BEFORE_SYNC;
