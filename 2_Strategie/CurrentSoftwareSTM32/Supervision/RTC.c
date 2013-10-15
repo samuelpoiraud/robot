@@ -144,7 +144,7 @@ Uint8 RTC_get_time (date_t * date)
 			local_date.minutes 	= (datas[1] & 0x0f) + (((datas[1] & 0x70) >> 4) * 10);
 			local_date.hours 	= (datas[2] & 0x0f) + (((datas[2] & 0x30) >> 4) * 10);
 			local_date.day 		= (datas[3] & 0x07);
-			local_date.date 	= (datas[4] & 0x0f) + (((datas[3] & 0x30) >> 4) * 10);
+			local_date.date 	= (datas[4] & 0x0f) + (((datas[4] & 0x30) >> 4) * 10);
 			local_date.month 	= (datas[5] & 0x0f) + (((datas[5] & 0x10) >> 4) * 10);
 			local_date.year 	= (datas[6] & 0x0f) + ((datas[6] >> 4) * 10);
 			local_date_updated = TRUE;
