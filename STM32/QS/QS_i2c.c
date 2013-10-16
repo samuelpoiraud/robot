@@ -9,11 +9,12 @@
  *  Licence : CeCILL-C (voir LICENCE.txt)
  *	Version 201308
  */
- 
+
 
 #include "QS_i2c.h"
 #include "QS_ports.h"
 #include "QS_watchdog.h"
+#include "QS_outputlog.h"
 #include "../stm32f4xx/stm32f4xx_i2c.h"
 
 
@@ -37,7 +38,7 @@ void I2C_init(void)
 	#ifdef USE_I2C1
 		#warning "I2C1 not implemented"
 	#endif /* def USE_I2C1 */
-	
+
 	#ifdef USE_I2C2
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
 		I2C_Init(I2C2_I2C_HANDLE, &I2C_InitStructure);

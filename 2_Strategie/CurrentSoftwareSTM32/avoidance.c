@@ -15,7 +15,7 @@
 #include "QS/QS_who_am_i.h"
 
 #include "config_use.h"
-#include "config_debug.h"
+#include "QS/QS_outputlog.h"
 
 
 /* Ne tient plus compte de la position de l'adversaire quand elle date
@@ -67,7 +67,7 @@
 
 /* distance de recul si asser erreur */
 #define FORWARD_COLISION_MOVE 200
-		
+
 /* distance de recul si asser erreur */
 #define BACKWARD_COLISION_MOVE	200
 
@@ -79,7 +79,7 @@
 /* ----------------------------------------------------------------------------- */
 
 /*
-* Fonction qui regarde si le robot est dans notre chemin 
+* Fonction qui regarde si le robot est dans notre chemin
 *
 * in_path = TRUE Quand l'adversaire est sur notre chemin
 * in_path = FALSE Quand l'adversaire n'est pas sur le chemin
@@ -87,7 +87,7 @@
 //static void foe_in_path(bool_e in_path[NB_FOES]);
 //Dans le .h
 
-/* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot 
+/* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot
  * move_way = retourne le sens de déplacement
  */
 //static Uint16 AVOIDANCE_speed_indicator_compute(void);
@@ -96,12 +96,12 @@
 /* 				Fonctions de génération de la trajectoire à 3 points             */
 /* ----------------------------------------------------------------------------- */
 
-/* Fonction qui exécute une esquive du robot adverse en 3 points 
+/* Fonction qui exécute une esquive du robot adverse en 3 points
  * La fonction charge la pile !
  */
 //static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES]);
 
-/* Fonction qui calcule les 3 points d'esquive de l'adversaire 
+/* Fonction qui calcule les 3 points d'esquive de l'adversaire
  * move_way : sens de déplacement
  * avoidance_way : 1 pour la gauche, -1 pour la droite
  * first_point : premier point calculé
@@ -127,8 +127,8 @@
 //static error_e AVOIDANCE_move_colision();
 
 static error_e AVOIDANCE_watch_asser_stack();
-	
-/* Fonction qui regarde si l'adversaire a bougé durant l'intervalle de temps précédent 
+
+/* Fonction qui regarde si l'adversaire a bougé durant l'intervalle de temps précédent
  * time_for_analyse : temps entre les analyses de position
  *
  * return TRUE : l'adversaire n'a pas bougé pendant time_for_analyse
@@ -136,7 +136,7 @@ static error_e AVOIDANCE_watch_asser_stack();
  */
 //static bool_e AVOIDANCE_foe_not_move(foe_e foe_id);
 
-/* Fonction qui regarde si notre robot est immobile ou non 
+/* Fonction qui regarde si notre robot est immobile ou non
  * return TRUE : notre robot se déplace en translation
  * return FALSE : notre robot ne se déplace pas en translation (immobile ou rotation)
  */
@@ -249,7 +249,7 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 
 #ifdef USE_POLYGON
 
-	/* Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements 
+	/* Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements
 	puis seulement avec les notres s'il est impossible de trouver un chemin */
 	error_e goto_polygon_default(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve,polygon_elements_type_e element_type)
 	{
@@ -261,11 +261,11 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 			DONE
 		};
 		static enum state_e state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
-		
+
 		static error_e sub_action;
 		static bool_e timeout = FALSE;
 		static bool_e init = FALSE;
-		
+
 		if(!init)
 		{
 			switch(element_type)
@@ -273,22 +273,22 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 				case ALL_ELEMENTS:
 					state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
 					break;
-					
+
 				case OUR_AND_OPPONENT_ELEMENTS:
 					state = GOTO_POLYGON_WITH_OUR_AND_OPPONENT_ELEMENTS;
 					break;
-					
+
 				case OUR_ELEMENTS:
 					state = GOTO_POLYGON_WITH_OUR_ELEMENTS;
 					break;
-					
+
 				default:
 					state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
 					break;
 			}
 			init = TRUE;
 		}
-	
+
 		switch (state)
 		{
 			case GOTO_POLYGON_WITH_ALL_ELEMENTS:
@@ -298,27 +298,27 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 					case END_OK:
 						state = DONE;
 						break;
-	
+
 					case END_WITH_TIMEOUT:
 						timeout = TRUE;
 						state = DONE;
 						break;
-	
+
 					case NOT_HANDLED:
 						/* Aucun chemin possible avec tous les elements */
 						avoidance_printf("goto_polygon : impossible avec tous les elements !\r\n");
 						state = GOTO_POLYGON_WITH_OUR_AND_OPPONENT_ELEMENTS;
 						break;
-	
+
 					case IN_PROGRESS:
 						break;
-	
+
 					default:
 						state = DONE;
 						break;
 				}
 				break;
-				
+
 			case GOTO_POLYGON_WITH_OUR_AND_OPPONENT_ELEMENTS:
 				sub_action = goto_polygon(x, y, way, speed, curve, OUR_AND_OPPONENT_ELEMENTS);
 				switch(sub_action)
@@ -326,27 +326,27 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 					case END_OK:
 						state = DONE;
 						break;
-	
+
 					case END_WITH_TIMEOUT:
 						timeout = TRUE;
 						state = DONE;
 						break;
-	
+
 					case NOT_HANDLED:
 						/* Aucun chemin possible avec tous nos elements */
 						avoidance_printf("goto_polygon : impossible avec nos elements !\r\n");
 						state = GOTO_POLYGON_WITH_OUR_ELEMENTS;
 						break;
-	
+
 					case IN_PROGRESS:
 						break;
-	
+
 					default:
 						state = DONE;
 						break;
 				}
 				break;
-			
+
 			case GOTO_POLYGON_WITH_OUR_ELEMENTS:
 				sub_action = goto_polygon(x, y, way, speed, curve, OUR_ELEMENTS);
 				switch(sub_action)
@@ -354,22 +354,22 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 					case END_OK:
 						state = DONE;
 						break;
-	
+
 					case END_WITH_TIMEOUT:
 						timeout = TRUE;
 						state = DONE;
 						break;
-	
+
 					case NOT_HANDLED:
 						/* Aucun chemin possible avec tous nos elements */
 						avoidance_printf("goto_polygon : impossible avec nos elements !\r\n");
 						state = DONE;
 						return NOT_HANDLED;
 						break;
-	
+
 					case IN_PROGRESS:
 						break;
-	
+
 					default:
 						state = DONE;
 						break;
@@ -389,7 +389,7 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 		}
 		return IN_PROGRESS;
 	}
-		
+
 	/* Action qui déplace le robot grâce à l'algorithme des polygones en choisissant le type d'elements */
 	error_e goto_polygon(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements)
 	{
@@ -402,13 +402,13 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 			DONE
 		};
 		static enum state_e state = INIT;
-	
+
 		Uint16 cost;
-		
+
 		/* relève les timeout */
 		static bool_e timeout = FALSE;
 		static bool_e use_opponent = FALSE;
-	
+
 		switch (state)
 		{
 			case INIT :
@@ -425,13 +425,13 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 					return NOT_HANDLED;
 				}
 				else
-				{	
+				{
 					avoidance_printf("POLYGON_compute : chemin polygon trouve !\n");
 					STACKS_pull(ASSER);	// On supprime le wait_forever pour lancer le déplacement
 					state = WAIT_GO_POLYGON;
 				}
 				break;
-	
+
 			case WAIT_GO_POLYGON:
 				switch(wait_move_and_scan_foe(NO_DODGE_AND_NO_WAIT))
 				{
@@ -450,15 +450,15 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 
 					case IN_PROGRESS :
 					default :
-						break; 
+						break;
 				}
 				break;
-	
+
 			case DONE:
 				state = INIT;
 				return (timeout?END_WITH_TIMEOUT:END_OK);
 				break;
-	
+
 			default :
 				state = INIT;
 				break;
@@ -474,7 +474,7 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 	}
 
 #else
-	/* Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements 
+	/* Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements
 	puis seulement avec les notres s'il est impossible de trouver un chemin */
 	error_e goto_polygon_default(Sint16 x,...)
 	{
@@ -709,7 +709,7 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_c
 		DONE
 	};
 	static enum state_e state = PUSH_MOVE;
-	
+
 	static bool_e timeout=FALSE;
 
 	switch(state)
@@ -724,7 +724,7 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_c
 		case WAIT_END_OF_MOVE:
 			if(STACKS_wait_end_auto_pull(ASSER,&timeout))
 			{
-				state = DONE;	
+				state = DONE;
 			}
 			break;
 
@@ -733,7 +733,7 @@ error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_c
 			return ((timeout)? END_WITH_TIMEOUT : END_OK);
 			break;
 
-		default : 
+		default :
 			state = PUSH_MOVE;
 			return NOT_HANDLED;
 			break;
@@ -866,7 +866,7 @@ error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way, ASSER_end_condi
 	static bool_e timeout=FALSE;
 	double x,y;
 
-	switch (state) 
+	switch (state)
 	{
 		case COMPUTE_AND_GO :
 			//STACKS_flush(ASSER);
@@ -964,7 +964,7 @@ error_e ACTION_asser_stop()
 			STACKS_flush(ASSER);
 			CAN_send_sid(ASSER_STOP);
 			state = WAIT_RECEPTION;
-			break; 
+			break;
 
 		case WAIT_RECEPTION :
 			if (global.env.asser.fini || (global.env.match_time-initial_time > (1000/*ms*/)))
@@ -1083,7 +1083,7 @@ error_e ACTION_asser_stop()
 //}
 
 /***************************** Evitement 2011 **************************/
-/* Fonction qui regarde si l'adversaire est devant nous pendant un mouvement, et on l'évite si nécessaire 
+/* Fonction qui regarde si l'adversaire est devant nous pendant un mouvement, et on l'évite si nécessaire
  * Elle doit être appelée à la place de STACKS_wait_end_auto_pull (c'est géré dans cette fonction
  * En retour, on a :
  * END_OK : on est arrivé à destination dans les temps
@@ -1211,7 +1211,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 				// on regarde si la pile s'est vidée
 				switch(AVOIDANCE_watch_asser_stack())
 				{
-					case END_OK: 
+					case END_OK:
 						avoidance_printf("Pile ASSER vide\n");
 						state = DONE;
 						break;
@@ -1234,14 +1234,14 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 			// on va attendre que l'ennemi sorte de notre chemin
 			//if((is_in_path[FOE_1] && !AVOIDANCE_foe_not_move(FOE_1)) ||
 			//	(is_in_path[FOE_2] && !AVOIDANCE_foe_not_move(FOE_2)))
-			
+
 			// Adversaire devant nous !
 			if(is_in_path[FOE_1] || is_in_path[FOE_2])
 			{
-                            
+
 				if(!AVOIDANCE_foe_not_move(FOE_1) || !AVOIDANCE_foe_not_move(FOE_2))
 				{
-                                        debug_printf(" FOE 1 ou 2 bouge \n");
+										debug_printf(" FOE 1 ou 2 bouge \n");
 					// adversaire toujours devant nous, et se déplace, il nous gène donc !
 					// On va donc patienter le temps qu'il se barre ou qu'il s'arrête
 					if(global.env.match_time - detection_time > WAIT_TIME_DETECTION)
@@ -1272,14 +1272,14 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 					foe_e current_foe;
 					if(is_in_path[FOE_1])
 					{
-                                                debug_printf("iiiiii\n");
+												debug_printf("iiiiii\n");
 						foe_point.x = global.env.foe[FOE_1].x;
 						foe_point.y = global.env.foe[FOE_1].y;
 						current_foe = FOE_1;
 					}
 					else
 					{
-                                                debug_printf("uuuuu\n");
+												debug_printf("uuuuu\n");
 						foe_point.x = global.env.foe[FOE_2].x;
 						foe_point.y = global.env.foe[FOE_2].y;
 						current_foe = FOE_2;
@@ -1289,7 +1289,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 					destination_point.x = asser_args.x;
 					destination_point.y = asser_args.y;
 
-					// Si la destination est assez loin de l'adversaire (350 = taille des deux robots + marge) 
+					// Si la destination est assez loin de l'adversaire (350 = taille des deux robots + marge)
 					if(GEOMETRY_distance(destination_point,foe_point) > 350)
 					{
 						// La distance est supérieure ! On peut regarder si le point est entre nous et l'adversaire
@@ -1305,18 +1305,18 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 							avoidance_printf("On relance notre chemin ! La dest est entre nous et l'adversaire %d !\n",current_foe);
 							// on vire le wait_forever et on lance l'action suivante
 							STACKS_pull(ASSER);
-			
+
 							// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
 							state = NO_FOE;
 						}
 					//}else{
-                                        //    avoidance_printf("il n'y a pas de chemain posible donc on stop\n");
-                                        //    STACKS_flush(ASSER);
-                                        //    state = INITIALIZATION;
-                                         //   return FOE_IN_PATH;}
+										//    avoidance_printf("il n'y a pas de chemain posible donc on stop\n");
+										//    STACKS_flush(ASSER);
+										//    state = INITIALIZATION;
+										 //   return FOE_IN_PATH;}
 					}
 				}
-                            
+
 			}
 			else
 			{
@@ -1333,7 +1333,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 			// on va regarder si un mouvement est possible pour esquiver l'adversaire
 			// on descend la pile pour virer le wait_forever
 			//STACKS_set_top(ASSER,STACKS_get_top(ASSER)-1);
-			
+
 			// on regarde d'abord si la destination est accessible
 			asser_args = ASSER_get_stack_arg(STACKS_get_top(ASSER));
 
@@ -1341,9 +1341,9 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 			current_point.y = global.env.pos.y;
 			destination_point.x = asser_args.x;
 			destination_point.y = asser_args.y;
-		
+
 			distance_before_destination = GEOMETRY_distance(current_point,destination_point);
-		
+
 			if(distance_before_destination < MAX_DISTANCE_BEFORE_DESTINATION)
 			{
 				// la destination est trop près, l'adversaire nous gène
@@ -1409,7 +1409,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type)
 							state = INITIALIZATION;
 							return NOT_HANDLED;
 							break;
-					}		
+					}
 				}
 			} // end esquives
 			break;
@@ -1738,7 +1738,7 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 
 	static bool_e timeout = FALSE;
 	static error_e sub_action;
-	
+
 	Uint8 i;
 
 	//Si nouveau déplacement et qu'aucun point n'est donné, on a rien a faire
@@ -1766,7 +1766,7 @@ static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_
 				ASSER_push_goto
 					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0, end_condition, TRUE);
 			#endif
-                        avoidance_printf("goto_pos_with_scan_foe : load_move\n");
+						avoidance_printf("goto_pos_with_scan_foe : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
 
@@ -1870,7 +1870,7 @@ void foe_in_path(bool_e *in_path)
 
 
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
-    //debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
+	//debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
 	for (i=0; i<NB_FOES; i++)
 	{
 		//TODO: a enlever
@@ -1897,7 +1897,7 @@ void foe_in_path(bool_e *in_path)
 					//CAN_send_debug("FFFFFF");
 				}//else debug_printf("O_ ");
 			}
-		
+
 			if(move_way == BACKWARD || move_way == ANY_WAY)
 			{
 		//		debug_printf("B_%d\n",global.env.foe.angle);
@@ -1952,7 +1952,7 @@ void foe_in_path(bool_e *in_path)
 /* 				Fonctions de génération de la trajectoire à 3 points             */
 /* ----------------------------------------------------------------------------- */
 
-/* Fonction qui exécute une esquive du robot adverse en 3 points 
+/* Fonction qui exécute une esquive du robot adverse en 3 points
  * La fonction charge la pile !
  */
 //static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES])
@@ -2328,7 +2328,7 @@ void foe_in_path(bool_e *in_path)
 static error_e AVOIDANCE_watch_asser_stack ()
 {
 	bool_e timeout = FALSE;
-	
+
 	if (STACKS_wait_end_auto_pull(ASSER,&timeout))
 	{
 		return timeout?END_WITH_TIMEOUT:END_OK;
@@ -2337,8 +2337,8 @@ static error_e AVOIDANCE_watch_asser_stack ()
 	{
 		STACKS_flush(ASSER);
 		return NOT_HANDLED;
-	}	
-	
+	}
+
 	return IN_PROGRESS;
 }
 
@@ -2351,7 +2351,7 @@ static error_e AVOIDANCE_watch_asser_stack ()
 		WAIT,
 		DONE
 	} state = INIT;
-	
+
 	switch (state)
 	{
 		case INIT:
@@ -2370,20 +2370,20 @@ static error_e AVOIDANCE_watch_asser_stack ()
 				state=DONE;
 			}
 			break;
-			
+
 		case WAIT:
 			if((((global.env.match_time - global.env.foe[1].udapte_time) >= 1000) || global && global.env.foe[1].dist <= 400) &&
 				(((global.env.match_time - global.env.foe[2].udapte_time) >= 1000) || global && global.env.foe[2].dist <= 400))
 			{
-				STACKS_pull(ASSER); 
+				STACKS_pull(ASSER);
 				state = GO;
 			}
 			break;
-		case DONE:	
+		case DONE:
 			break;
 	}
-	return IN_PROGRESS;	
-}*/	
+	return IN_PROGRESS;
+}*/
 
 // Vérifie adversaire dans NORTH_US, NORTH_FOE, SOUTH_US, SOUTH_FOE
 foe_pos_e AVOIDANCE_where_is_foe(foe_e foe_id)

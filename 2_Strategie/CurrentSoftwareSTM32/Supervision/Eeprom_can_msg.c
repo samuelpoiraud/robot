@@ -14,6 +14,8 @@
 #include "Selftest.h"
 #include "config_pin.h"
 
+#include "../QS/QS_outputlog.h"
+
 
 #define TEST_STRING_ADDRESS		(Uint32)(0x00000000)	//Adresse de la chaine de test de la mémoire EEPROM
 #define TEST_STRING_SIZE		(Uint8)(8)				//Taille de la chaine de test de la mémoire EEPROM
@@ -100,7 +102,7 @@ bool_e EEPROM_CAN_MSG_test_eeprom_available()
 		{
 			b = FALSE;
 			break;
-		}	
+		}
 	}
 
 	if(!b)	//Soit la mémoire n'est pas là, soit le test string n'y est pas. On tente d'écrire le test string
@@ -113,14 +115,14 @@ bool_e EEPROM_CAN_MSG_test_eeprom_available()
 			if(test_string[i] != read_test_string[i])
 				b = FALSE;
 		}
-	}	
+	}
 	if(!b)
 		debug_printf("test EEPROM failed\n");
 	//else
 	//	debug_printf("test EEPROM ok\n");
 
 	return b;
-}	
+}
 
 
 void EEPROM_test_all_memory(void)
@@ -169,9 +171,9 @@ void EEPROM_CAN_MSG_save_msg(Uint16 msg_address_x16, CAN_msg_t * msg, Uint16 mat
 	msg_to_save[13]	= msg->data[7];
 	msg_to_save[14]	= msg->size;
 	msg_to_save[15]	= 0;
-	//debug_printf("SAVE sid=%d address_x16=%d\n", msg->sid, msg_address_x16); 
+	//debug_printf("SAVE sid=%d address_x16=%d\n", msg->sid, msg_address_x16);
 	EEPROM_write((Uint32)(msg_address_x16) * 16, msg_to_save, MSG_SIZE_IN_EEPROM);
-}	
+}
 
 /*
 @brief incrémente le match_id et la match_address et crée un match dans la table...
@@ -194,20 +196,20 @@ void EEPROM_CAN_MSG_new_match()
 	temp[1] = LOWINT(current_msg_address_x16);
 	temp[2] = HIGHINT(current_match_id);
 	temp[3] = LOWINT(current_match_id);
-	
+
 
 	RTC_get_local_time(&date);
 	condensed_time = 0;
 	condensed_time |= (date.date		&0x1F) << 11;
 	condensed_time |= (date.hours	&0x1F) << 6;
 	condensed_time |= (date.minutes	&0x3F);
-	
+
 	temp[4] = (Uint8)(condensed_time >> 8);
 	temp[5] = (Uint8)(condensed_time);
-	
-	EEPROM_write(((Uint32)(current_match_address_x8)) * 8, temp, 8);	
+
+	EEPROM_write(((Uint32)(current_match_address_x8)) * 8, temp, 8);
 }
-	
+
 
 /*
 @brief clos le match (soit lors d'un broadcast_stop/start, soit après un reset qui découvre un match non terminé...
@@ -218,8 +220,8 @@ void EEPROM_CAN_MSG_finish_match()
 	temp[0] = HIGHINT(nb_msg_in_match);
 	temp[1] = LOWINT(nb_msg_in_match);
 	//debug_printf("fin du match : %d messages dans le match terminé\n", nb_msg_in_match);
-	EEPROM_write(((Uint32)(current_match_address_x8)) * 8 + 6, temp, 2);	
-}	
+	EEPROM_write(((Uint32)(current_match_address_x8)) * 8 + 6, temp, 2);
+}
 
 
 
@@ -241,7 +243,7 @@ void EEPROM_CAN_MSG_verbose_msg(Uint8 * msg)
 	time = U16FROMU8(msg[2], msg[3]);	//[2ms]
 	debug_printf("t=%.2d.%03ds ",time/500, (time%500)*2);
 	VERBOSE_CAN_MSG_print(&can_msg);
-}	
+}
 
 
 
@@ -258,23 +260,23 @@ void EEPROM_CAN_MSG_verbose_match(Uint16 match_address_x8)
 	Uint16 msg_address_x16;
 	Uint16 i;
 	Uint16 condensed_time;
-	
-	
+
+
 	if(match_address_x8 < MIN_MATCH_ADDRESS_X8 || match_address_x8 > MAX_MATCH_ADDRESS_X8)
 	{
 	debug_printf("\n\nAdresse de l'entête du match non valide :                 0x%x n'est pas compris entre 0x%x et 0x%x\n", match_address_x8, MIN_MATCH_ADDRESS_X8, MAX_MATCH_ADDRESS_X8);
 		return;
-	}	
+	}
 	debug_printf("\n\nAdresse de l'entête du match dans la table des matchs :   0x%x\n", match_address_x8);
 	debug_printf("Adresse physique de l'entête du match en EEPROM :         0x%lx\n", ((Uint32)(match_address_x8)) * 8);
-	
+
 	EEPROM_read(((Uint32)(match_address_x8)) * 8, temp, 8);
-	
+
 	match_id 		= U16FROMU8(temp[2], temp[3]);
 	nb_msg 	 		= U16FROMU8(temp[6], temp[7]);
 	msg_address_x16 = U16FROMU8(temp[0], temp[1]);
 	condensed_time  = U16FROMU8(temp[4], temp[5]);
-	
+
 	if(match_id != 0)
 		debug_printf("ID du match :                                             0x%x\n", match_id);
 	else
@@ -282,16 +284,16 @@ void EEPROM_CAN_MSG_verbose_match(Uint16 match_address_x8)
 		debug_printf("L'ID du match est nul. Ce match n'est pas valide.\n");
 		return;
 	}
-	
+
 	debug_printf("Date du match :                                           %d à %.2dh%.2d\n", (condensed_time >> 11)&0x1F, (condensed_time >> 6)&0x1F, condensed_time&0x3F);
-		
+
 	debug_printf("Adresse du premier message dans la table des messages :   0x%x\n", msg_address_x16);
 	debug_printf("Adresse physique du premier message en EEPROM :           0x%lx\n", ((Uint32)(msg_address_x16))*16);
 	if(nb_msg)
 		debug_printf("Nombre de messages dans le match :                        %d\n", nb_msg);
 	else
 		debug_printf("Le match ne s'est pas terminé par un broadcast_stop ou le nombre de message max est atteint\n");
-	
+
 	//Si le match n'est pas terminé, on suppose que l'on parcourt le nombre max de message. on abandonnera dès qu'on verra qu'on atteint le dernier message connu de ce match
 	if(!nb_msg)
 		nb_msg = MAX_MSG_IN_MATCH;
@@ -306,17 +308,17 @@ void EEPROM_CAN_MSG_verbose_match(Uint16 match_address_x8)
 		}
 		 debug_printf("@:%.4x ",msg_address_x16);
 		EEPROM_CAN_MSG_verbose_msg(msg);
-		
+
 		if(BUTTON5_PORT)	//Si on rappuie sur le bouton, on arrête l'affichage du match.
 			break;
 	}
 	debug_printf("fin du match en mémoire\n");
-}	
+}
 
 
 
 
-	
+
 //TODO : fonction de vidage d'EEPROM sur message CAN explicite.
 #define WINDOW_SIZE	(64)	//Doit être une puissance de 2 < strictement à 256. (pour ne pas accéder à la mémoire sur deux pages en un accès...
 void EEPROM_CAN_MSG_flush_eeprom(void)
@@ -326,10 +328,10 @@ void EEPROM_CAN_MSG_flush_eeprom(void)
 	Uint16 i;
 	for(i=0;i<WINDOW_SIZE;i++)
 		temp[i] = 0;
-	
+
 	for(j=0;j<EEPROM_SIZE_OCTETS;j+=WINDOW_SIZE)
 		EEPROM_write(j, temp, WINDOW_SIZE);
-}	
+}
 
 /*
 	Compte le nombre de message dans un match dont l'adresse du premier message et l'id sont connus.
@@ -353,7 +355,7 @@ Uint16 EEPROM_CAN_MSG_count_nb_msg(Uint16 msg_address_x16, Uint16 match_id)
 	}
 	//debug_printf("j'ai compté %d message(s)\n",nb_msg);
 	return nb_msg;
-}	
+}
 
 /*
 @brief	fonction d'initialisation du module de sauvegarde en EEPROM. Très importante, cette fonction scrute l'état actuel de la mémoire pour en reprendre le cours !
@@ -364,14 +366,14 @@ void EEPROM_CAN_MSG_init()
 {
 	Uint8 temp_match[MATCH_SIZE];
 	Uint16 read_match_id;
-	
+
 	EEPROM_init();
 //	EEPROM_CAN_MSG_flush_eeprom();	//Activer ceci permet de vider la mémoire EEPROM lors de l'init (attention, cela prend 10 secondes environ !!)
 	if(!EEPROM_CAN_MSG_test_eeprom_available())	//La mémoire n'est pas là...!
 		return;
-	
+
 	//Si la mémoire est bien présente... et fonctionne...
-	
+
 	current_match_address_x8 = MIN_MATCH_ADDRESS_X8;	//On commence à l'adresse 8..., donc au current_match_address 1
 	current_match_id = 0;
 	current_msg_address_x16 = MAX_MSG_ADDRESS_X16;	//si si, c'est bien ça !
@@ -389,14 +391,14 @@ void EEPROM_CAN_MSG_init()
 			current_msg_address_x16 = U16FROMU8(temp_match[0],temp_match[1]);
 			nb_msg_in_match = U16FROMU8(temp_match[6],temp_match[7]);
 			current_match_address_x8++;
-		}	
+		}
 	}
-	
+
 	//On doit se placer sur l'entête du dernier match... s'il n'y en a pas, on se replace sur la dernière des cases !
-	current_match_address_x8 = (current_match_address_x8 == MIN_MATCH_ADDRESS_X8)?MAX_MATCH_ADDRESS_X8:current_match_address_x8-1;	
-			
+	current_match_address_x8 = (current_match_address_x8 == MIN_MATCH_ADDRESS_X8)?MAX_MATCH_ADDRESS_X8:current_match_address_x8-1;
+
 	if(current_match_id != 0)	//Si on a vu au moins un match dont l'id est non nul.
-	{	
+	{
 		//On a l'adresse du dernier match enregistré, sa taille s'il est fini et son match_id...
 		if(nb_msg_in_match == 0)	//Si le match n'est pas terminé !
 		{
@@ -407,18 +409,18 @@ void EEPROM_CAN_MSG_init()
 			EEPROM_CAN_MSG_finish_match();	//On termine le match non terminé.
 		}
 	}
-	
+
 	current_msg_address_x16 += nb_msg_in_match;	//On met à jour le current_msg_address_x16...
 	if(current_msg_address_x16 > MAX_MSG_ADDRESS_X16)
 		current_msg_address_x16 = MIN_MSG_ADDRESS_X16 + (current_msg_address_x16 - MAX_MSG_ADDRESS_X16);
-	
+
 	//On est positionné sur le DERNIER MATCH (que l'on a validé si c'était nécessaire)
 	debug_printf("init eeprom ok : current_match_id = %d | current_match_address_x8 : %d\n", current_match_id, current_match_address_x8);
 	initialized = TRUE;
-}	
+}
 
 /*
-@brief 	fonction incluant la machine à état du module de sauvegarde en EEPROM. 
+@brief 	fonction incluant la machine à état du module de sauvegarde en EEPROM.
 @pre	Cette fonction est appelée à chaque nouveau message reçu
 @pre	initialized doit être à TRUE ! sinon rien n'est fait. (lorsque la mémoire n'est pas reliée notamment !)
 */
@@ -434,7 +436,7 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 
 	if(!initialized)	//Vérification. Si la mémoire n'est pas initialisée, on abandonne.
 		return;
-	
+
 	switch(msg->sid)
 	{
 		case SUPER_EEPROM_RESET:
@@ -462,7 +464,7 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 		default:
 			break;
 	}
-	
+
 	switch(state)
 	{
 		case WAIT_MATCH:
@@ -475,7 +477,7 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 				current_msg_address_x16 = (current_msg_address_x16 >= MAX_MSG_ADDRESS_X16)?(MIN_MSG_ADDRESS_X16):(current_msg_address_x16+1);
 				nb_msg_in_match++;
 				state = IN_MATCH;
-			}	
+			}
 		break;
 		case IN_MATCH:
 			if(msg->sid == BROADCAST_START)
@@ -488,15 +490,15 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 			}
 			else
 			{
-				//VERBOSE_CAN_MSG_print(msg); 
+				//VERBOSE_CAN_MSG_print(msg);
 				if(nb_msg_in_match < MAX_MSG_IN_MATCH)	//Un nombre max de message par match est autorisé...
 				{
 					EEPROM_CAN_MSG_save_msg(current_msg_address_x16, msg, current_match_id, (Uint16)(global.env.match_time/2));
 					current_msg_address_x16 = (current_msg_address_x16 >= MAX_MSG_ADDRESS_X16)?(MIN_MSG_ADDRESS_X16):(current_msg_address_x16+1);
 					nb_msg_in_match++;
-				}	
+				}
 			}
-				
+
 			if(msg->sid == BROADCAST_STOP_ALL)
 			{
 				SELFTEST_get_match_report_IR(&local_msg);
@@ -511,12 +513,12 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 
 				EEPROM_CAN_MSG_finish_match();
 				state = WAIT_MATCH;
-			}	
+			}
 		break;
 		default:
 			state = WAIT_MATCH;
 		break;
-	}	
+	}
 /*
 INIT (au reset du micro)
 -> on vérifie le fonctionnement de la mémoire (lecture à l'adresse 0 du code de vérif et "écriture puis relecture" si nécessaire)
@@ -540,30 +542,30 @@ IN_MATCH
 		-> 	le nombre de message est inscrit dans la table des matchs, on fait la même chose que pour un nouveau match...
 */
 
-}	
+}
 
-	
+
 void EEPROM_CAN_MSG_verbose_previous_match(void)
 {
 	static Sint16 nb_match_verbosed = 0;
 	Sint16 match_address_x8_to_verbose;
-	
+
 	match_address_x8_to_verbose = current_match_address_x8 - nb_match_verbosed;
 	if(match_address_x8_to_verbose < (Sint16)(MIN_MATCH_ADDRESS_X8))
 		match_address_x8_to_verbose += MAX_MATCH_ADDRESS_X8;
-		
+
 	if(nb_match_verbosed > MAX_MATCH_ADDRESS_X8 - MIN_MATCH_ADDRESS_X8 + 1)
 	{
 		debug_printf("Tout les matchs de la table ont étés affichés\n");
 		return;
 	}
-	
+
 	nb_match_verbosed++;
 	if(nb_match_verbosed > MAX_MATCH_ADDRESS_X8 - MIN_MATCH_ADDRESS_X8 + 1)
 		nb_match_verbosed = 0;
-		
+
 	EEPROM_CAN_MSG_verbose_match(match_address_x8_to_verbose);
-}	
+}
 
 
 
@@ -576,19 +578,19 @@ void EEPROM_CAN_MSG_verbose_all_match_header()
 	Uint16 msg_address_x16;
 	Uint16 i;
 	Uint16 condensed_time;
-	
+
 	for(i=MIN_MATCH_ADDRESS_X8; i<MAX_MATCH_ADDRESS_X8; i++)
 	{
 		debug_printf("\n\nAdresse de l'entête du match dans la table des matchs :   0x%x\n", i);
 		debug_printf("Adresse physique de l'entête du match en EEPROM :         0x%lx\n", ((Uint32)(i)) * 8);
-		
+
 		EEPROM_read(((Uint32)(i)) * 8, temp, 8);
-		
+
 		match_id 		= U16FROMU8(temp[2], temp[3]);
 		nb_msg 	 		= U16FROMU8(temp[6], temp[7]);
 		msg_address_x16 = U16FROMU8(temp[0], temp[1]);
 		condensed_time  = U16FROMU8(temp[4], temp[5]);
-		
+
 		if(match_id != 0)
 			debug_printf("ID du match :                                             0x%x\n", match_id);
 		else
@@ -596,18 +598,18 @@ void EEPROM_CAN_MSG_verbose_all_match_header()
 			debug_printf("L'ID du match est nul. Ce match n'est pas valide.\n");
 			return;
 		}
-	
+
 		debug_printf("Date du match :                                           %d à %.2dh%.2d\n", (condensed_time >> 11)&0x1F, (condensed_time >> 6)&0x1F, condensed_time&0x3F);
-			
+
 		debug_printf("Adresse du premier message dans la table des messages :   0x%x\n", msg_address_x16);
 		debug_printf("Adresse physique du premier message en EEPROM :           0x%lx\n", ((Uint32)(msg_address_x16))*16);
 		if(nb_msg)
 			debug_printf("Nombre de messages dans le match :                        %d\n", nb_msg);
 		else
 			debug_printf("Le match ne s'est pas terminé par un broadcast_stop ou le nombre de message max est atteint\n");
-	
+
 	}
-}	
+}
 
 
 void EEPROM_CAN_MSG_print_all_msg(void)
@@ -624,9 +626,9 @@ void EEPROM_CAN_MSG_print_all_msg(void)
 		{
 			debug_printf("fin du match en mémoire (match terminé ou bien messages écrasés par d'autres matchs plus récents\n");
 			debug_printf("NOUVEAU MATCH ID : %d", U16FROMU8(msg[0], msg[1]));
-		}	
+		}
 		match_id = U16FROMU8(msg[0], msg[1]);	//Sauvegarde du match id courrant...
-		
+
 		debug_printf("@:%.4x ",i);
 		EEPROM_CAN_MSG_verbose_msg(msg);
 	}

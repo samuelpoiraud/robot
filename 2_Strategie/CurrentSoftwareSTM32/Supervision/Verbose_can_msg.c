@@ -11,6 +11,7 @@
 
 #define VERBOSE_CAN_MSG_C
 #include "Verbose_can_msg.h"
+#include "../QS/QS_outputlog.h"
 
 
 void print_broadcast_start_infos(CAN_msg_t * msg);
@@ -52,7 +53,7 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 		case CARTE_P_ROBOT_FREINE:				debug_printf("%x CARTE_P_ROBOT_FREINE             	",	CARTE_P_ROBOT_FREINE			);	break;
 		case CARTE_P_ROBOT_CALIBRE:				debug_printf("%x CARTE_P_ROBOT_CALIBRE            	", CARTE_P_ROBOT_CALIBRE			);	break;
 		case ASSER_GO_ANGLE:					debug_printf("%x ASSER_GO_ANGLE                   	", ASSER_GO_ANGLE 					);	break;
-		case ASSER_GO_POSITION:					debug_printf("%x ASSER_GO_POSITION                	", ASSER_GO_POSITION 				);	break;	
+		case ASSER_GO_POSITION:					debug_printf("%x ASSER_GO_POSITION                	", ASSER_GO_POSITION 				);	break;
 		case ASSER_SET_POSITION:				debug_printf("%x ASSER_SET_POSITION               	", ASSER_SET_POSITION				);	break;
 		case ASSER_SEND_PERIODICALLY_POSITION: 	debug_printf("%x ASSER_SEND_PERIODICALLY_POSITION 	", ASSER_SEND_PERIODICALLY_POSITION	);	break;
 		case ASSER_STOP:						debug_printf("%x ASSER_STOP                       	", ASSER_STOP						);	break;
@@ -83,13 +84,13 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 		case BEACON_ADVERSARY_POSITION_IR:		debug_printf("%x BEACON_ADVERSARY_POSITION_IR     	", BEACON_ADVERSARY_POSITION_IR		);	break;
 		case BEACON_ADVERSARY_POSITION_US:		debug_printf("%x BEACON_ADVERSARY_POSITION_US     	", BEACON_ADVERSARY_POSITION_US		);	break;
 		case DEBUG_STRAT_STATE_CHANGED:			debug_printf("%x DEBUG_STRAT_STATE_CHANGED          ", DEBUG_STRAT_STATE_CHANGED		);	break;
-				
+
 		default:
 												debug_printf("SID=%x                            | ", msg->sid);								break;
 	}
-	
-	
-// Les lignes commentées à gauche sont celles qui ne sont pas traitées.	
+
+
+// Les lignes commentées à gauche sont celles qui ne sont pas traitées.
 	switch(msg->sid)
 	{
 		case BROADCAST_START:					print_broadcast_start_infos(msg);									break;
@@ -136,8 +137,8 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 		case ACT_READY:
 		case ACT_EMPTY:							if(msg->sid == ACT_EMPTY)			debug_printf("| Pince vide ");			//PAS DE BREAK !
 		case ACT_FULL:							if(msg->sid == ACT_FULL)			debug_printf("| Pince pleine ");		//PAS DE BREAK !
-												switch(u8(0)) 
-												{ 
+												switch(u8(0))
+												{
 													case ACT_CLAMP_FRONT: 	debug_printf("|Pince avant\n");			break;
 													case ACT_CLAMP_BACK: 	debug_printf("|Pince arrière\n");		break;
 													case ACT_LIFT_FRONT: 	debug_printf("|Ascenseur avant\n");		break;
@@ -148,27 +149,27 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 		case ACT_PAWN_GOT:						if(msg->sid == ACT_PAWN_GOT)		debug_printf("| Prendre pion");		//PAS DE BREAK !
 		case ACT_PAWN_FILED:					if(msg->sid == ACT_PAWN_FILED)		debug_printf("| Pion relaché");		//PAS DE BREAK !
 		case ACT_PAWN_DETECTED:					if(msg->sid == ACT_PAWN_DETECTED)	debug_printf("| Pion magnétisé");	//PAS DE BREAK !
-												switch(u8(0)) 
-												{ 
+												switch(u8(0))
+												{
 													case ACT_FRONT: 		debug_printf(" avant\n");				break;
 													case ACT_BACK: 			debug_printf(" arrière\n");				break;
 													default: 				debug_printf(" Argument invalide\n");	break;
 												}																	break;
 																													break;
-		case ACT_DCM_SETPOS:										
-												switch(u8(1)) 
-												{ 
+		case ACT_DCM_SETPOS:
+												switch(u8(1))
+												{
 													case ACT_CLAMP_CLOSED_ON_PAWN: 	debug_printf("|fermer sur le pion la pince ");			break;
 													case ACT_CLAMP_OPENED: 			debug_printf("|ouvrir la pince ");						break;
 													case ACT_CLAMP_CLOSED: 			debug_printf("|fermer la pince ");						break;
 													case ACT_LIFT_BOTTOM : 			debug_printf("|descendre l'ascenceur ");				break;
 													case ACT_LIFT_MIDDLE:			debug_printf("|placer au milieu l'ascenseur ");			break;
 													case ACT_LIFT_TOP:				debug_printf("|monter l'ascenseur ");					break;
-													case ACT_LIFT_MOVE_TOWER:		debug_printf("|déplacer une tour avec l'ascenceur ");	break;	
+													case ACT_LIFT_MOVE_TOWER:		debug_printf("|déplacer une tour avec l'ascenceur ");	break;
 													default: 						debug_printf("|Argument invalide ");					break;
 												}
-												switch(u8(0)) 
-												{ 
+												switch(u8(0))
+												{
 													case ACT_CLAMP_FRONT: 	debug_printf("avant\n");				break;
 													case ACT_CLAMP_BACK: 	debug_printf("arrière\n");				break;
 													case ACT_LIFT_FRONT: 	debug_printf("avant\n");				break;
@@ -176,40 +177,40 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 													default: 				debug_printf("|Argument invalide\n");	break;
 												}																	break;
 		case ACT_PREPARE_CLAMP:					debug_printf("| Préparer la pince et ");
-												switch(u8(1)) 
-												{ 
+												switch(u8(1))
+												{
 													case ACT_LIFT_BOTTOM : 			debug_printf("descendre l'ascenceur ");					break;
 													case ACT_LIFT_MIDDLE:			debug_printf("placer au milieu l'ascenseur ");			break;
 													case ACT_LIFT_TOP:				debug_printf("monter l'ascenseur ");					break;
-													case ACT_LIFT_MOVE_TOWER:		debug_printf("déplacer une tour avec l'ascenceur ");	break;	
+													case ACT_LIFT_MOVE_TOWER:		debug_printf("déplacer une tour avec l'ascenceur ");	break;
 													default: 						debug_printf("Argument invalide ");						break;
 												}
-												switch(u8(0)) 
-												{ 
+												switch(u8(0))
+												{
 													case ACT_FRONT: 				debug_printf("avant\n");								break;
 													case ACT_BACK: 					debug_printf("arrière\n");								break;
 													default: 						debug_printf("|Argument invalide\n");					break;
 												}																	break;
 		case ACT_TAKE_PAWN:						debug_printf("| Ramasser");		//Pas de break.. même suite que ACT_FILE_PAWN
-		case ACT_FILE_PAWN:						
+		case ACT_FILE_PAWN:
 												debug_printf("%s un pion à l'", (msg->sid==ACT_FILE_PAWN)?"| Lâcher":"");
-												switch(u8(0)) 
-												{ 
+												switch(u8(0))
+												{
 													case ACT_FRONT: 				debug_printf("avant");									break;
 													case ACT_BACK: 					debug_printf("arrière");								break;
 													default: 						debug_printf("Argument invalide");						break;
 												}
 												debug_printf(" et le stocker ");
-												switch(u8(1)) 
-												{ 
+												switch(u8(1))
+												{
 													case ACT_LIFT_BOTTOM : 			debug_printf("en bas");									break;
 													case ACT_LIFT_MIDDLE:			debug_printf("au milieu");								break;
 													case ACT_LIFT_TOP:				debug_printf("en haut");								break;
-													case ACT_LIFT_MOVE_TOWER:		debug_printf("en position de déplacement de tour");		break;	
+													case ACT_LIFT_MOVE_TOWER:		debug_printf("en position de déplacement de tour");		break;
 													default: 						debug_printf("Argument invalide ");						break;
 												}
-												switch(u8(2)) 
-												{ 
+												switch(u8(2))
+												{
 													case ACK_LIFT_ACTION: 			debug_printf(". Ack ascenseur\n");				break;
 													case ACK_CLAMP_ACTION: 			debug_printf(". Ack pince\n");					break;
 													default: 						debug_printf("|Argument invalide\n");					break;
@@ -219,7 +220,7 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 		case BEACON_ADVERSARY_POSITION_IR:		if(u8(0) || u8(4))
 													debug_printf("ERRs:0x%x 0x%x|",u8(0), u8(4));
 												debug_printf("angleR1=%d |dR1=%dcm |angleR2=%d |dR2=%dcm \n", angle_deg(1,2), (Uint16)(u8(3)),angle_deg(5,6), (Uint16)(u8(7)));	break;
-		case BEACON_ADVERSARY_POSITION_US:		if(u8(0))	
+		case BEACON_ADVERSARY_POSITION_US:		if(u8(0))
 													debug_printf("ERRs:0x%x 0x%x|",u8(0), u8(4));
 												debug_printf("dR1=%dmm|dR2=%dmm|id=%d\n", u16(1,2), u16(5,6), u8(3));								break;
 		case DEBUG_STRAT_STATE_CHANGED:			debug_printf("| Strat state changed 0x%04X: %d -> %d", u16(0,1), u8(2), u8(3));
@@ -243,7 +244,7 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 			else
 				debug_printf("|\n");
 		break;
-	}			
+	}
 }
 
 
@@ -253,12 +254,12 @@ void print_broadcast_start_infos(CAN_msg_t * msg)
 	{
 		debug_printf("\n");
 		return;	//Ce n'est pas un message broadcast où l'on a ajouté des infos... OU BIEN, le match est commencé, on ne veux pas polluer le mode débug...
-	}	
+	}
 	debug_printf("Couleur :%s\n",   (u8(0))?"BLEU":"ROUGE");
 	debug_printf("Stratégie :%d\n",  msg->data[1]);
 	debug_printf("Evitement :%s\n", (msg->data[2])?"ACTIF":"INACTIF");
 	debug_printf("Balise :%s\n",    (msg->data[3])?"ACTIF":"INACTIF");
-	
+
 	debug_printf("Selftest : ");
 	if(~msg->data[5] || ~msg->data[6] || ~msg->data[7])
 	{
@@ -278,13 +279,13 @@ void print_broadcast_start_infos(CAN_msg_t * msg)
 		if(!(msg->data[7] & 0b00000001))	debug_printf("Selftest stratégie à échoué\n");
 		if(!(msg->data[7] & 0b00000010))	debug_printf("Selftest propulsion à échoué\n");
 		if(!(msg->data[7] & 0b00000100))	debug_printf("Selftest actionneur à échoué\n");
-		if(!(msg->data[7] & 0b00001000))	debug_printf("Selftest balise à échoué\n");		
-	}	
+		if(!(msg->data[7] & 0b00001000))	debug_printf("Selftest balise à échoué\n");
+	}
 	else
 		debug_printf("VALIDE");
 	debug_printf("\n");
-	
-}	
+
+}
 
 void print_ir_result(CAN_msg_t * msg){
 	debug_printf("\n_____Infos erreurs balise(s) infrarouge____\n");

@@ -4,6 +4,7 @@
 #include "../term_commands_utils.h"
 #include "../term_io.h"
 #include "../../../QS/QS_all.h"
+#include "../../../QS/QS_outputlog.h"
 
 const char term_cmd_disk_brief[] = "Gère les disques";
 const char term_cmd_disk_help[] =

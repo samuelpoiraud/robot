@@ -10,6 +10,7 @@
 
 
 #include "QS_trap_handler.h"
+#include "QS_outputlog.h"
 
 void dump_trap_info(Uint32 stack_ptr[], Uint32 lr) {
 	extern char _estack;	//Defined by the linker, end of stack

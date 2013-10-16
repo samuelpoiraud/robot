@@ -10,6 +10,7 @@
 #include <errno.h>
 #include "../term_commands_utils.h"
 #include "../../../QS/QS_all.h"
+#include "../../../QS/QS_outputlog.h"
 #include "../../RTC.h"
 
 const char term_cmd_date_brief[] = "Affichage date";

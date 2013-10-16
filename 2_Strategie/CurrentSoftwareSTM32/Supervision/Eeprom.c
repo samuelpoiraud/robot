@@ -14,6 +14,8 @@
 #include "Eeprom.h"
 #include "config_pin.h"
 
+#include "../QS/QS_outputlog.h"
+
 #define READ 0x03 	/* Read data from memory array beginning at selected address */
 #define WRITE 0x02 	/* Write data to memory array beginning at selected address */
 #define WEN 0x06 	/* Set the write enable latch (enable write operations) */
@@ -95,12 +97,12 @@ void EEPROM_write(Uint32 Address, Uint8 * Data, Uint8 size)
 
 	//debug_printf("config %d", SPI2CON);
 	/*debug_printf("EEPROM wrote %lx : ", Address);
-  	for(i=0;i<size;i++)
-  		debug_printf("%02x ",Data[i]);
-  	debug_printf("\n");
+	for(i=0;i<size;i++)
+		debug_printf("%02x ",Data[i]);
+	debug_printf("\n");
 
-  	EEPROM_Read(Address, read_data, size);
-  	*/
+	EEPROM_Read(Address, read_data, size);
+	*/
 }
 
 //Attention, il est interdit de demander une écriture à cheval sur 2 pages...
@@ -109,46 +111,46 @@ void EEPROM_read(Uint32 Address, Uint8 * Data, Uint8 size)
 {
 	Uint16 i;
 	while(Memory_busy()) debug_printf(".");
-  	EEPROM_CS = 0;                             // Select Device
-  	delay_50ns();
+	EEPROM_CS = 0;                             // Select Device
+	delay_50ns();
 	SPI2_write(READ);                // Send Read OpCode
- 	SPI2_write((Uint8)(Address >> 16));   // Send High Address Byte (seven "don t care" bits)
+	SPI2_write((Uint8)(Address >> 16));   // Send High Address Byte (seven "don t care" bits)
 	SPI2_write((Uint8)(Address >> 8));	// Send Address Byte
 	SPI2_write((Uint8)(Address));     	// Send Low Address Byte
 
-  	for(i=0;i<size;i++)
-  		Data[i]=SPI2_read();
-  	delay_50ns();
-  	EEPROM_CS = 1;                             // Deselect Device
-    /*debug_printf("EEPROM read %lx : ", Address);
-    for(i=0;i<size;i++)
-  	  debug_printf("%02x ",Data[i]);
-    debug_printf("\n");
-    */
+	for(i=0;i<size;i++)
+		Data[i]=SPI2_read();
+	delay_50ns();
+	EEPROM_CS = 1;                             // Deselect Device
+	/*debug_printf("EEPROM read %lx : ", Address);
+	for(i=0;i<size;i++)
+	  debug_printf("%02x ",Data[i]);
+	debug_printf("\n");
+	*/
 }
 
 static void WriteEnable(void) {
-    EEPROM_CS = 0;                           //Select Device
-   	SPI2_write(WEN);               //Write Enable OpCode
-    EEPROM_CS = 1;                           //Deselect Device
+	EEPROM_CS = 0;                           //Select Device
+	SPI2_write(WEN);               //Write Enable OpCode
+	EEPROM_CS = 1;                           //Deselect Device
 }
 
 bool_e Memory_busy(void) {
 	Uint8 status;
-    EEPROM_CS = 0;                           //Select Device
-    SPI2_write(RDSR);              //Read Status Register OpCode
-    status=SPI2_read();         //Read Status Register
-    EEPROM_CS = 1;                           //Deselect Device
-    return (status & STATUS_MASK_WIP)?TRUE:FALSE;
+	EEPROM_CS = 0;                           //Select Device
+	SPI2_write(RDSR);              //Read Status Register OpCode
+	status=SPI2_read();         //Read Status Register
+	EEPROM_CS = 1;                           //Deselect Device
+	return (status & STATUS_MASK_WIP)?TRUE:FALSE;
 }
 
 //Renvoi vrai si la mémoire n'est pas protégée en écriture...
-bool_e Memory_write_granted(void) 
+bool_e Memory_write_granted(void)
 {
 	Uint8 status;
-    EEPROM_CS = 0;                           //Select Device
-    SPI2_write(RDSR);              //Read Status Register OpCode
- 	status=SPI2_read();         //Read Status Register
-    EEPROM_CS = 1;                           //Deselect Device
-    return (status & STATUS_MASK_WEL)?TRUE:FALSE;
+	EEPROM_CS = 0;                           //Select Device
+	SPI2_write(RDSR);              //Read Status Register OpCode
+	status=SPI2_read();         //Read Status Register
+	EEPROM_CS = 1;                           //Deselect Device
+	return (status & STATUS_MASK_WEL)?TRUE:FALSE;
 }

@@ -10,7 +10,7 @@
  */
 
 #include "actions_both_2014.h"
-#include "../output_log.h"
+#include "../QS/QS_outputlog.h"
 
 //#define LOG_PREFIX "strat_tests: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)

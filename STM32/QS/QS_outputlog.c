@@ -8,7 +8,7 @@
  *  Auteur : Alexis
  */
 
-#if 0
+#if 1
 #include "QS_outputlog.h"
 
 #include <stdio.h>
@@ -25,7 +25,7 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 	va_list args_list;
 
 	//level trop haut ou affichage desactivé, on n'affiche pas
-	if(level > current_max_log_level)
+	if(level != LOG_LEVEL_Always && level > current_max_log_level)
 		return;
 
 	va_start(args_list, format);

@@ -10,6 +10,7 @@
  */
 
 #include "Pathfind.h"
+#include "QS/QS_outputlog.h"
 #include "config_use.h"
 
 
@@ -22,21 +23,21 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB] =
 	(pathfind_node_t){ 270, 1500, neighbors : (1<<1)|(1<<3)|(1<<4)|(1<<5)|(1<<8)|(1<<9)|(1<<10)},			//[0]
 	(pathfind_node_t){ 625, 1500, neighbors : (1<<0)|(1<<4)|(1<<5)|(1<<8)|(1<<9)|(1<<10)},	       			//[1]
 	(pathfind_node_t){ 1375, 1500, neighbors : (1<<6)|(1<<7)|(1<<11)|(1<<12)},		              			//[2]
-	
+
 	//Coté Violet
 	(pathfind_node_t){ 860, 450, neighbors : (1<<0)|(1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<12)},					//[3]
 	(pathfind_node_t){ 270, 742, neighbors : (1<<0)|(1<<1)|(1<<5)|(1<<6)|(1<<9)|(1<<10)},					//[4]
 	(pathfind_node_t){ 625, 742, neighbors : (1<<0)|(1<<1)|(1<<3)|(1<<4)|(1<<6)|(1<<9)|(1<<10)},			//[5]
 	(pathfind_node_t){ 1375, 742, neighbors :(1<<2)|(1<<3)|(1<<4)|(1<<5)|(1<<7)|(1<<11)|(1<<12)},			//[6]
-	(pathfind_node_t){ 1700, 1117, neighbors :(1<<2)|(1<<3)|(1<<6)|(1<<11)|(1<<12)},						//[7]	
-	
-	
+	(pathfind_node_t){ 1700, 1117, neighbors :(1<<2)|(1<<3)|(1<<6)|(1<<11)|(1<<12)},						//[7]
+
+
 	//Coté Rouge
 	(pathfind_node_t){ 860, 2550, neighbors : (1<<0)|(1<<7)|(1<<9)|(1<<10)|(1<<11)|(1<<12)},				//[8]
 	(pathfind_node_t){ 270, 2258, neighbors : (1<<0)|(1<<1)|(1<<4)|(1<<10)|(1<<11)},						//[9]
 	(pathfind_node_t){ 625, 2258, neighbors : (1<<0)|(1<<1)|(1<<4)|(1<<5)|(1<<8)|(1<<9)|(1<<11)},			//[10]
 	(pathfind_node_t){ 1375, 2258, neighbors :(1<<2)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<12)},			//[11]
-	(pathfind_node_t){ 1700, 1883, neighbors :(1<<2)|(1<<6)|(1<<7)|(1<<8)|(1<<11)},							//[12]	
+	(pathfind_node_t){ 1700, 1883, neighbors :(1<<2)|(1<<6)|(1<<7)|(1<<8)|(1<<11)},							//[12]
 	(pathfind_node_t){ 0, 0, neighbors : 0} //[13](invalid)
 };
 
@@ -57,7 +58,7 @@ void PATHFIND_updateOpponentPosition(foe_e foe_id)
 	{
 		nodeOpponent[foe_id] = 13;//invalid
 		debug_printf("OPPONENT NOT ON A NODE (13) cause dist=%d\n", dist);
-	}	
+	}
 	debug_printf("UPDATE OPPONENT POSITION FOE %d: %d\n", foe_id, nodeOpponent[foe_id]);
 }
 
@@ -123,7 +124,7 @@ Uint16 Pathfind_heuristic(pathfind_node_id_t from, pathfind_node_id_t to, bool_e
 			{
 				heuristic += (((Uint32)900*900) - dist) / 20;
 			}
-		}	
+		}
 	}
 	return heuristic;
 }
@@ -153,7 +154,7 @@ pathfind_node_id_t  PATHFIND_random_neighbor(pathfind_node_id_t of, bool_e handl
 	{
 		n = (n + 1) % PATHFIND_NODE_NB;
 		if (PATHFIND_TST_NODE_IN(n, nodes[of].neighbors)) {
-			if ( ! ((n == nodeOpponent[FOE_1] && handleOpponent[FOE_1]) || 
+			if ( ! ((n == nodeOpponent[FOE_1] && handleOpponent[FOE_1]) ||
 				(n == nodeOpponent[FOE_2] && handleOpponent[FOE_2])))
 			{
 				return n;
@@ -189,10 +190,10 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 		if ( ((xb==xc) && (xc==xa)) || ((yb==yc) && (yc==ya)) )
 		{
 			/*
-		 	* Si trois noeuds sont strictement alignes,
-		 	* celui du milieu est supprime
-		 	*/
-		 	nodes[before].parent=after;
+			* Si trois noeuds sont strictement alignes,
+			* celui du milieu est supprime
+			*/
+			nodes[before].parent=after;
 
 			after=nodes[(nodes[after].parent)].parent;
 			current=nodes[after].parent;
@@ -202,7 +203,7 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 		{
 			/*
 			 * sinon on decalle simplement les noeuds a etudier
-		 	 */
+			 */
 			after=nodes[after].parent;
 			current=after;
 			before=current;
@@ -218,7 +219,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 	Uint16 minCost, heuristic;
 
 	from = PATHFIND_closestNode(xFrom, yFrom, handleOpponent);
-	
+
 	debug_printf ("Noeud le plus proche : %d", from);
 
 	/* On reinitialise les listes et penalites */

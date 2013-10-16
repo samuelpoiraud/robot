@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../term_commands_utils.h"
 #include "../../../QS/QS_all.h"
+#include "../../../QS/QS_outputlog.h"
 
 const char term_cmd_mkdir_brief[] = "Créer des dossier";
 const char term_cmd_mkdir_help[] =

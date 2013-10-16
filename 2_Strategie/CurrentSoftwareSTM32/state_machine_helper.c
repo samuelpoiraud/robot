@@ -1,7 +1,10 @@
 #include "state_machine_helper.h"
 #include <stdarg.h>
 #include "../act_functions.h"
-#include "../output_log.h"
+
+#include "config_debug.h"
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
+#include "../QS/QS_outputlog.h"
 
 void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint8 new_state, Uint8 nb_params, ...) {
 	va_list l;
@@ -29,7 +32,7 @@ void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint
 
 void UTILS_LOG_state_changed(const char* sm_name, Uint16 sm_id, const char* old_state_name, Uint8 old_state_id, const char* new_state_name, Uint8 new_state_id) {
 	UTILS_CAN_send_state_changed(sm_id, old_state_id, new_state_id, 0);
-	OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, LOG_LEVEL_Info, "state change: %s(0x%04X): %s(%d) -> %s(%d)\n",
+	info_printf("state change: %s(0x%04X): %s(%d) -> %s(%d)\n",
 			sm_name, sm_id,
 			old_state_name, old_state_id,
 			new_state_name, new_state_id);

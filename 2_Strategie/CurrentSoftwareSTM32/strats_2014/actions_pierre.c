@@ -11,7 +11,7 @@
 
 
 #include "actions_pierre.h"
-#include "../output_log.h"
+#include "../QS/QS_outputlog.h"
 
 
 /* ----------------------------------------------------------------------------- */

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../term_commands_array.h"
 #include "../../../QS/QS_all.h"
+#include "../../../QS/QS_outputlog.h"
 
 const char term_cmd_help_brief[] = "Affiche une aide sur les commandes";
 const char term_cmd_help_help[] =

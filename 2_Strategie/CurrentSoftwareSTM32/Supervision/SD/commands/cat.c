@@ -2,6 +2,7 @@
 #include <errno.h>
 #include "../term_commands_utils.h"
 #include "../../../QS/QS_all.h"
+#include "../../../QS/QS_outputlog.h"
 
 const char term_cmd_cat_brief[] = "Affiche un fichier";
 const char term_cmd_cat_help[] =

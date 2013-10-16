@@ -13,6 +13,7 @@
 #include "QS_can.h"
 #include "QS_CANmsgList.h"
 #include "QS_ports.h"
+#include "QS_outputlog.h"
 #include "stm32f4xx_can.h"
 
 #ifdef NEW_CONFIG_ORGANISATION
@@ -113,7 +114,7 @@
 			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
 			CAN_FilterInit(&CAN_FilterInitStructure);
 		#endif
-			
+
 		CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
 		CAN_ITConfig(CAN1, CAN_IT_FMP1, ENABLE);
 		CAN_ITConfig(CAN1, CAN_IT_ERR, ENABLE);
@@ -137,7 +138,7 @@
 		NVIC_InitStructure.NVIC_IRQChannel = CAN1_SCE_IRQn;
 		NVIC_Init(&NVIC_InitStructure);
 	}
-	
+
 	void CAN_init(void)
 	{
 		static bool_e initialized = FALSE;
@@ -302,7 +303,7 @@
 		{
 			m_can_direct_treatment_function = fct;
 		}
-	
+
 
 
 		void CAN_onMsgReceived() {

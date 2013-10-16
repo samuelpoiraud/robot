@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../QS/QS_uart.h"
+#include "../../QS/QS_outputlog.h"
 
 #define TERM_DATA_BUFFER_SIZE 4096
 unsigned char term_common_buffer[TERM_DATA_BUFFER_SIZE] __attribute__ ((aligned (4)));

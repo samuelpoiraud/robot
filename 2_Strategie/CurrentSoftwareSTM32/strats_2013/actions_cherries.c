@@ -11,11 +11,12 @@
 
 #include "actions_cherries.h"
 #include "../state_machine_helper.h"
-#include "../output_log.h"
 #include "../zone_mutex.h"
 
-//#define LOG_PREFIX "strat_cherries: "
-//#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#include "config_debug.h"
+#define LOG_PREFIX "strat_cherries: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
+#include "../QS/QS_outputlog.h"
 
 //Toutes les positons et angle sont ceux correspondant au coté rouge
 
@@ -726,7 +727,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 
 					grab_trajectory[GRAB_BeginAX12Closing] = (GEOMETRY_point_t) {real_x_pos, plate_y_position + CLOSING_AX12_OFFSET};
 					grab_trajectory[GRAB_SafePos] =          (GEOMETRY_point_t) {real_x_pos, plate_y_position + SAFE_INIT_POS_OFFSET};
-					
+
 
 				} else {
 					Sint16 real_y_pos = COLOR_Y(global.env.pos.y);

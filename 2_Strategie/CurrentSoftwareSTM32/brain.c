@@ -20,6 +20,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_outputlog.h"
 #include "config_use.h"
 
 #include "strats_2013/actions.h"

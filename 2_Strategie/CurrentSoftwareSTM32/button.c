@@ -8,9 +8,10 @@
  *	Auteur : Jacen & Ronan
  *	Version 20100408
  */
- 
+
 #define BUTTON_C
- 
+
+#include "QS/QS_outputlog.h"
 #include "button.h"
 #include "act_functions.h"
 #include "Supervision/Selftest.h"
@@ -43,25 +44,25 @@ void BUTTON_init()
 
 }
 
-void BUTTON_update() 
+void BUTTON_update()
 {
 	static bool_e biroute_forgotten = TRUE;
 	bool_e biroute_current;
-						
+
 	biroute_current = BIROUTE;
-	
+
 	BUTTONS_update();
-	
+
 	if (biroute_current)
 	{
 		biroute_forgotten = FALSE;
 	}
-	
+
 	/* regarder si le match doit commencer */
 	if((biroute_forgotten == FALSE && !biroute_current))
 	{
 		global.env.ask_start = TRUE;
-	}	
+	}
 }
 
 void BUTTON_start()
@@ -85,13 +86,13 @@ void BUTTON_change_color()
 
 void SWITCH_change_color()
 {
-	if(SWITCH_COLOR == global.env.color)	
-	{	
+	if(SWITCH_COLOR == global.env.color)
+	{
 		global.env.color_updated = TRUE;
 		global.env.wanted_color = ((SWITCH_COLOR==1)?RED:BLUE);
 		debug_printf("COLOR\r\n");
-	}	
-}	
+	}
+}
 
 void BUTTON_rotation()
 {

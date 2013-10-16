@@ -35,13 +35,9 @@
 	/* la fonction valeur absolue pour des entiers */
 	#define absolute(x)					(((x) >= 0) ? (x) : (-(x)))
 	#ifdef VERBOSE_MODE
-
-		#define debug_printf(...)	printf(__VA_ARGS__)
-
 		#define assert(condition) \
 			if(!(condition)) {printf("assert failed file " __FILE__ " line %d : %s", __LINE__ , #condition ); NVIC_SystemReset();}
 	#else
-		#define debug_printf(...) (void)0
 		#define assert(condition) (void)0
 	#endif
 	#define PI4096	12868

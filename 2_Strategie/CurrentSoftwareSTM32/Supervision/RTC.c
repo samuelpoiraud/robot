@@ -10,13 +10,14 @@
  *  Code inspiré de : EMBEDDED-CODE.COM / MAXIM DS1307 REAL TIME CLOCK DRIVER /
  *	Version 20110518
  */
- 
+
 #define QS_I2C_C
 #include "RTC.h"
 
 	#include "../QS/QS_i2c.h"
 	#include "../QS/QS_CANmsgList.h"
 	#include "../QS/QS_can.h"
+	#include "../QS/QS_outputlog.h"
 	#include "config_use.h"
 
 	#if defined(USE_RTC) && !defined(USE_I2C2)
@@ -46,7 +47,7 @@ volatile date_t local_date;
 volatile bool_e local_date_updated = FALSE;
 volatile bool_e periodic_it_was_called = FALSE;
 
-void RTC_init(void) 
+void RTC_init(void)
 {
 	#ifdef USE_RTC
 		I2C_init();
@@ -115,7 +116,7 @@ Uint8 RTC_set_time  (date_t * date)
 		return FALSE;
 	#endif
 
-	
+
 }
 
 
@@ -217,9 +218,9 @@ void RTC_print_time(void)
 		case 6: debug_printf("samedi"); 		break;
 		case 7: debug_printf("dimanche"); 		break;
 		default: debug_printf("invalid_day"); break;
-	}	
+	}
 	debug_printf(" %.2d/%.2d/20%.2d %.2d:%.2d:%.2d\n", date.date,date.month,date.year,date.hours,date.minutes,date.seconds);
-}	
+}
 
 void RTC_can_send(void)
 {
@@ -235,7 +236,7 @@ void RTC_can_send(void)
 	msg.data[4] = date.date;
 	msg.data[5] = date.month;
 	msg.data[6] = date.year;
-	CAN_send(&msg);	
-}	
+	CAN_send(&msg);
+}
 
 
