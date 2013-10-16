@@ -11,6 +11,7 @@
 #include "actions_gifts.h"
 #include "actions_utils.h"
 #include "../act_functions.h"
+#include "../QS/QS_outputlog.h"
 
 #include "config_pin.h"
 
@@ -61,7 +62,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 			else	//4 cadeaux
 				sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},90},{{170,COLOR_Y(600)},90},{{170,COLOR_Y(2300)},90}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
-            {
+			{
 				case END_OK:
 					if(SWITCH_STRAT_2)
 						state = TURN_FOR_HAMMER_DOWN;
@@ -77,7 +78,7 @@ error_e TINY_open_all_gifts_without_pause(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 		case TURN_FOR_HAMMER_DOWN:
 			state = try_go_angle((global.env.color == RED)?PI4096:0, TURN_FOR_HAMMER_DOWN, HAMMER_HOME, HAMMER_HOME, FAST);
@@ -137,7 +138,7 @@ error_e TINY_forgotten_gift(map_goal_e forgotten_gift)
 		GOTO_GIFT,
 		ANGLE_HAMMER,
 		HAMMER_UP,
-	    WAIT_HAMMER,
+		WAIT_HAMMER,
 		HAMMER_DOWN,
 		WAIT_HAMMER_DOWN,
 		FAIL,
@@ -189,7 +190,7 @@ error_e TINY_forgotten_gift(map_goal_e forgotten_gift)
 			ret = END_OK;
 		break;
 
-        default:
+		default:
 		break;
 
 	}
@@ -328,7 +329,7 @@ error_e TINY_open_all_gifts_homolog(void)
 
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{250,COLOR_Y(400)},SLOW},{{200,COLOR_Y(600)},SLOW},{{200,COLOR_Y(2400)},SLOW}},3,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
-            {
+			{
 				case END_OK:
 					ret = END_OK;
 					state = INIT;
@@ -343,7 +344,7 @@ error_e TINY_open_all_gifts_homolog(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 
 		default:
@@ -410,7 +411,7 @@ error_e TINY_open_all_gifts(void)
 		case GET_OUT:
 			sub_action = goto_pos(250,COLOR_Y(360),SLOW,(global.env.color==BLUE)?BACKWARD:FORWARD,END_AT_LAST_POINT);
 			switch(sub_action)
-            {
+			{
 				case END_OK:
 					state = GOTO_FIRST_GIFT;
 				break;
@@ -427,7 +428,7 @@ error_e TINY_open_all_gifts(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 
 
@@ -436,7 +437,7 @@ error_e TINY_open_all_gifts(void)
 		case GOTO_FIRST_GIFT:
 			sub_action = goto_pos(X_TO_OPEN_GIFT,COLOR_Y(500),SLOW,(global.env.color==BLUE)?BACKWARD:FORWARD,END_AT_LAST_POINT);
 			switch(sub_action)
-            {
+			{
 				case END_OK:
 					state = ANGLE_FIRST_GIFT;
 				break;
@@ -453,13 +454,13 @@ error_e TINY_open_all_gifts(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 		case ANGLE_FIRST_GIFT:
 			sub_action = goto_angle(PI4096/2,VERY_SLOW_TRANSLATION_AND_FAST_ROTATION);
 
 			switch(sub_action)
-            {
+			{
 				case END_OK:
 					state = OPEN_FIRST_GIFT;
 				break;
@@ -475,7 +476,7 @@ error_e TINY_open_all_gifts(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 		case OPEN_FIRST_GIFT:
 			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
@@ -499,7 +500,7 @@ error_e TINY_open_all_gifts(void)
 		case GOTO_SECOND_GIFT:
 			sub_action = goto_pos(X_TO_OPEN_GIFT,COLOR_Y(1100),SLOW,(global.env.color==BLUE)?BACKWARD:FORWARD,END_AT_LAST_POINT);
 			switch(sub_action)
-            {
+			{
 				case END_OK:
 					state = OPEN_SECOND_GIFT;
 				break;
@@ -516,7 +517,7 @@ error_e TINY_open_all_gifts(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 		case OPEN_SECOND_GIFT:
 			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
@@ -540,7 +541,7 @@ error_e TINY_open_all_gifts(void)
 		//Cette action doit se terminer lorsque le robot arrive, et pas lorsqu'il freine.
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(1700)},SLOW}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
-            {
+			{
 				case END_OK:
 					state = OPEN_THIRD_GIFT;
 				break;
@@ -557,7 +558,7 @@ error_e TINY_open_all_gifts(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 		case OPEN_THIRD_GIFT:
 			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
@@ -578,7 +579,7 @@ error_e TINY_open_all_gifts(void)
 
 		case GOTO_FOURTH_GIFT:	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{X_TO_OPEN_GIFT,COLOR_Y(2300)},SLOW}},1,(global.env.color==BLUE)?BACKWARD:FORWARD,avoidance);
 			switch(sub_action)
-            {
+			{
 				case END_OK:
 					state = OPEN_FOURTH_GIFT;
 				break;
@@ -595,7 +596,7 @@ error_e TINY_open_all_gifts(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 		case OPEN_FOURTH_GIFT:
 			ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS

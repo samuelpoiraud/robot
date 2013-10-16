@@ -11,8 +11,6 @@
 #ifndef CONFIG_QS_H
 #define CONFIG_QS_H
 
-#include "config_debug.h" //pour verbose_mode
-
 //	#define MODE_SIMULATION
 
 /* Pour certaines config particulieres, il faut definir qui on est
@@ -33,6 +31,10 @@
 #define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
 #define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
 #define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
+
+
+#define VERBOSE_MODE
+#define OUTPUT_LOG  //utilisé dans act_function et queue
 
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.

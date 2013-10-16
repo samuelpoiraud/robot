@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../term_commands_utils.h"
 #include "../../../QS/QS_all.h"
+#include "../../../QS/QS_outputlog.h"
 
 const char term_cmd_fill_brief[] = "Rempli un fichier de 0 (pour tester la vitesse SPI)";
 const char term_cmd_fill_help[] =

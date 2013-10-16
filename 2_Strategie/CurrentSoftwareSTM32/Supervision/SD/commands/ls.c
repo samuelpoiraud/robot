@@ -2,6 +2,7 @@
 #include <errno.h>
 #include "../term_commands_utils.h"
 #include "../../../QS/QS_all.h"
+#include "../../../QS/QS_outputlog.h"
 
 const char term_cmd_ls_brief[] = "Liste les fichiers d'un dossier";
 const char term_cmd_ls_help[] =
@@ -14,7 +15,7 @@ int term_cmd_ls(int argc, const char *argv[]) {
 	BYTE res;
 	DIR dir;
 	FILINFO file_info;
-	long dir_count, file_count, total_size;
+	long dir_count = 0, file_count = 0, total_size = 0;
 	FATFS *fs;
 	const char *target;
 

@@ -10,23 +10,26 @@
  */
 
 #include "queue.h"
-#include "output_log.h"
 
 #ifndef OUTPUT_LOG_COMPONENT_QUEUE
 #  define OUTPUT_LOG_COMPONENT_QUEUE LOG_PRINT_Off
 #  warning "OUTPUT_LOG_COMPONENT_QUEUE is not defined, defaulting to Off"
 #endif
 
+#include "config_debug.h"
 #define LOG_PREFIX "queue: "
-#define COMPONENT_log_global(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_QUEUE, log_level, LOG_PREFIX "[all] " format, ## __VA_ARGS__)
-#define COMPONENT_log_queue(log_level, queueId, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_QUEUE, log_level, LOG_PREFIX "[%d] " format, queueId, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_QUEUE
+#include "QS/QS_outputlog.h"
+#define component_printf_global(log_level, format, ...) OUTPUTLOG_printf(log_level, LOG_PREFIX "[all] " format, ## __VA_ARGS__)
+#define component_printf_queue(log_level, queueId, format, ...) OUTPUTLOG_printf(log_level, LOG_PREFIX "[%d] " format, queueId, ## __VA_ARGS__)
+
 
 
 //Il y aura toujours une case vide pour pouvoir detecter quand la file est vide ou pleine.
 #define REAL_QUEUE_SIZE (QUEUE_SIZE+1)
 
 
-/* Structure queue qui comprend: 
+/* Structure queue qui comprend:
  * -les actions à effectuer
  * -arguments pour les actions
  * -index de la tête
@@ -57,14 +60,14 @@ static void   QUEUE_inc_index(queue_size_t* index);
 
 void QUEUE_init()
 {
-	COMPONENT_log_global(LOG_LEVEL_Debug, "Init file\n");
+	component_printf_global(LOG_LEVEL_Debug, "Init file\n");
 	static bool_e initialized = FALSE;
 	if (initialized)
 		return;
 	initialized = TRUE;
 
 	Uint8 i, j;
-	
+
 	//initialisation des files
 	for (i=0;i<NB_QUEUE; i++) {
 		for(j=0; j<REAL_QUEUE_SIZE; j++) {
@@ -78,7 +81,7 @@ void QUEUE_init()
 	}
 
 	CLOCK_init();
-	COMPONENT_log_global(LOG_LEVEL_Debug, "File initialisé\n");
+	component_printf_global(LOG_LEVEL_Debug, "File initialisé\n");
 }
 
 static bool_e QUEUE_is_full(queue_id_e queue_id) {
@@ -117,7 +120,7 @@ void QUEUE_run()
 		{
 			this = &(queues[queue_id]);
 			(this->action[this->end_index])(queue_id, FALSE);
-			COMPONENT_log_queue(LOG_LEVEL_Trace, queue_id, "Run\n");
+			component_printf_queue(LOG_LEVEL_Trace, queue_id, "Run\n");
 		}
 	}
 }
@@ -130,14 +133,14 @@ bool_e QUEUE_add(queue_id_e queue_id, action_function_t action, QUEUE_arg_t arg)
 	assert(queue_id < NB_QUEUE);
 
 	if(QUEUE_is_full(queue_id)) {
-		COMPONENT_log_queue(LOG_LEVEL_Warning, queue_id, "Can't add: queue is full\n");
+		component_printf_queue(LOG_LEVEL_Warning, queue_id, "Can't add: queue is full\n");
 		return FALSE;
 	} else {
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Add\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Add\n");
 	}
 
 	is_first_action = QUEUE_is_empty(queue_id); //Si oui, on execute directement l'intialisation de l'action ajouté
-	
+
 	// on ajoute l'action à la file
 	this->action[this->start_index] = action;
 	this->arg[this->start_index] = arg;
@@ -150,7 +153,7 @@ bool_e QUEUE_add(queue_id_e queue_id, action_function_t action, QUEUE_arg_t arg)
 	if(is_first_action)
 	{
 		//on l'initialise
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
 		this->initial_time_of_current_action = global.env.match_time;
 		action(queue_id, TRUE);
 	}
@@ -163,18 +166,18 @@ void QUEUE_next(queue_id_e queue_id)
 {
 	assert(queue_id < NB_QUEUE);
 	queue_t* this = &(queues[queue_id]);
-	COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Next\n");
+	component_printf_queue(LOG_LEVEL_Debug, queue_id, "Next\n");
 
 	QUEUE_inc_index(&this->end_index);
 
 	if(!QUEUE_is_empty(queue_id))
 	{
 		//on initialise l'action suivante
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
 		this->initial_time_of_current_action = global.env.match_time;
 		(this->action[this->end_index])(queue_id, TRUE);
 	} else {
-		COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
+		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
 	}
 }
 
@@ -183,7 +186,7 @@ void QUEUE_set_error(queue_id_e queue_id, bool_e error) {
 	assert(queue_id < NB_QUEUE);
 
 	queues[queue_id].error_occured = error;
-	COMPONENT_log_queue(LOG_LEVEL_Warning, queue_id, "Error declared\n");
+	component_printf_queue(LOG_LEVEL_Warning, queue_id, "Error declared\n");
 }
 
 /* Retourne TRUE si une erreur est survenue lors de l'execution d'un fonction dans la file indiquée. */
@@ -202,7 +205,7 @@ void QUEUE_reset(queue_id_e queue_id)
 	queues[queue_id].end_index = 0;
 	queues[queue_id].error_occured = FALSE;
 
-	COMPONENT_log_queue(LOG_LEVEL_Debug, queue_id, "Queue reset\n");
+	component_printf_queue(LOG_LEVEL_Debug, queue_id, "Queue reset\n");
 }
 
 /* vide toutes les files */
@@ -210,7 +213,7 @@ void QUEUE_reset_all()
 {
 	Uint8 i;
 
-	COMPONENT_log_global(LOG_LEVEL_Info, "Reseting all queues\n");
+	component_printf_global(LOG_LEVEL_Info, "Reseting all queues\n");
 
 	for(i = 0; i < NB_QUEUE; i++)
 		QUEUE_reset(i);

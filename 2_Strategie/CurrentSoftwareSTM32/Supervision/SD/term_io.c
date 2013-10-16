@@ -2,6 +2,7 @@
 #include "term_io.h"
 #include "../../QS/QS_all.h"
 #include "../../QS/QS_uart.h"
+#include "../../QS/QS_outputlog.h"
 
 int xatoi (const char **str, long *res)
 {

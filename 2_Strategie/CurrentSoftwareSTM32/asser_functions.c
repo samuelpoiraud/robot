@@ -15,22 +15,23 @@
 #include "asser_functions.h"
 #include "avoidance.h"
 #include "config_use.h"
+#include "QS/QS_outputlog.h"
 
 /*	Pile conservant les eventuels arguments pour les fonctions des actionneurs
  *	tout en conservant le meme prototype pour tous les actionneurs, reduisant
  *	le code de gestion des actionneurs à chaque boucle
  */
 static asser_arg_t asser_args[STACKS_SIZE];
-	
+
 void CAN_send_debug(char*);
 
-/* Accesseur en lecture sur les arguments de la pile ASSER */ 
+/* Accesseur en lecture sur les arguments de la pile ASSER */
 asser_arg_t ASSER_get_stack_arg(Uint8 index)
 {
 	return asser_args[index];
 }
 
-/* Accesseur en écriture sur les arguments de la pile ASSER */ 
+/* Accesseur en écriture sur les arguments de la pile ASSER */
 void ASSER_set_stack_arg(asser_arg_t arg, Uint8 index)
 {
 	asser_args[index] = arg;
@@ -77,7 +78,7 @@ void ASSER_goto (stack_id_e stack_id, bool_e init)
 		order.data[XLSB]=LOWINT(asser_args[STACKS_get_top(stack_id)].x);
 		order.data[YMSB]=HIGHINT(asser_args[STACKS_get_top(stack_id)].y);
 		order.data[YLSB]=LOWINT(asser_args[STACKS_get_top(stack_id)].y);
-		order.data[VITESSE]=asser_args[STACKS_get_top(stack_id)].speed;		
+		order.data[VITESSE]=asser_args[STACKS_get_top(stack_id)].speed;
 		order.data[MARCHE]=asser_args[STACKS_get_top(stack_id)].way;
 		order.data[RAYONCRB]=asser_args[STACKS_get_top(stack_id)].curve;
 		order.size = 8;
@@ -101,7 +102,7 @@ void ASSER_goto (stack_id_e stack_id, bool_e init)
 				#endif /* def ASSER_PULL_EVEN_WHEN_FAR_FROM_DESTINATION */
 			}
 		}
-		else 
+		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(ASSER)) >= (GOTO_TIMEOUT_TIME)))
 			{
@@ -170,15 +171,15 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 
 		/* On envoie tous les multi points à l'asser */
 		for( ; STACKS_get_action(ASSER,STACKS_get_top(stack_id)) == &ASSER_goto_multi_point ; STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1))
-		{	
-			args=&asser_args[STACKS_get_top(stack_id)];			
+		{
+			args=&asser_args[STACKS_get_top(stack_id)];
 			order.sid = ASSER_GO_POSITION;
 			order.data[CONFIG]=args->priority_order+MULTIPOINT+ABSOLUTE;
 			order.data[XMSB]=HIGHINT(args->x);
 			order.data[XLSB]=LOWINT(args->x);
 			order.data[YMSB]=HIGHINT(args->y);
 			order.data[YLSB]=LOWINT(args->y);
-			order.data[VITESSE]=args->speed;		
+			order.data[VITESSE]=args->speed;
 			order.data[MARCHE]=args->way;
 			order.data[RAYONCRB]=args->curve;
 			order.size=8;
@@ -187,7 +188,7 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
-		
+
 			/*
 			 * On s'arrête quand le haut de la pile n'est plus un ASSER_multi_point_goto,
 			 * c'est à dire un cran trop loin.
@@ -220,7 +221,7 @@ void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 				asser_fun_printf("\nASSER_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(ASSER));
 			}
 		}
-		else 
+		else
 		{
 			if (global.env.match_time > timeout)
 			{
@@ -326,7 +327,7 @@ void ASSER_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 		timeout = global.env.match_time;
 		/* On envoie tous les multi points à l'asser */
 		for( ; STACKS_get_action(ASSER,STACKS_get_top(stack_id)) == &ASSER_relative_goangle_multi_point ; STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1))
-		{				
+		{
 			order.sid = ASSER_GO_ANGLE;
 			order.data[CONFIG]=END_OF_BUFFER+MULTIPOINT+RELATIVE;
 			order.data[XMSB]=HIGHINT(asser_args[STACKS_get_top(stack_id)].angle);
@@ -340,13 +341,13 @@ void ASSER_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 			CAN_send (&order);
 			timeout += (RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME);
 		}
-		
+
 			/*
 			 * On s'arrêtre quand le haut de la pile n'est plus un ASSER_multi_point_goto,
 			 * c'est à dire un cran trop loin.
 			 */
-		
-		STACKS_set_top(stack_id,STACKS_get_top(stack_id)+1);	
+
+		STACKS_set_top(stack_id,STACKS_get_top(stack_id)+1);
 	}
 	else
 	{
@@ -391,7 +392,7 @@ void ASSER_goangle (stack_id_e stack_id, bool_e init)
 		{
 			STACKS_pull(ASSER);
 		}
-		else 
+		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(ASSER)) >= (GOANGLE_TIMEOUT_TIME)))
 			{
@@ -428,7 +429,7 @@ void ASSER_relative_goangle (stack_id_e stack_id, bool_e init)
 		{
 			STACKS_pull(ASSER);
 		}
-		else 
+		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(ASSER)) >= (GOANGLE_TIMEOUT_TIME)))
 			{
@@ -477,7 +478,7 @@ void ASSER_relative_goto (stack_id_e stack_id, bool_e init)
 				#endif /* def ASSER_PULL_EVEN_WHEN_FAR_FROM_DESTINATION */
 			}
 		}
-		else 
+		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(ASSER)) >= (GOTO_TIMEOUT_TIME)))
 			{
@@ -498,12 +499,12 @@ void ASSER_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 	{
 		order.sid = ASSER_RUSH_IN_THE_WALL;
 
-                //way
-                order.data[0]= asser_args[STACKS_get_top(stack_id)].way;
-                //speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
-                order.data[1]=asser_args[STACKS_get_top(stack_id)].speed;
+				//way
+				order.data[0]= asser_args[STACKS_get_top(stack_id)].way;
+				//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
+				order.data[1]=asser_args[STACKS_get_top(stack_id)].speed;
 		order.data[2]= HIGHINT(asser_args[STACKS_get_top(stack_id)].angle) ;
-                order.data[3]= LOWINT(asser_args[STACKS_get_top(stack_id)].angle);
+				order.data[3]= LOWINT(asser_args[STACKS_get_top(stack_id)].angle);
 
 		//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
 //		order.data[1]=asser_args[STACKS_get_top(stack_id)].speed;
@@ -553,7 +554,7 @@ void ASSER_rush_in_the_totem_north (stack_id_e stack_id, bool_e init)
 		{
 			STACKS_pull(ASSER);
 		}
-		else 
+		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(stack_id)) >= (RUSH_TIMEOUT_TIME)))
 			{
@@ -561,7 +562,7 @@ void ASSER_rush_in_the_totem_north (stack_id_e stack_id, bool_e init)
 				asser_fun_printf("\nASSER_timeout : RUSH\n");
 				STACKS_set_timeout(stack_id,RUSH_TIMEOUT);
 			}
-		}			
+		}
 	}
 }
 
@@ -589,7 +590,7 @@ void ASSER_rush_in_the_totem_south (stack_id_e stack_id, bool_e init)
 		{
 			STACKS_pull(ASSER);
 		}
-		else 
+		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(stack_id)) >= (RUSH_TIMEOUT_TIME)))
 			{
@@ -597,13 +598,13 @@ void ASSER_rush_in_the_totem_south (stack_id_e stack_id, bool_e init)
 				asser_fun_printf("\nASSER_timeout : RUSH\n");
 				STACKS_set_timeout(stack_id,RUSH_TIMEOUT);
 			}
-		}			
+		}
 	}
 }
 */
 
 /*
-	Fonction permettant d'armer un avertisseur sur la propulsion. 
+	Fonction permettant d'armer un avertisseur sur la propulsion.
 	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_X sera envoyé dès que le robot atteindra cette ligne virtuelle...
 	Ce message déclenchera la levée en environnement stratégie du flag global.env.asser.reach_x
 	@param : 0 permet de demander un désarmement de l'avertisseur.
@@ -616,10 +617,10 @@ void ASSER_WARNER_arm_x(Sint16 x)
 	msg.data[1] = LOWINT(x);
 	msg.size = 2;
 	CAN_send(&msg);
-}	
+}
 
 /*
-	Fonction permettant d'armer un avertisseur sur la propulsion. 
+	Fonction permettant d'armer un avertisseur sur la propulsion.
 	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_Y sera envoyé dès que le robot atteindra cette ligne virtuelle...
 	Ce message déclenchera la levée en environnement stratégie du flag global.env.asser.reach_y
 	@param : 0 permet de demander un désarmement de l'avertisseur.
@@ -632,10 +633,10 @@ void ASSER_WARNER_arm_y(Sint16 y)
 	msg.data[1] = LOWINT(y);
 	msg.size = 2;
 	CAN_send(&msg);
-}	
+}
 
 /*
-	Fonction permettant d'armer un avertisseur sur la propulsion. 
+	Fonction permettant d'armer un avertisseur sur la propulsion.
 	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_TETA sera envoyé dès que le robot atteindra cette ligne angulaire virtuelle...
 	Ce message déclenchera la levée en environnement stratégie du flag global.env.asser.reach_teta
 	@param : 0 permet de demander un désarmement de l'avertisseur.
@@ -648,7 +649,7 @@ void ASSER_WARNER_arm_teta(Sint16 teta)
 	msg.data[1] = LOWINT(teta);
 	msg.size = 2;
 	CAN_send(&msg);
-}	
+}
 
 
 
@@ -750,7 +751,7 @@ void ASSER_push_rush_in_the_wall (way_e way, bool_e asser_rotate,Sint16 angle, b
 	pos->way = way;
 	//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
 	pos->speed= asser_rotate;
-        pos->angle = angle;
+		pos->angle = angle;
 	STACKS_push (ASSER, &ASSER_rush_in_the_wall, run);
 }
 
@@ -782,7 +783,7 @@ void ASSER_push_rush_in_the_totem_north (way_e way, bool_e asser_rotate, bool_e 
 bool_e ASSER_near_destination()
 {
 	Sint16 x1, x2, y1, y2;
-	
+
 	x1 = (Sint16) global.env.pos.x;
 	y1 = (Sint16) global.env.pos.y;
 	x2 = (Sint16) asser_args[STACKS_get_top(ASSER)].x;
@@ -794,23 +795,23 @@ bool_e ASSER_near_destination()
 bool_e ASSER_near_destination_angle()
 {
 	Sint16 angle1, angle2;
-	
+
 	angle1 = (Sint16) global.env.pos.angle;
 	angle2 = (Sint16) asser_args[STACKS_get_top(ASSER)].angle;
-	return (absolute(angle1-angle2)<PI4096/90); 
+	return (absolute(angle1-angle2)<PI4096/90);
 }
 
 
 bool_e ASSER_has_goto(Sint16 x, Sint16 y)
 {
 	int i;
-	
+
 	for (i = STACKS_get_top(ASSER); i >= 0; i--) {
-		
+
 		if ((STACKS_get_action(ASSER,i) == &ASSER_goto) &&
 			(asser_args[i].x == x) &&
 			(asser_args[i].y == y)
-			) 
+			)
 		{
 			return TRUE;
 		}
@@ -856,13 +857,13 @@ void ASSER_dump_stack ()
 		else if (command == &ASSER_goto_multi_point)
 			debug_printf("ASSER_multi_point (%d, %d, %s, %s, %s)\n", args.x, args.y, speed, way, priority_order);
 #endif /* def #ifdef USE_ASSER_MULTI_POINT */
-		else if (command == &ASSER_goangle) 
+		else if (command == &ASSER_goangle)
 			debug_printf("ASSER_goangle (%d [%.1f°], %s)\n", args.angle, 180 * ((double)args.angle) / PI4096, speed);
-		else if (command == &wait_forever) 
+		else if (command == &wait_forever)
 			debug_printf("wait_forever\n");
 		else if (command == &ASSER_stop_stack)
 			debug_printf("asser_stop\n");
-		else 
+		else
 			debug_printf("undefined function %lX\n", (Uint32)(command));
 	}
 

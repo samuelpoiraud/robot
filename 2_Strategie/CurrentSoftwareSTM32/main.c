@@ -19,6 +19,7 @@
 	#include "clock.h"
 	#include "zone_mutex.h"
 	#include "QS/QS_who_am_i.h"
+	#include "QS/QS_outputlog.h"
 	#include "queue.h"
 	#include "QS/QS_buttons.h"
 	#include "Supervision/Supervision.h"
@@ -84,12 +85,12 @@ int main (void)
 	STACKS_init();
 	ENV_init();
 	CLOCK_init();
-	
+
 	//retard pour attendre l'initialisation des autres cartes
 	// voir si on peut faire mieux
 	for(j=0;j<40;j++)
 		for(i=1;i;i++);
-	
+
 	while(1)
 	{
 		LED_RUN = !LED_RUN;

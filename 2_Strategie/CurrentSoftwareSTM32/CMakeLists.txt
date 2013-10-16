@@ -11,7 +11,7 @@ project(SuperStrat C)
 
 set(CMAKE_VERBOSE_MAKEFILE false)
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
-set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Release")
 
 ########################
 # Fichiers de sortie

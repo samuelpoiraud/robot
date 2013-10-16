@@ -10,6 +10,7 @@
  */
 
 #include "actions_tests_krusty_micro.h"
+#include "../QS/QS_outputlog.h"
 
 #include "config_pin.h"
 
@@ -67,7 +68,7 @@ error_e two_first_rows(void){
 	act_entrance_left = (act_previous_left == act_left)? FALSE : TRUE;
 	act_previous_left = act_left;
 	*/
-	
+
 	static enum actionneur_state act_secondaire = GRAB;
 	/*static error_e act_previous_right = GRAB;
 	static error_e act_entrance_right;
@@ -82,9 +83,9 @@ error_e two_first_rows(void){
 	static queue_id_e ret_secondaire;
 
 	static bool_e right_ok = FALSE; //Flag qui sert à  faire patienter l'ascenseur de droite pour ne pas réagir au premier reach_y
-	
+
 	static error_e sub_action;
-	
+
 	error_e ret = IN_PROGRESS;
 
  // MAE de déplacements
@@ -218,7 +219,7 @@ error_e two_first_rows(void){
 
 
 Uint8 lift_process(Uint8 progress, Uint8 fail, Uint8 success){
-	
+
 	static enum{
 		WATCH,
 		LIFT_DOWN,
@@ -227,7 +228,7 @@ Uint8 lift_process(Uint8 progress, Uint8 fail, Uint8 success){
 	Uint8 ret = progress;
 	static bool_e right_captor = 0;
 	static bool_e left_captor = 0;
-	
+
 	switch(state){
 		case WATCH:
 			if(!GLASS_SENSOR_LEFT){
@@ -303,7 +304,7 @@ Uint8 lift_process(Uint8 progress, Uint8 fail, Uint8 success){
 		}
 
 	}
-		
+
 
 	return ret;
 }
@@ -371,20 +372,20 @@ Uint8 wait_plier(Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 	sub_action = ACT_get_last_action_result(ACT_QUEUE_Plate);
 	switch(sub_action)
 		{
-                case ACT_FUNCTION_Done:
+				case ACT_FUNCTION_Done:
 					return success_state;
-                    break;
-                case ACT_FUNCTION_ActDisabled:
-                case ACT_FUNCTION_RetryLater:
+					break;
+				case ACT_FUNCTION_ActDisabled:
+				case ACT_FUNCTION_RetryLater:
 					return fail_state;
-                    break;
-                case ACT_FUNCTION_InProgress:
+					break;
+				case ACT_FUNCTION_InProgress:
 					return in_progress;
-                    break;
-                default:
+					break;
+				default:
 					return fail_state;
-                    break;
-            }
+					break;
+			}
 	return in_progress;
 }
 
@@ -442,27 +443,27 @@ error_e Lacher_verres(Uint8 type){
 
 
 error_e K_Sortie(void){
-    static error_e sub_action;
-    sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,FORWARD,NO_AVOIDANCE);
-    switch(sub_action){
-        case END_OK:
-             return END_OK;
-             break;
-        case END_WITH_TIMEOUT:
-             return END_WITH_TIMEOUT;
-             break;
-        case NOT_HANDLED:
-              return NOT_HANDLED;
-              break;
-        case FOE_IN_PATH:
-              return FOE_IN_PATH;
-              break;
-        case IN_PROGRESS:
-            return IN_PROGRESS;
-              break;
+	static error_e sub_action;
+	sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,FORWARD,NO_AVOIDANCE);
+	switch(sub_action){
+		case END_OK:
+			 return END_OK;
+			 break;
+		case END_WITH_TIMEOUT:
+			 return END_WITH_TIMEOUT;
+			 break;
+		case NOT_HANDLED:
+			  return NOT_HANDLED;
+			  break;
+		case FOE_IN_PATH:
+			  return FOE_IN_PATH;
+			  break;
+		case IN_PROGRESS:
+			return IN_PROGRESS;
+			  break;
 
-    }
-    return IN_PROGRESS;
+	}
+	return IN_PROGRESS;
 }
 
 error_e K_push_half_row_glasses(void){
@@ -545,7 +546,7 @@ error_e K_push_half_row_glasses(void){
 				case END_OK:
 					state = DONE;
 					return END_OK;
-                                        break;
+										break;
 				case NOT_HANDLED:
 					state = DONE;
 					return NOT_HANDLED;
@@ -729,7 +730,7 @@ error_e K_push_back_row_glasses(void){
 		PUSH_ROW = 0,
 		BACK_ROW,
 		LUCKY_LUKE,
-        LUCKY_LUKE2,
+		LUCKY_LUKE2,
 		DONE_AND_WAIT,
 		EXTRACT,
 		DONE
@@ -825,8 +826,8 @@ error_e K_push_back_row_glasses(void){
 				}
 
 			break;
-                        case LUCKY_LUKE2:
-                            sub_action = goto_pos_with_scan_foe(
+						case LUCKY_LUKE2:
+							sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{955, COLOR_Y(323)},FAST}},
 					1,FORWARD,NO_AVOIDANCE);
 				switch(sub_action){
@@ -843,7 +844,7 @@ error_e K_push_back_row_glasses(void){
 						break;
 					default:
 						state = PUSH_ROW;
-                                            return NOT_HANDLED;
+											return NOT_HANDLED;
 						break;
 				}
 
@@ -866,7 +867,7 @@ error_e K_push_back_row_glasses(void){
 				case NOT_HANDLED:
 				case END_WITH_TIMEOUT:
 					state = DONE;
-                    return END_OK;
+					return END_OK;
 					break;
 				default:
 					state = DONE;
@@ -1014,1952 +1015,1952 @@ error_e K_push_back_row_glasses(void){
 
 error_e TEST_STRAT_assiettes_evitement_2(void){
 
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
 		POS_MOVE1 = 0,
-                POS_MOVE2,
-                GRABBER_DOWN_ATT,
-                GRABBER_OPEN_ATT,
+				POS_MOVE2,
+				GRABBER_DOWN_ATT,
+				GRABBER_OPEN_ATT,
 		PUSH,
-                GRABBER_UP_ATT,
-                BACK,
-                GRABBER_MID_ATT,
-                GRABBER_OPEN2_ATT,
-                GRABBER_CLOSE2_ATT,
-                GRABBER_UP2_ATT,
-                DONE,
-    } state = POS_MOVE1;
+				GRABBER_UP_ATT,
+				BACK,
+				GRABBER_MID_ATT,
+				GRABBER_OPEN2_ATT,
+				GRABBER_CLOSE2_ATT,
+				GRABBER_UP2_ATT,
+				DONE,
+	} state = POS_MOVE1;
 
 
-    switch (state) {
-         case POS_MOVE1:
+	switch (state) {
+		 case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 625 : 580,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=POS_MOVE2;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 625 : 580,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=POS_MOVE2;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=POS_MOVE2;
-                    break;
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=POS_MOVE2;
+					break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=POS_MOVE2;
-                    break;
-            }
-            break;
-        case POS_MOVE2:
+				default:
+					state=POS_MOVE2;
+					break;
+			}
+			break;
+		case POS_MOVE2:
 
-            sub_action = goto_angle(((global.env.color == BLUE) ? -PI4096/2 : PI4096/2), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateDown);
-                    state=GRABBER_DOWN_ATT;
-                    break;
+			sub_action = goto_angle(((global.env.color == BLUE) ? -PI4096/2 : PI4096/2), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateDown);
+					state=GRABBER_DOWN_ATT;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 				case FOE_IN_PATH:
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    break;
+				case IN_PROGRESS:
+					break;
 
-            }
-            break;
+			}
+			break;
 
-         case GRABBER_DOWN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_DOWN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state =GRABBER_OPEN_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state =GRABBER_OPEN_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state=GRABBER_OPEN_ATT;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state=GRABBER_OPEN_ATT;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                   state=GRABBER_OPEN_ATT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+				   state=GRABBER_OPEN_ATT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_OPEN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_OPEN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =PUSH;
-                    break;
+				case ACT_FUNCTION_Done:
+					state =PUSH;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case PUSH:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 625 : 580,COLOR_Y(400)}}},1,BACKWARD,NO_AVOIDANCE);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP_ATT;
-                    break;
+		case PUSH:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 625 : 580,COLOR_Y(400)}}},1,BACKWARD,NO_AVOIDANCE);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP_ATT;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=BACK;
-                    break;
-                case NOT_HANDLED:
-                     state=BACK;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=BACK;
+					break;
+				case NOT_HANDLED:
+					 state=BACK;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 
-                    if(COLOR_Y(global.env.pos.y)<500){
-                        static Uint8 crush=0;
-                        if(crush==0){
-                           ACT_plate_plier(ACT_PLATE_PlierClose);
-                           crush=1;
-                        }
+					if(COLOR_Y(global.env.pos.y)<500){
+						static Uint8 crush=0;
+						if(crush==0){
+						   ACT_plate_plier(ACT_PLATE_PlierClose);
+						   crush=1;
+						}
 
-                     }
-                    return IN_PROGRESS;
-                     break;
+					 }
+					return IN_PROGRESS;
+					 break;
 
-                default:
-                    return NOT_HANDLED;
-                     break;
-                    }
-                  break;
+				default:
+					return NOT_HANDLED;
+					 break;
+					}
+				  break;
 
-            break;
-         case GRABBER_UP_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			break;
+		 case GRABBER_UP_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state=BACK;
-                    break;
+				case ACT_FUNCTION_Done:
+					state=BACK;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case BACK:
+		case BACK:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 625 : 580,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 625 : 580,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
 
-                     ACT_plate_rotate(ACT_PLATE_RotateMid);
-                    state=GRABBER_MID_ATT;
-                    break;
+					 ACT_plate_rotate(ACT_PLATE_RotateMid);
+					state=GRABBER_MID_ATT;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=BACK;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=BACK;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_MID_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_MID_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state =GRABBER_OPEN2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state =GRABBER_OPEN2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_OPEN2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_OPEN2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierClose);
-                    state =GRABBER_CLOSE2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierClose);
+					state =GRABBER_CLOSE2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_CLOSE2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_CLOSE2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state =GRABBER_UP2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state =GRABBER_UP2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_UP2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_UP2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =DONE;
-                    return END_OK;
-                    break;
+				case ACT_FUNCTION_Done:
+					state =DONE;
+					return END_OK;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
 
-        case DONE:
-            return END_OK;
-            break;
-        default:
-            state=POS_MOVE1;
-            return NOT_HANDLED;
-            break;
-    }
-    return IN_PROGRESS;
+		case DONE:
+			return END_OK;
+			break;
+		default:
+			state=POS_MOVE1;
+			return NOT_HANDLED;
+			break;
+	}
+	return IN_PROGRESS;
 }
 
 error_e TEST_STRAT_assiettes_evitement_4(void){
 
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
-                POS_MOVE1=0,
-                POS_MOVE2,
-                GRABBER_DOWN_ATT,
-                GRABBER_OPEN_ATT,
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
+				POS_MOVE1=0,
+				POS_MOVE2,
+				GRABBER_DOWN_ATT,
+				GRABBER_OPEN_ATT,
 		PUSH,
-                GRABBER_UP_ATT,
-                BACK,
-                GRABBER_MID_ATT,
-                GRABBER_OPEN2_ATT,
-                GRABBER_CLOSE2_ATT,
-                GRABBER_UP2_ATT,
-                DONE,
-    } state = POS_MOVE1;
+				GRABBER_UP_ATT,
+				BACK,
+				GRABBER_MID_ATT,
+				GRABBER_OPEN2_ATT,
+				GRABBER_CLOSE2_ATT,
+				GRABBER_UP2_ATT,
+				DONE,
+	} state = POS_MOVE1;
 
 
-    switch (state) {
-        case POS_MOVE1:
+	switch (state) {
+		case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{ (global.env.color == BLUE) ? 1430 : 1390 ,COLOR_Y(620)}}},1,BACKWARD,NO_DODGE_AND_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=POS_MOVE2;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{ (global.env.color == BLUE) ? 1430 : 1390 ,COLOR_Y(620)}}},1,BACKWARD,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=POS_MOVE2;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 				case FOE_IN_PATH:
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    break;
+				case IN_PROGRESS:
+					break;
 
-            }
-            break;
-            case POS_MOVE2:
+			}
+			break;
+			case POS_MOVE2:
 
-            sub_action = goto_angle(((global.env.color == BLUE) ? -PI4096/2 : PI4096/2), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateDown);
-                    state=GRABBER_DOWN_ATT;
-                    break;
+			sub_action = goto_angle(((global.env.color == BLUE) ? -PI4096/2 : PI4096/2), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateDown);
+					state=GRABBER_DOWN_ATT;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 				case FOE_IN_PATH:
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    break;
+				case IN_PROGRESS:
+					break;
 
-            }
-            break;
+			}
+			break;
 
-         case GRABBER_DOWN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_DOWN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state =GRABBER_OPEN_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state =GRABBER_OPEN_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state=GRABBER_OPEN_ATT;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state=GRABBER_OPEN_ATT;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                   state=GRABBER_OPEN_ATT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+				   state=GRABBER_OPEN_ATT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_OPEN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_OPEN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =PUSH;
-                    break;
+				case ACT_FUNCTION_Done:
+					state =PUSH;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case PUSH:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1430 : 1390,COLOR_Y(400)}}},1,BACKWARD,NO_AVOIDANCE);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP_ATT;
-                    break;
+		case PUSH:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1430 : 1390,COLOR_Y(400)}}},1,BACKWARD,NO_AVOIDANCE);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP_ATT;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP_ATT;
-                    break;
-                case NOT_HANDLED:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP_ATT;
-                    break;
+				case END_WITH_TIMEOUT:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP_ATT;
+					break;
+				case NOT_HANDLED:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP_ATT;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 
-                    if(COLOR_Y(global.env.pos.y)<500){
-                        static Uint8 crush=0;
-                        if(crush==0){
-                           ACT_plate_plier(ACT_PLATE_PlierClose);
-                           crush=1;
-                        }
+					if(COLOR_Y(global.env.pos.y)<500){
+						static Uint8 crush=0;
+						if(crush==0){
+						   ACT_plate_plier(ACT_PLATE_PlierClose);
+						   crush=1;
+						}
 
-                     }
-                    return IN_PROGRESS;
-                     break;
+					 }
+					return IN_PROGRESS;
+					 break;
 
-                default:
-                    return NOT_HANDLED;
-                     break;
-                    }
-                  break;
+				default:
+					return NOT_HANDLED;
+					 break;
+					}
+				  break;
 
-            break;
-         case GRABBER_UP_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			break;
+		 case GRABBER_UP_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state=DONE;
-                    return END_OK;
-                    break;
+				case ACT_FUNCTION_Done:
+					state=DONE;
+					return END_OK;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case DONE:
-            return END_OK;
-            break;
-        default:
-            state=POS_MOVE1;
-            return NOT_HANDLED;
-            break;
-    }
-    return IN_PROGRESS;
+		case DONE:
+			return END_OK;
+			break;
+		default:
+			state=POS_MOVE1;
+			return NOT_HANDLED;
+			break;
+	}
+	return IN_PROGRESS;
 }
 
 error_e TEST_STRAT_assiettes_evitement_5(void){
 
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
 		POS_MOVE1 = 0,
-                POS_MOVE2,
-                GRABBER_MID_1_ATT,
-                GRABBER_OPEN_1_ATT,
-                GRABBER_DOWN_ATT,
+				POS_MOVE2,
+				GRABBER_MID_1_ATT,
+				GRABBER_OPEN_1_ATT,
+				GRABBER_DOWN_ATT,
 		PUSH,
-                GRABBER_UP_ATT,
-                BACK,
-                GRABBER_MID_ATT,
-                GRABBER_OPEN2_ATT,
-                GRABBER_CLOSE2_ATT,
-                GRABBER_UP2_ATT,
-                DONE,
-    } state = POS_MOVE1;
+				GRABBER_UP_ATT,
+				BACK,
+				GRABBER_MID_ATT,
+				GRABBER_OPEN2_ATT,
+				GRABBER_CLOSE2_ATT,
+				GRABBER_UP2_ATT,
+				DONE,
+	} state = POS_MOVE1;
 
 
-    switch (state) {
-         case POS_MOVE1:
+	switch (state) {
+		 case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1768 : 1725,COLOR_Y(560)}}},1,FORWARD,NO_DODGE_AND_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=POS_MOVE2;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1768 : 1725,COLOR_Y(560)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=POS_MOVE2;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=POS_MOVE2;
-                    break;
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=POS_MOVE2;
+					break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=POS_MOVE2;
-                    break;
-            }
-            break;
-        case POS_MOVE2:
+				default:
+					state=POS_MOVE2;
+					break;
+			}
+			break;
+		case POS_MOVE2:
 
-            sub_action = goto_angle(((global.env.color == BLUE) ? -PI4096/2 : PI4096/2), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateMid);
-                    state=GRABBER_MID_1_ATT;
-                    break;
+			sub_action = goto_angle(((global.env.color == BLUE) ? -PI4096/2 : PI4096/2), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateMid);
+					state=GRABBER_MID_1_ATT;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 				case FOE_IN_PATH:
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    break;
+				case IN_PROGRESS:
+					break;
 
-            }
-            break;
+			}
+			break;
 
-        case GRABBER_MID_1_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		case GRABBER_MID_1_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state =GRABBER_OPEN_1_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state =GRABBER_OPEN_1_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case GRABBER_OPEN_1_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		case GRABBER_OPEN_1_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                     ACT_plate_rotate(ACT_PLATE_RotateDown);
-                    state = GRABBER_DOWN_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					 ACT_plate_rotate(ACT_PLATE_RotateDown);
+					state = GRABBER_DOWN_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_DOWN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_DOWN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =PUSH;
-                    break;
+				case ACT_FUNCTION_Done:
+					state =PUSH;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=PUSH;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=PUSH;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=PUSH;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=PUSH;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case PUSH:
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1769 :1725 ,COLOR_Y(400)}}},1,BACKWARD,NO_AVOIDANCE);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP_ATT;
-                    break;
+		case PUSH:
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1769 :1725 ,COLOR_Y(400)}}},1,BACKWARD,NO_AVOIDANCE);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP_ATT;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP_ATT;
-                    break;
-                case NOT_HANDLED:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP_ATT;
-                    break;
+				case END_WITH_TIMEOUT:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP_ATT;
+					break;
+				case NOT_HANDLED:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP_ATT;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 
-                    if(COLOR_Y(global.env.pos.y)<500){
-                        static Uint8 crush=0;
-                        if(crush==0){
-                           ACT_plate_plier(ACT_PLATE_PlierClose);
-                           crush=1;
-                        }
+					if(COLOR_Y(global.env.pos.y)<500){
+						static Uint8 crush=0;
+						if(crush==0){
+						   ACT_plate_plier(ACT_PLATE_PlierClose);
+						   crush=1;
+						}
 
-                     }
-                    return IN_PROGRESS;
-                     break;
+					 }
+					return IN_PROGRESS;
+					 break;
 
-                default:
-                    return NOT_HANDLED;
-                     break;
-                    }
-                  break;
+				default:
+					return NOT_HANDLED;
+					 break;
+					}
+				  break;
 
-            break;
-         case GRABBER_UP_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			break;
+		 case GRABBER_UP_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateMid);
-                    state=GRABBER_MID_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateMid);
+					state=GRABBER_MID_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case BACK:
+		case BACK:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1770 : 1725 ,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateMid);
-                    state=GRABBER_MID_ATT;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1770 : 1725 ,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateMid);
+					state=GRABBER_MID_ATT;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=BACK;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=BACK;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_MID_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_MID_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state =GRABBER_OPEN2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state =GRABBER_OPEN2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_OPEN2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_OPEN2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierClose);
-                    state =GRABBER_CLOSE2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierClose);
+					state =GRABBER_CLOSE2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_CLOSE2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_CLOSE2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state =GRABBER_UP2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state =GRABBER_UP2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_UP2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_UP2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =DONE;
-                    return END_OK;
-                    break;
+				case ACT_FUNCTION_Done:
+					state =DONE;
+					return END_OK;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
 
-        case DONE:
-            return END_OK;
-            break;
-        default:
-            state=POS_MOVE1;
-            return NOT_HANDLED;
-            break;
-    }
-    return IN_PROGRESS;
+		case DONE:
+			return END_OK;
+			break;
+		default:
+			state=POS_MOVE1;
+			return NOT_HANDLED;
+			break;
+	}
+	return IN_PROGRESS;
 }
 
 error_e TEST_Launcher_ball_mid(void){
-    static Uint8 nb_ball=0;
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
-        MOVE = 0,
-        ANGLE,
-                GRABBER_OPEN_ATT,
-                GRABBER_CLOSE_ATT,
-        WAIT_BALL,
-        WAIT_BALL_ATT,
-        STOP_LAUNCH,
-        STOP_LAUNCH_ATT,
-        DONE
-    } state = MOVE;
+	static Uint8 nb_ball=0;
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
+		MOVE = 0,
+		ANGLE,
+				GRABBER_OPEN_ATT,
+				GRABBER_CLOSE_ATT,
+		WAIT_BALL,
+		WAIT_BALL_ATT,
+		STOP_LAUNCH,
+		STOP_LAUNCH_ATT,
+		DONE
+	} state = MOVE;
 
-    switch(state){
-        case MOVE :
-            nb_ball=0;
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1015,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=ANGLE;
-                    break;
+	switch(state){
+		case MOVE :
+			nb_ball=0;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1015,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=ANGLE;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -4150), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=WAIT_BALL;
-                    break;
+		case ANGLE:
+			sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -4150), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=WAIT_BALL;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case WAIT_BALL:
-            nb_ball=nb_ball+1;
+		case WAIT_BALL:
+			nb_ball=nb_ball+1;
 
 
-            ACT_ball_sorter_next_autoset_speed(6300, FALSE);
-            state=WAIT_BALL_ATT;
-            break;
+			ACT_ball_sorter_next_autoset_speed(6300, FALSE);
+			state=WAIT_BALL_ATT;
+			break;
 
-        case WAIT_BALL_ATT:
+		case WAIT_BALL_ATT:
 
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    if (nb_ball>=5) {
-                        state=GRABBER_OPEN_ATT;
-                        ACT_plate_rotate(ACT_PLATE_RotateDown);
-                        nb_ball=0;
-                    } else state=WAIT_BALL;
-                    break;
+				case ACT_FUNCTION_Done:
+					if (nb_ball>=5) {
+						state=GRABBER_OPEN_ATT;
+						ACT_plate_rotate(ACT_PLATE_RotateDown);
+						nb_ball=0;
+					} else state=WAIT_BALL;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-        case GRABBER_OPEN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+		case GRABBER_OPEN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state =GRABBER_CLOSE_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state =GRABBER_CLOSE_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-            case GRABBER_CLOSE_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+			case GRABBER_CLOSE_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state =WAIT_BALL;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state =WAIT_BALL;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case STOP_LAUNCH:
-            ACT_ball_launcher_stop();
-            state=STOP_LAUNCH_ATT;
-            break;
+		case STOP_LAUNCH:
+			ACT_ball_launcher_stop();
+			state=STOP_LAUNCH_ATT;
+			break;
 
-        case STOP_LAUNCH_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		case STOP_LAUNCH_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state = DONE;
-                    break;
+				case ACT_FUNCTION_Done:
+					state = DONE;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
- 
-        case DONE:
-            state = MOVE;
-            return END_OK;
-            break;
-        default :
-            state=MOVE;
-            return NOT_HANDLED;
 
-    }
-    return IN_PROGRESS;
+		case DONE:
+			state = MOVE;
+			return END_OK;
+			break;
+		default :
+			state=MOVE;
+			return NOT_HANDLED;
+
+	}
+	return IN_PROGRESS;
 }
 
 error_e TEST_Launcher_ball_gateau(void){
-    static Uint8 nb_ball=0;
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
-        MOVE = 0,
-        ANGLE,
-                GRABBER_OPEN_ATT,
-                GRABBER_CLOSE_ATT,
-        WAIT_BALL,
-        WAIT_BALL_ATT,
-        STOP_LAUNCH,
-        STOP_LAUNCH_ATT,
-        DONE,
-    } state = MOVE;
+	static Uint8 nb_ball=0;
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
+		MOVE = 0,
+		ANGLE,
+				GRABBER_OPEN_ATT,
+				GRABBER_CLOSE_ATT,
+		WAIT_BALL,
+		WAIT_BALL_ATT,
+		STOP_LAUNCH,
+		STOP_LAUNCH_ATT,
+		DONE,
+	} state = MOVE;
 
-    switch(state){
-        case MOVE :
-            nb_ball=0;
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400 ,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=ANGLE;
-                    break;
+	switch(state){
+		case MOVE :
+			nb_ball=0;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400 ,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=ANGLE;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -10549 : -2900), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state = WAIT_BALL;
-                    break;
+		case ANGLE:
+			sub_action = goto_angle(((global.env.color == BLUE) ? -10549 : -2900), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					state = WAIT_BALL;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=DONE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-
-        case WAIT_BALL:
-            nb_ball=nb_ball+1;
+				default:
+					state=DONE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
 
-            ACT_ball_sorter_next_autoset_speed(5850, FALSE);
-            state=WAIT_BALL_ATT;
-            break;
+		case WAIT_BALL:
+			nb_ball=nb_ball+1;
 
-        case WAIT_BALL_ATT:
 
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			ACT_ball_sorter_next_autoset_speed(5850, FALSE);
+			state=WAIT_BALL_ATT;
+			break;
 
-                case ACT_FUNCTION_Done:
-                     if (nb_ball>=5) {
-                        state=GRABBER_OPEN_ATT;
-                        ACT_plate_rotate(ACT_PLATE_RotateDown);
-                        nb_ball=0;
-                    } else state=WAIT_BALL;
+		case WAIT_BALL_ATT:
 
-                    break;
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_Done:
+					 if (nb_ball>=5) {
+						state=GRABBER_OPEN_ATT;
+						ACT_plate_rotate(ACT_PLATE_RotateDown);
+						nb_ball=0;
+					} else state=WAIT_BALL;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+					break;
 
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-        case GRABBER_OPEN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state =GRABBER_CLOSE_ATT;
-                    break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+		case GRABBER_OPEN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state =GRABBER_CLOSE_ATT;
+					break;
 
-            case GRABBER_CLOSE_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state =WAIT_BALL;
-                    break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+			case GRABBER_CLOSE_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state =WAIT_BALL;
+					break;
 
-        case STOP_LAUNCH:
-            ACT_ball_launcher_stop();
-            state=STOP_LAUNCH_ATT;
-            break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-        case STOP_LAUNCH_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-                case ACT_FUNCTION_Done:
-                    state = DONE;
-                    break;
+		case STOP_LAUNCH:
+			ACT_ball_launcher_stop();
+			state=STOP_LAUNCH_ATT;
+			break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+		case STOP_LAUNCH_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_Done:
+					state = DONE;
+					break;
 
-        case DONE:
-            state = MOVE;
-            return END_OK;
-            break;
-        default :
-            state=MOVE;
-            return NOT_HANDLED;
-    }
-    return IN_PROGRESS;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+			}
+			break;
+
+		case DONE:
+			state = MOVE;
+			return END_OK;
+			break;
+		default :
+			state=MOVE;
+			return NOT_HANDLED;
+	}
+	return IN_PROGRESS;
 
 }
 
 error_e TEST_Launcher_ball_mid_double(void){
-    static Uint8 nb_ball=0;
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
-        MOVE = 0,
-        ANGLE,
-        WAIT_BALL,
-        WAIT_BALL_ATT,
-        STOP_LAUNCH,
-        STOP_LAUNCH_ATT,
-        GRABBER_MID_ATT,
-        GRABBER_OPEN2_ATT,
-        GRABBER_CLOSE2_ATT,
-        GRABBER_UP2_ATT,
-        DONE
-    } state = MOVE;
+	static Uint8 nb_ball=0;
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
+		MOVE = 0,
+		ANGLE,
+		WAIT_BALL,
+		WAIT_BALL_ATT,
+		STOP_LAUNCH,
+		STOP_LAUNCH_ATT,
+		GRABBER_MID_ATT,
+		GRABBER_OPEN2_ATT,
+		GRABBER_CLOSE2_ATT,
+		GRABBER_UP2_ATT,
+		DONE
+	} state = MOVE;
 
-    switch(state){
-        case MOVE :
-            nb_ball=0;
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{ 1015,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=ANGLE;
-                    break;
+	switch(state){
+		case MOVE :
+			nb_ball=0;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{ 1015,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=ANGLE;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -4150), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=WAIT_BALL;
-                    break;
+		case ANGLE:
+			sub_action = goto_angle(((global.env.color == BLUE) ? -9400 : -4150), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=WAIT_BALL;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case WAIT_BALL:
-            nb_ball=nb_ball+1;
+		case WAIT_BALL:
+			nb_ball=nb_ball+1;
 
 
-            ACT_ball_sorter_next_autoset_speed(6300, FALSE);
-            state=WAIT_BALL_ATT;
-            break;
+			ACT_ball_sorter_next_autoset_speed(6300, FALSE);
+			state=WAIT_BALL_ATT;
+			break;
 
-        case WAIT_BALL_ATT:
+		case WAIT_BALL_ATT:
 
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    if (nb_ball>=12) state=STOP_LAUNCH;
-                    else state=WAIT_BALL;
-                    break;
+				case ACT_FUNCTION_Done:
+					if (nb_ball>=12) state=STOP_LAUNCH;
+					else state=WAIT_BALL;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case STOP_LAUNCH:
-            ACT_ball_launcher_stop();
-            state=STOP_LAUNCH_ATT;
-            break;
+		case STOP_LAUNCH:
+			ACT_ball_launcher_stop();
+			state=STOP_LAUNCH_ATT;
+			break;
 
-        case STOP_LAUNCH_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		case STOP_LAUNCH_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateMid);
-                    state = GRABBER_MID_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateMid);
+					state = GRABBER_MID_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_MID_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_MID_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state =GRABBER_OPEN2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state =GRABBER_OPEN2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_OPEN2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_OPEN2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierClose);
-                    state =GRABBER_CLOSE2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierClose);
+					state =GRABBER_CLOSE2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_CLOSE2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_CLOSE2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state =GRABBER_UP2_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state =GRABBER_UP2_ATT;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-         case GRABBER_UP2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		 case GRABBER_UP2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =DONE;
-                    return END_OK;
-                    break;
+				case ACT_FUNCTION_Done:
+					state =DONE;
+					return END_OK;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case DONE:
-            state = MOVE;
-            return END_OK;
-            break;
-        default :
-            state=MOVE;
-            return NOT_HANDLED;
+		case DONE:
+			state = MOVE;
+			return END_OK;
+			break;
+		default :
+			state=MOVE;
+			return NOT_HANDLED;
 
-    }
-    return IN_PROGRESS;
+	}
+	return IN_PROGRESS;
 }
 
 error_e TEST_Launcher_ball_gateau_double(void){
-    static Uint8 nb_ball=0;
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
-       MOVE = 0,
-        ANGLE,
-        WAIT_BALL,
-        WAIT_BALL_ATT,
-        STOP_LAUNCH,
-        STOP_LAUNCH_ATT,
-               ANGLE_GRABBER,
-        GRABBER_MID_ATT,
-        GRABBER_OPEN2_ATT,
-        GRABBER_CLOSE2_ATT,
-        GRABBER_UP2_ATT,
-        DONE
-    } state = MOVE;
+	static Uint8 nb_ball=0;
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
+	   MOVE = 0,
+		ANGLE,
+		WAIT_BALL,
+		WAIT_BALL_ATT,
+		STOP_LAUNCH,
+		STOP_LAUNCH_ATT,
+			   ANGLE_GRABBER,
+		GRABBER_MID_ATT,
+		GRABBER_OPEN2_ATT,
+		GRABBER_CLOSE2_ATT,
+		GRABBER_UP2_ATT,
+		DONE
+	} state = MOVE;
 
-    switch(state){
-        case MOVE :
-            nb_ball=0;
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400 ,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=ANGLE;
-                    break;
+	switch(state){
+		case MOVE :
+			nb_ball=0;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1400 ,COLOR_Y(620)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=ANGLE;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -10549 : -2900), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state = WAIT_BALL;
-                    break;
+		case ANGLE:
+			sub_action = goto_angle(((global.env.color == BLUE) ? -10549 : -2900), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					state = WAIT_BALL;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=DONE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-
-        case WAIT_BALL:
-            nb_ball=nb_ball+1;
+				default:
+					state=DONE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
 
-            ACT_ball_sorter_next_autoset_speed(5850, FALSE);
-            state=WAIT_BALL_ATT;
-            break;
+		case WAIT_BALL:
+			nb_ball=nb_ball+1;
 
-        case WAIT_BALL_ATT:
 
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			ACT_ball_sorter_next_autoset_speed(5850, FALSE);
+			state=WAIT_BALL_ATT;
+			break;
 
-                case ACT_FUNCTION_Done:
-                    if (nb_ball>=12) state=STOP_LAUNCH;
-                    else state=WAIT_BALL;
+		case WAIT_BALL_ATT:
 
-                    break;
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_Done:
+					if (nb_ball>=12) state=STOP_LAUNCH;
+					else state=WAIT_BALL;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+					break;
 
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-        case STOP_LAUNCH:
-            ACT_ball_launcher_stop();
-            state=STOP_LAUNCH_ATT;
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
 
-        case STOP_LAUNCH_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-                case ACT_FUNCTION_Done:
-                    state = ANGLE_GRABBER;
-                    break;
+		case STOP_LAUNCH:
+			ACT_ball_launcher_stop();
+			state=STOP_LAUNCH_ATT;
+			break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+		case STOP_LAUNCH_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-            }
-            break;
-        case ANGLE_GRABBER:
-                sub_action = goto_angle(((global.env.color == BLUE) ? -PI4096/2 : PI4096/2), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateMid);
-                    state =GRABBER_MID_ATT;
-                    break;
+				case ACT_FUNCTION_Done:
+					state = ANGLE_GRABBER;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+			}
+			break;
+		case ANGLE_GRABBER:
+				sub_action = goto_angle(((global.env.color == BLUE) ? -PI4096/2 : PI4096/2), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateMid);
+					state =GRABBER_MID_ATT;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 
-                default:
-                    state=DONE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-        case GRABBER_MID_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state =GRABBER_OPEN2_ATT;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				default:
+					state=DONE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+		case GRABBER_MID_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state =GRABBER_OPEN2_ATT;
+					break;
 
-         case GRABBER_OPEN2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierClose);
-                    state =GRABBER_CLOSE2_ATT;
-                    break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+		 case GRABBER_OPEN2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierClose);
+					state =GRABBER_CLOSE2_ATT;
+					break;
 
-         case GRABBER_CLOSE2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state =GRABBER_UP2_ATT;
-                    break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+		 case GRABBER_CLOSE2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_Done:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state =GRABBER_UP2_ATT;
+					break;
 
-         case GRABBER_UP2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =DONE;
-                    return END_OK;
-                    break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+		 case GRABBER_UP2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_Done:
+					state =DONE;
+					return END_OK;
+					break;
 
-        case DONE:
-            state = MOVE;
-            return END_OK;
-            break;
-        default :
-            state=MOVE;
-            return NOT_HANDLED;
-    }
-    return IN_PROGRESS;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case DONE:
+			state = MOVE;
+			return END_OK;
+			break;
+		default :
+			state=MOVE;
+			return NOT_HANDLED;
+	}
+	return IN_PROGRESS;
 
 }
 
@@ -2982,61 +2983,61 @@ error_e K_CADEAU1(void){
 		case MOVE:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{400,COLOR_Y(470)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = ANGLE;
+			{
+				case END_OK:
+					state = ANGLE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case ANGLE:
 			sub_action = goto_angle(0, FAST);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = OPEN_ACT;
+			{
+				case END_OK:
+					state = OPEN_ACT;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case OPEN_ACT:
@@ -3049,65 +3050,65 @@ error_e K_CADEAU1(void){
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{((global.env.color == BLUE) ? 220 : 250),COLOR_Y(470)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = EXTRACT;
+			{
+				case END_OK:
+					state = EXTRACT;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case EXTRACT:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(470)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = DONE;
+			{
+				case END_OK:
+					state = DONE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 		case DONE:
 			return END_OK;
@@ -3130,61 +3131,61 @@ error_e K_CADEAU2(void){
 		case MOVE:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{400,COLOR_Y(1070)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = ANGLE;
+			{
+				case END_OK:
+					state = ANGLE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case ANGLE:
 			sub_action = goto_angle(0, FAST);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = OPEN_ACT;
+			{
+				case END_OK:
+					state = OPEN_ACT;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case OPEN_ACT:
@@ -3197,65 +3198,65 @@ error_e K_CADEAU2(void){
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{((global.env.color == BLUE) ? 220 : 250),COLOR_Y(1070)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = EXTRACT;
+			{
+				case END_OK:
+					state = EXTRACT;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case EXTRACT:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(1070)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = DONE;
+			{
+				case END_OK:
+					state = DONE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 		case DONE:
 			return END_OK;
@@ -3278,61 +3279,61 @@ error_e K_CADEAU3(void){
 		case MOVE:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{400,COLOR_Y(1670)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = ANGLE;
+			{
+				case END_OK:
+					state = ANGLE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case ANGLE:
 			sub_action = goto_angle(0, FAST);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = OPEN_ACT;
+			{
+				case END_OK:
+					state = OPEN_ACT;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case OPEN_ACT:
@@ -3345,65 +3346,65 @@ error_e K_CADEAU3(void){
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{((global.env.color == BLUE) ? 220 : 250),COLOR_Y(1670)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = EXTRACT;
+			{
+				case END_OK:
+					state = EXTRACT;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case EXTRACT:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(1670)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = DONE;
+			{
+				case END_OK:
+					state = DONE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 		case DONE:
 			return END_OK;
@@ -3426,61 +3427,61 @@ error_e K_CADEAU4(void){
 		case MOVE:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{400,COLOR_Y(2270)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = ANGLE;
+			{
+				case END_OK:
+					state = ANGLE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case ANGLE:
 			sub_action = goto_angle(0, FAST);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = OPEN_ACT;
+			{
+				case END_OK:
+					state = OPEN_ACT;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case OPEN_ACT:
@@ -3493,65 +3494,65 @@ error_e K_CADEAU4(void){
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{((global.env.color == BLUE) ? 220 : 250),COLOR_Y(2270)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = EXTRACT;
+			{
+				case END_OK:
+					state = EXTRACT;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					ACT_plate_rotate(ACT_PLATE_RotateUp);
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case EXTRACT:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{600,COLOR_Y(2270)}}},1,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = DONE;
+			{
+				case END_OK:
+					state = DONE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 		case DONE:
 			return END_OK;
@@ -3582,100 +3583,100 @@ error_e K_ASSIETE1(void){
 		case MOVE:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(800)}}}, 1, BACKWARD, NO_DODGE_AND_NO_WAIT);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = ANGLE;
+			{
+				case END_OK:
+					state = ANGLE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = DONE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 			case ANGLE:
 			sub_action = goto_angle(PI4096/2, FAST);
 			switch(sub_action)
-            {
-                case END_OK:
-                    state = GRABER_DOWN;
+			{
+				case END_OK:
+					state = GRABER_DOWN;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
-			
+
 		case GRABER_DOWN:
 			state = WAIT_GRABER_DOWN;
 			ACT_plate_rotate(ACT_PLATE_RotateDown);
 			return IN_PROGRESS;
 			break;
-			
+
 		case WAIT_GRABER_DOWN:
 			sub_action = ACT_get_last_action_result(ACT_QUEUE_Plate);
-			
-			switch(sub_action)
-            {
-                case ACT_FUNCTION_Done:
-                    state = OPEN_GRABER;
-					return IN_PROGRESS;
-                    break;
 
-                case ACT_FUNCTION_ActDisabled:
+			switch(sub_action)
+			{
+				case ACT_FUNCTION_Done:
+					state = OPEN_GRABER;
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
+				case ACT_FUNCTION_RetryLater:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case ACT_FUNCTION_InProgress:
+				case ACT_FUNCTION_InProgress:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
-			
+
 		case OPEN_GRABER:
 			state = WAIT_OPEN_GRABER;
 			ACT_plate_plier(ACT_PLATE_PLIER_OPEN);
@@ -3686,61 +3687,61 @@ error_e K_ASSIETE1(void){
 			sub_action = ACT_get_last_action_result(ACT_QUEUE_Plate);
 
 			switch(sub_action)
-            {
-                case ACT_FUNCTION_Done:
-                    state = PUSH;
+			{
+				case ACT_FUNCTION_Done:
+					state = PUSH;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
+				case ACT_FUNCTION_ActDisabled:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
+				case ACT_FUNCTION_RetryLater:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case ACT_FUNCTION_InProgress:
+				case ACT_FUNCTION_InProgress:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case PUSH:
 			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{1000,COLOR_Y(400)}}},1,BACKWARD,NORMAL_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state = GRAB;
+			switch(sub_action)
+			{
+				case END_OK:
+					state = GRAB;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case END_WITH_TIMEOUT:
+				case END_WITH_TIMEOUT:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
+				case NOT_HANDLED:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case IN_PROGRESS:
+				case IN_PROGRESS:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case GRAB:
@@ -3753,31 +3754,31 @@ error_e K_ASSIETE1(void){
 			sub_action = ACT_get_last_action_result(ACT_QUEUE_Plate);
 
 			switch(sub_action)
-            {
-                case ACT_FUNCTION_Done:
-                    state = EAT_BALLS;
+			{
+				case ACT_FUNCTION_Done:
+					state = EAT_BALLS;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
+				case ACT_FUNCTION_ActDisabled:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
+				case ACT_FUNCTION_RetryLater:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case ACT_FUNCTION_InProgress:
+				case ACT_FUNCTION_InProgress:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 
 		case EAT_BALLS:
@@ -3790,31 +3791,31 @@ error_e K_ASSIETE1(void){
 		case WAIT_EAT_BALLS:
 			sub_action = ACT_get_last_action_result(ACT_QUEUE_Plate);
 			switch(sub_action)
-            {
-                case ACT_FUNCTION_Done:
-                    state = DONE;
+			{
+				case ACT_FUNCTION_Done:
+					state = DONE;
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
+				case ACT_FUNCTION_RetryLater:
 					state = DONE;
 					return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
+				case ACT_FUNCTION_ActDisabled:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
+					break;
 
-                case ACT_FUNCTION_InProgress:
+				case ACT_FUNCTION_InProgress:
 					return IN_PROGRESS;
-                    break;
+					break;
 
-                default:
+				default:
 					state = MOVE;
 					return NOT_HANDLED;
-                    break;
-            }
+					break;
+			}
 			break;
 		case DONE:
 			return END_OK;
@@ -3837,7 +3838,7 @@ error_e K_verres(void){
 		QUATRE,
 		CINQ,
 		SIX,
-        SEPT,
+		SEPT,
 		DONE,
 	}state = SORTIR;
 
@@ -4015,7 +4016,7 @@ error_e K_verres(void){
 						break;
 				}
 				break;
-                    case SEPT:
+					case SEPT:
 				sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{1050, COLOR_Y(700)},FAST}},
 					1,BACKWARD,NO_AVOIDANCE);
@@ -4307,7 +4308,7 @@ error_e K_push_back_row_glasses_HOMOLO(void){
 		PUSH_ROW = 0,
 		BACK_ROW,
 		LUCKY_LUKE,
-                        LUCKY_LUKE2,
+						LUCKY_LUKE2,
 		DONE_AND_WAIT,
 		EXTRACT,
 		DONE
@@ -4403,8 +4404,8 @@ error_e K_push_back_row_glasses_HOMOLO(void){
 				}
 
 			break;
-                        case LUCKY_LUKE2:
-                            sub_action = goto_pos_with_scan_foe(
+						case LUCKY_LUKE2:
+							sub_action = goto_pos_with_scan_foe(
 					(displacement_t[]){{{955, COLOR_Y(323)},FAST}},
 					1,BACKWARD,NO_DODGE_AND_NO_WAIT);
 				switch(sub_action){
@@ -4591,1205 +4592,1205 @@ error_e K_push_back_row_glasses_HOMOLO(void){
 
 
 error_e TEST_Launcher_ball_cadeau(void){
-    static Uint8 nb_ball=0;
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
-        MOVE = 0,
-        ANGLE,
-        LAUNCH_BALL_NORMAL,
-        LAUNCH_BALL_SLOW,
-        LAUNCH_BALL_ATT,
-        WAIT_BALL,
-        WAIT_BALL_ATT,
-        STOP_LAUNCH,
-        STOP_LAUNCH_ATT,
-        DONE,
-    } state = MOVE;
+	static Uint8 nb_ball=0;
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
+		MOVE = 0,
+		ANGLE,
+		LAUNCH_BALL_NORMAL,
+		LAUNCH_BALL_SLOW,
+		LAUNCH_BALL_ATT,
+		WAIT_BALL,
+		WAIT_BALL_ATT,
+		STOP_LAUNCH,
+		STOP_LAUNCH_ATT,
+		DONE,
+	} state = MOVE;
 
-    switch(state){
-        case MOVE :
-            nb_ball=0;
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 615 : 590,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=ANGLE;
-                    break;
+	switch(state){
+		case MOVE :
+			nb_ball=0;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 615 : 590,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=ANGLE;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -8505 : -4600), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                    if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
-                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
-                    
-                    break;
+		case ANGLE:
+			sub_action = goto_angle(((global.env.color == BLUE) ? -8505 : -4600), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+					if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+					else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
 
-                default:
-                    state=DONE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+					break;
 
-        case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run((global.env.color == BLUE) ? 7100 : 7200);
-            state=LAUNCH_BALL_ATT;
-            break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-        case LAUNCH_BALL_SLOW:
-            ACT_ball_launcher_run(4000);
-            state=LAUNCH_BALL_ATT;
-            break;
+				default:
+					state=DONE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case LAUNCH_BALL_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		case LAUNCH_BALL_NORMAL:
+		   ACT_ball_launcher_run((global.env.color == BLUE) ? 7100 : 7200);
+			state=LAUNCH_BALL_ATT;
+			break;
 
-                case ACT_FUNCTION_Done:
-                    state = WAIT_BALL;
-                    break;
+		case LAUNCH_BALL_SLOW:
+			ACT_ball_launcher_run(4000);
+			state=LAUNCH_BALL_ATT;
+			break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+		case LAUNCH_BALL_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_Done:
+					state = WAIT_BALL;
+					break;
 
-        case WAIT_BALL:
-            nb_ball=nb_ball+1;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case WAIT_BALL:
+			nb_ball=nb_ball+1;
 
 
-            ACT_ball_sorter_next();
-            state=WAIT_BALL_ATT;
-            break;
+			ACT_ball_sorter_next();
+			state=WAIT_BALL_ATT;
+			break;
 
-        case WAIT_BALL_ATT:
+		case WAIT_BALL_ATT:
 
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    if (nb_ball>=9) state=STOP_LAUNCH;
-                    else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
-                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
-                    
-                    break;
+				case ACT_FUNCTION_Done:
+					if (nb_ball>=9) state=STOP_LAUNCH;
+					else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+					else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
 
-        case STOP_LAUNCH:
-            ACT_ball_launcher_stop();
-            state=STOP_LAUNCH_ATT;
-            break;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case STOP_LAUNCH_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		case STOP_LAUNCH:
+			ACT_ball_launcher_stop();
+			state=STOP_LAUNCH_ATT;
+			break;
 
-                case ACT_FUNCTION_Done:
-                    state = DONE;
-                    break;
+		case STOP_LAUNCH_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_Done:
+					state = DONE;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-        case DONE:
-            state = MOVE;
-            return END_OK;
-            break;
-        default :
-            state=MOVE;
-            return NOT_HANDLED;
-            break;
-    }
-    return IN_PROGRESS;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+			}
+			break;
+
+		case DONE:
+			state = MOVE;
+			return END_OK;
+			break;
+		default :
+			state=MOVE;
+			return NOT_HANDLED;
+			break;
+	}
+	return IN_PROGRESS;
 
 }
 
 error_e TEST_Launcher_ball_gateau2(void){
-    static Uint8 nb_ball=0;
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
-        MOVE = 0,
-        ANGLE,
-        LAUNCH_BALL_NORMAL,
-        LAUNCH_BALL_SLOW,
-        LAUNCH_BALL_ATT,
-        WAIT_BALL,
-        WAIT_BALL_ATT,
-        STOP_LAUNCH,
-        STOP_LAUNCH_ATT,
-        DONE,
-    } state = MOVE;
+	static Uint8 nb_ball=0;
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
+		MOVE = 0,
+		ANGLE,
+		LAUNCH_BALL_NORMAL,
+		LAUNCH_BALL_SLOW,
+		LAUNCH_BALL_ATT,
+		WAIT_BALL,
+		WAIT_BALL_ATT,
+		STOP_LAUNCH,
+		STOP_LAUNCH_ATT,
+		DONE,
+	} state = MOVE;
 
-    switch(state){
-        case MOVE :
-            nb_ball=0;
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1450 : 1340,COLOR_Y(700)}}},1,BACKWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=ANGLE;
-                    break;
+	switch(state){
+		case MOVE :
+			nb_ball=0;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1450 : 1340,COLOR_Y(700)}}},1,BACKWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=ANGLE;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case ANGLE:
-            sub_action = goto_angle(((global.env.color == BLUE) ? -10000 : -3100), FAST);
-            switch(sub_action)
-            {
-                case END_OK:
-                   if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
-                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
-                    
-                    break;
+		case ANGLE:
+			sub_action = goto_angle(((global.env.color == BLUE) ? -10000 : -3100), FAST);
+			switch(sub_action)
+			{
+				case END_OK:
+				   if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+					else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+					break;
 
-                case NOT_HANDLED:
-                    state=MOVE;
-                    return NOT_HANDLED;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case NOT_HANDLED:
+					state=MOVE;
+					return NOT_HANDLED;
 
-                default:
-                    state=DONE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-        case LAUNCH_BALL_NORMAL:
-           ACT_ball_launcher_run((global.env.color == BLUE) ? 5850:5950);
-            state=LAUNCH_BALL_ATT;
-            break;
+				default:
+					state=DONE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case LAUNCH_BALL_SLOW:
-            ACT_ball_launcher_run(4000);
-            state=LAUNCH_BALL_ATT;
-            break;
+		case LAUNCH_BALL_NORMAL:
+		   ACT_ball_launcher_run((global.env.color == BLUE) ? 5850:5950);
+			state=LAUNCH_BALL_ATT;
+			break;
 
-        case LAUNCH_BALL_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		case LAUNCH_BALL_SLOW:
+			ACT_ball_launcher_run(4000);
+			state=LAUNCH_BALL_ATT;
+			break;
 
-                case ACT_FUNCTION_Done:
-                    state = WAIT_BALL;
-                    break;
+		case LAUNCH_BALL_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_Done:
+					state = WAIT_BALL;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-        case WAIT_BALL:
-            nb_ball=nb_ball+1;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case WAIT_BALL:
+			nb_ball=nb_ball+1;
 
 
-            ACT_ball_sorter_next();
-            state=WAIT_BALL_ATT;
-            break;
+			ACT_ball_sorter_next();
+			state=WAIT_BALL_ATT;
+			break;
 
-        case WAIT_BALL_ATT:
+		case WAIT_BALL_ATT:
 
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallSorter);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
+				case ACT_FUNCTION_Done:
 
-                    if (nb_ball>=13) state=STOP_LAUNCH;
-                    else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
-                    else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
-                    break;
+					if (nb_ball>=13) state=STOP_LAUNCH;
+					else if (global.env.color_ball==0)state = LAUNCH_BALL_NORMAL;
+					else if (global.env.color_ball==1)state = LAUNCH_BALL_SLOW;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
 
-                    break;
-                default:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+					break;
+				default:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
-        case STOP_LAUNCH:
-            ACT_ball_launcher_stop();
-            state=STOP_LAUNCH_ATT;
-            break;
+		case STOP_LAUNCH:
+			ACT_ball_launcher_stop();
+			state=STOP_LAUNCH_ATT;
+			break;
 
-        case STOP_LAUNCH_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+		case STOP_LAUNCH_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_BallLauncher);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state = DONE;
-                    break;
+				case ACT_FUNCTION_Done:
+					state = DONE;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=MOVE;
-                    return NOT_HANDLED;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=MOVE;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+			}
+			break;
 
-        case DONE:
-            state = MOVE;
-            return END_OK;
-            break;
-        default :
-            state=MOVE;
-            return NOT_HANDLED;
-    }
-    return IN_PROGRESS;
+		case DONE:
+			state = MOVE;
+			return END_OK;
+			break;
+		default :
+			state=MOVE;
+			return NOT_HANDLED;
+	}
+	return IN_PROGRESS;
 
 }
 
 error_e TEST_STRAT_assiettes_evitement_1(void){
 
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
 				POS_MOVE1 = 0,
-                POS_MOVE2,
-                GRABBER_DOWN ,
-                GRABBER_DOWN_ATT,
-                GRABBER_OPEN,
-                GRABBER_OPEN_ATT,
+				POS_MOVE2,
+				GRABBER_DOWN ,
+				GRABBER_DOWN_ATT,
+				GRABBER_OPEN,
+				GRABBER_OPEN_ATT,
 				PUSH,
 				GRABBER_UP,
-                GRABBER_UP_ATT,
-                BACK,
-                GRABBER_MID,
-                GRABBER_MID_ATT,
-                GRABBER_OPEN2,
-                GRABBER_OPEN2_ATT,
-                GRABBER_CLOSE2,
-                GRABBER_CLOSE2_ATT,
-                GRABBER_UP2,
-                GRABBER_UP2_ATT,
-                DONE,
-    } state = POS_MOVE1;
+				GRABBER_UP_ATT,
+				BACK,
+				GRABBER_MID,
+				GRABBER_MID_ATT,
+				GRABBER_OPEN2,
+				GRABBER_OPEN2_ATT,
+				GRABBER_CLOSE2,
+				GRABBER_CLOSE2_ATT,
+				GRABBER_UP2,
+				GRABBER_UP2_ATT,
+				DONE,
+	} state = POS_MOVE1;
 
 //    static bool_e timeout = FALSE;
 
-    switch (state) {
-         case POS_MOVE1:
+	switch (state) {
+		 case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ?  265: 240,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=POS_MOVE2;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ?  265: 240,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=POS_MOVE2;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    return NOT_HANDLED;
-                    state=POS_MOVE1;
-                    break;
-            }
-            break;
-        case POS_MOVE2:
+				default:
+					return NOT_HANDLED;
+					state=POS_MOVE1;
+					break;
+			}
+			break;
+		case POS_MOVE2:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265: 240,COLOR_Y(700)}}},1,BACKWARD,NO_AVOIDANCE);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateDown);
-                    state=GRABBER_DOWN;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265: 240,COLOR_Y(700)}}},1,BACKWARD,NO_AVOIDANCE);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateDown);
+					state=GRABBER_DOWN;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 				case FOE_IN_PATH:
-                case NOT_HANDLED:
-                    ACT_plate_rotate(ACT_PLATE_RotateDown);
-                    state=GRABBER_DOWN;
-                    return NOT_HANDLED;
-                    break;
+				case NOT_HANDLED:
+					ACT_plate_rotate(ACT_PLATE_RotateDown);
+					state=GRABBER_DOWN;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    break;
+				case IN_PROGRESS:
+					break;
 
-            }
-            break;
+			}
+			break;
 
-        case GRABBER_DOWN:
-
-            
-            state =GRABBER_DOWN_ATT;
-            break;
-         case GRABBER_DOWN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
-
-                case ACT_FUNCTION_Done:
-                    ACT_plate_plier(ACT_PLATE_PlierOpen);
-                    state =GRABBER_OPEN;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+		case GRABBER_DOWN:
 
 
+			state =GRABBER_DOWN_ATT;
+			break;
+		 case GRABBER_DOWN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-        case GRABBER_OPEN:
+				case ACT_FUNCTION_Done:
+					ACT_plate_plier(ACT_PLATE_PlierOpen);
+					state =GRABBER_OPEN;
+					break;
 
-            state =GRABBER_OPEN_ATT;
-            break;
-         case GRABBER_OPEN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =PUSH;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
 
+
+		case GRABBER_OPEN:
+
+			state =GRABBER_OPEN_ATT;
+			break;
+		 case GRABBER_OPEN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =PUSH;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
 
 
 
-        case PUSH:
-
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265: 240,COLOR_Y(390)}}},1,BACKWARD,NO_AVOIDANCE);
-            //sub_action= TEST_STRAT_in_da_wall();
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP;
-                    break;
-
-                case END_WITH_TIMEOUT:
-                    state=BACK;
-                    break;
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case IN_PROGRESS:
-
-                    if(global.env.pos.y<580){
-                        static Uint8 crush=0;
-                        if(crush==0){
-                           ACT_plate_plier(ACT_PLATE_PlierClose);
-                           crush=1;
-                        }
-
-                     }
-                    return IN_PROGRESS;
-                     break;
-
-                default:
-                    return NOT_HANDLED;
-                     break;
-                    }
-                  break;
-
-        case GRABBER_UP:
-
-            
-            state =GRABBER_UP_ATT;
-            break;
-         case GRABBER_UP_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
-
-                case ACT_FUNCTION_Done:
-                    state =BACK;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-        case BACK:
-
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265 : 240,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateMid);
-                    state=GRABBER_MID;
-                    break;
-
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
-
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-        case GRABBER_MID:
-
-            
-            state =GRABBER_MID_ATT;
-            break;
-         case GRABBER_MID_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
-
-                case ACT_FUNCTION_Done:
-                    state =GRABBER_OPEN2;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
 
 
-        case GRABBER_OPEN2:
+		case PUSH:
 
-            ACT_plate_plier(ACT_PLATE_PlierOpen);
-            state =GRABBER_OPEN2_ATT;
-            break;
-         case GRABBER_OPEN2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265: 240,COLOR_Y(390)}}},1,BACKWARD,NO_AVOIDANCE);
+			//sub_action= TEST_STRAT_in_da_wall();
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =GRABBER_CLOSE2;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=BACK;
+					break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case IN_PROGRESS:
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+					if(global.env.pos.y<580){
+						static Uint8 crush=0;
+						if(crush==0){
+						   ACT_plate_plier(ACT_PLATE_PlierClose);
+						   crush=1;
+						}
 
-         case GRABBER_CLOSE2:
+					 }
+					return IN_PROGRESS;
+					 break;
 
-            ACT_plate_plier(ACT_PLATE_PlierClose);
-            state =GRABBER_CLOSE2_ATT;
-            break;
-         case GRABBER_CLOSE2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				default:
+					return NOT_HANDLED;
+					 break;
+					}
+				  break;
 
-                case ACT_FUNCTION_Done:
-                    state =GRABBER_UP2;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-        case GRABBER_UP2:
-
-            ACT_plate_rotate(ACT_PLATE_RotateUp);
-            state =GRABBER_UP2_ATT;
-            break;
-         case GRABBER_UP2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
-
-                case ACT_FUNCTION_Done:
-                    state =DONE;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+		case GRABBER_UP:
 
 
-        case DONE:
-            return END_OK;
-            break;
-        default:
-            state=POS_MOVE1;
-            return NOT_HANDLED;
-            break;
-    }
-    return IN_PROGRESS;
+			state =GRABBER_UP_ATT;
+			break;
+		 case GRABBER_UP_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =BACK;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case BACK:
+
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 265 : 240,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateMid);
+					state=GRABBER_MID;
+					break;
+
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
+
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case GRABBER_MID:
+
+
+			state =GRABBER_MID_ATT;
+			break;
+		 case GRABBER_MID_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =GRABBER_OPEN2;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+
+		case GRABBER_OPEN2:
+
+			ACT_plate_plier(ACT_PLATE_PlierOpen);
+			state =GRABBER_OPEN2_ATT;
+			break;
+		 case GRABBER_OPEN2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =GRABBER_CLOSE2;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		 case GRABBER_CLOSE2:
+
+			ACT_plate_plier(ACT_PLATE_PlierClose);
+			state =GRABBER_CLOSE2_ATT;
+			break;
+		 case GRABBER_CLOSE2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =GRABBER_UP2;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case GRABBER_UP2:
+
+			ACT_plate_rotate(ACT_PLATE_RotateUp);
+			state =GRABBER_UP2_ATT;
+			break;
+		 case GRABBER_UP2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =DONE;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+
+		case DONE:
+			return END_OK;
+			break;
+		default:
+			state=POS_MOVE1;
+			return NOT_HANDLED;
+			break;
+	}
+	return IN_PROGRESS;
 }
 
 error_e TEST_STRAT_assiettes_evitement_3(void){
 
-    static error_e sub_action;
-    static ACT_function_result_e sub_action_act;
-    static enum {
+	static error_e sub_action;
+	static ACT_function_result_e sub_action_act;
+	static enum {
 				POS_MOVE1 = 0,
-                POS_MOVE2,
-                GRABBER_DOWN ,
-                GRABBER_DOWN_ATT,
-                GRABBER_OPEN,
-                GRABBER_OPEN_ATT,
+				POS_MOVE2,
+				GRABBER_DOWN ,
+				GRABBER_DOWN_ATT,
+				GRABBER_OPEN,
+				GRABBER_OPEN_ATT,
 				PUSH,
 				GRABBER_UP,
-                GRABBER_UP_ATT,
-                BACK,
-                GRABBER_MID,
-                GRABBER_MID_ATT,
-                GRABBER_OPEN2,
-                GRABBER_OPEN2_ATT,
-                GRABBER_CLOSE2,
-                GRABBER_CLOSE2_ATT,
-                GRABBER_UP2,
-                GRABBER_UP2_ATT,
-                DONE,
-    } state = POS_MOVE1;
+				GRABBER_UP_ATT,
+				BACK,
+				GRABBER_MID,
+				GRABBER_MID_ATT,
+				GRABBER_OPEN2,
+				GRABBER_OPEN2_ATT,
+				GRABBER_CLOSE2,
+				GRABBER_CLOSE2_ATT,
+				GRABBER_UP2,
+				GRABBER_UP2_ATT,
+				DONE,
+	} state = POS_MOVE1;
 
 //    static bool_e timeout = FALSE;
 
-    switch (state) {
-         case POS_MOVE1:
+	switch (state) {
+		 case POS_MOVE1:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990 ,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    state=POS_MOVE2;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990 ,COLOR_Y(800)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					state=POS_MOVE2;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
 
-                default:
-                    return NOT_HANDLED;
-                    state=POS_MOVE1;
-                    break;
-            }
-            break;
-        case POS_MOVE2:
+				default:
+					return NOT_HANDLED;
+					state=POS_MOVE1;
+					break;
+			}
+			break;
+		case POS_MOVE2:
 
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(700)}}},1,BACKWARD,NO_AVOIDANCE);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateDown);
-                    state=GRABBER_DOWN;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(700)}}},1,BACKWARD,NO_AVOIDANCE);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateDown);
+					state=GRABBER_DOWN;
+					break;
 
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
 				case FOE_IN_PATH:
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case IN_PROGRESS:
-                    break;
+				case IN_PROGRESS:
+					break;
 
-            }
-            break;
+			}
+			break;
 
-        case GRABBER_DOWN:
-
-            
-            state =GRABBER_DOWN_ATT;
-            break;
-         case GRABBER_DOWN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
-
-                case ACT_FUNCTION_Done:
-                    state =GRABBER_OPEN;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+		case GRABBER_DOWN:
 
 
+			state =GRABBER_DOWN_ATT;
+			break;
+		 case GRABBER_DOWN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
 
-        case GRABBER_OPEN:
+				case ACT_FUNCTION_Done:
+					state =GRABBER_OPEN;
+					break;
 
-            ACT_plate_plier(ACT_PLATE_PlierOpen);
-            state =GRABBER_OPEN_ATT;
-            break;
-         case GRABBER_OPEN_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =PUSH;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
 
+
+		case GRABBER_OPEN:
+
+			ACT_plate_plier(ACT_PLATE_PlierOpen);
+			state =GRABBER_OPEN_ATT;
+			break;
+		 case GRABBER_OPEN_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =PUSH;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
 
 
 
 
-        case PUSH:
-
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(390)}}},1,BACKWARD,NO_AVOIDANCE);
-            //sub_action= TEST_STRAT_in_da_wall();
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateUp);
-                    state=GRABBER_UP;
-                    break;
-
-                case END_WITH_TIMEOUT:
-                    state=BACK;
-                    break;
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case IN_PROGRESS:
-
-                    if(global.env.pos.y<580){
-                        static Uint8 crush=0;
-                        if(crush==0){
-                           ACT_plate_plier(ACT_PLATE_PlierClose);
-                           crush=1;
-                        }
-
-                     }
-                    return IN_PROGRESS;
-                     break;
-
-                default:
-                    return NOT_HANDLED;
-                     break;
-                    }
-                  break;
-
-        case GRABBER_UP:
-
-            
-            state =GRABBER_UP_ATT;
-            break;
-         case GRABBER_UP_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
-
-                case ACT_FUNCTION_Done:
-                    state =BACK;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-        case BACK:
-
-            sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
-            switch(sub_action)
-            {
-                case END_OK:
-                    ACT_plate_rotate(ACT_PLATE_RotateMid);
-                    state=GRABBER_MID;
-                    break;
-
-                case END_WITH_TIMEOUT:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                case NOT_HANDLED:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case IN_PROGRESS:
-                    return IN_PROGRESS;
-                    break;
-
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-        case GRABBER_MID:
-
-            
-            state =GRABBER_MID_ATT;
-            break;
-         case GRABBER_MID_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
-
-                case ACT_FUNCTION_Done:
-                    state =GRABBER_OPEN2;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
 
 
-        case GRABBER_OPEN2:
+		case PUSH:
 
-            ACT_plate_plier(ACT_PLATE_PlierOpen);
-            state =GRABBER_OPEN2_ATT;
-            break;
-         case GRABBER_OPEN2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-           {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(390)}}},1,BACKWARD,NO_AVOIDANCE);
+			//sub_action= TEST_STRAT_in_da_wall();
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateUp);
+					state=GRABBER_UP;
+					break;
 
-                case ACT_FUNCTION_Done:
-                    state =GRABBER_CLOSE2;
-                    break;
+				case END_WITH_TIMEOUT:
+					state=BACK;
+					break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
 
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
+				case IN_PROGRESS:
 
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+					if(global.env.pos.y<580){
+						static Uint8 crush=0;
+						if(crush==0){
+						   ACT_plate_plier(ACT_PLATE_PlierClose);
+						   crush=1;
+						}
 
-         case GRABBER_CLOSE2:
+					 }
+					return IN_PROGRESS;
+					 break;
 
-            ACT_plate_plier(ACT_PLATE_PlierClose);
-            state =GRABBER_CLOSE2_ATT;
-            break;
-         case GRABBER_CLOSE2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
+				default:
+					return NOT_HANDLED;
+					 break;
+					}
+				  break;
 
-                case ACT_FUNCTION_Done:
-                    state =GRABBER_UP2;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
-
-        case GRABBER_UP2:
-
-            ACT_plate_rotate(ACT_PLATE_RotateUp);
-            state =GRABBER_UP2_ATT;
-            break;
-         case GRABBER_UP2_ATT:
-            sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
-            switch(sub_action_act)
-            {
-                case ACT_FUNCTION_InProgress:
-                    return IN_PROGRESS;
-                    break;
-
-                case ACT_FUNCTION_Done:
-                    state =DONE;
-                    break;
-
-                case ACT_FUNCTION_ActDisabled:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-
-                case ACT_FUNCTION_RetryLater:
-                    state=DONE;
-                    return END_WITH_TIMEOUT;
-                    break;
-                default:
-                    state=POS_MOVE1;
-                    return NOT_HANDLED;
-                    break;
-            }
-            break;
+		case GRABBER_UP:
 
 
-        case DONE:
-            return END_OK;
-            break;
-        default:
-            state=POS_MOVE1;
-            return NOT_HANDLED;
-            break;
-    }
-    return IN_PROGRESS;
+			state =GRABBER_UP_ATT;
+			break;
+		 case GRABBER_UP_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =BACK;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case BACK:
+
+			sub_action = goto_pos_with_scan_foe((displacement_t[]){{{(global.env.color == BLUE) ? 1015 : 990,COLOR_Y(700)}}},1,FORWARD,NO_DODGE_AND_NO_WAIT);
+			switch(sub_action)
+			{
+				case END_OK:
+					ACT_plate_rotate(ACT_PLATE_RotateMid);
+					state=GRABBER_MID;
+					break;
+
+				case END_WITH_TIMEOUT:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				case NOT_HANDLED:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case IN_PROGRESS:
+					return IN_PROGRESS;
+					break;
+
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case GRABBER_MID:
+
+
+			state =GRABBER_MID_ATT;
+			break;
+		 case GRABBER_MID_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =GRABBER_OPEN2;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+
+		case GRABBER_OPEN2:
+
+			ACT_plate_plier(ACT_PLATE_PlierOpen);
+			state =GRABBER_OPEN2_ATT;
+			break;
+		 case GRABBER_OPEN2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+		   {
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =GRABBER_CLOSE2;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		 case GRABBER_CLOSE2:
+
+			ACT_plate_plier(ACT_PLATE_PlierClose);
+			state =GRABBER_CLOSE2_ATT;
+			break;
+		 case GRABBER_CLOSE2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =GRABBER_UP2;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case GRABBER_UP2:
+
+			ACT_plate_rotate(ACT_PLATE_RotateUp);
+			state =GRABBER_UP2_ATT;
+			break;
+		 case GRABBER_UP2_ATT:
+			sub_action_act = ACT_get_last_action_result(ACT_QUEUE_Plate);
+			switch(sub_action_act)
+			{
+				case ACT_FUNCTION_InProgress:
+					return IN_PROGRESS;
+					break;
+
+				case ACT_FUNCTION_Done:
+					state =DONE;
+					break;
+
+				case ACT_FUNCTION_ActDisabled:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+
+				case ACT_FUNCTION_RetryLater:
+					state=DONE;
+					return END_WITH_TIMEOUT;
+					break;
+				default:
+					state=POS_MOVE1;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+
+		case DONE:
+			return END_OK;
+			break;
+		default:
+			state=POS_MOVE1;
+			return NOT_HANDLED;
+			break;
+	}
+	return IN_PROGRESS;
 }
 /* ----------------------------------------------------------------------------- */
 /* 								Fonction diverses                     			 */

@@ -4,6 +4,7 @@
 #include "../../QS/QS_CANmsgList.h"
 #include "../../QS/QS_can_over_uart.h"
 #include "../../QS/QS_spi.h"
+#include "../../QS/QS_outputlog.h"
 #include "../Verbose_can_msg.h"
 #include "ff_test_term.h"
 #include "Libraries/fat_sd/ff.h"
@@ -159,7 +160,7 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 
 	f_write(&file_match, string, p-string, (unsigned int *)&written);
 	if(written != p-string)
-		debug_printf("WARNING : SD:wrote failed %ld/%ld", written, p-string);
+		debug_printf("WARNING : SD:wrote failed %ld/%d", written, p-string);
 
 	if(data_waiting_for_sync == FALSE)	//La synchro était faite, aucune donnée n'était en attente d'écriture... on relance le compteur.
 		time_before_sync = MAX_TIME_BEFORE_SYNC;

@@ -12,7 +12,6 @@
 #include "actions_glasses.h"
 #include "../avoidance.h"
 #include "../act_functions.h"
-#include "../output_log.h"
 #include "../zone_mutex.h"
 #include "../state_machine_helper.h"
 #include "config_pin.h"
@@ -549,7 +548,7 @@ error_e K_STRAT_micro_put_down_glasses(void){
 				case GD_ROTATE:
 					state = GD_RELATIVE_MOVE;
 					break;
-					
+
 				//On a eu un probleme dans le déplacement peut etre collision Il est impératif de reitérer l'action
 				case GD_RELATIVE_MOVE: {
 					static bool_e already_failed_relative = FALSE;

@@ -9,10 +9,11 @@
  *  Licence : CeCILL-C (voir LICENCE.txt)
  *	Version 20100929
  */
- 
+
 #define QS_SPI_C
 #include "QS_spi.h"
 #include "QS_ports.h"
+#include "QS_outputlog.h"
 #include "stm32f4xx_spi.h"
 
 #define SPI1_SPI_HANDLE SPI1
@@ -23,7 +24,7 @@
 
 #if defined(USE_SPI1) || defined(USE_SPI2)
 
-void SPI_init(void) 
+void SPI_init(void)
 {
 	static bool_e initialized = FALSE;
 	if(initialized)
@@ -49,7 +50,7 @@ void SPI_init(void)
 		SPI_Init(SPI1_SPI_HANDLE, &SPI_InitStructure);
 		SPI_Cmd(SPI1_SPI_HANDLE, ENABLE);
 	#endif /* def USE_SPI1 */
-	
+
 	#ifdef USE_SPI2
 		RCC_APB1PeriphClockCmd(SPI2_SPI_CLOCK, ENABLE);
 		SPI_Init(SPI2_SPI_HANDLE, &SPI_InitStructure);
@@ -113,7 +114,7 @@ Uint8 SPI2_exchange(Uint8 c)
 
 	SPI_I2S_SendData(SPI2_SPI_HANDLE, c);
 	while(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == RESET);
-	
+
 
 	//Test si erreur
 	if(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_OVR) || SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_FLAG_MODF))
@@ -126,12 +127,12 @@ Uint8 SPI2_exchange(Uint8 c)
 	return SPI_I2S_ReceiveData(SPI2_SPI_HANDLE);
 }
 
-void SPI2_write(Uint8 msg) 
+void SPI2_write(Uint8 msg)
 {
 	SPI2_exchange(msg);
 }
 
-Uint8 SPI2_read() 
+Uint8 SPI2_read()
 {
 	return SPI2_exchange(0x00);
 }

@@ -25,6 +25,7 @@
 #include "QS/QS_can_over_xbee.h"
 #include "Supervision/SD/term_io.h"
 #include "Supervision/SD/SD.h"
+#include "QS/QS_outputlog.h"
 #include "QS/QS_can.h"
 #include "QS/QS_adc.h"
 #include "QS/QS_CANmsgList.h"
@@ -204,7 +205,7 @@ void ENV_update()
 	/* RAZ des drapeaux temporaires pour la prochaine itération */
 	ENV_clean();
 	//ENV_pos_update((CAN_msg_t *)NULL, FALSE);	//On récupère l'éventuel position sauvée en IT...
-	
+
 	/* Récuperation de l'évolution de l'environnement
 	renseignee par les messages CAN */
 	while (CAN_data_ready())
@@ -248,14 +249,14 @@ void ENV_update()
 	#ifdef USE_TELEMETER
 		TELEMETER_update();
 	#endif
-	
+
 	/* Récupération des données des boutons */
 	BUTTON_update();
-	
+
 	/* Mise à jour de l'info de position de l'adversaire */
 	/* à faire après récupération des infos des capteurs */
 	DETECTION_update();
-	
+
 
 	/* Traitement des données des capteurs Sick (télémètres LASER)
 	obtenues lors de la réception d'un message CAN d'avancement/de rotation de la propulsion */
@@ -268,17 +269,17 @@ void ENV_update()
 void CAN_update (CAN_msg_t* incoming_msg)
 {
 	date_t date;
-//****************************** Messages carte supervision *************************/	
+//****************************** Messages carte supervision *************************/
 	switch (incoming_msg->sid)
-	{		
-		case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond	
+	{
+		case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond
 		case CARTE_P_ROBOT_FREINE:
 		case CARTE_P_ROBOT_CALIBRE:
 		case CARTE_P_ASSER_ERREUR:
 		case CARTE_P_TRAJ_FINIE:
 			ENV_pos_update(incoming_msg);	//Tout ces messages contiennent une position... et d'autres infos communes
 		break;
-		default:	
+		default:
 		break;
 	}
 
@@ -304,27 +305,27 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case DEBUG_RTC_TIME:
 			RTC_print_time();
 			break;
-//****************************** Messages carte propulsion/asser *************************/	
+//****************************** Messages carte propulsion/asser *************************/
 		case CARTE_P_TRAJ_FINIE:
 			global.env.asser.fini = TRUE;
 			break;
 		case CARTE_P_ASSER_ERREUR:
-			
+
 			global.env.asser.erreur = TRUE;
-			global.env.asser.vitesse_translation_erreur = 
-				((Sint32)U16FROMU8(incoming_msg->data[1],incoming_msg->data[0]) << 16) 
+			global.env.asser.vitesse_translation_erreur =
+				((Sint32)U16FROMU8(incoming_msg->data[1],incoming_msg->data[0]) << 16)
 					+ U16FROMU8(incoming_msg->data[3],incoming_msg->data[2]);
-			global.env.asser.vitesse_rotation_erreur = 
-				((Sint32)U16FROMU8(incoming_msg->data[5],incoming_msg->data[4]) << 16) 
+			global.env.asser.vitesse_rotation_erreur =
+				((Sint32)U16FROMU8(incoming_msg->data[5],incoming_msg->data[4]) << 16)
 					+ U16FROMU8(incoming_msg->data[7],incoming_msg->data[6]);
 			break;
 		case CARTE_P_ROBOT_CALIBRE:
 			global.env.asser.calibrated = TRUE;
-			
+
 			break;
 		case BROADCAST_POSITION_ROBOT:
 			//Remarque : Si USE_SICK... si un broadcast_position est arrivé avec pour seule(s) raison(s) WARNING_ROTATION et WARNING_TRANSLATION, il est traité dès réception par CAN_fast_update, et n'arrive pas ici !
-			
+
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
 
@@ -348,7 +349,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case CARTE_P_ROBOT_FREINE:
 			global.env.asser.freine = TRUE;
-			
+
 			break;
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
@@ -407,8 +408,8 @@ bool_e CAN_fast_update(CAN_msg_t* msg)
 {
 	//Samuel : TODO cette fonction peut génèrer des situations foireuses où la position est mise à jour en pleine mauvaise préemption...
 		switch (msg->sid)
-		{		
-			case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond	
+		{
+			case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond
 			case CARTE_P_ROBOT_FREINE:
 			case CARTE_P_ROBOT_CALIBRE:
 			case CARTE_P_ASSER_ERREUR:
@@ -416,14 +417,14 @@ bool_e CAN_fast_update(CAN_msg_t* msg)
 				//ENV_pos_fast_update(msg, TRUE);
 				#ifdef USE_SICK
 					SICK_update_points();
-                #endif
+				#endif
 			break;
 			default:
-				return TRUE;		
+				return TRUE;
 		}
-	
-		return TRUE;	
-	
+
+		return TRUE;
+
 }
 //#include <can.h>
 
@@ -565,7 +566,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 	else if(msg->sid==BEACON_ADVERSARY_POSITION_US)
 	{
 		slashn = FALSE;
-		if(msg->data[0]==AUCUNE_ERREUR) 
+		if(msg->data[0]==AUCUNE_ERREUR)
 		{
 			//slashn = TRUE;
 			global.env.sensor[BEACON_US_FOE_1].distance = U16FROMU8(msg->data[1],msg->data[2]);//*10;
@@ -581,7 +582,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 		} /*else {
 			debug_printf("NO US 1 err %d!\n", msg->data[0]);
 		}*/
-		if(msg->data[4]==AUCUNE_ERREUR) 
+		if(msg->data[4]==AUCUNE_ERREUR)
 		{
 			//slashn = TRUE;
 			global.env.sensor[BEACON_US_FOE_2].distance = U16FROMU8(msg->data[5],msg->data[6]);//*10;
@@ -616,13 +617,13 @@ void ENV_clean ()
 	global.env.asser.reach_x = FALSE;
 	global.env.asser.reach_y = FALSE;
 	global.env.asser.reach_teta = FALSE;
-        //global.env.asser.last_time_pos_updated = 0;
+		//global.env.asser.last_time_pos_updated = 0;
 	global.env.pos.updated = FALSE;
 	global.env.foe[FOE_1].updated = FALSE;
 	global.env.foe[FOE_2].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
-	
+
 	/*global.env.act[BROOM_LEFT].ready == TRUE;
 	global.env.act[BROOM_RIGHT].ready == TRUE;
 	global.env.act[F].ready == TRUE;
@@ -641,12 +642,12 @@ void ENV_clean ()
 /* initialise les variables d'environnement */
 void ENV_init()
 {
-	CAN_init();	
+	CAN_init();
 	CAN_set_send_callback(ENV_process_can_msg_sent);
 	BUTTON_init();
-    //    CAN_set_direct_treatment_function(CAN_fast_update);
+	//    CAN_set_direct_treatment_function(CAN_fast_update);
 
-	#ifdef USE_SICK	
+	#ifdef USE_SICK
 		SICK_init();
 	#endif
 	#ifdef USE_TELEMETER
@@ -667,7 +668,7 @@ void ENV_init()
 	global.env.pos.dist = 0;
 	global.env.ask_start = FALSE;
 	global.env.asser.calibrated = FALSE;
-	
+
 	global.env.asser.current_way = ANY_WAY;
 	global.env.asser.is_in_translation = FALSE;
 	global.env.asser.is_in_rotation = FALSE;
@@ -706,7 +707,7 @@ void ENV_set_color(color_e color)
 {
 	/* changer la couleur */
 	global.env.color = color;
-	
+
 	/* indiquer au monde la nouvelle couleur */
 	CAN_msg_t msg;
 	msg.sid=BROADCAST_COULEUR;
@@ -730,4 +731,4 @@ bool_e ENV_game_zone_filter(Sint16 x, Sint16 y, Uint16 delta)
 		return FALSE;
 	}
 	return TRUE;
-}	
+}

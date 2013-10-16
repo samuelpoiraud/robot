@@ -13,6 +13,7 @@
 #include "Selftest.h"
 #include "SD/SD.h"
 #include "config_pin.h"
+#include "../QS/QS_outputlog.h"
 
 #define TIMEOUT_SELFTEST_ACT 		20000	// en ms
 #define TIMEOUT_SELFTEST_PROP 		10000	// en ms
@@ -86,7 +87,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 
 	entrance = (state != previous_state)?TRUE:FALSE;
 	previous_state = state;
-	
+
 	switch(state)
 	{
 		case INIT:
@@ -107,7 +108,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					selftest_state = TRUE;	//On suppose que le selftest sera réussi. (a la moindre erreur, on le remettra à FALSE).
 					flag_timeout = FALSE;
 				}
-			}	
+			}
 			break;
 		case SELFTEST_ACT:
 			if(entrance)
@@ -203,7 +204,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			}
 			state = WAIT_SELFTEST_LAUNCH;
 			break;
-		default : 
+		default :
 			break;
 	}
 }
@@ -267,8 +268,8 @@ void led_us_update(selftest_beacon_e state){
 
 void led_ir_update(selftest_beacon_e state)
 	{
-	 	switch(state)
-	 	{
+		switch(state)
+		{
 			case BEACON_ERROR:
 				LED_BEACON_IR_GREEN = LED_OFF;
 				LED_BEACON_IR_RED = !LED_BEACON_IR_RED;
@@ -291,7 +292,7 @@ void led_ir_update(selftest_beacon_e state)
 
 void SELFTEST_balise_update(){
 	static Uint8 counter = 8;
-	
+
 	if(flag_1s)
 	{
 		if(ask_launch_selftest)

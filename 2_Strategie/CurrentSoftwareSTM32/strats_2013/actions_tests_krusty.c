@@ -13,11 +13,12 @@
 #include "actions_glasses.h"
 #include "actions_cherries.h"
 #include "../state_machine_helper.h"
-#include "../output_log.h"
 #include "config_pin.h"
 
-//#define LOG_PREFIX "strat_tests: "
-//#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#include "config_debug.h"
+#define LOG_PREFIX "strat_tests: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
+#include "../QS/QS_outputlog.h"
 
 
 #define DEFAULT_SPEED	(SLOW)

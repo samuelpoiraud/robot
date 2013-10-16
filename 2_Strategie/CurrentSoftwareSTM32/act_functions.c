@@ -11,7 +11,6 @@
  */
 
 #include "act_functions.h"
-#include "output_log.h"
 #include "act_can.h"
 
 #ifndef OUTPUT_LOG_COMPONENT_ACTFUNCTION
@@ -19,8 +18,10 @@
 #  warning "OUTPUT_LOG_COMPONENT_ACTFUNCTION is not defined, defaulting to Off"
 #endif
 
+#include "config_debug.h"
 #define LOG_PREFIX "act_f: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_ACTFUNCTION, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
+#include "QS/QS_outputlog.h"
 
 /* Pile contenant les arguments d'une demande d'opération
  * Contient les messages CAN à envoyer à la carte actionneur pour exécuter l'action.
@@ -52,7 +53,7 @@ bool_e ACT_ball_launcher_run(Uint16 speed) {
 	ACT_arg_init_with_param(&args, ACT_BALLLAUNCHER, ACT_BALLLAUNCHER_ACTIVATE, speed);
 	ACT_arg_set_fallbackmsg(&args, ACT_BALLLAUNCHER, ACT_BALLLAUNCHER_STOP);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallLauncher Run cmd, speed: %u\n", speed);
+	debug_printf("Pushing BallLauncher Run cmd, speed: %u\n", speed);
 	return ACT_push_operation(ACT_QUEUE_BallLauncher, &args);
 }
 
@@ -61,7 +62,7 @@ bool_e ACT_ball_launcher_stop() {
 
 	ACT_arg_init(&args, ACT_BALLLAUNCHER, ACT_BALLLAUNCHER_STOP);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallLauncher Stop cmd\n");
+	debug_printf("Pushing BallLauncher Stop cmd\n");
 	return ACT_push_operation(ACT_QUEUE_BallLauncher, &args);
 }
 
@@ -74,7 +75,7 @@ bool_e ACT_plate_rotate(ACT_plate_rotate_cmd_t cmd) {
 	if(cmd != ACT_PLATE_RotateUp)
 		ACT_arg_set_fallbackmsg(&args, ACT_PLATE, ACT_PLATE_ROTATE_VERTICALLY);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Plate rotate cmd: %d\n", cmd);
+	debug_printf("Pushing Plate rotate cmd: %d\n", cmd);
 	return ACT_push_operation(ACT_QUEUE_Plate, &args);
 }
 
@@ -85,7 +86,7 @@ bool_e ACT_plate_manual_rotate(Uint16 angle) {
 
 	ACT_arg_set_fallbackmsg(&args, ACT_PLATE, ACT_PLATE_ROTATE_VERTICALLY);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Plate rotate angle: %d\n", angle);
+	debug_printf("Pushing Plate rotate angle: %d\n", angle);
 	return ACT_push_operation(ACT_QUEUE_Plate, &args);
 }
 
@@ -98,7 +99,7 @@ bool_e ACT_plate_plier(ACT_plate_plier_cmd_t cmd) {
 	if(cmd != ACT_PLATE_PlierClose)
 		ACT_arg_set_fallbackmsg(&args, ACT_PLATE, ACT_PLATE_PLIER_CLOSE);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Plate plier cmd: %d\n", cmd);
+	debug_printf("Pushing Plate plier cmd: %d\n", cmd);
 	return ACT_push_operation(ACT_QUEUE_Plate, &args);
 }
 
@@ -108,10 +109,10 @@ bool_e ACT_lift_translate(ACT_lift_pos_t lift_id, ACT_lift_translate_cmd_t cmd) 
 	ACT_arg_init(&args, lift_id, cmd);
 
 	if(lift_id == ACT_LIFT_Left) {
-		COMPONENT_log(LOG_LEVEL_Debug, "Pushing left Lift translate cmd: %d\n", cmd);
+		debug_printf("Pushing left Lift translate cmd: %d\n", cmd);
 		return ACT_push_operation(ACT_QUEUE_LiftLeft, &args);
 	} else {
-		COMPONENT_log(LOG_LEVEL_Debug, "Pushing right Lift translate cmd: %d\n", cmd);
+		debug_printf("Pushing right Lift translate cmd: %d\n", cmd);
 		return ACT_push_operation(ACT_QUEUE_LiftRight, &args);
 	}
 }
@@ -122,10 +123,10 @@ bool_e ACT_lift_plier(ACT_lift_pos_t lift_id, ACT_lift_plier_cmd_t cmd) {
 	ACT_arg_init(&args, lift_id, cmd);
 
 	if(lift_id == ACT_LIFT_Left) {
-		COMPONENT_log(LOG_LEVEL_Debug, "Pushing left Lift plier cmd: %d\n", cmd);
+		debug_printf("Pushing left Lift plier cmd: %d\n", cmd);
 		return ACT_push_operation(ACT_QUEUE_LiftLeft, &args);
 	} else {
-		COMPONENT_log(LOG_LEVEL_Debug, "Pushing right Lift plier cmd: %d\n", cmd);
+		debug_printf("Pushing right Lift plier cmd: %d\n", cmd);
 		return ACT_push_operation(ACT_QUEUE_LiftRight, &args);
 	}
 }
@@ -136,7 +137,7 @@ bool_e ACT_ball_sorter_next() {
 	ACT_arg_init(&args, ACT_BALLSORTER, ACT_BALLSORTER_TAKE_NEXT_CHERRY);
 	ACT_arg_set_timeout(&args, 5000);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallSorter next cmd\n");
+	debug_printf("Pushing BallSorter next cmd\n");
 	return ACT_push_operation(ACT_QUEUE_BallSorter, &args);
 }
 
@@ -146,7 +147,7 @@ bool_e ACT_ball_sorter_next_autoset_speed(Uint16 ball_launcher_speed_white_cherr
 	ACT_arg_init_with_param(&args, ACT_BALLSORTER, ACT_BALLSORTER_TAKE_NEXT_CHERRY, ( (ball_launcher_speed_white_cherry__tr_min & 0x7FFF) | ( ((Uint16)(keep_white_ball != 0)) << 15 ) ) );
 	ACT_arg_set_timeout(&args, 5000);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallSorter next autoset speed cmd\n");
+	debug_printf("Pushing BallSorter next autoset speed cmd\n");
 	return ACT_push_operation(ACT_QUEUE_BallSorter, &args);
 }
 
@@ -160,7 +161,7 @@ bool_e ACT_hammer_goto(Uint16 position) {
 
 	//Que faire si on ne peut pas bouger le bras ... (rien ici)
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Hammer goto cmd\n");
+	debug_printf("Pushing Hammer goto cmd\n");
 	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
 }
 
@@ -169,7 +170,7 @@ bool_e ACT_hammer_blow_candle() {
 
 	ACT_arg_init_with_param(&args, ACT_HAMMER, ACT_HAMMER_BLOW_CANDLE, global.env.color);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Hammer blow candle cmd\n");
+	debug_printf("Pushing Hammer blow candle cmd\n");
 	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
 }
 
@@ -178,7 +179,7 @@ bool_e ACT_hammer_stop() {
 
 	ACT_arg_init(&args, ACT_HAMMER, ACT_HAMMER_STOP);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Hammer stop asser cmd\n");
+	debug_printf("Pushing Hammer stop asser cmd\n");
 	return ACT_push_operation(ACT_QUEUE_Hammer, &args);
 }
 
@@ -187,7 +188,7 @@ bool_e ACT_plier_open() {
 
 	ACT_arg_init(&args, ACT_PLIER, ACT_PLIER_OPEN);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Plier open cmd\n");
+	debug_printf("Pushing Plier open cmd\n");
 	return ACT_push_operation(ACT_QUEUE_Plier, &args);
 }
 
@@ -196,7 +197,7 @@ bool_e ACT_plier_close() {
 
 	ACT_arg_init(&args, ACT_PLIER, ACT_PLIER_CLOSE);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing Plier close cmd\n");
+	debug_printf("Pushing Plier close cmd\n");
 	return ACT_push_operation(ACT_QUEUE_Plier, &args);
 }
 
@@ -227,7 +228,7 @@ bool_e ACT_ball_inflater_inflate(Uint8 duration_sec) {
 	ACT_arg_init_with_param(&args, ACT_BALLINFLATER, ACT_BALLINFLATER_START, duration_sec);
 	ACT_arg_set_fallbackmsg(&args, ACT_BALLINFLATER, ACT_BALLINFLATER_STOP);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallInflater inflate cmd\n");
+	debug_printf("Pushing BallInflater inflate cmd\n");
 	return ACT_push_operation(ACT_QUEUE_BallInflater, &args);
 }
 
@@ -236,7 +237,7 @@ bool_e ACT_ball_inflater_stop() {
 
 	ACT_arg_init(&args, ACT_BALLINFLATER, ACT_BALLINFLATER_STOP);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing BallInflater stop cmd\n");
+	debug_printf("Pushing BallInflater stop cmd\n");
 	return ACT_push_operation(ACT_QUEUE_BallInflater, &args);
 }
 */
@@ -245,7 +246,7 @@ bool_e ACT_candlecolor_get_color_at(ACT_candlecolor_pos_t candle_pos) {
 
 	ACT_arg_init(&args, ACT_CANDLECOLOR, candle_pos);
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Pushing CandleColor get color at %d cmd\n", candle_pos);
+	debug_printf("Pushing CandleColor get color at %d cmd\n", candle_pos);
 	return ACT_push_operation(ACT_QUEUE_CandleColor, &args);
 }
 

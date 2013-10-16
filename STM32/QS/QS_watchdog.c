@@ -22,6 +22,8 @@
 	#include "QS_setTimerSource.h"
 #endif
 
+#include "QS_outputlog.h"
+
 typedef struct
 {
 	timeout_t timeout;
@@ -67,7 +69,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, volatile b
 		{
 			return 255;	//PAS DE CREATION !
 		}
-		
+
 
 
 	/* Parcours des watchdogs jusqu'à trouver un espace libre */
@@ -86,7 +88,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, volatile b
 			watchdog[i].initialized = TRUE;
 			break;
 		}
-	}	
+	}
 	if(id== 255)
 		debug_printf("WD : TABLEAU FULL");
 
@@ -97,13 +99,13 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, volatile b
 
 watchdog_id_t WATCHDOG_create(timeout_t t, watchdog_callback_fun_t f, bool_e is_periodic){
 	assert(f != NULL);
- 	return WATCHDOG_new(t, f, NULL, is_periodic);
+	return WATCHDOG_new(t, f, NULL, is_periodic);
 }
 
 watchdog_id_t WATCHDOG_create_flag(timeout_t t, volatile bool_e * f){
 	assert(f != NULL);
 	*f = FALSE;
- 	return WATCHDOG_new(t, NULL, f, FALSE);
+	return WATCHDOG_new(t, NULL, f, FALSE);
 }
 
 /* Arrêt d'un watchdog par mise à zéro de ses descripteurs */
@@ -125,7 +127,7 @@ void TIMER_SRC_TIMER_interrupt()
 {
 	watchdog_id_t i;
 	watchdog_callback_fun_t callback = 0;
-	
+
 	/* Parcours de tous les watchdogs */
 	for (i = 0; i < WATCHDOG_MAX_COUNT; i++)
 	{
@@ -139,20 +141,20 @@ void TIMER_SRC_TIMER_interrupt()
 			if(watchdog[i].enabled && watchdog[i].counter >= watchdog[i].timeout)
 			{
 				callback = watchdog[i].callback;
-				
+
 				if (watchdog[i].flag)
 					*(watchdog[i].flag)=TRUE;
-					
+
 				/* Arrêt du watchdog si non périodique */
 				if(watchdog[i].periodic == FALSE)
 					WATCHDOG_stop(i);
-				
+
 				watchdog[i].counter = 0;
 
 				/*On appelle la fonction de callback après le stop pour permettre une recréation des fonctions callback par elles-mêmes*/
 				if(callback)
 					callback();
-			}	
+			}
 		}
 	}
 	TIMER_SRC_TIMER_resetFlag();

@@ -15,10 +15,11 @@
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_can_over_xbee.h"
 #include "state_machine_helper.h"
-#include "output_log.h"
 
-//#define LOG_PREFIX "zone_mutex: "
-//#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#include "config_debug.h"
+#define LOG_PREFIX "zone_mutex: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
+#include "../QS/QS_outputlog.h"
 
 #define RESPONSE_WAIT_TIMEOUT	0
 #define RETRY_TIMEOUT			300

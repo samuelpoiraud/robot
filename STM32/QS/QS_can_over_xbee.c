@@ -17,13 +17,14 @@
 #ifdef USE_XBEE
 #include "QS_uart.h"
 #include "QS_CANmsgList.h"
+#include "QS_outputlog.h"
 
 #ifdef NEW_CONFIG_ORGANISATION
 	#include "config_pin.h"
 #endif
-	
+
 	#include <stdio.h>
-	
+
 
 	#ifdef XBEE_PLUGGED_ON_UART1
 		#define XBee_putc(c) UART1_putc(c)
@@ -48,7 +49,7 @@
 	#ifdef XBEE_PLUGGED_ON_UART2
 		#define XBee_get_next_msg() UART2_get_next_msg()
 	#endif
-	
+
 
 volatile static bool_e initialized = FALSE;
 volatile static bool_e module_reachable[MODULE_NUMBER];	//Etat des autres modules (joignables ou non...)
@@ -90,7 +91,7 @@ void XBee_Pong(module_id_e module)
 	msg.data[0] = XBee_i_am_module;
 	msg.size = 1;
 	CANMsgToXBeeDestination(&msg, module);
-}	
+}
 
 void XBee_Ping(module_id_e  module)
 {
@@ -164,7 +165,7 @@ void CAN_over_XBee_process_main(void)
 						everyone_is_reachable = FALSE;	//si quelqu'un n'est pas joignable, alors tout le monde ne l'est pas !
 						XBee_Ping(module);
 						debug_printf("ping %d->%d\n",XBee_i_am_module, module);
-					}	
+					}
 				}
 				if(everyone_is_reachable || global.env.match_started)
 					XBee_state = IDLE;
@@ -180,7 +181,7 @@ void CAN_over_XBee_process_main(void)
 			break;
 		}
 	}
-		
+
 }
 
 bool_e process_received_can_msg(CAN_msg_t * msg)
@@ -204,7 +205,7 @@ bool_e process_received_can_msg(CAN_msg_t * msg)
 		default:
 		break;
 	}
-	return TRUE;	//Le message sera transmis au reste du code.			
+	return TRUE;	//Le message sera transmis au reste du code.
 }
 
 typedef enum
@@ -212,67 +213,67 @@ typedef enum
 	HEADER,
 	SID_MSB,
 	SID_LSB,
-	DATA0, DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, 
+	DATA0, DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7,
 	SIZE_FIELD,
 	FOOTER
-}can_msg_on_char_array_fields_e;	
+}can_msg_on_char_array_fields_e;
 
 #define CAN_MSG_LENGTH	11
 
 bool_e APIFrameToCANmsg(Uint8 * frame, CAN_msg_t * dest)
 {
-	/*																		
-	 *	cette fonction lit un octet dans le tableau frame	
-	 *	et construit un message CAN.  Elle renvoie ensuite si	
-	 *	oui ou non elle a trouvé un message CAN. Elle vérifie 	
-	 *  aussi si le message est bien conforme au protocole de communication	
-	 *  (cf QS)																
-	 */																		
-	can_msg_on_char_array_fields_e next_byte_to_read=0;				
-	Uint8 byte_read;																																						
-																	
+	/*
+	 *	cette fonction lit un octet dans le tableau frame
+	 *	et construit un message CAN.  Elle renvoie ensuite si
+	 *	oui ou non elle a trouvé un message CAN. Elle vérifie
+	 *  aussi si le message est bien conforme au protocole de communication
+	 *  (cf QS)
+	 */
+	can_msg_on_char_array_fields_e next_byte_to_read=0;
+	Uint8 byte_read;
+
 	for(next_byte_to_read=0;next_byte_to_read<13;next_byte_to_read++)	//C'est à ces indices que le message CAN peut être récupéré. Voir doc XBEE...	ou commentaires plus bas.
-	{																		
-		byte_read = frame[next_byte_to_read];							
-																			
-		switch (next_byte_to_read)											
-		{																	
-			case HEADER:													
-				if(byte_read != SOH) 										
-					return FALSE;											
-				break;													
-			case SID_MSB:		/*lecture du MSB du sid */					
-				dest->sid = (Uint16)byte_read <<8;							
-				break;														
-			case SID_LSB:		/*lecture du LSB du sid */					
-				dest->sid |= (Uint16)byte_read;								
-				break;														
-			case SIZE_FIELD:	/*lecture du champs size */					
+	{
+		byte_read = frame[next_byte_to_read];
+
+		switch (next_byte_to_read)
+		{
+			case HEADER:
+				if(byte_read != SOH)
+					return FALSE;
+				break;
+			case SID_MSB:		/*lecture du MSB du sid */
+				dest->sid = (Uint16)byte_read <<8;
+				break;
+			case SID_LSB:		/*lecture du LSB du sid */
+				dest->sid |= (Uint16)byte_read;
+				break;
+			case SIZE_FIELD:	/*lecture du champs size */
 				dest->size = byte_read;
 				if(dest->size > 8)
 					return FALSE;
-				break;														
-			case FOOTER:													
-				if(byte_read != EOT)												
-					return FALSE;															
-				else																																					
-					return TRUE;																									
-				break;														
-																			
-			default:	/*lecture d'un octet de data */						
-				dest->data[next_byte_to_read - DATA0]=byte_read;			
-				break;														
-		}																													
-	}																		
-	return FALSE;			
-}	
-	
+				break;
+			case FOOTER:
+				if(byte_read != EOT)
+					return FALSE;
+				else
+					return TRUE;
+				break;
+
+			default:	/*lecture d'un octet de data */
+				dest->data[next_byte_to_read - DATA0]=byte_read;
+				break;
+		}
+	}
+	return FALSE;
+}
+
 /*
 	Une frame de "données reçues" renvoyée par le module XBee est de la forme :
 	fr. delimiter	SizeMSB	SizeLSB		DataReceived	@64bits				@network	ACK'ed	SOH	 SID	DATAS			   SIZE	EOT		Checksum
 	0x7E			0x00	25			0x90			0xAAAAAAAAAAAAAAAA	0xNNNN		0x01	0x01 0x0123 0x1122334455667788 0x08 0x04	0x??
-				length = 25				<---------------------------------------------------------------------------------------------->									
-					indice frame		0				  1      à       8    9 10      11      12   13 14   15      à      22   23   24				
+				length = 25				<---------------------------------------------------------------------------------------------->
+					indice frame		0				  1      à       8    9 10      11      12   13 14   15      à      22   23   24
 													le message can est donc de  12  à 24 inclus:<-------------------------------------->
 					le checksum porte sur les 25 octets du length, plus le checksum : le total doit valoir 0xFF
 */
@@ -286,21 +287,21 @@ typedef enum
 #define FRAME_API_BUF_SIZE 32
 
 bool_e XBeeToCANmsg (CAN_msg_t* dest)
-{																			
-																	
-	static api_frame_on_char_array_fields_e next_byte_to_read=0;	
+{
+
+	static api_frame_on_char_array_fields_e next_byte_to_read=0;
 	static Uint16 length;
-	static Uint8 checksum;	
+	static Uint8 checksum;
 	static Uint8 frame_api[FRAME_API_BUF_SIZE];
-	Uint8 byte_read;																										
+	Uint8 byte_read;
 
 
 	while(XBee_data_ready())
-	{																		
-		byte_read = XBee_get_next_msg();							
-																			
-		switch (next_byte_to_read)											
-		{																	
+	{
+		byte_read = XBee_get_next_msg();
+
+		switch (next_byte_to_read)
+		{
 			case START_DELIMITER:
 				checksum = 0;
 				if(byte_read != 0x7E)
@@ -311,7 +312,7 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 				}
 				break;
 			case LENGTH_MSB:
-				length = (Uint16)byte_read <<8;	
+				length = (Uint16)byte_read <<8;
 				break;
 			case LENGTH_LSB:
 				length |= (Uint16)byte_read;
@@ -351,13 +352,13 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 				{
 					//On a reçu un message CAN !!!!!!!
 					return  process_received_can_msg(dest);	//Si cette fonction traite un message qui n'est destiné qu'à ce fichier, elle renvoie false, et le message n'est pas remontté à l'applicatif !
-				}	
-			}	
-		}																				
+				}
+			}
+		}
 		else
 		{
 			next_byte_to_read++;
-		}														
+		}
 	}
 
 	return FALSE;
@@ -369,8 +370,8 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 	Une frame de "données à envoyer" pour le module XBee est de la forme :
 	fr. delimiter	SizeMSB	SizeLSB		DataToSend		needAck		@64bits				@network	Hope	Unicast	SOH	 SID	DATAS			   SIZE	EOT		Checksum
 	0x7E			0x00	27			0x10			i or 0		0xAAAAAAAAAAAAAAAA	0xFFFE		0x00	0x00	0x01 0x0123 0x1122334455667788 0x08 0x04	0x??
-				length = 27				<---------------------------------------------------------------------------------------------->									
-					indice frame		0				  1      	  2	 	 à       9   10 11      12      13  	  14  15 16	  17      à     24   25   26				
+				length = 27				<---------------------------------------------------------------------------------------------->
+					indice frame		0				  1      	  2	 	 à       9   10 11      12      13  	  14  15 16	  17      à     24   25   26
 																							le message can est ici :<-------------------------------------->
 					le checksum porte sur les 27 octets du length, plus le checksum : le total doit valoir 0xFF
 					l'adresse 64 bits doit être connue (correspond au numéro de série du module destinataire !)
@@ -378,7 +379,7 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 */
 
 #define SEND(x)	XBee_putc(x); cs+=x
-	
+
 void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 {
 	static Uint8 ack = 0;
@@ -411,7 +412,7 @@ void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 	SEND(0xFE);	//
 	SEND(0x00);	//Nombre max de noeud que le message peut traverser (Si 0 : valeur par défaut = 10)
 	SEND(0x00);	//Mode unicast
-	
+
 	//Datas
 	SEND(SOH);
 	SEND((Uint8)(src->sid >>8));

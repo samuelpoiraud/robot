@@ -12,7 +12,6 @@
 #define QS_OUTPUTLOG_H
 
 #include "QS_all.h"
-#include "config_debug.h"
 
 /*
  * Paramètres (optionnels, à définir avant l'inclusion de ce header):
@@ -35,6 +34,7 @@
 #define OUTPUTLOG_TOSTRING(x) OUTPUTLOG_STRINGIFY(x)
 
 typedef enum {
+	LOG_LEVEL_Always,   //Affiche le message dans tous les cas
 	LOG_LEVEL_Fatal,	//Le fatal devrait utilisé pour des asserts, le programme ne peut plus continuer suite à une erreur.
 	LOG_LEVEL_Error,	//Une erreur est survenue, par exemple un actionneur n'a pas pu aller à la position indiquée. Le programme peut quand même continuer, mais devrait prendre conscience au moins de cette erreur (et stopper le moteur par exemple, pour ne pas le cramer ou tenter de le réutiliser pour une autre action)
 	LOG_LEVEL_Warning,	//Quelque chose s'est passé, et pourrait causer des disfonctionnements par la suite. Par ex on détecte un cas dangereux qui pourrait être la cause de bugs mais qui ne devrait pas poser de problème normalement si le code était parfait.

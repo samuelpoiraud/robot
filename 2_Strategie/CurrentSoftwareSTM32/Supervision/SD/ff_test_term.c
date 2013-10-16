@@ -7,6 +7,7 @@
 #include <string.h> /* memset et al*/
 #include "../../QS/QS_all.h"
 #include "../../QS/QS_uart.h"
+#include "../../QS/QS_outputlog.h"
 #include "Libraries/fat_sd/integer.h"
 #include "Libraries/fat_sd/diskio.h"
 #include "Libraries/fat_sd/ff.h"

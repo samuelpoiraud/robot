@@ -11,6 +11,7 @@
 
 #include "actions_tests_tiny.h"
 #include "actions_utils.h"
+#include "../QS/QS_outputlog.h"
 
 #include "config_pin.h"
 
@@ -50,7 +51,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES,
 
 		TAKE_A_DECISION,
-				
+
 		//OTHERS SUBACTIONS
 		SUBACTION_MODE_ADVERSARY_PLATES,
 		SUBACTION_STEAL_ADVERSARY_GLASSES,
@@ -59,10 +60,10 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		WAIT_UNTIL_60SEC,
 		PROTECT_GLASSES,
 		SUBACTION_OPEN_SOME_FORGOTTEN_GIFTS,
-		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES,		
-				
+		SUBACTION_OPEN_SOME_FORGOTTEN_CANDLES,
+
 		DONE
-		
+
 	}state_e;
 	static state_e state = GET_OUT;
 	static state_e previous_state = GET_OUT;
@@ -112,7 +113,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			//sub_action = TINY_open_all_gifts();
 			sub_action = TINY_open_all_gifts_without_pause();
 			switch(sub_action)
-            {
+			{
 				case IN_PROGRESS:
 				break;
 				case END_OK:
@@ -127,7 +128,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 
 
@@ -185,7 +186,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 		case SUBACTION_MODE_ADVERSARY_PLATES:
 			sub_action = STRAT_TINY_move_adversary_plates_near_bar(FALSE);
 			switch(sub_action)
-            {
+			{
 				case IN_PROGRESS:
 				break;
 				case END_OK:
@@ -200,12 +201,12 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 		case SUBACTION_GOTO_CAKE_AND_BLOW_CANDLES:		//PREMIERE FOIS QUE L'ON FAIT LE GATEAU (ou bien on l'a déjà fait, mais sans souffler une seule bougie)
 			sub_action = STRAT_TINY_goto_cake_and_blow_candles();
 			switch(sub_action)
-            {
+			{
 				case IN_PROGRESS:
 				break;
 				case END_OK:
@@ -217,18 +218,18 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				case FOE_IN_PATH:
 					state = TAKE_A_DECISION;
 				break;
-				
+
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 
-		
+
 		case SUBACTION_STEAL_ADVERSARY_GLASSES:
 			sub_action = STRAT_TINY_scan_and_steal_adversary_glasses(FALSE);
 			switch(sub_action)
-            {
+			{
 				case IN_PROGRESS:
 				break;
 				case END_OK:
@@ -241,7 +242,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 		case SUBACTION_MOISSON:
 			sub_action = STRAT_TINY_test_moisson_micro();
@@ -333,7 +334,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				default:
 				break;
 			}
-			
+
 		break;
 
 		default:
@@ -363,7 +364,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 			case WAIT_UNTIL_60SEC:										debug_printf("Wait\n");									break;
 			default:										debug_printf("???\n");												break;
 		}
-	}	
+	}
 	previous_state = state;
 }
 
@@ -427,7 +428,7 @@ void STRAT_TINY_4_gifts_only(void)
 			//sub_action = TINY_open_all_gifts();
 			sub_action = TINY_open_all_gifts_without_pause();
 			switch(sub_action)
-            {
+			{
 				case IN_PROGRESS:
 				break;
 				case END_OK:
@@ -442,10 +443,10 @@ void STRAT_TINY_4_gifts_only(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 
-		
+
 		case COME_BACK:
 			//Position d'attente quand on a plus rien à faire. (ou qu'on attend un peu avant de retourner au gateau)
 			state = try_going(250,COLOR_Y(450), COME_BACK, WAIT, WAIT, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
@@ -453,7 +454,7 @@ void STRAT_TINY_4_gifts_only(void)
 		case WAIT:
 			//NOTHING !
 		break;
-		
+
 		default:
 			state = WAIT;
 		break;
@@ -580,7 +581,7 @@ void STRAT_TINY_all_candles(void)
 	typedef enum
 	{
 		GET_OUT = 0,
-	    TINY_CANDLES,
+		TINY_CANDLES,
 				TURN,
 				TINY_RUSH_IW,
 				RW,
@@ -627,7 +628,7 @@ void STRAT_TINY_all_candles(void)
 
 
 		case COMEBACK2CODEUR:
-             state = try_going(500, COLOR_Y(2154), COMEBACK2CODEUR, DONE, DONE,FAST, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
+			 state = try_going(500, COLOR_Y(2154), COMEBACK2CODEUR, DONE, DONE,FAST, (global.env.color==BLUE)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 
 		break;
 		case DONE:
@@ -639,35 +640,35 @@ void STRAT_TINY_all_candles(void)
 
 error_e TEST_STRAT_in_da_wall(void)
 {
-    typedef enum{
-    PUSH_MOVE = 0,
+	typedef enum{
+	PUSH_MOVE = 0,
 	WAIT_END_OF_MOVE,
 	DONE,
-    }state_e;
+	}state_e;
 
 	static state_e state = PUSH_MOVE;
-    static bool_e timeout=FALSE;
+	static bool_e timeout=FALSE;
 
-    switch(state){
-        case PUSH_MOVE:
-            ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,TRUE);
-            state = WAIT_END_OF_MOVE;
-            break;
-        case WAIT_END_OF_MOVE:
-            if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
-                state = DONE;
-            }
-            break;
-        case DONE:
-            state = PUSH_MOVE;
-            return (timeout)?END_WITH_TIMEOUT:END_OK;
-            break;
-        default:
-            state = 0;
-            return NOT_HANDLED;
-            break;
-    }
-    return IN_PROGRESS;
+	switch(state){
+		case PUSH_MOVE:
+			ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,TRUE);
+			state = WAIT_END_OF_MOVE;
+			break;
+		case WAIT_END_OF_MOVE:
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+				state = DONE;
+			}
+			break;
+		case DONE:
+			state = PUSH_MOVE;
+			return (timeout)?END_WITH_TIMEOUT:END_OK;
+			break;
+		default:
+			state = 0;
+			return NOT_HANDLED;
+			break;
+	}
+	return IN_PROGRESS;
 }
 
 
@@ -718,7 +719,7 @@ void STRAT_TINY_test_steals(void)
 		case SUBACTION_STEAL_ADVERSARY_GLASSES:
 			sub_action = STRAT_TINY_scan_and_steal_adversary_glasses(FALSE);
 			switch(sub_action)
-            {
+			{
 				case IN_PROGRESS:
 				break;
 				case END_OK:
@@ -730,7 +731,7 @@ void STRAT_TINY_test_steals(void)
 				break;
 				default:
 				break;
-            }
+			}
 		break;
 
 		default:
@@ -806,11 +807,11 @@ void STRAT_TINY_test_moisson(void){
 			//risque de boucle P_1 P_2 P_4
 			state = try_going(800, COLOR_Y(1000), P_4, GO_HOME,P_1,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			previousState = P_4;
-			
+
 			break;
 
 		case GO_HOME:
-			
+
 			switch(previousState){
 				case P_1:
 					//non
@@ -832,7 +833,7 @@ void STRAT_TINY_test_moisson(void){
 					state = DONE;
 					break;
 				case GO_HOME:
-					//non pas possible 
+					//non pas possible
 					state = DONE;
 					break;
 				case DONE:
@@ -848,7 +849,7 @@ void STRAT_TINY_test_moisson(void){
 			ACT_plier_close();
 			break;
 		default:
-			
+
 			break;
 	}
 
