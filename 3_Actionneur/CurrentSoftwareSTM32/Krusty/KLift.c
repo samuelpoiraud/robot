@@ -18,13 +18,14 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_adc.h"
-#include "../output_log.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 #include "KLift_config.h"
 
+#include "config_debug.h"
 #define LOG_PREFIX "LI: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_LIFT, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_LIFT
+#include "../QS/QS_outputlog.h"
 
 #define LIFT_NUM_POS           3
 	#define LIFT_UP_POS_ID     0
@@ -98,7 +99,7 @@ void LIFT_init() {
 	DCM_config(LIFT_RIGHT_DCMOTOR_ID, &right_lift_translation_config);
 	DCM_stop(LIFT_RIGHT_DCMOTOR_ID);
 
-	COMPONENT_log(LOG_LEVEL_Info, "Ascenseur à verres initialisés (DCMotor)\n");
+	info_printf("Ascenseur à verres initialisés (DCMotor)\n");
 
 	LIFT_initAX12();
 }
@@ -124,7 +125,7 @@ static void LIFT_initAX12() {
 			AX12_config_set_error_before_led(ax12_id[i], AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 			AX12_config_set_error_before_shutdown(ax12_id[i], AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
 
-			COMPONENT_log(LOG_LEVEL_Info, "AX12 %s initialisé\n", (i == 0)? "Gauche" : "Droite");
+			info_printf("AX12 %s initialisé\n", (i == 0)? "Gauche" : "Droite");
 		}
 	}
 }
@@ -163,7 +164,7 @@ bool_e LIFT_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -197,7 +198,7 @@ void LIFT_run_command(queue_id_t queueId, bool_e init) {
 			LIFT_plier_command_run(queueId);
 	} else {
 		Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
-		COMPONENT_log(LOG_LEVEL_Error, "Invalid act: %d\n", QUEUE_get_act(queueId));
+		error_printf("Invalid act: %d\n", QUEUE_get_act(queueId));
 		QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 	}
 }
@@ -218,12 +219,12 @@ static void LIFT_translation_command_init(queue_id_t queueId) {
 
 		default: {
 				Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
-				COMPONENT_log(LOG_LEVEL_Error, "invalid translation command: %u, code is broken !\n", command);
+				error_printf("invalid translation command: %u, code is broken !\n", command);
 				QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
-	COMPONENT_log(LOG_LEVEL_Debug, LOG_PREFIX"Lift translate motor id %d, pos %d\n", dcMotorId, wantedPosition);
+	debug_printf("Lift translate motor id %d, pos %d\n", dcMotorId, wantedPosition);
 	DCM_goToPos(dcMotorId, wantedPosition);
 	DCM_restart(dcMotorId);
 }
@@ -235,7 +236,7 @@ static void LIFT_translation_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	COMPONENT_log(LOG_LEVEL_Debug, LOG_PREFIX"Lift translate motor id %d, pos %d\n", dcMotorId, (LIFT_IS_LEFT(queueId))? LIFT_LEFT_getTranslationPos() : LIFT_RIGHT_getTranslationPos());
+	debug_printf("Lift translate motor id %d, pos %d\n", dcMotorId, (LIFT_IS_LEFT(queueId))? LIFT_LEFT_getTranslationPos() : LIFT_RIGHT_getTranslationPos());
 
 	if(ACTQ_check_status_dcmotor(dcMotorId, FALSE, &result, &errorCode, &line))
 		QUEUE_next(queueId, canSid, result, errorCode, line);
@@ -261,20 +262,20 @@ static void LIFT_plier_command_init(queue_id_t queueId) {
 			return;
 
 		default: {
-				COMPONENT_log(LOG_LEVEL_Error, "Invalid plier command: %u, code is broken !\n", command);
+				error_printf("Invalid plier command: %u, code is broken !\n", command);
 				QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		COMPONENT_log(LOG_LEVEL_Error, "Invalid plier position: %u, code is broken !\n", command);
+		error_printf("Invalid plier position: %u, code is broken !\n", command);
 		QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
 
 	AX12_reset_last_error(ax12Id); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	if(!AX12_set_position(ax12Id, *ax12_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-		COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(ax12Id).error);
+		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(ax12Id).error);
 		QUEUE_next(queueId, canSid, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}

@@ -17,12 +17,13 @@
 #ifdef USE_AX12_SERVO
 
 #include "QS_ports.h"
+#include "QS_outputlog.h"
 #include "stm32f4xx_usart.h"
 
 #ifdef NEW_CONFIG_ORGANISATION
 	#include "config_pin.h"
 #endif
-																			
+
 	/**********************************************************************/
 	/** Paramètres de configuration du driver AX12                        */
 	/**********************************************************************/
@@ -30,7 +31,7 @@
 	#if !defined(AX12_NUMBER) || AX12_NUMBER > 254
 		#error "Vous devez definir un nombre de servo sur le robot (AX12_NUMBER) (254 max)"
 	#endif /* ndef AX12_NUMBER */
-	
+
 	//#define AX12_DEBUG_PACKETS: si défini, les paquets envoyé sont écrit sur la sortie uart en utilisant debug_printf (attention, debug_printf n'est pas réentrante)
 
 	#ifndef AX12_UART_ID
@@ -104,7 +105,7 @@
 	/*************************************************************************************/
 
 	/* Instructions */
-	
+
 	#define INST_PING 				0x01
 	#define INST_READ 				0x02
 	#define INST_WRITE 				0x03
@@ -260,14 +261,14 @@
 	#define INC_WITH_MOD(val,div) (( (val)+1 < div )? (val)+1 : 0)
 
 	/***********************************************************************/
-	
+
 typedef struct{
 	volatile AX12_status_t last_status;
 	Uint16 angle_limit[2];	//sauvegarde des angles limites lors d'un passage en mode wheel (rotation complète en continue) Si l'AX12 était déja dans ce mode, les angles limites défini à 0°-300°.
-    bool_e is_wheel_enabled;
+	bool_e is_wheel_enabled;
 	// Possibilité d'ajout de membres ...
 } AX12_servo_t;
- 
+
 //Paquet instruction a envoyer a l'AX12
 typedef struct{
 	Uint8 id_servo;
@@ -334,7 +335,7 @@ typedef struct {
 } AX12_state_machine_t;
 
 /*************************************************************************************/
-	
+
 // Variables globales, toutes les variables sont intialisée a zero, il n'y a pas de {0} ou autre pour eviter les warnings (avec -Wall) et c'est plus simple et pratique de rien mettre que des {{{0}},{0,0},0} et pour eviter d'avoir des warnings car les warnings c'est mal (défini dans l'ainsi C)
 
 static AX12_servo_t AX12_on_the_robot[AX12_NUMBER];	//Tableau de structure contenant les informations liées à chaque AX12
@@ -603,7 +604,7 @@ static bool_e AX12_instruction_wait(Uint8 id_servo) {
 	//debug_printf("+1\n");
 	while(!AX12_instruction_queue_is_empty() && i < 65000000)	//si i atteint 65000, on stop, on a attendu trop longtemps (au moins 6,5ms à une clock de 10Mhz, mais ce bout de code ne fait qu'une instruction)
 		i++;
-		
+
 	if(i < 65000000) return TRUE;
 
 	debug_printf("AX12 Wait too long %d / %d\n", AX12_special_instruction_buffer.start_index, AX12_special_instruction_buffer.end_index);
@@ -754,7 +755,7 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 			status_packet->size = 0;
 			status_packet->error = 0;
 			status_packet->param = 0;
-			
+
 			if(receive_byte != 0xFF)
 				return FALSE;
 			break;
@@ -771,7 +772,7 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 		case 3:
 			status_packet->size = receive_byte + 4;
 			break;
-			
+
 		case 4:
 			status_packet->error = receive_byte;
 			break;
@@ -779,7 +780,7 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 		case 5:
 			status_packet->param_1 = receive_byte;
 			break;
-			
+
 		case 6:
 			status_packet->param_2 = receive_byte;
 			break;
@@ -846,10 +847,10 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						debug_printf(" %02x", AX12_get_instruction_packet(i, &state_machine.current_instruction));
 					debug_printf("\n");
 				#endif
- 
+
 
 				AX12_DIRECTION_PORT = TX_DIRECTION;
-				
+
 				TIMER_SRC_TIMER_start_ms(AX12_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
 
 				state_machine.sending_index++;	//Attention! Nous devons incrementer sending_index AVANT car il y a un risque que l'interuption Tx arrive avant l'incrementation lorsque cette fonction est appellée par AX12_init() (qui n'est pas dans une interruption)
@@ -1011,7 +1012,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					debug_printf(", recv idx: %d\n", state_machine.receive_index);
 					debug_printf(" Original cmd: Id: %02x Cmd: %02x Addr: %02x param: %04x\n", state_machine.current_instruction.id_servo, state_machine.current_instruction.type, state_machine.current_instruction.address, state_machine.current_instruction.param);
 				#endif
-				
+
 				if(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_RXNE))
 					debug_printf("AX12 timeout too small\n");
 
@@ -1046,7 +1047,7 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 
 	while(AX12_instruction_queue_is_full() && i < 65000)	//boucle 65000 fois si le buffer reste full, si on atteint 65000, on échoue et retourne FALSE
 		i++;
-		
+
 	if(i >= 65000) {
 		AX12_on_the_robot[inst->id_servo].last_status.error = AX12_ERROR_TIMEOUT | AX12_ERROR_RANGE;
 		AX12_on_the_robot[inst->id_servo].last_status.param = 0;
@@ -1060,7 +1061,7 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 	//if(truc == AX12_SMS_ReadyToSend)
 		AX12_state_machine(AX12_SME_NoEvent);
 	//else debug_printf("ax12 not ready, in state %d\n", truc);
-		
+
 	return TRUE;
 }
 
@@ -1484,7 +1485,7 @@ bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled) {
 		min_angle = AX12_config_get_minimal_angle(id_servo);
 		if(AX12_get_last_error(id_servo).error)
 			return FALSE;
-		
+
 		max_angle = AX12_config_get_maximal_angle(id_servo);
 		if(AX12_get_last_error(id_servo).error)
 			return FALSE;

@@ -4,7 +4,7 @@
  *
  *	Fichier : main.c
  *	Package : Projet Propulsion
- *	Description : fonction principale d'exemple pour le projet 
+ *	Description : fonction principale d'exemple pour le projet
  *				standard construit par la QS pour exemple, pour
  *				utilisation en Match
  *	Auteur : Jacen
@@ -29,6 +29,7 @@
 #include "QS/QS_buttons.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_outputlog.h"
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
 #endif
@@ -37,7 +38,7 @@
 	extern volatile global_data_storage_t SAVE;
 #endif
 
-	
+
 #if defined(VERBOSE_MSG_SEND_OVER_UART) ||				\
 	 defined(SIMULATION_VIRTUAL_PERFECT_ROBOT) ||		\
 	 defined(MODE_PRINTF_TABLEAU) ||					\
@@ -62,8 +63,8 @@ void initialisation(void){
 		SYS_init();
 	#endif
 	// Config des ports
-	PORTS_init();			
-	
+	PORTS_init();
+
 	LED_RUN = 1;
 
 #ifdef __dsPIC30F6010A__
@@ -71,17 +72,17 @@ void initialisation(void){
 	//> ceci est utile pour le stockage d'un tableau de boeuf dans la mémoire programme
 	CORCONbits.PSV=1;
 #endif
-	
+
 	UART_init(); //Si les résistances de tirages uart ne sont pas reliées, le code bloque ici si aucun cable n'y est relié.
 	Uint16 delay;
 	for(delay = 1;delay;delay++);	//attente pour que l'UART soit bien prete...
 	RCON_read();
-	
+
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	//Doit se faire AVANT ODOMETRY_init() !!!
 	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
-	
+
 	ODOMETRY_init();
 	SUPERVISOR_init();
 	COPILOT_init();
@@ -92,12 +93,12 @@ void initialisation(void){
 
 	JOYSTICK_init();
 	DEBUG_init();
-	
+
 	BUTTONS_init();
 //	BUTTONS_define_actions(BUTTON3,button_autocalage_avant, NULL, 0);
 //	BUTTONS_define_actions(BUTTON1,button_autocalage_arriere, NULL, 0);
 
-	
+
 	IT_init();
 	/*
 	Récapitulatif des priorités des ITs :
@@ -153,15 +154,15 @@ int main (void)
 			// Update pour EVE
 			EVE_manager_card();
 		#endif	/* USE_QSx86 */
-		
+
 		DEBUG_process_main();
-		
+
 		BUTTONS_update();			//Gestion des boutons
 
 		SECRETARY_process_main();	//Communication avec l'extérieur. (Réception des messages)
-		
+
 		WARNER_process_main();		//Communication avec l'extérieur. (Envois des messages)
-		
+
 	}
 	return 0;
 }

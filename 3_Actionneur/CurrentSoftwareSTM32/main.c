@@ -16,6 +16,7 @@
 #include "QS/QS_adc.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_timer.h"
+#include "QS/QS_outputlog.h"
 #include "queue.h"
 #include "clock.h"
 
@@ -49,7 +50,7 @@ int main (void)
 	/*-------------------------------------
 		Démarrage
 	-------------------------------------*/
-		
+
 	//initialisations
 	SYS_init();
 	PORTS_init();
@@ -90,28 +91,28 @@ int main (void)
 	BUTTONS_define_actions(BUTTON4, &MAIN_onButton4, NULL, 1);
 
 	debug_printf("---   ACT Ready    ---\n");
-	
+
 	while(1)
 	{
 		/*-------------------------------------
-			Gestion des DELs, boutons, etc 
+			Gestion des DELs, boutons, etc
 		-------------------------------------*/
-		
+
 		//Switch choix de l'actionneur testé par les boutons: affichage de l'état s'il a changé
 		if(lastSwitchState[0] != SWITCH_RG0) {
 			lastSwitchState[0] = SWITCH_RG0;
 			debug_printf("SWITCH_RG0: %s | %s\n", (SWITCH_RG0)? "[Plate]" : " Plate ",
-			                                      (SWITCH_RG0)? " Lift " : "[Lift]");
+												  (SWITCH_RG0)? " Lift " : "[Lift]");
 		}
 		if(lastSwitchState[1] != SWITCH_RG1) {
 			lastSwitchState[1] = SWITCH_RG1;
 			debug_printf("SWITCH_RG1: %s | %s\n", (SWITCH_RG1)? "[DCMotor]" : " DCMotor ",
-			                                      (SWITCH_RG1)? " Plier-AX12 " : "[Plier-AX12]");
+												  (SWITCH_RG1)? " Plier-AX12 " : "[Plier-AX12]");
 		}
 
 		LED_USER = !LED_USER;
 		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
-		
+
 		QUEUE_run();
 		BUTTONS_update();
 
@@ -233,7 +234,7 @@ static void MAIN_onButton4() {
 	Uint8 i;
 	CAN_msg_t msg;
 	static Uint16 w;
-	
+
 	debug_printf("Plate & Lift asser off\n");
 
 	msg.sid = ACT_PLATE;
@@ -333,10 +334,10 @@ static void MAIN_onButton4() {
 	debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));
 	debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Z));
 	debug_printf("- CW digital:\n"
-	             " CH0: %d\n"
-	             " CH1: %d\n"
-	             " CH2: %d\n"
-	             " CH3: %d\n",
+				 " CH0: %d\n"
+				 " CH1: %d\n"
+				 " CH2: %d\n"
+				 " CH3: %d\n",
 			CW_is_color_detected(CANDLECOLOR_CW_ID, 0),
 			CW_is_color_detected(CANDLECOLOR_CW_ID, 1),
 			CW_is_color_detected(CANDLECOLOR_CW_ID, 2),

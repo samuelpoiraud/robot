@@ -11,6 +11,7 @@
 
 #include "QS_CapteurCouleurCW.h"
 #include "QS_adc.h"
+#include "QS_outputlog.h"
 
 #ifdef USE_CW_SENSOR
 
