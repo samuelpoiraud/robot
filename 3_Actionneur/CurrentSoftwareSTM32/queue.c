@@ -11,6 +11,7 @@
 
 #include "queue.h"
 #include "config_pin.h"
+#include "config_debug.h"
 
 #ifndef OUTPUT_LOG_COMPONENT_QUEUE
 #  define OUTPUT_LOG_COMPONENT_QUEUE LOG_PRINT_Off
@@ -25,7 +26,7 @@
 #define component_printf_sem(log_level, queueId, semId, format, ...) component_printf(log_level, "[%d,s%d] " format, queueId, semId, ## __VA_ARGS__)
 
 
-/* Structure queue qui comprend: 
+/* Structure queue qui comprend:
  * -les actions à effectuer
  * -arguments pour les actions
  * -actionneur utilisé
@@ -35,7 +36,7 @@
  * -état de la queue (utilisée ou non)
  * -si une erreur est survenue lors de l'execution des fonctions dans la queue (erreur indiqué par QUEUE_set_error(queue_id))
  */
- 
+
 typedef struct{
 	action_t action[QUEUE_SIZE];
 	QUEUE_arg_t arg[QUEUE_SIZE];
@@ -64,7 +65,7 @@ static queue_t queues[NB_QUEUE];
 
 /*Sémaphore que l'on peut utiliser*/
 static semaphore_t sems[NB_ACT+NB_SYNCHRO];
- 
+
 static volatile Uint16 time = 0;
 
 void QUEUE_init()
@@ -74,20 +75,20 @@ void QUEUE_init()
 	if (initialized)
 		return;
 	Uint8 i;
-	
+
 	//initialisation des files
 	for (i=0;i<NB_QUEUE; i++)
 	{
 		queues[i].used = FALSE;
 	}
-	
+
 	//initialisation des sémaphores actionneurs
 	for(i=0;i<NB_ACT;i++)
 	{
 		sems[i].used = TRUE;
 		sems[i].token = TRUE;
 	}
-	
+
 	//initialisation des sémaphores de synchronisation
 	for(i=0;i<NB_SYNCHRO;i++)
 	{
@@ -104,7 +105,7 @@ QUEUE_arg_t* QUEUE_get_arg(queue_id_t queue_id)
 {
 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
 	return &(queues[queue_id].arg[queues[queue_id].head]);
-}		
+}
 
 QUEUE_act_e QUEUE_get_act(queue_id_t queue_id)
 {
@@ -186,7 +187,7 @@ void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, 
 		this->initial_time_of_current_action = CLOCK_get_time();
 		action(queue_id,TRUE);
 	}
-	
+
 }
 
 /* Retire la fonction en tete de file et reinitialise la suivante. */
@@ -290,7 +291,7 @@ void QUEUE_take_sem(queue_id_t this, bool_e init)
 				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Acquiring act semaphore\n");
 				sems[QUEUE_get_act(this)].token = FALSE;
 				QUEUE_behead(this);
-			}	
+			}
 			else
 			{
 				component_printf_sem(LOG_LEVEL_Debug, this, QUEUE_get_act(this), "Act semaphore locked\n");
@@ -303,7 +304,7 @@ void QUEUE_take_sem(queue_id_t this, bool_e init)
 				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Acquiring sync semaphore\n");
 				sems[QUEUE_get_arg(this)->param].token = FALSE;
 				QUEUE_behead(this);
-			}	
+			}
 			else
 			{
 				component_printf_sem(LOG_LEVEL_Debug, this, QUEUE_get_arg(this)->param, "Sync semaphore locked\n");
@@ -334,7 +335,7 @@ void QUEUE_give_sem(queue_id_t this, bool_e init)
 sem_id_t QUEUE_sem_create()
 {
 	Uint8 i;
-	
+
 	for(i=0;i<NB_ACT+NB_SYNCHRO;i++)
 	{
 		if(!(sems[i].used))
@@ -344,7 +345,7 @@ sem_id_t QUEUE_sem_create()
 	sems[i].used = TRUE;
 	sems[i].token = TRUE;
 	debug_printf("Creation synchro %d\n",i);
-		
+
 	return (i!=NB_ACT+NB_SYNCHRO)?i:QUEUE_SEM_CREATE_FAILED;
 }
 
@@ -369,7 +370,7 @@ void QUEUE_wait_synchro(queue_id_t this, bool_e init)
 	{
 		debug_printf("Attente synchro\n");
 		if ((sems[QUEUE_get_arg(this)->param].used && sems[QUEUE_get_arg(this)->param].token)) //jeton rendu ou timout
-		{	
+		{
 			debug_printf("Synchro finie\n");
 			QUEUE_behead(this);
 		}
@@ -381,5 +382,5 @@ void QUEUE_wait_synchro(queue_id_t this, bool_e init)
 			sems[QUEUE_get_arg(this)->param].token = TRUE;
 			QUEUE_flush(this);
 		}
-	}	
+	}
 }

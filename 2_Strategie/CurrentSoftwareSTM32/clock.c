@@ -32,12 +32,12 @@ void CLOCK_init()
 	CLOCK_run();	//Lancement du timer pour utilisation avant le début du match.
 	global.env.match_time = 0;
 	global.env.absolute_time = 0;
-}	
+}
 
 void CLOCK_run()
 {
 	TIMER1_run_us(1000);
-}	
+}
 
 void show_color_on_leds()
 {
@@ -45,14 +45,14 @@ void show_color_on_leds()
 	{
 		RED_LEDS = 1;
 		BLUE_LEDS = 0;
-	}	
+	}
 	else
 	{
 		BLUE_LEDS = 1;
 		RED_LEDS = 0;
 	}
 }
-	
+
 void CLOCK_run_match()
 {
 	TIMER1_stop();
@@ -64,7 +64,7 @@ void CLOCK_run_match()
 void CLOCK_stop()
 {
 	TIMER1_stop();
-}	
+}
 
 void _ISR _T1Interrupt()
 {
@@ -76,12 +76,12 @@ void _ISR _T1Interrupt()
 	{
 		//Pendant le match.
 		global.env.match_time++;
-#warning "remettre ceci :"
-		//if(global.env.match_time & 0x100)
-		//	LED_USER=!LED_USER;
+
+		if(global.env.match_time & 0x100)
+			LED_USER=!LED_USER;
 	}
 	else
-	{	
+	{
 		//Avant le début du match.
 		local_time++;
 		if(local_time == 250)
