@@ -17,14 +17,15 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_adc.h"
-#include "../output_log.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 #include "KBall_sorter_config.h"
 #include "KBall_launcher.h"
 
+#include "config_debug.h"
 #define LOG_PREFIX "BS: "
-#define COMPONENT_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_BALLSORTER, log_level, LOG_PREFIX format, ## __VA_ARGS__)
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BALLSORTER
+#include "../QS/QS_outputlog.h"
 
 static Uint16 desired_ball_launcher_speed = 0;
 static bool_e cherry_taken = FALSE;
@@ -44,7 +45,7 @@ void BALLSORTER_init() {
 
 	BALLSORTER_initAX12();
 
-	COMPONENT_log(LOG_LEVEL_Info, "Séquenceur de cerise initialisé\n");
+	info_printf("Séquenceur de cerise initialisé\n");
 	//a faire: RAM de cerise, registres de cerise, ALU de cerise, GPIO de cerise, bras de cerise, pieds de cerise, firmware groupama(c)(r)(tm) 3.1.2 de cerise
 	//groupama est une marque déposée sur le bord de la route actuellement orpheline, pour des demandes d'adoption, veuillez vous renseigner à: www.jadoptemabankdememoire.com
 }
@@ -64,7 +65,7 @@ static void BALLSORTER_initAX12() {
 		AX12_config_set_error_before_led(BALLSORTER_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(BALLSORTER_AX12_ID, AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD);
 
-		COMPONENT_log(LOG_LEVEL_Info, "AX12 initialisé\n");
+		info_printf("AX12 initialisé\n");
 	}
 }
 
@@ -100,7 +101,7 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -125,12 +126,12 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 			wantedPosition = 0xFFFF;
 
 			if(command != ACT_BALLSORTER_TAKE_NEXT_CHERRY) {
-				COMPONENT_log(LOG_LEVEL_Error, "invalid translation command: %u, code is broken !\n", command);
+				error_printf("invalid translation command: %u, code is broken !\n", command);
 				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 
-			COMPONENT_log(LOG_LEVEL_Debug, "state: %d, ax12 pos: %d\n", state, AX12_get_position(BALLSORTER_AX12_ID));
+			debug_printf("state: %d, ax12 pos: %d\n", state, AX12_get_position(BALLSORTER_AX12_ID));
 
 			//Si on a déjà pris une cerise, on en reprendre pas une autre
 			if(cherry_taken == TRUE && (state == BALLSORTER_CS_GotoNextCherry || state == BALLSORTER_CS_TakeCherry)) {
@@ -167,22 +168,22 @@ void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 					return; //La suite c'est les commandes AX12
 
 				default: {
-					COMPONENT_log(LOG_LEVEL_Error, "Invalid command: %u, code is broken !\n", command);
+					error_printf("Invalid command: %u, code is broken !\n", command);
 					QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 					return;
 				}
 			}
 
 			if(wantedPosition == 0xFFFF) {
-				COMPONENT_log(LOG_LEVEL_Error, "invalid AX12 position: %u, code is broken !\n", command);
+				error_printf("invalid AX12 position: %u, code is broken !\n", command);
 				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 
-			COMPONENT_log(LOG_LEVEL_Debug, "AX12 moveto %d\n", wantedPosition);
+			debug_printf("AX12 moveto %d\n", wantedPosition);
 			AX12_reset_last_error(BALLSORTER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 			if(!AX12_set_position(BALLSORTER_AX12_ID, wantedPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-				COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(BALLSORTER_AX12_ID).error);
+				error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(BALLSORTER_AX12_ID).error);
 				QUEUE_next(queueId, ACT_BALLSORTER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 				return;
 			}

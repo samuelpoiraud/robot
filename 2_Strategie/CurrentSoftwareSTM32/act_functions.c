@@ -13,12 +13,13 @@
 #include "act_functions.h"
 #include "act_can.h"
 
+#include "config_debug.h"
+
 #ifndef OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #  define OUTPUT_LOG_COMPONENT_ACTFUNCTION LOG_PRINT_Off
 #  warning "OUTPUT_LOG_COMPONENT_ACTFUNCTION is not defined, defaulting to Off"
 #endif
 
-#include "config_debug.h"
 #define LOG_PREFIX "act_f: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "QS/QS_outputlog.h"

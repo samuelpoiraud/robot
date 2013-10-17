@@ -70,8 +70,8 @@ log_level_e OUTPUTLOG_get_level();
 
 #define component_printf(log_level, format, ...) OUTPUTLOG_printf(log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-#define trace_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: " __func__  " line: " OUTPUTLOG_TOSTRING(__LINE__) ## __VA_ARGS__)
-#define vtrace_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: " __func__  " line: " OUTPUTLOG_TOSTRING(__LINE__) " in " __FILE__ ": " ## __VA_ARGS__)
+#define trace_printf(format, ...) OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: %s line: " OUTPUTLOG_TOSTRING(__LINE__) " " format, __func__, ## __VA_ARGS__)
+#define vtrace_printf(format, ...) OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: %s line: " OUTPUTLOG_TOSTRING(__LINE__) " in " __FILE__ ": " format, __func__, ## __VA_ARGS__)
 #define debug_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX __VA_ARGS__)
 #define info_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX __VA_ARGS__)
 #define warn_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX __VA_ARGS__)

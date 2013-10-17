@@ -17,12 +17,14 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_adc.h"
-#include "../output_log.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 #include "KPlate_config.h"
 
-#define COMPONENT_log(...) OUTPUTLOG_PRETTY("PL: ", OUTPUT_LOG_COMPONENT_PLATE, ## __VA_ARGS__)
+#include "config_debug.h"
+#define LOG_PREFIX "PL: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PLATE
+#include "../QS/QS_outputlog.h"
 
 #define PLATE_NUM_POS           3
 	#define PLATE_HORIZONTAL_POS_ID 0
@@ -74,7 +76,7 @@ void PLATE_init() {
 	DCM_config(PLATE_DCMOTOR_ID, &plate_rotation_config);
 	DCM_stop(PLATE_DCMOTOR_ID);
 
-	COMPONENT_log(LOG_LEVEL_Info, "Pince à assiette initialisé (DCMotor)\n");
+	info_printf("Pince à assiette initialisé (DCMotor)\n");
 
 	PLATE_initAX12();
 }
@@ -95,7 +97,7 @@ static void PLATE_initAX12() {
 		AX12_config_set_error_before_shutdown(PLATE_PLIER_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
 
 		AX12_set_position(PLATE_PLIER_AX12_ID, PLATE_ACT_PLIER_AX12_INIT_POS);
-		COMPONENT_log(LOG_LEVEL_Info, "Pince AX12 initialisé\n");
+		info_printf("Pince AX12 initialisé\n");
 	}
 }
 
@@ -108,7 +110,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 
 	if(msg->sid == ACT_PLATE) {
 		//Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
-		PLATE_initAX12(); 
+		PLATE_initAX12();
 
 		switch(msg->data[0]) {
 			case ACT_PLATE_ROTATE_HORIZONTALLY:
@@ -140,7 +142,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			default:
-				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -198,12 +200,12 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 			return;
 
 		default: {
-				COMPONENT_log(LOG_LEVEL_Error, "Invalid rotation command: %u, code is broken !\n", command);
+				error_printf("Invalid rotation command: %u, code is broken !\n", command);
 				QUEUE_next(queueId, ACT_PLATE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
-	COMPONENT_log(LOG_LEVEL_Debug, "Rotation at position %d\n", DCM_getPosValue(PLATE_DCMOTOR_ID, wantedPosition));
+	debug_printf("Rotation at position %d\n", DCM_getPosValue(PLATE_DCMOTOR_ID, wantedPosition));
 	DCM_goToPos(PLATE_DCMOTOR_ID, wantedPosition);
 	DCM_restart(PLATE_DCMOTOR_ID);
 }
@@ -213,7 +215,7 @@ static void PLATE_rotation_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	COMPONENT_log(LOG_LEVEL_Trace, "At position %d\n", PLATE_getRotationAngle());
+	trace_printf("At position %d\n", PLATE_getRotationAngle());
 
 	if(ACTQ_check_status_dcmotor(PLATE_DCMOTOR_ID, FALSE, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_PLATE, result, errorCode, line);
@@ -235,21 +237,21 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 			return;
 
 		default: {
-				COMPONENT_log(LOG_LEVEL_Error, "Invalid plier command: %u, code is broken !\n", command);
+				error_printf("Invalid plier command: %u, code is broken !\n", command);
 				QUEUE_next(queueId, ACT_PLATE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		COMPONENT_log(LOG_LEVEL_Error, "Invalid plier position: %u, code is broken !\n", command);
+		error_printf("Invalid plier position: %u, code is broken !\n", command);
 		QUEUE_next(queueId, ACT_PLATE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Move plier ax12 to %d\n", *ax12_goalPosition);
+	debug_printf("Move plier ax12 to %d\n", *ax12_goalPosition);
 	AX12_reset_last_error(PLATE_PLIER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	if(!AX12_set_position(PLATE_PLIER_AX12_ID, *ax12_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-		COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(PLATE_PLIER_AX12_ID).error);
+		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(PLATE_PLIER_AX12_ID).error);
 		QUEUE_next(queueId, ACT_PLATE, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
