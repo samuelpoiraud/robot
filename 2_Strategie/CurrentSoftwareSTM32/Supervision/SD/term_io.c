@@ -134,8 +134,9 @@ void SD_char_from_user(char c)
 		case '\b':
 			if(index)
 			{
+				//buffer_command[index] = 0;
 				index--;
-				printf("\b \b");
+				printf(" \b");
 			}
 			break;
 		case '\n':

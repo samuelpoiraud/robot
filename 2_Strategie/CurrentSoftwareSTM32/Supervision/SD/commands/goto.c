@@ -17,6 +17,8 @@ int term_cmd_goto(int argc, const char *argv[]) {
 
 	if(argc < 2)
 		return EINVAL;
+	else if(argc > 2)
+		return EINVAL;
 
 	if(!argtolong(argv[0], 0, &x))
 		return EINVAL;
@@ -24,8 +26,13 @@ int term_cmd_goto(int argc, const char *argv[]) {
 	if(!argtolong(argv[1], 0, &y))
 		return EINVAL;
 
-	if(x >= 200 && x <= 1800 && y >= 200 && y <= 2800)
-			ASSER_push_goto(x, y, FAST, ANY_WAY, 0, END_AT_BREAK, FALSE);
+	if(x >= 200 && x <= 1800 && y >= 200 && y <= 2800){
+			if(global.env.pos.x < 250 || global.env.pos.x > 1750 || global.env.pos.y < 250 || global.env.pos.y > 1750)
+				ASSER_push_goto(x, y, FAST, ANY_WAY, 0, END_AT_BREAK, FALSE);
+			else
+				ASSER_push_goto(x, y, FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
+	}else
+		return EINVAL;
 
 	if(global.env.pos.x < 250)
 		ASSER_push_goto(250, global.env.pos.y, FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
