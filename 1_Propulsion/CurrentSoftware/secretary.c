@@ -69,7 +69,7 @@ void SECRETARY_process_main(void)
 			if(u1rxToCANmsg(&receivedCanMsg_over_uart, UART1_get_next_msg()))
 				SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
 		#else
-			if(u1rxToCANmsg(&receivedCanMsg_over_uart)
+			if(u1rxToCANmsg(&receivedCanMsg_over_uart))
 				SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
 		#endif
 	}

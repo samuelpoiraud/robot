@@ -13,7 +13,8 @@
 #include "QS_can.h"
 
 #include <can.h>
-#include "../QS/QS_CANmsgList.h"
+#include "QS_CANmsgList.h"
+#include "QS_outputlog.h"
 #define MASK_CAN_S			0x000 /* 0b00000000000 */
 /* on filtre les messages nous meme en aval */
 

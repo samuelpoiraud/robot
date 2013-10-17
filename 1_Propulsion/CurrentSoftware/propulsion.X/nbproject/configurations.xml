@@ -49,6 +49,7 @@
       <itemPath>../joystick.h</itemPath>
       <itemPath>../QS/QS_who_am_i.h</itemPath>
       <itemPath>../QS/QS_trap_handler.h</itemPath>
+      <itemPath>../QS/QS_outputlog.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -90,6 +91,7 @@
       <itemPath>../joystick.c</itemPath>
       <itemPath>../QS/QS_who_am_i.c</itemPath>
       <itemPath>../QS/QS_trap_handler.c</itemPath>
+      <itemPath>../QS/QS_outputlog.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -10,9 +10,11 @@
  */
 
 #include "QS_CapteurCouleurCW.h"
-#include "QS_adc.h"
 
 #ifdef USE_CW_SENSOR
+
+#include "QS_adc.h"
+#include "QS_outputlog.h"
 
 #define CW_PORTBIT_SET(p) BIT_SET(*(p).port, (p).bit_number)
 #define CW_PORTBIT_CLR(p) BIT_CLR(*(p).port, (p).bit_number)
