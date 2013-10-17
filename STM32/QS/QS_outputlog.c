@@ -8,8 +8,10 @@
  *  Auteur : Alexis
  */
 
-#if 1
 #include "QS_outputlog.h"
+#ifdef NEW_CONFIG_ORGANISATION
+	#include "config_debug.h"
+#endif
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -47,5 +49,3 @@ void OUTPUTLOG_set_level(log_level_e level) {
 log_level_e OUTPUTLOG_get_level() {
 	return current_max_log_level;
 }
-
-#endif /* 0 */
