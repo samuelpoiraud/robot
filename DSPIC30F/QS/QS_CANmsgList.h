@@ -12,7 +12,7 @@
 
 #ifndef QS_CANMSGLIST_H
 	#define QS_CANMSGLIST_H
-	#include "../QS/QS_CANmsgDoc.h"
+	#include "QS_CANmsgDoc.h"
 
 	/* Masque des cartes (des destinataires) */
 	#define MASK_BITS					0x700
@@ -21,14 +21,24 @@
 	#define STRAT_FILTER				0x200
 	#define ACT_FILTER					0x300
 	#define BALISE_FILTER				0x400
-	#define SUPER_FILTER				0x500
 	#define DEBUG_FILTER				0x700
 	
+	//Ces messages ne sont pas destinés à voyager sur les bus CAN des robot.
+	#define XBEE_FILTER					0x500
+
 	/* Message pour tous */
 	#define BROADCAST_START	 			0x001
 	#define BROADCAST_STOP_ALL 			0x002
 	#define BROADCAST_COULEUR			0x003
 	#define BROADCAST_POSITION_ROBOT	0x004
+		#define WARNING_NO					(0b00000000)
+		#define WARNING_TIMER				(0b00000001)
+		#define WARNING_TRANSLATION			(0b00000010)
+		#define WARNING_ROTATION			(0b00000100)
+		#define WARNING_REACH_X				(0b00001000)		//Nous venons d'atteindre une position en X pour laquelle on nous a demandé une surveillance.
+		#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
+		#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
+		#define WARNING_NEW_TRAJECTORY		(0b01000000)		//Changement de trajectoire (attention, cela inclue les trajectoires préalables ajoutées en propulsion...)
 
 	/* Message pour personne */
 	#define DEBUG_CARTE_P				0x742
@@ -41,7 +51,6 @@
 	#define US_ERROR_RESULT				0x754	//Message de la super pour l'EEPROM -> compteur des erreurs de balise
 	#define DEBUG_FOE_REASON			0x755	//Message de debug qui explique la raison d 'un evitement
 	#define DEBUG_US_NOT_RELIABLE		0x756	//Message qui indique que on ne fait plus confiance aux ultrasons
-	#define DEBUG_TEST_HARD				0x757	//Message qui permet de tester l'entrée uart2
 
 	#define DEBUG_STRAT_STATE_CHANGED	0x760  //Envoyé par la strat quand un état change d'une machine à état
 		//Paramètres: data[0]:data[1] = ID d'une machine à état (data[0] le poids fort), data[2] = old_state, data[3] = new_state, data suivant: paramètres divers
@@ -61,16 +70,23 @@
 	#define DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT					0x710
 	
 	/* Message de l'utilisateur vers Super */
-	#define SUPER_EEPROM_RESET			0x770
-	#define SUPER_EEPROM_PRINT_MATCH	0x777
+	#define SUPER_EEPROM_RESET				0x770
+	#define SUPER_EEPROM_TEST_ALL_MEMORY	0x771
+	#define SUPER_EEPROM_PRINT_ALL_MEMORY	0x772
+	#define SUPER_EEPROM_PRINT_MATCH		0x777
 
-	#define SUPER_RTC_GET				(0x780)	
-	#define SUPER_RTC_SET				(0x781)
-	#define	SUPER_RTC_TIME				(0x782)
-
-	#define XBEE_FILTER					0x5A0	//Seuls les messages commencant par 5A seront transmis par XBee !
-	//PS : les messages PING et PONG ne sont pas soumis à cette règlementation car envoyés par le fichier QS_CAN_OVER_XBEE
-	#define STRAT_XBEE_FILTER			0x2A0	//Un message reçu 5Ax par XBEE sera propagé 2Ax vers la strat du robot local.
+	#define DEBUG_RTC_GET				(0x780)
+	#define DEBUG_RTC_SET				(0x781)
+					/*	GET et SET :
+						Uint8 secondes
+						Uint8 minutes
+						Uint8 hours
+						Uint8 day
+						Uint8 date
+						Uint8 months
+						Uint8 year	(11 pour 2011)
+					*/
+	#define	DEBUG_RTC_TIME				(0x782)
 
 	//message pour debug strategie
 
@@ -78,28 +94,20 @@
 /*****************************************************************
  *
  *		Messages echangés entre les cartes stratégies des
- *		deux robots via le Xbee: TESTS
- *			(les messages vont par pair)
+ *		deux robots via le Xbee
+ *
  *****************************************************************/
 /*	Envoi d'update des elements de l'environnement	*/
 	//Envois
-	#define XBEE_ENV_UPDATE					0x5A1
 	#define XBEE_START_MATCH				0x5A4	//Ce message est envoyé pour lancer le match de l'autre robot
-	#define XBEE_PING_OTHER_STRAT			0x5A6	//Ce message est envoyé pour pinger l'autre carte stratégie
-	#define XBEE_PONG_OTHER_STRAT			0x5A7	//Ce message est envoyé en réponse d'un ping vers l'autre carte stratégie
-
+	#define XBEE_PING						0x516	//PING = pInG = p1n6, Ce message est envoyé pour pinger l'autre carte stratégie
+	#define XBEE_PONG						0x506	//PONG = pOnG = p0n6, Ce message est envoyé en réponse d'un ping vers l'autre carte stratégie
 	#define XBEE_ZONE_COMMAND				0x5AA	//Effectue une demande lié au zones (un SID pour toute la gestion des zones comme ça)
 	//Commande dans data[0]:
 		#define XBEE_ZONE_TRY_LOCK       0	//Dans data[1]: la zone, type: map_zone_e. La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT
 		#define XBEE_ZONE_LOCK_RESULT    1	//Dans data[1]: la zone concernée, data[2]: TRUE/FALSE suivant si le verouillage à été accepté ou non
 		#define XBEE_ZONE_UNLOCK         2  //Dans data[1]: la zone libérée. Libère une zone qui a été verouillée
 
-	//Reception: La super se charge de transformer le message recu par xbee et qui commence par le sid precedent
-	#define STRAT_ELTS_UPDATE				0x2A1
-	#define STRAT_START_MATCH				0x2A4	//Ce message est envoyé pour demander à une carte S de lancer le match
-	#define XBEE_PING_FROM_OTHER_STRAT		0x2A6	//Ce message est reçu par la strat, en provenance de l'autre strat
-	#define XBEE_PONG_FROM_OTHER_STRAT		0x2A7	//Ce message est reçu en réponse d'un ping en provenance de l'autre carte stratégie
-	#define XBEE_ZONE_COMMAND_RECV			0x2AA	//Un message XBEE_ZONE_COMMAND reçu, voir info sur le message XBEE_ZONE_COMMAND
 
  /*****************************************************************
  *
@@ -108,33 +116,44 @@
  *
  *****************************************************************/
 
-	/* Carte super vers carte stratégie */
-	#define SUPER_ASK_STRAT_SELFTEST	0x200
-	#define SUPER_ASK_CONFIG			0x201
 	
 	/* Carte super vers carte actionneur */
-	#define SUPER_ASK_ACT_SELFTEST		0x300
+	#define ACT_DO_SELFTEST		0x300
 	
 	/* Carte super vers carte propulsion */
-	#define SUPER_ASK_ASSER_SELFTEST	0x100
+
+	#define PROP_DO_SELFTEST	0x100
 	
 	/* Carte super vers carte balise */
-	#define SUPER_ASK_BEACON_SELFTEST	0x400
+	#define BEACON_DO_SELFTEST	0x400
 	
-	/* Carte stratégie vers Super */
-	#define STRAT_SELFTEST				0x500
-	#define SUPER_CONFIG_IS				0x501
 	
 	/* Carte actionneur vers Super */
-	#define ACT_SELFTEST 				0x502
+	#define STRAT_ACT_SELFTEST_DONE 				0x2E3
 	
 	/* Carte propulsion vers Super */
-	#define ASSER_SELFTEST 				0x503
+	#define STRAT_PROP_SELFTEST_DONE 				0x2E1
 	
 	/* Carte balise vers Super */
-	#define BEACON_IR_SELFTEST 			0x504
-	#define BEACON_US_SELFTEST 			0x505
+	#define STRAT_BEACON_IR_SELFTEST_DONE			0x2E4
+	#define STRAT_BEACON_US_SELFTEST_DONE			0x2E5
 	
+	//Jusqu'à 8 codes d'erreurs peuvent être transmis dans la réponse de chaque carte. (la size contient le nombre de code d'erreurs envoyés.)
+	//En cas de test réussi, size vaut 0...
+	typedef enum
+	{
+		SELFTEST_NOT_DONE = 0,
+		SELFTEST_FAIL_UNKNOW_REASON,
+		SELFTEST_NO_POWER,
+		SELFTEST_TIMEOUT,
+		SELFTEST_PROP_LEFT_MOTOR,
+		SELFTEST_PROP_LEFT_ENCODER,
+		SELFTEST_PROP_RIGHT_MOTOR,
+		SELFTEST_PROP_RIGHT_ENCODER,
+		SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE,
+		SELFTEST_NO_ERROR = 0xFF
+		//... ajouter ici d'éventuels nouveaux code d'erreur.
+	}SELFTEST_error_code_e;
 	
 
 /*****************************************************************
@@ -144,6 +163,7 @@
  *****************************************************************/
 
 	/* carte propulsion vers carte stratégie */
+//TODO renommer ces messages pour respecter le nom es cartes (STRAT et PROP)
 	#define CARTE_P_TRAJ_FINIE			0x210
 	#define CARTE_P_ASSER_ERREUR		0x211
 	#define CARTE_P_POSITION_ROBOT		BROADCAST_POSITION_ROBOT
@@ -161,8 +181,6 @@
 	#define ASSER_TYPE_ASSERVISSEMENT			0x108
 	#define ASSER_RUSH_IN_THE_WALL				0x109
 	#define ASSER_CALIBRATION					0x10B
-	#define ASSER_RECOVERY_CALIBRATION			0x10F //Datas: [0]->way_e way, [1]->map_border_e wall, [2]->bool_e both_borders, [3]->speed_e speed, size = 4
-
 		typedef enum
 		{
 			ASSER_CALIBRATION_SQUARE_0	= 0,	//Near gifts
@@ -176,12 +194,11 @@
 	#define ASSER_WARN_X						0x10D
 	#define ASSER_WARN_Y						0x10E
 	#define ASSER_JOYSTICK 						0x111
-
-		typedef enum
-		{
-			X_AXIS_BORDER = 0,
-			Y_AXIS_BORDER
-		}map_border_e;
+	
+	//modif amaury pour les 3position de calibrage initiale
+    #define ASSER_CASE_CALIBRAGE_1               0x112
+    #define ASSER_CASE_CALIBRAGE_2               0x113
+    #define ASSER_CASE_CALIBRAGE_3               0x114
 		
 
 /*****************************************************************
@@ -285,7 +302,7 @@
 		#define ACT_PLATE_ROTATE_PREPARE        0x21	//Amener le bras en position intermédiaire (45°) pour préparer un mouvement vers l'horizontale ou verticale
 		#define ACT_PLATE_ROTATE_VERTICALLY     0x22	//Amener le bras en position verticale. Ferme la pince si elle ne l'est pas avant d'effectuer le mouvement (meca oblige) (pour vider une assiette ou réduire le périmêtre du robot)
 		#define ACT_PLATE_ROTATE_STOP           0x2F	//Stopper l'asservissement du bras. A éviter, dans les virages il ne faudrait pas que l'actionneur tombe (même si gros reducteur ...)
-		#define ACT_PLATE_ROTATE_ANGLE 0x2A
+		#define ACT_PLATE_ROTATE_ANGLE          0x2A    //Changer l'angle manuellement
 	/////////////////////////////////////////
 
 	/////////////// BALLSORTER //////////////
@@ -333,13 +350,14 @@
 	#define BEACON_ADVERSARY_POSITION_IR_ARROUND_AREA		0x252	//Balises terrain avec réception InfraRouge
 	#define BEACON_ADVERSARY_POSITION_US_ARROUND_AREA		0x253	//Balises terrain avec réception UltraSon
 
-/*****************************************************************
- *
- *		Messages echangés par liaison XBee
- *		avec la carte supervision ou balise mère...
- *
- *****************************************************************/
- 	#define XBEE_PING	0x516	//PING = pInG = p1n6
- 	#define XBEE_PONG	0x506	//PONG = pOnG = p0n6
+		/* Liste des messages de definition d'erreur --- Pour plus de doc, consulter QS_CANmsgDoc.h */
+		#define AUCUNE_ERREUR						(0b00000000)
+		#define AUCUN_SIGNAL						(0b00000001)
+		#define SIGNAL_INSUFFISANT					(0b00000010)
+		#define TACHE_TROP_GRANDE					(0b00000100)
+		#define TROP_DE_SIGNAL						(0b00001000)
+		#define ERREUR_POSITION_INCOHERENTE 		(0b00010000)
+		#define OBSOLESCENCE						(0b10000000)
+
  	
 #endif	/* ndef QS_CANMSGLIST_H */

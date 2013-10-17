@@ -298,7 +298,7 @@ void _ISR DCM_TIMER_IT()
 			switch(this->cmd_state) {
 				case DCM_WORKING:
 					this->cmd_time += DCM_TIMER_PERIOD;
-					if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon)
+					if(absolute(error) < (Sint16)config->epsilon && absolute(this->previous_error) < (Sint16)config->epsilon)
 						this->cmd_state = DCM_IDLE;
 					else if(config->timeout && this->cmd_time >= config->timeout)
 						this->cmd_state = DCM_TIMEOUT;
@@ -306,7 +306,7 @@ void _ISR DCM_TIMER_IT()
 
 				case DCM_IDLE:
 					this->cmd_time = 0;
-					if(abs(error) >= (Sint16)config->epsilon)
+					if(absolute(error) >= (Sint16)config->epsilon)
 						this->cmd_state = DCM_WORKING;
 					break;
 
@@ -334,7 +334,7 @@ void _ISR DCM_TIMER_IT()
 								+ (__builtin_divsd(__builtin_mulss(config->Kd, differential), (DCM_TIMER_PERIOD*1024)));
 				 */
 				//TODO: clean ça, pas de Kd quand on est a la bonne position
-//				if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon) {
+//				if(absolute(error) < (Sint16)config->epsilon && absolute(this->previous_error) < (Sint16)config->epsilon) {
 //					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
 //								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576);
 //				} else {

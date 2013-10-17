@@ -15,6 +15,8 @@
 #include "QS_ax12.h"
 
 #ifdef USE_AX12_SERVO
+
+	#include "QS_outputlog.h"
 																			
 	/**********************************************************************/
 	/** Paramètres de configuration du driver AX12                        */
