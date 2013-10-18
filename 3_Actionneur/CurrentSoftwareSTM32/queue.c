@@ -43,7 +43,7 @@ typedef struct{
 	QUEUE_act_e act[QUEUE_SIZE];
 	queue_size_t head;
 	queue_size_t tail;
-	time_t initial_time_of_current_action;
+	clock_time_t initial_time_of_current_action;
 	bool_e used;
 	bool_e error_occured;
 } queue_t;
@@ -114,7 +114,7 @@ QUEUE_act_e QUEUE_get_act(queue_id_t queue_id)
 }
 
 /*Renvoie le moment ou l'action a été initialisée*/
-time_t QUEUE_get_initial_time(queue_id_t queue_id) {
+clock_time_t QUEUE_get_initial_time(queue_id_t queue_id) {
 	assert((queue_id < NB_QUEUE) && (queues[queue_id].used));
 	return queues[queue_id].initial_time_of_current_action;
 }
@@ -360,7 +360,7 @@ void QUEUE_sem_delete(queue_id_t this, bool_e init)
 
 void QUEUE_wait_synchro(queue_id_t this, bool_e init)
 {
-	static time_t initial_time;
+	static clock_time_t initial_time;
 	if(init)
 	{
 		debug_printf("Départ Attente synchro\n");

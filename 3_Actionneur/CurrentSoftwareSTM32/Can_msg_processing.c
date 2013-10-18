@@ -21,6 +21,7 @@
 #include "Krusty/KActManager.h"
 #include "Tiny/TActManager.h"
 
+#include "config_debug.h"
 #define LOG_PREFIX "CANProcess: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANPROCESSMSG
 #include "QS/QS_outputlog.h"
@@ -31,7 +32,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		return;  //Le message a déja été géré
 	}
 
-	
+
 	// Traitement des autres messages reçus
 	switch (msg->sid)
 	{
@@ -43,7 +44,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			ACTMGR_stop();
 			DCM_stop_all();
 			break;
-		
+
 		//Reprise de la partie
 		case BROADCAST_START :
 			component_printf(LOG_LEVEL_Info, "C:BROADCAST_START\n");
@@ -53,8 +54,8 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case BROADCAST_POSITION_ROBOT:
 			//Rien, mais pas inclus dans le cas default où l'on peut afficher le sid...
 			break;
-		
-		default: 
+
+		default:
 			//debug_printf("SID:%x\r\n",msg->sid);
 			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%x(%u)\n", msg->sid, msg->sid);
 			break;

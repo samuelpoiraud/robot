@@ -15,6 +15,7 @@
 #include "QS/QS_ax12.h"
 #include "QS/QS_DCMotor2.h"
 
+#include "config_debug.h"
 #define LOG_PREFIX "ActUtils: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTQUEUEUTILS
 #include "QS/QS_outputlog.h"
@@ -217,7 +218,7 @@ bool_e ACTQ_finish_SendNothing(queue_id_t queue_id, Uint11 act_sid, Uint8 result
 }
 
 static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param, bool_e sended_can_result) {
-#ifdef OUTPUT_LOG
+#ifdef VERBOSE_MODE
 	const char* originalSidStr = "Unknown";
 	const char* resultStr = "Unknown";
 	const char* errorCodeStr = "Unknown error";

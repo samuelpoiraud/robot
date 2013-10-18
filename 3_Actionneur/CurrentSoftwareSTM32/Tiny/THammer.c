@@ -20,6 +20,7 @@
 #include "THammer_config.h"
 #include "TCandle_color_sensor.h"
 
+#include "config_debug.h"
 #define LOG_PREFIX "Ha: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_HAMMER
 #include "../QS/QS_outputlog.h"

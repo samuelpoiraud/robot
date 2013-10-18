@@ -14,6 +14,7 @@
 
 	//mode d'activation des sorties debug_printf
 	#define VERBOSE_MODE
+	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
 
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */

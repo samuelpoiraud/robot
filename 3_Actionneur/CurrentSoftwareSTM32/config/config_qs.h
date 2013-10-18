@@ -11,8 +11,6 @@
 #ifndef CONFIG_QS_H
 #define CONFIG_QS_H
 
-#include "config_debug.h" //pour verbose_mode
-
 //#define MODE_SIMULATION
 
 /* ID de la carte: cf le type cartes_e de QS_types.h */

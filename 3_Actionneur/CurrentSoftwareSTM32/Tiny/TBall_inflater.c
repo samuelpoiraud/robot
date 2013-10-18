@@ -17,6 +17,7 @@
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 
+#include "config_debug.h"
 #define LOG_PREFIX "BI: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BALLINFLATER
 #include "../QS/QS_outputlog.h"
