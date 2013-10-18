@@ -67,6 +67,12 @@
 #define BUFFER_U2TX_SIZE 128
 #define USE_UART2TXINTERRUPT
 
+//#define USE_UART3
+//#define UART3_BAUDRATE	19200
+//#define USE_UART3RXINTERRUPT
+//#define BUFFER_U3TX_SIZE 128
+//#define USE_UART3TXINTERRUPT
+
 /*	Taille de la chaine de caracteres memorisant
 	les caracteres recus sur UART */
 #define UART_RX_BUF_SIZE	32
@@ -93,5 +99,11 @@
 
 #define USE_XBEE
 #define XBEE_PLUGGED_ON_UART2
+
+//#define USE_RF
+//#define RF_UART 3
+//#define RF_MODULE RF_KRUSTY
+//#define RF_SYNCHRO_MASTER
+//#define RF_SYNCHRO_SLAVE
 
 #endif /* CONFIG_QS_H */
