@@ -61,3 +61,5 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "")
 
 set(BUILD_SHARED_LIBS OFF)
 
+find_program(CMAKE_OBJCOPY arm-none-eabi-objcopy)
+find_program(CMAKE_OBJDUMP arm-none-eabi-objdump)
