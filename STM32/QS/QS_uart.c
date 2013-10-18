@@ -27,6 +27,9 @@
 #ifndef UART2_BAUDRATE
 	#define UART2_BAUDRATE 115200
 #endif
+#ifndef UART3_BAUDRATE
+	#define UART3_BAUDRATE 115200
+#endif
 
 /* Variables Globales pour l'UART */
 #ifdef USE_UART1RXINTERRUPT
@@ -39,7 +42,12 @@
 	static volatile Uint32 m_u2rxnum;
 	static volatile bool_e m_u2rx;	// message reçu sur uart2
 #endif /* def USE_UART2RXINTERRUPT */
-#if (defined USE_UART1TXINTERRUPT || defined USE_UART2TXINTERRUPT)
+#ifdef USE_UART3RXINTERRUPT
+	static Uint8 m_u3rxbuf[UART_RX_BUF_SIZE];
+	static volatile Uint32 m_u3rxnum;
+	static volatile bool_e m_u3rx;	// message reçu sur uart3
+#endif /* def USE_UART3RXINTERRUPT */
+#if (defined USE_UART1TXINTERRUPT || defined USE_UART2TXINTERRUPT || defined USE_UART3TXINTERRUPT)
 	typedef struct
 	{
 		volatile Uint8 * datas;
@@ -68,7 +76,7 @@
 #endif
 
 /*	fonction initialisant les uart choisis
-	vitesse : 9600 bauds
+	vitesse : 115200 bauds (par défaut)
 	bits de donnees : 8
 	parite : aucune
 	bit de stop : 1
@@ -83,7 +91,6 @@ void UART_init(void)
 
 	NVIC_InitTypeDef NVIC_InitStructure;
 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
@@ -98,6 +105,7 @@ void UART_init(void)
 		m_u1rxnum = 0;
 		m_u1rx = 0;
 		/* Enable the USART1 Interrupt */
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
 		NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 		NVIC_Init(&NVIC_InitStructure);
 		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
@@ -117,6 +125,7 @@ void UART_init(void)
 		m_u2rxnum = 0;
 		m_u2rx = 0;
 		/* Enable the USART1 Interrupt */
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
 		NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
 		NVIC_Init(&NVIC_InitStructure);
 		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
@@ -126,13 +135,31 @@ void UART_init(void)
 	USART_Cmd(USART2, ENABLE);
 #endif
 
+#ifdef USE_UART3
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+	USART_OverSampling8Cmd(USART3, ENABLE);
+	UART_set_baudrate(3, UART3_BAUDRATE);
+
+	#ifdef USE_UART3RXINTERRUPT
+		m_u3rxnum = 0;
+		m_u3rx = 0;
+		/* Enable the USART1 Interrupt */
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+		NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+		NVIC_Init(&NVIC_InitStructure);
+		USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+	#endif
+
+	/* Enable USART */
+	USART_Cmd(USART3, ENABLE);
+#endif
 
 }
 
 void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 	USART_InitTypeDef USART_InitStructure;
 
-	assert(uart_id == 1 || uart_id == 2);
+	assert(uart_id <= 3);
 
 	USART_InitStructure.USART_BaudRate = baudrate;
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
@@ -147,6 +174,9 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 			break;
 		case 2:
 			USART_Init(USART2, &USART_InitStructure);
+			break;
+		case 3:
+			USART_Init(USART3, &USART_InitStructure);
 			break;
 	}
 }
