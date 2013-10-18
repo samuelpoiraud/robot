@@ -18,6 +18,7 @@
 #include "config_pin.h"
 #include "TPlier_config.h"
 
+#include "config_debug.h"
 #define LOG_PREFIX "Plier: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PLIER
 #include "../QS/QS_outputlog.h"

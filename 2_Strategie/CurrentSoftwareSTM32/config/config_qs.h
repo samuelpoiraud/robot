@@ -34,7 +34,6 @@
 
 
 #define VERBOSE_MODE
-#define OUTPUT_LOG  //utilisé dans act_function et queue
 
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.

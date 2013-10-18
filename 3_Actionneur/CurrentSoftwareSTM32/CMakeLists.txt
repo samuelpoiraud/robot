@@ -11,7 +11,7 @@ set(CMAKE_VERBOSE_MAKEFILE false)
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 set(CMAKE_BUILD_TYPE "Debug")
 #add_definitions(-DPREDEF_BUILD_KRUSTY)
-add_definitions(-DPREDEF_BUILD_TINY)
+#add_definitions(-DPREDEF_BUILD_TINY)
 
 ########################
 # Fichiers de sortie

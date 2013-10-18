@@ -23,12 +23,9 @@
 #define LOG_PREFIX ""
 #endif
 
-// La constante OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL est utilisé pour définir le niveau d'affichage.
-//Par ex: #define OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning indique de n'afficher les logs de gravité supérieure ou égale à LOG_LEVEL_Warning.
+// La constante OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL est utilisé pour définir le niveau d'affichage.
+//Par ex: #define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning indique de n'afficher les logs de gravité supérieure ou égale à LOG_LEVEL_Warning.
 //Le niveau maximum affiché par défaut est LOG_LEVEL_Warning. OUTPUTLOG_printf n'affichera donc les messages de niveau LOG_LEVEL_Warning, LOG_LEVEL_Error ou LOG_LEVEL_Fatal seulement.
-
-// La constante OUTPUT_LOG_PRINT_ALL permet d'afficher ou non les infos quelque soit printthis.
-//Utilisable pour afficher tous les textes de tous les composants.
 
 #define OUTPUTLOG_STRINGIFY(x) #x
 #define OUTPUTLOG_TOSTRING(x) OUTPUTLOG_STRINGIFY(x)

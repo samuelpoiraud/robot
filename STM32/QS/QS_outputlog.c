@@ -18,12 +18,13 @@
 
 #ifndef OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL
 #define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning
+#warning "Attention, niveau d'affichage printf non défini, mis à LOG_LEVEL_Warning par defaut"
 #endif
 
 static log_level_e current_max_log_level = OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL;
 
 void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
-#ifdef OUTPUT_LOG
+#ifdef VERBOSE_MODE
 	va_list args_list;
 
 	//level trop haut ou affichage desactivé, on n'affiche pas
@@ -49,3 +50,4 @@ void OUTPUTLOG_set_level(log_level_e level) {
 log_level_e OUTPUTLOG_get_level() {
 	return current_max_log_level;
 }
+

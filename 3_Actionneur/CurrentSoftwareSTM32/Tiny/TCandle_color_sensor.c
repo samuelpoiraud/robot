@@ -20,6 +20,7 @@
 #include "config_pin.h"
 #include "TCandle_color_sensor_config.h"
 
+#include "config_debug.h"
 #define LOG_PREFIX "CC: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANDLECOLOR
 #include "../QS/QS_outputlog.h"
@@ -149,7 +150,7 @@ static void CANDLECOLOR_initAX12() {
 }
 
 void CANDLECOLOR_stop() {
-	
+
 }
 
 bool_e CANDLECOLOR_CAN_process_msg(CAN_msg_t* msg) {

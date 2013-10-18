@@ -36,7 +36,7 @@ typedef struct {
 	OperationFinishedCallback callback; //function called when operation is finished, can be NULL
 } QUEUE_arg_t;
 
-#define NB_QUEUE	8 
+#define NB_QUEUE	8
 #define QUEUE_SIZE	32
 #define NB_SYNCHRO 8
 #define QUEUE_SYNCHRO_TIMEOUT 150 //15 secondes
@@ -62,7 +62,7 @@ QUEUE_arg_t* QUEUE_get_arg(queue_id_t queue_id);
 QUEUE_act_e QUEUE_get_act(queue_id_t queue_id);
 
 /*Renvoie le moment ou l'action a été initialisée*/
-time_t QUEUE_get_initial_time(queue_id_t queue_id);
+clock_time_t QUEUE_get_initial_time(queue_id_t queue_id);
 
 /*Renvoie si la file rentrée en paramètre est disponible*/
 bool_e is_available(queue_id_t queue_id);

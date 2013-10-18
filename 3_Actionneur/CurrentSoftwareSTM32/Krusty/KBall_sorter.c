@@ -111,7 +111,7 @@ bool_e BALLSORTER_CAN_process_msg(CAN_msg_t* msg) {
 
 void BALLSORTER_run_command(queue_id_t queueId, bool_e init) {
 	static Uint16 wantedPosition;
-	static time_t detection_end_time; //pour attendre un certain temps sur la position detect de l'ax12
+	static clock_time_t detection_end_time; //pour attendre un certain temps sur la position detect de l'ax12
 	BALLSORTER_command_state_e state = QUEUE_get_arg(queueId)->param;
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_BallSorter) {    // Gestion des mouvements de rotation de l'AX12 et de la detection des cerises
