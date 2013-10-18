@@ -47,13 +47,6 @@ file(GLOB_RECURSE SRC_LIST FOLLOW_SYMLINKS "${SOURCE_PATH}/*.c" "${SOURCE_PATH}/
 string(REGEX REPLACE "${CMAKE_BINARY_DIR}/CMakeFiles/[^;]+;?" "" SRC_LIST "${SRC_LIST}")
 
 ########################
-# Outils de convertion des binaires
-########################
-
-set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
-set(CMAKE_OBJDUMP arm-none-eabi-objdump)
-
-########################
 # Targets .elf, .bin et .lst
 ########################
 
