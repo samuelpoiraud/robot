@@ -2,6 +2,7 @@
 
 #ifdef USE_RF
 
+#include "stm32f4xx_usart.h"
 #include "QS_uart.h"
 #include "QS_buffer_fifo.h"
 
@@ -21,10 +22,12 @@
 #define END_OF_PACKET_CHAR 0x94
 #define ESCAPE_CHAR 0x95
 
-static char buffer_rx[50];
-static char buffer_tx[50];
 static FIFO_t fifo_rx;
+static char buffer_rx[50];
+Uint8 expected_rx_bytes;
+
 static FIFO_t fifo_tx;
+static char buffer_tx[50];
 
 //config only one time, internal ram has 10k cycles ...
 /*
@@ -39,6 +42,7 @@ static void RF_config_set_broadcast_id(Uint8 id);
 static void RF_config_set_destination_id(Uint8 id);
 */
 static void RF_data_send(RF_module_e target_id, const Uint8 *data, Uint8 size);
+static void RF_UART3_putc(Uint8 c);
 
 typedef enum {
 	RF_PT_SynchroRequest,
@@ -78,7 +82,8 @@ typedef union {
 } RF_data_header_t;
 
 void RF_init() {
-	RF_UART_init();
+	UART_init();
+	expected_rx_bytes = 0;
 	FIFO_init(&fifo_rx, buffer_rx, 50, 1);
 	FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 }
@@ -91,11 +96,11 @@ static void RF_data_send(RF_module_e target_id, const Uint8 *data, Uint8 size) {
 	packet_header.sender_id = RF_MODULE;
 	packet_header.target_id = target_id;
 	packet_header.size = size;
-	RF_UART_send(packet_header.raw_data[0]);
-	RF_UART_send(packet_header.raw_data[1]);
+	RF_UART3_putc(packet_header.raw_data[0]);
+	RF_UART3_putc(packet_header.raw_data[1]);
 
 	for(i = 0; i < size; i++) {
-		RF_UART_send(data[i]);
+		RF_UART3_putc(data[i]);
 	}
 }
 
@@ -124,7 +129,7 @@ void RF_synchro_request(RF_module_e target_id) {
 	packet_header.type = RF_PT_SynchroRequest;
 	packet_header.sender_id = RF_MODULE;
 	packet_header.target_id = target_id;
-	RF_UART_send(packet_header.raw_data);
+	RF_UART3_putc(packet_header.raw_data);
 }
 
 void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset) {
@@ -134,8 +139,8 @@ void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset) {
 	packet_header.sender_id = RF_MODULE;
 	packet_header.target_id = target_id;
 	packet_header.timer_offset = timer_offset;
-	RF_UART_send(packet_header.raw_data[0]);
-	RF_UART_send(packet_header.raw_data[1]);
+	RF_UART3_putc(packet_header.raw_data[0]);
+	RF_UART3_putc(packet_header.raw_data[1]);
 }
 
 static void RF_UART3_putc(Uint8 c)
@@ -168,40 +173,27 @@ static void RF_UART3_putc(Uint8 c)
 
 void _ISR USART3_IRQHandler(void) {
 	if(USART_GetITStatus(USART3, USART_IT_RXNE)) {
-		Uint8 * receiveddata = &(m_u3rxbuf[(m_u3rxnum%UART_RX_BUF_SIZE)]);
+		Uint8 c;
 
 		while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE))
 		{
-			LED_UART=!LED_UART;
-			*(receiveddata++) = USART_ReceiveData(USART3);
-			m_u3rxnum++;
-			m_u3rx = 1;
-			/* pour eviter les comportements indésirables */
-			if (receiveddata - m_u3rxbuf >= UART_RX_BUF_SIZE)
-				receiveddata = m_u3rxbuf;
+			c = USART_ReceiveData(USART3);
+			FIFO_insertData(&fifo_rx, &c);
 		}
 		USART_ClearITPendingBit(USART3, USART_IT_RXNE);
 		NVIC_ClearPendingIRQ(USART3_IRQn);
 	}
 	if(USART_GetITStatus(USART3, USART_IT_TXE)) {
-		Uint8 c;
-
 		//debufferiser.
-		if(IsNotEmpty_buffer(&buffer3tx))
+		if(!FIFO_isEmpty(&fifo_tx))
 		{
-			assert(buffer3tx.index_read < buffer3tx.size);
-			//Critical section
-			if(buffer3tx.nb_datas > (Uint8)0)
-			{
-				c = buffer3tx.datas[buffer3tx.index_read];
-				buffer3tx.index_read = (buffer3tx.index_read>=buffer3tx.size-1)?0:(buffer3tx.index_read + 1);
-				buffer3tx.nb_datas--;
-				USART_SendData(USART3, c);
-			}
-			//Critical section
+			Uint8 *c;
+			c = (Uint8*)FIFO_getData(&fifo_tx);
+			if(c)
+				USART_SendData(USART3, *c);
 
 		}
-		else if(!IsNotEmpty_buffer(&buffer3tx))
+		else if(FIFO_isEmpty(&fifo_tx))
 			USART_ITConfig(USART3, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 	}
 }

@@ -26,6 +26,20 @@ void FIFO_init(FIFO_t *fifo, void* buffer, fifo_size_t element_count, fifo_size_
 	fifo->write_idx = 0;
 }
 
+//Ne doit pas être préempté par une IT qui écrit ou lit dans la FIFO (sinon le nombre d'élement sera invalide)
+fifo_size_t FIFO_availableElements(FIFO_t *fifo) {
+	fifo_size_t read_idx;
+	fifo_size_t write_idx;
+
+	read_idx = fifo->read_idx;
+	write_idx = fifo->write_idx;
+
+	if(write_idx < read_idx)
+		return fifo->element_count + write_idx - read_idx;
+	else
+		return write_idx - read_idx;
+}
+
 //Ne doit pas être préempté par une IT qui utilise FIFO_getData ou FIFO_incReadIndex
 bool_e FIFO_isEmpty(FIFO_t *fifo) {
 	return (fifo->read_idx == fifo->write_idx);
