@@ -100,6 +100,7 @@
 #define USE_XBEE
 #define XBEE_PLUGGED_ON_UART2
 
+//#define USE_FIFO
 //#define USE_RF
 //#define RF_UART 3
 //#define RF_MODULE RF_KRUSTY
