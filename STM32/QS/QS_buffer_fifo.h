@@ -42,10 +42,11 @@ void FIFO_init(FIFO_t *fifo,
 		fifo_size_t element_count,
 		fifo_size_t element_size);
 
-bool_e FIFO_isEmpty    (FIFO_t *fifo);
-bool_e FIFO_isFull     (FIFO_t *fifo);
-bool_e FIFO_insertData (FIFO_t *fifo, const void* data);
-void*  FIFO_getData    (FIFO_t *fifo);
+bool_e      FIFO_isEmpty          (FIFO_t *fifo);
+bool_e      FIFO_isFull           (FIFO_t *fifo);
+fifo_size_t FIFO_availableElements(FIFO_t *fifo);
+bool_e      FIFO_insertData       (FIFO_t *fifo, const void* data);
+void*       FIFO_getData          (FIFO_t *fifo);
 
 #endif /* USE_FIFO */
 
