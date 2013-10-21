@@ -3,6 +3,7 @@
 #ifdef USE_RF
 
 #include "QS_uart.h"
+#include "QS_buffer_fifo.h"
 
 #define RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
 #define RF_TEMP_CONCAT(a,b,c) RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
@@ -19,6 +20,11 @@
 //Arbitraire, doivent être des nombres rarement utilisés pour éviter d'avoir trop d'occurence
 #define END_OF_PACKET_CHAR 0x94
 #define ESCAPE_CHAR 0x95
+
+static char buffer_rx[50];
+static char buffer_tx[50];
+static FIFO_t fifo_rx;
+static FIFO_t fifo_tx;
 
 //config only one time, internal ram has 10k cycles ...
 /*
@@ -57,7 +63,7 @@ typedef union {
 		RF_packet_type_e type : 2;
 		RF_module_e sender_id : 3;
 		RF_module_e target_id : 3;
-		unsigned char timer_diff : 8;
+		unsigned char timer_offset : 8;
 	};
 } RF_synchro_response_header_t;
 
@@ -73,6 +79,8 @@ typedef union {
 
 void RF_init() {
 	RF_UART_init();
+	FIFO_init(&fifo_rx, buffer_rx, 50, 1);
+	FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 }
 
 static void RF_data_send(RF_module_e target_id, const Uint8 *data, Uint8 size) {
@@ -108,6 +116,94 @@ void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
 		data[i+2] = 0;
 
 	RF_data_send(target_id, data, 10);
+}
+
+void RF_synchro_request(RF_module_e target_id) {
+	RF_synchro_request_header_t packet_header;
+
+	packet_header.type = RF_PT_SynchroRequest;
+	packet_header.sender_id = RF_MODULE;
+	packet_header.target_id = target_id;
+	RF_UART_send(packet_header.raw_data);
+}
+
+void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset) {
+	RF_synchro_response_header_t packet_header;
+
+	packet_header.type = RF_PT_SynchroResponse;
+	packet_header.sender_id = RF_MODULE;
+	packet_header.target_id = target_id;
+	packet_header.timer_offset = timer_offset;
+	RF_UART_send(packet_header.raw_data[0]);
+	RF_UART_send(packet_header.raw_data[1]);
+}
+
+static void RF_UART3_putc(Uint8 c)
+{
+	if(USART_GetFlagStatus(USART3, USART_IT_TXE))
+		USART_SendData(USART3, c);
+	else
+	{
+		bool_e byte_sent = FALSE;
+		//mise en buffer + activation IT U3TX.
+		while(!byte_sent) {
+			while(FIFO_isFull(&fifo_tx));	//ON BLOQUE ICI
+
+			//Critical section (Interrupt inibition)
+
+			NVIC_DisableIRQ(USART3_IRQn);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+
+			if(!FIFO_isFull(&fifo_tx))
+			{
+				FIFO_insertData(&fifo_tx, &c);
+				byte_sent = TRUE;
+			}
+			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
+
+			NVIC_EnableIRQ(USART3_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
+			USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
+		}
+	}
+}
+
+void _ISR USART3_IRQHandler(void) {
+	if(USART_GetITStatus(USART3, USART_IT_RXNE)) {
+		Uint8 * receiveddata = &(m_u3rxbuf[(m_u3rxnum%UART_RX_BUF_SIZE)]);
+
+		while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE))
+		{
+			LED_UART=!LED_UART;
+			*(receiveddata++) = USART_ReceiveData(USART3);
+			m_u3rxnum++;
+			m_u3rx = 1;
+			/* pour eviter les comportements indésirables */
+			if (receiveddata - m_u3rxbuf >= UART_RX_BUF_SIZE)
+				receiveddata = m_u3rxbuf;
+		}
+		USART_ClearITPendingBit(USART3, USART_IT_RXNE);
+		NVIC_ClearPendingIRQ(USART3_IRQn);
+	}
+	if(USART_GetITStatus(USART3, USART_IT_TXE)) {
+		Uint8 c;
+
+		//debufferiser.
+		if(IsNotEmpty_buffer(&buffer3tx))
+		{
+			assert(buffer3tx.index_read < buffer3tx.size);
+			//Critical section
+			if(buffer3tx.nb_datas > (Uint8)0)
+			{
+				c = buffer3tx.datas[buffer3tx.index_read];
+				buffer3tx.index_read = (buffer3tx.index_read>=buffer3tx.size-1)?0:(buffer3tx.index_read + 1);
+				buffer3tx.nb_datas--;
+				USART_SendData(USART3, c);
+			}
+			//Critical section
+
+		}
+		else if(!IsNotEmpty_buffer(&buffer3tx))
+			USART_ITConfig(USART3, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+	}
 }
 
 #endif
