@@ -52,21 +52,23 @@ typedef enum {
 
 
 
+typedef struct {
+	RF_packet_type_e type : 2;
+	RF_module_e sender_id : 3;
+	RF_module_e target_id : 3;
+} RF_header_t;
+
 typedef union {
 	Uint8 raw_data;
 	struct {
-		RF_packet_type_e type : 2;
-		RF_module_e sender_id : 3;
-		RF_module_e target_id : 3;
+		RF_header_t header : 8;
 	};
 } RF_synchro_request_header_t;
 
 typedef union {
 	Uint8 raw_data[2];
 	struct {
-		RF_packet_type_e type : 2;
-		RF_module_e sender_id : 3;
-		RF_module_e target_id : 3;
+		RF_header_t header : 8;
 		unsigned char timer_offset : 8;
 	};
 } RF_synchro_response_header_t;
@@ -74,9 +76,7 @@ typedef union {
 typedef union {
 	Uint8 raw_data[2];
 	struct {
-		RF_packet_type_e type : 2;
-		RF_module_e sender_id : 3;
-		RF_module_e target_id : 3;
+		RF_header_t header : 8;
 		unsigned char size : 8;
 	};
 } RF_data_header_t;
@@ -141,6 +141,35 @@ void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset) {
 	packet_header.timer_offset = timer_offset;
 	RF_UART3_putc(packet_header.raw_data[0]);
 	RF_UART3_putc(packet_header.raw_data[1]);
+}
+
+void RF_state_machine(Uint8 c) {
+	typedef enum {
+		RFS_IDLE,
+		RFS_GET_SENDER,
+		RFS_GET_TARGET,
+		RFS_GET_DATA
+	} RF_status_e;
+
+	static RF_header_t current_packet;
+	static RF_status_e state = RFS_IDLE;
+	static Uint8 expected_data_bytes = 0;
+
+	switch(state) {
+		case RFS_IDLE:
+
+			expected_data_bytes = 0;
+			break;
+
+		case RFS_GET_SENDER:
+			break;
+
+		case RFS_GET_TARGET:
+			break;
+
+		case RFS_GET_DATA:
+			break;
+	}
 }
 
 static void RF_UART3_putc(Uint8 c)
