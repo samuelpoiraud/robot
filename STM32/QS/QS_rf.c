@@ -19,8 +19,10 @@
 #endif
 
 //Arbitraire, doivent être des nombres rarement utilisés pour éviter d'avoir trop d'occurence
-#define END_OF_PACKET_CHAR 0x94
-#define ESCAPE_CHAR 0x95
+//Tous doivent être >= 0xC0 && <= 0xFF
+#define ESCAPE_CHAR 0xC0
+#define END_OF_PACKET_CHAR 0xC1
+#define START_OF_PACKET_CHAR 0xC3 //DOIT ETRE 0x?3 !
 
 static FIFO_t fifo_rx;
 static char buffer_rx[50];
@@ -41,16 +43,13 @@ static void RF_config_set_system_id(Uint8 id);
 static void RF_config_set_broadcast_id(Uint8 id);
 static void RF_config_set_destination_id(Uint8 id);
 */
-static void RF_data_send(RF_module_e target_id, const Uint8 *data, Uint8 size);
-static void RF_UART3_putc(Uint8 c);
 
 typedef enum {
 	RF_PT_SynchroRequest,
 	RF_PT_SynchroResponse,
-	RF_PT_Can
+	RF_PT_Can,
+	RF_PT_None = 3
 } RF_packet_type_e;
-
-
 
 typedef struct {
 	RF_packet_type_e type : 2;
@@ -81,6 +80,10 @@ typedef union {
 	};
 } RF_data_header_t;
 
+static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size);
+static void RF_UART3_putc(Uint8 c);
+
+
 void RF_init() {
 	UART_init();
 	expected_rx_bytes = 0;
@@ -88,20 +91,26 @@ void RF_init() {
 	FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 }
 
-static void RF_data_send(RF_module_e target_id, const Uint8 *data, Uint8 size) {
-	RF_data_header_t packet_header;
+static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size) {
+	RF_header_t packet_header;
 	Uint8 i;
 
-	packet_header.type = RF_PT_Can;
+	RF_UART3_putc(START_OF_PACKET_CHAR);
+	packet_header.type = type;
 	packet_header.sender_id = RF_MODULE;
 	packet_header.target_id = target_id;
-	packet_header.size = size;
-	RF_UART3_putc(packet_header.raw_data[0]);
-	RF_UART3_putc(packet_header.raw_data[1]);
+	RF_UART3_putc((Uint8)packet_header);
 
 	for(i = 0; i < size; i++) {
-		RF_UART3_putc(data[i]);
+		Uint8 c = data[i];
+		if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR || c == END_OF_PACKET_CHAR) {
+			RF_UART3_putc(ESCAPE_CHAR);
+			RF_UART3_putc(c & (~0xC0));
+		} else {
+			RF_UART3_putc(data[i]);
+		}
 	}
+	RF_UART3_putc(END_OF_PACKET_CHAR);
 }
 
 void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
@@ -120,7 +129,7 @@ void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
 	for(; i < 8; i++)
 		data[i+2] = 0;
 
-	RF_data_send(target_id, data, 10);
+	RF_send(RF_PT_Can, target_id, data, 10);
 }
 
 void RF_synchro_request(RF_module_e target_id) {
@@ -143,7 +152,50 @@ void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset) {
 	RF_UART3_putc(packet_header.raw_data[1]);
 }
 
-void RF_state_machine(Uint8 c) {
+static bool_e RF_recv(Uint8 *c) {
+	static bool_e escape_mode = FALSE;
+
+	if(escape_mode) {
+		*c = *c | 0xC0;
+		escape_mode = FALSE;
+	} else if(c == ESCAPE_CHAR) {
+		escape_mode = TRUE;
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+RF_packet_type_e RF_check_packet_type(Uint8 *data, Uint8 size) {
+	if(size <= 0)
+		return RF_PT_None;
+
+	RF_header_t header = (RF_header_t) data[0];
+
+	if(header.sender_id == RF_BROADCAST)
+		return RF_PT_None;
+
+	switch(header.type) {
+		case RF_PT_SynchroRequest:
+			return header.type;
+
+		case RF_PT_SynchroResponse:
+			if(size > 1)
+				return header.type;
+
+		case RF_PT_Can:
+			if(size > 10)
+				return header.type;
+
+
+		default:
+			return RF_PT_None;
+	}
+
+	return RF_PT_None;
+}
+
+void RF_state_machine(Uint8 c, bool_e new_frame) {
 	typedef enum {
 		RFS_IDLE,
 		RFS_GET_SENDER,
@@ -151,23 +203,41 @@ void RF_state_machine(Uint8 c) {
 		RFS_GET_DATA
 	} RF_status_e;
 
-	static RF_header_t current_packet;
+	static Uint8 data[20];
 	static RF_status_e state = RFS_IDLE;
 	static Uint8 expected_data_bytes = 0;
+	static Uint8 i;
 
 	switch(state) {
 		case RFS_IDLE:
-
-			expected_data_bytes = 0;
-			break;
-
-		case RFS_GET_SENDER:
-			break;
-
-		case RFS_GET_TARGET:
+			if(new_frame) {
+				expected_data_bytes = 0;
+				i = 0;
+				state = RFS_GET_DATA;
+			}
 			break;
 
 		case RFS_GET_DATA:
+			data[i] = c;
+			i++;
+			if(i == 1) {
+				RF_header_t header = (RF_header_t)data[0];
+				switch(header.type) {
+					case RF_PT_SynchroRequest:
+						expected_data_bytes = 1;
+						break;
+
+					case RF_PT_SynchroResponse:
+						expected_data_bytes = 2;
+						break;
+
+					case RF_PT_Can:
+						expected_data_bytes = 3;
+						break;
+				}
+			}
+			if(i > 0 && i >= expected_data_bytes) {
+			}
 			break;
 	}
 }
@@ -207,7 +277,10 @@ void _ISR USART3_IRQHandler(void) {
 		while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE))
 		{
 			c = USART_ReceiveData(USART3);
-			FIFO_insertData(&fifo_rx, &c);
+			if(c == START_OF_PACKET_CHAR)
+				RF_state_machine(c, TRUE);
+			else if(RF_recv(&c))
+				RF_state_machine(c, FALSE);
 		}
 		USART_ClearITPendingBit(USART3, USART_IT_RXNE);
 		NVIC_ClearPendingIRQ(USART3_IRQn);
