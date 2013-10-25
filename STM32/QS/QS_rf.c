@@ -3,7 +3,7 @@
 #ifdef USE_RF
 
 #include "stm32f4xx_usart.h"
-#include "QS_uart.h"
+#include "stm32f4xx_gpio.h"
 #include "QS_buffer_fifo.h"
 
 //>1.5 STOP BIT !!!
@@ -62,10 +62,6 @@ static Uint8 crc8(Uint8 *data, Uint8 size) {
 #define END_OF_PACKET_CHAR 0xC1
 #define START_OF_PACKET_CHAR 0xC3 //DOIT ETRE 0x?3 !
 
-static FIFO_t fifo_rx;
-static char buffer_rx[50];
-Uint8 expected_rx_bytes;
-
 static FIFO_t fifo_tx;
 static char buffer_tx[50];
 
@@ -120,9 +116,42 @@ static void RF_UART3_putc(Uint8 c);
 
 
 void RF_init() {
-	UART_init();
-	expected_rx_bytes = 0;
-	FIFO_init(&fifo_rx, buffer_rx, 50, 1);
+	GPIO_InitTypeDef GPIO_InitStructure;
+	USART_InitTypeDef USART_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
+	GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	//USART3 TX
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
+	//USART3 RX
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+	USART_OverSampling8Cmd(USART3, ENABLE);
+	USART_InitStructure.USART_BaudRate = 19200;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1_5;
+	USART_InitStructure.USART_Parity = USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	USART_Init(USART3, &USART_InitStructure);
+
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+	NVIC_Init(&NVIC_InitStructure);
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+
+	USART_Cmd(USART3, ENABLE);
+
+
 	FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 }
 
