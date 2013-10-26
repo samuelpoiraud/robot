@@ -1,3 +1,13 @@
+/*
+ *  Club Robot ESEO 2013 - 2014
+ *
+ *  $Id$
+ *
+ *  Package : Qualité Soft
+ *  Description : Module RF: synchro + envoi messages CAN (attention c'est très lent ! 4,8kbits/sec, 13 octets/paquet + nos données)
+ *  Auteur : amurzeau
+ */
+
 #ifndef QS_RF_H
 #define QS_RF_H
 

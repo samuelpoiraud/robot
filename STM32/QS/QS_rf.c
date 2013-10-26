@@ -1,9 +1,21 @@
+/*
+ *  Club Robot ESEO 2013 - 2014
+ *
+ *  $Id$
+ *
+ *  Package : Qualité Soft
+ *  Description : Module RF: synchro + envoi messages CAN (attention c'est très lent ! 4,8kbits/sec, 13 octets/paquet + nos données)
+ *  Auteur : amurzeau
+ */
+
 #include "QS_rf.h"
 
 #ifdef USE_RF
 
 #include "impl/QS_uart_impl.h"
+#ifdef STM32F40XX
 #include "stm32f4xx_gpio.h"
+#endif
 #include "QS_buffer_fifo.h"
 
 //>1.5 STOP BIT !!!
@@ -116,6 +128,7 @@ static void RF_putc(Uint8 c);
 
 
 void RF_init() {
+#ifdef STM32F40XX
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
@@ -131,23 +144,7 @@ void RF_init() {
 	//USART3 RX
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-//	USART_OverSampling8Cmd(USART3, ENABLE);
-//	USART_InitStructure.USART_BaudRate = 19200;
-//	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-//	USART_InitStructure.USART_StopBits = USART_StopBits_1_5;
-//	USART_InitStructure.USART_Parity = USART_Parity_Even;
-//	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-//	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-//	USART_Init(USART3, &USART_InitStructure);
-
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-//	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-//	NVIC_Init(&NVIC_InitStructure);
-//	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
-
-//	USART_Cmd(USART3, ENABLE);
+#endif
 
 	UART_IMPL_init_ex(RF_UART, 19200, 15, 15, UART_I_StopBit_1_5, UART_I_Parity_None);
 	UART_IMPL_setRxItEnabled(RF_UART, TRUE);
@@ -239,10 +236,15 @@ static RF_packet_status_e RF_get_packet_status(RF_header_t header, Uint8 *data, 
 
 	switch(header.type) {
 		case RF_PT_SynchroRequest:
-			if(size >= RF_SYNCHRO_REQUEST_SIZE)
+			//Evite un warning
+#if RF_SYNCHRO_REQUEST_SIZE != 0
+ 			if(size >= RF_SYNCHRO_REQUEST_SIZE)
 				return RF_PS_Full;
-			else
-				return RF_PS_Incomplete;
+ 			else
+ 				return RF_PS_Incomplete;
+#else
+			return RF_PS_Full;
+#endif
 
 		case RF_PT_SynchroResponse:
 			if(size >= RF_SYNCHRO_RESPONSE_SIZE)
