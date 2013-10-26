@@ -54,8 +54,13 @@ bool_e UART_IMPL_init_ex(Uint8 uart_id, Uint32 baudrate, Sint8 rx_irq_priority, 
 
 	//baudrate_value = INSTR_FREQ/16 / baudrate - 1 + 0.5
 	// <=> baudrate_value = (INSTR_FREQ/8 + baudrate) / 2 / baudrate - 1
+	// <=> baudrate_value = (INSTR_FREQ/800 + baudrate/100) / 2 / (baudrate/100) - 1
 	//__builtin_divud == division hardware (rapide)
-	Uint16 baudrate_value = __builtin_divud((INSTR_FREQ/8 + baudrate) >> 1, baudrate) - 1;
+	if(baudrate > 1000000) {
+		baudrate = 1000000;
+	}
+	Uint16 reduced_baudrate = __builtin_divud(baudrate, 100);
+	Uint16 baudrate_value = __builtin_divud(((Uint32)INSTR_FREQ/800 + reduced_baudrate) >> 1, reduced_baudrate) - 1;
 
 	config1 = UART_EN & UART_IDLE_CON &
 		UART_DIS_WAKE & UART_DIS_LOOPBACK &
@@ -83,8 +88,8 @@ bool_e UART_IMPL_init_ex(Uint8 uart_id, Uint32 baudrate, Sint8 rx_irq_priority, 
 
 	config3 = UART_RX_INT_DIS & UART_TX_INT_DIS & RX_IT_PRI_FLAG(rx_irq_priority) & TX_IT_PRI_FLAG(tx_irq_priority);
 
-	UART_IMPL_setRxItEnabled(uart_id, FALSE);
-	UART_IMPL_setTxItEnabled(uart_id, FALSE);
+// 	UART_IMPL_setRxItEnabled(uart_id, FALSE);
+// 	UART_IMPL_setTxItEnabled(uart_id, FALSE);
 
 	switch(uart_id) {
 		case 0:
@@ -150,18 +155,32 @@ bool_e UART_IMPL_resetErrors(Uint8 uart_id) {
 
 void UART_IMPL_setRxItPaused(Uint8 uart_id, bool_e pause) {
 	assert(uart_id < UART_IMPL_NUM);
-	if(pause)
-		DisableIntU1RX;
-	else
-		EnableIntU1RX;
+	if(uart_id == 0) {
+		if(pause)
+			DisableIntU1RX;
+		else
+			EnableIntU1RX;
+	} else {
+		if(pause)
+			DisableIntU2RX;
+		else
+			EnableIntU2RX;
+	}
 }
 
 void UART_IMPL_setTxItPaused(Uint8 uart_id, bool_e pause) {
 	assert(uart_id < UART_IMPL_NUM);
-	if(pause)
-		DisableIntU1TX;
-	else
-		EnableIntU1TX;
+	if(uart_id == 0) {
+		if(pause)
+			DisableIntU1TX;
+		else
+			EnableIntU1TX;
+	} else {
+		if(pause)
+			DisableIntU2TX;
+		else
+			EnableIntU2TX;
+	}
 }
 
 void UART_IMPL_setRxItEnabled(Uint8 uart_id, bool_e enable) {
