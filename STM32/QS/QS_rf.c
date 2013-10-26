@@ -2,7 +2,7 @@
 
 #ifdef USE_RF
 
-#include "stm32f4xx_usart.h"
+#include "impl/QS_uart_impl.h"
 #include "stm32f4xx_gpio.h"
 #include "QS_buffer_fifo.h"
 
@@ -112,13 +112,11 @@ typedef union {
 #define RF_CAN_MAX_DATA_SIZE 10
 
 static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size);
-static void RF_UART3_putc(Uint8 c);
+static void RF_putc(Uint8 c);
 
 
 void RF_init() {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	USART_InitTypeDef USART_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
 
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
@@ -134,23 +132,25 @@ void RF_init() {
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-	USART_OverSampling8Cmd(USART3, ENABLE);
-	USART_InitStructure.USART_BaudRate = 19200;
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits = USART_StopBits_1_5;
-	USART_InitStructure.USART_Parity = USART_Parity_No;
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-	USART_Init(USART3, &USART_InitStructure);
+//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+//	USART_OverSampling8Cmd(USART3, ENABLE);
+//	USART_InitStructure.USART_BaudRate = 19200;
+//	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+//	USART_InitStructure.USART_StopBits = USART_StopBits_1_5;
+//	USART_InitStructure.USART_Parity = USART_Parity_Even;
+//	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+//	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+//	USART_Init(USART3, &USART_InitStructure);
 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-	NVIC_Init(&NVIC_InitStructure);
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+//	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+//	NVIC_Init(&NVIC_InitStructure);
+//	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 
-	USART_Cmd(USART3, ENABLE);
+//	USART_Cmd(USART3, ENABLE);
 
+	UART_IMPL_init_ex(RF_UART, 19200, 15, 15, UART_I_StopBit_1_5, UART_I_Parity_None);
+	UART_IMPL_setRxItEnabled(RF_UART, TRUE);
 
 	FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 }
@@ -159,29 +159,29 @@ static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *d
 	RF_header_t packet_header;
 	Uint8 i, crc = 0;
 
-	RF_UART3_putc(START_OF_PACKET_CHAR);
+	RF_putc(START_OF_PACKET_CHAR);
 	packet_header.type = type;
 	packet_header.sender_id = RF_MODULE;
 	packet_header.target_id = target_id;
 
 	crc = crc8_incremental(crc, packet_header.raw_data);
-	RF_UART3_putc(packet_header.raw_data);
+	RF_putc(packet_header.raw_data);
 
 	for(i = 0; i < size; i++) {
 		Uint8 c = data[i];
 		if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR || c == END_OF_PACKET_CHAR) {
 			c &= (~0xC0);
-			RF_UART3_putc(ESCAPE_CHAR);
+			RF_putc(ESCAPE_CHAR);
 			crc = crc8_incremental(crc, ESCAPE_CHAR);
-			RF_UART3_putc(c);
+			RF_putc(c);
 			crc = crc8_incremental(crc, c);
 		} else {
-			RF_UART3_putc(data[i]);
+			RF_putc(data[i]);
 			crc = crc8_incremental(crc, data[i]);
 		}
 	}
-	RF_UART3_putc(crc);
-	RF_UART3_putc(END_OF_PACKET_CHAR);
+	RF_putc(crc);
+	RF_putc(END_OF_PACKET_CHAR);
 }
 
 void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
@@ -310,10 +310,10 @@ void RF_state_machine(Uint8 c, bool_e new_frame) {
 	}
 }
 
-static void RF_UART3_putc(Uint8 c)
+static void RF_putc(Uint8 c)
 {
-	if(USART_GetFlagStatus(USART3, USART_IT_TXE))
-		USART_SendData(USART3, c);
+	if(!UART_IMPL_isTxFull(RF_UART))
+		UART_IMPL_write(RF_UART, c);
 	else
 	{
 		bool_e byte_sent = FALSE;
@@ -323,7 +323,8 @@ static void RF_UART3_putc(Uint8 c)
 
 			//Critical section (Interrupt inibition)
 
-			NVIC_DisableIRQ(USART3_IRQn);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+			UART_IMPL_setRxItPaused(RF_UART, TRUE);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+			UART_IMPL_setTxItPaused(RF_UART, TRUE);
 
 			if(!FIFO_isFull(&fifo_tx))
 			{
@@ -332,40 +333,43 @@ static void RF_UART3_putc(Uint8 c)
 			}
 			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
 
-			NVIC_EnableIRQ(USART3_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-			USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
+			UART_IMPL_setRxItPaused(RF_UART, FALSE);	//On active l'IT sur TX... lors du premier caractère à envoyer...
+			UART_IMPL_setTxItPaused(RF_UART, FALSE);
+
+			UART_IMPL_setTxItEnabled(RF_UART, TRUE);
 		}
 	}
 }
 
-void _ISR USART3_IRQHandler(void) {
-	if(USART_GetITStatus(USART3, USART_IT_RXNE)) {
+void UART3_RX_Interrupt() {
 		Uint8 c;
 
-		while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE))
+		while(!UART_IMPL_isRxEmpty(RF_UART))
 		{
-			c = USART_ReceiveData(USART3);
+			c = UART_IMPL_read(RF_UART);
 			if(c == START_OF_PACKET_CHAR)
 				RF_state_machine(c, TRUE);
 			else if(RF_recv(&c))
 				RF_state_machine(c, FALSE);
 		}
-		USART_ClearITPendingBit(USART3, USART_IT_RXNE);
-		NVIC_ClearPendingIRQ(USART3_IRQn);
-	}
-	if(USART_GetITStatus(USART3, USART_IT_TXE)) {
+
+		UART_IMPL_ackRxIt(RF_UART);
+}
+
+void UART3_TX_Interrupt() {
 		//debufferiser.
 		if(!FIFO_isEmpty(&fifo_tx))
 		{
 			Uint8 *c;
 			c = (Uint8*)FIFO_getData(&fifo_tx);
 			if(c)
-				USART_SendData(USART3, *c);
+				UART_IMPL_write(RF_UART, *c);
 
 		}
 		else if(FIFO_isEmpty(&fifo_tx))
-			USART_ITConfig(USART3, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
-	}
+			UART_IMPL_setTxItEnabled(RF_UART, FALSE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+
+		UART_IMPL_ackTxIt(RF_UART);
 }
 
 #endif
