@@ -11,7 +11,7 @@
  *	Version 20120224
  */
 
-#include "../QS/QS_all.h"
+#include "QS_all.h"
 
 #ifndef QS_CAN_OVER_XBEE_H
 #define	QS_CAN_OVER_XBEE_H
@@ -34,7 +34,7 @@
 		MODULE_2,
 		MODULE_NUMBER	//nombre de module... = forcément le nombre suivant dans l'énumération !
 	}module_id_e;
-	
+
 	#ifdef QS_CAN_OVER_XBEE_C
 		//ADRESSES PHYSIQUE DES MODULES XBEE UTILISES !!! (= numéro de série = on ne peut pas le changer)
 		//Attention, l'ordre doit correspondre à l'énumération module_id_e !
@@ -44,16 +44,16 @@
 			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xFB, 0x8D},	//MODULE 1
 			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xF9, 0xFB}	//MODULE 2
 			};
-	#endif		
+	#endif
 
 
 	//Possibilité pour faire correspondre l'applicatif aux modules utilisés :
 	#define BALISE_MERE	MODULE_2
 	#define ROBOT_1	MODULE_C	//Robot 1 is Tiny
-	#define ROBOT_2	MODULE_1	//Robot 2 is Krusty	
-	
-		
-	
+	#define ROBOT_2	MODULE_1	//Robot 2 is Krusty
+
+
+
 	/*
 	@function	permettant de recevoir des messages CAN via une liaison ZigBee, et en provenance de notre module XBee
 	@param		dest est un pointeur vers le message CAN à recevoir
@@ -63,8 +63,8 @@
 	@post		Si une frame correcte est reçue, cette fonction tente d'y trouver le message CAN.
 	*/
 	bool_e XBeeToCANmsg (CAN_msg_t* dest);
-	
-	
+
+
 	/*
 	@function 	permettant d'envoyer un message CAN via une liaison ZigBee à un autre module XBee
 	@note		les messages CAN transmis respectent le protocole définit pour le transfert de message CAN over UART (SOH, EOT, et nombre de data constantes !)
@@ -80,7 +80,7 @@
 
 	void CAN_over_XBee_process_main(void);
 	void CAN_over_XBee_every_second(void);
-	
-	
-	
+
+
+
 #endif /* ifndef QS_CAN_OVER_XBEE_H */
