@@ -14,13 +14,13 @@
 #ifndef QS_GLOBAL_VARS_H
 	#define QS_GLOBAL_VARS_H
 
-	#include "../QS/QS_types.h"
+	#include "QS_types.h"
 	#include "../Global_config.h"
 	#include "../Global_vars_types.h"
 
 
 	typedef struct
-	{		
+	{
 		/* INSERTION DES FLAGS UTILISATEUR */
 		#include "../Global_flags.h"
 	} flag_list_t;
@@ -28,7 +28,7 @@
 
 
 	typedef struct
-	{		
+	{
 		/* les drapeaux */
 		volatile flag_list_t flags;
 

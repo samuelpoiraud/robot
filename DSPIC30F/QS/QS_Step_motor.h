@@ -9,7 +9,7 @@
  *	Licence : CeCILL-C (voir LICENCE.txt)
  *	Version 20090220
  */
- 
+
 /*	Notes d'exploitation :
  *	Ce module a pour fonction de controler un moteur pas à pas
  *	En appliquant les niveaux de tension adéquats.
@@ -28,15 +28,15 @@
 
 #ifndef QS_STEP_MOTOR_H
 	#define QS_STEP_MOTOR_H
-	
-	#include "../QS/QS_all.h"
-	#include "../QS/QS_timer.h"
-	
+
+	#include "QS_all.h"
+	#include "QS_timer.h"
+
 	#ifdef USE_STEP_MOTOR
-	
+
 		void STEP_MOTOR_init();
-		
+
 		void STEP_MOTOR_add_steps(Sint8 nb_of_steps);
 
-	#endif /* def USE_STEP_MOTOR */	
+	#endif /* def USE_STEP_MOTOR */
 #endif /* ndef STEP_MOTOR_H */

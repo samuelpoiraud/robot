@@ -10,7 +10,7 @@
  *	Version 20100620
  */
 
-#include "../QS/QS_servo.h"
+#include "QS_servo.h"
 
 #ifdef USE_SERVO
 
@@ -38,7 +38,7 @@ static volatile Sint16 m_SERVO_cmd[10];
 #else
 	#error "SERVO_TIMER doit etre 1 2 ou 3"
 #endif /* SERVO_TIMER == n */
-	
+
 #define MIN_INTERVAL		1000
 
 
@@ -92,9 +92,9 @@ void SERVO_init() {
 		m_SERVO_cmd[i] = 0 ;
 	TIMER_init();
 	// Lancement du timer
-	SERVO_TIMER_RUN_FINE(MIN_INTERVAL);	
+	SERVO_TIMER_RUN_FINE(MIN_INTERVAL);
 }
-		
+
 /*-------------------------------------
 Changement de la commande (entre 0 et 2000 us)
 -------------------------------------*/
@@ -115,7 +115,7 @@ void _ISR SERVO_TIMER_IT()
 	switch(etat)
 	{
 		case 0:
-			blanking = 20000; // 20 ms de periode 
+			blanking = 20000; // 20 ms de periode
 			if (m_SERVO_cmd[etat])
 			{
 				SERVO0 = 1;
@@ -270,7 +270,7 @@ void _ISR SERVO_TIMER_IT()
 			SERVO_TIMER_RUN_FINE(blanking);
 			etat = 0;
 			break;
-	}	
+	}
 	SERVO_TIMER_FLAG=0;
 }
 
