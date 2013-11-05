@@ -94,30 +94,7 @@ void display_pos(){
 		x = x_pos;
 		y = y_pos;
 		t = t_angle;
-/*
-		// Affichage de la position actuelle du robot
-	LCD_set_cursor(pos, 0);
-	if(x<=2000 && x>=0)
-		sprintf(buf,"x%4d",x);
-	else
-		sprintf(buf,"xOMAP");
-	LCD_Write_text(buf);
 
-	LCD_set_cursor(pos, 6);
-	if(y<=3000 && y>=0)
-		sprintf(buf,"y%4d",y);
-	else
-		sprintf(buf,"yOMAP");
-	LCD_Write_text(buf);
-
-	LCD_set_cursor(pos, 13);
-	if(t<=PI4096 && t>= (-PI4096))
-		sprintf(buf,"t%4d",t);
-	else
-		sprintf(buf,"t ERR");
-
-	LCD_Write_text(buf);
-*/
 		if(!(x<=2000 && x>=0)) // En dehors du terrain
 			x = 0;
 
@@ -155,21 +132,13 @@ void display_beacon(){
 /* Affiche les strats sélectionnées pour le match à la troisieme ligne du mode info */
 void display_strats(Uint8 pos){
 	char buf[20];
-/*
-	// Affichage de la position actuelle du robot
-	LCD_set_cursor(pos, 0);
-	sprintf(buf,"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2], strategy[3], strat_nb[3]);
-	LCD_Write_text(buf);
-*/
 
 	sprintf(line[2],"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2], strategy[3], strat_nb[3]);
 }
 
 /* Affiche le dernier message demandé par l'utilisateur sur la derniere ligne du mode info */
 void display_debug_msg(Uint8 pos){
-	/*LCD_set_cursor(pos, 0);
-	LCD_Write_text(free_msg);
-	*/
+
 	sprintf(line[3],"%s",free_msg);
 }
 
