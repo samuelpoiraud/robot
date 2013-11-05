@@ -24,7 +24,7 @@ typedef enum
 {
 	INFO_s = 0,
 	CAN_s,
-	STRAT_CHOICE,
+	USER_MODE,
 	MENU,
 	INIT = 0XFF
 }lcd_state;
@@ -62,83 +62,125 @@ bool_e change; // Commande le rafraichissement de l'écran
 /* Variable contenant un message libre*/
 char free_msg[20];
 
+/* L'utilisateur prend la main sur l'écran */
+bool_e info_on;
+
+/* Chaines affichées à l'écran */
+char line[4][20];
+
 ////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
 
+/* Affiche toutes les lignes enregistrées du LCD */
+void display_line(void){
+	Uint8 i;
+	LCD_set_cursor(0,0);
+				LCD_Write_text(line[0]);
+	if(change == TRUE){
+		for(i=0;i<4;i++){
+			LCD_set_cursor(i,0);
+			LCD_Write_text(line[i]);
+		}
+		change = FALSE;
+	}
+}
+
 /* Affiche la position du robot sur la première ligne du mode Info */
 void display_pos(){
-	char buf[20];
-	Uint16 x,y;
-	Sint16 t;
+	static Uint16 x,y;
+	static Sint16 t;
 
-	x = x_pos;
-	y = y_pos;
-	t = t_angle;
-
-	// Affichage de la position actuelle du robot
-	LCD_set_cursor(0, 0);
+	//if(x!=x_pos || y!=y_pos || t!=t_angle){
+		x = x_pos;
+		y = y_pos;
+		t = t_angle;
+/*
+		// Affichage de la position actuelle du robot
+	LCD_set_cursor(pos, 0);
 	if(x<=2000 && x>=0)
 		sprintf(buf,"x%4d",x);
 	else
 		sprintf(buf,"xOMAP");
 	LCD_Write_text(buf);
 
-	LCD_set_cursor(0, 6);
+	LCD_set_cursor(pos, 6);
 	if(y<=3000 && y>=0)
 		sprintf(buf,"y%4d",y);
 	else
 		sprintf(buf,"yOMAP");
 	LCD_Write_text(buf);
 
-	LCD_set_cursor(0, 13);
+	LCD_set_cursor(pos, 13);
 	if(t<=PI4096 && t>= (-PI4096))
 		sprintf(buf,"t%4d",t);
 	else
 		sprintf(buf,"t ERR");
 
 	LCD_Write_text(buf);
+*/
+		if(!(x<=2000 && x>=0)) // En dehors du terrain
+			x = 0;
+
+		if(!(y<=3000 && y>=0))
+			y = 0;
+
+		if(t<=PI4096 && t>= (-PI4096))
+			t= 0;
+
+		sprintf(line[0],"x%.4d y%.4d t%.5d",x,y,t);
+
+		change = TRUE;
+	//}
 }
 
 /* Affiche les infos de la balise sur la seconde ligne du mode info */
 void display_beacon(){
 	char buf[20];
-	Uint16 d1,d2,a1,a2;
+	static Uint16 d1,d2,a1,a2;
 #warning'simplement pour laffichage : a modifier par la suite'
 	d1 = 360;
 	a1 = 240;
 	d2 = 21;
 	a2 = 0;
-
+/*
 	// Affichage de la position relative des balises
-	LCD_set_cursor(1, 0);
+	LCD_set_cursor(pos, 0);
 	sprintf(buf,"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
 	LCD_Write_text(buf);
+*/
+	sprintf(line[1],"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
+	change = TRUE;
 }
 
 /* Affiche les strats sélectionnées pour le match à la troisieme ligne du mode info */
-void display_strats(){
+void display_strats(Uint8 pos){
 	char buf[20];
-
+/*
 	// Affichage de la position actuelle du robot
-	LCD_set_cursor(2, 0);
+	LCD_set_cursor(pos, 0);
 	sprintf(buf,"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2], strategy[3], strat_nb[3]);
 	LCD_Write_text(buf);
+*/
+
+	sprintf(line[2],"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2], strategy[3], strat_nb[3]);
 }
 
 /* Affiche le dernier message demandé par l'utilisateur sur la derniere ligne du mode info */
-void display_debug_msg(void){
-	LCD_set_cursor(3, 0);
+void display_debug_msg(Uint8 pos){
+	/*LCD_set_cursor(pos, 0);
 	LCD_Write_text(free_msg);
+	*/
+	sprintf(line[3],"%s",free_msg);
 }
 
 /* Affiche les quatre derniers messages can en mode CAN */
 void LCD_display_can_msg(){
 	Uint8 start = message.start;
 
-	LCD_display_can(message.msg[start], 0);
-	LCD_display_can(message.msg[(start+1)%4], 1);
-	LCD_display_can(message.msg[(start+2)%4], 2);
-	LCD_display_can(message.msg[(start+3)%4], 3);
+	display_can(message.msg[start], 0);
+	display_can(message.msg[(start+1)%4], 1);
+	display_can(message.msg[(start+2)%4], 2);
+	display_can(message.msg[(start+3)%4], 3);
 }
 
 /* Previent un changement de mode pour le nettoyage de l'afichage et éviter le scintillement */
@@ -201,39 +243,21 @@ void LCD_Update(void){
 
 	switch(state){
 		case INFO_s:
-			if(change == TRUE){
-				change = FALSE;
-				display_pos();
-				display_beacon();
-				display_strats();
-				display_debug_msg();
-			}
+			display_pos(0);
+			display_beacon(1);
+			display_strats(2);
+			display_debug_msg(3);
+			display_line();
 			break;
+
 		case CAN_s:
-			//LCD_display_can();
+			LCD_display_can_msg();
 			break;
-		case STRAT_CHOICE:
-			if(change == TRUE){
-				change = FALSE;
-				display_strats();
-			}
-			switch(strat){
-				case STR:
-					LCD_set_cursor(2, 3);
-					break;
-				case KDO:
-					LCD_set_cursor(2, 8);
-					break;
-				case CAK:
-					LCD_set_cursor(2, 13);
-					break;
-				case MOIS:
-					LCD_set_cursor(2, 19);
-					break;
-				default:
-					break;
-			}
+
+		case USER_MODE:
+			display_line();
 			break;
+
 		case MENU:
 			if(LCD_transition()){
 				display_menu();
@@ -259,9 +283,10 @@ void LCD_printf(char* format){
 		chaine[i] = format[i];
 		i++;
 	}
-	sprintf(free_msg,chaine);
+	sprintf(line[3],chaine);
 	change = TRUE;
 }
+
 
 void LCD_add_can(CAN_msg_t msg){
 	message.msg[message.start].sid = msg.sid;
@@ -273,7 +298,6 @@ void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t){
 	x_pos = x;
 	y_pos = y;
 	t_angle = t;
-	change = TRUE;
 }
 
 void LCD_switch_mode(void){
@@ -282,7 +306,7 @@ void LCD_switch_mode(void){
 	if(state != previous_state){
 #warning 'ajouter le numero du port'
 		if(FALSE){
-			state = CAN_s;
+			state = USER_MODE;
 		}else{
 			state = INFO_s;
 		}
@@ -290,24 +314,6 @@ void LCD_switch_mode(void){
 	}
 	previous_state = state;
 
-}
-
-
-void LCD_strat_mode(void){
-	if(state != STRAT_CHOICE){
-		state = STRAT_CHOICE;
-		strat = STR;
-		LCD_cursor_display(TRUE,FALSE);
-	}else{
-		if(strat == MOIS){
-			state = INFO_s;
-			strat = STR;
-			LCD_cursor_display(FALSE,FALSE);
-		}else{
-			strat++;
-		}
-	}
-	change = TRUE;
 }
 
 
@@ -349,41 +355,11 @@ void LCD_strat_number_update(){
 }
 
 
-void LCD_menu_mode(){
-	if(state != MENU){
-		LCD_cursor_display(TRUE,TRUE);
-		state = MENU;
-	}else{
-		switch(menu_choice){
-			case SELF_TEST:
-				state = INFO_s;
-				LCD_cursor_display(FALSE,FALSE);
-				LCD_printf("Self test asked");
-				break;
-			case LAST_MATCH:
-				LCD_clear_display();
-				LCD_cursor_display(FALSE,FALSE);
-				LCD_set_cursor(0,0);
-				LCD_Write_text("Decharge en cours...");
-				#ifdef EEPROM_CAN_MSG_ENABLE
-					EEPROM_CAN_MSG_verbose_previous_match();
-				#endif
-				LCD_printf("Decharge done");
-				state = INFO_s;
-				break;
-			case BUFFER_FLUSH:
-				LCD_cursor_display(FALSE,FALSE);
-				state = INFO_s;
-				BUFFER_flush();
-				LCD_printf("Buffer flush DONE\0");
-				break;
-			case RETURN:
-				LCD_cursor_display(FALSE,FALSE);
-				state = INFO_s;
-				break;
-			default:
-				break;
-		}
+void LCD_free_line(char buf[20], Uint8 pos){
+	if(pos<0 || pos>3)
+		return;
+	else{
+		sprintf(line[pos],"%s",buf);
 	}
+	change = TRUE;
 }
-

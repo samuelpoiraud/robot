@@ -23,7 +23,7 @@ can_t message;
 /*
  * Affiche sur l'écran le message can en paramètre à la position donnée
  */
-void LCD_display_can(CAN_msg_t msg, Uint8 pos);
+void display_can(CAN_msg_t msg, Uint8 pos);
 
 #endif	/* LCD_CAN_INJECTOR_H */
 

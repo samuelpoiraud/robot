@@ -49,24 +49,12 @@ void LCD_printf(char* format);
 void LCD_add_can(CAN_msg_t msg);
 
 /*
- * Passe en mode choix de strategie
- */
-void LCD_strat_mode(void);
-
-/*
- * Une fois en mode choix de stratégie permet de modifier le numéro de la stratégie choisie
- */
-void LCD_strat_number(void);
-
-/*
  * Se base sur les switchs pour mettre à jour les infos stratégies
  */
 void LCD_strat_number_update(void);
 
-/*
- * Passe en mode menu pour acceder au dernier match en eeprom, au selftest et au buffer flush
- */
-void LCD_menu_mode(void);
+
+void LCD_free_line(char buf[20], Uint8 pos);
 
 #endif	/* LCD_INTERFACE_H */
 
