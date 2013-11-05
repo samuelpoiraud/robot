@@ -16,7 +16,7 @@
 #include "LCD_MIDAS_4x20.h"
 
 
-void LCD_display_can(CAN_msg_t msg, Uint8 pos){
+void display_can(CAN_msg_t msg, Uint8 pos){
 	Uint8 i;
 	char buf[20];
 
