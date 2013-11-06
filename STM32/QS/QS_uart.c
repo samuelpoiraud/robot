@@ -144,7 +144,7 @@ void UART_init(void)
 		m_u3rxnum = 0;
 		m_u3rx = 0;
 		/* Enable the USART1 Interrupt */
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
 		NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
 		NVIC_Init(&NVIC_InitStructure);
 		USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);

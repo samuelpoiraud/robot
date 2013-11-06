@@ -44,7 +44,7 @@ void EXTERNALIT_configure(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e e
 	else
 		NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
