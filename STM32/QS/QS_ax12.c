@@ -1109,7 +1109,7 @@ static void AX12_UART2_init(Uint32 uart_speed)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannel = AX12_UART_Interrupt_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;  //inférieur aux uarts mais supérieur au timers
 
 	NVIC_Init(&NVIC_InitStructure);
 }

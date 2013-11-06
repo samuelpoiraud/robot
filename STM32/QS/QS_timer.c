@@ -82,19 +82,19 @@ void TIMER_init(void){
 	NVICInit.NVIC_IRQChannelCmd = ENABLE;
 	NVICInit.NVIC_IRQChannelSubPriority = 0;
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 6;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 9;
 	NVICInit.NVIC_IRQChannel = TIM1_TRG_COM_TIM11_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 10;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 11;
 	NVICInit.NVIC_IRQChannel = TIM8_BRK_TIM12_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 11;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 13;
 	NVICInit.NVIC_IRQChannel = TIM8_UP_TIM13_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 12;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 14;
 	NVICInit.NVIC_IRQChannel = TIM8_TRG_COM_TIM14_IRQn;
 	NVIC_Init(&NVICInit);
 

@@ -47,7 +47,7 @@ void I2C_init(void)
 
 		NVIC_InitTypeDef NVIC_InitStructure;
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
 		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 
 		//I2C ERROR : activation des IRQ

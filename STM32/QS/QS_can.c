@@ -38,7 +38,7 @@
 #endif
 
 #ifndef QS_CAN_RX_IT_PRI
-	#define QS_CAN_RX_IT_PRI 9
+	#define QS_CAN_RX_IT_PRI 1
 #else
 	#warning "QS_CAN_RX_IT_PRI redefined"
 #endif /* ndef QS_CAN_RX_IT_PRI */
