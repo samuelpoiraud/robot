@@ -24,21 +24,23 @@
 //Pour gérer des AX12
 #include "../QS/QS_ax12.h"
 
-//Pour afficher des truc sur l'UART suivant le niveau d'importance (debug/info/erreur/...)
-#include "../output_log.h"
-
 //Fonction aidant la gestion de la pile d'action des actionneurs
 #include "../act_queue_utils.h"
+
+//Inclusion du fichier de config des pins. Pour utiliser directement les pins (genre les LED, et autre GPIO)
+#include "config_pin.h"
 
 //Fichier de config de l'actionneur: le fait de le mettre ici et pas dans global_config.h permet
 //de ne recompiler que ce fichier quand on change la config (compilation bien plus rapide)
 #include "<act>_config.h"
 
-//un petit define pour afficher des messages sur l'uart, exemple utilisation:
-// COMPONENT_log(LOG_LEVEL_Warning, "Un message indiquant que quelquechose ne c'est pas bien passé, mais que c'est pas trop grave (c'est un warning). Fonctionnalitées de printf dispo: 2+2=%d\n", 2+2)
-#define COMPONENT_log(...) OUTPUTLOG_PRETTY("<act_prefix>: ", OUTPUT_LOG_COMPONENT_<act_component>, ## __VA_ARGS__)
-
-//Exemple: #define COMPONENT_log(...) OUTPUTLOG_PRETTY("PL: ", OUTPUT_LOG_COMPONENT_PLATE, ## __VA_ARGS__)
+//Gestion des messages (*_printf avec entre autre debug_printf)
+//Pour afficher des truc sur l'UART suivant le niveau d'importance (debug/info/erreur/...)
+//Voir QS_outputlog.h pour les differentes fonctions dispo
+#include "config_debug.h"
+#define LOG_PREFIX "PL: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PLATE
+#include "../QS/QS_outputlog.h"
 
 //Des defines dépendant de l'actionneur (en gros on met ce qu'on veux et ce qu'on a besoin)
 #define PLATE_NUM_POS           3
@@ -91,7 +93,7 @@ void PLATE_init() {
 	plate_rotation_config.Ki = PLATE_ASSER_KI;									//KP = Coef proportionnel, influence la force/vitesse du moteur suivant l'écart entre la position demandée et la position réelle.
 	plate_rotation_config.Kd = PLATE_ASSER_KD;									//KI = Coef intégral, Tant que le moteur n'est pas à la position voulu, on augmente peu à peu la puissance du moteur. Il finira normalement par atteindre sa position. (A ne pas utiliser avec un asservissement en vitesse)
 																				//KP = Coef dérivé, plus le moteur va vite, plus on freine. Utilisé par exemple pour atteindre la position rapidement sans aller trop loin. (Ne pas frapper le sol dans le cas de la pince à assiette 2013)
-	
+
 	plate_rotation_config.pos[PLATE_HORIZONTAL_POS_ID] = PLATE_HORIZONTAL_POS;	//Définition de position
 	plate_rotation_config.pos[PLATE_PREPARE_POS_ID] = PLATE_PREPARE_POS;		//Ici 3 positions sont définies: rangé/vertical, oblique/prepare, horizontal (pour prendre une assiette)
 	plate_rotation_config.pos[PLATE_VERTICAL_POS_ID] = PLATE_VERTICAL_POS;
@@ -106,7 +108,7 @@ void PLATE_init() {
 	DCM_stop(PLATE_DCMOTOR_ID);													//Toujours être sur que le moteur va pas démarrer tout seul est plus sûr :)
 
 	//Indication sur l'UART qu'on a initialisé l'actionneur moteur DC. Le message est affiché que si OUTPUT_LOG_DEFAULT_MAX_LOG_LEVEL vaut au moins LOG_LEVEL_Info (avec LOG_LEVEL_Warning par exemple, ce message ne sera pas affiché)
-	COMPONENT_log(LOG_LEVEL_Info, "Pince à assiette initialisé (DCMotor)\n");
+	info_printf("Pince à assiette initialisé (DCMotor)\n");
 
 	//Init de l'AX12
 	PLATE_initAX12();
@@ -117,12 +119,12 @@ static void PLATE_initAX12() {
 	static bool_e ax12_is_initialized = FALSE;	//On l'init qu'une fois
 	if(ax12_is_initialized == FALSE && AX12_is_ready(PLATE_PLIER_AX12_ID) == TRUE) {	//On init l'AX12 que s'il est la, sinon on tentera une prochaine fois
 		ax12_is_initialized = TRUE;
-		
+
 		//13,6V max sur l'AX12
 		AX12_config_set_highest_voltage(PLATE_PLIER_AX12_ID, 136);
 		//7V mini sur l'AX12 (en pratique on utilise du 12V, mais les écarts sont totalement arbitraire, d'autre valeurs aurait pu être choisies, et elle ne sont la que pour allumer la LED)
 		AX12_config_set_lowest_voltage(PLATE_PLIER_AX12_ID, 70);
-		
+
 		//Le couple max que doit avoir l'AX12. Pour des pinces, c'est mieux de ne pas mettre 100% pour pas qu'il casse. (sur les forums internet, cette possibilité n'est pas négligée, donc c'est bien de ne pas tenter la méthode bourin)
 		AX12_config_set_maximum_torque_percentage(PLATE_PLIER_AX12_ID, PLATE_PLIER_AX12_MAX_TORQUE_PERCENT);
 
@@ -138,7 +140,7 @@ static void PLATE_initAX12() {
 
 		//On met l'AX12 à une position par défaut. (La fin de la fonction n'indique pas que l'AX12 est rendu à la position demandée, juste que l'AX12 à reçu la commande (ou pas si le retour n'est pas TRUE))
 		AX12_set_position(PLATE_PLIER_AX12_ID, PLATE_ACT_PLIER_AX12_INIT_POS);
-		COMPONENT_log(LOG_LEVEL_Info, "Pince AX12 initialisé\n");
+		info_printf("Pince AX12 initialisé\n");
 	}
 }
 
@@ -159,7 +161,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 		//Le message est pour nous, on fait un switch sur la commande
 
 		//Initialise l'AX12 de la pince s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
-		PLATE_initAX12(); 
+		PLATE_initAX12();
 
 		switch(msg->data[0]) {
 			case ACT_PLATE_ROTATE_HORIZONTALLY:
@@ -195,7 +197,7 @@ bool_e PLATE_CAN_process_msg(CAN_msg_t* msg) {
 
 			default:
 				//Dans le cas d'un message qui nous était destiné, mais dont on ne connait pas la commande, on indique le problème
-				COMPONENT_log(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}
@@ -237,7 +239,7 @@ void PLATE_run_command(queue_id_t queueId, bool_e init) {
 static void PLATE_rotation_command_init(queue_id_t queueId) {
 	Uint8 wantedPosition;
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	
+
 	//On regarde quelle commande doit on gérer et on lance le mouvement demandé
 	switch(command) {
 		case ACT_PLATE_ROTATE_HORIZONTALLY:
@@ -262,12 +264,12 @@ static void PLATE_rotation_command_init(queue_id_t queueId) {
 			return;
 
 		default: {
-				COMPONENT_log(LOG_LEVEL_Error, "Invalid rotation command: %u, code is broken !\n", command);
+				error_printf("Invalid rotation command: %u, code is broken !\n", command);
 				QUEUE_next(queueId, ACT_PLATE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
-	COMPONENT_log(LOG_LEVEL_Debug, "Rotation at position %d\n", DCM_getPosValue(PLATE_DCMOTOR_ID, wantedPosition));
+	debug_printf("Rotation at position %d\n", DCM_getPosValue(PLATE_DCMOTOR_ID, wantedPosition));
 	DCM_goToPos(PLATE_DCMOTOR_ID, wantedPosition);
 	DCM_restart(PLATE_DCMOTOR_ID);
 	//Ici, si tout c'est bien passé, le moteur est asservi à sa nouvelle position (mais ne la surement pas encore atteinte, il va faloir vérifier en boucle sa position avant de passer à l'action suivante)
@@ -278,7 +280,7 @@ static void PLATE_rotation_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	COMPONENT_log(LOG_LEVEL_Trace, "At position %d\n", PLATE_getRotationAngle());
+	trace_printf("At position %d\n", PLATE_getRotationAngle());
 
 	//Les états des moteurs DC sont géré dans cette fonction, elle renvoie TRUE si l'action est terminée (erreur ou pas) et des infos sur le résultat de l'action dans result, errorCode et line (utilisé pour du débuggage par exemple)
 	//Un message de niveau Info est affiché sur l'UART (si activé) indiquant le résultat de l'action et un message CAN est envoyé à la strat pour lui dire que l'action est terminée (et s'il y a eu des erreurs ou pas)
@@ -302,21 +304,21 @@ static void PLATE_plier_command_init(queue_id_t queueId) {
 			return;
 
 		default: {
-				COMPONENT_log(LOG_LEVEL_Error, "Invalid plier command: %u, code is broken !\n", command);
+				error_printf("Invalid plier command: %u, code is broken !\n", command);
 				QUEUE_next(queueId, ACT_PLATE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		COMPONENT_log(LOG_LEVEL_Error, "Invalid plier position: %u, code is broken !\n", command);
+		error_printf("Invalid plier position: %u, code is broken !\n", command);
 		QUEUE_next(queueId, ACT_PLATE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
 
-	COMPONENT_log(LOG_LEVEL_Debug, "Move plier ax12 to %d\n", *ax12_goalPosition);
+	debug_printf("Move plier ax12 to %d\n", *ax12_goalPosition);
 	AX12_reset_last_error(PLATE_PLIER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	if(!AX12_set_position(PLATE_PLIER_AX12_ID, *ax12_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
-		COMPONENT_log(LOG_LEVEL_Error, "AX12_set_position error: 0x%x\n", AX12_get_last_error(PLATE_PLIER_AX12_ID).error);
+		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(PLATE_PLIER_AX12_ID).error);
 		QUEUE_next(queueId, ACT_PLATE, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
