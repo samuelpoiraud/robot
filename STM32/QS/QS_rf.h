@@ -24,7 +24,25 @@ typedef enum {
 	RF_BROADCAST = 7
 } RF_module_e;
 
-void RF_init();
+typedef enum {
+	RF_PT_SynchroRequest,
+	RF_PT_SynchroResponse,
+	RF_PT_Can,
+	RF_PT_None = 3
+} RF_packet_type_e;
+
+typedef union {
+	Uint8 raw_data;
+	struct {
+		RF_packet_type_e type : 2;
+		RF_module_e sender_id : 3;
+		RF_module_e target_id : 3;
+	};
+} RF_header_t;
+
+typedef void (*RF_onReceive_ptr)(RF_header_t header, Uint8 *data, Uint8 size);
+
+void RF_init(RF_onReceive_ptr onReceiveCallback);
 void RF_can_send(RF_module_e target_id, CAN_msg_t *msg);
 void RF_synchro_request(RF_module_e target_id);
 void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset);
