@@ -60,4 +60,5 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "")
 set(BUILD_SHARED_LIBS OFF)
 
 find_program(CMAKE_OBJDUMP pic30-objdump)
+set(CMAKE_OBJDUMP_ARG "-omf=elf")
 find_program(CMAKE_BIN2HEX pic30-bin2hex)

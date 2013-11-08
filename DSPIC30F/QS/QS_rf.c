@@ -76,6 +76,7 @@ static Uint8 crc8(Uint8 *data, Uint8 size) {
 
 static FIFO_t fifo_tx;
 static char buffer_tx[50];
+static RF_onReceive_ptr packet_received_fct = NULL;
 
 //config only one time, internal ram has 10k cycles ...
 /*
@@ -91,27 +92,11 @@ static void RF_config_set_destination_id(Uint8 id);
 */
 
 typedef enum {
-	RF_PT_SynchroRequest,
-	RF_PT_SynchroResponse,
-	RF_PT_Can,
-	RF_PT_None = 3
-} RF_packet_type_e;
-
-typedef enum {
 	RF_PS_Incomplete,
 	RF_PS_Full,
 	RF_PS_Ignore,
 	RF_PS_Bad
 } RF_packet_status_e;
-
-typedef union {
-	Uint8 raw_data;
-	struct {
-		RF_packet_type_e type : 2;
-		RF_module_e sender_id : 3;
-		RF_module_e target_id : 3;
-	};
-} RF_header_t;
 
 #define RF_SYNCHRO_RESPONSE_TIMER_OFFSET 0
 #define RF_CAN_SIZE 0
@@ -127,9 +112,12 @@ static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *d
 static void RF_putc(Uint8 c);
 
 
-void RF_init() {
+void RF_init(RF_onReceive_ptr onReceiveCallback) {
+	packet_received_fct = onReceiveCallback;
+
 #ifdef STM32F40XX
 	GPIO_InitTypeDef GPIO_InitStructure;
+
 
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
@@ -207,10 +195,6 @@ void RF_synchro_request(RF_module_e target_id) {
 
 void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset) {
 	RF_send(RF_PT_SynchroResponse, target_id, &timer_offset, 1);
-}
-
-static void RF_packet_received(RF_header_t header, Uint8 *data, Uint8 size) {
-
 }
 
 static bool_e RF_recv(Uint8 *c) {
@@ -304,8 +288,8 @@ void RF_state_machine(Uint8 c, bool_e new_frame) {
 
 		case RFS_GET_CRC:
 			data[i++] = c;
-			if(crc8(data, i) == 0) {
-				RF_packet_received((RF_header_t)data[0], data+1, i-1);
+			if(crc8(data, i) == 0 && packet_received_fct) {
+				(*packet_received_fct)((RF_header_t)data[0], data+1, i-1);
 			}
 			state = RFS_IDLE;
 			break;
