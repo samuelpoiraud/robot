@@ -19,7 +19,7 @@
 #include "Supervision/SD/SD.h"
 #include "config_use.h"
 #include "config_pin.h"
-
+#include "Supervision/LCD_interface.h"
 static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
 

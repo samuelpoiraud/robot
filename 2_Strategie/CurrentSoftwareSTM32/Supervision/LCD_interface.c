@@ -16,6 +16,7 @@
 #include "LCD_CAN_injector.h"
 #include "Buffer.h"
 #include "Eeprom_can_msg.h"
+#include "config_pin.h"
 
 #include "config_use.h"
 
@@ -77,6 +78,8 @@ void display_line(void){
 	LCD_set_cursor(0,0);
 				LCD_Write_text(line[0]);
 	if(change == TRUE){
+		LED_ROUGE = 1;
+		LCD_clear_display();
 		for(i=0;i<4;i++){
 			LCD_set_cursor(i,0);
 			LCD_Write_text(line[i]);
@@ -87,10 +90,12 @@ void display_line(void){
 
 /* Affiche la position du robot sur la première ligne du mode Info */
 void display_pos(){
-	static Uint16 x,y;
-	static Sint16 t;
+	//On force l'affichage au démarrage sinon il n'y a pas de rafraichissement
+	static Uint16 x = 0xFFFF;
+	static Uint16 y = 0xFFFF;
+	static Sint16 t = 0xFFFF;
 
-	//if(x!=x_pos || y!=y_pos || t!=t_angle){
+	if(x!=x_pos || y!=y_pos || t!=t_angle){
 		x = x_pos;
 		y = y_pos;
 		t = t_angle;
@@ -104,10 +109,10 @@ void display_pos(){
 		if(t<=PI4096 && t>= (-PI4096))
 			t= 0;
 
-		sprintf(line[0],"x%.4d y%.4d t%.5d",x,y,t);
+		sprintf(line[0],"x%4d y%4d t%5d",x,y,t);
 
 		change = TRUE;
-	//}
+	}
 }
 
 /* Affiche les infos de la balise sur la seconde ligne du mode info */
@@ -126,7 +131,7 @@ void display_beacon(){
 	LCD_Write_text(buf);
 */
 	sprintf(line[1],"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
-	change = TRUE;
+	//change = TRUE;
 }
 
 /* Affiche les strats sélectionnées pour le match à la troisieme ligne du mode info */
@@ -202,6 +207,7 @@ void init_LCD_interface(void){
 void LCD_Update(void){
 	if(!initialized)
 		return;
+	LED_USER = !LED_USER;
 	if(LCD_transition())
 		LCD_clear_display();
 
@@ -217,6 +223,7 @@ void LCD_Update(void){
 			display_strats(2);
 			display_debug_msg(3);
 			display_line();
+			LED_ROUGE = 1;
 			break;
 
 		case CAN_s:
@@ -224,6 +231,7 @@ void LCD_Update(void){
 			break;
 
 		case USER_MODE:
+			LED_ROUGE = 0;
 			display_line();
 			break;
 
@@ -272,15 +280,23 @@ void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t){
 void LCD_switch_mode(void){
 	static lcd_state previous_state = INIT;
 
-	if(state != previous_state){
+
 #warning 'ajouter le numero du port'
-		if(FALSE){
-			state = USER_MODE;
-		}else{
+		if(SWITCH_COLOR == 1){
+			LED_ORANGE = 1;
 			state = INFO_s;
+		}else{
+			LED_ORANGE = 0;
+			state = USER_MODE;
+			if(state != previous_state){
+				Uint8 i;
+			}
+
+			LCD_free_line("Free Mode", 0);
 		}
-		change = TRUE;
-	}
+		if(state != previous_state){
+			change = TRUE;
+		}
 	previous_state = state;
 
 }

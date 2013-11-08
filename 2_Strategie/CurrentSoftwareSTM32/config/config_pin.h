@@ -47,13 +47,13 @@
 	#define EEPROM_SDI			GPIOB->ODR15
 
 
-#define PORT_C_IO_MASK	0x200F
+#define PORT_C_IO_MASK	0x201F
 	//	Capteur			 			  0
 	//	Capteur			 			  1
 	//	Capteur			 			  2
 	//	Capteur			 			  3
 	//	Capteur			 			  4
-	//	Capteur			 			  5
+	#define BUTTON6_PORT		(!GPIOC->IDR5)
 	#define LED_BEACON_IR_GREEN	GPIOC->ODR6
 	#define LED_BEACON_IR_RED	GPIOC->ODR7
 	#define SYNCHRO_BEACON		GPIOC->ODR8
@@ -62,7 +62,7 @@
 	#define EEPROM_WP			GPIOC->ODR11
 	#define SD_CS				GPIOC->ODR11
 	#define EEPROM_HOLD			GPIOC->ODR12
-#define PORT_ROBOT_ID  		GPIOC->IDR13
+	#define PORT_ROBOT_ID  		GPIOC->IDR13
 	//	-	OSC32_in 			  	  14
 	//	-	OSC32_out 			  	  15
 
@@ -80,10 +80,14 @@
 	//	HOKUYO U3RX					  9
 	#define LED_ERROR 			GPIOD->ODR10
 	#define LED_SELFTEST 		GPIOD->ODR11
-	#define LED_RUN  			GPIOD->ODR12
-	#define LED_CAN  			GPIOD->ODR13
-	#define LED_UART 			GPIOD->ODR14
-	#define LED_USER 			GPIOD->ODR15
+	#define LED_RUN  			GPIOD->ODR12	// Led verte carte STM
+		#define LED_GREEN 			LED_RUN
+	#define LED_CAN  			GPIOD->ODR13	// Led orange carte STM
+		#define LED_ORANGE			LED_CAN
+	#define LED_UART 			GPIOD->ODR14	// Led rouge carte STM
+		#define LED_ROUGE			LED_UART
+	#define LED_USER 			GPIOD->ODR15	// Led bleue carte STM
+		#define LED_BLEU			LED_USER
 
 
 #define PORT_E_IO_MASK	0xFFFF
@@ -100,6 +104,7 @@
 	#define SWITCH_STRAT_2		GPIOE->IDR10
 	#define SWITCH_STRAT_3		GPIOE->IDR11
 	#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
+#warning ' Je crois qu il y a une modif pour le bouton 2 il semble que ce soit désormais le bouton LCD_ok'
 	#define BUTTON2_PORT		(!GPIOE->IDR13)	//Calibration
 	#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
 	#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
