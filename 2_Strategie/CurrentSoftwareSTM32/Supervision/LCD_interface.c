@@ -61,7 +61,7 @@ Uint16 x_pos,y_pos,t_angle;
 bool_e change; // Commande le rafraichissement de l'écran
 
 /* Variable contenant un message libre*/
-char free_msg[20];
+char free_msg[4][20];
 
 /* L'utilisateur prend la main sur l'écran */
 bool_e info_on;
@@ -78,11 +78,13 @@ void display_line(void){
 	LCD_set_cursor(0,0);
 				LCD_Write_text(line[0]);
 	if(change == TRUE){
-		LED_ROUGE = 1;
 		LCD_clear_display();
 		for(i=0;i<4;i++){
 			LCD_set_cursor(i,0);
-			LCD_Write_text(line[i]);
+			if(state == INFO_s)
+				LCD_Write_text(line[i]);
+			else if(state == USER_MODE)
+				LCD_Write_text(free_msg[i]);
 		}
 		change = FALSE;
 	}
@@ -136,15 +138,13 @@ void display_beacon(){
 
 /* Affiche les strats sélectionnées pour le match à la troisieme ligne du mode info */
 void display_strats(Uint8 pos){
-	char buf[20];
-
 	sprintf(line[2],"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2], strategy[3], strat_nb[3]);
 }
 
 /* Affiche le dernier message demandé par l'utilisateur sur la derniere ligne du mode info */
 void display_debug_msg(Uint8 pos){
 
-	sprintf(line[3],"%s",free_msg);
+	sprintf(line[3],"%s",free_msg[0]);
 }
 
 /* Affiche les quatre derniers messages can en mode CAN */
@@ -207,7 +207,6 @@ void init_LCD_interface(void){
 void LCD_Update(void){
 	if(!initialized)
 		return;
-	LED_USER = !LED_USER;
 	if(LCD_transition())
 		LCD_clear_display();
 
@@ -223,7 +222,6 @@ void LCD_Update(void){
 			display_strats(2);
 			display_debug_msg(3);
 			display_line();
-			LED_ROUGE = 1;
 			break;
 
 		case CAN_s:
@@ -231,7 +229,6 @@ void LCD_Update(void){
 			break;
 
 		case USER_MODE:
-			LED_ROUGE = 0;
 			display_line();
 			break;
 
@@ -280,19 +277,16 @@ void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t){
 void LCD_switch_mode(void){
 	static lcd_state previous_state = INIT;
 
-
 #warning 'ajouter le numero du port'
 		if(SWITCH_COLOR == 1){
-			LED_ORANGE = 1;
 			state = INFO_s;
 		}else{
-			LED_ORANGE = 0;
 			state = USER_MODE;
 			if(state != previous_state){
 				Uint8 i;
 			}
-
-			LCD_free_line("Free Mode", 0);
+			if(state!= previous_state)
+				LCD_free_line("Free Mode", 0);
 		}
 		if(state != previous_state){
 			change = TRUE;
@@ -344,7 +338,7 @@ void LCD_free_line(char buf[20], Uint8 pos){
 	if(pos<0 || pos>3)
 		return;
 	else{
-		sprintf(line[pos],"%s",buf);
+		sprintf(free_msg[pos],"%s",buf);
 	}
 	change = TRUE;
 }
