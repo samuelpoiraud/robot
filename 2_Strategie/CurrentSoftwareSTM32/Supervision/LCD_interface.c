@@ -80,7 +80,7 @@ void display_line(void){
 			if(state == INFO_s)
 				LCD_Write_text(line[i]);
 			else if(state == USER_MODE)
-				LCD_Write_text(free_msg[i]);
+				LCD_Write_text(free_msg[i+1]);
 		}
 		change = FALSE;
 	}
@@ -210,8 +210,10 @@ void LCD_Update(void){
 	if(state != USER_MODE)
 		LCD_switch_mode();
 
-	if(LCD_transition())
+	if(LCD_transition()){
 		LCD_clear_display();
+		change = TRUE;
+	}
 
 	switch(state){
 		case INFO_s:
@@ -327,7 +329,7 @@ void LCD_strat_number_update(){
 
 
 void LCD_free_line(char buf[20], Uint8 pos){
-	if(pos<0 || pos>3)
+	if(pos<0 || pos>4)
 		return;
 	else{
 		sprintf(free_msg[pos],"%s",buf);

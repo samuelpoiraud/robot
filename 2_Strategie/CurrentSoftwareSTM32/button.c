@@ -112,10 +112,14 @@ void BUTTON_translation()
 
 static void BUTTON_TEST_button2() {
 	LED_ROUGE = !LED_ROUGE;
+	LCD_free_line("Hello!",1);
+	LCD_take_control();
 }
 
 static void BUTTON_TEST_button3() {
 	LED_ORANGE = !LED_ORANGE;
+	LCD_free_control();
+	LCD_free_line("Au revoir!",0);
 }
 
 static void BUTTON_TEST_button4() {
