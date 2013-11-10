@@ -20,8 +20,10 @@
 #include "config_use.h"
 #include "config_pin.h"
 #include "Supervision/LCD_interface.h"
+static void BUTTON_TEST_button2();
 static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
+static void BUTTON_TEST_button6();
 
 void BUTTON_init()
 {
@@ -30,7 +32,7 @@ void BUTTON_init()
 
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 	BUTTONS_define_actions(BUTTON1,SELFTEST_ask_launch, NULL, 0);
-	BUTTONS_define_actions(BUTTON2,BUTTON_calibration, NULL, 1);
+	BUTTONS_define_actions(BUTTON2,BUTTON_TEST_button2, NULL, 1);
 	BUTTONS_define_actions(BUTTON3,BUTTON_TEST_button3, NULL, 1);	//TODO : BOUTON MENU LCD
 	BUTTONS_define_actions(BUTTON4,BUTTON_TEST_button4, NULL, 1);	//TODO : BOUTON MENU LCD
 	//BUTTONS_define_actions(BUTTON5,BUFFER_flush, NULL, 0);
@@ -108,19 +110,19 @@ void BUTTON_translation()
 	relative_move (1000, FAST, FORWARD, END_AT_LAST_POINT);
 }
 
+static void BUTTON_TEST_button2() {
+	LED_ROUGE = !LED_ROUGE;
+}
 
 static void BUTTON_TEST_button3() {
-//	ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateUp);
-//	ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateUp);
-//	ACT_plate_plier(ACT_PLATE_PlierOpen);
-//	ACT_hammer_goto(0);
-	ACT_plier_open();
+	LED_ORANGE = !LED_ORANGE;
 }
 
 static void BUTTON_TEST_button4() {
-//	ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
-//	ACT_lift_translate(ACT_LIFT_Right, ACT_LIFT_TranslateDown);
-//	ACT_plate_plier(ACT_PLATE_PlierClose);
-//	ACT_hammer_blow_candle();
-	ACT_plier_close();
+	LED_BLEU = !LED_BLEU;
+}
+
+static void BUTTON_TEST_button6() {
+	LED_BLEU = !LED_BLEU;
+	LED_ORANGE = !LED_ORANGE;
 }

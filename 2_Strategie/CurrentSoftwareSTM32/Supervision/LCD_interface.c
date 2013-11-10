@@ -61,7 +61,7 @@ Uint16 x_pos,y_pos,t_angle;
 bool_e change; // Commande le rafraichissement de l'écran
 
 /* Variable contenant un message libre*/
-char free_msg[4][20];
+char free_msg[5][20];
 
 
 /* Chaines affichées à l'écran */
@@ -203,13 +203,15 @@ void init_LCD_interface(void){
 void LCD_Update(void){
 	if(!initialized)
 		return;
-	if(LCD_transition())
-		LCD_clear_display();
 
 	if(global.env.ask_start == FALSE)
 		LCD_strat_number_update();
 
-	LCD_switch_mode();
+	if(state != USER_MODE)
+		LCD_switch_mode();
+
+	if(LCD_transition())
+		LCD_clear_display();
 
 	switch(state){
 		case INFO_s:
@@ -272,17 +274,11 @@ void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t){
 
 void LCD_switch_mode(void){
 	static lcd_state previous_state = INIT;
-
-#warning 'ajouter le numero du port'
+#warning 'Modifier par LCD_SWITCH'
 		if(SWITCH_COLOR == 1){
 			state = INFO_s;
 		}else{
-			state = USER_MODE;
-			if(state != previous_state){
-				Uint8 i;
-			}
-			if(state!= previous_state)
-				LCD_free_line("Free Mode", 0);
+			state = CAN_s;
 		}
 		if(state != previous_state){
 			change = TRUE;
@@ -337,4 +333,12 @@ void LCD_free_line(char buf[20], Uint8 pos){
 		sprintf(free_msg[pos],"%s",buf);
 	}
 	change = TRUE;
+}
+
+void LCD_take_control(){
+	state = USER_MODE;
+}
+
+void LCD_free_control(){
+	LCD_switch_mode();
 }
