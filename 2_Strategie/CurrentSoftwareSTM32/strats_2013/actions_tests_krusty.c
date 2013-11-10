@@ -65,7 +65,7 @@ void TEST_STRAT_K_homologation(void)
 /* ----------------------------------------------------------------------------- */
 
 void K_Strat_Pour_Les_Nuls(void){
-	static enum{
+	static enum {
 			INIT=0,
 			DEPART,
 			PAS1,
@@ -79,101 +79,104 @@ void K_Strat_Pour_Les_Nuls(void){
 			PAS6,
 			PAS7,
 			PAS8,
-			DONE,
-		}state = INIT;
+			DONE
+	} state = INIT;
 
 		// Multipoints
-		displacement_t tab[8]={{820,2650,SLOW},
-							   {650,2550,SLOW},
-							   {520,2400,SLOW},
-							   {430,2240,SLOW},
-							   {370,2030,SLOW},
-							   {340,1850,SLOW},
-							   {320,1680,SLOW},
-							   {300,1500,SLOW},
-								};
+	displacement_t tab[8] = {
+		{{820,2650},SLOW},
+		{{650,2550},SLOW},
+		{{520,2400},SLOW},
+		{{430,2240},SLOW},
+		{{370,2030},SLOW},
+		{{340,1850},SLOW},
+		{{320,1680},SLOW},
+		{{300,1500},SLOW}
+	};
 
-		displacement_t tab6[12]={{620,1420,SLOW},
-									{500,1290,SLOW},
-									{400,1180,SLOW},
-									{320,1060,SLOW},
-									{300,940,SLOW},
-									{300,820,SLOW},
-									{350,700,SLOW},
-									{480,580,SLOW},
-									{620,450,SLOW},
-									{880,370,SLOW},
-									{900,310,SLOW},
-									{1000,300,SLOW},
-									};
-		displacement_t rond[17]={{500,1500,SLOW},
-									{560,1260,SLOW},
-									{680,1100,SLOW},
-									{840,1030,SLOW},
-									{1000,1000,SLOW},
-									{1160,1030,SLOW},
-									{1340,1110,SLOW},
-									{1450,1260,SLOW},
-									{1500,1500,SLOW},
-									{1450,1720,SLOW},
-									{1340,1870,SLOW},
-									{1160,1960,SLOW},
-									{1000,2000,SLOW},
-									{840,1960,SLOW},
-									{680,1870,SLOW},
-									{560,1720,SLOW},
-									{500,1500,SLOW},
-											};
+	displacement_t tab6[12] = {
+		{{620,1420},SLOW},
+		{{500,1290},SLOW},
+		{{400,1180},SLOW},
+		{{320,1060},SLOW},
+		{{300,940},SLOW},
+		{{300,820},SLOW},
+		{{350,700},SLOW},
+		{{480,580},SLOW},
+		{{620,450},SLOW},
+		{{880,370},SLOW},
+		{{900,310},SLOW},
+		{{1000,300},SLOW}
+	};
+	displacement_t rond[17] = {
+		{{500,1500},SLOW},
+		{{560,1260},SLOW},
+		{{680,1100},SLOW},
+		{{840,1030},SLOW},
+		{{1000,1000},SLOW},
+		{{1160,1030},SLOW},
+		{{1340,1110},SLOW},
+		{{1450,1260},SLOW},
+		{{1500,1500},SLOW},
+		{{1450,1720},SLOW},
+		{{1340,1870},SLOW},
+		{{1160,1960},SLOW},
+		{{1000,2000},SLOW},
+		{{840,1960},SLOW},
+		{{680,1870},SLOW},
+		{{560,1720},SLOW},
+		{{500,1500},SLOW}
+	};
 
-		Uint8 i = 0;
-		switch(state){
-		case INIT:
-			state = DEPART;
-			break;
-		case DEPART:
-			state = try_going(1000,COLOR_Y(500),DEPART,PAS1,PAS1,SLOW,FORWARD,NO_AVOIDANCE);
-			break;
-		case PAS1:
-			state = try_going_multipoint(tab,8,PAS1,PAS2ANGLE1,PAS2ANGLE1,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
-			break;
-		case PAS2ANGLE1:
-			state = try_go_angle(PI4096/2,PAS2ANGLE1,PAS2ANGLE2,PAS2ANGLE2,SLOW);
-			break;
-		case PAS2ANGLE2:
-			state = try_go_angle(PI4096,PAS2ANGLE2,PAS2ANGLE3,PAS2ANGLE3,SLOW);
-			break;
-		case PAS2ANGLE3:
-			state = try_go_angle(-PI4096/2,PAS2ANGLE3,PAS2ANGLE3,PAS2ANGLE3,SLOW);
-			break;
-		case PAS2ANGLE4:
-			state = try_go_angle(0,PAS2ANGLE4,PAS3,PAS3,SLOW);
-			break;
-		case PAS3:
-			state = try_going(850,COLOR_Y(1500),PAS3,PAS4,PAS4,SLOW,ANY_WAY,NO_DODGE_AND_NO_WAIT);
-			break;
-		case PAS4:
-			state = try_going(650,COLOR_Y(1500),PAS4,PAS5,PAS5,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
-			break;
-		case PAS5:
-			state = try_going(750,COLOR_Y(1500),PAS5,PAS6,PAS6,SLOW,ANY_WAY,NO_DODGE_AND_NO_WAIT);
-			break;
-		case PAS6:
-			state = try_going_multipoint(tab6,12,PAS6,PAS6,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
-			if(state==PAS6) state = try_go_angle(PI4096/2,PAS6,PAS7,PAS7,SLOW);
-			break;
-		case PAS7:
-			state = try_going_multipoint(rond,17,PAS8,DONE,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
-		case DONE:
-			break;
-		default :
-			break;
-		}
+	Uint8 i = 0;
+	switch(state){
+	case INIT:
+		state = DEPART;
+		break;
+	case DEPART:
+		state = try_going(1000,COLOR_Y(500),DEPART,PAS1,PAS1,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case PAS1:
+		state = try_going_multipoint(tab,8,PAS1,PAS2ANGLE1,PAS2ANGLE1,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+		break;
+	case PAS2ANGLE1:
+		state = try_go_angle(PI4096/2,PAS2ANGLE1,PAS2ANGLE2,PAS2ANGLE2,SLOW);
+		break;
+	case PAS2ANGLE2:
+		state = try_go_angle(PI4096,PAS2ANGLE2,PAS2ANGLE3,PAS2ANGLE3,SLOW);
+		break;
+	case PAS2ANGLE3:
+		state = try_go_angle(-PI4096/2,PAS2ANGLE3,PAS2ANGLE3,PAS2ANGLE3,SLOW);
+		break;
+	case PAS2ANGLE4:
+		state = try_go_angle(0,PAS2ANGLE4,PAS3,PAS3,SLOW);
+		break;
+	case PAS3:
+		state = try_going(850,COLOR_Y(1500),PAS3,PAS4,PAS4,SLOW,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+		break;
+	case PAS4:
+		state = try_going(650,COLOR_Y(1500),PAS4,PAS5,PAS5,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+		break;
+	case PAS5:
+		state = try_going(750,COLOR_Y(1500),PAS5,PAS6,PAS6,SLOW,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+		break;
+	case PAS6:
+		state = try_going_multipoint(tab6,12,PAS6,PAS6,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		if(state==PAS6) state = try_go_angle(PI4096/2,PAS6,PAS7,PAS7,SLOW);
+		break;
+	case PAS7:
+		state = try_going_multipoint(rond,17,PAS8,DONE,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+	case DONE:
+		break;
+	default :
+		break;
+	}
 }
 
 
 
 void Deplacement_Pierre_Strat_Samuel(void){
-	static enum{
+	static enum {
 		INIT,
 		DEPLACEMENT_A_PIERRE,
 		A_viserMur,
@@ -190,51 +193,60 @@ void Deplacement_Pierre_Strat_Samuel(void){
 		DEPLACEMENT_H_PIERRE,
 		DEPLACEMENT_I_PIERRE,
 		DONE
-	}state = INIT;
+	} state = INIT;
 
 
 	displacement_t INIT_vers_A[]={
-						{448,2498,SLOW},
-						{505,2445,SLOW},
-						{555,2398,SLOW},
-						{626,2291,SLOW}};
+		{{448,2498},SLOW},
+		{{505,2445},SLOW},
+		{{555,2398},SLOW},
+		{{626,2291},SLOW}
+	};
 
 	displacement_t A_vers_B[]={
-						{669,2245,SLOW},
-						{708,2188,SLOW},
-						{723,2106,SLOW}};
+		{{669,2245},SLOW},
+		{{708,2188},SLOW},
+		{{723,2106},SLOW}
+	};
 
 
 	displacement_t B_vers_C[]={
-						{723,2106,SLOW},
-						{976,2095,SLOW}};
+		{{723,2106},SLOW},
+		{{976,2095},SLOW}
+	};
 
 	displacement_t C_vers_D[]={
-						{1000,2000,SLOW},
-						{1000,1900,SLOW},
-						{1100,1800,SLOW},
-						{1200,1900,SLOW},
-						{1339,2017,SLOW},
-						{1457,2017,SLOW},
-						{1589,2038,SLOW} };
+		{{1000,2000},SLOW},
+		{{1000,1900},SLOW},
+		{{1100,1800},SLOW},
+		{{1200,1900},SLOW},
+		{{1339,2017},SLOW},
+		{{1457,2017},SLOW},
+		{{1589,2038},SLOW}
+	};
 
 	displacement_t D_vers_E[]={
-						{1700,2000,SLOW},
-						{1773,2284,SLOW} };
+		{{1700,2000},SLOW},
+		{{1773,2284},SLOW}
+	};
 
 	displacement_t E_vers_F[]={
-						{1789,2797,SLOW} };
+		{{1789,2797},SLOW}
+	};
 
 	displacement_t F_vers_G[]={
-						{1297,2813,SLOW}};
+		{{1297,2813},SLOW}
+	};
 
 	displacement_t G_vers_H[]={
-						{938,2781,SLOW},
-						{740,1589,SLOW},
-						{179,1247,SLOW}};
+		{{938,2781},SLOW},
+		{{740,1589},SLOW},
+		{{179,1247},SLOW}
+	};
 
 	displacement_t H_vers_I[]={
-						{152,1717,SLOW}  };
+		{{152,1717},SLOW}
+	};
 
 
 	switch(state){
@@ -681,43 +693,16 @@ error_e Assiete_5_lanceur(void){
 }
 
 void TEST_STRAT_ALEXIS() {
-	enum state_e {
+	CREATE_MAE_WITH_VERBOSE(SM_ID_KRUSTY_STRAT_ALEXIS,
 		EXTRACT,	//Avance devant pour pouvoir tourner après le début du match (on est collé au mur après calibration)
 		DO_GLASSES,	//Faire les verres
 		DO_PLATES,	//Faire les assiettes & lancer les cerises,
 		PROTECT_GLASSES,	//On va dans notre zone de départ pour proteger les verres
 		PUT_DOWN_GLASSES,	//Va poser les verres dans la zone de Krusty si on ne l'avait pas fait. Ce n'est fait que a la fin du match et si on ne l'a pas déjà fait
 		EXTRACT_FROM_GLASSES,	//S'écarte des verres si on les a posé a la fin du match
-		DONE,		//On a fini
-		NBSTATE		//Pas un état, utilisé pour savoir le nombre d'état
-	};
-	static enum state_e state = EXTRACT;
-	static enum state_e last_state = EXTRACT;
+		DONE		//On a fini
+	);
 	error_e sub_action;
-
-	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(state != last_state) {
-		static const char* state_str[NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, DO_GLASSES);
-			STATE_STR_DECLARE(state_str, DO_PLATES);
-			STATE_STR_DECLARE(state_str, PROTECT_GLASSES);
-			STATE_STR_DECLARE(state_str, PUT_DOWN_GLASSES);
-			STATE_STR_DECLARE(state_str, EXTRACT_FROM_GLASSES);
-			STATE_STR_DECLARE(state_str, DONE);
-			STATE_STR_INIT_UNDECLARED(state_str, NBSTATE);
-			state_str_initialized = TRUE;
-		}
-
-//		STATECHANGE_log(LOG_LEVEL_Debug, "TEST_STRAT_ALEXIS: state changed: %s(%d) -> %s(%d)\n",
-//			state_str[last_state], last_state,
-//			state_str[state], state);
-		STATECHANGE_log(SM_ID_KRUSTY_STRAT_ALEXIS, state_str[last_state], last_state, state_str[state], state);
-	}
-
-	last_state = state;
 
 	switch(state) {
 		//Avance devant pour pouvoir tourner après le début du match (on est collé au mur après calibration)
@@ -783,10 +768,6 @@ void TEST_STRAT_ALEXIS() {
 		case DONE:
 			//Rien a faire on attend la fin de match
 			break;
-
-		//Non utilisé
-		case NBSTATE:
-			break;
 	}
 }
 
@@ -797,7 +778,7 @@ void TEST_STRAT_ALEXIS() {
 //Evitement: tourne dans la case, a voir c'est dangereux avec le buffet
 //////
 void TEST_STRAT_ALEXIS_FINALE() {
-	enum state_e {
+	CREATE_MAE_WITH_VERBOSE(SM_ID_KRUSTY_STRAT_ALEXIS_FINALE,
 		INIT,				//Initialise la machine a etat
 		EXTRACT,			//Avance devant pour pouvoir tourner après le début du match (on est collé au mur après calibration)
 		DO_GLASSES,			//Faire les verres
@@ -808,44 +789,16 @@ void TEST_STRAT_ALEXIS_FINALE() {
 		MOVE_TO_DROP,		//Va pour lacher l'assiette
 		DROP_PLATE,			//Lache l'assiette
 		DO_NEXT_PLATE,		//Fait la suivante (celle du milieu puis celle coté cadeau)
-		FAILED,				//gère les erreurs
-		DONE,				//On a fini
-		NBSTATE				//Pas un état, utilisé pour savoir le nombre d'état
-	};
-	static enum state_e state = INIT;
-	static enum state_e last_state = INIT;
-	static enum state_e last_state_for_check_entrance = INIT;
+		FAILED,				//Gère les erreurs
+		DONE				//On a fini
+	);
 
 	static Sint16 DROP_ANGLE = 6434; //6434 = 90° //10366;	//10366 rad*4096 == 145°
 
 	static Uint8 current_plate;
 	static bool_e glasses_droped;
 
-	bool_e entrance = (state == last_state_for_check_entrance)? FALSE:TRUE;
-	last_state_for_check_entrance = state;
 	error_e sub_action;
-
-	//On a changé d'état, on l'indique sur l'UART pour débugage
-	if(entrance) {
-		static const char* state_str[NBSTATE] = {0};
-		bool_e state_str_initialized = FALSE;
-
-		if(state_str_initialized == FALSE) {
-			STATE_STR_DECLARE(state_str, DO_GLASSES);
-			STATE_STR_DECLARE(state_str, GOTO_PLATE);
-			STATE_STR_DECLARE(state_str, DO_PLATE);
-			STATE_STR_DECLARE(state_str, PUT_DOWN_GLASSES);
-			STATE_STR_DECLARE(state_str, LAUNCH_CHERRY);
-			STATE_STR_DECLARE(state_str, MOVE_TO_DROP);
-			STATE_STR_DECLARE(state_str, DROP_PLATE);
-			STATE_STR_DECLARE(state_str, DO_NEXT_PLATE);
-			STATE_STR_DECLARE(state_str, DONE);
-			STATE_STR_INIT_UNDECLARED(state_str, NBSTATE);
-			state_str_initialized = TRUE;
-		}
-
-		STATECHANGE_log(SM_ID_KRUSTY_STRAT_ALEXIS_FINALE, state_str[last_state], last_state, state_str[state], state);
-	}
 
 	switch(state) {
 		case INIT:
@@ -972,13 +925,7 @@ void TEST_STRAT_ALEXIS_FINALE() {
 		case DONE:
 			//Rien a faire on attend la fin de match
 			break;
-
-		//Non utilisé
-		case NBSTATE:
-			break;
 	}
-
-	last_state = last_state_for_check_entrance; //last_state contient l'état avant de passer dans le switch, pour être utilisable dans les états quand entrance vaut TRUE
 }
 
 
