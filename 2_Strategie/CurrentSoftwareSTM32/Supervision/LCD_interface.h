@@ -54,7 +54,20 @@ void LCD_add_can(CAN_msg_t msg);
 void LCD_strat_number_update(void);
 
 
+/*
+ * Ecrit une ligne définie par l'utilisateur à la position demandée
+ */
 void LCD_free_line(char buf[20], Uint8 pos);
+
+/*
+ * Prend le control de l'écran pour afficher les messages utilisateurs
+ */
+void LCD_take_control(void);
+
+/*
+ * Redonne le control à l'écran
+ */
+void LCD_free_control(void);
 
 #endif	/* LCD_INTERFACE_H */
 
