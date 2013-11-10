@@ -63,8 +63,6 @@ bool_e change; // Commande le rafraichissement de l'écran
 /* Variable contenant un message libre*/
 char free_msg[4][20];
 
-/* L'utilisateur prend la main sur l'écran */
-bool_e info_on;
 
 /* Chaines affichées à l'écran */
 char line[4][20];
@@ -75,8 +73,6 @@ char line[4][20];
 /* Affiche toutes les lignes enregistrées du LCD */
 void display_line(void){
 	Uint8 i;
-	LCD_set_cursor(0,0);
-				LCD_Write_text(line[0]);
 	if(change == TRUE){
 		LCD_clear_display();
 		for(i=0;i<4;i++){
