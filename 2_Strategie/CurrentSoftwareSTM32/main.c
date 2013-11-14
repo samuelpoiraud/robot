@@ -73,7 +73,7 @@ int main (void)
 	#ifdef VERBOSE_MODE
 		UART_init();
 	#endif /* def VERBOSE_MODE */
-	LED_RUN=1;
+	//LED_RUN=1;
 	debug_printf("\n-------\nDemarrage CarteS\n-------\n");
 	tests();
 
@@ -95,7 +95,7 @@ int main (void)
 	while(1)
 	{
 
-		LED_RUN = !LED_RUN;
+		LED_RUN = BUTTON6_PORT;
 		// Commandes pour EVE
 		#ifdef USE_QSx86
 			EVE_manager_card();
