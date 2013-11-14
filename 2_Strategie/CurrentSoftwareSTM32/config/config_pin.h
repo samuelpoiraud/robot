@@ -47,7 +47,7 @@
 	#define EEPROM_SDI			GPIOB->ODR15
 
 
-#define PORT_C_IO_MASK	0x201F
+#define PORT_C_IO_MASK	0x202F
 	//	Capteur			 			  0
 	//	Capteur			 			  1
 	//	Capteur			 			  2

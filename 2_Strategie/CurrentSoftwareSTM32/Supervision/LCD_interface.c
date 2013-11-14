@@ -277,7 +277,7 @@ void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t){
 void LCD_switch_mode(void){
 	static lcd_state previous_state = INIT;
 #warning 'Modifier par LCD_SWITCH'
-		if(SWITCH_COLOR == 1){
+		if(SWITCH_LCD == 1){
 			state = INFO_s;
 		}else{
 			state = CAN_s;

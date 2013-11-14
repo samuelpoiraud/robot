@@ -43,6 +43,7 @@ void BUTTON_init()
 	#endif
 //	BUTTONS_define_actions(BUTTON3,BUTTON_servo,NULL,1);
 //	BUTTONS_define_actions(BUTTON4,BUTTON_pi_rotation,BUTTON_translation,1);
+	BUTTONS_define_actions(BUTTON6,BUTTON_TEST_button6, NULL, 1);
 
 }
 
@@ -112,14 +113,14 @@ void BUTTON_translation()
 
 static void BUTTON_TEST_button2() {
 	LED_ROUGE = !LED_ROUGE;
-	LCD_free_line("Hello!",1);
-	LCD_take_control();
+	//LCD_free_line("Hello!",1);
+	//LCD_take_control();
 }
 
 static void BUTTON_TEST_button3() {
 	LED_ORANGE = !LED_ORANGE;
-	LCD_free_control();
-	LCD_free_line("Au revoir!",0);
+	//LCD_free_control();
+	//LCD_free_line("Au revoir!",0);
 }
 
 static void BUTTON_TEST_button4() {
