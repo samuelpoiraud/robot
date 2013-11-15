@@ -87,8 +87,9 @@ endif()
 # Target de programmation: program
 ########################
 
+
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL cortex-m4)
 	set(OPENOCD_COMMAND "flash write_image erase \\\"${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN}\\\" 0x08000000")
 	separate_arguments(OPENOCD_COMMAND)
-	add_custom_target(program DEPENDS ${TARGET_BIN} COMMAND openocd -f interface/stlink-v2.cfg -f target/stm32f4x_stlink.cfg -c \"init\" -c \"reset halt\" -c \"${OPENOCD_COMMAND}\" -c \"reset\" -c shutdown)
+	add_custom_target(program DEPENDS ${TARGET_BIN} COMMAND openocd.exe -f interface/stlink-v2.cfg -f target/stm32f4x_stlink.cfg -c \"init\" -c \"reset halt\" -c \"${OPENOCD_COMMAND}\" -c \"reset\" -c shutdown)
 endif()
