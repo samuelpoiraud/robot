@@ -170,7 +170,7 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 		WATCHDOG_stop(watchdog_id);
 	if(timeout || i2c_bus_error)
 	{
-		error_exit();
+		//error_exit();
 		return FALSE;
 	}
 	return TRUE;
@@ -225,7 +225,7 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 		WATCHDOG_stop(watchdog_id);
 	if(timeout || i2c_bus_error)
 	{
-		error_exit();
+		//error_exit();
 		return FALSE;
 	}
 	return TRUE;
