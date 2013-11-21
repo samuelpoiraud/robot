@@ -25,6 +25,7 @@
 #include "copilot.h"
 #include "supervisor.h"
 #include "joystick.h"
+#include "scan_triangle.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -420,6 +421,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case CARTE_ASSER_FIN_ERREUR:
 			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
 		break;
+
+		case ASSER_LAUNCH_SCAN_TRIANGLE :
+			SCAN_TRIANGLE_canMsg();
+		break;
+
 		default :
 		break;
 	}

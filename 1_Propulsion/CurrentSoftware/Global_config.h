@@ -157,6 +157,10 @@
 //	#define FREQ_PWM_20KHZ
 	#define FREQ_PWM_50KHZ
 
+	/* Utilisation des entrées analogiques */
+	#define USE_AN11	// Capteur DT10 détection triangle
+	#define USE_AN12	// Capteur DT10 détection triangle
+	#define USE_AN14	// Capteur DT10 détection triangle
 
 	#include "_Propulsion_config.h"
 

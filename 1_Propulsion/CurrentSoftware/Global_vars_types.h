@@ -33,10 +33,11 @@
 
 	typedef enum {
 			NO_ACKNOWLEDGE = 0,	 //Aucun acquittement demandé
-			ACKNOWLEDGE_ASKED,  //Acquittement demandé
-			BRAKE_ACKNOWLEDGED, //Acquittement du freinage fourni
+			ACKNOWLEDGE_ASKED,   //Acquittement demandé
+			BRAKE_ACKNOWLEDGED,  //Acquittement du freinage fourni
 			ACKNOWLEDGE_CALIBRATION,
-			ACKNOWLEDGED	//, //Acquittement complet fourni
+			ACKNOWLEDGED,		 //Acquittement complet fourni
+			INTERN_ACKNOWLEDGE	 //Acquittement interne pour fonction de la propulsion
 	}acknowledge_e;
 
 	typedef enum {

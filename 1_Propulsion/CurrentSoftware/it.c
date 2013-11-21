@@ -23,6 +23,7 @@
 #include "warner.h"
 #include "joystick.h"
 #include "secretary.h"
+#include "scan_triangle.h"
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>
 #endif
@@ -88,6 +89,7 @@ void _ISR _T1Interrupt()
 		COPILOT_process_it();
 		PILOT_process_it();
 		SUPERVISOR_process_it();
+		SCAN_TRIANGLE_process_it();
 	
 
 

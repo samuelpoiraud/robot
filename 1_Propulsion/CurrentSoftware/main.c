@@ -24,6 +24,7 @@
 #include "sequences.h"
 #include "debug.h"
 #include "joystick.h"
+#include "scan_triangle.h"
 #include "QS/QS_ports.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_buttons.h"
@@ -109,6 +110,10 @@ void initialisation(void){
 	-> 3 : timer2 (100ms)
 	-> 0 : tâche de fond
 	*/
+
+	SCAN_TRIANGLE_init();
+	// Initialisation des ADC pour les DT10s des scans des triangles
+
 }
 
 int main (void)
@@ -162,6 +167,8 @@ int main (void)
 		SECRETARY_process_main();	//Communication avec l'extérieur. (Réception des messages)
 
 		WARNER_process_main();		//Communication avec l'extérieur. (Envois des messages)
+
+		SCAN_TRIANGLE_calculate();
 
 	}
 	return 0;

@@ -32,6 +32,9 @@ volatile bool_e error_transmitted;
 volatile SUPERVISOR_error_source_e error_source = NO_ERROR;
 volatile acknowledge_e current_acknowledge = NO_ACKNOWLEDGE;
 
+typedef void (*ptrInternAcknowledge)(void);
+ptrInternAcknowledge ptr_InternAcknowledge = NULL;
+
 void SUPERVISOR_init(void)
 {
 	SUPERVISOR_state_machine(EVENT_NOTHING_TO_DO,FALSE);
@@ -83,6 +86,12 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 			{
 				if(current_acknowledge == ACKNOWLEDGE_CALIBRATION)
 					WARNER_inform(WARNING_CALIBRATION_FINISHED, error_source);
+				else if(current_acknowledge == INTERN_ACKNOWLEDGE)
+				{
+					if(ptr_InternAcknowledge != NULL)
+						(*ptr_InternAcknowledge)();
+					ptr_InternAcknowledge = NULL;
+				}
 				else
 					WARNER_inform(WARNING_ARRIVED, error_source);
 				current_acknowledge = ACKNOWLEDGED;
@@ -180,10 +189,12 @@ void SUPERVISOR_error_check(bool_e reset_error_check)
 	}
 }
 
-
-
 SUPERVISOR_state_e SUPERVISOR_get_state(void)
 {
 	return state;
+}
+
+void SUPERVISOR_config_intern_acknowledge(ptrInternAcknowledge pointeur){
+	ptr_InternAcknowledge = pointeur;
 }
 
