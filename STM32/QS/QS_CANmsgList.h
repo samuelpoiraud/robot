@@ -196,9 +196,12 @@
 	#define ASSER_JOYSTICK 						0x111
 	
 	//modif amaury pour les 3position de calibrage initiale
-    #define ASSER_CASE_CALIBRAGE_1               0x112
-    #define ASSER_CASE_CALIBRAGE_2               0x113
-    #define ASSER_CASE_CALIBRAGE_3               0x114
+    #define ASSER_CASE_CALIBRAGE_1              0x112
+    #define ASSER_CASE_CALIBRAGE_2              0x113
+    #define ASSER_CASE_CALIBRAGE_3              0x114
+
+	//Modif Arnaud pour la détection de triangle
+	#define ASSER_LAUNCH_SCAN_TRIANGLE			0x115
 		
 
 /*****************************************************************
