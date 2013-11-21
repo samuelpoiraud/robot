@@ -128,7 +128,7 @@ void K_Strat_Pour_Les_Nuls(void){
 		{{500,1500},SLOW}
 	};
 
-	Uint8 i = 0;
+	//Uint8 i = 0;
 	switch(state){
 	case INIT:
 		state = DEPART;
