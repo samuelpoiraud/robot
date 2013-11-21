@@ -46,5 +46,6 @@
 	
 	SUPERVISOR_state_e SUPERVISOR_get_state(void);
 	void SUPERVISOR_number_of_rounds_returns_increment(void);
+	void SUPERVISOR_config_intern_acknowledge(void (*prt)(void));
 
 #endif //def _SUPERVISOR_H
