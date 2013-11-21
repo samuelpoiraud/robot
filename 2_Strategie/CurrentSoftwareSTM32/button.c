@@ -32,6 +32,8 @@ void BUTTON_init()
 
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 	BUTTONS_define_actions(BUTTON1,SELFTEST_ask_launch, NULL, 0);
+
+	#warning 'Je crois qu il y a une modif pour le bouton 2 il semble que ce soit désormais le bouton LCD_ok'
 	BUTTONS_define_actions(BUTTON2,BUTTON_TEST_button2, NULL, 1);
 	BUTTONS_define_actions(BUTTON3,BUTTON_TEST_button3, NULL, 1);	//TODO : BOUTON MENU LCD
 	BUTTONS_define_actions(BUTTON4,BUTTON_TEST_button4, NULL, 1);	//TODO : BOUTON MENU LCD
