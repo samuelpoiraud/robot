@@ -110,7 +110,7 @@
 		#define GOTO_MULTI_POINT_TIMEOUT_TIME				4000	//Nombre de secondes de timeout PAR POINT en mode multipoint.
 		#define RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME	3000
 				
-		#define RUSH_TIMEOUT_TIME							2500
+		#define RUSH_TIMEOUT_TIME							25000
 		// suffisant pour un demi tour en vitesse lente
 		#define GOANGLE_TIMEOUT_TIME						6000
 		
