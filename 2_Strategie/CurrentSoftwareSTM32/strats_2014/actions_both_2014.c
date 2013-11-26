@@ -11,6 +11,7 @@
 
 #include "actions_both_2014.h"
 #include "../QS/QS_outputlog.h"
+#include "../state_machine_helper.h"
 
 //#define LOG_PREFIX "strat_tests: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
@@ -28,12 +29,13 @@
 /* ----------------------------------------------------------------------------- */
 
 void strat_reglage_odo_rotation(void){
-	typedef enum{
-		IDLE = 0,
-		SORTIR,
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
 		CALAGE,
 		REINIT,
+		ATTENTE,
 		PROCESS,
+		IN_THE_WALK,
 		COMPARE_N_CORRECT,
 		REPORT,
 		PUSH_MOVE,
@@ -41,16 +43,17 @@ void strat_reglage_odo_rotation(void){
 		AVANCER,
 		TOUR1,
 		TOUR2,
-		ERROR = -1
-	}state_e;
+		TOUR3,
+		DONE,
+		ERROR
+	);
 
-	static state_e state = IDLE;
 
 	/******TEST******/
 	//state = COMPARE_N_CORRECT;
 
-	static state_e from = IDLE;
-	static state_e inProcess = IDLE;
+	static enum state_e from = IDLE;
+	static enum state_e inProcess = IDLE;
 	static bool_e timeout=FALSE;
 	static Sint16 i=0;
 	static Uint16 coefOdoRotation = 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
@@ -59,11 +62,7 @@ void strat_reglage_odo_rotation(void){
 	switch(state){
 	case IDLE: //Cas d'attente et de réinitialisation
 		from = IDLE;
-		state = AVANCER;
-		break;
-
-	case SORTIR: // Sert à s'écarter du mur au début et au cours de la procédure, revient dans tous les cas (sauf erreur) au calage
-		state = try_going(200,200,SORTIR,CALAGE,ERROR,SLOW,ANY_WAY,NO_AVOIDANCE);
+		state = CALAGE;
 		break;
 
 	case CALAGE: // Cale le robot pour regler le zero et comparer les valeurs: L'échapement dépend d'ou vient la machine
@@ -92,21 +91,38 @@ void strat_reglage_odo_rotation(void){
 
 	case REINIT:	// Envoie le message can pour réinitialiser la position ou a minima l'angle du robot
 		//send message can set(0,0,0);  le robot doit se trouver a peut pres a set(2000,500,PI4096)
+
 		from = REINIT;
 
+		i=0;
+		debug_printf("REINIT\n\n");
+
+		debug_printf("\nGlobale variable de x %d\n	de y %d\n",global.env.pos.x,global.env.pos.y);
+
 		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=2000 >> 8;
-		msg.data[1]=2000 & 0xFF;
-		msg.data[2]=500 >> 8;
-		msg.data[3]=500 & 0xFF;
-		msg.data[4]=PI4096 >> 8;
-		msg.data[5]=PI4096 & 0xFF;
+		msg.data[0]=0;
+		msg.data[1]=0;
+		msg.data[2]=0;
+		msg.data[3]=0;
+		msg.data[4]=PI4096/2 >> 8;
+		msg.data[5]=PI4096/2 & 0xFF;
 		CAN_send(&msg);
+
+		state = CALAGE;
+
 		break;
-
-
+	case IN_THE_WALK://Pour le mettre bien en position
+		state = try_going(2000,500,IN_THE_WALK,CALAGE,ERROR,SLOW,ANY_WAY,NO_AVOIDANCE);
+		break;
 	case AVANCER://pour le faire avancer du bord
-		state = try_going(1000,COLOR_Y(500),AVANCER,CALAGE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		debug_printf("J'AVANCE\n");
+
+
+		state = try_going(0,500,AVANCER,CALAGE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+
+		if(state==CALAGE)
+			debug_printf("\nRENIT variable de x %d\n\t\t\tde y %d\n",global.env.pos.x,global.env.pos.y);
+
 		from = AVANCER;
 		break;
 	case PROCESS:	// Tourne 10 fois pour comparer l'angle
@@ -115,16 +131,24 @@ void strat_reglage_odo_rotation(void){
 		if(i < NB_TOUR_ODO_ROTATION){
 			switch(inProcess){
 			case IDLE:
+				//debug_printf("IDLE\n");
 				inProcess=try_go_angle(0,IDLE,TOUR1,ERROR,SLOW);
 				break;
 			case TOUR1:
-				inProcess=try_go_angle(4*PI4096/3,TOUR1,TOUR2,ERROR,SLOW);
+				//debug_printf("TOUR1\n");
+				inProcess=try_go_angle(3*PI4096/2,TOUR1,TOUR2,ERROR,SLOW);
 				break;
 			case TOUR2:
-				inProcess=try_go_angle(2*PI4096/3,TOUR2,IDLE,ERROR,SLOW);
-				if(inProcess == IDLE)
+				//debug_printf("TOUR1\n");
+				inProcess=try_go_angle(PI4096,TOUR2,TOUR3,ERROR,SLOW);
+				break;
+			case TOUR3:
+				//debug_printf("TOUR2\n");
+				inProcess=try_go_angle(PI4096/2,TOUR3,IDLE,ERROR,SLOW);
+				if(inProcess == IDLE){
 					i++; // On incremente le i apres avoir fait un tour complet
-
+					debug_printf("incrementation de i\n");
+				}
 				break;
 			default:
 				state=ERROR;
@@ -135,17 +159,18 @@ void strat_reglage_odo_rotation(void){
 			state=CALAGE;
 		}
 
-
 		from = PROCESS;
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
-		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,PI4096,TRUE);//Le fait forcer en marche arriére pour protéger les cartes à l'avant
+		ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
 		state = WAIT_END_OF_MOVE;
 		break;
 	case WAIT_END_OF_MOVE:
 		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
 			state = CALAGE;
 			from = WAIT_END_OF_MOVE;
+
+			debug_printf("Le robot a forcer dans le mur\n");
 		}
 		break;
 	case COMPARE_N_CORRECT:
@@ -158,12 +183,14 @@ void strat_reglage_odo_rotation(void){
 
 		debug_printf("L'ancgle globale est de %d\n",global.env.pos.angle);
 
-		if(global.env.pos.angle > (PI4096-ODOMETRIE_PLAGE) || global.env.pos.angle < (-PI4096-ODOMETRIE_PLAGE)){//Robot bien regle, on fait avec PI4096 car le robot recule au lieu d'avancer vers le mur
+		if(global.env.pos.angle > (PI4096-ODOMETRIE_PLAGE) || global.env.pos.angle < (-PI4096+ODOMETRIE_PLAGE)){//Robot bien regle, on fait avec PI4096 car le robot recule au lieu d'avancer vers le mur
 			debug_printf("Ne pas modifier\n");
+			state=DONE;
+
 
 		}else{//Recommencer procédure en modifiant les valeurs
 			debug_printf("Modifier valeur\n");
-			i=0;
+
 			state = REINIT;
 
 			//Modifier KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT selon l'angle obtenu
@@ -189,8 +216,11 @@ void strat_reglage_odo_rotation(void){
 			state = IDLE;
 
 		break;
+	case DONE:
+		break;
 
 	case ERROR:
+		break;
 	default:
 		break;
 	}
