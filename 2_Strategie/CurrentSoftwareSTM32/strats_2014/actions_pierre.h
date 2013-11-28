@@ -18,6 +18,6 @@
 #include "../asser_functions.h"
 #include "../act_functions.h"
 
-
+void strat_test_triangle_cote_rouge(void);
 
 #endif /* ACTIONS_PIERRE_H_ */
