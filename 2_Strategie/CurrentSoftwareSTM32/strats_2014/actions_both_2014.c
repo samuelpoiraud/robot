@@ -106,6 +106,7 @@ void strat_reglage_odo_rotation(void){
 		msg.data[3]=0;
 		msg.data[4]=PI4096/2 >> 8;
 		msg.data[5]=PI4096/2 & 0xFF;
+		msg.size=6;
 		CAN_send(&msg);
 
 		state = CALAGE;
@@ -202,6 +203,7 @@ void strat_reglage_odo_rotation(void){
 			//Envoie du message CAN
 			msg.sid=DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION;
 			msg.data[0] = coefOdoRotation;
+			msg.size=1;
 			CAN_send(&msg);
 
 			debug_printf("Nouvelle valeur du coef odométrie rotation %x\n",coefOdoRotation);
