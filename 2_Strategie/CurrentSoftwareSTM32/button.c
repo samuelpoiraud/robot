@@ -20,6 +20,7 @@
 #include "config_use.h"
 #include "config_pin.h"
 #include "Supervision/LCD_interface.h"
+
 static void BUTTON_TEST_button2();
 static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
@@ -32,20 +33,16 @@ void BUTTON_init()
 
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 	BUTTONS_define_actions(BUTTON1,SELFTEST_ask_launch, NULL, 0);
+	BUTTONS_define_actions(BUTTON2,LCD_button_ok, NULL, 1);
+	BUTTONS_define_actions(BUTTON3,LCD_button_plus, NULL, 1);
+	BUTTONS_define_actions(BUTTON4,LCD_button_minus, NULL, 1);
 
-	#warning 'Je crois qu il y a une modif pour le bouton 2 il semble que ce soit désormais le bouton LCD_ok'
-	BUTTONS_define_actions(BUTTON2,BUTTON_TEST_button2, NULL, 1);
-	BUTTONS_define_actions(BUTTON3,BUTTON_TEST_button3, NULL, 1);	//TODO : BOUTON MENU LCD
-	BUTTONS_define_actions(BUTTON4,BUTTON_TEST_button4, NULL, 1);	//TODO : BOUTON MENU LCD
-	//BUTTONS_define_actions(BUTTON5,BUFFER_flush, NULL, 0);
 	#ifdef EEPROM_CAN_MSG_ENABLE
 		BUTTONS_define_actions(BUTTON5,EEPROM_CAN_MSG_verbose_previous_match, NULL, 0);
 	#else
 		BUTTONS_define_actions(BUTTON5,SD_print_previous_match, NULL, 0);
 	#endif
-//	BUTTONS_define_actions(BUTTON3,BUTTON_servo,NULL,1);
-//	BUTTONS_define_actions(BUTTON4,BUTTON_pi_rotation,BUTTON_translation,1);
-	BUTTONS_define_actions(BUTTON6,BUTTON_TEST_button6, NULL, 1);
+	BUTTONS_define_actions(BUTTON6,LCD_button_set, NULL, 1);
 
 }
 
@@ -115,14 +112,14 @@ void BUTTON_translation()
 
 static void BUTTON_TEST_button2() {
 	LED_ROUGE = !LED_ROUGE;
-	//LCD_free_line("Hello!",1);
-	//LCD_take_control();
+	LCD_free_line("Hello!",1);
+	LCD_take_control();
 }
 
 static void BUTTON_TEST_button3() {
 	LED_ORANGE = !LED_ORANGE;
-	//LCD_free_control();
-	//LCD_free_line("Au revoir!",0);
+	LCD_free_control();
+	LCD_free_line("Au revoir!",0);
 }
 
 static void BUTTON_TEST_button4() {
