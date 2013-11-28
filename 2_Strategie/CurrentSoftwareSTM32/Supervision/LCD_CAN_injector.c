@@ -15,9 +15,30 @@
 #include "LCD_interface.h"
 #include "LCD_MIDAS_4x20.h"
 
+void LCD_incoming_can(CAN_msg_t* incomming_msg){
+	switch(incomming_msg->sid){
+		case ASSER_WARN_ANGLE:
+		case ASSER_WARN_X:
+		case ASSER_WARN_Y:
+		case ASSER_STOP:
+		case ASSER_GO_POSITION:
+		case ASSER_GO_ANGLE:
+		case ASSER_CALIBRATION:
+		case CARTE_P_ASSER_ERREUR:
+		case CARTE_P_ROBOT_CALIBRE:
+		case CARTE_P_TRAJ_FINIE:
+		case BROADCAST_START:
+		case BROADCAST_STOP_ALL:
+		case BROADCAST_COULEUR:
+			LCD_add_can(*incomming_msg);
+			break;
+		default:
+			break;
+	}
+}
+
 
 void display_can(CAN_msg_t msg, Uint8 pos){
-	Uint8 i;
 	char buf[20];
 
 	LCD_set_cursor(pos, 0);
@@ -67,12 +88,6 @@ void display_can(CAN_msg_t msg, Uint8 pos){
 			LCD_Write_text("NEW COLOR");
 			break;
 		default:
-			for(i=0;i<msg.size;i++){
-				if(i<8){
-					sprintf(buf,"%2x",msg.data[i]);
-					LCD_Write_text(buf);
-				}
-			}
 			break;
 	}
 }
