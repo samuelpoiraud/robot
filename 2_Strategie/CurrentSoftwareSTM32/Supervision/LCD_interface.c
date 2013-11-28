@@ -17,6 +17,7 @@
 #include "Buffer.h"
 #include "Eeprom_can_msg.h"
 #include "config_pin.h"
+#include "../environment.h"
 
 #include "config_use.h"
 
@@ -51,7 +52,7 @@ Uint8 strat_nb[4];
 enum{
 	SELF_TEST = 0,
 	LAST_MATCH,
-	BUFFER_FLUSH,
+	REGLAGE_ODO,
 	RETURN
 }menu_choice;
 
@@ -115,19 +116,13 @@ void display_pos(){
 
 /* Affiche les infos de la balise sur la seconde ligne du mode info */
 void display_beacon(){
-	char buf[20];
 	static Uint16 d1,d2,a1,a2;
 #warning'simplement pour laffichage : a modifier par la suite'
-	d1 = 360;
-	a1 = 240;
-	d2 = 21;
-	a2 = 0;
-/*
-	// Affichage de la position relative des balises
-	LCD_set_cursor(pos, 0);
-	sprintf(buf,"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
-	LCD_Write_text(buf);
-*/
+	d1 = global.env.foe[0].dist;
+	a1 = global.env.foe[0].angle;
+	d2 = global.env.foe[1].dist;
+	a2 = global.env.foe[1].angle;
+
 	sprintf(line[1],"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
 	//change = TRUE;
 }
@@ -164,7 +159,7 @@ void display_menu(void){
 	LCD_set_cursor(1, 1);
 	LCD_Write_text("LAST MATCH'N EEPROM");
 	LCD_set_cursor(2, 1);
-	LCD_Write_text("BUFFER FLUSH");
+	LCD_Write_text("Reglage Odo");
 	LCD_set_cursor(3, 1);
 	LCD_Write_text("Return");
 
@@ -201,13 +196,14 @@ void init_LCD_interface(void){
 /// REFRESHING
 
 void LCD_Update(void){
+	LED_BLEU = !LED_BLEU;
 	if(!initialized)
 		return;
 
 	if(global.env.ask_start == FALSE)
 		LCD_strat_number_update();
 
-	if(state != USER_MODE)
+	if(state != USER_MODE && state!=MENU)
 		LCD_switch_mode();
 
 	if(LCD_transition()){
@@ -236,6 +232,7 @@ void LCD_Update(void){
 			if(LCD_transition()){
 				display_menu();
 				LCD_set_cursor(0,0);
+				LCD_cursor_display(TRUE,TRUE);
 				menu_choice = SELF_TEST;
 			}
 
@@ -276,7 +273,6 @@ void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t){
 
 void LCD_switch_mode(void){
 	static lcd_state previous_state = INIT;
-#warning 'Modifier par LCD_SWITCH'
 		if(SWITCH_LCD == 1){
 			state = INFO_s;
 		}else{
@@ -343,4 +339,81 @@ void LCD_take_control(){
 
 void LCD_free_control(){
 	LCD_switch_mode();
+}
+
+////////////////////////////////////////////////////////////////////////
+/// BUTTON ACTIONS
+
+void LCD_button_minus(void){
+	switch(state){
+		case MENU:
+			if(menu_choice == 0)
+				menu_choice = 3;
+			else
+				menu_choice--;
+			LCD_set_cursor(menu_choice,0);
+			break;
+		default:
+			break;
+	}
+}
+
+void LCD_button_plus(void){
+	switch(state){
+		case MENU:
+			if(menu_choice == 3)
+				menu_choice = 0;
+			else
+				menu_choice++;
+			LCD_set_cursor(menu_choice,0);
+			break;
+		default:
+			break;
+	}
+}
+
+void LCD_button_ok(void){
+	switch(state){
+		case MENU:
+			switch(menu_choice){
+				case SELF_TEST:
+					LCD_free_line("SelfTest asked",0);
+					break;
+				case LAST_MATCH:
+					LCD_free_line("Decharge match",0);
+					break;
+				case REGLAGE_ODO:
+					LCD_free_line("Reglage ODO",0);
+					//odometry_set(); //N'existe pas encore
+					break;
+				case RETURN:
+				default:
+					break;
+			}
+			LCD_cursor_display(FALSE,FALSE);
+			LCD_switch_mode();
+			break;
+		case USER_MODE:
+			LCD_free_control();
+			LCD_free_line("Au revoir!",0);
+			break;
+		default:
+			LCD_take_control();
+			LCD_free_line("Hello!",1);
+			break;
+	}
+}
+
+void LCD_button_set(void){
+	LED_BLEU = !LED_BLEU;
+	switch(state){
+		case MENU:
+			LCD_cursor_display(FALSE,FALSE);
+			LCD_switch_mode();
+			break;
+		default:
+			state = MENU;
+			LED_ROUGE = !LED_ROUGE;
+			break;
+	}
 }

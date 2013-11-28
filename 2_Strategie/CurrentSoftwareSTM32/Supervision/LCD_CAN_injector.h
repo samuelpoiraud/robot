@@ -21,6 +21,11 @@ typedef struct{
 can_t message;
 
 /*
+ * Filtre les messages qui arrivent.
+ */
+void LCD_incoming_can(CAN_msg_t* incomming_msg);
+
+/*
  * Affiche sur l'écran le message can en paramètre à la position donnée
  */
 void display_can(CAN_msg_t msg, Uint8 pos);

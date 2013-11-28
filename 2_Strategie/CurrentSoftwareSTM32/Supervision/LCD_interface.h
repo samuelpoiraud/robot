@@ -69,5 +69,13 @@ void LCD_take_control(void);
  */
 void LCD_free_control(void);
 
+/*
+ * Fonctions d'action des boutons
+ */
+void LCD_button_minus(void);
+void LCD_button_plus(void);
+void LCD_button_ok(void);
+void LCD_button_set(void);
+
 #endif	/* LCD_INTERFACE_H */
 
