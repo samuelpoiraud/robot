@@ -35,7 +35,6 @@ void strat_reglage_odo_rotation(void){
 		REINIT,
 		ATTENTE,
 		PROCESS,
-		IN_THE_WALK,
 		COMPARE_N_CORRECT,
 		REPORT,
 		PUSH_MOVE,
@@ -100,10 +99,10 @@ void strat_reglage_odo_rotation(void){
 		debug_printf("\nGlobale variable de x %d\n	de y %d\n",global.env.pos.x,global.env.pos.y);
 
 		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=0;
-		msg.data[1]=0;
-		msg.data[2]=0;
-		msg.data[3]=0;
+		msg.data[0]=1000 >> 8;	//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
+		msg.data[1]=1000 & 0xFF;
+		msg.data[2]=120 >> 8;
+		msg.data[3]=120 & 0xFF;
 		msg.data[4]=PI4096/2 >> 8;
 		msg.data[5]=PI4096/2 & 0xFF;
 		msg.size=6;
@@ -112,14 +111,9 @@ void strat_reglage_odo_rotation(void){
 		state = CALAGE;
 
 		break;
-	case IN_THE_WALK://Pour le mettre bien en position
-		state = try_going(2000,500,IN_THE_WALK,CALAGE,ERROR,SLOW,ANY_WAY,NO_AVOIDANCE);
-		break;
 	case AVANCER://pour le faire avancer du bord
-		debug_printf("J'AVANCE\n");
 
-
-		state = try_going(0,500,AVANCER,CALAGE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going(1000,500,AVANCER,CALAGE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 
 		if(state==CALAGE)
 			debug_printf("\nRENIT variable de x %d\n\t\t\tde y %d\n",global.env.pos.x,global.env.pos.y);
@@ -146,10 +140,8 @@ void strat_reglage_odo_rotation(void){
 			case TOUR3:
 				//debug_printf("TOUR2\n");
 				inProcess=try_go_angle(PI4096/2,TOUR3,IDLE,ERROR,SLOW);
-				if(inProcess == IDLE){
+				if(inProcess == IDLE)
 					i++; // On incremente le i apres avoir fait un tour complet
-					debug_printf("incrementation de i\n");
-				}
 				break;
 			default:
 				state=ERROR;
@@ -163,15 +155,13 @@ void strat_reglage_odo_rotation(void){
 		from = PROCESS;
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
-		ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
+		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
 		state = WAIT_END_OF_MOVE;
 		break;
 	case WAIT_END_OF_MOVE:
 		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
 			state = CALAGE;
 			from = WAIT_END_OF_MOVE;
-
-			debug_printf("Le robot a forcer dans le mur\n");
 		}
 		break;
 	case COMPARE_N_CORRECT:
@@ -181,8 +171,6 @@ void strat_reglage_odo_rotation(void){
 		//Renouvel le process autant de fois que nécessaire
 
 		//Si il est bien réglé l'angle interne du robot devrait etre de zero, sinon l'angle interne du robot s'est décalé quand le robot a approché le mur
-
-		debug_printf("L'ancgle globale est de %d\n",global.env.pos.angle);
 
 		if(global.env.pos.angle > (PI4096-ODOMETRIE_PLAGE) || global.env.pos.angle < (-PI4096+ODOMETRIE_PLAGE)){//Robot bien regle, on fait avec PI4096 car le robot recule au lieu d'avancer vers le mur
 			debug_printf("Ne pas modifier\n");
@@ -201,10 +189,10 @@ void strat_reglage_odo_rotation(void){
 				coefOdoRotation--;
 
 			//Envoie du message CAN
-			msg.sid=DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION;
+			/*msg.sid=DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION;
 			msg.data[0] = coefOdoRotation;
 			msg.size=1;
-			CAN_send(&msg);
+			CAN_send(&msg);*/
 
 			debug_printf("Nouvelle valeur du coef odométrie rotation %x\n",coefOdoRotation);
 		}
