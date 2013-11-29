@@ -178,19 +178,19 @@ __attribute__((weak)) void USART1_IRQHandler() {
 	if(USART_GetITStatus(USART1, USART_IT_RXNE))
 		UART1_RX_Interrupt();
 	if(USART_GetITStatus(USART1, USART_IT_TXE))
-		UART1_RX_Interrupt();
+		UART1_TX_Interrupt();
 }
 
 __attribute__((weak)) void USART2_IRQHandler() {
 	if(USART_GetITStatus(USART2, USART_IT_RXNE))
 		UART2_RX_Interrupt();
 	if(USART_GetITStatus(USART2, USART_IT_TXE))
-		UART2_RX_Interrupt();
+		UART2_TX_Interrupt();
 }
 
 __attribute__((weak)) void USART3_IRQHandler() {
 	if(USART_GetITStatus(USART3, USART_IT_RXNE))
 		UART3_RX_Interrupt();
 	if(USART_GetITStatus(USART3, USART_IT_TXE))
-		UART3_RX_Interrupt();
+		UART3_TX_Interrupt();
 }

@@ -176,17 +176,17 @@ void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
 	if(msg->size > 8)
 		msg->size = 8;
 
-	data[0] = msg->size + 2;
-	data[1] = msg->sid & 0xFF;
-	data[2] = msg->sid >> 8;
+	data[RF_CAN_SIZE] = msg->size + 2;
+	data[RF_CAN_SID] = msg->sid & 0xFF;
+	data[RF_CAN_SID+1] = msg->sid >> 8;
 
 	for(i = 0; i < msg->size; i++) {
-		data[i+3] = msg->data[i];
+		data[RF_CAN_DATA+i] = msg->data[i];
 	}
 	for(; i < 8; i++)
-		data[i+3] = 0;
+		data[RF_CAN_DATA+i] = 0;
 
-	RF_send(RF_PT_Can, target_id, data, 11);
+	RF_send(RF_PT_Can, target_id, data, data[RF_CAN_SIZE]+1);
 }
 
 void RF_synchro_request(RF_module_e target_id) {
@@ -222,10 +222,10 @@ static RF_packet_status_e RF_get_packet_status(RF_header_t header, Uint8 *data, 
 		case RF_PT_SynchroRequest:
 			//Evite un warning
 #if RF_SYNCHRO_REQUEST_SIZE != 0
- 			if(size >= RF_SYNCHRO_REQUEST_SIZE)
+			if(size >= RF_SYNCHRO_REQUEST_SIZE)
 				return RF_PS_Full;
- 			else
- 				return RF_PS_Incomplete;
+			else
+				return RF_PS_Incomplete;
 #else
 			return RF_PS_Full;
 #endif
@@ -237,7 +237,7 @@ static RF_packet_status_e RF_get_packet_status(RF_header_t header, Uint8 *data, 
 				return RF_PS_Incomplete;
 
 		case RF_PT_Can:
-			if(size >= RF_CAN_MIN_SIZE && data[RF_CAN_SIZE] <= RF_CAN_MAX_DATA_SIZE && size >= data[RF_CAN_SIZE])
+			if(size >= RF_CAN_MIN_SIZE && data[RF_CAN_SIZE] <= RF_CAN_MAX_DATA_SIZE && size >= data[RF_CAN_SIZE]+1)
 				return RF_PS_Full;
 			else if(size >= RF_CAN_MIN_SIZE && data[RF_CAN_SIZE] > RF_CAN_MAX_DATA_SIZE)
 				return RF_PS_Bad;
@@ -288,8 +288,8 @@ void RF_state_machine(Uint8 c, bool_e new_frame) {
 
 		case RFS_GET_CRC:
 			data[i++] = c;
-			if(crc8(data, i) == 0 && packet_received_fct) {
-				(*packet_received_fct)((RF_header_t)data[0], data+1, i-1);
+			if(/*crc8(data, i) == 0 && */packet_received_fct) {
+				(*packet_received_fct)((RF_header_t)data[0], data+1, i-2);
 			}
 			state = RFS_IDLE;
 			break;
