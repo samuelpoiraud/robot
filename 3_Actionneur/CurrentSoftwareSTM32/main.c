@@ -135,7 +135,7 @@ int main (void)
 #ifdef I_AM_ROBOT_KRUSTY
 static void MAIN_onButton1() {
 #ifdef USE_CAN
-	CAN_msg_t msg;
+/*	CAN_msg_t msg;
 
 	msg.size = 1;
 	if(SWITCH_RG0) {
@@ -160,14 +160,25 @@ static void MAIN_onButton1() {
 		CAN_process_msg(&msg);
 		msg.sid = ACT_LIFT_LEFT;
 		CAN_process_msg(&msg);
-	}
+	}*/
+	CAN_msg_t msg;
+
+	msg.size = 1;
+
+	msg.sid = ACT_FRUIT_MOUTH;
+
+	debug_printf("Main: ACT_FRUIT_MOUTH_OPEN\n");
+	msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
+
+	CAN_process_msg(&msg);
+
 
 #endif
 }
 
 static void MAIN_onButton2() {
 #ifdef USE_CAN
-	CAN_msg_t msg;
+/*	CAN_msg_t msg;
 
 	msg.size = 1;
 	if(SWITCH_RG0) {
@@ -193,6 +204,18 @@ static void MAIN_onButton2() {
 		msg.sid = ACT_LIFT_LEFT;
 		CAN_process_msg(&msg);
 	}
+*/
+	CAN_msg_t msg;
+
+	msg.size = 1;
+
+	msg.sid = ACT_FRUIT_MOUTH;
+
+	debug_printf("Main: ACT_FRUIT_MOUTH_CLOSED\n");
+	msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
+
+	CAN_process_msg(&msg);
+
 
 #endif
 }

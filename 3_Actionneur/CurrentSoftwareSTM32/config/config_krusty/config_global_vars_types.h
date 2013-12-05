@@ -22,5 +22,6 @@ typedef enum {
 	QUEUE_ACT_Lift_Left_AX12_Plier,
 	QUEUE_ACT_Lift_Right_Translation,
 	QUEUE_ACT_Lift_Right_AX12_Plier,
+	QUEUE_ACT_AX12_Fruit,
 	NB_ACT
 } QUEUE_act_e;

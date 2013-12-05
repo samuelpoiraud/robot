@@ -20,7 +20,7 @@
 	 */
 
 	#define PORT_A_IO_MASK	0xFFFF
-	#define PORT_B_IO_MASK	0xFFFF
+	#define PORT_B_IO_MASK	0xF7FF
 	#define PORT_C_IO_MASK	0xFFFF
 	#define PORT_D_IO_MASK	0xC0FF  //C0xx: LED de la carte en sortie
 	#define PORT_E_IO_MASK	0xFF00  //xx00: PWMx/sensx en sortie

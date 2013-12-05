@@ -15,7 +15,7 @@
 	#define VERBOSE_MODE
 //#define AX12_DEBUG_PACKETS
 //	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Trace    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
-	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
+	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug    //Pour connaitre les valeurs possibles, voir output_log.h (enum log_level_e)
 
 	//Décommenter pour afficher tout quelque soit les OUTPUT_LOG_COMPONENT_*
 //	#define OUTPUTLOG_PRINT_ALL_COMPONENTS
@@ -31,6 +31,7 @@
 	#define OUTPUT_LOG_COMPONENT_BALLSORTER    LOG_PRINT_On
 	#define OUTPUT_LOG_COMPONENT_LIFT          LOG_PRINT_On
 	#define OUTPUT_LOG_COMPONENT_PLATE         LOG_PRINT_On
+	#define OUTPUT_LOG_COMPONENT_FRUIT         LOG_PRINT_On
 
 	//Tiny
 	#define OUTPUT_LOG_COMPONENT_BALLINFLATER  LOG_PRINT_On
