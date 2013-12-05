@@ -1,0 +1,266 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"clock.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.bss
+  19              		.align	1
+  20              	time:
+  21 0000 0000     		.space	2
+  22              		.text
+  23              		.align	2
+  24              		.global	CLOCK_init
+  25              		.thumb
+  26              		.thumb_func
+  28              	CLOCK_init:
+  29              	.LFB111:
+  30              		.file 1 "../clock.c"
+   1:../clock.c    **** /*
+   2:../clock.c    ****  *	Club Robot ESEO 2010 - 2011
+   3:../clock.c    ****  *	Check Norris
+   4:../clock.c    ****  *
+   5:../clock.c    ****  *	Fichier : clock.c
+   6:../clock.c    ****  *	Package : Actionneur
+   7:../clock.c    ****  *	Description : decompte du temps sur actionneur
+   8:../clock.c    ****  *  Auteurs : Jacen
+   9:../clock.c    ****  *  Version 20100412
+  10:../clock.c    ****  */
+  11:../clock.c    **** 
+  12:../clock.c    **** #define CLOCK_C
+  13:../clock.c    **** #include "clock.h"
+  14:../clock.c    **** #include "QS/QS_buttons.h"
+  15:../clock.c    **** 
+  16:../clock.c    **** #include "config_pin.h"
+  17:../clock.c    **** 
+  18:../clock.c    **** #ifdef CLOCK_TIMER_ID
+  19:../clock.c    **** 	#define TIMER_SRC_TIMER_ID CLOCK_TIMER_ID
+  20:../clock.c    **** #endif
+  21:../clock.c    **** #ifdef CLOCK_USE_WATCHDOG
+  22:../clock.c    **** 	#define TIMER_SRC_USE_WATCHDOG
+  23:../clock.c    **** #endif
+  24:../clock.c    **** 
+  25:../clock.c    **** #include "QS/QS_setTimerSource.h"
+  26:../clock.c    **** 
+  27:../clock.c    **** 
+  28:../clock.c    **** #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME) && defined(BUTTONS_TIMER)
+  29:../clock.c    **** #error "Clock ne doit pas mettre a jour les temps d'appui des boutons si un autre timer est utilisé
+  30:../clock.c    **** #endif
+  31:../clock.c    **** 
+  32:../clock.c    **** static clock_time_t time=0;
+  33:../clock.c    **** 
+  34:../clock.c    **** void CLOCK_init()
+  35:../clock.c    **** {
+  31              		.loc 1 35 0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 1, uses_anonymous_args = 0
+  35 0000 80B5     		push	{r7, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 7, -8
+  39              		.cfi_offset 14, -4
+  40 0002 00AF     		add	r7, sp, #0
+  41              	.LCFI1:
+  42              		.cfi_def_cfa_register 7
+  36:../clock.c    **** 	static bool_e initialized = FALSE;
+  37:../clock.c    **** 	if(initialized)
+  43              		.loc 1 37 0
+  44 0004 40F20003 		movw	r3, #:lower16:initialized.6107
+  45 0008 C0F20003 		movt	r3, #:upper16:initialized.6107
+  46 000c 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  47 000e 002B     		cmp	r3, #0
+  48 0010 0FD1     		bne	.L4
+  49              	.L2:
+  38:../clock.c    **** 		return;
+  39:../clock.c    **** 	initialized = TRUE;
+  50              		.loc 1 39 0
+  51 0012 40F20003 		movw	r3, #:lower16:initialized.6107
+  52 0016 C0F20003 		movt	r3, #:upper16:initialized.6107
+  53 001a 4FF00102 		mov	r2, #1
+  54 001e 1A70     		strb	r2, [r3, #0]
+  40:../clock.c    **** 
+  41:../clock.c    **** #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)
+  42:../clock.c    **** 	BUTTONS_init();
+  55              		.loc 1 42 0
+  56 0020 FFF7FEFF 		bl	BUTTONS_init
+  43:../clock.c    **** #endif
+  44:../clock.c    **** 	TIMER_SRC_TIMER_init();
+  57              		.loc 1 44 0
+  58 0024 FFF7FEFF 		bl	TIMER_init
+  45:../clock.c    **** 	TIMER_SRC_TIMER_start_ms(100);
+  59              		.loc 1 45 0
+  60 0028 4FF06400 		mov	r0, #100
+  61 002c FFF7FEFF 		bl	TIMER4_run
+  62 0030 00E0     		b	.L1
+  63              	.L4:
+  38:../clock.c    **** 		return;
+  64              		.loc 1 38 0
+  65 0032 00BF     		nop
+  66              	.L1:
+  46:../clock.c    **** }
+  67              		.loc 1 46 0
+  68 0034 80BD     		pop	{r7, pc}
+  69              		.cfi_endproc
+  70              	.LFE111:
+  72 0036 00BF     		.align	2
+  73              		.global	_T4Interrupt
+  74              		.thumb
+  75              		.thumb_func
+  77              	_T4Interrupt:
+  78              	.LFB112:
+  47:../clock.c    **** 
+  48:../clock.c    **** #include "QS/QS_uart.h"
+  49:../clock.c    **** void TIMER_SRC_TIMER_interrupt()
+  50:../clock.c    **** {
+  79              		.loc 1 50 0
+  80              		.cfi_startproc
+  81              		@ args = 0, pretend = 0, frame = 0
+  82              		@ frame_needed = 1, uses_anonymous_args = 0
+  83 0038 80B5     		push	{r7, lr}
+  84              	.LCFI2:
+  85              		.cfi_def_cfa_offset 8
+  86              		.cfi_offset 7, -8
+  87              		.cfi_offset 14, -4
+  88 003a 00AF     		add	r7, sp, #0
+  89              	.LCFI3:
+  90              		.cfi_def_cfa_register 7
+  51:../clock.c    **** 	LED_RUN = !LED_RUN;
+  91              		.loc 1 51 0
+  92 003c 4FF44063 		mov	r3, #3072
+  93 0040 C4F20203 		movt	r3, 16386
+  94 0044 4FF44062 		mov	r2, #3072
+  95 0048 C4F20202 		movt	r2, 16386
+  96 004c 5269     		ldr	r2, [r2, #20]
+  97 004e 02F48052 		and	r2, r2, #4096
+  98 0052 002A     		cmp	r2, #0
+  99 0054 14BF     		ite	ne
+ 100 0056 0022     		movne	r2, #0
+ 101 0058 0122     		moveq	r2, #1
+ 102 005a D1B2     		uxtb	r1, r2
+ 103 005c 5A69     		ldr	r2, [r3, #20]
+ 104 005e 61F30C32 		bfi	r2, r1, #12, #1
+ 105 0062 5A61     		str	r2, [r3, #20]
+  52:../clock.c    **** 	time++;
+ 106              		.loc 1 52 0
+ 107 0064 40F20003 		movw	r3, #:lower16:time
+ 108 0068 C0F20003 		movt	r3, #:upper16:time
+ 109 006c 1B88     		ldrh	r3, [r3, #0]
+ 110 006e 03F10103 		add	r3, r3, #1
+ 111 0072 9AB2     		uxth	r2, r3
+ 112 0074 40F20003 		movw	r3, #:lower16:time
+ 113 0078 C0F20003 		movt	r3, #:upper16:time
+ 114 007c 1A80     		strh	r2, [r3, #0]	@ movhi
+  53:../clock.c    **** #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)
+  54:../clock.c    **** 	BUTTONS_process_it();
+ 115              		.loc 1 54 0
+ 116 007e FFF7FEFF 		bl	BUTTONS_process_it
+  55:../clock.c    **** #endif
+  56:../clock.c    **** 	TIMER_SRC_TIMER_resetFlag();
+ 117              		.loc 1 56 0
+ 118 0082 4FF40050 		mov	r0, #8192
+ 119 0086 C4F20000 		movt	r0, 16384
+ 120 008a 4FF00101 		mov	r1, #1
+ 121 008e FFF7FEFF 		bl	TIM_ClearITPendingBit
+  57:../clock.c    **** }	
+ 122              		.loc 1 57 0
+ 123 0092 80BD     		pop	{r7, pc}
+ 124              		.cfi_endproc
+ 125              	.LFE112:
+ 127              		.align	2
+ 128              		.global	CLOCK_get_time
+ 129              		.thumb
+ 130              		.thumb_func
+ 132              	CLOCK_get_time:
+ 133              	.LFB113:
+  58:../clock.c    **** 
+  59:../clock.c    **** clock_time_t CLOCK_get_time()
+  60:../clock.c    **** {
+ 134              		.loc 1 60 0
+ 135              		.cfi_startproc
+ 136              		@ args = 0, pretend = 0, frame = 0
+ 137              		@ frame_needed = 1, uses_anonymous_args = 0
+ 138              		@ link register save eliminated.
+ 139 0094 80B4     		push	{r7}
+ 140              	.LCFI4:
+ 141              		.cfi_def_cfa_offset 4
+ 142              		.cfi_offset 7, -4
+ 143 0096 00AF     		add	r7, sp, #0
+ 144              	.LCFI5:
+ 145              		.cfi_def_cfa_register 7
+  61:../clock.c    **** 	return time;
+ 146              		.loc 1 61 0
+ 147 0098 40F20003 		movw	r3, #:lower16:time
+ 148 009c C0F20003 		movt	r3, #:upper16:time
+ 149 00a0 1B88     		ldrh	r3, [r3, #0]
+  62:../clock.c    **** }
+ 150              		.loc 1 62 0
+ 151 00a2 1846     		mov	r0, r3
+ 152 00a4 BD46     		mov	sp, r7
+ 153 00a6 80BC     		pop	{r7}
+ 154 00a8 7047     		bx	lr
+ 155              		.cfi_endproc
+ 156              	.LFE113:
+ 158              		.bss
+ 159              	initialized.6107:
+ 160 0002 00       		.space	1
+ 161 0003 00       		.text
+ 162              	.Letext0:
+ 163              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 164              		.file 3 "../stm32f4xx/stm32f4xx.h"
+ 165              		.file 4 "../QS/QS_types.h"
+ 166              		.file 5 "../clock.h"
+ 167              		.file 6 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 clock.c
+C:\Users\Amaury\AppData\Local\Temp\ccdHLHNn.s:19     .bss:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\ccdHLHNn.s:20     .bss:00000000 time
+C:\Users\Amaury\AppData\Local\Temp\ccdHLHNn.s:23     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccdHLHNn.s:28     .text:00000000 CLOCK_init
+C:\Users\Amaury\AppData\Local\Temp\ccdHLHNn.s:159    .bss:00000002 initialized.6107
+C:\Users\Amaury\AppData\Local\Temp\ccdHLHNn.s:77     .text:00000038 _T4Interrupt
+C:\Users\Amaury\AppData\Local\Temp\ccdHLHNn.s:132    .text:00000094 CLOCK_get_time
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.stm32f4xx_tim.h.31.b1d608fbde729347e4ccf70799e654d2
+                           .group:00000000 wm4.QS_timer.h.23.f1c7374d1ffe22793578c04386c6b1e2
+                           .group:00000000 wm4.config_pin.h.12.92dbe1317fae649a069f2ce6e5ad725c
+                           .group:00000000 wm4.config_pin.h.12.20ee5a96fdfc3c7ca3bc6056aaec7473
+                           .group:00000000 wm4.QS_setTimerSource.h.13.531a9cdad03dad3ce4f84a7ae6cb8dc1
+
+UNDEFINED SYMBOLS
+BUTTONS_init
+TIMER_init
+TIMER4_run
+BUTTONS_process_it
+TIM_ClearITPendingBit

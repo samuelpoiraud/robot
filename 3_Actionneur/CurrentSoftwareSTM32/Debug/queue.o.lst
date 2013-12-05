@@ -1,0 +1,1851 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"queue.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.bss
+  19              		.align	2
+  20              	queues:
+  21 0000 00000000 		.space	3392
+  21      00000000 
+  21      00000000 
+  21      00000000 
+  21      00000000 
+  22              		.align	2
+  23              	sems:
+  24 0d40 00000000 		.space	34
+  24      00000000 
+  24      00000000 
+  24      00000000 
+  24      00000000 
+  25              		.align	1
+  26              	time:
+  27 0d62 0000     		.space	2
+  28              		.text
+  29              		.align	2
+  30              		.global	QUEUE_init
+  31              		.thumb
+  32              		.thumb_func
+  34              	QUEUE_init:
+  35              	.LFB111:
+  36              		.file 1 "../queue.c"
+   1:../queue.c    **** /*
+   2:../queue.c    ****  *	Club Robot ESEO 2010 - 2011
+   3:../queue.c    ****  *	Check Norris
+   4:../queue.c    ****  *
+   5:../queue.c    ****  *	Fichier : queue.c
+   6:../queue.c    ****  *	Package : Actionneur
+   7:../queue.c    ****  *	Description : files d'actions actionneurs
+   8:../queue.c    ****  *  Auteurs : Jacen(modifié par Aurélien)
+   9:../queue.c    ****  *  Version 20110225
+  10:../queue.c    ****  */
+  11:../queue.c    **** 
+  12:../queue.c    **** #include "queue.h"
+  13:../queue.c    **** #include "config_pin.h"
+  14:../queue.c    **** #include "config_debug.h"
+  15:../queue.c    **** 
+  16:../queue.c    **** #ifndef OUTPUT_LOG_COMPONENT_QUEUE
+  17:../queue.c    **** #  define OUTPUT_LOG_COMPONENT_QUEUE LOG_PRINT_Off
+  18:../queue.c    **** #  warning "OUTPUT_LOG_COMPONENT_QUEUE is not defined, defaulting to Off"
+  19:../queue.c    **** #endif
+  20:../queue.c    **** 
+  21:../queue.c    **** #define LOG_PREFIX "queue: "
+  22:../queue.c    **** #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_QUEUE
+  23:../queue.c    **** #include "QS/QS_outputlog.h"
+  24:../queue.c    **** #define component_printf_global(log_level, format, ...) component_printf(log_level, "[all] " format
+  25:../queue.c    **** #define component_printf_queue(log_level, queueId, format, ...) component_printf(log_level, "[%d] "
+  26:../queue.c    **** #define component_printf_sem(log_level, queueId, semId, format, ...) component_printf(log_level, "[
+  27:../queue.c    **** 
+  28:../queue.c    **** 
+  29:../queue.c    **** /* Structure queue qui comprend:
+  30:../queue.c    ****  * -les actions à effectuer
+  31:../queue.c    ****  * -arguments pour les actions
+  32:../queue.c    ****  * -actionneur utilisé
+  33:../queue.c    ****  * -index de la tête
+  34:../queue.c    ****  * -index de la queue
+  35:../queue.c    ****  * -instant de départ de l'action
+  36:../queue.c    ****  * -état de la queue (utilisée ou non)
+  37:../queue.c    ****  * -si une erreur est survenue lors de l'execution des fonctions dans la queue (erreur indiqué par 
+  38:../queue.c    ****  */
+  39:../queue.c    **** 
+  40:../queue.c    **** typedef struct{
+  41:../queue.c    **** 	action_t action[QUEUE_SIZE];
+  42:../queue.c    **** 	QUEUE_arg_t arg[QUEUE_SIZE];
+  43:../queue.c    **** 	QUEUE_act_e act[QUEUE_SIZE];
+  44:../queue.c    **** 	queue_size_t head;
+  45:../queue.c    **** 	queue_size_t tail;
+  46:../queue.c    **** 	clock_time_t initial_time_of_current_action;
+  47:../queue.c    **** 	bool_e used;
+  48:../queue.c    **** 	bool_e error_occured;
+  49:../queue.c    **** } queue_t;
+  50:../queue.c    **** 
+  51:../queue.c    **** 
+  52:../queue.c    **** 
+  53:../queue.c    **** /*Sémaphore pour l'utilisation des actionneurs et la synchronisation des files entre elles:
+  54:../queue.c    ****  * -Token utilisé ou non
+  55:../queue.c    ****  * -Semaphore utilisable ou non(Sauf pour les premiers correspondant aux actionneurs)
+  56:../queue.c    ****  */
+  57:../queue.c    **** 
+  58:../queue.c    **** typedef struct{
+  59:../queue.c    **** 	bool_e token;
+  60:../queue.c    **** 	bool_e used;
+  61:../queue.c    **** }semaphore_t;
+  62:../queue.c    **** 
+  63:../queue.c    **** /*files que l'on peut utiliser*/
+  64:../queue.c    **** static queue_t queues[NB_QUEUE];
+  65:../queue.c    **** 
+  66:../queue.c    **** /*Sémaphore que l'on peut utiliser*/
+  67:../queue.c    **** static semaphore_t sems[NB_ACT+NB_SYNCHRO];
+  68:../queue.c    **** 
+  69:../queue.c    **** static volatile Uint16 time = 0;
+  70:../queue.c    **** 
+  71:../queue.c    **** void QUEUE_init()
+  72:../queue.c    **** {
+  37              		.loc 1 72 0
+  38              		.cfi_startproc
+  39              		@ args = 0, pretend = 0, frame = 8
+  40              		@ frame_needed = 1, uses_anonymous_args = 0
+  41 0000 80B5     		push	{r7, lr}
+  42              	.LCFI0:
+  43              		.cfi_def_cfa_offset 8
+  44              		.cfi_offset 7, -8
+  45              		.cfi_offset 14, -4
+  46 0002 82B0     		sub	sp, sp, #8
+  47              	.LCFI1:
+  48              		.cfi_def_cfa_offset 16
+  49 0004 00AF     		add	r7, sp, #0
+  50              	.LCFI2:
+  51              		.cfi_def_cfa_register 7
+  73:../queue.c    **** 	component_printf_global(LOG_LEVEL_Debug, "Init queues\n");
+  74:../queue.c    **** 	static bool_e initialized = FALSE;
+  75:../queue.c    **** 	if (initialized)
+  52              		.loc 1 75 0
+  53 0006 40F20003 		movw	r3, #:lower16:initialized.6171
+  54 000a C0F20003 		movt	r3, #:upper16:initialized.6171
+  55 000e 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  56 0010 002B     		cmp	r3, #0
+  57 0012 5AD1     		bne	.L10
+  58              	.L2:
+  76:../queue.c    **** 		return;
+  77:../queue.c    **** 	Uint8 i;
+  78:../queue.c    **** 
+  79:../queue.c    **** 	//initialisation des files
+  80:../queue.c    **** 	for (i=0;i<NB_QUEUE; i++)
+  59              		.loc 1 80 0
+  60 0014 4FF00003 		mov	r3, #0
+  61 0018 FB71     		strb	r3, [r7, #7]
+  62 001a 12E0     		b	.L4
+  63              	.L5:
+  81:../queue.c    **** 	{
+  82:../queue.c    **** 		queues[i].used = FALSE;
+  64              		.loc 1 82 0 discriminator 2
+  65 001c FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+  66 001e 40F20003 		movw	r3, #:lower16:queues
+  67 0022 C0F20003 		movt	r3, #:upper16:queues
+  68 0026 4FF4D471 		mov	r1, #424
+  69 002a 01FB02F2 		mul	r2, r1, r2
+  70 002e 9B18     		adds	r3, r3, r2
+  71 0030 03F5D073 		add	r3, r3, #416
+  72 0034 4FF00002 		mov	r2, #0
+  73 0038 1A71     		strb	r2, [r3, #4]
+  80:../queue.c    **** 	for (i=0;i<NB_QUEUE; i++)
+  74              		.loc 1 80 0 discriminator 2
+  75 003a FB79     		ldrb	r3, [r7, #7]
+  76 003c 03F10103 		add	r3, r3, #1
+  77 0040 FB71     		strb	r3, [r7, #7]
+  78              	.L4:
+  80:../queue.c    **** 	for (i=0;i<NB_QUEUE; i++)
+  79              		.loc 1 80 0 is_stmt 0 discriminator 1
+  80 0042 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+  81 0044 072B     		cmp	r3, #7
+  82 0046 E9D9     		bls	.L5
+  83:../queue.c    **** 	}
+  84:../queue.c    **** 
+  85:../queue.c    **** 	//initialisation des sémaphores actionneurs
+  86:../queue.c    **** 	for(i=0;i<NB_ACT;i++)
+  83              		.loc 1 86 0 is_stmt 1
+  84 0048 4FF00003 		mov	r3, #0
+  85 004c FB71     		strb	r3, [r7, #7]
+  86 004e 17E0     		b	.L6
+  87              	.L7:
+  87:../queue.c    **** 	{
+  88:../queue.c    **** 		sems[i].used = TRUE;
+  88              		.loc 1 88 0 discriminator 2
+  89 0050 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+  90 0052 40F20002 		movw	r2, #:lower16:sems
+  91 0056 C0F20002 		movt	r2, #:upper16:sems
+  92 005a 4FEA4303 		lsl	r3, r3, #1
+  93 005e D318     		adds	r3, r2, r3
+  94 0060 4FF00102 		mov	r2, #1
+  95 0064 5A70     		strb	r2, [r3, #1]
+  89:../queue.c    **** 		sems[i].token = TRUE;
+  96              		.loc 1 89 0 discriminator 2
+  97 0066 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+  98 0068 40F20003 		movw	r3, #:lower16:sems
+  99 006c C0F20003 		movt	r3, #:upper16:sems
+ 100 0070 4FF00101 		mov	r1, #1
+ 101 0074 03F81210 		strb	r1, [r3, r2, lsl #1]
+  86:../queue.c    **** 	for(i=0;i<NB_ACT;i++)
+ 102              		.loc 1 86 0 discriminator 2
+ 103 0078 FB79     		ldrb	r3, [r7, #7]
+ 104 007a 03F10103 		add	r3, r3, #1
+ 105 007e FB71     		strb	r3, [r7, #7]
+ 106              	.L6:
+  86:../queue.c    **** 	for(i=0;i<NB_ACT;i++)
+ 107              		.loc 1 86 0 is_stmt 0 discriminator 1
+ 108 0080 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 109 0082 082B     		cmp	r3, #8
+ 110 0084 E4D9     		bls	.L7
+  90:../queue.c    **** 	}
+  91:../queue.c    **** 
+  92:../queue.c    **** 	//initialisation des sémaphores de synchronisation
+  93:../queue.c    **** 	for(i=0;i<NB_SYNCHRO;i++)
+ 111              		.loc 1 93 0 is_stmt 1
+ 112 0086 4FF00003 		mov	r3, #0
+ 113 008a FB71     		strb	r3, [r7, #7]
+ 114 008c 10E0     		b	.L8
+ 115              	.L9:
+  94:../queue.c    **** 	{
+  95:../queue.c    **** 		sems[NB_ACT+i].used = FALSE;
+ 116              		.loc 1 95 0 discriminator 2
+ 117 008e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 118 0090 03F10903 		add	r3, r3, #9
+ 119 0094 40F20002 		movw	r2, #:lower16:sems
+ 120 0098 C0F20002 		movt	r2, #:upper16:sems
+ 121 009c 4FEA4303 		lsl	r3, r3, #1
+ 122 00a0 D318     		adds	r3, r2, r3
+ 123 00a2 4FF00002 		mov	r2, #0
+ 124 00a6 5A70     		strb	r2, [r3, #1]
+  93:../queue.c    **** 	for(i=0;i<NB_SYNCHRO;i++)
+ 125              		.loc 1 93 0 discriminator 2
+ 126 00a8 FB79     		ldrb	r3, [r7, #7]
+ 127 00aa 03F10103 		add	r3, r3, #1
+ 128 00ae FB71     		strb	r3, [r7, #7]
+ 129              	.L8:
+  93:../queue.c    **** 	for(i=0;i<NB_SYNCHRO;i++)
+ 130              		.loc 1 93 0 is_stmt 0 discriminator 1
+ 131 00b0 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 132 00b2 072B     		cmp	r3, #7
+ 133 00b4 EBD9     		bls	.L9
+  96:../queue.c    **** 	}
+  97:../queue.c    **** 
+  98:../queue.c    **** 	CLOCK_init();
+ 134              		.loc 1 98 0 is_stmt 1
+ 135 00b6 FFF7FEFF 		bl	CLOCK_init
+  99:../queue.c    **** 	component_printf_global(LOG_LEVEL_Debug, "Initialized\n");
+ 100:../queue.c    **** 	initialized = TRUE;
+ 136              		.loc 1 100 0
+ 137 00ba 40F20003 		movw	r3, #:lower16:initialized.6171
+ 138 00be C0F20003 		movt	r3, #:upper16:initialized.6171
+ 139 00c2 4FF00102 		mov	r2, #1
+ 140 00c6 1A70     		strb	r2, [r3, #0]
+ 141 00c8 00E0     		b	.L1
+ 142              	.L10:
+  76:../queue.c    **** 		return;
+ 143              		.loc 1 76 0
+ 144 00ca 00BF     		nop
+ 145              	.L1:
+ 101:../queue.c    **** }
+ 146              		.loc 1 101 0
+ 147 00cc 07F10807 		add	r7, r7, #8
+ 148 00d0 BD46     		mov	sp, r7
+ 149 00d2 80BD     		pop	{r7, pc}
+ 150              		.cfi_endproc
+ 151              	.LFE111:
+ 153              		.align	2
+ 154              		.global	QUEUE_get_arg
+ 155              		.thumb
+ 156              		.thumb_func
+ 158              	QUEUE_get_arg:
+ 159              	.LFB112:
+ 102:../queue.c    **** 
+ 103:../queue.c    **** 
+ 104:../queue.c    **** QUEUE_arg_t* QUEUE_get_arg(queue_id_t queue_id)
+ 105:../queue.c    **** {
+ 160              		.loc 1 105 0
+ 161              		.cfi_startproc
+ 162              		@ args = 0, pretend = 0, frame = 8
+ 163              		@ frame_needed = 1, uses_anonymous_args = 0
+ 164              		@ link register save eliminated.
+ 165 00d4 80B4     		push	{r7}
+ 166              	.LCFI3:
+ 167              		.cfi_def_cfa_offset 4
+ 168              		.cfi_offset 7, -4
+ 169 00d6 83B0     		sub	sp, sp, #12
+ 170              	.LCFI4:
+ 171              		.cfi_def_cfa_offset 16
+ 172 00d8 00AF     		add	r7, sp, #0
+ 173              	.LCFI5:
+ 174              		.cfi_def_cfa_register 7
+ 175 00da 0346     		mov	r3, r0
+ 176 00dc FB71     		strb	r3, [r7, #7]
+ 106:../queue.c    **** 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
+ 107:../queue.c    **** 	return &(queues[queue_id].arg[queues[queue_id].head]);
+ 177              		.loc 1 107 0
+ 178 00de FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 179 00e0 F979     		ldrb	r1, [r7, #7]	@ zero_extendqisi2
+ 180 00e2 40F20003 		movw	r3, #:lower16:queues
+ 181 00e6 C0F20003 		movt	r3, #:upper16:queues
+ 182 00ea 4FF4D470 		mov	r0, #424
+ 183 00ee 00FB01F1 		mul	r1, r0, r1
+ 184 00f2 5B18     		adds	r3, r3, r1
+ 185 00f4 03F5D073 		add	r3, r3, #416
+ 186 00f8 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 187 00fa 4FF03501 		mov	r1, #53
+ 188 00fe 01FB02F2 		mul	r2, r1, r2
+ 189 0102 D318     		adds	r3, r2, r3
+ 190 0104 03F11003 		add	r3, r3, #16
+ 191 0108 4FEAC302 		lsl	r2, r3, #3
+ 192 010c 40F20003 		movw	r3, #:lower16:queues
+ 193 0110 C0F20003 		movt	r3, #:upper16:queues
+ 194 0114 D318     		adds	r3, r2, r3
+ 108:../queue.c    **** }
+ 195              		.loc 1 108 0
+ 196 0116 1846     		mov	r0, r3
+ 197 0118 07F10C07 		add	r7, r7, #12
+ 198 011c BD46     		mov	sp, r7
+ 199 011e 80BC     		pop	{r7}
+ 200 0120 7047     		bx	lr
+ 201              		.cfi_endproc
+ 202              	.LFE112:
+ 204 0122 00BF     		.align	2
+ 205              		.global	QUEUE_get_act
+ 206              		.thumb
+ 207              		.thumb_func
+ 209              	QUEUE_get_act:
+ 210              	.LFB113:
+ 109:../queue.c    **** 
+ 110:../queue.c    **** QUEUE_act_e QUEUE_get_act(queue_id_t queue_id)
+ 111:../queue.c    **** {
+ 211              		.loc 1 111 0
+ 212              		.cfi_startproc
+ 213              		@ args = 0, pretend = 0, frame = 8
+ 214              		@ frame_needed = 1, uses_anonymous_args = 0
+ 215              		@ link register save eliminated.
+ 216 0124 80B4     		push	{r7}
+ 217              	.LCFI6:
+ 218              		.cfi_def_cfa_offset 4
+ 219              		.cfi_offset 7, -4
+ 220 0126 83B0     		sub	sp, sp, #12
+ 221              	.LCFI7:
+ 222              		.cfi_def_cfa_offset 16
+ 223 0128 00AF     		add	r7, sp, #0
+ 224              	.LCFI8:
+ 225              		.cfi_def_cfa_register 7
+ 226 012a 0346     		mov	r3, r0
+ 227 012c FB71     		strb	r3, [r7, #7]
+ 112:../queue.c    **** 	assert((queue_id < NB_QUEUE) && (queues[queue_id].used));
+ 113:../queue.c    **** 	return queues[queue_id].act[queues[queue_id].head];
+ 228              		.loc 1 113 0
+ 229 012e F979     		ldrb	r1, [r7, #7]	@ zero_extendqisi2
+ 230 0130 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 231 0132 40F20003 		movw	r3, #:lower16:queues
+ 232 0136 C0F20003 		movt	r3, #:upper16:queues
+ 233 013a 4FF4D470 		mov	r0, #424
+ 234 013e 00FB02F2 		mul	r2, r0, r2
+ 235 0142 9B18     		adds	r3, r3, r2
+ 236 0144 03F5D073 		add	r3, r3, #416
+ 237 0148 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 238 014a 1A46     		mov	r2, r3
+ 239 014c 40F20003 		movw	r3, #:lower16:queues
+ 240 0150 C0F20003 		movt	r3, #:upper16:queues
+ 241 0154 4FF4D470 		mov	r0, #424
+ 242 0158 00FB01F1 		mul	r1, r0, r1
+ 243 015c 5B18     		adds	r3, r3, r1
+ 244 015e 9B18     		adds	r3, r3, r2
+ 245 0160 03F5C073 		add	r3, r3, #384
+ 246 0164 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 114:../queue.c    **** }
+ 247              		.loc 1 114 0
+ 248 0166 1846     		mov	r0, r3
+ 249 0168 07F10C07 		add	r7, r7, #12
+ 250 016c BD46     		mov	sp, r7
+ 251 016e 80BC     		pop	{r7}
+ 252 0170 7047     		bx	lr
+ 253              		.cfi_endproc
+ 254              	.LFE113:
+ 256 0172 00BF     		.align	2
+ 257              		.global	QUEUE_get_initial_time
+ 258              		.thumb
+ 259              		.thumb_func
+ 261              	QUEUE_get_initial_time:
+ 262              	.LFB114:
+ 115:../queue.c    **** 
+ 116:../queue.c    **** /*Renvoie le moment ou l'action a été initialisée*/
+ 117:../queue.c    **** clock_time_t QUEUE_get_initial_time(queue_id_t queue_id) {
+ 263              		.loc 1 117 0
+ 264              		.cfi_startproc
+ 265              		@ args = 0, pretend = 0, frame = 8
+ 266              		@ frame_needed = 1, uses_anonymous_args = 0
+ 267              		@ link register save eliminated.
+ 268 0174 80B4     		push	{r7}
+ 269              	.LCFI9:
+ 270              		.cfi_def_cfa_offset 4
+ 271              		.cfi_offset 7, -4
+ 272 0176 83B0     		sub	sp, sp, #12
+ 273              	.LCFI10:
+ 274              		.cfi_def_cfa_offset 16
+ 275 0178 00AF     		add	r7, sp, #0
+ 276              	.LCFI11:
+ 277              		.cfi_def_cfa_register 7
+ 278 017a 0346     		mov	r3, r0
+ 279 017c FB71     		strb	r3, [r7, #7]
+ 118:../queue.c    **** 	assert((queue_id < NB_QUEUE) && (queues[queue_id].used));
+ 119:../queue.c    **** 	return queues[queue_id].initial_time_of_current_action;
+ 280              		.loc 1 119 0
+ 281 017e FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 282 0180 40F20003 		movw	r3, #:lower16:queues
+ 283 0184 C0F20003 		movt	r3, #:upper16:queues
+ 284 0188 4FF4D471 		mov	r1, #424
+ 285 018c 01FB02F2 		mul	r2, r1, r2
+ 286 0190 9B18     		adds	r3, r3, r2
+ 287 0192 03F5D073 		add	r3, r3, #416
+ 288 0196 5B88     		ldrh	r3, [r3, #2]
+ 120:../queue.c    **** }
+ 289              		.loc 1 120 0
+ 290 0198 1846     		mov	r0, r3
+ 291 019a 07F10C07 		add	r7, r7, #12
+ 292 019e BD46     		mov	sp, r7
+ 293 01a0 80BC     		pop	{r7}
+ 294 01a2 7047     		bx	lr
+ 295              		.cfi_endproc
+ 296              	.LFE114:
+ 298              		.align	2
+ 299              		.global	QUEUE_create
+ 300              		.thumb
+ 301              		.thumb_func
+ 303              	QUEUE_create:
+ 304              	.LFB115:
+ 121:../queue.c    **** 
+ 122:../queue.c    **** queue_id_t QUEUE_create()
+ 123:../queue.c    **** {
+ 305              		.loc 1 123 0
+ 306              		.cfi_startproc
+ 307              		@ args = 0, pretend = 0, frame = 8
+ 308              		@ frame_needed = 1, uses_anonymous_args = 0
+ 309              		@ link register save eliminated.
+ 310 01a4 80B4     		push	{r7}
+ 311              	.LCFI12:
+ 312              		.cfi_def_cfa_offset 4
+ 313              		.cfi_offset 7, -4
+ 314 01a6 83B0     		sub	sp, sp, #12
+ 315              	.LCFI13:
+ 316              		.cfi_def_cfa_offset 16
+ 317 01a8 00AF     		add	r7, sp, #0
+ 318              	.LCFI14:
+ 319              		.cfi_def_cfa_register 7
+ 124:../queue.c    **** 	queue_id_t i;
+ 125:../queue.c    **** 
+ 126:../queue.c    **** 	for(i=0; i<NB_QUEUE; i++)
+ 320              		.loc 1 126 0
+ 321 01aa 4FF00003 		mov	r3, #0
+ 322 01ae FB71     		strb	r3, [r7, #7]
+ 323 01b0 12E0     		b	.L18
+ 324              	.L21:
+ 127:../queue.c    **** 	{
+ 128:../queue.c    **** 		if(!(queues[i].used))
+ 325              		.loc 1 128 0
+ 326 01b2 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 327 01b4 40F20003 		movw	r3, #:lower16:queues
+ 328 01b8 C0F20003 		movt	r3, #:upper16:queues
+ 329 01bc 4FF4D471 		mov	r1, #424
+ 330 01c0 01FB02F2 		mul	r2, r1, r2
+ 331 01c4 9B18     		adds	r3, r3, r2
+ 332 01c6 03F5D073 		add	r3, r3, #416
+ 333 01ca 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 334 01cc 002B     		cmp	r3, #0
+ 335 01ce 07D0     		beq	.L24
+ 336              	.L19:
+ 126:../queue.c    **** 	for(i=0; i<NB_QUEUE; i++)
+ 337              		.loc 1 126 0
+ 338 01d0 FB79     		ldrb	r3, [r7, #7]
+ 339 01d2 03F10103 		add	r3, r3, #1
+ 340 01d6 FB71     		strb	r3, [r7, #7]
+ 341              	.L18:
+ 126:../queue.c    **** 	for(i=0; i<NB_QUEUE; i++)
+ 342              		.loc 1 126 0 is_stmt 0 discriminator 1
+ 343 01d8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 344 01da 072B     		cmp	r3, #7
+ 345 01dc E9D9     		bls	.L21
+ 346 01de 00E0     		b	.L20
+ 347              	.L24:
+ 129:../queue.c    **** 			break;
+ 348              		.loc 1 129 0 is_stmt 1
+ 349 01e0 00BF     		nop
+ 350              	.L20:
+ 130:../queue.c    **** 	}
+ 131:../queue.c    **** 
+ 132:../queue.c    **** 	if(i == NB_QUEUE) {
+ 351              		.loc 1 132 0
+ 352 01e2 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 353 01e4 082B     		cmp	r3, #8
+ 354 01e6 02D1     		bne	.L22
+ 133:../queue.c    **** 		component_printf_global(LOG_LEVEL_Warning, "No resource, can't create queue!\n");
+ 134:../queue.c    **** 		return QUEUE_CREATE_FAILED;
+ 355              		.loc 1 134 0
+ 356 01e8 4FF0FF03 		mov	r3, #255
+ 357 01ec 3CE0     		b	.L23
+ 358              	.L22:
+ 135:../queue.c    **** 	}
+ 136:../queue.c    **** 
+ 137:../queue.c    **** 	queues[i].head = 0;
+ 359              		.loc 1 137 0
+ 360 01ee FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 361 01f0 40F20003 		movw	r3, #:lower16:queues
+ 362 01f4 C0F20003 		movt	r3, #:upper16:queues
+ 363 01f8 4FF4D471 		mov	r1, #424
+ 364 01fc 01FB02F2 		mul	r2, r1, r2
+ 365 0200 9B18     		adds	r3, r3, r2
+ 366 0202 03F5D073 		add	r3, r3, #416
+ 367 0206 4FF00002 		mov	r2, #0
+ 368 020a 1A70     		strb	r2, [r3, #0]
+ 138:../queue.c    **** 	queues[i].tail = 0;
+ 369              		.loc 1 138 0
+ 370 020c FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 371 020e 40F20003 		movw	r3, #:lower16:queues
+ 372 0212 C0F20003 		movt	r3, #:upper16:queues
+ 373 0216 4FF4D471 		mov	r1, #424
+ 374 021a 01FB02F2 		mul	r2, r1, r2
+ 375 021e 9B18     		adds	r3, r3, r2
+ 376 0220 03F5D073 		add	r3, r3, #416
+ 377 0224 4FF00002 		mov	r2, #0
+ 378 0228 5A70     		strb	r2, [r3, #1]
+ 139:../queue.c    **** 	queues[i].error_occured = FALSE;
+ 379              		.loc 1 139 0
+ 380 022a FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 381 022c 40F20003 		movw	r3, #:lower16:queues
+ 382 0230 C0F20003 		movt	r3, #:upper16:queues
+ 383 0234 4FF4D471 		mov	r1, #424
+ 384 0238 01FB02F2 		mul	r2, r1, r2
+ 385 023c 9B18     		adds	r3, r3, r2
+ 386 023e 03F5D073 		add	r3, r3, #416
+ 387 0242 4FF00002 		mov	r2, #0
+ 388 0246 5A71     		strb	r2, [r3, #5]
+ 140:../queue.c    **** 	queues[i].used = TRUE;
+ 389              		.loc 1 140 0
+ 390 0248 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 391 024a 40F20003 		movw	r3, #:lower16:queues
+ 392 024e C0F20003 		movt	r3, #:upper16:queues
+ 393 0252 4FF4D471 		mov	r1, #424
+ 394 0256 01FB02F2 		mul	r2, r1, r2
+ 395 025a 9B18     		adds	r3, r3, r2
+ 396 025c 03F5D073 		add	r3, r3, #416
+ 397 0260 4FF00102 		mov	r2, #1
+ 398 0264 1A71     		strb	r2, [r3, #4]
+ 141:../queue.c    **** 
+ 142:../queue.c    **** 	component_printf_queue(LOG_LEVEL_Info, i, "Created\n");
+ 143:../queue.c    **** 
+ 144:../queue.c    **** 	return i;
+ 399              		.loc 1 144 0
+ 400 0266 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 401              	.L23:
+ 145:../queue.c    **** }
+ 402              		.loc 1 145 0
+ 403 0268 1846     		mov	r0, r3
+ 404 026a 07F10C07 		add	r7, r7, #12
+ 405 026e BD46     		mov	sp, r7
+ 406 0270 80BC     		pop	{r7}
+ 407 0272 7047     		bx	lr
+ 408              		.cfi_endproc
+ 409              	.LFE115:
+ 411              		.align	2
+ 412              		.global	QUEUE_run
+ 413              		.thumb
+ 414              		.thumb_func
+ 416              	QUEUE_run:
+ 417              	.LFB116:
+ 146:../queue.c    **** 
+ 147:../queue.c    **** void QUEUE_run()
+ 148:../queue.c    **** {
+ 418              		.loc 1 148 0
+ 419              		.cfi_startproc
+ 420              		@ args = 0, pretend = 0, frame = 8
+ 421              		@ frame_needed = 1, uses_anonymous_args = 0
+ 422 0274 80B5     		push	{r7, lr}
+ 423              	.LCFI15:
+ 424              		.cfi_def_cfa_offset 8
+ 425              		.cfi_offset 7, -8
+ 426              		.cfi_offset 14, -4
+ 427 0276 82B0     		sub	sp, sp, #8
+ 428              	.LCFI16:
+ 429              		.cfi_def_cfa_offset 16
+ 430 0278 00AF     		add	r7, sp, #0
+ 431              	.LCFI17:
+ 432              		.cfi_def_cfa_register 7
+ 149:../queue.c    **** 	queue_id_t queue_id;
+ 150:../queue.c    **** 	queue_t* this;
+ 151:../queue.c    **** 	for (queue_id=0; queue_id<NB_QUEUE; queue_id++)
+ 433              		.loc 1 151 0
+ 434 027a 4FF00003 		mov	r3, #0
+ 435 027e FB71     		strb	r3, [r7, #7]
+ 436 0280 45E0     		b	.L26
+ 437              	.L28:
+ 152:../queue.c    **** 	{
+ 153:../queue.c    **** 		//Pour ne pas planter si la file est vide
+ 154:../queue.c    **** 		if (queues[queue_id].used && (queues[queue_id].head != queues[queue_id].tail))
+ 438              		.loc 1 154 0
+ 439 0282 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 440 0284 40F20003 		movw	r3, #:lower16:queues
+ 441 0288 C0F20003 		movt	r3, #:upper16:queues
+ 442 028c 4FF4D471 		mov	r1, #424
+ 443 0290 01FB02F2 		mul	r2, r1, r2
+ 444 0294 9B18     		adds	r3, r3, r2
+ 445 0296 03F5D073 		add	r3, r3, #416
+ 446 029a 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 447 029c 002B     		cmp	r3, #0
+ 448 029e 32D0     		beq	.L27
+ 449              		.loc 1 154 0 is_stmt 0 discriminator 1
+ 450 02a0 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 451 02a2 40F20003 		movw	r3, #:lower16:queues
+ 452 02a6 C0F20003 		movt	r3, #:upper16:queues
+ 453 02aa 4FF4D471 		mov	r1, #424
+ 454 02ae 01FB02F2 		mul	r2, r1, r2
+ 455 02b2 9B18     		adds	r3, r3, r2
+ 456 02b4 03F5D073 		add	r3, r3, #416
+ 457 02b8 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 458 02ba F979     		ldrb	r1, [r7, #7]	@ zero_extendqisi2
+ 459 02bc 40F20003 		movw	r3, #:lower16:queues
+ 460 02c0 C0F20003 		movt	r3, #:upper16:queues
+ 461 02c4 4FF4D470 		mov	r0, #424
+ 462 02c8 00FB01F1 		mul	r1, r0, r1
+ 463 02cc 5B18     		adds	r3, r3, r1
+ 464 02ce 03F5D073 		add	r3, r3, #416
+ 465 02d2 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 466 02d4 9A42     		cmp	r2, r3
+ 467 02d6 16D0     		beq	.L27
+ 155:../queue.c    **** 		{
+ 156:../queue.c    **** 			this=&(queues[queue_id]);
+ 468              		.loc 1 156 0 is_stmt 1
+ 469 02d8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 470 02da 4FF4D472 		mov	r2, #424
+ 471 02de 02FB03F2 		mul	r2, r2, r3
+ 472 02e2 40F20003 		movw	r3, #:lower16:queues
+ 473 02e6 C0F20003 		movt	r3, #:upper16:queues
+ 474 02ea D318     		adds	r3, r2, r3
+ 475 02ec 3B60     		str	r3, [r7, #0]
+ 157:../queue.c    **** 			(this->action[this->head])(queue_id, FALSE);
+ 476              		.loc 1 157 0
+ 477 02ee 3B68     		ldr	r3, [r7, #0]
+ 478 02f0 93F8A031 		ldrb	r3, [r3, #416]	@ zero_extendqisi2
+ 479 02f4 1A46     		mov	r2, r3
+ 480 02f6 3B68     		ldr	r3, [r7, #0]
+ 481 02f8 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 482 02fc FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 483 02fe 1046     		mov	r0, r2
+ 484 0300 4FF00001 		mov	r1, #0
+ 485 0304 9847     		blx	r3
+ 486              	.L27:
+ 151:../queue.c    **** 	for (queue_id=0; queue_id<NB_QUEUE; queue_id++)
+ 487              		.loc 1 151 0
+ 488 0306 FB79     		ldrb	r3, [r7, #7]
+ 489 0308 03F10103 		add	r3, r3, #1
+ 490 030c FB71     		strb	r3, [r7, #7]
+ 491              	.L26:
+ 151:../queue.c    **** 	for (queue_id=0; queue_id<NB_QUEUE; queue_id++)
+ 492              		.loc 1 151 0 is_stmt 0 discriminator 1
+ 493 030e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 494 0310 072B     		cmp	r3, #7
+ 495 0312 B6D9     		bls	.L28
+ 158:../queue.c    **** 			component_printf_queue(LOG_LEVEL_Debug, queue_id, "Run\n");
+ 159:../queue.c    **** 		}
+ 160:../queue.c    **** 	}
+ 161:../queue.c    **** }
+ 496              		.loc 1 161 0 is_stmt 1
+ 497 0314 07F10807 		add	r7, r7, #8
+ 498 0318 BD46     		mov	sp, r7
+ 499 031a 80BD     		pop	{r7, pc}
+ 500              		.cfi_endproc
+ 501              	.LFE116:
+ 503              		.align	2
+ 504              		.global	QUEUE_add
+ 505              		.thumb
+ 506              		.thumb_func
+ 508              	QUEUE_add:
+ 509              	.LFB117:
+ 162:../queue.c    **** 
+ 163:../queue.c    **** 
+ 164:../queue.c    **** void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, QUEUE_act_e optionn
+ 165:../queue.c    **** {
+ 510              		.loc 1 165 0
+ 511              		.cfi_startproc
+ 512              		@ args = 4, pretend = 0, frame = 24
+ 513              		@ frame_needed = 1, uses_anonymous_args = 0
+ 514 031c 80B5     		push	{r7, lr}
+ 515              	.LCFI18:
+ 516              		.cfi_def_cfa_offset 8
+ 517              		.cfi_offset 7, -8
+ 518              		.cfi_offset 14, -4
+ 519 031e 86B0     		sub	sp, sp, #24
+ 520              	.LCFI19:
+ 521              		.cfi_def_cfa_offset 32
+ 522 0320 00AF     		add	r7, sp, #0
+ 523              	.LCFI20:
+ 524              		.cfi_def_cfa_register 7
+ 525 0322 B960     		str	r1, [r7, #8]
+ 526 0324 3946     		mov	r1, r7
+ 527 0326 81E80C00 		stmia	r1, {r2, r3}
+ 528 032a 0346     		mov	r3, r0
+ 529 032c FB73     		strb	r3, [r7, #15]
+ 166:../queue.c    **** 	queue_t* this=&(queues[queue_id]);
+ 530              		.loc 1 166 0
+ 531 032e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 532 0330 4FF4D472 		mov	r2, #424
+ 533 0334 02FB03F2 		mul	r2, r2, r3
+ 534 0338 40F20003 		movw	r3, #:lower16:queues
+ 535 033c C0F20003 		movt	r3, #:upper16:queues
+ 536 0340 D318     		adds	r3, r2, r3
+ 537 0342 7B61     		str	r3, [r7, #20]
+ 167:../queue.c    **** 	//la file doit êre affectée
+ 168:../queue.c    **** 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
+ 169:../queue.c    **** 	// la file ne doit pas etre pleine
+ 170:../queue.c    **** 	assert((this->tail)< QUEUE_SIZE);
+ 171:../queue.c    **** 
+ 172:../queue.c    **** 	component_printf_queue(LOG_LEVEL_Debug, queue_id, "Add\n");
+ 173:../queue.c    **** 
+ 174:../queue.c    **** 	// on ajoute l'action à la file
+ 175:../queue.c    **** 	(this->action[this->tail]) = action;
+ 538              		.loc 1 175 0
+ 539 0344 7B69     		ldr	r3, [r7, #20]
+ 540 0346 93F8A131 		ldrb	r3, [r3, #417]	@ zero_extendqisi2
+ 541 034a 1A46     		mov	r2, r3
+ 542 034c 7B69     		ldr	r3, [r7, #20]
+ 543 034e B968     		ldr	r1, [r7, #8]
+ 544 0350 43F82210 		str	r1, [r3, r2, lsl #2]
+ 176:../queue.c    **** 	(this->arg[this->tail])= optionnal_arg;
+ 545              		.loc 1 176 0
+ 546 0354 7B69     		ldr	r3, [r7, #20]
+ 547 0356 93F8A131 		ldrb	r3, [r3, #417]	@ zero_extendqisi2
+ 548 035a 7A69     		ldr	r2, [r7, #20]
+ 549 035c 03F11003 		add	r3, r3, #16
+ 550 0360 4FEAC303 		lsl	r3, r3, #3
+ 551 0364 D318     		adds	r3, r2, r3
+ 552 0366 3A46     		mov	r2, r7
+ 553 0368 92E80300 		ldmia	r2, {r0, r1}
+ 554 036c 83E80300 		stmia	r3, {r0, r1}
+ 177:../queue.c    **** 	(this->act[this->tail])= optionnal_act;
+ 555              		.loc 1 177 0
+ 556 0370 7B69     		ldr	r3, [r7, #20]
+ 557 0372 93F8A131 		ldrb	r3, [r3, #417]	@ zero_extendqisi2
+ 558 0376 7A69     		ldr	r2, [r7, #20]
+ 559 0378 D318     		adds	r3, r2, r3
+ 560 037a 97F82020 		ldrb	r2, [r7, #32]
+ 561 037e 83F88021 		strb	r2, [r3, #384]
+ 178:../queue.c    **** 
+ 179:../queue.c    **** 	//On doit le faire avant d'appeler l'action, sinon si l'action appelle une fonction de ce module, 
+ 180:../queue.c    **** 	this->tail++;
+ 562              		.loc 1 180 0
+ 563 0382 7B69     		ldr	r3, [r7, #20]
+ 564 0384 93F8A131 		ldrb	r3, [r3, #417]	@ zero_extendqisi2
+ 565 0388 03F10103 		add	r3, r3, #1
+ 566 038c DAB2     		uxtb	r2, r3
+ 567 038e 7B69     		ldr	r3, [r7, #20]
+ 568 0390 83F8A121 		strb	r2, [r3, #417]
+ 181:../queue.c    **** 
+ 182:../queue.c    **** 	// si l'action est en tête de file
+ 183:../queue.c    **** 	if ((this->tail - 1) == this->head)
+ 569              		.loc 1 183 0
+ 570 0394 7B69     		ldr	r3, [r7, #20]
+ 571 0396 93F8A131 		ldrb	r3, [r3, #417]	@ zero_extendqisi2
+ 572 039a 03F1FF32 		add	r2, r3, #-1
+ 573 039e 7B69     		ldr	r3, [r7, #20]
+ 574 03a0 93F8A031 		ldrb	r3, [r3, #416]	@ zero_extendqisi2
+ 575 03a4 9A42     		cmp	r2, r3
+ 576 03a6 0CD1     		bne	.L29
+ 184:../queue.c    **** 	{
+ 185:../queue.c    **** 		//on l'initialise
+ 186:../queue.c    **** 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
+ 187:../queue.c    **** 		this->initial_time_of_current_action = CLOCK_get_time();
+ 577              		.loc 1 187 0
+ 578 03a8 FFF7FEFF 		bl	CLOCK_get_time
+ 579 03ac 0346     		mov	r3, r0
+ 580 03ae 1A46     		mov	r2, r3
+ 581 03b0 7B69     		ldr	r3, [r7, #20]
+ 582 03b2 A3F8A221 		strh	r2, [r3, #418]	@ movhi
+ 188:../queue.c    **** 		action(queue_id,TRUE);
+ 583              		.loc 1 188 0
+ 584 03b6 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 585 03b8 BB68     		ldr	r3, [r7, #8]
+ 586 03ba 1046     		mov	r0, r2
+ 587 03bc 4FF00101 		mov	r1, #1
+ 588 03c0 9847     		blx	r3
+ 589              	.L29:
+ 189:../queue.c    **** 	}
+ 190:../queue.c    **** 
+ 191:../queue.c    **** }
+ 590              		.loc 1 191 0
+ 591 03c2 07F11807 		add	r7, r7, #24
+ 592 03c6 BD46     		mov	sp, r7
+ 593 03c8 80BD     		pop	{r7, pc}
+ 594              		.cfi_endproc
+ 595              	.LFE117:
+ 597 03ca 00BF     		.align	2
+ 598              		.global	QUEUE_behead
+ 599              		.thumb
+ 600              		.thumb_func
+ 602              	QUEUE_behead:
+ 603              	.LFB118:
+ 192:../queue.c    **** 
+ 193:../queue.c    **** /* Retire la fonction en tete de file et reinitialise la suivante. */
+ 194:../queue.c    **** void QUEUE_behead(queue_id_t queue_id)
+ 195:../queue.c    **** {
+ 604              		.loc 1 195 0
+ 605              		.cfi_startproc
+ 606              		@ args = 0, pretend = 0, frame = 16
+ 607              		@ frame_needed = 1, uses_anonymous_args = 0
+ 608 03cc 80B5     		push	{r7, lr}
+ 609              	.LCFI21:
+ 610              		.cfi_def_cfa_offset 8
+ 611              		.cfi_offset 7, -8
+ 612              		.cfi_offset 14, -4
+ 613 03ce 84B0     		sub	sp, sp, #16
+ 614              	.LCFI22:
+ 615              		.cfi_def_cfa_offset 24
+ 616 03d0 00AF     		add	r7, sp, #0
+ 617              	.LCFI23:
+ 618              		.cfi_def_cfa_register 7
+ 619 03d2 0346     		mov	r3, r0
+ 620 03d4 FB71     		strb	r3, [r7, #7]
+ 196:../queue.c    **** 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
+ 197:../queue.c    **** 	queue_t* this=&(queues[queue_id]);
+ 621              		.loc 1 197 0
+ 622 03d6 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 623 03d8 4FF4D472 		mov	r2, #424
+ 624 03dc 02FB03F2 		mul	r2, r2, r3
+ 625 03e0 40F20003 		movw	r3, #:lower16:queues
+ 626 03e4 C0F20003 		movt	r3, #:upper16:queues
+ 627 03e8 D318     		adds	r3, r2, r3
+ 628 03ea FB60     		str	r3, [r7, #12]
+ 198:../queue.c    **** 	component_printf_queue(LOG_LEVEL_Debug, queue_id, "Next\n");
+ 199:../queue.c    **** 
+ 200:../queue.c    **** 	this->head++;
+ 629              		.loc 1 200 0
+ 630 03ec FB68     		ldr	r3, [r7, #12]
+ 631 03ee 93F8A031 		ldrb	r3, [r3, #416]	@ zero_extendqisi2
+ 632 03f2 03F10103 		add	r3, r3, #1
+ 633 03f6 DAB2     		uxtb	r2, r3
+ 634 03f8 FB68     		ldr	r3, [r7, #12]
+ 635 03fa 83F8A021 		strb	r2, [r3, #416]
+ 201:../queue.c    **** 
+ 202:../queue.c    **** 	if(this->tail != this->head)
+ 636              		.loc 1 202 0
+ 637 03fe FB68     		ldr	r3, [r7, #12]
+ 638 0400 93F8A121 		ldrb	r2, [r3, #417]	@ zero_extendqisi2
+ 639 0404 FB68     		ldr	r3, [r7, #12]
+ 640 0406 93F8A031 		ldrb	r3, [r3, #416]	@ zero_extendqisi2
+ 641 040a 9A42     		cmp	r2, r3
+ 642 040c 13D0     		beq	.L32
+ 203:../queue.c    **** 	{
+ 204:../queue.c    **** 		//on initialise l'action suivante
+ 205:../queue.c    **** 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
+ 206:../queue.c    **** 		this->initial_time_of_current_action = CLOCK_get_time();
+ 643              		.loc 1 206 0
+ 644 040e FFF7FEFF 		bl	CLOCK_get_time
+ 645 0412 0346     		mov	r3, r0
+ 646 0414 1A46     		mov	r2, r3
+ 647 0416 FB68     		ldr	r3, [r7, #12]
+ 648 0418 A3F8A221 		strh	r2, [r3, #418]	@ movhi
+ 207:../queue.c    **** 		(this->action[this->head])(queue_id,TRUE);
+ 649              		.loc 1 207 0
+ 650 041c FB68     		ldr	r3, [r7, #12]
+ 651 041e 93F8A031 		ldrb	r3, [r3, #416]	@ zero_extendqisi2
+ 652 0422 1A46     		mov	r2, r3
+ 653 0424 FB68     		ldr	r3, [r7, #12]
+ 654 0426 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 655 042a FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 656 042c 1046     		mov	r0, r2
+ 657 042e 4FF00101 		mov	r1, #1
+ 658 0432 9847     		blx	r3
+ 659 0434 04E0     		b	.L31
+ 660              	.L32:
+ 208:../queue.c    **** 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
+ 209:../queue.c    **** 	}
+ 210:../queue.c    **** 	else
+ 211:../queue.c    **** 	{
+ 212:../queue.c    **** 		//on supprime la file
+ 213:../queue.c    **** 		component_printf_queue(LOG_LEVEL_Info, queue_id, "Deleting\n");
+ 214:../queue.c    **** 		this->used = FALSE;
+ 661              		.loc 1 214 0
+ 662 0436 FB68     		ldr	r3, [r7, #12]
+ 663 0438 4FF00002 		mov	r2, #0
+ 664 043c 83F8A421 		strb	r2, [r3, #420]
+ 665              	.L31:
+ 215:../queue.c    **** 	}
+ 216:../queue.c    **** }
+ 666              		.loc 1 216 0
+ 667 0440 07F11007 		add	r7, r7, #16
+ 668 0444 BD46     		mov	sp, r7
+ 669 0446 80BD     		pop	{r7, pc}
+ 670              		.cfi_endproc
+ 671              	.LFE118:
+ 673              		.align	2
+ 674              		.global	QUEUE_next
+ 675              		.thumb
+ 676              		.thumb_func
+ 678              	QUEUE_next:
+ 679              	.LFB119:
+ 217:../queue.c    **** 
+ 218:../queue.c    **** /* Appelle la fonction OperationFinishedCallback et passe à la fonction suivante. Voir en haut du .
+ 219:../queue.c    **** void QUEUE_next(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param) 
+ 680              		.loc 1 219 0
+ 681              		.cfi_startproc
+ 682              		@ args = 4, pretend = 0, frame = 8
+ 683              		@ frame_needed = 1, uses_anonymous_args = 0
+ 684 0448 B0B5     		push	{r4, r5, r7, lr}
+ 685              	.LCFI24:
+ 686              		.cfi_def_cfa_offset 16
+ 687              		.cfi_offset 4, -16
+ 688              		.cfi_offset 5, -12
+ 689              		.cfi_offset 7, -8
+ 690              		.cfi_offset 14, -4
+ 691 044a 84B0     		sub	sp, sp, #16
+ 692              	.LCFI25:
+ 693              		.cfi_def_cfa_offset 32
+ 694 044c 02AF     		add	r7, sp, #8
+ 695              	.LCFI26:
+ 696              		.cfi_def_cfa 7, 24
+ 697 044e F871     		strb	r0, [r7, #7]
+ 698 0450 B980     		strh	r1, [r7, #4]	@ movhi
+ 699 0452 BA71     		strb	r2, [r7, #6]
+ 700 0454 FB70     		strb	r3, [r7, #3]
+ 220:../queue.c    **** 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
+ 221:../queue.c    **** 
+ 222:../queue.c    **** 	//Si il n'y a pas de fonction callback ou qu'elle retourne TRUE, on passe a l'action suivante. Sin
+ 223:../queue.c    **** 	if(QUEUE_get_arg(queue_id)->callback != NULL &&
+ 701              		.loc 1 223 0
+ 702 0456 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 703 0458 1846     		mov	r0, r3
+ 704 045a FFF7FEFF 		bl	QUEUE_get_arg
+ 705 045e 0346     		mov	r3, r0
+ 706 0460 5B68     		ldr	r3, [r3, #4]
+ 707 0462 002B     		cmp	r3, #0
+ 708 0464 13D0     		beq	.L35
+ 224:../queue.c    **** 	  !(QUEUE_get_arg(queue_id)->callback)(queue_id, act_sid, result, error_code, param))
+ 709              		.loc 1 224 0 discriminator 1
+ 710 0466 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 711 0468 1846     		mov	r0, r3
+ 712 046a FFF7FEFF 		bl	QUEUE_get_arg
+ 713 046e 0346     		mov	r3, r0
+ 714 0470 5C68     		ldr	r4, [r3, #4]
+ 715 0472 F879     		ldrb	r0, [r7, #7]	@ zero_extendqisi2
+ 716 0474 B988     		ldrh	r1, [r7, #4]
+ 717 0476 BA79     		ldrb	r2, [r7, #6]	@ zero_extendqisi2
+ 718 0478 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 719 047a 3D8B     		ldrh	r5, [r7, #24]
+ 720 047c 0095     		str	r5, [sp, #0]
+ 721 047e A047     		blx	r4
+ 722 0480 0346     		mov	r3, r0
+ 223:../queue.c    **** 	if(QUEUE_get_arg(queue_id)->callback != NULL &&
+ 723              		.loc 1 223 0 discriminator 1
+ 724 0482 002B     		cmp	r3, #0
+ 725 0484 03D1     		bne	.L35
+ 225:../queue.c    **** 	{
+ 226:../queue.c    **** 		QUEUE_set_error(queue_id);
+ 726              		.loc 1 226 0
+ 727 0486 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 728 0488 1846     		mov	r0, r3
+ 729 048a FFF7FEFF 		bl	QUEUE_set_error
+ 730              	.L35:
+ 227:../queue.c    **** 	}
+ 228:../queue.c    **** 
+ 229:../queue.c    **** 	QUEUE_behead(queue_id);
+ 731              		.loc 1 229 0
+ 732 048e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 733 0490 1846     		mov	r0, r3
+ 734 0492 FFF7FEFF 		bl	QUEUE_behead
+ 230:../queue.c    **** }
+ 735              		.loc 1 230 0
+ 736 0496 07F10807 		add	r7, r7, #8
+ 737 049a BD46     		mov	sp, r7
+ 738 049c B0BD     		pop	{r4, r5, r7, pc}
+ 739              		.cfi_endproc
+ 740              	.LFE119:
+ 742 049e 00BF     		.align	2
+ 743              		.global	QUEUE_set_error
+ 744              		.thumb
+ 745              		.thumb_func
+ 747              	QUEUE_set_error:
+ 748              	.LFB120:
+ 231:../queue.c    **** 
+ 232:../queue.c    **** /* Indique qu'une erreur est survenue lors de l'execution d'une fonction dans la file indiquée. Les
+ 233:../queue.c    **** void QUEUE_set_error(queue_id_t queue_id) {
+ 749              		.loc 1 233 0
+ 750              		.cfi_startproc
+ 751              		@ args = 0, pretend = 0, frame = 8
+ 752              		@ frame_needed = 1, uses_anonymous_args = 0
+ 753              		@ link register save eliminated.
+ 754 04a0 80B4     		push	{r7}
+ 755              	.LCFI27:
+ 756              		.cfi_def_cfa_offset 4
+ 757              		.cfi_offset 7, -4
+ 758 04a2 83B0     		sub	sp, sp, #12
+ 759              	.LCFI28:
+ 760              		.cfi_def_cfa_offset 16
+ 761 04a4 00AF     		add	r7, sp, #0
+ 762              	.LCFI29:
+ 763              		.cfi_def_cfa_register 7
+ 764 04a6 0346     		mov	r3, r0
+ 765 04a8 FB71     		strb	r3, [r7, #7]
+ 234:../queue.c    **** 	assert(queue_id < NB_QUEUE);
+ 235:../queue.c    **** 
+ 236:../queue.c    **** 	LED_ERROR = 1;
+ 766              		.loc 1 236 0
+ 767 04aa 4FF44063 		mov	r3, #3072
+ 768 04ae C4F20203 		movt	r3, 16386
+ 769 04b2 5A69     		ldr	r2, [r3, #20]
+ 770 04b4 42F48062 		orr	r2, r2, #1024
+ 771 04b8 5A61     		str	r2, [r3, #20]
+ 237:../queue.c    **** 
+ 238:../queue.c    **** 	if(queues[queue_id].used) {
+ 772              		.loc 1 238 0
+ 773 04ba FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 774 04bc 40F20003 		movw	r3, #:lower16:queues
+ 775 04c0 C0F20003 		movt	r3, #:upper16:queues
+ 776 04c4 4FF4D471 		mov	r1, #424
+ 777 04c8 01FB02F2 		mul	r2, r1, r2
+ 778 04cc 9B18     		adds	r3, r3, r2
+ 779 04ce 03F5D073 		add	r3, r3, #416
+ 780 04d2 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 781 04d4 002B     		cmp	r3, #0
+ 782 04d6 0ED0     		beq	.L36
+ 239:../queue.c    **** 		queues[queue_id].error_occured = TRUE;
+ 783              		.loc 1 239 0
+ 784 04d8 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 785 04da 40F20003 		movw	r3, #:lower16:queues
+ 786 04de C0F20003 		movt	r3, #:upper16:queues
+ 787 04e2 4FF4D471 		mov	r1, #424
+ 788 04e6 01FB02F2 		mul	r2, r1, r2
+ 789 04ea 9B18     		adds	r3, r3, r2
+ 790 04ec 03F5D073 		add	r3, r3, #416
+ 791 04f0 4FF00102 		mov	r2, #1
+ 792 04f4 5A71     		strb	r2, [r3, #5]
+ 793              	.L36:
+ 240:../queue.c    **** 		component_printf_queue(LOG_LEVEL_Warning, queue_id, "Error declared\n");
+ 241:../queue.c    **** 	} else {
+ 242:../queue.c    **** 		component_printf_queue(LOG_LEVEL_Error, queue_id, "Error in unused queue !\n");
+ 243:../queue.c    **** 	}
+ 244:../queue.c    **** }
+ 794              		.loc 1 244 0
+ 795 04f6 07F10C07 		add	r7, r7, #12
+ 796 04fa BD46     		mov	sp, r7
+ 797 04fc 80BC     		pop	{r7}
+ 798 04fe 7047     		bx	lr
+ 799              		.cfi_endproc
+ 800              	.LFE120:
+ 802              		.align	2
+ 803              		.global	QUEUE_has_error
+ 804              		.thumb
+ 805              		.thumb_func
+ 807              	QUEUE_has_error:
+ 808              	.LFB121:
+ 245:../queue.c    **** 
+ 246:../queue.c    **** /* Retourne TRUE si une erreur est survenue lors de l'execution d'un fonction dans la file indiquée
+ 247:../queue.c    **** bool_e QUEUE_has_error(queue_id_t queue_id) {
+ 809              		.loc 1 247 0
+ 810              		.cfi_startproc
+ 811              		@ args = 0, pretend = 0, frame = 8
+ 812              		@ frame_needed = 1, uses_anonymous_args = 0
+ 813              		@ link register save eliminated.
+ 814 0500 80B4     		push	{r7}
+ 815              	.LCFI30:
+ 816              		.cfi_def_cfa_offset 4
+ 817              		.cfi_offset 7, -4
+ 818 0502 83B0     		sub	sp, sp, #12
+ 819              	.LCFI31:
+ 820              		.cfi_def_cfa_offset 16
+ 821 0504 00AF     		add	r7, sp, #0
+ 822              	.LCFI32:
+ 823              		.cfi_def_cfa_register 7
+ 824 0506 0346     		mov	r3, r0
+ 825 0508 FB71     		strb	r3, [r7, #7]
+ 248:../queue.c    **** 	assert(queue_id < NB_QUEUE);
+ 249:../queue.c    **** 
+ 250:../queue.c    **** 	if(queues[queue_id].used) {
+ 826              		.loc 1 250 0
+ 827 050a FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 828 050c 40F20003 		movw	r3, #:lower16:queues
+ 829 0510 C0F20003 		movt	r3, #:upper16:queues
+ 830 0514 4FF4D471 		mov	r1, #424
+ 831 0518 01FB02F2 		mul	r2, r1, r2
+ 832 051c 9B18     		adds	r3, r3, r2
+ 833 051e 03F5D073 		add	r3, r3, #416
+ 834 0522 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 835 0524 002B     		cmp	r3, #0
+ 836 0526 0DD0     		beq	.L39
+ 251:../queue.c    **** 		return queues[queue_id].error_occured;
+ 837              		.loc 1 251 0
+ 838 0528 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 839 052a 40F20003 		movw	r3, #:lower16:queues
+ 840 052e C0F20003 		movt	r3, #:upper16:queues
+ 841 0532 4FF4D471 		mov	r1, #424
+ 842 0536 01FB02F2 		mul	r2, r1, r2
+ 843 053a 9B18     		adds	r3, r3, r2
+ 844 053c 03F5D073 		add	r3, r3, #416
+ 845 0540 5B79     		ldrb	r3, [r3, #5]	@ zero_extendqisi2
+ 846 0542 01E0     		b	.L40
+ 847              	.L39:
+ 252:../queue.c    **** 	}
+ 253:../queue.c    **** 
+ 254:../queue.c    **** 	return FALSE;
+ 848              		.loc 1 254 0
+ 849 0544 4FF00003 		mov	r3, #0
+ 850              	.L40:
+ 255:../queue.c    **** }
+ 851              		.loc 1 255 0
+ 852 0548 1846     		mov	r0, r3
+ 853 054a 07F10C07 		add	r7, r7, #12
+ 854 054e BD46     		mov	sp, r7
+ 855 0550 80BC     		pop	{r7}
+ 856 0552 7047     		bx	lr
+ 857              		.cfi_endproc
+ 858              	.LFE121:
+ 860              		.align	2
+ 861              		.global	QUEUE_flush
+ 862              		.thumb
+ 863              		.thumb_func
+ 865              	QUEUE_flush:
+ 866              	.LFB122:
+ 256:../queue.c    **** 
+ 257:../queue.c    **** /* vide la file */
+ 258:../queue.c    **** void QUEUE_flush(queue_id_t queue_id)
+ 259:../queue.c    **** {
+ 867              		.loc 1 259 0
+ 868              		.cfi_startproc
+ 869              		@ args = 0, pretend = 0, frame = 8
+ 870              		@ frame_needed = 1, uses_anonymous_args = 0
+ 871 0554 80B5     		push	{r7, lr}
+ 872              	.LCFI33:
+ 873              		.cfi_def_cfa_offset 8
+ 874              		.cfi_offset 7, -8
+ 875              		.cfi_offset 14, -4
+ 876 0556 82B0     		sub	sp, sp, #8
+ 877              	.LCFI34:
+ 878              		.cfi_def_cfa_offset 16
+ 879 0558 00AF     		add	r7, sp, #0
+ 880              	.LCFI35:
+ 881              		.cfi_def_cfa_register 7
+ 882 055a 0346     		mov	r3, r0
+ 883 055c FB71     		strb	r3, [r7, #7]
+ 260:../queue.c    **** 	assert(queue_id < NB_QUEUE);
+ 261:../queue.c    **** 	//On flush seulement les files utilisées
+ 262:../queue.c    **** 	if(queues[queue_id].used)
+ 884              		.loc 1 262 0
+ 885 055e FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 886 0560 40F20003 		movw	r3, #:lower16:queues
+ 887 0564 C0F20003 		movt	r3, #:upper16:queues
+ 888 0568 4FF4D471 		mov	r1, #424
+ 889 056c 01FB02F2 		mul	r2, r1, r2
+ 890 0570 9B18     		adds	r3, r3, r2
+ 891 0572 03F5D073 		add	r3, r3, #416
+ 892 0576 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 893 0578 002B     		cmp	r3, #0
+ 894 057a 1CD0     		beq	.L41
+ 263:../queue.c    **** 	{
+ 264:../queue.c    **** 		component_printf_queue(LOG_LEVEL_Debug, queue_id, " Queue reset\n");
+ 265:../queue.c    **** 		sems[QUEUE_get_act(queue_id)].token = TRUE;	//On rend la sémaphore utilisée par l'actionneur
+ 895              		.loc 1 265 0
+ 896 057c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 897 057e 1846     		mov	r0, r3
+ 898 0580 FFF7FEFF 		bl	QUEUE_get_act
+ 899 0584 0346     		mov	r3, r0
+ 900 0586 1A46     		mov	r2, r3
+ 901 0588 40F20003 		movw	r3, #:lower16:sems
+ 902 058c C0F20003 		movt	r3, #:upper16:sems
+ 903 0590 4FF00101 		mov	r1, #1
+ 904 0594 03F81210 		strb	r1, [r3, r2, lsl #1]
+ 266:../queue.c    **** 		queues[queue_id].used = FALSE; //On rend la file
+ 905              		.loc 1 266 0
+ 906 0598 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 907 059a 40F20003 		movw	r3, #:lower16:queues
+ 908 059e C0F20003 		movt	r3, #:upper16:queues
+ 909 05a2 4FF4D471 		mov	r1, #424
+ 910 05a6 01FB02F2 		mul	r2, r1, r2
+ 911 05aa 9B18     		adds	r3, r3, r2
+ 912 05ac 03F5D073 		add	r3, r3, #416
+ 913 05b0 4FF00002 		mov	r2, #0
+ 914 05b4 1A71     		strb	r2, [r3, #4]
+ 915              	.L41:
+ 267:../queue.c    **** 	}
+ 268:../queue.c    **** 	else
+ 269:../queue.c    **** 	{
+ 270:../queue.c    **** 		component_printf_queue(LOG_LEVEL_Debug, queue_id, " Reset unused queue\n");
+ 271:../queue.c    **** 	}
+ 272:../queue.c    **** }
+ 916              		.loc 1 272 0
+ 917 05b6 07F10807 		add	r7, r7, #8
+ 918 05ba BD46     		mov	sp, r7
+ 919 05bc 80BD     		pop	{r7, pc}
+ 920              		.cfi_endproc
+ 921              	.LFE122:
+ 923 05be 00BF     		.align	2
+ 924              		.global	QUEUE_flush_all
+ 925              		.thumb
+ 926              		.thumb_func
+ 928              	QUEUE_flush_all:
+ 929              	.LFB123:
+ 273:../queue.c    **** 
+ 274:../queue.c    **** /* vide toutes les files */
+ 275:../queue.c    **** void QUEUE_flush_all()
+ 276:../queue.c    **** {
+ 930              		.loc 1 276 0
+ 931              		.cfi_startproc
+ 932              		@ args = 0, pretend = 0, frame = 8
+ 933              		@ frame_needed = 1, uses_anonymous_args = 0
+ 934 05c0 80B5     		push	{r7, lr}
+ 935              	.LCFI36:
+ 936              		.cfi_def_cfa_offset 8
+ 937              		.cfi_offset 7, -8
+ 938              		.cfi_offset 14, -4
+ 939 05c2 82B0     		sub	sp, sp, #8
+ 940              	.LCFI37:
+ 941              		.cfi_def_cfa_offset 16
+ 942 05c4 00AF     		add	r7, sp, #0
+ 943              	.LCFI38:
+ 944              		.cfi_def_cfa_register 7
+ 277:../queue.c    **** 	Uint8 i;
+ 278:../queue.c    **** 	component_printf_global(LOG_LEVEL_Info, "Reseting all queues\n");
+ 279:../queue.c    **** 	for (i=0; i<NB_QUEUE; i++)
+ 945              		.loc 1 279 0
+ 946 05c6 4FF00003 		mov	r3, #0
+ 947 05ca FB71     		strb	r3, [r7, #7]
+ 948 05cc 07E0     		b	.L44
+ 949              	.L45:
+ 280:../queue.c    **** 		QUEUE_flush(i);
+ 950              		.loc 1 280 0 discriminator 2
+ 951 05ce FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 952 05d0 1846     		mov	r0, r3
+ 953 05d2 FFF7FEFF 		bl	QUEUE_flush
+ 279:../queue.c    **** 	for (i=0; i<NB_QUEUE; i++)
+ 954              		.loc 1 279 0 discriminator 2
+ 955 05d6 FB79     		ldrb	r3, [r7, #7]
+ 956 05d8 03F10103 		add	r3, r3, #1
+ 957 05dc FB71     		strb	r3, [r7, #7]
+ 958              	.L44:
+ 279:../queue.c    **** 	for (i=0; i<NB_QUEUE; i++)
+ 959              		.loc 1 279 0 is_stmt 0 discriminator 1
+ 960 05de FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 961 05e0 072B     		cmp	r3, #7
+ 962 05e2 F4D9     		bls	.L45
+ 281:../queue.c    **** }
+ 963              		.loc 1 281 0 is_stmt 1
+ 964 05e4 07F10807 		add	r7, r7, #8
+ 965 05e8 BD46     		mov	sp, r7
+ 966 05ea 80BD     		pop	{r7, pc}
+ 967              		.cfi_endproc
+ 968              	.LFE123:
+ 970              		.align	2
+ 971              		.global	QUEUE_take_sem
+ 972              		.thumb
+ 973              		.thumb_func
+ 975              	QUEUE_take_sem:
+ 976              	.LFB124:
+ 282:../queue.c    **** void QUEUE_take_sem(queue_id_t this, bool_e init)
+ 283:../queue.c    **** {
+ 977              		.loc 1 283 0
+ 978              		.cfi_startproc
+ 979              		@ args = 0, pretend = 0, frame = 8
+ 980              		@ frame_needed = 1, uses_anonymous_args = 0
+ 981 05ec 80B5     		push	{r7, lr}
+ 982              	.LCFI39:
+ 983              		.cfi_def_cfa_offset 8
+ 984              		.cfi_offset 7, -8
+ 985              		.cfi_offset 14, -4
+ 986 05ee 82B0     		sub	sp, sp, #8
+ 987              	.LCFI40:
+ 988              		.cfi_def_cfa_offset 16
+ 989 05f0 00AF     		add	r7, sp, #0
+ 990              	.LCFI41:
+ 991              		.cfi_def_cfa_register 7
+ 992 05f2 0246     		mov	r2, r0
+ 993 05f4 0B46     		mov	r3, r1
+ 994 05f6 FA71     		strb	r2, [r7, #7]
+ 995 05f8 BB71     		strb	r3, [r7, #6]
+ 284:../queue.c    **** 	if(!init)
+ 996              		.loc 1 284 0
+ 997 05fa BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 998 05fc 002B     		cmp	r3, #0
+ 999 05fe 4AD1     		bne	.L46
+ 285:../queue.c    **** 	{
+ 286:../queue.c    **** 		//Sémaphore pour actionneur
+ 287:../queue.c    **** 		if(QUEUE_get_arg(this)->param == 0)
+ 1000              		.loc 1 287 0
+ 1001 0600 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1002 0602 1846     		mov	r0, r3
+ 1003 0604 FFF7FEFF 		bl	QUEUE_get_arg
+ 1004 0608 0346     		mov	r3, r0
+ 1005 060a 5B88     		ldrh	r3, [r3, #2]
+ 1006 060c 002B     		cmp	r3, #0
+ 1007 060e 20D1     		bne	.L48
+ 288:../queue.c    **** 		{
+ 289:../queue.c    **** 			if((sems[QUEUE_get_act(this)].token))
+ 1008              		.loc 1 289 0
+ 1009 0610 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1010 0612 1846     		mov	r0, r3
+ 1011 0614 FFF7FEFF 		bl	QUEUE_get_act
+ 1012 0618 0346     		mov	r3, r0
+ 1013 061a 1A46     		mov	r2, r3
+ 1014 061c 40F20003 		movw	r3, #:lower16:sems
+ 1015 0620 C0F20003 		movt	r3, #:upper16:sems
+ 1016 0624 13F81230 		ldrb	r3, [r3, r2, lsl #1]	@ zero_extendqisi2
+ 1017 0628 002B     		cmp	r3, #0
+ 1018 062a 34D0     		beq	.L46
+ 290:../queue.c    **** 			{
+ 291:../queue.c    **** 				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Acquiring act semaphore\n");
+ 292:../queue.c    **** 				sems[QUEUE_get_act(this)].token = FALSE;
+ 1019              		.loc 1 292 0
+ 1020 062c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1021 062e 1846     		mov	r0, r3
+ 1022 0630 FFF7FEFF 		bl	QUEUE_get_act
+ 1023 0634 0346     		mov	r3, r0
+ 1024 0636 1A46     		mov	r2, r3
+ 1025 0638 40F20003 		movw	r3, #:lower16:sems
+ 1026 063c C0F20003 		movt	r3, #:upper16:sems
+ 1027 0640 4FF00001 		mov	r1, #0
+ 1028 0644 03F81210 		strb	r1, [r3, r2, lsl #1]
+ 293:../queue.c    **** 				QUEUE_behead(this);
+ 1029              		.loc 1 293 0
+ 1030 0648 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1031 064a 1846     		mov	r0, r3
+ 1032 064c FFF7FEFF 		bl	QUEUE_behead
+ 1033 0650 21E0     		b	.L46
+ 1034              	.L48:
+ 294:../queue.c    **** 			}
+ 295:../queue.c    **** 			else
+ 296:../queue.c    **** 			{
+ 297:../queue.c    **** 				component_printf_sem(LOG_LEVEL_Debug, this, QUEUE_get_act(this), "Act semaphore locked\n");
+ 298:../queue.c    **** 			}
+ 299:../queue.c    **** 		}
+ 300:../queue.c    **** 		else//Sémaphore de synchronisation
+ 301:../queue.c    **** 		{
+ 302:../queue.c    **** 			if((sems[QUEUE_get_arg(this)->param].token))
+ 1035              		.loc 1 302 0
+ 1036 0652 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1037 0654 1846     		mov	r0, r3
+ 1038 0656 FFF7FEFF 		bl	QUEUE_get_arg
+ 1039 065a 0346     		mov	r3, r0
+ 1040 065c 5B88     		ldrh	r3, [r3, #2]
+ 1041 065e 1A46     		mov	r2, r3
+ 1042 0660 40F20003 		movw	r3, #:lower16:sems
+ 1043 0664 C0F20003 		movt	r3, #:upper16:sems
+ 1044 0668 13F81230 		ldrb	r3, [r3, r2, lsl #1]	@ zero_extendqisi2
+ 1045 066c 002B     		cmp	r3, #0
+ 1046 066e 12D0     		beq	.L46
+ 303:../queue.c    **** 			{
+ 304:../queue.c    **** 				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Acquiring sync semaphor
+ 305:../queue.c    **** 				sems[QUEUE_get_arg(this)->param].token = FALSE;
+ 1047              		.loc 1 305 0
+ 1048 0670 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1049 0672 1846     		mov	r0, r3
+ 1050 0674 FFF7FEFF 		bl	QUEUE_get_arg
+ 1051 0678 0346     		mov	r3, r0
+ 1052 067a 5B88     		ldrh	r3, [r3, #2]
+ 1053 067c 1A46     		mov	r2, r3
+ 1054 067e 40F20003 		movw	r3, #:lower16:sems
+ 1055 0682 C0F20003 		movt	r3, #:upper16:sems
+ 1056 0686 4FF00001 		mov	r1, #0
+ 1057 068a 03F81210 		strb	r1, [r3, r2, lsl #1]
+ 306:../queue.c    **** 				QUEUE_behead(this);
+ 1058              		.loc 1 306 0
+ 1059 068e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1060 0690 1846     		mov	r0, r3
+ 1061 0692 FFF7FEFF 		bl	QUEUE_behead
+ 1062              	.L46:
+ 307:../queue.c    **** 			}
+ 308:../queue.c    **** 			else
+ 309:../queue.c    **** 			{
+ 310:../queue.c    **** 				component_printf_sem(LOG_LEVEL_Debug, this, QUEUE_get_arg(this)->param, "Sync semaphore locked\
+ 311:../queue.c    **** 			}
+ 312:../queue.c    **** 		}
+ 313:../queue.c    **** 	}
+ 314:../queue.c    **** }
+ 1063              		.loc 1 314 0
+ 1064 0696 07F10807 		add	r7, r7, #8
+ 1065 069a BD46     		mov	sp, r7
+ 1066 069c 80BD     		pop	{r7, pc}
+ 1067              		.cfi_endproc
+ 1068              	.LFE124:
+ 1070 069e 00BF     		.align	2
+ 1071              		.global	QUEUE_give_sem
+ 1072              		.thumb
+ 1073              		.thumb_func
+ 1075              	QUEUE_give_sem:
+ 1076              	.LFB125:
+ 315:../queue.c    **** void QUEUE_give_sem(queue_id_t this, bool_e init)
+ 316:../queue.c    **** {
+ 1077              		.loc 1 316 0
+ 1078              		.cfi_startproc
+ 1079              		@ args = 0, pretend = 0, frame = 8
+ 1080              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1081 06a0 80B5     		push	{r7, lr}
+ 1082              	.LCFI42:
+ 1083              		.cfi_def_cfa_offset 8
+ 1084              		.cfi_offset 7, -8
+ 1085              		.cfi_offset 14, -4
+ 1086 06a2 82B0     		sub	sp, sp, #8
+ 1087              	.LCFI43:
+ 1088              		.cfi_def_cfa_offset 16
+ 1089 06a4 00AF     		add	r7, sp, #0
+ 1090              	.LCFI44:
+ 1091              		.cfi_def_cfa_register 7
+ 1092 06a6 0246     		mov	r2, r0
+ 1093 06a8 0B46     		mov	r3, r1
+ 1094 06aa FA71     		strb	r2, [r7, #7]
+ 1095 06ac BB71     		strb	r3, [r7, #6]
+ 317:../queue.c    **** 	if(!init)
+ 1096              		.loc 1 317 0
+ 1097 06ae BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 1098 06b0 002B     		cmp	r3, #0
+ 1099 06b2 2DD1     		bne	.L49
+ 318:../queue.c    **** 	{
+ 319:../queue.c    **** 		//Sémaphore pour file
+ 320:../queue.c    **** 		if(QUEUE_get_arg(this)->param == 0)
+ 1100              		.loc 1 320 0
+ 1101 06b4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1102 06b6 1846     		mov	r0, r3
+ 1103 06b8 FFF7FEFF 		bl	QUEUE_get_arg
+ 1104 06bc 0346     		mov	r3, r0
+ 1105 06be 5B88     		ldrh	r3, [r3, #2]
+ 1106 06c0 002B     		cmp	r3, #0
+ 1107 06c2 12D1     		bne	.L51
+ 321:../queue.c    **** 		{
+ 322:../queue.c    **** 				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Releasing act semaphore\n");
+ 323:../queue.c    **** 				sems[QUEUE_get_act(this)].token = TRUE;
+ 1108              		.loc 1 323 0
+ 1109 06c4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1110 06c6 1846     		mov	r0, r3
+ 1111 06c8 FFF7FEFF 		bl	QUEUE_get_act
+ 1112 06cc 0346     		mov	r3, r0
+ 1113 06ce 1A46     		mov	r2, r3
+ 1114 06d0 40F20003 		movw	r3, #:lower16:sems
+ 1115 06d4 C0F20003 		movt	r3, #:upper16:sems
+ 1116 06d8 4FF00101 		mov	r1, #1
+ 1117 06dc 03F81210 		strb	r1, [r3, r2, lsl #1]
+ 324:../queue.c    **** 				QUEUE_behead(this);
+ 1118              		.loc 1 324 0
+ 1119 06e0 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1120 06e2 1846     		mov	r0, r3
+ 1121 06e4 FFF7FEFF 		bl	QUEUE_behead
+ 1122 06e8 12E0     		b	.L49
+ 1123              	.L51:
+ 325:../queue.c    **** 		}
+ 326:../queue.c    **** 		else//Sémaphore de synchronisation
+ 327:../queue.c    **** 		{
+ 328:../queue.c    **** 				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Releasing sync semaphor
+ 329:../queue.c    **** 				sems[QUEUE_get_arg(this)->param].token = TRUE;
+ 1124              		.loc 1 329 0
+ 1125 06ea FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1126 06ec 1846     		mov	r0, r3
+ 1127 06ee FFF7FEFF 		bl	QUEUE_get_arg
+ 1128 06f2 0346     		mov	r3, r0
+ 1129 06f4 5B88     		ldrh	r3, [r3, #2]
+ 1130 06f6 1A46     		mov	r2, r3
+ 1131 06f8 40F20003 		movw	r3, #:lower16:sems
+ 1132 06fc C0F20003 		movt	r3, #:upper16:sems
+ 1133 0700 4FF00101 		mov	r1, #1
+ 1134 0704 03F81210 		strb	r1, [r3, r2, lsl #1]
+ 330:../queue.c    **** 				QUEUE_behead(this);
+ 1135              		.loc 1 330 0
+ 1136 0708 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1137 070a 1846     		mov	r0, r3
+ 1138 070c FFF7FEFF 		bl	QUEUE_behead
+ 1139              	.L49:
+ 331:../queue.c    **** 		}
+ 332:../queue.c    **** 	}
+ 333:../queue.c    **** }
+ 1140              		.loc 1 333 0
+ 1141 0710 07F10807 		add	r7, r7, #8
+ 1142 0714 BD46     		mov	sp, r7
+ 1143 0716 80BD     		pop	{r7, pc}
+ 1144              		.cfi_endproc
+ 1145              	.LFE125:
+ 1147              		.align	2
+ 1148              		.global	QUEUE_sem_create
+ 1149              		.thumb
+ 1150              		.thumb_func
+ 1152              	QUEUE_sem_create:
+ 1153              	.LFB126:
+ 334:../queue.c    **** 
+ 335:../queue.c    **** sem_id_t QUEUE_sem_create()
+ 336:../queue.c    **** {
+ 1154              		.loc 1 336 0
+ 1155              		.cfi_startproc
+ 1156              		@ args = 0, pretend = 0, frame = 8
+ 1157              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1158              		@ link register save eliminated.
+ 1159 0718 80B4     		push	{r7}
+ 1160              	.LCFI45:
+ 1161              		.cfi_def_cfa_offset 4
+ 1162              		.cfi_offset 7, -4
+ 1163 071a 83B0     		sub	sp, sp, #12
+ 1164              	.LCFI46:
+ 1165              		.cfi_def_cfa_offset 16
+ 1166 071c 00AF     		add	r7, sp, #0
+ 1167              	.LCFI47:
+ 1168              		.cfi_def_cfa_register 7
+ 337:../queue.c    **** 	Uint8 i;
+ 338:../queue.c    **** 
+ 339:../queue.c    **** 	for(i=0;i<NB_ACT+NB_SYNCHRO;i++)
+ 1169              		.loc 1 339 0
+ 1170 071e 4FF00003 		mov	r3, #0
+ 1171 0722 FB71     		strb	r3, [r7, #7]
+ 1172 0724 0EE0     		b	.L53
+ 1173              	.L56:
+ 340:../queue.c    **** 	{
+ 341:../queue.c    **** 		if(!(sems[i].used))
+ 1174              		.loc 1 341 0
+ 1175 0726 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1176 0728 40F20002 		movw	r2, #:lower16:sems
+ 1177 072c C0F20002 		movt	r2, #:upper16:sems
+ 1178 0730 4FEA4303 		lsl	r3, r3, #1
+ 1179 0734 D318     		adds	r3, r2, r3
+ 1180 0736 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1181 0738 002B     		cmp	r3, #0
+ 1182 073a 07D0     		beq	.L60
+ 1183              	.L54:
+ 339:../queue.c    **** 	for(i=0;i<NB_ACT+NB_SYNCHRO;i++)
+ 1184              		.loc 1 339 0
+ 1185 073c FB79     		ldrb	r3, [r7, #7]
+ 1186 073e 03F10103 		add	r3, r3, #1
+ 1187 0742 FB71     		strb	r3, [r7, #7]
+ 1188              	.L53:
+ 339:../queue.c    **** 	for(i=0;i<NB_ACT+NB_SYNCHRO;i++)
+ 1189              		.loc 1 339 0 is_stmt 0 discriminator 1
+ 1190 0744 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1191 0746 102B     		cmp	r3, #16
+ 1192 0748 EDD9     		bls	.L56
+ 1193 074a 00E0     		b	.L55
+ 1194              	.L60:
+ 342:../queue.c    **** 			break;
+ 1195              		.loc 1 342 0 is_stmt 1
+ 1196 074c 00BF     		nop
+ 1197              	.L55:
+ 343:../queue.c    **** 	}
+ 344:../queue.c    **** 	assert(i>=NB_ACT); //Pour ne pas prendre les sémaphores réservées aux actionneurs
+ 345:../queue.c    **** 	sems[i].used = TRUE;
+ 1198              		.loc 1 345 0
+ 1199 074e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1200 0750 40F20002 		movw	r2, #:lower16:sems
+ 1201 0754 C0F20002 		movt	r2, #:upper16:sems
+ 1202 0758 4FEA4303 		lsl	r3, r3, #1
+ 1203 075c D318     		adds	r3, r2, r3
+ 1204 075e 4FF00102 		mov	r2, #1
+ 1205 0762 5A70     		strb	r2, [r3, #1]
+ 346:../queue.c    **** 	sems[i].token = TRUE;
+ 1206              		.loc 1 346 0
+ 1207 0764 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 1208 0766 40F20003 		movw	r3, #:lower16:sems
+ 1209 076a C0F20003 		movt	r3, #:upper16:sems
+ 1210 076e 4FF00101 		mov	r1, #1
+ 1211 0772 03F81210 		strb	r1, [r3, r2, lsl #1]
+ 347:../queue.c    **** 	debug_printf("Creation synchro %d\n",i);
+ 348:../queue.c    **** 
+ 349:../queue.c    **** 	return (i!=NB_ACT+NB_SYNCHRO)?i:QUEUE_SEM_CREATE_FAILED;
+ 1212              		.loc 1 349 0
+ 1213 0776 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1214 0778 112B     		cmp	r3, #17
+ 1215 077a 02D0     		beq	.L57
+ 1216              		.loc 1 349 0 is_stmt 0 discriminator 1
+ 1217 077c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1218 077e 9BB2     		uxth	r3, r3
+ 1219 0780 01E0     		b	.L58
+ 1220              	.L57:
+ 1221              		.loc 1 349 0 discriminator 2
+ 1222 0782 4FF0FF03 		mov	r3, #255
+ 1223              	.L58:
+ 1224              		.loc 1 349 0 discriminator 3
+ 1225 0786 9BB2     		uxth	r3, r3
+ 1226 0788 1BB2     		sxth	r3, r3
+ 350:../queue.c    **** }
+ 1227              		.loc 1 350 0 is_stmt 1 discriminator 3
+ 1228 078a 1846     		mov	r0, r3
+ 1229 078c 07F10C07 		add	r7, r7, #12
+ 1230 0790 BD46     		mov	sp, r7
+ 1231 0792 80BC     		pop	{r7}
+ 1232 0794 7047     		bx	lr
+ 1233              		.cfi_endproc
+ 1234              	.LFE126:
+ 1236 0796 00BF     		.align	2
+ 1237              		.global	QUEUE_sem_delete
+ 1238              		.thumb
+ 1239              		.thumb_func
+ 1241              	QUEUE_sem_delete:
+ 1242              	.LFB127:
+ 351:../queue.c    **** 
+ 352:../queue.c    **** void QUEUE_sem_delete(queue_id_t this, bool_e init)
+ 353:../queue.c    **** {
+ 1243              		.loc 1 353 0
+ 1244              		.cfi_startproc
+ 1245              		@ args = 0, pretend = 0, frame = 8
+ 1246              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1247 0798 80B5     		push	{r7, lr}
+ 1248              	.LCFI48:
+ 1249              		.cfi_def_cfa_offset 8
+ 1250              		.cfi_offset 7, -8
+ 1251              		.cfi_offset 14, -4
+ 1252 079a 82B0     		sub	sp, sp, #8
+ 1253              	.LCFI49:
+ 1254              		.cfi_def_cfa_offset 16
+ 1255 079c 00AF     		add	r7, sp, #0
+ 1256              	.LCFI50:
+ 1257              		.cfi_def_cfa_register 7
+ 1258 079e 0246     		mov	r2, r0
+ 1259 07a0 0B46     		mov	r3, r1
+ 1260 07a2 FA71     		strb	r2, [r7, #7]
+ 1261 07a4 BB71     		strb	r3, [r7, #6]
+ 354:../queue.c    **** 	if(!init)
+ 1262              		.loc 1 354 0
+ 1263 07a6 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 1264 07a8 002B     		cmp	r3, #0
+ 1265 07aa 13D1     		bne	.L61
+ 355:../queue.c    **** 	{
+ 356:../queue.c    **** 		sems[QUEUE_get_arg(this)->param].used = FALSE;
+ 1266              		.loc 1 356 0
+ 1267 07ac FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1268 07ae 1846     		mov	r0, r3
+ 1269 07b0 FFF7FEFF 		bl	QUEUE_get_arg
+ 1270 07b4 0346     		mov	r3, r0
+ 1271 07b6 5B88     		ldrh	r3, [r3, #2]
+ 1272 07b8 40F20002 		movw	r2, #:lower16:sems
+ 1273 07bc C0F20002 		movt	r2, #:upper16:sems
+ 1274 07c0 4FEA4303 		lsl	r3, r3, #1
+ 1275 07c4 D318     		adds	r3, r2, r3
+ 1276 07c6 4FF00002 		mov	r2, #0
+ 1277 07ca 5A70     		strb	r2, [r3, #1]
+ 357:../queue.c    **** 		QUEUE_behead(this);
+ 1278              		.loc 1 357 0
+ 1279 07cc FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1280 07ce 1846     		mov	r0, r3
+ 1281 07d0 FFF7FEFF 		bl	QUEUE_behead
+ 1282              	.L61:
+ 358:../queue.c    **** 	}
+ 359:../queue.c    **** }
+ 1283              		.loc 1 359 0
+ 1284 07d4 07F10807 		add	r7, r7, #8
+ 1285 07d8 BD46     		mov	sp, r7
+ 1286 07da 80BD     		pop	{r7, pc}
+ 1287              		.cfi_endproc
+ 1288              	.LFE127:
+ 1290              		.align	2
+ 1291              		.global	QUEUE_wait_synchro
+ 1292              		.thumb
+ 1293              		.thumb_func
+ 1295              	QUEUE_wait_synchro:
+ 1296              	.LFB128:
+ 360:../queue.c    **** 
+ 361:../queue.c    **** void QUEUE_wait_synchro(queue_id_t this, bool_e init)
+ 362:../queue.c    **** {
+ 1297              		.loc 1 362 0
+ 1298              		.cfi_startproc
+ 1299              		@ args = 0, pretend = 0, frame = 8
+ 1300              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1301 07dc 80B5     		push	{r7, lr}
+ 1302              	.LCFI51:
+ 1303              		.cfi_def_cfa_offset 8
+ 1304              		.cfi_offset 7, -8
+ 1305              		.cfi_offset 14, -4
+ 1306 07de 82B0     		sub	sp, sp, #8
+ 1307              	.LCFI52:
+ 1308              		.cfi_def_cfa_offset 16
+ 1309 07e0 00AF     		add	r7, sp, #0
+ 1310              	.LCFI53:
+ 1311              		.cfi_def_cfa_register 7
+ 1312 07e2 0246     		mov	r2, r0
+ 1313 07e4 0B46     		mov	r3, r1
+ 1314 07e6 FA71     		strb	r2, [r7, #7]
+ 1315 07e8 BB71     		strb	r3, [r7, #6]
+ 363:../queue.c    **** 	static clock_time_t initial_time;
+ 364:../queue.c    **** 	if(init)
+ 1316              		.loc 1 364 0
+ 1317 07ea BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 1318 07ec 002B     		cmp	r3, #0
+ 1319 07ee 09D0     		beq	.L64
+ 365:../queue.c    **** 	{
+ 366:../queue.c    **** 		debug_printf("Départ Attente synchro\n");
+ 367:../queue.c    **** 		initial_time = CLOCK_get_time();
+ 1320              		.loc 1 367 0
+ 1321 07f0 FFF7FEFF 		bl	CLOCK_get_time
+ 1322 07f4 0346     		mov	r3, r0
+ 1323 07f6 1A46     		mov	r2, r3
+ 1324 07f8 40F20003 		movw	r3, #:lower16:initial_time.6259
+ 1325 07fc C0F20003 		movt	r3, #:upper16:initial_time.6259
+ 1326 0800 1A80     		strh	r2, [r3, #0]	@ movhi
+ 1327 0802 51E0     		b	.L63
+ 1328              	.L64:
+ 368:../queue.c    **** 	}
+ 369:../queue.c    **** 	else
+ 370:../queue.c    **** 	{
+ 371:../queue.c    **** 		debug_printf("Attente synchro\n");
+ 372:../queue.c    **** 		if ((sems[QUEUE_get_arg(this)->param].used && sems[QUEUE_get_arg(this)->param].token)) //jeton re
+ 1329              		.loc 1 372 0
+ 1330 0804 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1331 0806 1846     		mov	r0, r3
+ 1332 0808 FFF7FEFF 		bl	QUEUE_get_arg
+ 1333 080c 0346     		mov	r3, r0
+ 1334 080e 5B88     		ldrh	r3, [r3, #2]
+ 1335 0810 40F20002 		movw	r2, #:lower16:sems
+ 1336 0814 C0F20002 		movt	r2, #:upper16:sems
+ 1337 0818 4FEA4303 		lsl	r3, r3, #1
+ 1338 081c D318     		adds	r3, r2, r3
+ 1339 081e 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1340 0820 002B     		cmp	r3, #0
+ 1341 0822 12D0     		beq	.L66
+ 1342              		.loc 1 372 0 is_stmt 0 discriminator 1
+ 1343 0824 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1344 0826 1846     		mov	r0, r3
+ 1345 0828 FFF7FEFF 		bl	QUEUE_get_arg
+ 1346 082c 0346     		mov	r3, r0
+ 1347 082e 5B88     		ldrh	r3, [r3, #2]
+ 1348 0830 1A46     		mov	r2, r3
+ 1349 0832 40F20003 		movw	r3, #:lower16:sems
+ 1350 0836 C0F20003 		movt	r3, #:upper16:sems
+ 1351 083a 13F81230 		ldrb	r3, [r3, r2, lsl #1]	@ zero_extendqisi2
+ 1352 083e 002B     		cmp	r3, #0
+ 1353 0840 03D0     		beq	.L66
+ 373:../queue.c    **** 		{
+ 374:../queue.c    **** 			debug_printf("Synchro finie\n");
+ 375:../queue.c    **** 			QUEUE_behead(this);
+ 1354              		.loc 1 375 0 is_stmt 1
+ 1355 0842 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1356 0844 1846     		mov	r0, r3
+ 1357 0846 FFF7FEFF 		bl	QUEUE_behead
+ 1358              	.L66:
+ 376:../queue.c    **** 		}
+ 377:../queue.c    **** 		if(CLOCK_get_time() - initial_time > QUEUE_SYNCHRO_TIMEOUT)
+ 1359              		.loc 1 377 0
+ 1360 084a FFF7FEFF 		bl	CLOCK_get_time
+ 1361 084e 0346     		mov	r3, r0
+ 1362 0850 1A46     		mov	r2, r3
+ 1363 0852 40F20003 		movw	r3, #:lower16:initial_time.6259
+ 1364 0856 C0F20003 		movt	r3, #:upper16:initial_time.6259
+ 1365 085a 1B88     		ldrh	r3, [r3, #0]
+ 1366 085c D31A     		subs	r3, r2, r3
+ 1367 085e 962B     		cmp	r3, #150
+ 1368 0860 22DD     		ble	.L63
+ 378:../queue.c    **** 		{
+ 379:../queue.c    **** 			debug_printf("Synchro timeout\n");
+ 380:../queue.c    **** 			//On supprime la synchro qu'on attend
+ 381:../queue.c    **** 			sems[QUEUE_get_arg(this)->param].used = FALSE;
+ 1369              		.loc 1 381 0
+ 1370 0862 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1371 0864 1846     		mov	r0, r3
+ 1372 0866 FFF7FEFF 		bl	QUEUE_get_arg
+ 1373 086a 0346     		mov	r3, r0
+ 1374 086c 5B88     		ldrh	r3, [r3, #2]
+ 1375 086e 40F20002 		movw	r2, #:lower16:sems
+ 1376 0872 C0F20002 		movt	r2, #:upper16:sems
+ 1377 0876 4FEA4303 		lsl	r3, r3, #1
+ 1378 087a D318     		adds	r3, r2, r3
+ 1379 087c 4FF00002 		mov	r2, #0
+ 1380 0880 5A70     		strb	r2, [r3, #1]
+ 382:../queue.c    **** 			sems[QUEUE_get_arg(this)->param].token = TRUE;
+ 1381              		.loc 1 382 0
+ 1382 0882 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1383 0884 1846     		mov	r0, r3
+ 1384 0886 FFF7FEFF 		bl	QUEUE_get_arg
+ 1385 088a 0346     		mov	r3, r0
+ 1386 088c 5B88     		ldrh	r3, [r3, #2]
+ 1387 088e 1A46     		mov	r2, r3
+ 1388 0890 40F20003 		movw	r3, #:lower16:sems
+ 1389 0894 C0F20003 		movt	r3, #:upper16:sems
+ 1390 0898 4FF00101 		mov	r1, #1
+ 1391 089c 03F81210 		strb	r1, [r3, r2, lsl #1]
+ 383:../queue.c    **** 			QUEUE_flush(this);
+ 1392              		.loc 1 383 0
+ 1393 08a0 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1394 08a2 1846     		mov	r0, r3
+ 1395 08a4 FFF7FEFF 		bl	QUEUE_flush
+ 1396              	.L63:
+ 384:../queue.c    **** 		}
+ 385:../queue.c    **** 	}
+ 386:../queue.c    **** }
+ 1397              		.loc 1 386 0
+ 1398 08a8 07F10807 		add	r7, r7, #8
+ 1399 08ac BD46     		mov	sp, r7
+ 1400 08ae 80BD     		pop	{r7, pc}
+ 1401              		.cfi_endproc
+ 1402              	.LFE128:
+ 1404              		.bss
+ 1405              		.align	1
+ 1406              	initial_time.6259:
+ 1407 0d64 0000     		.space	2
+ 1408              	initialized.6171:
+ 1409 0d66 00       		.space	1
+ 1410 0d67 00       		.text
+ 1411              	.Letext0:
+ 1412              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 1413              		.file 3 "../stm32f4xx/stm32f4xx.h"
+ 1414              		.file 4 "../QS/QS_types.h"
+ 1415              		.file 5 "../config/config_krusty/config_global_vars_types.h"
+ 1416              		.file 6 "../clock.h"
+ 1417              		.file 7 "../queue.h"
+ 1418              		.file 8 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 queue.c
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:19     .bss:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:20     .bss:00000000 queues
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:23     .bss:00000d40 sems
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:26     .bss:00000d62 time
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:29     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:34     .text:00000000 QUEUE_init
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:1408   .bss:00000d66 initialized.6171
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:158    .text:000000d4 QUEUE_get_arg
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:209    .text:00000124 QUEUE_get_act
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:261    .text:00000174 QUEUE_get_initial_time
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:303    .text:000001a4 QUEUE_create
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:416    .text:00000274 QUEUE_run
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:508    .text:0000031c QUEUE_add
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:602    .text:000003cc QUEUE_behead
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:678    .text:00000448 QUEUE_next
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:747    .text:000004a0 QUEUE_set_error
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:807    .text:00000500 QUEUE_has_error
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:865    .text:00000554 QUEUE_flush
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:928    .text:000005c0 QUEUE_flush_all
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:975    .text:000005ec QUEUE_take_sem
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:1075   .text:000006a0 QUEUE_give_sem
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:1152   .text:00000718 QUEUE_sem_create
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:1241   .text:00000798 QUEUE_sem_delete
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:1295   .text:000007dc QUEUE_wait_synchro
+C:\Users\Amaury\AppData\Local\Temp\ccUbzAoZ.s:1406   .bss:00000d64 initial_time.6259
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.stm32f4xx_tim.h.31.b1d608fbde729347e4ccf70799e654d2
+                           .group:00000000 wm4.QS_timer.h.23.f1c7374d1ffe22793578c04386c6b1e2
+                           .group:00000000 wm4.queue.h.39.c6c83c771916888b8b8278e5c5477b11
+                           .group:00000000 wm4.config_pin.h.12.92dbe1317fae649a069f2ce6e5ad725c
+                           .group:00000000 wm4.config_pin.h.12.20ee5a96fdfc3c7ca3bc6056aaec7473
+                           .group:00000000 wm4.config_debug.h.12.ce495d07741075ca26554eb90b0ab381
+                           .group:00000000 wm4.QS_outputlog.h.12.097e7df2a4697375b92bd228920ace8f
+
+UNDEFINED SYMBOLS
+CLOCK_init
+CLOCK_get_time

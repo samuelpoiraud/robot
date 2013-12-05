@@ -1,0 +1,426 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"QS_adc.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.data
+  19              		.align	2
+  22              	ADCx:
+  23 0000 00200140 		.word	1073815552
+  24              		.bss
+  25              		.align	2
+  26              	adc_converted_value:
+  27 0000 00000000 		.space	32
+  27      00000000 
+  27      00000000 
+  27      00000000 
+  27      00000000 
+  28              		.text
+  29              		.align	2
+  30              		.global	ADC_init
+  31              		.thumb
+  32              		.thumb_func
+  34              	ADC_init:
+  35              	.LFB111:
+  36              		.file 1 "../QS/QS_adc.c"
+   1:../QS/QS_adc.c **** /*
+   2:../QS/QS_adc.c ****  *  Club Robot ESEO 2009 - 2013
+   3:../QS/QS_adc.c ****  *
+   4:../QS/QS_adc.c ****  *  Fichier : QS_adc.h
+   5:../QS/QS_adc.c ****  *  Package : Qualité Soft
+   6:../QS/QS_adc.c ****  *  Description : Gestion du convertisseur analogique/numérique
+   7:../QS/QS_adc.c ****  *  Auteur : Alexis
+   8:../QS/QS_adc.c ****  *  Version 20130518
+   9:../QS/QS_adc.c ****  */
+  10:../QS/QS_adc.c **** 
+  11:../QS/QS_adc.c **** 
+  12:../QS/QS_adc.c **** #include "QS_adc.h"
+  13:../QS/QS_adc.c **** #include "QS_ports.h"
+  14:../QS/QS_adc.c **** #include "QS_all.h"
+  15:../QS/QS_adc.c **** #include "stm32f4xx_adc.h"
+  16:../QS/QS_adc.c **** #include "stm32f4xx_dma.h"
+  17:../QS/QS_adc.c **** 
+  18:../QS/QS_adc.c **** #define MAX_ADC_CHANNELS 16
+  19:../QS/QS_adc.c **** 
+  20:../QS/QS_adc.c **** #define ADC_CONTINUOUS_CONVERSION
+  21:../QS/QS_adc.c **** 
+  22:../QS/QS_adc.c **** static ADC_TypeDef* ADCx = ADC1;
+  23:../QS/QS_adc.c **** static Sint16 adc_converted_value[MAX_ADC_CHANNELS];
+  24:../QS/QS_adc.c **** 
+  25:../QS/QS_adc.c **** void ADC_init(void) {
+  37              		.loc 1 25 0
+  38              		.cfi_startproc
+  39              		@ args = 0, pretend = 0, frame = 104
+  40              		@ frame_needed = 1, uses_anonymous_args = 0
+  41 0000 80B5     		push	{r7, lr}
+  42              	.LCFI0:
+  43              		.cfi_def_cfa_offset 8
+  44              		.cfi_offset 7, -8
+  45              		.cfi_offset 14, -4
+  46 0002 9AB0     		sub	sp, sp, #104
+  47              	.LCFI1:
+  48              		.cfi_def_cfa_offset 112
+  49 0004 00AF     		add	r7, sp, #0
+  50              	.LCFI2:
+  51              		.cfi_def_cfa_register 7
+  26:../QS/QS_adc.c **** 	static bool_e initialized = FALSE;
+  27:../QS/QS_adc.c **** 	if(initialized == TRUE)
+  52              		.loc 1 27 0
+  53 0006 40F20003 		movw	r3, #:lower16:initialized.5951
+  54 000a C0F20003 		movt	r3, #:upper16:initialized.5951
+  55 000e 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  56 0010 012B     		cmp	r3, #1
+  57 0012 00F0C280 		beq	.L1
+  28:../QS/QS_adc.c **** 		return;
+  29:../QS/QS_adc.c **** 	Uint8 number_of_channels;
+  30:../QS/QS_adc.c **** 	
+  31:../QS/QS_adc.c **** 	ADC_InitTypeDef       ADC_InitStructure;
+  32:../QS/QS_adc.c **** 	ADC_CommonInitTypeDef ADC_CommonInitStructure;
+  33:../QS/QS_adc.c **** 	DMA_InitTypeDef       DMA_InitStructure;
+  34:../QS/QS_adc.c **** 	static const Uint8 ADC_sampleTime = ADC_SampleTime_28Cycles;
+  35:../QS/QS_adc.c **** 
+  36:../QS/QS_adc.c **** 	/* Enable ADCx, DMA and GPIO clocks ****************************************/
+  37:../QS/QS_adc.c **** 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);	//DMA2
+  58              		.loc 1 37 0
+  59 0016 4FF48000 		mov	r0, #4194304
+  60 001a 4FF00101 		mov	r1, #1
+  61 001e FFF7FEFF 		bl	RCC_AHB1PeriphClockCmd
+  38:../QS/QS_adc.c **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);	//ADCx
+  62              		.loc 1 38 0
+  63 0022 4FF48070 		mov	r0, #256
+  64 0026 4FF00101 		mov	r1, #1
+  65 002a FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+  39:../QS/QS_adc.c **** 
+  40:../QS/QS_adc.c **** 	number_of_channels = PORTS_adc_init(ADCx, ADC_sampleTime);
+  66              		.loc 1 40 0
+  67 002e 40F20003 		movw	r3, #:lower16:ADCx
+  68 0032 C0F20003 		movt	r3, #:upper16:ADCx
+  69 0036 1A68     		ldr	r2, [r3, #0]
+  70 0038 40F20003 		movw	r3, #:lower16:ADC_sampleTime.5956
+  71 003c C0F20003 		movt	r3, #:upper16:ADC_sampleTime.5956
+  72 0040 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  73 0042 1046     		mov	r0, r2
+  74 0044 1946     		mov	r1, r3
+  75 0046 FFF7FEFF 		bl	PORTS_adc_init
+  76 004a 0346     		mov	r3, r0
+  77 004c 87F86730 		strb	r3, [r7, #103]
+  41:../QS/QS_adc.c **** 
+  42:../QS/QS_adc.c **** 	/* DMA2 Stream0 channel0 configuration **************************************/
+  43:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_Channel = DMA_Channel_0;
+  78              		.loc 1 43 0
+  79 0050 4FF00003 		mov	r3, #0
+  80 0054 3B60     		str	r3, [r7, #0]
+  44:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(ADCx->DR);
+  81              		.loc 1 44 0
+  82 0056 40F20003 		movw	r3, #:lower16:ADCx
+  83 005a C0F20003 		movt	r3, #:upper16:ADCx
+  84 005e 1B68     		ldr	r3, [r3, #0]
+  85 0060 03F14C03 		add	r3, r3, #76
+  86 0064 7B60     		str	r3, [r7, #4]
+  45:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc_converted_value;
+  87              		.loc 1 45 0
+  88 0066 40F20003 		movw	r3, #:lower16:adc_converted_value
+  89 006a C0F20003 		movt	r3, #:upper16:adc_converted_value
+  90 006e BB60     		str	r3, [r7, #8]
+  46:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+  91              		.loc 1 46 0
+  92 0070 4FF00003 		mov	r3, #0
+  93 0074 FB60     		str	r3, [r7, #12]
+  47:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_BufferSize = number_of_channels;
+  94              		.loc 1 47 0
+  95 0076 97F86730 		ldrb	r3, [r7, #103]	@ zero_extendqisi2
+  96 007a 3B61     		str	r3, [r7, #16]
+  48:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  97              		.loc 1 48 0
+  98 007c 4FF00003 		mov	r3, #0
+  99 0080 7B61     		str	r3, [r7, #20]
+  49:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+ 100              		.loc 1 49 0
+ 101 0082 4FF48063 		mov	r3, #1024
+ 102 0086 BB61     		str	r3, [r7, #24]
+  50:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+ 103              		.loc 1 50 0
+ 104 0088 4FF40063 		mov	r3, #2048
+ 105 008c FB61     		str	r3, [r7, #28]
+  51:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+ 106              		.loc 1 51 0
+ 107 008e 4FF40053 		mov	r3, #8192
+ 108 0092 3B62     		str	r3, [r7, #32]
+  52:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+ 109              		.loc 1 52 0
+ 110 0094 4FF48073 		mov	r3, #256
+ 111 0098 7B62     		str	r3, [r7, #36]
+  53:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+ 112              		.loc 1 53 0
+ 113 009a 4FF40033 		mov	r3, #131072
+ 114 009e BB62     		str	r3, [r7, #40]
+  54:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+ 115              		.loc 1 54 0
+ 116 00a0 4FF00003 		mov	r3, #0
+ 117 00a4 FB62     		str	r3, [r7, #44]
+  55:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+ 118              		.loc 1 55 0
+ 119 00a6 4FF00103 		mov	r3, #1
+ 120 00aa 3B63     		str	r3, [r7, #48]
+  56:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+ 121              		.loc 1 56 0
+ 122 00ac 4FF00003 		mov	r3, #0
+ 123 00b0 7B63     		str	r3, [r7, #52]
+  57:../QS/QS_adc.c **** 	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+ 124              		.loc 1 57 0
+ 125 00b2 4FF00003 		mov	r3, #0
+ 126 00b6 BB63     		str	r3, [r7, #56]
+  58:../QS/QS_adc.c **** 	DMA_Init(DMA2_Stream0, &DMA_InitStructure);
+ 127              		.loc 1 58 0
+ 128 00b8 3B46     		mov	r3, r7
+ 129 00ba 46F21040 		movw	r0, #25616
+ 130 00be C4F20200 		movt	r0, 16386
+ 131 00c2 1946     		mov	r1, r3
+ 132 00c4 FFF7FEFF 		bl	DMA_Init
+  59:../QS/QS_adc.c **** 	DMA_Cmd(DMA2_Stream0, ENABLE);
+ 133              		.loc 1 59 0
+ 134 00c8 46F21040 		movw	r0, #25616
+ 135 00cc C4F20200 		movt	r0, 16386
+ 136 00d0 4FF00101 		mov	r1, #1
+ 137 00d4 FFF7FEFF 		bl	DMA_Cmd
+  60:../QS/QS_adc.c **** 
+  61:../QS/QS_adc.c **** 	/* ADC Common Init **********************************************************/
+  62:../QS/QS_adc.c **** 	ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+ 138              		.loc 1 62 0
+ 139 00d8 4FF00003 		mov	r3, #0
+ 140 00dc FB63     		str	r3, [r7, #60]
+  63:../QS/QS_adc.c **** 	ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div8;
+ 141              		.loc 1 63 0
+ 142 00de 4FF44033 		mov	r3, #196608
+ 143 00e2 3B64     		str	r3, [r7, #64]
+  64:../QS/QS_adc.c **** 	ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+ 144              		.loc 1 64 0
+ 145 00e4 4FF00003 		mov	r3, #0
+ 146 00e8 7B64     		str	r3, [r7, #68]
+  65:../QS/QS_adc.c **** 	ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_20Cycles;
+ 147              		.loc 1 65 0
+ 148 00ea 4FF47063 		mov	r3, #3840
+ 149 00ee BB64     		str	r3, [r7, #72]
+  66:../QS/QS_adc.c **** 	ADC_CommonInit(&ADC_CommonInitStructure);
+ 150              		.loc 1 66 0
+ 151 00f0 07F13C03 		add	r3, r7, #60
+ 152 00f4 1846     		mov	r0, r3
+ 153 00f6 FFF7FEFF 		bl	ADC_CommonInit
+  67:../QS/QS_adc.c **** 
+  68:../QS/QS_adc.c **** 	/* ADC1 Init ****************************************************************/
+  69:../QS/QS_adc.c **** 	ADC_InitStructure.ADC_Resolution = ADC_Resolution_10b;
+ 154              		.loc 1 69 0
+ 155 00fa 4FF08073 		mov	r3, #16777216
+ 156 00fe FB64     		str	r3, [r7, #76]
+  70:../QS/QS_adc.c **** 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+ 157              		.loc 1 70 0
+ 158 0100 4FF00103 		mov	r3, #1
+ 159 0104 87F85030 		strb	r3, [r7, #80]
+  71:../QS/QS_adc.c **** #ifdef ADC_CONTINUOUS_CONVERSION
+  72:../QS/QS_adc.c **** 	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+ 160              		.loc 1 72 0
+ 161 0108 4FF00103 		mov	r3, #1
+ 162 010c 87F85130 		strb	r3, [r7, #81]
+  73:../QS/QS_adc.c **** #else
+  74:../QS/QS_adc.c **** 	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+  75:../QS/QS_adc.c **** #endif
+  76:../QS/QS_adc.c **** 	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+ 163              		.loc 1 76 0
+ 164 0110 4FF00003 		mov	r3, #0
+ 165 0114 7B65     		str	r3, [r7, #84]
+  77:../QS/QS_adc.c **** 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_CC1;
+ 166              		.loc 1 77 0
+ 167 0116 4FF00003 		mov	r3, #0
+ 168 011a BB65     		str	r3, [r7, #88]
+  78:../QS/QS_adc.c **** 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+ 169              		.loc 1 78 0
+ 170 011c 4FF00003 		mov	r3, #0
+ 171 0120 FB65     		str	r3, [r7, #92]
+  79:../QS/QS_adc.c **** 	ADC_InitStructure.ADC_NbrOfConversion = number_of_channels;
+ 172              		.loc 1 79 0
+ 173 0122 97F86730 		ldrb	r3, [r7, #103]
+ 174 0126 87F86030 		strb	r3, [r7, #96]
+  80:../QS/QS_adc.c **** 	ADC_Init(ADCx, &ADC_InitStructure);
+ 175              		.loc 1 80 0
+ 176 012a 40F20003 		movw	r3, #:lower16:ADCx
+ 177 012e C0F20003 		movt	r3, #:upper16:ADCx
+ 178 0132 1A68     		ldr	r2, [r3, #0]
+ 179 0134 07F14C03 		add	r3, r7, #76
+ 180 0138 1046     		mov	r0, r2
+ 181 013a 1946     		mov	r1, r3
+ 182 013c FFF7FEFF 		bl	ADC_Init
+  81:../QS/QS_adc.c **** 
+  82:../QS/QS_adc.c **** 	/* Enable DMA request after last transfer (Single-ADC mode) */
+  83:../QS/QS_adc.c **** 	ADC_DMARequestAfterLastTransferCmd(ADCx, ENABLE);
+ 183              		.loc 1 83 0
+ 184 0140 40F20003 		movw	r3, #:lower16:ADCx
+ 185 0144 C0F20003 		movt	r3, #:upper16:ADCx
+ 186 0148 1B68     		ldr	r3, [r3, #0]
+ 187 014a 1846     		mov	r0, r3
+ 188 014c 4FF00101 		mov	r1, #1
+ 189 0150 FFF7FEFF 		bl	ADC_DMARequestAfterLastTransferCmd
+  84:../QS/QS_adc.c **** 
+  85:../QS/QS_adc.c **** 	/* Enable ADC1 DMA */
+  86:../QS/QS_adc.c **** 	ADC_DMACmd(ADCx, ENABLE);
+ 190              		.loc 1 86 0
+ 191 0154 40F20003 		movw	r3, #:lower16:ADCx
+ 192 0158 C0F20003 		movt	r3, #:upper16:ADCx
+ 193 015c 1B68     		ldr	r3, [r3, #0]
+ 194 015e 1846     		mov	r0, r3
+ 195 0160 4FF00101 		mov	r1, #1
+ 196 0164 FFF7FEFF 		bl	ADC_DMACmd
+  87:../QS/QS_adc.c **** 
+  88:../QS/QS_adc.c **** 	/* Enable ADC1 */
+  89:../QS/QS_adc.c **** 	ADC_Cmd(ADCx, ENABLE);
+ 197              		.loc 1 89 0
+ 198 0168 40F20003 		movw	r3, #:lower16:ADCx
+ 199 016c C0F20003 		movt	r3, #:upper16:ADCx
+ 200 0170 1B68     		ldr	r3, [r3, #0]
+ 201 0172 1846     		mov	r0, r3
+ 202 0174 4FF00101 		mov	r1, #1
+ 203 0178 FFF7FEFF 		bl	ADC_Cmd
+  90:../QS/QS_adc.c **** 
+  91:../QS/QS_adc.c **** #ifdef ADC_CONTINUOUS_CONVERSION
+  92:../QS/QS_adc.c **** 	ADC_SoftwareStartConv(ADCx);
+ 204              		.loc 1 92 0
+ 205 017c 40F20003 		movw	r3, #:lower16:ADCx
+ 206 0180 C0F20003 		movt	r3, #:upper16:ADCx
+ 207 0184 1B68     		ldr	r3, [r3, #0]
+ 208 0186 1846     		mov	r0, r3
+ 209 0188 FFF7FEFF 		bl	ADC_SoftwareStartConv
+  93:../QS/QS_adc.c **** #endif
+  94:../QS/QS_adc.c **** 
+  95:../QS/QS_adc.c **** 	initialized = TRUE;
+ 210              		.loc 1 95 0
+ 211 018c 40F20003 		movw	r3, #:lower16:initialized.5951
+ 212 0190 C0F20003 		movt	r3, #:upper16:initialized.5951
+ 213 0194 4FF00102 		mov	r2, #1
+ 214 0198 1A70     		strb	r2, [r3, #0]
+ 215              	.L1:
+  96:../QS/QS_adc.c **** }
+ 216              		.loc 1 96 0
+ 217 019a 07F16807 		add	r7, r7, #104
+ 218 019e BD46     		mov	sp, r7
+ 219 01a0 80BD     		pop	{r7, pc}
+ 220              		.cfi_endproc
+ 221              	.LFE111:
+ 223 01a2 00BF     		.align	2
+ 224              		.global	ADC_getValue
+ 225              		.thumb
+ 226              		.thumb_func
+ 228              	ADC_getValue:
+ 229              	.LFB112:
+  97:../QS/QS_adc.c **** 
+  98:../QS/QS_adc.c **** 
+  99:../QS/QS_adc.c **** Sint16 ADC_getValue(Uint8 channel) {
+ 230              		.loc 1 99 0
+ 231              		.cfi_startproc
+ 232              		@ args = 0, pretend = 0, frame = 8
+ 233              		@ frame_needed = 1, uses_anonymous_args = 0
+ 234              		@ link register save eliminated.
+ 235 01a4 80B4     		push	{r7}
+ 236              	.LCFI3:
+ 237              		.cfi_def_cfa_offset 4
+ 238              		.cfi_offset 7, -4
+ 239 01a6 83B0     		sub	sp, sp, #12
+ 240              	.LCFI4:
+ 241              		.cfi_def_cfa_offset 16
+ 242 01a8 00AF     		add	r7, sp, #0
+ 243              	.LCFI5:
+ 244              		.cfi_def_cfa_register 7
+ 245 01aa 0346     		mov	r3, r0
+ 246 01ac FB71     		strb	r3, [r7, #7]
+ 100:../QS/QS_adc.c **** #ifndef ADC_CONTINUOUS_CONVERSION
+ 101:../QS/QS_adc.c **** 	/* Start conversions manually*/
+ 102:../QS/QS_adc.c **** 	ADC_SoftwareStartConv(ADCx);
+ 103:../QS/QS_adc.c **** 	while(ADC_GetFlagStatus(ADCx, ADC_FLAG_EOC) == RESET);	//Tant qu'on a pas lu les registres
+ 104:../QS/QS_adc.c **** #endif
+ 105:../QS/QS_adc.c **** 	return adc_converted_value[channel];
+ 247              		.loc 1 105 0
+ 248 01ae FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 249 01b0 40F20003 		movw	r3, #:lower16:adc_converted_value
+ 250 01b4 C0F20003 		movt	r3, #:upper16:adc_converted_value
+ 251 01b8 33F81230 		ldrh	r3, [r3, r2, lsl #1]
+ 252 01bc 1BB2     		sxth	r3, r3
+ 106:../QS/QS_adc.c **** }
+ 253              		.loc 1 106 0
+ 254 01be 1846     		mov	r0, r3
+ 255 01c0 07F10C07 		add	r7, r7, #12
+ 256 01c4 BD46     		mov	sp, r7
+ 257 01c6 80BC     		pop	{r7}
+ 258 01c8 7047     		bx	lr
+ 259              		.cfi_endproc
+ 260              	.LFE112:
+ 262              		.bss
+ 263              	initialized.5951:
+ 264 0020 00       		.space	1
+ 265 0021 000000   		.section	.rodata
+ 268              	ADC_sampleTime.5956:
+ 269 0000 02       		.byte	2
+ 270              		.text
+ 271              	.Letext0:
+ 272              		.file 2 "../QS/QS_types.h"
+ 273              		.file 3 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 274              		.file 4 "../stm32f4xx/stm32f4xx.h"
+ 275              		.file 5 "../stm32f4xx/stm32f4xx_adc.h"
+ 276              		.file 6 "../stm32f4xx/stm32f4xx_dma.h"
+ 277              		.file 7 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 QS_adc.c
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:19     .data:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:22     .data:00000000 ADCx
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:25     .bss:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:26     .bss:00000000 adc_converted_value
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:29     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:34     .text:00000000 ADC_init
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:263    .bss:00000020 initialized.5951
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:268    .rodata:00000000 ADC_sampleTime.5956
+C:\Users\Amaury\AppData\Local\Temp\ccnJVGXs.s:228    .text:000001a4 ADC_getValue
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.stm32f4xx_adc.h.31.d96d805acd0f0c0392ec4633757dead3
+                           .group:00000000 wm4.stm32f4xx_dma.h.31.52d961de9ff5e60f8cab69f316bc8a32
+
+UNDEFINED SYMBOLS
+RCC_AHB1PeriphClockCmd
+RCC_APB2PeriphClockCmd
+PORTS_adc_init
+DMA_Init
+DMA_Cmd
+ADC_CommonInit
+ADC_Init
+ADC_DMARequestAfterLastTransferCmd
+ADC_DMACmd
+ADC_Cmd
+ADC_SoftwareStartConv

@@ -1,0 +1,1927 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"KLift.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  20              	.LC2:
+  21 0000 4C493A20 		.ascii	"LI: Ascenseur \340 verres initialis\351s (DCMotor)\012"
+  21      41736365 
+  21      6E736575 
+  21      7220E020 
+  21      76657272 
+  22 002d 00       		.ascii	"\000"
+  23              		.text
+  24              		.align	2
+  25              		.global	LIFT_init
+  26              		.thumb
+  27              		.thumb_func
+  29              	LIFT_init:
+  30              	.LFB111:
+  31              		.file 1 "../Krusty/KLift.c"
+   1:../Krusty/KLift.c **** 
+   2:../Krusty/KLift.c **** /*  Club Robot ESEO 2012 - 2013
+   3:../Krusty/KLift.c ****  *	Krusty
+   4:../Krusty/KLift.c ****  *
+   5:../Krusty/KLift.c ****  *	Fichier : Lift.c
+   6:../Krusty/KLift.c ****  *	Package : Carte actionneur
+   7:../Krusty/KLift.c ****  *	Description : Gestion des ascenseurs
+   8:../Krusty/KLift.c ****  *  Auteur : Alexis
+   9:../Krusty/KLift.c ****  *  Version 20130314
+  10:../Krusty/KLift.c ****  *  Robot : Krusty
+  11:../Krusty/KLift.c ****  */
+  12:../Krusty/KLift.c **** 
+  13:../Krusty/KLift.c **** #include "KLift.h"
+  14:../Krusty/KLift.c **** #ifdef I_AM_ROBOT_KRUSTY
+  15:../Krusty/KLift.c **** 
+  16:../Krusty/KLift.c **** //#include "../QS/QS_can.h"
+  17:../Krusty/KLift.c **** #include "../QS/QS_CANmsgList.h"
+  18:../Krusty/KLift.c **** #include "../QS/QS_DCMotor2.h"
+  19:../Krusty/KLift.c **** #include "../QS/QS_ax12.h"
+  20:../Krusty/KLift.c **** #include "../QS/QS_adc.h"
+  21:../Krusty/KLift.c **** #include "../act_queue_utils.h"
+  22:../Krusty/KLift.c **** #include "config_pin.h"
+  23:../Krusty/KLift.c **** #include "KLift_config.h"
+  24:../Krusty/KLift.c **** 
+  25:../Krusty/KLift.c **** #include "config_debug.h"
+  26:../Krusty/KLift.c **** #define LOG_PREFIX "LI: "
+  27:../Krusty/KLift.c **** #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_LIFT
+  28:../Krusty/KLift.c **** #include "../QS/QS_outputlog.h"
+  29:../Krusty/KLift.c **** 
+  30:../Krusty/KLift.c **** #define LIFT_NUM_POS           3
+  31:../Krusty/KLift.c **** 	#define LIFT_UP_POS_ID     0
+  32:../Krusty/KLift.c **** 	#define LIFT_MID_POS_ID    1
+  33:../Krusty/KLift.c **** 	#define LIFT_DOWN_POS_ID   2
+  34:../Krusty/KLift.c **** 
+  35:../Krusty/KLift.c **** #if DCMOTOR_NB_POS < LIFT_NUM_POS
+  36:../Krusty/KLift.c **** #error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
+  37:../Krusty/KLift.c **** #endif
+  38:../Krusty/KLift.c **** #if DCM_NUMBER <= LIFT_LEFT_DCMOTOR_ID || DCM_NUMBER <= LIFT_RIGHT_DCMOTOR_ID
+  39:../Krusty/KLift.c **** #error "Le nombre de DCMotor disponible n'est pas suffisant, veuillez augmenter DCM_NUMBER"
+  40:../Krusty/KLift.c **** #endif
+  41:../Krusty/KLift.c **** 
+  42:../Krusty/KLift.c **** #define LIFT_IS_LEFT(param_queueId) (QUEUE_get_act(param_queueId) == QUEUE_ACT_Lift_Left_Translatio
+  43:../Krusty/KLift.c **** #define LIFT_IS_RIGHT(param_queueId) (QUEUE_get_act(param_queueId) == QUEUE_ACT_Lift_Right_Translat
+  44:../Krusty/KLift.c **** #define LIFT_IS_DCMOTOR(param_queueId) (QUEUE_get_act(param_queueId) == QUEUE_ACT_Lift_Left_Transla
+  45:../Krusty/KLift.c **** #define LIFT_IS_AX12(param_queueId) (QUEUE_get_act(param_queueId) == QUEUE_ACT_Lift_Left_AX12_Plier
+  46:../Krusty/KLift.c **** 
+  47:../Krusty/KLift.c **** static void LIFT_initAX12();
+  48:../Krusty/KLift.c **** static Sint16 LIFT_LEFT_getTranslationPos();
+  49:../Krusty/KLift.c **** static Sint16 LIFT_RIGHT_getTranslationPos();
+  50:../Krusty/KLift.c **** static void LIFT_translation_command_init(queue_id_t queueId);
+  51:../Krusty/KLift.c **** static void LIFT_translation_command_run(queue_id_t queueId);
+  52:../Krusty/KLift.c **** static void LIFT_plier_command_init(queue_id_t queueId);
+  53:../Krusty/KLift.c **** static void LIFT_plier_command_run(queue_id_t queueId);
+  54:../Krusty/KLift.c **** 
+  55:../Krusty/KLift.c **** void LIFT_init() {
+  32              		.loc 1 55 0
+  33              		.cfi_startproc
+  34              		@ args = 0, pretend = 0, frame = 64
+  35              		@ frame_needed = 1, uses_anonymous_args = 0
+  36 0000 80B5     		push	{r7, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  41 0002 90B0     		sub	sp, sp, #64
+  42              	.LCFI1:
+  43              		.cfi_def_cfa_offset 72
+  44 0004 00AF     		add	r7, sp, #0
+  45              	.LCFI2:
+  46              		.cfi_def_cfa_register 7
+  56:../Krusty/KLift.c **** 	DCMotor_config_t left_lift_translation_config;
+  57:../Krusty/KLift.c **** 	DCMotor_config_t right_lift_translation_config;
+  58:../Krusty/KLift.c **** 	static bool_e initialized = FALSE;
+  59:../Krusty/KLift.c **** 
+  60:../Krusty/KLift.c **** 	if(initialized)
+  47              		.loc 1 60 0
+  48 0006 40F20003 		movw	r3, #:lower16:initialized.6451
+  49 000a C0F20003 		movt	r3, #:upper16:initialized.6451
+  50 000e 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  51 0010 002B     		cmp	r3, #0
+  52 0012 40F08C80 		bne	.L1
+  61:../Krusty/KLift.c **** 		return;
+  62:../Krusty/KLift.c **** 	initialized = TRUE;
+  53              		.loc 1 62 0
+  54 0016 40F20003 		movw	r3, #:lower16:initialized.6451
+  55 001a C0F20003 		movt	r3, #:upper16:initialized.6451
+  56 001e 4FF00102 		mov	r2, #1
+  57 0022 1A70     		strb	r2, [r3, #0]
+  63:../Krusty/KLift.c **** 
+  64:../Krusty/KLift.c **** 	DCM_init();
+  58              		.loc 1 64 0
+  59 0024 FFF7FEFF 		bl	DCM_init
+  65:../Krusty/KLift.c **** 	AX12_init();
+  60              		.loc 1 65 0
+  61 0028 FFF7FEFF 		bl	AX12_init
+  66:../Krusty/KLift.c **** 	ADC_init();
+  62              		.loc 1 66 0
+  63 002c FFF7FEFF 		bl	ADC_init
+  67:../Krusty/KLift.c **** 
+  68:../Krusty/KLift.c **** 	left_lift_translation_config.sensor_read = &LIFT_LEFT_getTranslationPos;
+  64              		.loc 1 68 0
+  65 0030 40F20003 		movw	r3, #:lower16:LIFT_LEFT_getTranslationPos
+  66 0034 C0F20003 		movt	r3, #:upper16:LIFT_LEFT_getTranslationPos
+  67 0038 3B62     		str	r3, [r7, #32]
+  69:../Krusty/KLift.c **** 	left_lift_translation_config.Kp = LIFT_LEFT_ASSER_KP;
+  68              		.loc 1 69 0
+  69 003a 4FF49673 		mov	r3, #300
+  70 003e FB85     		strh	r3, [r7, #46]	@ movhi
+  70:../Krusty/KLift.c **** 	left_lift_translation_config.Ki = LIFT_LEFT_ASSER_KI;
+  71              		.loc 1 70 0
+  72 0040 4FF00003 		mov	r3, #0
+  73 0044 3B86     		strh	r3, [r7, #48]	@ movhi
+  71:../Krusty/KLift.c **** 	left_lift_translation_config.Kd = LIFT_LEFT_ASSER_KD;
+  74              		.loc 1 71 0
+  75 0046 4FF00003 		mov	r3, #0
+  76 004a 7B86     		strh	r3, [r7, #50]	@ movhi
+  72:../Krusty/KLift.c **** 	left_lift_translation_config.pos[LIFT_UP_POS_ID] = LIFT_LEFT_UP_POS;
+  77              		.loc 1 72 0
+  78 004c 4FF61843 		movw	r3, #64536
+  79 0050 FB84     		strh	r3, [r7, #38]	@ movhi
+  73:../Krusty/KLift.c **** 	left_lift_translation_config.pos[LIFT_MID_POS_ID] = LIFT_LEFT_MID_POS;
+  80              		.loc 1 73 0
+  81 0052 4FF65763 		movw	r3, #65111
+  82 0056 3B85     		strh	r3, [r7, #40]	@ movhi
+  74:../Krusty/KLift.c **** 	left_lift_translation_config.pos[LIFT_DOWN_POS_ID] = LIFT_LEFT_DOWN_POS;
+  83              		.loc 1 74 0
+  84 0058 4FF6D873 		movw	r3, #65496
+  85 005c 7B85     		strh	r3, [r7, #42]	@ movhi
+  75:../Krusty/KLift.c **** 	left_lift_translation_config.pwm_number = LIFT_LEFT_DCMOTOR_PWM_NUM;
+  86              		.loc 1 75 0
+  87 005e 4FF00103 		mov	r3, #1
+  88 0062 87F82430 		strb	r3, [r7, #36]
+  76:../Krusty/KLift.c **** 	left_lift_translation_config.way_latch = &LIFT_LEFT_DCMOTOR_PORT_WAY;
+  89              		.loc 1 76 0
+  90 0066 4FF01403 		mov	r3, #20
+  91 006a C4F20203 		movt	r3, 16386
+  92 006e 7B63     		str	r3, [r7, #52]
+  77:../Krusty/KLift.c **** 	left_lift_translation_config.way_bit_number = LIFT_LEFT_DCMOTOR_PORT_WAY_BIT;
+  93              		.loc 1 77 0
+  94 0070 4FF00803 		mov	r3, #8
+  95 0074 87F83830 		strb	r3, [r7, #56]
+  78:../Krusty/KLift.c **** 	left_lift_translation_config.way0_max_duty = LIFT_LEFT_DCMOTOR_MAX_PWM_WAY0;
+  96              		.loc 1 78 0
+  97 0078 4FF02803 		mov	r3, #40
+  98 007c 87F82C30 		strb	r3, [r7, #44]
+  79:../Krusty/KLift.c **** 	left_lift_translation_config.way1_max_duty = LIFT_LEFT_DCMOTOR_MAX_PWM_WAY1;
+  99              		.loc 1 79 0
+ 100 0080 4FF02803 		mov	r3, #40
+ 101 0084 87F82D30 		strb	r3, [r7, #45]
+  80:../Krusty/KLift.c **** 	left_lift_translation_config.timeout = LIFT_LEFT_ASSER_TIMEOUT;
+ 102              		.loc 1 80 0
+ 103 0088 40F6B833 		movw	r3, #3000
+ 104 008c 7B87     		strh	r3, [r7, #58]	@ movhi
+  81:../Krusty/KLift.c **** 	left_lift_translation_config.epsilon = LIFT_LEFT_ASSER_POS_EPSILON;
+ 105              		.loc 1 81 0
+ 106 008e 4FF04B03 		mov	r3, #75
+ 107 0092 BB87     		strh	r3, [r7, #60]	@ movhi
+  82:../Krusty/KLift.c **** 	DCM_config(LIFT_LEFT_DCMOTOR_ID, &left_lift_translation_config);
+ 108              		.loc 1 82 0
+ 109 0094 07F12003 		add	r3, r7, #32
+ 110 0098 4FF00200 		mov	r0, #2
+ 111 009c 1946     		mov	r1, r3
+ 112 009e FFF7FEFF 		bl	DCM_config
+  83:../Krusty/KLift.c **** 	DCM_stop(LIFT_LEFT_DCMOTOR_ID);
+ 113              		.loc 1 83 0
+ 114 00a2 4FF00200 		mov	r0, #2
+ 115 00a6 FFF7FEFF 		bl	DCM_stop
+  84:../Krusty/KLift.c **** 
+  85:../Krusty/KLift.c **** 	right_lift_translation_config.sensor_read = &LIFT_RIGHT_getTranslationPos;
+ 116              		.loc 1 85 0
+ 117 00aa 40F20003 		movw	r3, #:lower16:LIFT_RIGHT_getTranslationPos
+ 118 00ae C0F20003 		movt	r3, #:upper16:LIFT_RIGHT_getTranslationPos
+ 119 00b2 3B60     		str	r3, [r7, #0]
+  86:../Krusty/KLift.c **** 	right_lift_translation_config.Kp = LIFT_RIGHT_ASSER_KP;
+ 120              		.loc 1 86 0
+ 121 00b4 4FF49673 		mov	r3, #300
+ 122 00b8 FB81     		strh	r3, [r7, #14]	@ movhi
+  87:../Krusty/KLift.c **** 	right_lift_translation_config.Ki = LIFT_RIGHT_ASSER_KI;
+ 123              		.loc 1 87 0
+ 124 00ba 4FF00003 		mov	r3, #0
+ 125 00be 3B82     		strh	r3, [r7, #16]	@ movhi
+  88:../Krusty/KLift.c **** 	right_lift_translation_config.Kd = LIFT_RIGHT_ASSER_KD;
+ 126              		.loc 1 88 0
+ 127 00c0 4FF00003 		mov	r3, #0
+ 128 00c4 7B82     		strh	r3, [r7, #18]	@ movhi
+  89:../Krusty/KLift.c **** 	right_lift_translation_config.pos[LIFT_UP_POS_ID] = LIFT_RIGHT_UP_POS;
+ 129              		.loc 1 89 0
+ 130 00c6 4FF64A43 		movw	r3, #64586
+ 131 00ca FB80     		strh	r3, [r7, #6]	@ movhi
+  90:../Krusty/KLift.c **** 	right_lift_translation_config.pos[LIFT_MID_POS_ID] = LIFT_RIGHT_MID_POS;
+ 132              		.loc 1 90 0
+ 133 00cc 4FF67063 		movw	r3, #65136
+ 134 00d0 3B81     		strh	r3, [r7, #8]	@ movhi
+  91:../Krusty/KLift.c **** 	right_lift_translation_config.pos[LIFT_DOWN_POS_ID] = LIFT_RIGHT_DOWN_POS;
+ 135              		.loc 1 91 0
+ 136 00d2 4FF00003 		mov	r3, #0
+ 137 00d6 7B81     		strh	r3, [r7, #10]	@ movhi
+  92:../Krusty/KLift.c **** 	right_lift_translation_config.pwm_number = LIFT_RIGHT_DCMOTOR_PWM_NUM;
+ 138              		.loc 1 92 0
+ 139 00d8 4FF00203 		mov	r3, #2
+ 140 00dc 3B71     		strb	r3, [r7, #4]
+  93:../Krusty/KLift.c **** 	right_lift_translation_config.way_latch = &LIFT_RIGHT_DCMOTOR_PORT_WAY;
+ 141              		.loc 1 93 0
+ 142 00de 40F61403 		movw	r3, #2068
+ 143 00e2 C4F20203 		movt	r3, 16386
+ 144 00e6 7B61     		str	r3, [r7, #20]
+  94:../Krusty/KLift.c **** 	right_lift_translation_config.way_bit_number = LIFT_RIGHT_DCMOTOR_PORT_WAY_BIT;
+ 145              		.loc 1 94 0
+ 146 00e8 4FF00A03 		mov	r3, #10
+ 147 00ec 3B76     		strb	r3, [r7, #24]
+  95:../Krusty/KLift.c **** 	right_lift_translation_config.way0_max_duty = LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY0;
+ 148              		.loc 1 95 0
+ 149 00ee 4FF02803 		mov	r3, #40
+ 150 00f2 3B73     		strb	r3, [r7, #12]
+  96:../Krusty/KLift.c **** 	right_lift_translation_config.way1_max_duty = LIFT_RIGHT_DCMOTOR_MAX_PWM_WAY1;
+ 151              		.loc 1 96 0
+ 152 00f4 4FF02803 		mov	r3, #40
+ 153 00f8 7B73     		strb	r3, [r7, #13]
+  97:../Krusty/KLift.c **** 	right_lift_translation_config.timeout = LIFT_RIGHT_ASSER_TIMEOUT;
+ 154              		.loc 1 97 0
+ 155 00fa 40F6B833 		movw	r3, #3000
+ 156 00fe 7B83     		strh	r3, [r7, #26]	@ movhi
+  98:../Krusty/KLift.c **** 	right_lift_translation_config.epsilon = LIFT_RIGHT_ASSER_POS_EPSILON;
+ 157              		.loc 1 98 0
+ 158 0100 4FF04B03 		mov	r3, #75
+ 159 0104 BB83     		strh	r3, [r7, #28]	@ movhi
+  99:../Krusty/KLift.c **** 	DCM_config(LIFT_RIGHT_DCMOTOR_ID, &right_lift_translation_config);
+ 160              		.loc 1 99 0
+ 161 0106 3B46     		mov	r3, r7
+ 162 0108 4FF00300 		mov	r0, #3
+ 163 010c 1946     		mov	r1, r3
+ 164 010e FFF7FEFF 		bl	DCM_config
+ 100:../Krusty/KLift.c **** 	DCM_stop(LIFT_RIGHT_DCMOTOR_ID);
+ 165              		.loc 1 100 0
+ 166 0112 4FF00300 		mov	r0, #3
+ 167 0116 FFF7FEFF 		bl	DCM_stop
+ 101:../Krusty/KLift.c **** 
+ 102:../Krusty/KLift.c **** 	info_printf("Ascenseur à verres initialisés (DCMotor)\n");
+ 168              		.loc 1 102 0
+ 169 011a 4FF00400 		mov	r0, #4
+ 170 011e 40F20001 		movw	r1, #:lower16:.LC2
+ 171 0122 C0F20001 		movt	r1, #:upper16:.LC2
+ 172 0126 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 103:../Krusty/KLift.c **** 
+ 104:../Krusty/KLift.c **** 	LIFT_initAX12();
+ 173              		.loc 1 104 0
+ 174 012a 00F005F8 		bl	LIFT_initAX12
+ 175              	.L1:
+ 105:../Krusty/KLift.c **** }
+ 176              		.loc 1 105 0
+ 177 012e 07F14007 		add	r7, r7, #64
+ 178 0132 BD46     		mov	sp, r7
+ 179 0134 80BD     		pop	{r7, pc}
+ 180              		.cfi_endproc
+ 181              	.LFE111:
+ 183              		.section	.rodata
+ 184 002e 0000     		.align	2
+ 185              	.LC3:
+ 186 0030 47617563 		.ascii	"Gauche\000"
+ 186      686500
+ 187 0037 00       		.align	2
+ 188              	.LC4:
+ 189 0038 44726F69 		.ascii	"Droite\000"
+ 189      746500
+ 190 003f 00       		.align	2
+ 191              	.LC5:
+ 192 0040 4C493A20 		.ascii	"LI: AX12 %s initialis\351\012\000"
+ 192      41583132 
+ 192      20257320 
+ 192      696E6974 
+ 192      69616C69 
+ 193              		.align	2
+ 194              	.LC0:
+ 195 0058 06       		.byte	6
+ 196 0059 01       		.byte	1
+ 197 005a 0000     		.align	2
+ 198              	.LC1:
+ 199 005c 32       		.byte	50
+ 200 005d 32       		.byte	50
+ 201              		.text
+ 202 0136 00BF     		.align	2
+ 203              		.thumb
+ 204              		.thumb_func
+ 206              	LIFT_initAX12:
+ 207              	.LFB112:
+ 106:../Krusty/KLift.c **** 
+ 107:../Krusty/KLift.c **** //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si d
+ 108:../Krusty/KLift.c **** static void LIFT_initAX12() {
+ 208              		.loc 1 108 0
+ 209              		.cfi_startproc
+ 210              		@ args = 0, pretend = 0, frame = 8
+ 211              		@ frame_needed = 1, uses_anonymous_args = 0
+ 212 0138 80B5     		push	{r7, lr}
+ 213              	.LCFI3:
+ 214              		.cfi_def_cfa_offset 8
+ 215              		.cfi_offset 7, -8
+ 216              		.cfi_offset 14, -4
+ 217 013a 82B0     		sub	sp, sp, #8
+ 218              	.LCFI4:
+ 219              		.cfi_def_cfa_offset 16
+ 220 013c 00AF     		add	r7, sp, #0
+ 221              	.LCFI5:
+ 222              		.cfi_def_cfa_register 7
+ 109:../Krusty/KLift.c **** 	static bool_e ax12_is_initialized[2] = {FALSE, FALSE};
+ 110:../Krusty/KLift.c **** 	Uint8 ax12_id[2] =             {LIFT_LEFT_PLIER_AX12_ID,                 LIFT_RIGHT_PLIER_AX12_ID}
+ 223              		.loc 1 110 0
+ 224 013e 40F20003 		movw	r3, #:lower16:.LC0
+ 225 0142 C0F20003 		movt	r3, #:upper16:.LC0
+ 226 0146 07F10402 		add	r2, r7, #4
+ 227 014a 1B88     		ldrh	r3, [r3, #0]	@ unaligned
+ 228 014c 1380     		strh	r3, [r2, #0]	@ unaligned
+ 111:../Krusty/KLift.c **** 	Uint8 ax12_max_torque[2] =     {LIFT_LEFT_PLIER_AX12_MAX_TORQUE_PERCENT, LIFT_RIGHT_PLIER_AX12_MAX
+ 229              		.loc 1 111 0
+ 230 014e 40F20003 		movw	r3, #:lower16:.LC1
+ 231 0152 C0F20003 		movt	r3, #:upper16:.LC1
+ 232 0156 3A46     		mov	r2, r7
+ 233 0158 1B88     		ldrh	r3, [r3, #0]	@ unaligned
+ 234 015a 1380     		strh	r3, [r2, #0]	@ unaligned
+ 112:../Krusty/KLift.c **** //	Uint16 ax12_init_position[2] = {LIFT_LEFT_ACT_PLIER_AX12_INIT_POS,       LIFT_RIGHT_ACT_PLIER_AX
+ 113:../Krusty/KLift.c **** 	Uint8 i;
+ 114:../Krusty/KLift.c **** 	for(i = 0; i < 2; i++) { //Init des 2 ax12, gauche et droite
+ 235              		.loc 1 114 0
+ 236 015c 4FF00003 		mov	r3, #0
+ 237 0160 FB71     		strb	r3, [r7, #7]
+ 238 0162 86E0     		b	.L5
+ 239              	.L9:
+ 115:../Krusty/KLift.c **** 		if(ax12_is_initialized[i] == FALSE && AX12_is_ready(ax12_id[i]) == TRUE) {
+ 240              		.loc 1 115 0
+ 241 0164 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 242 0166 40F20003 		movw	r3, #:lower16:ax12_is_initialized.6454
+ 243 016a C0F20003 		movt	r3, #:upper16:ax12_is_initialized.6454
+ 244 016e 9B5C     		ldrb	r3, [r3, r2]	@ zero_extendqisi2
+ 245 0170 002B     		cmp	r3, #0
+ 246 0172 7AD1     		bne	.L6
+ 247              		.loc 1 115 0 is_stmt 0 discriminator 1
+ 248 0174 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 249 0176 07F10801 		add	r1, r7, #8
+ 250 017a CB18     		adds	r3, r1, r3
+ 251 017c 13F8043C 		ldrb	r3, [r3, #-4]	@ zero_extendqisi2
+ 252 0180 1846     		mov	r0, r3
+ 253 0182 FFF7FEFF 		bl	AX12_is_ready
+ 254 0186 0346     		mov	r3, r0
+ 255 0188 012B     		cmp	r3, #1
+ 256 018a 6ED1     		bne	.L6
+ 116:../Krusty/KLift.c **** 			ax12_is_initialized[i] = TRUE;
+ 257              		.loc 1 116 0 is_stmt 1
+ 258 018c FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 259 018e 40F20003 		movw	r3, #:lower16:ax12_is_initialized.6454
+ 260 0192 C0F20003 		movt	r3, #:upper16:ax12_is_initialized.6454
+ 261 0196 4FF00101 		mov	r1, #1
+ 262 019a 9954     		strb	r1, [r3, r2]
+ 117:../Krusty/KLift.c **** 
+ 118:../Krusty/KLift.c **** 			AX12_config_set_highest_voltage(ax12_id[i], 136);
+ 263              		.loc 1 118 0
+ 264 019c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 265 019e 07F10802 		add	r2, r7, #8
+ 266 01a2 D318     		adds	r3, r2, r3
+ 267 01a4 13F8043C 		ldrb	r3, [r3, #-4]	@ zero_extendqisi2
+ 268 01a8 1846     		mov	r0, r3
+ 269 01aa 4FF08801 		mov	r1, #136
+ 270 01ae FFF7FEFF 		bl	AX12_config_set_highest_voltage
+ 119:../Krusty/KLift.c **** 			AX12_config_set_lowest_voltage(ax12_id[i], 70);
+ 271              		.loc 1 119 0
+ 272 01b2 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 273 01b4 07F10801 		add	r1, r7, #8
+ 274 01b8 CB18     		adds	r3, r1, r3
+ 275 01ba 13F8043C 		ldrb	r3, [r3, #-4]	@ zero_extendqisi2
+ 276 01be 1846     		mov	r0, r3
+ 277 01c0 4FF04601 		mov	r1, #70
+ 278 01c4 FFF7FEFF 		bl	AX12_config_set_lowest_voltage
+ 120:../Krusty/KLift.c **** 			AX12_config_set_maximum_torque_percentage(ax12_id[i], ax12_max_torque[i]);
+ 279              		.loc 1 120 0
+ 280 01c8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 281 01ca 07F10802 		add	r2, r7, #8
+ 282 01ce D318     		adds	r3, r2, r3
+ 283 01d0 13F8042C 		ldrb	r2, [r3, #-4]	@ zero_extendqisi2
+ 284 01d4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 285 01d6 07F10801 		add	r1, r7, #8
+ 286 01da CB18     		adds	r3, r1, r3
+ 287 01dc 13F8083C 		ldrb	r3, [r3, #-8]	@ zero_extendqisi2
+ 288 01e0 1046     		mov	r0, r2
+ 289 01e2 1946     		mov	r1, r3
+ 290 01e4 FFF7FEFF 		bl	AX12_config_set_maximum_torque_percentage
+ 121:../Krusty/KLift.c **** 
+ 122:../Krusty/KLift.c **** 			AX12_config_set_maximal_angle(ax12_id[i], 300);
+ 291              		.loc 1 122 0
+ 292 01e8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 293 01ea 07F10802 		add	r2, r7, #8
+ 294 01ee D318     		adds	r3, r2, r3
+ 295 01f0 13F8043C 		ldrb	r3, [r3, #-4]	@ zero_extendqisi2
+ 296 01f4 1846     		mov	r0, r3
+ 297 01f6 4FF49671 		mov	r1, #300
+ 298 01fa FFF7FEFF 		bl	AX12_config_set_maximal_angle
+ 123:../Krusty/KLift.c **** 			AX12_config_set_minimal_angle(ax12_id[i], 0);
+ 299              		.loc 1 123 0
+ 300 01fe FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 301 0200 07F10801 		add	r1, r7, #8
+ 302 0204 CB18     		adds	r3, r1, r3
+ 303 0206 13F8043C 		ldrb	r3, [r3, #-4]	@ zero_extendqisi2
+ 304 020a 1846     		mov	r0, r3
+ 305 020c 4FF00001 		mov	r1, #0
+ 306 0210 FFF7FEFF 		bl	AX12_config_set_minimal_angle
+ 124:../Krusty/KLift.c **** 
+ 125:../Krusty/KLift.c **** 			AX12_config_set_error_before_led(ax12_id[i], AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR
+ 307              		.loc 1 125 0
+ 308 0214 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 309 0216 07F10802 		add	r2, r7, #8
+ 310 021a D318     		adds	r3, r2, r3
+ 311 021c 13F8043C 		ldrb	r3, [r3, #-4]	@ zero_extendqisi2
+ 312 0220 1846     		mov	r0, r3
+ 313 0222 4FF07E01 		mov	r1, #126
+ 314 0226 FFF7FEFF 		bl	AX12_config_set_error_before_led
+ 126:../Krusty/KLift.c **** 			AX12_config_set_error_before_shutdown(ax12_id[i], AX12_ERROR_OVERHEATING); //On ne met pas l'ove
+ 315              		.loc 1 126 0
+ 316 022a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 317 022c 07F10801 		add	r1, r7, #8
+ 318 0230 CB18     		adds	r3, r1, r3
+ 319 0232 13F8043C 		ldrb	r3, [r3, #-4]	@ zero_extendqisi2
+ 320 0236 1846     		mov	r0, r3
+ 321 0238 4FF00401 		mov	r1, #4
+ 322 023c FFF7FEFF 		bl	AX12_config_set_error_before_shutdown
+ 127:../Krusty/KLift.c **** 
+ 128:../Krusty/KLift.c **** 			info_printf("AX12 %s initialisé\n", (i == 0)? "Gauche" : "Droite");
+ 323              		.loc 1 128 0
+ 324 0240 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 325 0242 002B     		cmp	r3, #0
+ 326 0244 04D1     		bne	.L7
+ 327              		.loc 1 128 0 is_stmt 0 discriminator 1
+ 328 0246 40F20003 		movw	r3, #:lower16:.LC3
+ 329 024a C0F20003 		movt	r3, #:upper16:.LC3
+ 330 024e 03E0     		b	.L8
+ 331              	.L7:
+ 332              		.loc 1 128 0 discriminator 2
+ 333 0250 40F20003 		movw	r3, #:lower16:.LC4
+ 334 0254 C0F20003 		movt	r3, #:upper16:.LC4
+ 335              	.L8:
+ 336              		.loc 1 128 0 discriminator 3
+ 337 0258 4FF00400 		mov	r0, #4
+ 338 025c 40F20001 		movw	r1, #:lower16:.LC5
+ 339 0260 C0F20001 		movt	r1, #:upper16:.LC5
+ 340 0264 1A46     		mov	r2, r3
+ 341 0266 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 342              	.L6:
+ 114:../Krusty/KLift.c **** 	for(i = 0; i < 2; i++) { //Init des 2 ax12, gauche et droite
+ 343              		.loc 1 114 0 is_stmt 1
+ 344 026a FB79     		ldrb	r3, [r7, #7]
+ 345 026c 03F10103 		add	r3, r3, #1
+ 346 0270 FB71     		strb	r3, [r7, #7]
+ 347              	.L5:
+ 114:../Krusty/KLift.c **** 	for(i = 0; i < 2; i++) { //Init des 2 ax12, gauche et droite
+ 348              		.loc 1 114 0 is_stmt 0 discriminator 1
+ 349 0272 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 350 0274 012B     		cmp	r3, #1
+ 351 0276 7FF675AF 		bls	.L9
+ 129:../Krusty/KLift.c **** 		}
+ 130:../Krusty/KLift.c **** 	}
+ 131:../Krusty/KLift.c **** }
+ 352              		.loc 1 131 0 is_stmt 1
+ 353 027a 07F10807 		add	r7, r7, #8
+ 354 027e BD46     		mov	sp, r7
+ 355 0280 80BD     		pop	{r7, pc}
+ 356              		.cfi_endproc
+ 357              	.LFE112:
+ 359 0282 00BF     		.align	2
+ 360              		.global	LIFT_stop
+ 361              		.thumb
+ 362              		.thumb_func
+ 364              	LIFT_stop:
+ 365              	.LFB113:
+ 132:../Krusty/KLift.c **** 
+ 133:../Krusty/KLift.c **** void LIFT_stop() {
+ 366              		.loc 1 133 0
+ 367              		.cfi_startproc
+ 368              		@ args = 0, pretend = 0, frame = 0
+ 369              		@ frame_needed = 1, uses_anonymous_args = 0
+ 370 0284 80B5     		push	{r7, lr}
+ 371              	.LCFI6:
+ 372              		.cfi_def_cfa_offset 8
+ 373              		.cfi_offset 7, -8
+ 374              		.cfi_offset 14, -4
+ 375 0286 00AF     		add	r7, sp, #0
+ 376              	.LCFI7:
+ 377              		.cfi_def_cfa_register 7
+ 134:../Krusty/KLift.c **** 	DCM_stop(LIFT_LEFT_DCMOTOR_ID);
+ 378              		.loc 1 134 0
+ 379 0288 4FF00200 		mov	r0, #2
+ 380 028c FFF7FEFF 		bl	DCM_stop
+ 135:../Krusty/KLift.c **** 	DCM_stop(LIFT_RIGHT_DCMOTOR_ID);
+ 381              		.loc 1 135 0
+ 382 0290 4FF00300 		mov	r0, #3
+ 383 0294 FFF7FEFF 		bl	DCM_stop
+ 136:../Krusty/KLift.c **** }
+ 384              		.loc 1 136 0
+ 385 0298 80BD     		pop	{r7, pc}
+ 386              		.cfi_endproc
+ 387              	.LFE113:
+ 389              		.section	.rodata
+ 390 005e 0000     		.align	2
+ 391              	.LC6:
+ 392 0060 4C493A20 		.ascii	"LI: invalid CAN msg data[0]=%u !\012\000"
+ 392      696E7661 
+ 392      6C696420 
+ 392      43414E20 
+ 392      6D736720 
+ 393              		.text
+ 394 029a 00BF     		.align	2
+ 395              		.global	LIFT_CAN_process_msg
+ 396              		.thumb
+ 397              		.thumb_func
+ 399              	LIFT_CAN_process_msg:
+ 400              	.LFB114:
+ 137:../Krusty/KLift.c **** 
+ 138:../Krusty/KLift.c **** bool_e LIFT_CAN_process_msg(CAN_msg_t* msg) {
+ 401              		.loc 1 138 0
+ 402              		.cfi_startproc
+ 403              		@ args = 0, pretend = 0, frame = 16
+ 404              		@ frame_needed = 1, uses_anonymous_args = 0
+ 405 029c 80B5     		push	{r7, lr}
+ 406              	.LCFI8:
+ 407              		.cfi_def_cfa_offset 8
+ 408              		.cfi_offset 7, -8
+ 409              		.cfi_offset 14, -4
+ 410 029e 84B0     		sub	sp, sp, #16
+ 411              	.LCFI9:
+ 412              		.cfi_def_cfa_offset 24
+ 413 02a0 00AF     		add	r7, sp, #0
+ 414              	.LCFI10:
+ 415              		.cfi_def_cfa_register 7
+ 416 02a2 7860     		str	r0, [r7, #4]
+ 139:../Krusty/KLift.c **** 
+ 140:../Krusty/KLift.c **** 	if(msg->sid == ACT_LIFT_LEFT || msg->sid == ACT_LIFT_RIGHT) {
+ 417              		.loc 1 140 0
+ 418 02a4 7B68     		ldr	r3, [r7, #4]
+ 419 02a6 1A88     		ldrh	r2, [r3, #0]
+ 420 02a8 40F21533 		movw	r3, #789
+ 421 02ac 9A42     		cmp	r2, r3
+ 422 02ae 04D0     		beq	.L12
+ 423              		.loc 1 140 0 is_stmt 0 discriminator 1
+ 424 02b0 7B68     		ldr	r3, [r7, #4]
+ 425 02b2 1B88     		ldrh	r3, [r3, #0]
+ 426 02b4 B3F5457F 		cmp	r3, #788
+ 427 02b8 58D1     		bne	.L13
+ 428              	.L12:
+ 429              	.LBB2:
+ 141:../Krusty/KLift.c **** 		QUEUE_act_e liftAct;
+ 142:../Krusty/KLift.c **** 
+ 143:../Krusty/KLift.c **** 		//Initialise l'AX12 de la pince s'il n'était pas alimenté lors d'initialisations précédentes, si 
+ 144:../Krusty/KLift.c **** 		LIFT_initAX12();
+ 430              		.loc 1 144 0 is_stmt 1
+ 431 02ba FFF73DFF 		bl	LIFT_initAX12
+ 145:../Krusty/KLift.c **** 
+ 146:../Krusty/KLift.c **** 		switch(msg->data[0]) {
+ 432              		.loc 1 146 0
+ 433 02be 7B68     		ldr	r3, [r7, #4]
+ 434 02c0 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 435 02c2 A3F11003 		sub	r3, r3, #16
+ 436 02c6 1F2B     		cmp	r3, #31
+ 437 02c8 42D8     		bhi	.L14
+ 438 02ca 4FF00102 		mov	r2, #1
+ 439 02ce 02FA03F2 		lsl	r2, r2, r3
+ 440 02d2 4FF00003 		mov	r3, #0
+ 441 02d6 C8F20703 		movt	r3, 32775
+ 442 02da 1340     		ands	r3, r3, r2
+ 443 02dc 002B     		cmp	r3, #0
+ 444 02de 05D1     		bne	.L16
+ 445 02e0 48F20303 		movw	r3, #32771
+ 446 02e4 1340     		ands	r3, r3, r2
+ 447 02e6 002B     		cmp	r3, #0
+ 448 02e8 19D1     		bne	.L15
+ 449 02ea 31E0     		b	.L14
+ 450              	.L16:
+ 147:../Krusty/KLift.c **** 			case ACT_LIFT_GO_UP:
+ 148:../Krusty/KLift.c **** 			case ACT_LIFT_GO_MID:
+ 149:../Krusty/KLift.c **** 			case ACT_LIFT_GO_DOWN:
+ 150:../Krusty/KLift.c **** 			case ACT_LIFT_STOP:
+ 151:../Krusty/KLift.c **** 				if(msg->sid == ACT_LIFT_LEFT)
+ 451              		.loc 1 151 0
+ 452 02ec 7B68     		ldr	r3, [r7, #4]
+ 453 02ee 1A88     		ldrh	r2, [r3, #0]
+ 454 02f0 40F21533 		movw	r3, #789
+ 455 02f4 9A42     		cmp	r2, r3
+ 456 02f6 03D1     		bne	.L17
+ 152:../Krusty/KLift.c **** 					liftAct = QUEUE_ACT_Lift_Left_Translation;
+ 457              		.loc 1 152 0
+ 458 02f8 4FF00403 		mov	r3, #4
+ 459 02fc FB73     		strb	r3, [r7, #15]
+ 460 02fe 02E0     		b	.L18
+ 461              	.L17:
+ 153:../Krusty/KLift.c **** 				else liftAct = QUEUE_ACT_Lift_Right_Translation;
+ 462              		.loc 1 153 0
+ 463 0300 4FF00603 		mov	r3, #6
+ 464 0304 FB73     		strb	r3, [r7, #15]
+ 465              	.L18:
+ 154:../Krusty/KLift.c **** 				ACTQ_push_operation_from_msg(msg, liftAct, &LIFT_run_command, 0);
+ 466              		.loc 1 154 0
+ 467 0306 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 468 0308 7868     		ldr	r0, [r7, #4]
+ 469 030a 1946     		mov	r1, r3
+ 470 030c 40F20002 		movw	r2, #:lower16:LIFT_run_command
+ 471 0310 C0F20002 		movt	r2, #:upper16:LIFT_run_command
+ 472 0314 4FF00003 		mov	r3, #0
+ 473 0318 FFF7FEFF 		bl	ACTQ_push_operation_from_msg
+ 155:../Krusty/KLift.c **** 				break;
+ 474              		.loc 1 155 0
+ 475 031c 23E0     		b	.L19
+ 476              	.L15:
+ 156:../Krusty/KLift.c **** 
+ 157:../Krusty/KLift.c **** 			case ACT_LIFT_PLIER_CLOSE:
+ 158:../Krusty/KLift.c **** 			case ACT_LIFT_PLIER_OPEN:
+ 159:../Krusty/KLift.c **** 			case ACT_LIFT_PLIER_STOP:
+ 160:../Krusty/KLift.c **** 				if(msg->sid == ACT_LIFT_LEFT)
+ 477              		.loc 1 160 0
+ 478 031e 7B68     		ldr	r3, [r7, #4]
+ 479 0320 1A88     		ldrh	r2, [r3, #0]
+ 480 0322 40F21533 		movw	r3, #789
+ 481 0326 9A42     		cmp	r2, r3
+ 482 0328 03D1     		bne	.L20
+ 161:../Krusty/KLift.c **** 					liftAct = QUEUE_ACT_Lift_Left_AX12_Plier;
+ 483              		.loc 1 161 0
+ 484 032a 4FF00503 		mov	r3, #5
+ 485 032e FB73     		strb	r3, [r7, #15]
+ 486 0330 02E0     		b	.L21
+ 487              	.L20:
+ 162:../Krusty/KLift.c **** 				else liftAct = QUEUE_ACT_Lift_Right_AX12_Plier;
+ 488              		.loc 1 162 0
+ 489 0332 4FF00703 		mov	r3, #7
+ 490 0336 FB73     		strb	r3, [r7, #15]
+ 491              	.L21:
+ 163:../Krusty/KLift.c **** 				ACTQ_push_operation_from_msg(msg, liftAct, &LIFT_run_command, 0);
+ 492              		.loc 1 163 0
+ 493 0338 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 494 033a 7868     		ldr	r0, [r7, #4]
+ 495 033c 1946     		mov	r1, r3
+ 496 033e 40F20002 		movw	r2, #:lower16:LIFT_run_command
+ 497 0342 C0F20002 		movt	r2, #:upper16:LIFT_run_command
+ 498 0346 4FF00003 		mov	r3, #0
+ 499 034a FFF7FEFF 		bl	ACTQ_push_operation_from_msg
+ 164:../Krusty/KLift.c **** 				break;
+ 500              		.loc 1 164 0
+ 501 034e 0AE0     		b	.L19
+ 502              	.L14:
+ 165:../Krusty/KLift.c **** 
+ 166:../Krusty/KLift.c **** 			default:
+ 167:../Krusty/KLift.c **** 				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
+ 503              		.loc 1 167 0
+ 504 0350 7B68     		ldr	r3, [r7, #4]
+ 505 0352 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 506 0354 4FF00300 		mov	r0, #3
+ 507 0358 40F20001 		movw	r1, #:lower16:.LC6
+ 508 035c C0F20001 		movt	r1, #:upper16:.LC6
+ 509 0360 1A46     		mov	r2, r3
+ 510 0362 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 511              	.L19:
+ 168:../Krusty/KLift.c **** 		}
+ 169:../Krusty/KLift.c **** 		return TRUE;
+ 512              		.loc 1 169 0
+ 513 0366 4FF00103 		mov	r3, #1
+ 514 036a 01E0     		b	.L22
+ 515              	.L13:
+ 516              	.LBE2:
+ 170:../Krusty/KLift.c **** 	}
+ 171:../Krusty/KLift.c **** 
+ 172:../Krusty/KLift.c **** 	return FALSE;
+ 517              		.loc 1 172 0
+ 518 036c 4FF00003 		mov	r3, #0
+ 519              	.L22:
+ 173:../Krusty/KLift.c **** }
+ 520              		.loc 1 173 0
+ 521 0370 1846     		mov	r0, r3
+ 522 0372 07F11007 		add	r7, r7, #16
+ 523 0376 BD46     		mov	sp, r7
+ 524 0378 80BD     		pop	{r7, pc}
+ 525              		.cfi_endproc
+ 526              	.LFE114:
+ 528 037a 00BF     		.align	2
+ 529              		.thumb
+ 530              		.thumb_func
+ 532              	LIFT_LEFT_getTranslationPos:
+ 533              	.LFB115:
+ 174:../Krusty/KLift.c **** 
+ 175:../Krusty/KLift.c **** static Sint16 LIFT_LEFT_getTranslationPos() {
+ 534              		.loc 1 175 0
+ 535              		.cfi_startproc
+ 536              		@ args = 0, pretend = 0, frame = 0
+ 537              		@ frame_needed = 1, uses_anonymous_args = 0
+ 538 037c 80B5     		push	{r7, lr}
+ 539              	.LCFI11:
+ 540              		.cfi_def_cfa_offset 8
+ 541              		.cfi_offset 7, -8
+ 542              		.cfi_offset 14, -4
+ 543 037e 00AF     		add	r7, sp, #0
+ 544              	.LCFI12:
+ 545              		.cfi_def_cfa_register 7
+ 176:../Krusty/KLift.c **** 	return -ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID);
+ 546              		.loc 1 176 0
+ 547 0380 4FF00100 		mov	r0, #1
+ 548 0384 FFF7FEFF 		bl	ADC_getValue
+ 549 0388 0346     		mov	r3, r0
+ 550 038a 9BB2     		uxth	r3, r3
+ 551 038c C3F10003 		rsb	r3, r3, #0
+ 552 0390 9BB2     		uxth	r3, r3
+ 553 0392 9BB2     		uxth	r3, r3
+ 554 0394 1BB2     		sxth	r3, r3
+ 177:../Krusty/KLift.c **** }
+ 555              		.loc 1 177 0
+ 556 0396 1846     		mov	r0, r3
+ 557 0398 80BD     		pop	{r7, pc}
+ 558              		.cfi_endproc
+ 559              	.LFE115:
+ 561 039a 00BF     		.align	2
+ 562              		.thumb
+ 563              		.thumb_func
+ 565              	LIFT_RIGHT_getTranslationPos:
+ 566              	.LFB116:
+ 178:../Krusty/KLift.c **** 
+ 179:../Krusty/KLift.c **** static Sint16 LIFT_RIGHT_getTranslationPos() {
+ 567              		.loc 1 179 0
+ 568              		.cfi_startproc
+ 569              		@ args = 0, pretend = 0, frame = 0
+ 570              		@ frame_needed = 1, uses_anonymous_args = 0
+ 571 039c 80B5     		push	{r7, lr}
+ 572              	.LCFI13:
+ 573              		.cfi_def_cfa_offset 8
+ 574              		.cfi_offset 7, -8
+ 575              		.cfi_offset 14, -4
+ 576 039e 00AF     		add	r7, sp, #0
+ 577              	.LCFI14:
+ 578              		.cfi_def_cfa_register 7
+ 180:../Krusty/KLift.c **** 	return -ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID);
+ 579              		.loc 1 180 0
+ 580 03a0 4FF00000 		mov	r0, #0
+ 581 03a4 FFF7FEFF 		bl	ADC_getValue
+ 582 03a8 0346     		mov	r3, r0
+ 583 03aa 9BB2     		uxth	r3, r3
+ 584 03ac C3F10003 		rsb	r3, r3, #0
+ 585 03b0 9BB2     		uxth	r3, r3
+ 586 03b2 9BB2     		uxth	r3, r3
+ 587 03b4 1BB2     		sxth	r3, r3
+ 181:../Krusty/KLift.c **** }
+ 588              		.loc 1 181 0
+ 589 03b6 1846     		mov	r0, r3
+ 590 03b8 80BD     		pop	{r7, pc}
+ 591              		.cfi_endproc
+ 592              	.LFE116:
+ 594              		.section	.rodata
+ 595 0082 0000     		.align	2
+ 596              	.LC7:
+ 597 0084 4C493A20 		.ascii	"LI: Invalid act: %d\012\000"
+ 597      496E7661 
+ 597      6C696420 
+ 597      6163743A 
+ 597      2025640A 
+ 598              		.text
+ 599 03ba 00BF     		.align	2
+ 600              		.global	LIFT_run_command
+ 601              		.thumb
+ 602              		.thumb_func
+ 604              	LIFT_run_command:
+ 605              	.LFB117:
+ 182:../Krusty/KLift.c **** 
+ 183:../Krusty/KLift.c **** void LIFT_run_command(queue_id_t queueId, bool_e init) {
+ 606              		.loc 1 183 0
+ 607              		.cfi_startproc
+ 608              		@ args = 0, pretend = 0, frame = 16
+ 609              		@ frame_needed = 1, uses_anonymous_args = 0
+ 610 03bc 80B5     		push	{r7, lr}
+ 611              	.LCFI15:
+ 612              		.cfi_def_cfa_offset 8
+ 613              		.cfi_offset 7, -8
+ 614              		.cfi_offset 14, -4
+ 615 03be 86B0     		sub	sp, sp, #24
+ 616              	.LCFI16:
+ 617              		.cfi_def_cfa_offset 32
+ 618 03c0 02AF     		add	r7, sp, #8
+ 619              	.LCFI17:
+ 620              		.cfi_def_cfa 7, 24
+ 621 03c2 0246     		mov	r2, r0
+ 622 03c4 0B46     		mov	r3, r1
+ 623 03c6 FA71     		strb	r2, [r7, #7]
+ 624 03c8 BB71     		strb	r3, [r7, #6]
+ 184:../Krusty/KLift.c **** 	if(QUEUE_has_error(queueId)) {
+ 625              		.loc 1 184 0
+ 626 03ca FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 627 03cc 1846     		mov	r0, r3
+ 628 03ce FFF7FEFF 		bl	QUEUE_has_error
+ 629 03d2 0346     		mov	r3, r0
+ 630 03d4 002B     		cmp	r3, #0
+ 631 03d6 04D0     		beq	.L28
+ 185:../Krusty/KLift.c **** 		QUEUE_behead(queueId);
+ 632              		.loc 1 185 0
+ 633 03d8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 634 03da 1846     		mov	r0, r3
+ 635 03dc FFF7FEFF 		bl	QUEUE_behead
+ 186:../Krusty/KLift.c **** 		return;
+ 636              		.loc 1 186 0
+ 637 03e0 65E0     		b	.L27
+ 638              	.L28:
+ 187:../Krusty/KLift.c **** 	}
+ 188:../Krusty/KLift.c **** 
+ 189:../Krusty/KLift.c **** 	if(LIFT_IS_DCMOTOR(queueId)) {    // Gestion des mouvements de translation d'un ascenseur
+ 639              		.loc 1 189 0
+ 640 03e2 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 641 03e4 1846     		mov	r0, r3
+ 642 03e6 FFF7FEFF 		bl	QUEUE_get_act
+ 643 03ea 0346     		mov	r3, r0
+ 644 03ec 042B     		cmp	r3, #4
+ 645 03ee 06D0     		beq	.L30
+ 646              		.loc 1 189 0 is_stmt 0 discriminator 1
+ 647 03f0 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 648 03f2 1846     		mov	r0, r3
+ 649 03f4 FFF7FEFF 		bl	QUEUE_get_act
+ 650 03f8 0346     		mov	r3, r0
+ 651 03fa 062B     		cmp	r3, #6
+ 652 03fc 0CD1     		bne	.L31
+ 653              	.L30:
+ 190:../Krusty/KLift.c **** 		if(init)
+ 654              		.loc 1 190 0 is_stmt 1
+ 655 03fe BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 656 0400 002B     		cmp	r3, #0
+ 657 0402 04D0     		beq	.L32
+ 191:../Krusty/KLift.c **** 			LIFT_translation_command_init(queueId);
+ 658              		.loc 1 191 0
+ 659 0404 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 660 0406 1846     		mov	r0, r3
+ 661 0408 00F056F8 		bl	LIFT_translation_command_init
+ 190:../Krusty/KLift.c **** 		if(init)
+ 662              		.loc 1 190 0
+ 663 040c 4FE0     		b	.L27
+ 664              	.L32:
+ 192:../Krusty/KLift.c **** 		else
+ 193:../Krusty/KLift.c **** 			LIFT_translation_command_run(queueId);
+ 665              		.loc 1 193 0
+ 666 040e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 667 0410 1846     		mov	r0, r3
+ 668 0412 00F0EFF8 		bl	LIFT_translation_command_run
+ 190:../Krusty/KLift.c **** 		if(init)
+ 669              		.loc 1 190 0
+ 670 0416 4AE0     		b	.L27
+ 671              	.L31:
+ 194:../Krusty/KLift.c **** 	} else if(LIFT_IS_AX12(queueId)) {    // Gestion des mouvements de la pince a verre
+ 672              		.loc 1 194 0
+ 673 0418 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 674 041a 1846     		mov	r0, r3
+ 675 041c FFF7FEFF 		bl	QUEUE_get_act
+ 676 0420 0346     		mov	r3, r0
+ 677 0422 052B     		cmp	r3, #5
+ 678 0424 06D0     		beq	.L34
+ 679              		.loc 1 194 0 is_stmt 0 discriminator 1
+ 680 0426 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 681 0428 1846     		mov	r0, r3
+ 682 042a FFF7FEFF 		bl	QUEUE_get_act
+ 683 042e 0346     		mov	r3, r0
+ 684 0430 072B     		cmp	r3, #7
+ 685 0432 0CD1     		bne	.L35
+ 686              	.L34:
+ 195:../Krusty/KLift.c **** 		if(init)
+ 687              		.loc 1 195 0 is_stmt 1
+ 688 0434 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 689 0436 002B     		cmp	r3, #0
+ 690 0438 04D0     		beq	.L36
+ 196:../Krusty/KLift.c **** 			LIFT_plier_command_init(queueId);
+ 691              		.loc 1 196 0
+ 692 043a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 693 043c 1846     		mov	r0, r3
+ 694 043e 00F043F9 		bl	LIFT_plier_command_init
+ 195:../Krusty/KLift.c **** 		if(init)
+ 695              		.loc 1 195 0
+ 696 0442 34E0     		b	.L27
+ 697              	.L36:
+ 197:../Krusty/KLift.c **** 		else
+ 198:../Krusty/KLift.c **** 			LIFT_plier_command_run(queueId);
+ 698              		.loc 1 198 0
+ 699 0444 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 700 0446 1846     		mov	r0, r3
+ 701 0448 00F038FA 		bl	LIFT_plier_command_run
+ 195:../Krusty/KLift.c **** 		if(init)
+ 702              		.loc 1 195 0
+ 703 044c 2FE0     		b	.L27
+ 704              	.L35:
+ 705              	.LBB3:
+ 199:../Krusty/KLift.c **** 	} else {
+ 200:../Krusty/KLift.c **** 		Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+ 706              		.loc 1 200 0
+ 707 044e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 708 0450 1846     		mov	r0, r3
+ 709 0452 FFF7FEFF 		bl	QUEUE_get_act
+ 710 0456 0346     		mov	r3, r0
+ 711 0458 042B     		cmp	r3, #4
+ 712 045a 06D0     		beq	.L38
+ 713              		.loc 1 200 0 is_stmt 0 discriminator 2
+ 714 045c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 715 045e 1846     		mov	r0, r3
+ 716 0460 FFF7FEFF 		bl	QUEUE_get_act
+ 717 0464 0346     		mov	r3, r0
+ 718 0466 052B     		cmp	r3, #5
+ 719 0468 02D1     		bne	.L39
+ 720              	.L38:
+ 721              		.loc 1 200 0 discriminator 1
+ 722 046a 4FF01503 		mov	r3, #21
+ 723 046e 01E0     		b	.L40
+ 724              	.L39:
+ 725 0470 4FF01403 		mov	r3, #20
+ 726              	.L40:
+ 727              		.loc 1 200 0 discriminator 3
+ 728 0474 FB73     		strb	r3, [r7, #15]
+ 201:../Krusty/KLift.c **** 		error_printf("Invalid act: %d\n", QUEUE_get_act(queueId));
+ 729              		.loc 1 201 0 is_stmt 1 discriminator 3
+ 730 0476 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 731 0478 1846     		mov	r0, r3
+ 732 047a FFF7FEFF 		bl	QUEUE_get_act
+ 733 047e 0346     		mov	r3, r0
+ 734 0480 4FF00200 		mov	r0, #2
+ 735 0484 40F20001 		movw	r1, #:lower16:.LC7
+ 736 0488 C0F20001 		movt	r1, #:upper16:.LC7
+ 737 048c 1A46     		mov	r2, r3
+ 738 048e FFF7FEFF 		bl	OUTPUTLOG_printf
+ 202:../Krusty/KLift.c **** 		QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+ 739              		.loc 1 202 0 discriminator 3
+ 740 0492 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 741 0494 9BB2     		uxth	r3, r3
+ 742 0496 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 743 0498 4FF0CA01 		mov	r1, #202
+ 744 049c 0091     		str	r1, [sp, #0]
+ 745 049e 1046     		mov	r0, r2
+ 746 04a0 1946     		mov	r1, r3
+ 747 04a2 4FF00202 		mov	r2, #2
+ 748 04a6 4FF00403 		mov	r3, #4
+ 749 04aa FFF7FEFF 		bl	QUEUE_next
+ 750              	.L27:
+ 751              	.LBE3:
+ 203:../Krusty/KLift.c **** 	}
+ 204:../Krusty/KLift.c **** }
+ 752              		.loc 1 204 0
+ 753 04ae 07F11007 		add	r7, r7, #16
+ 754 04b2 BD46     		mov	sp, r7
+ 755 04b4 80BD     		pop	{r7, pc}
+ 756              		.cfi_endproc
+ 757              	.LFE117:
+ 759              		.section	.rodata
+ 760 0099 000000   		.align	2
+ 761              	.LC8:
+ 762 009c 4C493A20 		.ascii	"LI: invalid translation command: %u, code is broken"
+ 762      696E7661 
+ 762      6C696420 
+ 762      7472616E 
+ 762      736C6174 
+ 763 00cf 20210A00 		.ascii	" !\012\000"
+ 764 00d3 00       		.align	2
+ 765              	.LC9:
+ 766 00d4 4C493A20 		.ascii	"LI: Lift translate motor id %d, pos %d\012\000"
+ 766      4C696674 
+ 766      20747261 
+ 766      6E736C61 
+ 766      7465206D 
+ 767              		.text
+ 768 04b6 00BF     		.align	2
+ 769              		.thumb
+ 770              		.thumb_func
+ 772              	LIFT_translation_command_init:
+ 773              	.LFB118:
+ 205:../Krusty/KLift.c **** 
+ 206:../Krusty/KLift.c **** //Initialisation d'une commande de translation du bras
+ 207:../Krusty/KLift.c **** static void LIFT_translation_command_init(queue_id_t queueId) {
+ 774              		.loc 1 207 0
+ 775              		.cfi_startproc
+ 776              		@ args = 0, pretend = 0, frame = 16
+ 777              		@ frame_needed = 1, uses_anonymous_args = 0
+ 778 04b8 80B5     		push	{r7, lr}
+ 779              	.LCFI18:
+ 780              		.cfi_def_cfa_offset 8
+ 781              		.cfi_offset 7, -8
+ 782              		.cfi_offset 14, -4
+ 783 04ba 86B0     		sub	sp, sp, #24
+ 784              	.LCFI19:
+ 785              		.cfi_def_cfa_offset 32
+ 786 04bc 02AF     		add	r7, sp, #8
+ 787              	.LCFI20:
+ 788              		.cfi_def_cfa 7, 24
+ 789 04be 0346     		mov	r3, r0
+ 790 04c0 FB71     		strb	r3, [r7, #7]
+ 208:../Krusty/KLift.c **** 	Uint8 dcMotorId = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_DCMOTOR_ID : LIFT_RIGHT_DCMOTOR_ID;
+ 791              		.loc 1 208 0
+ 792 04c2 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 793 04c4 1846     		mov	r0, r3
+ 794 04c6 FFF7FEFF 		bl	QUEUE_get_act
+ 795 04ca 0346     		mov	r3, r0
+ 796 04cc 042B     		cmp	r3, #4
+ 797 04ce 06D0     		beq	.L42
+ 798              		.loc 1 208 0 is_stmt 0 discriminator 2
+ 799 04d0 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 800 04d2 1846     		mov	r0, r3
+ 801 04d4 FFF7FEFF 		bl	QUEUE_get_act
+ 802 04d8 0346     		mov	r3, r0
+ 803 04da 052B     		cmp	r3, #5
+ 804 04dc 02D1     		bne	.L43
+ 805              	.L42:
+ 806              		.loc 1 208 0 discriminator 1
+ 807 04de 4FF00203 		mov	r3, #2
+ 808 04e2 01E0     		b	.L44
+ 809              	.L43:
+ 810 04e4 4FF00303 		mov	r3, #3
+ 811              	.L44:
+ 812              		.loc 1 208 0 discriminator 3
+ 813 04e8 BB73     		strb	r3, [r7, #14]
+ 209:../Krusty/KLift.c **** 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
+ 814              		.loc 1 209 0 is_stmt 1 discriminator 3
+ 815 04ea FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 816 04ec 1846     		mov	r0, r3
+ 817 04ee FFF7FEFF 		bl	QUEUE_get_arg
+ 818 04f2 0346     		mov	r3, r0
+ 819 04f4 1B78     		ldrb	r3, [r3, #0]
+ 820 04f6 7B73     		strb	r3, [r7, #13]
+ 210:../Krusty/KLift.c **** 	Uint8 wantedPosition;
+ 211:../Krusty/KLift.c **** 	switch(command) {
+ 821              		.loc 1 211 0 discriminator 3
+ 822 04f8 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 823 04fa A3F12003 		sub	r3, r3, #32
+ 824 04fe 0F2B     		cmp	r3, #15
+ 825 0500 33D8     		bhi	.L45
+ 826 0502 01A2     		adr	r2, .L50
+ 827 0504 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 828              		.align	2
+ 829              	.L50:
+ 830 0508 49050000 		.word	.L46+1
+ 831 050c 51050000 		.word	.L47+1
+ 832 0510 59050000 		.word	.L48+1
+ 833 0514 6B050000 		.word	.L45+1
+ 834 0518 6B050000 		.word	.L45+1
+ 835 051c 6B050000 		.word	.L45+1
+ 836 0520 6B050000 		.word	.L45+1
+ 837 0524 6B050000 		.word	.L45+1
+ 838 0528 6B050000 		.word	.L45+1
+ 839 052c 6B050000 		.word	.L45+1
+ 840 0530 6B050000 		.word	.L45+1
+ 841 0534 6B050000 		.word	.L45+1
+ 842 0538 6B050000 		.word	.L45+1
+ 843 053c 6B050000 		.word	.L45+1
+ 844 0540 6B050000 		.word	.L45+1
+ 845 0544 61050000 		.word	.L49+1
+ 846              	.L46:
+ 212:../Krusty/KLift.c **** 		case ACT_LIFT_GO_UP:   wantedPosition = LIFT_UP_POS_ID;   break;
+ 847              		.loc 1 212 0
+ 848 0548 4FF00003 		mov	r3, #0
+ 849 054c FB73     		strb	r3, [r7, #15]
+ 850 054e 39E0     		b	.L51
+ 851              	.L47:
+ 213:../Krusty/KLift.c **** 		case ACT_LIFT_GO_MID:  wantedPosition = LIFT_MID_POS_ID;  break;
+ 852              		.loc 1 213 0
+ 853 0550 4FF00103 		mov	r3, #1
+ 854 0554 FB73     		strb	r3, [r7, #15]
+ 855 0556 35E0     		b	.L51
+ 856              	.L48:
+ 214:../Krusty/KLift.c **** 		case ACT_LIFT_GO_DOWN: wantedPosition = LIFT_DOWN_POS_ID; break;
+ 857              		.loc 1 214 0
+ 858 0558 4FF00203 		mov	r3, #2
+ 859 055c FB73     		strb	r3, [r7, #15]
+ 860 055e 31E0     		b	.L51
+ 861              	.L49:
+ 215:../Krusty/KLift.c **** 		case ACT_LIFT_STOP:
+ 216:../Krusty/KLift.c **** 			DCM_stop(dcMotorId);
+ 862              		.loc 1 216 0
+ 863 0560 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 864 0562 1846     		mov	r0, r3
+ 865 0564 FFF7FEFF 		bl	DCM_stop
+ 217:../Krusty/KLift.c **** 			//Le moteur atteindra l'état IDLE automatiquement et le message de retour sera envoyé, voir LIFT
+ 218:../Krusty/KLift.c **** 			return;
+ 866              		.loc 1 218 0
+ 867 0568 40E0     		b	.L41
+ 868              	.L45:
+ 869              	.LBB4:
+ 219:../Krusty/KLift.c **** 
+ 220:../Krusty/KLift.c **** 		default: {
+ 221:../Krusty/KLift.c **** 				Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+ 870              		.loc 1 221 0
+ 871 056a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 872 056c 1846     		mov	r0, r3
+ 873 056e FFF7FEFF 		bl	QUEUE_get_act
+ 874 0572 0346     		mov	r3, r0
+ 875 0574 042B     		cmp	r3, #4
+ 876 0576 06D0     		beq	.L53
+ 877              		.loc 1 221 0 is_stmt 0 discriminator 2
+ 878 0578 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 879 057a 1846     		mov	r0, r3
+ 880 057c FFF7FEFF 		bl	QUEUE_get_act
+ 881 0580 0346     		mov	r3, r0
+ 882 0582 052B     		cmp	r3, #5
+ 883 0584 02D1     		bne	.L54
+ 884              	.L53:
+ 885              		.loc 1 221 0 discriminator 1
+ 886 0586 4FF01503 		mov	r3, #21
+ 887 058a 01E0     		b	.L55
+ 888              	.L54:
+ 889 058c 4FF01403 		mov	r3, #20
+ 890              	.L55:
+ 891              		.loc 1 221 0 discriminator 3
+ 892 0590 3B73     		strb	r3, [r7, #12]
+ 222:../Krusty/KLift.c **** 				error_printf("invalid translation command: %u, code is broken !\n", command);
+ 893              		.loc 1 222 0 is_stmt 1 discriminator 3
+ 894 0592 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 895 0594 4FF00200 		mov	r0, #2
+ 896 0598 40F20001 		movw	r1, #:lower16:.LC8
+ 897 059c C0F20001 		movt	r1, #:upper16:.LC8
+ 898 05a0 1A46     		mov	r2, r3
+ 899 05a2 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 223:../Krusty/KLift.c **** 				QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+ 900              		.loc 1 223 0 discriminator 3
+ 901 05a6 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 902 05a8 9BB2     		uxth	r3, r3
+ 903 05aa FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 904 05ac 4FF0DF01 		mov	r1, #223
+ 905 05b0 0091     		str	r1, [sp, #0]
+ 906 05b2 1046     		mov	r0, r2
+ 907 05b4 1946     		mov	r1, r3
+ 908 05b6 4FF00202 		mov	r2, #2
+ 909 05ba 4FF00403 		mov	r3, #4
+ 910 05be FFF7FEFF 		bl	QUEUE_next
+ 224:../Krusty/KLift.c **** 				return;
+ 911              		.loc 1 224 0 discriminator 3
+ 912 05c2 13E0     		b	.L41
+ 913              	.L51:
+ 914              	.LBE4:
+ 225:../Krusty/KLift.c **** 			}
+ 226:../Krusty/KLift.c **** 	}
+ 227:../Krusty/KLift.c **** 	debug_printf("Lift translate motor id %d, pos %d\n", dcMotorId, wantedPosition);
+ 915              		.loc 1 227 0
+ 916 05c4 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 917 05c6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 918 05c8 4FF00500 		mov	r0, #5
+ 919 05cc 40F20001 		movw	r1, #:lower16:.LC9
+ 920 05d0 C0F20001 		movt	r1, #:upper16:.LC9
+ 921 05d4 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 228:../Krusty/KLift.c **** 	DCM_goToPos(dcMotorId, wantedPosition);
+ 922              		.loc 1 228 0
+ 923 05d8 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 924 05da FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 925 05dc 1046     		mov	r0, r2
+ 926 05de 1946     		mov	r1, r3
+ 927 05e0 FFF7FEFF 		bl	DCM_goToPos
+ 229:../Krusty/KLift.c **** 	DCM_restart(dcMotorId);
+ 928              		.loc 1 229 0
+ 929 05e4 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 930 05e6 1846     		mov	r0, r3
+ 931 05e8 FFF7FEFF 		bl	DCM_restart
+ 932              	.L41:
+ 230:../Krusty/KLift.c **** }
+ 933              		.loc 1 230 0
+ 934 05ec 07F11007 		add	r7, r7, #16
+ 935 05f0 BD46     		mov	sp, r7
+ 936 05f2 80BD     		pop	{r7, pc}
+ 937              		.cfi_endproc
+ 938              	.LFE118:
+ 940              		.align	2
+ 941              		.thumb
+ 942              		.thumb_func
+ 944              	LIFT_translation_command_run:
+ 945              	.LFB119:
+ 231:../Krusty/KLift.c **** 
+ 232:../Krusty/KLift.c **** //Gestion des états en cours d'exécution de la commande de translation
+ 233:../Krusty/KLift.c **** static void LIFT_translation_command_run(queue_id_t queueId) {
+ 946              		.loc 1 233 0
+ 947              		.cfi_startproc
+ 948              		@ args = 0, pretend = 0, frame = 16
+ 949              		@ frame_needed = 1, uses_anonymous_args = 0
+ 950 05f4 90B5     		push	{r4, r7, lr}
+ 951              	.LCFI21:
+ 952              		.cfi_def_cfa_offset 12
+ 953              		.cfi_offset 4, -12
+ 954              		.cfi_offset 7, -8
+ 955              		.cfi_offset 14, -4
+ 956 05f6 87B0     		sub	sp, sp, #28
+ 957              	.LCFI22:
+ 958              		.cfi_def_cfa_offset 40
+ 959 05f8 02AF     		add	r7, sp, #8
+ 960              	.LCFI23:
+ 961              		.cfi_def_cfa 7, 32
+ 962 05fa 0346     		mov	r3, r0
+ 963 05fc FB71     		strb	r3, [r7, #7]
+ 234:../Krusty/KLift.c **** 	Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+ 964              		.loc 1 234 0
+ 965 05fe FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 966 0600 1846     		mov	r0, r3
+ 967 0602 FFF7FEFF 		bl	QUEUE_get_act
+ 968 0606 0346     		mov	r3, r0
+ 969 0608 042B     		cmp	r3, #4
+ 970 060a 06D0     		beq	.L57
+ 971              		.loc 1 234 0 is_stmt 0 discriminator 2
+ 972 060c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 973 060e 1846     		mov	r0, r3
+ 974 0610 FFF7FEFF 		bl	QUEUE_get_act
+ 975 0614 0346     		mov	r3, r0
+ 976 0616 052B     		cmp	r3, #5
+ 977 0618 02D1     		bne	.L58
+ 978              	.L57:
+ 979              		.loc 1 234 0 discriminator 1
+ 980 061a 4FF01503 		mov	r3, #21
+ 981 061e 01E0     		b	.L59
+ 982              	.L58:
+ 983 0620 4FF01403 		mov	r3, #20
+ 984              	.L59:
+ 985              		.loc 1 234 0 discriminator 3
+ 986 0624 FB73     		strb	r3, [r7, #15]
+ 235:../Krusty/KLift.c **** 	Uint8 dcMotorId = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_DCMOTOR_ID : LIFT_RIGHT_DCMOTOR_ID;
+ 987              		.loc 1 235 0 is_stmt 1 discriminator 3
+ 988 0626 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 989 0628 1846     		mov	r0, r3
+ 990 062a FFF7FEFF 		bl	QUEUE_get_act
+ 991 062e 0346     		mov	r3, r0
+ 992 0630 042B     		cmp	r3, #4
+ 993 0632 06D0     		beq	.L60
+ 994              		.loc 1 235 0 is_stmt 0 discriminator 2
+ 995 0634 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 996 0636 1846     		mov	r0, r3
+ 997 0638 FFF7FEFF 		bl	QUEUE_get_act
+ 998 063c 0346     		mov	r3, r0
+ 999 063e 052B     		cmp	r3, #5
+ 1000 0640 02D1     		bne	.L61
+ 1001              	.L60:
+ 1002              		.loc 1 235 0 discriminator 1
+ 1003 0642 4FF00203 		mov	r3, #2
+ 1004 0646 01E0     		b	.L62
+ 1005              	.L61:
+ 1006 0648 4FF00303 		mov	r3, #3
+ 1007              	.L62:
+ 1008              		.loc 1 235 0 discriminator 3
+ 1009 064c BB73     		strb	r3, [r7, #14]
+ 236:../Krusty/KLift.c **** 	Uint8 result, errorCode;
+ 237:../Krusty/KLift.c **** 	Uint16 line;
+ 238:../Krusty/KLift.c **** 
+ 239:../Krusty/KLift.c **** 	debug_printf("Lift translate motor id %d, pos %d\n", dcMotorId, (LIFT_IS_LEFT(queueId))? LIFT_LEFT
+ 1010              		.loc 1 239 0 is_stmt 1 discriminator 3
+ 1011 064e BC7B     		ldrb	r4, [r7, #14]	@ zero_extendqisi2
+ 1012 0650 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1013 0652 1846     		mov	r0, r3
+ 1014 0654 FFF7FEFF 		bl	QUEUE_get_act
+ 1015 0658 0346     		mov	r3, r0
+ 1016 065a 042B     		cmp	r3, #4
+ 1017 065c 06D0     		beq	.L63
+ 1018              		.loc 1 239 0 is_stmt 0 discriminator 2
+ 1019 065e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1020 0660 1846     		mov	r0, r3
+ 1021 0662 FFF7FEFF 		bl	QUEUE_get_act
+ 1022 0666 0346     		mov	r3, r0
+ 1023 0668 052B     		cmp	r3, #5
+ 1024 066a 03D1     		bne	.L64
+ 1025              	.L63:
+ 1026              		.loc 1 239 0 discriminator 1
+ 1027 066c FFF786FE 		bl	LIFT_LEFT_getTranslationPos
+ 1028 0670 0346     		mov	r3, r0
+ 1029 0672 02E0     		b	.L65
+ 1030              	.L64:
+ 1031              		.loc 1 239 0 discriminator 3
+ 1032 0674 FFF792FE 		bl	LIFT_RIGHT_getTranslationPos
+ 1033 0678 0346     		mov	r3, r0
+ 1034              	.L65:
+ 1035              		.loc 1 239 0 discriminator 4
+ 1036 067a 4FF00500 		mov	r0, #5
+ 1037 067e 40F20001 		movw	r1, #:lower16:.LC9
+ 1038 0682 C0F20001 		movt	r1, #:upper16:.LC9
+ 1039 0686 2246     		mov	r2, r4
+ 1040 0688 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 240:../Krusty/KLift.c **** 
+ 241:../Krusty/KLift.c **** 	if(ACTQ_check_status_dcmotor(dcMotorId, FALSE, &result, &errorCode, &line))
+ 1041              		.loc 1 241 0 is_stmt 1 discriminator 4
+ 1042 068c B97B     		ldrb	r1, [r7, #14]	@ zero_extendqisi2
+ 1043 068e 07F10D02 		add	r2, r7, #13
+ 1044 0692 07F10C03 		add	r3, r7, #12
+ 1045 0696 07F10A00 		add	r0, r7, #10
+ 1046 069a 0090     		str	r0, [sp, #0]
+ 1047 069c 0846     		mov	r0, r1
+ 1048 069e 4FF00001 		mov	r1, #0
+ 1049 06a2 FFF7FEFF 		bl	ACTQ_check_status_dcmotor
+ 1050 06a6 0346     		mov	r3, r0
+ 1051 06a8 002B     		cmp	r3, #0
+ 1052 06aa 08D0     		beq	.L56
+ 242:../Krusty/KLift.c **** 		QUEUE_next(queueId, canSid, result, errorCode, line);
+ 1053              		.loc 1 242 0
+ 1054 06ac FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1055 06ae 99B2     		uxth	r1, r3
+ 1056 06b0 7A7B     		ldrb	r2, [r7, #13]	@ zero_extendqisi2
+ 1057 06b2 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1058 06b4 7C89     		ldrh	r4, [r7, #10]
+ 1059 06b6 F879     		ldrb	r0, [r7, #7]	@ zero_extendqisi2
+ 1060 06b8 0094     		str	r4, [sp, #0]
+ 1061 06ba FFF7FEFF 		bl	QUEUE_next
+ 1062              	.L56:
+ 243:../Krusty/KLift.c **** }
+ 1063              		.loc 1 243 0
+ 1064 06be 07F11407 		add	r7, r7, #20
+ 1065 06c2 BD46     		mov	sp, r7
+ 1066 06c4 90BD     		pop	{r4, r7, pc}
+ 1067              		.cfi_endproc
+ 1068              	.LFE119:
+ 1070              		.section	.rodata
+ 1071              		.align	2
+ 1072              	.LC10:
+ 1073 00fc 4C493A20 		.ascii	"LI: Invalid plier command: %u, code is broken !\012"
+ 1073      496E7661 
+ 1073      6C696420 
+ 1073      706C6965 
+ 1073      7220636F 
+ 1074 012c 00       		.ascii	"\000"
+ 1075 012d 000000   		.align	2
+ 1076              	.LC11:
+ 1077 0130 4C493A20 		.ascii	"LI: Invalid plier position: %u, code is broken !\012"
+ 1077      496E7661 
+ 1077      6C696420 
+ 1077      706C6965 
+ 1077      7220706F 
+ 1078 0161 00       		.ascii	"\000"
+ 1079 0162 0000     		.align	2
+ 1080              	.LC12:
+ 1081 0164 4C493A20 		.ascii	"LI: AX12_set_position error: 0x%x\012\000"
+ 1081      41583132 
+ 1081      5F736574 
+ 1081      5F706F73 
+ 1081      6974696F 
+ 1082 0187 00       		.text
+ 1083 06c6 00BF     		.align	2
+ 1084              		.thumb
+ 1085              		.thumb_func
+ 1087              	LIFT_plier_command_init:
+ 1088              	.LFB120:
+ 244:../Krusty/KLift.c **** 
+ 245:../Krusty/KLift.c **** //Initialise une commande de la pince à assiette
+ 246:../Krusty/KLift.c **** static void LIFT_plier_command_init(queue_id_t queueId) {
+ 1089              		.loc 1 246 0
+ 1090              		.cfi_startproc
+ 1091              		@ args = 0, pretend = 0, frame = 32
+ 1092              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1093 06c8 80B5     		push	{r7, lr}
+ 1094              	.LCFI24:
+ 1095              		.cfi_def_cfa_offset 8
+ 1096              		.cfi_offset 7, -8
+ 1097              		.cfi_offset 14, -4
+ 1098 06ca 8AB0     		sub	sp, sp, #40
+ 1099              	.LCFI25:
+ 1100              		.cfi_def_cfa_offset 48
+ 1101 06cc 02AF     		add	r7, sp, #8
+ 1102              	.LCFI26:
+ 1103              		.cfi_def_cfa 7, 40
+ 1104 06ce 0346     		mov	r3, r0
+ 1105 06d0 FB73     		strb	r3, [r7, #15]
+ 247:../Krusty/KLift.c **** 	Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+ 1106              		.loc 1 247 0
+ 1107 06d2 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1108 06d4 1846     		mov	r0, r3
+ 1109 06d6 FFF7FEFF 		bl	QUEUE_get_act
+ 1110 06da 0346     		mov	r3, r0
+ 1111 06dc 042B     		cmp	r3, #4
+ 1112 06de 06D0     		beq	.L68
+ 1113              		.loc 1 247 0 is_stmt 0 discriminator 2
+ 1114 06e0 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1115 06e2 1846     		mov	r0, r3
+ 1116 06e4 FFF7FEFF 		bl	QUEUE_get_act
+ 1117 06e8 0346     		mov	r3, r0
+ 1118 06ea 052B     		cmp	r3, #5
+ 1119 06ec 02D1     		bne	.L69
+ 1120              	.L68:
+ 1121              		.loc 1 247 0 discriminator 1
+ 1122 06ee 4FF01503 		mov	r3, #21
+ 1123 06f2 01E0     		b	.L70
+ 1124              	.L69:
+ 1125 06f4 4FF01403 		mov	r3, #20
+ 1126              	.L70:
+ 1127              		.loc 1 247 0 discriminator 3
+ 1128 06f8 FB77     		strb	r3, [r7, #31]
+ 248:../Krusty/KLift.c **** 	Uint8 ax12Id = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ID : LIFT_RIGHT_PLIER_AX12_ID;
+ 1129              		.loc 1 248 0 is_stmt 1 discriminator 3
+ 1130 06fa FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1131 06fc 1846     		mov	r0, r3
+ 1132 06fe FFF7FEFF 		bl	QUEUE_get_act
+ 1133 0702 0346     		mov	r3, r0
+ 1134 0704 042B     		cmp	r3, #4
+ 1135 0706 06D0     		beq	.L71
+ 1136              		.loc 1 248 0 is_stmt 0 discriminator 2
+ 1137 0708 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1138 070a 1846     		mov	r0, r3
+ 1139 070c FFF7FEFF 		bl	QUEUE_get_act
+ 1140 0710 0346     		mov	r3, r0
+ 1141 0712 052B     		cmp	r3, #5
+ 1142 0714 02D1     		bne	.L72
+ 1143              	.L71:
+ 1144              		.loc 1 248 0 discriminator 1
+ 1145 0716 4FF00603 		mov	r3, #6
+ 1146 071a 01E0     		b	.L73
+ 1147              	.L72:
+ 1148 071c 4FF00103 		mov	r3, #1
+ 1149              	.L73:
+ 1150              		.loc 1 248 0 discriminator 3
+ 1151 0720 BB77     		strb	r3, [r7, #30]
+ 249:../Krusty/KLift.c **** 	Uint16 ax12OpenPos = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_OPEN_POS : LIFT_RIGHT_PLIER_AX1
+ 1152              		.loc 1 249 0 is_stmt 1 discriminator 3
+ 1153 0722 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1154 0724 1846     		mov	r0, r3
+ 1155 0726 FFF7FEFF 		bl	QUEUE_get_act
+ 1156 072a 0346     		mov	r3, r0
+ 1157 072c 042B     		cmp	r3, #4
+ 1158 072e 06D0     		beq	.L74
+ 1159              		.loc 1 249 0 is_stmt 0 discriminator 2
+ 1160 0730 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1161 0732 1846     		mov	r0, r3
+ 1162 0734 FFF7FEFF 		bl	QUEUE_get_act
+ 1163 0738 0346     		mov	r3, r0
+ 1164 073a 052B     		cmp	r3, #5
+ 1165 073c 02D1     		bne	.L75
+ 1166              	.L74:
+ 1167              		.loc 1 249 0 discriminator 1
+ 1168 073e 4FF06903 		mov	r3, #105
+ 1169 0742 01E0     		b	.L76
+ 1170              	.L75:
+ 1171 0744 4FF0C303 		mov	r3, #195
+ 1172              	.L76:
+ 1173              		.loc 1 249 0 discriminator 3
+ 1174 0748 BB83     		strh	r3, [r7, #28]	@ movhi
+ 250:../Krusty/KLift.c **** 	Uint16 ax12ClosedPos = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_CLOSED_POS : LIFT_RIGHT_PLIER
+ 1175              		.loc 1 250 0 is_stmt 1 discriminator 3
+ 1176 074a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1177 074c 1846     		mov	r0, r3
+ 1178 074e FFF7FEFF 		bl	QUEUE_get_act
+ 1179 0752 0346     		mov	r3, r0
+ 1180 0754 042B     		cmp	r3, #4
+ 1181 0756 06D0     		beq	.L77
+ 1182              		.loc 1 250 0 is_stmt 0 discriminator 2
+ 1183 0758 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1184 075a 1846     		mov	r0, r3
+ 1185 075c FFF7FEFF 		bl	QUEUE_get_act
+ 1186 0760 0346     		mov	r3, r0
+ 1187 0762 052B     		cmp	r3, #5
+ 1188 0764 02D1     		bne	.L78
+ 1189              	.L77:
+ 1190              		.loc 1 250 0 discriminator 1
+ 1191 0766 4FF0A503 		mov	r3, #165
+ 1192 076a 01E0     		b	.L79
+ 1193              	.L78:
+ 1194 076c 4FF07803 		mov	r3, #120
+ 1195              	.L79:
+ 1196              		.loc 1 250 0 discriminator 3
+ 1197 0770 7B83     		strh	r3, [r7, #26]	@ movhi
+ 251:../Krusty/KLift.c **** 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
+ 1198              		.loc 1 251 0 is_stmt 1 discriminator 3
+ 1199 0772 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1200 0774 1846     		mov	r0, r3
+ 1201 0776 FFF7FEFF 		bl	QUEUE_get_arg
+ 1202 077a 0346     		mov	r3, r0
+ 1203 077c 1B78     		ldrb	r3, [r3, #0]
+ 1204 077e 7B76     		strb	r3, [r7, #25]
+ 252:../Krusty/KLift.c **** 	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
+ 1205              		.loc 1 252 0 discriminator 3
+ 1206 0780 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1207 0782 1846     		mov	r0, r3
+ 1208 0784 FFF7FEFF 		bl	QUEUE_get_arg
+ 1209 0788 0346     		mov	r3, r0
+ 1210 078a 03F10203 		add	r3, r3, #2
+ 1211 078e 7B61     		str	r3, [r7, #20]
+ 253:../Krusty/KLift.c **** 
+ 254:../Krusty/KLift.c **** 	*ax12_goalPosition = 0xFFFF;
+ 1212              		.loc 1 254 0 discriminator 3
+ 1213 0790 7B69     		ldr	r3, [r7, #20]
+ 1214 0792 4FF6FF72 		movw	r2, #65535
+ 1215 0796 1A80     		strh	r2, [r3, #0]	@ movhi
+ 255:../Krusty/KLift.c **** 
+ 256:../Krusty/KLift.c **** 	switch(command) {
+ 1216              		.loc 1 256 0 discriminator 3
+ 1217 0798 7B7E     		ldrb	r3, [r7, #25]	@ zero_extendqisi2
+ 1218 079a 112B     		cmp	r3, #17
+ 1219 079c 07D0     		beq	.L82
+ 1220 079e 1F2B     		cmp	r3, #31
+ 1221 07a0 09D0     		beq	.L83
+ 1222 07a2 102B     		cmp	r3, #16
+ 1223 07a4 1CD1     		bne	.L87
+ 1224              	.L81:
+ 257:../Krusty/KLift.c **** 		case ACT_LIFT_PLIER_OPEN:  *ax12_goalPosition = ax12OpenPos; break;
+ 1225              		.loc 1 257 0
+ 1226 07a6 7B69     		ldr	r3, [r7, #20]
+ 1227 07a8 BA8B     		ldrh	r2, [r7, #28]	@ movhi
+ 1228 07aa 1A80     		strh	r2, [r3, #0]	@ movhi
+ 1229 07ac 31E0     		b	.L84
+ 1230              	.L82:
+ 258:../Krusty/KLift.c **** 		case ACT_LIFT_PLIER_CLOSE: *ax12_goalPosition = ax12ClosedPos; break;
+ 1231              		.loc 1 258 0
+ 1232 07ae 7B69     		ldr	r3, [r7, #20]
+ 1233 07b0 7A8B     		ldrh	r2, [r7, #26]	@ movhi
+ 1234 07b2 1A80     		strh	r2, [r3, #0]	@ movhi
+ 1235 07b4 2DE0     		b	.L84
+ 1236              	.L83:
+ 259:../Krusty/KLift.c **** 		case ACT_LIFT_PLIER_STOP:
+ 260:../Krusty/KLift.c **** 			AX12_set_torque_enabled(ax12Id, FALSE); //Stopper l'asservissement de l'AX12 qui gère la pince
+ 1237              		.loc 1 260 0
+ 1238 07b6 BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 1239 07b8 1846     		mov	r0, r3
+ 1240 07ba 4FF00001 		mov	r1, #0
+ 1241 07be FFF7FEFF 		bl	AX12_set_torque_enabled
+ 261:../Krusty/KLift.c **** 			QUEUE_next(queueId, canSid, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+ 1242              		.loc 1 261 0
+ 1243 07c2 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 1244 07c4 9BB2     		uxth	r3, r3
+ 1245 07c6 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1246 07c8 40F20511 		movw	r1, #261
+ 1247 07cc 0091     		str	r1, [sp, #0]
+ 1248 07ce 1046     		mov	r0, r2
+ 1249 07d0 1946     		mov	r1, r3
+ 1250 07d2 4FF00002 		mov	r2, #0
+ 1251 07d6 4FF00003 		mov	r3, #0
+ 1252 07da FFF7FEFF 		bl	QUEUE_next
+ 262:../Krusty/KLift.c **** 			return;
+ 1253              		.loc 1 262 0
+ 1254 07de 68E0     		b	.L67
+ 1255              	.L87:
+ 263:../Krusty/KLift.c **** 
+ 264:../Krusty/KLift.c **** 		default: {
+ 265:../Krusty/KLift.c **** 				error_printf("Invalid plier command: %u, code is broken !\n", command);
+ 1256              		.loc 1 265 0
+ 1257 07e0 7B7E     		ldrb	r3, [r7, #25]	@ zero_extendqisi2
+ 1258 07e2 4FF00200 		mov	r0, #2
+ 1259 07e6 40F20001 		movw	r1, #:lower16:.LC10
+ 1260 07ea C0F20001 		movt	r1, #:upper16:.LC10
+ 1261 07ee 1A46     		mov	r2, r3
+ 1262 07f0 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 266:../Krusty/KLift.c **** 				QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+ 1263              		.loc 1 266 0
+ 1264 07f4 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 1265 07f6 9BB2     		uxth	r3, r3
+ 1266 07f8 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1267 07fa 4FF48571 		mov	r1, #266
+ 1268 07fe 0091     		str	r1, [sp, #0]
+ 1269 0800 1046     		mov	r0, r2
+ 1270 0802 1946     		mov	r1, r3
+ 1271 0804 4FF00202 		mov	r2, #2
+ 1272 0808 4FF00403 		mov	r3, #4
+ 1273 080c FFF7FEFF 		bl	QUEUE_next
+ 267:../Krusty/KLift.c **** 				return;
+ 1274              		.loc 1 267 0
+ 1275 0810 4FE0     		b	.L67
+ 1276              	.L84:
+ 268:../Krusty/KLift.c **** 			}
+ 269:../Krusty/KLift.c **** 	}
+ 270:../Krusty/KLift.c **** 	if(*ax12_goalPosition == 0xFFFF) {
+ 1277              		.loc 1 270 0
+ 1278 0812 7B69     		ldr	r3, [r7, #20]
+ 1279 0814 1A88     		ldrh	r2, [r3, #0]
+ 1280 0816 4FF6FF73 		movw	r3, #65535
+ 1281 081a 9A42     		cmp	r2, r3
+ 1282 081c 18D1     		bne	.L86
+ 271:../Krusty/KLift.c **** 		error_printf("Invalid plier position: %u, code is broken !\n", command);
+ 1283              		.loc 1 271 0
+ 1284 081e 7B7E     		ldrb	r3, [r7, #25]	@ zero_extendqisi2
+ 1285 0820 4FF00200 		mov	r0, #2
+ 1286 0824 40F20001 		movw	r1, #:lower16:.LC11
+ 1287 0828 C0F20001 		movt	r1, #:upper16:.LC11
+ 1288 082c 1A46     		mov	r2, r3
+ 1289 082e FFF7FEFF 		bl	OUTPUTLOG_printf
+ 272:../Krusty/KLift.c **** 		QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+ 1290              		.loc 1 272 0
+ 1291 0832 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 1292 0834 9BB2     		uxth	r3, r3
+ 1293 0836 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1294 0838 4FF48871 		mov	r1, #272
+ 1295 083c 0091     		str	r1, [sp, #0]
+ 1296 083e 1046     		mov	r0, r2
+ 1297 0840 1946     		mov	r1, r3
+ 1298 0842 4FF00202 		mov	r2, #2
+ 1299 0846 4FF00403 		mov	r3, #4
+ 1300 084a FFF7FEFF 		bl	QUEUE_next
+ 273:../Krusty/KLift.c **** 		return;
+ 1301              		.loc 1 273 0
+ 1302 084e 30E0     		b	.L67
+ 1303              	.L86:
+ 274:../Krusty/KLift.c **** 	}
+ 275:../Krusty/KLift.c **** 
+ 276:../Krusty/KLift.c **** 	AX12_reset_last_error(ax12Id); //Sécurité anti terroriste. Nous les parano on aime pas voir des er
+ 1304              		.loc 1 276 0
+ 1305 0850 BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 1306 0852 1846     		mov	r0, r3
+ 1307 0854 FFF7FEFF 		bl	AX12_reset_last_error
+ 277:../Krusty/KLift.c **** 	if(!AX12_set_position(ax12Id, *ax12_goalPosition)) {	//Si la commande n'a pas été envoyée correcte
+ 1308              		.loc 1 277 0
+ 1309 0858 7B69     		ldr	r3, [r7, #20]
+ 1310 085a 1B88     		ldrh	r3, [r3, #0]
+ 1311 085c BA7F     		ldrb	r2, [r7, #30]	@ zero_extendqisi2
+ 1312 085e 1046     		mov	r0, r2
+ 1313 0860 1946     		mov	r1, r3
+ 1314 0862 FFF7FEFF 		bl	AX12_set_position
+ 1315 0866 0346     		mov	r3, r0
+ 1316 0868 002B     		cmp	r3, #0
+ 1317 086a 22D1     		bne	.L67
+ 278:../Krusty/KLift.c **** 		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(ax12Id).error);
+ 1318              		.loc 1 278 0
+ 1319 086c BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 1320 086e 1846     		mov	r0, r3
+ 1321 0870 FFF7FEFF 		bl	AX12_get_last_error
+ 1322 0874 3880     		strh	r0, [r7, #0]	@ movhi
+ 1323 0876 C0F30F43 		ubfx	r3, r0, #16, #16
+ 1324 087a 7B80     		strh	r3, [r7, #2]	@ movhi
+ 1325 087c 3B68     		ldr	r3, [r7, #0]
+ 1326 087e 3B61     		str	r3, [r7, #16]
+ 1327 0880 3B7C     		ldrb	r3, [r7, #16]	@ zero_extendqisi2
+ 1328 0882 4FF00200 		mov	r0, #2
+ 1329 0886 40F20001 		movw	r1, #:lower16:.LC12
+ 1330 088a C0F20001 		movt	r1, #:upper16:.LC12
+ 1331 088e 1A46     		mov	r2, r3
+ 1332 0890 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 279:../Krusty/KLift.c **** 		QUEUE_next(queueId, canSid, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+ 1333              		.loc 1 279 0
+ 1334 0894 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 1335 0896 9BB2     		uxth	r3, r3
+ 1336 0898 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1337 089a 40F21711 		movw	r1, #279
+ 1338 089e 0091     		str	r1, [sp, #0]
+ 1339 08a0 1046     		mov	r0, r2
+ 1340 08a2 1946     		mov	r1, r3
+ 1341 08a4 4FF00102 		mov	r2, #1
+ 1342 08a8 4FF00303 		mov	r3, #3
+ 1343 08ac FFF7FEFF 		bl	QUEUE_next
+ 280:../Krusty/KLift.c **** 		return;
+ 1344              		.loc 1 280 0
+ 1345 08b0 00BF     		nop
+ 1346              	.L67:
+ 281:../Krusty/KLift.c **** 	}
+ 282:../Krusty/KLift.c **** 	//La commande a été envoyée et l'AX12 l'a bien reçu
+ 283:../Krusty/KLift.c **** }
+ 1347              		.loc 1 283 0
+ 1348 08b2 07F12007 		add	r7, r7, #32
+ 1349 08b6 BD46     		mov	sp, r7
+ 1350 08b8 80BD     		pop	{r7, pc}
+ 1351              		.cfi_endproc
+ 1352              	.LFE120:
+ 1354 08ba 00BF     		.align	2
+ 1355              		.thumb
+ 1356              		.thumb_func
+ 1358              	LIFT_plier_command_run:
+ 1359              	.LFB121:
+ 284:../Krusty/KLift.c **** 
+ 285:../Krusty/KLift.c **** //Gère les états pendant le mouvement de la pince.
+ 286:../Krusty/KLift.c **** static void LIFT_plier_command_run(queue_id_t queueId) {
+ 1360              		.loc 1 286 0
+ 1361              		.cfi_startproc
+ 1362              		@ args = 0, pretend = 0, frame = 24
+ 1363              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1364 08bc 90B5     		push	{r4, r7, lr}
+ 1365              	.LCFI27:
+ 1366              		.cfi_def_cfa_offset 12
+ 1367              		.cfi_offset 4, -12
+ 1368              		.cfi_offset 7, -8
+ 1369              		.cfi_offset 14, -4
+ 1370 08be 8DB0     		sub	sp, sp, #52
+ 1371              	.LCFI28:
+ 1372              		.cfi_def_cfa_offset 64
+ 1373 08c0 06AF     		add	r7, sp, #24
+ 1374              	.LCFI29:
+ 1375              		.cfi_def_cfa 7, 40
+ 1376 08c2 0346     		mov	r3, r0
+ 1377 08c4 FB71     		strb	r3, [r7, #7]
+ 287:../Krusty/KLift.c **** 	Uint8 canSid = (LIFT_IS_LEFT(queueId))? ACT_LIFT_LEFT : ACT_LIFT_RIGHT;
+ 1378              		.loc 1 287 0
+ 1379 08c6 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1380 08c8 1846     		mov	r0, r3
+ 1381 08ca FFF7FEFF 		bl	QUEUE_get_act
+ 1382 08ce 0346     		mov	r3, r0
+ 1383 08d0 042B     		cmp	r3, #4
+ 1384 08d2 06D0     		beq	.L89
+ 1385              		.loc 1 287 0 is_stmt 0 discriminator 2
+ 1386 08d4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1387 08d6 1846     		mov	r0, r3
+ 1388 08d8 FFF7FEFF 		bl	QUEUE_get_act
+ 1389 08dc 0346     		mov	r3, r0
+ 1390 08de 052B     		cmp	r3, #5
+ 1391 08e0 02D1     		bne	.L90
+ 1392              	.L89:
+ 1393              		.loc 1 287 0 discriminator 1
+ 1394 08e2 4FF01503 		mov	r3, #21
+ 1395 08e6 01E0     		b	.L91
+ 1396              	.L90:
+ 1397 08e8 4FF01403 		mov	r3, #20
+ 1398              	.L91:
+ 1399              		.loc 1 287 0 discriminator 3
+ 1400 08ec FB75     		strb	r3, [r7, #23]
+ 288:../Krusty/KLift.c **** 	Uint8 ax12Id = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ID : LIFT_RIGHT_PLIER_AX12_ID;
+ 1401              		.loc 1 288 0 is_stmt 1 discriminator 3
+ 1402 08ee FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1403 08f0 1846     		mov	r0, r3
+ 1404 08f2 FFF7FEFF 		bl	QUEUE_get_act
+ 1405 08f6 0346     		mov	r3, r0
+ 1406 08f8 042B     		cmp	r3, #4
+ 1407 08fa 06D0     		beq	.L92
+ 1408              		.loc 1 288 0 is_stmt 0 discriminator 2
+ 1409 08fc FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1410 08fe 1846     		mov	r0, r3
+ 1411 0900 FFF7FEFF 		bl	QUEUE_get_act
+ 1412 0904 0346     		mov	r3, r0
+ 1413 0906 052B     		cmp	r3, #5
+ 1414 0908 02D1     		bne	.L93
+ 1415              	.L92:
+ 1416              		.loc 1 288 0 discriminator 1
+ 1417 090a 4FF00603 		mov	r3, #6
+ 1418 090e 01E0     		b	.L94
+ 1419              	.L93:
+ 1420 0910 4FF00103 		mov	r3, #1
+ 1421              	.L94:
+ 1422              		.loc 1 288 0 discriminator 3
+ 1423 0914 BB75     		strb	r3, [r7, #22]
+ 289:../Krusty/KLift.c **** 	Uint16 posEpsilon = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ASSER_POS_EPSILON : LIFT_RIGHT_P
+ 1424              		.loc 1 289 0 is_stmt 1 discriminator 3
+ 1425 0916 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1426 0918 1846     		mov	r0, r3
+ 1427 091a FFF7FEFF 		bl	QUEUE_get_act
+ 1428 091e 0346     		mov	r3, r0
+ 1429 0920 042B     		cmp	r3, #4
+ 1430 0922 05D0     		beq	.L97
+ 1431              		.loc 1 289 0 is_stmt 0 discriminator 2
+ 1432 0924 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1433 0926 1846     		mov	r0, r3
+ 1434 0928 FFF7FEFF 		bl	QUEUE_get_act
+ 1435 092c 0346     		mov	r3, r0
+ 1436 092e 052B     		cmp	r3, #5
+ 1437              	.L97:
+ 1438              		.loc 1 289 0 discriminator 4
+ 1439 0930 4FF00203 		mov	r3, #2
+ 1440 0934 BB82     		strh	r3, [r7, #20]	@ movhi
+ 290:../Krusty/KLift.c **** 	Uint16 asserTimeout = (LIFT_IS_LEFT(queueId))? LIFT_LEFT_PLIER_AX12_ASSER_TIMEOUT : LIFT_RIGHT_PLI
+ 1441              		.loc 1 290 0 is_stmt 1 discriminator 4
+ 1442 0936 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1443 0938 1846     		mov	r0, r3
+ 1444 093a FFF7FEFF 		bl	QUEUE_get_act
+ 1445 093e 0346     		mov	r3, r0
+ 1446 0940 042B     		cmp	r3, #4
+ 1447 0942 05D0     		beq	.L100
+ 1448              		.loc 1 290 0 is_stmt 0 discriminator 2
+ 1449 0944 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1450 0946 1846     		mov	r0, r3
+ 1451 0948 FFF7FEFF 		bl	QUEUE_get_act
+ 1452 094c 0346     		mov	r3, r0
+ 1453 094e 052B     		cmp	r3, #5
+ 1454              	.L100:
+ 1455              		.loc 1 290 0 discriminator 4
+ 1456 0950 4FF00503 		mov	r3, #5
+ 1457 0954 7B82     		strh	r3, [r7, #18]	@ movhi
+ 291:../Krusty/KLift.c **** 	Uint8 result, errorCode;
+ 292:../Krusty/KLift.c **** 	Uint16 line;
+ 293:../Krusty/KLift.c **** 
+ 294:../Krusty/KLift.c **** 	//360° of large_epsilon, quand on a un timeout, on a forcément un resultat Ok (et pas d'erreur, on
+ 295:../Krusty/KLift.c **** 	if(ACTQ_check_status_ax12(queueId, ax12Id, QUEUE_get_arg(queueId)->param, posEpsilon, asserTimeout
+ 1458              		.loc 1 295 0 is_stmt 1 discriminator 4
+ 1459 0956 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1460 0958 1846     		mov	r0, r3
+ 1461 095a FFF7FEFF 		bl	QUEUE_get_arg
+ 1462 095e 0346     		mov	r3, r0
+ 1463 0960 5A88     		ldrh	r2, [r3, #2]
+ 1464 0962 F879     		ldrb	r0, [r7, #7]	@ zero_extendqisi2
+ 1465 0964 B97D     		ldrb	r1, [r7, #22]	@ zero_extendqisi2
+ 1466 0966 BB8A     		ldrh	r3, [r7, #20]
+ 1467 0968 7C8A     		ldrh	r4, [r7, #18]
+ 1468 096a 0094     		str	r4, [sp, #0]
+ 1469 096c 4FF4B474 		mov	r4, #360
+ 1470 0970 0194     		str	r4, [sp, #4]
+ 1471 0972 07F11104 		add	r4, r7, #17
+ 1472 0976 0294     		str	r4, [sp, #8]
+ 1473 0978 07F11004 		add	r4, r7, #16
+ 1474 097c 0394     		str	r4, [sp, #12]
+ 1475 097e 07F10E04 		add	r4, r7, #14
+ 1476 0982 0494     		str	r4, [sp, #16]
+ 1477 0984 FFF7FEFF 		bl	ACTQ_check_status_ax12
+ 1478 0988 0346     		mov	r3, r0
+ 1479 098a 002B     		cmp	r3, #0
+ 1480 098c 08D0     		beq	.L88
+ 296:../Krusty/KLift.c **** 		QUEUE_next(queueId, canSid, result, errorCode, line);
+ 1481              		.loc 1 296 0
+ 1482 098e FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1483 0990 99B2     		uxth	r1, r3
+ 1484 0992 7A7C     		ldrb	r2, [r7, #17]	@ zero_extendqisi2
+ 1485 0994 3B7C     		ldrb	r3, [r7, #16]	@ zero_extendqisi2
+ 1486 0996 FC89     		ldrh	r4, [r7, #14]
+ 1487 0998 F879     		ldrb	r0, [r7, #7]	@ zero_extendqisi2
+ 1488 099a 0094     		str	r4, [sp, #0]
+ 1489 099c FFF7FEFF 		bl	QUEUE_next
+ 1490              	.L88:
+ 297:../Krusty/KLift.c **** }
+ 1491              		.loc 1 297 0
+ 1492 09a0 07F11C07 		add	r7, r7, #28
+ 1493 09a4 BD46     		mov	sp, r7
+ 1494 09a6 90BD     		pop	{r4, r7, pc}
+ 1495              		.cfi_endproc
+ 1496              	.LFE121:
+ 1498              		.bss
+ 1499              		.align	2
+ 1500              	ax12_is_initialized.6454:
+ 1501 0000 0000     		.space	2
+ 1502              	initialized.6451:
+ 1503 0002 00       		.space	1
+ 1504 0003 00       		.text
+ 1505              	.Letext0:
+ 1506              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 1507              		.file 3 "../stm32f4xx/stm32f4xx.h"
+ 1508              		.file 4 "../Krusty/../QS/QS_types.h"
+ 1509              		.file 5 "../config/config_krusty/config_global_vars_types.h"
+ 1510              		.file 6 "../Krusty/../queue.h"
+ 1511              		.file 7 "../Krusty/../QS/QS_DCMotor2.h"
+ 1512              		.file 8 "../Krusty/../QS/QS_outputlog.h"
+ 1513              		.file 9 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 KLift.c
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:19     .rodata:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:20     .rodata:00000000 .LC2
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:24     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:29     .text:00000000 LIFT_init
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:1502   .bss:00000002 initialized.6451
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:532    .text:0000037c LIFT_LEFT_getTranslationPos
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:565    .text:0000039c LIFT_RIGHT_getTranslationPos
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:206    .text:00000138 LIFT_initAX12
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:185    .rodata:00000030 .LC3
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:188    .rodata:00000038 .LC4
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:191    .rodata:00000040 .LC5
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:194    .rodata:00000058 .LC0
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:198    .rodata:0000005c .LC1
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:1500   .bss:00000000 ax12_is_initialized.6454
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:364    .text:00000284 LIFT_stop
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:391    .rodata:00000060 .LC6
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:399    .text:0000029c LIFT_CAN_process_msg
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:604    .text:000003bc LIFT_run_command
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:596    .rodata:00000084 .LC7
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:772    .text:000004b8 LIFT_translation_command_init
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:944    .text:000005f4 LIFT_translation_command_run
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:1087   .text:000006c8 LIFT_plier_command_init
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:1358   .text:000008bc LIFT_plier_command_run
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:761    .rodata:0000009c .LC8
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:765    .rodata:000000d4 .LC9
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:830    .text:00000508 $d
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:848    .text:00000548 $t
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:1072   .rodata:000000fc .LC10
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:1076   .rodata:00000130 .LC11
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:1080   .rodata:00000164 .LC12
+C:\Users\Amaury\AppData\Local\Temp\ccBJeoM6.s:1499   .bss:00000000 $d
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.stm32f4xx_tim.h.31.b1d608fbde729347e4ccf70799e654d2
+                           .group:00000000 wm4.QS_timer.h.23.f1c7374d1ffe22793578c04386c6b1e2
+                           .group:00000000 wm4.queue.h.39.c6c83c771916888b8b8278e5c5477b11
+                           .group:00000000 wm4.QS_CANmsgList.h.18.4820ab5d82fa43f9421f4e5eb46c19bc
+                           .group:00000000 wm4.QS_ax12.h.14.bdca40ad9d76c87d4eb8bcff38d0d363
+                           .group:00000000 wm4.config_pin.h.12.92dbe1317fae649a069f2ce6e5ad725c
+                           .group:00000000 wm4.config_pin.h.12.20ee5a96fdfc3c7ca3bc6056aaec7473
+                           .group:00000000 wm4.KLift_config.h.13.ac72a158619c9064eb8350cd8fc24aac
+                           .group:00000000 wm4.config_debug.h.12.ce495d07741075ca26554eb90b0ab381
+                           .group:00000000 wm4.QS_outputlog.h.12.497571275ee7bc35db4cbeb19919be7a
+
+UNDEFINED SYMBOLS
+DCM_init
+AX12_init
+ADC_init
+DCM_config
+DCM_stop
+OUTPUTLOG_printf
+AX12_is_ready
+AX12_config_set_highest_voltage
+AX12_config_set_lowest_voltage
+AX12_config_set_maximum_torque_percentage
+AX12_config_set_maximal_angle
+AX12_config_set_minimal_angle
+AX12_config_set_error_before_led
+AX12_config_set_error_before_shutdown
+ACTQ_push_operation_from_msg
+ADC_getValue
+QUEUE_has_error
+QUEUE_behead
+QUEUE_get_act
+QUEUE_next
+QUEUE_get_arg
+DCM_goToPos
+DCM_restart
+ACTQ_check_status_dcmotor
+AX12_set_torque_enabled
+AX12_reset_last_error
+AX12_set_position
+AX12_get_last_error
+ACTQ_check_status_ax12

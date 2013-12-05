@@ -1,0 +1,44 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"TPlier.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              	.Letext0:
+  19              		.file 1 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+  20              		.file 2 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 TPlier.c
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+
+NO UNDEFINED SYMBOLS
