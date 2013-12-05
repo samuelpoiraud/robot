@@ -44,7 +44,7 @@
 	#define LIFT_LEFT_DCMOTOR_PORT_WAY               GPIOA->ODR
 	#define LIFT_LEFT_DCMOTOR_PORT_WAY_BIT           8
 	#define LIFT_LEFT_TRANSLATION_POTAR_ADC_ID       AN3_ID
-	#define LIFT_LEFT_PLIER_AX12_ID                  4
+	#define LIFT_LEFT_PLIER_AX12_ID                  6
 
 
 	#define LIFT_RIGHT_DCMOTOR_ID                     3      //Doit être unique !
@@ -53,5 +53,8 @@
 	#define LIFT_RIGHT_DCMOTOR_PORT_WAY_BIT           10
 	#define LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID       AN2_ID
 	#define LIFT_RIGHT_PLIER_AX12_ID                  1
+
+/* Config proto Fruit_mouth*/
+	#define FRUIT_MOUTH_AX12_ID						  4
 
 #endif /* KRUSTY_CONFIG_PIN_H */
