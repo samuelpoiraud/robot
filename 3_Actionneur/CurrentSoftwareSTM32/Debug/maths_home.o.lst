@@ -1,0 +1,260 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"maths_home.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	__aeabi_i2d
+  19              		.global	__aeabi_ddiv
+  20              		.align	2
+  21              		.global	cos4096
+  22              		.thumb
+  23              		.thumb_func
+  25              	cos4096:
+  26              	.LFB111:
+  27              		.file 1 "../maths_home.c"
+   1:../maths_home.c **** /*
+   2:../maths_home.c ****  *	Club Robot ESEO 2008 - 2009
+   3:../maths_home.c ****  *	Archi'Tech
+   4:../maths_home.c ****  *
+   5:../maths_home.c ****  *	Fichier : maths_home.c
+   6:../maths_home.c ****  *	Package : Carte Principale
+   7:../maths_home.c ****  *	Description : Fonctions de maths maison
+   8:../maths_home.c ****  *	Auteur : Djoman
+   9:../maths_home.c ****  *	Version 20090506
+  10:../maths_home.c ****  */
+  11:../maths_home.c **** 
+  12:../maths_home.c **** #define MATHS_HOME_C
+  13:../maths_home.c **** 
+  14:../maths_home.c **** #include "maths_home.h"
+  15:../maths_home.c **** 
+  16:../maths_home.c **** double cos4096(Sint16 angle) 
+  17:../maths_home.c **** {
+  28              		.loc 1 17 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+  31              		@ frame_needed = 1, uses_anonymous_args = 0
+  32 0000 80B5     		push	{r7, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 7, -8
+  36              		.cfi_offset 14, -4
+  37 0002 82B0     		sub	sp, sp, #8
+  38              	.LCFI1:
+  39              		.cfi_def_cfa_offset 16
+  40 0004 00AF     		add	r7, sp, #0
+  41              	.LCFI2:
+  42              		.cfi_def_cfa_register 7
+  43 0006 0346     		mov	r3, r0
+  44 0008 FB80     		strh	r3, [r7, #6]	@ movhi
+  18:../maths_home.c **** 	#ifdef FAST_COS_SIN
+  19:../maths_home.c **** 		#ifndef COS_SIN_16384
+  20:../maths_home.c **** 			Sint16 cos;
+  21:../maths_home.c **** 			cosinus(angle,&cos);
+  22:../maths_home.c **** 			return (double)cos/4096.;
+  23:../maths_home.c **** 		#endif
+  24:../maths_home.c **** 	#else
+  25:../maths_home.c **** 		return cos(((double)angle)/4096.);
+  45              		.loc 1 25 0
+  46 000a B7F90630 		ldrsh	r3, [r7, #6]
+  47 000e 1846     		mov	r0, r3
+  48 0010 FFF7FEFF 		bl	__aeabi_i2d
+  49 0014 0246     		mov	r2, r0
+  50 0016 0B46     		mov	r3, r1
+  51 0018 1046     		mov	r0, r2
+  52 001a 1946     		mov	r1, r3
+  53 001c 4FF00002 		mov	r2, #0
+  54 0020 4FF00003 		mov	r3, #0
+  55 0024 C4F2B003 		movt	r3, 16560
+  56 0028 FFF7FEFF 		bl	__aeabi_ddiv
+  57 002c 0246     		mov	r2, r0
+  58 002e 0B46     		mov	r3, r1
+  59 0030 1046     		mov	r0, r2
+  60 0032 1946     		mov	r1, r3
+  61 0034 FFF7FEFF 		bl	cos
+  62 0038 0246     		mov	r2, r0
+  63 003a 0B46     		mov	r3, r1
+  26:../maths_home.c **** 	#endif
+  27:../maths_home.c **** }
+  64              		.loc 1 27 0
+  65 003c 1046     		mov	r0, r2
+  66 003e 1946     		mov	r1, r3
+  67 0040 07F10807 		add	r7, r7, #8
+  68 0044 BD46     		mov	sp, r7
+  69 0046 80BD     		pop	{r7, pc}
+  70              		.cfi_endproc
+  71              	.LFE111:
+  73              		.align	2
+  74              		.global	sin4096
+  75              		.thumb
+  76              		.thumb_func
+  78              	sin4096:
+  79              	.LFB112:
+  28:../maths_home.c **** 
+  29:../maths_home.c **** double sin4096(Sint16 angle) 
+  30:../maths_home.c **** {
+  80              		.loc 1 30 0
+  81              		.cfi_startproc
+  82              		@ args = 0, pretend = 0, frame = 8
+  83              		@ frame_needed = 1, uses_anonymous_args = 0
+  84 0048 80B5     		push	{r7, lr}
+  85              	.LCFI3:
+  86              		.cfi_def_cfa_offset 8
+  87              		.cfi_offset 7, -8
+  88              		.cfi_offset 14, -4
+  89 004a 82B0     		sub	sp, sp, #8
+  90              	.LCFI4:
+  91              		.cfi_def_cfa_offset 16
+  92 004c 00AF     		add	r7, sp, #0
+  93              	.LCFI5:
+  94              		.cfi_def_cfa_register 7
+  95 004e 0346     		mov	r3, r0
+  96 0050 FB80     		strh	r3, [r7, #6]	@ movhi
+  31:../maths_home.c **** 	#ifdef FAST_COS_SIN
+  32:../maths_home.c **** 		#ifndef COS_SIN_16384
+  33:../maths_home.c **** 			Sint16 sin;
+  34:../maths_home.c **** 			sinus(angle,&sin);
+  35:../maths_home.c **** 			return (double)sin/4096.;
+  36:../maths_home.c **** 		#endif
+  37:../maths_home.c **** 	#else
+  38:../maths_home.c **** 		return sin(((double)angle)/4096.);
+  97              		.loc 1 38 0
+  98 0052 B7F90630 		ldrsh	r3, [r7, #6]
+  99 0056 1846     		mov	r0, r3
+ 100 0058 FFF7FEFF 		bl	__aeabi_i2d
+ 101 005c 0246     		mov	r2, r0
+ 102 005e 0B46     		mov	r3, r1
+ 103 0060 1046     		mov	r0, r2
+ 104 0062 1946     		mov	r1, r3
+ 105 0064 4FF00002 		mov	r2, #0
+ 106 0068 4FF00003 		mov	r3, #0
+ 107 006c C4F2B003 		movt	r3, 16560
+ 108 0070 FFF7FEFF 		bl	__aeabi_ddiv
+ 109 0074 0246     		mov	r2, r0
+ 110 0076 0B46     		mov	r3, r1
+ 111 0078 1046     		mov	r0, r2
+ 112 007a 1946     		mov	r1, r3
+ 113 007c FFF7FEFF 		bl	sin
+ 114 0080 0246     		mov	r2, r0
+ 115 0082 0B46     		mov	r3, r1
+  39:../maths_home.c **** 	#endif
+  40:../maths_home.c **** }
+ 116              		.loc 1 40 0
+ 117 0084 1046     		mov	r0, r2
+ 118 0086 1946     		mov	r1, r3
+ 119 0088 07F10807 		add	r7, r7, #8
+ 120 008c BD46     		mov	sp, r7
+ 121 008e 80BD     		pop	{r7, pc}
+ 122              		.cfi_endproc
+ 123              	.LFE112:
+ 125              		.global	__aeabi_dmul
+ 126              		.global	__aeabi_d2iz
+ 127              		.align	2
+ 128              		.global	atan4096
+ 129              		.thumb
+ 130              		.thumb_func
+ 132              	atan4096:
+ 133              	.LFB113:
+  41:../maths_home.c **** 
+  42:../maths_home.c **** Sint16 atan4096(double tangent)
+  43:../maths_home.c **** {
+ 134              		.loc 1 43 0
+ 135              		.cfi_startproc
+ 136              		@ args = 0, pretend = 0, frame = 8
+ 137              		@ frame_needed = 1, uses_anonymous_args = 0
+ 138 0090 80B5     		push	{r7, lr}
+ 139              	.LCFI6:
+ 140              		.cfi_def_cfa_offset 8
+ 141              		.cfi_offset 7, -8
+ 142              		.cfi_offset 14, -4
+ 143 0092 82B0     		sub	sp, sp, #8
+ 144              	.LCFI7:
+ 145              		.cfi_def_cfa_offset 16
+ 146 0094 00AF     		add	r7, sp, #0
+ 147              	.LCFI8:
+ 148              		.cfi_def_cfa_register 7
+ 149 0096 C7E90001 		strd	r0, [r7]
+  44:../maths_home.c **** 	return (Sint16)(atan(tangent)*4096);
+ 150              		.loc 1 44 0
+ 151 009a D7E90001 		ldrd	r0, [r7]
+ 152 009e FFF7FEFF 		bl	atan
+ 153 00a2 0246     		mov	r2, r0
+ 154 00a4 0B46     		mov	r3, r1
+ 155 00a6 1046     		mov	r0, r2
+ 156 00a8 1946     		mov	r1, r3
+ 157 00aa 4FF00002 		mov	r2, #0
+ 158 00ae 4FF00003 		mov	r3, #0
+ 159 00b2 C4F2B003 		movt	r3, 16560
+ 160 00b6 FFF7FEFF 		bl	__aeabi_dmul
+ 161 00ba 0246     		mov	r2, r0
+ 162 00bc 0B46     		mov	r3, r1
+ 163 00be 1046     		mov	r0, r2
+ 164 00c0 1946     		mov	r1, r3
+ 165 00c2 FFF7FEFF 		bl	__aeabi_d2iz
+ 166 00c6 0346     		mov	r3, r0
+ 167 00c8 9BB2     		uxth	r3, r3
+ 168 00ca 1BB2     		sxth	r3, r3
+  45:../maths_home.c **** }
+ 169              		.loc 1 45 0
+ 170 00cc 1846     		mov	r0, r3
+ 171 00ce 07F10807 		add	r7, r7, #8
+ 172 00d2 BD46     		mov	sp, r7
+ 173 00d4 80BD     		pop	{r7, pc}
+ 174              		.cfi_endproc
+ 175              	.LFE113:
+ 177              	.Letext0:
+ 178              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 179              		.file 3 "../QS/QS_types.h"
+ 180              		.file 4 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 maths_home.c
+C:\Users\Amaury\AppData\Local\Temp\ccatjDQX.s:20     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccatjDQX.s:25     .text:00000000 cos4096
+C:\Users\Amaury\AppData\Local\Temp\ccatjDQX.s:78     .text:00000048 sin4096
+C:\Users\Amaury\AppData\Local\Temp\ccatjDQX.s:132    .text:00000090 atan4096
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4._default_types.h.6.5e12cd604db8ce00b62bb2f02708eaf3
+                           .group:00000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:00000000 wm4.stddef.h.349.31f4c5baff3fa2689010b32028da9c47
+                           .group:00000000 wm4.reent.h.16.9e42f0e588b85e70b2bf6572af57ce64
+                           .group:00000000 wm4.math.h.35.cc9264b0ced3bd063c5784e64e89cf51
+
+UNDEFINED SYMBOLS
+__aeabi_i2d
+__aeabi_ddiv
+cos
+sin
+__aeabi_dmul
+__aeabi_d2iz
+atan

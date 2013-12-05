@@ -1,0 +1,1722 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"QS_DCMotor2.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.bss
+  19              		.align	2
+  20              	DCMotors:
+  21 0000 00000000 		.space	192
+  21      00000000 
+  21      00000000 
+  21      00000000 
+  21      00000000 
+  22              		.text
+  23              		.align	2
+  24              		.global	DCM_init
+  25              		.thumb
+  26              		.thumb_func
+  28              	DCM_init:
+  29              	.LFB111:
+  30              		.file 1 "../QS/QS_DCMotor2.c"
+   1:../QS/QS_DCMotor2.c **** /*
+   2:../QS/QS_DCMotor2.c ****  *	Club Robot ESEO 2008 - 2010
+   3:../QS/QS_DCMotor2.c ****  *	Archi-Tech', PACMAN
+   4:../QS/QS_DCMotor2.c ****  *
+   5:../QS/QS_DCMotor2.c ****  *	Fichier : QS_DCMotor.c
+   6:../QS/QS_DCMotor2.c ****  *	Package : Qualité Soft
+   7:../QS/QS_DCMotor2.c ****  *	Description : Gestion des moteurs à courant continu asservis en position
+   8:../QS/QS_DCMotor2.c ****  *  Auteur : Gwenn, Jacen
+   9:../QS/QS_DCMotor2.c ****  *	Licence : CeCILL-C (voir LICENCE.txt)
+  10:../QS/QS_DCMotor2.c ****  *  Version 20100620
+  11:../QS/QS_DCMotor2.c ****  */
+  12:../QS/QS_DCMotor2.c **** 
+  13:../QS/QS_DCMotor2.c **** #include "QS_DCMotor2.h"
+  14:../QS/QS_DCMotor2.c **** #ifdef USE_DCMOTOR2
+  15:../QS/QS_DCMotor2.c **** 
+  16:../QS/QS_DCMotor2.c **** #include "QS_pwm.h"
+  17:../QS/QS_DCMotor2.c **** #include "QS_timer.h"
+  18:../QS/QS_DCMotor2.c **** #ifdef USE_CAN
+  19:../QS/QS_DCMotor2.c **** 	#include "QS_can.h"
+  20:../QS/QS_DCMotor2.c **** #endif
+  21:../QS/QS_DCMotor2.c **** #include "QS_CANmsgList.h"
+  22:../QS/QS_DCMotor2.c **** 
+  23:../QS/QS_DCMotor2.c **** 
+  24:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+  25:../QS/QS_DCMotor2.c **** 		Selection du timer
+  26:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+  27:../QS/QS_DCMotor2.c **** #if !defined(DCM_TIMER)
+  28:../QS/QS_DCMotor2.c **** 	#error "DCM_TIMER doit etre 1 2 3 ou 4, le watchdog n'est pas utilisable avec ce module"
+  29:../QS/QS_DCMotor2.c **** #else
+  30:../QS/QS_DCMotor2.c **** 	#define TIMER_SRC_TIMER_ID DCM_TIMER
+  31:../QS/QS_DCMotor2.c **** 
+  32:../QS/QS_DCMotor2.c **** 	#include "QS_setTimerSource.h"
+  33:../QS/QS_DCMotor2.c **** #endif
+  34:../QS/QS_DCMotor2.c **** 
+  35:../QS/QS_DCMotor2.c **** 
+  36:../QS/QS_DCMotor2.c **** 	typedef enum
+  37:../QS/QS_DCMotor2.c **** 	{
+  38:../QS/QS_DCMotor2.c **** 		INITIALIZED,
+  39:../QS/QS_DCMotor2.c **** 		NOT_INITIALIZED,
+  40:../QS/QS_DCMotor2.c **** 		STOPPED
+  41:../QS/QS_DCMotor2.c **** 	}init_state_e;
+  42:../QS/QS_DCMotor2.c **** 
+  43:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+  44:../QS/QS_DCMotor2.c **** 		Variables globales privées
+  45:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+  46:../QS/QS_DCMotor2.c **** 	
+  47:../QS/QS_DCMotor2.c **** 	typedef struct
+  48:../QS/QS_DCMotor2.c **** 	{
+  49:../QS/QS_DCMotor2.c **** 		DCMotor_config_t config;	// la config du DCMotor
+  50:../QS/QS_DCMotor2.c **** 		DCM_working_state_e cmd_state;	// Etat de la dernière commande: Position atteinte, en mouvement, 
+  51:../QS/QS_DCMotor2.c **** 		Sint32 integrator;			// Integrateur pour le PID
+  52:../QS/QS_DCMotor2.c **** 		Uint16 cmd_time;			// temps depuis la reception de la commande, en ms
+  53:../QS/QS_DCMotor2.c **** 		Uint8 posToGo;				// consigne, en numero de position actionneur
+  54:../QS/QS_DCMotor2.c **** 		Uint8 current_cmd;			// commande PWM actuelle
+  55:../QS/QS_DCMotor2.c **** 		Sint16 previous_error;		// valeur de l'erreur à l'appel précédent du PID, pour calcul du terme de
+  56:../QS/QS_DCMotor2.c **** 		init_state_e init_state;	// flag indiquant si le moteur a été configuré
+  57:../QS/QS_DCMotor2.c **** 	}DCMotor_t;
+  58:../QS/QS_DCMotor2.c **** 
+  59:../QS/QS_DCMotor2.c **** 	static DCMotor_t DCMotors[DCM_NUMBER];
+  60:../QS/QS_DCMotor2.c **** 
+  61:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+  62:../QS/QS_DCMotor2.c **** 		Prototypes des fonctions privées
+  63:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+  64:../QS/QS_DCMotor2.c **** 	// Accesseur
+  65:../QS/QS_DCMotor2.c **** 	static void DCM_setWay(Uint8 dc_motor_id, Uint8 value);
+  66:../QS/QS_DCMotor2.c **** 	static Uint8 DCM_getWay(Uint8 dc_motor_id);
+  67:../QS/QS_DCMotor2.c **** 	// Envoie un message CAN pour informer de la position des ascenseurs
+  68:../QS/QS_DCMotor2.c **** 	//static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 error);
+  69:../QS/QS_DCMotor2.c **** 	// Baisse les drapeaux d'initialisation des moteurs
+  70:../QS/QS_DCMotor2.c **** 	static void DCM_uninitialize_all();
+  71:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+  72:../QS/QS_DCMotor2.c **** 		Initialisation
+  73:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+  74:../QS/QS_DCMotor2.c **** void DCM_init()
+  75:../QS/QS_DCMotor2.c **** {
+  31              		.loc 1 75 0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 1, uses_anonymous_args = 0
+  35 0000 80B5     		push	{r7, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 7, -8
+  39              		.cfi_offset 14, -4
+  40 0002 00AF     		add	r7, sp, #0
+  41              	.LCFI1:
+  42              		.cfi_def_cfa_register 7
+  76:../QS/QS_DCMotor2.c **** 	static bool_e initialized = FALSE;
+  77:../QS/QS_DCMotor2.c **** 	if(initialized)
+  43              		.loc 1 77 0
+  44 0004 40F20003 		movw	r3, #:lower16:initialized.6192
+  45 0008 C0F20003 		movt	r3, #:upper16:initialized.6192
+  46 000c 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  47 000e 002B     		cmp	r3, #0
+  48 0010 11D1     		bne	.L4
+  49              	.L2:
+  78:../QS/QS_DCMotor2.c **** 		return;
+  79:../QS/QS_DCMotor2.c **** 	initialized = TRUE;
+  50              		.loc 1 79 0
+  51 0012 40F20003 		movw	r3, #:lower16:initialized.6192
+  52 0016 C0F20003 		movt	r3, #:upper16:initialized.6192
+  53 001a 4FF00102 		mov	r2, #1
+  54 001e 1A70     		strb	r2, [r3, #0]
+  80:../QS/QS_DCMotor2.c **** 
+  81:../QS/QS_DCMotor2.c **** 	PWM_init();
+  55              		.loc 1 81 0
+  56 0020 FFF7FEFF 		bl	PWM_init
+  82:../QS/QS_DCMotor2.c **** 	// Initialisation
+  83:../QS/QS_DCMotor2.c **** 	DCM_uninitialize_all();
+  57              		.loc 1 83 0
+  58 0024 00F068F8 		bl	DCM_uninitialize_all
+  84:../QS/QS_DCMotor2.c **** 	// Lancement de l'interruption de commande
+  85:../QS/QS_DCMotor2.c **** 	TIMER_SRC_TIMER_init();
+  59              		.loc 1 85 0
+  60 0028 FFF7FEFF 		bl	TIMER_init
+  86:../QS/QS_DCMotor2.c **** 	TIMER_SRC_TIMER_start_ms(DCM_TIMER_PERIOD);
+  61              		.loc 1 86 0
+  62 002c 4FF00200 		mov	r0, #2
+  63 0030 FFF7FEFF 		bl	TIMER1_run
+  64 0034 00E0     		b	.L1
+  65              	.L4:
+  78:../QS/QS_DCMotor2.c **** 		return;
+  66              		.loc 1 78 0
+  67 0036 00BF     		nop
+  68              	.L1:
+  87:../QS/QS_DCMotor2.c **** }
+  69              		.loc 1 87 0
+  70 0038 80BD     		pop	{r7, pc}
+  71              		.cfi_endproc
+  72              	.LFE111:
+  74 003a 00BF     		.align	2
+  75              		.global	DCM_get_state
+  76              		.thumb
+  77              		.thumb_func
+  79              	DCM_get_state:
+  80              	.LFB112:
+  88:../QS/QS_DCMotor2.c **** 
+  89:../QS/QS_DCMotor2.c **** DCM_working_state_e DCM_get_state (Uint8 dc_motor_id)
+  90:../QS/QS_DCMotor2.c **** {
+  81              		.loc 1 90 0
+  82              		.cfi_startproc
+  83              		@ args = 0, pretend = 0, frame = 16
+  84              		@ frame_needed = 1, uses_anonymous_args = 0
+  85              		@ link register save eliminated.
+  86 003c 80B4     		push	{r7}
+  87              	.LCFI2:
+  88              		.cfi_def_cfa_offset 4
+  89              		.cfi_offset 7, -4
+  90 003e 85B0     		sub	sp, sp, #20
+  91              	.LCFI3:
+  92              		.cfi_def_cfa_offset 24
+  93 0040 00AF     		add	r7, sp, #0
+  94              	.LCFI4:
+  95              		.cfi_def_cfa_register 7
+  96 0042 0346     		mov	r3, r0
+  97 0044 FB71     		strb	r3, [r7, #7]
+  91:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+  98              		.loc 1 91 0
+  99 0046 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 100 0048 1346     		mov	r3, r2
+ 101 004a 4FEA4303 		lsl	r3, r3, #1
+ 102 004e 9B18     		adds	r3, r3, r2
+ 103 0050 4FEA0313 		lsl	r3, r3, #4
+ 104 0054 40F20002 		movw	r2, #:lower16:DCMotors
+ 105 0058 C0F20002 		movt	r2, #:upper16:DCMotors
+ 106 005c 9B18     		adds	r3, r3, r2
+ 107 005e FB60     		str	r3, [r7, #12]
+  92:../QS/QS_DCMotor2.c **** 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
+  93:../QS/QS_DCMotor2.c **** 	return this->cmd_state;
+ 108              		.loc 1 93 0
+ 109 0060 FB68     		ldr	r3, [r7, #12]
+ 110 0062 93F82030 		ldrb	r3, [r3, #32]	@ zero_extendqisi2
+  94:../QS/QS_DCMotor2.c **** }
+ 111              		.loc 1 94 0
+ 112 0066 1846     		mov	r0, r3
+ 113 0068 07F11407 		add	r7, r7, #20
+ 114 006c BD46     		mov	sp, r7
+ 115 006e 80BC     		pop	{r7}
+ 116 0070 7047     		bx	lr
+ 117              		.cfi_endproc
+ 118              	.LFE112:
+ 120 0072 00BF     		.align	2
+ 121              		.global	DCM_config
+ 122              		.thumb
+ 123              		.thumb_func
+ 125              	DCM_config:
+ 126              	.LFB113:
+  95:../QS/QS_DCMotor2.c **** 
+  96:../QS/QS_DCMotor2.c **** 
+  97:../QS/QS_DCMotor2.c **** // configurer un moteur CC après initialisation du module QS
+  98:../QS/QS_DCMotor2.c **** void DCM_config (Uint8 dc_motor_id, DCMotor_config_t* config)
+  99:../QS/QS_DCMotor2.c **** {
+ 127              		.loc 1 99 0
+ 128              		.cfi_startproc
+ 129              		@ args = 0, pretend = 0, frame = 16
+ 130              		@ frame_needed = 1, uses_anonymous_args = 0
+ 131              		@ link register save eliminated.
+ 132 0074 B0B4     		push	{r4, r5, r7}
+ 133              	.LCFI5:
+ 134              		.cfi_def_cfa_offset 12
+ 135              		.cfi_offset 4, -12
+ 136              		.cfi_offset 5, -8
+ 137              		.cfi_offset 7, -4
+ 138 0076 85B0     		sub	sp, sp, #20
+ 139              	.LCFI6:
+ 140              		.cfi_def_cfa_offset 32
+ 141 0078 00AF     		add	r7, sp, #0
+ 142              	.LCFI7:
+ 143              		.cfi_def_cfa_register 7
+ 144 007a 0346     		mov	r3, r0
+ 145 007c 3960     		str	r1, [r7, #0]
+ 146 007e FB71     		strb	r3, [r7, #7]
+ 100:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+ 147              		.loc 1 100 0
+ 148 0080 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 149 0082 1346     		mov	r3, r2
+ 150 0084 4FEA4303 		lsl	r3, r3, #1
+ 151 0088 9B18     		adds	r3, r3, r2
+ 152 008a 4FEA0313 		lsl	r3, r3, #4
+ 153 008e 40F20002 		movw	r2, #:lower16:DCMotors
+ 154 0092 C0F20002 		movt	r2, #:upper16:DCMotors
+ 155 0096 9B18     		adds	r3, r3, r2
+ 156 0098 FB60     		str	r3, [r7, #12]
+ 101:../QS/QS_DCMotor2.c **** 	this->config = *config;
+ 157              		.loc 1 101 0
+ 158 009a FA68     		ldr	r2, [r7, #12]
+ 159 009c 3B68     		ldr	r3, [r7, #0]
+ 160 009e 1446     		mov	r4, r2
+ 161 00a0 1D46     		mov	r5, r3
+ 162 00a2 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 163 00a4 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 164 00a6 95E80F00 		ldmia	r5, {r0, r1, r2, r3}
+ 165 00aa 84E80F00 		stmia	r4, {r0, r1, r2, r3}
+ 102:../QS/QS_DCMotor2.c **** 	this->cmd_state=DCM_IDLE;
+ 166              		.loc 1 102 0
+ 167 00ae FB68     		ldr	r3, [r7, #12]
+ 168 00b0 4FF00002 		mov	r2, #0
+ 169 00b4 83F82020 		strb	r2, [r3, #32]
+ 103:../QS/QS_DCMotor2.c **** 	this->integrator=0;
+ 170              		.loc 1 103 0
+ 171 00b8 FB68     		ldr	r3, [r7, #12]
+ 172 00ba 4FF00002 		mov	r2, #0
+ 173 00be 5A62     		str	r2, [r3, #36]
+ 104:../QS/QS_DCMotor2.c **** 	this->cmd_time=0;
+ 174              		.loc 1 104 0
+ 175 00c0 FB68     		ldr	r3, [r7, #12]
+ 176 00c2 4FF00002 		mov	r2, #0
+ 177 00c6 1A85     		strh	r2, [r3, #40]	@ movhi
+ 105:../QS/QS_DCMotor2.c **** 	this->posToGo=0;
+ 178              		.loc 1 105 0
+ 179 00c8 FB68     		ldr	r3, [r7, #12]
+ 180 00ca 4FF00002 		mov	r2, #0
+ 181 00ce 83F82A20 		strb	r2, [r3, #42]
+ 106:../QS/QS_DCMotor2.c **** 	this->current_cmd=0;
+ 182              		.loc 1 106 0
+ 183 00d2 FB68     		ldr	r3, [r7, #12]
+ 184 00d4 4FF00002 		mov	r2, #0
+ 185 00d8 83F82B20 		strb	r2, [r3, #43]
+ 107:../QS/QS_DCMotor2.c **** 	this->previous_error=0;
+ 186              		.loc 1 107 0
+ 187 00dc FB68     		ldr	r3, [r7, #12]
+ 188 00de 4FF00002 		mov	r2, #0
+ 189 00e2 9A85     		strh	r2, [r3, #44]	@ movhi
+ 108:../QS/QS_DCMotor2.c **** 
+ 109:../QS/QS_DCMotor2.c **** 	this->init_state=INITIALIZED;
+ 190              		.loc 1 109 0
+ 191 00e4 FB68     		ldr	r3, [r7, #12]
+ 192 00e6 4FF00002 		mov	r2, #0
+ 193 00ea 83F82E20 		strb	r2, [r3, #46]
+ 110:../QS/QS_DCMotor2.c **** }
+ 194              		.loc 1 110 0
+ 195 00ee 07F11407 		add	r7, r7, #20
+ 196 00f2 BD46     		mov	sp, r7
+ 197 00f4 B0BC     		pop	{r4, r5, r7}
+ 198 00f6 7047     		bx	lr
+ 199              		.cfi_endproc
+ 200              	.LFE113:
+ 202              		.align	2
+ 203              		.thumb
+ 204              		.thumb_func
+ 206              	DCM_uninitialize_all:
+ 207              	.LFB114:
+ 111:../QS/QS_DCMotor2.c **** 
+ 112:../QS/QS_DCMotor2.c **** static void DCM_uninitialize_all()
+ 113:../QS/QS_DCMotor2.c **** {
+ 208              		.loc 1 113 0
+ 209              		.cfi_startproc
+ 210              		@ args = 0, pretend = 0, frame = 8
+ 211              		@ frame_needed = 1, uses_anonymous_args = 0
+ 212              		@ link register save eliminated.
+ 213 00f8 80B4     		push	{r7}
+ 214              	.LCFI8:
+ 215              		.cfi_def_cfa_offset 4
+ 216              		.cfi_offset 7, -4
+ 217 00fa 83B0     		sub	sp, sp, #12
+ 218              	.LCFI9:
+ 219              		.cfi_def_cfa_offset 16
+ 220 00fc 00AF     		add	r7, sp, #0
+ 221              	.LCFI10:
+ 222              		.cfi_def_cfa_register 7
+ 114:../QS/QS_DCMotor2.c **** 	Uint8 i;
+ 115:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 223              		.loc 1 115 0
+ 224 00fe 4FF00003 		mov	r3, #0
+ 225 0102 FB71     		strb	r3, [r7, #7]
+ 226 0104 14E0     		b	.L9
+ 227              	.L10:
+ 116:../QS/QS_DCMotor2.c **** 	{
+ 117:../QS/QS_DCMotor2.c **** 		(DCMotors[i]).init_state = NOT_INITIALIZED;
+ 228              		.loc 1 117 0 discriminator 2
+ 229 0106 F979     		ldrb	r1, [r7, #7]	@ zero_extendqisi2
+ 230 0108 40F20002 		movw	r2, #:lower16:DCMotors
+ 231 010c C0F20002 		movt	r2, #:upper16:DCMotors
+ 232 0110 0B46     		mov	r3, r1
+ 233 0112 4FEA4303 		lsl	r3, r3, #1
+ 234 0116 5B18     		adds	r3, r3, r1
+ 235 0118 4FEA0313 		lsl	r3, r3, #4
+ 236 011c D318     		adds	r3, r2, r3
+ 237 011e 03F12803 		add	r3, r3, #40
+ 238 0122 4FF00102 		mov	r2, #1
+ 239 0126 9A71     		strb	r2, [r3, #6]
+ 115:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 240              		.loc 1 115 0 discriminator 2
+ 241 0128 FB79     		ldrb	r3, [r7, #7]
+ 242 012a 03F10103 		add	r3, r3, #1
+ 243 012e FB71     		strb	r3, [r7, #7]
+ 244              	.L9:
+ 115:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 245              		.loc 1 115 0 is_stmt 0 discriminator 1
+ 246 0130 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 247 0132 032B     		cmp	r3, #3
+ 248 0134 E7D9     		bls	.L10
+ 118:../QS/QS_DCMotor2.c **** 	}
+ 119:../QS/QS_DCMotor2.c **** }	
+ 249              		.loc 1 119 0 is_stmt 1
+ 250 0136 07F10C07 		add	r7, r7, #12
+ 251 013a BD46     		mov	sp, r7
+ 252 013c 80BC     		pop	{r7}
+ 253 013e 7047     		bx	lr
+ 254              		.cfi_endproc
+ 255              	.LFE114:
+ 257              		.align	2
+ 258              		.thumb
+ 259              		.thumb_func
+ 261              	DCM_setWay:
+ 262              	.LFB115:
+ 120:../QS/QS_DCMotor2.c **** 
+ 121:../QS/QS_DCMotor2.c **** 
+ 122:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 123:../QS/QS_DCMotor2.c **** 	Setter pour le sens des moteurs
+ 124:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 125:../QS/QS_DCMotor2.c **** static void DCM_setWay(Uint8 dc_motor_id, Uint8 value)
+ 126:../QS/QS_DCMotor2.c **** {
+ 263              		.loc 1 126 0
+ 264              		.cfi_startproc
+ 265              		@ args = 0, pretend = 0, frame = 16
+ 266              		@ frame_needed = 1, uses_anonymous_args = 0
+ 267              		@ link register save eliminated.
+ 268 0140 80B4     		push	{r7}
+ 269              	.LCFI11:
+ 270              		.cfi_def_cfa_offset 4
+ 271              		.cfi_offset 7, -4
+ 272 0142 85B0     		sub	sp, sp, #20
+ 273              	.LCFI12:
+ 274              		.cfi_def_cfa_offset 24
+ 275 0144 00AF     		add	r7, sp, #0
+ 276              	.LCFI13:
+ 277              		.cfi_def_cfa_register 7
+ 278 0146 0246     		mov	r2, r0
+ 279 0148 0B46     		mov	r3, r1
+ 280 014a FA71     		strb	r2, [r7, #7]
+ 281 014c BB71     		strb	r3, [r7, #6]
+ 127:../QS/QS_DCMotor2.c **** 	DCMotor_config_t* this = &(DCMotors[dc_motor_id].config);
+ 282              		.loc 1 127 0
+ 283 014e FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 284 0150 1346     		mov	r3, r2
+ 285 0152 4FEA4303 		lsl	r3, r3, #1
+ 286 0156 9B18     		adds	r3, r3, r2
+ 287 0158 4FEA0313 		lsl	r3, r3, #4
+ 288 015c 40F20002 		movw	r2, #:lower16:DCMotors
+ 289 0160 C0F20002 		movt	r2, #:upper16:DCMotors
+ 290 0164 9B18     		adds	r3, r3, r2
+ 291 0166 FB60     		str	r3, [r7, #12]
+ 128:../QS/QS_DCMotor2.c **** 	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STO
+ 129:../QS/QS_DCMotor2.c **** 	if (value)
+ 292              		.loc 1 129 0
+ 293 0168 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 294 016a 002B     		cmp	r3, #0
+ 295 016c 0DD0     		beq	.L12
+ 130:../QS/QS_DCMotor2.c **** 		BIT_SET(*(this->way_latch), this->way_bit_number);
+ 296              		.loc 1 130 0
+ 297 016e FB68     		ldr	r3, [r7, #12]
+ 298 0170 5B69     		ldr	r3, [r3, #20]
+ 299 0172 FA68     		ldr	r2, [r7, #12]
+ 300 0174 5269     		ldr	r2, [r2, #20]
+ 301 0176 1168     		ldr	r1, [r2, #0]
+ 302 0178 FA68     		ldr	r2, [r7, #12]
+ 303 017a 127E     		ldrb	r2, [r2, #24]	@ zero_extendqisi2
+ 304 017c 4FF00100 		mov	r0, #1
+ 305 0180 00FA02F2 		lsl	r2, r0, r2
+ 306 0184 0A43     		orrs	r2, r2, r1
+ 307 0186 1A60     		str	r2, [r3, #0]
+ 308 0188 0EE0     		b	.L11
+ 309              	.L12:
+ 131:../QS/QS_DCMotor2.c **** 	else
+ 132:../QS/QS_DCMotor2.c **** 		BIT_CLR(*(this->way_latch), this->way_bit_number);
+ 310              		.loc 1 132 0
+ 311 018a FB68     		ldr	r3, [r7, #12]
+ 312 018c 5B69     		ldr	r3, [r3, #20]
+ 313 018e FA68     		ldr	r2, [r7, #12]
+ 314 0190 5269     		ldr	r2, [r2, #20]
+ 315 0192 1168     		ldr	r1, [r2, #0]
+ 316 0194 FA68     		ldr	r2, [r7, #12]
+ 317 0196 127E     		ldrb	r2, [r2, #24]	@ zero_extendqisi2
+ 318 0198 4FF00100 		mov	r0, #1
+ 319 019c 00FA02F2 		lsl	r2, r0, r2
+ 320 01a0 6FEA0202 		mvn	r2, r2
+ 321 01a4 0A40     		ands	r2, r2, r1
+ 322 01a6 1A60     		str	r2, [r3, #0]
+ 323              	.L11:
+ 133:../QS/QS_DCMotor2.c **** }	
+ 324              		.loc 1 133 0
+ 325 01a8 07F11407 		add	r7, r7, #20
+ 326 01ac BD46     		mov	sp, r7
+ 327 01ae 80BC     		pop	{r7}
+ 328 01b0 7047     		bx	lr
+ 329              		.cfi_endproc
+ 330              	.LFE115:
+ 332 01b2 00BF     		.align	2
+ 333              		.thumb
+ 334              		.thumb_func
+ 336              	DCM_getWay:
+ 337              	.LFB116:
+ 134:../QS/QS_DCMotor2.c **** 
+ 135:../QS/QS_DCMotor2.c **** static Uint8 DCM_getWay(Uint8 dc_motor_id)
+ 136:../QS/QS_DCMotor2.c **** {
+ 338              		.loc 1 136 0
+ 339              		.cfi_startproc
+ 340              		@ args = 0, pretend = 0, frame = 16
+ 341              		@ frame_needed = 1, uses_anonymous_args = 0
+ 342              		@ link register save eliminated.
+ 343 01b4 80B4     		push	{r7}
+ 344              	.LCFI14:
+ 345              		.cfi_def_cfa_offset 4
+ 346              		.cfi_offset 7, -4
+ 347 01b6 85B0     		sub	sp, sp, #20
+ 348              	.LCFI15:
+ 349              		.cfi_def_cfa_offset 24
+ 350 01b8 00AF     		add	r7, sp, #0
+ 351              	.LCFI16:
+ 352              		.cfi_def_cfa_register 7
+ 353 01ba 0346     		mov	r3, r0
+ 354 01bc FB71     		strb	r3, [r7, #7]
+ 137:../QS/QS_DCMotor2.c **** 	DCMotor_config_t* this = &(DCMotors[dc_motor_id].config);
+ 355              		.loc 1 137 0
+ 356 01be FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 357 01c0 1346     		mov	r3, r2
+ 358 01c2 4FEA4303 		lsl	r3, r3, #1
+ 359 01c6 9B18     		adds	r3, r3, r2
+ 360 01c8 4FEA0313 		lsl	r3, r3, #4
+ 361 01cc 40F20002 		movw	r2, #:lower16:DCMotors
+ 362 01d0 C0F20002 		movt	r2, #:upper16:DCMotors
+ 363 01d4 9B18     		adds	r3, r3, r2
+ 364 01d6 FB60     		str	r3, [r7, #12]
+ 138:../QS/QS_DCMotor2.c **** 	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STO
+ 139:../QS/QS_DCMotor2.c **** 	return BIT_TEST(*(this->way_latch), this->way_bit_number);
+ 365              		.loc 1 139 0
+ 366 01d8 FB68     		ldr	r3, [r7, #12]
+ 367 01da 5B69     		ldr	r3, [r3, #20]
+ 368 01dc 1A68     		ldr	r2, [r3, #0]
+ 369 01de FB68     		ldr	r3, [r7, #12]
+ 370 01e0 1B7E     		ldrb	r3, [r3, #24]	@ zero_extendqisi2
+ 371 01e2 22FA03F3 		lsr	r3, r2, r3
+ 372 01e6 DBB2     		uxtb	r3, r3
+ 373 01e8 03F00103 		and	r3, r3, #1
+ 374 01ec DBB2     		uxtb	r3, r3
+ 140:../QS/QS_DCMotor2.c **** }
+ 375              		.loc 1 140 0
+ 376 01ee 1846     		mov	r0, r3
+ 377 01f0 07F11407 		add	r7, r7, #20
+ 378 01f4 BD46     		mov	sp, r7
+ 379 01f6 80BC     		pop	{r7}
+ 380 01f8 7047     		bx	lr
+ 381              		.cfi_endproc
+ 382              	.LFE116:
+ 384 01fa 00BF     		.align	2
+ 385              		.global	DCM_goToPos
+ 386              		.thumb
+ 387              		.thumb_func
+ 389              	DCM_goToPos:
+ 390              	.LFB117:
+ 141:../QS/QS_DCMotor2.c **** 
+ 142:../QS/QS_DCMotor2.c **** 
+ 143:../QS/QS_DCMotor2.c **** 
+ 144:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 145:../QS/QS_DCMotor2.c **** 		Ordre de déplacement
+ 146:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 147:../QS/QS_DCMotor2.c **** void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos)
+ 148:../QS/QS_DCMotor2.c **** {
+ 391              		.loc 1 148 0
+ 392              		.cfi_startproc
+ 393              		@ args = 0, pretend = 0, frame = 16
+ 394              		@ frame_needed = 1, uses_anonymous_args = 0
+ 395              		@ link register save eliminated.
+ 396 01fc 80B4     		push	{r7}
+ 397              	.LCFI17:
+ 398              		.cfi_def_cfa_offset 4
+ 399              		.cfi_offset 7, -4
+ 400 01fe 85B0     		sub	sp, sp, #20
+ 401              	.LCFI18:
+ 402              		.cfi_def_cfa_offset 24
+ 403 0200 00AF     		add	r7, sp, #0
+ 404              	.LCFI19:
+ 405              		.cfi_def_cfa_register 7
+ 406 0202 0246     		mov	r2, r0
+ 407 0204 0B46     		mov	r3, r1
+ 408 0206 FA71     		strb	r2, [r7, #7]
+ 409 0208 BB71     		strb	r3, [r7, #6]
+ 149:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+ 410              		.loc 1 149 0
+ 411 020a FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 412 020c 1346     		mov	r3, r2
+ 413 020e 4FEA4303 		lsl	r3, r3, #1
+ 414 0212 9B18     		adds	r3, r3, r2
+ 415 0214 4FEA0313 		lsl	r3, r3, #4
+ 416 0218 40F20002 		movw	r2, #:lower16:DCMotors
+ 417 021c C0F20002 		movt	r2, #:upper16:DCMotors
+ 418 0220 9B18     		adds	r3, r3, r2
+ 419 0222 FB60     		str	r3, [r7, #12]
+ 150:../QS/QS_DCMotor2.c **** 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
+ 151:../QS/QS_DCMotor2.c **** 	this->posToGo = pos;
+ 420              		.loc 1 151 0
+ 421 0224 FB68     		ldr	r3, [r7, #12]
+ 422 0226 BA79     		ldrb	r2, [r7, #6]
+ 423 0228 83F82A20 		strb	r2, [r3, #42]
+ 152:../QS/QS_DCMotor2.c **** 	this->cmd_time = 0;
+ 424              		.loc 1 152 0
+ 425 022c FB68     		ldr	r3, [r7, #12]
+ 426 022e 4FF00002 		mov	r2, #0
+ 427 0232 1A85     		strh	r2, [r3, #40]	@ movhi
+ 153:../QS/QS_DCMotor2.c **** 	this->cmd_state = DCM_WORKING;
+ 428              		.loc 1 153 0
+ 429 0234 FB68     		ldr	r3, [r7, #12]
+ 430 0236 4FF00102 		mov	r2, #1
+ 431 023a 83F82020 		strb	r2, [r3, #32]
+ 154:../QS/QS_DCMotor2.c **** }
+ 432              		.loc 1 154 0
+ 433 023e 07F11407 		add	r7, r7, #20
+ 434 0242 BD46     		mov	sp, r7
+ 435 0244 80BC     		pop	{r7}
+ 436 0246 7047     		bx	lr
+ 437              		.cfi_endproc
+ 438              	.LFE117:
+ 440              		.align	2
+ 441              		.global	DCM_setPosValue
+ 442              		.thumb
+ 443              		.thumb_func
+ 445              	DCM_setPosValue:
+ 446              	.LFB118:
+ 155:../QS/QS_DCMotor2.c **** 
+ 156:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 157:../QS/QS_DCMotor2.c **** 		Changement de la valeur d'une position
+ 158:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 159:../QS/QS_DCMotor2.c **** void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value) {
+ 447              		.loc 1 159 0
+ 448              		.cfi_startproc
+ 449              		@ args = 0, pretend = 0, frame = 16
+ 450              		@ frame_needed = 1, uses_anonymous_args = 0
+ 451              		@ link register save eliminated.
+ 452 0248 80B4     		push	{r7}
+ 453              	.LCFI20:
+ 454              		.cfi_def_cfa_offset 4
+ 455              		.cfi_offset 7, -4
+ 456 024a 85B0     		sub	sp, sp, #20
+ 457              	.LCFI21:
+ 458              		.cfi_def_cfa_offset 24
+ 459 024c 00AF     		add	r7, sp, #0
+ 460              	.LCFI22:
+ 461              		.cfi_def_cfa_register 7
+ 462 024e 1346     		mov	r3, r2
+ 463 0250 0246     		mov	r2, r0
+ 464 0252 FA71     		strb	r2, [r7, #7]
+ 465 0254 0A46     		mov	r2, r1
+ 466 0256 BA71     		strb	r2, [r7, #6]
+ 467 0258 BB80     		strh	r3, [r7, #4]	@ movhi
+ 160:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+ 468              		.loc 1 160 0
+ 469 025a FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 470 025c 1346     		mov	r3, r2
+ 471 025e 4FEA4303 		lsl	r3, r3, #1
+ 472 0262 9B18     		adds	r3, r3, r2
+ 473 0264 4FEA0313 		lsl	r3, r3, #4
+ 474 0268 40F20002 		movw	r2, #:lower16:DCMotors
+ 475 026c C0F20002 		movt	r2, #:upper16:DCMotors
+ 476 0270 9B18     		adds	r3, r3, r2
+ 477 0272 FB60     		str	r3, [r7, #12]
+ 161:../QS/QS_DCMotor2.c **** 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
+ 162:../QS/QS_DCMotor2.c **** 	this->config.pos[pos_to_update] = new_value;
+ 478              		.loc 1 162 0
+ 479 0274 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 480 0276 FA68     		ldr	r2, [r7, #12]
+ 481 0278 4FEA4303 		lsl	r3, r3, #1
+ 482 027c D318     		adds	r3, r2, r3
+ 483 027e BA88     		ldrh	r2, [r7, #4]	@ movhi
+ 484 0280 DA80     		strh	r2, [r3, #6]	@ movhi
+ 163:../QS/QS_DCMotor2.c **** 	if(this->posToGo == pos_to_update) {
+ 485              		.loc 1 163 0
+ 486 0282 FB68     		ldr	r3, [r7, #12]
+ 487 0284 93F82A30 		ldrb	r3, [r3, #42]	@ zero_extendqisi2
+ 488 0288 BA79     		ldrb	r2, [r7, #6]	@ zero_extendqisi2
+ 489 028a 9A42     		cmp	r2, r3
+ 490 028c 08D1     		bne	.L17
+ 164:../QS/QS_DCMotor2.c **** 		this->cmd_time = 0;
+ 491              		.loc 1 164 0
+ 492 028e FB68     		ldr	r3, [r7, #12]
+ 493 0290 4FF00002 		mov	r2, #0
+ 494 0294 1A85     		strh	r2, [r3, #40]	@ movhi
+ 165:../QS/QS_DCMotor2.c **** 		this->cmd_state = DCM_WORKING;
+ 495              		.loc 1 165 0
+ 496 0296 FB68     		ldr	r3, [r7, #12]
+ 497 0298 4FF00102 		mov	r2, #1
+ 498 029c 83F82020 		strb	r2, [r3, #32]
+ 499              	.L17:
+ 166:../QS/QS_DCMotor2.c **** 	}
+ 167:../QS/QS_DCMotor2.c **** }
+ 500              		.loc 1 167 0
+ 501 02a0 07F11407 		add	r7, r7, #20
+ 502 02a4 BD46     		mov	sp, r7
+ 503 02a6 80BC     		pop	{r7}
+ 504 02a8 7047     		bx	lr
+ 505              		.cfi_endproc
+ 506              	.LFE118:
+ 508 02aa 00BF     		.align	2
+ 509              		.global	DCM_getPosValue
+ 510              		.thumb
+ 511              		.thumb_func
+ 513              	DCM_getPosValue:
+ 514              	.LFB119:
+ 168:../QS/QS_DCMotor2.c **** 
+ 169:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 170:../QS/QS_DCMotor2.c **** 		Récupération de la valeur d'une position
+ 171:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 172:../QS/QS_DCMotor2.c **** Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get) {
+ 515              		.loc 1 172 0
+ 516              		.cfi_startproc
+ 517              		@ args = 0, pretend = 0, frame = 16
+ 518              		@ frame_needed = 1, uses_anonymous_args = 0
+ 519              		@ link register save eliminated.
+ 520 02ac 80B4     		push	{r7}
+ 521              	.LCFI23:
+ 522              		.cfi_def_cfa_offset 4
+ 523              		.cfi_offset 7, -4
+ 524 02ae 85B0     		sub	sp, sp, #20
+ 525              	.LCFI24:
+ 526              		.cfi_def_cfa_offset 24
+ 527 02b0 00AF     		add	r7, sp, #0
+ 528              	.LCFI25:
+ 529              		.cfi_def_cfa_register 7
+ 530 02b2 0246     		mov	r2, r0
+ 531 02b4 0B46     		mov	r3, r1
+ 532 02b6 FA71     		strb	r2, [r7, #7]
+ 533 02b8 BB71     		strb	r3, [r7, #6]
+ 173:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+ 534              		.loc 1 173 0
+ 535 02ba FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 536 02bc 1346     		mov	r3, r2
+ 537 02be 4FEA4303 		lsl	r3, r3, #1
+ 538 02c2 9B18     		adds	r3, r3, r2
+ 539 02c4 4FEA0313 		lsl	r3, r3, #4
+ 540 02c8 40F20002 		movw	r2, #:lower16:DCMotors
+ 541 02cc C0F20002 		movt	r2, #:upper16:DCMotors
+ 542 02d0 9B18     		adds	r3, r3, r2
+ 543 02d2 FB60     		str	r3, [r7, #12]
+ 174:../QS/QS_DCMotor2.c **** 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
+ 175:../QS/QS_DCMotor2.c **** 	return this->config.pos[pos_to_get];
+ 544              		.loc 1 175 0
+ 545 02d4 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 546 02d6 FA68     		ldr	r2, [r7, #12]
+ 547 02d8 4FEA4303 		lsl	r3, r3, #1
+ 548 02dc D318     		adds	r3, r2, r3
+ 549 02de DB88     		ldrh	r3, [r3, #6]
+ 550 02e0 1BB2     		sxth	r3, r3
+ 176:../QS/QS_DCMotor2.c **** }
+ 551              		.loc 1 176 0
+ 552 02e2 1846     		mov	r0, r3
+ 553 02e4 07F11407 		add	r7, r7, #20
+ 554 02e8 BD46     		mov	sp, r7
+ 555 02ea 80BC     		pop	{r7}
+ 556 02ec 7047     		bx	lr
+ 557              		.cfi_endproc
+ 558              	.LFE119:
+ 560 02ee 00BF     		.align	2
+ 561              		.global	DCM_setCoefs
+ 562              		.thumb
+ 563              		.thumb_func
+ 565              	DCM_setCoefs:
+ 566              	.LFB120:
+ 177:../QS/QS_DCMotor2.c **** 
+ 178:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 179:../QS/QS_DCMotor2.c ****         Change les coefs d'asservissement.
+ 180:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 181:../QS/QS_DCMotor2.c **** void DCM_setCoefs(Uint8 dc_motor_id, Sint16 Kp, Sint16 Ki, Sint16 Kd) {
+ 567              		.loc 1 181 0
+ 568              		.cfi_startproc
+ 569              		@ args = 0, pretend = 0, frame = 16
+ 570              		@ frame_needed = 1, uses_anonymous_args = 0
+ 571              		@ link register save eliminated.
+ 572 02f0 80B4     		push	{r7}
+ 573              	.LCFI26:
+ 574              		.cfi_def_cfa_offset 4
+ 575              		.cfi_offset 7, -4
+ 576 02f2 85B0     		sub	sp, sp, #20
+ 577              	.LCFI27:
+ 578              		.cfi_def_cfa_offset 24
+ 579 02f4 00AF     		add	r7, sp, #0
+ 580              	.LCFI28:
+ 581              		.cfi_def_cfa_register 7
+ 582 02f6 F871     		strb	r0, [r7, #7]
+ 583 02f8 B980     		strh	r1, [r7, #4]	@ movhi
+ 584 02fa 7A80     		strh	r2, [r7, #2]	@ movhi
+ 585 02fc 3B80     		strh	r3, [r7, #0]	@ movhi
+ 182:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+ 586              		.loc 1 182 0
+ 587 02fe FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 588 0300 1346     		mov	r3, r2
+ 589 0302 4FEA4303 		lsl	r3, r3, #1
+ 590 0306 9B18     		adds	r3, r3, r2
+ 591 0308 4FEA0313 		lsl	r3, r3, #4
+ 592 030c 40F20002 		movw	r2, #:lower16:DCMotors
+ 593 0310 C0F20002 		movt	r2, #:upper16:DCMotors
+ 594 0314 9B18     		adds	r3, r3, r2
+ 595 0316 FB60     		str	r3, [r7, #12]
+ 183:../QS/QS_DCMotor2.c **** 	assert((this->init_state == INITIALIZED) || (this->init_state == STOPPED));
+ 184:../QS/QS_DCMotor2.c **** 	init_state_e previousState = this->init_state;
+ 596              		.loc 1 184 0
+ 597 0318 FB68     		ldr	r3, [r7, #12]
+ 598 031a 93F82E30 		ldrb	r3, [r3, #46]
+ 599 031e FB72     		strb	r3, [r7, #11]
+ 185:../QS/QS_DCMotor2.c **** 
+ 186:../QS/QS_DCMotor2.c **** 	this->init_state = STOPPED; //Aucun calcul d'asservissement ne doit être fait pendant ce temps
+ 600              		.loc 1 186 0
+ 601 0320 FB68     		ldr	r3, [r7, #12]
+ 602 0322 4FF00202 		mov	r2, #2
+ 603 0326 83F82E20 		strb	r2, [r3, #46]
+ 187:../QS/QS_DCMotor2.c **** 
+ 188:../QS/QS_DCMotor2.c **** 	this->config.Kp = Kp;
+ 604              		.loc 1 188 0
+ 605 032a FB68     		ldr	r3, [r7, #12]
+ 606 032c BA88     		ldrh	r2, [r7, #4]	@ movhi
+ 607 032e DA81     		strh	r2, [r3, #14]	@ movhi
+ 189:../QS/QS_DCMotor2.c **** 	this->config.Ki = Ki;
+ 608              		.loc 1 189 0
+ 609 0330 FB68     		ldr	r3, [r7, #12]
+ 610 0332 7A88     		ldrh	r2, [r7, #2]	@ movhi
+ 611 0334 1A82     		strh	r2, [r3, #16]	@ movhi
+ 190:../QS/QS_DCMotor2.c **** 	this->config.Kd = Kd;
+ 612              		.loc 1 190 0
+ 613 0336 FB68     		ldr	r3, [r7, #12]
+ 614 0338 3A88     		ldrh	r2, [r7, #0]	@ movhi
+ 615 033a 5A82     		strh	r2, [r3, #18]	@ movhi
+ 191:../QS/QS_DCMotor2.c **** 
+ 192:../QS/QS_DCMotor2.c **** 	this->init_state = previousState;
+ 616              		.loc 1 192 0
+ 617 033c FB68     		ldr	r3, [r7, #12]
+ 618 033e FA7A     		ldrb	r2, [r7, #11]
+ 619 0340 83F82E20 		strb	r2, [r3, #46]
+ 193:../QS/QS_DCMotor2.c **** }
+ 620              		.loc 1 193 0
+ 621 0344 07F11407 		add	r7, r7, #20
+ 622 0348 BD46     		mov	sp, r7
+ 623 034a 80BC     		pop	{r7}
+ 624 034c 7047     		bx	lr
+ 625              		.cfi_endproc
+ 626              	.LFE120:
+ 628 034e 00BF     		.align	2
+ 629              		.global	DCM_getCoefs
+ 630              		.thumb
+ 631              		.thumb_func
+ 633              	DCM_getCoefs:
+ 634              	.LFB121:
+ 194:../QS/QS_DCMotor2.c **** 
+ 195:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 196:../QS/QS_DCMotor2.c ****         Récupère les coefs d'asservissement.
+ 197:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 198:../QS/QS_DCMotor2.c **** void DCM_getCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd) {
+ 635              		.loc 1 198 0
+ 636              		.cfi_startproc
+ 637              		@ args = 0, pretend = 0, frame = 24
+ 638              		@ frame_needed = 1, uses_anonymous_args = 0
+ 639              		@ link register save eliminated.
+ 640 0350 80B4     		push	{r7}
+ 641              	.LCFI29:
+ 642              		.cfi_def_cfa_offset 4
+ 643              		.cfi_offset 7, -4
+ 644 0352 87B0     		sub	sp, sp, #28
+ 645              	.LCFI30:
+ 646              		.cfi_def_cfa_offset 32
+ 647 0354 00AF     		add	r7, sp, #0
+ 648              	.LCFI31:
+ 649              		.cfi_def_cfa_register 7
+ 650 0356 B960     		str	r1, [r7, #8]
+ 651 0358 7A60     		str	r2, [r7, #4]
+ 652 035a 3B60     		str	r3, [r7, #0]
+ 653 035c 0346     		mov	r3, r0
+ 654 035e FB73     		strb	r3, [r7, #15]
+ 199:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+ 655              		.loc 1 199 0
+ 656 0360 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 657 0362 1346     		mov	r3, r2
+ 658 0364 4FEA4303 		lsl	r3, r3, #1
+ 659 0368 9B18     		adds	r3, r3, r2
+ 660 036a 4FEA0313 		lsl	r3, r3, #4
+ 661 036e 40F20002 		movw	r2, #:lower16:DCMotors
+ 662 0372 C0F20002 		movt	r2, #:upper16:DCMotors
+ 663 0376 9B18     		adds	r3, r3, r2
+ 664 0378 7B61     		str	r3, [r7, #20]
+ 200:../QS/QS_DCMotor2.c **** 	assert((this->init_state == INITIALIZED) || (this->init_state == STOPPED));
+ 201:../QS/QS_DCMotor2.c **** 
+ 202:../QS/QS_DCMotor2.c **** 	if(Kp) *Kp = this->config.Kp;
+ 665              		.loc 1 202 0
+ 666 037a BB68     		ldr	r3, [r7, #8]
+ 667 037c 002B     		cmp	r3, #0
+ 668 037e 03D0     		beq	.L23
+ 669              		.loc 1 202 0 is_stmt 0 discriminator 1
+ 670 0380 7B69     		ldr	r3, [r7, #20]
+ 671 0382 DA89     		ldrh	r2, [r3, #14]
+ 672 0384 BB68     		ldr	r3, [r7, #8]
+ 673 0386 1A80     		strh	r2, [r3, #0]	@ movhi
+ 674              	.L23:
+ 203:../QS/QS_DCMotor2.c **** 	if(Ki) *Ki = this->config.Ki;
+ 675              		.loc 1 203 0 is_stmt 1
+ 676 0388 7B68     		ldr	r3, [r7, #4]
+ 677 038a 002B     		cmp	r3, #0
+ 678 038c 03D0     		beq	.L24
+ 679              		.loc 1 203 0 is_stmt 0 discriminator 1
+ 680 038e 7B69     		ldr	r3, [r7, #20]
+ 681 0390 1A8A     		ldrh	r2, [r3, #16]
+ 682 0392 7B68     		ldr	r3, [r7, #4]
+ 683 0394 1A80     		strh	r2, [r3, #0]	@ movhi
+ 684              	.L24:
+ 204:../QS/QS_DCMotor2.c **** 	if(Kd) *Kd = this->config.Kd;
+ 685              		.loc 1 204 0 is_stmt 1
+ 686 0396 3B68     		ldr	r3, [r7, #0]
+ 687 0398 002B     		cmp	r3, #0
+ 688 039a 03D0     		beq	.L22
+ 689              		.loc 1 204 0 is_stmt 0 discriminator 1
+ 690 039c 7B69     		ldr	r3, [r7, #20]
+ 691 039e 5A8A     		ldrh	r2, [r3, #18]
+ 692 03a0 3B68     		ldr	r3, [r7, #0]
+ 693 03a2 1A80     		strh	r2, [r3, #0]	@ movhi
+ 694              	.L22:
+ 205:../QS/QS_DCMotor2.c **** }
+ 695              		.loc 1 205 0 is_stmt 1
+ 696 03a4 07F11C07 		add	r7, r7, #28
+ 697 03a8 BD46     		mov	sp, r7
+ 698 03aa 80BC     		pop	{r7}
+ 699 03ac 7047     		bx	lr
+ 700              		.cfi_endproc
+ 701              	.LFE121:
+ 703 03ae 00BF     		.align	2
+ 704              		.global	DCM_stop
+ 705              		.thumb
+ 706              		.thumb_func
+ 708              	DCM_stop:
+ 709              	.LFB122:
+ 206:../QS/QS_DCMotor2.c **** 
+ 207:../QS/QS_DCMotor2.c **** 
+ 208:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 209:../QS/QS_DCMotor2.c **** 		Arret de l'asservissement d'un actionneur
+ 210:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 211:../QS/QS_DCMotor2.c **** void DCM_stop(Uint8 dc_motor_id)
+ 212:../QS/QS_DCMotor2.c **** {
+ 710              		.loc 1 212 0
+ 711              		.cfi_startproc
+ 712              		@ args = 0, pretend = 0, frame = 16
+ 713              		@ frame_needed = 1, uses_anonymous_args = 0
+ 714 03b0 80B5     		push	{r7, lr}
+ 715              	.LCFI32:
+ 716              		.cfi_def_cfa_offset 8
+ 717              		.cfi_offset 7, -8
+ 718              		.cfi_offset 14, -4
+ 719 03b2 84B0     		sub	sp, sp, #16
+ 720              	.LCFI33:
+ 721              		.cfi_def_cfa_offset 24
+ 722 03b4 00AF     		add	r7, sp, #0
+ 723              	.LCFI34:
+ 724              		.cfi_def_cfa_register 7
+ 725 03b6 0346     		mov	r3, r0
+ 726 03b8 FB71     		strb	r3, [r7, #7]
+ 213:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+ 727              		.loc 1 213 0
+ 728 03ba FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 729 03bc 1346     		mov	r3, r2
+ 730 03be 4FEA4303 		lsl	r3, r3, #1
+ 731 03c2 9B18     		adds	r3, r3, r2
+ 732 03c4 4FEA0313 		lsl	r3, r3, #4
+ 733 03c8 40F20002 		movw	r2, #:lower16:DCMotors
+ 734 03cc C0F20002 		movt	r2, #:upper16:DCMotors
+ 735 03d0 9B18     		adds	r3, r3, r2
+ 736 03d2 FB60     		str	r3, [r7, #12]
+ 214:../QS/QS_DCMotor2.c **** 	if(this->init_state == INITIALIZED)
+ 737              		.loc 1 214 0
+ 738 03d4 FB68     		ldr	r3, [r7, #12]
+ 739 03d6 93F82E30 		ldrb	r3, [r3, #46]	@ zero_extendqisi2
+ 740 03da 002B     		cmp	r3, #0
+ 741 03dc 0ED1     		bne	.L26
+ 215:../QS/QS_DCMotor2.c **** 	{
+ 216:../QS/QS_DCMotor2.c **** 		this->init_state = STOPPED;
+ 742              		.loc 1 216 0
+ 743 03de FB68     		ldr	r3, [r7, #12]
+ 744 03e0 4FF00202 		mov	r2, #2
+ 745 03e4 83F82E20 		strb	r2, [r3, #46]
+ 217:../QS/QS_DCMotor2.c **** 		this->cmd_state = DCM_IDLE;
+ 746              		.loc 1 217 0
+ 747 03e8 FB68     		ldr	r3, [r7, #12]
+ 748 03ea 4FF00002 		mov	r2, #0
+ 749 03ee 83F82020 		strb	r2, [r3, #32]
+ 218:../QS/QS_DCMotor2.c **** 		PWM_stop(this->config.pwm_number);
+ 750              		.loc 1 218 0
+ 751 03f2 FB68     		ldr	r3, [r7, #12]
+ 752 03f4 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 753 03f6 1846     		mov	r0, r3
+ 754 03f8 FFF7FEFF 		bl	PWM_stop
+ 755              	.L26:
+ 219:../QS/QS_DCMotor2.c **** 	}	
+ 220:../QS/QS_DCMotor2.c **** }	
+ 756              		.loc 1 220 0
+ 757 03fc 07F11007 		add	r7, r7, #16
+ 758 0400 BD46     		mov	sp, r7
+ 759 0402 80BD     		pop	{r7, pc}
+ 760              		.cfi_endproc
+ 761              	.LFE122:
+ 763              		.align	2
+ 764              		.global	DCM_stop_all
+ 765              		.thumb
+ 766              		.thumb_func
+ 768              	DCM_stop_all:
+ 769              	.LFB123:
+ 221:../QS/QS_DCMotor2.c **** 
+ 222:../QS/QS_DCMotor2.c **** 
+ 223:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 224:../QS/QS_DCMotor2.c **** 		Arret de tous les asservissements
+ 225:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 226:../QS/QS_DCMotor2.c **** void DCM_stop_all()
+ 227:../QS/QS_DCMotor2.c **** {
+ 770              		.loc 1 227 0
+ 771              		.cfi_startproc
+ 772              		@ args = 0, pretend = 0, frame = 8
+ 773              		@ frame_needed = 1, uses_anonymous_args = 0
+ 774 0404 80B5     		push	{r7, lr}
+ 775              	.LCFI35:
+ 776              		.cfi_def_cfa_offset 8
+ 777              		.cfi_offset 7, -8
+ 778              		.cfi_offset 14, -4
+ 779 0406 82B0     		sub	sp, sp, #8
+ 780              	.LCFI36:
+ 781              		.cfi_def_cfa_offset 16
+ 782 0408 00AF     		add	r7, sp, #0
+ 783              	.LCFI37:
+ 784              		.cfi_def_cfa_register 7
+ 228:../QS/QS_DCMotor2.c **** 	Uint8 i;
+ 229:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 785              		.loc 1 229 0
+ 786 040a 4FF00003 		mov	r3, #0
+ 787 040e FB71     		strb	r3, [r7, #7]
+ 788 0410 07E0     		b	.L29
+ 789              	.L30:
+ 230:../QS/QS_DCMotor2.c **** 	{
+ 231:../QS/QS_DCMotor2.c **** 		DCM_stop(i);
+ 790              		.loc 1 231 0 discriminator 2
+ 791 0412 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 792 0414 1846     		mov	r0, r3
+ 793 0416 FFF7FEFF 		bl	DCM_stop
+ 229:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 794              		.loc 1 229 0 discriminator 2
+ 795 041a FB79     		ldrb	r3, [r7, #7]
+ 796 041c 03F10103 		add	r3, r3, #1
+ 797 0420 FB71     		strb	r3, [r7, #7]
+ 798              	.L29:
+ 229:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 799              		.loc 1 229 0 is_stmt 0 discriminator 1
+ 800 0422 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 801 0424 032B     		cmp	r3, #3
+ 802 0426 F4D9     		bls	.L30
+ 232:../QS/QS_DCMotor2.c **** 	}
+ 233:../QS/QS_DCMotor2.c **** }	
+ 803              		.loc 1 233 0 is_stmt 1
+ 804 0428 07F10807 		add	r7, r7, #8
+ 805 042c BD46     		mov	sp, r7
+ 806 042e 80BD     		pop	{r7, pc}
+ 807              		.cfi_endproc
+ 808              	.LFE123:
+ 810              		.align	2
+ 811              		.global	DCM_restart
+ 812              		.thumb
+ 813              		.thumb_func
+ 815              	DCM_restart:
+ 816              	.LFB124:
+ 234:../QS/QS_DCMotor2.c **** 
+ 235:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 236:../QS/QS_DCMotor2.c **** 		Reactivation de l'asservissement d'un actionneur
+ 237:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 238:../QS/QS_DCMotor2.c **** void DCM_restart(Uint8 dc_motor_id)
+ 239:../QS/QS_DCMotor2.c **** {
+ 817              		.loc 1 239 0
+ 818              		.cfi_startproc
+ 819              		@ args = 0, pretend = 0, frame = 16
+ 820              		@ frame_needed = 1, uses_anonymous_args = 0
+ 821              		@ link register save eliminated.
+ 822 0430 80B4     		push	{r7}
+ 823              	.LCFI38:
+ 824              		.cfi_def_cfa_offset 4
+ 825              		.cfi_offset 7, -4
+ 826 0432 85B0     		sub	sp, sp, #20
+ 827              	.LCFI39:
+ 828              		.cfi_def_cfa_offset 24
+ 829 0434 00AF     		add	r7, sp, #0
+ 830              	.LCFI40:
+ 831              		.cfi_def_cfa_register 7
+ 832 0436 0346     		mov	r3, r0
+ 833 0438 FB71     		strb	r3, [r7, #7]
+ 240:../QS/QS_DCMotor2.c **** 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+ 834              		.loc 1 240 0
+ 835 043a FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 836 043c 1346     		mov	r3, r2
+ 837 043e 4FEA4303 		lsl	r3, r3, #1
+ 838 0442 9B18     		adds	r3, r3, r2
+ 839 0444 4FEA0313 		lsl	r3, r3, #4
+ 840 0448 40F20002 		movw	r2, #:lower16:DCMotors
+ 841 044c C0F20002 		movt	r2, #:upper16:DCMotors
+ 842 0450 9B18     		adds	r3, r3, r2
+ 843 0452 FB60     		str	r3, [r7, #12]
+ 241:../QS/QS_DCMotor2.c **** 	if(this->init_state == STOPPED)
+ 844              		.loc 1 241 0
+ 845 0454 FB68     		ldr	r3, [r7, #12]
+ 846 0456 93F82E30 		ldrb	r3, [r3, #46]	@ zero_extendqisi2
+ 847 045a 022B     		cmp	r3, #2
+ 848 045c 11D1     		bne	.L31
+ 242:../QS/QS_DCMotor2.c **** 	{
+ 243:../QS/QS_DCMotor2.c **** 		this->integrator = 0;
+ 849              		.loc 1 243 0
+ 850 045e FB68     		ldr	r3, [r7, #12]
+ 851 0460 4FF00002 		mov	r2, #0
+ 852 0464 5A62     		str	r2, [r3, #36]
+ 244:../QS/QS_DCMotor2.c **** 		this->cmd_time = 0;
+ 853              		.loc 1 244 0
+ 854 0466 FB68     		ldr	r3, [r7, #12]
+ 855 0468 4FF00002 		mov	r2, #0
+ 856 046c 1A85     		strh	r2, [r3, #40]	@ movhi
+ 245:../QS/QS_DCMotor2.c **** 		this->cmd_state = DCM_WORKING;
+ 857              		.loc 1 245 0
+ 858 046e FB68     		ldr	r3, [r7, #12]
+ 859 0470 4FF00102 		mov	r2, #1
+ 860 0474 83F82020 		strb	r2, [r3, #32]
+ 246:../QS/QS_DCMotor2.c **** 		this->init_state = INITIALIZED;
+ 861              		.loc 1 246 0
+ 862 0478 FB68     		ldr	r3, [r7, #12]
+ 863 047a 4FF00002 		mov	r2, #0
+ 864 047e 83F82E20 		strb	r2, [r3, #46]
+ 865              	.L31:
+ 247:../QS/QS_DCMotor2.c **** 	}	
+ 248:../QS/QS_DCMotor2.c **** }	
+ 866              		.loc 1 248 0
+ 867 0482 07F11407 		add	r7, r7, #20
+ 868 0486 BD46     		mov	sp, r7
+ 869 0488 80BC     		pop	{r7}
+ 870 048a 7047     		bx	lr
+ 871              		.cfi_endproc
+ 872              	.LFE124:
+ 874              		.align	2
+ 875              		.global	DCM_restart_all
+ 876              		.thumb
+ 877              		.thumb_func
+ 879              	DCM_restart_all:
+ 880              	.LFB125:
+ 249:../QS/QS_DCMotor2.c **** 
+ 250:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 251:../QS/QS_DCMotor2.c **** 		Reactivation de tous les asservissements
+ 252:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 253:../QS/QS_DCMotor2.c **** void DCM_restart_all()
+ 254:../QS/QS_DCMotor2.c **** {
+ 881              		.loc 1 254 0
+ 882              		.cfi_startproc
+ 883              		@ args = 0, pretend = 0, frame = 8
+ 884              		@ frame_needed = 1, uses_anonymous_args = 0
+ 885 048c 80B5     		push	{r7, lr}
+ 886              	.LCFI41:
+ 887              		.cfi_def_cfa_offset 8
+ 888              		.cfi_offset 7, -8
+ 889              		.cfi_offset 14, -4
+ 890 048e 82B0     		sub	sp, sp, #8
+ 891              	.LCFI42:
+ 892              		.cfi_def_cfa_offset 16
+ 893 0490 00AF     		add	r7, sp, #0
+ 894              	.LCFI43:
+ 895              		.cfi_def_cfa_register 7
+ 255:../QS/QS_DCMotor2.c **** 	Uint8 i;
+ 256:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 896              		.loc 1 256 0
+ 897 0492 4FF00003 		mov	r3, #0
+ 898 0496 FB71     		strb	r3, [r7, #7]
+ 899 0498 07E0     		b	.L34
+ 900              	.L35:
+ 257:../QS/QS_DCMotor2.c **** 	{
+ 258:../QS/QS_DCMotor2.c **** 		DCM_restart(i);
+ 901              		.loc 1 258 0 discriminator 2
+ 902 049a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 903 049c 1846     		mov	r0, r3
+ 904 049e FFF7FEFF 		bl	DCM_restart
+ 256:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 905              		.loc 1 256 0 discriminator 2
+ 906 04a2 FB79     		ldrb	r3, [r7, #7]
+ 907 04a4 03F10103 		add	r3, r3, #1
+ 908 04a8 FB71     		strb	r3, [r7, #7]
+ 909              	.L34:
+ 256:../QS/QS_DCMotor2.c **** 	for (i=0;i<DCM_NUMBER;i++)
+ 910              		.loc 1 256 0 is_stmt 0 discriminator 1
+ 911 04aa FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 912 04ac 032B     		cmp	r3, #3
+ 913 04ae F4D9     		bls	.L35
+ 259:../QS/QS_DCMotor2.c **** 	}
+ 260:../QS/QS_DCMotor2.c **** }	
+ 914              		.loc 1 260 0 is_stmt 1
+ 915 04b0 07F10807 		add	r7, r7, #8
+ 916 04b4 BD46     		mov	sp, r7
+ 917 04b6 80BD     		pop	{r7, pc}
+ 918              		.cfi_endproc
+ 919              	.LFE125:
+ 921              		.align	2
+ 922              		.global	_T1Interrupt
+ 923              		.thumb
+ 924              		.thumb_func
+ 926              	_T1Interrupt:
+ 927              	.LFB126:
+ 261:../QS/QS_DCMotor2.c **** 
+ 262:../QS/QS_DCMotor2.c **** 
+ 263:../QS/QS_DCMotor2.c **** /*-----------------------------------------
+ 264:../QS/QS_DCMotor2.c **** 	Interruption de commande
+ 265:../QS/QS_DCMotor2.c **** -----------------------------------------*/
+ 266:../QS/QS_DCMotor2.c **** void TIMER_SRC_TIMER_interrupt()
+ 267:../QS/QS_DCMotor2.c **** {
+ 928              		.loc 1 267 0
+ 929              		.cfi_startproc
+ 930              		@ args = 0, pretend = 0, frame = 24
+ 931              		@ frame_needed = 1, uses_anonymous_args = 0
+ 932 04b8 90B5     		push	{r4, r7, lr}
+ 933              	.LCFI44:
+ 934              		.cfi_def_cfa_offset 12
+ 935              		.cfi_offset 4, -12
+ 936              		.cfi_offset 7, -8
+ 937              		.cfi_offset 14, -4
+ 938 04ba 87B0     		sub	sp, sp, #28
+ 939              	.LCFI45:
+ 940              		.cfi_def_cfa_offset 40
+ 941 04bc 00AF     		add	r7, sp, #0
+ 942              	.LCFI46:
+ 943              		.cfi_def_cfa_register 7
+ 268:../QS/QS_DCMotor2.c **** 	DCMotor_t* this;
+ 269:../QS/QS_DCMotor2.c **** 	DCMotor_config_t* config;
+ 270:../QS/QS_DCMotor2.c **** 	Uint8 dc_motor_id;
+ 271:../QS/QS_DCMotor2.c **** 	Sint32 differential;
+ 272:../QS/QS_DCMotor2.c **** 	Sint32 computed_cmd;
+ 273:../QS/QS_DCMotor2.c **** 	Sint16 error;
+ 274:../QS/QS_DCMotor2.c **** 
+ 275:../QS/QS_DCMotor2.c **** 	for (dc_motor_id = 0; dc_motor_id < DCM_NUMBER; dc_motor_id++)
+ 944              		.loc 1 275 0
+ 945 04be 4FF00003 		mov	r3, #0
+ 946 04c2 FB75     		strb	r3, [r7, #23]
+ 947 04c4 4CE1     		b	.L37
+ 948              	.L57:
+ 276:../QS/QS_DCMotor2.c **** 	{
+ 277:../QS/QS_DCMotor2.c **** 		this = &(DCMotors[dc_motor_id]);
+ 949              		.loc 1 277 0
+ 950 04c6 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 951 04c8 1346     		mov	r3, r2
+ 952 04ca 4FEA4303 		lsl	r3, r3, #1
+ 953 04ce 9B18     		adds	r3, r3, r2
+ 954 04d0 4FEA0313 		lsl	r3, r3, #4
+ 955 04d4 40F20002 		movw	r2, #:lower16:DCMotors
+ 956 04d8 C0F20002 		movt	r2, #:upper16:DCMotors
+ 957 04dc 9B18     		adds	r3, r3, r2
+ 958 04de 3B61     		str	r3, [r7, #16]
+ 278:../QS/QS_DCMotor2.c **** 		config = &(this->config);
+ 959              		.loc 1 278 0
+ 960 04e0 3B69     		ldr	r3, [r7, #16]
+ 961 04e2 FB60     		str	r3, [r7, #12]
+ 279:../QS/QS_DCMotor2.c **** 
+ 280:../QS/QS_DCMotor2.c **** 		if (this->init_state == INITIALIZED) 
+ 962              		.loc 1 280 0
+ 963 04e4 3B69     		ldr	r3, [r7, #16]
+ 964 04e6 93F82E30 		ldrb	r3, [r3, #46]	@ zero_extendqisi2
+ 965 04ea 002B     		cmp	r3, #0
+ 966 04ec 40F03481 		bne	.L38
+ 281:../QS/QS_DCMotor2.c **** 		{
+ 282:../QS/QS_DCMotor2.c **** 			// Acquisition de la position pour la détection de l'arrêt du moteur
+ 283:../QS/QS_DCMotor2.c **** 			error = config->pos[this->posToGo]-(config->sensor_read)();
+ 967              		.loc 1 283 0
+ 968 04f0 3B69     		ldr	r3, [r7, #16]
+ 969 04f2 93F82A30 		ldrb	r3, [r3, #42]	@ zero_extendqisi2
+ 970 04f6 FA68     		ldr	r2, [r7, #12]
+ 971 04f8 4FEA4303 		lsl	r3, r3, #1
+ 972 04fc D318     		adds	r3, r2, r3
+ 973 04fe DB88     		ldrh	r3, [r3, #6]
+ 974 0500 9CB2     		uxth	r4, r3
+ 975 0502 FB68     		ldr	r3, [r7, #12]
+ 976 0504 1B68     		ldr	r3, [r3, #0]
+ 977 0506 9847     		blx	r3
+ 978 0508 0346     		mov	r3, r0
+ 979 050a 9BB2     		uxth	r3, r3
+ 980 050c E31A     		subs	r3, r4, r3
+ 981 050e 9BB2     		uxth	r3, r3
+ 982 0510 7B81     		strh	r3, [r7, #10]	@ movhi
+ 284:../QS/QS_DCMotor2.c **** 
+ 285:../QS/QS_DCMotor2.c **** 			//Gestion des changements d'états
+ 286:../QS/QS_DCMotor2.c **** 			switch(this->cmd_state) {
+ 983              		.loc 1 286 0
+ 984 0512 3B69     		ldr	r3, [r7, #16]
+ 985 0514 93F82030 		ldrb	r3, [r3, #32]	@ zero_extendqisi2
+ 986 0518 012B     		cmp	r3, #1
+ 987 051a 04D0     		beq	.L41
+ 988 051c 022B     		cmp	r3, #2
+ 989 051e 4ED0     		beq	.L58
+ 990 0520 002B     		cmp	r3, #0
+ 991 0522 36D0     		beq	.L40
+ 992 0524 50E0     		b	.L39
+ 993              	.L41:
+ 287:../QS/QS_DCMotor2.c **** 				case DCM_WORKING:
+ 288:../QS/QS_DCMotor2.c **** 					this->cmd_time += DCM_TIMER_PERIOD;
+ 994              		.loc 1 288 0
+ 995 0526 3B69     		ldr	r3, [r7, #16]
+ 996 0528 1B8D     		ldrh	r3, [r3, #40]
+ 997 052a 03F10203 		add	r3, r3, #2
+ 998 052e 9AB2     		uxth	r2, r3
+ 999 0530 3B69     		ldr	r3, [r7, #16]
+ 1000 0532 1A85     		strh	r2, [r3, #40]	@ movhi
+ 289:../QS/QS_DCMotor2.c **** 					if(absolute(error) < (Sint16)config->epsilon && absolute(this->previous_error) < (Sint16)confi
+ 1001              		.loc 1 289 0
+ 1002 0534 B7F90A30 		ldrsh	r3, [r7, #10]
+ 1003 0538 83EAE372 		eor	r2, r3, r3, asr #31
+ 1004 053c A2EBE372 		sub	r2, r2, r3, asr #31
+ 1005 0540 FB68     		ldr	r3, [r7, #12]
+ 1006 0542 9B8B     		ldrh	r3, [r3, #28]
+ 1007 0544 9BB2     		uxth	r3, r3
+ 1008 0546 1BB2     		sxth	r3, r3
+ 1009 0548 9A42     		cmp	r2, r3
+ 1010 054a 12DA     		bge	.L43
+ 1011              		.loc 1 289 0 is_stmt 0 discriminator 1
+ 1012 054c 3B69     		ldr	r3, [r7, #16]
+ 1013 054e 9B8D     		ldrh	r3, [r3, #44]
+ 1014 0550 1BB2     		sxth	r3, r3
+ 1015 0552 83EAE372 		eor	r2, r3, r3, asr #31
+ 1016 0556 A2EBE372 		sub	r2, r2, r3, asr #31
+ 1017 055a FB68     		ldr	r3, [r7, #12]
+ 1018 055c 9B8B     		ldrh	r3, [r3, #28]
+ 1019 055e 9BB2     		uxth	r3, r3
+ 1020 0560 1BB2     		sxth	r3, r3
+ 1021 0562 9A42     		cmp	r2, r3
+ 1022 0564 05DA     		bge	.L43
+ 290:../QS/QS_DCMotor2.c **** 						this->cmd_state = DCM_IDLE;
+ 1023              		.loc 1 290 0 is_stmt 1
+ 1024 0566 3B69     		ldr	r3, [r7, #16]
+ 1025 0568 4FF00002 		mov	r2, #0
+ 1026 056c 83F82020 		strb	r2, [r3, #32]
+ 291:../QS/QS_DCMotor2.c **** 					else if(config->timeout && this->cmd_time >= config->timeout)
+ 292:../QS/QS_DCMotor2.c **** 						this->cmd_state = DCM_TIMEOUT;
+ 293:../QS/QS_DCMotor2.c **** 					break;
+ 1027              		.loc 1 293 0
+ 1028 0570 27E0     		b	.L59
+ 1029              	.L43:
+ 291:../QS/QS_DCMotor2.c **** 					else if(config->timeout && this->cmd_time >= config->timeout)
+ 1030              		.loc 1 291 0
+ 1031 0572 FB68     		ldr	r3, [r7, #12]
+ 1032 0574 5B8B     		ldrh	r3, [r3, #26]
+ 1033 0576 002B     		cmp	r3, #0
+ 1034 0578 23D0     		beq	.L59
+ 291:../QS/QS_DCMotor2.c **** 					else if(config->timeout && this->cmd_time >= config->timeout)
+ 1035              		.loc 1 291 0 is_stmt 0 discriminator 1
+ 1036 057a 3B69     		ldr	r3, [r7, #16]
+ 1037 057c 1A8D     		ldrh	r2, [r3, #40]
+ 1038 057e FB68     		ldr	r3, [r7, #12]
+ 1039 0580 5B8B     		ldrh	r3, [r3, #26]
+ 1040 0582 9A42     		cmp	r2, r3
+ 1041 0584 1DD3     		bcc	.L59
+ 292:../QS/QS_DCMotor2.c **** 						this->cmd_state = DCM_TIMEOUT;
+ 1042              		.loc 1 292 0 is_stmt 1
+ 1043 0586 3B69     		ldr	r3, [r7, #16]
+ 1044 0588 4FF00202 		mov	r2, #2
+ 1045 058c 83F82020 		strb	r2, [r3, #32]
+ 1046              		.loc 1 293 0
+ 1047 0590 17E0     		b	.L59
+ 1048              	.L40:
+ 294:../QS/QS_DCMotor2.c **** 
+ 295:../QS/QS_DCMotor2.c **** 				case DCM_IDLE:
+ 296:../QS/QS_DCMotor2.c **** 					this->cmd_time = 0;
+ 1049              		.loc 1 296 0
+ 1050 0592 3B69     		ldr	r3, [r7, #16]
+ 1051 0594 4FF00002 		mov	r2, #0
+ 1052 0598 1A85     		strh	r2, [r3, #40]	@ movhi
+ 297:../QS/QS_DCMotor2.c **** 					if(absolute(error) >= (Sint16)config->epsilon)
+ 1053              		.loc 1 297 0
+ 1054 059a B7F90A30 		ldrsh	r3, [r7, #10]
+ 1055 059e 83EAE372 		eor	r2, r3, r3, asr #31
+ 1056 05a2 A2EBE372 		sub	r2, r2, r3, asr #31
+ 1057 05a6 FB68     		ldr	r3, [r7, #12]
+ 1058 05a8 9B8B     		ldrh	r3, [r3, #28]
+ 1059 05aa 9BB2     		uxth	r3, r3
+ 1060 05ac 1BB2     		sxth	r3, r3
+ 1061 05ae 9A42     		cmp	r2, r3
+ 1062 05b0 09DB     		blt	.L60
+ 298:../QS/QS_DCMotor2.c **** 						this->cmd_state = DCM_WORKING;
+ 1063              		.loc 1 298 0
+ 1064 05b2 3B69     		ldr	r3, [r7, #16]
+ 1065 05b4 4FF00102 		mov	r2, #1
+ 1066 05b8 83F82020 		strb	r2, [r3, #32]
+ 299:../QS/QS_DCMotor2.c **** 					break;
+ 1067              		.loc 1 299 0
+ 1068 05bc 03E0     		b	.L60
+ 1069              	.L58:
+ 300:../QS/QS_DCMotor2.c **** 
+ 301:../QS/QS_DCMotor2.c **** 				case DCM_TIMEOUT:
+ 302:../QS/QS_DCMotor2.c **** 					break;
+ 1070              		.loc 1 302 0
+ 1071 05be 00BF     		nop
+ 1072 05c0 02E0     		b	.L39
+ 1073              	.L59:
+ 293:../QS/QS_DCMotor2.c **** 					break;
+ 1074              		.loc 1 293 0
+ 1075 05c2 00BF     		nop
+ 1076 05c4 00E0     		b	.L39
+ 1077              	.L60:
+ 299:../QS/QS_DCMotor2.c **** 					break;
+ 1078              		.loc 1 299 0
+ 1079 05c6 00BF     		nop
+ 1080              	.L39:
+ 303:../QS/QS_DCMotor2.c **** 			}
+ 304:../QS/QS_DCMotor2.c **** 
+ 305:../QS/QS_DCMotor2.c **** 			//Gestion des actions dans les états
+ 306:../QS/QS_DCMotor2.c **** 			if(this->cmd_state == DCM_TIMEOUT) {
+ 1081              		.loc 1 306 0
+ 1082 05c8 3B69     		ldr	r3, [r7, #16]
+ 1083 05ca 93F82030 		ldrb	r3, [r3, #32]	@ zero_extendqisi2
+ 1084 05ce 022B     		cmp	r3, #2
+ 1085 05d0 05D1     		bne	.L46
+ 307:../QS/QS_DCMotor2.c **** 				PWM_stop(config->pwm_number);
+ 1086              		.loc 1 307 0
+ 1087 05d2 FB68     		ldr	r3, [r7, #12]
+ 1088 05d4 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 1089 05d6 1846     		mov	r0, r3
+ 1090 05d8 FFF7FEFF 		bl	PWM_stop
+ 1091 05dc BCE0     		b	.L38
+ 1092              	.L46:
+ 308:../QS/QS_DCMotor2.c **** 			} else {
+ 309:../QS/QS_DCMotor2.c **** 				// Asservissement PID
+ 310:../QS/QS_DCMotor2.c **** 				/* integration si on n'est pas en saturation de commande (permet de désaturer plus vite) */
+ 311:../QS/QS_DCMotor2.c **** 				/* l'expression si dessous vaut pour erreur = consigne-position */
+ 312:../QS/QS_DCMotor2.c **** 				if(!(		( (DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way1_max_duty) && (!((confi
+ 1093              		.loc 1 312 0
+ 1094 05de FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1095 05e0 1846     		mov	r0, r3
+ 1096 05e2 FFF7E7FD 		bl	DCM_getWay
+ 1097 05e6 0346     		mov	r3, r0
+ 1098 05e8 002B     		cmp	r3, #0
+ 1099 05ea 19D0     		beq	.L47
+ 1100              		.loc 1 312 0 is_stmt 0 discriminator 2
+ 1101 05ec 3B69     		ldr	r3, [r7, #16]
+ 1102 05ee 93F82B20 		ldrb	r2, [r3, #43]	@ zero_extendqisi2
+ 1103 05f2 FB68     		ldr	r3, [r7, #12]
+ 1104 05f4 5B7B     		ldrb	r3, [r3, #13]	@ zero_extendqisi2
+ 1105 05f6 9A42     		cmp	r2, r3
+ 1106 05f8 12D1     		bne	.L47
+ 1107              		.loc 1 312 0 discriminator 1
+ 1108 05fa FB68     		ldr	r3, [r7, #12]
+ 1109 05fc 1B8A     		ldrh	r3, [r3, #16]
+ 1110 05fe 1BB2     		sxth	r3, r3
+ 1111 0600 002B     		cmp	r3, #0
+ 1112 0602 D4BF     		ite	le
+ 1113 0604 0023     		movle	r3, #0
+ 1114 0606 0123     		movgt	r3, #1
+ 1115 0608 DAB2     		uxtb	r2, r3
+ 1116 060a B7F90A30 		ldrsh	r3, [r7, #10]
+ 1117 060e 002B     		cmp	r3, #0
+ 1118 0610 D4BF     		ite	le
+ 1119 0612 0023     		movle	r3, #0
+ 1120 0614 0123     		movgt	r3, #1
+ 1121 0616 DBB2     		uxtb	r3, r3
+ 1122 0618 5340     		eors	r3, r3, r2
+ 1123 061a DBB2     		uxtb	r3, r3
+ 1124 061c 002B     		cmp	r3, #0
+ 1125 061e 24D0     		beq	.L48
+ 1126              	.L47:
+ 313:../QS/QS_DCMotor2.c **** 						||	(!(DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way0_max_duty) && (!((config-
+ 1127              		.loc 1 313 0 is_stmt 1 discriminator 1
+ 1128 0620 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1129 0622 1846     		mov	r0, r3
+ 1130 0624 FFF7C6FD 		bl	DCM_getWay
+ 1131 0628 0346     		mov	r3, r0
+ 312:../QS/QS_DCMotor2.c **** 				if(!(		( (DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way1_max_duty) && (!((confi
+ 1132              		.loc 1 312 0 discriminator 1
+ 1133 062a 002B     		cmp	r3, #0
+ 1134 062c 16D1     		bne	.L49
+ 1135              		.loc 1 313 0
+ 1136 062e 3B69     		ldr	r3, [r7, #16]
+ 1137 0630 93F82B20 		ldrb	r2, [r3, #43]	@ zero_extendqisi2
+ 1138 0634 FB68     		ldr	r3, [r7, #12]
+ 1139 0636 1B7B     		ldrb	r3, [r3, #12]	@ zero_extendqisi2
+ 1140 0638 9A42     		cmp	r2, r3
+ 1141 063a 0FD1     		bne	.L49
+ 1142              		.loc 1 313 0 is_stmt 0 discriminator 1
+ 1143 063c FB68     		ldr	r3, [r7, #12]
+ 1144 063e 1B8A     		ldrh	r3, [r3, #16]
+ 1145 0640 1BB2     		sxth	r3, r3
+ 1146 0642 002B     		cmp	r3, #0
+ 1147 0644 D4BF     		ite	le
+ 1148 0646 0023     		movle	r3, #0
+ 1149 0648 0123     		movgt	r3, #1
+ 1150 064a DAB2     		uxtb	r2, r3
+ 1151 064c 7B89     		ldrh	r3, [r7, #10]
+ 1152 064e 4FEAD333 		lsr	r3, r3, #15
+ 1153 0652 DBB2     		uxtb	r3, r3
+ 1154 0654 5340     		eors	r3, r3, r2
+ 1155 0656 DBB2     		uxtb	r3, r3
+ 1156 0658 002B     		cmp	r3, #0
+ 1157 065a 06D0     		beq	.L48
+ 1158              	.L49:
+ 314:../QS/QS_DCMotor2.c **** 					))
+ 315:../QS/QS_DCMotor2.c **** 				{
+ 316:../QS/QS_DCMotor2.c **** 					this->integrator += error;
+ 1159              		.loc 1 316 0 is_stmt 1
+ 1160 065c 3B69     		ldr	r3, [r7, #16]
+ 1161 065e 5A6A     		ldr	r2, [r3, #36]
+ 1162 0660 B7F90A30 		ldrsh	r3, [r7, #10]
+ 1163 0664 D218     		adds	r2, r2, r3
+ 1164 0666 3B69     		ldr	r3, [r7, #16]
+ 1165 0668 5A62     		str	r2, [r3, #36]
+ 1166              	.L48:
+ 317:../QS/QS_DCMotor2.c **** 					//la multiplication par la période se fait après pour éviter que l'incrément soit nul
+ 318:../QS/QS_DCMotor2.c **** 				}
+ 319:../QS/QS_DCMotor2.c **** 				differential = error - this->previous_error;
+ 1167              		.loc 1 319 0
+ 1168 066a B7F90A20 		ldrsh	r2, [r7, #10]
+ 1169 066e 3B69     		ldr	r3, [r7, #16]
+ 1170 0670 9B8D     		ldrh	r3, [r3, #44]
+ 1171 0672 1BB2     		sxth	r3, r3
+ 1172 0674 D31A     		subs	r3, r2, r3
+ 1173 0676 7B60     		str	r3, [r7, #4]
+ 320:../QS/QS_DCMotor2.c **** 				/*computed_cmd = 	(__builtin_mulss(config->Kp, error) >> 10) // / 1024)
+ 321:../QS/QS_DCMotor2.c **** 								+ ((__builtin_mulss(config->Ki, this->integrator) * DCM_TIMER_PERIOD) >> 20) // / 1048576)
+ 322:../QS/QS_DCMotor2.c **** 								+ (__builtin_divsd(__builtin_mulss(config->Kd, differential), (DCM_TIMER_PERIOD*1024)));
+ 323:../QS/QS_DCMotor2.c **** 				 */
+ 324:../QS/QS_DCMotor2.c **** 				//TODO: clean ça, pas de Kd quand on est a la bonne position
+ 325:../QS/QS_DCMotor2.c **** //				if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilo
+ 326:../QS/QS_DCMotor2.c **** //					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+ 327:../QS/QS_DCMotor2.c **** //								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576);
+ 328:../QS/QS_DCMotor2.c **** //				} else {
+ 329:../QS/QS_DCMotor2.c **** 					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+ 1174              		.loc 1 329 0
+ 1175 0678 FB68     		ldr	r3, [r7, #12]
+ 1176 067a DB89     		ldrh	r3, [r3, #14]
+ 1177 067c 1BB2     		sxth	r3, r3
+ 1178 067e B7F90A20 		ldrsh	r2, [r7, #10]
+ 1179 0682 02FB03F3 		mul	r3, r2, r3
+ 1180 0686 002B     		cmp	r3, #0
+ 1181 0688 01DA     		bge	.L50
+ 1182 068a 03F2FF33 		addw	r3, r3, #1023
+ 1183              	.L50:
+ 1184 068e 4FEAA323 		asr	r3, r3, #10
+ 1185 0692 1A46     		mov	r2, r3
+ 330:../QS/QS_DCMotor2.c **** 								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576)
+ 1186              		.loc 1 330 0
+ 1187 0694 FB68     		ldr	r3, [r7, #12]
+ 1188 0696 1B8A     		ldrh	r3, [r3, #16]
+ 1189 0698 1BB2     		sxth	r3, r3
+ 1190 069a 3969     		ldr	r1, [r7, #16]
+ 1191 069c 496A     		ldr	r1, [r1, #36]
+ 1192 069e 01FB03F3 		mul	r3, r1, r3
+ 1193 06a2 4FEA4303 		lsl	r3, r3, #1
+ 1194 06a6 002B     		cmp	r3, #0
+ 1195 06a8 03DA     		bge	.L51
+ 1196 06aa 03F57F23 		add	r3, r3, #1044480
+ 1197 06ae 03F6FF73 		addw	r3, r3, #4095
+ 1198              	.L51:
+ 1199 06b2 4FEA2353 		asr	r3, r3, #20
+ 1200 06b6 D218     		adds	r2, r2, r3
+ 331:../QS/QS_DCMotor2.c **** 								+ (((Sint32)(config->Kd) * differential)/DCM_TIMER_PERIOD) / 1024;
+ 1201              		.loc 1 331 0
+ 1202 06b8 FB68     		ldr	r3, [r7, #12]
+ 1203 06ba 5B8A     		ldrh	r3, [r3, #18]
+ 1204 06bc 1BB2     		sxth	r3, r3
+ 1205 06be 7968     		ldr	r1, [r7, #4]
+ 1206 06c0 01FB03F3 		mul	r3, r1, r3
+ 1207 06c4 002B     		cmp	r3, #0
+ 1208 06c6 01DA     		bge	.L52
+ 1209 06c8 03F2FF73 		addw	r3, r3, #2047
+ 1210              	.L52:
+ 1211 06cc 4FEAE323 		asr	r3, r3, #11
+ 329:../QS/QS_DCMotor2.c **** 					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+ 1212              		.loc 1 329 0
+ 1213 06d0 D318     		adds	r3, r2, r3
+ 1214 06d2 3B60     		str	r3, [r7, #0]
+ 332:../QS/QS_DCMotor2.c **** //				}
+ 333:../QS/QS_DCMotor2.c **** 
+ 334:../QS/QS_DCMotor2.c **** 				this->previous_error = error;
+ 1215              		.loc 1 334 0
+ 1216 06d4 3B69     		ldr	r3, [r7, #16]
+ 1217 06d6 7A89     		ldrh	r2, [r7, #10]	@ movhi
+ 1218 06d8 9A85     		strh	r2, [r3, #44]	@ movhi
+ 335:../QS/QS_DCMotor2.c **** 								
+ 336:../QS/QS_DCMotor2.c **** 				// Sens et saturation
+ 337:../QS/QS_DCMotor2.c **** 				if (computed_cmd > 0)
+ 1219              		.loc 1 337 0
+ 1220 06da 3B68     		ldr	r3, [r7, #0]
+ 1221 06dc 002B     		cmp	r3, #0
+ 1222 06de 17DD     		ble	.L53
+ 338:../QS/QS_DCMotor2.c **** 				{
+ 339:../QS/QS_DCMotor2.c **** 					DCM_setWay(dc_motor_id, 1);
+ 1223              		.loc 1 339 0
+ 1224 06e0 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1225 06e2 1846     		mov	r0, r3
+ 1226 06e4 4FF00101 		mov	r1, #1
+ 1227 06e8 FFF72AFD 		bl	DCM_setWay
+ 340:../QS/QS_DCMotor2.c **** 					if (computed_cmd > config->way0_max_duty)
+ 1228              		.loc 1 340 0
+ 1229 06ec FB68     		ldr	r3, [r7, #12]
+ 1230 06ee 1B7B     		ldrb	r3, [r3, #12]	@ zero_extendqisi2
+ 1231 06f0 1A46     		mov	r2, r3
+ 1232 06f2 3B68     		ldr	r3, [r7, #0]
+ 1233 06f4 9A42     		cmp	r2, r3
+ 1234 06f6 05DA     		bge	.L54
+ 341:../QS/QS_DCMotor2.c **** 						this->current_cmd = config->way0_max_duty;
+ 1235              		.loc 1 341 0
+ 1236 06f8 FB68     		ldr	r3, [r7, #12]
+ 1237 06fa 1A7B     		ldrb	r2, [r3, #12]	@ zero_extendqisi2
+ 1238 06fc 3B69     		ldr	r3, [r7, #16]
+ 1239 06fe 83F82B20 		strb	r2, [r3, #43]
+ 1240 0702 20E0     		b	.L55
+ 1241              	.L54:
+ 342:../QS/QS_DCMotor2.c **** 					else this->current_cmd = (Uint8)computed_cmd;
+ 1242              		.loc 1 342 0
+ 1243 0704 3B68     		ldr	r3, [r7, #0]
+ 1244 0706 DAB2     		uxtb	r2, r3
+ 1245 0708 3B69     		ldr	r3, [r7, #16]
+ 1246 070a 83F82B20 		strb	r2, [r3, #43]
+ 1247 070e 1AE0     		b	.L55
+ 1248              	.L53:
+ 343:../QS/QS_DCMotor2.c **** 				}
+ 344:../QS/QS_DCMotor2.c **** 				else 
+ 345:../QS/QS_DCMotor2.c **** 				{
+ 346:../QS/QS_DCMotor2.c **** 					DCM_setWay(dc_motor_id, 0);
+ 1249              		.loc 1 346 0
+ 1250 0710 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1251 0712 1846     		mov	r0, r3
+ 1252 0714 4FF00001 		mov	r1, #0
+ 1253 0718 FFF712FD 		bl	DCM_setWay
+ 347:../QS/QS_DCMotor2.c **** 					computed_cmd = -computed_cmd;
+ 1254              		.loc 1 347 0
+ 1255 071c 3B68     		ldr	r3, [r7, #0]
+ 1256 071e C3F10003 		rsb	r3, r3, #0
+ 1257 0722 3B60     		str	r3, [r7, #0]
+ 348:../QS/QS_DCMotor2.c **** 					if (computed_cmd > config->way1_max_duty)
+ 1258              		.loc 1 348 0
+ 1259 0724 FB68     		ldr	r3, [r7, #12]
+ 1260 0726 5B7B     		ldrb	r3, [r3, #13]	@ zero_extendqisi2
+ 1261 0728 1A46     		mov	r2, r3
+ 1262 072a 3B68     		ldr	r3, [r7, #0]
+ 1263 072c 9A42     		cmp	r2, r3
+ 1264 072e 05DA     		bge	.L56
+ 349:../QS/QS_DCMotor2.c **** 						this->current_cmd = config->way1_max_duty;
+ 1265              		.loc 1 349 0
+ 1266 0730 FB68     		ldr	r3, [r7, #12]
+ 1267 0732 5A7B     		ldrb	r2, [r3, #13]	@ zero_extendqisi2
+ 1268 0734 3B69     		ldr	r3, [r7, #16]
+ 1269 0736 83F82B20 		strb	r2, [r3, #43]
+ 1270 073a 04E0     		b	.L55
+ 1271              	.L56:
+ 350:../QS/QS_DCMotor2.c **** 					else this->current_cmd = (Uint8)computed_cmd;
+ 1272              		.loc 1 350 0
+ 1273 073c 3B68     		ldr	r3, [r7, #0]
+ 1274 073e DAB2     		uxtb	r2, r3
+ 1275 0740 3B69     		ldr	r3, [r7, #16]
+ 1276 0742 83F82B20 		strb	r2, [r3, #43]
+ 1277              	.L55:
+ 351:../QS/QS_DCMotor2.c **** 				}
+ 352:../QS/QS_DCMotor2.c **** 				
+ 353:../QS/QS_DCMotor2.c **** 				// application de la commande
+ 354:../QS/QS_DCMotor2.c **** 				PWM_run(this->current_cmd, config->pwm_number);
+ 1278              		.loc 1 354 0
+ 1279 0746 3B69     		ldr	r3, [r7, #16]
+ 1280 0748 93F82B20 		ldrb	r2, [r3, #43]	@ zero_extendqisi2
+ 1281 074c FB68     		ldr	r3, [r7, #12]
+ 1282 074e 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 1283 0750 1046     		mov	r0, r2
+ 1284 0752 1946     		mov	r1, r3
+ 1285 0754 FFF7FEFF 		bl	PWM_run
+ 1286              	.L38:
+ 275:../QS/QS_DCMotor2.c **** 	for (dc_motor_id = 0; dc_motor_id < DCM_NUMBER; dc_motor_id++)
+ 1287              		.loc 1 275 0
+ 1288 0758 FB7D     		ldrb	r3, [r7, #23]
+ 1289 075a 03F10103 		add	r3, r3, #1
+ 1290 075e FB75     		strb	r3, [r7, #23]
+ 1291              	.L37:
+ 275:../QS/QS_DCMotor2.c **** 	for (dc_motor_id = 0; dc_motor_id < DCM_NUMBER; dc_motor_id++)
+ 1292              		.loc 1 275 0 is_stmt 0 discriminator 1
+ 1293 0760 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1294 0762 032B     		cmp	r3, #3
+ 1295 0764 7FF6AFAE 		bls	.L57
+ 355:../QS/QS_DCMotor2.c **** 			}
+ 356:../QS/QS_DCMotor2.c **** 		}	
+ 357:../QS/QS_DCMotor2.c **** 	}
+ 358:../QS/QS_DCMotor2.c **** 	// acquittement de l'interruption
+ 359:../QS/QS_DCMotor2.c **** 	TIMER_SRC_TIMER_resetFlag();
+ 1296              		.loc 1 359 0 is_stmt 1
+ 1297 0768 4FF49040 		mov	r0, #18432
+ 1298 076c C4F20100 		movt	r0, 16385
+ 1299 0770 4FF00101 		mov	r1, #1
+ 1300 0774 FFF7FEFF 		bl	TIM_ClearITPendingBit
+ 360:../QS/QS_DCMotor2.c **** }
+ 1301              		.loc 1 360 0
+ 1302 0778 07F11C07 		add	r7, r7, #28
+ 1303 077c BD46     		mov	sp, r7
+ 1304 077e 90BD     		pop	{r4, r7, pc}
+ 1305              		.cfi_endproc
+ 1306              	.LFE126:
+ 1308              		.bss
+ 1309              	initialized.6192:
+ 1310 00c0 00       		.space	1
+ 1311 00c1 000000   		.text
+ 1312              	.Letext0:
+ 1313              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 1314              		.file 3 "../stm32f4xx/stm32f4xx.h"
+ 1315              		.file 4 "../QS/QS_types.h"
+ 1316              		.file 5 "../QS/QS_DCMotor2.h"
+ 1317              		.file 6 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 QS_DCMotor2.c
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:19     .bss:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:20     .bss:00000000 DCMotors
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:23     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:28     .text:00000000 DCM_init
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:1309   .bss:000000c0 initialized.6192
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:206    .text:000000f8 DCM_uninitialize_all
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:79     .text:0000003c DCM_get_state
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:125    .text:00000074 DCM_config
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:261    .text:00000140 DCM_setWay
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:336    .text:000001b4 DCM_getWay
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:389    .text:000001fc DCM_goToPos
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:445    .text:00000248 DCM_setPosValue
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:513    .text:000002ac DCM_getPosValue
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:565    .text:000002f0 DCM_setCoefs
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:633    .text:00000350 DCM_getCoefs
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:708    .text:000003b0 DCM_stop
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:768    .text:00000404 DCM_stop_all
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:815    .text:00000430 DCM_restart
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:879    .text:0000048c DCM_restart_all
+C:\Users\Amaury\AppData\Local\Temp\ccfoTfUO.s:926    .text:000004b8 _T1Interrupt
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.QS_clocks_freq.h.15.e5020a075be21770f1522d00d0991706
+                           .group:00000000 wm4.QS_pwm.h.25.dd9bf752580f7e22ed1466c657889d1f
+                           .group:00000000 wm4.stm32f4xx_tim.h.31.b1d608fbde729347e4ccf70799e654d2
+                           .group:00000000 wm4.QS_timer.h.23.f1c7374d1ffe22793578c04386c6b1e2
+                           .group:00000000 wm4.QS_CANmsgList.h.18.4820ab5d82fa43f9421f4e5eb46c19bc
+                           .group:00000000 wm4.QS_setTimerSource.h.13.531a9cdad03dad3ce4f84a7ae6cb8dc1
+
+UNDEFINED SYMBOLS
+PWM_init
+TIMER_init
+TIMER1_run
+PWM_stop
+PWM_run
+TIM_ClearITPendingBit

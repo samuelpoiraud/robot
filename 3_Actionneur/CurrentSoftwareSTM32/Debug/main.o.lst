@@ -1,0 +1,1112 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"main.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  20              	.LC1:
+  21 0000 2D2D2D20 		.ascii	"--- Hello, I'm ACT (Krusty) ---\012\000"
+  21      48656C6C 
+  21      6F2C2049 
+  21      276D2041 
+  21      43542028 
+  22 0021 000000   		.align	2
+  23              	.LC2:
+  24 0024 2D2D2D20 		.ascii	"---   ACT Ready    ---\012\000"
+  24      20204143 
+  24      54205265 
+  24      61647920 
+  24      2020202D 
+  25              		.align	2
+  26              	.LC3:
+  27 003c 53574954 		.ascii	"SWITCH_RG0: %s | %s\012\000"
+  27      43485F52 
+  27      47303A20 
+  27      2573207C 
+  27      2025730A 
+  28 0051 000000   		.align	2
+  29              	.LC4:
+  30 0054 20506C61 		.ascii	" Plate \000"
+  30      74652000 
+  31              		.align	2
+  32              	.LC5:
+  33 005c 5B4C6966 		.ascii	"[Lift]\000"
+  33      745D00
+  34 0063 00       		.align	2
+  35              	.LC6:
+  36 0064 53574954 		.ascii	"SWITCH_RG1: %s | %s\012\000"
+  36      43485F52 
+  36      47313A20 
+  36      2573207C 
+  36      2025730A 
+  37 0079 000000   		.align	2
+  38              	.LC7:
+  39 007c 2044434D 		.ascii	" DCMotor \000"
+  39      6F746F72 
+  39      2000
+  40 0086 0000     		.align	2
+  41              	.LC8:
+  42 0088 5B506C69 		.ascii	"[Plier-AX12]\000"
+  42      65722D41 
+  42      5831325D 
+  42      00
+  43 0095 000000   		.align	2
+  44              	.LC0:
+  45 0098 FF       		.byte	-1
+  46 0099 FF       		.byte	-1
+  47              		.text
+  48              		.align	2
+  49              		.global	main
+  50              		.thumb
+  51              		.thumb_func
+  53              	main:
+  54              	.LFB111:
+  55              		.file 1 "../main.c"
+   1:../main.c     **** /*
+   2:../main.c     ****  *	Club Robot ESEO 2010 - 2011
+   3:../main.c     ****  *	Check Norris
+   4:../main.c     ****  *
+   5:../main.c     ****  *	Fichier : main.c
+   6:../main.c     ****  *	Package : Actionneur
+   7:../main.c     ****  *	Description : Ordonnanceur de la carte actionneur
+   8:../main.c     ****  *  Auteurs : Aurélien
+   9:../main.c     ****  *  Version 20110225
+  10:../main.c     ****  */
+  11:../main.c     **** 
+  12:../main.c     **** #include "QS/QS_all.h"
+  13:../main.c     **** #include "QS/QS_sys.h"
+  14:../main.c     **** #include "QS/QS_buttons.h"
+  15:../main.c     **** #include "QS/QS_ports.h"
+  16:../main.c     **** #include "QS/QS_adc.h"
+  17:../main.c     **** #include "QS/QS_uart.h"
+  18:../main.c     **** #include "QS/QS_timer.h"
+  19:../main.c     **** #include "QS/QS_outputlog.h"
+  20:../main.c     **** #include "queue.h"
+  21:../main.c     **** #include "clock.h"
+  22:../main.c     **** 
+  23:../main.c     **** #include "Krusty/KActManager.h"
+  24:../main.c     **** #include "Tiny/TActManager.h"
+  25:../main.c     **** 
+  26:../main.c     **** //Information pour le bouton 4
+  27:../main.c     **** #include "QS/QS_ax12.h"
+  28:../main.c     **** #include "QS/QS_CapteurCouleurCW.h"
+  29:../main.c     **** 
+  30:../main.c     **** //TODO: SelfTest
+  31:../main.c     **** 
+  32:../main.c     **** 
+  33:../main.c     **** //#include "switch.h"
+  34:../main.c     **** 
+  35:../main.c     **** //#ifdef USE_CAN
+  36:../main.c     **** 	#include "QS/QS_can.h"
+  37:../main.c     **** //#endif
+  38:../main.c     **** 	#include "Can_msg_processing.h"
+  39:../main.c     **** 	#include "QS/QS_CANmsgList.h"
+  40:../main.c     **** #include "config_pin.h"
+  41:../main.c     **** 
+  42:../main.c     **** static void MAIN_onButton1();
+  43:../main.c     **** static void MAIN_onButton2();
+  44:../main.c     **** static void MAIN_onButton3();
+  45:../main.c     **** static void MAIN_onButton4();
+  46:../main.c     **** 
+  47:../main.c     **** int main (void)
+  48:../main.c     **** {
+  56              		.loc 1 48 0
+  57              		.cfi_startproc
+  58              		@ args = 0, pretend = 0, frame = 32
+  59              		@ frame_needed = 1, uses_anonymous_args = 0
+  60 0000 80B5     		push	{r7, lr}
+  61              	.LCFI0:
+  62              		.cfi_def_cfa_offset 8
+  63              		.cfi_offset 7, -8
+  64              		.cfi_offset 14, -4
+  65 0002 88B0     		sub	sp, sp, #32
+  66              	.LCFI1:
+  67              		.cfi_def_cfa_offset 40
+  68 0004 00AF     		add	r7, sp, #0
+  69              	.LCFI2:
+  70              		.cfi_def_cfa_register 7
+  49:../main.c     **** 	Sint8 lastSwitchState[2] = {-1, -1};
+  71              		.loc 1 49 0
+  72 0006 40F20003 		movw	r3, #:lower16:.LC0
+  73 000a C0F20003 		movt	r3, #:upper16:.LC0
+  74 000e 07F11C02 		add	r2, r7, #28
+  75 0012 1B88     		ldrh	r3, [r3, #0]	@ unaligned
+  76 0014 1380     		strh	r3, [r2, #0]	@ unaligned
+  50:../main.c     **** 	/*-------------------------------------
+  51:../main.c     **** 		Démarrage
+  52:../main.c     **** 	-------------------------------------*/
+  53:../main.c     **** 
+  54:../main.c     **** 	//initialisations
+  55:../main.c     **** 	SYS_init();
+  77              		.loc 1 55 0
+  78 0016 FFF7FEFF 		bl	SYS_init
+  56:../main.c     **** 	PORTS_init();
+  79              		.loc 1 56 0
+  80 001a FFF7FEFF 		bl	PORTS_init
+  57:../main.c     **** 
+  58:../main.c     **** 	LED_RUN = 1;
+  81              		.loc 1 58 0
+  82 001e 4FF44063 		mov	r3, #3072
+  83 0022 C4F20203 		movt	r3, 16386
+  84 0026 5A69     		ldr	r2, [r3, #20]
+  85 0028 42F48052 		orr	r2, r2, #4096
+  86 002c 5A61     		str	r2, [r3, #20]
+  59:../main.c     **** 	LED_USER = 0;
+  87              		.loc 1 59 0
+  88 002e 4FF44063 		mov	r3, #3072
+  89 0032 C4F20203 		movt	r3, 16386
+  90 0036 5A69     		ldr	r2, [r3, #20]
+  91 0038 6FF3CF32 		bfc	r2, #15, #1
+  92 003c 5A61     		str	r2, [r3, #20]
+  60:../main.c     **** 
+  61:../main.c     **** 	UART_init();
+  93              		.loc 1 61 0
+  94 003e FFF7FEFF 		bl	UART_init
+  62:../main.c     **** 	TIMER_init();
+  95              		.loc 1 62 0
+  96 0042 FFF7FEFF 		bl	TIMER_init
+  63:../main.c     **** 	CLOCK_init();
+  97              		.loc 1 63 0
+  98 0046 FFF7FEFF 		bl	CLOCK_init
+  64:../main.c     **** 	QUEUE_init();
+  99              		.loc 1 64 0
+ 100 004a FFF7FEFF 		bl	QUEUE_init
+  65:../main.c     **** 	BUTTONS_init();
+ 101              		.loc 1 65 0
+ 102 004e FFF7FEFF 		bl	BUTTONS_init
+  66:../main.c     **** 
+  67:../main.c     **** 	LED_CAN = 1;
+ 103              		.loc 1 67 0
+ 104 0052 4FF44063 		mov	r3, #3072
+ 105 0056 C4F20203 		movt	r3, 16386
+ 106 005a 5A69     		ldr	r2, [r3, #20]
+ 107 005c 42F40052 		orr	r2, r2, #8192
+ 108 0060 5A61     		str	r2, [r3, #20]
+  68:../main.c     **** 	#ifdef USE_CAN
+  69:../main.c     **** 		CAN_init();
+ 109              		.loc 1 69 0
+ 110 0062 FFF7FEFF 		bl	CAN_init
+  70:../main.c     **** 	#endif
+  71:../main.c     **** 
+  72:../main.c     **** 	// Gestion du CAN
+  73:../main.c     **** 	#ifdef USE_CAN
+  74:../main.c     **** 		CAN_msg_t msg;
+  75:../main.c     **** 	#endif
+  76:../main.c     **** 
+  77:../main.c     **** #if defined(I_AM_ROBOT_KRUSTY)
+  78:../main.c     **** 	debug_printf("--- Hello, I'm ACT (Krusty) ---\n");
+ 111              		.loc 1 78 0
+ 112 0066 4FF00500 		mov	r0, #5
+ 113 006a 40F20001 		movw	r1, #:lower16:.LC1
+ 114 006e C0F20001 		movt	r1, #:upper16:.LC1
+ 115 0072 FFF7FEFF 		bl	OUTPUTLOG_printf
+  79:../main.c     **** #elif defined(I_AM_ROBOT_TINY)
+  80:../main.c     **** 	debug_printf("--- Hello, I'm ACT (Tiny) ---\n");
+  81:../main.c     **** #else
+  82:../main.c     **** 	debug_printf("--- Hello, I'm ACT ---\n");
+  83:../main.c     **** #endif
+  84:../main.c     **** 
+  85:../main.c     **** 	//Init actioneurs
+  86:../main.c     **** 	ACTMGR_init();
+ 116              		.loc 1 86 0
+ 117 0076 FFF7FEFF 		bl	ACTMGR_init
+  87:../main.c     **** 
+  88:../main.c     **** 	BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 1);
+ 118              		.loc 1 88 0
+ 119 007a 4FF00100 		mov	r0, #1
+ 120 007e 40F20001 		movw	r1, #:lower16:MAIN_onButton1
+ 121 0082 C0F20001 		movt	r1, #:upper16:MAIN_onButton1
+ 122 0086 4FF00002 		mov	r2, #0
+ 123 008a 4FF00103 		mov	r3, #1
+ 124 008e FFF7FEFF 		bl	BUTTONS_define_actions
+  89:../main.c     **** 	BUTTONS_define_actions(BUTTON2, &MAIN_onButton2, NULL, 1);
+ 125              		.loc 1 89 0
+ 126 0092 4FF00200 		mov	r0, #2
+ 127 0096 40F20001 		movw	r1, #:lower16:MAIN_onButton2
+ 128 009a C0F20001 		movt	r1, #:upper16:MAIN_onButton2
+ 129 009e 4FF00002 		mov	r2, #0
+ 130 00a2 4FF00103 		mov	r3, #1
+ 131 00a6 FFF7FEFF 		bl	BUTTONS_define_actions
+  90:../main.c     **** 	BUTTONS_define_actions(BUTTON3, &MAIN_onButton3, NULL, 1);
+ 132              		.loc 1 90 0
+ 133 00aa 4FF00300 		mov	r0, #3
+ 134 00ae 40F20001 		movw	r1, #:lower16:MAIN_onButton3
+ 135 00b2 C0F20001 		movt	r1, #:upper16:MAIN_onButton3
+ 136 00b6 4FF00002 		mov	r2, #0
+ 137 00ba 4FF00103 		mov	r3, #1
+ 138 00be FFF7FEFF 		bl	BUTTONS_define_actions
+  91:../main.c     **** 	BUTTONS_define_actions(BUTTON4, &MAIN_onButton4, NULL, 1);
+ 139              		.loc 1 91 0
+ 140 00c2 4FF00400 		mov	r0, #4
+ 141 00c6 40F20001 		movw	r1, #:lower16:MAIN_onButton4
+ 142 00ca C0F20001 		movt	r1, #:upper16:MAIN_onButton4
+ 143 00ce 4FF00002 		mov	r2, #0
+ 144 00d2 4FF00103 		mov	r3, #1
+ 145 00d6 FFF7FEFF 		bl	BUTTONS_define_actions
+  92:../main.c     **** 
+  93:../main.c     **** 	debug_printf("---   ACT Ready    ---\n");
+ 146              		.loc 1 93 0
+ 147 00da 4FF00500 		mov	r0, #5
+ 148 00de 40F20001 		movw	r1, #:lower16:.LC2
+ 149 00e2 C0F20001 		movt	r1, #:upper16:.LC2
+ 150 00e6 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 151              	.L9:
+  94:../main.c     **** 
+  95:../main.c     **** 	while(1)
+  96:../main.c     **** 	{
+  97:../main.c     **** 		/*-------------------------------------
+  98:../main.c     **** 			Gestion des DELs, boutons, etc
+  99:../main.c     **** 		-------------------------------------*/
+ 100:../main.c     **** 
+ 101:../main.c     **** 		//Switch choix de l'actionneur testé par les boutons: affichage de l'état s'il a changé
+ 102:../main.c     **** 		if(lastSwitchState[0] != SWITCH_RG0) {
+ 152              		.loc 1 102 0
+ 153 00ea 3B7F     		ldrb	r3, [r7, #28]	@ zero_extendqisi2
+ 154 00ec 002B     		cmp	r3, #0
+ 155 00ee 12D0     		beq	.L2
+ 103:../main.c     **** 			lastSwitchState[0] = SWITCH_RG0;
+ 156              		.loc 1 103 0
+ 157 00f0 4FF00003 		mov	r3, #0
+ 158 00f4 3B77     		strb	r3, [r7, #28]
+ 104:../main.c     **** 			debug_printf("SWITCH_RG0: %s | %s\n", (SWITCH_RG0)? "[Plate]" : " Plate ",
+ 159              		.loc 1 104 0
+ 160 00f6 4FF00500 		mov	r0, #5
+ 161 00fa 40F20001 		movw	r1, #:lower16:.LC3
+ 162 00fe C0F20001 		movt	r1, #:upper16:.LC3
+ 163 0102 40F20002 		movw	r2, #:lower16:.LC4
+ 164 0106 C0F20002 		movt	r2, #:upper16:.LC4
+ 165 010a 40F20003 		movw	r3, #:lower16:.LC5
+ 166 010e C0F20003 		movt	r3, #:upper16:.LC5
+ 167 0112 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 168              	.L2:
+ 105:../main.c     **** 												  (SWITCH_RG0)? " Lift " : "[Lift]");
+ 106:../main.c     **** 		}
+ 107:../main.c     **** 		if(lastSwitchState[1] != SWITCH_RG1) {
+ 169              		.loc 1 107 0
+ 170 0116 7B7F     		ldrb	r3, [r7, #29]	@ zero_extendqisi2
+ 171 0118 002B     		cmp	r3, #0
+ 172 011a 12D0     		beq	.L3
+ 108:../main.c     **** 			lastSwitchState[1] = SWITCH_RG1;
+ 173              		.loc 1 108 0
+ 174 011c 4FF00003 		mov	r3, #0
+ 175 0120 7B77     		strb	r3, [r7, #29]
+ 109:../main.c     **** 			debug_printf("SWITCH_RG1: %s | %s\n", (SWITCH_RG1)? "[DCMotor]" : " DCMotor ",
+ 176              		.loc 1 109 0
+ 177 0122 4FF00500 		mov	r0, #5
+ 178 0126 40F20001 		movw	r1, #:lower16:.LC6
+ 179 012a C0F20001 		movt	r1, #:upper16:.LC6
+ 180 012e 40F20002 		movw	r2, #:lower16:.LC7
+ 181 0132 C0F20002 		movt	r2, #:upper16:.LC7
+ 182 0136 40F20003 		movw	r3, #:lower16:.LC8
+ 183 013a C0F20003 		movt	r3, #:upper16:.LC8
+ 184 013e FFF7FEFF 		bl	OUTPUTLOG_printf
+ 185              	.L3:
+ 110:../main.c     **** 												  (SWITCH_RG1)? " Plier-AX12 " : "[Plier-AX12]");
+ 111:../main.c     **** 		}
+ 112:../main.c     **** 
+ 113:../main.c     **** 		LED_USER = !LED_USER;
+ 186              		.loc 1 113 0
+ 187 0142 4FF44063 		mov	r3, #3072
+ 188 0146 C4F20203 		movt	r3, 16386
+ 189 014a 4FF44062 		mov	r2, #3072
+ 190 014e C4F20202 		movt	r2, 16386
+ 191 0152 5269     		ldr	r2, [r2, #20]
+ 192 0154 02F40042 		and	r2, r2, #32768
+ 193 0158 002A     		cmp	r2, #0
+ 194 015a 14BF     		ite	ne
+ 195 015c 0022     		movne	r2, #0
+ 196 015e 0122     		moveq	r2, #1
+ 197 0160 D1B2     		uxtb	r1, r2
+ 198 0162 5A69     		ldr	r2, [r3, #20]
+ 199 0164 61F3CF32 		bfi	r2, r1, #15, #1
+ 200 0168 5A61     		str	r2, [r3, #20]
+ 114:../main.c     **** 		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
+ 201              		.loc 1 114 0
+ 202 016a 4FF44063 		mov	r3, #3072
+ 203 016e C4F20203 		movt	r3, 16386
+ 204 0172 4FF48052 		mov	r2, #4096
+ 205 0176 C4F20202 		movt	r2, 16386
+ 206 017a 1269     		ldr	r2, [r2, #16]
+ 207 017c 02F48052 		and	r2, r2, #4096
+ 208 0180 002A     		cmp	r2, #0
+ 209 0182 1AD0     		beq	.L4
+ 210              		.loc 1 114 0 is_stmt 0 discriminator 2
+ 211 0184 4FF48052 		mov	r2, #4096
+ 212 0188 C4F20202 		movt	r2, 16386
+ 213 018c 1269     		ldr	r2, [r2, #16]
+ 214 018e 02F40052 		and	r2, r2, #8192
+ 215 0192 002A     		cmp	r2, #0
+ 216 0194 11D0     		beq	.L4
+ 217              		.loc 1 114 0 discriminator 1
+ 218 0196 4FF48052 		mov	r2, #4096
+ 219 019a C4F20202 		movt	r2, 16386
+ 220 019e 1269     		ldr	r2, [r2, #16]
+ 221 01a0 02F48042 		and	r2, r2, #16384
+ 222 01a4 002A     		cmp	r2, #0
+ 223 01a6 08D0     		beq	.L4
+ 224 01a8 4FF48052 		mov	r2, #4096
+ 225 01ac C4F20202 		movt	r2, 16386
+ 226 01b0 1269     		ldr	r2, [r2, #16]
+ 227 01b2 02F40042 		and	r2, r2, #32768
+ 228 01b6 002A     		cmp	r2, #0
+ 229 01b8 02D1     		bne	.L5
+ 230              	.L4:
+ 231 01ba 4FF00102 		mov	r2, #1
+ 232 01be 01E0     		b	.L6
+ 233              	.L5:
+ 234              		.loc 1 114 0 discriminator 3
+ 235 01c0 4FF00002 		mov	r2, #0
+ 236              	.L6:
+ 237              		.loc 1 114 0 discriminator 4
+ 238 01c4 D2B2     		uxtb	r2, r2
+ 239 01c6 02F00102 		and	r2, r2, #1
+ 240 01ca D1B2     		uxtb	r1, r2
+ 241 01cc 5A69     		ldr	r2, [r3, #20]
+ 242 01ce 61F31042 		bfi	r2, r1, #16, #1
+ 243 01d2 5A61     		str	r2, [r3, #20]
+ 115:../main.c     **** 
+ 116:../main.c     **** 		QUEUE_run();
+ 244              		.loc 1 116 0 is_stmt 1 discriminator 4
+ 245 01d4 FFF7FEFF 		bl	QUEUE_run
+ 117:../main.c     **** 		BUTTONS_update();
+ 246              		.loc 1 117 0 discriminator 4
+ 247 01d8 FFF7FEFF 		bl	BUTTONS_update
+ 118:../main.c     **** 
+ 119:../main.c     **** 		/*-------------------------------------
+ 120:../main.c     **** 			Réception CAN et exécution
+ 121:../main.c     **** 		-------------------------------------*/
+ 122:../main.c     **** 		#ifdef USE_CAN
+ 123:../main.c     **** 			while(CAN_data_ready()){
+ 248              		.loc 1 123 0 discriminator 4
+ 249 01dc 23E0     		b	.L7
+ 250              	.L8:
+ 124:../main.c     **** 				// Réception et acquittement
+ 125:../main.c     **** 				LED_CAN = !LED_CAN;
+ 251              		.loc 1 125 0
+ 252 01de 4FF44063 		mov	r3, #3072
+ 253 01e2 C4F20203 		movt	r3, 16386
+ 254 01e6 4FF44062 		mov	r2, #3072
+ 255 01ea C4F20202 		movt	r2, 16386
+ 256 01ee 5269     		ldr	r2, [r2, #20]
+ 257 01f0 02F40052 		and	r2, r2, #8192
+ 258 01f4 002A     		cmp	r2, #0
+ 259 01f6 14BF     		ite	ne
+ 260 01f8 0022     		movne	r2, #0
+ 261 01fa 0122     		moveq	r2, #1
+ 262 01fc D1B2     		uxtb	r1, r2
+ 263 01fe 5A69     		ldr	r2, [r3, #20]
+ 264 0200 61F34D32 		bfi	r2, r1, #13, #1
+ 265 0204 5A61     		str	r2, [r3, #20]
+ 126:../main.c     **** 				//debug_printf("Boucle CAN \r\n");
+ 127:../main.c     **** 				msg = CAN_get_next_msg();
+ 266              		.loc 1 127 0
+ 267 0206 3B46     		mov	r3, r7
+ 268 0208 1846     		mov	r0, r3
+ 269 020a FFF7FEFF 		bl	CAN_get_next_msg
+ 270 020e 07F11003 		add	r3, r7, #16
+ 271 0212 3A46     		mov	r2, r7
+ 272 0214 1068     		ldr	r0, [r2, #0]	@ unaligned
+ 273 0216 5168     		ldr	r1, [r2, #4]	@ unaligned
+ 274 0218 9268     		ldr	r2, [r2, #8]	@ unaligned
+ 275 021a 07C3     		stmia	r3!, {r0, r1, r2}
+ 128:../main.c     **** 				CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
+ 276              		.loc 1 128 0
+ 277 021c 07F11003 		add	r3, r7, #16
+ 278 0220 1846     		mov	r0, r3
+ 279 0222 FFF7FEFF 		bl	CAN_process_msg
+ 280              	.L7:
+ 123:../main.c     **** 			while(CAN_data_ready()){
+ 281              		.loc 1 123 0 discriminator 1
+ 282 0226 FFF7FEFF 		bl	CAN_data_ready
+ 283 022a 0346     		mov	r3, r0
+ 284 022c 002B     		cmp	r3, #0
+ 285 022e D6D1     		bne	.L8
+ 129:../main.c     **** 			}
+ 130:../main.c     **** 		#endif
+ 131:../main.c     **** 	}//Endloop
+ 286              		.loc 1 131 0
+ 287 0230 5BE7     		b	.L9
+ 288              		.cfi_endproc
+ 289              	.LFE111:
+ 291              		.section	.rodata
+ 292 009a 0000     		.align	2
+ 293              	.LC9:
+ 294 009c 4D61696E 		.ascii	"Main: ACT_FRUIT_MOUTH_OPEN\012\000"
+ 294      3A204143 
+ 294      545F4652 
+ 294      5549545F 
+ 294      4D4F5554 
+ 295              		.text
+ 296 0232 00BF     		.align	2
+ 297              		.thumb
+ 298              		.thumb_func
+ 300              	MAIN_onButton1:
+ 301              	.LFB112:
+ 132:../main.c     **** 	return 0;
+ 133:../main.c     **** }
+ 134:../main.c     **** 
+ 135:../main.c     **** #ifdef I_AM_ROBOT_KRUSTY
+ 136:../main.c     **** static void MAIN_onButton1() {
+ 302              		.loc 1 136 0
+ 303              		.cfi_startproc
+ 304              		@ args = 0, pretend = 0, frame = 16
+ 305              		@ frame_needed = 1, uses_anonymous_args = 0
+ 306 0234 80B5     		push	{r7, lr}
+ 307              	.LCFI3:
+ 308              		.cfi_def_cfa_offset 8
+ 309              		.cfi_offset 7, -8
+ 310              		.cfi_offset 14, -4
+ 311 0236 84B0     		sub	sp, sp, #16
+ 312              	.LCFI4:
+ 313              		.cfi_def_cfa_offset 24
+ 314 0238 00AF     		add	r7, sp, #0
+ 315              	.LCFI5:
+ 316              		.cfi_def_cfa_register 7
+ 137:../main.c     **** #ifdef USE_CAN
+ 138:../main.c     **** /*	CAN_msg_t msg;
+ 139:../main.c     **** 
+ 140:../main.c     **** 	msg.size = 1;
+ 141:../main.c     **** 	if(SWITCH_RG0) {
+ 142:../main.c     **** 		msg.sid = ACT_PLATE;
+ 143:../main.c     **** 		if(SWITCH_RG1) {
+ 144:../main.c     **** 			debug_printf("Main: Plate rotate vertically\n");
+ 145:../main.c     **** 			msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
+ 146:../main.c     **** 		} else {
+ 147:../main.c     **** 			debug_printf("Main: Plate plier close\n");
+ 148:../main.c     **** 			msg.data[0] = ACT_PLATE_PLIER_CLOSE;
+ 149:../main.c     **** 		}
+ 150:../main.c     **** 		CAN_process_msg(&msg);
+ 151:../main.c     **** 	} else {
+ 152:../main.c     **** 		if(SWITCH_RG1) {
+ 153:../main.c     **** 			debug_printf("Main: Lift left go up\n");
+ 154:../main.c     **** 			msg.data[0] = ACT_LIFT_GO_UP;
+ 155:../main.c     **** 		} else {
+ 156:../main.c     **** 			debug_printf("Main: Lift left plier close\n");
+ 157:../main.c     **** 			msg.data[0] = ACT_LIFT_PLIER_CLOSE;
+ 158:../main.c     **** 		}
+ 159:../main.c     **** 		msg.sid = ACT_LIFT_RIGHT;
+ 160:../main.c     **** 		CAN_process_msg(&msg);
+ 161:../main.c     **** 		msg.sid = ACT_LIFT_LEFT;
+ 162:../main.c     **** 		CAN_process_msg(&msg);
+ 163:../main.c     **** 	}*/
+ 164:../main.c     **** 	CAN_msg_t msg;
+ 165:../main.c     **** 
+ 166:../main.c     **** 	msg.size = 1;
+ 317              		.loc 1 166 0
+ 318 023a 4FF00103 		mov	r3, #1
+ 319 023e BB73     		strb	r3, [r7, #14]
+ 167:../main.c     **** 
+ 168:../main.c     **** 	msg.sid = ACT_FRUIT_MOUTH;
+ 320              		.loc 1 168 0
+ 321 0240 40F21633 		movw	r3, #790
+ 322 0244 BB80     		strh	r3, [r7, #4]	@ movhi
+ 169:../main.c     **** 
+ 170:../main.c     **** 	debug_printf("Main: ACT_FRUIT_MOUTH_OPEN\n");
+ 323              		.loc 1 170 0
+ 324 0246 4FF00500 		mov	r0, #5
+ 325 024a 40F20001 		movw	r1, #:lower16:.LC9
+ 326 024e C0F20001 		movt	r1, #:upper16:.LC9
+ 327 0252 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 171:../main.c     **** 	msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
+ 328              		.loc 1 171 0
+ 329 0256 4FF01103 		mov	r3, #17
+ 330 025a BB71     		strb	r3, [r7, #6]
+ 172:../main.c     **** 
+ 173:../main.c     **** 	CAN_process_msg(&msg);
+ 331              		.loc 1 173 0
+ 332 025c 07F10403 		add	r3, r7, #4
+ 333 0260 1846     		mov	r0, r3
+ 334 0262 FFF7FEFF 		bl	CAN_process_msg
+ 174:../main.c     **** 
+ 175:../main.c     **** 
+ 176:../main.c     **** #endif
+ 177:../main.c     **** }
+ 335              		.loc 1 177 0
+ 336 0266 07F11007 		add	r7, r7, #16
+ 337 026a BD46     		mov	sp, r7
+ 338 026c 80BD     		pop	{r7, pc}
+ 339              		.cfi_endproc
+ 340              	.LFE112:
+ 342              		.section	.rodata
+ 343              		.align	2
+ 344              	.LC10:
+ 345 00b8 4D61696E 		.ascii	"Main: ACT_FRUIT_MOUTH_CLOSED\012\000"
+ 345      3A204143 
+ 345      545F4652 
+ 345      5549545F 
+ 345      4D4F5554 
+ 346              		.text
+ 347 026e 00BF     		.align	2
+ 348              		.thumb
+ 349              		.thumb_func
+ 351              	MAIN_onButton2:
+ 352              	.LFB113:
+ 178:../main.c     **** 
+ 179:../main.c     **** static void MAIN_onButton2() {
+ 353              		.loc 1 179 0
+ 354              		.cfi_startproc
+ 355              		@ args = 0, pretend = 0, frame = 16
+ 356              		@ frame_needed = 1, uses_anonymous_args = 0
+ 357 0270 80B5     		push	{r7, lr}
+ 358              	.LCFI6:
+ 359              		.cfi_def_cfa_offset 8
+ 360              		.cfi_offset 7, -8
+ 361              		.cfi_offset 14, -4
+ 362 0272 84B0     		sub	sp, sp, #16
+ 363              	.LCFI7:
+ 364              		.cfi_def_cfa_offset 24
+ 365 0274 00AF     		add	r7, sp, #0
+ 366              	.LCFI8:
+ 367              		.cfi_def_cfa_register 7
+ 180:../main.c     **** #ifdef USE_CAN
+ 181:../main.c     **** /*	CAN_msg_t msg;
+ 182:../main.c     **** 
+ 183:../main.c     **** 	msg.size = 1;
+ 184:../main.c     **** 	if(SWITCH_RG0) {
+ 185:../main.c     **** 		msg.sid = ACT_PLATE;
+ 186:../main.c     **** 		if(SWITCH_RG1) {
+ 187:../main.c     **** 			debug_printf("Main: Plate rotate middle\n");
+ 188:../main.c     **** 			msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
+ 189:../main.c     **** 		} else {
+ 190:../main.c     **** 			debug_printf("Main: Plate plier stop asser\n");
+ 191:../main.c     **** 			msg.data[0] = ACT_PLATE_PLIER_STOP;
+ 192:../main.c     **** 		}
+ 193:../main.c     **** 		CAN_process_msg(&msg);
+ 194:../main.c     **** 	} else {
+ 195:../main.c     **** 		if(SWITCH_RG1) {
+ 196:../main.c     **** 			debug_printf("Main: Lift left go middle\n");
+ 197:../main.c     **** 			msg.data[0] = ACT_LIFT_GO_MID;
+ 198:../main.c     **** 		} else {
+ 199:../main.c     **** 			debug_printf("Main: Lift left plier stop asser\n");
+ 200:../main.c     **** 			msg.data[0] = ACT_LIFT_PLIER_STOP;
+ 201:../main.c     **** 		}
+ 202:../main.c     **** 		msg.sid = ACT_LIFT_RIGHT;
+ 203:../main.c     **** 		CAN_process_msg(&msg);
+ 204:../main.c     **** 		msg.sid = ACT_LIFT_LEFT;
+ 205:../main.c     **** 		CAN_process_msg(&msg);
+ 206:../main.c     **** 	}
+ 207:../main.c     **** */
+ 208:../main.c     **** 	CAN_msg_t msg;
+ 209:../main.c     **** 
+ 210:../main.c     **** 	msg.size = 1;
+ 368              		.loc 1 210 0
+ 369 0276 4FF00103 		mov	r3, #1
+ 370 027a BB73     		strb	r3, [r7, #14]
+ 211:../main.c     **** 
+ 212:../main.c     **** 	msg.sid = ACT_FRUIT_MOUTH;
+ 371              		.loc 1 212 0
+ 372 027c 40F21633 		movw	r3, #790
+ 373 0280 BB80     		strh	r3, [r7, #4]	@ movhi
+ 213:../main.c     **** 
+ 214:../main.c     **** 	debug_printf("Main: ACT_FRUIT_MOUTH_CLOSED\n");
+ 374              		.loc 1 214 0
+ 375 0282 4FF00500 		mov	r0, #5
+ 376 0286 40F20001 		movw	r1, #:lower16:.LC10
+ 377 028a C0F20001 		movt	r1, #:upper16:.LC10
+ 378 028e FFF7FEFF 		bl	OUTPUTLOG_printf
+ 215:../main.c     **** 	msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
+ 379              		.loc 1 215 0
+ 380 0292 4FF01003 		mov	r3, #16
+ 381 0296 BB71     		strb	r3, [r7, #6]
+ 216:../main.c     **** 
+ 217:../main.c     **** 	CAN_process_msg(&msg);
+ 382              		.loc 1 217 0
+ 383 0298 07F10403 		add	r3, r7, #4
+ 384 029c 1846     		mov	r0, r3
+ 385 029e FFF7FEFF 		bl	CAN_process_msg
+ 218:../main.c     **** 
+ 219:../main.c     **** 
+ 220:../main.c     **** #endif
+ 221:../main.c     **** }
+ 386              		.loc 1 221 0
+ 387 02a2 07F11007 		add	r7, r7, #16
+ 388 02a6 BD46     		mov	sp, r7
+ 389 02a8 80BD     		pop	{r7, pc}
+ 390              		.cfi_endproc
+ 391              	.LFE113:
+ 393              		.section	.rodata
+ 394 00d6 0000     		.align	2
+ 395              	.LC11:
+ 396 00d8 4D61696E 		.ascii	"Main: Lift left plier open\012\000"
+ 396      3A204C69 
+ 396      6674206C 
+ 396      65667420 
+ 396      706C6965 
+ 397              		.text
+ 398 02aa 00BF     		.align	2
+ 399              		.thumb
+ 400              		.thumb_func
+ 402              	MAIN_onButton3:
+ 403              	.LFB114:
+ 222:../main.c     **** 
+ 223:../main.c     **** static void MAIN_onButton3() {
+ 404              		.loc 1 223 0
+ 405              		.cfi_startproc
+ 406              		@ args = 0, pretend = 0, frame = 16
+ 407              		@ frame_needed = 1, uses_anonymous_args = 0
+ 408 02ac 80B5     		push	{r7, lr}
+ 409              	.LCFI9:
+ 410              		.cfi_def_cfa_offset 8
+ 411              		.cfi_offset 7, -8
+ 412              		.cfi_offset 14, -4
+ 413 02ae 84B0     		sub	sp, sp, #16
+ 414              	.LCFI10:
+ 415              		.cfi_def_cfa_offset 24
+ 416 02b0 00AF     		add	r7, sp, #0
+ 417              	.LCFI11:
+ 418              		.cfi_def_cfa_register 7
+ 224:../main.c     **** #ifdef USE_CAN
+ 225:../main.c     **** 	CAN_msg_t msg;
+ 226:../main.c     **** 
+ 227:../main.c     **** 	msg.size = 1;
+ 419              		.loc 1 227 0
+ 420 02b2 4FF00103 		mov	r3, #1
+ 421 02b6 BB73     		strb	r3, [r7, #14]
+ 228:../main.c     **** 	if(SWITCH_RG0) {
+ 229:../main.c     **** 		msg.sid = ACT_PLATE;
+ 230:../main.c     **** 		if(SWITCH_RG1) {
+ 231:../main.c     **** 			debug_printf("Main: Plate rotate horizontally\n");
+ 232:../main.c     **** 			msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
+ 233:../main.c     **** 		} else {
+ 234:../main.c     **** 			debug_printf("Main: Plate plier open\n");
+ 235:../main.c     **** 			msg.data[0] = ACT_PLATE_PLIER_OPEN;
+ 236:../main.c     **** 		}
+ 237:../main.c     **** 		CAN_process_msg(&msg);
+ 238:../main.c     **** 	} else {
+ 239:../main.c     **** 		msg.sid = ACT_LIFT_RIGHT;
+ 422              		.loc 1 239 0
+ 423 02b8 4FF44573 		mov	r3, #788
+ 424 02bc BB80     		strh	r3, [r7, #4]	@ movhi
+ 240:../main.c     **** 		if(SWITCH_RG1) {
+ 241:../main.c     **** 			debug_printf("Main: Lift left go down\n");
+ 242:../main.c     **** 			msg.data[0] = ACT_LIFT_GO_DOWN;
+ 243:../main.c     **** 		} else {
+ 244:../main.c     **** 			debug_printf("Main: Lift left plier open\n");
+ 425              		.loc 1 244 0
+ 426 02be 4FF00500 		mov	r0, #5
+ 427 02c2 40F20001 		movw	r1, #:lower16:.LC11
+ 428 02c6 C0F20001 		movt	r1, #:upper16:.LC11
+ 429 02ca FFF7FEFF 		bl	OUTPUTLOG_printf
+ 245:../main.c     **** 			msg.data[0] = ACT_LIFT_PLIER_OPEN;
+ 430              		.loc 1 245 0
+ 431 02ce 4FF01003 		mov	r3, #16
+ 432 02d2 BB71     		strb	r3, [r7, #6]
+ 246:../main.c     **** 		}
+ 247:../main.c     **** 		msg.sid = ACT_LIFT_RIGHT;
+ 433              		.loc 1 247 0
+ 434 02d4 4FF44573 		mov	r3, #788
+ 435 02d8 BB80     		strh	r3, [r7, #4]	@ movhi
+ 248:../main.c     **** 		CAN_process_msg(&msg);
+ 436              		.loc 1 248 0
+ 437 02da 07F10403 		add	r3, r7, #4
+ 438 02de 1846     		mov	r0, r3
+ 439 02e0 FFF7FEFF 		bl	CAN_process_msg
+ 249:../main.c     **** 		msg.sid = ACT_LIFT_LEFT;
+ 440              		.loc 1 249 0
+ 441 02e4 40F21533 		movw	r3, #789
+ 442 02e8 BB80     		strh	r3, [r7, #4]	@ movhi
+ 250:../main.c     **** 		CAN_process_msg(&msg);
+ 443              		.loc 1 250 0
+ 444 02ea 07F10403 		add	r3, r7, #4
+ 445 02ee 1846     		mov	r0, r3
+ 446 02f0 FFF7FEFF 		bl	CAN_process_msg
+ 251:../main.c     **** 	}
+ 252:../main.c     **** 
+ 253:../main.c     **** #endif
+ 254:../main.c     **** }
+ 447              		.loc 1 254 0
+ 448 02f4 07F11007 		add	r7, r7, #16
+ 449 02f8 BD46     		mov	sp, r7
+ 450 02fa 80BD     		pop	{r7, pc}
+ 451              		.cfi_endproc
+ 452              	.LFE114:
+ 454              		.section	.rodata
+ 455              		.align	2
+ 456              	.LC12:
+ 457 00f4 506C6174 		.ascii	"Plate & Lift asser off\012\000"
+ 457      65202620 
+ 457      4C696674 
+ 457      20617373 
+ 457      6572206F 
+ 458              		.align	2
+ 459              	.LC13:
+ 460 010c 53656E73 		.ascii	"Sensor vals:\012\000"
+ 460      6F722076 
+ 460      616C733A 
+ 460      0A00
+ 461 011a 0000     		.align	2
+ 462              	.LC14:
+ 463 011c 2D20506C 		.ascii	"- Plate potar val:      %d\012\000"
+ 463      61746520 
+ 463      706F7461 
+ 463      72207661 
+ 463      6C3A2020 
+ 464              		.align	2
+ 465              	.LC15:
+ 466 0138 2D204C69 		.ascii	"- Lift left potar val:  %d\012\000"
+ 466      6674206C 
+ 466      65667420 
+ 466      706F7461 
+ 466      72207661 
+ 467              		.align	2
+ 468              	.LC16:
+ 469 0154 2D204C69 		.ascii	"- Lift right potar val: %d\012\000"
+ 469      66742072 
+ 469      69676874 
+ 469      20706F74 
+ 469      61722076 
+ 470              		.align	2
+ 471              	.LC17:
+ 472 0170 2D204361 		.ascii	"- Capteur cerise Red(Q1): %d, White(Q2): %d, Blue(Q"
+ 472      70746575 
+ 472      72206365 
+ 472      72697365 
+ 472      20526564 
+ 473 01a3 33293A20 		.ascii	"3): %d\012\000"
+ 473      25640A00 
+ 474 01ab 00       		.align	2
+ 475              	.LC18:
+ 476 01ac 2D202041 		.ascii	"-  AX12[%d] val: %u\012\000"
+ 476      5831325B 
+ 476      25645D20 
+ 476      76616C3A 
+ 476      2025750A 
+ 477 01c1 000000   		.align	2
+ 478              	.LC19:
+ 479 01c4 0A00     		.ascii	"\012\000"
+ 480 01c6 0000     		.text
+ 481              		.align	2
+ 482              		.thumb
+ 483              		.thumb_func
+ 485              	MAIN_onButton4:
+ 486              	.LFB115:
+ 255:../main.c     **** 
+ 256:../main.c     **** static void MAIN_onButton4() {
+ 487              		.loc 1 256 0
+ 488              		.cfi_startproc
+ 489              		@ args = 0, pretend = 0, frame = 16
+ 490              		@ frame_needed = 1, uses_anonymous_args = 0
+ 491 02fc 90B5     		push	{r4, r7, lr}
+ 492              	.LCFI12:
+ 493              		.cfi_def_cfa_offset 12
+ 494              		.cfi_offset 4, -12
+ 495              		.cfi_offset 7, -8
+ 496              		.cfi_offset 14, -4
+ 497 02fe 87B0     		sub	sp, sp, #28
+ 498              	.LCFI13:
+ 499              		.cfi_def_cfa_offset 40
+ 500 0300 02AF     		add	r7, sp, #8
+ 501              	.LCFI14:
+ 502              		.cfi_def_cfa 7, 32
+ 257:../main.c     **** 	Uint8 i;
+ 258:../main.c     **** 	CAN_msg_t msg;
+ 259:../main.c     **** 	static Uint16 w;
+ 260:../main.c     **** 
+ 261:../main.c     **** 	debug_printf("Plate & Lift asser off\n");
+ 503              		.loc 1 261 0
+ 504 0302 4FF00500 		mov	r0, #5
+ 505 0306 40F20001 		movw	r1, #:lower16:.LC12
+ 506 030a C0F20001 		movt	r1, #:upper16:.LC12
+ 507 030e FFF7FEFF 		bl	OUTPUTLOG_printf
+ 262:../main.c     **** 
+ 263:../main.c     **** 	msg.sid = ACT_PLATE;
+ 508              		.loc 1 263 0
+ 509 0312 40F21233 		movw	r3, #786
+ 510 0316 3B80     		strh	r3, [r7, #0]	@ movhi
+ 264:../main.c     **** 	msg.data[0] = ACT_PLATE_ROTATE_STOP;
+ 511              		.loc 1 264 0
+ 512 0318 4FF02F03 		mov	r3, #47
+ 513 031c BB70     		strb	r3, [r7, #2]
+ 265:../main.c     **** 	msg.size = 1;
+ 514              		.loc 1 265 0
+ 515 031e 4FF00103 		mov	r3, #1
+ 516 0322 BB72     		strb	r3, [r7, #10]
+ 266:../main.c     **** 	CAN_process_msg(&msg);
+ 517              		.loc 1 266 0
+ 518 0324 3B46     		mov	r3, r7
+ 519 0326 1846     		mov	r0, r3
+ 520 0328 FFF7FEFF 		bl	CAN_process_msg
+ 267:../main.c     **** 	msg.sid = ACT_LIFT_RIGHT ;
+ 521              		.loc 1 267 0
+ 522 032c 4FF44573 		mov	r3, #788
+ 523 0330 3B80     		strh	r3, [r7, #0]	@ movhi
+ 268:../main.c     **** 	msg.data[0] = ACT_LIFT_STOP;
+ 524              		.loc 1 268 0
+ 525 0332 4FF02F03 		mov	r3, #47
+ 526 0336 BB70     		strb	r3, [r7, #2]
+ 269:../main.c     **** 	msg.size = 1;
+ 527              		.loc 1 269 0
+ 528 0338 4FF00103 		mov	r3, #1
+ 529 033c BB72     		strb	r3, [r7, #10]
+ 270:../main.c     **** 	CAN_process_msg(&msg);
+ 530              		.loc 1 270 0
+ 531 033e 3B46     		mov	r3, r7
+ 532 0340 1846     		mov	r0, r3
+ 533 0342 FFF7FEFF 		bl	CAN_process_msg
+ 271:../main.c     **** 
+ 272:../main.c     **** 	msg.sid = ACT_BALLSORTER;
+ 534              		.loc 1 272 0
+ 535 0346 40F21333 		movw	r3, #787
+ 536 034a 3B80     		strh	r3, [r7, #0]	@ movhi
+ 273:../main.c     **** 	msg.data[0] = ACT_BALLSORTER_TAKE_NEXT_CHERRY;
+ 537              		.loc 1 273 0
+ 538 034c 4FF00003 		mov	r3, #0
+ 539 0350 BB70     		strb	r3, [r7, #2]
+ 274:../main.c     **** 	msg.data[1] = LOWINT(6300);
+ 540              		.loc 1 274 0
+ 541 0352 4FF09C03 		mov	r3, #156
+ 542 0356 FB70     		strb	r3, [r7, #3]
+ 275:../main.c     **** 	msg.data[2] = ((HIGHINT(6300) & 0x7F) | ((Uint16)((w % 3) != 2) << 7));
+ 543              		.loc 1 275 0
+ 544 0358 40F20003 		movw	r3, #:lower16:w.6414
+ 545 035c C0F20003 		movt	r3, #:upper16:w.6414
+ 546 0360 1A88     		ldrh	r2, [r3, #0]
+ 547 0362 4AF6AB23 		movw	r3, #43691
+ 548 0366 CAF6AA23 		movt	r3, 43690
+ 549 036a A3FB0213 		umull	r1, r3, r3, r2
+ 550 036e 4FEA5301 		lsr	r1, r3, #1
+ 551 0372 0B46     		mov	r3, r1
+ 552 0374 4FEA4303 		lsl	r3, r3, #1
+ 553 0378 5B18     		adds	r3, r3, r1
+ 554 037a D31A     		subs	r3, r2, r3
+ 555 037c 9BB2     		uxth	r3, r3
+ 556 037e 022B     		cmp	r3, #2
+ 557 0380 02D0     		beq	.L14
+ 558              		.loc 1 275 0 is_stmt 0 discriminator 1
+ 559 0382 4FF09803 		mov	r3, #152
+ 560 0386 01E0     		b	.L15
+ 561              	.L14:
+ 562              		.loc 1 275 0 discriminator 2
+ 563 0388 4FF01803 		mov	r3, #24
+ 564              	.L15:
+ 565              		.loc 1 275 0 discriminator 3
+ 566 038c 3B71     		strb	r3, [r7, #4]
+ 276:../main.c     **** 	msg.size = 3;
+ 567              		.loc 1 276 0 is_stmt 1 discriminator 3
+ 568 038e 4FF00303 		mov	r3, #3
+ 569 0392 BB72     		strb	r3, [r7, #10]
+ 277:../main.c     **** 	w++;
+ 570              		.loc 1 277 0 discriminator 3
+ 571 0394 40F20003 		movw	r3, #:lower16:w.6414
+ 572 0398 C0F20003 		movt	r3, #:upper16:w.6414
+ 573 039c 1B88     		ldrh	r3, [r3, #0]
+ 574 039e 03F10103 		add	r3, r3, #1
+ 575 03a2 9AB2     		uxth	r2, r3
+ 576 03a4 40F20003 		movw	r3, #:lower16:w.6414
+ 577 03a8 C0F20003 		movt	r3, #:upper16:w.6414
+ 578 03ac 1A80     		strh	r2, [r3, #0]	@ movhi
+ 278:../main.c     **** 	CAN_process_msg(&msg);
+ 579              		.loc 1 278 0 discriminator 3
+ 580 03ae 3B46     		mov	r3, r7
+ 581 03b0 1846     		mov	r0, r3
+ 582 03b2 FFF7FEFF 		bl	CAN_process_msg
+ 279:../main.c     **** 
+ 280:../main.c     **** 	debug_printf("Sensor vals:\n");
+ 583              		.loc 1 280 0 discriminator 3
+ 584 03b6 4FF00500 		mov	r0, #5
+ 585 03ba 40F20001 		movw	r1, #:lower16:.LC13
+ 586 03be C0F20001 		movt	r1, #:upper16:.LC13
+ 587 03c2 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 281:../main.c     **** 	debug_printf("- Plate potar val:      %d\n", ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID));
+ 588              		.loc 1 281 0 discriminator 3
+ 589 03c6 4FF00200 		mov	r0, #2
+ 590 03ca FFF7FEFF 		bl	ADC_getValue
+ 591 03ce 0346     		mov	r3, r0
+ 592 03d0 4FF00500 		mov	r0, #5
+ 593 03d4 40F20001 		movw	r1, #:lower16:.LC14
+ 594 03d8 C0F20001 		movt	r1, #:upper16:.LC14
+ 595 03dc 1A46     		mov	r2, r3
+ 596 03de FFF7FEFF 		bl	OUTPUTLOG_printf
+ 282:../main.c     **** 	debug_printf("- Lift left potar val:  %d\n", ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID));
+ 597              		.loc 1 282 0 discriminator 3
+ 598 03e2 4FF00100 		mov	r0, #1
+ 599 03e6 FFF7FEFF 		bl	ADC_getValue
+ 600 03ea 0346     		mov	r3, r0
+ 601 03ec 4FF00500 		mov	r0, #5
+ 602 03f0 40F20001 		movw	r1, #:lower16:.LC15
+ 603 03f4 C0F20001 		movt	r1, #:upper16:.LC15
+ 604 03f8 1A46     		mov	r2, r3
+ 605 03fa FFF7FEFF 		bl	OUTPUTLOG_printf
+ 283:../main.c     **** 	debug_printf("- Lift right potar val: %d\n", ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID));
+ 606              		.loc 1 283 0 discriminator 3
+ 607 03fe 4FF00000 		mov	r0, #0
+ 608 0402 FFF7FEFF 		bl	ADC_getValue
+ 609 0406 0346     		mov	r3, r0
+ 610 0408 4FF00500 		mov	r0, #5
+ 611 040c 40F20001 		movw	r1, #:lower16:.LC16
+ 612 0410 C0F20001 		movt	r1, #:upper16:.LC16
+ 613 0414 1A46     		mov	r2, r3
+ 614 0416 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 284:../main.c     **** 	debug_printf("- Capteur cerise Red(Q1): %d, White(Q2): %d, Blue(Q3): %d\n", BALLSORTER_SENSOR_PIN_
+ 615              		.loc 1 284 0 discriminator 3
+ 616 041a 4FF48063 		mov	r3, #1024
+ 617 041e C4F20203 		movt	r3, 16386
+ 618 0422 5B69     		ldr	r3, [r3, #20]
+ 619 0424 C3F34033 		ubfx	r3, r3, #13, #1
+ 620 0428 DBB2     		uxtb	r3, r3
+ 621 042a 1A46     		mov	r2, r3
+ 622 042c 4FF48063 		mov	r3, #1024
+ 623 0430 C4F20203 		movt	r3, 16386
+ 624 0434 5B69     		ldr	r3, [r3, #20]
+ 625 0436 C3F30033 		ubfx	r3, r3, #12, #1
+ 626 043a DBB2     		uxtb	r3, r3
+ 627 043c 1C46     		mov	r4, r3
+ 628 043e 4FF48063 		mov	r3, #1024
+ 629 0442 C4F20203 		movt	r3, 16386
+ 630 0446 5B69     		ldr	r3, [r3, #20]
+ 631 0448 C3F38033 		ubfx	r3, r3, #14, #1
+ 632 044c DBB2     		uxtb	r3, r3
+ 633 044e 0093     		str	r3, [sp, #0]
+ 634 0450 4FF00500 		mov	r0, #5
+ 635 0454 40F20001 		movw	r1, #:lower16:.LC17
+ 636 0458 C0F20001 		movt	r1, #:upper16:.LC17
+ 637 045c 2346     		mov	r3, r4
+ 638 045e FFF7FEFF 		bl	OUTPUTLOG_printf
+ 285:../main.c     **** 
+ 286:../main.c     **** 	for(i=0; i<7; i++)
+ 639              		.loc 1 286 0 discriminator 3
+ 640 0462 4FF00003 		mov	r3, #0
+ 641 0466 FB73     		strb	r3, [r7, #15]
+ 642 0468 12E0     		b	.L16
+ 643              	.L17:
+ 287:../main.c     **** 		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
+ 644              		.loc 1 287 0 discriminator 2
+ 645 046a FC7B     		ldrb	r4, [r7, #15]	@ zero_extendqisi2
+ 646 046c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 647 046e 1846     		mov	r0, r3
+ 648 0470 FFF7FEFF 		bl	AX12_get_position
+ 649 0474 0346     		mov	r3, r0
+ 650 0476 4FF00500 		mov	r0, #5
+ 651 047a 40F20001 		movw	r1, #:lower16:.LC18
+ 652 047e C0F20001 		movt	r1, #:upper16:.LC18
+ 653 0482 2246     		mov	r2, r4
+ 654 0484 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 286:../main.c     **** 	for(i=0; i<7; i++)
+ 655              		.loc 1 286 0 discriminator 2
+ 656 0488 FB7B     		ldrb	r3, [r7, #15]
+ 657 048a 03F10103 		add	r3, r3, #1
+ 658 048e FB73     		strb	r3, [r7, #15]
+ 659              	.L16:
+ 286:../main.c     **** 	for(i=0; i<7; i++)
+ 660              		.loc 1 286 0 is_stmt 0 discriminator 1
+ 661 0490 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 662 0492 062B     		cmp	r3, #6
+ 663 0494 E9D9     		bls	.L17
+ 288:../main.c     **** 	debug_printf("\n");
+ 664              		.loc 1 288 0 is_stmt 1
+ 665 0496 4FF00500 		mov	r0, #5
+ 666 049a 40F20001 		movw	r1, #:lower16:.LC19
+ 667 049e C0F20001 		movt	r1, #:upper16:.LC19
+ 668 04a2 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 289:../main.c     **** }
+ 669              		.loc 1 289 0
+ 670 04a6 07F11407 		add	r7, r7, #20
+ 671 04aa BD46     		mov	sp, r7
+ 672 04ac 90BD     		pop	{r4, r7, pc}
+ 673              		.cfi_endproc
+ 674              	.LFE115:
+ 676              		.bss
+ 677              		.align	1
+ 678              	w.6414:
+ 679 0000 0000     		.space	2
+ 680              		.text
+ 681              	.Letext0:
+ 682              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 683              		.file 3 "../stm32f4xx/stm32f4xx.h"
+ 684              		.file 4 "../QS/QS_types.h"
+ 685              		.file 5 "../QS/QS_buttons.h"
+ 686              		.file 6 "../QS/QS_outputlog.h"
+ 687              		.file 7 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:19     .rodata:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:20     .rodata:00000000 .LC1
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:23     .rodata:00000024 .LC2
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:26     .rodata:0000003c .LC3
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:29     .rodata:00000054 .LC4
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:32     .rodata:0000005c .LC5
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:35     .rodata:00000064 .LC6
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:38     .rodata:0000007c .LC7
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:41     .rodata:00000088 .LC8
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:44     .rodata:00000098 .LC0
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:48     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:53     .text:00000000 main
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:300    .text:00000234 MAIN_onButton1
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:351    .text:00000270 MAIN_onButton2
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:402    .text:000002ac MAIN_onButton3
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:485    .text:000002fc MAIN_onButton4
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:293    .rodata:0000009c .LC9
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:344    .rodata:000000b8 .LC10
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:395    .rodata:000000d8 .LC11
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:456    .rodata:000000f4 .LC12
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:459    .rodata:0000010c .LC13
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:462    .rodata:0000011c .LC14
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:465    .rodata:00000138 .LC15
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:468    .rodata:00000154 .LC16
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:471    .rodata:00000170 .LC17
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:475    .rodata:000001ac .LC18
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:478    .rodata:000001c4 .LC19
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:678    .bss:00000000 w.6414
+C:\Users\Amaury\AppData\Local\Temp\cccCXtFn.s:677    .bss:00000000 $d
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.stm32f4xx_tim.h.31.b1d608fbde729347e4ccf70799e654d2
+                           .group:00000000 wm4.QS_timer.h.23.f1c7374d1ffe22793578c04386c6b1e2
+                           .group:00000000 wm4.QS_outputlog.h.12.c4345486982132d59ec2c51f5e320631
+                           .group:00000000 wm4.queue.h.39.c6c83c771916888b8b8278e5c5477b11
+                           .group:00000000 wm4.QS_ax12.h.14.bdca40ad9d76c87d4eb8bcff38d0d363
+                           .group:00000000 wm4.QS_CANmsgList.h.18.4820ab5d82fa43f9421f4e5eb46c19bc
+                           .group:00000000 wm4.config_pin.h.12.92dbe1317fae649a069f2ce6e5ad725c
+                           .group:00000000 wm4.config_pin.h.12.20ee5a96fdfc3c7ca3bc6056aaec7473
+
+UNDEFINED SYMBOLS
+SYS_init
+PORTS_init
+UART_init
+TIMER_init
+CLOCK_init
+QUEUE_init
+BUTTONS_init
+CAN_init
+OUTPUTLOG_printf
+ACTMGR_init
+BUTTONS_define_actions
+QUEUE_run
+BUTTONS_update
+CAN_get_next_msg
+CAN_process_msg
+CAN_data_ready
+ADC_getValue
+AX12_get_position

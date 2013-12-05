@@ -1,0 +1,1444 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"QS_trap_handler.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  20              	.LC0:
+  21 0000 48617264 		.ascii	"HardFault reason:\012\000"
+  21      4661756C 
+  21      74207265 
+  21      61736F6E 
+  21      3A0A00
+  22 0013 00       		.align	2
+  23              	.LC1:
+  24 0014 2D204445 		.ascii	"- DEBUGEVT\012\000"
+  24      42554745 
+  24      56540A00 
+  25              		.align	2
+  26              	.LC2:
+  27 0020 2D204661 		.ascii	"- Fault escalated to a hard fault\012\000"
+  27      756C7420 
+  27      65736361 
+  27      6C617465 
+  27      6420746F 
+  28 0043 00       		.align	2
+  29              	.LC3:
+  30 0044 2D204275 		.ascii	"- Bus error on a vector read\012\000"
+  30      73206572 
+  30      726F7220 
+  30      6F6E2061 
+  30      20766563 
+  31 0062 0000     		.align	2
+  32              	.LC4:
+  33 0064 4D656D4D 		.ascii	"MemManage fault at address 0x%08lX\012\000"
+  33      616E6167 
+  33      65206661 
+  33      756C7420 
+  33      61742061 
+  34              		.align	2
+  35              	.LC5:
+  36 0088 4D656D4D 		.ascii	"MemManage fault\012\000"
+  36      616E6167 
+  36      65206661 
+  36      756C740A 
+  36      00
+  37 0099 000000   		.align	2
+  38              	.LC6:
+  39 009c 2D204D65 		.ascii	"- Memory is not executable\012\000"
+  39      6D6F7279 
+  39      20697320 
+  39      6E6F7420 
+  39      65786563 
+  40              		.align	2
+  41              	.LC7:
+  42 00b8 2D204D65 		.ascii	"- Memory is not readable/writable\012\000"
+  42      6D6F7279 
+  42      20697320 
+  42      6E6F7420 
+  42      72656164 
+  43 00db 00       		.align	2
+  44              	.LC8:
+  45 00dc 2D204578 		.ascii	"- Exception when unstacking from exception\012\000"
+  45      63657074 
+  45      696F6E20 
+  45      7768656E 
+  45      20756E73 
+  46              		.align	2
+  47              	.LC9:
+  48 0108 2D204578 		.ascii	"- Exception when stacking for an exception\012\000"
+  48      63657074 
+  48      696F6E20 
+  48      7768656E 
+  48      20737461 
+  49              		.align	2
+  50              	.LC10:
+  51 0134 2D204661 		.ascii	"- Fault when floating-point lazy state preservation"
+  51      756C7420 
+  51      7768656E 
+  51      20666C6F 
+  51      6174696E 
+  52 0167 0A00     		.ascii	"\012\000"
+  53 0169 000000   		.align	2
+  54              	.LC11:
+  55 016c 42757346 		.ascii	"BusFault fault at address 0x%08lX\012\000"
+  55      61756C74 
+  55      20666175 
+  55      6C742061 
+  55      74206164 
+  56 018f 00       		.align	2
+  57              	.LC12:
+  58 0190 42757346 		.ascii	"BusFault fault\012\000"
+  58      61756C74 
+  58      20666175 
+  58      6C740A00 
+  59              		.align	2
+  60              	.LC13:
+  61 01a0 2D20496E 		.ascii	"- Instruction bus error\012\000"
+  61      73747275 
+  61      6374696F 
+  61      6E206275 
+  61      73206572 
+  62 01b9 000000   		.align	2
+  63              	.LC14:
+  64 01bc 2D205072 		.ascii	"- Precise Data bus error\012\000"
+  64      65636973 
+  64      65204461 
+  64      74612062 
+  64      75732065 
+  65 01d6 0000     		.align	2
+  66              	.LC15:
+  67 01d8 2D20496D 		.ascii	"- Imprecise Data bus error\012\000"
+  67      70726563 
+  67      69736520 
+  67      44617461 
+  67      20627573 
+  68              		.align	2
+  69              	.LC16:
+  70 01f4 55736167 		.ascii	"UsageFault fault, return address: 0x%08lX\012\000"
+  70      65466175 
+  70      6C742066 
+  70      61756C74 
+  70      2C207265 
+  71 021f 00       		.align	2
+  72              	.LC17:
+  73 0220 2D20556E 		.ascii	"- Undefined instruction\012\000"
+  73      64656669 
+  73      6E656420 
+  73      696E7374 
+  73      72756374 
+  74 0239 000000   		.align	2
+  75              	.LC18:
+  76 023c 2D20496C 		.ascii	"- Illegal use of the EPSR\012\000"
+  76      6C656761 
+  76      6C207573 
+  76      65206F66 
+  76      20746865 
+  77 0257 00       		.align	2
+  78              	.LC19:
+  79 0258 2D20496C 		.ascii	"- Illegal load of the PC\012\000"
+  79      6C656761 
+  79      6C206C6F 
+  79      6164206F 
+  79      66207468 
+  80 0272 0000     		.align	2
+  81              	.LC20:
+  82 0274 2D204174 		.ascii	"- Attempt to access a coprocessor but not present\012"
+  82      74656D70 
+  82      7420746F 
+  82      20616363 
+  82      65737320 
+  83 02a6 00       		.ascii	"\000"
+  84 02a7 00       		.align	2
+  85              	.LC21:
+  86 02a8 2D20556E 		.ascii	"- Unaligned memory access\012\000"
+  86      616C6967 
+  86      6E656420 
+  86      6D656D6F 
+  86      72792061 
+  87 02c3 00       		.align	2
+  88              	.LC22:
+  89 02c4 2D204469 		.ascii	"- Divide by zero\012\000"
+  89      76696465 
+  89      20627920 
+  89      7A65726F 
+  89      0A00
+  90 02d6 0000     		.align	2
+  91              	.LC23:
+  92 02d8 454E4420 		.ascii	"END of Fault Handler\012\000"
+  92      6F662046 
+  92      61756C74 
+  92      2048616E 
+  92      646C6572 
+  93              		.text
+  94              		.align	2
+  95              		.global	dump_trap_info
+  96              		.thumb
+  97              		.thumb_func
+  99              	dump_trap_info:
+ 100              	.LFB111:
+ 101              		.file 1 "../QS/QS_trap_handler.c"
+   1:../QS/QS_trap_handler.c **** /*
+   2:../QS/QS_trap_handler.c ****  *  Club Robot ESEO 2013 - 2014
+   3:../QS/QS_trap_handler.c ****  *
+   4:../QS/QS_trap_handler.c ****  *  Fichier : QS_trap_handler.c
+   5:../QS/QS_trap_handler.c ****  *  Package : Qualité Soft
+   6:../QS/QS_trap_handler.c ****  *  Description : Gestion des trap en cas d'erreur fatales
+   7:../QS/QS_trap_handler.c ****  *  Auteur : amurzeau
+   8:../QS/QS_trap_handler.c ****  *  Version 20130603
+   9:../QS/QS_trap_handler.c ****  */
+  10:../QS/QS_trap_handler.c **** 
+  11:../QS/QS_trap_handler.c **** 
+  12:../QS/QS_trap_handler.c **** #include "QS_trap_handler.h"
+  13:../QS/QS_trap_handler.c **** #include "QS_outputlog.h"
+  14:../QS/QS_trap_handler.c **** 
+  15:../QS/QS_trap_handler.c **** void dump_trap_info(Uint32 stack_ptr[], Uint32 lr) {
+ 102              		.loc 1 15 0
+ 103              		.cfi_startproc
+ 104              		@ args = 0, pretend = 0, frame = 24
+ 105              		@ frame_needed = 1, uses_anonymous_args = 0
+ 106 0000 90B5     		push	{r4, r7, lr}
+ 107              	.LCFI0:
+ 108              		.cfi_def_cfa_offset 12
+ 109              		.cfi_offset 4, -12
+ 110              		.cfi_offset 7, -8
+ 111              		.cfi_offset 14, -4
+ 112 0002 87B0     		sub	sp, sp, #28
+ 113              	.LCFI1:
+ 114              		.cfi_def_cfa_offset 40
+ 115 0004 00AF     		add	r7, sp, #0
+ 116              	.LCFI2:
+ 117              		.cfi_def_cfa_register 7
+ 118 0006 7860     		str	r0, [r7, #4]
+ 119 0008 3960     		str	r1, [r7, #0]
+ 120              	.LBB10:
+ 121              	.LBB11:
+ 122              		.file 2 "../stm32f4xx/core_cmFunc.h"
+   1:../stm32f4xx/core_cmFunc.h **** /**************************************************************************//**
+   2:../stm32f4xx/core_cmFunc.h ****  * @file     core_cmFunc.h
+   3:../stm32f4xx/core_cmFunc.h ****  * @brief    CMSIS Cortex-M Core Function Access Header File
+   4:../stm32f4xx/core_cmFunc.h ****  * @version  V3.01
+   5:../stm32f4xx/core_cmFunc.h ****  * @date     06. March 2012
+   6:../stm32f4xx/core_cmFunc.h ****  *
+   7:../stm32f4xx/core_cmFunc.h ****  * @note
+   8:../stm32f4xx/core_cmFunc.h ****  * Copyright (C) 2009-2012 ARM Limited. All rights reserved.
+   9:../stm32f4xx/core_cmFunc.h ****  *
+  10:../stm32f4xx/core_cmFunc.h ****  * @par
+  11:../stm32f4xx/core_cmFunc.h ****  * ARM Limited (ARM) is supplying this software for use with Cortex-M
+  12:../stm32f4xx/core_cmFunc.h ****  * processor based microcontrollers.  This file can be freely distributed
+  13:../stm32f4xx/core_cmFunc.h ****  * within development tools that are supporting such ARM based processors.
+  14:../stm32f4xx/core_cmFunc.h ****  *
+  15:../stm32f4xx/core_cmFunc.h ****  * @par
+  16:../stm32f4xx/core_cmFunc.h ****  * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+  17:../stm32f4xx/core_cmFunc.h ****  * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+  18:../stm32f4xx/core_cmFunc.h ****  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+  19:../stm32f4xx/core_cmFunc.h ****  * ARM SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR
+  20:../stm32f4xx/core_cmFunc.h ****  * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+  21:../stm32f4xx/core_cmFunc.h ****  *
+  22:../stm32f4xx/core_cmFunc.h ****  ******************************************************************************/
+  23:../stm32f4xx/core_cmFunc.h **** 
+  24:../stm32f4xx/core_cmFunc.h **** #ifndef __CORE_CMFUNC_H
+  25:../stm32f4xx/core_cmFunc.h **** #define __CORE_CMFUNC_H
+  26:../stm32f4xx/core_cmFunc.h **** 
+  27:../stm32f4xx/core_cmFunc.h **** 
+  28:../stm32f4xx/core_cmFunc.h **** /* ###########################  Core Function Access  ########################### */
+  29:../stm32f4xx/core_cmFunc.h **** /** \ingroup  CMSIS_Core_FunctionInterface
+  30:../stm32f4xx/core_cmFunc.h ****     \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
+  31:../stm32f4xx/core_cmFunc.h ****   @{
+  32:../stm32f4xx/core_cmFunc.h ****  */
+  33:../stm32f4xx/core_cmFunc.h **** 
+  34:../stm32f4xx/core_cmFunc.h **** #if   defined ( __CC_ARM ) /*------------------RealView Compiler -----------------*/
+  35:../stm32f4xx/core_cmFunc.h **** /* ARM armcc specific functions */
+  36:../stm32f4xx/core_cmFunc.h **** 
+  37:../stm32f4xx/core_cmFunc.h **** #if (__ARMCC_VERSION < 400677)
+  38:../stm32f4xx/core_cmFunc.h ****   #error "Please use ARM Compiler Toolchain V4.0.677 or later!"
+  39:../stm32f4xx/core_cmFunc.h **** #endif
+  40:../stm32f4xx/core_cmFunc.h **** 
+  41:../stm32f4xx/core_cmFunc.h **** /* intrinsic void __enable_irq();     */
+  42:../stm32f4xx/core_cmFunc.h **** /* intrinsic void __disable_irq();    */
+  43:../stm32f4xx/core_cmFunc.h **** 
+  44:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Control Register
+  45:../stm32f4xx/core_cmFunc.h **** 
+  46:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the Control Register.
+  47:../stm32f4xx/core_cmFunc.h **** 
+  48:../stm32f4xx/core_cmFunc.h ****     \return               Control Register value
+  49:../stm32f4xx/core_cmFunc.h ****  */
+  50:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_CONTROL(void)
+  51:../stm32f4xx/core_cmFunc.h **** {
+  52:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regControl         __ASM("control");
+  53:../stm32f4xx/core_cmFunc.h ****   return(__regControl);
+  54:../stm32f4xx/core_cmFunc.h **** }
+  55:../stm32f4xx/core_cmFunc.h **** 
+  56:../stm32f4xx/core_cmFunc.h **** 
+  57:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Control Register
+  58:../stm32f4xx/core_cmFunc.h **** 
+  59:../stm32f4xx/core_cmFunc.h ****     This function writes the given value to the Control Register.
+  60:../stm32f4xx/core_cmFunc.h **** 
+  61:../stm32f4xx/core_cmFunc.h ****     \param [in]    control  Control Register value to set
+  62:../stm32f4xx/core_cmFunc.h ****  */
+  63:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_CONTROL(uint32_t control)
+  64:../stm32f4xx/core_cmFunc.h **** {
+  65:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regControl         __ASM("control");
+  66:../stm32f4xx/core_cmFunc.h ****   __regControl = control;
+  67:../stm32f4xx/core_cmFunc.h **** }
+  68:../stm32f4xx/core_cmFunc.h **** 
+  69:../stm32f4xx/core_cmFunc.h **** 
+  70:../stm32f4xx/core_cmFunc.h **** /** \brief  Get IPSR Register
+  71:../stm32f4xx/core_cmFunc.h **** 
+  72:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the IPSR Register.
+  73:../stm32f4xx/core_cmFunc.h **** 
+  74:../stm32f4xx/core_cmFunc.h ****     \return               IPSR Register value
+  75:../stm32f4xx/core_cmFunc.h ****  */
+  76:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_IPSR(void)
+  77:../stm32f4xx/core_cmFunc.h **** {
+  78:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regIPSR          __ASM("ipsr");
+  79:../stm32f4xx/core_cmFunc.h ****   return(__regIPSR);
+  80:../stm32f4xx/core_cmFunc.h **** }
+  81:../stm32f4xx/core_cmFunc.h **** 
+  82:../stm32f4xx/core_cmFunc.h **** 
+  83:../stm32f4xx/core_cmFunc.h **** /** \brief  Get APSR Register
+  84:../stm32f4xx/core_cmFunc.h **** 
+  85:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the APSR Register.
+  86:../stm32f4xx/core_cmFunc.h **** 
+  87:../stm32f4xx/core_cmFunc.h ****     \return               APSR Register value
+  88:../stm32f4xx/core_cmFunc.h ****  */
+  89:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_APSR(void)
+  90:../stm32f4xx/core_cmFunc.h **** {
+  91:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regAPSR          __ASM("apsr");
+  92:../stm32f4xx/core_cmFunc.h ****   return(__regAPSR);
+  93:../stm32f4xx/core_cmFunc.h **** }
+  94:../stm32f4xx/core_cmFunc.h **** 
+  95:../stm32f4xx/core_cmFunc.h **** 
+  96:../stm32f4xx/core_cmFunc.h **** /** \brief  Get xPSR Register
+  97:../stm32f4xx/core_cmFunc.h **** 
+  98:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the xPSR Register.
+  99:../stm32f4xx/core_cmFunc.h **** 
+ 100:../stm32f4xx/core_cmFunc.h ****     \return               xPSR Register value
+ 101:../stm32f4xx/core_cmFunc.h ****  */
+ 102:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_xPSR(void)
+ 103:../stm32f4xx/core_cmFunc.h **** {
+ 104:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regXPSR          __ASM("xpsr");
+ 105:../stm32f4xx/core_cmFunc.h ****   return(__regXPSR);
+ 106:../stm32f4xx/core_cmFunc.h **** }
+ 107:../stm32f4xx/core_cmFunc.h **** 
+ 108:../stm32f4xx/core_cmFunc.h **** 
+ 109:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Process Stack Pointer
+ 110:../stm32f4xx/core_cmFunc.h **** 
+ 111:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Process Stack Pointer (PSP).
+ 112:../stm32f4xx/core_cmFunc.h **** 
+ 113:../stm32f4xx/core_cmFunc.h ****     \return               PSP Register value
+ 114:../stm32f4xx/core_cmFunc.h ****  */
+ 115:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_PSP(void)
+ 116:../stm32f4xx/core_cmFunc.h **** {
+ 117:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regProcessStackPointer  __ASM("psp");
+ 118:../stm32f4xx/core_cmFunc.h ****   return(__regProcessStackPointer);
+ 119:../stm32f4xx/core_cmFunc.h **** }
+ 120:../stm32f4xx/core_cmFunc.h **** 
+ 121:../stm32f4xx/core_cmFunc.h **** 
+ 122:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Process Stack Pointer
+ 123:../stm32f4xx/core_cmFunc.h **** 
+ 124:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Process Stack Pointer (PSP).
+ 125:../stm32f4xx/core_cmFunc.h **** 
+ 126:../stm32f4xx/core_cmFunc.h ****     \param [in]    topOfProcStack  Process Stack Pointer value to set
+ 127:../stm32f4xx/core_cmFunc.h ****  */
+ 128:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_PSP(uint32_t topOfProcStack)
+ 129:../stm32f4xx/core_cmFunc.h **** {
+ 130:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regProcessStackPointer  __ASM("psp");
+ 131:../stm32f4xx/core_cmFunc.h ****   __regProcessStackPointer = topOfProcStack;
+ 132:../stm32f4xx/core_cmFunc.h **** }
+ 133:../stm32f4xx/core_cmFunc.h **** 
+ 134:../stm32f4xx/core_cmFunc.h **** 
+ 135:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Main Stack Pointer
+ 136:../stm32f4xx/core_cmFunc.h **** 
+ 137:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Main Stack Pointer (MSP).
+ 138:../stm32f4xx/core_cmFunc.h **** 
+ 139:../stm32f4xx/core_cmFunc.h ****     \return               MSP Register value
+ 140:../stm32f4xx/core_cmFunc.h ****  */
+ 141:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_MSP(void)
+ 142:../stm32f4xx/core_cmFunc.h **** {
+ 143:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regMainStackPointer     __ASM("msp");
+ 144:../stm32f4xx/core_cmFunc.h ****   return(__regMainStackPointer);
+ 145:../stm32f4xx/core_cmFunc.h **** }
+ 146:../stm32f4xx/core_cmFunc.h **** 
+ 147:../stm32f4xx/core_cmFunc.h **** 
+ 148:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Main Stack Pointer
+ 149:../stm32f4xx/core_cmFunc.h **** 
+ 150:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Main Stack Pointer (MSP).
+ 151:../stm32f4xx/core_cmFunc.h **** 
+ 152:../stm32f4xx/core_cmFunc.h ****     \param [in]    topOfMainStack  Main Stack Pointer value to set
+ 153:../stm32f4xx/core_cmFunc.h ****  */
+ 154:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_MSP(uint32_t topOfMainStack)
+ 155:../stm32f4xx/core_cmFunc.h **** {
+ 156:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regMainStackPointer     __ASM("msp");
+ 157:../stm32f4xx/core_cmFunc.h ****   __regMainStackPointer = topOfMainStack;
+ 158:../stm32f4xx/core_cmFunc.h **** }
+ 159:../stm32f4xx/core_cmFunc.h **** 
+ 160:../stm32f4xx/core_cmFunc.h **** 
+ 161:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Priority Mask
+ 162:../stm32f4xx/core_cmFunc.h **** 
+ 163:../stm32f4xx/core_cmFunc.h ****     This function returns the current state of the priority mask bit from the Priority Mask Registe
+ 164:../stm32f4xx/core_cmFunc.h **** 
+ 165:../stm32f4xx/core_cmFunc.h ****     \return               Priority Mask value
+ 166:../stm32f4xx/core_cmFunc.h ****  */
+ 167:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_PRIMASK(void)
+ 168:../stm32f4xx/core_cmFunc.h **** {
+ 169:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regPriMask         __ASM("primask");
+ 170:../stm32f4xx/core_cmFunc.h ****   return(__regPriMask);
+ 171:../stm32f4xx/core_cmFunc.h **** }
+ 172:../stm32f4xx/core_cmFunc.h **** 
+ 173:../stm32f4xx/core_cmFunc.h **** 
+ 174:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Priority Mask
+ 175:../stm32f4xx/core_cmFunc.h **** 
+ 176:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Priority Mask Register.
+ 177:../stm32f4xx/core_cmFunc.h **** 
+ 178:../stm32f4xx/core_cmFunc.h ****     \param [in]    priMask  Priority Mask
+ 179:../stm32f4xx/core_cmFunc.h ****  */
+ 180:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_PRIMASK(uint32_t priMask)
+ 181:../stm32f4xx/core_cmFunc.h **** {
+ 182:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regPriMask         __ASM("primask");
+ 183:../stm32f4xx/core_cmFunc.h ****   __regPriMask = (priMask);
+ 184:../stm32f4xx/core_cmFunc.h **** }
+ 185:../stm32f4xx/core_cmFunc.h **** 
+ 186:../stm32f4xx/core_cmFunc.h **** 
+ 187:../stm32f4xx/core_cmFunc.h **** #if       (__CORTEX_M >= 0x03)
+ 188:../stm32f4xx/core_cmFunc.h **** 
+ 189:../stm32f4xx/core_cmFunc.h **** /** \brief  Enable FIQ
+ 190:../stm32f4xx/core_cmFunc.h **** 
+ 191:../stm32f4xx/core_cmFunc.h ****     This function enables FIQ interrupts by clearing the F-bit in the CPSR.
+ 192:../stm32f4xx/core_cmFunc.h ****     Can only be executed in Privileged modes.
+ 193:../stm32f4xx/core_cmFunc.h ****  */
+ 194:../stm32f4xx/core_cmFunc.h **** #define __enable_fault_irq                __enable_fiq
+ 195:../stm32f4xx/core_cmFunc.h **** 
+ 196:../stm32f4xx/core_cmFunc.h **** 
+ 197:../stm32f4xx/core_cmFunc.h **** /** \brief  Disable FIQ
+ 198:../stm32f4xx/core_cmFunc.h **** 
+ 199:../stm32f4xx/core_cmFunc.h ****     This function disables FIQ interrupts by setting the F-bit in the CPSR.
+ 200:../stm32f4xx/core_cmFunc.h ****     Can only be executed in Privileged modes.
+ 201:../stm32f4xx/core_cmFunc.h ****  */
+ 202:../stm32f4xx/core_cmFunc.h **** #define __disable_fault_irq               __disable_fiq
+ 203:../stm32f4xx/core_cmFunc.h **** 
+ 204:../stm32f4xx/core_cmFunc.h **** 
+ 205:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Base Priority
+ 206:../stm32f4xx/core_cmFunc.h **** 
+ 207:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Base Priority register.
+ 208:../stm32f4xx/core_cmFunc.h **** 
+ 209:../stm32f4xx/core_cmFunc.h ****     \return               Base Priority register value
+ 210:../stm32f4xx/core_cmFunc.h ****  */
+ 211:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t  __get_BASEPRI(void)
+ 212:../stm32f4xx/core_cmFunc.h **** {
+ 213:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regBasePri         __ASM("basepri");
+ 214:../stm32f4xx/core_cmFunc.h ****   return(__regBasePri);
+ 215:../stm32f4xx/core_cmFunc.h **** }
+ 216:../stm32f4xx/core_cmFunc.h **** 
+ 217:../stm32f4xx/core_cmFunc.h **** 
+ 218:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Base Priority
+ 219:../stm32f4xx/core_cmFunc.h **** 
+ 220:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Base Priority register.
+ 221:../stm32f4xx/core_cmFunc.h **** 
+ 222:../stm32f4xx/core_cmFunc.h ****     \param [in]    basePri  Base Priority value to set
+ 223:../stm32f4xx/core_cmFunc.h ****  */
+ 224:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_BASEPRI(uint32_t basePri)
+ 225:../stm32f4xx/core_cmFunc.h **** {
+ 226:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regBasePri         __ASM("basepri");
+ 227:../stm32f4xx/core_cmFunc.h ****   __regBasePri = (basePri & 0xff);
+ 228:../stm32f4xx/core_cmFunc.h **** }
+ 229:../stm32f4xx/core_cmFunc.h **** 
+ 230:../stm32f4xx/core_cmFunc.h **** 
+ 231:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Fault Mask
+ 232:../stm32f4xx/core_cmFunc.h **** 
+ 233:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Fault Mask register.
+ 234:../stm32f4xx/core_cmFunc.h **** 
+ 235:../stm32f4xx/core_cmFunc.h ****     \return               Fault Mask register value
+ 236:../stm32f4xx/core_cmFunc.h ****  */
+ 237:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_FAULTMASK(void)
+ 238:../stm32f4xx/core_cmFunc.h **** {
+ 239:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regFaultMask       __ASM("faultmask");
+ 240:../stm32f4xx/core_cmFunc.h ****   return(__regFaultMask);
+ 241:../stm32f4xx/core_cmFunc.h **** }
+ 242:../stm32f4xx/core_cmFunc.h **** 
+ 243:../stm32f4xx/core_cmFunc.h **** 
+ 244:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Fault Mask
+ 245:../stm32f4xx/core_cmFunc.h **** 
+ 246:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Fault Mask register.
+ 247:../stm32f4xx/core_cmFunc.h **** 
+ 248:../stm32f4xx/core_cmFunc.h ****     \param [in]    faultMask  Fault Mask value to set
+ 249:../stm32f4xx/core_cmFunc.h ****  */
+ 250:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_FAULTMASK(uint32_t faultMask)
+ 251:../stm32f4xx/core_cmFunc.h **** {
+ 252:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regFaultMask       __ASM("faultmask");
+ 253:../stm32f4xx/core_cmFunc.h ****   __regFaultMask = (faultMask & (uint32_t)1);
+ 254:../stm32f4xx/core_cmFunc.h **** }
+ 255:../stm32f4xx/core_cmFunc.h **** 
+ 256:../stm32f4xx/core_cmFunc.h **** #endif /* (__CORTEX_M >= 0x03) */
+ 257:../stm32f4xx/core_cmFunc.h **** 
+ 258:../stm32f4xx/core_cmFunc.h **** 
+ 259:../stm32f4xx/core_cmFunc.h **** #if       (__CORTEX_M == 0x04)
+ 260:../stm32f4xx/core_cmFunc.h **** 
+ 261:../stm32f4xx/core_cmFunc.h **** /** \brief  Get FPSCR
+ 262:../stm32f4xx/core_cmFunc.h **** 
+ 263:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Floating Point Status/Control register.
+ 264:../stm32f4xx/core_cmFunc.h **** 
+ 265:../stm32f4xx/core_cmFunc.h ****     \return               Floating Point Status/Control register value
+ 266:../stm32f4xx/core_cmFunc.h ****  */
+ 267:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_FPSCR(void)
+ 268:../stm32f4xx/core_cmFunc.h **** {
+ 269:../stm32f4xx/core_cmFunc.h **** #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+ 270:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regfpscr         __ASM("fpscr");
+ 271:../stm32f4xx/core_cmFunc.h ****   return(__regfpscr);
+ 272:../stm32f4xx/core_cmFunc.h **** #else
+ 273:../stm32f4xx/core_cmFunc.h ****    return(0);
+ 274:../stm32f4xx/core_cmFunc.h **** #endif
+ 275:../stm32f4xx/core_cmFunc.h **** }
+ 276:../stm32f4xx/core_cmFunc.h **** 
+ 277:../stm32f4xx/core_cmFunc.h **** 
+ 278:../stm32f4xx/core_cmFunc.h **** /** \brief  Set FPSCR
+ 279:../stm32f4xx/core_cmFunc.h **** 
+ 280:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Floating Point Status/Control register.
+ 281:../stm32f4xx/core_cmFunc.h **** 
+ 282:../stm32f4xx/core_cmFunc.h ****     \param [in]    fpscr  Floating Point Status/Control value to set
+ 283:../stm32f4xx/core_cmFunc.h ****  */
+ 284:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
+ 285:../stm32f4xx/core_cmFunc.h **** {
+ 286:../stm32f4xx/core_cmFunc.h **** #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+ 287:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regfpscr         __ASM("fpscr");
+ 288:../stm32f4xx/core_cmFunc.h ****   __regfpscr = (fpscr);
+ 289:../stm32f4xx/core_cmFunc.h **** #endif
+ 290:../stm32f4xx/core_cmFunc.h **** }
+ 291:../stm32f4xx/core_cmFunc.h **** 
+ 292:../stm32f4xx/core_cmFunc.h **** #endif /* (__CORTEX_M == 0x04) */
+ 293:../stm32f4xx/core_cmFunc.h **** 
+ 294:../stm32f4xx/core_cmFunc.h **** 
+ 295:../stm32f4xx/core_cmFunc.h **** #elif defined ( __ICCARM__ ) /*------------------ ICC Compiler -------------------*/
+ 296:../stm32f4xx/core_cmFunc.h **** /* IAR iccarm specific functions */
+ 297:../stm32f4xx/core_cmFunc.h **** 
+ 298:../stm32f4xx/core_cmFunc.h **** #include <cmsis_iar.h>
+ 299:../stm32f4xx/core_cmFunc.h **** 
+ 300:../stm32f4xx/core_cmFunc.h **** 
+ 301:../stm32f4xx/core_cmFunc.h **** #elif defined ( __TMS470__ ) /*---------------- TI CCS Compiler ------------------*/
+ 302:../stm32f4xx/core_cmFunc.h **** /* TI CCS specific functions */
+ 303:../stm32f4xx/core_cmFunc.h **** 
+ 304:../stm32f4xx/core_cmFunc.h **** #include <cmsis_ccs.h>
+ 305:../stm32f4xx/core_cmFunc.h **** 
+ 306:../stm32f4xx/core_cmFunc.h **** 
+ 307:../stm32f4xx/core_cmFunc.h **** #elif defined ( __GNUC__ ) /*------------------ GNU Compiler ---------------------*/
+ 308:../stm32f4xx/core_cmFunc.h **** /* GNU gcc specific functions */
+ 309:../stm32f4xx/core_cmFunc.h **** 
+ 310:../stm32f4xx/core_cmFunc.h **** /** \brief  Enable IRQ Interrupts
+ 311:../stm32f4xx/core_cmFunc.h **** 
+ 312:../stm32f4xx/core_cmFunc.h ****   This function enables IRQ interrupts by clearing the I-bit in the CPSR.
+ 313:../stm32f4xx/core_cmFunc.h ****   Can only be executed in Privileged modes.
+ 314:../stm32f4xx/core_cmFunc.h ****  */
+ 315:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE void __enable_irq(void)
+ 316:../stm32f4xx/core_cmFunc.h **** {
+ 317:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("cpsie i");
+ 318:../stm32f4xx/core_cmFunc.h **** }
+ 319:../stm32f4xx/core_cmFunc.h **** 
+ 320:../stm32f4xx/core_cmFunc.h **** 
+ 321:../stm32f4xx/core_cmFunc.h **** /** \brief  Disable IRQ Interrupts
+ 322:../stm32f4xx/core_cmFunc.h **** 
+ 323:../stm32f4xx/core_cmFunc.h ****   This function disables IRQ interrupts by setting the I-bit in the CPSR.
+ 324:../stm32f4xx/core_cmFunc.h ****   Can only be executed in Privileged modes.
+ 325:../stm32f4xx/core_cmFunc.h ****  */
+ 326:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE void __disable_irq(void)
+ 327:../stm32f4xx/core_cmFunc.h **** {
+ 328:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("cpsid i");
+ 329:../stm32f4xx/core_cmFunc.h **** }
+ 330:../stm32f4xx/core_cmFunc.h **** 
+ 331:../stm32f4xx/core_cmFunc.h **** 
+ 332:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Control Register
+ 333:../stm32f4xx/core_cmFunc.h **** 
+ 334:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the Control Register.
+ 335:../stm32f4xx/core_cmFunc.h **** 
+ 336:../stm32f4xx/core_cmFunc.h ****     \return               Control Register value
+ 337:../stm32f4xx/core_cmFunc.h ****  */
+ 338:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_CONTROL(void)
+ 339:../stm32f4xx/core_cmFunc.h **** {
+ 340:../stm32f4xx/core_cmFunc.h ****   uint32_t result;
+ 341:../stm32f4xx/core_cmFunc.h **** 
+ 342:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, control" : "=r" (result) );
+ 343:../stm32f4xx/core_cmFunc.h ****   return(result);
+ 344:../stm32f4xx/core_cmFunc.h **** }
+ 345:../stm32f4xx/core_cmFunc.h **** 
+ 346:../stm32f4xx/core_cmFunc.h **** 
+ 347:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Control Register
+ 348:../stm32f4xx/core_cmFunc.h **** 
+ 349:../stm32f4xx/core_cmFunc.h ****     This function writes the given value to the Control Register.
+ 350:../stm32f4xx/core_cmFunc.h **** 
+ 351:../stm32f4xx/core_cmFunc.h ****     \param [in]    control  Control Register value to set
+ 352:../stm32f4xx/core_cmFunc.h ****  */
+ 353:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_CONTROL(uint32_t control)
+ 354:../stm32f4xx/core_cmFunc.h **** {
+ 355:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MSR control, %0" : : "r" (control) );
+ 356:../stm32f4xx/core_cmFunc.h **** }
+ 357:../stm32f4xx/core_cmFunc.h **** 
+ 358:../stm32f4xx/core_cmFunc.h **** 
+ 359:../stm32f4xx/core_cmFunc.h **** /** \brief  Get IPSR Register
+ 360:../stm32f4xx/core_cmFunc.h **** 
+ 361:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the IPSR Register.
+ 362:../stm32f4xx/core_cmFunc.h **** 
+ 363:../stm32f4xx/core_cmFunc.h ****     \return               IPSR Register value
+ 364:../stm32f4xx/core_cmFunc.h ****  */
+ 365:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_IPSR(void)
+ 366:../stm32f4xx/core_cmFunc.h **** {
+ 367:../stm32f4xx/core_cmFunc.h ****   uint32_t result;
+ 368:../stm32f4xx/core_cmFunc.h **** 
+ 369:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, ipsr" : "=r" (result) );
+ 123              		.loc 2 369 0
+ 124              	@ 369 "../stm32f4xx/core_cmFunc.h" 1
+ 125 000a EFF30584 		MRS r4, ipsr
+ 126              	@ 0 "" 2
+ 127              		.thumb
+ 128 000e 7C61     		str	r4, [r7, #20]
+ 370:../stm32f4xx/core_cmFunc.h ****   return(result);
+ 129              		.loc 2 370 0
+ 130 0010 7B69     		ldr	r3, [r7, #20]
+ 131              	.LBE11:
+ 132              	.LBE10:
+  16:../QS/QS_trap_handler.c **** 	extern char _estack;	//Defined by the linker, end of stack
+  17:../QS/QS_trap_handler.c **** #ifdef VERBOSE_MODE
+  18:../QS/QS_trap_handler.c **** 	debug_printf("FATAL Error ! Exception %ld\n", __get_IPSR() & 0xFF);
+  19:../QS/QS_trap_handler.c **** 	//See http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0553a/CHDBIBGJ.html
+  20:../QS/QS_trap_handler.c **** 	/*  ISR_NUMBER
+  21:../QS/QS_trap_handler.c **** 		This is the number of the current exception:
+  22:../QS/QS_trap_handler.c **** 		0 = Thread mode
+  23:../QS/QS_trap_handler.c **** 		1 = Reserved
+  24:../QS/QS_trap_handler.c **** 		2 = NMI
+  25:../QS/QS_trap_handler.c **** 		3 = HardFault
+  26:../QS/QS_trap_handler.c **** 		4 = MemManage
+  27:../QS/QS_trap_handler.c **** 		5 = BusFault
+  28:../QS/QS_trap_handler.c **** 		6 = UsageFault
+  29:../QS/QS_trap_handler.c **** 		7-10 = Reserved
+  30:../QS/QS_trap_handler.c **** 		11 = SVCall
+  31:../QS/QS_trap_handler.c **** 		12 = Reserved for Debug
+  32:../QS/QS_trap_handler.c **** 		13 = Reserved
+  33:../QS/QS_trap_handler.c **** 		14 = PendSV
+  34:../QS/QS_trap_handler.c **** 		15 = SysTick
+  35:../QS/QS_trap_handler.c **** 		16 = IRQ0.
+  36:../QS/QS_trap_handler.c **** 	*/
+  37:../QS/QS_trap_handler.c **** 	if(lr & 0x00000008)
+  38:../QS/QS_trap_handler.c **** 		debug_printf("CPU was in thread mode\n");
+  39:../QS/QS_trap_handler.c **** 	else debug_printf("CPU was in handler mode\n");
+  40:../QS/QS_trap_handler.c **** 
+  41:../QS/QS_trap_handler.c **** 	int offset, i;
+  42:../QS/QS_trap_handler.c **** 	offset = 0;
+  43:../QS/QS_trap_handler.c **** 
+  44:../QS/QS_trap_handler.c **** 	debug_printf("CPU status was:\n");
+  45:../QS/QS_trap_handler.c **** 	debug_printf("-  R0: 0x%08lX  R1: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1]); offset +=
+  46:../QS/QS_trap_handler.c **** 	debug_printf("-  R2: 0x%08lX  R3: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1]); offset +=
+  47:../QS/QS_trap_handler.c **** 	debug_printf("- R12: 0x%08lX\n", stack_ptr[offset++]);
+  48:../QS/QS_trap_handler.c **** 	debug_printf("- LR:   0x%08lX\n", stack_ptr[offset++]);
+  49:../QS/QS_trap_handler.c **** 	debug_printf("- PC:   0x%08lX\n", stack_ptr[offset++]);
+  50:../QS/QS_trap_handler.c **** 	debug_printf("- xPSR: 0x%08lX\n\n", stack_ptr[offset++]);
+  51:../QS/QS_trap_handler.c **** 	if(lr & 0x00000010) {
+  52:../QS/QS_trap_handler.c **** 		debug_printf("FPU status was:\n");
+  53:../QS/QS_trap_handler.c **** 		debug_printf("-  S0: 0x%08lX   S1: 0x%08lX   S2: 0x%08lX   S3: 0x%08lX\n", stack_ptr[offset], sta
+  54:../QS/QS_trap_handler.c **** 		debug_printf("-  S4: 0x%08lX   S5: 0x%08lX   S6: 0x%08lX   S7: 0x%08lX\n", stack_ptr[offset], sta
+  55:../QS/QS_trap_handler.c **** 		debug_printf("-  S8: 0x%08lX   S9: 0x%08lX  S10: 0x%08lX  S11: 0x%08lX\n", stack_ptr[offset], sta
+  56:../QS/QS_trap_handler.c **** 		debug_printf("- S12: 0x%08lX  S13: 0x%08lX  S14: 0x%08lX  S15: 0x%08lX\n", stack_ptr[offset], sta
+  57:../QS/QS_trap_handler.c **** 		debug_printf("- FPSCR: 0x%08lX\n", stack_ptr[offset++]);
+  58:../QS/QS_trap_handler.c **** 		offset++; //empty value at end
+  59:../QS/QS_trap_handler.c **** 	}
+  60:../QS/QS_trap_handler.c **** 
+  61:../QS/QS_trap_handler.c **** 	debug_printf("Stack was: \n");
+  62:../QS/QS_trap_handler.c **** 	for(i=0; i < 32 && (char*)&(stack_ptr[offset]) < &_estack; i++) {
+  63:../QS/QS_trap_handler.c **** 		if(!((i + 1) % 4) && i)
+  64:../QS/QS_trap_handler.c **** 			debug_printf("\n");
+  65:../QS/QS_trap_handler.c **** 		debug_printf("0x%08lX ", stack_ptr[offset++]);
+  66:../QS/QS_trap_handler.c **** 	}
+  67:../QS/QS_trap_handler.c **** 	debug_printf("\n");
+  68:../QS/QS_trap_handler.c **** #endif
+  69:../QS/QS_trap_handler.c **** 
+  70:../QS/QS_trap_handler.c **** 	//See http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/Cihdjcfc.html
+  71:../QS/QS_trap_handler.c **** 
+  72:../QS/QS_trap_handler.c **** 	if((__get_IPSR() & 0xFF) == 3) {
+ 133              		.loc 1 72 0
+ 134 0012 DBB2     		uxtb	r3, r3
+ 135 0014 032B     		cmp	r3, #3
+ 136 0016 38D1     		bne	.L3
+  73:../QS/QS_trap_handler.c **** 		debug_printf("HardFault reason:\n");
+ 137              		.loc 1 73 0
+ 138 0018 4FF00500 		mov	r0, #5
+ 139 001c 40F20001 		movw	r1, #:lower16:.LC0
+ 140 0020 C0F20001 		movt	r1, #:upper16:.LC0
+ 141 0024 FFF7FEFF 		bl	OUTPUTLOG_printf
+  74:../QS/QS_trap_handler.c **** 		if(SCB->HFSR & SCB_HFSR_DEBUGEVT_Msk)
+ 142              		.loc 1 74 0
+ 143 0028 4FF46D43 		mov	r3, #60672
+ 144 002c CEF20003 		movt	r3, 57344
+ 145 0030 DB6A     		ldr	r3, [r3, #44]
+ 146 0032 002B     		cmp	r3, #0
+ 147 0034 07DA     		bge	.L4
+  75:../QS/QS_trap_handler.c **** 			debug_printf("- DEBUGEVT\n");
+ 148              		.loc 1 75 0
+ 149 0036 4FF00500 		mov	r0, #5
+ 150 003a 40F20001 		movw	r1, #:lower16:.LC1
+ 151 003e C0F20001 		movt	r1, #:upper16:.LC1
+ 152 0042 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 153              	.L4:
+  76:../QS/QS_trap_handler.c **** 		if(SCB->HFSR & SCB_HFSR_FORCED_Msk)
+ 154              		.loc 1 76 0
+ 155 0046 4FF46D43 		mov	r3, #60672
+ 156 004a CEF20003 		movt	r3, 57344
+ 157 004e DB6A     		ldr	r3, [r3, #44]
+ 158 0050 03F08043 		and	r3, r3, #1073741824
+ 159 0054 002B     		cmp	r3, #0
+ 160 0056 07D0     		beq	.L5
+  77:../QS/QS_trap_handler.c **** 			debug_printf("- Fault escalated to a hard fault\n");
+ 161              		.loc 1 77 0
+ 162 0058 4FF00500 		mov	r0, #5
+ 163 005c 40F20001 		movw	r1, #:lower16:.LC2
+ 164 0060 C0F20001 		movt	r1, #:upper16:.LC2
+ 165 0064 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 166              	.L5:
+  78:../QS/QS_trap_handler.c **** 		if(SCB->HFSR & SCB_HFSR_VECTTBL_Msk)
+ 167              		.loc 1 78 0
+ 168 0068 4FF46D43 		mov	r3, #60672
+ 169 006c CEF20003 		movt	r3, 57344
+ 170 0070 DB6A     		ldr	r3, [r3, #44]
+ 171 0072 03F00203 		and	r3, r3, #2
+ 172 0076 002B     		cmp	r3, #0
+ 173 0078 07D0     		beq	.L3
+  79:../QS/QS_trap_handler.c **** 			debug_printf("- Bus error on a vector read\n");
+ 174              		.loc 1 79 0
+ 175 007a 4FF00500 		mov	r0, #5
+ 176 007e 40F20001 		movw	r1, #:lower16:.LC3
+ 177 0082 C0F20001 		movt	r1, #:upper16:.LC3
+ 178 0086 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 179              	.L3:
+ 180              	.LBB12:
+ 181              	.LBB13:
+ 369:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, ipsr" : "=r" (result) );
+ 182              		.loc 2 369 0
+ 183              	@ 369 "../stm32f4xx/core_cmFunc.h" 1
+ 184 008a EFF30584 		MRS r4, ipsr
+ 185              	@ 0 "" 2
+ 186              		.thumb
+ 187 008e 3C61     		str	r4, [r7, #16]
+ 188              		.loc 2 370 0
+ 189 0090 3B69     		ldr	r3, [r7, #16]
+ 190              	.LBE13:
+ 191              	.LBE12:
+  80:../QS/QS_trap_handler.c **** 	}
+  81:../QS/QS_trap_handler.c **** 
+  82:../QS/QS_trap_handler.c **** 
+  83:../QS/QS_trap_handler.c **** 	//See http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/Cihcfefj.html#Cihgghei
+  84:../QS/QS_trap_handler.c **** 
+  85:../QS/QS_trap_handler.c **** 	if((__get_IPSR() & 0xFF) == 4) {
+ 192              		.loc 1 85 0
+ 193 0092 DBB2     		uxtb	r3, r3
+ 194 0094 042B     		cmp	r3, #4
+ 195 0096 74D1     		bne	.L7
+  86:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_MEMFAULTSR_Pos) & 0x80)
+ 196              		.loc 1 86 0
+ 197 0098 4FF46D43 		mov	r3, #60672
+ 198 009c CEF20003 		movt	r3, 57344
+ 199 00a0 9B6A     		ldr	r3, [r3, #40]
+ 200 00a2 03F08003 		and	r3, r3, #128
+ 201 00a6 002B     		cmp	r3, #0
+ 202 00a8 0ED0     		beq	.L8
+  87:../QS/QS_trap_handler.c **** 			debug_printf("MemManage fault at address 0x%08lX\n", SCB->MMFAR);
+ 203              		.loc 1 87 0
+ 204 00aa 4FF46D43 		mov	r3, #60672
+ 205 00ae CEF20003 		movt	r3, 57344
+ 206 00b2 5B6B     		ldr	r3, [r3, #52]
+ 207 00b4 4FF00500 		mov	r0, #5
+ 208 00b8 40F20001 		movw	r1, #:lower16:.LC4
+ 209 00bc C0F20001 		movt	r1, #:upper16:.LC4
+ 210 00c0 1A46     		mov	r2, r3
+ 211 00c2 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 212 00c6 07E0     		b	.L9
+ 213              	.L8:
+  88:../QS/QS_trap_handler.c **** 		else
+  89:../QS/QS_trap_handler.c **** 			debug_printf("MemManage fault\n");
+ 214              		.loc 1 89 0
+ 215 00c8 4FF00500 		mov	r0, #5
+ 216 00cc 40F20001 		movw	r1, #:lower16:.LC5
+ 217 00d0 C0F20001 		movt	r1, #:upper16:.LC5
+ 218 00d4 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 219              	.L9:
+  90:../QS/QS_trap_handler.c **** 
+  91:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_MEMFAULTSR_Pos) & 0x01)
+ 220              		.loc 1 91 0
+ 221 00d8 4FF46D43 		mov	r3, #60672
+ 222 00dc CEF20003 		movt	r3, 57344
+ 223 00e0 9B6A     		ldr	r3, [r3, #40]
+ 224 00e2 03F00103 		and	r3, r3, #1
+ 225 00e6 002B     		cmp	r3, #0
+ 226 00e8 07D0     		beq	.L10
+  92:../QS/QS_trap_handler.c **** 			debug_printf("- Memory is not executable\n");
+ 227              		.loc 1 92 0
+ 228 00ea 4FF00500 		mov	r0, #5
+ 229 00ee 40F20001 		movw	r1, #:lower16:.LC6
+ 230 00f2 C0F20001 		movt	r1, #:upper16:.LC6
+ 231 00f6 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 232              	.L10:
+  93:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_MEMFAULTSR_Pos) & 0x02)
+ 233              		.loc 1 93 0
+ 234 00fa 4FF46D43 		mov	r3, #60672
+ 235 00fe CEF20003 		movt	r3, 57344
+ 236 0102 9B6A     		ldr	r3, [r3, #40]
+ 237 0104 03F00203 		and	r3, r3, #2
+ 238 0108 002B     		cmp	r3, #0
+ 239 010a 07D0     		beq	.L11
+  94:../QS/QS_trap_handler.c **** 			debug_printf("- Memory is not readable/writable\n");
+ 240              		.loc 1 94 0
+ 241 010c 4FF00500 		mov	r0, #5
+ 242 0110 40F20001 		movw	r1, #:lower16:.LC7
+ 243 0114 C0F20001 		movt	r1, #:upper16:.LC7
+ 244 0118 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 245              	.L11:
+  95:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_MEMFAULTSR_Pos) & 0x08)
+ 246              		.loc 1 95 0
+ 247 011c 4FF46D43 		mov	r3, #60672
+ 248 0120 CEF20003 		movt	r3, 57344
+ 249 0124 9B6A     		ldr	r3, [r3, #40]
+ 250 0126 03F00803 		and	r3, r3, #8
+ 251 012a 002B     		cmp	r3, #0
+ 252 012c 07D0     		beq	.L12
+  96:../QS/QS_trap_handler.c **** 			debug_printf("- Exception when unstacking from exception\n");
+ 253              		.loc 1 96 0
+ 254 012e 4FF00500 		mov	r0, #5
+ 255 0132 40F20001 		movw	r1, #:lower16:.LC8
+ 256 0136 C0F20001 		movt	r1, #:upper16:.LC8
+ 257 013a FFF7FEFF 		bl	OUTPUTLOG_printf
+ 258              	.L12:
+  97:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_MEMFAULTSR_Pos) & 0x10)
+ 259              		.loc 1 97 0
+ 260 013e 4FF46D43 		mov	r3, #60672
+ 261 0142 CEF20003 		movt	r3, 57344
+ 262 0146 9B6A     		ldr	r3, [r3, #40]
+ 263 0148 03F01003 		and	r3, r3, #16
+ 264 014c 002B     		cmp	r3, #0
+ 265 014e 07D0     		beq	.L13
+  98:../QS/QS_trap_handler.c **** 			debug_printf("- Exception when stacking for an exception\n");
+ 266              		.loc 1 98 0
+ 267 0150 4FF00500 		mov	r0, #5
+ 268 0154 40F20001 		movw	r1, #:lower16:.LC9
+ 269 0158 C0F20001 		movt	r1, #:upper16:.LC9
+ 270 015c FFF7FEFF 		bl	OUTPUTLOG_printf
+ 271              	.L13:
+  99:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_MEMFAULTSR_Pos) & 0x20)
+ 272              		.loc 1 99 0
+ 273 0160 4FF46D43 		mov	r3, #60672
+ 274 0164 CEF20003 		movt	r3, 57344
+ 275 0168 9B6A     		ldr	r3, [r3, #40]
+ 276 016a 03F02003 		and	r3, r3, #32
+ 277 016e 002B     		cmp	r3, #0
+ 278 0170 07D0     		beq	.L7
+ 100:../QS/QS_trap_handler.c **** 			debug_printf("- Fault when floating-point lazy state preservation\n");
+ 279              		.loc 1 100 0
+ 280 0172 4FF00500 		mov	r0, #5
+ 281 0176 40F20001 		movw	r1, #:lower16:.LC10
+ 282 017a C0F20001 		movt	r1, #:upper16:.LC10
+ 283 017e FFF7FEFF 		bl	OUTPUTLOG_printf
+ 284              	.L7:
+ 285              	.LBB14:
+ 286              	.LBB15:
+ 369:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, ipsr" : "=r" (result) );
+ 287              		.loc 2 369 0
+ 288              	@ 369 "../stm32f4xx/core_cmFunc.h" 1
+ 289 0182 EFF30584 		MRS r4, ipsr
+ 290              	@ 0 "" 2
+ 291              		.thumb
+ 292 0186 FC60     		str	r4, [r7, #12]
+ 293              		.loc 2 370 0
+ 294 0188 FB68     		ldr	r3, [r7, #12]
+ 295              	.LBE15:
+ 296              	.LBE14:
+ 101:../QS/QS_trap_handler.c **** 	}
+ 102:../QS/QS_trap_handler.c **** 
+ 103:../QS/QS_trap_handler.c **** 
+ 104:../QS/QS_trap_handler.c **** 	//See http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/Cihcfefj.html#Cihbeigb
+ 105:../QS/QS_trap_handler.c **** 
+ 106:../QS/QS_trap_handler.c **** 	if((__get_IPSR() & 0xFF) == 5) {
+ 297              		.loc 1 106 0
+ 298 018a DBB2     		uxtb	r3, r3
+ 299 018c 052B     		cmp	r3, #5
+ 300 018e 40F09480 		bne	.L15
+ 107:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_BUSFAULTSR_Pos) & 0x80)
+ 301              		.loc 1 107 0
+ 302 0192 4FF46D43 		mov	r3, #60672
+ 303 0196 CEF20003 		movt	r3, 57344
+ 304 019a 9B6A     		ldr	r3, [r3, #40]
+ 305 019c 4FEA1323 		lsr	r3, r3, #8
+ 306 01a0 03F08003 		and	r3, r3, #128
+ 307 01a4 002B     		cmp	r3, #0
+ 308 01a6 0ED0     		beq	.L16
+ 108:../QS/QS_trap_handler.c **** 			debug_printf("BusFault fault at address 0x%08lX\n", SCB->BFAR);
+ 309              		.loc 1 108 0
+ 310 01a8 4FF46D43 		mov	r3, #60672
+ 311 01ac CEF20003 		movt	r3, 57344
+ 312 01b0 9B6B     		ldr	r3, [r3, #56]
+ 313 01b2 4FF00500 		mov	r0, #5
+ 314 01b6 40F20001 		movw	r1, #:lower16:.LC11
+ 315 01ba C0F20001 		movt	r1, #:upper16:.LC11
+ 316 01be 1A46     		mov	r2, r3
+ 317 01c0 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 318 01c4 07E0     		b	.L17
+ 319              	.L16:
+ 109:../QS/QS_trap_handler.c **** 		else
+ 110:../QS/QS_trap_handler.c **** 			debug_printf("BusFault fault\n");
+ 320              		.loc 1 110 0
+ 321 01c6 4FF00500 		mov	r0, #5
+ 322 01ca 40F20001 		movw	r1, #:lower16:.LC12
+ 323 01ce C0F20001 		movt	r1, #:upper16:.LC12
+ 324 01d2 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 325              	.L17:
+ 111:../QS/QS_trap_handler.c **** 
+ 112:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_BUSFAULTSR_Pos) & 0x01)
+ 326              		.loc 1 112 0
+ 327 01d6 4FF46D43 		mov	r3, #60672
+ 328 01da CEF20003 		movt	r3, 57344
+ 329 01de 9B6A     		ldr	r3, [r3, #40]
+ 330 01e0 4FEA1323 		lsr	r3, r3, #8
+ 331 01e4 03F00103 		and	r3, r3, #1
+ 332 01e8 002B     		cmp	r3, #0
+ 333 01ea 07D0     		beq	.L18
+ 113:../QS/QS_trap_handler.c **** 			debug_printf("- Instruction bus error\n");
+ 334              		.loc 1 113 0
+ 335 01ec 4FF00500 		mov	r0, #5
+ 336 01f0 40F20001 		movw	r1, #:lower16:.LC13
+ 337 01f4 C0F20001 		movt	r1, #:upper16:.LC13
+ 338 01f8 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 339              	.L18:
+ 114:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_BUSFAULTSR_Pos) & 0x02)
+ 340              		.loc 1 114 0
+ 341 01fc 4FF46D43 		mov	r3, #60672
+ 342 0200 CEF20003 		movt	r3, 57344
+ 343 0204 9B6A     		ldr	r3, [r3, #40]
+ 344 0206 4FEA1323 		lsr	r3, r3, #8
+ 345 020a 03F00203 		and	r3, r3, #2
+ 346 020e 002B     		cmp	r3, #0
+ 347 0210 07D0     		beq	.L19
+ 115:../QS/QS_trap_handler.c **** 			debug_printf("- Precise Data bus error\n");
+ 348              		.loc 1 115 0
+ 349 0212 4FF00500 		mov	r0, #5
+ 350 0216 40F20001 		movw	r1, #:lower16:.LC14
+ 351 021a C0F20001 		movt	r1, #:upper16:.LC14
+ 352 021e FFF7FEFF 		bl	OUTPUTLOG_printf
+ 353              	.L19:
+ 116:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_BUSFAULTSR_Pos) & 0x04)
+ 354              		.loc 1 116 0
+ 355 0222 4FF46D43 		mov	r3, #60672
+ 356 0226 CEF20003 		movt	r3, 57344
+ 357 022a 9B6A     		ldr	r3, [r3, #40]
+ 358 022c 4FEA1323 		lsr	r3, r3, #8
+ 359 0230 03F00403 		and	r3, r3, #4
+ 360 0234 002B     		cmp	r3, #0
+ 361 0236 07D0     		beq	.L20
+ 117:../QS/QS_trap_handler.c **** 			debug_printf("- Imprecise Data bus error\n");
+ 362              		.loc 1 117 0
+ 363 0238 4FF00500 		mov	r0, #5
+ 364 023c 40F20001 		movw	r1, #:lower16:.LC15
+ 365 0240 C0F20001 		movt	r1, #:upper16:.LC15
+ 366 0244 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 367              	.L20:
+ 118:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_BUSFAULTSR_Pos) & 0x08)
+ 368              		.loc 1 118 0
+ 369 0248 4FF46D43 		mov	r3, #60672
+ 370 024c CEF20003 		movt	r3, 57344
+ 371 0250 9B6A     		ldr	r3, [r3, #40]
+ 372 0252 4FEA1323 		lsr	r3, r3, #8
+ 373 0256 03F00803 		and	r3, r3, #8
+ 374 025a 002B     		cmp	r3, #0
+ 375 025c 07D0     		beq	.L21
+ 119:../QS/QS_trap_handler.c **** 			debug_printf("- Exception when unstacking from exception\n");
+ 376              		.loc 1 119 0
+ 377 025e 4FF00500 		mov	r0, #5
+ 378 0262 40F20001 		movw	r1, #:lower16:.LC8
+ 379 0266 C0F20001 		movt	r1, #:upper16:.LC8
+ 380 026a FFF7FEFF 		bl	OUTPUTLOG_printf
+ 381              	.L21:
+ 120:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_BUSFAULTSR_Pos) & 0x10)
+ 382              		.loc 1 120 0
+ 383 026e 4FF46D43 		mov	r3, #60672
+ 384 0272 CEF20003 		movt	r3, 57344
+ 385 0276 9B6A     		ldr	r3, [r3, #40]
+ 386 0278 4FEA1323 		lsr	r3, r3, #8
+ 387 027c 03F01003 		and	r3, r3, #16
+ 388 0280 002B     		cmp	r3, #0
+ 389 0282 07D0     		beq	.L22
+ 121:../QS/QS_trap_handler.c **** 			debug_printf("- Exception when stacking for an exception\n");
+ 390              		.loc 1 121 0
+ 391 0284 4FF00500 		mov	r0, #5
+ 392 0288 40F20001 		movw	r1, #:lower16:.LC9
+ 393 028c C0F20001 		movt	r1, #:upper16:.LC9
+ 394 0290 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 395              	.L22:
+ 122:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_BUSFAULTSR_Pos) & 0x20)
+ 396              		.loc 1 122 0
+ 397 0294 4FF46D43 		mov	r3, #60672
+ 398 0298 CEF20003 		movt	r3, 57344
+ 399 029c 9B6A     		ldr	r3, [r3, #40]
+ 400 029e 4FEA1323 		lsr	r3, r3, #8
+ 401 02a2 03F02003 		and	r3, r3, #32
+ 402 02a6 002B     		cmp	r3, #0
+ 403 02a8 07D0     		beq	.L15
+ 123:../QS/QS_trap_handler.c **** 			debug_printf("- Fault when floating-point lazy state preservation\n");
+ 404              		.loc 1 123 0
+ 405 02aa 4FF00500 		mov	r0, #5
+ 406 02ae 40F20001 		movw	r1, #:lower16:.LC10
+ 407 02b2 C0F20001 		movt	r1, #:upper16:.LC10
+ 408 02b6 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 409              	.L15:
+ 410              	.LBB16:
+ 411              	.LBB17:
+ 369:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, ipsr" : "=r" (result) );
+ 412              		.loc 2 369 0
+ 413              	@ 369 "../stm32f4xx/core_cmFunc.h" 1
+ 414 02ba EFF30584 		MRS r4, ipsr
+ 415              	@ 0 "" 2
+ 416              		.thumb
+ 417 02be BC60     		str	r4, [r7, #8]
+ 418              		.loc 2 370 0
+ 419 02c0 BB68     		ldr	r3, [r7, #8]
+ 420              	.LBE17:
+ 421              	.LBE16:
+ 124:../QS/QS_trap_handler.c **** 	}
+ 125:../QS/QS_trap_handler.c **** 
+ 126:../QS/QS_trap_handler.c **** 	//See http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/Cihcfefj.html#Cihgbdbi
+ 127:../QS/QS_trap_handler.c **** 
+ 128:../QS/QS_trap_handler.c **** 	if((__get_IPSR() & 0xFF) == 6) {
+ 422              		.loc 1 128 0
+ 423 02c2 DBB2     		uxtb	r3, r3
+ 424 02c4 062B     		cmp	r3, #6
+ 425 02c6 7ED1     		bne	.L24
+ 129:../QS/QS_trap_handler.c **** 		debug_printf("UsageFault fault, return address: 0x%08lX\n", stack_ptr[6]);
+ 426              		.loc 1 129 0
+ 427 02c8 7B68     		ldr	r3, [r7, #4]
+ 428 02ca 03F11803 		add	r3, r3, #24
+ 429 02ce 1B68     		ldr	r3, [r3, #0]
+ 430 02d0 4FF00500 		mov	r0, #5
+ 431 02d4 40F20001 		movw	r1, #:lower16:.LC16
+ 432 02d8 C0F20001 		movt	r1, #:upper16:.LC16
+ 433 02dc 1A46     		mov	r2, r3
+ 434 02de FFF7FEFF 		bl	OUTPUTLOG_printf
+ 130:../QS/QS_trap_handler.c **** 
+ 131:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_USGFAULTSR_Pos) & 0x001)
+ 435              		.loc 1 131 0
+ 436 02e2 4FF46D43 		mov	r3, #60672
+ 437 02e6 CEF20003 		movt	r3, 57344
+ 438 02ea 9B6A     		ldr	r3, [r3, #40]
+ 439 02ec 4FEA1343 		lsr	r3, r3, #16
+ 440 02f0 03F00103 		and	r3, r3, #1
+ 441 02f4 002B     		cmp	r3, #0
+ 442 02f6 07D0     		beq	.L25
+ 132:../QS/QS_trap_handler.c **** 			debug_printf("- Undefined instruction\n");
+ 443              		.loc 1 132 0
+ 444 02f8 4FF00500 		mov	r0, #5
+ 445 02fc 40F20001 		movw	r1, #:lower16:.LC17
+ 446 0300 C0F20001 		movt	r1, #:upper16:.LC17
+ 447 0304 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 448              	.L25:
+ 133:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_USGFAULTSR_Pos) & 0x002)
+ 449              		.loc 1 133 0
+ 450 0308 4FF46D43 		mov	r3, #60672
+ 451 030c CEF20003 		movt	r3, 57344
+ 452 0310 9B6A     		ldr	r3, [r3, #40]
+ 453 0312 4FEA1343 		lsr	r3, r3, #16
+ 454 0316 03F00203 		and	r3, r3, #2
+ 455 031a 002B     		cmp	r3, #0
+ 456 031c 07D0     		beq	.L26
+ 134:../QS/QS_trap_handler.c **** 			debug_printf("- Illegal use of the EPSR\n");
+ 457              		.loc 1 134 0
+ 458 031e 4FF00500 		mov	r0, #5
+ 459 0322 40F20001 		movw	r1, #:lower16:.LC18
+ 460 0326 C0F20001 		movt	r1, #:upper16:.LC18
+ 461 032a FFF7FEFF 		bl	OUTPUTLOG_printf
+ 462              	.L26:
+ 135:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_USGFAULTSR_Pos) & 0x004)
+ 463              		.loc 1 135 0
+ 464 032e 4FF46D43 		mov	r3, #60672
+ 465 0332 CEF20003 		movt	r3, 57344
+ 466 0336 9B6A     		ldr	r3, [r3, #40]
+ 467 0338 4FEA1343 		lsr	r3, r3, #16
+ 468 033c 03F00403 		and	r3, r3, #4
+ 469 0340 002B     		cmp	r3, #0
+ 470 0342 07D0     		beq	.L27
+ 136:../QS/QS_trap_handler.c **** 			debug_printf("- Illegal load of the PC\n");
+ 471              		.loc 1 136 0
+ 472 0344 4FF00500 		mov	r0, #5
+ 473 0348 40F20001 		movw	r1, #:lower16:.LC19
+ 474 034c C0F20001 		movt	r1, #:upper16:.LC19
+ 475 0350 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 476              	.L27:
+ 137:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_USGFAULTSR_Pos) & 0x008)
+ 477              		.loc 1 137 0
+ 478 0354 4FF46D43 		mov	r3, #60672
+ 479 0358 CEF20003 		movt	r3, 57344
+ 480 035c 9B6A     		ldr	r3, [r3, #40]
+ 481 035e 4FEA1343 		lsr	r3, r3, #16
+ 482 0362 03F00803 		and	r3, r3, #8
+ 483 0366 002B     		cmp	r3, #0
+ 484 0368 07D0     		beq	.L28
+ 138:../QS/QS_trap_handler.c **** 			debug_printf("- Attempt to access a coprocessor but not present\n");
+ 485              		.loc 1 138 0
+ 486 036a 4FF00500 		mov	r0, #5
+ 487 036e 40F20001 		movw	r1, #:lower16:.LC20
+ 488 0372 C0F20001 		movt	r1, #:upper16:.LC20
+ 489 0376 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 490              	.L28:
+ 139:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_USGFAULTSR_Pos) & 0x100)
+ 491              		.loc 1 139 0
+ 492 037a 4FF46D43 		mov	r3, #60672
+ 493 037e CEF20003 		movt	r3, 57344
+ 494 0382 9B6A     		ldr	r3, [r3, #40]
+ 495 0384 4FEA1343 		lsr	r3, r3, #16
+ 496 0388 03F48073 		and	r3, r3, #256
+ 497 038c 002B     		cmp	r3, #0
+ 498 038e 07D0     		beq	.L29
+ 140:../QS/QS_trap_handler.c **** 			debug_printf("- Unaligned memory access\n");
+ 499              		.loc 1 140 0
+ 500 0390 4FF00500 		mov	r0, #5
+ 501 0394 40F20001 		movw	r1, #:lower16:.LC21
+ 502 0398 C0F20001 		movt	r1, #:upper16:.LC21
+ 503 039c FFF7FEFF 		bl	OUTPUTLOG_printf
+ 504              	.L29:
+ 141:../QS/QS_trap_handler.c **** 		if((SCB->CFSR >> SCB_CFSR_USGFAULTSR_Pos) & 0x200)
+ 505              		.loc 1 141 0
+ 506 03a0 4FF46D43 		mov	r3, #60672
+ 507 03a4 CEF20003 		movt	r3, 57344
+ 508 03a8 9B6A     		ldr	r3, [r3, #40]
+ 509 03aa 4FEA1343 		lsr	r3, r3, #16
+ 510 03ae 03F40073 		and	r3, r3, #512
+ 511 03b2 002B     		cmp	r3, #0
+ 512 03b4 07D0     		beq	.L24
+ 142:../QS/QS_trap_handler.c **** 			debug_printf("- Divide by zero\n");
+ 513              		.loc 1 142 0
+ 514 03b6 4FF00500 		mov	r0, #5
+ 515 03ba 40F20001 		movw	r1, #:lower16:.LC22
+ 516 03be C0F20001 		movt	r1, #:upper16:.LC22
+ 517 03c2 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 518              	.L24:
+ 143:../QS/QS_trap_handler.c **** 	}
+ 144:../QS/QS_trap_handler.c **** 	debug_printf("END of Fault Handler\n");
+ 519              		.loc 1 144 0
+ 520 03c6 4FF00500 		mov	r0, #5
+ 521 03ca 40F20001 		movw	r1, #:lower16:.LC23
+ 522 03ce C0F20001 		movt	r1, #:upper16:.LC23
+ 523 03d2 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 145:../QS/QS_trap_handler.c **** }
+ 524              		.loc 1 145 0
+ 525 03d6 07F11C07 		add	r7, r7, #28
+ 526 03da BD46     		mov	sp, r7
+ 527 03dc 90BD     		pop	{r4, r7, pc}
+ 528              		.cfi_endproc
+ 529              	.LFE111:
+ 531 03de 00BF     		.align	2
+ 532              		.global	Fault_Handler
+ 533              		.thumb
+ 534              		.thumb_func
+ 536              	Fault_Handler:
+ 537              	.LFB112:
+ 146:../QS/QS_trap_handler.c **** 
+ 147:../QS/QS_trap_handler.c **** __attribute__((naked)) void Fault_Handler(void)
+ 148:../QS/QS_trap_handler.c **** {
+ 538              		.loc 1 148 0
+ 539              		.cfi_startproc
+ 540              		@ Naked Function: prologue and epilogue provided by programmer.
+ 541              		@ args = 0, pretend = 0, frame = 0
+ 542              		@ frame_needed = 1, uses_anonymous_args = 0
+ 149:../QS/QS_trap_handler.c **** 	//On ne veux pas perdre l'état des registres, donc pas de C
+ 150:../QS/QS_trap_handler.c **** 	//l'attribut naked indique qu'on ne veux pas de prologue / epilogue générés par GCC
+ 151:../QS/QS_trap_handler.c **** 	__asm volatile
+ 543              		.loc 1 151 0
+ 544              	@ 151 "../QS/QS_trap_handler.c" 1
+ 545 03e0 1EF0040F 		TST LR, #4
+ 546 03e4 0CBF     	ITE EQ
+ 547 03e6 EFF30880 	MRSEQ R0, MSP
+ 548 03ea EFF30980 	MRSNE R0, PSP
+ 549 03ee 7146     	MOV R1, LR
+ 550 03f0 FFF7FEBF 	B dump_trap_info
+ 551              	
+ 552              	@ 0 "" 2
+ 152:../QS/QS_trap_handler.c **** 	(
+ 153:../QS/QS_trap_handler.c **** 		"TST LR, #4\n"		// Test for MSP or PSP
+ 154:../QS/QS_trap_handler.c **** 		"ITE EQ\n"			//If equal
+ 155:../QS/QS_trap_handler.c **** 		"MRSEQ R0, MSP\n"	//r0 = msp
+ 156:../QS/QS_trap_handler.c **** 		"MRSNE R0, PSP\n"	//else r0 = psp
+ 157:../QS/QS_trap_handler.c **** 		"MOV R1, LR\n"
+ 158:../QS/QS_trap_handler.c **** 		"B dump_trap_info\n"
+ 159:../QS/QS_trap_handler.c **** 	);
+ 160:../QS/QS_trap_handler.c **** }
+ 553              		.loc 1 160 0
+ 554              		.thumb
+ 555              		.cfi_endproc
+ 556              	.LFE112:
+ 558              		.global	MemManage_Handler
+ 559              		.thumb_set MemManage_Handler,Fault_Handler
+ 560              		.global	BusFault_Handler
+ 561              		.thumb_set BusFault_Handler,Fault_Handler
+ 562              		.global	UsageFault_Handler
+ 563              		.thumb_set UsageFault_Handler,Fault_Handler
+ 564              		.global	HardFault_Handler
+ 565              		.thumb_set HardFault_Handler,Fault_Handler
+ 566              		.align	2
+ 567              		.global	NMI_Handler
+ 568              		.thumb
+ 569              		.thumb_func
+ 571              	NMI_Handler:
+ 572              	.LFB113:
+ 161:../QS/QS_trap_handler.c **** void HardFault_Handler(void) __attribute__((alias("Fault_Handler"))) 	__attribute__((unused));
+ 162:../QS/QS_trap_handler.c **** void MemManage_Handler(void) __attribute__((alias("Fault_Handler"))) 	__attribute__((unused));
+ 163:../QS/QS_trap_handler.c **** void BusFault_Handler(void) __attribute__((alias("Fault_Handler"))) 	__attribute__((unused));
+ 164:../QS/QS_trap_handler.c **** void UsageFault_Handler(void) __attribute__((alias("Fault_Handler"))) 	__attribute__((unused));
+ 165:../QS/QS_trap_handler.c **** 
+ 166:../QS/QS_trap_handler.c **** void NMI_Handler(void)
+ 167:../QS/QS_trap_handler.c **** {
+ 573              		.loc 1 167 0
+ 574              		.cfi_startproc
+ 575              		@ args = 0, pretend = 0, frame = 0
+ 576              		@ frame_needed = 1, uses_anonymous_args = 0
+ 577              		@ link register save eliminated.
+ 578 03f4 80B4     		push	{r7}
+ 579              	.LCFI3:
+ 580              		.cfi_def_cfa_offset 4
+ 581              		.cfi_offset 7, -4
+ 582 03f6 00AF     		add	r7, sp, #0
+ 583              	.LCFI4:
+ 584              		.cfi_def_cfa_register 7
+ 168:../QS/QS_trap_handler.c **** }
+ 585              		.loc 1 168 0
+ 586 03f8 BD46     		mov	sp, r7
+ 587 03fa 80BC     		pop	{r7}
+ 588 03fc 7047     		bx	lr
+ 589              		.cfi_endproc
+ 590              	.LFE113:
+ 592              		.section	.rodata
+ 593 02ee 0000     		.align	2
+ 594              	.LC24:
+ 595 02f0 53564320 		.ascii	"SVC interrupt: unimplemented\012\000"
+ 595      696E7465 
+ 595      72727570 
+ 595      743A2075 
+ 595      6E696D70 
+ 596              		.text
+ 597 03fe 00BF     		.align	2
+ 598              		.global	SVC_Handler
+ 599              		.thumb
+ 600              		.thumb_func
+ 602              	SVC_Handler:
+ 603              	.LFB114:
+ 169:../QS/QS_trap_handler.c **** 
+ 170:../QS/QS_trap_handler.c **** void SVC_Handler(void)
+ 171:../QS/QS_trap_handler.c **** {
+ 604              		.loc 1 171 0
+ 605              		.cfi_startproc
+ 606              		@ args = 0, pretend = 0, frame = 0
+ 607              		@ frame_needed = 1, uses_anonymous_args = 0
+ 608 0400 80B5     		push	{r7, lr}
+ 609              	.LCFI5:
+ 610              		.cfi_def_cfa_offset 8
+ 611              		.cfi_offset 7, -8
+ 612              		.cfi_offset 14, -4
+ 613 0402 00AF     		add	r7, sp, #0
+ 614              	.LCFI6:
+ 615              		.cfi_def_cfa_register 7
+ 172:../QS/QS_trap_handler.c **** 	debug_printf("SVC interrupt: unimplemented\n");
+ 616              		.loc 1 172 0
+ 617 0404 4FF00500 		mov	r0, #5
+ 618 0408 40F20001 		movw	r1, #:lower16:.LC24
+ 619 040c C0F20001 		movt	r1, #:upper16:.LC24
+ 620 0410 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 173:../QS/QS_trap_handler.c **** }
+ 621              		.loc 1 173 0
+ 622 0414 80BD     		pop	{r7, pc}
+ 623              		.cfi_endproc
+ 624              	.LFE114:
+ 626              		.section	.rodata
+ 627 030e 0000     		.align	2
+ 628              	.LC25:
+ 629 0310 44656275 		.ascii	"DebugMon: unimplemented\012\000"
+ 629      674D6F6E 
+ 629      3A20756E 
+ 629      696D706C 
+ 629      656D656E 
+ 630              		.text
+ 631 0416 00BF     		.align	2
+ 632              		.global	DebugMon_Handler
+ 633              		.thumb
+ 634              		.thumb_func
+ 636              	DebugMon_Handler:
+ 637              	.LFB115:
+ 174:../QS/QS_trap_handler.c **** 
+ 175:../QS/QS_trap_handler.c **** void DebugMon_Handler(void)
+ 176:../QS/QS_trap_handler.c **** {
+ 638              		.loc 1 176 0
+ 639              		.cfi_startproc
+ 640              		@ args = 0, pretend = 0, frame = 0
+ 641              		@ frame_needed = 1, uses_anonymous_args = 0
+ 642 0418 80B5     		push	{r7, lr}
+ 643              	.LCFI7:
+ 644              		.cfi_def_cfa_offset 8
+ 645              		.cfi_offset 7, -8
+ 646              		.cfi_offset 14, -4
+ 647 041a 00AF     		add	r7, sp, #0
+ 648              	.LCFI8:
+ 649              		.cfi_def_cfa_register 7
+ 177:../QS/QS_trap_handler.c **** 	debug_printf("DebugMon: unimplemented\n");
+ 650              		.loc 1 177 0
+ 651 041c 4FF00500 		mov	r0, #5
+ 652 0420 40F20001 		movw	r1, #:lower16:.LC25
+ 653 0424 C0F20001 		movt	r1, #:upper16:.LC25
+ 654 0428 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 178:../QS/QS_trap_handler.c **** }
+ 655              		.loc 1 178 0
+ 656 042c 80BD     		pop	{r7, pc}
+ 657              		.cfi_endproc
+ 658              	.LFE115:
+ 660              		.section	.rodata
+ 661 0329 000000   		.align	2
+ 662              	.LC26:
+ 663 032c 50656E64 		.ascii	"Pending SVC interrupt: unimplemented\012\000"
+ 663      696E6720 
+ 663      53564320 
+ 663      696E7465 
+ 663      72727570 
+ 664 0352 0000     		.text
+ 665 042e 00BF     		.align	2
+ 666              		.global	PendSV_Handler
+ 667              		.thumb
+ 668              		.thumb_func
+ 670              	PendSV_Handler:
+ 671              	.LFB116:
+ 179:../QS/QS_trap_handler.c **** 
+ 180:../QS/QS_trap_handler.c **** void PendSV_Handler(void)
+ 181:../QS/QS_trap_handler.c **** {
+ 672              		.loc 1 181 0
+ 673              		.cfi_startproc
+ 674              		@ args = 0, pretend = 0, frame = 0
+ 675              		@ frame_needed = 1, uses_anonymous_args = 0
+ 676 0430 80B5     		push	{r7, lr}
+ 677              	.LCFI9:
+ 678              		.cfi_def_cfa_offset 8
+ 679              		.cfi_offset 7, -8
+ 680              		.cfi_offset 14, -4
+ 681 0432 00AF     		add	r7, sp, #0
+ 682              	.LCFI10:
+ 683              		.cfi_def_cfa_register 7
+ 182:../QS/QS_trap_handler.c **** 	debug_printf("Pending SVC interrupt: unimplemented\n");
+ 684              		.loc 1 182 0
+ 685 0434 4FF00500 		mov	r0, #5
+ 686 0438 40F20001 		movw	r1, #:lower16:.LC26
+ 687 043c C0F20001 		movt	r1, #:upper16:.LC26
+ 688 0440 FFF7FEFF 		bl	OUTPUTLOG_printf
+ 183:../QS/QS_trap_handler.c **** }
+ 689              		.loc 1 183 0
+ 690 0444 80BD     		pop	{r7, pc}
+ 691              		.cfi_endproc
+ 692              	.LFE116:
+ 694 0446 00BF     		.align	2
+ 695              		.weak	SysTick_Handler
+ 696              		.thumb
+ 697              		.thumb_func
+ 699              	SysTick_Handler:
+ 700              	.LFB117:
+ 184:../QS/QS_trap_handler.c **** 
+ 185:../QS/QS_trap_handler.c **** __attribute__((weak))
+ 186:../QS/QS_trap_handler.c **** void SysTick_Handler(void)
+ 187:../QS/QS_trap_handler.c **** {
+ 701              		.loc 1 187 0
+ 702              		.cfi_startproc
+ 703              		@ args = 0, pretend = 0, frame = 0
+ 704              		@ frame_needed = 1, uses_anonymous_args = 0
+ 705              		@ link register save eliminated.
+ 706 0448 80B4     		push	{r7}
+ 707              	.LCFI11:
+ 708              		.cfi_def_cfa_offset 4
+ 709              		.cfi_offset 7, -4
+ 710 044a 00AF     		add	r7, sp, #0
+ 711              	.LCFI12:
+ 712              		.cfi_def_cfa_register 7
+ 188:../QS/QS_trap_handler.c **** 	//Unused but not an error
+ 189:../QS/QS_trap_handler.c **** }
+ 713              		.loc 1 189 0
+ 714 044c BD46     		mov	sp, r7
+ 715 044e 80BC     		pop	{r7}
+ 716 0450 7047     		bx	lr
+ 717              		.cfi_endproc
+ 718              	.LFE117:
+ 720              	.Letext0:
+ 721              		.file 3 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 722              		.file 4 "../stm32f4xx/core_cm4.h"
+ 723              		.file 5 "../QS/QS_types.h"
+ 724              		.file 6 "../QS/QS_outputlog.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 QS_trap_handler.c
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:19     .rodata:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:20     .rodata:00000000 .LC0
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:23     .rodata:00000014 .LC1
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:26     .rodata:00000020 .LC2
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:29     .rodata:00000044 .LC3
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:32     .rodata:00000064 .LC4
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:35     .rodata:00000088 .LC5
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:38     .rodata:0000009c .LC6
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:41     .rodata:000000b8 .LC7
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:44     .rodata:000000dc .LC8
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:47     .rodata:00000108 .LC9
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:50     .rodata:00000134 .LC10
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:54     .rodata:0000016c .LC11
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:57     .rodata:00000190 .LC12
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:60     .rodata:000001a0 .LC13
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:63     .rodata:000001bc .LC14
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:66     .rodata:000001d8 .LC15
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:69     .rodata:000001f4 .LC16
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:72     .rodata:00000220 .LC17
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:75     .rodata:0000023c .LC18
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:78     .rodata:00000258 .LC19
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:81     .rodata:00000274 .LC20
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:85     .rodata:000002a8 .LC21
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:88     .rodata:000002c4 .LC22
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:91     .rodata:000002d8 .LC23
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:94     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:99     .text:00000000 dump_trap_info
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:536    .text:000003e0 Fault_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:536    .text:000003e0 MemManage_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:536    .text:000003e0 BusFault_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:536    .text:000003e0 UsageFault_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:536    .text:000003e0 HardFault_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:571    .text:000003f4 NMI_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:594    .rodata:000002f0 .LC24
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:602    .text:00000400 SVC_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:628    .rodata:00000310 .LC25
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:636    .text:00000418 DebugMon_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:662    .rodata:0000032c .LC26
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:670    .text:00000430 PendSV_Handler
+C:\Users\Amaury\AppData\Local\Temp\ccd0oxcB.s:699    .text:00000448 SysTick_Handler
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.QS_outputlog.h.12.c4345486982132d59ec2c51f5e320631
+
+UNDEFINED SYMBOLS
+OUTPUTLOG_printf

@@ -1,0 +1,652 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"QS_can_over_uart.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	uartToCANmsg
+  20              		.thumb
+  21              		.thumb_func
+  23              	uartToCANmsg:
+  24              	.LFB111:
+  25              		.file 1 "../QS/QS_can_over_uart.c"
+   1:../QS/QS_can_over_uart.c **** /*
+   2:../QS/QS_can_over_uart.c ****  *	Club Robot ESEO 2008 - 2010
+   3:../QS/QS_can_over_uart.c ****  *	Archi'Tech, PACMAN
+   4:../QS/QS_can_over_uart.c ****  *
+   5:../QS/QS_can_over_uart.c ****  *	Fichier : QS_can_over_uart.c
+   6:../QS/QS_can_over_uart.c ****  *	Package : Qualité Soft
+   7:../QS/QS_can_over_uart.c ****  *	Description : fonctions d'encapsulation des messages CAN
+   8:../QS/QS_can_over_uart.c **** 					sur uart.
+   9:../QS/QS_can_over_uart.c ****  *	Auteur : Jacen
+  10:../QS/QS_can_over_uart.c ****  *	Licence : CeCILL-C (voir LICENCE.txt)
+  11:../QS/QS_can_over_uart.c ****  *	Version 20100620
+  12:../QS/QS_can_over_uart.c ****  */
+  13:../QS/QS_can_over_uart.c **** 
+  14:../QS/QS_can_over_uart.c **** #include "QS_can_over_uart.h"
+  15:../QS/QS_can_over_uart.c **** 
+  16:../QS/QS_can_over_uart.c **** 
+  17:../QS/QS_can_over_uart.c **** 
+  18:../QS/QS_can_over_uart.c **** 
+  19:../QS/QS_can_over_uart.c **** //next_byte_to_read doit être une variable static..initialisée à 0 elle stocke l'état de progressio
+  20:../QS/QS_can_over_uart.c **** bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fields_e * next_byte_t
+  21:../QS/QS_can_over_uart.c **** {
+  26              		.loc 1 21 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 32
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31 0000 80B4     		push	{r7}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 4
+  34              		.cfi_offset 7, -4
+  35 0002 89B0     		sub	sp, sp, #36
+  36              	.LCFI1:
+  37              		.cfi_def_cfa_offset 40
+  38 0004 00AF     		add	r7, sp, #0
+  39              	.LCFI2:
+  40              		.cfi_def_cfa_register 7
+  41 0006 F860     		str	r0, [r7, #12]
+  42 0008 0B46     		mov	r3, r1
+  43 000a 7A60     		str	r2, [r7, #4]
+  44 000c FB72     		strb	r3, [r7, #11]
+  22:../QS/QS_can_over_uart.c **** 	/*
+  23:../QS/QS_can_over_uart.c **** 	 *	cette fonction lit un octet dans le buffer de reception de l'uart
+  24:../QS/QS_can_over_uart.c **** 	 *	et complète le message CAN passé en argument à partir du point où
+  25:../QS/QS_can_over_uart.c **** 	 *	elle s'est arretée à son précédent appel. Elle renvoie ensuite si
+  26:../QS/QS_can_over_uart.c **** 	 *	oui ou non elle a fini de complèter le message CAN. Elle vérifie
+  27:../QS/QS_can_over_uart.c **** 	 *  aussi si le message est bien conforme au protocole de communication
+  28:../QS/QS_can_over_uart.c **** 	 *  (cf QS)
+  29:../QS/QS_can_over_uart.c **** 	 */
+  30:../QS/QS_can_over_uart.c **** 
+  31:../QS/QS_can_over_uart.c **** 	Uint8 tmp_can_msg[CAN_MSG_LENGTH+1];
+  32:../QS/QS_can_over_uart.c **** 	Uint8 i, start;
+  33:../QS/QS_can_over_uart.c **** 
+  34:../QS/QS_can_over_uart.c **** 	switch (*next_byte_to_read)
+  45              		.loc 1 34 0
+  46 000e 7B68     		ldr	r3, [r7, #4]
+  47 0010 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  48 0012 0C2B     		cmp	r3, #12
+  49 0014 00F2DD80 		bhi	.L2
+  50 0018 01A1     		adr	r1, .L8
+  51 001a 51F823F0 		ldr	pc, [r1, r3, lsl #2]
+  52 001e 00BF     		.align	2
+  53              	.L8:
+  54 0020 55000000 		.word	.L3+1
+  55 0024 63000000 		.word	.L4+1
+  56 0028 73000000 		.word	.L5+1
+  57 002c D3010000 		.word	.L2+1
+  58 0030 D3010000 		.word	.L2+1
+  59 0034 D3010000 		.word	.L2+1
+  60 0038 D3010000 		.word	.L2+1
+  61 003c D3010000 		.word	.L2+1
+  62 0040 D3010000 		.word	.L2+1
+  63 0044 D3010000 		.word	.L2+1
+  64 0048 D3010000 		.word	.L2+1
+  65 004c 85000000 		.word	.L6+1
+  66 0050 8D000000 		.word	.L7+1
+  67              	.L3:
+  35:../QS/QS_can_over_uart.c **** 	{
+  36:../QS/QS_can_over_uart.c **** 		case HEADER:
+  37:../QS/QS_can_over_uart.c **** 			/*ignore les octets jusqu'à avoir un debut de msg CAN*/
+  38:../QS/QS_can_over_uart.c **** 			if(byte_read != SOH)
+  68              		.loc 1 38 0
+  69 0054 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+  70 0056 012B     		cmp	r3, #1
+  71 0058 00F0C480 		beq	.L29
+  39:../QS/QS_can_over_uart.c **** 				return FALSE;
+  72              		.loc 1 39 0
+  73 005c 4FF00003 		mov	r3, #0
+  74 0060 CAE0     		b	.L27
+  75              	.L4:
+  40:../QS/QS_can_over_uart.c **** 				break;
+  41:../QS/QS_can_over_uart.c **** 		case SID_MSB:		/*lecture du MSB du sid */
+  42:../QS/QS_can_over_uart.c **** 			dest->sid = (Uint16)byte_read <<8;
+  76              		.loc 1 42 0
+  77 0062 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+  78 0064 9BB2     		uxth	r3, r3
+  79 0066 4FEA0323 		lsl	r3, r3, #8
+  80 006a 9AB2     		uxth	r2, r3
+  81 006c FB68     		ldr	r3, [r7, #12]
+  82 006e 1A80     		strh	r2, [r3, #0]	@ movhi
+  43:../QS/QS_can_over_uart.c **** 			break;
+  83              		.loc 1 43 0
+  84 0070 B9E0     		b	.L11
+  85              	.L5:
+  44:../QS/QS_can_over_uart.c **** 		case SID_LSB:		/*lecture du LSB du sid */
+  45:../QS/QS_can_over_uart.c **** 			dest->sid |= (Uint16)byte_read;
+  86              		.loc 1 45 0
+  87 0072 FB68     		ldr	r3, [r7, #12]
+  88 0074 1A88     		ldrh	r2, [r3, #0]
+  89 0076 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+  90 0078 9BB2     		uxth	r3, r3
+  91 007a 1343     		orrs	r3, r3, r2
+  92 007c 9AB2     		uxth	r2, r3
+  93 007e FB68     		ldr	r3, [r7, #12]
+  94 0080 1A80     		strh	r2, [r3, #0]	@ movhi
+  46:../QS/QS_can_over_uart.c **** 			break;
+  95              		.loc 1 46 0
+  96 0082 B0E0     		b	.L11
+  97              	.L6:
+  47:../QS/QS_can_over_uart.c **** 		case SIZE_FIELD:	/*lecture du champs size */
+  48:../QS/QS_can_over_uart.c **** 			dest->size = byte_read;
+  98              		.loc 1 48 0
+  99 0084 FB68     		ldr	r3, [r7, #12]
+ 100 0086 FA7A     		ldrb	r2, [r7, #11]
+ 101 0088 9A72     		strb	r2, [r3, #10]
+  49:../QS/QS_can_over_uart.c **** 			break;
+ 102              		.loc 1 49 0
+ 103 008a ACE0     		b	.L11
+ 104              	.L7:
+  50:../QS/QS_can_over_uart.c **** 		case FOOTER:
+  51:../QS/QS_can_over_uart.c **** 			if(byte_read != EOT)
+ 105              		.loc 1 51 0
+ 106 008c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 107 008e 042B     		cmp	r3, #4
+ 108 0090 00F09880 		beq	.L12
+  52:../QS/QS_can_over_uart.c **** 			{
+  53:../QS/QS_can_over_uart.c **** 				/* on n'a pas un message CAN valide */
+  54:../QS/QS_can_over_uart.c **** 
+  55:../QS/QS_can_over_uart.c **** 				/* on linéarise le message CAN */
+  56:../QS/QS_can_over_uart.c **** 				tmp_can_msg[0]= dest->sid >> 8;
+ 109              		.loc 1 56 0
+ 110 0094 FB68     		ldr	r3, [r7, #12]
+ 111 0096 1B88     		ldrh	r3, [r3, #0]
+ 112 0098 4FEA1323 		lsr	r3, r3, #8
+ 113 009c 9BB2     		uxth	r3, r3
+ 114 009e DBB2     		uxtb	r3, r3
+ 115 00a0 3B74     		strb	r3, [r7, #16]
+  57:../QS/QS_can_over_uart.c **** 				tmp_can_msg[1]= dest->sid & 0xFF;
+ 116              		.loc 1 57 0
+ 117 00a2 FB68     		ldr	r3, [r7, #12]
+ 118 00a4 1B88     		ldrh	r3, [r3, #0]
+ 119 00a6 DBB2     		uxtb	r3, r3
+ 120 00a8 7B74     		strb	r3, [r7, #17]
+  58:../QS/QS_can_over_uart.c **** 				for (i=0; i<8;i++)
+ 121              		.loc 1 58 0
+ 122 00aa 4FF00003 		mov	r3, #0
+ 123 00ae FB77     		strb	r3, [r7, #31]
+ 124 00b0 0FE0     		b	.L13
+ 125              	.L14:
+  59:../QS/QS_can_over_uart.c **** 					tmp_can_msg[2+i]=dest->data[i];
+ 126              		.loc 1 59 0 discriminator 2
+ 127 00b2 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 128 00b4 03F10203 		add	r3, r3, #2
+ 129 00b8 FA7F     		ldrb	r2, [r7, #31]	@ zero_extendqisi2
+ 130 00ba F968     		ldr	r1, [r7, #12]
+ 131 00bc 8A18     		adds	r2, r1, r2
+ 132 00be 9278     		ldrb	r2, [r2, #2]	@ zero_extendqisi2
+ 133 00c0 07F12001 		add	r1, r7, #32
+ 134 00c4 CB18     		adds	r3, r1, r3
+ 135 00c6 03F8102C 		strb	r2, [r3, #-16]
+  58:../QS/QS_can_over_uart.c **** 				for (i=0; i<8;i++)
+ 136              		.loc 1 58 0 discriminator 2
+ 137 00ca FB7F     		ldrb	r3, [r7, #31]
+ 138 00cc 03F10103 		add	r3, r3, #1
+ 139 00d0 FB77     		strb	r3, [r7, #31]
+ 140              	.L13:
+  58:../QS/QS_can_over_uart.c **** 				for (i=0; i<8;i++)
+ 141              		.loc 1 58 0 is_stmt 0 discriminator 1
+ 142 00d2 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 143 00d4 072B     		cmp	r3, #7
+ 144 00d6 ECD9     		bls	.L14
+  60:../QS/QS_can_over_uart.c **** 				tmp_can_msg[10]=dest->size;
+ 145              		.loc 1 60 0 is_stmt 1
+ 146 00d8 FB68     		ldr	r3, [r7, #12]
+ 147 00da 9B7A     		ldrb	r3, [r3, #10]	@ zero_extendqisi2
+ 148 00dc BB76     		strb	r3, [r7, #26]
+  61:../QS/QS_can_over_uart.c **** 				tmp_can_msg[CAN_MSG_LENGTH]=byte_read;
+ 149              		.loc 1 61 0
+ 150 00de FB7A     		ldrb	r3, [r7, #11]
+ 151 00e0 FB76     		strb	r3, [r7, #27]
+  62:../QS/QS_can_over_uart.c **** 
+  63:../QS/QS_can_over_uart.c **** 				/* on recherche un debut de message dans la suite d'octets */
+  64:../QS/QS_can_over_uart.c **** 				for(start=0; start<(CAN_MSG_LENGTH+1); start++)
+ 152              		.loc 1 64 0
+ 153 00e2 4FF00003 		mov	r3, #0
+ 154 00e6 BB77     		strb	r3, [r7, #30]
+ 155 00e8 0BE0     		b	.L15
+ 156              	.L18:
+  65:../QS/QS_can_over_uart.c **** 				{
+  66:../QS/QS_can_over_uart.c **** 					if (tmp_can_msg[start]==SOH)
+ 157              		.loc 1 66 0
+ 158 00ea BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 159 00ec 07F12002 		add	r2, r7, #32
+ 160 00f0 D318     		adds	r3, r2, r3
+ 161 00f2 13F8103C 		ldrb	r3, [r3, #-16]	@ zero_extendqisi2
+ 162 00f6 012B     		cmp	r3, #1
+ 163 00f8 07D0     		beq	.L30
+ 164              	.L16:
+  64:../QS/QS_can_over_uart.c **** 				for(start=0; start<(CAN_MSG_LENGTH+1); start++)
+ 165              		.loc 1 64 0
+ 166 00fa BB7F     		ldrb	r3, [r7, #30]
+ 167 00fc 03F10103 		add	r3, r3, #1
+ 168 0100 BB77     		strb	r3, [r7, #30]
+ 169              	.L15:
+  64:../QS/QS_can_over_uart.c **** 				for(start=0; start<(CAN_MSG_LENGTH+1); start++)
+ 170              		.loc 1 64 0 is_stmt 0 discriminator 1
+ 171 0102 BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 172 0104 0B2B     		cmp	r3, #11
+ 173 0106 F0D9     		bls	.L18
+ 174 0108 00E0     		b	.L17
+ 175              	.L30:
+  67:../QS/QS_can_over_uart.c **** 						break;
+ 176              		.loc 1 67 0 is_stmt 1
+ 177 010a 00BF     		nop
+ 178              	.L17:
+  68:../QS/QS_can_over_uart.c **** 				}
+  69:../QS/QS_can_over_uart.c **** 				/* si on en a trouvé un */
+  70:../QS/QS_can_over_uart.c **** 				if (tmp_can_msg[i]==SOH)
+ 179              		.loc 1 70 0
+ 180 010c FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 181 010e 07F12001 		add	r1, r7, #32
+ 182 0112 CB18     		adds	r3, r1, r3
+ 183 0114 13F8103C 		ldrb	r3, [r3, #-16]	@ zero_extendqisi2
+ 184 0118 012B     		cmp	r3, #1
+ 185 011a 4AD1     		bne	.L19
+  71:../QS/QS_can_over_uart.c **** 				{
+  72:../QS/QS_can_over_uart.c **** 					/*on recopie ce qu'on a dans le message CAN */
+  73:../QS/QS_can_over_uart.c **** 					for(i=1; (start+i)<=(CAN_MSG_LENGTH+1); i++)
+ 186              		.loc 1 73 0
+ 187 011c 4FF00103 		mov	r3, #1
+ 188 0120 FB77     		strb	r3, [r7, #31]
+ 189 0122 41E0     		b	.L20
+ 190              	.L26:
+  74:../QS/QS_can_over_uart.c **** 					{
+  75:../QS/QS_can_over_uart.c **** 						switch (i)
+ 191              		.loc 1 75 0
+ 192 0124 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 193 0126 022B     		cmp	r3, #2
+ 194 0128 11D0     		beq	.L23
+ 195 012a 0B2B     		cmp	r3, #11
+ 196 012c 1ED0     		beq	.L24
+ 197 012e 012B     		cmp	r3, #1
+ 198 0130 27D1     		bne	.L28
+ 199              	.L22:
+  76:../QS/QS_can_over_uart.c **** 						{
+  77:../QS/QS_can_over_uart.c **** 							case SID_MSB:	/*lecture du MSB du sid */
+  78:../QS/QS_can_over_uart.c **** 								dest->sid = (Uint16)tmp_can_msg[start+i] <<8;
+ 200              		.loc 1 78 0
+ 201 0132 BA7F     		ldrb	r2, [r7, #30]	@ zero_extendqisi2
+ 202 0134 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 203 0136 D318     		adds	r3, r2, r3
+ 204 0138 07F12002 		add	r2, r7, #32
+ 205 013c D318     		adds	r3, r2, r3
+ 206 013e 13F8103C 		ldrb	r3, [r3, #-16]	@ zero_extendqisi2
+ 207 0142 4FEA0323 		lsl	r3, r3, #8
+ 208 0146 9AB2     		uxth	r2, r3
+ 209 0148 FB68     		ldr	r3, [r7, #12]
+ 210 014a 1A80     		strh	r2, [r3, #0]	@ movhi
+  79:../QS/QS_can_over_uart.c **** 								break;
+ 211              		.loc 1 79 0
+ 212 014c 28E0     		b	.L25
+ 213              	.L23:
+  80:../QS/QS_can_over_uart.c **** 							case SID_LSB:	/*lecture du MSB du sid */
+  81:../QS/QS_can_over_uart.c **** 								dest->sid |= (Uint16)tmp_can_msg[start+i];
+ 214              		.loc 1 81 0
+ 215 014e FB68     		ldr	r3, [r7, #12]
+ 216 0150 1A88     		ldrh	r2, [r3, #0]
+ 217 0152 B97F     		ldrb	r1, [r7, #30]	@ zero_extendqisi2
+ 218 0154 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 219 0156 CB18     		adds	r3, r1, r3
+ 220 0158 07F12001 		add	r1, r7, #32
+ 221 015c CB18     		adds	r3, r1, r3
+ 222 015e 13F8103C 		ldrb	r3, [r3, #-16]	@ zero_extendqisi2
+ 223 0162 1343     		orrs	r3, r3, r2
+ 224 0164 9AB2     		uxth	r2, r3
+ 225 0166 FB68     		ldr	r3, [r7, #12]
+ 226 0168 1A80     		strh	r2, [r3, #0]	@ movhi
+  82:../QS/QS_can_over_uart.c **** 								break;
+ 227              		.loc 1 82 0
+ 228 016a 19E0     		b	.L25
+ 229              	.L24:
+  83:../QS/QS_can_over_uart.c **** 							case SIZE_FIELD:/*lecture du champs size */
+  84:../QS/QS_can_over_uart.c **** 								dest->size = tmp_can_msg[start+i];
+ 230              		.loc 1 84 0
+ 231 016c BA7F     		ldrb	r2, [r7, #30]	@ zero_extendqisi2
+ 232 016e FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 233 0170 D318     		adds	r3, r2, r3
+ 234 0172 07F12002 		add	r2, r7, #32
+ 235 0176 D318     		adds	r3, r2, r3
+ 236 0178 13F8102C 		ldrb	r2, [r3, #-16]	@ zero_extendqisi2
+ 237 017c FB68     		ldr	r3, [r7, #12]
+ 238 017e 9A72     		strb	r2, [r3, #10]
+  85:../QS/QS_can_over_uart.c **** 								break;
+ 239              		.loc 1 85 0
+ 240 0180 0EE0     		b	.L25
+ 241              	.L28:
+  86:../QS/QS_can_over_uart.c **** 							default:	/*lecture d'un octet de data */
+  87:../QS/QS_can_over_uart.c **** 								dest->data[i-3] = tmp_can_msg[start+i];
+ 242              		.loc 1 87 0
+ 243 0182 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 244 0184 A3F10303 		sub	r3, r3, #3
+ 245 0188 B97F     		ldrb	r1, [r7, #30]	@ zero_extendqisi2
+ 246 018a FA7F     		ldrb	r2, [r7, #31]	@ zero_extendqisi2
+ 247 018c 8A18     		adds	r2, r1, r2
+ 248 018e 07F12001 		add	r1, r7, #32
+ 249 0192 8A18     		adds	r2, r1, r2
+ 250 0194 12F8102C 		ldrb	r2, [r2, #-16]	@ zero_extendqisi2
+ 251 0198 F968     		ldr	r1, [r7, #12]
+ 252 019a CB18     		adds	r3, r1, r3
+ 253 019c 9A70     		strb	r2, [r3, #2]
+  88:../QS/QS_can_over_uart.c **** 								break;
+ 254              		.loc 1 88 0
+ 255 019e 00BF     		nop
+ 256              	.L25:
+  73:../QS/QS_can_over_uart.c **** 					for(i=1; (start+i)<=(CAN_MSG_LENGTH+1); i++)
+ 257              		.loc 1 73 0
+ 258 01a0 FB7F     		ldrb	r3, [r7, #31]
+ 259 01a2 03F10103 		add	r3, r3, #1
+ 260 01a6 FB77     		strb	r3, [r7, #31]
+ 261              	.L20:
+  73:../QS/QS_can_over_uart.c **** 					for(i=1; (start+i)<=(CAN_MSG_LENGTH+1); i++)
+ 262              		.loc 1 73 0 is_stmt 0 discriminator 1
+ 263 01a8 BA7F     		ldrb	r2, [r7, #30]	@ zero_extendqisi2
+ 264 01aa FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 265 01ac D318     		adds	r3, r2, r3
+ 266 01ae 0C2B     		cmp	r3, #12
+ 267 01b0 B8DD     		ble	.L26
+ 268              	.L19:
+  89:../QS/QS_can_over_uart.c **** 						}
+  90:../QS/QS_can_over_uart.c **** 					}
+  91:../QS/QS_can_over_uart.c **** 				}
+  92:../QS/QS_can_over_uart.c **** 				/* on reprend la lecture après le dernier octet reçu */
+  93:../QS/QS_can_over_uart.c **** 				*next_byte_to_read = CAN_MSG_LENGTH +1 - start;
+ 269              		.loc 1 93 0 is_stmt 1
+ 270 01b2 BB7F     		ldrb	r3, [r7, #30]
+ 271 01b4 C3F10C03 		rsb	r3, r3, #12
+ 272 01b8 DAB2     		uxtb	r2, r3
+ 273 01ba 7B68     		ldr	r3, [r7, #4]
+ 274 01bc 1A70     		strb	r2, [r3, #0]
+  94:../QS/QS_can_over_uart.c **** 				return FALSE;
+ 275              		.loc 1 94 0
+ 276 01be 4FF00003 		mov	r3, #0
+ 277 01c2 19E0     		b	.L27
+ 278              	.L12:
+  95:../QS/QS_can_over_uart.c **** 			}
+  96:../QS/QS_can_over_uart.c **** 			else
+  97:../QS/QS_can_over_uart.c **** 			{
+  98:../QS/QS_can_over_uart.c **** 				*next_byte_to_read = 0;
+ 279              		.loc 1 98 0
+ 280 01c4 7B68     		ldr	r3, [r7, #4]
+ 281 01c6 4FF00002 		mov	r2, #0
+ 282 01ca 1A70     		strb	r2, [r3, #0]
+  99:../QS/QS_can_over_uart.c **** 				return TRUE;
+ 283              		.loc 1 99 0
+ 284 01cc 4FF00103 		mov	r3, #1
+ 285 01d0 12E0     		b	.L27
+ 286              	.L2:
+ 100:../QS/QS_can_over_uart.c **** 			}
+ 101:../QS/QS_can_over_uart.c **** 			break;
+ 102:../QS/QS_can_over_uart.c **** 
+ 103:../QS/QS_can_over_uart.c **** 		default:	/*lecture d'un octet de data */
+ 104:../QS/QS_can_over_uart.c **** 			dest->data[*next_byte_to_read - DATA0]=byte_read;
+ 287              		.loc 1 104 0
+ 288 01d2 7B68     		ldr	r3, [r7, #4]
+ 289 01d4 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 290 01d6 A3F10303 		sub	r3, r3, #3
+ 291 01da FA68     		ldr	r2, [r7, #12]
+ 292 01dc D318     		adds	r3, r2, r3
+ 293 01de FA7A     		ldrb	r2, [r7, #11]
+ 294 01e0 9A70     		strb	r2, [r3, #2]
+ 105:../QS/QS_can_over_uart.c **** 			break;
+ 295              		.loc 1 105 0
+ 296 01e2 00E0     		b	.L11
+ 297              	.L29:
+  40:../QS/QS_can_over_uart.c **** 				break;
+ 298              		.loc 1 40 0
+ 299 01e4 00BF     		nop
+ 300              	.L11:
+ 106:../QS/QS_can_over_uart.c **** 	}
+ 107:../QS/QS_can_over_uart.c **** 	*next_byte_to_read = *next_byte_to_read + 1;																														\
+ 301              		.loc 1 107 0
+ 302 01e6 7B68     		ldr	r3, [r7, #4]
+ 303 01e8 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 304 01ea 03F10103 		add	r3, r3, #1
+ 305 01ee DAB2     		uxtb	r2, r3
+ 306 01f0 7B68     		ldr	r3, [r7, #4]
+ 307 01f2 1A70     		strb	r2, [r3, #0]
+ 108:../QS/QS_can_over_uart.c **** 	return FALSE;
+ 308              		.loc 1 108 0
+ 309 01f4 4FF00003 		mov	r3, #0
+ 310              	.L27:
+ 109:../QS/QS_can_over_uart.c **** }
+ 311              		.loc 1 109 0
+ 312 01f8 1846     		mov	r0, r3
+ 313 01fa 07F12407 		add	r7, r7, #36
+ 314 01fe BD46     		mov	sp, r7
+ 315 0200 80BC     		pop	{r7}
+ 316 0202 7047     		bx	lr
+ 317              		.cfi_endproc
+ 318              	.LFE111:
+ 320              		.align	2
+ 321              		.global	CANmsgToU1tx
+ 322              		.thumb
+ 323              		.thumb_func
+ 325              	CANmsgToU1tx:
+ 326              	.LFB112:
+ 110:../QS/QS_can_over_uart.c **** 
+ 111:../QS/QS_can_over_uart.c **** #define CreateCANmsgToUntx(uartId)											\
+ 112:../QS/QS_can_over_uart.c **** void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
+ 113:../QS/QS_can_over_uart.c **** {																			\
+ 114:../QS/QS_can_over_uart.c **** 	/*	Ecrit le contenu du message CAN passé en argument sur				\
+ 115:../QS/QS_can_over_uart.c **** 	 *	l'uart2																\
+ 116:../QS/QS_can_over_uart.c **** 	 */																		\
+ 117:../QS/QS_can_over_uart.c **** 	Uint8 i;																\
+ 118:../QS/QS_can_over_uart.c **** 	/* Envoi de l'octet SOH cf : protocole de communication QS */			\
+ 119:../QS/QS_can_over_uart.c **** 	UART##uartId##_putc(SOH);												\
+ 120:../QS/QS_can_over_uart.c **** 	UART##uartId##_putc((Uint8)(src->sid >>8));								\
+ 121:../QS/QS_can_over_uart.c **** 	UART##uartId##_putc((Uint8)src->sid);									\
+ 122:../QS/QS_can_over_uart.c **** 	for (i=0; i<src->size && i<8; i++)										\
+ 123:../QS/QS_can_over_uart.c **** 		UART##uartId##_putc(src->data[i]);									\
+ 124:../QS/QS_can_over_uart.c **** 	for (i=src->size; i<8; i++)												\
+ 125:../QS/QS_can_over_uart.c **** 		UART##uartId##_putc(0xFF);											\
+ 126:../QS/QS_can_over_uart.c **** 	UART##uartId##_putc(src->size);											\
+ 127:../QS/QS_can_over_uart.c **** 	/* Envoi de l'octet EOT cf : protocole de communication QS */			\
+ 128:../QS/QS_can_over_uart.c **** 	UART##uartId##_putc(EOT);												\
+ 129:../QS/QS_can_over_uart.c **** }
+ 130:../QS/QS_can_over_uart.c **** 
+ 131:../QS/QS_can_over_uart.c **** 
+ 132:../QS/QS_can_over_uart.c **** #ifdef USE_UART1
+ 133:../QS/QS_can_over_uart.c **** 	#include "QS_uart.h"
+ 134:../QS/QS_can_over_uart.c **** 	#include <stdio.h>
+ 135:../QS/QS_can_over_uart.c **** 	CreateCANmsgToUntx(1)
+ 327              		.loc 1 135 0
+ 328              		.cfi_startproc
+ 329              		@ args = 0, pretend = 0, frame = 16
+ 330              		@ frame_needed = 1, uses_anonymous_args = 0
+ 331 0204 80B5     		push	{r7, lr}
+ 332              	.LCFI3:
+ 333              		.cfi_def_cfa_offset 8
+ 334              		.cfi_offset 7, -8
+ 335              		.cfi_offset 14, -4
+ 336 0206 84B0     		sub	sp, sp, #16
+ 337              	.LCFI4:
+ 338              		.cfi_def_cfa_offset 24
+ 339 0208 00AF     		add	r7, sp, #0
+ 340              	.LCFI5:
+ 341              		.cfi_def_cfa_register 7
+ 342 020a 7860     		str	r0, [r7, #4]
+ 343              		.loc 1 135 0
+ 344 020c 4FF00100 		mov	r0, #1
+ 345 0210 FFF7FEFF 		bl	UART1_putc
+ 346 0214 7B68     		ldr	r3, [r7, #4]
+ 347 0216 1B88     		ldrh	r3, [r3, #0]
+ 348 0218 4FEA1323 		lsr	r3, r3, #8
+ 349 021c 9BB2     		uxth	r3, r3
+ 350 021e DBB2     		uxtb	r3, r3
+ 351 0220 1846     		mov	r0, r3
+ 352 0222 FFF7FEFF 		bl	UART1_putc
+ 353 0226 7B68     		ldr	r3, [r7, #4]
+ 354 0228 1B88     		ldrh	r3, [r3, #0]
+ 355 022a DBB2     		uxtb	r3, r3
+ 356 022c 1846     		mov	r0, r3
+ 357 022e FFF7FEFF 		bl	UART1_putc
+ 358 0232 4FF00003 		mov	r3, #0
+ 359 0236 FB73     		strb	r3, [r7, #15]
+ 360 0238 0AE0     		b	.L32
+ 361              	.L34:
+ 362              		.loc 1 135 0 is_stmt 0 discriminator 4
+ 363 023a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 364 023c 7A68     		ldr	r2, [r7, #4]
+ 365 023e D318     		adds	r3, r2, r3
+ 366 0240 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 367 0242 1846     		mov	r0, r3
+ 368 0244 FFF7FEFF 		bl	UART1_putc
+ 369 0248 FB7B     		ldrb	r3, [r7, #15]
+ 370 024a 03F10103 		add	r3, r3, #1
+ 371 024e FB73     		strb	r3, [r7, #15]
+ 372              	.L32:
+ 373              		.loc 1 135 0 discriminator 1
+ 374 0250 7B68     		ldr	r3, [r7, #4]
+ 375 0252 9B7A     		ldrb	r3, [r3, #10]	@ zero_extendqisi2
+ 376 0254 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 377 0256 9A42     		cmp	r2, r3
+ 378 0258 02D2     		bcs	.L33
+ 379              		.loc 1 135 0 discriminator 2
+ 380 025a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 381 025c 072B     		cmp	r3, #7
+ 382 025e ECD9     		bls	.L34
+ 383              	.L33:
+ 384              		.loc 1 135 0 discriminator 3
+ 385 0260 7B68     		ldr	r3, [r7, #4]
+ 386 0262 9B7A     		ldrb	r3, [r3, #10]
+ 387 0264 FB73     		strb	r3, [r7, #15]
+ 388 0266 07E0     		b	.L35
+ 389              	.L36:
+ 390              		.loc 1 135 0 discriminator 6
+ 391 0268 4FF0FF00 		mov	r0, #255
+ 392 026c FFF7FEFF 		bl	UART1_putc
+ 393 0270 FB7B     		ldrb	r3, [r7, #15]
+ 394 0272 03F10103 		add	r3, r3, #1
+ 395 0276 FB73     		strb	r3, [r7, #15]
+ 396              	.L35:
+ 397              		.loc 1 135 0 discriminator 5
+ 398 0278 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 399 027a 072B     		cmp	r3, #7
+ 400 027c F4D9     		bls	.L36
+ 401              		.loc 1 135 0 discriminator 7
+ 402 027e 7B68     		ldr	r3, [r7, #4]
+ 403 0280 9B7A     		ldrb	r3, [r3, #10]	@ zero_extendqisi2
+ 404 0282 1846     		mov	r0, r3
+ 405 0284 FFF7FEFF 		bl	UART1_putc
+ 406 0288 4FF00400 		mov	r0, #4
+ 407 028c FFF7FEFF 		bl	UART1_putc
+ 408 0290 07F11007 		add	r7, r7, #16
+ 409 0294 BD46     		mov	sp, r7
+ 410 0296 80BD     		pop	{r7, pc}
+ 411              		.cfi_endproc
+ 412              	.LFE112:
+ 414              		.align	2
+ 415              		.global	u1rxToCANmsg
+ 416              		.thumb
+ 417              		.thumb_func
+ 419              	u1rxToCANmsg:
+ 420              	.LFB113:
+ 136:../QS/QS_can_over_uart.c **** 	bool_e u1rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read)
+ 137:../QS/QS_can_over_uart.c **** 	{
+ 421              		.loc 1 137 0 is_stmt 1
+ 422              		.cfi_startproc
+ 423              		@ args = 0, pretend = 0, frame = 8
+ 424              		@ frame_needed = 1, uses_anonymous_args = 0
+ 425 0298 80B5     		push	{r7, lr}
+ 426              	.LCFI6:
+ 427              		.cfi_def_cfa_offset 8
+ 428              		.cfi_offset 7, -8
+ 429              		.cfi_offset 14, -4
+ 430 029a 82B0     		sub	sp, sp, #8
+ 431              	.LCFI7:
+ 432              		.cfi_def_cfa_offset 16
+ 433 029c 00AF     		add	r7, sp, #0
+ 434              	.LCFI8:
+ 435              		.cfi_def_cfa_register 7
+ 436 029e 7860     		str	r0, [r7, #4]
+ 437 02a0 0B46     		mov	r3, r1
+ 438 02a2 FB70     		strb	r3, [r7, #3]
+ 138:../QS/QS_can_over_uart.c **** 		static can_msg_on_char_array_fields_e next_byte_to_read=0;
+ 139:../QS/QS_can_over_uart.c **** 		return uartToCANmsg(dest, byte_read, &next_byte_to_read);
+ 439              		.loc 1 139 0
+ 440 02a4 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 441 02a6 7868     		ldr	r0, [r7, #4]
+ 442 02a8 1946     		mov	r1, r3
+ 443 02aa 40F20002 		movw	r2, #:lower16:next_byte_to_read.6705
+ 444 02ae C0F20002 		movt	r2, #:upper16:next_byte_to_read.6705
+ 445 02b2 FFF7FEFF 		bl	uartToCANmsg
+ 446 02b6 0346     		mov	r3, r0
+ 140:../QS/QS_can_over_uart.c **** 	}
+ 447              		.loc 1 140 0
+ 448 02b8 1846     		mov	r0, r3
+ 449 02ba 07F10807 		add	r7, r7, #8
+ 450 02be BD46     		mov	sp, r7
+ 451 02c0 80BD     		pop	{r7, pc}
+ 452              		.cfi_endproc
+ 453              	.LFE113:
+ 455              		.bss
+ 456              	next_byte_to_read.6705:
+ 457 0000 00       		.space	1
+ 458              		.text
+ 459              	.Letext0:
+ 460              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 461              		.file 3 "../QS/QS_types.h"
+ 462              		.file 4 "../QS/QS_can_over_uart.h"
+ 463              		.file 5 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 QS_can_over_uart.c
+C:\Users\Amaury\AppData\Local\Temp\ccVGPVpe.s:18     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccVGPVpe.s:23     .text:00000000 uartToCANmsg
+C:\Users\Amaury\AppData\Local\Temp\ccVGPVpe.s:54     .text:00000020 $d
+C:\Users\Amaury\AppData\Local\Temp\ccVGPVpe.s:69     .text:00000054 $t
+C:\Users\Amaury\AppData\Local\Temp\ccVGPVpe.s:325    .text:00000204 CANmsgToU1tx
+C:\Users\Amaury\AppData\Local\Temp\ccVGPVpe.s:419    .text:00000298 u1rxToCANmsg
+C:\Users\Amaury\AppData\Local\Temp\ccVGPVpe.s:456    .bss:00000000 next_byte_to_read.6705
+C:\Users\Amaury\AppData\Local\Temp\ccVGPVpe.s:457    .bss:00000000 $d
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.QS_can_over_uart.h.17.c55dbbe058d9ab1102257f9f060ce48c
+                           .group:00000000 wm4.stdio.h.31.f48311dde756a2aec27351b58a280fb9
+                           .group:00000000 wm4.stddef.h.187.9e651b6b8b16e149c1353259404973ea
+                           .group:00000000 wm4.stdarg.h.34.3a23a216c0c293b3d2ea2e89281481e6
+                           .group:00000000 wm4._default_types.h.6.5e12cd604db8ce00b62bb2f02708eaf3
+                           .group:00000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:00000000 wm4.stddef.h.349.31f4c5baff3fa2689010b32028da9c47
+                           .group:00000000 wm4.reent.h.16.9e42f0e588b85e70b2bf6572af57ce64
+                           .group:00000000 wm4.types.h.23.0d949686bbcadd1621462d4fa1f884f9
+                           .group:00000000 wm4.stddef.h.40.cf962ebbec441b3ac67502735f0765db
+                           .group:00000000 wm4.types.h.2.e9cec8c90ab35f77d9f499e06ae02400
+                           .group:00000000 wm4.types.h.80.1f2c84c0d57dd52dd9936095d9ac218e
+                           .group:00000000 wm4.stdio.h.2.4aa87247282eca6c8f36f9de33d8df1a
+                           .group:00000000 wm4.stdio.h.63.dfdea6580b080784d08faace69b6ed76
+
+UNDEFINED SYMBOLS
+UART1_putc

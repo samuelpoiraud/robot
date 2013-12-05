@@ -1,0 +1,1225 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"QS_ports.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	PORTS_init
+  20              		.thumb
+  21              		.thumb_func
+  23              	PORTS_init:
+  24              	.LFB111:
+  25              		.file 1 "../QS/QS_ports.c"
+   1:../QS/QS_ports.c **** /*
+   2:../QS/QS_ports.c ****  *  Club Robot ESEO 2009 - 2010
+   3:../QS/QS_ports.c ****  *  Chomp
+   4:../QS/QS_ports.c ****  *
+   5:../QS/QS_ports.c ****  *  Fichier : QS_ports.c
+   6:../QS/QS_ports.c ****  *  Package : Qualité Soft
+   7:../QS/QS_ports.c ****  *  Description : Gestion des entrées-sorties GPIO
+   8:../QS/QS_ports.c ****  *  Auteur : Gwenn
+   9:../QS/QS_ports.c ****  *  Version 20100418
+  10:../QS/QS_ports.c ****  */
+  11:../QS/QS_ports.c **** 
+  12:../QS/QS_ports.c **** #include "QS_ports.h"
+  13:../QS/QS_ports.c **** #include "stm32f4xx_gpio.h"
+  14:../QS/QS_ports.c **** #include "stm32f4xx_adc.h"
+  15:../QS/QS_ports.c **** 
+  16:../QS/QS_ports.c **** #ifdef NEW_CONFIG_ORGANISATION
+  17:../QS/QS_ports.c **** 	#include "config_pin.h"
+  18:../QS/QS_ports.c **** #endif
+  19:../QS/QS_ports.c **** 
+  20:../QS/QS_ports.c **** 
+  21:../QS/QS_ports.c **** void PORTS_init(void){
+  26              		.loc 1 21 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30 0000 80B5     		push	{r7, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 7, -8
+  34              		.cfi_offset 14, -4
+  35 0002 82B0     		sub	sp, sp, #8
+  36              	.LCFI1:
+  37              		.cfi_def_cfa_offset 16
+  38 0004 00AF     		add	r7, sp, #0
+  39              	.LCFI2:
+  40              		.cfi_def_cfa_register 7
+  22:../QS/QS_ports.c **** 	static bool_e initialized = FALSE;
+  23:../QS/QS_ports.c **** 	if(initialized)
+  41              		.loc 1 23 0
+  42 0006 40F20003 		movw	r3, #:lower16:initialized.5947
+  43 000a C0F20003 		movt	r3, #:upper16:initialized.5947
+  44 000e 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  45 0010 002B     		cmp	r3, #0
+  46 0012 40F0B280 		bne	.L1
+  24:../QS/QS_ports.c **** 		return;
+  25:../QS/QS_ports.c **** 
+  26:../QS/QS_ports.c **** 	GPIO_InitTypeDef GPIO_InitStructure;
+  27:../QS/QS_ports.c **** 
+  28:../QS/QS_ports.c **** 	/* Horloges périphériques: tout ce qui est utilisé */
+  29:../QS/QS_ports.c **** 	RCC_AHB1PeriphClockCmd(
+  47              		.loc 1 29 0
+  48 0016 4FF01F00 		mov	r0, #31
+  49 001a 4FF00101 		mov	r1, #1
+  50 001e FFF7FEFF 		bl	RCC_AHB1PeriphClockCmd
+  30:../QS/QS_ports.c **** 		  RCC_AHB1Periph_GPIOA
+  31:../QS/QS_ports.c **** 		| RCC_AHB1Periph_GPIOB
+  32:../QS/QS_ports.c **** 		| RCC_AHB1Periph_GPIOC
+  33:../QS/QS_ports.c **** 		| RCC_AHB1Periph_GPIOD
+  34:../QS/QS_ports.c **** 		| RCC_AHB1Periph_GPIOE, ENABLE);
+  35:../QS/QS_ports.c **** 
+  36:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  51              		.loc 1 36 0
+  52 0022 4FF00203 		mov	r3, #2
+  53 0026 7B71     		strb	r3, [r7, #5]
+  37:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  54              		.loc 1 37 0
+  55 0028 4FF00003 		mov	r3, #0
+  56 002c BB71     		strb	r3, [r7, #6]
+  38:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  57              		.loc 1 38 0
+  58 002e 4FF00003 		mov	r3, #0
+  59 0032 FB71     		strb	r3, [r7, #7]
+  39:../QS/QS_ports.c **** 
+  40:../QS/QS_ports.c **** 	/* GPIOA */
+  41:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_A_IO_MASK) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
+  60              		.loc 1 41 0
+  61 0034 49F6FF73 		movw	r3, #40959
+  62 0038 3B60     		str	r3, [r7, #0]
+  42:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  63              		.loc 1 42 0
+  64 003a 4FF00003 		mov	r3, #0
+  65 003e 3B71     		strb	r3, [r7, #4]
+  43:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+  66              		.loc 1 43 0
+  67 0040 3B46     		mov	r3, r7
+  68 0042 4FF00000 		mov	r0, #0
+  69 0046 C4F20200 		movt	r0, 16386
+  70 004a 1946     		mov	r1, r3
+  71 004c FFF7FEFF 		bl	GPIO_Init
+  44:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_A_IO_MASK)) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
+  72              		.loc 1 44 0
+  73 0050 4FF00003 		mov	r3, #0
+  74 0054 CFF6FF73 		movt	r3, 65535
+  75 0058 3B60     		str	r3, [r7, #0]
+  45:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  76              		.loc 1 45 0
+  77 005a 4FF00103 		mov	r3, #1
+  78 005e 3B71     		strb	r3, [r7, #4]
+  46:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+  79              		.loc 1 46 0
+  80 0060 3B46     		mov	r3, r7
+  81 0062 4FF00000 		mov	r0, #0
+  82 0066 C4F20200 		movt	r0, 16386
+  83 006a 1946     		mov	r1, r3
+  84 006c FFF7FEFF 		bl	GPIO_Init
+  47:../QS/QS_ports.c **** 
+  48:../QS/QS_ports.c **** 	/* GPIOB */
+  49:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_B_IO_MASK) & 0xFFFFFFEF; //JTDO/TRACESWO,
+  85              		.loc 1 49 0
+  86 0070 4FF2EF73 		movw	r3, #63471
+  87 0074 3B60     		str	r3, [r7, #0]
+  50:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  88              		.loc 1 50 0
+  89 0076 4FF00003 		mov	r3, #0
+  90 007a 3B71     		strb	r3, [r7, #4]
+  51:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+  91              		.loc 1 51 0
+  92 007c 3B46     		mov	r3, r7
+  93 007e 4FF48060 		mov	r0, #1024
+  94 0082 C4F20200 		movt	r0, 16386
+  95 0086 1946     		mov	r1, r3
+  96 0088 FFF7FEFF 		bl	GPIO_Init
+  52:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_B_IO_MASK)) & 0xFFFFFFEF; //JTDO/TRACESWO
+  97              		.loc 1 52 0
+  98 008c 4FF40063 		mov	r3, #2048
+  99 0090 CFF6FF73 		movt	r3, 65535
+ 100 0094 3B60     		str	r3, [r7, #0]
+  53:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+ 101              		.loc 1 53 0
+ 102 0096 4FF00103 		mov	r3, #1
+ 103 009a 3B71     		strb	r3, [r7, #4]
+  54:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 104              		.loc 1 54 0
+ 105 009c 3B46     		mov	r3, r7
+ 106 009e 4FF48060 		mov	r0, #1024
+ 107 00a2 C4F20200 		movt	r0, 16386
+ 108 00a6 1946     		mov	r1, r3
+ 109 00a8 FFF7FEFF 		bl	GPIO_Init
+  55:../QS/QS_ports.c **** 
+  56:../QS/QS_ports.c **** 	/* GPIOC */
+  57:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_C_IO_MASK;
+ 110              		.loc 1 57 0
+ 111 00ac 4FF6FF73 		movw	r3, #65535
+ 112 00b0 3B60     		str	r3, [r7, #0]
+  58:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+ 113              		.loc 1 58 0
+ 114 00b2 4FF00003 		mov	r3, #0
+ 115 00b6 3B71     		strb	r3, [r7, #4]
+  59:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+ 116              		.loc 1 59 0
+ 117 00b8 3B46     		mov	r3, r7
+ 118 00ba 4FF40060 		mov	r0, #2048
+ 119 00be C4F20200 		movt	r0, 16386
+ 120 00c2 1946     		mov	r1, r3
+ 121 00c4 FFF7FEFF 		bl	GPIO_Init
+  60:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)PORT_C_IO_MASK);
+ 122              		.loc 1 60 0
+ 123 00c8 4FF00003 		mov	r3, #0
+ 124 00cc CFF6FF73 		movt	r3, 65535
+ 125 00d0 3B60     		str	r3, [r7, #0]
+  61:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+ 126              		.loc 1 61 0
+ 127 00d2 4FF00103 		mov	r3, #1
+ 128 00d6 3B71     		strb	r3, [r7, #4]
+  62:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+ 129              		.loc 1 62 0
+ 130 00d8 3B46     		mov	r3, r7
+ 131 00da 4FF40060 		mov	r0, #2048
+ 132 00de C4F20200 		movt	r0, 16386
+ 133 00e2 1946     		mov	r1, r3
+ 134 00e4 FFF7FEFF 		bl	GPIO_Init
+  63:../QS/QS_ports.c **** 
+  64:../QS/QS_ports.c **** 	/* GPIOD */
+  65:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_D_IO_MASK;
+ 135              		.loc 1 65 0
+ 136 00e8 4CF2FF03 		movw	r3, #49407
+ 137 00ec 3B60     		str	r3, [r7, #0]
+  66:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+ 138              		.loc 1 66 0
+ 139 00ee 4FF00003 		mov	r3, #0
+ 140 00f2 3B71     		strb	r3, [r7, #4]
+  67:../QS/QS_ports.c **** 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+ 141              		.loc 1 67 0
+ 142 00f4 3B46     		mov	r3, r7
+ 143 00f6 4FF44060 		mov	r0, #3072
+ 144 00fa C4F20200 		movt	r0, 16386
+ 145 00fe 1946     		mov	r1, r3
+ 146 0100 FFF7FEFF 		bl	GPIO_Init
+  68:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)PORT_D_IO_MASK);
+ 147              		.loc 1 68 0
+ 148 0104 4FF47C53 		mov	r3, #16128
+ 149 0108 CFF6FF73 		movt	r3, 65535
+ 150 010c 3B60     		str	r3, [r7, #0]
+  69:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+ 151              		.loc 1 69 0
+ 152 010e 4FF00103 		mov	r3, #1
+ 153 0112 3B71     		strb	r3, [r7, #4]
+  70:../QS/QS_ports.c **** 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+ 154              		.loc 1 70 0
+ 155 0114 3B46     		mov	r3, r7
+ 156 0116 4FF44060 		mov	r0, #3072
+ 157 011a C4F20200 		movt	r0, 16386
+ 158 011e 1946     		mov	r1, r3
+ 159 0120 FFF7FEFF 		bl	GPIO_Init
+  71:../QS/QS_ports.c **** 
+  72:../QS/QS_ports.c **** 	/* GPIOE */
+  73:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_E_IO_MASK) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+ 160              		.loc 1 73 0
+ 161 0124 4FF47F43 		mov	r3, #65280
+ 162 0128 3B60     		str	r3, [r7, #0]
+  74:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+ 163              		.loc 1 74 0
+ 164 012a 4FF00003 		mov	r3, #0
+ 165 012e 3B71     		strb	r3, [r7, #4]
+  75:../QS/QS_ports.c **** 	GPIO_Init(GPIOE, &GPIO_InitStructure);
+ 166              		.loc 1 75 0
+ 167 0130 3B46     		mov	r3, r7
+ 168 0132 4FF48050 		mov	r0, #4096
+ 169 0136 C4F20200 		movt	r0, 16386
+ 170 013a 1946     		mov	r1, r3
+ 171 013c FFF7FEFF 		bl	GPIO_Init
+  76:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_E_IO_MASK)) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+ 172              		.loc 1 76 0
+ 173 0140 4FF08303 		mov	r3, #131
+ 174 0144 CFF6FF73 		movt	r3, 65535
+ 175 0148 3B60     		str	r3, [r7, #0]
+  77:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+ 176              		.loc 1 77 0
+ 177 014a 4FF00103 		mov	r3, #1
+ 178 014e 3B71     		strb	r3, [r7, #4]
+  78:../QS/QS_ports.c **** 	GPIO_Init(GPIOE, &GPIO_InitStructure);
+ 179              		.loc 1 78 0
+ 180 0150 3B46     		mov	r3, r7
+ 181 0152 4FF48050 		mov	r0, #4096
+ 182 0156 C4F20200 		movt	r0, 16386
+ 183 015a 1946     		mov	r1, r3
+ 184 015c FFF7FEFF 		bl	GPIO_Init
+  79:../QS/QS_ports.c **** 
+  80:../QS/QS_ports.c **** 	PORTS_adc_init(NULL, ADC_SampleTime_28Cycles);
+ 185              		.loc 1 80 0
+ 186 0160 4FF00000 		mov	r0, #0
+ 187 0164 4FF00201 		mov	r1, #2
+ 188 0168 FFF7FEFF 		bl	PORTS_adc_init
+  81:../QS/QS_ports.c **** 
+  82:../QS/QS_ports.c **** 	initialized = TRUE;
+ 189              		.loc 1 82 0
+ 190 016c 40F20003 		movw	r3, #:lower16:initialized.5947
+ 191 0170 C0F20003 		movt	r3, #:upper16:initialized.5947
+ 192 0174 4FF00102 		mov	r2, #1
+ 193 0178 1A70     		strb	r2, [r3, #0]
+ 194              	.L1:
+  83:../QS/QS_ports.c **** }
+ 195              		.loc 1 83 0
+ 196 017a 07F10807 		add	r7, r7, #8
+ 197 017e BD46     		mov	sp, r7
+ 198 0180 80BD     		pop	{r7, pc}
+ 199              		.cfi_endproc
+ 200              	.LFE111:
+ 202 0182 00BF     		.align	2
+ 203              		.global	PORTS_adc_init
+ 204              		.thumb
+ 205              		.thumb_func
+ 207              	PORTS_adc_init:
+ 208              	.LFB112:
+  84:../QS/QS_ports.c **** 
+  85:../QS/QS_ports.c **** Uint8 PORTS_adc_init(void* adc_handle, Uint8 ADC_sampleTime) {
+ 209              		.loc 1 85 0
+ 210              		.cfi_startproc
+ 211              		@ args = 0, pretend = 0, frame = 24
+ 212              		@ frame_needed = 1, uses_anonymous_args = 0
+ 213 0184 80B5     		push	{r7, lr}
+ 214              	.LCFI3:
+ 215              		.cfi_def_cfa_offset 8
+ 216              		.cfi_offset 7, -8
+ 217              		.cfi_offset 14, -4
+ 218 0186 86B0     		sub	sp, sp, #24
+ 219              	.LCFI4:
+ 220              		.cfi_def_cfa_offset 32
+ 221 0188 00AF     		add	r7, sp, #0
+ 222              	.LCFI5:
+ 223              		.cfi_def_cfa_register 7
+ 224 018a 7860     		str	r0, [r7, #4]
+ 225 018c 0B46     		mov	r3, r1
+ 226 018e FB70     		strb	r3, [r7, #3]
+  86:../QS/QS_ports.c **** 	ADC_TypeDef* ADCx = adc_handle;
+ 227              		.loc 1 86 0
+ 228 0190 7B68     		ldr	r3, [r7, #4]
+ 229 0192 7B61     		str	r3, [r7, #20]
+  87:../QS/QS_ports.c **** 	Uint8 number_of_channels;
+  88:../QS/QS_ports.c **** 	GPIO_InitTypeDef GPIO_InitStructure;
+  89:../QS/QS_ports.c **** 
+  90:../QS/QS_ports.c **** 	/* Configure ADC1 Channelx pin as analog input ******************************/
+  91:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+ 230              		.loc 1 91 0
+ 231 0194 4FF00303 		mov	r3, #3
+ 232 0198 3B73     		strb	r3, [r7, #12]
+  92:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+ 233              		.loc 1 92 0
+ 234 019a 4FF00003 		mov	r3, #0
+ 235 019e FB73     		strb	r3, [r7, #15]
+  93:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+ 236              		.loc 1 93 0
+ 237 01a0 4FF00003 		mov	r3, #0
+ 238 01a4 BB73     		strb	r3, [r7, #14]
+  94:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+ 239              		.loc 1 94 0
+ 240 01a6 4FF00103 		mov	r3, #1
+ 241 01aa 7B73     		strb	r3, [r7, #13]
+  95:../QS/QS_ports.c **** 
+  96:../QS/QS_ports.c **** 	number_of_channels = 0;
+ 242              		.loc 1 96 0
+ 243 01ac 4FF00003 		mov	r3, #0
+ 244 01b0 FB74     		strb	r3, [r7, #19]
+  97:../QS/QS_ports.c **** 
+  98:../QS/QS_ports.c **** #ifdef	USE_AN0
+  99:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+ 100:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 101:../QS/QS_ports.c **** 	number_of_channels++;
+ 102:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_0, number_of_channels, ADC_sampleTime);
+ 103:../QS/QS_ports.c **** #endif
+ 104:../QS/QS_ports.c **** #ifdef	USE_AN1
+ 105:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+ 106:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 107:../QS/QS_ports.c **** 	number_of_channels++;
+ 108:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_1, number_of_channels, ADC_sampleTime);
+ 109:../QS/QS_ports.c **** #endif
+ 110:../QS/QS_ports.c **** #ifdef	USE_AN2
+ 111:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+ 245              		.loc 1 111 0
+ 246 01b2 4FF00403 		mov	r3, #4
+ 247 01b6 BB60     		str	r3, [r7, #8]
+ 112:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 248              		.loc 1 112 0
+ 249 01b8 07F10803 		add	r3, r7, #8
+ 250 01bc 4FF00000 		mov	r0, #0
+ 251 01c0 C4F20200 		movt	r0, 16386
+ 252 01c4 1946     		mov	r1, r3
+ 253 01c6 FFF7FEFF 		bl	GPIO_Init
+ 113:../QS/QS_ports.c **** 	number_of_channels++;
+ 254              		.loc 1 113 0
+ 255 01ca FB7C     		ldrb	r3, [r7, #19]
+ 256 01cc 03F10103 		add	r3, r3, #1
+ 257 01d0 FB74     		strb	r3, [r7, #19]
+ 114:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_2, number_of_channels, ADC_sampleTime);
+ 258              		.loc 1 114 0
+ 259 01d2 7B69     		ldr	r3, [r7, #20]
+ 260 01d4 002B     		cmp	r3, #0
+ 261 01d6 06D0     		beq	.L5
+ 262              		.loc 1 114 0 is_stmt 0 discriminator 1
+ 263 01d8 FA7C     		ldrb	r2, [r7, #19]	@ zero_extendqisi2
+ 264 01da FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 265 01dc 7869     		ldr	r0, [r7, #20]
+ 266 01de 4FF00201 		mov	r1, #2
+ 267 01e2 FFF7FEFF 		bl	ADC_RegularChannelConfig
+ 268              	.L5:
+ 115:../QS/QS_ports.c **** #endif
+ 116:../QS/QS_ports.c **** #ifdef	USE_AN3
+ 117:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+ 269              		.loc 1 117 0 is_stmt 1
+ 270 01e6 4FF00803 		mov	r3, #8
+ 271 01ea BB60     		str	r3, [r7, #8]
+ 118:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 272              		.loc 1 118 0
+ 273 01ec 07F10803 		add	r3, r7, #8
+ 274 01f0 4FF00000 		mov	r0, #0
+ 275 01f4 C4F20200 		movt	r0, 16386
+ 276 01f8 1946     		mov	r1, r3
+ 277 01fa FFF7FEFF 		bl	GPIO_Init
+ 119:../QS/QS_ports.c **** 	number_of_channels++;
+ 278              		.loc 1 119 0
+ 279 01fe FB7C     		ldrb	r3, [r7, #19]
+ 280 0200 03F10103 		add	r3, r3, #1
+ 281 0204 FB74     		strb	r3, [r7, #19]
+ 120:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_3, number_of_channels, ADC_sampleTime);
+ 282              		.loc 1 120 0
+ 283 0206 7B69     		ldr	r3, [r7, #20]
+ 284 0208 002B     		cmp	r3, #0
+ 285 020a 06D0     		beq	.L6
+ 286              		.loc 1 120 0 is_stmt 0 discriminator 1
+ 287 020c FA7C     		ldrb	r2, [r7, #19]	@ zero_extendqisi2
+ 288 020e FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 289 0210 7869     		ldr	r0, [r7, #20]
+ 290 0212 4FF00301 		mov	r1, #3
+ 291 0216 FFF7FEFF 		bl	ADC_RegularChannelConfig
+ 292              	.L6:
+ 121:../QS/QS_ports.c **** #endif
+ 122:../QS/QS_ports.c **** #ifdef	USE_AN4
+ 123:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+ 124:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 125:../QS/QS_ports.c **** 	number_of_channels++;
+ 126:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_4, number_of_channels, ADC_sampleTime);
+ 127:../QS/QS_ports.c **** #endif
+ 128:../QS/QS_ports.c **** #ifdef	USE_AN5
+ 129:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+ 130:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 131:../QS/QS_ports.c **** 	number_of_channels++;
+ 132:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_5, number_of_channels, ADC_sampleTime);
+ 133:../QS/QS_ports.c **** #endif
+ 134:../QS/QS_ports.c **** #ifdef	USE_AN6
+ 135:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+ 136:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 137:../QS/QS_ports.c **** 	number_of_channels++;
+ 138:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_6, number_of_channels, ADC_sampleTime);
+ 139:../QS/QS_ports.c **** #endif
+ 140:../QS/QS_ports.c **** #ifdef	USE_AN7
+ 141:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+ 142:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 143:../QS/QS_ports.c **** 	number_of_channels++;
+ 144:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_7, number_of_channels, ADC_sampleTime);
+ 145:../QS/QS_ports.c **** #endif
+ 146:../QS/QS_ports.c **** #ifdef	USE_AN8
+ 147:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+ 148:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 149:../QS/QS_ports.c **** 	number_of_channels++;
+ 150:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_8, number_of_channels, ADC_sampleTime);
+ 151:../QS/QS_ports.c **** #endif
+ 152:../QS/QS_ports.c **** #ifdef	USE_AN9
+ 153:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+ 293              		.loc 1 153 0 is_stmt 1
+ 294 021a 4FF00203 		mov	r3, #2
+ 295 021e BB60     		str	r3, [r7, #8]
+ 154:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 296              		.loc 1 154 0
+ 297 0220 07F10803 		add	r3, r7, #8
+ 298 0224 4FF48060 		mov	r0, #1024
+ 299 0228 C4F20200 		movt	r0, 16386
+ 300 022c 1946     		mov	r1, r3
+ 301 022e FFF7FEFF 		bl	GPIO_Init
+ 155:../QS/QS_ports.c **** 	number_of_channels++;
+ 302              		.loc 1 155 0
+ 303 0232 FB7C     		ldrb	r3, [r7, #19]
+ 304 0234 03F10103 		add	r3, r3, #1
+ 305 0238 FB74     		strb	r3, [r7, #19]
+ 156:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_9, number_of_channels, ADC_sampleTime);
+ 306              		.loc 1 156 0
+ 307 023a 7B69     		ldr	r3, [r7, #20]
+ 308 023c 002B     		cmp	r3, #0
+ 309 023e 06D0     		beq	.L7
+ 310              		.loc 1 156 0 is_stmt 0 discriminator 1
+ 311 0240 FA7C     		ldrb	r2, [r7, #19]	@ zero_extendqisi2
+ 312 0242 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 313 0244 7869     		ldr	r0, [r7, #20]
+ 314 0246 4FF00901 		mov	r1, #9
+ 315 024a FFF7FEFF 		bl	ADC_RegularChannelConfig
+ 316              	.L7:
+ 157:../QS/QS_ports.c **** #endif
+ 158:../QS/QS_ports.c **** #ifdef	USE_AN10
+ 159:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+ 160:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+ 161:../QS/QS_ports.c **** 	number_of_channels++;
+ 162:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_10, number_of_channels, ADC_sampleTime);
+ 163:../QS/QS_ports.c **** #endif
+ 164:../QS/QS_ports.c **** #ifdef	USE_AN11
+ 165:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+ 166:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+ 167:../QS/QS_ports.c **** 	number_of_channels++;
+ 168:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_11, number_of_channels, ADC_sampleTime);
+ 169:../QS/QS_ports.c **** #endif
+ 170:../QS/QS_ports.c **** #ifdef	USE_AN12
+ 171:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+ 172:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+ 173:../QS/QS_ports.c **** 	number_of_channels++;
+ 174:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_12, number_of_channels, ADC_sampleTime);
+ 175:../QS/QS_ports.c **** #endif
+ 176:../QS/QS_ports.c **** #ifdef	USE_AN13
+ 177:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+ 178:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+ 179:../QS/QS_ports.c **** 	number_of_channels++;
+ 180:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_13, number_of_channels, ADC_sampleTime);
+ 181:../QS/QS_ports.c **** #endif
+ 182:../QS/QS_ports.c **** #ifdef	USE_AN14
+ 183:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+ 184:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+ 185:../QS/QS_ports.c **** 	number_of_channels++;
+ 186:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_14, number_of_channels, ADC_sampleTime);
+ 187:../QS/QS_ports.c **** #endif
+ 188:../QS/QS_ports.c **** #ifdef	USE_AN15
+ 189:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+ 190:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+ 191:../QS/QS_ports.c **** 	number_of_channels++;
+ 192:../QS/QS_ports.c **** 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_15, number_of_channels, ADC_sampleTime);
+ 193:../QS/QS_ports.c **** #endif
+ 194:../QS/QS_ports.c **** 
+ 195:../QS/QS_ports.c **** 	return number_of_channels;
+ 317              		.loc 1 195 0 is_stmt 1
+ 318 024e FB7C     		ldrb	r3, [r7, #19]	@ zero_extendqisi2
+ 196:../QS/QS_ports.c **** }
+ 319              		.loc 1 196 0
+ 320 0250 1846     		mov	r0, r3
+ 321 0252 07F11807 		add	r7, r7, #24
+ 322 0256 BD46     		mov	sp, r7
+ 323 0258 80BD     		pop	{r7, pc}
+ 324              		.cfi_endproc
+ 325              	.LFE112:
+ 327 025a 00BF     		.align	2
+ 328              		.global	PORTS_pwm_init
+ 329              		.thumb
+ 330              		.thumb_func
+ 332              	PORTS_pwm_init:
+ 333              	.LFB113:
+ 197:../QS/QS_ports.c **** 
+ 198:../QS/QS_ports.c **** void PORTS_pwm_init() {
+ 334              		.loc 1 198 0
+ 335              		.cfi_startproc
+ 336              		@ args = 0, pretend = 0, frame = 8
+ 337              		@ frame_needed = 1, uses_anonymous_args = 0
+ 338 025c 80B5     		push	{r7, lr}
+ 339              	.LCFI6:
+ 340              		.cfi_def_cfa_offset 8
+ 341              		.cfi_offset 7, -8
+ 342              		.cfi_offset 14, -4
+ 343 025e 82B0     		sub	sp, sp, #8
+ 344              	.LCFI7:
+ 345              		.cfi_def_cfa_offset 16
+ 346 0260 00AF     		add	r7, sp, #0
+ 347              	.LCFI8:
+ 348              		.cfi_def_cfa_register 7
+ 199:../QS/QS_ports.c **** 	GPIO_InitTypeDef GPInit;
+ 200:../QS/QS_ports.c **** 
+ 201:../QS/QS_ports.c **** 	/* Configuration GPIO et remappings */
+ 202:../QS/QS_ports.c **** 	GPInit.GPIO_Mode = GPIO_Mode_AF;
+ 349              		.loc 1 202 0
+ 350 0262 4FF00203 		mov	r3, #2
+ 351 0266 3B71     		strb	r3, [r7, #4]
+ 203:../QS/QS_ports.c **** 	GPInit.GPIO_Speed = GPIO_Speed_50MHz;
+ 352              		.loc 1 203 0
+ 353 0268 4FF00203 		mov	r3, #2
+ 354 026c 7B71     		strb	r3, [r7, #5]
+ 204:../QS/QS_ports.c **** 	GPInit.GPIO_OType = GPIO_OType_PP;
+ 355              		.loc 1 204 0
+ 356 026e 4FF00003 		mov	r3, #0
+ 357 0272 BB71     		strb	r3, [r7, #6]
+ 205:../QS/QS_ports.c **** 	GPInit.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+ 358              		.loc 1 205 0
+ 359 0274 4FF00003 		mov	r3, #0
+ 360 0278 FB71     		strb	r3, [r7, #7]
+ 206:../QS/QS_ports.c **** 	GPInit.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9;
+ 361              		.loc 1 206 0
+ 362 027a 4FF47073 		mov	r3, #960
+ 363 027e 3B60     		str	r3, [r7, #0]
+ 207:../QS/QS_ports.c **** 	GPIO_Init(GPIOC, &GPInit);
+ 364              		.loc 1 207 0
+ 365 0280 3B46     		mov	r3, r7
+ 366 0282 4FF40060 		mov	r0, #2048
+ 367 0286 C4F20200 		movt	r0, 16386
+ 368 028a 1946     		mov	r1, r3
+ 369 028c FFF7FEFF 		bl	GPIO_Init
+ 208:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_TIM8);
+ 370              		.loc 1 208 0
+ 371 0290 4FF40060 		mov	r0, #2048
+ 372 0294 C4F20200 		movt	r0, 16386
+ 373 0298 4FF00601 		mov	r1, #6
+ 374 029c 4FF00302 		mov	r2, #3
+ 375 02a0 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 209:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_TIM8);
+ 376              		.loc 1 209 0
+ 377 02a4 4FF40060 		mov	r0, #2048
+ 378 02a8 C4F20200 		movt	r0, 16386
+ 379 02ac 4FF00701 		mov	r1, #7
+ 380 02b0 4FF00302 		mov	r2, #3
+ 381 02b4 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 210:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_TIM8);
+ 382              		.loc 1 210 0
+ 383 02b8 4FF40060 		mov	r0, #2048
+ 384 02bc C4F20200 		movt	r0, 16386
+ 385 02c0 4FF00801 		mov	r1, #8
+ 386 02c4 4FF00302 		mov	r2, #3
+ 387 02c8 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 211:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM8);
+ 388              		.loc 1 211 0
+ 389 02cc 4FF40060 		mov	r0, #2048
+ 390 02d0 C4F20200 		movt	r0, 16386
+ 391 02d4 4FF00901 		mov	r1, #9
+ 392 02d8 4FF00302 		mov	r2, #3
+ 393 02dc FFF7FEFF 		bl	GPIO_PinAFConfig
+ 212:../QS/QS_ports.c **** }
+ 394              		.loc 1 212 0
+ 395 02e0 07F10807 		add	r7, r7, #8
+ 396 02e4 BD46     		mov	sp, r7
+ 397 02e6 80BD     		pop	{r7, pc}
+ 398              		.cfi_endproc
+ 399              	.LFE113:
+ 401              		.align	2
+ 402              		.global	PORTS_uarts_init
+ 403              		.thumb
+ 404              		.thumb_func
+ 406              	PORTS_uarts_init:
+ 407              	.LFB114:
+ 213:../QS/QS_ports.c **** 
+ 214:../QS/QS_ports.c **** void PORTS_uarts_init() {
+ 408              		.loc 1 214 0
+ 409              		.cfi_startproc
+ 410              		@ args = 0, pretend = 0, frame = 8
+ 411              		@ frame_needed = 1, uses_anonymous_args = 0
+ 412 02e8 80B5     		push	{r7, lr}
+ 413              	.LCFI9:
+ 414              		.cfi_def_cfa_offset 8
+ 415              		.cfi_offset 7, -8
+ 416              		.cfi_offset 14, -4
+ 417 02ea 82B0     		sub	sp, sp, #8
+ 418              	.LCFI10:
+ 419              		.cfi_def_cfa_offset 16
+ 420 02ec 00AF     		add	r7, sp, #0
+ 421              	.LCFI11:
+ 422              		.cfi_def_cfa_register 7
+ 215:../QS/QS_ports.c **** 	GPIO_InitTypeDef GPIO_InitStructure;
+ 216:../QS/QS_ports.c **** 
+ 217:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_USART1);	//U1TX
+ 423              		.loc 1 217 0
+ 424 02ee 4FF48060 		mov	r0, #1024
+ 425 02f2 C4F20200 		movt	r0, 16386
+ 426 02f6 4FF00601 		mov	r1, #6
+ 427 02fa 4FF00702 		mov	r2, #7
+ 428 02fe FFF7FEFF 		bl	GPIO_PinAFConfig
+ 218:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);	//U1RX
+ 429              		.loc 1 218 0
+ 430 0302 4FF48060 		mov	r0, #1024
+ 431 0306 C4F20200 		movt	r0, 16386
+ 432 030a 4FF00701 		mov	r1, #7
+ 433 030e 4FF00702 		mov	r2, #7
+ 434 0312 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 219:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);	//U2TX
+ 435              		.loc 1 219 0
+ 436 0316 4FF00000 		mov	r0, #0
+ 437 031a C4F20200 		movt	r0, 16386
+ 438 031e 4FF00201 		mov	r1, #2
+ 439 0322 4FF00702 		mov	r2, #7
+ 440 0326 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 220:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);	//U2RX
+ 441              		.loc 1 220 0
+ 442 032a 4FF00000 		mov	r0, #0
+ 443 032e C4F20200 		movt	r0, 16386
+ 444 0332 4FF00301 		mov	r1, #3
+ 445 0336 4FF00702 		mov	r2, #7
+ 446 033a FFF7FEFF 		bl	GPIO_PinAFConfig
+ 221:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
+ 447              		.loc 1 221 0
+ 448 033e 4FF44060 		mov	r0, #3072
+ 449 0342 C4F20200 		movt	r0, 16386
+ 450 0346 4FF00801 		mov	r1, #8
+ 451 034a 4FF00702 		mov	r2, #7
+ 452 034e FFF7FEFF 		bl	GPIO_PinAFConfig
+ 222:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
+ 453              		.loc 1 222 0
+ 454 0352 4FF44060 		mov	r0, #3072
+ 455 0356 C4F20200 		movt	r0, 16386
+ 456 035a 4FF00901 		mov	r1, #9
+ 457 035e 4FF00702 		mov	r2, #7
+ 458 0362 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 223:../QS/QS_ports.c **** 
+ 224:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+ 459              		.loc 1 224 0
+ 460 0366 4FF00203 		mov	r3, #2
+ 461 036a 3B71     		strb	r3, [r7, #4]
+ 225:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 462              		.loc 1 225 0
+ 463 036c 4FF00203 		mov	r3, #2
+ 464 0370 7B71     		strb	r3, [r7, #5]
+ 226:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+ 465              		.loc 1 226 0
+ 466 0372 4FF00003 		mov	r3, #0
+ 467 0376 BB71     		strb	r3, [r7, #6]
+ 227:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+ 468              		.loc 1 227 0
+ 469 0378 4FF00103 		mov	r3, #1
+ 470 037c FB71     		strb	r3, [r7, #7]
+ 228:../QS/QS_ports.c **** 
+ 229:../QS/QS_ports.c **** 	//USART1 TX
+ 230:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+ 471              		.loc 1 230 0
+ 472 037e 4FF04003 		mov	r3, #64
+ 473 0382 3B60     		str	r3, [r7, #0]
+ 231:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 474              		.loc 1 231 0
+ 475 0384 3B46     		mov	r3, r7
+ 476 0386 4FF48060 		mov	r0, #1024
+ 477 038a C4F20200 		movt	r0, 16386
+ 478 038e 1946     		mov	r1, r3
+ 479 0390 FFF7FEFF 		bl	GPIO_Init
+ 232:../QS/QS_ports.c **** 	//USART1 RX
+ 233:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+ 480              		.loc 1 233 0
+ 481 0394 4FF08003 		mov	r3, #128
+ 482 0398 3B60     		str	r3, [r7, #0]
+ 234:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 483              		.loc 1 234 0
+ 484 039a 3B46     		mov	r3, r7
+ 485 039c 4FF48060 		mov	r0, #1024
+ 486 03a0 C4F20200 		movt	r0, 16386
+ 487 03a4 1946     		mov	r1, r3
+ 488 03a6 FFF7FEFF 		bl	GPIO_Init
+ 235:../QS/QS_ports.c **** 
+ 236:../QS/QS_ports.c **** 	//USART2 TX
+ 237:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+ 489              		.loc 1 237 0
+ 490 03aa 4FF00403 		mov	r3, #4
+ 491 03ae 3B60     		str	r3, [r7, #0]
+ 238:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 492              		.loc 1 238 0
+ 493 03b0 3B46     		mov	r3, r7
+ 494 03b2 4FF00000 		mov	r0, #0
+ 495 03b6 C4F20200 		movt	r0, 16386
+ 496 03ba 1946     		mov	r1, r3
+ 497 03bc FFF7FEFF 		bl	GPIO_Init
+ 239:../QS/QS_ports.c **** 	//USART2 RX
+ 240:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+ 498              		.loc 1 240 0
+ 499 03c0 4FF00803 		mov	r3, #8
+ 500 03c4 3B60     		str	r3, [r7, #0]
+ 241:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 501              		.loc 1 241 0
+ 502 03c6 3B46     		mov	r3, r7
+ 503 03c8 4FF00000 		mov	r0, #0
+ 504 03cc C4F20200 		movt	r0, 16386
+ 505 03d0 1946     		mov	r1, r3
+ 506 03d2 FFF7FEFF 		bl	GPIO_Init
+ 242:../QS/QS_ports.c **** 
+ 243:../QS/QS_ports.c **** 	//USART3 TX
+ 244:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+ 507              		.loc 1 244 0
+ 508 03d6 4FF48073 		mov	r3, #256
+ 509 03da 3B60     		str	r3, [r7, #0]
+ 245:../QS/QS_ports.c **** 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+ 510              		.loc 1 245 0
+ 511 03dc 3B46     		mov	r3, r7
+ 512 03de 4FF44060 		mov	r0, #3072
+ 513 03e2 C4F20200 		movt	r0, 16386
+ 514 03e6 1946     		mov	r1, r3
+ 515 03e8 FFF7FEFF 		bl	GPIO_Init
+ 246:../QS/QS_ports.c **** 	//USART3 RX
+ 247:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+ 516              		.loc 1 247 0
+ 517 03ec 4FF40073 		mov	r3, #512
+ 518 03f0 3B60     		str	r3, [r7, #0]
+ 248:../QS/QS_ports.c **** 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+ 519              		.loc 1 248 0
+ 520 03f2 3B46     		mov	r3, r7
+ 521 03f4 4FF44060 		mov	r0, #3072
+ 522 03f8 C4F20200 		movt	r0, 16386
+ 523 03fc 1946     		mov	r1, r3
+ 524 03fe FFF7FEFF 		bl	GPIO_Init
+ 249:../QS/QS_ports.c **** }
+ 525              		.loc 1 249 0
+ 526 0402 07F10807 		add	r7, r7, #8
+ 527 0406 BD46     		mov	sp, r7
+ 528 0408 80BD     		pop	{r7, pc}
+ 529              		.cfi_endproc
+ 530              	.LFE114:
+ 532 040a 00BF     		.align	2
+ 533              		.global	PORTS_qei_init
+ 534              		.thumb
+ 535              		.thumb_func
+ 537              	PORTS_qei_init:
+ 538              	.LFB115:
+ 250:../QS/QS_ports.c **** 
+ 251:../QS/QS_ports.c **** void PORTS_qei_init() {
+ 539              		.loc 1 251 0
+ 540              		.cfi_startproc
+ 541              		@ args = 0, pretend = 0, frame = 8
+ 542              		@ frame_needed = 1, uses_anonymous_args = 0
+ 543 040c 80B5     		push	{r7, lr}
+ 544              	.LCFI12:
+ 545              		.cfi_def_cfa_offset 8
+ 546              		.cfi_offset 7, -8
+ 547              		.cfi_offset 14, -4
+ 548 040e 82B0     		sub	sp, sp, #8
+ 549              	.LCFI13:
+ 550              		.cfi_def_cfa_offset 16
+ 551 0410 00AF     		add	r7, sp, #0
+ 552              	.LCFI14:
+ 553              		.cfi_def_cfa_register 7
+ 252:../QS/QS_ports.c **** 	GPIO_InitTypeDef GPIO_InitStructure;
+ 253:../QS/QS_ports.c **** 
+ 254:../QS/QS_ports.c **** 	GPIO_StructInit(&GPIO_InitStructure);
+ 554              		.loc 1 254 0
+ 555 0412 3B46     		mov	r3, r7
+ 556 0414 1846     		mov	r0, r3
+ 557 0416 FFF7FEFF 		bl	GPIO_StructInit
+ 255:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+ 558              		.loc 1 255 0
+ 559 041a 4FF00203 		mov	r3, #2
+ 560 041e 3B71     		strb	r3, [r7, #4]
+ 256:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+ 561              		.loc 1 256 0
+ 562 0420 4FF00003 		mov	r3, #0
+ 563 0424 FB71     		strb	r3, [r7, #7]
+ 257:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 564              		.loc 1 257 0
+ 565 0426 4FF00203 		mov	r3, #2
+ 566 042a 7B71     		strb	r3, [r7, #5]
+ 258:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+ 567              		.loc 1 258 0
+ 568 042c 4FF00003 		mov	r3, #0
+ 569 0430 BB71     		strb	r3, [r7, #6]
+ 259:../QS/QS_ports.c **** 
+ 260:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+ 570              		.loc 1 260 0
+ 571 0432 4FF01003 		mov	r3, #16
+ 572 0436 3B60     		str	r3, [r7, #0]
+ 261:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 573              		.loc 1 261 0
+ 574 0438 3B46     		mov	r3, r7
+ 575 043a 4FF48060 		mov	r0, #1024
+ 576 043e C4F20200 		movt	r0, 16386
+ 577 0442 1946     		mov	r1, r3
+ 578 0444 FFF7FEFF 		bl	GPIO_Init
+ 262:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+ 579              		.loc 1 262 0
+ 580 0448 4FF02003 		mov	r3, #32
+ 581 044c 3B60     		str	r3, [r7, #0]
+ 263:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 582              		.loc 1 263 0
+ 583 044e 3B46     		mov	r3, r7
+ 584 0450 4FF48060 		mov	r0, #1024
+ 585 0454 C4F20200 		movt	r0, 16386
+ 586 0458 1946     		mov	r1, r3
+ 587 045a FFF7FEFF 		bl	GPIO_Init
+ 264:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+ 588              		.loc 1 264 0
+ 589 045e 4FF00203 		mov	r3, #2
+ 590 0462 3B60     		str	r3, [r7, #0]
+ 265:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 591              		.loc 1 265 0
+ 592 0464 3B46     		mov	r3, r7
+ 593 0466 4FF00000 		mov	r0, #0
+ 594 046a C4F20200 		movt	r0, 16386
+ 595 046e 1946     		mov	r1, r3
+ 596 0470 FFF7FEFF 		bl	GPIO_Init
+ 266:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+ 597              		.loc 1 266 0
+ 598 0474 4FF40043 		mov	r3, #32768
+ 599 0478 3B60     		str	r3, [r7, #0]
+ 267:../QS/QS_ports.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 600              		.loc 1 267 0
+ 601 047a 3B46     		mov	r3, r7
+ 602 047c 4FF00000 		mov	r0, #0
+ 603 0480 C4F20200 		movt	r0, 16386
+ 604 0484 1946     		mov	r1, r3
+ 605 0486 FFF7FEFF 		bl	GPIO_Init
+ 268:../QS/QS_ports.c **** 
+ 269:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_TIM3);
+ 606              		.loc 1 269 0
+ 607 048a 4FF48060 		mov	r0, #1024
+ 608 048e C4F20200 		movt	r0, 16386
+ 609 0492 4FF00401 		mov	r1, #4
+ 610 0496 4FF00202 		mov	r2, #2
+ 611 049a FFF7FEFF 		bl	GPIO_PinAFConfig
+ 270:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_TIM3);
+ 612              		.loc 1 270 0
+ 613 049e 4FF48060 		mov	r0, #1024
+ 614 04a2 C4F20200 		movt	r0, 16386
+ 615 04a6 4FF00501 		mov	r1, #5
+ 616 04aa 4FF00202 		mov	r2, #2
+ 617 04ae FFF7FEFF 		bl	GPIO_PinAFConfig
+ 271:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM2);
+ 618              		.loc 1 271 0
+ 619 04b2 4FF00000 		mov	r0, #0
+ 620 04b6 C4F20200 		movt	r0, 16386
+ 621 04ba 4FF00101 		mov	r1, #1
+ 622 04be 4FF00102 		mov	r2, #1
+ 623 04c2 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 272:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource15, GPIO_AF_TIM2);
+ 624              		.loc 1 272 0
+ 625 04c6 4FF00000 		mov	r0, #0
+ 626 04ca C4F20200 		movt	r0, 16386
+ 627 04ce 4FF00F01 		mov	r1, #15
+ 628 04d2 4FF00102 		mov	r2, #1
+ 629 04d6 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 273:../QS/QS_ports.c **** }
+ 630              		.loc 1 273 0
+ 631 04da 07F10807 		add	r7, r7, #8
+ 632 04de BD46     		mov	sp, r7
+ 633 04e0 80BD     		pop	{r7, pc}
+ 634              		.cfi_endproc
+ 635              	.LFE115:
+ 637 04e2 00BF     		.align	2
+ 638              		.global	PORTS_spi_init
+ 639              		.thumb
+ 640              		.thumb_func
+ 642              	PORTS_spi_init:
+ 643              	.LFB116:
+ 274:../QS/QS_ports.c **** 
+ 275:../QS/QS_ports.c **** void PORTS_spi_init() {
+ 644              		.loc 1 275 0
+ 645              		.cfi_startproc
+ 646              		@ args = 0, pretend = 0, frame = 8
+ 647              		@ frame_needed = 1, uses_anonymous_args = 0
+ 648 04e4 80B5     		push	{r7, lr}
+ 649              	.LCFI15:
+ 650              		.cfi_def_cfa_offset 8
+ 651              		.cfi_offset 7, -8
+ 652              		.cfi_offset 14, -4
+ 653 04e6 82B0     		sub	sp, sp, #8
+ 654              	.LCFI16:
+ 655              		.cfi_def_cfa_offset 16
+ 656 04e8 00AF     		add	r7, sp, #0
+ 657              	.LCFI17:
+ 658              		.cfi_def_cfa_register 7
+ 276:../QS/QS_ports.c **** 	GPIO_InitTypeDef GPIO_InitStructure;
+ 277:../QS/QS_ports.c **** 
+ 278:../QS/QS_ports.c **** 	GPIO_StructInit(&GPIO_InitStructure);
+ 659              		.loc 1 278 0
+ 660 04ea 3B46     		mov	r3, r7
+ 661 04ec 1846     		mov	r0, r3
+ 662 04ee FFF7FEFF 		bl	GPIO_StructInit
+ 279:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+ 663              		.loc 1 279 0
+ 664 04f2 4FF00203 		mov	r3, #2
+ 665 04f6 3B71     		strb	r3, [r7, #4]
+ 280:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+ 666              		.loc 1 280 0
+ 667 04f8 4FF00003 		mov	r3, #0
+ 668 04fc FB71     		strb	r3, [r7, #7]
+ 281:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 669              		.loc 1 281 0
+ 670 04fe 4FF00203 		mov	r3, #2
+ 671 0502 7B71     		strb	r3, [r7, #5]
+ 282:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+ 672              		.loc 1 282 0
+ 673 0504 4FF00003 		mov	r3, #0
+ 674 0508 BB71     		strb	r3, [r7, #6]
+ 283:../QS/QS_ports.c **** 
+ 284:../QS/QS_ports.c **** 	//GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;				//NSS : seulement en Slave
+ 285:../QS/QS_ports.c **** 	//GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 286:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+ 675              		.loc 1 286 0
+ 676 050a 4FF40053 		mov	r3, #8192
+ 677 050e 3B60     		str	r3, [r7, #0]
+ 287:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 678              		.loc 1 287 0
+ 679 0510 3B46     		mov	r3, r7
+ 680 0512 4FF48060 		mov	r0, #1024
+ 681 0516 C4F20200 		movt	r0, 16386
+ 682 051a 1946     		mov	r1, r3
+ 683 051c FFF7FEFF 		bl	GPIO_Init
+ 288:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+ 684              		.loc 1 288 0
+ 685 0520 4FF48043 		mov	r3, #16384
+ 686 0524 3B60     		str	r3, [r7, #0]
+ 289:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 687              		.loc 1 289 0
+ 688 0526 3B46     		mov	r3, r7
+ 689 0528 4FF48060 		mov	r0, #1024
+ 690 052c C4F20200 		movt	r0, 16386
+ 691 0530 1946     		mov	r1, r3
+ 692 0532 FFF7FEFF 		bl	GPIO_Init
+ 290:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+ 693              		.loc 1 290 0
+ 694 0536 4FF40043 		mov	r3, #32768
+ 695 053a 3B60     		str	r3, [r7, #0]
+ 291:../QS/QS_ports.c **** 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 696              		.loc 1 291 0
+ 697 053c 3B46     		mov	r3, r7
+ 698 053e 4FF48060 		mov	r0, #1024
+ 699 0542 C4F20200 		movt	r0, 16386
+ 700 0546 1946     		mov	r1, r3
+ 701 0548 FFF7FEFF 		bl	GPIO_Init
+ 292:../QS/QS_ports.c **** 
+ 293:../QS/QS_ports.c **** 	//GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2);	//NSS : seulement en Slave
+ 294:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
+ 702              		.loc 1 294 0
+ 703 054c 4FF48060 		mov	r0, #1024
+ 704 0550 C4F20200 		movt	r0, 16386
+ 705 0554 4FF00D01 		mov	r1, #13
+ 706 0558 4FF00502 		mov	r2, #5
+ 707 055c FFF7FEFF 		bl	GPIO_PinAFConfig
+ 295:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
+ 708              		.loc 1 295 0
+ 709 0560 4FF48060 		mov	r0, #1024
+ 710 0564 C4F20200 		movt	r0, 16386
+ 711 0568 4FF00E01 		mov	r1, #14
+ 712 056c 4FF00502 		mov	r2, #5
+ 713 0570 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 296:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
+ 714              		.loc 1 296 0
+ 715 0574 4FF48060 		mov	r0, #1024
+ 716 0578 C4F20200 		movt	r0, 16386
+ 717 057c 4FF00F01 		mov	r1, #15
+ 718 0580 4FF00502 		mov	r2, #5
+ 719 0584 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 297:../QS/QS_ports.c **** }
+ 720              		.loc 1 297 0
+ 721 0588 07F10807 		add	r7, r7, #8
+ 722 058c BD46     		mov	sp, r7
+ 723 058e 80BD     		pop	{r7, pc}
+ 724              		.cfi_endproc
+ 725              	.LFE116:
+ 727              		.align	2
+ 728              		.global	PORTS_i2c_init
+ 729              		.thumb
+ 730              		.thumb_func
+ 732              	PORTS_i2c_init:
+ 733              	.LFB117:
+ 298:../QS/QS_ports.c **** 
+ 299:../QS/QS_ports.c **** void PORTS_i2c_init(void) {
+ 734              		.loc 1 299 0
+ 735              		.cfi_startproc
+ 736              		@ args = 0, pretend = 0, frame = 8
+ 737              		@ frame_needed = 1, uses_anonymous_args = 0
+ 738 0590 80B5     		push	{r7, lr}
+ 739              	.LCFI18:
+ 740              		.cfi_def_cfa_offset 8
+ 741              		.cfi_offset 7, -8
+ 742              		.cfi_offset 14, -4
+ 743 0592 82B0     		sub	sp, sp, #8
+ 744              	.LCFI19:
+ 745              		.cfi_def_cfa_offset 16
+ 746 0594 00AF     		add	r7, sp, #0
+ 747              	.LCFI20:
+ 748              		.cfi_def_cfa_register 7
+ 300:../QS/QS_ports.c **** 	GPIO_InitTypeDef GPIO_InitStructure;
+ 301:../QS/QS_ports.c **** 
+ 302:../QS/QS_ports.c **** 	GPIO_StructInit(&GPIO_InitStructure);
+ 749              		.loc 1 302 0
+ 750 0596 3B46     		mov	r3, r7
+ 751 0598 1846     		mov	r0, r3
+ 752 059a FFF7FEFF 		bl	GPIO_StructInit
+ 303:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+ 753              		.loc 1 303 0
+ 754 059e 4FF00203 		mov	r3, #2
+ 755 05a2 3B71     		strb	r3, [r7, #4]
+ 304:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+ 756              		.loc 1 304 0
+ 757 05a4 4FF00103 		mov	r3, #1
+ 758 05a8 FB71     		strb	r3, [r7, #7]
+ 305:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 759              		.loc 1 305 0
+ 760 05aa 4FF00203 		mov	r3, #2
+ 761 05ae 7B71     		strb	r3, [r7, #5]
+ 306:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+ 762              		.loc 1 306 0
+ 763 05b0 4FF00103 		mov	r3, #1
+ 764 05b4 BB71     		strb	r3, [r7, #6]
+ 307:../QS/QS_ports.c **** 
+ 308:../QS/QS_ports.c **** 	#ifdef USE_I2C1
+ 309:../QS/QS_ports.c **** 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+ 310:../QS/QS_ports.c **** 		GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 311:../QS/QS_ports.c **** 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+ 312:../QS/QS_ports.c **** 		GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 313:../QS/QS_ports.c **** 
+ 314:../QS/QS_ports.c **** 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C);
+ 315:../QS/QS_ports.c **** 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C);
+ 316:../QS/QS_ports.c **** 	#endif
+ 317:../QS/QS_ports.c **** 	#ifdef USE_I2C2
+ 318:../QS/QS_ports.c **** 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+ 319:../QS/QS_ports.c **** 		GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 320:../QS/QS_ports.c **** 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+ 321:../QS/QS_ports.c **** 		GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 322:../QS/QS_ports.c **** 
+ 323:../QS/QS_ports.c **** 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_I2C2);
+ 324:../QS/QS_ports.c **** 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_I2C2);
+ 325:../QS/QS_ports.c **** 	#endif
+ 326:../QS/QS_ports.c **** 
+ 327:../QS/QS_ports.c **** }
+ 765              		.loc 1 327 0
+ 766 05b6 07F10807 		add	r7, r7, #8
+ 767 05ba BD46     		mov	sp, r7
+ 768 05bc 80BD     		pop	{r7, pc}
+ 769              		.cfi_endproc
+ 770              	.LFE117:
+ 772 05be 00BF     		.align	2
+ 773              		.global	PORTS_can_init
+ 774              		.thumb
+ 775              		.thumb_func
+ 777              	PORTS_can_init:
+ 778              	.LFB118:
+ 328:../QS/QS_ports.c **** 
+ 329:../QS/QS_ports.c **** void PORTS_can_init() {
+ 779              		.loc 1 329 0
+ 780              		.cfi_startproc
+ 781              		@ args = 0, pretend = 0, frame = 8
+ 782              		@ frame_needed = 1, uses_anonymous_args = 0
+ 783 05c0 80B5     		push	{r7, lr}
+ 784              	.LCFI21:
+ 785              		.cfi_def_cfa_offset 8
+ 786              		.cfi_offset 7, -8
+ 787              		.cfi_offset 14, -4
+ 788 05c2 82B0     		sub	sp, sp, #8
+ 789              	.LCFI22:
+ 790              		.cfi_def_cfa_offset 16
+ 791 05c4 00AF     		add	r7, sp, #0
+ 792              	.LCFI23:
+ 793              		.cfi_def_cfa_register 7
+ 330:../QS/QS_ports.c **** 	GPIO_InitTypeDef GPIO_InitStructure;
+ 331:../QS/QS_ports.c **** 
+ 332:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+ 794              		.loc 1 332 0
+ 795 05c6 4FF00203 		mov	r3, #2
+ 796 05ca 3B71     		strb	r3, [r7, #4]
+ 333:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+ 797              		.loc 1 333 0
+ 798 05cc 4FF00003 		mov	r3, #0
+ 799 05d0 BB71     		strb	r3, [r7, #6]
+ 334:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+ 800              		.loc 1 334 0
+ 801 05d2 4FF00003 		mov	r3, #0
+ 802 05d6 FB71     		strb	r3, [r7, #7]
+ 335:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 803              		.loc 1 335 0
+ 804 05d8 4FF00203 		mov	r3, #2
+ 805 05dc 7B71     		strb	r3, [r7, #5]
+ 336:../QS/QS_ports.c **** 
+ 337:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+ 806              		.loc 1 337 0
+ 807 05de 4FF00103 		mov	r3, #1
+ 808 05e2 3B60     		str	r3, [r7, #0]
+ 338:../QS/QS_ports.c **** 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+ 809              		.loc 1 338 0
+ 810 05e4 3B46     		mov	r3, r7
+ 811 05e6 4FF44060 		mov	r0, #3072
+ 812 05ea C4F20200 		movt	r0, 16386
+ 813 05ee 1946     		mov	r1, r3
+ 814 05f0 FFF7FEFF 		bl	GPIO_Init
+ 339:../QS/QS_ports.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+ 815              		.loc 1 339 0
+ 816 05f4 4FF00203 		mov	r3, #2
+ 817 05f8 3B60     		str	r3, [r7, #0]
+ 340:../QS/QS_ports.c **** 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+ 818              		.loc 1 340 0
+ 819 05fa 3B46     		mov	r3, r7
+ 820 05fc 4FF44060 		mov	r0, #3072
+ 821 0600 C4F20200 		movt	r0, 16386
+ 822 0604 1946     		mov	r1, r3
+ 823 0606 FFF7FEFF 		bl	GPIO_Init
+ 341:../QS/QS_ports.c **** 
+ 342:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource0, GPIO_AF_CAN1);
+ 824              		.loc 1 342 0
+ 825 060a 4FF44060 		mov	r0, #3072
+ 826 060e C4F20200 		movt	r0, 16386
+ 827 0612 4FF00001 		mov	r1, #0
+ 828 0616 4FF00902 		mov	r2, #9
+ 829 061a FFF7FEFF 		bl	GPIO_PinAFConfig
+ 343:../QS/QS_ports.c **** 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource1, GPIO_AF_CAN1);
+ 830              		.loc 1 343 0
+ 831 061e 4FF44060 		mov	r0, #3072
+ 832 0622 C4F20200 		movt	r0, 16386
+ 833 0626 4FF00101 		mov	r1, #1
+ 834 062a 4FF00902 		mov	r2, #9
+ 835 062e FFF7FEFF 		bl	GPIO_PinAFConfig
+ 344:../QS/QS_ports.c **** }
+ 836              		.loc 1 344 0
+ 837 0632 07F10807 		add	r7, r7, #8
+ 838 0636 BD46     		mov	sp, r7
+ 839 0638 80BD     		pop	{r7, pc}
+ 840              		.cfi_endproc
+ 841              	.LFE118:
+ 843              		.bss
+ 844              	initialized.5947:
+ 845 0000 00       		.space	1
+ 846              		.text
+ 847              	.Letext0:
+ 848              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 849              		.file 3 "../stm32f4xx/stm32f4xx.h"
+ 850              		.file 4 "../QS/QS_types.h"
+ 851              		.file 5 "../stm32f4xx/stm32f4xx_gpio.h"
+ 852              		.file 6 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 QS_ports.c
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:18     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:23     .text:00000000 PORTS_init
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:844    .bss:00000000 initialized.5947
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:207    .text:00000184 PORTS_adc_init
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:332    .text:0000025c PORTS_pwm_init
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:406    .text:000002e8 PORTS_uarts_init
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:537    .text:0000040c PORTS_qei_init
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:642    .text:000004e4 PORTS_spi_init
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:732    .text:00000590 PORTS_i2c_init
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:777    .text:000005c0 PORTS_can_init
+C:\Users\Amaury\AppData\Local\Temp\cc44CjVd.s:845    .bss:00000000 $d
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.stm32f4xx_gpio.h.31.769049a546305ea491830b82961625fc
+                           .group:00000000 wm4.stm32f4xx_adc.h.31.d96d805acd0f0c0392ec4633757dead3
+                           .group:00000000 wm4.config_pin.h.12.92dbe1317fae649a069f2ce6e5ad725c
+                           .group:00000000 wm4.config_pin.h.12.20ee5a96fdfc3c7ca3bc6056aaec7473
+
+UNDEFINED SYMBOLS
+RCC_AHB1PeriphClockCmd
+GPIO_Init
+ADC_RegularChannelConfig
+GPIO_PinAFConfig
+GPIO_StructInit

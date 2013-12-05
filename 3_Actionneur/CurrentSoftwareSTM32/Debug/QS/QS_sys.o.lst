@@ -1,0 +1,1999 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"QS_sys.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	SYS_init
+  20              		.thumb
+  21              		.thumb_func
+  23              	SYS_init:
+  24              	.LFB111:
+  25              		.file 1 "../QS/QS_sys.c"
+   1:../QS/QS_sys.c **** /*
+   2:../QS/QS_sys.c ****  *	Club Robot ESEO 2009 - 2010
+   3:../QS/QS_sys.c ****  *	Chomp
+   4:../QS/QS_sys.c ****  *
+   5:../QS/QS_sys.c ****  *	Fichier : QS_sys.c
+   6:../QS/QS_sys.c ****  *	Package : Qualite Soft
+   7:../QS/QS_sys.c ****  *	Description : Configuration du STM32 - Horloges - DÃ©marrage
+   8:../QS/QS_sys.c ****  *	Auteur : Gwenn
+   9:../QS/QS_sys.c ****  *	Version 20100421
+  10:../QS/QS_sys.c ****  */
+  11:../QS/QS_sys.c **** 
+  12:../QS/QS_sys.c **** #define QS_SYS_C
+  13:../QS/QS_sys.c **** 
+  14:../QS/QS_sys.c **** #include "QS_sys.h"
+  15:../QS/QS_sys.c **** #include "stm32f4xx_usart.h"
+  16:../QS/QS_sys.c **** #include "stm32f4xx_flash.h"
+  17:../QS/QS_sys.c **** #include <errno.h>
+  18:../QS/QS_sys.c **** #include <sys/stat.h>
+  19:../QS/QS_sys.c **** #include <sys/times.h>
+  20:../QS/QS_sys.c **** #include <sys/unistd.h>
+  21:../QS/QS_sys.c **** #include <stdio.h>
+  22:../QS/QS_sys.c **** 
+  23:../QS/QS_sys.c **** #ifndef STDOUT_USART
+  24:../QS/QS_sys.c **** #define STDOUT_USART 1
+  25:../QS/QS_sys.c **** #endif
+  26:../QS/QS_sys.c **** 
+  27:../QS/QS_sys.c **** #ifndef STDERR_USART
+  28:../QS/QS_sys.c **** #define STDERR_USART 1
+  29:../QS/QS_sys.c **** #endif
+  30:../QS/QS_sys.c **** 
+  31:../QS/QS_sys.c **** #ifndef STDIN_USART
+  32:../QS/QS_sys.c **** #define STDIN_USART 1
+  33:../QS/QS_sys.c **** #endif
+  34:../QS/QS_sys.c **** 
+  35:../QS/QS_sys.c **** #define HCLK_CHOOSEN_DIV  1
+  36:../QS/QS_sys.c **** #define PCLK1_CHOOSEN_DIV 4
+  37:../QS/QS_sys.c **** #define PCLK2_CHOOSEN_DIV 2
+  38:../QS/QS_sys.c **** 
+  39:../QS/QS_sys.c **** #include "QS_clocks_freq.h"
+  40:../QS/QS_sys.c **** 
+  41:../QS/QS_sys.c **** #if 1      //Pour pouvoir fold le code dessous (car long et utile que en cas de problème ...)
+  42:../QS/QS_sys.c **** 
+  43:../QS/QS_sys.c **** //Vérification des valeurs, si elles sont bien celles voulu par l'utilisateur
+  44:../QS/QS_sys.c **** 
+  45:../QS/QS_sys.c **** #define HCLK_DIV	FORCED_HCLK_DIV	//HCLK = SYSCLK_HZ / HCLK_DIV
+  46:../QS/QS_sys.c **** #define PCLK1_DIV	(HCLK_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ)	//PCLK1 = HCLK_DIV / PCLK1_DIV
+  47:../QS/QS_sys.c **** #define PCLK2_DIV	(HCLK_FREQUENCY_HZ/PCLK2_FREQUENCY_HZ)	//PCLK2 = HCLK_DIV / PCLK2_DIV
+  48:../QS/QS_sys.c **** 
+  49:../QS/QS_sys.c **** //VCO_INPUT_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM
+  50:../QS/QS_sys.c **** //VCO_OUTPUT_HZ = VCO_INPUT_HZ * PLLN
+  51:../QS/QS_sys.c **** //SYSCLK_HZ = VCO_OUTPUT_HZ / PLLP
+  52:../QS/QS_sys.c **** //USB_RNG_SDIO_CLK_HZ = SYSCLK_HZ / PLLQ
+  53:../QS/QS_sys.c **** //SYSCLK = CPU_FREQUENCY_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM * PLLN / PLLP
+  54:../QS/QS_sys.c **** 
+  55:../QS/QS_sys.c **** 
+  56:../QS/QS_sys.c **** #define PLLM (CPU_EXTERNAL_CLOCK_HZ / VCO_INPUT_HZ)
+  57:../QS/QS_sys.c **** #define PLLN (VCO_OUTPUT_HZ  / CPU_EXTERNAL_CLOCK_HZ * PLLM)	//On utilise pas directement VCO_INPUT
+  58:../QS/QS_sys.c **** #define PLLP FORCED_PLLP
+  59:../QS/QS_sys.c **** #define PLLQ (VCO_OUTPUT_HZ / USB_RNG_SDIO_CLK_HZ)
+  60:../QS/QS_sys.c **** 
+  61:../QS/QS_sys.c **** #define FLASH_WAIT_CYCLES (HCLK_FREQUENCY_HZ / 30000000)	//Voir page 62 du manuel de réference RM00
+  62:../QS/QS_sys.c **** 
+  63:../QS/QS_sys.c **** #if HCLK_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV)
+  64:../QS/QS_sys.c **** #warning "Computed HCLK frequency is not exactly HCLK_FREQUENCY_HZ"
+  65:../QS/QS_sys.c **** #endif
+  66:../QS/QS_sys.c **** 
+  67:../QS/QS_sys.c **** #if PCLK1_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK1_DIV)
+  68:../QS/QS_sys.c **** #warning "Computed PCLK1 frequency is not exactly PCLK1_FREQUENCY_HZ"
+  69:../QS/QS_sys.c **** #endif
+  70:../QS/QS_sys.c **** 
+  71:../QS/QS_sys.c **** #if PCLK2_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK2_DIV)
+  72:../QS/QS_sys.c **** #warning "Computed PCLK2 frequency is not exactly PCLK2_FREQUENCY_HZ"
+  73:../QS/QS_sys.c **** #endif
+  74:../QS/QS_sys.c **** 
+  75:../QS/QS_sys.c **** #if USB_RNG_SDIO_CLK_HZ != (((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLQ)
+  76:../QS/QS_sys.c **** #warning "USB Frequency is not exactly USB_RNG_SDIO_CLK_HZ"
+  77:../QS/QS_sys.c **** #endif
+  78:../QS/QS_sys.c **** 
+  79:../QS/QS_sys.c **** #if VCO_INPUT_HZ < 1000000
+  80:../QS/QS_sys.c **** #error "VCO_INPUT_HZ must be >= 1Mhz"
+  81:../QS/QS_sys.c **** #elif VCO_INPUT_HZ > 2000000
+  82:../QS/QS_sys.c **** #error "VCO_INPUT_HZ must <= 2Mhz"
+  83:../QS/QS_sys.c **** #endif
+  84:../QS/QS_sys.c **** 
+  85:../QS/QS_sys.c **** #if VCO_OUTPUT_HZ < 192000000
+  86:../QS/QS_sys.c **** #error "VCO_OUTPUT_HZ must be >= 192Mhz"
+  87:../QS/QS_sys.c **** #elif VCO_OUTPUT_HZ > 432000000
+  88:../QS/QS_sys.c **** #error "VCO_OUTPUT_HZ must be <= 432Mhz"
+  89:../QS/QS_sys.c **** #endif
+  90:../QS/QS_sys.c **** 
+  91:../QS/QS_sys.c **** #if PLLM < 0 || PLLM > 63
+  92:../QS/QS_sys.c **** #error "PLLM be be a unsigned integer <= 63"
+  93:../QS/QS_sys.c **** #endif
+  94:../QS/QS_sys.c **** 
+  95:../QS/QS_sys.c **** #if PLLN < 192 || PLLN > 432
+  96:../QS/QS_sys.c **** #error "PLLN must be >= 192 and <= 432"
+  97:../QS/QS_sys.c **** #endif
+  98:../QS/QS_sys.c **** 
+  99:../QS/QS_sys.c **** #if PLLP != 2 && PLLP != 4 && PLLP != 6 && PLLP != 8
+ 100:../QS/QS_sys.c **** #error "PLLP must be either 2, 4, 6 or 8"
+ 101:../QS/QS_sys.c **** #endif
+ 102:../QS/QS_sys.c **** 
+ 103:../QS/QS_sys.c **** #if PLLQ < 4 || PLLQ > 15
+ 104:../QS/QS_sys.c **** #error "PLLQ must be >= 4 and <= 15"
+ 105:../QS/QS_sys.c **** #endif
+ 106:../QS/QS_sys.c **** 
+ 107:../QS/QS_sys.c **** #if HCLK_DIV != HCLK_CHOOSEN_DIV
+ 108:../QS/QS_sys.c **** #warning "HCLK_DIV is not HCLK_CHOOSEN_DIV"
+ 109:../QS/QS_sys.c **** #endif
+ 110:../QS/QS_sys.c **** 
+ 111:../QS/QS_sys.c **** #if PCLK1_DIV != PCLK1_CHOOSEN_DIV
+ 112:../QS/QS_sys.c **** #warning "PCLK1_DIV is not PCLK1_CHOOSEN_DIV"
+ 113:../QS/QS_sys.c **** #endif
+ 114:../QS/QS_sys.c **** 
+ 115:../QS/QS_sys.c **** #if PCLK2_DIV != PCLK2_CHOOSEN_DIV
+ 116:../QS/QS_sys.c **** #warning "PCLK2_DIV is not PCLK2_CHOOSEN_DIV"
+ 117:../QS/QS_sys.c **** #endif
+ 118:../QS/QS_sys.c **** 
+ 119:../QS/QS_sys.c **** #if (SYSCLK_HZ / HCLK_DIV) > 168000000
+ 120:../QS/QS_sys.c **** #error "HCLK Frequency is too high, increase HCLK_DIV"
+ 121:../QS/QS_sys.c **** #endif
+ 122:../QS/QS_sys.c **** 
+ 123:../QS/QS_sys.c **** #if (SYSCLK_HZ / HCLK_DIV / PCLK1_DIV) > 42000000
+ 124:../QS/QS_sys.c **** #error "PCLK1 Frequency is too high, increase PCLK1_DIV"
+ 125:../QS/QS_sys.c **** #endif
+ 126:../QS/QS_sys.c **** 
+ 127:../QS/QS_sys.c **** #if (SYSCLK_HZ / HCLK_DIV / PCLK2_DIV) > 84000000
+ 128:../QS/QS_sys.c **** #error "PCLK2 Frequency is too high, increase PCLK2_DIV"
+ 129:../QS/QS_sys.c **** #endif
+ 130:../QS/QS_sys.c **** 
+ 131:../QS/QS_sys.c **** #if FLASH_WAIT_CYCLES > 7
+ 132:../QS/QS_sys.c **** 	#warning "FLASH_WAIT_CYCLES > 7, HCLK_FREQUENCY_HZ est plus grand que 168Mhz ?"
+ 133:../QS/QS_sys.c **** 	#undef FLASH_WAIT_CYCLES
+ 134:../QS/QS_sys.c **** 	#define FLASH_WAIT_CYCLES 7
+ 135:../QS/QS_sys.c **** #endif
+ 136:../QS/QS_sys.c **** 
+ 137:../QS/QS_sys.c **** #endif
+ 138:../QS/QS_sys.c **** 
+ 139:../QS/QS_sys.c **** void SYS_init(void)
+ 140:../QS/QS_sys.c **** {
+  26              		.loc 1 140 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30 0000 80B5     		push	{r7, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 7, -8
+  34              		.cfi_offset 14, -4
+  35 0002 84B0     		sub	sp, sp, #16
+  36              	.LCFI1:
+  37              		.cfi_def_cfa_offset 24
+  38 0004 02AF     		add	r7, sp, #8
+  39              	.LCFI2:
+  40              		.cfi_def_cfa 7, 16
+ 141:../QS/QS_sys.c **** 	RCC_DeInit();
+  41              		.loc 1 141 0
+  42 0006 FFF7FEFF 		bl	RCC_DeInit
+ 142:../QS/QS_sys.c **** 
+ 143:../QS/QS_sys.c **** 	/* Oscillateur externe */
+ 144:../QS/QS_sys.c **** 	ErrorStatus HSEStartUpStatus;
+ 145:../QS/QS_sys.c **** 	RCC_HSEConfig(RCC_HSE_ON);
+  43              		.loc 1 145 0
+  44 000a 4FF00100 		mov	r0, #1
+  45 000e FFF7FEFF 		bl	RCC_HSEConfig
+ 146:../QS/QS_sys.c **** 	HSEStartUpStatus = RCC_WaitForHSEStartUp();
+  46              		.loc 1 146 0
+  47 0012 FFF7FEFF 		bl	RCC_WaitForHSEStartUp
+  48 0016 0346     		mov	r3, r0
+  49 0018 FB71     		strb	r3, [r7, #7]
+ 147:../QS/QS_sys.c **** 	if(HSEStartUpStatus != ERROR)
+  50              		.loc 1 147 0
+  51 001a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+  52 001c 002B     		cmp	r3, #0
+  53 001e 38D0     		beq	.L2
+ 148:../QS/QS_sys.c **** 	{
+ 149:../QS/QS_sys.c **** 		//Voir page 60 du manuel de reference
+ 150:../QS/QS_sys.c **** 		FLASH_SetLatency(FLASH_WAIT_CYCLES);
+  54              		.loc 1 150 0
+  55 0020 4FF00500 		mov	r0, #5
+  56 0024 FFF7FEFF 		bl	FLASH_SetLatency
+ 151:../QS/QS_sys.c **** 
+ 152:../QS/QS_sys.c **** 		//Défini la clock HSE pour avoir des valeurs correcte pour RCC_GetClocksFreq()
+ 153:../QS/QS_sys.c **** 		RCC_SetHSEFreq(CPU_EXTERNAL_CLOCK_HZ);
+  57              		.loc 1 153 0
+  58 0028 4FF49050 		mov	r0, #4608
+  59 002c C0F27A00 		movt	r0, 122
+  60 0030 FFF7FEFF 		bl	RCC_SetHSEFreq
+ 154:../QS/QS_sys.c **** 
+ 155:../QS/QS_sys.c **** 		/* PCLK1 = HCLK/2, PCLK2 = HCLK | HCLK = SYSCLK */
+ 156:../QS/QS_sys.c **** 		//Pour savoir si les valeurs sont correctes, veuillez changer HCLK_CHOOSEN_DIV, PCLK1_CHOOSEN_DIV
+ 157:../QS/QS_sys.c **** 		RCC_HCLKConfig(RCC_SYSCLK_Div1);
+  61              		.loc 1 157 0
+  62 0034 4FF00000 		mov	r0, #0
+  63 0038 FFF7FEFF 		bl	RCC_HCLKConfig
+ 158:../QS/QS_sys.c **** 		RCC_PCLK1Config(RCC_HCLK_Div4);
+  64              		.loc 1 158 0
+  65 003c 4FF4A050 		mov	r0, #5120
+  66 0040 FFF7FEFF 		bl	RCC_PCLK1Config
+ 159:../QS/QS_sys.c ****         RCC_PCLK2Config(RCC_HCLK_Div2);
+  67              		.loc 1 159 0
+  68 0044 4FF48050 		mov	r0, #4096
+  69 0048 FFF7FEFF 		bl	RCC_PCLK2Config
+ 160:../QS/QS_sys.c **** 
+ 161:../QS/QS_sys.c **** 		RCC_PLLConfig(RCC_PLLSource_HSE, PLLM, PLLN, PLLP, PLLQ);
+  70              		.loc 1 161 0
+  71 004c 4FF00603 		mov	r3, #6
+  72 0050 0093     		str	r3, [sp, #0]
+  73 0052 4FF48000 		mov	r0, #4194304
+  74 0056 4FF00801 		mov	r1, #8
+  75 005a 4FF4A072 		mov	r2, #320
+  76 005e 4FF00203 		mov	r3, #2
+  77 0062 FFF7FEFF 		bl	RCC_PLLConfig
+ 162:../QS/QS_sys.c **** 
+ 163:../QS/QS_sys.c **** 		/* Enable PLL1 */
+ 164:../QS/QS_sys.c **** 		RCC_PLLCmd(ENABLE);
+  78              		.loc 1 164 0
+  79 0066 4FF00100 		mov	r0, #1
+  80 006a FFF7FEFF 		bl	RCC_PLLCmd
+ 165:../QS/QS_sys.c **** 		while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET){}
+  81              		.loc 1 165 0
+  82 006e 00BF     		nop
+  83              	.L3:
+  84              		.loc 1 165 0 is_stmt 0 discriminator 1
+  85 0070 4FF03900 		mov	r0, #57
+  86 0074 FFF7FEFF 		bl	RCC_GetFlagStatus
+  87 0078 0346     		mov	r3, r0
+  88 007a 002B     		cmp	r3, #0
+  89 007c F8D0     		beq	.L3
+ 166:../QS/QS_sys.c **** 
+ 167:../QS/QS_sys.c **** 		/* Select PLL as system clock source */
+ 168:../QS/QS_sys.c **** 		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+  90              		.loc 1 168 0 is_stmt 1
+  91 007e 4FF00200 		mov	r0, #2
+  92 0082 FFF7FEFF 		bl	RCC_SYSCLKConfig
+ 169:../QS/QS_sys.c **** 		while (RCC_GetSYSCLKSource() != 0x08){}
+  93              		.loc 1 169 0
+  94 0086 00BF     		nop
+  95              	.L4:
+  96              		.loc 1 169 0 is_stmt 0 discriminator 1
+  97 0088 FFF7FEFF 		bl	RCC_GetSYSCLKSource
+  98 008c 0346     		mov	r3, r0
+  99 008e 082B     		cmp	r3, #8
+ 100 0090 FAD1     		bne	.L4
+ 101              	.L2:
+ 170:../QS/QS_sys.c **** 	}
+ 171:../QS/QS_sys.c **** 	
+ 172:../QS/QS_sys.c **** 	SystemCoreClockUpdate();
+ 102              		.loc 1 172 0 is_stmt 1
+ 103 0092 FFF7FEFF 		bl	SystemCoreClockUpdate
+ 173:../QS/QS_sys.c **** 
+ 174:../QS/QS_sys.c **** 	//Pas de subpriority sur les interruptions
+ 175:../QS/QS_sys.c **** 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+ 104              		.loc 1 175 0
+ 105 0096 4FF44070 		mov	r0, #768
+ 106 009a FFF7FEFF 		bl	NVIC_PriorityGroupConfig
+ 176:../QS/QS_sys.c **** 
+ 177:../QS/QS_sys.c **** 	//Activation de l'exception Division par 0
+ 178:../QS/QS_sys.c **** 	SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;	//
+ 107              		.loc 1 178 0
+ 108 009e 4FF46D43 		mov	r3, #60672
+ 109 00a2 CEF20003 		movt	r3, 57344
+ 110 00a6 4FF46D42 		mov	r2, #60672
+ 111 00aa CEF20002 		movt	r2, 57344
+ 112 00ae 5269     		ldr	r2, [r2, #20]
+ 113 00b0 42F01002 		orr	r2, r2, #16
+ 114 00b4 5A61     		str	r2, [r3, #20]
+ 179:../QS/QS_sys.c **** 
+ 180:../QS/QS_sys.c **** 	//Config LibC: no buffering
+ 181:../QS/QS_sys.c **** 	setvbuf(stdout, NULL, _IONBF, 0 );
+ 115              		.loc 1 181 0
+ 116 00b6 40F20003 		movw	r3, #:lower16:_impure_ptr
+ 117 00ba C0F20003 		movt	r3, #:upper16:_impure_ptr
+ 118 00be 1B68     		ldr	r3, [r3, #0]
+ 119 00c0 9B68     		ldr	r3, [r3, #8]
+ 120 00c2 1846     		mov	r0, r3
+ 121 00c4 4FF00001 		mov	r1, #0
+ 122 00c8 4FF00202 		mov	r2, #2
+ 123 00cc 4FF00003 		mov	r3, #0
+ 124 00d0 FFF7FEFF 		bl	setvbuf
+ 182:../QS/QS_sys.c **** 	setvbuf(stderr, NULL, _IONBF, 0 );
+ 125              		.loc 1 182 0
+ 126 00d4 40F20003 		movw	r3, #:lower16:_impure_ptr
+ 127 00d8 C0F20003 		movt	r3, #:upper16:_impure_ptr
+ 128 00dc 1B68     		ldr	r3, [r3, #0]
+ 129 00de DB68     		ldr	r3, [r3, #12]
+ 130 00e0 1846     		mov	r0, r3
+ 131 00e2 4FF00001 		mov	r1, #0
+ 132 00e6 4FF00202 		mov	r2, #2
+ 133 00ea 4FF00003 		mov	r3, #0
+ 134 00ee FFF7FEFF 		bl	setvbuf
+ 183:../QS/QS_sys.c **** 	setvbuf(stdin, NULL, _IONBF, 0 );
+ 135              		.loc 1 183 0
+ 136 00f2 40F20003 		movw	r3, #:lower16:_impure_ptr
+ 137 00f6 C0F20003 		movt	r3, #:upper16:_impure_ptr
+ 138 00fa 1B68     		ldr	r3, [r3, #0]
+ 139 00fc 5B68     		ldr	r3, [r3, #4]
+ 140 00fe 1846     		mov	r0, r3
+ 141 0100 4FF00001 		mov	r1, #0
+ 142 0104 4FF00202 		mov	r2, #2
+ 143 0108 4FF00003 		mov	r3, #0
+ 144 010c FFF7FEFF 		bl	setvbuf
+ 184:../QS/QS_sys.c **** }
+ 145              		.loc 1 184 0
+ 146 0110 07F10807 		add	r7, r7, #8
+ 147 0114 BD46     		mov	sp, r7
+ 148 0116 80BD     		pop	{r7, pc}
+ 149              		.cfi_endproc
+ 150              	.LFE111:
+ 152              		.global	__env
+ 153              		.bss
+ 154              		.align	2
+ 157              	__env:
+ 158 0000 00000000 		.space	4
+ 159              		.global	environ
+ 160              		.data
+ 161              		.align	2
+ 164              	environ:
+ 165 0000 00000000 		.word	__env
+ 166              		.section	.rodata
+ 167              		.align	2
+ 168              	.LC0:
+ 169 0000 65786974 		.ascii	"exit\000"
+ 169      00
+ 170              		.text
+ 171              		.align	2
+ 172              		.weak	_exit
+ 173              		.thumb
+ 174              		.thumb_func
+ 176              	_exit:
+ 177              	.LFB112:
+ 185:../QS/QS_sys.c **** 
+ 186:../QS/QS_sys.c **** 
+ 187:../QS/QS_sys.c **** /*  Fonctions appelées par la libc (comme printf)  */
+ 188:../QS/QS_sys.c **** // https://sites.google.com/site/stm32discovery/open-source-development-with-the-stm32-discovery/ge
+ 189:../QS/QS_sys.c **** /*
+ 190:../QS/QS_sys.c ****  environ
+ 191:../QS/QS_sys.c ****  A pointer to a list of environment variables and their values.
+ 192:../QS/QS_sys.c ****  For a minimal environment, this empty list is adequate:
+ 193:../QS/QS_sys.c ****  */
+ 194:../QS/QS_sys.c **** char *__env[1] = { 0 };
+ 195:../QS/QS_sys.c **** char **environ = __env;
+ 196:../QS/QS_sys.c **** 
+ 197:../QS/QS_sys.c **** __attribute__((weak))
+ 198:../QS/QS_sys.c **** int _write(int file, char *ptr, int len);
+ 199:../QS/QS_sys.c **** 
+ 200:../QS/QS_sys.c **** __attribute__((weak))
+ 201:../QS/QS_sys.c **** void _exit(int status) {
+ 178              		.loc 1 201 0
+ 179              		.cfi_startproc
+ 180              		@ args = 0, pretend = 0, frame = 8
+ 181              		@ frame_needed = 1, uses_anonymous_args = 0
+ 182 0118 80B5     		push	{r7, lr}
+ 183              	.LCFI3:
+ 184              		.cfi_def_cfa_offset 8
+ 185              		.cfi_offset 7, -8
+ 186              		.cfi_offset 14, -4
+ 187 011a 82B0     		sub	sp, sp, #8
+ 188              	.LCFI4:
+ 189              		.cfi_def_cfa_offset 16
+ 190 011c 00AF     		add	r7, sp, #0
+ 191              	.LCFI5:
+ 192              		.cfi_def_cfa_register 7
+ 193 011e 7860     		str	r0, [r7, #4]
+ 202:../QS/QS_sys.c **** 	_write(1, "exit", 4);
+ 194              		.loc 1 202 0
+ 195 0120 4FF00100 		mov	r0, #1
+ 196 0124 40F20001 		movw	r1, #:lower16:.LC0
+ 197 0128 C0F20001 		movt	r1, #:upper16:.LC0
+ 198 012c 4FF00402 		mov	r2, #4
+ 199 0130 FFF7FEFF 		bl	_write
+ 200              	.L6:
+ 203:../QS/QS_sys.c **** 	while (1) {
+ 204:../QS/QS_sys.c **** 		;
+ 205:../QS/QS_sys.c **** 	}
+ 201              		.loc 1 205 0 discriminator 1
+ 202 0134 FEE7     		b	.L6
+ 203              		.cfi_endproc
+ 204              	.LFE112:
+ 206 0136 00BF     		.align	2
+ 207              		.weak	_close
+ 208              		.thumb
+ 209              		.thumb_func
+ 211              	_close:
+ 212              	.LFB113:
+ 206:../QS/QS_sys.c **** }
+ 207:../QS/QS_sys.c **** 
+ 208:../QS/QS_sys.c **** __attribute__((weak))
+ 209:../QS/QS_sys.c **** int _close(int file) {
+ 213              		.loc 1 209 0
+ 214              		.cfi_startproc
+ 215              		@ args = 0, pretend = 0, frame = 8
+ 216              		@ frame_needed = 1, uses_anonymous_args = 0
+ 217              		@ link register save eliminated.
+ 218 0138 80B4     		push	{r7}
+ 219              	.LCFI6:
+ 220              		.cfi_def_cfa_offset 4
+ 221              		.cfi_offset 7, -4
+ 222 013a 83B0     		sub	sp, sp, #12
+ 223              	.LCFI7:
+ 224              		.cfi_def_cfa_offset 16
+ 225 013c 00AF     		add	r7, sp, #0
+ 226              	.LCFI8:
+ 227              		.cfi_def_cfa_register 7
+ 228 013e 7860     		str	r0, [r7, #4]
+ 210:../QS/QS_sys.c **** 	return -1;
+ 229              		.loc 1 210 0
+ 230 0140 4FF0FF33 		mov	r3, #-1
+ 211:../QS/QS_sys.c **** }
+ 231              		.loc 1 211 0
+ 232 0144 1846     		mov	r0, r3
+ 233 0146 07F10C07 		add	r7, r7, #12
+ 234 014a BD46     		mov	sp, r7
+ 235 014c 80BC     		pop	{r7}
+ 236 014e 7047     		bx	lr
+ 237              		.cfi_endproc
+ 238              	.LFE113:
+ 240              		.align	2
+ 241              		.weak	_execve
+ 242              		.thumb
+ 243              		.thumb_func
+ 245              	_execve:
+ 246              	.LFB114:
+ 212:../QS/QS_sys.c **** 
+ 213:../QS/QS_sys.c **** /*
+ 214:../QS/QS_sys.c ****  execve
+ 215:../QS/QS_sys.c ****  Transfer control to a new process. Minimal implementation (for a system without processes):
+ 216:../QS/QS_sys.c ****  */
+ 217:../QS/QS_sys.c **** __attribute__((weak))
+ 218:../QS/QS_sys.c **** int _execve(char *name, char **argv, char **env) {
+ 247              		.loc 1 218 0
+ 248              		.cfi_startproc
+ 249              		@ args = 0, pretend = 0, frame = 16
+ 250              		@ frame_needed = 1, uses_anonymous_args = 0
+ 251 0150 80B5     		push	{r7, lr}
+ 252              	.LCFI9:
+ 253              		.cfi_def_cfa_offset 8
+ 254              		.cfi_offset 7, -8
+ 255              		.cfi_offset 14, -4
+ 256 0152 84B0     		sub	sp, sp, #16
+ 257              	.LCFI10:
+ 258              		.cfi_def_cfa_offset 24
+ 259 0154 00AF     		add	r7, sp, #0
+ 260              	.LCFI11:
+ 261              		.cfi_def_cfa_register 7
+ 262 0156 F860     		str	r0, [r7, #12]
+ 263 0158 B960     		str	r1, [r7, #8]
+ 264 015a 7A60     		str	r2, [r7, #4]
+ 219:../QS/QS_sys.c **** 	errno = ENOMEM;
+ 265              		.loc 1 219 0
+ 266 015c FFF7FEFF 		bl	__errno
+ 267 0160 0346     		mov	r3, r0
+ 268 0162 4FF00C02 		mov	r2, #12
+ 269 0166 1A60     		str	r2, [r3, #0]
+ 220:../QS/QS_sys.c **** 	return -1;
+ 270              		.loc 1 220 0
+ 271 0168 4FF0FF33 		mov	r3, #-1
+ 221:../QS/QS_sys.c **** }
+ 272              		.loc 1 221 0
+ 273 016c 1846     		mov	r0, r3
+ 274 016e 07F11007 		add	r7, r7, #16
+ 275 0172 BD46     		mov	sp, r7
+ 276 0174 80BD     		pop	{r7, pc}
+ 277              		.cfi_endproc
+ 278              	.LFE114:
+ 280 0176 00BF     		.align	2
+ 281              		.weak	_fork
+ 282              		.thumb
+ 283              		.thumb_func
+ 285              	_fork:
+ 286              	.LFB115:
+ 222:../QS/QS_sys.c **** 
+ 223:../QS/QS_sys.c **** /*
+ 224:../QS/QS_sys.c ****  fork
+ 225:../QS/QS_sys.c ****  Create a new process. Minimal implementation (for a system without processes):
+ 226:../QS/QS_sys.c ****  */
+ 227:../QS/QS_sys.c **** __attribute__((weak))
+ 228:../QS/QS_sys.c **** int _fork() {
+ 287              		.loc 1 228 0
+ 288              		.cfi_startproc
+ 289              		@ args = 0, pretend = 0, frame = 0
+ 290              		@ frame_needed = 1, uses_anonymous_args = 0
+ 291 0178 80B5     		push	{r7, lr}
+ 292              	.LCFI12:
+ 293              		.cfi_def_cfa_offset 8
+ 294              		.cfi_offset 7, -8
+ 295              		.cfi_offset 14, -4
+ 296 017a 00AF     		add	r7, sp, #0
+ 297              	.LCFI13:
+ 298              		.cfi_def_cfa_register 7
+ 229:../QS/QS_sys.c **** 	errno = EAGAIN;
+ 299              		.loc 1 229 0
+ 300 017c FFF7FEFF 		bl	__errno
+ 301 0180 0346     		mov	r3, r0
+ 302 0182 4FF00B02 		mov	r2, #11
+ 303 0186 1A60     		str	r2, [r3, #0]
+ 230:../QS/QS_sys.c **** 	return -1;
+ 304              		.loc 1 230 0
+ 305 0188 4FF0FF33 		mov	r3, #-1
+ 231:../QS/QS_sys.c **** }
+ 306              		.loc 1 231 0
+ 307 018c 1846     		mov	r0, r3
+ 308 018e 80BD     		pop	{r7, pc}
+ 309              		.cfi_endproc
+ 310              	.LFE115:
+ 312              		.align	2
+ 313              		.weak	_fstat
+ 314              		.thumb
+ 315              		.thumb_func
+ 317              	_fstat:
+ 318              	.LFB116:
+ 232:../QS/QS_sys.c **** 
+ 233:../QS/QS_sys.c **** /*
+ 234:../QS/QS_sys.c ****  fstat
+ 235:../QS/QS_sys.c ****  Status of an open file. For consistency with other minimal implementations in these examples,
+ 236:../QS/QS_sys.c ****  all files are regarded as character special devices.
+ 237:../QS/QS_sys.c ****  The `sys/stat.h' header file required is distributed in the `include' subdirectory for this C libr
+ 238:../QS/QS_sys.c ****  */
+ 239:../QS/QS_sys.c **** __attribute__((weak))
+ 240:../QS/QS_sys.c **** int _fstat(int file, struct stat *st) {
+ 319              		.loc 1 240 0
+ 320              		.cfi_startproc
+ 321              		@ args = 0, pretend = 0, frame = 8
+ 322              		@ frame_needed = 1, uses_anonymous_args = 0
+ 323              		@ link register save eliminated.
+ 324 0190 80B4     		push	{r7}
+ 325              	.LCFI14:
+ 326              		.cfi_def_cfa_offset 4
+ 327              		.cfi_offset 7, -4
+ 328 0192 83B0     		sub	sp, sp, #12
+ 329              	.LCFI15:
+ 330              		.cfi_def_cfa_offset 16
+ 331 0194 00AF     		add	r7, sp, #0
+ 332              	.LCFI16:
+ 333              		.cfi_def_cfa_register 7
+ 334 0196 7860     		str	r0, [r7, #4]
+ 335 0198 3960     		str	r1, [r7, #0]
+ 241:../QS/QS_sys.c **** 	st->st_mode = S_IFCHR;
+ 336              		.loc 1 241 0
+ 337 019a 3B68     		ldr	r3, [r7, #0]
+ 338 019c 4FF40052 		mov	r2, #8192
+ 339 01a0 5A60     		str	r2, [r3, #4]
+ 242:../QS/QS_sys.c **** 	return 0;
+ 340              		.loc 1 242 0
+ 341 01a2 4FF00003 		mov	r3, #0
+ 243:../QS/QS_sys.c **** }
+ 342              		.loc 1 243 0
+ 343 01a6 1846     		mov	r0, r3
+ 344 01a8 07F10C07 		add	r7, r7, #12
+ 345 01ac BD46     		mov	sp, r7
+ 346 01ae 80BC     		pop	{r7}
+ 347 01b0 7047     		bx	lr
+ 348              		.cfi_endproc
+ 349              	.LFE116:
+ 351 01b2 00BF     		.align	2
+ 352              		.weak	_getpid
+ 353              		.thumb
+ 354              		.thumb_func
+ 356              	_getpid:
+ 357              	.LFB117:
+ 244:../QS/QS_sys.c **** 
+ 245:../QS/QS_sys.c **** /*
+ 246:../QS/QS_sys.c ****  getpid
+ 247:../QS/QS_sys.c ****  Process-ID; this is sometimes used to generate strings unlikely to conflict with other processes. 
+ 248:../QS/QS_sys.c ****  */
+ 249:../QS/QS_sys.c **** __attribute__((weak))
+ 250:../QS/QS_sys.c **** int _getpid() {
+ 358              		.loc 1 250 0
+ 359              		.cfi_startproc
+ 360              		@ args = 0, pretend = 0, frame = 0
+ 361              		@ frame_needed = 1, uses_anonymous_args = 0
+ 362              		@ link register save eliminated.
+ 363 01b4 80B4     		push	{r7}
+ 364              	.LCFI17:
+ 365              		.cfi_def_cfa_offset 4
+ 366              		.cfi_offset 7, -4
+ 367 01b6 00AF     		add	r7, sp, #0
+ 368              	.LCFI18:
+ 369              		.cfi_def_cfa_register 7
+ 251:../QS/QS_sys.c **** 	return 1;
+ 370              		.loc 1 251 0
+ 371 01b8 4FF00103 		mov	r3, #1
+ 252:../QS/QS_sys.c **** }
+ 372              		.loc 1 252 0
+ 373 01bc 1846     		mov	r0, r3
+ 374 01be BD46     		mov	sp, r7
+ 375 01c0 80BC     		pop	{r7}
+ 376 01c2 7047     		bx	lr
+ 377              		.cfi_endproc
+ 378              	.LFE117:
+ 380              		.align	2
+ 381              		.weak	_isatty
+ 382              		.thumb
+ 383              		.thumb_func
+ 385              	_isatty:
+ 386              	.LFB118:
+ 253:../QS/QS_sys.c **** 
+ 254:../QS/QS_sys.c **** /*
+ 255:../QS/QS_sys.c ****  isatty
+ 256:../QS/QS_sys.c ****  Query whether output stream is a terminal. For consistency with the other minimal implementations,
+ 257:../QS/QS_sys.c ****  */
+ 258:../QS/QS_sys.c **** __attribute__((weak))
+ 259:../QS/QS_sys.c **** int _isatty(int file) {
+ 387              		.loc 1 259 0
+ 388              		.cfi_startproc
+ 389              		@ args = 0, pretend = 0, frame = 8
+ 390              		@ frame_needed = 1, uses_anonymous_args = 0
+ 391 01c4 80B5     		push	{r7, lr}
+ 392              	.LCFI19:
+ 393              		.cfi_def_cfa_offset 8
+ 394              		.cfi_offset 7, -8
+ 395              		.cfi_offset 14, -4
+ 396 01c6 82B0     		sub	sp, sp, #8
+ 397              	.LCFI20:
+ 398              		.cfi_def_cfa_offset 16
+ 399 01c8 00AF     		add	r7, sp, #0
+ 400              	.LCFI21:
+ 401              		.cfi_def_cfa_register 7
+ 402 01ca 7860     		str	r0, [r7, #4]
+ 260:../QS/QS_sys.c **** 	switch (file){
+ 403              		.loc 1 260 0
+ 404 01cc 7B68     		ldr	r3, [r7, #4]
+ 405 01ce 03F10003 		add	r3, r3, #0
+ 406 01d2 022B     		cmp	r3, #2
+ 407 01d4 02D8     		bhi	.L18
+ 261:../QS/QS_sys.c **** 		case STDOUT_FILENO:
+ 262:../QS/QS_sys.c **** 		case STDERR_FILENO:
+ 263:../QS/QS_sys.c **** 		case STDIN_FILENO:
+ 264:../QS/QS_sys.c **** 			return 1;
+ 408              		.loc 1 264 0
+ 409 01d6 4FF00103 		mov	r3, #1
+ 410 01da 07E0     		b	.L20
+ 411              	.L18:
+ 265:../QS/QS_sys.c **** 		default:
+ 266:../QS/QS_sys.c **** 			//errno = ENOTTY;
+ 267:../QS/QS_sys.c **** 			errno = EBADF;
+ 412              		.loc 1 267 0
+ 413 01dc FFF7FEFF 		bl	__errno
+ 414 01e0 0346     		mov	r3, r0
+ 415 01e2 4FF00902 		mov	r2, #9
+ 416 01e6 1A60     		str	r2, [r3, #0]
+ 268:../QS/QS_sys.c **** 			return 0;
+ 417              		.loc 1 268 0
+ 418 01e8 4FF00003 		mov	r3, #0
+ 419              	.L20:
+ 269:../QS/QS_sys.c **** 	}
+ 270:../QS/QS_sys.c **** }
+ 420              		.loc 1 270 0
+ 421 01ec 1846     		mov	r0, r3
+ 422 01ee 07F10807 		add	r7, r7, #8
+ 423 01f2 BD46     		mov	sp, r7
+ 424 01f4 80BD     		pop	{r7, pc}
+ 425              		.cfi_endproc
+ 426              	.LFE118:
+ 428 01f6 00BF     		.align	2
+ 429              		.weak	_kill
+ 430              		.thumb
+ 431              		.thumb_func
+ 433              	_kill:
+ 434              	.LFB119:
+ 271:../QS/QS_sys.c **** 
+ 272:../QS/QS_sys.c **** /*
+ 273:../QS/QS_sys.c ****  kill
+ 274:../QS/QS_sys.c ****  Send a signal. Minimal implementation:
+ 275:../QS/QS_sys.c ****  */
+ 276:../QS/QS_sys.c **** __attribute__((weak))
+ 277:../QS/QS_sys.c **** int _kill(int pid, int sig) {
+ 435              		.loc 1 277 0
+ 436              		.cfi_startproc
+ 437              		@ args = 0, pretend = 0, frame = 8
+ 438              		@ frame_needed = 1, uses_anonymous_args = 0
+ 439 01f8 80B5     		push	{r7, lr}
+ 440              	.LCFI22:
+ 441              		.cfi_def_cfa_offset 8
+ 442              		.cfi_offset 7, -8
+ 443              		.cfi_offset 14, -4
+ 444 01fa 82B0     		sub	sp, sp, #8
+ 445              	.LCFI23:
+ 446              		.cfi_def_cfa_offset 16
+ 447 01fc 00AF     		add	r7, sp, #0
+ 448              	.LCFI24:
+ 449              		.cfi_def_cfa_register 7
+ 450 01fe 7860     		str	r0, [r7, #4]
+ 451 0200 3960     		str	r1, [r7, #0]
+ 278:../QS/QS_sys.c **** 	errno = EINVAL;
+ 452              		.loc 1 278 0
+ 453 0202 FFF7FEFF 		bl	__errno
+ 454 0206 0346     		mov	r3, r0
+ 455 0208 4FF01602 		mov	r2, #22
+ 456 020c 1A60     		str	r2, [r3, #0]
+ 279:../QS/QS_sys.c **** 	return (-1);
+ 457              		.loc 1 279 0
+ 458 020e 4FF0FF33 		mov	r3, #-1
+ 280:../QS/QS_sys.c **** }
+ 459              		.loc 1 280 0
+ 460 0212 1846     		mov	r0, r3
+ 461 0214 07F10807 		add	r7, r7, #8
+ 462 0218 BD46     		mov	sp, r7
+ 463 021a 80BD     		pop	{r7, pc}
+ 464              		.cfi_endproc
+ 465              	.LFE119:
+ 467              		.align	2
+ 468              		.weak	_link
+ 469              		.thumb
+ 470              		.thumb_func
+ 472              	_link:
+ 473              	.LFB120:
+ 281:../QS/QS_sys.c **** 
+ 282:../QS/QS_sys.c **** /*
+ 283:../QS/QS_sys.c ****  link
+ 284:../QS/QS_sys.c ****  Establish a new name for an existing file. Minimal implementation:
+ 285:../QS/QS_sys.c ****  */
+ 286:../QS/QS_sys.c **** __attribute__((weak))
+ 287:../QS/QS_sys.c **** int _link(char *old, char *new) {
+ 474              		.loc 1 287 0
+ 475              		.cfi_startproc
+ 476              		@ args = 0, pretend = 0, frame = 8
+ 477              		@ frame_needed = 1, uses_anonymous_args = 0
+ 478 021c 80B5     		push	{r7, lr}
+ 479              	.LCFI25:
+ 480              		.cfi_def_cfa_offset 8
+ 481              		.cfi_offset 7, -8
+ 482              		.cfi_offset 14, -4
+ 483 021e 82B0     		sub	sp, sp, #8
+ 484              	.LCFI26:
+ 485              		.cfi_def_cfa_offset 16
+ 486 0220 00AF     		add	r7, sp, #0
+ 487              	.LCFI27:
+ 488              		.cfi_def_cfa_register 7
+ 489 0222 7860     		str	r0, [r7, #4]
+ 490 0224 3960     		str	r1, [r7, #0]
+ 288:../QS/QS_sys.c **** 	errno = EMLINK;
+ 491              		.loc 1 288 0
+ 492 0226 FFF7FEFF 		bl	__errno
+ 493 022a 0346     		mov	r3, r0
+ 494 022c 4FF01F02 		mov	r2, #31
+ 495 0230 1A60     		str	r2, [r3, #0]
+ 289:../QS/QS_sys.c **** 	return -1;
+ 496              		.loc 1 289 0
+ 497 0232 4FF0FF33 		mov	r3, #-1
+ 290:../QS/QS_sys.c **** }
+ 498              		.loc 1 290 0
+ 499 0236 1846     		mov	r0, r3
+ 500 0238 07F10807 		add	r7, r7, #8
+ 501 023c BD46     		mov	sp, r7
+ 502 023e 80BD     		pop	{r7, pc}
+ 503              		.cfi_endproc
+ 504              	.LFE120:
+ 506              		.align	2
+ 507              		.weak	_lseek
+ 508              		.thumb
+ 509              		.thumb_func
+ 511              	_lseek:
+ 512              	.LFB121:
+ 291:../QS/QS_sys.c **** 
+ 292:../QS/QS_sys.c **** /*
+ 293:../QS/QS_sys.c ****  lseek
+ 294:../QS/QS_sys.c ****  Set position in a file. Minimal implementation:
+ 295:../QS/QS_sys.c ****  */
+ 296:../QS/QS_sys.c **** __attribute__((weak))
+ 297:../QS/QS_sys.c **** int _lseek(int file, int ptr, int dir) {
+ 513              		.loc 1 297 0
+ 514              		.cfi_startproc
+ 515              		@ args = 0, pretend = 0, frame = 16
+ 516              		@ frame_needed = 1, uses_anonymous_args = 0
+ 517              		@ link register save eliminated.
+ 518 0240 80B4     		push	{r7}
+ 519              	.LCFI28:
+ 520              		.cfi_def_cfa_offset 4
+ 521              		.cfi_offset 7, -4
+ 522 0242 85B0     		sub	sp, sp, #20
+ 523              	.LCFI29:
+ 524              		.cfi_def_cfa_offset 24
+ 525 0244 00AF     		add	r7, sp, #0
+ 526              	.LCFI30:
+ 527              		.cfi_def_cfa_register 7
+ 528 0246 F860     		str	r0, [r7, #12]
+ 529 0248 B960     		str	r1, [r7, #8]
+ 530 024a 7A60     		str	r2, [r7, #4]
+ 298:../QS/QS_sys.c **** 	return 0;
+ 531              		.loc 1 298 0
+ 532 024c 4FF00003 		mov	r3, #0
+ 299:../QS/QS_sys.c **** }
+ 533              		.loc 1 299 0
+ 534 0250 1846     		mov	r0, r3
+ 535 0252 07F11407 		add	r7, r7, #20
+ 536 0256 BD46     		mov	sp, r7
+ 537 0258 80BC     		pop	{r7}
+ 538 025a 7047     		bx	lr
+ 539              		.cfi_endproc
+ 540              	.LFE121:
+ 542              		.section	.rodata
+ 543 0005 000000   		.align	2
+ 544              	.LC1:
+ 545 0008 48656170 		.ascii	"Heap and stack collision\012\000"
+ 545      20616E64 
+ 545      20737461 
+ 545      636B2063 
+ 545      6F6C6C69 
+ 546 0022 0000     		.text
+ 547              		.align	2
+ 548              		.weak	_sbrk
+ 549              		.thumb
+ 550              		.thumb_func
+ 552              	_sbrk:
+ 553              	.LFB122:
+ 300:../QS/QS_sys.c **** 
+ 301:../QS/QS_sys.c **** /*
+ 302:../QS/QS_sys.c ****  sbrk
+ 303:../QS/QS_sys.c ****  Increase program data space.
+ 304:../QS/QS_sys.c ****  Malloc and related functions depend on this
+ 305:../QS/QS_sys.c ****  */
+ 306:../QS/QS_sys.c **** __attribute__((weak))
+ 307:../QS/QS_sys.c **** caddr_t _sbrk(int incr) {
+ 554              		.loc 1 307 0
+ 555              		.cfi_startproc
+ 556              		@ args = 0, pretend = 0, frame = 16
+ 557              		@ frame_needed = 1, uses_anonymous_args = 0
+ 558 025c 90B5     		push	{r4, r7, lr}
+ 559              	.LCFI31:
+ 560              		.cfi_def_cfa_offset 12
+ 561              		.cfi_offset 4, -12
+ 562              		.cfi_offset 7, -8
+ 563              		.cfi_offset 14, -4
+ 564 025e 85B0     		sub	sp, sp, #20
+ 565              	.LCFI32:
+ 566              		.cfi_def_cfa_offset 32
+ 567 0260 00AF     		add	r7, sp, #0
+ 568              	.LCFI33:
+ 569              		.cfi_def_cfa_register 7
+ 570 0262 7860     		str	r0, [r7, #4]
+ 308:../QS/QS_sys.c **** 	extern char _ebss; // Defined by the linker
+ 309:../QS/QS_sys.c **** 	static char *heap_end;
+ 310:../QS/QS_sys.c **** 	char *prev_heap_end;
+ 311:../QS/QS_sys.c **** 
+ 312:../QS/QS_sys.c **** 	if (heap_end == 0) {
+ 571              		.loc 1 312 0
+ 572 0264 40F20003 		movw	r3, #:lower16:heap_end.7179
+ 573 0268 C0F20003 		movt	r3, #:upper16:heap_end.7179
+ 574 026c 1B68     		ldr	r3, [r3, #0]
+ 575 026e 002B     		cmp	r3, #0
+ 576 0270 08D1     		bne	.L28
+ 313:../QS/QS_sys.c **** 		heap_end = &_ebss;
+ 577              		.loc 1 313 0
+ 578 0272 40F20003 		movw	r3, #:lower16:heap_end.7179
+ 579 0276 C0F20003 		movt	r3, #:upper16:heap_end.7179
+ 580 027a 40F20002 		movw	r2, #:lower16:_ebss
+ 581 027e C0F20002 		movt	r2, #:upper16:_ebss
+ 582 0282 1A60     		str	r2, [r3, #0]
+ 583              	.L28:
+ 314:../QS/QS_sys.c **** 	}
+ 315:../QS/QS_sys.c **** 	prev_heap_end = heap_end;
+ 584              		.loc 1 315 0
+ 585 0284 40F20003 		movw	r3, #:lower16:heap_end.7179
+ 586 0288 C0F20003 		movt	r3, #:upper16:heap_end.7179
+ 587 028c 1B68     		ldr	r3, [r3, #0]
+ 588 028e FB60     		str	r3, [r7, #12]
+ 589              	.LBB4:
+ 590              	.LBB5:
+ 591              		.file 2 "../stm32f4xx/core_cmFunc.h"
+   1:../stm32f4xx/core_cmFunc.h **** /**************************************************************************//**
+   2:../stm32f4xx/core_cmFunc.h ****  * @file     core_cmFunc.h
+   3:../stm32f4xx/core_cmFunc.h ****  * @brief    CMSIS Cortex-M Core Function Access Header File
+   4:../stm32f4xx/core_cmFunc.h ****  * @version  V3.01
+   5:../stm32f4xx/core_cmFunc.h ****  * @date     06. March 2012
+   6:../stm32f4xx/core_cmFunc.h ****  *
+   7:../stm32f4xx/core_cmFunc.h ****  * @note
+   8:../stm32f4xx/core_cmFunc.h ****  * Copyright (C) 2009-2012 ARM Limited. All rights reserved.
+   9:../stm32f4xx/core_cmFunc.h ****  *
+  10:../stm32f4xx/core_cmFunc.h ****  * @par
+  11:../stm32f4xx/core_cmFunc.h ****  * ARM Limited (ARM) is supplying this software for use with Cortex-M
+  12:../stm32f4xx/core_cmFunc.h ****  * processor based microcontrollers.  This file can be freely distributed
+  13:../stm32f4xx/core_cmFunc.h ****  * within development tools that are supporting such ARM based processors.
+  14:../stm32f4xx/core_cmFunc.h ****  *
+  15:../stm32f4xx/core_cmFunc.h ****  * @par
+  16:../stm32f4xx/core_cmFunc.h ****  * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+  17:../stm32f4xx/core_cmFunc.h ****  * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+  18:../stm32f4xx/core_cmFunc.h ****  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+  19:../stm32f4xx/core_cmFunc.h ****  * ARM SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR
+  20:../stm32f4xx/core_cmFunc.h ****  * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+  21:../stm32f4xx/core_cmFunc.h ****  *
+  22:../stm32f4xx/core_cmFunc.h ****  ******************************************************************************/
+  23:../stm32f4xx/core_cmFunc.h **** 
+  24:../stm32f4xx/core_cmFunc.h **** #ifndef __CORE_CMFUNC_H
+  25:../stm32f4xx/core_cmFunc.h **** #define __CORE_CMFUNC_H
+  26:../stm32f4xx/core_cmFunc.h **** 
+  27:../stm32f4xx/core_cmFunc.h **** 
+  28:../stm32f4xx/core_cmFunc.h **** /* ###########################  Core Function Access  ########################### */
+  29:../stm32f4xx/core_cmFunc.h **** /** \ingroup  CMSIS_Core_FunctionInterface
+  30:../stm32f4xx/core_cmFunc.h ****     \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
+  31:../stm32f4xx/core_cmFunc.h ****   @{
+  32:../stm32f4xx/core_cmFunc.h ****  */
+  33:../stm32f4xx/core_cmFunc.h **** 
+  34:../stm32f4xx/core_cmFunc.h **** #if   defined ( __CC_ARM ) /*------------------RealView Compiler -----------------*/
+  35:../stm32f4xx/core_cmFunc.h **** /* ARM armcc specific functions */
+  36:../stm32f4xx/core_cmFunc.h **** 
+  37:../stm32f4xx/core_cmFunc.h **** #if (__ARMCC_VERSION < 400677)
+  38:../stm32f4xx/core_cmFunc.h ****   #error "Please use ARM Compiler Toolchain V4.0.677 or later!"
+  39:../stm32f4xx/core_cmFunc.h **** #endif
+  40:../stm32f4xx/core_cmFunc.h **** 
+  41:../stm32f4xx/core_cmFunc.h **** /* intrinsic void __enable_irq();     */
+  42:../stm32f4xx/core_cmFunc.h **** /* intrinsic void __disable_irq();    */
+  43:../stm32f4xx/core_cmFunc.h **** 
+  44:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Control Register
+  45:../stm32f4xx/core_cmFunc.h **** 
+  46:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the Control Register.
+  47:../stm32f4xx/core_cmFunc.h **** 
+  48:../stm32f4xx/core_cmFunc.h ****     \return               Control Register value
+  49:../stm32f4xx/core_cmFunc.h ****  */
+  50:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_CONTROL(void)
+  51:../stm32f4xx/core_cmFunc.h **** {
+  52:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regControl         __ASM("control");
+  53:../stm32f4xx/core_cmFunc.h ****   return(__regControl);
+  54:../stm32f4xx/core_cmFunc.h **** }
+  55:../stm32f4xx/core_cmFunc.h **** 
+  56:../stm32f4xx/core_cmFunc.h **** 
+  57:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Control Register
+  58:../stm32f4xx/core_cmFunc.h **** 
+  59:../stm32f4xx/core_cmFunc.h ****     This function writes the given value to the Control Register.
+  60:../stm32f4xx/core_cmFunc.h **** 
+  61:../stm32f4xx/core_cmFunc.h ****     \param [in]    control  Control Register value to set
+  62:../stm32f4xx/core_cmFunc.h ****  */
+  63:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_CONTROL(uint32_t control)
+  64:../stm32f4xx/core_cmFunc.h **** {
+  65:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regControl         __ASM("control");
+  66:../stm32f4xx/core_cmFunc.h ****   __regControl = control;
+  67:../stm32f4xx/core_cmFunc.h **** }
+  68:../stm32f4xx/core_cmFunc.h **** 
+  69:../stm32f4xx/core_cmFunc.h **** 
+  70:../stm32f4xx/core_cmFunc.h **** /** \brief  Get IPSR Register
+  71:../stm32f4xx/core_cmFunc.h **** 
+  72:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the IPSR Register.
+  73:../stm32f4xx/core_cmFunc.h **** 
+  74:../stm32f4xx/core_cmFunc.h ****     \return               IPSR Register value
+  75:../stm32f4xx/core_cmFunc.h ****  */
+  76:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_IPSR(void)
+  77:../stm32f4xx/core_cmFunc.h **** {
+  78:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regIPSR          __ASM("ipsr");
+  79:../stm32f4xx/core_cmFunc.h ****   return(__regIPSR);
+  80:../stm32f4xx/core_cmFunc.h **** }
+  81:../stm32f4xx/core_cmFunc.h **** 
+  82:../stm32f4xx/core_cmFunc.h **** 
+  83:../stm32f4xx/core_cmFunc.h **** /** \brief  Get APSR Register
+  84:../stm32f4xx/core_cmFunc.h **** 
+  85:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the APSR Register.
+  86:../stm32f4xx/core_cmFunc.h **** 
+  87:../stm32f4xx/core_cmFunc.h ****     \return               APSR Register value
+  88:../stm32f4xx/core_cmFunc.h ****  */
+  89:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_APSR(void)
+  90:../stm32f4xx/core_cmFunc.h **** {
+  91:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regAPSR          __ASM("apsr");
+  92:../stm32f4xx/core_cmFunc.h ****   return(__regAPSR);
+  93:../stm32f4xx/core_cmFunc.h **** }
+  94:../stm32f4xx/core_cmFunc.h **** 
+  95:../stm32f4xx/core_cmFunc.h **** 
+  96:../stm32f4xx/core_cmFunc.h **** /** \brief  Get xPSR Register
+  97:../stm32f4xx/core_cmFunc.h **** 
+  98:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the xPSR Register.
+  99:../stm32f4xx/core_cmFunc.h **** 
+ 100:../stm32f4xx/core_cmFunc.h ****     \return               xPSR Register value
+ 101:../stm32f4xx/core_cmFunc.h ****  */
+ 102:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_xPSR(void)
+ 103:../stm32f4xx/core_cmFunc.h **** {
+ 104:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regXPSR          __ASM("xpsr");
+ 105:../stm32f4xx/core_cmFunc.h ****   return(__regXPSR);
+ 106:../stm32f4xx/core_cmFunc.h **** }
+ 107:../stm32f4xx/core_cmFunc.h **** 
+ 108:../stm32f4xx/core_cmFunc.h **** 
+ 109:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Process Stack Pointer
+ 110:../stm32f4xx/core_cmFunc.h **** 
+ 111:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Process Stack Pointer (PSP).
+ 112:../stm32f4xx/core_cmFunc.h **** 
+ 113:../stm32f4xx/core_cmFunc.h ****     \return               PSP Register value
+ 114:../stm32f4xx/core_cmFunc.h ****  */
+ 115:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_PSP(void)
+ 116:../stm32f4xx/core_cmFunc.h **** {
+ 117:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regProcessStackPointer  __ASM("psp");
+ 118:../stm32f4xx/core_cmFunc.h ****   return(__regProcessStackPointer);
+ 119:../stm32f4xx/core_cmFunc.h **** }
+ 120:../stm32f4xx/core_cmFunc.h **** 
+ 121:../stm32f4xx/core_cmFunc.h **** 
+ 122:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Process Stack Pointer
+ 123:../stm32f4xx/core_cmFunc.h **** 
+ 124:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Process Stack Pointer (PSP).
+ 125:../stm32f4xx/core_cmFunc.h **** 
+ 126:../stm32f4xx/core_cmFunc.h ****     \param [in]    topOfProcStack  Process Stack Pointer value to set
+ 127:../stm32f4xx/core_cmFunc.h ****  */
+ 128:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_PSP(uint32_t topOfProcStack)
+ 129:../stm32f4xx/core_cmFunc.h **** {
+ 130:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regProcessStackPointer  __ASM("psp");
+ 131:../stm32f4xx/core_cmFunc.h ****   __regProcessStackPointer = topOfProcStack;
+ 132:../stm32f4xx/core_cmFunc.h **** }
+ 133:../stm32f4xx/core_cmFunc.h **** 
+ 134:../stm32f4xx/core_cmFunc.h **** 
+ 135:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Main Stack Pointer
+ 136:../stm32f4xx/core_cmFunc.h **** 
+ 137:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Main Stack Pointer (MSP).
+ 138:../stm32f4xx/core_cmFunc.h **** 
+ 139:../stm32f4xx/core_cmFunc.h ****     \return               MSP Register value
+ 140:../stm32f4xx/core_cmFunc.h ****  */
+ 141:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_MSP(void)
+ 142:../stm32f4xx/core_cmFunc.h **** {
+ 143:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regMainStackPointer     __ASM("msp");
+ 144:../stm32f4xx/core_cmFunc.h ****   return(__regMainStackPointer);
+ 145:../stm32f4xx/core_cmFunc.h **** }
+ 146:../stm32f4xx/core_cmFunc.h **** 
+ 147:../stm32f4xx/core_cmFunc.h **** 
+ 148:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Main Stack Pointer
+ 149:../stm32f4xx/core_cmFunc.h **** 
+ 150:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Main Stack Pointer (MSP).
+ 151:../stm32f4xx/core_cmFunc.h **** 
+ 152:../stm32f4xx/core_cmFunc.h ****     \param [in]    topOfMainStack  Main Stack Pointer value to set
+ 153:../stm32f4xx/core_cmFunc.h ****  */
+ 154:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_MSP(uint32_t topOfMainStack)
+ 155:../stm32f4xx/core_cmFunc.h **** {
+ 156:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regMainStackPointer     __ASM("msp");
+ 157:../stm32f4xx/core_cmFunc.h ****   __regMainStackPointer = topOfMainStack;
+ 158:../stm32f4xx/core_cmFunc.h **** }
+ 159:../stm32f4xx/core_cmFunc.h **** 
+ 160:../stm32f4xx/core_cmFunc.h **** 
+ 161:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Priority Mask
+ 162:../stm32f4xx/core_cmFunc.h **** 
+ 163:../stm32f4xx/core_cmFunc.h ****     This function returns the current state of the priority mask bit from the Priority Mask Registe
+ 164:../stm32f4xx/core_cmFunc.h **** 
+ 165:../stm32f4xx/core_cmFunc.h ****     \return               Priority Mask value
+ 166:../stm32f4xx/core_cmFunc.h ****  */
+ 167:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_PRIMASK(void)
+ 168:../stm32f4xx/core_cmFunc.h **** {
+ 169:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regPriMask         __ASM("primask");
+ 170:../stm32f4xx/core_cmFunc.h ****   return(__regPriMask);
+ 171:../stm32f4xx/core_cmFunc.h **** }
+ 172:../stm32f4xx/core_cmFunc.h **** 
+ 173:../stm32f4xx/core_cmFunc.h **** 
+ 174:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Priority Mask
+ 175:../stm32f4xx/core_cmFunc.h **** 
+ 176:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Priority Mask Register.
+ 177:../stm32f4xx/core_cmFunc.h **** 
+ 178:../stm32f4xx/core_cmFunc.h ****     \param [in]    priMask  Priority Mask
+ 179:../stm32f4xx/core_cmFunc.h ****  */
+ 180:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_PRIMASK(uint32_t priMask)
+ 181:../stm32f4xx/core_cmFunc.h **** {
+ 182:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regPriMask         __ASM("primask");
+ 183:../stm32f4xx/core_cmFunc.h ****   __regPriMask = (priMask);
+ 184:../stm32f4xx/core_cmFunc.h **** }
+ 185:../stm32f4xx/core_cmFunc.h **** 
+ 186:../stm32f4xx/core_cmFunc.h **** 
+ 187:../stm32f4xx/core_cmFunc.h **** #if       (__CORTEX_M >= 0x03)
+ 188:../stm32f4xx/core_cmFunc.h **** 
+ 189:../stm32f4xx/core_cmFunc.h **** /** \brief  Enable FIQ
+ 190:../stm32f4xx/core_cmFunc.h **** 
+ 191:../stm32f4xx/core_cmFunc.h ****     This function enables FIQ interrupts by clearing the F-bit in the CPSR.
+ 192:../stm32f4xx/core_cmFunc.h ****     Can only be executed in Privileged modes.
+ 193:../stm32f4xx/core_cmFunc.h ****  */
+ 194:../stm32f4xx/core_cmFunc.h **** #define __enable_fault_irq                __enable_fiq
+ 195:../stm32f4xx/core_cmFunc.h **** 
+ 196:../stm32f4xx/core_cmFunc.h **** 
+ 197:../stm32f4xx/core_cmFunc.h **** /** \brief  Disable FIQ
+ 198:../stm32f4xx/core_cmFunc.h **** 
+ 199:../stm32f4xx/core_cmFunc.h ****     This function disables FIQ interrupts by setting the F-bit in the CPSR.
+ 200:../stm32f4xx/core_cmFunc.h ****     Can only be executed in Privileged modes.
+ 201:../stm32f4xx/core_cmFunc.h ****  */
+ 202:../stm32f4xx/core_cmFunc.h **** #define __disable_fault_irq               __disable_fiq
+ 203:../stm32f4xx/core_cmFunc.h **** 
+ 204:../stm32f4xx/core_cmFunc.h **** 
+ 205:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Base Priority
+ 206:../stm32f4xx/core_cmFunc.h **** 
+ 207:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Base Priority register.
+ 208:../stm32f4xx/core_cmFunc.h **** 
+ 209:../stm32f4xx/core_cmFunc.h ****     \return               Base Priority register value
+ 210:../stm32f4xx/core_cmFunc.h ****  */
+ 211:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t  __get_BASEPRI(void)
+ 212:../stm32f4xx/core_cmFunc.h **** {
+ 213:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regBasePri         __ASM("basepri");
+ 214:../stm32f4xx/core_cmFunc.h ****   return(__regBasePri);
+ 215:../stm32f4xx/core_cmFunc.h **** }
+ 216:../stm32f4xx/core_cmFunc.h **** 
+ 217:../stm32f4xx/core_cmFunc.h **** 
+ 218:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Base Priority
+ 219:../stm32f4xx/core_cmFunc.h **** 
+ 220:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Base Priority register.
+ 221:../stm32f4xx/core_cmFunc.h **** 
+ 222:../stm32f4xx/core_cmFunc.h ****     \param [in]    basePri  Base Priority value to set
+ 223:../stm32f4xx/core_cmFunc.h ****  */
+ 224:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_BASEPRI(uint32_t basePri)
+ 225:../stm32f4xx/core_cmFunc.h **** {
+ 226:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regBasePri         __ASM("basepri");
+ 227:../stm32f4xx/core_cmFunc.h ****   __regBasePri = (basePri & 0xff);
+ 228:../stm32f4xx/core_cmFunc.h **** }
+ 229:../stm32f4xx/core_cmFunc.h **** 
+ 230:../stm32f4xx/core_cmFunc.h **** 
+ 231:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Fault Mask
+ 232:../stm32f4xx/core_cmFunc.h **** 
+ 233:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Fault Mask register.
+ 234:../stm32f4xx/core_cmFunc.h **** 
+ 235:../stm32f4xx/core_cmFunc.h ****     \return               Fault Mask register value
+ 236:../stm32f4xx/core_cmFunc.h ****  */
+ 237:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_FAULTMASK(void)
+ 238:../stm32f4xx/core_cmFunc.h **** {
+ 239:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regFaultMask       __ASM("faultmask");
+ 240:../stm32f4xx/core_cmFunc.h ****   return(__regFaultMask);
+ 241:../stm32f4xx/core_cmFunc.h **** }
+ 242:../stm32f4xx/core_cmFunc.h **** 
+ 243:../stm32f4xx/core_cmFunc.h **** 
+ 244:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Fault Mask
+ 245:../stm32f4xx/core_cmFunc.h **** 
+ 246:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Fault Mask register.
+ 247:../stm32f4xx/core_cmFunc.h **** 
+ 248:../stm32f4xx/core_cmFunc.h ****     \param [in]    faultMask  Fault Mask value to set
+ 249:../stm32f4xx/core_cmFunc.h ****  */
+ 250:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_FAULTMASK(uint32_t faultMask)
+ 251:../stm32f4xx/core_cmFunc.h **** {
+ 252:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regFaultMask       __ASM("faultmask");
+ 253:../stm32f4xx/core_cmFunc.h ****   __regFaultMask = (faultMask & (uint32_t)1);
+ 254:../stm32f4xx/core_cmFunc.h **** }
+ 255:../stm32f4xx/core_cmFunc.h **** 
+ 256:../stm32f4xx/core_cmFunc.h **** #endif /* (__CORTEX_M >= 0x03) */
+ 257:../stm32f4xx/core_cmFunc.h **** 
+ 258:../stm32f4xx/core_cmFunc.h **** 
+ 259:../stm32f4xx/core_cmFunc.h **** #if       (__CORTEX_M == 0x04)
+ 260:../stm32f4xx/core_cmFunc.h **** 
+ 261:../stm32f4xx/core_cmFunc.h **** /** \brief  Get FPSCR
+ 262:../stm32f4xx/core_cmFunc.h **** 
+ 263:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Floating Point Status/Control register.
+ 264:../stm32f4xx/core_cmFunc.h **** 
+ 265:../stm32f4xx/core_cmFunc.h ****     \return               Floating Point Status/Control register value
+ 266:../stm32f4xx/core_cmFunc.h ****  */
+ 267:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE uint32_t __get_FPSCR(void)
+ 268:../stm32f4xx/core_cmFunc.h **** {
+ 269:../stm32f4xx/core_cmFunc.h **** #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+ 270:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regfpscr         __ASM("fpscr");
+ 271:../stm32f4xx/core_cmFunc.h ****   return(__regfpscr);
+ 272:../stm32f4xx/core_cmFunc.h **** #else
+ 273:../stm32f4xx/core_cmFunc.h ****    return(0);
+ 274:../stm32f4xx/core_cmFunc.h **** #endif
+ 275:../stm32f4xx/core_cmFunc.h **** }
+ 276:../stm32f4xx/core_cmFunc.h **** 
+ 277:../stm32f4xx/core_cmFunc.h **** 
+ 278:../stm32f4xx/core_cmFunc.h **** /** \brief  Set FPSCR
+ 279:../stm32f4xx/core_cmFunc.h **** 
+ 280:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Floating Point Status/Control register.
+ 281:../stm32f4xx/core_cmFunc.h **** 
+ 282:../stm32f4xx/core_cmFunc.h ****     \param [in]    fpscr  Floating Point Status/Control value to set
+ 283:../stm32f4xx/core_cmFunc.h ****  */
+ 284:../stm32f4xx/core_cmFunc.h **** __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
+ 285:../stm32f4xx/core_cmFunc.h **** {
+ 286:../stm32f4xx/core_cmFunc.h **** #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+ 287:../stm32f4xx/core_cmFunc.h ****   register uint32_t __regfpscr         __ASM("fpscr");
+ 288:../stm32f4xx/core_cmFunc.h ****   __regfpscr = (fpscr);
+ 289:../stm32f4xx/core_cmFunc.h **** #endif
+ 290:../stm32f4xx/core_cmFunc.h **** }
+ 291:../stm32f4xx/core_cmFunc.h **** 
+ 292:../stm32f4xx/core_cmFunc.h **** #endif /* (__CORTEX_M == 0x04) */
+ 293:../stm32f4xx/core_cmFunc.h **** 
+ 294:../stm32f4xx/core_cmFunc.h **** 
+ 295:../stm32f4xx/core_cmFunc.h **** #elif defined ( __ICCARM__ ) /*------------------ ICC Compiler -------------------*/
+ 296:../stm32f4xx/core_cmFunc.h **** /* IAR iccarm specific functions */
+ 297:../stm32f4xx/core_cmFunc.h **** 
+ 298:../stm32f4xx/core_cmFunc.h **** #include <cmsis_iar.h>
+ 299:../stm32f4xx/core_cmFunc.h **** 
+ 300:../stm32f4xx/core_cmFunc.h **** 
+ 301:../stm32f4xx/core_cmFunc.h **** #elif defined ( __TMS470__ ) /*---------------- TI CCS Compiler ------------------*/
+ 302:../stm32f4xx/core_cmFunc.h **** /* TI CCS specific functions */
+ 303:../stm32f4xx/core_cmFunc.h **** 
+ 304:../stm32f4xx/core_cmFunc.h **** #include <cmsis_ccs.h>
+ 305:../stm32f4xx/core_cmFunc.h **** 
+ 306:../stm32f4xx/core_cmFunc.h **** 
+ 307:../stm32f4xx/core_cmFunc.h **** #elif defined ( __GNUC__ ) /*------------------ GNU Compiler ---------------------*/
+ 308:../stm32f4xx/core_cmFunc.h **** /* GNU gcc specific functions */
+ 309:../stm32f4xx/core_cmFunc.h **** 
+ 310:../stm32f4xx/core_cmFunc.h **** /** \brief  Enable IRQ Interrupts
+ 311:../stm32f4xx/core_cmFunc.h **** 
+ 312:../stm32f4xx/core_cmFunc.h ****   This function enables IRQ interrupts by clearing the I-bit in the CPSR.
+ 313:../stm32f4xx/core_cmFunc.h ****   Can only be executed in Privileged modes.
+ 314:../stm32f4xx/core_cmFunc.h ****  */
+ 315:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE void __enable_irq(void)
+ 316:../stm32f4xx/core_cmFunc.h **** {
+ 317:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("cpsie i");
+ 318:../stm32f4xx/core_cmFunc.h **** }
+ 319:../stm32f4xx/core_cmFunc.h **** 
+ 320:../stm32f4xx/core_cmFunc.h **** 
+ 321:../stm32f4xx/core_cmFunc.h **** /** \brief  Disable IRQ Interrupts
+ 322:../stm32f4xx/core_cmFunc.h **** 
+ 323:../stm32f4xx/core_cmFunc.h ****   This function disables IRQ interrupts by setting the I-bit in the CPSR.
+ 324:../stm32f4xx/core_cmFunc.h ****   Can only be executed in Privileged modes.
+ 325:../stm32f4xx/core_cmFunc.h ****  */
+ 326:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE void __disable_irq(void)
+ 327:../stm32f4xx/core_cmFunc.h **** {
+ 328:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("cpsid i");
+ 329:../stm32f4xx/core_cmFunc.h **** }
+ 330:../stm32f4xx/core_cmFunc.h **** 
+ 331:../stm32f4xx/core_cmFunc.h **** 
+ 332:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Control Register
+ 333:../stm32f4xx/core_cmFunc.h **** 
+ 334:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the Control Register.
+ 335:../stm32f4xx/core_cmFunc.h **** 
+ 336:../stm32f4xx/core_cmFunc.h ****     \return               Control Register value
+ 337:../stm32f4xx/core_cmFunc.h ****  */
+ 338:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_CONTROL(void)
+ 339:../stm32f4xx/core_cmFunc.h **** {
+ 340:../stm32f4xx/core_cmFunc.h ****   uint32_t result;
+ 341:../stm32f4xx/core_cmFunc.h **** 
+ 342:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, control" : "=r" (result) );
+ 343:../stm32f4xx/core_cmFunc.h ****   return(result);
+ 344:../stm32f4xx/core_cmFunc.h **** }
+ 345:../stm32f4xx/core_cmFunc.h **** 
+ 346:../stm32f4xx/core_cmFunc.h **** 
+ 347:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Control Register
+ 348:../stm32f4xx/core_cmFunc.h **** 
+ 349:../stm32f4xx/core_cmFunc.h ****     This function writes the given value to the Control Register.
+ 350:../stm32f4xx/core_cmFunc.h **** 
+ 351:../stm32f4xx/core_cmFunc.h ****     \param [in]    control  Control Register value to set
+ 352:../stm32f4xx/core_cmFunc.h ****  */
+ 353:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_CONTROL(uint32_t control)
+ 354:../stm32f4xx/core_cmFunc.h **** {
+ 355:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MSR control, %0" : : "r" (control) );
+ 356:../stm32f4xx/core_cmFunc.h **** }
+ 357:../stm32f4xx/core_cmFunc.h **** 
+ 358:../stm32f4xx/core_cmFunc.h **** 
+ 359:../stm32f4xx/core_cmFunc.h **** /** \brief  Get IPSR Register
+ 360:../stm32f4xx/core_cmFunc.h **** 
+ 361:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the IPSR Register.
+ 362:../stm32f4xx/core_cmFunc.h **** 
+ 363:../stm32f4xx/core_cmFunc.h ****     \return               IPSR Register value
+ 364:../stm32f4xx/core_cmFunc.h ****  */
+ 365:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_IPSR(void)
+ 366:../stm32f4xx/core_cmFunc.h **** {
+ 367:../stm32f4xx/core_cmFunc.h ****   uint32_t result;
+ 368:../stm32f4xx/core_cmFunc.h **** 
+ 369:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, ipsr" : "=r" (result) );
+ 370:../stm32f4xx/core_cmFunc.h ****   return(result);
+ 371:../stm32f4xx/core_cmFunc.h **** }
+ 372:../stm32f4xx/core_cmFunc.h **** 
+ 373:../stm32f4xx/core_cmFunc.h **** 
+ 374:../stm32f4xx/core_cmFunc.h **** /** \brief  Get APSR Register
+ 375:../stm32f4xx/core_cmFunc.h **** 
+ 376:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the APSR Register.
+ 377:../stm32f4xx/core_cmFunc.h **** 
+ 378:../stm32f4xx/core_cmFunc.h ****     \return               APSR Register value
+ 379:../stm32f4xx/core_cmFunc.h ****  */
+ 380:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_APSR(void)
+ 381:../stm32f4xx/core_cmFunc.h **** {
+ 382:../stm32f4xx/core_cmFunc.h ****   uint32_t result;
+ 383:../stm32f4xx/core_cmFunc.h **** 
+ 384:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, apsr" : "=r" (result) );
+ 385:../stm32f4xx/core_cmFunc.h ****   return(result);
+ 386:../stm32f4xx/core_cmFunc.h **** }
+ 387:../stm32f4xx/core_cmFunc.h **** 
+ 388:../stm32f4xx/core_cmFunc.h **** 
+ 389:../stm32f4xx/core_cmFunc.h **** /** \brief  Get xPSR Register
+ 390:../stm32f4xx/core_cmFunc.h **** 
+ 391:../stm32f4xx/core_cmFunc.h ****     This function returns the content of the xPSR Register.
+ 392:../stm32f4xx/core_cmFunc.h **** 
+ 393:../stm32f4xx/core_cmFunc.h ****     \return               xPSR Register value
+ 394:../stm32f4xx/core_cmFunc.h ****  */
+ 395:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_xPSR(void)
+ 396:../stm32f4xx/core_cmFunc.h **** {
+ 397:../stm32f4xx/core_cmFunc.h ****   uint32_t result;
+ 398:../stm32f4xx/core_cmFunc.h **** 
+ 399:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, xpsr" : "=r" (result) );
+ 400:../stm32f4xx/core_cmFunc.h ****   return(result);
+ 401:../stm32f4xx/core_cmFunc.h **** }
+ 402:../stm32f4xx/core_cmFunc.h **** 
+ 403:../stm32f4xx/core_cmFunc.h **** 
+ 404:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Process Stack Pointer
+ 405:../stm32f4xx/core_cmFunc.h **** 
+ 406:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Process Stack Pointer (PSP).
+ 407:../stm32f4xx/core_cmFunc.h **** 
+ 408:../stm32f4xx/core_cmFunc.h ****     \return               PSP Register value
+ 409:../stm32f4xx/core_cmFunc.h ****  */
+ 410:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_PSP(void)
+ 411:../stm32f4xx/core_cmFunc.h **** {
+ 412:../stm32f4xx/core_cmFunc.h ****   register uint32_t result;
+ 413:../stm32f4xx/core_cmFunc.h **** 
+ 414:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, psp\n"  : "=r" (result) );
+ 415:../stm32f4xx/core_cmFunc.h ****   return(result);
+ 416:../stm32f4xx/core_cmFunc.h **** }
+ 417:../stm32f4xx/core_cmFunc.h **** 
+ 418:../stm32f4xx/core_cmFunc.h **** 
+ 419:../stm32f4xx/core_cmFunc.h **** /** \brief  Set Process Stack Pointer
+ 420:../stm32f4xx/core_cmFunc.h **** 
+ 421:../stm32f4xx/core_cmFunc.h ****     This function assigns the given value to the Process Stack Pointer (PSP).
+ 422:../stm32f4xx/core_cmFunc.h **** 
+ 423:../stm32f4xx/core_cmFunc.h ****     \param [in]    topOfProcStack  Process Stack Pointer value to set
+ 424:../stm32f4xx/core_cmFunc.h ****  */
+ 425:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_PSP(uint32_t topOfProcStack)
+ 426:../stm32f4xx/core_cmFunc.h **** {
+ 427:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MSR psp, %0\n" : : "r" (topOfProcStack) );
+ 428:../stm32f4xx/core_cmFunc.h **** }
+ 429:../stm32f4xx/core_cmFunc.h **** 
+ 430:../stm32f4xx/core_cmFunc.h **** 
+ 431:../stm32f4xx/core_cmFunc.h **** /** \brief  Get Main Stack Pointer
+ 432:../stm32f4xx/core_cmFunc.h **** 
+ 433:../stm32f4xx/core_cmFunc.h ****     This function returns the current value of the Main Stack Pointer (MSP).
+ 434:../stm32f4xx/core_cmFunc.h **** 
+ 435:../stm32f4xx/core_cmFunc.h ****     \return               MSP Register value
+ 436:../stm32f4xx/core_cmFunc.h ****  */
+ 437:../stm32f4xx/core_cmFunc.h **** __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_MSP(void)
+ 438:../stm32f4xx/core_cmFunc.h **** {
+ 439:../stm32f4xx/core_cmFunc.h ****   register uint32_t result;
+ 440:../stm32f4xx/core_cmFunc.h **** 
+ 441:../stm32f4xx/core_cmFunc.h ****   __ASM volatile ("MRS %0, msp\n" : "=r" (result) );
+ 592              		.loc 2 441 0
+ 593              	@ 441 "../stm32f4xx/core_cmFunc.h" 1
+ 594 0290 EFF30884 		MRS r4, msp
+ 595              	
+ 596              	@ 0 "" 2
+ 442:../stm32f4xx/core_cmFunc.h ****   return(result);
+ 597              		.loc 2 442 0
+ 598              		.thumb
+ 599 0294 2346     		mov	r3, r4
+ 600              	.LBE5:
+ 601              	.LBE4:
+ 316:../QS/QS_sys.c **** 
+ 317:../QS/QS_sys.c **** 	char * stack = (char*) __get_MSP();
+ 602              		.loc 1 317 0
+ 603 0296 BB60     		str	r3, [r7, #8]
+ 318:../QS/QS_sys.c **** 	if (heap_end + incr >  stack)
+ 604              		.loc 1 318 0
+ 605 0298 40F20003 		movw	r3, #:lower16:heap_end.7179
+ 606 029c C0F20003 		movt	r3, #:upper16:heap_end.7179
+ 607 02a0 1A68     		ldr	r2, [r3, #0]
+ 608 02a2 7B68     		ldr	r3, [r7, #4]
+ 609 02a4 D218     		adds	r2, r2, r3
+ 610 02a6 BB68     		ldr	r3, [r7, #8]
+ 611 02a8 9A42     		cmp	r2, r3
+ 612 02aa 12D9     		bls	.L30
+ 319:../QS/QS_sys.c **** 	{
+ 320:../QS/QS_sys.c **** 		_write (STDERR_FILENO, "Heap and stack collision\n", 25);
+ 613              		.loc 1 320 0
+ 614 02ac 4FF00200 		mov	r0, #2
+ 615 02b0 40F20001 		movw	r1, #:lower16:.LC1
+ 616 02b4 C0F20001 		movt	r1, #:upper16:.LC1
+ 617 02b8 4FF01902 		mov	r2, #25
+ 618 02bc FFF7FEFF 		bl	_write
+ 321:../QS/QS_sys.c **** 		errno = ENOMEM;
+ 619              		.loc 1 321 0
+ 620 02c0 FFF7FEFF 		bl	__errno
+ 621 02c4 0346     		mov	r3, r0
+ 622 02c6 4FF00C02 		mov	r2, #12
+ 623 02ca 1A60     		str	r2, [r3, #0]
+ 322:../QS/QS_sys.c **** 		return  (caddr_t) -1;
+ 624              		.loc 1 322 0
+ 625 02cc 4FF0FF33 		mov	r3, #-1
+ 626 02d0 0CE0     		b	.L31
+ 627              	.L30:
+ 323:../QS/QS_sys.c **** 		//abort ();
+ 324:../QS/QS_sys.c **** 	}
+ 325:../QS/QS_sys.c **** 
+ 326:../QS/QS_sys.c **** 	heap_end += incr;
+ 628              		.loc 1 326 0
+ 629 02d2 40F20003 		movw	r3, #:lower16:heap_end.7179
+ 630 02d6 C0F20003 		movt	r3, #:upper16:heap_end.7179
+ 631 02da 1A68     		ldr	r2, [r3, #0]
+ 632 02dc 7B68     		ldr	r3, [r7, #4]
+ 633 02de D218     		adds	r2, r2, r3
+ 634 02e0 40F20003 		movw	r3, #:lower16:heap_end.7179
+ 635 02e4 C0F20003 		movt	r3, #:upper16:heap_end.7179
+ 636 02e8 1A60     		str	r2, [r3, #0]
+ 327:../QS/QS_sys.c **** 	return (caddr_t) prev_heap_end;
+ 637              		.loc 1 327 0
+ 638 02ea FB68     		ldr	r3, [r7, #12]
+ 639              	.L31:
+ 328:../QS/QS_sys.c **** }
+ 640              		.loc 1 328 0
+ 641 02ec 1846     		mov	r0, r3
+ 642 02ee 07F11407 		add	r7, r7, #20
+ 643 02f2 BD46     		mov	sp, r7
+ 644 02f4 90BD     		pop	{r4, r7, pc}
+ 645              		.cfi_endproc
+ 646              	.LFE122:
+ 648 02f6 00BF     		.align	2
+ 649              		.weak	_read
+ 650              		.thumb
+ 651              		.thumb_func
+ 653              	_read:
+ 654              	.LFB123:
+ 329:../QS/QS_sys.c **** 
+ 330:../QS/QS_sys.c **** /*
+ 331:../QS/QS_sys.c ****  read
+ 332:../QS/QS_sys.c ****  Read a character to a file. `libc' subroutines will use this system routine for input from all fil
+ 333:../QS/QS_sys.c ****  Returns -1 on error or blocks until the number of characters have been read.
+ 334:../QS/QS_sys.c ****  */
+ 335:../QS/QS_sys.c **** __attribute__((weak))
+ 336:../QS/QS_sys.c **** int _read(int file, char *ptr, int len) {
+ 655              		.loc 1 336 0
+ 656              		.cfi_startproc
+ 657              		@ args = 0, pretend = 0, frame = 32
+ 658              		@ frame_needed = 1, uses_anonymous_args = 0
+ 659 02f8 80B5     		push	{r7, lr}
+ 660              	.LCFI34:
+ 661              		.cfi_def_cfa_offset 8
+ 662              		.cfi_offset 7, -8
+ 663              		.cfi_offset 14, -4
+ 664 02fa 88B0     		sub	sp, sp, #32
+ 665              	.LCFI35:
+ 666              		.cfi_def_cfa_offset 40
+ 667 02fc 00AF     		add	r7, sp, #0
+ 668              	.LCFI36:
+ 669              		.cfi_def_cfa_register 7
+ 670 02fe F860     		str	r0, [r7, #12]
+ 671 0300 B960     		str	r1, [r7, #8]
+ 672 0302 7A60     		str	r2, [r7, #4]
+ 337:../QS/QS_sys.c **** 	int n;
+ 338:../QS/QS_sys.c **** 	int num = 0;
+ 673              		.loc 1 338 0
+ 674 0304 4FF00003 		mov	r3, #0
+ 675 0308 BB61     		str	r3, [r7, #24]
+ 339:../QS/QS_sys.c **** 	switch (file) {
+ 676              		.loc 1 339 0
+ 677 030a FB68     		ldr	r3, [r7, #12]
+ 678 030c 002B     		cmp	r3, #0
+ 679 030e 29D1     		bne	.L40
+ 680              	.L34:
+ 340:../QS/QS_sys.c **** 		case STDIN_FILENO:
+ 341:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 681              		.loc 1 341 0
+ 682 0310 4FF00003 		mov	r3, #0
+ 683 0314 FB61     		str	r3, [r7, #28]
+ 684 0316 20E0     		b	.L35
+ 685              	.L42:
+ 686              	.LBB6:
+ 342:../QS/QS_sys.c **** #if   STDIN_USART == 1
+ 343:../QS/QS_sys.c **** 				while ((USART1->SR & USART_FLAG_RXNE) == (uint16_t)RESET) {}
+ 687              		.loc 1 343 0
+ 688 0318 00BF     		nop
+ 689              	.L36:
+ 690              		.loc 1 343 0 is_stmt 0 discriminator 1
+ 691 031a 4FF48053 		mov	r3, #4096
+ 692 031e C4F20103 		movt	r3, 16385
+ 693 0322 1B88     		ldrh	r3, [r3, #0]	@ movhi
+ 694 0324 9BB2     		uxth	r3, r3
+ 695 0326 03F02003 		and	r3, r3, #32
+ 696 032a 002B     		cmp	r3, #0
+ 697 032c F5D0     		beq	.L36
+ 344:../QS/QS_sys.c **** 				char c = (char)(USART1->DR & (uint16_t)0x01FF);
+ 698              		.loc 1 344 0 is_stmt 1
+ 699 032e 4FF48053 		mov	r3, #4096
+ 700 0332 C4F20103 		movt	r3, 16385
+ 701 0336 9B88     		ldrh	r3, [r3, #4]	@ movhi
+ 702 0338 9BB2     		uxth	r3, r3
+ 703 033a FB75     		strb	r3, [r7, #23]
+ 345:../QS/QS_sys.c **** #elif STDIN_USART == 2
+ 346:../QS/QS_sys.c **** 				while ((USART2->SR & USART_FLAG_RXNE) == (uint16_t) RESET) {}
+ 347:../QS/QS_sys.c **** 				char c = (char) (USART2->DR & (uint16_t) 0x01FF);
+ 348:../QS/QS_sys.c **** #elif STDIN_USART == 3
+ 349:../QS/QS_sys.c **** 				while ((USART3->SR & USART_FLAG_RXNE) == (uint16_t)RESET) {}
+ 350:../QS/QS_sys.c **** 				char c = (char)(USART3->DR & (uint16_t)0x01FF);
+ 351:../QS/QS_sys.c **** #endif
+ 352:../QS/QS_sys.c **** 				*ptr++ = c;
+ 704              		.loc 1 352 0
+ 705 033c BB68     		ldr	r3, [r7, #8]
+ 706 033e FA7D     		ldrb	r2, [r7, #23]
+ 707 0340 1A70     		strb	r2, [r3, #0]
+ 708 0342 BB68     		ldr	r3, [r7, #8]
+ 709 0344 03F10103 		add	r3, r3, #1
+ 710 0348 BB60     		str	r3, [r7, #8]
+ 353:../QS/QS_sys.c **** 				num++;
+ 711              		.loc 1 353 0
+ 712 034a BB69     		ldr	r3, [r7, #24]
+ 713 034c 03F10103 		add	r3, r3, #1
+ 714 0350 BB61     		str	r3, [r7, #24]
+ 715              	.LBE6:
+ 341:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 716              		.loc 1 341 0
+ 717 0352 FB69     		ldr	r3, [r7, #28]
+ 718 0354 03F10103 		add	r3, r3, #1
+ 719 0358 FB61     		str	r3, [r7, #28]
+ 720              	.L35:
+ 341:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 721              		.loc 1 341 0 is_stmt 0 discriminator 1
+ 722 035a FA69     		ldr	r2, [r7, #28]
+ 723 035c 7B68     		ldr	r3, [r7, #4]
+ 724 035e 9A42     		cmp	r2, r3
+ 725 0360 DADB     		blt	.L42
+ 354:../QS/QS_sys.c **** 			}
+ 355:../QS/QS_sys.c **** 			break;
+ 726              		.loc 1 355 0 is_stmt 1
+ 727 0362 08E0     		b	.L41
+ 728              	.L40:
+ 356:../QS/QS_sys.c **** 		default:
+ 357:../QS/QS_sys.c **** 			errno = EBADF;
+ 729              		.loc 1 357 0
+ 730 0364 FFF7FEFF 		bl	__errno
+ 731 0368 0346     		mov	r3, r0
+ 732 036a 4FF00902 		mov	r2, #9
+ 733 036e 1A60     		str	r2, [r3, #0]
+ 358:../QS/QS_sys.c **** 			return -1;
+ 734              		.loc 1 358 0
+ 735 0370 4FF0FF33 		mov	r3, #-1
+ 736 0374 00E0     		b	.L39
+ 737              	.L41:
+ 359:../QS/QS_sys.c **** 	}
+ 360:../QS/QS_sys.c **** 	return num;
+ 738              		.loc 1 360 0
+ 739 0376 BB69     		ldr	r3, [r7, #24]
+ 740              	.L39:
+ 361:../QS/QS_sys.c **** }
+ 741              		.loc 1 361 0
+ 742 0378 1846     		mov	r0, r3
+ 743 037a 07F12007 		add	r7, r7, #32
+ 744 037e BD46     		mov	sp, r7
+ 745 0380 80BD     		pop	{r7, pc}
+ 746              		.cfi_endproc
+ 747              	.LFE123:
+ 749 0382 00BF     		.align	2
+ 750              		.weak	_stat
+ 751              		.thumb
+ 752              		.thumb_func
+ 754              	_stat:
+ 755              	.LFB124:
+ 362:../QS/QS_sys.c **** 
+ 363:../QS/QS_sys.c **** /*
+ 364:../QS/QS_sys.c ****  stat
+ 365:../QS/QS_sys.c ****  Status of a file (by name). Minimal implementation:
+ 366:../QS/QS_sys.c ****  int    _EXFUN(stat,( const char *__path, struct stat *__sbuf ));
+ 367:../QS/QS_sys.c ****  */
+ 368:../QS/QS_sys.c **** __attribute__((weak))
+ 369:../QS/QS_sys.c **** int _stat(const char *filepath, struct stat *st) {
+ 756              		.loc 1 369 0
+ 757              		.cfi_startproc
+ 758              		@ args = 0, pretend = 0, frame = 8
+ 759              		@ frame_needed = 1, uses_anonymous_args = 0
+ 760              		@ link register save eliminated.
+ 761 0384 80B4     		push	{r7}
+ 762              	.LCFI37:
+ 763              		.cfi_def_cfa_offset 4
+ 764              		.cfi_offset 7, -4
+ 765 0386 83B0     		sub	sp, sp, #12
+ 766              	.LCFI38:
+ 767              		.cfi_def_cfa_offset 16
+ 768 0388 00AF     		add	r7, sp, #0
+ 769              	.LCFI39:
+ 770              		.cfi_def_cfa_register 7
+ 771 038a 7860     		str	r0, [r7, #4]
+ 772 038c 3960     		str	r1, [r7, #0]
+ 370:../QS/QS_sys.c **** 	st->st_mode = S_IFCHR;
+ 773              		.loc 1 370 0
+ 774 038e 3B68     		ldr	r3, [r7, #0]
+ 775 0390 4FF40052 		mov	r2, #8192
+ 776 0394 5A60     		str	r2, [r3, #4]
+ 371:../QS/QS_sys.c **** 	return 0;
+ 777              		.loc 1 371 0
+ 778 0396 4FF00003 		mov	r3, #0
+ 372:../QS/QS_sys.c **** }
+ 779              		.loc 1 372 0
+ 780 039a 1846     		mov	r0, r3
+ 781 039c 07F10C07 		add	r7, r7, #12
+ 782 03a0 BD46     		mov	sp, r7
+ 783 03a2 80BC     		pop	{r7}
+ 784 03a4 7047     		bx	lr
+ 785              		.cfi_endproc
+ 786              	.LFE124:
+ 788 03a6 00BF     		.align	2
+ 789              		.weak	_times
+ 790              		.thumb
+ 791              		.thumb_func
+ 793              	_times:
+ 794              	.LFB125:
+ 373:../QS/QS_sys.c **** 
+ 374:../QS/QS_sys.c **** /*
+ 375:../QS/QS_sys.c ****  times
+ 376:../QS/QS_sys.c ****  Timing information for current process. Minimal implementation:
+ 377:../QS/QS_sys.c ****  */
+ 378:../QS/QS_sys.c **** __attribute__((weak))
+ 379:../QS/QS_sys.c **** clock_t _times(struct tms *buf) {
+ 795              		.loc 1 379 0
+ 796              		.cfi_startproc
+ 797              		@ args = 0, pretend = 0, frame = 8
+ 798              		@ frame_needed = 1, uses_anonymous_args = 0
+ 799              		@ link register save eliminated.
+ 800 03a8 80B4     		push	{r7}
+ 801              	.LCFI40:
+ 802              		.cfi_def_cfa_offset 4
+ 803              		.cfi_offset 7, -4
+ 804 03aa 83B0     		sub	sp, sp, #12
+ 805              	.LCFI41:
+ 806              		.cfi_def_cfa_offset 16
+ 807 03ac 00AF     		add	r7, sp, #0
+ 808              	.LCFI42:
+ 809              		.cfi_def_cfa_register 7
+ 810 03ae 7860     		str	r0, [r7, #4]
+ 380:../QS/QS_sys.c **** 	return -1;
+ 811              		.loc 1 380 0
+ 812 03b0 4FF0FF33 		mov	r3, #-1
+ 381:../QS/QS_sys.c **** }
+ 813              		.loc 1 381 0
+ 814 03b4 1846     		mov	r0, r3
+ 815 03b6 07F10C07 		add	r7, r7, #12
+ 816 03ba BD46     		mov	sp, r7
+ 817 03bc 80BC     		pop	{r7}
+ 818 03be 7047     		bx	lr
+ 819              		.cfi_endproc
+ 820              	.LFE125:
+ 822              		.align	2
+ 823              		.weak	_unlink
+ 824              		.thumb
+ 825              		.thumb_func
+ 827              	_unlink:
+ 828              	.LFB126:
+ 382:../QS/QS_sys.c **** 
+ 383:../QS/QS_sys.c **** /*
+ 384:../QS/QS_sys.c ****  unlink
+ 385:../QS/QS_sys.c ****  Remove a file's directory entry. Minimal implementation:
+ 386:../QS/QS_sys.c ****  */
+ 387:../QS/QS_sys.c **** __attribute__((weak))
+ 388:../QS/QS_sys.c **** int _unlink(char *name) {
+ 829              		.loc 1 388 0
+ 830              		.cfi_startproc
+ 831              		@ args = 0, pretend = 0, frame = 8
+ 832              		@ frame_needed = 1, uses_anonymous_args = 0
+ 833 03c0 80B5     		push	{r7, lr}
+ 834              	.LCFI43:
+ 835              		.cfi_def_cfa_offset 8
+ 836              		.cfi_offset 7, -8
+ 837              		.cfi_offset 14, -4
+ 838 03c2 82B0     		sub	sp, sp, #8
+ 839              	.LCFI44:
+ 840              		.cfi_def_cfa_offset 16
+ 841 03c4 00AF     		add	r7, sp, #0
+ 842              	.LCFI45:
+ 843              		.cfi_def_cfa_register 7
+ 844 03c6 7860     		str	r0, [r7, #4]
+ 389:../QS/QS_sys.c **** 	errno = ENOENT;
+ 845              		.loc 1 389 0
+ 846 03c8 FFF7FEFF 		bl	__errno
+ 847 03cc 0346     		mov	r3, r0
+ 848 03ce 4FF00202 		mov	r2, #2
+ 849 03d2 1A60     		str	r2, [r3, #0]
+ 390:../QS/QS_sys.c **** 	return -1;
+ 850              		.loc 1 390 0
+ 851 03d4 4FF0FF33 		mov	r3, #-1
+ 391:../QS/QS_sys.c **** }
+ 852              		.loc 1 391 0
+ 853 03d8 1846     		mov	r0, r3
+ 854 03da 07F10807 		add	r7, r7, #8
+ 855 03de BD46     		mov	sp, r7
+ 856 03e0 80BD     		pop	{r7, pc}
+ 857              		.cfi_endproc
+ 858              	.LFE126:
+ 860 03e2 00BF     		.align	2
+ 861              		.weak	_wait
+ 862              		.thumb
+ 863              		.thumb_func
+ 865              	_wait:
+ 866              	.LFB127:
+ 392:../QS/QS_sys.c **** 
+ 393:../QS/QS_sys.c **** /*
+ 394:../QS/QS_sys.c ****  wait
+ 395:../QS/QS_sys.c ****  Wait for a child process. Minimal implementation:
+ 396:../QS/QS_sys.c ****  */
+ 397:../QS/QS_sys.c **** __attribute__((weak))
+ 398:../QS/QS_sys.c **** int _wait(int *status) {
+ 867              		.loc 1 398 0
+ 868              		.cfi_startproc
+ 869              		@ args = 0, pretend = 0, frame = 8
+ 870              		@ frame_needed = 1, uses_anonymous_args = 0
+ 871 03e4 80B5     		push	{r7, lr}
+ 872              	.LCFI46:
+ 873              		.cfi_def_cfa_offset 8
+ 874              		.cfi_offset 7, -8
+ 875              		.cfi_offset 14, -4
+ 876 03e6 82B0     		sub	sp, sp, #8
+ 877              	.LCFI47:
+ 878              		.cfi_def_cfa_offset 16
+ 879 03e8 00AF     		add	r7, sp, #0
+ 880              	.LCFI48:
+ 881              		.cfi_def_cfa_register 7
+ 882 03ea 7860     		str	r0, [r7, #4]
+ 399:../QS/QS_sys.c **** 	errno = ECHILD;
+ 883              		.loc 1 399 0
+ 884 03ec FFF7FEFF 		bl	__errno
+ 885 03f0 0346     		mov	r3, r0
+ 886 03f2 4FF00A02 		mov	r2, #10
+ 887 03f6 1A60     		str	r2, [r3, #0]
+ 400:../QS/QS_sys.c **** 	return -1;
+ 888              		.loc 1 400 0
+ 889 03f8 4FF0FF33 		mov	r3, #-1
+ 401:../QS/QS_sys.c **** }
+ 890              		.loc 1 401 0
+ 891 03fc 1846     		mov	r0, r3
+ 892 03fe 07F10807 		add	r7, r7, #8
+ 893 0402 BD46     		mov	sp, r7
+ 894 0404 80BD     		pop	{r7, pc}
+ 895              		.cfi_endproc
+ 896              	.LFE127:
+ 898 0406 00BF     		.align	2
+ 899              		.weak	_write
+ 900              		.thumb
+ 901              		.thumb_func
+ 903              	_write:
+ 904              	.LFB128:
+ 402:../QS/QS_sys.c **** 
+ 403:../QS/QS_sys.c **** /*
+ 404:../QS/QS_sys.c ****  write
+ 405:../QS/QS_sys.c ****  Write a character to a file. `libc' subroutines will use this system routine for output to all fil
+ 406:../QS/QS_sys.c ****  Returns -1 on error or number of bytes sent
+ 407:../QS/QS_sys.c ****  */
+ 408:../QS/QS_sys.c **** __attribute__((weak))
+ 409:../QS/QS_sys.c **** int _write(int file, char *ptr, int len) {
+ 905              		.loc 1 409 0
+ 906              		.cfi_startproc
+ 907              		@ args = 0, pretend = 0, frame = 24
+ 908              		@ frame_needed = 1, uses_anonymous_args = 0
+ 909 0408 80B5     		push	{r7, lr}
+ 910              	.LCFI49:
+ 911              		.cfi_def_cfa_offset 8
+ 912              		.cfi_offset 7, -8
+ 913              		.cfi_offset 14, -4
+ 914 040a 86B0     		sub	sp, sp, #24
+ 915              	.LCFI50:
+ 916              		.cfi_def_cfa_offset 32
+ 917 040c 00AF     		add	r7, sp, #0
+ 918              	.LCFI51:
+ 919              		.cfi_def_cfa_register 7
+ 920 040e F860     		str	r0, [r7, #12]
+ 921 0410 B960     		str	r1, [r7, #8]
+ 922 0412 7A60     		str	r2, [r7, #4]
+ 410:../QS/QS_sys.c **** 	int n;
+ 411:../QS/QS_sys.c **** 	switch (file) {
+ 923              		.loc 1 411 0
+ 924 0414 FB68     		ldr	r3, [r7, #12]
+ 925 0416 012B     		cmp	r3, #1
+ 926 0418 02D0     		beq	.L53
+ 927 041a 022B     		cmp	r3, #2
+ 928 041c 23D0     		beq	.L54
+ 929 041e 45E0     		b	.L63
+ 930              	.L53:
+ 412:../QS/QS_sys.c **** 		case STDOUT_FILENO: /*stdout*/
+ 413:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 931              		.loc 1 413 0
+ 932 0420 4FF00003 		mov	r3, #0
+ 933 0424 7B61     		str	r3, [r7, #20]
+ 934 0426 19E0     		b	.L55
+ 935              	.L64:
+ 414:../QS/QS_sys.c **** #if STDOUT_USART == 1
+ 415:../QS/QS_sys.c **** 				while ((USART1->SR & USART_FLAG_TC) == (uint16_t)RESET) {}
+ 936              		.loc 1 415 0
+ 937 0428 00BF     		nop
+ 938              	.L56:
+ 939              		.loc 1 415 0 is_stmt 0 discriminator 1
+ 940 042a 4FF48053 		mov	r3, #4096
+ 941 042e C4F20103 		movt	r3, 16385
+ 942 0432 1B88     		ldrh	r3, [r3, #0]	@ movhi
+ 943 0434 9BB2     		uxth	r3, r3
+ 944 0436 03F04003 		and	r3, r3, #64
+ 945 043a 002B     		cmp	r3, #0
+ 946 043c F5D0     		beq	.L56
+ 416:../QS/QS_sys.c **** 				USART1->DR = (*ptr++ & (uint16_t)0x01FF);
+ 947              		.loc 1 416 0 is_stmt 1
+ 948 043e 4FF48053 		mov	r3, #4096
+ 949 0442 C4F20103 		movt	r3, 16385
+ 950 0446 BA68     		ldr	r2, [r7, #8]
+ 951 0448 1278     		ldrb	r2, [r2, #0]	@ zero_extendqisi2
+ 952 044a 9A80     		strh	r2, [r3, #4]	@ movhi
+ 953 044c BB68     		ldr	r3, [r7, #8]
+ 954 044e 03F10103 		add	r3, r3, #1
+ 955 0452 BB60     		str	r3, [r7, #8]
+ 413:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 956              		.loc 1 413 0
+ 957 0454 7B69     		ldr	r3, [r7, #20]
+ 958 0456 03F10103 		add	r3, r3, #1
+ 959 045a 7B61     		str	r3, [r7, #20]
+ 960              	.L55:
+ 413:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 961              		.loc 1 413 0 is_stmt 0 discriminator 1
+ 962 045c 7A69     		ldr	r2, [r7, #20]
+ 963 045e 7B68     		ldr	r3, [r7, #4]
+ 964 0460 9A42     		cmp	r2, r3
+ 965 0462 E1DB     		blt	.L64
+ 417:../QS/QS_sys.c **** #elif  STDOUT_USART == 2
+ 418:../QS/QS_sys.c **** 				while ((USART2->SR & USART_FLAG_TC) == (uint16_t) RESET) {
+ 419:../QS/QS_sys.c **** 				}
+ 420:../QS/QS_sys.c **** 				USART2->DR = (*ptr++ & (uint16_t) 0x01FF);
+ 421:../QS/QS_sys.c **** #elif  STDOUT_USART == 3
+ 422:../QS/QS_sys.c **** 				while ((USART3->SR & USART_FLAG_TC) == (uint16_t)RESET) {}
+ 423:../QS/QS_sys.c **** 				USART3->DR = (*ptr++ & (uint16_t)0x01FF);
+ 424:../QS/QS_sys.c **** #endif
+ 425:../QS/QS_sys.c **** 			}
+ 426:../QS/QS_sys.c **** 			break;
+ 966              		.loc 1 426 0 is_stmt 1
+ 967 0464 2BE0     		b	.L58
+ 968              	.L54:
+ 427:../QS/QS_sys.c **** 		case STDERR_FILENO: /* stderr */
+ 428:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 969              		.loc 1 428 0
+ 970 0466 4FF00003 		mov	r3, #0
+ 971 046a 7B61     		str	r3, [r7, #20]
+ 972 046c 19E0     		b	.L59
+ 973              	.L65:
+ 429:../QS/QS_sys.c **** #if STDERR_USART == 1
+ 430:../QS/QS_sys.c **** 				while ((USART1->SR & USART_FLAG_TC) == (uint16_t)RESET) {}
+ 974              		.loc 1 430 0
+ 975 046e 00BF     		nop
+ 976              	.L60:
+ 977              		.loc 1 430 0 is_stmt 0 discriminator 1
+ 978 0470 4FF48053 		mov	r3, #4096
+ 979 0474 C4F20103 		movt	r3, 16385
+ 980 0478 1B88     		ldrh	r3, [r3, #0]	@ movhi
+ 981 047a 9BB2     		uxth	r3, r3
+ 982 047c 03F04003 		and	r3, r3, #64
+ 983 0480 002B     		cmp	r3, #0
+ 984 0482 F5D0     		beq	.L60
+ 431:../QS/QS_sys.c **** 				USART1->DR = (*ptr++ & (uint16_t)0x01FF);
+ 985              		.loc 1 431 0 is_stmt 1
+ 986 0484 4FF48053 		mov	r3, #4096
+ 987 0488 C4F20103 		movt	r3, 16385
+ 988 048c BA68     		ldr	r2, [r7, #8]
+ 989 048e 1278     		ldrb	r2, [r2, #0]	@ zero_extendqisi2
+ 990 0490 9A80     		strh	r2, [r3, #4]	@ movhi
+ 991 0492 BB68     		ldr	r3, [r7, #8]
+ 992 0494 03F10103 		add	r3, r3, #1
+ 993 0498 BB60     		str	r3, [r7, #8]
+ 428:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 994              		.loc 1 428 0
+ 995 049a 7B69     		ldr	r3, [r7, #20]
+ 996 049c 03F10103 		add	r3, r3, #1
+ 997 04a0 7B61     		str	r3, [r7, #20]
+ 998              	.L59:
+ 428:../QS/QS_sys.c **** 			for (n = 0; n < len; n++) {
+ 999              		.loc 1 428 0 is_stmt 0 discriminator 1
+ 1000 04a2 7A69     		ldr	r2, [r7, #20]
+ 1001 04a4 7B68     		ldr	r3, [r7, #4]
+ 1002 04a6 9A42     		cmp	r2, r3
+ 1003 04a8 E1DB     		blt	.L65
+ 432:../QS/QS_sys.c **** #elif  STDERR_USART == 2
+ 433:../QS/QS_sys.c **** 				while ((USART2->SR & USART_FLAG_TC) == (uint16_t) RESET) {
+ 434:../QS/QS_sys.c **** 				}
+ 435:../QS/QS_sys.c **** 				USART2->DR = (*ptr++ & (uint16_t) 0x01FF);
+ 436:../QS/QS_sys.c **** #elif  STDERR_USART == 3
+ 437:../QS/QS_sys.c **** 				while ((USART3->SR & USART_FLAG_TC) == (uint16_t)RESET) {}
+ 438:../QS/QS_sys.c **** 				USART3->DR = (*ptr++ & (uint16_t)0x01FF);
+ 439:../QS/QS_sys.c **** #endif
+ 440:../QS/QS_sys.c **** 			}
+ 441:../QS/QS_sys.c **** 			break;
+ 1004              		.loc 1 441 0 is_stmt 1
+ 1005 04aa 08E0     		b	.L58
+ 1006              	.L63:
+ 442:../QS/QS_sys.c **** 		default:
+ 443:../QS/QS_sys.c **** 			errno = EBADF;
+ 1007              		.loc 1 443 0
+ 1008 04ac FFF7FEFF 		bl	__errno
+ 1009 04b0 0346     		mov	r3, r0
+ 1010 04b2 4FF00902 		mov	r2, #9
+ 1011 04b6 1A60     		str	r2, [r3, #0]
+ 444:../QS/QS_sys.c **** 			return -1;
+ 1012              		.loc 1 444 0
+ 1013 04b8 4FF0FF33 		mov	r3, #-1
+ 1014 04bc 00E0     		b	.L62
+ 1015              	.L58:
+ 445:../QS/QS_sys.c **** 	}
+ 446:../QS/QS_sys.c **** 	return len;
+ 1016              		.loc 1 446 0
+ 1017 04be 7B68     		ldr	r3, [r7, #4]
+ 1018              	.L62:
+ 447:../QS/QS_sys.c **** }
+ 1019              		.loc 1 447 0
+ 1020 04c0 1846     		mov	r0, r3
+ 1021 04c2 07F11807 		add	r7, r7, #24
+ 1022 04c6 BD46     		mov	sp, r7
+ 1023 04c8 80BD     		pop	{r7, pc}
+ 1024              		.cfi_endproc
+ 1025              	.LFE128:
+ 1027              		.bss
+ 1028              		.align	2
+ 1029              	heap_end.7179:
+ 1030 0004 00000000 		.space	4
+ 1031              		.text
+ 1032              	.Letext0:
+ 1033              		.file 3 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 1034              		.file 4 "../stm32f4xx/core_cm4.h"
+ 1035              		.file 5 "../stm32f4xx/stm32f4xx.h"
+ 1036              		.file 6 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 1037              		.file 7 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 1038              		.file 8 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 1039              		.file 9 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 1040              		.file 10 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\
+ 1041              		.file 11 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\
+ 1042              		.file 12 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\
+ 1043              		.file 13 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\
+DEFINED SYMBOLS
+                            *ABS*:00000000 QS_sys.c
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:18     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:23     .text:00000000 SYS_init
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:157    .bss:00000000 __env
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:154    .bss:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:164    .data:00000000 environ
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:161    .data:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:167    .rodata:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:168    .rodata:00000000 .LC0
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:176    .text:00000118 _exit
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:903    .text:00000408 _write
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:211    .text:00000138 _close
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:245    .text:00000150 _execve
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:285    .text:00000178 _fork
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:317    .text:00000190 _fstat
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:356    .text:000001b4 _getpid
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:385    .text:000001c4 _isatty
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:433    .text:000001f8 _kill
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:472    .text:0000021c _link
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:511    .text:00000240 _lseek
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:544    .rodata:00000008 .LC1
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:552    .text:0000025c _sbrk
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:1029   .bss:00000004 heap_end.7179
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:653    .text:000002f8 _read
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:754    .text:00000384 _stat
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:793    .text:000003a8 _times
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:827    .text:000003c0 _unlink
+C:\Users\Amaury\AppData\Local\Temp\cc7hpcfN.s:865    .text:000003e4 _wait
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.stm32f4xx_usart.h.31.b8cf39d5de41afe6bafa390bb6ad93c6
+                           .group:00000000 wm4.stm32f4xx_flash.h.31.3d3186e5198dfc8457c77e715ec6b0b8
+                           .group:00000000 wm4.errno.h.2.ba016d646105af6cad23be83630b6a3f
+                           .group:00000000 wm4._default_types.h.6.5e12cd604db8ce00b62bb2f02708eaf3
+                           .group:00000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:00000000 wm4.stddef.h.349.31f4c5baff3fa2689010b32028da9c47
+                           .group:00000000 wm4.reent.h.16.9e42f0e588b85e70b2bf6572af57ce64
+                           .group:00000000 wm4.errno.h.14.84e5a50cdf375f3e6c7abc27b8e42963
+                           .group:00000000 wm4.time.h.2.9857e62ad6ac99431e29d58067232314
+                           .group:00000000 wm4.time.h.24.c499d4c1915694df17abb795fd34b719
+                           .group:00000000 wm4.stddef.h.187.9e651b6b8b16e149c1353259404973ea
+                           .group:00000000 wm4.types.h.23.0d949686bbcadd1621462d4fa1f884f9
+                           .group:00000000 wm4.stddef.h.40.cf962ebbec441b3ac67502735f0765db
+                           .group:00000000 wm4.types.h.2.e9cec8c90ab35f77d9f499e06ae02400
+                           .group:00000000 wm4.types.h.80.1f2c84c0d57dd52dd9936095d9ac218e
+                           .group:00000000 wm4.time.h.124.10ced469f846269cafc58b59c853e1bb
+                           .group:00000000 wm4.stat.h.69.169a67369ef31f6ea38a12bc9ba4e5dd
+                           .group:00000000 wm4.unistd.h.2.6ce1b91c4223f6078c1b210c7538c1d2
+                           .group:00000000 wm4.stddef.h.161.e50ff8a9d5d1abbc15641da28ac571bf
+                           .group:00000000 wm4.unistd.h.251.605bc560cdc6c3b07b599bb71ac4e425
+                           .group:00000000 wm4.stdio.h.27.f2ac352bab34f31f9f478442827b2ba6
+                           .group:00000000 wm4.stdarg.h.34.3a23a216c0c293b3d2ea2e89281481e6
+                           .group:00000000 wm4.stdio.h.2.4aa87247282eca6c8f36f9de33d8df1a
+                           .group:00000000 wm4.stdio.h.63.7d366404fb392f8780fdfa325bf12301
+                           .group:00000000 wm4.QS_clocks_freq.h.15.e5020a075be21770f1522d00d0991706
+
+UNDEFINED SYMBOLS
+RCC_DeInit
+RCC_HSEConfig
+RCC_WaitForHSEStartUp
+FLASH_SetLatency
+RCC_SetHSEFreq
+RCC_HCLKConfig
+RCC_PCLK1Config
+RCC_PCLK2Config
+RCC_PLLConfig
+RCC_PLLCmd
+RCC_GetFlagStatus
+RCC_SYSCLKConfig
+RCC_GetSYSCLKSource
+SystemCoreClockUpdate
+NVIC_PriorityGroupConfig
+_impure_ptr
+setvbuf
+__errno
+_ebss

@@ -1,0 +1,618 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"KActManager.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	ACTMGR_init
+  20              		.thumb
+  21              		.thumb_func
+  23              	ACTMGR_init:
+  24              	.LFB111:
+  25              		.file 1 "../Krusty/KActManager.c"
+   1:../Krusty/KActManager.c **** /*  Club Robot ESEO 2012 - 2013
+   2:../Krusty/KActManager.c ****  *	Krusty
+   3:../Krusty/KActManager.c ****  *
+   4:../Krusty/KActManager.c ****  *	Fichier : KActManager.c
+   5:../Krusty/KActManager.c ****  *	Package : Carte actionneur
+   6:../Krusty/KActManager.c ****  *	Description : Gestion des actionneurs de Krusty
+   7:../Krusty/KActManager.c ****  *  Auteur : Alexis
+   8:../Krusty/KActManager.c ****  *  Version 20130227
+   9:../Krusty/KActManager.c ****  *  Robot : Krusty
+  10:../Krusty/KActManager.c ****  */
+  11:../Krusty/KActManager.c **** 
+  12:../Krusty/KActManager.c **** #include "KActManager.h"
+  13:../Krusty/KActManager.c **** #ifdef I_AM_ROBOT_KRUSTY
+  14:../Krusty/KActManager.c **** 
+  15:../Krusty/KActManager.c **** #include "KBall_launcher.h"
+  16:../Krusty/KActManager.c **** #include "KPlate.h"
+  17:../Krusty/KActManager.c **** #include "KLift.h"
+  18:../Krusty/KActManager.c **** #include "KBall_sorter.h"
+  19:../Krusty/KActManager.c **** #include "KFruit.h"
+  20:../Krusty/KActManager.c **** #include "../QS/QS_CANmsgList.h"
+  21:../Krusty/KActManager.c **** #include "../QS/QS_ax12.h"
+  22:../Krusty/KActManager.c **** #include "../act_queue_utils.h"
+  23:../Krusty/KActManager.c **** #include "config_pin.h"
+  24:../Krusty/KActManager.c **** 
+  25:../Krusty/KActManager.c **** static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
+  26:../Krusty/KActManager.c **** 
+  27:../Krusty/KActManager.c **** void ACTMGR_init() {
+  26              		.loc 1 27 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30 0000 80B5     		push	{r7, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 7, -8
+  34              		.cfi_offset 14, -4
+  35 0002 00AF     		add	r7, sp, #0
+  36              	.LCFI1:
+  37              		.cfi_def_cfa_register 7
+  28:../Krusty/KActManager.c **** 	/*BALLLAUNCHER_init();
+  29:../Krusty/KActManager.c **** 	PLATE_init();
+  30:../Krusty/KActManager.c **** 	LIFT_init();
+  31:../Krusty/KActManager.c **** 	BALLSORTER_init();*/
+  32:../Krusty/KActManager.c **** 	FRUIT_init();
+  38              		.loc 1 32 0
+  39 0004 FFF7FEFF 		bl	FRUIT_init
+  33:../Krusty/KActManager.c **** 	ACTMGR_reset_act();
+  40              		.loc 1 33 0
+  41 0008 FFF7FEFF 		bl	ACTMGR_reset_act
+  34:../Krusty/KActManager.c **** }
+  42              		.loc 1 34 0
+  43 000c 80BD     		pop	{r7, pc}
+  44              		.cfi_endproc
+  45              	.LFE111:
+  47 000e 00BF     		.align	2
+  48              		.global	ACTMGR_reset_act
+  49              		.thumb
+  50              		.thumb_func
+  52              	ACTMGR_reset_act:
+  53              	.LFB112:
+  35:../Krusty/KActManager.c **** 
+  36:../Krusty/KActManager.c **** //Met les actionneurs en position de départ
+  37:../Krusty/KActManager.c **** void ACTMGR_reset_act() {
+  54              		.loc 1 37 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 16
+  57              		@ frame_needed = 1, uses_anonymous_args = 0
+  58 0010 80B5     		push	{r7, lr}
+  59              	.LCFI2:
+  60              		.cfi_def_cfa_offset 8
+  61              		.cfi_offset 7, -8
+  62              		.cfi_offset 14, -4
+  63 0012 86B0     		sub	sp, sp, #24
+  64              	.LCFI3:
+  65              		.cfi_def_cfa_offset 32
+  66 0014 02AF     		add	r7, sp, #8
+  67              	.LCFI4:
+  68              		.cfi_def_cfa 7, 24
+  38:../Krusty/KActManager.c **** 	queue_id_t queueId;
+  39:../Krusty/KActManager.c **** 
+  40:../Krusty/KActManager.c **** 	queueId = QUEUE_create();
+  69              		.loc 1 40 0
+  70 0016 FFF7FEFF 		bl	QUEUE_create
+  71 001a 0346     		mov	r3, r0
+  72 001c FB73     		strb	r3, [r7, #15]
+  41:../Krusty/KActManager.c **** 	QUEUE_add(queueId, &ACTMGR_run_reset_act, (QUEUE_arg_t){0, 0, NULL}, 0);
+  73              		.loc 1 41 0
+  74 001e 4FF00003 		mov	r3, #0
+  75 0022 3B71     		strb	r3, [r7, #4]
+  76 0024 4FF00003 		mov	r3, #0
+  77 0028 FB80     		strh	r3, [r7, #6]	@ movhi
+  78 002a 4FF00003 		mov	r3, #0
+  79 002e BB60     		str	r3, [r7, #8]
+  80 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+  81 0032 4FF00002 		mov	r2, #0
+  82 0036 0092     		str	r2, [sp, #0]
+  83 0038 1846     		mov	r0, r3
+  84 003a 40F20001 		movw	r1, #:lower16:ACTMGR_run_reset_act
+  85 003e C0F20001 		movt	r1, #:upper16:ACTMGR_run_reset_act
+  86 0042 07F10403 		add	r3, r7, #4
+  87 0046 0CCB     		ldmia	r3, {r2, r3}
+  88 0048 FFF7FEFF 		bl	QUEUE_add
+  42:../Krusty/KActManager.c **** }
+  89              		.loc 1 42 0
+  90 004c 07F11007 		add	r7, r7, #16
+  91 0050 BD46     		mov	sp, r7
+  92 0052 80BD     		pop	{r7, pc}
+  93              		.cfi_endproc
+  94              	.LFE112:
+  96              		.align	2
+  97              		.global	ACTMGR_process_msg
+  98              		.thumb
+  99              		.thumb_func
+ 101              	ACTMGR_process_msg:
+ 102              	.LFB113:
+  43:../Krusty/KActManager.c **** 
+  44:../Krusty/KActManager.c **** //Gère les messages CAN des actionneurs. Si le message à été géré, cette fonction renvoie TRUE, sin
+  45:../Krusty/KActManager.c **** bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
+ 103              		.loc 1 45 0
+ 104              		.cfi_startproc
+ 105              		@ args = 0, pretend = 0, frame = 8
+ 106              		@ frame_needed = 1, uses_anonymous_args = 0
+ 107 0054 80B5     		push	{r7, lr}
+ 108              	.LCFI5:
+ 109              		.cfi_def_cfa_offset 8
+ 110              		.cfi_offset 7, -8
+ 111              		.cfi_offset 14, -4
+ 112 0056 82B0     		sub	sp, sp, #8
+ 113              	.LCFI6:
+ 114              		.cfi_def_cfa_offset 16
+ 115 0058 00AF     		add	r7, sp, #0
+ 116              	.LCFI7:
+ 117              		.cfi_def_cfa_register 7
+ 118 005a 7860     		str	r0, [r7, #4]
+  46:../Krusty/KActManager.c **** 	//Traitement des messages, si la fonction de traitement d'un actionneur retourne TRUE, c'est que l
+  47:../Krusty/KActManager.c **** 	/*if(BALLLAUNCHER_CAN_process_msg(msg))
+  48:../Krusty/KActManager.c **** 		return TRUE;
+  49:../Krusty/KActManager.c **** 	if(PLATE_CAN_process_msg(msg))
+  50:../Krusty/KActManager.c **** 		return TRUE;
+  51:../Krusty/KActManager.c **** 	if(LIFT_CAN_process_msg(msg))
+  52:../Krusty/KActManager.c **** 		return TRUE;
+  53:../Krusty/KActManager.c **** 	if(BALLSORTER_CAN_process_msg(msg))
+  54:../Krusty/KActManager.c **** 		return TRUE;*/
+  55:../Krusty/KActManager.c **** 	if(FRUIT_CAN_process_msg(msg))
+ 119              		.loc 1 55 0
+ 120 005c 7868     		ldr	r0, [r7, #4]
+ 121 005e FFF7FEFF 		bl	FRUIT_CAN_process_msg
+ 122 0062 0346     		mov	r3, r0
+ 123 0064 002B     		cmp	r3, #0
+ 124 0066 02D0     		beq	.L4
+  56:../Krusty/KActManager.c **** 		return TRUE;
+ 125              		.loc 1 56 0
+ 126 0068 4FF00103 		mov	r3, #1
+ 127 006c 01E0     		b	.L5
+ 128              	.L4:
+  57:../Krusty/KActManager.c **** 	return FALSE;
+ 129              		.loc 1 57 0
+ 130 006e 4FF00003 		mov	r3, #0
+ 131              	.L5:
+  58:../Krusty/KActManager.c **** }
+ 132              		.loc 1 58 0
+ 133 0072 1846     		mov	r0, r3
+ 134 0074 07F10807 		add	r7, r7, #8
+ 135 0078 BD46     		mov	sp, r7
+ 136 007a 80BD     		pop	{r7, pc}
+ 137              		.cfi_endproc
+ 138              	.LFE113:
+ 140              		.align	2
+ 141              		.global	ACTMGR_stop
+ 142              		.thumb
+ 143              		.thumb_func
+ 145              	ACTMGR_stop:
+ 146              	.LFB114:
+  59:../Krusty/KActManager.c **** 
+  60:../Krusty/KActManager.c **** void ACTMGR_stop() {
+ 147              		.loc 1 60 0
+ 148              		.cfi_startproc
+ 149              		@ args = 0, pretend = 0, frame = 0
+ 150              		@ frame_needed = 1, uses_anonymous_args = 0
+ 151 007c 80B5     		push	{r7, lr}
+ 152              	.LCFI8:
+ 153              		.cfi_def_cfa_offset 8
+ 154              		.cfi_offset 7, -8
+ 155              		.cfi_offset 14, -4
+ 156 007e 00AF     		add	r7, sp, #0
+ 157              	.LCFI9:
+ 158              		.cfi_def_cfa_register 7
+  61:../Krusty/KActManager.c **** 	/*BALLLAUNCHER_stop();
+  62:../Krusty/KActManager.c **** 	PLATE_stop();
+  63:../Krusty/KActManager.c **** 	LIFT_stop();
+  64:../Krusty/KActManager.c **** 	BALLSORTER_stop();*/
+  65:../Krusty/KActManager.c **** 	FRUIT_stop();
+ 159              		.loc 1 65 0
+ 160 0080 FFF7FEFF 		bl	FRUIT_stop
+  66:../Krusty/KActManager.c **** }
+ 161              		.loc 1 66 0
+ 162 0084 80BD     		pop	{r7, pc}
+ 163              		.cfi_endproc
+ 164              	.LFE114:
+ 166              		.section	.rodata
+ 167              		.align	2
+ 168              	.LC0:
+ 169 0000 10       		.byte	16
+ 170 0001 00       		.space	1
+ 171 0002 0000     		.short	0
+ 172 0004 00000000 		.word	ACTQ_finish_SendNothing
+ 173              		.text
+ 174 0086 00BF     		.align	2
+ 175              		.thumb
+ 176              		.thumb_func
+ 178              	ACTMGR_run_reset_act:
+ 179              	.LFB115:
+  67:../Krusty/KActManager.c **** 
+  68:../Krusty/KActManager.c **** 
+  69:../Krusty/KActManager.c **** static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
+ 180              		.loc 1 69 0
+ 181              		.cfi_startproc
+ 182              		@ args = 0, pretend = 0, frame = 40
+ 183              		@ frame_needed = 1, uses_anonymous_args = 0
+ 184 0088 80B5     		push	{r7, lr}
+ 185              	.LCFI10:
+ 186              		.cfi_def_cfa_offset 8
+ 187              		.cfi_offset 7, -8
+ 188              		.cfi_offset 14, -4
+ 189 008a 8CB0     		sub	sp, sp, #48
+ 190              	.LCFI11:
+ 191              		.cfi_def_cfa_offset 56
+ 192 008c 02AF     		add	r7, sp, #8
+ 193              	.LCFI12:
+ 194              		.cfi_def_cfa 7, 48
+ 195 008e 0246     		mov	r2, r0
+ 196 0090 0B46     		mov	r3, r1
+ 197 0092 FA71     		strb	r2, [r7, #7]
+ 198 0094 BB71     		strb	r3, [r7, #6]
+  70:../Krusty/KActManager.c **** 	if(init) {
+ 199              		.loc 1 70 0
+ 200 0096 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 201 0098 002B     		cmp	r3, #0
+ 202 009a 64D1     		bne	.L7
+  71:../Krusty/KActManager.c **** 		//Init des actionneurs
+  72:../Krusty/KActManager.c **** 	} else {
+  73:../Krusty/KActManager.c **** 		if(AX12_is_ready(FRUIT_MOUTH_AX12_ID)) {
+ 203              		.loc 1 73 0
+ 204 009c 4FF00400 		mov	r0, #4
+ 205 00a0 FFF7FEFF 		bl	AX12_is_ready
+ 206 00a4 0346     		mov	r3, r0
+ 207 00a6 002B     		cmp	r3, #0
+ 208 00a8 52D0     		beq	.L9
+ 209              	.LBB2:
+  74:../Krusty/KActManager.c **** 			queue_id_t subQueue;
+  75:../Krusty/KActManager.c **** 		/*	//BallSorter
+  76:../Krusty/KActManager.c **** 			subQueue = QUEUE_create();
+  77:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
+  78:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &BALLSORTER_run_command, (QUEUE_arg_t){ACT_BALLSORTER_TAKE_NEXT_CHERRY, BALL
+  79:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
+  80:../Krusty/KActManager.c **** 
+  81:../Krusty/KActManager.c **** 			//Plate
+  82:../Krusty/KActManager.c **** 			subQueue = QUEUE_create();
+  83:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plate_AX12_Plier);
+  84:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plate_Rotation);
+  85:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_PLIER_CLOSE, 0, &ACTQ_finish_Sen
+  86:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_ROTATE_VERTICALLY, 0, &ACTQ_fini
+  87:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plate_Rotation);
+  88:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plate_AX12_Plier);
+  89:../Krusty/KActManager.c **** 
+  90:../Krusty/KActManager.c **** 			//Lift
+  91:../Krusty/KActManager.c **** 			subQueue = QUEUE_create();
+  92:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Left_AX12_Plier);
+  93:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Left_Translation)
+  94:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Right_AX12_Plier)
+  95:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Right_Translation
+  96:../Krusty/KActManager.c **** 
+  97:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_PLIER_OPEN, 0, &ACTQ_finish_SendNo
+  98:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_PLIER_OPEN, 0, &ACTQ_finish_SendNo
+  99:../Krusty/KActManager.c **** 
+ 100:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_GO_DOWN, 0, &ACTQ_finish_SendNothi
+ 101:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_GO_DOWN, 0, &ACTQ_finish_SendNothi
+ 102:../Krusty/KActManager.c **** 
+ 103:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Right_Translation
+ 104:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Right_AX12_Plier)
+ 105:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Left_Translation)
+ 106:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Left_AX12_Plier);
+ 107:../Krusty/KActManager.c **** */
+ 108:../Krusty/KActManager.c **** 			subQueue = QUEUE_create();
+ 210              		.loc 1 108 0
+ 211 00aa FFF7FEFF 		bl	QUEUE_create
+ 212 00ae 0346     		mov	r3, r0
+ 213 00b0 87F82730 		strb	r3, [r7, #39]
+ 109:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
+ 214              		.loc 1 109 0
+ 215 00b4 4FF00003 		mov	r3, #0
+ 216 00b8 3B73     		strb	r3, [r7, #12]
+ 217 00ba 4FF00003 		mov	r3, #0
+ 218 00be FB81     		strh	r3, [r7, #14]	@ movhi
+ 219 00c0 4FF00003 		mov	r3, #0
+ 220 00c4 3B61     		str	r3, [r7, #16]
+ 221 00c6 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 222 00ca 4FF00802 		mov	r2, #8
+ 223 00ce 0092     		str	r2, [sp, #0]
+ 224 00d0 1846     		mov	r0, r3
+ 225 00d2 40F20001 		movw	r1, #:lower16:QUEUE_take_sem
+ 226 00d6 C0F20001 		movt	r1, #:upper16:QUEUE_take_sem
+ 227 00da 07F10C03 		add	r3, r7, #12
+ 228 00de 0CCB     		ldmia	r3, {r2, r3}
+ 229 00e0 FFF7FEFF 		bl	QUEUE_add
+ 110:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &FRUIT_run_command, (QUEUE_arg_t){ACT_FRUIT_MOUTH_CLOSE, 0,  &ACTQ_finish_Se
+ 230              		.loc 1 110 0
+ 231 00e4 40F20003 		movw	r3, #:lower16:.LC0
+ 232 00e8 C0F20003 		movt	r3, #:upper16:.LC0
+ 233 00ec 07F11402 		add	r2, r7, #20
+ 234 00f0 93E80300 		ldmia	r3, {r0, r1}
+ 235 00f4 82E80300 		stmia	r2, {r0, r1}
+ 236 00f8 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 237 00fc 4FF00802 		mov	r2, #8
+ 238 0100 0092     		str	r2, [sp, #0]
+ 239 0102 1846     		mov	r0, r3
+ 240 0104 40F20001 		movw	r1, #:lower16:FRUIT_run_command
+ 241 0108 C0F20001 		movt	r1, #:upper16:FRUIT_run_command
+ 242 010c 07F11403 		add	r3, r7, #20
+ 243 0110 0CCB     		ldmia	r3, {r2, r3}
+ 244 0112 FFF7FEFF 		bl	QUEUE_add
+ 111:../Krusty/KActManager.c **** 			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
+ 245              		.loc 1 111 0
+ 246 0116 4FF00003 		mov	r3, #0
+ 247 011a 3B77     		strb	r3, [r7, #28]
+ 248 011c 4FF00003 		mov	r3, #0
+ 249 0120 FB83     		strh	r3, [r7, #30]	@ movhi
+ 250 0122 4FF00003 		mov	r3, #0
+ 251 0126 3B62     		str	r3, [r7, #32]
+ 252 0128 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 253 012c 4FF00802 		mov	r2, #8
+ 254 0130 0092     		str	r2, [sp, #0]
+ 255 0132 1846     		mov	r0, r3
+ 256 0134 40F20001 		movw	r1, #:lower16:QUEUE_give_sem
+ 257 0138 C0F20001 		movt	r1, #:upper16:QUEUE_give_sem
+ 258 013c 07F11C03 		add	r3, r7, #28
+ 259 0140 0CCB     		ldmia	r3, {r2, r3}
+ 260 0142 FFF7FEFF 		bl	QUEUE_add
+ 112:../Krusty/KActManager.c **** 
+ 113:../Krusty/KActManager.c **** 			QUEUE_behead(queueId);
+ 261              		.loc 1 113 0
+ 262 0146 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 263 0148 1846     		mov	r0, r3
+ 264 014a FFF7FEFF 		bl	QUEUE_behead
+ 265 014e 0AE0     		b	.L7
+ 266              	.L9:
+ 267              	.LBE2:
+ 114:../Krusty/KActManager.c **** 		} else if(global.match_started == TRUE) {
+ 268              		.loc 1 114 0
+ 269 0150 40F20003 		movw	r3, #:lower16:global
+ 270 0154 C0F20003 		movt	r3, #:upper16:global
+ 271 0158 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 272 015a 012B     		cmp	r3, #1
+ 273 015c 03D1     		bne	.L7
+ 115:../Krusty/KActManager.c **** 			//Le match a démarré, on arrete d'essayer de bouger les actionneurs
+ 116:../Krusty/KActManager.c **** 			QUEUE_behead(queueId);
+ 274              		.loc 1 116 0
+ 275 015e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 276 0160 1846     		mov	r0, r3
+ 277 0162 FFF7FEFF 		bl	QUEUE_behead
+ 278              	.L7:
+ 117:../Krusty/KActManager.c **** 		}
+ 118:../Krusty/KActManager.c **** 	}
+ 119:../Krusty/KActManager.c **** }
+ 279              		.loc 1 119 0
+ 280 0166 07F12807 		add	r7, r7, #40
+ 281 016a BD46     		mov	sp, r7
+ 282 016c 80BD     		pop	{r7, pc}
+ 283              		.cfi_endproc
+ 284              	.LFE115:
+ 286 016e 00BF     		.align	2
+ 287              		.thumb
+ 288              		.thumb_func
+ 290              	ACTMGR_run_selftest_act:
+ 291              	.LFB116:
+ 120:../Krusty/KActManager.c **** 
+ 121:../Krusty/KActManager.c **** static void ACTMGR_run_selftest_act(queue_id_t queueId, bool_e init) {
+ 292              		.loc 1 121 0
+ 293              		.cfi_startproc
+ 294              		@ args = 0, pretend = 0, frame = 32
+ 295              		@ frame_needed = 1, uses_anonymous_args = 0
+ 296 0170 80B5     		push	{r7, lr}
+ 297              	.LCFI13:
+ 298              		.cfi_def_cfa_offset 8
+ 299              		.cfi_offset 7, -8
+ 300              		.cfi_offset 14, -4
+ 301 0172 8AB0     		sub	sp, sp, #40
+ 302              	.LCFI14:
+ 303              		.cfi_def_cfa_offset 48
+ 304 0174 02AF     		add	r7, sp, #8
+ 305              	.LCFI15:
+ 306              		.cfi_def_cfa 7, 40
+ 307 0176 0246     		mov	r2, r0
+ 308 0178 0B46     		mov	r3, r1
+ 309 017a FA71     		strb	r2, [r7, #7]
+ 310 017c BB71     		strb	r3, [r7, #6]
+ 122:../Krusty/KActManager.c **** 	if(init) {
+ 311              		.loc 1 122 0
+ 312 017e BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 313 0180 002B     		cmp	r3, #0
+ 314 0182 5CD1     		bne	.L10
+ 123:../Krusty/KActManager.c **** 		//Init des actionneurs
+ 124:../Krusty/KActManager.c **** 	} else {
+ 125:../Krusty/KActManager.c **** 		if(AX12_is_ready(FRUIT_MOUTH_AX12_ID)) {
+ 315              		.loc 1 125 0
+ 316 0184 4FF00400 		mov	r0, #4
+ 317 0188 FFF7FEFF 		bl	AX12_is_ready
+ 318 018c 0346     		mov	r3, r0
+ 319 018e 002B     		cmp	r3, #0
+ 320 0190 4AD0     		beq	.L12
+ 126:../Krusty/KActManager.c **** 			//BallSorter
+ 127:../Krusty/KActManager.c **** 	/*		QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
+ 128:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){ACT_BALLSORTER_TAKE_NEXT_CHERRY, BALLS
+ 129:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &BALLSORTER_run_command, (QUEUE_arg_t){ACT_BALLSORTER_TAKE_NEXT_CHERRY, BALLS
+ 130:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_BallSorter);
+ 131:../Krusty/KActManager.c **** 
+ 132:../Krusty/KActManager.c **** 			//Plate
+ 133:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plate_AX12_Plier);
+ 134:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plate_Rotation);
+ 135:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_ROTATE_PREPARE, 0, &ACTQ_finish_S
+ 136:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_PLIER_OPEN, 0, &ACTQ_finish_SendN
+ 137:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_PLIER_CLOSE, 0, &ACTQ_finish_Send
+ 138:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &PLATE_run_command, (QUEUE_arg_t){ACT_PLATE_ROTATE_VERTICALLY, 0, &ACTQ_finis
+ 139:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plate_Rotation);
+ 140:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Plate_AX12_Plier);
+ 141:../Krusty/KActManager.c **** 
+ 142:../Krusty/KActManager.c **** 			//Lift
+ 143:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Left_AX12_Plier);
+ 144:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Left_Translation);
+ 145:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Right_AX12_Plier);
+ 146:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Right_Translation)
+ 147:../Krusty/KActManager.c **** 
+ 148:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_PLIER_CLOSE, 0, &ACTQ_finish_SendNo
+ 149:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_PLIER_CLOSE, 0, &ACTQ_finish_SendNo
+ 150:../Krusty/KActManager.c **** 
+ 151:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_PLIER_OPEN, 0, &ACTQ_finish_SendNot
+ 152:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_PLIER_OPEN, 0, &ACTQ_finish_SendNot
+ 153:../Krusty/KActManager.c **** 
+ 154:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_GO_MID, 0, &ACTQ_finish_SendNothing
+ 155:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_GO_MID, 0, &ACTQ_finish_SendNothing
+ 156:../Krusty/KActManager.c **** 
+ 157:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_GO_DOWN, 0, &ACTQ_finish_SendNothin
+ 158:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &LIFT_run_command, (QUEUE_arg_t){ACT_LIFT_GO_DOWN, 0, &ACTQ_finish_SendNothin
+ 159:../Krusty/KActManager.c **** 
+ 160:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Right_Translation)
+ 161:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Right_AX12_Plier);
+ 162:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Left_Translation);
+ 163:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Lift_Left_AX12_Plier);
+ 164:../Krusty/KActManager.c **** 
+ 165:../Krusty/KActManager.c **** */
+ 166:../Krusty/KActManager.c **** 			//ATTENTION AU NOMBRE DE ADD vs QUEUE_SIZE dans queue.h !!!! (actuellement: 29 / 32
+ 167:../Krusty/KActManager.c **** 
+ 168:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
+ 321              		.loc 1 168 0
+ 322 0192 4FF00003 		mov	r3, #0
+ 323 0196 3B72     		strb	r3, [r7, #8]
+ 324 0198 4FF00003 		mov	r3, #0
+ 325 019c 7B81     		strh	r3, [r7, #10]	@ movhi
+ 326 019e 4FF00003 		mov	r3, #0
+ 327 01a2 FB60     		str	r3, [r7, #12]
+ 328 01a4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 329 01a6 4FF00802 		mov	r2, #8
+ 330 01aa 0092     		str	r2, [sp, #0]
+ 331 01ac 1846     		mov	r0, r3
+ 332 01ae 40F20001 		movw	r1, #:lower16:QUEUE_take_sem
+ 333 01b2 C0F20001 		movt	r1, #:upper16:QUEUE_take_sem
+ 334 01b6 07F10803 		add	r3, r7, #8
+ 335 01ba 0CCB     		ldmia	r3, {r2, r3}
+ 336 01bc FFF7FEFF 		bl	QUEUE_add
+ 169:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &FRUIT_run_command, (QUEUE_arg_t){ACT_FRUIT_MOUTH_CLOSE, 0,  &ACTQ_finish_Sen
+ 337              		.loc 1 169 0
+ 338 01c0 40F20003 		movw	r3, #:lower16:.LC0
+ 339 01c4 C0F20003 		movt	r3, #:upper16:.LC0
+ 340 01c8 07F11002 		add	r2, r7, #16
+ 341 01cc 93E80300 		ldmia	r3, {r0, r1}
+ 342 01d0 82E80300 		stmia	r2, {r0, r1}
+ 343 01d4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 344 01d6 4FF00802 		mov	r2, #8
+ 345 01da 0092     		str	r2, [sp, #0]
+ 346 01dc 1846     		mov	r0, r3
+ 347 01de 40F20001 		movw	r1, #:lower16:FRUIT_run_command
+ 348 01e2 C0F20001 		movt	r1, #:upper16:FRUIT_run_command
+ 349 01e6 07F11003 		add	r3, r7, #16
+ 350 01ea 0CCB     		ldmia	r3, {r2, r3}
+ 351 01ec FFF7FEFF 		bl	QUEUE_add
+ 170:../Krusty/KActManager.c **** 			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
+ 352              		.loc 1 170 0
+ 353 01f0 4FF00003 		mov	r3, #0
+ 354 01f4 3B76     		strb	r3, [r7, #24]
+ 355 01f6 4FF00003 		mov	r3, #0
+ 356 01fa 7B83     		strh	r3, [r7, #26]	@ movhi
+ 357 01fc 4FF00003 		mov	r3, #0
+ 358 0200 FB61     		str	r3, [r7, #28]
+ 359 0202 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 360 0204 4FF00802 		mov	r2, #8
+ 361 0208 0092     		str	r2, [sp, #0]
+ 362 020a 1846     		mov	r0, r3
+ 363 020c 40F20001 		movw	r1, #:lower16:QUEUE_give_sem
+ 364 0210 C0F20001 		movt	r1, #:upper16:QUEUE_give_sem
+ 365 0214 07F11803 		add	r3, r7, #24
+ 366 0218 0CCB     		ldmia	r3, {r2, r3}
+ 367 021a FFF7FEFF 		bl	QUEUE_add
+ 171:../Krusty/KActManager.c **** 
+ 172:../Krusty/KActManager.c **** 			QUEUE_behead(queueId);
+ 368              		.loc 1 172 0
+ 369 021e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 370 0220 1846     		mov	r0, r3
+ 371 0222 FFF7FEFF 		bl	QUEUE_behead
+ 372 0226 0AE0     		b	.L10
+ 373              	.L12:
+ 173:../Krusty/KActManager.c **** 		} else if(global.match_started == TRUE) {
+ 374              		.loc 1 173 0
+ 375 0228 40F20003 		movw	r3, #:lower16:global
+ 376 022c C0F20003 		movt	r3, #:upper16:global
+ 377 0230 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 378 0232 012B     		cmp	r3, #1
+ 379 0234 03D1     		bne	.L10
+ 174:../Krusty/KActManager.c **** 			//Le match a démarré, on arrete d'essayer de bouger les actionneurs
+ 175:../Krusty/KActManager.c **** 			QUEUE_behead(queueId);
+ 380              		.loc 1 175 0
+ 381 0236 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 382 0238 1846     		mov	r0, r3
+ 383 023a FFF7FEFF 		bl	QUEUE_behead
+ 384              	.L10:
+ 176:../Krusty/KActManager.c **** 		}
+ 177:../Krusty/KActManager.c **** 	}
+ 178:../Krusty/KActManager.c **** }
+ 385              		.loc 1 178 0
+ 386 023e 07F12007 		add	r7, r7, #32
+ 387 0242 BD46     		mov	sp, r7
+ 388 0244 80BD     		pop	{r7, pc}
+ 389              		.cfi_endproc
+ 390              	.LFE116:
+ 392              	.Letext0:
+ 393              		.file 2 "c:\\program files (x86)\\eclipse-arm-eseo\\gcc-arm-none-eabi-4_7-2013q2-20130614-win32\\g
+ 394              		.file 3 "../Krusty/../QS/QS_types.h"
+ 395              		.file 4 "../config/config_krusty/config_global_vars_types.h"
+ 396              		.file 5 "../Krusty/../QS/QS_global_vars.h"
+ 397              		.file 6 "../config/config_global_vars.h"
+ 398              		.file 7 "../Krusty/../queue.h"
+ 399              		.file 8 "../stm32f4xx/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 KActManager.c
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:18     .text:00000000 $t
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:23     .text:00000000 ACTMGR_init
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:52     .text:00000010 ACTMGR_reset_act
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:178    .text:00000088 ACTMGR_run_reset_act
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:101    .text:00000054 ACTMGR_process_msg
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:145    .text:0000007c ACTMGR_stop
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:167    .rodata:00000000 $d
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:168    .rodata:00000000 .LC0
+C:\Users\Amaury\AppData\Local\Temp\ccCVA8iA.s:290    .text:00000170 ACTMGR_run_selftest_act
+                     .debug_frame:00000010 $d
+                           .group:00000000 wm4.1.13c6c37fe6ef97541a459ad1f2cd1ddb
+                           .group:00000000 wm4.stm32f4xx.h.54.d172d9d6631f11a8436908e748990b53
+                           .group:00000000 wm4.core_cm4.h.32.39d0f71cd333856d56f1935d9037195e
+                           .group:00000000 wm4.newlib.h.8.a9901dc52d1357e3e94003403d43f8b5
+                           .group:00000000 wm4.features.h.22.b72b3baab2bb2eab3661375590100b6b
+                           .group:00000000 wm4.config.h.193.5fb8ef056cdff92dec3dee9552839d8c
+                           .group:00000000 wm4._ansi.h.23.b5bb84d7ba97d82b5b1dc1826a7ae811
+                           .group:00000000 wm4.stdint.h.20.54ad762faa59e3c05491630641c8d8bf
+                           .group:00000000 wm4.core_cmInstr.h.25.d8165482ef3061013a2fc83e2d85f3d9
+                           .group:00000000 wm4.core_cm4_simd.h.29.013e5bcf58dba2d27c60184174208e07
+                           .group:00000000 wm4.core_cm4.h.163.d36d54ebc869626f337c4fcb95a9b424
+                           .group:00000000 wm4.stm32f4xx.h.306.7867854ab89778ccd63e1fde7c22c0b6
+                           .group:00000000 wm4.stm32f4xx_rcc.h.65.29a27820bc754566c4190ed8ad1c1d80
+                           .group:00000000 wm4.misc.h.31.041217492a6cb86f2fb26099f373a465
+                           .group:00000000 wm4.stm32f4xx.h.7233.cb6cb3cb095c29e1fc0eb152d26090b1
+                           .group:00000000 wm4.Global_config.h.14.bea53ddf4045d71f1c9fb87037131e8e
+                           .group:00000000 wm4.config_global.h.12.5c30ea43d7f0d9daa101874e8ba75f6f
+                           .group:00000000 wm4.config_qs.h.12.4699be7196e891fb4cd84d522e29cde7
+                           .group:00000000 wm4.config_qs.h.12.8e0ab7f7cbbdaecfb1e464f5610b5d86
+                           .group:00000000 wm4.QS_macro.h.19.3d2533714681986d2ad8c517737c4640
+                           .group:00000000 wm4.stm32f4xx_tim.h.31.b1d608fbde729347e4ccf70799e654d2
+                           .group:00000000 wm4.QS_timer.h.23.f1c7374d1ffe22793578c04386c6b1e2
+                           .group:00000000 wm4.queue.h.39.c6c83c771916888b8b8278e5c5477b11
+                           .group:00000000 wm4.QS_CANmsgList.h.18.4820ab5d82fa43f9421f4e5eb46c19bc
+                           .group:00000000 wm4.QS_ax12.h.14.bdca40ad9d76c87d4eb8bcff38d0d363
+                           .group:00000000 wm4.config_pin.h.12.92dbe1317fae649a069f2ce6e5ad725c
+                           .group:00000000 wm4.config_pin.h.12.20ee5a96fdfc3c7ca3bc6056aaec7473
+
+UNDEFINED SYMBOLS
+FRUIT_init
+QUEUE_create
+QUEUE_add
+FRUIT_CAN_process_msg
+FRUIT_stop
+ACTQ_finish_SendNothing
+AX12_is_ready
+QUEUE_take_sem
+FRUIT_run_command
+QUEUE_give_sem
+QUEUE_behead
+global
