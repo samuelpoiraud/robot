@@ -19,5 +19,9 @@
 #include "../act_functions.h"
 
 void strat_test_triangle_cote_rouge(void);
+void strat_test_ramasser_fruit();
+void fruit_bac_open();
+void fruit_bac_mid();
+void fruit_bac_close();
 
 #endif /* ACTIONS_PIERRE_H_ */
