@@ -24,17 +24,16 @@
 /* 							Autre strats de test             			 */
 /* ----------------------------------------------------------------------------- */
 
-#define DECALAGE_LARGEUR 140
+#define DECALAGE_LARGEUR 200
 
 void strat_test_triangle_cote_rouge(void){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
-		AVANCER,
 		POS_DEPART,
-		TRIANGLE1,
-		TRIANGLE2,
+		PASSAGE_ARMOIRE,
 		TRIANGLE_BOUT_JAUNE,
 		TRIANGLE3,
+		MILIEU2,
 		TRIANGLE4,
 		TRIANGLE_BOUT_ROUGE,
 		TOUR1J,
@@ -53,47 +52,55 @@ void strat_test_triangle_cote_rouge(void){
 		ERROR
 	);
 
+	displacement_t tabMamo[8] = {
+		{{500,200},SLOW},
+		{{800,750},SLOW},
+		{{820,900},SLOW},//Triangle 1
+		{{680,1370},SLOW},
+		{{680,1650},SLOW},
+		{{830,2090},SLOW},//Triangle 2
+		{{880,2270},SLOW},
+		{{1020,2365},SLOW}//Bout triangle Jaune
+	};
+
+	displacement_t tabArmoire[7] = {
+		{{1210,2360},SLOW},
+		{{1340,2100},SLOW},//Triangle 1
+		{{1415,1645},SLOW},
+		{{1415,1360},SLOW},
+		{{1370,900},SLOW},//Triangle 2
+		{{1305,720},SLOW},
+		{{1100,625},SLOW}//Bout triangle rouge
+	};
+
 	CAN_msg_t msg;
 	static bool_e timeout=FALSE;
 
 	switch(state){
 	case IDLE:
 		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=1000 >> 8;
-		msg.data[1]=1000 & 0xFF;
-		msg.data[2]=2880 >> 8;
-		msg.data[3]=2880 & 0xFF;
-		msg.data[4]=-PI4096/2 >> 8;
-		msg.data[5]=-PI4096/2 & 0xFF;
+		msg.data[0]=500 >> 8;
+		msg.data[1]=500 & 0xFF;
+		msg.data[2]=120 >> 8;
+		msg.data[3]=120 & 0xFF;
+		msg.data[4]=PI4096/2 >> 8;
+		msg.data[5]=PI4096/2 & 0xFF;
 		msg.size = 6;
 		CAN_send(&msg);
 
-		state = AVANCER;
-		break;
-	case AVANCER:
-		//debug_printf("\nGlobale variable de x %d\n	de y %d\n",global.env.pos.x,global.env.pos.y);
-	state = try_going(1000,2700,AVANCER,POS_DEPART,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(1500,2600,POS_DEPART,TRIANGLE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going_multipoint(tabMamo,8,POS_DEPART,PASSAGE_ARMOIRE,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 		break;
-	case TRIANGLE1:
-		state = try_going(1400-DECALAGE_LARGEUR,2200,TRIANGLE1,TRIANGLE2,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		break;
-	case TRIANGLE2:
-		state = try_going(1400-DECALAGE_LARGEUR,800,TRIANGLE2,TRIANGLE_BOUT_JAUNE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+	case PASSAGE_ARMOIRE:
+		state = try_going_multipoint(tabArmoire,7,PASSAGE_ARMOIRE,MUR,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 		break;
 	case TRIANGLE_BOUT_JAUNE:
-		state = try_going(1000,500+DECALAGE_LARGEUR,TRIANGLE_BOUT_JAUNE,TOUR1J,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		break;
-	case TRIANGLE3:
-		state = try_going(550+DECALAGE_LARGEUR,800,TRIANGLE3,TRIANGLE4,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		break;
-	case TRIANGLE4:
-		state = try_going(550+DECALAGE_LARGEUR,2200,TRIANGLE4,TRIANGLE_BOUT_ROUGE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(1000,400+DECALAGE_LARGEUR,TRIANGLE_BOUT_JAUNE,TOUR1J,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE_BOUT_ROUGE:
-		state = try_going(900,2500-DECALAGE_LARGEUR,TRIANGLE_BOUT_ROUGE,TOUR1R,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(900,2600-DECALAGE_LARGEUR,TRIANGLE_BOUT_ROUGE,TOUR1R,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case TOUR1J:
 		state = try_go_angle(3*PI4096/2,TOUR1J,TOUR2J,ERROR,FAST);
@@ -120,10 +127,10 @@ void strat_test_triangle_cote_rouge(void){
 		state = try_go_angle(PI4096,TOUR4R,MUR,ERROR,FAST);
 		break;
 	case MUR:
-		state = try_going(1600,1500,MUR,PUSH_MOVE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(400,1500,MUR,PUSH_MOVE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
-	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
-		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,PI4096,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
+	case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
+		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
 		state = WAIT_END_OF_MOVE;
 		break;
 	case WAIT_END_OF_MOVE:
@@ -132,7 +139,7 @@ void strat_test_triangle_cote_rouge(void){
 		}
 		break;
 	case FIN:
-		state = try_going(1600,1500,FIN,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(400,1500,FIN,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case DONE:
 		break;
@@ -142,4 +149,76 @@ void strat_test_triangle_cote_rouge(void){
 		break;
 	}
 
+}
+
+void strat_test_ramasser_fruit(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		SOUS_ARBRE,
+		FIN,
+		DONE,
+		ERROR
+	);
+
+
+	CAN_msg_t msg;
+
+	switch(state){
+	case IDLE:
+		msg.sid=ASSER_SET_POSITION;
+		msg.data[0]=500 >> 8;
+		msg.data[1]=500 & 0xFF;
+		msg.data[2]=120 >> 8;
+		msg.data[3]=120 & 0xFF;
+		msg.data[4]=PI4096/2 >> 8;
+		msg.data[5]=PI4096/2 & 0xFF;
+		msg.size = 6;
+		CAN_send(&msg);
+
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+		state = try_going(500,300,POS_DEPART,SOUS_ARBRE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+
+		if(entrance)
+			fruit_bac_mid();
+		break;
+	case SOUS_ARBRE:
+		state = try_going(1150,310,SOUS_ARBRE,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case DONE:
+		break;
+	case ERROR:
+		break;
+	default:
+		break;
+	}
+}
+
+void fruit_bac_open(){
+	CAN_msg_t msg;
+
+	msg.sid=ACT_FRUIT_MOUTH;
+	msg.data[0]=ACT_FRUIT_MOUTH_OPEN;
+	msg.size = 1;
+	CAN_send(&msg);
+}
+
+void fruit_bac_mid(){
+	CAN_msg_t msg;
+
+	msg.sid=ACT_FRUIT_MOUTH;
+	msg.data[0]=ACT_FRUIT_MOUTH_MID;
+	msg.size = 1;
+	CAN_send(&msg);
+}
+
+void fruit_bac_close(){
+	CAN_msg_t msg;
+
+	msg.sid=ACT_FRUIT_MOUTH;
+	msg.data[0]=ACT_FRUIT_MOUTH_CLOSE;
+	msg.size = 1;
+	CAN_send(&msg);
 }
