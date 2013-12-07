@@ -168,7 +168,7 @@ void SYS_init(void)
 		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 		while (RCC_GetSYSCLKSource() != 0x08){}
 	}
-	
+
 	SystemCoreClockUpdate();
 
 	//Pas de subpriority sur les interruptions
@@ -303,6 +303,15 @@ int _lseek(int file, int ptr, int dir) {
  Increase program data space.
  Malloc and related functions depend on this
  */
+char toHex(char v) {
+	v &= 0x0F;
+
+	if(v > 0x9)
+		return v - 0xA + 'A';
+	else
+		return v + '0';
+}
+
 __attribute__((weak))
 caddr_t _sbrk(int incr) {
 	extern char _ebss; // Defined by the linker
@@ -317,7 +326,28 @@ caddr_t _sbrk(int incr) {
 	char * stack = (char*) __get_MSP();
 	if (heap_end + incr >  stack)
 	{
-		_write (STDERR_FILENO, "Heap and stack collision\n", 25);
+		int i;
+		char integer[8];
+		_write (STDERR_FILENO, "Heap and stack collision: ", 26);
+
+		for(i = 0; i < 8; i++)
+			integer[i] = toHex((int)heap_end >> ((7-i)*4));
+
+		_write (STDERR_FILENO, integer, 8);
+		_write (STDERR_FILENO, " + ", 3);
+
+		for(i = 0; i < 8; i++)
+			integer[i] = toHex(incr >> ((7-i)*4));
+
+		_write (STDERR_FILENO, integer, 8);
+
+		_write (STDERR_FILENO, " > ", 3);
+
+		for(i = 0; i < 8; i++)
+			integer[i] = toHex((int)stack >> ((7-i)*4));
+
+		_write (STDERR_FILENO, integer, 8);
+		_write (STDERR_FILENO, "\n", 1);
 		errno = ENOMEM;
 		return  (caddr_t) -1;
 		//abort ();
