@@ -709,7 +709,7 @@ GenerateNetsInfo2=0
 MarkPins2=1
 MarkNetLabels2=1
 MarkPortsId2=1
-OutputFilePath2=M:\___ROBOT\_SVN\_Hard\2011_Fond_de_panier\OUT.PDF
+OutputFilePath2=M:\_ROBOT\_SVN_new\_Hard\2014_BallLauncher\2014_BallLauncher.pdf
 
 [GeneratedFilesSettings]
 RelativeOutputPath3=Gerber
