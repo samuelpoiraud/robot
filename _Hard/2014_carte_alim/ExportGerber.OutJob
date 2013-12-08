@@ -50,9 +50,9 @@ OutputType2=PCB 3D Print
 OutputName2=PCB Top Layer 3D
 OutputDocumentPath2=
 OutputVariantName2=
-OutputEnabled2=0
+OutputEnabled2=1
 OutputEnabled2_OutputMedium1=0
-OutputEnabled2_OutputMedium2=0
+OutputEnabled2_OutputMedium2=6
 OutputEnabled2_OutputMedium3=0
 OutputDefault2=0
 PageOptions2=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4 210 x 297 mm|PrintScaleMode=0
@@ -701,9 +701,9 @@ OutputType27=Composite
 OutputName27=PCB Serigraphie + Composants + mechanical 15
 OutputDocumentPath27=
 OutputVariantName27=
-OutputEnabled27=0
+OutputEnabled27=1
 OutputEnabled27_OutputMedium1=0
-OutputEnabled27_OutputMedium2=0
+OutputEnabled27_OutputMedium2=5
 OutputEnabled27_OutputMedium3=0
 OutputDefault27=0
 PageOptions27=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=0.98|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=15|PrintQuality=600|MediaType=1|DitherType=10|PaperKind=Lettre US (215,9 x 279,4 mm)|PrintScaleMode=1
@@ -739,7 +739,7 @@ GenerateNetsInfo2=0
 MarkPins2=1
 MarkNetLabels2=1
 MarkPortsId2=1
-OutputFilePath2=M:\___ROBOT\__SVN_new\_Hard\2014_carte_alim\OUT.PDF
+OutputFilePath2=M:\_ROBOT\_SVN_new\_Hard\2014_carte_alim\2014_carte_alim.pdf
 
 [GeneratedFilesSettings]
 RelativeOutputPath3=Gerber
