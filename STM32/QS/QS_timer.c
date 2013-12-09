@@ -213,6 +213,10 @@ void TIMER1_enableInt() {
 	TIMER_enableInt(TIM11);
 }
 
+int TIMER1_getCounter() {
+	return TIM_GetCounter(TIM11);
+}
+
 void TIMER2_run(Uint8 period /* en millisecondes */) {
 	TIMER_run(TIM12, period);
 }
@@ -231,6 +235,10 @@ void TIMER2_disableInt() {
 
 void TIMER2_enableInt() {
 	TIMER_enableInt(TIM12);
+}
+
+int TIMER2_getCounter() {
+	return TIM_GetCounter(TIM12);
 }
 
 void TIMER3_run(Uint8 period /* en millisecondes */) {
@@ -253,6 +261,10 @@ void TIMER3_enableInt() {
 	TIMER_enableInt(TIM13);
 }
 
+int TIMER3_getCounter() {
+	return TIM_GetCounter(TIM13);
+}
+
 void TIMER4_run(Uint8 period /* en millisecondes */) {
 	TIMER_run(TIM14, period);
 }
@@ -271,6 +283,10 @@ void TIMER4_disableInt() {
 
 void TIMER4_enableInt() {
 	TIMER_enableInt(TIM14);
+}
+
+int TIMER4_getCounter() {
+	return TIM_GetCounter(TIM14);
 }
 
 //Interrupts management and redirection

@@ -49,6 +49,8 @@
 	void TIMER1_stop(void);
 	#define TIMER1_disableInt() DisableIntT1
 	#define TIMER1_enableInt()  EnableIntT1
+	#define TIMER1_getCounter() TMR1
+	#define TIMER1_setCounter(newValue) (TMR1 = newValue)
 
 	/*	TIMER2 utilise l'interuption 
 	 *	void _ISR _T2Interrupt()
@@ -60,6 +62,8 @@
 		/* max 65535 / FREQ_DHORLOGE (en MHz) */
 	#define TIMER2_disableInt() DisableIntT2
 	#define TIMER2_enableInt()  EnableIntT2
+	#define TIMER2_getCounter() TMR2
+	#define TIMER2_setCounter(newValue) (TMR2 = newValue)
 
 	/*	TIMER3 utilise l'interuption 
 	 *	void _ISR _T3Interrupt()
@@ -71,6 +75,8 @@
 		/* max 65535 / FREQ_DHORLOGE (en MHz) */
 	#define TIMER3_disableInt() DisableIntT3
 	#define TIMER3_enableInt()  EnableIntT3
+	#define TIMER3_getCounter() TMR3
+	#define TIMER3_setCounter(newValue) (TMR3 = newValue)
 
 	/*	TIMER4 utilise l'interuption 
 	 *	void _ISR _T4Interrupt()
@@ -82,6 +88,8 @@
 	void TIMER4_stop(void);
 	#define TIMER4_disableInt() DisableIntT4
 	#define TIMER4_enableInt()  EnableIntT4
+	#define TIMER4_getCounter() TMR4
+	#define TIMER4_setCounter(newValue) (TMR4 = newValue)
 
 
 	//Acuittement des IT timer

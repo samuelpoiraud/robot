@@ -17,8 +17,8 @@
 #include <stdarg.h>
 
 #ifndef OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL
-#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning
-#warning "Attention, niveau d'affichage printf non défini, mis à LOG_LEVEL_Warning par defaut"
+#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
+#warning "Attention, niveau d'affichage printf non défini, mis à LOG_LEVEL_Debug par defaut (OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL)"
 #endif
 
 static log_level_e current_max_log_level = OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL;
