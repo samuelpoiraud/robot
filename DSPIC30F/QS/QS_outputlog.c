@@ -15,13 +15,13 @@
 #include <stdarg.h>
 
 #ifndef OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL
-#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Warning
+#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
 #endif
 
 static log_level_e current_max_log_level = OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL;
 
 void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
-#ifdef OUTPUT_LOG
+#if defined(OUTPUT_LOG) || defined(VERBOSE_MODE)
 	va_list args_list;
 
 	//level trop haut ou affichage desactivé, on n'affiche pas

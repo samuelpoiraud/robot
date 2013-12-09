@@ -59,7 +59,7 @@ static Uint8 crc8(Uint8 *data, Uint8 size) {
 #define RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
 #define RF_TEMP_CONCAT(a,b,c) RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
 
-#if RF_UART <= 0 || RF_UART > 3
+#if RF_UART < 0 || RF_UART > 3
 #error "RF_UART est invalide: il doit être défini à une valeur entre 1 et 3 inclus"
 #else
 #define RF_UART_init() UART_init()
@@ -78,18 +78,21 @@ static FIFO_t fifo_tx;
 static char buffer_tx[50];
 static RF_onReceive_ptr packet_received_fct = NULL;
 
-//config only one time, internal ram has 10k cycles ...
-/*
-static void RF_config_set_channel(Uint8 channel);
-static void RF_config_set_output_power(Uint8 power);
-static void RF_config_set_internal_buffer_size(Uint8 size);
-static void RF_config_set_buffer_timeout(Uint16 ms);
-static void RF_config_set_packed_end_char(char c);
-static void RF_config_set_unique_id(Uint8 id);
-static void RF_config_set_system_id(Uint8 id);
-static void RF_config_set_broadcast_id(Uint8 id);
-static void RF_config_set_destination_id(Uint8 id);
-*/
+#define RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
+#define RF_TEMP_CONCAT(a,b,c) RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
+
+#if !defined(RF_UART)
+#error "Vous devez definir RF_UART a une valeur entre 0 et 2 (1 pour le dspic) avec 0 pour UART1"
+#elif RF_UART == 0
+	#define RF_RX_Interrupt RF_TEMP_CONCAT(UART, 1, _RX_Interrupt)
+	#define RF_TX_Interrupt RF_TEMP_CONCAT(UART, 1, _TX_Interrupt)
+#elif RF_UART == 1
+	#define RF_RX_Interrupt RF_TEMP_CONCAT(UART, 2, _RX_Interrupt)
+	#define RF_TX_Interrupt RF_TEMP_CONCAT(UART, 2, _TX_Interrupt)
+#elif RF_UART == 2
+	#define RF_RX_Interrupt RF_TEMP_CONCAT(UART, 3, _RX_Interrupt)
+	#define RF_TX_Interrupt RF_TEMP_CONCAT(UART, 3, _TX_Interrupt)
+#endif
 
 typedef enum {
 	RF_PS_Incomplete,
@@ -327,7 +330,7 @@ static void RF_putc(Uint8 c)
 	}
 }
 
-void UART3_RX_Interrupt() {
+void RF_RX_Interrupt() {
 		Uint8 c;
 
 		while(!UART_IMPL_isRxEmpty(RF_UART))
@@ -342,7 +345,7 @@ void UART3_RX_Interrupt() {
 		UART_IMPL_ackRxIt(RF_UART);
 }
 
-void UART3_TX_Interrupt() {
+void RF_TX_Interrupt() {
 		//debufferiser.
 		if(!FIFO_isEmpty(&fifo_tx))
 		{
