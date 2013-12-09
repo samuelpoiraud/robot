@@ -71,25 +71,27 @@ static Uint8 crc8(Uint8 *data, Uint8 size) {
 //Arbitraire, doivent être des nombres rarement utilisés pour éviter d'avoir trop d'occurence
 //Tous doivent être >= 0xC0 && <= 0xFF
 #define ESCAPE_CHAR 0xC0
-#define END_OF_PACKET_CHAR 0xC1
 #define START_OF_PACKET_CHAR 0xC3 //DOIT ETRE 0x?3 !
 
 static FIFO_t fifo_tx;
 static char buffer_tx[50];
 static RF_onReceive_ptr packet_received_fct = NULL;
 
-//config only one time, internal ram has 10k cycles ...
-/*
-static void RF_config_set_channel(Uint8 channel);
-static void RF_config_set_output_power(Uint8 power);
-static void RF_config_set_internal_buffer_size(Uint8 size);
-static void RF_config_set_buffer_timeout(Uint16 ms);
-static void RF_config_set_packed_end_char(char c);
-static void RF_config_set_unique_id(Uint8 id);
-static void RF_config_set_system_id(Uint8 id);
-static void RF_config_set_broadcast_id(Uint8 id);
-static void RF_config_set_destination_id(Uint8 id);
-*/
+#define RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
+#define RF_TEMP_CONCAT(a,b,c) RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
+
+#if !defined(RF_UART)
+#error "Vous devez definir RF_UART a une valeur entre 0 et 2 (1 pour le dspic) avec 0 pour UART1"
+#elif RF_UART == 0
+	#define RF_RX_Interrupt RF_TEMP_CONCAT(UART, 1, _RX_Interrupt)
+	#define RF_TX_Interrupt RF_TEMP_CONCAT(UART, 1, _TX_Interrupt)
+#elif RF_UART == 1
+	#define RF_RX_Interrupt RF_TEMP_CONCAT(UART, 2, _RX_Interrupt)
+	#define RF_TX_Interrupt RF_TEMP_CONCAT(UART, 2, _TX_Interrupt)
+#elif RF_UART == 2
+	#define RF_RX_Interrupt RF_TEMP_CONCAT(UART, 3, _RX_Interrupt)
+	#define RF_TX_Interrupt RF_TEMP_CONCAT(UART, 3, _TX_Interrupt)
+#endif
 
 typedef enum {
 	RF_PS_Incomplete,
@@ -154,19 +156,16 @@ static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *d
 
 	for(i = 0; i < size; i++) {
 		Uint8 c = data[i];
-		if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR || c == END_OF_PACKET_CHAR) {
+		crc = crc8_incremental(crc, c);
+		if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR) {
 			c &= (~0xC0);
 			RF_putc(ESCAPE_CHAR);
-			crc = crc8_incremental(crc, ESCAPE_CHAR);
 			RF_putc(c);
-			crc = crc8_incremental(crc, c);
 		} else {
 			RF_putc(data[i]);
-			crc = crc8_incremental(crc, data[i]);
 		}
 	}
 	RF_putc(crc);
-	RF_putc(END_OF_PACKET_CHAR);
 }
 
 void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
@@ -288,8 +287,8 @@ void RF_state_machine(Uint8 c, bool_e new_frame) {
 
 		case RFS_GET_CRC:
 			data[i++] = c;
-			if(/*crc8(data, i) == 0 && */packet_received_fct) {
-				(*packet_received_fct)((RF_header_t)data[0], data+1, i-2);
+			if(crc8(data, i) == 0 && packet_received_fct) {
+				(*packet_received_fct)((RF_header_t)data[0], data+1, i-1);
 			}
 			state = RFS_IDLE;
 			break;
@@ -298,6 +297,9 @@ void RF_state_machine(Uint8 c, bool_e new_frame) {
 
 static void RF_putc(Uint8 c)
 {
+	UART_IMPL_setRxItPaused(RF_UART, TRUE);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+	UART_IMPL_setTxItPaused(RF_UART, TRUE);
+
 	if(!UART_IMPL_isTxFull(RF_UART))
 		UART_IMPL_write(RF_UART, c);
 	else
@@ -309,8 +311,6 @@ static void RF_putc(Uint8 c)
 
 			//Critical section (Interrupt inibition)
 
-			UART_IMPL_setRxItPaused(RF_UART, TRUE);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
-			UART_IMPL_setTxItPaused(RF_UART, TRUE);
 
 			if(!FIFO_isFull(&fifo_tx))
 			{
@@ -319,15 +319,15 @@ static void RF_putc(Uint8 c)
 			}
 			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
 
-			UART_IMPL_setRxItPaused(RF_UART, FALSE);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-			UART_IMPL_setTxItPaused(RF_UART, FALSE);
-
 			UART_IMPL_setTxItEnabled(RF_UART, TRUE);
 		}
 	}
+	
+	UART_IMPL_setRxItPaused(RF_UART, FALSE);	//On active l'IT sur TX... lors du premier caractère à envoyer...
+	UART_IMPL_setTxItPaused(RF_UART, FALSE);
 }
 
-void UART3_RX_Interrupt() {
+void RF_RX_Interrupt() {
 		Uint8 c;
 
 		while(!UART_IMPL_isRxEmpty(RF_UART))
@@ -342,7 +342,7 @@ void UART3_RX_Interrupt() {
 		UART_IMPL_ackRxIt(RF_UART);
 }
 
-void UART3_TX_Interrupt() {
+void RF_TX_Interrupt() {
 		//debufferiser.
 		if(!FIFO_isEmpty(&fifo_tx))
 		{

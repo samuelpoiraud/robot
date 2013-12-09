@@ -59,7 +59,7 @@ static Uint8 crc8(Uint8 *data, Uint8 size) {
 #define RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
 #define RF_TEMP_CONCAT(a,b,c) RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
 
-#if RF_UART < 0 || RF_UART > 3
+#if RF_UART <= 0 || RF_UART > 3
 #error "RF_UART est invalide: il doit être défini à une valeur entre 1 et 3 inclus"
 #else
 #define RF_UART_init() UART_init()
@@ -71,7 +71,6 @@ static Uint8 crc8(Uint8 *data, Uint8 size) {
 //Arbitraire, doivent être des nombres rarement utilisés pour éviter d'avoir trop d'occurence
 //Tous doivent être >= 0xC0 && <= 0xFF
 #define ESCAPE_CHAR 0xC0
-#define END_OF_PACKET_CHAR 0xC1
 #define START_OF_PACKET_CHAR 0xC3 //DOIT ETRE 0x?3 !
 
 static FIFO_t fifo_tx;
@@ -157,19 +156,16 @@ static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *d
 
 	for(i = 0; i < size; i++) {
 		Uint8 c = data[i];
-		if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR || c == END_OF_PACKET_CHAR) {
+		crc = crc8_incremental(crc, c);
+		if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR) {
 			c &= (~0xC0);
 			RF_putc(ESCAPE_CHAR);
-			crc = crc8_incremental(crc, ESCAPE_CHAR);
 			RF_putc(c);
-			crc = crc8_incremental(crc, c);
 		} else {
 			RF_putc(data[i]);
-			crc = crc8_incremental(crc, data[i]);
 		}
 	}
 	RF_putc(crc);
-	RF_putc(END_OF_PACKET_CHAR);
 }
 
 void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
@@ -179,17 +175,17 @@ void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
 	if(msg->size > 8)
 		msg->size = 8;
 
-	data[0] = msg->size + 2;
-	data[1] = msg->sid & 0xFF;
-	data[2] = msg->sid >> 8;
+	data[RF_CAN_SIZE] = msg->size + 2;
+	data[RF_CAN_SID] = msg->sid & 0xFF;
+	data[RF_CAN_SID+1] = msg->sid >> 8;
 
 	for(i = 0; i < msg->size; i++) {
-		data[i+3] = msg->data[i];
+		data[RF_CAN_DATA+i] = msg->data[i];
 	}
 	for(; i < 8; i++)
-		data[i+3] = 0;
+		data[RF_CAN_DATA+i] = 0;
 
-	RF_send(RF_PT_Can, target_id, data, 11);
+	RF_send(RF_PT_Can, target_id, data, data[RF_CAN_SIZE]+1);
 }
 
 void RF_synchro_request(RF_module_e target_id) {
@@ -225,10 +221,10 @@ static RF_packet_status_e RF_get_packet_status(RF_header_t header, Uint8 *data, 
 		case RF_PT_SynchroRequest:
 			//Evite un warning
 #if RF_SYNCHRO_REQUEST_SIZE != 0
- 			if(size >= RF_SYNCHRO_REQUEST_SIZE)
+			if(size >= RF_SYNCHRO_REQUEST_SIZE)
 				return RF_PS_Full;
- 			else
- 				return RF_PS_Incomplete;
+			else
+				return RF_PS_Incomplete;
 #else
 			return RF_PS_Full;
 #endif
@@ -240,7 +236,7 @@ static RF_packet_status_e RF_get_packet_status(RF_header_t header, Uint8 *data, 
 				return RF_PS_Incomplete;
 
 		case RF_PT_Can:
-			if(size >= RF_CAN_MIN_SIZE && data[RF_CAN_SIZE] <= RF_CAN_MAX_DATA_SIZE && size >= data[RF_CAN_SIZE])
+			if(size >= RF_CAN_MIN_SIZE && data[RF_CAN_SIZE] <= RF_CAN_MAX_DATA_SIZE && size >= data[RF_CAN_SIZE]+1)
 				return RF_PS_Full;
 			else if(size >= RF_CAN_MIN_SIZE && data[RF_CAN_SIZE] > RF_CAN_MAX_DATA_SIZE)
 				return RF_PS_Bad;
@@ -301,6 +297,9 @@ void RF_state_machine(Uint8 c, bool_e new_frame) {
 
 static void RF_putc(Uint8 c)
 {
+	UART_IMPL_setRxItPaused(RF_UART, TRUE);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+	UART_IMPL_setTxItPaused(RF_UART, TRUE);
+
 	if(!UART_IMPL_isTxFull(RF_UART))
 		UART_IMPL_write(RF_UART, c);
 	else
@@ -312,8 +311,6 @@ static void RF_putc(Uint8 c)
 
 			//Critical section (Interrupt inibition)
 
-			UART_IMPL_setRxItPaused(RF_UART, TRUE);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
-			UART_IMPL_setTxItPaused(RF_UART, TRUE);
 
 			if(!FIFO_isFull(&fifo_tx))
 			{
@@ -322,12 +319,12 @@ static void RF_putc(Uint8 c)
 			}
 			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
 
-			UART_IMPL_setRxItPaused(RF_UART, FALSE);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-			UART_IMPL_setTxItPaused(RF_UART, FALSE);
-
 			UART_IMPL_setTxItEnabled(RF_UART, TRUE);
 		}
 	}
+	
+	UART_IMPL_setRxItPaused(RF_UART, FALSE);	//On active l'IT sur TX... lors du premier caractère à envoyer...
+	UART_IMPL_setTxItPaused(RF_UART, FALSE);
 }
 
 void RF_RX_Interrupt() {
