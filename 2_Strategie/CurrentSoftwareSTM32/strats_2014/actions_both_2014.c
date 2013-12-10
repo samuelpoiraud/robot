@@ -55,7 +55,7 @@ void strat_reglage_odo_rotation(void){
 	static enum state_e inProcess = IDLE;
 	static bool_e timeout=FALSE;
 	static Sint16 i=0;
-	static Uint16 coefOdoRotation = 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
+	static Uint16 coefOdoRotation = 0x0000C5A2; //Original 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
 	CAN_msg_t msg;
 
 	switch(state){
@@ -96,7 +96,7 @@ void strat_reglage_odo_rotation(void){
 		i=0;
 		debug_printf("REINIT\n\n");
 
-		debug_printf("\nGlobale variable de x %d\n	de y %d\n",global.env.pos.x,global.env.pos.y);
+		debug_printf("\nGlobale variable de x %d\n	de y %d\n l'angle %d\n",global.env.pos.x,global.env.pos.y,global.env.pos.angle);
 
 		msg.sid=ASSER_SET_POSITION;
 		msg.data[0]=1000 >> 8;	//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
@@ -116,7 +116,7 @@ void strat_reglage_odo_rotation(void){
 		state = try_going(1000,500,AVANCER,CALAGE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 
 		if(state==CALAGE)
-			debug_printf("\nRENIT variable de x %d\n\t\t\tde y %d\n",global.env.pos.x,global.env.pos.y);
+			debug_printf("\nRENIT variable de x %d\n\t\t\tde y %x\n",global.env.pos.x,global.env.pos.y);
 
 		from = AVANCER;
 		break;
@@ -172,27 +172,33 @@ void strat_reglage_odo_rotation(void){
 
 		//Si il est bien réglé l'angle interne du robot devrait etre de zero, sinon l'angle interne du robot s'est décalé quand le robot a approché le mur
 
-		if(global.env.pos.angle > (PI4096-ODOMETRIE_PLAGE) || global.env.pos.angle < (-PI4096+ODOMETRIE_PLAGE)){//Robot bien regle, on fait avec PI4096 car le robot recule au lieu d'avancer vers le mur
-			debug_printf("Ne pas modifier\n");
+		if(global.env.pos.angle > (PI4096/2-ODOMETRIE_PLAGE) && global.env.pos.angle < (PI4096/2+ODOMETRIE_PLAGE)){//Le coef serait parfait global.env.pos.angle doit être égale à 90°
+			debug_printf("Ne pas modifier l'angle globale est de %d \n\n",global.env.pos.angle);
 			state=DONE;
 
 
 		}else{//Recommencer procédure en modifiant les valeurs
-			debug_printf("Modifier valeur\n");
+			debug_printf("Modifier valeur l'angle globale est de %d \n\n",global.env.pos.angle);
 
 			state = REINIT;
 
 			//Modifier KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT selon l'angle obtenu
-			if(global.env.pos.angle > 0)//Si l'angle est entre 0 et PI4096
-				coefOdoRotation++;						//A voir peut modifier -- ici et ++ dans l'autre
-			else//Si l'angle est compris entre 0 et -PI4096
-				coefOdoRotation--;
+			if(global.env.pos.angle > PI4096/2){//Si l'angle est sup à 90°
+				coefOdoRotation+=3;
+				debug_printf("Augmentez le coef \n\n");
+			}
+			else{//Si l'angle est inf à 90°
+				coefOdoRotation-=3;
+				debug_printf("Diminuez le coef \n\n");
+			}
 
 			//Envoie du message CAN
-			/*msg.sid=DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION;
-			msg.data[0] = coefOdoRotation;
-			msg.size=1;
-			CAN_send(&msg);*/
+			msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION;
+			msg.data[0] = coefOdoRotation >> 24;
+			msg.data[1] = coefOdoRotation >> 16;
+			msg.data[2] = coefOdoRotation >> 8;
+			msg.size=3;
+			CAN_send(&msg);
 
 			debug_printf("Nouvelle valeur du coef odométrie rotation %x\n",coefOdoRotation);
 		}
