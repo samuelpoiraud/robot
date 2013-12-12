@@ -22,7 +22,7 @@
 	#define ACT_FILTER					0x300
 	#define BALISE_FILTER				0x400
 	#define DEBUG_FILTER				0x700
-	
+
 	//Ces messages ne sont pas destinés à voyager sur les bus CAN des robot.
 	#define XBEE_FILTER					0x500
 
@@ -55,20 +55,20 @@
 	#define DEBUG_STRAT_STATE_CHANGED	0x760  //Envoyé par la strat quand un état change d'une machine à état
 		//Paramètres: data[0]:data[1] = ID d'une machine à état (data[0] le poids fort), data[2] = old_state, data[3] = new_state, data suivant: paramètres divers
 
-	
+
 	#define DEBUG_ASSER_POINT_FICTIF								0x701
 	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_SYM 			0x702
 	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION 		0x703
 	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_TRANSLATION 	0x704
 	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_CENTRIFUGE 		0x705
-	#define DEBUG_PROPULSION_REGLAGE_COEF_KP_ROTATION 				0x706	
+	#define DEBUG_PROPULSION_REGLAGE_COEF_KP_ROTATION 				0x706
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KD_ROTATION 				0x707
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KP_TRANSLATION			0x708
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KD_TRANSLATION			0x709
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KV_TRANSLATION			0x70A
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KV_ROTATION				0x70B
 	#define DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT					0x710
-	
+
 	/* Message de l'utilisateur vers Super */
 	#define SUPER_EEPROM_RESET				0x770
 	#define SUPER_EEPROM_TEST_ALL_MEMORY	0x771
@@ -116,28 +116,28 @@
  *
  *****************************************************************/
 
-	
+
 	/* Carte super vers carte actionneur */
 	#define ACT_DO_SELFTEST		0x300
-	
+
 	/* Carte super vers carte propulsion */
 
 	#define PROP_DO_SELFTEST	0x100
-	
+
 	/* Carte super vers carte balise */
 	#define BEACON_DO_SELFTEST	0x400
-	
-	
+
+
 	/* Carte actionneur vers Super */
 	#define STRAT_ACT_SELFTEST_DONE 				0x2E3
-	
+
 	/* Carte propulsion vers Super */
 	#define STRAT_PROP_SELFTEST_DONE 				0x2E1
-	
+
 	/* Carte balise vers Super */
 	#define STRAT_BEACON_IR_SELFTEST_DONE			0x2E4
 	#define STRAT_BEACON_US_SELFTEST_DONE			0x2E5
-	
+
 	//Jusqu'à 8 codes d'erreurs peuvent être transmis dans la réponse de chaque carte. (la size contient le nombre de code d'erreurs envoyés.)
 	//En cas de test réussi, size vaut 0...
 	typedef enum
@@ -154,7 +154,7 @@
 		SELFTEST_NO_ERROR = 0xFF
 		//... ajouter ici d'éventuels nouveaux code d'erreur.
 	}SELFTEST_error_code_e;
-	
+
 
 /*****************************************************************
  *		Petits mots doux echangés entre la carte propulsion
@@ -176,7 +176,7 @@
 	#define ASSER_SEND_PERIODICALLY_POSITION	0x188
 	#define ASSER_STOP							0x101
 	#define ASSER_TELL_POSITION					0x105
- 	#define CARTE_ASSER_FIN_ERREUR				0x106
+	#define CARTE_ASSER_FIN_ERREUR				0x106
 	#define	ASSER_SET_POSITION					0x107
 	#define ASSER_TYPE_ASSERVISSEMENT			0x108
 	#define ASSER_RUSH_IN_THE_WALL				0x109
@@ -189,20 +189,20 @@
 			ASSER_CALIBRATION_SQUARE_3,
 			ASSER_CALIBRATION_SQUARE_4			//Near cake
 		}calibration_square_e;
-		
+
 	#define ASSER_WARN_ANGLE					0x10C
 	#define ASSER_WARN_X						0x10D
 	#define ASSER_WARN_Y						0x10E
 	#define ASSER_JOYSTICK 						0x111
-	
+
 	//modif amaury pour les 3position de calibrage initiale
-    #define ASSER_CASE_CALIBRAGE_1              0x112
-    #define ASSER_CASE_CALIBRAGE_2              0x113
-    #define ASSER_CASE_CALIBRAGE_3              0x114
+	#define ASSER_CASE_CALIBRAGE_1              0x112
+	#define ASSER_CASE_CALIBRAGE_2              0x113
+	#define ASSER_CASE_CALIBRAGE_3              0x114
 
 	//Modif Arnaud pour la détection de triangle
 	#define ASSER_LAUNCH_SCAN_TRIANGLE			0x115
-		
+
 
 /*****************************************************************
  *
@@ -230,7 +230,7 @@
 		#define ACT_RESULT_ERROR_NO_RESOURCES 5 //La carte n'a pas assez de resource pour gérer la commande. Commande à renvoyer plus tard.
 			//Ajoutez-en si nécessaire
 		#define ACT_RESULT_ERROR_UNKNOWN      255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
-    /////////////////////////////////////////
+	/////////////////////////////////////////
 
 // Code des SID des messages: 0x30x = message pour Tiny, 0x31x = message pour Krusty.
 // Le SID 0x300 est reservé pour le self_test
@@ -240,9 +240,9 @@
 		//Paramètres de HAMMER (dans data[0])
 		#define ACT_HAMMER_MOVE_TO     0   // Changer la position du bras, angle en degré dans data[1] (poids faible) et data[2]. 90° = bras vertical, 0° = bras rentré
 		#define ACT_HAMMER_STOP        1   // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
-		                                   //  Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
+										   //  Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
 		#define ACT_HAMMER_BLOW_CANDLE 2   // Souffler une bougie. La couleur est automatiquement gérée et si on ne doit pas la souffler, rien ne se passera.
-		                                   //  Dans data[1]: couleur du robot, RED (0) pour rouge, BLUE (1) pour bleu (comme l'enum color_e dans QS_types.h)
+										   //  Dans data[1]: couleur du robot, RED (0) pour rouge, BLUE (1) pour bleu (comme l'enum color_e dans QS_types.h)
 	/////////////////////////////////////////
 
 	////////////// LONGHAMMER ///////////////
@@ -252,7 +252,7 @@
 		#define ACT_LONGHAMMER_GO_DOWN 1    // Appuyer sur les bougies et les éteindres en descendant le bras
 		#define ACT_LONGHAMMER_GO_PARK 2    // Ranger le bras pour diminuer le diamètre du robot
 		#define ACT_LONGHAMMER_GO_STOP 3    // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
-		                                    //Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
+											//Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
 	/////////////////////////////////////////
 
 	///////////// BALLINFLATER //////////////
@@ -278,7 +278,14 @@
 		#define ACT_CANDLECOLOR_COLOR_OTHER  4  //Pas de couleur parmi les précédentes detectée
 	/////////////////////////////////////////
 
-
+/////////////////FRUIT_MOUTH////////////////////
+	#define ACT_FRUIT_MOUTH (ACT_FILTER | 0x16)
+		#define ACT_FRUIT_MOUTH_CLOSE		0x10
+		#define ACT_FRUIT_MOUTH_OPEN		0x11
+		#define ACT_FRUIT_MOUTH_MID			0x12
+		#define ACT_FRUIT_MOUTH_STOP		0x1F
+////////////////////////////////////////////////
+///
 	//////////// PLIER //////////////////////
 	#define ACT_PLIER (ACT_FILTER | 0x05)
 		//PAramètre de PLIER (dans data[0])
@@ -312,8 +319,8 @@
 	#define ACT_BALLSORTER (ACT_FILTER | 0x13)
 		//Paramètres de BALLSORTER (dans data[0])
 		#define ACT_BALLSORTER_TAKE_NEXT_CHERRY 0    //Ejecter la cerise et en prendre une autre pour la detecter. Après detection, le lanceur de balle change de vitesse automatiquement.
-		                                             //Vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
-		                                             //data[3] bool_e: TRUE si on doit garder une cerise blanche dans le lanceur, si la cerise n'est pas blanche, on la lance. FALSE pour toujours lancer toutes les cerises.
+													 //Vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
+													 //data[3] bool_e: TRUE si on doit garder une cerise blanche dans le lanceur, si la cerise n'est pas blanche, on la lance. FALSE pour toujours lancer toutes les cerises.
 
 	#define ACT_BALLSORTER_RESULT (STRAT_FILTER | (ACT_FILTER >> 4) | 0xA)
 		//Résultat de la detection de la cerise dans data[0]:
@@ -346,7 +353,7 @@
 	/* carte stratégie vers carte balises */
 	#define BEACON_ENABLE_PERIODIC_SENDING	0x410
 	#define BEACON_DISABLE_PERIODIC_SENDING	0x411
-	
+
 	/* Carte balises vers carte stratégie */
 	#define BEACON_ADVERSARY_POSITION_IR					0x250	//Balise InfraRouge
 	#define BEACON_ADVERSARY_POSITION_US					0x251	//Balise UltraSon
@@ -362,5 +369,5 @@
 		#define ERREUR_POSITION_INCOHERENTE 		(0b00010000)
 		#define OBSOLESCENCE						(0b10000000)
 
- 	
+
 #endif	/* ndef QS_CANMSGLIST_H */
