@@ -45,7 +45,7 @@ typedef void (*RF_onReceive_ptr)(RF_header_t header, Uint8 *data, Uint8 size);
 void RF_init(RF_onReceive_ptr onReceiveCallback);
 void RF_can_send(RF_module_e target_id, CAN_msg_t *msg);
 void RF_synchro_request(RF_module_e target_id);
-void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset);
+void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset);
 
 //void RF_set_channel(Uint8 channel);
 //void RF_set_output_power(Uint8 power);
