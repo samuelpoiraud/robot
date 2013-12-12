@@ -56,26 +56,12 @@ static Uint8 crc8(Uint8 *data, Uint8 size) {
 	return crc;
 }
 
-#define RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
-#define RF_TEMP_CONCAT(a,b,c) RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
-
-#if RF_UART <= 0 || RF_UART > 3
-#error "RF_UART est invalide: il doit être défini à une valeur entre 1 et 3 inclus"
-#else
-#define RF_UART_init() UART_init()
-#define RF_UART_send(c) RF_TEMP_CONCAT(UART, RF_UART, _putc(c))
-#define RF_UART_recv() RF_TEMP_CONCAT(UART, RF_UART, _get_next_msg())
-#define RF_UART_is_data_available() RF_TEMP_CONCAT(UART, RF_UART, _data_ready())
+#if defined(RF_TIMER_ID)
+	#define TIMER_SRC_TIMER_ID RF_TIMER_ID
+#elif defined(RF_USE_WATCHDOG)
+	#define TIMER_SRC_USE_WATCHDOG RF_USE_WATCHDOG
 #endif
-
-//Arbitraire, doivent être des nombres rarement utilisés pour éviter d'avoir trop d'occurence
-//Tous doivent être >= 0xC0 && <= 0xFF
-#define ESCAPE_CHAR 0xC0
-#define START_OF_PACKET_CHAR 0xC3 //DOIT ETRE 0x?3 !
-
-static FIFO_t fifo_tx;
-static char buffer_tx[50];
-static RF_onReceive_ptr packet_received_fct = NULL;
+#include "QS_setTimerSource.h"
 
 #define RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c) a##b##c
 #define RF_TEMP_CONCAT(a,b,c) RF_TEMP_CONCAT_WITH_PREPROCESS(a,b,c)
@@ -93,6 +79,26 @@ static RF_onReceive_ptr packet_received_fct = NULL;
 	#define RF_TX_Interrupt RF_TEMP_CONCAT(UART, 3, _TX_Interrupt)
 #endif
 
+#if RF_UART <= 0 || RF_UART > 3
+#error "RF_UART est invalide: il doit être défini à une valeur entre 1 et 3 inclus"
+#else
+#define RF_UART_init() UART_init()
+#define RF_UART_send(c) RF_TEMP_CONCAT(UART, RF_UART, _putc(c))
+#define RF_UART_recv() RF_TEMP_CONCAT(UART, RF_UART, _get_next_msg())
+#define RF_UART_is_data_available() RF_TEMP_CONCAT(UART, RF_UART, _data_ready())
+#endif
+
+//Arbitraire, doivent être des nombres rarement utilisés pour éviter d'avoir trop d'occurence
+//Tous doivent être >= 0xC0 && <= 0xFF
+#define ESCAPE_CHAR 0xC0
+#define END_OF_PACKET_CHAR 0xC1
+#define START_OF_PACKET_CHAR 0xC3 //DOIT ETRE 0x?3 !
+
+static FIFO_t fifo_tx;
+static char buffer_tx[50];
+static RF_onReceive_ptr packet_received_fct = NULL;
+static bool_e canTransmitData = TRUE;
+
 typedef enum {
 	RF_PS_Incomplete,
 	RF_PS_Full,
@@ -106,7 +112,7 @@ typedef enum {
 #define RF_CAN_DATA 3
 
 #define RF_SYNCHRO_REQUEST_SIZE 0
-#define RF_SYNCHRO_RESPONSE_SIZE 1
+#define RF_SYNCHRO_RESPONSE_SIZE 2
 #define RF_CAN_MIN_SIZE 1
 #define RF_CAN_MAX_DATA_SIZE 10
 
@@ -138,8 +144,41 @@ void RF_init(RF_onReceive_ptr onReceiveCallback) {
 
 	UART_IMPL_init_ex(RF_UART, 19200, 15, 15, UART_I_StopBit_1_5, UART_I_Parity_None);
 	UART_IMPL_setRxItEnabled(RF_UART, TRUE);
+	TIMER_SRC_TIMER_init();
 
 	FIFO_init(&fifo_tx, buffer_tx, 50, 1);
+}
+
+static void RF_putc(Uint8 c)
+{
+	//UART1_putc(c);
+
+	if(!UART_IMPL_isTxFull(RF_UART) && FIFO_isEmpty(&fifo_tx) && canTransmitData)
+		UART_IMPL_write(RF_UART, c);
+	else
+	{
+		bool_e byte_sent = FALSE;
+		//mise en buffer + activation IT U3TX.
+		while(!byte_sent) {
+			UART_IMPL_setTxItPaused(RF_UART, FALSE);
+			while(FIFO_isFull(&fifo_tx));	//ON BLOQUE ICI
+
+			//Critical section (Interrupt inibition)
+
+
+			UART_IMPL_setRxItPaused(RF_UART, TRUE);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+			UART_IMPL_setTxItPaused(RF_UART, TRUE);
+			if(!FIFO_isFull(&fifo_tx))
+			{
+				FIFO_insertData(&fifo_tx, &c);
+				byte_sent = TRUE;
+			}
+			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
+
+			UART_IMPL_setRxItPaused(RF_UART, FALSE);	//On active l'IT sur TX... lors du premier caractère à envoyer...
+		}
+	}
+	UART_IMPL_setTxItPaused(RF_UART, FALSE);
 }
 
 static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size) {
@@ -157,7 +196,7 @@ static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *d
 	for(i = 0; i < size; i++) {
 		Uint8 c = data[i];
 		crc = crc8_incremental(crc, c);
-		if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR) {
+		if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR || c == END_OF_PACKET_CHAR) {
 			c &= (~0xC0);
 			RF_putc(ESCAPE_CHAR);
 			RF_putc(c);
@@ -166,6 +205,7 @@ static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *d
 		}
 	}
 	RF_putc(crc);
+	RF_putc(END_OF_PACKET_CHAR);
 }
 
 void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
@@ -192,8 +232,8 @@ void RF_synchro_request(RF_module_e target_id) {
 	RF_send(RF_PT_SynchroRequest, target_id, NULL, 0);
 }
 
-void RF_synchro_response(RF_module_e target_id, Uint8 timer_offset) {
-	RF_send(RF_PT_SynchroResponse, target_id, &timer_offset, 1);
+void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset) {
+	RF_send(RF_PT_SynchroResponse, target_id, (Uint8*)&timer_offset, RF_SYNCHRO_RESPONSE_SIZE);
 }
 
 static bool_e RF_recv(Uint8 *c) {
@@ -295,67 +335,48 @@ void RF_state_machine(Uint8 c, bool_e new_frame) {
 	}
 }
 
-static void RF_putc(Uint8 c)
-{
-	UART_IMPL_setRxItPaused(RF_UART, TRUE);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
-	UART_IMPL_setTxItPaused(RF_UART, TRUE);
-
-	if(!UART_IMPL_isTxFull(RF_UART))
-		UART_IMPL_write(RF_UART, c);
-	else
-	{
-		bool_e byte_sent = FALSE;
-		//mise en buffer + activation IT U3TX.
-		while(!byte_sent) {
-			while(FIFO_isFull(&fifo_tx));	//ON BLOQUE ICI
-
-			//Critical section (Interrupt inibition)
-
-
-			if(!FIFO_isFull(&fifo_tx))
-			{
-				FIFO_insertData(&fifo_tx, &c);
-				byte_sent = TRUE;
-			}
-			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
-
-			UART_IMPL_setTxItEnabled(RF_UART, TRUE);
-		}
-	}
-	
-	UART_IMPL_setRxItPaused(RF_UART, FALSE);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-	UART_IMPL_setTxItPaused(RF_UART, FALSE);
-}
-
 void RF_RX_Interrupt() {
-		Uint8 c;
+	Uint8 c;
 
-		while(!UART_IMPL_isRxEmpty(RF_UART))
-		{
-			c = UART_IMPL_read(RF_UART);
-			if(c == START_OF_PACKET_CHAR)
-				RF_state_machine(c, TRUE);
-			else if(RF_recv(&c))
-				RF_state_machine(c, FALSE);
-		}
+	while(!UART_IMPL_isRxEmpty(RF_UART))
+	{
+		c = UART_IMPL_read(RF_UART);
+		if(c == START_OF_PACKET_CHAR)
+			RF_state_machine(c, TRUE);
+		else if(RF_recv(&c))
+			RF_state_machine(c, FALSE);
+	}
 
-		UART_IMPL_ackRxIt(RF_UART);
+	canTransmitData = FALSE;
+	TIMER_SRC_TIMER_start_ms(10);
+
+	UART_IMPL_ackRxIt(RF_UART);
 }
 
 void RF_TX_Interrupt() {
-		//debufferiser.
-		if(!FIFO_isEmpty(&fifo_tx))
-		{
+	//debufferiser si on a le droit
+	if(canTransmitData) {
+		if(!FIFO_isEmpty(&fifo_tx)) {
 			Uint8 *c;
 			c = (Uint8*)FIFO_getData(&fifo_tx);
 			if(c)
 				UART_IMPL_write(RF_UART, *c);
 
-		}
-		else if(FIFO_isEmpty(&fifo_tx))
+		} else if(FIFO_isEmpty(&fifo_tx)) {
 			UART_IMPL_setTxItEnabled(RF_UART, FALSE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+		}
+	} else {
+		UART_IMPL_setTxItEnabled(RF_UART, FALSE);	//Le timeout du delai d'attente transmission reactivera l'it
+		TIMER_SRC_TIMER_EnableIT();
+	}
+	UART_IMPL_ackTxIt(RF_UART);
+}
 
-		UART_IMPL_ackTxIt(RF_UART);
+void TIMER_SRC_TIMER_interrupt() {
+	TIMER_SRC_TIMER_DisableIT();
+	TIMER_SRC_TIMER_resetFlag();
+	canTransmitData = TRUE;
+	RF_TX_Interrupt();
 }
 
 #endif

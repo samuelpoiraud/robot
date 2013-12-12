@@ -184,14 +184,15 @@ void UART_IMPL_setTxItPaused(Uint8 uart_id, bool_e pause) {
 }
 
 void UART_IMPL_setRxItEnabled(Uint8 uart_id, bool_e enable) {
+	UART_IMPL_ackRxIt(uart_id);
 	UART_IMPL_setRxItPaused(uart_id, enable == FALSE);
 }
 
 void UART_IMPL_setTxItEnabled(Uint8 uart_id, bool_e enable) {
+	UART_IMPL_ackTxIt(uart_id);
 	UART_IMPL_setTxItPaused(uart_id, enable == FALSE);
 }
 
-//Ne fait rien car c'est la lecture/ecriture du buffer uart qui déclenche des interruptions (level-triggered interrupt)
 void UART_IMPL_ackRxIt(Uint8 uart_id) {
 	assert(uart_id < UART_IMPL_NUM);
 	if(uart_id == 0)
