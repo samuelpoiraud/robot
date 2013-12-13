@@ -14,12 +14,12 @@
 #include "Stacks.h"
 #include "asser_functions.h"
 
-/* 
+/*
  * La formule pour changer le numéro du noeud (parallélisme)
  */
 #define COLOR_NODE(n)	((global.env.color == BLUE || n<=2) ? (n) : (n<=7 ? (n+5) : (n-5)))
 
-#define PATHFIND_NODE_NB 14
+#define PATHFIND_NODE_NB 25
 
 
 /*
@@ -61,16 +61,16 @@ typedef struct {
 	/*
 	 * Localisation et voisins du noeud
 	 */
-    Sint16 x;
-    Sint16 y;
-    pathfind_node_list_t neighbors;
+	Sint16 x;
+	Sint16 y;
+	pathfind_node_list_t neighbors;
 
-    /*
-     * Variables utilisées dans l'algo.
-     */
-    Uint16 cost;
-    Uint16 heuristic;
-    pathfind_node_id_t parent;
+	/*
+	 * Variables utilisées dans l'algo.
+	 */
+	Uint16 cost;
+	Uint16 heuristic;
+	pathfind_node_id_t parent;
 } pathfind_node_t;
 
 /*typedef struct {
@@ -110,7 +110,7 @@ pathfind_node_id_t PATHFIND_opponent_node(foe_e foe_id);
 bool_e PATHFIND_is_opponent_in_path(foe_e foe_id);
 
 /*
- * Renvoie un noeud du neighbor du noeud of 
+ * Renvoie un noeud du neighbor du noeud of
  */
 pathfind_node_id_t  PATHFIND_random_neighbor(pathfind_node_id_t of, bool_e handleOpponent[NB_FOES]);
 
@@ -118,7 +118,7 @@ Sint16 PATHFIND_get_node_x (pathfind_node_id_t n);
 Sint16 PATHFIND_get_node_y (pathfind_node_id_t n);
 
 /*
- * Optimise les deplacements en supprimant les 
+ * Optimise les deplacements en supprimant les
  * noeuds inutile. (si 3 noeuds 1,2 et 3 sont alignes,
  * le noeud n°2 sera supprimé de la liste des noeuds à
  * parcourir).
