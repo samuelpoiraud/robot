@@ -11,6 +11,7 @@
 #define NB_POINTS 90
 
 volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS];
+volatile struct{Sint16 x; Sint16 y;} vect_direc[3][NB_POINTS-1]; //Va recupérer les vect directeurs des 3 lasers, recupere le vecteur entre 2 points donc NB_POINTS-1
 
 typedef struct{
 	struct{Sint16 dist; Sint16 x; Sint16 y; position_t pos;} data[NB_POINTS];
@@ -196,11 +197,13 @@ static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure){
 
 void SCAN_TRIANGLE_calculate(void){
 	if(runCalcul){
+		debug_printf("Calcul\n");
 		Uint8 j, i, nb_objet = 0;
 		Uint16 nb_point = NB_POINTS;
 		Sint16 cos, sin;
 		Sint16 coef[3][NB_POINTS-1];
 		static object objet[3][20];
+
 
 
 		// Initialisation
@@ -221,9 +224,41 @@ void SCAN_TRIANGLE_calculate(void){
 				scan[i].y[2] = scan[i].pos.y + 80*sin/4096 + (100 + scan[i].dist[2])*cos/4096;
 		}
 
-		// Calcul coefficient directeur
-		for(i=0;i<NB_POINTS-1;i++)
+		// Calcul vecteur directeur
+		for(i=0;i<NB_POINTS-1;i++){
 			for(j=0;j<3;j++){
+				vect_direc[j][i].x = scan[i+1].x[j] - scan[i].x[j];
+				vect_direc[j][i].y = scan[i+1].y[j] - scan[i].y[j];
+			}
+		}
+
+		// Calcul angle
+		for(i=0;i<NB_POINTS-1;i++){
+			for(j=0;j<3;j++){
+				if(i==0 && j==0){
+					debug_printf("petit cal %f \n",(float){((vect_direc[j][i].x*vect_direc[j][i+1].x + vect_direc[j][i].y*vect_direc[j][i+1].y)/
+													 (sqrt(vect_direc[j][i].x*vect_direc[j][i].x + vect_direc[j][i].y*vect_direc[j][i].y) +
+													  sqrt(vect_direc[j][i+1].x*vect_direc[j][i+1].x + vect_direc[j][i+1].y*vect_direc[j][i+1].y)))});
+					debug_printf("valP1 x= %d, y=%d\nval2 x= %d, y= %d\n",vect_direc[j][i].x,vect_direc[j][i].y,vect_direc[j][i+1].x,vect_direc[j][i+1].y);
+				}
+
+
+				if( 0,50 < (float){((vect_direc[j][i].x*vect_direc[j][i+1].x + vect_direc[j][i].y*vect_direc[j][i+1].y)/
+						(sqrt(vect_direc[j][i].x*vect_direc[j][i].x + vect_direc[j][i].y*vect_direc[j][i].y) +
+						 sqrt(vect_direc[j][i+1].x*vect_direc[j][i+1].x + vect_direc[j][i+1].y*vect_direc[j][i+1].y)))} &&
+
+						(float){((vect_direc[j][i].x*vect_direc[j][i+1].x + vect_direc[j][i].y*vect_direc[j][i+1].y)/
+						 (sqrt(vect_direc[j][i].x*vect_direc[j][i].x + vect_direc[j][i].y*vect_direc[j][i].y) +
+						  sqrt(vect_direc[j][i+1].x*vect_direc[j][i+1].x + vect_direc[j][i+1].y*vect_direc[j][i+1].y)))} < 1){
+
+					debug_printf("Objet Appartient i : %d\n",i);
+
+				}
+			}
+		}
+
+
+			/*for(j=0;j<3;j++){
 				if((scan[i+1].x[j]-scan[i].x[j])
 				  != 0)
 					coef[j][i] = (10*(10*scan[i+1].y[j]-10*scan[i].y[j]))/(10*scan[i+1].x[j]-10*scan[i].x[j]);
@@ -235,7 +270,10 @@ void SCAN_TRIANGLE_calculate(void){
 					debug_printf("connard dégage d'ici");
 					coef[j][i] = 0;
 				}
-			}
+			}*/
+
+
+/*
 		debug_printf("\nCoefficient directeur : \n");
 		for(i=0;i<NB_POINTS-1;i++)
 			debug_printf("%d\n", coef[0][i]);
@@ -289,7 +327,7 @@ void SCAN_TRIANGLE_calculate(void){
 		debug_printf("Point milieu : \n");
 		for(i=0;i<nb_objet;i++)
 			debug_printf("%d %d\n",point_milieu[0][i].x,point_milieu[0][i].y);
-
+*/
 		runCalcul = 0;
 	}
 }
@@ -313,3 +351,5 @@ static Sint32 abs(Sint32 val){
 	else
 		return -val;
 }
+
+
