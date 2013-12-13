@@ -10,14 +10,18 @@
  */
 
 #include "../QS/QS_i2c.h"
+#include "../QS/QS_outputlog.h"
 #include "config_use.h"
 #include "config_pin.h"
-
 
 #if defined(USE_LCD) && !defined(USE_I2C2)
 	#warning "LCD a besoin de I2C2 pour fonctionner. Veuiller definir USE_I2C2 dans config_qs.h. Le module LCD sera inactif ..."
 	#undef USE_LCD
 #endif
+
+
+//si négatif ou non défini : pas de désactivation LCD en cas d'erreurs
+#define LCD_MAX_I2C_ERROR 0   //On ne veut aucune erreur, sinon on désactive le LCD
 
 #define LCDADDR 0x78
 #define LCD_SIZE_LINE	4
@@ -53,9 +57,11 @@
 
 #define ADDRESS_DDRAM								0x80
 
-	
-	
-	
+
+static bool_e initialized = FALSE;
+static void LCD_handle_i2c_result(bool_e result);
+
+
 
 //////////////////////////////////////////////I2C : low level functions //////////////////////
 
@@ -64,6 +70,7 @@ void LCD_I2C_init(void)
 #ifdef USE_LCD
 	I2C_init();
 #endif
+	initialized = TRUE;
 }
 
 
@@ -85,7 +92,7 @@ Uint8 LCD_I2C_read_byte(bool_e send_ack)
 	IdleI2C();
 	if(send_ack)
 	{
-		I2CCONbits.ACKDT = 0; 
+		I2CCONbits.ACKDT = 0;
 		I2CCONbits.ACKEN = 1;
 	}
 	return ret;
@@ -98,11 +105,14 @@ Uint8 LCD_I2C_read_byte(bool_e send_ack)
 
 void LCD_send_command(Uint8 command)
 {
+	if(!initialized)
+		return;
+
 	Uint8 datas[3];
 	datas[0] = CONTROL_BYTE_FOR_COMMAND;		// Control byte (C0 = 0, D/C = C)
 	datas[1] = command;
 #ifdef USE_LCD
-	I2C2_write(LCDADDR, datas, 2, TRUE);
+	LCD_handle_i2c_result(I2C2_write(LCDADDR, datas, 2, TRUE));
 #endif
 }
 
@@ -158,7 +168,7 @@ void LCD_set_contrast(Uint8 contrast)
 	LCD_send_command(0x70 | (contrast & 0x0F));			//Constrast
 	LCD_send_command(COMMAND_POWER_ICON_CONTRAST | ((contrast >> 4) & 0x03));	//Power Icon control contrast
 	LCD_send_command(COMMAND_8BIT_4LINES_RE0_IS0);	//Function set : RE = 0, IS = 0
-}	
+}
 
 #define SIZE_READ 160
 //Function used only for debug...
@@ -169,16 +179,16 @@ void LCD_Dump(void)
 	printf("READ %x ->\n  0000 ",(int)(0));
 
 	LCD_send_command(0);
-	
+
 	LCD_I2C_begin_frame(READING_FRAME);
 	LCD_I2C_send_byte(CONTROL_BYTE_FOR_COMMAND);		// Control byte (C0 = 0, D/C = C)
-	
+
 	for(i=0;i<SIZE_READ;i++)
 	{
 		ret[i] = LCD_I2C_read_byte((i<SIZE_READ-1)?TRUE:FALSE);	//Send Ack	-> NO ack at the last byte
 	}
-			
-	LCD_I2C_end_frame();	
+
+	LCD_I2C_end_frame();
 
 	for(i=0;i<SIZE_READ;i++)
 	{
@@ -208,9 +218,9 @@ void LCD_set_cursor(Uint8 line, Uint8 column)
 {
 	line = MIN(line,LCD_SIZE_LINE-1);
 	column = MIN(column,LCD_SIZE_COLUMN-1);
-	
+
 	LCD_send_command(ADDRESS_DDRAM | (line*0x20 + column));
-}	
+}
 
 /*
 Uint8 Read_AC(void)
@@ -224,10 +234,10 @@ Uint8 Read_AC(void)
 	ac = LCD_I2C_read_byte(TRUE);
 	id = LCD_I2C_read_byte(FALSE);	//id should be 0x1A
 	LCD_I2C_end_frame();
-	
+
 	//printf("ac=%02X | id=%02X\n",ac,id);
 	return ac;
-}	
+}
 */
 /*
  * string ends with '\0'...
@@ -238,9 +248,12 @@ void LCD_Write_text(char * string)
 	Uint8 datas[20];
 	Uint8 index;
 	index = 0;
-	
+
+	if(!initialized)
+		return;
+
 	datas[index++] = CONTROL_BYTE_FOR_DATA;     // Control byte for Data
-	
+
 	for(i=0;string[i];i++)
 	{
 		if(index >= 20)
@@ -267,9 +280,9 @@ void LCD_Write_text(char * string)
 				datas[index++] = string[i];
 			break;
 		}
-	}	
+	}
 #ifdef USE_LCD
-	I2C2_write(LCDADDR, datas, index, TRUE);
+	LCD_handle_i2c_result(I2C2_write(LCDADDR, datas, index, TRUE));
 #endif
 }
 
@@ -292,10 +305,10 @@ void LCD_test(void)
 		done = TRUE;
 		LCD_set_cursor(1, 3);
 		LCD_Write_text("Ligne 2");
-		
+
 		LCD_set_cursor(2, 0);
 		LCD_Write_text("Début Ligne 3");
-		
+
 		LCD_set_cursor(29, 0);
 		LCD_Write_text("üéäàçêè...!");
 	}
@@ -307,5 +320,21 @@ void LCD_test(void)
 		LCD_Write_text(tmp);
 	}
 
-}	
+}
 
+static void LCD_handle_i2c_result(bool_e result) {
+	static Uint8 error_count = 0;
+
+#if defined(LCD_MAX_I2C_ERROR) && LCD_MAX_I2C_ERROR >= 0
+	if(result == FALSE)
+		error_count++;
+	else
+		error_count = 0;
+
+	if(error_count > LCD_MAX_I2C_ERROR) {
+		initialized = FALSE;
+		error_count = 0;
+		debug_printf("LCD: trop d'erreur I2C, LCD off\n");
+	}
+#endif
+}
