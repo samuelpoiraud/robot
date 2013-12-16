@@ -19,15 +19,6 @@
  * (risque de griller ou de faire bruler le pic)
  */
 
-#define PORT_A_IO_MASK	0xFFFF
-#define PORT_B_IO_MASK	0xF7FF
-#define PORT_C_IO_MASK	0xFFFF
-#define PORT_D_IO_MASK	0xC0FF  //C0xx: LED de la carte en sortie
-#define PORT_E_IO_MASK	0xFF00  //xx00: PWMx/sensx en sortie
-
-#define PORT_F_IO_MASK	0xFFFF
-#define PORT_G_IO_MASK	0xFEBF  //Port RG6 en sortie pour le gonfleur, RG8 en sortie pour le sens du bus des AX12
-
 /* Definition des périphériques, connectiques capteurs et actionneurs de Tiny */
 
 /* Entrées analogiques: attention à la renumérotation des entrées... */
@@ -69,7 +60,6 @@
 #define AX12_NUMBER 7
 //#define AX12_USE_WATCHDOG
 #define AX12_TIMER_ID 2
-#define AX12_DIRECTION_PORT GPIOB->ODR11
 #define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 
 /* Capteur Tritronics CW2 */
