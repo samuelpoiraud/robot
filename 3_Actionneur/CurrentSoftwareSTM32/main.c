@@ -32,9 +32,9 @@
 
 //#include "switch.h"
 
-//#ifdef USE_CAN
+#ifdef USE_CAN
 	#include "QS/QS_can.h"
-//#endif
+#endif
 	#include "Can_msg_processing.h"
 	#include "QS/QS_CANmsgList.h"
 #include "config_pin.h"
@@ -65,9 +65,9 @@ int main (void)
 	BUTTONS_init();
 
 	LED_CAN = 1;
-	#ifdef USE_CAN
+	//#ifdef USE_CAN
 		CAN_init();
-	#endif
+	//#endif
 
 	// Gestion du CAN
 	#ifdef USE_CAN
