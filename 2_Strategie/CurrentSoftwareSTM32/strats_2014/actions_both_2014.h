@@ -18,5 +18,6 @@
 #include "../act_functions.h"
 
 void strat_reglage_odo_rotation(void);
+void strat_reglage_odo_translation(void);
 
 #endif
