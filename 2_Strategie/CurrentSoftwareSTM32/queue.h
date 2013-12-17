@@ -35,6 +35,9 @@ typedef enum {
 	ACT_QUEUE_CandleColor,
 	ACT_QUEUE_Plier,
 
+	//Pierre
+	ACT_QUEUE_Fruit,
+
 	NB_QUEUE
 } queue_id_e;
 

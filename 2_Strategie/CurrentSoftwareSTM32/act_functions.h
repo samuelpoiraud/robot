@@ -26,6 +26,21 @@
 /* Fonctions empilables */
 
 ////////////////////////////////////////
+//////////////// PIERRE ////////////////
+////////////////////////////////////////
+
+//ACT_truc_enum = MSG_CAN,
+// ...
+typedef enum {
+	ACT_FRUIT_Open = ACT_FRUIT_MOUTH_OPEN,
+	ACT_FRUIT_Mid = ACT_FRUIT_MOUTH_MID,
+	ACT_FRUIT_Close = ACT_FRUIT_MOUTH_CLOSE,
+	ACT_FRUIT_Stop = ACT_FRUIT_MOUTH_STOP
+} ACT_fruit_mouth_cmd_e;
+
+bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd);
+
+////////////////////////////////////////
 //////////////// KRUSTY ////////////////
 ////////////////////////////////////////
 

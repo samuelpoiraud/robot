@@ -11,6 +11,13 @@
 #ifndef CONFIG_PIN_H
 #define CONFIG_PIN_H
 
+	/* Les instructions ci dessous définissent le comportement des
+	 * entrees sorties du pic. une configuration en entree correspond
+	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
+	 * 0 (Output).
+	 * Toute connection non utilisee doit etre configuree en entree
+	 * (risque de griller ou de faire bruler le pic)
+	 */
 #define PORT_A_IO_MASK	0xFC9B
 	#define BUTTON0_PORT		GPIOA->IDR0
 	#define SWITCH_DEBUG		GPIOA->IDR1

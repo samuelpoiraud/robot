@@ -272,6 +272,11 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	act_states[act_id].operationResult = ACT_RESULT_Ok;
 #else
 	switch(msg->data[0]) {
+		//Pierre
+		case ACT_FRUIT_MOUTH & 0xFF:
+			act_id = ACT_QUEUE_Fruit;
+			break;
+
 		//Krusty
 		case ACT_BALLLAUNCHER & 0xFF:
 			act_id = ACT_QUEUE_BallLauncher;
