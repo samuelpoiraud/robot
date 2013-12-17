@@ -17,9 +17,37 @@
 /*
  * La formule pour changer le numéro du noeud (parallélisme)
  */
-#define COLOR_NODE(n)	((global.env.color == BLUE || n<=2) ? (n) : (n<=7 ? (n+5) : (n-5)))
+#define COLOR_NODE( n)	PATHFING_get_symetric(n)
 
 #define PATHFIND_NODE_NB 25
+
+/*
+ * Defines des noms des nodes
+ */
+#define A1 0
+#define A2 1
+#define B0 2
+#define B1 3
+#define B2 4
+#define B3 5
+#define C0 6
+#define C1 7
+#define C2 8
+#define C3 9
+#define M0 10
+#define M1 11
+#define M2 12
+#define M3 13
+#define W0 14
+#define W1 15
+#define W2 16
+#define W3 17
+#define Y0 18
+#define Y1 19
+#define Y2 20
+#define Y3 21
+#define Z1 22
+#define Z2 23
 
 
 /*
@@ -132,6 +160,11 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
  * TODO Si on est dans la zone verte et l'adversaire en 9, regarder si on peut commencer en 6 ou 11
  */
 Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER_speed_e speed, way_e way, bool_e handleOpponent);
+
+/*
+ * Calcule le point symétrique au point rentré n
+ */
+Uint16 PATHFING_get_symetric(Uint8 n);
 
 
 #endif /* PATHFIND_H */
