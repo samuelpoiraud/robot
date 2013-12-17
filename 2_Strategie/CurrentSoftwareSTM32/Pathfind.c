@@ -366,4 +366,23 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 	return nodes[to].cost;
 }
 
+
+Uint16 PATHFING_get_symetric(Uint8 n){
+	if(global.env.color == BLUE){
+		if(n<2)
+			return n+22;
+		if(n<6 && n>1)
+			return n +16;
+		if(n<10 && n>5)
+			return n+8;
+		if(n>13 && n<18)
+			return n-8;
+		if(n>17 && n<22)
+			return n-16;
+		if(n>21 && n<24)
+			return n-22;
+	}
+	return n;
+}
+
 #endif
