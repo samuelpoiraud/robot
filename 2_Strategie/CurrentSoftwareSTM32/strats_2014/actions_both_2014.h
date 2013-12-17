@@ -19,5 +19,6 @@
 
 void strat_reglage_odo_rotation(void);
 void strat_reglage_odo_translation(void);
+void strat_reglage_odo_symetrie(void);
 
 #endif
