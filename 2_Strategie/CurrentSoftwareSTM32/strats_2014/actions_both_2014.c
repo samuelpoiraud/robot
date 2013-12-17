@@ -18,9 +18,9 @@
 
 #define LARGEUR_ROBOT 240
 
-// Strat ODOMETRIE
+// Strat Rotation
 #define DEFAULT_SPEED	(SLOW)
-#define ODOMETRIE_PLAGE_ROTATION 20 //La variation de la plage sur PI4096(12868) pour savoir si on doit modifier l'angle. Théoriquement avec 10, on devrait avoir au maximum de 2mm de décalage sur un 1m
+#define ODOMETRIE_PLAGE_ROTATION 5 //La variation de la plage sur PI4096(12868) pour savoir si on doit modifier l'angle. Théoriquement avec 10, on devrait avoir au maximum de 2mm de décalage sur un 1m
 #define USE_CURVE	0
 #define NB_TOUR_ODO_ROTATION 1
 
@@ -61,7 +61,7 @@ void strat_reglage_odo_rotation(void){
 	static enum state_e inProcess = IDLE;
 	static bool_e timeout=FALSE;
 	static Sint16 i=0;
-	static Uint16 coefOdoRotation = 0x0000C5A2; //Original 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
+	static Uint16 coefOdoRotation = 0x0000C581; // Peut etre 0xc581 //Original 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
 	CAN_msg_t msg;
 
 	switch(state){
@@ -190,21 +190,25 @@ void strat_reglage_odo_rotation(void){
 
 			//Modifier KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT selon l'angle obtenu
 			if(global.env.pos.angle > PI4096/2){//Si l'angle est sup à 90°
-				if((global.env.pos.angle-PI4096/2) > 50)
+				if((global.env.pos.angle-PI4096/2) > 100)
 					coefOdoRotation+=20;
-				else if((global.env.pos.angle-PI4096/2) > 25)
+				else if((global.env.pos.angle-PI4096/2) > 50)
 					coefOdoRotation+=10;
-				else
+				else if((global.env.pos.angle-PI4096/2) > 25)
 					coefOdoRotation+=5;
+				else
+					coefOdoRotation++;
 				debug_printf("Augmentez le coef \n\n");
 			}
 			else{//Si l'angle est inf à 90°
-				if((global.env.pos.angle-PI4096/2) < 50)
+				if((global.env.pos.angle-PI4096/2) < 100)
 					coefOdoRotation-=20;
-				else if((global.env.pos.angle-PI4096/2) < 25)
+				else if((global.env.pos.angle-PI4096/2) < 50)
 					coefOdoRotation-=10;
-				else
+				else if((global.env.pos.angle-PI4096/2) < 25)
 					coefOdoRotation-=5;
+				else
+					coefOdoRotation++;
 				debug_printf("Diminuez le coef \n\n");
 			}
 
@@ -217,7 +221,7 @@ void strat_reglage_odo_rotation(void){
 			msg.size=4;
 			CAN_send(&msg);
 
-			debug_printf("Nouvelle valeur du coef odométrie rotation %x\n",coefOdoRotation);
+			debug_printf("Nouvelle valeur du coef odométrie rotation %x\n\n",coefOdoRotation);
 		}
 
 		break;
