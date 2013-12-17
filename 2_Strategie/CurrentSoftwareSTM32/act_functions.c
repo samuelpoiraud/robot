@@ -46,6 +46,20 @@
 
 
 //FONCTIONS D'ACTIONNEURS
+
+
+// PIERRE
+
+bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_FRUIT_MOUTH, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_FRUIT_MOUTH, ACT_FRUIT_MOUTH_STOP);
+
+	debug_printf("Pushing Fruit Run cmd\n");
+	return ACT_push_operation(ACT_QUEUE_Fruit, &args);
+}
+
 // <editor-fold desc="Krusty">
 
 bool_e ACT_ball_launcher_run(Uint16 speed) {

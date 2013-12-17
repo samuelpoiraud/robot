@@ -197,28 +197,15 @@ void strat_test_ramasser_fruit(){
 }
 
 void fruit_bac_open(){
-	CAN_msg_t msg;
-
-	msg.sid=ACT_FRUIT_MOUTH;
-	msg.data[0]=ACT_FRUIT_MOUTH_OPEN;
-	msg.size = 1;
-	CAN_send(&msg);
+	ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 }
 
 void fruit_bac_mid(){
-	CAN_msg_t msg;
-
-	msg.sid=ACT_FRUIT_MOUTH;
-	msg.data[0]=ACT_FRUIT_MOUTH_MID;
-	msg.size = 1;
-	CAN_send(&msg);
+	ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
 }
 
 void fruit_bac_close(){
-	CAN_msg_t msg;
-
-	msg.sid=ACT_FRUIT_MOUTH;
-	msg.data[0]=ACT_FRUIT_MOUTH_CLOSE;
-	msg.size = 1;
-	CAN_send(&msg);
+	ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 }
+
+//resultat dans ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
