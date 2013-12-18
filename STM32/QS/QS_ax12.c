@@ -38,17 +38,37 @@
 		#define AX12_UART_ID 2
 	#endif
 
-#if AX12_UART_ID == 1
-	#define AX12_UART_Ptr USART1
-	#define AX12_UART_Interrupt USART1_IRQHandler
-	#define AX12_UART_Interrupt_IRQn USART1_IRQn
-#elif AX12_UART_ID == 2
-	#define AX12_UART_Ptr USART2
-	#define AX12_UART_Interrupt USART2_IRQHandler
-	#define AX12_UART_Interrupt_IRQn USART2_IRQn
-#else
-#warning "AX12: Unknown UART ID"
-#endif
+	#if AX12_UART_ID == 1
+		#define AX12_UART_Ptr USART1
+		#define AX12_UART_Interrupt USART1_IRQHandler
+		#define AX12_UART_Interrupt_IRQn USART1_IRQn
+	#elif AX12_UART_ID == 2
+		#define AX12_UART_Ptr USART2
+		#define AX12_UART_Interrupt USART2_IRQHandler
+		#define AX12_UART_Interrupt_IRQn USART2_IRQn
+	#elif AX12_UART_ID == 3
+		#define AX12_UART_Ptr USART2
+		#define AX12_UART_Interrupt USART2_IRQHandler
+		#define AX12_UART_Interrupt_IRQn USART2_IRQn
+	#else
+	#warning "AX12: Unknown UART ID"
+	#endif
+
+	#if AX12_RX24_UART_ID == 1
+		#define AX12_RX24_UART_Ptr USART1
+		#define AX12_RX24_UART_Interrupt USART1_IRQHandler
+		#define AX12_RX24_UART_Interrupt_IRQn USART1_IRQn
+	#elif AX12_RX24_UART_ID == 2
+		#define AX12_RX24_UART_Ptr USART2
+		#define AX12_RX24_UART_Interrupt USART2_IRQHandler
+		#define AX12_RX24_UART_Interrupt_IRQn USART2_IRQn
+	#elif AX12_RX24_UART_ID == 3
+		#define AX12_RX24_UART_Ptr USART2
+		#define AX12_RX24_UART_Interrupt USART2_IRQHandler
+		#define AX12_RX24_UART_Interrupt_IRQn USART2_IRQn
+	#else
+	#warning "RX24: Unknown UART ID"
+	#endif
 
 	#ifndef AX12_UART_BAUDRATE
 		#define AX12_UART_BAUDRATE  56700
@@ -1145,6 +1165,30 @@ void _ISR AX12_UART_Interrupt(void)
 	else if(USART_GetITStatus(AX12_UART_Ptr, USART_IT_TXE))
 	{
 		AX12_state_machine(AX12_SME_TxInterrupt);
+	}
+}
+
+void _ISR AX12_RX24_UART_Interrupt(void)
+{
+	if(USART_GetITStatus(AX12_RX24_UART_Ptr, USART_IT_RXNE))
+	{
+		Uint8 i = 0;
+		while(USART_GetFlagStatus(AX12_RX24_UART_Ptr, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
+			if(state_machine.state != AX12_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
+				USART_ReceiveData(AX12_RX24_UART_Ptr);
+			} else {
+				AX12_state_machine(AX12_SME_RxInterrupt);
+				if(USART_GetFlagStatus(AX12_RX24_UART_Ptr, USART_FLAG_RXNE) && i > 5) {
+					//debug_printf("Overinterrupt RX !\n");
+					break; //force 0, on va perdre des caractères, mais c'est mieux que de boucler ici ...
+				}
+			}
+			i++;
+		}
+	}
+	else if(USART_GetITStatus(AX12_RX24_UART_Ptr, USART_IT_TXE))
+	{
+		AX12_RX24_state_machine(AX12_SME_TxInterrupt);
 	}
 }
 
