@@ -19,7 +19,9 @@
 #include "../act_functions.h"
 
 void strat_test_triangle_cote_rouge(void);
-void strat_test_ramasser_fruit();
+void strat_test_point();
+error_e strat_test_ramasser_fruit();
+error_e strat_test_deposser_fruit();
 void fruit_bac_open();
 void fruit_bac_mid();
 void fruit_bac_close();
