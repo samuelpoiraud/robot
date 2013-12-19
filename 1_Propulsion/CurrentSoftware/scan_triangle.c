@@ -11,7 +11,6 @@
 #define NB_POINTS 90
 
 volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS];
-volatile struct{Sint16 x; Sint16 y;} vect_direc[3][NB_POINTS-1]; //Va recupérer les vect directeurs des 3 lasers, recupere le vecteur entre 2 points donc NB_POINTS-1
 
 typedef struct{
 	struct{Sint16 dist; Sint16 x; Sint16 y; position_t pos;} data[NB_POINTS];
@@ -203,6 +202,7 @@ void SCAN_TRIANGLE_calculate(void){
 		Sint16 cos, sin;
 		Sint16 coef[3][NB_POINTS-1];
 		static object objet[3][20];
+		struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS-1]; //Va recupérer les vect directeurs des 3 lasers, recupere le vecteur entre 2 points donc NB_POINTS-1
 
 
 
@@ -224,15 +224,35 @@ void SCAN_TRIANGLE_calculate(void){
 				scan[i].y[2] = scan[i].pos.y + 80*sin/4096 + (100 + scan[i].dist[2])*cos/4096;
 		}
 
-		// Calcul vecteur directeur
+		// Calcul vecteur de chaque entre points
+		debug_printf("%3c\t%3c", 'x', 'y');
 		for(i=0;i<NB_POINTS-1;i++){
 			for(j=0;j<3;j++){
-				vect_direc[j][i].x = scan[i+1].x[j] - scan[i].x[j];
-				vect_direc[j][i].y = scan[i+1].y[j] - scan[i].y[j];
+				vect[j][i].x = scan[i+1].x[j] - scan[i].x[j];
+				vect[j][i].y = scan[i+1].y[j] - scan[i].y[j];
+				debug_printf("%3d\t%3d\n", vect[j][i].x, vect[j][i].y);
 			}
 		}
+		debug_printf("valeur des scalaires : \n");
+		for(i=0;i<NB_POINTS-1;i++){
+			for(j=0;j<3;j++){
+				debug_printf("%f\n", ((float)vect[j][i].x*vect[j][i+1].x + vect[j][i].y*vect[j][i+1].y)/  // PRoblème ici !
+				 (sqrt(vect[j][i].x*vect[j][i].x + vect[j][i].y*vect[j][i].y) +
+				  sqrt(vect[j][i+1].x*vect[j][i+1].x + vect[j][i+1].y*vect[j][i+1].y)));
+				/*if(0,50 < ((float)vect[j][i].x*vect[j][i+1].x + vect[j][i].y*vect[j][i+1].y)/
+						(sqrt(vect[j][i].x*vect[j][i].x + vect[j][i].y*vect[j][i].y) +
+						 sqrt(vect[j][i+1].x*vect[j][i+1].x + vect[j][i+1].y*vect[j][i+1].y)))
+					nb_objet++;
+				/*objet[j][nb_objet].data[objet[j][nb_objet].nbData].dist = scan[i].dist[j];
+				objet[j][nb_objet].data[objet[j][nb_objet].nbData].x = scan[i].x[j];
+				objet[j][nb_objet].data[objet[j][nb_objet].nbData].y = scan[i].y[j];
+				objet[j][nb_objet].data[objet[j][nb_objet].nbData].pos = scan[i].pos;
+				objet[j][nb_objet].nbData++;	*/
+			}
+		}
+		debug_printf("fin valeur scalaires\n");
 
-		// Calcul angle
+		/*// Calcul angle
 		for(i=0;i<NB_POINTS-1;i++){
 			for(j=0;j<3;j++){
 				if(i==0 && j==0){
@@ -255,7 +275,7 @@ void SCAN_TRIANGLE_calculate(void){
 
 				}
 			}
-		}
+		}*/
 
 
 			/*for(j=0;j<3;j++){
