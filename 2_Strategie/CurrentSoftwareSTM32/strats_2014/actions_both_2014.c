@@ -22,7 +22,7 @@
 #define DEFAULT_SPEED	(SLOW)
 #define ODOMETRIE_PLAGE_ROTATION 5 //La variation de la plage sur PI4096(12868) pour savoir si on doit modifier l'angle. Théoriquement avec 10, on devrait avoir au maximum de 2mm de décalage sur un 1m
 #define USE_CURVE	0
-#define NB_TOUR_ODO_ROTATION 1
+#define NB_TOUR_ODO_ROTATION 5
 
 
 // Start Translation
@@ -190,22 +190,18 @@ void strat_reglage_odo_rotation(void){
 
 			//Modifier KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT selon l'angle obtenu
 			if(global.env.pos.angle > PI4096/2){//Si l'angle est sup à 90°
-				if((global.env.pos.angle-PI4096/2) > 100)
-					coefOdoRotation+=20;
-				else if((global.env.pos.angle-PI4096/2) > 50)
+				if((global.env.pos.angle-PI4096/2) > 500)
 					coefOdoRotation+=10;
-				else if((global.env.pos.angle-PI4096/2) > 25)
+				else if((global.env.pos.angle-PI4096/2) > 250)
 					coefOdoRotation+=5;
 				else
 					coefOdoRotation++;
 				debug_printf("Augmentez le coef \n\n");
 			}
 			else{//Si l'angle est inf à 90°
-				if((global.env.pos.angle-PI4096/2) < 100)
-					coefOdoRotation-=20;
-				else if((global.env.pos.angle-PI4096/2) < 50)
+				if((global.env.pos.angle-PI4096/2) < 500)
 					coefOdoRotation-=10;
-				else if((global.env.pos.angle-PI4096/2) < 25)
+				else if((global.env.pos.angle-PI4096/2) < 250)
 					coefOdoRotation-=5;
 				else
 					coefOdoRotation++;
