@@ -151,12 +151,16 @@ void strat_test_triangle_cote_rouge(void){
 
 }
 
-void strat_test_ramasser_fruit(){
+
+void strat_test_point(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
-		SOUS_ARBRE,
-		FIN,
+		POINT_A2, // Point arbre1 cote couloir
+		POINT_CO, // Pour deposser fruit
+		RAMASSER_FRUIT_ARBRE1,
+		DEPOSER_FRUIT,
+		POS_FIN,
 		DONE,
 		ERROR
 	);
@@ -179,13 +183,22 @@ void strat_test_ramasser_fruit(){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(500,300,POS_DEPART,SOUS_ARBRE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-
-		if(entrance)
-			fruit_bac_mid();
+		state = try_going(500,300,POS_DEPART,POINT_A2,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
-	case SOUS_ARBRE:
-		state = try_going(1150,310,SOUS_ARBRE,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+	case POINT_A2:
+		state = try_going(1350,400,POINT_A2,RAMASSER_FRUIT_ARBRE1,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case RAMASSER_FRUIT_ARBRE1:
+		state = check_sub_action_result(strat_test_ramasser_fruit(),RAMASSER_FRUIT_ARBRE1,POINT_CO,ERROR);
+		break;
+	case POINT_CO:
+		state = try_going(500,1100,POINT_CO,DEPOSER_FRUIT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case DEPOSER_FRUIT:
+		state = check_sub_action_result(strat_test_deposser_fruit(),DEPOSER_FRUIT,POS_FIN,ERROR);
+		break;
+	case POS_FIN:
+		state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case DONE:
 		break;
@@ -194,6 +207,84 @@ void strat_test_ramasser_fruit(){
 	default:
 		break;
 	}
+}
+
+error_e strat_test_deposser_fruit(){// Si le robot se trouve au point A2
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		AVANCER,
+		FERMER_BRAS,
+		DONE,
+		ERROR
+	);
+
+	switch(state){
+	case IDLE:
+		state = AVANCER;
+		break;
+	case AVANCER:
+		state = try_going(500,650,AVANCER,FERMER_BRAS,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		if(entrance)
+			fruit_bac_mid();
+		break;
+	case FERMER_BRAS:
+		state = DONE;
+		fruit_bac_close();
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_test_ramasser_fruit(){// Si le robot se trouve au point A2
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POINT_A2,
+		SOUS_ARBRE,
+		TOURNER,
+		AVANCER,
+		DONE,
+		ERROR
+	);
+
+	switch(state){
+	case IDLE:
+		state = SOUS_ARBRE;
+		break;
+	case SOUS_ARBRE:
+		state = try_going(1200,335,SOUS_ARBRE,TOURNER,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case TOURNER:
+		state = try_go_angle(0,TOURNER,AVANCER,ERROR,SLOW);
+		if(entrance)
+			fruit_bac_mid();
+		break;
+	case AVANCER:
+		state = try_going(1700,335,AVANCER,POINT_A2,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case POINT_A2:
+		state = try_going(1350,400,POINT_A2,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		fruit_bac_close();
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
 }
 
 void fruit_bac_open(){
