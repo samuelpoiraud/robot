@@ -195,7 +195,7 @@ void strat_test_point(){
 		state = try_going(500,1100,POINT_CO,DEPOSER_FRUIT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case DEPOSER_FRUIT:
-		state = check_sub_action_result(strat_test_deposser_fruit(),DEPOSER_FRUIT,POS_FIN,ERROR);
+		state = check_sub_action_result(strat_test_deposser_fruit(),DEPOSER_FRUIT,DONE,ERROR);
 		break;
 	case POS_FIN:
 		state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
@@ -213,7 +213,9 @@ error_e strat_test_deposser_fruit(){// Si le robot se trouve au point A2
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		AVANCER,
-		FERMER_BRAS,
+		DEBUT,
+		TRAVERSE_BAC,
+		FIN,
 		DONE,
 		ERROR
 	);
@@ -223,13 +225,22 @@ error_e strat_test_deposser_fruit(){// Si le robot se trouve au point A2
 		state = AVANCER;
 		break;
 	case AVANCER:
-		state = try_going(500,650,AVANCER,FERMER_BRAS,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		if(entrance)
-			fruit_bac_mid();
+		state = try_going(470,1250,AVANCER,DEBUT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
-	case FERMER_BRAS:
-		state = DONE;
-		fruit_bac_close();
+	case DEBUT:
+		state = try_going_until_break(470,1050,DEBUT,TRAVERSE_BAC,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case TRAVERSE_BAC:
+		state = try_going_until_break(470,300,TRAVERSE_BAC,FIN,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+		break;
+	case FIN:
+		state = try_going_until_break(750,400,FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+		//state = check_act_status(ACT_QUEUE_Fruit,FERMER_BRAS,DONE,ERROR);
 		break;
 	case DONE:
 		return END_OK;
@@ -265,14 +276,15 @@ error_e strat_test_ramasser_fruit(){// Si le robot se trouve au point A2
 	case TOURNER:
 		state = try_go_angle(0,TOURNER,AVANCER,ERROR,SLOW);
 		if(entrance)
-			fruit_bac_mid();
+			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
 		break;
 	case AVANCER:
 		state = try_going(1700,335,AVANCER,POINT_A2,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case POINT_A2:
 		state = try_going(1350,400,POINT_A2,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		fruit_bac_close();
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 		break;
 	case DONE:
 		return END_OK;
@@ -285,18 +297,6 @@ error_e strat_test_ramasser_fruit(){// Si le robot se trouve au point A2
 	}
 
 	return IN_PROGRESS;
-}
-
-void fruit_bac_open(){
-	ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-}
-
-void fruit_bac_mid(){
-	ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
-}
-
-void fruit_bac_close(){
-	ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 }
 
 //resultat dans ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
