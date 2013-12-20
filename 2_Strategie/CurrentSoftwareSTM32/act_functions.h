@@ -21,7 +21,22 @@
 #include "QS/QS_CANmsgList.h"
 #include "act_can.h"
 
-//Voir aussi act_can.h
+//Voir aussi act_can.h et state_machine_helper.h
+
+/*
+ * Exemple de code pour faire une action et l'attendre:
+ * case MON_ETAT:
+ *                    // On demande qu'une seule fois de faire l'action. Les actions du même actionneur peuvent
+ *      if(entrance)  // être empilée et seront executées les unes après les autres
+ *           ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+ *
+ *      //Après la demande, on attend la fin de l'action (ou des actions si plusieurs ont été empilées)
+ *      //Pour la liste des actionneurs (comme ACT_QUEUE_Fruit), voir l'enum queue_e
+ *      state = check_act_status(ACT_QUEUE_Fruit, MON_ETAT, ETAT_OK, ETAT_ERREUR);
+ *
+ *      //check_act_status est définie dans state_machine_helper.h/c
+ *      break;
+ */
 
 /* Fonctions empilables */
 

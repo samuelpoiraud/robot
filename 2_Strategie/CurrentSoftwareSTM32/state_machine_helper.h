@@ -9,6 +9,7 @@
 //ID des machines à états, sur 16 bits.
 //0xRSMM: R: numéro de robot, S: numéro de strat (strat globale comme faire les cadeaux), MM: un octet pour un numéro de machine à état d'un truc précis...
 //R = 0 Pour Krusty, 1 pour Tiny, numéro suivant pour autre chose ...
+//Le numéro est utilisé que dans le message CAN de changement d'état pour reconnaitre la machine à état.
 typedef enum {
 	SM_ID_KRUSTY_STRAT_ALEXIS = 0x0000,
 	SM_ID_KRUSTY_STRAT_ALEXIS_FINALE = 0x0001,
@@ -62,8 +63,11 @@ typedef enum {
 void UTILS_LOG_state_changed(const char* sm_name, UTILS_state_machine_id_e sm_id, const char* old_state_name, Uint8 old_state_id, const char* new_state_name, Uint8 new_state_id);
 void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint8 new_state, Uint8 nb_params, ...);
 
-
+//Vérifie l'état d'un actionneur: action en cours, action terminée correctement ou erreur. S'utilise comme try_going pour les états.
+//Voir act_function.h pour les fonctions des actions et pour un exemple de code.
 Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state);
+
+//Vérifie l'état d'une microstrat: microstrat en cours, microstrat terminée correctement ou microstrat terminée avec une erreur. S'utilise comme try_going pour les états.
 Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state);
 
 #endif // STATE_MACHINE_HELPER_H
