@@ -47,9 +47,9 @@
 		#define AX12_UART_Interrupt USART2_IRQHandler
 		#define AX12_UART_Interrupt_IRQn USART2_IRQn
 	#elif AX12_UART_ID == 3
-		#define AX12_UART_Ptr USART2
-		#define AX12_UART_Interrupt USART2_IRQHandler
-		#define AX12_UART_Interrupt_IRQn USART2_IRQn
+		#define AX12_UART_Ptr USART3
+		#define AX12_UART_Interrupt USART3_IRQHandler
+		#define AX12_UART_Interrupt_IRQn USART3_IRQn
 	#else
 	#warning "AX12: Unknown UART ID"
 	#endif
@@ -63,9 +63,9 @@
 		#define AX12_RX24_UART_Interrupt USART2_IRQHandler
 		#define AX12_RX24_UART_Interrupt_IRQn USART2_IRQn
 	#elif AX12_RX24_UART_ID == 3
-		#define AX12_RX24_UART_Ptr USART2
-		#define AX12_RX24_UART_Interrupt USART2_IRQHandler
-		#define AX12_RX24_UART_Interrupt_IRQn USART2_IRQn
+		#define AX12_RX24_UART_Ptr USART3
+		#define AX12_RX24_UART_Interrupt USART3_IRQHandler
+		#define AX12_RX24_UART_Interrupt_IRQn USART3_IRQn
 	#else
 	#warning "RX24: Unknown UART ID"
 	#endif
@@ -379,10 +379,10 @@ static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packe
 static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, AX12_status_packet_t* status_packet);	//retourne FALSE si le paquet est non valide, sinon TRUE
 static void AX12_state_machine(AX12_state_machine_event_e event);
 static void AX12_UART2_init(Uint32 uart_speed);
-static bool_e AX12_UART_isDataReceived();
 static void AX12_UART_putc(Uint8 c);
 static Uint8 AX12_UART_getc();
-
+static bool_e AX12_UART_GetFlagStatus(Uint16 flag);
+static void AX12_UART_ITConfig(Uint16 flag, FunctionalState enable);
 
 /**************************************************************************/
 /** Fonctions/macro gérant les instructions et le buffer d'instruction   **/
@@ -854,7 +854,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				if(!AX12_instruction_queue_is_empty())
 					state_machine.current_instruction = AX12_instruction_queue_get_current();
 				else {	//s'il n'y a rien a faire, mettre en veille la machine a état, l'UART sera donc inactif (et mettre en mode reception pour ne pas forcer la sortie dont on défini la tension, celle non relié a l'AX12)
-					while(!USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_TC));
+					while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));
 					AX12_DIRECTION_PORT = RX_DIRECTION;
 					break;
 				}
@@ -879,9 +879,9 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				state_machine.sending_index++;	//Attention! Nous devons incrementer sending_index AVANT car il y a un risque que l'interuption Tx arrive avant l'incrementation lorsque cette fonction est appellée par AX12_init() (qui n'est pas dans une interruption)
 
 				AX12_UART_putc(AX12_get_instruction_packet(state_machine.sending_index-1, &state_machine.current_instruction));
-				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, ENABLE);
+				AX12_UART_ITConfig(USART_IT_TXE, ENABLE);
 			} /*else if(event == AX12_SME_TxInterrupt) {
-				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
+				AX12_UART_ITConfig(USART_IT_TXE, DISABLE);
 			}*/
 		break;
 
@@ -908,12 +908,12 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						//Attente de la fin de la transmition des octets
 						//TRMT passe a 1 quand tout est envoyé (bit de stop inclu)
 						//plus d'info ici: http://books.google.fr/books?id=ZNngQv_E0_MC&lpg=PA250&ots=_ZTiXKt-8p&hl=fr&pg=PA250
-						while(!USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_TC));
+						while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));
 
 						AX12_DIRECTION_PORT = RX_DIRECTION;
 
 						//flush recv buffer
-						while(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_ORE) || USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_FE) || USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_NE))
+						while(AX12_UART_GetFlagStatus(USART_FLAG_ORE) || AX12_UART_GetFlagStatus(USART_FLAG_FE) || AX12_UART_GetFlagStatus(USART_FLAG_NE))
 							AX12_UART_getc();
 
 						state_machine.state = AX12_SMS_WaitingAnswer;
@@ -938,7 +938,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 			}
 
 			if(state_machine.state != AX12_SMS_Sending)
-				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
+				AX12_UART_ITConfig(USART_IT_TXE, DISABLE);
 		break;
 
 		case AX12_SMS_WaitingAnswer:
@@ -948,7 +948,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				static AX12_status_packet_t status_response_packet;
 				// Stockage de la réponse dans un buffer, si toute la réponse alors mise à jour des variables du driver et state = AX12_SMS_ReadyToSend avec éxécution
 
-				if(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_FE) | USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_NE)) { //ignore error bits
+				if(AX12_UART_GetFlagStatus(USART_FLAG_FE) | AX12_UART_GetFlagStatus(USART_FLAG_NE)) { //ignore error bits
 					AX12_UART_getc();
 					break;
 				}
@@ -1036,7 +1036,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					debug_printf(" Original cmd: Id: %02x Cmd: %02x Addr: %02x param: %04x\n", state_machine.current_instruction.id_servo, state_machine.current_instruction.type, state_machine.current_instruction.address, state_machine.current_instruction.param);
 				#endif
 
-				if(AX12_UART_isDataReceived())
+				if(AX12_UART_GetFlagStatus(USART_FLAG_RXNE))
 					debug_printf("AX12 timeout too small\n");
 
 				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
@@ -1046,7 +1046,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
 			} /*else if(event == AX12_SME_TxInterrupt) {
-				USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
+				AX12_UART_ITConfig(USART_IT_TXE, DISABLE);
 			}*/
 		break;
 	}
@@ -1146,17 +1146,6 @@ static void AX12_UART_putc(Uint8 c) {
 #endif
 }
 
-static bool_e AX12_UART_isDataReceived() {
-	if(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_RXNE)
-		#ifdef AX12_RX24_UART_Ptr
-			|| USART_GetFlagStatus(AX12_RX24_UART_Ptr, USART_FLAG_RXNE)
-		#endif
-			)
-		return TRUE;
-	else
-		return FALSE;
-}
-
 static Uint8 AX12_UART_getc() {
 	if(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_RXNE))
 		return USART_ReceiveData(AX12_UART_Ptr);
@@ -1166,6 +1155,24 @@ static Uint8 AX12_UART_getc() {
 #endif
 
 	return 0;
+}
+
+static bool_e AX12_UART_GetFlagStatus(Uint16 flag) {
+	if(USART_GetFlagStatus(AX12_UART_Ptr, flag)
+		#ifdef AX12_RX24_UART_Ptr
+			|| USART_GetFlagStatus(AX12_RX24_UART_Ptr, flag)
+		#endif
+			)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+static void AX12_UART_ITConfig(Uint16 flag, FunctionalState enable) {
+	USART_ITConfig(AX12_UART_Ptr, flag, enable);
+#ifdef AX12_RX24_UART_Ptr
+	USART_ITConfig(AX12_RX24_UART_Ptr, flag, enable);
+#endif
 }
 
 /*****************************************************************************/
@@ -1223,7 +1230,7 @@ void _ISR AX12_RX24_UART_Interrupt(void)
 	}
 	else if(USART_GetITStatus(AX12_RX24_UART_Ptr, USART_IT_TXE))
 	{
-		AX12_RX24_state_machine(AX12_SME_TxInterrupt);
+		AX12_state_machine(AX12_SME_TxInterrupt);
 	}
 }
 #endif
@@ -1232,12 +1239,12 @@ void TIMER_SRC_TIMER_interrupt()
 {
 	Uint8 i = 0;
 
-	while(AX12_UART_isDataReceived()) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
+	while(AX12_UART_GetFlagStatus(USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
 		if(state_machine.state != AX12_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
 			AX12_UART_getc();
 		} else {
 			AX12_state_machine(AX12_SME_RxInterrupt);
-			if(AX12_UART_isDataReceived() && i > 5) {
+			if(AX12_UART_GetFlagStatus(USART_FLAG_RXNE) && i > 5) {
 				debug_printf("Overinterrupt RX ! while timeout\n");
 				break; //force 0, on va perdre des caractères, mais c'est mieux que de boucler ici ...
 			}
