@@ -948,7 +948,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				static AX12_status_packet_t status_response_packet;
 				// Stockage de la réponse dans un buffer, si toute la réponse alors mise à jour des variables du driver et state = AX12_SMS_ReadyToSend avec éxécution
 
-				if(AX12_UART_GetFlagStatus(USART_FLAG_FE) | AX12_UART_GetFlagStatus(USART_FLAG_NE)) { //ignore error bits
+				if(AX12_UART_GetFlagStatus(USART_FLAG_FE) || AX12_UART_GetFlagStatus(USART_FLAG_NE)) { //ignore error bits
 					AX12_UART_getc();
 					break;
 				}
@@ -1158,14 +1158,22 @@ static Uint8 AX12_UART_getc() {
 }
 
 static bool_e AX12_UART_GetFlagStatus(Uint16 flag) {
-	if(USART_GetFlagStatus(AX12_UART_Ptr, flag)
-		#ifdef AX12_RX24_UART_Ptr
-			|| USART_GetFlagStatus(AX12_RX24_UART_Ptr, flag)
-		#endif
-			)
-		return TRUE;
-	else
-		return FALSE;
+	if(flag == USART_FLAG_TC) {
+		if(USART_GetFlagStatus(AX12_UART_Ptr, flag)
+			#ifdef AX12_RX24_UART_Ptr
+				&& USART_GetFlagStatus(AX12_RX24_UART_Ptr, flag)
+			#endif
+				)
+			return TRUE;
+	} else {
+		if(USART_GetFlagStatus(AX12_UART_Ptr, flag)
+			#ifdef AX12_RX24_UART_Ptr
+				|| USART_GetFlagStatus(AX12_RX24_UART_Ptr, flag)
+			#endif
+				)
+			return TRUE;
+	}
+	return FALSE;
 }
 
 static void AX12_UART_ITConfig(Uint16 flag, FunctionalState enable) {
