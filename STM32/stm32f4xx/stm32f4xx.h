@@ -266,7 +266,7 @@ extern uint32_t HSEClockSpeed;  //Defined in stm32f4xx_rcc.c
   * @{
   */
 /*!< STM32F10x Standard Peripheral Library old types (maintained for legacy purpose) */
-/* D�sactiv� car non utilis� et peut causer des conflits de noms
+/* D�sactiv� car non utilis� et peut causer des conflits de noms*/
 typedef int32_t  s32;
 typedef int16_t s16;
 typedef int8_t  s8;
@@ -298,7 +298,7 @@ typedef __IO uint8_t  vu8;
 typedef __I uint32_t vuc32;  //!< Read Only
 typedef __I uint16_t vuc16;  //!< Read Only
 typedef __I uint8_t vuc8;   //!< Read Only
-*/
+
 
 typedef enum {RESET = 0, SET = !RESET} FlagStatus, ITStatus;
 
