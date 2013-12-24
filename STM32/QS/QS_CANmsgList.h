@@ -161,6 +161,16 @@
  *		et la carte stratégie
  *
  *****************************************************************/
+/*
+ * Procédure et messages échangés pour la localisation de l'adversaire.
+ * 1- la carte propulsion localise les adversaires avec l'hokuyo
+ * 2- la carte balise IR envoie ses infos à la carte propulsion
+ * 3- la carte propulsion analyse la correspondance pour comprendre qui est qui (2 adv + friend) + fusion de données et calcul de la fiabilité.
+ * 4- envoi des positions adverses à la stratégie (x, y, dist, teta) + fiabilité pour chaque donnée
+ *
+ * Possibilité de forcer en débog les positions adverses en envoyant le même message de position STRAT_ADVERSARIES_POSITION
+ */
+
 
 	/* carte propulsion vers carte stratégie */
 //TODO renommer ces messages pour respecter le nom es cartes (STRAT et PROP)
@@ -169,6 +179,14 @@
 	#define CARTE_P_POSITION_ROBOT		BROADCAST_POSITION_ROBOT
 	#define CARTE_P_ROBOT_FREINE		0x213
 	#define CARTE_P_ROBOT_CALIBRE		0x214
+	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
+		/*		0 : ADVERSARY_NUMBER	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
+		 * 		1 :  x [2cm]
+		 * 		2 :  y [2cm]
+		 * 		3-4 : teta
+		 * 		5 : distance [2cm]
+		 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
+		 */
 
 	/* carte stratégie vers carte propulsion */
 	#define ASSER_GO_POSITION					0x155
@@ -359,6 +377,9 @@
 	#define BEACON_ADVERSARY_POSITION_US					0x251	//Balise UltraSon
 	#define BEACON_ADVERSARY_POSITION_IR_ARROUND_AREA		0x252	//Balises terrain avec réception InfraRouge
 	#define BEACON_ADVERSARY_POSITION_US_ARROUND_AREA		0x253	//Balises terrain avec réception UltraSon
+	#define STRAT_FRIEND_FORCE_POSITION						0x258	//Forcer la position du robot ami
+
+
 
 		/* Liste des messages de definition d'erreur --- Pour plus de doc, consulter QS_CANmsgDoc.h */
 		#define AUCUNE_ERREUR						(0b00000000)
