@@ -12,6 +12,8 @@
 #include "actions_both_2014.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
+#include "../Pathfind.h"
+
 
 //#define LOG_PREFIX "strat_tests: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
@@ -527,3 +529,92 @@ void strat_reglage_odo_symetrie(void){
 /* ----------------------------------------------------------------------------- */
 /* 							Autre strats de test             			 */
 /* ----------------------------------------------------------------------------- */
+
+
+void TEST_pathfind(void)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_ACTIONS_BOTH_2014_TEST_PATHFIND,
+			INIT,
+			GO_FIRST_POINT,
+			PATH_1,
+			PATH_2,
+			PATH_3,
+			PATH_4,
+			PATH_5,
+			PATH_6,
+			PATH_7,
+			PATH_8,
+			DONE,
+			ERROR
+		);
+	switch(state)
+	{
+		case INIT:
+			state = PATH_1;
+			break;
+		case GO_FIRST_POINT:
+			break;
+		case PATH_1:
+			if(entrance)
+			{
+				global.env.pos.x = 1350;
+				global.env.pos.y = 400;
+				global.env.foe[0].x = 1400;
+				global.env.foe[0].y = 1500;
+				global.env.foe[1].x = 100;
+				global.env.foe[1].y = 100;
+				global.env.foe[0].dist = 1100;
+				global.env.foe[1].dist = 1285;
+			}
+			state = PATHFIND_try_going(Z2, PATH_1, PATH_2, PATH_2, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case PATH_2:
+			if(entrance)
+			{
+				global.env.pos.x = 1600;
+				global.env.pos.y = 2300;
+			}
+			state = PATHFIND_try_going(A1, PATH_2, PATH_3, PATH_3, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case PATH_3:
+			if(entrance)
+			{
+				global.env.foe[0].x = 500;
+				global.env.foe[0].y = 1500;
+				global.env.pos.x = 250;
+				global.env.pos.y = 1250;
+				global.env.foe[0].dist = 350;
+			}
+			state = PATHFIND_try_going(W0, PATH_3, PATH_4, PATH_4, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		break;
+		case PATH_4:
+			if(entrance)
+			{
+				global.env.foe[0].x = 700;
+				global.env.foe[0].y = 700;
+				global.env.foe[1].x = 1000;
+				global.env.foe[1].y = 400;
+				global.env.pos.x = 850;
+				global.env.pos.y = 1100;
+				global.env.foe[0].dist = 335;
+				global.env.foe[1].dist = 150;
+			}
+			state = PATHFIND_try_going(A1, PATH_4, PATH_5, PATH_5, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case PATH_5:
+			if(entrance)
+			{
+				global.env.pos.x = 700;
+				global.env.pos.y = 2800;
+				global.env.foe[1].x = 1250;
+				global.env.foe[1].y = 2300;
+			}
+			state = PATHFIND_try_going(W3, PATH_5, PATH_1, DONE, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case ERROR:
+			break;
+		default:
+			break;
+	}
+
+}
