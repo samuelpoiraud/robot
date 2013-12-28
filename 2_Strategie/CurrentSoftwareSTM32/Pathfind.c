@@ -1,18 +1,25 @@
 /*
- *	Club Robot ESEO 2011 - 2012
- *	Shark & Fish
+ *	Club Robot ESEO 2011 - 2012 - 2014
+ *	Shark & Fish / Pierre & Guy
  *
  *	Fichier : Pathfind.c
  *	Package : Carte Principale
  *	Description : définition des noeuds et des fonctions de pathfind
- *	Auteur : Louis-Marie, Vincent, Antoine
- *	Version 2012/03/04
+ *	Auteur : Louis-Marie, Vincent, Antoine, Nirgal
+ *	Version 201312
  */
 
 #include "Pathfind.h"
 #include "QS/QS_outputlog.h"
 #include "config_use.h"
+#include "../state_machine_helper.h"
+#include "avoidance.h"
 
+#define pathfind_debug_printf(...)	debug_printf(__VA_ARGS__)
+//#define pathfind_debug_printf(...)	void(0)
+#define MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY	400		//Distance manhattan entre un advesaire et les noeuds dont il bloque l'accès
+#define DISTANCE_CONSIDERE_ADVERSARY				1000	//Distance entre nous et l'adversaire pour qu'il soit pris en compte (s'il est loin, on le néglige.. en espérant qu'il bouge d'ici à notre arrivée)
+#define NB_TRY_WHEN_DODGE							3		//Nombre de tentatives d'évitement (recalcul de chemin..)
 
 #ifndef USE_POLYGON
 
@@ -28,7 +35,6 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB] =
 	(pathfind_node_t){ 850, 650, neighbors : (1<<0)|(1<<1)|(1<<2)|(1<<4)|(1<<6)|(1<<7)},			//[B1] 3
 	(pathfind_node_t){ 1250, 650, neighbors : (1<<0)|(1<<1)|(1<<3)|(1<<5)|(1<<8)|(1<<9)},			//[B2] 4
 	(pathfind_node_t){ 1600, 650, neighbors :(1<<1)|(1<<4)|(1<<8)|(1<<9)},							//[B3] 5
-
 
 	//Colonne 3 coté rouge [C]
 	(pathfind_node_t){ 500, 1100, neighbors : (1<<2)|(1<<3)|(1<<7)|(1<<10)|(1<<11)},				//[C0] 6
@@ -55,10 +61,10 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB] =
 	(pathfind_node_t){ 1600, 2300, neighbors :(1<<16)|(1<<17)|(1<<20)|(1<<23)},						//[Y3] 21
 
 	//Colonne 6 coté Jaune [Z]
-	(pathfind_node_t){ 750, 2600, neighbors : (1<<0)|(1<<7)|(1<<9)|(1<<10)|(1<<11)|(1<<12)},		//[Z0] 22
-	(pathfind_node_t){ 1350, 2600, neighbors : (1<<0)|(1<<1)|(1<<4)|(1<<10)|(1<<11)},				//[Z1] 23
+	(pathfind_node_t){ 750, 2600, neighbors : (1<<18)|(1<<19)|(1<<20)|(1<<21)|(1<<23)},		//[Z0] 22
+	(pathfind_node_t){ 1350, 2600, neighbors : (1<<19)|(1<<20)|(1<<21)|(1<<22)},				//[Z1] 23
 
-	(pathfind_node_t){ 0, 0, neighbors : 0} //[] 24 (invalid)
+	(pathfind_node_t){ 0, 0, neighbors : 0} //[NOT_IN_NODE] 24 (invalid)
 };
 
 
@@ -76,10 +82,10 @@ void PATHFIND_updateOpponentPosition(foe_e foe_id)
 	int dist = GEOMETRY_squared_distance((GEOMETRY_point_t){nodes[node].x,nodes[node].y},(GEOMETRY_point_t){global.env.foe[foe_id].x,global.env.foe[foe_id].y});
 	if(dist>220)
 	{
-		nodeOpponent[foe_id] = 13;//invalid
-		debug_printf("OPPONENT NOT ON A NODE (13) cause dist=%d\n", dist);
+		nodeOpponent[foe_id] = NOT_IN_NODE;//invalid
+		pathfind_debug_printf("OPPONENT NOT ON A NODE (%d) cause dist=%d\n", NOT_IN_NODE, dist);
 	}
-	debug_printf("UPDATE OPPONENT POSITION FOE %d: %d\n", foe_id, nodeOpponent[foe_id]);
+	pathfind_debug_printf("UPDATE OPPONENT POSITION FOE %d: %d\n", foe_id, nodeOpponent[foe_id]);
 }
 
 Uint16 PATHFIND_manhattan_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
@@ -123,12 +129,13 @@ pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, bool_e handleOpponen
  *
  * TODO précalculer toutes les possibilités pour avoir un heuristic exact ?
  */
-Uint16 Pathfind_heuristic(pathfind_node_id_t from, pathfind_node_id_t to, bool_e handleOpponent)
+Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool_e handleOpponent)
 {
 	Uint8 i;
 	Uint32 dist;
 	/* On se base sur un manhattan */
-	Uint16 heuristic = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, nodes[to].x, nodes[to].y);
+	Uint16 cost;
+	cost = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, nodes[to].x, nodes[to].y);
 
 	if (handleOpponent)
 	{
@@ -139,14 +146,15 @@ Uint16 Pathfind_heuristic(pathfind_node_id_t from, pathfind_node_id_t to, bool_e
 
 		for(i=0; i<NB_FOES; i++)
 		{
-			dist = PATHFIND_squared_dist(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
-			if (dist < ((Uint32)900*900))
+			if(global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
 			{
-				heuristic += (((Uint32)900*900) - dist) / 20;
+				dist = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
+				if (dist < ((Uint32)900))	//Si l'adversaire proche de nous est proche du noeud en question... on allourdi sérieusement le coût de ce noeud.
+					cost += (((Uint32)900) - dist);
 			}
 		}
 	}
-	return heuristic;
+	return cost;
 }
 
 Sint16 PATHFIND_get_node_x (pathfind_node_id_t n) {
@@ -157,16 +165,7 @@ Sint16 PATHFIND_get_node_y (pathfind_node_id_t n) {
 	return nodes[n].y;
 }
 
-pathfind_node_id_t PATHFIND_opponent_node(foe_e foe_id)
-{
-	return nodeOpponent[foe_id];
-}
-
-bool_e PATHFIND_is_opponent_in_path(foe_e foe_id)
-{
-	return ASSER_has_goto(nodes[nodeOpponent[foe_id]].x, nodes[nodeOpponent[foe_id]].y);
-}
-
+/*
 pathfind_node_id_t  PATHFIND_random_neighbor(pathfind_node_id_t of, bool_e handleOpponent[NB_FOES])
 {
 	static pathfind_node_id_t n = 0;
@@ -183,10 +182,12 @@ pathfind_node_id_t  PATHFIND_random_neighbor(pathfind_node_id_t of, bool_e handl
 	}
 	return n;
 }
+*/
 
 /*
  * Cree par Alexis
  */
+/*
 void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to)
 {
 	pathfind_node_id_t before, current, after;
@@ -195,9 +196,8 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 	before = to;
 	current=nodes[to].parent;
 
-	/*
-	 * On parcours le chemin calcule
-	 */
+	//On parcours le chemin calcule
+
 	while(current!=from)
 	{
 		after=nodes[current].parent;
@@ -209,10 +209,9 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 
 		if ( ((xb==xc) && (xc==xa)) || ((yb==yc) && (yc==ya)) )
 		{
-			/*
-			* Si trois noeuds sont strictement alignes,
-			* celui du milieu est supprime
-			*/
+			// Si trois noeuds sont strictement alignes,
+			// celui du milieu est supprime
+
 			nodes[before].parent=after;
 
 			after=nodes[(nodes[after].parent)].parent;
@@ -221,15 +220,264 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 		}
 		else
 		{
-			/*
-			 * sinon on decalle simplement les noeuds a etudier
-			 */
+			// sinon on decalle simplement les noeuds a etudier
 			after=nodes[after].parent;
 			current=after;
 			before=current;
 		}
 	}
 }
+*/
+
+//Retourne le nombre de déplacements, ou 0 si pas de chemin possible
+Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to)
+{
+	pathfind_node_id_t from, n, current;
+	pathfind_node_list_t adversaries_nodes;
+	Uint8 nb_displacements = 0;
+	Uint16 minCost, cost;
+	Uint8 i;
+	from = PATHFIND_closestNode(xFrom, yFrom, TRUE);
+
+	pathfind_debug_printf ("Noeud le plus proche : %d", from);
+
+	/* On reinitialise les listes et penalites */
+	openList = 0;
+	closedList = 0;
+
+	/* On ajoute le point de depart dans la liste ouverte */
+	PATHFIND_SET_NODE_IN(from, openList);
+	/* TODO mettre le cout a la distance que le robot doit parcourir pour atteindre le noeud */
+	nodes[from].total_cost = 0;
+	nodes[from].nb_nodes = 1;
+
+	//On identifie les noeuds placés à moins de 500mm manhattan d'un adversaire.
+	adversaries_nodes = 0;
+	for(i=0;i<NB_FOES;i++)
+	{
+		if(global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
+		{
+			for(n = 0; n < PATHFIND_NODE_NB; n++)	//Pour chaque noeud
+			{	//Si l'adversaire en question est proche du noeud : on ajoute le noeud dans la liste des noeuds innaccessibles.
+				pathfind_debug_printf("Adversary %d in nodes : ",i);
+				if(PATHFIND_manhattan_dist(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y)<MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY)
+				{
+					PATHFIND_SET_NODE_IN(n,adversaries_nodes);
+					pathfind_debug_printf("%d ", n);
+				}
+				pathfind_debug_printf("\tadversaries_nodes : %lx\n", adversaries_nodes);
+			}
+		}
+	}
+	/* Tant que la destination n'est pas dans la liste fermee
+	 * et que la liste ouverte n'est pas vide
+	 */
+	while ((!PATHFIND_TST_NODE_IN(to, closedList)) && (openList != 0))
+	{
+
+		/*
+		 * On cherche la case ayant le cout F le plus faible dans la
+		 * liste ouverte. Elle devient la case en cours.
+		 */
+		minCost = 65535;
+		current = 0;
+		for (n = 0; n < PATHFIND_NODE_NB; n++) {
+			if (PATHFIND_TST_NODE_IN(n, openList) && nodes[n].total_cost < minCost) {
+				minCost = nodes[n].total_cost;
+				current = n;
+			}
+		}
+
+		/* On passe la case en cours dans la liste fermee */
+		PATHFIND_CLR_NODE_IN(current, openList);
+		PATHFIND_SET_NODE_IN(current, closedList);
+		pathfind_debug_printf("current open->close %d\n", current);
+
+		/* Pour toutes les cases adjacentes n'etant pas dans la liste fermee */
+		for (n = 0; n < PATHFIND_NODE_NB; n++) {
+
+			if ( (PATHFIND_TST_NODE_IN(n, nodes[current].neighbors)) &&
+				!(PATHFIND_TST_NODE_IN(n, closedList)) &&
+				!(PATHFIND_TST_NODE_IN(n,adversaries_nodes)) )
+			{
+				cost = Pathfind_cost(n, to, TRUE);
+				/*
+				 * Si elle n'est pas dans la liste ouverte, on l'y ajoute.
+				 * La case en cours devient le parent de cette case.
+				 * On calcule les couts F, G et H de cette case.
+				 */
+				if (!PATHFIND_TST_NODE_IN(n, openList))
+				{
+					PATHFIND_SET_NODE_IN(n, openList);
+					nodes[n].parent = current;
+					nodes[n].cost = cost;
+					nodes[n].total_cost = nodes[current].total_cost + cost;
+					nodes[n].nb_nodes = nodes[current].nb_nodes + 1;
+				}
+				/*
+				 * Si elle est deja  dans la liste ouverte, on teste si le
+				 * chemin passant par la case en cours est meilleur en
+				 * comparant les couts G. Un cout G inferieur signifie un
+				 * meilleur chemin. Si c'est le cas, on change le parent de
+				 * la case pour devenir la case en cours, en on recalcule les
+				 * couts F et G.
+				 */
+				else {
+
+					if (cost < nodes[n].cost) {
+						nodes[n].cost = cost;
+						nodes[n].total_cost = nodes[current].total_cost + cost;
+						nodes[n].parent = current;
+						nodes[n].nb_nodes = nodes[current].nb_nodes + 1;
+					}
+				}
+			}
+		}
+	}
+
+	/* Si le chemin n'a pas été trouvé */
+	if (!PATHFIND_TST_NODE_IN(to, closedList))
+		return 0;
+
+
+	/*le noeud de départ ne doit pas avoir de parent*/
+	nodes[from].parent=from;
+
+	/* Permet d'optimiser les deplacements*/
+	//PATHFIND_delete_useless_node(from, to);
+	for (n = 0; n < PATHFIND_NODE_NB; n++) {
+		if (PATHFIND_TST_NODE_IN(n, closedList))
+			pathfind_debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
+	}
+	/* On a le chemin inverse (to->from) */
+	nb_displacements = nodes[to].nb_nodes;
+	pathfind_debug_printf("Nodes : ");
+	n = to;
+	for(i=0;i<nb_displacements;i++)
+	{
+		displacements[nb_displacements-i-1].point.x = nodes[n].x;
+		displacements[nb_displacements-i-1].point.y = nodes[n].y;
+		pathfind_debug_printf("%d ",n);
+		n = nodes[n].parent;
+	}
+	pathfind_debug_printf(" = %d displacements\n", nb_displacements);
+	return nb_displacements;
+}
+
+
+/*
+ * DODGE_AND_WAIT / DODGE_AND_NO_WAIT : lorsqu'un adversaire est détecté, l'évittement est tenté en recalculant une alternative.
+ */
+Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, ASSER_speed_e speed, avoidance_type_e avoidance, ASSER_end_condition_e end_condition)
+{
+	error_e sub_action;
+	static displacement_t displacements[PATHFIND_NODE_NB];
+	static Uint8 nb_displacements;
+	static avoidance_type_e no_dodge_avoidance;
+	static bool_e dodge_nb_try;
+	Uint8 i;
+	CREATE_MAE_WITH_VERBOSE(SM_ID_PATHFIND_TRY_GOING,
+			INIT,
+			COMPUTE,
+			DISPLACEMENT,
+			FAIL,
+			SUCCESS
+		);
+
+	switch(state)
+	{
+		case INIT:
+			switch(avoidance)
+			{
+				case DODGE_AND_WAIT:
+					dodge_nb_try = NB_TRY_WHEN_DODGE;
+					no_dodge_avoidance = NO_DODGE_AND_WAIT;
+					break;
+				case DODGE_AND_NO_WAIT:
+					dodge_nb_try = NB_TRY_WHEN_DODGE;
+					no_dodge_avoidance = NO_DODGE_AND_NO_WAIT;
+					break;
+				default:
+					dodge_nb_try = 0;
+					no_dodge_avoidance = avoidance;
+					break;
+			}
+			state = COMPUTE;
+			break;
+		case COMPUTE:
+			pathfind_debug_printf("Compute\n");
+			//Calcul d'un chemin pour atteindre l'objectif.
+			nb_displacements = PATHFIND_compute(displacements, global.env.pos.x, global.env.pos.y, node_wanted);
+			if(nb_displacements)
+			{
+				for(i=0;i<nb_displacements;i++)
+					displacements[i].speed = speed;
+				state = DISPLACEMENT;
+
+				//Pour tester le module sans générer de déplacement :
+				//	state = INIT;
+				//	return success_state;
+			}
+			else
+				state = FAIL;
+			break;
+		case DISPLACEMENT:
+			sub_action = goto_pos_with_avoidance(displacements, nb_displacements, way, no_dodge_avoidance, end_condition);
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = SUCCESS;
+					break;
+				case FOE_IN_PATH:
+				case NOT_HANDLED:
+				case END_WITH_TIMEOUT:
+				default:
+					if(dodge_nb_try)
+					{
+						dodge_nb_try--;
+						state = COMPUTE;
+					}
+					else
+						state = FAIL;
+					break;
+			}
+			break;
+		case FAIL:
+			state = INIT;
+			return fail_state;
+			break;
+		case SUCCESS:
+			state = INIT;
+			return success_state;
+			break;
+	}
+	return in_progress;
+}
+
+
+
+Uint16 PATHFING_get_symetric(Uint8 n){
+	if(global.env.color == BLUE){
+		if(n<2)
+			return n+22;
+		if(n<6 && n>1)
+			return n +16;
+		if(n<10 && n>5)
+			return n+8;
+		if(n>13 && n<18)
+			return n-8;
+		if(n>17 && n<22)
+			return n-16;
+		if(n>21 && n<24)
+			return n-22;
+	}
+	return n;
+}
+
+
+#if VIEILLE_FONCTION_OBSOLETE
 
 
 Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER_speed_e speed, way_e way, bool_e handleOpponent)
@@ -240,7 +488,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 
 	from = PATHFIND_closestNode(xFrom, yFrom, handleOpponent);
 
-	debug_printf ("Noeud le plus proche : %d", from);
+	pathfind_debug_printf ("Noeud le plus proche : %d", from);
 
 	/* On reinitialise les listes et penalites */
 	openList = 0;
@@ -365,24 +613,6 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 
 	return nodes[to].cost;
 }
-
-
-Uint16 PATHFING_get_symetric(Uint8 n){
-	if(global.env.color == BLUE){
-		if(n<2)
-			return n+22;
-		if(n<6 && n>1)
-			return n +16;
-		if(n<10 && n>5)
-			return n+8;
-		if(n>13 && n<18)
-			return n-8;
-		if(n>17 && n<22)
-			return n-16;
-		if(n>21 && n<24)
-			return n-22;
-	}
-	return n;
-}
+#endif
 
 #endif

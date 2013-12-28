@@ -142,8 +142,6 @@ static error_e AVOIDANCE_watch_asser_stack();
  */
 //static bool_e AVOIDANCE_robot_translation_move();
 
-//Comme goto_pos_with_scan_foe mais avec choix de la fin, je savais pas quoi mettre comme nom ... si quelqu'un a une idée de nom utile, go changer ça :)
-static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
 
 
 #ifdef DEBUG_AVOIDANCE
@@ -1726,7 +1724,7 @@ void AVOIDANCE_set_timeout(Uint16 msec) {
 }
 
 /* Fonction qui réalise un ASSER_push_goto tout simple avec la gestion de l'évitement */
-static error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
+error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
 {
 	enum state_e
 	{

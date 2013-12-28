@@ -13,6 +13,7 @@
 #include "Generic_functions.h"
 #include "Stacks.h"
 #include "asser_functions.h"
+#include "avoidance.h"
 
 /*
  * La formule pour changer le numéro du noeud (parallélisme)
@@ -48,7 +49,7 @@
 #define Y3 21
 #define Z1 22
 #define Z2 23
-
+#define NOT_IN_NODE	24
 
 /*
  * Modifie par Alexis
@@ -97,8 +98,9 @@ typedef struct {
 	 * Variables utilisées dans l'algo.
 	 */
 	Uint16 cost;
-	Uint16 heuristic;
+	Uint16 total_cost;
 	pathfind_node_id_t parent;
+	Uint16 nb_nodes;
 } pathfind_node_t;
 
 /*typedef struct {
@@ -159,12 +161,13 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
  *
  * TODO Si on est dans la zone verte et l'adversaire en 9, regarder si on peut commencer en 6 ou 11
  */
-Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER_speed_e speed, way_e way, bool_e handleOpponent);
+Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to);
 
 /*
  * Calcule le point symétrique au point rentré n
  */
 Uint16 PATHFING_get_symetric(Uint8 n);
 
+Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, ASSER_speed_e speed, avoidance_type_e avoidance, ASSER_end_condition_e end_condition);
 
 #endif /* PATHFIND_H */

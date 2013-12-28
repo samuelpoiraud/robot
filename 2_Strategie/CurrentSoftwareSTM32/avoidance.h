@@ -29,7 +29,7 @@
 	#ifdef USE_POLYGON
 		#include "polygon.h"
 	#else
-		#include "Pathfind.h"
+		//#include "Pathfind.h"
 	#endif
 
 	// Macros permettant de symétriser le terrain 
@@ -265,6 +265,10 @@
 
 	error_e goto_pos_with_scan_foe_until_break(displacement_t displacements[], Uint8 nb_displacements, way_e way,
 			avoidance_type_e avoidance_type);
+
+	//Comme goto_pos_with_scan_foe mais avec choix de la fin, je savais pas quoi mettre comme nom ... si quelqu'un a une idée de nom utile, go changer ça :)
+	error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
+
 
 	//Défini le temps de timeout d'evitement (pour *AND_WAIT). Ce temps est valide que pour le prochain mouvement, il est réinitialisé après.
 	void AVOIDANCE_set_timeout(Uint16 msec);
