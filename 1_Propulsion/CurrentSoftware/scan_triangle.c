@@ -33,7 +33,7 @@ typedef enum{
 }state_c;
 
 Uint8 moveCompleted, runCalcul;
-bool_e MESSAGE_CAN_SCAN = FALSE;
+bool_e b_ask_for_scan = FALSE;
 
 
 static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy);
@@ -65,8 +65,8 @@ void SCAN_TRIANGLE_process_it(void){
 		break;
 
 		case WAIT :
-			if(MESSAGE_CAN_SCAN){
-				MESSAGE_CAN_SCAN = FALSE;
+			if(b_ask_for_scan){
+				b_ask_for_scan = FALSE;
 				state = PLACEMENT_XY;
 			}
 		break;
@@ -353,7 +353,7 @@ void SCAN_TRIANGLE_calculate(void){
 }
 
 void SCAN_TRIANGLE_canMsg(void){
-	MESSAGE_CAN_SCAN = TRUE;
+	b_ask_for_scan = TRUE;
 }
 
 static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy){
