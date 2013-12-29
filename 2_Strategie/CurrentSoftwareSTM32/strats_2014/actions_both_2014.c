@@ -37,7 +37,7 @@
 /* ----------------------------------------------------------------------------- */
 
 void strat_reglage_odo_rotation(void){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_COEF_PROPULSION,
 		IDLE,
 		CALAGE,
 		REINIT,
@@ -59,7 +59,6 @@ void strat_reglage_odo_rotation(void){
 	/******TEST******/
 	//state = COMPARE_N_CORRECT;
 
-	static enum state_e from = IDLE;
 	static enum state_e inProcess = IDLE;
 	static bool_e timeout=FALSE;
 	static Sint16 i=0;
@@ -68,46 +67,43 @@ void strat_reglage_odo_rotation(void){
 
 	switch(state){
 	case IDLE: //Cas d'attente et de réinitialisation
-		from = IDLE;
 		state = CALAGE;
 		break;
 
 	case CALAGE: // Cale le robot pour regler le zero et comparer les valeurs: L'échapement dépend d'ou vient la machine
 		//  in the wall
-		switch(from){
-		case IDLE:	// On vient du début de la procédure on doit donc initialiser le robot
-			state = REINIT;
-			break;
-		case PROCESS:	//On vient de finir le process on va donc traiter les valeurs
-			state = PUSH_MOVE;
-			break;
-		case REINIT:	//On à remis le robot à zéro après un process, on relance la procédure
-			state = AVANCER; // Ha merde jai oublié davancer
-			break;
-		case AVANCER:
-			state = PROCESS;
-			break;
-		case WAIT_END_OF_MOVE:
-			state = COMPARE_N_CORRECT;
-			break;
-		default:
-			state = ERROR;
-			break;
+		switch(last_state)
+		{
+			case IDLE:	// On vient du début de la procédure on doit donc initialiser le robot
+				state = REINIT;
+				break;
+			case PROCESS:	//On vient de finir le process on va donc traiter les valeurs
+				state = PUSH_MOVE;
+				break;
+			case REINIT:	//On à remis le robot à zéro après un process, on relance la procédure
+				state = AVANCER; // Ha merde jai oublié davancer
+				break;
+			case AVANCER:
+				state = PROCESS;
+				break;
+			case WAIT_END_OF_MOVE:
+				state = COMPARE_N_CORRECT;
+				break;
+			default:
+				state = ERROR;
+				break;
 		}
 		break;
 
 	case REINIT:	// Envoie le message can pour réinitialiser la position ou a minima l'angle du robot
 		//send message can set(0,0,0);  le robot doit se trouver a peut pres a set(2000,500,PI4096)
-
-		from = REINIT;
-
 		i=0;
 		debug_printf("REINIT\n\n");
 
 		debug_printf("\nGlobale variable de x %d\n	de y %d\n l'angle %d\n",global.env.pos.x,global.env.pos.y,global.env.pos.angle);
 
 		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=1000 >> 8;	//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
+		msg.data[0]=1000 >> 8;	//Je lui dis qu'il est au milieu du terrain ( si je mets 0, il risque d'aller dans les négatifs)
 		msg.data[1]=1000 & 0xFF;
 		msg.data[2]=LARGEUR_ROBOT/2 >> 8;
 		msg.data[3]=LARGEUR_ROBOT/2 & 0xFF;
@@ -120,13 +116,10 @@ void strat_reglage_odo_rotation(void){
 
 		break;
 	case AVANCER://pour le faire avancer du bord
-
 		state = try_going(1000,500,AVANCER,CALAGE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 
 		if(state==CALAGE)
 			debug_printf("\nRENIT variable de x %d\n\t\t\tde y %x\n",global.env.pos.x,global.env.pos.y);
-
-		from = AVANCER;
 		break;
 	case PROCESS:	// Tourne 10 fois pour comparer l'angle
 		// Tourner 10 fois
@@ -160,7 +153,6 @@ void strat_reglage_odo_rotation(void){
 			state=CALAGE;
 		}
 
-		from = PROCESS;
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
 		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
@@ -169,7 +161,6 @@ void strat_reglage_odo_rotation(void){
 	case WAIT_END_OF_MOVE:
 		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
 			state = CALAGE;
-			from = WAIT_END_OF_MOVE;
 		}
 		break;
 	case COMPARE_N_CORRECT:
@@ -264,20 +255,18 @@ void strat_reglage_odo_translation(void){
 	/******TEST******/
 	//state = COMPARE_N_CORRECT;
 
-	static enum state_e from = IDLE;
 	static bool_e timeout=FALSE;
 	static Uint16 coefOdoTranslation = 0x0C43; //Original 0x0C47; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT dans _Propulsion_config.h
 	CAN_msg_t msg;
 
 	switch(state){
 	case IDLE: //Cas d'attente et de réinitialisation
-		from = IDLE;
 		state = CALAGE;
 		break;
 
 	case CALAGE: // Cale le robot pour regler le zero et comparer les valeurs: L'échapement dépend d'ou vient la machine
 		//  in the wall
-		switch(from){
+		switch(last_state){
 		case IDLE:	// On vient du début de la procédure on doit donc initialiser le robot
 			state = REINIT;
 			break;
@@ -302,8 +291,6 @@ void strat_reglage_odo_translation(void){
 	case REINIT:	// Envoie le message can pour réinitialiser la position ou a minima l'angle du robot
 		//send message can set(0,0,0);  le robot doit se trouver a peut pres a set(2000,500,PI4096)
 
-		from = REINIT;
-
 		debug_printf("REINIT\n\n");
 
 		msg.sid=ASSER_SET_POSITION;
@@ -321,14 +308,12 @@ void strat_reglage_odo_translation(void){
 		break;
 	case AVANCER://pour le faire avancer du bord
 		state = try_going(1000,2600,AVANCER,CALAGE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		from = AVANCER;
 		break;
 	case DEMI_TOUR1:
 		state = try_go_angle(PI4096,DEMI_TOUR1,DEMI_TOUR2,ERROR,FAST);
 		break;
 	case DEMI_TOUR2:
 		state = try_go_angle(3*PI4096/2,DEMI_TOUR2,CALAGE,ERROR,FAST);
-		from = DEMI_TOUR2;
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
 		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,3*PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
@@ -337,7 +322,6 @@ void strat_reglage_odo_translation(void){
 	case WAIT_END_OF_MOVE:
 		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
 			state = CALAGE;
-			from = WAIT_END_OF_MOVE;
 		}
 		break;
 	case COMPARE_N_CORRECT:
@@ -414,21 +398,18 @@ void strat_reglage_odo_symetrie(void){
 
 	/******TEST******/
 	//state = COMPARE_N_CORRECT;
-
-	static enum state_e from = IDLE;
 	static bool_e timeout=FALSE;
 	static Uint16 coefOdoSymetrie = 0; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_SYM_DEFAULT dans _Propulsion_config.h
 	CAN_msg_t msg;
 
 	switch(state){
 	case IDLE: //Cas d'attente et de réinitialisation
-		from = IDLE;
 		state = CALAGE;
 		break;
 
 	case CALAGE: // Cale le robot pour regler le zero et comparer les valeurs: L'échapement dépend d'ou vient la machine
 		//  in the wall
-		switch(from){
+		switch(last_state){
 		case IDLE:	// On vient du début de la procédure on doit donc initialiser le robot
 			state = REINIT;
 			break;
@@ -452,8 +433,6 @@ void strat_reglage_odo_symetrie(void){
 
 	case REINIT:	// Envoie le message can pour réinitialiser la position ou a minima l'angle du robot
 		//send message can set(0,0,0);  le robot doit se trouver a peut pres a set(2000,500,PI4096)
-
-		from = REINIT;
 
 		debug_printf("REINIT\n\n");
 
@@ -487,7 +466,6 @@ void strat_reglage_odo_symetrie(void){
 		break;
 	case ALLIGNER_ANGLE1:
 		state = try_go_angle(PI4096/2,ALLIGNER_ANGLE1,CALAGE,ERROR,SLOW);
-		from = ALLIGNER_ANGLE1;
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
 		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
@@ -496,7 +474,6 @@ void strat_reglage_odo_symetrie(void){
 	case WAIT_END_OF_MOVE:
 		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
 			state = CALAGE;
-			from = WAIT_END_OF_MOVE;
 		}
 		break;
 	case COMPARE_N_CORRECT:
