@@ -34,6 +34,12 @@
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
 #endif
+#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+	#include "LCDTouch/stm32f4_discovery_lcd.h"
+	#include "LCDTouch/LCDTouch_Display.h"
+	#include "LCDTouch/LCD.h"
+	#include "LCDTouch/zone.h"
+#endif
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -111,6 +117,11 @@ void initialisation(void){
 	-> 0 : tâche de fond
 	*/
 
+
+#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+	LCD_init();
+#endif
+
 	SCAN_TRIANGLE_init();
 	// Initialisation des ADC pour les DT10s des scans des triangles
 
@@ -119,6 +130,7 @@ void initialisation(void){
 int main (void)
 {
 	initialisation();
+
 
 	//Routines de tests UART et CAN
 	debug_printf("\nAsser Ready !\n");
@@ -153,6 +165,7 @@ int main (void)
 
 */
 
+
 	while(1)
 	{
 		#ifdef USE_QSx86
@@ -169,6 +182,10 @@ int main (void)
 		WARNER_process_main();		//Communication avec l'extérieur. (Envois des messages)
 
 		SCAN_TRIANGLE_calculate();
+
+#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+		LCD_process_main();
+#endif
 
 	}
 	return 0;

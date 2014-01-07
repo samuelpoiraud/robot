@@ -41,6 +41,7 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map,\"${EXECUTABLE_OU
 
 
 include_directories("${SOURCE_PATH}/provide_parent_dir")
+include_directories("${SOURCE_PATH}/LCDTouch")
 
 file(GLOB_RECURSE SRC_LIST FOLLOW_SYMLINKS "${SOURCE_PATH}/*.c" "${SOURCE_PATH}/*.h" "${SOURCE_PATH}/*.S")
 string(REGEX REPLACE "${CMAKE_BINARY_DIR}/CMakeFiles/[^;]+;?" "" SRC_LIST "${SRC_LIST}")

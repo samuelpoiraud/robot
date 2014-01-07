@@ -220,15 +220,25 @@ void affichage_global(void)
 				global.real_speed_rotation = global.position_rotation << 10;//global.ecart_rotation_prec << 10;
 				if(COPILOT_get_border_mode() == BORDER_MODE_WITH_UPDATE_POSITION)
 				{
-					if(global.position.x < -400)
+					Sint16 robotSize = get_calibration_backward_distance();
+					if(global.position.x < robotSize)
 					{
 						global.real_speed_translation = 0;
-						global.position.x = -400;
+						global.position.x = robotSize;
 					}
-					if(global.position.y < -300)
+					if(global.position.y < robotSize)
 					{
 						global.real_speed_translation = 0;
-						global.position.y = -300;
+						global.position.y = robotSize;
+					}
+					if(global.position.x > FIELD_SIZE_X-robotSize)
+					{
+						global.real_speed_translation = 0;
+						global.position.x = FIELD_SIZE_X-robotSize;
+					}
+					if(global.position.y > FIELD_SIZE_Y-robotSize){
+						global.real_speed_translation = 0;
+						global.position.y = FIELD_SIZE_Y-robotSize;
 					}
 				}
 			/*	en gros, la vitesse à prendre en début d'IT est l'écart entre le robot et le nouveau point fictif

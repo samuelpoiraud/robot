@@ -112,7 +112,8 @@ void SECRETARY_process_it(void)
 }
 
 
-void SECRETARY_CAN_send(Uint16 sid, Uint8* data,Uint8 taille)
+
+void SECRETARY_send_canmsg(Uint16 sid, Uint8* data,Uint8 taille)
 {
 	CAN_msg_t msg;
 	msg.sid=sid;
@@ -192,7 +193,7 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 								 WW  = way_e
 								 EEE = SUPERVISOR_error_source_e
 								 	*/
-	SECRETARY_CAN_send(sid,tabTemp,8);
+	SECRETARY_send_canmsg(sid,tabTemp,8);
 	
 }
 

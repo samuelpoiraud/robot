@@ -24,10 +24,16 @@
 #include "joystick.h"
 #include "secretary.h"
 #include "scan_triangle.h"
+#include "debug.h"
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>
 #endif
-#include "debug.h"
+
+
+#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+	#include "LCDTouch/LCD.h"
+	#include "LCDTouch/zone.h"
+#endif
 
 		
 void IT_init(void)
@@ -48,11 +54,6 @@ void IT_init(void)
 	global.flag_recouvrement_IT = FALSE;
 }
 
-
-
-
-
-
 		
 
 //TEST non concluant réalisé en 2009 : faire l'odométrie plus souvent (toute les 1ms...)
@@ -70,6 +71,9 @@ volatile static global_data_storage_t g2;
 void _ISR _T1Interrupt()
 									#endif
 {
+#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+	static Uint8 count = 0;
+#endif
 	LED_USER = 0; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 	TIMER1_AckIT(); /* interruption traitée */
 	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
@@ -105,6 +109,14 @@ void _ISR _T1Interrupt()
 	LED_USER = 1; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 	if(TIMER1_getITStatus())	//L'IT est trop longue ! il y a recouvrement !!!
 		global.flag_recouvrement_IT = TRUE;
+
+#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+	if(count == 1){
+		count = 0;
+		ZONE_process_10ms();
+	}
+	count++;
+#endif
 }
 
 

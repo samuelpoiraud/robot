@@ -8,7 +8,11 @@
 #include "scan_triangle.h"
 #include <math.h>
 
-#define NB_POINTS 90
+#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+	#define NB_POINTS 2
+#else
+	#define NB_POINTS 90
+#endif
 
 volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS];
 
