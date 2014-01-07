@@ -104,7 +104,6 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 	if(insert_time)
 	{
 		//Source et instant de l'événement.
-		n=0;
 		string[n++] = STX;	//Début de l'info de temps.
 		string[n++] = source;
 		string[n++] = HIGHINT(time_ms/2);
@@ -370,86 +369,93 @@ void SD_print_previous_match(void)
 				debug_printf("SD Fail during reading of match %s\n",path);
 				break;
 			}
-			switch(state)
+			if(SWITCH_VERBOSE)
 			{
-				case READ_TEXT:
-					i = 0;
-					switch(read_byte)
-					{
-						case SOH:
-							state = READ_CAN_MSG;
-							break;
-						case STX:
-							state = READ_TIME;
-							break;
-						default:
-							debug_printf("%c",read_byte);	//La méthode est un peu lourde... mais tant pis... c'est pas pendant le match.
-							break;
-					}
-				break;
-				case READ_TIME:
-					switch(i)
-					{
-						case 0:		source = read_byte;					break;
-						case 1:		t = read_byte;						break;
-						case 2:		t = U16FROMU8(t, read_byte);		break;
-						case 3:
-							if(read_byte != ETX)
-								debug_printf("Bad time format\n");
-							else
-							{
-								debug_printf("t=%.2d.%03ds ",t/500, (t%500)*2);
-								switch(source)
+				switch(state)
+				{
+					case READ_TEXT:
+						i = 0;
+						switch(read_byte)
+						{
+							case SOH:
+								state = READ_CAN_MSG;
+								break;
+							case STX:
+								state = READ_TIME;
+								break;
+							default:
+								debug_printf("%c",read_byte);	//La méthode est un peu lourde... mais tant pis... c'est pas pendant le match.
+								break;
+						}
+					break;
+					case READ_TIME:
+						switch(i)
+						{
+							case 0:		source = read_byte;					break;
+							case 1:		t = read_byte;						break;
+							case 2:		t = U16FROMU8(t, read_byte);		break;
+							case 3:
+								if(read_byte != ETX)
+									debug_printf("Bad time format\n");
+								else
 								{
-									case FROM_SOFT:				debug_printf("SOFT-> ");	break;
-									case FROM_BUS_CAN:			debug_printf("BCAN-> ");	break;
-									case FROM_UART1:			debug_printf("U1RX-> ");	break;
-									case FROM_UART2:			debug_printf("U2RX-> ");	break;
-									case FROM_XBEE:				debug_printf("XBEE-> ");	break;
-									case TO_BUSCAN:				debug_printf("BCAN<- ");	break;//Envoyé par nous, sur le bus can
-									case TO_UART1:				debug_printf("U1TX<- ");	break;//Envoyé par nous, sur l'uart1
-									case TO_UART2:				debug_printf("U2TX<- ");	break;//Envoyé par nous, sur l'uart2
-									case TO_XBEE_BROADCAST:		debug_printf("XBEb<- ");	break;//Envoyé par nous, sur le XBee, en Broadcast
-									case TO_XBEE_DESTINATION:	debug_printf("XBEd<- ");	break;	//Envoyé par nous, sur le XBee, à la destination par défaut
-									default:					debug_printf("UNKN-- ");	break;
+									debug_printf("t=%.2d.%03ds ",t/500, (t%500)*2);
+									switch(source)
+									{
+										case FROM_SOFT:				debug_printf("SOFT-> ");	break;
+										case FROM_BUS_CAN:			debug_printf("BCAN-> ");	break;
+										case FROM_UART1:			debug_printf("U1RX-> ");	break;
+										case FROM_UART2:			debug_printf("U2RX-> ");	break;
+										case FROM_XBEE:				debug_printf("XBEE-> ");	break;
+										case TO_BUSCAN:				debug_printf("BCAN<- ");	break;//Envoyé par nous, sur le bus can
+										case TO_UART1:				debug_printf("U1TX<- ");	break;//Envoyé par nous, sur l'uart1
+										case TO_UART2:				debug_printf("U2TX<- ");	break;//Envoyé par nous, sur l'uart2
+										case TO_XBEE_BROADCAST:		debug_printf("XBEb<- ");	break;//Envoyé par nous, sur le XBee, en Broadcast
+										case TO_XBEE_DESTINATION:	debug_printf("XBEd<- ");	break;	//Envoyé par nous, sur le XBee, à la destination par défaut
+										default:					debug_printf("UNKN-- ");	break;
+									}
 								}
-							}
-							//no break;
-						default:
-							state = READ_TEXT;
-							break;
-					}
-					i++;
-					break;
-				case READ_CAN_MSG:
-					switch(i)
-					{
-						case 0:		msg.sid = read_byte;							break;
-						case 1:		msg.sid = U16FROMU8(msg.sid, read_byte);		break;
-						//case 2 to 9 = datas...
-						case 10:	msg.size = read_byte;							break;
-						case 11:
-							if(read_byte != EOT)
-								debug_printf("Bad CAN_MSG format\n");
-							else
-								VERBOSE_CAN_MSG_print(&msg);
-							state = READ_TEXT;
-							break;
-						default:	//datas...
-							if(i < 10)
-								msg.data[i-2] = read_byte;
-							else
-								debug_printf("Bad CAN_MSG format, i is invalid: %d\n", i);
-							break;
-					}
-					i++;
-					break;
-				default:
-					state = READ_TEXT;
-					break;
+								//no break;
+							default:
+								state = READ_TEXT;
+								break;
+						}
+						i++;
+						break;
+					case READ_CAN_MSG:
+						switch(i)
+						{
+							case 0:		msg.sid = read_byte;							break;
+							case 1:		msg.sid = U16FROMU8(msg.sid, read_byte);		break;
+							//case 2 to 9 = datas...
+							case 10:	msg.size = read_byte;							break;
+							case 11:
+								if(read_byte != EOT)
+									debug_printf("Bad CAN_MSG format\n");
+								else
+									VERBOSE_CAN_MSG_print(&msg);
+								state = READ_TEXT;
+								break;
+							default:	//datas...
+								if(i < 10)
+									msg.data[i-2] = read_byte;
+								else
+									debug_printf("Bad CAN_MSG format, i is invalid: %d\n", i);
+								break;
+						}
+						i++;
+						break;
+					default:
+						state = READ_TEXT;
+						break;
+				}
 			}
-
+			else
+			{
+				UART1_putc(read_byte);		//Si le switch verbose est à OFF, on recrache le fichier brut de fonderie.
+			}
 		}while(nb_read == 1);
+
 		f_close(&file_read_match);
 	}
 	else

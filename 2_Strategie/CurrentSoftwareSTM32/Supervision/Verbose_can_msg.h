@@ -19,8 +19,7 @@
 		Affiche le message can sous la forme d'un texte intelligible.
 	*/
 	void VERBOSE_CAN_MSG_print(CAN_msg_t * can_msg);
-	void print_ir_result(CAN_msg_t * msg);
-	void print_us_result(CAN_msg_t * msg);
+
 
 
 #endif /* ndef VERBOSE_CAN_MSG_H */
