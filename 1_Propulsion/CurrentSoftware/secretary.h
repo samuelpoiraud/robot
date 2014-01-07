@@ -22,6 +22,8 @@
 	*/
 	void SECRETARY_process_CANmsg(CAN_msg_t* msg);
 	
+	void SECRETARY_send_canmsg(Uint11 sid, Uint8 * data, Uint8 size);
+
 	/*
 	Fonction permettant d'envoyer un message au monde extérieur. 
 	Selon le message indiqué en paramètre, un certain nombre 
