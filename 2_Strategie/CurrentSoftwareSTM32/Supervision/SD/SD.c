@@ -90,7 +90,8 @@ int SD_printf(char * s, ...)
 void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool_e insert_time)
 {
 	char string[PRINTF_BUFFER_SIZE*2];
-	char *p = string;
+	//char *p = string;
+	Uint32 n = 0;
 	Uint8 i;
 	Uint32 written = 0;
 
@@ -100,15 +101,17 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 	if(sd_ready == FALSE || file_opened == FALSE)
 		return;	//Nothing todo...
 
-	//Source et instant de l'événement.
-//	n=0;
-//	string[n++] = STX;	//Début de l'info de temps.
-//	string[n++] = source;
-//	string[n++] = HIGHINT(time_ms/2);
-//	string[n++] = LOWINT(time_ms/2);
-//	string[n++] = ETX;	//Fin de l'info de temps.
-
-	const char *source_str = "Unknown";
+	if(insert_time)
+	{
+		//Source et instant de l'événement.
+		n=0;
+		string[n++] = STX;	//Début de l'info de temps.
+		string[n++] = source;
+		string[n++] = HIGHINT(time_ms/2);
+		string[n++] = LOWINT(time_ms/2);
+		string[n++] = ETX;	//Fin de l'info de temps.
+	}
+/*	const char *source_str = "Unknown";
 	switch(source) {
 		case FROM_SOFT:           source_str = "SOFT->";       break;
 		case FROM_BUS_CAN:        source_str = "CAN->";        break;
@@ -134,33 +137,33 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 	} else if(user_string) {
 		p += sprintf(p, "%s", user_string);
 	}
+*/
+	if(can_msg)
+	{
+		string[n++] = SOH;	//Début du msg CAN
+		string[n++] = HIGHINT(can_msg->sid);
+		string[n++] = LOWINT(can_msg->sid);
+		for (i=0; i<can_msg->size && i<8; i++)
+			string[n++] = can_msg->data[i];
+		for (i=can_msg->size; i<8; i++)
+			string[n++] = 0xFF;
+		string[n++] = can_msg->size;
+		string[n++] = EOT;	//Début du msg CAN
+	}
+	if(user_string)
+	{
+		for(i=0; user_string[i]; i++)
+		{
+			if(user_string[i] > 0x03)	//0x00 à 0x03 sont réservés pour les balises de msg can et d'info de temps+source.
+				string[n++] = user_string[i];
+			else
+				debug_printf("Vous ne devriez pas envoyer à SD_new_event() des caractères <= 0x03... ils sont ignorés.");
+		}
+	}
 
-//	if(can_msg)
-//	{
-//		string[n++] = SOH;	//Début du msg CAN
-//		string[n++] = HIGHINT(can_msg->sid);
-//		string[n++] = LOWINT(can_msg->sid);
-//		for (i=0; i<can_msg->size && i<8; i++)
-//			string[n++] = can_msg->data[i];
-//		for (i=can_msg->size; i<8; i++)
-//			string[n++] = 0xFF;
-//		string[n++] = can_msg->size;
-//		string[n++] = EOT;	//Début du msg CAN
-//	}
-//	if(user_string)
-//	{
-//		for(i=0; user_string[i]; i++)
-//		{
-//			if(user_string[i] > 0x03)	//0x00 à 0x03 sont réservés pour les balises de msg can et d'info de temps+source.
-//				string[n++] = user_string[i];
-//			else
-//				debug_printf("Vous ne devriez pas envoyer à SD_new_event() des caractères <= 0x03... ils sont ignorés.");
-//		}
-//	}
-
-	f_write(&file_match, string, p-string, (unsigned int *)&written);
-	if(written != p-string)
-		debug_printf("WARNING : SD:wrote failed %ld/%d", written, p-string);
+	f_write(&file_match, string, n, (unsigned int *)&written);
+	if(written != n)
+		debug_printf("WARNING : SD:wrote failed %ld/%ld", written, n);
 
 	if(data_waiting_for_sync == FALSE)	//La synchro était faite, aucune donnée n'était en attente d'écriture... on relance le compteur.
 		time_before_sync = MAX_TIME_BEFORE_SYNC;
