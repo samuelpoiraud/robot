@@ -11,8 +11,9 @@
 //R = 0 Pour Krusty, 1 pour Tiny, numéro suivant pour autre chose ...
 //Le numéro est utilisé que dans le message CAN de changement d'état pour reconnaitre la machine à état.
 typedef enum {
-	SM_ID_KRUSTY_STRAT_ALEXIS = 0x0000,
+	SM_ID_NOT_RENSEIGNED_YOU_SHOULD_CORRECT_IT = 0x0000,
 	SM_ID_KRUSTY_STRAT_ALEXIS_FINALE = 0x0001,
+	SM_ID_KRUSTY_STRAT_ALEXIS = 0x0002,
 	SM_ID_GLASSES_DO	 = 0x0101,
 	SM_ID_GLASSES_GRAB	 = 0x0102,
 	SM_ID_GLASSES_PUT_DOWN = 0x0103,
@@ -21,6 +22,7 @@ typedef enum {
 	SM_ID_CHERRIES_GRAB	 = 0x0202,
 	SM_ID_CHERRIES_LAUNCH = 0x0203,
 	SM_ID_CHERRIES_DROP	 = 0x0204,
+	SM_ID_STRAT_COEF_PROPULSION = 0x205,
 	SM_ID_ZONE_TRY_LOCK	 = 0x0301,
 	SM_ID_PATHFIND_TRY_GOING = 0x0401,
 	SM_ID_ACTIONS_BOTH_2014_TEST_PATHFIND = 0x0402
