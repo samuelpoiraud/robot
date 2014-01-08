@@ -11,8 +11,10 @@
 #ifndef CONFIG_QS_H
 #define CONFIG_QS_H
 
-//	#define MODE_SIMULATION
-
+	//#define MODE_SIMULATION
+#ifdef MODE_SIMULATION
+	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+#endif
 /* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
 #define I_AM CARTE_STRAT
