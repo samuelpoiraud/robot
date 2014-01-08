@@ -165,7 +165,6 @@ int main (void)
 
 */
 
-
 	while(1)
 	{
 		#ifdef USE_QSx86
