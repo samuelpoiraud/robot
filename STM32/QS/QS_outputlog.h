@@ -12,6 +12,7 @@
 #define QS_OUTPUTLOG_H
 
 #include "QS_all.h"
+#include <stdarg.h>
 
 /*
  * Paramètres (optionnels, à définir avant l'inclusion de ce header):
@@ -43,10 +44,19 @@ typedef enum {
 #define LOG_PRINT_Off 1
 #define LOG_PRINT_On  0  //Si la macro LOG_COMPONENT n'est pas définie, elle vaudra 0, dans ce cas on veux afficher le texte par défaut.
 
+typedef void (*OUTPUTLOG_Callback)(const char* formated_message);
+typedef void (*OUTPUTLOG_CallbackV)(const char* format, va_list vargs);
+
 //__attribute__((format (printf, 2, 3)))  permet au compilateur de verifier l'argument format avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
 void OUTPUTLOG_printf(log_level_e level, const char * format, ...) __attribute__((format (printf, 2, 3)));
 void OUTPUTLOG_set_level(log_level_e level);
 log_level_e OUTPUTLOG_get_level();
+
+//Permet de rediriger la sortie de OUTPUTLOG_printf vers une fonction (l'une ou l'autre des méthodes, pas les 2, le dernier set écrase les autres)
+//OUTPUTLOG_set_callback_vargs: les arguments sont passés tel quel (pas de limite de taille de texte)
+void OUTPUTLOG_set_callback_vargs(OUTPUTLOG_CallbackV callback);
+//OUTPUTLOG_set_callback: le resultat du formatage est donné à la fonction callback
+void OUTPUTLOG_set_callback(OUTPUTLOG_Callback callback);
 
 
 /* Fonction d'aide à l'utilisation */

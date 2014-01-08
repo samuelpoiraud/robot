@@ -14,7 +14,6 @@
 #endif
 
 #include <stdio.h>
-#include <stdarg.h>
 
 #ifndef OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL
 #define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
@@ -22,6 +21,8 @@
 #endif
 
 static log_level_e current_max_log_level = OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL;
+static OUTPUTLOG_CallbackV vcallback;
+static OUTPUTLOG_Callback callback;
 
 void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 #ifdef VERBOSE_MODE
@@ -31,9 +32,23 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 	if(level != LOG_LEVEL_Always && level > current_max_log_level)
 		return;
 
-	va_start(args_list, format);
-	vprintf(format, args_list);
-	va_end(args_list);
+	if(vcallback) {
+		va_start(args_list, format);
+		vcallback(format, args_list);
+		va_end(args_list);
+	} else if(callback) {
+		static char buffer[512]; //static pour être sur d'avoir la mémoire dispo, 512 pourrait causer des débordements de pile ?
+
+		va_start(args_list, format);
+		vsnprintf(buffer, 512, format, args_list);
+		va_end(args_list);
+
+		callback(buffer);
+	} else {
+		va_start(args_list, format);
+		vprintf(format, args_list);
+		va_end(args_list);
+	}
 #else
 	//Anti warning arguments non utilisés
 	level = level;
@@ -51,3 +66,12 @@ log_level_e OUTPUTLOG_get_level() {
 	return current_max_log_level;
 }
 
+void OUTPUTLOG_set_callback_vargs(OUTPUTLOG_CallbackV callback) {
+	callback = NULL;
+	vcallback = callback;
+}
+
+void OUTPUTLOG_set_callback(OUTPUTLOG_Callback callback) {
+	vcallback = NULL;
+	callback = callback;
+}
