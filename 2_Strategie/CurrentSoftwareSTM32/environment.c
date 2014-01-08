@@ -216,6 +216,7 @@ void ENV_update()
 		ENV_process_can_msg(&incoming_msg_from_bus_can,FALSE, TRUE, TRUE, TRUE);	//Everywhere except CAN
 	}
 
+
 	while(UART1_data_ready())
 	{
 		c = UART1_get_next_msg();
