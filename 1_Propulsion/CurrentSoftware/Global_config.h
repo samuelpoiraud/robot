@@ -12,6 +12,8 @@
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
 
+#include "_Propulsion_config.h"
+
 	//mode d'activation des sorties debug_printf
 	#define VERBOSE_MODE
 	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
@@ -82,9 +84,20 @@
 		#define LED_SELFTEST 		GPIOD->ODR11
 		#define LED_USER2			LED_SELFTEST
 		#define LED_RUN  			GPIOD->ODR12
+#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT) // Dans le cas du robot parfait on suppose que l'écran est branché on évite les conflits avec les ports de l'écran
+		#define LED_CAN  			LED_RUN
+		#define LED_UART 			LED_RUN
+		#define LED_USER 			LED_RUN
+#else
 		#define LED_CAN  			GPIOD->ODR13
 		#define LED_UART 			GPIOD->ODR14
 		#define LED_USER 			GPIOD->ODR15
+#endif
+	// Pour les leds inclues sur la carte STM32
+		#define LED_GREEN 			LED_RUN
+		#define LED_ORANGE			LED_CAN
+		#define LED_ROUGE			LED_UART
+		#define LED_BLEU			LED_USER
 
 	#define PORT_E_IO_MASK	0xFFFF
 		#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
