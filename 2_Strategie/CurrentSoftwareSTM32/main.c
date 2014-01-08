@@ -94,8 +94,8 @@ int main (void)
 	// voir si on peut faire mieux
 	for(j=0;j<40;j++)
 		for(i=1;i;i++);
-	while(1)
-		TEST_pathfind();
+	//while(1)
+	//	TEST_pathfind();
 
 	while(1)
 	{
