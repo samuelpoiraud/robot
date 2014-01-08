@@ -151,8 +151,8 @@ void SECRETARY_send_canmsg(Uint16 sid, Uint8* data,Uint8 taille)
 			case CARTE_P_ROBOT_FREINE:
 				debug_printf("Freine:");
 			break;
-						case ASSER_SELFTEST:
-						break;
+						//case ASSER_SELFTEST:
+						//break;
 						case CARTE_P_ROBOT_CALIBRE:
 						break;
 			case DEBUG_ASSER_POINT_FICTIF:
