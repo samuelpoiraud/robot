@@ -19,4 +19,6 @@ junction.exe 3_Actionneur\CurrentSoftwareSTM32\QS STM32\QS
 junction.exe 3_Actionneur\CurrentSoftwareSTM32\stm32f4xx STM32\stm32f4xx
 junction.exe R_D\HokuyoUTM30LX\Software\QS STM32\QS
 junction.exe R_D\HokuyoUTM30LX\Software\stm32f4xx STM32\stm32f4xx
+junction.exe R_D\projet_lcd\QS STM32\QS
+junction.exe R_D\projet_lcd\stm32f4xx STM32\stm32f4xx
 pause
