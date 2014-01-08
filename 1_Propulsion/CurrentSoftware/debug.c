@@ -267,12 +267,12 @@ void affichage_global(void)
 				if(teta <0)
 					teta += 360;
 
-				printf("%d\t%d\t%d\tdr%ld\ter%ld\tpr%ld\trpr%ld\n",
+				/*printf("%d\t%d\t%d\tdr%ld\ter%ld\tpr%ld\trpr%ld\n",
 						global.position.x, global.position.y, teta,
 						(Sint32)PILOT_get_destination_rotation(),
 						(Sint32)global.ecart_rotation_prec,
 						global.position_rotation,
-						global.real_position_rotation>>10);
+						global.real_position_rotation>>10);*/
 //				CAN_send_point_fictif(global.position.x, global.position.y, global.position.teta);
 			}
 		}

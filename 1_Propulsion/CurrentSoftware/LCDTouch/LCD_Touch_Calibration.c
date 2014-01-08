@@ -308,6 +308,7 @@ bool_e Calibration_Test_Dispose(display_robot_t * pos,robots_e *couleur_robot)
 				}
 		}
     }
+    return ret;
 }
 
 /******************** COPYRIGHT 2012 Embest Tech. Co., Ltd.*****END OF FILE****/

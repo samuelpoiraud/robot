@@ -14,6 +14,7 @@
 #include "write_lcd.h"
 #include "stmpe811qtr.h"
 #include "zone.h"
+#include "../odometry.h"
 #include "../secretary.h"
 #include "../QS/QS_CANmsgList.h"
 
@@ -127,14 +128,16 @@ void LCD_send_message(void)
 	}
 }
 
+#if 0
 void LCD_process_main(void)
 {
 	static bool_e bt_prec = FALSE;		//état du bouton user de la stm32
 	bool_e bt_current;
 	robots_e i;
 
+	// Vérification de l'appui sur bouton
+	bt_current = BUTTON0_PORT;
 
-	bt_current = GPIOA->IDR0;
 	if(!bt_prec && bt_current)	//changement d'équipe et remise à zero de toutes les variables
 	{
 		LCD_Clear(White);
@@ -143,18 +146,20 @@ void LCD_process_main(void)
 		image_Init();					//copie du tableau de la flash vers la ram
 		init_zone();
 
+		//On échange les couleurs
 		adversary_color = current_color;
 		current_color = (current_color == Jaune)? Rouge : Jaune;
+
+		//On réinitialise les valeurs des positions
 		LCD_pos_init();
 
 		ecriture_info_prosition_v2();
 	}
-	bt_prec=bt_current;
+	bt_prec=bt_current; // L'état actuel du bouton devient l'état précédent
 
 	if(t_10ms>=10)
 	{	//Toutes les 100ms
-		LED_GREEN = 1;
-		if(Calibration_Test_Dispose(&robots[robot_selected],&robot_selected))
+		if(Calibration_Test_Dispose(&robots[robot_selected] , &robot_selected))
 		{
 			robots_updated = TRUE;
 			LCD_send_message();
@@ -170,6 +175,7 @@ void LCD_process_main(void)
 		/*
 		 * mise à jour du tableau contenant toutes les information relatives aux zones
 		 */
+
 		test_zones(robots[ADVERSARY_1].x,robots[ADVERSARY_1].y,1);
 		test_zones(robots[ADVERSARY_2].x,robots[ADVERSARY_2].y,2);
 		LED_GREEN = 0;
@@ -181,7 +187,6 @@ void LCD_process_main(void)
 
 	if(robots_updated)
 	{
-		LED_GREEN = 1;
 		//On efface les emplacement des robots qui ont bougé.
 		for(i=0;i<ROBOTS_NUMBER;i++)
 		{
@@ -204,10 +209,34 @@ void LCD_process_main(void)
 
 		LCD_SetCursor(0,0);
 		LCD_Affiche_Image();
-		LED_GREEN = 0;
 	}
 
 }
+#else
+
+void LCD_process_main(void){
+
+	if(t_10ms>=10)
+	{	//Toutes les 100ms
+		t_10ms=0;
+		robots[0].x = global.position.x/10;
+		robots[0].y = global.position.y/10;
+		robots[0].updated = TRUE;
+		robots[0].color = (ODOMETRY_get_color()==RED)?Rouge : Jaune;
+		delete_previous_robot(&robots[0]);
+		display_robot(&robots[0]);
+		remplissage_info_position_v2(	robots[0].y		,robots[0].x	,0	,0,
+												0	,0	,0	,0);
+		LCD_SetCursor(0,0);
+		LCD_Affiche_Image();
+
+	}
+
+	//bt_prec = bt_current;
+}
+
+#endif
+
 
 void LCD_update_robot(robots_e robot, Uint16 x, Uint16 y)
 {
