@@ -34,6 +34,7 @@
 
 void test_bp_switchs(void);
 void test_leds(void);
+void pull_bp_and_switch(void);
 
 void process_measure_loop_duration(void)
 {
@@ -70,6 +71,9 @@ int main (void)
 		SYS_init();
 	#endif
 	PORTS_init();
+	#ifdef MODE_SIMULATION
+		pull_bp_and_switch();
+	#endif
 	#ifdef VERBOSE_MODE
 		UART_init();
 	#endif /* def VERBOSE_MODE */
@@ -90,7 +94,8 @@ int main (void)
 	// voir si on peut faire mieux
 	for(j=0;j<40;j++)
 		for(i=1;i;i++);
-
+	while(1)
+		TEST_pathfind();
 
 	while(1)
 	{
@@ -118,6 +123,28 @@ int main (void)
 	}
 	return 0;
 }
+
+void pull_bp_and_switch(void)
+{
+	//En mode simulation, on indique une valeur par défaut des boutons et des switchs..... par l'ajout d'un pull up ou pull down.
+	PORTS_set_pull(GPIOA, GPIO_Pin_7, GPIO_PuPd_DOWN);	//Verbose = 0
+	PORTS_set_pull(GPIOB, GPIO_Pin_4, GPIO_PuPd_DOWN);	//XBee OFF
+	PORTS_set_pull(GPIOB, GPIO_Pin_5, GPIO_PuPd_DOWN);	//Save OFF
+	PORTS_set_pull(GPIOC, GPIO_Pin_13, GPIO_PuPd_UP);	//Who Am I : gros robot
+	PORTS_set_pull(GPIOD, GPIO_Pin_6, GPIO_PuPd_UP);	//Color (1)
+	PORTS_set_pull(GPIOD, GPIO_Pin_7, GPIO_PuPd_UP);	//Biroute OFF (1)
+	PORTS_set_pull(GPIOE, GPIO_Pin_7, GPIO_PuPd_UP);	//Sw LCD
+	PORTS_set_pull(GPIOE, GPIO_Pin_8, GPIO_PuPd_UP);	//Sw evit
+	PORTS_set_pull(GPIOE, GPIO_Pin_9, GPIO_PuPd_UP);	//Sw Strat
+	PORTS_set_pull(GPIOE, GPIO_Pin_10, GPIO_PuPd_UP);	//Sw Strat
+	PORTS_set_pull(GPIOE, GPIO_Pin_11, GPIO_PuPd_UP);	//Sw Strat
+	PORTS_set_pull(GPIOE, GPIO_Pin_12, GPIO_PuPd_UP);	//BP Selftest
+	PORTS_set_pull(GPIOE, GPIO_Pin_13, GPIO_PuPd_UP);	//BP Menu lcd ok
+	PORTS_set_pull(GPIOE, GPIO_Pin_14, GPIO_PuPd_UP);	//BP Menu lcd +
+	PORTS_set_pull(GPIOE, GPIO_Pin_15, GPIO_PuPd_UP);	//BP Menu lcd -
+	PORTS_set_pull(GPIOE, GPIO_Pin_7, GPIO_PuPd_DOWN);	//XBee OFF
+}
+
 
 void big_delay(void)
 {
