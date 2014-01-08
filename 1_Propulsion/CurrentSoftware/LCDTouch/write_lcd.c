@@ -145,7 +145,7 @@ void remplissage_info_position_v2(uint16_t y1,uint16_t x1,uint16_t y2,uint16_t x
 
 /**
  * \fn void ecriture_info_prosition_v2(void)
- * \briefaffichage des lignes d'informations vierges de position des robots
+ * \brief affichage des lignes d'informations vierges de position des robots
  */
 void ecriture_info_prosition_v2(void){
 
@@ -166,7 +166,7 @@ void ecriture_info_prosition_v2(void){
  */
 void delete_previous_robot(display_robot_t * robot)
 {
-	uint16_t i,j;
+	Sint16 i,j;
 	for (i=robot->xprec-robot->size/2;i<=robot->xprec+robot->size/2;i++)
 		for(j=robot->yprec-robot->size/2;j<=robot->yprec+robot->size/2;j++)
 			if(i<199 && j<299)
@@ -184,12 +184,12 @@ void delete_previous_robot(display_robot_t * robot)
  */
 void display_robot(display_robot_t * robot)
 {
-	uint16_t i,j;
+	Sint16 i,j;
 //	assert(robot->y<=300);
 //	assert(robot->x<=200);
 	Uint8 color = robot->color;
-	for (i=robot->x-robot->size/2;i<=robot->x+robot->size/2;i++)
-		for(j=robot->y-robot->size/2;j<=robot->y+robot->size/2;j++)
+	for (i = robot->x - robot->size/2; i <= robot->x + robot->size/2 ; i++)//i =(robot->x>robot->size/2)? robot->x-robot->size/2 : 0
+		for(j = robot->y - robot->size/2; j <= robot->y + robot->size/2 ; j++)//(robot->y>robot->size/2)? robot->y-robot->size/2 : 0
 			if(i<199 && j<299)
 				ram_tableauImage[j+320*i]=color;
 }

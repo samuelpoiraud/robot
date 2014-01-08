@@ -113,7 +113,8 @@ void _ISR _T1Interrupt()
 #ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 	if(count == 1){
 		count = 0;
-		ZONE_process_10ms();
+		//ZONE_process_10ms();
+		LCD_process_10ms();
 	}
 	count++;
 #endif
