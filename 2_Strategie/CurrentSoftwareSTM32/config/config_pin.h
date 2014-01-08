@@ -111,7 +111,7 @@
 	#define SWITCH_STRAT_2		GPIOE->IDR10
 	#define SWITCH_STRAT_3		GPIOE->IDR11
 	#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
-	#define BUTTON2_PORT		(!GPIOE->IDR13)	//Calibration
+	#define BUTTON2_PORT		(!GPIOE->IDR13)	//LCD OK
 	#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
 	#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
 
