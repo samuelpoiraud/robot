@@ -20,7 +20,9 @@
 
 void strat_test_triangle_cote_rouge(void);
 void strat_test_point();
-error_e strat_test_ramasser_fruit();
+error_e strat_test_ramasser_fruit_arbre1();
+error_e strat_test_ramasser_fruit_arbre1A();
+error_e strat_test_ramasser_fruit_arbre1B();
 error_e strat_test_deposser_fruit();
 
 #endif /* ACTIONS_PIERRE_H_ */
