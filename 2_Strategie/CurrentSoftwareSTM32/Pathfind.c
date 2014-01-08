@@ -582,25 +582,29 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 	{
 		// on ne renvoie que le coût supplémentaire, on enlève donc le coût normal
 		// pour passer d'un noeud à l'autre
-
+/*
 		#ifdef USE_ASSER_MULTI_POINT
 			ASSER_push_goto_multi_point(nodes[n].x, nodes[n].y, speed, way, 0, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
 		#else
 			ASSER_push_goto(nodes[n].x, nodes[n].y, speed, way, 0, END_AT_LAST_POINT, FALSE);
 		#endif
 		nodes[to].cost -= PATHFIND_STEP_COST;
+*/
+		debug_printf("goto %d\n",n);
 	}
 
 
 	if ((to == from) || /** Le noeud de destination est le plus proche */
 		(PATHFIND_squared_dist(nodes[n].x, nodes[n].y, xFrom, yFrom) > ((Uint32)NODE_PROXIMITY_DISTANCE*NODE_PROXIMITY_DISTANCE))
 	) {
-
+/*
 			#ifdef USE_ASSER_MULTI_POINT
 				ASSER_push_goto_multi_point(nodes[from].x, nodes[from].y, speed, way, 1, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
 			#else
 				ASSER_push_goto(nodes[from].x, nodes[from].y, speed, way, 1, END_AT_LAST_POINT, FALSE);
 			#endif
+*/
+		debug_printf("goto %d\n",from);
 		// on ne renvoie que le coût supplémentaire, on enlève donc le coût normal
 		// pour passer d'un noeud à l'autre
 		if (nodes[to].parent != from) {

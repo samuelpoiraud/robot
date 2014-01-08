@@ -246,7 +246,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string)
 					string+=sprintf(string,"|\n");
 			break;
 		}
-	return ret - string;
+	return string - ret;
 }
 
 void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)

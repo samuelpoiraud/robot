@@ -94,8 +94,7 @@ int main (void)
 	// voir si on peut faire mieux
 	for(j=0;j<40;j++)
 		for(i=1;i;i++);
-	//while(1)
-	//	TEST_pathfind();
+
 
 	while(1)
 	{
@@ -127,7 +126,9 @@ int main (void)
 void pull_bp_and_switch(void)
 {
 	//En mode simulation, on indique une valeur par défaut des boutons et des switchs..... par l'ajout d'un pull up ou pull down.
-	PORTS_set_pull(GPIOA, GPIO_Pin_7, GPIO_PuPd_DOWN);	//Verbose = 0
+	//PORTS_set_pull(GPIOA, GPIO_Pin_7, GPIO_PuPd_DOWN);	//Verbose : Verbose = 0/ Bin = 1
+	//La présence de laccelermetre empeche le PD d'etre prepondérent sur la broche
+	PORTS_set_pull(GPIOA, GPIO_Pin_1, GPIO_PuPd_UP);	//Switch debug : can+debug on = 1 / Rien(sauf certains printf) = 0
 	PORTS_set_pull(GPIOB, GPIO_Pin_4, GPIO_PuPd_DOWN);	//XBee OFF
 	PORTS_set_pull(GPIOB, GPIO_Pin_5, GPIO_PuPd_DOWN);	//Save OFF
 	PORTS_set_pull(GPIOC, GPIO_Pin_13, GPIO_PuPd_UP);	//Who Am I : gros robot

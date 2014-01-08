@@ -595,3 +595,38 @@ void TEST_pathfind(void)
 	}
 
 }
+
+
+
+void test_strat_robot_virtuel(void){
+	static enum{
+		DO1 = 0,
+		DO2,
+		DO3,
+		DO4,
+		DONE,
+		ERROR
+	}state = DO1;
+
+	switch(state){
+		case DO1:
+			state = try_going(1000, 1500, DO1, DO2, ERROR, FAST ,ANY_WAY, NO_AVOIDANCE);
+			break;
+		case DO2:
+			state = try_going(1500, 2000, DO2, DO3, ERROR, FAST, ANY_WAY, NO_AVOIDANCE);
+			break;
+		case DO3:
+			state = try_going(500, 2000, DO3, DO4, ERROR, SLOW, ANY_WAY, NO_AVOIDANCE);
+			break;
+		case DO4:
+			state = try_going(500, 500, DO4, DONE, ERROR, FAST, ANY_WAY, NO_AVOIDANCE);
+			break;
+		case DONE:
+			break;
+		case ERROR:
+		default:
+			GPIOD->ODR10 = 1;
+			break;
+	}
+
+}
