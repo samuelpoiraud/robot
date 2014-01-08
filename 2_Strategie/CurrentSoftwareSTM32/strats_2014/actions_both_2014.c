@@ -13,7 +13,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
 #include "../Pathfind.h"
-
+#include "../QS/QS_who_am_i.h"
 
 //#define LOG_PREFIX "strat_tests: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
@@ -62,11 +62,19 @@ void strat_reglage_odo_rotation(void){
 	static enum state_e inProcess = IDLE;
 	static bool_e timeout=FALSE;
 	static Sint16 i=0;
-	static Uint16 coefOdoRotation = 0x0000C581; // Peut etre 0xc581 //Original 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
+	static Uint16 coefOdoRotation; // Peut etre 0xc581 //Original 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
 	CAN_msg_t msg;
+
 
 	switch(state){
 	case IDLE: //Cas d'attente et de réinitialisation
+
+		if(QS_WHO_AM_I_get() == PIERRE)
+			coefOdoRotation = 0x0000C581;
+		else // GUY
+			coefOdoRotation = 0x00010AC0;
+
+
 		state = CALAGE;
 		break;
 
@@ -256,12 +264,18 @@ void strat_reglage_odo_translation(void){
 	//state = COMPARE_N_CORRECT;
 
 	static bool_e timeout=FALSE;
-	static Uint16 coefOdoTranslation = 0x0C43; //Original 0x0C47; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT dans _Propulsion_config.h
+	static Uint16 coefOdoTranslation; //Original 0x0C47; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT dans _Propulsion_config.h
 	CAN_msg_t msg;
 
 	switch(state){
 	case IDLE: //Cas d'attente et de réinitialisation
 		state = CALAGE;
+
+		if(QS_WHO_AM_I_get() == PIERRE)
+			coefOdoTranslation = 0x0C43;
+		else // GUY
+			coefOdoTranslation = 0x0C10;
+
 		break;
 
 	case CALAGE: // Cale le robot pour regler le zero et comparer les valeurs: L'échapement dépend d'ou vient la machine
@@ -405,6 +419,12 @@ void strat_reglage_odo_symetrie(void){
 	switch(state){
 	case IDLE: //Cas d'attente et de réinitialisation
 		state = CALAGE;
+
+		if(QS_WHO_AM_I_get() == PIERRE)
+			coefOdoSymetrie = 0;
+		else // GUY
+			coefOdoSymetrie = 0;
+
 		break;
 
 	case CALAGE: // Cale le robot pour regler le zero et comparer les valeurs: L'échapement dépend d'ou vient la machine
