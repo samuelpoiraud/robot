@@ -195,6 +195,29 @@ Uint8 PORTS_adc_init(void* adc_handle, Uint8 ADC_sampleTime) {
 	return number_of_channels;
 }
 
+
+void PORTS_set_pull(GPIO_TypeDef* GPIOx, Uint16 GPIO_Pin, GPIOPuPd_TypeDef pull_up)
+{
+	  Uint32 pinpos = 0x00, pos = 0x00 , currentpin = 0x00;
+	  /* Check the parameters */
+	  assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+	  assert_param(IS_GPIO_PIN(GPIO_Pin));
+	  assert_param(IS_GPIO_PUPD(pull_up));
+
+	  for (pinpos = 0x00; pinpos < 0x10; pinpos++)
+	  {
+	    pos = ((Uint32)0x01) << pinpos;
+	    /* Get the port pins position */
+	    currentpin = GPIO_Pin & pos;
+	    if (currentpin == pos)
+	    {
+	      /* Pull-up Pull down resistor configuration*/
+	      GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << ((Uint16)pinpos * 2));
+	      GPIOx->PUPDR |= (((Uint32)pull_up) << (pinpos * 2));
+	    }
+	  }
+}
+
 void PORTS_pwm_init() {
 	GPIO_InitTypeDef GPInit;
 
