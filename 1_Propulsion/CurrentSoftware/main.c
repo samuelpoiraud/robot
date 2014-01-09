@@ -24,7 +24,6 @@
 #include "sequences.h"
 #include "debug.h"
 #include "joystick.h"
-#include "scan_triangle.h"
 #include "QS/QS_ports.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_buttons.h"
@@ -39,6 +38,9 @@
 	#include "LCDTouch/LCDTouch_Display.h"
 	#include "LCDTouch/LCD.h"
 	#include "LCDTouch/zone.h"
+#endif
+#ifdef	SCAN_TRIANGLE
+	#include "scan_triangle.h"
 #endif
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
@@ -122,8 +124,10 @@ void initialisation(void){
 	LCD_init();
 #endif
 
-	SCAN_TRIANGLE_init();
-	// Initialisation des ADC pour les DT10s des scans des triangles
+	#ifdef SCAN_TRIANGLE
+		SCAN_TRIANGLE_init();
+		// Initialisation des ADC pour les DT10s des scans des triangles
+	#endif
 
 }
 
@@ -179,9 +183,9 @@ int main (void)
 		SECRETARY_process_main();	//Communication avec l'extérieur. (Réception des messages)
 
 		WARNER_process_main();		//Communication avec l'extérieur. (Envois des messages)
-
-		SCAN_TRIANGLE_calculate();
-
+		#ifdef SCAN_TRIANGLE
+			SCAN_TRIANGLE_calculate();
+		#endif
 #if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
 		LCD_process_main();
 #endif
