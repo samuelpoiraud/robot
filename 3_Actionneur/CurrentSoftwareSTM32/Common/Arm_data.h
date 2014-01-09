@@ -1,0 +1,56 @@
+/*  Club Robot ESEO 2012 - 2013
+ *	Krusty
+ *
+ *	Fichier : Lift.h
+ *	Package : Carte actionneur
+ *	Description : Gestion des ascenseurs
+ *  Auteur : Alexis
+ *  Version 20130314
+ *  Robot : Krusty
+ */
+
+#ifndef ARM_DATA_H
+#define	ARM_DATA_H
+
+#include "../QS/QS_all.h"
+#include "Arm_config.h"
+
+typedef int arm_state_t[ARM_NB_ACT];
+
+typedef enum {
+	ARM_ST_Parked,
+	ARM_ST_Open,
+	ARM_ST_NUMBER
+} ARM_state_e;
+
+typedef enum {
+	ARM_DCMOTOR,
+	ARM_AX12,
+	ARM_RX24 = ARM_AX12
+} ARM_motor_type_e;
+
+typedef struct {
+	ARM_motor_type_e motorType;
+	Uint8 motorId;
+	Uint16 timeout;
+	Uint16 epsilon;
+	Uint8 maxPowerWay0;	//aussi le max torque pour les ax12 & rx24
+
+	//valide que pour DCMotor:
+	Uint8 maxPowerWay1;
+	Uint8 pwmNum;
+	GPIO_TypeDef* pwmWayPort;
+	Uint8 pwmWayBit;
+	Uint16 kp;
+	Uint16 ki;
+	Uint16 kd;
+} ARM_motor_data_t;
+
+extern ARM_motor_data_t arm_motors[ARM_NB_ACT];
+
+extern arm_state_t arm_states[ARM_ST_NUMBER];
+
+extern Uint8 arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
+
+#endif	/* ARM_DATA_H */
+
