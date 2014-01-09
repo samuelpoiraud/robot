@@ -224,8 +224,17 @@ static void MAIN_onButton3() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 
-	msg.size = 1;
-	if(SWITCH_RG0) {
+		msg.size = 1;
+
+		msg.sid = ACT_LANCELAUNCHER;
+
+
+		msg.data[0] = ACT_LANCELAUNCHER_RUN;
+
+		CAN_process_msg(&msg);
+		debug_printf("Main: ACT_LANCELAUNCHER_RUN\n");
+
+	/*if(SWITCH_RG0) {
 		msg.sid = ACT_PLATE;
 		if(SWITCH_RG1) {
 			debug_printf("Main: Plate rotate horizontally\n");
@@ -249,12 +258,13 @@ static void MAIN_onButton3() {
 		msg.sid = ACT_LIFT_LEFT;
 		CAN_process_msg(&msg);
 	}
-
+*/
 #endif
 }
 
 static void MAIN_onButton4() {
-	Uint8 i;
+
+	/*Uint8 i;
 	CAN_msg_t msg;
 	static Uint16 w;
 
@@ -285,7 +295,7 @@ static void MAIN_onButton4() {
 
 	for(i=0; i<7; i++)
 		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
-	debug_printf("\n");
+	debug_printf("\n");*/
 }
 
 #else // Tiny

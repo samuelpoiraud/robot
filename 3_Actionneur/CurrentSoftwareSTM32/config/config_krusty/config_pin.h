@@ -29,7 +29,7 @@
 	//	-	programmation 			  14
 	//	-				 			  15
 	
-#define PORT_B_IO_MASK	0xF7FF
+#define PORT_B_IO_MASK	0x01FF
 	//	-							  0
 	//	-							  1
 	//	-				 			  2
@@ -39,13 +39,13 @@
 	//	U1TX						  6
 	//	U1RX						  7
 	//	-			 	  			  8
-	//	-				 			  9
-	//	-	 					  	  10
+	#define LANCELAUNCHER_PIN_1 GPIOB->ODR9
+	#define LANCELAUNCHER_PIN_2 GPIOB->ODR10
 	#define AX12_DIRECTION_PORT GPIOB->ODR11
-	//	-				 			  12
-	//	-				 			  13
-	//	-				 			  14
-	//	-				 			  15
+	#define LANCELAUNCHER_PIN_3 GPIOB->ODR12
+	#define LANCELAUNCHER_PIN_4 GPIOB->ODR13
+	#define LANCELAUNCHER_PIN_5 GPIOB->ODR14
+	#define LANCELAUNCHER_PIN_6 GPIOB->ODR15
 
 #define PORT_C_IO_MASK	0xFFFF
 	//	-				 			  0
@@ -66,7 +66,7 @@
 	//	-	OSC32_out 			  	  15
 
 
-#define PORT_D_IO_MASK	0x03FF
+#define PORT_D_IO_MASK	0x01FF
 	//	CAN_RX						  0
 	//	CAN_TX						  1
 	//	-				 			  2
@@ -153,5 +153,8 @@
 
 /* Config proto Fruit_mouth*/
 	#define FRUIT_MOUTH_AX12_ID						  4
+
+/* config watchdog lance lanceur*/
+	#define LANCELAUNCHER_TIMER_USE_WATCHDOG
 
 #endif /* KRUSTY_CONFIG_PIN_H */
