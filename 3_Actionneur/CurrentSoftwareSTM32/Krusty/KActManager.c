@@ -13,6 +13,7 @@
 #ifdef I_AM_ROBOT_KRUSTY
 
 #include "KBall_launcher.h"
+#include "Klance_launcher.h"
 #include "KPlate.h"
 #include "KLift.h"
 #include "KBall_sorter.h"
@@ -30,6 +31,7 @@ void ACTMGR_init() {
 	LIFT_init();
 	BALLSORTER_init();*/
 	FRUIT_init();
+	LANCE_LAUNCHER_init();
 	ACTMGR_reset_act();
 }
 
@@ -53,6 +55,8 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 	if(BALLSORTER_CAN_process_msg(msg))
 		return TRUE;*/
 	if(FRUIT_CAN_process_msg(msg))
+			return TRUE;
+	if(LANCE_LAUNCHER_CAN_process_msg(msg))
 		return TRUE;
 	return FALSE;
 }
@@ -62,6 +66,7 @@ void ACTMGR_stop() {
 	PLATE_stop();
 	LIFT_stop();
 	BALLSORTER_stop();*/
+	LANCE_LAUNCHER_stop();
 	FRUIT_stop();
 }
 
