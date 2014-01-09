@@ -25,6 +25,7 @@
 /* ----------------------------------------------------------------------------- */
 
 #define DECALAGE_LARGEUR 200
+#define ELOIGNEMENT_ARBRE 340
 
 void strat_test_triangle_cote_rouge(void){
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -156,13 +157,16 @@ void strat_test_point(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
-		POINT_A2, // Point arbre1A cote couloir
+		POINT_A1, // Point arbre1A cote couloir
 		POINT_B3, // Point arbre1B rouge cote armoire
+		POINT_W3, // Point arbre2b cote jaune armoire
 		POINT_CO, // Pour deposser fruit
 		RAMASSER_FRUIT_ARBRE1,
+		RAMASSER_FRUIT_ARBRE2,
 		RAMASSER_FRUIT_ARBRE1A,
 		RAMASSER_FRUIT_ARBRE1B,
-		DEPOSER_FRUIT,
+		DEPOSER_FRUIT_ROUGE,
+		DEPOSER_FRUIT_JAUNE,
 		POS_FIN,
 		DONE,
 		ERROR
@@ -186,13 +190,19 @@ void strat_test_point(){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(500,300,POS_DEPART,POINT_A2,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(500,300,POS_DEPART,POINT_W3,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
-	case POINT_A2:
-		state = try_going(1350,400,POINT_A2,RAMASSER_FRUIT_ARBRE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+	case POINT_A1:
+		state = try_going(740,400,POINT_A1,RAMASSER_FRUIT_ARBRE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case RAMASSER_FRUIT_ARBRE1:
-		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1(),RAMASSER_FRUIT_ARBRE1,DEPOSER_FRUIT,ERROR);
+		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1(),RAMASSER_FRUIT_ARBRE1,DEPOSER_FRUIT_ROUGE,ERROR);
+		break;
+	case POINT_W3:
+		state = try_going(1670,1900,POINT_W3,RAMASSER_FRUIT_ARBRE2,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case RAMASSER_FRUIT_ARBRE2:
+		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2(),RAMASSER_FRUIT_ARBRE2,DEPOSER_FRUIT_JAUNE,ERROR);
 		break;
 	/*case RAMASSER_FRUIT_ARBRE1A:
 		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1A(),RAMASSER_FRUIT_ARBRE1A,RAMASSER_FRUIT_ARBRE1B,ERROR);
@@ -206,8 +216,11 @@ void strat_test_point(){
 	case POINT_CO:
 		state = try_going(500,1100,POINT_CO,DEPOSER_FRUIT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;*/
-	case DEPOSER_FRUIT:
-		state = check_sub_action_result(strat_test_deposser_fruit(),DEPOSER_FRUIT,DONE,ERROR);
+	case DEPOSER_FRUIT_ROUGE:
+		state = check_sub_action_result(strat_test_deposser_fruit_rouge(),DEPOSER_FRUIT_ROUGE,DONE,ERROR);
+		break;
+	case DEPOSER_FRUIT_JAUNE:
+		state = check_sub_action_result(strat_test_deposser_fruit_jaune(),DEPOSER_FRUIT_JAUNE,DONE,ERROR);
 		break;
 	case POS_FIN:
 		state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
@@ -221,7 +234,7 @@ void strat_test_point(){
 	}
 }
 
-error_e strat_test_deposser_fruit(){// Si le robot se trouve au point A2
+error_e strat_test_deposser_fruit_rouge(){// Si le robot se trouve au point A2
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		AVANCER,
@@ -245,10 +258,56 @@ error_e strat_test_deposser_fruit(){// Si le robot se trouve au point A2
 	case TRAVERSE_BAC:
 		state = try_going_until_break(470,300,TRAVERSE_BAC,FIN,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
 		break;
 	case FIN:
 		state = try_going_until_break(750,400,FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+		//state = check_act_status(ACT_QUEUE_Fruit,FERMER_BRAS,DONE,ERROR);
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_test_deposser_fruit_jaune(){// Si le robot se trouve au point A2
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		AVANCER,
+		DEBUT,
+		TRAVERSE_BAC,
+		FIN,
+		DONE,
+		ERROR
+	);
+
+	switch(state){
+	case IDLE:
+		state = AVANCER;
+		break;
+	case AVANCER:
+		state = try_going(470,2750,AVANCER,DEBUT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case DEBUT:
+		state = try_going_until_break(470,2550,DEBUT,TRAVERSE_BAC,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case TRAVERSE_BAC:
+		state = try_going_until_break(470,1950,TRAVERSE_BAC,FIN,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+		break;
+	case FIN:
+		state = try_going_until_break(750,1800,FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
@@ -277,12 +336,11 @@ error_e strat_test_ramasser_fruit_arbre1(){
 		ERROR
 	);
 
-	displacement_t courbe[5] = {
-		{{1450,335},SLOW},
+	displacement_t courbe[4] = {
+		{{1450,ELOIGNEMENT_ARBRE},FAST},
 		{{1550,380},SLOW},
-		{{1620,440},SLOW},
-		{{1665,530},SLOW},
-		{{1665,1000},SLOW},
+		{{1600,440},SLOW},
+		{{2000-ELOIGNEMENT_ARBRE,530},SLOW},
 	};
 
 
@@ -291,19 +349,68 @@ error_e strat_test_ramasser_fruit_arbre1(){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(1200,335,POS_DEPART,COURBE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going(1200,ELOIGNEMENT_ARBRE,POS_DEPART,COURBE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case COURBE:
-		state = try_going_multipoint(courbe,5,COURBE,POS_FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+		state = try_going_multipoint(courbe,4,COURBE,POS_FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+
 		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 		break;
 	case POS_FIN:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-		state = try_going(1665,1200,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going(2000-ELOIGNEMENT_ARBRE,900,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case DONE:
+		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+		return END_OK;
+		break;
+	case ERROR:
+		//ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_test_ramasser_fruit_arbre2(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		COURBE,
+		POS_FIN,
+		DONE,
+		ERROR
+	);
+
+	displacement_t courbe[4] = {
+		{{2000-ELOIGNEMENT_ARBRE,2450},FAST},
+		{{1600,2500},SLOW},
+		{{1550,2600},SLOW},
+		{{1300,3000-ELOIGNEMENT_ARBRE},SLOW},
+	};
+
+
+	switch(state){
+	case IDLE:
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+		state = try_going(2000-ELOIGNEMENT_ARBRE,2100,POS_DEPART,COURBE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case COURBE:
+		state = try_going_multipoint(courbe,4,COURBE,POS_FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+		break;
+	case POS_FIN:
+		state = try_going(1050,3000-ELOIGNEMENT_ARBRE,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case DONE:
+		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 		return END_OK;
 		break;
 	case ERROR:
