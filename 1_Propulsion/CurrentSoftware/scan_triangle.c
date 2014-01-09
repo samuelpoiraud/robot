@@ -8,12 +8,8 @@
 #include "scan_triangle.h"
 #include <math.h>
 
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
-	#define NB_POINTS 2
-#else
-	#define NB_POINTS 90
-#endif
-
+#ifdef SCAN_TRIANGLE
+#define NB_POINTS 90
 volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS];
 
 typedef struct{
@@ -37,13 +33,13 @@ typedef enum{
 }state_c;
 
 Uint8 moveCompleted, runCalcul;
-bool_e b_ask_for_scan = FALSE;
+bool_e MESSAGE_CAN_SCAN = FALSE;
 
 
 static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy);
 static void Acknowledge_Intern(void);
-static Sint32 abs(Sint32 val);
 static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure);
+static void printf_float(float f);
 
 void SCAN_TRIANGLE_init(void){
 	ADC_init();
@@ -69,8 +65,8 @@ void SCAN_TRIANGLE_process_it(void){
 		break;
 
 		case WAIT :
-			if(b_ask_for_scan){
-				b_ask_for_scan = FALSE;
+			if(MESSAGE_CAN_SCAN){
+				MESSAGE_CAN_SCAN = FALSE;
 				state = PLACEMENT_XY;
 			}
 		break;
@@ -148,7 +144,7 @@ void SCAN_TRIANGLE_process_it(void){
 		break;
 
 		case IN_PROGRESS :
-			if(abs(global.position.teta) >= (n_mesure+1)*PI4096/(NB_POINTS*2)){
+			if(absolute(global.position.teta) >= (n_mesure+1)*PI4096/(NB_POINTS*2)){
 				SCAN_TRIANGLE_in_process(&n_mesure);
 			}
 			if(moveCompleted){
@@ -165,17 +161,17 @@ void SCAN_TRIANGLE_process_it(void){
 		break;
 
 		case DISPLAY :
-			if(y < NB_POINTS){
+			/*if(y < NB_POINTS){
 				debug_printf("%d,%d;\n", scan[y].x[0], scan[y].y[0]);//, scan[y].x[1], scan[y].y[1], scan[y].x[2], scan[y].y[2]);
 				y++;
 			}else{
 				y = 0;
 				state = WAIT_END;
-			}
+			}*/
 		break;
 
 		case WAIT_END :
-			if(temp > 50){
+			if(temp > 200){
 					temp = 0;
 					debug_printf("%ld,%ld,%ld\n", ((Sint32)(39970UL * ADC_getValue(0)) >> 16) - 56,((Sint32)(39970UL * ADC_getValue(1)) >> 16) - 56,((Sint32)(39970UL * ADC_getValue(2)) >> 16) - 56);
 				}
@@ -201,7 +197,7 @@ static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure){
 void SCAN_TRIANGLE_calculate(void){
 	if(runCalcul){
 		debug_printf("Calcul\n");
-		Uint8 j, i, nb_objet = 0;
+		Uint8 j, i, nb_objet[3] = {0};
 		Uint16 nb_point = NB_POINTS;
 		Sint16 cos, sin;
 		Sint16 coef[3][NB_POINTS-1];
@@ -220,33 +216,41 @@ void SCAN_TRIANGLE_calculate(void){
 		// Calcul point x et y
 		for(i=0;i<NB_POINTS;i++){
 				COS_SIN_4096_get(scan[i].pos.teta, &cos, &sin);
-				scan[i].x[0] = scan[i].pos.x - 45*cos/4096 - (100 + scan[i].dist[0])*sin/4096;
-				scan[i].y[0] = scan[i].pos.y - 45*sin/4096 + (100 + scan[i].dist[0])*cos/4096;
-				scan[i].x[1] = scan[i].pos.x + 25*cos/4096 - (100 + scan[i].dist[1])*sin/4096;
-				scan[i].y[1] = scan[i].pos.y + 25*sin/4096 + (100 + scan[i].dist[1])*cos/4096;
-				scan[i].x[2] = scan[i].pos.x + 80*cos/4096 - (100 + scan[i].dist[2])*sin/4096;
-				scan[i].y[2] = scan[i].pos.y + 80*sin/4096 + (100 + scan[i].dist[2])*cos/4096;
+				Sint32 cos32 = cos, sin32 = sin;
+				scan[i].x[0] = scan[i].pos.x - 45*cos32/4096 - (100 + scan[i].dist[0])*sin32/4096;
+				scan[i].y[0] = scan[i].pos.y - 45*sin32/4096 + (100 + scan[i].dist[0])*cos32/4096;
+				scan[i].x[1] = scan[i].pos.x + 25*cos32/4096 - (100 + scan[i].dist[1])*sin32/4096;
+				scan[i].y[1] = scan[i].pos.y + 25*sin32/4096 + (100 + scan[i].dist[1])*cos32/4096;
+				scan[i].x[2] = scan[i].pos.x + 80*cos32/4096 - (100 + scan[i].dist[2])*sin32/4096;
+				scan[i].y[2] = scan[i].pos.y + 80*sin32/4096 + (100 + scan[i].dist[2])*cos32/4096;
 		}
 
 		// Calcul vecteur de chaque entre points
-		debug_printf("%3c\t%3c", 'x', 'y');
-		for(i=0;i<NB_POINTS-1;i++){
+		for(i=0;i<NB_POINTS-1;i++){						// Validé
 			for(j=0;j<3;j++){
 				vect[j][i].x = scan[i+1].x[j] - scan[i].x[j];
 				vect[j][i].y = scan[i+1].y[j] - scan[i].y[j];
-				debug_printf("%3d\t%3d\n", vect[j][i].x, vect[j][i].y);
 			}
 		}
+
+		/*
+		  u.v = xx' + yy'  = ||u|| * ||v|| cos(u,v)
+		  -> cos(u,v) = (xx' + yy')/(||u|| * ||v||)
+		  ||u|| = sqrt(x²+y²)
+		  ||v|| = sqrt(x'²+y'²)
+		*/
 		debug_printf("valeur des scalaires : \n");
 		for(i=0;i<NB_POINTS-1;i++){
 			for(j=0;j<3;j++){
-				debug_printf("%f\n", ((float)vect[j][i].x*vect[j][i+1].x + vect[j][i].y*vect[j][i+1].y)/  // PRoblème ici !
-				 (sqrt(vect[j][i].x*vect[j][i].x + vect[j][i].y*vect[j][i].y) +
-				  sqrt(vect[j][i+1].x*vect[j][i+1].x + vect[j][i+1].y*vect[j][i+1].y)));
-				/*if(0,50 < ((float)vect[j][i].x*vect[j][i+1].x + vect[j][i].y*vect[j][i+1].y)/
-						(sqrt(vect[j][i].x*vect[j][i].x + vect[j][i].y*vect[j][i].y) +
-						 sqrt(vect[j][i+1].x*vect[j][i+1].x + vect[j][i+1].y*vect[j][i+1].y)))
-					nb_objet++;
+				printf_float(((float)vect[j][i].x*(float)vect[j][i+1].x + (float)vect[j][i].y*(float)vect[j][i+1].y)/
+						(sqrt((float)vect[j][i].x*(float)vect[j][i].x + (float)vect[j][i].y*(float)vect[j][i].y) +
+						 sqrt((float)vect[j][i+1].x*(float)vect[j][i+1].x + (float)vect[j][i+1].y*(float)vect[j][i+1].y)));
+				if(50/100 < ((float)vect[j][i].x*(float)vect[j][i+1].x + (float)vect[j][i].y*(float)vect[j][i+1].y)/
+						(sqrt((float)vect[j][i].x*(float)vect[j][i].x + (float)vect[j][i].y*(float)vect[j][i].y) +
+						 sqrt((float)vect[j][i+1].x*(float)vect[j][i+1].x + (float)vect[j][i+1].y*(float)vect[j][i+1].y))){
+					debug_printf("Objet détécté\n");
+					nb_objet[j]++;
+				}
 				/*objet[j][nb_objet].data[objet[j][nb_objet].nbData].dist = scan[i].dist[j];
 				objet[j][nb_objet].data[objet[j][nb_objet].nbData].x = scan[i].x[j];
 				objet[j][nb_objet].data[objet[j][nb_objet].nbData].y = scan[i].y[j];
@@ -255,6 +259,7 @@ void SCAN_TRIANGLE_calculate(void){
 			}
 		}
 		debug_printf("fin valeur scalaires\n");
+		debug_printf("Nombre d'objet pour la DT10 du bas : %d\n", nb_objet[0]);
 
 		/*// Calcul angle
 		for(i=0;i<NB_POINTS-1;i++){
@@ -306,7 +311,7 @@ void SCAN_TRIANGLE_calculate(void){
 		for(i=0;i<NB_POINTS-1;i++){
 			for(j=0;j<3;j++){
 				if(nb_objet <20){
-					if(abs(100*coef[j][i+1] - 100*coef[j][i]) > 1)
+					if(absolute(100*coef[j][i+1] - 100*coef[j][i]) > 1)
 						nb_objet++;
 					objet[j][nb_objet].data[objet[j][nb_objet].nbData].dist = scan[i].dist[j];
 					objet[j][nb_objet].data[objet[j][nb_objet].nbData].x = scan[i].x[j];
@@ -317,12 +322,12 @@ void SCAN_TRIANGLE_calculate(void){
 			}
 		}
 
-		debug_printf("\nNombre d'objet : %d\n", nb_objet);
+		debug_printf("\nNombre d'objet : %d\n", nb_objet);*/
 
 		// Calcul de la longueur de chaques objets
 		// Et test des objets probablement des triangles
-		Sint16 longueur[3][nb_objet];
-		for(i=0;i<nb_objet;i++){
+		/*Sint16 longueur[3][20];
+		for(i=0;i<20;i++){
 			for(j=0;j<3;j++){
 				longueur[j][i] = sqrt(((objet[j][i].data[0].y - objet[j][i].data[objet[j][i].nbData].y)
 						*(objet[j][i].data[0].y - objet[j][i].data[objet[j][i].nbData].y))
@@ -340,8 +345,8 @@ void SCAN_TRIANGLE_calculate(void){
 
 
 		// Calcul du point milieu de chaques objets
-		position_t point_milieu[3][nb_objet];
-		for(i=0;i<nb_objet;i++){
+		position_t point_milieu[3][20];
+		for(i=0;i<20;i++){
 			for(j=0;j<3;j++){
 				point_milieu[j][i].x = (objet[j][i].data[0].x + objet[j][i].data[objet[j][i].nbData].x)/2;
 				point_milieu[j][i].y = (objet[j][i].data[0].y + objet[j][i].data[objet[j][i].nbData].y)/2;
@@ -350,14 +355,14 @@ void SCAN_TRIANGLE_calculate(void){
 
 		debug_printf("Point milieu : \n");
 		for(i=0;i<nb_objet;i++)
-			debug_printf("%d %d\n",point_milieu[0][i].x,point_milieu[0][i].y);
-*/
+			debug_printf("%d %d\n",point_milieu[0][i].x,point_milieu[0][i].y);*/
+
 		runCalcul = 0;
 	}
 }
 
 void SCAN_TRIANGLE_canMsg(void){
-	b_ask_for_scan = TRUE;
+	MESSAGE_CAN_SCAN = TRUE;
 }
 
 static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy){
@@ -369,11 +374,7 @@ static void Acknowledge_Intern(void){
 	moveCompleted = 1;
 }
 
-static Sint32 abs(Sint32 val){
-	if(val > 0)
-		return val;
-	else
-		return -val;
+static void printf_float(float f){
+	printf("%d.%03d", (int)f/1000, absolute((Sint16)f)%1000);
 }
-
-
+#endif

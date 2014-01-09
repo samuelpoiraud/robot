@@ -13,8 +13,8 @@
 
 #include "it.h"
 
-		
-		
+
+
 #include "QS/QS_timer.h"
 #include "odometry.h"
 #include "copilot.h"
@@ -35,7 +35,7 @@
 	#include "LCDTouch/zone.h"
 #endif
 
-		
+
 void IT_init(void)
 {
 	//Et c'est parti pour les it !!!
@@ -54,7 +54,7 @@ void IT_init(void)
 	global.flag_recouvrement_IT = FALSE;
 }
 
-		
+
 
 //TEST non concluant réalisé en 2009 : faire l'odométrie plus souvent (toute les 1ms...)
 //mais cela change la vitesse_translation_reelle mesurée... REFLECHIR...
@@ -64,7 +64,7 @@ void IT_init(void)
 
 volatile static global_data_storage_t g2;
 
-									#ifdef X86	
+									#ifdef X86
 										void fonction_it(void)
 									#else
 //Sur interruption timer 1...
@@ -78,23 +78,26 @@ void _ISR _T1Interrupt()
 	TIMER1_AckIT(); /* interruption traitée */
 	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
 	ODOMETRY_update();
-	
+
 	//Sauvegarde de l'état du système, en mode debug...
-	
+
 	#ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 		void debug_save_structure_global(void);
 	#endif
-	
-	
+
+
 	SECRETARY_process_it();
 	WARNER_process_it();	//MAJ des avertisseurs
 	JOYSTICK_process_it();
-	
+
 		COPILOT_process_it();
 		PILOT_process_it();
 		SUPERVISOR_process_it();
+
+	#ifdef SCAN_TRIANGLE
 		SCAN_TRIANGLE_process_it();
-	
+	#endif
+
 
 
 
@@ -104,7 +107,7 @@ void _ISR _T1Interrupt()
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 		DEBUG_process_it();
 	#endif
-	
+
 	g2 = global;
 	LED_USER = 1; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 	if(TIMER1_getITStatus())	//L'IT est trop longue ! il y a recouvrement !!!

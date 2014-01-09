@@ -39,6 +39,7 @@
 		#endif
 	#endif
 
+	#define SCAN_TRIANGLE		// Mise en service des fonctionnalitées de scan de triangle
 
 	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 

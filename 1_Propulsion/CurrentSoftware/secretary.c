@@ -51,7 +51,7 @@ void SECRETARY_init(void)
 
 void SECRETARY_process_main(void)
 {
-	
+
 	static CAN_msg_t receivedCanMsg_over_uart;
 	#ifdef ENABLE_CAN
 	static CAN_msg_t received_msg;
@@ -119,19 +119,19 @@ void SECRETARY_send_canmsg(Uint16 sid, Uint8* data,Uint8 taille)
 	msg.sid=sid;
 	msg.size=taille;
 	Uint8 i;
-		
+
 	/* recopie les data */
 	for(i=0;i<taille;i++)
 		msg.data[i]=data[i];
 	for(;i<8;i++)
 		msg.data[i]=0xFF;
-		
+
 	#ifdef ENABLE_CAN
 		CAN_send(&msg);
 	#else
 		#warning "Messages can désactivés"
 	#endif
-	
+
 	#ifdef CAN_SEND_OVER_UART
 		CANmsgToU1tx(&msg);
 	#endif
@@ -161,7 +161,7 @@ void SECRETARY_send_canmsg(Uint16 sid, Uint8* data,Uint8 taille)
 			default:
 				debug_printf("SID=%x ", msg.sid);
 			break;
-		}	
+		}
 		debug_printf(" x=%d y=%d t=%d\n", global.position.x, global.position.y, global.position.teta);
 	#endif
 }
@@ -188,13 +188,13 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 	tabTemp[5] = LOWINT(global.position.teta);
 	tabTemp[6] = reason;
 	tabTemp[7] = error_byte;	//Octet d'erreur... voir warner.c qui rempli cet octet d'erreur...
-			/*	Octet d'erreur :   0bTTTWWEEE	
-								 TTT = trajectory_e  
+			/*	Octet d'erreur :   0bTTTWWEEE
+								 TTT = trajectory_e
 								 WW  = way_e
 								 EEE = SUPERVISOR_error_source_e
-								 	*/
+									*/
 	SECRETARY_send_canmsg(sid,tabTemp,8);
-	
+
 }
 
 
@@ -210,7 +210,7 @@ ASSER_GO_POSITION
 	0.CONFIG, 	1.TETAHIGH, 	2.TETALOW, 		3.0, 			4.0,  		5.VITESSE, 		6.MARCHE, 		7.RAYONCRB
 	0.CONFIG, 	1.XHIGH, 		2.XLOW, 		3.YHIGH, 		4.YLOW, 	5.VITESSE, 		6.MARCHE, 		7.RAYONCRB
 
-	
+
 	octet de CONFIG
 		...0 .... > maintenant
 		...1 .... > a la fin du buffer
@@ -218,26 +218,26 @@ ASSER_GO_POSITION
 		..1. .... > multipoint
 		.... ...0 > pas relatif
 		.... ...1 > relatif
-	    .... 00.. > asservissement en rotation et translation
+		.... 00.. > asservissement en rotation et translation
 		.... 01.. > asservissement en rotation seulement
 		.... 10.. > asservissement en translation seulement
 		.... 11.. > asservissement désactivé !!!
- 
+
 	octet de VITESSE
 		0x00 : rapide
 		0x01 : lent
 		0x02 : très lent
 		....
 		0x08 à 0xFF : vitesse "analogique"
-	
+
 	octet de MARCHE
 		...0 ...0 > marche avt ou arrière
 		...0 ...1 > marche avant obligé
 		...1 ...0 > marche arrière obligée
 		...1 ...1 > marche avt ou arrière
-	
-	
-		
+
+
+
 		case ASSER_TELL_POSITION:		RIEN
 		case CARTE_ASSER_FIN_ERREUR:	RIEN
 		case ASSER_STOP:				RIEN
@@ -249,7 +249,7 @@ ASSER_GO_POSITION
 		case ASSER_WARN_ANGLE:			teta
 		case ASSER_WARN_X:				x
 		case ASSER_WARN_Y:				y
-		
+
 */
 
 
@@ -259,7 +259,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 	way_e sens_marche;
 	LED_CAN=!LED_CAN;
 //	debug_printf("#%x\n",msg->sid);
-	
+
 	switch (msg->sid)
 	{
 		case ASSER_STOP :
@@ -275,9 +275,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								FAST,				//Vitesse
 								ACKNOWLEDGE_ASKED,
 								CORRECTOR_ENABLE
-							);	
+							);
 		break;
-		
+
 		case ASSER_GO_ANGLE:
 
 			ROADMAP_add_order( 	TRAJECTORY_ROTATION,							// type trajectoire
@@ -295,15 +295,15 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								(corrector_e)((msg->data[0] & 0x0C)>>2)
 							);
 		break;
-		
+
 		case ASSER_GO_POSITION:
-			
+
 			//Réglage sens:
 			if ((msg->data[6] == BACKWARD) || (msg->data[6] == FORWARD))
 				sens_marche = msg->data[6];	//LE SENS EST imposé
-			else 
+			else
 				sens_marche = ANY_WAY;	//ON SE FICHE DU SENS
-				
+
 			ROADMAP_add_order(  	(msg->data[7] !=0)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
 								(U16FROMU8(msg->data[1],msg->data[2])),	//x
 								(U16FROMU8(msg->data[3],msg->data[4])),	//y
@@ -317,7 +317,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								ACKNOWLEDGE_ASKED,
 								(corrector_e)((msg->data[0] & 0x0C)>>2)
 							);
-		break;	
+		break;
 
 		case ASSER_CALIBRATION:	//Autocalage !
 			if (msg->data[0] == FORWARD) //ON IMPOSE L'autocalage AVANT
@@ -326,13 +326,13 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 				SEQUENCES_calibrate(BACKWARD,msg->data[1]);
 
 		break;
-		
+
 		//demande de selftest pour la propulsion
 		//case SUPER_ASK_ASSER_SELFTEST:
 			//SELFTEST désactivé, car l'autocallage qui y était fait dépend maintenant de la stratégie !!!
-		
+
 		//break;
-			
+
 		// Modifie la position de départ en fonction de la couleur
 		case BROADCAST_COULEUR :
 			//Le type couleur est normalisé en QS...
@@ -340,7 +340,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
 
-		// Impose une position (uniquement pour les tests !!!) 
+		// Impose une position (uniquement pour les tests !!!)
 		case ASSER_SET_POSITION:
 			ODOMETRY_set(
 							(U16FROMU8(msg->data[0],msg->data[1])),	//x
@@ -353,20 +353,20 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case ASSER_RUSH_IN_THE_WALL:
 			SEQUENCES_rush_in_the_wall((U16FROMU8(msg->data[2],msg->data[3])), msg->data[0], ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data[1])?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
 		break;
-		
+
 		//Stop tout
 		case BROADCAST_STOP_ALL:
 			// désactivation de tout les avertisseurs.
 			WARNER_init();
 			//arret robot
 			SUPERVISOR_state_machine(EVENT_BROADCAST_STOP, 0);
-		break;		
+		break;
 
 		//Carte stratégie demande la position
 		case ASSER_TELL_POSITION:
 			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
-		
+
 		//Une carte nous demande de l'avertir lorsque nous serons en approche d'une position...
 		case ASSER_WARN_ANGLE:
 			WARNER_arm_teta(U16FROMU8(msg->data[0],msg->data[1]));
@@ -387,7 +387,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			JOYSTICK_enable(100, (Sint8)msg->data[0], (Sint8)msg->data[1], (bool_e)msg->data[2], (bool_e)msg->data[3]);
 						//durée d'activation du joystick en ms
 		break;
-		
+
 		//REGLAGES DES COEFFICIENTS !!!!!!!!
 		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_SYM:
 			ODOMETRY_set_coef(ODOMETRY_COEF_SYM,(Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
@@ -423,12 +423,14 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
 		break;
 
+		#ifdef SCAN_TRIANGLE
 		case ASSER_LAUNCH_SCAN_TRIANGLE :
 			SCAN_TRIANGLE_canMsg();
 		break;
+		#endif
 
 		default :
 		break;
 	}
-			
+
 }
