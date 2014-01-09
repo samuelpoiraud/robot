@@ -65,7 +65,7 @@
 			//	U1RX						  7
 
 	#define PORT_C_IO_MASK	0x200F
-			//	Capteur			 			  0
+			#define	USB_POWER_ON	 	GPIOC->ODR0
 			//	Capteur			 			  1
 			//	Capteur			 			  2
 			//	Capteur			 			  3
@@ -182,5 +182,7 @@
 		#define QEI_ON_IT_QA 1
 		#define QEI_ON_IT_QB 2
 	#endif
+
+	#define USE_FIFO
 
 #endif /* ndef GLOBAL_CONFIG_H */
