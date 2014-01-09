@@ -296,14 +296,9 @@
 		#define ACT_CANDLECOLOR_COLOR_OTHER  4  //Pas de couleur parmi les précédentes detectée
 	/////////////////////////////////////////
 
-/////////////////FRUIT_MOUTH////////////////////
-	#define ACT_FRUIT_MOUTH (ACT_FILTER | 0x16)
-		#define ACT_FRUIT_MOUTH_CLOSE		0x10
-		#define ACT_FRUIT_MOUTH_OPEN		0x11
-		#define ACT_FRUIT_MOUTH_MID			0x12
-		#define ACT_FRUIT_MOUTH_STOP		0x1F
-////////////////////////////////////////////////
-///
+
+
+
 	//////////// PLIER //////////////////////
 	#define ACT_PLIER (ACT_FILTER | 0x05)
 		//PAramètre de PLIER (dans data[0])
@@ -325,6 +320,21 @@
 		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette
 		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
 		#define ACT_PLATE_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
+
+	////////////////// FRUIT_MOUTH ///////////
+	#define ACT_FRUIT_MOUTH (ACT_FILTER | 0x16)
+		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
+		#define ACT_FRUIT_MOUTH_CLOSE           0x10	//Fermer la pince et serrer l'assiette
+		#define ACT_FRUIT_MOUTH_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
+		#define ACT_FRUIT_MOUTH_MID             0x12
+		#define ACT_FRUIT_MOUTH_STOP            0x1F
+	/////////////////////////////////////////
+
+		/////////////////LANCELAUNCHER////////////////////
+			#define ACT_LANCELAUNCHER (ACT_FILTER | 0x17)
+						#define ACT_LANCELAUNCHER_RUN		0x11
+						#define ACT_LANCELAUNCHER_STOP		0x1F
+		////////////////////////////////////////////////
 
 		#define ACT_PLATE_ROTATE_HORIZONTALLY   0x20	//Amener le bras en position horizontale (pour prendre ou lacher une assiette par ex)
 		#define ACT_PLATE_ROTATE_PREPARE        0x21	//Amener le bras en position intermédiaire (45°) pour préparer un mouvement vers l'horizontale ou verticale
