@@ -854,7 +854,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				if(!AX12_instruction_queue_is_empty())
 					state_machine.current_instruction = AX12_instruction_queue_get_current();
 				else {	//s'il n'y a rien a faire, mettre en veille la machine a état, l'UART sera donc inactif (et mettre en mode reception pour ne pas forcer la sortie dont on défini la tension, celle non relié a l'AX12)
-					while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));
+					while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));   //inifinite loop
 					AX12_DIRECTION_PORT = RX_DIRECTION;
 					break;
 				}
@@ -1027,7 +1027,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				TIMER_SRC_TIMER_stop();
 				TIMER_SRC_TIMER_resetFlag();
 
-				debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
+				//debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 					debug_printf("AX12[%d] timeout Rx:", state_machine.current_instruction.id_servo);
 					for(i = 0; i<pos; i++)
@@ -1112,6 +1112,10 @@ static void AX12_UART2_init(Uint32 uart_speed)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 #elif AX12_UART_ID == 2
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+#elif AX12_UART_ID == 3
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+#else
+	#error "unknown AX12_UART_ID value"
 #endif
 
 	USART_OverSampling8Cmd(AX12_UART_Ptr, ENABLE);

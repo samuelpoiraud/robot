@@ -35,7 +35,7 @@ void PORTS_init(void){
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
 
 	/* GPIOA */
 	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_A_IO_MASK) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
