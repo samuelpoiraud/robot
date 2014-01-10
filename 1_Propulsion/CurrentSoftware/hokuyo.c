@@ -23,27 +23,58 @@
 	#include "usb_host/Class/usbh_class_switch.h"
 	#include "usb_host/Class/MSC/fat_fs/ff.h"
 	#include "term_io.h"
-	#include "ff_test_term.h"
 	#include "uart_via_usb.h"
 	#include "cos_sin.h"
-	#include "hokuyo_vars.h"
+	#include "hokuyo.h"
+
+#ifdef USE_HOKUYO
+	__ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core __ALIGN_END;
+	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
+#endif
 
 
+	void hokuyo_write_command(Uint8 tab[]);
+	int hokuyo_write_uart_manually(void);
+	void hokuyo_read_buffer(Uint8 * tab, Uint32 * i);
+	void hokuyo_format_data(Uint8 * tab);
+	void hokuyo_traitement_data(Uint8 * tabvaleurs,Uint16 * compt_sushis);
 
-void hokuyo_init(void);
+	Sint32 hokuyo_dist_min(Uint16 compt);
 
 
+	//Deux fonctions pour detecter des regroupements de points
+	void hokuyo_detection_ennemis(Uint16 compt_sushis,int *nb_ennemi);
+	void ReconObjet(Uint16 compt_sushis,int *nb_ennemi);
+	void DetectRobots(Uint16 compt_sushis,Uint8 *nb_ennemi);
 
-//Process main
-void HOKUYO_process_main(void){
-	USBH_Process(&USB_OTG_Core, &USB_Host);
-	HOKUYO_kikujiro();
+
+static bool_e hokuyo_initialized = FALSE;
+
+//Fonction d'initialisation du périphérique USB
+void HOKUYO_init(void)
+{
+	if(!hokuyo_initialized)
+	{
+		UART_USB_init(19200);
+		debug_printf("\nInit usb for Hokuyo\n");
+		USBH_Init(&USB_OTG_Core,
+		  #ifdef USE_USB_OTG_FS
+			  USB_OTG_FS_CORE_ID,
+		  #else
+			  USB_OTG_HS_CORE_ID,
+		  #endif
+			  &USB_Host,
+			  &USBH_CDC_cb,
+			  &USR_cb);
+	}
+	hokuyo_initialized = TRUE;
 }
 
 
-//Machine a état de l'hokuyo
-void HOKUYO_kikujiro(void)
-{
+#define NB_BYTES_FROM_HOKUYO	5000
+//Process main
+void HOKUYO_process_main(void){
+	USBH_Process(&USB_OTG_Core, &USB_Host);
 	typedef enum
 	{
 		INIT=0,
@@ -56,16 +87,17 @@ void HOKUYO_kikujiro(void)
 		DONE
 	}state_e;
 	static state_e state = INIT;
-	static char tab[5000];
+	static Uint8 tab[NB_BYTES_FROM_HOKUYO];
 	static Uint16 nb_pts_terrain=0;
 	static Uint32 index=0;
-	static int nb_ennemis=1;
+	static Uint8 nb_ennemis=1;
 
 
-	switch(state){
+	switch(state)
+	{
 		case INIT:
-			hokuyo_init();
-			state=HOKUYO_WAIT;
+			if(hokuyo_initialized)	//Si pas initialisé, on reste ici..
+				state = HOKUYO_WAIT;
 		break;
 		case HOKUYO_WAIT:
 			if(USBH_CDC_is_ready_to_run())
@@ -101,32 +133,53 @@ void HOKUYO_kikujiro(void)
 			//ReconObjet(nb_pts_terrain);
 			state=ASK_NEW_MEASUREMENT;
 		break;
-
 		case DONE:
 			debug_printf("5");
 		break;
 		default:
 		break;
 	}
-
 }
 
 
 
-//Fonction d'initialisation du protocole USB
-void hokuyo_init(void){
-
-	debug_printf("\nInit usb\n");
-		USBH_Init(&USB_OTG_Core,
-			  #ifdef USE_USB_OTG_FS
-				  USB_OTG_FS_CORE_ID,
-			  #else
-				  USB_OTG_HS_CORE_ID,
-			  #endif
-				  &USB_Host,
-				  &USBH_CDC_cb,
-				  &USR_cb);
+/**
+  * @brief  OTG_FS_IRQHandler
+  *          This function handles USB-On-The-Go FS global interrupt request.
+  *          requests.
+  * @param  None
+  * @retval None
+  */
+#ifdef USE_USB_OTG_FS
+void OTG_FS_IRQHandler(void)
+#else
+void OTG_HS_IRQHandler(void)
+#endif
+{
+	if (USB_OTG_IsHostMode(&USB_OTG_Core)) /* ensure that we are in device mode */
+	{
+		USBH_OTG_ISR_Handler(&USB_OTG_Core);
+	}
+	else
+	{
+		//USB Device.
+		//USBD_OTG_ISR_Handler(&USB_OTG_Core);
+	}
 }
+
+
+void user_callback_MSC_Application_Deinit(void)
+{
+	//Nothing.
+}
+
+int user_callback_MSC_Application(void)
+{
+	//Nothing.
+}
+
+
+
 
 
 //Fonction qui permet de communiquer avec l'Hokuyo
@@ -151,19 +204,22 @@ int hokuyo_write_uart_manually(void)
 }
 
 //Fonction qui permet de lire le buffer
-void hokuyo_read_buffer(char *tab,Uint32 *i)
+void hokuyo_read_buffer(Uint8 * tab, Uint32 * index)
 {
 	while(!UART_USB_isRxEmpty())
 	{
-				tab[*i] = UART_USB_read();
-				//debug_printf("%c",tab[*i]);
-				*i+=1;
-				//UART1_putc(tab[*i]);
+		tab[*index] = UART_USB_read();
+		//debug_printf("%c",tab[*i]);
+		//UART1_putc(tab[*i]);
+		if(*index < NB_BYTES_FROM_HOKUYO)
+			*index+=1;
+		else
+			fatal_printf("HOKUYO : overflow in hokuyo_read_buffer !\n");
 	}
 }
 
 //Fonction qui formate les données afin d'etre traitées.
-void hokuyo_format_data(char *tab)
+void hokuyo_format_data(Uint8 *tab)
 {
 	int j=47;
 	int i=0;
@@ -178,7 +234,7 @@ void hokuyo_format_data(char *tab)
 }
 
 //Fonction qui renvoi les coordonnées des points detectés sur le terrain
-void hokuyo_traitement_data(char * tabvaleurs, Uint16 * compt_sushis){
+void hokuyo_traitement_data(Uint8 * tabvaleurs, Uint16 * compt_sushis){
 		Uint16 nb_val_bizarres=0;
 		Uint16 a,b;
 		Uint16 comp=0;
@@ -358,7 +414,7 @@ void ReconObjet(Uint16 compt_sushis,int *nb_ennemi)
 }
 
 
-void DetectRobots(Uint16 compt_sushis,int *nb_ennemi)
+void DetectRobots(Uint16 compt_sushis, Uint8 *nb_ennemi)
 {
 	Uint16 i;
 	Uint16 nb_pts;
