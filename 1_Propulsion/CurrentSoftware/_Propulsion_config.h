@@ -24,7 +24,7 @@
 //	#define USE_CPLD					//C'est l'un OU l'autre !
 
 
-
+	//#define USE_HOKUYO	//Active le module HOKUYO et la détection des ennemis... !
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
