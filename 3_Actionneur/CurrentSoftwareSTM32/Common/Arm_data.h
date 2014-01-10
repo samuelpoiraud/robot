@@ -15,7 +15,7 @@
 #include "../QS/QS_all.h"
 #include "Arm_config.h"
 
-typedef int arm_state_t[ARM_NB_ACT];
+typedef int arm_state_t[ARM_ACT_NUMBER];
 
 typedef enum {
 	ARM_ST_Parked,
@@ -46,7 +46,7 @@ typedef struct {
 	Uint16 kd;
 } ARM_motor_data_t;
 
-extern ARM_motor_data_t arm_motors[ARM_NB_ACT];
+extern ARM_motor_data_t arm_motors[ARM_ACT_NUMBER];
 
 extern arm_state_t arm_states[ARM_ST_NUMBER];
 
