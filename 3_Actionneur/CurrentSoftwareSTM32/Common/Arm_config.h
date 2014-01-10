@@ -14,13 +14,21 @@
 
 #include "config_pin.h"
 
-#define ARM_NB_ACT 4
+// a mettre dans QS_CANmsgList.h
+#define ACT_ARM 0x320
+	#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[0] (une des valeurs ci-dessous)
+		#define ACT_ARM_POS_OPEN 0
+		#define ACT_ARM_POS_PARKED 1
+
+#define ARM_ACT_NUMBER 4
 
 // ID des moteurs
 #define ARM_ACT_UPDOWN_ID                        0
 #define ARM_ACT_RX24_ID                          20
 #define ARM_ACT_AX12_MID_ID                      0
 #define ARM_ACT_AX12_TRIANGLE_ID                 1
+
+#define ARM_ACT_UPDOWN_ID_POTAR_ADC_ID           0
 
 #define ARM_ACT_UPDOWN                           0
 #define ARM_ACT_UPDOWN_ASSER_KP                  100
