@@ -30,8 +30,8 @@ typedef enum {
 } ARM_motor_type_e;
 
 typedef struct {
-	ARM_motor_type_e motorType;
-	Uint8 motorId;
+	ARM_motor_type_e type;
+	Uint8 id;
 	Uint16 timeout;
 	Uint16 epsilon;
 	Uint8 maxPowerWay0;	//aussi le max torque pour les ax12 & rx24
@@ -50,6 +50,7 @@ extern ARM_motor_data_t arm_motors[ARM_NB_ACT];
 
 extern arm_state_t arm_states[ARM_ST_NUMBER];
 
+//                                    lignes         colonnes
 extern Uint8 arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 
 #endif	/* ARM_DATA_H */
