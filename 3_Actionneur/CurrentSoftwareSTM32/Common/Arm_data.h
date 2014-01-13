@@ -1,19 +1,21 @@
-/*  Club Robot ESEO 2012 - 2013
- *	Krusty
+/*
+ *  Club Robot ESEO 2013 - 2014
  *
- *	Fichier : Lift.h
- *	Package : Carte actionneur
- *	Description : Gestion des ascenseurs
+ *  $Id$
+ *
+ *  Package : Carte Actionneur
+ *  Description : Données pour la gestion du bras
  *  Auteur : Alexis
- *  Version 20130314
- *  Robot : Krusty
+ *  Robot : Pierre & Guy
  */
+
 
 #ifndef ARM_DATA_H
 #define	ARM_DATA_H
 
 #include "../QS/QS_all.h"
 #include "Arm_config.h"
+#include "../QS/QS_DCMotor2.h"
 
 typedef int arm_state_t[ARM_ACT_NUMBER];
 
@@ -44,6 +46,7 @@ typedef struct {
 	Uint16 kp;
 	Uint16 ki;
 	Uint16 kd;
+	sensor_read_fun_t sensorRead;
 } ARM_motor_data_t;
 
 extern ARM_motor_data_t arm_motors[ARM_ACT_NUMBER];
@@ -51,6 +54,7 @@ extern ARM_motor_data_t arm_motors[ARM_ACT_NUMBER];
 extern arm_state_t arm_states[ARM_ST_NUMBER];
 
 //                                    lignes         colonnes
+//                                   ancien état    nouvel état
 extern Uint8 arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 
 #endif	/* ARM_DATA_H */

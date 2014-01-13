@@ -22,6 +22,7 @@
 #include "../QS/QS_ax12.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
+#include "../Common/Arm.h"
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
@@ -32,6 +33,8 @@ void ACTMGR_init() {
 	BALLSORTER_init();*/
 	FRUIT_init();
 	LANCE_LAUNCHER_init();
+//	ARM_init();
+
 	ACTMGR_reset_act();
 }
 
@@ -55,9 +58,12 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 	if(BALLSORTER_CAN_process_msg(msg))
 		return TRUE;*/
 	if(FRUIT_CAN_process_msg(msg))
-			return TRUE;
+		return TRUE;
 	if(LANCE_LAUNCHER_CAN_process_msg(msg))
 		return TRUE;
+//	if(ARM_CAN_process_msg(msg))
+//		return TRUE;
+
 	return FALSE;
 }
 
