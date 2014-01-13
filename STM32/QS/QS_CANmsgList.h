@@ -372,6 +372,15 @@
 		#define ACT_LIFT_STOP                  0x2F	//Stopper l'asservissement de l'ascenseur.
 	/////////////////////////////////////////
 
+	////////////////// ARM  /////////////////
+	#define ACT_ARM 0x320
+		//Paramètres de ARM (dans data[0])
+		#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[1] (une des valeurs ci-dessous)
+			#define ACT_ARM_POS_OPEN   0
+			#define ACT_ARM_POS_PARKED 1
+		#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
+	/////////////////////////////////////////
+
 /*****************************************************************
  *
  *		Messages echangés entre la carte balise

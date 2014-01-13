@@ -29,8 +29,8 @@ ARM_motor_data_t arm_motors[ARM_ACT_NUMBER] = {
 };
 
 arm_state_t arm_states[ARM_ST_NUMBER] = {
-	{0},
-	{150}
+	{0},	//ARM_ST_Parked
+	{150}	//ARM_ST_Open
 };
 
 Uint8 arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER] = {

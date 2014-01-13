@@ -14,13 +14,6 @@
 
 #include "config_pin.h"
 
-// a mettre dans QS_CANmsgList.h
-#define ACT_ARM 0x320
-	#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[0] (une des valeurs ci-dessous)
-		#define ACT_ARM_POS_OPEN   0
-		#define ACT_ARM_POS_PARKED 1
-	#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
-
 //#define ARM_ACT_NUMBER 4
 #define ARM_ACT_NUMBER 1
 

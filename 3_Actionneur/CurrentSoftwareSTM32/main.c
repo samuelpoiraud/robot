@@ -39,6 +39,7 @@
 	#include "QS/QS_CANmsgList.h"
 #include "config_pin.h"
 
+static void MAIN_onButton0();
 static void MAIN_onButton1();
 static void MAIN_onButton2();
 static void MAIN_onButton3();
@@ -85,6 +86,7 @@ int main (void)
 	//Init actioneurs
 	ACTMGR_init();
 
+	BUTTONS_define_actions(BUTTON0, &MAIN_onButton0, NULL, 1);
 	BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 1);
 	BUTTONS_define_actions(BUTTON2, &MAIN_onButton2, NULL, 1);
 	BUTTONS_define_actions(BUTTON3, &MAIN_onButton3, NULL, 1);
@@ -131,6 +133,22 @@ int main (void)
 	}//Endloop
 	return 0;
 }
+
+static void MAIN_onButton0() {
+#ifdef USE_CAN
+	CAN_msg_t msg;
+
+	msg.size = 1;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_OPEN;
+
+	debug_printf("Main: ACT_ARM_GOTO OPEN");
+
+	CAN_process_msg(&msg);
+#endif
+}
+
 
 #ifdef I_AM_ROBOT_KRUSTY
 static void MAIN_onButton1() {
