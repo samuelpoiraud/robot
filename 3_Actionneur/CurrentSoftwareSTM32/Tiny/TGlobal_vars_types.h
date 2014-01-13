@@ -24,6 +24,7 @@
 		QUEUE_ACT_CandleColor,
 		QUEUE_ACT_PlierLeft,
 		QUEUE_ACT_PlierRight,
+		QUEUE_ACT_Arm,
 		NB_ACT
 
 	} QUEUE_act_e;
