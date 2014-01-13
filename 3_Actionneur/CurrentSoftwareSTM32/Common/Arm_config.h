@@ -1,12 +1,12 @@
-/*  Club Robot ESEO 2012 - 2013
- *	Krusty
+/*
+ *  Club Robot ESEO 2013 - 2014
  *
- *	Fichier : Lift.h
- *	Package : Carte actionneur
- *	Description : Gestion des ascenseurs
+ *  $Id$
+ *
+ *  Package : Carte Actionneur
+ *  Description : Configuration de la gestion du bras
  *  Auteur : Alexis
- *  Version 20130314
- *  Robot : Krusty
+ *  Robot : Pierre & Guy
  */
 
 #ifndef ARM_CONFIG_H
@@ -17,10 +17,12 @@
 // a mettre dans QS_CANmsgList.h
 #define ACT_ARM 0x320
 	#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[0] (une des valeurs ci-dessous)
-		#define ACT_ARM_POS_OPEN 0
+		#define ACT_ARM_POS_OPEN   0
 		#define ACT_ARM_POS_PARKED 1
+	#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
 
-#define ARM_ACT_NUMBER 4
+//#define ARM_ACT_NUMBER 4
+#define ARM_ACT_NUMBER 1
 
 // ID des moteurs
 #define ARM_ACT_UPDOWN_ID                        0
@@ -30,7 +32,7 @@
 
 #define ARM_ACT_UPDOWN_ID_POTAR_ADC_ID           0
 
-#define ARM_ACT_UPDOWN                           0
+//#define ARM_ACT_UPDOWN                           0
 #define ARM_ACT_UPDOWN_ASSER_KP                  100
 #define ARM_ACT_UPDOWN_ASSER_KI                  0
 #define ARM_ACT_UPDOWN_ASSER_KD                  0
@@ -42,7 +44,8 @@
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY0              20
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY1              20
 
-#define ARM_ACT_RX24                             1
+//#define ARM_ACT_RX24                             1
+#define ARM_ACT_RX24                             0
 #define ARM_ACT_RX24_ASSER_TIMEOUT               20
 #define ARM_ACT_RX24_ASSER_POS_EPSILON           5
 #define ARM_ACT_RX24_MAX_TORQUE_PERCENT          100

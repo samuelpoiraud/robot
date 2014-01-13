@@ -35,28 +35,30 @@
 
 	/** Verifie l'état de l'ax12 et gère la file en conséquence.
 	 *
-     * @param queueId l'identifiant de la file
-     * @param ax12Id l'identifiant de l'ax12 à gérer
-     * @param wantedPosition position voulue en degré
-     * @param pos_epsilon précision de la position voulue, tant qu'on à pas atteint wantedPosition_degre +/- pos_epsilon on considère qu'on est pas rendu à la bonne position
-     * @param timeout_ms_x100 timeout en centaine de msec (10 = 1 sec)
-     * @param large_epsilon comme pos_epsilon mais utilisé après un timeout. Après un timeout, on vérifie si on est proche de la position voulue (utile pour des pinces par ex), si oui il n'y a pas d'erreur
+	 * @param queueId l'identifiant de la file
+	 * @param ax12Id l'identifiant de l'ax12 à gérer
+	 * @param wantedPosition position voulue en degré
+	 * @param pos_epsilon précision de la position voulue, tant qu'on à pas atteint wantedPosition_degre +/- pos_epsilon on considère qu'on est pas rendu à la bonne position
+	 * @param timeout_ms_x100 timeout en centaine de msec (10 = 1 sec)
+	 * @param large_epsilon comme pos_epsilon mais utilisé après un timeout. Après un timeout, on vérifie si on est proche de la position voulue (utile pour des pinces par ex), si oui il n'y a pas d'erreur
+	 *
 	 * @param result pointeur vers une variable qui contiendra le résultat de l'opération si la fonction retourne TRUE (ACT_RESULT*)
 	 * @param error_code pointeur vers une variable qui contiendra le l'erreur lié a l'opération si la fonction retourne TRUE (ACT_RESULT_ERROR*)
 	 * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
-     * @return TRUE si l'ax12 a fini sa commande, FALSE sinon
-     */
+	 * @return TRUE si l'ax12 a fini sa commande, FALSE sinon
+	 */
 	bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms_x100, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
 
 	/** Verifie l'état d'un moteur DC et gère la file en conséquence.
 	 *
-     * @param dcmotor_id identifiant du moteur (passé en parametre des fonctions de DCMotor2.h)
-     * @param timeout_is_ok TRUE si lors d'un timeout, le resultat doit être Ok, FALSE si on doit indiquer une erreur. (Mettre à TRUE pour des moteur qui devrons forcer en continu sur qquechose et qui n'atteindront jamais la position voulue)
-     * @param result pointeur vers une variable qui contiendra le résultat de l'opération si la fonction retourne TRUE (ACT_RESULT*)
-     * @param error_code pointeur vers une variable qui contiendra le l'erreur lié a l'opération si la fonction retourne TRUE (ACT_RESULT_ERROR*)
-     * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
-     * @return TRUE si le moteur a fini sa commande, FALSE sinon
-     */
+	 * @param dcmotor_id identifiant du moteur (passé en parametre des fonctions de DCMotor2.h)
+	 * @param timeout_is_ok TRUE si lors d'un timeout, le resultat doit être Ok, FALSE si on doit indiquer une erreur. (Mettre à TRUE pour des moteur qui devrons forcer en continu sur qquechose et qui n'atteindront jamais la position voulue)
+	 *
+	 * @param result pointeur vers une variable qui contiendra le résultat de l'opération si la fonction retourne TRUE (ACT_RESULT*)
+	 * @param error_code pointeur vers une variable qui contiendra le l'erreur lié a l'opération si la fonction retourne TRUE (ACT_RESULT_ERROR*)
+	 * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
+	 * @return TRUE si le moteur a fini sa commande, FALSE sinon
+	 */
 	bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line);
 
 	//Callback

@@ -1,12 +1,12 @@
-/*  Club Robot ESEO 2012 - 2013
- *	Krusty
+/*
+ *  Club Robot ESEO 2013 - 2014
  *
- *	Fichier : Lift.h
- *	Package : Carte actionneur
- *	Description : Gestion des ascenseurs
+ *  $Id$
+ *
+ *  Package : Carte Actionneur
+ *  Description : Gestion du bras
  *  Auteur : Alexis
- *  Version 20130314
- *  Robot : Krusty
+ *  Robot : Pierre & Guy
  */
 
 #ifndef ARM_H

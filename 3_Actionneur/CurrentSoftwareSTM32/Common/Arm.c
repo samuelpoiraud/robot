@@ -1,13 +1,12 @@
-
-/*  Club Robot ESEO 2012 - 2013
- *	Krusty
+/*
+ *  Club Robot ESEO 2013 - 2014
  *
- *	Fichier : Lift.c
- *	Package : Carte actionneur
- *	Description : Gestion des ascenseurs
+ *  $Id$
+ *
+ *  Package : Carte Actionneur
+ *  Description : Gestion du bras
  *  Auteur : Alexis
- *  Version 20130314
- *  Robot : Krusty
+ *  Robot : Pierre & Guy
  */
 
 #include "Arm.h"
@@ -24,8 +23,8 @@
 #include "Arm_data.h"
 
 #include "config_debug.h"
-#define LOG_PREFIX "LI: "
-#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_LIFT
+#define LOG_PREFIX "Arm: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ARM
 #include "../QS/QS_outputlog.h"
 
 #define ARM_NUM_POS           3
@@ -41,7 +40,8 @@
 #endif
 
 static void ARM_initAX12();
-static Sint16 ARM_readDCMPos();
+
+static Sint8 old_state = -1;
 
 void ARM_init() {
 	static bool_e initialized = FALSE;
@@ -59,7 +59,7 @@ void ARM_init() {
 		if(arm_motors[i].type == ARM_DCMOTOR) {
 			DCMotor_config_t dcconfig;
 
-			dcconfig.sensor_read = &ARM_readDCMPos;
+			dcconfig.sensor_read = arm_motors[i].sensorRead;
 			dcconfig.Kp = arm_motors[i].kp;
 			dcconfig.Ki = arm_motors[i].ki;
 			dcconfig.Kd = arm_motors[i].kd;
@@ -126,6 +126,7 @@ void ARM_stop() {
 		if(arm_motors[i].type == ARM_DCMOTOR) {
 			DCM_stop(arm_motors[i].id);
 		} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
+			AX12_set_torque_enabled(arm_motors[i].id, FALSE);
 		}
 	}
 }
@@ -140,6 +141,10 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[0]);
 				break;
 
+			case ACT_ARM_STOP:
+				ARM_stop();
+				break;
+
 			default:
 				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
@@ -149,20 +154,56 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-static Sint16 ARM_readDCMPos() {
-	return 0; //-ADC_getValue(ARM_LEFT_TRANSLATION_POTAR_ADC_ID);
-	// fonction à mettre dans la struct de config, pour une fonction par dcmotor (avec le changement de signe dépendant du dcmotor en passant)
-}
-
 void ARM_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
 		return;
 	}
 
-	Uint8 canSid = 0;
-	error_printf("Invalid act: %d\n", QUEUE_get_act(queueId));
-	QUEUE_next(queueId, canSid, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_Arm) {    // Gestion des mouvements de rotation de l'assiette
+		Sint8 new_state = QUEUE_get_arg(queueId)->param;
+		Uint8 i;
+
+		if(init) {
+			if(old_state >= 0 || arm_states_transitions[old_state][new_state] == 0) {
+				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
+				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+				return;
+			}
+
+			debug_printf("Going from state %d to %d\n", old_state, new_state);
+
+			for(i = 0; i < ARM_ACT_NUMBER; i++) {
+				if(arm_motors[i].type == ARM_DCMOTOR) {
+					DCM_setPosValue(arm_motors[i].id, 0, arm_states[new_state][i]);
+					DCM_goToPos(arm_motors[i].id, 0);
+					DCM_restart(arm_motors[i].id);
+				} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
+					AX12_set_position(arm_motors[i].id, arm_states[new_state][i]);
+				}
+			}
+		} else {
+			bool_e done;
+			Uint8 result, error_code;
+			Uint16 line;
+
+			for(i = 0; i < ARM_ACT_NUMBER; i++) {
+				if(arm_motors[i].type == ARM_DCMOTOR) {
+					done = ACTQ_check_status_dcmotor(arm_motors[i].id, FALSE, &result, &error_code, &line);
+				} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
+					done = ACTQ_check_status_ax12(queueId, arm_motors[i].id, arm_states[new_state][i], arm_motors[i].epsilon, arm_motors[i].timeout, 360, &result, &error_code, &line);
+				}
+
+				if(done && result != ACT_RESULT_DONE)
+					break;
+			}
+
+			QUEUE_next(queueId, ACT_ARM, result, error_code, line);
+		}
+	} else {
+		error_printf("Invalid act: %d\n", QUEUE_get_act(queueId));
+		QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+	}
 }
 
 #endif
