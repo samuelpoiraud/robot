@@ -138,7 +138,7 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 
 		switch(msg->data[0]) {
 			case ACT_ARM_GOTO:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[0]);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
 				break;
 
 			case ACT_ARM_STOP:
@@ -167,6 +167,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 		if(init) {
 			if(old_state >= 0 || arm_states_transitions[old_state][new_state] == 0) {
 				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
+				warn_printf("Deplacement impossible de l'etat %d à %d\n", old_state, new_state);
 				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
 				return;
 			}
@@ -183,9 +184,9 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				}
 			}
 		} else {
-			bool_e done;
-			Uint8 result, error_code;
-			Uint16 line;
+			bool_e done = TRUE, return_result = TRUE;
+			Uint8 result = ACT_RESULT_DONE, error_code = ACT_RESULT_ERROR_OK;
+			Uint16 line = 0;
 
 			for(i = 0; i < ARM_ACT_NUMBER; i++) {
 				if(arm_motors[i].type == ARM_DCMOTOR) {
@@ -194,11 +195,16 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 					done = ACTQ_check_status_ax12(queueId, arm_motors[i].id, arm_states[new_state][i], arm_motors[i].epsilon, arm_motors[i].timeout, 360, &result, &error_code, &line);
 				}
 
-				if(done && result != ACT_RESULT_DONE)
+				if(!done)
+					return_result = FALSE;
+				if(done && result != ACT_RESULT_DONE) {
+					return_result = TRUE;
 					break;
+				}
 			}
 
-			QUEUE_next(queueId, ACT_ARM, result, error_code, line);
+			if(return_result)
+				QUEUE_next(queueId, ACT_ARM, result, error_code, line);
 		}
 	} else {
 		error_printf("Invalid act: %d\n", QUEUE_get_act(queueId));
