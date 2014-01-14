@@ -21,17 +21,39 @@
 	#include "usb_host/Class/CDC/usbh_cdc_core.h"
 	#include "usb_host/Class/MSC/usbh_msc_core.h"
 	#include "usb_host/Class/usbh_class_switch.h"
-	#include "usb_host/Class/MSC/fat_fs/ff.h"
-	#include "term_io.h"
 	#include "uart_via_usb.h"
 	#include "cos_sin.h"
 	#include "hokuyo.h"
 
 #ifdef USE_HOKUYO
+
+	#define HOKUYO_OFFSET 4500 //45 degrés
+	#define HOKUYO_ANGLE_ROBOT_TERRAIN 0
+	#define HOKUYO_DETECTION_MARGE 130
+	#define HOKUYO_EVITEMENT_MIN 150
+	#define HOKUYO_BORDS_TERRAIN 80
+	#define ROBOT_COORDX 150
+	#define ROBOT_COORDY 150
+	#define ECARTEMENT_PTS_MAX_CARRE 22500
+
 	__ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core __ALIGN_END;
 	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
-#endif
 
+	typedef struct{
+		Sint32 dist;
+		int teta;
+		Sint32 coordX;
+		Sint32 coordY;
+	}HOKUYO_data;
+
+	typedef struct{
+			Sint32 coordX;
+			Sint32 coordY;
+	}HOKUYO_ennemy;
+
+
+	HOKUYO_data hokuyo_sushi[1080];
+	HOKUYO_ennemy hokuyo_ennemi[1080];
 
 	void hokuyo_write_command(Uint8 tab[]);
 	int hokuyo_write_uart_manually(void);
@@ -45,7 +67,7 @@
 	//Deux fonctions pour detecter des regroupements de points
 	void hokuyo_detection_ennemis(Uint16 compt_sushis,int *nb_ennemi);
 	void ReconObjet(Uint16 compt_sushis,int *nb_ennemi);
-	void DetectRobots(Uint16 compt_sushis,Uint8 *nb_ennemi);
+	void DetectRobots(Uint16 compt_sushis,int *nb_ennemi);
 
 
 static bool_e hokuyo_initialized = FALSE;
@@ -84,6 +106,11 @@ void HOKUYO_process_main(void){
 		REMOVE_LF,
 		TREATMENT_DATA,
 		DETECTION_ENNEMIS,
+		ERROR,
+		RESET_HOKUYO,
+		RESET_ACKNOWLEDGE,
+		TURN_ON_LASER,
+		TURN_OFF_LASER,
 		DONE
 	}state_e;
 	static state_e state = INIT;
@@ -114,8 +141,10 @@ void HOKUYO_process_main(void){
 
 		case BUFFER_READ:
 			hokuyo_read_buffer(tab,&index);
-			if(tab[index-2]==0x0A && tab[index-1]==0x0A && index>=2274) state=REMOVE_LF;
-			else if(index>2278) state=DONE;
+			if(tab[index-2]==0x0A && tab[index-1]==0x0A && index>=2274)
+				state=REMOVE_LF;
+			else if(index>2278)
+				state=ERROR;
 		break;
 		case REMOVE_LF:
 			hokuyo_format_data(tab);
@@ -127,14 +156,38 @@ void HOKUYO_process_main(void){
 		break;
 		case DETECTION_ENNEMIS:
 
-			hokuyo_dist_min(nb_pts_terrain);
+			//hokuyo_dist_min(nb_pts_terrain);
 			//hokuyo_detection_ennemis(nb_pts_terrain,&nb_ennemis);
 			DetectRobots(nb_pts_terrain,&nb_ennemis);
 			//ReconObjet(nb_pts_terrain);
 			state=ASK_NEW_MEASUREMENT;
 		break;
+		case ERROR:
+			debug_printf("ERROR SEQUENCE INITIALIZING");
+			state=RESET_HOKUYO;
+		break;
+		case RESET_HOKUYO:
+			hokuyo_write_command((Uint8*)"RS");
+			index = 0;
+			state=RESET_ACKNOWLEDGE;
+		break;
+		case RESET_ACKNOWLEDGE:
+			hokuyo_read_buffer(tab,&index);
+			if(tab[index-2]==0x0A && tab[index-1]==0x0A)
+				state=TURN_ON_LASER;
+			else
+				state=TURN_OFF_LASER;
+		break;
+		case TURN_ON_LASER:
+			hokuyo_write_command((Uint8*)"BM");
+			state=DONE;
+		break;
+		case TURN_OFF_LASER:
+			hokuyo_write_command((Uint8*)"QT");
+			state=DONE;
+		break;
 		case DONE:
-			debug_printf("5");
+
 		break;
 		default:
 		break;
@@ -176,6 +229,7 @@ void user_callback_MSC_Application_Deinit(void)
 int user_callback_MSC_Application(void)
 {
 	//Nothing.
+	return 0;
 }
 
 
@@ -298,8 +352,13 @@ void hokuyo_traitement_data(Uint8 * tabvaleurs, Uint16 * compt_sushis){
 				if(dist[nb_pts] == 1)
 					nb_val_bizarres++;
 
-				if(coordCibleX <= 2000-HOKUYO_BORDS_TERRAIN && coordCibleX>=0+HOKUYO_BORDS_TERRAIN && coordCibleY <= 3000-HOKUYO_BORDS_TERRAIN && coordCibleY >=0+HOKUYO_BORDS_TERRAIN && dist[nb_pts]>30){
-					//debug_printf("d = [%ld mm]",dist[nb_pts]);
+				if(		coordCibleX <= 1000-HOKUYO_BORDS_TERRAIN &&
+						coordCibleX>=0+HOKUYO_BORDS_TERRAIN &&
+						coordCibleY <= 2000-HOKUYO_BORDS_TERRAIN &&
+						coordCibleY >=0+HOKUYO_BORDS_TERRAIN &&
+						dist[nb_pts]>100)
+				{
+									//debug_printf("d = [%ld mm]",dist[nb_pts]);
 					hokuyo_sushi[*compt_sushis].dist=dist[nb_pts];
 
 					//debug_printf(" teta = [%d] \n",angle-HOKUYO_OFFSET);
@@ -414,12 +473,11 @@ void ReconObjet(Uint16 compt_sushis,int *nb_ennemi)
 }
 
 
-void DetectRobots(Uint16 compt_sushis, Uint8 *nb_ennemi)
+void DetectRobots(Uint16 compt_sushis,int *nb_ennemi)
 {
 	Uint16 i;
-	Uint16 nb_pts;
-	Sint32 Distmax;
-	Sint32 Xcarre, Ycarre;
+	int nb_pts;
+	Sint32 deltaXcarre, deltaYcarre;
 	Sint32 Distcarre;
 	Sint32 x_comp, y_comp, sumX, sumY;
 
@@ -427,30 +485,58 @@ void DetectRobots(Uint16 compt_sushis, Uint8 *nb_ennemi)
 	y_comp=hokuyo_sushi[0].coordY;
 	sumX=hokuyo_sushi[0].coordX;
 	sumY=hokuyo_sushi[0].coordY;
-	Distmax=10000;
+
 	nb_pts=1;
 
 	for(i=1;i<compt_sushis;i++)
 	{
-		Xcarre=(hokuyo_sushi[i].coordX-x_comp)^2;
-		Ycarre=(hokuyo_sushi[i].coordY-y_comp)^2;
-		Distcarre=Xcarre+Ycarre;
-		if(Distcarre<=Distmax)
+		deltaXcarre=(Sint32)(hokuyo_sushi[i].coordX-x_comp)*(hokuyo_sushi[i].coordX-x_comp);
+		deltaYcarre=(Sint32)(hokuyo_sushi[i].coordY-y_comp)*(hokuyo_sushi[i].coordY-y_comp);
+		Distcarre=deltaXcarre+deltaYcarre;
+
+		if(Distcarre<=ECARTEMENT_PTS_MAX_CARRE && i<compt_sushis-1)
 		{
 			sumX+=hokuyo_sushi[i].coordX;
 			sumY+=hokuyo_sushi[i].coordY;
 			nb_pts++;
-		}
-		else
-		{
+		}else if(i<compt_sushis-1){
+
 			hokuyo_ennemi[*nb_ennemi].coordX=sumX/nb_pts;
 			hokuyo_ennemi[*nb_ennemi].coordY=sumY/nb_pts;
-			nb_ennemi++;
+			*nb_ennemi+=1;
+
 			nb_pts=1;
+
 			x_comp=hokuyo_sushi[i].coordX;
 			y_comp=hokuyo_sushi[i].coordY;
+
 			sumX=hokuyo_sushi[i].coordX;
 			sumY=hokuyo_sushi[i].coordY;
+		}else{                                            //cas du tout dernier point qui est en effet récalcitrant.
+			if(Distcarre<=ECARTEMENT_PTS_MAX_CARRE){
+				sumX+=hokuyo_sushi[i].coordX;
+				sumY+=hokuyo_sushi[i].coordY;
+				nb_pts++;
+				hokuyo_ennemi[*nb_ennemi].coordX=sumX/nb_pts;
+				hokuyo_ennemi[*nb_ennemi].coordY=sumY/nb_pts;
+			}else{
+				hokuyo_ennemi[*nb_ennemi].coordX=sumX/nb_pts;
+				hokuyo_ennemi[*nb_ennemi].coordY=sumY/nb_pts;
+				*nb_ennemi+=1;
+				hokuyo_ennemi[*nb_ennemi].coordX=hokuyo_sushi[i].coordX;
+				hokuyo_ennemi[*nb_ennemi].coordY=hokuyo_sushi[i].coordY;
+			}
 		}
 	}
+
+	debug_printf("il y a  %d intru(s)\n",*nb_ennemi);
+
+	for(i=1;i<=*nb_ennemi;i++)
+		{
+			debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_ennemi[i].coordX);
+			debug_printf(" et y=[%ld mm]\n",hokuyo_ennemi[i].coordY);
+		}
+
 }
+#endif	//def USE_HOKUYO
+
