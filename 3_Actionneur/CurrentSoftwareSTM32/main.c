@@ -137,11 +137,18 @@ int main (void)
 static void MAIN_onButton0() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
+	static bool_e openOrPark = FALSE;
 
 	msg.size = 1;
 	msg.sid = ACT_ARM;
 	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_OPEN;
+
+	if(openOrPark)
+		msg.data[1] = ACT_ARM_POS_OPEN;
+	else
+		msg.data[1] = ACT_ARM_POS_PARKED;
+
+	openOrPark = !openOrPark;
 
 	debug_printf("Main: ACT_ARM_GOTO OPEN");
 

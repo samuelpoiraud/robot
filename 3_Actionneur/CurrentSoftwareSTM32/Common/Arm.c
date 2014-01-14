@@ -41,7 +41,8 @@
 
 static void ARM_initAX12();
 
-static Sint8 old_state = -1;
+#warning "à changer pour une valeur indiquant qu'on ne connait pas l'etat actuel du bras"
+static Sint8 old_state = 0;
 
 void ARM_init() {
 	static bool_e initialized = FALSE;
