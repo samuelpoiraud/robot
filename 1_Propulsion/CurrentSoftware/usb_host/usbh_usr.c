@@ -391,8 +391,9 @@ void USBH_USR_OverCurrentDetected (void)
 */
 int USBH_USR_MSC_Application(void)
 {
-
-  return user_callback_MSC_Application();
+	debug_printf("IN THIS CODE, MSC IS DISABLED, BECAUSE USELESS\n");
+	return 0;
+  //return user_callback_MSC_Application();
 }
 
 /**
@@ -403,7 +404,9 @@ int USBH_USR_MSC_Application(void)
 */
 void USBH_USR_DeInit(void)
 {
-	user_callback_MSC_Application_Deinit();
+	debug_printf("IN THIS CODE, MSC IS DISABLED, BECAUSE USELESS\n");
+	//user_callback_MSC_Application_Deinit();
+	return;
 }
 
 

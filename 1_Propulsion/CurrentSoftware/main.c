@@ -108,7 +108,9 @@ void initialisation(void)
 	JOYSTICK_init();
 	DEBUG_init();
 	BUTTONS_init();
-	HOKUYO_init();
+	#ifdef USE_HOKUYO
+		HOKUYO_init();
+	#endif
 //	BUTTONS_define_actions(BUTTON3,button_autocalage_avant, NULL, 0);
 //	BUTTONS_define_actions(BUTTON1,button_autocalage_arriere, NULL, 0);
 
