@@ -39,21 +39,33 @@ volatile Uint16	match_id = 0xFFFF;
 volatile Uint16	read_match_id = 0xFFFF;
 static bool_e initialized = FALSE;
 
+static int SD_vprintf(const char * s, va_list args);
+
 //@post	SD_printf peut être appelée... (si tout s'est bien passé, les logs peuvent être enregistrés...)
 void SD_init(void)
 {
 	PORTS_spi_init();
 	SPI_init();
 	SD_process_main();	//Permet d'ouvrir le plus vite possible le fichier de log.
+	OUTPUTLOG_set_callback_vargs(&SD_vprintf);
 	initialized = TRUE;
 }
 
+int SD_printf(const char *format, ...) {
+	int ret;
 
+	va_list args_list;
+	va_start(args_list, format);
+	ret = SD_vprintf(format, args_list);
+	va_end(args_list);
+
+	return ret;
+}
 
 /*
  * Si la chaine fabriquée contient un '\n', l'évènement sera envoyé sur la carte SD avec une info de date et de source... Sinon, le texte demandé sera envoyé tel quel.
  */
-int SD_printf(char * s, ...)
+static int SD_vprintf(const char * s, va_list args)
 {
 	Uint16 ret;
 	Uint16 i;
@@ -61,10 +73,7 @@ int SD_printf(char * s, ...)
 //	static bool_e was_newline = TRUE;
 	bool_e b_insert_time;// = was_newline;
 
-	va_list args;
-	va_start (args, s);
 	ret = vsnprintf(buf, PRINTF_BUFFER_SIZE, s, args);	//Prépare la chaine à envoyer.
-	va_end (args);
 
 	b_insert_time = FALSE;
 	for(i=0;buf[i];i++)

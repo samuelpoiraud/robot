@@ -44,11 +44,11 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 		va_end(args_list);
 
 		callback(buffer);
-	} else {
-		va_start(args_list, format);
-		vprintf(format, args_list);
-		va_end(args_list);
 	}
+
+	va_start(args_list, format);
+	vprintf(format, args_list);
+	va_end(args_list);
 #else
 	//Anti warning arguments non utilisés
 	level = level;
