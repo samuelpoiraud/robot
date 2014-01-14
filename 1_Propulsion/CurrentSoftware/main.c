@@ -111,9 +111,17 @@ void initialisation(void)
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
 	#endif
-//	BUTTONS_define_actions(BUTTON3,button_autocalage_avant, NULL, 0);
-//	BUTTONS_define_actions(BUTTON1,button_autocalage_arriere, NULL, 0);
 
+
+
+	#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+		LCD_init();
+	#endif
+
+	#ifdef SCAN_TRIANGLE
+		SCAN_TRIANGLE_init();
+		// Initialisation des ADC pour les DT10s des scans des triangles
+	#endif
 
 	IT_init();
 	/*
@@ -126,15 +134,6 @@ void initialisation(void)
 	-> 0 : tâche de fond
 	*/
 
-
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
-	LCD_init();
-#endif
-
-	#ifdef SCAN_TRIANGLE
-		SCAN_TRIANGLE_init();
-		// Initialisation des ADC pour les DT10s des scans des triangles
-	#endif
 
 }
 
