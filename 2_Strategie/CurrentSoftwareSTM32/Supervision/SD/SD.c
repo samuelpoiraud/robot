@@ -464,6 +464,11 @@ void SD_print_previous_match(void)
 				UART1_putc(read_byte);		//Si le switch verbose est à OFF, on recrache le fichier brut de fonderie.
 			}
 		}while(nb_read == 1);
+		//Permet de reconnaitre la fin de l'envoi des trames
+		if(!SWITCH_VERBOSE){
+			UART1_putc('\n');
+		}
+		
 
 		f_close(&file_read_match);
 	}
