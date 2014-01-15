@@ -33,7 +33,7 @@ void ACTMGR_init() {
 	BALLSORTER_init();*/
 	FRUIT_init();
 	LANCE_LAUNCHER_init();
-//	ARM_init();
+	ARM_init();
 
 	ACTMGR_reset_act();
 }
@@ -61,8 +61,8 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	if(LANCE_LAUNCHER_CAN_process_msg(msg))
 		return TRUE;
-//	if(ARM_CAN_process_msg(msg))
-//		return TRUE;
+	if(ARM_CAN_process_msg(msg))
+		return TRUE;
 
 	return FALSE;
 }

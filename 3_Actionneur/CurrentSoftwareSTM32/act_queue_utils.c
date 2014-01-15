@@ -46,6 +46,7 @@ void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t a
 
 //Envoie le message CAN de retour à la strat (et affiche des infos de debuggage si activé)
 void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode) {
+#ifdef USE_CAN
 	CAN_msg_t resultMsg;
 
 	if(global.match_started == TRUE) {
@@ -58,12 +59,14 @@ void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Ui
 
 		CAN_send(&resultMsg);
 	}
+#endif
 
 	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_NoParam, 0, TRUE);
 }
 
 //Comme CAN_sendResult mais ajoute un paramètre au message. Peut servir pour debuggage.
 void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param) {
+#ifdef USE_CAN
 	CAN_msg_t resultMsg;
 
 	resultMsg.sid = ACT_RESULT;
@@ -76,12 +79,14 @@ void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 r
 	resultMsg.size = 6;
 
 	CAN_send(&resultMsg);
+#endif
 
 	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Normal, param, TRUE);
 }
 
 //Comme CAN_sendResultWithParam mais le paramètre est considéré comme étant un numéro de ligne.
 void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 line) {
+#ifdef USE_CAN
 	CAN_msg_t resultMsg;
 
 	resultMsg.sid = ACT_RESULT;
@@ -94,6 +99,7 @@ void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, U
 	resultMsg.size = 6;
 
 	CAN_send(&resultMsg);
+#endif
 
 	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Line, line, TRUE);
 }

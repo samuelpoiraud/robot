@@ -16,6 +16,7 @@
 /* Entrées analogiques: attention à la renumérotation des entrées... */
 	#define USE_ANALOG_EXT_VREF
 
+	// !!!!!!!!!!!!!!!! ADC 2 & 3 sont sur les pins de l'uart 2 !!!!!!!!!!!!!!!!
 	#define USE_AN2
 	#define AN2_ID  0
 	#define USE_AN3
@@ -48,13 +49,15 @@
 	#define DCMOTOR_NB_POS		3
 
 /* Servo-Moteurs AX12 */
+// !!!!!!!!!!!!!!!! ADC 2 & 3 sont sur les pins de l'uart 2 !!!!!!!!!!!!!!!!
 	#define USE_AX12_SERVO
-	#define AX12_NUMBER 7
+	#define AX12_NUMBER 21
 	#define AX12_INSTRUCTION_BUFFER_SIZE 200
 	//#define AX12_USE_WATCHDOG
 	#define AX12_TIMER_ID 2
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 	#define AX12_STATUS_RETURN_CHECK_CHECKSUM
+	#define AX12_UART_ID 3
 	//#define AX12_DEBUG_PACKETS
 
 	#define USE_WATCHDOG

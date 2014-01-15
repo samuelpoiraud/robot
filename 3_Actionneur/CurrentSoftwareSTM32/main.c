@@ -66,9 +66,9 @@ int main (void)
 	BUTTONS_init();
 
 	LED_CAN = 1;
-	//#ifdef USE_CAN
+	#ifdef USE_CAN
 		CAN_init();
-	//#endif
+	#endif
 
 	// Gestion du CAN
 	#ifdef USE_CAN
@@ -135,7 +135,6 @@ int main (void)
 }
 
 static void MAIN_onButton0() {
-#ifdef USE_CAN
 	CAN_msg_t msg;
 	static bool_e openOrPark = FALSE;
 
@@ -150,10 +149,9 @@ static void MAIN_onButton0() {
 
 	openOrPark = !openOrPark;
 
-	debug_printf("Main: ACT_ARM_GOTO OPEN");
+	debug_printf("Main: ACT_ARM_GOTO %d\n", msg.data[1]);
 
 	CAN_process_msg(&msg);
-#endif
 }
 
 

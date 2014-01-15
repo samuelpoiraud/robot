@@ -1410,6 +1410,10 @@ bool_e AX12_config_lock(Uint8 id_servo) {
 	return AX12_instruction_write8(id_servo, AX12_LOCK, 1);
 }
 
+bool_e AX12_config_set_id(Uint8 id_servo) {
+	return AX12_instruction_write8(AX12_BROADCAST_ID, AX12_ID, id_servo);
+}
+
 bool_e AX12_config_set_return_delay_time(Uint8 id_servo, Uint16 delay_us) {
 	return AX12_instruction_write8(id_servo, AX12_RETURN_DELAY_TIME, (Uint8)(delay_us >> 1)); // >> 1 <=> /2
 }
