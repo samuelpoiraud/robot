@@ -90,23 +90,23 @@ void any_match(time32_t match_duration)
 			{
 				case 0x01:	//STRAT_1_TINY
 					//strategy = STRAT_TINY_all_candles;
-					strategy = test_strat_robot_virtuel;
+					strategy = test_Pathfind;
 				break;
 				case 0x02:	//STRAT_2_TINY : STRATEGIE DE TEST HORS MATCH
 					//strategy = TEST_STRAT_T_homologation;
 					//strategy = STRAT_TINY_all_candles;
 					//strategy = STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait;
-					strategy = test_strat_robot_virtuel;
+					strategy = test_Pathfind;
 				break;
 				case 0x03:	//STRAT_3_TINY
-					strategy = test_strat_robot_virtuel;
+					strategy = test_Pathfind;
 
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;
 				default:
 					//strategy = TEST_STRAT_T_homologation;
-					strategy = test_strat_robot_virtuel;
+					strategy = test_Pathfind;
 				break;
 			}
 		}
@@ -126,23 +126,23 @@ void any_match(time32_t match_duration)
 			{
 				case 0x01:	//STRAT_1_KRUSTY
 					//strategy = TEST_STRAT_avoidance;
-					strategy = test_strat_robot_virtuel;
+					strategy = TEST_pathfind;
 				break;
 
 				case 0x02:	//STRAT_2_KRUSTY
 					//strategy = K_Strat_Coupe;
-					strategy = test_strat_robot_virtuel;
+					strategy = TEST_pathfind;
 				break;
 
 				case 0x03:	//STRAT_3_KRUSTY
-					strategy = test_strat_robot_virtuel;
+					strategy = TEST_pathfind;
 				break;
 
 				case 0x00:	//STRAT_0_KRUSTY (aucun switch)
 				//no break;
 
 				default:
-					strategy = test_strat_robot_virtuel;
+					strategy = TEST_pathfind;
 				break;
 			}
 		}

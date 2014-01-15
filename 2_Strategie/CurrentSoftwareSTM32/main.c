@@ -95,6 +95,10 @@ int main (void)
 	for(j=0;j<40;j++)
 		for(i=1;i;i++);
 
+#if 0
+	while(1)
+		test_Pathfind();
+#endif
 
 	while(1)
 	{

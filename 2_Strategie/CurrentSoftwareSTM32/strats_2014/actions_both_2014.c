@@ -13,6 +13,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
 #include "../Pathfind.h"
+#include "../avoidance.h"
 #include "../QS/QS_who_am_i.h"
 
 //#define LOG_PREFIX "strat_tests: "
@@ -554,6 +555,7 @@ void TEST_pathfind(void)
 		case PATH_1:
 			if(entrance)
 			{
+				/*
 				global.env.pos.x = 1350;
 				global.env.pos.y = 400;
 				global.env.foe[0].x = 1400;
@@ -562,31 +564,40 @@ void TEST_pathfind(void)
 				global.env.foe[1].y = 100;
 				global.env.foe[0].dist = 1100;
 				global.env.foe[1].dist = 1285;
+				*/
+				debug_printf("ETAT 1\n");
 			}
 			state = PATHFIND_try_going(Z2, PATH_1, PATH_2, PATH_2, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_2:
 			if(entrance)
 			{
+				debug_printf("ETAT 2\n");
+				/*
 				global.env.pos.x = 1600;
 				global.env.pos.y = 2300;
+				*/
 			}
 			state = PATHFIND_try_going(A1, PATH_2, PATH_3, PATH_3, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_3:
 			if(entrance)
 			{
+				debug_printf("ETAT 3\n");
+				/*
 				global.env.foe[0].x = 500;
 				global.env.foe[0].y = 1500;
 				global.env.pos.x = 250;
 				global.env.pos.y = 1250;
 				global.env.foe[0].dist = 350;
+				*/
 			}
 			state = PATHFIND_try_going(W0, PATH_3, PATH_4, PATH_4, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 		case PATH_4:
 			if(entrance)
 			{
+				/*
 				global.env.foe[0].x = 700;
 				global.env.foe[0].y = 700;
 				global.env.foe[1].x = 1000;
@@ -595,16 +606,21 @@ void TEST_pathfind(void)
 				global.env.pos.y = 1100;
 				global.env.foe[0].dist = 335;
 				global.env.foe[1].dist = 150;
+				*/
+				debug_printf("ETAT 4\n");
 			}
 			state = PATHFIND_try_going(A1, PATH_4, PATH_5, PATH_5, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_5:
 			if(entrance)
 			{
+				debug_printf("ETAT 5\n");
+				/*
 				global.env.pos.x = 700;
 				global.env.pos.y = 2800;
 				global.env.foe[1].x = 1250;
 				global.env.foe[1].y = 2300;
+				*/
 			}
 			state = PATHFIND_try_going(W3, PATH_5, PATH_1, DONE, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
@@ -650,3 +666,28 @@ void test_strat_robot_virtuel(void){
 	}
 
 }
+
+
+void test_Pathfind(void){
+	static enum{
+			DO1 = 0,
+			DONE,
+			ERROR
+	}state = DO1;
+
+	switch(state){
+		case DO1:
+			state = PATHFIND_try_going(Z2, DO1, DONE, ERROR, ANY_WAY, FAST, NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
+		case DONE:
+			debug_printf("fini");
+			GPIOD->ODR10 = 1;
+			break;
+		case ERROR:
+		default:
+			GPIOD->ODR10 = 1;
+			break;
+	}
+
+}
+
