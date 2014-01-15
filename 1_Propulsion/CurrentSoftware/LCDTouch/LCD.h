@@ -10,6 +10,7 @@
 
 #include "../QS/QS_all.h"
 
+
 void LCD_init(void);
 
 void LCD_process_main(void);
@@ -24,8 +25,11 @@ typedef enum
 	FRIEND_2,
 	ADVERSARY_1,
 	ADVERSARY_2,
-	ROBOTS_NUMBER
+	ROBOTS_NUMBER,
+	NONE // Utile pour la sélection
 }robots_e;
+
+#define US FRIEND_1
 
 typedef struct
 {
@@ -36,7 +40,17 @@ typedef struct
 	Uint16 size;
 	bool_e updated;
 	Uint8 color;
+	bool_e enable;
 }display_robot_t;
+
+//Permet de savoir si le robot "robot" a été activé
+bool_e is_robot_enabled(robots_e robot);
+
+//Désactive un robot sélectionné
+void set_robot_disable(robots_e robot);
+
+//Active un robot sélectionné
+void set_robot_enable(robots_e robot);
 
 //x et y en cm.
 void LCD_update_robot(robots_e robot, Uint16 x, Uint16 y);

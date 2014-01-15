@@ -229,6 +229,7 @@ void Lcd_Touch_Calibration(void)
 }
 
 #define TOUCH_BUTTON_SIZE	(BUTTON_SIZE+3)
+#define entrance (previous_touch == FALSE && pstate->TouchDetected!=FALSE)
 /**
   * @brief  Display the value of calibration point
   * @param  *x Positions en x
@@ -239,75 +240,130 @@ void Lcd_Touch_Calibration(void)
   * @retval None
   */
 
-bool_e Calibration_Test_Dispose(display_robot_t * pos,robots_e *couleur_robot)
+bool_e Calibration_Test_Dispose(display_robot_t *pos, robots_e *id_robot)
 {
   TS_STATE *pstate = NULL;
   bool_e ret = FALSE;
+  static bool_e previous_touch = FALSE;
 
-  /*Init Variables*/
+  // Variables qui récuperent la nouvelle et l'ancienne valeur de la position appuyée
   point_new.x = 0;
   point_new.y = 0;
   point_old.x = 0;
   point_old.y = 0;
 
-    pstate = IOE_TS_GetState();
-    if(pstate->TouchDetected){
+    pstate = IOE_TS_GetState();	// Récupération des données d'appuye sur l'écran tactile
+
+    if(pstate->TouchDetected){	// Dans le cas où on a détecté un appuye
 		point_new.x = pstate->X;
 		point_new.y = pstate->Y;
 
+		// La valeur obtenue est-elle bien sur l'écran ?
 		if (!((point_new.x > TOUCH_AD_VALUE_MAX)
 			 || (point_new.x < TOUCH_AD_VALUE_MIN)
 			 || (point_new.y > TOUCH_AD_VALUE_MAX)
 			 || (point_new.y < TOUCH_AD_VALUE_MIN))){
 
-			/*Calculate coordinates*/
+			// On calcul et ajuste les coordonnées en fonction du calibrage
 			point_new.x = ((int)(point_new.x * adjust_Para.xScale - adjust_Para.xOffset));
 			point_new.y = ((int)(point_new.y * adjust_Para.yScale - adjust_Para.yOffset));
 			point_new.x = point_new.x -6; //Calibrage manuel
 			point_new.y =point_new.y +4; //Calibrage manuel
-				if(point_new.x>=310-TOUCH_BUTTON_SIZE && point_new.x<=310+TOUCH_BUTTON_SIZE)
-				{ //test d'appui sur les boutons
-					if (point_new.y>=20-TOUCH_BUTTON_SIZE && point_new.y<=20+TOUCH_BUTTON_SIZE)
-					{
-						*couleur_robot= FRIEND_1;
+
+		// A-t-on appyé sur un boutton?
+			if(point_new.x>=310-TOUCH_BUTTON_SIZE && point_new.x<=310+TOUCH_BUTTON_SIZE)
+			{ //test d'appui sur les boutons
+				// Permet de bouger notre propre robot: Désactivé car géré par la propulsion
+ 				if (point_new.y>=20-TOUCH_BUTTON_SIZE && point_new.y<=20+TOUCH_BUTTON_SIZE)
+				{//boutton 1
+ 					if(entrance){
+ 						if(*id_robot == FRIEND_1){
+ 							*id_robot= NONE;
+ 						}else{
+ 						*	id_robot= FRIEND_1;
+ 						}
 						ret = TRUE;
-					}
-					else if (point_new.y>=40-TOUCH_BUTTON_SIZE && point_new.y<=40+TOUCH_BUTTON_SIZE)
-					{
-						*couleur_robot= FRIEND_2;
-						ret = TRUE;
-					}
-					else if (point_new.y>=80-TOUCH_BUTTON_SIZE && point_new.y<=80+TOUCH_BUTTON_SIZE)
-					{
-						*couleur_robot= ADVERSARY_1;
-						ret = TRUE;
-					}
-					else if (point_new.y>=100-TOUCH_BUTTON_SIZE && point_new.y<=100+TOUCH_BUTTON_SIZE)
-					{
-						*couleur_robot= ADVERSARY_2;
+ 					}
+				}
+				else if (point_new.y>=40-TOUCH_BUTTON_SIZE && point_new.y<=40+TOUCH_BUTTON_SIZE)
+				{//boutton 2
+					if(entrance){
+						if(*id_robot == FRIEND_2){
+							*id_robot= NONE;
+							set_robot_disable(FRIEND_2);
+						}else{
+							 *id_robot= FRIEND_2;
+							 set_robot_enable(FRIEND_2);
+						}
 						ret = TRUE;
 					}
 				}
-				if(point_new.x < LCD_PIXEL_WIDTH-25 && point_new.y < LCD_PIXEL_HEIGHT-45){ //fenetre du plateau de jeu
-					if (point_new.x >= LCD_PIXEL_WIDTH-30) {//pour ne pas que le carré d'affichage ne sorte du tableau (plateau de jeu)
-						point_new.x = LCD_PIXEL_WIDTH-30 -1;
+				else if (point_new.y>=80-TOUCH_BUTTON_SIZE && point_new.y<=80+TOUCH_BUTTON_SIZE)
+				{// Boutton3
+					if(entrance){
+						if(*id_robot == ADVERSARY_1){
+							*id_robot= NONE;
+							set_robot_disable(ADVERSARY_1);
+						}else{
+							*id_robot= ADVERSARY_1;
+							set_robot_enable(ADVERSARY_1);
+						}
+						ret = TRUE;
 					}
-					if (point_new.y >= LCD_PIXEL_HEIGHT-50) {	//pour ne pas que le carré d'affichage ne sorte du tableau (plateau de jeu)
-						point_new.y = LCD_PIXEL_HEIGHT-50 -1;
-					}
-					if (point_new.x <= 9) {//pour ne pas que le carré d'affichage ne sorte du tableau (plateau de jeu)
-						point_new.x = 10;
-					}
-					if (point_new.y <= 9) {	//pour ne pas que le carré d'affichage ne sorte du tableau (plateau de jeu)
-						point_new.y = 10;
-					}
-					pos->y=point_new.x;	//ATTENTION INVERSION X et Y (les repères terrain et LCD sont différents)
-					pos->x=point_new.y; //ATTENTION INVERSION X et Y (les repères terrain et LCD sont différents)
-					pos->updated=TRUE;
-					ret = TRUE;
 				}
+				else if (point_new.y>=100-TOUCH_BUTTON_SIZE && point_new.y<=100+TOUCH_BUTTON_SIZE)
+				{// Boutton4
+					if(entrance){
+						if(*id_robot == ADVERSARY_2){
+							*id_robot= NONE;
+							set_robot_disable(ADVERSARY_2);
+						}else{
+							*id_robot= ADVERSARY_2;
+							set_robot_enable(ADVERSARY_2);
+						}
+						ret = TRUE;
+					}
+				}
+			}
+
+			// A-t-on appuyé sur le terrain
+			if(point_new.x < LCD_PIXEL_WIDTH-25 && point_new.y < LCD_PIXEL_HEIGHT-45 && (pos->enable==TRUE)){ //fenetre du plateau de jeu
+				if (point_new.x >= LCD_PIXEL_WIDTH-30) {//pour ne pas que le carré d'affichage ne sorte du tableau (plateau de jeu)
+					point_new.x = LCD_PIXEL_WIDTH-30 -1;
+				}
+				if (point_new.y >= LCD_PIXEL_HEIGHT-50) {	//pour ne pas que le carré d'affichage ne sorte du tableau (plateau de jeu)
+					point_new.y = LCD_PIXEL_HEIGHT-50 -1;
+				}
+				if (point_new.x <= 9) {//pour ne pas que le carré d'affichage ne sorte du tableau (plateau de jeu)
+					point_new.x = 10;
+				}
+				if (point_new.y <= 9) {	//pour ne pas que le carré d'affichage ne sorte du tableau (plateau de jeu)
+					point_new.y = 10;
+				}
+
+				if(*id_robot == US){ //Si c'est nous on force la nouvelle coordonnée de la proulsion
+					Uint8 data[8];
+					//go pos
+					data[0] = 0x20;	//Multipoint, MAINTENANT.
+					data[1] = HIGHINT(robots[FRIEND_1].x*10);
+					data[2] = LOWINT(robots[FRIEND_1].x*10);
+					data[3] = HIGHINT(robots[FRIEND_1].y*10);
+					data[4] = LOWINT(robots[FRIEND_1].y*10);
+					data[5] = 0x01; 	//slow
+					data[6] = 0x00;		//Avant ou arrière
+					data[7] = 0;
+					SECRETARY_send_canmsg(ASSER_GO_POSITION, data, 8);
+				}
+
+				pos->y=point_new.x;	//ATTENTION INVERSION X et Y (les repères terrain et LCD sont différents)
+				pos->x=point_new.y; //ATTENTION INVERSION X et Y (les repères terrain et LCD sont différents)
+				pos->updated=TRUE;
+				ret = TRUE;
+			}
 		}
     }
+
+    previous_touch = pstate->TouchDetected!=FALSE; //Je ne sais pas si c'est un booléen donc je fais une opération logique dessus => je sais seulement qu'il est a 0 lorsque rien nest détecté
     return ret;
 }
 

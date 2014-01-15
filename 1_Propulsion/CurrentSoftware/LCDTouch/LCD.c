@@ -3,6 +3,7 @@
  *
  *  Created on: 23 déc. 2013
  *      Author: Nirgal
+ *      Mofifié par Herzaeone
  */
 
 #include "LCD.h"
@@ -22,19 +23,61 @@
 	#define LED_GREEN GPIOD->ODR12
 #endif
 
+
+#define POS_ROBOT(num) ((robots[num].enable)?robots[num].y:0) , ((robots[num].enable)?robots[num].x:0)
+#define robots_updated (robots[0].updated || robots[1].updated || robots[2].updated || robots[3].updated)	// au moins l'un des robots a été update
+#define adversary_color ((robots[US].color == Rouge)?Jaune:Rouge) // couleur de l'équipe adverse
+
+
 	display_robot_t robots[ROBOTS_NUMBER];
-	robots_e robot_selected = FRIEND_1; 	//robot sélectionné pour le tactile
-	robots_e previous_robot_selected = FRIEND_2;
-	bool_e robots_updated = TRUE;
+	robots_e robot_selected = NONE; 	//robot sélectionné pour le tactile
+	robots_e previous_robot_selected = ROBOTS_NUMBER;
 	volatile uint32_t t_10ms = 0; /*!< variable pour le Timer 10ms (pour cadencer la prise de point tactile). */
 	uint8_t current_color = Jaune;		//couleur de notre equipe
-	uint8_t adversary_color = Rouge;		//couleur de notre equipe
 
+bool_e is_robot_enabled(robots_e robot){
+	return robots[robot].enable;
+}
+
+void set_robot_disable(robots_e robot){
+	robots[robot].enable = FALSE;
+	delete_previous_robot(&robots[robot]);	// Efface la position précédente du robot
+}
+
+void set_robot_enable(robots_e robot){
+	robots[robot].enable = TRUE;
+}
+
+#if 0
 void LCD_pos_init(void)
 {
 	robots_e i;
 	for(i=0;i<ROBOTS_NUMBER;i++)
 	{
+		robots[i].x = 40;
+		robots[i].y = 40+40*i;
+		robots[i].xprec = 40;
+		robots[i].yprec = 40+40*i;
+		robots[i].updated = TRUE;
+		robots[i].enable = TRUE;
+	}
+	robots[FRIEND_1].size = 30;
+	robots[FRIEND_2].size = 20;
+	robots[ADVERSARY_1].size = 35;
+	robots[ADVERSARY_2].size = 35;
+	robots[FRIEND_1].color = current_color;
+	robots[FRIEND_2].color = current_color;
+	robots[ADVERSARY_1].color = adversary_color;
+	robots[ADVERSARY_2].color = adversary_color;
+
+	previous_robot_selected = FRIEND_2;
+	robot_selected = FRIEND_1;
+}
+#else
+
+void LCD_pos_init(void){
+	robots_e i;
+	for(i=0;i<ROBOTS_NUMBER;i++){
 		robots[i].x = 40;
 		robots[i].y = 40+40*i;
 		robots[i].xprec = 40;
@@ -50,9 +93,14 @@ void LCD_pos_init(void)
 	robots[ADVERSARY_1].color = adversary_color;
 	robots[ADVERSARY_2].color = adversary_color;
 
-	previous_robot_selected = FRIEND_2;
-	robot_selected = FRIEND_1;
+	robots[FRIEND_1].enable = TRUE;
+	robots[FRIEND_2].enable = FALSE;
+	robots[ADVERSARY_1].enable = FALSE;
+	robots[ADVERSARY_2].enable = FALSE;
+
 }
+
+#endif
 
 
 void LCD_init(void)
@@ -68,11 +116,11 @@ void LCD_init(void)
 	//initialisation de la calibration du LCD tactile
 	LCD_Clear(White);
 	LCD_SetFont(&Font8x12);
-	//Lcd_Touch_Calibration();
 	LCD_Clear(White);
 
 	ecriture_info_prosition_v2();	//affichage des lignes d'information
 }
+
 
 void LCD_send_message(void)
 {
@@ -123,6 +171,7 @@ void LCD_send_message(void)
 			data[2] = robots[ADVERSARY_2].y/2;	//Y [2cm]
 			SECRETARY_send_canmsg(STRAT_ADVERSARIES_POSITION, data, 7);
 			break;
+		case NONE:
 		default:
 			break;
 	}
@@ -161,7 +210,7 @@ void LCD_process_main(void)
 	{	//Toutes les 100ms
 		if(Calibration_Test_Dispose(&robots[robot_selected] , &robot_selected))
 		{
-			robots_updated = TRUE;
+			robots[robot_selected].updated = TRUE
 			LCD_send_message();
 		}
 		t_10ms=0;
@@ -202,10 +251,9 @@ void LCD_process_main(void)
 										robots[ADVERSARY_1].y	,robots[ADVERSARY_1].x	,robots[ADVERSARY_2].y	,robots[ADVERSARY_2].x);
 
 		if(previous_robot_selected != robot_selected)
-		{
 			display_bouton(robot_selected,current_color);	//mise à jour des boutons en fonction de notre équipe et du robot sélectionné
+
 			previous_robot_selected = robot_selected;
-		}
 
 		LCD_SetCursor(0,0);
 		LCD_Affiche_Image();
@@ -215,24 +263,54 @@ void LCD_process_main(void)
 #else
 
 void LCD_process_main(void){
+	Uint8 i;
 
 	if(t_10ms>=10)
 	{	//Toutes les 100ms
-		t_10ms=0;
-		robots[0].x = global.position.x/10;
-		robots[0].y = global.position.y/10;
-		robots[0].updated = TRUE;
-		robots[0].color = (ODOMETRY_get_color()==RED)?Rouge : Jaune;
-		delete_previous_robot(&robots[0]);
-		display_robot(&robots[0]);
-		remplissage_info_position_v2(	robots[0].y		,robots[0].x	,0	,0,
-												0	,0	,0	,0);
-		LCD_SetCursor(0,0);
-		LCD_Affiche_Image();
+
+		t_10ms=0; // reinit compteur
+
+		robots[US].x = global.position.x/10; //Calcul de la position pour affichage ecran
+		robots[US].y = global.position.y/10;
+
+		robots[US].updated = TRUE;			// Déclarer changement pour l'affichage
+
+		current_color = (ODOMETRY_get_color()==RED)?Rouge : Jaune; // Récupération de la couleur
+		robots[US].color = current_color;
+		robots[FRIEND_2].color = current_color;
+		robots[ADVERSARY_1].color = adversary_color;
+		robots[ADVERSARY_2].color = adversary_color;
+
+		if(Calibration_Test_Dispose(&robots[robot_selected] , &robot_selected))
+				{
+					LCD_send_message();
+				}
+
+		if(robots_updated == TRUE){
+			for(i=0; i<ROBOTS_NUMBER; i++){
+				if(robots[i].enable == TRUE){
+					delete_previous_robot(&robots[i]);	// Efface la position précédente du robot
+					display_robot(&robots[i]);			// Affiche le robot a sa nouvelle position
+				}
+			}
+
+
+			remplissage_info_position_v2(	robots[US].y,	robots[0].x,
+										POS_ROBOT(FRIEND_2),
+										POS_ROBOT(ADVERSARY_1),
+										POS_ROBOT(ADVERSARY_2)); // MAJ des positions
+
+			if(previous_robot_selected != robot_selected)
+				display_bouton(robot_selected,current_color);	//mise à jour des boutons en fonction de notre équipe et du robot sélectionné
+
+			previous_robot_selected = robot_selected;
+
+			LCD_SetCursor(0,0);
+			LCD_Affiche_Image();				// Affichage de l'image créée
+		}
 
 	}
 
-	//bt_prec = bt_current;
 }
 
 #endif
@@ -243,7 +321,6 @@ void LCD_update_robot(robots_e robot, Uint16 x, Uint16 y)
 	robots[robot].x = x;
 	robots[robot].y = y;
 	robots[robot].updated = TRUE;
-	robots_updated = TRUE;
 }
 
 //TODO : update color a partir du broadcast color.
