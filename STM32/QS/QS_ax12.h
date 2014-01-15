@@ -316,7 +316,7 @@
 	 */
 	void AX12_end_command_block();
 
-	
+
 	//Configuration de l'AX12, perdure après mise hors tension sauf pour le verouillage de la config (lock).
 	//Unités:
 	// Angles en degrés
@@ -479,6 +479,14 @@
 	 * @see AX12_config_is_locked
 	 */
 	bool_e AX12_config_lock(Uint8 id_servo);
+
+	/**
+	 * Change l'ID de TOUT les AX12 branché (à utiliser temporairement pour configurer un AX12 seulement !!!!)
+	 *
+	 * @param id_servo nouveau id
+	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
+	 */
+	bool_e AX12_config_set_id(Uint8 id_servo);
 
 	/**
 	 * Défini le délai de réponse que doit avoir le servo.
@@ -671,7 +679,7 @@
 	 * Retourne les paramètres de la réponse de l'asservissement en position.
 	 *
 	 * Graphique représentant le couple de sortie en fonction de l'erreur de position:
-	 * 
+	 *
 	 * <pre>\verbatim
 	 *         Couple          Consigne de position
 	 *              ^                   |
@@ -686,7 +694,7 @@
 	 *                            | |   |  >| |<---D
 	 * \endverbatim
 	 * </pre>
-	 * 
+	 *
 	 * === : Courbe du couple en fonction de l'erreur en position
 	 *
 	 * @param id_servo numéro du servo à questionner

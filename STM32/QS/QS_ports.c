@@ -206,15 +206,15 @@ void PORTS_set_pull(GPIO_TypeDef* GPIOx, Uint16 GPIO_Pin, GPIOPuPd_TypeDef pull_
 
 	  for (pinpos = 0x00; pinpos < 0x10; pinpos++)
 	  {
-	    pos = ((Uint32)0x01) << pinpos;
-	    /* Get the port pins position */
-	    currentpin = GPIO_Pin & pos;
-	    if (currentpin == pos)
-	    {
-	      /* Pull-up Pull down resistor configuration*/
-	      GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << ((Uint16)pinpos * 2));
-	      GPIOx->PUPDR |= (((Uint32)pull_up) << (pinpos * 2));
-	    }
+		pos = ((Uint32)0x01) << pinpos;
+		/* Get the port pins position */
+		currentpin = GPIO_Pin & pos;
+		if (currentpin == pos)
+		{
+		  /* Pull-up Pull down resistor configuration*/
+		  GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << ((Uint16)pinpos * 2));
+		  GPIOx->PUPDR |= (((Uint32)pull_up) << (pinpos * 2));
+		}
 	  }
 }
 

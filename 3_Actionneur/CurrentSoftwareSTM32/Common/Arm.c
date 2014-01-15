@@ -81,6 +81,8 @@ void ARM_init() {
 
 	info_printf("Bras initialisé (DCMotor)\n");
 
+	//AX12_config_set_id(20);
+
 	ARM_initAX12();
 }
 
@@ -111,6 +113,7 @@ static void ARM_initAX12() {
 			} else {
 				// Au moins un RX24/AX12 non prêt => pas allOk, on affiche pas le message d'init
 				allOk = FALSE;
+				debug_printf("AX12 %d not here\n", arm_motors[i].id);
 			}
 		}
 	}
@@ -166,7 +169,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 		Uint8 i;
 
 		if(init) {
-			if(old_state >= 0 || arm_states_transitions[old_state][new_state] == 0) {
+			if(old_state < 0 || arm_states_transitions[old_state][new_state] == 0) {
 				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
 				warn_printf("Deplacement impossible de l'etat %d à %d\n", old_state, new_state);
 				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
@@ -204,8 +207,10 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				}
 			}
 
-			if(return_result)
+			if(return_result) {
 				QUEUE_next(queueId, ACT_ARM, result, error_code, line);
+				old_state = new_state;
+			}
 		}
 	} else {
 		error_printf("Invalid act: %d\n", QUEUE_get_act(queueId));
