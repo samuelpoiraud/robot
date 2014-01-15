@@ -78,7 +78,7 @@ void HOKUYO_init(void)
 
 	if(!hokuyo_initialized)
 	{
-		USBH_Process(&USB_OTG_Core, &USB_Host);
+		//USBH_Process(&USB_OTG_Core, &USB_Host);
 		UART_USB_init(19200);
 		debug_printf("\nInit usb for Hokuyo\n");
 		USBH_Init(&USB_OTG_Core,
