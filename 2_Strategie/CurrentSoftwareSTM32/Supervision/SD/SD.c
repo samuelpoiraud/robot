@@ -162,10 +162,10 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 	{
 		for(i=0; user_string[i]; i++)
 		{
-			if(user_string[i] > 0x03)	//0x00 à 0x03 sont réservés pour les balises de msg can et d'info de temps+source.
+			if(user_string[i] > 0x04)	//0x00 à 0x04 sont réservés pour les balises de msg can et d'info de temps+source.
 				string[n++] = user_string[i];
 			else
-				debug_printf("Vous ne devriez pas envoyer à SD_new_event() des caractères <= 0x03... ils sont ignorés.");
+				debug_printf("Vous ne devriez pas envoyer à SD_new_event() des caractères <= 0x04... ils sont ignorés.");
 		}
 	}
 
