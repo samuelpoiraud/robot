@@ -21,6 +21,10 @@ void strat_reglage_odo_rotation(void);
 void strat_reglage_odo_translation(void);
 void strat_reglage_odo_symetrie(void);
 
+void TEST_pathfind(void);
+
 void test_strat_robot_virtuel(void);
+
+void test_Pathfind(void);
 
 #endif
