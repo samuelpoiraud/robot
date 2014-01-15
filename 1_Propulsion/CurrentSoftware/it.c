@@ -104,6 +104,7 @@ void _ISR _T1Interrupt()
 	#ifdef MODE_PRINTF_TABLEAU
 		debug_print_tableau();
 	#endif
+
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 		DEBUG_process_it();
 	#endif
