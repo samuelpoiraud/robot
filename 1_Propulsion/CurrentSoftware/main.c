@@ -50,8 +50,7 @@
 #endif
 
 
-#if defined(VERBOSE_MSG_SEND_OVER_UART) ||				\
-	 defined(SIMULATION_VIRTUAL_PERFECT_ROBOT) ||		\
+#if  defined(SIMULATION_VIRTUAL_PERFECT_ROBOT) ||		\
 	 defined(MODE_PRINTF_TABLEAU) ||					\
 	 defined(MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT) ||	\
 	 defined(SUPERVISOR_DISABLE_ERROR_DETECTION) ||		\
