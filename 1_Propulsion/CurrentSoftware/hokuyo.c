@@ -27,7 +27,7 @@
 
 #ifdef USE_HOKUYO
 
-	#define HOKUYO_OFFSET 4500 //45 degrés
+	#define HOKUYO_ANGLE_OFFSET 4500 //45 degrés
 	#define HOKUYO_ANGLE_ROBOT_TERRAIN 0
 	#define HOKUYO_DETECTION_MARGE 130
 	#define HOKUYO_EVITEMENT_MIN 150
@@ -35,6 +35,8 @@
 	#define ROBOT_COORDX 150
 	#define ROBOT_COORDY 150
 	#define ECARTEMENT_PTS_MAX_CARRE 22500
+	#define NB_MAX_ADVERSARIES	16
+	#define NB_BYTES_FROM_HOKUYO	5000
 
 	__ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core __ALIGN_END;
 	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
@@ -44,34 +46,37 @@
 		int teta;
 		Sint32 coordX;
 		Sint32 coordY;
-	}HOKUYO_data;
-
-	typedef struct{
-			Sint32 coordX;
-			Sint32 coordY;
-	}HOKUYO_ennemy;
+	}HOKUYO_adversary_position;
 
 
-	HOKUYO_data detected_points[1080];
-	HOKUYO_ennemy hokuyo_ennemi[1080];
+	static Uint8 HOKUYO_datas[NB_BYTES_FROM_HOKUYO];				//Données brutes issues du capteur HOKUYO
+	static Uint32 datas_index=0;									//Index pour ces données
+
+	static HOKUYO_adversary_position detected_valid_points[1080];	//Points valides détectés par le capteur (X, Y, teta, distance)
+	static Uint16 nb_valid_points=0;								//Nombre de points valides détectés
+
+	static HOKUYO_adversary_position hokuyo_adversaries[NB_MAX_ADVERSARIES];	//Positions des adversaires détectés
+	static Uint8 adversaries_number=0;											//Nombre d'adversaires détectés
+
+	static bool_e hokuyo_initialized = FALSE;						//Module initialisé - sécurité.
+	volatile bool_e flag_device_disconnected = FALSE;				//Flag levé en callback lorsque le capteur vient d'être débranché
+
 
 	void hokuyo_write_command(Uint8 tab[]);
 	int hokuyo_write_uart_manually(void);
-	void hokuyo_read_buffer(Uint8 * tab, Uint32 * i);
-	void hokuyo_format_data(Uint8 * tab);
-	void hokuyo_find_valid_points(Uint8 * tabvaleurs,Uint16 * nb_valid_points);
-
+	void hokuyo_read_buffer(void);
+	void hokuyo_format_data(void);
+	void hokuyo_find_valid_points(void);
 	Sint32 hokuyo_dist_min(Uint16 compt);
 
-
 	//Deux fonctions pour detecter des regroupements de points
-	void hokuyo_detection_ennemis(Uint16 compt_sushis,int *nb_ennemi);
-	void ReconObjet(Uint16 compt_sushis,int *nb_ennemi);
-	void DetectRobots(Uint16 compt_sushis,int *nb_ennemi);
+	void hokuyo_detection_ennemis(void);
+	//void ReconObjet(void);
+	void DetectRobots(void);
 
 
-static bool_e hokuyo_initialized = FALSE;
-volatile bool_e flag_device_disconnected = FALSE;
+
+
 
 //Fonction d'initialisation du périphérique USB
 void HOKUYO_init(void)
@@ -97,10 +102,10 @@ void HOKUYO_init(void)
 
 
 
-#define NB_BYTES_FROM_HOKUYO	5000
+
 //Process main
-void HOKUYO_process_main(void){
-	USBH_Process(&USB_OTG_Core, &USB_Host);
+void HOKUYO_process_main(void)
+{
 	typedef enum
 	{
 		INIT=0,
@@ -109,7 +114,8 @@ void HOKUYO_process_main(void){
 		BUFFER_READ,
 		REMOVE_LF,
 		TREATMENT_DATA,
-		DETECTION_ENNEMIS,
+		DETECTION_ADVERSARIES,
+		SEND_ADVERSARIES_DATAS,
 		ERROR,
 		RESET_HOKUYO,
 		RESET_ACKNOWLEDGE,
@@ -118,10 +124,10 @@ void HOKUYO_process_main(void){
 		DONE
 	}state_e;
 	static state_e state = INIT;
-	static Uint8 tab[NB_BYTES_FROM_HOKUYO];
-	static Uint16 nb_valid_points=0;
-	static Uint32 index=0;
-	static Uint8 nb_ennemis=1;
+
+	//Process main du périphérique USB.
+	USBH_Process(&USB_OTG_Core, &USB_Host);
+
 
 	if(flag_device_disconnected)
 	{
@@ -129,7 +135,7 @@ void HOKUYO_process_main(void){
 		state = INIT;
 	}
 
-	switch(state)
+	switch(state)	//MAE.
 	{
 		case INIT:
 			if(hokuyo_initialized)	//Si pas initialisé, on reste ici..
@@ -138,51 +144,49 @@ void HOKUYO_process_main(void){
 		case HOKUYO_WAIT:
 			if(USBH_CDC_is_ready_to_run())
 				state=ASK_NEW_MEASUREMENT;
-
 		break;
 		case ASK_NEW_MEASUREMENT:
 			hokuyo_write_command((Uint8*)"MS0000108001001");
-			index=0;
-			nb_valid_points=0;
-			nb_ennemis=1;
+			datas_index=0;
 			state=BUFFER_READ;
 		break;
-
 		case BUFFER_READ:
-			hokuyo_read_buffer(tab,&index);
-			if(tab[index-2]==0x0A && tab[index-1]==0x0A && index>=2274)
+			hokuyo_read_buffer();
+			if(HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
 				state=REMOVE_LF;
-			else if(index>2278)
+			else if(datas_index>2278)
 				state=ERROR;
 		break;
 		case REMOVE_LF:
-			hokuyo_format_data(tab);
+			hokuyo_format_data();
 			state=TREATMENT_DATA;
 		break;
 		case TREATMENT_DATA:
-			hokuyo_find_valid_points(tab,&nb_valid_points);
-			state=DETECTION_ENNEMIS;
+			hokuyo_find_valid_points();
+			state=DETECTION_ADVERSARIES;
 		break;
-		case DETECTION_ENNEMIS:
-
+		case DETECTION_ADVERSARIES:
 			//hokuyo_dist_min(nb_pts_terrain);
 			//hokuyo_detection_ennemis(nb_pts_terrain,&nb_ennemis);
-			DetectRobots(nb_valid_points,&nb_ennemis);
+			DetectRobots();
 			//ReconObjet(nb_pts_terrain);
-			state=ASK_NEW_MEASUREMENT;
+			state=SEND_ADVERSARIES_DATAS;
 		break;
+		case SEND_ADVERSARIES_DATAS:
+			state=ASK_NEW_MEASUREMENT;
+			break;
 		case ERROR:
 			debug_printf("ERROR SEQUENCE INITIALIZING");
 			state=RESET_HOKUYO;
 		break;
 		case RESET_HOKUYO:
 			hokuyo_write_command((Uint8*)"RS");
-			index = 0;
+			datas_index = 0;
 			state=RESET_ACKNOWLEDGE;
 		break;
 		case RESET_ACKNOWLEDGE:
-			hokuyo_read_buffer(tab,&index);
-			if(tab[index-2]==0x0A && tab[index-1]==0x0A)
+			hokuyo_read_buffer();
+			if(HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A)
 				state=TURN_ON_LASER;
 			else
 				state=TURN_OFF_LASER;
@@ -196,7 +200,6 @@ void HOKUYO_process_main(void){
 			state=DONE;
 		break;
 		case DONE:
-
 		break;
 		default:
 		break;
@@ -257,29 +260,30 @@ int hokuyo_write_uart_manually(void)
 }
 
 //Fonction qui permet de lire le buffer
-void hokuyo_read_buffer(Uint8 * tab, Uint32 * index)
+void hokuyo_read_buffer(void)
 {
 	while(!UART_USB_isRxEmpty())
 	{
-		tab[*index] = UART_USB_read();
+		HOKUYO_datas[datas_index] = UART_USB_read();
 		//debug_printf("%c",tab[*i]);
 		//UART1_putc(tab[*i]);
-		if(*index < NB_BYTES_FROM_HOKUYO)
-			*index+=1;
+		if(datas_index < NB_BYTES_FROM_HOKUYO)
+			datas_index++;
 		else
 			fatal_printf("HOKUYO : overflow in hokuyo_read_buffer !\n");
 	}
 }
 
 //Fonction qui formate les données afin d'etre traitées.
-void hokuyo_format_data(Uint8 *tab)
+void hokuyo_format_data(void)
 {
 	int j=47;
 	int i=0;
 	while(j<=2274)
 	{
-		if(tab[j+1]=='\n') j+=2;
-		tab[i]=tab[j];
+		if(HOKUYO_datas[j+1]=='\n')
+			j+=2;
+		HOKUYO_datas[i]=HOKUYO_datas[j];
 		//debug_printf("%c",tab[i]);
 		i++;
 		j++;
@@ -287,7 +291,7 @@ void hokuyo_format_data(Uint8 *tab)
 }
 
 //Fonction qui renvoi les coordonnées des points detectés sur le terrain
-void hokuyo_find_valid_points(Uint8 * tabvaleurs, Uint16 * nb_valid_points)
+void hokuyo_find_valid_points(void)
 {
 		Uint16 nb_val_bizarres=0;
 		Uint16 a,b;
@@ -313,20 +317,19 @@ void hokuyo_find_valid_points(Uint8 * tabvaleurs, Uint16 * nb_valid_points)
 		Sint16 cosoffsetTerrain;
 		Sint16 sinoffsetTerrain;
 
-		//Sint32 coordTerrainX = 160;
-		//Sint32 coordTerrainY = 130;
+		nb_valid_points=0;
 
 		for(nb_pts = 0; nb_pts<=1080; nb_pts++)
 		{
-			a = tabvaleurs[comp];
-			b = tabvaleurs[comp+1];
+			a = HOKUYO_datas[comp];
+			b = HOKUYO_datas[comp+1];
 
 			//calcul distance
 			dist[nb_pts]=((a-0x30)<<6)+((b-0x30)&0x3f);	//cf datasheet de l'hokuyo... pour comprendre comment les données sont codées.
 
 			//Sint32(a) * PI4096 /18000
 			anglerad = (((Sint32)(angle))*183)>>8;
-			angleoffsetrad = (((Sint32)(HOKUYO_OFFSET))*183)>>8;
+			angleoffsetrad = (((Sint32)(HOKUYO_ANGLE_OFFSET))*183)>>8;
 
 			angleRobotTerrainRad = (((Sint32)(HOKUYO_ANGLE_ROBOT_TERRAIN))*183)>>8;
 
@@ -359,18 +362,18 @@ void hokuyo_find_valid_points(Uint8 * tabvaleurs, Uint16 * nb_valid_points)
 					dist[nb_pts]>100)
 			{
 								//debug_printf("d = [%ld mm]",dist[nb_pts]);
-				detected_points[*nb_valid_points].dist=dist[nb_pts];
+				detected_valid_points[nb_valid_points].dist=dist[nb_pts];
 
-				//debug_printf(" teta = [%d] \n",angle-HOKUYO_OFFSET);
-				detected_points[*nb_valid_points].teta=(angle-HOKUYO_OFFSET);
+				//debug_printf(" teta = [%d] \n",angle-HOKUYO_ANGLE_OFFSET);
+				detected_valid_points[nb_valid_points].teta=(angle-HOKUYO_ANGLE_OFFSET);
 
 				//debug_printf(" X = [%ld mm]",coordCibleX);
-				detected_points[*nb_valid_points].coordX=coordCibleX;
+				detected_valid_points[nb_valid_points].coordX=coordCibleX;
 
 				//debug_printf(" Y = [%ld mm]\n",coordCibleY);
-				detected_points[*nb_valid_points].coordY=coordCibleY;
+				detected_valid_points[nb_valid_points].coordY=coordCibleY;
 
-				*nb_valid_points = *nb_valid_points + 1;
+				nb_valid_points++;
 			}
 			angle+=25;
 			comp+=2;
@@ -384,11 +387,11 @@ Sint32 hokuyo_dist_min(Uint16 compt)
 {
 	Uint16 i;
 	Sint32 dist_min;
-	dist_min = detected_points[0].dist;
+	dist_min = detected_valid_points[0].dist;
 	for(i=1;i<compt;i++)
 	{
-		if(detected_points[i].dist < dist_min)
-			dist_min = detected_points[i].dist;
+		if(detected_valid_points[i].dist < dist_min)
+			dist_min = detected_valid_points[i].dist;
 	}
 	debug_printf("dist min [%ld mm] \n",dist_min);
 	//if(dist_min < HOKUYO_EVITEMENT_MIN)
@@ -397,42 +400,44 @@ Sint32 hokuyo_dist_min(Uint16 compt)
 }
 
 //fonctions de detection des ennemis
-void hokuyo_detection_ennemis(Uint16 compt_sushis,int *nb_ennemi){
+void hokuyo_detection_ennemis(void){
 	Uint16 i;
 	Sint32 x_comp;
 	Sint32 y_comp;
 	Sint32 moyenne_x;
 	Sint32 moyenne_y;
 
-	x_comp=detected_points[0].coordX;
-	y_comp=detected_points[0].coordY;
-
-	for(i=0;i<compt_sushis;i++)
+	x_comp=detected_valid_points[0].coordX;
+	y_comp=detected_valid_points[0].coordY;
+	adversaries_number = 0;
+	for(i=0;i<nb_valid_points;i++)
 	{
-		if(	!(	detected_points[i].coordX <= (x_comp+HOKUYO_DETECTION_MARGE)  	&&
-				detected_points[i].coordX >= (x_comp-HOKUYO_DETECTION_MARGE)	) &&
-			!(detected_points[i].coordY <= (y_comp+HOKUYO_DETECTION_MARGE)  	&&
-				detected_points[i].coordY >= (y_comp-HOKUYO_DETECTION_MARGE)	))
+		if(	!(	detected_valid_points[i].coordX <= (x_comp+HOKUYO_DETECTION_MARGE)  	&&
+				detected_valid_points[i].coordX >= (x_comp-HOKUYO_DETECTION_MARGE)	) &&
+			!(detected_valid_points[i].coordY <= (y_comp+HOKUYO_DETECTION_MARGE)  	&&
+				detected_valid_points[i].coordY >= (y_comp-HOKUYO_DETECTION_MARGE)	))
 		{
-				moyenne_x=(x_comp+detected_points[i-1].coordX)/2;
-				moyenne_y=(y_comp+detected_points[i-1].coordY)/2;
-				hokuyo_ennemi[*nb_ennemi].coordX=moyenne_x;
-				hokuyo_ennemi[*nb_ennemi].coordY=moyenne_y;
-				*nb_ennemi+=1;
-				x_comp=detected_points[i].coordX;
-				y_comp=detected_points[i].coordY;
+				moyenne_x=(x_comp+detected_valid_points[i-1].coordX)/2;
+				moyenne_y=(y_comp+detected_valid_points[i-1].coordY)/2;
+				hokuyo_adversaries[adversaries_number].coordX=moyenne_x;
+				hokuyo_adversaries[adversaries_number].coordY=moyenne_y;
+				if(adversaries_number < NB_MAX_ADVERSARIES - 1)
+					adversaries_number++;
+				x_comp=detected_valid_points[i].coordX;
+				y_comp=detected_valid_points[i].coordY;
 		}
 	}
-	debug_printf("il y a  %d mechant(s)\n",*nb_ennemi);
+	debug_printf("il y a  %d mechant(s)\n",adversaries_number);
 
-	for(i=1;i<=*nb_ennemi;i++)
+	for(i=1;i<=adversaries_number;i++)
 	{
-		debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_ennemi[i].coordX);
-		debug_printf(" et y=[%ld mm]\n",hokuyo_ennemi[i].coordY);
+		debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_adversaries[i].coordX);
+		debug_printf(" et y=[%ld mm]\n",hokuyo_adversaries[i].coordY);
 	}
 }
 
-void ReconObjet(Uint16 compt_sushis,int *nb_ennemi)
+/*
+void ReconObjet(Uint16 compt_sushis)
 {
 	Uint16 i;
 	Sint32 nb_close_points;
@@ -446,10 +451,10 @@ void ReconObjet(Uint16 compt_sushis,int *nb_ennemi)
 	{
 		if((detected_points[i].coordX > detected_points[i-1].coordX+HOKUYO_DETECTION_MARGE && detected_points[i].coordX < detected_points[i-1].coordX-HOKUYO_DETECTION_MARGE) && (detected_points[i].coordY > detected_points[i-1].coordY+HOKUYO_DETECTION_MARGE && detected_points[i].coordY < detected_points[i-1].coordY-HOKUYO_DETECTION_MARGE) )
 		{
-			hokuyo_ennemi[*nb_ennemi].coordX=sumX/nb_close_points;
-			hokuyo_ennemi[*nb_ennemi].coordY=sumY/nb_close_points;
+			hokuyo_adversaries[adversaries_number].coordX=sumX/nb_close_points;
+			hokuyo_adversaries[adversaries_number].coordY=sumY/nb_close_points;
 			nb_close_points=1;
-			*nb_ennemi+=1;
+			adversaries_number++;
 			sumX=detected_points[i].coordX;
 			sumY=detected_points[i].coordY;
 		}
@@ -458,21 +463,21 @@ void ReconObjet(Uint16 compt_sushis,int *nb_ennemi)
 			sumX+=detected_points[i].coordX;
 			sumY+=detected_points[i].coordY;
 			nb_close_points++;
-			hokuyo_ennemi[*nb_ennemi].coordX=sumX/nb_close_points;
-			hokuyo_ennemi[*nb_ennemi].coordY=sumY/nb_close_points;
+			hokuyo_adversaries[adversaries_number].coordX=sumX/nb_close_points;
+			hokuyo_adversaries[adversaries_number].coordY=sumY/nb_close_points;
 		}
 	}
 	debug_printf("il y a  %d mechant(s)\n",*nb_ennemi);
 
-	for(i=1;i<=*nb_ennemi;i++)
+	for(i=0;i<=adversaries_number;i++)
 	{
-		debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_ennemi[i].coordX);
-		debug_printf(" et y=[%ld mm]\n",hokuyo_ennemi[i].coordY);
+		debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_adversaries[i].coordX);
+		debug_printf(" et y=[%ld mm]\n",hokuyo_adversaries[i].coordY);
 	}
 }
+*/
 
-
-void DetectRobots(Uint16 compt_sushis,int *nb_ennemi)
+void DetectRobots(void)
 {
 	Uint16 i;
 	int nb_pts;
@@ -480,60 +485,67 @@ void DetectRobots(Uint16 compt_sushis,int *nb_ennemi)
 	Sint32 Distcarre;
 	Sint32 x_comp, y_comp, sumX, sumY;
 
-	x_comp=detected_points[0].coordX;
-	y_comp=detected_points[0].coordY;
-	sumX=detected_points[0].coordX;
-	sumY=detected_points[0].coordY;
+	adversaries_number = 0;
+
+	if(nb_valid_points < 1)
+		return;
+
+	x_comp=detected_valid_points[0].coordX;
+	y_comp=detected_valid_points[0].coordY;
+	sumX=detected_valid_points[0].coordX;
+	sumY=detected_valid_points[0].coordY;
 
 	nb_pts=1;
 
-	for(i=1;i<compt_sushis;i++)
+	for(i=1;i<nb_valid_points;i++)
 	{
-		deltaXcarre=(Sint32)(detected_points[i].coordX-x_comp)*(detected_points[i].coordX-x_comp);
-		deltaYcarre=(Sint32)(detected_points[i].coordY-y_comp)*(detected_points[i].coordY-y_comp);
+		deltaXcarre=(Sint32)(detected_valid_points[i].coordX-x_comp)*(detected_valid_points[i].coordX-x_comp);
+		deltaYcarre=(Sint32)(detected_valid_points[i].coordY-y_comp)*(detected_valid_points[i].coordY-y_comp);
 		Distcarre=deltaXcarre+deltaYcarre;
 
-		if(Distcarre<=ECARTEMENT_PTS_MAX_CARRE && i<compt_sushis-1)
+		if(Distcarre<=ECARTEMENT_PTS_MAX_CARRE && i<nb_valid_points-1)
 		{
-			sumX+=detected_points[i].coordX;
-			sumY+=detected_points[i].coordY;
+			sumX+=detected_valid_points[i].coordX;
+			sumY+=detected_valid_points[i].coordY;
 			nb_pts++;
-		}else if(i<compt_sushis-1){
+		}else if(i<nb_valid_points-1){
 
-			hokuyo_ennemi[*nb_ennemi].coordX=sumX/nb_pts;
-			hokuyo_ennemi[*nb_ennemi].coordY=sumY/nb_pts;
-			*nb_ennemi+=1;
+			hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
+			hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
+			if(adversaries_number < NB_MAX_ADVERSARIES - 1)
+				adversaries_number++;
 
 			nb_pts=1;
 
-			x_comp=detected_points[i].coordX;
-			y_comp=detected_points[i].coordY;
+			x_comp=detected_valid_points[i].coordX;
+			y_comp=detected_valid_points[i].coordY;
 
-			sumX=detected_points[i].coordX;
-			sumY=detected_points[i].coordY;
+			sumX=detected_valid_points[i].coordX;
+			sumY=detected_valid_points[i].coordY;
 		}else{                                            //cas du tout dernier point qui est en effet récalcitrant.
 			if(Distcarre<=ECARTEMENT_PTS_MAX_CARRE){
-				sumX+=detected_points[i].coordX;
-				sumY+=detected_points[i].coordY;
+				sumX+=detected_valid_points[i].coordX;
+				sumY+=detected_valid_points[i].coordY;
 				nb_pts++;
-				hokuyo_ennemi[*nb_ennemi].coordX=sumX/nb_pts;
-				hokuyo_ennemi[*nb_ennemi].coordY=sumY/nb_pts;
+				hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
+				hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
 			}else{
-				hokuyo_ennemi[*nb_ennemi].coordX=sumX/nb_pts;
-				hokuyo_ennemi[*nb_ennemi].coordY=sumY/nb_pts;
-				*nb_ennemi+=1;
-				hokuyo_ennemi[*nb_ennemi].coordX=detected_points[i].coordX;
-				hokuyo_ennemi[*nb_ennemi].coordY=detected_points[i].coordY;
+				hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
+				hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
+				if(adversaries_number < NB_MAX_ADVERSARIES - 1)
+					adversaries_number++;
+				hokuyo_adversaries[adversaries_number].coordX=detected_valid_points[i].coordX;
+				hokuyo_adversaries[adversaries_number].coordY=detected_valid_points[i].coordY;
 			}
 		}
 	}
 
-	debug_printf("il y a  %d intru(s)\n",*nb_ennemi);
+	debug_printf("il y a  %d intru(s)\n",adversaries_number);
 
-	for(i=1;i<=*nb_ennemi;i++)
+	for(i=0;i<=adversaries_number;i++)
 		{
-			debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_ennemi[i].coordX);
-			debug_printf(" et y=[%ld mm]\n",hokuyo_ennemi[i].coordY);
+			debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_adversaries[i].coordX);
+			debug_printf(" et y=[%ld mm]\n",hokuyo_adversaries[i].coordY);
 		}
 
 }

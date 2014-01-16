@@ -28,8 +28,8 @@
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
-//	#define CAN_SEND_OVER_UART		//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
-//	#define VERBOSE_MSG_SEND_OVER_UART	//A la place d'un envoi CAN, envoi d'un texte explicite sur l'UART : "Position : " ou "TrajFinie : ....."
+	#define CAN_SEND_OVER_UART		//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+	#define VERBOSE_MSG_SEND_OVER_UART	//A la place d'un envoi CAN, envoi d'un texte explicite sur l'UART : "Position : " ou "TrajFinie : ....."
 			//ATTENTION, INCOMPATIBLE AVEC L'ENVOI PERIODIQUE EN IT !!!!!!!!!
 
 	//#define MODE_REGLAGE_KV
