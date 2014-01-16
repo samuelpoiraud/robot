@@ -71,6 +71,7 @@
 
 
 static bool_e hokuyo_initialized = FALSE;
+volatile bool_e flag_device_disconnected = FALSE;
 
 //Fonction d'initialisation du périphérique USB
 void HOKUYO_init(void)
@@ -93,6 +94,7 @@ void HOKUYO_init(void)
 	}
 	hokuyo_initialized = TRUE;
 }
+
 
 
 #define NB_BYTES_FROM_HOKUYO	5000
@@ -121,6 +123,11 @@ void HOKUYO_process_main(void){
 	static Uint32 index=0;
 	static Uint8 nb_ennemis=1;
 
+	if(flag_device_disconnected)
+	{
+		flag_device_disconnected = FALSE;
+		state = INIT;
+	}
 
 	switch(state)
 	{
@@ -223,20 +230,10 @@ void OTG_HS_IRQHandler(void)
 }
 
 
-void user_callback_MSC_Application_Deinit(void)
+void user_callback_DeviceDisconnected(void)
 {
-	//Nothing.
+	flag_device_disconnected = TRUE;
 }
-
-int user_callback_MSC_Application(void)
-{
-	//Nothing.
-	return 0;
-}
-
-
-
-
 
 //Fonction qui permet de communiquer avec l'Hokuyo
 void hokuyo_write_command(Uint8 tab[])

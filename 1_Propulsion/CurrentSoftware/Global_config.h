@@ -24,9 +24,9 @@
 	#define I_AM_CARTE_ASSER
 
 #if defined(STM32F40XX)
-	#define HCLK_FREQUENCY_HZ     160000000	//40Mhz, Max: 168Mhz
-	#define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
-	#define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
+	#define HCLK_FREQUENCY_HZ     168000000	//40Mhz, Max: 168Mhz
+	#define PCLK1_FREQUENCY_HZ    42000000	//10Mhz, Max: 42Mhz
+	#define PCLK2_FREQUENCY_HZ    84000000	//40Mhz, Max: 84Mhz
 	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 #else
 	/* Il faut choisir à quelle frequence on fait tourner le PIC */
@@ -46,7 +46,7 @@
 
 #if defined(STM32F40XX)
 
-	#define PORT_A_IO_MASK	0xFC9B
+	#define PORT_A_IO_MASK	0xFE9B
 		#define BUTTON0_PORT		GPIOA->IDR0
 			//	XBEE/BT/U2TX				  2
 			//	XBEE/BT/U2RX				  3
@@ -64,7 +64,7 @@
 			//	U1TX						  6
 			//	U1RX						  7
 
-	#define PORT_C_IO_MASK	0x200F
+	#define PORT_C_IO_MASK	0x200E
 			#define	USB_POWER_ON	 	GPIOC->ODR0
 			//	Capteur			 			  1
 			//	Capteur			 			  2

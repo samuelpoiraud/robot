@@ -183,6 +183,7 @@ void USBH_USR_UnrecoveredError (void)
 }
 
 
+extern void user_callback_DeviceDisconnected(void);
 /**
 * @brief  USBH_DisconnectEvent
 *         Device disconnect event
@@ -191,7 +192,7 @@ void USBH_USR_UnrecoveredError (void)
 */
 void USBH_USR_DeviceDisconnected (void)
 {
-  
+	user_callback_DeviceDisconnected();
 
 }
 /**
