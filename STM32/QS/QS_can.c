@@ -73,7 +73,7 @@
 		CAN_InitStructure.CAN_NART = DISABLE;
 		CAN_InitStructure.CAN_RFLM = DISABLE;
 		CAN_InitStructure.CAN_TTCM = DISABLE;
-		CAN_InitStructure.CAN_TXFP = DISABLE;
+		CAN_InitStructure.CAN_TXFP = ENABLE;
 		CAN_Init(CAN1, &CAN_InitStructure);
 
 		#ifndef I_AM_CARTE_SUPER	//La carte super reçoi tout => pas de filtrage
