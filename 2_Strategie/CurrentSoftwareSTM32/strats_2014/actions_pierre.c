@@ -25,7 +25,7 @@
 /* ----------------------------------------------------------------------------- */
 
 #define DECALAGE_LARGEUR 200
-#define ELOIGNEMENT_ARBRE 340
+#define ELOIGNEMENT_ARBRE 350
 
 void strat_test_triangle_cote_rouge(void){
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -190,7 +190,7 @@ void strat_test_point(){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(500,300,POS_DEPART,POINT_W3,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(500,300,POS_DEPART,POINT_A1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case POINT_A1:
 		state = try_going(740,400,POINT_A1,RAMASSER_FRUIT_ARBRE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
@@ -234,7 +234,191 @@ void strat_test_point(){
 	}
 }
 
-error_e strat_test_deposser_fruit_rouge(){// Si le robot se trouve au point A2
+void strat_test_fresque(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		POINT_C1,
+		POINT_M0,
+		DEPOSER_FRESQUE,
+		DONE,
+		ERROR
+	);
+
+
+	CAN_msg_t msg;
+
+	switch(state){
+	case IDLE:
+		msg.sid=ASSER_SET_POSITION;
+		msg.data[0]=500 >> 8;
+		msg.data[1]=500 & 0xFF;
+		msg.data[2]=120 >> 8;
+		msg.data[3]=120 & 0xFF;
+		msg.data[4]=PI4096/2 >> 8;
+		msg.data[5]=PI4096/2 & 0xFF;
+		msg.size = 6;
+		CAN_send(&msg);
+
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+		state = try_going_until_break(500,250,POS_DEPART,POINT_C1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case POINT_C1:
+		state = try_going_until_break(800,1000,POINT_C1,POINT_M0,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case POINT_M0:
+		state = try_going(400,1500,POINT_M0,DEPOSER_FRESQUE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case DEPOSER_FRESQUE:
+		state = check_sub_action_result(strat_file_fresco_center(),DEPOSER_FRESQUE,DONE,ERROR);
+		break;
+	case DONE:
+		break;
+	case ERROR:
+		break;
+	default:
+		break;
+	}
+}
+
+error_e strat_file_fresco_right(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		WALL,
+		PUSH_MOVE,
+		WAIT_END_OF_MOVE,
+		END,
+		DONE,
+		ERROR
+	);
+
+	static bool_e timeout=FALSE;
+
+	switch(state){
+	case IDLE:
+		state = WALL;
+		break;
+	case WALL:
+		state = try_going(200,1700,WALL,PUSH_MOVE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
+		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
+		state = WAIT_END_OF_MOVE;
+		break;
+	case WAIT_END_OF_MOVE:
+		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			state = END;
+		}
+		break;
+	case END:
+		state = try_going_until_break(400,1700,END,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_file_fresco_center(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		WALL,
+		PUSH_MOVE,
+		WAIT_END_OF_MOVE,
+		END,
+		DONE,
+		ERROR
+	);
+
+	static bool_e timeout=FALSE;
+
+	switch(state){
+	case IDLE:
+		state = WALL;
+		break;
+	case WALL:
+		state = try_going(200,1500,WALL,PUSH_MOVE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
+		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
+		state = WAIT_END_OF_MOVE;
+		break;
+	case WAIT_END_OF_MOVE:
+		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			state = END;
+		}
+		break;
+	case END:
+		state = try_going_until_break(400,1500,END,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_file_fresco_left(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		WALL,
+		PUSH_MOVE,
+		WAIT_END_OF_MOVE,
+		END,
+		DONE,
+		ERROR
+	);
+
+	static bool_e timeout=FALSE;
+
+	switch(state){
+	case IDLE:
+		state = WALL;
+		break;
+	case WALL:
+		state = try_going(200,1300,WALL,PUSH_MOVE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
+		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
+		state = WAIT_END_OF_MOVE;
+		break;
+	case WAIT_END_OF_MOVE:
+		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			state = END;
+		}
+		break;
+	case END:
+		state = try_going_until_break(400,1300,END,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_test_deposser_fruit_rouge(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		AVANCER,
@@ -258,7 +442,7 @@ error_e strat_test_deposser_fruit_rouge(){// Si le robot se trouve au point A2
 	case TRAVERSE_BAC:
 		state = try_going_until_break(470,300,TRAVERSE_BAC,FIN,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 		break;
 	case FIN:
 		state = try_going_until_break(750,400,FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
@@ -280,7 +464,7 @@ error_e strat_test_deposser_fruit_rouge(){// Si le robot se trouve au point A2
 	return IN_PROGRESS;
 }
 
-error_e strat_test_deposser_fruit_jaune(){// Si le robot se trouve au point A2
+error_e strat_test_deposser_fruit_jaune(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		AVANCER,
@@ -304,7 +488,7 @@ error_e strat_test_deposser_fruit_jaune(){// Si le robot se trouve au point A2
 	case TRAVERSE_BAC:
 		state = try_going_until_break(470,1950,TRAVERSE_BAC,FIN,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 		break;
 	case FIN:
 		state = try_going_until_break(750,1800,FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
@@ -340,7 +524,7 @@ error_e strat_test_ramasser_fruit_arbre1(){
 		{{1450,ELOIGNEMENT_ARBRE},FAST},
 		{{1550,380},SLOW},
 		{{1600,440},SLOW},
-		{{2000-ELOIGNEMENT_ARBRE,530},SLOW},
+		{{2000-ELOIGNEMENT_ARBRE,530},SLOW}
 	};
 
 
@@ -355,7 +539,7 @@ error_e strat_test_ramasser_fruit_arbre1(){
 		state = try_going_multipoint(courbe,4,COURBE,POS_FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 
 		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
 		break;
 	case POS_FIN:
 		state = try_going(2000-ELOIGNEMENT_ARBRE,900,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
@@ -385,9 +569,9 @@ error_e strat_test_ramasser_fruit_arbre2(){
 		ERROR
 	);
 
-	displacement_t courbe[4] = {
+	displacement_t courbe[3] = {
 		{{2000-ELOIGNEMENT_ARBRE,2450},FAST},
-		{{1600,2500},SLOW},
+		//{{1600,2500},SLOW},
 		{{1550,2600},SLOW},
 		{{1300,3000-ELOIGNEMENT_ARBRE},SLOW},
 	};
@@ -401,10 +585,10 @@ error_e strat_test_ramasser_fruit_arbre2(){
 		state = try_going(2000-ELOIGNEMENT_ARBRE,2100,POS_DEPART,COURBE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case COURBE:
-		state = try_going_multipoint(courbe,4,COURBE,POS_FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+		state = try_going_multipoint(courbe,3,COURBE,POS_FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 
 		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
 		break;
 	case POS_FIN:
 		state = try_going(1050,3000-ELOIGNEMENT_ARBRE,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
@@ -415,97 +599,6 @@ error_e strat_test_ramasser_fruit_arbre2(){
 		break;
 	case ERROR:
 		//ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e strat_test_ramasser_fruit_arbre1A(){// Si le robot se trouve au point A2
-	CREATE_MAE_WITH_VERBOSE(0,
-		IDLE,
-		POINT_A2,
-		SOUS_ARBRE,
-		TOURNER,
-		AVANCER,
-		DONE,
-		ERROR
-	);
-
-	switch(state){
-	case IDLE:
-		state = SOUS_ARBRE;
-		break;
-	case SOUS_ARBRE:
-		state = try_going(1200,335,SOUS_ARBRE,TOURNER,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case TOURNER:
-		state = try_go_angle(0,TOURNER,AVANCER,ERROR,SLOW);
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
-		break;
-	case AVANCER:
-		state = try_going(1650,335,AVANCER,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case POINT_A2:
-		state = try_going(1350,400,POINT_A2,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-		break;
-	case DONE:
-		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-		return END_OK;
-		break;
-	case ERROR:
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
-	}
-
-	return IN_PROGRESS;
-}
-
-
-error_e strat_test_ramasser_fruit_arbre1B(){// Si le robot se trouve au point B3
-	CREATE_MAE_WITH_VERBOSE(0,
-		IDLE,
-		POINT_B3,
-		SOUS_ARBRE,
-		TOURNER,
-		AVANCER,
-		DONE,
-		ERROR
-	);
-
-	switch(state){
-	case IDLE:
-		state = SOUS_ARBRE;
-		break;
-	case SOUS_ARBRE:
-		state = try_going(1665,400,SOUS_ARBRE,TOURNER,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case TOURNER:
-		state = try_go_angle(0,TOURNER,AVANCER,ERROR,SLOW);
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
-		break;
-	case AVANCER:
-		state = try_going(1665,900,AVANCER,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case POINT_B3:
-		state = try_going(1600,650,POINT_B3,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-		break;
-	case DONE:
-		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-		return END_OK;
-		break;
-	case ERROR:
 		return NOT_HANDLED;
 		break;
 	default:
