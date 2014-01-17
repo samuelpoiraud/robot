@@ -95,9 +95,8 @@
 #define USE_ANALOG_EXT_VREF
 
 #define USE_AN8
-#define ADC_PIN_DT10_GLASSES	0
+#define ADC_CHANNEL_MEASURE24	0
 #define USE_AN9 			// DT10 glasses sur TINY
-
 
 #define USE_XBEE
 #define XBEE_PLUGGED_ON_UART2

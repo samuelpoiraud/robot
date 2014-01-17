@@ -18,6 +18,10 @@
 #include "../QS/QS_uart.h"
 #include "../QS/QS_watchdog.h"
 #include "../QS/QS_can_over_uart.h"
+#include "../QS/QS_adc.h"
+#include "../QS/QS_WHO_AM_I.h"
+#include "SD/Libraries/fat_sd/ff.h"
+#include "RTC.h"
 
 #define TIMEOUT_SELFTEST_ACT 		20000	// en ms
 #define TIMEOUT_SELFTEST_PROP 		10000	// en ms
@@ -25,6 +29,9 @@
 #define TIMEOUT_SELFTEST_BEACON_IR 	1000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_US 	1000	// en ms
 #define MAX_ERRORS_NUMBER 20
+#define THRESHOLD_BATTERY_OFF	15000	//[mV] En dessous cette valeur, on considère que la puissance est absente
+#define THRESHOLD_BATTERY_LOW	22000	//[mV] Réglage du seuil de batterie faible
+
 #define LED_ON	1
 #define LED_OFF	0
 
@@ -35,10 +42,10 @@
 #define NOMBRE_TESTS_BALISE 2
 
 volatile bool_e ask_launch_selftest = FALSE;
-
+volatile bool_e selftest_is_running = FALSE;
 SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
 volatile Uint8 errors_index = 0;
-
+volatile Uint8 t500ms = 0;	//Minuteur [500ms]
 typedef enum
 {
 	END_OK=0,
@@ -47,6 +54,10 @@ typedef enum
 }error_e;
 
 error_e SELFTEST_strategy(bool_e reset);
+void SELFTEST_update(CAN_msg_t* CAN_msg_received);
+void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size);
+void SELFTEST_beacon_reask_periodic_sending(void);
+Uint16 SELFTEST_measure24_mV(void);
 
 void SELFTEST_init(void)
 {
@@ -88,9 +99,18 @@ void SELFTEST_declare_errors(CAN_msg_t * msg, SELFTEST_error_code_e error)
 	}
 }
 
+void SELFTEST_process_500ms(void)
+{
+	if(selftest_is_running)
+		LED_SELFTEST = !LED_SELFTEST;	//On fait clignoter la led selftest à 2hz pendant le selftest.
+	if(t500ms)
+		t500ms--;
+}
+
 void SELFTEST_process_main(void)
 {
 	SELFTEST_update(NULL);
+	SELFTEST_beacon_reask_periodic_sending();	//Toutes les 200 secondes, il faut redemander à la carte balise d'envoyer des messages périodiquement
 	//TODO... ?
 }
 
@@ -131,11 +151,25 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
 				//lcd_printf_last_line("Selftest : launch\n");
 				errors_index = 0;	//On REMET le compteur d'erreur à 0.
-				state = SELFTEST_ACT;
+				state = SELFTEST_STRAT;
 				flag_timeout = FALSE;
+				selftest_is_running = TRUE;
 			}
 			break;
+		case SELFTEST_STRAT:
+			if(entrance)
+			{
+				SELFTEST_strategy(TRUE);	//Reset de la sous-machine a états
+				flag_timeout = FALSE;
+				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_STRAT, (bool_e*) &(flag_timeout));
+			}
+			if(SELFTEST_strategy(FALSE) != IN_PROGRESS)	//La fonction SELFTEST_strategy déclare elle-même ses erreurs.
+				state = SELFTEST_ACT;
+			if(flag_timeout)	//Timeout
+				state = SELFTEST_ACT;
+			break;
 		case SELFTEST_ACT:
+			/////////////////////////////TODO : faire un ping préalable pour vérifier que les autres cartes sont là avant d'entrer dans le timeout de 20 secondes !!
 			if(entrance)
 			{
 				CAN_send_sid(ACT_DO_SELFTEST);
@@ -156,12 +190,12 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		case SELFTEST_PROP:
 			if(entrance)
 			{
-				CAN_send_sid(ACT_DO_SELFTEST);
+				CAN_send_sid(PROP_DO_SELFTEST);
 				flag_timeout = FALSE;
 				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_PROP, (bool_e*) &(flag_timeout));
 			}
 			if(CAN_msg_received != NULL)
-				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
+				if(CAN_msg_received->sid == STRAT_PROP_SELFTEST_DONE)
 				{
 					//Retour de la carte Propulsion
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
@@ -174,52 +208,24 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		case SELFTEST_BEACON_IR:
 			if(entrance)
 			{
-				CAN_send_sid(ACT_DO_SELFTEST);
+				CAN_send_sid(BEACON_DO_SELFTEST);
 				flag_timeout = FALSE;
 				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_IR, (bool_e*) &(flag_timeout));
 			}
 			if(CAN_msg_received != NULL)
-				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
+				if(CAN_msg_received->sid == STRAT_BEACON_IR_SELFTEST_DONE)
 				{
 					//Retour de la carte Beacon IR
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					WATCHDOG_stop(watchdog_id);
-					state = SELFTEST_BEACON_US;
+					state = SELFTEST_END;
 				}
-			if(flag_timeout)	//Timeout
-				state = SELFTEST_BEACON_US;
-			break;
-		case SELFTEST_BEACON_US:
-			if(entrance)
-			{
-				CAN_send_sid(ACT_DO_SELFTEST);
-				flag_timeout = FALSE;
-				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_US, (bool_e*) &(flag_timeout));
-			}
-			if(CAN_msg_received != NULL)
-				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
-				{
-					//Retour de la carte Beacon US
-					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
-					WATCHDOG_stop(watchdog_id);
-					state = SELFTEST_STRAT;
-				}
-			if(flag_timeout)	//Timeout
-				state = SELFTEST_STRAT;
-			break;
-		case SELFTEST_STRAT:
-		if(entrance)
-			{
-				SELFTEST_strategy(TRUE);	//Reset de la sous-machine a états
-				flag_timeout = FALSE;
-				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_STRAT, (bool_e*) &(flag_timeout));
-			}
-			if(SELFTEST_strategy(FALSE) != IN_PROGRESS)	//La fonction SELFTEST_strategy déclare elle-même ses erreurs.
-				state = SELFTEST_END;
 			if(flag_timeout)	//Timeout
 				state = SELFTEST_END;
 			break;
+
 		case SELFTEST_END:
+			selftest_is_running = FALSE;
 			ask_launch_selftest = FALSE;	//Fin du selftest (et du clignotement de la led selftest).
 			if(errors_index > 0)//Tout s'est bien passé
 			{
@@ -243,6 +249,13 @@ error_e SELFTEST_strategy(bool_e reset)
 	typedef enum
 	{
 		INIT = 0,
+		TEST_LEDS_AND_BUZZER,
+		TEST_RTC,
+		TEST_MEASURE24,
+		TEST_WHO_AM_I_1,
+		TEST_WHO_AM_I_2,
+		TEST_BIROUTE,
+		TEST_SD_CARD,
 		FAIL,
 		DONE
 	}state_e;
@@ -250,6 +263,15 @@ error_e SELFTEST_strategy(bool_e reset)
 	static state_e previous_state = INIT;
 	bool_e entrance;
 	error_e ret;
+	static watchdog_id_t watchdog_id;
+	static bool_e flag_timeout;
+	static FIL file;
+	static robot_id_e prop_robot_id;
+	static robot_id_e act_robot_id;
+	Uint8 nb_written;
+	date_t date;
+	Uint8 status;
+	Uint16 battery_level;
 	
 	entrance = (state != previous_state)?TRUE:FALSE;
 	previous_state = state;
@@ -260,7 +282,71 @@ error_e SELFTEST_strategy(bool_e reset)
 	switch(state)
 	{
 		case INIT:
-			state = DONE;
+			state = TEST_LEDS_AND_BUZZER;
+			break;
+		case TEST_LEDS_AND_BUZZER:
+			if(entrance)
+				t500ms = 5;	//2,5 secondes
+			LED_SELFTEST = (t500ms&1);	//Si t est impair, on allume toutes les leds.
+			LED_ERROR 	= LED_SELFTEST;
+			LED_CAN 	= LED_SELFTEST;
+			LED_UART 	= LED_SELFTEST;
+			LED_RUN 	= LED_SELFTEST;
+			LED_USER 	= LED_SELFTEST;
+			//if(t500ms&1)
+			//	BUZZER_run(FREQ);//TODO lier avec le module BUZZER
+
+			if(!t500ms)	//Lorsque T vaut 0 (et que les leds sont éteintes...)
+			{
+				//BUZZER_stop();
+				state = TEST_RTC;
+			}
+			break;
+		case TEST_RTC:
+			status = RTC_get_local_time (&date);
+			if(!status)
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_RTC);
+			state = TEST_MEASURE24;
+			break;
+		case TEST_MEASURE24:
+			battery_level = SELFTEST_measure24_mV();
+			if(battery_level < THRESHOLD_BATTERY_OFF)
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_NO_24V);
+			else if(battery_level < THRESHOLD_BATTERY_LOW)
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_LOW);
+			break;
+		case TEST_WHO_AM_I_1:
+			prop_robot_id = QS_WHO_AM_I_get();
+			act_robot_id = QS_WHO_AM_I_get();
+			if(entrance)
+			{
+				//TODO msg can pour demander à la prop et à l'act qui elle sont
+				t500ms = 2;
+			}
+			//TODO traiter les messages can entrants...
+			if(!t500ms)
+				state = TEST_WHO_AM_I_2;
+
+			break;
+		case TEST_WHO_AM_I_2:
+			if(prop_robot_id != QS_WHO_AM_I_get() || act_robot_id != QS_WHO_AM_I_get())
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
+			state = TEST_BIROUTE;
+			break;
+		case TEST_BIROUTE:
+			if(!BIROUTE)
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BIROUTE_FORGOTTEN);
+			state = TEST_SD_CARD;
+			break;
+		case TEST_SD_CARD:
+			nb_written = 0;
+			if(f_open(&file, "test.txt", FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
+			{
+				f_write(&file, "test_string", 11, (unsigned int *)&nb_written);
+				f_close(&file);
+			}
+			if(nb_written != 11)
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SD_WRITE_FAIL);
 			break;
 		case FAIL:
 			ret = NOT_HANDLED;
@@ -272,6 +358,12 @@ error_e SELFTEST_strategy(bool_e reset)
 	return ret;
 }
 
+//Fonction publique : renvoie la tension de la batterie en mV.
+Uint16 SELFTEST_measure24_mV(void)
+{
+	Uint32 measure = (Uint32)ADC_getValue(ADC_CHANNEL_MEASURE24);
+	return (Uint16)((measure * 3000)/4096);	//3000 [mV] correspond à 4096 [ADC]
+}
 
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
@@ -299,16 +391,16 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 	}
 }
 
-//Flag qui permet de lancer la fonction SELFTEST_balise_update
-volatile bool_e flag_1s = FALSE;
+//Flag qui permet de lancer la fonction SELFTEST_beacon_reask_periodic_sending
+volatile bool_e flag_500ms = FALSE;
 
 //Fonction qui leve le flag précédent appelée par le timer4: 250ms
 void SELFTEST_process_1sec(){
-	flag_1s = TRUE;
+	flag_500ms = TRUE;
 }
 
 
-void led_us_update(selftest_beacon_e state){
+//void led_us_update(selftest_beacon_e state){
 		/*switch(state)
 		{
 			case BEACON_ERROR:
@@ -328,7 +420,7 @@ void led_us_update(selftest_beacon_e state){
 				LED_BEACON_US_GREEN = LED_OFF;
 				break;
 		}*/
-}
+//}
 
 void led_ir_update(selftest_beacon_e state)
 	{
@@ -354,23 +446,21 @@ void led_ir_update(selftest_beacon_e state)
 }
 
 
-void SELFTEST_balise_update(){
-	static Uint8 counter = 8;
-
-	if(flag_1s)
+void SELFTEST_beacon_reask_periodic_sending(void)
+{
+	static Uint16 counter = 1;
+	if(flag_500ms)
 	{
-		if(ask_launch_selftest)
-			LED_SELFTEST = !LED_SELFTEST;	//clignotement de la led pendant le selftest.
-		if(global.env.match_started == FALSE)
+		if(global.env.match_started == FALSE)	//Tant que le match n'est pas commencé, on demande régulièrement aux balises des envois périodiques
 		{
 			counter--;
 			if(counter == 0)
 			{
-				counter = 200;
-				//TODO : CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
+				counter = 400;	//200 secondes
+				CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
 			}
 		}
-		flag_1s = FALSE;
+		flag_500ms = FALSE;
 	}
 }
 
@@ -426,12 +516,7 @@ void error_counters_update(CAN_msg_t * msg){
 			if(msg->data[4] & 0b10000000)
 				beacon_error_report.beacon_error_ir_counter[msg->data[6]]++;
 
-			/*
-			if(beacon_error_report.beacon_error_ir_counter[msg->data[0]] < 0XFF)
-				beacon_error_report.beacon_error_ir_counter[msg->data[0]]++;
-			if(beacon_error_report.beacon_error_ir_counter[msg->data[4]] < 0XFF)
-				beacon_error_report.beacon_error_ir_counter[msg->data[4]]++;
-			 */
+
 			beacon_error_report.report_counter++;
 			break;
 		case BEACON_ADVERSARY_POSITION_US:
@@ -466,11 +551,7 @@ void error_counters_update(CAN_msg_t * msg){
 				beacon_error_report.beacon_error_us_counter[msg->data[6]]++;
 
 
-			/*
-			if(beacon_error_report.beacon_error_us_counter[msg->data[0]] < 0xFF)
-				beacon_error_report.beacon_error_us_counter[msg->data[0]]++;
-			if(beacon_error_report.beacon_error_us_counter[msg->data[4]] < 0xFF)
-				beacon_error_report.beacon_error_us_counter[msg->data[4]]++;*/
+
 			beacon_error_report.report_counter++;
 			break;
 		default:
@@ -493,3 +574,4 @@ void SELFTEST_get_match_report_US(CAN_msg_t * msg){
 	for(i=0;i<8;i++)
 		msg->data[i] = beacon_error_report.beacon_error_us_counter[i];
 }
+

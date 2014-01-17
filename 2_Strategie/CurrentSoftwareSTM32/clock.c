@@ -15,6 +15,7 @@
 #include "Supervision/SD/SD.h"
 #include "Supervision/RTC.h"
 #include "Supervision/Supervision.h"
+#include "Supervision/Selftest.h"
 #include "config_pin.h"
 #include "QS/QS_can_over_xbee.h"
 
@@ -94,6 +95,7 @@ void _ISR _T1Interrupt()
 				BLUE_LEDS = 0;
 				RED_LEDS = 0;
 			}
+			SELFTEST_process_500ms();
 		}
 	}
 
