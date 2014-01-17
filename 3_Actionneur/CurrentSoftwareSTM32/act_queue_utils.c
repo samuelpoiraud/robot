@@ -240,7 +240,8 @@ static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 re
 		case ACT_LIFT_LEFT & 0xFF:          originalSidStr = "LiftLeft";     break;
 		case ACT_LIFT_RIGHT & 0xFF:         originalSidStr = "LiftRight";    break;
 		case ACT_PLATE & 0xFF:              originalSidStr = "Plate";        break;
-		default:                     originalSidStr = "Unknown";      break;
+		case ACT_ARM & 0xFF:                originalSidStr = "Arm";          break;
+		default:                            originalSidStr = "Unknown";      break;
 	}
 	switch(result) {
 		case ACT_RESULT_DONE:        resultStr = "Done";       break;
@@ -255,6 +256,7 @@ static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 re
 		case ACT_RESULT_ERROR_OK:           errorCodeStr = "Ok";            break;
 		case ACT_RESULT_ERROR_OTHER:        errorCodeStr = "Other";         break;
 		case ACT_RESULT_ERROR_TIMEOUT:      errorCodeStr = "Timeout";       break;
+		case ACT_RESULT_ERROR_INVALID_ARG:  errorCodeStr = "Invalid argument"; break;
 		case ACT_RESULT_ERROR_UNKNOWN:      errorCodeStr = "Unknown";       break;
 		default:                            errorCodeStr = "Unknown error"; break;
 	}

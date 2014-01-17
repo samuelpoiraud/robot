@@ -30,7 +30,7 @@ void ACTMGR_init() {
 	BALLINFLATER_init();
 	CANDLECOLOR_init();
 	PLIER_init();
-//	ARM_init();
+	ARM_init();
 
 	ACTMGR_reset_act();
 }
@@ -53,8 +53,8 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	if(PLIER_CAN_process_msg(msg))
 		return TRUE;
-//	if(ARM_CAN_process_msg(msg))
-//		return TRUE;
+	if(ARM_CAN_process_msg(msg))
+		return TRUE;
 
 	return FALSE;
 }
