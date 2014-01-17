@@ -14,19 +14,39 @@
 #include "SD/SD.h"
 #include "config_pin.h"
 #include "../QS/QS_outputlog.h"
+#include "../QS/QS_CANmsgList.h"
+#include "../QS/QS_uart.h"
+#include "../QS/QS_watchdog.h"
+#include "../QS/QS_can_over_uart.h"
 
 #define TIMEOUT_SELFTEST_ACT 		20000	// en ms
 #define TIMEOUT_SELFTEST_PROP 		10000	// en ms
+#define TIMEOUT_SELFTEST_STRAT		5000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_IR 	1000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_US 	1000	// en ms
 #define MAX_ERRORS_NUMBER 20
+#define LED_ON	1
+#define LED_OFF	0
+
+#define FORWARD 0x01
+#define	REAR 0x10
+
+#define TEMPS_SYNCHRO 10
+#define NOMBRE_TESTS_BALISE 2
 
 volatile bool_e ask_launch_selftest = FALSE;
 
 SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
 volatile Uint8 errors_index = 0;
 
-volatile bool_e selftest_state = FALSE;
+typedef enum
+{
+	END_OK=0,
+	IN_PROGRESS,
+	NOT_HANDLED
+}error_e;
+
+error_e SELFTEST_strategy(bool_e reset);
 
 void SELFTEST_init(void)
 {
@@ -44,26 +64,34 @@ void SELFTEST_ask_launch(void)
 	ask_launch_selftest = TRUE;
 }
 
+
+
 //Fonction privée qui scrute le contenu des messages CAN de réponse au selftest.
-bool_e SELFTEST_read_answer(CAN_msg_t * msg)
+void SELFTEST_declare_errors(CAN_msg_t * msg, SELFTEST_error_code_e error)
 {
-	bool_e ret;
 	Uint8 i;
-	if(msg->size == 0)	//Tout va bien...
-		ret = TRUE;
-	else
+	if(error != SELFTEST_NO_ERROR)
+	{
+		errors[errors_index] = error;
+		if(errors_index < MAX_ERRORS_NUMBER - 1)
+			errors_index++;
+	}
+	if(msg != NULL && msg->size != 0)	//L'ordre des arguments est important (pour ne pas accéder à msg si ce pointeur est NULL)
 	{
 		for(i=0;i<msg->size;i++)
 		{
 			//Récupération des codes d'erreurs envoyés.
 			errors[errors_index] = msg->data[i];
-			errors_index++;
-			if(errors_index >= MAX_ERRORS_NUMBER)
-				errors_index = MAX_ERRORS_NUMBER - 1;
+			if(errors_index < MAX_ERRORS_NUMBER - 1)
+				errors_index++;
 		}
-		ret = FALSE;
 	}
-	return ret;
+}
+
+void SELFTEST_process_main(void)
+{
+	SELFTEST_update(NULL);
+	//TODO... ?
 }
 
 //Machine a état du selftest, doit être appelée : dans le process de tâche de fond ET à chaque réception d'un message can de selftest.
@@ -79,6 +107,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		SELFTEST_PROP,
 		SELFTEST_BEACON_IR,
 		SELFTEST_BEACON_US,
+		SELFTEST_STRAT,
 		SELFTEST_END
 	}state_e;
 	static state_e state = INIT;
@@ -97,17 +126,13 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			state = WAIT_SELFTEST_LAUNCH;
 		break;
 		case WAIT_SELFTEST_LAUNCH:
-			if(!global.env.match_started)
+			if(!global.env.match_started && ask_launch_selftest)	//Match non commencé et demande de selftest
 			{
-				if(ask_launch_selftest)
-				{
-					debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
-					//lcd_printf_last_line("Selftest : launch\n");
-					errors_index = 0;	//On REMET le compteur d'erreur à 0.
-					state = SELFTEST_ACT;
-					selftest_state = TRUE;	//On suppose que le selftest sera réussi. (a la moindre erreur, on le remettra à FALSE).
-					flag_timeout = FALSE;
-				}
+				debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
+				//lcd_printf_last_line("Selftest : launch\n");
+				errors_index = 0;	//On REMET le compteur d'erreur à 0.
+				state = SELFTEST_ACT;
+				flag_timeout = FALSE;
 			}
 			break;
 		case SELFTEST_ACT:
@@ -121,14 +146,12 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
 				{
 					//Retour de la carte actionneur
-					selftest_state &= SELFTEST_read_answer(CAN_msg_received);
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					WATCHDOG_stop(watchdog_id);
 					state = SELFTEST_PROP;
 				}
 			if(flag_timeout)	//Timeout
-			{
 				state = SELFTEST_PROP;
-			}
 			break;
 		case SELFTEST_PROP:
 			if(entrance)
@@ -141,14 +164,12 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
 				{
 					//Retour de la carte Propulsion
-					selftest_state &= SELFTEST_read_answer(CAN_msg_received);
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					WATCHDOG_stop(watchdog_id);
 					state = SELFTEST_BEACON_IR;
 				}
 			if(flag_timeout)	//Timeout
-			{
 				state = SELFTEST_BEACON_IR;
-			}
 			break;
 		case SELFTEST_BEACON_IR:
 			if(entrance)
@@ -161,14 +182,12 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
 				{
 					//Retour de la carte Beacon IR
-					selftest_state &= SELFTEST_read_answer(CAN_msg_received);
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					WATCHDOG_stop(watchdog_id);
 					state = SELFTEST_BEACON_US;
 				}
 			if(flag_timeout)	//Timeout
-			{
 				state = SELFTEST_BEACON_US;
-			}
 			break;
 		case SELFTEST_BEACON_US:
 			if(entrance)
@@ -181,18 +200,28 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
 				{
 					//Retour de la carte Beacon US
-					selftest_state &= SELFTEST_read_answer(CAN_msg_received);
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					WATCHDOG_stop(watchdog_id);
-					state = SELFTEST_END;
+					state = SELFTEST_STRAT;
 				}
 			if(flag_timeout)	//Timeout
+				state = SELFTEST_STRAT;
+			break;
+		case SELFTEST_STRAT:
+		if(entrance)
 			{
-				state = SELFTEST_END;
+				SELFTEST_strategy(TRUE);	//Reset de la sous-machine a états
+				flag_timeout = FALSE;
+				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_STRAT, (bool_e*) &(flag_timeout));
 			}
+			if(SELFTEST_strategy(FALSE) != IN_PROGRESS)	//La fonction SELFTEST_strategy déclare elle-même ses erreurs.
+				state = SELFTEST_END;
+			if(flag_timeout)	//Timeout
+				state = SELFTEST_END;
 			break;
 		case SELFTEST_END:
 			ask_launch_selftest = FALSE;	//Fin du selftest (et du clignotement de la led selftest).
-			if(selftest_state)//Tout s'est bien passé
+			if(errors_index > 0)//Tout s'est bien passé
 			{
 				LED_SELFTEST = TRUE;
 				debug_printf("SELFTEST : OK !\n");
@@ -209,28 +238,63 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 	}
 }
 
+error_e SELFTEST_strategy(bool_e reset)
+{
+	typedef enum
+	{
+		INIT = 0,
+		FAIL,
+		DONE
+	}state_e;
+	static state_e state = INIT;
+	static state_e previous_state = INIT;
+	bool_e entrance;
+	error_e ret;
+	
+	entrance = (state != previous_state)?TRUE:FALSE;
+	previous_state = state;
+	if(reset)
+		state = INIT;
+		
+	ret = IN_PROGRESS;
+	switch(state)
+	{
+		case INIT:
+			state = DONE;
+			break;
+		case FAIL:
+			ret = NOT_HANDLED;
+			break;
+		case DONE:
+			ret = END_OK;
+			break;
+	}
+	return ret;
+}
+
+
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
 	Uint8 i;
 	for(i=0;i<size;i++)
 	{
-		if(tab_errors[i] != SELFTEST_NO_ERROR)
+		if(errors[i] != SELFTEST_NO_ERROR)
 		{
-			SD_printf("Selftest error %d : ",errors[i]);
+			debug_printf("Selftest error %d : ",errors[i]);
 			switch(errors[i])
 			{
-				case SELFTEST_NOT_DONE:						SD_printf("NOT_DONE");					break;
-				case SELFTEST_FAIL_UNKNOW_REASON:			SD_printf("FAIL_UNKNOW_REASON");		break;
-				case SELFTEST_NO_POWER:						SD_printf("NO_POWER");					break;
-				case SELFTEST_TIMEOUT:						SD_printf("TIMEOUT");					break;
-				case SELFTEST_PROP_LEFT_MOTOR:				SD_printf("PROP_LEFT_MOTOR");			break;
-				case SELFTEST_PROP_LEFT_ENCODER:			SD_printf("PROP_LEFT_ENCODER");			break;
-				case SELFTEST_PROP_RIGHT_MOTOR:				SD_printf("PROP_RIGHT_MOTOR");			break;
-				case SELFTEST_PROP_RIGHT_ENCODER:			SD_printf("PROP_RIGHT_ENCODER");		break;
-				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	SD_printf("STRAT_BIROUTE_NOT_IN_PLACE");break;
-				default:									SD_printf("UNKNOW_ERROR_CODE");			break;
+				case SELFTEST_NOT_DONE:						debug_printf("NOT_DONE");					break;
+				case SELFTEST_FAIL_UNKNOW_REASON:			debug_printf("FAIL_UNKNOW_REASON");		break;
+				case SELFTEST_NO_POWER:						debug_printf("NO_POWER");					break;
+				case SELFTEST_TIMEOUT:						debug_printf("TIMEOUT");					break;
+				case SELFTEST_PROP_LEFT_MOTOR:				debug_printf("PROP_LEFT_MOTOR");			break;
+				case SELFTEST_PROP_LEFT_ENCODER:			debug_printf("PROP_LEFT_ENCODER");			break;
+				case SELFTEST_PROP_RIGHT_MOTOR:				debug_printf("PROP_RIGHT_MOTOR");			break;
+				case SELFTEST_PROP_RIGHT_ENCODER:			debug_printf("PROP_RIGHT_ENCODER");		break;
+				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");break;
+				default:									debug_printf("UNKNOW_ERROR_CODE %d",errors[i]); break;
 			}
-			SD_printf("\n");
+			debug_printf("\n");
 		}
 	}
 }

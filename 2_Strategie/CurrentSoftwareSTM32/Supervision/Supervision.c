@@ -88,7 +88,7 @@ void Supervision_process_main(void)
 	}
 
 	/* Gestion du selftest */
-	SELFTEST_update(NULL);
+	SELFTEST_process_main();
 
 	/* Test fiabilité des balises */
 	SELFTEST_balise_update();
