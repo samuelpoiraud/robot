@@ -81,7 +81,7 @@ void ARM_init() {
 
 	info_printf("Bras initialisé (DCMotor)\n");
 
-	//AX12_config_set_id(20);
+	//AX12_config_set_id(21);
 
 	ARM_initAX12();
 }
