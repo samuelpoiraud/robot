@@ -1310,7 +1310,7 @@ bool_e scan_for_glasses(bool_e reset)
 	}
 	if ((global.env.foe[FOE_1].angle > -2144) || (global.env.foe[FOE_1].angle < -8578) || (global.env.foe[FOE_2].angle > -2144) || (global.env.foe[FOE_2].angle < -8578))
 			adversary_is_in_zone = TRUE;
-	value = ADC_getValue(ADC_PIN_DT10_GLASSES);
+	value = 0;//ADC_getValue(ADC_PIN_DT10_GLASSES);
 	value32 = ((Sint32)(39970UL * value) >> 16) - 56;
 	//Value 32 est en mm.
 	max_distance = (global.env.pos.y < 420 || global.env.pos.y > 2580)?180:380;	//Si je suis en scan INSIDE, distance max vaut 18cm, sinon 38cm.
@@ -1339,7 +1339,7 @@ bool_e scan_for_glasses_on_bar(void)
 	Uint16 value;
 	Sint32 value32;
 
-	value = ADC_getValue(ADC_PIN_DT10_GLASSES);
+	value = 0;//ADC_getValue(ADC_PIN_DT10_GLASSES);
 	value32 = ((Sint32)(39970UL * value) >> 16) - 56;
 	//Value 32 est en mm.
 

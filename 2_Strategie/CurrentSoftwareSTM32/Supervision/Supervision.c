@@ -90,8 +90,6 @@ void Supervision_process_main(void)
 	/* Gestion du selftest */
 	SELFTEST_process_main();
 
-	/* Test fiabilité des balises */
-	SELFTEST_balise_update();
 
 	#ifdef USE_XBEE
 		if(PORT_SWITCH_XBEE)
@@ -127,7 +125,7 @@ void Supervision_update_led_beacon(CAN_msg_t * can_msg)
 				led_ir_update(BEACON_FAR);
 			break;
 
-		case BEACON_ADVERSARY_POSITION_US:
+	/*	case BEACON_ADVERSARY_POSITION_US:
 			if(global.env.match_started == TRUE)
 				//Enregistrement du type d'erreur
 				error_counters_update(can_msg);
@@ -138,7 +136,7 @@ void Supervision_update_led_beacon(CAN_msg_t * can_msg)
 				led_us_update(BEACON_NEAR);
 			else
 				led_us_update(BEACON_FAR);
-			break;
+			break;*/
 		default:
 			break;
 	}
