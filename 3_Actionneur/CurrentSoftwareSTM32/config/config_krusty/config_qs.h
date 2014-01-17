@@ -51,7 +51,7 @@
 /* Servo-Moteurs AX12 */
 // !!!!!!!!!!!!!!!! ADC 2 & 3 sont sur les pins de l'uart 2 !!!!!!!!!!!!!!!!
 	#define USE_AX12_SERVO
-	#define AX12_NUMBER 21
+	#define AX12_NUMBER 22
 	#define AX12_INSTRUCTION_BUFFER_SIZE 200
 	//#define AX12_USE_WATCHDOG
 	#define AX12_TIMER_ID 2
