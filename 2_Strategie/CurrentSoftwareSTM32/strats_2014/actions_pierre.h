@@ -20,9 +20,11 @@
 
 void strat_test_triangle_cote_rouge(void);
 void strat_test_point();
+void strat_test_fresque();
+error_e strat_file_fresco_right();
+error_e strat_file_fresco_center();
+error_e strat_file_fresco_left();
 error_e strat_test_ramasser_fruit_arbre1();
-error_e strat_test_ramasser_fruit_arbre1A();
-error_e strat_test_ramasser_fruit_arbre1B();
 error_e strat_test_ramasser_fruit_arbre2();
 error_e strat_test_deposser_fruit_rouge();
 error_e strat_test_deposser_fruit_jaune();
