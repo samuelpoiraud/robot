@@ -28,6 +28,7 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_can.h"
 #include "QS/QS_adc.h"
+#include "QS/QS_uart.h"
 #include "QS/QS_CANmsgList.h"
 #include "maths_home.h"
 #include "sick.h"

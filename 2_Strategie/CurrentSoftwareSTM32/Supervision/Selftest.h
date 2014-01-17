@@ -15,19 +15,7 @@
 	
 	#include "../QS/QS_can.h"
 	#include "../QS/QS_CANmsgList.h"
-	#include "../QS/QS_uart.h"
-	#include "../QS/QS_watchdog.h"
-	#include "../QS/QS_can_over_uart.h"
-
 	
-	#define LED_ON	1
-	#define LED_OFF	0
-	
-	#define FORWARD 0x01
-	#define	REAR 0x10
-		
-	#define TEMPS_SYNCHRO 10
-	#define NOMBRE_TESTS_BALISE 2
 	
 	typedef enum
 	{
@@ -39,6 +27,8 @@
 	void SELFTEST_init(void);
 
 	void SELFTEST_ask_launch(void);
+
+	void SELFTEST_process_main(void);
 
 	//Machine a état du selftest, doit être appelée : dans le process de tâche de fond ET à chaque réception d'un message can de selftest.
 	void SELFTEST_update(CAN_msg_t* CAN_msg_received);
