@@ -30,7 +30,6 @@ USBH_Class_cb_TypeDef  USBH_ClassSwitch_cb =
 	USBH_ClassSwitch_Handle
 };
 
-void USBH_ClassSwitch_ErrorHandle(uint8_t status);
 
 //Class USB choisi suivant le périphérique connecté, voir usbh_class_list.c pour la liste des classes reconnues
 static USBH_Class_cb_TypeDef *device_class = NULL;

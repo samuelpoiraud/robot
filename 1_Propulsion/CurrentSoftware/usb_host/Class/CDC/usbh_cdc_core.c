@@ -64,7 +64,6 @@ USBH_Class_cb_TypeDef  USBH_CDC_cb =
 	USBH_CDC_Handle_extern
 };
 
-void USBH_CDC_ErrorHandle(Uint8 status);
 
 
 void USB_CDC_set_interface(CDC_uart_interface_t _interface_functions) {

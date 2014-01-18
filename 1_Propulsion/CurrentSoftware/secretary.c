@@ -422,7 +422,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case CARTE_ASSER_FIN_ERREUR:
 			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
 		break;
-
+		case PROP_PING:
+			SECRETARY_send_canmsg(STRAT_PROP_PONG,NULL,0);
+		break;
 		#ifdef SCAN_TRIANGLE
 		case ASSER_LAUNCH_SCAN_TRIANGLE :
 			SCAN_TRIANGLE_canMsg();

@@ -57,10 +57,6 @@
 */ 
 
 
-/** @defgroup USBH_USR_Private_Macros
-* @{
-*/ 
-extern USB_OTG_CORE_HANDLE          USB_OTG_Core;
 /**
 * @}
 */ 
