@@ -63,7 +63,7 @@ void strat_reglage_odo_rotation(void){
 	static enum state_e inProcess = IDLE;
 	static bool_e timeout=FALSE;
 	static Sint16 i=0;
-	static Uint16 coefOdoRotation; // Peut etre 0xc581 //Original 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
+	static Uint32 coefOdoRotation; // Peut etre 0xc581 //Original 0x0000C5A2; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT dans _Propulsion_config.h
 	CAN_msg_t msg;
 
 
