@@ -233,10 +233,7 @@ void OTG_HS_IRQHandler(void)
 }
 
 
-void user_callback_DeviceDisconnected(void)
-{
-	flag_device_disconnected = TRUE;
-}
+
 
 //Fonction qui permet de communiquer avec l'Hokuyo
 void hokuyo_write_command(Uint8 tab[])
@@ -550,4 +547,13 @@ void DetectRobots(void)
 
 }
 #endif	//def USE_HOKUYO
+
+void user_callback_DeviceDisconnected(void)
+{
+#ifdef USE_HOKUYO
+	flag_device_disconnected = TRUE;
+#endif
+}
+
+
 
