@@ -143,6 +143,7 @@
 	#define STRAT_BEACON_US_SELFTEST_DONE			0x2E5
 	#define STRAT_BEACON_PONG						0x246
 
+	#define DEBUG_SELFTEST_LAUNCH					0x700
 	//Jusqu'à 8 codes d'erreurs peuvent être transmis dans la réponse de chaque carte. (la size contient le nombre de code d'erreurs envoyés.)
 	//En cas de test réussi, size vaut 0...
 	typedef enum
@@ -165,7 +166,7 @@
 		SELFTEST_ACT_UNREACHABLE,
 		SELFTEST_PROP_UNREACHABLE,
 		SELFTEST_BEACON_UNREACHABLE,
-
+		SELFTEST_ERROR_NB,
 		SELFTEST_NO_ERROR = 0xFF
 		//... ajouter ici d'éventuels nouveaux code d'erreur.
 	}SELFTEST_error_code_e;
