@@ -366,11 +366,11 @@ void CAN_update (CAN_msg_t* incoming_msg)
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:
 			ENV_pos_foe_update(incoming_msg);
-			Supervision_update_led_beacon(incoming_msg);
+			SELFTEST_update_led_beacon(incoming_msg);
 			break;
 		case BEACON_ADVERSARY_POSITION_US:
 			ENV_pos_foe_update(incoming_msg);
-			Supervision_update_led_beacon(incoming_msg);
+			SELFTEST_update_led_beacon(incoming_msg);
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case XBEE_START_MATCH:

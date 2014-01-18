@@ -11,6 +11,7 @@
 #include "actions_gifts.h"
 #include "actions_utils.h"
 #include "../act_functions.h"
+#include "../asser_functions.h"
 #include "../QS/QS_outputlog.h"
 
 #include "config_pin.h"

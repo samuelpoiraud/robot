@@ -13,7 +13,7 @@
 #include "can_utils.h"
 #include "maths_home.h"
 #include "QS/QS_who_am_i.h"
-
+#include "asser_functions.h"
 #include "config_use.h"
 #include "QS/QS_outputlog.h"
 

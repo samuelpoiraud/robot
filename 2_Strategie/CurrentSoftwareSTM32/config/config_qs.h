@@ -11,7 +11,7 @@
 #ifndef CONFIG_QS_H
 #define CONFIG_QS_H
 
-	//#define MODE_SIMULATION
+	#define MODE_SIMULATION
 #ifdef MODE_SIMULATION
 	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
 #endif
@@ -29,9 +29,9 @@
 	 */
 
 /* Il faut choisir à quelle frequence on fait tourner le STM32 */
-#define HCLK_FREQUENCY_HZ     160000000	//40Mhz, Max: 168Mhz
-#define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
-#define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
+#define HCLK_FREQUENCY_HZ     168000000	//40Mhz, Max: 168Mhz
+#define PCLK1_FREQUENCY_HZ    42000000	//10Mhz, Max: 42Mhz
+#define PCLK2_FREQUENCY_HZ    84000000	//40Mhz, Max: 84Mhz
 #define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 
 

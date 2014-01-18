@@ -12,7 +12,7 @@
 #include "actions_cherries.h"
 #include "../state_machine_helper.h"
 #include "../zone_mutex.h"
-
+#include "../asser_functions.h"
 #include "config_debug.h"
 #define LOG_PREFIX "strat_cherries: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
@@ -292,9 +292,11 @@ error_e K_STRAT_sub_cherries_alexis() {
 		case DP_DONE:
 			state = DP_INIT;
 			return_value = END_OK;
-
+			break;
 		//Pas un état, utilisé pour connaitre le nombre d'état
 		case DP_NBSTATE:
+			break;
+		default:
 			break;
 	}
 
@@ -863,7 +865,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 				//On a pas pu faire notre angle WTF?? Quelqu'un nous bloque ? On peut pas faire l'assiette    //pas implémenté car tiré par les cheveux: si notre angle est trop loin de 90°, sinon on fait comme si rien était et on avant vers l'assiette
 				case GP_ADJUST_ANGLE:
 					return_value = NOT_HANDLED;
-
+					break;
 				//On a pas pu bouger la pince correctement,
 				//un adversaire est chez nous à la place de l'assiette et bloque son mouvement ??
 				//Ou on est perdu niveau odométrie ?
@@ -933,9 +935,11 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 		case GP_DONE:
 			state = GP_INIT;
 			return_value = END_OK;
-
+			break;
 		//Pas un état, utilisé pour connaitre le nombre d'état
 		case GP_NBSTATE:
+			break;
+		default:
 			break;
 
 	}
@@ -1112,16 +1116,17 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 				//On a pas pu se mettre à une position pour lancer les cerises, on en tente une autre.
 				//Si on a déjà essayé toutes les positions, on retourne erreur (NOT_HANDLED)
 				case LC_PREPARE_POS:
-					if(USE_INTELLIGENT_MOVE && !inteligent_move_done) {
+					if(USE_INTELLIGENT_MOVE && !inteligent_move_done)
 						state = LC_INTELLIGENT_MOVE_TO;
-						break;
-					}
+
 					//PAS de break, si on fait pas de déplacement intelligent, on passe à l'autre position
 
 				//On a pas pu aller a la position, on est vraiment bloqué ... on tente l'autre possibilité
+					//no break
 				case LC_INTELLIGENT_MOVE_TO:	//PAS de break !
 
 				//On a pas pu se tourner ... ça ne devrait pas arriver, mais on tente une autre position
+					//no break
 				case LC_AIM:
 					current_position = (current_position+1) % STRAT_LC_NumberOfPosition;
 					inteligent_move_done = FALSE;
@@ -1164,10 +1169,13 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 				state = LC_INIT;
 				return_value = END_OK;
 			}
-		}
+			}
+			break;
 
 		//Pas un état, utilisé pour connaitre le nombre d'état
 		case LC_NBSTATE:
+			break;
+		default:
 			break;
 	}
 
@@ -1212,11 +1220,11 @@ error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop, Sint16 angle) {
 				//On a pas pu tourner, on retourne NOT_HANDLED
 				case DP_TURN:
 					return_value = NOT_HANDLED;
-
+					break;
 				//On a pas pu lacher l'assiette, on retourne END_WITH_TIMEOUT
 				case DP_DROP:
 					return_value = END_WITH_TIMEOUT;
-
+				break;
 				//Fausse erreur, mais une vrai dans le code, on retourne  END_WITH_TIMEOUT après avoir remonté l'assiette dans le doute. (Faudrait pas tout défoncer ...)
 				default:
 					return_value = END_WITH_TIMEOUT;
@@ -1228,9 +1236,11 @@ error_e K_STRAT_micro_drop_plate(bool_e turn_before_drop, Sint16 angle) {
 		case DP_DONE:
 			state = DP_TURN;
 			return_value = END_OK;
-
+			break;
 		//Pas un état, utilisé pour connaitre le nombre d'état
 		case DP_NBSTATE:
+			break;
+		default:
 			break;
 	}
 

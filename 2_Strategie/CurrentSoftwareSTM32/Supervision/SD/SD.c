@@ -4,6 +4,7 @@
 #include "../../QS/QS_CANmsgList.h"
 #include "../../QS/QS_can_over_uart.h"
 #include "../../QS/QS_spi.h"
+#include "../../QS/QS_uart.h"
 #include "../../QS/QS_outputlog.h"
 #include "../Verbose_can_msg.h"
 #include "ff_test_term.h"

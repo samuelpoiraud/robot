@@ -13,6 +13,7 @@
 #include "Supervision.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_can_over_xbee.h"
+#include "../QS/QS_OUTPUTlog.h"
 #include "SD/SD.h"
 #include "Selftest.h"
 #include "Eeprom_can_msg.h"
@@ -75,7 +76,6 @@ void Supervision_process_main(void)
 		#ifdef USE_XBEE
 			CAN_over_XBee_every_second();
 		#endif
-		SELFTEST_process_1sec();
 		//Au bout de la première seconde.
 		if(!first_second_elapsed)
 		{
@@ -83,7 +83,7 @@ void Supervision_process_main(void)
 			RTC_print_time();	//Si on rajoute pas ce délai d'une seconde, la RTC n'est pas prête quand on vient la lire.
 			SD_init();
 			//A partir de maintenant, on peut loguer sur la carte SD...
-			SD_printf("Hello, I am %s\n", ((QS_WHO_AM_I_get() == TINY)?"TINY":"KRUSTY"));
+			debug_printf("Hello, I am %s\n", ((QS_WHO_AM_I_get() == TINY)?"TINY":"KRUSTY"));
 		}
 	}
 
@@ -108,39 +108,6 @@ void Supervision_process_main(void)
 
 
 
-void Supervision_update_led_beacon(CAN_msg_t * can_msg)
-{
-	switch(can_msg->sid)
-	{
-		case BEACON_ADVERSARY_POSITION_IR:
-			if(global.env.match_started == TRUE)
-				//Enregistrement du type d'erreur
-				error_counters_update(can_msg);
-			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
-			if(can_msg->data[0] || can_msg->data[4])
-				led_ir_update(BEACON_ERROR);
-			else if(can_msg->data[3] < 102 || can_msg->data[7] < 102) //Distance IR en cm
-				led_ir_update(BEACON_NEAR);
-			else
-				led_ir_update(BEACON_FAR);
-			break;
-
-	/*	case BEACON_ADVERSARY_POSITION_US:
-			if(global.env.match_started == TRUE)
-				//Enregistrement du type d'erreur
-				error_counters_update(can_msg);
-			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
-			if(can_msg->data[0] || can_msg->data[4])
-				led_us_update(BEACON_ERROR);
-			else if(can_msg->data[1] < 4 || can_msg->data[5] < 4) //Distance US en mm on test seulement le poids fort autrement dit 1024mm
-				led_us_update(BEACON_NEAR);
-			else
-				led_us_update(BEACON_FAR);
-			break;*/
-		default:
-			break;
-	}
-}
 
 
 

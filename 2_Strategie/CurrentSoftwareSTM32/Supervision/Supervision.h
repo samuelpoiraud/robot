@@ -18,7 +18,6 @@
 
 	void Supervision_init(void);
 	void Supervision_process_main(void);
-	void Supervision_update_led_beacon(CAN_msg_t * can_msg);
 	void Supervision_process_1sec(void);
 	
 #endif /* ndef SUPERVISION_H */

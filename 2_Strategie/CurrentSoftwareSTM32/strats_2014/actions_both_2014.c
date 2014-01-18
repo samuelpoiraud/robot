@@ -219,7 +219,7 @@ void strat_reglage_odo_rotation(void){
 			msg.size=4;
 			CAN_send(&msg);
 
-			debug_printf("Nouvelle valeur du coef odométrie rotation %x\n\n",coefOdoRotation);
+			debug_printf("Nouvelle valeur du coef odométrie rotation %lx\n\n",coefOdoRotation);
 		}
 
 		break;
