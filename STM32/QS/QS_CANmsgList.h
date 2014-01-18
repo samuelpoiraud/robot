@@ -119,24 +119,29 @@
 
 	/* Carte super vers carte actionneur */
 	#define ACT_DO_SELFTEST		0x300
+	#define ACT_PING			0x316	//16 = IG = PING
 
 	/* Carte super vers carte propulsion */
 
 	#define PROP_DO_SELFTEST	0x100
+	#define PROP_PING			0x116	//16 = IG = PING
 
 	/* Carte super vers carte balise */
 	#define BEACON_DO_SELFTEST	0x400
+	#define BEACON_PING			0x416	//16 = IG = PING
 
-
-	/* Carte actionneur vers Super */
+	/* Carte actionneur vers Strat */
 	#define STRAT_ACT_SELFTEST_DONE 				0x2E3
+	#define STRAT_ACT_PONG							0x226
 
-	/* Carte propulsion vers Super */
+	/* Carte propulsion vers Strat */
 	#define STRAT_PROP_SELFTEST_DONE 				0x2E1
+	#define STRAT_PROP_PONG							0x216
 
-	/* Carte balise vers Super */
+	/* Carte balise vers Strat */
 	#define STRAT_BEACON_IR_SELFTEST_DONE			0x2E4
 	#define STRAT_BEACON_US_SELFTEST_DONE			0x2E5
+	#define STRAT_BEACON_PONG						0x246
 
 	//Jusqu'à 8 codes d'erreurs peuvent être transmis dans la réponse de chaque carte. (la size contient le nombre de code d'erreurs envoyés.)
 	//En cas de test réussi, size vaut 0...
@@ -157,6 +162,10 @@
 		SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME,
 		SELFTEST_STRAT_BIROUTE_FORGOTTEN,
 		SELFTEST_STRAT_SD_WRITE_FAIL,
+		SELFTEST_ACT_UNREACHABLE,
+		SELFTEST_PROP_UNREACHABLE,
+		SELFTEST_BEACON_UNREACHABLE,
+
 		SELFTEST_NO_ERROR = 0xFF
 		//... ajouter ici d'éventuels nouveaux code d'erreur.
 	}SELFTEST_error_code_e;
