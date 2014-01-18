@@ -368,12 +368,14 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:
+			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.
 			ENV_pos_foe_update(incoming_msg);
 			SELFTEST_update_led_beacon(incoming_msg);
 			break;
 		case BEACON_ADVERSARY_POSITION_US:
-			ENV_pos_foe_update(incoming_msg);
-			SELFTEST_update_led_beacon(incoming_msg);
+			//Pour l'Histoire... (avec un grand H)
+			//ENV_pos_foe_update(incoming_msg);
+			//SELFTEST_update_led_beacon(incoming_msg);
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case XBEE_START_MATCH:
@@ -572,7 +574,7 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 		if(slashn)
 			debug_printf("\n");
 	}
-	else if(msg->sid==BEACON_ADVERSARY_POSITION_US)
+	/*else if(msg->sid==BEACON_ADVERSARY_POSITION_US)
 	{
 		slashn = FALSE;
 		if(msg->data[0]==AUCUNE_ERREUR)
@@ -588,9 +590,9 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_US_FOE_1].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_1].updated = TRUE;
 			//debug_printf("US1: TROP DE SIGNAL\n");
-		} /*else {
-			debug_printf("NO US 1 err %d!\n", msg->data[0]);
-		}*/
+		} //else {
+			//debug_printf("NO US 1 err %d!\n", msg->data[0]);
+		//}
 		if(msg->data[4]==AUCUNE_ERREUR)
 		{
 			//slashn = TRUE;
@@ -604,13 +606,15 @@ void ENV_pos_foe_update (CAN_msg_t* msg)
 			global.env.sensor[BEACON_US_FOE_2].update_time = global.env.match_time;
 			global.env.sensor[BEACON_US_FOE_2].updated = TRUE;
 			//debug_printf("US2: TROP DE SIGNAL\n");
-		} /*else {
-			debug_printf("NO US 2 err %d!\n", msg->data[4]);
-		}*/
+		} //else {
+			//debug_printf("NO US 2 err %d!\n", msg->data[4]);
+		//}
 		if(slashn)
 			debug_printf("\n");
-	}
+	}*/
+
 }
+
 
 /* baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
 void ENV_clean ()
