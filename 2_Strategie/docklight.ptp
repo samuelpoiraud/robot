@@ -1,0 +1,57 @@
+VERSION
+8
+
+COMMSETTINGS
+0
+COM14
+COM2
+115200
+2
+63
+4
+0
+0
+
+COMMDISPLAY
+0
+
+SEND
+0
+DEBUG_RTC_GET
+01 07 80 FF FF FF FF FF FF FF FF 00 04
+1
+.1
+
+SEND
+1
+DEBUG_RTC_SET
+01 07 81 20 10 02 03 1C 08 0D FF 00 04
+0
+5
+
+SEND
+2
+DEBUG_INTERFACE_SD
+01 07 88 FF FF FF FF FF FF FF FF 00 04
+0
+5
+
+SEND
+3
+DEBUG_SELFTEST_LAUNCH
+01 07 00 FF FF FF FF FF FF FF FF 00 08
+0
+5
+
+RECEIVE
+0
+failure
+66 61 69 6C 75 72 65
+-1
+1
+COMMENT FAILURE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+0
+1
+0
+0
+

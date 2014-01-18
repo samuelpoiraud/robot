@@ -308,6 +308,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case DEBUG_RTC_TIME:
 			RTC_print_time();
 			break;
+		case DEBUG_SELFTEST_LAUNCH:
+			SELFTEST_ask_launch();
+			break;
 //****************************** Messages carte propulsion/asser *************************/
 		case CARTE_P_TRAJ_FINIE:
 			global.env.asser.fini = TRUE;

@@ -28,7 +28,7 @@
 #define TIMEOUT_SELFTEST_STRAT		5000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_IR 	1000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_US 	1000	// en ms
-#define MAX_ERRORS_NUMBER 20
+#define MAX_ERRORS_NUMBER 			200
 #define THRESHOLD_BATTERY_OFF	15000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW	22000	//[mV] Réglage du seuil de batterie faible
 
@@ -182,11 +182,15 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				state = SELFTEST_PING_ACT_PROP;
 			}
 			if(flag_timeout)	//Timeout
+			{
+				debug_printf("SELFTEST STRATEGY TIMEOUT\r\n");
 				state = SELFTEST_PING_ACT_PROP;
+			}
 			break;
 		case SELFTEST_PING_ACT_PROP:
 			if(entrance)
 			{
+				flag_timeout = 0;
 				watchdog_id = WATCHDOG_create_flag(100, (bool_e*) &(flag_timeout));	//timeout 100ms
 				CAN_send_sid(ACT_PING);
 				CAN_send_sid(PROP_PING);
@@ -210,6 +214,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			if(flag_timeout)
 				state = SELFTEST_ACT;
 
+
 			if(state == SELFTEST_ACT)	//Déclaration des erreurs à la sortie de l'état !
 			{
 				if(!act_ping_ok)
@@ -223,10 +228,10 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		case SELFTEST_ACT:
 			if(entrance)
 			{
+				flag_timeout = FALSE;
 				if(act_ping_ok)
 				{
 					CAN_send_sid(ACT_DO_SELFTEST);
-					flag_timeout = FALSE;
 					watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_ACT, (bool_e*) &(flag_timeout));
 					debug_printf("SELFTEST ACT\r\n");
 				}
@@ -242,20 +247,23 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					state = SELFTEST_PROP;
 				}
 			if(flag_timeout)	//Timeout
+			{
+				debug_printf("SELFTEST ACT TIMEOUT\r\n");
 				state = SELFTEST_PROP;
+			}
 			break;
 		case SELFTEST_PROP:
 			if(entrance)
 			{
+				flag_timeout = FALSE;
 				if(prop_ping_ok)
 				{
 					CAN_send_sid(PROP_DO_SELFTEST);
-					flag_timeout = FALSE;
 					watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_PROP, (bool_e*) &(flag_timeout));
 					debug_printf("SELFTEST PROP\r\n");
 				}
 				else
-					state = SELFTEST_PROP;
+					state = SELFTEST_BEACON_IR;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_PROP_SELFTEST_DONE)
@@ -266,15 +274,18 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					state = SELFTEST_BEACON_IR;
 				}
 			if(flag_timeout)	//Timeout
+			{
+				debug_printf("SELFTEST PROP TIMEOUT\r\n");
 				state = SELFTEST_BEACON_IR;
+			}
 			break;
 		case SELFTEST_BEACON_IR:
 			if(entrance)
 			{
+				flag_timeout = FALSE;
 				if(beacon_ping_ok)
 				{
 					CAN_send_sid(BEACON_DO_SELFTEST);
-					flag_timeout = FALSE;
 					watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_IR, (bool_e*) &(flag_timeout));
 					debug_printf("SELFTEST BEACON\r\n");
 				}
@@ -290,13 +301,16 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					state = SELFTEST_END;
 				}
 			if(flag_timeout)	//Timeout
+			{
+				debug_printf("SELFTEST BEACON TIMEOUT\r\n");
 				state = SELFTEST_END;
+			}
 			break;
 
 		case SELFTEST_END:
 			selftest_is_running = FALSE;
 			ask_launch_selftest = FALSE;	//Fin du selftest (et du clignotement de la led selftest).
-			if(errors_index > 0)//Tout s'est bien passé
+			if(errors_index == 0)//Tout s'est bien passé
 			{
 				LED_SELFTEST = TRUE;
 				debug_printf("SELFTEST : OK ! CHAMPOMY LES GARS !\n");
@@ -381,6 +395,7 @@ error_e SELFTEST_strategy(bool_e reset)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_NO_24V);
 			else if(battery_level < THRESHOLD_BATTERY_LOW)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_LOW);
+			state = TEST_WHO_AM_I_1;
 			break;
 		case TEST_WHO_AM_I_1:
 			prop_robot_id = QS_WHO_AM_I_get();
@@ -414,6 +429,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			}
 			if(nb_written != 11)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SD_WRITE_FAIL);
+			state = DONE;
 			break;
 		case FAIL:
 			ret = NOT_HANDLED;
@@ -435,23 +451,33 @@ Uint16 SELFTEST_measure24_mV(void)
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
 	Uint8 i;
+	debug_printf("SELFTEST ENDED with %d error(s) ",size);
 	for(i=0;i<size;i++)
 	{
 		if(errors[i] != SELFTEST_NO_ERROR)
 		{
-			debug_printf("SELFTEST error %3d : ",errors[i]);
+			debug_printf("\terror %3d : \r\n",errors[i]);
 			switch(errors[i])
 			{
-				case SELFTEST_NOT_DONE:						debug_printf("NOT_DONE");					break;
-				case SELFTEST_FAIL_UNKNOW_REASON:			debug_printf("FAIL_UNKNOW_REASON");			break;
-				case SELFTEST_NO_POWER:						debug_printf("NO_POWER");					break;
-				case SELFTEST_TIMEOUT:						debug_printf("TIMEOUT");					break;
-				case SELFTEST_PROP_LEFT_MOTOR:				debug_printf("PROP_LEFT_MOTOR");			break;
-				case SELFTEST_PROP_LEFT_ENCODER:			debug_printf("PROP_LEFT_ENCODER");			break;
-				case SELFTEST_PROP_RIGHT_MOTOR:				debug_printf("PROP_RIGHT_MOTOR");			break;
-				case SELFTEST_PROP_RIGHT_ENCODER:			debug_printf("PROP_RIGHT_ENCODER");			break;
-				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");break;
-				default:									debug_printf("UNKNOW_ERROR_CODE"); 			break;
+				case SELFTEST_NOT_DONE:							debug_printf("NOT_DONE");								break;
+				case SELFTEST_FAIL_UNKNOW_REASON:				debug_printf("FAIL_UNKNOW_REASON");						break;
+				case SELFTEST_NO_POWER:							debug_printf("NO_POWER");								break;
+				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");								break;
+				case SELFTEST_PROP_LEFT_MOTOR:					debug_printf("PROP_LEFT_MOTOR");						break;
+				case SELFTEST_PROP_LEFT_ENCODER:				debug_printf("PROP_LEFT_ENCODER");						break;
+				case SELFTEST_PROP_RIGHT_MOTOR:					debug_printf("PROP_RIGHT_MOTOR");						break;
+				case SELFTEST_PROP_RIGHT_ENCODER:				debug_printf("PROP_RIGHT_ENCODER");						break;
+				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:		debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");				break;
+				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");						break;
+				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");			break;
+				case SELFTEST_STRAT_BATTERY_LOW:				debug_printf("SELFTEST_STRAT_BATTERY_LOW");				break;
+				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");break;
+				case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_STRAT_BIROUTE_FORGOTTEN");		break;
+				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");			break;
+				case SELFTEST_ACT_UNREACHABLE:					debug_printf("SELFTEST_ACT_UNREACHABLE");				break;
+				case SELFTEST_PROP_UNREACHABLE:					debug_printf("SELFTEST_PROP_UNREACHABLE");				break;
+				case SELFTEST_BEACON_UNREACHABLE:				debug_printf("SELFTEST_BEACON_UNREACHABLE");			break;
+				default:										debug_printf("UNKNOW_ERROR_CODE"); 						break;
 			}
 			debug_printf("\n");
 		}
