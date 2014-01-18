@@ -291,12 +291,9 @@ This function must be called PERIODICALLY..
  */
 void LCD_test(void)
 {
-	Uint8 i;
-
 	static bool_e done = FALSE;
 	static Uint32 n = 0;
 	char tmp[10];
-	i = 0;
 	if(!done)
 	{
 		LCD_cursor_display(FALSE,FALSE);
@@ -319,7 +316,6 @@ void LCD_test(void)
 		sprintf(tmp, "%ld", n);
 		LCD_Write_text(tmp);
 	}
-
 }
 
 static void LCD_handle_i2c_result(bool_e result) {

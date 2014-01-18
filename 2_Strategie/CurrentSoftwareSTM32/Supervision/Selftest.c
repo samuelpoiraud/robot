@@ -46,6 +46,7 @@ volatile bool_e selftest_is_running = FALSE;
 SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
 volatile Uint8 errors_index = 0;
 volatile Uint8 t500ms = 0;	//Minuteur [500ms]
+volatile bool_e flag_500ms = FALSE;	//Flag qui permet de lancer la fonction SELFTEST_beacon_reask_periodic_sending
 typedef enum
 {
 	END_OK=0,
@@ -58,6 +59,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received);
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size);
 void SELFTEST_beacon_reask_periodic_sending(void);
 Uint16 SELFTEST_measure24_mV(void);
+
 
 void SELFTEST_init(void)
 {
@@ -72,7 +74,9 @@ void SELFTEST_init(void)
 
 void SELFTEST_ask_launch(void)
 {
-	ask_launch_selftest = TRUE;
+	//On accepte une demande de selftest seulement avant ou après le match. pas pendant.
+	if((!global.env.match_started || global.env.match_over))
+		ask_launch_selftest = TRUE;
 }
 
 
@@ -105,6 +109,7 @@ void SELFTEST_process_500ms(void)
 		LED_SELFTEST = !LED_SELFTEST;	//On fait clignoter la led selftest à 2hz pendant le selftest.
 	if(t500ms)
 		t500ms--;
+	flag_500ms = TRUE;
 }
 
 void SELFTEST_process_main(void)
@@ -119,10 +124,14 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 {
 	static watchdog_id_t watchdog_id;
 	static bool_e flag_timeout;
+	static bool_e act_ping_ok = FALSE;
+	static bool_e prop_ping_ok = FALSE;
+	static bool_e beacon_ping_ok = FALSE;
 	typedef enum
 	{
 		INIT = 0,
 		WAIT_SELFTEST_LAUNCH,
+		SELFTEST_PING_ACT_PROP,
 		SELFTEST_ACT,
 		SELFTEST_PROP,
 		SELFTEST_BEACON_IR,
@@ -146,7 +155,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			state = WAIT_SELFTEST_LAUNCH;
 		break;
 		case WAIT_SELFTEST_LAUNCH:
-			if(!global.env.match_started && ask_launch_selftest)	//Match non commencé et demande de selftest
+			if(ask_launch_selftest)	//demande de lancement du selftest (PAS PENDANT LE MATCH !)
 			{
 				debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
 				//lcd_printf_last_line("Selftest : launch\n");
@@ -154,6 +163,9 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				state = SELFTEST_STRAT;
 				flag_timeout = FALSE;
 				selftest_is_running = TRUE;
+				act_ping_ok = FALSE;
+				prop_ping_ok = FALSE;
+				beacon_ping_ok = FALSE;
 			}
 			break;
 		case SELFTEST_STRAT:
@@ -162,19 +174,64 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				SELFTEST_strategy(TRUE);	//Reset de la sous-machine a états
 				flag_timeout = FALSE;
 				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_STRAT, (bool_e*) &(flag_timeout));
+				debug_printf("SELFTEST STRATEGY\r\n");
 			}
 			if(SELFTEST_strategy(FALSE) != IN_PROGRESS)	//La fonction SELFTEST_strategy déclare elle-même ses erreurs.
-				state = SELFTEST_ACT;
+			{
+				WATCHDOG_stop(watchdog_id);
+				state = SELFTEST_PING_ACT_PROP;
+			}
 			if(flag_timeout)	//Timeout
-				state = SELFTEST_ACT;
+				state = SELFTEST_PING_ACT_PROP;
 			break;
-		case SELFTEST_ACT:
-			/////////////////////////////TODO : faire un ping préalable pour vérifier que les autres cartes sont là avant d'entrer dans le timeout de 20 secondes !!
+		case SELFTEST_PING_ACT_PROP:
 			if(entrance)
 			{
-				CAN_send_sid(ACT_DO_SELFTEST);
-				flag_timeout = FALSE;
-				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_ACT, (bool_e*) &(flag_timeout));
+				watchdog_id = WATCHDOG_create_flag(100, (bool_e*) &(flag_timeout));	//timeout 100ms
+				CAN_send_sid(ACT_PING);
+				CAN_send_sid(PROP_PING);
+				CAN_send_sid(BEACON_PING);
+				debug_printf("SELFTEST PING OTHER BOARDS\r\n");
+			}
+			if(CAN_msg_received != NULL)
+			{
+				if(CAN_msg_received->sid == STRAT_ACT_PONG)
+					act_ping_ok = TRUE;
+				if(CAN_msg_received->sid == STRAT_PROP_PONG)
+					prop_ping_ok = TRUE;
+				if(CAN_msg_received->sid == STRAT_PROP_PONG)
+					beacon_ping_ok = TRUE;
+			}
+			if(act_ping_ok == TRUE && prop_ping_ok == TRUE && beacon_ping_ok == TRUE)
+			{
+				WATCHDOG_stop(watchdog_id);
+				state = SELFTEST_ACT;
+			}
+			if(flag_timeout)
+				state = SELFTEST_ACT;
+
+			if(state == SELFTEST_ACT)	//Déclaration des erreurs à la sortie de l'état !
+			{
+				if(!act_ping_ok)
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_ACT_UNREACHABLE);
+				if(!prop_ping_ok)
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_PROP_UNREACHABLE);
+				if(!beacon_ping_ok)
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_BEACON_UNREACHABLE);
+			}
+			break;
+		case SELFTEST_ACT:
+			if(entrance)
+			{
+				if(act_ping_ok)
+				{
+					CAN_send_sid(ACT_DO_SELFTEST);
+					flag_timeout = FALSE;
+					watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_ACT, (bool_e*) &(flag_timeout));
+					debug_printf("SELFTEST ACT\r\n");
+				}
+				else
+					state = SELFTEST_PROP;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
@@ -190,9 +247,15 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		case SELFTEST_PROP:
 			if(entrance)
 			{
-				CAN_send_sid(PROP_DO_SELFTEST);
-				flag_timeout = FALSE;
-				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_PROP, (bool_e*) &(flag_timeout));
+				if(prop_ping_ok)
+				{
+					CAN_send_sid(PROP_DO_SELFTEST);
+					flag_timeout = FALSE;
+					watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_PROP, (bool_e*) &(flag_timeout));
+					debug_printf("SELFTEST PROP\r\n");
+				}
+				else
+					state = SELFTEST_PROP;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_PROP_SELFTEST_DONE)
@@ -208,9 +271,15 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		case SELFTEST_BEACON_IR:
 			if(entrance)
 			{
-				CAN_send_sid(BEACON_DO_SELFTEST);
-				flag_timeout = FALSE;
-				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_IR, (bool_e*) &(flag_timeout));
+				if(beacon_ping_ok)
+				{
+					CAN_send_sid(BEACON_DO_SELFTEST);
+					flag_timeout = FALSE;
+					watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_IR, (bool_e*) &(flag_timeout));
+					debug_printf("SELFTEST BEACON\r\n");
+				}
+				else
+					state = SELFTEST_END;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_BEACON_IR_SELFTEST_DONE)
@@ -230,7 +299,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			if(errors_index > 0)//Tout s'est bien passé
 			{
 				LED_SELFTEST = TRUE;
-				debug_printf("SELFTEST : OK !\n");
+				debug_printf("SELFTEST : OK ! CHAMPOMY LES GARS !\n");
 			}
 			else	//Des problèmes ont été rencontrés
 			{
@@ -263,8 +332,6 @@ error_e SELFTEST_strategy(bool_e reset)
 	static state_e previous_state = INIT;
 	bool_e entrance;
 	error_e ret;
-	static watchdog_id_t watchdog_id;
-	static bool_e flag_timeout;
 	static FIL file;
 	static robot_id_e prop_robot_id;
 	static robot_id_e act_robot_id;
@@ -372,32 +439,26 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 	{
 		if(errors[i] != SELFTEST_NO_ERROR)
 		{
-			debug_printf("Selftest error %d : ",errors[i]);
+			debug_printf("SELFTEST error %3d : ",errors[i]);
 			switch(errors[i])
 			{
 				case SELFTEST_NOT_DONE:						debug_printf("NOT_DONE");					break;
-				case SELFTEST_FAIL_UNKNOW_REASON:			debug_printf("FAIL_UNKNOW_REASON");		break;
+				case SELFTEST_FAIL_UNKNOW_REASON:			debug_printf("FAIL_UNKNOW_REASON");			break;
 				case SELFTEST_NO_POWER:						debug_printf("NO_POWER");					break;
 				case SELFTEST_TIMEOUT:						debug_printf("TIMEOUT");					break;
 				case SELFTEST_PROP_LEFT_MOTOR:				debug_printf("PROP_LEFT_MOTOR");			break;
 				case SELFTEST_PROP_LEFT_ENCODER:			debug_printf("PROP_LEFT_ENCODER");			break;
 				case SELFTEST_PROP_RIGHT_MOTOR:				debug_printf("PROP_RIGHT_MOTOR");			break;
-				case SELFTEST_PROP_RIGHT_ENCODER:			debug_printf("PROP_RIGHT_ENCODER");		break;
+				case SELFTEST_PROP_RIGHT_ENCODER:			debug_printf("PROP_RIGHT_ENCODER");			break;
 				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:	debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");break;
-				default:									debug_printf("UNKNOW_ERROR_CODE %d",errors[i]); break;
+				default:									debug_printf("UNKNOW_ERROR_CODE"); 			break;
 			}
 			debug_printf("\n");
 		}
 	}
 }
 
-//Flag qui permet de lancer la fonction SELFTEST_beacon_reask_periodic_sending
-volatile bool_e flag_500ms = FALSE;
 
-//Fonction qui leve le flag précédent appelée par le timer4: 250ms
-void SELFTEST_process_1sec(){
-	flag_500ms = TRUE;
-}
 
 
 //void led_us_update(selftest_beacon_e state){
@@ -573,5 +634,40 @@ void SELFTEST_get_match_report_US(CAN_msg_t * msg){
 	msg->size = 8;
 	for(i=0;i<8;i++)
 		msg->data[i] = beacon_error_report.beacon_error_us_counter[i];
+}
+
+
+void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
+{
+	switch(can_msg->sid)
+	{
+		case BEACON_ADVERSARY_POSITION_IR:
+			if(global.env.match_started == TRUE)
+				//Enregistrement du type d'erreur
+				error_counters_update(can_msg);
+			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
+			if(can_msg->data[0] || can_msg->data[4])
+				led_ir_update(BEACON_ERROR);
+			else if(can_msg->data[3] < 102 || can_msg->data[7] < 102) //Distance IR en cm
+				led_ir_update(BEACON_NEAR);
+			else
+				led_ir_update(BEACON_FAR);
+			break;
+
+	/*	case BEACON_ADVERSARY_POSITION_US:
+			if(global.env.match_started == TRUE)
+				//Enregistrement du type d'erreur
+				error_counters_update(can_msg);
+			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
+			if(can_msg->data[0] || can_msg->data[4])
+				led_us_update(BEACON_ERROR);
+			else if(can_msg->data[1] < 4 || can_msg->data[5] < 4) //Distance US en mm on test seulement le poids fort autrement dit 1024mm
+				led_us_update(BEACON_NEAR);
+			else
+				led_us_update(BEACON_FAR);
+			break;*/
+		default:
+			break;
+	}
 }
 

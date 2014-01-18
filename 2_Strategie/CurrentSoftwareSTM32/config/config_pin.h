@@ -18,7 +18,7 @@
 	 * Toute connection non utilisee doit etre configuree en entree
 	 * (risque de griller ou de faire bruler le pic)
 	 */
-#define PORT_A_IO_MASK	0xFC9B
+#define PORT_A_IO_MASK	0xFE9B
 	#define BUTTON0_PORT		GPIOA->IDR0
 	#define SWITCH_DEBUG		GPIOA->IDR1
 	//	XBEE/BT/U2TX				  2
@@ -54,8 +54,8 @@
 	#define EEPROM_SDI			GPIOB->ODR15
 
 
-#define PORT_C_IO_MASK	0x202F
-	//	Capteur			 			  0
+#define PORT_C_IO_MASK	0x202E
+	#define	USB_POWER_ON	 	GPIOC->ODR0
 	//	Capteur			 			  1
 	//	Capteur			 			  2
 	//	Capteur			 			  3

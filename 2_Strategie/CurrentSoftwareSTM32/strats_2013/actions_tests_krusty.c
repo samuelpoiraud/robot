@@ -166,6 +166,7 @@ void K_Strat_Pour_Les_Nuls(void){
 		break;
 	case PAS7:
 		state = try_going_multipoint(rond,17,PAS8,DONE,DONE,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		break;
 	case DONE:
 		break;
 	default :
@@ -1331,28 +1332,32 @@ void TEST_STRAT_assiettes_lanceur(void){
 			break;
 		case DONE:
 			break;
-			case LANCEUR:
-				sub_action = TEST_Launcher_ball_cadeau();
-				switch(sub_action)
-				{
-					case END_OK:
-						state=DONE;
-						break;
-
-					case END_WITH_TIMEOUT:
-
-
-						state=DONE;
-						break;
-					case FOE_IN_PATH:
-					case NOT_HANDLED:
-						state=DONE;
-						break;
-
-					case IN_PROGRESS:
-						break;
-				}
+		case LANCEUR:
+			sub_action = TEST_Launcher_ball_cadeau();
+			switch(sub_action)
+			{
+				case END_OK:
+					state=DONE;
 					break;
+
+				case END_WITH_TIMEOUT:
+
+
+					state=DONE;
+					break;
+				case FOE_IN_PATH:
+				case NOT_HANDLED:
+					state=DONE;
+					break;
+
+				case IN_PROGRESS:
+					break;
+				default:
+					break;
+			}
+			break;
+			default:
+				break;
 		}
 
 }
@@ -1490,7 +1495,10 @@ void TEST_STRAT_verres(void){
 				case NOT_HANDLED:
 					state = GO;
 					break;
+				default:
+					break;
 			}
+			break;
 		case GO:
 			sub_action = K_push_half_row_glasses();
 			switch(sub_action){

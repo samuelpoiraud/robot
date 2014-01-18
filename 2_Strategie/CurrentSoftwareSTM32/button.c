@@ -21,10 +21,12 @@
 #include "config_pin.h"
 #include "Supervision/LCD_interface.h"
 
+/*
 static void BUTTON_TEST_button2();
 static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
 static void BUTTON_TEST_button6();
+*/
 
 void BUTTON_init()
 {
@@ -109,7 +111,7 @@ void BUTTON_translation()
 {
 	relative_move (1000, FAST, FORWARD, END_AT_LAST_POINT);
 }
-
+/*
 static void BUTTON_TEST_button2() {
 	LED_ROUGE = !LED_ROUGE;
 	LCD_free_line("Hello!",1);
@@ -130,3 +132,4 @@ static void BUTTON_TEST_button6() {
 	LED_BLEU = !LED_BLEU;
 	LED_ORANGE = !LED_ORANGE;
 }
+*/
