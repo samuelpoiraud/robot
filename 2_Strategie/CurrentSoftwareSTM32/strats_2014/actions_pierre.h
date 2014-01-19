@@ -17,13 +17,14 @@
 
 #include "../asser_functions.h"
 #include "../act_functions.h"
+#include "../QS/QS_types.h"
 
 void strat_test_triangle_cote_rouge(void);
 void strat_test_point();
 void strat_test_fresque();
-error_e strat_file_fresco_right();
-error_e strat_file_fresco_center();
-error_e strat_file_fresco_left();
+void strat_JPO();
+error_e strat_manage_fresco();
+error_e strat_file_fresco(Sint16 posY);
 error_e strat_test_ramasser_fruit_arbre1();
 error_e strat_test_ramasser_fruit_arbre2();
 error_e strat_test_deposser_fruit_rouge();
