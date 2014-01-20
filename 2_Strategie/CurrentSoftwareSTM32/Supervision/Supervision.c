@@ -22,7 +22,7 @@
 #include "config_use.h"
 #include "config_pin.h"
 #include "LCD_interface.h"
-
+#include "Buzzer.h"
 
 //@pre : QS_WHO_I_AM doit être found.
 //@pre : le CAN doit être initialisé...
@@ -104,6 +104,7 @@ void Supervision_process_main(void)
 
 	SD_process_main();
 
+	BUZZER_process_main();
 }
 
 
