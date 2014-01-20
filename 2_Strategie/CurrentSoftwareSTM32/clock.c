@@ -18,6 +18,7 @@
 #include "Supervision/Selftest.h"
 #include "config_pin.h"
 #include "QS/QS_can_over_xbee.h"
+#include "Supervision/Buzzer.h"
 
 void CLOCK_run();
 
@@ -107,6 +108,6 @@ void _ISR _T1Interrupt()
 		Supervision_process_1sec();
 	}
 	SD_process_1ms();
-
+	BUZZER_process_1ms();
 	TIMER1_AckIT();
 }
