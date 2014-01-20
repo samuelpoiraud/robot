@@ -64,9 +64,9 @@
 
 
 		CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;
-		CAN_InitStructure.CAN_Prescaler = PCLK1_FREQUENCY_HZ / 1250000 / 2;	//1,25Mhz clk CAN //Pourquoi le 2, je ne sais pas, mais on tombe sur la même vitesse que les dsPIC30F...
+		CAN_InitStructure.CAN_Prescaler = PCLK1_FREQUENCY_HZ / 1000000 / 2;	//Prescaler = 21 -> 1Mhz clk CAN //Pourquoi le 2, je ne sais pas, mais on tombe sur la même vitesse que les dsPIC30F...
 		CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;
-		CAN_InitStructure.CAN_BS1 = CAN_BS1_6tq;	//3tq propagation + 3tq segment 1
+		CAN_InitStructure.CAN_BS1 = CAN_BS1_4tq;	//1tq propagation + 3tq segment 1
 		CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
 		CAN_InitStructure.CAN_ABOM = ENABLE;
 		CAN_InitStructure.CAN_AWUM = DISABLE;
