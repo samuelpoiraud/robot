@@ -58,6 +58,14 @@
 	 */
 	void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel);
 
+	/**
+	 * Change la fréquence des PWM.
+	 * Min : 26 Hz
+	 * Max : de l'ordre du MHz (selon la config de l'horloge du périphérique).
+	 */
+	void PWM_set_frequency(Uint32 freq);
+
+
 	#define PWM_FINE_DUTY 25000
 #if PWM_FREQ <= (TIM_CLK2_FREQUENCY_HZ / PWM_FINE_DUTY)
 	/**
