@@ -41,11 +41,12 @@ bool_e action_fresco_filed = FALSE;
 
 
 //Provisoire pour le moment juste pour test
-#define ADVERSARY_DETECTED_HOKUYO FALSE
-#define FRESQUE_ENLEVER_APRS_1_COUP TRUE
-#define NB_MAX_ADVERSARY_FRESCO_POSITION   2
-volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={1370,1360};
-volatile Uint8 adversary_fresco_index = 1;
+#define ADVERSARY_DETECTED_HOKUYO TRUE
+#define FRESQUE_ENLEVER_APRS_1_COUP FALSE
+#define FRESQUE_ENLEVER_APRS_2_COUP FALSE
+#define NB_MAX_ADVERSARY_FRESCO_POSITION   2 //Les positions devront etre compris entre 1700 et 1300
+volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={1450,1590};
+volatile Uint8 adversary_fresco_index = 2;
 
 
 
@@ -400,11 +401,14 @@ error_e strat_manage_fresco(){
 		FILE_FRESCO,
 		VERIFICATION,
 		LAST_CHANCE_FILE_FRESCO,
+		VERIFICATION_2,
+		LAST_LAST_CHANCE_FILE_FRESCO,
 		DONE,
 		ERROR
 	);
 
 	static Sint16 posY = 1500;
+	static Sint16 oldPosY = 1500; // Si les deux premiere pose ne fonctionne pas nous aurons besoins de lui
 
 	switch(state){
 	case IDLE:
@@ -426,6 +430,9 @@ error_e strat_manage_fresco(){
 	case ADVERSARY_DETECTED:
 		switch(adversary_fresco_index){
 		case 1:
+			if(adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO)// La valeur n est pas comprise
+				posY = 1500;
+
 			if(adversary_fresco_positions[0] > 1500)
 				posY = POS_MIN_FRESCO;
 			else
@@ -433,12 +440,37 @@ error_e strat_manage_fresco(){
 
 			break;
 		case 2:
-			if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)
-				posY = POS_MIN_FRESCO;
-			else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500)
-				posY = POS_MAX_FRESCO;
-			else    //Pas fine
+			if((adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO) || (adversary_fresco_positions[1] > POS_MAX_FRESCO && adversary_fresco_positions[1] < POS_MIN_FRESCO))
 				posY = 1500;
+
+			if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)// Les 2 poses ennemis sont sup au milieu de la fresque
+				posY = POS_MIN_FRESCO;
+			else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500) // sont inf au milieu
+				posY = POS_MAX_FRESCO;
+			else{    // Il y a une fresque de chaque coté par rapport au milieu
+				Uint16 fresco_inf,fresco_sup; //Correspond a la plus grande et plus petite variable ou l'adversaire aurait poser ses fresques
+
+				if(adversary_fresco_positions[0] < adversary_fresco_positions[1]){
+					fresco_inf = adversary_fresco_positions[0];
+					fresco_sup = adversary_fresco_positions[1];
+				}else{
+					fresco_inf = adversary_fresco_positions[1];
+					fresco_sup = adversary_fresco_positions[0];
+				}
+
+				if(POS_MAX_FRESCO-fresco_sup > fresco_inf-POS_MIN_FRESCO){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
+					if(POS_MAX_FRESCO-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
+						posY = POS_MAX_FRESCO;
+					else
+						posY = (fresco_inf+fresco_sup)/2;
+
+				}else{ //Si la zone entre la POS_MIN_FRESCO est plus grande que celle avec POS_MAX_FRESCO
+					if(fresco_inf-POS_MIN_FRESCO >= fresco_sup-fresco_inf)
+						posY = POS_MIN_FRESCO;
+					else
+						posY = (fresco_inf+fresco_sup)/2;
+				}
+			}
 
 			break;
 		default: // On ne sait jamais si aucun adversaire a été detecte
@@ -446,6 +478,7 @@ error_e strat_manage_fresco(){
 			break;
 		}
 
+		debug_printf("psoY   %d\n",posY);
 		state = FILE_FRESCO;
 
 		break;
@@ -461,13 +494,34 @@ error_e strat_manage_fresco(){
 		break;
 	case LAST_CHANCE_FILE_FRESCO:
 			if(entrance){
+				oldPosY = posY;
+
 				if(posY > 1500) //Ne prend plus en compte les positions des adversaires eu precedement (Elles sont fausses sinon ne serait pas dans cet état)
 					posY = POS_MIN_FRESCO;
 				else
 					posY = POS_MAX_FRESCO;
 			}
 
-			state = check_sub_action_result(strat_file_fresco(posY),LAST_CHANCE_FILE_FRESCO,DONE,ERROR);
+			state = check_sub_action_result(strat_file_fresco(posY),LAST_CHANCE_FILE_FRESCO,VERIFICATION_2,ERROR);
+		break;
+	case VERIFICATION_2:
+		if(FRESQUE_ENLEVER_APRS_2_COUP)//fresque plus presente sur le support grace au capteur
+			state = DONE;
+		else
+			state = LAST_LAST_CHANCE_FILE_FRESCO;
+
+		break;
+	case LAST_LAST_CHANCE_FILE_FRESCO:
+			if(entrance){
+				if(posY == POS_MAX_FRESCO && oldPosY != POS_MIN_FRESCO)
+					posY = POS_MIN_FRESCO;
+				else if(posY == POS_MIN_FRESCO && oldPosY != POS_MAX_FRESCO)
+					posY = POS_MAX_FRESCO;
+				else
+					posY = 1500;
+			}
+
+			state = check_sub_action_result(strat_file_fresco(posY),LAST_LAST_CHANCE_FILE_FRESCO,DONE,ERROR);
 		break;
 	case DONE:
 		action_fresco_filed = TRUE;
@@ -490,6 +544,7 @@ error_e strat_file_fresco(Sint16 posY){
 		PUSH_MOVE,
 		WAIT_END_OF_MOVE,
 		END,
+		END_IMPOSSIBLE,
 		DONE,
 		ERROR
 	);
@@ -521,8 +576,13 @@ error_e strat_file_fresco(Sint16 posY){
 		}
 		break;
 	case END:
-		state = try_going_until_break(400,posY,END,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		break;
+		state = try_going_until_break(250,posY,END,END_IMPOSSIBLE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			break;
+	case END_IMPOSSIBLE:
+		if(global.env.pos.x > 200)
+			state = ERROR;
+		else
+			state = END;
 	case DONE:
 		state = IDLE;
 		return END_OK;
