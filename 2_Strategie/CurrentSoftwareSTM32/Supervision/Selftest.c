@@ -22,6 +22,7 @@
 #include "../QS/QS_WHO_AM_I.h"
 #include "SD/Libraries/fat_sd/ff.h"
 #include "RTC.h"
+#include "Buzzer.h"
 
 #define TIMEOUT_SELFTEST_ACT 		20000	// en ms
 #define TIMEOUT_SELFTEST_PROP 		10000	// en ms
@@ -367,21 +368,19 @@ error_e SELFTEST_strategy(bool_e reset)
 			break;
 		case TEST_LEDS_AND_BUZZER:
 			if(entrance)
+			{
 				t500ms = 5;	//2,5 secondes
+				BUZZER_play(100, DEFAULT_NOTE, 13);	//13 buzzs de 100ms + 12 pauses de 100ms = 2,4 secondes
+			}
 			LED_SELFTEST = (t500ms&1);	//Si t est impair, on allume toutes les leds.
 			LED_ERROR 	= LED_SELFTEST;
 			LED_CAN 	= LED_SELFTEST;
 			LED_UART 	= LED_SELFTEST;
 			LED_RUN 	= LED_SELFTEST;
 			LED_USER 	= LED_SELFTEST;
-			//if(t500ms&1)
-			//	BUZZER_run(FREQ);//TODO lier avec le module BUZZER
 
 			if(!t500ms)	//Lorsque T vaut 0 (et que les leds sont éteintes...)
-			{
-				//BUZZER_stop();
 				state = TEST_RTC;
-			}
 			break;
 		case TEST_RTC:
 			status = RTC_get_local_time (&date);
