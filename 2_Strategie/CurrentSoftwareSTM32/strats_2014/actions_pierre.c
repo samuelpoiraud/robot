@@ -576,13 +576,14 @@ error_e strat_file_fresco(Sint16 posY){
 		}
 		break;
 	case END:
-		state = try_going_until_break(250,posY,END,END_IMPOSSIBLE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-			break;
+		state = try_going_until_break(250,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_AVOIDANCE);
+		break;
 	case END_IMPOSSIBLE:
 		if(global.env.pos.x > 200)
 			state = ERROR;
 		else
 			state = END;
+		break;
 	case DONE:
 		state = IDLE;
 		return END_OK;
