@@ -38,7 +38,7 @@
 #define CLOCK_UPDATE_BUTTONS_PRESS_TIME
 
 /* CAN */
-//#define USE_CAN
+#define USE_CAN
 #define CAN_BUF_SIZE	32
 
 /* Réglages UART */
