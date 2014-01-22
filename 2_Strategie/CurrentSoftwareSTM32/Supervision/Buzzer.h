@@ -15,17 +15,22 @@
 	#define BUZZER_H
 	#include "../QS/QS_all.h"
 
+
+//Voir la bande passante du buzzer PKLCS1212E4001-R1 : 	http://www.farnell.com/datasheets/1626578.pdf
+//Et les fréquences des notes : 						http://fr.wikipedia.org/wiki/Note_de_musique
 	typedef enum
 	{
-		DEFAULT_NOTE = 440,	//LA
-		NOTE_DO = 262,
-		NOTE_RE = 294,
-		NOTE_MI = 330,
-		NOTE_FA = 349,
-		NOTE_SOL = 392,
-		NOTE_LA = 440,
-		NOTE_SI = 494,
-		NOTE_DO2 = 523
+		DEFAULT_NOTE = 4186,	//DO : c'est la note qui fait le plus de bruit (le buzzer crache 90dB à 10cm, 4,2kHz, 3V)
+		NOTE_DO0 = 2093,
+		NOTE_RE0 = 2349,
+		NOTE_MI0 = 2637,
+		NOTE_FA = 2794,
+		NOTE_SOL = 3136,
+		NOTE_LA = 3520,
+		NOTE_SI = 3951,
+		NOTE_DO = 4186,
+		NOTE_RE = 4699,
+		NOTE_MI = 5274
 	}BUZZER_note_e;
 
 void BUZZER_process_1ms(void);
