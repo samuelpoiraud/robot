@@ -11,6 +11,9 @@
 
 #ifndef _SECRETARY_H_
 	#define _SECRETARY_H_
+	#include "QS/QS_all.h"
+	#include "LCDTouch/LCD.h"
+	#define _SECRETARY_H_
 	#include "QS/QS_all.h"	
 
 		void SECRETARY_init(void);
@@ -24,7 +27,7 @@
 	
 	void SECRETARY_send_canmsg(Uint11 sid, Uint8 * data, Uint8 size);
 
-	void SECRETARY_send_adversary_position(Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability);
+	void SECRETARY_send_position(robots_e robot_selected, Sint16 x, Sint16 y, Sint16 d, Sint16 teta);
 
 	/*
 	Fonction permettant d'envoyer un message au monde extérieur. 

@@ -1,11 +1,11 @@
 /*
- *  Club Robot ESEO 2006 - 2007
- *  Game Hoover
+ *  Club Robot ESEO 2006 - 2014
+ *  Game Hoover, ..., Krusty & Tiny, Pierre & Guy
  *
  *  Fichier : it.c
  *  Package : Asser
  *  Description : fonctions en it...
- *  Auteur : Koubi  (2009) et Nirgal (2009) inspiré du code de Val' (2007)
+ *  Auteur : Koubi  (2009) et Nirgal (2009) inspiré du code de Val' (2007), Herzaeone(2014)
  *  Version 200904
  */
 

@@ -1,9 +1,9 @@
 /**
  * \file  write_lcd.c
  * \brief Programme d'écriture et d'affichage du lcd.
- * \author Franck.H
- * \version 1
- * \date 4 déc. 2013
+ * \author Shinintenshi && Herzaeone
+ * \version 20140123
+ * \date 23 janvier 2014
  */
 
 

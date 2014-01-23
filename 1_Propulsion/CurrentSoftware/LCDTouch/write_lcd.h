@@ -1,9 +1,9 @@
 /**
  * \file  write_lcd.c
  * \brief Programme d'écriture et d'affichage du lcd.
- * \author Franck.H
- * \version 1
- * \date 4 déc. 2013
+  * \author Shinintenshi && Herzaeone
+ * \version 20140123
+ * \date 23 janvier 2014
  */
 
 #ifndef WRITE_LCD_H_
@@ -16,10 +16,10 @@
  * \brief sélection d'un robot.
  */
 typedef enum{
-	JAUNE_1=0, /*!< robot 1 (les bouton correspondant son dans l'ordre croissant sur le lcd). */
-	JAUNE_2, /*!< robot 2. */
-	ROUGE_1, /*!< robot 3. */
-	ROUGE_2 /*!< robot 4. */
+	JAUNE_1=0,	/*!< robot 1 (les bouton correspondant son dans l'ordre croissant sur le lcd). */
+	JAUNE_2, 	/*!< robot 2. */
+	ROUGE_1, 	/*!< robot 3. */
+	ROUGE_2 	/*!< robot 4. */
 }couleur_robot_e;
 
 #define BUTTON_SIZE 7 /*!<taille d'un bouton (par rapport au centre)*/
