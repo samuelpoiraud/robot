@@ -402,6 +402,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_BEACON_US_SELFTEST_DONE :
 		case STRAT_ACT_SELFTEST_DONE :
 		case STRAT_PROP_SELFTEST_DONE :
+		case STRAT_ACT_PONG:
+		case STRAT_PROP_PONG:
+		case STRAT_BEACON_PONG:
 			SELFTEST_update(incoming_msg);
 			break;
 		default:

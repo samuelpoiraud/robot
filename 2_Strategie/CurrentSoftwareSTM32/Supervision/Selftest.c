@@ -443,7 +443,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 	{
 		if(errors[i] != SELFTEST_NO_ERROR)
 		{
-			debug_printf("\terror %3d : \r\n",errors[i]);
+			debug_printf("\terror %3d : ",errors[i]);
 			switch(errors[i])
 			{
 				case SELFTEST_NOT_DONE:							debug_printf("NOT_DONE");								break;
