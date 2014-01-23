@@ -13,22 +13,22 @@
 #define	ACT_QUEUE_UTILS_H
 	#include "queue.h"
 
+	typedef void (*ACT_OnInit)();
+	typedef void (*ACT_OnStop)();
+	typedef bool_e (*ACT_OnCanMsg)(CAN_msg_t* msg);
+
+	typedef struct {
+		ACT_OnInit onInit;
+		ACT_OnStop onStop;
+		ACT_OnCanMsg onCanMsg;
+	} ACTQ_functions_t;
+
+
 	//Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
 	//Cette fonction est appelée par les fonctions de traitement des messages CAN de chaque actionneur.
+	//act_function_ptr est une des fonctions ACTQ_finish_* ci-dessous dans ce fichier.
+	//Quand une action est terminée, il faut appeler QUEUE_next.
 	void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Uint16 param);
-
-	//Envoie le message CAN de retour à la strat (et affiche des infos de debuggage si activé)
-	void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode);
-
-	//Comme CAN_sendResult mais ajoute un paramètre au message. Peut servir pour debuggage.
-	void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param);
-
-	//Comme CAN_sendResultWithParam mais le paramètre est considéré comme étant un numéro de ligne.
-	void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 lineNumber);
-
-	//Macro pour avoir la ligne a laquelle cette macro est utilisé comme paramètre à CAN_sendResultWithParam
-	#define ACTQ_sendResultWithLine(originalSid, originalCommand, result, errorCode) ACTQ_sendResultWitExplicitLine(originalSid, originalCommand, result, errorCode, __LINE__)
-
 
 	//Gestion des états des actionneurs (ax12 / DCMotor)
 	//Retourne TRUE si l'action en cours n'est pas terminée, sinon FALSE
@@ -68,11 +68,25 @@
 	//Retour à la strat seulement si l'opération à fail
 	bool_e ACTQ_finish_SendResultIfFail(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
 
-	//Retour à la strat seuelement si l'opération à reussi
+	//Retour à la strat seulement si l'opération à reussi
 	bool_e ACTQ_finish_SendResultIfSuccess(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
 
 	//Ne fait aucun retour
 	bool_e ACTQ_finish_SendNothing(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
+
+
+	//Envoie le message CAN de retour à la strat (et affiche des infos de debuggage si activé)
+	void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode);
+
+	//Comme CAN_sendResult mais ajoute un paramètre au message. Peut servir pour debuggage.
+	void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param);
+
+	//Comme CAN_sendResultWithParam mais le paramètre est considéré comme étant un numéro de ligne.
+	void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 lineNumber);
+
+	//Macro pour avoir la ligne a laquelle cette macro est utilisé comme paramètre à CAN_sendResultWithParam
+	#define ACTQ_sendResultWithLine(originalSid, originalCommand, result, errorCode) ACTQ_sendResultWitExplicitLine(originalSid, originalCommand, result, errorCode, __LINE__)
+
 
 
 #endif	/* ACT_QUEUE_UTILS_H */
