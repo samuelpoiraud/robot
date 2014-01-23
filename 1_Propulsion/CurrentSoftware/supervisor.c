@@ -82,20 +82,30 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 			}
 		break;
 		case EVENT_ARRIVED:
-			if(current_acknowledge != NO_ACKNOWLEDGE && current_acknowledge != ACKNOWLEDGED)
+			switch(current_acknowledge)
 			{
-				if(current_acknowledge == ACKNOWLEDGE_CALIBRATION)
+				case NO_ACKNOWLEDGE:
+					break;
+				case ACKNOWLEDGED:
+					break;
+				case ACKNOWLEDGE_CALIBRATION:
 					WARNER_inform(WARNING_CALIBRATION_FINISHED, error_source);
-				else if(current_acknowledge == INTERN_ACKNOWLEDGE)
-				{
+					break;
+				case ACKNOWLEDGE_SELFTEST:
+					WARNER_inform(WARNING_SELFTEST_FINISHED, error_source);
+					break;
+				case INTERN_ACKNOWLEDGE:
 					if(ptr_InternAcknowledge != NULL)
 						(*ptr_InternAcknowledge)();
 					ptr_InternAcknowledge = NULL;
-				}
-				else
+					break;
+				case ACKNOWLEDGE_ASKED:
+					//no break
+				default:
 					WARNER_inform(WARNING_ARRIVED, error_source);
-				current_acknowledge = ACKNOWLEDGED;
+					break;
 			}
+			current_acknowledge = ACKNOWLEDGED;
 		break;
 
 		//ERREUR RENCONTREE
@@ -107,6 +117,8 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 				PILOT_referential_reset();
 				BUFFER_init();
 
+				if(current_acknowledge == ACKNOWLEDGE_SELFTEST)
+					WARNER_inform(WARNING_SELFTEST_FAILED, error_source);
 				WARNER_inform(WARNING_ERROR, error_source);
 				current_acknowledge = NO_ACKNOWLEDGE;
 				error_transmitted = TRUE;

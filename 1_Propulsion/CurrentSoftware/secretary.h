@@ -35,4 +35,6 @@
 		
 		void SECRETARY_mailbox_add(CAN_msg_t * msg);
 
+		void SECRETARY_send_selftest_result(bool_e result);
+
 #endif	//def _SECRETARY_H
