@@ -11,6 +11,7 @@
 	#include "QS/QS_buttons.h"
 	#include "QS/QS_who_am_i.h"
 	#include "QS/QS_outputlog.h"
+	#include "QS/QS_CANmsgList.h"
 	#ifdef STM32F40XX
 		#include "QS/QS_sys.h"
 	#endif
@@ -173,6 +174,7 @@ void HOKUYO_process_main(void)
 			state=SEND_ADVERSARIES_DATAS;
 		break;
 		case SEND_ADVERSARIES_DATAS:
+			send_adversaries_datas();
 			state=ASK_NEW_MEASUREMENT;
 			break;
 		case ERROR:
@@ -553,6 +555,13 @@ void user_callback_DeviceDisconnected(void)
 #ifdef USE_HOKUYO
 	flag_device_disconnected = TRUE;
 #endif
+}
+
+void send_adversaries_datas(void)
+{
+	Uint8 i;
+	for(i=0;i<=adversaries_number;i++)
+		SECRETARY_send_adversary_position(i, hokuyo_adversaries[i].coordX, hokuyo_adversaries[i].coordY, hokuyo_adversaries[i].teta, hokuyo_adversaries[i].dist, ADVERSARY_DETECTION_FIABILITY_ALL);
 }
 
 
