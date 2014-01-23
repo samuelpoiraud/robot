@@ -23,17 +23,27 @@
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 #include "../Common/Arm.h"
+#include "../QS/QS_outputlog.h"
+#include "../selftest.h"
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
+#define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_stop, &prefix##_CAN_process_msg}
+
+static ACTQ_functions_t actionneurs[] = {
+	{&FRUIT_init, &FRUIT_stop, &FRUIT_CAN_process_msg},
+	{&LANCE_LAUNCHER_init, &LANCE_LAUNCHER_stop, &LANCE_LAUNCHER_CAN_process_msg},
+	ACT_DECLARE(ARM)
+};
+
+static const Uint8 NB_ACTIONNEURS = sizeof(actionneurs) / sizeof(ACTQ_functions_t);
+
 void ACTMGR_init() {
-	/*BALLLAUNCHER_init();
-	PLATE_init();
-	LIFT_init();
-	BALLSORTER_init();*/
-	FRUIT_init();
-	LANCE_LAUNCHER_init();
-	ARM_init();
+	Uint8 i;
+	debug_printf("Init de %d actionneurs\n", NB_ACTIONNEURS);
+	for(i = 0; i < NB_ACTIONNEURS; i++) {
+		actionneurs[i].onInit();
+	}
 
 	ACTMGR_reset_act();
 }
@@ -49,31 +59,27 @@ void ACTMGR_reset_act() {
 //Gère les messages CAN des actionneurs. Si le message à été géré, cette fonction renvoie TRUE, sinon FALSE.
 bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 	//Traitement des messages, si la fonction de traitement d'un actionneur retourne TRUE, c'est que le message a été traité donc arrête le passage du message dans chaque fonction de traitement. (les fonctions de traitement des actionneurs sont responsable de retourner FALSE lorsque le message n'est pas destiné qu'a un actionneur)
-	/*if(BALLLAUNCHER_CAN_process_msg(msg))
-		return TRUE;
-	if(PLATE_CAN_process_msg(msg))
-		return TRUE;
-	if(LIFT_CAN_process_msg(msg))
-		return TRUE;
-	if(BALLSORTER_CAN_process_msg(msg))
-		return TRUE;*/
-	if(FRUIT_CAN_process_msg(msg))
-		return TRUE;
-	if(LANCE_LAUNCHER_CAN_process_msg(msg))
-		return TRUE;
-	if(ARM_CAN_process_msg(msg))
-		return TRUE;
+
+	Uint8 i;
+
+	if(msg->sid == ACT_DO_SELFTEST) {
+		SELFTEST_new_selftest(NB_ACTIONNEURS);
+	}
+
+	for(i = 0; i < NB_ACTIONNEURS; i++) {
+		//Dans le cas du selftest, on fait le test pour tous les actionneurs, qu'ils gèrent ou non le message
+		if(actionneurs[i].onCanMsg(msg) && msg->sid != ACT_DO_SELFTEST)
+			return TRUE;
+	}
 
 	return FALSE;
 }
 
 void ACTMGR_stop() {
-	/*BALLLAUNCHER_stop();
-	PLATE_stop();
-	LIFT_stop();
-	BALLSORTER_stop();*/
-	LANCE_LAUNCHER_stop();
-	FRUIT_stop();
+	Uint8 i;
+	for(i = 0; i < NB_ACTIONNEURS; i++) {
+		actionneurs[i].onStop();
+	}
 }
 
 
