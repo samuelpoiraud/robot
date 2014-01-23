@@ -53,7 +53,17 @@ typedef enum {
 	ACT_FRUIT_Stop = ACT_FRUIT_MOUTH_STOP
 } ACT_fruit_mouth_cmd_e;
 
+typedef enum {
+	ACT_Lance_1 =  ACT_LANCELAUNCHER_RUN,
+	ACT_Lance_2 = ACT_LANCELAUNCHER_RUN_2,
+	ACT_Lance_3 = ACT_LANCELAUNCHER_RUN_3,
+	ACT_Lance_4 = ACT_LANCELAUNCHER_RUN_4,
+	ACT_Lance_5 = ACT_LANCELAUNCHER_RUN_5,
+	ACT_Lance_6 = ACT_LANCELAUNCHER_RUN_6,
+} ACT_lance_launcher_cmd_e;
+
 bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd);
+bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd);
 
 ////////////////////////////////////////
 //////////////// KRUSTY ////////////////

@@ -60,6 +60,15 @@ bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Fruit, &args);
 }
 
+bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_LANCELAUNCHER, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_LANCELAUNCHER, ACT_LANCELAUNCHER_STOP);
+
+	debug_printf("Pushing launcher Run %d cmd\n",&cmd);
+	return ACT_push_operation(ACT_QUEUE_launcher, &args);
+}
 // <editor-fold desc="Krusty">
 
 bool_e ACT_ball_launcher_run(Uint16 speed) {
