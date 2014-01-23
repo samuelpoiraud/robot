@@ -22,4 +22,6 @@
 	
 	Sint32 CALCULATOR_modulo_angle_22(Sint32 angle);
 	
+	Uint16 CALCULATOR_distance(Sint16 xfrom, Sint16 yfrom, Sint16 xto, Sint16 yto);
+
 #endif	//def _CALCULATOR_H

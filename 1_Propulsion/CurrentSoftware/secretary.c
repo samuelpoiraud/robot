@@ -27,6 +27,7 @@
 #include "supervisor.h"
 #include "joystick.h"
 #include "scan_triangle.h"
+#include "LCDTouch/LCD.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -244,6 +245,53 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 									*/
 	SECRETARY_send_canmsg(sid,tabTemp,8);
 
+}
+
+
+void SECRETARY_send_position(robots_e robot_selected, Sint16 x, Sint16 y, Sint16 d, Sint16 teta){
+	Uint8 data[8];
+
+	switch(robot_selected){
+			case FRIEND_2:
+				//force pos friend 2
+				data[0] = x/2;	//X [2cm]
+				data[1] = y/2;	//Y [2cm]
+				SECRETARY_send_canmsg(STRAT_FRIEND_FORCE_POSITION, data, 2);
+				break;
+			case ADVERSARY_1:
+				data[0] = 0;	//ADVERSARY 0
+				data[1] = x/2;	//X [2cm]
+				data[2] = y/2;	//Y [2cm]
+				data[3] = HIGHINT(teta);	//teta
+				data[4] = LOWINT(teta);		//teta
+				data[5] = d;	//distance
+				data[6] = 0x03;	//fiability : x et y fiables
+				SECRETARY_send_canmsg(STRAT_ADVERSARIES_POSITION, data, 7);
+				break;
+
+			case ADVERSARY_2:
+				//force pos adversaries
+				/*		0 : ADVERSARY_NUMBER	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
+				 * 		1 :  x [2cm]
+				 * 		2 :  y [2cm]
+				 * 		3-4 : teta
+				 * 		5 : distance [2cm]
+				 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
+				 */
+
+				data[0] = 1;	//ADVERSARY 1
+				data[1] = x/2;	//X [2cm]
+				data[2] = y/2;	//Y [2cm]
+				data[3] = HIGHINT(teta);	//teta
+				data[4] = LOWINT(teta);		//teta
+				data[5] = d;	//distance
+				data[6] = 0x03;	//fiability : x et y fiables
+				SECRETARY_send_canmsg(STRAT_ADVERSARIES_POSITION, data, 7);
+
+				break;
+			default:
+				break;
+	}
 }
 
 

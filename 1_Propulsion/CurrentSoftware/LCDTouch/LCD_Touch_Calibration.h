@@ -22,6 +22,7 @@
 #define _LCD_TOUCH_CALIBRATION_H_
 
 #include "write_lcd.h"
+#include "../QS/QS_all.h"
 
 typedef struct{
     uint16_t x;

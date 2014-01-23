@@ -58,4 +58,9 @@ Sint32 CALCULATOR_modulo_angle_22(Sint32 angle)	//rad/4096/1024
 	return angle;
 }
 	
-
+Uint16 CALCULATOR_distance(Sint16 xfrom, Sint16 yfrom, Sint16 xto, Sint16 yto){
+	Sint32 deltaX,deltaY;
+	deltaX= xto - xfrom;
+	deltaY= yto - yfrom;
+	return sqrt(deltaX*deltaX + deltaY*deltaY);
+}

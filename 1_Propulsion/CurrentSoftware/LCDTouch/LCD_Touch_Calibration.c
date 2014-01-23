@@ -2,27 +2,21 @@
   ******************************************************************************
   * <h2><center>&copy; COPYRIGHT 2012 Embest Tech. Co., Ltd.</center></h2>
   * @file    LCD_Touch_Calibration.c
-  * @author  CMP Team + Amaury.Gaudin && Edouard.Thyebaut
+  * @author  CMP Team + Amaury.Gaudin && Edouard.Thyebaut && Herzaeone
   * @version V1.0.0
   * @date    28-December-2012
   * @update 10-Decembre-2013
   * @brief   LCD touch screen calibration      
-  ******************************************************************************
-  * @attention
-  *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, Embest SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT
-  * OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT
-  * OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION
-  * CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
-  ******************************************************************************
   */
 
 #include "LCD_Touch_Calibration.h"
+#include "../QS/QS_CANmsgList.h"
 
 #if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
 
+/**
+ * \def Utilise le module de calibration de l'écran
+ */
 #define LCD_TOUCH_CALIBRATION_MODULE
 
 /* Includes ------------------------------------------------------------------*/
@@ -228,18 +222,19 @@ void Lcd_Touch_Calibration(void)
   delay(200);
 }
 
-#define TOUCH_BUTTON_SIZE	(BUTTON_SIZE+3)
-#define entrance (previous_touch == FALSE && pstate->TouchDetected!=FALSE)
+#define TOUCH_BUTTON_SIZE	(BUTTON_SIZE+3) 								/**< Taille du bouton à afficher */
+#define entrance (previous_touch == FALSE && pstate->TouchDetected!=FALSE) /**< Changement d'état */
+
+
 /**
   * @brief  Display the value of calibration point
   * @param  *x Positions en x
   * @param  *y Positions en y
   * @param  *couleur_robot Couleur du Robot (numéro)
-  * @param  *flag_update (flage d'un nouveau toucher à l'interrieur d'une zone
+  * @param  *flag_update (flag d'un nouveau toucher à l'interrieur d'une zone
   *
   * @retval None
   */
-
 bool_e Calibration_Test_Dispose(display_robot_t *pos, robots_e *id_robot)
 {
   TS_STATE *pstate = NULL;
@@ -341,19 +336,6 @@ bool_e Calibration_Test_Dispose(display_robot_t *pos, robots_e *id_robot)
 					point_new.y = 10;
 				}
 
-				if(*id_robot == US){ //Si c'est nous on force la nouvelle coordonnée de la proulsion
-					Uint8 data[8];
-					//go pos
-					data[0] = 0x20;	//Multipoint, MAINTENANT.
-					data[1] = HIGHINT(robots[FRIEND_1].x*10);
-					data[2] = LOWINT(robots[FRIEND_1].x*10);
-					data[3] = HIGHINT(robots[FRIEND_1].y*10);
-					data[4] = LOWINT(robots[FRIEND_1].y*10);
-					data[5] = 0x01; 	//slow
-					data[6] = 0x00;		//Avant ou arrière
-					data[7] = 0;
-					SECRETARY_send_canmsg(ASSER_GO_POSITION, data, 8);
-				}
 
 				pos->y=point_new.x;	//ATTENTION INVERSION X et Y (les repères terrain et LCD sont différents)
 				pos->x=point_new.y; //ATTENTION INVERSION X et Y (les repères terrain et LCD sont différents)
