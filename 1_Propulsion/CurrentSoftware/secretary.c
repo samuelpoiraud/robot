@@ -182,6 +182,30 @@ void SECRETARY_send_selftest_result(bool_e result)
 	CAN_send(&msg);
 }
 
+//x : mm, y : mm, teta : rad4096, distance : mm
+void SECRETARY_send_adversary_position(Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability)
+{
+	CAN_msg_t msg;
+//force pos adversaries
+	/*		0 : ADVERSARY_NUMBER	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
+	 * 		1 :  x [2cm]
+	 * 		2 :  y [2cm]
+	 * 		3-4 : teta
+	 * 		5 : distance [2cm]
+	 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
+	 */
+	msg.sid = STRAT_ADVERSARIES_POSITION;
+	msg.data[0] = adversary_number;	//ADVERSARY 0
+	msg.data[1] = x/20;	//X [2cm]
+	msg.data[2] = y/20;	//Y [2cm]
+	msg.data[3] = HIGHINT(teta);	//teta
+	msg.data[4] = LOWINT(teta);	//teta
+	msg.data[5] = distance/20;	//distance [2cm]
+	msg.data[6] = 0x0F;	//fiability : x et y fiables
+	msg.size = 7;
+	CAN_send(&msg);
+}
+
 void SECRETARY_send_pong(void)
 {
 	CAN_msg_t msg;

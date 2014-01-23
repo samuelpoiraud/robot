@@ -24,6 +24,8 @@
 	
 	void SECRETARY_send_canmsg(Uint11 sid, Uint8 * data, Uint8 size);
 
+	void SECRETARY_send_adversary_position(Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability);
+
 	/*
 	Fonction permettant d'envoyer un message au monde extérieur. 
 	Selon le message indiqué en paramètre, un certain nombre 
