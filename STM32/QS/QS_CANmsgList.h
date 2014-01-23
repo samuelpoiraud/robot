@@ -209,6 +209,12 @@
 		 * 		5 : distance [2cm]
 		 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
 		 */
+		#define ADVERSARY_DETECTION_FIABILITY_X			0b00000001
+		#define ADVERSARY_DETECTION_FIABILITY_Y			0b00000010
+		#define ADVERSARY_DETECTION_FIABILITY_TETA		0b00000100
+		#define ADVERSARY_DETECTION_FIABILITY_DISTANCE	0b00001000
+		#define ADVERSARY_DETECTION_FIABILITY_ALL		0b00001111
+
 
 	/* carte stratégie vers carte propulsion */
 	#define ASSER_GO_POSITION					0x155
