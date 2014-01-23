@@ -71,7 +71,7 @@ void DETECTION_update(void)
 		if (global.env.config.balise)
 		{
 			//Mise à jour grâce aux balises et télémètres
-			DETECTION_update_foe_by_beacon();
+			DETECTION_update_foe_position();
 			//DETECTION_update_foe_by_telemeter();
 		}
 		else
@@ -166,14 +166,16 @@ void DETECTION_update(void)
 	}
 #endif //USE_TELEMETER
 
-void DETECTION_update_foe_by_beacon()
+void DETECTION_update_foe_position(void)
 {
-	static bool_e ultrasonic_fiable = TRUE;
+
+
+	/*
+ 	static bool_e ultrasonic_fiable = TRUE;
 	Sint16 beacon_foe_x, beacon_foe_y;
 	bool_e update_dist_by_ir;
 	Uint8 foe_id;
-	
-	for (foe_id = 0; foe_id < NB_FOES; foe_id++)
+	 for (foe_id = 0; foe_id < NB_FOES; foe_id++)
 	{
 		if((global.env.match_time - global.env.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
 		   (global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
@@ -208,7 +210,7 @@ void DETECTION_update_foe_by_beacon()
 			}
 			if(global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION || update_dist_by_ir)
 			{
-				/* L'ancienne distance est conservee */
+				//L'ancienne distance est conservee
 				beacon_foe_x = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.cosAngle 
 					- (global.env.foe[foe_id].dist * sin4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.sinAngle + global.env.pos.x;
 
@@ -229,7 +231,7 @@ void DETECTION_update_foe_by_beacon()
 
 		if(global.env.sensor[BEACON_US(foe_id)].updated && ultrasonic_fiable == TRUE)
 		{
-			/* L'ancien angle est conserve */
+			// L'ancien angle est conserve
 			if(global.env.match_time - global.env.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION)
 			{
 				beacon_foe_x = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.cosAngle 
@@ -246,11 +248,14 @@ void DETECTION_update_foe_by_beacon()
 					global.env.foe[foe_id].updated = TRUE;
 				}
 			}
-			/* On mets a jour la distance */
+			// On mets a jour la distance
 			global.env.foe[foe_id].dist = global.env.sensor[BEACON_US(foe_id)].distance;
 			//detection_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist,((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 	}
+	*/
+
+
 }
 
 void DETECTION_clear_updates()

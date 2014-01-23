@@ -344,8 +344,6 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_LEDS_AND_BUZZER,
 		TEST_RTC,
 		TEST_MEASURE24,
-		TEST_WHO_AM_I_1,
-		TEST_WHO_AM_I_2,
 		TEST_BIROUTE,
 		TEST_SD_CARD,
 		FAIL,
