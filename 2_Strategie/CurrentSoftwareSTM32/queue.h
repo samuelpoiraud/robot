@@ -37,6 +37,7 @@ typedef enum {
 
 	//Pierre
 	ACT_QUEUE_Fruit,
+	ACT_QUEUE_launcher,
 
 	NB_QUEUE
 } queue_id_e;

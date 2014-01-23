@@ -21,6 +21,7 @@
 
 void strat_test_triangle_cote_rouge(void);
 void strat_test_point();
+error_e strat_test_deposser_fruit();
 void strat_test_fresque();
 void strat_JPO();
 error_e strat_manage_fresco();
