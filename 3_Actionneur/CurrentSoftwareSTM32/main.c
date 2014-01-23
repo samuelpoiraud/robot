@@ -186,14 +186,15 @@ static void MAIN_onButton1() {
 	}*/
 	CAN_msg_t msg;
 
-	msg.size = 1;
+		msg.size = 1;
 
-	msg.sid = ACT_FRUIT_MOUTH;
+		msg.sid = ACT_LANCELAUNCHER;
 
-	debug_printf("Main: ACT_FRUIT_MOUTH_OPEN\n");
-	msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
 
-	CAN_process_msg(&msg);
+		msg.data[0] = ACT_LANCELAUNCHER_RUN_6;
+
+		CAN_process_msg(&msg);
+		debug_printf("Main: ACT_LANCELAUNCHER_RUN_6\n");
 
 
 #endif
@@ -230,14 +231,15 @@ static void MAIN_onButton2() {
 */
 	CAN_msg_t msg;
 
-	msg.size = 1;
+		msg.size = 1;
 
-	msg.sid = ACT_FRUIT_MOUTH;
+		msg.sid = ACT_LANCELAUNCHER;
 
-	debug_printf("Main: ACT_FRUIT_MOUTH_CLOSED\n");
-	msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
 
-	CAN_process_msg(&msg);
+		msg.data[0] = ACT_LANCELAUNCHER_RUN_2;
+
+		CAN_process_msg(&msg);
+		debug_printf("Main: ACT_LANCELAUNCHER_RUN_2\n");
 
 
 #endif
