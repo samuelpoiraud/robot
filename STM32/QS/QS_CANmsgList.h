@@ -165,6 +165,13 @@
 		SELFTEST_ACT_UNREACHABLE,
 		SELFTEST_PROP_UNREACHABLE,
 		SELFTEST_BEACON_UNREACHABLE,
+
+		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
+		SELFTEST_ACT_UNKNOWN,
+		SELFTEST_ACT_FRUIT_MOUTH,
+		SELFTEST_ACT_LANCELAUNCHER,
+		SELFTEST_ACT_ARM,
+
 		SELFTEST_ERROR_NB,
 		SELFTEST_NO_ERROR = 0xFF
 		//... ajouter ici d'éventuels nouveaux code d'erreur.
@@ -337,21 +344,6 @@
 		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
 		#define ACT_PLATE_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
 
-	////////////////// FRUIT_MOUTH ///////////
-	#define ACT_FRUIT_MOUTH (ACT_FILTER | 0x16)
-		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
-		#define ACT_FRUIT_MOUTH_CLOSE           0x10	//Fermer la pince et serrer l'assiette
-		#define ACT_FRUIT_MOUTH_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
-		#define ACT_FRUIT_MOUTH_MID             0x12
-		#define ACT_FRUIT_MOUTH_STOP            0x1F
-	/////////////////////////////////////////
-
-		/////////////////LANCELAUNCHER////////////////////
-			#define ACT_LANCELAUNCHER (ACT_FILTER | 0x17)
-						#define ACT_LANCELAUNCHER_RUN		0x11
-						#define ACT_LANCELAUNCHER_STOP		0x1F
-		////////////////////////////////////////////////
-
 		#define ACT_PLATE_ROTATE_HORIZONTALLY   0x20	//Amener le bras en position horizontale (pour prendre ou lacher une assiette par ex)
 		#define ACT_PLATE_ROTATE_PREPARE        0x21	//Amener le bras en position intermédiaire (45°) pour préparer un mouvement vers l'horizontale ou verticale
 		#define ACT_PLATE_ROTATE_VERTICALLY     0x22	//Amener le bras en position verticale. Ferme la pince si elle ne l'est pas avant d'effectuer le mouvement (meca oblige) (pour vider une assiette ou réduire le périmêtre du robot)
@@ -386,6 +378,25 @@
 		#define ACT_LIFT_GO_DOWN               0x22	//Amener l'ascenseur en position basse.
 		#define ACT_LIFT_STOP                  0x2F	//Stopper l'asservissement de l'ascenseur.
 	/////////////////////////////////////////
+
+
+	// 2014
+
+	////////////////// FRUIT_MOUTH ///////////
+	#define ACT_FRUIT_MOUTH (ACT_FILTER | 0x16)
+		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
+		#define ACT_FRUIT_MOUTH_CLOSE           0x10	//Fermer la pince et serrer l'assiette
+		#define ACT_FRUIT_MOUTH_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
+		#define ACT_FRUIT_MOUTH_MID             0x12
+		#define ACT_FRUIT_MOUTH_STOP            0x1F
+	/////////////////////////////////////////
+
+	/////////////////LANCELAUNCHER////////////////////
+	#define ACT_LANCELAUNCHER (ACT_FILTER | 0x17)
+		//Paramètres de LANCELAUNCHER (dans data[0])
+		#define ACT_LANCELAUNCHER_RUN		0x11
+		#define ACT_LANCELAUNCHER_STOP		0x1F
+	////////////////////////////////////////////////
 
 	////////////////// ARM  /////////////////
 	#define ACT_ARM 0x320

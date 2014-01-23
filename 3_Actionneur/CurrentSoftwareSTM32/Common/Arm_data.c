@@ -29,7 +29,7 @@ ARM_motor_data_t arm_motors[ARM_ACT_NUMBER] = {
 };
 
 arm_state_t arm_states[ARM_ST_NUMBER] = {
-	{0, 150},	//ARM_ST_Parked
+	{0  , 150},	//ARM_ST_Parked
 	{150, 300}	//ARM_ST_Open
 };
 

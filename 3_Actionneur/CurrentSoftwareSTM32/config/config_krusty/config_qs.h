@@ -17,9 +17,9 @@
 	#define USE_ANALOG_EXT_VREF
 
 	// !!!!!!!!!!!!!!!! ADC 2 & 3 sont sur les pins de l'uart 2 !!!!!!!!!!!!!!!!
-	#define USE_AN2
+//	#define USE_AN2
 	#define AN2_ID  0
-	#define USE_AN3
+//	#define USE_AN3
 	#define AN3_ID  1
 	#define USE_AN9
 	#define AN9_ID  2
@@ -57,7 +57,8 @@
 	#define AX12_TIMER_ID 2
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 	#define AX12_STATUS_RETURN_CHECK_CHECKSUM
-	#define AX12_UART_ID 3
+	#define AX12_UART_ID 2
+	//#define AX12_RX24_UART_ID 3
 	//#define AX12_DEBUG_PACKETS
 
 	#define USE_WATCHDOG
