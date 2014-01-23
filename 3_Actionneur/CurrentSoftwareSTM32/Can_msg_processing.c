@@ -25,6 +25,7 @@
 #define LOG_PREFIX "CANProcess: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANPROCESSMSG
 #include "QS/QS_outputlog.h"
+#include "QS/QS_who_am_i.h"
 
 void CAN_process_msg(CAN_msg_t* msg) {
 	CAN_msg_t answer;
@@ -57,7 +58,8 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 		case ACT_PING:
 			answer.sid = STRAT_ACT_PONG;
-			answer.size = 0;
+			answer.size = 1;
+			answer.data[0] = QS_WHO_AM_I_get();
 			CAN_send(&answer);
 			break;
 		default:
