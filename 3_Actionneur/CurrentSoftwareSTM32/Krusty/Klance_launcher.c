@@ -31,7 +31,7 @@
 
 #include "../QS/QS_setTimerSource.h"
 
-static bool_e lance_launcher_state;
+static Uint8 lance_launcher_last_launch;
 
 void LANCE_LAUNCHER_init() {
 	static bool_e initialized = FALSE;
@@ -40,14 +40,24 @@ void LANCE_LAUNCHER_init() {
 		return;
 	initialized = TRUE;
 	LANCELAUNCHER_PIN_1 = 0;
-	lance_launcher_state = 0;
+	LANCELAUNCHER_PIN_2 = 0;
+	LANCELAUNCHER_PIN_3 = 0;
+	LANCELAUNCHER_PIN_4 = 0;
+	LANCELAUNCHER_PIN_5 = 0;
+	LANCELAUNCHER_PIN_6 = 0;
+	lance_launcher_last_launch = 0;
 	TIMER_SRC_TIMER_init();
 	component_printf(LOG_LEVEL_Debug, "Lance  launcher init !\n");
 }
 
 void LANCE_LAUNCHER_stop() {
-	lance_launcher_state = 0;
+	lance_launcher_last_launch = 0;
 	LANCELAUNCHER_PIN_1 = 0;
+	LANCELAUNCHER_PIN_2 = 0;
+	LANCELAUNCHER_PIN_3 = 0;
+	LANCELAUNCHER_PIN_4 = 0;
+	LANCELAUNCHER_PIN_5 = 0;
+	LANCELAUNCHER_PIN_6 = 0;
 }
 
 
@@ -56,6 +66,26 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_LANCELAUNCHER) {
 		switch(msg->data[0]) {
 			case ACT_LANCELAUNCHER_RUN:
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
+				TIMER_SRC_TIMER_start_ms(100);
+				break;
+			case ACT_LANCELAUNCHER_RUN_2:
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
+				TIMER_SRC_TIMER_start_ms(100);
+				break;
+			case ACT_LANCELAUNCHER_RUN_3:
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
+				TIMER_SRC_TIMER_start_ms(100);
+				break;
+			case ACT_LANCELAUNCHER_RUN_4:
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
+				TIMER_SRC_TIMER_start_ms(100);
+				break;
+			case ACT_LANCELAUNCHER_RUN_5:
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
+				TIMER_SRC_TIMER_start_ms(100);
+				break;
+			case ACT_LANCELAUNCHER_RUN_6:
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
 				TIMER_SRC_TIMER_start_ms(100);
 				break;
@@ -81,17 +111,53 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			return;
 		}
 
-		if(init == TRUE) {
+		if(init == TRUE && lance_launcher_last_launch ==0) { //on verifie qu'aucun lanceur n'est activé (car seul un seul pour l'être à la fois)
 			Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 			//CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
 
 			switch(command) {
 				case ACT_LANCELAUNCHER_RUN:
-					lance_launcher_state = 1;
-					LANCELAUNCHER_PIN_1 = 1;
-					component_printf(LOG_LEVEL_Debug, "lanceur démarré\n");
+					lance_launcher_last_launch = 1;
+					LANCELAUNCHER_PIN_6 = 1;
+					component_printf(LOG_LEVEL_Debug, "lanceur 6 démarré\n");
 					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 					break;
+
+				case ACT_LANCELAUNCHER_RUN_2:
+					lance_launcher_last_launch = 2;
+					LANCELAUNCHER_PIN_5 = 1;
+					component_printf(LOG_LEVEL_Debug, "lanceur 5 démarré\n");
+					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
+					break;
+
+				case ACT_LANCELAUNCHER_RUN_3:
+					lance_launcher_last_launch = 3;
+					LANCELAUNCHER_PIN_4 = 1;
+					component_printf(LOG_LEVEL_Debug, "lanceur 4 démarré\n");
+					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
+					break;
+
+				case ACT_LANCELAUNCHER_RUN_4:
+					lance_launcher_last_launch = 4;
+					LANCELAUNCHER_PIN_3 = 1;
+					component_printf(LOG_LEVEL_Debug, "lanceur 3 démarré\n");
+					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
+					break;
+
+				case ACT_LANCELAUNCHER_RUN_5:
+					lance_launcher_last_launch = 5;
+					LANCELAUNCHER_PIN_2 = 1;
+					component_printf(LOG_LEVEL_Debug, "lanceur 2 démarré\n");
+					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
+					break;
+
+				case ACT_LANCELAUNCHER_RUN_6:
+					lance_launcher_last_launch = 6;
+					LANCELAUNCHER_PIN_1 = 1;
+					component_printf(LOG_LEVEL_Debug, "lanceur 1 démarré\n");
+					//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
+					break;
+
 
 				case ACT_LANCELAUNCHER_STOP: //La queue n'est pas utilisée pour cette commande
 					QUEUE_behead(queueId);
@@ -110,13 +176,70 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 }
 
 void TIMER_SRC_TIMER_interrupt() {
-	/* pour avoir une activation d'une seconde pour les lanceurs de lance*/
+	/* pour avoir une activation d'une seconde pour les lanceurs de lances*/
 	static Uint8 lance_launcher_timer=0;
 	lance_launcher_timer++;
 	if (lance_launcher_timer>=10){
-		LANCELAUNCHER_PIN_1 = 0;
+		lance_launcher_last_launch--;  //le lancé étant déjà fait on post décrémente lance_launcher_last_launch
+		switch(lance_launcher_last_launch){
+			case 0 :
+				LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
+				LANCELAUNCHER_PIN_2 = 0;
+				LANCELAUNCHER_PIN_3 = 0;
+				LANCELAUNCHER_PIN_4 = 0;
+				LANCELAUNCHER_PIN_5 = 0;
+				LANCELAUNCHER_PIN_6 = 0;
+				component_printf(LOG_LEVEL_Debug, "FIN des lancés\n");
+				TIMER_SRC_TIMER_stop();
+				break;
+			case 1 :
+				LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
+				LANCELAUNCHER_PIN_2 = 0;
+				LANCELAUNCHER_PIN_3 = 0;
+				LANCELAUNCHER_PIN_4 = 0;
+				LANCELAUNCHER_PIN_5 = 0;
+				LANCELAUNCHER_PIN_6 = 1;
+				component_printf(LOG_LEVEL_Debug, "lanceur 6 démarré\n");
+				break;
+			case 2 :
+				LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
+				LANCELAUNCHER_PIN_2 = 0;
+				LANCELAUNCHER_PIN_3 = 0;
+				LANCELAUNCHER_PIN_4 = 0;
+				LANCELAUNCHER_PIN_5 = 1;
+				LANCELAUNCHER_PIN_6 = 0;
+				component_printf(LOG_LEVEL_Debug, "lanceur 5 démarré\n");
+				break;
+			case 3 :
+				LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
+				LANCELAUNCHER_PIN_2 = 0;
+				LANCELAUNCHER_PIN_3 = 0;
+				LANCELAUNCHER_PIN_4 = 1;
+				LANCELAUNCHER_PIN_5 = 0;
+				LANCELAUNCHER_PIN_6 = 0;
+				component_printf(LOG_LEVEL_Debug, "lanceur 4 démarré\n");
+				break;
+			case 4 :
+				LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
+				LANCELAUNCHER_PIN_2 = 0;
+				LANCELAUNCHER_PIN_3 = 1;
+				LANCELAUNCHER_PIN_4 = 0;
+				LANCELAUNCHER_PIN_5 = 0;
+				LANCELAUNCHER_PIN_6 = 0;
+				component_printf(LOG_LEVEL_Debug, "lanceur 3 démarré\n");
+				break;
+			case 5 :
+				LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
+				LANCELAUNCHER_PIN_2 = 1;
+				LANCELAUNCHER_PIN_3 = 0;
+				LANCELAUNCHER_PIN_4 = 0;
+				LANCELAUNCHER_PIN_5 = 0;
+				LANCELAUNCHER_PIN_6 = 0;
+				component_printf(LOG_LEVEL_Debug, "lanceur 2 démarré\n");
+				break;
+		}
+
 		lance_launcher_timer=0;
-		TIMER_SRC_TIMER_stop();
 	}
 	TIMER_SRC_TIMER_resetFlag();
 }
