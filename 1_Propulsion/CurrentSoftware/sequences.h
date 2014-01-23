@@ -21,4 +21,8 @@
 	void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, acknowledge_e acquittement, Sint32 consigne_point_eloigne_x, Sint32 consigne_point_eloigne_y, border_mode_e border_mode, corrector_e corrector);
 
     void SEQUENCES_calibrate(way_e way, calibration_square_e calibration_square);
+
+    void SEQUENCES_selftest(void);
+
+
 #endif /*def _SEQUENCES_H*/

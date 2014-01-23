@@ -92,6 +92,9 @@ volatile static bool_e flag_arrived = FALSE;
 volatile static bool_e flag_brake = FALSE;
 volatile static bool_e flag_error = FALSE;
 volatile static bool_e flag_calibration = FALSE;
+volatile static bool_e flag_selftest_finished = FALSE;
+volatile static bool_e flag_selftest_failed = FALSE;
+
 
 //cette fonction sert à avertir, en envoyant des messages CAN de position si nécessaire
 void WARNER_process_main(void)
@@ -121,6 +124,17 @@ void WARNER_process_main(void)
 		SECRETARY_process_send(CARTE_P_ROBOT_FREINE,0,error_source);
 	}	
 
+	if(flag_selftest_failed)
+	{
+		flag_selftest_failed = FALSE;
+		SECRETARY_send_selftest_result(FALSE);
+	}
+
+	if(flag_selftest_finished)
+	{
+		flag_selftest_finished = FALSE;
+		SECRETARY_send_selftest_result(TRUE);
+	}
 
 	if(warnings != WARNING_NO)
 	{
@@ -154,6 +168,12 @@ void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e new_er
 		break;
 		case WARNING_CALIBRATION_FINISHED:
 			flag_calibration = TRUE;
+		break;
+		case WARNING_SELFTEST_FINISHED:
+			flag_selftest_finished = TRUE;
+		break;
+		case WARNING_SELFTEST_FAILED:
+			flag_selftest_failed = TRUE;
 		break;
 		case WARNING_NEW_TRAJECTORY:
 		default:

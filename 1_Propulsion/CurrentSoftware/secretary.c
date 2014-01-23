@@ -15,6 +15,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can.h"
 #include "QS/QS_can_over_uart.h"
+#include "QS/QS_who_am_i.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_timer.h"
 #include "warner.h"
@@ -164,6 +165,30 @@ void SECRETARY_send_canmsg(Uint16 sid, Uint8* data,Uint8 taille)
 		}
 		debug_printf(" x=%d y=%d t=%d\n", global.position.x, global.position.y, global.position.teta);
 	#endif
+}
+
+//si result == TRUE : le selftest s'est bien déroulé, sinon on remonte l'erreur à la stratégie.
+void SECRETARY_send_selftest_result(bool_e result)
+{
+	CAN_msg_t msg;
+	Uint8 i;
+	msg.sid = STRAT_PROP_SELFTEST_DONE;
+	msg.size = 8;
+	msg.data[0] = (result)?SELFTEST_NO_ERROR:SELFTEST_PROP_FAILED;
+	for(i=1;i<8;i++)
+		msg.data[i] = SELFTEST_NO_ERROR;
+
+	//TODO enrichir ce message du statut de fonctionnement des autres périphs... hokuyo....
+	CAN_send(&msg);
+}
+
+void SECRETARY_send_pong(void)
+{
+	CAN_msg_t msg;
+	msg.sid = STRAT_PROP_PONG;
+	msg.size = 1;
+	msg.data[0] = QS_WHO_AM_I_get();
+	CAN_send(&msg);
 }
 
 
@@ -327,12 +352,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 
 		break;
 
-		//demande de selftest pour la propulsion
-		//case SUPER_ASK_ASSER_SELFTEST:
-			//SELFTEST désactivé, car l'autocallage qui y était fait dépend maintenant de la stratégie !!!
-
-		//break;
-
 		// Modifie la position de départ en fonction de la couleur
 		case BROADCAST_COULEUR :
 			//Le type couleur est normalisé en QS...
@@ -423,7 +442,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
 		break;
 		case PROP_PING:
-			SECRETARY_send_canmsg(STRAT_PROP_PONG,NULL,0);
+			SECRETARY_send_pong();
+		break;
+		case PROP_DO_SELFTEST:
+			SEQUENCES_selftest();
 		break;
 		#ifdef SCAN_TRIANGLE
 		case ASSER_LAUNCH_SCAN_TRIANGLE :

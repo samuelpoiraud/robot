@@ -116,6 +116,27 @@ void SEQUENCES_calibrate(way_e way, calibration_square_e calibration_square)
 
 }
 
+void SEQUENCES_selftest(void)
+{
+	Sint16 cos_a, sin_a;
+	Sint32 x, y;
+	COS_SIN_16384_get((Sint32)(global.position.teta)*4, &cos_a, &sin_a);
+	cos_a /= 4;	//->[mm*4096]
+	sin_a /= 4;	//->[mm*4096]
+
+	//Calcul du point qui est 10cm devant nous...  (en relatif, donc on calcule simplement la part de x et de y pour une distance de 10cm)...
+	x = (Sint32)cos_a;
+	x = (x*100)/4096;
+	y = (Sint32)sin_a;
+	y = (y*100)/4096;
+
+	//Seul le premier mouvement est considéré comme le selftest (il peut réussir ou échouer...)
+	//Le second mouvement permet de revenir à la position précédente.
+	ROADMAP_add_order(TRAJECTORY_TRANSLATION, x, y, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_SELFTEST, CORRECTOR_ENABLE);
+	ROADMAP_add_order(TRAJECTORY_TRANSLATION, -x, -y, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, SLOW_TRANSLATION_AND_FAST_ROTATION, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
+
+}
+
 
 /*
 void SEQUENCES_CALIBRATE(way_e way)
