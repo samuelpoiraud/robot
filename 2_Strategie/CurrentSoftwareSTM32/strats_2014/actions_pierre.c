@@ -31,8 +31,8 @@
 
 
 //Pour Activer le mode manual de pose de fresque
-#define MODE_MANUAL_FRESCO FALSE
-#define POS_Y_MANUAL_FRESCO 1300 // Mettre une valeur entre 1300 et 1700
+#define MODE_MANUAL_FRESCO TRUE
+#define POS_Y_MANUAL_FRESCO 1500 // Mettre une valeur entre 1300 et 1700
 
 
 //Les differente's actions que pierre devra faire lors d'un match
@@ -42,59 +42,115 @@ bool_e action_fresco_filed = FALSE;
 
 //Provisoire pour le moment juste pour test
 #define ADVERSARY_DETECTED_HOKUYO TRUE
-#define FRESQUE_ENLEVER_APRS_1_COUP FALSE
+#define FRESQUE_ENLEVER_APRS_1_COUP TRUE
 #define FRESQUE_ENLEVER_APRS_2_COUP FALSE
 #define NB_MAX_ADVERSARY_FRESCO_POSITION   2 //Les positions devront etre compris entre 1700 et 1300
 volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={1450,1590};
 volatile Uint8 adversary_fresco_index = 2;
 
 
-
-void strat_test_triangle_cote_rouge(void){
+void strat_tourne_en_rond(void){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
-		PASSAGE_ARMOIRE,
-		TRIANGLE_BOUT_JAUNE,
-		TRIANGLE3,
-		MILIEU2,
-		TRIANGLE4,
-		TRIANGLE_BOUT_ROUGE,
-		TOUR1J,
-		TOUR2J,
-		TOUR3J,
-		TOUR4J,
-		TOUR1R,
-		TOUR2R,
-		TOUR3R,
-		TOUR4R,
-		MUR,
-		PUSH_MOVE,
-		WAIT_END_OF_MOVE,
+		TOUR,
 		FIN,
 		DONE,
 		ERROR
 	);
 
-	displacement_t tabMamo[8] = {
-		{{500,200},SLOW},
+	displacement_t tour[6] = {
+		{{630,600},SLOW},
+		{{630,2250},SLOW},
+		{{960,2600},SLOW},
+		{{1500,2300},SLOW},
+		{{150,750},SLOW},
+		{{1200,450},SLOW}
+	};
+
+	CAN_msg_t msg;
+
+	static Uint16 i = 0;
+
+	switch(state){
+	case IDLE:
+		msg.sid=ASSER_SET_POSITION;
+		msg.data[0]=500 >> 8;
+		msg.data[1]=500 & 0xFF;
+		msg.data[2]=120 >> 8;
+		msg.data[3]=120 & 0xFF;
+		msg.data[4]=PI4096/2 >> 8;
+		msg.data[5]=PI4096/2 & 0xFF;
+		msg.size = 6;
+		CAN_send(&msg);
+
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+		state = try_going_until_break(500,200,POS_DEPART,TOUR,ERROR,SLOW,FORWARD,NO_DODGE_AND_NO_WAIT);
+		break;
+	case TOUR:
+		state = try_going_multipoint(tour,6,TOUR,FIN,ERROR,FORWARD,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		break;
+	case FIN:
+		i++;
+
+		if(i >= 1)
+			state = DONE;
+		else
+			state = TOUR;
+
+		break;
+	case DONE:
+		break;
+	case ERROR:
+		break;
+	default:
+		break;
+	}
+
+}
+
+
+void strat_test_triangle_cote_rouge(void){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		TRIANGLE1,
+		FRESQUE,
+		TRIANGLE2,
+		TRIANGLE3,
+		TRIANGLE3_AVANCER,
+		TRIANGLE4_5,
+		TRIANGLE6,
+		MUR,
+		FIN,
+		DONE,
+		ERROR
+	);
+
+	displacement_t triangle1[3] = {
 		{{800,750},SLOW},
-		{{820,900},SLOW},//Triangle 1
-		{{680,1370},SLOW},
+		{{820,900},SLOW},
+		{{680,1370},SLOW}
+	};
+
+
+	displacement_t triangle2[4] = {
 		{{680,1650},SLOW},
-		{{830,2090},SLOW},//Triangle 2
-		{{880,2270},SLOW},
-		{{1020,2365},SLOW}//Bout triangle Jaune
+		{{830,2090},SLOW},
+		{{880,2200},SLOW},
+		{{1000,2365},SLOW}
 	};
 
 	displacement_t tabArmoire[7] = {
 		{{1210,2360},SLOW},
-		{{1340,2100},SLOW},//Triangle 1
+		{{1340,2100},SLOW},
 		{{1415,1645},SLOW},
 		{{1415,1360},SLOW},
-		{{1370,900},SLOW},//Triangle 2
+		{{1370,900},SLOW},
 		{{1305,720},SLOW},
-		{{1100,625},SLOW}//Bout triangle rouge
+		{{1100,625},SLOW}
 	};
 
 	CAN_msg_t msg;
@@ -115,55 +171,43 @@ void strat_test_triangle_cote_rouge(void){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going_multipoint(tabMamo,8,POS_DEPART,PASSAGE_ARMOIRE,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+
+		state = try_going_until_break(500,200,POS_DEPART,TRIANGLE1,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
-	case PASSAGE_ARMOIRE:
-		state = try_going_multipoint(tabArmoire,7,PASSAGE_ARMOIRE,MUR,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+	case TRIANGLE1:
+		state = try_going_multipoint(triangle1,3,TRIANGLE1,FRESQUE,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 		break;
-	case TRIANGLE_BOUT_JAUNE:
-		state = try_going(1000,400+DECALAGE_LARGEUR,TRIANGLE_BOUT_JAUNE,TOUR1J,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+	case FRESQUE:
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+		state = check_sub_action_result(strat_manage_fresco(),FRESQUE,TRIANGLE2,ERROR);
 		break;
-	case TRIANGLE_BOUT_ROUGE:
-		state = try_going(900,2600-DECALAGE_LARGEUR,TRIANGLE_BOUT_ROUGE,TOUR1R,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+	case TRIANGLE2:
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+
+		state = try_going_multipoint(triangle2,4,TRIANGLE2,TRIANGLE3,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 		break;
-	case TOUR1J:
-		state = try_go_angle(3*PI4096/2,TOUR1J,TOUR2J,ERROR,FAST);
+	case TRIANGLE3:
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+		state = try_going_until_break(1400,2400,TRIANGLE3,TRIANGLE3_AVANCER,ERROR,SLOW,BACKWARD,NO_AVOIDANCE);
 		break;
-	case TOUR2J:
-		state = try_go_angle(0,TOUR2J,TOUR3J,ERROR,FAST);
+	case TRIANGLE3_AVANCER:
+		state = try_going_until_break(900,2400,TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
-	case TOUR3J:
-		state = try_go_angle(PI4096/2,TOUR3J,TOUR4J,ERROR,FAST);
+	case TRIANGLE4_5:
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+
+		state = try_going_multipoint(tabArmoire,7,TRIANGLE4_5,TRIANGLE6,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 		break;
-	case TOUR4J:
-		state = try_go_angle(PI4096,TOUR4J,TRIANGLE3,ERROR,FAST);
-		break;
-	case TOUR1R:
-		state = try_go_angle(3*PI4096/2,TOUR1R,TOUR2R,ERROR,FAST);
-		break;
-	case TOUR2R:
-		state = try_go_angle(0,TOUR2R,TOUR3R,ERROR,FAST);
-		break;
-	case TOUR3R:
-		state = try_go_angle(PI4096/2,TOUR3R,TOUR4R,ERROR,FAST);
-		break;
-	case TOUR4R:
-		state = try_go_angle(PI4096,TOUR4R,MUR,ERROR,FAST);
-		break;
-	case MUR:
-		state = try_going(400,1500,MUR,PUSH_MOVE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		break;
-	case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
-		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
-		state = WAIT_END_OF_MOVE;
-		break;
-	case WAIT_END_OF_MOVE:
-		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
-			state = FIN;
-		}
-		break;
-	case FIN:
-		state = try_going(400,1500,FIN,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+	case TRIANGLE6:
+		state = state = try_going_until_break(900,2400,TRIANGLE6,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case DONE:
 		break;
@@ -505,7 +549,7 @@ error_e strat_manage_fresco(){
 			state = check_sub_action_result(strat_file_fresco(posY),LAST_CHANCE_FILE_FRESCO,VERIFICATION_2,ERROR);
 		break;
 	case VERIFICATION_2:
-		if(FRESQUE_ENLEVER_APRS_2_COUP)//fresque plus presente sur le support grace au capteur
+		if(FRESCO_1 && FRESCO_2)//fresque plus presente sur le support grace au capteur
 			state = DONE;
 		else
 			state = LAST_LAST_CHANCE_FILE_FRESCO;
