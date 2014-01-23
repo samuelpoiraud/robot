@@ -68,7 +68,7 @@ trajectoire pour l'information de position de l'adversaire */
 	void DETECTION_update_foe_only_by_telemeter();
 	
 	/*	mise à jour de l'information de la position des adversaires à l'aide des balises*/
-	void DETECTION_update_foe_by_beacon();
+	void DETECTION_update_foe_position();
 	
 	/*	mise à jour de l'information de la position des adversaires à l'aide des telemetres et des balises*/
 	void DETECTION_update_foe_by_telemeter();

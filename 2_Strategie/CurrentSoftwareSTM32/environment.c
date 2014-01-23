@@ -377,6 +377,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			//ENV_pos_foe_update(incoming_msg);
 			//SELFTEST_update_led_beacon(incoming_msg);
 			break;
+		case STRAT_ADVERSARIES_POSITION:
+			ENV_pos_foe_update(incoming_msg);
+			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case XBEE_START_MATCH:
 			global.env.ask_start = TRUE;
@@ -547,6 +550,29 @@ void ENV_pos_update (CAN_msg_t* msg)
 void ENV_pos_foe_update (CAN_msg_t* msg)
 {
 	bool_e slashn;
+	Uint8 fiability;
+	Uint8 adversary_nb;
+	if(msg->sid == STRAT_ADVERSARIES_POSITION)
+	{
+		adversary_nb = msg->data[0];
+		if(adversary_nb < NB_FOES)
+		{
+			fiability = msg->data[6];
+			if(fiability)
+			{
+				global.env.foe[adversary_nb].updated = TRUE;
+				global.env.foe[adversary_nb].update_time = global.env.match_time;
+			}
+			if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
+				global.env.foe[adversary_nb].x = ((Sint16)msg->data[1])*20;
+			if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
+				global.env.foe[adversary_nb].y = ((Sint16)msg->data[2])*20;
+			if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
+				global.env.foe[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
+			if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
+				global.env.foe[adversary_nb].dist = ((Sint16)msg->data[5])*20;
+		}
+	}
 	if(msg->sid==BEACON_ADVERSARY_POSITION_IR)
 	{
 		slashn = FALSE;
