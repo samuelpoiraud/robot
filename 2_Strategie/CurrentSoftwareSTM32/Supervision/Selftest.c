@@ -201,9 +201,17 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			if(CAN_msg_received != NULL)
 			{
 				if(CAN_msg_received->sid == STRAT_ACT_PONG)
+				{
+					if(CAN_msg_received->data[0] != QS_WHO_AM_I_get())
+						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
 					act_ping_ok = TRUE;
+				}
 				if(CAN_msg_received->sid == STRAT_PROP_PONG)
+				{
+					if(CAN_msg_received->data[0] != QS_WHO_AM_I_get())
+						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
 					prop_ping_ok = TRUE;
+				}
 				if(CAN_msg_received->sid == STRAT_PROP_PONG)
 					beacon_ping_ok = TRUE;
 			}
@@ -348,8 +356,6 @@ error_e SELFTEST_strategy(bool_e reset)
 	bool_e entrance;
 	error_e ret;
 	static FIL file;
-	static robot_id_e prop_robot_id;
-	static robot_id_e act_robot_id;
 	Uint8 nb_written;
 	date_t date;
 	Uint8 status;
@@ -394,24 +400,6 @@ error_e SELFTEST_strategy(bool_e reset)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_NO_24V);
 			else if(battery_level < THRESHOLD_BATTERY_LOW)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_LOW);
-			state = TEST_WHO_AM_I_1;
-			break;
-		case TEST_WHO_AM_I_1:
-			prop_robot_id = QS_WHO_AM_I_get();
-			act_robot_id = QS_WHO_AM_I_get();
-			if(entrance)
-			{
-				//TODO msg can pour demander à la prop et à l'act qui elle sont
-				t500ms = 2;
-			}
-			//TODO traiter les messages can entrants...
-			if(!t500ms)
-				state = TEST_WHO_AM_I_2;
-
-			break;
-		case TEST_WHO_AM_I_2:
-			if(prop_robot_id != QS_WHO_AM_I_get() || act_robot_id != QS_WHO_AM_I_get())
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
 			state = TEST_BIROUTE;
 			break;
 		case TEST_BIROUTE:
@@ -462,10 +450,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_FAIL_UNKNOW_REASON:				debug_printf("FAIL_UNKNOW_REASON");						break;
 				case SELFTEST_NO_POWER:							debug_printf("NO_POWER");								break;
 				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");								break;
-				case SELFTEST_PROP_LEFT_MOTOR:					debug_printf("PROP_LEFT_MOTOR");						break;
-				case SELFTEST_PROP_LEFT_ENCODER:				debug_printf("PROP_LEFT_ENCODER");						break;
-				case SELFTEST_PROP_RIGHT_MOTOR:					debug_printf("PROP_RIGHT_MOTOR");						break;
-				case SELFTEST_PROP_RIGHT_ENCODER:				debug_printf("PROP_RIGHT_ENCODER");						break;
+				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");							break;
 				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:		debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");				break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");						break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");			break;
