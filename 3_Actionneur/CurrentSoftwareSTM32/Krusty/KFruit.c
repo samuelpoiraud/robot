@@ -16,6 +16,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
 #include "../act_queue_utils.h"
+#include "../selftest.h"
 #include "config_pin.h"
 #include "KFruit_config.h"
 
@@ -109,6 +110,17 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
+	} else if(msg->sid == ACT_DO_SELFTEST) {
+		queueId1 = QUEUE_create();
+		if(queueId1 != QUEUE_CREATE_FAILED) {
+			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
+			QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){msg->data[0], FRUIT_CS_OpenAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Fruit);
+			QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){msg->data[0], FRUIT_CS_CloseAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Fruit);
+			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
+		} else {
+			QUEUE_flush(queueId1);
+			ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
+		}
 	}
 
 	return FALSE;
