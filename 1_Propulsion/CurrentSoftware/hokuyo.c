@@ -25,14 +25,17 @@
 	#include "uart_via_usb.h"
 	#include "cos_sin.h"
 	#include "hokuyo.h"
+	#include "calculator.h"
+	#include "secretary.h"
 
 #ifdef USE_HOKUYO
 
-	#define HOKUYO_ANGLE_OFFSET 4500 //45 degrés
+	#define HOKUYO_OFFSET_ANGLE_RAD4096 3217 //45 degrés
 	#define HOKUYO_ANGLE_ROBOT_TERRAIN 0
 	#define HOKUYO_DETECTION_MARGE 130
 	#define HOKUYO_EVITEMENT_MIN 150
-	#define HOKUYO_BORDS_TERRAIN 80
+	#define HOKUYO_MARGIN_FIELD_SIDE_IGNORE 80
+	#define HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	100	//Distance d'un point trop proche de nous qui doit être ignoré.
 	#define ROBOT_COORDX 150
 	#define ROBOT_COORDY 150
 	#define ECARTEMENT_PTS_MAX_CARRE 22500
@@ -54,7 +57,8 @@
 	static Uint8 HOKUYO_datas[NB_BYTES_FROM_HOKUYO];				//Données brutes issues du capteur HOKUYO
 	static Uint32 datas_index=0;									//Index pour ces données
 
-	static HOKUYO_adversary_position detected_valid_points[1080];	//Points valides détectés par le capteur (X, Y, teta, distance)
+	#define NB_DETECTED_VALID_POINTS	1000
+	static HOKUYO_adversary_position detected_valid_points[NB_DETECTED_VALID_POINTS];	//Points valides détectés par le capteur (X, Y, teta, distance)
 	static Uint16 nb_valid_points=0;								//Nombre de points valides détectés
 
 	static HOKUYO_adversary_position hokuyo_adversaries[NB_MAX_ADVERSARIES];	//Positions des adversaires détectés
@@ -63,6 +67,7 @@
 	static bool_e hokuyo_initialized = FALSE;						//Module initialisé - sécurité.
 	volatile bool_e flag_device_disconnected = FALSE;				//Flag levé en callback lorsque le capteur vient d'être débranché
 	volatile Uint16 time_since_last_sent_adversaries_datas = 0;		//[ms]
+	static position_t robot_position_during_measurement;
 
 	void hokuyo_write_command(Uint8 tab[]);
 	int hokuyo_write_uart_manually(void);
@@ -75,7 +80,7 @@
 	void hokuyo_detection_ennemis(void);
 	//void ReconObjet(void);
 	void DetectRobots(void);
-
+	void send_adversaries_datas(void);
 
 
 
@@ -111,6 +116,7 @@ void HOKUYO_process_it(Uint8 ms)
 //Process main
 void HOKUYO_process_main(void)
 {
+	Uint8 i;
 	typedef enum
 	{
 		INIT=0,
@@ -152,6 +158,7 @@ void HOKUYO_process_main(void)
 		break;
 		case ASK_NEW_MEASUREMENT:
 			hokuyo_write_command((Uint8*)"MS0000108001001");
+			robot_position_during_measurement = global.position;	//On garde en mémoire l'angle du robot au moment où on lance la mesure Hokuyo. (est-ce le moment le plus pertinent...?)
 			datas_index=0;
 			state=BUFFER_READ;
 		break;
@@ -182,6 +189,8 @@ void HOKUYO_process_main(void)
 			{
 				time_since_last_sent_adversaries_datas = 0;
 				send_adversaries_datas();
+				for(i=0;i<=adversaries_number;i++)
+					debug_printf("adv%d\t%4ld\t%4ld\n",i,hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
 			}
 			state=ASK_NEW_MEASUREMENT;
 			break;
@@ -284,7 +293,7 @@ void hokuyo_read_buffer(void)
 //Fonction qui formate les données afin d'etre traitées.
 void hokuyo_format_data(void)
 {
-	int j=47;
+	/*int j=47;
 	int i=0;
 	while(j<=2274)
 	{
@@ -295,98 +304,61 @@ void hokuyo_format_data(void)
 		i++;
 		j++;
 	}
+	datas_index = i-1;*/
 }
 
 //Fonction qui renvoi les coordonnées des points detectés sur le terrain
 void hokuyo_find_valid_points(void)
 {
-		Uint16 nb_val_bizarres=0;
-		Uint16 a,b;
-		Uint16 comp=0;
-		Sint32 dist[1500];
-		Uint16 nb_pts;
-		Sint32 angle=0;
+	Uint16 a,b;
+	Uint16 i;
+	Sint32 distance;
+	Sint32 angle=0;		//[°*100] centièmes de degrés
+	Sint16 teta_relative;	//[rad4096]
+	Sint16 teta_absolute;
+	Sint32 x_absolute;
+	Sint32 y_absolute;
+	Sint16 cos;
+	Sint16 sin;
 
-		Sint32 anglerad;
-		Sint32 angleoffsetrad;
-		Sint32 anglerad_decale;
-		Sint32 angleRobotTerrainRad;
-		Sint32 angleFinal;
+	nb_valid_points = 0;	//RAZ des points valides.
 
-		Sint16 coco;
-		Sint16 sisi;
-		Sint32 coordX;
-		Sint32 coordY;
+	for(i = 47; i<datas_index-3;)	//Les données commencent  l'octet 47...
+	{
+		if(HOKUYO_datas[i+1] == '\n')
+			i+=2;
+		if(HOKUYO_datas[i] == '\n')	//FIN DES DONNEES !!
+			break;
+		a = (Uint16)HOKUYO_datas[i++];
+		b = (Uint16)HOKUYO_datas[i++];
 
-		Sint32 coordCibleX;
-		Sint32 coordCibleY;
-
-		Sint16 cosoffsetTerrain;
-		Sint16 sinoffsetTerrain;
-
-		nb_valid_points=0;
-
-		for(nb_pts = 0; nb_pts<=1080; nb_pts++)
+		distance = ((a-0x30)<<6)+((b-0x30)&0x3f);	//cf datasheet de l'hokuyo... pour comprendre comment les données sont codées.
+		if(distance	> HOKUYO_TOO_CLOSE_DISTANCE_IGNORE)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
-			a = HOKUYO_datas[comp];
-			b = HOKUYO_datas[comp+1];
+			teta_relative = ((((Sint32)(angle))*183)>>8) - HOKUYO_OFFSET_ANGLE_RAD4096;	//Angle relatif au robot, du point en cours, en rad4096
+			teta_absolute = CALCULATOR_modulo_angle(teta_relative + robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
 
-			//calcul distance
-			dist[nb_pts]=((a-0x30)<<6)+((b-0x30)&0x3f);	//cf datasheet de l'hokuyo... pour comprendre comment les données sont codées.
+			COS_SIN_4096_get(teta_absolute,&cos,&sin);
+			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x;
+			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y;
 
-			//Sint32(a) * PI4096 /18000
-			anglerad = (((Sint32)(angle))*183)>>8;
-			angleoffsetrad = (((Sint32)(HOKUYO_ANGLE_OFFSET))*183)>>8;
-
-			angleRobotTerrainRad = (((Sint32)(HOKUYO_ANGLE_ROBOT_TERRAIN))*183)>>8;
-
-			anglerad_decale = anglerad-angleoffsetrad;
-			angleFinal = anglerad_decale + angleRobotTerrainRad;
-
-			COS_SIN_4096_get(anglerad,&coco,&sisi);
-			COS_SIN_4096_get(angleFinal,&cosoffsetTerrain,&sinoffsetTerrain);
-
-			coordX=(dist[nb_pts]*cosoffsetTerrain)/4096;
-			coordY=(dist[nb_pts]*sinoffsetTerrain)/4096;
-
-			coordCibleX=coordX+ROBOT_COORDX;
-			coordCibleY=coordY+ROBOT_COORDY;
-
-			//debug_printf("distance = [%ld]",data[lala]);
-			//debug_printf(" angle degre = [%d]",angle);
-			//debug_printf(" angle radian = [%ld]",anglerad);
-			//debug_printf(" angle radian = [%ld]",angleFinal);
-			//debug_printf(" CX = [%ld]",coordX);
-			//debug_printf(" CY = [%ld]\n",coordY);
-
-			if(dist[nb_pts] == 1)
-				nb_val_bizarres++;
-
-			if(		coordCibleX <= 1000-HOKUYO_BORDS_TERRAIN &&
-					coordCibleX>=0+HOKUYO_BORDS_TERRAIN &&
-					coordCibleY <= 2000-HOKUYO_BORDS_TERRAIN &&
-					coordCibleY >=0+HOKUYO_BORDS_TERRAIN &&
-					dist[nb_pts]>100)
-			{
-								//debug_printf("d = [%ld mm]",dist[nb_pts]);
-				detected_valid_points[nb_valid_points].dist=dist[nb_pts];
-
-				//debug_printf(" teta = [%d] \n",angle-HOKUYO_ANGLE_OFFSET);
-				detected_valid_points[nb_valid_points].teta=(angle-HOKUYO_ANGLE_OFFSET);
-
-				//debug_printf(" X = [%ld mm]",coordCibleX);
-				detected_valid_points[nb_valid_points].coordX=coordCibleX;
-
-				//debug_printf(" Y = [%ld mm]\n",coordCibleY);
-				detected_valid_points[nb_valid_points].coordY=coordCibleY;
-
-				nb_valid_points++;
+			if(		x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+					y_absolute 	< 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+					y_absolute 	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
+			{		//Un point est retenu s'il est sur le terrain
+				detected_valid_points[nb_valid_points].dist = distance;
+				detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
+				detected_valid_points[nb_valid_points].coordX = x_absolute;
+				detected_valid_points[nb_valid_points].coordY = y_absolute;
+				if(nb_valid_points < NB_DETECTED_VALID_POINTS)
+					nb_valid_points++;
 			}
-			angle+=25;
-			comp+=2;
 		}
-		//debug_printf("val tot [%d]\n",compt_sushis);
-		//debug_printf("val bizarres [%d]\n",nb_val_bizarres);
+		angle+=25;	//Centième de degré
+	}
+	//debug_printf("val tot [%d]\n",compt_sushis);
+	//debug_printf("val bizarres [%d]\n",nb_val_bizarres);
 }
 
 //fonction qui renvoie la plus petite distance
@@ -433,13 +405,6 @@ void hokuyo_detection_ennemis(void){
 				x_comp=detected_valid_points[i].coordX;
 				y_comp=detected_valid_points[i].coordY;
 		}
-	}
-	debug_printf("il y a  %d mechant(s)\n",adversaries_number);
-
-	for(i=1;i<=adversaries_number;i++)
-	{
-		debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_adversaries[i].coordX);
-		debug_printf(" et y=[%ld mm]\n",hokuyo_adversaries[i].coordY);
 	}
 }
 
@@ -546,15 +511,6 @@ void DetectRobots(void)
 			}
 		}
 	}
-
-	debug_printf("il y a  %d intru(s)\n",adversaries_number);
-
-	for(i=0;i<=adversaries_number;i++)
-		{
-			debug_printf(" ennemi numero %d x=[%ld mm]",i,hokuyo_adversaries[i].coordX);
-			debug_printf(" et y=[%ld mm]\n",hokuyo_adversaries[i].coordY);
-		}
-
 }
 #endif	//def USE_HOKUYO
 
