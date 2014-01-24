@@ -1,3 +1,14 @@
+/*
+ *  Club Robot ESEO 2013 - 2014
+ *
+ *  $Id$
+ *
+ *  Package : Carte Actionneur
+ *  Description : Selftest
+ *  Auteur : Alexis
+ *  Robot : Pierre & Guy
+ */
+
 #define SELFTEST_C
 #include "selftest.h"
 #include "QS/QS_all.h"
@@ -12,7 +23,7 @@
 #include "QS/QS_outputlog.h"
 
 #define MAX_NB_ACT 8
-#define SELFTEST_TIMEOUT 100 // 10s
+#define SELFTEST_TIMEOUT 150 // unité: 0.1s, 150 = 15s, doit être inférieur au timeout en strat
 
 static SELFTEST_error_code_e failed_act_tests[MAX_NB_ACT];
 static Uint8 expected_act_num = 0;
@@ -46,11 +57,17 @@ void SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 }
 
 bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param) {
-	if(result == ACT_RESULT_DONE) {
-		SELFTEST_done_test(act_sid, TRUE);
-	}
 
-	SELFTEST_done_test(act_sid, FALSE);
+		if(result == ACT_RESULT_DONE) {
+			// Si reste que cette action (qui vient de finir) dans la file, les tests pour cet actionneur sont terminés.
+			// Si result n'est pas ACT_RESULT_DONE, alors on termine tout de suite le test et on enregistre l'erreur
+			// 2 car il y a nous et le give_sem
+			if(QUEUE_pending_num(queue_id) <= 2) {
+				SELFTEST_done_test(act_sid, TRUE);
+			}
+		} else {
+				SELFTEST_done_test(act_sid, FALSE);
+		}
 
 	return ACTQ_finish_SendNothing(queue_id, act_sid, result, error_code, param);
 }
@@ -105,7 +122,7 @@ static bool_e SELFTEST_check_end(queue_id_t queueId) {
 
 	if(act_test_done_num == expected_act_num || CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + SELFTEST_TIMEOUT) {
 		if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + SELFTEST_TIMEOUT) {
-			warn_printf("Timeout du selftest\n");
+			warn_printf("Timeout du selftest, reçu %d resultat vs %d attendus\n", act_test_done_num, expected_act_num);
 		}
 
 		test_finished = TRUE;

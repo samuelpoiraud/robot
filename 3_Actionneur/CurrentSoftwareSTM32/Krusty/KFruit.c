@@ -114,8 +114,8 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 		queueId1 = QUEUE_create();
 		if(queueId1 != QUEUE_CREATE_FAILED) {
 			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){msg->data[0], FRUIT_CS_OpenAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){msg->data[0], FRUIT_CS_CloseAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Fruit);
+			QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){ACT_FRUIT_MOUTH_OPEN,  FRUIT_CS_OpenAX12,   &SELFTEST_finish}, QUEUE_ACT_AX12_Fruit);
+			QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){ACT_FRUIT_MOUTH_CLOSE, FRUIT_CS_CloseAX12,  &SELFTEST_finish}, QUEUE_ACT_AX12_Fruit);
 			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
 		} else {
 			QUEUE_flush(queueId1);

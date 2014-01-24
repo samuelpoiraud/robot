@@ -254,6 +254,16 @@ bool_e QUEUE_has_error(queue_id_t queue_id) {
 	return FALSE;
 }
 
+/* Retourne le nombre d'action dans la file (celle courante + celles en attentes ou 0 si la file est inactive) */
+Uint8 QUEUE_pending_num(queue_id_t queue_id) {
+	assert(queue_id < NB_QUEUE);
+
+	if(queues[queue_id].used == FALSE || queues[queue_id].tail <= queues[queue_id].head)
+		return 0;
+
+	return queues[queue_id].tail - queues[queue_id].head;
+}
+
 /* vide la file */
 void QUEUE_flush(queue_id_t queue_id)
 {
