@@ -15,6 +15,7 @@
 
 	void HOKUYO_init(void);
 	void HOKUYO_process_main(void);
+	void HOKUYO_process_it(Uint8 ms);
 
 #endif
 
