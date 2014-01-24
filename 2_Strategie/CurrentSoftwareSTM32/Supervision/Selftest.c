@@ -96,10 +96,13 @@ void SELFTEST_declare_errors(CAN_msg_t * msg, SELFTEST_error_code_e error)
 	{
 		for(i=0;i<msg->size;i++)
 		{
-			//Récupération des codes d'erreurs envoyés.
-			errors[errors_index] = msg->data[i];
-			if(errors_index < MAX_ERRORS_NUMBER - 1)
-				errors_index++;
+			if(msg->data[i] != SELFTEST_NO_ERROR)
+			{
+				//Récupération des codes d'erreurs envoyés.
+				errors[errors_index] = msg->data[i];
+				if(errors_index < MAX_ERRORS_NUMBER - 1)
+					errors_index++;
+			}
 		}
 	}
 }
