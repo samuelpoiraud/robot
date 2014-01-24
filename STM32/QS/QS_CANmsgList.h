@@ -167,8 +167,8 @@
 		SELFTEST_BEACON_UNREACHABLE,
 
 		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
-		SELFTEST_ACT_MISSING_TEST,
-		SELFTEST_ACT_UNKNOWN_ACT,
+		SELFTEST_ACT_MISSING_TEST,	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
+		SELFTEST_ACT_UNKNOWN_ACT,	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
 		SELFTEST_ACT_FRUIT_MOUTH,
 		SELFTEST_ACT_LANCELAUNCHER,
 		SELFTEST_ACT_ARM,
