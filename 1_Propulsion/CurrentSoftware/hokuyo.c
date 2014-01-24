@@ -38,6 +38,7 @@
 	#define ECARTEMENT_PTS_MAX_CARRE 22500
 	#define NB_MAX_ADVERSARIES	16
 	#define NB_BYTES_FROM_HOKUYO	5000
+	#define PERIOD_SEND_ADVERSARIES_DATAS	200	//[ms]
 
 	__ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core __ALIGN_END;
 	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
@@ -61,7 +62,7 @@
 
 	static bool_e hokuyo_initialized = FALSE;						//Module initialisé - sécurité.
 	volatile bool_e flag_device_disconnected = FALSE;				//Flag levé en callback lorsque le capteur vient d'être débranché
-
+	volatile Uint16 time_since_last_sent_adversaries_datas = 0;		//[ms]
 
 	void hokuyo_write_command(Uint8 tab[]);
 	int hokuyo_write_uart_manually(void);
@@ -102,7 +103,10 @@ void HOKUYO_init(void)
 }
 
 
-
+void HOKUYO_process_it(Uint8 ms)
+{
+	time_since_last_sent_adversaries_datas += ms;	//on assume le débordement au bout de 65 secondes si l'hokuyo est inopérant... c'est pas grave..
+}
 
 //Process main
 void HOKUYO_process_main(void)
@@ -174,7 +178,11 @@ void HOKUYO_process_main(void)
 			state=SEND_ADVERSARIES_DATAS;
 		break;
 		case SEND_ADVERSARIES_DATAS:
-			send_adversaries_datas();
+			if(time_since_last_sent_adversaries_datas > PERIOD_SEND_ADVERSARIES_DATAS)
+			{
+				time_since_last_sent_adversaries_datas = 0;
+				send_adversaries_datas();
+			}
 			state=ASK_NEW_MEASUREMENT;
 			break;
 		case ERROR:
