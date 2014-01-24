@@ -20,7 +20,9 @@
 #include "../QS/QS_types.h"
 #include "../config/config_pin.h"
 
-void strat_test_triangle_cote_rouge(void);
+
+void strat_inutile(void);
+void strat_lannion_rouge(void);
 void strat_test_point();
 void strat_test_fresque();
 void strat_tourne_en_rond(void);
