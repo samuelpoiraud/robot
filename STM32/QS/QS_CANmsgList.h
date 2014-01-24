@@ -167,7 +167,8 @@
 		SELFTEST_BEACON_UNREACHABLE,
 
 		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
-		SELFTEST_ACT_UNKNOWN,
+		SELFTEST_ACT_MISSING_TEST,
+		SELFTEST_ACT_UNKNOWN_ACT,
 		SELFTEST_ACT_FRUIT_MOUTH,
 		SELFTEST_ACT_LANCELAUNCHER,
 		SELFTEST_ACT_ARM,
@@ -401,6 +402,11 @@
 	#define ACT_LANCELAUNCHER (ACT_FILTER | 0x17)
 		//Paramètres de LANCELAUNCHER (dans data[0])
 		#define ACT_LANCELAUNCHER_RUN		0x11
+		#define ACT_LANCELAUNCHER_RUN_2		0x12
+		#define ACT_LANCELAUNCHER_RUN_3		0x13
+		#define ACT_LANCELAUNCHER_RUN_4		0x14
+		#define ACT_LANCELAUNCHER_RUN_5		0x15
+		#define ACT_LANCELAUNCHER_RUN_6		0x16
 		#define ACT_LANCELAUNCHER_STOP		0x1F
 	////////////////////////////////////////////////
 
