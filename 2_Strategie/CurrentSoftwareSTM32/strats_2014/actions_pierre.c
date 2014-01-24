@@ -49,6 +49,43 @@ volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={14
 volatile Uint8 adversary_fresco_index = 2;
 
 
+void strat_inutile(void){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		DONE,
+		ERROR
+	);
+
+	CAN_msg_t msg;
+
+	switch(state){
+	case IDLE:
+		msg.sid=ASSER_SET_POSITION;
+		msg.data[0]=500 >> 8;
+		msg.data[1]=500 & 0xFF;
+		msg.data[2]=120 >> 8;
+		msg.data[3]=120 & 0xFF;
+		msg.data[4]=PI4096/2 >> 8;
+		msg.data[5]=PI4096/2 & 0xFF;
+		msg.size = 6;
+		CAN_send(&msg);
+
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+		state = try_going_until_break(500,400,POS_DEPART,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case DONE:
+		break;
+	case ERROR:
+		break;
+	default:
+		break;
+	}
+
+}
+
 void strat_tourne_en_rond(void){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
@@ -64,7 +101,7 @@ void strat_tourne_en_rond(void){
 		{{630,2250},SLOW},
 		{{960,2600},SLOW},
 		{{1500,2300},SLOW},
-		{{150,750},SLOW},
+		{{1500,750},SLOW},
 		{{1200,450},SLOW}
 	};
 
@@ -87,10 +124,10 @@ void strat_tourne_en_rond(void){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going_until_break(500,200,POS_DEPART,TOUR,ERROR,SLOW,FORWARD,NO_DODGE_AND_NO_WAIT);
+		state = try_going_until_break(500,200,POS_DEPART,TOUR,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case TOUR:
-		state = try_going_multipoint(tour,6,TOUR,FIN,ERROR,FORWARD,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		state = try_going_multipoint(tour,6,TOUR,FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 		break;
 	case FIN:
 		i++;
@@ -111,18 +148,19 @@ void strat_tourne_en_rond(void){
 
 }
 
-
-void strat_test_triangle_cote_rouge(void){
+void strat_lannion_rouge(void){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
 		TRIANGLE1,
 		FRESQUE,
+		AVANCER_FRESQUE,
 		TRIANGLE2,
 		TRIANGLE3,
 		TRIANGLE3_AVANCER,
 		TRIANGLE4_5,
 		TRIANGLE6,
+		TRIANGLE6_AVANCER,
 		MUR,
 		FIN,
 		DONE,
@@ -132,29 +170,28 @@ void strat_test_triangle_cote_rouge(void){
 	displacement_t triangle1[3] = {
 		{{800,750},SLOW},
 		{{820,900},SLOW},
-		{{680,1370},SLOW}
+		{{750,1200},SLOW}
 	};
 
 
-	displacement_t triangle2[4] = {
+	displacement_t triangle2[3] = {
 		{{680,1650},SLOW},
 		{{830,2090},SLOW},
 		{{880,2200},SLOW},
-		{{1000,2365},SLOW}
+		//{{1000,2200},SLOW}
 	};
 
-	displacement_t tabArmoire[7] = {
+	displacement_t tabArmoire[6] = {
 		{{1210,2360},SLOW},
 		{{1340,2100},SLOW},
 		{{1415,1645},SLOW},
 		{{1415,1360},SLOW},
 		{{1370,900},SLOW},
 		{{1305,720},SLOW},
-		{{1100,625},SLOW}
+		//{{1000,650},SLOW}
 	};
 
 	CAN_msg_t msg;
-	static bool_e timeout=FALSE;
 
 	switch(state){
 	case IDLE:
@@ -171,25 +208,28 @@ void strat_test_triangle_cote_rouge(void){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-
 		state = try_going_until_break(500,200,POS_DEPART,TRIANGLE1,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE1:
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+
 		state = try_going_multipoint(triangle1,3,TRIANGLE1,FRESQUE,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 		break;
 	case FRESQUE:
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
-		state = check_sub_action_result(strat_manage_fresco(),FRESQUE,TRIANGLE2,ERROR);
+		state = check_sub_action_result(strat_manage_fresco(),FRESQUE,AVANCER_FRESQUE,ERROR);
+		break;
+	case AVANCER_FRESQUE:
+		state = try_going_until_break(600,1500,AVANCER_FRESQUE,TRIANGLE2,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE2:
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 
-		state = try_going_multipoint(triangle2,4,TRIANGLE2,TRIANGLE3,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+		state = try_going_multipoint(triangle2,3,TRIANGLE2,TRIANGLE3,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
 		break;
 	case TRIANGLE3:
 		if(entrance)
@@ -198,16 +238,24 @@ void strat_test_triangle_cote_rouge(void){
 		state = try_going_until_break(1400,2400,TRIANGLE3,TRIANGLE3_AVANCER,ERROR,SLOW,BACKWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE3_AVANCER:
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 		state = try_going_until_break(900,2400,TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE4_5:
+		state = try_going_multipoint(tabArmoire,6,TRIANGLE4_5,TRIANGLE6,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+		break;
+	case TRIANGLE6:
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+		state = try_going_until_break(900,600,TRIANGLE6,TRIANGLE6_AVANCER,ERROR,SLOW,BACKWARD,NO_AVOIDANCE);
+		break;
+	case TRIANGLE6_AVANCER:
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 
-		state = try_going_multipoint(tabArmoire,7,TRIANGLE4_5,TRIANGLE6,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
-		break;
-	case TRIANGLE6:
-		state = state = try_going_until_break(900,2400,TRIANGLE6,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going_until_break(1200,600,TRIANGLE6_AVANCER,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case DONE:
 		break;
