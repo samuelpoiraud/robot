@@ -80,6 +80,10 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 			}
 
 		break;
+		case STRAT_ADVERSARIES_POSITION:
+			*bUART_filter = FALSE;	//Ca passe pas... 				(mieux vaut carrément afficher 	ponctuellement les infos qui découlent de ce message)
+			*bSAVE_filter = FALSE;	//Pas d'enregistrement non plus	(mieux vaut carrément sauver 	ponctuellement les infos qui découlent de ce message)
+			break;
 		case BEACON_ADVERSARY_POSITION_IR:
 			if(global.env.absolute_time-1000>filter_beacon_ir) //global.compteur_de_secondes est incrémenté toutes les 250 ms ...
 				filter_beacon_ir=global.env.absolute_time;
