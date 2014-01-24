@@ -35,7 +35,7 @@ void BUZZER_play(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz)
 	if(current_note != note)
 	{
 		current_note = note;
-//		PWM_set_frequency(current_note);
+		PWM_set_frequency(current_note);
 	}
 }
 
@@ -56,7 +56,7 @@ void BUZZER_process_main(void)
 	{
 		case INIT:
 			PWM_init();	//On s'assure que l'init du module PWM est faite..
-//			PWM_set_frequency(current_note);	//1kHz
+			PWM_set_frequency(current_note);	//1kHz
 			t = 0;
 			nb_buzz_remaining = 0;
 			state = IDLE;
