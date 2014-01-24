@@ -41,7 +41,7 @@
 
 	//#define SCAN_TRIANGLE		// Mise en service des fonctionnalitées de scan de triangle
 
-	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+//	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 
 //	#define MODE_SIMULATION		//Pour le simulateur MPSIM...
 //	#define MODE_PRINTF_TABLEAU		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...
