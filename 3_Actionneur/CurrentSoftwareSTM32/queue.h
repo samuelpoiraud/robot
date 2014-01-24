@@ -88,6 +88,9 @@ void QUEUE_set_error(queue_id_t queue_id);
 /* Retourne TRUE si une erreur est survenue lors de l'execution d'un fonction dans la file indiquée. */
 bool_e QUEUE_has_error(queue_id_t queue_id);
 
+/* Retourne le nombre d'action dans la file (celle courante + celles en attentes ou 0 si la file est inactive) */
+Uint8 QUEUE_pending_num(queue_id_t queue_id);
+
 /* vide la file et rend la semaphore de l'actionneur associé*/
 void QUEUE_flush(queue_id_t queue_id);
 

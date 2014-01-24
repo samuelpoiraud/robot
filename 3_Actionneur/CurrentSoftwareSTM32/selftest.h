@@ -1,10 +1,10 @@
 /*
  *  Club Robot ESEO 2013 - 2014
  *
- *  $Id: Arm.h 1313 2014-01-13 12:29:15Z amurzeau $
+ *  $Id$
  *
  *  Package : Carte Actionneur
- *  Description : Self test
+ *  Description : Selftest
  *  Auteur : Alexis
  *  Robot : Pierre & Guy
  */

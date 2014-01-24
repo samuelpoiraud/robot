@@ -139,17 +139,16 @@ static void MAIN_onButton0() {
 	static bool_e openOrPark = FALSE;
 
 	msg.size = 1;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
+	msg.sid = ACT_DO_SELFTEST;
 
 	if(openOrPark)
-		msg.data[1] = ACT_ARM_POS_OPEN;
+		msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
 	else
-		msg.data[1] = ACT_ARM_POS_PARKED;
+		msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
 
 	openOrPark = !openOrPark;
 
-	debug_printf("Main: ACT_ARM_GOTO %d\n", msg.data[1]);
+	debug_printf("Main: ACT_FRUIT_MOUTH %d\n", msg.data[0]);
 
 	CAN_process_msg(&msg);
 }
