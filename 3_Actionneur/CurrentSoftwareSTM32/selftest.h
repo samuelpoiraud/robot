@@ -24,7 +24,14 @@ typedef enum {
 	SELFTEST_STATE_ERROR = 2
 } SELFTEST_state_e;
 
-void SELFTEST_new_selftest(Uint8 nb_actionneurs);
+typedef struct {
+	Uint8 canCommand;
+	Uint16 param;
+	QUEUE_act_e optionnal_act;
+} SELFTEST_action_t;
+
+bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs);
+void SELFTEST_set_actions(action_t action, Uint8 action_num, SELFTEST_action_t actions[]);
 bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
 
 #endif // SELFTEST_H

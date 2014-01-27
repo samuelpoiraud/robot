@@ -25,7 +25,7 @@ typedef enum {
 	CAN_TPT_Line,    //Le paramètre est une ligne
 	CAN_TPT_Normal   //Le paramètre est un nombre normal sans signification particulière pour nous (ce code)
 } CAN_result_param_type_t;
-static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param, bool_e sended_can_result);
+static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param, bool_e sent_can_result);
 
 
 //Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
@@ -61,7 +61,7 @@ void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Ui
 	}
 #endif
 
-	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_NoParam, 0, TRUE);
+	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_NoParam, 0, TRUE);
 }
 
 //Comme CAN_sendResult mais ajoute un paramètre au message. Peut servir pour debuggage.
@@ -81,7 +81,7 @@ void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 r
 	CAN_send(&resultMsg);
 #endif
 
-	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Normal, param, TRUE);
+	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Normal, param, TRUE);
 }
 
 //Comme CAN_sendResultWithParam mais le paramètre est considéré comme étant un numéro de ligne.
@@ -101,7 +101,7 @@ void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, U
 	CAN_send(&resultMsg);
 #endif
 
-	ACTQ_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Line, line, TRUE);
+	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Line, line, TRUE);
 }
 
 bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms_x100, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
@@ -199,7 +199,7 @@ bool_e ACTQ_finish_SendResultIfFail(queue_id_t queue_id, Uint11 act_sid, Uint8 r
 	if(result != ACT_RESULT_DONE && error_code != ACT_RESULT_ERROR_OTHER) {
 		ACTQ_sendResultWithParam(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, param);
 		return FALSE;
-	} else ACTQ_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
+	} else ACTQ_internal_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
 
 	return TRUE;
 }
@@ -209,26 +209,30 @@ bool_e ACTQ_finish_SendResultIfSuccess(queue_id_t queue_id, Uint11 act_sid, Uint
 	if(result == ACT_RESULT_DONE) {
 		ACTQ_sendResultWithParam(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, param);
 		return TRUE;
-	} else ACTQ_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
+	} else ACTQ_internal_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
 
 	return FALSE;
 }
 
 //Ne fait aucun retour
 bool_e ACTQ_finish_SendNothing(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param) {
-	ACTQ_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
+	ACTQ_internal_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, CAN_TPT_Line, param, FALSE);
 	if(result == ACT_RESULT_DONE)
 		return TRUE;
 
 	return FALSE;
 }
 
-static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param, bool_e sended_can_result) {
+void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param) {
+	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Normal, param, FALSE);
+}
+
+static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, CAN_result_param_type_t paramType, Uint16 param, bool_e sent_can_result) {
 #ifdef VERBOSE_MODE
 	const char* originalSidStr = "Unknown";
 	const char* resultStr = "Unknown";
 	const char* errorCodeStr = "Unknown error";
-	const char* sendedStr = (sended_can_result == TRUE)? "sent" : "not sent";
+	const char* sendedStr = (sent_can_result == TRUE)? "sent" : "not sent";
 
 	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
@@ -240,6 +244,8 @@ static void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 re
 		case ACT_LIFT_LEFT & 0xFF:          originalSidStr = "LiftLeft";     break;
 		case ACT_LIFT_RIGHT & 0xFF:         originalSidStr = "LiftRight";    break;
 		case ACT_PLATE & 0xFF:              originalSidStr = "Plate";        break;
+		case ACT_FRUIT_MOUTH & 0xFF:        originalSidStr = "FruitMouth";   break;
+		case ACT_LANCELAUNCHER & 0xFF:      originalSidStr = "LanceLauncher";break;
 		case ACT_ARM & 0xFF:                originalSidStr = "Arm";          break;
 		default:                            originalSidStr = "Unknown";      break;
 	}

@@ -51,7 +51,7 @@ typedef struct {
 toute action contenant des variables statiques doit être utilisée
 avec un seul actionneur (protégé par sémaphore)
 */
-typedef void(*action_t)(queue_id_t this, bool_e init);
+typedef void(*action_t)(queue_id_t thiss, bool_e init);
 
 void QUEUE_init();
 
@@ -90,6 +90,10 @@ bool_e QUEUE_has_error(queue_id_t queue_id);
 
 /* Retourne le nombre d'action dans la file (celle courante + celles en attentes ou 0 si la file est inactive) */
 Uint8 QUEUE_pending_num(queue_id_t queue_id);
+
+/* Récupère les informations de l'action suivante, les informations sont mises dans les variables pointeur s'ils ne sont pas NULL */
+/* Exemple: QUEUE_next_action_info(queue_id, &next_action, NULL, &next_optionnal_act); */
+bool_e QUEUE_next_action_info(queue_id_t queue_id, action_t *action, QUEUE_arg_t *optionnal_arg, QUEUE_act_e *optionnal_act);
 
 /* vide la file et rend la semaphore de l'actionneur associé*/
 void QUEUE_flush(queue_id_t queue_id);

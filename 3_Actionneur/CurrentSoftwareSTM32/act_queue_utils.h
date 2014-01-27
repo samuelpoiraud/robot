@@ -87,6 +87,8 @@
 	//Macro pour avoir la ligne a laquelle cette macro est utilisé comme paramètre à CAN_sendResultWithParam
 	#define ACTQ_sendResultWithLine(originalSid, originalCommand, result, errorCode) ACTQ_sendResultWitExplicitLine(originalSid, originalCommand, result, errorCode, __LINE__)
 
+	void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param);
+
 
 
 #endif	/* ACT_QUEUE_UTILS_H */

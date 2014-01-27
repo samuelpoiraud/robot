@@ -264,6 +264,24 @@ Uint8 QUEUE_pending_num(queue_id_t queue_id) {
 	return queues[queue_id].tail - queues[queue_id].head;
 }
 
+/* Récupère les informations de l'action suivante, les informations sont mises dans les variables pointeur s'ils ne sont pas NULL */
+/* Exemple: QUEUE_next_action_info(queue_id, &next_action, NULL, &next_optionnal_act); */
+bool_e QUEUE_next_action_info(queue_id_t queue_id, action_t *action, QUEUE_arg_t *optionnal_arg, QUEUE_act_e *optionnal_act) {
+	assert(queue_id < NB_QUEUE);
+
+	if(queues[queue_id].used && QUEUE_pending_num(queue_id) > 1) {
+		if(action)
+			*action = queues[queue_id].action[queues[queue_id].head+1];
+		if(optionnal_arg)
+			*optionnal_arg = queues[queue_id].arg[queues[queue_id].head+1];
+		if(optionnal_act)
+			*optionnal_act = queues[queue_id].act[queues[queue_id].head+1];
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 /* vide la file */
 void QUEUE_flush(queue_id_t queue_id)
 {

@@ -34,12 +34,12 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok);
 static bool_e SELFTEST_check_end(queue_id_t queueId);
 static void SELFTEST_run(queue_id_t queueId, bool_e init);
 
-void SELFTEST_new_selftest(Uint8 nb_actionneurs) {
+bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 	Uint8 i;
 
 	if(test_finished != TRUE) {
 		error_printf("Selftest déjà en cours alors qu\'un nouveau test avec %d actionneurs a été demandé\n", nb_actionneurs);
-		return;
+		return FALSE;
 	}
 
 	for(i = 0; i < MAX_NB_ACT; i++) {
@@ -54,22 +54,53 @@ void SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 
 	queue_id_t queueId = QUEUE_create();
 	QUEUE_add(queueId, &SELFTEST_run, (QUEUE_arg_t){0, 0}, 0);
+
+	return TRUE;
+}
+
+void SELFTEST_set_actions(action_t action, Uint8 action_num, SELFTEST_action_t actions[]) {
+	Uint8 i;
+	queue_id_t queueId = QUEUE_create();
+
+	if(action_num == 0)
+		return;
+
+	if(test_finished) {
+		error_printf("SELFTEST_set_actions appelé sans selftest en cours !, action function = 0x%x with %d test actions\n", (int)action, action_num);
+		return;
+	}
+
+	if(queueId != QUEUE_CREATE_FAILED) {
+		QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, actions[0].optionnal_act);
+		for(i = 0; i < action_num; i++) {
+			QUEUE_add(queueId, action, (QUEUE_arg_t){actions[i].canCommand,  actions[i].param, &SELFTEST_finish}, actions[i].optionnal_act);
+		}
+		QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, actions[0].optionnal_act);
+	} else {
+		QUEUE_flush(queueId);
+		ACTQ_printResult(ACT_DO_SELFTEST, 0, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES, 0);
+	}
 }
 
 bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param) {
+	ACTQ_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, param);
 
-		if(result == ACT_RESULT_DONE) {
-			// Si reste que cette action (qui vient de finir) dans la file, les tests pour cet actionneur sont terminés.
-			// Si result n'est pas ACT_RESULT_DONE, alors on termine tout de suite le test et on enregistre l'erreur
-			// 2 car il y a nous et le give_sem
-			if(QUEUE_pending_num(queue_id) <= 2) {
-				SELFTEST_done_test(act_sid, TRUE);
-			}
-		} else {
-				SELFTEST_done_test(act_sid, FALSE);
+	if(result == ACT_RESULT_DONE) {
+		// Si reste que cette action (qui vient de finir) dans la file, les tests pour cet actionneur sont terminés.
+		// Si result n'est pas ACT_RESULT_DONE, alors on termine tout de suite le test et on enregistre l'erreur
+		// 2 car il y a nous et le give_sem
+		action_t next_action;
+		QUEUE_next_action_info(queue_id, &next_action, NULL, NULL);
+		if(next_action == &QUEUE_give_sem) {
+			SELFTEST_done_test(act_sid, TRUE);
 		}
 
-	return ACTQ_finish_SendNothing(queue_id, act_sid, result, error_code, param);
+		return TRUE;
+	} else {
+		SELFTEST_done_test(act_sid, FALSE);
+	}
+
+	return FALSE;
 }
 
 static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
@@ -103,6 +134,7 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						failed_act_tests[i] = SELFTEST_ACT_UNKNOWN_ACT;
 						break;
 				}
+				break;
 			}
 		}
 	}
@@ -130,15 +162,19 @@ static bool_e SELFTEST_check_end(queue_id_t queueId) {
 		msg.sid = STRAT_ACT_SELFTEST_DONE;
 		msg.size = 0;
 
+		debug_printf("Resultat: %d/%d réponses, erreurs: ", act_test_done_num, expected_act_num);
 		if(act_test_done_num != expected_act_num) {
 			msg.data[msg.size] = SELFTEST_ACT_MISSING_TEST;
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, "%3d ", msg.data[msg.size]);
 			msg.size++;
 		}
 
-		for(i = 0; i < MAX_NB_ACT && i < msg.size; i++) {
+		for(i = 0; i < MAX_NB_ACT && msg.size < 8; i++) {
 			msg.data[msg.size] = failed_act_tests[i];
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, "%3d ", msg.data[msg.size]);
 			msg.size++;
 		}
+		OUTPUTLOG_printf(LOG_LEVEL_Debug, "\n");
 #ifdef USE_CAN
 		CAN_send(&msg);
 #endif
