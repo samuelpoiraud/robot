@@ -30,7 +30,7 @@
 
 #ifdef USE_HOKUYO
 
-	#define HOKUYO_OFFSET_ANGLE_RAD4096 3217 //45 degrés
+	#define HOKUYO_OFFSET_ANGLE_RAD4096 (9651) //135 degrés
 	#define HOKUYO_ANGLE_ROBOT_TERRAIN 0
 	#define HOKUYO_DETECTION_MARGE 130
 	#define HOKUYO_EVITEMENT_MIN 150
@@ -322,7 +322,8 @@ void hokuyo_find_valid_points(void)
 	Sint16 sin;
 
 	nb_valid_points = 0;	//RAZ des points valides.
-
+	
+	//TODO mesurer la durée d'exécution de cet algo...
 	for(i = 47; i<datas_index-3;)	//Les données commencent  l'octet 47...
 	{
 		if(HOKUYO_datas[i+1] == '\n')
@@ -335,7 +336,8 @@ void hokuyo_find_valid_points(void)
 		distance = ((a-0x30)<<6)+((b-0x30)&0x3f);	//cf datasheet de l'hokuyo... pour comprendre comment les données sont codées.
 		if(distance	> HOKUYO_TOO_CLOSE_DISTANCE_IGNORE)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
-			teta_relative = ((((Sint32)(angle))*183)>>8) - HOKUYO_OFFSET_ANGLE_RAD4096;	//Angle relatif au robot, du point en cours, en rad4096
+			teta_relative = ((((Sint32)(angle))*183)>>8) + HOKUYO_OFFSET_ANGLE_RAD4096;	//Angle relatif au robot, du point en cours, en rad4096
+			teta_relative = CALCULATOR_modulo_angle(teta_relative);
 			teta_absolute = CALCULATOR_modulo_angle(teta_relative + robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
 
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
