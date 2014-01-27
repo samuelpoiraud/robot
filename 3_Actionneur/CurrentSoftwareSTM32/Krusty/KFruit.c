@@ -111,16 +111,10 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	} else if(msg->sid == ACT_DO_SELFTEST) {
-		queueId1 = QUEUE_create();
-		if(queueId1 != QUEUE_CREATE_FAILED) {
-			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){ACT_FRUIT_MOUTH_OPEN,  FRUIT_CS_OpenAX12,   &SELFTEST_finish}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){ACT_FRUIT_MOUTH_CLOSE, FRUIT_CS_CloseAX12,  &SELFTEST_finish}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-		} else {
-			QUEUE_flush(queueId1);
-			ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-		}
+		SELFTEST_set_actions(&FRUIT_run_command, 2, (SELFTEST_action_t[]){
+								 {ACT_FRUIT_MOUTH_OPEN,  FRUIT_CS_OpenAX12,  QUEUE_ACT_AX12_Fruit},
+								 {ACT_FRUIT_MOUTH_CLOSE, FRUIT_CS_CloseAX12, QUEUE_ACT_AX12_Fruit}
+							 });
 	}
 
 	return FALSE;

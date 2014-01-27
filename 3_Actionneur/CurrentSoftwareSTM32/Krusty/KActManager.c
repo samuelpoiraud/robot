@@ -63,7 +63,8 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 	Uint8 i;
 
 	if(msg->sid == ACT_DO_SELFTEST) {
-		SELFTEST_new_selftest(NB_ACTIONNEURS);
+		if(SELFTEST_new_selftest(NB_ACTIONNEURS) == FALSE)
+			return TRUE;  //si selftest déjà en cours, ne pas le refaire
 	}
 
 	for(i = 0; i < NB_ACTIONNEURS; i++) {
