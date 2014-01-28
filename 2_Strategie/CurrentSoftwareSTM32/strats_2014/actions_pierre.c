@@ -25,7 +25,7 @@
 /* ----------------------------------------------------------------------------- */
 
 #define DECALAGE_LARGEUR 200
-#define ELOIGNEMENT_ARBRE 350
+#define ELOIGNEMENT_ARBRE 360
 #define POS_MIN_FRESCO 1300
 #define POS_MAX_FRESCO 1700
 
@@ -168,26 +168,26 @@ void strat_lannion_rouge(void){
 	);
 
 	displacement_t triangle1[3] = {
-		{{800,750},SLOW},
-		{{820,900},SLOW},
-		{{750,1200},SLOW}
+		{{800,750},FAST},
+		{{820,900},FAST},
+		{{750,1200},FAST}
 	};
 
 
 	displacement_t triangle2[3] = {
-		{{680,1650},SLOW},
-		{{830,2090},SLOW},
-		{{880,2200},SLOW},
+		{{680,1650},FAST},
+		{{830,2090},FAST},
+		{{850,2250},FAST},
 		//{{1000,2200},SLOW}
 	};
 
 	displacement_t tabArmoire[6] = {
-		{{1210,2360},SLOW},
-		{{1340,2100},SLOW},
-		{{1415,1645},SLOW},
-		{{1415,1360},SLOW},
-		{{1370,900},SLOW},
-		{{1305,720},SLOW},
+		{{1280,2360},FAST},
+		{{1340,2100},FAST},
+		{{1415,1645},FAST},
+		{{1415,1360},FAST},
+		{{1370,900},FAST},
+		{{1305,720},FAST},
 		//{{1000,650},SLOW}
 	};
 
@@ -208,7 +208,7 @@ void strat_lannion_rouge(void){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going_until_break(500,200,POS_DEPART,TRIANGLE1,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going_until_break(500,300,POS_DEPART,TRIANGLE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE1:
 		if(entrance)
@@ -223,7 +223,7 @@ void strat_lannion_rouge(void){
 		state = check_sub_action_result(strat_manage_fresco(),FRESQUE,AVANCER_FRESQUE,ERROR);
 		break;
 	case AVANCER_FRESQUE:
-		state = try_going_until_break(600,1500,AVANCER_FRESQUE,TRIANGLE2,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going_until_break(600,1500,AVANCER_FRESQUE,TRIANGLE2,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE2:
 		if(entrance)
@@ -235,12 +235,12 @@ void strat_lannion_rouge(void){
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
-		state = try_going_until_break(1400,2400,TRIANGLE3,TRIANGLE3_AVANCER,ERROR,SLOW,BACKWARD,NO_AVOIDANCE);
+		state = try_going_until_break(1400,2400,TRIANGLE3,TRIANGLE3_AVANCER,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE3_AVANCER:
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-		state = try_going_until_break(900,2400,TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going_until_break(900,2400,TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE4_5:
 		state = try_going_multipoint(tabArmoire,6,TRIANGLE4_5,TRIANGLE6,ERROR,BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
@@ -249,13 +249,13 @@ void strat_lannion_rouge(void){
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
-		state = try_going_until_break(900,600,TRIANGLE6,TRIANGLE6_AVANCER,ERROR,SLOW,BACKWARD,NO_AVOIDANCE);
+		state = try_going_until_break(900,600,TRIANGLE6,TRIANGLE6_AVANCER,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
 		break;
 	case TRIANGLE6_AVANCER:
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 
-		state = try_going_until_break(1200,600,TRIANGLE6_AVANCER,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going_until_break(1200,600,TRIANGLE6_AVANCER,DONE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case DONE:
 		break;
@@ -370,6 +370,7 @@ void strat_test_point(){
 		RAMASSER_FRUIT_ARBRE1B,
 		DEPOSER_FRUIT_ROUGE,
 		DEPOSER_FRUIT_JAUNE,
+		LANCE_LAUNCHER,
 		POS_FIN,
 		DONE,
 		ERROR
@@ -393,32 +394,23 @@ void strat_test_point(){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(500,300,POS_DEPART,POINT_A1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(500,300,POS_DEPART,LANCE_LAUNCHER,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case POINT_A1:
 		state = try_going(740,400,POINT_A1,RAMASSER_FRUIT_ARBRE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case RAMASSER_FRUIT_ARBRE1:
-		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1(),RAMASSER_FRUIT_ARBRE1,DEPOSER_FRUIT_ROUGE,ERROR);
+		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(TRUE),RAMASSER_FRUIT_ARBRE1,POINT_W3,ERROR);
 		break;
 	case POINT_W3:
-		state = try_going(1670,1900,POINT_W3,RAMASSER_FRUIT_ARBRE2,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going(1670,1900,POINT_W3,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case LANCE_LAUNCHER:
+		state = check_sub_action_result(strat_lance_launcher(),LANCE_LAUNCHER,DONE,ERROR);
 		break;
 	case RAMASSER_FRUIT_ARBRE2:
 		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2(),RAMASSER_FRUIT_ARBRE2,DEPOSER_FRUIT_JAUNE,ERROR);
 		break;
-	/*case RAMASSER_FRUIT_ARBRE1A:
-		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1A(),RAMASSER_FRUIT_ARBRE1A,RAMASSER_FRUIT_ARBRE1B,ERROR);
-		break;
-	case POINT_B3:
-		state = try_going(1600,650,POINT_B3,RAMASSER_FRUIT_ARBRE1B,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case RAMASSER_FRUIT_ARBRE1B:
-		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1B(),RAMASSER_FRUIT_ARBRE1B,POINT_CO,ERROR);
-		break;
-	case POINT_CO:
-		state = try_going(500,1100,POINT_CO,DEPOSER_FRUIT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;*/
 	case DEPOSER_FRUIT_ROUGE:
 		state = check_sub_action_result(strat_test_deposser_fruit_rouge(),DEPOSER_FRUIT_ROUGE,DONE,ERROR);
 		break;
@@ -782,7 +774,7 @@ error_e strat_test_deposser_fruit_jaune(){
 	return IN_PROGRESS;
 }
 
-error_e strat_test_ramasser_fruit_arbre1(){
+error_e strat_test_ramasser_fruit_arbre1(){ //Commence côté mammouth
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
@@ -796,7 +788,7 @@ error_e strat_test_ramasser_fruit_arbre1(){
 		{{1450,ELOIGNEMENT_ARBRE},FAST},
 		{{1550,380},SLOW},
 		{{1600,440},SLOW},
-		{{2000-ELOIGNEMENT_ARBRE,530},SLOW}
+		{{1630,530},SLOW}
 	};
 
 
@@ -814,7 +806,7 @@ error_e strat_test_ramasser_fruit_arbre1(){
 			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
 		break;
 	case POS_FIN:
-		state = try_going(2000-ELOIGNEMENT_ARBRE,900,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going(1630,900,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case DONE:
 		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
@@ -831,7 +823,79 @@ error_e strat_test_ramasser_fruit_arbre1(){
 	return IN_PROGRESS;
 }
 
+error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens){ //Commence côté mammouth si sens == true
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		COURBE,
+		POS_FIN,
+		DONE,
+		ERROR
+	);
+
+	static displacement_t point[] = {
+		{{1200,ELOIGNEMENT_ARBRE},SLOW},
+		{{1450,ELOIGNEMENT_ARBRE},SLOW},
+//		{{1555,395},SLOW},
+//		{{1610,450},SLOW},
+		{{1580,422},SLOW},
+
+		{{1630,530},SLOW},
+		{{1630,900},SLOW},
+	};
+
+	static const Uint8 NBPOINT = sizeof(point)/sizeof(displacement_t);
+
+	static displacement_t courbe[sizeof(point)/sizeof(displacement_t)];
+	Uint8 i;
+	static way_e sensRobot;
+
+	switch(state){
+	case IDLE:
+
+		for(i=0;i<NBPOINT;i++){
+			if(sens == TRUE)
+				courbe[i] = point[i];
+			else
+				courbe[i] = point[NBPOINT-1-i];
+		}
+
+		if(sens == TRUE)
+			sensRobot = FORWARD;
+		else
+			sensRobot = BACKWARD;
+
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		break;
+	case COURBE:
+			state = try_going_multipoint(&courbe[1],4,COURBE,POS_FIN,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+		break;
+	case POS_FIN:
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		break;
+	case DONE:
+		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
 error_e strat_test_ramasser_fruit_arbre2(){
+
+
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
@@ -871,6 +935,140 @@ error_e strat_test_ramasser_fruit_arbre2(){
 		break;
 	case ERROR:
 		//ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_test_ramasser_fruit_arbre2_double(bool_e sens){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		COURBE,
+		POS_FIN,
+		DONE,
+		ERROR
+	);
+
+	displacement_t point[6] = {
+		{{1200,3000-ELOIGNEMENT_ARBRE},SLOW},
+		{{1450,3000-ELOIGNEMENT_ARBRE},SLOW},
+		{{1555,2605},SLOW},
+		{{1610,2550},SLOW},
+		{{2000-ELOIGNEMENT_ARBRE,2450},FAST},
+		{{2000-ELOIGNEMENT_ARBRE,2100},SLOW},
+	};
+
+	static displacement_t courbe[6];
+	Uint8 i;
+	static way_e sensRobot;
+
+	switch(state){
+	case IDLE:
+
+		for(i=0;i<6;i++){
+			if(sens==TRUE)
+				courbe[i] = point[i];
+			else
+				courbe[i] = point[5-i];
+		}
+
+		if(sens==TRUE)
+			sensRobot = FORWARD;
+		else
+			sensRobot = BACKWARD;
+
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+		state = try_going(2000-ELOIGNEMENT_ARBRE,2100,POS_DEPART,COURBE,ERROR,FAST,sensRobot,NO_AVOIDANCE);
+		break;
+	case COURBE:
+		state = try_going_multipoint(&courbe[1],4,COURBE,POS_FIN,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+
+		if(entrance)
+			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+		break;
+	case POS_FIN:
+		state = try_going(1050,3000-ELOIGNEMENT_ARBRE,POS_FIN,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		break;
+	case DONE:
+		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_lance_launcher(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		FACE_MUR,
+		LANCE_LAUNCHER,
+		DONE,
+		ERROR
+	);
+
+	CAN_msg_t msg;
+
+	switch(state){
+	case IDLE:
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+		state = try_going(500,650,POS_DEPART,FACE_MUR,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case FACE_MUR:
+		state = try_go_angle(PI4096/2,FACE_MUR,LANCE_LAUNCHER,ERROR,SLOW);
+		break;
+	case LANCE_LAUNCHER:
+
+		msg.size = 1;
+		msg.sid = ACT_LANCELAUNCHER;
+		msg.data[0] = ACT_LANCELAUNCHER_RUN;
+		CAN_send(&msg);
+		debug_printf("Main: ACT_LANCELAUNCHER_RUN_1\n");
+
+		state = DONE;
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_launch_net(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		DONE,
+		ERROR
+	);
+
+	switch(state){
+	case IDLE:
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
 		return NOT_HANDLED;
 		break;
 	default:
