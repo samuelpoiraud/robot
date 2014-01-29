@@ -32,7 +32,6 @@
 #include "QS/QS_CANmsgList.h"
 #include "maths_home.h"
 #include "sick.h"
-#include "telemeter.h"
 #include "button.h"
 #include "elements.h"
 #include "Supervision/LCD_CAN_injector.h"
@@ -46,8 +45,6 @@ void CAN_update (CAN_msg_t* incoming_msg);
 /* met a jour la position a partir d'un message asser la délivrant */
 void ENV_pos_update (CAN_msg_t* msg);
 
-/* met a jour la position de l'adversaire à partir des balises */
-void ENV_pos_foe_update (CAN_msg_t* msg);
 
 #define ADC_THRESHOLD 10 //Valeur de l'ADC sans dispositif de connecté
 
@@ -252,11 +249,6 @@ void ENV_update()
 #endif
 
 
-	/* Récupération des données des télémètres*/
-	#ifdef USE_TELEMETER
-		TELEMETER_update();
-	#endif
-
 	/* Récupération des données des boutons */
 	BUTTON_update();
 
@@ -373,16 +365,16 @@ void CAN_update (CAN_msg_t* incoming_msg)
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.
-			ENV_pos_foe_update(incoming_msg);
+			DETECTION_pos_foe_update(incoming_msg);
 			SELFTEST_update_led_beacon(incoming_msg);
 			break;
 		case BEACON_ADVERSARY_POSITION_US:
 			//Pour l'Histoire... (avec un grand H)
-			//ENV_pos_foe_update(incoming_msg);
+			//DETECTION_pos_foe_update(incoming_msg);
 			//SELFTEST_update_led_beacon(incoming_msg);
 			break;
 		case STRAT_ADVERSARIES_POSITION:
-			ENV_pos_foe_update(incoming_msg);
+			DETECTION_pos_foe_update(incoming_msg);
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case XBEE_START_MATCH:
@@ -550,77 +542,14 @@ void ENV_pos_update (CAN_msg_t* msg)
 				*/
 }
 
-/* met a jour la position de l'adversaire à partir des balises */
-void ENV_pos_foe_update (CAN_msg_t* msg)
-{
-	bool_e slashn;
-	Uint8 fiability;
-	Uint8 adversary_nb;
-	if(msg->sid == STRAT_ADVERSARIES_POSITION)
-	{
-		adversary_nb = msg->data[0];
-		if(adversary_nb < NB_FOES)
-		{
-			fiability = msg->data[6];
-			if(fiability)
-			{
-				global.env.foe[adversary_nb].updated = TRUE;
-				global.env.foe[adversary_nb].update_time = global.env.match_time;
-			}
-			if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
-				global.env.foe[adversary_nb].x = ((Sint16)msg->data[1])*20;
-			if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
-				global.env.foe[adversary_nb].y = ((Sint16)msg->data[2])*20;
-			if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
-				global.env.foe[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
-			else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
-				global.env.foe[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,global.env.foe[adversary_nb].x, global.env.foe[adversary_nb].y);
-			if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
-				global.env.foe[adversary_nb].dist = ((Sint16)msg->data[5])*20;
-			else	//je dois calculer moi-même la distance de l'adversaire
-				global.env.foe[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y},
-																		(GEOMETRY_point_t){global.env.foe[adversary_nb].x, global.env.foe[adversary_nb].y}
-																		);
-		}
-	}
-	if(msg->sid==BEACON_ADVERSARY_POSITION_IR)
-	{
-		slashn = FALSE;
-		if((msg->data[0] & 0xFE) == AUCUNE_ERREUR)	//Si l'octet de fiabilité vaut SIGNAL_INSUFFISANT, on le laisse passer quand même
-		{
-			//slashn = TRUE;
-			global.env.sensor[BEACON_IR_FOE_1].angle = U16FROMU8(msg->data[1],msg->data[2]);
-			/* Pour gérer l'inversion de la balise */
-			//global.env.sensor[BEACON_IR_FOE_1].angle += (global.env.sensor[BEACON_IR_FOE_1].angle > 0)?-PI4096:PI4096;
-			global.env.sensor[BEACON_IR_FOE_1].distance = (Uint16)(msg->data[3])*10;
-			global.env.sensor[BEACON_IR_FOE_1].update_time = global.env.match_time;
-			global.env.sensor[BEACON_IR_FOE_1].updated = TRUE;
-			//debug_printf("IR1=%dmm", global.env.sensor[BEACON_IR_FOE_1].distance);
-			//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_1].angle))*180/PI4096))));
-		} //else debug_printf("NO IR 1 err %d!\n", msg->data[0]);
-		if((msg->data[4] & 0xFE) == AUCUNE_ERREUR)
-		{
-			//slashn = TRUE;
-			global.env.sensor[BEACON_IR_FOE_2].angle = (Sint16)(U16FROMU8(msg->data[5],msg->data[6]));
-			/* Pour gérer l'inversion de la balise */
-			//global.env.sensor[BEACON_IR_FOE_2].angle += (global.env.sensor[BEACON_IR_FOE_2].angle > 0)?-PI4096:PI4096;
-			global.env.sensor[BEACON_IR_FOE_2].distance = (Uint16)(msg->data[7])*10;
-			global.env.sensor[BEACON_IR_FOE_2].update_time = global.env.match_time;
-			global.env.sensor[BEACON_IR_FOE_2].updated = TRUE;
-			//debug_printf(" IR2=%dmm", global.env.sensor[BEACON_IR_FOE_2].distance);
-			//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_2].angle))*180/PI4096))));
-		} //else debug_printf("NO IR 2 err %d!\n", msg->data[4]);
-		if(slashn)
-			debug_printf("\n");
-	}
-}
+
 
 
 /* baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
 void ENV_clean ()
 {
 	STACKS_clear_timeouts();
-	DETECTION_clear_updates();
+	//DETECTION_clear_updates();
 	if(global.env.color == global.env.wanted_color)
 		global.env.color_updated = FALSE;
 	global.env.config_updated = FALSE;
@@ -636,19 +565,6 @@ void ENV_clean ()
 	global.env.foe[FOE_2].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
-
-	/*global.env.act[BROOM_LEFT].ready == TRUE;
-	global.env.act[BROOM_RIGHT].ready == TRUE;
-	global.env.act[F].ready == TRUE;
-	global.env.act[BROOM_LEFT].closed == TRUE;
-	global.env.act[BROOM_RIGHT].closed == TRUE;
-	global.env.act[F].closed == TRUE;
-	global.env.act[BROOM_LEFT].opened == TRUE;
-	global.env.act[BROOM_RIGHT].opened == TRUE;
-	global.env.act[F].opened == TRUE;
-	global.env.act[BROOM_LEFT].failure == TRUE;
-	global.env.act[BROOM_RIGHT].failure == TRUE;
-	global.env.act[F].failure == TRUE;*/
 }
 
 
@@ -662,9 +578,6 @@ void ENV_init()
 
 	#ifdef USE_SICK
 		SICK_init();
-	#endif
-	#ifdef USE_TELEMETER
-		TELEMETER_init();
 	#endif
 	DETECTION_init();
 

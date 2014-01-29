@@ -88,7 +88,6 @@
 
 	typedef struct
 	{
-		detection_information_t sensor [SENSOR_NB];
 		//#warning voir si changement element_t
 		// Warning très très gênant pour la compilation, et c'est sûr qu'il va changer element_t ^^
 		element_t elements_list[NB_ELEMENTS];
@@ -102,7 +101,7 @@
 		config_t wanted_config;
 		bool_e config_updated;
 		asser_env_t asser;
-		position_t pos;		//comme son nom l'indique, c'est la position de notre robot
+		position_t pos;					//comme son nom l'indique, c'est la position de notre robot
 		position_t foe[NB_FOES];		//comme son nom l'indique, c'est la position de l'adversaire
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.

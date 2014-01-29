@@ -67,8 +67,7 @@ trajectoire pour l'information de position de l'adversaire */
 	/*	mise à jour de l'information de la position des adversaires à l'aide uniquement des telemetres*/
 	void DETECTION_update_foe_only_by_telemeter();
 	
-	/*	mise à jour de l'information de la position des adversaires à l'aide des balises*/
-	void DETECTION_update_foe_position();
+	void DETECTION_pos_foe_update (CAN_msg_t* msg);
 	
 	/*	mise à jour de l'information de la position des adversaires à l'aide des telemetres et des balises*/
 	void DETECTION_update_foe_by_telemeter();
@@ -89,12 +88,8 @@ trajectoire pour l'information de position de l'adversaire */
 		
 		#define BORDER_DELTA 50 // 50 mm
 		
-		/*localisation des capteurs*/
-		#define TELEMETER_NUMBER	4
-		/*attention, code lié à detection_sensor_e dans detection.h */
-		
+
 		/* envoie position adversaire en debug */
-		static void CAN_send_foe_pos();
 
 		#ifdef DEBUG_DETECTION
 			#define detection_printf(...)	debug_printf(__VA_ARGS__)
