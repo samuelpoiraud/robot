@@ -40,6 +40,8 @@
 
 	bool_e GEOMETRY_segments_intersects(GEOMETRY_segment_t s1,GEOMETRY_segment_t s2);
 
+	Sint16 GEOMETRY_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destination_x, Sint16 destination_y);
+
 	GEOMETRY_point_t GEOMETRY_segment_middle(
 		GEOMETRY_segment_t s);
 
