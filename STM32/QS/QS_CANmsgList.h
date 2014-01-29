@@ -203,7 +203,8 @@
 	#define CARTE_P_ROBOT_FREINE		0x213
 	#define CARTE_P_ROBOT_CALIBRE		0x214
 	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
-		/*		0 : ADVERSARY_NUMBER	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
+		#define IT_IS_THE_LAST_ADVERSARY	0x80	//Bit levé si l'adversaire envoyé est le dernier...
+		/*		0 : ADVERSARY_NUMBER | IT_IS_THE_LAST_ADVERSARY	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
 		 * 		1 :  x [2cm]
 		 * 		2 :  y [2cm]
 		 * 		3-4 : teta
