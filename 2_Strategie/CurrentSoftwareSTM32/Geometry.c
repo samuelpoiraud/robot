@@ -35,6 +35,15 @@ Uint32 GEOMETRY_squared_distance(GEOMETRY_point_t a, GEOMETRY_point_t b)
 	return dx*dx+dy*dy;
 }
 
+Sint16 GEOMETRY_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destination_x, Sint16 destination_y)
+{
+	Sint16 deltaX,deltaY;
+	deltaX= destination_x - start_x;
+	deltaY= destination_y - start_y;
+	return (float)atan2(deltaY,deltaX)*4096;
+	return (Sint16)((float)atan2(destination_y - start_y , destination_x - start_x)*4096);
+}
+
 GEOMETRY_point_t GEOMETRY_segment_middle(GEOMETRY_segment_t s)
 {
 	return (GEOMETRY_point_t){
