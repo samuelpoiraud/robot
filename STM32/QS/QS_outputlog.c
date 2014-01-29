@@ -34,7 +34,7 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 
 	if(vcallback) {
 		va_start(args_list, format);
-		vcallback(format, args_list);
+		vcallback(level, format, args_list);
 		va_end(args_list);
 	} else if(callback) {
 		static char buffer[512]; //static pour être sur d'avoir la mémoire dispo, 512 pourrait causer des débordements de pile ?
@@ -43,7 +43,7 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 		vsnprintf(buffer, 512, format, args_list);
 		va_end(args_list);
 
-		callback(buffer);
+		callback(level, buffer);
 	}
 
 	va_start(args_list, format);
