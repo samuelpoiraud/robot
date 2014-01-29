@@ -25,17 +25,6 @@
 //utilisé en 2010-2011 pour la détection des pions avec les capteurs de distance SICK (cf. brain.c)
 #define USE_SCHEDULED_POSITION_REQUEST
 
-//#define USE_TELEMETER
-#ifdef USE_TELEMETER
-//utilisation des télémètres laser SICK
-//#define USE_SICK_DT50_LEFT
-//#define USE_SICK_DT50_RIGHT
-//#define USE_SICK_DT50_TOP
-#define USE_SICK_DT10_0
-#define USE_SICK_DT10_1
-#define USE_SICK_DT10_2
-#define USE_SICK_DT10_3
-#endif
 
 //Module de gestion des capteurs SICK pour scan de la zone de jeu... Ce module est très dépendant du règlement et du robot !
 //#define USE_SICK

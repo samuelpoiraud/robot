@@ -13,33 +13,34 @@
 #include "detection.h"
 #include "QS/QS_CANmsgList.h"
 #include "can_utils.h"
-
+#include "QS/QS_OutputLog.h"
 #include "config_use.h"
 #include "config_debug.h"
+
+typedef struct
+{
+	Sint16 angle;
+	Sint16 dist;
+	Sint16 x;
+	Sint16 y;
+	bool_e enable;					//cet objet est activé.
+	bool_e enable_for_avoidance;	//Objet activé pour l'évitement
+	bool_e enable_for_zoning;		//Objet acivé pour le zoning
+	time32_t update_time;
+}adversary_t;
+
+#define MAX_NB_FOES	10	//Nombre max d'aversaires
+
+volatile adversary_t hokuyo_objects[MAX_NB_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
+volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
 
 void DETECTION_init(void)
 {
 	static bool_e initialized = FALSE;
 	if(initialized)
 		return;
-		
-	Uint8 i;
-	for(i=0; i<SENSOR_NB;i++)
-	{
-		global.env.sensor[i].angle=0;
-		global.env.sensor[i].distance=2600;
-		global.env.sensor[i].foeX=0;
-		global.env.sensor[i].foeY=0;
-		global.env.sensor[i].update_time=0;
-		global.env.sensor[i].updated = FALSE;
-	}
-	for (i=0; i<NB_FOES; i++)
-	{
-		global.env.foe[i].dist = 31337; 
-		global.env.foe[i].angle = PI4096/2;
-		global.env.foe[i].update_time = 0;
-		global.env.foe[i].updated = FALSE;
-	}
+	hokuyo_objects_number = 0;
+
 }	
 
 /*	mise à jour de l'information de détection avec le contenu
@@ -57,117 +58,117 @@ void DETECTION_update(void)
 		CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
 	}
 	
-	/* on teste si il y a une nouvelle information pour mettre à jour la position de l'adversaire */
-	for(i=0; i< SENSOR_NB; i++)
-	{
-		if(global.env.sensor[i].updated)
-		{
-			must_update = TRUE;
-		}
-	}
 	
 	if(must_update)
 	{
-		if (global.env.config.balise)
-		{
-			//Mise à jour grâce aux balises et télémètres
-			DETECTION_update_foe_position();
-			//DETECTION_update_foe_by_telemeter();
-		}
-		else
-		{
-			//Mise à jour seulement grâce aux telemetres.
-			//DETECTION_update_foe_only_by_telemeter();
-		}
-		
-		for (i=0; i < NB_FOES; i++)
-		{
-			if(global.env.foe[i].updated)
-//		#warning "attention: A désactiver en match pour eviter de flooder"
-				//detection_printf("\r\nFoe_%d is x:%d y:%d dist:%d angle:%d\r\n", i, global.env.foe[i].x, global.env.foe[i].y, global.env.foe[i].dist, global.env.foe[i].angle);
-				CAN_send_foe_pos();	
-		}			
-	}	
+	}
 }
 
-#ifdef USE_TELEMETER
-	void DETECTION_update_foe_only_by_telemeter()
-	{
-		Uint8 i;
-		foe_e foe_id = FOE_1;
-		
-		for(i=0; i<TELEMETER_NUMBER; i++)
-		{
-			if(global.env.sensor[i].updated)
-			{
-				global.env.foe[foe_id].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
-				global.env.foe[foe_id].angle = global.env.sensor[i].angle;
-				global.env.foe[foe_id].x = global.env.sensor[i].foeX;
-				global.env.foe[foe_id].y = global.env.sensor[i].foeY;
-				global.env.foe[foe_id].update_time = global.env.match_time;
-				global.env.foe[foe_id].updated = TRUE;
-				detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, global.env.foe[foe_id].angle);
-				foe_id++;
-			}
-			if (foe_id == NB_FOES) return; //Sécurité, vue l'orientation des dt10, on ne peut recevoir 2 informations pour le meme adversaire
-		}	
-	}
-	
-	void DETECTION_update_foe_by_telemeter()
-	{
-		Uint8 i, j;
-		GEOMETRY_point_t pos_telemeter_adversary;//Position de l'adversaire renvoyé par le telemetre
-		GEOMETRY_point_t pos_adversary[NB_FOES] = {{global.env.foe[FOE_1].x,global.env.foe[FOE_1].y},//Dernière position connue de l'adversaire 1
-												 {global.env.foe[FOE_2].x,global.env.foe[FOE_2].y}};//Dernière position connue de l'adversaire 2
-		bool_e processed;//Permet de savoir si l'information a bien ete traitée
-		
-		for(i=0; i<TELEMETER_NUMBER; i++)
-		{
-			if(global.env.sensor[i].updated)
-			{
-				processed = FALSE;
-				pos_telemeter_adversary.x = global.env.sensor[i].foeX;
-				pos_telemeter_adversary.y = global.env.sensor[i].foeY;
-				
-				for (j=0; j<NB_FOES; j++)//On regarde si on repère un des deux robots sur le terrain
-				{
-					if (GEOMETRY_distance (pos_adversary[j], pos_telemeter_adversary) < 250 //On regarde si on récupère le bon robot 
-					&& global.env.sensor[BEACON_IR(j)].updated // des infos de la balise a infrarouges 
-					&& global.env.sensor[BEACON_IR(j)].distance < BEACON_FAR_THRESHOLD) // la balise a infrarouges donne un adversaire proche
-					{
-						global.env.foe[j].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
-						global.env.foe[j].angle = global.env.sensor[BEACON_IR(j)].angle;
-						global.env.foe[j].x = global.env.sensor[i].foeX;
-						global.env.foe[j].y = global.env.sensor[i].foeY;
-						global.env.foe[j].update_time = global.env.match_time;
-						global.env.foe[j].updated = TRUE;
-						detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", j, global.env.foe[j].x, global.env.foe[j].y, global.env.foe[j].dist, global.env.foe[j].angle);
-						processed = TRUE; //Informations de position exploitées
-					}
-				}
-	
-				for (j=0; j<NB_FOES; j++)
-				{
-					if(!processed && //Non traité
-					global.env.match_time - global.env.sensor[BEACON_IR(j)].update_time > MAXIMUM_TIME_FOR_BEACON_REFRESH)//Non mis à jour depuis 500ms
-					{
-						global.env.foe[j].dist = global.env.sensor[i].distance+300; //300 pour aller du centre de notre robot au centre du robot adverse
-						global.env.foe[j].angle = global.env.sensor[i].angle;
-						global.env.foe[j].x = global.env.sensor[i].foeX;
-						global.env.foe[j].y = global.env.sensor[i].foeY;
-						global.env.foe[j].update_time = global.env.match_time;
-						global.env.foe[j].updated = TRUE;
-						detection_printf("\r\nFoe_%d telemeter is x:%d y:%d dist:%d angle:%d\r\n", j, global.env.foe[j].x, global.env.foe[j].y, global.env.foe[j].dist, global.env.foe[j].angle);
-						processed = TRUE;
-					}
-				}
-			}
-		}
-	}
-#endif //USE_TELEMETER
 
-void DETECTION_update_foe_position(void)
+//Cette fonction utilise les données accumulées... selon un algo très sophistiqué... et détermine les positions adverses.
+void DETECTION_compute(void)
 {
+	Uint8 i;
+	//TODO cet algo minable est vraiment temporaire.
+	debug_printf("Compute :");
+
+	for(i = 0 ; i < NB_FOES ; i++)	//Pour tout les adversaires
+	{
+		if(i <= hokuyo_objects_number && hokuyo_objects[i].enable)
+		{
+			global.env.foe[i].x = hokuyo_objects[i].x;
+			global.env.foe[i].y = hokuyo_objects[i].y;
+			global.env.foe[i].angle = hokuyo_objects[i].angle;
+			global.env.foe[i].dist = hokuyo_objects[i].dist;
+			global.env.foe[i].update_time = hokuyo_objects[i].update_time;
+			global.env.foe[i].updated = TRUE;
+			debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d", i, hokuyo_objects[i].x, hokuyo_objects[i].y, hokuyo_objects[i].angle, hokuyo_objects[i].dist);
+		}
+		else
+			global.env.foe[i].updated = FALSE;	//TODO ce tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
+	}
+	debug_printf("\n");
+}
+
+
+/* Message can recu avec des infos concernant les adversaires... */
+void DETECTION_pos_foe_update (CAN_msg_t* msg)
+{
+	bool_e slashn;
+	Uint8 fiability;
+	Uint8 adversary_nb;
+	switch(msg->sid)
+	{
+		case STRAT_ADVERSARIES_POSITION:
+			adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
+			if(adversary_nb < MAX_NB_FOES)
+			{
+				fiability = msg->data[6];
+				if(fiability)
+				{
+					hokuyo_objects[adversary_nb].enable = TRUE;
+					hokuyo_objects[adversary_nb].update_time = global.env.absolute_time;
+				}
+				else
+					hokuyo_objects[adversary_nb].enable = FALSE;
+				if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
+					hokuyo_objects[adversary_nb].x = ((Sint16)msg->data[1])*20;
+				if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
+					hokuyo_objects[adversary_nb].y = ((Sint16)msg->data[2])*20;
+				if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
+					hokuyo_objects[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
+				else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
+					hokuyo_objects[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y);
+				if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
+					hokuyo_objects[adversary_nb].dist = ((Sint16)msg->data[5])*20;
+				else	//je dois calculer moi-même la distance de l'adversaire
+					hokuyo_objects[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y},
+																			(GEOMETRY_point_t){hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y}
+																			);
+			}
+			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
+			{
+				hokuyo_objects_number = adversary_nb;
+				DETECTION_compute();
+			}
+			break;
+		case BEACON_ADVERSARY_POSITION_IR:
+
+		/*	slashn = FALSE;
+			if((msg->data[0] & 0xFE) == AUCUNE_ERREUR)	//Si l'octet de fiabilité vaut SIGNAL_INSUFFISANT, on le laisse passer quand même
+			{
+				//slashn = TRUE;
+				global.env.sensor[BEACON_IR_FOE_1].angle = U16FROMU8(msg->data[1],msg->data[2]);
+				// Pour gérer l'inversion de la balise
+				//global.env.sensor[BEACON_IR_FOE_1].angle += (global.env.sensor[BEACON_IR_FOE_1].angle > 0)?-PI4096:PI4096;
+				global.env.sensor[BEACON_IR_FOE_1].distance = (Uint16)(msg->data[3])*10;
+				global.env.sensor[BEACON_IR_FOE_1].update_time = global.env.match_time;
+				global.env.sensor[BEACON_IR_FOE_1].updated = TRUE;
+				//debug_printf("IR1=%dmm", global.env.sensor[BEACON_IR_FOE_1].distance);
+				//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_1].angle))*180/PI4096))));
+			} //else debug_printf("NO IR 1 err %d!\n", msg->data[0]);
+			if((msg->data[4] & 0xFE) == AUCUNE_ERREUR)
+			{
+				//slashn = TRUE;
+				global.env.sensor[BEACON_IR_FOE_2].angle = (Sint16)(U16FROMU8(msg->data[5],msg->data[6]));
+				// Pour gérer l'inversion de la balise
+				//global.env.sensor[BEACON_IR_FOE_2].angle += (global.env.sensor[BEACON_IR_FOE_2].angle > 0)?-PI4096:PI4096;
+				global.env.sensor[BEACON_IR_FOE_2].distance = (Uint16)(msg->data[7])*10;
+				global.env.sensor[BEACON_IR_FOE_2].update_time = global.env.match_time;
+				global.env.sensor[BEACON_IR_FOE_2].updated = TRUE;
+				//debug_printf(" IR2=%dmm", global.env.sensor[BEACON_IR_FOE_2].distance);
+				//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_2].angle))*180/PI4096))));
+			} //else debug_printf("NO IR 2 err %d!\n", msg->data[4]);
+			if(slashn)
+				debug_printf("\n");
+				*/
+			break;
+		default:
+			break;
+	}
+}
+//void DETECTION_update_foe_position(void)
+//{
 
 
 	/*
@@ -256,14 +257,7 @@ void DETECTION_update_foe_position(void)
 	*/
 
 
-}
-
-void DETECTION_clear_updates()
-{
-	Uint8 i;
-	for(i=0; i<SENSOR_NB;i++)
-		global.env.sensor[i].updated=FALSE;
-}	
+//}
 
 
 //envoi de la position du robot adverse sur le CAN
