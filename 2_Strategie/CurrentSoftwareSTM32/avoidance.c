@@ -16,7 +16,7 @@
 #include "asser_functions.h"
 #include "config_use.h"
 #include "QS/QS_outputlog.h"
-
+#include "config/config_pin.h"
 
 /* Ne tient plus compte de la position de l'adversaire quand elle date
  * de plus de detection_timeout ms (detection_timeout doit etre superieur
