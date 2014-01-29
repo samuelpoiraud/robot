@@ -234,10 +234,18 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 			{
 				case 0:
 				case 1:
-				case 2:
 					for (i = 0; i < len; ++i)
 					{
 						UART1_putc(*ptr++);	//MODIFICATION APPORTEE AU CODE DE MICROCHIP...
+					}
+					return len;
+					break;
+
+				case 2:  //stderr = problème (entre autre trap_handler) donc pas de buffering
+					for (i = 0; i < len; ++i)
+					{
+						while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+						USART_SendData(USART1, *ptr++);	//MODIFICATION APPORTEE AU CODE DE MICROCHIP...
 					}
 					return len;
 					break;
