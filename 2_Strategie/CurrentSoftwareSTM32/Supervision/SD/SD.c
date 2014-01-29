@@ -41,6 +41,7 @@ volatile Uint16	read_match_id = 0xFFFF;
 static bool_e initialized = FALSE;
 
 static int SD_vprintf(const char * s, va_list args);
+static int SD_logprintf(log_level_e level, const char* format, va_list vargs);
 
 //@post	SD_printf peut être appelée... (si tout s'est bien passé, les logs peuvent être enregistrés...)
 void SD_init(void)
@@ -48,8 +49,15 @@ void SD_init(void)
 	PORTS_spi_init();
 	SPI_init();
 	SD_process_main();	//Permet d'ouvrir le plus vite possible le fichier de log.
-	OUTPUTLOG_set_callback_vargs(&SD_vprintf);
+	OUTPUTLOG_set_callback_vargs(&SD_logprintf);
 	initialized = TRUE;
+}
+
+static int SD_logprintf(log_level_e level, const char* format, va_list vargs) {
+	if(level <= LOG_LEVEL_Info)
+		SD_vprintf(format, vargs);
+
+	return 0;
 }
 
 int SD_printf(const char *format, ...) {
@@ -469,7 +477,7 @@ void SD_print_previous_match(void)
 		if(!SWITCH_VERBOSE){
 			UART1_putc('\n');
 		}
-		
+
 
 		f_close(&file_read_match);
 	}

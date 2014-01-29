@@ -44,8 +44,8 @@ typedef enum {
 #define LOG_PRINT_Off 1
 #define LOG_PRINT_On  0  //Si la macro LOG_COMPONENT n'est pas définie, elle vaudra 0, dans ce cas on veux afficher le texte par défaut.
 
-typedef int (*OUTPUTLOG_Callback)(const char* formated_message);
-typedef int (*OUTPUTLOG_CallbackV)(const char* format, va_list vargs);
+typedef int (*OUTPUTLOG_Callback)(log_level_e level, const char* formated_message);
+typedef int (*OUTPUTLOG_CallbackV)(log_level_e level, const char* format, va_list vargs);
 
 //__attribute__((format (printf, 2, 3)))  permet au compilateur de verifier l'argument format avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
 void OUTPUTLOG_printf(log_level_e level, const char * format, ...) __attribute__((format (printf, 2, 3)));
