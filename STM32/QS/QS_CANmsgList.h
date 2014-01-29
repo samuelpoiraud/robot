@@ -390,7 +390,7 @@
 	// 2014
 
 	////////////////// FRUIT_MOUTH ///////////
-	#define ACT_FRUIT_MOUTH (ACT_FILTER | 0x16)
+	#define ACT_FRUIT_MOUTH (ACT_FILTER | 0x18)   //0x16: collision avec ACT_PING
 		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
 		#define ACT_FRUIT_MOUTH_CLOSE           0x10	//Fermer la pince et serrer l'assiette
 		#define ACT_FRUIT_MOUTH_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
