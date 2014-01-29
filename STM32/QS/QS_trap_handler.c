@@ -48,21 +48,23 @@ void dump_trap_info(Uint32 stack_ptr[], Uint32 lr) {
 	fprintf(stderr, "- LR:   0x%08lX\n", stack_ptr[offset++]);
 	fprintf(stderr, "- PC:   0x%08lX\n", stack_ptr[offset++]);
 	fprintf(stderr, "- xPSR: 0x%08lX\n\n", stack_ptr[offset++]);
-	if(lr & 0x00000010) {
-		fprintf(stderr, "FPU status was:\n");
-		fprintf(stderr, "-  S0: 0x%08lX   S1: 0x%08lX   S2: 0x%08lX   S3: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1], stack_ptr[offset + 2], stack_ptr[offset + 3]); offset += 4;
-		fprintf(stderr, "-  S4: 0x%08lX   S5: 0x%08lX   S6: 0x%08lX   S7: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1], stack_ptr[offset + 2], stack_ptr[offset + 3]); offset += 4;
-		fprintf(stderr, "-  S8: 0x%08lX   S9: 0x%08lX  S10: 0x%08lX  S11: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1], stack_ptr[offset + 2], stack_ptr[offset + 3]); offset += 4;
-		fprintf(stderr, "- S12: 0x%08lX  S13: 0x%08lX  S14: 0x%08lX  S15: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1], stack_ptr[offset + 2], stack_ptr[offset + 3]); offset += 4;
-		fprintf(stderr, "- FPSCR: 0x%08lX\n", stack_ptr[offset++]);
-		offset++; //empty value at end
-	}
+
+	//Buggé, hors mémoire sur la ligne de S12
+//	if(lr & 0x00000010) {
+//		fprintf(stderr, "FPU status was:\n");
+//		fprintf(stderr, "-  S0: 0x%08lX   S1: 0x%08lX   S2: 0x%08lX   S3: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1], stack_ptr[offset + 2], stack_ptr[offset + 3]); offset += 4;
+//		fprintf(stderr, "-  S4: 0x%08lX   S5: 0x%08lX   S6: 0x%08lX   S7: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1], stack_ptr[offset + 2], stack_ptr[offset + 3]); offset += 4;
+//		fprintf(stderr, "-  S8: 0x%08lX   S9: 0x%08lX  S10: 0x%08lX  S11: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1], stack_ptr[offset + 2], stack_ptr[offset + 3]); offset += 4;
+//		fprintf(stderr, "- S12: 0x%08lX  S13: 0x%08lX  S14: 0x%08lX  S15: 0x%08lX\n", stack_ptr[offset], stack_ptr[offset + 1], stack_ptr[offset + 2], stack_ptr[offset + 3]); offset += 4;
+//		fprintf(stderr, "- FPSCR: 0x%08lX\n", stack_ptr[offset++]);
+//		offset++; //empty value at end
+//	}
 
 	fprintf(stderr, "Stack was: \n");
 	for(i=0; i < 32 && (char*)&(stack_ptr[offset]) < &_estack; i++) {
+		fprintf(stderr, "0x%08lX ", stack_ptr[offset++]);
 		if(!((i + 1) % 4) && i)
 			fprintf(stderr, "\n");
-		fprintf(stderr, "0x%08lX ", stack_ptr[offset++]);
 	}
 	fprintf(stderr, "\n");
 
@@ -141,6 +143,9 @@ void dump_trap_info(Uint32 stack_ptr[], Uint32 lr) {
 			fprintf(stderr, "- Divide by zero\n");
 	}
 	fprintf(stderr, "END of Fault Handler\n");
+
+	volatile int enleve_pas_la_boucle_en_optimisant = 1;
+	while(enleve_pas_la_boucle_en_optimisant) {};
 }
 
 __attribute__((naked)) void Fault_Handler(void)
