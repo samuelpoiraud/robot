@@ -184,7 +184,7 @@ void SECRETARY_send_selftest_result(bool_e result)
 }
 
 //x : mm, y : mm, teta : rad4096, distance : mm
-void SECRETARY_send_adversary_position(Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability)
+void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability)
 {
 	CAN_msg_t msg;
 //force pos adversaries
@@ -196,13 +196,13 @@ void SECRETARY_send_adversary_position(Uint8 adversary_number, Uint16 x, Uint16 
 	 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
 	 */
 	msg.sid = STRAT_ADVERSARIES_POSITION;
-	msg.data[0] = adversary_number;	//ADVERSARY 0
+	msg.data[0] = adversary_number | ((it_is_the_last_adversary)?IT_IS_THE_LAST_ADVERSARY:0);	//n° de l'ADVERSARY  + bit de poids fort si c'est le dernier adversaire
 	msg.data[1] = x/20;	//X [2cm]
 	msg.data[2] = y/20;	//Y [2cm]
 	msg.data[3] = HIGHINT(teta);	//teta
 	msg.data[4] = LOWINT(teta);	//teta
 	msg.data[5] = distance/20;	//distance [2cm]
-	msg.data[6] = 0x0F;	//fiability : x et y fiables
+	msg.data[6] = fiability;	//fiability : x et y fiables
 	msg.size = 7;
 	CAN_send(&msg);
 }

@@ -12,6 +12,7 @@
 	#include "QS/QS_who_am_i.h"
 	#include "QS/QS_outputlog.h"
 	#include "QS/QS_CANmsgList.h"
+	#include "QS/QS_who_am_i.h"
 	#ifdef STM32F40XX
 		#include "QS/QS_sys.h"
 	#endif
@@ -35,7 +36,10 @@
 	#define HOKUYO_DETECTION_MARGE 130
 	#define HOKUYO_EVITEMENT_MIN 150
 	#define HOKUYO_MARGIN_FIELD_SIDE_IGNORE 80
-	#define HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	100	//Distance d'un point trop proche de nous qui doit être ignoré.
+
+	#define GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE		150	//Distance d'un point trop proche de nous qui doit être ignoré.
+	#define PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	100	//Distance d'un point trop proche de nous qui doit être ignoré.
+
 	#define ROBOT_COORDX 150
 	#define ROBOT_COORDY 150
 	#define ECARTEMENT_PTS_MAX_CARRE 22500
@@ -75,6 +79,7 @@
 	void hokuyo_format_data(void);
 	void hokuyo_find_valid_points(void);
 	Sint32 hokuyo_dist_min(Uint16 compt);
+	void Compute_dist_and_teta(void);
 
 	//Deux fonctions pour detecter des regroupements de points
 	void hokuyo_detection_ennemis(void);
@@ -181,6 +186,7 @@ void HOKUYO_process_main(void)
 			//hokuyo_dist_min(nb_pts_terrain);
 			//hokuyo_detection_ennemis(nb_pts_terrain,&nb_ennemis);
 			DetectRobots();
+			Compute_dist_and_teta();
 			//ReconObjet(nb_pts_terrain);
 			state=SEND_ADVERSARIES_DATAS;
 		break;
@@ -190,7 +196,7 @@ void HOKUYO_process_main(void)
 				time_since_last_sent_adversaries_datas = 0;
 				send_adversaries_datas();
 				for(i=0;i<=adversaries_number;i++)
-					debug_printf("adv%d\t%4ld\t%4ld\n",i,hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
+					debug_printf("adv%d\t%4ld\t%4ld\t%5ld\t%4ld\n",i,hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY,hokuyo_adversaries[i].teta,hokuyo_adversaries[i].dist);
 			}
 			state=ASK_NEW_MEASUREMENT;
 			break;
@@ -320,9 +326,15 @@ void hokuyo_find_valid_points(void)
 	Sint32 y_absolute;
 	Sint16 cos;
 	Sint16 sin;
-
+	Sint32 to_close_distance;
+	bool_e point_filtered;
 	nb_valid_points = 0;	//RAZ des points valides.
 	
+	if(QS_WHO_AM_I_get() == PIERRE)
+		to_close_distance = GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
+	else
+		to_close_distance = PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
+
 	//TODO mesurer la durée d'exécution de cet algo...
 	for(i = 47; i<datas_index-3;)	//Les données commencent  l'octet 47...
 	{
@@ -334,7 +346,7 @@ void hokuyo_find_valid_points(void)
 		b = (Uint16)HOKUYO_datas[i++];
 
 		distance = ((a-0x30)<<6)+((b-0x30)&0x3f);	//cf datasheet de l'hokuyo... pour comprendre comment les données sont codées.
-		if(distance	> HOKUYO_TOO_CLOSE_DISTANCE_IGNORE)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
+		if(distance	> to_close_distance)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
 			teta_relative = ((((Sint32)(angle))*183)>>8) + HOKUYO_OFFSET_ANGLE_RAD4096;	//Angle relatif au robot, du point en cours, en rad4096
 			teta_relative = CALCULATOR_modulo_angle(teta_relative);
@@ -349,12 +361,31 @@ void hokuyo_find_valid_points(void)
 					y_absolute 	< 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
 					y_absolute 	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
 			{		//Un point est retenu s'il est sur le terrain
-				detected_valid_points[nb_valid_points].dist = distance;
-				detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
-				detected_valid_points[nb_valid_points].coordX = x_absolute;
-				detected_valid_points[nb_valid_points].coordY = y_absolute;
-				if(nb_valid_points < NB_DETECTED_VALID_POINTS)
-					nb_valid_points++;
+
+				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
+
+				#define MAMOUTH_RECTANGLES_X		300
+				#define MAMOUTH_RECTANGLES_Y_START	400
+				#define MAMOUTH_RECTANGLES_Y_STOP	1100
+				#define CORNER_SQUARE				150
+
+				//On va éliminer certaines zones volontairement.
+				if(x_absolute > FIELD_SIZE_X - CORNER_SQUARE)
+					if(y_absolute < CORNER_SQUARE || y_absolute > FIELD_SIZE_Y - CORNER_SQUARE)	//Foyers des deux cotés
+						point_filtered = TRUE;	//on refuse les points
+				if(x_absolute < MAMOUTH_RECTANGLES_X)
+					if (  	(y_absolute > MAMOUTH_RECTANGLES_Y_START && y_absolute < MAMOUTH_RECTANGLES_Y_STOP) 	//zones de dépose devant mamouths
+						|| 	(y_absolute > FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_STOP && y_absolute < FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_START)	)
+						point_filtered = TRUE;	//on refuse les points
+				if(point_filtered == FALSE)
+				{
+					detected_valid_points[nb_valid_points].dist = distance;
+					detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
+					detected_valid_points[nb_valid_points].coordX = x_absolute;
+					detected_valid_points[nb_valid_points].coordY = y_absolute;
+					if(nb_valid_points < NB_DETECTED_VALID_POINTS)
+						nb_valid_points++;
+				}
 			}
 		}
 		angle+=25;	//Centième de degré
@@ -523,11 +554,23 @@ void user_callback_DeviceDisconnected(void)
 #endif
 }
 
+void Compute_dist_and_teta(void)
+{
+	Uint8 i;
+	Sint16 teta;
+	for(i=0;i<=adversaries_number;i++)
+	{
+		hokuyo_adversaries[i].dist = CALCULATOR_distance(		robot_position_during_measurement.x,robot_position_during_measurement.y,hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
+		teta = CALCULATOR_viewing_angle(	robot_position_during_measurement.x,robot_position_during_measurement.y,hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
+		hokuyo_adversaries[i].teta = CALCULATOR_modulo_angle(teta - robot_position_during_measurement.teta);
+	}
+}
+
 void send_adversaries_datas(void)
 {
 	Uint8 i;
 	for(i=0;i<=adversaries_number;i++)
-		SECRETARY_send_adversary_position(i, hokuyo_adversaries[i].coordX, hokuyo_adversaries[i].coordY, hokuyo_adversaries[i].teta, hokuyo_adversaries[i].dist, ADVERSARY_DETECTION_FIABILITY_ALL);
+		SECRETARY_send_adversary_position((i==adversaries_number)?TRUE:FALSE,i, hokuyo_adversaries[i].coordX, hokuyo_adversaries[i].coordY, hokuyo_adversaries[i].teta, hokuyo_adversaries[i].dist, ADVERSARY_DETECTION_FIABILITY_ALL);
 }
 
 
