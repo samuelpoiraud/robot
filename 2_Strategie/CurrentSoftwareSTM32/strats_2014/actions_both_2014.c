@@ -518,6 +518,8 @@ void strat_reglage_odo_symetrie(void){
 	}
 }
 
+
+
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions d'homologation			                 */
 /* ----------------------------------------------------------------------------- */
@@ -691,3 +693,28 @@ void test_Pathfind(void){
 
 }
 
+
+void test_strat_robot_virtuel_with_avoidance(void){
+	CREATE_MAE_WITH_VERBOSE(0,
+		INIT,
+		GOTO,
+		BACK,
+		DONE
+	);
+
+	switch(state){
+		case INIT:
+			state = GOTO;
+			break;
+		case GOTO:
+			state = try_going(500, COLOR_Y(2000),INIT,DONE,BACK,SLOW,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case BACK:
+			state = try_going(1000, COLOR_Y(300),INIT,GOTO,GOTO,FAST,ANY_WAY,NO_AVOIDANCE);
+			break;
+		case DONE:
+			break;
+		default:
+			break;
+	}
+}
