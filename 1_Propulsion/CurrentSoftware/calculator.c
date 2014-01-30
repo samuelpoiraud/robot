@@ -64,3 +64,10 @@ Uint16 CALCULATOR_distance(Sint16 xfrom, Sint16 yfrom, Sint16 xto, Sint16 yto){
 	deltaY= yto - yfrom;
 	return sqrt(deltaX*deltaX + deltaY*deltaY);
 }
+
+Uint16 CALCULATOR_manhattan_distance(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
+{
+	return (x1>x2 ? x1-x2 : x2-x1) + (y1>y2 ? y1-y2 : y2-y1);
+}
+
+

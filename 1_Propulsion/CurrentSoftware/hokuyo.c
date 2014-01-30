@@ -37,12 +37,12 @@
 	#define HOKUYO_EVITEMENT_MIN 150
 	#define HOKUYO_MARGIN_FIELD_SIDE_IGNORE 80
 
-	#define GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE		150	//Distance d'un point trop proche de nous qui doit être ignoré.
+	#define GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE		200	//Distance d'un point trop proche de nous qui doit être ignoré.
 	#define PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	100	//Distance d'un point trop proche de nous qui doit être ignoré.
 
 	#define ROBOT_COORDX 150
 	#define ROBOT_COORDY 150
-	#define ECARTEMENT_PTS_MAX_CARRE 22500
+	#define DISTANCE_POINTS_IN_THE_SAME_OBJECT 150
 	#define NB_MAX_ADVERSARIES	16
 	#define NB_BYTES_FROM_HOKUYO	5000
 	#define PERIOD_SEND_ADVERSARIES_DATAS	200	//[ms]
@@ -195,8 +195,6 @@ void HOKUYO_process_main(void)
 			{
 				time_since_last_sent_adversaries_datas = 0;
 				send_adversaries_datas();
-				for(i=0;i<=adversaries_number;i++)
-					debug_printf("adv%d\t%4ld\t%4ld\t%5ld\t%4ld\n",i,hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY,hokuyo_adversaries[i].teta,hokuyo_adversaries[i].dist);
 			}
 			state=ASK_NEW_MEASUREMENT;
 			break;
@@ -486,63 +484,52 @@ void DetectRobots(void)
 {
 	Uint16 i;
 	int nb_pts;
-	Sint32 deltaXcarre, deltaYcarre;
-	Sint32 Distcarre;
+	Uint16 distance;
 	Sint32 x_comp, y_comp, sumX, sumY;
 
 	adversaries_number = 0;
 
-	if(nb_valid_points < 1)
+	if(nb_valid_points < 1)	//Pas de point observé : rien à faire.
 		return;
 
+	//Le premier point débute le premier objet.
 	x_comp=detected_valid_points[0].coordX;
 	y_comp=detected_valid_points[0].coordY;
 	sumX=detected_valid_points[0].coordX;
 	sumY=detected_valid_points[0].coordY;
-
 	nb_pts=1;
 
-	for(i=1;i<nb_valid_points;i++)
+	for(i=1;i<nb_valid_points;i++)	//Pour tout les points valides à partir du second.
 	{
-		deltaXcarre=(Sint32)(detected_valid_points[i].coordX-x_comp)*(detected_valid_points[i].coordX-x_comp);
-		deltaYcarre=(Sint32)(detected_valid_points[i].coordY-y_comp)*(detected_valid_points[i].coordY-y_comp);
-		Distcarre=deltaXcarre+deltaYcarre;
+		distance = CALCULATOR_manhattan_distance(detected_valid_points[i].coordX, detected_valid_points[i].coordY, x_comp, y_comp);
 
-		if(Distcarre<=ECARTEMENT_PTS_MAX_CARRE && i<nb_valid_points-1)
+		if(distance <= DISTANCE_POINTS_IN_THE_SAME_OBJECT)	//Le point est dans l'objet, on l'intègre à l'objet
 		{
 			sumX+=detected_valid_points[i].coordX;
 			sumY+=detected_valid_points[i].coordY;
 			nb_pts++;
-		}else if(i<nb_valid_points-1){
-
-			hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
-			hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
+		}
+		else	//Si la distance est plus grande (le point n'appartient pas à l'objet), on clos l'objet en court.
+		{
 			if(adversaries_number < NB_MAX_ADVERSARIES - 1)
+			{
+				hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
+				hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
 				adversaries_number++;
-
+			}
 			nb_pts=1;
-
-			x_comp=detected_valid_points[i].coordX;
+			x_comp=detected_valid_points[i].coordX;		//Nouveau départ pour le nouvel objet
 			y_comp=detected_valid_points[i].coordY;
-
 			sumX=detected_valid_points[i].coordX;
 			sumY=detected_valid_points[i].coordY;
-		}else{                                            //cas du tout dernier point qui est en effet récalcitrant.
-			if(Distcarre<=ECARTEMENT_PTS_MAX_CARRE){
-				sumX+=detected_valid_points[i].coordX;
-				sumY+=detected_valid_points[i].coordY;
-				nb_pts++;
-				hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
-				hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
-			}else{
-				hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
-				hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
-				if(adversaries_number < NB_MAX_ADVERSARIES - 1)
-					adversaries_number++;
-				hokuyo_adversaries[adversaries_number].coordX=detected_valid_points[i].coordX;
-				hokuyo_adversaries[adversaries_number].coordY=detected_valid_points[i].coordY;
-			}
 		}
+	}
+	//Il nous faut maintenant clore le dernier objet.
+	if(adversaries_number < NB_MAX_ADVERSARIES - 1)
+	{
+		hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
+		hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
+		adversaries_number++;
 	}
 }
 #endif	//def USE_HOKUYO
@@ -558,7 +545,7 @@ void Compute_dist_and_teta(void)
 {
 	Uint8 i;
 	Sint16 teta;
-	for(i=0;i<=adversaries_number;i++)
+	for(i=0;i<adversaries_number;i++)
 	{
 		hokuyo_adversaries[i].dist = CALCULATOR_distance(		robot_position_during_measurement.x,robot_position_during_measurement.y,hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
 		teta = CALCULATOR_viewing_angle(	robot_position_during_measurement.x,robot_position_during_measurement.y,hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
@@ -569,7 +556,7 @@ void Compute_dist_and_teta(void)
 void send_adversaries_datas(void)
 {
 	Uint8 i;
-	for(i=0;i<=adversaries_number;i++)
+	for(i=0;i<adversaries_number;i++)
 		SECRETARY_send_adversary_position((i==adversaries_number)?TRUE:FALSE,i, hokuyo_adversaries[i].coordX, hokuyo_adversaries[i].coordY, hokuyo_adversaries[i].teta, hokuyo_adversaries[i].dist, ADVERSARY_DETECTION_FIABILITY_ALL);
 }
 
