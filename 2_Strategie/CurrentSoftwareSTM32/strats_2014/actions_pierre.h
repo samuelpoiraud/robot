@@ -22,13 +22,13 @@
 
 
 void strat_inutile(void);
-void strat_lannion_rouge(void);
+void strat_lannion(void);
 void strat_test_point();
 void strat_test_fresque();
 void strat_tourne_en_rond(void);
-void strat_JPO();
 error_e strat_manage_fresco();
 error_e strat_file_fresco(Sint16 posY);
+error_e strat_file_fruit();
 error_e strat_test_ramasser_fruit_arbre1();
 error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens);
 error_e strat_test_ramasser_fruit_arbre2();
