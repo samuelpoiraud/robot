@@ -707,10 +707,10 @@ void test_strat_robot_virtuel_with_avoidance(void){
 			state = GOTO;
 			break;
 		case GOTO:
-			state = try_going(500, COLOR_Y(2000),INIT,DONE,BACK,SLOW,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1000, COLOR_Y(1000),GOTO,BACK,BACK,SLOW,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case BACK:
-			state = try_going(1000, COLOR_Y(300),INIT,GOTO,GOTO,FAST,ANY_WAY,NO_AVOIDANCE);
+			state = try_going(1000, COLOR_Y(300),BACK,GOTO,GOTO,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case DONE:
 			break;

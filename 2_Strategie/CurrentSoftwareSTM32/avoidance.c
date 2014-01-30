@@ -17,6 +17,7 @@
 #include "config_use.h"
 #include "QS/QS_outputlog.h"
 #include "config/config_pin.h"
+#include "config/config_debug.h"
 
 /* Ne tient plus compte de la position de l'adversaire quand elle date
  * de plus de detection_timeout ms (detection_timeout doit etre superieur
@@ -1150,8 +1151,9 @@ void foe_in_path(bool_e *in_path)
 				avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d%s%s\n", i, global.env.foe[i].dist, distance_computed_narrow, global.env.foe[i].angle, move_way, (global.env.asser.is_in_translation)? ", in_translation" : "", (global.env.asser.is_in_translation)? ", in_rotation" : "");
 		}
 		in_path[i] = FALSE; //On initialise à faux
-		if ((global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
+		if (global.env.foe[i].updated)//(global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
 		{
+			avoidance_printf("foe %d is in_path ?\n",i);
 			// on regarde en fonction de notre sens de déplacement
 			//Si on a un ANY_WAY, c'est que la prop ne fait pas de translation => pas de detection d'ennemi dans ce cas
 			if(move_way == FORWARD || move_way == ANY_WAY)
