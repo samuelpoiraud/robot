@@ -85,7 +85,7 @@ void DETECTION_compute(void)
 
 	for(i = 0 ; i < NB_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
 	{
-		dist_min = 0xFFFF;
+		dist_min = 0x7FFF;
 		j_min = 0xFF;		//On suppose qu'il n'y a pas d'objet hokuyo.
 		for(j = 0; j < hokuyo_objects_number; j++)	//Pour tout les objets hokuyos recus
 		{
@@ -104,7 +104,7 @@ void DETECTION_compute(void)
 			global.env.foe[i].dist = hokuyo_objects[j_min].dist;
 			global.env.foe[i].update_time = hokuyo_objects[j_min].update_time;
 			global.env.foe[i].updated = TRUE;
-			debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
+			debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
 		}
 		else
 			global.env.foe[i].updated = FALSE;				//Plus d'objet dispo... on vide la case i.
@@ -153,7 +153,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			}
 			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
 			{
-				hokuyo_objects_number = adversary_nb;
+				hokuyo_objects_number = adversary_nb + 1;
 				DETECTION_compute();
 			}
 			break;
