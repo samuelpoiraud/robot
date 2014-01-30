@@ -68,25 +68,50 @@ void DETECTION_update(void)
 //Cette fonction utilise les données accumulées... selon un algo très sophistiqué... et détermine les positions adverses.
 void DETECTION_compute(void)
 {
-	Uint8 i;
-	//TODO cet algo minable est vraiment temporaire.
-	debug_printf("Compute :");
+	Uint8 i,j, j_min;
+	Sint16 dist_min;
+	bool_e objects_chosen[MAX_NB_FOES];
 
-	for(i = 0 ; i < NB_FOES ; i++)	//Pour tout les adversaires
+
+
+	#warning "cet algo minable est temporaire. mais permet des évitements avec hokuyo"
+	//Pour l'instant, il se contente de choisir les NB_FOES objets hokuyo les plus proches observés et de les enregistrer dans le tableau d'adversaires.
+
+
+
+	debug_printf("Compute :");
+	for(j = 0; j < hokuyo_objects_number; j++)
+		objects_chosen[j] = FALSE;			//init, aucun des objets n'est choisi
+
+	for(i = 0 ; i < NB_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
 	{
-		if(i <= hokuyo_objects_number && hokuyo_objects[i].enable)
+		dist_min = 0xFFFF;
+		j_min = 0xFF;		//On suppose qu'il n'y a pas d'objet hokuyo.
+		for(j = 0; j < hokuyo_objects_number; j++)	//Pour tout les objets hokuyos recus
 		{
-			global.env.foe[i].x = hokuyo_objects[i].x;
-			global.env.foe[i].y = hokuyo_objects[i].y;
-			global.env.foe[i].angle = hokuyo_objects[i].angle;
-			global.env.foe[i].dist = hokuyo_objects[i].dist;
-			global.env.foe[i].update_time = hokuyo_objects[i].update_time;
+			if(hokuyo_objects[i].enable && objects_chosen[j] == FALSE && dist_min > hokuyo_objects[j].dist)	//Pour tout objet restant (activé, non choisi)
+			{
+				j_min = j;
+				dist_min = hokuyo_objects[j].dist;		//On cherche la distance mini parmi les objet restant
+			}
+		}
+		if(j_min != 0xFF)									//Si on a trouvé un objet
+		{
+			objects_chosen[j_min] = TRUE;					//On "consomme" cet objet
+			global.env.foe[i].x = hokuyo_objects[j_min].x;	//On enregistre cet objet à la case i.
+			global.env.foe[i].y = hokuyo_objects[j_min].y;
+			global.env.foe[i].angle = hokuyo_objects[j_min].angle;
+			global.env.foe[i].dist = hokuyo_objects[j_min].dist;
+			global.env.foe[i].update_time = hokuyo_objects[j_min].update_time;
 			global.env.foe[i].updated = TRUE;
-			debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d", i, hokuyo_objects[i].x, hokuyo_objects[i].y, hokuyo_objects[i].angle, hokuyo_objects[i].dist);
+			debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
 		}
 		else
-			global.env.foe[i].updated = FALSE;	//TODO ce tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
+			global.env.foe[i].updated = FALSE;				//Plus d'objet dispo... on vide la case i.
+
+		//TODO le tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
 	}
+	//S'il y a plus d'objets hokuyo que d'adversaires possibles dans notre évitement, on choisit les plus proches.
 	debug_printf("\n");
 }
 
