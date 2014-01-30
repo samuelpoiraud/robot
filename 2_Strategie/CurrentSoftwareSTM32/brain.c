@@ -31,6 +31,26 @@
 #include "strats_2014/actions_guy.h"
 #include "strats_2014/actions_pierre.h"
 
+
+/**************************************************************
+ *
+ * Déclaration des strats pour les deux robots
+ *
+ **************************************************************/
+
+// GROS = PIERRE (pour la cohérence pour les années suivantes
+#define STRAT_0_GROS test_strat_robot_virtuel_with_avoidance
+#define STRAT_1_GROS test_strat_robot_virtuel_with_avoidance
+#define STRAT_2_GROS test_strat_robot_virtuel_with_avoidance
+#define STRAT_3_GROS test_strat_robot_virtuel_with_avoidance
+
+// PETIT = GUY
+#define STRAT_0_PETIT test_strat_robot_virtuel_with_avoidance
+#define STRAT_1_PETIT test_strat_robot_virtuel_with_avoidance
+#define STRAT_2_PETIT test_strat_robot_virtuel_with_avoidance
+#define STRAT_3_PETIT test_strat_robot_virtuel_with_avoidance
+
+
 /* 	execute un match de match_duration secondes à partir de la
 	liberation de la biroute. Arrete le robot à la fin du match.
 	Appelle une autre routine pour l'IA pendant le match.
@@ -81,36 +101,31 @@ void any_match(time32_t match_duration)
 		/* Choix de la stratégie */
 		/*************************/
 
-		if(QS_WHO_AM_I_get()==TINY)
+		if(QS_WHO_AM_I_get()==GUY)
 		{
 			calibration_way = (global.env.color == BLUE)?FORWARD:BACKWARD;	//En bleu, TINY se cale en avant pour avoir son bras coté cadeaux.
 			calibration = ASSER_CALIBRATION_SQUARE_0;						//Sauf si décision contraire dans certaines stratégies... Tiny est par défaut dans la case 0.
 
 			switch(strat_number())
 			{
-				case 0x01:	//STRAT_1_TINY
-					//strategy = STRAT_TINY_all_candles;
-					strategy = test_Pathfind;
+				case 0x01:	//STRAT_1_GUY
+					strategy = STRAT_1_PETIT;
 				break;
-				case 0x02:	//STRAT_2_TINY : STRATEGIE DE TEST HORS MATCH
-					//strategy = TEST_STRAT_T_homologation;
-					//strategy = STRAT_TINY_all_candles;
-					//strategy = STRAT_TINY_test_avoidance_goto_pos_no_dodge_and_wait;
-					strategy = test_Pathfind;
+				case 0x02:	//STRAT_2_GUY
+					strategy = STRAT_2_PETIT;
 				break;
-				case 0x03:	//STRAT_3_TINY
-					strategy = test_Pathfind;
+				case 0x03:	//STRAT_3_GUY
+					strategy = STRAT_3_PETIT;
 
 				break;
 				case 0x00:	//STRAT_0_TINY (aucun switch)
 				//no break;
 				default:
-					//strategy = TEST_STRAT_T_homologation;
-					strategy = test_Pathfind;
+					strategy = STRAT_0_PETIT;
 				break;
 			}
 		}
-		else	//Krusty
+		else	//Pierre
 		{
 			calibration_way = BACKWARD;	//Krusty se cale TOUJOURS en backward (pas de callage contre l'ascenseur à verres)
 			calibration = ASSER_CALIBRATION_SQUARE_2; //Et toujours à l'assiette 2 (sachant que Tiny est sur la 0)
@@ -124,25 +139,22 @@ void any_match(time32_t match_duration)
 
 			switch(debug_strat)
 			{
-				case 0x01:	//STRAT_1_KRUSTY
-					//strategy = TEST_STRAT_avoidance;
-					strategy = TEST_pathfind;
+				case 0x01:	//STRAT_1_PIERRE
+					strategy = STRAT_1_GROS;
 				break;
 
-				case 0x02:	//STRAT_2_KRUSTY
-					//strategy = K_Strat_Coupe;
-					strategy = TEST_pathfind;
+				case 0x02:	//STRAT_2_PIERRE
+					strategy = STRAT_2_GROS;
 				break;
 
-				case 0x03:	//STRAT_3_KRUSTY
-					strategy = TEST_pathfind;
+				case 0x03:	//STRAT_3_PIERRE
+					strategy = STRAT_3_GROS;
 				break;
 
-				case 0x00:	//STRAT_0_KRUSTY (aucun switch)
+				case 0x00:	//STRAT_0_PIERRE (aucun switch)
 				//no break;
-
 				default:
-					strategy = TEST_pathfind;
+					strategy = STRAT_0_GROS;
 				break;
 			}
 		}
