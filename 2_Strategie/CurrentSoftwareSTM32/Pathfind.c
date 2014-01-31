@@ -19,6 +19,7 @@
 //#define pathfind_debug_printf(...)	void(0)
 #define MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY	400		//Distance manhattan entre un advesaire et les noeuds dont il bloque l'accès
 #define DISTANCE_CONSIDERE_ADVERSARY				1000	//Distance entre nous et l'adversaire pour qu'il soit pris en compte (s'il est loin, on le néglige.. en espérant qu'il bouge d'ici à notre arrivée)
+#define	TIME_CONSIDERE_ADVERSARY					500		//[ms] temps au delà duquel un adversaire mis à jour n'est plus considéré
 #define NB_TRY_WHEN_DODGE							3		//Nombre de tentatives d'évitement (recalcul de chemin..)
 
 #ifndef USE_POLYGON
@@ -71,11 +72,12 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB] =
 static pathfind_node_list_t openList;
 static pathfind_node_list_t closedList;
 
-static pathfind_node_id_t nodeOpponent[NB_FOES];
+static pathfind_node_id_t nodeOpponent[MAX_NB_FOES];
 
 
-void PATHFIND_updateOpponentPosition(foe_e foe_id)
+void PATHFIND_updateOpponentPosition(Uint8 foe_id)
 {
+	assert(foe_id < MAX_NB_FOES);
 	//On desactive l'evitement pour trouver le noeud le plus proche de l'adversaire
 	pathfind_node_id_t node = PATHFIND_closestNode(global.env.foe[foe_id].x, global.env.foe[foe_id].y, FALSE);
 	//si on est trop loin
@@ -102,10 +104,17 @@ pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, bool_e handleOpponen
 {
 	Uint16 dist, minDist = 65535;
 	pathfind_node_id_t n, closestNode = 0;
+	bool_e foe_in_node_n;
+	Uint8 i;
 
 	for (n = 0; n < PATHFIND_NODE_NB; n++)
 	{
-		if (!(handleOpponent && ((n == nodeOpponent[FOE_1]) || (n == nodeOpponent[FOE_2])))) {
+		foe_in_node_n = FALSE;
+		for(i=0;i<MAX_NB_FOES;i++)
+			if(n == nodeOpponent[i])
+				foe_in_node_n = TRUE;
+		if (!(handleOpponent && foe_in_node_n))
+		{
 			dist = PATHFIND_manhattan_dist(x, y, nodes[n].x, nodes[n].y);
 			if (dist < minDist) {
 				minDist = dist;
@@ -144,9 +153,9 @@ Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool_e hand
 	 * ajoute une pénalité importante, inversement proportionnelle à la distance adversaire-noeud
 	 */
 
-		for(i=0; i<NB_FOES; i++)
+		for(i=0; i<MAX_NB_FOES; i++)
 		{
-			if(global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
+			if((global.env.absolute_time - global.env.foe[i].update_time < TIME_CONSIDERE_ADVERSARY)	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
 			{
 				dist = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
 				if (dist < ((Uint32)900))	//Si l'adversaire proche de nous est proche du noeud en question... on allourdi sérieusement le coût de ce noeud.
@@ -166,7 +175,7 @@ Sint16 PATHFIND_get_node_y (pathfind_node_id_t n) {
 }
 
 /*
-pathfind_node_id_t  PATHFIND_random_neighbor(pathfind_node_id_t of, bool_e handleOpponent[NB_FOES])
+pathfind_node_id_t  PATHFIND_random_neighbor(pathfind_node_id_t of, bool_e handleOpponent[MAX_NB_FOES])
 {
 	static pathfind_node_id_t n = 0;
 	while (1)
@@ -253,9 +262,9 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 
 	//On identifie les noeuds placés à moins de 500mm manhattan d'un adversaire.
 	adversaries_nodes = 0;
-	for(i=0;i<NB_FOES;i++)
+	for(i=0;i<MAX_NB_FOES;i++)
 	{
-		if(global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
+		if((global.env.absolute_time - global.env.foe[i].update_time < TIME_CONSIDERE_ADVERSARY)	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
 		{
 			for(n = 0; n < PATHFIND_NODE_NB; n++)	//Pour chaque noeud
 			{	//Si l'adversaire en question est proche du noeud : on ajoute le noeud dans la liste des noeuds innaccessibles.

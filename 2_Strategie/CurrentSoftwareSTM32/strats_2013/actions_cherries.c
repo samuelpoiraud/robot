@@ -8,7 +8,7 @@
  *	Auteur : amurzeau
  *	Version 27 avril 2013
  */
-
+#if 0
 #include "actions_cherries.h"
 #include "../state_machine_helper.h"
 #include "../zone_mutex.h"
@@ -1309,3 +1309,4 @@ static Sint16 PLATE_real_pos_y(STRAT_plate_grap_axis_e axis, Sint16 y) {
 		}
 	}
 }
+#endif

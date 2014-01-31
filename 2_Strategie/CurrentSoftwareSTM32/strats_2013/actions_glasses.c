@@ -191,7 +191,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			force_first_point = 0;
 			zone_starttiny_lock_state = IN_PROGRESS;
 			must_unlock_starttiny = FALSE;
-			global.env.must_drop_glasses_at_end = FALSE;
+			//global.env.must_drop_glasses_at_end = FALSE;
 			state = GM_CATCH_GLASSES;
 			break;
 
@@ -250,7 +250,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 					if(trajectory_to_home_number > 1)
 						state = GM_GO_HOME;
 					else {		//Pas d'autre choix, donc on fera a la fin
-						global.env.must_drop_glasses_at_end = TRUE;
+						//global.env.must_drop_glasses_at_end = TRUE;
 						state = GM_DONE;
 					}
 					break;
@@ -274,7 +274,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 			break;
 
 		case GM_PUT_DOWN_GLASSES:
-			global.env.glasses_x_pos = global.env.pos.x;
+			//global.env.glasses_x_pos = global.env.pos.x;
 
 			if(!GLASS_SENSOR_LEFT)  //S'il n'y a pas de verre en bas, on descend l'ascenseur avant
 				ACT_lift_translate(ACT_LIFT_Left, ACT_LIFT_TranslateDown);
@@ -325,7 +325,7 @@ error_e K_STRAT_micro_do_glasses(Uint8 trajectory_to_home_number, const displace
 							state = GM_GO_HOME;
 						} else {
 							//En fait on a déjà fait tous les choix ! => on ne peut pas revenir chez nous, on le fera a la fin
-							global.env.must_drop_glasses_at_end = TRUE;
+							//global.env.must_drop_glasses_at_end = TRUE;
 							state = GM_DONE;
 						}
 					}
@@ -510,7 +510,7 @@ error_e K_STRAT_micro_put_down_glasses(void){
 
 		case GD_PUT_DOWN_GLASSES:
 			if(entrance) {
-				global.env.glasses_x_pos = global.env.pos.x;
+				//global.env.glasses_x_pos = global.env.pos.x;
 				//On ouvre l'ascenseur de gauche
 				ACT_lift_plier(ACT_LIFT_Left, ACT_LIFT_PlierOpen);
 				//On ouvre l'ascenseur de droite

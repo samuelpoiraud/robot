@@ -8,6 +8,7 @@
  *	Auteur : nirgal
  *	Version 201305
  */
+#if 0
 #include "actions_gifts.h"
 #include "actions_utils.h"
 #include "../act_functions.h"
@@ -644,3 +645,4 @@ error_e TINY_open_all_gifts(void)
 		state = INIT;
 	return ret;
 }
+#endif

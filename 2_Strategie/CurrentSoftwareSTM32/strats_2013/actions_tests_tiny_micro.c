@@ -8,7 +8,7 @@
  *	Auteur : Cyril, modifié par Vincent , Antoine , LMG , Herzaeone , Hoobbes
  *	Version 2012/01/14
  */
-
+#if 0
 #define ACTIONS_TEST_TINY_MICRO_C
 
 #include "actions_tests_tiny_micro.h"
@@ -1735,3 +1735,4 @@ error_e TINY_protect_glasses(void)
 }
 
 //END
+#endif

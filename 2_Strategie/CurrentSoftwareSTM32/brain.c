@@ -174,8 +174,8 @@ void any_match(time32_t match_duration)
 				QUEUE_reset_all();
 				CLOCK_stop();
 
-				if(QS_WHO_AM_I_get()==TINY)
-					T_BALLINFLATER_start();	//Fin du match -> On gonfle le ballon
+				if(QS_WHO_AM_I_get()==PIERRE)
+					debug_printf("TODO here : appeler la fonction qui lance le filet\n");	//Fin du match -> On lance le filet
 			}
 			else
 			{

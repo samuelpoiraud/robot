@@ -79,9 +79,9 @@
 		ASSER_speed_e speed;
 	} displacement_t;
 
-	//Pour tester la fonction
-	void foe_in_path(bool_e in_path[NB_FOES]);
 	
+	bool_e foe_in_path(void);
+
 	/*
 	 * Affecture une trajectoire courbe de la position actuelle. Le robot
 	 * arrive au point x,y avec angle comme incidence. La courbe est divisée
@@ -283,7 +283,7 @@ typedef enum
 } foe_pos_e;
 
 // Vérifie adversaire dans NORTH_BLUE, NORTH_RED...
-foe_pos_e AVOIDANCE_where_is_foe(foe_e foe_id);
+foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id);
 
 
 /* 

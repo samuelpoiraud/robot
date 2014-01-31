@@ -22,10 +22,7 @@
 		PREPARE = 0, OPEN, CLOSE, NB_POSITION
 	}ACT_position_e;
 
-	typedef enum
-	{
-		FOE_1 = 0, FOE_2, NB_FOES
-	}foe_e;
+
 
 //	//Acquittement sur action de la pince ou de l'ascenseur
 //	typedef enum

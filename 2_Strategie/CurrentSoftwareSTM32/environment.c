@@ -45,11 +45,48 @@ void CAN_update (CAN_msg_t* incoming_msg);
 /* met a jour la position a partir d'un message asser la délivrant */
 void ENV_pos_update (CAN_msg_t* msg);
 
+void ENV_process_can_msg_sent(CAN_msg_t * sent_msg);
+
+void ENV_clean (void);
 
 #define ADC_THRESHOLD 10 //Valeur de l'ADC sans dispositif de connecté
 
 		//une couleur erronnée pour forcer la maj de la couleur
 		#define COLOR_INIT_VALUE 0xFF
+
+/* initialise les variables d'environnement */
+void ENV_init(void)
+{
+	Uint8 i;
+	CAN_init();
+	CAN_set_send_callback(ENV_process_can_msg_sent);
+	BUTTON_init();
+
+	#ifdef USE_SICK
+		SICK_init();
+	#endif
+	DETECTION_init();
+
+	ENV_clean();
+	global.env.config=(config_t){/*strategie*/0, /*evitement*/TRUE, /*balise*/TRUE};
+	global.env.wanted_color=BLUE;
+	global.env.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
+	global.env.color_updated = TRUE;
+	global.env.match_started = FALSE;
+	global.env.match_over = FALSE;
+	for(i=0;i<MAX_NB_FOES;i++)
+		global.env.foe[i].update_time = 0;
+
+	global.env.match_time = 0;
+	global.env.pos.dist = 0;
+	global.env.ask_start = FALSE;
+	global.env.asser.calibrated = FALSE;
+	global.env.asser.current_way = ANY_WAY;
+	global.env.asser.is_in_translation = FALSE;
+	global.env.asser.is_in_rotation = FALSE;
+	global.env.asser.current_status = NO_ERROR;
+}
+
 
 
 void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filter, bool_e * bSAVE_filter)
@@ -197,7 +234,7 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 
 
 
-void ENV_update()
+void ENV_update(void)
 {
 	static Uint8 u1rx_receiving_can_msg = 0;
 	CAN_msg_t incoming_msg_from_bus_can;
@@ -205,12 +242,10 @@ void ENV_update()
 	static CAN_msg_t can_msg_from_uart2;
 	char c;
 
-	/* RAZ des drapeaux temporaires pour la prochaine itération */
+	// RAZ des drapeaux temporaires pour la prochaine itération
 	ENV_clean();
-	//ENV_pos_update((CAN_msg_t *)NULL, FALSE);	//On récupère l'éventuel position sauvée en IT...
 
-	/* Récuperation de l'évolution de l'environnement
-	renseignee par les messages CAN */
+	// Récuperation de l'évolution de l'environnement renseignee par les messages CAN
 	while (CAN_data_ready())
 	{
 		LED_CAN=!LED_CAN;
@@ -326,8 +361,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 			break;
 		case BROADCAST_POSITION_ROBOT:
-			//Remarque : Si USE_SICK... si un broadcast_position est arrivé avec pour seule(s) raison(s) WARNING_ROTATION et WARNING_TRANSLATION, il est traité dès réception par CAN_fast_update, et n'arrive pas ici !
-
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
 
@@ -358,9 +391,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ACT_process_result(incoming_msg);
 			break;
 
-		case ACT_BALLSORTER_RESULT:
-			global.env.color_ball = incoming_msg->data[0];
-			break;
 
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:
@@ -415,98 +445,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 	return;
 }
 
-/* Cette fonction permet d'éxécuter un traitement rapide dans l'interruption suivant
-   le message CAN reçu et renvoie si le message doit être placé dans le buffer */
-bool_e CAN_fast_update(CAN_msg_t* msg)
-{
-	//Samuel : TODO cette fonction peut génèrer des situations foireuses où la position est mise à jour en pleine mauvaise préemption...
-		switch (msg->sid)
-		{
-			case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond
-			case CARTE_P_ROBOT_FREINE:
-			case CARTE_P_ROBOT_CALIBRE:
-			case CARTE_P_ASSER_ERREUR:
-			case CARTE_P_TRAJ_FINIE:
-				//ENV_pos_fast_update(msg, TRUE);
-				#ifdef USE_SICK
-					SICK_update_points();
-				#endif
-			break;
-			default:
-				return TRUE;
-		}
-
-		return TRUE;
-
-}
-//#include <can.h>
-
-/* met a jour la position a partir d'un message asser la délivrant */
-void ENV_fast_pos_update (CAN_msg_t* msg, bool_e on_it)
-{
-	volatile static bool_e new_pos_available = FALSE;
-	static position_t new_pos;
-	static time32_t new_time;
-	static way_e new_way;
-	static trajectory_e new_trajectory;
-	static SUPERVISOR_error_source_e new_status;
-
-	if(on_it == TRUE)
-	{
-		new_pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
-		new_pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
-		new_pos.translation_speed = ((Uint16)(msg->data[0] >> 5))*250;	// [mm/sec]
-		new_pos.rotation_speed =	((Uint16)(msg->data[2] >> 5));		// [rad/sec]
-		new_pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
-		new_pos.cosAngle = cos4096(global.env.pos.angle);
-		new_pos.sinAngle = sin4096(global.env.pos.angle);
-		new_time = global.env.match_time;
-		new_way = (way_e)((msg->data[7] >> 3) & 0x03);
-		new_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
-		new_trajectory = (trajectory_e)((msg->data[7] >> 5) & 0x07);
-			/*msg->data[7] : 8 bits  : T T T W W E E E
-				TTT : trajectoire actuelle
-					TRAJECTORY_TRANSLATION		= 0,
-					TRAJECTORY_ROTATION			= 1,
-					TRAJECTORY_STOP				= 2,
-					TRAJECTORY_AUTOMATIC_CURVE	= 3,
-					TRAJECTORY_NONE				= 4
-				 WW : Way, sens actuel
-					ANY_WAY						= 0,
-					BACKWARD					= 1,
-					FORWARD						= 2,
-				 EEE : Erreur
-					SUPERVISOR_INIT				= 0,
-					SUPERVISOR_IDLE				= 1,		//Rien à faire
-					SUPERVISOR_TRAJECTORY		= 2,		//Trajectoire en cours
-					SUPERVISOR_ERROR			= 3,		//Carte en erreur - attente d'un nouvel ordre pour en sortir
-					SUPERVISOR_MATCH_ENDED		= 4			//Match terminé
-				*/
-		new_pos_available = TRUE;
-	}
-	else		//En tache de fond.
-	{
-		//save_int = _C1IE;
-		//if(save_int == 1)
-		//	_C1IE = 0;
-		if(new_pos_available)
-		{
-			new_pos_available = FALSE;
-			global.env.asser.last_time_pos_updated = new_time;
-			global.env.asser.current_way = new_way;
-			global.env.asser.current_status = new_status;
-			global.env.asser.is_in_translation = (new_trajectory >> 2) & 1;
-			global.env.asser.is_in_rotation = (new_trajectory >> 1) & 1;
-			global.env.pos = new_pos;
-			//debug_printf("\n Pos update :  (%lf : %lf)\n",global.env.pos.cosAngle,global.env.pos.sinAngle);
-			global.env.pos.updated = TRUE;
-		}
-		//if(save_int == 1)
-		//	_C1IE = 1;
-
-	}
-
-}
 
 /* mise à jour de la position reçue dans l'un des messages de la propulsion.*/
 void ENV_pos_update (CAN_msg_t* msg)
@@ -544,10 +482,10 @@ void ENV_pos_update (CAN_msg_t* msg)
 
 
 
-
-/* baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
-void ENV_clean ()
+/* Appelée en début de tache de fond : baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
+void ENV_clean (void)
 {
+	Uint8 i;
 	STACKS_clear_timeouts();
 	//DETECTION_clear_updates();
 	if(global.env.color == global.env.wanted_color)
@@ -561,72 +499,13 @@ void ENV_clean ()
 	global.env.asser.reach_teta = FALSE;
 		//global.env.asser.last_time_pos_updated = 0;
 	global.env.pos.updated = FALSE;
-	global.env.foe[FOE_1].updated = FALSE;
-	global.env.foe[FOE_2].updated = FALSE;
+	for(i=0;i<MAX_NB_FOES;i++)
+		global.env.foe[i].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
 }
 
 
-/* initialise les variables d'environnement */
-void ENV_init()
-{
-	CAN_init();
-	CAN_set_send_callback(ENV_process_can_msg_sent);
-	BUTTON_init();
-	//    CAN_set_direct_treatment_function(CAN_fast_update);
-
-	#ifdef USE_SICK
-		SICK_init();
-	#endif
-	DETECTION_init();
-
-	ENV_clean();
-	global.env.config=(config_t){/*strategie*/0, /*evitement*/TRUE, /*balise*/TRUE};
-	global.env.wanted_color=BLUE;
-	global.env.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
-	global.env.color_updated = TRUE;
-	global.env.match_started = FALSE;
-	global.env.match_over = FALSE;
-	global.env.foe[FOE_1].update_time = 0;
-	global.env.foe[FOE_2].update_time = 0;
-	global.env.match_time = 0;
-	global.env.pos.dist = 0;
-	global.env.ask_start = FALSE;
-	global.env.asser.calibrated = FALSE;
-
-	global.env.asser.current_way = ANY_WAY;
-	global.env.asser.is_in_translation = FALSE;
-	global.env.asser.is_in_rotation = FALSE;
-	global.env.asser.current_status = NO_ERROR;
-
-	global.env.color_ball = ACT_BALLSORTER_NO_CHERRY;
-
-	//Initialisation des elemnts du terrain
-	int i;
-	//Init cadeaux
-	for(i=GOAL_Cadeau0; i <= GOAL_Cadeau3; i++){
-		global.env.map_elements[i] = ELEMENT_TODO;
-	}
-	//Init Verre + VerreEnnemi + Bougies
-	for(i=GOAL_Verres0; i <= GOAL_Etage2Bougie11; i++){
-		global.env.map_elements[i] = ELEMENT_TODO;
-	}
-	//Attention la suite n'est pas definitive et necessitera un changement en fonction des positions de calage
-//	global.env.map_elements[4] = ELEMENT_NONE;
-//	global.env.map_elements[5] = ELEMENT_NONE;
-//	global.env.map_elements[6] = ELEMENT_TODO;
-//	global.env.map_elements[7] = ELEMENT_TODO;
-//	global.env.map_elements[8] = ELEMENT_TODO;
-	for(i = GOAL_Assiette0; i <= GOAL_Assiette4; i++) {
-		if(i != GOAL_Assiette0 && i != GOAL_Assiette2)
-			global.env.map_elements[i] = ELEMENT_TODO;
-		else global.env.map_elements[i] = ELEMENT_NONE;
-	}
-	for(i = GOAL_AssietteEnnemi0; i <= GOAL_AssietteEnnemi4; i++){
-		global.env.map_elements[i] = ELEMENT_NONE;
-	}
-}
 
 /* envoie un message CAN BROADCAST_COULEUR à jour */
 void ENV_set_color(color_e color)
@@ -645,16 +524,3 @@ void ENV_set_color(color_e color)
 
 
 
-
-
-bool_e ENV_game_zone_filter(Sint16 x, Sint16 y, Uint16 delta)
-{
-	/* Délimitation du terrain */
-	if(x < delta || y < delta || x > GAME_ZONE_SIZE_X - delta || y > GAME_ZONE_SIZE_Y - delta
-	//|| (x > 875 - delta && x < 1125 + delta  && y > 975 - delta && y < 2025 + delta) // Pour supprimer la zone centrale (totem + palmier)
-	|| (x > 1250 - delta && (y < 340 + delta || y > 2660 - delta))) //Pour supprimer les cales
-	{
-		return FALSE;
-	}
-	return TRUE;
-}

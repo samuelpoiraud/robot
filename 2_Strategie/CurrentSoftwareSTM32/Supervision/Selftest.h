@@ -26,6 +26,8 @@
 		
 	void SELFTEST_init(void);
 
+	void SELFTEST_update(CAN_msg_t* CAN_msg_received);
+
 	void SELFTEST_ask_launch(void);	//Demande de lancement du selftest au prochain process_main
 
 	void SELFTEST_process_main(void);
