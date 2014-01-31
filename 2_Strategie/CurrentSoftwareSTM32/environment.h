@@ -17,7 +17,6 @@
 	#include "detection.h"
 	#include "sick.h"
 	#include "elements.h"
-	#include "grille.h"
 	
 	/* #define communs à plusieurs modules */
 	#define MATCH_DURATION 				90000UL //90 secondes)
@@ -73,10 +72,19 @@
 		volatile Sint16 rotation_speed;
 		volatile double cosAngle;/*cosinus de l'angle du robot*/
 		volatile double sinAngle;/*sinus de l'angle du robot*/
-		volatile time32_t update_time;
-		volatile bool_e updated;
+		volatile time32_t update_time;		//Ce temps sera mis à jour à chaque adversaire nouvellement observé.
+		volatile bool_e updated;			//Attention, ce flag sera levé pendant UNE SEULE boucle de tâche de fond, suite à la mise à jour.
 	}position_t;
 	
+	typedef struct
+	{
+		volatile Sint16 angle;
+		volatile Sint16 dist;
+		volatile Sint16 x;
+		volatile Sint16 y;
+		volatile time32_t update_time;
+		volatile bool_e updated;
+	}foe_t;
 	///////////////////////////////
 
 	//enum utilisé par le tableau d'états du terrain
@@ -86,10 +94,10 @@
 		ELEMENT_NONE //Non applicable
 	}map_state_e;
 
+	#define MAX_NB_FOES	10	//Nombre max d'aversaires
+
 	typedef struct
 	{
-		//#warning voir si changement element_t
-		// Warning très très gênant pour la compilation, et c'est sûr qu'il va changer element_t ^^
 		element_t elements_list[NB_ELEMENTS];
 		Uint8 nb_elements;
 		color_e	color;
@@ -102,48 +110,27 @@
 		bool_e config_updated;
 		asser_env_t asser;
 		position_t pos;					//comme son nom l'indique, c'est la position de notre robot
-		position_t foe[NB_FOES];		//comme son nom l'indique, c'est la position de l'adversaire
+		foe_t foe[MAX_NB_FOES];		//l'ensemble des adversaires vus sur le terrain - ces données concernent plus l'évitement que le zoning !
+			//Attention, un même adversaire peut être mis à jour sur plusieurs cases différents du tableau de foe !
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.
 		time32_t absolute_time; //temps depuis le lancement du module clock en ms.
-		/*Tableau d'état des elements du terrain */
-		map_state_e map_elements[(map_goal_e)40]; //Voir doc pour connaitre les éléments associés
-		Uint8 color_ball;
 		bool_e debug_force_foe;
-
-		//Strat verres: on a gardé les verres car on a pas pu les ranger, il faudra les poser a la fin
-		bool_e must_drop_glasses_at_end;
-		Sint16 glasses_x_pos;			//Position en X des verres. Pour savoir ou ils sont pour les proteger à la fin du match
 	}environment_t;
 
 
 
 	//NOTE MICHAEL: Mettre à jour les fonctions suivantes pour le tableau des elements
 
-	/* baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
-	void ENV_clean();
+	/* Appelée dans l'INIT : initialise toutes les variables d'environnement */
+	void ENV_init(void);
 
-	/* initialise toutes les variables d'environnement */
-	void ENV_init();
-
-	/* met à jour l'environnement */
-	void ENV_update();
+	/* Appelée en début de tache de fond : met à jour l'environnement */
+	void ENV_update(void);
 
 	/* Change la couleur et prévient tout le monde */
 	void ENV_set_color(color_e color);
 
-
-	/* Cause à l'autre robot pour savoir s'il est présent...*/
-	void ENV_XBEE_ping_process(void);
-
-	/* Permet d'éxécuter un traitement rapide dans l'interruption suivantle message CAN reçu 
-   (ATTENTION : le message n'est pas placé dans le buffer) */
-	bool_e CAN_fast_update(CAN_msg_t* msg);
-	
-	/* Fonction de filtrage des points appartenants au terrain.
-	Elle renvoie si le point est valide ou non càd hors des zones de départ, des zones sécurisées 
-	et écarté de delta des bordures du terrain */
-	bool_e ENV_game_zone_filter(Sint16 x, Sint16 y, Uint16 delta);
 
 
 #endif /* ndef ENVIRONMENT_H */

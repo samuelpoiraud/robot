@@ -8,7 +8,7 @@
  *	Auteur : Cyril, modifié par Vincent , Antoine , LMG , Herzaeone , Hoobbes
  *	Version 2012/01/14
  */
-
+#if 0
 #include "actions_tests_krusty.h"
 #include "actions_glasses.h"
 #include "actions_cherries.h"
@@ -719,15 +719,15 @@ void TEST_STRAT_ALEXIS() {
 
 		//Faire les assiettes & lancer les cerises
 		case DO_PLATES:
-			if(global.env.must_drop_glasses_at_end && global.env.match_time > (MATCH_DURATION - 20000))
-				state = PUT_DOWN_GLASSES;
-			else {
+			//if(global.env.must_drop_glasses_at_end && global.env.match_time > (MATCH_DURATION - 20000))
+			//	state = PUT_DOWN_GLASSES;
+			//else {
 				sub_action = K_STRAT_sub_cherries_alexis();
 				state = check_sub_action_result(sub_action, DO_PLATES, PROTECT_GLASSES, PROTECT_GLASSES);	//Idem
 
 				if(state == PROTECT_GLASSES && global.env.must_drop_glasses_at_end)
 					state = PUT_DOWN_GLASSES;
-			}
+			//}
 			break;
 
 		//On va dans notre zone de départ pour proteger les verres
@@ -738,9 +738,9 @@ void TEST_STRAT_ALEXIS() {
 				AVOIDANCE_set_timeout(MATCH_DURATION - global.env.match_time);
 				timeout_set = TRUE;
 			}
-			if(global.env.glasses_x_pos > 600)
+			//if(global.env.glasses_x_pos > 600)
 				state = try_going(1000, COLOR_Y(400), PROTECT_GLASSES, DONE, DONE, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
-			else state = try_going(280, COLOR_Y(400), PROTECT_GLASSES, DONE, DONE, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			//else state = try_going(280, COLOR_Y(400), PROTECT_GLASSES, DONE, DONE, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 		}
 
@@ -808,7 +808,7 @@ void TEST_STRAT_ALEXIS_FINALE() {
 			else current_plate = 4;
 			glasses_droped = FALSE;
 			state = EXTRACT;
-			global.env.must_drop_glasses_at_end = TRUE;
+			//global.env.must_drop_glasses_at_end = TRUE;
 			break;
 
 		//Avance devant pour pouvoir tourner après le début du match (on est collé au mur après calibration)
@@ -2897,3 +2897,4 @@ error_e Cadeau(void){
 	}
 	return IN_PROGRESS;
 }
+#endif

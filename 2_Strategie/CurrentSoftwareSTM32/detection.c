@@ -16,6 +16,7 @@
 #include "QS/QS_OutputLog.h"
 #include "config_use.h"
 #include "config_debug.h"
+#include "environment.h"
 
 typedef struct
 {
@@ -29,7 +30,7 @@ typedef struct
 	time32_t update_time;
 }adversary_t;
 
-#define MAX_NB_FOES	10	//Nombre max d'aversaires
+
 
 volatile adversary_t hokuyo_objects[MAX_NB_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
 volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
@@ -83,7 +84,7 @@ void DETECTION_compute(void)
 	for(j = 0; j < hokuyo_objects_number; j++)
 		objects_chosen[j] = FALSE;			//init, aucun des objets n'est choisi
 
-	for(i = 0 ; i < NB_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
+	for(i = 0 ; i < MAX_NB_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
 	{
 		dist_min = 0x7FFF;
 		j_min = 0xFF;		//On suppose qu'il n'y a pas d'objet hokuyo.
@@ -201,7 +202,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 	Sint16 beacon_foe_x, beacon_foe_y;
 	bool_e update_dist_by_ir;
 	Uint8 foe_id;
-	 for (foe_id = 0; foe_id < NB_FOES; foe_id++)
+	 for (foe_id = 0; foe_id < MAX_NB_FOES; foe_id++)
 	{
 		if((global.env.match_time - global.env.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
 		   (global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
@@ -279,45 +280,24 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			//detection_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist,((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 	}
+
+bool_e ENV_game_zone_filter(Sint16 x, Sint16 y, Uint16 delta)
+{
+	// Délimitation du terrain
+	if(x < delta || y < delta || x > GAME_ZONE_SIZE_X - delta || y > GAME_ZONE_SIZE_Y - delta
+	//|| (x > 875 - delta && x < 1125 + delta  && y > 975 - delta && y < 2025 + delta) // Pour supprimer la zone centrale (totem + palmier)
+	|| (x > 1250 - delta && (y < 340 + delta || y > 2660 - delta))) //Pour supprimer les cales
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
 	*/
+
+
 
 
 //}
 
 
-//envoi de la position du robot adverse sur le CAN
-static void CAN_send_foe_pos()
-{
-	#ifdef USE_FOE_POS_CAN_DEBUG
-	static time32_t previous_time=0;
-	
-	Uint8 view = 0;
-	detection_sensor_e i;
-	CAN_msg_t msg;
-	
-	if (global.env.match_time - previous_time > 250)
-	{
-		previous_time = global.env.match_time;
-
-		for (i=0; i < SENSOR_NB; i++)
-		{
-			view |= (global.env.sensor[i].updated)<<i;
-		}	
-
-		for (i=0; i < NB_FOES; i++)
-		{
-			msg.sid = DEBUG_FOE_POS;
-			msg.data[0]= view;
-			msg.data[1]= HIGHINT(global.env.foe[i].angle);
-			msg.data[2]= LOWINT(global.env.foe[i].angle);
-			msg.data[3]= global.env.foe[i].dist/10;
-			msg.data[4]= HIGHINT(global.env.foe[i].x);
-			msg.data[5]= LOWINT(global.env.foe[i].x);
-			msg.data[6]= HIGHINT(global.env.foe[i].y);
-			msg.data[7]= LOWINT(global.env.foe[i].y);
-			msg.size=8;
-			CAN_send(&msg);
-		}
-	}
-	#endif /* def USE_FOE_POS_CAN_DEBUG */
-}

@@ -10,7 +10,7 @@
  */
 
 
-
+#if 0
 #ifndef ACTIONS_GIFTS_H
 #define	ACTIONS_GIFTS_H
 
@@ -29,3 +29,4 @@ error_e TINY_open_all_gifts(void);
 
 #endif	/* ACTIONS_GIFTS_H */
 
+#endif

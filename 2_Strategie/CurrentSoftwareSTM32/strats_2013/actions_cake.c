@@ -9,6 +9,7 @@
  *	Version 201305
  */
 
+#if 0
 #include "actions_cake.h"
 #include "actions_utils.h"
 #include "../act_functions.h"
@@ -1479,4 +1480,5 @@ error_e old_TINY_all_candles(void){
 		state = INIT;
 	return ret;
 }
+#endif
 

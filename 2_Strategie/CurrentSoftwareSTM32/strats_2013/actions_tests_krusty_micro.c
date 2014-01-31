@@ -8,7 +8,7 @@
  *	Auteur : Cyril, modifié par Vincent , Antoine , LMG , Herzaeone , Hoobbes
  *	Version 2012/01/14
  */
-
+#if 0
 #include "actions_tests_krusty_micro.h"
 #include "../QS/QS_outputlog.h"
 
@@ -5800,3 +5800,4 @@ error_e TEST_STRAT_assiettes_evitement_3(void){
 /* ----------------------------------------------------------------------------- */
 /* 							Découpe de stratégies                     			 */
 /* ----------------------------------------------------------------------------- */
+#endif

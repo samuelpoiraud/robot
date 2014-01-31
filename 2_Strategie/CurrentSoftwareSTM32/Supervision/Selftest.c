@@ -56,7 +56,7 @@ typedef enum
 }error_e;
 
 error_e SELFTEST_strategy(bool_e reset);
-void SELFTEST_update(CAN_msg_t* CAN_msg_received);
+
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size);
 void SELFTEST_beacon_reask_periodic_sending(void);
 Uint16 SELFTEST_measure24_mV(void);

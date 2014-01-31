@@ -41,8 +41,8 @@
 #define DETECTION_ANGLE_NARROW		1900	//1900 = 20°
 #define DETECTION_ANGLE_WIDE		3217	//3217 = 45°
 
-#define WAIT_TIME_DETECTION			1000	// en ms
-
+#define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
+#define FOE_IS_LEFT_TIME			700		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
 
 /* Constantes relatives à l'évitement */
 #define MAX_AVOIDANCE_DETECTION			20		// nombre de détections maximal
@@ -75,75 +75,8 @@
 /* temps maximum pour aller à un noeud */
 #define GO_TO_NODE_TIMEOUT 	10000 //10s
 
-/* ----------------------------------------------------------------------------- */
-/* 				Fonctions de scrutation de la position de l'adversaire           */
-/* ----------------------------------------------------------------------------- */
-
-/*
-* Fonction qui regarde si le robot est dans notre chemin
-*
-* in_path = TRUE Quand l'adversaire est sur notre chemin
-* in_path = FALSE Quand l'adversaire n'est pas sur le chemin
-*/
-//static void foe_in_path(bool_e in_path[NB_FOES]);
-//Dans le .h
-
-/* Fonction de calcul d'un indicateur de la vitesse et du sens de déplacement du robot
- * move_way = retourne le sens de déplacement
- */
-//static Uint16 AVOIDANCE_speed_indicator_compute(void);
-
-/* ----------------------------------------------------------------------------- */
-/* 				Fonctions de génération de la trajectoire à 3 points             */
-/* ----------------------------------------------------------------------------- */
-
-/* Fonction qui exécute une esquive du robot adverse en 3 points
- * La fonction charge la pile !
- */
-//static bool_e AVOIDANCE_foe_complex_dodge(way_e move_way, bool_e in_path[NB_FOES]);
-
-/* Fonction qui calcule les 3 points d'esquive de l'adversaire
- * move_way : sens de déplacement
- * avoidance_way : 1 pour la gauche, -1 pour la droite
- * first_point : premier point calculé
- * second_point : deuxième point calculé
- * third_point : troisième point calculé
- */
-//static bool_e AVOIDANCE_dodge_triple_points_compute(way_e move_way, Sint16 avoidance_way,
-//	GEOMETRY_point_t* first_point, GEOMETRY_point_t* second_point, GEOMETRY_point_t* third_point, foe_e foe_id);
-
-/* Fonction de calcul d'un point d'esquive de l'adversaire
- * move_way = sens de déplacement
- * x_distance = décalage en X par rapport au robot
- * y_distance = décalage en Y par rapport au robot
- * computed_way = facteur multiplicatif (1 indique à gauche, -1 à droite)
- * result_point = point calculé
- *
- * return : TRUE = point valide
- * 			FALSE = point invalide hors du terrain
- */
-//static bool_e AVOIDANCE_compute_dodge_point(way_e move_way, Sint16 x_distance,
-//	Sint16 y_distance, Sint16 computed_way, GEOMETRY_point_t* result_point);
-
-//static error_e AVOIDANCE_move_colision();
 
 static error_e AVOIDANCE_watch_asser_stack();
-
-/* Fonction qui regarde si l'adversaire a bougé durant l'intervalle de temps précédent
- * time_for_analyse : temps entre les analyses de position
- *
- * return TRUE : l'adversaire n'a pas bougé pendant time_for_analyse
- * return FALSE : l'adversaire a bougé pendant time_for_analyse
- */
-//static bool_e AVOIDANCE_foe_not_move(foe_e foe_id);
-
-/* Fonction qui regarde si notre robot est immobile ou non
- * return TRUE : notre robot se déplace en translation
- * return FALSE : notre robot ne se déplace pas en translation (immobile ou rotation)
- */
-//static bool_e AVOIDANCE_robot_translation_move();
-
-
 
 #ifdef DEBUG_AVOIDANCE
 	#define avoidance_printf(format, ...)	debug_printf("t=%lums " format, global.env.match_time, ##__VA_ARGS__)
@@ -725,7 +658,6 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	};
 	static enum state_e state = INITIALIZATION;
 
-	static bool_e is_in_path[NB_FOES]; //Nous indique si l'adversaire est sur le chemin
 	static time32_t avoidance_timeout_time = 0;
 	static time32_t last_match_time;
 	static bool_e debug_foe_forced = FALSE;
@@ -783,8 +715,6 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				}
 				else
 				{
-					foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
-					//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 					//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
 					//Necessaire pour que l'angle de detection de l'adversaire soit valide (car sinon on ne pointe pas forcément vers notre point d'arrivé ...)
 					//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
@@ -792,10 +722,9 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 		//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
 		//				avoidance_printf("Not in translation but foe in path\n");
 
-					if((is_in_path[FOE_1] || is_in_path[FOE_2]) && global.env.asser.is_in_translation)
-					{
-						foe_origin_e foe = (is_in_path[FOE_1])? FOE1 : FOE2;
-						debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
+					if(foe_in_path() && global.env.asser.is_in_translation)	//Si un adversaire est sur le chemin
+					{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
+						//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
 						//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 						switch(avoidance_type)
 						{
@@ -880,94 +809,30 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				break;
 
 			case WAIT_FOE:
-				foe_in_path(is_in_path);//Regarde si les adversaires sont sur le chemin
 				//debug_printf("Test 2: IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 				// on va attendre que l'ennemi sorte de notre chemin
 				//On ne regarde pas ici si le robot pointe vers le point d'arrivée car il a été arreté en pleine translation vers ce point
-
 				avoidance_timeout_time += current_match_time - last_match_time;
 				if(avoidance_timeout_time >= wait_timeout)
 				{
 					avoidance_printf("wait_move_and_scan_foe: timeout avec ennemi sur path\n");
 					ret = FOE_IN_PATH;
 				}
-				else if(is_in_path[FOE_1] || is_in_path[FOE_2])
+				else if(foe_in_path())	//Si on vient de recevoir un update de sa position et qu'il est toujours devant nous...
 				{
-					no_foe_count = 0;
-				// Adversaire devant nous !
-	/*
-					if(AVOIDANCE_foe_not_move(FOE_1) && AVOIDANCE_foe_not_move(FOE_2))
-					{
-						asser_arg_t	asser_args;
-						GEOMETRY_point_t destination_point;
-
-						// L'adversaire ne bouge plus... on va regarder si le point d'arrivée est atteignable sans toucher l'adversaire
-						// Donc en gros, le point est entre nous et l'adversaire (qui ne bouge pas !) et on a la place de s'y mettre
-						debug_printf(" FOE 1 ou 2 bouge plus \n");
-						GEOMETRY_point_t foe_point;
-						foe_e current_foe;
-						if(is_in_path[FOE_1])
-						{
-													debug_printf("iiiiii\n");
-							foe_point.x = global.env.foe[FOE_1].x;
-							foe_point.y = global.env.foe[FOE_1].y;
-							current_foe = FOE_1;
-						}
-						else
-						{
-													debug_printf("uuuuu\n");
-							foe_point.x = global.env.foe[FOE_2].x;
-							foe_point.y = global.env.foe[FOE_2].y;
-							current_foe = FOE_2;
-						}
-						// Calcul distance adversaire/destination
-						asser_args = ASSER_get_stack_arg(STACKS_get_top(ASSER));
-						destination_point.x = asser_args.x;
-						destination_point.y = asser_args.y;
-
-						// Si la destination est assez loin de l'adversaire (350 = taille des deux robots + marge)
-						if(GEOMETRY_distance(destination_point,foe_point) > 350)
-						{
-							// La distance est supérieure ! On peut regarder si le point est entre nous et l'adversaire
-							GEOMETRY_point_t us_point;
-							us_point.x = global.env.pos.x;
-							us_point.y = global.env.pos.y;
-							if(GEOMETRY_distance(destination_point, us_point) < global.env.foe[current_foe].dist)
-							{
-								// On a une distance de nous à la destination inférieure à la distance entre nous et l'adversaire
-								// Donc en gros, la destination est entre nous et l'adversaire
-								// Donc, on y va !
-
-								avoidance_printf("On relance notre chemin ! La dest est entre nous et l'adversaire %d !\n",current_foe);
-								// on vire le wait_forever et on lance l'action suivante
-								STACKS_pull(ASSER);
-
-								// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
-								state = NO_FOE;
-							}
-	//						else {
-	//                                            avoidance_printf("il n'y a pas de chemain posible donc on stop\n");
-	//                                            ret = FOE_IN_PATH;
-	//						}
-						}
-					}
-					//*/
-
+					no_foe_count = 0;	//On reset le compteur de no_foe.
 				}
 				else
 				{
 					no_foe_count += current_match_time - last_match_time;
-					if(no_foe_count >= 1000) {
+					if(no_foe_count >= FOE_IS_LEFT_TIME) 	//L'adversaire est parti depuis FOE_IS_LEFT_TIME ms
+					{
 						avoidance_printf("wait_move_and_scan_foe: no more foe, continuing\n");
-						// on vire le wait_forever et on lance l'action suivante
-						STACKS_pull(ASSER);
-
-						// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
-						state = NO_FOE;
+						STACKS_pull(ASSER);	// on vire le wait_forever et on lance l'action suivante
+						state = NO_FOE;	// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
 					}
 				}
 				break;
-
 			default:
 				debug_printf("PROBLEME, on est dans le default !\n");
 				ret = NOT_HANDLED;
@@ -1100,7 +965,7 @@ error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displac
 /* Fonction qui regarde si le robot est dans notre chemin */
 //Pas en static pour tests
 /*static*/
-void foe_in_path(bool_e *in_path)
+bool_e foe_in_path(void)
 {
 	// variables
 	//Uint16 speed_indicator;
@@ -1108,16 +973,18 @@ void foe_in_path(bool_e *in_path)
 	Uint16 distance_computed_wide;
 	Uint8 i;
 	way_e move_way;
+	bool_e in_path;
+
 	move_way = global.env.asser.current_way;	//TODO cracra.. a nettoyer ultérieurement.
 
-	/* Si on n'a pas d'évitement, l'adversaire n'est jamais devant nous */
-	if (!SWITCH_EVIT) {
-		for (i=0; i<NB_FOES; i++)
-			in_path[i] = FALSE;
+	in_path = FALSE;	//On suppose que pas d'adversaire dans le chemin
+
+	if (!SWITCH_EVIT)
+	{	//évitement désactivé par l'interrupteur
 		static bool_e already_printed_debug_no_evitement = FALSE;
 		if(already_printed_debug_no_evitement == FALSE) {
 			already_printed_debug_no_evitement = TRUE;
-			debug_printf("No evitement");
+			debug_printf("\n\nEVIT disabled by the switch. This message is printed only once.\n");
 		}
 		return;
 	}
@@ -1141,19 +1008,12 @@ void foe_in_path(bool_e *in_path)
 
 //	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
 	//debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
-	for (i=0; i<NB_FOES; i++)
+	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		//TODO: a enlever
-		static time32_t last_printf = 0;
-		if(global.env.match_time > last_printf + 1000) {
-			last_printf = global.env.match_time;
-			if(global.env.foe[i].dist < 5000)
-				avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d%s%s\n", i, global.env.foe[i].dist, distance_computed_narrow, global.env.foe[i].angle, move_way, (global.env.asser.is_in_translation)? ", in_translation" : "", (global.env.asser.is_in_translation)? ", in_rotation" : "");
-		}
-		in_path[i] = FALSE; //On initialise à faux
 		if (global.env.foe[i].updated)//(global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
 		{
-			avoidance_printf("foe %d is in_path ?\n",i);
+			avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d%s%s\n", i, global.env.foe[i].dist, distance_computed_narrow, global.env.foe[i].angle, move_way, (global.env.asser.is_in_translation)? ", in_translation" : "", (global.env.asser.is_in_translation)? ", in_rotation" : "");
+
 			// on regarde en fonction de notre sens de déplacement
 			//Si on a un ANY_WAY, c'est que la prop ne fait pas de translation => pas de detection d'ennemi dans ce cas
 			if(move_way == FORWARD || move_way == ANY_WAY)
@@ -1163,7 +1023,7 @@ void foe_in_path(bool_e *in_path)
 				if(((global.env.foe[i].dist < distance_computed_narrow) && (global.env.foe[i].angle > (-DETECTION_ANGLE_NARROW) && global.env.foe[i].angle < DETECTION_ANGLE_NARROW)) ||
 				   ((global.env.foe[i].dist < distance_computed_wide)   && (global.env.foe[i].angle > (-DETECTION_ANGLE_WIDE)   && global.env.foe[i].angle < DETECTION_ANGLE_WIDE)  )    )
 				{
-					in_path[i] = TRUE;
+					in_path = TRUE;
 				}
 			}
 
@@ -1174,11 +1034,12 @@ void foe_in_path(bool_e *in_path)
 				if(((global.env.foe[i].dist < distance_computed_narrow) && (global.env.foe[i].angle < (-PI4096+DETECTION_ANGLE_NARROW) || global.env.foe[i].angle > PI4096-DETECTION_ANGLE_NARROW)) ||
 				   ((global.env.foe[i].dist < distance_computed_wide)   && (global.env.foe[i].angle < (-PI4096+DETECTION_ANGLE_WIDE)   || global.env.foe[i].angle > PI4096-DETECTION_ANGLE_WIDE)  )    )
 				{
-					in_path[i] = TRUE;
+					in_path = TRUE;
 				}
 			}
 		}
 	}
+	return in_path;
 }
 
 /* Fonction qui regarde si notre robot est immobile ou non */
@@ -1282,8 +1143,10 @@ static error_e AVOIDANCE_watch_asser_stack ()
 }*/
 
 // Vérifie adversaire dans NORTH_US, NORTH_FOE, SOUTH_US, SOUTH_FOE
-foe_pos_e AVOIDANCE_where_is_foe(foe_e foe_id)
+foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id)
 {
+	assert(foe_id < MAX_NB_FOES);
+
 	if(global.env.foe[foe_id].x > 1000)
 	{
 		// Partie SUD

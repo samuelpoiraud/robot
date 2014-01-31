@@ -8,7 +8,7 @@
  *	Auteur : Cyril, modifié par Vincent , Antoine , LMG , Herzaeone , Hoobbes
  *	Version 2012/01/14
  */
-
+#if 0
 #include "actions_tests_tiny.h"
 #include "actions_utils.h"
 #include "../QS/QS_outputlog.h"
@@ -854,3 +854,4 @@ void STRAT_TINY_test_moisson(void){
 	}
 
 }
+#endif

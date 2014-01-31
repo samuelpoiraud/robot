@@ -33,7 +33,7 @@ Uint16 wait_hammer(Uint16 progress, Uint16 success, Uint16 fail)
 	return ret;
 }
 
-
+#if 0
 bool_e all_gifts_done(void)
 {
 	if( /*(global.env.map_elements[GOAL_Cadeau0] == ELEMENT_DONE) &&
@@ -44,3 +44,4 @@ bool_e all_gifts_done(void)
 	else
 		return FALSE;
 }
+#endif
