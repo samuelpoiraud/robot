@@ -77,6 +77,8 @@ int main (void)
 	#ifdef VERBOSE_MODE
 		UART_init();
 	#endif /* def VERBOSE_MODE */
+	ENV_init();	//Pour être réceptif aux éventuels messages CAN envoyés très tôt...
+
 	LED_RUN=1;
 	debug_printf("\n-------\nDemarrage CarteS\n-------\n");
 	tests();
@@ -87,14 +89,17 @@ int main (void)
 	ZONE_init();
 
 	STACKS_init();
-	ENV_init();
-	CLOCK_init();
 
+	CLOCK_init();
+	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
 	//retard pour attendre l'initialisation des autres cartes
 	// voir si on peut faire mieux
-	for(j=0;j<40;j++)
+	for(j=0;j<100;j++)
+	{
 		for(i=1;i;i++);
-
+		if(j%10 == 0x00)
+			debug_printf(".");
+	}
 #if 0
 	while(1)
 		test_Pathfind();

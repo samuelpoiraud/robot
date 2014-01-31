@@ -25,10 +25,10 @@
  */
 #define DETECTION_TIMEOUT				600 	// ancienne valeur : 375
 
-#define DETECTION_DIST_MIN_KRUSTY       700  // distance minimale d'évitement sans compter la vitesse du robot, en mm
-#define DETECTION_DIST_MIN_TINY         500
-#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  700  //temps pour que le robot s'arrete, en ms
-#define DETECTION_DIST_SPEED_FACTOR_TINY    800
+#define DETECTION_DIST_MIN_KRUSTY       300  // distance minimale d'évitement sans compter la vitesse du robot, en mm
+#define DETECTION_DIST_MIN_TINY         300
+#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  500  //temps pour que le robot s'arrete, en ms
+#define DETECTION_DIST_SPEED_FACTOR_TINY    500
 
 
 /***************************** Evitement 2011 **************************/
@@ -39,10 +39,10 @@
 
 /* Angle d'ouverture de vision */
 #define DETECTION_ANGLE_NARROW		1900	//1900 = 20°
-#define DETECTION_ANGLE_WIDE		3217	//3217 = 45°
+#define DETECTION_ANGLE_WIDE		2200	//3217 = 45°
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
-#define FOE_IS_LEFT_TIME			700		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
+#define FOE_IS_LEFT_TIME			500		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
 
 /* Constantes relatives à l'évitement */
 #define MAX_AVOIDANCE_DETECTION			20		// nombre de détections maximal
