@@ -26,6 +26,7 @@
 
 #define DECALAGE_LARGEUR 200
 #define ELOIGNEMENT_ARBRE 360
+#define ELOIGNEMENT_POSE_BAC_FRUIT 500
 #define POS_MIN_FRESCO 1300
 #define POS_MAX_FRESCO 1700
 
@@ -282,7 +283,6 @@ void strat_lannion(void){
 	default:
 		break;
 	}
-
 }
 
 void strat_test_point(){
@@ -333,10 +333,10 @@ void strat_test_point(){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(500,300,POS_DEPART,POINT_A1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(500,COLOR_Y(300),POS_DEPART,POINT_A1,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case POINT_A1:
-		state = try_going(1000,2500,POINT_A1,DEPOSER_FRUIT,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+		state = try_going(1000,COLOR_Y(500),POINT_A1,DEPOSER_FRUIT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case DEPOSER_FRUIT:
 		state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,DONE,ERROR);
@@ -640,40 +640,40 @@ error_e strat_file_fruit(){
 	switch(state){
 	case IDLE:
 		if(global.env.pos.y > 2225 && global.env.color == RED){ // Va commencer en haut du bac rouge
-			dplt[0].x = 500;
+			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[0].y = 2700;
 
-			dplt[1].x = 500;
+			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[1].y = 1800;
 
 			sensRobot = FORWARD;
 			posOpen = 2500;
 
 		}else if(global.env.color == RED){ // Commence au milieu du terrain en étant Rouge
-			dplt[0].x = 500;
+			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[0].y = 1800;
 
-			dplt[1].x = 500;
+			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[1].y = 2700;
 
 			sensRobot = BACKWARD;
 			posOpen = 2000;
 
 		}else if(global.env.pos.y > 750){ // Il est de couleur Jaune commence au milieu
-			dplt[0].x = 500;
+			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[0].y = 1200;
 
-			dplt[1].x = 500;
+			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[1].y = 300;
 
 			sensRobot = FORWARD;
 			posOpen = 1000;
 
 		}else{							// Va commencer en bas
-			dplt[0].x = 500;
+			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[0].y = 300;
 
-			dplt[1].x = 500;
+			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[1].y = 1200;
 
 			sensRobot = BACKWARD;
@@ -701,99 +701,6 @@ error_e strat_file_fruit(){
 		return END_OK;
 		break;
 	case ERROR: // Fermer le bac à fruit et rentrer le bras
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e strat_test_deposser_fruit_rouge(){
-	CREATE_MAE_WITH_VERBOSE(0,
-		IDLE,
-		AVANCER,
-		DEBUT,
-		TRAVERSE_BAC,
-		FIN,
-		DONE,
-		ERROR
-	);
-
-
-	switch(state){
-	case IDLE:
-		state = AVANCER;
-		break;
-	case AVANCER:
-		state = try_going(470,1250,AVANCER,DEBUT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case DEBUT:
-		state = try_going_until_break(470,1050,DEBUT,TRAVERSE_BAC,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case TRAVERSE_BAC:
-		state = try_going_until_break(470,300,TRAVERSE_BAC,FIN,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-		break;
-	case FIN:
-		state = try_going_until_break(750,400,FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-
-		//state = check_act_status(ACT_QUEUE_Fruit,FERMER_BRAS,DONE,ERROR);
-		break;
-	case DONE:
-		return END_OK;
-		break;
-	case ERROR:
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e strat_test_deposser_fruit_jaune(){
-	CREATE_MAE_WITH_VERBOSE(0,
-		IDLE,
-		AVANCER,
-		DEBUT,
-		TRAVERSE_BAC,
-		FIN,
-		DONE,
-		ERROR
-	);
-
-	switch(state){
-	case IDLE:
-		state = AVANCER;
-		break;
-	case AVANCER:
-		state = try_going(470,2750,AVANCER,DEBUT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case DEBUT:
-		state = try_going_until_break(470,2550,DEBUT,TRAVERSE_BAC,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case TRAVERSE_BAC:
-		state = try_going_until_break(470,1950,TRAVERSE_BAC,FIN,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-		break;
-	case FIN:
-		state = try_going_until_break(750,1800,FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-
-		//state = check_act_status(ACT_QUEUE_Fruit,FERMER_BRAS,DONE,ERROR);
-		break;
-	case DONE:
-		return END_OK;
-		break;
-	case ERROR:
 		return NOT_HANDLED;
 		break;
 	default:
@@ -1087,6 +994,7 @@ error_e strat_launch_net(){
 
 	switch(state){
 	case IDLE:
+
 		break;
 	case DONE:
 		return END_OK;

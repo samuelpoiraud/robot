@@ -33,8 +33,6 @@ error_e strat_test_ramasser_fruit_arbre1();
 error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens);
 error_e strat_test_ramasser_fruit_arbre2();
 error_e strat_test_ramasser_fruit_arbre2_double(bool_e sens);
-error_e strat_test_deposser_fruit_rouge();
-error_e strat_test_deposser_fruit_jaune();
 error_e strat_lance_launcher();
 error_e strat_launch_net();
 
