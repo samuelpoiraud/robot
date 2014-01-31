@@ -206,7 +206,7 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 	msg.size = 7;
 	CAN_send(&msg);
 	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		debug_printf("adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((IT_IS_THE_LAST_ADVERSARY)?"\n":""));
+		debug_printf("adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
 	#endif
 }
 

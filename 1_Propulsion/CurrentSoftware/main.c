@@ -87,20 +87,19 @@ void initialisation(void)
 #endif
 
 	UART_init(); //Si les résistances de tirages uart ne sont pas reliées, le code bloque ici si aucun cable n'y est relié.
-	Uint16 delay;
-	for(delay = 1;delay;delay++);	//attente pour que l'UART soit bien prete...
+
 	RCON_read();
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	//Doit se faire AVANT ODOMETRY_init() !!!
 	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
-
+	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
 	ODOMETRY_init();
 	SUPERVISOR_init();
 	COPILOT_init();
 	PILOT_init();
-	SECRETARY_init();
+
 	ROADMAP_init();
 	WARNER_init();
 
