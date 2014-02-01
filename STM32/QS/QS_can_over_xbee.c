@@ -164,7 +164,7 @@ void CAN_over_XBee_process_main(void)
 					{
 						everyone_is_reachable = FALSE;	//si quelqu'un n'est pas joignable, alors tout le monde ne l'est pas !
 						XBee_Ping(module);
-						debug_printf("ping %d->%d\n",XBee_i_am_module, module);
+						//debug_printf("ping %d->%d\n",XBee_i_am_module, module);
 					}
 				}
 				if(everyone_is_reachable || global.env.match_started)

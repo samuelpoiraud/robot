@@ -20,7 +20,9 @@
 		KRUSTY = 0,
 		TINY,
 		PIERRE = KRUSTY,
-		GUY = TINY
+		GUY = TINY,
+		SMALL_ROBOT = TINY,
+		BIG_ROBOT = KRUSTY
 	}robot_id_e;
 	
 	/** @brief  Cette fonction doit être appelée lors de l'initialisation.
