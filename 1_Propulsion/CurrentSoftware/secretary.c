@@ -115,31 +115,27 @@ void SECRETARY_process_it(void)
 
 
 
-void SECRETARY_send_canmsg(Uint16 sid, Uint8* data,Uint8 taille)
+void SECRETARY_send_canmsg(CAN_msg_t * msg)
 {
-	CAN_msg_t msg;
-	msg.sid=sid;
-	msg.size=taille;
-	Uint8 i;
 
-	/* recopie les data */
-	for(i=0;i<taille;i++)
-		msg.data[i]=data[i];
-	for(;i<8;i++)
-		msg.data[i]=0xFF;
+	Uint8 i;
+	for(i=msg->size;i<8;i++)
+		msg->data[i]=0xFF;		//On remplace les données hors size par des FF (notamment pour verbose et envoi sur uart)
 
 	#ifdef ENABLE_CAN
-		CAN_send(&msg);
+		CAN_send(msg);
 	#else
 		#warning "Messages can désactivés"
 	#endif
 
 	#ifdef CAN_SEND_OVER_UART
-		CANmsgToU1tx(&msg);
+		CANmsgToU1tx(msg);
 	#endif
 
 	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		switch(sid)
+		bool_e add_pos_datas;
+		add_pos_datas = TRUE;	//On suppose qu'il faut ajouter les données de position.
+		switch(msg->sid)
 		{
 			case BROADCAST_POSITION_ROBOT:
 				debug_printf("Pos:");
@@ -148,7 +144,7 @@ void SECRETARY_send_canmsg(Uint16 sid, Uint8* data,Uint8 taille)
 				debug_printf("TrajFinie:");
 			break;
 			case CARTE_P_ASSER_ERREUR:
-				debug_printf("Err:0x%x", msg.data[7]&0b111);
+				debug_printf("Err:0x%x", msg->data[7]&0b111);
 			break;
 			case CARTE_P_ROBOT_FREINE:
 				debug_printf("Freine:");
@@ -160,11 +156,30 @@ void SECRETARY_send_canmsg(Uint16 sid, Uint8* data,Uint8 taille)
 			case DEBUG_ASSER_POINT_FICTIF:
 				debug_printf("PF:");
 				break;
+			case STRAT_PROP_PONG:
+				debug_printf("Pong\n");
+				add_pos_datas = FALSE;
+				break;
+			case STRAT_PROP_SELFTEST_DONE:
+				debug_printf("Selftest done");
+				for(i=0;i<msg->size;i++)
+				{
+					if(msg->data[i] != SELFTEST_NO_ERROR)
+						debug_printf(" : error %x");
+				}
+				debug_printf("\n");
+				add_pos_datas = FALSE;
+				break;
+			case STRAT_ADVERSARIES_POSITION:
+				//Nothing. affichage déjà géré dans la fonction appelante.
+				add_pos_datas = FALSE;
+				break;
 			default:
-				debug_printf("SID=%x ", msg.sid);
+				debug_printf("SID=%x ", msg->sid);
 			break;
 		}
-		debug_printf(" x=%d y=%d t=%d\n", global.position.x, global.position.y, global.position.teta);
+		if(add_pos_datas)
+			debug_printf(" x=%d y=%d t=%d\n", global.position.x, global.position.y, global.position.teta);
 	#endif
 }
 
@@ -180,7 +195,7 @@ void SECRETARY_send_selftest_result(bool_e result)
 		msg.data[i] = SELFTEST_NO_ERROR;
 
 	//TODO enrichir ce message du statut de fonctionnement des autres périphs... hokuyo....
-	CAN_send(&msg);
+	SECRETARY_send_canmsg(&msg);
 }
 
 //x : mm, y : mm, teta : rad4096, distance : mm
@@ -204,9 +219,9 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 	msg.data[5] = distance/20;	//distance [2cm]
 	msg.data[6] = fiability;	//fiability : x et y fiables
 	msg.size = 7;
-	CAN_send(&msg);
+	SECRETARY_send_canmsg(&msg);
 	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		debug_printf("adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
+		debug_printf("Adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
 	#endif
 }
 
@@ -216,12 +231,13 @@ void SECRETARY_send_pong(void)
 	msg.sid = STRAT_PROP_PONG;
 	msg.size = 1;
 	msg.data[0] = QS_WHO_AM_I_get();
-	CAN_send(&msg);
+	SECRETARY_send_canmsg(&msg);
 }
 
 
 void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
 {
+	CAN_msg_t msg;
 	Uint8 tabTemp[8];
 	Uint8 error_byte;
 	Sint32 rot_speed;
@@ -230,72 +246,38 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 	trajectory_status = (global.vitesse_translation != 0) << 2 | (global.vitesse_rotation != 0) << 1;
 	error_byte = ((Uint8)(trajectory_status) << 5) | (Uint8)(COPILOT_get_way()) << 3 | (Uint8)(error_source & 0x07);
 
-	tabTemp[0] = (HIGHINT(global.position.x) & 0x1F) | (((global.real_speed_translation>>10)/5) << 5);	//Vitesse sur 3 bits forts, en [250mm/s]
-	tabTemp[1] = LOWINT(global.position.x);
+	msg.sid = sid;
+	msg.data[0] = (HIGHINT(global.position.x) & 0x1F) | (((absolute(global.real_speed_translation)>>10)/5) << 5);	//Vitesse sur 3 bits forts, en [250mm/s]
+	msg.data[1] = LOWINT(global.position.x);
 	rot_speed = ((absolute(global.real_speed_rotation)>>10)*200)>>12;
 	if(rot_speed > 7)
 		rot_speed = 7;	//ecretage pour tenir sur 3 bits
-	tabTemp[2] = (HIGHINT(global.position.y) & 0x1F) | ((Uint8)(rot_speed) << 5);	//Vitesse angulaire en radians
-	tabTemp[3] = LOWINT(global.position.y);
-	tabTemp[4] = HIGHINT(global.position.teta);
-	tabTemp[5] = LOWINT(global.position.teta);
-	tabTemp[6] = reason;
-	tabTemp[7] = error_byte;	//Octet d'erreur... voir warner.c qui rempli cet octet d'erreur...
+	msg.data[2] = (HIGHINT(global.position.y) & 0x1F) | ((Uint8)(rot_speed) << 5);	//Vitesse angulaire en radians
+	msg.data[3] = LOWINT(global.position.y);
+	msg.data[4] = HIGHINT(global.position.teta);
+	msg.data[5] = LOWINT(global.position.teta);
+	msg.data[6] = reason;
+	msg.data[7] = error_byte;	//Octet d'erreur... voir warner.c qui rempli cet octet d'erreur...
 			/*	Octet d'erreur :   0bTTTWWEEE
 								 TTT = trajectory_e
 								 WW  = way_e
 								 EEE = SUPERVISOR_error_source_e
 									*/
-	SECRETARY_send_canmsg(sid,tabTemp,8);
-
+	msg.size = 8;
+	SECRETARY_send_canmsg(&msg);
 }
 
-
-void SECRETARY_send_position(robots_e robot_selected, Sint16 x, Sint16 y, Sint16 d, Sint16 teta){
-	Uint8 data[8];
-
-	switch(robot_selected){
-			case FRIEND_2:
-				//force pos friend 2
-				data[0] = x/2;	//X [2cm]
-				data[1] = y/2;	//Y [2cm]
-				SECRETARY_send_canmsg(STRAT_FRIEND_FORCE_POSITION, data, 2);
-				break;
-			case ADVERSARY_1:
-				data[0] = 0;	//ADVERSARY 0
-				data[1] = x/2;	//X [2cm]
-				data[2] = y/2;	//Y [2cm]
-				data[3] = HIGHINT(teta);	//teta
-				data[4] = LOWINT(teta);		//teta
-				data[5] = d;	//distance
-				data[6] = 0x03;	//fiability : x et y fiables
-				SECRETARY_send_canmsg(STRAT_ADVERSARIES_POSITION, data, 7);
-				break;
-
-			case ADVERSARY_2:
-				//force pos adversaries
-				/*		0 : ADVERSARY_NUMBER	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
-				 * 		1 :  x [2cm]
-				 * 		2 :  y [2cm]
-				 * 		3-4 : teta
-				 * 		5 : distance [2cm]
-				 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
-				 */
-
-				data[0] = 1;	//ADVERSARY 1
-				data[1] = x/2;	//X [2cm]
-				data[2] = y/2;	//Y [2cm]
-				data[3] = HIGHINT(teta);	//teta
-				data[4] = LOWINT(teta);		//teta
-				data[5] = d;	//distance
-				data[6] = 0x03;	//fiability : x et y fiables
-				SECRETARY_send_canmsg(STRAT_ADVERSARIES_POSITION, data, 7);
-
-				break;
-			default:
-				break;
+#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+	void SECRETARY_send_friend_position(Sint16 x, Sint16 y)
+	{
+		CAN_msg_t msg;
+		msg.sid = STRAT_FRIEND_FORCE_POSITION;
+		msg.data[0] = x/2;
+		msg.data[1] = y/2;
+		msg.size = 2;
+		SECRETARY_send_canmsg(&msg);
 	}
-}
+#endif
 
 
 
