@@ -19,62 +19,17 @@
 #include "config/config_pin.h"
 #include "config/config_debug.h"
 
-/* Ne tient plus compte de la position de l'adversaire quand elle date
- * de plus de detection_timeout ms (detection_timeout doit etre superieur
- * à la base de temps de la carte stratégie)
- */
-#define DETECTION_TIMEOUT				600 	// ancienne valeur : 375
 
-#define DETECTION_DIST_MIN_KRUSTY       300  // distance minimale d'évitement sans compter la vitesse du robot, en mm
-#define DETECTION_DIST_MIN_TINY         300
-#define DETECTION_DIST_SPEED_FACTOR_KRUSTY  500  //temps pour que le robot s'arrete, en ms
-#define DETECTION_DIST_SPEED_FACTOR_TINY    500
-
-
-/***************************** Evitement 2011 **************************/
-/* Les valeurs qui suivent sont totalement arbitraires by Mystery */
-
-/* Temps avant un nouveau calcul de vitesse et de sens */
-#define SPEED_COMPUTE_TIME	50		// en ms
-
-/* Angle d'ouverture de vision */
-#define DETECTION_ANGLE_NARROW		1900	//1900 = 20°
-#define DETECTION_ANGLE_WIDE		2200	//3217 = 45°
+#define SMALL_ROBOT_ACCELERATION_NORMAL	625*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
+#define BIG_ROBOT_ACCELERATION_NORMAL	1094*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
+#define SMALL_ROBOT_RESPECT_DIST_MIN	400		//Distance à laquelle on se tient d'un adversaire [mm]
+#define BIG_ROBOT_RESPECT_DIST_MIN		500		//Distance à laquelle on se tient d'un adversaire [mm]
+#define SMALL_ROBOT_WIDTH				200		//Largeur du petit robot [mm]
+#define BIG_ROBOT_WIDTH					300		//Largeur du gros robot [mm]
+#define	FOE_SIZE						400		//taille supposée de l'adversaire
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
-#define FOE_IS_LEFT_TIME			500		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
-
-/* Constantes relatives à l'évitement */
-#define MAX_AVOIDANCE_DETECTION			20		// nombre de détections maximal
-#define TIME_BEFORE_NEW_DETECTION		1000	// en ms
-#define MAX_DISTANCE_BEFORE_DESTINATION	400 	// en mm
-
-/* Constantes pour les décalages du triple point */
-#define X_AVOIDANCE_FOE_DISTANCE		350		// en mm
-#define Y_AVOIDANCE_EXTERN_POINT		280		// en mm
-#define Y_AVOIDANCE_CENTRAL_POINT		500		// en mm
-
-/* Distance minimale d'analyse des mouvements du robot adversaire */
-#define FOE_MINIMAL_MOVE	200	// en mm
-/* Durée entre les analyses des mouvements adverses */
-#define FOE_MOVE_ANALYSE_TIME	350	// en ms
-
-/* Distance minimale d'analyse des mouvements de notre robot */
-#define US_MINIMAL_MOVE		30	// en mm
-/* Durée entre 2 calculs de translation de notre robot */
-#define US_TRANSLATION_ANALYSE_TIME	80	// en ms
-
-/* #define pour la gestion de collision */
-
-/* distance de recul si asser erreur */
-#define FORWARD_COLISION_MOVE 200
-
-/* distance de recul si asser erreur */
-#define BACKWARD_COLISION_MOVE	200
-
-/* temps maximum pour aller à un noeud */
-#define GO_TO_NODE_TIMEOUT 	10000 //10s
-
+#define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
 
 static error_e AVOIDANCE_watch_asser_stack();
 
@@ -531,7 +486,8 @@ error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way, ASSER_end_condi
 	static enum state_e state = COMPUTE_AND_GO;
 
 	static bool_e timeout=FALSE;
-	double x,y;
+	Sint32 x,y;
+	Sint16 cosinus, sinus;
 
 	switch (state)
 	{
@@ -546,8 +502,9 @@ error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way, ASSER_end_condi
 			else if (way == BACKWARD) {
 				d = -d;
 			}
-			x = ((double)global.env.pos.x) + ((double)d) * cos4096(global.env.pos.angle);
-			y = ((double)global.env.pos.y) + ((double)d) * sin4096(global.env.pos.angle);
+			COS_SIN_4096_get(global.env.pos.angle, &cosinus, &sinus);
+			x = global.env.pos.x + ((d * (Sint32)cosinus)>>12);
+			y = global.env.pos.y + ((d * (Sint32)sinus)>>12);
 
 			//debug_printf("relative_move::current_pos x=%d y=%d\n", global.env.pos.x, global.env.pos.y);
 			//debug_printf("relative_move::x=%f y=%f\n", x, y);
@@ -967,13 +924,20 @@ error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displac
 /*static*/
 bool_e foe_in_path(void)
 {
-	// variables
-	//Uint16 speed_indicator;
-	Uint16 distance_computed_narrow;
-	Uint16 distance_computed_wide;
+	bool_e in_path;
+	Sint16 cosinus, sinus;
+	Sint32 relative_foe_x;
+	Sint32 relative_foe_y;
 	Uint8 i;
 	way_e move_way;
-	bool_e in_path;
+	Uint32 breaking_acceleration;
+	Uint32 current_speed;
+	Uint32 break_distance;
+	Uint32 respect_distance;
+	Sint32 avoidance_rectangle_min_x;
+	Sint32 avoidance_rectangle_max_x;
+	Sint32 avoidance_rectangle_width_y;
+	bool_e there_is_at_least_one_updated;
 
 	move_way = global.env.asser.current_way;	//TODO cracra.. a nettoyer ultérieurement.
 
@@ -986,57 +950,57 @@ bool_e foe_in_path(void)
 			already_printed_debug_no_evitement = TRUE;
 			debug_printf("\n\nEVIT disabled by the switch. This message is printed only once.\n");
 		}
-		return;
+		return FALSE;
 	}
-
-
-	//on identifie une distance par rapport à la vitesse
-	//distance_computed = ((speed_indicator*52) >>2) + 400;		// DISTANCE 2011
-	//distance_computed = ((speed_indicator*52) >>2) + 240;
-	//distance_computed = 600;
-
-	if(QS_WHO_AM_I_get() == TINY)
+	there_is_at_least_one_updated = FALSE;
+	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		distance_computed_narrow = DETECTION_DIST_MIN_TINY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_TINY)*(absolute(global.env.pos.translation_speed))/1000;  //8*125 = 1000, DETECTION_DIST_SPEED_FACTOR_TINY est en milisecondes
-		distance_computed_wide = DETECTION_DIST_MIN_TINY;
+		if (global.env.foe[i].updated)//(global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
+			there_is_at_least_one_updated = TRUE;
 	}
+	//if(!there_is_at_least_one_updated)
+		//return FALSE;	//On économise la suite des calculs qui sont inutiles.
+
+
+	/*	On définit un "rectangle d'évitement" comme la somme :
+	 * 		- du rectangle que le robot va recouvrir s'il décide de freiner maintenant.
+	 *  	- du rectangle de "respect" qui nous sépare de l'adversaire lorsqu'on se sera arreté
+	 *  On calcule la position relative des robots adverses pour savoir s'ils se trouvent dans ce rectangle
+	 *
+	 */
+
+	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
+	current_speed = (Uint32)(absolute(global.env.pos.translation_speed));
+	break_distance = current_speed*current_speed/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
+	respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
+
+	if(move_way == FORWARD || move_way == ANY_WAY)	//On avance
+		avoidance_rectangle_max_x = break_distance + respect_distance;
 	else
-	{
-		distance_computed_narrow = DETECTION_DIST_MIN_KRUSTY + ((Uint32)DETECTION_DIST_SPEED_FACTOR_KRUSTY)*(absolute(global.env.pos.translation_speed))/1000;
-		distance_computed_wide = DETECTION_DIST_MIN_KRUSTY;
-	}
+		avoidance_rectangle_max_x = 0;
 
-//	avoidance_printf("D=%d , DF0=%d, DF1=%d ",distance_computed,global.env.foe[0].dist,global.env.foe[1].dist);
-	//debug_printf("la vitesse %d",((speed_indicator*52) >>2) + 240);
+	if(move_way == BACKWARD || move_way == ANY_WAY)	//On recule
+		avoidance_rectangle_min_x = -(break_distance + respect_distance);
+	else
+		avoidance_rectangle_min_x = 0;
+
+	avoidance_rectangle_width_y = FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH);
+	//avoidance_printf("\n%d[%ld>%ld][%ld>%ld]\n", current_speed,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
+
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
 		if (global.env.foe[i].updated)//(global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
 		{
-			avoidance_printf("FOE[%d] dist = %d mm (limit: %d mm), angle: %d, way: %d%s%s\n", i, global.env.foe[i].dist, distance_computed_narrow, global.env.foe[i].angle, move_way, (global.env.asser.is_in_translation)? ", in_translation" : "", (global.env.asser.is_in_translation)? ", in_rotation" : "");
+			COS_SIN_4096_get(global.env.foe[i].angle, &cosinus, &sinus);
+			relative_foe_x = (((Sint32)(cosinus)) * global.env.foe[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
+			relative_foe_y = (((Sint32)(sinus))   * global.env.foe[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 
-			// on regarde en fonction de notre sens de déplacement
-			//Si on a un ANY_WAY, c'est que la prop ne fait pas de translation => pas de detection d'ennemi dans ce cas
-			if(move_way == FORWARD || move_way == ANY_WAY)
-			{
-				//debug_printf("F_%d\nG_%d\n",global.env.foe[0].angle,global.env.foe[1].angle);
-				/* On regarde si l'adversaire est dans un gabarit devant nous */
-				if(((global.env.foe[i].dist < distance_computed_narrow) && (global.env.foe[i].angle > (-DETECTION_ANGLE_NARROW) && global.env.foe[i].angle < DETECTION_ANGLE_NARROW)) ||
-				   ((global.env.foe[i].dist < distance_computed_wide)   && (global.env.foe[i].angle > (-DETECTION_ANGLE_WIDE)   && global.env.foe[i].angle < DETECTION_ANGLE_WIDE)  )    )
+			if(		relative_foe_y > -avoidance_rectangle_width_y/2 	&& 	relative_foe_y < avoidance_rectangle_width_y/2
+				&& 	relative_foe_x > avoidance_rectangle_min_x 		&& 	relative_foe_x < avoidance_rectangle_max_x)
 				{
-					in_path = TRUE;
+					in_path = TRUE;	//On est dans le rectangle d'évitement !!!
+					avoidance_printf("FOE[%d]_IN_PATH|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, global.env.foe[i].dist, global.env.foe[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
 				}
-			}
-
-			if(move_way == BACKWARD || move_way == ANY_WAY)
-			{
-		//		debug_printf("B_%d\n",global.env.foe.angle);
-				/* On regarde si l'adversaire est dans un gabarit derrière nous */
-				if(((global.env.foe[i].dist < distance_computed_narrow) && (global.env.foe[i].angle < (-PI4096+DETECTION_ANGLE_NARROW) || global.env.foe[i].angle > PI4096-DETECTION_ANGLE_NARROW)) ||
-				   ((global.env.foe[i].dist < distance_computed_wide)   && (global.env.foe[i].angle < (-PI4096+DETECTION_ANGLE_WIDE)   || global.env.foe[i].angle > PI4096-DETECTION_ANGLE_WIDE)  )    )
-				{
-					in_path = TRUE;
-				}
-			}
 		}
 	}
 	return in_path;

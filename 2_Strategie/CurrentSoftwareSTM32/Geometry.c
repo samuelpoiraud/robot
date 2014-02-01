@@ -44,6 +44,16 @@ Sint16 GEOMETRY_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destination
 	return (Sint16)((float)atan2(destination_y - start_y , destination_x - start_x)*4096);
 }
 
+Sint16 GEOMETRY_modulo_angle(Sint16 angle)
+{
+	while(angle > PI4096)
+			angle -= 2*PI4096;
+	while(angle < -PI4096)
+			angle += 2*PI4096;
+
+	return angle;
+}
+
 GEOMETRY_point_t GEOMETRY_segment_middle(GEOMETRY_segment_t s)
 {
 	return (GEOMETRY_point_t){

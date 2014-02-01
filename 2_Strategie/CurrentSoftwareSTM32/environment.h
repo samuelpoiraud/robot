@@ -68,10 +68,10 @@
 		volatile Sint16 x;
 		volatile Sint16 y;
 		volatile Uint8 nb_points_reached;	//Nombre de point atteint d'un ensemble de point multipoint, pour savoir à quel moment on s'est arreté en cas d'évitement
-		volatile Sint16 translation_speed;
+		volatile Sint16 translation_speed;	// [mm/sec] (modulo 250 mm/s)
 		volatile Sint16 rotation_speed;
-		volatile double cosAngle;/*cosinus de l'angle du robot*/
-		volatile double sinAngle;/*sinus de l'angle du robot*/
+		volatile Sint16 cosAngle;/*cosinus de l'angle du robot*/
+		volatile Sint16 sinAngle;/*sinus de l'angle du robot*/
 		volatile time32_t update_time;		//Ce temps sera mis à jour à chaque adversaire nouvellement observé.
 		volatile bool_e updated;			//Attention, ce flag sera levé pendant UNE SEULE boucle de tâche de fond, suite à la mise à jour.
 	}position_t;
