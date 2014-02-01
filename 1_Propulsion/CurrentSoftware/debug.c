@@ -216,8 +216,16 @@ void affichage_global(void)
 			//Le robot semble "parfait"............c'est un robot virtuel qui se déplace
 		void DEBUG_envoi_point_fictif_alteration_coordonnees_reelles(void)
 		{
-				global.real_speed_translation = global.position_translation;//global.ecart_translation_prec;
-				global.real_speed_rotation = global.position_rotation << 10;//global.ecart_rotation_prec << 10;
+				if(COPILOT_is_arrived())
+				{
+					global.real_speed_translation = 0;
+					global.real_speed_rotation = 0;
+				}
+				else
+				{
+					global.real_speed_translation = global.position_translation;
+					global.real_speed_rotation = global.position_rotation << 10;
+				}
 				if(COPILOT_get_border_mode() == BORDER_MODE_WITH_UPDATE_POSITION)
 				{
 					Sint16 robotSize = get_calibration_backward_distance();

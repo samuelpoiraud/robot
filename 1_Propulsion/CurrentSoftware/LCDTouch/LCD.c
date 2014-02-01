@@ -147,9 +147,15 @@ void LCD_init(void)
 void LCD_send_message(void)
 {
 	Uint8 data[8];
-	Uint8 d,i;
-	Sint16 teta;
+	Uint8 i;
 	CAN_msg_t msg;
+
+	//Si les robots adverses sont activés, on envoie leurs positions.
+	if(robots[ADVERSARY_1].enable)
+		SECRETARY_send_adversary_position((robots[ADVERSARY_2].enable)?FALSE:TRUE,0, robots[ADVERSARY_1].x*10, robots[ADVERSARY_1].y*10, 0, 0, ADVERSARY_DETECTION_FIABILITY_X | ADVERSARY_DETECTION_FIABILITY_Y);
+	if(robots[ADVERSARY_2].enable)
+		SECRETARY_send_adversary_position(TRUE,(robots[ADVERSARY_1].enable)?1:0, robots[ADVERSARY_2].x*10, robots[ADVERSARY_2].y*10, 0, 0, ADVERSARY_DETECTION_FIABILITY_X | ADVERSARY_DETECTION_FIABILITY_Y);
+
 
 	switch(robot_selected)
 	{
@@ -177,12 +183,6 @@ void LCD_send_message(void)
 		case FRIEND_2:
 		case ADVERSARY_1:
 		case ADVERSARY_2:
-			if(robots[robot_selected].x>=0 && robots[robot_selected].y>=0){ // Dans le cas ou on est négatif la conversion de d en uint8 fait de la merde donc on evite
-				teta = CALCULATOR_viewing_angle(global.position.x, global.position.y, robots[robot_selected].x, robots[robot_selected].y);
-				d = (CALCULATOR_distance(global.position.x, global.position.y, robots[robot_selected].x, robots[robot_selected].y));
-				printf(">> Send foe %d | distance = %d in %s at %d\n",robot_selected, d,__FILE__, __LINE__);
-				SECRETARY_send_position(robot_selected, robots[robot_selected].x, robots[robot_selected].y, d, teta);
-			}
 			break;
 		case NONE:
 		default:
@@ -215,10 +215,9 @@ void LCD_process_main(void){
 		robots[ADVERSARY_1].color = adversary_color;
 		robots[ADVERSARY_2].color = adversary_color;
 
-		if(Calibration_Test_Dispose(&robots[robot_selected] , &robot_selected))
-				{
-					LCD_send_message();
-				}
+		Calibration_Test_Dispose(&robots[robot_selected] , &robot_selected);
+
+		LCD_send_message();
 
 		if(robots_updated == TRUE){
 			for(i=0; i<ROBOTS_NUMBER; i++){

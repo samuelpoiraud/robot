@@ -15,22 +15,38 @@
 ///MODES////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
+	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
+	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+
+/*	MODE d'EMPLOI MODE SIMULATION
+ * 	 1 - activez les 3 defines ci-dessus
+ * 	 2 - activez MODE_SIMULATION sur la carte STRATEGIE
+ *   3 - avec 4 fils : reliez entre les cartes PROP et STRAT (éventuellement le 5V...) :
+ *   	GND<->GND
+ *   	5V<->5V
+ *   	PB6<->PB7
+ *   	PB7<->PB6
+ *   4 - désactivez le verbose stratégie en reliant PA7 à un potentiel GND. (par exemple jumper entre PA7 et PA5).
+ *   Vous avez un robot virtuel parfait...
+ */
+
 //MODES INDISPENSABLES EN MATCHS
 	#define PERIODE_IT_ASSER (5)	//[ms] ne pas y toucher sans savoir ce qu'on fait, (ou bien vous voulez vraiment tout casser !)
 
 	#define ENABLE_CAN			//Activation du bus CAN...
 
 	#define USE_CODEUR_SUR_IT_ET_QE		//Utiliser les IT externes et les QEx pour acquérir les infos codeurs au lieu du CPLD !
-//	#define USE_CPLD					//C'est l'un OU l'autre !
-
 
 	#define USE_HOKUYO	//Active le module HOKUYO et la détection des ennemis... !
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
-	#define CAN_SEND_OVER_UART		//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+
 	#define VERBOSE_MSG_SEND_OVER_UART	//A la place d'un envoi CAN, envoi d'un texte explicite sur l'UART : "Position : " ou "TrajFinie : ....."
-			//ATTENTION, INCOMPATIBLE AVEC L'ENVOI PERIODIQUE EN IT !!!!!!!!!
+
 
 	//#define MODE_REGLAGE_KV
 	#ifdef MODE_REGLAGE_KV
@@ -41,9 +57,11 @@
 
 	//#define SCAN_TRIANGLE		// Mise en service des fonctionnalitées de scan de triangle
 
-//	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 
-//	#define MODE_SIMULATION		//Pour le simulateur MPSIM...
+
+
+
+
 //	#define MODE_PRINTF_TABLEAU		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...
 
  //	#define MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT	//Permet des affichage en débug d'un tas de variables

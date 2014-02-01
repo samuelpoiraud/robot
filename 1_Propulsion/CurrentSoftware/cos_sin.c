@@ -8,7 +8,6 @@
  *  Version 201203
  */
 
-#define _MATH_MAISON_C
 
 #include "cos_sin.h"
 #include "QS/QS_outputlog.h"
