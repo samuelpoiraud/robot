@@ -8,18 +8,11 @@
 #ifndef SCAN_TRIANGLE_H_
 #define SCAN_TRIANGLE_H_
 
-	#include "QS/QS_adc.h"
-	#include "QS/QS_all.h"
-	#include "QS/QS_outputlog.h"
-	#include "supervisor.h"
-	#include "corrector.h"
-	#include "roadmap.h"
-	#include "cos_sin.h"
-
+#ifdef SCAN_TRIANGLE
 	void SCAN_TRIANGLE_init(void);
 	void SCAN_TRIANGLE_process_it(void);
 	void SCAN_TRIANGLE_canMsg(void);
 	void SCAN_TRIANGLE_calculate(void);
-
+#endif
 
 #endif /* SCAN_TRIANGLE_H_ */
