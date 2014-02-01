@@ -17,9 +17,7 @@
 #define USE_RTC
 
 //définition de la précision et des modes de calcul des sinus et cosinus
-//	#define FAST_COS_SIN
-//	#define COS_SIN_16384
-
+	#define FAST_COS_SIN
 
 //demande à l'asser d'envoyer regulierement la position du robot
 //utilisé en 2010-2011 pour la détection des pions avec les capteurs de distance SICK (cf. brain.c)

@@ -48,7 +48,6 @@ void DETECTION_init(void)
 	courant de l'environnement */
 void DETECTION_update(void)
 {
-	Uint8 i;
 	bool_e must_update=FALSE;
 
 
@@ -80,7 +79,7 @@ void DETECTION_compute(void)
 
 
 
-	debug_printf("Compute :");
+	//debug_printf("Compute :");
 	for(j = 0; j < hokuyo_objects_number; j++)
 		objects_chosen[j] = FALSE;			//init, aucun des objets n'est choisi
 
@@ -105,7 +104,7 @@ void DETECTION_compute(void)
 			global.env.foe[i].dist = hokuyo_objects[j_min].dist;
 			global.env.foe[i].update_time = hokuyo_objects[j_min].update_time;
 			global.env.foe[i].updated = TRUE;
-			debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
+			//debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
 		}
 		else
 			global.env.foe[i].updated = FALSE;				//Plus d'objet dispo... on vide la case i.
@@ -113,7 +112,7 @@ void DETECTION_compute(void)
 		//TODO le tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
 	}
 	//S'il y a plus d'objets hokuyo que d'adversaires possibles dans notre évitement, on choisit les plus proches.
-	debug_printf("\n");
+	//debug_printf("\n");
 }
 
 
@@ -144,7 +143,10 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
 					hokuyo_objects[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
 				else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
+				{
 					hokuyo_objects[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y);
+					hokuyo_objects[adversary_nb].angle = GEOMETRY_modulo_angle(hokuyo_objects[adversary_nb].angle - global.env.pos.angle);
+				}
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
 					hokuyo_objects[adversary_nb].dist = ((Sint16)msg->data[5])*20;
 				else	//je dois calculer moi-même la distance de l'adversaire

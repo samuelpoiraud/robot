@@ -449,13 +449,17 @@ void CAN_update (CAN_msg_t* incoming_msg)
 /* mise à jour de la position reçue dans l'un des messages de la propulsion.*/
 void ENV_pos_update (CAN_msg_t* msg)
 {
+	Sint16 cosinus, sinus;
 	global.env.pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
 	global.env.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
 	global.env.pos.translation_speed = ((Uint16)(msg->data[0] >> 5))*250;	// [mm/sec]
+	if(global.env.pos.translation_speed > 1500)
+		debug_printf("");
 	global.env.pos.rotation_speed =	((Uint16)(msg->data[2] >> 5));		// [rad/sec]
 	global.env.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
-	global.env.pos.cosAngle = cos4096(global.env.pos.angle);
-	global.env.pos.sinAngle = sin4096(global.env.pos.angle);
+	COS_SIN_4096_get(global.env.pos.angle, &cosinus, &sinus);
+	global.env.pos.cosAngle = cosinus;
+	global.env.pos.sinAngle = sinus;
 	global.env.asser.last_time_pos_updated = global.env.match_time;
 	global.env.asser.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
 	global.env.asser.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
