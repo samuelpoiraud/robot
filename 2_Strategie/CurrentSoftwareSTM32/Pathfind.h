@@ -127,7 +127,7 @@ Uint32 PATHFIND_squared_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 /*
  * Renvoie l'identifiant du noeud le plus proche du point (x,y)
  */
-pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, bool_e handleOpponent);
+pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, Uint32 filteredNodes);
 
 /*
  * Renvoie le noeud le plus proche de l'adversaire

@@ -558,16 +558,16 @@ void TEST_pathfind(void)
 			state = PATHFIND_try_going(Z2, PATH_1, PATH_2, PATH_2, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_2:
-			state = PATHFIND_try_going(A1, PATH_2, PATH_1, PATH_1, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = PATHFIND_try_going(A1, PATH_2, PATH_3, PATH_3, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_3:
-			//state = PATHFIND_try_going(W0, PATH_3, PATH_4, PATH_4, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = PATHFIND_try_going(W0, PATH_3, PATH_4, PATH_4, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 		case PATH_4:
-			//state = PATHFIND_try_going(A1, PATH_4, PATH_5, PATH_5, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = PATHFIND_try_going(C3, PATH_4, PATH_5, PATH_5, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_5:
-			//state = PATHFIND_try_going(W3, PATH_5, PATH_1, DONE, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = PATHFIND_try_going(C0, PATH_5, PATH_1, PATH_1, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case ERROR:
 			break;
