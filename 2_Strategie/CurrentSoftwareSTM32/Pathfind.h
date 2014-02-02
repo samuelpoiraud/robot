@@ -20,7 +20,7 @@
  */
 #define COLOR_NODE( n)	PATHFING_get_symetric(n)
 
-#define PATHFIND_NODE_NB 25
+
 
 /*
  * Defines des noms des nodes
@@ -50,6 +50,8 @@
 #define Z1 22
 #define Z2 23
 #define NOT_IN_NODE	24
+
+#define PATHFIND_NODE_NB NOT_IN_NODE
 
 /*
  * Modifie par Alexis

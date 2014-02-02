@@ -270,7 +270,7 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 	//si le noeud le plus proche est un noeud situé de l'autre coté d'un obstacle car les adversaires empêchent l'accès aux autres noeuds !!!!
 	//Le noeud le plus proche sans filtrage adverse... correspond à notre position, doit permettre d'accéder par la logique des voisinages au noeud le plus proche avec filtrage adverse/
 	//Sinon : pas de chemin !
-	if(PATHFIND_TST_NODE_IN(from_without_adversaries, nodes[n].neighbors))
+	if((from != from_without_adversaries) && !(PATHFIND_TST_NODE_IN(from_without_adversaries, nodes[n].neighbors)))
 		return 0;
 
 	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
@@ -308,7 +308,7 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 		/* On passe la case en cours dans la liste fermee */
 		PATHFIND_CLR_NODE_IN(current, openList);
 		PATHFIND_SET_NODE_IN(current, closedList);
-		pathfind_debug_printf("current open->close %d\n", current);
+		//pathfind_debug_printf("current open->close %d\n", current);
 
 		/* Pour toutes les cases adjacentes n'etant pas dans la liste fermee */
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
@@ -362,10 +362,10 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 
 	/* Permet d'optimiser les deplacements*/
 	//PATHFIND_delete_useless_node(from, to);
-	for (n = 0; n < PATHFIND_NODE_NB; n++) {
-		if (PATHFIND_TST_NODE_IN(n, closedList))
-			pathfind_debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
-	}
+	//for (n = 0; n < PATHFIND_NODE_NB; n++) {
+	//	if (PATHFIND_TST_NODE_IN(n, closedList))
+	//		pathfind_debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
+	//}
 	/* On a le chemin inverse (to->from) */
 	nb_displacements = nodes[to].nb_nodes;
 	pathfind_debug_printf("Nodes : ");
