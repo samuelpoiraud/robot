@@ -555,76 +555,19 @@ void TEST_pathfind(void)
 		case GO_FIRST_POINT:
 			break;
 		case PATH_1:
-			if(entrance)
-			{
-				/*
-				global.env.pos.x = 1350;
-				global.env.pos.y = 400;
-				global.env.foe[0].x = 1400;
-				global.env.foe[0].y = 1500;
-				global.env.foe[1].x = 100;
-				global.env.foe[1].y = 100;
-				global.env.foe[0].dist = 1100;
-				global.env.foe[1].dist = 1285;
-				*/
-				debug_printf("ETAT 1\n");
-			}
 			state = PATHFIND_try_going(Z2, PATH_1, PATH_2, PATH_2, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_2:
-			if(entrance)
-			{
-				debug_printf("ETAT 2\n");
-				/*
-				global.env.pos.x = 1600;
-				global.env.pos.y = 2300;
-				*/
-			}
-			state = PATHFIND_try_going(A1, PATH_2, PATH_3, PATH_3, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = PATHFIND_try_going(A1, PATH_2, PATH_1, PATH_1, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_3:
-			if(entrance)
-			{
-				debug_printf("ETAT 3\n");
-				/*
-				global.env.foe[0].x = 500;
-				global.env.foe[0].y = 1500;
-				global.env.pos.x = 250;
-				global.env.pos.y = 1250;
-				global.env.foe[0].dist = 350;
-				*/
-			}
-			state = PATHFIND_try_going(W0, PATH_3, PATH_4, PATH_4, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//state = PATHFIND_try_going(W0, PATH_3, PATH_4, PATH_4, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 		case PATH_4:
-			if(entrance)
-			{
-				/*
-				global.env.foe[0].x = 700;
-				global.env.foe[0].y = 700;
-				global.env.foe[1].x = 1000;
-				global.env.foe[1].y = 400;
-				global.env.pos.x = 850;
-				global.env.pos.y = 1100;
-				global.env.foe[0].dist = 335;
-				global.env.foe[1].dist = 150;
-				*/
-				debug_printf("ETAT 4\n");
-			}
-			state = PATHFIND_try_going(A1, PATH_4, PATH_5, PATH_5, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//state = PATHFIND_try_going(A1, PATH_4, PATH_5, PATH_5, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATH_5:
-			if(entrance)
-			{
-				debug_printf("ETAT 5\n");
-				/*
-				global.env.pos.x = 700;
-				global.env.pos.y = 2800;
-				global.env.foe[1].x = 1250;
-				global.env.foe[1].y = 2300;
-				*/
-			}
-			state = PATHFIND_try_going(W3, PATH_5, PATH_1, DONE, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//state = PATHFIND_try_going(W3, PATH_5, PATH_1, DONE, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case ERROR:
 			break;
@@ -707,7 +650,7 @@ void test_strat_robot_virtuel_with_avoidance(void){
 			state = GOTO;
 			break;
 		case GOTO:
-			state = try_going(1000, COLOR_Y(1000),GOTO,BACK,BACK,SLOW,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1000, COLOR_Y(2000),GOTO,BACK,BACK,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case BACK:
 			state = try_going(1000, COLOR_Y(300),BACK,GOTO,GOTO,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
