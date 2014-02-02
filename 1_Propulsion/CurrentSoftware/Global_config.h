@@ -161,7 +161,7 @@
 
 /*	Taille de la chaine de caracteres memorisant
 	les caracteres recus sur UART */
-	#define UART_RX_BUF_SIZE	128
+	#define UART_RX_BUF_SIZE	512
 //
 	#define USE_BUTTONS
 	#define BUTTONS_TIMER 3

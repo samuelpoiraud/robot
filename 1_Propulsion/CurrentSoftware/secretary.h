@@ -13,8 +13,6 @@
 	#define _SECRETARY_H_
 	#include "QS/QS_all.h"
 	#include "LCDTouch/LCD.h"
-	#define _SECRETARY_H_
-	#include "QS/QS_all.h"	
 
 		void SECRETARY_init(void);
 
