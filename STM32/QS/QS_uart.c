@@ -303,12 +303,38 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 				while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE))
 				{
 					LED_UART=!LED_UART;
-					*(receiveddata++) = USART_ReceiveData(USART1);
-					m_u1rxnum++;
-					m_u1rx =1;
-					/* pour eviter les comportements indésirables */
-					if (receiveddata - m_u1rxbuf >= UART_RX_BUF_SIZE)
-						receiveddata = m_u1rxbuf;
+
+					#ifdef MODE_SIMULATION
+					static Uint8 we_are_receiving_can_msg = FALSE;
+					Uint8 c;
+					c = USART_ReceiveData(USART1);
+					if(we_are_receiving_can_msg == 0)
+					{
+						if(c==0x01)
+							we_are_receiving_can_msg = 1;
+					}
+					else
+						we_are_receiving_can_msg++;
+
+					if(we_are_receiving_can_msg)
+					{
+						*(receiveddata++) = c;
+						m_u1rxnum++;
+						m_u1rx =1;
+						/* pour eviter les comportements indésirables */
+						if (receiveddata - m_u1rxbuf >= UART_RX_BUF_SIZE)
+							receiveddata = m_u1rxbuf;
+					}
+					if(we_are_receiving_can_msg == 13)	//Dernier octet du message can (0x04...)
+						we_are_receiving_can_msg = 0;
+					#else
+						*(receiveddata++) = USART_ReceiveData(USART1);;
+						m_u1rxnum++;
+						m_u1rx =1;
+						/* pour eviter les comportements indésirables */
+						if (receiveddata - m_u1rxbuf >= UART_RX_BUF_SIZE)
+							receiveddata = m_u1rxbuf;
+					#endif
 				}
 				USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 			}
