@@ -79,7 +79,7 @@ void PATHFIND_updateOpponentPosition(Uint8 foe_id)
 {
 	assert(foe_id < MAX_NB_FOES);
 	//On desactive l'evitement pour trouver le noeud le plus proche de l'adversaire
-	pathfind_node_id_t node = PATHFIND_closestNode(global.env.foe[foe_id].x, global.env.foe[foe_id].y, FALSE);
+	pathfind_node_id_t node = PATHFIND_closestNode(global.env.foe[foe_id].x, global.env.foe[foe_id].y, 0);
 	//si on est trop loin
 	int dist = GEOMETRY_squared_distance((GEOMETRY_point_t){nodes[node].x,nodes[node].y},(GEOMETRY_point_t){global.env.foe[foe_id].x,global.env.foe[foe_id].y});
 	if(dist>220)
@@ -100,24 +100,15 @@ Uint32 PATHFIND_squared_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
 	return (x1-x2) * (x1-x2) +  (y1-y2) * (y1-y2);
 }
 
-pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, bool_e handleOpponent)
+pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, Uint32 filteredNodes)
 {
 	Uint16 dist, minDist = 65535;
-	pathfind_node_id_t n, closestNode = 0;
-	bool_e foe_in_node_n;
+	pathfind_node_id_t n, closestNode = NOT_IN_NODE;
 	Uint8 i;
 
 	for (n = 0; n < PATHFIND_NODE_NB; n++)
 	{
-		foe_in_node_n = FALSE;
-		if(handleOpponent)
-		{
-			for(i=0;i<MAX_NB_FOES;i++)
-				if(n == nodeOpponent[i])
-					foe_in_node_n = TRUE;
-		}
-
-		if (!foe_in_node_n)
+		if (PATHFIND_TST_NODE_IN(n, filteredNodes) == FALSE)
 		{
 			dist = PATHFIND_manhattan_dist(x, y, nodes[n].x, nodes[n].y);
 			if (dist < minDist)
@@ -246,24 +237,11 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 //Retourne le nombre de déplacements, ou 0 si pas de chemin possible
 Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to)
 {
-	pathfind_node_id_t from, n, current;
+	pathfind_node_id_t from, n, current, from_without_adversaries;
 	pathfind_node_list_t adversaries_nodes;
 	Uint8 nb_displacements = 0;
 	Uint16 minCost, cost;
 	Uint8 i;
-	from = PATHFIND_closestNode(xFrom, yFrom, TRUE);
-
-	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
-
-	/* On reinitialise les listes et penalites */
-	openList = 0;
-	closedList = 0;
-
-	/* On ajoute le point de depart dans la liste ouverte */
-	PATHFIND_SET_NODE_IN(from, openList);
-	/* TODO mettre le cout a la distance que le robot doit parcourir pour atteindre le noeud */
-	nodes[from].total_cost = 0;
-	nodes[from].nb_nodes = 1;
 
 	//On identifie les noeuds placés à moins de 500mm manhattan d'un adversaire.
 	adversaries_nodes = 0;
@@ -282,6 +260,32 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 			}
 		}
 	}
+
+	from_without_adversaries = 	PATHFIND_closestNode(xFrom, yFrom, 0);
+	from = 						PATHFIND_closestNode(xFrom, yFrom, adversaries_nodes);	//On cherche le noeud le plus proche (en enlevant les noeuds occupés par l'adversaire)
+
+	if(from == NOT_IN_NODE)
+		return 0;	//Pas de chemin possible... c'est d'ailleurs très étrange...
+
+	//si le noeud le plus proche est un noeud situé de l'autre coté d'un obstacle car les adversaires empêchent l'accès aux autres noeuds !!!!
+	//Le noeud le plus proche sans filtrage adverse... correspond à notre position, doit permettre d'accéder par la logique des voisinages au noeud le plus proche avec filtrage adverse/
+	//Sinon : pas de chemin !
+	if(PATHFIND_TST_NODE_IN(from_without_adversaries, nodes[n].neighbors))
+		return 0;
+
+	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
+
+	/* On reinitialise les listes et penalites */
+	openList = 0;
+	closedList = 0;
+
+	/* On ajoute le point de depart dans la liste ouverte */
+	PATHFIND_SET_NODE_IN(from, openList);
+	/* TODO mettre le cout a la distance que le robot doit parcourir pour atteindre le noeud */
+	nodes[from].total_cost = 0;
+	nodes[from].nb_nodes = 1;
+
+
 	/* Tant que la destination n'est pas dans la liste fermee
 	 * et que la liste ouverte n'est pas vide
 	 */
