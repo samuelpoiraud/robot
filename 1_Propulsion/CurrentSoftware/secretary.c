@@ -433,6 +433,19 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 
 		//Stop tout
 		case BROADCAST_STOP_ALL:
+			ROADMAP_add_order(  TRAJECTORY_STOP,
+								0,
+								0,
+								0,					//teta
+								NOT_RELATIVE,		//relative
+								NOW,			//maintenant
+								ANY_WAY,	//sens de marche
+								NOT_BORDER_MODE,	//mode bordure
+								NO_MULTIPOINT, 	//mode multipoints
+								FAST,				//Vitesse
+								ACKNOWLEDGE_ASKED,
+								CORRECTOR_ENABLE
+							);
 			// désactivation de tout les avertisseurs.
 			WARNER_init();
 			//arret robot
