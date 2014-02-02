@@ -202,6 +202,8 @@
 	#define CARTE_P_POSITION_ROBOT		BROADCAST_POSITION_ROBOT
 	#define CARTE_P_ROBOT_FREINE		0x213
 	#define CARTE_P_ROBOT_CALIBRE		0x214
+	#define STRAT_TRIANGLE_POSITON		0x215
+		#define IT_IS_THE_LAST_TRIANGLE		0x80	// Bit à 1 si le triangle est le dernier
 	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
 		#define IT_IS_THE_LAST_ADVERSARY	0x80	//Bit levé si l'adversaire envoyé est le dernier...
 		/*		0 : ADVERSARY_NUMBER | IT_IS_THE_LAST_ADVERSARY	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
