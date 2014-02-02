@@ -110,13 +110,18 @@ pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, bool_e handleOpponen
 	for (n = 0; n < PATHFIND_NODE_NB; n++)
 	{
 		foe_in_node_n = FALSE;
-		for(i=0;i<MAX_NB_FOES;i++)
-			if(n == nodeOpponent[i])
-				foe_in_node_n = TRUE;
-		if (!(handleOpponent && foe_in_node_n))
+		if(handleOpponent)
+		{
+			for(i=0;i<MAX_NB_FOES;i++)
+				if(n == nodeOpponent[i])
+					foe_in_node_n = TRUE;
+		}
+
+		if (!foe_in_node_n)
 		{
 			dist = PATHFIND_manhattan_dist(x, y, nodes[n].x, nodes[n].y);
-			if (dist < minDist) {
+			if (dist < minDist)
+			{
 				minDist = dist;
 				closestNode = n;
 				/* Si on est a moins de 200mm d'un noeud, c'est le plus proche */
@@ -248,7 +253,7 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 	Uint8 i;
 	from = PATHFIND_closestNode(xFrom, yFrom, TRUE);
 
-	pathfind_debug_printf ("Noeud le plus proche : %d", from);
+	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
 
 	/* On reinitialise les listes et penalites */
 	openList = 0;
@@ -268,13 +273,12 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 		{
 			for(n = 0; n < PATHFIND_NODE_NB; n++)	//Pour chaque noeud
 			{	//Si l'adversaire en question est proche du noeud : on ajoute le noeud dans la liste des noeuds innaccessibles.
-				pathfind_debug_printf("Adversary %d in nodes : ",i);
+
 				if(PATHFIND_manhattan_dist(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y)<MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY)
 				{
 					PATHFIND_SET_NODE_IN(n,adversaries_nodes);
-					pathfind_debug_printf("%d ", n);
+					pathfind_debug_printf("Adv%d in node %d\n",i,n);
 				}
-				pathfind_debug_printf("\tadversaries_nodes : %lx\n", adversaries_nodes);
 			}
 		}
 	}
@@ -288,7 +292,7 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 		 * On cherche la case ayant le cout F le plus faible dans la
 		 * liste ouverte. Elle devient la case en cours.
 		 */
-		minCost = 65535;
+		minCost = 0xFFFF;	//On suppose que le cout est max.
 		current = 0;
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
 			if (PATHFIND_TST_NODE_IN(n, openList) && nodes[n].total_cost < minCost) {
@@ -366,7 +370,7 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 	{
 		displacements[nb_displacements-i-1].point.x = nodes[n].x;
 		displacements[nb_displacements-i-1].point.y = nodes[n].y;
-		pathfind_debug_printf("%d ",n);
+		pathfind_debug_printf("%d <- ",n);
 		n = nodes[n].parent;
 	}
 	pathfind_debug_printf(" = %d displacements\n", nb_displacements);
@@ -420,7 +424,10 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 			if(nb_displacements)
 			{
 				for(i=0;i<nb_displacements;i++)
+				{
+					pathfind_debug_printf("[%d,%d]->\n",displacements[i].point.x, displacements[i].point.y);
 					displacements[i].speed = speed;
+				}
 				state = DISPLACEMENT;
 
 				//Pour tester le module sans générer de déplacement :
