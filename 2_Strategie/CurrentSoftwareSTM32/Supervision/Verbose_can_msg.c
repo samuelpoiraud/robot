@@ -73,6 +73,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case ASSER_WARN_X:						print(string, len, "%x ASSER_WARN_X                     	", ASSER_WARN_X						);	break;
 		case ASSER_WARN_Y:						print(string, len, "%x ASSER_WARN_Y                     	", ASSER_WARN_Y						);	break;
 		case CARTE_ASSER_FIN_ERREUR:			print(string, len, "%x CARTE_ASSER_FIN_ERREUR           	", CARTE_ASSER_FIN_ERREUR			);	break;
+		case ASSER_LAUNCH_SCAN_TRIANGLE:		print(string, len, "%x ASSER_LAUNCH_SCAN_TRIANGLE           ", ASSER_LAUNCH_SCAN_TRIANGLE		);	break;
 /*		case ACT_DCM_POS:						print(string, len, "%x ACT_DCM_POS                      	", ACT_DCM_POS						);	break;
 		case ACT_CLAMP_PREPARED:				print(string, len, "%x ACT_CLAMP_PREPARED               	", ACT_CLAMP_PREPARED				);	break;
 		case ACT_PAWN_GOT:						print(string, len, "%x ACT_PAWN_GOT                     	", ACT_PAWN_GOT						);	break;
@@ -140,6 +141,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case ASSER_WARN_X:						if(u8(0)) print(string, len, "| avertisseur en x=%d\n", u16(0,1));                                  else print(string, len, "désactivation de l'avertisseur en X\n");		break;
 		case ASSER_WARN_Y:						if(u8(0)) print(string, len, "| avertisseur en y=%d\n", u16(0,1));                                  else print(string, len, "désactivation de l'avertisseur en Y\n");		break;
 	//	case CARTE_ASSER_FIN_ERREUR:			print(string, len, "|\n");												break;
+	//	case ASSER_LAUNCH_SCAN_TRIANGLE:		print(string, len, "|\n");												break;
 /*		case ACT_DCM_POS:
 		case ACT_FAILURE:
 		case ACT_READY:
