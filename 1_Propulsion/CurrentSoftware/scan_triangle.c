@@ -10,6 +10,7 @@
 #include "QS/QS_all.h"
 #include "QS/QS_outputlog.h"
 #include "supervisor.h"
+#include "secretary.h"
 #include "corrector.h"
 #include "roadmap.h"
 #include "cos_sin.h"
@@ -55,6 +56,9 @@ struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS-1];
 Sint16 angle_vecteur[3][NB_POINTS-1];
 // Variable contenant les angles de chaque vecteurs
 
+Uint8 nb_objet[3] = {0};
+// Variable contenant le nombre d'objet par capteur
+
 typedef enum{
 	INIT=0,
 	WAIT,
@@ -65,6 +69,7 @@ typedef enum{
 	LAUNCH_WARNER,
 	IN_PROGRESS,
 	WAIT_CALCULATE,
+	SEND_MID_TRIANGLE,
 	TEST
 }state_e;
 
@@ -91,6 +96,7 @@ void SCAN_TRIANGLE_process_it(void){
 	static Uint16 temp = 0;
 	static Uint8 n_mesure = 0;
 	static Uint16 time;
+	static Uint8 i, j, k;
 
 
 	switch(state){
@@ -133,7 +139,10 @@ void SCAN_TRIANGLE_process_it(void){
 						NOT_RELATIVE, NOW, FORWARD,	NOT_BORDER_MODE, NO_MULTIPOINT,
 						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
 			}else if(zone == 2 && !EstDansLeCarre(1300, 2000, 0, 700)){
-				//Déplacement
+				SUPERVISOR_config_intern_acknowledge(&Acknowledge_Intern);
+				ROADMAP_add_order(TRAJECTORY_TRANSLATION,1600, 400, 0,
+						NOT_RELATIVE, NOW, FORWARD,	NOT_BORDER_MODE, NO_MULTIPOINT,
+						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
 			}else if(zone == 3 && !EstDansLeCarre(750, 1250, 1250, 1750)){
 				//Déplacement
 			}
@@ -155,7 +164,7 @@ void SCAN_TRIANGLE_process_it(void){
 						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
 			}else if(zone == 2){
 				SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, 0,
+				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, -PI4096/2,
 						NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
 						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
 			}else if(zone == 3){
@@ -179,7 +188,7 @@ void SCAN_TRIANGLE_process_it(void){
 						20, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
 			}else if(zone == 2 ){
 				SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, PI4096/2,
+				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, -PI4096,
 						NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
 						20, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
 			}else if(zone == 3){
@@ -190,7 +199,9 @@ void SCAN_TRIANGLE_process_it(void){
 		break;
 
 		case IN_PROGRESS :
-			if(absolute(global.position.teta) >= (n_mesure+1)*PI4096/(NB_POINTS*2)){
+			if(zone == 1 && absolute(global.position.teta) >= (n_mesure+1)*PI4096/(NB_POINTS*2)){
+				SCAN_TRIANGLE_in_process(&n_mesure);
+			}else if(zone == 2 && absolute(global.position.teta + PI4096/2) >= (n_mesure+1)*PI4096/(NB_POINTS*2)){
 				SCAN_TRIANGLE_in_process(&n_mesure);
 			}
 			if(move_completed){
@@ -204,9 +215,22 @@ void SCAN_TRIANGLE_process_it(void){
 		case WAIT_CALCULATE :
 			if(!run_calcul){
 				debug_printf("Temps de calculs : %d\n", time);
-				state = WAIT;
+				state = SEND_MID_TRIANGLE;
 			}else
 				time += 5;
+		break;
+
+		case SEND_MID_TRIANGLE :
+			k = 0;
+			for(j=0;j<3;j++){
+				for(i=0;i<nb_objet[j];i++,k++){
+					if(objet[j][i].active)
+						SECRETARY_send_triangle_position(FALSE, k, objet[j][i].milieu.x, objet[j][i].milieu.y, (Sint16)(atan2(objet[j][i].vecteur.y, objet[j][i].vecteur.x)*PI4096/3.14));
+				}
+			}
+			SECRETARY_send_triangle_position(TRUE, k, 0, 0, 0);
+
+			state = WAIT;
 		break;
 	}
 }
@@ -226,7 +250,7 @@ static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure){
 void SCAN_TRIANGLE_calculate(void){
 	if(run_calcul){
 		debug_printf("Calcul\n");
-		Uint8 k, nb_objet[3] = {0};
+		Uint8 k;
 		Sint16 i, j;
 		Sint16 cos, sin;
 
@@ -351,7 +375,7 @@ void SCAN_TRIANGLE_calculate(void){
 			for(k=0;k<nb_objet[j];k++){
 				if(nb_objet[j] < 20){
 					for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point;i++){
-						if(distance(scan[j].x[i], scan[j].y[i], scan[j].x[i+1], scan[j].y[i+1]) > 50){
+						if(distance(scan[j].x[i], scan[j].y[i], scan[j].x[i+1], scan[j].y[i+1]) > 30){
 							objet[j][nb_objet[j]].indice_fin_point = objet[j][k].indice_fin_point;
 							objet[j][nb_objet[j]].indice_debut_point = i+1;
 							objet[j][k].indice_fin_point = i;
