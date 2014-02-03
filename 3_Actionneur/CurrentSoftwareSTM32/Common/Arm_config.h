@@ -38,7 +38,7 @@
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY1              20
 
 //#define ARM_ACT_RX24                             1
-#define ARM_ACT_RX24                             0
+#define ARM_ACT_RX24                             0		//non utilisé, mais utilisé comme prefix dans arm_data (les autres moteurs c'est pareil)
 #define ARM_ACT_RX24_ASSER_TIMEOUT               20
 #define ARM_ACT_RX24_ASSER_POS_EPSILON           5
 #define ARM_ACT_RX24_MAX_TORQUE_PERCENT          100

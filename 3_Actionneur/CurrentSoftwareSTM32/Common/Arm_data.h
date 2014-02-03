@@ -22,13 +22,14 @@ typedef int arm_state_t[ARM_ACT_NUMBER];
 typedef enum {
 	ARM_ST_Parked,
 	ARM_ST_Open,
+	ARM_ST_Mid,
 	ARM_ST_NUMBER
 } ARM_state_e;
 
 typedef enum {
 	ARM_DCMOTOR,
 	ARM_AX12,
-	ARM_RX24 = ARM_AX12
+	ARM_RX24 = ARM_AX12  //même gestion pour les 2
 } ARM_motor_type_e;
 
 typedef struct {
@@ -55,7 +56,7 @@ extern arm_state_t arm_states[ARM_ST_NUMBER];
 
 //                                    lignes         colonnes
 //                                   ancien état    nouvel état
-extern Uint8 arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
+extern bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 
 #endif	/* ARM_DATA_H */
 
