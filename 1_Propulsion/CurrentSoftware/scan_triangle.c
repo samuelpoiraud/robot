@@ -31,7 +31,7 @@
 #define X_SENSOR_TOP 46		// 80
 #define Y_SENSOR_TOP 98		// 100
 
-#define DIST_ARETE_MILIEU 47
+#define DIST_ARETE_MILIEU 37
 
 #define NB_POINTS 90
 
@@ -56,7 +56,7 @@ struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS-1];
 Sint16 angle_vecteur[3][NB_POINTS-1];
 // Variable contenant les angles de chaque vecteurs
 
-Uint8 nb_objet[3] = {0};
+Uint8 nb_objet[3];
 // Variable contenant le nombre d'objet par capteur
 
 typedef enum{
@@ -74,10 +74,10 @@ typedef enum{
 }state_e;
 
 Uint8 move_completed, run_calcul;
-bool_e b_ask_for_scan = FALSE;
+bool_e b_ask_for_scan;
 
 
-static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy);
+static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y);
 static void Acknowledge_Intern(void);
 static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure);
 static float racine(float val);
@@ -104,6 +104,10 @@ void SCAN_TRIANGLE_process_it(void){
 		case INIT :
 			move_completed = 0;
 			run_calcul = 0;
+			b_ask_for_scan = FALSE;
+			nb_objet[0] = 0;
+			nb_objet[1] = 0;
+			nb_objet[2] = 0;
 			state = WAIT;
 		break;
 
@@ -126,11 +130,11 @@ void SCAN_TRIANGLE_process_it(void){
 
 		case PLACEMENT_XY :
 			// Analyse de la zone de scan
-			if(EstDansLeCarre(1300, 2000, 2300, 3000))		// Foyer haut gauche
+			if(EstDansLeCarre(1300, 2000, 2300, 3000, global.position.x, global.position.y))		// Foyer haut gauche
 				zone = 1;
-			else if(EstDansLeCarre(1300, 2000, 0, 700))		// Foyer haut droite
+			else if(EstDansLeCarre(1300, 2000, 0, 700, global.position.x, global.position.y))		// Foyer haut droite
 				zone = 2;
-			else if(EstDansLeCarre(750, 1250, 1250, 1750))	// Foyer milieu
+			else if(EstDansLeCarre(750, 1250, 1250, 1750, global.position.x, global.position.y))	// Foyer milieu
 				zone = 3;
 
 			if(zone == 1){
@@ -138,12 +142,12 @@ void SCAN_TRIANGLE_process_it(void){
 				ROADMAP_add_order(TRAJECTORY_TRANSLATION,1600, 2600, 0,
 						NOT_RELATIVE, NOW, FORWARD,	NOT_BORDER_MODE, NO_MULTIPOINT,
 						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}else if(zone == 2 && !EstDansLeCarre(1300, 2000, 0, 700)){
+			}else if(zone == 2 && !EstDansLeCarre(1300, 2000, 0, 700, global.position.x, global.position.y)){
 				SUPERVISOR_config_intern_acknowledge(&Acknowledge_Intern);
 				ROADMAP_add_order(TRAJECTORY_TRANSLATION,1600, 400, 0,
 						NOT_RELATIVE, NOW, FORWARD,	NOT_BORDER_MODE, NO_MULTIPOINT,
 						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}else if(zone == 3 && !EstDansLeCarre(750, 1250, 1250, 1750)){
+			}else if(zone == 3 && !EstDansLeCarre(750, 1250, 1250, 1750, global.position.x, global.position.y)){
 				//Déplacement
 			}
 			state = PLACEMENT_WAIT_XY;
@@ -215,7 +219,7 @@ void SCAN_TRIANGLE_process_it(void){
 		case WAIT_CALCULATE :
 			if(!run_calcul){
 				debug_printf("Temps de calculs : %d\n", time);
-				state = SEND_MID_TRIANGLE;
+				state = WAIT;
 			}else
 				time += 5;
 		break;
@@ -253,6 +257,7 @@ void SCAN_TRIANGLE_calculate(void){
 		Uint8 k;
 		Sint16 i, j;
 		Sint16 cos, sin;
+		bool_e in_objet = FALSE;
 
 		// Initialisation
 		for(i=0;i<20;i++)
@@ -303,7 +308,6 @@ void SCAN_TRIANGLE_calculate(void){
 			}
 		}
 
-
 		// filtrer temp futur
 		for(i=1;i<NB_POINTS-1;i++){						// Validé
 			for(j=0;j<3;j++){
@@ -316,8 +320,6 @@ void SCAN_TRIANGLE_calculate(void){
 				}
 			}
 		}
-
-
 
 		// filtrer reverse temp futur
 		for(i=NB_POINTS-3;i>=0;i--){					// Validé
@@ -351,31 +353,36 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// Detection d'objet
-		for(i=0;i<NB_POINTS-1;i++){						// Validé
-			for(j=0;j<3;j++){
+		for(j=0;j<3;j++){						// Validé
+			in_objet = FALSE;
+			for(i=0;i<NB_POINTS-1;i++){
 				if(nb_objet[j] < 20){
-					if(i==0)
+					if(i==0){
 						objet[j][nb_objet[j]].indice_debut_point = i;
-					else if(i!=0 && angle_vecteur[j][i-1] == 0 && angle_vecteur[j][i] == 1){
+						in_objet = TRUE;
+					}else if(angle_vecteur[j][i-1] == 0 && angle_vecteur[j][i] == 1){
 						objet[j][nb_objet[j]].indice_fin_point = i;
 						nb_objet[j]++;
+						in_objet = FALSE;
 					}
-					else if(i!=0 && angle_vecteur[j][i-1] == 1 && angle_vecteur[j][i] == 0)
+					else if(angle_vecteur[j][i-1] == 1 && angle_vecteur[j][i] == 0){
 						objet[j][nb_objet[j]].indice_debut_point = i;
+						in_objet = TRUE;
+					}
 				}
 			}
-			if(objet[j][nb_objet[j]].indice_fin_point == 0){
+			if(in_objet){
 				objet[j][nb_objet[j]].indice_fin_point = i;
 				nb_objet[j]++;
 			}
 		}
 
-		// Séparation des objets trop éloigné
-		for(j=0;j<3;j++){
+		// Séparation des objets trop éloignés
+		for(j=0;j<3;j++){								// Validé
 			for(k=0;k<nb_objet[j];k++){
 				if(nb_objet[j] < 20){
 					for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point;i++){
-						if(distance(scan[j].x[i], scan[j].y[i], scan[j].x[i+1], scan[j].y[i+1]) > 30){
+						if(distance(scan[i].x[j], scan[i].y[j], scan[i+1].x[j], scan[i+1].y[j]) > 30){
 							objet[j][nb_objet[j]].indice_fin_point = objet[j][k].indice_fin_point;
 							objet[j][nb_objet[j]].indice_debut_point = i+1;
 							objet[j][k].indice_fin_point = i;
@@ -387,67 +394,63 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// Retrait des objets où il ne faut pas faire de traitement
-		for(j=0;j<3;j++){
+		for(j=0;j<3;j++){										// Validé
 			for(k=0;k<nb_objet[j];k++){
 				objet[j][k].active = FALSE;
-
 				for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point;i++)
-					if((j == 0 &&
-							((scan[i].y[j] < 2850 && scan[i].x[j] > 0 && scan[i].x[j] < 1625)
-							|| (scan[i].y[j] > 150 && scan[i].x[j] > 0 && scan[i].x[j] < 1625)
-							|| (scan[i].x[j] < 1850 && scan[i].y[j] > 375 && scan[i].y[j] < 2652)
-							|| (scan[i].y[j] < -scan[i].x[j] + 4625)// Vrai si x y dans le terrain
-							|| (scan[i].y[j] > scan[i].x[j] + 375))) // Vrai si x y dans le terrain
-						|| (j == 1 && scan[i].x[j] > 250 && scan[i].x[j] < 1850 && scan[i].y[j] > 250 && scan[i].y[j] < 2850)
-						|| (j == 2 && scan[i].x[j] > 250 && scan[i].x[j] < 1850 && scan[i].y[j] > 250 && scan[i].y[j] < 2850))
+					if((j == 0 && (EstDansLeCarre(0, 1675, 50, 2950, scan[i].x[j], scan[i].y[j])
+							|| EstDansLeCarre(1675, 1950, 325, 2675, scan[i].x[j], scan[i].y[j])
+							|| (scan[i].x[j] > 1675 && scan[i].y[j] < 325 && scan[i].x[j]-scan[i].y[j] < 1625)
+							|| (scan[i].x[j] > 1675 && scan[i].y[j] > 2675 && scan[i].x[j]+scan[i].y[j] < 4625)))
+						|| (j == 1 && EstDansLeCarre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j]))
+						|| (j == 2 && EstDansLeCarre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j]))){
 						objet[j][k].active = TRUE;
+						debug_printf("%d %d\n", j, k);
+					}
 
-				// autre idée (x-x')²-(y-y')² = sqrt(rayon) avec x' = 2000 et y' = 3000 et rayon = 250
 				// droite partant de 1625/3000 à 2000/2625
 				// droite d'équation : y = -x + 4625
 				// droite partant de 1625/0 à 2000/375
-				// droite d'équation : y = x + 375
+				// droite d'équation : y = x - 1625
 			}
+
 		}
 
-
-		// Calcul de la longueur de chaques objets
+		// Calcul de la longueur de chaque objet
 		// Et test des objets probablement des triangles
-		for(j=0;j<3;j++){
+		for(j=0;j<3;j++){									// Validé
 			for(i=0;i<nb_objet[j];i++){
-				if(1){
+				if(objet[j][i].active){
 					objet[j][i].longueur = distance(scan[objet[j][i].indice_debut_point].x[j], scan[objet[j][i].indice_debut_point].y[j],
-							scan[objet[j][i].indice_fin_point].x[j], scan[objet[j][i].indice_fin_point].x[j]);
-					if(objet[j][i].longueur < 80 || objet[j][i].longueur > 160)
+							scan[objet[j][i].indice_fin_point].x[j], scan[objet[j][i].indice_fin_point].y[j]);
+					debug_printf("l = %d\n", objet[j][i].longueur);
+					if(objet[j][i].longueur < 50)
 						objet[j][i].active = FALSE;
 				}
 			}
 		}
 
-		// vecteurs unitaire d'un objet avec moyennage des vecteurs de l'objet
-		for(j=0;j<3;j++){
+		// vecteurs unitaires d'un objet avec moyennage des vecteurs de l'objet
+		for(j=0;j<3;j++){																// Validé
 			for(i=0;i<nb_objet[j];i++){
 				if(objet[j][i].longueur){
-					for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point-1;i++){
-						objet[j][i].vecteur.x += vect[j][i].x;
-						objet[j][i].vecteur.x += vect[j][i].x;
+					for(k=objet[j][i].indice_debut_point;k<objet[j][i].indice_fin_point;k++){
+						objet[j][i].vecteur.x += vect[j][k].x;
+						objet[j][i].vecteur.y += vect[j][k].y;
 					}
-					objet[j][i].vecteur.x /= (float)(objet[j][i].indice_fin_point-objet[j][i].indice_debut_point);
-					objet[j][i].vecteur.y /= (float)(objet[j][i].indice_fin_point-objet[j][i].indice_debut_point);
-					objet[j][i].vecteur.x /= (float)(objet[j][i].longueur);
-					objet[j][i].vecteur.y /= (float)(objet[j][i].longueur);
+					objet[j][i].vecteur.x = objet[j][i].vecteur.x/((float)(objet[j][i].longueur));
+					objet[j][i].vecteur.y = objet[j][i].vecteur.y/((float)(objet[j][i].longueur));
 				}
 			}
 		}
 
-		// Calcul du point milieu de chaques objets
+		// Calcul du point milieu de chaque objet
 		for(j=0;j<3;j++){								// Validé
 			for(i=0;i<nb_objet[j];i++){
 				objet[j][i].point_milieu.x = (scan[objet[j][i].indice_debut_point].x[j] + scan[objet[j][i].indice_fin_point].x[j])/2;
 				objet[j][i].point_milieu.y = (scan[objet[j][i].indice_debut_point].y[j] + scan[objet[j][i].indice_fin_point].y[j])/2;
 			}
 		}
-
 
 		// vecteur unitaire perpendiculaire
 		for(j=0;j<3;j++){								// Validé
@@ -465,21 +468,8 @@ void SCAN_TRIANGLE_calculate(void){
 			}
 		}
 
-		/*debug_printf("#Actif\n");
-		for(i=0;i<nb_objet[0];i++){
-			debug_printf("0;%d\n", i);
-			debug_printf("%d\n", objet[0][i].active);
-		}
-
-		debug_printf("#Longueur\n");
-		for(i=0;i<nb_objet[0];i++){
-			debug_printf("0;%d\n", i);
-			debug_printf("%d\n", objet[0][i].longueur);
-		}*/
-
-
 	#ifdef SOFT_SCAN_TRIANGLE
-		debug_printf("###-DEBUT_SCAN-###\n");
+		debug_printf("\n###-DEBUT_SCAN-###\n");
 		/*for(k=0;k<3;k++){
 			debug_printf("#Point\n");
 			debug_printf("%d\n", k);
@@ -490,12 +480,14 @@ void SCAN_TRIANGLE_calculate(void){
 		}*/
 		for(k=0;k<1;k++){
 			for(i=0;i<nb_objet[k];i++){
-				debug_printf("#Objet\n");
-				debug_printf("%d;%d\n", k, i);
-				for(j=objet[k][i].indice_debut_point;j<=objet[k][i].indice_fin_point;j++){
-					debug_printf("%d;%d\n", scan[j].x[k], scan[j].y[k]);
+				if(objet[k][i].longueur > 50){
+					debug_printf("#Objet\n");
+					debug_printf("%d;%d\n", k, i);
+					for(j=objet[k][i].indice_debut_point;j<=objet[k][i].indice_fin_point;j++){
+						debug_printf("%d;%d\n", scan[j].x[k], scan[j].y[k]);
+					}
+					debug_printf("#End_Objet\n");
 				}
-				debug_printf("#End_Objet\n");
 			}
 
 			for(i=0;i<nb_objet[k];i++){
@@ -528,9 +520,8 @@ void SCAN_TRIANGLE_canMsg(void){
 	b_ask_for_scan = TRUE;
 }
 
-static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy){
-	return global.position.x > lx && global.position.x < hx
-			&& global.position.y > ly && global.position.y < hy;
+static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y){
+	return x > lx && x < hx && y > ly && y < hy;
 }
 
 float racine(float val){
@@ -548,96 +539,7 @@ static void Acknowledge_Intern(void){
 }
 
 static Sint16 distance(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
-	return racine(square((Sint32)(y1 - y2)) + square(((Sint32)(x1 - x2))));
+	return racine(square((Sint32)(y1 - y2)) + square((Sint32)(x1 - x2)));
 }
 
 #endif
-
-/*
-  u.v = xx' + yy'  = ||u|| * ||v|| cos(u,v) = 1/2(||u + v||² - ||u||² - ||v||²)
-  -> cos(u,v) = (xx' + yy')/(||u|| * ||v||)
-  ||u|| = sqrt(x²+y²)
-  ||v|| = sqrt(x'²+y'²)
-*/
-/*debug_printf("valeur des scalaires : \n");
-for(i=0;i<NB_POINTS-1;i++){
-	for(j=0;j<3;j++){
-		if(i != 0)
-			debug_printf("%d\n", (int)(absolute((1000*((vect[j][i-1].x)*(vect[j][i].x) + (vect[j][i-1].y)*(vect[j][i].y)))/
-						 (racine(square(vect[j][i-1].x) + square(vect[j][i-1].y))*
-						  racine(square(vect[j][i].x) + square(vect[j][i].y))))));
-		objet[j][nb_objet[j]].data[objet[j][nb_objet[j]].nbData].x = scan[i].x[j];
-		objet[j][nb_objet[j]].data[objet[j][nb_objet[j]].nbData].y = scan[i].y[j];
-		objet[j][nb_objet[j]].data[objet[j][nb_objet[j]].nbData].dist = scan[i].dist[j];
-		objet[j][nb_objet[j]].data[objet[j][nb_objet[j]].nbData].pos = scan[i].pos;
-		objet[j][nb_objet[j]].nbData++;
-		if(i != 0 && (500 < (int)(absolute((1000*((vect[j][i-1].x)*(vect[j][i].x) + (vect[j][i-1].y)*(vect[j][i].y)))/
-					(racine(square(vect[j][i-1].x) + square(vect[j][i-1].y))*
-					 racine(square(vect[j][i].x) + square(vect[j][i].y))))))
-					|| racine(square((Sint32)(scan[i-1].y[j] - scan[i].y[j]))
-					   + square(((Sint32)(scan[i-1].x[j] - scan[i].x[j])))) < 50)
-				&& nb_objet[j] < 20)
-			nb_objet[j]++;
-		if((int)(absolute((1000*((vect[j][i-1].x)*(vect[j][i].x) + (vect[j][i-1].y)*(vect[j][i].y)))/
-			   (racine(square(vect[j][i-1].x) + square(vect[j][i-1].y))*
-				racine(square(vect[j][i].x) + square(vect[j][i].y)))))> 1000)
-			printf("V1 %d %d\nV2 %d %d\nnorme V1 %d\nnorme V2 %d\n produit scalaire %d\n", (int)vect[j][i-1].x, (int)vect[j][i-1].y, (int)vect[j][i].x, (int)vect[j][i].y,
-					(int)(racine(square(vect[j][i-1].x) + square(vect[j][i-1].y))), (int)(racine(square(vect[j][i].x) + square(vect[j][i].y))),
-					(int)(1000*((vect[j][i-1].x)*(vect[j][i].x) + (vect[j][i-1].y)*(vect[j][i].y))));
-	}
-}
-nb_objet[0]++;
-nb_objet[1]++;
-nb_objet[2]++;*/
-
-
-/*
-// filtrer temp passé
-for(i=1;i<NB_POINTS-1;i++){
-	for(j=0;j<3;j++){
-		if(i==1){
-			angle_vecteur_temp[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i-1])/2;
-		}else if(i==2){
-			angle_vecteur_temp[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i-1] + angle_vecteur[j][i-2])/3;
-		}else{
-			angle_vecteur_temp[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i-1] + angle_vecteur[j][i-2] +  angle_vecteur[j][i-3])/4;
-		}
-	}
-}
-
-// filtrer reverse temp passé
-for(i=NB_POINTS-3;i>=0;i--){
-	for(j=0;j<3;j++){
-		if(i==NB_POINTS-3){
-			angle_vecteur[j][i] = (angle_vecteur_temp[j][i] + angle_vecteur_temp[j][i+1])/2;
-		}else if(i==NB_POINTS-4){
-			angle_vecteur[j][i] = (angle_vecteur_temp[j][i] + angle_vecteur_temp[j][i+1] + angle_vecteur_temp[j][i+2])/3;
-		}else{
-			angle_vecteur[j][i] = (angle_vecteur_temp[j][i] + angle_vecteur_temp[j][i+1] + angle_vecteur_temp[j][i+2] +  angle_vecteur_temp[j][i+3])/4;
-		}
-	}
-}*/
-
-/*// filtrage des coordonées des objets
-for(j=0;j<3;j++){
-	for(k=0;k<nb_objet[j];k++){
-		for(i=objet[j][nb_objet[j]].indice_debut_point;i<=objet[j][nb_objet[j]].indice_fin_point;i++){
-			if(i != objet[j][nb_objet[j]].indice_fin_point){
-				objet[j][k].data[i].x = (objet[j][k].data[i].x + objet[j][k].data[i+1].x)/2;
-				objet[j][k].data[i].y = (objet[j][k].data[i].y + objet[j][k].data[i+1].y)/2;
-			}
-		}
-	}
-}
-
-// filtrage reverse des coordonées des objets
-for(j=0;j<3;j++){
-	for(k=0;k<nb_objet[j];k++){
-		for(i=objet[j][nb_objet[j]].indice_debut_point;i<=objet[j][nb_objet[j]].indice_fin_point;i++){
-			if(i != objet[j][nb_objet[j]].indice_debut_point){
-				objet[j][k].data[i].x = (objet[j][k].data[i].x + objet[j][k].data[i-1].x)/2;
-				objet[j][k].data[i].y = (objet[j][k].data[i].y + objet[j][k].data[i-1].y)/2;
-			}
-		}
-	}
-}*/
