@@ -353,12 +353,12 @@ void strat_test_point(){
 	case RAMASSER_FRUIT_ARBRE2:
 		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2(),RAMASSER_FRUIT_ARBRE2,DEPOSER_FRUIT_JAUNE,ERROR);
 		break;
-	case DEPOSER_FRUIT_ROUGE:
+	/*case DEPOSER_FRUIT_ROUGE:
 		state = check_sub_action_result(strat_test_deposser_fruit_rouge(),DEPOSER_FRUIT_ROUGE,DONE,ERROR);
 		break;
 	case DEPOSER_FRUIT_JAUNE:
 		state = check_sub_action_result(strat_test_deposser_fruit_jaune(),DEPOSER_FRUIT_JAUNE,DONE,ERROR);
-		break;
+		break;*/
 	case POS_FIN:
 		state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
