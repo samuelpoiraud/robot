@@ -27,17 +27,6 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ARM
 #include "../QS/QS_outputlog.h"
 
-#define ARM_NUM_POS           3
-	#define ARM_UP_POS_ID     0
-	#define ARM_MID_POS_ID    1
-	#define ARM_DOWN_POS_ID   2
-
-#if DCMOTOR_NB_POS < ARM_NUM_POS
-#error "Le nombre de position disponible dans l'asservissement DCMotor n'est pas suffisant"
-#endif
-#if DCM_NUMBER <= ARM_LEFT_DCMOTOR_ID || DCM_NUMBER <= ARM_RIGHT_DCMOTOR_ID
-#error "Le nombre de DCMotor disponible n'est pas suffisant, veuillez augmenter DCM_NUMBER"
-#endif
 
 static void ARM_initAX12();
 
@@ -110,7 +99,7 @@ static void ARM_initAX12() {
 
 				AX12_config_set_error_before_led(arm_motors[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 				AX12_config_set_error_before_shutdown(arm_motors[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
-			} else {
+			} else if(ax12_is_initialized[i] == FALSE) {
 				// Au moins un RX24/AX12 non prêt => pas allOk, on affiche pas le message d'init
 				allOk = FALSE;
 				debug_printf("AX12 %d not here\n", arm_motors[i].id);
@@ -203,6 +192,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 					return_result = FALSE;
 				if(done && result != ACT_RESULT_DONE) {
 					return_result = TRUE;
+					//todo: return to old state
 					break;
 				}
 			}

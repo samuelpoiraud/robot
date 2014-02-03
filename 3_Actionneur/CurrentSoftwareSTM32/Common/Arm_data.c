@@ -20,6 +20,7 @@
 
 static Sint16 ARM_readDCMPos();
 
+//liste de moteurs
 ARM_motor_data_t arm_motors[ARM_ACT_NUMBER] = {
 //   type  id  timeout epsilon maxP0 maxP1 pwm wayport waybit kp ki kd
 //	DECLARE_DCMOTOR(ARM_ACT_UPDOWN, &ARM_readDCMPos),
@@ -28,14 +29,22 @@ ARM_motor_data_t arm_motors[ARM_ACT_NUMBER] = {
 //	DECLARE_AX12(ARM_ACT_AX12_TRIANGLE)
 };
 
+//Position d'états (ligne = état, colonne = pos moteur dans l'ordre de arm_motors)
 arm_state_t arm_states[ARM_ST_NUMBER] = {
+// moteur (dans l'ordre)
 	{0  , 150},	//ARM_ST_Parked
-	{150, 300}	//ARM_ST_Open
+	{150, 300},	//ARM_ST_Open
+	{54, 176}	//ARM_ST_Mid
 };
 
-Uint8 arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER] = {
-	{0, 1},
-	{1, 0}
+//changement d'état possible (ligne -> colonne)
+//                              lignes         colonnes
+//                             ancien état    nouvel état
+bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER] = {
+//   ARM_ST_Parked     ARM_ST_Open       ARM_ST_Mid
+	{1,                0,                1}, //ARM_ST_Parked
+	{1,                1,                1}, //ARM_ST_Open
+	{0,                1,                1}  //ARM_ST_Mid
 };
 
 static Sint16 ARM_readDCMPos() {
