@@ -24,14 +24,18 @@
 // Rapport sur la courbe DT10 couleur noir  y = 0,667*x - 119
 // Rapport sur la courbe DT10 couleur blanc y = 0,583*x - 78,19
 
-#define X_SENSOR_BOT -66	// -45
-#define Y_SENSOR_BOT 90		// 100
-#define X_SENSOR_MID 78		// 25
-#define Y_SENSOR_MID 98		// 100
-#define X_SENSOR_TOP 46		// 80
-#define Y_SENSOR_TOP 98		// 100
+#define X_SENSOR_BOT	-66	// -45
+#define Y_SENSOR_BOT	90		// 100
+#define X_SENSOR_MID	78		// 25
+#define Y_SENSOR_MID	98		// 100
+#define X_SENSOR_TOP	46		// 80
+#define Y_SENSOR_TOP	98		// 100
 
-#define DIST_ARETE_MILIEU 37
+#define DIST_ARETE_MILIEU	37
+#define RAYON_MIN_TORCHE	115
+#define RAYON_MAX_TORCHE	145
+#define COEF_DECTECTION_SEUIL 6
+
 
 #define NB_POINTS 90
 
@@ -42,6 +46,7 @@ volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[
 struct{
 	Uint8 indice_debut_point, indice_fin_point;
 	bool_e active;
+	bool_e torche;
 	Sint16 longueur;
 	struct{Sint16 x; Sint16 y;} point_milieu;
 	struct{Sint16 x; Sint16 y;} milieu;
@@ -77,7 +82,8 @@ Uint8 move_completed, run_calcul;
 bool_e b_ask_for_scan;
 
 
-static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y);
+static bool_e EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y);
+static bool_e EstDansLeCercle(Sint16 x, Sint16 y, Sint16 x0, Sint16 y0, Sint16 rayon);
 static void Acknowledge_Intern(void);
 static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure);
 static float racine(float val);
@@ -265,6 +271,7 @@ void SCAN_TRIANGLE_calculate(void){
 				objet[j][i].indice_debut_point = 0;
 				objet[j][i].indice_fin_point = 0;
 				objet[j][i].active = FALSE;
+				objet[j][i].torche = FALSE;
 				objet[j][i].longueur = 0;
 				objet[j][i].milieu.x = 0;
 				objet[j][i].milieu.y = 0;
@@ -344,7 +351,7 @@ void SCAN_TRIANGLE_calculate(void){
 		// seuil changement brutal
 		for(i=0;i<NB_POINTS-1;i++){						// Validé
 			for(j=0;j<3;j++){
-				if((int)(absolute(angle_vecteur[j][i])) > 10){
+				if((int)(absolute(angle_vecteur[j][i])) > COEF_DECTECTION_SEUIL){
 					angle_vecteur[j][i] = 1;
 				}else{
 					angle_vecteur[j][i] = 0;
@@ -382,7 +389,7 @@ void SCAN_TRIANGLE_calculate(void){
 			for(k=0;k<nb_objet[j];k++){
 				if(nb_objet[j] < 20){
 					for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point;i++){
-						if(distance(scan[i].x[j], scan[i].y[j], scan[i+1].x[j], scan[i+1].y[j]) > 30){
+						if(distance(scan[i].x[j], scan[i].y[j], scan[i+1].x[j], scan[i+1].y[j]) > 25){
 							objet[j][nb_objet[j]].indice_fin_point = objet[j][k].indice_fin_point;
 							objet[j][nb_objet[j]].indice_debut_point = i+1;
 							objet[j][k].indice_fin_point = i;
@@ -468,6 +475,34 @@ void SCAN_TRIANGLE_calculate(void){
 			}
 		}
 
+		// Concaténation des centres des triangles
+		for(j=0;j<3;j++){								// Validé
+			for(i=0;i<nb_objet[j];i++){
+				for(k=0;k<nb_objet[j];k++){
+					if(k != i && distance(objet[j][i].milieu.x, objet[j][i].milieu.y, objet[j][k].milieu.x, objet[j][k].milieu.y) < 50
+							&& objet[j][i].active && objet[j][k].active){
+						objet[j][k].active = FALSE;
+						objet[j][i].milieu.x = (objet[j][i].milieu.x + objet[j][k].milieu.x)/2;
+						objet[j][i].milieu.y = (objet[j][i].milieu.y + objet[j][k].milieu.y)/2;
+					}
+				}
+			}
+		}
+
+		// Détection de torche
+		/*for(j=0;j<3;j++){
+			for(i=0;i<nb_objet[j];j++){
+				if(objet[j][i].active){
+					objet[j][i].torche = TRUE;
+					for(k=objet[j][i].indice_debut_point;k<=objet[j][i].indice_fin_point;k++){
+						if(EstDansLeCercle(scan[k].x[j], scan[k].y[j], objet[j][i].milieu.x, objet[j][i].milieu.y, RAYON_MIN_TORCHE)
+								|| !EstDansLeCercle(scan[k].x[j], scan[k].y[j], objet[j][i].milieu.x, objet[j][i].milieu.y, RAYON_MAX_TORCHE))
+							objet[j][i].torche = FALSE;
+					}
+				}
+			}
+		}*/
+
 	#ifdef SOFT_SCAN_TRIANGLE
 		debug_printf("\n###-DEBUT_SCAN-###\n");
 		/*for(k=0;k<3;k++){
@@ -507,6 +542,13 @@ void SCAN_TRIANGLE_calculate(void){
 					debug_printf("#End_Milieu\n");
 				}
 			}
+
+			for(i=0;i<nb_objet[k];i++){
+				if(objet[k][i].torche){
+					debug_printf("#Torche");
+					debug_printf("%d;%d\n", k, i);
+				}
+			}
 		}
 		debug_printf("#Robot\n");
 		debug_printf("%d;%d\n", global.position.x, global.position.y);
@@ -540,6 +582,10 @@ static void Acknowledge_Intern(void){
 
 static Sint16 distance(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 	return racine(square((Sint32)(y1 - y2)) + square((Sint32)(x1 - x2)));
+}
+
+static bool_e EstDansLeCercle(Sint16 x, Sint16 y, Sint16 x0, Sint16 y0, Sint16 rayon){
+	return square(x-x0) + square(y-y0) <= square(rayon);
 }
 
 #endif
