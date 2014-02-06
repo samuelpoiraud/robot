@@ -285,9 +285,12 @@
 
 // Code des SID des messages: 0x30x = message pour Tiny, 0x31x = message pour Krusty.
 // Le SID 0x300 est reservé pour le self_test
+// Ceci est un enum de SID d'actionneur avec les paramètres de chaque actions définie par des defines. L'enum est utilisé pour vérifier que tous les messages de retour d'actionneurs sont géré en strat
+
+typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le reste en #DEFINE
 /* Messages pour Tiny */
 	//////////////// HAMMER /////////////////
-	#define ACT_HAMMER (ACT_FILTER | 0x01)    //0x01 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
+	ACT_HAMMER = (ACT_FILTER | 0x01),    //0x01 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
 		//Paramètres de HAMMER (dans data[0])
 		#define ACT_HAMMER_MOVE_TO     0   // Changer la position du bras, angle en degré dans data[1] (poids faible) et data[2]. 90° = bras vertical, 0° = bras rentré
 		#define ACT_HAMMER_STOP        1   // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
@@ -297,7 +300,7 @@
 	/////////////////////////////////////////
 
 	////////////// LONGHAMMER ///////////////
-	#define ACT_LONGHAMMER (ACT_FILTER | 0x02)
+	ACT_LONGHAMMER =(ACT_FILTER | 0x02),
 		//Paramètres de LONGHAMMER (dans data[0])
 		#define ACT_LONGHAMMER_GO_UP   0    // Lever le bras
 		#define ACT_LONGHAMMER_GO_DOWN 1    // Appuyer sur les bougies et les éteindres en descendant le bras
@@ -307,7 +310,7 @@
 	/////////////////////////////////////////
 
 	///////////// BALLINFLATER //////////////
-	#define ACT_BALLINFLATER (ACT_FILTER | 0x03)
+	ACT_BALLINFLATER = (ACT_FILTER | 0x03),
 		//Paramètres de LONGHAMMER (dans data[0])
 		#define ACT_BALLINFLATER_START 0    // Gonfler le ballon pendant data[1] secondes (Uint8). Le message de retour n'attend pas la fin du gonflage.
 		#define ACT_BALLINFLATER_STOP  1    // Stopper le gonflage
@@ -315,7 +318,7 @@
 
 
 	///////////// CANDLECOLOR ///////////////
-	#define ACT_CANDLECOLOR (ACT_FILTER | 0x04)
+	ACT_CANDLECOLOR = (ACT_FILTER | 0x04),
 		//Paramètres de CANDLECOLOR (dans data[0])
 		#define ACT_CANDLECOLOR_GET_LOW    0  //Bouge le capteur et récupère la couleur d'une bougie à l'étage bas
 		#define ACT_CANDLECOLOR_GET_HIGH   1  //Bouge le capteur et récupère la couleur d'une bougie à l'étage haut
@@ -333,7 +336,7 @@
 
 
 	//////////// PLIER //////////////////////
-	#define ACT_PLIER (ACT_FILTER | 0x05)
+	ACT_PLIER = (ACT_FILTER | 0x05),
 		//PAramètre de PLIER (dans data[0])
 		#define ACT_PLIER_OPEN         0    //Ouvre les pinces à verres
 		#define ACT_PLIER_CLOSE        1    //Ferme les pinces à verres
@@ -341,14 +344,14 @@
 
 /* Messages pour Krusty */
 	////////////// BALLLAUNCHER /////////////
-	#define ACT_BALLLAUNCHER (ACT_FILTER | 0x11)
+	ACT_BALLLAUNCHER = (ACT_FILTER | 0x11),
 		//Paramètres de BALLLAUNCHER (dans data[0])
 		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
 		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
 	/////////////////////////////////////////
 
 	////////////////// PLATE ////////////////
-	#define ACT_PLATE (ACT_FILTER | 0x12)
+	ACT_PLATE = (ACT_FILTER | 0x12),
 		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
 		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette
 		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
@@ -362,7 +365,7 @@
 	/////////////////////////////////////////
 
 	/////////////// BALLSORTER //////////////
-	#define ACT_BALLSORTER (ACT_FILTER | 0x13)
+	ACT_BALLSORTER = (ACT_FILTER | 0x13),
 		//Paramètres de BALLSORTER (dans data[0])
 		#define ACT_BALLSORTER_TAKE_NEXT_CHERRY 0    //Ejecter la cerise et en prendre une autre pour la detecter. Après detection, le lanceur de balle change de vitesse automatiquement.
 													 //Vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
@@ -376,8 +379,8 @@
 	/////////////////////////////////////////
 
 	////////////////// LIFT /////////////////
-	#define ACT_LIFT_RIGHT (ACT_FILTER | 0x14)
-	#define ACT_LIFT_LEFT (ACT_FILTER | 0x15)
+	ACT_LIFT_RIGHT = (ACT_FILTER | 0x14),
+	ACT_LIFT_LEFT = (ACT_FILTER | 0x15),
 		//Paramètres de LIFT (dans data[0]) (0x1x: Pince, 0x2x: mouvement ascenseur)
 		#define ACT_LIFT_PLIER_OPEN            0x10	//Ouvrir la pince et lacher le verre
 		#define ACT_LIFT_PLIER_CLOSE           0x11	//Fermer la pince et serrer le verre
@@ -393,7 +396,7 @@
 	// 2014
 
 	////////////////// FRUIT_MOUTH ///////////
-	#define ACT_FRUIT_MOUTH (ACT_FILTER | 0x18)   //0x16: collision avec ACT_PING
+	ACT_FRUIT_MOUTH = (ACT_FILTER | 0x18),   //0x16: collision avec ACT_PING
 		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
 		#define ACT_FRUIT_MOUTH_CLOSE           0x10	//Fermer la pince et serrer l'assiette
 		#define ACT_FRUIT_MOUTH_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
@@ -402,7 +405,7 @@
 	/////////////////////////////////////////
 
 	/////////////////LANCELAUNCHER////////////////////
-	#define ACT_LANCELAUNCHER (ACT_FILTER | 0x17)
+	ACT_LANCELAUNCHER = (ACT_FILTER | 0x17),
 		//Paramètres de LANCELAUNCHER (dans data[0])
 		#define ACT_LANCELAUNCHER_RUN		0x11
 		#define ACT_LANCELAUNCHER_RUN_2		0x12
@@ -414,13 +417,15 @@
 	////////////////////////////////////////////////
 
 	////////////////// ARM  /////////////////
-	#define ACT_ARM 0x320
+	ACT_ARM = (ACT_FILTER | 0x20)
 		//Paramètres de ARM (dans data[0])
 		#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[1] (une des valeurs ci-dessous)
 			#define ACT_ARM_POS_OPEN   0
 			#define ACT_ARM_POS_PARKED 1
 		#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
 	/////////////////////////////////////////
+
+} ACT_sid_e; //FIN de l'enum des SID d'actionneurs
 
 /*****************************************************************
  *
