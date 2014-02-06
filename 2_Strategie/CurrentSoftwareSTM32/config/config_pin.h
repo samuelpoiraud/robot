@@ -48,6 +48,7 @@
 	#define LCD_RESET_PORT		GPIOB->ODR9
 	//	I2C RTC/LCD	 			  	  10
 	//	I2C RTC/LCD	 			  	  11
+	#define SD_CS				GPIOB->ODR12
 	#define EEPROM_CS			GPIOB->ODR12
 	#define EEPROM_SCK			GPIOB->ODR13
 	#define EEPROM_SDO			GPIOB->ODR14
@@ -67,7 +68,7 @@
 	#define BUZZER				GPIOC->ODR9
 	//	-	sortie libre 			  10
 	#define EEPROM_WP			GPIOC->ODR11
-	#define SD_CS				GPIOC->ODR11
+	//#define 				GPIOC->ODR11
 	#define EEPROM_HOLD			GPIOC->ODR12
 	#define PORT_ROBOT_ID  		GPIOC->IDR13
 	//	-	OSC32_in 			  	  14
