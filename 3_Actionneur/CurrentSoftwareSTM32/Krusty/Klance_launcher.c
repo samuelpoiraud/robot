@@ -160,6 +160,7 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 
 				case ACT_LANCELAUNCHER_STOP: //La queue n'est pas utilisée pour cette commande
+					component_printf(LOG_LEVEL_Debug, "lanceur stop\n");
 					QUEUE_behead(queueId);
 					break;
 
@@ -179,7 +180,7 @@ void TIMER_SRC_TIMER_interrupt() {
 	/* pour avoir une activation d'une seconde pour les lanceurs de lances*/
 	static Uint8 lance_launcher_timer=0;
 	lance_launcher_timer++;
-	if (lance_launcher_timer>=10){
+	if (lance_launcher_timer>=10 && lance_launcher_last_launch > 0){
 		lance_launcher_last_launch--;  //le lancé étant déjà fait on post décrémente lance_launcher_last_launch
 		switch(lance_launcher_last_launch){
 			case 0 :
