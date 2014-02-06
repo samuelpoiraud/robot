@@ -73,7 +73,7 @@
 			#define PWM_MOTEUR_2  4			//9
 			#define SENS_MOTEUR_1 	GPIOC->ODR11
 			#define SENS_MOTEUR_2 	GPIOC->ODR12
-			#define PORT_ROBOT_ID  	(!GPIOC->IDR13)
+			#define PORT_ROBOT_ID  	GPIOC->IDR13
 			//	-	OSC32_in 			  	  14
 			//	-	OSC32_out 			  	  15
 
