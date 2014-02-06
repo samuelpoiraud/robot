@@ -33,9 +33,9 @@
 		#if !defined(DISABLE_WHO_AM_I)
 			//On lit l'entrée...
 			if(PORT_ROBOT_ID)
-				robot_id = TINY;
+				robot_id = BIG_ROBOT;
 			else
-				robot_id = KRUSTY;
+				robot_id = SMALL_ROBOT;
 		#elif 1-DISABLE_WHO_AM_I-1 == 2		//Permet de savoir si DISABLE_WHO_AM_I est défini à quelque chose. Si c'est pas le cas, on a 1--1 == 1+1 == 2
 			#warning "Definir DISABLE_WHO_AM_I a KRUSTY ou TINY pour definir le robot explicitement. Ici, TINY sera choisi par defaut."
 			robot_id = TINY;	//Par défaut, le robot est ...
