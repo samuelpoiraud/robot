@@ -155,7 +155,7 @@ void QUEUE_run()
 		{
 			this=&(queues[queue_id]);
 			(this->action[this->head])(queue_id, FALSE);
-			component_printf_queue(LOG_LEVEL_Debug, queue_id, "Run\n");
+			component_printf_queue(LOG_LEVEL_Trace, queue_id, "Run\n");
 		}
 	}
 }
