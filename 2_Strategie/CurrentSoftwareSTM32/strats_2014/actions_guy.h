@@ -20,5 +20,4 @@
 
 void Strat_Detection_Triangle(void);
 
-
 #endif /* ACTIONS_GUY_H_ */

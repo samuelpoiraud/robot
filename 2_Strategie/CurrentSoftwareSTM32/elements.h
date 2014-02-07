@@ -296,4 +296,10 @@
 			
 	#endif /* def ELEMENTS_C */
 	
+	void TRIANGLE_add_to_list(CAN_msg_t* msg);
+	bool_e propulsion_send_triangle();
+	void afficher_donnee_triangle();
+	void TRIANGLE_init_list();
+	void LAUNCH_SCAN_TRIANGLE();
+	
 #endif /* ndef ELEMENTS_H */

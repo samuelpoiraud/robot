@@ -12,6 +12,7 @@
 #include "actions_guy.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
+#include "../elements.h"
 
 
 
@@ -37,13 +38,13 @@ void Strat_Detection_Triangle(void){
 		SCAN_FOYER_GAUCHE,
 		PLACEMENT_FOYER_MILIEU,
 		SCAN_FOYER_MILIEU,
+		LIBERE_MILIEU,
 		PLACEMENT_FOYER_DROIT,
 		SCAN_FOYER_DROIT,
 		DONE,
 		ERROR
 	);
 
-	CAN_msg_t msg;
 
 	switch (state){
 		case INIT :
@@ -55,50 +56,56 @@ void Strat_Detection_Triangle(void){
 			break;
 
 		case PLACEMENT_FOYER_GAUCHE :
-			state = try_going(1500, 2500, PLACEMENT_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SLOW, FORWARD, NO_AVOIDANCE);
+			state = try_going(1500, 2500, PLACEMENT_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, PLACEMENT_FOYER_MILIEU, SLOW, FORWARD, NO_AVOIDANCE);
 			break;
 
 		case SCAN_FOYER_GAUCHE :
-			if(entrance){
-				msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
-				msg.size = 0;
-				CAN_send(&msg);
-			}
+			if(entrance)
+				LAUNCH_SCAN_TRIANGLE();
 
-			state = DONE;
+			if(propulsion_send_triangle()){
+				afficher_donnee_triangle();
+				state = PLACEMENT_FOYER_MILIEU;
+			}
 			break;
 
 		case PLACEMENT_FOYER_MILIEU :
-			state = try_going(1200, 1500, PLACEMENT_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SLOW, FORWARD, NO_AVOIDANCE);
+			state = try_going(1000, 1900, PLACEMENT_FOYER_MILIEU, LIBERE_MILIEU, LIBERE_MILIEU, SLOW, FORWARD, NO_AVOIDANCE);
 			break;
 
 		case SCAN_FOYER_MILIEU :
-			if(entrance){
-				msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
-				msg.size = 0;
-				CAN_send(&msg);
-			}
+			if(entrance)
+				LAUNCH_SCAN_TRIANGLE();
 
-			state = DONE;
+			if(propulsion_send_triangle()){
+				afficher_donnee_triangle();
+				state = LIBERE_MILIEU;
+			}
+			break;
+
+		case LIBERE_MILIEU :
+			state = try_going(1500, 1900, LIBERE_MILIEU, PLACEMENT_FOYER_DROIT, PLACEMENT_FOYER_DROIT, SLOW, FORWARD, NO_AVOIDANCE);
 			break;
 
 		case PLACEMENT_FOYER_DROIT :
-			state = try_going(1500, 500, PLACEMENT_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SLOW, FORWARD, NO_AVOIDANCE);
+			state = try_going(1600, 400, PLACEMENT_FOYER_DROIT, PLACEMENT_FOYER_GAUCHE, PLACEMENT_FOYER_GAUCHE, SLOW, FORWARD, NO_AVOIDANCE);
 			break;
 
 		case SCAN_FOYER_DROIT :
-			if(entrance){
-				msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
-				msg.size = 0;
-				CAN_send(&msg);
-			}
+			if(entrance)
+				LAUNCH_SCAN_TRIANGLE();
 
-			state = DONE;
+			if(propulsion_send_triangle()){
+				afficher_donnee_triangle();
+				state = PLACEMENT_FOYER_GAUCHE;
+			}
 			break;
 
-
-
 		case DONE :
-		break;
+			break;
+
+		default :
+			break;
 	}
 }
+
