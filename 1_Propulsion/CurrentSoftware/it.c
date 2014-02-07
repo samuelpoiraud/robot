@@ -31,7 +31,7 @@
 #endif
 
 
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+#if defined (LCD_TOUCH)
 	#include "LCDTouch/LCD.h"
 	#include "LCDTouch/zone.h"
 #endif
@@ -72,7 +72,7 @@ volatile static global_data_storage_t g2;
 void _ISR _T1Interrupt()
 									#endif
 {
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+#if defined (LCD_TOUCH)
 	static Uint8 count = 0;
 #endif
 	LED_USER = 0; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
@@ -116,7 +116,7 @@ void _ISR _T1Interrupt()
 	if(TIMER1_getITStatus())	//L'IT est trop longue ! il y a recouvrement !!!
 		global.flag_recouvrement_IT = TRUE;
 
-#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+#ifdef LCD_TOUCH
 	if(count == 1){
 		count = 0;
 		//ZONE_process_10ms();

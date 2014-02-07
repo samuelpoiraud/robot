@@ -20,9 +20,10 @@
 	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
 	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+	//#define LCD_TOUCH								//Active le LCD tactile
 
-/*	MODE d'EMPLOI MODE SIMULATION
- * 	 1 - activez les 3 defines ci-dessus
+/*	MODE d'EMPLOI MODE SIMULATION AVEC ECRAN TACTILE
+ * 	 1 - activez les 4 defines ci-dessus
  * 	 2 - activez MODE_SIMULATION sur la carte STRATEGIE
  *   3 - avec 4 fils : reliez entre les cartes PROP et STRAT (éventuellement le 5V...) :
  *   	GND<->GND
