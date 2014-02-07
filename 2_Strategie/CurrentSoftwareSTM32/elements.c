@@ -8,6 +8,68 @@
  *	Auteur : Ronan, Adrien
  *	Version 20110430
  */
+ #include "elements.h"
+#include "QS/QS_outputlog.h"
+#include "QS/QS_CANmsgList.h"
+
+bool_e prop_send_all_triangle = FALSE;
+
+struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
+Uint8 nb_objet[3];
+
+void LAUNCH_SCAN_TRIANGLE(){
+	CAN_msg_t msg;
+	msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
+	msg.size = 0;
+	CAN_send(&msg);
+	TRIANGLE_init_list();
+}
+
+void TRIANGLE_init_list(){
+	Uint8 i, j;
+	for(j=0;j<3;j++){
+		nb_objet[j] = 0;
+		for(i=0;i<20;i++){
+			objet[j][i].teta = 0;
+			objet[j][i].y = 0;
+			objet[j][i].x = 0;
+		}
+	}
+}
+
+void TRIANGLE_add_to_list(CAN_msg_t* msg){
+	Uint8 level, number;
+	level = (msg->data[0] & 0x60) >> 5;
+	number = (msg->data[0] & 0x1F);
+	if(level < 3 && number < 20){
+		objet[level][number].x = (((Sint16)(msg->data[1]) << 8) & 0xFF00) | ((Sint16)(msg->data[2]) & 0x00FF);
+		objet[level][number].y = (((Sint16)(msg->data[3]) << 8) & 0xFF00) | ((Sint16)(msg->data[4]) & 0x00FF);
+		objet[level][number].teta = (((Sint16)(msg->data[5]) << 8) & 0xFF00) | ((Sint16)(msg->data[6]) & 0x00FF);
+		nb_objet[level] = number+1;
+	}
+	if(msg->data[0] & 0x80){
+		prop_send_all_triangle = TRUE;
+	}
+}
+
+bool_e propulsion_send_triangle(){
+	if(prop_send_all_triangle){
+		prop_send_all_triangle = FALSE;
+		return TRUE;
+	}else
+		return FALSE;
+}
+
+void afficher_donnee_triangle(){
+	Uint8 i, j;
+	for(i=0;i<3;i++){
+		for(j=0;j<nb_objet[i];j++){
+			debug_printf("%d %d  x:%d  y:%d  teta:%d\n", i, j, objet[i][j].x, objet[i][j].y, objet[i][j].teta);
+		}
+	}
+}
+
+ 
 #if 0
  #define ELEMENTS_C
  
