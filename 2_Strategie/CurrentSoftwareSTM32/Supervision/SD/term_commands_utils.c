@@ -109,6 +109,9 @@ FRESULT scan_files (const char* path, long *total_dirs, long *total_files, long 
 	return res;
 }
 
+
+//Not used
+/*
 //Dump memory
 int term_cmd_md(int argc, const char *argv[]) {
 	long address, count;
@@ -146,11 +149,11 @@ int term_cmd_bd(int argc, const char *argv[]) {
 	next_address = address + 1;
 
 	if(argc < 2)
-		count = 32;
-	else if(!argtolong(argv[1], 0, &count))
+		count = TERM_DATA_BUFFER_SIZE/16;
+	else if(!argtolong(argv[1], 0, &count) || count > TERM_DATA_BUFFER_SIZE/16)
 		return EINVAL;
 
-	for (; count; count--, address += 16)
+	for (long i = 0; i < count; i++, address += 16)
 		put_dump(&term_common_buffer[address], address, 16);
 
 	return 0;
@@ -214,7 +217,7 @@ int term_cmd_bf(int argc, const char *argv[]) {
 	if(!argtolong(argv[0], 0, &value))
 		return EINVAL;
 
-	memset(term_common_buffer, (BYTE)value, sizeof(TERM_DATA_BUFFER_SIZE));
+	memset(term_common_buffer, (BYTE)value, TERM_DATA_BUFFER_SIZE);
 
 	return 0;
 }
@@ -346,3 +349,4 @@ int term_cmd_fm(int argc, const char *argv[]) {
 
 	return 0;
 }
+*/

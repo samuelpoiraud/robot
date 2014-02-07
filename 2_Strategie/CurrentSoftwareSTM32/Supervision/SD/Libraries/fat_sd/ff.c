@@ -1357,10 +1357,10 @@ void get_fileinfo (		/* No return code */
 #if !_LFN_UNICODE
 				w = ff_convert(w, 0);			/* Unicode -> OEM conversion */
 				if (!w) { i = 0; break; }		/* Could not convert, no LFN */
-				if (_DF1S && w >= 0x100)		/* Put 1st byte if it is a DBC */
+				if (_DF1S && w >= 0x100 && i < fno->lfsize - 2)		/* Put 1st byte if it is a DBC */
 					tp[i++] = (XCHAR)(w >> 8);
 #endif
-				if (i >= fno->lfsize - 1) { i = 0; break; }	/* Buffer overrun, no LFN */
+				if (i >= fno->lfsize - 2) { i = 0; break; }	/* Buffer overrun, no LFN, keep room for null terminator */
 				tp[i++] = (XCHAR)w;
 			}
 		}

@@ -271,6 +271,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
 	act_states[act_id].operationResult = ACT_RESULT_Ok;
 #else
+
 	switch(msg->data[0]) {
 		//Pierre
 		case ACT_FRUIT_MOUTH & 0xFF:

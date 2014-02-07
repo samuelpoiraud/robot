@@ -19,7 +19,7 @@
 #include "../QS/QS_watchdog.h"
 #include "../QS/QS_can_over_uart.h"
 #include "../QS/QS_adc.h"
-#include "../QS/QS_WHO_AM_I.h"
+#include "../QS/QS_who_am_i.h"
 #include "SD/Libraries/fat_sd/ff.h"
 #include "RTC.h"
 #include "Buzzer.h"

@@ -13,7 +13,7 @@
 #include "Supervision.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_can_over_xbee.h"
-#include "../QS/QS_OUTPUTlog.h"
+#include "../QS/QS_outputlog.h"
 #include "SD/SD.h"
 #include "Selftest.h"
 #include "Eeprom_can_msg.h"
