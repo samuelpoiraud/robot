@@ -76,6 +76,7 @@ static int dump_sector(int disk, int sector) {
 	int res;
 	long ofs;
 
+	assert(term_common_buffer_size >= 512);
 	res = disk_err_to_errno(disk_read(disk, term_common_buffer, sector, 1));
 	if (res)
 		return res;
@@ -94,7 +95,7 @@ static int reinit(int disk) {
 
 static int show_status(int disk) {
 	term_common_buffer[0] = 2;
-	long data;
+	Uint32 data;
 
 	if (disk_ioctl(disk, CTRL_POWER, term_common_buffer) == RES_OK )
 		debug_printf("Power is %s\n", term_common_buffer[1] ? "ON" : "OFF");
@@ -133,7 +134,7 @@ static int show_status(int disk) {
 	if (disk_ioctl(disk, MMC_GET_SDSTAT, term_common_buffer) == RES_OK) {
 		debug_printf("SD Status:\n");
 		for (data = 0; data < 64; data += 16)
-			put_dump(term_common_buffer+data, data, 16);
+			put_dump(&term_common_buffer[data], data, 16);
 	}
 
 	return 0;

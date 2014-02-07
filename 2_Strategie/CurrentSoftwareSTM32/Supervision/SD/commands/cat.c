@@ -26,6 +26,7 @@ int term_cmd_cat(int argc, const char *argv[]) {
 	while(1)
 	{
 		res = fatfs_err_to_errno(f_read(&file, term_common_buffer, term_common_buffer_size, &bytes_read));
+		assert(bytes_read <= term_common_buffer_size);
 		if(bytes_read == 0) {
 			debug_printf("\n...End of file %s\n", argv[0]);
 			break;

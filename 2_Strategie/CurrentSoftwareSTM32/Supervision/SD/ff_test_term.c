@@ -18,32 +18,9 @@
 #include <string.h>
 #include <ctype.h>
 #include "term_commands_array.h"
+#include "term_commands_utils.h"  //to check size
 #include "commands/help.h"
 #include <string.h>
-
-//Show some help content...
-void print_help(void)
-{
-	printf("\nHelp content - Terminal for easy access to the SD card content.\n");
-	printf("\n   ::  TERMINAL_COMMANDS  ::\n");
-	printf("exit                     - exit the terminal\n");
-	printf("help                     - show this command list\n");
-	printf("\n   ::  DISK_COMMANDS  ::\n");
-	printf("di                       - Initialize disk 0\n");
-	printf("fi                       - Force initialized the logical drive\n");
-	printf("ds                       - Show disk status\n");
-	printf("\n   ::  FILE_COMMANDS  ::\n");
-	printf("ls [<path>]              - Directory listing\n");
-	printf("cat <path>               - print the file content\n");
-	printf("cp <src_name> <dst_name> - Copy file\n");
-	printf("rm <name>                - Delete a file or dir (=Unlink)\n");
-	printf("clean                    - Delete ALL matchs files and the index - BE SURE !!!\n");
-	printf("\n   ::  MEMORY_COMMANDS  ::\n");
-	printf("md <address> [<count>]   - Dump memory\n");
-	printf("dd [<lba>]               - Dump sector\n");
-
-}
-
 
 bool_e execute_command(int argc, const char *argv[]) {
 	Uint8 i;
@@ -56,7 +33,9 @@ bool_e execute_command(int argc, const char *argv[]) {
 				debug_printf("%s: Error %d: %s\n", argv[0], err, strerror(err));
 			}
 
-			if(err == 22)
+			assert(term_common_buffer_size == 512); // (note: term_common_buffer_size est constant mais en mémoire, donc quelqu'un peut l'écraser et cette valeur ne sera plus constante. Ceci dit, la transformer en define ne résoudra pas le problème de l'overflow de tableau)
+
+			if(err == 22) //EINVAL invalid argument
 				term_cmd_help(1, argv);
 
 			return TRUE;

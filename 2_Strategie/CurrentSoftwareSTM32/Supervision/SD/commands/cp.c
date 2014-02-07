@@ -40,6 +40,7 @@ int term_cmd_cp(int argc, const char *argv[]) {
 
 	for (;;) {
 		res = fatfs_err_to_errno(f_read(&file_src, term_common_buffer, term_common_buffer_size, &bytes_read));
+		assert(bytes_read <= term_common_buffer_size);
 		if (res || bytes_read == 0) {
 			debug_printf("EOF\n");
 			break;
