@@ -231,19 +231,21 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 
 #ifdef SCAN_TRIANGLE
 //x : mm, y : mm, teta : rad4096
-void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 triangle_number, Uint16 x, Uint16 y, Sint16 teta)
+void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 triangle_level, Uint8 triangle_number, Uint16 x, Uint16 y, Sint16 teta)
 {
 	CAN_msg_t msg;
-	/*		0 : triangle_number	//de 0 à n avec bit de poids fort indiquant si c'est le dernier triangle
-	 * 		1 : x HIGH bit
-	 * 		2 : x LOW bit
-	 * 		3 : y HIGH bit
-	 *		4 : y LOW bit
-	 * 		5 : teta HIGH bit
-	 * 		6 : teta LOW bit
+	/*		0:7		: Indiquant si c'est le dernier triangle
+	 *		0:6-5	: Hauteur du capteur entre 0 et 2
+	 *		0:5-0	: triangle_number
+	 * 		1		: x HIGH bit
+	 * 		2		: x LOW bit
+	 * 		3		: y HIGH bit
+	 *		4		: y LOW bit
+	 * 		5		: teta HIGH bit
+	 * 		6		: teta LOW bit
 	 */
 	msg.sid = STRAT_TRIANGLE_POSITON;
-	msg.data[0] = triangle_number | ((it_is_the_last_triangle)?IT_IS_THE_LAST_TRIANGLE:0x00);	//n° du triangle  + bit de poids fort si c'est le dernier triangle
+	msg.data[0] = triangle_number | ((it_is_the_last_triangle)?IT_IS_THE_LAST_TRIANGLE:0x00) | ((triangle_level << 5) & 0x60);	//n° du triangle  + bit de poids fort si c'est le dernier triangle
 	msg.data[1] = HIGHINT(x);
 	msg.data[2] = LOWINT(x);
 	msg.data[3] = HIGHINT(y);
@@ -253,7 +255,7 @@ void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 tria
 	msg.size = 7;
 	SECRETARY_send_canmsg(&msg);
 	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		debug_printf("Triangle %d détécté\t%d\t%d\t%d\n",triangle_number,x,y,teta,((it_is_the_last_triangle)?"\n":""));
+		debug_printf("Triangle %d détécté  %d  %d  %d\n%s",triangle_number,x,y,teta,((it_is_the_last_triangle)?"\n":""));
 	#endif
 }
 #endif
@@ -553,6 +555,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		#ifdef SCAN_TRIANGLE
 		case ASSER_LAUNCH_SCAN_TRIANGLE :
 			SCAN_TRIANGLE_canMsg();
+			debug_printf("Kikoo ça à up le flag\n");
 		break;
 		#endif
 
