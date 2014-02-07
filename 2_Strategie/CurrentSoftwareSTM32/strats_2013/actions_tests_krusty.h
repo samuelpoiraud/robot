@@ -13,12 +13,13 @@
 
 #ifndef ACTIONS_TESTS_KRUSTY_H
 #define ACTIONS_TESTS_KRUSTY_H
-	
+
 #include "actions.h"
 #include "../asser_functions.h"
 #include "../act_functions.h"
 #include "actions_tests_krusty_micro.h"
 
+void Strat_test_elise(void);
 void K_Strat_Pour_Les_Nuls(void);
 void Deplacement_Pierre_Strat_Samuel(void);
 
