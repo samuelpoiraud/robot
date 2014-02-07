@@ -64,6 +64,42 @@ void TEST_STRAT_K_homologation(void)
 /* 								Stratégies de test                     			 */
 /* ----------------------------------------------------------------------------- */
 
+void Strat_test_elise(void){
+	// x = 1000
+	// y = 2880
+
+	CREATE_MAE_WITH_VERBOSE(0,
+		INIT,
+		AVANCER,
+		TAGUEULEARNAUD,
+		TA_GUEULE_BIS_ARNAUD,
+		DONE
+	);
+
+
+	switch (state){
+		case INIT :
+			state = AVANCER;
+			break;
+
+		case AVANCER :
+			state = try_going(1000, 2480, AVANCER, TAGUEULEARNAUD, DONE, SLOW, ANY_WAY, NO_AVOIDANCE);
+			break;
+
+		case TAGUEULEARNAUD :
+			state = try_go_angle(0, TAGUEULEARNAUD, TA_GUEULE_BIS_ARNAUD, DONE, SLOW);
+			break;
+
+		case TA_GUEULE_BIS_ARNAUD :
+			state = try_going(1500, 2480, TA_GUEULE_BIS_ARNAUD, DONE, DONE, SLOW, ANY_WAY, NO_AVOIDANCE);
+			break;
+
+		case DONE :
+			break;
+	}
+}
+
+
 void K_Strat_Pour_Les_Nuls(void){
 	static enum {
 			INIT=0,
