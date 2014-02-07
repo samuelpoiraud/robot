@@ -25,7 +25,7 @@
 
 	void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability);
 
-	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+	#ifdef LCD_TOUCH
 		void SECRETARY_send_friend_position(Sint16 x, Sint16 y);
 	#endif
 

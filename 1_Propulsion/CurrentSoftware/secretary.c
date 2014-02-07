@@ -300,7 +300,7 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 	SECRETARY_send_canmsg(&msg);
 }
 
-#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+#ifdef LCD_TOUCH
 	void SECRETARY_send_friend_position(Sint16 x, Sint16 y)
 	{
 		CAN_msg_t msg;

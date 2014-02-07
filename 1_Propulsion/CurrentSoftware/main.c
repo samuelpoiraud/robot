@@ -35,7 +35,7 @@
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
 #endif
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+#if defined (LCD_TOUCH)
 	#include "LCDTouch/stm32f4_discovery_lcd.h"
 	#include "LCDTouch/LCDTouch_Display.h"
 	#include "LCDTouch/LCD.h"
@@ -50,7 +50,8 @@
 #endif
 
 
-#if  defined(SIMULATION_VIRTUAL_PERFECT_ROBOT) ||		\
+#if  defined (LCD_TOUCH)			||					\
+	 defined(SIMULATION_VIRTUAL_PERFECT_ROBOT) ||		\
 	 defined(MODE_PRINTF_TABLEAU) ||					\
 	 defined(MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT) ||	\
 	 defined(SUPERVISOR_DISABLE_ERROR_DETECTION) ||		\
@@ -112,7 +113,7 @@ void initialisation(void)
 
 
 
-	#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+	#if defined (LCD_TOUCH)
 		LCD_init();
 	#endif
 
@@ -190,7 +191,7 @@ int main (void)
 		#ifdef SCAN_TRIANGLE
 			SCAN_TRIANGLE_calculate();
 		#endif
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+#if defined (LCD_TOUCH)
 		LCD_process_main();
 #endif
 
