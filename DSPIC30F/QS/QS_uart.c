@@ -84,7 +84,7 @@ void UART_init(void)
 	#endif /* def USE_UART1 */
 
 	#ifdef USE_UART2
-		OpenUART2(U1MODEvalue, U1STAvalue, UART_SPEED);
+		OpenUART2(U1MODEvalue, U1STAvalue, UART_SPEED/2); //19200 sur uart2
 		ConfigIntUART2(UART_RX_INT_DIS & UART_RX_INT_PR4 &
 			UART_TX_INT_DIS & UART_TX_INT_PR3);
 		DisableIntU2TX;

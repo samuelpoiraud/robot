@@ -146,11 +146,9 @@
 			return;
 		initialized = TRUE;
 
-		#ifdef USE_CAN
-			/* initialisation du buffer de reception des messages CAN */
-			m_can_rx_num = 0;
-			m_canrx = 0;
-		#endif /* def USE_CAN */
+		/* initialisation du buffer de reception des messages CAN */
+		m_can_rx_num = 0;
+		m_canrx = 0;
 
 		CAN_reinit();
 	}
@@ -379,7 +377,16 @@
 			CAN_reinit();
 			debug_printf("End Error List\r\n");
 		}
-#endif /* def USE_CAN */
+#else /* def USE_CAN */
+	//Pas de bus can, définition des fonctions pour que le code compile quand même
+	void CAN_init(void) {}
+	bool_e CAN_data_ready() { return FALSE; }
+	void CAN_set_send_callback(CAN_callback_action_t action) {}
+	void CAN_send(CAN_msg_t* can_msg) {}
+	void CAN_send_sid(Uint11 sid) {}
+	CAN_msg_t CAN_get_next_msg() { static CAN_msg_t msg = {0}; return msg; }
+	void CAN_set_direct_treatment_function(direct_treatment_function_pt fct) {}
+#endif
 
 #ifdef USE_CAN2
 	#error "CAN2 is not implemented"

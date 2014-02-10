@@ -71,7 +71,19 @@
 	//#define DISABLE_PWM4H
 	#define FREQ_PWM_40KHZ
 
-	
+	#define USE_FIFO
+	#define USE_RF
+	#define RF_UART 1  //uart2
+#if NUMERO_BALISE_EMETTRICE == 1
+	#define RF_MODULE RF_FOE1
+#elif NUMERO_BALISE_EMETTRICE == 2
+	#define RF_MODULE RF_FOE2
+#else
+#error "NUMERO_BALISE_EMETTRICE est invalide (doit être 1 ou 2)"
+#endif
+	#define RF_USE_WATCHDOG
+	#define RF_MODULE_COUNT 4
+	#define TIME_PER_MODULE 100 //en ms, temps alloué par modules
 
 
 #endif /* ndef GLOBAL_CONFIG_H */

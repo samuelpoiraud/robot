@@ -97,7 +97,9 @@ static Uint8 crc8(Uint8 *data, Uint8 size) {
 static FIFO_t fifo_tx;
 static char buffer_tx[50];
 static RF_onReceive_ptr packet_received_fct = NULL;
+static RF_onCanMsg_ptr canmsg_received_fct = NULL;
 static bool_e canTransmitData = TRUE;
+static RF_module_e currentModule;
 
 typedef enum {
 	RF_PS_Incomplete,
@@ -118,10 +120,13 @@ typedef enum {
 
 static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size);
 static void RF_putc(Uint8 c);
+static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size);
 
 
-void RF_init(RF_onReceive_ptr onReceiveCallback) {
+void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg_ptr onCanMsgCallback) {
+	currentModule = module;
 	packet_received_fct = onReceiveCallback;
+	canmsg_received_fct = onCanMsgCallback;
 
 #ifdef STM32F40XX
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -149,17 +154,23 @@ void RF_init(RF_onReceive_ptr onReceiveCallback) {
 	FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 }
 
+RF_module_e RF_get_module_id() {
+	return currentModule;
+}
+
 static void RF_putc(Uint8 c)
 {
 	//UART1_putc(c);
 
-	if(!UART_IMPL_isTxFull(RF_UART) && FIFO_isEmpty(&fifo_tx) && canTransmitData)
+	//possible full
+	if(canTransmitData && FIFO_isEmpty(&fifo_tx) && !UART_IMPL_isTxFull(RF_UART))
 		UART_IMPL_write(RF_UART, c);
 	else
 	{
 		bool_e byte_sent = FALSE;
 		//mise en buffer + activation IT U3TX.
 		while(!byte_sent) {
+			UART_IMPL_setTxItEnabled(RF_UART, TRUE);
 			UART_IMPL_setTxItPaused(RF_UART, FALSE);
 			while(FIFO_isFull(&fifo_tx));	//ON BLOQUE ICI
 
@@ -172,9 +183,12 @@ static void RF_putc(Uint8 c)
 			{
 				FIFO_insertData(&fifo_tx, &c);
 				byte_sent = TRUE;
+			} else {
+				printf("bug\n");
 			}
 			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
 
+			UART_IMPL_setTxItEnabled(RF_UART, TRUE);
 			UART_IMPL_setRxItPaused(RF_UART, FALSE);	//On active l'IT sur TX... lors du premier caractère à envoyer...
 		}
 	}
@@ -187,7 +201,7 @@ static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *d
 
 	RF_putc(START_OF_PACKET_CHAR);
 	packet_header.type = type;
-	packet_header.sender_id = RF_MODULE;
+	packet_header.sender_id = currentModule;
 	packet_header.target_id = target_id;
 
 	crc = crc8_incremental(crc, packet_header.raw_data);
@@ -254,8 +268,9 @@ static RF_packet_status_e RF_get_packet_status(RF_header_t header, Uint8 *data, 
 	if(header.sender_id == RF_BROADCAST)
 		return RF_PS_Bad;
 
-	if(header.target_id != RF_BROADCAST && header.target_id != RF_MODULE)
-		return RF_PS_Ignore;
+	//permettre de voir les transmissions entre les autres modules
+//	if(header.target_id != RF_BROADCAST && header.target_id != currentModule)
+//		return RF_PS_Ignore;
 
 	switch(header.type) {
 		case RF_PT_SynchroRequest:
@@ -328,10 +343,34 @@ void RF_state_machine(Uint8 c, bool_e new_frame) {
 		case RFS_GET_CRC:
 			data[i++] = c;
 			if(crc8(data, i) == 0 && packet_received_fct) {
-				(*packet_received_fct)((RF_header_t)data[0], data+1, i-1);
+				RF_process_data((RF_header_t)data[0], data+1, i-1);
 			}
 			state = RFS_IDLE;
 			break;
+	}
+}
+
+static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
+	if(header.type == RF_PT_Can && (header.target_id == currentModule || header.target_id == RF_BROADCAST)) {
+		if(canmsg_received_fct && size > RF_CAN_SID+1 && size > data[RF_CAN_SIZE] && data[RF_CAN_SIZE] >= 2 && data[RF_CAN_SIZE] < 8+2) {
+			CAN_msg_t msg;
+			Uint8 i;
+			msg.size = data[RF_CAN_SIZE] - 2;
+
+			assert(msg.size >= 8); //deja checké dans le if
+
+			msg.sid = (Uint16)data[RF_CAN_SID] | (Uint16)data[RF_CAN_SID+1] << 8;
+
+			for(i = 0; i < msg.size; i++) {
+				msg.data[i] = data[RF_CAN_DATA+i];
+			}
+			for(; i < 8; i++)
+				msg.data[i] = 0;
+			(*canmsg_received_fct)(&msg);
+		}
+	} else if(header.type != RF_PT_Can) {
+		bool_e for_me = header.target_id == RF_BROADCAST || header.target_id == currentModule;
+		(*packet_received_fct)(for_me, header, data, size);
 	}
 }
 
@@ -361,22 +400,24 @@ void RF_TX_Interrupt() {
 			c = (Uint8*)FIFO_getData(&fifo_tx);
 			if(c)
 				UART_IMPL_write(RF_UART, *c);
+			else
+				printf("er");
 
 		} else if(FIFO_isEmpty(&fifo_tx)) {
 			UART_IMPL_setTxItEnabled(RF_UART, FALSE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 		}
 	} else {
 		UART_IMPL_setTxItEnabled(RF_UART, FALSE);	//Le timeout du delai d'attente transmission reactivera l'it
-		TIMER_SRC_TIMER_EnableIT();
+		//TIMER_SRC_TIMER_EnableIT();
 	}
 	UART_IMPL_ackTxIt(RF_UART);
 }
 
 void TIMER_SRC_TIMER_interrupt() {
-	TIMER_SRC_TIMER_DisableIT();
+	TIMER_SRC_TIMER_stop();
 	TIMER_SRC_TIMER_resetFlag();
 	canTransmitData = TRUE;
-	RF_TX_Interrupt();
+	UART_IMPL_setTxItEnabled(RF_UART, TRUE);
 }
 
 #endif
