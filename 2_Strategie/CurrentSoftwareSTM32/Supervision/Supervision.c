@@ -23,6 +23,7 @@
 #include "config_pin.h"
 #include "LCD_interface.h"
 #include "Buzzer.h"
+#include "Synchro_balises.h"
 
 //@pre : QS_WHO_I_AM doit être found.
 //@pre : le CAN doit être initialisé...
@@ -31,6 +32,7 @@ void Supervision_init(void)
 	SELFTEST_init();
 	RTC_init();
 	BUFFER_init();
+	SYNCHRO_init();
 
 	EEPROM_HOLD = 1;
 	EEPROM_CS = 1;
@@ -63,7 +65,7 @@ void Supervision_process_1sec(void)
 }
 
 void Supervision_process_main(void)
-{	
+{
 	static bool_e first_second_elapsed = FALSE;
 //	print_all_msg(); //désolé...
 //	EEPROM_CAN_MSG_verbose_all_match_header();
@@ -89,6 +91,8 @@ void Supervision_process_main(void)
 
 	/* Gestion du selftest */
 	SELFTEST_process_main();
+
+	SYNCHRO_process_main();
 
 
 	#ifdef USE_XBEE

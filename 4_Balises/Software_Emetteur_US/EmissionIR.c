@@ -17,7 +17,8 @@
 #define TRIS_IR_ON 	TRISEbits.TRISE7
 #define TRIS_IR_OFF	TRISEbits.TRISE6
 
-#define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
+//#define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
+#define PERIODE_FLASH (TIME_PER_MODULE/2)
 
 
 void EmissionIR_ON(void)	//IR Toujours allumé
@@ -51,6 +52,8 @@ void EmissionIR_stop(void)
 	EmissionIR_OFF();
 }	
 
+
+//Varie de 0 à 50*nbmodules, 100 ms / module
 static volatile Uint8 step = 0;
 volatile bool_e request_reset_step_ir = FALSE;
 
@@ -60,14 +63,14 @@ void EmissionIR_step_init(void)
 	request_reset_step_ir = TRUE;
 }	
 
-#define DUREE_POUR_UN_EMETTEUR	50 //[2ms] => un émetteur est actif pour 100ms.
+//#define DUREE_POUR_UN_EMETTEUR	50 //[2ms] => un émetteur est actif pour 100ms.
 //@pre Appeler cette fonction toutes les 2ms
 void EmissionIR_next_step(void)
 {
 	if(request_reset_step_ir == TRUE && step > 0 && step <99)
 		step = 0;	
 	else
-		step = (step==2*PERIODE_FLASH-1)?0:step+1;	
+		step = (step == RF_MODULE_COUNT*PERIODE_FLASH-1)? 0: step+1;
 	
 	request_reset_step_ir = FALSE;
 	
@@ -75,9 +78,9 @@ void EmissionIR_next_step(void)
 	{
 		#if(NUMERO_BALISE_EMETTRICE == 1)
 		
-			if(step == 0)
+			if(step % 2*PERIODE_FLASH == 0)
 				EmissionIR_AUTO();
-			if(step == PERIODE_FLASH)
+			if(step % 2*PERIODE_FLASH == PERIODE_FLASH)
 				EmissionIR_OFF();	//On impose l'extinction.
 				
 		#else

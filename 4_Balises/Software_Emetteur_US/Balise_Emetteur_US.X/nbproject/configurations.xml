@@ -25,6 +25,10 @@
       <itemPath>../Global_vars.h</itemPath>
       <itemPath>../motor.h</itemPath>
       <itemPath>../QS/QS_qei.h</itemPath>
+      <itemPath>../QS/QS_rf.h</itemPath>
+      <itemPath>../SynchroRF.h</itemPath>
+      <itemPath>../QS/QS_buffer_fifo.h</itemPath>
+      <itemPath>../QS/QS_watchdog.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -46,6 +50,10 @@
       <itemPath>../QS/QS_global_vars.c</itemPath>
       <itemPath>../motor.c</itemPath>
       <itemPath>../QS/QS_qei.c</itemPath>
+      <itemPath>../QS/QS_rf.c</itemPath>
+      <itemPath>../SynchroRF.c</itemPath>
+      <itemPath>../QS/QS_buffer_fifo.c</itemPath>
+      <itemPath>../QS/QS_watchdog.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -66,6 +74,7 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>dsPIC30F6010A</targetDevice>
         <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>C30</languageToolchain>
         <languageToolchainVersion></languageToolchainVersion>
@@ -77,15 +86,19 @@
             <linkerLibFileItem>../QS/libp30F6010A-coff.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>true</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
-        <makeCustomizationAlternativeFileToLoadEnabled>false</makeCustomizationAlternativeFileToLoadEnabled>
-        <makeCustomizationAlternativeFileToLoad></makeCustomizationAlternativeFileToLoad>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
         <property key="code-model" value="default"/>

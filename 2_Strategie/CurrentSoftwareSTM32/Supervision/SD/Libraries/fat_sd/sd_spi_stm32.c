@@ -366,8 +366,7 @@ void stm32_dma_transfer(
 {
 
 	//On ne veut faire du DMA que en transmission
-	if(receive == TRUE)
-		return;
+	assert(receive != TRUE);
 
 	assert(btr == 512);
 

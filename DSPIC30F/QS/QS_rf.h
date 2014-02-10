@@ -21,6 +21,8 @@ typedef enum {
 	RF_KRUSTY,
 	RF_FOE1,
 	RF_FOE2,
+	RF_GUY = RF_TINY,
+	RF_PIERRE = RF_KRUSTY,
 	RF_BROADCAST = 7
 } RF_module_e;
 
@@ -40,9 +42,11 @@ typedef union {
 	};
 } RF_header_t;
 
-typedef void (*RF_onReceive_ptr)(RF_header_t header, Uint8 *data, Uint8 size);
+typedef void (*RF_onReceive_ptr)(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
+typedef void (*RF_onCanMsg_ptr)(CAN_msg_t* msg);
 
-void RF_init(RF_onReceive_ptr onReceiveCallback);
+void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg_ptr onCanMsgCallback);
+RF_module_e RF_get_module_id();
 void RF_can_send(RF_module_e target_id, CAN_msg_t *msg);
 void RF_synchro_request(RF_module_e target_id);
 void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset);
