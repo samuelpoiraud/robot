@@ -9,9 +9,12 @@ project(SuperStrat C)
 # Paramètres
 ########################
 
-set(CMAKE_VERBOSE_MAKEFILE false)
+#Pour changer un mode, ajotuer -DCMAKE_BUILD_TYPE=Debug par exemple au arguments de cmake
+
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
-set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_VERBOSE_MAKEFILE false CACHE BOOL "Print compilation commands")
+set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type (one of Debug, Release, RelWithDebInfo, MinSizeRel)")
+message("Using ${CMAKE_BUILD_TYPE} mode")
 
 ########################
 # Fichiers de sortie
