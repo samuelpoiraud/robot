@@ -321,6 +321,25 @@ void SCAN_TRIANGLE_calculate(void){
 				scan[i].y[2] = scan[i].pos.y + X_SENSOR_TOP*sin32/4096 + (Y_SENSOR_TOP + scan[i].dist[2])*cos32/4096;
 		}
 
+
+		// Filtre des points x et y
+		// Filtre à temps futur d'ordre 2 avec un poid de 2/3 pour le point courant et 1/3 pour le point suivant
+		for(i=0;i<nb_points-1;i++){						// TEST
+			for(j=0;j<3;j++){
+				scan[i].x[j] = (Sint16)(2./3.*(float)scan[i].x[j] + 1./3.*(float)scan[i+1].x[j]);
+				scan[i].y[j] = (Sint16)(2./3.*(float)scan[i].y[j] + 1./3.*(float)scan[i+1].y[j]);
+			}
+		}
+
+		// Filtre reverse des points x et y
+		// Filtre à temps futur d'ordre 2 avec un poid de 2/3 pour le point courant et 1/3 pour le point suivant
+		for(i=nb_points-1;i>0;i--){						// TEST
+			for(j=0;j<3;j++){
+				scan[i].x[j] = (Sint16)(2./3.*(float)scan[i].x[j] + 1./3.*(float)scan[i-1].x[j]);
+				scan[i].y[j] = (Sint16)(2./3.*(float)scan[i].y[j] + 1./3.*(float)scan[i-1].y[j]);
+			}
+		}
+
 		// Calcul vecteur de chaque entre points
 		for(i=0;i<nb_points-1;i++){						// Validé
 			for(j=0;j<3;j++){
@@ -346,7 +365,7 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// filtrer temp futur
-		for(i=1;i<nb_points-1;i++){						// Validé
+		for(i=0;i<nb_points-1;i++){						// Validé
 			for(j=0;j<3;j++){
 				if(i==nb_points-3){
 					angle_vecteur[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i+1])/2;
@@ -359,7 +378,7 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// filtrer reverse temp futur
-		for(i=nb_points-3;i>=0;i--){					// Validé
+		for(i=nb_points-2;i>=0;i--){					// Validé
 			for(j=0;j<3;j++){
 				if(i==1){
 					angle_vecteur[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i-1])/2;
@@ -379,7 +398,7 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// seuil changement brutal
-		for(i=0;i<nb_points-1;i++){						// Validé
+		for(i=0;i<nb_points-2;i++){						// Validé
 			for(j=0;j<3;j++){
 				if((int)(absolute(angle_vecteur[j][i])) > COEF_DECTECTION_SEUIL){
 					angle_vecteur[j][i] = 1;
