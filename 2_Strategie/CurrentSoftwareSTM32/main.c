@@ -56,7 +56,19 @@ void tests(void)
 	//test_bp_switchs();
 	//test_leds();
 }
-
+void _ISR _T2Interrupt(void)
+{
+	static Uint32 prec;
+	Uint32 * p;
+	LED_RUN = 1;
+	p = (Uint32*) 0x20003710;
+	if(*p != prec)
+	{
+		prec = *p;
+	}
+	LED_RUN = 0;
+	TIMER2_AckIT();
+}
 
 int main (void)
 {
@@ -82,7 +94,7 @@ int main (void)
 	LED_RUN=1;
 	debug_printf("\n-------\nDemarrage CarteS\n-------\n");
 	tests();
-
+	TIMER2_run_us(10);
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	Supervision_init();
