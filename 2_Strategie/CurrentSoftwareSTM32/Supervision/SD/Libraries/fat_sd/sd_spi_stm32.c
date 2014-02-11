@@ -42,7 +42,7 @@
 #include "config_pin.h"
 
 // demo uses a command line option to define this (see Makefile):
-#define STM32_SD_USE_DMA
+//#define STM32_SD_USE_DMA
 
 
 #ifdef STM32_SD_USE_DMA
