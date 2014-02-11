@@ -101,11 +101,10 @@
 #define USE_XBEE
 #define XBEE_PLUGGED_ON_UART2
 
-//#define USE_FIFO
-//#define USE_RF
-//#define RF_UART 3
-//#define RF_MODULE RF_KRUSTY
-//#define RF_SYNCHRO_MASTER
-//#define RF_SYNCHRO_SLAVE
+#define USE_FIFO
+#define USE_RF
+#define RF_UART 3
+#define RF_USE_WATCHDOG
+#define SYNCHROBALISE_TIMER 4
 
 #endif /* CONFIG_QS_H */
