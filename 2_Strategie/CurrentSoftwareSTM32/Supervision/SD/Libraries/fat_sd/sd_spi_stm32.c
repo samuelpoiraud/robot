@@ -373,6 +373,18 @@ void stm32_dma_transfer(
 	stm32_dma_init();
 
 	DMA_InitTypeDef DMA_InitStructure;
+	int inputIncrementSize = 1; //Taille de l'incrément en puissance de 2 (2 ^ inputIncrementSize)
+
+	///// Test overflow DMA
+	char checkOverFlow;
+
+	//Pour vérifier qu'on overflow pas
+	if(buff[512] != 0x55) //overflow du buffer mais on fait qu'une lecture donc ok (c'est pour vérifier qu'on va pas tester la valeur que le DMA pourrait copier du buffer)
+		checkOverFlow = 0x55;
+	else
+		checkOverFlow = 0x66;
+	dma_send_buffer[512] = checkOverFlow;
+	/////////////////////////
 
 	DMA_DeInit(DMA_Stream_SendBuffer);
 
@@ -386,25 +398,31 @@ void stm32_dma_transfer(
 	switch((int)buff % 4) {
 		case 0:
 			DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+			inputIncrementSize = 2;
 			break;
 
 		case 1:
 			DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+			inputIncrementSize = 0;
 			break;
 
 		case 2:
 			DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+			inputIncrementSize = 1;
 			break;
 
 		case 3:
 			DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+			inputIncrementSize = 0;
 			break;
 	}
 
 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Enable;
 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-	DMA_InitStructure.DMA_BufferSize = 512;  //sector size, last 3 bytes are set in stm32_dma_init()
+
+	//Unité de BufferSize: taille en octet de la source (Word = 4 octets, HalfWord = 2 octets, Byte = 1 octet). On fait pas de division pour éviter de perdre le temps qu'on essaye de gagner
+	DMA_InitStructure.DMA_BufferSize = 512 >> inputIncrementSize;  //sector size, last 3 bytes are set in stm32_dma_init()
 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
 
@@ -420,6 +438,10 @@ void stm32_dma_transfer(
 	while (DMA_GetCmdStatus(DMA_Stream_SendBuffer) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SendBuffer, DMA_FLAG_TC_SendBuffer) == RESET) { ; }
 	DMA_ClearFlag(DMA_Stream_SendBuffer, DMA_FLAG_TC_SendBuffer);
 //	DMA_Cmd(DMA_Stream_SendBuffer, DISABLE); //Utile ? Normalement cleared by hardware à la fin du transfert (page 230)
+
+	////// Test overflow DMA
+	assert(dma_send_buffer[512] == checkOverFlow); // Si l'assert passe pas, la copie DMA à overflow le buffer dma_send_buffer. Le DMA doit copier seulement 512 octets (donc de l'index 0 à 511)
+	//////////////////////////
 
 	//On attend que le DMA ait fini d'envoyer les données précédentes.
 	while (DMA_GetCmdStatus(DMA_Stream_SPI_SD_RX) == ENABLE && DMA_GetFlagStatus(DMA_Stream_SPI_SD_RX, DMA_FLAG_SPI_SD_TC_RX) == RESET) { ; }
