@@ -9,7 +9,7 @@
  */
 
 #include "QS_rf.h"
-
+#include "../config/config_qs.h"
 #ifdef USE_RF
 
 #include "impl/QS_uart_impl.h"
@@ -138,11 +138,13 @@ void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	
 	//USART3 TX
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 	//USART3 RX
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 #endif
