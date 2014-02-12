@@ -27,7 +27,7 @@
 	#define XBEE_RESET			GPIOA->ODR5
 	//	-				 			  6
 	#define SWITCH_VERBOSE		GPIOA->IDR7
-	//	-	sortie libre 			  8
+	#define LED_IHM_SET			GPIOA->ODR8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -66,8 +66,11 @@
 	#define LED_BEACON_IR_RED	GPIOC->ODR7
 	#define SYNCHRO_BEACON		GPIOC->ODR8
 	#define BUZZER				GPIOC->ODR9
-	//	-	sortie libre 			  10
+	#define LED_IHM_OK			GPIOC->ODR10
 	#define EEPROM_WP			GPIOC->ODR11
+	#define LED_IHM_UP			GPIOC->ODR11
+	#define LED_IHM_DOWN			GPIOC->ODR12
+
 	//#define 				GPIOC->ODR11
 	#define EEPROM_HOLD			GPIOC->ODR12
 	#define PORT_ROBOT_ID  		GPIOC->IDR13
@@ -78,8 +81,9 @@
 #define PORT_D_IO_MASK	0x02C3
 	//	CAN_RX						  0
 	//	CAN_TX						  1
-	#define BLUE_LEDS			GPIOD->ODR2
-	#define RED_LEDS			GPIOD->ODR3
+	#define RED_LEDS			GPIOD->ODR2
+	#define GREEN_LEDS			GPIOD->ODR3
+	#define BLUE_LEDS			GPIOD->ODR4
 	//	-							  4
 	//	-	usb led red				  5
 	#define SWITCH_COLOR		GPIOD->IDR6

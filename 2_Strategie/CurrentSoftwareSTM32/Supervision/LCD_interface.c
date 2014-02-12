@@ -188,6 +188,12 @@ void init_LCD_interface(void){
 		message.msg[i].size = 0;
 		strat_nb[i] = 0;
 	}
+
+	LED_IHM_OK = 1;
+	LED_IHM_UP = 1;
+	LED_IHM_DOWN	 = 1;
+	LED_IHM_SET = 1;
+
 	initialized = TRUE;
 }
 
