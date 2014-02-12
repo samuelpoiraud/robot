@@ -181,6 +181,7 @@ void test_leds(void)
 	{
 		LED_RUN 				= !LED_RUN;				big_delay();
 		BLUE_LEDS 				= !BLUE_LEDS;			big_delay();
+		GREEN_LEDS 				= !GREEN_LEDS;			big_delay();
 		RED_LEDS 				= !RED_LEDS;			big_delay();
 		LED_ERROR 				= !LED_ERROR;			big_delay();
 		LED_SELFTEST 			= !LED_SELFTEST;		big_delay();

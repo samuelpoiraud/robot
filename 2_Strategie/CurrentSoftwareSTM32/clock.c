@@ -45,13 +45,15 @@ void show_color_on_leds()
 {
 	if(global.env.color!=BLUE)
 	{
-		RED_LEDS = 1;
 		BLUE_LEDS = 0;
+		GREEN_LEDS = 0;
+		RED_LEDS = 1;
 	}
 	else
 	{
-		BLUE_LEDS = 1;
-		RED_LEDS = 0;
+		BLUE_LEDS = 0;
+		GREEN_LEDS = 1;
+		RED_LEDS = 1;
 	}
 }
 
@@ -95,6 +97,7 @@ void _ISR _T1Interrupt()
 			{	//On a pas de lien XBEE avec l'autre Robot : les leds clignotent.
 				BLUE_LEDS = 0;
 				RED_LEDS = 0;
+				GREEN_LEDS = 0;
 			}
 			SELFTEST_process_500ms();
 		}
