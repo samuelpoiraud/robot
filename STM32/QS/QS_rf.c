@@ -9,7 +9,7 @@
  */
 
 #include "QS_rf.h"
-#include "../config/config_qs.h"
+
 #ifdef USE_RF
 
 #include "impl/QS_uart_impl.h"
