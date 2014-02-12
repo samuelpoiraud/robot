@@ -15,6 +15,7 @@
 #include "roadmap.h"
 #include "cos_sin.h"
 #include <math.h>
+#include "_Propulsion_config.h"
 
 #ifdef SCAN_TRIANGLE
 
@@ -37,10 +38,21 @@
 #define COEF_DECTECTION_SEUIL 6
 
 
-#define NB_POINTS 90
+#define NB_POINTS_MAX 180
+
+typedef struct{
+	enum{ROTATE, LINEAR} type;
+	Uint8 nb_points;
+	position_t startPos;
+	position_t endPos;
+	speed_e speed;
+	way_e way;
+}scan_param_s;
+
+scan_param_s scan_param;
 
 
-volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS];
+volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS_MAX];
 // Variable contenant la distance et les coordonées x y de chaque points du scan
 
 struct{
@@ -55,10 +67,10 @@ struct{
 }objet[3][20];
 // Variable contenant les informations sur chaque objets différent repérés pendant le scan
 
-struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS-1];
+struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS_MAX-1];
 // Variable contenant les vecteurs des entre-points des coordonnées du scan
 
-Sint16 angle_vecteur[3][NB_POINTS-1];
+Sint16 angle_vecteur[3][NB_POINTS_MAX-1];
 // Variable contenant les angles de chaque vecteurs
 
 Uint8 nb_objet[3];
@@ -75,8 +87,6 @@ struct{
 typedef enum{
 	INIT=0,
 	WAIT,
-	PLACEMENT_XY,
-	PLACEMENT_WAIT_XY,
 	PLACEMENT_TETA,
 	PLACEMENT_WAIT_TETA,
 	LAUNCH_WARNER,
@@ -139,66 +149,15 @@ void SCAN_TRIANGLE_process_it(void){
 		case WAIT :
 			if(b_ask_for_scan){
 				b_ask_for_scan = FALSE;
-				state = PLACEMENT_XY;
-			}
-		break;
-
-		case PLACEMENT_XY :
-			// Analyse de la zone de scan
-			if(EstDansLeCarre(1300, 2000, 2300, 3000, global.position.x, global.position.y))		// Foyer haut gauche
-				zone = 1;
-			else if(EstDansLeCarre(1300, 2000, 0, 700, global.position.x, global.position.y))		// Foyer haut droite
-				zone = 2;
-			else if(EstDansLeCarre(750, 1250, 1250, 1750, global.position.x, global.position.y))	// Foyer milieu
-				zone = 3;
-			else
-				zone = 3;
-			debug_printf("ESt dans la zone %d\n", zone);
-			if(zone == 1){
-				SUPERVISOR_config_intern_acknowledge(&Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_TRANSLATION,1600, 2600, 0,
-						NOT_RELATIVE, NOW, FORWARD,	NOT_BORDER_MODE, NO_MULTIPOINT,
-						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}else if(zone == 2){
-				SUPERVISOR_config_intern_acknowledge(&Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_TRANSLATION,1600, 400, 0,
-						NOT_RELATIVE, NOW, FORWARD,	NOT_BORDER_MODE, NO_MULTIPOINT,
-						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}else if(zone == 3){
-				SUPERVISOR_config_intern_acknowledge(&Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_TRANSLATION, 1000, 1900, 0,
-						NOT_RELATIVE, NOW, FORWARD,	NOT_BORDER_MODE, NO_MULTIPOINT,
-						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}
-			else
-				move_completed = TRUE;
-			state = PLACEMENT_WAIT_XY;
-		break;
-
-		case PLACEMENT_WAIT_XY :
-			if(move_completed){
-				move_completed = FALSE;
 				state = PLACEMENT_TETA;
 			}
 		break;
 
 		case PLACEMENT_TETA :
-			if(zone == 1){
-				SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, 0,
-						NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
-						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}else if(zone == 2){
-				SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, -PI4096/2,
-						NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
-						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}else if(zone == 3){
-				SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, -3*PI4096/4,
-						NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
-						SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}
+			SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
+			ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, scan_param.startPos.teta,
+					NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
+					SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
 			state = PLACEMENT_WAIT_TETA;
 		break;
 
@@ -210,34 +169,18 @@ void SCAN_TRIANGLE_process_it(void){
 		break;
 
 		case LAUNCH_WARNER :
-			if(zone == 1){
-				SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, -PI4096/2,
-						NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
-						20, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}else if(zone == 2){
-				SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, -PI4096,
-						NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
-						20, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}else if(zone == 3){
-				SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
-				ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, 3*PI4096/4,
-						NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
-						20, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			}
+			SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
+			ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, scan_param.endPos.teta,
+					NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
+					scan_param.speed, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
 			state = IN_PROGRESS;
 			n_mesure = 0;
 		break;
 
 		case IN_PROGRESS :
-			if(zone == 1 && absolute(global.position.teta) >= (n_mesure+1)*PI4096/(NB_POINTS*2)){
+			if(absolute(global.position.teta - scan_param.startPos.teta)
+					>= absolute((n_mesure+1)*(scan_param.endPos.teta - scan_param.startPos.teta)/scan_param.nb_points))
 				SCAN_TRIANGLE_in_process(&n_mesure);
-			}else if(zone == 2 && absolute(global.position.teta + PI4096/2) >= (n_mesure+1)*PI4096/(NB_POINTS*2)){
-				SCAN_TRIANGLE_in_process(&n_mesure);
-			}else if(zone == 3 && absolute(global.position.teta + 3*PI4096/4) >= (n_mesure+1)*PI4096/(NB_POINTS*2)){
-				SCAN_TRIANGLE_in_process(&n_mesure);
-			}
 			if(move_completed){
 				move_completed = FALSE;
 				run_calcul = TRUE;
@@ -266,9 +209,9 @@ void SCAN_TRIANGLE_process_it(void){
 						k++;
 					}
 				}
-				if(dernier_triangle_valide.lvl == -1 && dernier_triangle_valide.nb == -1)
-					SECRETARY_send_triangle_position(TRUE, 0, 0, 0, 0, 0);
 			}
+			if(dernier_triangle_valide.lvl == -1 && dernier_triangle_valide.nb == -1)
+				SECRETARY_send_triangle_position(TRUE, 0, 0, 0, 0, 0);
 			state = INIT;
 		break;
 	}
@@ -276,7 +219,7 @@ void SCAN_TRIANGLE_process_it(void){
 
 static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure){
 	Uint8 i;
-	if((*n_mesure) < NB_POINTS){
+	if((*n_mesure) < scan_param.nb_points){
 		for(i=0;i<3;i++){
 			scan[(*n_mesure)].dist[i] = conversion_DT10_mm(ADC_getValue(i));
 		}
@@ -290,7 +233,6 @@ void SCAN_TRIANGLE_calculate(void){
 	if(run_calcul){
 		debug_printf("Calcul\n");
 		Uint8 k;
-		Uint8 nb_points = (zone == 3) ? NB_POINTS/2 : NB_POINTS;
 		Sint16 i, j;
 		Sint16 cos, sin;
 		bool_e in_objet = FALSE;
@@ -310,7 +252,7 @@ void SCAN_TRIANGLE_calculate(void){
 			}
 
 		// Calcul point x et y
-		for(i=0;i<nb_points;i++){									// Validé
+		for(i=0;i<scan_param.nb_points;i++){									// Validé
 				COS_SIN_4096_get(scan[i].pos.teta, &cos, &sin);
 				Sint32 cos32 = cos, sin32 = sin;
 				scan[i].x[0] = scan[i].pos.x + X_SENSOR_BOT*cos32/4096 - (Y_SENSOR_BOT + scan[i].dist[0])*sin32/4096;
@@ -324,7 +266,7 @@ void SCAN_TRIANGLE_calculate(void){
 
 		// Filtre des points x et y
 		// Filtre à temps futur d'ordre 2 avec un poid de 2/3 pour le point courant et 1/3 pour le point suivant
-		for(i=0;i<nb_points-1;i++){						// TEST
+		for(i=0;i<scan_param.nb_points-1;i++){						// TEST
 			for(j=0;j<3;j++){
 				scan[i].x[j] = (Sint16)(2./3.*(float)scan[i].x[j] + 1./3.*(float)scan[i+1].x[j]);
 				scan[i].y[j] = (Sint16)(2./3.*(float)scan[i].y[j] + 1./3.*(float)scan[i+1].y[j]);
@@ -333,7 +275,7 @@ void SCAN_TRIANGLE_calculate(void){
 
 		// Filtre reverse des points x et y
 		// Filtre à temps futur d'ordre 2 avec un poid de 2/3 pour le point courant et 1/3 pour le point suivant
-		for(i=nb_points-1;i>0;i--){						// TEST
+		for(i=scan_param.nb_points-1;i>0;i--){						// TEST
 			for(j=0;j<3;j++){
 				scan[i].x[j] = (Sint16)(2./3.*(float)scan[i].x[j] + 1./3.*(float)scan[i-1].x[j]);
 				scan[i].y[j] = (Sint16)(2./3.*(float)scan[i].y[j] + 1./3.*(float)scan[i-1].y[j]);
@@ -341,7 +283,7 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// Calcul vecteur de chaque entre points
-		for(i=0;i<nb_points-1;i++){						// Validé
+		for(i=0;i<scan_param.nb_points-1;i++){						// Validé
 			for(j=0;j<3;j++){
 				vect[j][i].x = scan[i+1].x[j] - scan[i].x[j];
 				vect[j][i].y = scan[i+1].y[j] - scan[i].y[j];
@@ -358,27 +300,27 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// Calcul de l'angle entre deux vecteurs
-		for(i=0;i<nb_points-1;i++){						// Validé
+		for(i=0;i<scan_param.nb_points-1;i++){						// Validé
 			for(j=0;j<3;j++){
 				angle_vecteur[j][i] = (Sint16)(atan2(vect[j][i].y, vect[j][i].x)*180/3.14);
 			}
 		}
 
 		// filtrer temp futur
-		for(i=0;i<nb_points-1;i++){						// Validé
+		for(i=0;i<scan_param.nb_points-1;i++){						// Validé
 			for(j=0;j<3;j++){
-				if(i==nb_points-3){
+				if(i==scan_param.nb_points-3){
 					angle_vecteur[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i+1])/2;
-				}else if(i==nb_points-4){
+				}else if(i==scan_param.nb_points-4){
 					angle_vecteur[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i+1] + angle_vecteur[j][i+2])/3;
-				}else if (i!=nb_points-2){
+				}else if (i!=scan_param.nb_points-2){
 					angle_vecteur[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i+1] + angle_vecteur[j][i+2] +  angle_vecteur[j][i+3])/4;
 				}
 			}
 		}
 
 		// filtrer reverse temp futur
-		for(i=nb_points-2;i>=0;i--){					// Validé
+		for(i=scan_param.nb_points-2;i>=0;i--){					// Validé
 			for(j=0;j<3;j++){
 				if(i==1){
 					angle_vecteur[j][i] = (angle_vecteur[j][i] + angle_vecteur[j][i-1])/2;
@@ -391,14 +333,14 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// dérivée
-		for(i=0;i<nb_points-2;i++){						// Validé
+		for(i=0;i<scan_param.nb_points-2;i++){						// Validé
 			for(j=0;j<3;j++){
 				angle_vecteur[j][i] -= angle_vecteur[j][i+1];
 			}
 		}
 
 		// seuil changement brutal
-		for(i=0;i<nb_points-2;i++){						// Validé
+		for(i=0;i<scan_param.nb_points-2;i++){						// Validé
 			for(j=0;j<3;j++){
 				if((int)(absolute(angle_vecteur[j][i])) > COEF_DECTECTION_SEUIL){
 					angle_vecteur[j][i] = 1;
@@ -411,7 +353,7 @@ void SCAN_TRIANGLE_calculate(void){
 		// Detection d'objet
 		for(j=0;j<3;j++){						// Validé
 			in_objet = FALSE;
-			for(i=0;i<nb_points-1;i++){
+			for(i=0;i<scan_param.nb_points-1;i++){
 				if(nb_objet[j] < 20){
 					if(i==0){
 						objet[j][nb_objet[j]].indice_debut_point = i;
@@ -608,7 +550,34 @@ void SCAN_TRIANGLE_calculate(void){
 	}
 }
 
-void SCAN_TRIANGLE_canMsg(void){
+void SCAN_TRIANGLE_canMsg(CAN_msg_t *msg){
+	if(msg->data[0] & 0x80)
+		scan_param.type = LINEAR;
+	else
+		scan_param.type = ROTATE;
+
+	if(msg->data[0] & 0x40)
+		scan_param.speed = FAST;
+	else
+		scan_param.speed = 20;
+
+	if(msg->data[0] & 0x20)
+		scan_param.way = BACKWARD;
+	else
+		scan_param.way = FORWARD;
+
+	scan_param.nb_points = msg->data[1];
+	debug_printf("nb point : %d\n", scan_param.nb_points);
+
+	if(scan_param.type == ROTATE){
+		scan_param.startPos.teta = (((Sint16)(msg->data[2]) << 8) & 0xFF00) | ((Sint16)(msg->data[3]) & 0x00FF);
+		scan_param.endPos.teta = (((Sint16)(msg->data[4]) << 8) & 0xFF00) | ((Sint16)(msg->data[5]) & 0x00FF);
+	}else{
+		scan_param.startPos.x = ((Sint16)(msg->data[2]) << 8) & 0xFF00;
+		scan_param.startPos.y = ((Sint16)(msg->data[3]) << 8) & 0xFF00;
+		scan_param.endPos.x = ((Sint16)(msg->data[4]) << 8) & 0xFF00;
+		scan_param.endPos.y = ((Sint16)(msg->data[5]) << 8) & 0xFF00;
+	}
 	b_ask_for_scan = TRUE;
 }
 

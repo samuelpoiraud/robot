@@ -255,7 +255,7 @@ void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 tria
 	msg.size = 7;
 	SECRETARY_send_canmsg(&msg);
 	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		debug_printf("Triangle %d détécté  %d  %d  %d\n%s",triangle_number,x,y,teta,((it_is_the_last_triangle)?"\n":""));
+		debug_printf("Triangle %d niveau %d détécté  %d  %d  %d %s\n",triangle_number, triangle_level,x,y,teta,((it_is_the_last_triangle)?"LAST\n":""));
 	#endif
 }
 #endif
@@ -554,8 +554,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 		#ifdef SCAN_TRIANGLE
 		case ASSER_LAUNCH_SCAN_TRIANGLE :
-			SCAN_TRIANGLE_canMsg();
-			debug_printf("Kikoo ça à up le flag\n");
+			SCAN_TRIANGLE_canMsg(msg);
 		break;
 		#endif
 
