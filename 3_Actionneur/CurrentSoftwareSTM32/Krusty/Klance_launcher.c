@@ -32,9 +32,12 @@
 #include "../QS/QS_setTimerSource.h"
 
 #define ACTION_TIMEOUT 100 // [0.1s] au bout de 10sec, on arrête le lancé et renvoie l'info du problème à la strat: le lancé prend trop de temps (erreur soft probablement)
+#define TIME_BETWEEN_LANCE 20 // Est multiplié par 10 derriére car sur 8 bits ne peut pas depasser 256ms sinon
+#define TIME_HOLD_LAUNCHER 30 //    idem ci-dessus
 
 static Uint8 lance_launcher_last_launch = 0;
 static bool_e start_next_launcher();
+static Uint8 stateLauncher[6] = {0};
 
 void LANCE_LAUNCHER_init() {
 	static bool_e initialized = FALSE;
@@ -120,12 +123,12 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 						break;
 
 					case ACT_LANCELAUNCHER_RUN_5:
-						lance_launcher_last_launch = 5;
+						lance_launcher_last_launch = 6;
 						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 						break;
 
 					case ACT_LANCELAUNCHER_RUN_6:
-						lance_launcher_last_launch = 6;
+						lance_launcher_last_launch = 20;
 						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 						break;
 
@@ -142,9 +145,10 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				}
 				//Démarrage du premier launcher maintenant (si la strat veut lancer les balles, il ne faut pas attendre)
 				debug_printf("Lancement de %d lanceur(s)\n", lance_launcher_last_launch);
-				start_next_launcher();
+
+				//start_next_launcher(); // Est appele a la fin du timer sinon peut envoyer
 				//Démarrage de temps d'attente des prochains lancés
-				TIMER_SRC_TIMER_start_ms(100);
+				TIMER_SRC_TIMER_start_ms(10);
 			} else {
 				warn_printf("Impossible d'effectuer la commande, le lance launcher est déjà utilisé (à l'état %d) (ne devrait jamais être le cas car on ne peut faire 2 actions en même temps avec la même queueid)", lance_launcher_last_launch);
 				QUEUE_next(queueId, ACT_LANCELAUNCHER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES, __LINE__);
@@ -166,64 +170,53 @@ static bool_e start_next_launcher() {
 	switch(lance_launcher_last_launch) {
 		default:
 			warn_printf("lance_launcher_last_launch est invalide: %d\n", lance_launcher_last_launch);
-			lance_launcher_last_launch = 0;
+			//if(lance_launcher_last_launch > 20 || lance_launcher_last_launch < 0)
+				lance_launcher_last_launch = 0;
 			//PAS DE BREAK. Si lance_launcher_last_launch est invalide, alors on fait un stop aussi
+
+
 		case 0 :
-			LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
-			LANCELAUNCHER_PIN_2 = 0;
-			LANCELAUNCHER_PIN_3 = 0;
-			LANCELAUNCHER_PIN_4 = 0;
-			LANCELAUNCHER_PIN_5 = 0;
-			LANCELAUNCHER_PIN_6 = 0;
 			break;
 		case 1 :
+			LANCELAUNCHER_PIN_1 = 1;
+			stateLauncher[0] = TIME_HOLD_LAUNCHER;
+			debug_printf("Lanceur 1 \n");
+			break;
+		case 2 :
+			LANCELAUNCHER_PIN_2 = 1;
+			stateLauncher[1] = TIME_HOLD_LAUNCHER;
+			debug_printf("Lanceur 2 \n");
+			break;
+		case 3 :
+			LANCELAUNCHER_PIN_3 = 1;
+			stateLauncher[2] = TIME_HOLD_LAUNCHER;
+			debug_printf("Lanceur 3 \n");
+			break;
+		case 4 :
+			LANCELAUNCHER_PIN_4 = 1;
+			stateLauncher[3] = TIME_HOLD_LAUNCHER;
+			debug_printf("Lanceur 4 \n");
+			break;
+		case 5 :
+			LANCELAUNCHER_PIN_5 = 1;
+			stateLauncher[4] = TIME_HOLD_LAUNCHER;
+			debug_printf("Lanceur 5 \n");
+			break;
+		case 6 :
+			LANCELAUNCHER_PIN_6 = 1;
+			stateLauncher[5] = TIME_HOLD_LAUNCHER;
+			debug_printf("Lanceur 6 \n");
+			break;
+
+		/*case 5 :
 			LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
 			LANCELAUNCHER_PIN_2 = 0;
 			LANCELAUNCHER_PIN_3 = 0;
 			LANCELAUNCHER_PIN_4 = 0;
 			LANCELAUNCHER_PIN_5 = 0;
 			LANCELAUNCHER_PIN_6 = 1;
-			break;
-		case 2 :
-			LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
-			LANCELAUNCHER_PIN_2 = 0;
-			LANCELAUNCHER_PIN_3 = 0;
-			LANCELAUNCHER_PIN_4 = 0;
-			LANCELAUNCHER_PIN_5 = 1;
-			LANCELAUNCHER_PIN_6 = 0;
-			break;
-		case 3 :
-			LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
-			LANCELAUNCHER_PIN_2 = 0;
-			LANCELAUNCHER_PIN_3 = 0;
-			LANCELAUNCHER_PIN_4 = 1;
-			LANCELAUNCHER_PIN_5 = 0;
-			LANCELAUNCHER_PIN_6 = 0;
-			break;
-		case 4 :
-			LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
-			LANCELAUNCHER_PIN_2 = 0;
-			LANCELAUNCHER_PIN_3 = 1;
-			LANCELAUNCHER_PIN_4 = 0;
-			LANCELAUNCHER_PIN_5 = 0;
-			LANCELAUNCHER_PIN_6 = 0;
-			break;
-		case 5 :
-			LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
-			LANCELAUNCHER_PIN_2 = 1;
-			LANCELAUNCHER_PIN_3 = 0;
-			LANCELAUNCHER_PIN_4 = 0;
-			LANCELAUNCHER_PIN_5 = 0;
-			LANCELAUNCHER_PIN_6 = 0;
-			break;
-		case 6 :
-			LANCELAUNCHER_PIN_1 = 1; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
-			LANCELAUNCHER_PIN_2 = 0;
-			LANCELAUNCHER_PIN_3 = 0;
-			LANCELAUNCHER_PIN_4 = 0;
-			LANCELAUNCHER_PIN_5 = 0;
-			LANCELAUNCHER_PIN_6 = 0;
-			break;
+			break;*/
+
 	}
 
 	//Si stoppé, on décrémente pas, on reste en stoppé (ceci prépare l'action suivante)
@@ -235,21 +228,81 @@ static bool_e start_next_launcher() {
 	}
 }
 
+
+//Maintien l'état des actionneurs actif
+static bool_e hold_state(){
+
+	int i;
+	for(i=0;i < 6;i++){
+
+		debug_printf("etat %d lanceur %d \n",stateLauncher[i],i+1);
+
+		if(stateLauncher[i] > 0 && stateLauncher[i] <= TIME_HOLD_LAUNCHER){
+			stateLauncher[i]--;
+		}
+
+		// Pas de sinon car si passe stateLauncher[i] passe a 0 on ira pas dans le sinon apres (Pose probléme pour le dernier aimant)
+		if(stateLauncher[i] <= 0 || stateLauncher[i] > TIME_HOLD_LAUNCHER){ // On passe les pins a 0 si non active (securite)
+			//debug_printf("				PASSE A 0 lanceur %d \n",i);
+			switch(i){
+				case 0:
+					LANCELAUNCHER_PIN_1 = 0;
+					break;
+				case 1:
+					LANCELAUNCHER_PIN_2 = 0;
+					break;
+				case 2:
+					LANCELAUNCHER_PIN_3 = 0;
+					break;
+				case 3:
+					LANCELAUNCHER_PIN_4 = 0;
+					break;
+				case 4:
+					LANCELAUNCHER_PIN_5 = 0;
+					break;
+				case 5:
+					LANCELAUNCHER_PIN_6 = 0;
+					break;
+				default:
+					LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe tout les lanceurs (par sécurité)
+					LANCELAUNCHER_PIN_2 = 0;
+					LANCELAUNCHER_PIN_3 = 0;
+					LANCELAUNCHER_PIN_4 = 0;
+					LANCELAUNCHER_PIN_5 = 0;
+					LANCELAUNCHER_PIN_6 = 0;
+			}
+		}
+	}
+
+
+	if(stateLauncher[0] != 0 || stateLauncher[1] != 0 || stateLauncher[2] != 0 || stateLauncher[3] != 0 || stateLauncher[4] != 0 || stateLauncher[5] != 0)
+		return TRUE; // Un etat a toujours besoins d'etre tenu
+	else
+		return FALSE;  //Si tous les etats sont revenus a 0
+}
+
+
+
 void TIMER_SRC_TIMER_interrupt() {
 	/* pour avoir une activation d'une seconde pour les lanceurs de lances*/
-	static Uint8 lance_launcher_timer = 0;
+	static Uint8 lance_launcher_timer = TIME_BETWEEN_LANCE;
 	lance_launcher_timer++;
 
-	if (lance_launcher_timer >= 10) {
+	static bool_e end_lance_launcher = FALSE;
+
+	if (lance_launcher_timer >= TIME_BETWEEN_LANCE) {
 		//Si lancé terminé, alors on arrête le timer
-		if(start_next_launcher() == FALSE) {
-			TIMER_SRC_TIMER_stop();
-		}
+		if(start_next_launcher() == FALSE)
+			end_lance_launcher = TRUE;
 
 		lance_launcher_timer = 0;
 	}
+
+	if(hold_state() == FALSE && end_lance_launcher == TRUE )
+		TIMER_SRC_TIMER_stop();
+
+
 	TIMER_SRC_TIMER_resetFlag();
 }
 
 #endif	//I_AM_ROBOT_TINY
-
