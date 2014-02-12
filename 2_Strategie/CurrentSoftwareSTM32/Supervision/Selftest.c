@@ -48,12 +48,7 @@ volatile SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
 volatile Uint8 errors_index = 0;
 volatile Uint8 t500ms = 0;	//Minuteur [500ms]
 volatile bool_e flag_500ms = FALSE;	//Flag qui permet de lancer la fonction SELFTEST_beacon_reask_periodic_sending
-typedef enum
-{
-	END_OK=0,
-	IN_PROGRESS,
-	NOT_HANDLED
-}error_e;
+
 
 error_e SELFTEST_strategy(bool_e reset);
 
