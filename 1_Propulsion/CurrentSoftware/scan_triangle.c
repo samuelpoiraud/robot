@@ -14,10 +14,13 @@
 #include "corrector.h"
 #include "roadmap.h"
 #include "cos_sin.h"
-#include <math.h>
 #include "_Propulsion_config.h"
+#include "pilot.h"
+#include <math.h>
 
 #ifdef SCAN_TRIANGLE
+
+//------------------------------------------------------------------------------------ Macro
 
 #define square(x) ((float)(x)*(float)(x))
 #define conversion_DT10_mm(x) (((((Sint32)(597)*(x))/1024)- 78))
@@ -25,20 +28,45 @@
 // Rapport sur la courbe DT10 couleur noir  y = 0,667*x - 119
 // Rapport sur la courbe DT10 couleur blanc y = 0,583*x - 78,19
 
-#define X_SENSOR_BOT	-66	// -45
-#define Y_SENSOR_BOT	90		// 100
-#define X_SENSOR_MID	78		// 25
-#define Y_SENSOR_MID	98		// 100
-#define X_SENSOR_TOP	46		// 80
-#define Y_SENSOR_TOP	98		// 100
+//------------------------------------------------------------------------------------ Define
+
+#define X_SENSOR_BOT	-66
+#define Y_SENSOR_BOT	90
+#define X_SENSOR_MID	78
+#define Y_SENSOR_MID	98
+#define X_SENSOR_TOP	46
+#define Y_SENSOR_TOP	98
 
 #define DIST_ARETE_MILIEU	37
 #define RAYON_MIN_TORCHE	115
 #define RAYON_MAX_TORCHE	145
+
 #define COEF_DECTECTION_SEUIL 6
 
-
 #define NB_POINTS_MAX 180
+
+//------------------------------------------------------------------------------------ Prototype des fonctions local
+
+static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure);
+static void Acknowledge_Intern(void);
+
+static bool_e est_dans_carre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y);
+static bool_e est_dans_cercle(Sint16 x, Sint16 y, Sint16 x0, Sint16 y0, Sint16 rayon);
+static Sint16 distance(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
+static float racine(float val);
+
+//------------------------------------------------------------------------------------ Définition des structures et énumerations
+
+typedef struct{
+	Uint8 indice_debut_point, indice_fin_point;
+	bool_e active;
+	bool_e torche;
+	Sint16 longueur;
+	struct{Sint16 x; Sint16 y;} point_milieu;
+	struct{Sint16 x; Sint16 y;} milieu;
+	struct{float x; float y;} vecteur;
+	struct{float x; float y;} vecteur_Perpen;
+}objet_s;
 
 typedef struct{
 	enum{ROTATE, LINEAR} type;
@@ -49,63 +77,71 @@ typedef struct{
 	way_e way;
 }scan_param_s;
 
-scan_param_s scan_param;
-
-
-volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS_MAX];
-// Variable contenant la distance et les coordonées x y de chaque points du scan
-
-struct{
-	Uint8 indice_debut_point, indice_fin_point;
-	bool_e active;
-	bool_e torche;
-	Sint16 longueur;
-	struct{Sint16 x; Sint16 y;} point_milieu;
-	struct{Sint16 x; Sint16 y;} milieu;
-	struct{float x; float y;} vecteur;
-	struct{float x; float y;} vecteur_Perpen;
-}objet[3][20];
-// Variable contenant les informations sur chaque objets différent repérés pendant le scan
-
-struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS_MAX-1];
-// Variable contenant les vecteurs des entre-points des coordonnées du scan
-
-Sint16 angle_vecteur[3][NB_POINTS_MAX-1];
-// Variable contenant les angles de chaque vecteurs
-
-Uint8 nb_objet[3];
-// Variable contenant le nombre d'objet par capteur
-
-static Uint8 zone;
-// Zone de scan en cours
-
-struct{
-	Sint8 lvl;
-	Sint8 nb;
-}dernier_triangle_valide;
+typedef struct{
+	Sint16 warner_x;
+	Sint16 warner_y;
+	Uint8 level; // Choix du capteur 0/1/2
+}warner_param_s;
 
 typedef enum{
 	INIT=0,
 	WAIT,
-	PLACEMENT_TETA,
-	PLACEMENT_WAIT_TETA,
-	LAUNCH_WARNER,
-	IN_PROGRESS,
+
+	PLACEMENT_TETA_SCAN_ROTATE,
+	PLACEMENT_WAIT_TETA_SCAN_ROTATE,
+	LAUNCH_WARNER_SCAN_ROTATE,
+	IN_PROGRESS_SCAN_ROTATE,
+
+	WARNER_X,
+	WARNER_Y,
+
 	WAIT_CALCULATE,
 	SEND_MID_TRIANGLE,
+	SEND_WARNER_REACH,
 	TEST
 }state_e;
 
+typedef enum{
+	NO_MSG_CAN,
+	MSG_CAN_SCAN_ROTATE,
+	MSG_CAN_SCAN_LINEAR,
+	MSG_CAN_WARNER_Y,
+	MSG_CAN_WARNER_X
+}receve_msg_can_e;
+
+//------------------------------------------------------------------------------------ Variable Globale
+
+scan_param_s scan_param;
+	// Variable contenant tout les paramètres du scan à effectuer
+
+warner_param_s warner_param;
+	// Variable contenant tout les paramètres des warners à effectuer
+
+volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS_MAX];
+	// Variable contenant la distance et les coordonées x y de chaque points du scan
+
+objet_s objet[3][20];
+	// Variable contenant les informations sur chaque objets différent repérés pendant le scan
+
+struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS_MAX-1];
+	// Variable contenant les vecteurs des entre-points des coordonnées du scan
+
+Sint16 angle_vecteur[3][NB_POINTS_MAX-1];
+	// Variable contenant les angles de chaque vecteurs
+
+Uint8 nb_objet[3];
+	// Variable contenant le nombre d'objet par capteur
+
+struct{Sint8 lvl; Sint8 nb;} dernier_triangle_valide;
+	// Variable contenant l'indice des derniers triangles valides ou -1 si non présent
+
+receve_msg_can_e receve_msg_can;
+	// Variable contenant le type de message CAN reçut ou NO_MSG_CAN si aucun message CAN reçut
+
 bool_e move_completed, run_calcul;
-bool_e b_ask_for_scan;
+	// Flag indiquant si le mouvement est finit, si un calcul est en cours
 
-
-static bool_e EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y);
-static bool_e EstDansLeCercle(Sint16 x, Sint16 y, Sint16 x0, Sint16 y0, Sint16 rayon);
-static void Acknowledge_Intern(void);
-static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure);
-static float racine(float val);
-static Sint16 distance(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
+//------------------------------------------------------------------------------------ Fonction
 
 void SCAN_TRIANGLE_init(void){
 	ADC_init();
@@ -127,14 +163,14 @@ void SCAN_TRIANGLE_process_it(void){
 		case INIT :
 			move_completed = FALSE;
 			run_calcul = FALSE;
-			b_ask_for_scan = FALSE;
+			receve_msg_can = NO_MSG_CAN;
 			nb_objet[0] = 0;
 			nb_objet[1] = 0;
 			nb_objet[2] = 0;
 			dernier_triangle_valide.lvl = -1;
 			dernier_triangle_valide.nb = -1;
 			state = WAIT;
-		break;
+			break;
 
 		case TEST :
 			if(temp > 500){
@@ -144,58 +180,89 @@ void SCAN_TRIANGLE_process_it(void){
 				}
 				else
 					temp++;
-		break;
+			break;
 
 		case WAIT :
-			if(b_ask_for_scan){
-				b_ask_for_scan = FALSE;
-				state = PLACEMENT_TETA;
-			}
-		break;
+			switch(receve_msg_can){
+				case MSG_CAN_SCAN_ROTATE :
+					state = PLACEMENT_TETA_SCAN_ROTATE;
+					break;
 
-		case PLACEMENT_TETA :
+				case MSG_CAN_SCAN_LINEAR :
+					// A compléter
+					break;
+
+				case MSG_CAN_WARNER_Y :
+					state = WARNER_Y;
+					break;
+
+				case MSG_CAN_WARNER_X :
+					state = WARNER_X;
+					break;
+
+				case NO_MSG_CAN :
+				default :
+					break;
+			}
+			break;
+
+///-------------------------------------------------------------------------------------------------- Scan en rotation
+		case PLACEMENT_TETA_SCAN_ROTATE :
 			SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
 			ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, scan_param.startPos.teta,
 					NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
 					SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			state = PLACEMENT_WAIT_TETA;
-		break;
+			state = PLACEMENT_WAIT_TETA_SCAN_ROTATE;
+			break;
 
-		case PLACEMENT_WAIT_TETA :
+		case PLACEMENT_WAIT_TETA_SCAN_ROTATE :
 			if(move_completed){
 				move_completed = FALSE;
-				state = LAUNCH_WARNER;
+				state = LAUNCH_WARNER_SCAN_ROTATE;
 			}
-		break;
+			break;
 
-		case LAUNCH_WARNER :
+		case LAUNCH_WARNER_SCAN_ROTATE :
 			SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
 			ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, scan_param.endPos.teta,
 					NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
 					scan_param.speed, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
-			state = IN_PROGRESS;
+			state = IN_PROGRESS_SCAN_ROTATE;
 			n_mesure = 0;
-		break;
+			break;
 
-		case IN_PROGRESS :
+		case IN_PROGRESS_SCAN_ROTATE :
 			if(absolute(global.position.teta - scan_param.startPos.teta)
 					>= absolute((n_mesure+1)*(scan_param.endPos.teta - scan_param.startPos.teta)/scan_param.nb_points))
 				SCAN_TRIANGLE_in_process(&n_mesure);
+
 			if(move_completed){
 				move_completed = FALSE;
 				run_calcul = TRUE;
 				time = 0;
 				state = WAIT_CALCULATE;
 			}
+			break;
+///-------------------------------------------------------------------------------------------------- Warner X
+		case WARNER_X :
+			if(absolute(global.position.x - warner_param.warner_x) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2)
+				state = SEND_WARNER_REACH;
+			break;
+
+///-------------------------------------------------------------------------------------------------- Warner Y
+		case WARNER_Y :
+			if(absolute(global.position.y - warner_param.warner_y) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2)
+				state = SEND_WARNER_REACH;
 		break;
 
+///--------------------------------------------------------------------------------------------------
 		case WAIT_CALCULATE :
 			if(!run_calcul){
 				debug_printf("Temps de calculs : %d\n", time);
 				state = SEND_MID_TRIANGLE;
 			}else
 				time += 5;
-		break;
+			break;
 
 		case SEND_MID_TRIANGLE :
 			for(j=0;j<3;j++){
@@ -213,7 +280,11 @@ void SCAN_TRIANGLE_process_it(void){
 			if(dernier_triangle_valide.lvl == -1 && dernier_triangle_valide.nb == -1)
 				SECRETARY_send_triangle_position(TRUE, 0, 0, 0, 0, 0);
 			state = INIT;
-		break;
+			break;
+
+		case SEND_WARNER_REACH :
+			state = INIT;
+			break;
 	}
 }
 
@@ -226,7 +297,6 @@ static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure){
 		scan[*n_mesure].pos = global.position;
 		(*n_mesure)++;
 	}
-
 }
 
 void SCAN_TRIANGLE_calculate(void){
@@ -396,12 +466,12 @@ void SCAN_TRIANGLE_calculate(void){
 			for(k=0;k<nb_objet[j];k++){
 				objet[j][k].active = FALSE;
 				for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point;i++)
-					if((j == 0 && (EstDansLeCarre(0, 1675, 50, 2950, scan[i].x[j], scan[i].y[j])
-							|| EstDansLeCarre(1675, 1950, 325, 2675, scan[i].x[j], scan[i].y[j])
+					if((j == 0 && (est_dans_carre(0, 1675, 50, 2950, scan[i].x[j], scan[i].y[j])
+							|| est_dans_carre(1675, 1950, 325, 2675, scan[i].x[j], scan[i].y[j])
 							|| (scan[i].x[j] > 1675 && scan[i].y[j] < 325 && scan[i].x[j]-scan[i].y[j] < 1625)
 							|| (scan[i].x[j] > 1675 && scan[i].y[j] > 2675 && scan[i].x[j]+scan[i].y[j] < 4625)))
-						|| (j == 1 && EstDansLeCarre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j]))
-						|| (j == 2 && EstDansLeCarre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j])))
+						|| (j == 1 && est_dans_carre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j]))
+						|| (j == 2 && est_dans_carre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j])))
 						objet[j][k].active = TRUE;
 
 				// droite partant de 1625/3000 à 2000/2625
@@ -567,7 +637,6 @@ void SCAN_TRIANGLE_canMsg(CAN_msg_t *msg){
 		scan_param.way = FORWARD;
 
 	scan_param.nb_points = msg->data[1];
-	debug_printf("nb point : %d\n", scan_param.nb_points);
 
 	if(scan_param.type == ROTATE){
 		scan_param.startPos.teta = (((Sint16)(msg->data[2]) << 8) & 0xFF00) | ((Sint16)(msg->data[3]) & 0x00FF);
@@ -578,10 +647,16 @@ void SCAN_TRIANGLE_canMsg(CAN_msg_t *msg){
 		scan_param.endPos.x = ((Sint16)(msg->data[4]) << 8) & 0xFF00;
 		scan_param.endPos.y = ((Sint16)(msg->data[5]) << 8) & 0xFF00;
 	}
-	b_ask_for_scan = TRUE;
+	if(scan_param.type == ROTATE)
+		receve_msg_can = MSG_CAN_SCAN_ROTATE;
+	else
+		receve_msg_can = MSG_CAN_SCAN_LINEAR;
 }
 
-static Uint8 EstDansLeCarre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y){
+void SCAN_TRIANGLE_WARNER_canMsg(CAN_msg_t *msg){
+}
+
+static Uint8 est_dans_carre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y){
 	return x > lx && x < hx && y > ly && y < hy;
 }
 
@@ -589,6 +664,7 @@ float racine(float val){
 	if(val >= 0)
 		return sqrt(val);
 	else{
+		#warning "Debug printf dans une fonction de calcul"
 		debug_printf("######Racine d'une valeur négative ! val = %d######\n", (int)val);
 		return 0;
 	}
@@ -603,7 +679,7 @@ static Sint16 distance(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 	return racine(square((Sint32)(y1 - y2)) + square((Sint32)(x1 - x2)));
 }
 
-static bool_e EstDansLeCercle(Sint16 x, Sint16 y, Sint16 x0, Sint16 y0, Sint16 rayon){
+static bool_e est_dans_cercle(Sint16 x, Sint16 y, Sint16 x0, Sint16 y0, Sint16 rayon){
 	return square(x-x0) + square(y-y0) <= square(rayon);
 }
 
