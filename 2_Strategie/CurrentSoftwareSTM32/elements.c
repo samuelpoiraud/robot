@@ -17,6 +17,44 @@ bool_e prop_send_all_triangle = FALSE;
 struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
 Uint8 nb_objet[3];
 
+Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance){
+	static enum{TRY_GOING, BEGIN_SCAN, SCAN, SCAN_END, ERROR} state = TRY_GOING;
+	CAN_msg_t msg;
+	switch(state){
+		case TRY_GOING:
+			state = try_going(x, y, TRY_GOING, BEGIN_SCAN, ERROR, speed, way, avoidance);
+			break;
+
+		case BEGIN_SCAN:
+			msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
+			msg.data[0] = 0x00;
+			msg.data[1] = nb_points;
+			msg.data[2] = (Uint8)((startTeta >> 8) & 0x00FF);
+			msg.data[3] = (Uint8)(startTeta & 0x00FF);
+			msg.data[4] = (Uint8)((endTeta >> 8) & 0x00FF);
+			msg.data[5] = (Uint8)(endTeta & 0x00FF);
+			msg.size = 6;
+			CAN_send(&msg);
+			TRIANGLE_init_list();
+			state = SCAN;
+			break;
+
+		case SCAN:
+			if(propulsion_send_triangle()){
+				afficher_donnee_triangle();
+				state = SCAN_END;
+			}
+			break;
+
+		case SCAN_END:
+			return success_state;
+
+		case ERROR:
+			return fail_state;
+	}
+	return in_progress;
+}
+
 void LAUNCH_SCAN_TRIANGLE(){
 	CAN_msg_t msg;
 	msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
@@ -69,16 +107,16 @@ void afficher_donnee_triangle(){
 	}
 }
 
- 
+
 #if 0
  #define ELEMENTS_C
- 
+
  #include "elements.h"
  #include "config_debug.h"
 
 
- /* Pour ce programme de gestion des elements cf. ELEMENTS.png 
- dans le dossier "Ressources" du projet de la carte strategie */ 
+ /* Pour ce programme de gestion des elements cf. ELEMENTS.png
+ dans le dossier "Ressources" du projet de la carte strategie */
 
 /* Tableau des cases du terrain (partie constante) */
 area_mapping_t const area_mapping_map[NB_AREAS] =
@@ -210,7 +248,7 @@ void ELEMENTS_unlock_update()
 }
 
 void ELEMENTS_init()
-{	
+{
 	static bool_e initialized=FALSE;
 	if(initialized)
 	{
@@ -220,33 +258,33 @@ void ELEMENTS_init()
 //	global.env.nb_elements=0;
 //
 //	for(i=0;i<NB_AREAS;i++)
-//	{	
+//	{
 //		area_map[i].nb_elements=0;
-//				
+//
 //		if(i<=NB_SCORING_AREA-1)
 //		{
-//			/* Si le quotient de i divise par 6 est paire */				
+//			/* Si le quotient de i divise par 6 est paire */
 //			if(((i/6)%2)==0)
 //			{
 //				if((i%2)==0)
 //					area_map[i].belonging=global.env.color==PURPLE?US:ADVERSARY;
 //				else
-//					area_map[i].belonging=global.env.color==PURPLE?ADVERSARY:US;	
+//					area_map[i].belonging=global.env.color==PURPLE?ADVERSARY:US;
 //			}
 //			else
 //			{
 //				if(i%2)
 //					area_map[i].belonging=global.env.color==PURPLE?US:ADVERSARY;
 //				else
-//					area_map[i].belonging=global.env.color==PURPLE?ADVERSARY:US;	
+//					area_map[i].belonging=global.env.color==PURPLE?ADVERSARY:US;
 //			}
 //		}
 //		else
 //		{
-//			area_map[i].belonging=NONE;	
-//		}	
+//			area_map[i].belonging=NONE;
+//		}
 //	}
-//	
+//
 //	/* Ajout de l'element central */
 //	ELEMENTS_add_or_update(1050,1500,PAWN,FALSE,TRUE);
 
@@ -264,12 +302,12 @@ void ELEMENTS_update()
 	{
 		return;
 	}
-	
+
 /*	if(update_locked)
 	{
-		return;	
+		return;
 	}
-	
+
 	for(i=0;i<global.env.nb_elements;i++)
 	{
 		delta_time=global.env.match_time-global.env.elements_list[i].element_add_time;
@@ -290,13 +328,13 @@ void ELEMENTS_update()
 			else
 			{
 				if(global.env.elements_list[i].type == TWO_PAWNS
-					|| global.env.elements_list[i].type == QUEEN 
-					|| global.env.elements_list[i].type == KING 
-					|| global.env.elements_list[i].type == TOWER_ONE_PAWN_AND_QUEEN 
-					|| global.env.elements_list[i].type == TOWER_ONE_PAWN_AND_KING 
+					|| global.env.elements_list[i].type == QUEEN
+					|| global.env.elements_list[i].type == KING
+					|| global.env.elements_list[i].type == TOWER_ONE_PAWN_AND_QUEEN
+					|| global.env.elements_list[i].type == TOWER_ONE_PAWN_AND_KING
 					|| global.env.elements_list[i].type == TOWER_TWO_PAWN_AND_QUEEN
 					|| global.env.elements_list[i].type == TOWER_TWO_PAWN_AND_KING)
-				{						
+				{
 					switch(area_map[global.env.elements_list[i].area_number].belonging)
 					{
 						case US : delete = delta_time>=TIME_BEFORE_EXPIRY_OUR_TOWER;
@@ -305,7 +343,7 @@ void ELEMENTS_update()
 							break;
 						default : delete = delta_time>=TIME_BEFORE_EXPIRY_DEFAULT_TOWER;
 							break;
-					}						
+					}
 				}
 				else
 				{
@@ -318,7 +356,7 @@ void ELEMENTS_update()
 				elements_printf("Deleting : %d\r\n",i);
 			}
 		}
-		
+
 		if(global.env.match_time - global.env.elements_list[i].try_time > TIME_BEFORE_RETRY_ACTION_ON_ELEMENT)
 			global.env.elements_list[i].taken_already_tried = FALSE;
 	}
@@ -327,25 +365,25 @@ void ELEMENTS_update()
 
 void ELEMENTS_delete_with_element_number(Uint8 element_number)
 {
-	Uint8 i;		
+	Uint8 i;
 	area_t* area_pt;
 
 	assert(element_number<global.env.nb_elements);
 
 	area_pt=&(area_map[global.env.elements_list[element_number].area_number]);
-	
+
 	#ifdef USE_ELEMENT_CAN_DEBUG
 		CAN_send_element_updated(DELETE,element_number);
 	#endif /* def USE_ELEMENT_CAN_DEBUG */
-	
+
 	for(i=0;i<area_pt->nb_elements;i++)
 	{
 		if(area_pt->elements_number[i] == element_number)
 		{
 			ELEMENTS_delete_from_areas(area_pt,i);
 		}
-	}	
-	ELEMENTS_delete_from_elements_list(element_number);		
+	}
+	ELEMENTS_delete_from_elements_list(element_number);
 }
 
 void ELEMENTS_delete_with_coordinates(Sint32 x, Sint32 y)
@@ -353,13 +391,13 @@ void ELEMENTS_delete_with_coordinates(Sint32 x, Sint32 y)
 	Uint8 i;
 	Sint32 sq_delta_x,sq_delta_y;
 	element_t* element_pt;
-	
+
 	if(ELEMENTS_exist_in_elements_list(x,y))
 	{
 		for(i=0;i<global.env.nb_elements;i++)
 		{
 			element_pt=&(global.env.elements_list[i]);
-			sq_delta_x=(x-element_pt->x)*(x-element_pt->x); 
+			sq_delta_x=(x-element_pt->x)*(x-element_pt->x);
 			sq_delta_y=(y-element_pt->y)*(y-element_pt->y);
 			if(sq_delta_x+sq_delta_y<=ELEMENTS_SQUARED_RADIUS)
 			{
@@ -371,7 +409,7 @@ void ELEMENTS_delete_with_coordinates(Sint32 x, Sint32 y)
 }
 
 void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e build, bool_e update_coords)
-{		
+{
 	Uint8 i,area_number,older_element;
 	Sint32 sq_delta_x,sq_delta_y;
 	element_t* element_pt;
@@ -383,20 +421,20 @@ void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e buil
 	{
 		return;
 	}
-	
+
 	if(!ENV_game_zone_filter(x,y,ELEMENTS_RADIUS))
 	{
 		elements_printf("L'element ajoute est en dehors du terrain !\r\n");
-		return;	
+		return;
 	}
-	
+
 	/* Si on a plus de place dans le tableau d'elements, on supprime le plus vieux */
 /*	if(global.env.nb_elements>=NB_ELEMENTS)
 	{
 		older_element=0;
 		for(i=0;i<global.env.nb_elements&&!expiry;i++)
 		{
-			delta_time=global.env.match_time-global.env.elements_list[i].element_add_time;	
+			delta_time=global.env.match_time-global.env.elements_list[i].element_add_time;
 
 			if(global.env.elements_list[i].type == PAWN)
 			{
@@ -413,13 +451,13 @@ void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e buil
 			else
 			{
 				if(global.env.elements_list[i].type == TWO_PAWNS
-					|| global.env.elements_list[i].type == QUEEN 
-					|| global.env.elements_list[i].type == KING 
-					|| global.env.elements_list[i].type == TOWER_ONE_PAWN_AND_QUEEN 
-					|| global.env.elements_list[i].type == TOWER_ONE_PAWN_AND_KING 
+					|| global.env.elements_list[i].type == QUEEN
+					|| global.env.elements_list[i].type == KING
+					|| global.env.elements_list[i].type == TOWER_ONE_PAWN_AND_QUEEN
+					|| global.env.elements_list[i].type == TOWER_ONE_PAWN_AND_KING
 					|| global.env.elements_list[i].type == TOWER_TWO_PAWN_AND_QUEEN
 					|| global.env.elements_list[i].type == TOWER_TWO_PAWN_AND_KING)
-				{						
+				{
 					switch(area_map[global.env.elements_list[i].area_number].belonging)
 					{
 						case US : expiry = delta_time>=TIME_BEFORE_EXPIRY_OUR_TOWER;
@@ -428,7 +466,7 @@ void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e buil
 							break;
 						default : expiry = delta_time>=TIME_BEFORE_EXPIRY_DEFAULT_TOWER;
 							break;
-					}						
+					}
 				}
 				else
 				{
@@ -441,21 +479,21 @@ void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e buil
 				older_element=i;
 			}
 		}
-		
+
 		ELEMENTS_delete_with_element_number(older_element);
 		elements_printf("Deleting in add_or_update : %d (full)\r\n",older_element);
 	}
-*/	
+*/
 	/* On recupere le numero de zone */
 	area_number=ELEMENTS_conversion(x,y);
 	assert(area_number<NB_AREAS);
-	
+
 	for(i=0;i<global.env.nb_elements;i++)
 	{
-		element_pt = &(global.env.elements_list[i]);		
-		/* Detection d'un element deja present par une equation 
+		element_pt = &(global.env.elements_list[i]);
+		/* Detection d'un element deja present par une equation
 		de cercle (rayon du cercle = diametre d'une element) */
-		sq_delta_x=(x-element_pt->x)*(x-element_pt->x); 
+		sq_delta_x=(x-element_pt->x)*(x-element_pt->x);
 		sq_delta_y=(y-element_pt->y)*(y-element_pt->y);
 		/* NOTE : c'est un exemple typique où on peu se planter
 		quand on ne fait pas attention au types ... */
@@ -470,38 +508,38 @@ void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e buil
 			else if(type>element_pt->type)
 			{
 				element_pt->type=type;
-			}	
-			
+			}
+
 			/* Si la source est sur on mets a jour les coordonnees et le numero de zone */
 			if(update_coords)
-			{		
+			{
 				element_pt->x=x;
 				element_pt->y=y;
 				element_pt->area_number=area_number;
 			}
-			
+
 			element_pt->element_add_time=global.env.match_time;
-		
+
 			#ifdef USE_ELEMENT_CAN_DEBUG
 				CAN_send_element_updated(UPDATE,i);
-			#endif /* def USE_ELEMENT_CAN_DEBUG */				
-			
+			#endif /* def USE_ELEMENT_CAN_DEBUG */
+
 			elements_printf("Updating in add_or_update: %d, coords : (%d, %d), area : %d, type : %d\r\n",
 				i,element_pt->x,element_pt->y,element_pt->area_number,element_pt->type);
 			return;
 		}
 	}
-	
+
 	element_pt=&(global.env.elements_list[global.env.nb_elements]);
 	element_pt->area_number = area_number;
 	area_pt=&(area_map[element_pt->area_number]);
-	
+
 	assert(area_pt->nb_elements<NB_ELEMENTS_MAX_IN_AREA);
-		
+
 	/* global.env.nb_elements etant le nombre d'elements enregistres,
 	la dernière valeur correspond donc au numero du nouvel element ajoute */
 	area_pt->elements_number[area_pt->nb_elements]=global.env.nb_elements;
-	area_pt->nb_elements++;	
+	area_pt->nb_elements++;
 	global.env.nb_elements++;
 	element_pt->x=x;
 	element_pt->y=y;
@@ -513,9 +551,9 @@ void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e buil
 	#ifdef USE_ELEMENT_CAN_DEBUG
 		CAN_send_element_updated(ADD,global.env.nb_elements-1);
 	#endif /* def USE_ELEMENT_CAN_DEBUG */
-	
+
 	elements_printf("Adding in add_or_update: %d, coords : (%d, %d), area : %d, type : %d\r\n",
-		global.env.nb_elements-1,element_pt->x,element_pt->y,element_pt->area_number+1,element_pt->type);		
+		global.env.nb_elements-1,element_pt->x,element_pt->y,element_pt->area_number+1,element_pt->type);
 }
 
 Uint8 ELEMENTS_conversion(Sint16 x, Sint16 y)
@@ -541,20 +579,20 @@ Uint8 ELEMENTS_conversion(Sint16 x, Sint16 y)
 					&& x <= area_pt->coords.x+x_bottom
 					&& y >= area_pt->coords.y-SCORING_AREA_SIZE_Y/2
 					&& y <= area_pt->coords.y+SCORING_AREA_SIZE_Y/2)
-                {
-                    return case_number;
-                }
-                break;
+				{
+					return case_number;
+				}
+				break;
 
-            case SECURE_SCORING_AREA:
+			case SECURE_SCORING_AREA:
 				if(x >= area_pt->coords.x-115
 					&& x <= area_pt->coords.x+115
 					&& y >= area_pt->coords.y-SCORING_AREA_SIZE_Y/2
 					&& y <= area_pt->coords.y+SCORING_AREA_SIZE_Y/2)
-                {
-                    return case_number;
-                }
-                break;
+				{
+					return case_number;
+				}
+				break;
 
 			case INTER_AREA:
 				x_top=
@@ -574,13 +612,13 @@ Uint8 ELEMENTS_conversion(Sint16 x, Sint16 y)
 					|| area_pt->mode==TOP_RIGHT_AREA
 					|| area_pt->mode==BOTTOM_RIGHT_AREA)?0:CASE_SIZE_Y/2;
 
-                if(x >= area_pt->coords.x-x_top
+				if(x >= area_pt->coords.x-x_top
 					&& x <= area_pt->coords.x+x_bottom
 					&& y >= area_pt->coords.y-y_left
 					&& y <= area_pt->coords.y+y_right)
-                {
-                    return case_number;
-                }
+				{
+					return case_number;
+				}
 				break;
 
 			case GREEN_AREA:
@@ -593,9 +631,9 @@ Uint8 ELEMENTS_conversion(Sint16 x, Sint16 y)
 					&& x <= area_pt->coords.x+x_bottom
 					&& y >= area_pt->coords.y-GREEN_AREA_SIZE_Y/2
 					&& y <= area_pt->coords.y+GREEN_AREA_SIZE_Y/2)
-                {
-                    return case_number;
-                }
+				{
+					return case_number;
+				}
 				break;
 
 			case START_AREA:
@@ -603,9 +641,9 @@ Uint8 ELEMENTS_conversion(Sint16 x, Sint16 y)
 					&& x <= area_pt->coords.x+START_AREA_SIZE_X/2
 					&& y >= area_pt->coords.y-START_AREA_SIZE_Y/2
 					&& y <= area_pt->coords.y+START_AREA_SIZE_Y/2)
-                {
-                    return case_number;
-                }
+				{
+					return case_number;
+				}
 				break;
 
 			default:
@@ -613,7 +651,7 @@ Uint8 ELEMENTS_conversion(Sint16 x, Sint16 y)
 		}
 		case_number++;
 	}
-    return NB_AREAS;
+	return NB_AREAS;
 }
 
 static bool_e ELEMENTS_exist_in_elements_list(Sint16 x, Sint16 y)
@@ -621,19 +659,19 @@ static bool_e ELEMENTS_exist_in_elements_list(Sint16 x, Sint16 y)
 	Uint8 i;
 	Sint32 sq_delta_x,sq_delta_y;
 	element_t* element_pt;
-	
+
 	for(i=0;i<global.env.nb_elements;i++)
 	{
 		element_pt=&(global.env.elements_list[i]);
-		sq_delta_x=(x-element_pt->x)*(x-element_pt->x); 
+		sq_delta_x=(x-element_pt->x)*(x-element_pt->x);
 		sq_delta_y=(y-element_pt->y)*(y-element_pt->y);
-		
+
 		if(sq_delta_x+sq_delta_y<ELEMENTS_SQUARED_RADIUS)
 		{
 			return TRUE;
 		}
 	}
-	return FALSE;		
+	return FALSE;
 }
 
 static bool_e ELEMENTS_exist_in_area(Sint16 x, Sint16 y)
@@ -642,13 +680,13 @@ static bool_e ELEMENTS_exist_in_area(Sint16 x, Sint16 y)
 	Sint32 sq_delta_x,sq_delta_y;
 	element_t* element_pt;
 	area_t* area_pt = &(area_map[ELEMENTS_conversion(x,y)]);
-	
+
 	for(i=0;i<area_pt->nb_elements;i++)
 	{
 		element_pt=&(global.env.elements_list[area_pt->elements_number[i]]);
-		sq_delta_x=(x-element_pt->x)*(x-element_pt->x); 
+		sq_delta_x=(x-element_pt->x)*(x-element_pt->x);
 		sq_delta_y=(y-element_pt->y)*(y-element_pt->y);
-		
+
 		if(sq_delta_x+sq_delta_y<ELEMENTS_SQUARED_RADIUS)
 		{
 			return TRUE;
@@ -658,63 +696,63 @@ static bool_e ELEMENTS_exist_in_area(Sint16 x, Sint16 y)
 }
 
 static void ELEMENTS_delete_from_elements_list(Uint8 element_number)
-{	
+{
 	Uint8 i;
 	area_t* area_pt;
-	
+
 	assert(element_number<global.env.nb_elements);
-	
+
 	if(element_number!=global.env.nb_elements-1)
-	{	
-		/* On remplace l'element supprime par le dernier element */  
+	{
+		/* On remplace l'element supprime par le dernier element */
 		global.env.elements_list[element_number]=global.env.elements_list[global.env.nb_elements-1];
 		area_pt=&(area_map[global.env.elements_list[element_number].area_number]);
-		
+
 		/* Permet de repercuter le deplacement dans le tableau des zones */
 		for(i=0;i<(*area_pt).nb_elements;i++)
 		{
 			if((*area_pt).elements_number[i]==global.env.nb_elements-1)
 			{
 				(*area_pt).elements_number[i]=element_number;
-			}	
-		}			
+			}
+		}
 	}
-	
-	global.env.nb_elements--;	
+
+	global.env.nb_elements--;
 }
 
 static void ELEMENTS_delete_from_areas(area_t* area_pt, Uint8 element_number_in_area)
-{	
+{
 	assert(element_number_in_area<NB_ELEMENTS_MAX_IN_AREA);
-	
+
 	if(element_number_in_area!=area_pt->nb_elements-1)
 	{
 		area_pt->elements_number[element_number_in_area]=area_pt->elements_number[area_pt->nb_elements];
 	}
-	
+
 	area_pt->nb_elements--;
 }
 
 static void ELEMENTS_clear_area(Uint8 area_number)
 {
 	area_t* area_pt;
-	
+
 	assert(area_number<NB_AREAS);
-	
+
 	area_pt = &(area_map[area_number]);
-	
+
 	/* Suppression de tous les elements */
 	while(area_pt->nb_elements>0)
 	{
 		/*	En supprimant l'élément d'indice la première case
 		*	du tableau de nombre d'éléments de la zone...
 		*/
-		ELEMENTS_delete_from_elements_list(area_pt->elements_number[0]);	
+		ELEMENTS_delete_from_elements_list(area_pt->elements_number[0]);
 		/* ...puis en supprimant cette première case, on réalise
 		*	la suppression de tous les éléments à chaque boucle.
-		*/		
-		ELEMENTS_delete_from_areas(area_pt,0);	
-	}	
+		*/
+		ELEMENTS_delete_from_areas(area_pt,0);
+	}
 }
 
 game_element_e ELEMENTS_type_element(Sint16 x, Sint16 y)
@@ -722,14 +760,14 @@ game_element_e ELEMENTS_type_element(Sint16 x, Sint16 y)
 	Uint8 i;
 	Sint32 sq_delta_x,sq_delta_y;
 	element_t* element_pt;
-	
+
 	for(i=0;i<global.env.nb_elements;i++)
 	{
 		element_pt=&(global.env.elements_list[i]);
-		
-		sq_delta_x=(x-element_pt->x)*(x-element_pt->x); 
+
+		sq_delta_x=(x-element_pt->x)*(x-element_pt->x);
 		sq_delta_y=(y-element_pt->y)*(y-element_pt->y);
-			
+
 		if(sq_delta_x+sq_delta_y<ELEMENTS_SQUARED_RADIUS)
 		{
 			/* On renvoie le type de l'element correspondant */
@@ -737,7 +775,7 @@ game_element_e ELEMENTS_type_element(Sint16 x, Sint16 y)
 		}
 	}
 	/* Element inconnu, on ne connait pas cet element */
-	return BLACK_CD;//PAWN;	
+	return BLACK_CD;//PAWN;
 }
 
 game_element_e ELEMENTS_build(game_element_e element_1, game_element_e element_2)
@@ -755,17 +793,17 @@ Uint8 ELEMENTS_nb_points_us()
 {
 	Uint8 nb_points=0,i;
 	element_t *element_pt;
-	
+
 	for(i=0;i<global.env.nb_elements;i++)
-	{	
+	{
 		element_pt=&global.env.elements_list[i];
-		
+
 		if(area_map[(element_pt->area_number)].belonging==US)
-		{	
+		{
 			nb_points+=element_pt->type;
-		}	
+		}
 	}
-	
+
 	return nb_points;
 }
 
@@ -773,19 +811,19 @@ Uint8 ELEMENTS_nb_points_foe()
 {
 	Uint8 nb_points = 0, i;
 	element_t *element_pt;
-	
+
 	for(i=0;i<global.env.nb_elements;i++)
-	{	
+	{
 		element_pt = &global.env.elements_list[i];
-		
+
 		if(area_map[(element_pt->area_number)].belonging==ADVERSARY)
-		{	
+		{
 			nb_points+=element_pt->type;
-		}	
+		}
 	}
-	
+
 	return nb_points;
-}	
+}
 
 Uint8 ELEMENTS_furthest_foe(game_element_e type, belonging_e belonging)
 {
@@ -793,22 +831,22 @@ Uint8 ELEMENTS_furthest_foe(game_element_e type, belonging_e belonging)
 	Uint8 i,furthest_foe_element_number=NB_ELEMENTS;
 	Uint32 distance,max_distance=0;
 	GEOMETRY_point_t foe_position={global.env.foe[FOE_1].x,global.env.foe[FOE_1].y}, element_position;
-	
+
 	if(global.env.nb_elements==0)
 	{
 		return NB_ELEMENTS;
 	}
-		
+
 	for(i=0;i<global.env.nb_elements;i++)
-	{	
+	{
 		element_pt=&global.env.elements_list[i];
 		if((type==UNDEFINED_ELEMENT || type==element_pt->type)
 		&& (belonging==UNDEFINED_BELONGING || belonging==area_map[element_pt->area_number].belonging)
 		&& area_mapping_map[element_pt->area_number].type!=SECURE_SCORING_AREA)
 		{
-			element_position=(GEOMETRY_point_t){element_pt->x,element_pt->y};	
+			element_position=(GEOMETRY_point_t){element_pt->x,element_pt->y};
 			distance=GEOMETRY_squared_distance(foe_position,element_position);
-			
+
 			if(distance>max_distance)
 			{
 				max_distance=distance;
@@ -816,7 +854,7 @@ Uint8 ELEMENTS_furthest_foe(game_element_e type, belonging_e belonging)
 			}
 		}
 	}
-	return furthest_foe_element_number;	
+	return furthest_foe_element_number;
 }
 
 
@@ -824,13 +862,13 @@ void ELEMENTS_display()
 {
 	Uint8 i;
 	element_t* element_pt;
-	
+
 	elements_printf("\r\n--------------------------------------------------\r\n");
 	for(i=0;i<global.env.nb_elements;i++)
 	{
 		element_pt=&global.env.elements_list[i];
 		debug_printf("| X = %.4d -- Y = %.4d -- TYPE : %.2d -- AREA : %.2d |\r\n",
-			element_pt->x,element_pt->y,element_pt->type,element_pt->area_number+1);	
+			element_pt->x,element_pt->y,element_pt->type,element_pt->area_number+1);
 	}
 	elements_printf("--------------------------------------------------\r\n");
 }
@@ -843,7 +881,7 @@ void ELEMENTS_display()
 static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 {
 	CAN_msg_t msg;
-	
+
 	msg.sid=DEBUG_ELEMENT_UPDATED;
 	msg.data[0]=event;
 	msg.data[1]=global.env.elements_list[element_number].type;
@@ -858,7 +896,7 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 #endif /* def USE_ELEMENT_CAN_DEBUG */
 
 #ifdef USE_ELEMENT_DISPLAY
-	
+
 	#define WRITE_ON_BLUE 		44
 	#define WRITE_ON_YELLOW 	43
 	#define WRITE_ON_GREEN 		42
@@ -887,9 +925,9 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 		Uint8 values[8]={0};
 		Uint8 display=3;
 		Uint8 bonus_area,bonus_area2;
-	
+
 		for(;line<19;line++)
-		{		
+		{
 			switch(line)
 			{
 				case -1:
@@ -902,17 +940,17 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					left_color = WRITE_ON_RED;
 					right_color = WRITE_ON_BLUE;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_BLUE;		
-					even_color = WRITE_ON_RED;		
+					odd_color = WRITE_ON_BLUE;
+					even_color = WRITE_ON_RED;
 					break;
-		
+
 				case 1:
 					display	= 1;
 					left_color = WRITE_ON_RED;
 					right_color = WRITE_ON_BLUE;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_BLUE;		
-					even_color = WRITE_ON_RED;	
+					odd_color = WRITE_ON_BLUE;
+					even_color = WRITE_ON_RED;
 					values[0]=area_map[80].nb_elements;
 					values[1]=area_map[0].nb_elements;
 					values[2]=area_map[1].nb_elements;
@@ -920,9 +958,9 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[4]=area_map[3].nb_elements;
 					values[5]=area_map[4].nb_elements;
 					values[6]=area_map[5].nb_elements;
-					values[7]=area_map[81].nb_elements;	
+					values[7]=area_map[81].nb_elements;
 					break;
-		
+
 				case 3:
 					display	= 2;
 					left_color = WRITE_ON_RED;
@@ -936,13 +974,13 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[5]=area_map[41].nb_elements;
 					values[6]=area_map[42].nb_elements;
 					break;
-		
+
 				case 4:
 					display	= 1;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_RED;		
+					odd_color = WRITE_ON_RED;
 					even_color = WRITE_ON_BLUE;
 					values[0]=area_map[71].nb_elements;
 					values[1]=area_map[6].nb_elements;
@@ -951,19 +989,19 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[4]=area_map[9].nb_elements;
 					values[5]=area_map[10].nb_elements;
 					values[6]=area_map[11].nb_elements;
-					values[7]=area_map[76].nb_elements;	
+					values[7]=area_map[76].nb_elements;
 					break;
-		
+
 				case 5:
-				case 11: 
+				case 11:
 					display	= 0;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_RED;		
-					even_color = WRITE_ON_BLUE;			
+					odd_color = WRITE_ON_RED;
+					even_color = WRITE_ON_BLUE;
 					break;
-		
+
 				case 6:
 					display	= 2;
 					left_color = WRITE_ON_GREEN;
@@ -977,13 +1015,13 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[5]=area_map[48].nb_elements;
 					values[6]=area_map[49].nb_elements;
 					break;
-		
+
 				case 7:
 					display	= 1;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_BLUE;		
+					odd_color = WRITE_ON_BLUE;
 					even_color = WRITE_ON_RED;
 					values[0]=area_map[72].nb_elements;
 					values[1]=area_map[12].nb_elements;
@@ -992,20 +1030,20 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[4]=area_map[15].nb_elements;
 					values[5]=area_map[16].nb_elements;
 					values[6]=area_map[17].nb_elements;
-					values[7]=area_map[77].nb_elements;	
+					values[7]=area_map[77].nb_elements;
 					break;
-		
+
 				case 8:
 				case 14:
 					display	= 0;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_BLUE;		
-					even_color = WRITE_ON_RED;	
+					odd_color = WRITE_ON_BLUE;
+					even_color = WRITE_ON_RED;
 					break;
-				
-				case 9:			
+
+				case 9:
 					display	= 2;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
@@ -1018,13 +1056,13 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[5]=area_map[56].nb_elements;
 					values[6]=area_map[57].nb_elements;
 					break;
-		
+
 				case 10:
 					display	= 1;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_RED;		
+					odd_color = WRITE_ON_RED;
 					even_color = WRITE_ON_BLUE;
 					values[0]=area_map[73].nb_elements;
 					values[1]=area_map[18].nb_elements;
@@ -1033,9 +1071,9 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[4]=area_map[21].nb_elements;
 					values[5]=area_map[22].nb_elements;
 					values[6]=area_map[23].nb_elements;
-					values[7]=area_map[78].nb_elements;	
+					values[7]=area_map[78].nb_elements;
 					break;
-		
+
 				case 12:
 					display	= 2;
 					left_color = WRITE_ON_GREEN;
@@ -1049,13 +1087,13 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[5]=area_map[63].nb_elements;
 					values[6]=area_map[64].nb_elements;
 					break;
-		
+
 				case 13:
 					display	= 1;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_BLUE;		
+					odd_color = WRITE_ON_BLUE;
 					even_color = WRITE_ON_RED;
 					values[0]=area_map[74].nb_elements;
 					values[1]=area_map[24].nb_elements;
@@ -1064,9 +1102,9 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[4]=area_map[27].nb_elements;
 					values[5]=area_map[28].nb_elements;
 					values[6]=area_map[29].nb_elements;
-					values[7]=area_map[79].nb_elements;	
+					values[7]=area_map[79].nb_elements;
 					break;
-		
+
 				case 15:
 					display	= 2;
 					left_color = WRITE_ON_GREEN;
@@ -1080,13 +1118,13 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[5]=area_map[70].nb_elements;
 					values[6]=area_map[71].nb_elements;
 					break;
-		
+
 				case 16:
 					display	= 1;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
 					line_color = WRITE_ON_YELLOW;
-					odd_color = WRITE_ON_RED;		
+					odd_color = WRITE_ON_RED;
 					even_color = WRITE_ON_BLUE;
 					values[0]=area_map[75].nb_elements;
 					values[1]=area_map[30].nb_elements;
@@ -1095,32 +1133,32 @@ static void CAN_send_element_updated(event_type_e event, Uint8 element_number)
 					values[4]=area_map[33].nb_elements;
 					values[5]=area_map[34].nb_elements;
 					values[6]=area_map[35].nb_elements;
-					values[7]=area_map[80].nb_elements;	
+					values[7]=area_map[80].nb_elements;
 					break;
-		
+
 				case 17:
 					display	= 0;
 					left_color = WRITE_ON_GREEN;
 					right_color = WRITE_ON_GREEN;
 					line_color = WRITE_ON_BLACK;
-					odd_color = WRITE_ON_RED;		
+					odd_color = WRITE_ON_RED;
 					even_color = WRITE_ON_BLUE;
 					break;
-		
+
 				case 18: display=3;
 					break;
 				default:
 					break;
 			}
-		
+
 			bonus_area=(line==5||line==11)?'B':'_';
 			bonus_area2=(line==17)?'B':'_';
-			
+
 			bonus_color[0]=(line==5||line==11)?30:even_color-10;
 			bonus_color[1]=(line==17)?30:odd_color-10;
 			bonus_color[2]=(line==17)?30:even_color-10;
 			bonus_color[3]=(line==5||line==11)?30:odd_color-10;
-	
+
 			switch(display)
 			{
 				case 0:debug_printf(displayer[0],left_color-10,left_color,line_color-10,line_color,odd_color-10,odd_color,even_color-10,even_color,
@@ -1153,15 +1191,15 @@ void sort_elements(element_t elements_list[],Uint8 num_elements[],Uint8 size_tab
 	{
 		num_elements[i] = i;
 	}
-	
+
 	while(change>0 && global.env.nb_elements>0)
 	{
 		change = 0;
-		
+
 		for(i=0;i<size_tab-1;i++)
-		{ 
+		{
 			if(compare(elements_list[num_elements[i]],elements_list[num_elements[i+1]]))
-			{	
+			{
 				tmp = num_elements[i];
 				num_elements[i] = num_elements[i+1];
 				num_elements[i+1] = tmp;
@@ -1180,7 +1218,7 @@ static bool_e compare_distance(element_t current_element,element_t next_element)
 	Uint16 dist_next_element = GEOMETRY_distance(pt_next_element,pos_robot);
 	if(dist_current_element > dist_next_element)
 		return TRUE;
-	else 
+	else
 		return FALSE;
 }
 
@@ -1188,7 +1226,7 @@ static bool_e compare_types(element_t current_element,element_t next_element)
 {
 	if(current_element.type < next_element.type)
 		return TRUE;
-	else 
+	else
 		return FALSE;
 }
 
@@ -1201,7 +1239,7 @@ static bool_e compare_foe_position(element_t current_element,element_t next_elem
 	Uint16 dist_next_element = GEOMETRY_distance(pt_next_element,pos_adversary);
 	if(dist_current_element > dist_next_element)
 		return TRUE;
-	else 
+	else
 		return FALSE;
 }
 
@@ -1214,7 +1252,7 @@ static bool_e compare_area(area_mapping_t area_a,area_mapping_t area_b)
 	Uint16 dist_area_b = GEOMETRY_distance(pt_area_b,pos_robot);
 	if(dist_area_a < dist_area_b)
 		return TRUE;
-	else 
+	else
 		return FALSE;
 }
 
@@ -1224,9 +1262,9 @@ static void sort_empty_area(Uint8 area_number_list[], Uint8* nb_empty_area, bool
 //	Uint8 current_pos_list = 0;
 //	Uint8 nb_area_bonus_empty = 0;
 //	bool_e end_sort;
-//	
+//
 //	nb_empty_area = 0;
-//	
+//
 //	if(area_map[bonus_area_number[0]].belonging == US)
 //	{
 //		if(area_map[bonus_area_number[0]].nb_elements == 0 && area_map[bonus_area_number[2]].nb_elements != 0)
@@ -1297,7 +1335,7 @@ static void sort_empty_area(Uint8 area_number_list[], Uint8* nb_empty_area, bool
 //			current_pos_list += 2;
 //		}
 //	}
-//	
+//
 //	// calcul du nombre de zones vides à nous
 //	for(i=0;i<NB_AREAS;i++)// 82 = nbre de zones
 //	{
@@ -1367,7 +1405,7 @@ static void sort_empty_area(Uint8 area_number_list[], Uint8* nb_empty_area, bool
 //		}while(!end_sort);
 //	}
 }
-/* Fonction qui indique si l'adversaire est proche du point passé en paramètre 
+/* Fonction qui indique si l'adversaire est proche du point passé en paramètre
 * TRUE = adversaire trop proche
 * FALSE = adversaire assez loin
 */
@@ -1392,7 +1430,7 @@ bool_e ELEMENT_foe_near_of_point(GEOMETRY_point_t target_point, Uint32 minimal_d
 	}
 }
 
-/* Fonction qui indique si un nouvel élement a été détecté 
+/* Fonction qui indique si un nouvel élement a été détecté
 * TRUE = nouvel élément détecté
 * FALSE = pas de nouvel élement détecté
 */

@@ -34,7 +34,6 @@ void Strat_Detection_Triangle(void){
 	CREATE_MAE_WITH_VERBOSE(0,
 		INIT,
 		AVANCER,
-		PLACEMENT_FOYER_GAUCHE,
 		SCAN_FOYER_GAUCHE,
 		PLACEMENT_FOYER_MILIEU,
 		SCAN_FOYER_MILIEU,
@@ -52,35 +51,16 @@ void Strat_Detection_Triangle(void){
 			break;
 
 		case AVANCER :
-			state = try_going(1000, 2500, AVANCER, PLACEMENT_FOYER_GAUCHE, PLACEMENT_FOYER_GAUCHE, SLOW, ANY_WAY, NO_AVOIDANCE);
-			break;
-
-		case PLACEMENT_FOYER_GAUCHE :
-			state = try_going(1500, 2500, PLACEMENT_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, PLACEMENT_FOYER_MILIEU, SLOW, FORWARD, NO_AVOIDANCE);
+			state = try_going(1000, 2500, AVANCER, SCAN_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SLOW, ANY_WAY, NO_AVOIDANCE);
 			break;
 
 		case SCAN_FOYER_GAUCHE :
-			if(entrance)
-				LAUNCH_SCAN_TRIANGLE();
-
-			if(propulsion_send_triangle()){
-				afficher_donnee_triangle();
-				state = PLACEMENT_FOYER_MILIEU;
-			}
+			state = try_going_and_rotate_scan(0, -PI4096/2, 90,
+							 1600, 2600, SCAN_FOYER_GAUCHE, PLACEMENT_FOYER_MILIEU, PLACEMENT_FOYER_MILIEU, SLOW, FORWARD, NO_AVOIDANCE);
 			break;
 
 		case PLACEMENT_FOYER_MILIEU :
 			state = try_going(1000, 1900, PLACEMENT_FOYER_MILIEU, LIBERE_MILIEU, LIBERE_MILIEU, SLOW, FORWARD, NO_AVOIDANCE);
-			break;
-
-		case SCAN_FOYER_MILIEU :
-			if(entrance)
-				LAUNCH_SCAN_TRIANGLE();
-
-			if(propulsion_send_triangle()){
-				afficher_donnee_triangle();
-				state = LIBERE_MILIEU;
-			}
 			break;
 
 		case LIBERE_MILIEU :
@@ -88,17 +68,7 @@ void Strat_Detection_Triangle(void){
 			break;
 
 		case PLACEMENT_FOYER_DROIT :
-			state = try_going(1600, 400, PLACEMENT_FOYER_DROIT, PLACEMENT_FOYER_GAUCHE, PLACEMENT_FOYER_GAUCHE, SLOW, FORWARD, NO_AVOIDANCE);
-			break;
-
-		case SCAN_FOYER_DROIT :
-			if(entrance)
-				LAUNCH_SCAN_TRIANGLE();
-
-			if(propulsion_send_triangle()){
-				afficher_donnee_triangle();
-				state = PLACEMENT_FOYER_GAUCHE;
-			}
+			state = try_going(1600, 400, PLACEMENT_FOYER_DROIT, SCAN_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SLOW, FORWARD, NO_AVOIDANCE);
 			break;
 
 		case DONE :
