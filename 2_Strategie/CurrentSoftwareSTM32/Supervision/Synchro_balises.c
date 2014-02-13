@@ -18,14 +18,15 @@
 #define LAST_REPLY_TIMEOUT 10000  //temps avant de considérer le robot maitre (pierre) comme éteint (dans ce cas, guy passe en maitre)
 #define LAST_SYNCHRO_TIMEOUT 10000  //temps avant de considérer une balise comme éteinte
 
+//Les balises sont elles là ? Informatif, non utilisé dans ce code (sauf pour leur maj)
 bool_e balise_here[2] = {FALSE, FALSE};
 
 static CAN_msg_t canmsg_pending;
 static bool_e canmsg_received = FALSE;
 static Sint16 offset;
-static time32_t last_received_reply = 0; //si ça fait longtemps, pierre est off
+static time32_t last_received_reply = 0; //si ça fait longtemps, pierre est off et ne répond plus aux demandes
 
-//temps depuis la dernière requête de synchro
+//temps depuis la dernière requête de synchro, permet de savoir si les balises sont là
 static time32_t last_req_time[RF_MODULE_COUNT];
 
 static bool_e SEND_REQ = TRUE;
@@ -79,52 +80,61 @@ void SYNCHRO_init() {
 void SYNCHRO_process_main()
 {
 	return;
-		static Uint16 compteur_last;
-		if(canmsg_received) {
-			//ENV_process_can_msg(&canmsg_pending);
+	static Uint16 compteur_last;
 
-			canmsg_received = FALSE;
-		}
+	//Message CAN reçu => passage à environnement.c
+	if(canmsg_received) {
+		//ENV_process_can_msg(&canmsg_pending);
+		ENV_process_can_msg(&canmsg_pending, TRUE, TRUE, FALSE, FALSE); //Renvoi sur le bus CAN et U1
 
-		//Si on voit pas de réponse pendant plus de LAST_REPLY_TIMEOUT ms, on répond au demandes e synchro (si pierre pas là)
-		if(REPLY_REQ == FALSE && RF_get_module_id() == RF_GUY && last_received_reply + LAST_REPLY_TIMEOUT <= global.env.absolute_time) {
-			REPLY_REQ = TRUE;
-			debug_printf("La derniere réponse reçu de pierre est trop vielle, passage en maitre\n");
-		}
+		canmsg_received = FALSE;
+	}
 
-		update_foe_here();
+	//Si on voit pas de réponse pendant plus de LAST_REPLY_TIMEOUT ms, on répond au demandes e synchro (si pierre pas là)
+	if(REPLY_REQ == FALSE && RF_get_module_id() == RF_GUY && last_received_reply + LAST_REPLY_TIMEOUT <= global.env.absolute_time) {
+		REPLY_REQ = TRUE;
+		debug_printf("La derniere réponse reçu de pierre est trop vielle, passage en maitre\n");
+	}
 
-		if(offset != 0x0FFF) {
-			info_printf("Offset: %d\n", offset);
-			offset = 0x0FFF;
-		}
+	//Met à jour balise_here
+	update_foe_here();
 
-		if(compteur_last != time_base/1000) {
-			compteur_last = time_base/1000;
+	//Pour debug
+	if(offset != 0x0FFF) {
+		info_printf("Offset: %d\n", offset);
+		offset = 0x0FFF;
+	}
 
-			debug_printf("Compteur: %u\n", time_base);
-		}
-		if(time_base < 9900)
-		;//RF_can_send(RF_BROADCAST, &msg);
+	//Pour débuggage: si les 2 cartes comptent en même temps, la synchro est ok
+	if(compteur_last != time_base/1000) {
+		compteur_last = time_base/1000;
+
+		debug_printf("Compteur: %u\n", time_base);
+	}
 }
 
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
-	if(REPLY_REQ && for_me && header.type == RF_PT_SynchroRequest) {
-		Sint16 offset;
-		if(time_base > COMPTEUR_MAX/2)
-			offset = time_base - COMPTEUR_MAX;
-		else
-			offset = time_base;
-		RF_synchro_response(header.sender_id, offset);
+	if(header.type == RF_PT_SynchroRequest) {
+		if(REPLY_REQ && for_me) {
+			Sint16 offset;
+			if(time_base > COMPTEUR_MAX/2)
+				offset = time_base - COMPTEUR_MAX;
+			else
+				offset = time_base;
+			RF_synchro_response(header.sender_id, offset);
+		}
+		//Même si le message n'est pas pour nous, suffi de voir qu'un module est actif pour l'enregistrer
 		last_req_time[header.target_id] = global.env.absolute_time;
 		update_foe_here();
 	} else if(QS_WHO_AM_I_get() == GUY && header.type == RF_PT_SynchroResponse) {
-		//On ne se synchronise pas sur PIERRE, c'est nous le maitre
+		//Pierre nous à répondu, on maj notre base de temps
 		if(for_me) {
 			Sint16 fullOffset = data[0] | data[1] << 8;
 			offset = time_base;
 			time_base = time_base + fullOffset - (time_base >> 1);
 		}
+
+		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => Pierre est là
 		if(REPLY_REQ) {
 			REPLY_REQ = FALSE;
 			debug_printf("Réponse reçue de PIERRE, passage en esclave\n");
@@ -134,6 +144,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 }
 
 static void rf_can_received_callback(CAN_msg_t *msg) {
+	//Le message CAN reçu est forcément pour nous => on le bufferise pour l'envoyer à environnement.c dans la boucle main (SYNCHRO_process_main)
 	if(canmsg_received == FALSE) {
 		canmsg_pending = *msg;
 		canmsg_received = TRUE;
@@ -146,45 +157,3 @@ static void update_foe_here() {
 	balise_here[0] = (last_req_time[RF_FOE1] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time);
 	balise_here[1] = (last_req_time[RF_FOE2] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time);
 }
-
-//void MAIN_onButton1() {
-//	LED_RUN = !LED_RUN;
-
-//	RF_synchro_request(RF_BROADCAST);
-//	info_printf("Button1\n");
-//}
-
-//void MAIN_onButton2() {
-//	LED_RUN = !LED_RUN;
-
-//	CAN_msg_t msg;
-//	msg.sid = 0x1234;
-//	msg.size = 4;
-//	msg.data[0] = 0xbf;
-//	msg.data[1] = 0xc0;
-//	msg.data[2] = 0xc1;
-//	msg.data[3] = 0xcf;
-//	RF_can_send(RF_BROADCAST, &msg);
-//	info_printf("Button2\n");
-//}
-
-//void MAIN_onButton3() {
-//	LED_RUN = !LED_RUN;
-
-//	CAN_msg_t msg;
-//	msg.sid = 0x1234;
-//	msg.size = 4;
-//	msg.data[0] = 'B';
-//	msg.data[1] = 'U';
-//	msg.data[2] = 'T';
-//	msg.data[3] = '3';
-//	RF_can_send(RF_BROADCAST, &msg);
-//	info_printf("Button3\n");
-//}
-
-//void MAIN_onButton4() {
-//	LED_RUN = !LED_RUN;
-
-//	send_req = !send_req;
-//	info_printf("Button4, %d\n", send_req);
-//}
