@@ -231,7 +231,7 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 
 #ifdef SCAN_TRIANGLE
 //x : mm, y : mm, teta : rad4096
-void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 triangle_level, Uint8 triangle_number, Uint16 x, Uint16 y, Sint16 teta)
+void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 triangle_level, Uint8 triangle_number, Sint16 x, Sint16 y, Sint16 teta)
 {
 	CAN_msg_t msg;
 	/*		0:7		: Indiquant si c'est le dernier triangle

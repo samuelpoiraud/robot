@@ -45,6 +45,9 @@
 
 #define NB_POINTS_MAX 180
 
+#define VITESSE_ANGULAIRE_SCAN_SLOW 20
+#define VITESSE_ANGULAIRE_SCAN_FAST FAST
+
 //------------------------------------------------------------------------------------ Prototype des fonctions local
 
 static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure);
@@ -627,9 +630,9 @@ void SCAN_TRIANGLE_canMsg(CAN_msg_t *msg){
 		scan_param.type = ROTATE;
 
 	if(msg->data[0] & 0x40)
-		scan_param.speed = FAST;
+		scan_param.speed = VITESSE_ANGULAIRE_SCAN_FAST;
 	else
-		scan_param.speed = 20;
+		scan_param.speed = VITESSE_ANGULAIRE_SCAN_SLOW;
 
 	if(msg->data[0] & 0x20)
 		scan_param.way = BACKWARD;
