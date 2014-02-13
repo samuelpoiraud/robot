@@ -28,6 +28,7 @@ Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_point
 	}state_e;
 	static state_e state = TRY_GOING;
 	CAN_msg_t msg;
+	static Uint16 timeLaunch;
 	switch(state){
 		case TRY_GOING:
 			state = try_going(x, y, TRY_GOING, BEGIN_SCAN, ERROR, speed, way, avoidance);
@@ -44,6 +45,7 @@ Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_point
 			msg.size = 6;
 			CAN_send(&msg);
 			TRIANGLE_init_list();
+			timeLaunch = global.env.match_time;
 			state = SCAN;
 			break;
 
@@ -51,6 +53,11 @@ Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_point
 			if(propulsion_send_triangle()){
 				afficher_donnee_triangle();
 				state = SCAN_END;
+			}else if(timeLaunch-global.env.match_time > 5000){
+				#ifdef VERBOSE_MODE
+					debug_printf("TIMEOUT SCAN TRIANGLE\n");
+				#endif
+				state = ERROR;
 			}
 			break;
 
