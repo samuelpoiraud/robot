@@ -19,7 +19,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stmpe811qtr.h"
+#include "STMPE811QTR.h"
 #include "stm32f4xx_i2c.h"
 #include "stm32f4xx_dma.h"
 #include "stm32f4xx_gpio.h"
