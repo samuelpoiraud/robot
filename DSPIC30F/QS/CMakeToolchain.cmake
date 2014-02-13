@@ -62,3 +62,31 @@ set(BUILD_SHARED_LIBS OFF)
 find_program(CMAKE_OBJDUMP pic30-objdump)
 set(CMAKE_OBJDUMP_ARG "-omf=elf")
 find_program(CMAKE_BIN2HEX pic30-bin2hex)
+
+macro(configure_mcu_target TARGET_NAME SRC_LIST)
+    set(TARGET_ELF "${TARGET_NAME}.elf")
+    set(TARGET_BIN "${TARGET_NAME}.bin")
+    set(TARGET_LST "${TARGET_NAME}.lst")
+    set(TARGET_HEX "${TARGET_NAME}.hex")
+
+    get_filename_component(BUILD_DIR_NAME ${CMAKE_BINARY_DIR} NAME)
+    set(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_LIST_DIR}/${BUILD_DIR_NAME}-bin")
+
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map,\"${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}.map\"")
+
+    add_executable(${TARGET_ELF} ${SRC_LIST})
+    # ugly workaround,  "-Wl,-Tp30F6010A.gld" must be at the end of the command line...
+    target_link_libraries(${TARGET_ELF} -Wl,-Tp30F6010A.gld)
+
+    add_custom_command(OUTPUT ${EXECUTABLE_OUTPUT_PATH}/${TARGET_HEX} DEPENDS ${TARGET_ELF} COMMAND ${CMAKE_BIN2HEX} "-omf=elf" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_ELF}")
+    add_custom_target(${TARGET_HEX} ALL DEPENDS ${EXECUTABLE_OUTPUT_PATH}/${TARGET_HEX})
+
+
+    # fichier lst (listing asm)
+    add_custom_command(OUTPUT ${EXECUTABLE_OUTPUT_PATH}/${TARGET_LST} DEPENDS ${TARGET_ELF} COMMAND ${CMAKE_OBJDUMP} "-omf=elf" "-h" "-S" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_ELF}" > "${EXECUTABLE_OUTPUT_PATH}/${TARGET_LST}")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            add_custom_target(${TARGET_LST} ALL DEPENDS ${EXECUTABLE_OUTPUT_PATH}/${TARGET_LST})
+    else()
+            add_custom_target(${TARGET_LST} DEPENDS ${EXECUTABLE_OUTPUT_PATH}/${TARGET_LST})
+    endif()
+endmacro()
