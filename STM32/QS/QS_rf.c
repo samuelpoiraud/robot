@@ -359,7 +359,7 @@ static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
 			Uint8 i;
 			msg.size = data[RF_CAN_SIZE] - 2;
 
-			assert(msg.size >= 8); //deja checké dans le if
+			assert(msg.size >= 8); //deja checké dans le if mais on ne sait jamais
 
 			msg.sid = (Uint16)data[RF_CAN_SID] | (Uint16)data[RF_CAN_SID+1] << 8;
 
