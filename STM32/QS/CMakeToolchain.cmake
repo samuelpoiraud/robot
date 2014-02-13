@@ -63,3 +63,37 @@ set(BUILD_SHARED_LIBS OFF)
 
 find_program(CMAKE_OBJCOPY arm-none-eabi-objcopy)
 find_program(CMAKE_OBJDUMP arm-none-eabi-objdump)
+
+macro(configure_mcu_target TARGET_NAME SRC_LIST)
+    set(TARGET_ELF "${TARGET_NAME}.elf")
+    set(TARGET_BIN "${TARGET_NAME}.bin")
+    set(TARGET_LST "${TARGET_NAME}.lst")
+    set(TARGET_HEX "${TARGET_NAME}.hex")
+
+    get_filename_component(BUILD_DIR_NAME ${CMAKE_BINARY_DIR} NAME)
+    set(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_LIST_DIR}/${BUILD_DIR_NAME}-bin")
+
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map,\"${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}.map\"")
+
+    add_executable(${TARGET_ELF} ${SRC_LIST})
+
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/stm32f4xx")
+    target_link_libraries(${TARGET_ELF} "${CMAKE_CURRENT_LIST_DIR}/stm32f4xx/libstm32f4xx.a")
+
+    # elf to bin/hex (utilisé pour programmer sur la cible)
+    add_custom_command(OUTPUT ${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN} DEPENDS ${TARGET_ELF} COMMAND ${CMAKE_OBJCOPY} "-Obinary" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_ELF}" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN}")
+    add_custom_target(${TARGET_BIN} ALL DEPENDS ${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN})
+
+    # fichier lst (listing asm)
+    add_custom_command(OUTPUT ${EXECUTABLE_OUTPUT_PATH}/${TARGET_LST} DEPENDS ${TARGET_ELF} COMMAND ${CMAKE_OBJDUMP} "-h" "-S" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_ELF}" > "${EXECUTABLE_OUTPUT_PATH}/${TARGET_LST}")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            add_custom_target(${TARGET_LST} ALL DEPENDS ${EXECUTABLE_OUTPUT_PATH}/${TARGET_LST})
+    else()
+            add_custom_target(${TARGET_LST} DEPENDS ${EXECUTABLE_OUTPUT_PATH}/${TARGET_LST})
+    endif()
+
+    # Target de programmation: program
+    set(OPENOCD_COMMAND "flash write_image erase \\\"${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN}\\\" 0x08000000")
+    separate_arguments(OPENOCD_COMMAND)
+    add_custom_target(program DEPENDS ${TARGET_BIN} COMMAND openocd.exe -f interface/stlink-v2.cfg -f target/stm32f4x_stlink.cfg -c \"init\" -c \"reset halt\" -c \"${OPENOCD_COMMAND}\" -c \"reset\" -c shutdown)
+endmacro()
