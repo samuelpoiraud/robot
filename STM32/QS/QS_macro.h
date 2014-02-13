@@ -36,7 +36,7 @@
 	#define absolute(x)					(((x) >= 0) ? (x) : (-(x)))
 	#ifdef VERBOSE_MODE
 		#define assert(condition) \
-			if(!(condition)) {printf("assert failed file " __FILE__ " line %d : %s", __LINE__ , #condition ); NVIC_SystemReset();}
+			if(!(condition)) {fprintf(stderr, "assert failed file " __FILE__ " line %d : %s", __LINE__ , #condition ); NVIC_SystemReset();}
 	#else
 		#define assert(condition) (void)0
 	#endif

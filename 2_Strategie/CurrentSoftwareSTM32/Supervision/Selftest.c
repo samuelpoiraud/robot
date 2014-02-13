@@ -356,12 +356,12 @@ error_e SELFTEST_strategy(bool_e reset)
 	date_t date;
 	Uint8 status;
 	Uint16 battery_level;
-	
+
 	entrance = (state != previous_state)?TRUE:FALSE;
 	previous_state = state;
 	if(reset)
 		state = INIT;
-		
+
 	ret = IN_PROGRESS;
 	switch(state)
 	{

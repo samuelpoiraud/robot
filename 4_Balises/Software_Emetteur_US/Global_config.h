@@ -81,7 +81,7 @@
 #else
 #error "NUMERO_BALISE_EMETTRICE est invalide (doit être 1 ou 2)"
 #endif
-	#define RF_USE_WATCHDOG
+	#define RF_TIMER_ID 2
 	#define RF_MODULE_COUNT 4
 	#define TIME_PER_MODULE 100 //en ms, temps alloué par modules
 

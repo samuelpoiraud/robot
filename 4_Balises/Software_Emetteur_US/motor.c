@@ -53,7 +53,7 @@ void MOTOR_process_it(void)
 	
 	count = QEI_get_count();			//Lecture codeur.
 	
-	speed = abs(count - count_prec);	//Calcul vitesse
+	speed = absolute(count - count_prec);	//Calcul vitesse
 		
 	error = COMMAND - speed;			//Calcul de l'erreur sur la vitesse
 	
