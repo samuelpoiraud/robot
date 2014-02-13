@@ -84,6 +84,8 @@ bool_e UART_IMPL_init_ex(Uint8 uart_id, Uint32 baudrate, Sint8 rx_irq_priority, 
 
 void UART_IMPL_write(Uint8 uart_id, Uint8 data) {
 	assert(uart_id < UART_IMPL_NUM);
+
+	//Pour detecter un bug dans QS_rf: un write ne doit pas être fait alors que l'uart n'est pas prête
 	static Uint8 buffer_send[50];
 	static int i = 0;
 	buffer_send[i] = data;
@@ -91,6 +93,7 @@ void UART_IMPL_write(Uint8 uart_id, Uint8 data) {
 		i++;
 	if(UART_IMPL_isTxFull(uart_id))
 		printf("full\n");
+
 	USART_SendData(usart_infos[uart_id].usart_ptr, data);
 }
 
