@@ -132,6 +132,9 @@ bool_e STACKS_wait_end_auto_pull (stack_id_e stack_id, bool_e* got_timeout)
 	*got_timeout=FALSE;	//On suppose qu'il n'y a pas de timeout.
 	if (stack->timeout)
 	{
+		#ifdef VERBOSE_MODE
+			debug_printf("TIMEOUT (stack_id : %d)\n", stack_id);
+		#endif
 		*got_timeout=TRUE;	//En fait, il y a un timeout.
 		if(STACKS_get_action(stack_id,STACKS_get_top(stack_id))!=&wait_forever)
 			STACKS_pull(stack_id);

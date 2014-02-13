@@ -18,7 +18,15 @@ struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
 Uint8 nb_objet[3];
 
 Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance){
-	static enum{TRY_GOING, BEGIN_SCAN, SCAN, SCAN_END, ERROR} state = TRY_GOING;
+	typedef enum
+	{
+		TRY_GOING,
+		BEGIN_SCAN,
+		SCAN,
+		SCAN_END,
+		ERROR
+	}state_e;
+	static state_e state = TRY_GOING;
 	CAN_msg_t msg;
 	switch(state){
 		case TRY_GOING:
@@ -47,9 +55,11 @@ Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_point
 			break;
 
 		case SCAN_END:
+			state = TRY_GOING;
 			return success_state;
 
 		case ERROR:
+			state = TRY_GOING;
 			return fail_state;
 	}
 	return in_progress;
