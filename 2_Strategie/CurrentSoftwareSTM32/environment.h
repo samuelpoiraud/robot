@@ -131,6 +131,9 @@
 	/* Change la couleur et prévient tout le monde */
 	void ENV_set_color(color_e color);
 
+	/* Traitement d'un message CAN et renvoie vers d'autres bus */
+	void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool_e bU2, bool_e bXBee);
+
 
 
 #endif /* ndef ENVIRONMENT_H */
