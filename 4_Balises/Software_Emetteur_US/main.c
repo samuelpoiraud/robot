@@ -11,13 +11,14 @@
  */
 
 #include "main.h"
+#include "QS/QS_outputlog.h"
 
 
 #if NUMERO_BALISE_EMETTRICE == 1
-	#warning "Vous compilez pour la balise émettrice n°1"
+	#warning "Vous compilez pour la balise émettrice no1"
 #endif
 #if NUMERO_BALISE_EMETTRICE == 2
-	#warning "Vous compilez pour la balise émettrice n°2"
+	#warning "Vous compilez pour la balise émettrice no2"
 #endif
 
 static volatile bool_e bt = TRUE;

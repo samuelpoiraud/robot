@@ -4,19 +4,23 @@
 #include "../QS/QS_timer.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_outputlog.h"
+#include "../config/config_pin.h"
+#include "../QS/impl/QS_uart_impl.h"
 
 #ifdef SYNCHROBALISE_TIMER
 	#define TIMER_SRC_TIMER_ID SYNCHROBALISE_TIMER
 #endif
 #include "../QS/QS_setTimerSource.h"
 
-#define COMPTEUR_MAX 10000
-#define COMPTEUR_TICK_PER_USEC 100
 
 #define RF_MODULE_COUNT 4
-#define TIME_PER_MODULE 100
+#define TIME_PER_MODULE 100  //en ms
 #define LAST_REPLY_TIMEOUT 10000  //temps avant de considérer le robot maitre (pierre) comme éteint (dans ce cas, guy passe en maitre)
 #define LAST_SYNCHRO_TIMEOUT 10000  //temps avant de considérer une balise comme éteinte
+
+#define COMPTEUR_USEC_PER_TICK 100
+#define COMPTEUR_MAX (RF_MODULE_COUNT*TIME_PER_MODULE*1000/COMPTEUR_USEC_PER_TICK)
+#define TIME_WHEN_SYNCHRO TIME_PER_MODULE*RF_get_module_id()  //valeur compteur quand demander la synchro
 
 //Les balises sont elles là ? Informatif, non utilisé dans ce code (sauf pour leur maj)
 bool_e balise_here[2] = {FALSE, FALSE};
@@ -38,7 +42,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 static void rf_can_received_callback(CAN_msg_t *msg);
 static void update_foe_here();
 
-/*void TIMER_SRC_TIMER_interrupt() {
+void TIMER_SRC_TIMER_interrupt() {
 	TIMER_SRC_TIMER_resetFlag();
 
 	time_base++;
@@ -47,22 +51,15 @@ static void update_foe_here();
 	}
 
 	//Un timeslot pour chaque module différent, pour éviter les collisions lorsque tout les modules sont presque synchro
-	if(SEND_REQ && time_base == TIME_PER_MODULE*RF_get_module_id()) {
+	if(SEND_REQ && time_base == TIME_WHEN_SYNCHRO) {
 		RF_synchro_request(RF_BROADCAST);
 	}
-
-}*/
-
-//static const char* rf_packet_type_str[4] = {
-//	"RF_PT_SynchroRequest",
-//	"RF_PT_SynchroResponse",
-//	"RF_PT_Can",
-//	"RF_PT_None"
-//};
+}
 
 void SYNCHRO_init() {
-	return;
 	TIMER_SRC_TIMER_init();
+
+	PIN_RF_CONFIG = 1;
 
 	if(QS_WHO_AM_I_get() == PIERRE) {
 		SEND_REQ = FALSE;
@@ -74,12 +71,14 @@ void SYNCHRO_init() {
 		RF_init(RF_GUY, &rf_packet_received_callback, &rf_can_received_callback);
 	}
 
-	TIMER_SRC_TIMER_start_us(COMPTEUR_TICK_PER_USEC);
+	while(!UART_IMPL_isRxEmpty(RF_UART));
+	UART_IMPL_write(RF_UART, 'X');
+
+	TIMER_SRC_TIMER_start_us(COMPTEUR_USEC_PER_TICK);
 }
 
 void SYNCHRO_process_main()
 {
-	return;
 	static Uint16 compteur_last;
 
 	//Message CAN reçu => passage à environnement.c
@@ -116,11 +115,11 @@ void SYNCHRO_process_main()
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
 	if(header.type == RF_PT_SynchroRequest) {
 		if(REPLY_REQ && for_me) {
-			Sint16 offset;
-			if(time_base > COMPTEUR_MAX/2)
-				offset = time_base - COMPTEUR_MAX;
-			else
-				offset = time_base;
+			Sint16 offset, expected_time;
+			
+			expected_time = TIME_PER_MODULE * header.sender_id;
+			offset = time_base - expected_time;
+
 			RF_synchro_response(header.sender_id, offset);
 		}
 		//Même si le message n'est pas pour nous, suffi de voir qu'un module est actif pour l'enregistrer
@@ -129,9 +128,9 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 	} else if(QS_WHO_AM_I_get() == GUY && header.type == RF_PT_SynchroResponse) {
 		//Pierre nous à répondu, on maj notre base de temps
 		if(for_me) {
-			Sint16 fullOffset = data[0] | data[1] << 8;
-			offset = time_base;
-			time_base = time_base + fullOffset - (time_base >> 1);
+			Sint16 fullOffset = (data[0] | data[1] << 8);
+			offset = time_base - TIME_WHEN_SYNCHRO;
+			time_base = time_base + fullOffset - (offset >> 1);
 		}
 
 		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => Pierre est là

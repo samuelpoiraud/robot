@@ -82,14 +82,14 @@ void _ISR _T1Interrupt()
 	//Soit on suit une correction figée, LORSQUE le câble est débranché.
 void _ISR _T3Interrupt()
 {
-	LED_RUN = 0;
+	//LED_RUN = 0;
 	Synchro_correction_deviation_timer();
 
 
 	//ReceptionUS_next_step();
 	EmissionUS_next_step();
 	EmissionIR_next_step();
-	LED_RUN = 1;
+	//LED_RUN = 1;
 	IFS0bits.T3IF = 0;
 }
 

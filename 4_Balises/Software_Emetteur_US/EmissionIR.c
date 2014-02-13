@@ -10,6 +10,8 @@
  */
 
 #include "EmissionIR.h"
+#include "SynchroRF.h"
+#include "QS/QS_rf.h"
 
 
 #define IR_ON 		(LATEbits.LATE7)
@@ -67,12 +69,15 @@ void EmissionIR_step_init(void)
 //@pre Appeler cette fonction toutes les 2ms
 void EmissionIR_next_step(void)
 {
-	if(request_reset_step_ir == TRUE && step > 0 && step <99)
+	if(request_reset_step_ir == TRUE)
 		step = 0;	
 	else
 		step = (step == RF_MODULE_COUNT*PERIODE_FLASH-1)? 0: step+1;
 	
 	request_reset_step_ir = FALSE;
+
+	if(step == TIME_WHEN_SYNCHRO)
+		SYNCRF_sendRequest();
 	
 	if(global.mode_double_emetteurs == TRUE)
 	{

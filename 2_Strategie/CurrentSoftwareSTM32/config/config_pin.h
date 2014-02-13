@@ -25,7 +25,7 @@
 	//	XBEE/BT/U2RX				  3
 	//	-				 			  4
 	#define XBEE_RESET			GPIOA->ODR5
-	//	-				 			  6
+	#define PIN_RF_CONFIG		GPIOA->ODR6
 	#define SWITCH_VERBOSE		GPIOA->IDR7
 	#define LED_IHM_SET			GPIOA->ODR8
 	//	-	usb			 			  9
