@@ -636,7 +636,7 @@ void SCAN_TRIANGLE_canMsg(CAN_msg_t *msg){
 	else
 		scan_param.way = FORWARD;
 
-	scan_param.nb_points = msg->data[1];
+	scan_param.nb_points = (msg->data[1] > NB_POINTS_MAX)? NB_POINTS_MAX : msg->data[1];
 
 	if(scan_param.type == ROTATE){
 		scan_param.startPos.teta = (((Sint16)(msg->data[2]) << 8) & 0xFF00) | ((Sint16)(msg->data[3]) & 0x00FF);
