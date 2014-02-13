@@ -11,6 +11,7 @@
 
 #define STACKS_C
 #include "Stacks.h"
+#include "QS/QS_outputlog.h"
 
 typedef struct
 {
@@ -20,9 +21,9 @@ typedef struct
 	timeout_e timeout;
 }stacks_t;
 
-/* Piles contenant une action, un sommet et état de timeout */	 
+/* Piles contenant une action, un sommet et état de timeout */
 static stacks_t stacks[ACTUATORS_NB];
-	
+
 void CAN_send_debug(char* string);
 
 void STACKS_init(void)
@@ -30,13 +31,13 @@ void STACKS_init(void)
 	static bool_e initialized = FALSE;
 	if(initialized)
 		return;
-		
+
 	Uint8 i;
 	CAN_init();
 	stacks_t* stack;
-	
+
 	for (i=0; i<ACTUATORS_NB; i++)
-	{	
+	{
 		stack=&stacks[i];
 		stack->stack_id=i;
 		stack->action[0].action_function=&wait_forever;
@@ -128,7 +129,7 @@ void STACKS_flush_all()
 
 bool_e STACKS_wait_end_auto_pull (stack_id_e stack_id, bool_e* got_timeout)
 {
-	stacks_t* stack=&stacks[stack_id]; 
+	stacks_t* stack=&stacks[stack_id];
 	*got_timeout=FALSE;	//On suppose qu'il n'y a pas de timeout.
 	if (stack->timeout)
 	{
