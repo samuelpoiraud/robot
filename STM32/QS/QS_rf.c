@@ -138,9 +138,8 @@ void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	
-	//USART3 TX
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	//USART3 TX
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 	//USART3 RX
@@ -149,7 +148,7 @@ void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 #endif
 
-	UART_IMPL_init_ex(RF_UART, 19200, 15, 15, UART_I_StopBit_1_5, UART_I_Parity_None);
+	UART_IMPL_init_ex(RF_UART, 19200, 10, 10, UART_I_StopBit_1_5, UART_I_Parity_None);
 	UART_IMPL_setRxItEnabled(RF_UART, TRUE);
 	TIMER_SRC_TIMER_init();
 
