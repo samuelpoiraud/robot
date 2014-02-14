@@ -12,6 +12,7 @@
 
 #include "main.h"
 #include "QS/QS_outputlog.h"
+#include "SynchroRF.h"
 
 
 #if NUMERO_BALISE_EMETTRICE == 1
@@ -52,6 +53,7 @@ int main (void)
 	EmissionUS_init();
 	EmissionIR_init();
 	Synchro_init();
+	SYNCRF_init();
 	
 	/*-------------------------------------
 		Boucle principale
@@ -72,6 +74,7 @@ int main (void)
 			
 		MOTOR_process_main();
 		Synchro_process_main();
+		SYNCRF_process_main();
 	}
 	return 0;
 }
