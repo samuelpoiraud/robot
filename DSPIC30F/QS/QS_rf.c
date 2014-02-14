@@ -143,11 +143,12 @@ void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 	//USART3 RX
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 #endif
 
-	UART_IMPL_init_ex(RF_UART, 19200, 15, 15, UART_I_StopBit_1_5, UART_I_Parity_None);
+	UART_IMPL_init_ex(RF_UART, 19200, 10, 10, UART_I_StopBit_1_5, UART_I_Parity_None);
 	UART_IMPL_setRxItEnabled(RF_UART, TRUE);
 	TIMER_SRC_TIMER_init();
 
@@ -357,7 +358,7 @@ static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
 			Uint8 i;
 			msg.size = data[RF_CAN_SIZE] - 2;
 
-			assert(msg.size >= 8); //deja checké dans le if
+			assert(msg.size >= 8); //deja checké dans le if mais on ne sait jamais
 
 			msg.sid = (Uint16)data[RF_CAN_SID] | (Uint16)data[RF_CAN_SID+1] << 8;
 
