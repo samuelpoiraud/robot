@@ -18,8 +18,8 @@
 #include "QS/QS_CANmsgList.h"
 #include "queue.h"
 
-#include "Krusty/KActManager.h"
-#include "Tiny/TActManager.h"
+#include "BIG/BActManager.h"
+#include "SMALL/SActManager.h"
 
 #include "config_debug.h"
 #define LOG_PREFIX "CANProcess: "
