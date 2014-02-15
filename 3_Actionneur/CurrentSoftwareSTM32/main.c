@@ -20,8 +20,8 @@
 #include "queue.h"
 #include "clock.h"
 
-#include "Krusty/KActManager.h"
-#include "Tiny/TActManager.h"
+#include "BIG/BActManager.h"
+#include "SMALL/SActManager.h"
 
 //Information pour le bouton 4
 #include "QS/QS_ax12.h"
@@ -136,7 +136,7 @@ int main (void)
 
 static void MAIN_onButton0() {
 	CAN_msg_t msg;
-	static bool_e openOrPark = FALSE;
+/*	static bool_e openOrPark = FALSE;
 
 	msg.size = 1;
 	msg.sid = ACT_DO_SELFTEST;
@@ -149,6 +149,16 @@ static void MAIN_onButton0() {
 	openOrPark = !openOrPark;
 
 	debug_printf("Main: ACT_FRUIT_MOUTH %d\n", msg.data[0]);
+*/
+
+
+	msg.size = 2;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_PARKED ;
+
+
+
 
 	CAN_process_msg(&msg);
 }
