@@ -15,8 +15,8 @@ set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type (one of Debug, Release, Re
 message("Using ${CMAKE_BUILD_TYPE} mode")
 
 # si actif, équivaut à un #define pour tous les fichiers compilés
-#add_definitions(-DPREDEF_BUILD_KRUSTY)
-#add_definitions(-DPREDEF_BUILD_TINY)
+#add_definitions(-DPREDEF_BUILD_BIG)
+#add_definitions(-DPREDEF_BUILD_SMALL)
 
 ########################
 # Fichiers à compiler
