@@ -32,8 +32,7 @@ bool_e UART_IMPL_init(Uint8 uart_id, Uint32 baudrate, Sint8 rx_irq_priority, Sin
 }
 
 bool_e UART_IMPL_init_ex(Uint8 uart_id, Uint32 baudrate, Sint8 rx_irq_priority, Sint8 tx_irq_priority, UART_IMPL_stop_bits_e stop_bits, UART_IMPL_parity_e parity_mode) {
-	if(uart_id >= UART_IMPL_NUM)
-		return FALSE;
+	assert(uart_id < UART_IMPL_NUM);
 
 	NVIC_InitTypeDef NVIC_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
