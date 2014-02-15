@@ -1,16 +1,16 @@
 /*  Club Robot ESEO 2012 - 2013
- *	Krusty
+ *	BIG
  *
  *	Fichier : Lance_Launcher.c
  *	Package : Carte actionneur
  *	Description : Gestion du lanceur de lance
  *  Auteur : amaury
  *  Version 1
- *  Robot : Krusty
+ *  Robot : BIG
  */
 
-#include "Klance_launcher.h"
-#ifdef I_AM_ROBOT_KRUSTY
+#include "Plance_launcher.h"
+#ifdef I_AM_ROBOT_BIG
 
 #include "../QS/QS_CANmsgList.h"
 #include "../act_queue_utils.h"
@@ -306,4 +306,4 @@ void TIMER_SRC_TIMER_interrupt() {
 	TIMER_SRC_TIMER_resetFlag();
 }
 
-#endif	//I_AM_ROBOT_TINY
+#endif	//I_AM_ROBOT_BIG
