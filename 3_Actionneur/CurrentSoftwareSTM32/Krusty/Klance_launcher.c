@@ -298,9 +298,10 @@ void TIMER_SRC_TIMER_interrupt() {
 		lance_launcher_timer = 0;
 	}
 
-	if(hold_state() == FALSE && end_lance_launcher == TRUE )
+	if(hold_state() == FALSE && end_lance_launcher == TRUE ){
+		end_lance_launcher = FALSE;
 		TIMER_SRC_TIMER_stop();
-
+	}
 
 	TIMER_SRC_TIMER_resetFlag();
 }
