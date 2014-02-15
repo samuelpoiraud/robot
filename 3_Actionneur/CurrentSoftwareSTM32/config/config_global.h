@@ -16,30 +16,38 @@
 #endif
 
 /** Choix du robot cible. Une seule définition n'est possible, commentez l'autre.
- * Si I_AM_ROBOT_KRUSTY est défini, le code spécifique au robot est pris dans le dossier Krusty.
- * Si I_AM_ROBOT_TINY est défini, le code  sépcifique au robot est pris dans le dossier Tiny.
- * Pour ceux qui veulent, il est possible de prédéfinir PREDEF_BUILD_TINY ou PREDEF_BUILD_KRUSTY avec le switch -DPREDEF_BUILD_TINY ou -DPREDEF_BUILD_KRUSTY de gcc, permet la creation de plusieurs target dans mplab X au moins.
- * PREDEF_BUILD_TINY et PREDEF_BUILD_KRUSTY sont prioritaire sur la définition manuelle.
+ * Si I_AM_ROBOT_BIG est défini, le code spécifique au robot est pris dans le dossier BIG.
+ * Si I_AM_ROBOT_SMALL est défini, le code  sépcifique au robot est pris dans le dossier SMALL.
+ * Pour ceux qui veulent, il est possible de prédéfinir PREDEF_BUILD_SMALL ou PREDEF_BUILD_BIG avec le switch -DPREDEF_BUILD_SMALL ou -DPREDEF_BUILD_BIG de gcc, permet la creation de plusieurs target dans mplab X au moins.
+ * PREDEF_BUILD_SMALL et PREDEF_BUILD_BIG sont prioritaire sur la définition manuelle.
  */
+#define I_AM_ROBOT_BIG
+//#define I_AM_ROBOT_SMALL
+
+
+//Compatibilité avec les fichiers qui utilise l'ancien #define pour KRUSTY et TINY
+#ifdef I_AM_ROBOT_BIG
 #define I_AM_ROBOT_KRUSTY
-#define I_AM_ROBOT_BIG = I_AM_ROBOT_KRUSTY
-//#define I_AM_ROBOT_TINY
-//#define I_AM_ROBOT_SMALL = I_AM_ROBOT_TINY
+#endif
+
+#ifdef I_AM_ROBOT_SMALL
+#define I_AM_ROBOT_TINY
+#endif
 
 
-#if defined(PREDEF_BUILD_KRUSTY)
-# ifndef I_AM_ROBOT_KRUSTY
-#  define I_AM_ROBOT_KRUSTY
+#if defined(PREDEF_BUILD_BIG)
+# ifndef I_AM_ROBOT_BIG
+#  define I_AM_ROBOT_BIG
 # endif
-# ifdef I_AM_ROBOT_TINY
-#  undef I_AM_ROBOT_TINY
+# ifdef I_AM_ROBOT_SMALL
+#  undef I_AM_ROBOT_SMALL
 # endif
-#elif defined(PREDEF_BUILD_TINY)
-# ifndef I_AM_ROBOT_TINY
-#  define I_AM_ROBOT_TINY
+#elif defined(PREDEF_BUILD_SMALL)
+# ifndef I_AM_ROBOT_SMALL
+#  define I_AM_ROBOT_SMALL
 # endif
-# ifdef I_AM_ROBOT_KRUSTY
-#  undef I_AM_ROBOT_KRUSTY
+# ifdef I_AM_ROBOT_BIG
+#  undef I_AM_ROBOT_BIG
 # endif
 #endif
 
