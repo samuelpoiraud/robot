@@ -103,7 +103,7 @@
 
 #define USE_FIFO
 #define USE_RF
-#define RF_UART 3
+#define RF_UART 2
 #define RF_USE_WATCHDOG
 #define SYNCHROBALISE_TIMER 4
 
