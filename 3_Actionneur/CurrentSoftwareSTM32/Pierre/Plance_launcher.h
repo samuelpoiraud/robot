@@ -13,7 +13,7 @@
 #define	LANCE_LAUNCHER_H
 
 #include "../QS/QS_all.h"
-#ifdef I_AM_ROBOT_KRUSTY
+#ifdef I_AM_ROBOT_BIG
 
 #include "../queue.h"
 

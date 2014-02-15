@@ -1,19 +1,19 @@
 /*  Club Robot ESEO 2012 - 2013
- *	Tiny
+ *	BIG
  *
- *	Fichier : TActManager.h
+ *	Fichier : BActManager.h
  *	Package : Carte actionneur
- *	Description : Gestion des actionneurs de Tiny
+ *	Description : Gestion des actionneurs de BIG
  *  Auteur : Alexis
  *  Version 20130227
- *  Robot : Tiny
+ *  Robot : BIG
  */
 
-#ifndef TACT_MANAGER_H
-#define	TACT_MANAGER_H
+#ifndef PACT_MANAGER_H
+#define	PACT_MANAGER_H
 
 #include "../QS/QS_all.h"
-#ifdef I_AM_ROBOT_TINY
+#ifdef I_AM_ROBOT_BIG
 
 	//Initialise les actionneurs
 	void ACTMGR_init();
@@ -27,8 +27,8 @@
 	//Stop tous les actionneurs
 	void ACTMGR_stop();
 
-#endif  /* I_AM_ROBOT_TINY */
+#endif  /* I_AM_ROBOT_BIG */
 
 
-#endif	/* TACT_MANAGER_H */
+#endif	/* BACT_MANAGER_H */
 

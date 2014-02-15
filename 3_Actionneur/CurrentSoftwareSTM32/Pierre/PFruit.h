@@ -1,19 +1,19 @@
 /*  Club Robot ESEO 2013 - 2014
- *	Krusty
+ *	BIG
  *
  *	Fichier : Fruit.h
  *	Package : Carte actionneur
  *	Description : Gestion des fruit_mouths
  *  Auteur : Amaury
  *  Version 20130219
- *  Robot : Krusty
+ *  Robot : BIG
  */
 
-#ifndef KFRUIT_H
-#define	KFRUIT_H
+#ifndef PFRUIT_H
+#define	PFRUIT_H
 
 #include "../QS/QS_all.h"
-#ifdef I_AM_ROBOT_KRUSTY
+#ifdef I_AM_ROBOT_BIG
 
 #include "../queue.h"
 
@@ -49,6 +49,6 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg);
  */
 void FRUIT_run_command(queue_id_t queueId, bool_e init);
 
-#endif  /* I_AM_ROBOT_KRUSTY */
-#endif	/* KFRUIT_H */
+#endif  /* I_AM_ROBOT_BIG */
+#endif	/* PFRUIT_H */
 

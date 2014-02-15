@@ -22,8 +22,9 @@
  * PREDEF_BUILD_TINY et PREDEF_BUILD_KRUSTY sont prioritaire sur la définition manuelle.
  */
 #define I_AM_ROBOT_KRUSTY
+#define I_AM_ROBOT_BIG = I_AM_ROBOT_KRUSTY
 //#define I_AM_ROBOT_TINY
-
+//#define I_AM_ROBOT_SMALL = I_AM_ROBOT_TINY
 
 
 #if defined(PREDEF_BUILD_KRUSTY)

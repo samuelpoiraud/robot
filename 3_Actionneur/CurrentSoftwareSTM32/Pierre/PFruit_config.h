@@ -1,16 +1,16 @@
 /*  Club Robot ESEO 2013 - 2014
- *	Krusty
+ *	BIG
  *
- *  Fichier : KFruit_config.h
+ *  Fichier : PFruit_config.h
  *  Package : Actionneur
  *  Description : Configuration du proto_fruit_mouth
  *  Auteur : Amaury
  *  Version 20130505
- *  Robot : Krusty
+ *  Robot : BIG
  */
 
-#ifndef KFRUIT_CONFIG_H
-#define	KFRUIT_CONFIG_H
+#ifndef PFRUIT_CONFIG_H
+#define	PFRUIT_CONFIG_H
 
 /** Si l'ax12 (pour pincer l'assiette et la tenir) n'atteint pas la position demandée avant ce temps, on considèer qu'il y a un problème. Temps en centaine de ms. */
 	#define FRUIT_AX12_ASSER_TIMEOUT       10      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
@@ -27,5 +27,5 @@
 	#define FRUIT_AX12_INIT_POS        FRUIT_AX12_CLOSED_POS
 
 
-#endif	/* KFRUIT_CONFIG_H */
+#endif	/* PFRUIT_CONFIG_H */
 
