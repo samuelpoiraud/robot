@@ -16,6 +16,8 @@
 	
 	#include "QS/QS_all.h"
 	#include "QS/QS_extern_it.h"
+
+	#define DUREE_STEP		2000	//Durée d'un step [us]
 	
 	void Synchro_init(void);
 	void Synchro_process_main(void);

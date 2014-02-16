@@ -33,8 +33,8 @@ void MOTOR_init(void)
 	TIMER4_run(PERIOD_IT_MOTOR);
 }	
 
-volatile Sint16 count, error, delta_error, error_prec;
-volatile Sint32 integral = 0;
+static volatile Sint16 count, error, delta_error, error_prec;
+static volatile Sint32 integral = 0;
 
 
 #define NB_IT_PER_TURN			(Uint8)(30)	//it = 2ms, 1 tour = 60ms => 30 it par tour.
