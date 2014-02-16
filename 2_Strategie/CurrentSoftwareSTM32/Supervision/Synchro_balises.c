@@ -12,15 +12,19 @@
 #endif
 #include "../QS/QS_setTimerSource.h"
 
-
-#define RF_MODULE_COUNT 4
-#define TIME_PER_MODULE 100  //en ms
 #define LAST_REPLY_TIMEOUT 10000  //temps avant de considérer le robot maitre (pierre) comme éteint (dans ce cas, guy passe en maitre)
 #define LAST_SYNCHRO_TIMEOUT 10000  //temps avant de considérer une balise comme éteinte
 
 #define COMPTEUR_USEC_PER_TICK 100
-#define COMPTEUR_MAX (RF_MODULE_COUNT*TIME_PER_MODULE*1000/COMPTEUR_USEC_PER_TICK)
-#define TIME_WHEN_SYNCHRO TIME_PER_MODULE*RF_get_module_id()  //valeur compteur quand demander la synchro
+#define MS_TO_COMPTEUR(ms) (ms*1000/COMPTEUR_USEC_PER_TICK)
+
+#define TIME_PER_MODULE           MS_TO_COMPTEUR(100)  //100ms
+#define PERIODE_SIGNAL_SYNCHRO    MS_TO_COMPTEUR(200) //200 ms, signal synchro toutes les 200ms
+#define DUREE_SIGNAL_SYNCHRO      MS_TO_COMPTEUR(2)  //2ms, signal synchro pendant 2ms
+
+#define COMPTEUR_MAX              RF_MODULE_COUNT*TIME_PER_MODULE
+#define TIME_WHEN_SYNCHRO         TIME_PER_MODULE*RF_get_module_id()  //valeur compteur quand demander la synchro
+
 
 //Les balises sont elles là ? Informatif, non utilisé dans ce code (sauf pour leur maj)
 bool_e balise_here[2] = {FALSE, FALSE};
@@ -33,10 +37,10 @@ static time32_t last_received_reply = 0; //si ça fait longtemps, pierre est off 
 //temps depuis la dernière requête de synchro, permet de savoir si les balises sont là
 static time32_t last_req_time[RF_MODULE_COUNT];
 
-static bool_e SEND_REQ = TRUE;
-static bool_e REPLY_REQ = TRUE;
+static bool_e SEND_REQ;
+static bool_e REPLY_REQ;
 
-static Uint16 time_base;
+static Uint16 time_base = 0;
 
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
 static void rf_can_received_callback(CAN_msg_t *msg);
@@ -50,10 +54,13 @@ void TIMER_SRC_TIMER_interrupt() {
 		time_base=0;
 	}
 
+	SYNCHRO_BEACON = ((time_base % PERIODE_SIGNAL_SYNCHRO) < DUREE_SIGNAL_SYNCHRO); //Actif sur les 2ms de début du compteur
+
 	//Un timeslot pour chaque module différent, pour éviter les collisions lorsque tout les modules sont presque synchro
 	if(SEND_REQ && time_base == TIME_WHEN_SYNCHRO) {
 		RF_synchro_request(RF_BROADCAST);
 	}
+
 }
 
 void SYNCHRO_init() {
@@ -71,6 +78,7 @@ void SYNCHRO_init() {
 		RF_init(RF_GUY, &rf_packet_received_callback, &rf_can_received_callback);
 	}
 
+	// X indique la fin de la config => passage en mode normal de transmission / reception (la pin de config doit être à 1)
 	while(!UART_IMPL_isRxEmpty(RF_UART));
 	UART_IMPL_write(RF_UART, 'X');
 
