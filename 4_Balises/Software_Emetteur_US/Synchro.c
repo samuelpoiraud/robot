@@ -13,24 +13,12 @@
 #include <timer.h>
 
 
-
-
-
-
-
-
-#define DUREE_STEP		2000	//Durée d'un step [us]
-
-
-volatile Sint16 correction_timer = 0;
-volatile Uint16 cable_synchro_present = 0;
+static volatile Sint16 correction_timer = 0;
+static volatile Uint16 cable_synchro_present = 0;
 
 
 void Synchro_init(void)
 {
-
-
-
 	SetPriorityInt0(7);
 	SetPriorityIntT3(6);
 
@@ -94,7 +82,7 @@ void _ISR _T3Interrupt()
 }
 
 
-volatile Uint16 step_correction;
+static volatile Uint16 step_correction;
 
 
 #define TAILLE_MOYENNE_MOBILE 4

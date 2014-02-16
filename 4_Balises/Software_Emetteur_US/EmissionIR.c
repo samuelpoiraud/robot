@@ -11,17 +11,25 @@
 
 #include "EmissionIR.h"
 #include "SynchroRF.h"
-#include "QS/QS_rf.h"
-
 
 #define IR_ON 		(LATEbits.LATE7)
 #define IR_OFF 		(LATEbits.LATE6)
 #define TRIS_IR_ON 	TRISEbits.TRISE7
 #define TRIS_IR_OFF	TRISEbits.TRISE6
 
-//#define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
-#define PERIODE_FLASH (TIME_PER_MODULE/2)
+#define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
+#define FLASH_CYCLE (PERIODE_FLASH*NOMBRE_BALISES_EMETTRICES) //Un cycle d'émission des N balises
+#define NO_FLASH_TIME 2  //[nb de step] 4ms ou on emet rien au début et à la fin, pour avoir donc 4 ms entre la fin de l'émission d'un balise et le début de l'autre
 
+#define TOTAL_STEP_COUNT (RF_MODULE_COUNT*TIME_PER_MODULE)  //step ¤ [0; TOTAL_STEP_COUNT[
+
+#if (TOTAL_STEP_COUNT % FLASH_CYCLE) != 0
+#error "Le temps d'un cycle d'emission doit être un multiple du temps total de la base de temps de synchro rf"
+#endif
+
+#if TOTAL_STEP_COUNT > 255
+#error "Il faut utiliser du Uint16 pour la variable step_ir !!!!!! Sinon ça va overflow"
+#endif
 
 void EmissionIR_ON(void)	//IR Toujours allumé
 {
@@ -56,8 +64,8 @@ void EmissionIR_stop(void)
 
 
 //Varie de 0 à 50*nbmodules, 100 ms / module
-static volatile Uint8 step = 0;
-volatile bool_e request_reset_step_ir = FALSE;
+volatile Uint8 step_ir = 0;
+static volatile bool_e request_reset_step_ir = FALSE;
 
 //@pre appeler cette fonction lors de la réception du signal de synchro...
 void EmissionIR_step_init(void)
@@ -69,30 +77,32 @@ void EmissionIR_step_init(void)
 //@pre Appeler cette fonction toutes les 2ms
 void EmissionIR_next_step(void)
 {
+	//On compte de 0 à nb_modules*
 	if(request_reset_step_ir == TRUE)
-		step = 0;	
+		step_ir = 0;
 	else
-		step = (step == RF_MODULE_COUNT*PERIODE_FLASH-1)? 0: step+1;
+		step_ir = (step_ir == TOTAL_STEP_COUNT - 1)? 0: step_ir+1;
 	
 	request_reset_step_ir = FALSE;
 
-	if(step == TIME_WHEN_SYNCHRO)
+	if(step_ir == TIME_WHEN_SYNCHRO)
 		SYNCRF_sendRequest();
 	
 	if(global.mode_double_emetteurs == TRUE)
 	{
+		Uint8 step_in_period = step_ir % FLASH_CYCLE;
 		#if(NUMERO_BALISE_EMETTRICE == 1)
 		
-			if(step % 2*PERIODE_FLASH == 0)
+			if(step_in_period == NO_FLASH_TIME)
 				EmissionIR_AUTO();
-			if(step % 2*PERIODE_FLASH == PERIODE_FLASH)
+			if(step_in_period == PERIODE_FLASH - NO_FLASH_TIME)
 				EmissionIR_OFF();	//On impose l'extinction.
 				
 		#else
 		
-			if(step == PERIODE_FLASH)
+			if(step_in_period == PERIODE_FLASH + NO_FLASH_TIME)
 				EmissionIR_AUTO();
-			if(step == 0)
+			if(step_in_period == (FLASH_CYCLE - NO_FLASH_TIME) % FLASH_CYCLE)
 				EmissionIR_OFF();	//On impose l'extinction.
 		#endif	
 		

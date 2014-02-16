@@ -1,4 +1,6 @@
 #include "SynchroRF.h"
+#include "Synchro.h"
+#include "EmissionIR.h"
 
 #include "QS/QS_rf.h"
 #include "QS/QS_timer.h"
@@ -8,8 +10,6 @@ static CAN_msg_t canmsg_pending;
 static bool_e canmsg_received = FALSE;
 static Sint16 offset;
 static bool_e request_synchro = FALSE;
-
-extern volatile Uint8 step; //dans EmissionIR.c
 
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
 static void rf_can_received_callback(CAN_msg_t *msg);
@@ -36,10 +36,10 @@ void SYNCRF_process_main()
 		offset = 0x0FFF;
 	}
 
-	if(compteur_last != step/20) {
-		compteur_last = step/20;
+	if(compteur_last != step_ir/20) {
+		compteur_last = step_ir/20;
 
-		debug_printf("Compteur: %u\n", step);
+		debug_printf("Compteur: %u\n", step_ir);
 	}
 }
 
@@ -53,12 +53,12 @@ void SYNCRF_sendRequest() {
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
 	size = size;
 	if(for_me && header.type == RF_PT_SynchroResponse) {
-		offset = step - TIME_WHEN_SYNCHRO;
+		offset = step_ir - TIME_WHEN_SYNCHRO;
 
 		//unités: tick / (us/localtick / us/tick) = tick * us/tick / us/localtick = us/(us/localtick) = localtick
-		Sint16 fullOffset = (data[0] | data[1] << 8) / (LOCAL_TIMEBASE_UNIT / TIME_BASE_UNIT);
+		Sint16 fullOffset = (data[0] | data[1] << 8) / (DUREE_STEP / TIME_BASE_UNIT);
 
-		step = step + fullOffset - (offset >> 1);
+		step_ir = step_ir + fullOffset - (offset >> 1);
 	}
 }
 

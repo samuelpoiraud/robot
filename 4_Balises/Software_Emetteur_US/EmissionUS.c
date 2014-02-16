@@ -16,18 +16,18 @@
 #define DUREE_MOTIF 	27		//Durée du motif [nombre de step]					//Durée du motif en µs = DUREE_MOTIF * DUREE_STEP
 
 
-//volatile bool_e motif[DUREE_MOTIF] = { 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0};
-const bool_e motif[DUREE_MOTIF] = { 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0};
+//static volatile bool_e motif[DUREE_MOTIF] = { 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0};
+static const bool_e motif[DUREE_MOTIF] = { 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0};
 	//ATTENTION, le motif doit se terminer par un zéro !!! pour désactiver la pwm... avant de sortir du motif...
 
 
 //Pour observer la réponse impulsionelle !!! (régler également la durée du step à 25µs !)
-//volatile bool_e motif[DUREE_MOTIF] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//static volatile bool_e motif[DUREE_MOTIF] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
 #define CHANNEL_PWM 1
-volatile bool_e running = FALSE;
-volatile Uint16 step = 0;
+static volatile bool_e running = FALSE;
+static volatile Uint16 step = 0;
 
 
 void EmissionUS_init(void)
@@ -47,7 +47,7 @@ void EmissionUS_stop(void)
 	#endif
 }	
 	
-volatile bool_e request_reset_step = FALSE;
+static volatile bool_e request_reset_step = FALSE;
 void EmissionUS_step_init(void)
 {
 	request_reset_step = TRUE;

@@ -83,7 +83,6 @@
 #endif
 	#define RF_TIMER_ID 2
 	#define RF_MODULE_COUNT 4
-	#define TIME_PER_MODULE 100 //en ms, temps alloué par modules
 
 
 #endif /* ndef GLOBAL_CONFIG_H */

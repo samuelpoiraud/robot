@@ -14,6 +14,7 @@
 	
 	#include "QS/QS_all.h"
 
+	extern volatile Uint8 step_ir; //utilisé dans SynchroRF.c
 	
 	void EmissionIR_init(void);
 	void EmissionIR_stop(void);
