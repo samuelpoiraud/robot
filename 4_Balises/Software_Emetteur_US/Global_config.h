@@ -73,7 +73,7 @@
 
 	#define USE_FIFO
 	#define USE_RF
-	#define RF_UART 1  //uart2
+	#define RF_UART UART2_ID
 #if NUMERO_BALISE_EMETTRICE == 1
 	#define RF_MODULE RF_FOE1
 #elif NUMERO_BALISE_EMETTRICE == 2

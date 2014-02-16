@@ -91,20 +91,12 @@ void EmissionIR_next_step(void)
 	if(global.mode_double_emetteurs == TRUE)
 	{
 		Uint8 step_in_period = step_ir % FLASH_CYCLE;
-		#if(NUMERO_BALISE_EMETTRICE == 1)
-		
-			if(step_in_period == NO_FLASH_TIME)
-				EmissionIR_AUTO();
-			if(step_in_period == PERIODE_FLASH - NO_FLASH_TIME)
-				EmissionIR_OFF();	//On impose l'extinction.
-				
-		#else
-		
-			if(step_in_period == PERIODE_FLASH + NO_FLASH_TIME)
-				EmissionIR_AUTO();
-			if(step_in_period == (FLASH_CYCLE - NO_FLASH_TIME) % FLASH_CYCLE)
-				EmissionIR_OFF();	//On impose l'extinction.
-		#endif	
+		#define BEGIN_FLASH_TIME (PERIODE_FLASH*(NUMERO_BALISE_EMETTRICE-1))
+
+		if(step_in_period == (BEGIN_FLASH_TIME + NO_FLASH_TIME))
+			EmissionIR_AUTO();
+		if(step_in_period == (BEGIN_FLASH_TIME + PERIODE_FLASH - NO_FLASH_TIME))
+			EmissionIR_OFF();	//On impose l'extinction.
 		
 	}
 	else
