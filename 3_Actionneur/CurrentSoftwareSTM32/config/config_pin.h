@@ -10,6 +10,7 @@
 
 #ifndef CONFIG_PIN_H
 #define CONFIG_PIN_H
+#include "config_global.h"
 
 /* Definition des connectiques capteurs et actionneurs COMMUN à Tiny et Krusty */
 

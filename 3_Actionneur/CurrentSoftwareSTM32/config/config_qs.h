@@ -11,6 +11,8 @@
 #ifndef CONFIG_QS_H
 #define CONFIG_QS_H
 
+#include "config_global.h"
+
 //#define MODE_SIMULATION
 
 /* ID de la carte: cf le type cartes_e de QS_types.h */

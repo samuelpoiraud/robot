@@ -13,6 +13,8 @@
 	#error "config_global_vars_types est inclu par la QS, ne l'incluez pas vous meme"
 #endif
 
+#include "config_global.h"
+
 //Déclaration commune au 2 robot ici
 
 /*Pour distinguer les actionneurs avant et arrière du robot */
