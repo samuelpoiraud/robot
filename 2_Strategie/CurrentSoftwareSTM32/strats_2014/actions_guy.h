@@ -19,5 +19,6 @@
 #include "../act_functions.h"
 
 void Strat_Detection_Triangle(void);
+void strat_test_warner_triangle(void);
 
 #endif /* ACTIONS_GUY_H_ */
