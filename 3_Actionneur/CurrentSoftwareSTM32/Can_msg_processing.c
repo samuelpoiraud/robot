@@ -59,7 +59,11 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case ACT_PING:
 			answer.sid = STRAT_ACT_PONG;
 			answer.size = 1;
-			answer.data[0] = QS_WHO_AM_I_get();
+			#ifdef I_AM_ROBOT_BIG
+				answer.data[0] = BIG_ROBOT;
+			#else
+				answer.data[0] = SMALL_ROBOT;
+			#endif
 			CAN_send(&answer);
 			break;
 		default:
