@@ -116,7 +116,7 @@ void SYNCHRO_process_main()
 	if(compteur_last != time_base/1000) {
 		compteur_last = time_base/1000;
 
-		debug_printf("Compteur: %u\n", time_base);
+		//debug_printf("Compteur: %u\n", time_base);
 	}
 }
 
