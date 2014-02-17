@@ -395,6 +395,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			TRIANGLE_add_to_list(incoming_msg);
 			break;
 
+		case STRAT_TRIANGLE_WARNER :
+			TRIANGLE_WARNER(incoming_msg);
+			break;
+
 /************************************ Récupération des données de la balise *******************************/
 		case BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.

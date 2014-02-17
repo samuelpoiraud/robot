@@ -304,6 +304,7 @@
 	void TRIANGLE_init_list();
 	void LAUNCH_SCAN_TRIANGLE();
 	Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
-
+	void launch_triangle_warner(Uint8 number_triangle);
+	bool_e triangle_present();
 
 #endif /* ndef ELEMENTS_H */

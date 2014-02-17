@@ -14,6 +14,11 @@
 
 bool_e prop_send_all_triangle = FALSE;
 
+struct{
+	enum{NO_REPONSE, TRIANGLE_PRESENT, TRIANGLE_NO_PRESENT}state_warner_triangle;
+	Uint8 number_triangle;
+}warner_param;
+
 struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
 Uint8 nb_objet[3];
 
@@ -92,6 +97,10 @@ void TRIANGLE_init_list(){
 	}
 }
 
+void TRIANGLE_WARNER_init_list(){
+	warner_param.state_warner_triangle = NO_REPONSE;
+}
+
 void TRIANGLE_add_to_list(CAN_msg_t* msg){
 	Uint8 level, number;
 	level = (msg->data[0] & 0x60) >> 5;
@@ -124,6 +133,28 @@ void afficher_donnee_triangle(){
 	}
 }
 
+void launch_triangle_warner(Uint8 number_triangle){
+	CAN_msg_t msg;
+	msg.sid = ASSER_LAUNCH_WARNER_TRIANGLE;
+	msg.data[0] = number_triangle;
+	msg.size = 1;
+	CAN_send(&msg);
+	TRIANGLE_WARNER_init_list();
+}
+
+void TRIANGLE_WARNER(CAN_msg_t* msg){
+	warner_param.number_triangle = msg->data[0];
+	if(msg->data[1])
+		warner_param.state_warner_triangle = TRIANGLE_PRESENT;
+}
+
+bool_e triangle_present(){
+	return warner_param.state_warner_triangle == TRIANGLE_PRESENT;
+}
+
+bool_e torche_present(){
+	return nb_objet[2] > 0;
+}
 
 #if 0
  #define ELEMENTS_C

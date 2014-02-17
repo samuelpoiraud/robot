@@ -81,3 +81,46 @@ void Strat_Detection_Triangle(void){
 	}
 }
 
+
+void strat_test_warner_triangle(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		INIT,
+		AVANCER,
+		PLACEMENT,
+		DETECTION_TRIANGLE_3,
+		DISPLAY_ANSWER,
+		DONE
+	);
+	switch(state){
+		case INIT :
+			state = AVANCER;
+			break;
+
+		case AVANCER :
+			state = try_going(1000, 2500, AVANCER, PLACEMENT, PLACEMENT, SLOW, ANY_WAY, NO_AVOIDANCE);
+			break;
+
+		case PLACEMENT :
+			state = try_going(1600, 2300, PLACEMENT, DETECTION_TRIANGLE_3, DETECTION_TRIANGLE_3, SLOW, ANY_WAY, NO_AVOIDANCE);
+			break;
+
+		case DETECTION_TRIANGLE_3 :
+			if(entrance)
+				launch_triangle_warner(3);
+			state = try_going(1600, 650, DETECTION_TRIANGLE_3, DISPLAY_ANSWER, DISPLAY_ANSWER, SLOW, ANY_WAY, NO_AVOIDANCE);
+			break;
+
+		case DISPLAY_ANSWER :
+			if(triangle_present())
+				debug_printf("triangle n°%d présent\n");
+			else
+				debug_printf("triangle n°%d non présent\n");
+			state = DONE;
+			break;
+
+		case DONE :
+			break;
+
+	}
+
+}
