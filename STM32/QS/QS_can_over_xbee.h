@@ -34,6 +34,7 @@
 		MODULE_C = 0,	//Coordinateur.
 		MODULE_1,
 		MODULE_2,
+		MODULE_3,
 		MODULE_NUMBER	//nombre de module... = forcément le nombre suivant dans l'énumération !
 	}module_id_e;
 	
@@ -44,15 +45,16 @@
 		const Uint8 module_address[MODULE_NUMBER][8] =
 			{{0x00, 0x13, 0xA2, 0x00, 0x40, 0x61, 0x49, 0x66},	//COORDINATEUR
 			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xFB, 0x8D},	//MODULE 1
-			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xF9, 0xFB}	//MODULE 2
+			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xF9, 0xFB},	//MODULE 2
+			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x9E, 0xAF, 0xA1}	//MODULE 3
 			};
 	#endif		
 
 
 	//Possibilité pour faire correspondre l'applicatif aux modules utilisés :
-	#define BALISE_MERE	MODULE_2
-	#define ROBOT_1	MODULE_C	//Robot 1 is Tiny
-	#define ROBOT_2	MODULE_1	//Robot 2 is Krusty	
+	#define BIG_ROBOT_MODULE	MODULE_C
+	#define SMALL_ROBOT_MODULE	MODULE_1
+	#define BALISE_MERE			MODULE_2
 	
 	void CAN_over_XBee_init(module_id_e me, module_id_e destination);
 	
