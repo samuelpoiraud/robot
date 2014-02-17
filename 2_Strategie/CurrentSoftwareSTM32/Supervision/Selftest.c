@@ -104,6 +104,7 @@ void SELFTEST_declare_errors(CAN_msg_t * msg, SELFTEST_error_code_e error)
 
 void SELFTEST_process_500ms(void)
 {
+	//debug_printf("%d\n",SELFTEST_measure24_mV());
 	if(selftest_is_running)
 		LED_SELFTEST = !LED_SELFTEST;	//On fait clignoter la led selftest à 2hz pendant le selftest.
 	if(t500ms)
@@ -149,6 +150,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 	{
 		case INIT:
 			WATCHDOG_init();
+			debug_printf("Mesure du 24V : %dmV\n",SELFTEST_measure24_mV());
 			errors_index = 0;
 			LED_SELFTEST = FALSE;
 			state = WAIT_SELFTEST_LAUNCH;
@@ -392,6 +394,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			break;
 		case TEST_MEASURE24:
 			battery_level = SELFTEST_measure24_mV();
+			debug_printf("Mesure du 24V : %dmV\n",battery_level);
 			if(battery_level < THRESHOLD_BATTERY_OFF)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_NO_24V);
 			else if(battery_level < THRESHOLD_BATTERY_LOW)
@@ -428,7 +431,7 @@ error_e SELFTEST_strategy(bool_e reset)
 Uint16 SELFTEST_measure24_mV(void)
 {
 	Uint32 measure = (Uint32)ADC_getValue(ADC_CHANNEL_MEASURE24);
-	return (Uint16)((measure * 3000)/4096);	//3000 [mV] correspond à 4096 [ADC]
+	return (Uint16)((measure * 3000*110/10)/1024);	//3000 [mV] correspond à 4096 [ADC]
 }
 
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)

@@ -51,10 +51,10 @@ void Supervision_init(void)
 
 
 	#ifdef USE_XBEE
-		if(QS_WHO_AM_I_get() == TINY)
-			CAN_over_XBee_init(ROBOT_1, ROBOT_2);	//Tiny
+		if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+			CAN_over_XBee_init(SMALL_ROBOT_MODULE, BIG_ROBOT_MODULE);
 		else
-			CAN_over_XBee_init(ROBOT_2, ROBOT_1);	//Krusty
+			CAN_over_XBee_init(BIG_ROBOT_MODULE, SMALL_ROBOT_MODULE);
 	#endif
 }
 
