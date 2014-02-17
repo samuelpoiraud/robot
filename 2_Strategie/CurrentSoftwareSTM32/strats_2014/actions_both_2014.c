@@ -23,7 +23,7 @@
 
 // Strat Rotation
 #define DEFAULT_SPEED	(SLOW)
-#define ODOMETRIE_PLAGE_ROTATION 5 //La variation de la plage sur PI4096(12868) pour savoir si on doit modifier l'angle. Théoriquement avec 10, on devrait avoir au maximum de 2mm de décalage sur un 1m
+#define ODOMETRIE_PLAGE_ROTATION 2 //La variation de la plage sur PI4096(12868) pour savoir si on doit modifier l'angle. Théoriquement avec 10, on devrait avoir au maximum de 2mm de décalage sur un 1m
 #define USE_CURVE	0
 #define NB_TOUR_ODO_ROTATION 5
 
@@ -71,11 +71,18 @@ void strat_reglage_odo_rotation(void){
 	case IDLE: //Cas d'attente et de réinitialisation
 
 		if(QS_WHO_AM_I_get() == PIERRE)
-			coefOdoRotation = 0x0000C581;
+			coefOdoRotation = 0x0000C5B7;
 		else // GUY
 			coefOdoRotation = 0x00010AC0;
 
-
+		// Enlever le commentaire si vous voulez imposer le coefficient des le début de la stratégie
+		/*msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION;
+		msg.data[0] = coefOdoRotation >> 24;
+		msg.data[1] = coefOdoRotation >> 16;
+		msg.data[2] = coefOdoRotation >> 8;
+		msg.data[3] = coefOdoRotation;
+		msg.size=4;
+		CAN_send(&msg);*/
 		state = CALAGE;
 		break;
 
@@ -130,9 +137,7 @@ void strat_reglage_odo_rotation(void){
 		if(state==CALAGE)
 			debug_printf("\nRENIT variable de x %d\n\t\t\tde y %x\n",global.env.pos.x,global.env.pos.y);
 		break;
-	case PROCESS:	// Tourne 10 fois pour comparer l'angle
-		// Tourner 10 fois
-
+	case PROCESS:
 		if(i < NB_TOUR_ODO_ROTATION){
 			switch(inProcess){
 			case IDLE:
@@ -180,7 +185,7 @@ void strat_reglage_odo_rotation(void){
 
 		//Si il est bien réglé l'angle interne du robot devrait etre de zero, sinon l'angle interne du robot s'est décalé quand le robot a approché le mur
 
-		if(global.env.pos.angle > (PI4096/2-ODOMETRIE_PLAGE_ROTATION) && global.env.pos.angle < (PI4096/2+ODOMETRIE_PLAGE_ROTATION)){//Le coef serait parfait global.env.pos.angle doit être égale à 90°
+		if(absolute(global.env.pos.angle-PI4096/2) <= ODOMETRIE_PLAGE_ROTATION){//Le coef serait parfait global.env.pos.angle doit être égale à 90°
 			debug_printf("Ne pas modifier l'angle globale est de %d \n\n",global.env.pos.angle);
 			state=DONE;
 
@@ -192,21 +197,21 @@ void strat_reglage_odo_rotation(void){
 
 			//Modifier KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT selon l'angle obtenu
 			if(global.env.pos.angle > PI4096/2){//Si l'angle est sup à 90°
-				if((global.env.pos.angle-PI4096/2) > 500)
+				if(absolute(global.env.pos.angle-PI4096/2) > 500)
 					coefOdoRotation+=10;
-				else if((global.env.pos.angle-PI4096/2) > 250)
+				else if(absolute(global.env.pos.angle-PI4096/2) > 250)
 					coefOdoRotation+=5;
 				else
 					coefOdoRotation++;
 				debug_printf("Augmentez le coef \n\n");
 			}
 			else{//Si l'angle est inf à 90°
-				if((global.env.pos.angle-PI4096/2) < 500)
+				if(absolute(global.env.pos.angle-PI4096/2) > 500)
 					coefOdoRotation-=10;
-				else if((global.env.pos.angle-PI4096/2) < 250)
+				else if(absolute(global.env.pos.angle-PI4096/2) > 250)
 					coefOdoRotation-=5;
 				else
-					coefOdoRotation++;
+					coefOdoRotation--;
 				debug_printf("Diminuez le coef \n\n");
 			}
 
@@ -342,18 +347,18 @@ void strat_reglage_odo_translation(void){
 	case COMPARE_N_CORRECT:
 		debug_printf("\nVAriable de x %d\n\tde y %d\nplage %d\nvaleur coef actu %x\n",global.env.pos.x,global.env.pos.y,3000-(global.env.pos.y+LARGEUR_ROBOT/2),coefOdoTranslation);
 
-		if(3000-(global.env.pos.y+LARGEUR_ROBOT/2) > ODOMETRIE_PLAGE_TRANSLATION){ // Robot n'est pas allé assez loin
-			debug_printf("Il est trop Loin\n");
-
-			coefOdoTranslation++;
-			state = REINIT;
-		}else if(3000-(global.env.pos.y+LARGEUR_ROBOT/2) < -ODOMETRIE_PLAGE_TRANSLATION){ // Trop loin
-			debug_printf("Il est pas assez loin\n");
-
+		if(3000-(global.env.pos.y+LARGEUR_ROBOT/2) > ODOMETRIE_PLAGE_TRANSLATION){
+			debug_printf("Il n'est pas allé assez loin\n");
 			coefOdoTranslation--;
 			state = REINIT;
-		}else // Si bien réglé s'arrête
+		}else if(3000-(global.env.pos.y+LARGEUR_ROBOT/2) < -ODOMETRIE_PLAGE_TRANSLATION){
+			debug_printf("Il est trop loin\n");
+			coefOdoTranslation++;
+			state = REINIT;
+		}else{ // Si bien réglé s'arrête
+			debug_printf("Odométrie en translation bien calibrée\n");
 			state = DONE;
+		}
 
 
 		if(state == REINIT){
