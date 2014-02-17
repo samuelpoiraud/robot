@@ -204,6 +204,14 @@
 	#define CARTE_P_ROBOT_CALIBRE		0x214
 	#define STRAT_TRIANGLE_POSITON		0x215
 		#define IT_IS_THE_LAST_TRIANGLE		0x80	// Bit à 1 si le triangle est le dernier
+		/*		0:7		: Indiquant si c'est le dernier triangle
+		 *		0:6-5	: Hauteur du capteur entre 0 et 2
+		 *		0:5-0	: Numéro du triangle
+		 * 		1-2		: x
+		 * 		3-4		: y
+		 * 		5-6		: teta
+		 */
+	#define STRAT_TRIANGLE_WARNER		0x217
 	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
 		#define IT_IS_THE_LAST_ADVERSARY	0x80	//Bit levé si l'adversaire envoyé est le dernier...
 		/*		0 : ADVERSARY_NUMBER | IT_IS_THE_LAST_ADVERSARY	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
@@ -252,6 +260,20 @@
 
 	//Modif Arnaud pour la détection de triangle
 	#define ASSER_LAUNCH_SCAN_TRIANGLE			0x115
+	/*		0:7		: type		0 -> ROTATE / 1 -> LINEAR
+	 *		0:6		: speed 	0 -> SLOW / 1 -> FAST
+	 *		0:5		: way		0 -> FORWARD / 1 -> BACKWARD
+	 *-----ROTATE
+	 * 		1-2		: startTeta
+	 * 		3-4		: endTeta
+	 *-----LINEAR
+	 * 		1		: startX
+	 *		2		: endX
+	 * 		3		: startY
+	 * 		4		: endY
+	 */
+	 #define ASSER_LAUNCH_WARNER_TRIANGLE		0x117
+	 //		0		: number_triangle
 
 
 /*****************************************************************
