@@ -62,8 +62,8 @@ void CAN_over_XBee_every_second(void)
 	flag_1s = TRUE;
 }
 
-volatile module_id_e XBee_i_am_module = ROBOT_1;
-volatile module_id_e XBee_module_id_destination = ROBOT_2;
+volatile module_id_e XBee_i_am_module = BIG_ROBOT_MODULE;
+volatile module_id_e XBee_module_id_destination = SMALL_ROBOT_MODULE;
 
 
 void CAN_over_XBee_init(module_id_e me, module_id_e destination)
