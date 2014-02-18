@@ -63,6 +63,7 @@ void LANCE_LAUNCHER_stop() {
 
 bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	 LANCE_LAUNCHER_init();
+
 	if(msg->sid == ACT_LANCELAUNCHER) {
 		switch(msg->data[0]) {
 			//Même action quelque soit la commande RUN
@@ -72,6 +73,7 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_LANCELAUNCHER_RUN_4:
 			case ACT_LANCELAUNCHER_RUN_5:
 			case ACT_LANCELAUNCHER_RUN_6:
+				debug_printf("														ENVOI\n");
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
 				break;
 
@@ -90,6 +92,8 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
+
+		debug_printf("					RUN\n");
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_lancelauncher) {
 		if(QUEUE_has_error(queueId)) {
 			QUEUE_behead(queueId);
@@ -124,6 +128,7 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 					case ACT_LANCELAUNCHER_RUN_5:
 						lance_launcher_last_launch = 6;
+						debug_printf("ENVOI COMMANDE\n");
 						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 						break;
 
@@ -163,6 +168,7 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			}
 		}
 	}
+
 }
 
 //change le launcher actif, renvoi TRUE si un launcher est encore actif ou FALSE si tous les launchers sont éteints
