@@ -129,6 +129,8 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			offset = time_base - expected_time;
 
 			RF_synchro_response(header.sender_id, offset);
+			LED_SELFTEST = !LED_SELFTEST;
+			#warning LED_SELFTEST utilise pour debuggage
 		}
 		//Même si le message n'est pas pour nous, suffi de voir qu'un module est actif pour l'enregistrer
 		last_req_time[header.target_id] = global.env.absolute_time;
