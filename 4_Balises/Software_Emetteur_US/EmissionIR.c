@@ -88,7 +88,8 @@ void EmissionIR_next_step(void)
 	if(step_ir == TIME_WHEN_SYNCHRO)
 		SYNCRF_sendRequest();
 	
-	if(global.mode_double_emetteurs == TRUE)
+	//Si on veut le mode double emetteurs et qu'on a une synchro
+	if(global.mode_double_emetteurs == TRUE && global.is_synchronized == TRUE)
 	{
 		Uint8 step_in_period = step_ir % FLASH_CYCLE;
 		#define BEGIN_FLASH_TIME (PERIODE_FLASH*(NUMERO_BALISE_EMETTRICE-1))

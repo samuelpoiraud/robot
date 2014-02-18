@@ -26,11 +26,9 @@ include_directories("${CMAKE_CURRENT_LIST_DIR}/config")
 
 set(SRC_LIST
 #Sources
-	main.c
-	EmissionUS.c
+        main.c
 	EmissionIR.c
-	motor.c
-	Synchro.c
+        motor.c
 	SynchroRF.c
 
 	QS/QS_configBits.c
@@ -51,11 +49,9 @@ set(SRC_LIST
 	Global_config.h
 	Global_vars_types.h
 	Global_vars.h
-	main.h
-	EmissionUS.h
+        main.h
 	EmissionIR.h
-	motor.h
-	Synchro.h
+        motor.h
 	SynchroRF.h
 
 	QS/p30f6010A.h

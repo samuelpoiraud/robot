@@ -10,20 +10,26 @@ static CAN_msg_t canmsg_pending;
 static bool_e canmsg_received = FALSE;
 static Sint16 offset;
 static bool_e request_synchro = FALSE;
-
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
 static void rf_can_received_callback(CAN_msg_t *msg);
 
 void SYNCRF_init() {
+	global.is_synchronized = FALSE;
 	RF_init(RF_MODULE, &rf_packet_received_callback, &rf_can_received_callback);
+	TIMER3_run_us(DUREE_STEP);
 }
 
-void SYNCRF_process_main()
-{
+void _ISR _T3Interrupt() {
+	EmissionIR_next_step();
+	IFS0bits.T3IF = 0;
+}
+
+void SYNCRF_process_main() {
 	static Uint8 compteur_last;
 	if(request_synchro) {
 		request_synchro = FALSE;
 		RF_synchro_request(RF_BROADCAST);
+		debug_printf("Retard demande: %d\n", step_ir - TIME_WHEN_SYNCHRO);
 	}
 
 	if(canmsg_received) {
@@ -36,8 +42,8 @@ void SYNCRF_process_main()
 		offset = 0x0FFF;
 	}
 
-	if(compteur_last != step_ir/20) {
-		compteur_last = step_ir/20;
+	if(compteur_last != step_ir/50) {
+		compteur_last = step_ir/50;
 
 		debug_printf("Compteur: %u\n", step_ir);
 	}
@@ -53,12 +59,18 @@ void SYNCRF_sendRequest() {
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
 	size = size;
 	if(for_me && header.type == RF_PT_SynchroResponse) {
-		offset = step_ir - TIME_WHEN_SYNCHRO;
+		const Uint16 elapsed_time_since_request = step_ir - TIME_WHEN_SYNCHRO;
 
 		//unités: tick / (us/localtick / us/tick) = tick * us/tick / us/localtick = us/(us/localtick) = localtick
 		Sint16 fullOffset = (data[0] | data[1] << 8) / (DUREE_STEP / TIME_BASE_UNIT);
 
-		step_ir = step_ir + fullOffset - (offset >> 1);
+		offset = fullOffset - (elapsed_time_since_request >> 1); // fullOffset - elapsed_time_since_request/2
+		step_ir = step_ir + offset;
+
+		LED_USER = !LED_USER;
+
+		//Synchro reçue, donc on peut passer en mode double adversaire
+		global.is_synchronized = TRUE;
 	}
 }
 

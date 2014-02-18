@@ -37,7 +37,7 @@ int main (void)
 	global.mode_double_emetteurs = FALSE;
 	LED_RUN = 1;
 	LED_CAN = 0;
-	LED_USER = 0;
+	LED_USER = 1;
 	LED_USER2 = 0;
 
 	debug_printf(".RST\r\n");
@@ -49,10 +49,8 @@ int main (void)
 	//Tempo, pour éviter une détection du bouton au démarrage (car chargement condo lent !)
 	//Et pour éviter une détection de synchro qui n'en est pas une...
 	for(temps = 0; temps < (Uint32)(1000000) ; temps++);	//Ordre de grandeur 100ms...
-	
-	EmissionUS_init();
+
 	EmissionIR_init();
-	Synchro_init();
 	SYNCRF_init();
 	
 	/*-------------------------------------
@@ -67,13 +65,13 @@ int main (void)
 		
 		bt_prec = bt;
 		
-		if(SWITCH_MULTI_EMETTEURS)
+#warning A remettre, commenté pour debuggage
+//		if(SWITCH_MULTI_EMETTEURS)
 			global.mode_double_emetteurs = TRUE;
-		else
-			global.mode_double_emetteurs = FALSE;		
+//		else
+//			global.mode_double_emetteurs = FALSE;
 			
 		MOTOR_process_main();
-		Synchro_process_main();
 		SYNCRF_process_main();
 	}
 	return 0;
