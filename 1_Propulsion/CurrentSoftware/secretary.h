@@ -38,6 +38,7 @@
 
 	#ifdef SCAN_TRIANGLE
 		void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 triangle_level, Uint8 triangle_number, Sint16 x, Sint16 y, Sint16 teta);
+		void SECRETARY_send_triangle_warner(bool_e present, Uint8 triangle_number);
 	#endif
 
 	void SECRETARY_process_it(void);

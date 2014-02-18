@@ -178,6 +178,9 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 			case STRAT_TRIANGLE_POSITON:
 				add_pos_datas = FALSE;
 				break;
+			case STRAT_TRIANGLE_WARNER:
+				add_pos_datas = FALSE;
+				break;
 			default:
 				debug_printf("SID=%x ", msg->sid);
 			break;
@@ -258,6 +261,20 @@ void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 tria
 		debug_printf("Triangle %d niveau %d détécté  %d  %d  %d %s\n",triangle_number, triangle_level,x,y,teta,((it_is_the_last_triangle)?"LAST\n":""));
 	#endif
 }
+
+void SECRETARY_send_triangle_warner(bool_e present, Uint8 number_triangle){
+	CAN_msg_t msg;
+	msg.sid = STRAT_TRIANGLE_WARNER;
+	msg.data[0] = number_triangle;
+	msg.data[1] = present;
+	msg.size = 2;
+	SECRETARY_send_canmsg(&msg);
+	#ifdef VERBOSE_MSG_SEND_OVER_UART
+		debug_printf("Triangle %d %s présent\n", number_triangle, ((present)?"":"non"));
+	#endif
+}
+
+
 #endif
 
 void SECRETARY_send_pong(void)
@@ -556,6 +573,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case ASSER_LAUNCH_SCAN_TRIANGLE :
 			SCAN_TRIANGLE_canMsg(msg);
 		break;
+		/*case ASSER_LAUNCH_WARNER_TRIANGLE :
+			SCAN_TRIANGLE_WARNER_canMsg(msg);
+		break;*/
 		#endif
 
 		default :

@@ -37,16 +37,20 @@
 #define X_SENSOR_TOP	46
 #define Y_SENSOR_TOP	98
 
-#define DIST_ARETE_MILIEU	37
-#define RAYON_MIN_TORCHE	115
-#define RAYON_MAX_TORCHE	145
-
 #define COEF_DECTECTION_SEUIL 6
 
 #define NB_POINTS_MAX 180
 
 #define VITESSE_ANGULAIRE_SCAN_SLOW 20
 #define VITESSE_ANGULAIRE_SCAN_FAST FAST
+
+#define MARGE_SCAN_DECOR 30
+
+#define LONGUEUR_MIN_TRIANGLE 50
+#define LONGUEUR_MIN_TORCHE 25
+#define DIST_ARETE_MILIEU	37
+#define RAYON_MIN_TORCHE	115
+#define RAYON_MAX_TORCHE	145
 
 //------------------------------------------------------------------------------------ Prototype des fonctions local
 
@@ -57,6 +61,7 @@ static bool_e est_dans_carre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 
 static bool_e est_dans_cercle(Sint16 x, Sint16 y, Sint16 x0, Sint16 y0, Sint16 rayon);
 static Sint16 distance(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 static float racine(float val);
+static bool_e triangle_est_present();
 
 //------------------------------------------------------------------------------------ Définition des structures et énumerations
 
@@ -80,10 +85,15 @@ typedef struct{
 	way_e way;
 }scan_param_s;
 
+typedef enum{
+	WARN_X_0, WARN_X_PI, WARN_Y_N, WARN_Y_P
+}type_warner_e;
+
 typedef struct{
-	Sint16 warner_x;
-	Sint16 warner_y;
-	Uint8 level; // Choix du capteur 0/1/2
+	Uint8 number_triangle;
+	type_warner_e type_warner;
+	Sint16 warner;
+	Uint8 level;
 }warner_param_s;
 
 typedef enum{
@@ -95,8 +105,7 @@ typedef enum{
 	LAUNCH_WARNER_SCAN_ROTATE,
 	IN_PROGRESS_SCAN_ROTATE,
 
-	WARNER_X,
-	WARNER_Y,
+	WARNER,
 
 	WAIT_CALCULATE,
 	SEND_MID_TRIANGLE,
@@ -108,9 +117,15 @@ typedef enum{
 	NO_MSG_CAN,
 	MSG_CAN_SCAN_ROTATE,
 	MSG_CAN_SCAN_LINEAR,
-	MSG_CAN_WARNER_Y,
-	MSG_CAN_WARNER_X
+	MSG_CAN_WARNER
 }receve_msg_can_e;
+
+typedef struct{
+	type_warner_e type_warner;
+	Uint8 level;
+	Sint16 x;
+	Sint16 y;
+}triangle_localisation;
 
 //------------------------------------------------------------------------------------ Variable Globale
 
@@ -144,6 +159,17 @@ receve_msg_can_e receve_msg_can;
 bool_e move_completed, run_calcul;
 	// Flag indiquant si le mouvement est finit, si un calcul est en cours
 
+triangle_localisation position_triangle[]={
+	{WARN_X_PI, 3, 800, 0},
+	{WARN_Y_N, 3, 2000, 1300},
+	{WARN_Y_N, 3, 2000, 1700},
+	{WARN_X_0, 3, 800, 3000}
+};
+
+#define NOMBER_MAX_TRIANGLE (sizeof(position_triangle)/sizeof(triangle_localisation))
+
+Sint16 distance_warner;
+
 //------------------------------------------------------------------------------------ Fonction
 
 void SCAN_TRIANGLE_init(void){
@@ -159,7 +185,6 @@ void SCAN_TRIANGLE_process_it(void){
 	static Uint8 n_mesure = 0;
 	static Uint16 time;
 	static Uint8 i, j, k;
-
 
 	switch(state){
 
@@ -195,12 +220,8 @@ void SCAN_TRIANGLE_process_it(void){
 					// A compléter
 					break;
 
-				case MSG_CAN_WARNER_Y :
-					state = WARNER_Y;
-					break;
-
-				case MSG_CAN_WARNER_X :
-					state = WARNER_X;
+				case MSG_CAN_WARNER :
+					state = WARNER;
 					break;
 
 				case NO_MSG_CAN :
@@ -246,17 +267,15 @@ void SCAN_TRIANGLE_process_it(void){
 				state = WAIT_CALCULATE;
 			}
 			break;
-///-------------------------------------------------------------------------------------------------- Warner X
-		case WARNER_X :
-			if(absolute(global.position.x - warner_param.warner_x) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2)
-				state = SEND_WARNER_REACH;
-			break;
 
-///-------------------------------------------------------------------------------------------------- Warner Y
-		case WARNER_Y :
-			if(absolute(global.position.y - warner_param.warner_y) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2)
+///-------------------------------------------------------------------------------------------------- Warner
+		case WARNER :
+			if(((warner_param.type_warner == WARN_X_0 || warner_param.type_warner == WARN_X_PI) && absolute(global.position.x - warner_param.warner) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2)
+			   || ((warner_param.type_warner == WARN_Y_N || warner_param.type_warner == WARN_Y_P) && absolute(global.position.y - warner_param.warner) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2)){
+				distance_warner = conversion_DT10_mm(ADC_getValue(warner_param.level));
 				state = SEND_WARNER_REACH;
-		break;
+			}
+			break;
 
 ///--------------------------------------------------------------------------------------------------
 		case WAIT_CALCULATE :
@@ -286,6 +305,7 @@ void SCAN_TRIANGLE_process_it(void){
 			break;
 
 		case SEND_WARNER_REACH :
+			SECRETARY_send_triangle_warner(triangle_est_present(), warner_param.number_triangle);
 			state = INIT;
 			break;
 	}
@@ -468,14 +488,35 @@ void SCAN_TRIANGLE_calculate(void){
 		for(j=0;j<3;j++){										// Validé
 			for(k=0;k<nb_objet[j];k++){
 				objet[j][k].active = FALSE;
-				for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point;i++)
-					if((j == 0 && (est_dans_carre(0, 1675, 50, 2950, scan[i].x[j], scan[i].y[j])
+				for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point;i++){
+					/*if((j == 0 && (est_dans_carre(0, 1675, 50, 2950, scan[i].x[j], scan[i].y[j])
 							|| est_dans_carre(1675, 1950, 325, 2675, scan[i].x[j], scan[i].y[j])
 							|| (scan[i].x[j] > 1675 && scan[i].y[j] < 325 && scan[i].x[j]-scan[i].y[j] < 1625)
 							|| (scan[i].x[j] > 1675 && scan[i].y[j] > 2675 && scan[i].x[j]+scan[i].y[j] < 4625)))
 						|| (j == 1 && est_dans_carre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j]))
 						|| (j == 2 && est_dans_carre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j])))
+						objet[j][k].active = TRUE;*/
+					if(    (j == 0 && !est_dans_cercle(scan[i].x[j], scan[i].y[j], 1050, 1500, 150 + MARGE_SCAN_DECOR)				// Foyer centre
+								   && !est_dans_cercle(scan[i].x[j], scan[i].y[j], 2000, 0, 250 + MARGE_SCAN_DECOR)					// Foyer droite
+								   && !est_dans_cercle(scan[i].x[j], scan[i].y[j], 2000, 3000, 250 + MARGE_SCAN_DECOR)				// Foyer gauche
+								   && !est_dans_carre(0-MARGE_SCAN_DECOR, 300+MARGE_SCAN_DECOR,
+											 400-MARGE_SCAN_DECOR, 1100+MARGE_SCAN_DECOR, scan[i].x[j], scan[i].y[j])				// Bac à fruit jaune
+								   && !est_dans_carre(0-MARGE_SCAN_DECOR, 300+MARGE_SCAN_DECOR,
+											 1900-MARGE_SCAN_DECOR, 2600+MARGE_SCAN_DECOR, scan[i].x[j], scan[i].y[j])				// Bac à fruit rouge
+								   && est_dans_carre(0+MARGE_SCAN_DECOR, 2000-MARGE_SCAN_DECOR, 0+MARGE_SCAN_DECOR,
+													 3000-MARGE_SCAN_DECOR, scan[i].x[j], scan[i].y[j]))							// Terrain
+
+						|| (j == 1 && !est_dans_carre(0-MARGE_SCAN_DECOR, 300+MARGE_SCAN_DECOR,
+											 400-MARGE_SCAN_DECOR, 1100+MARGE_SCAN_DECOR, scan[i].x[j], scan[i].y[j])				// Bac à fruit jaune
+								   && !est_dans_carre(0-MARGE_SCAN_DECOR, 300+MARGE_SCAN_DECOR,
+											 1900-MARGE_SCAN_DECOR, 2600+MARGE_SCAN_DECOR, scan[i].x[j], scan[i].y[j])				// Bac à fruit rouge
+								   && est_dans_carre(0+MARGE_SCAN_DECOR, 2000-MARGE_SCAN_DECOR, 0+MARGE_SCAN_DECOR,
+													 3000-MARGE_SCAN_DECOR, scan[i].x[j], scan[i].y[j]))							// Terrain
+
+						|| (j == 2 && est_dans_carre(0+MARGE_SCAN_DECOR, 2000-MARGE_SCAN_DECOR, 0+MARGE_SCAN_DECOR,
+													 3000-MARGE_SCAN_DECOR, scan[i].x[j], scan[i].y[j])))							// Terrain
 						objet[j][k].active = TRUE;
+				}
 
 				// droite partant de 1625/3000 à 2000/2625
 				// droite d'équation : y = -x + 4625
@@ -492,14 +533,14 @@ void SCAN_TRIANGLE_calculate(void){
 				if(objet[j][i].active){
 					objet[j][i].longueur = distance(scan[objet[j][i].indice_debut_point].x[j], scan[objet[j][i].indice_debut_point].y[j],
 							scan[objet[j][i].indice_fin_point].x[j], scan[objet[j][i].indice_fin_point].y[j]);
-					if(objet[j][i].longueur < 50)
+					if((objet[j][i].longueur < LONGUEUR_MIN_TRIANGLE && j!=2) || (objet[j][i].longueur < LONGUEUR_MIN_TORCHE && j==2))
 						objet[j][i].active = FALSE;
 				}
 			}
 		}
 
 		// vecteurs unitaires d'un objet avec moyennage des vecteurs de l'objet
-		for(j=0;j<3;j++){																// Validé
+		for(j=0;j<2;j++){																// Validé
 			for(i=0;i<nb_objet[j];i++){
 				if(objet[j][i].longueur){
 					for(k=objet[j][i].indice_debut_point;k<objet[j][i].indice_fin_point;k++){
@@ -513,7 +554,7 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// Calcul du point milieu de chaque objet
-		for(j=0;j<3;j++){								// Validé
+		for(j=0;j<2;j++){								// Validé
 			for(i=0;i<nb_objet[j];i++){
 				objet[j][i].point_milieu.x = (scan[objet[j][i].indice_debut_point].x[j] + scan[objet[j][i].indice_fin_point].x[j])/2;
 				objet[j][i].point_milieu.y = (scan[objet[j][i].indice_debut_point].y[j] + scan[objet[j][i].indice_fin_point].y[j])/2;
@@ -521,7 +562,7 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// vecteur unitaire perpendiculaire
-		for(j=0;j<3;j++){								// Validé
+		for(j=0;j<2;j++){								// Validé
 			for(i=0;i<nb_objet[j];i++){
 				objet[j][i].vecteur_Perpen.y = objet[j][i].vecteur.x;
 				objet[j][i].vecteur_Perpen.x = -objet[j][i].vecteur.y;
@@ -529,7 +570,7 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// Calcul milieu triangle
-		for(j=0;j<3;j++){								// Validé
+		for(j=0;j<2;j++){								// Validé
 			for(i=0;i<nb_objet[j];i++){
 				objet[j][i].milieu.x = objet[j][i].point_milieu.x + DIST_ARETE_MILIEU * objet[j][i].vecteur_Perpen.x;
 				objet[j][i].milieu.y = objet[j][i].point_milieu.y + DIST_ARETE_MILIEU * objet[j][i].vecteur_Perpen.y;
@@ -537,7 +578,7 @@ void SCAN_TRIANGLE_calculate(void){
 		}
 
 		// Concaténation des centres des triangles
-		for(j=0;j<3;j++){								// Validé
+		for(j=0;j<2;j++){								// Validé
 			for(i=0;i<nb_objet[j];i++){
 				for(k=0;k<nb_objet[j];k++){
 					if(k != i && distance(objet[j][i].milieu.x, objet[j][i].milieu.y, objet[j][k].milieu.x, objet[j][k].milieu.y) < 50
@@ -656,7 +697,17 @@ void SCAN_TRIANGLE_canMsg(CAN_msg_t *msg){
 		receve_msg_can = MSG_CAN_SCAN_LINEAR;
 }
 
+
 void SCAN_TRIANGLE_WARNER_canMsg(CAN_msg_t *msg){
+	warner_param.number_triangle = msg->data[0];
+	if(warner_param.number_triangle < NOMBER_MAX_TRIANGLE){
+		warner_param.level = position_triangle[warner_param.number_triangle].level;
+		warner_param.type_warner = position_triangle[warner_param.number_triangle].type_warner;
+		warner_param.warner = (warner_param.type_warner == WARN_X_0
+							   || warner_param.type_warner == WARN_X_PI) ? position_triangle[warner_param.number_triangle].y
+																		 : position_triangle[warner_param.number_triangle].x;
+		receve_msg_can = MSG_CAN_WARNER;
+	}
 }
 
 static Uint8 est_dans_carre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y){
@@ -684,6 +735,16 @@ static Sint16 distance(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 
 static bool_e est_dans_cercle(Sint16 x, Sint16 y, Sint16 x0, Sint16 y0, Sint16 rayon){
 	return square(x-x0) + square(y-y0) <= square(rayon);
+}
+
+static bool_e triangle_est_present(){
+	if((warner_param.type_warner == WARN_X_0 && global.position.y + distance_warner > 3000)
+			|| (warner_param.type_warner == WARN_X_PI && global.position.y - distance_warner < 0)
+			|| (warner_param.type_warner == WARN_Y_N && global.position.x + distance_warner > 2000)
+			|| (warner_param.type_warner == WARN_Y_P && global.position.x - distance_warner < 0))
+		return TRUE;
+	else
+		return FALSE;
 }
 
 #endif
