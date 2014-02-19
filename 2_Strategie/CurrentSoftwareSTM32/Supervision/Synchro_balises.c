@@ -52,6 +52,7 @@ void TIMER_SRC_TIMER_interrupt() {
 	time_base++;
 	if(time_base >= COMPTEUR_MAX) {
 		time_base=0;
+		LED_USER = !LED_USER;
 	}
 
 	SYNCHRO_BEACON = ((time_base % PERIODE_SIGNAL_SYNCHRO) < DUREE_SIGNAL_SYNCHRO); //Actif sur les 2ms de début du compteur
@@ -64,7 +65,12 @@ void TIMER_SRC_TIMER_interrupt() {
 }
 
 void SYNCHRO_init() {
+	Uint16 i, j;
 	TIMER_SRC_TIMER_init();
+
+	/*PIN_RF_CONFIG = 1;
+	UART_IMPL_write(RF_UART, 'X');
+	for(i=1;i;i++);*/
 
 	PIN_RF_CONFIG = 1;
 
@@ -78,9 +84,39 @@ void SYNCHRO_init() {
 		RF_init(RF_GUY, &rf_packet_received_callback, &rf_can_received_callback);
 	}
 
+	for(i=1;i;i++);
+
 	// X indique la fin de la config => passage en mode normal de transmission / reception (la pin de config doit être à 1)
-	while(!UART_IMPL_isRxEmpty(RF_UART));
+	//while(UART_IMPL_isRxEmpty(RF_UART));
+	//debug_printf("%c\n", UART_IMPL_read(RF_UART));
 	UART_IMPL_write(RF_UART, 'X');
+/*
+	while(UART_IMPL_isRxEmpty(RF_UART));
+	debug_printf("%c\n", UART_IMPL_read(RF_UART));
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0x11);
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0xC1);
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0x14);
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0x00);
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0x15);
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0x00);
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0x21);
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0xFF);
+	while(UART_IMPL_isTxFull(RF_UART));
+	UART_IMPL_write(RF_UART, 0xFF);
+
+
+	while(UART_IMPL_isRxEmpty(RF_UART));
+	debug_printf("%c\n", UART_IMPL_read(RF_UART));
+	UART_IMPL_write(RF_UART, 'X');
+	debug_printf("Init RF ok\n");*/
 
 	TIMER_SRC_TIMER_start_us(COMPTEUR_USEC_PER_TICK);
 }
@@ -124,12 +160,12 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 	if(header.type == RF_PT_SynchroRequest) {
 		if(REPLY_REQ && for_me) {
 			Sint16 offset, expected_time;
-			
+
 			expected_time = TIME_PER_MODULE * header.sender_id;
 			offset = time_base - expected_time;
 
 			RF_synchro_response(header.sender_id, offset);
-			LED_SELFTEST = !LED_SELFTEST;
+			//LED_SELFTEST = !LED_SELFTEST;
 			#warning LED_SELFTEST utilise pour debuggage
 		}
 		//Même si le message n'est pas pour nous, suffi de voir qu'un module est actif pour l'enregistrer

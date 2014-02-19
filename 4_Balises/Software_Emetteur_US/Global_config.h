@@ -44,7 +44,10 @@
 	#define PORT_B_IO_MASK	0xFFFF
 		//RB2 = servo porte
 	#define PORT_C_IO_MASK	0xFFFF
-	#define PORT_D_IO_MASK	0xF0FF
+	#define PORT_D_IO_MASK	0x70FF
+		//#define PORT_RFRESET LATDbits.LATD14
+		#define PORT_RFCONFIG LATDbits.LATD15
+
 	#define PORT_E_IO_MASK	0xFFF0
 		#define RIN_MOTEUR	LATEbits.LATE2
 		#define	FIN_MOTEUR	LATEbits.LATE3

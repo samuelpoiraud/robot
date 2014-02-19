@@ -150,7 +150,7 @@ void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg
 
 	UART_IMPL_init_ex(RF_UART, 19200, 10, 10, UART_I_StopBit_1_5, UART_I_Parity_None);
 	UART_IMPL_setRxItEnabled(RF_UART, TRUE);
-	TIMER_SRC_TIMER_init();
+	//TIMER_SRC_TIMER_init();
 
 	FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 }

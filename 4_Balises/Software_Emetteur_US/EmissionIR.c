@@ -39,14 +39,14 @@ void EmissionIR_ON(void)	//IR Toujours allumé
 void EmissionIR_OFF(void)	//IR Toujours éteint
 {
 	IR_OFF = 0;
-	LED_USER = 0;
+	//LED_USER = 0;
 }
 
 void EmissionIR_AUTO(void)	//IR laissé aux oscillateurs externes...
 {
 	IR_ON = 0;
 	IR_OFF = 1;	
-	LED_USER = 1;
+	//LED_USER = 1;
 }	
 	
 	
@@ -84,6 +84,10 @@ void EmissionIR_next_step(void)
 		step_ir = (step_ir == TOTAL_STEP_COUNT - 1)? 0: step_ir+1;
 	
 	request_reset_step_ir = FALSE;
+
+	if(step_ir == 0) {
+		LED_RUN = !LED_RUN;
+	}
 
 	if(step_ir == TIME_WHEN_SYNCHRO)
 		SYNCRF_sendRequest();

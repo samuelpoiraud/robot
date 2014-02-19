@@ -45,9 +45,7 @@
       <itemPath>../QS/QS_pwm.c</itemPath>
       <itemPath>../QS/QS_timer.c</itemPath>
       <itemPath>../QS/QS_uart.c</itemPath>
-      <itemPath>../EmissionUS.c</itemPath>
       <itemPath>../EmissionIR.c</itemPath>
-      <itemPath>../Synchro.c</itemPath>
       <itemPath>../QS/QS_extern_it.c</itemPath>
       <itemPath>../QS/QS_global_vars.c</itemPath>
       <itemPath>../motor.c</itemPath>
