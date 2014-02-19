@@ -28,7 +28,7 @@
 	//	-	programmation			  13
 	//	-	programmation 			  14
 	//	-				 			  15
-	
+
 #define PORT_B_IO_MASK	0x01FF
 	//	-							  0
 	//	-							  1
@@ -152,7 +152,10 @@
 	#define LIFT_RIGHT_PLIER_AX12_ID                  1
 
 /* Config proto Fruit_mouth*/
-	#define FRUIT_MOUTH_AX12_ID						  4
+	#define FRUIT_MOUTH_AX12_ID						  3
+
+/* Config proto Fruit_labium*/
+	#define FRUIT_LABIUM_AX12_ID					  1
 
 /* config watchdog lance lanceur*/
 	#define LANCELAUNCHER_TIMER_USE_WATCHDOG

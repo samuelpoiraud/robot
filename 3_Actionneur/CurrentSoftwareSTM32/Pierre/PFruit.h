@@ -20,7 +20,9 @@
 typedef enum {
 	FRUIT_CS_OpenAX12,
 	FRUIT_CS_CloseAX12,
-	FRUIT_CS_MidAX12
+	FRUIT_CS_MidAX12,
+	FRUIT_LABIUM_CS_OpenAX12,
+	FRUIT_LABIUM_CS_CloseAX12,
 } FRUIT_command_state_e;
 
 /** Initialisation du gestionnaire de FRUIT.

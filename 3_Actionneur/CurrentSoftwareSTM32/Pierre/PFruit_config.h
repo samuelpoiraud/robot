@@ -12,7 +12,7 @@
 #ifndef PFRUIT_CONFIG_H
 #define	PFRUIT_CONFIG_H
 
-/** Si l'ax12 (pour pincer l'assiette et la tenir) n'atteint pas la position demandée avant ce temps, on considèer qu'il y a un problème. Temps en centaine de ms. */
+/** Si l'ax12 n'atteint pas la position demandée avant ce temps, on considèer qu'il y a un problème. Temps en centaine de ms. */
 	#define FRUIT_AX12_ASSER_TIMEOUT       10      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
 /** Lorsque l'ax12 atteint sa position avec +/- PLATE_PLIER_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define FRUIT_AX12_ASSER_POS_EPSILON   2     //en degré
@@ -26,6 +26,11 @@
 /** Position initiale de l'AX12. Doit être un define du type PLATE_PLIER_AX12_* */
 	#define FRUIT_AX12_INIT_POS        FRUIT_AX12_CLOSED_POS
 
+
+// Position du labium différent état
+	#define FRUIT_AX12_LABIUM_OPEN_POS		60
+	#define FRUIT_AX12_LABIUM_CLOSE_POS		240
+	#define FRUIT_AX12_LABIUM_INIT_POS		FRUIT_AX12_LABIUM_CLOSE_POS
 
 #endif	/* PFRUIT_CONFIG_H */
 
