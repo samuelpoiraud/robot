@@ -123,7 +123,7 @@ void I2C2_ER_IRQHandler(void)
 	i2c_bus_error = TRUE;
 }
 
-
+#if 0
 
 bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition)
 {
@@ -135,6 +135,8 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 		debug_printf("Watchdog_create fail - I2C write exited\n");
 		return FALSE;
 	}
+
+	//while(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY) && timeout == FALSE && i2c_bus_error == FALSE);
 
 	//Envoyer un motif de START
 	I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE);
@@ -163,7 +165,10 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 			while(I2C_CheckEvent(I2C2_I2C_HANDLE,I2C_EVENT_MASTER_BYTE_TRANSMITTED)!=SUCCESS && timeout == FALSE && i2c_bus_error == FALSE);		//EV8_2
 
 			if(enable_stop_condition)
+			{
 				I2C_GenerateSTOP(I2C2_I2C_HANDLE, ENABLE);
+				while(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_STOPF) && timeout == FALSE && i2c_bus_error == FALSE);
+			}
 		}
 	}
 	if(timeout == FALSE)
@@ -187,6 +192,10 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 		return FALSE;
 	}
 
+	//while(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY) && timeout == FALSE && i2c_bus_error == FALSE);
+	I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, ENABLE);
+	I2C_NACKPositionConfig(I2C2_I2C_HANDLE, I2C_NACKPosition_Current);
+
 	//Envoyer un motif de START
 	I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE);
 
@@ -196,11 +205,11 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 
 	I2C_Send7bitAddress(I2C2_I2C_HANDLE, address, I2C_Direction_Receiver);
 
+	while(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_ADDR) && timeout == FALSE && i2c_bus_error == FALSE);
+
 	//Si une seule donnée à lire : on désactive l'acquittement maintenant.
 	if(size == 1)
 		I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);
-	else
-		I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, ENABLE);
 
 	//Le flag ADDR doit passer à 1 (après envoi de l'adresse et réception de l'acquittement)
 	// -> Lire StatusRegister1 et le StatusRegister2
@@ -216,7 +225,7 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 		}
 
 		//La donnée est lue... et RxNE (Rx Not Empty) passe à 1.
-		while(I2C_CheckEvent(I2C2_I2C_HANDLE,I2C_EVENT_MASTER_BYTE_RECEIVED)!=SUCCESS && timeout == FALSE && i2c_bus_error == FALSE);		//EV7 ou EV7_1 pour la dernière donnée
+		while(I2C_CheckEvent(I2C2_I2C_HANDLE,I2C_FLAG_BTF)!=SUCCESS && timeout == FALSE && i2c_bus_error == FALSE);		//EV7 ou EV7_1 pour la dernière donnée
 
 		//Pour chaque donnée, RxNE (Rx Not Empty) passe à 1, on lit la donnée dans DR (RxNE repasse alors tout seul à 0)
 		data[i] = I2C_ReceiveData(I2C2_I2C_HANDLE);
@@ -232,5 +241,199 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 }
 
 #endif
+
+#define Timed(x) while (x) { if (timeout || i2c_bus_error) goto errReturn;}
+
+
+
+
+//code inspiré de ceci : https://github.com/geoffreymbrown/STM32-Template/blob/master/Library/i2c.c
+bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
+{
+  //    I2C2_I2C_HANDLE->CR2 |= I2C_IT_ERR;  interrupts for errors
+
+	if (!size)
+		return FALSE;
+	i2c_bus_error = FALSE;
+	watchdog_id = WATCHDOG_create_flag(100, &timeout);	//10ms max for the I2C frame !
+	if(watchdog_id == 0xFF)
+	{
+		debug_printf("Watchdog_create fail - I2C read exited\n");
+		return FALSE;
+	}
+
+
+  // Wait for idle I2C interface
+
+ // Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY));
+
+  // Enable Acknowledgement, clear POS flag
+
+  I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, ENABLE);
+  I2C_NACKPositionConfig(I2C2_I2C_HANDLE, I2C_NACKPosition_Current);
+
+  // Intiate Start Sequence (wait for EV5
+
+  I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE);
+  Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_MODE_SELECT));
+
+  // Send Address
+
+  I2C_Send7bitAddress(I2C2_I2C_HANDLE, address, I2C_Direction_Receiver);
+
+  // EV6
+
+  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_ADDR));
+
+  if (size == 1)
+    {
+
+      // Clear Ack bit
+
+      I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);
+
+      // EV6_1 -- must be atomic -- Clear ADDR, generate STOP
+
+      __disable_irq();
+      (void) I2C2_I2C_HANDLE->SR2;
+      I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);
+      __enable_irq();
+
+      // Receive data   EV7
+
+      Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_RXNE));
+      *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
+
+    }
+  else if (size == 2)
+    {
+      // Set POS flag
+
+      I2C_NACKPositionConfig(I2C2_I2C_HANDLE, I2C_NACKPosition_Next);
+
+      // EV6_1 -- must be atomic and in this order
+
+      __disable_irq();
+      (void) I2C2_I2C_HANDLE->SR2;                           // Clear ADDR flag
+      I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);       // Clear Ack bit
+      __enable_irq();
+
+      // EV7_3  -- Wait for BTF, program stop, read data twice
+
+      Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
+
+      __disable_irq();
+      I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);
+      *data++ = I2C2_I2C_HANDLE->DR;
+      __enable_irq();
+
+      *data++ = I2C2_I2C_HANDLE->DR;
+
+    }
+  else
+    {
+      (void) I2C2_I2C_HANDLE->SR2;                           // Clear ADDR flag
+      while (size-- != 3)
+	{
+	  // EV7 -- cannot guarantee 1 transfer completion time, wait for BTF
+          //        instead of RXNE
+
+	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
+	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
+	}
+
+      Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
+
+      // EV7_2 -- Figure 1 has an error, doesn't read N-2 !
+
+      I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);           // clear ack bit
+
+      __disable_irq();
+      *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);             // receive byte N-2
+      I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);                  // program stop
+      __enable_irq();
+
+      *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);             // receive byte N-1
+
+      // wait for byte N
+      Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_BYTE_RECEIVED));
+      *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
+
+      size = 0;
+
+    }
+
+  // Wait for stop
+  Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_STOPF));
+
+  WATCHDOG_stop(watchdog_id);
+
+  return TRUE;
+
+ errReturn:
+ 	 if(!timeout)
+  		WATCHDOG_stop(watchdog_id);
+  return FALSE;
+}
+
+bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition)
+{
+	i2c_bus_error = FALSE;
+	watchdog_id = WATCHDOG_create_flag(100, &timeout);	//10ms max for the I2C frame !
+	if(watchdog_id == 0xFF)
+	{
+		debug_printf("Watchdog_create fail - I2C write exited\n");
+		return FALSE;
+	}
+
+    /* Enable Error IT (used in all modes: DMA, Polling and Interrupts */
+    //    I2C2_I2C_HANDLE->CR2 |= I2C_IT_ERR;
+
+    if (size)
+    {
+		//Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY));
+
+		// Intiate Start Sequence
+
+		I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE);
+		Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_MODE_SELECT));
+
+		// Send Address  EV5
+
+		I2C_Send7bitAddress(I2C2_I2C_HANDLE, address, I2C_Direction_Transmitter);
+		Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+
+		// EV6
+
+		// Write first byte EV8_1
+
+		I2C_SendData(I2C2_I2C_HANDLE, *data++);
+
+		while (--size) {
+
+		  // wait on BTF
+
+		  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
+		  I2C_SendData(I2C2_I2C_HANDLE, *data++);
+		}
+
+		Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
+
+		if(enable_stop_condition)
+		{
+			I2C_GenerateSTOP(I2C2_I2C_HANDLE, ENABLE);
+			Timed(I2C_GetFlagStatus(I2C1, I2C_FLAG_STOPF));
+		}
+    }
+
+    WATCHDOG_stop(watchdog_id);
+    return TRUE;
+ errReturn:
+ 	 if(!timeout)
+ 		WATCHDOG_stop(watchdog_id);
+    return FALSE;
+}
+#endif
+
 
 
