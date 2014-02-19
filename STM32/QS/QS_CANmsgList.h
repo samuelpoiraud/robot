@@ -420,14 +420,20 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	////////////////// FRUIT_MOUTH ///////////
 	ACT_FRUIT_MOUTH = (ACT_FILTER | 0x18),   //0x16: collision avec ACT_PING
 		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
-		#define ACT_FRUIT_MOUTH_CLOSE           0x10	//Fermer la pince et serrer l'assiette
-		#define ACT_FRUIT_MOUTH_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
+		#define ACT_FRUIT_MOUTH_CLOSE           0x10
+		#define ACT_FRUIT_MOUTH_OPEN            0x11
 		#define ACT_FRUIT_MOUTH_MID             0x12
 		#define ACT_FRUIT_MOUTH_STOP            0x1F
+
+		//Fruit Labium (trappe)
+		#define ACT_FRUIT_LABIUM_CLOSE          0x13
+		#define ACT_FRUIT_LABIUM_OPEN           0x14
+		#define ACT_FRUIT_LABIUM_STOP           0x1E
+
 	/////////////////////////////////////////
 
 	/////////////////LANCELAUNCHER////////////////////
-	ACT_LANCELAUNCHER = (ACT_FILTER | 0x17),
+	ACT_LANCELAUNCHER = (ACT_FILTER | 0x19),
 		//Paramètres de LANCELAUNCHER (dans data[0])
 		#define ACT_LANCELAUNCHER_RUN		0x11
 		#define ACT_LANCELAUNCHER_RUN_2		0x12
@@ -442,12 +448,23 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	ACT_ARM = (ACT_FILTER | 0x20)
 		//Paramètres de ARM (dans data[0])
 		#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[1] (une des valeurs ci-dessous)
-			#define ACT_ARM_POS_OPEN   0
-			#define ACT_ARM_POS_PARKED 1
+			// Voir position du bras ci-dessous ( A la fin de l'enum)
+
 		#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
 	/////////////////////////////////////////
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs
+
+
+// Position Prise par le bras
+typedef enum {
+	ACT_ARM_POS_PARKED,
+	ACT_ARM_POS_OPEN,
+	ACT_ARM_POS_MID,
+	ARM_ST_NUMBER
+} ARM_state_e;
+
+
 
 /*****************************************************************
  *
