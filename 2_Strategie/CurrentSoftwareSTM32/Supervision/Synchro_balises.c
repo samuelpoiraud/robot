@@ -136,7 +136,7 @@ void SYNCHRO_process_main()
 	//Si on voit pas de réponse pendant plus de LAST_REPLY_TIMEOUT ms, on répond au demandes e synchro (si pierre pas là)
 	if(REPLY_REQ == FALSE && RF_get_module_id() == RF_GUY && last_received_reply + LAST_REPLY_TIMEOUT <= global.env.absolute_time) {
 		REPLY_REQ = TRUE;
-		debug_printf("La derniere réponse reçu de pierre est trop vielle, passage en maitre\n");
+		debug_printf("La derniere réponse reçu de PIERRE est trop vieille, passage en maitre\n");
 	}
 
 	//Met à jour balise_here
