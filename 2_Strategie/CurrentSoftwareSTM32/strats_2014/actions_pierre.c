@@ -21,7 +21,7 @@
 
 
 /* ----------------------------------------------------------------------------- */
-/* 							Autre strats de test             			 */
+/* 							Autre strats de test								 */
 /* ----------------------------------------------------------------------------- */
 
 #define DECALAGE_LARGEUR 200
@@ -301,6 +301,7 @@ void strat_test_point(){
 		DEPOSER_FRUIT_ROUGE,
 		DEPOSER_FRUIT_JAUNE,
 		LANCE_LAUNCHER,
+		LANCE_LAUNCHER_ENNEMY,
 		POS_FIN,
 		DONE,
 		ERROR
@@ -329,14 +330,17 @@ void strat_test_point(){
 
 		msg.size = 6;
 		CAN_send(&msg);
+		debug_printf("Envoie Message ACtionneur\n");
+		ACT_lance_launcher_run(ACT_Lance_5);
 
-		state = POS_DEPART;
+		state = DONE;
+
 		break;
 	case POS_DEPART:
 		state = try_going(500,COLOR_Y(300),POS_DEPART,LANCE_LAUNCHER,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case POINT_A1:
-		state = try_going(1000,COLOR_Y(500),POINT_A1,DEPOSER_FRUIT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going(1000,COLOR_Y(1500),POINT_A1,DEPOSER_FRUIT,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case DEPOSER_FRUIT:
 		state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,DONE,ERROR);
@@ -348,7 +352,10 @@ void strat_test_point(){
 		state = try_going(1670,1900,POINT_W3,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 	case LANCE_LAUNCHER:
-		state = check_sub_action_result(strat_lance_launcher(),LANCE_LAUNCHER,DONE,ERROR);
+		state = check_sub_action_result(strat_lance_launcher(),LANCE_LAUNCHER,LANCE_LAUNCHER_ENNEMY,ERROR);
+		break;
+	case LANCE_LAUNCHER_ENNEMY:
+		state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,DONE,ERROR);
 		break;
 	case RAMASSER_FRUIT_ARBRE2:
 		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2(),RAMASSER_FRUIT_ARBRE2,DEPOSER_FRUIT_JAUNE,ERROR);
@@ -684,7 +691,7 @@ error_e strat_file_fruit(){
 
 		break;
 	case POS_BEGINNING:
-		state = try_going_until_break(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 		break;
 	case POS_END:
 		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
@@ -693,14 +700,16 @@ error_e strat_file_fruit(){
 			ASSER_WARNER_arm_y(posOpen);
 
 		if(global.env.asser.reach_y){ // Ouvrir le bac à fruit pour les faire tomber et sortir le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_OPEN);
 		}
 
 		break;
 	case DONE: // Fermer le bac à fruit et rentrer le bras
+			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
 		return END_OK;
 		break;
 	case ERROR: // Fermer le bac à fruit et rentrer le bras
+			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
 		return NOT_HANDLED;
 		break;
 	default:
@@ -966,7 +975,46 @@ error_e strat_lance_launcher(){
 		state = try_going(500,COLOR_Y(1100),POS_END,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 
 		if(entrance)
-			ASSER_WARNER_arm_y(COLOR_Y(600));
+			ASSER_WARNER_arm_y(COLOR_Y(600-100)); //-100 largeur du robot
+
+		if(global.env.asser.reach_y)
+			ACT_lance_launcher_run(ACT_Lance_5);
+
+		break;
+	case DONE:
+		return END_OK;
+		break;
+	case ERROR:
+		return NOT_HANDLED;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e strat_lance_launcher_ennemy(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_BEGINNING,
+		POS_END,
+		DONE,
+		ERROR
+	);
+
+	switch(state){
+	case IDLE:
+		state = POS_BEGINNING;
+		break;
+	case POS_BEGINNING:
+		state = try_going(500,COLOR_Y(1600),POS_BEGINNING,POS_END,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		break;
+	case POS_END:
+		state = try_going(500,COLOR_Y(2300),POS_END,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+
+		if(entrance)
+			ASSER_WARNER_arm_y(COLOR_Y(2400-120)); //-100 largeur du robot
 
 		if(global.env.asser.reach_y)
 			ACT_lance_launcher_run(ACT_Lance_6);
