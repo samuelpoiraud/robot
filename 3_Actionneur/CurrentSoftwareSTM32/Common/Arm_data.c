@@ -11,6 +11,7 @@
 
 #include "Arm_data.h"
 #include "../QS/QS_adc.h"
+#include "../QS/QS_CANmsgList.h"
 
 
 // prefix vaut par exemple ARM_ACT_UPDOWN, prefix##_ID vaut alors ARM_ACT_UPDOWN_ID (## est un concatenation de texte)

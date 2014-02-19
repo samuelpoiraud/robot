@@ -16,15 +16,9 @@
 #include "../QS/QS_all.h"
 #include "Arm_config.h"
 #include "../QS/QS_DCMotor2.h"
+#include "../QS/QS_CANmsgList.h"
 
 typedef int arm_state_t[ARM_ACT_NUMBER];
-
-typedef enum {
-	ARM_ST_Parked,
-	ARM_ST_Open,
-	ARM_ST_Mid,
-	ARM_ST_NUMBER
-} ARM_state_e;
 
 typedef enum {
 	ARM_DCMOTOR,
