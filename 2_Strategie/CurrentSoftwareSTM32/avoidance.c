@@ -18,7 +18,7 @@
 #include "QS/QS_outputlog.h"
 #include "config/config_pin.h"
 #include "config/config_debug.h"
-
+#include "Supervision/Buzzer.h"
 
 #define SMALL_ROBOT_ACCELERATION_NORMAL	625*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
 #define BIG_ROBOT_ACCELERATION_NORMAL	1094*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
@@ -683,6 +683,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 					{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
 						//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
 						//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
+						BUZZER_play(20, DEFAULT_NOTE, 3);
 						switch(avoidance_type)
 						{
 							case NORMAL_WAIT:
@@ -777,6 +778,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				}
 				else if(foe_in_path())	//Si on vient de recevoir un update de sa position et qu'il est toujours devant nous...
 				{
+					BUZZER_play(20, DEFAULT_NOTE, 1);
 					no_foe_count = 0;	//On reset le compteur de no_foe.
 				}
 				else
