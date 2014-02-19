@@ -5,6 +5,7 @@
 #include "QS/QS_rf.h"
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
+#include "QS/impl/QS_uart_impl.h"
 
 static CAN_msg_t canmsg_pending;
 static bool_e canmsg_received = FALSE;
@@ -15,7 +16,9 @@ static void rf_can_received_callback(CAN_msg_t *msg);
 
 void SYNCRF_init() {
 	global.is_synchronized = FALSE;
+	PORT_RFCONFIG = 1;
 	RF_init(RF_MODULE, &rf_packet_received_callback, &rf_can_received_callback);
+	UART_IMPL_write(RF_UART, 'X');
 	TIMER3_run_us(DUREE_STEP);
 }
 
@@ -28,7 +31,6 @@ void SYNCRF_process_main() {
 	static Uint8 compteur_last;
 	if(request_synchro) {
 		request_synchro = FALSE;
-		RF_synchro_request(RF_BROADCAST);
 		debug_printf("Retard demande: %d\n", step_ir - TIME_WHEN_SYNCHRO);
 	}
 
@@ -52,8 +54,8 @@ void SYNCRF_process_main() {
 void SYNCRF_sendRequest() {
 	//synchro dans le main pour éviter les trucs bizarre avec le buffering de l'uart dans QS_rf
 	//condition: boucle main rapide (à priori rien de lent, et on synchronise à une précision de 2ms)
+		RF_synchro_request(RF_BROADCAST);
 	request_synchro = TRUE;
-	LED_RUN = !LED_RUN;
 }
 
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
@@ -65,7 +67,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 		Sint16 fullOffset = (data[0] | data[1] << 8) / (DUREE_STEP / TIME_BASE_UNIT);
 
 		offset = fullOffset - (elapsed_time_since_request >> 1); // fullOffset - elapsed_time_since_request/2
-		step_ir = step_ir + offset;
+		step_ir = step_ir + offset + 2;
 
 		LED_USER = !LED_USER;
 

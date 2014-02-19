@@ -25,6 +25,7 @@ typedef enum {
 	RF_PIERRE = RF_KRUSTY,
 	RF_BROADCAST = 7
 } RF_module_e;
+#define RF_MODULE_COUNT 4
 
 typedef enum {
 	RF_PT_SynchroRequest,
