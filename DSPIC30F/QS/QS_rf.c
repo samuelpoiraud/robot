@@ -17,6 +17,7 @@
 #include "stm32f4xx_gpio.h"
 #endif
 #include "QS_buffer_fifo.h"
+#include "QS_outputlog.h"
 
 //>1.5 STOP BIT !!!
 //CRC8 poly: 0x2F (HD=4 @data size < 120)
@@ -378,17 +379,19 @@ static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
 void RF_RX_Interrupt() {
 	Uint8 c;
 
+	canTransmitData = FALSE;
+
 	while(!UART_IMPL_isRxEmpty(RF_UART))
 	{
 		c = UART_IMPL_read(RF_UART);
+		TIMER_SRC_TIMER_start_ms(10);
+
 		if(c == START_OF_PACKET_CHAR)
 			RF_state_machine(c, TRUE);
 		else if(RF_recv(&c))
 			RF_state_machine(c, FALSE);
 	}
 
-	canTransmitData = FALSE;
-	TIMER_SRC_TIMER_start_ms(10);
 
 	UART_IMPL_ackRxIt(RF_UART);
 }
@@ -410,6 +413,7 @@ void RF_TX_Interrupt() {
 	} else {
 		UART_IMPL_setTxItEnabled(RF_UART, FALSE);	//Le timeout du delai d'attente transmission reactivera l'it
 		//TIMER_SRC_TIMER_EnableIT();
+		debug_printf("TX canttransmit %d left\n", FIFO_availableElements(&fifo_tx));
 	}
 	UART_IMPL_ackTxIt(RF_UART);
 }
