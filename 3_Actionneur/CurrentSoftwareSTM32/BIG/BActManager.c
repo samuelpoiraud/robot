@@ -40,7 +40,8 @@ void ACTMGR_init() {
 	Uint8 i;
 	debug_printf("Init de %d actionneurs\n", NB_ACTIONNEURS);
 	for(i = 0; i < NB_ACTIONNEURS; i++) {
-		actionneurs[i].onInit();
+		if(actionneurs[i].onInit != NULL)
+			actionneurs[i].onInit();
 	}
 
 	ACTMGR_reset_act();
@@ -67,8 +68,9 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 
 	for(i = 0; i < NB_ACTIONNEURS; i++) {
 		//Dans le cas du selftest, on fait le test pour tous les actionneurs, qu'ils gèrent ou non le message
-		if(actionneurs[i].onCanMsg(msg) && msg->sid != ACT_DO_SELFTEST)
-			return TRUE;
+		if(actionneurs[i].onCanMsg != NULL)
+			if(actionneurs[i].onCanMsg(msg) && msg->sid != ACT_DO_SELFTEST)
+				return TRUE;
 	}
 
 	return FALSE;
@@ -77,7 +79,8 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 void ACTMGR_stop() {
 	Uint8 i;
 	for(i = 0; i < NB_ACTIONNEURS; i++) {
-		actionneurs[i].onStop();
+		if(actionneurs[i].onStop != NULL)
+			actionneurs[i].onStop();
 	}
 }
 
