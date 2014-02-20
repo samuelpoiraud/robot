@@ -50,8 +50,8 @@ typedef enum {
 	bool_e entrance = last_state_for_check_entrance != state || !initialized; \
 	if(entrance) last_state = last_state_for_check_entrance; \
 	last_state_for_check_entrance = state; \
-	if(entrance && initialized) UTILS_LOG_state_changed(#state_machine_id, state_machine_id, state_str[last_state], last_state, state_str[state], state) \
-	initialized = TRUE;
+	if(entrance && initialized) UTILS_LOG_state_changed(#state_machine_id, state_machine_id, state_str[last_state], last_state, state_str[state], state); \
+	initialized = TRUE
 
 //Réinitialise une machine à état déclarée avec CREATE_MAE_WITH_VERBOSE.
 #define RESET_MAE() \
