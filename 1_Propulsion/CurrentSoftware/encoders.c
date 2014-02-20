@@ -1,33 +1,13 @@
 #define _CODEURS_C
 
 #include "encoders.h"
-
-#ifdef USE_CODEUR_SUR_IT_ET_QE
-	#include "QS/QS_qei.h"
-	#ifdef __dsPIC30F6010A__
-		#include "QS/QS_qei_on_it.h"
-	#endif
-#else
-	#include "cpld.h"
-#endif
-
+#include "QS/QS_qei.h"
 
 
 void ENCODERS_init(void)
 {
-	
-	#ifdef USE_CODEUR_SUR_IT_ET_QE
-		QEI_init();
-		#ifdef __dsPIC30F6010A__
-		QEI_ON_IT_init();
-			IPC4bits.INT1IP = 7;	//On monte au maximum les priorités des codeurs !!!	Ils ne doivent pas être préemptés !
-			IPC5bits.INT2IP = 7;
-		#endif
-	#else
-		CPLD_init();
-	#endif
+	QEI_init();
 }
-
 
 /*
 Fonction qui modifie delta_G et delta_D :
@@ -39,19 +19,16 @@ void ENCODERS_get(Sint32 * left, Sint32 * right)
 	//variables locales (car on fait les calculs en Sint16 et le retour est en Sint32...
 	Sint32 delta_left;
 	Sint32 delta_right;
-		Sint16 count_left;
-		Sint16 count_right;
-		static Sint16 count_left_prec = 0;
+	Sint16 count_left;
+	Sint16 count_right;
+	static Sint16 count_left_prec = 0;
 	static Sint16 count_right_prec = 0;
 
-		#ifdef USE_CODEUR_SUR_IT_ET_QE
-			//Lire les roues codeuses
-			count_right=-QEI_get_count();
-			count_left=-QEI_ON_IT_get_count();
-		#else
-			count_right=-CPLD_get_count(CPLD_RIGHT_WHEEL);
-			count_left=-CPLD_get_count(CPLD_LEFT_WHEEL);
-	#endif
+	
+	//Lire les roues codeuses
+	count_right=-QEI1_get_count();
+	count_left=QEI2_get_count();
+	
 
 	//Mise a jour des deltas des roues...
 	delta_left=count_left-count_left_prec;
