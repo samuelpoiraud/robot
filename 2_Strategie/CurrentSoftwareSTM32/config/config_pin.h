@@ -59,7 +59,7 @@
 	#define	USB_POWER_ON	 	GPIOC->ODR0
 	#define FRESCO_1			GPIOC->IDR1
 	#define FRESCO_2			GPIOC->IDR2
-	//	Capteur			 			  3
+	#define PRESENCE_FILET		GPIOC->IDR3
 	//	Capteur			 			  4
 	#define BUTTON6_PORT		(!GPIOC->IDR5)
 	#define LED_BEACON_IR_GREEN	GPIOC->ODR6
@@ -132,5 +132,6 @@
 
 #define PORT_SWITCH_XBEE	GPIOB->IDR4
 //#define PORT_SWITCH_XBEE	FALSE	//Utiliser cette ligne pour désactiver le XBee...
+
 
 #endif /* CONFIG_PIN_H */

@@ -12,6 +12,7 @@
 
 #include "act_functions.h"
 #include "act_can.h"
+#include "config/config_pin.h"
 
 #include "config_debug.h"
 
@@ -24,24 +25,30 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "QS/QS_outputlog.h"
 
+
+/* define & variable relatifs au lanceur de filet */
+#define TIME_FILET_IT					5
+#define TIME_BEFORE_REARM				500
+volatile Uint8 time_filet = 0;
+
 /* Pile contenant les arguments d'une demande d'opération
  * Contient les messages CAN à envoyer à la carte actionneur pour exécuter l'action.
- * fallbackMsg contient le message CAN lorsque l'opération demandé par le message CAN msg ne peut pas être complété (bras bloqué, robot adverse qui bloque l'actionneur par exemple)
+ * fallbackMsg contient le message CAN lorsque l'opération demandée par le message CAN msg ne peut pas être complétée (bras bloqué, robot adverse qui bloque l'actionneur par exemple)
  * On utilise une structure différente de CAN_msg_t pour économiser la RAM (voir matrice act_args)
  *
- * Pour chaque fonction appelée par le code stratégie pour empiler une action, on remplie les messages CAN à enovoyer et on empile l'action.
+ * Pour chaque fonction appelée par le code stratégie pour empiler une action, on remplit les messages CAN à envoyer et on empile l'action.
  * Un timeout est disponible si jamais la carte actionneur ne renvoie pas de message CAN ACT_RESULT (elle le devrait, mais on sait jamais)
  *
  * Le code de ACT_check_result() gère le renvoi de message lorsque la carte actionneur indique qu'il n'y avait pas assez de ressource ou l'envoi du message fallback si la position demandé par le message CAN msg n'est pas atteignable.
- * Ce le message fallback se solve par un echec aussi, on indique le code de stratégie que cet actionneur n'est pas dispo maintenant et de réessayer plus tard (il faut faire une autre strat pendant ce temps, si c'est un robot qui bloque le bras, il faut que l'environnement du jeu bouge)
+ * Si le message fallback se solve par un echec aussi, on indique au code de stratégie que cet actionneur n'est pas dispo maintenant et de réessayer plus tard (il faut faire une autre strat pendant ce temps, si c'est un robot qui bloque le bras, il faut que l'environnement du jeu bouge)
  * Si le renvoi du message à cause du manque de ressource cause la même erreur, on marque l'actionneur comme inutilisable (ce cas est grave, il y a probablement un problème dans le code actionneur ou un flood de demande d'opération de la carte stratégie)
  */
 
 
 //Info sur la gestion d'erreur des actionneurs:
-//La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT
-//La fonction ACT_process_result (act_function.c) converti les messages ACT_RESULT en ces valeurs dans act_state_info_t::operationResult et act_state_info_t::recommendedBehavior (environnement.h)
-//La fonction ACT_check_result (act_function.c) converti et gère les messages act_state_info_t::operationResult et act_state_info_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
+//La carte actionneur génère des resultats et détaille les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT
+//La fonction ACT_process_result (act_function.c) convertit les messages ACT_RESULT en ces valeurs dans act_state_info_t::operationResult et act_state_info_t::recommendedBehavior (environnement.h)
+//La fonction ACT_check_result (act_function.c) convertit et gère les messages act_state_info_t::operationResult et act_state_info_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
 
 
 
@@ -69,6 +76,63 @@ bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd){
 	debug_printf("Pushing launcher Run %d cmd\n", cmd);
 	return ACT_push_operation(ACT_QUEUE_launcher, &args);
 }
+
+/*********************************************Gestion filet**********************************************/
+
+bool_e ACT_filet_launch(ACT_filet_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_FILET, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_FILET, ACT_FILET_STOP);
+
+	debug_printf("Pushing launcher Run %d cmd\n", cmd);
+	return ACT_push_operation(ACT_QUEUE_Filet, &args);
+}
+
+void FILET_process_1ms(void){
+	if(time_filet)
+		time_filet--;
+}
+
+void FILET_process_main(void){
+	if(time_filet)
+		return;
+
+	typedef enum{
+		RISING_EDGE,
+		WAIT_UP,
+		REARM
+	}state_e;
+
+	static state_e state = RISING_EDGE;
+	static bool_e last_port_state;
+	static Uint8 time;
+	switch(state){
+		case RISING_EDGE :
+			if(PRESENCE_FILET && !last_port_state){
+				time = 0;
+				state = WAIT_UP;
+			}
+			break;
+
+		case WAIT_UP :
+			if(PRESENCE_FILET){
+				if(time >= TIME_BEFORE_REARM)
+					state = REARM;
+				else
+					time += TIME_FILET_IT;
+			}else
+				state = RISING_EDGE;
+			break;
+
+		case REARM :
+			ACT_filet_launch(ACT_FILET_IDLE);
+			break;
+	}
+	last_port_state = PRESENCE_FILET;
+	time_filet = TIME_FILET_IT;
+}
+
 // <editor-fold desc="Krusty">
 
 bool_e ACT_ball_launcher_run(Uint16 speed) {

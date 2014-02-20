@@ -19,6 +19,7 @@
 #include "config_pin.h"
 #include "QS/QS_can_over_xbee.h"
 #include "Supervision/Buzzer.h"
+#include "act_functions.h"
 
 void CLOCK_run();
 
@@ -112,5 +113,6 @@ void _ISR _T1Interrupt()
 	}
 	SD_process_1ms();
 	BUZZER_process_1ms();
+	FILET_process_1ms();
 	TIMER1_AckIT();
 }

@@ -37,5 +37,7 @@ error_e strat_lance_launcher();
 error_e strat_lance_launcher_ennemy();
 error_e strat_launch_net();
 
+void strat_test_filet();
+
 
 #endif /* ACTIONS_PIERRE_H_ */
