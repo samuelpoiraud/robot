@@ -13,6 +13,7 @@
 #include "actions_pierre.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
+#include "../act_can.h"
 
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions d'homologation			                 */
@@ -1058,3 +1059,52 @@ error_e strat_launch_net(){
 }
 
 //resultat dans ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
+
+
+
+
+void strat_test_filet(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		INIT,
+		IDLE,
+		LAUNCH,
+		RETURN,
+		DONE
+	);
+
+	switch(state){
+		case INIT :
+			state = IDLE;
+			break;
+
+		case IDLE :
+			if(entrance){
+				ACT_filet_launch(ACT_FILET_IDLE);
+				debug_printf("Position initiale \n");
+			}
+			if(ACT_get_last_action_result(ACT_QUEUE_Filet) == END_OK)
+				state = LAUNCH;
+			break;
+
+		case LAUNCH :
+			if(entrance){
+				ACT_filet_launch(ACT_FILET_LAUNCHED);
+				debug_printf("Position de lancement du filet \n");
+			}
+			if(ACT_get_last_action_result(ACT_QUEUE_Filet) == END_OK)
+				state = RETURN;
+			break;
+
+		case RETURN :
+			if(entrance){
+				ACT_filet_launch(ACT_FILET_IDLE);
+				debug_printf("Position initiale \n");
+			}
+			if(ACT_get_last_action_result(ACT_QUEUE_Filet) == END_OK)
+				state = DONE;
+			break;
+
+		case DONE :
+			break;
+	}
+}
