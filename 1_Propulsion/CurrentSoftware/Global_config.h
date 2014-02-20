@@ -167,6 +167,8 @@
 	#define BUTTONS_TIMER 3
 
 /* choix de la fréquence des PWM */
+	#define USE_PWM3    //moteur droite
+	#define USE_PWM4    //moteur gauche
 //	#define FREQ_PWM_50HZ
 //	#define FREQ_PWM_1KHZ
 //	#define FREQ_PWM_10KHZ
