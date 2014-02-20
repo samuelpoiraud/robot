@@ -14,12 +14,6 @@
 #endif
 
 typedef enum {
-	QUEUE_ACT_Hammer,
-	QUEUE_ACT_LongHammer,
-	QUEUE_ACT_BallInflater,
-	QUEUE_ACT_CandleColor,
-	QUEUE_ACT_PlierLeft,
-	QUEUE_ACT_PlierRight,
 	QUEUE_ACT_Arm,
 	NB_ACT
 } QUEUE_act_e;

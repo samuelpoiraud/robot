@@ -35,12 +35,12 @@
 #define SWITCH_RG1 FALSE
 
 //Test et inclusion des configs spécifiques au robot
-#if (defined(I_AM_ROBOT_KRUSTY) && defined(I_AM_ROBOT_TINY)) || (!defined(I_AM_ROBOT_KRUSTY) && !defined(I_AM_ROBOT_TINY))
-#	error "Veuillez définir I_AM_ROBOT_KRUSTY ou I_AM_ROBOT_TINY selon le robot cible dans config_global.h"
-#elif defined(I_AM_ROBOT_KRUSTY)
-#	include "config_krusty/config_pin.h"
-#elif defined(I_AM_ROBOT_TINY)
-#	include "config_tiny/config_pin.h"
+#if (defined(I_AM_ROBOT_BIG) && defined(I_AM_ROBOT_SMALL)) || (!defined(I_AM_ROBOT_BIG) && !defined(I_AM_ROBOT_SMALL))
+#	error "Veuillez définir I_AM_ROBOT_BIG ou I_AM_ROBOT_SMALL selon le robot cible dans config_global.h"
+#elif defined(I_AM_ROBOT_BIG)
+#	include "config_big/config_pin.h"
+#elif defined(I_AM_ROBOT_SMALL)
+#	include "config_small/config_pin.h"
 #endif
 
 #endif /* CONFIG_PIN_H */
