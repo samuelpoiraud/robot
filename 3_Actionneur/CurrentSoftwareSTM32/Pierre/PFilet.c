@@ -29,6 +29,11 @@
 
 #define TIME_FILET_IT					5
 #define TIME_BEFORE_REARM				500
+#define TIME_BEFORE_FREE_STRING			50
+#define TIME_AFTER_FREE_STRING			20
+
+static void FILET_lacher_ficelles();
+static void FILET_liberer_gache();
 
 
 void FILET_init() {
@@ -57,9 +62,10 @@ static void FILET_initAX12() {
 		AX12_config_set_minimal_angle(FILET_AX12_ID, 0);
 
 		AX12_config_set_error_before_led(FILET_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
-		AX12_config_set_error_before_shutdown(FILET_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+		AX12_config_set_error_before_shutdown(FILET_AX12_ID, AX12_ERROR_OVERHEATING);
 
-		AX12_set_position(FILET_AX12_ID, FILET_AX12_INIT_POS);
+		// Pas d'initialisation sinon réarmement impossible
+		//AX12_set_position(FILET_AX12_ID, FILET_AX12_INIT_POS);
 		//info_printf("FILET AX12 initialisé\n");
 	}
 }
@@ -171,6 +177,8 @@ static void FILET_command_init(queue_id_t queueId) {
 		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
+	if(command == ACT_FILET_LAUNCHED)
+		WATCHDOG_create(TIME_BEFORE_FREE_STRING, FILET_lacher_ficelles, FALSE);
 	//La commande a été envoyée et l'AX12 l'a bien reçu
 }
 
@@ -184,5 +192,12 @@ static void FILET_command_run(queue_id_t queueId) {
 		QUEUE_next(queueId, ACT_FILET, result, errorCode, line);
 }
 
+static void FILET_lacher_ficelles(){
+	GACHE_FILET = 1;
+	WATCHDOG_create(TIME_AFTER_FREE_STRING, FILET_liberer_gache, FALSE);
+}
 
+static void FILET_liberer_gache(){
+	GACHE_FILET = 0;
+}
 #endif  /* I_AM_ROBOT_BIG */
