@@ -86,7 +86,6 @@ void EmissionIR_next_step(void)
 	request_reset_step_ir = FALSE;
 
 	if(step_ir == 0) {
-		LED_RUN = !LED_RUN;
 	}
 
 	if(step_ir == TIME_WHEN_SYNCHRO)

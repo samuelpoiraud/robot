@@ -173,7 +173,10 @@ static void RF_putc(Uint8 c)
 		while(!byte_sent) {
 			UART_IMPL_setTxItEnabled(RF_UART, TRUE);
 			UART_IMPL_setTxItPaused(RF_UART, FALSE);
-			while(FIFO_isFull(&fifo_tx));	//ON BLOQUE ICI
+			if(FIFO_isFull(&fifo_tx)) {
+				printf("Cant send, %d\n", canTransmitData);
+				break;	//ON BLOQUE ICI
+			}
 
 			//Critical section (Interrupt inibition)
 

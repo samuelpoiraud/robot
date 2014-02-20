@@ -97,7 +97,6 @@ int main (void)
 	TIMER2_run_us(10);
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-	Supervision_init();
 	ZONE_init();
 
 	STACKS_init();
@@ -112,6 +111,7 @@ int main (void)
 		if(j%10 == 0x00)
 			debug_printf(".");
 	}
+	Supervision_init();
 #if 0
 	while(1)
 		test_Pathfind();
