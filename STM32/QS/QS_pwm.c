@@ -109,19 +109,34 @@ void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 
 	switch(channel)
 	{
+#ifdef USE_PWM1
 		case 1:
 			TIM_SetCompare1(TIM8, duty * (PWM_PERIOD/100));
 			break;
+#endif
+#ifdef USE_PWM2
 		case 2:
 			TIM_SetCompare2(TIM8, duty * (PWM_PERIOD/100));
 			break;
+#endif
+#ifdef USE_PWM3
 		case 3:
 			TIM_SetCompare3(TIM8, duty * (PWM_PERIOD/100));
 			break;
+#endif
+#ifdef USE_PWM4
 		case 4:
 			TIM_SetCompare4(TIM8, duty * (PWM_PERIOD/100));
 			break;
+#endif
 		default:
+#ifdef VERBOSE_MODE
+			if(channel > 0 && channel <= 4)
+				fprintf(stderr, "PWM_run: PWM %d non active, USE_PWM%d n'a pas été défini dans la config_qs !\n", channel, channel);
+			else
+				fprintf(stderr, "PWM_run: PWM %d invalide, seulement les PWM de 1 à 4 incluses existent\n", channel);
+			NVIC_SystemReset();
+#endif
 			break;
 	}
 }
@@ -136,19 +151,34 @@ void PWM_run_fine(Uint16 duty, Uint8 channel)
 {
 	switch(channel)
 	{
+#ifdef USE_PWM1
 		case 1:
 			TIM_SetCompare1(TIM8, duty);
 			break;
+#endif
+#ifdef USE_PWM2
 		case 2:
 			TIM_SetCompare2(TIM8, duty);
 			break;
+#endif
+#ifdef USE_PWM3
 		case 3:
 			TIM_SetCompare3(TIM8, duty);
 			break;
+#endif
+#ifdef USE_PWM4
 		case 4:
 			TIM_SetCompare4(TIM8, duty);
 			break;
+#endif
 		default:
+#ifdef VERBOSE_MODE
+			if(channel > 0 && channel <= 4)
+				fprintf(stderr, "PWM_run_fine: PWM %d non active, USE_PWM%d n'a pas été défini dans la config_qs !\n", channel, channel);
+			else
+				fprintf(stderr, "PWM_run_fine: PWM %d invalide, seulement les PWM de 1 à 4 incluses existent\n", channel);
+			NVIC_SystemReset();
+#endif
 			break;
 	}
 }
