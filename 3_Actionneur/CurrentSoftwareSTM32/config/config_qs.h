@@ -53,12 +53,12 @@
 #define USE_BUTTONS
 
 //Test et inclusion des configs spécifiques au robot
-#if (defined(I_AM_ROBOT_KRUSTY) && defined(I_AM_ROBOT_TINY)) || (!defined(I_AM_ROBOT_KRUSTY) && !defined(I_AM_ROBOT_TINY))
-#	error "Veuillez définir I_AM_ROBOT_KRUSTY ou I_AM_ROBOT_TINY selon le robot cible dans config_global.h"
-#elif defined(I_AM_ROBOT_KRUSTY)
-#	include "config_krusty/config_qs.h"
-#elif defined(I_AM_ROBOT_TINY)
-#	include "config_tiny/config_qs.h"
+#if (defined(I_AM_ROBOT_BIG) && defined(I_AM_ROBOT_SMALL)) || (!defined(I_AM_ROBOT_BIG) && !defined(I_AM_ROBOT_SMALL))
+#	error "Veuillez définir I_AM_ROBOT_BIG ou I_AM_ROBOT_SMALL selon le robot cible dans config_global.h"
+#elif defined(I_AM_ROBOT_BIG)
+#	include "config_big/config_qs.h"
+#elif defined(I_AM_ROBOT_SMALL)
+#	include "config_small/config_qs.h"
 #endif
 
 #endif /* CONFIG_QS_H */
