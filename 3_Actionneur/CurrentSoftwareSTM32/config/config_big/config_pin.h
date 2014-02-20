@@ -66,10 +66,10 @@
 	//	-	OSC32_out 			  	  15
 
 
-#define PORT_D_IO_MASK	0x01FF
+#define PORT_D_IO_MASK	0x03FB
 	//	CAN_RX						  0
 	//	CAN_TX						  1
-	//	-				 			  2
+	#define GACHE_FILET			GPIOD->ODR2
 	//	-				 			  3
 	//	-							  4
 	//	-	usb led red				  5
@@ -116,7 +116,8 @@
 	#define FRUIT_LABIUM_AX12_ID					  1
 
 /* Config proto filet*/
-	#define FILET_AX12_ID							  3
+	#define FILET_AX12_ID							  4
+
 /* config watchdog lance lanceur*/
 	#define LANCELAUNCHER_TIMER_USE_WATCHDOG
 
