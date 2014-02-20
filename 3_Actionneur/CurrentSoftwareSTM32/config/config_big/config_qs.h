@@ -34,6 +34,10 @@
 */
 
 /* Réglages PWM */
+	#define USE_PWM1
+	#define USE_PWM2
+	#define USE_PWM3
+	#define USE_PWM4
 	#define FREQ_PWM_50KHZ
 
 /* Asservissement en position/vitesse de moteurs CC */
