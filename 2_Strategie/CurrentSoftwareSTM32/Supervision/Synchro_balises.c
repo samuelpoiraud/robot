@@ -52,7 +52,7 @@ void TIMER_SRC_TIMER_interrupt() {
 	time_base++;
 	if(time_base >= COMPTEUR_MAX) {
 		time_base=0;
-		LED_USER = !LED_USER;
+		LED_SELFTEST = !LED_SELFTEST;
 	}
 
 	SYNCHRO_BEACON = ((time_base % PERIODE_SIGNAL_SYNCHRO) < DUREE_SIGNAL_SYNCHRO); //Actif sur les 2ms de début du compteur

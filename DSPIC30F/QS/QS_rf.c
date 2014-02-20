@@ -122,6 +122,7 @@ typedef enum {
 static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size);
 static void RF_putc(Uint8 c);
 static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size);
+void RF_TX_Interrupt_();
 
 
 void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg_ptr onCanMsgCallback) {
@@ -174,7 +175,13 @@ static void RF_putc(Uint8 c)
 		while(!byte_sent) {
 			UART_IMPL_setTxItEnabled(RF_UART, TRUE);
 			UART_IMPL_setTxItPaused(RF_UART, FALSE);
-			while(FIFO_isFull(&fifo_tx));	//ON BLOQUE ICI
+			Uint32 temps;
+			for(temps = 0; FIFO_isFull(&fifo_tx) && temps < (Uint32)(500000) ; temps++);
+			if(temps == 500000) {
+				debug_printf("Prob: %d, left %d\n", canTransmitData, FIFO_availableElements(&fifo_tx));
+				RF_TX_Interrupt_();
+			}
+			//while(FIFO_isFull(&fifo_tx));	//ON BLOQUE ICI
 
 			//Critical section (Interrupt inibition)
 
@@ -186,7 +193,7 @@ static void RF_putc(Uint8 c)
 				FIFO_insertData(&fifo_tx, &c);
 				byte_sent = TRUE;
 			} else {
-				printf("bug\n");
+				printf("bug %d \n", canTransmitData);
 			}
 			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
 
@@ -392,11 +399,10 @@ void RF_RX_Interrupt() {
 			RF_state_machine(c, FALSE);
 	}
 
-
 	UART_IMPL_ackRxIt(RF_UART);
 }
 
-void RF_TX_Interrupt() {
+void RF_TX_Interrupt_() {
 	//debufferiser si on a le droit
 	if(canTransmitData) {
 		if(!FIFO_isEmpty(&fifo_tx)) {
@@ -413,8 +419,12 @@ void RF_TX_Interrupt() {
 	} else {
 		UART_IMPL_setTxItEnabled(RF_UART, FALSE);	//Le timeout du delai d'attente transmission reactivera l'it
 		//TIMER_SRC_TIMER_EnableIT();
-		debug_printf("TX canttransmit %d left\n", FIFO_availableElements(&fifo_tx));
+		//debug_printf("%d\n", FIFO_availableElements(&fifo_tx));
 	}
+}
+
+void RF_TX_Interrupt() {
+	RF_TX_Interrupt_();
 	UART_IMPL_ackTxIt(RF_UART);
 }
 

@@ -47,13 +47,14 @@ void SYNCRF_process_main() {
 	if(compteur_last != step_ir/50) {
 		compteur_last = step_ir/50;
 
-		debug_printf("Compteur: %u\n", step_ir);
+		//debug_printf("Compteur: %u\n", step_ir);
 	}
 }
 
 void SYNCRF_sendRequest() {
 	//synchro dans le main pour éviter les trucs bizarre avec le buffering de l'uart dans QS_rf
 	//condition: boucle main rapide (à priori rien de lent, et on synchronise à une précision de 2ms)
+		LED_RUN = !LED_RUN;
 		RF_synchro_request(RF_BROADCAST);
 	request_synchro = TRUE;
 }

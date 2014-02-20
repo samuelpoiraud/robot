@@ -159,11 +159,13 @@ void UART_IMPL_setRxItPaused(Uint8 uart_id, bool_e pause) {
 			DisableIntU1RX;
 		else
 			EnableIntU1RX;
+		_U1RXIF = 1;
 	} else {
 		if(pause)
 			DisableIntU2RX;
 		else
 			EnableIntU2RX;
+		_U2RXIF = 1;
 	}
 }
 
@@ -174,11 +176,13 @@ void UART_IMPL_setTxItPaused(Uint8 uart_id, bool_e pause) {
 			DisableIntU1TX;
 		else
 			EnableIntU1TX;
+		_U1TXIF = 1;
 	} else {
 		if(pause)
 			DisableIntU2TX;
 		else
 			EnableIntU2TX;
+		_U2TXIF = 1;
 	}
 }
 
@@ -230,15 +234,31 @@ __attribute__((weak)) void UART2_RX_Interrupt() {}
 __attribute__((weak)) void UART2_TX_Interrupt() {}
 
 __attribute__((weak)) void _ISR _U1RXInterrupt() {
-	UART1_RX_Interrupt();
+	UART_IMPL_ackRxIt(UART1_ID);
+
+	//On transforme l'IT en level triggered
+	while(!UART_IMPL_isRxEmpty(UART1_ID) && _U1RXIE == 1)
+		UART1_RX_Interrupt();
 }
 __attribute__((weak)) void _ISR _U1TXInterrupt() {
-	UART1_TX_Interrupt();
+	UART_IMPL_ackTxIt(UART1_ID);
+
+	//On transforme l'IT en level triggered
+	while(!UART_IMPL_isTxFull(UART1_ID) && _U1TXIE == 1)
+		UART1_TX_Interrupt();
 }
 
 __attribute__((weak)) void _ISR _U2RXInterrupt() {
-	UART2_RX_Interrupt();
+	UART_IMPL_ackRxIt(UART2_ID);
+
+	//On transforme l'IT en level triggered
+	while(!UART_IMPL_isRxEmpty(UART2_ID) && _U2RXIE == 1)
+		UART2_RX_Interrupt();
 }
 __attribute__((weak)) void _ISR _U2TXInterrupt() {
-	UART2_TX_Interrupt();
+	UART_IMPL_ackTxIt(UART2_ID);
+
+	//On transforme l'IT en level triggered
+	while(!UART_IMPL_isTxFull(UART2_ID) && _U2TXIE == 1)
+		UART2_TX_Interrupt();
 }
