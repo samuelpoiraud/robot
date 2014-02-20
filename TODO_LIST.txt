@@ -8,20 +8,16 @@ Rénommer KRUSTY en PIERRE et TINY en GUY
 
 XBee
 
-
-IT
-	- résumer les niveaux d'IT dans les codes... -> classeur pinout_usages ???
-	
 ZONES
 	- faire des tests de zoning avec les deux robots ? Pour vérifier le bon comportement et la possibilité de croisement
-	
+
 Réglages coeff
 	- stratégie de réglage des coefs d'odométrie automatique (seule la repro de la carte propulsion est à faire, ou carrément profiter de l'EEPROM du STM32) ! (chiche !)
 		- choix du coef à régler en début de strat, par un menu (la strat prend la main sur l'écran et les boutons !)
 		- ...
-	- stratégie de réglages des coefs du PID de façon automatique ??? (le doux rêve)	
-	
-Capteurs 
+	- stratégie de réglages des coefs du PID de façon automatique ??? (le doux rêve)
+
+Capteurs
 - monter des DT10 sur un robot (carte propulsion stm32 de krusty par exemple)
 		altitudes : objectifs
 		- 15mm : localiser un feu au sol, mesurer notre position par rapport à une bordure ou un foyer
