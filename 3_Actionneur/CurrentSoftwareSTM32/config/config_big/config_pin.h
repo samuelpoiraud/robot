@@ -115,6 +115,8 @@
 /* Config proto Fruit_labium*/
 	#define FRUIT_LABIUM_AX12_ID					  1
 
+/* Config proto filet*/
+	#define FILET_AX12_ID							  3
 /* config watchdog lance lanceur*/
 	#define LANCELAUNCHER_TIMER_USE_WATCHDOG
 

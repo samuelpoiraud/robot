@@ -445,13 +445,21 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	////////////////////////////////////////////////
 
 	////////////////// ARM  /////////////////
-	ACT_ARM = (ACT_FILTER | 0x20)
+	ACT_ARM = (ACT_FILTER | 0x20),
 		//Paramètres de ARM (dans data[0])
 		#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[1] (une des valeurs ci-dessous)
 			// Voir position du bras ci-dessous ( A la fin de l'enum)
 
 		#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
 	/////////////////////////////////////////
+
+	/////////////////////FILET///////////////////
+	ACT_FILET = (ACT_FILTER | 0x21)
+		//Paramètres de FILET (dans data[0])
+		#define ACT_FILET_IDLE				0x11
+		#define ACT_FILET_LAUNCHED			0x12
+		#define ACT_FILET_STOP				0x13
+	/////////////////////////////////////////////
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs
 
