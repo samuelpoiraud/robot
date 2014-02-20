@@ -87,6 +87,7 @@
 #define BUTTONS_TIMER_USE_WATCHDOG
 
 
+#define USE_PWM4
 //#define FREQ_PWM_50HZ
 #define FREQ_PWM_50KHZ
 

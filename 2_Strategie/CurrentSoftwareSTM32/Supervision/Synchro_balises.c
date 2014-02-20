@@ -65,12 +65,7 @@ void TIMER_SRC_TIMER_interrupt() {
 }
 
 void SYNCHRO_init() {
-	Uint16 i, j;
 	TIMER_SRC_TIMER_init();
-
-	/*PIN_RF_CONFIG = 1;
-	UART_IMPL_write(RF_UART, 'X');
-	for(i=1;i;i++);*/
 
 	PIN_RF_CONFIG = 1;
 
@@ -84,39 +79,8 @@ void SYNCHRO_init() {
 		RF_init(RF_GUY, &rf_packet_received_callback, &rf_can_received_callback);
 	}
 
-	for(i=1;i;i++);
-
 	// X indique la fin de la config => passage en mode normal de transmission / reception (la pin de config doit être à 1)
-	//while(UART_IMPL_isRxEmpty(RF_UART));
-	//debug_printf("%c\n", UART_IMPL_read(RF_UART));
 	UART_IMPL_write(RF_UART, 'X');
-/*
-	while(UART_IMPL_isRxEmpty(RF_UART));
-	debug_printf("%c\n", UART_IMPL_read(RF_UART));
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0x11);
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0xC1);
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0x14);
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0x00);
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0x15);
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0x00);
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0x21);
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0xFF);
-	while(UART_IMPL_isTxFull(RF_UART));
-	UART_IMPL_write(RF_UART, 0xFF);
-
-
-	while(UART_IMPL_isRxEmpty(RF_UART));
-	debug_printf("%c\n", UART_IMPL_read(RF_UART));
-	UART_IMPL_write(RF_UART, 'X');
-	debug_printf("Init RF ok\n");*/
 
 	TIMER_SRC_TIMER_start_us(COMPTEUR_USEC_PER_TICK);
 }
