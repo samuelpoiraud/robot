@@ -226,12 +226,27 @@ void PORTS_pwm_init() {
 	GPInit.GPIO_Speed = GPIO_Speed_50MHz;
 	GPInit.GPIO_OType = GPIO_OType_PP;
 	GPInit.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-	GPInit.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9;
+
+#ifdef USE_PWM1
+	GPInit.GPIO_Pin = GPIO_Pin_6;
 	GPIO_Init(GPIOC, &GPInit);
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_TIM8);
+#endif
+#ifdef USE_PWM2
+	GPInit.GPIO_Pin = GPIO_Pin_7;
+	GPIO_Init(GPIOC, &GPInit);
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_TIM8);
+#endif
+#ifdef USE_PWM3
+	GPInit.GPIO_Pin = GPIO_Pin_8;
+	GPIO_Init(GPIOC, &GPInit);
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_TIM8);
+#endif
+#ifdef USE_PWM4
+	GPInit.GPIO_Pin = GPIO_Pin_9;
+	GPIO_Init(GPIOC, &GPInit);
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM8);
+#endif
 }
 
 void PORTS_uarts_init() {
