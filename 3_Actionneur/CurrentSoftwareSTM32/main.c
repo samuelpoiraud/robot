@@ -334,10 +334,9 @@ static void MAIN_onButton4() {
 
 #else // Tiny
 
-#include "Tiny/THammer.h" //pour HAMMER_get_pos()
 
 static void MAIN_onButton1() {
-#ifdef USE_CAN
+/*#ifdef USE_CAN
 	CAN_msg_t msg;
 
 //	msg.sid = ACT_HAMMER;
@@ -352,11 +351,11 @@ static void MAIN_onButton1() {
 	msg.size = 2;
 
 	CAN_process_msg(&msg);
-#endif
+#endif*/
 }
 
 static void MAIN_onButton2() {
-#ifdef USE_CAN
+/*#ifdef USE_CAN
 	CAN_msg_t msg;
 
 //	msg.sid = ACT_HAMMER;
@@ -370,11 +369,11 @@ static void MAIN_onButton2() {
 	msg.size = 1;
 
 	CAN_process_msg(&msg);
-#endif
+#endif*/
 }
 
 static void MAIN_onButton3() {
-#ifdef USE_CAN
+/*#ifdef USE_CAN
 	CAN_msg_t msg;
 
 	msg.sid = ACT_HAMMER;
@@ -384,11 +383,11 @@ static void MAIN_onButton3() {
 
 	CAN_process_msg(&msg);
 
-#endif
+#endif*/
 }
 
 static void MAIN_onButton4() {
-	Uint8 i;
+/*	Uint8 i;
 	CAN_msg_t msg;
 
 	msg.sid = ACT_HAMMER;
@@ -412,6 +411,6 @@ static void MAIN_onButton4() {
 
 	for(i=0; i<7; i++)
 		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
-	debug_printf("\n");
+	debug_printf("\n");*/
 }
 #endif // Tiny ou Krusty
