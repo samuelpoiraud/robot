@@ -1,0 +1,59 @@
+/*  Club Robot ESEO 2013 - 2014
+ *	BIG
+ *
+ *	Fichier : filet.h
+ *	Package : Carte actionneur
+ *	Description : Gestion du filet
+ *  Auteur : Elise FERCHAUD
+ *  Version 20130219
+ *  Robot : BIG
+ */
+
+#ifndef PFILET_H
+#define	PFILET_H
+
+#include "../QS/QS_all.h"
+#ifdef I_AM_ROBOT_BIG
+
+#include "../queue.h"
+
+typedef enum {
+	FILET_CS_IdleAX12,
+	FILET_CS_LaunchedAX12,
+	FILET_CS_StopAX12
+} FILET_command_state_e;
+
+/** Initialisation du gestionnaire de FILET.
+ *
+ * Configure l'asservissement de l'AX12
+ */
+void FILET_init();
+
+/** Stoppe l'actionneur.
+ *
+ * Cette fonction est appelée en fin de match
+ */
+void FILET_stop();
+
+/** Gère les messages CAN liés au FILET.
+ *
+ * Cette fonction s'occupe toute seule de gérer la queue et d'agir en conséquence.
+ * @param msg le message CAN
+ * @return TRUE si le message CAN a été géré par cet actionneur, FALSE sinon
+ */
+bool_e FILET_CAN_process_msg(CAN_msg_t* msg);
+
+/** Gère les commandes demandées.
+ *
+ * Fonction à mettre sur la file pour demander une action.
+ */
+void FILET_run_command(queue_id_t queueId, bool_e init);
+
+static void FILET_initAX12();
+static void FILET_command_init(queue_id_t queueId);
+static void FILET_command_run(queue_id_t queueId);
+void fct_gestion_initialisation_filet_manuel();
+
+#endif  /* I_AM_ROBOT_BIG */
+#endif	/* PFILET_H */
+

@@ -14,6 +14,7 @@
 
 #include "../Pierre/Plance_launcher.h"
 #include "../Pierre/PFruit.h"
+#include "../Pierre/PFilet.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
 #include "../act_queue_utils.h"
@@ -29,6 +30,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 static ACTQ_functions_t actionneurs[] = {
 	{&FRUIT_init, &FRUIT_stop, &FRUIT_CAN_process_msg},
 	{&LANCE_LAUNCHER_init, &LANCE_LAUNCHER_stop, &LANCE_LAUNCHER_CAN_process_msg},
+	{&FILET_init, NULL, &FILET_CAN_process_msg},
 	ACT_DECLARE(ARM)
 };
 
