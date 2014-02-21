@@ -11,7 +11,7 @@
 #ifndef KRUSTY_CONFIG_PIN_H
 #define KRUSTY_CONFIG_PIN_H
 
-#define PORT_A_IO_MASK	0xFFFF
+#define PORT_A_IO_MASK	0xFEFF
 	#define BUTTON0_PORT		GPIOA->IDR0
 	//	-				 			  1
 	//	AX12/U2TX					  2
@@ -20,7 +20,7 @@
 	//	-				 			  5
 	//	-				 			  6
 	//	-				 			  7
-	//	-	sortie libre 			  8
+	#define FRUIT_POMPE_SENS		  GPIOA->ODR8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -30,8 +30,8 @@
 	//	-				 			  15
 
 #define PORT_B_IO_MASK	0x01FF
-	//	-							  0
-	//	-							  1
+	#define FRUIT_VERIN_OUT		GPIOB->IDR0
+	#define FRUIT_VERIN_IN		GPIOB->IDR1
 	//	-				 			  2
 	// - programmation -			  3
 	//	-				 			  4
@@ -109,16 +109,20 @@
 
 
 
-/* Config proto Fruit_mouth*/
-	#define FRUIT_MOUTH_AX12_ID						  3
+/* Config Fruit Pompe */
+#define FRUIT_POMPE_PWM_NUM				3
+#define FRUIT_POMPE_TOR_OPEN			FRUIT_VERIN_OUT  // Capteur
+#define FRUIT_POMPE_TOR_CLOSE			FRUIT_VERIN_IN
 
-/* Config proto Fruit_labium*/
-	#define FRUIT_LABIUM_AX12_ID					  1
+
+/* Config Fruit_labium*/
+	#define FRUIT_LABIUM_AX12_ID		6
 
 /* Config proto filet*/
 	#define FILET_AX12_ID							  4
-
-/* config watchdog lance lanceur*/
+<<<<<<< .mine
+=======
+>>>>>>> .theirs/* config watchdog lance lanceur*/
 	#define LANCELAUNCHER_TIMER_USE_WATCHDOG
 
 #endif /* KRUSTY_CONFIG_PIN_H */

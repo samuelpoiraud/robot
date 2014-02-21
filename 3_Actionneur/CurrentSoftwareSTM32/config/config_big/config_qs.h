@@ -21,8 +21,8 @@
 	#define AN2_ID  0
 //	#define USE_AN3
 	#define AN3_ID  1
-	#define USE_AN9
-	#define AN9_ID  2
+	//#define USE_AN9
+	//#define AN9_ID  2
 
 /**************** Périphériques ****************/
 
