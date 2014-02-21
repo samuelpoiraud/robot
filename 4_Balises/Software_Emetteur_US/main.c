@@ -65,11 +65,10 @@ int main (void)
 		
 		bt_prec = bt;
 		
-#warning A remettre, commenté pour debuggage
-//		if(SWITCH_MULTI_EMETTEURS)
+		if((LED_UART = SWITCH_MULTI_EMETTEURS))
 			global.mode_double_emetteurs = TRUE;
-//		else
-//			global.mode_double_emetteurs = FALSE;
+		else
+			global.mode_double_emetteurs = FALSE;
 			
 		MOTOR_process_main();
 		SYNCRF_process_main();

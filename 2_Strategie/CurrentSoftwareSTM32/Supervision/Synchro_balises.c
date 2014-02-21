@@ -52,10 +52,9 @@ void TIMER_SRC_TIMER_interrupt() {
 	time_base++;
 	if(time_base >= COMPTEUR_MAX) {
 		time_base=0;
-		LED_SELFTEST = !LED_SELFTEST;
 	}
 
-	SYNCHRO_BEACON = ((time_base % PERIODE_SIGNAL_SYNCHRO) < DUREE_SIGNAL_SYNCHRO); //Actif sur les 2ms de début du compteur
+	SYNCHRO_BEACON = ((time_base % PERIODE_SIGNAL_SYNCHRO) < PERIODE_SIGNAL_SYNCHRO/2);  //Actif la moitié du temps inférieure (entre 0 et PERIODE_SIGNAL_SYNCHRO / 2)
 
 	//Un timeslot pour chaque module différent, pour éviter les collisions lorsque tout les modules sont presque synchro
 	if(SEND_REQ && time_base == TIME_WHEN_SYNCHRO) {
@@ -129,7 +128,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			offset = time_base - expected_time;
 
 			RF_synchro_response(header.sender_id, offset);
-			//LED_SELFTEST = !LED_SELFTEST;
+			LED_SELFTEST = !LED_SELFTEST;
 			#warning LED_SELFTEST utilise pour debuggage
 		}
 		//Même si le message n'est pas pour nous, suffi de voir qu'un module est actif pour l'enregistrer
@@ -140,7 +139,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 		if(for_me) {
 			Sint16 fullOffset = (data[0] | data[1] << 8);
 			offset = time_base - TIME_WHEN_SYNCHRO;
-			time_base = time_base + fullOffset - (offset >> 1);
+			time_base = (time_base + fullOffset - (offset >> 1)) % COMPTEUR_MAX;
 		}
 
 		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => Pierre est là

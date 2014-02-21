@@ -69,14 +69,25 @@ void PWM_init(void)
 	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset;
 	TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
 
+#ifdef USE_PWM1
 	TIM_OC1Init(TIM8, &TIM_OCInitStructure);
 	TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);
+#endif
+
+#ifdef USE_PWM2
 	TIM_OC2Init(TIM8, &TIM_OCInitStructure);
-	TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);
+	TIM_OC2PreloadConfig(TIM8, TIM_OCPreload_Enable);
+#endif
+
+#ifdef USE_PWM3
 	TIM_OC3Init(TIM8, &TIM_OCInitStructure);
-	TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);
+	TIM_OC3PreloadConfig(TIM8, TIM_OCPreload_Enable);
+
+#endif
+#ifdef USE_PWM4
 	TIM_OC4Init(TIM8, &TIM_OCInitStructure);
-	TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);
+	TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
+#endif
 
 	TIM_Cmd(TIM8, ENABLE);
 	TIM_CtrlPWMOutputs(TIM8, ENABLE);
