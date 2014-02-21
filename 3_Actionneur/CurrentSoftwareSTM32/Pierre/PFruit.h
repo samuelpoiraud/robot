@@ -18,8 +18,6 @@
 #include "../queue.h"
 
 typedef enum {
-	FRUIT_CS_OpenAX12,
-	FRUIT_CS_CloseAX12,
 	FRUIT_CS_MidAX12,
 	FRUIT_LABIUM_CS_OpenAX12,
 	FRUIT_LABIUM_CS_CloseAX12,
@@ -56,6 +54,8 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg);
  * Fonction à mettre sur la file pour demander une action.
  */
 void FRUIT_run_command(queue_id_t queueId, bool_e init);
+
+static void FRUIT_command_pompe_run(queue_id_t queueId);
 
 #endif  /* I_AM_ROBOT_BIG */
 #endif	/* PFRUIT_H */
