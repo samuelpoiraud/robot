@@ -34,7 +34,7 @@
 
 		#if !defined(DISABLE_WHO_AM_I)
 			//On lit l'entrée...
-			if(0)
+			if(PORT_ROBOT_ID)
 				robot_id = BIG_ROBOT;
 			else
 				robot_id = SMALL_ROBOT;
