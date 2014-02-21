@@ -19,6 +19,7 @@
 #include "QS/QS_outputlog.h"
 #include "queue.h"
 #include "clock.h"
+#include "QS/QS_who_am_i.h"
 
 #include "BIG/BActManager.h"
 #include "SMALL/SActManager.h"
@@ -75,13 +76,9 @@ int main (void)
 		CAN_msg_t msg;
 	#endif
 
-#if defined(I_AM_ROBOT_KRUSTY)
-	debug_printf("--- Hello, I'm ACT (Krusty) ---\n");
-#elif defined(I_AM_ROBOT_TINY)
-	debug_printf("--- Hello, I'm ACT (Tiny) ---\n");
-#else
-	debug_printf("--- Hello, I'm ACT ---\n");
-#endif
+	//Sur quel robot est-on ?
+	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+	debug_printf("--- Hello, I'm ACT (%s) ---\n", QS_WHO_AM_I_get_name());
 
 	//Init actioneurs
 	ACTMGR_init();

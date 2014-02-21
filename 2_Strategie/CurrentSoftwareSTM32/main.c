@@ -98,6 +98,7 @@ int main (void)
 	TIMER2_run_us(10);
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+	debug_printf("--- Hello, I'm STRAT (%s) ---\n", QS_WHO_AM_I_get_name());
 	ZONE_init();
 
 	STACKS_init();
