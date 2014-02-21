@@ -11,6 +11,8 @@ static CAN_msg_t canmsg_pending;
 static bool_e canmsg_received = FALSE;
 static Sint16 offset;
 static bool_e request_synchro = FALSE;
+static bool_e synchro_received = FALSE;
+
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
 static void rf_can_received_callback(CAN_msg_t *msg);
 
@@ -54,9 +56,17 @@ void SYNCRF_process_main() {
 void SYNCRF_sendRequest() {
 	//synchro dans le main pour éviter les trucs bizarre avec le buffering de l'uart dans QS_rf
 	//condition: boucle main rapide (à priori rien de lent, et on synchronise à une précision de 2ms)
-		LED_RUN = !LED_RUN;
-		RF_synchro_request(RF_BROADCAST);
+	//LED_RUN = !LED_RUN;
+	RF_synchro_request(RF_BROADCAST);
 	request_synchro = TRUE;
+	if(synchro_received) {
+		LED_RUN = !LED_RUN;
+		LED_USER = FALSE;
+	} else {
+		LED_USER = !LED_USER;
+		LED_RUN = FALSE;
+	}
+	synchro_received = FALSE;
 }
 
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
@@ -67,13 +77,14 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 		//unités: tick / (us/localtick / us/tick) = tick * us/tick / us/localtick = us/(us/localtick) = localtick
 		Sint16 fullOffset = (data[0] | data[1] << 8) / (DUREE_STEP / TIME_BASE_UNIT);
 
-		offset = fullOffset - (elapsed_time_since_request >> 1); // fullOffset - elapsed_time_since_request/2
-		step_ir = step_ir + offset + 2;
+		offset = fullOffset - (elapsed_time_since_request >> 1) + 2; // fullOffset - elapsed_time_since_request/2 + erreur systématique
+		step_ir += offset;
 
-		LED_USER = !LED_USER;
+		//LED_USER = !LED_USER;
 
 		//Synchro reçue, donc on peut passer en mode double adversaire
 		global.is_synchronized = TRUE;
+		synchro_received = TRUE;
 	}
 }
 
