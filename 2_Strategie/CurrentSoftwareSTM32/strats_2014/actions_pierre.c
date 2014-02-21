@@ -359,7 +359,7 @@ void strat_test_point(){
 		state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,DONE,ERROR);
 		break;
 	case RAMASSER_FRUIT_ARBRE2:
-		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2(),RAMASSER_FRUIT_ARBRE2,DEPOSER_FRUIT_JAUNE,ERROR);
+		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(TRUE),RAMASSER_FRUIT_ARBRE2,DEPOSER_FRUIT_JAUNE,ERROR);
 		break;
 	/*case DEPOSER_FRUIT_ROUGE:
 		state = check_sub_action_result(strat_test_deposser_fruit_rouge(),DEPOSER_FRUIT_ROUGE,DONE,ERROR);
@@ -697,8 +697,10 @@ error_e strat_file_fruit(){
 	case POS_END:
 		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 
-		if(entrance)
+		if(entrance){
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 			ASSER_WARNER_arm_y(posOpen);
+		}
 
 		if(global.env.asser.reach_y){ // Ouvrir le bac à fruit pour les faire tomber et sortir le bras
 			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_OPEN);
@@ -706,60 +708,13 @@ error_e strat_file_fruit(){
 
 		break;
 	case DONE: // Fermer le bac à fruit et rentrer le bras
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
 		return END_OK;
 		break;
 	case ERROR: // Fermer le bac à fruit et rentrer le bras
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e strat_test_ramasser_fruit_arbre1(){ //Commence côté mammouth
-	CREATE_MAE_WITH_VERBOSE(0,
-		IDLE,
-		POS_DEPART,
-		COURBE,
-		POS_FIN,
-		DONE,
-		ERROR
-	);
-
-	displacement_t courbe[4] = {
-		{{1450,ELOIGNEMENT_ARBRE},FAST},
-		{{1550,380},SLOW},
-		{{1600,440},SLOW},
-		{{1630,530},SLOW}
-	};
-
-
-	switch(state){
-	case IDLE:
-		state = POS_DEPART;
-		break;
-	case POS_DEPART:
-		state = try_going(1200,ELOIGNEMENT_ARBRE,POS_DEPART,COURBE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case COURBE:
-		state = try_going_multipoint(courbe,4,COURBE,POS_FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
-
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
-		break;
-	case POS_FIN:
-		state = try_going(1630,900,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case DONE:
-		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-		return END_OK;
-		break;
-	case ERROR:
-		//ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 		return NOT_HANDLED;
 		break;
 	default:
@@ -820,67 +775,16 @@ error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens){ //Commence côté ma
 			state = try_going_multipoint(&courbe[1],4,COURBE,POS_FIN,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 
 		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 		break;
 	case POS_FIN:
 			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 		break;
 	case DONE:
-		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+		ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 		return END_OK;
 		break;
 	case ERROR:
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e strat_test_ramasser_fruit_arbre2(){
-
-
-	CREATE_MAE_WITH_VERBOSE(0,
-		IDLE,
-		POS_DEPART,
-		COURBE,
-		POS_FIN,
-		DONE,
-		ERROR
-	);
-
-	displacement_t courbe[3] = {
-		{{2000-ELOIGNEMENT_ARBRE,2450},FAST},
-		//{{1600,2500},SLOW},
-		{{1550,2600},SLOW},
-		{{1300,3000-ELOIGNEMENT_ARBRE},SLOW},
-	};
-
-
-	switch(state){
-	case IDLE:
-		state = POS_DEPART;
-		break;
-	case POS_DEPART:
-		state = try_going(2000-ELOIGNEMENT_ARBRE,2100,POS_DEPART,COURBE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		break;
-	case COURBE:
-		state = try_going_multipoint(courbe,3,COURBE,POS_FIN,ERROR,FORWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
-
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
-		break;
-	case POS_FIN:
-		state = try_going(1050,3000-ELOIGNEMENT_ARBRE,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-		break;
-	case DONE:
-		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-		return END_OK;
-		break;
-	case ERROR:
-		//ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 		return NOT_HANDLED;
 		break;
 	default:
@@ -937,13 +841,13 @@ error_e strat_test_ramasser_fruit_arbre2_double(bool_e sens){
 		state = try_going_multipoint(&courbe[1],4,COURBE,POS_FIN,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 
 		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Mid);
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 		break;
 	case POS_FIN:
 		state = try_going(1050,3000-ELOIGNEMENT_ARBRE,POS_FIN,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 		break;
 	case DONE:
-		ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+		ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 		return END_OK;
 		break;
 	case ERROR:
