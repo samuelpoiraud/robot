@@ -60,7 +60,6 @@ static void FRUIT_initAX12() {
 		AX12_config_set_error_before_led(FRUIT_MOUTH_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(FRUIT_MOUTH_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
 
-		AX12_set_position(FRUIT_MOUTH_AX12_ID, FRUIT_AX12_INIT_POS);
 		info_printf("FRUIT_MOUTH AX12 initialisé\n");
 	}
 
@@ -76,12 +75,19 @@ static void FRUIT_initAX12() {
 		AX12_config_set_error_before_led(FRUIT_LABIUM_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(FRUIT_LABIUM_AX12_ID, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
 
-		AX12_set_position(FRUIT_LABIUM_AX12_ID, FRUIT_AX12_LABIUM_INIT_POS);
 		debug_printf("FRUIT_LABIUM AX12 initialisé\n");
 	}
 }
 
 void FRUIT_stop() {
+}
+
+void FRUIT_init_pos(){
+	FRUIT_initAX12();
+	if(!AX12_set_position(FRUIT_MOUTH_AX12_ID, FRUIT_AX12_INIT_POS))
+		debug_printf("L'AX12 n°%d n'est pas la", FRUIT_MOUTH_AX12_ID);
+	if(!AX12_set_position(FRUIT_LABIUM_AX12_ID, FRUIT_AX12_LABIUM_INIT_POS))
+		debug_printf("L'AX12 n°%d n'est pas la", FRUIT_LABIUM_AX12_ID);
 }
 
 bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {

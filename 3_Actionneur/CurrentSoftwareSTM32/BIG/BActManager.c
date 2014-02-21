@@ -8,7 +8,6 @@
  *  Version 20130227
  *  Robot : BIG
  */
-
 #include "BActManager.h"
 #ifdef I_AM_ROBOT_BIG
 
@@ -25,13 +24,13 @@
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
-#define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_stop, &prefix##_CAN_process_msg}
+#define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_CAN_process_msg}
 
 static ACTQ_functions_t actionneurs[] = {
-	{&FRUIT_init, &FRUIT_stop, &FRUIT_CAN_process_msg},
-	{&LANCE_LAUNCHER_init, &LANCE_LAUNCHER_stop, &LANCE_LAUNCHER_CAN_process_msg},
-	{&FILET_init, NULL, &FILET_CAN_process_msg},
-	ACT_DECLARE(ARM)
+	ACT_DECLARE(FRUIT),
+	{&LANCE_LAUNCHER_init, NULL, &LANCE_LAUNCHER_stop, &LANCE_LAUNCHER_CAN_process_msg},
+	{&FILET_init, NULL, NULL, &FILET_CAN_process_msg},
+	{&ARM_init, NULL, &ARM_stop, &ARM_CAN_process_msg}
 };
 
 static const Uint8 NB_ACTIONNEURS = sizeof(actionneurs) / sizeof(ACTQ_functions_t);
@@ -86,38 +85,15 @@ void ACTMGR_stop() {
 
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
+	Uint8 i;
 	if(init) {
 		//Init des actionneurs
 	} else {
-		if(AX12_is_ready(FRUIT_MOUTH_AX12_ID)) {
-			queue_id_t subQueue;
-
-			subQueue = QUEUE_create();
-			QUEUE_add(subQueue, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(subQueue, &FRUIT_run_command, (QUEUE_arg_t){ACT_FRUIT_MOUTH_CLOSE, 0,  &ACTQ_finish_SendNothing}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(subQueue, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-
-			QUEUE_behead(queueId);
-		} else if(global.match_started == TRUE) {
-			//Le match a démarré, on arrete d'essayer de bouger les actionneurs
-			QUEUE_behead(queueId);
-		}
-	}
-}
-
-static void ACTMGR_run_selftest_act(queue_id_t queueId, bool_e init) {
-	if(init) {
-		//Init des actionneurs
-	} else {
-		if(AX12_is_ready(FRUIT_MOUTH_AX12_ID)) {
-
-
-			//ATTENTION AU NOMBRE DE ADD vs QUEUE_SIZE dans queue.h !!!! (actuellement: 29 / 32
-
-			QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(queueId, &FRUIT_run_command, (QUEUE_arg_t){ACT_FRUIT_MOUTH_CLOSE, 0,  &ACTQ_finish_SendNothing}, QUEUE_ACT_AX12_Fruit);
-			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-
+		if(AX12_is_ready(FRUIT_MOUTH_AX12_ID)) { // Si il y a le +12/24V
+			for(i = 0; i < NB_ACTIONNEURS; i++) {
+				if(actionneurs[i].onInitPos != NULL)
+					actionneurs[i].onInitPos();
+			}
 			QUEUE_behead(queueId);
 		} else if(global.match_started == TRUE) {
 			//Le match a démarré, on arrete d'essayer de bouger les actionneurs

@@ -14,11 +14,13 @@
 	#include "queue.h"
 
 	typedef void (*ACT_OnInit)();
+	typedef void (*ACT_OnInitPos)();
 	typedef void (*ACT_OnStop)();
 	typedef bool_e (*ACT_OnCanMsg)(CAN_msg_t* msg);
 
 	typedef struct {
 		ACT_OnInit onInit;
+		ACT_OnInitPos onInitPos;
 		ACT_OnStop onStop;
 		ACT_OnCanMsg onCanMsg;
 	} ACTQ_functions_t;
