@@ -23,6 +23,7 @@
 	#include "queue.h"
 	#include "QS/QS_buttons.h"
 	#include "Supervision/Supervision.h"
+	#include "act_functions.h"
 	#ifdef STM32F40XX
 		#include "QS/QS_sys.h"
 		#include "stm32f4xx.h"
@@ -130,6 +131,8 @@ int main (void)
 
 		/* Code concernant la supervision */
 		Supervision_process_main();
+
+		FILET_process_main();
 
 		/* Execution des routines de supervision des piles
 		actionneurs */

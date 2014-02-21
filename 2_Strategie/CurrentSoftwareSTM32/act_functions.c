@@ -30,6 +30,7 @@
 #define TIME_FILET_IT					5
 #define TIME_BEFORE_REARM				500
 volatile Uint8 time_filet = 0;
+bool_e est_arme = TRUE;
 
 /* Pile contenant les arguments d'une demande d'opération
  * Contient les messages CAN à envoyer à la carte actionneur pour exécuter l'action.
@@ -85,6 +86,9 @@ bool_e ACT_filet_launch(ACT_filet_cmd_e cmd){
 	ACT_arg_init(&args, ACT_FILET, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_FILET, ACT_FILET_STOP);
 
+	if(cmd == ACT_Filet_Launched)
+		est_arme = FALSE;
+
 	debug_printf("Pushing launcher Run %d cmd\n", cmd);
 	return ACT_push_operation(ACT_QUEUE_Filet, &args);
 }
@@ -101,18 +105,22 @@ void FILET_process_main(void){
 	typedef enum{
 		RISING_EDGE,
 		WAIT_UP,
-		REARM
+		REARM,
+		FREE
 	}state_e;
 
 	static state_e state = RISING_EDGE;
 	static bool_e last_port_state;
-	static Uint8 time;
+	static Uint16 time;
 	switch(state){
 		case RISING_EDGE :
 			if(PRESENCE_FILET && !last_port_state){
+				debug_printf("Détection de front montant !\n");
 				time = 0;
 				state = WAIT_UP;
-			}
+			}/*else if(!PRESENCE_FILET && (est_arme /*|| ACT_get_last_action_result(ACT_QUEUE_Filet) == END_WITH_TIMEOUT
+										 || ACT_get_last_action_result(ACT_QUEUE_Filet) == NOT_HANDLED))
+				state = FREE;*/
 			break;
 
 		case WAIT_UP :
@@ -124,9 +132,18 @@ void FILET_process_main(void){
 			}else
 				state = RISING_EDGE;
 			break;
-
 		case REARM :
+			debug_printf("Réarmement du bras du filet\n");
 			ACT_filet_launch(ACT_FILET_IDLE);
+			est_arme = TRUE;
+			state = RISING_EDGE;
+			break;
+
+		case FREE :
+			debug_printf("Libération du bras du filet\n");
+			ACT_filet_launch(ACT_FILET_LAUNCHED);
+			est_arme = FALSE;
+			state = RISING_EDGE;
 			break;
 	}
 	last_port_state = PRESENCE_FILET;
