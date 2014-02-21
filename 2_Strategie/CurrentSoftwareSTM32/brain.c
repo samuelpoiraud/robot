@@ -175,7 +175,7 @@ void any_match(time32_t match_duration)
 				CLOCK_stop();
 
 				if(QS_WHO_AM_I_get()==PIERRE)
-					debug_printf("TODO here : appeler la fonction qui lance le filet\n");	//Fin du match -> On lance le filet
+					ACT_filet_launch(ACT_FILET_LAUNCHED);
 			}
 			else
 			{
