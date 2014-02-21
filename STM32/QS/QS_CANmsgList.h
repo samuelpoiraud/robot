@@ -301,7 +301,9 @@
 		#define ACT_RESULT_ERROR_LOGIC        4	//Erreur de logique interne à la carte actionneur, probablement une erreur de codage (par exemple un état qui n'aurait jamais dû arrivé)
 		#define ACT_RESULT_ERROR_NO_RESOURCES 5 //La carte n'a pas assez de resource pour gérer la commande. Commande à renvoyer plus tard.
 		#define ACT_RESULT_ERROR_INVALID_ARG  6 //La commande ne peut pas être effectuée, l'argument n'est pas valide ou est en dehors des valeurs acceptés
-			//Ajoutez-en si nécessaire
+		#define ACT_RESULT_ERROR_CANCELED     7 //L'action a été annulé
+
+		//Ajoutez-en si nécessaire
 		#define ACT_RESULT_ERROR_UNKNOWN      255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
 	/////////////////////////////////////////
 
@@ -419,11 +421,11 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 
 	////////////////// FRUIT_MOUTH ///////////
 	ACT_FRUIT_MOUTH = (ACT_FILTER | 0x18),   //0x16: collision avec ACT_PING
-		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
+		//Paramètres de la pompe
 		#define ACT_FRUIT_MOUTH_CLOSE           0x10
 		#define ACT_FRUIT_MOUTH_OPEN            0x11
-		#define ACT_FRUIT_MOUTH_MID             0x12
-		#define ACT_FRUIT_MOUTH_STOP            0x1F
+		#define ACT_FRUIT_MOUTH_CANCELED        0x12
+		#define ACT_FRUIT_MOUTH_STOP	        0x1F
 
 		//Fruit Labium (trappe)
 		#define ACT_FRUIT_LABIUM_CLOSE          0x13
