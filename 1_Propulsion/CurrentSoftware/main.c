@@ -91,10 +91,12 @@ void initialisation(void)
 
 	RCON_read();
 
+	//Doit se faire AVANT ODOMETRY_init() !!!
+
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-	//Doit se faire AVANT ODOMETRY_init() !!!
-	debug_printf("I am %s\n",(QS_WHO_AM_I_get()==TINY)?"TINY":"KRUSTY");
+	debug_printf("--- Hello, I'm PROP (%s) ---\n", QS_WHO_AM_I_get_name());
+
 	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
 	ODOMETRY_init();
 	SUPERVISOR_init();
