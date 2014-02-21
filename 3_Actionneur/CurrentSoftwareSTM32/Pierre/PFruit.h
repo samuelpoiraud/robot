@@ -31,6 +31,12 @@ typedef enum {
  */
 void FRUIT_init();
 
+/** Initialisation en position du gestionnaire de FRUIT.
+ *
+ * Initialise la position de l'AX12
+ */
+void FRUIT_init_pos();
+
 /** Stoppe l'actionneur.
  *
  * Cette fonction est appelée en fin de match
