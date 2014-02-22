@@ -49,7 +49,9 @@ void CLOCK_init()
 #include "QS/QS_uart.h"
 void TIMER_SRC_TIMER_interrupt()
 {
+#ifdef I_AM_ROBOT_BIG
 	FILET_process_100ms(); // Gestion du réarmement du filet
+#endif
 	LED_RUN = !LED_RUN;
 	time++;
 #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)

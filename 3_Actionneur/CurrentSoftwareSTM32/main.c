@@ -85,6 +85,17 @@ int main (void)
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	debug_printf("--- Hello, I'm ACT (%s) ---\n", QS_WHO_AM_I_get_name());
 
+	#if defined(I_AM_ROBOT_BIG)
+		#define ROBOT_CODE_NAME	"Pierre"
+		if(QS_WHO_AM_I_get() != BIG_ROBOT)
+	#elif defined(I_AM_ROBOT_SMALL)
+		#define ROBOT_CODE_NAME	"Guy"
+		if(QS_WHO_AM_I_get() != SMALL_ROBOT)
+	#endif	// Pour changer le code du robot aller dans : "config/config_global.h"
+			debug_printf("ATTENTION ! Vous avez programmé la carte actionneur de %s avec le code de %s\n", QS_WHO_AM_I_get_name(), ROBOT_CODE_NAME);
+
+	#undef ROBOT_CODE_NAME
+
 	//Init actioneurs
 	ACTMGR_init();
 
@@ -120,8 +131,10 @@ int main (void)
 		QUEUE_run();
 		BUTTONS_update();
 
+		#ifdef I_AM_ROBOT_BIG
 		if(global.match_started == FALSE) // Si le match n'a pas commencé on gère le réarmement du filet
 				FILET_process_main();
+		#endif
 
 		/*-------------------------------------
 			Réception CAN et exécution
