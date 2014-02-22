@@ -106,7 +106,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 	//	case BROADCAST_STOP_ALL:				print(string, len, "|\n");												break;
 		case IR_ERROR_RESULT:					print_ir_result(msg, &string, &len);												break;
 		case US_ERROR_RESULT:					print_us_result(msg, &string, &len);												break;
-		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"BLEU":"ROUGE"	);		break;
+		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"JAUNE":"ROUGE"	);		break;
 		case BROADCAST_POSITION_ROBOT :			print(string, len, "| JeSuisEn  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
 	//	case DEBUG_CARTE_P:						print(string, len, "|\n");												break;
 //		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
@@ -277,7 +277,7 @@ void print_broadcast_start_infos(CAN_msg_t * msg, char ** string, int * len)
 	{
 		print(*string, *len, "\n"); //Ce n'est pas un message broadcast où l'on a ajouté des infos... OU BIEN, le match est commencé, on ne veux pas polluer le mode débug...
 	}
-	print(*string, *len, "Couleur :%s\n",   (u8(0))?"BLEU":"ROUGE");
+	print(*string, *len, "Couleur :%s\n",   (u8(0))?"JAUNE":"ROUGE");
 	print(*string, *len, "Stratégie :%d\n",  msg->data[1]);
 	print(*string, *len, "Evitement :%s\n", (msg->data[2])?"ACTIF":"INACTIF");
 	print(*string, *len, "Balise :%s\n",    (msg->data[3])?"ACTIF":"INACTIF");
