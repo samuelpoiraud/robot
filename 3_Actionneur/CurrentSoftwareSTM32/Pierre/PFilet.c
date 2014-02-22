@@ -19,6 +19,7 @@
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../config/config_pin.h"
+#include "../Can_msg_processing.h"
 
 
 #include "config_debug.h"
@@ -31,6 +32,7 @@
 #define QUANTUM_IT						100
 #define TIME_FILET_IT					(1*QUANTUM_IT)
 #define TIME_BEFORE_REARM				500
+#define TIME_BEFORE_DETECT				TIME_BEFORE_REARM
 #define TIME_BEFORE_FREE_STRING			50
 #define TIME_AFTER_FREE_STRING			20
 #define EPSILON_POS_FILET				4
@@ -42,6 +44,8 @@ static void FILET_liberer_gache();
 static void FILET_initAX12();
 static void FILET_command_init(queue_id_t queueId);
 static void FILET_command_run(queue_id_t queueId);
+static void FILET_detection();
+static void FILET_rearm();
 
 
 void FILET_init() {
@@ -202,7 +206,7 @@ static void FILET_liberer_gache(){
 	GACHE_FILET = 0;
 }
 
-//************************************** Gestion du réarmement /**************************************/
+//************************************** Gestion du réarmement et information /**************************************/
 
 void FILET_process_100ms(void){
 	if(time_filet)
@@ -210,16 +214,110 @@ void FILET_process_100ms(void){
 }
 
 void FILET_process_main(void){
-	if(time_filet || !rearm_auto_active)
+	if(time_filet)
 		return;
+
+	FILET_detection(); // informe la stratégie de la présence ou non du filet
+
+	if(rearm_auto_active)
+		FILET_rearm();	// Si réarmement automatique activé lancer la fonction de gestion du réarmement
+
+	time_filet = TIME_FILET_IT;
+}
+
+void FILET_BOUTON_process(void){
+	rearm_auto_active = FALSE;
 
 	queue_id_t queueId1;
 	FILET_initAX12();
 
-	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID) || !global.alim){
-		time_filet = TIME_FILET_IT;
+	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID) || !global.alim)
 		return;
+
+	typedef enum{
+		ARMED,
+		FREE
+	}state_e;
+
+	static state_e state = ARMED;
+
+	if(state == ARMED){
+		debug_printf("Libération du bras du filet\n");
+		queueId1 = QUEUE_create();
+		if(queueId1 != QUEUE_CREATE_FAILED) {
+			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_LAUNCHED, FILET_CS_LaunchedAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+		}else
+			QUEUE_flush(queueId1);
+		state = FREE;
+	}else{
+		debug_printf("Armement du bras du filet\n");
+		queueId1 = QUEUE_create();
+		if(queueId1 != QUEUE_CREATE_FAILED) {
+			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_IDLE, FILET_CS_IdleAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+		}else
+			QUEUE_flush(queueId1);
+		state = ARMED;
 	}
+}
+
+static void FILET_detection(){
+#ifdef USE_CAN
+	typedef enum{
+		EDGE_DETECTOR,
+		WAIT_UP,
+		WAIT_DOWN
+	}state_e;
+
+	CAN_msg_t msg;
+	static state_e state = EDGE_DETECTOR;
+	static Uint16 time;
+	static bool_e last_port_state = FALSE;
+
+	switch(state){
+		case EDGE_DETECTOR:
+			time = 0;
+			if(!last_port_state && PRESENCE_FILET)
+				state = WAIT_UP;
+			else if(last_port_state && !PRESENCE_FILET)
+				state = WAIT_DOWN;
+			break;
+
+		case WAIT_UP:
+			if(time >= TIME_BEFORE_DETECT){
+				msg.size = 1;
+				msg.sid = STRAT_INFORM_FILET;
+				msg.data[0] = STRAT_INFORM_FILET_PRESENT;
+				CAN_process_msg(&msg);
+				state = EDGE_DETECTOR;
+			}else
+				time += TIME_FILET_IT;
+			break;
+
+		case WAIT_DOWN:
+			if(time >= TIME_BEFORE_DETECT){
+				msg.size = 1;
+				msg.sid = STRAT_INFORM_FILET;
+				msg.data[0] = STRAT_INFORM_FILET_ABSENT;
+				CAN_process_msg(&msg);
+				state = EDGE_DETECTOR;
+			}else
+				time += TIME_FILET_IT;
+			break;
+	}
+	last_port_state = PRESENCE_FILET;
+#endif
+}
+
+static void FILET_rearm(){
+	queue_id_t queueId1;
+	FILET_initAX12();
+
+	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID) || !global.alim)
+		return;
 
 	typedef enum{
 		RISING_EDGE,
@@ -232,6 +330,7 @@ void FILET_process_main(void){
 	static bool_e last_port_state = TRUE;
 	static Uint16 time;
 	Uint16 position_ax12 = AX12_get_position(FILET_AX12_ID);
+
 	switch(state){
 		case RISING_EDGE :
 			//debug_printf("%d %s\n", position_ax12, PRESENCE_FILET?"présent":"non présent");
@@ -283,46 +382,6 @@ void FILET_process_main(void){
 			break;
 	}
 	last_port_state = PRESENCE_FILET;
-	time_filet = TIME_FILET_IT;
-}
-
-void FILET_BOUTON_process(void){
-	rearm_auto_active = FALSE;
-
-	queue_id_t queueId1;
-	FILET_initAX12();
-
-	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID) || !global.alim)
-		return;
-
-	typedef enum{
-		ARMED,
-		FREE
-	}state_e;
-
-	static state_e state = ARMED;
-
-	if(state == ARMED){
-		debug_printf("Libération du bras du filet\n");
-		queueId1 = QUEUE_create();
-		if(queueId1 != QUEUE_CREATE_FAILED) {
-			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_LAUNCHED, FILET_CS_LaunchedAX12,  NULL}, QUEUE_ACT_AX12_Filet);
-			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-		}else
-			QUEUE_flush(queueId1);
-		state = FREE;
-	}else{
-		debug_printf("Armement du bras du filet\n");
-		queueId1 = QUEUE_create();
-		if(queueId1 != QUEUE_CREATE_FAILED) {
-			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_IDLE, FILET_CS_IdleAX12,  NULL}, QUEUE_ACT_AX12_Filet);
-			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-		}else
-			QUEUE_flush(queueId1);
-		state = ARMED;
-	}
 }
 
 #endif  /* I_AM_ROBOT_BIG */

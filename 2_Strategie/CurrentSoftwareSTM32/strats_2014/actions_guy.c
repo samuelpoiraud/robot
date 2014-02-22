@@ -112,9 +112,9 @@ void strat_test_warner_triangle(){
 
 		case DISPLAY_ANSWER :
 			if(triangle_present())
-				debug_printf("triangle n°%d présent\n");
+				debug_printf("triangle n°3 présent\n");
 			else
-				debug_printf("triangle n°%d non présent\n");
+				debug_printf("triangle n°3 non présent\n");
 			state = DONE;
 			break;
 

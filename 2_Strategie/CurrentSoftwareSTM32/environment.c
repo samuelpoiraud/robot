@@ -21,6 +21,7 @@
 #include "Supervision/Selftest.h"
 #include "Supervision/Supervision.h"
 #include "Supervision/Verbose_can_msg.h"
+#include "Supervision/Buzzer.h"
 #include "QS/QS_can_over_uart.h"
 #include "QS/QS_can_over_xbee.h"
 #include "Supervision/SD/term_io.h"
@@ -391,6 +392,16 @@ void CAN_update (CAN_msg_t* incoming_msg)
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
 			ACT_process_result(incoming_msg);
+			break;
+
+		case STRAT_INFORM_FILET:
+			if(incoming_msg->data[0] == STRAT_INFORM_FILET_PRESENT){
+				BUZZER_play(500, NOTE_DO0, 1);
+				debug_printf("Filet chargé\n");
+			}else if(incoming_msg->data[0] == STRAT_INFORM_FILET_ABSENT){
+				BUZZER_play(500, NOTE_DO0, 2);
+				debug_printf("Filet libéré\n");
+			}
 			break;
 /******************************** Récupération des données du scan des triangles **************************/
 		case STRAT_TRIANGLE_POSITON :
