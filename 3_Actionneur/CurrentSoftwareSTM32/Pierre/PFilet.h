@@ -17,12 +17,6 @@
 
 #include "../queue.h"
 
-typedef enum {
-	FILET_CS_IdleAX12,
-	FILET_CS_LaunchedAX12,
-	FILET_CS_StopAX12
-} FILET_command_state_e;
-
 /** Initialisation du gestionnaire de FILET.
  *
  * Configure l'asservissement de l'AX12

@@ -16,6 +16,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_watchdog.h"
+#include "../QS/QS_can.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../config/config_pin.h"
@@ -82,46 +83,16 @@ static void FILET_initAX12() {
 }
 
 bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
-	queue_id_t queueId1;
 	FILET_initAX12();
 	if(msg->sid == ACT_FILET) {
 		switch(msg->data[0]) {
+
+			//Même chose pour les 2 actions
 			case ACT_FILET_IDLE :
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-					QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){msg->data[0], FILET_CS_IdleAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Filet);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-				}else{					//on indique qu'on n'a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
-				break;
-
 			case ACT_FILET_LAUNCHED :
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-					QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){msg->data[0], FILET_CS_LaunchedAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Filet);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-				}else{					//on indique qu'on n'a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
-				break;
-
 			case ACT_FILET_STOP :
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-					QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){msg->data[0], FILET_CS_StopAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Filet);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-				}else{					//on indique qu'on n'a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Filet, &FILET_run_command, 0);
 				break;
-
 
 			default:
 				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
@@ -158,19 +129,20 @@ static void FILET_command_init(queue_id_t queueId) {
 	switch(command) {
 		case ACT_FILET_IDLE :  *ax12_goalPosition = FILET_AX12_IDLE_POS; break;
 		case ACT_FILET_LAUNCHED : *ax12_goalPosition = FILET_AX12_LAUNCHED_POS; break;
+
 		case ACT_FILET_STOP :
 			AX12_set_torque_enabled(FILET_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12 qui gère le filet
 			QUEUE_next(queueId, ACT_FILET, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			return;
 
 		default: {
-				error_printf("Invalid plier command: %u, code is broken !\n", command);
+				error_printf("Invalid command: %u, code is broken !\n", command);
 				QUEUE_next(queueId, ACT_FILET, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 				return;
 			}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		error_printf("Invalid plier position: %u, code is broken !\n", command);
+		error_printf("Invalid position for command: %u, code is broken !\n", command);
 		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
@@ -193,7 +165,7 @@ static void FILET_command_run(queue_id_t queueId) {
 	Uint16 line;
 
 	//En cas de timeout on passe à l'instruction suivante
-	if(ACTQ_check_status_ax12(queueId, FILET_AX12_ID, QUEUE_get_arg(queueId)->param, FILET_AX12_ASSER_POS_EPSILON, FILET_AX12_ASSER_TIMEOUT, 360, &result, &errorCode, &line))
+	if(ACTQ_check_status_ax12(queueId, FILET_AX12_ID, QUEUE_get_arg(queueId)->param, FILET_AX12_ASSER_POS_EPSILON, FILET_AX12_ASSER_TIMEOUT, 0, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_FILET, result, errorCode, line);
 }
 
@@ -209,8 +181,10 @@ static void FILET_liberer_gache(){
 //************************************** Gestion du réarmement et information /**************************************/
 
 void FILET_process_100ms(void){
-	if(time_filet)
-		time_filet-=100;
+	if(time_filet >= 100)
+		time_filet -= 100;
+	else
+		time_filet = 0;
 }
 
 void FILET_process_main(void){
@@ -246,20 +220,18 @@ void FILET_BOUTON_process(void){
 		queueId1 = QUEUE_create();
 		if(queueId1 != QUEUE_CREATE_FAILED) {
 			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_LAUNCHED, FILET_CS_LaunchedAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_LAUNCHED, 0,  NULL}, QUEUE_ACT_AX12_Filet);
 			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-		}else
-			QUEUE_flush(queueId1);
+		}
 		state = FREE;
 	}else{
 		debug_printf("Armement du bras du filet\n");
 		queueId1 = QUEUE_create();
 		if(queueId1 != QUEUE_CREATE_FAILED) {
 			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_IDLE, FILET_CS_IdleAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_IDLE, 0,  NULL}, QUEUE_ACT_AX12_Filet);
 			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-		}else
-			QUEUE_flush(queueId1);
+		}
 		state = ARMED;
 	}
 }
@@ -290,7 +262,7 @@ static void FILET_detection() {
 				msg.size = 1;
 				msg.sid = STRAT_INFORM_FILET;
 				msg.data[0] = STRAT_INFORM_FILET_PRESENT;
-				CAN_process_msg(&msg);
+				CAN_send(&msg);
 				state = EDGE_DETECTOR;
 			}else
 				time += TIME_FILET_IT;
@@ -301,7 +273,7 @@ static void FILET_detection() {
 				msg.size = 1;
 				msg.sid = STRAT_INFORM_FILET;
 				msg.data[0] = STRAT_INFORM_FILET_ABSENT;
-				CAN_process_msg(&msg);
+				CAN_send(&msg);
 				state = EDGE_DETECTOR;
 			}else
 				time += TIME_FILET_IT;
@@ -360,10 +332,9 @@ static void FILET_rearm(){
 			queueId1 = QUEUE_create();
 			if(queueId1 != QUEUE_CREATE_FAILED) {
 				QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-				QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_IDLE, FILET_CS_IdleAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+				QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_IDLE, 0,  NULL}, QUEUE_ACT_AX12_Filet);
 				QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-			}else
-				QUEUE_flush(queueId1);
+			}
 			state = RISING_EDGE;
 			break;
 
@@ -372,10 +343,9 @@ static void FILET_rearm(){
 			queueId1 = QUEUE_create();
 			if(queueId1 != QUEUE_CREATE_FAILED) {
 				QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-				QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_LAUNCHED, FILET_CS_LaunchedAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+				QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_LAUNCHED, 0,  NULL}, QUEUE_ACT_AX12_Filet);
 				QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
-			}else
-				QUEUE_flush(queueId1);
+			}
 			state = RISING_EDGE;
 			break;
 	}
