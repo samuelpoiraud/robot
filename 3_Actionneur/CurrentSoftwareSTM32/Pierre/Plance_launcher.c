@@ -33,7 +33,7 @@
 
 #define ACTION_TIMEOUT 100 // [0.1s] au bout de 10sec, on arrête le lancé et renvoie l'info du problème à la strat: le lancé prend trop de temps (erreur soft probablement)
 #define TIME_BETWEEN_LANCE 30 // Est multiplié par 10 derriére car sur 8 bits ne peut pas depasser 256ms sinon
-#define TIME_HOLD_LAUNCHER 20 //    idem ci-dessus
+#define TIME_HOLD_LAUNCHER_MAX 25 //    idem ci-dessus
 
 static Uint8 lance_launcher_last_launch = 0;
 static bool_e start_next_launcher();
@@ -67,12 +67,9 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_LANCELAUNCHER) {
 		switch(msg->data[0]) {
 			//Même action quelque soit la commande RUN
-			case ACT_LANCELAUNCHER_RUN:
-			case ACT_LANCELAUNCHER_RUN_2:
-			case ACT_LANCELAUNCHER_RUN_3:
-			case ACT_LANCELAUNCHER_RUN_4:
-			case ACT_LANCELAUNCHER_RUN_5:
-			case ACT_LANCELAUNCHER_RUN_6:
+			case ACT_LANCELAUNCHER_RUN_1_BALL:
+			case ACT_LANCELAUNCHER_RUN_5_BALL:
+			case ACT_LANCELAUNCHER_RUN_ALL:
 				debug_printf("														ENVOI\n");
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
 				break;
@@ -92,8 +89,6 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
-
-		debug_printf("					RUN\n");
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_lancelauncher) {
 		if(QUEUE_has_error(queueId)) {
 			QUEUE_behead(queueId);
@@ -106,40 +101,17 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				//CAN_msg_t resultMsg = {ACT_RESULT, {ACT_BALLINFLATER & 0xFF, command, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK}, 4};
 
 				switch(command) {
-					case ACT_LANCELAUNCHER_RUN:
-						lance_launcher_last_launch = 1;
-						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
+					case ACT_LANCELAUNCHER_RUN_1_BALL:
+						lance_launcher_last_launch = 7;
 						break;
-
-					case ACT_LANCELAUNCHER_RUN_2:
-						lance_launcher_last_launch = 2;
-						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
+					case ACT_LANCELAUNCHER_RUN_5_BALL:
+						lance_launcher_last_launch = 5;
 						break;
-
-					case ACT_LANCELAUNCHER_RUN_3:
-						lance_launcher_last_launch = 3;
-						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
-						break;
-
-					case ACT_LANCELAUNCHER_RUN_4:
-						lance_launcher_last_launch = 4;
-						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
-						break;
-
-					case ACT_LANCELAUNCHER_RUN_5:
+					case ACT_LANCELAUNCHER_RUN_ALL:
 						lance_launcher_last_launch = 6;
-						debug_printf("ENVOI COMMANDE\n");
-						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
 						break;
-
-					case ACT_LANCELAUNCHER_RUN_6:
-						lance_launcher_last_launch = 20;
-						//On ne passe pas direct a la commande suivant, on fait une vérification du temps pour arrêter le gonflage après le temps demandé
-						break;
-
 
 					case ACT_LANCELAUNCHER_STOP: //La queue n'est pas utilisée pour cette commande
-						debug_printf("lanceur stop\n");
 						QUEUE_next(queueId, ACT_LANCELAUNCHER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 						return; //on ne fait pas le cas normal
 
@@ -176,7 +148,6 @@ static bool_e start_next_launcher() {
 	switch(lance_launcher_last_launch) {
 		default:
 			warn_printf("lance_launcher_last_launch est invalide: %d\n", lance_launcher_last_launch);
-			//if(lance_launcher_last_launch > 20 || lance_launcher_last_launch < 0)
 				lance_launcher_last_launch = 0;
 			//PAS DE BREAK. Si lance_launcher_last_launch est invalide, alors on fait un stop aussi
 
@@ -186,43 +157,32 @@ static bool_e start_next_launcher() {
 		case 1 :
 			LANCELAUNCHER_PIN_1 = 1;
 			stateLauncher[0] = 25;
-			debug_printf("Lanceur 1 \n");
 			break;
 		case 2 :
 			LANCELAUNCHER_PIN_2 = 1;
 			stateLauncher[1] = 20;
-			debug_printf("Lanceur 2 \n");
 			break;
 		case 3 :
 			LANCELAUNCHER_PIN_3 = 1;
 			stateLauncher[2] = 20;
-			debug_printf("Lanceur 3 \n");
 			break;
 		case 4 :
 			LANCELAUNCHER_PIN_4 = 1;
 			stateLauncher[3] = 25;
-			debug_printf("Lanceur 4 \n");
 			break;
 		case 5 :
 			LANCELAUNCHER_PIN_5 = 1;
 			stateLauncher[4] = 20;
-			debug_printf("Lanceur 5 \n");
 			break;
 		case 6 :
 			LANCELAUNCHER_PIN_6 = 1;
 			stateLauncher[5] = 20;
-			debug_printf("Lanceur 6 \n");
 			break;
-
-		/*case 5 :
-			LANCELAUNCHER_PIN_1 = 0; //quoi qu'il arrive on coupe toujours tout les lanceurs (par sécurité)
-			LANCELAUNCHER_PIN_2 = 0;
-			LANCELAUNCHER_PIN_3 = 0;
-			LANCELAUNCHER_PIN_4 = 0;
-			LANCELAUNCHER_PIN_5 = 0;
+		case 7 :
 			LANCELAUNCHER_PIN_6 = 1;
-			break;*/
-
+			stateLauncher[5] = 20;
+			lance_launcher_last_launch = 0; // Mets a 0 pour pas qu'il rechoissise un état
+			break;
 	}
 
 	//Si stoppé, on décrémente pas, on reste en stoppé (ceci prépare l'action suivante)
@@ -240,16 +200,11 @@ static bool_e hold_state(){
 
 	int i;
 	for(i=0;i < 6;i++){
-
-		//debug_printf("etat %d lanceur %d \n",stateLauncher[i],i+1);
-
-		if(stateLauncher[i] > 0 && stateLauncher[i] <= 25){
+		if(stateLauncher[i] > 0 && stateLauncher[i] <= 25)
 			stateLauncher[i]--;
-		}
 
 		// Pas de sinon car si passe stateLauncher[i] passe a 0 on ira pas dans le sinon apres (Pose probléme pour le dernier aimant)
-		if(stateLauncher[i] <= 0 || stateLauncher[i] > 25){ // On passe les pins a 0 si non active (securite)
-			//debug_printf("				PASSE A 0 lanceur %d \n",i);
+		if(stateLauncher[i] <= 0 || stateLauncher[i] > TIME_HOLD_LAUNCHER_MAX){ // On passe les pins a 0 si non active (securite)
 			switch(i){
 				case 0:
 					LANCELAUNCHER_PIN_1 = 0;
