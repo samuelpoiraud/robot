@@ -248,7 +248,7 @@ static void MAIN_onButton2() {
 
 static void MAIN_onButton3() {
 #ifdef USE_CAN
-	CAN_msg_t msg;
+	/*CAN_msg_t msg;
 
 		msg.size = 1;
 
@@ -258,7 +258,7 @@ static void MAIN_onButton3() {
 		msg.data[0] = ACT_LANCELAUNCHER_RUN;
 
 		CAN_process_msg(&msg);
-		debug_printf("Main: ACT_LANCELAUNCHER_RUN\n");
+		debug_printf("Main: ACT_LANCELAUNCHER_RUN\n");*/
 
 	/*if(SWITCH_RG0) {
 		msg.sid = ACT_PLATE;
