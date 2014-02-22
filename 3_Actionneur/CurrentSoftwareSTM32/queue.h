@@ -102,18 +102,18 @@ void QUEUE_flush(queue_id_t queue_id);
 void QUEUE_flush_all();
 
 /*Prend l'actionneur (sémaphore), le numéro du semaphore doit être mis dans le paramètre param (voir QUEUE_arg_t), 0 si on utilise le semaphore de l'actionneur*/
-void QUEUE_take_sem(queue_id_t this, bool_e init);
+void QUEUE_take_sem(queue_id_t thisa, bool_e init);
 
 /*Libère l'actionneur, le numéro du semaphore doit être mis dans le paramètre param (voir QUEUE_arg_t), 0 si on utilise le semaphore de l'actionneur*/
-void QUEUE_give_sem(queue_id_t this, bool_e init);
+void QUEUE_give_sem(queue_id_t thisa, bool_e init);
 
 /*Prend la sémaphore de synchronisation*/
 sem_id_t QUEUE_sem_create();
 
 /*Rend la sémaphore de synchronisation*/
-void QUEUE_sem_delete(queue_id_t this, bool_e init);
+void QUEUE_sem_delete(queue_id_t thisa, bool_e init);
 
 /*Attend la synchronisation*/
-void QUEUE_wait_synchro(queue_id_t this, bool_e init);
+void QUEUE_wait_synchro(queue_id_t thisa, bool_e init);
 
 #endif /* ndef QUEUE_H */
