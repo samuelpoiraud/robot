@@ -33,6 +33,8 @@ static void ARM_initAX12();
 #warning "à changer pour une valeur indiquant qu'on ne connait pas l'etat actuel du bras"
 static Sint8 old_state = 0;
 
+static bool_e gotoState(ARM_state_e state);
+
 void ARM_init() {
 	static bool_e initialized = FALSE;
 
@@ -155,7 +157,6 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_Arm) {    // Gestion des mouvements de rotation de l'assiette
 		Sint8 new_state = QUEUE_get_arg(queueId)->param;
-		Uint8 i;
 
 		if(init) {
 			if(old_state < 0 || arm_states_transitions[old_state][new_state] == 0) {
@@ -166,20 +167,13 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 			}
 
 			debug_printf("Going from state %d to %d\n", old_state, new_state);
+			gotoState(new_state);
 
-			for(i = 0; i < ARM_ACT_NUMBER; i++) {
-				if(arm_motors[i].type == ARM_DCMOTOR) {
-					DCM_setPosValue(arm_motors[i].id, 0, arm_states[new_state][i]);
-					DCM_goToPos(arm_motors[i].id, 0);
-					DCM_restart(arm_motors[i].id);
-				} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
-					AX12_set_position(arm_motors[i].id, arm_states[new_state][i]);
-				}
-			}
 		} else {
 			bool_e done = TRUE, return_result = TRUE;
 			Uint8 result = ACT_RESULT_DONE, error_code = ACT_RESULT_ERROR_OK;
 			Uint16 line = 0;
+			Uint8 i;
 
 			for(i = 0; i < ARM_ACT_NUMBER; i++) {
 				if(arm_motors[i].type == ARM_DCMOTOR) {
@@ -188,24 +182,48 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 					done = ACTQ_check_status_ax12(queueId, arm_motors[i].id, arm_states[new_state][i], arm_motors[i].epsilon, arm_motors[i].timeout, 360, &result, &error_code, &line);
 				}
 
-				if(!done)
+				//Si au moins un moteur n'a pas terminé son mouvement, alors l'action de déplacer le bras n'est pas terminée
+				if(!done) {
 					return_result = FALSE;
+				}
+
+				//Si au moins un moteur n'a pas pu correctement se déplacer, alors on a fail l'action et on retourne à la position précédente
 				if(done && result != ACT_RESULT_DONE) {
 					return_result = TRUE;
-					//todo: return to old state
+					QUEUE_get_arg(queueId)->param = old_state;
+					gotoState(old_state);
 					break;
 				}
 			}
 
 			if(return_result) {
+				if(result == ACT_RESULT_DONE)
+					old_state = new_state;
 				QUEUE_next(queueId, ACT_ARM, result, error_code, line);
-				old_state = new_state;
 			}
 		}
 	} else {
 		error_printf("Invalid act: %d\n", QUEUE_get_act(queueId));
 		QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 	}
+}
+
+static bool_e gotoState(ARM_state_e state) {
+	bool_e ok = TRUE;
+	Uint8 i;
+
+	for(i = 0; ok && i < ARM_ACT_NUMBER; i++) {
+		if(arm_motors[i].type == ARM_DCMOTOR) {
+			DCM_setPosValue(arm_motors[i].id, 0, arm_states[state][i]);
+			DCM_goToPos(arm_motors[i].id, 0);
+			DCM_restart(arm_motors[i].id);
+		} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
+			if(!AX12_set_position(arm_motors[i].id, arm_states[state][i]))
+				ok = FALSE;
+		}
+	}
+
+	return ok;
 }
 
 #endif
