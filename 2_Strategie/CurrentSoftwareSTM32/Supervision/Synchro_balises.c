@@ -26,16 +26,17 @@
 #define TIME_WHEN_SYNCHRO         TIME_PER_MODULE*RF_get_module_id()  //valeur compteur quand demander la synchro
 
 
-//Les balises sont elles là ? Informatif, non utilisé dans ce code (sauf pour leur maj)
-bool_e balise_here[2] = {FALSE, FALSE};
+//Les autres sont ils là ? Informatif seulement via leds
+bool_e rfmodule_here[RF_MODULE_COUNT] = {0};
 
+static bool_e canmsg_received;
 static CAN_msg_t canmsg_pending;
-static bool_e canmsg_received = FALSE;
-static Sint16 offset;
-static time32_t last_received_reply = 0; //si ça fait longtemps, pierre est off et ne répond plus aux demandes
 
-//temps depuis la dernière requête de synchro, permet de savoir si les balises sont là
-static time32_t last_req_time[RF_MODULE_COUNT];
+static Sint16 offset;
+static time32_t last_received_reply; //si ça fait longtemps, pierre est off et ne répond plus aux demandes
+
+//temps depuis la dernière activité RF, permet de savoir si les autres modules RF sont là
+static time32_t last_activity_time[RF_MODULE_COUNT] = {0};
 
 static bool_e SEND_REQ;
 static bool_e REPLY_REQ;
@@ -44,7 +45,7 @@ static Uint16 time_base = 0;
 
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
 static void rf_can_received_callback(CAN_msg_t *msg);
-static void update_foe_here();
+static void update_rfmodule_here();
 
 void TIMER_SRC_TIMER_interrupt() {
 	TIMER_SRC_TIMER_resetFlag();
@@ -65,6 +66,10 @@ void TIMER_SRC_TIMER_interrupt() {
 
 void SYNCHRO_init() {
 	TIMER_SRC_TIMER_init();
+
+	canmsg_received = FALSE;
+	offset = 0x0FFF;
+	last_received_reply = global.env.absolute_time;
 
 	PIN_RF_CONFIG = 1;
 
@@ -94,14 +99,14 @@ void SYNCHRO_process_main()
 		canmsg_received = FALSE;
 	}
 
-	//Si on voit pas de réponse pendant plus de LAST_REPLY_TIMEOUT ms, on répond au demandes e synchro (si pierre pas là)
+	//Si on voit pas de réponse pendant plus de LAST_REPLY_TIMEOUT ms, on répond au demandes de synchro (si pierre pas là)
 	if(REPLY_REQ == FALSE && RF_get_module_id() == RF_GUY && last_received_reply + LAST_REPLY_TIMEOUT <= global.env.absolute_time) {
 		REPLY_REQ = TRUE;
 		debug_printf("La derniere réponse reçu de PIERRE est trop vieille, passage en maitre\n");
 	}
 
 	//Met à jour balise_here
-	update_foe_here();
+	update_rfmodule_here();
 
 	//Pour debug
 	if(offset != 0x0FFF) {
@@ -130,8 +135,6 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			RF_synchro_response(header.sender_id, offset);
 			LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
 		}
-		//Même si le message n'est pas pour nous, suffi de voir qu'un module est actif pour l'enregistrer
-		last_req_time[header.target_id] = global.env.absolute_time;
 	} else if(QS_WHO_AM_I_get() == GUY && header.type == RF_PT_SynchroResponse) {
 		//Pierre nous à répondu, on maj notre base de temps
 		if(for_me) {
@@ -139,6 +142,8 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			offset = fullOffset - (wrap_timebase(((Sint16)time_base) - TIME_WHEN_SYNCHRO) / 2);
 
 			time_base = wrap_timebase(((Sint16)time_base) + offset);
+
+			LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
 		}
 
 		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => Pierre est là
@@ -148,6 +153,10 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 		}
 		last_received_reply = global.env.absolute_time;
 	}
+
+	//Même si le message n'est pas pour nous, il suffit de voir qu'un module est actif pour l'enregistrer
+	if(header.sender_id < RF_MODULE_COUNT)
+		last_activity_time[header.sender_id] = global.env.absolute_time;
 }
 
 static void rf_can_received_callback(CAN_msg_t *msg) {
@@ -160,12 +169,24 @@ static void rf_can_received_callback(CAN_msg_t *msg) {
 	}
 }
 
-static void update_foe_here() {
-	balise_here[0] = (last_req_time[RF_FOE1] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time);
-	balise_here[1] = (last_req_time[RF_FOE2] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time);
+static void update_rfmodule_here() {
+	Uint8 i;
+	bool_e someone_not_here = FALSE;
 
-	if(balise_here[0] && balise_here[1])
-		LED_BEACON_IR_RED = 0;
-	else
+	for(i = 0; i < RF_MODULE_COUNT; i++) {
+		//On est nous même là
+		if(RF_get_module_id() == i) {
+			rfmodule_here[i] = TRUE;
+		} else {
+			rfmodule_here[i] = (last_activity_time[i] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time);
+			if(rfmodule_here[i] == FALSE) {
+				someone_not_here = TRUE;
+			}
+		}
+	}
+
+	if(someone_not_here)
 		LED_BEACON_IR_RED = 1;
+	else
+		LED_BEACON_IR_RED = 0;
 }
