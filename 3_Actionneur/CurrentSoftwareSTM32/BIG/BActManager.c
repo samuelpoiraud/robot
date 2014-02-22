@@ -92,7 +92,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	if(init) {
 		//Init des actionneurs
 	} else {
-		if(AX12_is_ready(FILET_AX12_ID)) { // Si il y a le +12/24V
+		if(AX12_is_ready(FILET_AX12_ID) || global.alim) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
 			for(i = 0; i < NB_ACTIONNEURS; i++) {
 				if(actionneurs[i].onInitPos != NULL)
 					actionneurs[i].onInitPos();
