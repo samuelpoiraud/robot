@@ -116,13 +116,9 @@ int main (void)
 		//Switch choix de l'actionneur testé par les boutons: affichage de l'état s'il a changé
 		if(lastSwitchState[0] != SWITCH_RG0) {
 			lastSwitchState[0] = SWITCH_RG0;
-			debug_printf("SWITCH_RG0: %s | %s\n", (SWITCH_RG0)? "[Plate]" : " Plate ",
-												  (SWITCH_RG0)? " Lift " : "[Lift]");
 		}
 		if(lastSwitchState[1] != SWITCH_RG1) {
 			lastSwitchState[1] = SWITCH_RG1;
-			debug_printf("SWITCH_RG1: %s | %s\n", (SWITCH_RG1)? "[DCMotor]" : " DCMotor ",
-												  (SWITCH_RG1)? " Plier-AX12 " : "[Plier-AX12]");
 		}
 
 		LED_USER = !LED_USER;
