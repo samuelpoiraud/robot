@@ -20,6 +20,7 @@
 #include "queue.h"
 #include "clock.h"
 #include "QS/QS_who_am_i.h"
+#include "Pierre/PFilet.h"
 
 #include "BIG/BActManager.h"
 #include "SMALL/SActManager.h"
@@ -56,6 +57,10 @@ int main (void)
 	//initialisations
 	SYS_init();
 	PORTS_init();
+
+	global.match_started = FALSE;
+	global.alim = FALSE;
+	global.alim_value = 0;
 
 	LED_RUN = 1;
 	LED_USER = 0;

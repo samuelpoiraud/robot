@@ -503,6 +503,17 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			SUPERVISOR_state_machine(EVENT_BROADCAST_STOP, 0);
 		break;
 
+		case BROADCAST_ALIM :
+			if(msg->data[0] == ALIM_OFF){
+				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_OFF\n");
+				global.alim = FALSE;
+			}else if(msg->data[0] == ALIM_ON){
+				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_ON\n");
+				global.alim = TRUE;
+			}
+			global.alim_value = (((Uint16)(msg->data[1]) << 8) & 0xFF00) | ((Uint16)(msg->data[2]) & 0x00FF);
+			break;
+
 		//Carte stratégie demande la position
 		case ASSER_TELL_POSITION:
 			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);

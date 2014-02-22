@@ -17,5 +17,7 @@
 	#endif
 
 	bool_e match_started;
+	bool_e alim;
+	Uint16 alim_value;			// en mV
 
 #endif /* ndef CONFIG_GLOBAL_VARS_H */

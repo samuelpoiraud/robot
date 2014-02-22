@@ -56,6 +56,18 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case BROADCAST_POSITION_ROBOT:
 			//Rien, mais pas inclus dans le cas default où l'on peut afficher le sid...
 			break;
+
+		case BROADCAST_ALIM:
+			if(msg->data[0] == ALIM_OFF){
+				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_OFF\n");
+				global.alim = FALSE;
+			}else if(msg->data[0] == ALIM_ON){
+				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_ON\n");
+				global.alim = TRUE;
+			}
+			global.alim_value = (((Uint16)(msg->data[1]) << 8) & 0xFF00) | ((Uint16)(msg->data[2]) & 0x00FF);
+			break;
+
 		case ACT_PING:
 			answer.sid = STRAT_ACT_PONG;
 			answer.size = 1;
