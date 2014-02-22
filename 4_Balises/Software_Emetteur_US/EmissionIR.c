@@ -21,7 +21,6 @@
 #define FLASH_CYCLE (PERIODE_FLASH*NOMBRE_BALISES_EMETTRICES) //Un cycle d'émission des N balises
 #define NO_FLASH_TIME 2  //[nb de step] 4ms ou on emet rien au début et à la fin, pour avoir donc 4 ms entre la fin de l'émission d'un balise et le début de l'autre
 
-#define TOTAL_STEP_COUNT (RF_MODULE_COUNT*TIME_PER_MODULE)  //step ¤ [0; TOTAL_STEP_COUNT[
 
 #if (TOTAL_STEP_COUNT % FLASH_CYCLE) != 0
 #error "Le temps d'un cycle d'emission doit être un multiple du temps total de la base de temps de synchro rf"
@@ -65,7 +64,7 @@ void EmissionIR_stop(void)
 volatile Uint8 step_ir = 0;
 static volatile bool_e request_reset_step_ir = FALSE;
 
-//@pre appeler cette fonction lors de la réception du signal de synchro...
+//@pre appeler cette fonction lors de la réception du signal de synchro du cable...
 void EmissionIR_step_init(void)
 {
 	request_reset_step_ir = TRUE;
@@ -79,13 +78,14 @@ void EmissionIR_next_step(void)
 	if(request_reset_step_ir == TRUE)
 		step_ir = 0;
 	else
-		step_ir = (step_ir == TOTAL_STEP_COUNT - 1)? 0: step_ir+1;
+		step_ir = (step_ir >= TOTAL_STEP_COUNT - 1)? 0: step_ir+1;
 	
 	request_reset_step_ir = FALSE;
 
 	if(step_ir == 0) {
 	}
 
+	//Effectue une demande de synchro
 	if(step_ir == TIME_WHEN_SYNCHRO)
 		SYNCRF_sendRequest();
 	

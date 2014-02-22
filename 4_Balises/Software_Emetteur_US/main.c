@@ -65,7 +65,7 @@ int main (void)
 		
 		bt_prec = bt;
 		
-		if((LED_UART = SWITCH_MULTI_EMETTEURS))
+		if(SWITCH_MULTI_EMETTEURS)
 			global.mode_double_emetteurs = TRUE;
 		else
 			global.mode_double_emetteurs = FALSE;
