@@ -38,6 +38,9 @@ volatile Uint8 time_filet = 0;
 
 static void FILET_lacher_ficelles();
 static void FILET_liberer_gache();
+static void FILET_initAX12();
+static void FILET_command_init(queue_id_t queueId);
+static void FILET_command_run(queue_id_t queueId);
 
 
 void FILET_init() {
@@ -51,7 +54,6 @@ void FILET_init() {
 	FILET_initAX12();
 	//info_printf("FILET initialisé\n");
 }
-
 
 //Initialise l'AX12 du filet s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void FILET_initAX12() {
@@ -73,7 +75,6 @@ static void FILET_initAX12() {
 		//info_printf("FILET AX12 initialisé\n");
 	}
 }
-
 
 bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
 	queue_id_t queueId1;
@@ -128,7 +129,6 @@ bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-
 void FILET_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
@@ -142,7 +142,6 @@ if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_Filet) {    // Gestion des mouvement
 			FILET_command_run(queueId);
 	}
 }
-
 
 //Initialise une commande
 static void FILET_command_init(queue_id_t queueId) {
@@ -216,7 +215,7 @@ void FILET_process_main(void){
 	queue_id_t queueId1;
 	FILET_initAX12();
 
-	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID)){
+	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID) || !global.alim){
 		time_filet = TIME_FILET_IT;
 		return;
 	}
@@ -285,7 +284,5 @@ void FILET_process_main(void){
 	last_port_state = PRESENCE_FILET;
 	time_filet = TIME_FILET_IT;
 }
-
-
 
 #endif  /* I_AM_ROBOT_BIG */

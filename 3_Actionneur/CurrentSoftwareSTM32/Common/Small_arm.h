@@ -55,9 +55,5 @@ bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg);
  */
 void SMALL_ARM_run_command(queue_id_t queueId, bool_e init);
 
-static void SMALL_ARM_initAX12();
-static void SMALL_ARM_command_init(queue_id_t queueId);
-static void SMALL_ARM_command_run(queue_id_t queueId);
-
 #endif	/* PSMALL_ARM_H */
 

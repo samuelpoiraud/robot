@@ -41,7 +41,5 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg);
  */
 void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init);
 
-static bool_e hold_state();
-
 #endif  /* I_AM_ROBOT_KRUSTY */
 #endif	/* LANCE_LAUNCHER_H */

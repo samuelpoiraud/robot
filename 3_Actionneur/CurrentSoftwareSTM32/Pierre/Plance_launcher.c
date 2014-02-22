@@ -35,6 +35,9 @@
 #define TIME_BETWEEN_LANCE 30 // Est multiplié par 10 derriére car sur 8 bits ne peut pas depasser 256ms sinon
 #define TIME_HOLD_LAUNCHER_MAX 25 //    idem ci-dessus
 
+static bool_e start_next_launcher();
+static bool_e hold_state();
+
 static Uint8 lance_launcher_last_launch = 0;
 static bool_e start_next_launcher();
 static Uint8 stateLauncher[6] = {0};
