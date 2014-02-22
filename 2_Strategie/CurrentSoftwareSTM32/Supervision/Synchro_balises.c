@@ -12,9 +12,6 @@
 #endif
 #include "../QS/QS_setTimerSource.h"
 
-#define LAST_REPLY_TIMEOUT 10000  //[ms] temps avant de considérer le robot maitre (pierre) comme éteint (dans ce cas, guy passe en maitre)
-#define LAST_SYNCHRO_TIMEOUT 10000  //[ms] temps avant de considérer une balise comme éteinte
-
 #define COMPTEUR_USEC_PER_TICK 100 //[us]
 #define MS_TO_COMPTEUR(ms) (ms*1000/COMPTEUR_USEC_PER_TICK)
 
@@ -25,9 +22,9 @@
 #define COMPTEUR_MAX              RF_MODULE_COUNT*TIME_PER_MODULE
 #define TIME_WHEN_SYNCHRO         TIME_PER_MODULE*RF_get_module_id()  //valeur compteur quand demander la synchro
 
+#define LAST_REPLY_TIMEOUT 10000  //[ms] temps avant de considérer le robot maitre (pierre) comme éteint (dans ce cas, guy passe en maitre)
+#define LAST_SYNCHRO_TIMEOUT 1000  //[ms] temps avant de considérer un problème d'un module quand on ne detecte plus rien de lui pendant ce temps
 
-//Les autres sont ils là ? Informatif seulement via leds
-bool_e rfmodule_here[RF_MODULE_COUNT] = {0};
 
 static bool_e canmsg_received;
 static CAN_msg_t canmsg_pending;
@@ -170,16 +167,13 @@ static void rf_can_received_callback(CAN_msg_t *msg) {
 }
 
 static void update_rfmodule_here() {
-	Uint8 i;
+	Uint8 module_id;
 	bool_e someone_not_here = FALSE;
 
-	for(i = 0; i < RF_MODULE_COUNT; i++) {
+	for(module_id = 0; module_id < RF_MODULE_COUNT; module_id++) {
 		//On est nous même là
-		if(RF_get_module_id() == i) {
-			rfmodule_here[i] = TRUE;
-		} else {
-			rfmodule_here[i] = (last_activity_time[i] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time);
-			if(rfmodule_here[i] == FALSE) {
+		if(RF_get_module_id() != module_id) {
+			if(last_activity_time[module_id] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time) {
 				someone_not_here = TRUE;
 			}
 		}
