@@ -12,20 +12,23 @@
 #include "SActManager.h"
 #ifdef I_AM_ROBOT_SMALL
 
+#include "../Common/Arm.h"
+#include "../Common/Small_arm.h"
 
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
-#include "../act_queue_utils.h"
-#include "config_pin.h"
-#include "../Common/Arm.h"
 #include "../QS/QS_outputlog.h"
+#include "../act_queue_utils.h"
+#include "../selftest.h"
+#include "config_pin.h"s
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 #define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_CAN_process_msg}
 
 static ACTQ_functions_t actionneurs[] = {
-	{&ARM_init, NULL, &ARM_stop, &ARM_CAN_process_msg}
+	{&ARM_init, NULL, &ARM_stop, &ARM_CAN_process_msg},
+	ACT_DECLARE(SMALL_ARM)
 };
 
 static const Uint8 NB_ACTIONNEURS = sizeof(actionneurs) / sizeof(ACTQ_functions_t);
@@ -86,7 +89,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	if(init) {
 		//Init des actionneurs
 	} else {
-		if(AX12_is_ready(FRUIT_MOUTH_AX12_ID)) { // Si il y a le +12/24V
+		if(AX12_is_ready(SMALL_ARM_AX12_ID)) { // Si il y a le +12/24V
 			for(i = 0; i < NB_ACTIONNEURS; i++) {
 				if(actionneurs[i].onInitPos != NULL)
 					actionneurs[i].onInitPos();

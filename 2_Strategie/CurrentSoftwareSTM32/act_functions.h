@@ -68,12 +68,17 @@ typedef enum {
 	ACT_Filet_Stop = ACT_FILET_STOP
 } ACT_filet_cmd_e;
 
+typedef enum {
+	ACT_Small_arm_Idle = ACT_SMALL_ARM_IDLE,
+	ACT_Small_arm_Mid = ACT_SMALL_ARM_MID,
+	ACT_Small_arm_Deployed = ACT_SMALL_ARM_DEPLOYED,
+	ACT_Small_arm_Stop = ACT_SMALL_ARM_STOP
+} ACT_small_arm_cmd_e;
+
 bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd);
 bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd);
 bool_e ACT_filet_launch(ACT_filet_cmd_e cmd);
-void FILET_process_1ms(void);
-void FILET_process_main(void);
-
+bool_e ACT_small_arm_launch(ACT_small_arm_cmd_e cmd);
 
 ////////////////////////////////////////
 //////////////// KRUSTY ////////////////

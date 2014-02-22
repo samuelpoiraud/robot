@@ -456,11 +456,20 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////
 
 	/////////////////////FILET///////////////////
-	ACT_FILET = (ACT_FILTER | 0x21)
+	ACT_FILET = (ACT_FILTER | 0x21),
 		//Paramètres de FILET (dans data[0])
 		#define ACT_FILET_IDLE				0x11
 		#define ACT_FILET_LAUNCHED			0x12
 		#define ACT_FILET_STOP				0x13
+	/////////////////////////////////////////////
+
+	//////////////////PETIT BRAS/////////////////
+	ACT_SMALL_ARM = (ACT_FILTER | 0x22)
+		//Paramètres de SMALL_ARM (dans data[0])
+		#define ACT_SMALL_ARM_IDLE			0x11
+		#define ACT_SMALL_ARM_MID			0x12
+		#define ACT_SMALL_ARM_DEPLOYED		0x13
+		#define ACT_SMALL_ARM_STOP			0x14
 	/////////////////////////////////////////////
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs
