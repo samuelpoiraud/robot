@@ -147,14 +147,14 @@ queue_id_t QUEUE_create()
 void QUEUE_run()
 {
 	queue_id_t queue_id;
-	queue_t* this;
+	queue_t* thisa;
 	for (queue_id=0; queue_id<NB_QUEUE; queue_id++)
 	{
 		//Pour ne pas planter si la file est vide
 		if (queues[queue_id].used && (queues[queue_id].head != queues[queue_id].tail))
 		{
-			this=&(queues[queue_id]);
-			(this->action[this->head])(queue_id, FALSE);
+			thisa=&(queues[queue_id]);
+			(thisa->action[thisa->head])(queue_id, FALSE);
 			component_printf_queue(LOG_LEVEL_Trace, queue_id, "Run\n");
 		}
 	}
@@ -163,28 +163,28 @@ void QUEUE_run()
 
 void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, QUEUE_act_e optionnal_act)
 {
-	queue_t* this=&(queues[queue_id]);
+	queue_t* thisa=&(queues[queue_id]);
 	//la file doit êre affectée
 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
 	// la file ne doit pas etre pleine
-	assert((this->tail)< QUEUE_SIZE);
+	assert((thisa->tail)< QUEUE_SIZE);
 
 	component_printf_queue(LOG_LEVEL_Debug, queue_id, "Add\n");
 
 	// on ajoute l'action à la file
-	(this->action[this->tail]) = action;
-	(this->arg[this->tail])= optionnal_arg;
-	(this->act[this->tail])= optionnal_act;
+	(thisa->action[thisa->tail]) = action;
+	(thisa->arg[thisa->tail])= optionnal_arg;
+	(thisa->act[thisa->tail])= optionnal_act;
 
 	//On doit le faire avant d'appeler l'action, sinon si l'action appelle une fonction de ce module, il peut y avoir des problèmes. (bug testé avec un appel à QUEUE_behead)
-	this->tail++;
+	thisa->tail++;
 
 	// si l'action est en tête de file
-	if ((this->tail - 1) == this->head)
+	if ((thisa->tail - 1) == thisa->head)
 	{
 		//on l'initialise
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
-		this->initial_time_of_current_action = CLOCK_get_time();
+		thisa->initial_time_of_current_action = CLOCK_get_time();
 		action(queue_id,TRUE);
 	}
 
@@ -194,24 +194,24 @@ void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, 
 void QUEUE_behead(queue_id_t queue_id)
 {
 	assert((queue_id < NB_QUEUE)&&(queues[queue_id].used));
-	queue_t* this=&(queues[queue_id]);
+	queue_t* thisa=&(queues[queue_id]);
 	component_printf_queue(LOG_LEVEL_Debug, queue_id, "Next\n");
 
-	this->head++;
+	thisa->head++;
 
-	if(this->tail != this->head)
+	if(thisa->tail != thisa->head)
 	{
 		//on initialise l'action suivante
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
-		this->initial_time_of_current_action = CLOCK_get_time();
-		(this->action[this->head])(queue_id,TRUE);
+		thisa->initial_time_of_current_action = CLOCK_get_time();
+		(thisa->action[thisa->head])(queue_id,TRUE);
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
 	}
 	else
 	{
 		//on supprime la file
 		component_printf_queue(LOG_LEVEL_Info, queue_id, "Deleting\n");
-		this->used = FALSE;
+		thisa->used = FALSE;
 	}
 }
 
@@ -307,55 +307,55 @@ void QUEUE_flush_all()
 	for (i=0; i<NB_QUEUE; i++)
 		QUEUE_flush(i);
 }
-void QUEUE_take_sem(queue_id_t this, bool_e init)
+void QUEUE_take_sem(queue_id_t thisa, bool_e init)
 {
 	if(!init)
 	{
 		//Sémaphore pour actionneur
-		if(QUEUE_get_arg(this)->param == 0)
+		if(QUEUE_get_arg(thisa)->param == 0)
 		{
-			if((sems[QUEUE_get_act(this)].token))
+			if((sems[QUEUE_get_act(thisa)].token))
 			{
-				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Acquiring act semaphore\n");
-				sems[QUEUE_get_act(this)].token = FALSE;
-				QUEUE_behead(this);
+				component_printf_sem(LOG_LEVEL_Info, thisa, QUEUE_get_act(thisa), "Acquiring act semaphore\n");
+				sems[QUEUE_get_act(thisa)].token = FALSE;
+				QUEUE_behead(thisa);
 			}
 			else
 			{
-				component_printf_sem(LOG_LEVEL_Debug, this, QUEUE_get_act(this), "Act semaphore locked\n");
+				component_printf_sem(LOG_LEVEL_Debug, thisa, QUEUE_get_act(thisa), "Act semaphore locked\n");
 			}
 		}
 		else//Sémaphore de synchronisation
 		{
-			if((sems[QUEUE_get_arg(this)->param].token))
+			if((sems[QUEUE_get_arg(thisa)->param].token))
 			{
-				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Acquiring sync semaphore\n");
-				sems[QUEUE_get_arg(this)->param].token = FALSE;
-				QUEUE_behead(this);
+				component_printf_sem(LOG_LEVEL_Info, thisa, QUEUE_get_arg(thisa)->param, "Acquiring sync semaphore\n");
+				sems[QUEUE_get_arg(thisa)->param].token = FALSE;
+				QUEUE_behead(thisa);
 			}
 			else
 			{
-				component_printf_sem(LOG_LEVEL_Debug, this, QUEUE_get_arg(this)->param, "Sync semaphore locked\n");
+				component_printf_sem(LOG_LEVEL_Debug, thisa, QUEUE_get_arg(thisa)->param, "Sync semaphore locked\n");
 			}
 		}
 	}
 }
-void QUEUE_give_sem(queue_id_t this, bool_e init)
+void QUEUE_give_sem(queue_id_t thisa, bool_e init)
 {
 	if(!init)
 	{
 		//Sémaphore pour file
-		if(QUEUE_get_arg(this)->param == 0)
+		if(QUEUE_get_arg(thisa)->param == 0)
 		{
-				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_act(this), "Releasing act semaphore\n");
-				sems[QUEUE_get_act(this)].token = TRUE;
-				QUEUE_behead(this);
+				component_printf_sem(LOG_LEVEL_Info, thisa, QUEUE_get_act(thisa), "Releasing act semaphore\n");
+				sems[QUEUE_get_act(thisa)].token = TRUE;
+				QUEUE_behead(thisa);
 		}
 		else//Sémaphore de synchronisation
 		{
-				component_printf_sem(LOG_LEVEL_Info, this, QUEUE_get_arg(this)->param, "Releasing sync semaphore\n");
-				sems[QUEUE_get_arg(this)->param].token = TRUE;
-				QUEUE_behead(this);
+				component_printf_sem(LOG_LEVEL_Info, thisa, QUEUE_get_arg(thisa)->param, "Releasing sync semaphore\n");
+				sems[QUEUE_get_arg(thisa)->param].token = TRUE;
+				QUEUE_behead(thisa);
 		}
 	}
 }
@@ -377,16 +377,16 @@ sem_id_t QUEUE_sem_create()
 	return (i!=NB_ACT+NB_SYNCHRO)?i:QUEUE_SEM_CREATE_FAILED;
 }
 
-void QUEUE_sem_delete(queue_id_t this, bool_e init)
+void QUEUE_sem_delete(queue_id_t thisa, bool_e init)
 {
 	if(!init)
 	{
-		sems[QUEUE_get_arg(this)->param].used = FALSE;
-		QUEUE_behead(this);
+		sems[QUEUE_get_arg(thisa)->param].used = FALSE;
+		QUEUE_behead(thisa);
 	}
 }
 
-void QUEUE_wait_synchro(queue_id_t this, bool_e init)
+void QUEUE_wait_synchro(queue_id_t thisa, bool_e init)
 {
 	static clock_time_t initial_time;
 	if(init)
@@ -397,18 +397,18 @@ void QUEUE_wait_synchro(queue_id_t this, bool_e init)
 	else
 	{
 		debug_printf("Attente synchro\n");
-		if ((sems[QUEUE_get_arg(this)->param].used && sems[QUEUE_get_arg(this)->param].token)) //jeton rendu ou timout
+		if ((sems[QUEUE_get_arg(thisa)->param].used && sems[QUEUE_get_arg(thisa)->param].token)) //jeton rendu ou timout
 		{
 			debug_printf("Synchro finie\n");
-			QUEUE_behead(this);
+			QUEUE_behead(thisa);
 		}
 		if(CLOCK_get_time() - initial_time > QUEUE_SYNCHRO_TIMEOUT)
 		{
 			debug_printf("Synchro timeout\n");
 			//On supprime la synchro qu'on attend
-			sems[QUEUE_get_arg(this)->param].used = FALSE;
-			sems[QUEUE_get_arg(this)->param].token = TRUE;
-			QUEUE_flush(this);
+			sems[QUEUE_get_arg(thisa)->param].used = FALSE;
+			sems[QUEUE_get_arg(thisa)->param].token = TRUE;
+			QUEUE_flush(thisa);
 		}
 	}
 }
