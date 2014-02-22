@@ -93,12 +93,12 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 		//unités: tick / (us/localtick / us/tick) = tick * us/tick / us/localtick = us/(us/localtick) = localtick
 		Sint16 fullOffset = (data[0] | data[1] << 8) / (DUREE_STEP / TIME_BASE_UNIT);
 
-		offset = fullOffset - (request_duration >> 1) + 2; // fullOffset - request_duration/2 + erreur systématique (en step)
+		offset = fullOffset - (request_duration / 2) + 2; // fullOffset - request_duration/2 + erreur systématique (en step)
 		const Sint16 adjusted = ((Sint16)step_ir) + offset;
 
-		if(adjusted > TOTAL_STEP_COUNT)
+		if(adjusted >= TOTAL_STEP_COUNT)
 			step_ir = adjusted - TOTAL_STEP_COUNT;
-		else if(adjusted > 0)
+		else if(adjusted >= 0)
 			step_ir = adjusted;
 		else
 			step_ir = adjusted + TOTAL_STEP_COUNT;
