@@ -12,15 +12,15 @@
 #endif
 #include "../QS/QS_setTimerSource.h"
 
-#define LAST_REPLY_TIMEOUT 10000  //temps avant de considérer le robot maitre (pierre) comme éteint (dans ce cas, guy passe en maitre)
-#define LAST_SYNCHRO_TIMEOUT 10000  //temps avant de considérer une balise comme éteinte
+#define LAST_REPLY_TIMEOUT 10000  //[ms] temps avant de considérer le robot maitre (pierre) comme éteint (dans ce cas, guy passe en maitre)
+#define LAST_SYNCHRO_TIMEOUT 10000  //[ms] temps avant de considérer une balise comme éteinte
 
-#define COMPTEUR_USEC_PER_TICK 100
+#define COMPTEUR_USEC_PER_TICK 100 //[us]
 #define MS_TO_COMPTEUR(ms) (ms*1000/COMPTEUR_USEC_PER_TICK)
 
-#define TIME_PER_MODULE           MS_TO_COMPTEUR(100)  //100ms
-#define PERIODE_SIGNAL_SYNCHRO    MS_TO_COMPTEUR(200) //200 ms, signal synchro toutes les 200ms
-#define DUREE_SIGNAL_SYNCHRO      MS_TO_COMPTEUR(2)  //2ms, signal synchro pendant 2ms
+#define TIME_PER_MODULE           MS_TO_COMPTEUR(100)  //[ms] 100ms
+#define PERIODE_SIGNAL_SYNCHRO    MS_TO_COMPTEUR(200) //[ms] 200 ms, signal synchro toutes les 200ms
+#define DUREE_SIGNAL_SYNCHRO      MS_TO_COMPTEUR(2)  //[ms] 2ms, signal synchro pendant 2ms
 
 #define COMPTEUR_MAX              RF_MODULE_COUNT*TIME_PER_MODULE
 #define TIME_WHEN_SYNCHRO         TIME_PER_MODULE*RF_get_module_id()  //valeur compteur quand demander la synchro
@@ -86,8 +86,6 @@ void SYNCHRO_init() {
 
 void SYNCHRO_process_main()
 {
-	static Uint16 compteur_last;
-
 	//Message CAN reçu => passage à environnement.c
 	if(canmsg_received) {
 		//ENV_process_can_msg(&canmsg_pending);
@@ -110,13 +108,15 @@ void SYNCHRO_process_main()
 		info_printf("Offset: %d\n", offset);
 		offset = 0x0FFF;
 	}
+}
 
-	//Pour débuggage: si les 2 cartes comptent en même temps, la synchro est ok
-	if(compteur_last != time_base/1000) {
-		compteur_last = time_base/1000;
+static Sint16 wrap_timebase(Sint16 val) {
+	if(val >= COMPTEUR_MAX)
+		return val - COMPTEUR_MAX;
+	else if(val >= 0)
+		return val;
 
-		//debug_printf("Compteur: %u\n", time_base);
-	}
+	return val + COMPTEUR_MAX;
 }
 
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
@@ -128,18 +128,17 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			offset = time_base - expected_time;
 
 			RF_synchro_response(header.sender_id, offset);
-			LED_SELFTEST = !LED_SELFTEST;
-			#warning LED_SELFTEST utilise pour debuggage
+			LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
 		}
 		//Même si le message n'est pas pour nous, suffi de voir qu'un module est actif pour l'enregistrer
 		last_req_time[header.target_id] = global.env.absolute_time;
-		update_foe_here();
 	} else if(QS_WHO_AM_I_get() == GUY && header.type == RF_PT_SynchroResponse) {
 		//Pierre nous à répondu, on maj notre base de temps
 		if(for_me) {
 			Sint16 fullOffset = (data[0] | data[1] << 8);
-			offset = time_base - TIME_WHEN_SYNCHRO;
-			time_base = (time_base + fullOffset - (offset >> 1)) % COMPTEUR_MAX;
+			offset = fullOffset - (wrap_timebase(((Sint16)time_base) - TIME_WHEN_SYNCHRO) / 2);
+
+			time_base = wrap_timebase(((Sint16)time_base) + offset);
 		}
 
 		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => Pierre est là
@@ -164,4 +163,9 @@ static void rf_can_received_callback(CAN_msg_t *msg) {
 static void update_foe_here() {
 	balise_here[0] = (last_req_time[RF_FOE1] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time);
 	balise_here[1] = (last_req_time[RF_FOE2] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time);
+
+	if(balise_here[0] && balise_here[1])
+		LED_BEACON_IR_RED = 0;
+	else
+		LED_BEACON_IR_RED = 1;
 }
