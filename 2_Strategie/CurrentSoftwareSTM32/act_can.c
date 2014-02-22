@@ -13,11 +13,13 @@
 //La fonction ACT_process_result (act_function.c) converti les messages ACT_RESULT en ces valeurs dans act_state_info_t::operationResult et act_state_info_t::recommendedBehavior (environnement.h)
 //La fonction ACT_check_result (act_function.c) converti et gère les messages act_state_info_t::operationResult et act_state_info_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
 
+//Temps de timeout d'une action par défaut
+#define ACT_ARG_DEFAULT_TIMEOUT_MS 3000
+#define ACT_ARG_NOFALLBACK_SID 0xFFF
+
 #ifdef ACT_NO_ERROR_HANDLING
 	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c/h, constante: ACT_NO_ERROR_HANDLING)"
 #endif
-
-#define ACT_STACK_TIMEOUT_MS 3000
 
 typedef enum {
 	ACT_RESULT_Idle,	//Etat au démarage, par la suite ce sera le resultat de la dernière opération effectuée
@@ -63,7 +65,7 @@ void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
 	arg->msg.data[0] = cmd;
 	arg->msg.size = 1;
 	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
-	arg->timeout = ACT_ARG_USE_DEFAULT;
+	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
 }
 
 void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param)  {
@@ -73,7 +75,7 @@ void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 par
 	arg->msg.data[2] = HIGHINT(param);
 	arg->msg.size = 3;
 	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
-	arg->timeout = ACT_ARG_USE_DEFAULT;
+	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
 }
 
 void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout) {
@@ -108,9 +110,6 @@ bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* args) {
 		return FALSE;
 	}
 #endif
-
-	if(args->timeout == ACT_ARG_USE_DEFAULT)
-		args->timeout = ACT_STACK_TIMEOUT_MS;
 
 	QUEUE_add(act_id, &ACT_run_operation, *args);
 
@@ -326,13 +325,14 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	}
 
 	if(act_id >= NB_QUEUE) {
-		warn_printf("Unknown act result, can_act_id: 0x%x, can_result: %u\n", msg->data[0], msg->data[2]);
+		error_printf("Unknown act result, can_act_id: 0x%x, can_result: %u. Pour gérer cet act, il faut ajouter un case dans le switch juste au dessus de ce printf\n", msg->data[0], msg->data[2]);
 		return;
 	}
 
-	//Erreur de codage, ça ne devrait jamais arriver
+	//Erreur de codage, ça ne devrait jamais arriver sauf si la commande en question a été lancé par quelqu'un d'autre que la strategie (par exemple via un bouton pour debug)
 	if(act_states[act_id].operationResult != ACT_RESULT_Working) {
-		error_printf("act is not in working mode but received result, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], act_states[act_id].operationResult);
+		warn_printf("act is not in working mode but received result, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], act_states[act_id].operationResult);
+		return;
 	}
 
 	switch(msg->data[2]) {
@@ -370,16 +370,33 @@ void ACT_process_result(const CAN_msg_t* msg) {
 					warn_printf("NoResource error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//Notifier le cas, il faudra par la suite augmenter les resources dispo ...
 					break;
 
+				case ACT_RESULT_ERROR_CANCELED:
+					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_RetryLater;
+					warn_printf("Operation canceled, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//L'opération à été volontairement annulée
+					break;
+
 				case ACT_RESULT_ERROR_LOGIC:
 					act_states[act_id].disabled = TRUE;
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					error_printf("Logic error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 					break;
 
+				case ACT_RESULT_ERROR_INVALID_ARG:
+					act_states[act_id].disabled = TRUE;
+					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
+					error_printf("Invalid argument ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//Argument invalide utilisé, bug coté strat
+					break;
+
+				case ACT_RESULT_ERROR_UNKNOWN:
+					act_states[act_id].disabled = TRUE;
+					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
+					error_printf("Unknown error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);  //Erreur inconnu envoyé comme tel par la carte actionneur
+
+					//Autres erreurs utilisées mais non gérées dans ce switch, il faut ajouter un case ACT_RESULT_ERROR_????? pour la gérer
 				default:
 					act_states[act_id].disabled = TRUE;
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
-					error_printf("Unknown error ! act_id: 0x%x, cmd: 0x%x, reason: %u\n", msg->data[0], msg->data[1], msg->data[3]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
+					error_printf("Unknown error value %u for act_id: 0x%x, cmd: 0x%x, Pour gérer l'erreur, il faut ajouter un case dans le switch qui contient ce printf\n", msg->data[3], msg->data[0], msg->data[1]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 			}
 			break;
 	}
