@@ -20,7 +20,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
-#include "config_pin.h"s
+#include "config_pin.h"
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
