@@ -309,6 +309,14 @@
 		#define ACT_RESULT_ERROR_UNKNOWN      255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
 	/////////////////////////////////////////
 
+	/////////////////// FILET ///////////////////
+	// Message de l'actionneur vers la stratégie pour informer de l'état du filet
+	#define STRAT_INFORM_FILET (STRAT_FILTER | (ACT_FILTER >> 4) | 1)
+		// Dans data[0]
+		#define STRAT_INFORM_FILET_ABSENT	(0b000000000)
+		#define STRAT_INFORM_FILET_PRESENT	(0b000000001)
+	//////////////////////////////////////////////
+
 // Code des SID des messages: 0x30x = message pour Tiny, 0x31x = message pour Krusty.
 // Le SID 0x300 est reservé pour le self_test
 // Ceci est un enum de SID d'actionneur avec les paramètres de chaque actions définie par des defines. L'enum est utilisé pour vérifier que tous les messages de retour d'actionneurs sont géré en strat

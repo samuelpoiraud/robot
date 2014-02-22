@@ -1009,35 +1009,35 @@ void strat_test_small_arm(){
 		case IDLE :
 			if(entrance)
 				ACT_small_arm_goto(ACT_SMALL_ARM_IDLE);
-			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done)
 				state = MID;
 			break;
 
 		case MID :
 			if(entrance)
 				ACT_small_arm_goto(ACT_SMALL_ARM_MID);
-			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done)
 				state = DEPLOYED;
 			break;
 
 		case DEPLOYED :
 			if(entrance)
 				ACT_small_arm_goto(ACT_SMALL_ARM_DEPLOYED);
-			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done)
 				state = MID_END;
 			break;
 
 		case MID_END :
 			if(entrance)
 				ACT_small_arm_goto(ACT_SMALL_ARM_MID);
-			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done)
 				state = IDLE_END;
 			break;
 
 		case IDLE_END :
 			if(entrance)
 				ACT_small_arm_goto(ACT_SMALL_ARM_IDLE);
-			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done)
 				state = DONE;
 			break;
 
