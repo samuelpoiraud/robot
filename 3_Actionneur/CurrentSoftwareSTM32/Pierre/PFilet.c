@@ -140,7 +140,7 @@ void FILET_run_command(queue_id_t queueId, bool_e init) {
 		return;
 	}
 
-if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_Filet) {    // Gestion des mouvements du FILET
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_Filet) {    // Gestion des mouvements du FILET
 		if(init)
 			FILET_command_init(queueId);
 		else
@@ -264,8 +264,7 @@ void FILET_BOUTON_process(void){
 	}
 }
 
-static void FILET_detection(){
-#ifdef USE_CAN
+static void FILET_detection() {
 	typedef enum{
 		EDGE_DETECTOR,
 		WAIT_UP,
@@ -309,7 +308,6 @@ static void FILET_detection(){
 			break;
 	}
 	last_port_state = PRESENCE_FILET;
-#endif
 }
 
 static void FILET_rearm(){

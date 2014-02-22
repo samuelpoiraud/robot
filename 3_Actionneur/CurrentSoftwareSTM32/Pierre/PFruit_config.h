@@ -31,7 +31,7 @@
 
 /******** POMPE ********/
 
-	#define FRUIT_POMPE_ASSER_TIMEOUT		3000
+	#define FRUIT_POMPE_ASSER_TIMEOUT		50 //en centaine de msec, 10 = 1s
 	#define FRUIT_POMPE_MAX_PWM_WAY			100  // rapport cyclique de la pwm
 #endif	/* PFRUIT_CONFIG_H */
 

@@ -30,9 +30,10 @@
 
 static void FRUIT_initAX12();
 static void FRUIT_initDCM();
-static void FRUIT_command_init(queue_id_t queueId);
-static void FRUIT_command_run(queue_id_t queueId);
+static void FRUIT_command_pompe_init(queue_id_t queueId);
 static void FRUIT_command_pompe_run(queue_id_t queueId);
+static void FRUIT_command_labium_init(queue_id_t queueId);
+static void FRUIT_command_labium_run(queue_id_t queueId);
 static void POMPE_goToPos(Uint8 command);
 
 static bool_e stopActVerin = FALSE;
@@ -94,8 +95,8 @@ void FRUIT_init_pos(){
 }
 
 bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
-	queue_id_t queueId1;
 	FRUIT_initAX12();
+
 	if(msg->sid == ACT_FRUIT_MOUTH) {
 		switch(msg->data[0]) {
 
@@ -118,35 +119,21 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 
 
 			case ACT_FRUIT_LABIUM_CLOSE:
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED){
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-					QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){msg->data[0], FRUIT_LABIUM_CS_CloseAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Fruit);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-				} else {
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
-				break;
 			case ACT_FRUIT_LABIUM_OPEN:
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED){
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-					QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){msg->data[0], FRUIT_LABIUM_CS_OpenAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Fruit);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Fruit);
-				} else {
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Fruit, &FRUIT_run_command, 0);
 				break;
+
+
 			default:
 				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST) {
-		SELFTEST_set_actions(&FRUIT_run_command, 2, (SELFTEST_action_t[]){
-								 {ACT_FRUIT_LABIUM_OPEN,  FRUIT_LABIUM_CS_OpenAX12,  QUEUE_ACT_AX12_Fruit},
-								 {ACT_FRUIT_LABIUM_CLOSE, FRUIT_LABIUM_CS_CloseAX12, QUEUE_ACT_AX12_Fruit}
+		SELFTEST_set_actions(&FRUIT_run_command, 4, (SELFTEST_action_t[]){
+								 {ACT_FRUIT_MOUTH_OPEN,   0, QUEUE_ACT_POMPE_Fruit},
+								 {ACT_FRUIT_MOUTH_CLOSE,  0, QUEUE_ACT_POMPE_Fruit},
+								 {ACT_FRUIT_LABIUM_OPEN,  0, QUEUE_ACT_AX12_Fruit},
+								 {ACT_FRUIT_LABIUM_CLOSE, 0, QUEUE_ACT_AX12_Fruit}
 							 });
 	}
 
@@ -161,85 +148,64 @@ void FRUIT_run_command(queue_id_t queueId, bool_e init) {
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_Fruit) {    // Gestion des mouvements du labium
 			if(init)
-				FRUIT_command_init(queueId);
+				FRUIT_command_labium_init(queueId);
 			else
-				FRUIT_command_run(queueId);
+				FRUIT_command_labium_run(queueId);
 	}
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_POMPE_Fruit) {
 
 		if(init)
-			FRUIT_command_init(queueId);
+			FRUIT_command_pompe_init(queueId);
 		else
 			FRUIT_command_pompe_run(queueId);
 	}
 }
 
 //Initialise une commande
-static void FRUIT_command_init(queue_id_t queueId) {
+static void FRUIT_command_pompe_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
-	Uint16 wantedPositionPompe;
-	*ax12_goalPosition = 0xFFFF;
-
-	bool_e forFruitMouth = FALSE;
 
 	switch(command) {
-		case ACT_FRUIT_MOUTH_OPEN: wantedPositionPompe = ACT_FRUIT_MOUTH_OPEN; forFruitMouth = TRUE; break;
-		case ACT_FRUIT_MOUTH_CLOSE: wantedPositionPompe = ACT_FRUIT_MOUTH_CLOSE; forFruitMouth = TRUE; break;
+		case ACT_FRUIT_MOUTH_OPEN:
+			POMPE_goToPos(ACT_FRUIT_MOUTH_OPEN);
+			break;
+		case ACT_FRUIT_MOUTH_CLOSE:
+			POMPE_goToPos(ACT_FRUIT_MOUTH_CLOSE);
+			break;
 
 		case ACT_FRUIT_MOUTH_STOP:
 			PWM_stop(FRUIT_POMPE_PWM_NUM);
 			return;
 
-		case ACT_FRUIT_LABIUM_OPEN: *ax12_goalPosition = FRUIT_AX12_LABIUM_OPEN_POS; forFruitMouth = FALSE; break;
-		case ACT_FRUIT_LABIUM_CLOSE: *ax12_goalPosition = FRUIT_AX12_LABIUM_CLOSE_POS; forFruitMouth = FALSE; break;
-		case ACT_FRUIT_LABIUM_STOP:
-			AX12_set_torque_enabled(FRUIT_LABIUM_AX12_ID, FALSE);
-			QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
-			return;
-
 		default: {
-				error_printf("Invalid plier command: %u, code is broken !\n", command);
-				QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
-				return;
-			}
-	}
-
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_POMPE_Fruit)
-		POMPE_goToPos(wantedPositionPompe);
-	else if(*ax12_goalPosition == 0xFFFF && (command == ACT_FRUIT_LABIUM_OPEN || command == ACT_FRUIT_LABIUM_CLOSE || command == ACT_FRUIT_LABIUM_STOP)){// Pour l'ax12 Labium
-		error_printf("Invalid plier position: %u, code is broken !\n", command);
-		QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
-		return;
-	}
-
-
-	if(forFruitMouth == FALSE){
-		debug_printf("Move fruit ax12 to %d\n", *ax12_goalPosition);
-
-		AX12_reset_last_error(FRUIT_LABIUM_AX12_ID);
-		if(!AX12_set_position(FRUIT_LABIUM_AX12_ID, *ax12_goalPosition)){
-			error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(FRUIT_LABIUM_AX12_ID).error);
-			QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+			error_printf("Invalid pompe command: %u, code is broken !\n", command);
+			QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+			return;
 		}
 	}
-	//La commande a été envoyée et l'AX12 l'a bien reçu
 }
 
 // La pompe en déplacement vérification de son état
 static void FRUIT_command_pompe_run(queue_id_t queueId){
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 
-	if((FRUIT_POMPE_TOR_OPEN == 0 && command == ACT_FRUIT_MOUTH_OPEN) || (FRUIT_POMPE_TOR_CLOSE == 0 && command == ACT_FRUIT_MOUTH_CLOSE) || stopActVerin == TRUE){ // le verin atteint la postion du capteur de sortie, on arrete
-		stopActVerin = FALSE;
-
+	// le verin atteint la postion du capteur de sortie ou la commande a été annulée, on arrete
+	if((FRUIT_POMPE_TOR_OPEN == 0 && command == ACT_FRUIT_MOUTH_OPEN) ||
+	   (FRUIT_POMPE_TOR_CLOSE == 0 && command == ACT_FRUIT_MOUTH_CLOSE) ||
+	   stopActVerin == TRUE)
+	{
 		PWM_stop(FRUIT_POMPE_PWM_NUM);
 
 		if(stopActVerin == TRUE)
 			QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_FAILED, ACT_RESULT_ERROR_CANCELED, __LINE__);
 		else
 			QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+
+		stopActVerin = FALSE;
+	} else if(ACTQ_check_timeout(queueId, FRUIT_POMPE_ASSER_TIMEOUT)) { //Si timeout, on arrete
+		PWM_stop(FRUIT_POMPE_PWM_NUM);
+		QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_FAILED, ACT_RESULT_ERROR_TIMEOUT, __LINE__);
 	}
 }
 
@@ -252,12 +218,51 @@ static void POMPE_goToPos(Uint8 command){
 	PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
 }
 
+
+
+static void FRUIT_command_labium_init(queue_id_t queueId) {
+	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
+	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
+	*ax12_goalPosition = 0xFFFF;
+
+	switch(command) {
+		case ACT_FRUIT_LABIUM_OPEN: *ax12_goalPosition = FRUIT_AX12_LABIUM_OPEN_POS; break;
+		case ACT_FRUIT_LABIUM_CLOSE: *ax12_goalPosition = FRUIT_AX12_LABIUM_CLOSE_POS; break;
+
+		case ACT_FRUIT_LABIUM_STOP:
+			AX12_set_torque_enabled(FRUIT_LABIUM_AX12_ID, FALSE);
+			QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+			return;
+
+		default: {
+			error_printf("Invalid labium command: %u, code is broken !\n", command);
+			QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+			return;
+		}
+	}
+
+	if(*ax12_goalPosition == 0xFFFF){
+		error_printf("Invalid labium position for command: %u, code is broken !\n", command);
+		QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+		return;
+	}
+
+	debug_printf("Move fruit ax12 to %d\n", *ax12_goalPosition);
+
+	AX12_reset_last_error(FRUIT_LABIUM_AX12_ID);
+	if(!AX12_set_position(FRUIT_LABIUM_AX12_ID, *ax12_goalPosition)){
+		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(FRUIT_LABIUM_AX12_ID).error);
+		QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+	}
+	//La commande a été envoyée et l'AX12 l'a bien reçu
+}
+
 //Gère les états pendant le mouvement de la pince.
-static void FRUIT_command_run(queue_id_t queueId) {
+static void FRUIT_command_labium_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	if(ACTQ_check_status_ax12(queueId, FRUIT_LABIUM_AX12_ID, QUEUE_get_arg(queueId)->param, FRUIT_AX12_ASSER_POS_EPSILON, FRUIT_AX12_ASSER_TIMEOUT, 360, &result, &errorCode, &line))
+	if(ACTQ_check_status_ax12(queueId, FRUIT_LABIUM_AX12_ID, QUEUE_get_arg(queueId)->param, FRUIT_AX12_ASSER_POS_EPSILON, FRUIT_AX12_ASSER_TIMEOUT, 0, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_FRUIT_MOUTH, result, errorCode, line);
 }
 

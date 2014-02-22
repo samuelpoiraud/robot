@@ -59,8 +59,12 @@ bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 }
 
 void SELFTEST_set_actions(action_t action, Uint8 action_num, SELFTEST_action_t actions[]) {
-	Uint8 i;
+	Uint8 i, j;
 	queue_id_t queueId = QUEUE_create();
+
+	//contient la liste des actionneurs dont on a déjà fait QUEUE_take_sem
+	Uint8 act_locked_count = 0;
+	QUEUE_act_e act_locked[action_num];
 
 	if(action_num == 0)
 		return;
@@ -71,11 +75,35 @@ void SELFTEST_set_actions(action_t action, Uint8 action_num, SELFTEST_action_t a
 	}
 
 	if(queueId != QUEUE_CREATE_FAILED) {
-		QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, actions[0].optionnal_act);
+		//On cherche les actionneurs à lock, on doit lock un actionneur qu'une seule fois
+		for(i = 0; i < action_num; i++) {
+			bool_e already_locked = FALSE;
+
+			//On verifie s'il n'est pas déjà locké
+			for(j = 0; j < act_locked_count; j++) {
+				if(act_locked[j] == actions[i].optionnal_act) {
+					already_locked = TRUE;
+					break;
+				}
+			}
+
+			//On l'ajoute à la liste et le lock s'il n'était pas déjà locké
+			if(already_locked == FALSE) {
+				act_locked[act_locked_count] = actions[i].optionnal_act;
+				act_locked_count++;
+				QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, actions[i].optionnal_act);
+			}
+		}
+
+		//On ajoute la liste d'action à faire
 		for(i = 0; i < action_num; i++) {
 			QUEUE_add(queueId, action, (QUEUE_arg_t){actions[i].canCommand,  actions[i].param, &SELFTEST_finish}, actions[i].optionnal_act);
 		}
-		QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, actions[0].optionnal_act);
+
+		//Et on libère les actionneurs (dans le sens inverse)
+		for(j = 0; j < act_locked_count; j++) {
+			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, act_locked[act_locked_count - j - 1]);
+		}
 	} else {
 		QUEUE_flush(queueId);
 		ACTQ_printResult(ACT_DO_SELFTEST, 0, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES, 0);
