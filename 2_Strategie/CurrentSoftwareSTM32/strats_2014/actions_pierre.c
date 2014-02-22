@@ -970,9 +970,34 @@ error_e strat_launch_net(){
 void strat_test_filet(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		INIT,
-		IDLE,
 		LAUNCH,
-		RETURN,
+		DONE
+	);
+
+	switch(state){
+		case INIT :
+			state = LAUNCH;
+			break;
+
+		case LAUNCH :
+			ACT_filet_launch(ACT_FILET_LAUNCHED);
+			debug_printf("Lancement du filet");
+			state = DONE;
+			break;
+
+		case DONE :
+			break;
+	}
+}
+
+void strat_test_small_arm(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		INIT,
+		IDLE,
+		MID,
+		DEPLOYED,
+		MID_END,
+		IDLE_END,
 		DONE
 	);
 
@@ -982,29 +1007,37 @@ void strat_test_filet(){
 			break;
 
 		case IDLE :
-			if(entrance){
-				ACT_filet_launch(ACT_FILET_IDLE);
-				debug_printf("Position initiale \n");
-			}
-			if(ACT_get_last_action_result(ACT_QUEUE_Filet) == END_OK)
-				state = LAUNCH;
+			if(entrance)
+				ACT_small_arm_goto(ACT_SMALL_ARM_IDLE);
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+				state = MID;
 			break;
 
-		case LAUNCH :
-			if(entrance){
-				ACT_filet_launch(ACT_FILET_LAUNCHED);
-				debug_printf("Position de lancement du filet \n");
-			}
-			if(ACT_get_last_action_result(ACT_QUEUE_Filet) == END_OK)
-				state = RETURN;
+		case MID :
+			if(entrance)
+				ACT_small_arm_goto(ACT_SMALL_ARM_MID);
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+				state = DEPLOYED;
 			break;
 
-		case RETURN :
-			if(entrance){
-				ACT_filet_launch(ACT_FILET_IDLE);
-				debug_printf("Position initiale \n");
-			}
-			if(ACT_get_last_action_result(ACT_QUEUE_Filet) == END_OK)
+		case DEPLOYED :
+			if(entrance)
+				ACT_small_arm_goto(ACT_SMALL_ARM_DEPLOYED);
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+				state = MID_END;
+			break;
+
+		case MID_END :
+			if(entrance)
+				ACT_small_arm_goto(ACT_SMALL_ARM_MID);
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
+				state = IDLE_END;
+			break;
+
+		case IDLE_END :
+			if(entrance)
+				ACT_small_arm_goto(ACT_SMALL_ARM_IDLE);
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == END_OK)
 				state = DONE;
 			break;
 

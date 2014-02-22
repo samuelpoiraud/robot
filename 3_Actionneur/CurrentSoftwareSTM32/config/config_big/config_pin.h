@@ -19,6 +19,7 @@
 	//	-				 			  4
 	//	-				 			  5
 	//	-				 			  6
+	#define PRESENCE_FILET		GPIOA->IDR7
 	//	-				 			  7
 	#define FRUIT_POMPE_SENS		  GPIOA->ODR8
 	//	-	usb			 			  9
@@ -115,14 +116,16 @@
 #define FRUIT_POMPE_TOR_CLOSE			FRUIT_VERIN_IN
 
 
-/* Config Fruit_labium*/
-	#define FRUIT_LABIUM_AX12_ID		6
+/* Config proto Fruit_labium*/
+	#define FRUIT_LABIUM_AX12_ID					  6
 
 /* Config proto filet*/
 	#define FILET_AX12_ID							  4
-<<<<<<< .mine
-=======
->>>>>>> .theirs/* config watchdog lance lanceur*/
+
+/* config watchdog lance lanceur*/
 	#define LANCELAUNCHER_TIMER_USE_WATCHDOG
+
+/* Config proto petit bras*/
+	#define SMALL_ARM_AX12_ID						  3
 
 #endif /* KRUSTY_CONFIG_PIN_H */

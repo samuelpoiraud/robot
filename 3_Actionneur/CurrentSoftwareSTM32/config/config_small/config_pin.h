@@ -111,4 +111,7 @@
 /* définition des actionneurs  */
 //like as 	#define PLIER_LEFT_AX12_ID                  0
 
+/* Config proto petit bras*/
+	#define SMALL_ARM_AX12_ID						  5
+
 #endif /* TINY_CONFIG_PIN_H */

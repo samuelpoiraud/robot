@@ -247,6 +247,8 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		case ACT_FRUIT_MOUTH & 0xFF:        originalSidStr = "FruitMouth";   break;
 		case ACT_LANCELAUNCHER & 0xFF:      originalSidStr = "LanceLauncher";break;
 		case ACT_ARM & 0xFF:                originalSidStr = "Arm";          break;
+		case ACT_SMALL_ARM & 0xFF:			originalSidStr = "Small Arm";	 break;
+		case ACT_FILET & 0xFF:				originalSidStr = "Filet";		 break;
 		default:                            originalSidStr = "Unknown";      break;
 	}
 	switch(result) {

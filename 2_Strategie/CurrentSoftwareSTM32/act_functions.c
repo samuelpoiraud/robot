@@ -26,12 +26,6 @@
 #include "QS/QS_outputlog.h"
 
 
-/* define & variable relatifs au lanceur de filet */
-#define TIME_FILET_IT					5
-#define TIME_BEFORE_REARM				500
-volatile Uint8 time_filet = 0;
-bool_e est_arme = TRUE;
-
 /* Pile contenant les arguments d'une demande d'opération
  * Contient les messages CAN à envoyer à la carte actionneur pour exécuter l'action.
  * fallbackMsg contient le message CAN lorsque l'opération demandée par le message CAN msg ne peut pas être complétée (bras bloqué, robot adverse qui bloque l'actionneur par exemple)
@@ -78,76 +72,24 @@ bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd){
 	return ACT_push_operation(ACT_QUEUE_launcher, &args);
 }
 
-/*********************************************Gestion filet**********************************************/
-
 bool_e ACT_filet_launch(ACT_filet_cmd_e cmd){
 	QUEUE_arg_t args;
 
 	ACT_arg_init(&args, ACT_FILET, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_FILET, ACT_FILET_STOP);
 
-	if(cmd == ACT_Filet_Launched)
-		est_arme = FALSE;
-
 	debug_printf("Pushing launcher Run %d cmd\n", cmd);
 	return ACT_push_operation(ACT_QUEUE_Filet, &args);
 }
 
-void FILET_process_1ms(void){
-	if(time_filet)
-		time_filet--;
-}
+bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd){
+	QUEUE_arg_t args;
 
-void FILET_process_main(void){
-	if(time_filet)
-		return;
+	ACT_arg_init(&args, ACT_SMALL_ARM, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_SMALL_ARM, ACT_SMALL_ARM_STOP);
 
-	typedef enum{
-		RISING_EDGE,
-		WAIT_UP,
-		REARM,
-		FREE
-	}state_e;
-
-	static state_e state = RISING_EDGE;
-	static bool_e last_port_state;
-	static Uint16 time;
-	switch(state){
-		case RISING_EDGE :
-			if(PRESENCE_FILET && !last_port_state){
-				debug_printf("Détection de front montant !\n");
-				time = 0;
-				state = WAIT_UP;
-			}/*else if(!PRESENCE_FILET && (est_arme /*|| ACT_get_last_action_result(ACT_QUEUE_Filet) == END_WITH_TIMEOUT
-										 || ACT_get_last_action_result(ACT_QUEUE_Filet) == NOT_HANDLED))
-				state = FREE;*/
-			break;
-
-		case WAIT_UP :
-			if(PRESENCE_FILET){
-				if(time >= TIME_BEFORE_REARM)
-					state = REARM;
-				else
-					time += TIME_FILET_IT;
-			}else
-				state = RISING_EDGE;
-			break;
-		case REARM :
-			debug_printf("Réarmement du bras du filet\n");
-			ACT_filet_launch(ACT_FILET_IDLE);
-			est_arme = TRUE;
-			state = RISING_EDGE;
-			break;
-
-		case FREE :
-			debug_printf("Libération du bras du filet\n");
-			ACT_filet_launch(ACT_FILET_LAUNCHED);
-			est_arme = FALSE;
-			state = RISING_EDGE;
-			break;
-	}
-	last_port_state = PRESENCE_FILET;
-	time_filet = TIME_FILET_IT;
+	debug_printf("Pushing launcher Run %d cmd\n", cmd);
+	return ACT_push_operation(ACT_QUEUE_Small_arm, &args);
 }
 
 // <editor-fold desc="Krusty">

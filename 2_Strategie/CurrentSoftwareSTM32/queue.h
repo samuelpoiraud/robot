@@ -39,6 +39,7 @@ typedef enum {
 	ACT_QUEUE_Fruit,
 	ACT_QUEUE_launcher,
 	ACT_QUEUE_Filet,
+	ACT_QUEUE_Small_arm,
 
 	NB_QUEUE
 } queue_id_e;

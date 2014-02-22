@@ -20,5 +20,6 @@ typedef enum {
 	QUEUE_ACT_lancelauncher,
 	QUEUE_ACT_AX12_Filet,
 	QUEUE_ACT_Arm,
+	QUEUE_ACT_AX12_Small_Arm,
 	NB_ACT
 } QUEUE_act_e;
