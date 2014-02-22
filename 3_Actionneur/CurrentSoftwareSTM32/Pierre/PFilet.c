@@ -30,12 +30,12 @@
 
 
 /* define & variable relatifs au lanceur de filet */
-#define QUANTUM_IT						100
+#define QUANTUM_IT						100  //[ms], unité de temps de clock.c
 #define TIME_FILET_IT					(1*QUANTUM_IT)
-#define TIME_BEFORE_REARM				500
+#define TIME_BEFORE_REARM				500  //[ms]
 #define TIME_BEFORE_DETECT				TIME_BEFORE_REARM
-#define TIME_BEFORE_FREE_STRING			50
-#define TIME_AFTER_FREE_STRING			20
+#define TIME_BEFORE_FREE_STRING			50  //[ms]
+#define TIME_AFTER_FREE_STRING			20  //[ms]
 #define EPSILON_POS_FILET				4
 Uint8 time_filet = 0;
 bool_e rearm_auto_active = TRUE;
