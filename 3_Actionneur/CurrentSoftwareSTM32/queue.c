@@ -370,9 +370,12 @@ sem_id_t QUEUE_sem_create()
 			break;
 	}
 	assert(i>=NB_ACT); //Pour ne pas prendre les sémaphores réservées aux actionneurs
-	sems[i].used = TRUE;
-	sems[i].token = TRUE;
-	debug_printf("Creation synchro %d\n",i);
+
+	if(i < NB_ACT) {
+		sems[i].used = TRUE;
+		sems[i].token = TRUE;
+		debug_printf("Creation synchro %d\n",i);
+	}
 
 	return (i!=NB_ACT+NB_SYNCHRO)?i:QUEUE_SEM_CREATE_FAILED;
 }

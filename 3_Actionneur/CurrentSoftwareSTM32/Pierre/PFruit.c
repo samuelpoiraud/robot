@@ -106,37 +106,11 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_FRUIT_MOUTH_CANCELED:
 				stopActVerin = TRUE;
 				break;
+
+				//Pour les 2 cas (open ou close), la différence est faite dans FRUIT_command_init
 			case ACT_FRUIT_MOUTH_CLOSE:
-
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_POMPE_Fruit);
-					if(msg->data[0] == ACT_FRUIT_MOUTH_CLOSE)
-						QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){msg->data[0], 0, &ACTQ_finish_SendResult}, QUEUE_ACT_POMPE_Fruit);
-					else
-						QUEUE_add(queueId1, &FRUIT_run_command, (QUEUE_arg_t){msg->data[0], 0, &ACTQ_finish_SendNothing}, QUEUE_ACT_POMPE_Fruit);
-
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_POMPE_Fruit);
-
-				} else {	//on indique qu'on a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
-				break;
-
 			case ACT_FRUIT_MOUTH_OPEN:
-
-
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-
-					ACTQ_push_operation_from_msg(msg,QUEUE_ACT_POMPE_Fruit,&FRUIT_run_command,0);
-
-				} else {	//on indique qu'on a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_Fruit, &FRUIT_run_command, 0);
 				break;
 
 
