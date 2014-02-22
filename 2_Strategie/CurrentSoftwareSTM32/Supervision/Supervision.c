@@ -85,7 +85,7 @@ void Supervision_process_main(void)
 			RTC_print_time();	//Si on rajoute pas ce délai d'une seconde, la RTC n'est pas prête quand on vient la lire.
 			SD_init();
 			//A partir de maintenant, on peut loguer sur la carte SD...
-			debug_printf("Hello, I am %s\n", ((QS_WHO_AM_I_get() == TINY)?"TINY":"KRUSTY"));
+			debug_printf("--- Hello, I'm STRAT (%s) ---\n", QS_WHO_AM_I_get_name());
 		}
 	}
 
