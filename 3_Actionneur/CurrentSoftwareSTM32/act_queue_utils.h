@@ -63,6 +63,14 @@
 	 */
 	bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line);
 
+	/** Vérifie si le temps timeout à été dépassé
+	 *
+	 * @param queueId l'identifiant de la file
+	 * @param timeout_ms_x100 timeout en centaine de msec (10 = 1 sec)
+	 * @return TRUE si le temps a été dépassé, FALSE sinon
+	 */
+	bool_e ACTQ_check_timeout(queue_id_t queueId, clock_time_t timeout_ms_x100);
+
 	//Callback
 	//Renvoie un retour à la strat dans tous les cas
 	bool_e ACTQ_finish_SendResult(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);

@@ -131,7 +131,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*result = ACT_RESULT_FAILED;
 		*error_code = ACT_RESULT_ERROR_NOT_HERE;
 		*line = 0x0300;
-	} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + timeout_ms_x100) {
+	} else if(ACTQ_check_timeout(queueId, timeout_ms_x100)) {
 		//Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 		if(absolute((Sint16)current_pos - (Sint16)(wantedPosition)) <= large_epsilon) {
 			*result = ACT_RESULT_DONE;
@@ -140,7 +140,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		} else {
 			AX12_set_torque_enabled(ax12Id, FALSE);
 			*result = ACT_RESULT_FAILED;
-			*error_code = ACT_RESULT_ERROR_UNKNOWN;
+			*error_code = ACT_RESULT_ERROR_TIMEOUT;
 			*line = 0x0500;
 		}
 	} else if(error & AX12_ERROR_OVERHEATING) {
@@ -182,6 +182,12 @@ bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* 
 	} else return FALSE;
 
 	return TRUE;
+}
+
+bool_e ACTQ_check_timeout(queue_id_t queueId, clock_time_t timeout_ms_x100) {
+	if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + timeout_ms_x100)
+		return TRUE;
+	return FALSE;
 }
 
 //Renvoie un retour à la strat dans tous les cas
