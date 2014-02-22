@@ -30,9 +30,9 @@
 
 static void FRUIT_initAX12();
 static void FRUIT_initDCM();
-void FRUIT_stop();
 static void FRUIT_command_init(queue_id_t queueId);
 static void FRUIT_command_run(queue_id_t queueId);
+static void FRUIT_command_pompe_run(queue_id_t queueId);
 static void POMPE_goToPos(Uint8 command);
 
 static bool_e stopActVerin = FALSE;
@@ -179,7 +179,6 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-
 void FRUIT_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
@@ -287,6 +286,5 @@ static void FRUIT_command_run(queue_id_t queueId) {
 	if(ACTQ_check_status_ax12(queueId, FRUIT_LABIUM_AX12_ID, QUEUE_get_arg(queueId)->param, FRUIT_AX12_ASSER_POS_EPSILON, FRUIT_AX12_ASSER_TIMEOUT, 360, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_FRUIT_MOUTH, result, errorCode, line);
 }
-
 
 #endif  /* I_AM_ROBOT_BIG */

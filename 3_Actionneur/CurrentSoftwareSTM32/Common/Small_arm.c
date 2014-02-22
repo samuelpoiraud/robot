@@ -24,6 +24,10 @@
 #include "../QS/QS_outputlog.h"
 
 
+static void SMALL_ARM_command_run(queue_id_t queueId);
+static void SMALL_ARM_initAX12();
+static void SMALL_ARM_command_init(queue_id_t queueId);
+
 void SMALL_ARM_init() {
 	static bool_e initialized = FALSE;
 
@@ -34,7 +38,6 @@ void SMALL_ARM_init() {
 	AX12_init();
 	SMALL_ARM_initAX12();
 }
-
 
 //Initialise l'AX12 du SMALL_ARM s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void SMALL_ARM_initAX12() {
@@ -59,6 +62,9 @@ void SMALL_ARM_init_pos(){
 		debug_printf("L'AX12 n°%d n'est pas là\n", SMALL_ARM_AX12_INIT_POS);
 }
 
+void SMALL_ARM_stop(){
+
+}
 
 bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
 	queue_id_t queueId1;
@@ -132,7 +138,6 @@ bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-
 void SMALL_ARM_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
@@ -146,7 +151,6 @@ if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_Small_Arm) {    // Gestion des mouve
 			SMALL_ARM_command_run(queueId);
 	}
 }
-
 
 //Initialise une commande
 static void SMALL_ARM_command_init(queue_id_t queueId) {
@@ -196,6 +200,4 @@ static void SMALL_ARM_command_run(queue_id_t queueId) {
 		QUEUE_next(queueId, ACT_SMALL_ARM, result, errorCode, line);
 }
 
-void SMALL_ARM_stop(){
 
-}
