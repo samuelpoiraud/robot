@@ -52,6 +52,9 @@ void FILET_run_command(queue_id_t queueId, bool_e init);
 static void FILET_initAX12();
 static void FILET_command_init(queue_id_t queueId);
 static void FILET_command_run(queue_id_t queueId);
+void FILET_process_100ms(void);
+void FILET_process_main(void);
+
 
 #endif  /* I_AM_ROBOT_BIG */
 #endif	/* PFILET_H */
