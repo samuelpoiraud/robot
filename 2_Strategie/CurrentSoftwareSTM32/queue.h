@@ -44,9 +44,7 @@ typedef enum {
 	NB_QUEUE
 } queue_id_e;
 
-#define ACT_ARG_NOFALLBACK_SID 0xFFF
 #define ACT_ARG_NOTIMEOUT ((time32_t)-1)
-#define ACT_ARG_USE_DEFAULT 0
 
 //Version allégé pour nos besoin d'un message CAN, histoire de pas prendre trop de RAM dans la variable act_args ...
 typedef struct {

@@ -23,17 +23,17 @@
 //Activer ce define fait que aucune action n'est entreprit automatiquement, et en cas de problème RetryLater est retourné
 //#define ACT_DONT_TRY_FALLBACK
 
-//Resultat de la dernière opération en cours d'exécution. Utilisé pour connaitre l'état après une erreur surtout.
+//Resultat de la dernière opération en cours d'exécution.
 //Vous pouvez aussi utiliser l'enum de avoidance (IN_PROGRESS, END_OK, END_WITH_TIMEOUT ou NOT_HANDLED) si vous voulez
 typedef enum {
 	ACT_FUNCTION_InProgress = IN_PROGRESS,        //L'opération ne s'est pas encore finie
 	ACT_FUNCTION_Done = END_OK,                   //L'opération s'est finie correctement. C'est aussi la valeur au démarrage lorsque aucune action n'a encore été faite.
 	ACT_FUNCTION_ActDisabled = END_WITH_TIMEOUT,  //L'opération n'a pas pu se terminer: l'actionneur ne marche plus
-	ACT_FUNCTION_RetryLater = NOT_HANDLED         //L'opération n'a pas pu se terminer: il faudra retenter plus tard (plus tard = faire autre chose avant de retest, pas juste 3ms, causé par un position impossible à atteindre, robot adverse qui bloque ? positionnement en mode loto trop près du bord ?)
+	ACT_FUNCTION_RetryLater = NOT_HANDLED         //L'opération n'a pas pu se terminer: il faudra retenter plus tard (plus tard = faire autre chose avant de retest, pas juste 3ms, causé par une position impossible à atteindre, robot adverse qui bloque ? positionnement en mode loto trop près du bord ?)
 } ACT_function_result_e;
 
 // Récupère le resultat de la dernière action associé à une pile (non valable pour ASSER) Cette valeur ne change pas tant qu'aucune opération ne commence ou se finie.
-// A utiliser après la detection d'une erreur lors de l'exécution d'une pile pour savoir quoi faire par la suite (reporter l'action ou l'annuler)
+// A utiliser pour savoir l'état d'une ou plusieurs action en cours.
 ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
 
 void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);
@@ -44,7 +44,7 @@ void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd,
 
 bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* arg);
 
-// Gère les messages de retour de la carte actionneur lorsque une action s'est terminé ou à échouée
+// Gère les messages de retour de la carte actionneur lorsque une action s'est terminée ou a échouée
 void ACT_process_result(const CAN_msg_t* msg);
 
 #endif // ACT_CAN_H
