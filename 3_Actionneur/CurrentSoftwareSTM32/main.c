@@ -140,109 +140,34 @@ int main (void)
 }
 
 static void MAIN_onButton0() {
+#ifdef USE_CAN
 	CAN_msg_t msg;
-/*	static bool_e openOrPark = FALSE;
-
-	msg.size = 1;
-	msg.sid = ACT_DO_SELFTEST;
-
-	if(openOrPark)
-		msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
-	else
-		msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
-
-	openOrPark = !openOrPark;
-
-	debug_printf("Main: ACT_FRUIT_MOUTH %d\n", msg.data[0]);
-*/
-
-
 	msg.size = 1;
 	msg.sid = ACT_SMALL_ARM;
 	msg.data[0] = ACT_SMALL_ARM_IDLE;
-
 	CAN_process_msg(&msg);
+#endif
 }
 
 
-#ifdef I_AM_ROBOT_KRUSTY
+#ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton1() {
 #ifdef USE_CAN
-/*	CAN_msg_t msg;
-
-	msg.size = 1;
-	if(SWITCH_RG0) {
-		msg.sid = ACT_PLATE;
-		if(SWITCH_RG1) {
-			debug_printf("Main: Plate rotate vertically\n");
-			msg.data[0] = ACT_PLATE_ROTATE_VERTICALLY;
-		} else {
-			debug_printf("Main: Plate plier close\n");
-			msg.data[0] = ACT_PLATE_PLIER_CLOSE;
-		}
-		CAN_process_msg(&msg);
-	} else {
-		if(SWITCH_RG1) {
-			debug_printf("Main: Lift left go up\n");
-			msg.data[0] = ACT_LIFT_GO_UP;
-		} else {
-			debug_printf("Main: Lift left plier close\n");
-			msg.data[0] = ACT_LIFT_PLIER_CLOSE;
-		}
-		msg.sid = ACT_LIFT_RIGHT;
-		CAN_process_msg(&msg);
-		msg.sid = ACT_LIFT_LEFT;
-		CAN_process_msg(&msg);
-	}*/
 	CAN_msg_t msg;
-
 	msg.size = 1;
 	msg.sid = ACT_SMALL_ARM;
 	msg.data[0] = ACT_SMALL_ARM_MID;
-
 	CAN_process_msg(&msg);
-
-
 #endif
 }
 
 static void MAIN_onButton2() {
 #ifdef USE_CAN
-/*	CAN_msg_t msg;
-
-	msg.size = 1;
-	if(SWITCH_RG0) {
-		msg.sid = ACT_PLATE;
-		if(SWITCH_RG1) {
-			debug_printf("Main: Plate rotate middle\n");
-			msg.data[0] = ACT_PLATE_ROTATE_PREPARE;
-		} else {
-			debug_printf("Main: Plate plier stop asser\n");
-			msg.data[0] = ACT_PLATE_PLIER_STOP;
-		}
-		CAN_process_msg(&msg);
-	} else {
-		if(SWITCH_RG1) {
-			debug_printf("Main: Lift left go middle\n");
-			msg.data[0] = ACT_LIFT_GO_MID;
-		} else {
-			debug_printf("Main: Lift left plier stop asser\n");
-			msg.data[0] = ACT_LIFT_PLIER_STOP;
-		}
-		msg.sid = ACT_LIFT_RIGHT;
-		CAN_process_msg(&msg);
-		msg.sid = ACT_LIFT_LEFT;
-		CAN_process_msg(&msg);
-	}
-*/
 	CAN_msg_t msg;
-
 	msg.size = 1;
 	msg.sid = ACT_SMALL_ARM;
 	msg.data[0] = ACT_SMALL_ARM_DEPLOYED;
 	CAN_process_msg(&msg);
-
-
 #endif
 }
 
@@ -259,150 +184,20 @@ static void MAIN_onButton3() {
 
 		CAN_process_msg(&msg);
 		debug_printf("Main: ACT_LANCELAUNCHER_RUN\n");*/
-
-	/*if(SWITCH_RG0) {
-		msg.sid = ACT_PLATE;
-		if(SWITCH_RG1) {
-			debug_printf("Main: Plate rotate horizontally\n");
-			msg.data[0] = ACT_PLATE_ROTATE_HORIZONTALLY;
-		} else {
-			debug_printf("Main: Plate plier open\n");
-			msg.data[0] = ACT_PLATE_PLIER_OPEN;
-		}
-		CAN_process_msg(&msg);
-	} else {
-		msg.sid = ACT_LIFT_RIGHT;
-		if(SWITCH_RG1) {
-			debug_printf("Main: Lift left go down\n");
-			msg.data[0] = ACT_LIFT_GO_DOWN;
-		} else {
-			debug_printf("Main: Lift left plier open\n");
-			msg.data[0] = ACT_LIFT_PLIER_OPEN;
-		}
-		msg.sid = ACT_LIFT_RIGHT;
-		CAN_process_msg(&msg);
-		msg.sid = ACT_LIFT_LEFT;
-		CAN_process_msg(&msg);
-	}
-*/
 #endif
 }
 
 static void MAIN_onButton4() {
-
-	/*Uint8 i;
-	CAN_msg_t msg;
-	static Uint16 w;
-
-	debug_printf("Plate & Lift asser off\n");
-
-	msg.sid = ACT_PLATE;
-	msg.data[0] = ACT_PLATE_ROTATE_STOP;
-	msg.size = 1;
-	CAN_process_msg(&msg);
-	msg.sid = ACT_LIFT_RIGHT ;
-	msg.data[0] = ACT_LIFT_STOP;
-	msg.size = 1;
-	CAN_process_msg(&msg);
-
-	msg.sid = ACT_BALLSORTER;
-	msg.data[0] = ACT_BALLSORTER_TAKE_NEXT_CHERRY;
-	msg.data[1] = LOWINT(6300);
-	msg.data[2] = ((HIGHINT(6300) & 0x7F) | ((Uint16)((w % 3) != 2) << 7));
-	msg.size = 3;
-	w++;
-	CAN_process_msg(&msg);
-
-	debug_printf("Sensor vals:\n");
-	debug_printf("- Plate potar val:      %d\n", ADC_getValue(PLATE_ROTATION_POTAR_ADC_ID));
-	debug_printf("- Lift left potar val:  %d\n", ADC_getValue(LIFT_LEFT_TRANSLATION_POTAR_ADC_ID));
-	debug_printf("- Lift right potar val: %d\n", ADC_getValue(LIFT_RIGHT_TRANSLATION_POTAR_ADC_ID));
-	debug_printf("- Capteur cerise Red(Q1): %d, White(Q2): %d, Blue(Q3): %d\n", BALLSORTER_SENSOR_PIN_RED_CHERRY, BALLSORTER_SENSOR_PIN_WHITE_CHERRY, BALLSORTER_SENSOR_PIN_BLUE_CHERRY);
-
-	for(i=0; i<7; i++)
-		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
-	debug_printf("\n");*/
+	FILET_BOUTON_process();
 }
 
-#else // Tiny
+#else // ROBOT_SMALL
 
+static void MAIN_onButton1() {}
 
-static void MAIN_onButton1() {
-/*#ifdef USE_CAN
-	CAN_msg_t msg;
+static void MAIN_onButton2() {}
 
-//	msg.sid = ACT_HAMMER;
-//	msg.data[0] = ACT_HAMMER_MOVE_TO;
-//	msg.data[1] = LOWINT(0);
-//	msg.data[2] = HIGHINT(0);
-//	msg.size = 3;
+static void MAIN_onButton3() {}
 
-	msg.sid = ACT_BALLINFLATER;
-	msg.data[0] = ACT_BALLINFLATER_START;
-	msg.data[1] = 10;
-	msg.size = 2;
-
-	CAN_process_msg(&msg);
-#endif*/
-}
-
-static void MAIN_onButton2() {
-/*#ifdef USE_CAN
-	CAN_msg_t msg;
-
-//	msg.sid = ACT_HAMMER;
-//	msg.data[0] = ACT_HAMMER_MOVE_TO;
-//	msg.data[1] = LOWINT(10);
-//	msg.data[2] = HIGHINT(0);
-//	msg.size = 3;
-
-	msg.sid = ACT_BALLINFLATER;
-	msg.data[0] = ACT_BALLINFLATER_STOP;
-	msg.size = 1;
-
-	CAN_process_msg(&msg);
-#endif*/
-}
-
-static void MAIN_onButton3() {
-/*#ifdef USE_CAN
-	CAN_msg_t msg;
-
-	msg.sid = ACT_HAMMER;
-	msg.data[0] = ACT_HAMMER_BLOW_CANDLE;
-	msg.data[1] = BLUE;
-	msg.size = 2;
-
-	CAN_process_msg(&msg);
-
-#endif*/
-}
-
-static void MAIN_onButton4() {
-/*	Uint8 i;
-	CAN_msg_t msg;
-
-	msg.sid = ACT_HAMMER;
-	msg.data[0] = ACT_HAMMER_STOP;
-	msg.size = 1;
-	CAN_process_msg(&msg);
-
-	debug_printf("- Hammer pos en degres: %d, potar val: %d\n", HAMMER_get_pos(), ADC_getValue(HAMMER_SENSOR_ADC_ID));
-	debug_printf("- CW[x] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_X));
-	debug_printf("- CW[y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Y));
-	debug_printf("- CW[Y] val: %d\n", ADC_getValue(CANDLECOLOR_CW_PIN_ADC_Z));
-	debug_printf("- CW digital:\n"
-				 " CH0: %d\n"
-				 " CH1: %d\n"
-				 " CH2: %d\n"
-				 " CH3: %d\n",
-			CW_is_color_detected(CANDLECOLOR_CW_ID, 0),
-			CW_is_color_detected(CANDLECOLOR_CW_ID, 1),
-			CW_is_color_detected(CANDLECOLOR_CW_ID, 2),
-			CW_is_color_detected(CANDLECOLOR_CW_ID, 3));
-
-	for(i=0; i<7; i++)
-		debug_printf("-  AX12[%d] val: %u\n", i, AX12_get_position(i));
-	debug_printf("\n");*/
-}
-#endif // Tiny ou Krusty
+static void MAIN_onButton4() {}
+#endif // ROBOT_BIG et ROBOT_SMALL

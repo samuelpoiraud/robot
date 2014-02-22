@@ -34,7 +34,8 @@
 #define TIME_BEFORE_FREE_STRING			50
 #define TIME_AFTER_FREE_STRING			20
 #define EPSILON_POS_FILET				4
-volatile Uint8 time_filet = 0;
+Uint8 time_filet = 0;
+bool_e rearm_auto_active = TRUE;
 
 static void FILET_lacher_ficelles();
 static void FILET_liberer_gache();
@@ -209,7 +210,7 @@ void FILET_process_100ms(void){
 }
 
 void FILET_process_main(void){
-	if(time_filet)
+	if(time_filet || !rearm_auto_active)
 		return;
 
 	queue_id_t queueId1;
@@ -283,6 +284,45 @@ void FILET_process_main(void){
 	}
 	last_port_state = PRESENCE_FILET;
 	time_filet = TIME_FILET_IT;
+}
+
+void FILET_BOUTON_process(void){
+	rearm_auto_active = FALSE;
+
+	queue_id_t queueId1;
+	FILET_initAX12();
+
+	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID) || !global.alim)
+		return;
+
+	typedef enum{
+		ARMED,
+		FREE
+	}state_e;
+
+	static state_e state = ARMED;
+
+	if(state == ARMED){
+		debug_printf("Libération du bras du filet\n");
+		queueId1 = QUEUE_create();
+		if(queueId1 != QUEUE_CREATE_FAILED) {
+			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_LAUNCHED, FILET_CS_LaunchedAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+		}else
+			QUEUE_flush(queueId1);
+		state = FREE;
+	}else{
+		debug_printf("Armement du bras du filet\n");
+		queueId1 = QUEUE_create();
+		if(queueId1 != QUEUE_CREATE_FAILED) {
+			QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_IDLE, FILET_CS_IdleAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+		}else
+			QUEUE_flush(queueId1);
+		state = ARMED;
+	}
 }
 
 #endif  /* I_AM_ROBOT_BIG */
