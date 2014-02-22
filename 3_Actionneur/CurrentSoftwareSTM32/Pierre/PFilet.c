@@ -149,14 +149,19 @@ static void FILET_command_init(queue_id_t queueId) {
 
 	debug_printf("Move filet ax12 to %d\n", *ax12_goalPosition);
 	AX12_reset_last_error(FILET_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
+
 	if(!AX12_set_position(FILET_AX12_ID, *ax12_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(FILET_AX12_ID).error);
 		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
-	if(command == ACT_FILET_LAUNCHED)
-		WATCHDOG_create(TIME_BEFORE_FREE_STRING, FILET_lacher_ficelles, FALSE);
+
 	//La commande a été envoyée et l'AX12 l'a bien reçu
+
+	if(command == ACT_FILET_LAUNCHED)
+		if(WATCHDOG_create(TIME_BEFORE_FREE_STRING, FILET_lacher_ficelles, FALSE) == 0xFF)
+			debug_printf("Création du watchdog pour lacher les ficelles impossible\n");
+
 }
 
 //Gère les états pendant le mouvement de l'AX12 déclenchant le filet
@@ -171,7 +176,8 @@ static void FILET_command_run(queue_id_t queueId) {
 
 static void FILET_lacher_ficelles(){
 	GACHE_FILET = 1;
-	WATCHDOG_create(TIME_AFTER_FREE_STRING, FILET_liberer_gache, FALSE);
+	if(WATCHDOG_create(TIME_AFTER_FREE_STRING, FILET_liberer_gache, FALSE) == 0xFF)
+		debug_printf("Création du watchdog pour libérer la gache impossible\n");
 }
 
 static void FILET_liberer_gache(){
