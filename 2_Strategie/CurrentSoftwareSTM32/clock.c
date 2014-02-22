@@ -113,6 +113,5 @@ void _ISR _T1Interrupt()
 	}
 	SD_process_1ms();
 	BUZZER_process_1ms();
-	FILET_process_1ms();
 	TIMER1_AckIT();
 }

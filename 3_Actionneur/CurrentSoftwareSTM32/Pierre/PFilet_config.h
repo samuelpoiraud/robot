@@ -20,7 +20,7 @@
 /** Position en degré de l'ax12 lorsque filet pas lancé  */
 	#define FILET_AX12_IDLE_POS            130    //en degré
 /** Position en degré de l'ax12 lorsque filet lancé */
-	#define FILET_AX12_LAUNCHED_POS          170    //en degré
+	#define FILET_AX12_LAUNCHED_POS          210    //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur  */
 	#define FILET_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 /** Position initiale de l'AX12. Doit être un define du type PLATE_PLIER_AX12_* */

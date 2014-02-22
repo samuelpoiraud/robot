@@ -115,6 +115,9 @@ int main (void)
 		QUEUE_run();
 		BUTTONS_update();
 
+		if(global.match_started == FALSE) // Si le match n'a pas commencé on gère le réarmement du filet
+				FILET_process_main();
+
 		/*-------------------------------------
 			Réception CAN et exécution
 		-------------------------------------*/
@@ -149,13 +152,9 @@ static void MAIN_onButton0() {
 */
 
 
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_PARKED ;
-
-
-
+	msg.size = 1;
+	msg.sid = ACT_SMALL_ARM;
+	msg.data[0] = ACT_SMALL_ARM_IDLE;
 
 	CAN_process_msg(&msg);
 }
@@ -192,15 +191,11 @@ static void MAIN_onButton1() {
 	}*/
 	CAN_msg_t msg;
 
-		msg.size = 1;
+	msg.size = 1;
+	msg.sid = ACT_SMALL_ARM;
+	msg.data[0] = ACT_SMALL_ARM_MID;
 
-		msg.sid = ACT_LANCELAUNCHER;
-
-
-		msg.data[0] = ACT_LANCELAUNCHER_RUN_6;
-
-		CAN_process_msg(&msg);
-		debug_printf("Main: ACT_LANCELAUNCHER_RUN_6\n");
+	CAN_process_msg(&msg);
 
 
 #endif
@@ -237,15 +232,10 @@ static void MAIN_onButton2() {
 */
 	CAN_msg_t msg;
 
-		msg.size = 1;
-
-		msg.sid = ACT_LANCELAUNCHER;
-
-
-		msg.data[0] = ACT_LANCELAUNCHER_RUN_2;
-
-		CAN_process_msg(&msg);
-		debug_printf("Main: ACT_LANCELAUNCHER_RUN_2\n");
+	msg.size = 1;
+	msg.sid = ACT_SMALL_ARM;
+	msg.data[0] = ACT_SMALL_ARM_DEPLOYED;
+	CAN_process_msg(&msg);
 
 
 #endif

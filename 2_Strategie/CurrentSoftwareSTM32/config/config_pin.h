@@ -59,7 +59,7 @@
 	#define	USB_POWER_ON	 	GPIOC->ODR0
 	#define FRESCO_1			GPIOC->IDR1
 	#define FRESCO_2			GPIOC->IDR2
-	#define PRESENCE_FILET		GPIOC->IDR3
+	//	Capteur						  3
 	//	Capteur			 			  4
 	#define BUTTON6_PORT		(!GPIOC->IDR5)
 	#define LED_BEACON_IR_GREEN	GPIOC->ODR6

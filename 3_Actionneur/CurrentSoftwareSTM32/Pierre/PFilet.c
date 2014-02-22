@@ -11,26 +11,30 @@
 #include "PFilet.h"
 #ifdef I_AM_ROBOT_BIG
 
-//#include "../QS/QS_can.h"
+#include "PFilet_config.h"
+
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
+#include "../QS/QS_watchdog.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
-#include "config_pin.h"
-#include "PFilet_config.h"
-#include "../QS/QS_watchdog.h"
+#include "../config/config_pin.h"
 
 
 #include "config_debug.h"
-#define LOG_PREFIX "FR: "
+#define LOG_PREFIX "PFilet.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_FILET
 #include "../QS/QS_outputlog.h"
 
 
-#define TIME_FILET_IT					5
+/* define & variable relatifs au lanceur de filet */
+#define QUANTUM_IT						100
+#define TIME_FILET_IT					(1*QUANTUM_IT)
 #define TIME_BEFORE_REARM				500
 #define TIME_BEFORE_FREE_STRING			50
 #define TIME_AFTER_FREE_STRING			20
+#define EPSILON_POS_FILET				4
+volatile Uint8 time_filet = 0;
 
 static void FILET_lacher_ficelles();
 static void FILET_liberer_gache();
@@ -118,10 +122,7 @@ bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	} else if(msg->sid == ACT_DO_SELFTEST) {
-		SELFTEST_set_actions(&FILET_run_command, 2, (SELFTEST_action_t[]){
-								 {ACT_FILET_IDLE,  FILET_CS_IdleAX12,  QUEUE_ACT_AX12_Filet}
-								 // Vérifier présence filet
-							 });
+		// Pas de selftest pour cette actionneur
 	}
 
 	return FALSE;
@@ -200,4 +201,91 @@ static void FILET_lacher_ficelles(){
 static void FILET_liberer_gache(){
 	GACHE_FILET = 0;
 }
+
+//************************************** Gestion du réarmement /**************************************/
+
+void FILET_process_100ms(void){
+	if(time_filet)
+		time_filet-=100;
+}
+
+void FILET_process_main(void){
+	if(time_filet)
+		return;
+
+	queue_id_t queueId1;
+	FILET_initAX12();
+
+	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID)){
+		time_filet = TIME_FILET_IT;
+		return;
+	}
+
+	typedef enum{
+		RISING_EDGE,
+		WAIT_UP,
+		REARM,
+		FREE
+	}state_e;
+
+	static state_e state = RISING_EDGE;
+	static bool_e last_port_state = TRUE;
+	static Uint16 time;
+	Uint16 position_ax12 = AX12_get_position(FILET_AX12_ID);
+	switch(state){
+		case RISING_EDGE :
+			//debug_printf("%d %s\n", position_ax12, PRESENCE_FILET?"présent":"non présent");
+			if(PRESENCE_FILET && !last_port_state){
+				debug_printf("Tentative de réarmement du bras du filet !\n");
+				time = 0;
+				state = WAIT_UP;
+			}else if(!PRESENCE_FILET
+					 && !((position_ax12 <= FILET_AX12_LAUNCHED_POS + EPSILON_POS_FILET)
+					 && (position_ax12 >= FILET_AX12_LAUNCHED_POS - EPSILON_POS_FILET)))
+				state = FREE;
+			break;
+
+		case WAIT_UP :
+			if(PRESENCE_FILET){
+				if(time >= TIME_BEFORE_REARM)
+					state = REARM;
+				else{
+					time += TIME_FILET_IT;
+				}
+			}else{
+				debug_printf("Réarmement annulé\n");
+				state = RISING_EDGE;
+			}
+			break;
+
+		case REARM :
+			debug_printf("Réarmement du bras du filet\n");
+			queueId1 = QUEUE_create();
+			if(queueId1 != QUEUE_CREATE_FAILED) {
+				QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+				QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_IDLE, FILET_CS_IdleAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+				QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+			}else
+				QUEUE_flush(queueId1);
+			state = RISING_EDGE;
+			break;
+
+		case FREE :
+			debug_printf("Libération du bras du filet\n");
+			queueId1 = QUEUE_create();
+			if(queueId1 != QUEUE_CREATE_FAILED) {
+				QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+				QUEUE_add(queueId1, &FILET_run_command, (QUEUE_arg_t){ACT_FILET_LAUNCHED, FILET_CS_LaunchedAX12,  NULL}, QUEUE_ACT_AX12_Filet);
+				QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+			}else
+				QUEUE_flush(queueId1);
+			state = RISING_EDGE;
+			break;
+	}
+	last_port_state = PRESENCE_FILET;
+	time_filet = TIME_FILET_IT;
+}
+
+
+
 #endif  /* I_AM_ROBOT_BIG */

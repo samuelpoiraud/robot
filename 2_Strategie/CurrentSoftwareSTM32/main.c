@@ -85,7 +85,6 @@ int main (void)
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-	debug_printf("--- Hello, I'm STRAT (%s) ---\n", QS_WHO_AM_I_get_name());
 	ZONE_init();
 
 	STACKS_init();
@@ -119,8 +118,6 @@ int main (void)
 
 		/* Code concernant la supervision */
 		Supervision_process_main();
-
-		FILET_process_main();
 
 		/* Execution des routines de supervision des piles
 		actionneurs */
