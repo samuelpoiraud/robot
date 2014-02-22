@@ -332,7 +332,7 @@ void strat_test_point(){
 		msg.size = 6;
 		CAN_send(&msg);
 		debug_printf("Envoie Message ACtionneur\n");
-		ACT_lance_launcher_run(ACT_Lance_5);
+		ACT_lance_launcher_run(ACT_Lance_ALL);
 
 		state = DONE;
 
@@ -883,7 +883,7 @@ error_e strat_lance_launcher(){
 			ASSER_WARNER_arm_y(COLOR_Y(600-100)); //-100 largeur du robot
 
 		if(global.env.asser.reach_y)
-			ACT_lance_launcher_run(ACT_Lance_5);
+			ACT_lance_launcher_run(ACT_Lance_5_BALL);
 
 		break;
 	case DONE:
@@ -922,7 +922,7 @@ error_e strat_lance_launcher_ennemy(){
 			ASSER_WARNER_arm_y(COLOR_Y(2400-120)); //-100 largeur du robot
 
 		if(global.env.asser.reach_y)
-			ACT_lance_launcher_run(ACT_Lance_6);
+			ACT_lance_launcher_run(ACT_Lance_ALL);
 
 		break;
 	case DONE:

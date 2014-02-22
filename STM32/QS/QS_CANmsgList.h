@@ -439,13 +439,10 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////LANCELAUNCHER////////////////////
 	ACT_LANCELAUNCHER = (ACT_FILTER | 0x19),
 		//Paramètres de LANCELAUNCHER (dans data[0])
-		#define ACT_LANCELAUNCHER_RUN		0x11
-		#define ACT_LANCELAUNCHER_RUN_2		0x12
-		#define ACT_LANCELAUNCHER_RUN_3		0x13
-		#define ACT_LANCELAUNCHER_RUN_4		0x14
-		#define ACT_LANCELAUNCHER_RUN_5		0x15
-		#define ACT_LANCELAUNCHER_RUN_6		0x16
-		#define ACT_LANCELAUNCHER_STOP		0x1F
+		#define ACT_LANCELAUNCHER_RUN_1_BALL	0x11
+		#define ACT_LANCELAUNCHER_RUN_5_BALL	0x12
+		#define ACT_LANCELAUNCHER_RUN_ALL		0x13
+		#define ACT_LANCELAUNCHER_STOP			0x1F
 	////////////////////////////////////////////////
 
 	////////////////// ARM  /////////////////

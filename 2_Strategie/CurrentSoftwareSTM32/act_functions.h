@@ -54,12 +54,9 @@ typedef enum {
 } ACT_fruit_mouth_cmd_e;
 
 typedef enum {
-	ACT_Lance_1 =  ACT_LANCELAUNCHER_RUN,
-	ACT_Lance_2 = ACT_LANCELAUNCHER_RUN_2,
-	ACT_Lance_3 = ACT_LANCELAUNCHER_RUN_3,
-	ACT_Lance_4 = ACT_LANCELAUNCHER_RUN_4,
-	ACT_Lance_5 = ACT_LANCELAUNCHER_RUN_5,
-	ACT_Lance_6 = ACT_LANCELAUNCHER_RUN_6
+	ACT_Lance_1_BALL =  ACT_LANCELAUNCHER_RUN_1_BALL,
+	ACT_Lance_5_BALL = ACT_LANCELAUNCHER_RUN_5_BALL,
+	ACT_Lance_ALL = ACT_LANCELAUNCHER_RUN_ALL,
 } ACT_lance_launcher_cmd_e;
 
 typedef enum {
