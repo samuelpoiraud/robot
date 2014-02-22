@@ -85,6 +85,8 @@ void ENV_init(void)
 	global.env.asser.is_in_translation = FALSE;
 	global.env.asser.is_in_rotation = FALSE;
 	global.env.asser.current_status = NO_ERROR;
+	global.env.alim = FALSE;
+	global.env.alim_value = 0;
 }
 
 

@@ -39,7 +39,9 @@
 		#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
 		#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
 		#define WARNING_NEW_TRAJECTORY		(0b01000000)		//Changement de trajectoire (attention, cela inclue les trajectoires préalables ajoutées en propulsion...)
-
+	#define BROADCAST_ALIM				0x005		// Message envoyé lors d'un changement d'état de l'alimentation 12/24V
+		#define ALIM_OFF					(0b00000000)
+		#define ALIM_ON						(0b00000001)
 	/* Message pour personne */
 	#define DEBUG_CARTE_P				0x742
 	#define DEBUG_FOE_POS				0x748

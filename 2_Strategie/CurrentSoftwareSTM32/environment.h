@@ -17,16 +17,16 @@
 	#include "detection.h"
 	#include "sick.h"
 	#include "elements.h"
-	
+
 	/* #define communs à plusieurs modules */
 	#define MATCH_DURATION 				90000UL //90 secondes)
 	#define GAME_ZONE_SIZE_X			2000 //2000 mm
 	#define GAME_ZONE_SIZE_Y			3000 //3000 mm
-	
+
 	// Dimensions des éléments de jeu
 	#define CD_RADIUS				60
 	#define CD_DIAMETER				120
-	#define CD_SQUARED_RADIUS		3600	
+	#define CD_SQUARED_RADIUS		3600
 	#define CD_SQUARED_DIAMETER		14400
 	#define GOLD_BAR_LENGTH_BOTTOM	150
 	#define GOLD_BAR_WIDTH_BOTTOM	70
@@ -75,7 +75,7 @@
 		volatile time32_t update_time;		//Ce temps sera mis à jour à chaque adversaire nouvellement observé.
 		volatile bool_e updated;			//Attention, ce flag sera levé pendant UNE SEULE boucle de tâche de fond, suite à la mise à jour.
 	}position_t;
-	
+
 	typedef struct
 	{
 		volatile Sint16 angle;
@@ -105,6 +105,8 @@
 		bool_e color_updated;
 		bool_e ask_asser_calibration;
 		bool_e ask_start;
+		bool_e alim;
+		Uint16 alim_value;		// en mV
 		config_t config;
 		config_t wanted_config;
 		bool_e config_updated;

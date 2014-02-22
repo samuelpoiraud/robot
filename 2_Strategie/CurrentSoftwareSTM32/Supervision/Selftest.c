@@ -55,6 +55,7 @@ error_e SELFTEST_strategy(bool_e reset);
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size);
 void SELFTEST_beacon_reask_periodic_sending(void);
 Uint16 SELFTEST_measure24_mV(void);
+static void SELFTEST_check_alim();
 
 
 void SELFTEST_init(void)
@@ -116,7 +117,7 @@ void SELFTEST_process_main(void)
 {
 	SELFTEST_update(NULL);
 	SELFTEST_beacon_reask_periodic_sending();	//Toutes les 200 secondes, il faut redemander à la carte balise d'envoyer des messages périodiquement
-	//TODO... ?
+	SELFTEST_check_alim();
 }
 
 //Machine a état du selftest, doit être appelée : dans le process de tâche de fond ET à chaque réception d'un message can de selftest.
@@ -680,3 +681,39 @@ void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 	}
 }
 
+void SELFTEST_check_alim(){
+	typedef enum{
+		ALIM_On,
+		ALIM_Off
+	}state_e;
+	static state_e state = ALIM_Off;
+	static bool_e says = FALSE;
+	global.env.alim_value = SELFTEST_measure24_mV();
+	CAN_msg_t msg;
+
+	if(global.env.alim_value > 15000 && state != ALIM_On){
+		msg.sid = BROADCAST_ALIM;
+		msg.data[0] = ALIM_ON;
+		msg.data[1] = (Uint8)((global.env.alim_value >> 8) & 0x00FF);
+		msg.data[2] = (Uint8)(global.env.alim_value & 0x00FF);
+		msg.size = 3;
+		CAN_send(&msg);
+		state = ALIM_On;
+		global.env.alim = TRUE;
+	}else if(global.env.alim_value < 15000 && state != ALIM_Off){
+		msg.sid = BROADCAST_ALIM;
+		msg.data[0] = ALIM_OFF;
+		msg.data[1] = (Uint8)((global.env.alim_value >> 8) & 0x00FF);
+		msg.data[2] = (Uint8)(global.env.alim_value & 0x00FF);
+		msg.size = 3;
+		CAN_send(&msg);
+		state = ALIM_Off;
+		global.env.alim = FALSE;
+	}
+
+	if(global.env.alim_value > 5000 && global.env.alim_value < 20000 && !says){
+		debug_printf("Batterie instable -> %d mV\n", global.env.alim_value);
+		says = TRUE;
+	}else
+		says = FALSE;
+}

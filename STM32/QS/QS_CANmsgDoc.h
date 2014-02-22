@@ -9,21 +9,27 @@
  *	Licence : CeCILL-C (voir LICENCE.txt)
  *  Version 20101216
  */
- 
+
 #if 0 // c'est que de la doc
 #ifndef QS_CANMSGDOC_H
 	#define QS_CANMSGDOC_H
 
 	/* Masque des cartes (des destinataires) */
-	
-  	/* Message pour tous */
-  	#define BROADCAST_START
-  	#define BROADCAST_STOP_ALL
+
+	/* Message pour tous */
+	#define BROADCAST_START
+	#define BROADCAST_STOP_ALL
 	#define BROADCAST_COULEUR
 	/* argument
 		couleur de notre robot : (Uint8):(RED=0, PURPLE =1)
 	*/
 	#define BROADCAST_POSITION_ROBOT // cf. CARTE_P_POSITION_ROBOT
+
+	#define BROADCAST_ALIM
+	/*	argument :
+	 *	bit 0	: Flag état alim / 0x00 -> OFF / 0x01 -> ON
+	 *	bit 1/2	: Mesure de l'alimentation sur 16 bit en mV
+	 */
 
 	/* Message pour personne */
 	#define DEBUG_CARTE_P				0x742
@@ -40,7 +46,7 @@
 		Sint16	position adverse x	[mm]	(ATTENTION, peut être négatif si on le voit prêt de la bordure avec une petite erreur...)
 		Sint16  position adverse y	[mm]	(idem)
 	*/
-	
+
 	#define DEBUG_ELEMENT_UPDATED		0x749
 	/*
 		arguments (size = 6) :
@@ -58,15 +64,15 @@
 		Y : Sint16 (mm)
 		Angle : Sint16 (RAD4096)
 	*/
-	
-	
+
+
 	#define SUPER_EEPROM_RESET			(0x770)
-	/*  
-		Message de l'utilisateur vers Super 
+	/*
+		Message de l'utilisateur vers Super
 		Permet de demander (exceptionnellement et en toute conscience) le reset de la mémoire EEPROM externe
 		Aucun argument.
 	*/
-	
+
 	#define SUPER_EEPROM_PRINT_MATCH	(0x777)
 	/*
 		demande l'affichage d'un match dont on connait l'adresse de l'entête.
@@ -75,9 +81,9 @@
 		argument
 		match_address_x8 : Uint16 (x8 signifie ici que l'unité de ce nombre est une adresse physique d'eeprom/8, voir le code pour plus d'infos)
 	*/
-	
+
 	#define SUPER_RTC_GET				(0x780)
-	
+
 	#define SUPER_RTC_SET				(0x781)
 	/*
 		Uint8 seconds
@@ -88,7 +94,7 @@
 		Uint8 months
 		Uint8 year	(11 pour 2011)
 	*/
-	
+
 	#define	SUPER_RTC_TIME				(0x782)
 	/*
 		Si communication impossible avec la RTC, les champs sont mis à zéro, sauf la date et le mois qui sont à 1.
@@ -100,7 +106,7 @@
 		Uint8 months
 		Uint8 year	(11 pour 2011)
 	*/
-	
+
 /*****************************************************************
  *
  *		Messages echangés entre la carte Supervision
@@ -116,29 +122,29 @@
 		evitement  : Uint8 (bool_e)
 		balise   : Uint8 (bool_e)
 	*/
-	#define SUPER_ASK_STRAT_SELFTEST	
+	#define SUPER_ASK_STRAT_SELFTEST
 	/*
 		Vide
 	*/
-	
+
 	/* Carte super vers carte actionneur */
-	#define SUPER_ASK_ACT_SELFTEST		
+	#define SUPER_ASK_ACT_SELFTEST
 	/*
 		Vide
 	*/
-	
+
 	/* Carte super vers carte propulsion */
-	#define SUPER_ASK_ASSER_SELFTEST	
+	#define SUPER_ASK_ASSER_SELFTEST
 	/*
 		sens : Uint8 (FORWARD|BACKWARD)
 	*/
-	
+
 	/* Carte super vers carte balise */
 	#define SUPER_ASK_BEACON_SELFTEST
 	/*
 		Vide
 	*/
-	
+
 	/* Carte carte stratégie vers super */
 	#define SUPER_CONFIG_IS
 	/* arguments :
@@ -147,30 +153,30 @@
 		evitement : Uint8 (bool_e)
 		balise  : Uint8 (bool_e)
 	*/
-	#define STRAT_SELFTEST				
+	#define STRAT_SELFTEST
 	/* arguments :
 		conection_capteurs : Uint8 (cf. code strat)
 		biroute : Uint8
 	*/
-	
+
 	/* Carte actionneur vers Super */
-	#define ACT_SELFTEST 				
+	#define ACT_SELFTEST
 	/*
 		etat_pince_av : Uint8
 		etat_pince_arr : Uint8
 		etat_acenseur_av : Uint8
 		etat_acenseur_arr : Uint8
 	*/
-	
+
 	/* Carte propulsion vers Super */
-	#define ASSER_SELFTEST 				
+	#define ASSER_SELFTEST
 	/* arguments :
 		etat_moteur_g : Uint8
 		etat_moteur_d : Uint8
 		etat_roues_codeuse_g : Uint8
 		etat_roues_codeuse_d : Uint8
 	*/
-	
+
 	/* Carte balise vers Super */
 	#define BEACON_IR_SELFTEST
 	/* 3 arguments :
@@ -180,17 +186,17 @@
 	*/
 	#define BEACON_US_SELFTEST
 	/* arguments :
-		erreur_reception_ir : Uint8 (tout va bien quand on recoit 0, 
+		erreur_reception_ir : Uint8 (tout va bien quand on recoit 0,
 			sinon voir le code d'erreur non nul en bas de ce fichier)
 		erreur_reception_us : Uint8 (tout va bien quand on recoit 0, sinon voir le code d'erreur non nul)
 		distance_cm : Uint16 (information gratuite que l'on n'exploite pas)
-		etat_synchro : Uint8 (nb de secondes de synchro si synchro OK, 0 sinon !) Considérer comme ok si > 10 secondes 
+		etat_synchro : Uint8 (nb de secondes de synchro si synchro OK, 0 sinon !) Considérer comme ok si > 10 secondes
 			car la balise a besoin d'au moins 10 secondes de fonctionnement pour répondre un selftest validable ...
 	*/
-	
+
 /******************************************************************
  *
- *		Petits mots doux echangés entre la carte propulsion 
+ *		Petits mots doux echangés entre la carte propulsion
  *		et la carte stratégie
  *
  *			typedef enum
@@ -202,13 +208,13 @@
  *
  *			typedef enum
  *			{
- *				FAST, 
+ *				FAST,
  * 				SLOW
  *	 		}ASSER_speed_e;
  *****************************************************************/
 
-  	/* carte propulsion vers carte stratégie */
-  	#define CARTE_P_TRAJ_FINIE
+	/* carte propulsion vers carte stratégie */
+	#define CARTE_P_TRAJ_FINIE
 	/*
 		X : Sint16 (mm)
 		Y : Sint16 (mm)
@@ -221,24 +227,24 @@
 		Angle : Sint16 (RAD4096)
 		0x00  : Uint8 RFU (Reserved for Future Use)
 		Error : Octet caractérisant l'erreur rencontrée :
-				0bTRxWWEEE	
+				0bTRxWWEEE
 					 T = bool_e
 					 R = bool_e
 					 x = non utilisé
 					 WW  = way_e
 					 EEE = SUPERVISOR_error_source_e
-				avec : 
+				avec :
 					T = 1 si robot en translation
 					R = 1 si robot en rotation
 					La combinaison des 2 bit T et R est possible lors de courbe ou correction d'angle lors d'un mouvement
-						
-					typedef enum 
+
+					typedef enum
 					{
 						ANY_WAY=0,
 						BACKWARD,
 						FORWARD
-					} way_e;	
-					
+					} way_e;
+
 					typedef enum
 					{
 						NO_ERROR = 0,					//Ne doit pas arriver, s'il y a eu erreur, c'est qu'il y a une raison
@@ -247,8 +253,8 @@
 						ROUNDS_RETURNS_ERROR,			//Une erreur d'algo de propulsion ou de mécanique produit une oscillation autour de notre objectif et nous le rend difficile à atteindre. On peut considérer qu'on est arrivé à notre objectif (il est proche !)
 						UNKNOW_ERROR					//N'existe pas à l'heure où j'écris ces lignes... RFU (Reserved for Futur Use)
 					}SUPERVISOR_error_source_e;
-					
-		
+
+
 	*/
 	#define CARTE_P_POSITION_ROBOT
 		/*
@@ -259,8 +265,8 @@
 			Remarque : Il est possible de CUMULER plusieurs raisons !!!
 						#define WARNING_NO					(0b00000000)
 						#define WARNING_TIMER				(0b00000001)
-						#define WARNING_TRANSLATION			(0b00000010)		//Nous venons de nous déplacer sur une grille virtuelle en distance pour laquelle on nous a demandé une surveillance.		
-						#define WARNING_ROTATION			(0b00000100)		//Nous venons de nous déplacer sur une grille virtuelle en angle pour laquelle on nous a demandé une surveillance.		
+						#define WARNING_TRANSLATION			(0b00000010)		//Nous venons de nous déplacer sur une grille virtuelle en distance pour laquelle on nous a demandé une surveillance.
+						#define WARNING_ROTATION			(0b00000100)		//Nous venons de nous déplacer sur une grille virtuelle en angle pour laquelle on nous a demandé une surveillance.
 						#define WARNING_REACH_X				(0b00001000)		//Nous venons d'atteindre une position en X pour laquelle on nous a demandé une surveillance.
 						#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
 						#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
@@ -282,7 +288,7 @@
 				UNKNOW_ERROR
 
 	*/
- 	#define CARTE_P_ROBOT_FREINE
+	#define CARTE_P_ROBOT_FREINE
 	/*
 		X : Sint16 (mm)
 		Y : Sint16 (mm)
@@ -295,12 +301,12 @@
 
 /************************************************************************************/
 
-  	/* carte stratégie vers carte propulsion */
-  	#define ASSER_GO_ANGLE
+	/* carte stratégie vers carte propulsion */
+	#define ASSER_GO_ANGLE
 	/* argument :
 		CONFIG : Uint8	=>	|..0. .... - ordre non multipoint
 							|..1. .... - ou multipoint
-							|		
+							|
 							|...0 .... - ordre a executer maintenant
 							|...1 .... - ou a la fin du buffer
 							|
@@ -315,20 +321,20 @@
 							0x02 : très lent
 							....
 							0x08 à 0xFF : vitesse "analogique"
-		
+
 		MARCHE : Uint8	=>	|...0 ...0 |_ marche avt ou arrière
-							|...1 ...1 |	
+							|...1 ...1 |
 							|
 							|...0 ...1 	- marche avant obligé
 							|...1 ...0 	- marche arrière obligée
-							
+
 		RAYONCRB : Uint8
 	*/
 		#define ASSER_GO_POSITION
 	/* arguments :
 		CONFIG : Uint8	=>	|..0. .... - ordre non multipoint
 							|..1. .... - ou multipoint
-							|		
+							|
 							|...0 .... - ordre a executer maintenant
 							|...1 .... - ou a la fin du buffer
 							|
@@ -343,12 +349,12 @@
 							0x02 : très lent
 							....
 							0x08 à 0xFF : vitesse "analogique"
-		
+
 		MARCHE : Uint8	=>	|...0 ...0 |_ marche avt ou arrière
-							|...1 ...1 |	
+							|...1 ...1 |
 							|
 							|...0 ...1 	- marche avant obligé
-							|...1 ...0 	- marche arrière obligée					
+							|...1 ...0 	- marche arrière obligée
 		RAYONCRB : Uint8
 	*/
 	#define ASSER_SET_POSITION
@@ -365,21 +371,21 @@
 		PERIODE : 		Uint16 		unité : [ms] 	Période à laquelle on veut recevoir des messages de BROADCAST_POSITION
 		TRANSLATION : 	Sint16 		unité : mm		Déplacement du robot au delà duquel on veut recevoir un BROADCAST_POSITION
 		ROTATION : 		Sint16		unité : rad4096	Déplacement du robot au delà duquel on veut recevoir un BROADCAST_POSITION
-				
+
 		Si l'un des paramètres vaut 0, l'avertisseur correspondant est désactivé.
-		
+
 		Remarque :
 		l'it tourne à 5ms => plus petite période d'envoi
-		donc la PERIODE effective sera la période demandée arrondie au 5ms supérieur !	
-	
+		donc la PERIODE effective sera la période demandée arrondie au 5ms supérieur !
+
 	*/
 
 	#define ASSER_STOP
 	/* pas d'argument */
-	
+
 	#define ASSER_TELL_POSITION
-	/* pas d'argument */	
-	
+	/* pas d'argument */
+
 	#define ASSER_TYPE_ASSERVISSEMENT
 	/* argument :
 		Rotation : Uint8		asservissement en rotation on (1)/ off(0)
@@ -401,7 +407,7 @@
 		Angle : Sint16 (RAD4096)
 			0 pour demander un désarmement !!!
 			ATTENTION, pas d'armement possible en 0, demandez 1[rad/4096], c'est pas si loin.
-	*/		
+	*/
 	#define ASSER_WARN_X
 	/* argument :
 		x : Sint16 (mm)
@@ -425,15 +431,15 @@
 	/* Liste de valeurs intéressantes */
 	#define ACT_OFF						0
 	#define ACT_ON						1
-	
-	#define ACT_FRONT					2	
+
+	#define ACT_FRONT					2
 	#define ACT_BACK					3
 
 	#define ACT_CLAMP_FRONT				4
 	#define ACT_CLAMP_BACK				5
 	#define ACT_LIFT_FRONT				6
 	#define ACT_LIFT_BACK				7
-	
+
 	#define ACT_CLAMP_CLOSED_ON_PAWN	8
 	#define ACT_CLAMP_OPENED			9
 	#define ACT_CLAMP_CLOSED			10
@@ -441,10 +447,10 @@
 	#define ACT_LIFT_MIDDLE				12
 	#define ACT_LIFT_TOP				13
 	#define ACT_LIFT_MOVE_TOWER			14
-	
+
 	#define ACK_LIFT_ACTION				15
 	#define ACK_CLAMP_ACTION			16
-	
+
 	/*Carte Actionneur vers carte Stratégie */
 	#define ACT_DCM_POS
 	/* Arguments:
@@ -469,25 +475,25 @@
 	#define ACT_PAWN_NO_LONGER_DETECTED
 	/* Arguments:
 		act_id: Uint8 (ACT_FRONT|ACT_BACK)
-	*/							
+	*/
 	#define ACT_EMPTY
 	/* Arguments:
 		act_id: Uint8 (ACT_CLAMP_FRONT|ACT_CLAMP_BACK)
-	*/						
+	*/
 	#define ACT_FULL
 	/* Arguments:
 		act_id: Uint8 (ACT_CLAMP_FRONT|ACT_CLAMP_BACK)
-	*/							
+	*/
 	#define ACT_FAILURE
 	/* Arguments:
 		act_id: Uint8 (ACT_CLAMP_FRONT|ACT_CLAMP_BACK|ACT_LIFT_FRONT|ACT_LIFT_BACK)
 		error: Uint8
-	*/								
-	#define ACT_READY										
+	*/
+	#define ACT_READY
 	/* Arguments:
 		act_id: Uint8 (ACT_CLAMP_FRONT|ACT_CLAMP_BACK|ACT_LIFT_FRONT|ACT_LIFT_BACK)
-	*/	
-	
+	*/
+
 	/* Carte Stratégie vers Carte Actionneur*/
 	#define ACT_DCM_SETPOS
 	/* Ce message permet de donner la position d'un actionneur
@@ -496,13 +502,13 @@
 		position: Uint8	(ACT_CLAMP_CLOSED_ON_PAWN|ACT_CLAMP_OPENED|ACT_CLAMP_CLOSED|ACT_LIFT_BOTTOM|ACT_LIFT_MIDDLE|ACT_LIFT_TOP|ACT_LIFT_MOVE_TOWER)
 	*/
 	#define ACT_PREPARE_CLAMP
-	/* Ce message permet de préparer l'actionneur à pousser ou ramasser en mouvement un élément de jeu 
+	/* Ce message permet de préparer l'actionneur à pousser ou ramasser en mouvement un élément de jeu
 		Arguments :
 		act_id : Uint8 (ACT_FRONT|ACT_BACK)
 		out_position : Uint8(ACT_LIFT_BOTTOM|ACT_LIFT_MIDDLE|ACT_LIFT_TOP|ACT_LIFT_MOVE_TOWER)
 	*/
 	#define ACT_TAKE_PAWN
-	/* Ce message demande à l'actionneur passé en paramètre de ramasser un pion et de le stocker à la position donnée 
+	/* Ce message demande à l'actionneur passé en paramètre de ramasser un pion et de le stocker à la position donnée
 		Arguments:
 		act_id : Uint8 (ACT_FRONT|ACT_BACK)
 		out_position : Uint8(ACT_LIFT_BOTTOM|ACT_LIFT_MIDDLE|ACT_LIFT_TOP|ACT_LIFT_MOVE_TOWER)
@@ -510,34 +516,34 @@
 	*/
 	#define ACT_FILE_PAWN
 	/* Ce message permet de lâcher le pion stocké dans la pince à un niveau d'ascenceur passé en paramètres
-	 	Arguments:
+		Arguments:
 		act_id : Uint8 (ACT_FRONT|ACT_BACK)
 		position : Uint8(ACT_LIFT_BOTTOM|ACT_LIFT_MIDDLE|ACT_LIFT_TOP|ACT_LIFT_MOVE_TOWER)
 		acquittement : Uint8(ACK_LIFT_ACTION|ACK_CLAMP_ACTION)
 	*/
-	
+
 /*****************************************************************
  *
  *		Messages echangés entre la carte balise
  *		et la carte stratégie
  *
  *****************************************************************/
- 
+
 	/* carte stratégie vers carte balises */
-	#define BEACON_ENABLE_PERIODIC_SENDING	
-	/* 
+	#define BEACON_ENABLE_PERIODIC_SENDING
+	/*
 		Aucun arguments.
 		Demande d'activation d'envois périodiques de la position adverse.
 	*/
-	
+
 	#define BEACON_DISABLE_PERIODIC_SENDING
-	/* 
+	/*
 		Aucun arguments.
 		Demande de désactivation d'envois périodiques de la position adverse.
 	*/
-	
+
 	//Balises autour du terrain avec réception InfraRouge
-	#define BEACON_ADVERSARY_POSITION_IR_ARROUND_AREA		0x252	
+	#define BEACON_ADVERSARY_POSITION_IR_ARROUND_AREA		0x252
 	//Balises autour du terrain avec réception UltraSon
 	#define BEACON_ADVERSARY_POSITION_US_ARROUND_AREA		0x253
 		/* Pour ces deux messages, les arguments sont :
@@ -547,71 +553,71 @@
 		2-3:Sint16	x
 		4-5:Sint16 	y
 		*/
-		
-	
+
+
 	/* Carte balises vers carte stratégie */
 	#define BEACON_ADVERSARY_POSITION_IR	0x250
 	/*
 		arguments (size = 8) :
-		Uint8	ADV1 	octet d'erreur		(VOIR DESCRIPTION DES ERREURS CI DESSOUS !)			
+		Uint8	ADV1 	octet d'erreur		(VOIR DESCRIPTION DES ERREURS CI DESSOUS !)
 		Sint16	ADV1 	angle de vue de l'adversaire [rad/4096] (de -PI4096 à PI4096)
 		Uint8	ADV1 	distance de vue de l'adversaire [cm] (ATTENTION, unité = cm !!! donc maximum = 2,55m, un écretage est réalisé)
-		
-		Uint8	ADV2 	octet d'erreur		(VOIR DESCRIPTION DES ERREURS CI DESSOUS !)			
+
+		Uint8	ADV2 	octet d'erreur		(VOIR DESCRIPTION DES ERREURS CI DESSOUS !)
 		Sint16	ADV2 	angle de vue de l'adversaire [rad/4096] (de -PI4096 à PI4096)
 		Uint8	ADV2 	distance de vue de l'adversaire [cm] (ATTENTION, unité = cm !!! donc maximum = 2,55m, un écretage est réalisé)
-		
+
 	*/
 
 	#define BEACON_ADVERSARY_POSITION_US	0x251
 	/*
 		arguments (size = 8) :
-		Uint8	octet d'erreur	robot adverse 1	(VOIR dESCRIPTION DES ERREURS CI DESSOUS !)			
+		Uint8	octet d'erreur	robot adverse 1	(VOIR dESCRIPTION DES ERREURS CI DESSOUS !)
 		Uint16	distance de vue de l'adversaire 1 [mm]
 		Uint8	beacon_id (numéro de la balise qui envoie ce message)
 	 *
 		Uint8 octet d'erreur robot adverse 2
 		Uint16	distance de vue de l'adversaire 2 [mm]
 		Uint8 RFU (0xEE) : Reserved for futur use
-	 	*/
+		*/
 
-	/* DEFINITION DES ERREURS RENVOYEES PAR LA BALISE : 
+	/* DEFINITION DES ERREURS RENVOYEES PAR LA BALISE :
 		###ATTENTION : ce texte est une copie extraite du fichier "balise_config.h" du projet balise.
-		--> Plusieurs erreurs peuvent se cumuler... donc 1 bit chacune... 
+		--> Plusieurs erreurs peuvent se cumuler... donc 1 bit chacune...
 	*/
 		#define AUCUNE_ERREUR						0b00000000
 						//COMPORTEMENT : le résultat délivré semble bon, il peut être utilisé.
-						
-		#define AUCUN_SIGNAL						0b00000001	
+
+		#define AUCUN_SIGNAL						0b00000001
 						//survenue de l'interruption timer 3 car strictement aucun signal reçu depuis au moins deux tours moteurs
 						//cette erreur peut se produire si l'on est très loin
 						//COMPORTEMENT : pas d'évittement par balise, prise en compte des télémètres !
-												
-		#define SIGNAL_INSUFFISANT					0b00000010	
+
+		#define SIGNAL_INSUFFISANT					0b00000010
 						//il peut y avoir un peu de signal, mais pas assez pour estimer une position fiable (se produit typiquement si l'on est trop loin)
 						//cette erreur n'est pas grave, on peut considérer que le robot est LOIN !
 						//COMPORTEMENT : pas d'évittement, pas de prise en compte des télémètres !
-						
+
 		#define TACHE_TROP_GRANDE					0b00000100
 						//Ce cas se produit si trop de récepteurs ont vu du signal.
 						// Ce seuil est STRICTEMENT supérieur au cas normal d'un robot très pret. Il y a donc probablement un autre émetteur quelque part, ou on est entouré de miroir.
 						//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
-						
+
 		#define TROP_DE_SIGNAL						0b00001000
 						//Le récepteur ayant reçu le plus de signal en à trop recu
 						//	cas 1, peu probable, le moteur est bloqué (cas de test facile pour vérifier cette fonctionnalité !)
 						//	cas 2, probable, il y a un autre émetteur quelque part !!!
 						// 	cas 3, on est dans une enceinte fermée et on capte trop
 						//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
-						
+
 		#define ERREUR_POSITION_INCOHERENTE 		0b00010000
 						//La position obtenue en x/y est incohérente, le robot semble être franchement hors du terrain
 						//COMPORTEMENT : si la position obtenue indique qu'il est loin, on ne fait pas d'évitement !
 						//sinon, on fait confiance à nos télémètres (?)
-						
+
 		#define OBSOLESCENCE						0b10000000
 						//La position adverse connue est obsolète compte tenu d'une absence de résultat valide depuis un certain temps.
 						//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
-		
+
 #endif	/* ndef QS_CANMSGLIST_H */
 #endif	/* 0 */
