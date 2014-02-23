@@ -16,13 +16,6 @@
 
 #include "../queue.h"
 
-typedef enum {
-	SMALL_ARM_CS_IdleAX12,
-	SMALL_ARM_CS_MidAX12,
-	SMALL_ARM_CS_DeployedAX12,
-	SMALL_ARM_CS_StopAX12
-} SMALL_ARM_command_state_e;
-
 /** Initialisation du gestionnaire de SMALL_ARM.
  *
  * Configure l'asservissement de l'AX12
