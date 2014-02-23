@@ -14,8 +14,10 @@
 
 /** Si l'ax12 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en centaine de ms. */
 	#define SMALL_ARM_AX12_ASSER_TIMEOUT       10      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
-/** Lorsque l'ax12 atteint sa position avec +/- PLATE_PLIER_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
+/** Lorsque l'ax12 atteint sa position avec +/- SMALL_ARM_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define SMALL_ARM_AX12_ASSER_POS_EPSILON   2     //en degré
+/** Si le déplacement de l'ax12 timeout mais que sa position est à +/- SMALL_ARM_AX12_ASSER_POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
+	#define SMALL_ARM_AX12_ASSER_POS_LARGE_EPSILON   10     //en degré
 /** Position en degré de l'ax12 lorsque SMALL_ARM est rentré  */
 	#define SMALL_ARM_AX12_IDLE_POS            0    //en degré
 /** Position en degré de l'ax12 lorsque SMALL_ARM est mi sortie */

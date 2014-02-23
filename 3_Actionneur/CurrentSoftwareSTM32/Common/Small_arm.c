@@ -67,56 +67,14 @@ void SMALL_ARM_stop(){
 }
 
 bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
-	queue_id_t queueId1;
 	SMALL_ARM_initAX12();
 	if(msg->sid == ACT_SMALL_ARM) {
 		switch(msg->data[0]) {
 			case ACT_SMALL_ARM_IDLE :
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Small_Arm);
-					QUEUE_add(queueId1, &SMALL_ARM_run_command, (QUEUE_arg_t){msg->data[0], SMALL_ARM_CS_IdleAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Small_Arm);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Small_Arm);
-				}else{					//on indique qu'on n'a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
-				break;
-
 			case ACT_SMALL_ARM_MID :
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Small_Arm);
-					QUEUE_add(queueId1, &SMALL_ARM_run_command, (QUEUE_arg_t){msg->data[0], SMALL_ARM_CS_MidAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Small_Arm);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Small_Arm);
-				}else{					//on indique qu'on n'a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
-				break;
-
 			case ACT_SMALL_ARM_DEPLOYED :
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Small_Arm);
-					QUEUE_add(queueId1, &SMALL_ARM_run_command, (QUEUE_arg_t){msg->data[0], SMALL_ARM_CS_DeployedAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Small_Arm);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Small_Arm);
-				}else{					//on indique qu'on n'a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
-				break;
-
 			case ACT_SMALL_ARM_STOP :
-				queueId1 = QUEUE_create();
-				if(queueId1 != QUEUE_CREATE_FAILED) {
-					QUEUE_add(queueId1, &QUEUE_take_sem, (QUEUE_arg_t) {0, 0, NULL}, QUEUE_ACT_AX12_Small_Arm);
-					QUEUE_add(queueId1, &SMALL_ARM_run_command, (QUEUE_arg_t){msg->data[0], SMALL_ARM_CS_StopAX12,  &ACTQ_finish_SendResult}, QUEUE_ACT_AX12_Small_Arm);
-					QUEUE_add(queueId1, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Small_Arm);
-				}else{					//on indique qu'on n'a pas géré la commande
-					QUEUE_flush(queueId1);
-					ACTQ_sendResultWithLine(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Small_Arm, &SMALL_ARM_run_command, 0);
 				break;
 
 
@@ -126,11 +84,11 @@ bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	} else if(msg->sid == ACT_DO_SELFTEST) {
 		SELFTEST_set_actions(&SMALL_ARM_run_command, 5, (SELFTEST_action_t[]){
-								 {ACT_SMALL_ARM_IDLE,  SMALL_ARM_CS_IdleAX12,  QUEUE_ACT_AX12_Small_Arm},
-								 {ACT_SMALL_ARM_MID,  SMALL_ARM_CS_MidAX12,  QUEUE_ACT_AX12_Small_Arm},
-								 {ACT_SMALL_ARM_DEPLOYED,  SMALL_ARM_CS_DeployedAX12,  QUEUE_ACT_AX12_Small_Arm},
-								 {ACT_SMALL_ARM_MID,  SMALL_ARM_CS_MidAX12,  QUEUE_ACT_AX12_Small_Arm},
-								 {ACT_SMALL_ARM_IDLE,  SMALL_ARM_CS_IdleAX12,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_IDLE,     0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_MID,      0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_DEPLOYED, 0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_MID,      0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_IDLE,     0,  QUEUE_ACT_AX12_Small_Arm},
 								 // Vérifier présence SMALL_ARM
 							 });
 	}
@@ -144,7 +102,7 @@ void SMALL_ARM_run_command(queue_id_t queueId, bool_e init) {
 		return;
 	}
 
-if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_Small_Arm) {    // Gestion des mouvements du SMALL_ARM
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_Small_Arm) {    // Gestion des mouvements du SMALL_ARM
 		if(init)
 			SMALL_ARM_command_init(queueId);
 		else
@@ -163,19 +121,20 @@ static void SMALL_ARM_command_init(queue_id_t queueId) {
 		case ACT_SMALL_ARM_IDLE :  *ax12_goalPosition = SMALL_ARM_AX12_IDLE_POS; break;
 		case ACT_SMALL_ARM_MID : *ax12_goalPosition = SMALL_ARM_AX12_MID_POS; break;
 		case ACT_SMALL_ARM_DEPLOYED : *ax12_goalPosition = SMALL_ARM_AX12_DEPLOYED_POS; break;
+
 		case ACT_SMALL_ARM_STOP :
 			AX12_set_torque_enabled(SMALL_ARM_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12 qui gère le SMALL_ARM
 			QUEUE_next(queueId, ACT_SMALL_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			return;
 
 		default: {
-				error_printf("Invalid plier command: %u, code is broken !\n", command);
-				QUEUE_next(queueId, ACT_SMALL_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
-				return;
-			}
+			error_printf("Invalid plier command: %u, code is broken !\n", command);
+			QUEUE_next(queueId, ACT_SMALL_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+			return;
+		}
 	}
 	if(*ax12_goalPosition == 0xFFFF) {
-		error_printf("Invalid plier position: %u, code is broken !\n", command);
+		error_printf("Invalid ax12 position for command: %u, code is broken !\n", command);
 		QUEUE_next(queueId, ACT_SMALL_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
@@ -195,8 +154,7 @@ static void SMALL_ARM_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	//En cas de timeout on passe à l'instruction suivante
-	if(ACTQ_check_status_ax12(queueId, SMALL_ARM_AX12_ID, QUEUE_get_arg(queueId)->param, SMALL_ARM_AX12_ASSER_POS_EPSILON, SMALL_ARM_AX12_ASSER_TIMEOUT, 360, &result, &errorCode, &line))
+	if(ACTQ_check_status_ax12(queueId, SMALL_ARM_AX12_ID, QUEUE_get_arg(queueId)->param, SMALL_ARM_AX12_ASSER_POS_EPSILON, SMALL_ARM_AX12_ASSER_TIMEOUT, SMALL_ARM_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_SMALL_ARM, result, errorCode, line);
 }
 

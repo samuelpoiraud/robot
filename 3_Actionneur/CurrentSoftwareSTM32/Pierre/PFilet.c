@@ -211,7 +211,6 @@ static void FILET_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	//En cas de timeout on passe à l'instruction suivante
 	if(ACTQ_check_status_ax12(queueId, FILET_AX12_ID, QUEUE_get_arg(queueId)->param, FILET_AX12_ASSER_POS_EPSILON, FILET_AX12_ASSER_TIMEOUT, 0, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_FILET, result, errorCode, line);
 }
