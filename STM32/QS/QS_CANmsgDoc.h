@@ -27,8 +27,8 @@
 
 	#define BROADCAST_ALIM
 	/*	argument :
-	 *	bit 0	: Flag état alim / 0x00 -> OFF / 0x01 -> ON
-	 *	bit 1/2	: Mesure de l'alimentation sur 16 bit en mV
+	 *	octet 0	: Flag état alim / 0x00 -> OFF / 0x01 -> ON
+	 *	octets 1 et 2	: Mesure de l'alimentation sur 16 bit en mV
 	 */
 
 	/* Message pour personne */

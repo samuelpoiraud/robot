@@ -64,9 +64,12 @@
 		switch(robot_id){
 			case BIG_ROBOT :
 				return "Pierre";
-
+				break;
 			case SMALL_ROBOT :
 				return "Guy";
+				break;
+			default:
+				break;
 		}
 		return "Robot inconnu";
 	}
