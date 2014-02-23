@@ -27,6 +27,7 @@ static void BUTTON_TEST_button3();
 static void BUTTON_TEST_button4();
 static void BUTTON_TEST_button6();
 */
+void BUTTON_verbose(void);
 
 void BUTTON_init()
 {
@@ -67,6 +68,8 @@ void BUTTON_update()
 	{
 		global.env.ask_start = TRUE;
 	}
+
+	BUTTON_verbose();
 }
 
 void BUTTON_start()
@@ -111,25 +114,71 @@ void BUTTON_translation()
 {
 	relative_move (1000, FAST, FORWARD, END_AT_LAST_POINT);
 }
-/*
-static void BUTTON_TEST_button2() {
-	LED_ROUGE = !LED_ROUGE;
-	LCD_free_line("Hello!",1);
-	LCD_take_control();
-}
 
-static void BUTTON_TEST_button3() {
-	LED_ORANGE = !LED_ORANGE;
-	LCD_free_control();
-	LCD_free_line("Au revoir!",0);
-}
+void BUTTON_verbose(void)
+{
+	#define SW_BP_NUMBER 20
+	static Uint32 previous_state = 0;
+	Uint32 current_state, up, down;
 
-static void BUTTON_TEST_button4() {
-	LED_BLEU = !LED_BLEU;
-}
+	current_state = 	(BUTTON0_PORT	<< 0) 	|	//Run match
+						(SWITCH_DEBUG	<< 1) 	|
+						(SWITCH_VERBOSE	<< 2) 	|
+						(BUTTON5_PORT	<< 3) 	| //Print match
+						(SWITCH_XBEE	<< 4) 	|
+						(SWITCH_SAVE	<< 5) 	|
+						(FRESCO_1		<< 6) 	|
+						(FRESCO_2		<< 7) 	|
+						(BUTTON6_PORT	<< 8) 	|	 //BP Set
+						(SWITCH_COLOR	<< 9) 	|
+						(BIROUTE		<< 10) 	|
+						(SWITCH_LCD		<< 11) 	|
+						(SWITCH_EVIT	<< 12) 	|
+						(SWITCH_STRAT_1	<< 13) 	|
+						(SWITCH_STRAT_2	<< 14) 	|
+						(SWITCH_STRAT_3	<< 15) 	|
+						(BUTTON1_PORT	<< 16) 	|	//Selftest
+						(BUTTON2_PORT	<< 17) 	|	//LCD OK
+						(BUTTON3_PORT	<< 18) 	|	//LCD Menu +
+						(BUTTON4_PORT	<< 19);	//LCD Menu
 
-static void BUTTON_TEST_button6() {
-	LED_BLEU = !LED_BLEU;
-	LED_ORANGE = !LED_ORANGE;
+	up = ~previous_state & current_state;
+	down = previous_state & ~current_state;
+	previous_state = current_state;
+
+	if(up & ((Uint32)(1) << 0	))	debug_printf("BP run match pressed\n");
+	if(up & ((Uint32)(1) << 1	))	debug_printf("SW debug enabled\n");
+	if(up & ((Uint32)(1) << 2	))	debug_printf("SW verbose enabled\n");
+	if(up & ((Uint32)(1) << 3	))	debug_printf("BP print match pressed\n");
+	if(up & ((Uint32)(1) << 4	))	debug_printf("SW XBEE enabled\n");
+	if(up & ((Uint32)(1) << 5	))	debug_printf("SW saved enabled\n");
+	if(up & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 added\n");
+	if(up & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 added\n");
+	if(up & ((Uint32)(1) << 8	))	debug_printf("BP Set pressed\n");
+	if(up & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
+	if(up & ((Uint32)(1) << 10	))	debug_printf("Biroute inserted\n");
+	if(up & ((Uint32)(1) << 11	))	debug_printf("SW LCD : coord/config\n");
+	if(up & ((Uint32)(1) << 12	))	debug_printf("SW Evit enabled\n");
+	if(up & ((Uint32)(1) << 13	))	debug_printf("SW Strat1 enabled\n");
+	if(up & ((Uint32)(1) << 14	))	debug_printf("SW Strat2 enabled\n");
+	if(up & ((Uint32)(1) << 15	))	debug_printf("SW Strat3 enabled\n");
+	if(up & ((Uint32)(1) << 16	))	debug_printf("BP Selftest pressed\n");
+	if(up & ((Uint32)(1) << 17	))	debug_printf("BP OK pressed\n");
+	if(up & ((Uint32)(1) << 18	))	debug_printf("BP MenuUp pressed\n");
+	if(up & ((Uint32)(1) << 19	))	debug_printf("BP MenuDown pressed\n");
+
+	if(down & ((Uint32)(1) << 1	))	debug_printf("SW debug disabled\n");
+	if(down & ((Uint32)(1) << 2	))	debug_printf("SW verbose disabled\n");
+	if(down & ((Uint32)(1) << 4	))	debug_printf("SW XBEE disabled\n");
+	if(down & ((Uint32)(1) << 5	))	debug_printf("SW saved disabled\n");
+	if(down & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 removed\n");
+	if(down & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 removed\n");
+	if(down & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
+	if(down & ((Uint32)(1) << 10	))	debug_printf("Biroute removed\n");
+	if(down & ((Uint32)(1) << 11	))	debug_printf("SW LCD : CAN msgs\n");
+	if(down & ((Uint32)(1) << 12	))	debug_printf("SW Evit disabled\n");
+	if(down & ((Uint32)(1) << 13	))	debug_printf("SW Strat1 disabled\n");
+	if(down & ((Uint32)(1) << 14	))	debug_printf("SW Strat2 disabled\n");
+	if(down & ((Uint32)(1) << 15	))	debug_printf("SW Strat3 disabled\n");
+
 }
-*/

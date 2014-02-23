@@ -66,10 +66,6 @@ void CLOCK_run_match()
 	global.env.match_started = TRUE;
 }
 
-void CLOCK_stop()
-{
-	TIMER1_stop();
-}
 
 void _ISR _T1Interrupt()
 {
@@ -77,7 +73,7 @@ void _ISR _T1Interrupt()
 	static Uint16 count_1sec = 0;
 	global.env.absolute_time++;
 
-	if(global.env.match_started)
+	if(global.env.match_started && !global.env.match_over)	//Match commencé et NON terminé
 	{
 		//Pendant le match.
 		global.env.match_time++;

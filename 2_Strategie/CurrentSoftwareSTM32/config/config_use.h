@@ -12,7 +12,7 @@
 #define CONFIG_USE_H
 
 
-//#define USE_LCD
+#define USE_LCD
 
 #define USE_RTC
 

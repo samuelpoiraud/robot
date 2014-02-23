@@ -203,29 +203,27 @@ bool_e SD_analyse(void)
 	FRESULT res;
 	FATFS * fs;
 	Uint32 p2;
-
-	if(f_mount( 0, &fatfs ) == FR_OK)
+	res = f_mount( 0, &fatfs );
+	debug_printf("SD Card :");
+	if(res == FR_OK)
 	{
-		debug_printf("SD mounted\n");
 		res = f_getfree("", (DWORD*)&p2, &fs);
 		if (res == FR_OK)
 		{
-			debug_printf("FAT type = %u (%s)\nBytes/Cluster = %lu\nNumber of FATs = %u\n"
-			"Root DIR entries = %u\nSectors/FAT = %lu\nNumber of clusters = %lu\n"
-			"FAT start (lba) = %lu\nDIR start (lba,clustor) = %lu\nData start (lba) = %lu\n\n",
-			(WORD)fs->fs_type,
+			debug_printf("MOUNTED > %s, %lu Bytes/Cluster, %u FATs, %u root DIR entries, %lu Sectors\n",
+
 			(fs->fs_type==FS_FAT12) ? "FAT12" : (fs->fs_type==FS_FAT16) ? "FAT16" : "FAT32",
 			(DWORD)fs->csize * 512, (WORD)fs->n_fats,
-			fs->n_rootdir, fs->sects_fat, (DWORD)fs->max_clust - 2,
-			fs->fatbase, fs->dirbase, fs->database
+			fs->n_rootdir, fs->sects_fat, (DWORD)fs->max_clust - 2
 			);
 			return TRUE;
 		}
+		else
+			debug_printf("FAILED to read file system infos !\n");
 	}
 	else
 	{
-		//TODO verbose de l'erreur SD + précise.
-		debug_printf("SD fail to read infos. We stop using SD card.\n");
+		debug_printf("FAIL to read infos. We stop using SD card. Error code : %x\n", res);
 	}
 
 	return FALSE;

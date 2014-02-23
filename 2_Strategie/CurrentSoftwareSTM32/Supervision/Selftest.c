@@ -193,7 +193,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			if(entrance)
 			{
 				flag_timeout = 0;
-				watchdog_id = WATCHDOG_create_flag(100, (bool_e*) &(flag_timeout));	//timeout 100ms
+				watchdog_id = WATCHDOG_create_flag(200, (bool_e*) &(flag_timeout));	//timeout 200ms
 				CAN_send_sid(ACT_PING);
 				CAN_send_sid(PROP_PING);
 				CAN_send_sid(BEACON_PING);
@@ -213,7 +213,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
 					prop_ping_ok = TRUE;
 				}
-				if(CAN_msg_received->sid == STRAT_PROP_PONG)
+				if(CAN_msg_received->sid == STRAT_BEACON_PONG)
 					beacon_ping_ok = TRUE;
 			}
 			if(act_ping_ok == TRUE && prop_ping_ok == TRUE && beacon_ping_ok == TRUE)
@@ -374,8 +374,8 @@ error_e SELFTEST_strategy(bool_e reset)
 		case TEST_LEDS_AND_BUZZER:
 			if(entrance)
 			{
-				t500ms = 5;	//2,5 secondes
-				BUZZER_play(100, DEFAULT_NOTE, 13);	//13 buzzs de 100ms + 12 pauses de 100ms = 2,4 secondes
+				t500ms = 3;	//1,5 secondes
+				BUZZER_play(100, DEFAULT_NOTE, 4);	//4 buzzs de 100ms + 3 pauses de 100ms = O,7 secondes
 			}
 			LED_SELFTEST = (t500ms&1);	//Si t est impair, on allume toutes les leds.
 			LED_ERROR 	= LED_SELFTEST;
@@ -438,7 +438,7 @@ Uint16 SELFTEST_measure24_mV(void)
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
 	Uint8 i;
-	debug_printf("SELFTEST ENDED with %d error(s) ",size);
+	debug_printf("SELFTEST ENDED with %d error(s) :\n",size);
 	for(i=0;i<size;i++)
 	{
 		if(errors[i] != SELFTEST_NO_ERROR)
@@ -462,6 +462,10 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_UNREACHABLE:					debug_printf("SELFTEST_PROP_UNREACHABLE");				break;
 				case SELFTEST_BEACON_UNREACHABLE:				debug_printf("SELFTEST_BEACON_UNREACHABLE");			break;
 					// Actionneurs
+
+
+				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");				break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
+				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");				break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
 				case SELFTEST_ACT_LANCELAUNCHER:				debug_printf("SELFTEST_ACT_LANCELAUNCHER");				break;
 				case SELFTEST_ACT_FRUIT_MOUTH:					debug_printf("SELFTEST_ACT_FRUIT_MOUTH");				break;
 				case SELFTEST_ACT_SMALL_ARM:					debug_printf("SELFTEST_ACT_SMALL_ARM");					break;
@@ -690,15 +694,15 @@ void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 
 void SELFTEST_check_alim(){
 	typedef enum{
-		ALIM_On,
-		ALIM_Off
+		ALIM_Off = 0,
+		ALIM_On
 	}state_e;
 	static state_e state = ALIM_Off;
 	static bool_e says = FALSE;
 	global.env.alim_value = SELFTEST_measure24_mV();
 	CAN_msg_t msg;
 
-	if(global.env.alim_value > 15000 && state != ALIM_On){
+	if(global.env.alim_value > THRESHOLD_BATTERY_OFF && state != ALIM_On){
 		msg.sid = BROADCAST_ALIM;
 		msg.data[0] = ALIM_ON;
 		msg.data[1] = (Uint8)((global.env.alim_value >> 8) & 0x00FF);
@@ -707,7 +711,7 @@ void SELFTEST_check_alim(){
 		CAN_send(&msg);
 		state = ALIM_On;
 		global.env.alim = TRUE;
-	}else if(global.env.alim_value < 15000 && state != ALIM_Off){
+	}else if(global.env.alim_value < THRESHOLD_BATTERY_OFF && state != ALIM_Off){
 		msg.sid = BROADCAST_ALIM;
 		msg.data[0] = ALIM_OFF;
 		msg.data[1] = (Uint8)((global.env.alim_value >> 8) & 0x00FF);

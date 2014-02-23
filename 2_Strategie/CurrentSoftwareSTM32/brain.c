@@ -39,16 +39,16 @@
  **************************************************************/
 
 // GROS = PIERRE (pour la cohérence pour les années suivantes
-#define STRAT_0_GROS test_strat_robot_virtuel_with_avoidance
-#define STRAT_1_GROS test_strat_robot_virtuel_with_avoidance
-#define STRAT_2_GROS test_strat_robot_virtuel_with_avoidance
+#define STRAT_0_GROS Strat_Detection_Triangle
+#define STRAT_1_GROS Strat_Detection_Triangle
+#define STRAT_2_GROS Strat_Detection_Triangle
 #define STRAT_3_GROS test_strat_robot_virtuel_with_avoidance
 
 // PETIT = GUY
-#define STRAT_0_PETIT test_strat_robot_virtuel_with_avoidance
-#define STRAT_1_PETIT test_strat_robot_virtuel_with_avoidance
-#define STRAT_2_PETIT test_strat_robot_virtuel_with_avoidance
-#define STRAT_3_PETIT test_strat_robot_virtuel_with_avoidance
+#define STRAT_0_PETIT TEST_pathfind
+#define STRAT_1_PETIT TEST_pathfind
+#define STRAT_2_PETIT TEST_pathfind
+#define STRAT_3_PETIT TEST_pathfind
 
 
 /* 	execute un match de match_duration secondes à partir de la
@@ -172,7 +172,7 @@ void any_match(time32_t match_duration)
 				global.env.match_over = TRUE;
 				STACKS_flush_all();
 				QUEUE_reset_all();
-				CLOCK_stop();
+
 
 				if(QS_WHO_AM_I_get()==PIERRE)
 					ACT_filet_launch(ACT_FILET_LAUNCHED);
