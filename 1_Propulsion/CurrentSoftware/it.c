@@ -26,6 +26,8 @@
 #include "scan_triangle.h"
 #include "debug.h"
 #include "hokuyo.h"
+#include "main.h"
+
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>
 #endif
@@ -94,6 +96,7 @@ void _ISR _T1Interrupt()
 	COPILOT_process_it();
 	PILOT_process_it();
 	SUPERVISOR_process_it();
+	MAIN_process_it(PERIODE_IT_ASSER);
 
 	#ifdef SCAN_TRIANGLE
 		SCAN_TRIANGLE_process_it();

@@ -64,6 +64,20 @@
 
 
 void RCON_read(void);
+void SWITCHS_update(void);
+volatile Uint8 t_ms = 0;
+volatile bool_e flag_calibration_asked = FALSE;
+volatile bool_e flag_selftest_asked = FALSE;
+
+void calibration_button_action(void)
+{
+	flag_calibration_asked = TRUE;
+}
+
+void blue_button_action(void)
+{
+	flag_selftest_asked = TRUE;
+}
 
 
 void initialisation(void)
@@ -87,17 +101,17 @@ void initialisation(void)
 	CORCONbits.PSV=1;
 #endif
 
-	UART_init(); //Si les résistances de tirages uart ne sont pas reliées, le code bloque ici si aucun cable n'y est relié.
+	UART_init();
 
 	RCON_read();
-
+	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
 	//Doit se faire AVANT ODOMETRY_init() !!!
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	debug_printf("--- Hello, I'm PROP (%s) ---\n", QS_WHO_AM_I_get_name());
 
-	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
+
 	ODOMETRY_init();
 	SUPERVISOR_init();
 	COPILOT_init();
@@ -109,6 +123,8 @@ void initialisation(void)
 	JOYSTICK_init();
 	DEBUG_init();
 	BUTTONS_init();
+	BUTTONS_define_actions(BUTTON0,&blue_button_action, NULL, 1);
+	BUTTONS_define_actions(BUTTON1,&calibration_button_action, NULL, 1);
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
 	#endif
@@ -185,7 +201,13 @@ int main (void)
 
 		DEBUG_process_main();
 
-		BUTTONS_update();			//Gestion des boutons
+		if(t_ms > 20)	//Pour éviter les rebonds
+		{
+			t_ms = 0;
+			BUTTONS_update();			//Gestion des boutons
+			SWITCHS_update();			//Surveillance des switchs
+		}
+
 
 		SECRETARY_process_main();	//Communication avec l'extérieur. (Réception des messages)
 
@@ -200,6 +222,21 @@ int main (void)
 		#ifdef USE_HOKUYO
 			HOKUYO_process_main();
 		#endif
+
+		if(flag_calibration_asked)
+		{
+			flag_calibration_asked = FALSE;
+			debug_printf("BP calibration pressed\n");
+			SEQUENCES_calibrate(BACKWARD,ASSER_CALIBRATION_SQUARE_2);
+		}
+
+		if(flag_selftest_asked)
+		{
+			flag_selftest_asked = FALSE;
+			debug_printf("BP Selftest pressed\n");
+			SEQUENCES_selftest();
+		}
+
 	}
 	return 0;
 }
@@ -227,6 +264,35 @@ void RCON_read(void)
 #endif
 }
 
+void SWITCHS_update(void)
+{
+	static bool_e previous_switch_left = FALSE;
+	static bool_e previous_switch_middle = FALSE;
+	static bool_e previous_switch_right = FALSE;
+	bool_e current_switch_left;
+	bool_e current_switch_middle;
+	bool_e current_switch_right;
 
+	current_switch_left 	= SWITCH_LEFT;
+	current_switch_middle 	= SWITCH_MIDDLE;
+	current_switch_right 	= SWITCH_RIGHT;
 
+	if(current_switch_left 		&& !previous_switch_left) 	debug_printf("SW left enabled\n");
+	if(current_switch_middle 	&& !previous_switch_middle) debug_printf("SW middle enabled\n");
+	if(current_switch_right 	&& !previous_switch_right)	debug_printf("SW right enabled\n");
 
+	if(!current_switch_left 	&& previous_switch_left) 	debug_printf("SW left disabled\n");
+	if(!current_switch_middle 	&& previous_switch_middle) 	debug_printf("SW middle disabled\n");
+	if(!current_switch_right 	&& previous_switch_right)	debug_printf("SW right disabled\n");
+
+	previous_switch_left 	= current_switch_left;
+	previous_switch_middle 	= current_switch_middle;
+	previous_switch_right 	= current_switch_right;
+
+	//TODO quelles actions associer à ces switchs......?
+}
+
+void MAIN_process_it(Uint8 ms)
+{
+	t_ms += ms;
+}

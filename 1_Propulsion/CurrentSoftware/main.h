@@ -16,4 +16,6 @@
 	#define MAIN_H
 
 
+	void MAIN_process_it(Uint8 ms);
+
 #endif /* ndef MAIN_H */
