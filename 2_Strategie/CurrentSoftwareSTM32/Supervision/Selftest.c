@@ -451,6 +451,9 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_NO_POWER:							debug_printf("NO_POWER");								break;
 				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");								break;
 				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");							break;
+				case SELFTEST_PROP_DT10_1_FAILED:				debug_printf("PROP_DT10_1_FAILED");						break;
+				case SELFTEST_PROP_DT10_2_FAILED:				debug_printf("PROP_DT10_2_FAILED");						break;
+				case SELFTEST_PROP_DT10_3_FAILED:				debug_printf("PROP_DT10_3_FAILED");						break;
 				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:		debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");				break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");						break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");			break;
