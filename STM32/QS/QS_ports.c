@@ -87,6 +87,11 @@ Uint8 PORTS_adc_init(void* adc_handle, Uint8 ADC_sampleTime) {
 	Uint8 number_of_channels;
 	GPIO_InitTypeDef GPIO_InitStructure;
 
+
+	//Ignore des warnings si aucun ADC n'est utilisé
+	UNUSED_VAR(ADCx);
+	UNUSED_VAR(GPIO_InitStructure);
+
 	/* Configure ADC1 Channelx pin as analog input ******************************/
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
