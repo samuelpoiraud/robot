@@ -328,7 +328,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			else	//Des problèmes ont été rencontrés
 			{
 				LED_SELFTEST = FALSE;
-				SELFTEST_print_errors(errors, errors_index);
+				SELFTEST_print_errors((SELFTEST_error_code_e *)errors, errors_index);
 			}
 			state = WAIT_SELFTEST_LAUNCH;
 			break;
@@ -461,6 +461,12 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_UNREACHABLE:					debug_printf("SELFTEST_ACT_UNREACHABLE");				break;
 				case SELFTEST_PROP_UNREACHABLE:					debug_printf("SELFTEST_PROP_UNREACHABLE");				break;
 				case SELFTEST_BEACON_UNREACHABLE:				debug_printf("SELFTEST_BEACON_UNREACHABLE");			break;
+					// Actionneurs
+				case SELFTEST_ACT_LANCELAUNCHER:				debug_printf("SELFTEST_ACT_LANCELAUNCHER");				break;
+				case SELFTEST_ACT_FRUIT_MOUTH:					debug_printf("SELFTEST_ACT_FRUIT_MOUTH");				break;
+				case SELFTEST_ACT_SMALL_ARM:					debug_printf("SELFTEST_ACT_SMALL_ARM");					break;
+				case SELFTEST_ACT_ARM:							debug_printf("SELFTEST_ACT_ARM");						break;
+
 				default:										debug_printf("UNKNOW_ERROR_CODE"); 						break;
 			}
 			debug_printf("\n");
