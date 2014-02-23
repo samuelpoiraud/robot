@@ -152,43 +152,27 @@ void _ISR _T2Interrupt(void)
 		// LED_CAN 		: change d'état à chaque réception de message CAN
 		// LED_UART 	: change d'état à chaque réception de caractère UART
 		// LED_USER 	: à 1 pendant l'exécution de l'IT, à 0 sinon...
-		// LED_USER2 	: clignote pendant une trajectoire
+		// LED_SELFTEST	: clignote tant que le selftest n'est pas validé
 		// LED_ERROR 	: clignote lorsque ROBOT_ERREUR
 	switch (SUPERVISOR_get_state())
 	{
 		case SUPERVISOR_IDLE:
-			if(compteur >= 4)
-				LED_RUN = 0;
-			else
-				LED_RUN = 1;
-			LED_USER2 = 0;
-			LED_ERROR = 0;
-		break;
-
+			//no break;
 		case SUPERVISOR_TRAJECTORY :
 			if(compteur >= 4)
-			{
 				LED_RUN = 0;
-				LED_USER2 = 0;
-			}
 			else
-			{
 				LED_RUN = 1;
-				LED_USER2 = 1;
-			}
 			LED_ERROR = 0;
 		break;
-
 		case SUPERVISOR_ERROR :
 			if(compteur % 2)
 			{
-				LED_USER2 = 0;
 				LED_ERROR = 0;
 				LED_RUN = 0;
 			}
 			else
 			{
-				LED_USER2 = 1;
 				LED_ERROR = 1;
 				LED_RUN = 1;
 			}
@@ -197,11 +181,20 @@ void _ISR _T2Interrupt(void)
 		case SUPERVISOR_MATCH_ENDED :
 			LED_ERROR = 0;
 			LED_RUN = 1;
-			LED_USER2 = 0;
 		break;
 
 		default:
 		break;
+	}
+
+	if(SECRETARY_is_selftest_validated())
+		LED_SELFTEST = 1;
+	else
+	{
+		if(compteur >= 4)
+			LED_SELFTEST = 0;
+		else
+			LED_SELFTEST = 1;
 	}
 
 	TIMER2_AckIT();

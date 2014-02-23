@@ -121,7 +121,6 @@ void HOKUYO_process_it(Uint8 ms)
 //Process main
 void HOKUYO_process_main(void)
 {
-	Uint8 i;
 	typedef enum
 	{
 		INIT=0,
