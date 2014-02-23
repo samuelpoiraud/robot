@@ -29,6 +29,7 @@
 #include "joystick.h"
 #include "scan_triangle.h"
 #include "LCDTouch/LCD.h"
+#include "hokuyo.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -162,13 +163,17 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 				add_pos_datas = FALSE;
 				break;
 			case STRAT_PROP_SELFTEST_DONE:
-				debug_printf("Selftest done");
+				debug_printf("Selftest done :\n");
 				for(i=0;i<msg->size;i++)
 				{
-					if(msg->data[i] != SELFTEST_NO_ERROR)
-						debug_printf(" : error %x",msg->data[i]);
+					switch(msg->data[i])
+					{
+						case SELFTEST_NO_ERROR:																											break;
+						case SELFTEST_PROP_FAILED:			debug_printf(" | error %x SELFTEST_PROP_FAILED\n"			,SELFTEST_PROP_FAILED);			break;
+						case SELFTEST_PROP_HOKUYO_FAILED:	debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"	,SELFTEST_PROP_HOKUYO_FAILED);	break;
+						default:							debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);				break;
+					}
 				}
-				debug_printf("\n");
 				add_pos_datas = FALSE;
 				break;
 			case STRAT_ADVERSARIES_POSITION:
@@ -206,7 +211,8 @@ void SECRETARY_send_selftest_result(bool_e result)
 	msg.sid = STRAT_PROP_SELFTEST_DONE;
 	msg.size = 8;
 	msg.data[0] = (result)?SELFTEST_NO_ERROR:SELFTEST_PROP_FAILED;
-	for(i=1;i<8;i++)
+	msg.data[1] = (HOKUYO_is_working_well())?SELFTEST_NO_ERROR:SELFTEST_PROP_HOKUYO_FAILED;
+	for(i=2;i<8;i++)
 		msg.data[i] = SELFTEST_NO_ERROR;
 
 	//TODO enrichir ce message du statut de fonctionnement des autres périphs... hokuyo....

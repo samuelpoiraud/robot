@@ -100,10 +100,10 @@
 		#define LED_BLEU			LED_USER
 
 	#define PORT_E_IO_MASK	0xFFFF
-		#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
-		#define BUTTON2_PORT		(!GPIOE->IDR13)	//Calibration
-		#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
-		#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
+		#define SWITCH_MIDDLE		(GPIOE->IDR7)
+		#define SWITCH_LEFT			(GPIOE->IDR8)
+		#define SWITCH_RIGHT		(GPIOE->IDR9)
+		#define BUTTON1_PORT		(!GPIOE->IDR12)	//Calibration
 
 
 #else
