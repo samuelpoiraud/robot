@@ -47,4 +47,6 @@
 
 	void SECRETARY_send_selftest_result(bool_e result);
 
+	bool_e SECRETARY_is_selftest_validated(void);
+
 #endif	//def _SECRETARY_H

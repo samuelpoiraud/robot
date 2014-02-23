@@ -166,7 +166,7 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 				for(i=0;i<msg->size;i++)
 				{
 					if(msg->data[i] != SELFTEST_NO_ERROR)
-						debug_printf(" : error %x");
+						debug_printf(" : error %x",msg->data[i]);
 				}
 				debug_printf("\n");
 				add_pos_datas = FALSE;
@@ -190,11 +190,19 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 	#endif
 }
 
+volatile bool_e selftest_validated = FALSE;
+
+bool_e SECRETARY_is_selftest_validated(void)
+{
+	return selftest_validated;
+}
+
 //si result == TRUE : le selftest s'est bien déroulé, sinon on remonte l'erreur à la stratégie.
 void SECRETARY_send_selftest_result(bool_e result)
 {
 	CAN_msg_t msg;
 	Uint8 i;
+	selftest_validated = result;
 	msg.sid = STRAT_PROP_SELFTEST_DONE;
 	msg.size = 8;
 	msg.data[0] = (result)?SELFTEST_NO_ERROR:SELFTEST_PROP_FAILED;
@@ -290,7 +298,6 @@ void SECRETARY_send_pong(void)
 void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
 {
 	CAN_msg_t msg;
-	Uint8 tabTemp[8];
 	Uint8 error_byte;
 	Sint32 rot_speed;
 	Uint8 trajectory_status; //3 bits

@@ -84,7 +84,7 @@
 		#define LED_SELFTEST 		GPIOD->ODR11
 		#define LED_USER2			LED_SELFTEST
 		#define LED_RUN  			GPIOD->ODR12
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT) // Dans le cas du robot parfait on suppose que l'écran est branché on évite les conflits avec les ports de l'écran
+#ifdef LCD_TOUCH // Pour éviter les conflits avec les ports de l'écran
 		#define LED_CAN  			LED_RUN
 		#define LED_UART 			LED_RUN
 		#define LED_USER 			LED_RUN
