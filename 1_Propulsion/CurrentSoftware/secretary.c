@@ -212,7 +212,11 @@ void SECRETARY_send_selftest_result(bool_e result)
 	msg.size = 8;
 	msg.data[0] = (result)?SELFTEST_NO_ERROR:SELFTEST_PROP_FAILED;
 	msg.data[1] = (HOKUYO_is_working_well())?SELFTEST_NO_ERROR:SELFTEST_PROP_HOKUYO_FAILED;
-	for(i=2;i<8;i++)
+	msg.data[2] = (ADC_getValue(1) > 2)? SELFTEST_NO_ERROR:SELFTEST_PROP_DT10_1_FAILED;	// Les DT10 ont un pull down donc si ils ne sont pas connectés l'adc doit être à 0
+	msg.data[3] = (ADC_getValue(2) > 2)? SELFTEST_NO_ERROR:SELFTEST_PROP_DT10_2_FAILED;
+	msg.data[4] = (ADC_getValue(3) > 2)? SELFTEST_NO_ERROR:SELFTEST_PROP_DT10_3_FAILED;
+
+	for(i=5;i<8;i++)
 		msg.data[i] = SELFTEST_NO_ERROR;
 
 	//TODO enrichir ce message du statut de fonctionnement des autres périphs... hokuyo....
