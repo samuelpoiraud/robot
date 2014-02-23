@@ -49,8 +49,7 @@
 	#define PSV_adjust(array) (void)0
 
 
-
-
-
+	//Utilisé pour éviter un warning à cause d'une variable non utilisée
+	#define UNUSED_VAR(x) (void)(x);
 
 #endif /* ndef QS_MACRO_H */
