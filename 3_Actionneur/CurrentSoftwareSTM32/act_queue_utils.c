@@ -264,15 +264,16 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		default:                     resultStr = "Unknown";    break;
 	}
 	switch(errorCode) {
-		case ACT_RESULT_ERROR_LOGIC:        errorCodeStr = "Logic";         break;
-		case ACT_RESULT_ERROR_NOT_HERE:     errorCodeStr = "NotHere";       break;
-		case ACT_RESULT_ERROR_NO_RESOURCES: errorCodeStr = "NoResources";   break;
-		case ACT_RESULT_ERROR_OK:           errorCodeStr = "Ok";            break;
-		case ACT_RESULT_ERROR_OTHER:        errorCodeStr = "Other";         break;
-		case ACT_RESULT_ERROR_TIMEOUT:      errorCodeStr = "Timeout";       break;
-		case ACT_RESULT_ERROR_INVALID_ARG:  errorCodeStr = "Invalid argument"; break;
-		case ACT_RESULT_ERROR_UNKNOWN:      errorCodeStr = "Unknown";       break;
-		default:                            errorCodeStr = "Unknown error"; break;
+		case ACT_RESULT_ERROR_LOGIC:        errorCodeStr = "Logic";				break;
+		case ACT_RESULT_ERROR_NOT_HERE:     errorCodeStr = "NotHere";			break;
+		case ACT_RESULT_ERROR_NO_RESOURCES: errorCodeStr = "NoResources";		break;
+		case ACT_RESULT_ERROR_OK:           errorCodeStr = "Ok";				break;
+		case ACT_RESULT_ERROR_OTHER:        errorCodeStr = "Other";				break;
+		case ACT_RESULT_ERROR_TIMEOUT:      errorCodeStr = "Timeout";			break;
+		case ACT_RESULT_ERROR_INVALID_ARG:  errorCodeStr = "Invalid argument";	break;
+		case ACT_RESULT_ERROR_UNKNOWN:      errorCodeStr = "Unknown";			break;
+		case ACT_RESULT_ERROR_CANCELED:		errorCodeStr = "Cancelled";			break;
+		default:                            errorCodeStr = "Unknown error";		break;
 	}
 	log_level_e level = LOG_LEVEL_Debug;
 	if(result != ACT_RESULT_DONE)
