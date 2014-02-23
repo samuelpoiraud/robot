@@ -19,7 +19,6 @@ void CLOCK_init();
 /* leve le drapeau de départ de match et lance le compteur de quarts de seconde */
 void CLOCK_run_match();
 
-void CLOCK_stop();
 
 #ifdef CLOCK_C
 	#include "QS/QS_timer.h"	
