@@ -47,6 +47,8 @@ static void FILET_command_init(queue_id_t queueId);
 static void FILET_command_run(queue_id_t queueId);
 static void FILET_detection();
 static void FILET_rearm();
+static void FILET_run_selftest(queue_id_t queueId, bool_e init);
+static void FILET_selftest_run(queue_id_t queueId);
 
 
 void FILET_init() {
@@ -84,6 +86,7 @@ static void FILET_initAX12() {
 
 bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
 	FILET_initAX12();
+	queue_id_t queueId;
 	if(msg->sid == ACT_FILET) {
 		switch(msg->data[0]) {
 
@@ -99,7 +102,16 @@ bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	} else if(msg->sid == ACT_DO_SELFTEST) {
-		// Pas de selftest pour cette actionneur
+		queueId = QUEUE_create();
+		if(queueId != QUEUE_CREATE_FAILED){ // Selftest différent des autres actionneurs car il ne faut pas bouger l'actionneur juste regarder son état
+			QUEUE_add(queueId, &FILET_run_selftest,
+					  (QUEUE_arg_t){0, 0, &SELFTEST_finish}, QUEUE_ACT_AX12_Filet);
+			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_AX12_Filet);
+			// On lache quand même le sémaphore pour que SELFTEST_finish prenne en compte le selftest du filet
+		}else{
+			QUEUE_flush(queueId);
+			ACTQ_printResult(ACT_DO_SELFTEST, 0, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES, 0);
+		}
 	}
 
 	return FALSE;
@@ -117,6 +129,36 @@ void FILET_run_command(queue_id_t queueId, bool_e init) {
 		else
 			FILET_command_run(queueId);
 	}
+}
+
+static void FILET_run_selftest(queue_id_t queueId, bool_e init){
+	if(QUEUE_has_error(queueId)) {
+		QUEUE_behead(queueId);
+		return;
+	}
+
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_Filet) {
+		if(!init)
+			FILET_selftest_run(queueId);
+	}
+}
+
+// Fonction gérent le self test du filet
+static void FILET_selftest_run(queue_id_t queueId){
+
+	if(!PRESENCE_FILET){	// Si le filet n'est pas présent
+		debug_printf("SELFTEST FILET : FILET NON PRESENT\n");
+		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_FAILED, ACT_RESULT_ERROR_UNKNOWN, 0);
+
+	}else if(!AX12_is_ready(FILET_AX12_ID)){	// Si l'ax12 n'est pas présent
+		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, 0);
+
+	}else if(absolute(AX12_get_position(FILET_AX12_ID) - FILET_AX12_LAUNCHED_POS) > EPSILON_POS_FILET){	// Si l'ax12 n'est pas armé et que le filet est présent
+		debug_printf("SELFTEST FILET : FILET NON ARME ALORS QU'IL EST PRESENT (problème capteur de présence)\n");
+		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_FAILED, ACT_RESULT_ERROR_UNKNOWN, 0);
+
+	}else // Sinon c'est que tout va bien
+		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
 }
 
 //Initialise une commande
@@ -314,9 +356,7 @@ static void FILET_rearm(){
 				debug_printf("Tentative de réarmement du bras du filet !\n");
 				time = 0;
 				state = WAIT_UP;
-			}else if(!PRESENCE_FILET
-					 && !((position_ax12 <= FILET_AX12_LAUNCHED_POS + EPSILON_POS_FILET)
-					 && (position_ax12 >= FILET_AX12_LAUNCHED_POS - EPSILON_POS_FILET)))
+			}else if(!PRESENCE_FILET && !(absolute(position_ax12 - FILET_AX12_LAUNCHED_POS) <= EPSILON_POS_FILET))
 				state = FREE;
 			break;
 
