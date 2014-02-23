@@ -100,11 +100,14 @@ void initialisation(void)
 	//> ceci est utile pour le stockage d'un tableau de boeuf dans la mémoire programme
 	CORCONbits.PSV=1;
 #endif
-
+	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
+	volatile Uint32 i;
+	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????
+	LED_RUN = 0;
 	UART_init();
 
 	RCON_read();
-	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
+
 	//Doit se faire AVANT ODOMETRY_init() !!!
 
 	//Sur quel robot est-on ?
@@ -157,7 +160,7 @@ void initialisation(void)
 int main (void)
 {
 	initialisation();
-
+	LED_RUN = 1;
 
 	//Routines de tests UART et CAN
 	debug_printf("\nAsser Ready !\n");
