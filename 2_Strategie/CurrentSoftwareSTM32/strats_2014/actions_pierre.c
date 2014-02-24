@@ -11,6 +11,7 @@
 
 
 #include "actions_pierre.h"
+#include "actions_net.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
 #include "../act_can.h"
@@ -200,90 +201,106 @@ void strat_lannion(void){
 
 	static way_e sensRobot;
 
-	switch(state){
-	case IDLE:
-		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=500 >> 8;
-		msg.data[1]=500 & 0xFF;
-		msg.data[2]=COLOR_Y(120) >> 8;
-		msg.data[3]=COLOR_Y(120) & 0xFF;
+	if(TIME_MATCH_TO_NET < global.env.match_time)
+		strat_launch_net();
+	else
+		switch(state){
+			case IDLE:
+				msg.sid=ASSER_SET_POSITION;
+				msg.data[0]=500 >> 8;
+				msg.data[1]=500 & 0xFF;
+				msg.data[2]=COLOR_Y(120) >> 8;
+				msg.data[3]=COLOR_Y(120) & 0xFF;
 
-		if(global.env.color == RED){
-			msg.data[4]=PI4096/2 >> 8;
-			msg.data[5]=PI4096/2 & 0xFF;
+				if(global.env.color == RED){
+					msg.data[4]=PI4096/2 >> 8;
+					msg.data[5]=PI4096/2 & 0xFF;
 
-		}else{
-			msg.data[4]=-PI4096/2 >> 8;
-			msg.data[5]=-PI4096/2 & 0xFF;
+				}else{
+					msg.data[4]=-PI4096/2 >> 8;
+					msg.data[5]=-PI4096/2 & 0xFF;
+				}
+
+				msg.size = 6;
+				CAN_send(&msg);
+
+				if(global.env.color == RED)
+					sensRobot = BACKWARD;
+				else
+					sensRobot = FORWARD;
+
+				state = POS_DEPART;
+				break;
+
+			case POS_DEPART:
+				state = try_going_until_break(500,COLOR_Y(300),POS_DEPART,TRIANGLE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+				break;
+
+			case TRIANGLE1:
+				if(entrance)
+					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+
+				state = try_going_multipoint(deplacement,3,TRIANGLE1,FRESQUE,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+				break;
+
+			case FRESQUE:
+				if(entrance)
+					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+				state = check_sub_action_result(strat_manage_fresco(),FRESQUE,AVANCER_FRESQUE,ERROR);
+				break;
+
+			case AVANCER_FRESQUE:
+				state = try_going_until_break(600,1500,AVANCER_FRESQUE,TRIANGLE2,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+				break;
+
+			case TRIANGLE2:
+				if(entrance)
+					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+
+				state = try_going_multipoint(&deplacement[3],3,TRIANGLE2,TRIANGLE3,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+				break;
+
+			case TRIANGLE3:
+				if(entrance)
+					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+				state = try_going_until_break(1400,COLOR_Y(2400),TRIANGLE3,TRIANGLE3_AVANCER,ERROR,FAST,sensRobot,NO_AVOIDANCE);
+				break;
+
+			case TRIANGLE3_AVANCER:
+				if(entrance)
+					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+				state = try_going_until_break(900,COLOR_Y(2400),TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,FAST,sensRobot,NO_AVOIDANCE);
+				break;
+
+			case TRIANGLE4_5:
+					state = try_going_multipoint(&deplacement[6],6,TRIANGLE4_5,TRIANGLE6,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+				break;
+
+			case TRIANGLE6:
+				if(entrance)
+					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+				state = try_going_until_break(900,COLOR_Y(600),TRIANGLE6,TRIANGLE6_AVANCER,ERROR,FAST,sensRobot,NO_AVOIDANCE);
+				break;
+
+			case TRIANGLE6_AVANCER:
+				if(entrance)
+					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+
+				state = try_going_until_break(1200,COLOR_Y(600),TRIANGLE6_AVANCER,DONE,ERROR,FAST,sensRobot,NO_AVOIDANCE);
+				break;
+
+			case DONE:
+				break;
+
+			case ERROR:
+				break;
+
+			default:
+				break;
 		}
-
-		msg.size = 6;
-		CAN_send(&msg);
-
-		if(global.env.color == RED)
-			sensRobot = BACKWARD;
-		else
-			sensRobot = FORWARD;
-
-		state = POS_DEPART;
-		break;
-	case POS_DEPART:
-		state = try_going_until_break(500,COLOR_Y(300),POS_DEPART,TRIANGLE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		break;
-	case TRIANGLE1:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-
-		state = try_going_multipoint(deplacement,3,TRIANGLE1,FRESQUE,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-		break;
-	case FRESQUE:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-
-		state = check_sub_action_result(strat_manage_fresco(),FRESQUE,AVANCER_FRESQUE,ERROR);
-		break;
-	case AVANCER_FRESQUE:
-		state = try_going_until_break(600,1500,AVANCER_FRESQUE,TRIANGLE2,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-		break;
-	case TRIANGLE2:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-
-		state = try_going_multipoint(&deplacement[3],3,TRIANGLE2,TRIANGLE3,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-		break;
-	case TRIANGLE3:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-
-		state = try_going_until_break(1400,COLOR_Y(2400),TRIANGLE3,TRIANGLE3_AVANCER,ERROR,FAST,sensRobot,NO_AVOIDANCE);
-		break;
-	case TRIANGLE3_AVANCER:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-		state = try_going_until_break(900,COLOR_Y(2400),TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,FAST,sensRobot,NO_AVOIDANCE);
-		break;
-	case TRIANGLE4_5:
-			state = try_going_multipoint(&deplacement[6],6,TRIANGLE4_5,TRIANGLE6,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-		break;
-	case TRIANGLE6:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-
-		state = try_going_until_break(900,COLOR_Y(600),TRIANGLE6,TRIANGLE6_AVANCER,ERROR,FAST,sensRobot,NO_AVOIDANCE);
-		break;
-	case TRIANGLE6_AVANCER:
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-
-		state = try_going_until_break(1200,COLOR_Y(600),TRIANGLE6_AVANCER,DONE,ERROR,FAST,sensRobot,NO_AVOIDANCE);
-		break;
-	case DONE:
-		break;
-	case ERROR:
-		break;
-	default:
-		break;
-	}
 }
 
 void strat_test_point(){
@@ -963,32 +980,6 @@ error_e strat_launch_net(){
 }
 
 //resultat dans ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
-
-
-
-
-void strat_test_filet(){
-	CREATE_MAE_WITH_VERBOSE(0,
-		INIT,
-		LAUNCH,
-		DONE
-	);
-
-	switch(state){
-		case INIT :
-			state = LAUNCH;
-			break;
-
-		case LAUNCH :
-			ACT_filet_launch(ACT_FILET_LAUNCHED);
-			debug_printf("Lancement du filet");
-			state = DONE;
-			break;
-
-		case DONE :
-			break;
-	}
-}
 
 void strat_test_small_arm(){
 	CREATE_MAE_WITH_VERBOSE(0,
