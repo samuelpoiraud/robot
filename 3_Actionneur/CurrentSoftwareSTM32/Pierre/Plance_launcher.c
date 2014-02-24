@@ -35,6 +35,9 @@
 #define TIME_BETWEEN_LANCE 30 // Est multiplié par 10 derriére car sur 8 bits ne peut pas depasser 256ms sinon
 #define TIME_HOLD_LAUNCHER_MAX 25 //    idem ci-dessus
 
+
+#define VARIABLE 0
+
 static bool_e start_next_launcher();
 static bool_e hold_state();
 
@@ -68,13 +71,19 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 	 LANCE_LAUNCHER_init();
 
 	if(msg->sid == ACT_LANCELAUNCHER) {
+
+		debug_printf("Recoit le message CAN\n");
+
 		switch(msg->data[0]) {
 			//Même action quelque soit la commande RUN
+
 			case ACT_LANCELAUNCHER_RUN_1_BALL:
 			case ACT_LANCELAUNCHER_RUN_5_BALL:
 			case ACT_LANCELAUNCHER_RUN_ALL:
 				debug_printf("														ENVOI\n");
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
+				debug_printf("Pass here1\n");
+				//VARIABLE = 1;
 				break;
 
 			case ACT_LANCELAUNCHER_STOP:
@@ -98,6 +107,8 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			return;
 		}
 
+		debug_printf("Pass here2\n");
+
 		if(init) {
 			if(lance_launcher_last_launch == 0) { //on verifie qu'aucun lanceur n'est activé (car seul un seul pour l'être à la fois)
 				Uint8 command = QUEUE_get_arg(queueId)->canCommand;
@@ -108,6 +119,7 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 						lance_launcher_last_launch = 7;
 						break;
 					case ACT_LANCELAUNCHER_RUN_5_BALL:
+						debug_printf("Pass here\n");
 						lance_launcher_last_launch = 5;
 						break;
 					case ACT_LANCELAUNCHER_RUN_ALL:

@@ -124,6 +124,9 @@ int main (void)
 		LED_USER = !LED_USER;
 		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
 
+//		if(VARIABLE)
+//			debug_printf("message passer\n");
+
 		QUEUE_run();
 		BUTTONS_update();
 
@@ -152,8 +155,8 @@ static void MAIN_onButton0() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 	msg.size = 1;
-	msg.sid = ACT_SMALL_ARM;
-	msg.data[0] = ACT_SMALL_ARM_IDLE;
+	msg.sid = ACT_LANCELAUNCHER;
+	msg.data[0] = ACT_LANCELAUNCHER_RUN_1_BALL;
 	CAN_process_msg(&msg);
 #endif
 }
@@ -189,7 +192,7 @@ static void MAIN_onButton3() {
 		msg.sid = ACT_LANCELAUNCHER;
 
 
-		msg.data[0] = ACT_LANCELAUNCHER_RUN;
+		msg.data[0] = ACT_LANCELAUNCHER_RUN_1_BALL;
 
 		CAN_process_msg(&msg);
 		debug_printf("Main: ACT_LANCELAUNCHER_RUN\n");*/
