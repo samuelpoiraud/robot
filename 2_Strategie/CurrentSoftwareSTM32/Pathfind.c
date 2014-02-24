@@ -24,7 +24,6 @@
 
 #ifndef USE_POLYGON
 
-//Robot 2011
 static pathfind_node_t nodes[PATHFIND_NODE_NB] =
 {
 	//Colonne 1 coté Rouge [A]
