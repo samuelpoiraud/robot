@@ -172,6 +172,9 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 						case SELFTEST_NO_ERROR:																											break;
 						case SELFTEST_PROP_FAILED:			debug_printf(" | error %x SELFTEST_PROP_FAILED\n"			,SELFTEST_PROP_FAILED);			break;
 						case SELFTEST_PROP_HOKUYO_FAILED:	debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"	,SELFTEST_PROP_HOKUYO_FAILED);	break;
+						case SELFTEST_PROP_DT10_1_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_1_FAILED\n"	,SELFTEST_PROP_DT10_1_FAILED);
+						case SELFTEST_PROP_DT10_2_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_2_FAILED\n"	,SELFTEST_PROP_DT10_2_FAILED);
+						case SELFTEST_PROP_DT10_3_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_3_FAILED\n"	,SELFTEST_PROP_DT10_3_FAILED);
 						default:							debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);				break;
 					}
 				}
