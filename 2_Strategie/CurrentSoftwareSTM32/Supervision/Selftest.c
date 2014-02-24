@@ -409,7 +409,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			break;
 		case TEST_SD_CARD:
 			nb_written = 0;
-			if(f_open(&file, "test.txt", FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
+			if(f_open(&file, "selftest.txt", FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
 			{
 				f_write(&file, "test_string", 11, (unsigned int *)&nb_written);
 				f_close(&file);
@@ -439,6 +439,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
 	Uint8 i;
 	debug_printf("SELFTEST ENDED with %d error(s) :\n",size);
+	BUZZER_play(200, DEFAULT_NOTE, size);	//Autant de bip que d'erreurs !
 	for(i=0;i<size;i++)
 	{
 		if(errors[i] != SELFTEST_NO_ERROR)

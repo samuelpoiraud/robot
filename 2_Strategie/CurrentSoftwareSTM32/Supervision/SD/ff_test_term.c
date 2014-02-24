@@ -91,7 +91,7 @@ bool_e terminal_process_main (void)
 	switch (state)
 	{
 		case INIT:
-			debug_printf("FatFs module terminal :: type \"help\" for command list\n");
+			debug_printf("terminal ready : type \"help\" for command list\n");
 			state = SEND_PROMPT;
 			break;
 		case SEND_PROMPT:
