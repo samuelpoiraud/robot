@@ -308,7 +308,7 @@ typedef struct{
 //Paquet renvoyé par l'AX12, 2 paramètres 8bits maximum
 typedef struct{
 	Uint8 id_servo;
-	Uint8 error;
+	Uint16 error;  // l'AX12 n'utilise que 8 bits
 	union {
 		Uint16 param;
 		struct {
@@ -755,7 +755,7 @@ static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packe
 		case 3:	//1 paramètre
 			checksum += status_packet->param_1;
 		case 2:	//pas de paramètre
-			checksum += status_packet->id_servo + packet_length + status_packet->error;
+			checksum += status_packet->id_servo + packet_length + (status_packet->error & 0xFF);
 			break;
 
 		default:
@@ -787,7 +787,7 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 			//Initialisation de a structure a des valeurs par défaut
 			status_packet->id_servo = 0;
 			status_packet->size = 0;
-			status_packet->error = 0;
+			//status_packet->error = 0; contient IN_PROGRESS déjà
 			status_packet->param = 0;
 
 			if(receive_byte != 0xFF)
@@ -808,7 +808,8 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 			break;
 
 		case 4:
-			status_packet->error = receive_byte;
+			//pour être sur de ne pas avoir le bit 7 a 1, si l'AX12 le met a 1, on met tous les bits a 1
+			status_packet->error = receive_byte & 0x7F; //On enlève le IN_PROGRESS en passant
 			break;
 
 		case 5:
@@ -871,6 +872,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				}
 
 				state_machine.state = AX12_SMS_Sending;
+				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_IN_PROGRESS;
 #ifdef AX12_UART_Ptr
 				state_machine.ax12_sending_index = 0;
 #endif
@@ -1040,10 +1042,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					if(status_response_packet.id_servo != state_machine.current_instruction.id_servo || status_response_packet.id_servo >= AX12_NUMBER) {
 						debug_printf("Wrong servo ID: %d instead of %d\n", status_response_packet.id_servo, state_machine.current_instruction.id_servo);
 					} else {
-						//pour être sur de ne pas avoir le bit 7 a 1, si l'AX12 le met a 1, on met tous les bits a 1
-						if(status_response_packet.error & 0x80)
-							AX12_on_the_robot[status_response_packet.id_servo].last_status.error = 0xFF;
-						else AX12_on_the_robot[status_response_packet.id_servo].last_status.error = status_response_packet.error & 0x7F;
+						AX12_on_the_robot[status_response_packet.id_servo].last_status.error = status_response_packet.error;
 						AX12_on_the_robot[status_response_packet.id_servo].last_status.param = status_response_packet.param;
 
 						#ifdef VERBOSE_MODE
@@ -1063,7 +1062,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 								debug_printf("AX12[%d] Error: Instruction error\n", status_response_packet.id_servo);
 							if(status_response_packet.error & 0x80)
 								debug_printf("AX12[%d] Fatal: Unknown (0x80) error\n", status_response_packet.id_servo);
-							if(status_response_packet.error)
+							if(status_response_packet.error & 0xFF)
 								debug_printf("AX12[%d] Cmd: %d, addr: 0x%x, param: 0x%x\n",
 										state_machine.current_instruction.id_servo,
 										state_machine.current_instruction.type,
@@ -1132,6 +1131,7 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 		return FALSE;	//return false, on a pas réussi a insérer l'instruction, problème de priorité d'interruptions ?
 	}
 
+	AX12_on_the_robot[inst->id_servo].last_status.error = AX12_ERROR_IN_PROGRESS;
 	AX12_special_instruction_buffer.buffer[AX12_special_instruction_buffer.end_index] = *inst;
 	AX12_special_instruction_buffer.end_index = INC_WITH_MOD(AX12_special_instruction_buffer.end_index, AX12_INSTRUCTION_REAL_NEEDED_BUFFER_SIZE);
 	//truc = state_machine.state;

@@ -243,6 +243,7 @@
 	 */
 	#define AX12_ERROR_TIMEOUT		0x80
 
+	#define AX12_ERROR_IN_PROGRESS  0x100
 
 	/*****************************************************************************/
 	/** Fonction d'utilisation de l'AX12										**/
