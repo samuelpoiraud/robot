@@ -168,7 +168,7 @@
 	 */
 	typedef struct {
 		/** Erreur constituée des flags AX12_ERROR_*. */
-		Uint8 error;
+		Uint16 error;
 		union {
 			/** donnée eventuellement reçu sur 16bits, cette valeur partage le même emplacement mémoire que param_1 et param_2. */
 			Uint16 param;
@@ -243,6 +243,13 @@
 	 */
 	#define AX12_ERROR_TIMEOUT		0x80
 
+	/** Des instructions sont en cours de traitement pour l'AX12 considéré
+	 *
+	 * Une ou plusieurs commande on été demandées de manière asynchrone et le résultat renvoyé par l'AX12 n'a pas encore été reçu.
+	 * Ce status n'est donc pas vraiment une erreur.
+	 * @see AX12_get_last_error
+	 * @see AX12_STATUS_RETURN_MODE
+	 */
 	#define AX12_ERROR_IN_PROGRESS  0x100
 
 	/*****************************************************************************/
@@ -295,6 +302,8 @@
 	 * @return TRUE si le servo répond au ping, sinon FALSE
 	 */
 	bool_e AX12_is_ready(Uint8 id_servo);
+
+	bool_e AX12_async_is_ready(Uint8 id_servo); //version asynchrone, resultat à tester avec AX12_get_last_error. Return FALSE que si la file d'action du driver ax12 est pleine (cas grave, buffer trop petit ou flood de demande à l'ax12/rx24 ?)
 
 	/**
 	 * Met le driver en mode préparation de commandes.
