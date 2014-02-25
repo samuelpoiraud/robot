@@ -727,7 +727,7 @@ void SELFTEST_check_alim(){
 	}
 
 	if(global.env.alim_value > 5000 && global.env.alim_value < 20000 && !says){
-		debug_printf("Batterie instable -> %d mV\n", global.env.alim_value);
+		//debug_printf("Batterie instable -> %d mV\n", global.env.alim_value);
 		says = TRUE;
 	}else
 		says = FALSE;
