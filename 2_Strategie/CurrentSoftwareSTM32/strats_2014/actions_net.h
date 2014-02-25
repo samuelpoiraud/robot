@@ -20,7 +20,7 @@
 #include "../QS/QS_types.h"
 #include "../config/config_pin.h"
 
-#define TIME_MATCH_TO_NET	85000
+#define TIME_MATCH_TO_NET	(MATCH_DURATION - 5000)
 
 void strat_placement_net();
 

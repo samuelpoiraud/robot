@@ -153,10 +153,9 @@ static void FILET_selftest_run(queue_id_t queueId){
 	}else if(!AX12_is_ready(FILET_AX12_ID)){	// Si l'ax12 n'est pas présent
 		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, 0);
 
-	}else if(absolute(AX12_get_position(FILET_AX12_ID) - FILET_AX12_LAUNCHED_POS) > EPSILON_POS_FILET){	// Si l'ax12 n'est pas armé et que le filet est présent
+	}else if(absolute(AX12_get_position(FILET_AX12_ID) - FILET_AX12_IDLE_POS) > EPSILON_POS_FILET){	// Si l'ax12 n'est pas armé et que le filet est présent
 		debug_printf("SELFTEST FILET : FILET NON ARME ALORS QU'IL EST PRESENT (problème capteur de présence)\n");
 		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_FAILED, ACT_RESULT_ERROR_UNKNOWN, 0);
-
 	}else // Sinon c'est que tout va bien
 		QUEUE_next(queueId, ACT_FILET, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
 }
