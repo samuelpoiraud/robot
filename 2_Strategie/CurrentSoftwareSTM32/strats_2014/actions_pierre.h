@@ -33,10 +33,10 @@ error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens);
 error_e strat_test_ramasser_fruit_arbre2_double(bool_e sens);
 error_e strat_lance_launcher();
 error_e strat_lance_launcher_ennemy();
-error_e strat_launch_net();
 
 void strat_test_filet();
 void strat_test_small_arm();
+void strat_test_vide();
 
 
 #endif /* ACTIONS_PIERRE_H_ */

@@ -202,7 +202,7 @@ void strat_lannion(void){
 	static way_e sensRobot;
 
 	if(TIME_MATCH_TO_NET < global.env.match_time)
-		strat_launch_net();
+		strat_placement_net();
 	else
 		switch(state){
 			case IDLE:
@@ -955,28 +955,30 @@ error_e strat_lance_launcher_ennemy(){
 	return IN_PROGRESS;
 }
 
-error_e strat_launch_net(){
+
+void strat_test_vide(){
+
 	CREATE_MAE_WITH_VERBOSE(0,
-		IDLE,
-		DONE,
-		ERROR
+		INIT,
+		AVANCER,
+		DONE
 	);
 
-	switch(state){
-	case IDLE:
+	if(TIME_MATCH_TO_NET < global.env.match_time)
+		strat_placement_net();
+	else
+		switch (state){
+			case INIT :
+				state = AVANCER;
+				break;
 
-		break;
-	case DONE:
-		return END_OK;
-		break;
-	case ERROR:
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
-	}
+			case AVANCER :
+				state = try_going(1000, 2500, AVANCER, DONE, DONE, SLOW, ANY_WAY, NO_AVOIDANCE);
+				break;
 
-	return IN_PROGRESS;
+			case DONE :
+				break;
+		}
 }
 
 //resultat dans ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);

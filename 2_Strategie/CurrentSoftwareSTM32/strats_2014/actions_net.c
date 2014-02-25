@@ -44,7 +44,7 @@ void strat_placement_net(){
 	static Position pos = {
 		{A1,		B1,			C1,			Z1,			Y1,			W1},
 		{0,			0,			0,			0,			0,			0},
-		{10804,		12384,		-11079,		-11450,		12627,		10471},
+		{11829,		12388,		-11268,		-11550,		12627,		10874},
 		{FALSE,		FALSE,		FALSE,		FALSE,		FALSE,		FALSE},
 		0,
 		FALSE
@@ -56,10 +56,7 @@ void strat_placement_net(){
 
 	switch(state){
 		case INIT :
-			msg.sid = ASSER_STOP;
-			msg.size = 0;
-			CAN_send(&msg);
-
+			ASSER_push_stop();
 			// Retrait des actionneurs
 
 			for(i=0;i<NB_NODE;i++)
@@ -72,8 +69,10 @@ void strat_placement_net(){
 		case FOUND_PATH :
 			pos.all_node_try = TRUE;
 			for(i=0;i<NB_NODE;i++)
-				if(pos.tryed_node[i] == FALSE)
+				if(pos.tryed_node[i] == FALSE){
+					pos.selected_node = i;
 					pos.all_node_try = FALSE;
+				}
 
 			if(pos.all_node_try == FALSE){
 				for(i=0;i<NB_NODE;i++)
@@ -87,7 +86,7 @@ void strat_placement_net(){
 			break;
 
 		case PLACEMENT :
-			state = PATHFIND_try_going(pos.node[pos.selected_node], PLACEMENT, DONE, FOUND_PATH, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_LAST_POINT);
+			state = PATHFIND_try_going(pos.node[pos.selected_node], PLACEMENT, PLACEMENT_TETA, FOUND_PATH, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_LAST_POINT);
 			pos.tryed_node[pos.selected_node] = TRUE;
 			break;
 
