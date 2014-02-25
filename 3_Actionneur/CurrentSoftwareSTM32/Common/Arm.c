@@ -156,7 +156,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 	}
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_Arm) {    // Gestion des mouvements de rotation de l'assiette
-		Sint8 new_state = QUEUE_get_arg(queueId)->param;
+		Sint16 new_state = QUEUE_get_arg(queueId)->param;
 
 		if(init) {
 			if(old_state < 0 || arm_states_transitions[old_state][new_state] == 0) {
