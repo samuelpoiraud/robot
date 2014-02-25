@@ -36,7 +36,7 @@
 #define TIME_HOLD_LAUNCHER_MAX 25 //    idem ci-dessus
 
 
-#define VARIABLE 0
+bool_e EXECUTING_LAUNCH = FALSE;
 
 static bool_e start_next_launcher();
 static bool_e hold_state();
@@ -80,6 +80,7 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_LANCELAUNCHER_RUN_1_BALL:
 			case ACT_LANCELAUNCHER_RUN_5_BALL:
 			case ACT_LANCELAUNCHER_RUN_ALL:
+				EXECUTING_LAUNCH = TRUE;
 				debug_printf("														ENVOI\n");
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
 				debug_printf("Pass here1\n");
@@ -149,9 +150,11 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			//Si terminé, on le dit à la strat (il faut éviter les QUEUE_behead pour cette raison)
 			if(lance_launcher_last_launch == 0) {
 				QUEUE_next(queueId, ACT_LANCELAUNCHER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+				EXECUTING_LAUNCH = FALSE;
 			} else if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + ACTION_TIMEOUT) {
 				LANCE_LAUNCHER_stop();
 				QUEUE_next(queueId, ACT_LANCELAUNCHER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_TIMEOUT, __LINE__);
+				EXECUTING_LAUNCH = FALSE;
 			}
 		}
 	}
