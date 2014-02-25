@@ -587,7 +587,7 @@ static bool_e AX12_instruction_write8(Uint8 id_servo, Uint8 address, Uint8 value
 			return TRUE;
 		if(!AX12_instruction_wait(id_servo))
 			return FALSE;
-		return AX12_instruction_get_last_status(id_servo).error == 0;
+		return AX12_instruction_get_last_status(id_servo).error == AX12_ERROR_OK;
 	#endif
 
 	return TRUE;
@@ -607,7 +607,7 @@ static bool_e AX12_instruction_write16(Uint8 id_servo, Uint8 address, Uint16 val
 			return TRUE;
 		if(!AX12_instruction_wait(id_servo))
 			return FALSE;
-		return AX12_instruction_get_last_status(id_servo).error == 0;
+		return AX12_instruction_get_last_status(id_servo).error == AX12_ERROR_OK;
 	#endif
 
 	return TRUE;
@@ -787,7 +787,7 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 			//Initialisation de a structure a des valeurs par défaut
 			status_packet->id_servo = 0;
 			status_packet->size = 0;
-			//status_packet->error = 0; contient IN_PROGRESS déjà
+			//status_packet->error = AX12_ERROR_OK; contient IN_PROGRESS déjà
 			status_packet->param = 0;
 
 			if(receive_byte != 0xFF)
@@ -976,6 +976,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					}
 					else
 					{
+						AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_OK;
+						AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 0;
 						AX12_instruction_queue_next();
 						state_machine.state = AX12_SMS_ReadyToSend;
 						AX12_state_machine(AX12_SME_NoEvent);
@@ -986,6 +988,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				TIMER_SRC_TIMER_resetFlag();
 				debug_printf("AX12[%d]: send timeout !!\n", state_machine.current_instruction.id_servo);
 
+				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
+				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 1;
 				AX12_instruction_queue_next();
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
@@ -1041,6 +1045,9 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 					if(status_response_packet.id_servo != state_machine.current_instruction.id_servo || status_response_packet.id_servo >= AX12_NUMBER) {
 						debug_printf("Wrong servo ID: %d instead of %d\n", status_response_packet.id_servo, state_machine.current_instruction.id_servo);
+
+						AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_INSTRUCTION;
+						AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 1;
 					} else {
 						AX12_on_the_robot[status_response_packet.id_servo].last_status.error = status_response_packet.error;
 						AX12_on_the_robot[status_response_packet.id_servo].last_status.param = status_response_packet.param;
@@ -1062,7 +1069,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 								debug_printf("AX12[%d] Error: Instruction error\n", status_response_packet.id_servo);
 							if(status_response_packet.error & 0x80)
 								debug_printf("AX12[%d] Fatal: Unknown (0x80) error\n", status_response_packet.id_servo);
-							if(status_response_packet.error & 0xFF)
+							if(status_response_packet.error)
 								debug_printf("AX12[%d] Cmd: %d, addr: 0x%x, param: 0x%x\n",
 										state_machine.current_instruction.id_servo,
 										state_machine.current_instruction.type,
@@ -1117,7 +1124,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* inst) {	//utilisation d'un pointeur pour eviter de provoquer une copie intégrale de la structure, qui pourrait prendre du temps si elle est trop grande
 	Uint16 i = 0;
-	//Uint16 truc;
+
+	assert(inst->id_servo < AX12_NUMBER);
 
 	while(AX12_instruction_queue_is_full() && i < 65000)	//boucle 65000 fois si le buffer reste full, si on atteint 65000, on échoue et retourne FALSE
 		i++;
@@ -1438,6 +1446,19 @@ void AX12_init() {
 
 bool_e AX12_is_ready(Uint8 id_servo) {
 	return AX12_instruction_ping(id_servo);
+}
+
+bool_e AX12_async_is_ready(Uint8 id_servo) {
+	AX12_instruction_packet_t inst = {0};
+
+	inst.id_servo = id_servo;
+	inst.type = INST_PING;
+	inst.size = MIN_INSTRUCTION_PACKET_SIZE;
+
+	if(!AX12_instruction_queue_insert(&inst))
+		return FALSE;
+
+	return TRUE;
 }
 
 AX12_status_t AX12_get_last_error(Uint8 id_servo) {
@@ -1785,7 +1806,7 @@ bool_e AX12_set_torque_response(Uint8 id_servo, Uint16 A, Uint16 B, Uint16 C, Ui
 		return FALSE;
 
 	#if AX12_STATUS_RETURN_MODE == AX12_STATUS_RETURN_ALWAYS
-		if(!AX12_instruction_wait(id_servo) || AX12_instruction_get_last_status(id_servo).error == 0)
+		if(!AX12_instruction_wait(id_servo) || AX12_instruction_get_last_status(id_servo).error == AX12_ERROR_OK)
 			return FALSE;
 	#endif
 
