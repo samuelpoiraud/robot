@@ -424,6 +424,7 @@ static bool_e AX12_instruction_async_execute_write();
 static bool_e AX12_instruction_ping(Uint8 id_servo);
 static bool_e AX12_instruction_wait(Uint8 id_servo);
 static bool_e AX12_instruction_buffer_is_full();
+static void AX12_instruction_next(Uint16 error, Uint16 param);
 static AX12_status_t AX12_instruction_get_last_status(Uint8 id_servo);
 static void AX12_instruction_reset_last_status(Uint8 id_servo);
 
@@ -633,6 +634,17 @@ static bool_e AX12_instruction_buffer_is_full() {
 	return AX12_instruction_queue_is_full();
 }
 
+static void AX12_instruction_next(Uint16 error, Uint16 param) {
+	// PROBLEME DE PREEMPTION !!!!
+	AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
+	AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
+	if(state_machine.current_instruction.type == INST_PING)
+		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = 0xFF;
+	else
+		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = state_machine.current_instruction.address;
+	AX12_instruction_queue_next();
+}
+
 static bool_e AX12_instruction_wait(Uint8 id_servo) {
 	Uint32 i = 0;
 	//debug_printf("+1\n");
@@ -653,6 +665,7 @@ static AX12_status_t AX12_instruction_get_last_status(Uint8 id_servo)
 }
 
 static void AX12_instruction_reset_last_status(Uint8 id_servo) {
+	AX12_on_the_robot[id_servo].last_status.last_instruction_address = 0;
 	AX12_on_the_robot[id_servo].last_status.error = AX12_ERROR_OK;
 	AX12_on_the_robot[id_servo].last_status.param = 0;
 }
@@ -976,9 +989,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					}
 					else
 					{
-						AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_OK;
-						AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 0;
-						AX12_instruction_queue_next();
+						AX12_instruction_next(AX12_ERROR_OK, 0);
 						state_machine.state = AX12_SMS_ReadyToSend;
 						AX12_state_machine(AX12_SME_NoEvent);
 					}
@@ -988,9 +999,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				TIMER_SRC_TIMER_resetFlag();
 				debug_printf("AX12[%d]: send timeout !!\n", state_machine.current_instruction.id_servo);
 
-				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
-				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 1;
-				AX12_instruction_queue_next();
+				AX12_instruction_next(AX12_ERROR_TIMEOUT, 1);
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
 			}
@@ -1046,11 +1055,8 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					if(status_response_packet.id_servo != state_machine.current_instruction.id_servo || status_response_packet.id_servo >= AX12_NUMBER) {
 						debug_printf("Wrong servo ID: %d instead of %d\n", status_response_packet.id_servo, state_machine.current_instruction.id_servo);
 
-						AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_INSTRUCTION;
-						AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 1;
+						AX12_instruction_next(AX12_ERROR_INSTRUCTION, 1);
 					} else {
-						AX12_on_the_robot[status_response_packet.id_servo].last_status.error = status_response_packet.error;
-						AX12_on_the_robot[status_response_packet.id_servo].last_status.param = status_response_packet.param;
 
 						#ifdef VERBOSE_MODE
 							if(status_response_packet.error & AX12_ERROR_VOLTAGE)
@@ -1076,8 +1082,9 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 										state_machine.current_instruction.address,
 										state_machine.current_instruction.param);
 						#endif
+
+						AX12_instruction_next(status_response_packet.error, status_response_packet.param);
 					}
-					AX12_instruction_queue_next();
 					state_machine.state = AX12_SMS_ReadyToSend;
 					AX12_state_machine(AX12_SME_NoEvent);
 				}
@@ -1097,10 +1104,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				if(AX12_UART_GetFlagStatus(USART_FLAG_RXNE))
 					debug_printf("AX12 timeout too small\n");
 
-				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_TIMEOUT;
-				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = 0;
-
-				AX12_instruction_queue_next();
+				AX12_instruction_next(AX12_ERROR_TIMEOUT, 0);
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
 			} /*else if(event == AX12_SME_TxInterrupt) {
@@ -1448,17 +1452,29 @@ bool_e AX12_is_ready(Uint8 id_servo) {
 	return AX12_instruction_ping(id_servo);
 }
 
-bool_e AX12_async_is_ready(Uint8 id_servo) {
+bool_e AX12_async_is_ready(Uint8 id_servo, bool_e *isReady) {
 	AX12_instruction_packet_t inst = {0};
 
-	inst.id_servo = id_servo;
-	inst.type = INST_PING;
-	inst.size = MIN_INSTRUCTION_PACKET_SIZE;
+	AX12_status_t status = AX12_get_last_error(id_servo);
+	if(status.error != AX12_ERROR_IN_PROGRESS) {
+		if(status.last_instruction_address == 0xFF) {
+			AX12_reset_last_error(id_servo);
+			if(status.error == AX12_ERROR_OK)
+				*isReady = TRUE;
+			else
+				*isReady = FALSE;
+			return TRUE;
+		} else {
+			inst.id_servo = id_servo;
+			inst.type = INST_PING;
+			inst.size = MIN_INSTRUCTION_PACKET_SIZE;
 
-	if(!AX12_instruction_queue_insert(&inst))
-		return FALSE;
+			AX12_instruction_queue_insert(&inst);
+		}
+	}
 
-	return TRUE;
+
+	return FALSE;
 }
 
 AX12_status_t AX12_get_last_error(Uint8 id_servo) {

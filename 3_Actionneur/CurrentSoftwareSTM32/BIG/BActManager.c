@@ -93,24 +93,13 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	Uint8 i;
 	if(init) {
 		//Init des actionneurs
-		AX12_async_is_ready(FILET_AX12_ID); //amorce des demandes de ping ax12
 	} else {
-		bool_e isReady = FALSE;
-		Uint16 state = AX12_get_last_error(FILET_AX12_ID).error;
-		switch(state) {
-			case AX12_ERROR_IN_PROGRESS: //Si demande pas terminée, on fait rien (isReady = FALSE)
-				break;
+		bool_e isReady = FALSE, responseReceived;
 
-			case AX12_ERROR_OK: //Si terminé + Ok, alors il est ready
-				isReady = TRUE;
-				break;
+		responseReceived = AX12_async_is_ready(20, &isReady);
 
-			default: //Si terminé mais pas ok, alors on refait une demande
-				AX12_async_is_ready(FILET_AX12_ID);
-				break;
-		}
-
-		if(isReady || global.alim) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
+		if((responseReceived && isReady) || global.alim) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
+			debug_printf("Init pos\n");
 			for(i = 0; i < NB_ACTIONNEURS; i++) {
 				if(actionneurs[i].onInitPos != NULL)
 					actionneurs[i].onInitPos();
