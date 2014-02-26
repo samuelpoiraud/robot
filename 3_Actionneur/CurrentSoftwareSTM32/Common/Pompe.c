@@ -63,8 +63,8 @@ void POMPE_init_pos(){
 }
 
 bool_e POMPE_CAN_process_msg(CAN_msg_t* msg) {
-
 	if(msg->sid == ACT_POMPE) {
+		POMPE_initDCM();
 		switch(msg->data[0]) {
 			case ACT_POMPE_NORMAL:
 			case ACT_POMPE_REVERSE:

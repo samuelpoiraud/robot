@@ -67,8 +67,8 @@ void SMALL_ARM_stop(){
 }
 
 bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
-	SMALL_ARM_initAX12();
 	if(msg->sid == ACT_SMALL_ARM) {
+		SMALL_ARM_initAX12();
 		switch(msg->data[0]) {
 			case ACT_SMALL_ARM_IDLE :
 			case ACT_SMALL_ARM_MID :

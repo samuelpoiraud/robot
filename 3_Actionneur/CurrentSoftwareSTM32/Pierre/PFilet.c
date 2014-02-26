@@ -76,9 +76,9 @@ static void FILET_initAX12() {
 }
 
 bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
-	FILET_initAX12();
 	queue_id_t queueId;
 	if(msg->sid == ACT_FILET) {
+		FILET_initAX12();
 		switch(msg->data[0]) {
 
 			//Même chose pour les 2 actions

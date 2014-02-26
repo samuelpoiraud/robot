@@ -68,9 +68,8 @@ void LANCE_LAUNCHER_stop() {
 
 
 bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
-	 LANCE_LAUNCHER_init();
-
 	if(msg->sid == ACT_LANCELAUNCHER) {
+		LANCE_LAUNCHER_init();
 
 		debug_printf("Recoit le message CAN\n");
 
