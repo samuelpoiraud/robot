@@ -167,6 +167,7 @@
 	 * @see AX12_get_last_error
 	 */
 	typedef struct {
+		Uint8 last_instruction_address;
 		/** Erreur constituée des flags AX12_ERROR_*. */
 		Uint16 error;
 		union {
@@ -303,7 +304,7 @@
 	 */
 	bool_e AX12_is_ready(Uint8 id_servo);
 
-	bool_e AX12_async_is_ready(Uint8 id_servo); //version asynchrone, resultat à tester avec AX12_get_last_error. Return FALSE que si la file d'action du driver ax12 est pleine (cas grave, buffer trop petit ou flood de demande à l'ax12/rx24 ?)
+	bool_e AX12_async_is_ready(Uint8 id_servo, bool_e *isReady); //version asynchrone, resultat à tester avec AX12_get_last_error. Return FALSE que si la file d'action du driver ax12 est pleine (cas grave, buffer trop petit ou flood de demande à l'ax12/rx24 ?)
 
 	/**
 	 * Met le driver en mode préparation de commandes.
