@@ -34,14 +34,15 @@
 #define TIME_FILET_IT					(1*QUANTUM_IT)
 #define TIME_BEFORE_REARM				500  //[ms]
 #define TIME_BEFORE_DETECT				TIME_BEFORE_REARM
-#define TIME_BEFORE_FREE_STRING			50  //[ms]
-#define TIME_AFTER_FREE_STRING			20  //[ms]
+#define TIME_BEFORE_FREE_STRING			1000  //[ms]
+#define TIME_OSC_STRING					200  //[ms]
+#define NB_OSC_STRING					4
 #define EPSILON_POS_FILET				4
 Uint8 time_filet = 0;
 bool_e rearm_auto_active = TRUE;
+bool_e init_gache = FALSE;
 
-static void FILET_lacher_ficelles();
-static void FILET_liberer_gache();
+static void FILET_gache_process();
 static void FILET_initAX12();
 static void FILET_command_init(queue_id_t queueId);
 static void FILET_command_run(queue_id_t queueId);
@@ -199,9 +200,12 @@ static void FILET_command_init(queue_id_t queueId) {
 
 	//La commande a été envoyée et l'AX12 l'a bien reçu
 
-	if(command == ACT_FILET_LAUNCHED)
-		if(WATCHDOG_create(TIME_BEFORE_FREE_STRING, FILET_lacher_ficelles, FALSE) == 0xFF)
+	if(command == ACT_FILET_LAUNCHED){
+		if(WATCHDOG_create(TIME_BEFORE_FREE_STRING, FILET_gache_process, FALSE) == 0xFF)
 			debug_printf("Création du watchdog pour lacher les ficelles impossible\n");
+		else
+			init_gache = TRUE;
+	}
 
 }
 
@@ -214,14 +218,28 @@ static void FILET_command_run(queue_id_t queueId) {
 		QUEUE_next(queueId, ACT_FILET, result, errorCode, line);
 }
 
-static void FILET_lacher_ficelles(){
-	GACHE_FILET = 1;
-	if(WATCHDOG_create(TIME_AFTER_FREE_STRING, FILET_liberer_gache, FALSE) == 0xFF)
-		debug_printf("Création du watchdog pour libérer la gache impossible\n");
-}
+static void FILET_gache_process(){
+	static Uint8 compteur;
+	static bool_e pushed;
 
-static void FILET_liberer_gache(){
-	GACHE_FILET = 0;
+	if(init_gache){
+		init_gache = FALSE;
+		compteur = 0;
+		pushed = TRUE;
+	}
+
+	if(pushed == TRUE && compteur < NB_OSC_STRING){
+		GACHE_FILET = 1;
+		if(WATCHDOG_create(TIME_OSC_STRING/2, FILET_gache_process, FALSE) == 0xFF)
+			debug_printf("Création du watchdog pour libérer la gache impossible\n");
+		pushed = FALSE;
+	}else if(pushed == FALSE && compteur < NB_OSC_STRING){
+		GACHE_FILET = 0;
+		if(WATCHDOG_create(TIME_OSC_STRING/2, FILET_gache_process, FALSE) == 0xFF)
+			debug_printf("Création du watchdog pour la mise sous tension de la gache impossible\n");
+		compteur ++;
+		pushed = TRUE;
+	}
 }
 
 //************************************** Gestion du réarmement et information /**************************************/
