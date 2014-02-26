@@ -37,8 +37,8 @@ void BUTTON_init()
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 	BUTTONS_define_actions(BUTTON1,SELFTEST_ask_launch, NULL, 0);
 	BUTTONS_define_actions(BUTTON2,LCD_button_ok, NULL, 1);
-	BUTTONS_define_actions(BUTTON3,LCD_button_plus, NULL, 1);
-	BUTTONS_define_actions(BUTTON4,LCD_button_minus, NULL, 1);
+	BUTTONS_define_actions(BUTTON3,LCD_button_minus, NULL, 1);
+	BUTTONS_define_actions(BUTTON4,LCD_button_plus, NULL, 1);
 
 	#ifdef EEPROM_CAN_MSG_ENABLE
 		BUTTONS_define_actions(BUTTON5,EEPROM_CAN_MSG_verbose_previous_match, NULL, 0);

@@ -35,7 +35,7 @@ void LCD_switch_mode(void);
  * Permet de mettre à jour la position du robot : fonction à appeler à chaque broadcast position
  * Déclanche le rafraichissement de l'affichage
  */
-void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t);
+void LCD_change_pos(void);
 
 /*
  * Fonction qui prend une chaine de caractere pour l'ecrire sur l'écran
