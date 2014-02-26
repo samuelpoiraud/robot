@@ -272,6 +272,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 #else
 
 	switch(msg->data[0]) {
+		case ACT_POMPE & 0xFF:
+			act_id = ACT_QUEUE_Pompe;
+			break;
+
 		case ACT_FILET & 0xFF:
 			act_id = ACT_QUEUE_Filet;
 			break;
