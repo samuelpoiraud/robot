@@ -19,13 +19,13 @@
 //#define LOG_PREFIX "strat_tests: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-#define LARGEUR_ROBOT 240
+#define LARGEUR_ROBOT 246
 
 // Strat Rotation
 #define DEFAULT_SPEED	(SLOW)
 #define ODOMETRIE_PLAGE_ROTATION 2 //La variation de la plage sur PI4096(12868) pour savoir si on doit modifier l'angle. Théoriquement avec 10, on devrait avoir au maximum de 2mm de décalage sur un 1m
 #define USE_CURVE	0
-#define NB_TOUR_ODO_ROTATION 5
+#define NB_TOUR_ODO_ROTATION 2
 
 
 // Start Translation
@@ -71,7 +71,7 @@ void strat_reglage_odo_rotation(void){
 	case IDLE: //Cas d'attente et de réinitialisation
 
 		if(QS_WHO_AM_I_get() == PIERRE)
-			coefOdoRotation = 0x0000C5B7;
+			coefOdoRotation = 0x0000C5AD;
 		else // GUY
 			coefOdoRotation = 0x00010AC0;
 
@@ -132,7 +132,7 @@ void strat_reglage_odo_rotation(void){
 
 		break;
 	case AVANCER://pour le faire avancer du bord
-		state = try_going(1000,500,AVANCER,CALAGE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+		state = try_going(1000,100,AVANCER,CALAGE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 
 		if(state==CALAGE)
 			debug_printf("\nRENIT variable de x %d\n\t\t\tde y %x\n",global.env.pos.x,global.env.pos.y);
@@ -278,7 +278,7 @@ void strat_reglage_odo_translation(void){
 		state = CALAGE;
 
 		if(QS_WHO_AM_I_get() == PIERRE)
-			coefOdoTranslation = 0x0C43;
+			coefOdoTranslation = 0x0C3C;
 		else // GUY
 			coefOdoTranslation = 0x0C10;
 
@@ -330,10 +330,10 @@ void strat_reglage_odo_translation(void){
 		state = try_going(1000,2600,AVANCER,CALAGE,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 		break;
 	case DEMI_TOUR1:
-		state = try_go_angle(PI4096,DEMI_TOUR1,DEMI_TOUR2,ERROR,FAST);
+		state = try_go_angle(PI4096,DEMI_TOUR1,DEMI_TOUR2,ERROR,SLOW);
 		break;
 	case DEMI_TOUR2:
-		state = try_go_angle(3*PI4096/2,DEMI_TOUR2,CALAGE,ERROR,FAST);
+		state = try_go_angle(3*PI4096/2,DEMI_TOUR2,CALAGE,ERROR,SLOW);
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
 		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,3*PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
