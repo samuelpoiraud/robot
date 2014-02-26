@@ -11,6 +11,7 @@
 
 
 #include "../QS/QS_all.h"
+#include "../QS/QS_outputlog.h"
 #include "LCD_MIDAS_4x20.h"
 #include "LCD_interface.h"
 #include "LCD_CAN_injector.h"
@@ -320,40 +321,21 @@ void LCD_switch_mode(void){
 
 
 void LCD_strat_number_update(){
-	static Uint8 previous_strat = 0X0;
+	static Uint8 previous_strat = 0x0;
 	Uint8 new_strat = 0x0;
-	if(SWITCH_STRAT_1){ // Nb Balls
-		strat_nb[0]=1;
-		new_strat = new_strat | 0x1;
-	}else{
-		strat_nb[0]=0;
-		new_strat = new_strat && 0xFE;
+	Uint8 i;
+
+	strat_nb[0]=SWITCH_STRAT_1;
+	strat_nb[1]=SWITCH_STRAT_2;
+	strat_nb[2]=SWITCH_STRAT_3;
+
+	for(i=0; i<3; i++){
+		new_strat += strat_nb[i]<<i;
 	}
-	if(SWITCH_STRAT_2){
-			strat_nb[1]=1;
-			new_strat = new_strat | 0x2;
-	}else{
-			strat_nb[1]=0;
-			new_strat = new_strat && 0xFD;
-	}
-	if(SWITCH_STRAT_3){
-			new_strat = new_strat | 0x4;
-			strat_nb[2]=1;
-	}else{
-			strat_nb[2]=0;
-			new_strat = new_strat && 0xFB;
-	}
-	if(SWITCH_COLOR){
-			strat_nb[3]=1;
-			new_strat = new_strat | 0x8;
-	}else{
-			strat_nb[3]=0;
-			new_strat = new_strat && 0xF7;
-	}
-	if(new_strat != previous_strat){
+
+	if(previous_strat != new_strat)
 		change = TRUE;
-		previous_strat = new_strat;
-	}
+	previous_strat = new_strat;
 }
 
 
