@@ -28,16 +28,6 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_FILET
 #include "../QS/QS_outputlog.h"
 
-
-/* define & variable relatifs au lanceur de filet */
-#define QUANTUM_IT						100  //[ms], unité de temps de clock.c
-#define TIME_FILET_IT					(1*QUANTUM_IT)
-#define TIME_BEFORE_REARM				500  //[ms]
-#define TIME_BEFORE_DETECT				TIME_BEFORE_REARM
-#define TIME_BEFORE_FREE_STRING			1000  //[ms]
-#define TIME_OSC_STRING					200  //[ms]
-#define NB_OSC_STRING					4
-#define EPSILON_POS_FILET				4
 Uint8 time_filet = 0;
 bool_e rearm_auto_active = TRUE;
 bool_e init_gache = FALSE;
