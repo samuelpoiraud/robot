@@ -635,7 +635,6 @@ static bool_e AX12_instruction_buffer_is_full() {
 }
 
 static void AX12_instruction_next(Uint16 error, Uint16 param) {
-	// PROBLEME DE PREEMPTION !!!!
 	AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
 	AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
 	if(state_machine.current_instruction.type == INST_PING)
@@ -661,13 +660,24 @@ static bool_e AX12_instruction_wait(Uint8 id_servo) {
 
 static AX12_status_t AX12_instruction_get_last_status(Uint8 id_servo)
 {
-	return AX12_on_the_robot[id_servo].last_status;
+	AX12_status_t status;
+	AX12_UART_DisableIRQ();
+	TIMER_SRC_TIMER_DisableIT();
+		status = AX12_on_the_robot[id_servo].last_status;
+	TIMER_SRC_TIMER_EnableIT();
+	AX12_UART_EnableIRQ();
+
+	return status;
 }
 
 static void AX12_instruction_reset_last_status(Uint8 id_servo) {
-	AX12_on_the_robot[id_servo].last_status.last_instruction_address = 0;
-	AX12_on_the_robot[id_servo].last_status.error = AX12_ERROR_OK;
-	AX12_on_the_robot[id_servo].last_status.param = 0;
+	AX12_UART_DisableIRQ();
+	TIMER_SRC_TIMER_DisableIT();
+		AX12_on_the_robot[id_servo].last_status.last_instruction_address = 0;
+		AX12_on_the_robot[id_servo].last_status.error = AX12_ERROR_OK;
+		AX12_on_the_robot[id_servo].last_status.param = 0;
+	TIMER_SRC_TIMER_EnableIT();
+	AX12_UART_EnableIRQ();
 }
 
 /*****************************************************************************/
