@@ -26,6 +26,15 @@
 /** Position initiale de l'AX12. Doit être un define du type PLATE_PLIER_AX12_* */
 	#define FILET_AX12_INIT_POS        FILET_AX12_IDLE_POS
 
+#define QUANTUM_IT						100  //[ms], unité de temps de clock.c
+#define TIME_FILET_IT					(1*QUANTUM_IT)
+#define TIME_BEFORE_REARM				500  //[ms]
+#define TIME_BEFORE_DETECT				TIME_BEFORE_REARM
+#define TIME_BEFORE_FREE_STRING			1000  //[ms]
+#define TIME_OSC_STRING					200  //[ms]  (période)
+#define NB_OSC_STRING					4
+#define EPSILON_POS_FILET				4
+
 
 #endif	/* PFILET_CONFIG_H */
 
