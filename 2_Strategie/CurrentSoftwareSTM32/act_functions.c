@@ -78,7 +78,7 @@ bool_e ACT_filet_launch(ACT_filet_cmd_e cmd){
 	ACT_arg_init(&args, ACT_FILET, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_FILET, ACT_FILET_STOP);
 
-	debug_printf("Pushing launcher Run %d cmd\n", cmd);
+	debug_printf("Pushing Filet run %d cmd\n", cmd);
 	return ACT_push_operation(ACT_QUEUE_Filet, &args);
 }
 
@@ -88,8 +88,21 @@ bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd){
 	ACT_arg_init(&args, ACT_SMALL_ARM, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_SMALL_ARM, ACT_SMALL_ARM_STOP);
 
-	debug_printf("Pushing launcher Run %d cmd\n", cmd);
+	debug_printf("Pushing Small Arm run %d cmd\n", cmd);
 	return ACT_push_operation(ACT_QUEUE_Small_arm, &args);
+}
+
+bool_e ACT_POMPE_order(ACT_pompe_cmd_e cmd, Uint8 param){
+	QUEUE_arg_t args;
+
+	if(cmd == ACT_Pompe_Normal || cmd == ACT_Pompe_Reverse)
+		ACT_arg_init_with_param(&args, ACT_POMPE, cmd, param);
+	else
+		ACT_arg_init(&args, ACT_POMPE, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_POMPE, ACT_POMPE_STOP);
+
+	debug_printf("Pushing Pompe run %d cmd\n", cmd);
+	return ACT_push_operation(ACT_QUEUE_Pompe, &args);
 }
 
 // <editor-fold desc="Krusty">

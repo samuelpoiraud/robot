@@ -475,6 +475,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_SMALL_ARM:					debug_printf("SELFTEST_ACT_SMALL_ARM");					break;
 				case SELFTEST_ACT_ARM:							debug_printf("SELFTEST_ACT_ARM");						break;
 				case SELFTEST_ACT_FILET:						debug_printf("SELFTEST_ACT_FILET");						break;
+				case SELFTEST_POMPE:							debug_printf("SELFTEST_POMPE");							break;
 
 				default:										debug_printf("UNKNOW_ERROR_CODE"); 						break;
 			}

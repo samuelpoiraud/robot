@@ -165,6 +165,10 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						failed_act_tests[i] = SELFTEST_ACT_FILET;
 						break;
 
+					case ACT_POMPE:
+						failed_act_tests[i] = SELFTEST_POMPE;
+						break;
+
 					default:
 						warn_printf("L\'actionneur sid 0x%x n\'a pas d\'enum SELFTEST_ACT_xxx associé, utilisation de SELFTEST_ACT_UNKNOWN_ACT\n", act_sid);
 						failed_act_tests[i] = SELFTEST_ACT_UNKNOWN_ACT;

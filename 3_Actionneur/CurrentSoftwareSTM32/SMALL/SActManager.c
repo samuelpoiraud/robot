@@ -14,6 +14,7 @@
 
 #include "../Common/Arm.h"
 #include "../Common/Small_arm.h"
+#include "../Common/Pompe.h"
 
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
@@ -28,7 +29,8 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 static ACTQ_functions_t actionneurs[] = {
 	{&ARM_init, NULL, &ARM_stop, &ARM_CAN_process_msg},
-	ACT_DECLARE(SMALL_ARM)
+	ACT_DECLARE(SMALL_ARM),
+	ACT_DECLARE(POMPE)
 };
 
 static const Uint8 NB_ACTIONNEURS = sizeof(actionneurs) / sizeof(ACTQ_functions_t);
