@@ -59,6 +59,7 @@ int main (void)
 	PORTS_init();
 
 	global.match_started = FALSE;
+	global.match_over = FALSE;
 	global.alim = FALSE;
 	global.alim_value = 0;
 
@@ -155,8 +156,8 @@ static void MAIN_onButton0() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
 	msg.size = 1;
-	msg.sid = ACT_LANCELAUNCHER;
-	msg.data[0] = ACT_LANCELAUNCHER_RUN_1_BALL;
+	msg.sid = ACT_FILET;
+	msg.data[0] = ACT_FILET_LAUNCHED;
 	CAN_process_msg(&msg);
 #endif
 }
@@ -166,9 +167,10 @@ static void MAIN_onButton0() {
 static void MAIN_onButton1() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_SMALL_ARM;
-	msg.data[0] = ACT_SMALL_ARM_MID;
+	msg.size = 2;
+	msg.sid = ACT_POMPE;
+	msg.data[0] = ACT_POMPE_NORMAL;
+	msg.data[1] = 50;
 	CAN_process_msg(&msg);
 #endif
 }
@@ -176,31 +178,32 @@ static void MAIN_onButton1() {
 static void MAIN_onButton2() {
 #ifdef USE_CAN
 	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_SMALL_ARM;
-	msg.data[0] = ACT_SMALL_ARM_DEPLOYED;
+	msg.size = 2;
+	msg.sid = ACT_POMPE;
+	msg.data[0] = ACT_POMPE_REVERSE;
+	msg.data[1] = 100;
 	CAN_process_msg(&msg);
 #endif
 }
 
 static void MAIN_onButton3() {
 #ifdef USE_CAN
-	/*CAN_msg_t msg;
-
-		msg.size = 1;
-
-		msg.sid = ACT_LANCELAUNCHER;
-
-
-		msg.data[0] = ACT_LANCELAUNCHER_RUN_1_BALL;
-
-		CAN_process_msg(&msg);
-		debug_printf("Main: ACT_LANCELAUNCHER_RUN\n");*/
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_POMPE;
+	msg.data[0] = ACT_POMPE_REVERSE;
+	msg.data[1] = 50;
+	CAN_process_msg(&msg);
 #endif
 }
 
 static void MAIN_onButton4() {
-	FILET_BOUTON_process();
+	//FILET_BOUTON_process();
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_POMPE;
+	msg.data[0] = ACT_POMPE_STOP;
+	CAN_process_msg(&msg);
 }
 
 #else // ROBOT_SMALL
