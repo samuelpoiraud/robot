@@ -23,6 +23,7 @@
 #include "SD/Libraries/fat_sd/ff.h"
 #include "RTC.h"
 #include "Buzzer.h"
+#include "LCD_interface.h"
 
 #define TIMEOUT_SELFTEST_ACT 		20000	// en ms
 #define TIMEOUT_SELFTEST_PROP 		10000	// en ms
@@ -438,7 +439,11 @@ Uint16 SELFTEST_measure24_mV(void)
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
 	Uint8 i;
+	char buf[20]; // Buffer qui contient la chaine de caractere pour l'écran LCD
 	debug_printf("SELFTEST ENDED with %d error(s) :\n",size);
+	sprintf(buf,"Stest ENDED: %2d ERR",size);
+	LCD_free_line(buf,0);
+	LCD_free_line(buf,1);
 	BUZZER_play(200, DEFAULT_NOTE, size);	//Autant de bip que d'erreurs !
 	for(i=0;i<size;i++)
 	{

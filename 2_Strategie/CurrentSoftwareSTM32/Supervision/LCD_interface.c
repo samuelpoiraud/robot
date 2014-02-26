@@ -410,12 +410,10 @@ void LCD_button_ok(void){
 			break;
 		case USER_MODE:
 			LCD_free_control();
-			LCD_free_line("Au revoir!",0);
 			break;
 		default:
 			if(state != INIT){
 				LCD_take_control();
-				LCD_free_line("Hello!",1);
 			}
 			break;
 	}
