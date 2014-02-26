@@ -41,6 +41,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		//Fin de la partie
 		case BROADCAST_STOP_ALL :
 			global.match_started = FALSE;
+			global.match_over = TRUE;
 			component_printf(LOG_LEVEL_Info, "C:BROADCAST_STOP_ALL\n");
 			QUEUE_flush_all();
 			ACTMGR_stop();

@@ -16,6 +16,7 @@
 		#error "Il est interdit d'inclure directement config_global_vars.h, lire le CQS."
 	#endif
 
+	bool_e match_over;
 	bool_e match_started;
 	bool_e alim;
 	Uint16 alim_value;			// en mV
