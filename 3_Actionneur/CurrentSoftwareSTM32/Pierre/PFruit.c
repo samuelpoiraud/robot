@@ -95,9 +95,8 @@ void FRUIT_init_pos(){
 }
 
 bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
-	FRUIT_initAX12();
-
 	if(msg->sid == ACT_FRUIT_MOUTH) {
+		FRUIT_initAX12();
 		switch(msg->data[0]) {
 
 
