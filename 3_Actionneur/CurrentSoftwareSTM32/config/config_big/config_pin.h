@@ -21,7 +21,7 @@
 	//	-				 			  6
 	#define PRESENCE_FILET		GPIOA->IDR7
 	//	-				 			  7
-	#define FRUIT_POMPE_SENS		  GPIOA->ODR8
+	#define POMPE_SENS			GPIOA->ODR8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -48,7 +48,7 @@
 	#define LANCELAUNCHER_PIN_5 GPIOB->ODR14
 	#define LANCELAUNCHER_PIN_6 GPIOB->ODR15
 
-#define PORT_C_IO_MASK	0xFFFF
+#define PORT_C_IO_MASK	0xF7FF
 	//	-				 			  0
 	//	-				 			  1
 	//	-				 			  2
@@ -60,7 +60,7 @@
 	//	-				 			  8
 	//	-				 			  9
 	//	-	sortie libre 			  10
-	//	-				 			  11
+	#define FRUIT_POMPE_SENS	GPIOC->ODR11
 	//	-				 			  12
 	//	-				 			  13
 	//	-	OSC32_in 			  	  14
@@ -127,5 +127,8 @@
 
 /* Config proto petit bras*/
 	#define SMALL_ARM_AX12_ID						  3
+
+/* Config proto pompe*/
+	#define POMPE_PWM_NUM				1
 
 #endif /* KRUSTY_CONFIG_PIN_H */
