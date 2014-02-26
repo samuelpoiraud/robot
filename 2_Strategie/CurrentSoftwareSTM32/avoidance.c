@@ -1065,6 +1065,58 @@ static error_e AVOIDANCE_watch_asser_stack ()
 	return IN_PROGRESS;
 }
 
+Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
+{
+	typedef enum{
+		STOP,
+		WAIT_AND_CHECK
+	}state_e;
+	static state_e state = STOP;
+
+	error_e subaction;
+
+	switch(state){
+		case STOP :
+			ASSER_push_stop();
+			state = WAIT_AND_CHECK;
+			break;
+
+		case WAIT_AND_CHECK :
+			subaction = AVOIDANCE_watch_asser_stack();
+			switch (subaction) {
+				case END_OK:
+					debug_printf("ASSER_STOP effectué\n");
+					state = STOP;
+					return success_state;
+					break;
+
+				case IN_PROGRESS:
+					break;
+
+				case END_WITH_TIMEOUT:
+					debug_printf("ASSER_STOP effectué avec TIMEOUT\n");
+					state = STOP;
+					return fail_state;
+					break;
+
+				case NOT_HANDLED:
+					debug_printf("ASSER_STOP erreur\n");
+					state = STOP;
+					return fail_state;
+					break;
+
+				default:
+					debug_printf("ASSER_STOP erreur\n");
+					state = STOP;
+					return fail_state;
+					break;
+			}
+			break;
+	}
+	return in_progress;
+}
+
+
 /*error_e AVOIDANCE_homologation(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run)
 {
 	static enum
