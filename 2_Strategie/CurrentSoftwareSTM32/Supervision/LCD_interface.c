@@ -15,8 +15,8 @@
 #include "LCD_interface.h"
 #include "LCD_CAN_injector.h"
 #include "Buffer.h"
-#include "Eeprom_can_msg.h"
 #include "config_pin.h"
+#include "../QS/QS_who_am_i.h"
 #include "../environment.h"
 
 #include "config_use.h"
@@ -45,7 +45,7 @@ typedef enum
 
 strat_s strat;
 
-const char *strategy[4] = {"STR","KDO","CAK","MSN"};
+const char *strategy[6] = {"STR","TRG","MSN","BAL","FRT","SCN"};
 Uint8 strat_nb[4];
 
 // Variable de menu
@@ -58,7 +58,7 @@ enum{
 
 
 /* Position du robot sert seulement de buffer intermédiaire entre le can et l'ecran pour eviter certains bug d'interruptions */
-Uint16 x_pos,y_pos,t_angle;
+Sint16 x_pos,y_pos,t_angle;
 bool_e change; // Commande le rafraichissement de l'écran
 
 /* Variable contenant un message libre*/
@@ -89,12 +89,9 @@ void display_line(void){
 
 /* Affiche la position du robot sur la première ligne du mode Info */
 void display_pos(){
-	//On force l'affichage au démarrage sinon il n'y a pas de rafraichissement
-	static Uint16 x = 0xFFFF;
-	static Uint16 y = 0xFFFF;
-	static Sint16 t = 0xFFFF;
+	Sint16 x,y,t;
 
-	if(x!=x_pos || y!=y_pos || t!=t_angle){
+	if(global.env.pos.updated == TRUE){
 		x = x_pos;
 		y = y_pos;
 		t = t_angle;
@@ -105,8 +102,10 @@ void display_pos(){
 		if(!(y<=3000 && y>=0))
 			y = 0;
 
-		if(t<=PI4096 && t>= (-PI4096))
-			t= 0;
+		if(t <= (-PI4096) && t >= PI4096)
+			t = 0;
+
+		t = t*180/PI4096;	// Conversion en degré
 
 		sprintf(line[0],"x%4d y%4d t%5d",x,y,t);
 
@@ -116,20 +115,31 @@ void display_pos(){
 
 /* Affiche les infos de la balise sur la seconde ligne du mode info */
 void display_beacon(){
-	static Uint16 d1,d2,a1,a2;
-#warning'simplement pour laffichage : a modifier par la suite'
-	d1 = global.env.foe[0].dist;
-	a1 = global.env.foe[0].angle;
-	d2 = global.env.foe[1].dist;
-	a2 = global.env.foe[1].angle;
+	static Sint16 d1,d2,a1,a2;
 
-	sprintf(line[1],"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
-	//change = TRUE;
+	if(global.env.foe[0].updated==TRUE | global.env.foe[1].updated==TRUE){
+		d1 = global.env.foe[0].dist;
+		a1 = global.env.foe[0].angle;
+		d2 = global.env.foe[1].dist;
+		a2 = global.env.foe[1].angle;
+
+		a1 *= (180/PI4096);
+		a2 *= (180/PI4096);
+		d1 *= 2;
+		d2 *= 2;
+
+		sprintf(line[1],"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
+		change = TRUE;
+	}
 }
 
 /* Affiche les strats sélectionnées pour le match à la troisieme ligne du mode info */
 void display_strats(Uint8 pos){
-	sprintf(line[2],"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2], strategy[3], strat_nb[3]);
+	if(QS_WHO_AM_I_get() == SMALL_ROBOT){
+		sprintf(line[2],"%s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2]);
+	}else{
+		sprintf(line[2],"%s%1d %s%1d %s%1d %s%1d", strategy[0], strat_nb[0]+5, strategy[3], strat_nb[1], strategy[4], strat_nb[2], strategy[5], strat_nb[3]);
+	}
 }
 
 /* Affiche le dernier message demandé par l'utilisateur sur la derniere ligne du mode info */
@@ -140,6 +150,12 @@ void display_debug_msg(Uint8 pos){
 
 /* Affiche les quatre derniers messages can en mode CAN */
 void LCD_display_can_msg(){
+
+	if(change == TRUE){
+		LCD_clear_display();
+		change = FALSE;
+	}
+
 	Uint8 start = message.start;
 
 	display_can(message.msg[start], 0);
@@ -157,12 +173,19 @@ void display_menu(void){
 	LCD_set_cursor(0, 1);
 	LCD_Write_text("SELF TEST");
 	LCD_set_cursor(1, 1);
-	LCD_Write_text("LAST MATCH'N EEPROM");
+	LCD_Write_text("LAST MATCH'N SD");
 	LCD_set_cursor(2, 1);
 	LCD_Write_text("Reglage Odo");
 	LCD_set_cursor(3, 1);
 	LCD_Write_text("Return");
+}
 
+void IHM_LEDS(void){
+
+	LED_IHM_OK = (state != INIT);
+	LED_IHM_UP = (state == MENU);
+	LED_IHM_DOWN = (state == MENU);
+	LED_IHM_SET = (state != INIT);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -189,10 +212,7 @@ void init_LCD_interface(void){
 		strat_nb[i] = 0;
 	}
 
-	LED_IHM_OK = 1;
-	LED_IHM_UP = 1;
-	LED_IHM_DOWN	 = 1;
-	LED_IHM_SET = 1;
+	IHM_LEDS();
 
 	initialized = TRUE;
 }
@@ -202,7 +222,6 @@ void init_LCD_interface(void){
 /// REFRESHING
 
 void LCD_Update(void){
-	LED_BLEU = !LED_BLEU;
 	if(!initialized)
 		return;
 
@@ -212,8 +231,14 @@ void LCD_Update(void){
 	if(state != USER_MODE && state!=MENU)
 		LCD_switch_mode();
 
+	if(global.env.pos.updated == TRUE){
+		LCD_change_pos();
+	}
+
+
 	if(LCD_transition()){
 		LCD_clear_display();
+		IHM_LEDS();
 		change = TRUE;
 	}
 
@@ -247,6 +272,7 @@ void LCD_Update(void){
 			break;
 	}
 	previous_state = state;
+	change = FALSE;
 }
 
 
@@ -266,15 +292,16 @@ void LCD_printf(char* format){
 
 
 void LCD_add_can(CAN_msg_t msg){
-	message.msg[message.start].sid = msg.sid;
+	message.msg[message.start].sid = msg.sid;	// On ajoute le message can a la pile can(du lcd)
 	message.msg[message.start].size = msg.size;
-	message.start = (message.start+1)%4;
+	message.start = (message.start+1)%4;		// On incrémente le pointeur de pile can(du lcd)
+	change = TRUE;								// On force le rafraichissement de l'écran
 }
 
-void LCD_change_pos(Uint16 x,Uint16 y,Uint16 t){
-	x_pos = x;
-	y_pos = y;
-	t_angle = t;
+void LCD_change_pos(void){
+	x_pos = global.env.pos.x;
+	y_pos = global.env.pos.y;
+	t_angle = global.env.pos.angle;
 }
 
 void LCD_switch_mode(void){
@@ -295,28 +322,28 @@ void LCD_switch_mode(void){
 void LCD_strat_number_update(){
 	static Uint8 previous_strat = 0X0;
 	Uint8 new_strat = 0x0;
-	if(TRUE){//Mettre le port du switch str
+	if(SWITCH_STRAT_1){ // Nb Balls
 		strat_nb[0]=1;
 		new_strat = new_strat | 0x1;
 	}else{
 		strat_nb[0]=0;
 		new_strat = new_strat && 0xFE;
 	}
-	if(TRUE){//Mettre le port du switch KDO
+	if(SWITCH_STRAT_2){
 			strat_nb[1]=1;
 			new_strat = new_strat | 0x2;
 	}else{
 			strat_nb[1]=0;
 			new_strat = new_strat && 0xFD;
 	}
-	if(FALSE){//Mettre le port du switch cak
+	if(SWITCH_STRAT_3){
 			new_strat = new_strat | 0x4;
 			strat_nb[2]=1;
 	}else{
 			strat_nb[2]=0;
 			new_strat = new_strat && 0xFB;
 	}
-	if(TRUE){//Mettre le port du switch mois
+	if(SWITCH_COLOR){
 			strat_nb[3]=1;
 			new_strat = new_strat | 0x8;
 	}else{
@@ -404,22 +431,24 @@ void LCD_button_ok(void){
 			LCD_free_line("Au revoir!",0);
 			break;
 		default:
-			LCD_take_control();
-			LCD_free_line("Hello!",1);
+			if(state != INIT){
+				LCD_take_control();
+				LCD_free_line("Hello!",1);
+			}
 			break;
 	}
 }
 
 void LCD_button_set(void){
-	LED_BLEU = !LED_BLEU;
 	switch(state){
 		case MENU:
 			LCD_cursor_display(FALSE,FALSE);
 			LCD_switch_mode();
 			break;
 		default:
-			state = MENU;
-			LED_ROUGE = !LED_ROUGE;
+			if(state != INIT){
+				state = MENU;
+			}
 			break;
 	}
 }
