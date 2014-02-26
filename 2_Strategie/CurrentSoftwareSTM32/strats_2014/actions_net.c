@@ -13,6 +13,7 @@
 #include "actions_net.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
+#include "../avoidance.h"
 #include "../act_can.h"
 #include "../Pathfind.h"
 
@@ -25,6 +26,8 @@
 void strat_placement_net(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		INIT,
+		STOP_ROBOT,
+		INIT_PATH,
 		FOUND_PATH,
 		PLACEMENT,
 		PLACEMENT_TETA,
@@ -51,12 +54,20 @@ void strat_placement_net(){
 	};
 
 	Uint8 i;
-	CAN_msg_t msg;
 
 
 	switch(state){
 		case INIT :
-			ASSER_push_stop();
+			STACKS_flush_all();
+			QUEUE_reset_all();
+			state = STOP_ROBOT;
+			break;
+
+		case STOP_ROBOT :
+			state = try_stop(STOP_ROBOT, INIT_PATH, INIT_PATH);
+			break;
+
+		case INIT_PATH :
 			// Retrait des actionneurs
 
 			for(i=0;i<NB_NODE;i++)
