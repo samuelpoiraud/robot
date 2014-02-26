@@ -210,9 +210,9 @@ static void FRUIT_command_pompe_run(queue_id_t queueId){
 
 static void POMPE_goToPos(Uint8 command){
 	if(command == ACT_FRUIT_MOUTH_OPEN)
-		FRUIT_POMPE_SENS = 1;
-	else if(command == ACT_FRUIT_MOUTH_CLOSE)
 		FRUIT_POMPE_SENS = 0;
+	else if(command == ACT_FRUIT_MOUTH_CLOSE)
+		FRUIT_POMPE_SENS = 1;
 
 	PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
 }
