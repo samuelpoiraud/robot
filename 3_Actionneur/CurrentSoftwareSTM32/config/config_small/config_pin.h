@@ -10,7 +10,7 @@
 
 #ifndef TINY_CONFIG_PIN_H
 #define TINY_CONFIG_PIN_H
-#define PORT_A_IO_MASK	0xFFFF
+#define PORT_A_IO_MASK	0xFEFF
 	#define BUTTON0_PORT		GPIOA->IDR0
 	//	-				 			  1
 	//	AX12/U2TX					  2
@@ -19,7 +19,7 @@
 	//	-				 			  5
 	//	-				 			  6
 	//	-				 			  7
-	//	-	sortie libre 			  8
+	#define POMPE_SENS			GPIOA->ODR8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -112,6 +112,9 @@
 //like as 	#define PLIER_LEFT_AX12_ID                  0
 
 /* Config proto petit bras*/
-	#define SMALL_ARM_AX12_ID						  5
+	#define SMALL_ARM_AX12_ID							5
+
+/* Config proto pompe*/
+	#define POMPE_PWM_NUM								1
 
 #endif /* TINY_CONFIG_PIN_H */
