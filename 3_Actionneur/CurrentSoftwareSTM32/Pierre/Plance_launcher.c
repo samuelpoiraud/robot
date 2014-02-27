@@ -13,6 +13,7 @@
 #ifdef I_AM_ROBOT_BIG
 
 #include "../QS/QS_CANmsgList.h"
+#include "../QS/QS_global_vars.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
 
@@ -35,7 +36,6 @@
 #define TIME_BETWEEN_LANCE 30 // Est multiplié par 10 derriére car sur 8 bits ne peut pas depasser 256ms sinon
 #define TIME_HOLD_LAUNCHER_MAX 25 //    idem ci-dessus
 
-
 bool_e EXECUTING_LAUNCH = FALSE;
 
 static bool_e start_next_launcher();
@@ -44,6 +44,8 @@ static bool_e hold_state();
 static Uint8 lance_launcher_last_launch = 0;
 static bool_e start_next_launcher();
 static Uint8 stateLauncher[6] = {0};
+static Uint8 orderShootLauncher[6] = {0};
+static Uint16 sens;
 
 void LANCE_LAUNCHER_init() {
 	static bool_e initialized = FALSE;
@@ -80,10 +82,7 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_LANCELAUNCHER_RUN_5_BALL:
 			case ACT_LANCELAUNCHER_RUN_ALL:
 				EXECUTING_LAUNCH = TRUE;
-				debug_printf("														ENVOI\n");
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
-				debug_printf("Pass here1\n");
-				//VARIABLE = 1;
 				break;
 
 			case ACT_LANCELAUNCHER_STOP:
@@ -94,6 +93,9 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 			default:
 				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
+
+		sens = msg->data[1];
+
 		return TRUE;
 	}
 
@@ -107,8 +109,6 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 			return;
 		}
 
-		debug_printf("Pass here2\n");
-
 		if(init) {
 			if(lance_launcher_last_launch == 0) { //on verifie qu'aucun lanceur n'est activé (car seul un seul pour l'être à la fois)
 				Uint8 command = QUEUE_get_arg(queueId)->canCommand;
@@ -116,13 +116,48 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 				switch(command) {
 					case ACT_LANCELAUNCHER_RUN_1_BALL:
-						lance_launcher_last_launch = 7;
+						if(sens == TRUE)
+							orderShootLauncher[0] = 1;
+						else
+							orderShootLauncher[0] = 5;
+
+						lance_launcher_last_launch = 1;
 						break;
 					case ACT_LANCELAUNCHER_RUN_5_BALL:
-						debug_printf("Pass here\n");
+						if(sens == TRUE){
+							orderShootLauncher[4] = 2; // Premeire balle qui va être tirer
+							orderShootLauncher[3] = 3; // 2émé balle à partir, ainsi de suite...
+							orderShootLauncher[2] = 4;
+							orderShootLauncher[1] = 5;
+							orderShootLauncher[0] = 6;
+						}else{
+							orderShootLauncher[4] = 1;
+							orderShootLauncher[3] = 2;
+							orderShootLauncher[2] = 3;
+							orderShootLauncher[1] = 4;
+							orderShootLauncher[0] = 6;
+						}
+
 						lance_launcher_last_launch = 5;
 						break;
+
 					case ACT_LANCELAUNCHER_RUN_ALL:
+						if(sens == TRUE){
+							orderShootLauncher[5] = 5;
+							orderShootLauncher[4] = 6;
+							orderShootLauncher[3] = 3;
+							orderShootLauncher[2] = 4;
+							orderShootLauncher[1] = 1;
+							orderShootLauncher[0] = 2;
+						}else{
+							orderShootLauncher[5] = 1;
+							orderShootLauncher[4] = 2;
+							orderShootLauncher[3] = 3;
+							orderShootLauncher[2] = 4;
+							orderShootLauncher[1] = 5;
+							orderShootLauncher[0] = 6;
+						}
+
 						lance_launcher_last_launch = 6;
 						break;
 
@@ -162,14 +197,13 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 //change le launcher actif, renvoi TRUE si un launcher est encore actif ou FALSE si tous les launchers sont éteints
 static bool_e start_next_launcher() {
-	switch(lance_launcher_last_launch) {
+	switch(orderShootLauncher[lance_launcher_last_launch-1]) {
 		default:
 			warn_printf("lance_launcher_last_launch est invalide: %d\n", lance_launcher_last_launch);
 				lance_launcher_last_launch = 0;
 			//PAS DE BREAK. Si lance_launcher_last_launch est invalide, alors on fait un stop aussi
 
-
-		case 0 :
+		case 0:
 			break;
 		case 1 :
 			LANCELAUNCHER_PIN_1 = 1;
@@ -194,11 +228,6 @@ static bool_e start_next_launcher() {
 		case 6 :
 			LANCELAUNCHER_PIN_6 = 1;
 			stateLauncher[5] = 20;
-			break;
-		case 7 :
-			LANCELAUNCHER_PIN_6 = 1;
-			stateLauncher[5] = 20;
-			lance_launcher_last_launch = 0; // Mets a 0 pour pas qu'il rechoissise un état
 			break;
 	}
 
