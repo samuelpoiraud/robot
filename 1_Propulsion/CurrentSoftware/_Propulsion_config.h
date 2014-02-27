@@ -98,7 +98,7 @@
 
 
 	#define TINY_ODOMETRY_COEF_SYM_DEFAULT (0)
-	#define KRUSTY_ODOMETRY_COEF_SYM_DEFAULT (0)
+	#define KRUSTY_ODOMETRY_COEF_SYM_DEFAULT 0x0029
 
 	#define TINY_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010AC0//0XA054	//(CHOMP : 43632)	Théorique : 41335
 	#define KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000C5AD  //Secondaire 0x0000C581 // Original 0x0000C5A2
@@ -220,8 +220,8 @@
 	#define TINY_ACCELERATION_NORMAL	64	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
 	#define TINY_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 
-	#define KRUSTY_ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 10
+	#define KRUSTY_ACCELERATION_NORMAL	64	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 8
 
 	// 13 = (1024 / (distance entre les roues de propulsions divisée par 2 ) )
 	//sur archi'tech : 2*80mm entre les roues
