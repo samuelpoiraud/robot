@@ -40,8 +40,9 @@ void _ISR _T3Interrupt() {
 
 void SYNCRF_process_main() {
 	//Pour information, si on est pas synchro on allume la led uart
-	LED_UART = !global.is_synchronized;
-
+	bool_e intermediate = !global.is_synchronized;
+	LED_UART = intermediate; //truc bizarres avec assignement direct
+	
 	if(canmsg_received) {
 		//Traitement message CAN
 		canmsg_received = FALSE;
@@ -59,7 +60,6 @@ void SYNCRF_process_main() {
 }
 
 void SYNCRF_sendRequest() {
-	//LED_RUN = !LED_RUN;
 	RF_synchro_request(RF_BROADCAST);
 
 	//Verif de la synchro précédente (on fait la demande avant, au plus près de l'IT, la réponse reviendra dans assez longtemps (80ms), on a le temps
@@ -102,8 +102,6 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			step_ir = adjusted;
 		else
 			step_ir = adjusted + TOTAL_STEP_COUNT;
-
-		//LED_USER = !LED_USER;
 
 		synchro_received = TRUE;
 	}
