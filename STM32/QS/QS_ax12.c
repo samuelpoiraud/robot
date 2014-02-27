@@ -263,6 +263,9 @@
 			AX12_MIN_VALUE_0 | AX12_MAX_VALUE_254	//ne devrait pas être utilisé
 	};
 
+	//Adresse spéciale pour le ping
+	#define AX12_PING 0xFF
+
 	/***********************************************************************/
 	/** Autre définitions internes                                        **/
 	/***********************************************************************/
@@ -418,6 +421,7 @@ static bool_e AX12_instruction_write8(Uint8 id_servo, Uint8 address, Uint8 value
 static bool_e AX12_instruction_write16(Uint8 id_servo, Uint8 address, Uint16 value);
 static bool_e AX12_instruction_async_write8(Uint8 id_servo, Uint8 address, Uint8 value);
 static bool_e AX12_instruction_async_write16(Uint8 id_servo, Uint8 address, Uint16 value);
+static bool_e AX12_instruction_async_ping(Uint8 id_servo);
 static bool_e AX12_instruction_async_prepare_write8(Uint8 id_servo, Uint8 address, Uint8 value);
 static bool_e AX12_instruction_async_prepare_write16(Uint8 id_servo, Uint8 address, Uint16 value);
 static bool_e AX12_instruction_async_execute_write();
@@ -492,6 +496,16 @@ static bool_e AX12_instruction_async_write16(Uint8 id_servo, Uint8 address, Uint
 	inst.address = address;
 	inst.param = value;
 	inst.size = MIN_INSTRUCTION_PACKET_SIZE + 3;	//param is 16bits
+
+	return AX12_instruction_queue_insert(&inst);
+}
+
+static bool_e AX12_instruction_async_ping(Uint8 id_servo) {
+	AX12_instruction_packet_t inst = {0};
+
+	inst.id_servo = id_servo;
+	inst.type = INST_PING;
+	inst.size = MIN_INSTRUCTION_PACKET_SIZE;
 
 	return AX12_instruction_queue_insert(&inst);
 }
@@ -638,7 +652,7 @@ static void AX12_instruction_next(Uint16 error, Uint16 param) {
 	AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
 	AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
 	if(state_machine.current_instruction.type == INST_PING)
-		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = 0xFF;
+		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = AX12_PING;
 	else
 		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = state_machine.current_instruction.address;
 	AX12_instruction_queue_next();
@@ -1462,12 +1476,13 @@ bool_e AX12_is_ready(Uint8 id_servo) {
 	return AX12_instruction_ping(id_servo);
 }
 
-bool_e AX12_async_is_ready(Uint8 id_servo, bool_e *isReady) {
-	AX12_instruction_packet_t inst = {0};
+//#define AX12_async_cmd(function, command_id, ...) \
 
+
+bool_e AX12_async_is_ready(Uint8 id_servo, bool_e *isReady) {
 	AX12_status_t status = AX12_get_last_error(id_servo);
 	if(status.error != AX12_ERROR_IN_PROGRESS) {
-		if(status.last_instruction_address == 0xFF) {
+		if(status.last_instruction_address == AX12_PING) {
 			AX12_reset_last_error(id_servo);
 			if(status.error == AX12_ERROR_OK)
 				*isReady = TRUE;
@@ -1475,11 +1490,7 @@ bool_e AX12_async_is_ready(Uint8 id_servo, bool_e *isReady) {
 				*isReady = FALSE;
 			return TRUE;
 		} else {
-			inst.id_servo = id_servo;
-			inst.type = INST_PING;
-			inst.size = MIN_INSTRUCTION_PACKET_SIZE;
-
-			AX12_instruction_queue_insert(&inst);
+			AX12_instruction_async_ping(id_servo);
 		}
 	}
 
