@@ -62,10 +62,10 @@ bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Fruit, &args);
 }
 
-bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd){
+bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param){
 	QUEUE_arg_t args;
 
-	ACT_arg_init(&args, ACT_LANCELAUNCHER, cmd);
+	ACT_arg_init_with_param(&args, ACT_LANCELAUNCHER, cmd, param);
 	ACT_arg_set_fallbackmsg(&args, ACT_LANCELAUNCHER, ACT_LANCELAUNCHER_STOP);
 
 	debug_printf("Pushing launcher Run %d cmd\n", cmd);

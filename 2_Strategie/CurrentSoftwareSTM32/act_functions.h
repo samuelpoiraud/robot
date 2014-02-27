@@ -79,7 +79,7 @@ typedef enum {
 } ACT_pompe_cmd_e;
 
 bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd);
-bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd);
+bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param);
 bool_e ACT_filet_launch(ACT_filet_cmd_e cmd);
 bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);
 bool_e ACT_pompe_order(ACT_pompe_cmd_e cmd, Uint8 param);

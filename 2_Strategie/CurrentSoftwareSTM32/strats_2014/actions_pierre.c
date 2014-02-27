@@ -38,7 +38,7 @@
 /* ----------------------------------------------------------------------------- */
 
 #define DECALAGE_LARGEUR 200
-#define ELOIGNEMENT_ARBRE 260
+#define ELOIGNEMENT_ARBRE 320
 #define ELOIGNEMENT_POSE_BAC_FRUIT 500
 #define ELOIGNEMENT_SHOOT_BALL 500
 #define POS_MIN_FRESCO 1300
@@ -185,6 +185,21 @@ void strat_lannion(void){
 		TRIANGLE6,
 		TRIANGLE6_AVANCER,
 		MUR,
+
+		POINT_W0,
+		POINT_C3,
+		POINT_CO, // Pour deposser fruit
+		POINT_M0, // Pour deposer la fresque
+		POINT_M0_BIS,
+		POINT_Z1,
+		RAMASSER_FRUIT_ARBRE1,
+		RAMASSER_FRUIT_ARBRE2,
+		DEPOSER_FRUIT,
+		DEPOSER_FRESQUE,
+		LANCE_LAUNCHER,
+		LANCE_LAUNCHER_ENNEMY,
+		POS_FIN,
+
 		FIN,
 		DONE,
 		ERROR
@@ -239,10 +254,10 @@ void strat_lannion(void){
 				msg.size = 6;
 				CAN_send(&msg);
 
-				if(global.env.color == RED)
-					sensRobot = BACKWARD;
-				else
+				if(global.env.color == RED) // sens modife
 					sensRobot = FORWARD;
+				else
+					sensRobot = BACKWARD;
 
 				state = POS_DEPART;
 				break;
@@ -251,60 +266,83 @@ void strat_lannion(void){
 				state = try_going_until_break(500,COLOR_Y(300),POS_DEPART,TRIANGLE1,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 				break;
 
+
+				// Triangle
 			case TRIANGLE1:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 
-				state = try_going_multipoint(deplacement,3,TRIANGLE1,FRESQUE,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+				state = try_going_multipoint(deplacement,3,TRIANGLE1,TRIANGLE2,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 				break;
-
-			case FRESQUE:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-
-				state = check_sub_action_result(strat_manage_fresco(),FRESQUE,AVANCER_FRESQUE,ERROR);
-				break;
-
-			case AVANCER_FRESQUE:
-				state = try_going_until_break(600,1500,AVANCER_FRESQUE,TRIANGLE2,ERROR,FAST,FORWARD,NO_AVOIDANCE);
-				break;
-
 			case TRIANGLE2:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-
 				state = try_going_multipoint(&deplacement[3],3,TRIANGLE2,TRIANGLE3,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 				break;
-
 			case TRIANGLE3:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
 				state = try_going_until_break(1400,COLOR_Y(2400),TRIANGLE3,TRIANGLE3_AVANCER,ERROR,FAST,sensRobot,NO_AVOIDANCE);
 				break;
-
 			case TRIANGLE3_AVANCER:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 				state = try_going_until_break(900,COLOR_Y(2400),TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,FAST,sensRobot,NO_AVOIDANCE);
 				break;
-
 			case TRIANGLE4_5:
 					state = try_going_multipoint(&deplacement[6],6,TRIANGLE4_5,TRIANGLE6,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 				break;
-
 			case TRIANGLE6:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
 				state = try_going_until_break(900,COLOR_Y(600),TRIANGLE6,TRIANGLE6_AVANCER,ERROR,FAST,sensRobot,NO_AVOIDANCE);
 				break;
-
 			case TRIANGLE6_AVANCER:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 
-				state = try_going_until_break(1200,COLOR_Y(600),TRIANGLE6_AVANCER,DONE,ERROR,FAST,sensRobot,NO_AVOIDANCE);
+				state = try_going_until_break(1200,COLOR_Y(600),TRIANGLE6_AVANCER,LANCE_LAUNCHER,ERROR,FAST,sensRobot,NO_AVOIDANCE);
+				break;
+
+
+				// Balles et fresques
+			case LANCE_LAUNCHER:
+				if(entrance)
+					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+
+				state = check_sub_action_result(strat_lance_launcher(),LANCE_LAUNCHER,POINT_M0,ERROR);
+				break;
+			case POINT_M0:
+				state = PATHFIND_try_going(M0, POINT_M0, DEPOSER_FRESQUE, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+				break;
+			case DEPOSER_FRESQUE:
+				state = check_sub_action_result(strat_manage_fresco(),DEPOSER_FRESQUE,LANCE_LAUNCHER_ENNEMY,ERROR);
+				break;
+			case LANCE_LAUNCHER_ENNEMY:
+				state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
+				break;
+
+				// Fruit
+			case POINT_Z1:
+				state = PATHFIND_try_going(Z1, POINT_Z1, RAMASSER_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+				break;
+			case RAMASSER_FRUIT_ARBRE2:
+				state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(TRUE),RAMASSER_FRUIT_ARBRE2,POINT_C3,ERROR);
+				break;
+			case POINT_C3:
+				state = PATHFIND_try_going(C3, POINT_C3, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+				break;
+			case RAMASSER_FRUIT_ARBRE1:
+				state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(FALSE),RAMASSER_FRUIT_ARBRE1,POINT_M0_BIS,ERROR);
+				break;
+			case POINT_M0_BIS:
+				state = PATHFIND_try_going(M0, POINT_M0_BIS, DEPOSER_FRUIT, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+				break;
+			case DEPOSER_FRUIT:
+				state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,DONE,ERROR);
+				break;
+			case POS_FIN:
+				state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 				break;
 
 			case DONE:
@@ -324,9 +362,13 @@ void strat_test_point(){
 		POS_DEPART,
 		POINT_A1, // Point arbre1A cote couloir
 		POINT_B3, // Point arbre1B rouge cote armoire
-		POINT_W3, // Point arbre2b cote jaune armoire
+		POINT_W0,
+		POINT_C3,
+		POINT_W3,
 		POINT_CO, // Pour deposser fruit
 		POINT_M0, // Pour deposer la fresque
+		POINT_M0_BIS,
+		POINT_Z1,
 		RAMASSER_FRUIT_ARBRE1,
 		RAMASSER_FRUIT_ARBRE2,
 		RAMASSER_FRUIT_ARBRE1A,
@@ -377,34 +419,63 @@ void strat_test_point(){
 		state = try_going(500,COLOR_Y(250),POS_DEPART,LANCE_LAUNCHER,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
 
-	case RAMASSER_FRUIT_ARBRE2:
-		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(TRUE),RAMASSER_FRUIT_ARBRE2,DEPOSER_FRUIT_JAUNE,ERROR);
-		break;
+
 	case LANCE_LAUNCHER:
 		state = check_sub_action_result(strat_lance_launcher(),LANCE_LAUNCHER,POINT_M0,ERROR);
 		break;
 
 
 	case POINT_M0:
-		debug_printf("point mo \n");
-		PATHFIND_try_going(M0, POINT_M0, DEPOSER_FRESQUE, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
-		debug_printf("sort path point mo\n");
+		state = PATHFIND_try_going(M0, POINT_M0, DEPOSER_FRESQUE, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
 		break;
 	case DEPOSER_FRESQUE:
-		debug_printf("depose fresque\n");
 		state = check_sub_action_result(strat_manage_fresco(),DEPOSER_FRESQUE,LANCE_LAUNCHER_ENNEMY,ERROR);
 		break;
 	case LANCE_LAUNCHER_ENNEMY:
-		state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,RAMASSER_FRUIT_ARBRE1,ERROR);
+		state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
 		break;
-	case POINT_A1:
-		PATHFIND_try_going(A1, POINT_A1, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+
+
+		//Fruit sens rouge vers jaune
+//	case POINT_A1:
+//		state = PATHFIND_try_going(A1, POINT_A1, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+//		break;
+//	case RAMASSER_FRUIT_ARBRE1:
+//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(TRUE),RAMASSER_FRUIT_ARBRE1,RAMASSER_FRUIT_ARBRE2,ERROR);
+//		break;
+//	case POINT_W3:
+//		state = PATHFIND_try_going(W3, POINT_W3, RAMASSER_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+//		break;
+//	case RAMASSER_FRUIT_ARBRE2:
+//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(FALSE),RAMASSER_FRUIT_ARBRE2,POINT_M0_BIS,ERROR);
+//		break;
+//	case POINT_M0_BIS:
+//		state = PATHFIND_try_going(M0, POINT_M0_BIS, DEPOSER_FRUIT, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+//		break;
+//	case DEPOSER_FRUIT:
+//		state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,DONE,ERROR);
+//		break;
+//	case POS_FIN:
+//		state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+//		break;
+
+
+
+		//Fruit jaune vers rouge
+	case POINT_Z1:
+		state = PATHFIND_try_going(Z1, POINT_Z1, RAMASSER_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+		break;
+	case RAMASSER_FRUIT_ARBRE2:
+		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(TRUE),RAMASSER_FRUIT_ARBRE2,POINT_C3,ERROR);
+		break;
+	case POINT_C3:
+		state = PATHFIND_try_going(C3, POINT_C3, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
 		break;
 	case RAMASSER_FRUIT_ARBRE1:
-		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(TRUE),RAMASSER_FRUIT_ARBRE1,POINT_W3,ERROR);
+		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(FALSE),RAMASSER_FRUIT_ARBRE1,POINT_M0_BIS,ERROR);
 		break;
-	case POINT_W3:
-		PATHFIND_try_going(W3, POINT_W3, DEPOSER_FRUIT, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+	case POINT_M0_BIS:
+		state = PATHFIND_try_going(M0, POINT_M0_BIS, DEPOSER_FRUIT, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
 		break;
 	case DEPOSER_FRUIT:
 		state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,DONE,ERROR);
@@ -412,6 +483,8 @@ void strat_test_point(){
 	case POS_FIN:
 		state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
 		break;
+
+
 	case DONE:
 		break;
 	case ERROR:
@@ -640,7 +713,7 @@ error_e strat_file_fresco(Sint16 posY){
 		break;
 	case WALL:
 
-		state = try_going(200,posY,WALL,PUSH_MOVE,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
+		state = try_going(200,posY,WALL,PUSH_MOVE,ERROR,SLOW,BACKWARD,NO_AVOIDANCE);
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
 		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
@@ -696,10 +769,8 @@ error_e strat_file_fruit(){
 			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[1].y = 1800;
 
-			debug_printf("Rouge 3000\n");
-
 			sensRobot = BACKWARD;
-			posOpen = 2500;
+			posOpen = 2600;
 
 		}else if(global.env.color == RED){ // Commence au milieu du terrain en étant Rouge
 			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
@@ -708,10 +779,8 @@ error_e strat_file_fruit(){
 			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[1].y = 2700;
 
-			debug_printf("Rouge milieu\n");
-
 			sensRobot = FORWARD;
-			posOpen = 2000;
+			posOpen = 1900;
 
 		}else if(global.env.pos.y > 750){ // Il est de couleur Jaune commence au milieu
 			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
@@ -720,10 +789,8 @@ error_e strat_file_fruit(){
 			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[1].y = 300;
 
-			debug_printf("jaune 0\n");
-
 			sensRobot = BACKWARD;
-			posOpen = 1000;
+			posOpen = 1100;
 
 		}else{							// Va commencer en bas
 			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
@@ -732,10 +799,8 @@ error_e strat_file_fruit(){
 			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[1].y = 1200;
 
-			debug_printf("jaune milieu\n");
-
 			sensRobot = FORWARD;
-			posOpen = 500;
+			posOpen = 400;
 		}
 
 		state = POS_BEGINNING;
@@ -750,23 +815,21 @@ error_e strat_file_fruit(){
 		if(entrance){
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 			ASSER_WARNER_arm_y(posOpen);
-			debug_printf("init warner\n");
 		}
 
 		if(global.env.asser.reach_y){ // Ouvrir le bac à fruit pour les faire tomber et sortir le bras
 			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_OPEN);
-			debug_printf("Ouvir labium\n");
 		}
 
 		break;
 	case DONE: // Fermer le bac à fruit et rentrer le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 		return END_OK;
 		break;
 	case ERROR: // Fermer le bac à fruit et rentrer le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 		return NOT_HANDLED;
 		break;
 	default:
@@ -781,20 +844,21 @@ error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens){ //Commence côté ma
 		IDLE,
 		POS_DEPART,
 		COURBE,
+		TREE_2,
 		POS_FIN,
 		DONE,
 		ERROR
 	);
 
 	static displacement_t point[] = {
-		{{1200,ELOIGNEMENT_ARBRE},SLOW},
-		{{1450,ELOIGNEMENT_ARBRE},SLOW},
+		{{1000,ELOIGNEMENT_ARBRE},SLOW},
+		{{1500,ELOIGNEMENT_ARBRE},SLOW},
 //		{{1555,395},SLOW},
 //		{{1610,450},SLOW},
-		{{1580,422},SLOW},
+		{{1580,350},SLOW},
 
-		{{1630,530},SLOW},
-		{{1630,900},SLOW},
+		{{2000-ELOIGNEMENT_ARBRE,480},SLOW},
+		{{2000-ELOIGNEMENT_ARBRE,900},SLOW},
 	};
 
 	static const Uint8 NBPOINT = sizeof(point)/sizeof(displacement_t);
@@ -821,16 +885,19 @@ error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens){ //Commence côté ma
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 		break;
 	case COURBE:
-			state = try_going_multipoint(&courbe[1],4,COURBE,POS_FIN,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+		state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 		break;
+	case TREE_2:
+		state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,TREE_2,POS_FIN,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		break;
 	case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 		break;
 	case DONE:
 		ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
@@ -847,57 +914,61 @@ error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens){ //Commence côté ma
 	return IN_PROGRESS;
 }
 
-error_e strat_test_ramasser_fruit_arbre2_double(bool_e sens){
+error_e strat_test_ramasser_fruit_arbre2_double(bool_e sens){ //Commence côté mammouth si sens == true
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
 		COURBE,
+		TREE_2,
 		POS_FIN,
 		DONE,
 		ERROR
 	);
 
-	displacement_t point[6] = {
-		{{1200,3000-ELOIGNEMENT_ARBRE},SLOW},
-		{{1450,3000-ELOIGNEMENT_ARBRE},SLOW},
-		{{1555,2605},SLOW},
-		{{1610,2550},SLOW},
-		{{2000-ELOIGNEMENT_ARBRE,2450},FAST},
-		{{2000-ELOIGNEMENT_ARBRE,2100},SLOW},
-	};
+	static const Uint8 NBPOINT = 5;
 
-	static displacement_t courbe[6];
-	Uint8 i;
+	static displacement_t courbe[5];
 	static way_e sensRobot;
 
 	switch(state){
 	case IDLE:
 
-		for(i=0;i<6;i++){
-			if(sens==TRUE)
-				courbe[i] = point[i];
-			else
-				courbe[i] = point[5-i];
+		if(sens==TRUE){
+			courbe[0] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE-10},SLOW};
+			courbe[1] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE-10},SLOW};
+			courbe[2] = (displacement_t){{1620,2625},SLOW};
+			courbe[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-10,2450},SLOW};
+			courbe[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-10,1800},SLOW};
+		}else{
+			courbe[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,1800},SLOW};
+			courbe[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,2450},SLOW};
+			courbe[2] = (displacement_t){{1620,2575},SLOW};
+			courbe[3] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},SLOW};
+			courbe[4] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},SLOW};
 		}
 
-		if(sens==TRUE)  // Modifie le sens
-			sensRobot = BACKWARD;
-		else
+
+		if(sens == TRUE)  // Modifie le sens
 			sensRobot = FORWARD;
+		else
+			sensRobot = BACKWARD;
 
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(2000-ELOIGNEMENT_ARBRE,2100,POS_DEPART,COURBE,ERROR,FAST,sensRobot,NO_AVOIDANCE);
+		state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 		break;
 	case COURBE:
-		state = try_going_multipoint(&courbe[1],4,COURBE,POS_FIN,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+		state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 
 		if(entrance)
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 		break;
+	case TREE_2:
+		state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,TREE_2,POS_FIN,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		break;
 	case POS_FIN:
-		state = try_going(1050,3000-ELOIGNEMENT_ARBRE,POS_FIN,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 		break;
 	case DONE:
 		ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
@@ -926,6 +997,7 @@ error_e strat_lance_launcher(){
 	static GEOMETRY_point_t dplt[2]; // Deplacement
 	static way_e sensRobot;
 	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
+	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
 
 	switch(state){
 	case IDLE:
@@ -937,7 +1009,8 @@ error_e strat_lance_launcher(){
 			dplt[1].y = 300;
 
 			sensRobot = FORWARD;
-			posShoot = 1000;
+			sensShoot = FALSE;
+			posShoot = 800;
 
 		}else if(global.env.color == RED){	// Rouge et case depart
 			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
@@ -947,7 +1020,8 @@ error_e strat_lance_launcher(){
 			dplt[1].y = 1200;
 
 			sensRobot = BACKWARD;
-			posShoot = 500;
+			sensShoot = TRUE;
+			posShoot = 600;
 		}else if(global.env.pos.y > 2225){ // Jaune, case depart
 			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
 			dplt[0].y = 2700;
@@ -956,7 +1030,8 @@ error_e strat_lance_launcher(){
 			dplt[1].y = 1800;
 
 			sensRobot = FORWARD;
-			posShoot = 2500;
+			sensShoot = FALSE;
+			posShoot = 2400;
 
 		}else{ // Jaune milieu
 			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
@@ -966,7 +1041,8 @@ error_e strat_lance_launcher(){
 			dplt[1].y = 2700;
 
 			sensRobot = BACKWARD;
-			posShoot = 2000;
+			sensShoot = TRUE;
+			posShoot = 2100;
 
 		}
 
@@ -977,13 +1053,13 @@ error_e strat_lance_launcher(){
 
 		break;
 	case POS_END:
-		state = try_going(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 
 		if(entrance)
 			ASSER_WARNER_arm_y(posShoot);
 
 		if(global.env.asser.reach_y)
-			ACT_lance_launcher_run(ACT_Lance_5_BALL);
+			ACT_lance_launcher_run(ACT_Lance_5_BALL,sensShoot);
 
 		break;
 	case DONE:
@@ -1010,6 +1086,7 @@ error_e strat_lance_launcher_ennemy(){
 
 	static GEOMETRY_point_t dplt[2]; // Deplacement
 	static way_e sensRobot;
+	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
 	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
 
 	switch(state){
@@ -1022,6 +1099,7 @@ error_e strat_lance_launcher_ennemy(){
 		   dplt[1].y = 1800;
 
 		   sensRobot = FORWARD;
+		   sensShoot = FALSE;
 		   posShoot = 2500;
 
 		}else if(global.env.color == RED){ // Tire sur le Jaune milieu
@@ -1032,7 +1110,8 @@ error_e strat_lance_launcher_ennemy(){
 		   dplt[1].y = 2700;
 
 		   sensRobot = BACKWARD;
-		   posShoot = 2000;
+		   sensShoot = TRUE;
+		   posShoot = 2200;
 
 	   }else if(global.env.pos.y > 750){ // tire sur le Rouge milieu
 		   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
@@ -1042,7 +1121,8 @@ error_e strat_lance_launcher_ennemy(){
 		   dplt[1].y = 300;
 
 		   sensRobot = FORWARD;
-		   posShoot = 1000;
+		   sensShoot = FALSE;
+		   posShoot = 900;
 
 	   }else{	// Tire Rouge et case depart
 		   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
@@ -1052,10 +1132,9 @@ error_e strat_lance_launcher_ennemy(){
 		   dplt[1].y = 1200;
 
 		   sensRobot = BACKWARD;
-		   posShoot = 500;
+		   sensShoot = TRUE;
+		   posShoot = 700;
 	   }
-
-
 
 		state = POS_BEGINNING;
 		break;
@@ -1064,13 +1143,13 @@ error_e strat_lance_launcher_ennemy(){
 
 		break;
 	case POS_END:
-		state = try_going(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
 
 		if(entrance)
 			ASSER_WARNER_arm_y(posShoot);
 
 		if(global.env.asser.reach_y)
-			ACT_lance_launcher_run(ACT_Lance_1_BALL);
+			ACT_lance_launcher_run(ACT_Lance_1_BALL,sensShoot);
 
 		break;
 	case DONE:
