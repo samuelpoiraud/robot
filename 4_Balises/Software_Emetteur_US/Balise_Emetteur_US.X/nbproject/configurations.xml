@@ -28,7 +28,6 @@
       <itemPath>../QS/QS_rf.h</itemPath>
       <itemPath>../SynchroRF.h</itemPath>
       <itemPath>../QS/QS_buffer_fifo.h</itemPath>
-      <itemPath>../QS/QS_watchdog.h</itemPath>
       <itemPath>../QS/impl/QS_uart_impl.h</itemPath>
       <itemPath>../QS/QS_outputlog.h</itemPath>
     </logicalFolder>
@@ -53,7 +52,6 @@
       <itemPath>../QS/QS_rf.c</itemPath>
       <itemPath>../SynchroRF.c</itemPath>
       <itemPath>../QS/QS_buffer_fifo.c</itemPath>
-      <itemPath>../QS/QS_watchdog.c</itemPath>
       <itemPath>../QS/impl/QS_uart_dspic30f.c</itemPath>
       <itemPath>../QS/QS_outputlog.c</itemPath>
     </logicalFolder>

@@ -74,7 +74,7 @@ void EmissionIR_step_init(void)
 //@pre Appeler cette fonction toutes les 2ms
 void EmissionIR_next_step(void)
 {
-	//On compte de 0 à nb_modules*
+	//On compte de 0 à TOTAL_STEP_COUNT
 	if(request_reset_step_ir == TRUE)
 		step_ir = 0;
 	else
