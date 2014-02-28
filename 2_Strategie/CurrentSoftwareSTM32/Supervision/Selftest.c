@@ -460,6 +460,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_DT10_1_FAILED:				debug_printf("PROP_DT10_1_FAILED");						break;
 				case SELFTEST_PROP_DT10_2_FAILED:				debug_printf("PROP_DT10_2_FAILED");						break;
 				case SELFTEST_PROP_DT10_3_FAILED:				debug_printf("PROP_DT10_3_FAILED");						break;
+				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");		break;
+				case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			debug_printf("SELFTEST_PROP_IN_LCD_TOUCH_MODE");		break;
 				case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:		debug_printf("STRAT_BIROUTE_NOT_IN_PLACE");				break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");						break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");			break;
