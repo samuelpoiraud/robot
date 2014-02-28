@@ -220,7 +220,7 @@ void SECRETARY_send_selftest_result(bool_e result)
 	if(result == FALSE)
 		msg.data[i++] = SELFTEST_PROP_FAILED;
 	if(HOKUYO_is_working_well() == FALSE)
-		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED
+		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED;
 	if(ADC_getValue(1) < 3)				// Les DT10 ont un pull down donc si ils ne sont pas connectés l'adc doit être à 0
 		msg.data[i++] = SELFTEST_PROP_DT10_1_FAILED;
 	if(ADC_getValue(2) < 3)
