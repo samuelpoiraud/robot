@@ -24,6 +24,7 @@
 void strat_inutile(void);
 void strat_lannion(void);
 void strat_test_point();
+void strat_test_point2();
 void strat_test_fresque();
 void strat_tourne_en_rond(void);
 error_e strat_manage_fresco();
