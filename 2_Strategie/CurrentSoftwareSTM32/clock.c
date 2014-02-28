@@ -105,9 +105,9 @@ void _ISR _T1Interrupt()
 	{
 		count_1sec = 0;
 		RTC_process_it_1sec();
-		Supervision_process_1sec();
 	}
 	SD_process_1ms();
 	BUZZER_process_1ms();
+	Supervision_process_1ms();
 	TIMER1_AckIT();
 }

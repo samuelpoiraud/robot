@@ -57,11 +57,41 @@ void Supervision_init(void)
 			CAN_over_XBee_init(BIG_ROBOT_MODULE, SMALL_ROBOT_MODULE);
 	#endif
 }
-
 volatile Uint8 flag_1sec = 0;
-void Supervision_process_1sec(void)
+volatile Uint8 flag_xbee_msg = 0;	//Flag qui indique qu'un envoi de message sur XBee doit être fait..
+#define PERIOD_XBEE_MSG		100		//[ms]
+void Supervision_process_1ms(void)
 {
-	flag_1sec++;
+	static Uint16 t_ms = 0;
+	static Uint16 t_xbee = 50;
+	t_ms++;
+	if(t_ms >= 1000)
+	{
+		t_ms = 0;
+		flag_1sec++;
+	}
+
+	t_xbee++;
+	if(t_xbee >= PERIOD_XBEE_MSG)
+	{
+		t_xbee = 0;
+		flag_xbee_msg++;
+	}
+}
+
+void SUPERVISION_send_pos_over_xbee(void)
+{
+	CAN_msg_t msg;
+	msg.sid = XBEE_MY_POSITION_IS;
+	msg.data[0] = HIGHINT(global.env.pos.x);
+	msg.data[1] = LOWINT(global.env.pos.x);
+	msg.data[2] = HIGHINT(global.env.pos.y);
+	msg.data[3] = LOWINT(global.env.pos.y);
+	msg.data[4] = QS_WHO_AM_I_get();
+	msg.size = 5;
+
+	CANMsgToXbee(&msg, TRUE);	//Envoi en BROADCAST...aux modules PINGés
+
 }
 
 void Supervision_process_main(void)
@@ -81,14 +111,24 @@ void Supervision_process_main(void)
 		//Au bout de la première seconde.
 		if(!first_second_elapsed)
 		{
+			//Si on rajoute pas ce délai d'une seconde, la RTC n'est pas prête quand on vient la lire.
 			first_second_elapsed = TRUE;
-			RTC_print_time();	//Si on rajoute pas ce délai d'une seconde, la RTC n'est pas prête quand on vient la lire.
 			SD_init();
 			//A partir de maintenant, on peut loguer sur la carte SD...
 			debug_printf("--- Hello, I'm STRAT (%s) ---\n", QS_WHO_AM_I_get_name());
+			RTC_print_time();
 		}
 	}
 
+	if(flag_xbee_msg)
+	{
+		flag_xbee_msg = 0;
+		#ifdef USE_XBEE
+			#warning "désactivé pour l'instant, tant que pas testé... ->"
+			if(0)	//if(PORT_SWITCH_XBEE)
+				SUPERVISION_send_pos_over_xbee();	//Envoi périodique de notre position en XBee (cet envoi ne fonctionnera que lorsque le module est initialisé, et qu'auprès des modules PINGés)
+		#endif
+	}
 	/* Gestion du selftest */
 	SELFTEST_process_main();
 

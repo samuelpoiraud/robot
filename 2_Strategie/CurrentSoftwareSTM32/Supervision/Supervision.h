@@ -18,6 +18,6 @@
 
 	void Supervision_init(void);
 	void Supervision_process_main(void);
-	void Supervision_process_1sec(void);
+	void Supervision_process_1ms(void);
 	
 #endif /* ndef SUPERVISION_H */

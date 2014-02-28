@@ -24,7 +24,7 @@
 
 #ifndef USE_POLYGON
 
-static pathfind_node_t nodes[PATHFIND_NODE_NB] =
+static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 {
 	//Colonne 1 coté Rouge [A]
 	(pathfind_node_t){ 750, 400, neighbors : (1<<1)|(1<<2)|(1<<3)|(1<<4)},							//[A1] 0
