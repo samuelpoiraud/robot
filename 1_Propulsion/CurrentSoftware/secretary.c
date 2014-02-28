@@ -172,9 +172,11 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 						case SELFTEST_NO_ERROR:																											break;
 						case SELFTEST_PROP_FAILED:			debug_printf(" | error %x SELFTEST_PROP_FAILED\n"			,SELFTEST_PROP_FAILED);			break;
 						case SELFTEST_PROP_HOKUYO_FAILED:	debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"	,SELFTEST_PROP_HOKUYO_FAILED);	break;
-						case SELFTEST_PROP_DT10_1_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_1_FAILED\n"	,SELFTEST_PROP_DT10_1_FAILED);
-						case SELFTEST_PROP_DT10_2_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_2_FAILED\n"	,SELFTEST_PROP_DT10_2_FAILED);
-						case SELFTEST_PROP_DT10_3_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_3_FAILED\n"	,SELFTEST_PROP_DT10_3_FAILED);
+						case SELFTEST_PROP_DT10_1_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_1_FAILED\n"	,SELFTEST_PROP_DT10_1_FAILED);	break;
+						case SELFTEST_PROP_DT10_2_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_2_FAILED\n"	,SELFTEST_PROP_DT10_2_FAILED);	break;
+						case SELFTEST_PROP_DT10_3_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_3_FAILED\n"	,SELFTEST_PROP_DT10_3_FAILED);	break;
+						case SELFTEST_PROP_IN_SIMULATION_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_SIMULATION_MODE\n"	,SELFTEST_PROP_IN_SIMULATION_MODE); break;
+						case SELFTEST_PROP_IN_LCD_TOUCH_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_LCD_TOUCH_MODE\n"	,SELFTEST_PROP_IN_LCD_TOUCH_MODE); 	break;
 						default:							debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);				break;
 					}
 				}
@@ -214,16 +216,28 @@ void SECRETARY_send_selftest_result(bool_e result)
 	selftest_validated = result;
 	msg.sid = STRAT_PROP_SELFTEST_DONE;
 	msg.size = 8;
-	msg.data[0] = (result)?SELFTEST_NO_ERROR:SELFTEST_PROP_FAILED;
-	msg.data[1] = (HOKUYO_is_working_well())?SELFTEST_NO_ERROR:SELFTEST_PROP_HOKUYO_FAILED;
-	msg.data[2] = (ADC_getValue(1) > 2)? SELFTEST_NO_ERROR:SELFTEST_PROP_DT10_1_FAILED;	// Les DT10 ont un pull down donc si ils ne sont pas connectés l'adc doit être à 0
-	msg.data[3] = (ADC_getValue(2) > 2)? SELFTEST_NO_ERROR:SELFTEST_PROP_DT10_2_FAILED;
-	msg.data[4] = (ADC_getValue(3) > 2)? SELFTEST_NO_ERROR:SELFTEST_PROP_DT10_3_FAILED;
+	i = 0;
+	if(result == FALSE)
+		msg.data[i++] = SELFTEST_PROP_FAILED;
+	if(HOKUYO_is_working_well() == FALSE)
+		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED
+	if(ADC_getValue(1) < 3)				// Les DT10 ont un pull down donc si ils ne sont pas connectés l'adc doit être à 0
+		msg.data[i++] = SELFTEST_PROP_DT10_1_FAILED;
+	if(ADC_getValue(2) < 3)
+		msg.data[i++] = SELFTEST_PROP_DT10_2_FAILED;
+	if(ADC_getValue(3) < 3)
+		msg.data[i++] = SELFTEST_PROP_DT10_3_FAILED;
 
-	for(i=5;i<8;i++)
+	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+		msg.data[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
+	#endif
+	#ifdef LCD_TOUCH
+		msg.data[i++] = SELFTEST_PROP_IN_LCD_TOUCH_MODE;
+	#endif
+
+	for(;i<8;i++)
 		msg.data[i] = SELFTEST_NO_ERROR;
 
-	//TODO enrichir ce message du statut de fonctionnement des autres périphs... hokuyo....
 	SECRETARY_send_canmsg(&msg);
 }
 
