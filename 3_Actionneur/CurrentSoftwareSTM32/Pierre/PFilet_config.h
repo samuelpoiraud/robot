@@ -32,8 +32,8 @@
 #define TIME_BEFORE_DETECT				TIME_BEFORE_REARM
 #define TIME_BEFORE_FREE_STRING			1000  //[ms]
 #define TIME_OSC_STRING					200  //[ms]  (période)
-#define NB_OSC_STRING					4
-#define EPSILON_POS_FILET				4
+#define NB_OSC_STRING					6			//((3500-TIME_BEFORE_FREE_STRING)/TIME_OSC_STRING) pour avoir des oscillations jusqu'a la fin du match
+#define EPSILON_POS_FILET				8
 
 
 #endif	/* PFILET_CONFIG_H */
