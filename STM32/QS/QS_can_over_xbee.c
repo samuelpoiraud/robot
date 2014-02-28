@@ -52,6 +52,7 @@
 
 
 volatile static bool_e initialized = FALSE;
+volatile static bool_e XBee_ready_to_talk = FALSE;
 volatile static bool_e module_reachable[MODULE_NUMBER];	//Etat des autres modules (joignables ou non...)
 volatile static bool_e flag_1s = FALSE;
 
@@ -154,7 +155,10 @@ void CAN_over_XBee_process_main(void)
 				if(time)
 					time--;
 				else
+				{
+					XBee_ready_to_talk = TRUE;
 					XBee_state = PING_PONG;
+				}
 			break;
 			case PING_PONG:
 				everyone_is_reachable = TRUE;	//on suppose que tout le monde est joignable
@@ -385,7 +389,8 @@ void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 	static Uint8 ack = 0;
 	Uint8 cs;
 	Uint8 i;
-
+	if(!XBee_ready_to_talk)
+		return;
 	if(src->sid != XBEE_PING && module_reachable[module_dest] == FALSE)	//Module non atteignable
 			return;	//On se refuse d'envoyer un message si le module n'est pas joignable, sauf s'il s'agit d'un ping !
 
