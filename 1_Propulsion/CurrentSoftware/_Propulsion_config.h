@@ -220,8 +220,8 @@
 	#define TINY_ACCELERATION_NORMAL	64	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
 	#define TINY_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 
-	#define KRUSTY_ACCELERATION_NORMAL	64	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 8
+	#define KRUSTY_ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 12
 
 	// 13 = (1024 / (distance entre les roues de propulsions divisée par 2 ) )
 	//sur archi'tech : 2*80mm entre les roues
@@ -254,7 +254,7 @@
 
 		// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
 	#define KRUSTY_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
-	#define KRUSTY_TRANSLATION_SPEED_MAX 		(Sint32)(20448)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define KRUSTY_TRANSLATION_SPEED_MAX 		(Sint32)(22448)		 	//environ = 5[mm/5ms] = 1,0m/s
 	#define KRUSTY_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
 	#define KRUSTY_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
 	#define KRUSTY_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
