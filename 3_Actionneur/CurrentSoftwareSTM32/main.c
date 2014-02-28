@@ -132,7 +132,7 @@ int main (void)
 		BUTTONS_update();
 
 		#ifdef I_AM_ROBOT_BIG
-		if(global.match_started == FALSE) // Si le match n'a pas commencé on gère le réarmement du filet
+		if(global.match_started == FALSE && global.match_over == FALSE) // Si le match n'a pas commencé et n'est pas terminé on gère le réarmement automatique du filet et l'avertissement
 				FILET_process_main();
 		#endif
 
