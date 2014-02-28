@@ -11,6 +11,10 @@
 
 #include "QS/QS_all.h"
 
+#define ADC_SENSOR_DT10_FLOOR	ADC_11
+#define ADC_SENSOR_DT10_NV1		ADC_12
+#define ADC_SENSOR_DT10_NV2		ADC_14
+
 #ifdef SCAN_TRIANGLE
 	void SCAN_TRIANGLE_init(void);
 	void SCAN_TRIANGLE_process_it(void);

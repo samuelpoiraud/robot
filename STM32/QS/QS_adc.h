@@ -10,12 +10,32 @@
 
 #ifndef QS_ADC_H
 	#define QS_ADC_H
-	
+
 	#include "QS_types.h"
-	
+
+	typedef enum{
+		ADC_0 = 0,
+		ADC_1,
+		ADC_2,
+		ADC_3,
+		ADC_4,
+		ADC_5,
+		ADC_6,
+		ADC_7,
+		ADC_8,
+		ADC_9,
+		ADC_10,
+		ADC_11,
+		ADC_12,
+		ADC_13,
+		ADC_14,
+		ADC_15
+	}adc_id_e;
+	// Enumération des convertisseurs analogique numérique sélectionnable
+
 	void ADC_init();
-	
-	Sint16 ADC_getValue(Uint8 channel);
+
+	Sint16 ADC_getValue(adc_id_e channel);
 	/*
 	 *	cette fonction permet de récupérer la valeur echantillonnée par
 	 *	le convertisseur analogique numerique (adc). Le channel est le

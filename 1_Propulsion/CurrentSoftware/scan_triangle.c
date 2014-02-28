@@ -93,7 +93,7 @@ typedef struct{
 	Uint8 number_triangle;
 	type_warner_e type_warner;
 	Sint16 warner;
-	Uint8 level;
+	adc_id_e level;
 }warner_param_s;
 
 typedef enum{
@@ -160,10 +160,10 @@ bool_e move_completed, run_calcul;
 	// Flag indiquant si le mouvement est finit, si un calcul est en cours
 
 triangle_localisation position_triangle[]={
-	{WARN_X_PI, 3, 800, 0},
-	{WARN_Y_N, 3, 2000, 1300},
-	{WARN_Y_N, 3, 2000, 1700},
-	{WARN_X_0, 3, 800, 3000}
+	{WARN_X_PI, ADC_SENSOR_DT10_NV2, 800, 0},
+	{WARN_Y_N, ADC_SENSOR_DT10_NV2, 2000, 1300},
+	{WARN_Y_N, ADC_SENSOR_DT10_NV2, 2000, 1700},
+	{WARN_X_0, ADC_SENSOR_DT10_NV2, 800, 3000}
 };
 
 #define NOMBER_MAX_TRIANGLE (sizeof(position_triangle)/sizeof(triangle_localisation))
@@ -203,8 +203,8 @@ void SCAN_TRIANGLE_process_it(void){
 		case TEST :
 			if(temp > 500){
 					temp = 0;
-					debug_printf("%d,%d,%d\n", (Sint16)ADC_getValue(0), (Sint16)ADC_getValue(1), (Sint16)ADC_getValue(2));
-					debug_printf("%d,%d,%d\n\n", (Sint16)conversion_DT10_mm(ADC_getValue(0)), (Sint16)conversion_DT10_mm(ADC_getValue(1)), (Sint16)conversion_DT10_mm(ADC_getValue(2)));
+					debug_printf("%d,%d,%d\n", (Sint16)ADC_getValue(ADC_SENSOR_DT10_FLOOR), (Sint16)ADC_getValue(ADC_SENSOR_DT10_NV1), (Sint16)ADC_getValue(ADC_SENSOR_DT10_NV2));
+					debug_printf("%d,%d,%d\n\n", (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_FLOOR)), (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_NV1)), (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_NV2)));
 				}
 				else
 					temp++;
@@ -312,11 +312,10 @@ void SCAN_TRIANGLE_process_it(void){
 }
 
 static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure){
-	Uint8 i;
 	if((*n_mesure) < scan_param.nb_points){
-		for(i=0;i<3;i++){
-			scan[(*n_mesure)].dist[i] = conversion_DT10_mm(ADC_getValue(i));
-		}
+		scan[(*n_mesure)].dist[0] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_FLOOR));
+		scan[(*n_mesure)].dist[1] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_NV1));
+		scan[(*n_mesure)].dist[2] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_NV2));
 		scan[*n_mesure].pos = global.position;
 		(*n_mesure)++;
 	}
