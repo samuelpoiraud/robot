@@ -131,11 +131,11 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 							orderShootLauncher[1] = 5;
 							orderShootLauncher[0] = 6;
 						}else{
-							orderShootLauncher[4] = 1;
-							orderShootLauncher[3] = 2;
+							orderShootLauncher[4] = 5;
+							orderShootLauncher[3] = 6;
 							orderShootLauncher[2] = 3;
 							orderShootLauncher[1] = 4;
-							orderShootLauncher[0] = 6;
+							orderShootLauncher[0] = 2;
 						}
 
 						lance_launcher_last_launch = 5;
