@@ -23,7 +23,7 @@
 #define ARM_ACT_AX12_MID_ID                      21
 #define ARM_ACT_AX12_TRIANGLE_ID                 1
 
-#define ARM_ACT_UPDOWN_ID_POTAR_ADC_ID           0
+#define ARM_ACT_UPDOWN_ID_POTAR_ADC_ID           ADC_11
 
 //#define ARM_ACT_UPDOWN                           0
 #define ARM_ACT_UPDOWN_ASSER_KP                  100

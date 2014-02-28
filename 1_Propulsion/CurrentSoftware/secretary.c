@@ -221,11 +221,11 @@ void SECRETARY_send_selftest_result(bool_e result)
 		msg.data[i++] = SELFTEST_PROP_FAILED;
 	if(HOKUYO_is_working_well() == FALSE)
 		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED;
-	if(ADC_getValue(1) < 3)				// Les DT10 ont un pull down donc si ils ne sont pas connectés l'adc doit être à 0
+	if(ADC_getValue(ADC_SENSOR_DT10_FLOOR) < 3)				// Les DT10 ont un pull down donc si ils ne sont pas connectés l'adc doit être à 0
 		msg.data[i++] = SELFTEST_PROP_DT10_1_FAILED;
-	if(ADC_getValue(2) < 3)
+	if(ADC_getValue(ADC_SENSOR_DT10_NV1) < 3)
 		msg.data[i++] = SELFTEST_PROP_DT10_2_FAILED;
-	if(ADC_getValue(3) < 3)
+	if(ADC_getValue(ADC_SENSOR_DT10_NV2) < 3)
 		msg.data[i++] = SELFTEST_PROP_DT10_3_FAILED;
 
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.

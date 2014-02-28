@@ -27,6 +27,7 @@
 //#endif
 
 #include "QS_all.h"
+#include "QS_adc.h"
 
 
 #ifdef USE_CW_SENSOR
@@ -75,9 +76,9 @@ typedef enum {
  */
 typedef struct {
 	CW_port_t digital_ports[CW_PP_MAXPORTNUM];
-	Uint8 analog_X;
-	Uint8 analog_Y;
-	Uint8 analog_Z;
+	adc_id_e analog_X;
+	adc_id_e analog_Y;
+	adc_id_e analog_Z;
 } CW_config_t;
 
 /** Constante utilisé quand un port analogique n'est pas utilisé.

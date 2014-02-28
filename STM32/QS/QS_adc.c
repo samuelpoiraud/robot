@@ -12,6 +12,7 @@
 #include "QS_adc.h"
 #include "QS_ports.h"
 #include "QS_all.h"
+#include "QS_outputlog.h"
 #include "stm32f4xx_adc.h"
 #include "stm32f4xx_dma.h"
 
@@ -21,13 +22,15 @@
 
 static ADC_TypeDef* ADCx = ADC1;
 static Sint16 adc_converted_value[MAX_ADC_CHANNELS];
+static Sint8 adc_id[MAX_ADC_CHANNELS];
 
 void ADC_init(void) {
 	static bool_e initialized = FALSE;
+	Uint8 i;
 	if(initialized == TRUE)
 		return;
 	Uint8 number_of_channels;
-	
+
 	ADC_InitTypeDef       ADC_InitStructure;
 	ADC_CommonInitTypeDef ADC_CommonInitStructure;
 	DMA_InitTypeDef       DMA_InitStructure;
@@ -91,16 +94,74 @@ void ADC_init(void) {
 #ifdef ADC_CONTINUOUS_CONVERSION
 	ADC_SoftwareStartConv(ADCx);
 #endif
+	// Initialisation du tableau des id des convertisseurs analogique numérique
+	for(i=0;i<MAX_ADC_CHANNELS;i++)
+		adc_id[i] = -1;
+
+	// Attribution de l'id des convertisseurs utilisés
+	i = 0;
+#ifdef	USE_AN0
+	adc_id[ADC_0] = i++;
+#endif
+#ifdef	USE_AN1
+	adc_id[ADC_1] = i++;
+#endif
+#ifdef	USE_AN2
+	adc_id[ADC_2] = i++;
+#endif
+#ifdef	USE_AN3
+	adc_id[ADC_3] = i++;
+#endif
+#ifdef	USE_AN4
+	adc_id[ADC_4] = i++;
+#endif
+#ifdef	USE_AN5
+	adc_id[ADC_5] = i++;
+#endif
+#ifdef	USE_AN6
+	adc_id[ADC_6] = i++;
+#endif
+#ifdef	USE_AN7
+	adc_id[ADC_7] = i++;
+#endif
+#ifdef	USE_AN8
+	adc_id[ADC_8] = i++;
+#endif
+#ifdef	USE_AN9
+	adc_id[ADC_9] = i++;
+#endif
+#ifdef	USE_AN10
+	adc_id[ADC_10] = i++;
+#endif
+#ifdef	USE_AN11
+	adc_id[ADC_11] = i++;
+#endif
+#ifdef	USE_AN12
+	adc_id[ADC_12] = i++;
+#endif
+#ifdef	USE_AN13
+	adc_id[ADC_13] = i++;
+#endif
+#ifdef	USE_AN14
+	adc_id[ADC_14] = i++;
+#endif
+#ifdef	USE_AN15
+	adc_id[ADC_15] = i++;
+#endif
 
 	initialized = TRUE;
 }
 
 
-Sint16 ADC_getValue(Uint8 channel) {
+Sint16 ADC_getValue(adc_id_e channel) {
+	if(adc_id[channel] == -1 || channel >= MAX_ADC_CHANNELS){
+		error_printf("Lecture de la valeur du convertisseur analogique numérique %d non utilisé ou non initialisé ! \n", channel);
+		return 0;
+	}
 #ifndef ADC_CONTINUOUS_CONVERSION
 	/* Start conversions manually*/
 	ADC_SoftwareStartConv(ADCx);
 	while(ADC_GetFlagStatus(ADCx, ADC_FLAG_EOC) == RESET);	//Tant qu'on a pas lu les registres
 #endif
-	return adc_converted_value[channel];
+	return adc_converted_value[adc_id[channel]];
 }

@@ -56,7 +56,7 @@
 		#endif
 	#endif
 
-//	#define SCAN_TRIANGLE		// Mise en service des fonctionnalitées de scan de triangle
+	#define SCAN_TRIANGLE		// Mise en service des fonctionnalitées de scan de triangle
 
 //	#define SOFT_SCAN_TRIANGLE	// Activation de l'envoie de chaine formatées par l'UART pour la rendue des triangles sur logiciel
 
