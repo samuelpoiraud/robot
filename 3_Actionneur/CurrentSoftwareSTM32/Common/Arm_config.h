@@ -14,9 +14,6 @@
 
 #include "config_pin.h"
 
-//#define ARM_ACT_NUMBER 4
-#define ARM_ACT_NUMBER 2
-
 // ID des moteurs
 #define ARM_ACT_UPDOWN_ID                        0
 #define ARM_ACT_RX24_ID                          20

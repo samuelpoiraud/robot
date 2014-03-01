@@ -21,12 +21,18 @@
 #include "config_pin.h"
 #include "Arm_config.h"
 #include "Arm_data.h"
+#include <string.h>
 
 #include "config_debug.h"
 #define LOG_PREFIX "Arm: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ARM
 #include "../QS/QS_outputlog.h"
 
+#define XX(val) #val,
+const char* ARM_STATES_NAME[] = {
+	ARM_STATE_ENUMVALS(XX)
+};
+#undef XX
 
 static void ARM_initAX12();
 
@@ -34,6 +40,8 @@ static void ARM_initAX12();
 static Sint8 old_state = 0;
 
 static bool_e gotoState(ARM_state_e state);
+static bool_e check_state_transitions();
+static void print_corrected_state_transitions();
 
 void ARM_init() {
 	static bool_e initialized = FALSE;
@@ -46,26 +54,29 @@ void ARM_init() {
 	AX12_init();
 	ADC_init();
 
+	if(check_state_transitions() == FALSE)
+		print_corrected_state_transitions();
+
 	Uint8 i;
-	for(i = 0; i < ARM_ACT_NUMBER; i++) {
-		if(arm_motors[i].type == ARM_DCMOTOR) {
+	for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
+		if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
 			DCMotor_config_t dcconfig;
 
-			dcconfig.sensor_read = arm_motors[i].sensorRead;
-			dcconfig.Kp = arm_motors[i].kp;
-			dcconfig.Ki = arm_motors[i].ki;
-			dcconfig.Kd = arm_motors[i].kd;
+			dcconfig.sensor_read = ARM_MOTORS[i].sensorRead;
+			dcconfig.Kp = ARM_MOTORS[i].kp;
+			dcconfig.Ki = ARM_MOTORS[i].ki;
+			dcconfig.Kd = ARM_MOTORS[i].kd;
 			dcconfig.pos[0] = 0;
-			dcconfig.pwm_number = arm_motors[i].pwmNum;
-			dcconfig.way_latch = &arm_motors[i].pwmWayPort->ODR;
-			dcconfig.way_bit_number = arm_motors[i].pwmWayBit;
-			dcconfig.way0_max_duty = arm_motors[i].maxPowerWay0;
-			dcconfig.way1_max_duty = arm_motors[i].maxPowerWay1;
-			dcconfig.timeout = arm_motors[i].timeout;
-			dcconfig.epsilon = arm_motors[i].epsilon;
-			DCM_config(arm_motors[i].id, &dcconfig);
-			DCM_stop(arm_motors[i].id);
-		} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
+			dcconfig.pwm_number = ARM_MOTORS[i].pwmNum;
+			dcconfig.way_latch = &ARM_MOTORS[i].pwmWayPort->ODR;
+			dcconfig.way_bit_number = ARM_MOTORS[i].pwmWayBit;
+			dcconfig.way0_max_duty = ARM_MOTORS[i].maxPowerWay0;
+			dcconfig.way1_max_duty = ARM_MOTORS[i].maxPowerWay1;
+			dcconfig.timeout = ARM_MOTORS[i].timeout;
+			dcconfig.epsilon = ARM_MOTORS[i].epsilon;
+			DCM_config(ARM_MOTORS[i].id, &dcconfig);
+			DCM_stop(ARM_MOTORS[i].id);
+		} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
 			//pas initialisé ici mais dans ARM_initAX12 en dessous
 		}
 	}
@@ -79,7 +90,6 @@ void ARM_init() {
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void ARM_initAX12() {
-	static bool_e ax12_is_initialized[ARM_ACT_NUMBER] = {0};
 	static bool_e allInitialized = FALSE;
 	Uint8 i;
 	bool_e allOk = TRUE;
@@ -87,24 +97,24 @@ static void ARM_initAX12() {
 	if(allInitialized)
 		return;
 
-	for(i = 0; i < ARM_ACT_NUMBER; i++) {
-		if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
-			if(ax12_is_initialized[i] == FALSE && AX12_is_ready(arm_motors[i].id) == TRUE) {
-				ax12_is_initialized[i] = TRUE;
+	for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
+		if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
+			if(ARM_ax12_is_initialized[i] == FALSE && AX12_is_ready(ARM_MOTORS[i].id) == TRUE) {
+				ARM_ax12_is_initialized[i] = TRUE;
 
-				AX12_config_set_highest_voltage(arm_motors[i].id, 150);
-				AX12_config_set_lowest_voltage(arm_motors[i].id, 60);
-				AX12_config_set_maximum_torque_percentage(arm_motors[i].id, arm_motors[i].maxPowerWay0);
+				AX12_config_set_highest_voltage(ARM_MOTORS[i].id, 150);
+				AX12_config_set_lowest_voltage(ARM_MOTORS[i].id, 60);
+				AX12_config_set_maximum_torque_percentage(ARM_MOTORS[i].id, ARM_MOTORS[i].maxPowerWay0);
 
-				AX12_config_set_maximal_angle(arm_motors[i].id, 300);
-				AX12_config_set_minimal_angle(arm_motors[i].id, 0);
+				AX12_config_set_maximal_angle(ARM_MOTORS[i].id, 300);
+				AX12_config_set_minimal_angle(ARM_MOTORS[i].id, 0);
 
-				AX12_config_set_error_before_led(arm_motors[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
-				AX12_config_set_error_before_shutdown(arm_motors[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
-			} else if(ax12_is_initialized[i] == FALSE) {
+				AX12_config_set_error_before_led(ARM_MOTORS[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
+				AX12_config_set_error_before_shutdown(ARM_MOTORS[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+			} else if(ARM_ax12_is_initialized[i] == FALSE) {
 				// Au moins un RX24/AX12 non prêt => pas allOk, on affiche pas le message d'init
 				allOk = FALSE;
-				debug_printf("AX12 %d not here\n", arm_motors[i].id);
+				debug_printf("AX12 %d not here\n", ARM_MOTORS[i].id);
 			}
 		}
 	}
@@ -117,11 +127,11 @@ static void ARM_initAX12() {
 
 void ARM_stop() {
 	Uint8 i;
-	for(i = 0; i < ARM_ACT_NUMBER; i++) {
-		if(arm_motors[i].type == ARM_DCMOTOR) {
-			DCM_stop(arm_motors[i].id);
-		} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
-			AX12_set_torque_enabled(arm_motors[i].id, FALSE);
+	for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
+		if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
+			DCM_stop(ARM_MOTORS[i].id);
+		} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
+			AX12_set_torque_enabled(ARM_MOTORS[i].id, FALSE);
 		}
 	}
 }
@@ -159,14 +169,18 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 		Sint16 new_state = QUEUE_get_arg(queueId)->param;
 
 		if(init) {
-			if(old_state < 0 || arm_states_transitions[old_state][new_state] == 0) {
+			if(old_state < 0 || ARM_STATES_TRANSITIONS[old_state][new_state] == 0) {
 				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
-				warn_printf("Deplacement impossible de l'etat %d à %d\n", old_state, new_state);
+				warn_printf("Déplacement impossible de l'etat %s(%d) to %s(%d)\n",
+							ARM_STATES_NAME[old_state], old_state,
+							ARM_STATES_NAME[new_state], new_state);
 				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
 				return;
 			}
 
-			debug_printf("Going from state %d to %d\n", old_state, new_state);
+			debug_printf("Going from state %s(%d) to %s(%d)\n",
+						 ARM_STATES_NAME[old_state], old_state,
+						 ARM_STATES_NAME[new_state], new_state);
 			gotoState(new_state);
 
 		} else {
@@ -175,11 +189,11 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 			Uint16 line = 0;
 			Uint8 i;
 
-			for(i = 0; i < ARM_ACT_NUMBER; i++) {
-				if(arm_motors[i].type == ARM_DCMOTOR) {
-					done = ACTQ_check_status_dcmotor(arm_motors[i].id, FALSE, &result, &error_code, &line);
-				} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
-					done = ACTQ_check_status_ax12(queueId, arm_motors[i].id, arm_states[new_state][i], arm_motors[i].epsilon, arm_motors[i].timeout, 360, &result, &error_code, &line);
+			for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
+				if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
+					done = ACTQ_check_status_dcmotor(ARM_MOTORS[i].id, FALSE, &result, &error_code, &line);
+				} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
+					done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, ARM_get_motor_pos(new_state, i), ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 360, &result, &error_code, &line);
 				}
 
 				//Si au moins un moteur n'a pas terminé son mouvement, alors l'action de déplacer le bras n'est pas terminée
@@ -212,18 +226,69 @@ static bool_e gotoState(ARM_state_e state) {
 	bool_e ok = TRUE;
 	Uint8 i;
 
-	for(i = 0; ok && i < ARM_ACT_NUMBER; i++) {
-		if(arm_motors[i].type == ARM_DCMOTOR) {
-			DCM_setPosValue(arm_motors[i].id, 0, arm_states[state][i]);
-			DCM_goToPos(arm_motors[i].id, 0);
-			DCM_restart(arm_motors[i].id);
-		} else if(arm_motors[i].type == ARM_AX12 || arm_motors[i].type == ARM_RX24) {
-			if(!AX12_set_position(arm_motors[i].id, arm_states[state][i]))
+	for(i = 0; ok && i < ARM_MOTORS_NUMBER; i++) {
+		if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
+			DCM_setPosValue(ARM_MOTORS[i].id, 0, ARM_get_motor_pos(state, i));
+			DCM_goToPos(ARM_MOTORS[i].id, 0);
+			DCM_restart(ARM_MOTORS[i].id);
+		} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
+			if(!AX12_set_position(ARM_MOTORS[i].id, ARM_get_motor_pos(state, i)))
 				ok = FALSE;
 		}
 	}
 
 	return ok;
+}
+
+//Vérifie que les transitions d'états sont reversibles
+static bool_e check_state_transitions() {
+	Uint8 i, j;
+	bool_e ok = TRUE;
+
+	for(i = 0; i < ARM_ST_NUMBER; i++) {
+		for(j = 0; j < ARM_ST_NUMBER; j++) {
+			if(ARM_STATES_TRANSITIONS[i][j] != ARM_STATES_TRANSITIONS[j][i]) {
+				warn_printf("Déplacement non reversible: %s(%d) %s %s(%d)\n",
+							ARM_STATES_NAME[i], i,
+							ARM_STATES_TRANSITIONS[i][j] ? "=>" : "<=",
+							ARM_STATES_NAME[j], j);
+				ok = FALSE;
+			}
+		}
+	}
+
+	return ok;
+}
+
+static void print_corrected_state_transitions() {
+	Uint8 i, j;
+	Uint8 columnSize = 0;
+	bool_e isFirstVal;
+	info_printf("Transitions d\'états:\n");
+
+	OUTPUTLOG_printf(LOG_LEVEL_Info,
+					 "bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //\n"
+					 "//   ");
+	for(j = 0; j < ARM_ST_NUMBER; j++) {
+		Uint8 current_column_size = strlen(ARM_STATES_NAME[j]);
+		if(columnSize < current_column_size)
+			columnSize = current_column_size;
+
+	}
+	for(j = 0; j < ARM_ST_NUMBER; j++) {
+		OUTPUTLOG_printf(LOG_LEVEL_Info, "%-*s ", columnSize, ARM_STATES_NAME[j]);
+	}
+	OUTPUTLOG_printf(LOG_LEVEL_Info, "\n");
+	for(i = 0; i < ARM_ST_NUMBER; i++) {
+		OUTPUTLOG_printf(LOG_LEVEL_Info, "    {");
+		for(isFirstVal = TRUE, j = 0; j < ARM_ST_NUMBER; j++) {
+			bool_e val = MAX(ARM_STATES_TRANSITIONS[i][j], ARM_STATES_TRANSITIONS[j][i]);
+			OUTPUTLOG_printf(LOG_LEVEL_Info, "%s%-*d", isFirstVal ? "" : ",", columnSize, val);
+			isFirstVal = FALSE;
+		}
+		OUTPUTLOG_printf(LOG_LEVEL_Info, "},  //%s\n", ARM_STATES_NAME[i]);
+	}
+	OUTPUTLOG_printf(LOG_LEVEL_Info, "};  //\n");
 }
 
 #endif
