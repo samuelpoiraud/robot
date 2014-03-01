@@ -18,8 +18,6 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_CANmsgList.h"
 
-typedef int arm_state_t[ARM_ACT_NUMBER];
-
 typedef enum {
 	ARM_DCMOTOR,
 	ARM_AX12,
@@ -44,13 +42,17 @@ typedef struct {
 	sensor_read_fun_t sensorRead;
 } ARM_motor_data_t;
 
-extern ARM_motor_data_t arm_motors[ARM_ACT_NUMBER];
+extern const ARM_motor_data_t ARM_MOTORS[];
+extern const Uint8 ARM_MOTORS_NUMBER;
 
-extern arm_state_t arm_states[ARM_ST_NUMBER];
+//extern Sint16 ARM_STATES[ARM_ST_NUMBER][ARM_MOTORS_NUMBER];
 
 //                                    lignes         colonnes
 //                                   ancien état    nouvel état
-extern bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
+extern bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER];
+
+extern bool_e ARM_ax12_is_initialized[];
+Sint16 ARM_get_motor_pos(ARM_state_e state, Uint8 motor);
 
 #endif	/* ARM_DATA_H */
 
