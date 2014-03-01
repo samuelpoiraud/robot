@@ -471,9 +471,18 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	ACT_ARM = (ACT_FILTER | 0x20),
 		//Paramètres de ARM (dans data[0])
 		#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[1] (une des valeurs ci-dessous)
-			// Voir position du bras ci-dessous ( A la fin de l'enum)
+			// Voir position du bras ci-dessous (ARM_STATE_ENUM)
 
 		#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
+
+		// Positions prise par le bras
+		// Pour ajouter une position, ajoutez une ligne avec:
+		// XX(<nom état>) \                                                                            text ici pour garder des espaces après le slash, sinon multiline comment
+		// N'oubliez pas le \ !!!!! (sauf pour le dernier)
+		#define ARM_STATE_ENUMVALS(XX) \
+			XX(ACT_ARM_POS_PARKED) \
+			XX(ACT_ARM_POS_OPEN) \
+			XX(ACT_ARM_POS_MID)
 	/////////////////////////////////////////
 
 	/////////////////////FILET///////////////////
@@ -507,14 +516,16 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs
 
-
-// Position Prise par le bras
+#define ENUM_ITEMIZE(val) val,
 typedef enum {
-	ACT_ARM_POS_PARKED,
-	ACT_ARM_POS_OPEN,
-	ACT_ARM_POS_MID,
+	ARM_STATE_ENUMVALS(ENUM_ITEMIZE)
 	ARM_ST_NUMBER
 } ARM_state_e;
+#undef ENUM_ITEMIZE
+
+//Info sur l'astuce du XX:
+//https://github.com/joyent/libuv/blob/422d2810b37d1ec8a12f967089d04039800c2b44/include/uv.h#L65
+//http://www.drdobbs.com/the-new-c-x-macros/184401387
 
 
 
