@@ -10,7 +10,7 @@
  *	Version 20121110
  */
 
-//Pour voir l'ancienne version avant les modifications faites pour le robot 2012-2013, utilisez la version SVN 5340
+//Pour voir la version avant la séparation de AX12_DIRECTION_PORT, voir version SVN 1737
 
 #include "QS_ax12.h"
 
@@ -34,9 +34,9 @@
 
 	//#define AX12_DEBUG_PACKETS: si défini, les paquets envoyé sont écrit sur la sortie uart en utilisant debug_printf (attention, debug_printf n'est pas réentrante)
 
-	#ifndef AX12_UART_ID
-		#define AX12_UART_ID 2
-	#endif
+//	#ifndef AX12_UART_ID
+//		#define AX12_UART_ID 2
+//	#endif
 
 	#if AX12_UART_ID == 1
 		#define AX12_UART_Ptr USART1
@@ -111,9 +111,16 @@
 		#error "Vous ne pouvez pas utiliser l'UART2 et l'AX12 en même temps, l'AX12 à besoin de l'UART2 pour communiquer"
 	#endif
 
-	#ifndef AX12_DIRECTION_PORT
-		#error "Vous devez definir un port de direction (AX12_DIRECTION_PORT) pour gérer l'UART qui est en Half-duplex (cf. Datasheet MAX485)"
-	#endif /* ndef AX12_DIRECTION_PORT */
+	#ifdef AX12_UART_ID
+		#ifndef AX12_DIRECTION_PORT_AX12
+			#error "Vous devez definir un port de direction (AX12_DIRECTION_PORT_AX12) pour gérer l'UART qui est en Half-duplex (cf. Datasheet MAX485)"
+		#endif /* ndef AX12_DIRECTION_PORT_AX12 */
+	#endif
+	#ifdef AX12_RX24_UART_ID
+		#ifndef AX12_DIRECTION_PORT_RX24
+			#error "Vous devez definir un port de direction (AX12_DIRECTION_PORT_RX24) pour gérer l'UART qui est en Half-duplex (cf. Datasheet MAX485)"
+		#endif /* ndef AX12_DIRECTION_PORT_RX24 */
+	#endif
 
 	/* Pour UART half-uplex */
 	#define TX_DIRECTION 1
@@ -337,6 +344,8 @@ typedef enum {
 	AX12_SME_RxInterrupt,
 	AX12_SME_TxInterruptAX12,
 	AX12_SME_TxInterruptRX24,
+	AX12_SME_TCInterruptAX12,
+	AX12_SME_TCInterruptRX24,
 	AX12_SME_Timeout
 } AX12_state_machine_event_e;
 
@@ -866,6 +875,58 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 }
 
 //La machine a états est appelée par les interruptions de l'UART et par le timer
+
+//Légende:
+//  [  ] = nouvel état
+//  ~ : condition avant de passer à la suite
+//  - : action (seulement entre des |, sinon flèche si plusieurs - à suivre
+//
+//
+//    +------> [AX12_SMS_ReadyToSend] <---------------------------------------------------------------+
+//    |                  |                                                                            |
+//    |                  ~ !AX12_instruction_queue_is_empty()                                         |
+//    |                  |                                                                            |
+//    |                  - USART_send du premier octet du paquet de l'instruction                     |
+//    |                  |                                                                            |
+//    |          [AX12_SMS_Sending]                                                                   |
+//    |                  |                                                                            |
+//    |                  +<------------------------------------------------+                          |
+//    |                  |                                                 |                          |
+//    |                  +----------------------------+                    |                          |
+//    |                  |                            |                    |                          |
+//    |                  ~ Tout envoyé                ~ Octet à envoyer    |                          |
+//    |                  |                            |                    |                          |
+//    |                  |                            - USART_send         |                          |
+//    |                  |                            |                    |                          |
+//    |                  |                            +--------------------+                          |
+//    |                  |                                                                            |
+//    |  +---------------+                                                                            |
+//    |  |               |                                                                            |
+//    |  ~ Send timeout  ~ toutes les trames UART terminées (TC == FALSE pour les UARTs)              |
+//    |  |               |                                                                            |
+//    +<-+               +------------------------------------+                                       |
+//    ^                  |                                    |                                       |
+//    |                  ~ Réponse attendue                   ~ Pas de réponse attendue               |
+//    |                  |                                    |                                       |
+//    |                                                       +-------------------------------------->+
+//    |        [AX12_SMS_WaitingAnswer]                                                               ^
+//    |                  +                                                                            |
+//    |                  |                                                                            |
+//    |                  +<----------------------------------------------------+                      |
+//    |                  |                                                     |                      |
+//    |  +---------------+                                                     |                      |
+//    |  |               |                                                     |                      |
+//    |  ~ Recv timeout  - USART_read                                          |                      |
+//    |  |               |                                                     |                      |
+//    +--+               |--------------------------------+                    |                      |
+//                       |                                |                    |                      |
+//                       | Paquet status entier           | Paquet pas entier  |                      |
+//                       |                                |                    |                      |
+//                       |                                +--------------------+                      |
+//                       |                                                                            |
+//                       +----------------------------------------------------------------------------+
+
+
 static void AX12_state_machine(AX12_state_machine_event_e event) {
 	static volatile int processing_state = 0;
 
@@ -887,7 +948,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 //4) Si une IT arrive a ce moment, elle ne s'executera pas car processing_state > 0
 	} else if(event == AX12_SME_Timeout) {
 		AX12_UART_DisableIRQ();
-	} else if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterruptAX12 || event == AX12_SME_TxInterruptRX24) {
+	} else if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterruptAX12 || event == AX12_SME_TxInterruptRX24 || event == AX12_SME_TCInterruptAX12 || event == AX12_SME_TCInterruptRX24) {
 		TIMER_SRC_TIMER_DisableIT();
 	}
 
@@ -901,89 +962,107 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 			{
 				// Choix du paquet à envoyer et début d'envoi
 				if(!AX12_instruction_queue_is_empty())
+				{
 					state_machine.current_instruction = AX12_instruction_queue_get_current();
-				else {	//s'il n'y a rien a faire, mettre en veille la machine a état, l'UART sera donc inactif (et mettre en mode reception pour ne pas forcer la sortie dont on défini la tension, celle non relié a l'AX12)
-					while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));   //inifinite loop si uart pas initialisé
-					AX12_DIRECTION_PORT = RX_DIRECTION;
-					break;
-				}
-
-				state_machine.state = AX12_SMS_Sending;
-				AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_IN_PROGRESS;
-#ifdef AX12_UART_Ptr
-				state_machine.ax12_sending_index = 0;
-#endif
-#ifdef AX12_RX24_UART_Ptr
-				state_machine.rx24_sending_index = 0;
-#endif
-				state_machine.receive_index = 0;
 
 
-				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
-					debug_printf("AX12 Tx:");
-					for(i = 0; i<state_machine.current_instruction.size; i++)
-						debug_printf(" %02x", AX12_get_instruction_packet(i, &state_machine.current_instruction));
-					debug_printf("\n");
+					state_machine.state = AX12_SMS_Sending;
+					AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = AX12_ERROR_IN_PROGRESS;
+				#ifdef AX12_UART_Ptr
+					state_machine.ax12_sending_index = 0;
+				#endif
+				#ifdef AX12_RX24_UART_Ptr
+					state_machine.rx24_sending_index = 0;
+				#endif
+					state_machine.receive_index = 0;
+
+
+					#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
+						debug_printf("AX12 Tx:");
+						for(i = 0; i<state_machine.current_instruction.size; i++)
+							debug_printf(" %02x", AX12_get_instruction_packet(i, &state_machine.current_instruction));
+						debug_printf("\n");
+					#endif
+
+					AX12_UART_ITConfig(USART_IT_TC, DISABLE);
+					#ifdef AX12_UART_ID
+						AX12_DIRECTION_PORT_AX12 = TX_DIRECTION;
+					#endif
+					#ifdef AX12_RX24_UART_ID
+						AX12_DIRECTION_PORT_RX24 = TX_DIRECTION;
+					#endif
+
+					TIMER_SRC_TIMER_start_ms(AX12_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
+
+				#ifdef AX12_UART_Ptr
+					state_machine.ax12_sending_index++;	//Attention! Nous devons incrementer sending_index AVANT car il y a un risque que l'interuption Tx arrive avant l'incrementation lorsque cette fonction est appellée par AX12_init() (qui n'est pas dans une interruption)
+				#endif
+				#ifdef AX12_RX24_UART_Ptr
+					state_machine.rx24_sending_index++;
 				#endif
 
+					AX12_UART_putc(AX12_get_instruction_packet(0, &state_machine.current_instruction));
+					AX12_UART_ITConfig(USART_IT_TXE, ENABLE);
 
-				AX12_DIRECTION_PORT = TX_DIRECTION;
-
-				TIMER_SRC_TIMER_start_ms(AX12_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
-
-#ifdef AX12_UART_Ptr
-				state_machine.ax12_sending_index++;	//Attention! Nous devons incrementer sending_index AVANT car il y a un risque que l'interuption Tx arrive avant l'incrementation lorsque cette fonction est appellée par AX12_init() (qui n'est pas dans une interruption)
-#endif
-#ifdef AX12_RX24_UART_Ptr
-				state_machine.rx24_sending_index++;
-#endif
-
-				AX12_UART_putc(AX12_get_instruction_packet(0, &state_machine.current_instruction));
-				AX12_UART_ITConfig(USART_IT_TXE, ENABLE);
-			} /*else if(event == AX12_SME_TxInterrupt) {
-				AX12_UART_ITConfig(USART_IT_TXE, DISABLE);
-			}*/
+				}
+				else //s'il n'y a rien a faire, mettre en veille la machine a état, l'UART sera donc inactif (et mettre en mode reception pour ne pas forcer la sortie dont on défini la tension, celle non relié a l'AX12)
+				{
+//					while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));   //inifinite loop si uart pas initialisé, sinon 174us max pour 57600 bauds
+//					AX12_DIRECTION_PORT_AX12 = RX_DIRECTION;
+//					AX12_DIRECTION_PORT_RX24 = RX_DIRECTION;
+					if(!AX12_UART_GetFlagStatus(USART_FLAG_TC))
+						AX12_UART_ITConfig(USART_IT_TC, ENABLE);
+					break;
+				}
+			} else if(event == AX12_SME_TCInterruptAX12) {
+				#ifdef AX12_UART_ID
+					AX12_DIRECTION_PORT_AX12 = RX_DIRECTION;
+				#endif
+			} else if(event == AX12_SME_TCInterruptRX24) {
+				#ifdef AX12_RX24_UART_ID
+					AX12_DIRECTION_PORT_RX24 = RX_DIRECTION;
+				#endif
+			}
 		break;
 
 		case AX12_SMS_Sending:
 			if(event == AX12_SME_TxInterruptAX12 || event == AX12_SME_TxInterruptRX24)
 			{
 				if(event == AX12_SME_TxInterruptAX12) {
-#ifdef AX12_UART_Ptr
+				#ifdef AX12_UART_Ptr
 					// ax12
 					if(state_machine.ax12_sending_index < state_machine.current_instruction.size) {
 						USART_SendData(AX12_UART_Ptr, AX12_get_instruction_packet(state_machine.ax12_sending_index, &state_machine.current_instruction));
 						state_machine.ax12_sending_index++;
-					} else
+					} else {
 						USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
-#endif
+						USART_ITConfig(AX12_UART_Ptr, USART_IT_TC, ENABLE);
+					}
+				#endif
 				} else {
-#ifdef AX12_RX24_UART_Ptr
+				#ifdef AX12_RX24_UART_Ptr
 					// rx24
 					if(state_machine.rx24_sending_index < state_machine.current_instruction.size) {
 						USART_SendData(AX12_RX24_UART_Ptr, AX12_get_instruction_packet(state_machine.rx24_sending_index, &state_machine.current_instruction));
 						state_machine.rx24_sending_index++;
-					} else
+					} else {
 						USART_ITConfig(AX12_RX24_UART_Ptr, USART_IT_TXE, DISABLE);
-#endif
+						USART_ITConfig(AX12_RX24_UART_Ptr, USART_IT_TC, ENABLE);
+					}
+				#endif
 				}
-//				if(state_machine.sending_index < state_machine.current_instruction.size) {
-//					AX12_UART_putc(AX12_get_instruction_packet(state_machine.sending_index, &state_machine.current_instruction));
-//					state_machine.sending_index++;
-//				}
+			} else if(event == AX12_SME_TCInterruptAX12 || event == AX12_SME_TCInterruptRX24) {
+				if(event == AX12_SME_TCInterruptAX12) {
+					#ifdef AX12_UART_ID
+						AX12_DIRECTION_PORT_AX12 = RX_DIRECTION;
+					#endif
+				} else if(event == AX12_SME_TCInterruptRX24) {
+					#ifdef AX12_RX24_UART_ID
+						AX12_DIRECTION_PORT_RX24 = RX_DIRECTION;
+					#endif
+				}
 
-
-				if(
-		#ifdef AX12_UART_Ptr
-						state_machine.ax12_sending_index >= state_machine.current_instruction.size
-		#endif
-		#if defined(AX12_UART_Ptr) && defined(AX12_RX24_UART_Ptr)
-						&&
-		#endif
-		#ifdef AX12_RX24_UART_Ptr
-						state_machine.rx24_sending_index >= state_machine.current_instruction.size	//Le dernier paquet a été envoyé, passage en mode reception et attente de la réponse dans l'état AX12_SMS_WaitingAnswer s'il y a ou enchainement sur le prochain paquet à evnoyer (AX12_SMS_ReadyToSend)
-		#endif
-					)
+				if(AX12_UART_GetFlagStatus(USART_FLAG_TC)) // Toutes les uarts ont complété leur envoi (TC == TRUE)
 				{
 					TIMER_SRC_TIMER_stop();
 					TIMER_SRC_TIMER_resetFlag();
@@ -996,12 +1075,10 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 							pos = 0;
 						#endif
 
-						//Attente de la fin de la transmition des octets
-						//TRMT passe a 1 quand tout est envoyé (bit de stop inclu)
-						//plus d'info ici: http://books.google.fr/books?id=ZNngQv_E0_MC&lpg=PA250&ots=_ZTiXKt-8p&hl=fr&pg=PA250
-						while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));
+//						//Attente de la fin de la transmition des octets (174us max pour 57600 bauds)
+//						while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));
 
-						AX12_DIRECTION_PORT = RX_DIRECTION;
+//						AX12_DIRECTION_PORT = RX_DIRECTION;
 
 						//flush recv buffer
 						while(AX12_UART_GetFlagStatus(USART_FLAG_ORE) || AX12_UART_GetFlagStatus(USART_FLAG_FE) || AX12_UART_GetFlagStatus(USART_FLAG_NE))
@@ -1131,13 +1208,11 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				AX12_instruction_next(AX12_ERROR_TIMEOUT, 0);
 				state_machine.state = AX12_SMS_ReadyToSend;
 				AX12_state_machine(AX12_SME_NoEvent);
-			} /*else if(event == AX12_SME_TxInterrupt) {
-				AX12_UART_ITConfig(USART_IT_TXE, DISABLE);
-			}*/
+			}
 		break;
 	}
 
-	if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterruptAX12 || event == AX12_SME_TxInterruptRX24) {
+	if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterruptAX12 || event == AX12_SME_TxInterruptRX24 || event == AX12_SME_TCInterruptAX12 || event == AX12_SME_TCInterruptRX24) {
 		TIMER_SRC_TIMER_EnableIT();
 	} else if(event == AX12_SME_Timeout) {
 		AX12_UART_EnableIRQ();
@@ -1170,10 +1245,7 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 	AX12_on_the_robot[inst->id_servo].last_status.error = AX12_ERROR_IN_PROGRESS;
 	AX12_special_instruction_buffer.buffer[AX12_special_instruction_buffer.end_index] = *inst;
 	AX12_special_instruction_buffer.end_index = INC_WITH_MOD(AX12_special_instruction_buffer.end_index, AX12_INSTRUCTION_REAL_NEEDED_BUFFER_SIZE);
-	//truc = state_machine.state;
-	//if(truc == AX12_SMS_ReadyToSend)
-		AX12_state_machine(AX12_SME_NoEvent);
-	//else debug_printf("ax12 not ready, in state %d\n", truc);
+	AX12_state_machine(AX12_SME_NoEvent);
 
 	return TRUE;
 }
@@ -1245,6 +1317,7 @@ static void AX12_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate) {
 
 	USART_ITConfig(uartPtr, USART_IT_RXNE, ENABLE);
 	USART_ITConfig(uartPtr, USART_IT_TXE, DISABLE);
+	USART_ITConfig(uartPtr, USART_IT_TC, DISABLE);
 }
 
 static void AX12_UART_DisableIRQ() {
@@ -1363,6 +1436,11 @@ void _ISR AX12_UART_Interrupt(void)
 	{
 		AX12_state_machine(AX12_SME_TxInterruptAX12);
 	}
+	else if(USART_GetITStatus(AX12_UART_Ptr, USART_IT_TC))
+	{
+		AX12_state_machine(AX12_SME_TCInterruptAX12);
+		USART_ITConfig(AX12_UART_Ptr, USART_IT_TC, DISABLE);
+	}
 }
 #endif
 
@@ -1389,6 +1467,11 @@ void _ISR AX12_RX24_UART_Interrupt(void)
 	{
 		AX12_state_machine(AX12_SME_TxInterruptRX24);
 	}
+	else if(USART_GetITStatus(AX12_RX24_UART_Ptr, USART_IT_TC))
+	{
+		AX12_state_machine(AX12_SME_TCInterruptRX24);
+		USART_ITConfig(AX12_RX24_UART_Ptr, USART_IT_TC, DISABLE);
+	}
 }
 #endif
 
@@ -1408,7 +1491,7 @@ void TIMER_SRC_TIMER_interrupt()
 		}
 		i++;
 	}
-	AX12_state_machine(AX12_SME_Timeout);
+	AX12_state_machine(AX12_SME_Timeout); //Peut causer des send timeout dans certains cas très rares (si le while au dessus termine la reception d'un paquet et qu'on commence à envoyer un autre. Si c'est le cas, il y a un problème, le temps de timeout est trop juste)
 	TIMER_SRC_TIMER_resetFlag();
 }
 
@@ -1428,7 +1511,12 @@ void AX12_init() {
 
 	AX12_UART_init_all(AX12_UART_BAUDRATE);
 	TIMER_SRC_TIMER_init();
-	AX12_DIRECTION_PORT = RX_DIRECTION;
+	#ifdef AX12_UART_ID
+		AX12_DIRECTION_PORT_AX12 = RX_DIRECTION;
+	#endif
+	#ifdef AX12_RX24_UART_ID
+		AX12_DIRECTION_PORT_RX24 = RX_DIRECTION;
+	#endif
 
 	AX12_prepare_commands = FALSE;
 	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
@@ -1475,9 +1563,6 @@ void AX12_init() {
 bool_e AX12_is_ready(Uint8 id_servo) {
 	return AX12_instruction_ping(id_servo);
 }
-
-//#define AX12_async_cmd(function, command_id, ...) \
-
 
 bool_e AX12_async_is_ready(Uint8 id_servo, bool_e *isReady) {
 	AX12_status_t status = AX12_get_last_error(id_servo);
