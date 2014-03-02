@@ -18,6 +18,7 @@
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_adc.h"
 #include "../act_queue_utils.h"
+#include "../selftest.h"
 #include "config_pin.h"
 #include "Arm_config.h"
 #include "Arm_data.h"
@@ -176,6 +177,17 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
+	} else if(msg->sid == ACT_DO_SELFTEST) {
+		SELFTEST_action_t tests[ARM_INIT_NUMBER];
+		Uint8 i;
+
+		for(i = 0; i < ARM_INIT_NUMBER; i++) {
+			tests[i].canCommand = ACT_ARM_INIT;
+			tests[i].optionnal_act = QUEUE_ACT_Arm;
+			tests[i].param = ARM_INIT[i];
+		}
+
+		SELFTEST_set_actions(&ARM_run_command, ARM_INIT_NUMBER, tests);
 	}
 
 	return FALSE;
