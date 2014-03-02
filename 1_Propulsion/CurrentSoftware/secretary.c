@@ -606,6 +606,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case DEBUG_PROPULSION_REGLAGE_COEF_KV_TRANSLATION:
 			CORRECTOR_set_coef(CORRECTOR_COEF_KV_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
+		case DEBUG_ENABLE_MODE_BEST_EFFORT:
+			global.mode_best_effort_enable = TRUE;
+		break;
 		case CARTE_ASSER_FIN_ERREUR:
 			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
 		break;

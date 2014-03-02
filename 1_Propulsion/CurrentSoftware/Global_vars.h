@@ -110,7 +110,7 @@
 
 		volatile bool_e alim;
 		volatile Uint16 alim_value;			// en mV
-
+		volatile bool_e mode_best_effort_enable;
 
 
 #endif /* ndef GLOBAL_VARS_H */
