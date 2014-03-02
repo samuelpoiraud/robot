@@ -56,7 +56,7 @@ typedef enum {
 typedef enum {
 	ACT_Lance_1_BALL =  ACT_LANCELAUNCHER_RUN_1_BALL,
 	ACT_Lance_5_BALL = ACT_LANCELAUNCHER_RUN_5_BALL,
-	ACT_Lance_ALL = ACT_LANCELAUNCHER_RUN_ALL,
+	ACT_Lance_ALL = ACT_LANCELAUNCHER_RUN_ALL
 } ACT_lance_launcher_cmd_e;
 
 typedef enum {
@@ -83,6 +83,7 @@ bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param);
 bool_e ACT_filet_launch(ACT_filet_cmd_e cmd);
 bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);
 bool_e ACT_pompe_order(ACT_pompe_cmd_e cmd, Uint8 param);
+bool_e ACT_arm_goto(ARM_state_e position);
 
 ////////////////////////////////////////
 //////////////// KRUSTY ////////////////

@@ -105,6 +105,15 @@ bool_e ACT_POMPE_order(ACT_pompe_cmd_e cmd, Uint8 param){
 	return ACT_push_operation(ACT_QUEUE_Pompe, &args);
 }
 
+bool_e ACT_arm_goto(ARM_state_e position) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_ARM, position);
+
+	debug_printf("Pushing ARM goto %d\n", position);
+	return ACT_push_operation(ACT_QUEUE_Arm, &args);
+}
+
 // <editor-fold desc="Krusty">
 
 bool_e ACT_ball_launcher_run(Uint16 speed) {

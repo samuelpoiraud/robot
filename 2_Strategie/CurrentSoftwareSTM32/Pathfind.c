@@ -103,7 +103,6 @@ pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, Uint32 filteredNodes
 {
 	Uint16 dist, minDist = 65535;
 	pathfind_node_id_t n, closestNode = NOT_IN_NODE;
-	Uint8 i;
 
 	for (n = 0; n < PATHFIND_NODE_NB; n++)
 	{
