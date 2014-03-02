@@ -210,12 +210,13 @@ bool_e SD_analyse(void)
 		res = f_getfree("", (DWORD*)&p2, &fs);
 		if (res == FR_OK)
 		{
-			debug_printf("MOUNTED > %s, %lu Bytes/Cluster, %u FATs, %u root DIR entries, %lu Sectors\n",
-
-			(fs->fs_type==FS_FAT12) ? "FAT12" : (fs->fs_type==FS_FAT16) ? "FAT16" : "FAT32",
-			(DWORD)fs->csize * 512, (WORD)fs->n_fats,
-			fs->n_rootdir, fs->sects_fat, (DWORD)fs->max_clust - 2
-			);
+			debug_printf("MOUNTED > %s, %lu Bytes/Cluster, %u FATs, %u root DIR entries, %lu Sectors, %lu Clusters\n",
+						 (fs->fs_type==FS_FAT12) ? "FAT12" : (fs->fs_type==FS_FAT16) ? "FAT16" : "FAT32",
+						 (DWORD)fs->csize * 512,
+						 (WORD)fs->n_fats,
+						 fs->n_rootdir,
+						 fs->sects_fat,
+						 (DWORD)fs->max_clust - 2);
 			return TRUE;
 		}
 		else

@@ -119,7 +119,7 @@ void DETECTION_compute(void)
 /* Message can recu avec des infos concernant les adversaires... */
 void DETECTION_pos_foe_update (CAN_msg_t* msg)
 {
-	bool_e slashn;
+	//bool_e slashn;
 	Uint8 fiability;
 	Uint8 adversary_nb;
 	switch(msg->sid)

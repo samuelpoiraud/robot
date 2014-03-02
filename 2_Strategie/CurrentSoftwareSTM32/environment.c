@@ -473,8 +473,8 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.env.pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
 	global.env.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
 	global.env.pos.translation_speed = ((Uint16)(msg->data[0] >> 5))*250;	// [mm/sec]
-	if(global.env.pos.translation_speed > 1500)
-		debug_printf("");
+//	if(global.env.pos.translation_speed > 1500)
+//		debug_printf("");
 	global.env.pos.rotation_speed =	((Uint16)(msg->data[2] >> 5));		// [rad/sec]
 	global.env.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
 	COS_SIN_4096_get(global.env.pos.angle, &cosinus, &sinus);

@@ -41,6 +41,7 @@ typedef enum {
 	ACT_QUEUE_Filet,
 	ACT_QUEUE_Small_arm,
 	ACT_QUEUE_Pompe,
+	ACT_QUEUE_Arm,
 
 	NB_QUEUE
 } queue_id_e;

@@ -118,7 +118,7 @@ void display_pos(){
 void display_beacon(){
 	static Sint16 d1,d2,a1,a2;
 
-	if(global.env.foe[0].updated==TRUE | global.env.foe[1].updated==TRUE){
+	if(global.env.foe[0].updated==TRUE || global.env.foe[1].updated==TRUE){
 		d1 = global.env.foe[0].dist;
 		a1 = global.env.foe[0].angle;
 		d2 = global.env.foe[1].dist;

@@ -284,6 +284,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			act_id = ACT_QUEUE_Small_arm;
 			break;
 
+		case ACT_ARM & 0xFF:
+			act_id = ACT_QUEUE_Arm;
+			break;
+
 		//Pierre
 		case ACT_FRUIT_MOUTH & 0xFF:
 			act_id = ACT_QUEUE_Fruit;
