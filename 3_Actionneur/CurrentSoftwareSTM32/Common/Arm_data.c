@@ -43,12 +43,23 @@ const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_dat
 // Changement d'état possible (ligne -> colonne)
 //                              lignes         colonnes
 //                             ancien état    nouvel état
-bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {
+const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {
 //   ARM_ST_Parked     ARM_ST_Open       ARM_ST_Mid
 	{1                ,0                ,1                }, //ARM_ST_Parked
 	{1                ,1                ,1                }, //ARM_ST_Open
 	{0                ,1                ,1                }  //ARM_ST_Mid
 };
+
+
+// Etats à prendre pour initialiser le bras dans une position connue
+const ARM_state_e ARM_INIT[] = {
+	ACT_ARM_POS_OPEN,
+	ACT_ARM_POS_MID,
+	ACT_ARM_POS_PARKED
+};
+
+
+const Uint8 ARM_INIT_NUMBER = sizeof(ARM_INIT) / sizeof(ARM_state_e);
 
 
 //Fonctions de récupération des positions des moteurs DC

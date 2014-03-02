@@ -36,7 +36,6 @@ const char* ARM_STATES_NAME[] = {
 
 static void ARM_initAX12();
 
-#warning "à changer pour une valeur indiquant qu'on ne connait pas l'etat actuel du bras"
 static Sint8 old_state = 0;
 
 static bool_e gotoState(ARM_state_e state);
@@ -125,6 +124,11 @@ static void ARM_initAX12() {
 	}
 }
 
+void ARM_initPos() {
+	CAN_msg_t msg = {ACT_ARM, {ACT_ARM_INIT}, 1};
+	ARM_CAN_process_msg(&msg);
+}
+
 void ARM_stop() {
 	Uint8 i;
 	for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
@@ -150,6 +154,24 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				ARM_stop();
 				break;
 
+			case ACT_ARM_INIT: {
+				queue_id_t queueId = QUEUE_create();
+				assert(queueId != QUEUE_CREATE_FAILED);
+				if(queueId != QUEUE_CREATE_FAILED) {
+					Uint8 i;
+					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
+
+					for(i = 0; i < ARM_INIT_NUMBER; i++) {
+						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], ARM_INIT[i], &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
+					}
+
+					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
+				} else {	//on indique qu'on a pas géré la commande
+					ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
+				}
+				break;
+			}
+
 			default:
 				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
@@ -169,9 +191,18 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 		Sint16 new_state = QUEUE_get_arg(queueId)->param;
 
 		if(init) {
-			if(old_state < 0 || ARM_STATES_TRANSITIONS[old_state][new_state] == 0) {
+			Uint8 canCommand = QUEUE_get_arg(queueId)->canCommand;
+
+			if(old_state < 0 && canCommand != ACT_ARM_INIT) {
+				warn_printf("Etat non initialisé, impossible d\'aller à l\'état %s(%d)\n",
+							ARM_STATES_NAME[new_state], new_state);
+				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+				return;
+			}
+
+			if(old_state >= 0 && ARM_STATES_TRANSITIONS[old_state][new_state] == 0) {
 				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
-				warn_printf("Déplacement impossible de l'etat %s(%d) to %s(%d)\n",
+				warn_printf("Déplacement impossible de l\'etat %s(%d) à %s(%d)\n",
 							ARM_STATES_NAME[old_state], old_state,
 							ARM_STATES_NAME[new_state], new_state);
 				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
@@ -179,7 +210,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 			}
 
 			debug_printf("Going from state %s(%d) to %s(%d)\n",
-						 ARM_STATES_NAME[old_state], old_state,
+						 (old_state >= 0) ? ARM_STATES_NAME[old_state] : "non-initialisé", old_state,
 						 ARM_STATES_NAME[new_state], new_state);
 			gotoState(new_state);
 
@@ -204,8 +235,9 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				//Si au moins un moteur n'a pas pu correctement se déplacer, alors on a fail l'action et on retourne à la position précédente
 				if(done && result != ACT_RESULT_DONE) {
 					return_result = TRUE;
-					QUEUE_get_arg(queueId)->param = old_state;
-					gotoState(old_state);
+					if(old_state >= 0) {
+						gotoState(old_state);
+					}
 					break;
 				}
 			}
@@ -225,6 +257,9 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 static bool_e gotoState(ARM_state_e state) {
 	bool_e ok = TRUE;
 	Uint8 i;
+
+	if(state < 0 || state >= ARM_ST_NUMBER)
+		return FALSE;
 
 	for(i = 0; ok && i < ARM_MOTORS_NUMBER; i++) {
 		if(ARM_MOTORS[i].type == ARM_DCMOTOR) {

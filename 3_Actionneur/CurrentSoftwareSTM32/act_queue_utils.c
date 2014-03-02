@@ -38,8 +38,6 @@ void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t a
 		QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data[0], param, &ACTQ_finish_SendResult}, act_id);
 		QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, act_id);
 	} else {	//on indique qu'on a pas géré la commande
-		//CAN_msg_t resultMsg = {ACT_RESULT, {msg->sid & 0xFF, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES}, 4};
-		//CAN_send(&resultMsg);
 		ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 	}
 }
