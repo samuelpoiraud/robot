@@ -475,6 +475,10 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 
 		#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
 
+
+		//Pas utilisé par la strat mais ici pour être testable
+		#define ACT_ARM_INIT 3
+
 		// Positions prise par le bras
 		// Pour ajouter une position, ajoutez une ligne avec:
 		// XX(<nom état>) \                                                                            text ici pour garder des espaces après le slash, sinon multiline comment
