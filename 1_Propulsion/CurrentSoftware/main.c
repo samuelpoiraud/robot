@@ -119,6 +119,7 @@ void initialisation(void)
 	SUPERVISOR_init();
 	COPILOT_init();
 	PILOT_init();
+	global.mode_best_effort_enable = FALSE;
 
 	ROADMAP_init();
 	WARNER_init();

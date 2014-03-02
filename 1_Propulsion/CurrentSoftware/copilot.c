@@ -71,11 +71,25 @@ void COPILOT_process_it(void)
 
 	if(arrived !=ARRIVED)
 	{
-		//la position du point fictif dans le référentiel PD est juste devant nous, à l'écart pret...
-		//si vous comprenez pas, contactez Nirgal : samuelp5@gmail.com
-		global.position_rotation -= global.real_position_rotation >> 10;	//global.ecart_rotation_prec;
-		global.position_translation -= global.real_position_translation;//global.ecart_translation_prec;
-
+		if(global.mode_best_effort_enable)
+		{
+			//Ce mode est utilisé pour les réglages de coefs... c'est un mode de débogage.
+			//Dans ce mode, le robot ne suit pas un point qui a toujours la même trajectoire...
+			//le point suivi est en fait recalculé EN FONCTION de la position REELLE du robot
+			//Donc si le robot dévie de sa trajectoire (perturbation...), celle ci est recalculée en permanence !
+			//Cela provoque des trajectoires aléatoires, surtout si les coefs sont mal réglés
+			//Ce qui veut dire que c'est pratique pour régler les coefs !
+			global.position_rotation = global.ecart_rotation_prec;
+			global.position_translation = global.ecart_translation_prec;
+		}
+		else
+		{		//MODE NORMAL !
+			//On retranche de la position du référentiel IT l'avancement réel du robot (avec un robot parfait, on retomberait à 0)
+			//Si le robot n'a pas parfaitement avancé de ce que l'on espérait, cette position sera non nulle...
+			//	et prise en compte par l'asservissement, qui devra ajouter/retirer un poil de jus sur les moteurs pour compenser cette erreur...
+			global.position_rotation -= global.real_position_rotation >> 10;
+			global.position_translation -= global.real_position_translation;
+		}
 		//on remet a jour le point destination dans le référentiel IT
 		COPILOT_update_destination_translation();
 		COPILOT_update_destination_rotation();
