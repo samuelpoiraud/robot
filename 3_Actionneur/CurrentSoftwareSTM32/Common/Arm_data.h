@@ -45,11 +45,13 @@ typedef struct {
 extern const ARM_motor_data_t ARM_MOTORS[];
 extern const Uint8 ARM_MOTORS_NUMBER;
 
-//extern Sint16 ARM_STATES[ARM_ST_NUMBER][ARM_MOTORS_NUMBER];
-
 //                                    lignes         colonnes
 //                                   ancien état    nouvel état
-extern bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER];
+extern const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER];
+
+// Etats à prendre pour initialiser le bras dans une position connue
+extern const ARM_state_e ARM_INIT[];
+extern const Uint8 ARM_INIT_NUMBER;
 
 extern bool_e ARM_ax12_is_initialized[];
 Sint16 ARM_get_motor_pos(ARM_state_e state, Uint8 motor);
