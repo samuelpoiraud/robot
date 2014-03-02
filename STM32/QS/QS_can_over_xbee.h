@@ -52,8 +52,8 @@
 
 
 	//Possibilité pour faire correspondre l'applicatif aux modules utilisés :
-	#define BIG_ROBOT_MODULE	MODULE_C
-	#define SMALL_ROBOT_MODULE	MODULE_1
+	#define BIG_ROBOT_MODULE	MODULE_1
+	#define SMALL_ROBOT_MODULE	MODULE_C
 	#define BALISE_MERE			MODULE_2
 	
 	void CAN_over_XBee_init(module_id_e me, module_id_e destination);
