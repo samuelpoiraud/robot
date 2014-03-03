@@ -127,7 +127,7 @@ void initialisation(void)
 	JOYSTICK_init();
 	DEBUG_init();
 	BUTTONS_init();
-	BUTTONS_define_actions(BUTTON0,&blue_button_action, NULL, 1);
+	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
 	BUTTONS_define_actions(BUTTON1,&calibration_button_action, NULL, 1);
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
