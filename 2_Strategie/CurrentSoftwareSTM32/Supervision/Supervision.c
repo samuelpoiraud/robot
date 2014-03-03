@@ -59,7 +59,7 @@ void Supervision_init(void)
 }
 volatile Uint8 flag_1sec = 0;
 volatile Uint8 flag_xbee_msg = 0;	//Flag qui indique qu'un envoi de message sur XBee doit être fait..
-#define PERIOD_XBEE_MSG		100		//[ms]
+#define PERIOD_XBEE_MSG		200		//[ms]
 void Supervision_process_1ms(void)
 {
 	static Uint16 t_ms = 0;

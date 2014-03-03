@@ -124,8 +124,7 @@ int main (void)
 		STACKS_run();
 		QUEUE_run();
 
-		any_match(MATCH_DURATION);
-//		any_match(0);	//#warning "MATCH INFINI pour test evitement !!!"
+		any_match();
 
 		process_measure_loop_duration();
 	}

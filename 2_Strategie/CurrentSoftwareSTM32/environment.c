@@ -177,8 +177,10 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 	}
 
 	//Propagation du message CAN.
-	if(bCAN && bCAN_filter)
-		CAN_send(incoming_msg);
+	#ifndef MODE_SIMULATION
+		if(bCAN && bCAN_filter)
+			CAN_send(incoming_msg);
+	#endif
 
 	if(bUART_filter)
 	{
@@ -194,7 +196,11 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 			if(SWITCH_VERBOSE)
 				VERBOSE_CAN_MSG_print(incoming_msg);
 			else
-				CANmsgToU1tx(incoming_msg);
+			{
+				#ifndef MODE_SIMULATION	//Pour ne pas spammer l'UART en mode simulation... On ne doit y voir que les messages CAN réellement envoyés.
+					CANmsgToU1tx(incoming_msg);
+				#endif
+			}
 		}
 
 		if(SWITCH_DEBUG  && !SWITCH_XBEE && bU2)

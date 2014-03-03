@@ -17,6 +17,7 @@
 #include "Stacks.h"
 #include "clock.h"
 #include "button.h"	//pour SWITCH_change_color
+#include "environment.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"
 #include "QS/QS_who_am_i.h"
@@ -39,7 +40,7 @@
  **************************************************************/
 
 // GROS = PIERRE (pour la cohérence pour les années suivantes
-#define STRAT_0_GROS Strat_Detection_Triangle
+#define STRAT_0_GROS strat_reglage_asser
 #define STRAT_1_GROS Strat_Detection_Triangle
 #define STRAT_2_GROS Strat_Detection_Triangle
 #define STRAT_3_GROS test_strat_robot_virtuel_with_avoidance
@@ -56,11 +57,12 @@
 	Appelle une autre routine pour l'IA pendant le match.
 	Une durée de 0 indique un match infini
 */
-void any_match(time32_t match_duration)
+void any_match(void)
 {
 	static ia_fun_t strategy;
 	static calibration_square_e calibration = ASSER_CALIBRATION_SQUARE_1;
 	static way_e calibration_way = ANY_WAY;
+	static time32_t match_duration = MATCH_DURATION;
 	if (!global.env.match_started)
 	{
 		/* we are before the match */
@@ -159,6 +161,10 @@ void any_match(time32_t match_duration)
 			}
 		}
 
+		if(strategy == strat_reglage_asser)	//Liste ici les stratégie "infinies"...
+			match_duration = 0;
+		else
+			match_duration = MATCH_DURATION;
 	}
 	else
 	{

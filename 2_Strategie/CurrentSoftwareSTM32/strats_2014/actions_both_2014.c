@@ -32,7 +32,6 @@
 #define ODOMETRIE_PLAGE_TRANSLATION 2 // + ou -
 
 
-
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions de réglage odométrique		             */
 /* ----------------------------------------------------------------------------- */
@@ -117,17 +116,8 @@ void strat_reglage_odo_rotation(void){
 		debug_printf("REINIT\n\n");
 
 		debug_printf("\nGlobale variable de x %d\n	de y %d\n l'angle %d\n",global.env.pos.x,global.env.pos.y,global.env.pos.angle);
-
-		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=1000 >> 8;	//Je lui dis qu'il est au milieu du terrain ( si je mets 0, il risque d'aller dans les négatifs)
-		msg.data[1]=1000 & 0xFF;
-		msg.data[2]=LARGEUR_ROBOT/2 >> 8;
-		msg.data[3]=LARGEUR_ROBOT/2 & 0xFF;
-		msg.data[4]=PI4096/2 >> 8;
-		msg.data[5]=PI4096/2 & 0xFF;
-		msg.size=6;
-		CAN_send(&msg);
-
+		ASSER_set_position(1000, LARGEUR_ROBOT/2, PI4096/2);
+		//Je lui dis qu'il est au milieu du terrain ( si je mets 0, il risque d'aller dans les négatifs)
 		state = CALAGE;
 
 		break;
@@ -310,19 +300,9 @@ void strat_reglage_odo_translation(void){
 
 	case REINIT:	// Envoie le message can pour réinitialiser la position ou a minima l'angle du robot
 		//send message can set(0,0,0);  le robot doit se trouver a peut pres a set(2000,500,PI4096)
-
 		debug_printf("REINIT\n\n");
-
-		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=1000 >> 8;	//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
-		msg.data[1]=1000 & 0xFF;
-		msg.data[2]=LARGEUR_ROBOT/2 >> 8;
-		msg.data[3]=LARGEUR_ROBOT/2 & 0xFF;
-		msg.data[4]=PI4096/2 >> 8;
-		msg.data[5]=PI4096/2 & 0xFF;
-		msg.size=6;
-		CAN_send(&msg);
-
+		ASSER_set_position(1000, LARGEUR_ROBOT/2, PI4096/2);
+		//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
 		state = CALAGE;
 
 		break;
@@ -462,16 +442,8 @@ void strat_reglage_odo_symetrie(void){
 
 		debug_printf("REINIT\n\n");
 
-		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=500 >> 8;	//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
-		msg.data[1]=500 & 0xFF;
-		msg.data[2]=LARGEUR_ROBOT/2 >> 8;
-		msg.data[3]=LARGEUR_ROBOT/2 & 0xFF;
-		msg.data[4]=PI4096/2 >> 8;
-		msg.data[5]=PI4096/2 & 0xFF;
-		msg.size=6;
-		CAN_send(&msg);
-
+		ASSER_set_position(500, LARGEUR_ROBOT/2, PI4096/2);
+		//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
 		state = CALAGE;
 
 		break;
@@ -524,6 +496,276 @@ void strat_reglage_odo_symetrie(void){
 }
 
 
+typedef enum
+{
+	KPT_COMPUTE = 0,
+	KDT_COMPUTE,
+	KPR_COMPUTE,
+	KDR_COMPUTE,
+	COEF_NB
+}coefs_e;
+//COEFS par défaut pour les robots...
+const Uint32 default_coefs_small_robot[COEF_NB] =	{		16,		5,		0x50,		0x100	};
+const Uint32 default_coefs_big_robot[COEF_NB] =		{		32,		0x36,	0xA0,		0x800	};
+static coefs_e current_coef;
+
+void send_coef(coefs_e coef, Uint32 value)
+{
+	CAN_msg_t msg;
+	debug_printf("send coef : ");
+	switch(coef)
+	{
+		case KPT_COMPUTE:	msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_KP_TRANSLATION;		debug_printf("Kp translation");	break;
+		case KDT_COMPUTE:	msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_KD_TRANSLATION;		debug_printf("Kd translation");	break;
+		case KPR_COMPUTE:	msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_KP_ROTATION;		debug_printf("Kp rotation");	break;
+		case KDR_COMPUTE:	msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_KD_ROTATION;		debug_printf("Kd rotation");	break;
+		default:				break;
+	}
+	msg.data[0] = HIGHINT(value);
+	msg.data[1] = LOWINT(value);
+	msg.size = 2;
+	debug_printf(" = %ld\n",value);//TODO
+	CAN_send(&msg);
+}
+
+void send_default_coefs(void)
+{
+	Uint8 i;
+	const Uint32 * default_coefs;
+	debug_printf("SEND DEFAULT COEFS...\n");
+	if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+		default_coefs = default_coefs_small_robot;
+	else
+		default_coefs = default_coefs_big_robot;
+	for(i=0;i<COEF_NB;i++)		//On charge les coefs par défaut.
+		send_coef(i, default_coefs[i]);
+}
+
+#define PRECISION	16	//Puissance de 2... plus c'est élevé, plus on cherchera un coef précis...
+
+//Précondition : la première trajectoire (coefs par défaut) doit fonctionner sans FAIL !!
+bool_e strat_reglage_asser_compute_coefs(time32_t duration)
+{
+	CREATE_MAE_WITH_VERBOSE(0,
+				INIT,
+				FIRST_MEASURE_LAUNCH,
+				FIRST_MEASURE_SAVE_DURATION,
+				LOOKING_FOR_MAXIMUM,
+				LOOKING_FOR_MAXIMUM_COMPARE_DURATION,
+				LOOKING_FOR_MINIMUM,
+				LOOKING_FOR_MINIMUM_COMPARE_DURATION,
+				LOOKING_FOR_BEST,
+				LOOKING_FOR_BEST_ADD_OFFSET,
+				LOOKING_FOR_BEST_SUB_OFFSET,
+				LOOKING_FOR_BEST_ANALYSE,
+				NEXT_COEF
+				);
+	static Uint32 best_coefs[COEF_NB];
+	static Uint32 multiply_value, divide_value, offset, current_value;
+	static time32_t best_duration;
+	Uint8 i;
+	bool_e update_coef_and_return_true = FALSE;
+	switch(state)
+	{
+		case INIT:
+			for(i=0;i<COEF_NB;i++)		//On charge les coefs par défaut.
+			{
+				if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+					best_coefs[i] = default_coefs_small_robot[i];
+				else
+					best_coefs[i] = default_coefs_big_robot[i];
+			}
+			current_coef = KPT_COMPUTE;	//Premier coef à éprouver
+			state = FIRST_MEASURE_LAUNCH;
+			break;
+		case FIRST_MEASURE_LAUNCH:
+			current_value = best_coefs[current_coef];
+			multiply_value = 1;
+			divide_value = 1;
+			update_coef_and_return_true = TRUE;
+			state = FIRST_MEASURE_SAVE_DURATION;
+			break;
+		case FIRST_MEASURE_SAVE_DURATION:
+			best_duration = duration;
+			state = LOOKING_FOR_MAXIMUM;
+			break;
+		case LOOKING_FOR_MAXIMUM:
+			multiply_value *=2;
+			current_value = best_coefs[current_coef] * multiply_value;
+			update_coef_and_return_true = TRUE;
+			if(multiply_value < 4096)
+				state = LOOKING_FOR_MAXIMUM_COMPARE_DURATION;
+			else
+				state = LOOKING_FOR_MINIMUM;
+			break;
+		case LOOKING_FOR_MAXIMUM_COMPARE_DURATION:
+			if(duration < best_duration)	//On obtient mieux, on continue de multiplier
+			{
+				best_coefs[current_coef] = current_value;
+				best_duration = duration;
+				state = LOOKING_FOR_MAXIMUM;
+			}
+			else							//On a trouvé le maximum..
+				state = LOOKING_FOR_MINIMUM;
+			break;
+		case LOOKING_FOR_MINIMUM:
+			divide_value *=2;
+			current_value = best_coefs[current_coef] / divide_value;
+			update_coef_and_return_true = TRUE;
+			if(current_value != 0)
+				state = LOOKING_FOR_MINIMUM_COMPARE_DURATION;
+			else
+				state = LOOKING_FOR_BEST;
+			break;
+		case LOOKING_FOR_MINIMUM_COMPARE_DURATION:
+			if(duration < best_duration)	//On obtient mieux, on continue de diviser
+			{
+				best_coefs[current_coef] = current_value;
+				best_duration = duration;
+				state = LOOKING_FOR_MINIMUM;
+			}
+			else							//On a trouvé le maximum..
+				state = LOOKING_FOR_BEST;
+			break;
+		case LOOKING_FOR_BEST:
+			//On a une "meilleure valeur", à x2 ou /2 prêt... go pour la dichotomie...
+			multiply_value = PRECISION;
+			state = LOOKING_FOR_BEST_ADD_OFFSET;
+
+			break;
+		case LOOKING_FOR_BEST_ADD_OFFSET:
+			multiply_value /= 2;
+			if(multiply_value)
+			{
+				offset = (best_coefs[current_coef] * multiply_value)/PRECISION;
+				current_value = best_coefs[current_coef] + offset;	//On essaye d'ajouter l'offset
+				update_coef_and_return_true = TRUE;
+				state = LOOKING_FOR_BEST_SUB_OFFSET;
+			}
+			else
+				state = NEXT_COEF;
+			break;
+		case LOOKING_FOR_BEST_SUB_OFFSET:
+			if(duration < best_duration)	//C'était mieux en ajoutant l'offset
+			{
+				best_coefs[current_coef] = current_value;
+				best_duration = duration;
+				state = LOOKING_FOR_BEST_ADD_OFFSET;
+			}
+			else
+			{
+				current_value = best_coefs[current_coef] - offset;	//On essaye d'enlever l'offset
+				update_coef_and_return_true = TRUE;
+				state = LOOKING_FOR_BEST_ANALYSE;
+			}
+			break;
+		case LOOKING_FOR_BEST_ANALYSE:
+			if(duration < best_duration)	//C'était mieux en retirant l'offset
+			{
+				best_coefs[current_coef] = current_value;
+				best_duration = duration;
+			}
+			state = LOOKING_FOR_BEST_ADD_OFFSET;
+			break;
+		case NEXT_COEF:
+			debug_printf("_____________________\n\tBest coef for ");
+			switch(current_coef)
+			{
+				case KPT_COMPUTE:	debug_printf("Kp translation");	break;
+				case KDT_COMPUTE:	debug_printf("Kd translation");	break;
+				case KPR_COMPUTE:	debug_printf("Kp rotation");	break;
+				case KDR_COMPUTE:	debug_printf("Kd rotation");	break;
+				default:											break;
+			}
+			debug_printf("is %ld",best_coefs[current_coef]);
+			current_coef = (current_coef < COEF_NB - 1)?(current_coef+1):0;
+			state = FIRST_MEASURE_LAUNCH;
+			break;
+		default:
+			break;
+	}
+	if(update_coef_and_return_true)
+	{
+		send_coef(current_coef, current_value);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
+void strat_reglage_asser(void)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_COEF_ASSER,
+			INIT,
+			COMPUTE_COEFS,
+			TRAJECTORY,
+			ROTATION,
+			FAILED,
+			ERROR_STATE,
+			PRINT_RESULT,
+			ROTATION_FAILED,
+			DONE);
+
+	static time32_t t_begin;
+	static time32_t duration = 0;
+	#define DISPLACEMENTS_NB 5
+	displacement_t displacements[DISPLACEMENTS_NB] = {
+			{{1000,2000},FAST},
+			{{1200,1500},FAST},
+			{{1000,1250},FAST},
+			{{800,750},FAST},
+			{{1000,500},FAST},
+		};
+
+	switch(state)
+	{
+		case INIT:
+			debug_printf("Lancement de la stratégie de réglage des coefs.\n);");
+			debug_printf("Assurez vous que le robot est à 50cm de la bordure derrière lui, qu'il a 2m devant lui et 80cm de chaque coté...\n");
+			//Send mode BEST_EFFORT
+			CAN_send_sid(DEBUG_ENABLE_MODE_BEST_EFFORT);
+			ASSER_set_position(1000,500,PI4096/2);
+			send_default_coefs();
+			state = COMPUTE_COEFS;
+			break;
+		case COMPUTE_COEFS:
+			if(strat_reglage_asser_compute_coefs(duration))
+				state = TRAJECTORY;
+			break;
+		case TRAJECTORY:
+			if(entrance)
+				t_begin = global.env.absolute_time;
+			state = try_going_multipoint(displacements, DISPLACEMENTS_NB, TRAJECTORY, ROTATION, FAILED, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
+		case ROTATION:
+			state = try_go_angle(PI4096/2, ROTATION, PRINT_RESULT, FAILED, FAST);
+			break;
+		case PRINT_RESULT:
+			duration = global.env.absolute_time - t_begin;
+			debug_printf("END : t=%ldms\n", duration);
+			state = COMPUTE_COEFS;
+			break;
+		case FAILED:
+			if(entrance)
+			{
+				debug_printf("FAILED : come back home...\n");
+				duration = 100000;	//fausse durée de fail : 100 secondes.
+				send_coef(current_coef, ((QS_WHO_AM_I_get()==SMALL_ROBOT)?default_coefs_small_robot[current_coef]:default_coefs_big_robot[current_coef]));
+			}
+			state = try_going(1000,500, FAILED, ROTATION_FAILED, ERROR_STATE, FAST, ANY_WAY, NO_AVOIDANCE);
+			break;
+		case ROTATION_FAILED:
+			state = try_go_angle(PI4096/2, ROTATION_FAILED, COMPUTE_COEFS, FAILED, FAST);
+			break;
+		case ERROR_STATE:
+			if(entrance)
+				debug_printf("Fin de la stratégie, échec du déplacement\n");
+			break;
+		default:
+			break;
+	}
+
+}
 
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions d'homologation			                 */

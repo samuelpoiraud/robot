@@ -35,6 +35,8 @@
 	/* Accesseur en écriture sur les arguments de la pile ASSER */ 
 	void ASSER_set_stack_arg(asser_arg_t arg, Uint8 index);
 	
+	void ASSER_set_position(Sint16 x, Sint16 y, Sint16 teta);
+
 	/* Va a la position indiquée, se termine à l'arret */
 	void ASSER_goto (stack_id_e stack_id, bool_e init);
 
