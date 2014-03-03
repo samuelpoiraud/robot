@@ -17,8 +17,8 @@
 
 
 	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
-//	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
-//	#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
+	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
 	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
 	//#define LCD_TOUCH								//Active le LCD tactile
 
@@ -166,8 +166,8 @@
 	#define TINY_KD_TRANSLATION 	(0x05) //0x80
 	#define KRUSTY_KD_TRANSLATION 	(0x36) //0x80
 
-	#define TINY_KP_TRANSLATION 	(0x01) //0x03
-	#define KRUSTY_KP_TRANSLATION 	(0x02) //0x03
+	#define TINY_KP_TRANSLATION 	(16)
+	#define KRUSTY_KP_TRANSLATION 	(32)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
