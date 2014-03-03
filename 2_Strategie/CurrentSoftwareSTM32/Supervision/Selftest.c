@@ -457,6 +457,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_NO_POWER:							debug_printf("NO_POWER");								break;
 				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");								break;
 				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");							break;
+				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");			break;
 				case SELFTEST_PROP_DT10_1_FAILED:				debug_printf("PROP_DT10_1_FAILED");						break;
 				case SELFTEST_PROP_DT10_2_FAILED:				debug_printf("PROP_DT10_2_FAILED");						break;
 				case SELFTEST_PROP_DT10_3_FAILED:				debug_printf("PROP_DT10_3_FAILED");						break;
