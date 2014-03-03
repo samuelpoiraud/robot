@@ -29,4 +29,6 @@ void test_Pathfind(void);
 
 void test_strat_robot_virtuel_with_avoidance(void);
 
+void strat_reglage_asser(void);
+
 #endif
