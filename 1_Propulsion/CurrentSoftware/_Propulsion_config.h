@@ -86,8 +86,8 @@
 //POUR REGLER L'ODOMETRIE:
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
-	#define TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C10
-	#define KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C35  //Original 0x0C47
+	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C10
+	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C35  //Original 0x0C47
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
@@ -97,11 +97,11 @@
 	//Si le robot va trop loin, il faut augmenter le coeff et vice versa
 
 
-	#define TINY_ODOMETRY_COEF_SYM_DEFAULT (0)
-	#define KRUSTY_ODOMETRY_COEF_SYM_DEFAULT 0x0029
+	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (0)
+	#define BIG_ODOMETRY_COEF_SYM_DEFAULT 0x0029
 
-	#define TINY_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010AC0//0XA054	//(CHOMP : 43632)	Théorique : 41335
-	#define KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000C5AD  //Secondaire 0x0000C581 // Original 0x0000C5A2
+	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010AC0//0XA054	//(CHOMP : 43632)	Théorique : 41335
+	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000C5AD  //Secondaire 0x0000C581 // Original 0x0000C5A2
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
 	// COEF_ODOMETRIE_ROTATION = 1024*4096*16*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
 	// d : diametre des roues codeuse en mm = 60
@@ -119,40 +119,67 @@
 	//Amusez vous !
 
 	//COEF_ODOMETRIE_CENTRIFUGE permet de régler la variation d'odométrie en courbe
-	#define TINY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
-	#define KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
+	#define SMALL_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
+	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
 
 	//à regler avec éléments mécaniques de blocages extrèmement parallèles à l'axe des codeurs !
-	#define TINY_CALIBRATION_BACKWARD_BORDER_DISTANCE 	74 		//distance entre le 'centre' du robot et l'arrière en calage
-	#define TINY_CALIBRATION_FORWARD_BORDER_DISTANCE 	74 		//distance entre le 'centre' du robot et l'avant en calage
+	#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE 	83		//distance entre le 'centre' du robot et l'arrière en calage
+	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	83 		//distance entre le 'centre' du robot et l'avant en calage
 
-	#define KRUSTY_CALIBRATION_BACKWARD_BORDER_DISTANCE 120 		//distance entre le 'centre' du robot et l'arrière en calage
-	#define KRUSTY_CALIBRATION_FORWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'avant en calage
+	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	125 		//distance entre le 'centre' du robot et l'arrière en calage
+	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'avant en calage
 
 	#define FIELD_SIZE_Y 3000	//[mm]
 	#define FIELD_SIZE_X 2000	//[mm]
 
-	//TINY
+
+	//SMALL  Positin initiale
 		// RED
-		#define TINY_RED_START_X  		16384000 			//250mm
-		#define TINY_RED_START_Y  		4718592				//72mm
-		#define TINY_RED_START_TETA 	(6588416)			//-PI/2 //(-3294199)
+		#define SMALL_RED_START_X  		16384000 			//250mm
+		#define SMALL_RED_START_Y  		4718592				//72mm
+		#define SMALL_RED_START_TETA 	(-6588416)			//-PI/2 //(-3294199)
 
-		// BLUE
-		#define TINY_BLUE_START_X 		16384000 			//250mm
-		#define TINY_BLUE_START_Y 		(196608000-4718592)	//(3000-72)mm
-		#define TINY_BLUE_START_TETA 	(-6588416)				//-PI/2 //3294199
+		// YELLOW
+		#define SMALL_YELLOW_START_X 		16384000 			//250mm
+		#define SMALL_YELLOW_START_Y 		(196608000-4718592)	//(3000-72)mm
+		#define SMALL_YELLOW_START_TETA 	(6588416)				//-PI/2 //3294199
 
-	//KRUSTY
+	//BIG
 		// RED
-		#define KRUSTY_RED_START_X  	65536000 			//1000mm
-		#define KRUSTY_RED_START_Y  	7864200 			//(120mm)//symétrique
-		#define KRUSTY_RED_START_TETA 	6588416				//PI/2
+		#define BIG_RED_START_X  	65536000 			//1000mm
+		#define BIG_RED_START_Y  	7864200 			//(120mm)//symétrique
+		#define BIG_RED_START_TETA 	6588416				//PI/2
 
-		// BLUE
-		#define KRUSTY_BLUE_START_X 	65536000 			//1000mm
-		#define KRUSTY_BLUE_START_Y 	(196608000-7864200) //2000-120mm
-		#define KRUSTY_BLUE_START_TETA 	(-6588416)			//-PI/2
+		// YELLOW
+		#define BIG_YELLOW_START_X 	65536000 			//1000mm
+		#define BIG_YELLOW_START_Y 	(196608000-7864200) //2000-120mm
+		#define BIG_YELLOW_START_TETA 	(-6588416)			//-PI/2
+
+
+
+	//SMALL Position calibration
+		//RED
+		#define SMALL_RED_CALIBRATION_X  		16384000
+		#define SMALL_RED_CALIBRATION_Y  		4718592
+		#define SMALL_RED_CALIBRATION_TETA		(6588416)
+
+		//YELLOW
+		#define SMALL_YELLOW_CALIBRATION_X  		16384000
+		#define SMALL_YELLOW_CALIBRATION_Y  		4718592
+		#define SMALL_YELLOW_CALIBRATION_TETA		(6588416)
+
+	//BIG
+		//RED
+		#define BIG_RED_CALIBRATION_X  		350
+		#define BIG_RED_CALIBRATION_Y  		220
+		#define BIG_RED_CALIBRATION_TETA	3003		//environ 42°
+
+		//YELLOW
+		#define BIG_YELLOW_CALIBRATION_X  		321
+		#define BIG_YELLOW_CALIBRATION_Y  		(3000 - 229)
+		#define BIG_YELLOW_CALIBRATION_TETA 	(-3003)  //-42°
+
+
 
 
 /////BUFFER////////////////////////////////////////////

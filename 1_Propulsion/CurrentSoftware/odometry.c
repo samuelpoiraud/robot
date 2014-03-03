@@ -36,25 +36,25 @@ void ODOMETRY_init()
 {
 	ENCODERS_init();
 	ODOMETRY_set_color(RED);
-	if(QS_WHO_AM_I_get()==TINY)
+	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
 	{
-		//TINY
-		coefs[ODOMETRY_COEF_TRANSLATION] 	 = 	TINY_ODOMETRY_COEF_TRANSLATION_DEFAULT;
-		coefs[ODOMETRY_COEF_SYM] 		 	 = 	TINY_ODOMETRY_COEF_SYM_DEFAULT;
-		coefs[ODOMETRY_COEF_ROTATION] 		 = 	TINY_ODOMETRY_COEF_ROTATION_DEFAULT;
-		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	 = 	TINY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
-		calibration_backward_border_distance = 	TINY_CALIBRATION_BACKWARD_BORDER_DISTANCE;
-		calibration_forward_border_distance  = 	TINY_CALIBRATION_FORWARD_BORDER_DISTANCE;
+		//SMALL
+		coefs[ODOMETRY_COEF_TRANSLATION] 	 = 	SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT;
+		coefs[ODOMETRY_COEF_SYM] 		 	 = 	SMALL_ODOMETRY_COEF_SYM_DEFAULT;
+		coefs[ODOMETRY_COEF_ROTATION] 		 = 	SMALL_ODOMETRY_COEF_ROTATION_DEFAULT;
+		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	 = 	SMALL_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+		calibration_backward_border_distance = 	SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE;
+		calibration_forward_border_distance  = 	SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE;
 	}
 	else
 	{
-		//KRUSTY
-		coefs[ODOMETRY_COEF_TRANSLATION] 	 = 	KRUSTY_ODOMETRY_COEF_TRANSLATION_DEFAULT;
-		coefs[ODOMETRY_COEF_SYM] 			 = 	KRUSTY_ODOMETRY_COEF_SYM_DEFAULT;
-		coefs[ODOMETRY_COEF_ROTATION] 		 = 	KRUSTY_ODOMETRY_COEF_ROTATION_DEFAULT;
-		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	 = 	KRUSTY_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
-		calibration_backward_border_distance = 	KRUSTY_CALIBRATION_BACKWARD_BORDER_DISTANCE;
-		calibration_forward_border_distance  = 	KRUSTY_CALIBRATION_FORWARD_BORDER_DISTANCE;
+		//BIG
+		coefs[ODOMETRY_COEF_TRANSLATION] 	 = 	BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT;
+		coefs[ODOMETRY_COEF_SYM] 			 = 	BIG_ODOMETRY_COEF_SYM_DEFAULT;
+		coefs[ODOMETRY_COEF_ROTATION] 		 = 	BIG_ODOMETRY_COEF_ROTATION_DEFAULT;
+		coefs[ODOMETRY_COEF_CENTRIFUGAL] 	 = 	BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+		calibration_backward_border_distance = 	BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE;
+		calibration_forward_border_distance  = 	BIG_CALIBRATION_FORWARD_BORDER_DISTANCE;
 	}
 }
 
@@ -71,36 +71,36 @@ void ODOMETRY_set_color(color_e new_color)
 {
 	color = new_color;
 
-	if(QS_WHO_AM_I_get()==TINY)
+	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
 	{
-		//TINY
+		//SMALL
 		if (new_color == BLUE)
 		{
-			x32	= TINY_BLUE_START_X;		//[mm/65536]		(<<16)
-			y32	= TINY_BLUE_START_Y;		//[mm/65536]		(<<16)
-			teta32 = TINY_BLUE_START_TETA;		//[rad/4096/1024]	(<<22)
+			x32	= SMALL_YELLOW_START_X;		//[mm/65536]		(<<16)
+			y32	= SMALL_YELLOW_START_Y;		//[mm/65536]		(<<16)
+			teta32 = SMALL_YELLOW_START_TETA;		//[rad/4096/1024]	(<<22)
 		}
 		else
 		{
-			x32	= TINY_RED_START_X ;		//[mm/65536]		(<<16)
-			y32	= TINY_RED_START_Y ;		//[mm/65536]		(<<16)
-			teta32 = TINY_RED_START_TETA ;		//[rad/4096/1024]	(<<22)
+			x32	= SMALL_RED_START_X ;		//[mm/65536]		(<<16)
+			y32	= SMALL_RED_START_Y ;		//[mm/65536]		(<<16)
+			teta32 = SMALL_RED_START_TETA ;		//[rad/4096/1024]	(<<22)
 		}
 	}
 	else
 	{
-		//KRUSTY
+		//BIG
 		if (new_color == BLUE)
 		{
-			x32	= KRUSTY_BLUE_START_X;		//[mm/65536]		(<<16)
-			y32	= KRUSTY_BLUE_START_Y;		//[mm/65536]		(<<16)
-			teta32 = KRUSTY_BLUE_START_TETA;		//[rad/4096/1024]	(<<22)
+			x32	= BIG_YELLOW_START_X;		//[mm/65536]		(<<16)
+			y32	= BIG_YELLOW_START_Y;		//[mm/65536]		(<<16)
+			teta32 = BIG_YELLOW_START_TETA;		//[rad/4096/1024]	(<<22)
 		}
 		else
 		{
-			x32	= KRUSTY_RED_START_X ;		//[mm/65536]		(<<16)
-			y32	= KRUSTY_RED_START_Y ;		//[mm/65536]		(<<16)
-			teta32 = KRUSTY_RED_START_TETA ;		//[rad/4096/1024]	(<<22)
+			x32	= BIG_RED_START_X ;		//[mm/65536]		(<<16)
+			y32	= BIG_RED_START_Y ;		//[mm/65536]		(<<16)
+			teta32 = BIG_RED_START_TETA ;		//[rad/4096/1024]	(<<22)
 		}
 	}
 	global.position.x	= x32  >> 16;	//[mm]
