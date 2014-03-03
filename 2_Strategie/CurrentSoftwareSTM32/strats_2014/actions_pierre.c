@@ -41,6 +41,7 @@
 #define ELOIGNEMENT_ARBRE 320
 #define ELOIGNEMENT_POSE_BAC_FRUIT 500
 #define ELOIGNEMENT_SHOOT_BALL 500
+#define SPEED_LANCE_LAUNCHER 130
 #define POS_MIN_FRESCO 1300
 #define POS_MAX_FRESCO 1700
 
@@ -100,16 +101,16 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(500,COLOR_Y(200),POS_DEPART,CHEMIN,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			state = try_going_until_break(500,COLOR_Y(200),POS_DEPART,LANCE_LAUNCHER,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 			break;
 
+
+		case LANCE_LAUNCHER:
+			state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,CHEMIN,ERROR);
+			break;
 
 		case CHEMIN:
-			state = PATHFIND_try_going(W3, CHEMIN, LANCE_LAUNCHER, ERROR, BACKWARD, FAST, NO_AVOIDANCE, END_AT_BREAK);
-			break;
-		case LANCE_LAUNCHER:
-			ACT_lance_launcher_run(ACT_Lance_ALL,TRUE);
-			state = DONE;
+			state = try_going_until_break(500,COLOR_Y(1700),CHEMIN,DONE,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
 			break;
 
 		case DONE:
@@ -332,7 +333,7 @@ void strat_lannion(void){
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
-				state = check_sub_action_result(strat_lance_launcher(),LANCE_LAUNCHER,POINT_M0,ERROR);
+				state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,POINT_M0,ERROR);
 				break;
 			case POINT_M0:
 				state = PATHFIND_try_going(M0, POINT_M0, DEPOSER_FRESQUE, ERROR, ANY_WAY, FAST, NO_AVOIDANCE, END_AT_BREAK);
@@ -434,7 +435,7 @@ void strat_test_point2(){
 
 		// Premier sur notre mammouth
 		case LANCE_LAUNCHER:
-			state = check_sub_action_result(strat_lance_launcher(),LANCE_LAUNCHER,RAMASSER_FRUIT_ARBRE1,ERROR);
+			state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,RAMASSER_FRUIT_ARBRE1,ERROR);
 			break;
 
 
@@ -569,7 +570,7 @@ void strat_test_point(){
 
 
 	case LANCE_LAUNCHER:
-		state = check_sub_action_result(strat_lance_launcher(),LANCE_LAUNCHER,POINT_M0,ERROR);
+		state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,POINT_M0,ERROR);
 		break;
 
 
@@ -1132,7 +1133,7 @@ error_e strat_test_ramasser_fruit_arbre2_double(bool_e sens){ //Commence côté ma
 	return IN_PROGRESS;
 }
 
-error_e strat_lance_launcher(){
+error_e strat_lance_launcher(bool_e lanceAll){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_BEGINNING,
@@ -1169,7 +1170,7 @@ error_e strat_lance_launcher(){
 
 			sensRobot = BACKWARD;
 			sensShoot = TRUE;
-			posShoot = 650;
+			posShoot = 550;
 		}else if(global.env.pos.y > 2225){ // Jaune, case depart
 			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
 			dplt[0].y = 2700;
@@ -1179,7 +1180,7 @@ error_e strat_lance_launcher(){
 
 			sensRobot = FORWARD;
 			sensShoot = FALSE;
-			posShoot = 2350;
+			posShoot = 2420;
 
 		}else{ // Jaune milieu
 			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
@@ -1201,13 +1202,16 @@ error_e strat_lance_launcher(){
 
 		break;
 	case POS_END:
-		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_AVOIDANCE);
 
 		if(entrance)
 			ASSER_WARNER_arm_y(posShoot);
 
 		if(global.env.asser.reach_y)
-			ACT_lance_launcher_run(ACT_Lance_5_BALL,sensShoot);
+			if(lanceAll == TRUE)
+				ACT_lance_launcher_run(ACT_Lance_ALL,sensShoot);
+			else
+				ACT_lance_launcher_run(ACT_Lance_5_BALL,sensShoot);
 
 		break;
 	case DONE:
@@ -1291,7 +1295,7 @@ error_e strat_lance_launcher_ennemy(){
 
 		break;
 	case POS_END:
-		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_AVOIDANCE);
+		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_AVOIDANCE);
 
 		if(entrance)
 			ASSER_WARNER_arm_y(posShoot);
