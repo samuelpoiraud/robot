@@ -38,7 +38,7 @@
 	#define HOKUYO_MARGIN_FIELD_SIDE_IGNORE 80
 
 	#define GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE		200	//Distance d'un point trop proche de nous qui doit être ignoré.
-	#define PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	100	//Distance d'un point trop proche de nous qui doit être ignoré.
+	#define PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	150	//Distance d'un point trop proche de nous qui doit être ignoré.
 
 	#define ROBOT_COORDX 150
 	#define ROBOT_COORDY 150

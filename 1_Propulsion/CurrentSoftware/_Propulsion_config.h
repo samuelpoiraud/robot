@@ -163,18 +163,18 @@
 
 
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
-	#define TINY_KD_TRANSLATION 	(0x05) //0x80
+	#define TINY_KD_TRANSLATION 	(12) //0x80
 	#define KRUSTY_KD_TRANSLATION 	(0x36) //0x80
 
-	#define TINY_KP_TRANSLATION 	(16)
+	#define TINY_KP_TRANSLATION 	(34)
 	#define KRUSTY_KP_TRANSLATION 	(32)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
-	#define TINY_KD_ROTATION 	(0x100) //0x800
+	#define TINY_KD_ROTATION 	(288) //0x800
 	#define KRUSTY_KD_ROTATION 	(0x800) //0x800
 
-	#define TINY_KP_ROTATION 	(0x50)//40 //0x80
+	#define TINY_KP_ROTATION 	(130)//40 //0x80
 	#define KRUSTY_KP_ROTATION 	(0xA0) //0x80
 
 	//Ordre de grandeur :
@@ -217,7 +217,7 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 
 	// de combien on accelere à chaque boucle d'asser
-	#define TINY_ACCELERATION_NORMAL	64	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define TINY_ACCELERATION_NORMAL	48	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
 	#define TINY_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 
 	#define KRUSTY_ACCELERATION_NORMAL	96	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
