@@ -40,8 +40,8 @@
  **************************************************************/
 
 // GROS = PIERRE (pour la cohérence pour les années suivantes
-#define STRAT_0_GROS strat_reglage_asser
-#define STRAT_1_GROS Strat_Detection_Triangle
+#define STRAT_0_GROS strat_lannion
+#define STRAT_1_GROS strat_reglage_asser
 #define STRAT_2_GROS Strat_Detection_Triangle
 #define STRAT_3_GROS test_strat_robot_virtuel_with_avoidance
 
