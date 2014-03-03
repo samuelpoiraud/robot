@@ -106,7 +106,7 @@ void CORRECTOR_mode_reglage_kv(void)
 		Sint32 commande_rotation;			//[% moteurs]
 		commande_translation = -(		(global.acceleration_translation						 * coefs[CORRECTOR_COEF_KA_TRANSLATION])	+
 										(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+
-										(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION]) 	+
+										(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION])/16 	+
 										(global.ecart_translation-global.ecart_translation_prec) * coefs[CORRECTOR_COEF_KD_TRANSLATION]
 									  )>>12;
 
@@ -149,7 +149,7 @@ void CORRECTOR_update(void)
 
 	commande_translation = -(	(global.acceleration_translation						 * coefs[CORRECTOR_COEF_KA_TRANSLATION])  +
 									(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+ 
-									(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION]) 	+ 
+									(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION])/16 	+
 									(global.ecart_translation-global.ecart_translation_prec) * coefs[CORRECTOR_COEF_KD_TRANSLATION] 
 								  )>>12;
 								  
