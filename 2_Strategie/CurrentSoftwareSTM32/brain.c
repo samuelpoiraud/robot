@@ -41,15 +41,15 @@
 
 // GROS = PIERRE (pour la cohérence pour les années suivantes
 #define STRAT_0_GROS strat_lannion
-#define STRAT_1_GROS strat_reglage_asser
+#define STRAT_1_GROS test_strat_robot_virtuel_with_avoidance
 #define STRAT_2_GROS Strat_Detection_Triangle
 #define STRAT_3_GROS test_strat_robot_virtuel_with_avoidance
 
 // PETIT = GUY
-#define STRAT_0_PETIT TEST_pathfind
+#define STRAT_0_PETIT test_strat_robot_virtuel_with_avoidance
 #define STRAT_1_PETIT TEST_pathfind
-#define STRAT_2_PETIT TEST_pathfind
-#define STRAT_3_PETIT TEST_pathfind
+#define STRAT_2_PETIT Strat_Detection_Triangle
+#define STRAT_3_PETIT strat_reglage_asser
 
 
 /* 	execute un match de match_duration secondes à partir de la
@@ -230,16 +230,16 @@ void any_match(void)
 
 Uint8 strat_number(void)
 {
-	#ifndef FDP_2013
-		return 0x00;
-	#else
+	//#ifndef FDP_2013
+	//	return 0x00;
+	//#else
 		if(SWITCH_STRAT_1)
 			return 0x01;
 		else if(SWITCH_STRAT_2)
 			return 0x02;
 		else if(SWITCH_STRAT_3)
 			return 0x03;
-	#endif
+	//#endif
 	return 0x00;	//Aucun switch -> stratégie 0.
 }
 

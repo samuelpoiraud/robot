@@ -94,7 +94,7 @@
 		ELEMENT_NONE //Non applicable
 	}map_state_e;
 
-	#define MAX_NB_FOES	10	//Nombre max d'aversaires
+	#define MAX_NB_FOES	16	//Nombre max d'aversaires
 
 	typedef struct
 	{

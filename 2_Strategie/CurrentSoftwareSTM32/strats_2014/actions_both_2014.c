@@ -505,7 +505,7 @@ typedef enum
 	COEF_NB
 }coefs_e;
 //COEFS par défaut pour les robots...
-const Uint32 default_coefs_small_robot[COEF_NB] =	{		16,		5,		0x50,		0x100	};
+const Uint32 default_coefs_small_robot[COEF_NB] =	{		34,		12,		130,		288	};
 const Uint32 default_coefs_big_robot[COEF_NB] =		{		32,		0x36,	0xA0,		0x800	};
 static coefs_e current_coef;
 
@@ -698,7 +698,8 @@ void strat_reglage_asser(void)
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_COEF_ASSER,
 			INIT,
 			COMPUTE_COEFS,
-			TRAJECTORY,
+			TRAJECTORY_TRANSLATION,
+			TRAJECTORY_CURVE,
 			ROTATION,
 			FAILED,
 			ERROR_STATE,
@@ -730,12 +731,15 @@ void strat_reglage_asser(void)
 			break;
 		case COMPUTE_COEFS:
 			if(strat_reglage_asser_compute_coefs(duration))
-				state = TRAJECTORY;
+				state = TRAJECTORY_TRANSLATION;
 			break;
-		case TRAJECTORY:
+		case TRAJECTORY_TRANSLATION:
 			if(entrance)
 				t_begin = global.env.absolute_time;
-			state = try_going_multipoint(displacements, DISPLACEMENTS_NB, TRAJECTORY, ROTATION, FAILED, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
+			state = try_going_multipoint(displacements, 1, TRAJECTORY_TRANSLATION, TRAJECTORY_CURVE, FAILED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
+		case TRAJECTORY_CURVE:
+			state = try_going_multipoint(&displacements[1], DISPLACEMENTS_NB-1, TRAJECTORY_CURVE, ROTATION, FAILED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 		case ROTATION:
 			state = try_go_angle(PI4096/2, ROTATION, PRINT_RESULT, FAILED, FAST);
