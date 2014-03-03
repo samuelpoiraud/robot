@@ -34,7 +34,7 @@
 
 #define ACTION_TIMEOUT 100 // [0.1s] au bout de 10sec, on arrête le lancé et renvoie l'info du problème à la strat: le lancé prend trop de temps (erreur soft probablement)
 #define TIME_BETWEEN_LANCE 30 // Est multiplié par 10 derriére car sur 8 bits ne peut pas depasser 256ms sinon
-#define TIME_HOLD_LAUNCHER_MAX 25 //    idem ci-dessus
+#define TIME_HOLD_LAUNCHER_MAX 30 //    idem ci-dessus
 
 bool_e EXECUTING_LAUNCH = FALSE;
 
@@ -132,9 +132,9 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 							orderShootLauncher[0] = 6;
 						}else{
 							orderShootLauncher[4] = 5;
-							orderShootLauncher[3] = 6;
-							orderShootLauncher[2] = 3;
-							orderShootLauncher[1] = 4;
+							orderShootLauncher[3] = 3;
+							orderShootLauncher[2] = 4;
+							orderShootLauncher[1] = 1;
 							orderShootLauncher[0] = 2;
 						}
 
@@ -143,19 +143,19 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 					case ACT_LANCELAUNCHER_RUN_ALL:
 						if(sens == TRUE){
+							orderShootLauncher[5] = 2;
+							orderShootLauncher[4] = 1;
+							orderShootLauncher[3] = 3;
+							orderShootLauncher[2] = 4;
+							orderShootLauncher[1] = 5;
+							orderShootLauncher[0] = 6;
+						}else{
 							orderShootLauncher[5] = 5;
 							orderShootLauncher[4] = 6;
 							orderShootLauncher[3] = 3;
 							orderShootLauncher[2] = 4;
 							orderShootLauncher[1] = 1;
 							orderShootLauncher[0] = 2;
-						}else{
-							orderShootLauncher[5] = 1;
-							orderShootLauncher[4] = 2;
-							orderShootLauncher[3] = 3;
-							orderShootLauncher[2] = 4;
-							orderShootLauncher[1] = 5;
-							orderShootLauncher[0] = 6;
 						}
 
 						lance_launcher_last_launch = 6;
@@ -207,7 +207,7 @@ static bool_e start_next_launcher() {
 			break;
 		case 1 :
 			LANCELAUNCHER_PIN_1 = 1;
-			stateLauncher[0] = 25;
+			stateLauncher[0] = 30;
 			break;
 		case 2 :
 			LANCELAUNCHER_PIN_2 = 1;
@@ -219,7 +219,7 @@ static bool_e start_next_launcher() {
 			break;
 		case 4 :
 			LANCELAUNCHER_PIN_4 = 1;
-			stateLauncher[3] = 25;
+			stateLauncher[3] = 30;
 			break;
 		case 5 :
 			LANCELAUNCHER_PIN_5 = 1;
@@ -246,7 +246,7 @@ static bool_e hold_state(){
 
 	int i;
 	for(i=0;i < 6;i++){
-		if(stateLauncher[i] > 0 && stateLauncher[i] <= 25)
+		if(stateLauncher[i] > 0 && stateLauncher[i] <= TIME_HOLD_LAUNCHER_MAX)
 			stateLauncher[i]--;
 
 		// Pas de sinon car si passe stateLauncher[i] passe a 0 on ira pas dans le sinon apres (Pose probléme pour le dernier aimant)
