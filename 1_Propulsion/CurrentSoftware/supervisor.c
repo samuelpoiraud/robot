@@ -94,6 +94,9 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 				case ACKNOWLEDGE_SELFTEST:
 					WARNER_inform(WARNING_SELFTEST_FINISHED, error_source);
 					break;
+				case ACKNOWLEDGE_TRAJECTORY_FOR_TEST_COEFS:
+					WARNER_inform(WARNING_TRAJECTORY_FOR_TEST_COEFS_FINISHED, error_source);
+					break;
 				case INTERN_ACKNOWLEDGE:
 					if(ptr_InternAcknowledge != NULL)
 						(*ptr_InternAcknowledge)();

@@ -182,6 +182,10 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 				}
 				add_pos_datas = FALSE;
 				break;
+			case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
+				debug_printf ("Trajectory_for_test_coef_done : %d", U16FROMU8(msg->data[0], msg->data[1]) );
+				add_pos_datas = FALSE;
+				break;
 			case STRAT_ADVERSARIES_POSITION:
 				//Nothing. affichage déjà géré dans la fonction appelante.
 				add_pos_datas = FALSE;
@@ -238,6 +242,16 @@ void SECRETARY_send_selftest_result(bool_e result)
 	for(;i<8;i++)
 		msg.data[i] = SELFTEST_NO_ERROR;
 
+	SECRETARY_send_canmsg(&msg);
+}
+
+void SECRETARY_send_trajectory_for_test_coefs_finished(Uint16 duration)
+{
+	CAN_msg_t msg;
+	msg.sid = DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE;
+	msg.data[0] = HIGHINT(duration);
+	msg.data[1] = LOWINT(duration);
+	msg.size = 2;
 	SECRETARY_send_canmsg(&msg);
 }
 
@@ -607,7 +621,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			CORRECTOR_set_coef(CORRECTOR_COEF_KV_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
 		case DEBUG_ENABLE_MODE_BEST_EFFORT:
-			global.mode_best_effort_enable = TRUE;
+			#ifndef MODE_SIMULATION
+				global.mode_best_effort_enable = TRUE;
+			#endif
 		break;
 		case CARTE_ASSER_FIN_ERREUR:
 			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
@@ -617,6 +633,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 		case PROP_DO_SELFTEST:
 			SEQUENCES_selftest();
+		break;
+		case DEBUG_DO_TRAJECTORY_FOR_TEST_COEFS:
+			SEQUENCES_trajectory_for_test_coefs();
+			WARNER_enable_counter_trajectory_for_test_coefs_finished();
 		break;
 		#ifdef SCAN_TRIANGLE
 		case ASSER_LAUNCH_SCAN_TRIANGLE :

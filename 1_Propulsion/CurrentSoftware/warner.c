@@ -93,8 +93,10 @@ volatile static bool_e flag_brake = FALSE;
 volatile static bool_e flag_error = FALSE;
 volatile static bool_e flag_calibration = FALSE;
 volatile static bool_e flag_selftest_finished = FALSE;
+volatile static bool_e flag_trajectory_for_test_coefs_finished = FALSE;
 volatile static bool_e flag_selftest_failed = FALSE;
-
+volatile static bool_e enable_counter_trajectory_for_test_coefs_finished = FALSE;
+volatile static Uint16 counter_trajectory_for_test_coefs_finished = 0;
 
 //cette fonction sert à avertir, en envoyant des messages CAN de position si nécessaire
 void WARNER_process_main(void)
@@ -136,6 +138,13 @@ void WARNER_process_main(void)
 		SECRETARY_send_selftest_result(TRUE);
 	}
 
+	if(flag_trajectory_for_test_coefs_finished)
+	{
+		flag_trajectory_for_test_coefs_finished = FALSE;
+		enable_counter_trajectory_for_test_coefs_finished = FALSE;
+		SECRETARY_send_trajectory_for_test_coefs_finished(counter_trajectory_for_test_coefs_finished);
+	}
+
 	if(warnings != WARNING_NO)
 	{
 		TIMER1_disableInt();
@@ -171,6 +180,10 @@ void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e new_er
 		break;
 		case WARNING_SELFTEST_FINISHED:
 			flag_selftest_finished = TRUE;
+		break;
+		case WARNING_TRAJECTORY_FOR_TEST_COEFS_FINISHED:
+			flag_trajectory_for_test_coefs_finished = TRUE;
+			enable_counter_trajectory_for_test_coefs_finished = FALSE;
 		break;
 		case WARNING_SELFTEST_FAILED:
 			flag_selftest_failed = TRUE;
@@ -218,6 +231,11 @@ void WARNER_arm_rotation(Sint16 rotation)	//en rad4096
 	warner_rotation = rotation;
 }	
 
+void WARNER_enable_counter_trajectory_for_test_coefs_finished(void)
+{
+	enable_counter_trajectory_for_test_coefs_finished = TRUE;
+	counter_trajectory_for_test_coefs_finished = 0;
+}
 /////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
@@ -235,6 +253,8 @@ void WARNER_process_it(void)
 	//	la vitesse max qu'on ajoute est la vitesse lumière, en mm, il faut diviser par 4096, le *2 est une sécurité, pour être sur de pas louper le point !
 	//
 	//	
+	if(enable_counter_trajectory_for_test_coefs_finished)
+		counter_trajectory_for_test_coefs_finished += 5;
 	
 	if(warner_teta)
 	{

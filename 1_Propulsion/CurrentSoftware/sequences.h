@@ -24,5 +24,6 @@
 
     void SEQUENCES_selftest(void);
 
+    void SEQUENCES_trajectory_for_test_coefs(void);
 
 #endif /*def _SEQUENCES_H*/

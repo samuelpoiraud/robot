@@ -54,6 +54,8 @@
 	#define WARNING_ERROR					(0b00000100000000000)
 	#define WARNING_SELFTEST_FINISHED		(0b00001000000000000)
 	#define WARNING_SELFTEST_FAILED			(0b00010000000000000)
+	#define WARNING_TRAJECTORY_FOR_TEST_COEFS_FINISHED			(0b00100000000000000)
+
 	//cette fonction sert à avertir, en envoyant des messages CAN d'asser position si nécessaire
 	WARNER_state_t WARNER_get_warning_state(void);
 	

@@ -37,6 +37,7 @@
 			BRAKE_ACKNOWLEDGED,  //Acquittement du freinage fourni
 			ACKNOWLEDGE_CALIBRATION,
 			ACKNOWLEDGE_SELFTEST,
+			ACKNOWLEDGE_TRAJECTORY_FOR_TEST_COEFS,
 			ACKNOWLEDGED,		 //Acquittement complet fourni
 			INTERN_ACKNOWLEDGE	 //Acquittement interne pour fonction de la propulsion
 	}acknowledge_e;
