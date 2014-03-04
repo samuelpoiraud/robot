@@ -118,6 +118,7 @@
 		time32_t match_time; //temps de match en ms.
 		time32_t absolute_time; //temps depuis le lancement du module clock en ms.
 		bool_e debug_force_foe;
+		Uint16 duration_trajectory_for_test_coefs;
 	}environment_t;
 
 

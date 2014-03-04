@@ -565,6 +565,13 @@ bool_e strat_reglage_asser_compute_coefs(time32_t duration)
 	static time32_t best_duration;
 	Uint8 i;
 	bool_e update_coef_and_return_true = FALSE;
+
+	debug_printf("# %ld %ld %ld %ld : %d\n",	((current_coef==0)?current_value:best_coefs[0]),
+											((current_coef==1)?current_value:best_coefs[1]),
+											((current_coef==2)?current_value:best_coefs[2]),
+											((current_coef==3)?current_value:best_coefs[3]),
+											duration);
+
 	switch(state)
 	{
 		case INIT:
@@ -698,6 +705,7 @@ void strat_reglage_asser(void)
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_COEF_ASSER,
 			INIT,
 			COMPUTE_COEFS,
+			WAIT_TRAJECTORY,
 			TRAJECTORY_TRANSLATION,
 			TRAJECTORY_CURVE,
 			ROTATION,
@@ -707,16 +715,7 @@ void strat_reglage_asser(void)
 			ROTATION_FAILED,
 			DONE);
 
-	static time32_t t_begin;
 	static time32_t duration = 0;
-	#define DISPLACEMENTS_NB 5
-	displacement_t displacements[DISPLACEMENTS_NB] = {
-			{{1000,2000},FAST},
-			{{1200,1500},FAST},
-			{{1000,1250},FAST},
-			{{800,750},FAST},
-			{{1000,500},FAST},
-		};
 
 	switch(state)
 	{
@@ -734,18 +733,27 @@ void strat_reglage_asser(void)
 				state = TRAJECTORY_TRANSLATION;
 			break;
 		case TRAJECTORY_TRANSLATION:
-			if(entrance)
-				t_begin = global.env.absolute_time;
-			state = try_going_multipoint(displacements, 1, TRAJECTORY_TRANSLATION, TRAJECTORY_CURVE, FAILED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			CAN_send_sid(DEBUG_DO_TRAJECTORY_FOR_TEST_COEFS);
+			state = WAIT_TRAJECTORY;
+			//state = try_going_multipoint(displacements, 1, TRAJECTORY_TRANSLATION, TRAJECTORY_CURVE, FAILED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 		case TRAJECTORY_CURVE:
-			state = try_going_multipoint(&displacements[1], DISPLACEMENTS_NB-1, TRAJECTORY_CURVE, ROTATION, FAILED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			//state = try_going_multipoint(&displacements[1], DISPLACEMENTS_NB-1, TRAJECTORY_CURVE, ROTATION, FAILED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 		case ROTATION:
-			state = try_go_angle(PI4096/2, ROTATION, PRINT_RESULT, FAILED, FAST);
+			//state = try_go_angle(PI4096/2, ROTATION, PRINT_RESULT, FAILED, FAST);
+			break;
+		case WAIT_TRAJECTORY:
+			if(global.env.duration_trajectory_for_test_coefs)
+			{
+				duration = global.env.duration_trajectory_for_test_coefs;
+				state = PRINT_RESULT;
+			}
+			if(global.env.asser.erreur)
+				state = FAILED;
+			//TODO gestion d'un timeout sur cette action...
 			break;
 		case PRINT_RESULT:
-			duration = global.env.absolute_time - t_begin;
 			debug_printf("END : t=%ldms\n", duration);
 			state = COMPUTE_COEFS;
 			break;

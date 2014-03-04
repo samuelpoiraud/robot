@@ -126,8 +126,6 @@ void display_beacon(){
 
 		a1 *= (180/PI4096);
 		a2 *= (180/PI4096);
-		d1 *= 2;
-		d2 *= 2;
 
 		sprintf(line[1],"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
 		change = TRUE;
