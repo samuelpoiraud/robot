@@ -395,6 +395,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.env.asser.freine = TRUE;
 
 			break;
+		case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
+			global.env.duration_trajectory_for_test_coefs = U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]);
+			break;
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
 			ACT_process_result(incoming_msg);
@@ -533,6 +536,7 @@ void ENV_clean (void)
 		global.env.foe[i].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
+	global.env.duration_trajectory_for_test_coefs = 0;
 }
 
 
