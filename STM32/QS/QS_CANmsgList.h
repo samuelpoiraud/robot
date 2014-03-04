@@ -72,6 +72,11 @@
 	#define DEBUG_ENABLE_MODE_BEST_EFFORT							0x70F
 	#define DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT					0x710
 
+	#define DEBUG_DO_TRAJECTORY_FOR_TEST_COEFS						0x711
+	#define DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE					0x712
+		//Uint16 : durée de la trajectoire en [ms]
+
+
 	/* Message de l'utilisateur vers Super */
 	#define SUPER_EEPROM_RESET				0x770
 	#define SUPER_EEPROM_TEST_ALL_MEMORY	0x771
