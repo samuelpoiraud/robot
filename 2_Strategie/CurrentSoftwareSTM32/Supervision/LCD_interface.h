@@ -12,7 +12,7 @@
 #ifndef LCD_INTERFACE_H
 #define	LCD_INTERFACE_H
 
-
+#include "selftest.h"
 
 
 /*
@@ -72,7 +72,7 @@ void LCD_free_control(void);
 /*
  * Lance l'affichage des erreurs de selftest
  */
-LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8 size);
+void LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8 size);
 
 
 /*
