@@ -79,6 +79,23 @@ void Supervision_process_1ms(void)
 	}
 }
 
+/*
+ * @brief Demande à la prop l'envoie périodique tout les param ms
+ */
+void Supervision_send_periodically_pos(Uint16 dist, Sint16 angle){
+	CAN_msg_t msg;
+	msg.sid = ASSER_SEND_PERIODICALLY_POSITION;
+	msg.data[0] = 0;
+	msg.data[1] = 0; 					//toutes les XX ms -> si 0, pas de msg en fonction du temps.
+	msg.data[2] = HIGHINT(dist);
+	msg.data[3] = LOWINT(dist);
+	msg.data[4] = HIGHINT(angle);
+	msg.data[5] = LOWINT(angle);
+	msg.size = 6;
+	CAN_send(&msg);
+}
+
+
 void SUPERVISION_send_pos_over_xbee(void)
 {
 	CAN_msg_t msg;
@@ -114,6 +131,9 @@ void Supervision_process_main(void)
 			//Si on rajoute pas ce délai d'une seconde, la RTC n'est pas prête quand on vient la lire.
 			first_second_elapsed = TRUE;
 			SD_init();
+
+			Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
+
 			//A partir de maintenant, on peut loguer sur la carte SD...
 			debug_printf("--- Hello, I'm STRAT (%s) ---\n", QS_WHO_AM_I_get_name());
 			RTC_print_time();
