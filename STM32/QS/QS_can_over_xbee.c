@@ -138,7 +138,7 @@ void CAN_over_XBee_process_main(void)
 			case INIT:
 				if(initialized == FALSE)
 				{
-					debug_printf("ERREUR : VOUS DEVEZ APPELER CAN_over_XBee_init() AVANT d'APPELER LE PROCESS MAIN...");
+					debug_printf("ERREUR : VOUS DEVEZ APPELER CAN_over_XBee_init() AVANT d'APPELER LE PROCESS MAIN...\n");
 					return;
 				}
 				//Transition immédiate.

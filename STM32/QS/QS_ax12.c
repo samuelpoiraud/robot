@@ -737,7 +737,7 @@ static Uint8 AX12_instruction_packet_calc_checksum(AX12_instruction_packet_t* in
 	Uint8 packet_length = instruction_packet->size - 4;
 
 	if(instruction_packet->size < 6)
-		debug_printf("AX12: Error: in AX12_instruction_packet_calc_checksum(): paquet trop petit");
+		debug_printf("AX12: Error: in AX12_instruction_packet_calc_checksum(): paquet trop petit\n");
 
 	//packet_length est forcément >= 2 (voir datasheet de l'ax12)
 	//PAS de break, si il y a 3 paramètres (packet_length = 3 +2), on fait toutes les additions
@@ -753,7 +753,7 @@ static Uint8 AX12_instruction_packet_calc_checksum(AX12_instruction_packet_t* in
 			break;
 
 		default:
-			debug_printf("AX12: Error: AX12_instruction_packet_calc_checksum(): paquet trop grand");
+			debug_printf("AX12: Error: AX12_instruction_packet_calc_checksum(): paquet trop grand\n");
 	}
 
 	return ~checksum;
@@ -777,7 +777,7 @@ static Uint8 AX12_get_instruction_packet(Uint8 byte_offset, AX12_instruction_pac
 
 		default:
 			if(byte_offset > 7)
-				debug_printf("AX12: Warning: byte_offset > 7\r\n");
+				debug_printf("AX12: Warning: byte_offset > 7\n");
 	}
 
 	//Si on atteint cette ligne, byte_offset > 7, on retourne 0 par défaut (ça ne devrais jamais arriver)
@@ -790,7 +790,7 @@ static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packe
 	Uint8 packet_length = status_packet->size - 4;
 
 	if(status_packet->size < 6)
-		debug_printf("AX12: Error: in AX12_status_packet_calc_checksum(): paquet trop petit");
+		debug_printf("AX12: Error: in AX12_status_packet_calc_checksum(): paquet trop petit\n");
 
 	//packet_length est forcément >= 2 (voir datasheet de l'ax12)
 	//PAS de break, si il y a 2 paramètre, on fait toutes les additions
@@ -804,7 +804,7 @@ static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packe
 			break;
 
 		default:
-			debug_printf("AX12: Error: AX12_status_packet_calc_checksum(): paquet trop grand");
+			debug_printf("AX12: Error: AX12_status_packet_calc_checksum(): paquet trop grand\n");
 	}
 
 	return ~checksum;
@@ -1206,7 +1206,7 @@ static void AX12_UART_init_all(Uint32 uart_speed)
 
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;  //inférieur aux uarts mais supérieur au timers
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;  //inférieur aux uarts mais supérieur au timers
 
 #ifdef AX12_UART_ID
 	AX12_UART_init(AX12_UART_Ptr, uart_speed);

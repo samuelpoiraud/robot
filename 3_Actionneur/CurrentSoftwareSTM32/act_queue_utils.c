@@ -253,6 +253,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		case ACT_ARM & 0xFF:                originalSidStr = "Arm";          break;
 		case ACT_SMALL_ARM & 0xFF:			originalSidStr = "Small Arm";	 break;
 		case ACT_FILET & 0xFF:				originalSidStr = "Filet";		 break;
+		case ACT_POMPE & 0xFF:				originalSidStr = "Pompe";		 break;
 		default:                            originalSidStr = "Unknown";      break;
 	}
 	switch(result) {

@@ -91,7 +91,7 @@ void FRUIT_init_pos(){
 	FRUIT_initAX12();
 
 	if(!AX12_set_position(FRUIT_LABIUM_AX12_ID, FRUIT_AX12_LABIUM_INIT_POS))
-		debug_printf("L'AX12 n°%d n'est pas la", FRUIT_LABIUM_AX12_ID);
+		debug_printf("L'AX12 n°%d n'est pas la\n", FRUIT_LABIUM_AX12_ID);
 }
 
 bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {

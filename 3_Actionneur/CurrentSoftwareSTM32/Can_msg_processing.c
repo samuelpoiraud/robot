@@ -30,7 +30,7 @@
 void CAN_process_msg(CAN_msg_t* msg) {
 	CAN_msg_t answer;
 	if(ACTMGR_process_msg(msg)) {
-		component_printf(LOG_LEVEL_Debug, "Act Msg SID: 0x%x, cmd: 0x%x(%u), size: %d\n", msg->sid, msg->data[0], msg->data[0], msg->size);
+		component_printf(LOG_LEVEL_Debug, "Act Msg SID: 0x%03x, cmd: 0x%x(%u), size: %d\n", msg->sid, msg->data[0], msg->data[0], msg->size);
 		return;  //Le message a déja été géré
 	}
 
@@ -80,8 +80,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			CAN_send(&answer);
 			break;
 		default:
-			//debug_printf("SID:%x\r\n",msg->sid);
-			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%x(%u)\n", msg->sid, msg->sid);
+			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
 			break;
 	}//End switch
 }

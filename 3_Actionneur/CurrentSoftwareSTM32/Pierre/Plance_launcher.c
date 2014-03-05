@@ -177,7 +177,7 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 				//Démarrage de temps d'attente des prochains lancés
 				TIMER_SRC_TIMER_start_ms(1);
 			} else {
-				warn_printf("Impossible d'effectuer la commande, le lance launcher est déjà utilisé (à l'état %d) (ne devrait jamais être le cas car on ne peut faire 2 actions en même temps avec la même queueid)", lance_launcher_last_launch);
+				warn_printf("Impossible d'effectuer la commande, le lance launcher est déjà utilisé (à l'état %d) (ne devrait jamais être le cas car on ne peut faire 2 actions en même temps avec la même queueid)\n", lance_launcher_last_launch);
 				QUEUE_next(queueId, ACT_LANCELAUNCHER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES, __LINE__);
 			}
 		} else {

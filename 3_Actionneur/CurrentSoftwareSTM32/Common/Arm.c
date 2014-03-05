@@ -37,11 +37,12 @@ const char* ARM_STATES_NAME[] = {
 
 static void ARM_initAX12();
 
-static Sint8 old_state = 0;
+static Sint8 old_state = -1;
 
 static bool_e gotoState(ARM_state_e state);
 static bool_e check_state_transitions();
-static void print_corrected_state_transitions();
+static void print_state_transitions(bool_e correct);
+static bool_e find_state();
 
 void ARM_init() {
 	static bool_e initialized = FALSE;
@@ -55,7 +56,7 @@ void ARM_init() {
 	ADC_init();
 
 	if(check_state_transitions() == FALSE)
-		print_corrected_state_transitions();
+		print_state_transitions(TRUE);
 
 	Uint8 i;
 	for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
@@ -122,12 +123,15 @@ static void ARM_initAX12() {
 	if(allOk) {
 		info_printf("AX12 et RX24 du bras initialisés\n");
 		allInitialized = TRUE;
+		find_state();
 	}
 }
 
 void ARM_initPos() {
 	CAN_msg_t msg = {ACT_ARM, {ACT_ARM_INIT}, 1};
-	ARM_CAN_process_msg(&msg);
+
+	if(find_state() == FALSE)
+		ARM_CAN_process_msg(&msg);
 }
 
 void ARM_stop() {
@@ -172,6 +176,31 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				}
 				break;
 			}
+
+			case ACT_ARM_PRINT_POS: {
+				Uint8 i;
+				bool_e firstValue = TRUE;
+
+				info_printf("Positions:\n");
+				OUTPUTLOG_printf(LOG_LEVEL_Info, "    {");
+				for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
+					if(!firstValue)
+						OUTPUTLOG_printf(LOG_LEVEL_Info, ",");
+					if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
+						OUTPUTLOG_printf(LOG_LEVEL_Info, " %5d", ARM_MOTORS[i].sensorRead());
+					} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
+						OUTPUTLOG_printf(LOG_LEVEL_Info, " %5d", AX12_get_position(ARM_MOTORS[i].id));
+					}
+					firstValue = FALSE;
+				}
+
+				OUTPUTLOG_printf(LOG_LEVEL_Info, "}, //%s\n", old_state >= 0 ? ARM_STATES_NAME[old_state] : "");
+				break;
+			}
+
+			case ACT_ARM_PRINT_STATE_TRANSITIONS:
+				print_state_transitions(FALSE);
+				break;
 
 			default:
 				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
@@ -236,7 +265,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
 					done = ACTQ_check_status_dcmotor(ARM_MOTORS[i].id, FALSE, &result, &error_code, &line);
 				} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
-					done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, ARM_get_motor_pos(new_state, i), ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 360, &result, &error_code, &line);
+					done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, ARM_get_motor_pos(new_state, i), ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
 				}
 
 				//Si au moins un moteur n'a pas terminé son mouvement, alors l'action de déplacer le bras n'est pas terminée
@@ -307,14 +336,14 @@ static bool_e check_state_transitions() {
 	return ok;
 }
 
-static void print_corrected_state_transitions() {
+static void print_state_transitions(bool_e correct) {
 	Uint8 i, j;
 	Uint8 columnSize = 0;
 	bool_e isFirstVal;
-	info_printf("Transitions d\'états:\n");
+	info_printf("Proposition de transitions d\'états corrigées:\n");
 
 	OUTPUTLOG_printf(LOG_LEVEL_Info,
-					 "bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //\n"
+					 "const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //\n"
 					 "//   ");
 	for(j = 0; j < ARM_ST_NUMBER; j++) {
 		Uint8 current_column_size = strlen(ARM_STATES_NAME[j]);
@@ -329,13 +358,54 @@ static void print_corrected_state_transitions() {
 	for(i = 0; i < ARM_ST_NUMBER; i++) {
 		OUTPUTLOG_printf(LOG_LEVEL_Info, "    {");
 		for(isFirstVal = TRUE, j = 0; j < ARM_ST_NUMBER; j++) {
-			bool_e val = MAX(ARM_STATES_TRANSITIONS[i][j], ARM_STATES_TRANSITIONS[j][i]);
+			bool_e val;
+
+			if(correct)
+				val = MAX(ARM_STATES_TRANSITIONS[i][j], ARM_STATES_TRANSITIONS[j][i]);  //avec correction
+			else
+				val = ARM_STATES_TRANSITIONS[i][j]; //sans correction
+
 			OUTPUTLOG_printf(LOG_LEVEL_Info, "%s%-*d", isFirstVal ? "" : ",", columnSize, val);
 			isFirstVal = FALSE;
 		}
 		OUTPUTLOG_printf(LOG_LEVEL_Info, "},  //%s\n", ARM_STATES_NAME[i]);
 	}
 	OUTPUTLOG_printf(LOG_LEVEL_Info, "};  //\n");
+}
+
+static bool_e find_state() {
+	Uint8 state, i;
+	bool_e stateOk;
+
+	for(state = 0; state < ARM_ST_NUMBER; state++) {
+		stateOk = TRUE;
+
+		for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
+			if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
+				if(absolute(ARM_MOTORS[i].sensorRead() - ARM_get_motor_pos(state, i)) >= ARM_MOTORS[i].large_epsilon) {
+					stateOk = FALSE;
+					break;
+				}
+			} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
+				if(absolute(AX12_get_position(ARM_MOTORS[i].id) - ARM_get_motor_pos(state, i)) >= ARM_MOTORS[i].large_epsilon) {
+					stateOk = FALSE;
+					break;
+				}
+			}
+
+		}
+
+		if(stateOk == TRUE) {
+			old_state = state;
+			debug_printf("Etat initial auto détecté: %s(%d)\n",
+						ARM_STATES_NAME[old_state], old_state);
+			return TRUE;
+		}
+	}
+
+
+	debug_printf("Etat initial non détecté\n");
+	return FALSE;
 }
 
 #endif

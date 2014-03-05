@@ -134,7 +134,7 @@ static void POMPE_do_order(Uint8 command, Uint8 param){
 	else if(command == ACT_POMPE_REVERSE)
 		POMPE_SENS = 0;
 	else{
-		debug_printf("commande envoyée à POMPE_do_order inconnue -> %d	%x", command, command);
+		debug_printf("commande envoyée à POMPE_do_order inconnue -> %d	%x\n", command, command);
 		PWM_stop(POMPE_PWM_NUM);
 		return;
 	}

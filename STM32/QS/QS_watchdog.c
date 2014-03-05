@@ -90,7 +90,7 @@ watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, volatile b
 		}
 	}
 	if(id== 255)
-		debug_printf("WD : TABLEAU FULL");
+		debug_printf("WD : TABLEAU FULL\n");
 
 	TIMER_SRC_TIMER_EnableIT();
 	return id;

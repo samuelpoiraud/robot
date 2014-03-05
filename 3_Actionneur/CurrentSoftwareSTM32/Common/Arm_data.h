@@ -29,6 +29,7 @@ typedef struct {
 	Uint8 id;
 	Uint16 timeout;
 	Uint16 epsilon;
+	Uint16 large_epsilon;
 	Uint8 maxPowerWay0;	//aussi le max torque pour les ax12 & rx24
 
 	//valide que pour DCMotor:
