@@ -20,7 +20,9 @@
 #include "../QS/QS_types.h"
 #include "../config/config_pin.h"
 
-#define TIME_MATCH_TO_NET	(MATCH_DURATION - 5000)
+#define TIME_MATCH_TO_NET			(MATCH_DURATION - 5000)
+#define TIME_MAX_ROTATE				1000
+#define TIME_MATCH_TO_NET_ROTATE	(MATCH_DURATION - TIME_MAX_ROTATE)
 
 void strat_placement_net();
 
