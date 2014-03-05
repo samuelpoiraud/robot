@@ -126,7 +126,7 @@
 	#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE 	83		//distance entre le 'centre' du robot et l'arrière en calage
 	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	83 		//distance entre le 'centre' du robot et l'avant en calage
 
-	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	125 		//distance entre le 'centre' du robot et l'arrière en calage
+	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	132 		//distance entre le 'centre' du robot et l'arrière en calage
 	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'avant en calage
 
 	#define FIELD_SIZE_Y 3000	//[mm]
@@ -135,48 +135,48 @@
 
 	//SMALL  Positin initiale
 		// RED
-		#define SMALL_RED_START_X  		16384000 			//250mm
-		#define SMALL_RED_START_Y  		4718592				//72mm
+		#define SMALL_RED_START_X  		62914560 			//960mm
+		#define SMALL_RED_START_Y  		4784128				//73mm
 		#define SMALL_RED_START_TETA 	(-6588416)			//-PI/2 //(-3294199)
 
 		// YELLOW
 		#define SMALL_YELLOW_START_X 		16384000 			//250mm
-		#define SMALL_YELLOW_START_Y 		(196608000-4718592)	//(3000-72)mm
-		#define SMALL_YELLOW_START_TETA 	(6588416)				//-PI/2 //3294199
+		#define SMALL_YELLOW_START_Y 		(196608000-4784128)	//(3000-73)mm
+		#define SMALL_YELLOW_START_TETA 	(6588416)				//PI/2 //3294199
 
 	//BIG
 		// RED
-		#define BIG_RED_START_X  	65536000 			//1000mm
-		#define BIG_RED_START_Y  	7864200 			//(120mm)//symétrique
+		#define BIG_RED_START_X  	39518208 			//603mm
+		#define BIG_RED_START_Y  	8650752 			//132mm
 		#define BIG_RED_START_TETA 	6588416				//PI/2
 
 		// YELLOW
-		#define BIG_YELLOW_START_X 	65536000 			//1000mm
-		#define BIG_YELLOW_START_Y 	(196608000-7864200) //2000-120mm
+		#define BIG_YELLOW_START_X 	39518208 			//603mm
+		#define BIG_YELLOW_START_Y 	(196608000-8650752) //3000-132mm
 		#define BIG_YELLOW_START_TETA 	(-6588416)			//-PI/2
 
 
 
 	//SMALL Position calibration
 		//RED
-		#define SMALL_RED_CALIBRATION_X  		16384000
-		#define SMALL_RED_CALIBRATION_Y  		4718592
-		#define SMALL_RED_CALIBRATION_TETA		(6588416)
+		#define SMALL_RED_CALIBRATION_X  		575
+		#define SMALL_RED_CALIBRATION_Y  		104
+		#define SMALL_RED_CALIBRATION_TETA		-10483    //environ -146°
 
 		//YELLOW
-		#define SMALL_YELLOW_CALIBRATION_X  		16384000
-		#define SMALL_YELLOW_CALIBRATION_Y  		4718592
-		#define SMALL_YELLOW_CALIBRATION_TETA		(6588416)
+		#define SMALL_YELLOW_CALIBRATION_X  		575
+		#define SMALL_YELLOW_CALIBRATION_Y  		(3000 - 104)
+		#define SMALL_YELLOW_CALIBRATION_TETA		10483 //environ 146°
 
 	//BIG
 		//RED
 		#define BIG_RED_CALIBRATION_X  		350
-		#define BIG_RED_CALIBRATION_Y  		220
-		#define BIG_RED_CALIBRATION_TETA	3003		//environ 42°
+		#define BIG_RED_CALIBRATION_Y  		230
+		#define BIG_RED_CALIBRATION_TETA	15873		//environ 42° + 180° fait une rotation à avoir les balles du bon côté
 
 		//YELLOW
 		#define BIG_YELLOW_CALIBRATION_X  		321
-		#define BIG_YELLOW_CALIBRATION_Y  		(3000 - 229)
+		#define BIG_YELLOW_CALIBRATION_Y  		(3000 - 240)
 		#define BIG_YELLOW_CALIBRATION_TETA 	(-3003)  //-42°
 
 

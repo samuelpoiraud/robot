@@ -231,7 +231,7 @@ int main (void)
 		{
 			flag_calibration_asked = FALSE;
 			debug_printf("BP calibration pressed\n");
-			SEQUENCES_calibrate(BACKWARD,ASSER_CALIBRATION_SQUARE_2);
+			SEQUENCES_calibrate();
 		}
 
 		if(flag_selftest_asked)

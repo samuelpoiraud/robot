@@ -503,10 +503,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 
 		case ASSER_CALIBRATION:	//Autocalage !
-			if (msg->data[0] == FORWARD) //ON IMPOSE L'autocalage AVANT
-				SEQUENCES_calibrate(FORWARD,msg->data[1]);
-			else	//Par défaut, l'autocallage est arrière.
-				SEQUENCES_calibrate(BACKWARD,msg->data[1]);
+			SEQUENCES_calibrate();
 
 		break;
 
