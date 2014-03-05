@@ -57,7 +57,7 @@ void LCD_strat_number_update(void);
 /*
  * Ecrit une ligne définie par l'utilisateur à la position demandée
  */
-void LCD_free_line(char buf[20], Uint8 pos);
+void LCD_free_line(char chaine[], Uint8 pos);
 
 /*
  * Prend le control de l'écran pour afficher les messages utilisateurs
@@ -68,6 +68,12 @@ void LCD_take_control(void);
  * Redonne le control à l'écran
  */
 void LCD_free_control(void);
+
+/*
+ * Lance l'affichage des erreurs de selftest
+ */
+LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8 size);
+
 
 /*
  * Fonctions d'action des boutons

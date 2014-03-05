@@ -192,15 +192,8 @@ void any_match(void)
 					if(!initialized)
 					{
 						initialized = TRUE;
-						msg.sid = ASSER_SEND_PERIODICALLY_POSITION;
-						msg.data[0] = 0;
-						msg.data[1] = 0; 					//toutes les XX ms -> si 0, pas de msg en fonction du temps.
-						msg.data[2] = HIGHINT(20);
-						msg.data[3] = LOWINT(20); 			//tout les 20 mm
-						msg.data[4] = HIGHINT(PI4096/45);
-						msg.data[5] = LOWINT(PI4096/45);  	//tout les 4°
-						msg.size = 6;
-						CAN_send(&msg);
+
+						Supervision_send_periodically_pos(20,PI4096/45);	// Envoyer tous les 20 mm la position du robot, tous les 4°
 					}
 				#endif /* def USE_SCHEDULED_POSITION_REQUEST */
 
