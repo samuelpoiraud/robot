@@ -374,7 +374,6 @@ LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8
 		LCD_set_cursor(0,0);
 		LCD_Write_text(free_msg[0]);
 
-		for(i=men)
 	}
 	previous_ptr = ptr;
 }

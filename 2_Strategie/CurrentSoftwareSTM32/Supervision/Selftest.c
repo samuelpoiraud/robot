@@ -488,7 +488,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				default:										debug_printf("UNKNOW_ERROR_CODE"); 						break;
 			}
 			debug_printf("\n");
-			LCD_write_selftest_errors(errors);
+			//LCD_write_selftest_errors(errors);
 		}
 	}
 }
