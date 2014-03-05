@@ -493,6 +493,9 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_PARKED) \
 			XX(ACT_ARM_POS_OPEN) \
 			XX(ACT_ARM_POS_MID)
+		#define ACT_ARM_PRINT_POS 2  //Affiche les positions des actionneurs sur l'uart
+
+		#define ACT_ARM_PRINT_STATE_TRANSITIONS 4
 	/////////////////////////////////////////
 
 	/////////////////////FILET///////////////////

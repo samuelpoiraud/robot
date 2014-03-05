@@ -68,8 +68,8 @@
 			case SMALL_ROBOT :
 				return "Guy";
 				break;
-			default:
-				break;
+
+			//Pas de default pour avoir un warning quand un cas de robot_id n'est pas géré dans ce switch
 		}
 		return "Robot inconnu";
 	}

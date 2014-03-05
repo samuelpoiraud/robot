@@ -14,9 +14,9 @@
 #include "../QS/QS_CANmsgList.h"
 
 // prefix vaut par exemple ARM_ACT_UPDOWN, prefix##_ID vaut alors ARM_ACT_UPDOWN_ID (## est un concatenation de texte)
-#define DECLARE_DCMOTOR(prefix, sensorRead) { ARM_DCMOTOR, prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_MAX_PWM_WAY0      , prefix##_MAX_PWM_WAY1, prefix##_PWM_NUM, prefix##_PORT_WAY, prefix##_PORT_WAY_BIT, prefix##_ASSER_KP, prefix##_ASSER_KI, prefix##_ASSER_KD, sensorRead }
-#define DECLARE_AX12(prefix)                { ARM_AX12   , prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_MAX_TORQUE_PERCENT, 0                    , 0               , 0                , 0                    , 0                , 0                , 0                , NULL       }
-#define DECLARE_RX24(prefix)                { ARM_RX24   , prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_MAX_TORQUE_PERCENT, 0                    , 0               , 0                , 0                    , 0                , 0                , 0                , NULL       }
+#define DECLARE_DCMOTOR(prefix, sensorRead) { ARM_DCMOTOR, prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_ASSER_POS_LARGE_EPSILON, prefix##_MAX_PWM_WAY0      , prefix##_MAX_PWM_WAY1, prefix##_PWM_NUM, prefix##_PORT_WAY, prefix##_PORT_WAY_BIT, prefix##_ASSER_KP, prefix##_ASSER_KI, prefix##_ASSER_KD, sensorRead }
+#define DECLARE_AX12(prefix)                { ARM_AX12   , prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_ASSER_POS_LARGE_EPSILON, prefix##_MAX_TORQUE_PERCENT, 0                    , 0               , 0                , 0                    , 0                , 0                , 0                , NULL       }
+#define DECLARE_RX24(prefix)                { ARM_RX24   , prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_ASSER_POS_LARGE_EPSILON, prefix##_MAX_TORQUE_PERCENT, 0                    , 0               , 0                , 0                    , 0                , 0                , 0                , NULL       }
 
 static Sint16 ARM_readDCMPos();
 
@@ -43,12 +43,12 @@ const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_dat
 // Changement d'état possible (ligne -> colonne)
 //                              lignes         colonnes
 //                             ancien état    nouvel état
-const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {
-//   ARM_ST_Parked     ARM_ST_Open       ARM_ST_Mid
-	{1                ,0                ,1                }, //ARM_ST_Parked
-	{1                ,1                ,1                }, //ARM_ST_Open
-	{0                ,1                ,1                }  //ARM_ST_Mid
-};
+const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //<LF>
+//   ACT_ARM_POS_PARKED ACT_ARM_POS_OPEN   ACT_ARM_POS_MID    <LF>
+	{0                 ,0                 ,1                 },  //ACT_ARM_POS_PARKED<LF>
+	{1                 ,0                 ,1                 },  //ACT_ARM_POS_OPEN<LF>
+	{1                 ,1                 ,0                 },  //ACT_ARM_POS_MID<LF>
+};  //<LF>
 
 
 // Etats à prendre pour initialiser le bras dans une position connue

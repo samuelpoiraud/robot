@@ -328,7 +328,7 @@
 
 		void CAN1_SCE_IRQHandler(void)
 		{
-			debug_printf("CAN Error List :\r\n");
+			debug_printf("CAN Error List :\n");
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_BOF))
 			{
 				debug_printf("  Bus OFF, too many bus errors, > 255\n");
@@ -375,7 +375,7 @@
 			debug_printf("  Transmit error count: %u\n", CAN_GetLSBTransmitErrorCounter(CAN1));
 			CAN_ClearITPendingBit(CAN1, CAN_IT_ERR);
 			CAN_reinit();
-			debug_printf("End Error List\r\n");
+			debug_printf("End Error List\n");
 		}
 #else /* def USE_CAN */
 	//Pas de bus can, définition des fonctions pour que le code compile quand même

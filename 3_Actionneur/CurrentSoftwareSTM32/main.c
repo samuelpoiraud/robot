@@ -47,6 +47,8 @@ static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
 
+extern bool_e EXECUTING_LAUNCH;
+
 int main (void)
 {
 	Sint8 lastSwitchState[2] = {-1, -1};
@@ -125,15 +127,15 @@ int main (void)
 		LED_USER = !LED_USER;
 		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
 
-//		if(VARIABLE)
-//			debug_printf("message passer\n");
+		if(EXECUTING_LAUNCH)
+			debug_printf("message passé\n");
 
 		QUEUE_run();
 		BUTTONS_update();
 
 		#ifdef I_AM_ROBOT_BIG
 		if(global.match_started == FALSE && global.match_over == FALSE) // Si le match n'a pas commencé et n'est pas terminé on gère le réarmement automatique du filet et l'avertissement
-				FILET_process_main();
+				;//FILET_process_main();
 		#endif
 
 		/*-------------------------------------
@@ -143,7 +145,7 @@ int main (void)
 			while(CAN_data_ready()){
 				// Réception et acquittement
 				LED_CAN = !LED_CAN;
-				//debug_printf("Boucle CAN \r\n");
+				//debug_printf("Boucle CAN \n");
 				msg = CAN_get_next_msg();
 				CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
 			}
@@ -153,56 +155,54 @@ int main (void)
 }
 
 static void MAIN_onButton0() {
-#ifdef USE_CAN
 	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_FILET;
-	msg.data[0] = ACT_FILET_LAUNCHED;
+	msg.size = 2;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+
+
+	static int truc = 0;
+	truc = !truc;
+
+	msg.data[0] = ACT_ARM_PRINT_POS;
 	CAN_process_msg(&msg);
-#endif
 }
 
 
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton1() {
-#ifdef USE_CAN
 	CAN_msg_t msg;
 	msg.size = 2;
-	msg.sid = ACT_POMPE;
-	msg.data[0] = ACT_POMPE_NORMAL;
-	msg.data[1] = 50;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_OPEN;
 	CAN_process_msg(&msg);
-#endif
 }
 
 static void MAIN_onButton2() {
-#ifdef USE_CAN
 	CAN_msg_t msg;
 	msg.size = 2;
-	msg.sid = ACT_POMPE;
-	msg.data[0] = ACT_POMPE_REVERSE;
-	msg.data[1] = 100;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_MID;
 	CAN_process_msg(&msg);
-#endif
 }
 
 static void MAIN_onButton3() {
-#ifdef USE_CAN
 	CAN_msg_t msg;
 	msg.size = 2;
-	msg.sid = ACT_POMPE;
-	msg.data[0] = ACT_POMPE_REVERSE;
-	msg.data[1] = 50;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_PARKED;
 	CAN_process_msg(&msg);
-#endif
 }
 
 static void MAIN_onButton4() {
 	//FILET_BOUTON_process();
 	CAN_msg_t msg;
 	msg.size = 1;
-	msg.sid = ACT_POMPE;
-	msg.data[0] = ACT_POMPE_STOP;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_INIT;
 	CAN_process_msg(&msg);
 }
 

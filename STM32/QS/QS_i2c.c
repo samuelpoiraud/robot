@@ -72,30 +72,30 @@ volatile Uint32 failed_sr1 = 0, failed_sr2 = 0;
 void error_exit(void)
 {
 	//Uint8 trash;
-	debug_printf("I2C_failure :");
+	debug_printf("I2C_failure :\n");
 	if(timeout)
-		debug_printf(" - Timeout");
-	if(failed_sr2 & I2C_FLAG_DUALF)			debug_printf(" - I2C_FLAG_DUALF");		// Dual flag (Slave mode)
-	if(failed_sr2 & I2C_FLAG_SMBHOST)		debug_printf(" - I2C_FLAG_SMBHOST");		// SMBus host header (Slave mode)
-	if(failed_sr2 & I2C_FLAG_SMBDEFAULT)	debug_printf(" - I2C_FLAG_SMBDEFAULT");	// SMBus default header (Slave mode)
-	if(failed_sr2 & I2C_FLAG_GENCALL)		debug_printf(" - I2C_FLAG_GENCALL");		// General call header flag (Slave mode)
-	if(failed_sr2 & I2C_FLAG_TRA)			debug_printf(" - I2C_FLAG_TRA");			// Transmitter/Receiver flag
-	if(failed_sr2 & I2C_FLAG_BUSY)			debug_printf(" - I2C_FLAG_BUSY");		// Bus busy flag
-	if(failed_sr2 & I2C_FLAG_MSL  )			debug_printf(" - I2C_FLAG_MSL");			// Master/Slave flag
-	if(failed_sr1 & I2C_FLAG_SMBALERT)		debug_printf(" - I2C_FLAG_SMBALERT");	// SMBus Alert flag
-	if(failed_sr1 & I2C_FLAG_TIMEOUT)		debug_printf(" - I2C_FLAG_TIMEOUT");		// Timeout or Tlow error flag
-	if(failed_sr1 & I2C_FLAG_PECERR)		debug_printf(" - I2C_FLAG_PECERR");		// PEC error in reception flag
-	if(failed_sr1 & I2C_FLAG_OVR)			debug_printf(" - I2C_FLAG_OVR");			// Overrun/Underrun flag (Slave mode)
-	if(failed_sr1 & I2C_FLAG_AF)			debug_printf(" - I2C_FLAG_AF");			// Acknowledge failure flag
-	if(failed_sr1 & I2C_FLAG_ARLO)			debug_printf(" - I2C_FLAG_ARLO");		// Arbitration lost flag (Master mode)
-	if(failed_sr1 & I2C_FLAG_BERR)			debug_printf(" - I2C_FLAG_BERR");		// Bus error flag
-	if(failed_sr1 & I2C_FLAG_TXE)			debug_printf(" - I2C_FLAG_TXE");			// Data register empty flag (Transmitter)
-	if(failed_sr1 & I2C_FLAG_RXNE)			debug_printf(" - I2C_FLAG_RXNE");		// Data register not empty (Receiver) flag
-	if(failed_sr1 & I2C_FLAG_STOPF)			debug_printf(" - I2C_FLAG_STOPF");		// Stop detection flag (Slave mode)
-	if(failed_sr1 & I2C_FLAG_ADD10)			debug_printf(" - I2C_FLAG_ADD10");		// 10-bit header sent flag (Master mode)
-	if(failed_sr1 & I2C_FLAG_BTF)			debug_printf(" - I2C_FLAG_BTF");			// Byte transfer finished flag
-	if(failed_sr1 & I2C_FLAG_ADDR)			debug_printf(" - I2C_FLAG_ADDR");		// Address sent flag (Master mode) "ADSL", Address matched flag (Slave mode)"ENDAD"
-	if(failed_sr1 & I2C_FLAG_SB)			debug_printf(" - I2C_FLAG_SB");			// Start bit flag (Master mode)
+		debug_printf(" - Timeout\n");
+	if(failed_sr2 & I2C_FLAG_DUALF)			debug_printf(" - I2C_FLAG_DUALF\n");		// Dual flag (Slave mode)
+	if(failed_sr2 & I2C_FLAG_SMBHOST)		debug_printf(" - I2C_FLAG_SMBHOST\n");		// SMBus host header (Slave mode)
+	if(failed_sr2 & I2C_FLAG_SMBDEFAULT)	debug_printf(" - I2C_FLAG_SMBDEFAULT\n");	// SMBus default header (Slave mode)
+	if(failed_sr2 & I2C_FLAG_GENCALL)		debug_printf(" - I2C_FLAG_GENCALL\n");		// General call header flag (Slave mode)
+	if(failed_sr2 & I2C_FLAG_TRA)			debug_printf(" - I2C_FLAG_TRA\n");			// Transmitter/Receiver flag
+	if(failed_sr2 & I2C_FLAG_BUSY)			debug_printf(" - I2C_FLAG_BUSY\n");		// Bus busy flag
+	if(failed_sr2 & I2C_FLAG_MSL  )			debug_printf(" - I2C_FLAG_MSL\n");			// Master/Slave flag
+	if(failed_sr1 & I2C_FLAG_SMBALERT)		debug_printf(" - I2C_FLAG_SMBALERT\n");	// SMBus Alert flag
+	if(failed_sr1 & I2C_FLAG_TIMEOUT)		debug_printf(" - I2C_FLAG_TIMEOUT\n");		// Timeout or Tlow error flag
+	if(failed_sr1 & I2C_FLAG_PECERR)		debug_printf(" - I2C_FLAG_PECERR\n");		// PEC error in reception flag
+	if(failed_sr1 & I2C_FLAG_OVR)			debug_printf(" - I2C_FLAG_OVR\n");			// Overrun/Underrun flag (Slave mode)
+	if(failed_sr1 & I2C_FLAG_AF)			debug_printf(" - I2C_FLAG_AF\n");			// Acknowledge failure flag
+	if(failed_sr1 & I2C_FLAG_ARLO)			debug_printf(" - I2C_FLAG_ARLO\n");		// Arbitration lost flag (Master mode)
+	if(failed_sr1 & I2C_FLAG_BERR)			debug_printf(" - I2C_FLAG_BERR\n");		// Bus error flag
+	if(failed_sr1 & I2C_FLAG_TXE)			debug_printf(" - I2C_FLAG_TXE\n");			// Data register empty flag (Transmitter)
+	if(failed_sr1 & I2C_FLAG_RXNE)			debug_printf(" - I2C_FLAG_RXNE\n");		// Data register not empty (Receiver) flag
+	if(failed_sr1 & I2C_FLAG_STOPF)			debug_printf(" - I2C_FLAG_STOPF\n");		// Stop detection flag (Slave mode)
+	if(failed_sr1 & I2C_FLAG_ADD10)			debug_printf(" - I2C_FLAG_ADD10\n");		// 10-bit header sent flag (Master mode)
+	if(failed_sr1 & I2C_FLAG_BTF)			debug_printf(" - I2C_FLAG_BTF\n");			// Byte transfer finished flag
+	if(failed_sr1 & I2C_FLAG_ADDR)			debug_printf(" - I2C_FLAG_ADDR\n");		// Address sent flag (Master mode) "ADSL", Address matched flag (Slave mode)"ENDAD"
+	if(failed_sr1 & I2C_FLAG_SB)			debug_printf(" - I2C_FLAG_SB\n");			// Start bit flag (Master mode)
 	failed_sr2 = 0;
 	failed_sr1 = 0;
 	timeout = FALSE;
@@ -286,82 +286,82 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
   Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_ADDR));
 
   if (size == 1)
-    {
+	{
 
-      // Clear Ack bit
+	  // Clear Ack bit
 
-      I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);
+	  I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);
 
-      // EV6_1 -- must be atomic -- Clear ADDR, generate STOP
+	  // EV6_1 -- must be atomic -- Clear ADDR, generate STOP
 
-      __disable_irq();
-      (void) I2C2_I2C_HANDLE->SR2;
-      I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);
-      __enable_irq();
+	  __disable_irq();
+	  (void) I2C2_I2C_HANDLE->SR2;
+	  I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);
+	  __enable_irq();
 
-      // Receive data   EV7
+	  // Receive data   EV7
 
-      Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_RXNE));
-      *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
+	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_RXNE));
+	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
 
-    }
+	}
   else if (size == 2)
-    {
-      // Set POS flag
+	{
+	  // Set POS flag
 
-      I2C_NACKPositionConfig(I2C2_I2C_HANDLE, I2C_NACKPosition_Next);
+	  I2C_NACKPositionConfig(I2C2_I2C_HANDLE, I2C_NACKPosition_Next);
 
-      // EV6_1 -- must be atomic and in this order
+	  // EV6_1 -- must be atomic and in this order
 
-      __disable_irq();
-      (void) I2C2_I2C_HANDLE->SR2;                           // Clear ADDR flag
-      I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);       // Clear Ack bit
-      __enable_irq();
+	  __disable_irq();
+	  (void) I2C2_I2C_HANDLE->SR2;                           // Clear ADDR flag
+	  I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);       // Clear Ack bit
+	  __enable_irq();
 
-      // EV7_3  -- Wait for BTF, program stop, read data twice
+	  // EV7_3  -- Wait for BTF, program stop, read data twice
 
-      Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
+	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
 
-      __disable_irq();
-      I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);
-      *data++ = I2C2_I2C_HANDLE->DR;
-      __enable_irq();
+	  __disable_irq();
+	  I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);
+	  *data++ = I2C2_I2C_HANDLE->DR;
+	  __enable_irq();
 
-      *data++ = I2C2_I2C_HANDLE->DR;
+	  *data++ = I2C2_I2C_HANDLE->DR;
 
-    }
+	}
   else
-    {
-      (void) I2C2_I2C_HANDLE->SR2;                           // Clear ADDR flag
-      while (size-- != 3)
+	{
+	  (void) I2C2_I2C_HANDLE->SR2;                           // Clear ADDR flag
+	  while (size-- != 3)
 	{
 	  // EV7 -- cannot guarantee 1 transfer completion time, wait for BTF
-          //        instead of RXNE
+		  //        instead of RXNE
 
 	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
 	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
 	}
 
-      Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
+	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
 
-      // EV7_2 -- Figure 1 has an error, doesn't read N-2 !
+	  // EV7_2 -- Figure 1 has an error, doesn't read N-2 !
 
-      I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);           // clear ack bit
+	  I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);           // clear ack bit
 
-      __disable_irq();
-      *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);             // receive byte N-2
-      I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);                  // program stop
-      __enable_irq();
+	  __disable_irq();
+	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);             // receive byte N-2
+	  I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);                  // program stop
+	  __enable_irq();
 
-      *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);             // receive byte N-1
+	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);             // receive byte N-1
 
-      // wait for byte N
-      Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_BYTE_RECEIVED));
-      *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
+	  // wait for byte N
+	  Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_BYTE_RECEIVED));
+	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
 
-      size = 0;
+	  size = 0;
 
-    }
+	}
 
   // Wait for stop
   Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_STOPF));
@@ -371,8 +371,8 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
   return TRUE;
 
  errReturn:
- 	 if(!timeout)
-  		WATCHDOG_stop(watchdog_id);
+	 if(!timeout)
+		WATCHDOG_stop(watchdog_id);
   return FALSE;
 }
 
@@ -386,11 +386,11 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 		return FALSE;
 	}
 
-    /* Enable Error IT (used in all modes: DMA, Polling and Interrupts */
-    //    I2C2_I2C_HANDLE->CR2 |= I2C_IT_ERR;
+	/* Enable Error IT (used in all modes: DMA, Polling and Interrupts */
+	//    I2C2_I2C_HANDLE->CR2 |= I2C_IT_ERR;
 
-    if (size)
-    {
+	if (size)
+	{
 		//Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY));
 
 		// Intiate Start Sequence
@@ -424,14 +424,14 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 			I2C_GenerateSTOP(I2C2_I2C_HANDLE, ENABLE);
 			Timed(I2C_GetFlagStatus(I2C1, I2C_FLAG_STOPF));
 		}
-    }
+	}
 
-    WATCHDOG_stop(watchdog_id);
-    return TRUE;
+	WATCHDOG_stop(watchdog_id);
+	return TRUE;
  errReturn:
- 	 if(!timeout)
- 		WATCHDOG_stop(watchdog_id);
-    return FALSE;
+	 if(!timeout)
+		WATCHDOG_stop(watchdog_id);
+	return FALSE;
 }
 #endif
 
