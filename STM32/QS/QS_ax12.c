@@ -25,7 +25,7 @@
 #endif
 
 	/**********************************************************************/
-	/** Paramètres de configuration du driver AX12                        */
+	/** Paramètres de configuration du driver AX12/RX24                        */
 	/**********************************************************************/
 
 	#if !defined(AX12_NUMBER) || AX12_NUMBER > 254
@@ -75,7 +75,7 @@
 	#endif
 
 	#ifndef AX12_STATUS_RETURN_TIMEOUT
-		#define AX12_STATUS_RETURN_TIMEOUT 50	//Ne pas mettre une valeur trop proche de celle prévue, l'AX12 répond parfois avec un delai plus long
+		#define AX12_STATUS_RETURN_TIMEOUT 50	//Ne pas mettre une valeur trop proche de celle prévue, l'AX12/RX24 répond parfois avec un delai plus long
 	#endif
 
 	#ifndef AX12_STATUS_SEND_TIMEOUT
@@ -129,7 +129,7 @@
 
 
 	/*************************************************************************************/
-	/** Constantes liées au instruction envoyées a l'AX12                               **/
+	/** Constantes liées au instruction envoyées a l'AX12/RX24                               **/
 	/*************************************************************************************/
 
 	/* Instructions */
@@ -164,7 +164,7 @@
 	#define AX12_MAX_VALUE_254	0x10
 	#define AX12_MAX_VALUE_1023	0x00
 
-	//Les defines sont globaux, il sont défini en même temps que le tableau des valeurs accepté par l'AX12 pour pouvoir voir à quelle valeur les limites correspondent
+	//Les defines sont globaux, il sont défini en même temps que le tableau des valeurs accepté par l'AX12/RX24 pour pouvoir voir à quelle valeur les limites correspondent
 	static const Uint8 AX12_values_ranges[0x32] = {
 		//EEPROM, utilisé par les fonctions AX12_config_*, les valeurs persiste après une mise hors tension.
 		#define AX12_MODEL_NUMBER_L 			0x00
@@ -176,7 +176,7 @@
 		#define AX12_ID 						0x03
 			AX12_MIN_VALUE_0 | AX12_MAX_VALUE_253,
 		#define AX12_BAUD_RATE					0x04
-			AX12_MIN_VALUE_34 | AX12_MAX_VALUE_254,	//la limite de l'AX12 est 0-254, mais la carte ne supporte pas des vitesses supérieures à 56700bauds.
+			AX12_MIN_VALUE_34 | AX12_MAX_VALUE_254,	//la limite de l'AX12/RX24 est 0-254, mais la carte ne supporte pas des vitesses supérieures à 56700bauds.
 		#define AX12_RETURN_DELAY_TIME			0x05
 			AX12_MIN_VALUE_0 | AX12_MAX_VALUE_254,	//Maximum de 508 us
 		#define AX12_CW_ANGLE_LIMIT_L			0x06
@@ -295,7 +295,7 @@
 
 typedef struct{
 	volatile AX12_status_t last_status;
-	Uint16 angle_limit[2];	//sauvegarde des angles limites lors d'un passage en mode wheel (rotation complète en continue) Si l'AX12 était déja dans ce mode, les angles limites défini à 0°-300°.
+	Uint16 angle_limit[2];	//sauvegarde des angles limites lors d'un passage en mode wheel (rotation complète en continue) Si l'AX12/RX24 était déja dans ce mode, les angles limites défini à 0°-300°.
 	bool_e is_wheel_enabled;
 	// Possibilité d'ajout de membres ...
 } AX12_servo_t;
@@ -319,7 +319,7 @@ typedef struct{
 //Paquet renvoyé par l'AX12, 2 paramètres 8bits maximum
 typedef struct{
 	Uint8 id_servo;
-	Uint16 error;  // l'AX12 n'utilise que 8 bits
+	Uint16 error;  // l'AX12/RX24 n'utilise que 8 bits
 	union {
 		Uint16 param;
 		struct {
@@ -853,7 +853,7 @@ static bool_e AX12_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, A
 			break;
 
 		case 4:
-			//pour être sur de ne pas avoir le bit 7 a 1, si l'AX12 le met a 1, on met tous les bits a 1
+			//pour être sur de ne pas avoir le bit 7 a 1, si l'AX12/RX24 le met a 1, on met tous les bits a 1
 			status_packet->error = receive_byte & 0x7F; //On enlève le IN_PROGRESS en passant
 			break;
 
@@ -1439,7 +1439,7 @@ void AX12_init() {
 	AX12_DIRECTION_PORT = RX_DIRECTION;
 
 	AX12_prepare_commands = FALSE;
-	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12 dans le mode indiqué dans Global_config.h
+	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12/RX24 dans le mode indiqué dans Global_config.h
 
 	for(i=0; i<AX12_NUMBER; i++) {
 		AX12_on_the_robot[i].angle_limit[0] = 0;
@@ -1450,7 +1450,7 @@ void AX12_init() {
 	}
 }
 
-/* Fonction d'utilisation de l'AX12                                        */
+/* Fonction d'utilisation de l'AX12/RX24                                        */
 
 //Configuration de l'AX12, perdure après mise hors tension sauf pour le verouillage de la config (lock).
 //Unités:
@@ -1468,7 +1468,7 @@ void AX12_init() {
 #define AX12_DEGRE_TO_ANGLE(angle) ((((Uint16)(angle)) << 7) / 38)
 
 //Vitesse max: 500°/seconde (83 tours/minute) (maximum supporté par la macro)
-//Le max de l'ax12 indiqué par la datasheet est de environ 360°/s (60 tr/min)
+//Le max de l'AX12/RX24 indiqué par la datasheet est de environ 360°/s (60 tr/min)
 #define AX12_MAX_DPS 500
 #define AX12_SPEED_TO_DPS(angle_speed) ((((Uint16)(angle_speed))*85) >> 7) // >> 7 <=> / 128, 85/256 = 0.664 degres per second ~= 0.111 rpm (tours par minute)
 #define AX12_DPS_TO_SPEED(angle_speed) ((((Uint16)(angle_speed)) << 7) / 85)
@@ -1599,7 +1599,7 @@ bool_e AX12_config_set_minimal_angle(Uint8 id_servo, Uint16 degre) {
 
 bool_e AX12_config_set_maximal_angle(Uint8 id_servo, Uint16 degre) {
 	if(degre > AX12_MAX_DEGRE) degre = AX12_MAX_DEGRE;
-	if(degre == 0) degre = 1;	//Si l'utilisateur met un angle mini et maxi à 0, l'AX12 passera en mode rotation en continue, ce mode ne doit être activé que par AX12_set_wheel_mode_enabled (en passant TRUE)
+	if(degre == 0) degre = 1;	//Si l'utilisateur met un angle mini et maxi à 0, l'AX12/RX24 passera en mode rotation en continue, ce mode ne doit être activé que par AX12_set_wheel_mode_enabled (en passant TRUE)
 	return AX12_instruction_write16(id_servo, AX12_CCW_ANGLE_LIMIT_L, AX12_DEGRE_TO_ANGLE(degre));
 }
 
@@ -1814,7 +1814,7 @@ bool_e AX12_set_led_enabled(Uint8 id_servo, bool_e enabled) {
 	Les points A, B, C, D sont la valeur absolue de la différence de position entre le point et la position consigne (en minute d'angle)
 	Si la valeur absolue de l'erreur est plus grande que A (sens anti-horaire) ou D (sens horaire), le couple est constant quelque soit l'erreur
 	Si la valeur absolue de l'erreur est entre A et B ou C et D, le couple est proportionnel à la valeur absolue de l'erreur (le courant minimal pour donner du couple est défini par les fonctions AX12_set_punch_current/AX12_get_punch_current)
-	Si la valeur absolue de l'erreur est plus petite que B ou C, l'AX12 n'exerce aucun couple
+	Si la valeur absolue de l'erreur est plus petite que B ou C, l'AX12/RX24 n'exerce aucun couple
 
 	*/
 bool_e AX12_set_torque_response(Uint8 id_servo, Uint16 A, Uint16 B, Uint16 C, Uint16 D) {
