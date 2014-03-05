@@ -19,5 +19,6 @@
 	void Supervision_init(void);
 	void Supervision_process_main(void);
 	void Supervision_process_1ms(void);
+	void Supervision_send_periodically_pos(Uint16 dist, Sint16 angle); // Je ne suis pas sûr des types des parametres (16 bits sur mais signé ou non?)
 	
 #endif /* ndef SUPERVISION_H */

@@ -19,6 +19,7 @@
 #include "config_pin.h"
 #include "../QS/QS_who_am_i.h"
 #include "../environment.h"
+#include "Selftest.h"
 
 #include "config_use.h"
 
@@ -29,6 +30,7 @@ typedef enum
 	CAN_s,
 	USER_MODE,
 	MENU,
+	SELFTEST,
 	INIT = 0XFF
 }lcd_state;
 
@@ -110,7 +112,8 @@ void display_pos(){
 
 		sprintf(line[0],"x%4d y%4d t%5d",x,y,t);
 
-		change = TRUE;
+		LCD_set_cursor(0,0);
+		LCD_Write_text(line[0]); //Petite triche pour éviter le clear qui fait scintiller tout l'écran
 	}
 }
 
@@ -267,6 +270,10 @@ void LCD_Update(void){
 			}
 
 			break;
+		case SELFTEST:
+
+
+			break;
 		default:
 			break;
 	}
@@ -337,11 +344,13 @@ void LCD_strat_number_update(){
 }
 
 
-void LCD_free_line(char buf[20], Uint8 pos){
+void LCD_free_line(char chaine[], Uint8 pos){
+
 	if(pos<0 || pos>4)
 		return;
 	else{
-		sprintf(free_msg[pos],"%s",buf);
+
+		sprintf(free_msg[pos],"%s",chaine);
 	}
 	change = TRUE;
 }
@@ -352,6 +361,22 @@ void LCD_take_control(){
 
 void LCD_free_control(){
 	LCD_switch_mode();
+}
+
+
+LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8 size){
+	Uint8 i;
+	static Uint8 ptr = 0;
+	static Uint8 previous_ptr = 0XFF;
+
+	if(ptr != previous_ptr){
+		LCD_clear_display();
+		LCD_set_cursor(0,0);
+		LCD_Write_text(free_msg[0]);
+
+		for(i=men)
+	}
+	previous_ptr = ptr;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -391,9 +416,11 @@ void LCD_button_ok(void){
 			switch(menu_choice){
 				case SELF_TEST:
 					LCD_free_line("SelfTest asked",0);
+					SELFTEST_ask_launch();
 					break;
 				case LAST_MATCH:
 					LCD_free_line("Decharge match",0);
+					SD_print_previous_match();
 					break;
 				case REGLAGE_ODO:
 					LCD_free_line("Reglage ODO",0);
@@ -408,6 +435,9 @@ void LCD_button_ok(void){
 			break;
 		case USER_MODE:
 			LCD_free_control();
+			break;
+		case SELFTEST:
+			state = INFO_s;
 			break;
 		default:
 			if(state != INIT){
