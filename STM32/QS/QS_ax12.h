@@ -35,7 +35,7 @@
  */
 ///@{
 	/** \def  AX12_NUMBER
-	 * Nombre d'AX12 maximum.
+	 * Nombre d'AX12/RX24 maximum.
 	 *
 	 * Ce nombre défini la taille des buffers interne. Dans les fonctions, id_servo devra être strictement inférieur à ce nombre.
 	 */
@@ -70,7 +70,7 @@
 ///@{
 	/** Vitesse du bus de données.
 	 *
-	 * Vitesse du port série utilisé pour communiquer avec l'AX12 en bauds.
+	 * Vitesse du port série utilisé pour communiquer avec l'AX12/RX24 en bauds.
 	 * L'UART2 est utilisé pour la communication, elle ne doit pas être utiliser par un autre module.
 	 * Sur le robot de 2012-2013, une vitesse de 56700 bauds est utilisée, cette vitesse est aussi celle par défaut.
 	 */
@@ -93,7 +93,7 @@
 
 	/** Politique de retour de paquet status.
 	 *
-	 * Un paquet status est envoyé par l'AX12 après un paquet instruction dans certains cas défini par ce define.
+	 * Un paquet status est envoyé par l'AX12/RX24 après un paquet instruction dans certains cas défini par ce define.
 	 * Le paquet de status informera le driver des erreurs rencontrées et pourra contenir des données demandées.
 	 * Si #AX12_STATUS_RETURN_NEVER est utilisé, aucun paquet de status ne sera envoyé par le servo,
 	 * et aucune des fonctions AX12_get* et AX12_config_get* ne serons utilisable.
@@ -162,8 +162,8 @@
 
 	/** Structure contenant le dernier status reçu d'un AX12.
 	 *
-	 * Il y a un status par AX12 d'enregistré par le driver,
-	 * si le driver reçois un nouveau paquet de status, seul l'ancien status de cet AX12 sera écrasé.
+	 * Il y a un status par AX12/RX24 d'enregistré par le driver,
+	 * si le driver reçois un nouveau paquet de status, seul l'ancien status de cet AX12/RX24 sera écrasé.
 	 * @see AX12_get_last_error
 	 */
 	typedef struct {
@@ -244,9 +244,9 @@
 	 */
 	#define AX12_ERROR_TIMEOUT		0x80
 
-	/** Des instructions sont en cours de traitement pour l'AX12 considéré
+	/** Des instructions sont en cours de traitement pour l'AX12/RX24 considéré
 	 *
-	 * Une ou plusieurs commande on été demandées de manière asynchrone et le résultat renvoyé par l'AX12 n'a pas encore été reçu.
+	 * Une ou plusieurs commande on été demandées de manière asynchrone et le résultat renvoyé par l'AX12/RX24 n'a pas encore été reçu.
 	 * Ce status n'est donc pas vraiment une erreur.
 	 * @see AX12_get_last_error
 	 * @see AX12_STATUS_RETURN_MODE
@@ -492,7 +492,7 @@
 	bool_e AX12_config_lock(Uint8 id_servo);
 
 	/**
-	 * Change l'ID de TOUT les AX12 branché (à utiliser temporairement pour configurer un AX12 seulement !!!!)
+	 * Change l'ID de TOUT les AX12/RX24 branché (à utiliser temporairement pour configurer un AX12/RX24 seulement !!!!)
 	 *
 	 * @param id_servo nouveau id
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
