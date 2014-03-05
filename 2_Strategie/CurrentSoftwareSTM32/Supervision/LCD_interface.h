@@ -38,12 +38,6 @@ void LCD_switch_mode(void);
 void LCD_change_pos(void);
 
 /*
- * Fonction qui prend une chaine de caractere pour l'ecrire sur l'écran
- * Seuls les 20 premiers caracteres sont ecrits
- */
-void LCD_printf(char* format);
-
-/*
  * Ajoute un message can à la liste de can à afficher en écrasant le plus ancien
  */
 void LCD_add_can(CAN_msg_t msg);
@@ -57,7 +51,7 @@ void LCD_strat_number_update(void);
 /*
  * Ecrit une ligne définie par l'utilisateur à la position demandée
  */
-void LCD_free_line(char chaine[], Uint8 pos);
+void LCD_printf(Uint8 pos, char * chaine, ...);
 
 /*
  * Prend le control de l'écran pour afficher les messages utilisateurs

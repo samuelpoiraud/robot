@@ -20,7 +20,8 @@
 #include "../QS/QS_who_am_i.h"
 #include "../environment.h"
 #include "Selftest.h"
-
+#include "SD/SD.h"
+#include "stdarg.h"
 #include "config_use.h"
 
 // Etats de l'affichage de l'ecran
@@ -65,11 +66,11 @@ Sint16 x_pos,y_pos,t_angle;
 bool_e change; // Commande le rafraichissement de l'écran
 
 /* Variable contenant un message libre*/
-char free_msg[5][20];
+char free_msg[5][21];
 
 
 /* Chaines affichées à l'écran */
-char line[4][20];
+char line[4][21];
 
 ////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -285,16 +286,6 @@ void LCD_Update(void){
 ////////////////////////////////////////////////////////////////////////
 /// WRITING ACCESSORS
 
-void LCD_printf(char* format){
-	char chaine[20];
-	Uint8 i = 0;
-	while(i<20 && format[i]!='\0'){
-		chaine[i] = format[i];
-		i++;
-	}
-	sprintf(line[3],chaine);
-	change = TRUE;
-}
 
 
 void LCD_add_can(CAN_msg_t msg){
@@ -344,14 +335,11 @@ void LCD_strat_number_update(){
 }
 
 
-void LCD_free_line(char chaine[], Uint8 pos){
-
-	if(pos<0 || pos>4)
-		return;
-	else{
-
-		sprintf(free_msg[pos],"%s",chaine);
-	}
+void LCD_printf(Uint8 pos, char * chaine, ...){
+	va_list args_list;
+	va_start(args_list, chaine);
+	vsnprintf(free_msg[pos], 21, chaine, args_list);
+	va_end(args_list);
 	change = TRUE;
 }
 
@@ -364,7 +352,7 @@ void LCD_free_control(){
 }
 
 
-LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8 size){
+void LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8 size){
 	Uint8 i;
 	static Uint8 ptr = 0;
 	static Uint8 previous_ptr = 0XFF;
@@ -414,15 +402,15 @@ void LCD_button_ok(void){
 		case MENU:
 			switch(menu_choice){
 				case SELF_TEST:
-					LCD_free_line("SelfTest asked",0);
+					LCD_printf(0,"SelfTest asked");
 					SELFTEST_ask_launch();
 					break;
 				case LAST_MATCH:
-					LCD_free_line("Decharge match",0);
+					LCD_printf(0,"Decharge match");
 					SD_print_previous_match();
 					break;
 				case REGLAGE_ODO:
-					LCD_free_line("Reglage ODO",0);
+					LCD_printf(0,"Reglage ODO");
 					//odometry_set(); //N'existe pas encore
 					break;
 				case RETURN:
