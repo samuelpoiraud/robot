@@ -439,11 +439,9 @@ Uint16 SELFTEST_measure24_mV(void)
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
 	Uint8 i;
-	char buf[21]; // Buffer qui contient la chaine de caractere pour l'écran LCD
 	debug_printf("SELFTEST ENDED with %d error(s) :\n",size);
-	sprintf(buf,"Stest ENDED: %2d ERR",size);
-	LCD_free_line(buf,0);
-	LCD_free_line(buf,1);
+	LCD_printf(0,"Stest ENDED: %2d ERRhahaahaha",size);
+	LCD_printf(1,"Stest ENDED: %2d ERRhahaahaha",size);
 	BUZZER_play(200, DEFAULT_NOTE, size);	//Autant de bip que d'erreurs !
 	for(i=0;i<size;i++)
 	{
@@ -488,7 +486,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				default:										debug_printf("UNKNOW_ERROR_CODE"); 						break;
 			}
 			debug_printf("\n");
-			//LCD_write_selftest_errors(errors);
+//			LCD_write_selftest_errors(errors, size);
 		}
 	}
 }
