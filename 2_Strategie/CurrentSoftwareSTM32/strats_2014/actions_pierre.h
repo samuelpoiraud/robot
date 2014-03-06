@@ -30,14 +30,13 @@ void strat_tourne_en_rond(void);
 error_e strat_manage_fresco();
 error_e strat_file_fresco(Sint16 posY);
 error_e strat_file_fruit();
-error_e strat_test_ramasser_fruit_arbre1_double(bool_e sens);
-error_e strat_test_ramasser_fruit_arbre2_double(bool_e sens);
+error_e strat_ramasser_fruit_arbre1_double(bool_e sens);
+error_e strat_ramasser_fruit_arbre2_double(bool_e sens);
 error_e strat_lance_launcher(bool_e lanceAll);
 error_e strat_lance_launcher_ennemy();
 
 void strat_test_filet();
 void strat_test_small_arm();
 void strat_test_vide();
-
 
 #endif /* ACTIONS_PIERRE_H_ */
