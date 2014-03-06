@@ -33,7 +33,6 @@ void strat_placement_net(){
 		PLACEMENT,
 		PLACEMENT_TETA,
 		STOP_ALL,
-		FORCE_ROTATE,
 		NO_PATH,
 		DONE
 	);
@@ -41,7 +40,6 @@ void strat_placement_net(){
 	typedef struct{
 		pathfind_node_id_t	node[NB_NODE];
 		Uint16 dist_with_node[NB_NODE];
-		Sint16 teta_for_node[NB_NODE];
 		bool_e tryed_node[NB_NODE];
 		Uint8 selected_node;
 		bool_e all_node_try;
@@ -50,7 +48,6 @@ void strat_placement_net(){
 	static Position pos = {
 		{A1,		B1,			C1,			Z1,			Y1,			W1},
 		{0,			0,			0,			0,			0,			0},
-		{11829,		12388,		-11268,		-11550,		12627,		10874},
 		{FALSE,		FALSE,		FALSE,		FALSE,		FALSE,		FALSE},
 		0,
 		FALSE
@@ -59,7 +56,7 @@ void strat_placement_net(){
 	Uint8 i;
 	Sint16 forced_angle;
 
-	if(TIME_MATCH_TO_NET_ROTATE < global.env.match_time && state != DONE && state != PLACEMENT_TETA && state != STOP_ALL && state != FORCE_ROTATE)
+	if(TIME_MATCH_TO_NET_ROTATE < global.env.match_time && state != DONE && state != PLACEMENT_TETA && state != STOP_ALL)
 		state = STOP_ALL;
 
 	switch(state){
@@ -107,28 +104,24 @@ void strat_placement_net(){
 			pos.tryed_node[pos.selected_node] = TRUE;
 			break;
 
-		case PLACEMENT_TETA :
-			state = try_go_angle(pos.teta_for_node[pos.selected_node], PLACEMENT_TETA, DONE, FOUND_PATH, FAST);
-			break;
-
 		case STOP_ALL :
-			state = try_stop(STOP_ALL, FORCE_ROTATE, FORCE_ROTATE);
+			state = try_stop(STOP_ALL, PLACEMENT_TETA, PLACEMENT_TETA);
 			break;
 
-		case FORCE_ROTATE :
+		case PLACEMENT_TETA :
 			if(entrance){
 				if(global.env.pos.y >= 1500)
 					forced_angle = PI4096-(atan2((2350-global.env.pos.y),global.env.pos.x)*4096);
 				else
 					forced_angle =  PI4096-(atan2((750-global.env.pos.y),global.env.pos.x)*4096);
 			}
-			state = try_go_angle(forced_angle, FORCE_ROTATE, DONE, DONE, FAST);
+			state = try_go_angle(forced_angle, PLACEMENT_TETA, DONE, DONE, FAST);
 		break;
 
 		case NO_PATH :
 			if(entrance)
 				debug_printf("PLACEMENT IMPOSSIBLE\n");
-			state = FORCE_ROTATE;
+			state = PLACEMENT_TETA;
 			break;
 
 		case DONE :
