@@ -67,6 +67,34 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 	(pathfind_node_t){ 0, 0, neighbors : 0} //[NOT_IN_NODE] 24 (invalid)
 };
 
+static Uint32 node_curve[PATHFIND_NODE_NB+1] =
+{
+	0 | (1<<1)|(0<<2)|(1<<3)|(1<<4),						//[A1] 0
+	0 | (1<<0)|(1<<3)|(1<<4)|(0<<5),						//[A2] 1
+	0 | (1<<0)|(1<<3)|(1<<6)|(0<<7),						//[B0] 2
+	0 | (1<<0)|(1<<1)|(0<<2)|(1<<4)|(1<<6)|(0<<7),			//[B1] 3
+	0 | (1<<0)|(0<<1)|(1<<3)|(0<<5)|(0<<8)|(1<<9),			//[B2] 4
+	0 | (1<<1)|(1<<4)|(0<<8)|(1<<9),						//[B3] 5
+	0 | (1<<2)|(1<<3)|(0<<7)|(1<<10)|(1<<11),				//[C0] 6
+	0 | (0<<2)|(1<<3)|(0<<6)|(1<<8)|(1<<10)|(1<<11),		//[C1] 7
+	0 | (1<<4)|(1<<5)|(1<<7)|(0<<9)|(1<<12)|(1<<13),		//[C2] 8
+	0 | (1<<4)|(1<<5)|(0<<8)|(1<<12)|(1<<13),				//[C3] 9
+	0 | (1<<6)|(1<<7)|(0<<11)|(1<<14)|(1<<15),				//[M0] 10
+	0 | (1<<6)|(1<<7)|(0<<10)|(1<<14)|(1<<15),				//[M1] 11
+	0 | (1<<8)|(0<<9)|(0<<13)|(1<<16)|(0<<17),				//[M2] 12
+	0 | (1<<8)|(1<<9)|(0<<12)|(1<<16)|(1<<17),				//[M3] 13
+	0 | (1<<10)|(1<<11)|(0<<15)|(1<<18)|(1<<19),			//[W0] 14
+	0 | (1<<10)|(1<<11)|(0<<14)|(1<<16)|(0<<18)|(1<<19),	//[W1] 15
+	0 | (1<<12)|(0<<13)|(1<<15)|(0<<17)|(1<<20)|(1<<21),	//[W2] 16
+	0 | (1<<12)|(1<<13)|(0<<16)|(1<<20)|(1<<21),			//[W3] 17
+	0 | (1<<14)|(0<<15)|(1<<19)|(0<<22),					//[Y0] 18
+	0 | (1<<14)|(0<<15)|(0<<18)|(1<<20)|(0<<22)|(1<<23),	//[Y1] 19
+	0 | (0<<16)|(1<<17)|(1<<19)|(0<<21)|(0<<22)|(0<<23),	//[Y2] 20
+	0 | (0<<16)|(1<<17)|(1<<20)|(0<<23),					//[Y3] 21
+	0 | (0<<18)|(1<<19)|(1<<20)|(0<<21)|(1<<23),			//[Z0] 22
+	0 | (1<<19)|(1<<20)|(1<<21)|(1<<22),					//[Z1] 23
+	0
+};
 
 static pathfind_node_list_t openList;
 static pathfind_node_list_t closedList;
@@ -233,9 +261,9 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 */
 
 //Retourne le nombre de déplacements, ou 0 si pas de chemin possible
-Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to)
+Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to)
 {
-	pathfind_node_id_t from, n, current, from_without_adversaries;
+	pathfind_node_id_t from, n, current, from_without_adversaries, suivant;
 	pathfind_node_list_t adversaries_nodes;
 	Uint8 nb_displacements = 0;
 	Uint16 minCost, cost;
@@ -368,13 +396,25 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 	nb_displacements = nodes[to].nb_nodes;
 	pathfind_debug_printf("Nodes : ");
 	n = to;
+	suivant = to;
 	for(i=0;i<nb_displacements;i++)
 	{
 		displacements[nb_displacements-i-1].point.x = nodes[n].x;
 		displacements[nb_displacements-i-1].point.y = nodes[n].y;
+		if(suivant != to)
+			displacements[nb_displacements-i-1+2].curve = (node_curve[n] & (1<<suivant))?TRUE:FALSE;
+		// On attribue le droit à la trajectoire de faire une courbe si :
+		// une trajectoire du node courant (n) vers le node suivant (suivant)
+		//		autorise une trajectoire pour le déplacement d'après (nb_displacements-i-1+2)
+
 		pathfind_debug_printf("%d <- ",n);
+		suivant = n;
 		n = nodes[n].parent;
 	}
+	if(nb_displacements > 0)
+		displacements[0].curve = FALSE;
+	if(nb_displacements > 1)
+		displacements[1].curve = FALSE;
 	pathfind_debug_printf(" = %d displacements\n", nb_displacements);
 	return nb_displacements;
 }
@@ -386,7 +426,7 @@ Uint16 PATHFIND_compute(displacement_t * displacements, Sint16 xFrom, Sint16 yFr
 Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, ASSER_speed_e speed, avoidance_type_e avoidance, ASSER_end_condition_e end_condition)
 {
 	error_e sub_action;
-	static displacement_t displacements[PATHFIND_NODE_NB];
+	static displacement_curve_t displacements[PATHFIND_NODE_NB];
 	static Uint8 nb_displacements;
 	static avoidance_type_e no_dodge_avoidance;
 	static bool_e dodge_nb_try;
@@ -440,7 +480,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 				state = FAIL;
 			break;
 		case DISPLACEMENT:
-			sub_action = goto_pos_with_avoidance(displacements, nb_displacements, way, no_dodge_avoidance, end_condition);
+			sub_action = goto_pos_curve_with_avoidance(displacements, nb_displacements, way, no_dodge_avoidance, end_condition);
 			switch(sub_action)
 			{
 				case IN_PROGRESS:
