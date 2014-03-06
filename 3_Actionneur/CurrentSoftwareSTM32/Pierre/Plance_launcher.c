@@ -119,7 +119,7 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 						if(sens == TRUE)
 							orderShootLauncher[0] = 1;
 						else
-							orderShootLauncher[0] = 5;
+							orderShootLauncher[0] = 6;
 
 						lance_launcher_last_launch = 1;
 						break;
@@ -292,7 +292,7 @@ static bool_e hold_state(){
 
 void TIMER_SRC_TIMER_interrupt() {
 	/* pour avoir une activation d'une seconde pour les lanceurs de lances*/
-	static Uint8 lance_launcher_timer = TIME_BETWEEN_LANCE;
+	static Uint8 lance_launcher_timer = TIME_BETWEEN_LANCE; //Le temps entre deux lancers doit être supérieure au temps de maintien des bobines pour éviter, d'avoir deux bobines qui tournent en même temps
 	lance_launcher_timer++;
 
 	static bool_e end_lance_launcher = FALSE;
