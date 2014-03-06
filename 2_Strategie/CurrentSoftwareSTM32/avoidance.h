@@ -276,7 +276,7 @@
 	//Comme goto_pos_with_scan_foe mais avec choix de la fin, je savais pas quoi mettre comme nom ... si quelqu'un a une idée de nom utile, go changer ça :)
 	error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
 
-	error_e goto_pos_curve_with_avoidance(displacement_curve_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
+	error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
 
 
 	//Défini le temps de timeout d'evitement (pour *AND_WAIT). Ce temps est valide que pour le prochain mouvement, il est réinitialisé après.
