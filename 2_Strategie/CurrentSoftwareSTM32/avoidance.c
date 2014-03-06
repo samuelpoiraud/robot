@@ -822,18 +822,11 @@ void AVOIDANCE_set_timeout(Uint16 msec) {
 /* Fonction qui réalise un ASSER_push_goto tout simple avec la gestion de l'évitement */
 error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
 {
-	displacement_curve_t displacements_curve[nb_displacements];
-	Uint8 i;
-	for(i=0;i<nb_displacements;i++){
-		displacements_curve[i].point = displacements[i].point;
-		displacements_curve[i].speed = displacements[i].speed;
-		displacements_curve[i].curve = TRUE;
-	}
-	goto_pos_curve_with_avoidance(displacements_curve,nb_displacements,way,avoidance_type,end_condition);
+	return goto_pos_curve_with_avoidance(displacements,NULL,nb_displacements,way,avoidance_type,end_condition);
 }
 
 /* Fonction qui réalise un ASSER_push_goto avec la possibilité de courbe ou non, avec la gestion de l'évitement */
-error_e goto_pos_curve_with_avoidance(displacement_curve_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
+error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
 {
 	enum state_e
 	{
@@ -858,21 +851,41 @@ error_e goto_pos_curve_with_avoidance(displacement_curve_t displacements[], Uint
 			timeout = FALSE;
 			for(i=nb_displacements-1;i>=1;i--)
 			{
+				if(displacements){
+					#ifdef USE_ASSER_MULTI_POINT
+						ASSER_push_goto_multi_point
+							(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, FALSE);
+					#else
+						ASSER_push_goto
+							(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, 0,END_AT_BREAK, FALSE);
+					#endif
+				}else{
+					#ifdef USE_ASSER_MULTI_POINT
+						ASSER_push_goto_multi_point
+							(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, displacements_curve[i].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, FALSE);
+					#else
+						ASSER_push_goto
+							(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, 0,END_AT_BREAK, FALSE);
+					#endif
+				}
+			}
+			if(displacements){
 				#ifdef USE_ASSER_MULTI_POINT
 					ASSER_push_goto_multi_point
-						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, displacements[i].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, FALSE);
+						(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, TRUE);
 				#else
 					ASSER_push_goto
-						(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, 0,END_AT_BREAK, FALSE);
+						(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0,END_AT_BREAK, TRUE);
+				#endif
+			}else{
+				#ifdef USE_ASSER_MULTI_POINT
+					ASSER_push_goto_multi_point
+						(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, TRUE);
+				#else
+					ASSER_push_goto
+						(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, 0,END_AT_BREAK, TRUE);
 				#endif
 			}
-			#ifdef USE_ASSER_MULTI_POINT
-				ASSER_push_goto_multi_point
-					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way,  displacements[i].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, TRUE);
-			#else
-				ASSER_push_goto
-					(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0, end_condition, TRUE);
-			#endif
 						avoidance_printf("goto_pos_with_scan_foe : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;

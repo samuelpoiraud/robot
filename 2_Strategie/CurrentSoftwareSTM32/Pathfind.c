@@ -480,7 +480,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 				state = FAIL;
 			break;
 		case DISPLACEMENT:
-			sub_action = goto_pos_curve_with_avoidance(displacements, nb_displacements, way, no_dodge_avoidance, end_condition);
+			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, no_dodge_avoidance, end_condition);
 			switch(sub_action)
 			{
 				case IN_PROGRESS:
