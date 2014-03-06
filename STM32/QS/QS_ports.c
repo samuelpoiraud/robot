@@ -226,6 +226,11 @@ void PORTS_set_pull(GPIO_TypeDef* GPIOx, Uint16 GPIO_Pin, GPIOPuPd_TypeDef pull_
 void PORTS_pwm_init() {
 	GPIO_InitTypeDef GPInit;
 
+
+#if !defined(USE_PWM1) && !defined(USE_PWM2) && !defined(USE_PWM3) && !defined(USE_PWM4)
+	UNUSED_VAR(GPInit);
+#endif
+
 	/* Configuration GPIO et remappings */
 	GPInit.GPIO_Mode = GPIO_Mode_AF;
 	GPInit.GPIO_Speed = GPIO_Speed_50MHz;

@@ -49,6 +49,10 @@ void PWM_init(void)
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef TIM_OCInitStructure;
 
+#if !defined(USE_PWM1) && !defined(USE_PWM2) && !defined(USE_PWM3) && !defined(USE_PWM4)
+	UNUSED_VAR(TIM_OCInitStructure);
+#endif
+
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
 
 	PORTS_pwm_init();
