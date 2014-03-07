@@ -21,7 +21,7 @@
 #include "../QS/QS_outputlog.h"
 
 #define TAILLE_ROBOT 10 /*!</\def TAILLE_ROBOT taille d'un robot par rapport à son centre*/
-
+#define HEAD_COLOR 54
 
 
 /**
@@ -232,8 +232,13 @@ void display_robot(display_robot_t * robot)
 			x += robot->x;
 			y += robot->y;
 
-			if(x>0 && x<199 && y>0 && y<299)
-				ram_tableauImage[y+320*x]=color;
+			if(x>0 && x<199 && y>0 && y<299){
+				Sint16 angle = (Sint16)(atan2((y-robot->y),(x-robot->x))*4096);
+				if(angle < robot->teta+PI4096/4 && angle > robot->teta-PI4096/4){ // Ne gere pas le passage 2pi à 0 pour affichage de la tete
+					ram_tableauImage[y+320*x]=HEAD_COLOR;
+				}else
+					ram_tableauImage[y+320*x]=color;
+			}
 		}
 	}//*/
 }
