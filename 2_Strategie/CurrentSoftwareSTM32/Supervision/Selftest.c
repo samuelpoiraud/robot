@@ -440,8 +440,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
 	Uint8 i;
 	debug_printf("SELFTEST ENDED with %d error(s) :\n",size);
-	LCD_printf(0,"Stest ENDED: %2d ERRhahaahaha",size);
-	LCD_printf(1,"Stest ENDED: %2d ERRhahaahaha",size);
+	LCD_printf(0,"Stest ENDED: %2d ERR",size);
+	LCD_printf(1,"Stest ENDED: %2d ERR",size);
 	BUZZER_play(200, DEFAULT_NOTE, size);	//Autant de bip que d'erreurs !
 	for(i=0;i<size;i++)
 	{
@@ -486,9 +486,9 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				default:										debug_printf("UNKNOW_ERROR_CODE"); 						break;
 			}
 			debug_printf("\n");
-//			LCD_write_selftest_errors(errors, size);
 		}
 	}
+	LCD_write_selftest_errors(size);
 }
 
 
@@ -739,4 +739,57 @@ void SELFTEST_check_alim(){
 		says = TRUE;
 	}else
 		says = FALSE;
+}
+
+
+char * getError_string(SELFTEST_error_code_e error_num){
+	static char default_string[21] = {'0','x',0,0,' ','U','n','k','n','o','w','n',' ','E','R','R'};
+
+	switch(error_num){
+		case SELFTEST_NOT_DONE:							return "Not done"; break;
+		case SELFTEST_FAIL_UNKNOW_REASON:				return "Error 404"; break;
+		case SELFTEST_NO_POWER:							return "No Power";break;
+		case SELFTEST_TIMEOUT:							return "Timeout";break;
+		case SELFTEST_PROP_FAILED:						return "PROP failed";break;
+		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";break;
+		case SELFTEST_PROP_DT10_1_FAILED:				return "DT10 1 failed";break;
+		case SELFTEST_PROP_DT10_2_FAILED:				return "DT10 2 failed";break;
+		case SELFTEST_PROP_DT10_3_FAILED:				return "DT10 3 failed";break;
+		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";break;
+		case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			return "PROP in LCD T mode"; break;
+		case SELFTEST_STRAT_BIROUTE_NOT_IN_PLACE:		return "Biroute not in place";break;
+		case SELFTEST_STRAT_RTC:						return "RTC failed";break;
+		case SELFTEST_STRAT_BATTERY_NO_24V:				return "NO 24V";break;
+		case SELFTEST_STRAT_BATTERY_LOW:				return "BATTERY LOW";break;
+		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";break;
+		case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			return "Biroute Forgotten"; break;
+		case SELFTEST_STRAT_SD_WRITE_FAIL:				return "SD Write FAIL";break;
+		case SELFTEST_ACT_UNREACHABLE:					return "ACT Unreachable";break;
+		case SELFTEST_PROP_UNREACHABLE:					return "PROP Unreachable";break;
+		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";break;
+		case SELFTEST_ACT_MISSING_TEST:					return "Missing test";break;
+		case SELFTEST_ACT_UNKNOWN_ACT:					return "Unkown ACT";break;
+		case SELFTEST_ACT_FRUIT_MOUTH:					return "ACT FRUIT";break;
+		case SELFTEST_ACT_LANCELAUNCHER:				return "ACT LanceLauch";break;
+		case SELFTEST_ACT_ARM:							return "ACT arm";break;
+		case SELFTEST_ACT_SMALL_ARM:					return "ACT small arm";break;
+		case SELFTEST_ACT_FILET:						return "ACT filet";break;
+		case SELFTEST_POMPE:							return "POMPE ERR";break;
+
+		case SELFTEST_ERROR_NB: return NULL; break;
+		case SELFTEST_NO_ERROR: return NULL; break;
+		default:
+			if((error_num>>4)>9){
+				default_string[2]=(error_num>>4)+'A';
+			}else{
+				default_string[2]=(error_num>>4)+'0';
+			}
+			if((error_num & 0x0F)>9){
+				default_string[3]=(error_num & 0x0F)+'A';
+			}else{
+				default_string[3]=(error_num & 0x0F)+'0';
+			}
+			return default_string;
+		break;
+	}
 }
