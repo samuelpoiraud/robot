@@ -17,7 +17,8 @@
 #include "fonts.h"
 #include "stm32f4_discovery_lcd.h"
 #include "image.h"
-
+#include <math.h>
+#include "../QS/QS_outputlog.h"
 
 #define TAILLE_ROBOT 10 /*!</\def TAILLE_ROBOT taille d'un robot par rapport à son centre*/
 
@@ -167,12 +168,25 @@ void ecriture_info_prosition_v2(void){
 void delete_previous_robot(display_robot_t * robot)
 {
 	Sint16 i,j;
-	for (i=robot->xprec-robot->size/2;i<=robot->xprec+robot->size/2;i++)
-		for(j=robot->yprec-robot->size/2;j<=robot->yprec+robot->size/2;j++)
-			if(i<199 && j<299)
-				Display_Tableau(j+320*i);
-	robot->yprec=robot->y;
-	robot->xprec=robot->x;
+	Sint16 x,y;
+
+	for(i=robot->xprec-robot->size/2;i<=robot->xprec+robot->size/2;i++){
+		for(j=robot->yprec-robot->size/2;j<=robot->yprec+robot->size/2;j++){
+			x = i;
+			y = j;
+			x -= robot->xprec;
+			y -= robot->yprec;
+			rotation_angle_teta(&x,&y,robot->tetaprec);
+			x += robot->xprec;
+			y += robot->yprec;
+			if(x>0 && x<199 && y>0 && y<299)
+				Display_Tableau(y+320*x);
+		}
+	}
+
+	robot->xprec = robot->x;
+	robot->yprec = robot->y;
+	robot->tetaprec = robot->teta;
 	robot->updated = FALSE;
 }
 
@@ -182,17 +196,44 @@ void delete_previous_robot(display_robot_t * robot)
  * \param x,y coordonées actuel du robot
  * couleur_robot la couleur d'affichage du robot (en RVB_8bits)
  */
+
+void rotation_angle_teta(Sint16 *x,Sint16 *y,Sint16 teta1){
+	Sint16 x1 = *x, y1 = *y;
+
+	float teta;
+	teta = (float)(teta1)/4096.0;
+
+	*x = x1*cos(teta)-y1*sin(teta);
+	*y = x1*sin(teta)+y1*cos(teta);
+}
+
 void display_robot(display_robot_t * robot)
 {
 	Sint16 i,j;
 //	assert(robot->y<=300);
 //	assert(robot->x<=200);
 	Uint8 color = robot->color;
-	for (i = robot->x - robot->size/2; i <= robot->x + robot->size/2 ; i++)//i =(robot->x>robot->size/2)? robot->x-robot->size/2 : 0
-		for(j = robot->y - robot->size/2; j <= robot->y + robot->size/2 ; j++)//(robot->y>robot->size/2)? robot->y-robot->size/2 : 0
-			if(i<199 && j<299)
-				ram_tableauImage[j+320*i]=color;
+
+	Sint16 x,y;
+
+	for(i = robot->x - robot->size/2; i <= robot->x + robot->size/2;i++){
+		for(j = robot->y - robot->size/2; j <= robot->y + robot->size/2;j++){
+			x = i;
+			y = j;
+
+			x -= robot->x;
+			y -= robot->y;
+			rotation_angle_teta(&x,&y,robot->teta);
+			x += robot->x;
+			y += robot->y;
+
+			if(x>0 && x<199 && y>0 && y<299)
+				ram_tableauImage[y+320*x]=color;
+		}
+	}//*/
 }
+
+
 
 /**
  * \fn void display_bouton(couleur_robot_e couleur_robot,uint8_t couleur_equipe)

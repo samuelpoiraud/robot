@@ -38,4 +38,5 @@ void delete_previous_robot(display_robot_t * pos);
 void display_background(uint16_t y_prec,uint16_t x_prec);
 void display_robot(display_robot_t * robot);
 void display_bouton(couleur_robot_e couleur,uint8_t couleur_equipe);
+void rotation_angle_teta(Sint16 *x,Sint16 *y,Sint16 teta);
 #endif /* WRITE_LCD_H_ */

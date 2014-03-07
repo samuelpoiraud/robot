@@ -50,8 +50,10 @@ typedef struct
 {
 	Sint16 x;		/**< position en x */
 	Sint16 y;		/**< position en y */
+	Sint16 teta;
 	Sint16 xprec;	/**< position précedent en x */
 	Sint16 yprec;	/**< position précédente en u */
+	Sint16 tetaprec;
 	Uint16 size;	/**< taille du carré représentant le robot */
 	bool_e updated;	/**< informe si le robot a été mis à jour */
 	Uint8 color;	/**< couleur du robot en question */
