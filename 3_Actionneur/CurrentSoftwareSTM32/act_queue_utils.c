@@ -240,14 +240,6 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 
 	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
-		case ACT_BALLINFLATER & 0xFF:       originalSidStr = "BallInflater"; break;
-		case ACT_BALLLAUNCHER & 0xFF:       originalSidStr = "BallLauncher"; break;
-		case ACT_BALLSORTER & 0xFF:         originalSidStr = "BallSorter";   break;
-		case ACT_CANDLECOLOR & 0xFF:        originalSidStr = "CandleColor";  break;
-		case ACT_HAMMER & 0xFF:             originalSidStr = "Hammer";       break;
-		case ACT_LIFT_LEFT & 0xFF:          originalSidStr = "LiftLeft";     break;
-		case ACT_LIFT_RIGHT & 0xFF:         originalSidStr = "LiftRight";    break;
-		case ACT_PLATE & 0xFF:              originalSidStr = "Plate";        break;
 		case ACT_FRUIT_MOUTH & 0xFF:        originalSidStr = "FruitMouth";   break;
 		case ACT_LANCELAUNCHER & 0xFF:      originalSidStr = "LanceLauncher";break;
 		case ACT_ARM & 0xFF:                originalSidStr = "Arm";          break;
