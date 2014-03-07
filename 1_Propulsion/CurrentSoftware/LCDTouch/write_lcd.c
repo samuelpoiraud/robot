@@ -191,12 +191,11 @@ void delete_previous_robot(display_robot_t * robot)
 }
 
 /**
- * \fn  display_robot(uint16_t y,uint16_t x,uint8_t couleur_robot)
- * \brief Fonction d'affichage du robot
- * \param x,y coordonées actuel du robot
- * couleur_robot la couleur d'affichage du robot (en RVB_8bits)
+ * \fn  void rotation_angle_teta(Sint16 *x,Sint16 *y,Sint16 teta1)
+ * \brief Fonction de rotation du robot, utilise matrice de rotation
+ * \param x,y coordonées du point à faire tourner
+ * teta en angle de combien on doit le tourner
  */
-
 void rotation_angle_teta(Sint16 *x,Sint16 *y,Sint16 teta1){
 	Sint16 x1 = *x, y1 = *y;
 
@@ -207,6 +206,12 @@ void rotation_angle_teta(Sint16 *x,Sint16 *y,Sint16 teta1){
 	*y = x1*sin(teta)+y1*cos(teta);
 }
 
+/**
+ * \fn  display_robot(uint16_t y,uint16_t x,uint8_t couleur_robot)
+ * \brief Fonction d'affichage du robot
+ * \param x,y coordonées actuel du robot
+ * couleur_robot la couleur d'affichage du robot (en RVB_8bits)
+ */
 void display_robot(display_robot_t * robot)
 {
 	Sint16 i,j;
