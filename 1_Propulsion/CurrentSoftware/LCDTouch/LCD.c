@@ -97,6 +97,7 @@ void LCD_pos_init(void){
 		robots[i].y = 40+40*i;
 		robots[i].xprec = 40;
 		robots[i].yprec = 40+40*i;
+		robots[i].teta = PI4096;
 		robots[i].updated = TRUE;
 	}
 	robots[FRIEND_1].size = 30;
@@ -206,6 +207,7 @@ void LCD_process_main(void){
 
 		robots[US].x = global.position.x/10; //Calcul de la position pour affichage ecran
 		robots[US].y = global.position.y/10;
+		robots[US].teta = global.position.teta;
 
 		robots[US].updated = TRUE;			// Déclarer changement pour l'affichage
 
