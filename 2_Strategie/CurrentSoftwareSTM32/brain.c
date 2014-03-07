@@ -23,6 +23,7 @@
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
 #include "config_use.h"
+#include "Supervision/Supervision.h"
 
 #include "strats_2013/actions.h"
 #include "strats_2013/actions_tests_krusty.h"
@@ -188,7 +189,6 @@ void any_match(void)
 				//MATCH EN ATTENTE DE LANCEMENT
 				#ifdef USE_SCHEDULED_POSITION_REQUEST
 					static bool_e initialized = FALSE;
-					CAN_msg_t msg;
 					if(!initialized)
 					{
 						initialized = TRUE;
