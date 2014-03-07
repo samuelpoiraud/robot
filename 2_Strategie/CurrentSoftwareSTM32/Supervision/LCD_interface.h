@@ -51,7 +51,8 @@ void LCD_strat_number_update(void);
 /*
  * Ecrit une ligne définie par l'utilisateur à la position demandée
  */
-void LCD_printf(Uint8 pos, char * chaine, ...);
+//__attribute__((format (printf, 2, 3)))  permet au compilateur de verifier l'argument chaine avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
+void LCD_printf(Uint8 pos, char * chaine, ...) __attribute__((format (printf, 2, 3)));
 
 /*
  * Prend le control de l'écran pour afficher les messages utilisateurs
