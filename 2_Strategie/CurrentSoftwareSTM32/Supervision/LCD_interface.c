@@ -61,6 +61,7 @@ enum{
 }menu_choice;
 
 
+
 /* Position du robot sert seulement de buffer intermédiaire entre le can et l'ecran pour eviter certains bug d'interruptions */
 Sint16 x_pos,y_pos,t_angle;
 bool_e change; // Commande le rafraichissement de l'écran
@@ -71,6 +72,9 @@ char free_msg[5][21];
 
 /* Chaines affichées à l'écran */
 char line[4][21];
+
+/* Nombre d'erreurs lors du dernier selftest */
+Uint8 nb_error;
 
 ////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -132,12 +136,13 @@ void display_beacon(){
 		a2 *= (180/PI4096);
 
 		sprintf(line[1],"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
-		change = TRUE;
+		LCD_set_cursor(1,0);
+		LCD_Write_text(line[1]); //Petite triche pour éviter le clear qui fait scintiller tout l'écran
 	}
 }
 
 /* Affiche les strats sélectionnées pour le match à la troisieme ligne du mode info */
-void display_strats(Uint8 pos){
+void display_strats(){
 	if(QS_WHO_AM_I_get() == SMALL_ROBOT){
 		sprintf(line[2],"%s%1d %s%1d %s%1d", strategy[0], strat_nb[0], strategy[1], strat_nb[1], strategy[2], strat_nb[2]);
 	}else{
@@ -146,7 +151,7 @@ void display_strats(Uint8 pos){
 }
 
 /* Affiche le dernier message demandé par l'utilisateur sur la derniere ligne du mode info */
-void display_debug_msg(Uint8 pos){
+void display_debug_msg(){
 
 	sprintf(line[3],"%s",free_msg[0]);
 }
@@ -183,11 +188,39 @@ void display_menu(void){
 	LCD_Write_text("Return");
 }
 
+void display_selftest_result(){
+	Uint8 i=0;
+	char *chaine;
+	if(menu_choice == 0){
+		LCD_set_cursor(0,0);
+		LCD_Write_text(free_msg[0]);
+		for(i=menu_choice; i<3 && i<nb_error; i++){
+			LCD_set_cursor(i+1,0);
+			chaine = getError_string(menu_choice + i);
+			if(chaine)
+				LCD_Write_text(chaine);
+			else
+				LCD_Write_text("Erreur de chaine");
+		}
+	}else{
+		for(i=menu_choice; i<4 && i<nb_error; i++){
+			LCD_set_cursor(i,0);
+			chaine = getError_string(menu_choice + i);
+			if(chaine)
+				LCD_Write_text(chaine);
+			else
+				LCD_Write_text("Erreur de chaine");
+		}
+	}
+}
+
+
+
 void IHM_LEDS(void){
 
 	LED_IHM_OK = (state != INIT);
-	LED_IHM_UP = (state == MENU);
-	LED_IHM_DOWN = (state == MENU);
+	LED_IHM_UP = ((state == MENU) || ((state == SELFTEST) && menu_choice>0));
+	LED_IHM_DOWN = ((state == MENU) || ((state == SELFTEST) && menu_choice<nb_error));
 	LED_IHM_SET = (state != INIT);
 }
 
@@ -207,6 +240,7 @@ void init_LCD_interface(void){
 	y_pos = global.env.pos.y;
 	t_angle = global.env.pos.angle;
 	message.start = 0;
+	nb_error = 0;
 	Uint8 i;
 	strat = STR;
 	for(i=0; i<4; i++){
@@ -247,9 +281,9 @@ void LCD_Update(void){
 
 	switch(state){
 		case INFO_s:
-			display_pos(0);
-			display_beacon(1);
-			display_strats(2);
+			display_pos();
+			display_beacon();
+			display_strats();
 			display_debug_msg(3);
 			display_line();
 			break;
@@ -272,7 +306,11 @@ void LCD_Update(void){
 
 			break;
 		case SELFTEST:
-
+			if(LCD_transition()){
+				display_selftest_result();
+				LCD_set_cursor(0,0);
+				menu_choice = 0;
+			}
 
 			break;
 		default:
@@ -340,6 +378,7 @@ void LCD_printf(Uint8 pos, char * chaine, ...){
 	va_start(args_list, chaine);
 	vsnprintf(free_msg[pos], 21, chaine, args_list);
 	va_end(args_list);
+
 	change = TRUE;
 }
 
@@ -352,19 +391,11 @@ void LCD_free_control(){
 }
 
 
-void LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8 size){
-	Uint8 i;
-	static Uint8 ptr = 0;
-	static Uint8 previous_ptr = 0XFF;
-
-	if(ptr != previous_ptr){
-		LCD_clear_display();
-		LCD_set_cursor(0,0);
-		LCD_Write_text(free_msg[0]);
-
-	}
-	previous_ptr = ptr;
+void LCD_write_selftest_errors(Uint8 size){
+	state = SELFTEST;
+	nb_error = size;
 }
+
 
 ////////////////////////////////////////////////////////////////////////
 /// BUTTON ACTIONS
@@ -378,6 +409,10 @@ void LCD_button_minus(void){
 				menu_choice--;
 			LCD_set_cursor(menu_choice,0);
 			break;
+		case SELFTEST:
+			if(menu_choice < nb_error){
+				menu_choice ++;
+			}
 		default:
 			break;
 	}
@@ -391,6 +426,11 @@ void LCD_button_plus(void){
 			else
 				menu_choice++;
 			LCD_set_cursor(menu_choice,0);
+			break;
+		case SELFTEST:
+			if(menu_choice > 0){
+				menu_choice --;
+			}
 			break;
 		default:
 			break;
@@ -424,7 +464,7 @@ void LCD_button_ok(void){
 			LCD_free_control();
 			break;
 		case SELFTEST:
-			state = INFO_s;
+			LCD_switch_mode();
 			break;
 		default:
 			if(state != INIT){

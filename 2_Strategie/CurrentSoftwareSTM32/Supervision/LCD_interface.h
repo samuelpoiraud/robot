@@ -66,7 +66,7 @@ void LCD_free_control(void);
 /*
  * Lance l'affichage des erreurs de selftest
  */
-void LCD_write_selftest_errors(SELFTEST_error_code_e errors[SELFTEST_ERROR_NB], Uint8 size);
+void LCD_write_selftest_errors(Uint8 size);
 
 
 /*

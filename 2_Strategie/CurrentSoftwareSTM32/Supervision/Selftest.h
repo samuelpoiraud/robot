@@ -4,7 +4,7 @@
  *
  *	Fichier : Selftest.h
  *	Package : Supervision
- *	Description : Envoi et réception des messages de selftest. 
+ *	Description : Envoi et réception des messages de selftest.
  *	Auteur : Ronan & Patman
  *	Version 20100422
  */
@@ -12,18 +12,18 @@
 
 #ifndef SELFTEST_H
 	#define SELFTEST_H
-	
+
 	#include "../QS/QS_can.h"
 	#include "../QS/QS_CANmsgList.h"
-	
-	
+
+
 	typedef enum
 	{
 		BEACON_ERROR,
 		BEACON_NEAR,
 		BEACON_FAR
-	}selftest_beacon_e;	
-		
+	}selftest_beacon_e;
+
 	void SELFTEST_init(void);
 
 	void SELFTEST_update(CAN_msg_t* CAN_msg_received);
@@ -43,5 +43,7 @@
 	void SELFTEST_beacon_counter_init(void);
 	void SELFTEST_get_match_report_IR(CAN_msg_t * msg);
 	void SELFTEST_get_match_report_US(CAN_msg_t * msg);
+
+	char * getError_string(SELFTEST_error_code_e error_num);
 
 #endif
