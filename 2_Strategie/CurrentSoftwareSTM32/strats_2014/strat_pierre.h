@@ -2,11 +2,11 @@
  *	Club Robot ESEO 2013 - 2014
  *	Pierre & Guy
  *
- *	Fichier : actions_pierre.h
- *	Package : Carte S²/strats2013
- *	Description : Tests des actions réalisables par le robot
- *	Auteur : Herzaeone, modifié par .
- *	Version 2013/10/03
+ *	Fichier : strat_pierre.h
+ *	Package : Carte S²/strats2014
+ *	Description :
+ *	Auteur : Arnaud
+ *	Version 2014/03/08
  */
 
 #include "../QS/QS_all.h"
@@ -45,6 +45,13 @@ void set_sub_act_enable(subaction_id_e sub_action, bool_e enable);
 void set_sub_act_t_begin(subaction_id_e sub_action, Uint32 t_begin);
 void set_sub_act_t_end(subaction_id_e sub_action, Uint32 t_end);
 void set_sub_act_chaine(subaction_id_e sub_action, char* chaine);
+void inc_sub_act_priority(subaction_id_e sub_action);
+void dec_sub_act_priority(subaction_id_e sub_action);
+void inc_sub_act_t_begin(subaction_id_e sub_action);
+void dec_sub_act_t_begin(subaction_id_e sub_action);
+void inc_sub_act_t_end(subaction_id_e sub_action);
+void dec_sub_act_t_end(subaction_id_e sub_action);
+
 Uint8 get_sub_act_priority(subaction_id_e sub_action);
 bool_e get_sub_act_enable(subaction_id_e sub_action);
 Uint32 get_sub_act_t_begin(subaction_id_e sub_action);

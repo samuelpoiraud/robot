@@ -2,11 +2,11 @@
  *	Club Robot ESEO 2013 - 2014
  *	Pierre & Guy
  *
- *	Fichier : actions_pierre.c
- *	Package : Carte S²/strats2013
- *	Description : Tests des actions réalisables par le robot
- *	Auteur : Herzaeone, modifié par .
- *	Version 2013/10/03
+ *	Fichier : strat_pierre.c
+ *	Package : Carte S²/strats2014
+ *	Description : Stratégie de base de Pierre
+ *	Auteur : Arnaud.
+ *	Version 2014/03/08
  */
 
 
@@ -196,6 +196,54 @@ void set_sub_act_t_end(subaction_id_e sub_action, Uint32 t_end){
 void set_sub_act_chaine(subaction_id_e sub_action, char* chaine){
 	strncpy(action[sub_action].chaine, chaine, 9); \
 	action[sub_action].chaine[strlen(chaine)] = '\0';
+	action[sub_action].updated_for_lcd = TRUE;
+}
+
+void inc_sub_act_priority(subaction_id_e sub_action){
+	if(action[sub_action].priority == 0xFF)
+		action[sub_action].priority = 0;
+	else
+		action[sub_action].priority++;
+	action[sub_action].updated_for_lcd = TRUE;
+}
+
+void dec_sub_act_priority(subaction_id_e sub_action){
+	if(action[sub_action].priority == 0x00)
+		action[sub_action].priority = 0xFF;
+	else
+		action[sub_action].priority--;
+	action[sub_action].updated_for_lcd = TRUE;
+}
+
+void inc_sub_act_t_begin(subaction_id_e sub_action){
+	if(action[sub_action].t_begin >= 89000)
+		action[sub_action].t_begin = 0;
+	else
+		action[sub_action].t_begin+=1000;
+	action[sub_action].updated_for_lcd = TRUE;
+}
+
+void dec_sub_act_t_begin(subaction_id_e sub_action){
+	if(action[sub_action].t_begin <= 1000)
+		action[sub_action].t_begin = 90000;
+	else
+		action[sub_action].t_begin-=1000;
+	action[sub_action].updated_for_lcd = TRUE;
+}
+
+void inc_sub_act_t_end(subaction_id_e sub_action){
+	if(action[sub_action].t_end >= 80000)
+		action[sub_action].t_end = 0;
+	else
+		action[sub_action].t_end+=1000;
+	action[sub_action].updated_for_lcd = TRUE;
+}
+
+void dec_sub_act_t_end(subaction_id_e sub_action){
+	if(action[sub_action].t_end <= 1000)
+		action[sub_action].t_end = 90000;
+	else
+		action[sub_action].t_end-=1000;
 	action[sub_action].updated_for_lcd = TRUE;
 }
 
