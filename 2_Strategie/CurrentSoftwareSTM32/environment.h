@@ -19,7 +19,7 @@
 	#include "elements.h"
 
 	/* #define communs à plusieurs modules */
-	#define MATCH_DURATION 				90000UL //90 secondes)
+	#define MATCH_DURATION 				30000UL //90 secondes)
 	#define GAME_ZONE_SIZE_X			2000 //2000 mm
 	#define GAME_ZONE_SIZE_Y			3000 //3000 mm
 

@@ -292,6 +292,44 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		case ACT_FRUIT_MOUTH & 0xFF:
 			act_id = ACT_QUEUE_Fruit;
 			break;
+
+		//Krusty
+		case ACT_BALLLAUNCHER & 0xFF:
+			act_id = ACT_QUEUE_BallLauncher;
+			break;
+
+		case ACT_BALLSORTER & 0xFF:
+			act_id = ACT_QUEUE_BallSorter;
+			break;
+
+		case ACT_PLATE & 0xFF:
+			act_id = ACT_QUEUE_Plate;
+			break;
+
+		case ACT_LIFT_LEFT & 0xFF:
+			act_id = ACT_QUEUE_LiftLeft;
+			break;
+
+		case ACT_LIFT_RIGHT & 0xFF:
+			act_id = ACT_QUEUE_LiftRight;
+			break;
+
+		//Tiny
+		case ACT_HAMMER & 0xFF:
+			act_id = ACT_QUEUE_Hammer;
+			break;
+
+		case ACT_BALLINFLATER & 0xFF:
+			act_id = ACT_QUEUE_BallInflater;
+			break;
+
+		case ACT_CANDLECOLOR & 0xFF:
+			act_id = ACT_QUEUE_CandleColor;
+			break;
+
+		case ACT_PLIER & 0xFF:
+			act_id = ACT_QUEUE_Plier;
+			break;
 	}
 
 	if(act_id >= NB_QUEUE) {
