@@ -342,115 +342,9 @@
 // Ceci est un enum de SID d'actionneur avec les paramètres de chaque actions définie par des defines. L'enum est utilisé pour vérifier que tous les messages de retour d'actionneurs sont géré en strat
 
 typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le reste en #DEFINE
-/* Messages pour Tiny */
-	//////////////// HAMMER /////////////////
-	ACT_HAMMER = (ACT_FILTER | 0x01),    //0x01 peut être changé mais pas le reste (sinon le message n'est plus reçu par la carte actionneur par filtrage)
-		//Paramètres de HAMMER (dans data[0])
-		#define ACT_HAMMER_MOVE_TO     0   // Changer la position du bras, angle en degré dans data[1] (poids faible) et data[2]. 90° = bras vertical, 0° = bras rentré
-		#define ACT_HAMMER_STOP        1   // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
-										   //  Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
-		#define ACT_HAMMER_BLOW_CANDLE 2   // Souffler une bougie. La couleur est automatiquement gérée et si on ne doit pas la souffler, rien ne se passera.
-										   //  Dans data[1]: couleur du robot, RED (0) pour rouge, BLUE (1) pour bleu (comme l'enum color_e dans QS_types.h)
-	/////////////////////////////////////////
-
-	////////////// LONGHAMMER ///////////////
-	ACT_LONGHAMMER =(ACT_FILTER | 0x02),
-		//Paramètres de LONGHAMMER (dans data[0])
-		#define ACT_LONGHAMMER_GO_UP   0    // Lever le bras
-		#define ACT_LONGHAMMER_GO_DOWN 1    // Appuyer sur les bougies et les éteindres en descendant le bras
-		#define ACT_LONGHAMMER_GO_PARK 2    // Ranger le bras pour diminuer le diamètre du robot
-		#define ACT_LONGHAMMER_GO_STOP 3    // Arreter l'asservissement, en cas de problème par exemple, ne devrai pas servir en match.
-											//Le bras n'est plus controllé après ça, si la gravité existe toujours, il tombera.
-	/////////////////////////////////////////
-
-	///////////// BALLINFLATER //////////////
-	ACT_BALLINFLATER = (ACT_FILTER | 0x03),
-		//Paramètres de LONGHAMMER (dans data[0])
-		#define ACT_BALLINFLATER_START 0    // Gonfler le ballon pendant data[1] secondes (Uint8). Le message de retour n'attend pas la fin du gonflage.
-		#define ACT_BALLINFLATER_STOP  1    // Stopper le gonflage
-	/////////////////////////////////////////
-
-
-	///////////// CANDLECOLOR ///////////////
-	ACT_CANDLECOLOR = (ACT_FILTER | 0x04),
-		//Paramètres de CANDLECOLOR (dans data[0])
-		#define ACT_CANDLECOLOR_GET_LOW    0  //Bouge le capteur et récupère la couleur d'une bougie à l'étage bas
-		#define ACT_CANDLECOLOR_GET_HIGH   1  //Bouge le capteur et récupère la couleur d'une bougie à l'étage haut
-
-	#define ACT_CANDLECOLOR_RESULT (STRAT_FILTER | (ACT_FILTER >> 4) | 0x1)
-		//Couleur detectée dans data[0]:
-		#define ACT_CANDLECOLOR_COLOR_BLUE   0  //Couleur bleue detectée
-		#define ACT_CANDLECOLOR_COLOR_RED    1  //Couleur rouge detectée
-		#define ACT_CANDLECOLOR_COLOR_YELLOW 2  //Couleur jaune detectée
-		#define ACT_CANDLECOLOR_COLOR_WHITE  3  //Couleur blanche detectée
-		#define ACT_CANDLECOLOR_COLOR_OTHER  4  //Pas de couleur parmi les précédentes detectée
-	/////////////////////////////////////////
-
-
-
-
-	//////////// PLIER //////////////////////
-	ACT_PLIER = (ACT_FILTER | 0x05),
-		//PAramètre de PLIER (dans data[0])
-		#define ACT_PLIER_OPEN         0    //Ouvre les pinces à verres
-		#define ACT_PLIER_CLOSE        1    //Ferme les pinces à verres
-	/////////////////////////////////////////
-
-/* Messages pour Krusty */
-	////////////// BALLLAUNCHER /////////////
-	ACT_BALLLAUNCHER = (ACT_FILTER | 0x11),
-		//Paramètres de BALLLAUNCHER (dans data[0])
-		#define ACT_BALLLAUNCHER_ACTIVATE 0	//Activer le lanceur de balles, vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
-		#define ACT_BALLLAUNCHER_STOP     1	//Stoper le launceur de balles
-	/////////////////////////////////////////
-
-	////////////////// PLATE ////////////////
-	ACT_PLATE = (ACT_FILTER | 0x12),
-		//Paramètres de PLATE (dans data[0]) (0x1x: Pince, 0x2x: Rotation bras)
-		#define ACT_PLATE_PLIER_CLOSE           0x10	//Fermer la pince et serrer l'assiette
-		#define ACT_PLATE_PLIER_OPEN            0x11	//Ouvrir la pince et lacher l'assiette
-		#define ACT_PLATE_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
-
-		#define ACT_PLATE_ROTATE_HORIZONTALLY   0x20	//Amener le bras en position horizontale (pour prendre ou lacher une assiette par ex)
-		#define ACT_PLATE_ROTATE_PREPARE        0x21	//Amener le bras en position intermédiaire (45°) pour préparer un mouvement vers l'horizontale ou verticale
-		#define ACT_PLATE_ROTATE_VERTICALLY     0x22	//Amener le bras en position verticale. Ferme la pince si elle ne l'est pas avant d'effectuer le mouvement (meca oblige) (pour vider une assiette ou réduire le périmêtre du robot)
-		#define ACT_PLATE_ROTATE_STOP           0x2F	//Stopper l'asservissement du bras. A éviter, dans les virages il ne faudrait pas que l'actionneur tombe (même si gros reducteur ...)
-		#define ACT_PLATE_ROTATE_ANGLE          0x2A    //Changer l'angle manuellement
-	/////////////////////////////////////////
-
-	/////////////// BALLSORTER //////////////
-	ACT_BALLSORTER = (ACT_FILTER | 0x13),
-		//Paramètres de BALLSORTER (dans data[0])
-		#define ACT_BALLSORTER_TAKE_NEXT_CHERRY 0    //Ejecter la cerise et en prendre une autre pour la detecter. Après detection, le lanceur de balle change de vitesse automatiquement.
-													 //Vitesse en tr/min dans data[1] et data[2], data[1] est le poids faible (type: Uint16 inférieur à 32000).
-													 //data[3] bool_e: TRUE si on doit garder une cerise blanche dans le lanceur, si la cerise n'est pas blanche, on la lance. FALSE pour toujours lancer toutes les cerises.
-
-	#define ACT_BALLSORTER_RESULT (STRAT_FILTER | (ACT_FILTER >> 4) | 0xA)
-		//Résultat de la detection de la cerise dans data[0]:
-		#define ACT_BALLSORTER_WHITE_CHERRY     0
-		#define ACT_BALLSORTER_NO_CHERRY        1
-		#define ACT_BALLSORTER_BAD_CHERRY       2
-	/////////////////////////////////////////
-
-	////////////////// LIFT /////////////////
-	ACT_LIFT_RIGHT = (ACT_FILTER | 0x14),
-	ACT_LIFT_LEFT = (ACT_FILTER | 0x15),
-		//Paramètres de LIFT (dans data[0]) (0x1x: Pince, 0x2x: mouvement ascenseur)
-		#define ACT_LIFT_PLIER_OPEN            0x10	//Ouvrir la pince et lacher le verre
-		#define ACT_LIFT_PLIER_CLOSE           0x11	//Fermer la pince et serrer le verre
-		#define ACT_LIFT_PLIER_STOP            0x1F	//Stopper l'asservissement de la pince. Peut servir à diminer la conso courant de l'AX12, la pince en elle même ne bougera pas (sauf si il y a une assiette dans la pince ...)
-
-		#define ACT_LIFT_GO_UP                 0x20	//Amener l'ascenseur en position haute.
-		#define ACT_LIFT_GO_MID                0x21	//Amener l'ascenseur en position intermédiaire pour préparer un mouvement vers haut ou bas.
-		#define ACT_LIFT_GO_DOWN               0x22	//Amener l'ascenseur en position basse.
-		#define ACT_LIFT_STOP                  0x2F	//Stopper l'asservissement de l'ascenseur.
-	/////////////////////////////////////////
-
-
-	// 2014
 
 	////////////////// FRUIT_MOUTH ///////////
-	ACT_FRUIT_MOUTH = (ACT_FILTER | 0x18),   //0x16: collision avec ACT_PING
+	ACT_FRUIT_MOUTH = (ACT_FILTER | 0x01),   //0x16: collision avec ACT_PING
 		//Paramètres de la pompe
 		#define ACT_FRUIT_MOUTH_CLOSE           0x10
 		#define ACT_FRUIT_MOUTH_OPEN            0x11
@@ -465,7 +359,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////
 
 	/////////////////LANCELAUNCHER////////////////////
-	ACT_LANCELAUNCHER = (ACT_FILTER | 0x19),
+	ACT_LANCELAUNCHER = (ACT_FILTER | 0x02),
 		//Paramètres de LANCELAUNCHER (dans data[0])
 		#define ACT_LANCELAUNCHER_RUN_1_BALL	0x11
 		#define ACT_LANCELAUNCHER_RUN_5_BALL	0x12
@@ -474,7 +368,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	////////////////////////////////////////////////
 
 	////////////////// ARM  /////////////////
-	ACT_ARM = (ACT_FILTER | 0x20),
+	ACT_ARM = (ACT_FILTER | 0x03),
 		//Paramètres de ARM (dans data[0])
 		#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[1] (une des valeurs ci-dessous)
 			// Voir position du bras ci-dessous (ARM_STATE_ENUM)
@@ -499,7 +393,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////
 
 	/////////////////////FILET///////////////////
-	ACT_FILET = (ACT_FILTER | 0x21),
+	ACT_FILET = (ACT_FILTER | 0x04),
 		//Paramètres de FILET (dans data[0])
 		#define ACT_FILET_IDLE				0x11
 		#define ACT_FILET_LAUNCHED			0x12
@@ -507,7 +401,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////////
 
 	//////////////////PETIT BRAS/////////////////
-	ACT_SMALL_ARM = (ACT_FILTER | 0x22),
+	ACT_SMALL_ARM = (ACT_FILTER | 0x05),
 		//Paramètres de SMALL_ARM (dans data[0])
 		#define ACT_SMALL_ARM_IDLE			0x11
 		#define ACT_SMALL_ARM_MID			0x12
@@ -516,7 +410,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////////
 
 	/////////////////////POMPE///////////////////
-	ACT_POMPE = (ACT_FILTER | 0x23)
+	ACT_POMPE = (ACT_FILTER | 0x06)
 		//Paramètres de SMALL_ARM (dans data[0])
 		#define ACT_POMPE_NORMAL			0x11
 		#define ACT_POMPE_REVERSE			0x12
