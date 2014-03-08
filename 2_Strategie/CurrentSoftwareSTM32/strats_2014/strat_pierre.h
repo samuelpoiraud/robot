@@ -39,11 +39,11 @@ typedef enum{
 	TURN_IF_NO_CALIBRATION
 }subaction_id_e;
 
-void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, Uint32 t_begin, Uint32 t_end, char * chaine);
+void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, char * chaine);
 void set_sub_act_priority(subaction_id_e sub_action, Uint8 priority);
 void set_sub_act_enable(subaction_id_e sub_action, bool_e enable);
-void set_sub_act_t_begin(subaction_id_e sub_action, Uint32 t_begin);
-void set_sub_act_t_end(subaction_id_e sub_action, Uint32 t_end);
+void set_sub_act_t_begin(subaction_id_e sub_action, time32_t t_begin);
+void set_sub_act_t_end(subaction_id_e sub_action, time32_t t_end);
 void set_sub_act_chaine(subaction_id_e sub_action, char* chaine);
 void inc_sub_act_priority(subaction_id_e sub_action);
 void dec_sub_act_priority(subaction_id_e sub_action);
