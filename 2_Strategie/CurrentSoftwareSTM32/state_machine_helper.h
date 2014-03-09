@@ -78,4 +78,9 @@ Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 s
 //Vérifie l'état d'une microstrat: microstrat en cours, microstrat terminée correctement ou microstrat terminée avec une erreur. S'utilise comme try_going pour les états.
 Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state);
 
+// Crée une typedef enum de nom 'enum_name' et une tableau de chaine de caractère de nom 'string_name' contenant toutes les valeurs qui suivent
+#define TYPEDEF_ENUM_WITH_STRING(enum_name, string_name, init_state, ...) \
+	typedef enum { init_state = 0, __VA_ARGS__ } enum_name; \
+	static const char * const string_name[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }
+
 #endif // STATE_MACHINE_HELPER_H
