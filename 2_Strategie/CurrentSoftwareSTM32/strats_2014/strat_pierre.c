@@ -16,6 +16,7 @@
 #include "../state_machine_helper.h"
 #include "../act_can.h"
 #include "../Pathfind.h"
+#include "../Supervision/Buzzer.h"
 #include <string.h>
 
 
@@ -120,6 +121,7 @@ void strat_lannion_cerveau(void){
 					&& subactions[sub].t_end >= global.env.match_time
 					&& subactions[current_subaction].failed > subactions[sub].failed){	// à voir si c'est vraiment nécessaire
 				stop_request = TRUE;
+				BUZZER_play(2000, DEFAULT_NOTE, 1); // Avertisseur sonnore utile dans un premier temps pour vérifier le bon fonctionnement des actions urgentes
 				break;
 			}
 		}
