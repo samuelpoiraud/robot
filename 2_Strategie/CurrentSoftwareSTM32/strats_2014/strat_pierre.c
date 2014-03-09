@@ -36,14 +36,14 @@ typedef struct{
 	time32_t t_end;				// Temps match à partir duquel l'action ne peut plus être appelée (en ms)
 	bool_e updated_for_lcd;		// Doit être mis à 1 à chaque mise à jours
 	char chaine[10];			// Chaine de 9 caractères + '\0' pour décrir l'action sur le lcd
+	bool_e ask_stop_request;	// Peut demander l'arrêt d'une sub_action
 }subaction_t;
 
-static subaction_t subaction[SUB_NB];
-
-
+static subaction_t subactions[SUB_NB];
 
 void strat_lannion_cerveau(void){
-	static subaction_id_e previous = SUB_INIT, state = SUB_INIT;
+	static subaction_id_e previous_state = SUB_INIT, state = SUB_INIT;
+	static subaction_id_e previous_subaction = SUB_INIT, current_subaction = SUB_INIT;
 	static bool_e init = FALSE;
 	static bool_e previous_switch[3];
 
@@ -52,30 +52,36 @@ void strat_lannion_cerveau(void){
 	subaction_id_e sub;
 	Uint8 min_failed, priority;
 
+	bool_e entrance = previous_state != state;
+
+	if(entrance)
+		info_printf("SUBACTION change %s (%d) -> %s (%d)\n", subaction_name[previous_state], previous_state, subaction_name[state], state);
+
 	if(init == FALSE){
 		// Initialisation de la structure
 		for(sub=0;sub<SUB_NB;sub++){
-			subaction[sub].priority = 0xFF;
-			subaction[sub].failed = 0;
-			subaction[sub].done = FALSE;
-			subaction[sub].enable = FALSE;
-			subaction[sub].t_begin = 0;
-			subaction[sub].t_end = 90000;
-			subaction[sub].updated_for_lcd = FALSE;
+			subactions[sub].priority = 0xFF;
+			subactions[sub].failed = 0;
+			subactions[sub].done = FALSE;
+			subactions[sub].enable = FALSE;
+			subactions[sub].t_begin = 0;
+			subactions[sub].t_end = 90000;
+			subactions[sub].updated_for_lcd = FALSE;
+			subactions[sub].ask_stop_request = FALSE;
 		}
 
-		//			sub action		priority	enable		t_begin		t_end		 chaine
-		set_sub_act(SUB_GETOUT,		0,			TRUE,		0,			90000,		 "GETOUT");
-		set_sub_act(SUB_LANCE,		1,			TRUE,		0,			90000,		 "LANCE");
-		set_sub_act(SUB_FRUITS,		2,			TRUE,		0,			90000,		 "FRUITS");
-		set_sub_act(SUB_LANCE_ADV,	3,			TRUE,		0,			90000,		 "LANCE ADV");
-		set_sub_act(SUB_FRUITS_ADV,	4,			TRUE,		60000,		90000,		 "FRUITS ADV");
-		set_sub_act(SUB_FRESCO,		5,			TRUE,		0,			90000,		 "FRESCO");
-		set_sub_act(SUB_FILET,		0,			TRUE,		85000,		90000,		 "FILET");
+		//			sub action		priority	enable		t_begin		t_end		stop_request	chaine
+		set_sub_act(SUB_GETOUT,		0,			TRUE,		0,			90000,		FALSE,			"GETOUT");
+		set_sub_act(SUB_LANCE,		1,			TRUE,		0,			90000,		FALSE,			"LANCE");
+		set_sub_act(SUB_FRUITS,		2,			TRUE,		0,			90000,		FALSE,			"FRUITS");
+		set_sub_act(SUB_LANCE_ADV,	3,			TRUE,		0,			90000,		FALSE,			"LANCE ADV");
+		set_sub_act(SUB_FRUITS_ADV,	4,			TRUE,		60000,		90000,		FALSE,			"FRUITS ADV");
+		set_sub_act(SUB_FRESCO,		5,			TRUE,		0,			90000,		FALSE,			"FRESCO");
+		set_sub_act(SUB_FILET,		0,			TRUE,		85000,		90000,		TRUE,			"FILET");
 
 		// Message d'avertissement dans le cadre d'un oubli d'initialisation de subaction
 		for(sub=0;sub<SUB_NB;sub++)
-			if(subaction[sub].updated_for_lcd == FALSE)
+			if(subactions[sub].updated_for_lcd == FALSE)
 				debug_printf("La subaction %d n'a pas été initialisée !\n", sub);
 
 	}
@@ -102,10 +108,29 @@ void strat_lannion_cerveau(void){
 	// ...
 
 
+	// Lève le flag stop_request si une action prioritaire est disponible et urgente (ask_stop_request)
+	if(stop_request == FALSE){
+		for(sub=0;sub<SUB_NB;sub++){
+			if(subactions[sub].ask_stop_request == TRUE
+					&& subactions[current_subaction].priority < subactions[sub].priority
+					&& subactions[sub].enable == TRUE
+					&& previous_subaction != sub
+					&& current_subaction != sub
+					&& subactions[sub].t_begin <= global.env.match_time
+					&& subactions[sub].t_end >= global.env.match_time
+					&& subactions[current_subaction].failed > subactions[sub].failed){	// à voir si c'est vraiment nécessaire
+				stop_request = TRUE;
+				break;
+			}
+		}
+	}
+
+
 	switch(state){
 
 		case SUB_INIT :
-			subaction[SUB_INIT].done = TRUE;
+			subactions[SUB_INIT].done = TRUE;
+			stop_request = FALSE;
 			state = TAKE_DECISION;
 			break;
 
@@ -116,7 +141,7 @@ void strat_lannion_cerveau(void){
 			sub_action = strat_lance_launcher(FALSE);
 			switch(sub_action){
 				case END_OK :
-					subaction[SUB_LANCE].done = TRUE;
+					subactions[SUB_LANCE].done = TRUE;
 					state = TAKE_DECISION;
 					break;
 
@@ -126,7 +151,7 @@ void strat_lannion_cerveau(void){
 				case END_WITH_TIMEOUT :
 				case NOT_HANDLED :
 				case FOE_IN_PATH :
-					subaction[SUB_LANCE].failed++;
+					subactions[SUB_LANCE].failed++;
 					state = TAKE_DECISION;
 					break;
 			}
@@ -152,17 +177,20 @@ void strat_lannion_cerveau(void){
 
 			// Détermination de la sub action la plus important à faire
 			for(sub=0;sub<SUB_NB;sub++){
-				if(subaction[sub].enable == TRUE
-						&& subaction[sub].done == FALSE
-						&& previous != sub
-						&& subaction[sub].priority < priority
-						&& subaction[sub].failed < min_failed
-						&& subaction[sub].t_begin <= global.env.match_time
-						&& subaction[sub].t_end >= global.env.match_time){
-					priority = subaction[sub].priority;
+				if(subactions[sub].enable == TRUE
+						&& subactions[sub].done == FALSE
+						&& previous_subaction != sub
+						&& subactions[sub].priority < priority
+						&& subactions[sub].failed < min_failed
+						&& subactions[sub].t_begin <= global.env.match_time
+						&& subactions[sub].t_end >= global.env.match_time){
+					min_failed = subactions[sub].failed;
+					priority = subactions[sub].priority;
 					state = sub;
+					current_subaction = sub;
 				}
 			}
+			stop_request = FALSE; // La subaction levant ce flag a été séléctionné, il faut donc le remetre à FALSE
 			break;
 
 		case GET_OUT_IF_NO_CALIBRATION :
@@ -176,127 +204,140 @@ void strat_lannion_cerveau(void){
 		default :
 			break;
 	}
+	previous_state = state;
+	previous_subaction = (state < SUB_NB )? state : previous_subaction;
 	init = TRUE;
 }
 
 void set_sub_act_priority(subaction_id_e sub_action, Uint8 priority){
 	assert(sub_action < SUB_NB);
-	subaction[sub_action].priority = priority;
-	subaction[sub_action].updated_for_lcd = TRUE;
+	subactions[sub_action].priority = priority;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void set_sub_act_enable(subaction_id_e sub_action, bool_e enable){
 	assert(sub_action < SUB_NB);
-	subaction[sub_action].enable = enable;
-	subaction[sub_action].updated_for_lcd = TRUE;
+	subactions[sub_action].enable = enable;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void set_sub_act_t_begin(subaction_id_e sub_action, time32_t t_begin){
 	assert(sub_action < SUB_NB);
-	subaction[sub_action].t_begin = t_begin;
-	subaction[sub_action].updated_for_lcd = TRUE;
+	subactions[sub_action].t_begin = t_begin;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void set_sub_act_t_end(subaction_id_e sub_action, time32_t t_end){
 	assert(sub_action < SUB_NB);
-	subaction[sub_action].t_end = t_end;
-	subaction[sub_action].updated_for_lcd = TRUE;
+	subactions[sub_action].t_end = t_end;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void set_sub_act_chaine(subaction_id_e sub_action, char* chaine){
 	assert(sub_action < SUB_NB);
-	strncpy(subaction[sub_action].chaine, chaine, 9); \
-	subaction[sub_action].chaine[strlen(chaine)] = '\0';
-	subaction[sub_action].updated_for_lcd = TRUE;
+	strncpy(subactions[sub_action].chaine, chaine, 9); \
+	subactions[sub_action].chaine[strlen(chaine)] = '\0';
+	subactions[sub_action].updated_for_lcd = TRUE;
+}
+
+void set_sub_act_ask_stoop_resquest(subaction_id_e sub_action, bool_e ask_stop_request){
+	assert(sub_action < SUB_NB);
+	subactions[sub_action].ask_stop_request = ask_stop_request;
 }
 
 void inc_sub_act_priority(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	if(subaction[sub_action].priority == 0xFF)
-		subaction[sub_action].priority = 0;
+	if(subactions[sub_action].priority == 0xFF)
+		subactions[sub_action].priority = 0;
 	else
-		subaction[sub_action].priority++;
-	subaction[sub_action].updated_for_lcd = TRUE;
+		subactions[sub_action].priority++;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void dec_sub_act_priority(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	if(subaction[sub_action].priority == 0x00)
-		subaction[sub_action].priority = 0xFF;
+	if(subactions[sub_action].priority == 0x00)
+		subactions[sub_action].priority = 0xFF;
 	else
-		subaction[sub_action].priority--;
-	subaction[sub_action].updated_for_lcd = TRUE;
+		subactions[sub_action].priority--;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void inc_sub_act_t_begin(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	if(subaction[sub_action].t_begin >= 89000)
-		subaction[sub_action].t_begin = 0;
+	if(subactions[sub_action].t_begin >= 89000)
+		subactions[sub_action].t_begin = 0;
 	else
-		subaction[sub_action].t_begin+=1000;
-	subaction[sub_action].updated_for_lcd = TRUE;
+		subactions[sub_action].t_begin+=1000;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void dec_sub_act_t_begin(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	if(subaction[sub_action].t_begin <= 1000)
-		subaction[sub_action].t_begin = 90000;
+	if(subactions[sub_action].t_begin <= 1000)
+		subactions[sub_action].t_begin = 90000;
 	else
-		subaction[sub_action].t_begin-=1000;
-	subaction[sub_action].updated_for_lcd = TRUE;
+		subactions[sub_action].t_begin-=1000;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void inc_sub_act_t_end(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	if(subaction[sub_action].t_end >= 80000)
-		subaction[sub_action].t_end = 0;
+	if(subactions[sub_action].t_end >= 80000)
+		subactions[sub_action].t_end = 0;
 	else
-		subaction[sub_action].t_end+=1000;
-	subaction[sub_action].updated_for_lcd = TRUE;
+		subactions[sub_action].t_end+=1000;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 void dec_sub_act_t_end(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	if(subaction[sub_action].t_end <= 1000)
-		subaction[sub_action].t_end = 90000;
+	if(subactions[sub_action].t_end <= 1000)
+		subactions[sub_action].t_end = 90000;
 	else
-		subaction[sub_action].t_end-=1000;
-	subaction[sub_action].updated_for_lcd = TRUE;
+		subactions[sub_action].t_end-=1000;
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
 Uint8 get_sub_act_priority(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	return subaction[sub_action].priority;
+	return subactions[sub_action].priority;
 }
 
 bool_e get_sub_act_enable(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	return subaction[sub_action].enable;
+	return subactions[sub_action].enable;
 }
 
 Uint32 get_sub_act_t_begin(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	return subaction[sub_action].t_begin;
+	return subactions[sub_action].t_begin;
 }
 
 Uint32 get_sub_act_t_end(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	return subaction[sub_action].t_end;
+	return subactions[sub_action].t_end;
 }
 
 char * get_sub_act_chaine(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	return subaction[sub_action].chaine;
+	return subactions[sub_action].chaine;
 }
 
-void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, char * chaine){
+bool_e ask_stop_request(subaction_id_e sub_action){
 	assert(sub_action < SUB_NB);
-	subaction[sub_action].priority = priority;
-	subaction[sub_action].enable = enable;
-	subaction[sub_action].t_begin = t_begin;
-	subaction[sub_action].t_end = t_end;
-	strncpy(subaction[sub_action].chaine, chaine, 9);
-	subaction[sub_action].chaine[strlen(chaine)] = '\0';
-	subaction[sub_action].updated_for_lcd = TRUE;
+	return subactions[sub_action].ask_stop_request;
+}
+
+void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, bool_e ask_stop_request, char * chaine){
+	assert(sub_action < SUB_NB);
+	subactions[sub_action].priority = priority;
+	subactions[sub_action].enable = enable;
+	subactions[sub_action].t_begin = t_begin;
+	subactions[sub_action].t_end = t_end;
+	subactions[sub_action].ask_stop_request = ask_stop_request;
+	strncpy(subactions[sub_action].chaine, chaine, 9);
+	subactions[sub_action].chaine[strlen(chaine)] = '\0';
+	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
