@@ -121,6 +121,7 @@ void strat_lannion_cerveau(void){
 					&& subactions[sub].t_end >= global.env.match_time
 					&& subactions[current_subaction].failed > subactions[sub].failed){	// à voir si c'est vraiment nécessaire
 				stop_request = TRUE;
+				sub_action_broken = FALSE;
 				BUZZER_play(2000, DEFAULT_NOTE, 1); // Avertisseur sonnore utile dans un premier temps pour vérifier le bon fonctionnement des actions urgentes
 				break;
 			}
@@ -133,6 +134,7 @@ void strat_lannion_cerveau(void){
 		case SUB_INIT :
 			subactions[SUB_INIT].done = TRUE;
 			stop_request = FALSE;
+			sub_action_broken = FALSE;
 			state = TAKE_DECISION;
 			break;
 
@@ -141,23 +143,25 @@ void strat_lannion_cerveau(void){
 
 		case SUB_LANCE :
 			sub_action = strat_lance_launcher(FALSE);
-			switch(sub_action){
-				case END_OK :
-					subactions[SUB_LANCE].done = TRUE;
-					state = TAKE_DECISION;
-					break;
+			if(sub_action_broken == TRUE)
+				state = TAKE_DECISION;
+			else
+				switch(sub_action){
+					case END_OK :
+						subactions[SUB_LANCE].done = TRUE;
+						state = TAKE_DECISION;
+						break;
 
-				case IN_PROGRESS :
-					break;
+					case IN_PROGRESS :
+						break;
 
-				case END_WITH_TIMEOUT :
-				case NOT_HANDLED :
-				case FOE_IN_PATH :
-					subactions[SUB_LANCE].failed++;
-					state = TAKE_DECISION;
-					break;
-			}
-
+					case END_WITH_TIMEOUT :
+					case NOT_HANDLED :
+					case FOE_IN_PATH :
+						subactions[SUB_LANCE].failed++;
+						state = TAKE_DECISION;
+						break;
+				}
 			break;
 
 		case SUB_LANCE_ADV :
@@ -193,6 +197,7 @@ void strat_lannion_cerveau(void){
 				}
 			}
 			stop_request = FALSE; // La subaction levant ce flag a été séléctionné, il faut donc le remetre à FALSE
+			sub_action_broken = FALSE; // On réinitialise le flag
 			break;
 
 		case GET_OUT_IF_NO_CALIBRATION :
@@ -351,4 +356,6 @@ void STOP_REQUEST_IF_CHANGE(bool_e condition, Uint8 *state, Uint8 taille, Uint8 
 		if(*state == state_tab[i])
 			return;
 	*state = state_tab[0];
+	sub_action_broken = TRUE; // Si on arrive jusqu'ici c'est qu'on a dû au minimum oublié un état de la machine
+	// donc on signale que la sub_actions à été cassée
 }
