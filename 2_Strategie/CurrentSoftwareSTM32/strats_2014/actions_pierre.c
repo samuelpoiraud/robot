@@ -16,6 +16,7 @@
 #include "../state_machine_helper.h"
 #include "../act_can.h"
 #include "../Pathfind.h"
+#include "strat_pierre.h"
 
 
 /**********************************************************************************************************************************
@@ -695,128 +696,140 @@ error_e strat_manage_fresco(){
 	static Sint16 posY = 1500;
 	static Sint16 oldPosY = 1500; // Si les deux premiere pose ne fonctionne pas nous aurons besoins de lui
 
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 2, (Uint8 []){DONE, ERROR});
+
 	switch(state){
-	case IDLE:
-		if(action_fresco_filed){
-			debug_printf("ERREUR, la fresque a déja été posé\n");
-			return END_OK;
-		}
 
-		if(MODE_MANUAL_FRESCO){
-			posY = POS_Y_MANUAL_FRESCO;
-			state = FILE_FRESCO;
-		}else if(ADVERSARY_DETECTED_HOKUYO == FALSE){//Pose les fresques au milieu si on a pas vu l'adversaire poser les siennes
-			posY = 1500;
-			state = FILE_FRESCO;
-		}else
-			state = ADVERSARY_DETECTED;
+		case IDLE:
+			if(action_fresco_filed){
+				debug_printf("ERREUR, la fresque a déja été posé\n");
+				return END_OK;
+			}
 
-		break;
-	case ADVERSARY_DETECTED:
-		switch(adversary_fresco_index){
-		case 1:
-			if(adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO)// La valeur n est pas comprise
+			if(MODE_MANUAL_FRESCO){
+				posY = POS_Y_MANUAL_FRESCO;
+				state = FILE_FRESCO;
+			}else if(ADVERSARY_DETECTED_HOKUYO == FALSE){//Pose les fresques au milieu si on a pas vu l'adversaire poser les siennes
 				posY = 1500;
-
-			if(adversary_fresco_positions[0] > 1500)
-				posY = POS_MIN_FRESCO;
-			else
-				posY = POS_MAX_FRESCO;
+				state = FILE_FRESCO;
+			}else
+				state = ADVERSARY_DETECTED;
 
 			break;
-		case 2:
-			if((adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO) || (adversary_fresco_positions[1] > POS_MAX_FRESCO && adversary_fresco_positions[1] < POS_MIN_FRESCO))
-				posY = 1500;
 
-			if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)// Les 2 poses ennemis sont sup au milieu de la fresque
-				posY = POS_MIN_FRESCO;
-			else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500) // sont inf au milieu
-				posY = POS_MAX_FRESCO;
-			else{    // Il y a une fresque de chaque coté par rapport au milieu
-				Uint16 fresco_inf,fresco_sup; //Correspond a la plus grande et plus petite variable ou l'adversaire aurait poser ses fresques
+		case ADVERSARY_DETECTED:
+			switch(adversary_fresco_index){
+			case 1:
+				if(adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO)// La valeur n est pas comprise
+					posY = 1500;
 
-				if(adversary_fresco_positions[0] < adversary_fresco_positions[1]){
-					fresco_inf = adversary_fresco_positions[0];
-					fresco_sup = adversary_fresco_positions[1];
-				}else{
-					fresco_inf = adversary_fresco_positions[1];
-					fresco_sup = adversary_fresco_positions[0];
+				if(adversary_fresco_positions[0] > 1500)
+					posY = POS_MIN_FRESCO;
+				else
+					posY = POS_MAX_FRESCO;
+
+				break;
+			case 2:
+				if((adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO) || (adversary_fresco_positions[1] > POS_MAX_FRESCO && adversary_fresco_positions[1] < POS_MIN_FRESCO))
+					posY = 1500;
+
+				if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)// Les 2 poses ennemis sont sup au milieu de la fresque
+					posY = POS_MIN_FRESCO;
+				else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500) // sont inf au milieu
+					posY = POS_MAX_FRESCO;
+				else{    // Il y a une fresque de chaque coté par rapport au milieu
+					Uint16 fresco_inf,fresco_sup; //Correspond a la plus grande et plus petite variable ou l'adversaire aurait poser ses fresques
+
+					if(adversary_fresco_positions[0] < adversary_fresco_positions[1]){
+						fresco_inf = adversary_fresco_positions[0];
+						fresco_sup = adversary_fresco_positions[1];
+					}else{
+						fresco_inf = adversary_fresco_positions[1];
+						fresco_sup = adversary_fresco_positions[0];
+					}
+
+					if(POS_MAX_FRESCO-fresco_sup > fresco_inf-POS_MIN_FRESCO){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
+						if(POS_MAX_FRESCO-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
+							posY = POS_MAX_FRESCO;
+						else
+							posY = (fresco_inf+fresco_sup)/2;
+
+					}else{ //Si la zone entre la POS_MIN_FRESCO est plus grande que celle avec POS_MAX_FRESCO
+						if(fresco_inf-POS_MIN_FRESCO >= fresco_sup-fresco_inf)
+							posY = POS_MIN_FRESCO;
+						else
+							posY = (fresco_inf+fresco_sup)/2;
+					}
 				}
 
-				if(POS_MAX_FRESCO-fresco_sup > fresco_inf-POS_MIN_FRESCO){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
-					if(POS_MAX_FRESCO-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
-						posY = POS_MAX_FRESCO;
-					else
-						posY = (fresco_inf+fresco_sup)/2;
+				break;
+			default: // On ne sait jamais si aucun adversaire a été detecte
+				posY = 1500;
+				break;
+			}
 
-				}else{ //Si la zone entre la POS_MIN_FRESCO est plus grande que celle avec POS_MAX_FRESCO
-					if(fresco_inf-POS_MIN_FRESCO >= fresco_sup-fresco_inf)
+			debug_printf("psoY   %d\n",posY);
+			state = FILE_FRESCO;
+
+			break;
+
+		case FILE_FRESCO:
+			state = check_sub_action_result(strat_file_fresco(posY),FILE_FRESCO,VERIFICATION,ERROR);
+			break;
+
+		case VERIFICATION:
+			if(FRESQUE_ENLEVER_APRS_1_COUP)//fresque plus presente sur le support grace au capteur
+				state = DONE;
+			else
+				state = LAST_CHANCE_FILE_FRESCO;
+
+			break;
+
+		case LAST_CHANCE_FILE_FRESCO:
+				if(entrance){
+					oldPosY = posY;
+
+					if(posY > 1500) //Ne prend plus en compte les positions des adversaires eu precedement (Elles sont fausses sinon ne serait pas dans cet état)
 						posY = POS_MIN_FRESCO;
 					else
-						posY = (fresco_inf+fresco_sup)/2;
+						posY = POS_MAX_FRESCO;
 				}
-			}
+
+				state = check_sub_action_result(strat_file_fresco(posY),LAST_CHANCE_FILE_FRESCO,VERIFICATION_2,ERROR);
+			break;
+
+		case VERIFICATION_2:
+			if(FRESCO_1 && FRESCO_2)//fresque plus presente sur le support grace au capteur
+				state = DONE;
+			else
+				state = LAST_LAST_CHANCE_FILE_FRESCO;
 
 			break;
-		default: // On ne sait jamais si aucun adversaire a été detecte
-			posY = 1500;
+
+		case LAST_LAST_CHANCE_FILE_FRESCO:
+				if(entrance){
+					if(posY == POS_MAX_FRESCO && oldPosY != POS_MIN_FRESCO)
+						posY = POS_MIN_FRESCO;
+					else if(posY == POS_MIN_FRESCO && oldPosY != POS_MAX_FRESCO)
+						posY = POS_MAX_FRESCO;
+					else
+						posY = 1500;
+				}
+
+				state = check_sub_action_result(strat_file_fresco(posY),LAST_LAST_CHANCE_FILE_FRESCO,DONE,ERROR);
 			break;
-		}
 
-		debug_printf("psoY   %d\n",posY);
-		state = FILE_FRESCO;
+		case DONE:
+			action_fresco_filed = TRUE;
+			return END_OK;
+			break;
 
-		break;
-	case FILE_FRESCO:
-		state = check_sub_action_result(strat_file_fresco(posY),FILE_FRESCO,VERIFICATION,ERROR);
-		break;
-	case VERIFICATION:
-		if(FRESQUE_ENLEVER_APRS_1_COUP)//fresque plus presente sur le support grace au capteur
-			state = DONE;
-		else
-			state = LAST_CHANCE_FILE_FRESCO;
+		case ERROR:
+			return NOT_HANDLED;
+			break;
 
-		break;
-	case LAST_CHANCE_FILE_FRESCO:
-			if(entrance){
-				oldPosY = posY;
-
-				if(posY > 1500) //Ne prend plus en compte les positions des adversaires eu precedement (Elles sont fausses sinon ne serait pas dans cet état)
-					posY = POS_MIN_FRESCO;
-				else
-					posY = POS_MAX_FRESCO;
-			}
-
-			state = check_sub_action_result(strat_file_fresco(posY),LAST_CHANCE_FILE_FRESCO,VERIFICATION_2,ERROR);
-		break;
-	case VERIFICATION_2:
-		if(FRESCO_1 && FRESCO_2)//fresque plus presente sur le support grace au capteur
-			state = DONE;
-		else
-			state = LAST_LAST_CHANCE_FILE_FRESCO;
-
-		break;
-	case LAST_LAST_CHANCE_FILE_FRESCO:
-			if(entrance){
-				if(posY == POS_MAX_FRESCO && oldPosY != POS_MIN_FRESCO)
-					posY = POS_MIN_FRESCO;
-				else if(posY == POS_MIN_FRESCO && oldPosY != POS_MAX_FRESCO)
-					posY = POS_MAX_FRESCO;
-				else
-					posY = 1500;
-			}
-
-			state = check_sub_action_result(strat_file_fresco(posY),LAST_LAST_CHANCE_FILE_FRESCO,DONE,ERROR);
-		break;
-	case DONE:
-		action_fresco_filed = TRUE;
-		return END_OK;
-		break;
-	case ERROR:
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
+		default:
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -836,48 +849,57 @@ error_e strat_file_fresco(Sint16 posY){
 
 	static bool_e timeout=FALSE;
 
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){END, END_IMPOSSIBLE, DONE, ERROR});
+
 	switch(state){
-	case IDLE:
-		if(posY > POS_MAX_FRESCO || posY < POS_MIN_FRESCO){
-			debug_printf("ERREUR Mauvaise position envoyer en fresque\n");
+		case IDLE:
+			if(posY > POS_MAX_FRESCO || posY < POS_MIN_FRESCO){
+				debug_printf("ERREUR Mauvaise position envoyer en fresque\n");
+				return NOT_HANDLED;
+			}
+
+			timeout=FALSE;
+
+			state = WALL;
+			break;
+
+		case WALL:
+			state = try_going(240,posY,WALL,PUSH_MOVE,ERROR,SLOW,BACKWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
+			ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
+			state = WAIT_END_OF_MOVE;
+			break;
+
+		case WAIT_END_OF_MOVE:
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+				state = END;
+			}
+			break;
+
+		case END:
+			state = try_going_until_break(250,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case END_IMPOSSIBLE:
+			if(global.env.pos.x > 200)
+				state = ERROR;
+			else
+				state = END;
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
 			return NOT_HANDLED;
-		}
+			break;
 
-		timeout=FALSE;
-
-		state = WALL;
-		break;
-	case WALL:
-
-		state = try_going(240,posY,WALL,PUSH_MOVE,ERROR,SLOW,BACKWARD,NO_DODGE_AND_WAIT);
-		break;
-	case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
-		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
-		state = WAIT_END_OF_MOVE;
-		break;
-	case WAIT_END_OF_MOVE:
-		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
-			state = END;
-		}
-		break;
-	case END:
-		state = try_going_until_break(250,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_NO_WAIT);
-		break;
-	case END_IMPOSSIBLE:
-		if(global.env.pos.x > 200)
-			state = ERROR;
-		else
-			state = END;
-		break;
-	case DONE:
-		state = IDLE;
-		return END_OK;
-		break;
-	case ERROR:
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
+		default:
+			break;
 	}
 
 	return IN_PROGRESS;
