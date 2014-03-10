@@ -12,6 +12,7 @@
 
 #include "strat_pierre.h"
 #include "actions_pierre.h"
+#include "actions_net.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
 #include "../act_can.h"
@@ -27,6 +28,7 @@
  *
  **********************************************************************************************************************************/
 
+#define ON_LEAVING_OF(left_state) (state != left_state)
 
 typedef struct{
 	Uint8 priority;				// Priorité de l'action (faible = forte priorité)
@@ -139,6 +141,11 @@ void strat_lannion_cerveau(void){
 			break;
 
 		case SUB_GETOUT :
+			if(global.env.asser.calibrated){
+				set_sub_act_done(SUB_GETOUT, TRUE);
+				state = TAKE_DECISION;
+			}else
+				state = GET_OUT_IF_NO_CALIBRATION;
 			break;
 
 		case SUB_LANCE :
@@ -148,7 +155,7 @@ void strat_lannion_cerveau(void){
 			else
 				switch(sub_action){
 					case END_OK :
-						subactions[SUB_LANCE].done = TRUE;
+						set_sub_act_done(SUB_LANCE, TRUE);
 						state = TAKE_DECISION;
 						break;
 
@@ -158,7 +165,7 @@ void strat_lannion_cerveau(void){
 					case END_WITH_TIMEOUT :
 					case NOT_HANDLED :
 					case FOE_IN_PATH :
-						subactions[SUB_LANCE].failed++;
+						inc_sub_act_failed(SUB_LANCE); // Il vaut mieux passer par un mutateur qui va tester et avertir en cas de problème
 						state = TAKE_DECISION;
 						break;
 				}
@@ -174,6 +181,30 @@ void strat_lannion_cerveau(void){
 			break;
 
 		case SUB_FILET :
+			strat_placement_net();
+			break;
+
+		case SUB_FRESCO :
+			sub_action = strat_manage_fresco();
+			if(sub_action_broken == TRUE)
+				state = TAKE_DECISION;
+			else
+				switch(sub_action){
+					case END_OK :
+						set_sub_act_done(SUB_FRESCO, TRUE);
+						state = TAKE_DECISION;
+						break;
+
+					case IN_PROGRESS :
+						break;
+
+					case END_WITH_TIMEOUT :
+					case NOT_HANDLED :
+					case FOE_IN_PATH :
+						inc_sub_act_failed(SUB_FRESCO);
+						state = TAKE_DECISION;
+						break;
+				}
 			break;
 
 		case TAKE_DECISION :
@@ -201,15 +232,26 @@ void strat_lannion_cerveau(void){
 			break;
 
 		case GET_OUT_IF_NO_CALIBRATION :
-
+			state = try_going(603, COLOR_Y(400), GET_OUT_IF_NO_CALIBRATION, TURN_IF_NO_CALIBRATION, TURN_IF_NO_CALIBRATION, FAST, ANY_WAY, NO_AVOIDANCE);
 			break;
 
 		case TURN_IF_NO_CALIBRATION :
-
+			if(global.env.color == RED)
+				state = try_go_angle(-PI4096/2, TURN_IF_NO_CALIBRATION, TAKE_DECISION, TAKE_DECISION, FAST);
+			else
+				state = TAKE_DECISION;
+			if(ON_LEAVING_OF(TURN_IF_NO_CALIBRATION))
+				set_sub_act_done(SUB_GETOUT, TRUE);
 			break;
 
-		default :
+
+
+		case SUB_NB : // Impossible state just for no warning
+			if(entrance)
+				error_printf("state = SUB_NB ! Rien à faire ici !\n");
 			break;
+
+		// No default for warning 'missing statement in switch'
 	}
 	previous_state = state;
 	previous_subaction = (state < SUB_NB )? state : previous_subaction;
@@ -227,6 +269,13 @@ void set_sub_act_enable(subaction_id_e sub_action, bool_e enable){
 	subactions[sub_action].enable = enable;
 	subactions[sub_action].updated_for_lcd = TRUE;
 }
+
+void set_sub_act_done(subaction_id_e sub_action, bool_e done){
+	assert(sub_action < SUB_NB);
+	subactions[sub_action].done = done;
+	subactions[sub_action].updated_for_lcd = TRUE;
+}
+
 
 void set_sub_act_t_begin(subaction_id_e sub_action, time32_t t_begin){
 	assert(sub_action < SUB_NB);
@@ -250,6 +299,15 @@ void set_sub_act_chaine(subaction_id_e sub_action, char* chaine){
 void set_sub_act_ask_stoop_resquest(subaction_id_e sub_action, bool_e ask_stop_request){
 	assert(sub_action < SUB_NB);
 	subactions[sub_action].ask_stop_request = ask_stop_request;
+}
+
+void inc_sub_act_failed(subaction_id_e sub_action){
+	assert(sub_action < SUB_NB);
+	if(subactions[sub_action].failed == 0xFF){
+		debug_printf("Trying to incremente %s (%d) subaction but is overflow !\n", subaction_name[sub_action], sub_action);
+		return;
+	}
+	subactions[sub_action].failed++;
 }
 
 void inc_sub_act_priority(subaction_id_e sub_action){

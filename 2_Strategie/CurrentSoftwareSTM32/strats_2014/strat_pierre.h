@@ -63,10 +63,12 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, bool_e ask_stop_request, char * chaine);
 void set_sub_act_priority(subaction_id_e sub_action, Uint8 priority);
 void set_sub_act_enable(subaction_id_e sub_action, bool_e enable);
+void set_sub_act_done(subaction_id_e sub_action, bool_e done);
 void set_sub_act_t_begin(subaction_id_e sub_action, time32_t t_begin);
 void set_sub_act_t_end(subaction_id_e sub_action, time32_t t_end);
 void set_sub_act_chaine(subaction_id_e sub_action, char* chaine);
 void set_sub_act_ask_stop_request(subaction_id_e sub_action, bool_e ask_stop_request);
+void inc_sub_act_failed(subaction_id_e sub_action);
 void inc_sub_act_priority(subaction_id_e sub_action);
 void dec_sub_act_priority(subaction_id_e sub_action);
 void inc_sub_act_t_begin(subaction_id_e sub_action);
