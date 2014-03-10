@@ -19,7 +19,12 @@
 #include "../act_functions.h"
 #include "../QS/QS_types.h"
 #include "../config/config_pin.h"
+#include "../Pathfind.h"
 
+typedef enum{
+	HORAIRE,
+	TRIGO
+}tree_way;
 
 void strat_inutile(void);
 void strat_lannion(void);
@@ -30,13 +35,15 @@ void strat_tourne_en_rond(void);
 error_e strat_manage_fresco();
 error_e strat_file_fresco(Sint16 posY);
 error_e strat_file_fruit();
-error_e strat_ramasser_fruit_arbre1_double(bool_e sens);
-error_e strat_ramasser_fruit_arbre2_double(bool_e sens);
+error_e strat_ramasser_fruit_arbre1_double(tree_way sens);
+error_e strat_ramasser_fruit_arbre2_double(tree_way sens);
 error_e strat_lance_launcher(bool_e lanceAll);
 error_e strat_lance_launcher_ennemy();
 
 void strat_test_filet();
 void strat_test_small_arm();
 void strat_test_vide();
+
+pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2);
 
 #endif /* ACTIONS_PIERRE_H_ */
