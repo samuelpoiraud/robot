@@ -24,6 +24,20 @@
 // Cette variable est mise à TRUE quand une sub action prioritaire urgente doit être faite
 bool_e stop_request;
 
+// L'utilisation de cette fonction est prévue de base sur un changement d'état (entrance)
+	// condition	-> condition qui va déclencher l'arrête de l'action
+	// *state		-> l'état de la machine à état que l'ont doit tester ou modifier
+	// taille		-> taille du tableau d'état passer en argument
+	// state_tab	-> Tableau d'état en commençant par l'état qui va introduire la sortie de l'action
+	//					en continuant par les états par lequels on peut passer jusqu'à la sortie final
+// Fonction à mettre dans toutes les sous machines à états
+// Traiter les cas particuliés d'attente, ... dans les états en ayant besoin, en utilisant la variable global stop_request comme déclencheur
+void STOP_REQUEST_IF_CHANGE(bool_e condition, Uint8 *state, Uint8 taille, Uint8 state_tab[]);
+// Exemple
+// STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){END, END_IMPOSSIBLE, DONE, ERROR});
+// Quand la machine à état change d'état et qu'une stoqu_request est faite on imposse state à END
+// On ne fait rien si l'état change entre END, END_IMPOSSIBLE, DONE, ERROR
+
 TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_INIT,
 	SUB_GETOUT,

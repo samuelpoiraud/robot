@@ -343,3 +343,12 @@ void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time3
 	subactions[sub_action].updated_for_lcd = TRUE;
 }
 
+void STOP_REQUEST_IF_CHANGE(bool_e condition, Uint8 *state, Uint8 taille, Uint8 state_tab[]){
+	Uint8 i;
+	if(stop_request == FALSE || condition == FALSE)
+		return;
+	for(i=0;i<taille;i++)
+		if(*state == state_tab[i])
+			return;
+	*state = state_tab[0];
+}
