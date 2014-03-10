@@ -24,6 +24,9 @@
 // Cette variable est mise à TRUE quand une sub action prioritaire urgente doit être faite
 bool_e stop_request;
 
+// Cette variable est mise à TRUE quand la subaction a été cassé
+bool_e sub_action_broken;
+
 // L'utilisation de cette fonction est prévue de base sur un changement d'état (entrance)
 	// condition	-> condition qui va déclencher l'arrête de l'action
 	// *state		-> l'état de la machine à état que l'ont doit tester ou modifier
