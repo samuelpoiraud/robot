@@ -26,8 +26,6 @@
  *
  **********************************************************************************************************************************/
 
-static bool_e pointIsShotter(pathfind_node_id_t n1,pathfind_node_id_t n2);
-
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions d'homologation			                 */
 /* ----------------------------------------------------------------------------- */
@@ -378,9 +376,9 @@ void strat_test_point2(){
 				// Rammasse notre groupe de fruit
 			case RAMASSER_FRUIT_ARBRE1:
 				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((pointIsShotter(Z1,W3)==TRUE)? TRUE:FALSE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
 				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((pointIsShotter(A1,C3)==TRUE)? TRUE:FALSE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
 
 				if(strat_fruit_sucess == TRUE){
 					presenceFruit = TRUE;
@@ -412,9 +410,9 @@ void strat_test_point2(){
 				// Rammasse second groupe de fruit
 			case RAMASSER_FRUIT_ARBRE2:
 				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((pointIsShotter(Z1,W3)==TRUE)? TRUE:FALSE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
 				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((pointIsShotter(A1,C3)==TRUE)? TRUE:FALSE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
 
 				if(strat_fruit_sucess == TRUE){
 					presenceFruit = TRUE;
@@ -457,9 +455,9 @@ void strat_test_point2(){
 
 			case AGAIN_RAMASSER_FRUIT_ARBRE1:
 				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((pointIsShotter(A1,C3)==TRUE)? TRUE:FALSE),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
 				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((pointIsShotter(Z1,W3)==TRUE)? TRUE:FALSE),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
 
 				if(strat_fruit_sucess == TRUE){
 					presenceFruit = TRUE;
@@ -470,9 +468,9 @@ void strat_test_point2(){
 
 			case AGAIN_RAMASSER_FRUIT_ARBRE2:
 				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((pointIsShotter(Z1,W3)==TRUE)? TRUE:FALSE),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
 				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((pointIsShotter(A1,C3)==TRUE)? TRUE:FALSE),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
 
 				if(strat_fruit_sucess == TRUE){
 					presenceFruit = TRUE;
@@ -696,7 +694,7 @@ error_e strat_manage_fresco(){
 	static Sint16 posY = 1500;
 	static Sint16 oldPosY = 1500; // Si les deux premiere pose ne fonctionne pas nous aurons besoins de lui
 
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 2, (Uint8 []){DONE, ERROR});
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 2, (Uint8 []){ERROR, DONE});
 
 	switch(state){
 
@@ -849,7 +847,7 @@ error_e strat_file_fresco(Sint16 posY){
 
 	static bool_e timeout=FALSE;
 
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){END, END_IMPOSSIBLE, DONE, ERROR});
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){END, END_IMPOSSIBLE, DONE, ERROR, WAIT_END_OF_MOVE/*On ne doit pas quitter cette action*/});
 
 	switch(state){
 		case IDLE:
@@ -918,88 +916,93 @@ error_e strat_file_fruit(){
 	static way_e sensRobot;
 	static Uint16 posOpen; // Position à laquelle, on va ouvrir le bac à fruit
 
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){ERROR, DONE});
+
 	switch(state){
-	case IDLE:
-		if(global.env.pos.y > 2225 && global.env.color == RED){ // Va commencer en haut du bac rouge
-			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[0].y = 2700;
+		case IDLE:
+			if(global.env.pos.y > 2225 && global.env.color == RED){ // Va commencer en haut du bac rouge
+				dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[0].y = 2700;
 
-			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[1].y = 1800;
+				dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[1].y = 1800;
 
-			sensRobot = BACKWARD;
-			posOpen = 2600;
+				sensRobot = BACKWARD;
+				posOpen = 2600;
 
-		}else if(global.env.color == RED){ // Commence au milieu du terrain en étant Rouge
-			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[0].y = 1500;
+			}else if(global.env.color == RED){ // Commence au milieu du terrain en étant Rouge
+				dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[0].y = 1500;
 
-			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[1].y = 2700;
+				dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[1].y = 2700;
 
-			sensRobot = FORWARD;
-			posOpen = 1900;
+				sensRobot = FORWARD;
+				posOpen = 1900;
 
-		}else if(global.env.pos.y > 750){ // Il est de couleur Jaune commence au milieu
-			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[0].y = 1200;
+			}else if(global.env.pos.y > 750){ // Il est de couleur Jaune commence au milieu
+				dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[0].y = 1200;
 
-			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[1].y = 300;
+				dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[1].y = 300;
 
-			sensRobot = BACKWARD;
-			posOpen = 1100;
+				sensRobot = BACKWARD;
+				posOpen = 1100;
 
-		}else{							// Va commencer en bas
-			dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[0].y = 300;
+			}else{							// Va commencer en bas
+				dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[0].y = 300;
 
-			dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[1].y = 1200;
+				dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[1].y = 1200;
 
-			sensRobot = FORWARD;
-			posOpen = 400;
-		}
+				sensRobot = FORWARD;
+				posOpen = 400;
+			}
 
-		state = POS_BEGINNING;
+			state = POS_BEGINNING;
+			break;
 
-		break;
-	case POS_BEGINNING:
-		state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
-		break;
-	case POS_END:
-		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+		case POS_BEGINNING:
+			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
 
-		if(entrance){
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-			ASSER_WARNER_arm_y(posOpen);
-		}
+		case POS_END:
+			if(entrance){
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
+				ASSER_WARNER_arm_y(posOpen);
+			}
 
-		if(global.env.asser.reach_y){ // Ouvrir le bac à fruit pour les faire tomber et sortir le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_OPEN);
-		}
+			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
 
-		break;
-	case DONE: // Fermer le bac à fruit et rentrer le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-			state = IDLE;
-		return END_OK;
-		break;
-	case ERROR: // Fermer le bac à fruit et rentrer le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-			state = IDLE;
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
+			if(global.env.asser.reach_y){ // Ouvrir le bac à fruit pour les faire tomber et sortir le bras
+				ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_OPEN);
+			}
+			break;
+
+		case DONE: // Fermer le bac à fruit et rentrer le bras
+				ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+				state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR: // Fermer le bac à fruit et rentrer le bras
+				ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+				state = IDLE;
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
 	}
 
 	return IN_PROGRESS;
 }
 
-error_e strat_ramasser_fruit_arbre1_double(bool_e sens){ //Commence côté mammouth si sens == true
+error_e strat_ramasser_fruit_arbre1_double(tree_way sens){ //Commence côté mammouth si sens == TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
@@ -1019,72 +1022,82 @@ error_e strat_ramasser_fruit_arbre1_double(bool_e sens){ //Commence côté mammout
 	Uint8 i;
 	static way_e sensRobot;
 
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){ERROR, DONE});
+
+
 	switch(state){
-	case IDLE:
-		strat_fruit_sucess = FALSE;
+		case IDLE:
+			strat_fruit_sucess = FALSE;
 
-		if(global.env.color == RED){ // Dans ce sens là, fonctionne plutôt bien
-			point[0] = (displacement_t){{1000,ELOIGNEMENT_ARBRE-10},FAST};
-			point[1] = (displacement_t){{1500,ELOIGNEMENT_ARBRE},FAST};
-			point[2] = (displacement_t){{1580,350},FAST};
-			point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,480},FAST};
-			point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,900},FAST};
-		}else{ // Jaune
-			point[0] = (displacement_t){{1000,ELOIGNEMENT_ARBRE-10},FAST};
-			point[1] = (displacement_t){{1500,ELOIGNEMENT_ARBRE},FAST};
-			point[2] = (displacement_t){{1580,350},FAST};
-			point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+10,480},FAST};
-			point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+10,900},FAST};
-		}
+			if(global.env.color == RED){ // Dans ce sens là, fonctionne plutôt bien
+				point[0] = (displacement_t){{1000,ELOIGNEMENT_ARBRE-10},FAST};
+				point[1] = (displacement_t){{1500,ELOIGNEMENT_ARBRE},FAST};
+				point[2] = (displacement_t){{1580,350},FAST};
+				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,480},FAST};
+				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,900},FAST};
+			}else{ // Jaune
+				point[0] = (displacement_t){{1000,ELOIGNEMENT_ARBRE-10},FAST};
+				point[1] = (displacement_t){{1500,ELOIGNEMENT_ARBRE},FAST};
+				point[2] = (displacement_t){{1580,350},FAST};
+				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+10,480},FAST};
+				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+10,900},FAST};
+			}
 
-		for(i=0;i<NBPOINT;i++){
-			if(sens == TRUE)
-				courbe[i] = point[i];
+			for(i=0;i<NBPOINT;i++){
+				if(sens == TRIGO)
+					courbe[i] = point[i];
+				else
+					courbe[i] = point[NBPOINT-1-i];
+			}
+
+			if(sens == TRIGO)  // Modifie le sens
+				sensRobot = BACKWARD;
 			else
-				courbe[i] = point[NBPOINT-1-i];
-		}
+				sensRobot = FORWARD;
 
-		if(sens == TRUE)  // Modifie le sens
-			sensRobot = BACKWARD;
-		else
-			sensRobot = FORWARD;
+			state = POS_DEPART;
+			break;
 
-		state = POS_DEPART;
-		break;
-	case POS_DEPART:
-		state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
-		break;
-	case COURBE:
-		state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case POS_DEPART:
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
 
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-		break;
-	case TREE_2:
-		state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
-		break;
-	case POS_FIN:
-		state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
-		break;
-	case DONE:
-		strat_fruit_sucess = TRUE;
-		ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-		state = IDLE;
-		return END_OK;
-		break;
-	case ERROR:
-		ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-		state = IDLE;
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
+		case COURBE:
+			if(entrance)
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
+
+			state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TREE_2:
+			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case POS_FIN:
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case DONE:
+			strat_fruit_sucess = TRUE;
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
 	}
 
 	return IN_PROGRESS;
 }
 
-error_e strat_ramasser_fruit_arbre2_double(bool_e sens){ //Commence côté mammouth si sens == true
+error_e strat_ramasser_fruit_arbre2_double(tree_way sens){ //Commence côté mammouth si sens == HORAIRE
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
@@ -1100,69 +1113,78 @@ error_e strat_ramasser_fruit_arbre2_double(bool_e sens){ //Commence côté mammout
 	static displacement_t courbe[5];
 	static way_e sensRobot;
 
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){ERROR, DONE});
+
 	switch(state){
-	case IDLE:
+		case IDLE:
 
-		strat_fruit_sucess = FALSE;
+			strat_fruit_sucess = FALSE;
 
-		if(sens==TRUE){ // GROS BIDOUILLAGE pour avoir les points a la recup
-			if(global.env.color == RED){
-				courbe[0] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},FAST};
-				courbe[1] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},FAST};
-				courbe[2] = (displacement_t){{1620,2625},FAST};
-				courbe[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-20,2450},FAST};
-				courbe[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-20,1800},FAST};
+			if(sens==HORAIRE){ // GROS BIDOUILLAGE pour avoir les points a la recup
+				if(global.env.color == RED){
+					courbe[0] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},FAST};
+					courbe[1] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},FAST};
+					courbe[2] = (displacement_t){{1620,2625},FAST};
+					courbe[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-20,2450},FAST};
+					courbe[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-20,1800},FAST};
+				}else{
+					courbe[0] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},FAST};
+					courbe[1] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},FAST};
+					courbe[2] = (displacement_t){{1620,2625},FAST};
+					courbe[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-10,2450},FAST};
+					courbe[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-10,1800},FAST};
+				}
 			}else{
-				courbe[0] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},FAST};
-				courbe[1] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},FAST};
-				courbe[2] = (displacement_t){{1620,2625},FAST};
-				courbe[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-10,2450},FAST};
-				courbe[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-10,1800},FAST};
+				courbe[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,1800},FAST};
+				courbe[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,2450},FAST};
+				courbe[2] = (displacement_t){{1620,2575},FAST};
+				courbe[3] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},FAST};
+				courbe[4] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},FAST};
 			}
-		}else{
-			courbe[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,1800},FAST};
-			courbe[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,2450},FAST};
-			courbe[2] = (displacement_t){{1620,2575},FAST};
-			courbe[3] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},FAST};
-			courbe[4] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},FAST};
-		}
 
 
-		if(sens == TRUE)  // Modifie le sens
-			sensRobot = FORWARD;
-		else
-			sensRobot = BACKWARD;
+			if(sens == HORAIRE)  // Modifie le sens
+				sensRobot = FORWARD;
+			else
+				sensRobot = BACKWARD;
 
-		state = POS_DEPART;
-		break;
-	case POS_DEPART:
-		state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
-		break;
-	case COURBE:
-		state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = POS_DEPART;
+			break;
 
-		if(entrance)
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-		break;
-	case TREE_2:
-		state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
-		break;
-	case POS_FIN:
-		state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
-		break;
-	case DONE:
-		strat_fruit_sucess = TRUE;
-		ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-		state = IDLE;
-		return END_OK;
-		break;
-	case ERROR:
-		state = IDLE;
-		ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
+		case POS_DEPART:
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
+
+		case COURBE:
+			if(entrance)
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
+
+			state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TREE_2:
+			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case POS_FIN:
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case DONE:
+			strat_fruit_sucess = TRUE;
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			state = IDLE;
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -1183,81 +1205,86 @@ error_e strat_lance_launcher(bool_e lanceAll){
 	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
 	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
 
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 2, (Uint8 []){ERROR, DONE});
+
 	switch(state){
-	case IDLE:
-		 if(global.env.pos.y > 750  && global.env.color == RED){ // Rouge milieu
-			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[0].y = 1200;
+		case IDLE:
+			 if(global.env.pos.y > 750  && global.env.color == RED){ // Rouge milieu
+				dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
+				dplt[0].y = 1200;
 
-			dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[1].y = 300;
+				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
+				dplt[1].y = 300;
 
-			sensRobot = FORWARD;
-			sensShoot = FALSE;
-			posShoot = 800;
+				sensRobot = FORWARD;
+				sensShoot = FALSE;
+				posShoot = 800;
 
-		}else if(global.env.color == RED){	// Rouge et case depart
-			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[0].y = 500;
+			}else if(global.env.color == RED){	// Rouge et case depart
+				dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
+				dplt[0].y = 500;
 
-			dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[1].y = 1200;
+				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
+				dplt[1].y = 1200;
 
-			sensRobot = BACKWARD;
-			sensShoot = TRUE;
-			posShoot = 660;
-		}else if(global.env.pos.y > 2225){ // Jaune, case depart
-			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[0].y = 2500;
+				sensRobot = BACKWARD;
+				sensShoot = TRUE;
+				posShoot = 660;
+			}else if(global.env.pos.y > 2225){ // Jaune, case depart
+				dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
+				dplt[0].y = 2500;
 
-			dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[1].y = 1800;
+				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
+				dplt[1].y = 1800;
 
-			sensRobot = FORWARD;
-			sensShoot = FALSE;
-			posShoot = 2340;
+				sensRobot = FORWARD;
+				sensShoot = FALSE;
+				posShoot = 2340;
 
-		}else{ // Jaune milieu
-			dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[0].y = 1800;
+			}else{ // Jaune milieu
+				dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
+				dplt[0].y = 1800;
 
-			dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[1].y = 2700;
+				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
+				dplt[1].y = 2700;
 
-			sensRobot = BACKWARD;
-			sensShoot = TRUE;
-			posShoot = 2100;
+				sensRobot = BACKWARD;
+				sensShoot = TRUE;
+				posShoot = 2100;
 
-		}
+			}
 
-		state = POS_BEGINNING;
-		break;
-	case POS_BEGINNING:
-		state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = POS_BEGINNING;
+			break;
 
-		break;
-	case POS_END:
-		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_NO_WAIT);
+		case POS_BEGINNING:
+			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
 
-		if(entrance)
-			ASSER_WARNER_arm_y(posShoot);
+		case POS_END:
+			if(entrance)
+				ASSER_WARNER_arm_y(posShoot);
 
-		if(global.env.asser.reach_y){
-			if(lanceAll == TRUE)
-				ACT_lance_launcher_run(ACT_Lance_ALL,sensShoot);
-			else
-				ACT_lance_launcher_run(ACT_Lance_5_BALL,sensShoot);
-		}
+			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_NO_WAIT);
 
-		break;
-	case DONE:
-		return END_OK;
-		break;
-	case ERROR:
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
+			if(global.env.asser.reach_y){
+				if(lanceAll == TRUE)
+					ACT_lance_launcher_run(ACT_Lance_ALL,sensShoot);
+				else
+					ACT_lance_launcher_run(ACT_Lance_5_BALL,sensShoot);
+			}
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+
+		case ERROR:
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -1277,77 +1304,82 @@ error_e strat_lance_launcher_ennemy(){
 	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
 	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
 
+	STOP_REQUEST_IF_CHANGE(entrance, &state, 2, (Uint8 []){ERROR, DONE});
+
 	switch(state){
-	case IDLE:
-		if(global.env.pos.y > 2225 && global.env.color == RED){ // Va tirer sur le Jaune, case depart jaune
-		   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-		   dplt[0].y = 2700;
+		case IDLE:
+			if(global.env.pos.y > 2225 && global.env.color == RED){ // Va tirer sur le Jaune, case depart jaune
+			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
+			   dplt[0].y = 2700;
 
-		   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-		   dplt[1].y = 1800;
+			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
+			   dplt[1].y = 1800;
 
-		   sensRobot = FORWARD;
-		   sensShoot = FALSE;
-		   posShoot = 2500;
+			   sensRobot = FORWARD;
+			   sensShoot = FALSE;
+			   posShoot = 2500;
 
-		}else if(global.env.color == RED){ // Tire sur le Jaune milieu
-		   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-		   dplt[0].y = 1800;
+			}else if(global.env.color == RED){ // Tire sur le Jaune milieu
+			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
+			   dplt[0].y = 1800;
 
-		   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-		   dplt[1].y = 2700;
+			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
+			   dplt[1].y = 2700;
 
-		   sensRobot = BACKWARD;
-		   sensShoot = TRUE;
-		   posShoot = 2200;
+			   sensRobot = BACKWARD;
+			   sensShoot = TRUE;
+			   posShoot = 2200;
 
-	   }else if(global.env.pos.y > 750){ // tire sur le Rouge milieu
-		   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-		   dplt[0].y = 1200;
+		   }else if(global.env.pos.y > 750){ // tire sur le Rouge milieu
+			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
+			   dplt[0].y = 1200;
 
-		   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-		   dplt[1].y = 300;
+			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
+			   dplt[1].y = 300;
 
-		   sensRobot = FORWARD;
-		   sensShoot = FALSE;
-		   posShoot = 700;
+			   sensRobot = FORWARD;
+			   sensShoot = FALSE;
+			   posShoot = 700;
 
-	   }else{	// Tire Rouge et case depart
-		   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-		   dplt[0].y = 300;
+		   }else{	// Tire Rouge et case depart
+			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
+			   dplt[0].y = 300;
 
-		   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-		   dplt[1].y = 1200;
+			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
+			   dplt[1].y = 1200;
 
-		   sensRobot = BACKWARD;
-		   sensShoot = TRUE;
-		   posShoot = 700;
-	   }
+			   sensRobot = BACKWARD;
+			   sensShoot = TRUE;
+			   posShoot = 700;
+		   }
 
-		state = POS_BEGINNING;
-		break;
-	case POS_BEGINNING:
-		state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = POS_BEGINNING;
+			break;
 
-		break;
-	case POS_END:
-		state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_NO_WAIT);
+		case POS_BEGINNING:
+			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
 
-		if(entrance)
-			ASSER_WARNER_arm_y(posShoot);
+		case POS_END:
+			if(entrance)
+				ASSER_WARNER_arm_y(posShoot);
 
-		if(global.env.asser.reach_y)
-			ACT_lance_launcher_run(ACT_Lance_1_BALL,sensShoot);
+			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_NO_WAIT);
 
-		break;
-	case DONE:
-		return END_OK;
-		break;
-	case ERROR:
-		return NOT_HANDLED;
-		break;
-	default:
-		break;
+			if(global.env.asser.reach_y)
+				ACT_lance_launcher_run(ACT_Lance_1_BALL,sensShoot);
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+
+		case ERROR:
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -1377,8 +1409,6 @@ void strat_test_vide(){
 				break;
 		}
 }
-
-//resultat dans ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
 
 void strat_test_small_arm(){
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -1436,11 +1466,11 @@ void strat_test_small_arm(){
 	}
 }
 
-
-// Compare deux nodes et retourne TRUE si il est le plus près
-static bool_e pointIsShotter(pathfind_node_id_t n1,pathfind_node_id_t n2){
-	if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(n1),PATHFIND_get_node_y(n1),global.env.pos.x,global.env.pos.y) < PATHFIND_manhattan_dist(PATHFIND_get_node_x(n2),PATHFIND_get_node_y(n2),global.env.pos.x,global.env.pos.y))
-		return TRUE;
-
-	return FALSE;
+// Retourne le node le plus proche de notre position
+pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2){
+	if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(n1),PATHFIND_get_node_y(n1),global.env.pos.x,global.env.pos.y)
+			< PATHFIND_manhattan_dist(PATHFIND_get_node_x(n2),PATHFIND_get_node_y(n2),global.env.pos.x,global.env.pos.y))
+		return n1;
+	else
+		return n2;
 }

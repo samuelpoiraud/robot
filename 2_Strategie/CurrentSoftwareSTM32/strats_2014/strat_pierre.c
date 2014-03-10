@@ -44,7 +44,7 @@ typedef struct{
 
 static subaction_t subactions[SUB_NB];
 
-void strat_lannion_cerveau(void){
+void strat_principale_pierre(void){
 	static subaction_id_e previous_state = SUB_INIT, state = SUB_INIT;
 	static subaction_id_e previous_subaction = SUB_INIT, current_subaction = SUB_INIT;
 	static bool_e init = FALSE;
@@ -58,7 +58,10 @@ void strat_lannion_cerveau(void){
 	bool_e entrance = previous_state != state;
 
 	if(entrance)
-		info_printf("SUBACTION change %s (%d) -> %s (%d)\n", subaction_name[previous_state], previous_state, subaction_name[state], state);
+		debug_printf("SUBACTION change %s (%d) -> %s (%d)\n", subaction_name[previous_state], previous_state, subaction_name[state], state);
+
+	previous_state = state;
+	previous_subaction = (state < SUB_NB )? state : previous_subaction;
 
 	if(init == FALSE){
 		// Initialisation de la structure
@@ -74,10 +77,12 @@ void strat_lannion_cerveau(void){
 		}
 
 		//			sub action		priority	enable		t_begin		t_end		stop_request	chaine
+		set_sub_act(SUB_INIT,		0,			TRUE,		0,			90000,		FALSE,			"INIT");
 		set_sub_act(SUB_GETOUT,		0,			TRUE,		0,			90000,		FALSE,			"GETOUT");
 		set_sub_act(SUB_LANCE,		1,			TRUE,		0,			90000,		FALSE,			"LANCE");
 		set_sub_act(SUB_FRUITS,		2,			TRUE,		0,			90000,		FALSE,			"FRUITS");
-		set_sub_act(SUB_LANCE_ADV,	3,			TRUE,		0,			90000,		FALSE,			"LANCE ADV");
+		set_sub_act(SUB_DROP_FRUITS,2,			FALSE,		0,			90000,		FALSE,			"DROP FRUIT");
+		set_sub_act(SUB_LANCE_ADV,	3,			TRUE,		0,			90000,		FALSE,			"LANCE ADV"); // Activer seulement en qualification
 		set_sub_act(SUB_FRUITS_ADV,	4,			TRUE,		60000,		90000,		FALSE,			"FRUITS ADV");
 		set_sub_act(SUB_FRESCO,		5,			TRUE,		0,			90000,		FALSE,			"FRESCO");
 		set_sub_act(SUB_FILET,		0,			TRUE,		85000,		90000,		TRUE,			"FILET");
@@ -85,7 +90,7 @@ void strat_lannion_cerveau(void){
 		// Message d'avertissement dans le cadre d'un oubli d'initialisation de subaction
 		for(sub=0;sub<SUB_NB;sub++)
 			if(subactions[sub].updated_for_lcd == FALSE)
-				debug_printf("La subaction %d n'a pas été initialisée !\n", sub);
+				debug_printf("La subaction %s (%d) n'a pas été initialisée !\n", subaction_name[sub], sub);
 
 	}
 
@@ -149,9 +154,9 @@ void strat_lannion_cerveau(void){
 			break;
 
 		case SUB_LANCE :
-			sub_action = strat_lance_launcher(FALSE);
+			sub_action = strat_lance_launcher(FALSE); // Configuration phase de qualification
 			if(sub_action_broken == TRUE)
-				state = TAKE_DECISION;
+				state = TAKE_DECISION; // Ne pas décompter le fail, ni rien si c'est juste une interruption d'action
 			else
 				switch(sub_action){
 					case END_OK :
@@ -172,12 +177,106 @@ void strat_lannion_cerveau(void){
 			break;
 
 		case SUB_LANCE_ADV :
+			sub_action = strat_lance_launcher_ennemy();
+			if(sub_action_broken == TRUE)
+				state = TAKE_DECISION;
+			else
+				switch(sub_action){
+					case END_OK :
+						set_sub_act_done(SUB_LANCE_ADV, TRUE);
+						state = TAKE_DECISION;
+						break;
+
+					case IN_PROGRESS :
+						break;
+
+					case END_WITH_TIMEOUT :
+					case NOT_HANDLED :
+					case FOE_IN_PATH :
+						inc_sub_act_failed(SUB_LANCE_ADV);
+						state = TAKE_DECISION;
+						break;
+				}
 			break;
 
 		case SUB_FRUITS :
+			if(global.env.color == RED)
+				sub_action = strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE);
+			else
+				sub_action = strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO);
+			if(sub_action_broken == TRUE)
+				state = TAKE_DECISION;
+			else
+				switch(sub_action){
+					case END_OK :
+						set_sub_act_done(SUB_FRUITS, TRUE);
+						set_sub_act_done(SUB_DROP_FRUITS, FALSE);
+						set_sub_act_enable(SUB_DROP_FRUITS, TRUE);
+						state = TAKE_DECISION;
+						break;
+
+					case IN_PROGRESS :
+						break;
+
+					case END_WITH_TIMEOUT :
+					case NOT_HANDLED :
+					case FOE_IN_PATH :
+						inc_sub_act_failed(SUB_FRUITS);
+						state = TAKE_DECISION;
+						break;
+				}
+			break;
+
+		case SUB_DROP_FRUITS :
+			sub_action = strat_file_fruit();
+			if(sub_action_broken == TRUE)
+				state = TAKE_DECISION;
+			else
+				switch(sub_action){
+					case END_OK :
+						set_sub_act_done(SUB_DROP_FRUITS, TRUE);
+						set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
+						state = TAKE_DECISION;
+						break;
+
+					case IN_PROGRESS :
+						break;
+
+					case END_WITH_TIMEOUT :
+					case NOT_HANDLED :
+					case FOE_IN_PATH :
+						inc_sub_act_failed(SUB_DROP_FRUITS);
+						state = TAKE_DECISION;
+						break;
+				}
 			break;
 
 		case SUB_FRUITS_ADV :
+			if(global.env.color == RED)
+				sub_action = strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO);
+			else
+				sub_action = strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE);
+			if(sub_action_broken == TRUE)
+				state = TAKE_DECISION;
+			else
+				switch(sub_action){
+					case END_OK :
+						set_sub_act_done(SUB_FRUITS, TRUE);
+						set_sub_act_done(SUB_DROP_FRUITS, FALSE);
+						set_sub_act_enable(SUB_DROP_FRUITS, TRUE);
+						state = TAKE_DECISION;
+						break;
+
+					case IN_PROGRESS :
+						break;
+
+					case END_WITH_TIMEOUT :
+					case NOT_HANDLED :
+					case FOE_IN_PATH :
+						inc_sub_act_failed(SUB_FRUITS);
+						state = TAKE_DECISION;
+						break;
+				}
 			break;
 
 		case SUB_FILET :
@@ -218,7 +317,7 @@ void strat_lannion_cerveau(void){
 						&& subactions[sub].done == FALSE
 						&& previous_subaction != sub
 						&& subactions[sub].priority < priority
-						&& subactions[sub].failed < min_failed
+						&& subactions[sub].failed <= min_failed
 						&& subactions[sub].t_begin <= global.env.match_time
 						&& subactions[sub].t_end >= global.env.match_time){
 					min_failed = subactions[sub].failed;
@@ -244,7 +343,7 @@ void strat_lannion_cerveau(void){
 				set_sub_act_done(SUB_GETOUT, TRUE);
 			break;
 
-
+//-----------------------------------------------------------------------------
 
 		case SUB_NB : // Impossible state just for no warning
 			if(entrance)
@@ -253,8 +352,6 @@ void strat_lannion_cerveau(void){
 
 		// No default for warning 'missing statement in switch'
 	}
-	previous_state = state;
-	previous_subaction = (state < SUB_NB )? state : previous_subaction;
 	init = TRUE;
 }
 

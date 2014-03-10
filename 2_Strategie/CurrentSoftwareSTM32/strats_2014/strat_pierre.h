@@ -22,7 +22,7 @@
 #include "../state_machine_helper.h"
 
 // Cette variable est mise à TRUE quand une sub action prioritaire urgente doit être faite
-bool_e stop_request;
+bool_e stop_request; // Initialisé à FALSE dans le cas où on n'utilise pas la stratégie principale que ce flag n'ai pas d'incidence
 
 // Cette variable est mise à TRUE quand la subaction a été cassé
 bool_e sub_action_broken;
@@ -47,6 +47,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_LANCE,
 	SUB_LANCE_ADV,
 	SUB_FRUITS,
+	SUB_DROP_FRUITS,
 	SUB_FRUITS_ADV,
 	SUB_FRESCO,
 	SUB_FILET,		//Peu importe l'ordre des états... (sauf en cas de priorité égale)
@@ -59,6 +60,8 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	GET_OUT_IF_NO_CALIBRATION,
 	TURN_IF_NO_CALIBRATION
 );
+
+void strat_principale_pierre();
 
 void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, bool_e ask_stop_request, char * chaine);
 void set_sub_act_priority(subaction_id_e sub_action, Uint8 priority);

@@ -28,6 +28,7 @@
 #include "strats_2014/actions_both_2014.h"
 #include "strats_2014/actions_guy.h"
 #include "strats_2014/actions_pierre.h"
+#include "strats_2014/strat_pierre.h"
 
 
 /**************************************************************
@@ -37,7 +38,7 @@
  **************************************************************/
 
 // GROS = PIERRE (pour la cohérence pour les années suivantes
-#define STRAT_0_GROS strat_lannion
+#define STRAT_0_GROS strat_principale_pierre
 #define STRAT_1_GROS test_strat_robot_virtuel_with_avoidance
 #define STRAT_2_GROS Strat_Detection_Triangle
 #define STRAT_3_GROS test_strat_robot_virtuel_with_avoidance
