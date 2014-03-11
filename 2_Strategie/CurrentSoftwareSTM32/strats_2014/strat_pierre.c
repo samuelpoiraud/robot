@@ -117,7 +117,7 @@ void strat_principale_pierre(void){
 
 
 	// Lève le flag stop_request si une action prioritaire est disponible et urgente (ask_stop_request)
-	if(stop_request == FALSE){
+	if(stop_request_pierre == FALSE){
 		for(sub=0;sub<SUB_NB;sub++){
 			if(subactions[sub].ask_stop_request == TRUE
 					&& subactions[current_subaction].priority < subactions[sub].priority
@@ -127,7 +127,7 @@ void strat_principale_pierre(void){
 					&& subactions[sub].t_begin <= global.env.match_time
 					&& subactions[sub].t_end >= global.env.match_time
 					&& subactions[current_subaction].failed > subactions[sub].failed){	// à voir si c'est vraiment nécessaire
-				stop_request = TRUE;
+				stop_request_pierre = TRUE;
 				sub_action_broken = FALSE;
 				BUZZER_play(2000, DEFAULT_NOTE, 1); // Avertisseur sonnore utile dans un premier temps pour vérifier le bon fonctionnement des actions urgentes
 				break;
@@ -140,8 +140,9 @@ void strat_principale_pierre(void){
 
 		case SUB_INIT :
 			subactions[SUB_INIT].done = TRUE;
-			stop_request = FALSE;
+			stop_request_pierre = FALSE;
 			sub_action_broken = FALSE;
+			main_strategie_pierre_used = TRUE;
 			state = TAKE_DECISION;
 			break;
 
@@ -316,8 +317,7 @@ void strat_principale_pierre(void){
 				if(subactions[sub].enable == TRUE
 						&& subactions[sub].done == FALSE
 						&& previous_subaction != sub
-						&& subactions[sub].priority < priority
-						&& subactions[sub].failed <= min_failed
+						&& subactions[sub].failed + subactions[sub].priority < min_failed + priority
 						&& subactions[sub].t_begin <= global.env.match_time
 						&& subactions[sub].t_end >= global.env.match_time){
 					min_failed = subactions[sub].failed;
@@ -326,7 +326,7 @@ void strat_principale_pierre(void){
 					current_subaction = sub;
 				}
 			}
-			stop_request = FALSE; // La subaction levant ce flag a été séléctionné, il faut donc le remetre à FALSE
+			stop_request_pierre = FALSE; // La subaction levant ce flag a été séléctionné, il faut donc le remetre à FALSE
 			sub_action_broken = FALSE; // On réinitialise le flag
 			break;
 
@@ -505,7 +505,7 @@ void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time3
 
 void STOP_REQUEST_IF_CHANGE(bool_e condition, Uint8 *state, Uint8 taille, Uint8 state_tab[]){
 	Uint8 i;
-	if(stop_request == FALSE || condition == FALSE)
+	if(main_strategie_pierre_used == FALSE || stop_request_pierre == FALSE || condition == FALSE)
 		return;
 	for(i=0;i<taille;i++)
 		if(*state == state_tab[i])
