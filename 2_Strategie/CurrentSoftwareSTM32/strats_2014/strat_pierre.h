@@ -22,10 +22,13 @@
 #include "../state_machine_helper.h"
 
 // Cette variable est mise à TRUE quand une sub action prioritaire urgente doit être faite
-bool_e stop_request; // Initialisé à FALSE dans le cas où on n'utilise pas la stratégie principale que ce flag n'ai pas d'incidence
+bool_e stop_request_pierre; // Initialisé à FALSE dans le brain, si on n'utilise pas la stratégie principale que ce flag n'ai pas d'incidence
 
 // Cette variable est mise à TRUE quand la subaction a été cassé
 bool_e sub_action_broken;
+
+// Variable à TRUE quand la stratégie principal est utilisée et FALSE pour les autres stratégie (utilisation : script à déclencher que quand c'est la stratégie principale)
+bool_e main_strategie_pierre_used;
 
 // L'utilisation de cette fonction est prévue de base sur un changement d'état (entrance)
 	// condition	-> condition qui va déclencher l'arrête de l'action

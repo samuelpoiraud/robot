@@ -63,6 +63,11 @@ void any_match(void)
 	static time32_t match_duration = MATCH_DURATION;
 	if (!global.env.match_started)
 	{
+		// Initialisation à FALSE des machines à état principale pour que les autres stratégie n'ai pas d'influence
+		// Variable mise à TRUE au lancement d'une stratégie principale
+		main_strategie_pierre_used = FALSE;
+		stop_request_pierre = FALSE;
+
 		/* we are before the match */
 		/* regarder si le match doit commencer */
 		if (global.env.ask_start)
