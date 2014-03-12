@@ -56,7 +56,7 @@ void strat_placement_net(){
 	Uint8 i;
 	Sint16 forced_angle;
 
-	if(TIME_MATCH_TO_NET_ROTATE < global.env.match_time && state != DONE && state != PLACEMENT_TETA && state != STOP_ALL)
+	if(global.env.match_time >= TIME_MATCH_TO_NET_ROTATE && state != DONE && state != PLACEMENT_TETA && state != STOP_ALL)
 		state = STOP_ALL;
 
 	switch(state){

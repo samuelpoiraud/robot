@@ -16,8 +16,11 @@
 #include "../state_machine_helper.h"
 #include "../act_can.h"
 #include "../Pathfind.h"
-#include "strat_pierre.h"
+#include "../high_level_strat.h"
 
+
+// Define à activer pour activer le get_in / get_ou des subactions
+//#define USE_GET_IN_OUT
 
 /**********************************************************************************************************************************
  *
@@ -230,7 +233,7 @@ void strat_lannion(void){
 	static way_e sensRobot;
 	static color_e colorIsRed;
 
-	if(TIME_MATCH_TO_NET < global.env.match_time)
+	if(TIME_TO_NET < global.env.match_time)
 		strat_placement_net();
 	else
 		switch(state){
@@ -355,7 +358,7 @@ void strat_test_point2(){
 
 	static bool_e presenceFruit = FALSE;
 
-	if(TIME_MATCH_TO_NET < global.env.match_time)
+	if(TIME_TO_NET < global.env.match_time)
 		strat_placement_net();
 	else
 		switch(state){
@@ -681,6 +684,7 @@ void strat_test_fresque(){
 error_e strat_manage_fresco(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		GET_IN,
 		ADVERSARY_DETECTED,
 		FILE_FRESCO,
 		VERIFICATION,
@@ -694,8 +698,6 @@ error_e strat_manage_fresco(){
 	static Sint16 posY = 1500;
 	static Sint16 oldPosY = 1500; // Si les deux premiere pose ne fonctionne pas nous aurons besoins de lui
 
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 2, (Uint8 []){ERROR, DONE});
-
 	switch(state){
 
 		case IDLE:
@@ -706,13 +708,20 @@ error_e strat_manage_fresco(){
 
 			if(MODE_MANUAL_FRESCO){
 				posY = POS_Y_MANUAL_FRESCO;
-				state = FILE_FRESCO;
+				#ifdef USE_GET_IN_OUT
+					state = GET_IN;
+				#else
+					state = FILE_FRESCO;
+				#endif
 			}else if(ADVERSARY_DETECTED_HOKUYO == FALSE){//Pose les fresques au milieu si on a pas vu l'adversaire poser les siennes
 				posY = 1500;
-				state = FILE_FRESCO;
+				#ifdef USE_GET_IN_OUT
+					state = GET_IN;
+				#else
+					state = FILE_FRESCO;
+				#endif
 			}else
 				state = ADVERSARY_DETECTED;
-
 			break;
 
 		case ADVERSARY_DETECTED:
@@ -767,8 +776,15 @@ error_e strat_manage_fresco(){
 			}
 
 			debug_printf("psoY   %d\n",posY);
-			state = FILE_FRESCO;
+			#ifdef USE_GET_IN_OUT
+				state = GET_IN;
+			#else
+				state = FILE_FRESCO;
+			#endif
+			break;
 
+		case GET_IN :
+			state = PATHFIND_try_going(M0, GET_IN, FILE_FRESCO, ERROR, FORWARD, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case FILE_FRESCO:
@@ -841,13 +857,16 @@ error_e strat_file_fresco(Sint16 posY){
 		WAIT_END_OF_MOVE,
 		END,
 		END_IMPOSSIBLE,
+		GET_OUT_WITH_ERROR,
 		DONE,
-		ERROR
+		ERROR,
+		ERROR_WITH_GET_OUT
 	);
 
 	static bool_e timeout=FALSE;
 
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){END, END_IMPOSSIBLE, DONE, ERROR, WAIT_END_OF_MOVE/*On ne doit pas quitter cette action*/});
+	static Uint8 get_out_try = 0;
+	static GEOMETRY_point_t escape_point[3];
 
 	switch(state){
 		case IDLE:
@@ -857,6 +876,10 @@ error_e strat_file_fresco(Sint16 posY){
 			}
 
 			timeout=FALSE;
+
+			escape_point[0] = (GEOMETRY_point_t){300, 1500};
+			escape_point[1] = (GEOMETRY_point_t){300, 1350};
+			escape_point[2] = (GEOMETRY_point_t){300, 1650};
 
 			state = WALL;
 			break;
@@ -887,12 +910,23 @@ error_e strat_file_fresco(Sint16 posY){
 				state = END;
 			break;
 
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state != GET_OUT_WITH_ERROR)
+				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			break;
+
 		case DONE:
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
+			state = GET_OUT_WITH_ERROR;
+			break;
+
+		case ERROR_WITH_GET_OUT :
+			state = IDLE;
 			return NOT_HANDLED;
 			break;
 
@@ -906,17 +940,21 @@ error_e strat_file_fresco(Sint16 posY){
 error_e strat_file_fruit(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		GET_IN,
 		POS_BEGINNING,
 		POS_END,
+		GET_OUT_WITH_ERROR,
 		DONE,
-		ERROR
+		ERROR,
+		ERROR_WITH_GET_OUT
 	);
+
+	static Uint8 get_out_try = 0;
+	static GEOMETRY_point_t escape_point[2];
 
 	static GEOMETRY_point_t dplt[2]; // Deplacement
 	static way_e sensRobot;
 	static Uint16 posOpen; // Position à laquelle, on va ouvrir le bac à fruit
-
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){ERROR, DONE});
 
 	switch(state){
 		case IDLE:
@@ -961,7 +999,18 @@ error_e strat_file_fruit(){
 				posOpen = 400;
 			}
 
-			state = POS_BEGINNING;
+			escape_point[0] = dplt[1];
+			escape_point[1] = dplt[0];
+			#ifdef USE_GET_IN_OUT
+				state = GET_IN;
+			#else
+				state = POS_BEGINNING;
+			#endif
+			break;
+
+		case GET_IN :
+			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].x,dplt[0].y, 0x00),
+					GET_IN, POS_BEGINNING, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_BEGINNING:
@@ -981,17 +1030,34 @@ error_e strat_file_fruit(){
 			}
 			break;
 
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state != GET_OUT_WITH_ERROR)
+				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			break;
+
 		case DONE: // Fermer le bac à fruit et rentrer le bras
-				ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-				state = IDLE;
+			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR: // Fermer le bac à fruit et rentrer le bras
-				ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			#ifdef USE_GET_IN_OUT
+				state = GET_OUT_WITH_ERROR;
+			#else
 				state = IDLE;
+				return NOT_HANDLED;
+			#endif
+			break;
+
+		case ERROR_WITH_GET_OUT :
+			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			state = IDLE;
 			return NOT_HANDLED;
 			break;
 
@@ -1005,25 +1071,26 @@ error_e strat_file_fruit(){
 error_e strat_ramasser_fruit_arbre1_double(tree_way sens){ //Commence côté mammouth si sens == TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		GET_IN,
 		POS_DEPART,
 		COURBE,
 		TREE_2,
 		POS_FIN,
+		GET_OUT_WITH_ERROR,
 		DONE,
-		ERROR
+		ERROR,
+		ERROR_WITH_GET_OUT
 	);
-
-
-	static displacement_t point[5]; // Pourrait creer une variable tempo
 
 	static const Uint8 NBPOINT = 5;
 
+	static Uint8 get_out_try = 0;
+	static GEOMETRY_point_t escape_point[3];
+
+	displacement_t point[5];
 	static displacement_t courbe[5];
 	Uint8 i;
 	static way_e sensRobot;
-
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){ERROR, DONE});
-
 
 	switch(state){
 		case IDLE:
@@ -1050,12 +1117,25 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way sens){ //Commence côté mammo
 					courbe[i] = point[NBPOINT-1-i];
 			}
 
+			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
+			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
+			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
+
 			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = BACKWARD;
 			else
 				sensRobot = FORWARD;
 
-			state = POS_DEPART;
+			#ifdef USE_GET_IN_OUT
+				state = GET_IN;
+			#else
+				state = POS_DEPART;
+			#endif
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
+					GET_IN, POS_DEPART, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
@@ -1077,6 +1157,12 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way sens){ //Commence côté mammo
 			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state != GET_OUT_WITH_ERROR)
+				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			break;
+
 		case DONE:
 			strat_fruit_sucess = TRUE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
@@ -1086,7 +1172,17 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way sens){ //Commence côté mammo
 
 		case ERROR:
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			#ifdef USE_GET_IN_OUT
+				state = GET_OUT_WITH_ERROR;
+			#else
+				state = IDLE;
+				return NOT_HANDLED;
+			#endif
+			break;
+
+		case ERROR_WITH_GET_OUT :
 			state = IDLE;
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 			return NOT_HANDLED;
 			break;
 
@@ -1100,20 +1196,26 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way sens){ //Commence côté mammo
 error_e strat_ramasser_fruit_arbre2_double(tree_way sens){ //Commence côté mammouth si sens == HORAIRE
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		GET_IN,
 		POS_DEPART,
 		COURBE,
 		TREE_2,
 		POS_FIN,
+		GET_OUT_WITH_ERROR,
 		DONE,
-		ERROR
+		ERROR,
+		ERROR_WITH_GET_OUT
 	);
 
 	static const Uint8 NBPOINT = 5;
 
+	pathfind_node_id_t point_pathfind;
+
+	static Uint8 get_out_try = 0;
+	static GEOMETRY_point_t escape_point[3];
+
 	static displacement_t courbe[5];
 	static way_e sensRobot;
-
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 4, (Uint8 []){ERROR, DONE});
 
 	switch(state){
 		case IDLE:
@@ -1142,13 +1244,35 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way sens){ //Commence côté mammo
 				courbe[4] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},FAST};
 			}
 
+			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
+			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
+			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
+
 
 			if(sens == HORAIRE)  // Modifie le sens
 				sensRobot = FORWARD;
 			else
 				sensRobot = BACKWARD;
 
-			state = POS_DEPART;
+			#ifdef USE_GET_IN_OUT
+				state = GET_IN;
+			#else
+				state = POS_DEPART;
+			#endif
+			break;
+
+		case GET_IN:
+			if(entrance){
+				if(global.env.color == RED && sens==HORAIRE)
+					point_pathfind = Z1;
+				else if(global.env.color == RED && sens==TRIGO)
+					point_pathfind = W3;
+				else if(sens==TRIGO)
+					point_pathfind = A1;
+				else
+					point_pathfind = C3;
+			}
+			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
@@ -1170,6 +1294,12 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way sens){ //Commence côté mammo
 			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state != GET_OUT_WITH_ERROR)
+				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			break;
+
 		case DONE:
 			strat_fruit_sucess = TRUE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
@@ -1178,6 +1308,16 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way sens){ //Commence côté mammo
 			break;
 
 		case ERROR:
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			#ifdef USE_GET_IN_OUT
+				state = GET_OUT_WITH_ERROR;
+			#else
+				state = IDLE;
+				return NOT_HANDLED;
+			#endif
+			break;
+
+		case ERROR_WITH_GET_OUT :
 			state = IDLE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 			return NOT_HANDLED;
@@ -1193,19 +1333,23 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way sens){ //Commence côté mammo
 error_e strat_lance_launcher(bool_e lanceAll){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		GET_IN,
 		POS_BEGINNING,
 		LANCE_LAUNCHER,
 		POS_END,
+		GET_OUT_WITH_ERROR,
 		DONE,
-		ERROR
+		ERROR,
+		ERROR_WITH_GET_OUT
 	);
+
+	static Uint8 get_out_try = 0;
+	static GEOMETRY_point_t escape_point[2];
 
 	static GEOMETRY_point_t dplt[2]; // Deplacement
 	static way_e sensRobot;
 	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
 	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
-
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 2, (Uint8 []){ERROR, DONE});
 
 	switch(state){
 		case IDLE:
@@ -1254,7 +1398,19 @@ error_e strat_lance_launcher(bool_e lanceAll){
 
 			}
 
-			state = POS_BEGINNING;
+			 escape_point[0] = dplt[0];
+			 escape_point[1] = dplt[1];
+
+			#ifdef USE_GET_IN_OUT
+				state = GET_IN;
+			#else
+				state = POS_BEGINNING;
+			#endif
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].x,dplt[0].y, 0x00),
+					GET_IN, POS_BEGINNING, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_BEGINNING:
@@ -1275,11 +1431,28 @@ error_e strat_lance_launcher(bool_e lanceAll){
 			}
 			break;
 
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state != GET_OUT_WITH_ERROR)
+				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			break;
+
 		case DONE:
+			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
+			#ifdef USE_GET_IN_OUT
+				state = GET_OUT_WITH_ERROR;
+			#else
+				state = IDLE;
+				return NOT_HANDLED;
+			#endif
+			break;
+
+		case ERROR_WITH_GET_OUT :
+			state = IDLE;
 			return NOT_HANDLED;
 			break;
 
@@ -1293,21 +1466,26 @@ error_e strat_lance_launcher(bool_e lanceAll){
 error_e strat_lance_launcher_ennemy(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		GET_IN,
 		POS_BEGINNING,
 		POS_END,
+		GET_OUT_WITH_ERROR,
 		DONE,
-		ERROR
+		ERROR,
+		ERROR_WITH_GET_OUT
 	);
+
+	static Uint8 get_out_try = 0;
+	static GEOMETRY_point_t escape_point[2];
 
 	static GEOMETRY_point_t dplt[2]; // Deplacement
 	static way_e sensRobot;
 	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
 	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
 
-	STOP_REQUEST_IF_CHANGE(entrance, &state, 2, (Uint8 []){ERROR, DONE});
-
 	switch(state){
 		case IDLE:
+
 			if(global.env.pos.y > 2225 && global.env.color == RED){ // Va tirer sur le Jaune, case depart jaune
 			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
 			   dplt[0].y = 2700;
@@ -1353,7 +1531,19 @@ error_e strat_lance_launcher_ennemy(){
 			   posShoot = 700;
 		   }
 
-			state = POS_BEGINNING;
+			escape_point[0] = dplt[0];
+			escape_point[1] = dplt[1];
+
+			#ifdef USE_GET_IN_OUT
+				state = GET_IN;
+			#else
+				state = POS_BEGINNING;
+			#endif
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].x,dplt[0].y, 0x00),
+					GET_IN, POS_BEGINNING, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_BEGINNING:
@@ -1370,11 +1560,28 @@ error_e strat_lance_launcher_ennemy(){
 				ACT_lance_launcher_run(ACT_Lance_1_BALL,sensShoot);
 			break;
 
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state != GET_OUT_WITH_ERROR)
+				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			break;
+
 		case DONE:
+			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
+			#ifdef USE_GET_IN_OUT
+				state = GET_OUT_WITH_ERROR;
+			#else
+				state = IDLE;
+				return NOT_HANDLED;
+			#endif
+			break;
+
+		case ERROR_WITH_GET_OUT :
+			state = IDLE;
 			return NOT_HANDLED;
 			break;
 
@@ -1393,7 +1600,7 @@ void strat_test_vide(){
 		DONE
 	);
 
-	if(TIME_MATCH_TO_NET < global.env.match_time)
+	if(TIME_TO_NET < global.env.match_time)
 		strat_placement_net();
 	else
 		switch (state){
@@ -1402,7 +1609,7 @@ void strat_test_vide(){
 				break;
 
 			case AVANCER :
-				state = try_going(1000, 2500, AVANCER, DONE, DONE, SLOW, ANY_WAY, NO_AVOIDANCE);
+				state = try_going(603, 2500, AVANCER, DONE, DONE, SLOW, ANY_WAY, NO_AVOIDANCE);
 				break;
 
 			case DONE :
