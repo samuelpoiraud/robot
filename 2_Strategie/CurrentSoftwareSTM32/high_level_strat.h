@@ -22,13 +22,13 @@
 #include "../state_machine_helper.h"
 
 // Cette variable est mise à TRUE quand une sub action prioritaire urgente doit être faite
-bool_e stop_request_pierre; // Initialisé à FALSE dans le brain, si on n'utilise pas la stratégie principale que ce flag n'ai pas d'incidence
+bool_e stop_request; // Initialisé à FALSE dans le brain, si on n'utilise pas la stratégie principale que ce flag n'ai pas d'incidence
 
 // Cette variable est mise à TRUE quand la subaction a été cassé
 bool_e sub_action_broken;
 
 // Variable à TRUE quand la stratégie principal est utilisée et FALSE pour les autres stratégie (utilisation : script à déclencher que quand c'est la stratégie principale)
-bool_e main_strategie_pierre_used;
+bool_e main_strategie_used;
 
 // L'utilisation de cette fonction est prévue de base sur un changement d'état (entrance)
 	// condition	-> condition qui va déclencher l'arrête de l'action
@@ -47,6 +47,9 @@ void STOP_REQUEST_IF_CHANGE(bool_e condition, Uint8 *state, Uint8 taille, Uint8 
 TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_INIT,
 	SUB_GETOUT,
+
+	//--------------Sub action de pierre
+
 	SUB_LANCE,
 	SUB_LANCE_ADV,
 	SUB_FRUITS,
@@ -55,16 +58,22 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_FRESCO,
 	SUB_FILET,		//Peu importe l'ordre des états... (sauf en cas de priorité égale)
 
+	//--------------Sub action de guy
+
+	SUB_SCAN,
+
+
+	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
 
 	TAKE_DECISION,
 
-	// Autre états
+	//-----------------Autre états
 	GET_OUT_IF_NO_CALIBRATION,
 	TURN_IF_NO_CALIBRATION
 );
 
-void strat_principale_pierre();
+void high_level_strat();
 
 void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, bool_e ask_stop_request, char * chaine);
 void set_sub_act_priority(subaction_id_e sub_action, Uint8 priority);

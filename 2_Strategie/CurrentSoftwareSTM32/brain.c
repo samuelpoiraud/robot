@@ -28,7 +28,7 @@
 #include "strats_2014/actions_both_2014.h"
 #include "strats_2014/actions_guy.h"
 #include "strats_2014/actions_pierre.h"
-#include "strats_2014/strat_pierre.h"
+#include "high_level_strat.h"
 
 
 /**************************************************************
@@ -37,8 +37,11 @@
  *
  **************************************************************/
 
+// Define à activer si l'on souhaite utiliser la high_level_strat
+//#define USE_HIGH_LEVEL_STRAT
+
 // GROS = PIERRE (pour la cohérence pour les années suivantes
-#define STRAT_0_GROS strat_principale_pierre
+#define STRAT_0_GROS strat_test_point2
 #define STRAT_1_GROS test_strat_robot_virtuel_with_avoidance
 #define STRAT_2_GROS Strat_Detection_Triangle
 #define STRAT_3_GROS test_strat_robot_virtuel_with_avoidance
@@ -65,8 +68,8 @@ void any_match(void)
 	{
 		// Initialisation à FALSE des machines à état principale pour que les autres stratégie n'ai pas d'influence
 		// Variable mise à TRUE au lancement d'une stratégie principale
-		main_strategie_pierre_used = FALSE;
-		stop_request_pierre = FALSE;
+		main_strategie_used = FALSE;
+		stop_request = FALSE;
 
 		/* we are before the match */
 		/* regarder si le match doit commencer */
@@ -105,7 +108,9 @@ void any_match(void)
 		/*************************/
 		/* Choix de la stratégie */
 		/*************************/
-
+	#ifdef USE_HIGH_LEVEL_STRAT
+		high_level_strat();
+	#else
 		if(QS_WHO_AM_I_get()==GUY)
 		{
 			calibration_way = (global.env.color == BLUE)?FORWARD:BACKWARD;	//En bleu, TINY se cale en avant pour avoir son bras coté cadeaux.
@@ -168,6 +173,7 @@ void any_match(void)
 			match_duration = 0;
 		else
 			match_duration = MATCH_DURATION;
+	#endif
 	}
 	else
 	{
@@ -208,12 +214,15 @@ void any_match(void)
 						CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
 					}
 				}
-
-				//programme du match
-				if(strategy)
-				{
-					(*strategy)();
-				}
+				#ifdef USE_HIGH_LEVEL_STRAT
+					high_level_strat();
+				#else
+					//programme du match
+					if(strategy)
+					{
+						(*strategy)();
+					}
+				#endif
 			}
 		}
 		else
