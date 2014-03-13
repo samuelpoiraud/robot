@@ -744,16 +744,20 @@ static Uint8 AX12_instruction_packet_calc_checksum(AX12_instruction_packet_t* in
 	switch(packet_length) {
 		case 5:	//3 paramètres
 			checksum += instruction_packet->param_2;
+			//no break;
 		case 4:	//2 paramètres
 			checksum += instruction_packet->param_1;
+			//no break;
 		case 3:	//1 paramètre
 			checksum += instruction_packet->address;
+			//no break;
 		case 2:	//pas de paramètre
 			checksum += instruction_packet->id_servo + packet_length + instruction_packet->type;
 			break;
 
 		default:
 			debug_printf("AX12: Error: AX12_instruction_packet_calc_checksum(): paquet trop grand\n");
+			break;
 	}
 
 	return ~checksum;
@@ -797,8 +801,10 @@ static Uint8 AX12_status_packet_calc_checksum(AX12_status_packet_t* status_packe
 	switch(packet_length) {
 		case 4:	//2 paramètres
 			checksum += status_packet->param_2;
+			//no break;
 		case 3:	//1 paramètre
 			checksum += status_packet->param_1;
+			//no break;
 		case 2:	//pas de paramètre
 			checksum += status_packet->id_servo + packet_length + (status_packet->error & 0xFF);
 			break;
