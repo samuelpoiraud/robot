@@ -17,6 +17,7 @@
 	void SECRETARY_init(void);
 	void SECRETARY_process_it_100ms();
 	void SECRETARY_process_main(void);
+	void SECRETARY_synchro_received(void);
 	
 #endif /* ndef SECRETARY_H */
 

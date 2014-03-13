@@ -28,7 +28,7 @@ bool_e SECRETARY_msg_processing_direct_treatment_function(CAN_msg_t* msg);
 void SECRETARY_process_msg(CAN_msg_t * msg);
 void SECRETARY_send_adversary_location(void);
 void SECRETARY_selftest(void);
-	
+void SECRETARY_send_pong(void);
 
 
 void SECRETARY_init(void)
@@ -42,15 +42,46 @@ void SECRETARY_init(void)
 	periodic_sending_enabled = 0;
 }
 
+volatile Uint8 t_adversary1_is_seen = 0;
+volatile Uint8 t_adversary2_is_seen = 0;
+volatile Uint8 t_synchro_received = 0;
+volatile bool_e flag_synchro_received = FALSE;
+
+#define ADVERSARY_SEEN_TIMEOUT		20 [100 ms]	//2 secondes
+#define SYNCHRO_RECEIVED_TIMEOUT	20 [100 ms]	//2 secondes
+
 void SECRETARY_process_it_100ms(void)
 {
+	volatile adversary_location_t * p_adversary_location;
+
 	global.flag_100ms = TRUE;
 	if(count_intervalle_envois_can)
 		count_intervalle_envois_can--;
 	periodic_sending_enabled = (periodic_sending_enabled>100)?periodic_sending_enabled-100:0;
+
+	p_adversary_location = BRAIN_get_adversary_location();
+	if(p_adversary_location[ADVERSARY_1].error == AUCUNE_ERREUR || p_adversary_location[ADVERSARY_1].error == SIGNAL_INSUFFISANT)
+		t_adversary1_is_seen = ADVERSARY_SEEN_TIMEOUT;
+	if(p_adversary_location[ADVERSARY_2].error == AUCUNE_ERREUR || p_adversary_location[ADVERSARY_2].error == SIGNAL_INSUFFISANT)
+		t_adversary2_is_seen = ADVERSARY_SEEN_TIMEOUT;
+	if(flag_synchro_received)
+	{
+		flag_synchro_received = FALSE;
+		t_synchro_received = SYNCHRO_RECEIVED_TIMEOUT;
+	}
+
+	if(t_adversary1_is_seen)
+		t_adversary1_is_seen--;
+	if(t_adversary2_is_seen)
+		t_adversary2_is_seen--;
+	if(t_synchro_received)
+		t_synchro_received--;
 }	
 
-
+void SECRETARY_synchro_received(void)
+{
+	flag_synchro_received = TRUE;
+}
 
 bool_e SECRETARY_msg_processing_direct_treatment_function(CAN_msg_t* msg)
 {
@@ -66,7 +97,8 @@ bool_e SECRETARY_msg_processing_direct_treatment_function(CAN_msg_t* msg)
 		case BEACON_DISABLE_PERIODIC_SENDING:
 			periodic_sending_enabled = 0;
 		break;
-		case SUPER_ASK_BEACON_SELFTEST:
+		case BEACON_DO_SELFTEST:	//no break;
+		case BEACON_PING:
 			bret = TRUE;	//on laisse passer le message... qui sera traité dans le main !
 		break;
 		default:
@@ -94,9 +126,12 @@ void SECRETARY_process_msg(CAN_msg_t * msg)
 			global.nous_angle = ((Sint16)(global.Can_msg_received.data[4]) << 8) | (Sint16)(global.Can_msg_received.data[5]);
 			#warning "Pas utilisé en 2011..."	
 */			
-		case SUPER_ASK_BEACON_SELFTEST:
+		case BEACON_DO_SELFTEST:
 			SECRETARY_selftest();
-		break;	
+		break;
+		case BEACON_PING:
+			SECRETARY_send_pong();
+		break;
 		default:
 		break;
 	}
@@ -135,7 +170,7 @@ void SECRETARY_process_main(void)
 		SECRETARY_send_adversary_location();
 	}
 }	
-	
+
 
 
 void SECRETARY_send_adversary_location(void)
@@ -182,26 +217,51 @@ void SECRETARY_selftest(void)
 {
 	volatile adversary_location_t * p_adversary_location;
 	p_adversary_location = BRAIN_get_adversary_location();
-	static CAN_msg_t msg_selftest;
-
-	msg_selftest.sid = BEACON_IR_SELFTEST;
-	msg_selftest.size = 3;
-	msg_selftest.data[1] =	p_adversary_location[ADVERSARY_1].error;
-	msg_selftest.data[2] = 	p_adversary_location[ADVERSARY_2].error;						
-	//On considère que la balise infrarouge n'a pas besoin de synchro. Elle peut fonctionner sans synchro s'il y a un adversaire.
+	CAN_msg_t msg;
+	Uint8 i;
+	msg.sid = STRAT_BEACON_IR_SELFTEST_DONE;
+	i = 0;
 	
-	msg_selftest.data[0] = 	(msg_selftest.data[1] | msg_selftest.data[2] )?1:0;
-							//0 si tout va bien, un code d'erreur sinon
+	if(t_adversary1_is_seen == 0)
+		msg.data[i++] = SELFTEST_BEACON_ADV1_NOT_SEEN;	//L'adversaire 1 n'a pas été vu depuis plus de 2 secondes
+
+	if(t_adversary2_is_seen == 0)
+		msg.data[i++] = SELFTEST_BEACON_ADV2_NOT_SEEN;	//L'adversaire 2 n'a pas été vu depuis plus de 2 secondes
+
+	if(t_synchro_received == 0)
+		msg.data[i++] = SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED;	//Nous n'avons pas reçu de synchro depuis 2 secondes
+
+	msg.size = i;
 
 #ifdef USE_CAN
-	CAN_send(&msg_selftest);
+	CAN_send(&msg);
 #endif
 #ifdef CAN_SEND_OVER_UART1
-	CANmsgToU1tx(&msg_selftest);
+	CANmsgToU1tx(&msg);
 #endif	
 #ifdef VERBOSE_CAN_OVER_UART1
-	debug_printf("selftest : %s | erreurs : ADV1=0x%x ADV2=0x%x \n",(msg_selftest.data[0])?"OK":"KO", msg_selftest.data[1], msg_selftest.data[2]);
+	if(t_adversary1_is_seen == 0)
+		debug_printf("SELFTEST ERROR : SELFTEST_BEACON_ADV1_NOT_SEEN\n");
+	if(t_adversary2_is_seen == 0)
+		debug_printf("SELFTEST ERROR : SELFTEST_BEACON_ADV2_NOT_SEEN\n");
+	if(t_synchro_received == 0)
+		debug_printf("SELFTEST ERROR : SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED\n");
 #endif
 }
-	
+
+void SECRETARY_send_pong(void)
+{
+	CAN_msg_t msg;
+	msg.sid = STRAT_BEACON_PONG;
+	msg.size = 0;
+	#ifdef USE_CAN
+		CAN_send(&msg);
+	#endif
+	#ifdef CAN_SEND_OVER_UART1
+		CANmsgToU1tx(&msg);
+	#endif
+	#ifdef VERBOSE_CAN_OVER_UART1
+		debug_printf("pong\n");
+	#endif
+}
 	
