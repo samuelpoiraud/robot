@@ -361,7 +361,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 					act_states[act_id].disabled = TRUE;
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					error_printf("Unknown error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);  //Erreur inconnu envoyé comme tel par la carte actionneur
-
+					break;
 					//Autres erreurs utilisées mais non gérées dans ce switch, il faut ajouter un case ACT_RESULT_ERROR_????? pour la gérer
 				default:
 					act_states[act_id].disabled = TRUE;
