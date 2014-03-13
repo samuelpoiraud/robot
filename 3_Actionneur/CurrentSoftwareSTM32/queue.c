@@ -66,7 +66,6 @@ static queue_t queues[NB_QUEUE];
 /*Sémaphore que l'on peut utiliser*/
 static semaphore_t sems[NB_ACT+NB_SYNCHRO];
 
-static volatile Uint16 time = 0;
 
 void QUEUE_init()
 {
