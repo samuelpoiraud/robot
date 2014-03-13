@@ -21,6 +21,7 @@
 #include "clock.h"
 #include "QS/QS_who_am_i.h"
 #include "Pierre/PFilet.h"
+#include "Pierre/PFruit.h"
 
 #include "BIG/BActManager.h"
 #include "SMALL/SActManager.h"
@@ -136,6 +137,8 @@ int main (void)
 		#ifdef I_AM_ROBOT_BIG
 		if(global.match_started == FALSE && global.match_over == FALSE) // Si le match n'a pas commencé et n'est pas terminé on gère le réarmement automatique du filet et l'avertissement
 				FILET_process_main();
+		if(global.match_over == FALSE)
+				FRUIT_process_main();
 		#endif
 
 		/*-------------------------------------
