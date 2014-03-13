@@ -413,6 +413,7 @@ void LCD_button_minus(void){
 			if(menu_choice < nb_error){
 				menu_choice ++;
 			}
+			break;
 		default:
 			break;
 	}

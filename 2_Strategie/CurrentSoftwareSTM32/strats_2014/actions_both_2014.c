@@ -566,7 +566,7 @@ bool_e strat_reglage_asser_compute_coefs(time32_t duration)
 	Uint8 i;
 	bool_e update_coef_and_return_true = FALSE;
 
-	debug_printf("# %ld %ld %ld %ld : %d\n",	((current_coef==0)?current_value:best_coefs[0]),
+	debug_printf("# %ld %ld %ld %ld : %ld\n",	((current_coef==0)?current_value:best_coefs[0]),
 											((current_coef==1)?current_value:best_coefs[1]),
 											((current_coef==2)?current_value:best_coefs[2]),
 											((current_coef==3)?current_value:best_coefs[3]),
