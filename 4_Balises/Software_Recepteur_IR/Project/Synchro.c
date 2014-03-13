@@ -61,7 +61,6 @@ void _ISR _INT0Interrupt()	//Attention IT de priorité 7 !!! (le maximum...)
 	}
 	else
 	{
-
 		TMR2 = 0;
 	}
 
@@ -70,6 +69,7 @@ void _ISR _INT0Interrupt()	//Attention IT de priorité 7 !!! (le maximum...)
 	//EmissionIR_step_init();
 	EYES_step_init();
 	cable_synchro_present = 120;	//IT recue = le cable de synchro est présent !
+	SECRETARY_synchro_received();
 
 	synchro_received = TRUE;
 	//EmissionUS_next_step();
