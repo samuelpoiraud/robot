@@ -49,6 +49,11 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg);
  */
 void FRUIT_run_command(queue_id_t queueId, bool_e init);
 
+/** Asservisement du verrin
+ *
+ */
+void FRUIT_process_main();
+
 #endif  /* I_AM_ROBOT_BIG */
 #endif	/* PFRUIT_H */
 

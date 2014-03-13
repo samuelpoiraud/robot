@@ -23,7 +23,7 @@
 #include "PFruit_config.h"
 
 #include "config_debug.h"
-#define LOG_PREFIX "FR: "
+#define LOG_PREFIX "PFruit : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_FRUIT
 #include "../QS/QS_outputlog.h"
 
@@ -37,6 +37,11 @@ static void FRUIT_command_labium_run(queue_id_t queueId);
 static void POMPE_goToPos(Uint8 command);
 
 static bool_e stopActVerin = FALSE;
+
+static enum {
+	OPEN,
+	CLOSE
+}wanted_state = CLOSE;
 
 void FRUIT_init() {
 	static bool_e initialized = FALSE;
@@ -58,7 +63,8 @@ static void FRUIT_initDCM() {
 	if(dcm_is_initialized == FALSE ) {
 		PORTS_pwm_init();
 		PWM_stop(FRUIT_POMPE_PWM_NUM);
-
+		wanted_state = CLOSE;
+		dcm_is_initialized = TRUE;
 		info_printf("VERIN FRUIT initialisé (pompe) \n");
 	}
 }
@@ -209,15 +215,15 @@ static void FRUIT_command_pompe_run(queue_id_t queueId){
 }
 
 static void POMPE_goToPos(Uint8 command){
-	if(command == ACT_FRUIT_MOUTH_OPEN)
+	if(command == ACT_FRUIT_MOUTH_OPEN){
+		wanted_state = OPEN;
 		FRUIT_POMPE_SENS = 1;
-	else if(command == ACT_FRUIT_MOUTH_CLOSE)
+	}else if(command == ACT_FRUIT_MOUTH_CLOSE){
+		wanted_state = CLOSE;
 		FRUIT_POMPE_SENS = 0;
-
+	}
 	PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
 }
-
-
 
 static void FRUIT_command_labium_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
@@ -263,6 +269,41 @@ static void FRUIT_command_labium_run(queue_id_t queueId) {
 
 	if(ACTQ_check_status_ax12(queueId, FRUIT_LABIUM_AX12_ID, QUEUE_get_arg(queueId)->param, FRUIT_AX12_ASSER_POS_EPSILON, FRUIT_AX12_ASSER_TIMEOUT, 0, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_FRUIT_MOUTH, result, errorCode, line);
+}
+
+// Asservissement verrin
+void FRUIT_process_main(){
+	FRUIT_initDCM();
+	typedef enum{
+		NO_ORDER,
+		IN_OPENING,
+		IN_CLOSING
+	}verrin_order_e;
+	static verrin_order_e verrin_order = NO_ORDER;
+
+	switch(wanted_state){
+		case OPEN :
+			if(FRUIT_POMPE_TOR_OPEN == 1 && verrin_order != IN_OPENING){
+				FRUIT_POMPE_SENS = 1;
+				PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
+				verrin_order = IN_OPENING;
+			}else if(FRUIT_POMPE_TOR_OPEN == 0 && verrin_order != NO_ORDER){
+				PWM_stop(FRUIT_POMPE_PWM_NUM);
+				verrin_order = NO_ORDER;
+			}
+			break;
+
+		case CLOSE :
+			if(FRUIT_POMPE_TOR_CLOSE == 1 && verrin_order != IN_CLOSING){
+				FRUIT_POMPE_SENS = 0;
+				PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
+				verrin_order = IN_CLOSING;
+			}else if(FRUIT_POMPE_TOR_CLOSE == 0 && verrin_order != NO_ORDER){
+				PWM_stop(FRUIT_POMPE_PWM_NUM);
+				verrin_order = NO_ORDER;
+			}
+			break;
+	}
 }
 
 #endif  /* I_AM_ROBOT_BIG */

@@ -19,7 +19,7 @@
 #include "Pompe_config.h"
 
 #include "config_debug.h"
-#define LOG_PREFIX "FR: "
+#define LOG_PREFIX "Pompe : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_POMPE
 #include "../QS/QS_outputlog.h"
 
@@ -37,7 +37,6 @@ void POMPE_init() {
 	initialized = TRUE;
 
 	POMPE_initDCM();
-	info_printf("Pompe initialisée\n");
 }
 
 // Initialisation du moteur, si init ne fait rien
@@ -51,7 +50,7 @@ static void POMPE_initDCM() {
 	PORTS_pwm_init();
 	PWM_stop(POMPE_PWM_NUM);
 
-	info_printf("VERIN POMPE initialisé (pompe) \n");
+	info_printf("Pompe initialisée (DCM) \n");
 }
 
 void POMPE_stop() {
