@@ -133,7 +133,7 @@ void remplissage_info_position_v2(uint16_t y1,uint16_t x1,uint16_t y2,uint16_t x
 					sprintf(texte,"%2d:t=%5ld",zone_tableau[i].id_zone,zone_tableau[i].temps);
 					break;
 				case LOOKING_Y :
-					sprintf(texte,"%2d:y=%5ld",zone_tableau[i].id_zone,zone_tableau[i].y_recherche);
+					sprintf(texte,"%2d:y=%5d",zone_tableau[i].id_zone,zone_tableau[i].y_recherche);
 					break;
 				default :
 					break;

@@ -31,11 +31,6 @@ void COS_SIN_4096_get(Sint16 teta,Sint16 * cos, Sint16 * sin)
 	{
 		*cos = array_4096((Sint16)(teta));
 		*sin = array_4096((Sint16)(HALF_PI4096-teta));
-	static Sint16 a; a = *cos;
-		static Sint16 b; b = *sin;
-		nop();
-		nop();
-		nop();
 	}
 	else if(teta < PI4096)					//second quadrant
 	{
