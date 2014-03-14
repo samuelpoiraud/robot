@@ -217,10 +217,10 @@ static void FRUIT_command_pompe_run(queue_id_t queueId){
 static void POMPE_goToPos(Uint8 command){
 	if(command == ACT_FRUIT_MOUTH_OPEN){
 		wanted_state = OPEN;
-		FRUIT_POMPE_SENS = 1;
+		FRUIT_POMPE_SENS = 0;
 	}else if(command == ACT_FRUIT_MOUTH_CLOSE){
 		wanted_state = CLOSE;
-		FRUIT_POMPE_SENS = 0;
+		FRUIT_POMPE_SENS = 1;
 	}
 	PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
 }
@@ -284,7 +284,7 @@ void FRUIT_process_main(){
 	switch(wanted_state){
 		case OPEN :
 			if(FRUIT_POMPE_TOR_OPEN == 1 && verrin_order != IN_OPENING){
-				FRUIT_POMPE_SENS = 1;
+				FRUIT_POMPE_SENS = 0;
 				PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
 				verrin_order = IN_OPENING;
 			}else if(FRUIT_POMPE_TOR_OPEN == 0 && verrin_order != NO_ORDER){
@@ -295,7 +295,7 @@ void FRUIT_process_main(){
 
 		case CLOSE :
 			if(FRUIT_POMPE_TOR_CLOSE == 1 && verrin_order != IN_CLOSING){
-				FRUIT_POMPE_SENS = 0;
+				FRUIT_POMPE_SENS = 1;
 				PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
 				verrin_order = IN_CLOSING;
 			}else if(FRUIT_POMPE_TOR_CLOSE == 0 && verrin_order != NO_ORDER){
