@@ -172,15 +172,18 @@ void delete_previous_robot(display_robot_t * robot)
 
 	for(i=robot->xprec-robot->size/2;i<=robot->xprec+robot->size/2;i++){
 		for(j=robot->yprec-robot->size/2;j<=robot->yprec+robot->size/2;j++){
-			x = i;
-			y = j;
-			x -= robot->xprec;
-			y -= robot->yprec;
-			rotation_angle_teta(&x,&y,robot->tetaprec);
-			x += robot->xprec;
-			y += robot->yprec;
-			if(x>0 && x<199 && y>0 && y<299)
-				Display_Tableau(y+320*x);
+			if(robot->friend == TRUE){
+				x = i;
+				y = j;
+				x -= robot->xprec;
+				y -= robot->yprec;
+				rotation_angle_teta(&x,&y,robot->tetaprec);
+				x += robot->xprec;
+				y += robot->yprec;
+				if(x>0 && x<199 && y>0 && y<299)
+					Display_Tableau(y+320*x);
+			}else
+				Display_Tableau(j+320*i);
 		}
 	}
 
@@ -223,22 +226,25 @@ void display_robot(display_robot_t * robot)
 
 	for(i = robot->x - robot->size/2; i <= robot->x + robot->size/2;i++){
 		for(j = robot->y - robot->size/2; j <= robot->y + robot->size/2;j++){
-			x = i;
-			y = j;
+			if(robot->friend == TRUE){
+				x = i;
+				y = j;
 
-			x -= robot->x;
-			y -= robot->y;
-			rotation_angle_teta(&x,&y,robot->teta);
-			x += robot->x;
-			y += robot->y;
+				x -= robot->x;
+				y -= robot->y;
+				rotation_angle_teta(&x,&y,robot->teta);
+				x += robot->x;
+				y += robot->y;
 
-			if(x>0 && x<199 && y>0 && y<299){
-				Sint16 angle = (Sint16)(atan2((y-robot->y),(x-robot->x))*4096);
-				if(angle < robot->teta+PI4096/4 && angle > robot->teta-PI4096/4){ // Ne gere pas le passage 2pi à 0 pour affichage de la tete
-					ram_tableauImage[y+320*x]=HEAD_COLOR;
-				}else
-					ram_tableauImage[y+320*x]=color;
-			}
+				if(x>0 && x<199 && y>0 && y<299){
+					Sint16 angle = (Sint16)(atan2((y-robot->y),(x-robot->x))*4096);
+					if(angle < robot->teta+PI4096/4 && angle > robot->teta-PI4096/4){ // Ne gere pas le passage 2pi à 0 pour affichage de la tete
+						ram_tableauImage[y+320*x]=HEAD_COLOR;
+					}else
+						ram_tableauImage[y+320*x]=color;
+				}
+			}else
+				ram_tableauImage[j+320*i]=color;
 		}
 	}//*/
 }

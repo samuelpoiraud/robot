@@ -109,6 +109,11 @@ void LCD_pos_init(void){
 	robots[ADVERSARY_1].color = adversary_color;
 	robots[ADVERSARY_2].color = adversary_color;
 
+	robots[FRIEND_1].friend = TRUE;
+	robots[FRIEND_2].friend = TRUE;
+	robots[ADVERSARY_1].friend = FALSE;
+	robots[ADVERSARY_2].friend = FALSE;
+
 	robots[FRIEND_1].enable = TRUE;
 	robots[FRIEND_2].enable = FALSE;
 	robots[ADVERSARY_1].enable = FALSE;
