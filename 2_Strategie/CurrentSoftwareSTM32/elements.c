@@ -12,7 +12,13 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_CANmsgList.h"
 
+#define LABIUM_TIMEOUT			500
+#define LABIUM_ORDER_TIMEOUR	200
+
 bool_e prop_send_all_triangle = FALSE;
+
+static labium_state_e labium_state = UNKNOW;
+static Uint16 time_labium_state = 0;
 
 struct{
 	enum{NO_REPONSE, TRIANGLE_PRESENT, TRIANGLE_NO_PRESENT}state_warner_triangle;
@@ -154,6 +160,56 @@ bool_e triangle_present(){
 
 bool_e torche_present(){
 	return nb_objet[2] > 0;
+}
+
+Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	typedef enum
+	{
+		IDLE,
+		WAIT,
+		END_OK,
+		ERROR
+	}state_e;
+	static state_e state = WAIT;
+	static Uint16 timeLaunch;
+	switch(state){
+
+		case IDLE :
+			timeLaunch = global.env.match_time;
+			if(global.env.match_time - time_labium_state >= 200)
+				labium_order = UNKNOW;
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(labium_order == LABIUM_OPEN && labium_state == LABIUM_OPEN)
+				state = END_OK;
+			else if(labium_order == LABIUM_CLOSE && labium_state == LABIUM_CLOSE)
+				state = END_OK;
+			else if(timeLaunch + LABIUM_TIMEOUT >= global.env.match_time)
+				state = ERROR;
+			break;
+
+		case END_OK:
+			state = IDLE;
+			return success_state;
+
+		case ERROR:
+			state = IDLE;
+			labium_state = UNKNOW;
+			return fail_state;
+	}
+	return in_progress;
+}
+
+void update_labium_state(CAN_msg_t* msg){
+	time_labium_state = global.env.match_time;
+	if(msg->data[0] == STRAT_INFORM_FRUIT_MOUTH_OPEN)
+		labium_state = OPEN;
+	else if(msg->data[0] == STRAT_INFORM_FRUIT_MOUTH_CLOSE)
+		labium_state = CLOSE;
+	else
+		labium_state = UNKNOW;
 }
 
 #if 0
