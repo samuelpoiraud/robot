@@ -4,7 +4,7 @@
   * @author  MCD Application Team
   * @version V1.0.0
   * @date    30-September-2011
-  * @brief   This file contains all the functions prototypes for the 
+  * @brief   This file contains all the functions prototypes for the
   *          stm324xg_discovery_lcd.c driver.
   ******************************************************************************
   * @attention
@@ -17,8 +17,8 @@
   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
   * <h2><center>&copy; Portions COPYRIGHT 2011 STMicroelectronics</center></h2>
-  ******************************************************************************  
-  */ 
+  ******************************************************************************
+  */
 /**
   ******************************************************************************
   * <h2><center>&copy; Portions COPYRIGHT 2012 Embest Tech. Co., Ltd.</center></h2>
@@ -26,10 +26,10 @@
   * @author  CMP Team
   * @version V1.0.0
   * @date    28-December-2012
-  * @brief   This file contains all the functions prototypes for the 
+  * @brief   This file contains all the functions prototypes for the
   *          stm324xg_discovery_lcd.c driver.
   *          Modified to support the STM32F4DISCOVERY, STM32F4DIS-BB, STM32F4DIS-CAM
-  *          and STM32F4DIS-LCD modules.      
+  *          and STM32F4DIS-LCD modules.
   ******************************************************************************
   * @attention
   *
@@ -48,7 +48,7 @@
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
@@ -60,31 +60,31 @@
 
 /** @addtogroup STM32F4_DISCOVERY
   * @{
-  */ 
+  */
 
 /** @addtogroup STM32F4_DISCOVERY
   * @{
   */
-    
+
 /** @addtogroup STM32F4_DISCOVERY_LCD
   * @{
-  */ 
+  */
 
 
 /** @defgroup STM32F4_DISCOVERY_LCD_Exported_Types
   * @{
   */
-typedef struct 
+typedef struct
 {
   int16_t X;
   int16_t Y;
-} Point, * pPoint;   
+} Point, * pPoint;
 /**
   * @}
-  */ 
+  */
 
 
-/** 
+/**
   * @brief Various internal SD2119 registers name labels
   */
 #define SSD2119_DEVICE_CODE_READ_REG  0x00
@@ -128,15 +128,15 @@ typedef struct
 #define ENTRY_MODE_BMP 	   0x6810
 #define MAKE_ENTRY_MODE(x) ((ENTRY_MODE_DEFAULT & 0xFF00) | (x))
 
-/** 
+/**
   * @brief The dimensions of the LCD panel.
   */
 #define LCD_VERTICAL_MAX   240
 #define LCD_HORIZONTAL_MAX 320
 
-/** 
+/**
   * @brief Various definitions controlling coordinate space mapping and drawing
-           direction in the four supported orientations.   
+		   direction in the four supported orientations.
   */
 #define PORTRAIT
 
@@ -167,27 +167,27 @@ typedef struct
 
 /** @defgroup STM32F4_DISCOVERY_LCD_Exported_Constants
   * @{
-  */ 
+  */
 
 /**
  * @brief Uncomment the line below if you want to use user defined Delay function
  *        (for precise timing), otherwise default _delay_ function defined within
- *         this driver is used (less precise timing).  
+ *         this driver is used (less precise timing).
  */
 /* #define USE_Delay */
 
 #ifdef USE_Delay
-#include "main.h" 
+#include "main.h"
   #define _delay_     Delay  /* !< User can provide more timing precise _delay_ function
-                                   (with 10ms time base), using SysTick for example */
+								   (with 10ms time base), using SysTick for example */
 #else
   #define _delay_     delay      /* !< Default _delay_ function with less precise timing */
 #endif
 
 #define LCD_REG_3 0x03
-/** 
-  * @brief  LCD color  
-  */ 
+/**
+  * @brief  LCD color
+  */
 #define LCD_COLOR_WHITE          0xFFFF
 #define LCD_COLOR_BLACK          0x0000
 #define LCD_COLOR_GREY           0xF7DE
@@ -208,11 +208,11 @@ typedef struct
 #define Cyan                 LCD_COLOR_CYAN
 
 // couleur en 8bits
-#define Jaune 192
-#define Rouge 248
+#define Jaune 248
+#define Rouge 192
 
-/** 
-  * @brief  LCD Lines depending on the chosen fonts.  
+/**
+  * @brief  LCD Lines depending on the chosen fonts.
   */
 #define LCD_LINE_0               LINE(0)
 #define LCD_LINE_1               LINE(1)
@@ -256,45 +256,45 @@ typedef struct
 #define Line8                    LCD_LINE_8
 #define Line9                    LCD_LINE_9
 
-/** 
-  * @brief LCD default font 
-  */ 
+/**
+  * @brief LCD default font
+  */
 #define LCD_DEFAULT_FONT         Font16x24
 
-/** 
-  * @brief  LCD Direction  
-  */ 
+/**
+  * @brief  LCD Direction
+  */
 #define LCD_DIR_HORIZONTAL       0x0000
 #define LCD_DIR_VERTICAL         0x0001
 
-/** 
-  * @brief  LCD Size (Width and Height)  
-  */ 
+/**
+  * @brief  LCD Size (Width and Height)
+  */
 #define LCD_PIXEL_WIDTH          320
 #define LCD_PIXEL_HEIGHT         240
 
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup STM32F4_DISCOVERY_LCD_Exported_Macros
   * @{
   */
-#define ASSEMBLE_RGB(R ,G, B)    ((((R)& 0xF8) << 8) | (((G) & 0xFC) << 3) | (((B) & 0xF8) >> 3)) 
+#define ASSEMBLE_RGB(R ,G, B)    ((((R)& 0xF8) << 8) | (((G) & 0xFC) << 3) | (((B) & 0xF8) >> 3))
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup STM32F4_DISCOVERY_LCD_Exported_Functions
   * @{
-  */ 
-/** @defgroup  
+  */
+/** @defgroup
   * @{
   */
-void LCD_DeInit(void);   
+void LCD_DeInit(void);
 void STM32f4_Discovery_LCD_Init(void);
 void LCD_RGB_Test(void);
-void LCD_SetColors(__IO uint16_t _TextColor, __IO uint16_t _BackColor); 
+void LCD_SetColors(__IO uint16_t _TextColor, __IO uint16_t _BackColor);
 void LCD_GetColors(__IO uint16_t *_TextColor, __IO uint16_t *_BackColor);
 void LCD_SetTextColor(__IO uint16_t Color);
 void LCD_SetBackColor(__IO uint16_t Color);
@@ -325,11 +325,11 @@ void LCD_ClosedPolyLineRelative(pPoint Points, uint16_t PointCount);
 void LCD_FillPolyLine(pPoint Points, uint16_t PointCount);
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup  
+/** @defgroup
   * @{
-  */ 
+  */
 void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue);
 uint16_t LCD_ReadReg(uint8_t LCD_Reg);
 void LCD_WriteRAM_Prepare(void);
@@ -340,11 +340,11 @@ void LCD_DisplayOn(void);
 void LCD_DisplayOff(void);
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup
   * @{
-  */ 
+  */
 void LCD_CtrlLinesConfig(void);
 void LCD_FSMCConfig(void);
 /**
@@ -352,7 +352,7 @@ void LCD_FSMCConfig(void);
   */
 /**
   * @}
-  */    
+  */
 #ifdef __cplusplus
 }
 #endif
@@ -360,18 +360,18 @@ void LCD_FSMCConfig(void);
 #endif /* __STM32F4_DISCOVERY_LCD_H */
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /*********** Portions COPYRIGHT 2012 Embest Tech. Co., Ltd.*****END OF FILE****/
