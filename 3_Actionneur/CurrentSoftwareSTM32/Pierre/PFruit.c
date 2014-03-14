@@ -12,7 +12,7 @@
 #include "PFruit.h"
 #ifdef I_AM_ROBOT_BIG
 
-//#include "../QS/QS_can.h"
+#include "../QS/QS_can.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_pwm.h"
@@ -42,6 +42,8 @@ static enum {
 	OPEN,
 	CLOSE
 }wanted_state = CLOSE;
+
+static bool_e have_send_answer = TRUE;
 
 void FRUIT_init() {
 	static bool_e initialized = FALSE;
@@ -90,7 +92,19 @@ static void FRUIT_initAX12() {
 }
 
 void FRUIT_stop() {
+	CAN_msg_t msg;
 	PWM_stop(FRUIT_POMPE_PWM_NUM);
+	if(have_send_answer == FALSE){
+		msg.size = 1;
+		msg.sid = STRAT_INFORM_FRUIT_MOUTH;
+		if(wanted_state == OPEN)
+			msg.data[0] = STRAT_INFORM_FRUIT_MOUTH_OPEN;
+		else
+			msg.data[0] = STRAT_INFORM_FRUIT_MOUTH_CLOSE;
+		CAN_send(&msg);
+		have_send_answer = TRUE;
+	}
+
 }
 
 void FRUIT_init_pos(){
@@ -116,6 +130,7 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 				//Pour les 2 cas (open ou close), la différence est faite dans FRUIT_command_init
 			case ACT_FRUIT_MOUTH_CLOSE:
 			case ACT_FRUIT_MOUTH_OPEN:
+				have_send_answer = TRUE;
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_Fruit, &FRUIT_run_command, 0);
 				break;
 
@@ -284,8 +299,7 @@ void FRUIT_process_main(){
 	switch(wanted_state){
 		case OPEN :
 			if(FRUIT_POMPE_TOR_OPEN == 1 && verrin_order != IN_OPENING){
-				FRUIT_POMPE_SENS = 0;
-				PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
+				POMPE_goToPos(ACT_FRUIT_MOUTH_OPEN);
 				verrin_order = IN_OPENING;
 			}else if(FRUIT_POMPE_TOR_OPEN == 0 && verrin_order != NO_ORDER){
 				PWM_stop(FRUIT_POMPE_PWM_NUM);
@@ -295,8 +309,7 @@ void FRUIT_process_main(){
 
 		case CLOSE :
 			if(FRUIT_POMPE_TOR_CLOSE == 1 && verrin_order != IN_CLOSING){
-				FRUIT_POMPE_SENS = 1;
-				PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
+				POMPE_goToPos(ACT_FRUIT_MOUTH_CLOSE);
 				verrin_order = IN_CLOSING;
 			}else if(FRUIT_POMPE_TOR_CLOSE == 0 && verrin_order != NO_ORDER){
 				PWM_stop(FRUIT_POMPE_PWM_NUM);
