@@ -412,6 +412,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 				debug_printf("Filet libéré\n");
 			}
 			break;
+
+		case STRAT_INFORM_FRUIT_MOUTH:
+			update_labium_state(incoming_msg);
+			break;
 /******************************** Récupération des données du scan des triangles **************************/
 		case STRAT_TRIANGLE_POSITON :
 			TRIANGLE_add_to_list(incoming_msg);

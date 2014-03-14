@@ -17,7 +17,6 @@
 	#include "asser_types.h"
 	#include "avoidance.h"
 
-
 	#define NB_ELEMENTS 				19
 
 
@@ -296,7 +295,12 @@
 
 		#endif /* def USE_ELEMENT_CAN_DEBUG */
 
-	#endif /* def ELEMENTS_C */
+#endif /* def ELEMENTS_C */
+	typedef enum{
+		LABIUM_OPEN,
+		LABIUM_CLOSE,
+		UNKNOW
+	}labium_state_e;
 
 	void TRIANGLE_add_to_list(CAN_msg_t* msg);
 	bool_e propulsion_send_triangle();
@@ -307,5 +311,6 @@
 	Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
 	void launch_triangle_warner(Uint8 number_triangle);
 	bool_e triangle_present();
+	Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
 #endif /* ndef ELEMENTS_H */
