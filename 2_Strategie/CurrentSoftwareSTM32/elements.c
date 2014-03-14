@@ -17,7 +17,7 @@
 
 bool_e prop_send_all_triangle = FALSE;
 
-static labium_state_e labium_state = UNKNOW;
+static labium_state_e labium_state = UNKNOWN;
 static Uint16 time_labium_state = 0;
 
 struct{
@@ -39,7 +39,7 @@ Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_point
 	}state_e;
 	static state_e state = TRY_GOING;
 	CAN_msg_t msg;
-	static Uint16 timeLaunch;
+	static time32_t timeLaunch;
 	switch(state){
 		case TRY_GOING:
 			state = try_going(x, y, TRY_GOING, BEGIN_SCAN, ERROR, speed, way, avoidance);
@@ -170,14 +170,14 @@ Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint
 		END_OK,
 		ERROR
 	}state_e;
-	static state_e state = WAIT;
-	static Uint16 timeLaunch;
+	static state_e state = IDLE;
+	static time32_t timeLaunch = 0;
 	switch(state){
 
 		case IDLE :
 			timeLaunch = global.env.match_time;
 			if(global.env.match_time - time_labium_state >= 200)
-				labium_order = UNKNOW;
+				labium_order = UNKNOWN;
 			state = WAIT;
 			break;
 
@@ -196,7 +196,7 @@ Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint
 
 		case ERROR:
 			state = IDLE;
-			labium_state = UNKNOW;
+			labium_state = UNKNOWN;
 			return fail_state;
 	}
 	return in_progress;
@@ -209,7 +209,7 @@ void update_labium_state(CAN_msg_t* msg){
 	else if(msg->data[0] == STRAT_INFORM_FRUIT_MOUTH_CLOSE)
 		labium_state = CLOSE;
 	else
-		labium_state = UNKNOW;
+		labium_state = UNKNOWN;
 }
 
 #if 0

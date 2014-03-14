@@ -299,7 +299,7 @@
 	typedef enum{
 		LABIUM_OPEN,
 		LABIUM_CLOSE,
-		UNKNOW
+		UNKNOWN
 	}labium_state_e;
 
 	void TRIANGLE_add_to_list(CAN_msg_t* msg);
