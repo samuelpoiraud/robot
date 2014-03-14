@@ -186,7 +186,7 @@ Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint
 				state = END_OK;
 			else if(labium_order == LABIUM_CLOSE && labium_state == LABIUM_CLOSE)
 				state = END_OK;
-			else if(timeLaunch + LABIUM_TIMEOUT >= global.env.match_time)
+			else if(timeLaunch + LABIUM_TIMEOUT <= global.env.match_time)
 				state = ERROR;
 			break;
 
