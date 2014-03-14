@@ -157,52 +157,51 @@ int main (void)
 	return 0;
 }
 
-static void MAIN_onButton0() {
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_FRUIT_MOUTH;
-	msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
-	CAN_process_msg(&msg);
-}
-
 
 #ifdef I_AM_ROBOT_BIG
-static void MAIN_onButton1() {
+static void MAIN_onButton0() {
+	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 1;
 	msg.sid = ACT_FRUIT_MOUTH;
-	msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
+	if(state == 0)
+		msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
+	else if(state == 1)
+		msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
 	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton1() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_FRUIT_MOUTH;
+	if(state == 0)
+		msg.data[0] = ACT_FRUIT_LABIUM_OPEN;
+	else if(state == 1)
+		msg.data[0] = ACT_FRUIT_LABIUM_CLOSE;
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton2() {
 	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_MID;
+	msg.size = 1;
+	msg.sid = ACT_LANCELAUNCHER;
+	msg.data[0] = ACT_LANCELAUNCHER_RUN_ALL;
 	CAN_process_msg(&msg);
 }
 
 static void MAIN_onButton3() {
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_PARKED;
-	CAN_process_msg(&msg);
+	FILET_BOUTON_process();
 }
 
-static void MAIN_onButton4() {
-	//FILET_BOUTON_process();
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_INIT;
-	CAN_process_msg(&msg);
-}
+static void MAIN_onButton4() {}
 
 #else // ROBOT_SMALL
+
+static void MAIN_onButton0() {}
 
 static void MAIN_onButton1() {}
 
