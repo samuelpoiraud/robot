@@ -399,6 +399,8 @@ void strat_test_point2(){
 		DEGAGEMENT,
 		RECALAGE1,
 
+		WAIT_LABIUM_FRESCO,
+
 		RAMASSER_FRUIT_ARBRE1,
 		RAMASSER_FRUIT_ARBRE2,
 		AGAIN_RAMASSER_FRUIT_ARBRE1,
@@ -425,8 +427,8 @@ void strat_test_point2(){
 		{{700					,COLOR_Y(1500)},FAST},
 
 		// Triangle 2 x = 600 / yr = 2100 / yj = 900
-		{{700					,COLOR_Y(1500)},SLOW},
-		{{600+LARGEUR_LABIUM	,COLOR_Y(2100)},SLOW},
+		{{700					,COLOR_Y(1800)},FAST},
+		{{600+LARGEUR_LABIUM	,COLOR_Y(2100)},FAST},
 		{{600+LARGEUR_LABIUM	,COLOR_Y(2600-LARGEUR_LABIUM)},FAST},
 
 		// Triangle 3 x = 1100 / yr = 2600 / yj = 400
@@ -434,9 +436,9 @@ void strat_test_point2(){
 		{{900					,COLOR_Y(2600-LARGEUR_LABIUM)},SLOW}, // Labium ouvert
 
 		// Triangle 4 x = 1600 / yr = 2100 / yj = 900
-		{{1280					,COLOR_Y(2360)},FAST},
-		{{1340					,COLOR_Y(2100)},FAST},
-		{{1415					,COLOR_Y(1645)},FAST},
+		{{1600-LARGEUR_LABIUM		,COLOR_Y(2360)},FAST},
+		{{1600-LARGEUR_LABIUM		,COLOR_Y(2100)},FAST},
+		{{1600-LARGEUR_LABIUM+100	,COLOR_Y(1645)},FAST},
 
 		// Triangle 5 x = 1600 / yr = 900 / yj = 2100
 		{{1415					,COLOR_Y(1360)},FAST},
@@ -448,7 +450,7 @@ void strat_test_point2(){
 		{{1400				,COLOR_Y(400+LARGEUR_LABIUM)},SLOW}, // Labium ouvert
 
 		// Dégagement
-		{{750				,COLOR_Y(500)}} // Labium fermé
+		{{750				,COLOR_Y(500)},FAST} // Labium fermé
 	};
 
 
@@ -472,12 +474,13 @@ void strat_test_point2(){
 				state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,DEPOSE_FRESCO,DEPOSE_FRESCO);
 				break;
 
-			case TRIANGLE1:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+//			case TRIANGLE1:
+//				if(entrance)
+//					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 
-				state = try_going_multipoint(deplacement,3,TRIANGLE1,DEPOSE_FRESCO,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-				break;
+//				state = try_going_multipoint(deplacement,3,TRIANGLE1,DEPOSE_FRESCO,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+//				break;
+
 
 			case DEPOSE_FRESCO:
 				if(entrance)
@@ -486,7 +489,7 @@ void strat_test_point2(){
 				break;
 
 			case ESCAPE_FRESCO:
-				state = try_going(550, 1500,ESCAPE_FRESCO,TRIANGLE2,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+				state = try_going(500, 1500,ESCAPE_FRESCO,TRIANGLE2,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
 				break;
 
 			case TRIANGLE2:
@@ -546,6 +549,7 @@ void strat_test_point2(){
 
 
 				// Rammasse notre groupe de fruit
+
 			case RAMASSER_FRUIT_ARBRE1:
 				if(global.env.color == RED)
 					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
@@ -561,13 +565,13 @@ void strat_test_point2(){
 
 				// Depose fresque
 			case POINT_DEPOSE_FRESCO:
-				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, LANCE_LAUNCHER_ENNEMY, POINT_DEPOSE_FRESCO, ANY_WAY, SLOW, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, RAMASSER_FRUIT_ARBRE2, POINT_DEPOSE_FRESCO, (global.env.color == RED)? FORWARD:BACKWARD, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 				break;
 
-				// Tire seconde balle
-			case LANCE_LAUNCHER_ENNEMY:
-				state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,RAMASSER_FRUIT_ARBRE2,ERROR);
-				break;
+//				// Tire seconde balle
+//			case LANCE_LAUNCHER_ENNEMY:
+//				state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,RAMASSER_FRUIT_ARBRE2,ERROR);
+//				break;
 
 			/*case RECALAGE2 :
 				if(global.env.color == RED)
@@ -1051,7 +1055,7 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case WALL:
-			state = try_going(240,posY,WALL,PUSH_MOVE,ERROR,SLOW,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(260,posY,WALL,PUSH_MOVE,ERROR,SLOW,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
@@ -1564,7 +1568,7 @@ error_e strat_lance_launcher(bool_e lanceAll){
 				dplt[0].y = 2500;
 
 				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-				dplt[1].y = 1800;
+				dplt[1].y = 1700;
 
 				sensRobot = FORWARD;
 				sensShoot = FALSE;
@@ -1820,7 +1824,7 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
 
 		case GET_OUT :
 			if(global.env.pos.x > 1000)
-				state = try_going(wanted_x - 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(wanted_x - 50, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			else
 				state = try_going(wanted_x + 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			break;
@@ -1881,15 +1885,16 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 		case WAIT :
 			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
 				offset_recalage.y = global.env.pos.y - wanted_y;
+				debug_printf("offset_recalage.y = %d\n", offset_recalage.y);
 				state = GET_OUT;
 			}
 			break;
 
 		case GET_OUT :
 			if(global.env.pos.y > 1500)
-				state = try_going(global.env.pos.x, wanted_y - 200, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(global.env.pos.x, wanted_y - 80, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			else
-				state = try_going(global.env.pos.x, wanted_y + 200, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(global.env.pos.x, wanted_y + 80, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -1981,9 +1986,9 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 
 		case GET_OUT :
 			if(begin_zone_color == RED)
-				state = try_going(250, 300, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(600, 250, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			else
-				state = try_going(2750, 300, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(600, 2750, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
