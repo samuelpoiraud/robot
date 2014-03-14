@@ -22,6 +22,15 @@
 // Define à activer pour activer le get_in / get_ou des subactions
 //#define USE_GET_IN_OUT
 
+// Define à activer pour activer les attentes de l'ouverture des verrins
+//#define USE_WAIT_LABIUM
+
+// Define à activer pour activer les triangles des torches
+//#define USE_TRIANGLE_TORCHE
+
+// Define à activer pour activer la correction triangle 2
+//#define USE_CORRECTION_TRIANGLE_2
+
 /**********************************************************************************************************************************
  *
  *		Robot prototype devra modifier le sens ( BACKWARD / FORWARD ) sur le lanceLauncher, depose de fruit et ramassage de fruit
@@ -399,8 +408,13 @@ void strat_test_point2(){
 		DEGAGEMENT,
 		RECALAGE1,
 
-		WAIT_LABIUM_ARBRE1,
-		WAIT_LABIUM_ARBRE2,
+#ifdef USE_TRIANGLE_TORCHE
+		PLACEMENT_TORCHE1,
+		END_TORCHE1,
+		END2_TORCHE1,
+		PLACEMENT_TORCHE2,
+		END_TORCHE2,
+#endif
 
 		RAMASSER_FRUIT_ARBRE1,
 		RAMASSER_FRUIT_ARBRE2,
@@ -412,7 +426,6 @@ void strat_test_point2(){
 		LANCE_LAUNCHER,
 		LANCE_LAUNCHER_ENNEMY,
 		POS_FIN,
-		RECALAGE2,
 		VERIFY,
 		DONE,
 		ERROR
@@ -490,7 +503,11 @@ void strat_test_point2(){
 				break;
 
 			case ESCAPE_FRESCO:
-				state = try_going(500, 1500,ESCAPE_FRESCO,TRIANGLE2,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+				#ifdef USE_CORRECTION_TRIANGLE_2
+					state = try_going(680, 1500,ESCAPE_FRESCO,TRIANGLE2,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+				#else
+					state = try_going(500, 1500,ESCAPE_FRESCO,TRIANGLE2,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+				#endif
 				break;
 
 			case TRIANGLE2:
@@ -538,9 +555,9 @@ void strat_test_point2(){
 
 			case RECALAGE1 :
 				if(global.env.color == RED)
-					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE1, WAIT_LABIUM_ARBRE1, ERROR);
+					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE1, RAMASSER_FRUIT_ARBRE1, ERROR);
 				else
-					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE1, WAIT_LABIUM_ARBRE1, ERROR);
+					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE1, RAMASSER_FRUIT_ARBRE1, ERROR);
 				break;
 
 //				// Premier shoot sur notre mammouth
@@ -548,18 +565,19 @@ void strat_test_point2(){
 //				state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,RAMASSER_FRUIT_ARBRE1,RAMASSER_FRUIT_ARBRE1);
 //				break;
 
-
-			case WAIT_LABIUM_ARBRE1:
-				state = wait_end_labium_order(LABIUM_OPEN, WAIT_LABIUM_ARBRE1, RAMASSER_FRUIT_ARBRE1, RAMASSER_FRUIT_ARBRE1);
-				break;
-
 				// Rammasse notre groupe de fruit
 			case RAMASSER_FRUIT_ARBRE1:
-				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
-				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
-
+				#ifdef USE_TRIANGLE_TORCHE
+					if(global.env.color == RED)
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,PLACEMENT_TORCHE1,PLACEMENT_TORCHE1);
+					else
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE1,PLACEMENT_TORCHE1,PLACEMENT_TORCHE1);
+				#else
+					if(global.env.color == RED)
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
+					else
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
+				#endif
 				if(strat_fruit_sucess == TRUE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_1 = TRUE;
@@ -567,9 +585,23 @@ void strat_test_point2(){
 
 				break;
 
+#ifdef USE_TRIANGLE_TORCHE
+			case PLACEMENT_TORCHE1 :
+				state = try_going(1650, COLOR_Y(1150), PLACEMENT_TORCHE1, END_TORCHE1, POINT_DEPOSE_FRESCO, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				break;
+
+			case END_TORCHE1 :
+				state = try_going_until_break(650, COLOR_Y(1150), END_TORCHE1, END2_TORCHE1, POINT_DEPOSE_FRESCO, FAST,(global.env.color == RED)?FORWARD:BACKWARD, NO_DODGE_AND_NO_WAIT);
+				break;
+
+			case END2_TORCHE1 :
+				state = try_going(500, 1500, END2_TORCHE1, RAMASSER_FRUIT_ARBRE2, RAMASSER_FRUIT_ARBRE2, SLOW, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				break;
+#endif
+
 				// Depose fresque
 			case POINT_DEPOSE_FRESCO:
-				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, WAIT_LABIUM_ARBRE2, POINT_DEPOSE_FRESCO, (global.env.color == RED)? FORWARD:BACKWARD, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, RAMASSER_FRUIT_ARBRE2, POINT_DEPOSE_FRESCO, (global.env.color == RED)? FORWARD:BACKWARD, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 				break;
 
 //				// Tire seconde balle
@@ -577,31 +609,36 @@ void strat_test_point2(){
 //				state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,RAMASSER_FRUIT_ARBRE2,ERROR);
 //				break;
 
-			/*case RECALAGE2 :
-				if(global.env.color == RED)
-					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE, RAMASSER_FRUIT_ARBRE2, ERROR);
-				else
-					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE, RAMASSER_FRUIT_ARBRE2, ERROR);
-				break;*/
-
 				// Rammasse second groupe de fruit
 
-			case WAIT_LABIUM_ARBRE2:
-				state = wait_end_labium_order(LABIUM_OPEN, WAIT_LABIUM_ARBRE2, RAMASSER_FRUIT_ARBRE2, RAMASSER_FRUIT_ARBRE2);
-				break;
-
 			case RAMASSER_FRUIT_ARBRE2:
-				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
-				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
-
+				#ifdef USE_TRIANGLE_TORCHE
+					if(global.env.color == RED)
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,ERROR);
+					else
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,ERROR);
+				#else
+					if(global.env.color == RED)
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
+					else
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
+			   #endif
 				if(strat_fruit_sucess == TRUE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_2 = TRUE;
 				}
 
 				break;
+
+#ifdef USE_TRIANGLE_TORCHE
+			case PLACEMENT_TORCHE2 :
+				state = try_going(1650, COLOR_Y(1850), PLACEMENT_TORCHE2, END_TORCHE2, POINT_DEPOSE_FRUIT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				break;
+
+			case END_TORCHE2 :
+				state = try_going(600, COLOR_Y(1850), END_TORCHE2, DEPOSER_FRUIT, POINT_DEPOSE_FRUIT, FAST, (global.env.color == RED)?FORWARD:BACKWARD, NO_DODGE_AND_NO_WAIT);
+				break;
+#endif
 
 				// Depose de fruit
 			case POINT_DEPOSE_FRUIT:
@@ -1252,6 +1289,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		IDLE,
 		GET_IN,
 		POS_DEPART,
+		OPEN_LABIUM,
 		COURBE,
 		TREE_2,
 		POS_FIN,
@@ -1323,13 +1361,20 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
+
+		case OPEN_LABIUM :
+			if(entrance)
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
+			#ifdef USE_WAIT_LABIUM
+				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, COURBE, COURBE);
+			#else
+				state = COURBE;
+			#endif
 			break;
 
 		case COURBE:
-			if(entrance)
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-
 			state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
@@ -1382,6 +1427,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		IDLE,
 		GET_IN,
 		POS_DEPART,
+		OPEN_LABIUM,
 		COURBE,
 		TREE_2,
 		POS_FIN,
@@ -1474,13 +1520,20 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,COURBE,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
+
+		case OPEN_LABIUM :
+			if(entrance)
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
+			#ifdef USE_WAIT_LABIUM
+				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, COURBE, COURBE);
+			#else
+				state = COURBE;
+			#endif
 			break;
 
 		case COURBE:
-			if(entrance)
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-
 			state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
