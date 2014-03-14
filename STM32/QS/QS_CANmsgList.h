@@ -337,6 +337,14 @@
 		#define STRAT_INFORM_FILET_PRESENT	(0b000000001)
 	//////////////////////////////////////////////
 
+	/////////////////// FRUIT_MOUTH ///////////////////
+	// Message de l'actionneur vers la stratégie pour informer de l'état du filet
+	#define STRAT_INFORM_FRUIT_MOUTH (STRAT_FILTER | (ACT_FILTER >> 4) | 2)
+		// Dans data[0]
+		#define STRAT_INFORM_FRUIT_MOUTH_OPEN	(0b000000000)
+		#define STRAT_INFORM_FRUIT_MOUTH_CLOSE	(0b000000001)
+	//////////////////////////////////////////////
+
 // Code des SID des messages: 0x30x = message pour Tiny, 0x31x = message pour Krusty.
 // Le SID 0x300 est reservé pour le self_test
 // Ceci est un enum de SID d'actionneur avec les paramètres de chaque actions définie par des defines. L'enum est utilisé pour vérifier que tous les messages de retour d'actionneurs sont géré en strat
@@ -374,7 +382,6 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			// Voir position du bras ci-dessous (ARM_STATE_ENUM)
 
 		#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
-
 
 		//Pas utilisé par la strat mais ici pour être testable
 		#define ACT_ARM_INIT 3
