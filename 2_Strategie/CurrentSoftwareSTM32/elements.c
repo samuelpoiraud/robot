@@ -13,7 +13,7 @@
 #include "QS/QS_CANmsgList.h"
 
 #define LABIUM_TIMEOUT			500
-#define LABIUM_ORDER_TIMEOUR	200
+#define LABIUM_ORDER_TIMEOUT	200
 
 bool_e prop_send_all_triangle = FALSE;
 
@@ -176,8 +176,8 @@ Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint
 
 		case IDLE :
 			timeLaunch = global.env.match_time;
-			if(global.env.match_time - time_labium_state >= 200)
-				labium_order = UNKNOWN;
+			if(global.env.match_time - time_labium_state >= LABIUM_ORDER_TIMEOUT)
+				labium_state = UNKNOWN;
 			state = WAIT;
 			break;
 
@@ -186,7 +186,7 @@ Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint
 				state = END_OK;
 			else if(labium_order == LABIUM_CLOSE && labium_state == LABIUM_CLOSE)
 				state = END_OK;
-			else if(timeLaunch + LABIUM_TIMEOUT <= global.env.match_time)
+			else if(global.env.match_time - timeLaunch >= LABIUM_TIMEOUT)
 				state = ERROR;
 			break;
 
