@@ -58,6 +58,7 @@ typedef struct
 	bool_e updated;	/**< informe si le robot a été mis à jour */
 	Uint8 color;	/**< couleur du robot en question */
 	bool_e enable;	/**< TRUE si le robot est activé FALSE sinon */
+	bool_e friend;  /**< TRUE si robot est à nous (pour affichage) */
 }display_robot_t;
 
 
