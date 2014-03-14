@@ -399,7 +399,8 @@ void strat_test_point2(){
 		DEGAGEMENT,
 		RECALAGE1,
 
-		WAIT_LABIUM_FRESCO,
+		WAIT_LABIUM_ARBRE1,
+		WAIT_LABIUM_ARBRE2,
 
 		RAMASSER_FRUIT_ARBRE1,
 		RAMASSER_FRUIT_ARBRE2,
@@ -436,7 +437,7 @@ void strat_test_point2(){
 		{{900					,COLOR_Y(2600-LARGEUR_LABIUM)},SLOW}, // Labium ouvert
 
 		// Triangle 4 x = 1600 / yr = 2100 / yj = 900
-		{{1600-LARGEUR_LABIUM		,COLOR_Y(2360)},FAST},
+		{{1600-LARGEUR_LABIUM		,COLOR_Y(2320)},FAST},
 		{{1600-LARGEUR_LABIUM		,COLOR_Y(2100)},FAST},
 		{{1600-LARGEUR_LABIUM+100	,COLOR_Y(1645)},FAST},
 
@@ -537,9 +538,9 @@ void strat_test_point2(){
 
 			case RECALAGE1 :
 				if(global.env.color == RED)
-					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE1, RAMASSER_FRUIT_ARBRE1, ERROR);
+					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE1, WAIT_LABIUM_ARBRE1, ERROR);
 				else
-					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE1, RAMASSER_FRUIT_ARBRE1, ERROR);
+					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE1, WAIT_LABIUM_ARBRE1, ERROR);
 				break;
 
 //				// Premier shoot sur notre mammouth
@@ -548,8 +549,11 @@ void strat_test_point2(){
 //				break;
 
 
-				// Rammasse notre groupe de fruit
+			case WAIT_LABIUM_ARBRE1:
+				state = wait_end_labium_order(LABIUM_OPEN, WAIT_LABIUM_ARBRE1, RAMASSER_FRUIT_ARBRE1, RAMASSER_FRUIT_ARBRE1);
+				break;
 
+				// Rammasse notre groupe de fruit
 			case RAMASSER_FRUIT_ARBRE1:
 				if(global.env.color == RED)
 					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
@@ -565,7 +569,7 @@ void strat_test_point2(){
 
 				// Depose fresque
 			case POINT_DEPOSE_FRESCO:
-				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, RAMASSER_FRUIT_ARBRE2, POINT_DEPOSE_FRESCO, (global.env.color == RED)? FORWARD:BACKWARD, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, WAIT_LABIUM_ARBRE2, POINT_DEPOSE_FRESCO, (global.env.color == RED)? FORWARD:BACKWARD, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 				break;
 
 //				// Tire seconde balle
@@ -581,6 +585,11 @@ void strat_test_point2(){
 				break;*/
 
 				// Rammasse second groupe de fruit
+
+			case WAIT_LABIUM_ARBRE2:
+				state = wait_end_labium_order(LABIUM_OPEN, WAIT_LABIUM_ARBRE2, RAMASSER_FRUIT_ARBRE2, RAMASSER_FRUIT_ARBRE2);
+				break;
+
 			case RAMASSER_FRUIT_ARBRE2:
 				if(global.env.color == RED)
 					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
