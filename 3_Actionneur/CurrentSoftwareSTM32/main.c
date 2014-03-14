@@ -159,15 +159,9 @@ int main (void)
 
 static void MAIN_onButton0() {
 	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-
-
-	static int truc = 0;
-	truc = !truc;
-
-	msg.data[0] = ACT_ARM_PRINT_POS;
+	msg.size = 1;
+	msg.sid = ACT_FRUIT_MOUTH;
+	msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
 	CAN_process_msg(&msg);
 }
 
@@ -175,10 +169,9 @@ static void MAIN_onButton0() {
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton1() {
 	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_OPEN;
+	msg.size = 1;
+	msg.sid = ACT_FRUIT_MOUTH;
+	msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
 	CAN_process_msg(&msg);
 }
 
