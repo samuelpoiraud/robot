@@ -47,8 +47,8 @@ volatile Uint8 t_adversary2_is_seen = 0;
 volatile Uint8 t_synchro_received = 0;
 volatile bool_e flag_synchro_received = FALSE;
 
-#define ADVERSARY_SEEN_TIMEOUT		20 [100 ms]	//2 secondes
-#define SYNCHRO_RECEIVED_TIMEOUT	20 [100 ms]	//2 secondes
+#define ADVERSARY_SEEN_TIMEOUT		20 //[100 ms]	//2 secondes
+#define SYNCHRO_RECEIVED_TIMEOUT	20 //[100 ms]	//2 secondes
 
 void SECRETARY_process_it_100ms(void)
 {

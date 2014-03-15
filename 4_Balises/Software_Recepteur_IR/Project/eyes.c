@@ -14,8 +14,9 @@
 #include "brain.h"
 #include "secretary.h"
 #include "QS/QS_timer.h"
-			
-			
+#include "QS/QS_CANmsgList.h"			
+#include "QS/QS_outputlog.h"		
+
 	Uint16 EYES_process_read_tsop(void);
 	void EYES_next_adversary(adversary_e previous_adversary, adversary_e next_adversary);	
 	Uint16 EYES_process_read_tsop(void);

@@ -12,6 +12,7 @@
 #include "QS/QS_timer.h"
 #include "main.h"
 #include "eyes.h"
+#include "secretary.h"
 #include <timer.h>
 #include <ports.h>
 

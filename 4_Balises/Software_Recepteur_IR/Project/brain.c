@@ -12,10 +12,10 @@
 #define BRAIN_C
 #include "brain.h"
 #include "eyes.h"
-//#include "QS/QS_timer.h"
+#include "QS/QS_CANmsgList.h"
 
 
-
+#define OFFSET_ANGLE	(-PI4096/2)	//2014 : l'angle 0 est orienté vers la droite... c'est malin !
 #define	NUMBER_OF_BEST_DETECTIONS (1)
 
 //Une vue d'un adversaires est : une bonne détection de cet adversaire qui a eu lieu pendant les 100ms de mesure, 
@@ -60,7 +60,18 @@ void BRAIN_init(void)
 void BRAIN_task_add(volatile EYES_adversary_detections_t * adversary_detection)
 {
 	next_adversary_detection = adversary_detection;	
-}	
+}
+
+
+static Sint16 BRAIN_modulo_angle(Sint16 angle)
+{
+	while(angle > PI4096)
+			angle -= 2*PI4096;
+	while(angle < -PI4096)
+			angle += 2*PI4096;
+
+	return angle;
+}
 
 void BRAIN_process_main(void)
 {
@@ -83,7 +94,7 @@ void BRAIN_process_main(void)
 		/////////////////////////////////////////////////////////////////////
 		//Médianne des angles et distances obtenues.
 		adversary_location[next_adversary_detection->adversary].distance 	= BRAIN_find_mediane_distance();
-		adversary_location[next_adversary_detection->adversary].angle 		= BRAIN_find_mediane_angle();
+		adversary_location[next_adversary_detection->adversary].angle 		= BRAIN_modulo_angle(BRAIN_find_mediane_angle() + OFFSET_ANGLE);
 		adversary_location[next_adversary_detection->adversary].error		= next_adversary_detection->error;
 		
 		
@@ -96,7 +107,7 @@ void BRAIN_process_main(void)
 	}	
 }
 
-	
+
 volatile adversary_location_t * BRAIN_get_adversary_location(void)
 {
 	return adversary_location;

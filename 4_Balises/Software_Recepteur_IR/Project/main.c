@@ -16,6 +16,7 @@
 #include "QS/QS_ports.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_timer.h"
+#include "QS/QS_outputlog.h"
 
 		
 #ifdef CARTE_2012
