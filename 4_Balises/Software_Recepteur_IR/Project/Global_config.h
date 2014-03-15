@@ -14,7 +14,7 @@
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
 	#include "QS/QS_types.h"
-
+	#define LOG_COMPONENT LOG_PRINT_On
 
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
