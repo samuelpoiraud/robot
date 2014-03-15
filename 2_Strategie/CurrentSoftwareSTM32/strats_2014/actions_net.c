@@ -16,6 +16,7 @@
 #include "../avoidance.h"
 #include "../act_can.h"
 #include "../Pathfind.h"
+#include "../Supervision/Buzzer.h"
 #include <math.h>
 
 
@@ -63,6 +64,7 @@ void strat_placement_net(){
 		case INIT :
 			STACKS_flush_all();
 			QUEUE_reset_all();
+			BUZZER_play(1000, DEFAULT_NOTE, 2);
 			state = STOP_ROBOT;
 			break;
 
