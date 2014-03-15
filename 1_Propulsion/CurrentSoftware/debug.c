@@ -50,8 +50,9 @@ void DEBUG_init(void)
 			global.debug_tableau[global.debug_index_read].teta =0;
 		}
 	#endif
-
-
+	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+		global.disable_virtual_perfect_robot = FALSE;
+	#endif
 		//ODOMETRY_set(0,0,0);
 //		SEQUENCES_calibrate(BACKWARD);
 	//TEST.
@@ -210,45 +211,63 @@ void affichage_global(void)
 
 
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+		volatile bool_e we_touch_border = FALSE;
+
 		#include "Copilot.h"
 			//Dans ce mode de debug très spécial, on fait croire au code que la position/vitesse réelle du robot est celle du point fictif.
 			//Ainsi, les écarts sont nuls, il n'y a pas d'erreur, et les commandes moteurs sont nulles.
 			//Le robot semble "parfait"............c'est un robot virtuel qui se déplace
 		void DEBUG_envoi_point_fictif_alteration_coordonnees_reelles(void)
 		{
+			if(global.disable_virtual_perfect_robot)
+			{
+				//Robot virtuel parfait désactivé, car on a reçu des message de position venant d'une autre propulsion !
+				//(on est donc très probablement relié à un robot, virtuel ou réel...)
+				global.real_speed_translation = 0;
+				global.real_speed_rotation = 0;
+				//La position sera mise à jour sur réception des messages de position...
+			}
+			else
+			{
 				if(COPILOT_is_arrived())
 				{
 					global.real_speed_translation = 0;
 					global.real_speed_rotation = 0;
+					we_touch_border = FALSE;
 				}
 				else
 				{
 					global.real_speed_translation = global.position_translation;
 					global.real_speed_rotation = global.position_rotation << 10;
 				}
-				if(COPILOT_get_border_mode() == BORDER_MODE_WITH_UPDATE_POSITION)
+				if(COPILOT_get_border_mode() != NOT_BORDER_MODE)
 				{
 					Sint16 robotSize = get_calibration_backward_distance();
 					if(global.position.x < robotSize)
 					{
 						global.real_speed_translation = 0;
 						global.position.x = robotSize;
+						we_touch_border = TRUE;
 					}
 					if(global.position.y < robotSize)
 					{
 						global.real_speed_translation = 0;
 						global.position.y = robotSize;
+						we_touch_border = TRUE;
 					}
 					if(global.position.x > FIELD_SIZE_X-robotSize)
 					{
 						global.real_speed_translation = 0;
 						global.position.x = FIELD_SIZE_X-robotSize;
+						we_touch_border = TRUE;
 					}
 					if(global.position.y > FIELD_SIZE_Y-robotSize){
 						global.real_speed_translation = 0;
 						global.position.y = FIELD_SIZE_Y-robotSize;
+						we_touch_border = TRUE;
 					}
 				}
+			}
 			/*	en gros, la vitesse à prendre en début d'IT est l'écart entre le robot et le nouveau point fictif
 				c'est à dire que l'on rejoint le point fictif parfaitement...
 				il y avait un écart 'X', on l'annule en prenant la bonne vitesse !
@@ -262,7 +281,10 @@ void affichage_global(void)
 			//cette intrégrale est faite dans l'odométrie, juste après l'appel de cette fonction...
 		}
 
-
+		bool_e DEBUG_get_we_touch_border(void)
+		{
+			return we_touch_border;
+		}
 
 
 		void DEBUG_envoi_point_fictif_process_main(void)

@@ -210,17 +210,23 @@ void LCD_process_main(void){
 
 		t_10ms=0; // reinit compteur
 
-		robots[US].x = global.position.x/10; //Calcul de la position pour affichage ecran
-		robots[US].y = global.position.y/10;
-		robots[US].teta = global.position.teta;
-
-		robots[US].updated = TRUE;			// Déclarer changement pour l'affichage
-
 		current_color = (ODOMETRY_get_color()==RED)?Rouge : Jaune; // Récupération de la couleur
-		robots[US].color = current_color;
-		robots[FRIEND_2].color = current_color;
-		robots[ADVERSARY_1].color = adversary_color;
-		robots[ADVERSARY_2].color = adversary_color;
+
+		if( 	(robots[US].color != current_color)		||
+				(robots[US].x != global.position.x/10) 	||
+				(robots[US].y != global.position.y/10) 	||
+				(robots[US].teta != global.position.teta) )
+		{
+			robots[US].color = current_color;
+			robots[FRIEND_2].color = current_color;
+			robots[ADVERSARY_1].color = adversary_color;
+			robots[ADVERSARY_2].color = adversary_color;
+
+			robots[US].x = global.position.x/10; //Calcul de la position pour affichage ecran
+			robots[US].y = global.position.y/10;
+			robots[US].teta = global.position.teta;
+			robots[US].updated = TRUE;			// Déclarer changement pour l'affichage
+		}
 
 		Calibration_Test_Dispose(&robots[robot_selected] , &robot_selected);
 

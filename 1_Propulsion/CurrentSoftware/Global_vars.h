@@ -111,6 +111,8 @@
 		volatile bool_e alim;
 		volatile Uint16 alim_value;			// en mV
 		volatile bool_e mode_best_effort_enable;
-
+		#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+			volatile bool_e disable_virtual_perfect_robot;
+		#endif
 
 #endif /* ndef GLOBAL_VARS_H */

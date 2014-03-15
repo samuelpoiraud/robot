@@ -73,7 +73,16 @@ void SECRETARY_process_main(void)
 		LED_UART = !LED_UART;
 		#if defined(STM32F40XX)
 			if(u1rxToCANmsg(&receivedCanMsg_over_uart, UART1_get_next_msg()))
-				SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
+			{
+
+				#ifdef LCD_TOUCH
+				if(	global.disable_virtual_perfect_robot == FALSE 				||	//Si le robot virtuel est actif, je laisse passer le message
+					receivedCanMsg_over_uart.sid == BROADCAST_POSITION_ROBOT 	||	//Sinon, je laisse passer les messages de position et de position adverse.
+					receivedCanMsg_over_uart.sid == STRAT_ADVERSARIES_POSITION
+					)
+				#endif
+					SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
+			}
 		#else
 			if(u1rxToCANmsg(&receivedCanMsg_over_uart))
 				SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
@@ -643,7 +652,17 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			SCAN_TRIANGLE_WARNER_canMsg(msg);
 		break;*/
 		#endif
-
+		#ifdef LCD_TOUCH
+		case BROADCAST_POSITION_ROBOT:
+			//On a reçu une position robot... on la prend... et on ne bouge plus par nous même.
+			global.disable_virtual_perfect_robot = TRUE;
+			ODOMETRY_set(
+							(U16FROMU8(msg->data[0],msg->data[1]))&0x1FFF,	//x
+							(U16FROMU8(msg->data[2],msg->data[3]))&0x1FFF, //y
+							(U16FROMU8(msg->data[4],msg->data[5]))	//teta
+						);
+		break;
+		#endif
 		default :
 		break;
 	}

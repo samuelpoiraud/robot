@@ -17,5 +17,6 @@
 	void DEBUG_init(void);
 	void DEBUG_process_it(void);
 	void DEBUG_envoi_point_fictif_alteration_coordonnees_reelles(void);
+	bool_e DEBUG_get_we_touch_border(void);
 	
 #endif //ndef _DEBUG_H

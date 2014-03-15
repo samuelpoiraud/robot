@@ -18,6 +18,7 @@
 #include "calculator.h"
 #include "odometry.h"
 #include "cos_sin.h"
+#include "debug.h"
 
 volatile order_t current_order;
 
@@ -465,7 +466,9 @@ void COPILOT_reset_absolute_destination(void)
 // Cette décision concerne le ROBOT et non le point fictif...
 arrived_e Decision_robot_arrive_bordure(void)
 {
-
+	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+		return DEBUG_get_we_touch_border();
+	#endif
 	//si on est en mode calage, la condition d'arrivée est un écart entre le point fictif et notre position...
 	if(absolute(global.ecart_translation)>TRESHOLD_CALIBRATION_TRANSLATION)
 	{
@@ -551,7 +554,7 @@ void COPILOT_update_arrived(void)
 
 	if(arrived_rotation  != ARRIVED)	//Maintient du ARRIVED en rotation.
 	{
-		if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
+		if(current_order.border_mode != NOT_BORDER_MODE)
 			arrived_rotation 	= ARRIVED;
 		else
 			arrived_rotation 	= Decision_robot_arrive_rotation();
@@ -569,7 +572,7 @@ void COPILOT_update_arrived(void)
 		arrived = arrived_translation;
 
 	//si le mode bordure est actif
-	if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
+	if(current_order.border_mode != NOT_BORDER_MODE)
 		if(arrived != ARRIVED)	//MAINTIENT DE ROBOT ARRIVE
 			arrived = Decision_robot_arrive_bordure();
 }
