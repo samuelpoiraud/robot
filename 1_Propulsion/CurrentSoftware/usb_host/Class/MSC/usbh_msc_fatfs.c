@@ -1,4 +1,5 @@
 
+#if 0
 #include "../../usb_conf.h"
 #include "fat_fs/diskio.h"
 #include "usbh_msc_core.h"
@@ -184,3 +185,4 @@ DRESULT disk_ioctl (
   return res;
 }
 #endif /* _USE_IOCTL != 0 */
+#endif
