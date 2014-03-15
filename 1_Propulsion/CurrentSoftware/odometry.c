@@ -189,7 +189,10 @@ void ODOMETRY_update(void)
 		#warning "Simulation avec robot virtuel parfait activée... ne pas utiliser ce code dans le robot sans volonté volontaire de nuire à la bonne pratique > robot en 'boucle ouverte' !"
 		DEBUG_envoi_point_fictif_alteration_coordonnees_reelles();
 	#endif
-
+	#ifdef LCD_TOUCH
+		if(global.disable_virtual_perfect_robot)	//Robot virtuel désactivé
+			return;
+	#endif
 	//vitesses X et Y
 	//cos et sin sont exprimés en [pas d'unité/4096]
 	real_speed_x =(global.real_speed_translation*cos32)>>8;		//[mm/65536/5ms] = [mm/4096/5ms]*[/4096]*[256]
