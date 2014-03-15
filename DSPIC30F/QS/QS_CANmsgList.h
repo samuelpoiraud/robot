@@ -459,13 +459,44 @@ typedef enum {
 
 
 		/* Liste des messages de definition d'erreur --- Pour plus de doc, consulter QS_CANmsgDoc.h */
-		#define AUCUNE_ERREUR						(0b00000000)
-		#define AUCUN_SIGNAL						(0b00000001)
-		#define SIGNAL_INSUFFISANT					(0b00000010)
-		#define TACHE_TROP_GRANDE					(0b00000100)
-		#define TROP_DE_SIGNAL						(0b00001000)
-		#define ERREUR_POSITION_INCOHERENTE 		(0b00010000)
-		#define OBSOLESCENCE						(0b10000000)
-
+	/////////ERREURS POSSIBLES !!!////////////////////////////////////////////////////////////////////////////	
+	
+	//Ces erreurs possibles sont appliquées à l'Uint8 global.localisation_erreur...
+	//plusieurs erreurs peuvent se cumuler... donc 1 bit chacune...
+	#define AUCUNE_ERREUR						0b00000000
+					//COMPORTEMENT : le résultat délivré semble bon, il peut être utilisé.
+					
+	#define AUCUN_SIGNAL						0b00000001	
+					//survenue de l'interruption timer 3 car strictement aucun signal reçu depuis au moins deux tours moteurs
+					//cette erreur peut se produire si l'on est très loin
+					//COMPORTEMENT : pas d'évittement par balise, prise en compte des télémètres !
+											
+	#define SIGNAL_INSUFFISANT					0b00000010	
+					//il peut y avoir un peu de signal, mais pas assez pour estimer une position fiable (se produit typiquement si l'on est trop loin)
+					//cette erreur n'est pas grave, on peut considérer que le robot est LOIN !
+					//COMPORTEMENT : pas d'évittement, pas de prise en compte des télémètres !
+					
+	#define TACHE_TROP_GRANDE					0b00000100
+					//Ce cas se produit si trop de récepteurs ont vu du signal.
+					// Ce seuil est STRICTEMENT supérieur au cas normal d'un robot très pret. Il y a donc probablement un autre émetteur quelque part, ou on est entouré de miroir.
+					//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
+					
+	#define TROP_DE_SIGNAL						0b00001000
+					//Le récepteur ayant reçu le plus de signal en à trop recu
+					//	cas 1, peu probable, le moteur est bloqué (cas de test facile pour vérifier cette fonctionnalité !)
+					//	cas 2, probable, il y a un autre émetteur quelque part !!!
+					// 	cas 3, on est dans une enceinte fermée et on capte trop
+					//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
+					
+	#define ERREUR_POSITION_INCOHERENTE 		0b00010000
+					//La position obtenue en x/y est incohérente, le robot semble être franchement hors du terrain
+					//COMPORTEMENT : si la position obtenue indique qu'il est loin, on ne fait pas d'évitement !
+					//					sinon, on fait confiance à nos télémètres (?)
+					
+	#define OBSOLESCENCE						0b10000000
+					//La position adverse connue est obsolète compte tenu d'une absence de résultat valide depuis un certain temps.
+					//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
+	
+	
 
 #endif	/* ndef QS_CANMSGLIST_H */
