@@ -15,7 +15,9 @@
 #include "LCD_interface.h"
 #include "LCD_MIDAS_4x20.h"
 
-void LCD_incoming_can(CAN_msg_t* incomming_msg){
+//Filtrage des messages CAN entrant....
+void LCD_incoming_can(CAN_msg_t * incomming_msg)
+{
 	switch(incomming_msg->sid){
 		case ASSER_WARN_ANGLE:
 		case ASSER_WARN_X:
@@ -30,7 +32,7 @@ void LCD_incoming_can(CAN_msg_t* incomming_msg){
 		case BROADCAST_START:
 		case BROADCAST_STOP_ALL:
 		case BROADCAST_COULEUR:
-			LCD_add_can(*incomming_msg);
+			LCD_add_can(incomming_msg);
 			break;
 		default:
 			break;
@@ -38,56 +40,25 @@ void LCD_incoming_can(CAN_msg_t* incomming_msg){
 }
 
 
-void display_can(CAN_msg_t msg, Uint8 pos){
-	char buf[20];
-
-	LCD_set_cursor(pos, 0);
-	sprintf(buf,"%3.3x",msg.sid);
-	LCD_Write_text(buf);
-
-	LCD_set_cursor(pos, 4);
-
-	switch(msg.sid){
-		case ASSER_WARN_ANGLE:
-			LCD_Write_text("Warner angle");
-			break;
-		case ASSER_WARN_X:
-			LCD_Write_text("Warner X");
-			break;
-		case ASSER_WARN_Y:
-			LCD_Write_text("Warner Y");
-			break;
-		case ASSER_STOP:
-			LCD_Write_text("ASSER STOP");
-			break;
-		case ASSER_GO_POSITION:
-			LCD_Write_text("GOTO POS");
-			break;
-		case ASSER_GO_ANGLE:
-			LCD_Write_text("GOTO ANGLE");
-			break;
-		case ASSER_CALIBRATION:
-			LCD_Write_text("CALIBRATE");
-			break;
-		case CARTE_P_ASSER_ERREUR:
-			LCD_Write_text("ASSER ERROR");
-			break;
-		case CARTE_P_ROBOT_CALIBRE:
-			LCD_Write_text("CALIBRATE DONE");
-			break;
-		case CARTE_P_TRAJ_FINIE:
-			LCD_Write_text("END OF MOVE");
-			break;
-		case BROADCAST_START:
-			LCD_Write_text("BROAD. START");
-			break;
-		case BROADCAST_STOP_ALL:
-			LCD_Write_text("BROAD. STOP ALL");
-			break;
-		case BROADCAST_COULEUR:
-			LCD_Write_text("NEW COLOR");
-			break;
-		default:
-			break;
+void LCD_display_CAN_msg(CAN_msg_t * msg, Uint8 line)
+{
+	char * str;
+	switch(msg->sid)
+	{
+		case ASSER_WARN_ANGLE:			str = "Warner angle";		break;
+		case ASSER_WARN_X:				str = "Warner X";			break;
+		case ASSER_WARN_Y:				str = "Warner Y";			break;
+		case ASSER_STOP:				str = "ASSER STOP";			break;
+		case ASSER_GO_POSITION:			str = "GOTO POS";			break;
+		case ASSER_GO_ANGLE:			str = "GOTO ANGLE";			break;
+		case ASSER_CALIBRATION:			str = "CALIBRATION";		break;
+		case CARTE_P_ASSER_ERREUR:		str = "ASSER ERROR";		break;
+		case CARTE_P_ROBOT_CALIBRE:		str = "CALIBRATE DONE";		break;
+		case CARTE_P_TRAJ_FINIE:		str = "END OF MOVE";		break;
+		case BROADCAST_START:			str = "BROAD. START";		break;
+		case BROADCAST_STOP_ALL:		str = "BROAD. STOP ALL";	break;
+		case BROADCAST_COULEUR:			str = "NEW COLOR";			break;
+		default:						str = "UNKNOW";				break;
 	}
+	sprintf_line(line,"%3.3x%s",msg->sid,str);
 }

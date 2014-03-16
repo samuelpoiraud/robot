@@ -45,16 +45,15 @@
 
 volatile bool_e ask_launch_selftest = FALSE;
 volatile bool_e selftest_is_running = FALSE;
+volatile bool_e selftest_is_over = FALSE;
 volatile SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
 volatile Uint8 errors_index = 0;
 volatile Uint8 t500ms = 0;	//Minuteur [500ms]
-volatile bool_e flag_500ms = FALSE;	//Flag qui permet de lancer la fonction SELFTEST_beacon_reask_periodic_sending
 
 
 error_e SELFTEST_strategy(bool_e reset);
 
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size);
-void SELFTEST_beacon_reask_periodic_sending(void);
 Uint16 SELFTEST_measure24_mV(void);
 static void SELFTEST_check_alim();
 
@@ -74,7 +73,11 @@ void SELFTEST_ask_launch(void)
 {
 	//On accepte une demande de selftest seulement avant ou après le match. pas pendant.
 	if((!global.env.match_started || global.env.match_over))
+	{
 		ask_launch_selftest = TRUE;
+		selftest_is_running = FALSE;
+		selftest_is_over = FALSE;
+	}
 }
 
 
@@ -111,13 +114,11 @@ void SELFTEST_process_500ms(void)
 		LED_SELFTEST = !LED_SELFTEST;	//On fait clignoter la led selftest à 2hz pendant le selftest.
 	if(t500ms)
 		t500ms--;
-	flag_500ms = TRUE;
 }
 
 void SELFTEST_process_main(void)
 {
 	SELFTEST_update(NULL);
-	SELFTEST_beacon_reask_periodic_sending();	//Toutes les 200 secondes, il faut redemander à la carte balise d'envoyer des messages périodiquement
 	SELFTEST_check_alim();
 }
 
@@ -161,7 +162,6 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			if(ask_launch_selftest)	//demande de lancement du selftest (PAS PENDANT LE MATCH !)
 			{
 				debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
-				//lcd_printf_last_line("Selftest : launch\n");
 				errors_index = 0;	//On REMET le compteur d'erreur à 0.
 				state = SELFTEST_STRAT;
 				flag_timeout = FALSE;
@@ -324,6 +324,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 
 		case SELFTEST_END:
 			selftest_is_running = FALSE;
+			selftest_is_over = TRUE;
 			ask_launch_selftest = FALSE;	//Fin du selftest (et du clignotement de la led selftest).
 			if(errors_index == 0)//Tout s'est bien passé
 			{
@@ -444,8 +445,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 {
 	Uint8 i;
 	debug_printf("SELFTEST ENDED with %d error(s) :\n",size);
-	LCD_printf(0,"Stest ENDED: %2d ERR",size);
-	LCD_printf(1,"Stest ENDED: %2d ERR",size);
 	BUZZER_play(200, DEFAULT_NOTE, size);	//Autant de bip que d'erreurs !
 	for(i=0;i<size;i++)
 	{
@@ -493,7 +492,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 			debug_printf("\n");
 		}
 	}
-	LCD_write_selftest_errors(size);
 }
 
 
@@ -544,24 +542,6 @@ void led_ir_update(selftest_beacon_e state)
 		}
 }
 
-
-void SELFTEST_beacon_reask_periodic_sending(void)
-{
-	static Uint16 counter = 1;
-	if(flag_500ms)
-	{
-		if(global.env.match_started == FALSE)	//Tant que le match n'est pas commencé, on demande régulièrement aux balises des envois périodiques
-		{
-			counter--;
-			if(counter == 0)
-			{
-				counter = 400;	//200 secondes
-				CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
-			}
-		}
-		flag_500ms = FALSE;
-	}
-}
 
 
 
@@ -746,8 +726,13 @@ void SELFTEST_check_alim(){
 		says = FALSE;
 }
 
+SELFTEST_error_code_e SELFTEST_getError(Uint8 index)
+{
+	assert(index < MAX_ERRORS_NUMBER);
+	return errors[index];
+}
 
-char * getError_string(SELFTEST_error_code_e error_num){
+char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 	static char default_string[21] = {'0','x',0,0,' ','U','n','k','n','o','w','n',' ','E','R','R'};
 
 	switch(error_num){
@@ -773,8 +758,8 @@ char * getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_UNREACHABLE:					return "ACT Unreachable";		break;
 		case SELFTEST_PROP_UNREACHABLE:					return "PROP Unreachable";		break;
 		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";	break;
-		case SELFTEST_ACT_MISSING_TEST:					return "Missing test";			break;
-		case SELFTEST_ACT_UNKNOWN_ACT:					return "Unkown ACT";			break;
+		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
+		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
 		case SELFTEST_ACT_FRUIT_MOUTH:					return "ACT FRUIT";				break;
 		case SELFTEST_ACT_LANCELAUNCHER:				return "ACT LanceLauch";		break;
 		case SELFTEST_ACT_ARM:							return "ACT arm";				break;
@@ -799,4 +784,19 @@ char * getError_string(SELFTEST_error_code_e error_num){
 		break;
 	}
 	return default_string;	// pour éviter un warning.. meme si on arrive jamais ici !
+}
+
+bool_e SELFTEST_is_running(void)
+{
+	return selftest_is_running;
+}
+
+bool_e SELFTEST_is_over(void)
+{
+	return selftest_is_over;
+}
+
+Uint8 SELFTEST_get_errors_number(void)
+{
+	return errors_index;
 }

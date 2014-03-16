@@ -24,7 +24,9 @@
 	*/
 	void any_match(void);
 
-	//Fonction qui lit la strat choisie: FDP2013
-	Uint8 strat_number();
+
+	bool_e BRAIN_get_strat_updated(void);
+	char * BRAIN_get_current_strat_name(void);
+
 	
 #endif /* ndef BRAIN_H */

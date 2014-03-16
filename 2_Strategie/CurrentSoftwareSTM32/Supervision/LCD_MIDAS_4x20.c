@@ -3,7 +3,7 @@
  *
  *	Fichier : LCD_MIDAS_4x20.c
  *	Package : Supervision
- *	Description : implémentation du driver de l'écran LCD MCCOG42005A6W-BNMLWI
+ *	Description : implémentation du driver de l'écran LCD MCCOG42005A6W-BNMLWI (controleur : SSD1803A)
  *	Licence : CeCILL-C
  *	Auteur : NIRGAL
  *	Version 201307
@@ -245,7 +245,7 @@ Uint8 Read_AC(void)
 void LCD_Write_text(char * string)
 {
 	Uint16 i;
-	Uint8 datas[20];
+	Uint8 datas[21];
 	Uint8 index;
 	index = 0;
 
@@ -256,7 +256,7 @@ void LCD_Write_text(char * string)
 
 	for(i=0;string[i];i++)
 	{
-		if(index >= 20)
+		if(index >= 21)
 			break;
 		switch(string[i])	//For special characters
 		{
@@ -274,6 +274,7 @@ void LCD_Write_text(char * string)
 			//case '':	datas[index++] = (0x8D);	break;
 			//case 'Ä':	datas[index++] = (0x8E);	break;
 			case '|':	datas[index++] = (0xFE);	break;
+			case '_':	datas[index++] = (0xC4);	break;
 			case (char)(0xFF):	datas[index++] = (0x1F);	break;	//FULL SQUARE
 
 			default:
