@@ -64,7 +64,7 @@ void strat_placement_net(){
 		case INIT :
 			STACKS_flush_all();
 			QUEUE_reset_all();
-			BUZZER_play(1000, DEFAULT_NOTE, 2);
+			BUZZER_play(1000, DEFAULT_NOTE, 1);
 			state = STOP_ROBOT;
 			break;
 
@@ -107,6 +107,8 @@ void strat_placement_net(){
 			break;
 
 		case STOP_ALL :
+			if(entrance)
+				BUZZER_play(1000, DEFAULT_NOTE, 1);
 			state = try_stop(STOP_ALL, PLACEMENT_TETA, PLACEMENT_TETA);
 			break;
 
