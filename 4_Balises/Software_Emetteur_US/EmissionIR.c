@@ -33,17 +33,20 @@
 void EmissionIR_ON(void)	//IR Toujours allumé
 {
 	IR_ON = 1;
+	LED_UART = 1;
 }	
 
 void EmissionIR_OFF(void)	//IR Toujours éteint
 {
 	IR_OFF = 0;
+	LED_UART = 0;
 }
 
 void EmissionIR_AUTO(void)	//IR laissé aux oscillateurs externes...
 {
 	IR_ON = 0;
 	IR_OFF = 1;
+	LED_UART = 1;
 }	
 	
 	

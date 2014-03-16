@@ -91,7 +91,6 @@ bool_e SECRETARY_msg_processing_direct_treatment_function(CAN_msg_t* msg)
 		//Un appel explicite à ce message est nécessaire pour déclencher l'envoi périodique.		
 		case BEACON_ENABLE_PERIODIC_SENDING:
 			periodic_sending_enabled = (Uint32)(100000);	//Activation pour 100 prochaines secondes
-			//Todo inclure l'information de durée dans l'argument...
 		break;
 		case BROADCAST_STOP_ALL:
 		case BEACON_DISABLE_PERIODIC_SENDING:

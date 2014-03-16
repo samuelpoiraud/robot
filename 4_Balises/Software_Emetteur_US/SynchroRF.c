@@ -41,7 +41,7 @@ void _ISR _T3Interrupt() {
 void SYNCRF_process_main() {
 	//Pour information, si on est pas synchro on allume la led uart
 	bool_e intermediate = !global.is_synchronized;
-	LED_UART = intermediate; //truc bizarres avec assignement direct
+//	LED_UART = intermediate; //truc bizarres avec assignement direct
 	
 	if(canmsg_received) {
 		//Traitement message CAN

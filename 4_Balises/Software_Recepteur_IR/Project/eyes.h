@@ -50,10 +50,10 @@
 
 	
 	void EYES_init(void);
-	void EYES_step_init(void);
-	void EYES_next_step(void);
+	void EYES_set_adversary(adversary_e next_adversary);
 	void EYES_init_adversary_detection(volatile EYES_adversary_detections_t * adversary_detection);
-		
+	void EYES_process_main(void);
+	
 		#ifdef CODE_FAIT_EN_IRLANDE
 		
 						#ifdef BALISE_RECEPTEUR_C
