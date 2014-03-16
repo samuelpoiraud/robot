@@ -416,7 +416,7 @@ static void LCD_menu_selftest(bool_e init)
 	if(update_lines)
 	{
 		for(i=1;i<LINE_NUMBER;i++)
-			sprintf_line(i, SELFTEST_getError_string(SELFTEST_getError(index+i)));
+			sprintf_line(i, SELFTEST_getError_string(SELFTEST_getError(index+i-1)));
 	}
 }
 
