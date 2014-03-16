@@ -1,4 +1,13 @@
-
+/*
+ *	Club Robot ESEO 2014
+ *	Pierre & Guy
+ *
+ *	Fichier : actions_Pfruit.h
+ *	Package : Carte S²/strats2014
+ *	Description : Tests des actions pour rammasser les fruits
+ *	Auteur : Anthony, modifié par .
+ *	Version 2014/16/03
+ */
 
 #include "actions_Pfruit.h"
 #include "../QS/QS_outputlog.h"
@@ -7,11 +16,15 @@
 #include "../act_can.h"
 #include "../Pathfind.h"
 
+
+// Define à activer pour activer les attentes de l'ouverture des verrins
+#define USE_WAIT_LABIUM
+
+
+#define LARGEUR_LABIUM	250
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
 #define ELOIGNEMENT_POSE_BAC_FRUIT 500
 
-
-static GEOMETRY_point_t offset_recalage = {0, 0};
 
 error_e strat_file_fruit(){
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -151,7 +164,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		POS_DEPART,
 		OPEN_LABIUM,
 		COURBE,
-		TREE_2,
+		RECUP_TREE_2,
 		POS_FIN,
 		GET_OUT_WITH_ERROR,
 		DONE,
@@ -171,26 +184,13 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 	switch(state){
 		case IDLE:
-			strat_fruit_sucess = FALSE;
+			strat_fruit_sucess = NO_ONE;
 
 			point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
 			point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
 			point[2] = (displacement_t){{1580+offset_recalage.x,					350+offset_recalage.y},						SLOW};
 			point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	480+offset_recalage.y},						SLOW};
 			point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						SLOW};
-			/*if(global.env.color == RED){ // Dans ce sens là, fonctionne plutôt bien
-				point[0] = (displacement_t){{1000,ELOIGNEMENT_ARBRE-10},SLOW};
-				point[1] = (displacement_t){{1500,ELOIGNEMENT_ARBRE},SLOW};
-				point[2] = (displacement_t){{1580,350},FAST};
-				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,480},SLOW};
-				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,900},SLOW};
-			}else{ // Jaune
-				point[0] = (displacement_t){{1000,ELOIGNEMENT_ARBRE-10},SLOW};
-				point[1] = (displacement_t){{1500,ELOIGNEMENT_ARBRE},SLOW};
-				point[2] = (displacement_t){{1580,350},FAST};
-				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,480},SLOW};
-				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,900},SLOW};
-			}*/
 
 			for(i=0;i<NBPOINT;i++){
 				if(sens == TRIGO)
@@ -235,11 +235,18 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case COURBE:
-			state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			if(entrance){
+				if(sens == TRIGO)
+					strat_fruit_sucess = TREE_1;
+				else
+					strat_fruit_sucess = TREE_2;
+			}
+
+			state = try_going_multipoint(&courbe[1],2,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case TREE_2:
-			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+		case RECUP_TREE_2:
+			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case POS_FIN:
@@ -253,7 +260,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case DONE:
-			strat_fruit_sucess = TRUE;
+			strat_fruit_sucess = ALL_TREE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 			state = IDLE;
 			return END_OK;
@@ -289,7 +296,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		POS_DEPART,
 		OPEN_LABIUM,
 		COURBE,
-		TREE_2,
+		RECUP_TREE_2,
 		POS_FIN,
 		GET_OUT_WITH_ERROR,
 		DONE,
@@ -312,35 +319,13 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 	switch(state){
 		case IDLE:
 
-			strat_fruit_sucess = FALSE;
+			strat_fruit_sucess = NO_ONE;
 
 				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
 				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
 				point[2] = (displacement_t){{1620+offset_recalage.x,					2625+offset_recalage.y},					SLOW};
 				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2450+offset_recalage.y},					SLOW};
 				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1800+offset_recalage.y},					SLOW};
-
-			/*if(sens==HORAIRE){ // GROS BIDOUILLAGE pour avoir les points a la recup
-				if(global.env.color == RED){
-					courbe[0] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},SLOW};
-					courbe[1] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},SLOW};
-					courbe[2] = (displacement_t){{1620,2625},FAST};
-					courbe[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-20,2450},SLOW};
-					courbe[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-20,1800},SLOW};
-				}else{
-					courbe[0] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},SLOW};
-					courbe[1] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},SLOW};
-					courbe[2] = (displacement_t){{1620,2625},FAST};
-					courbe[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-10,2450},SLOW};
-					courbe[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE-10,1800},SLOW};
-				}
-			}else{
-				courbe[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,1800},SLOW};
-				courbe[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE,2450},SLOW};
-				courbe[2] = (displacement_t){{1620,2575},FAST};
-				courbe[3] = (displacement_t){{1500,3000-ELOIGNEMENT_ARBRE},SLOW};
-				courbe[4] = (displacement_t){{1000,3000-ELOIGNEMENT_ARBRE},SLOW};
-			}*/
 
 			for(i=0;i<NBPOINT;i++){
 				if(sens == HORAIRE)
@@ -394,11 +379,18 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case COURBE:
-			state = try_going_multipoint(&courbe[1],2,COURBE,TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			if(entrance){
+				if(sens == TRIGO)
+					strat_fruit_sucess = TREE_2;
+				else
+					strat_fruit_sucess = TREE_1;
+			}
+
+			state = try_going_multipoint(&courbe[1],2,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case TREE_2:
-			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+		case RECUP_TREE_2:
+			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case POS_FIN:
@@ -412,7 +404,253 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case DONE:
-			strat_fruit_sucess = TRUE;
+			strat_fruit_sucess = ALL_TREE;
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			#ifdef USE_GET_IN_OUT
+				state = GET_OUT_WITH_ERROR;
+			#else
+				state = IDLE;
+				return NOT_HANDLED;
+			#endif
+			break;
+
+		case ERROR_WITH_GET_OUT :
+			state = IDLE;
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		GET_IN,
+		POS_DEPART,
+		OPEN_LABIUM,
+		POS_FIN,
+		GET_OUT_WITH_ERROR,
+		DONE,
+		ERROR,
+		ERROR_WITH_GET_OUT
+	);
+
+	static const Uint8 NBPOINT = 2;
+
+	static Uint8 get_out_try = 0;
+	static GEOMETRY_point_t escape_point[3];
+
+	displacement_t point[2];
+	static displacement_t courbe[2];
+	Uint8 i;
+	static way_e sensRobot;
+
+	switch(state){
+		case IDLE:
+			strat_fruit_sucess = NO_ONE;
+
+			if( tree == CHOICE_TREE_1){
+				point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
+				point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
+			}else{
+				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	450+offset_recalage.y},						SLOW};
+				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						SLOW};
+			}
+
+
+			for(i=0;i<NBPOINT;i++){
+				if(sens == TRIGO)
+					courbe[i] = point[i];
+				else
+					courbe[i] = point[NBPOINT-1-i];
+			}
+
+			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
+			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
+			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
+
+			if(sens == TRIGO)  // Modifie le sens
+				sensRobot = BACKWARD;
+			else
+				sensRobot = FORWARD;
+
+			#ifdef USE_GET_IN_OUT
+				state = GET_IN;
+			#else
+				state = POS_DEPART;
+			#endif
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
+					GET_IN, POS_DEPART, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+			break;
+
+		case POS_DEPART:
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
+
+		case OPEN_LABIUM :
+			if(entrance)
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
+			#ifdef USE_WAIT_LABIUM
+				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, POS_FIN, POS_FIN);
+			#else
+				state = POS_FIN;
+			#endif
+			break;
+
+		case POS_FIN:
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state != GET_OUT_WITH_ERROR)
+				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			break;
+
+		case DONE:
+			if( tree == CHOICE_TREE_1)
+				strat_fruit_sucess = TREE_1;
+			else
+				strat_fruit_sucess = TREE_2;
+
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			#ifdef USE_GET_IN_OUT
+				state = GET_OUT_WITH_ERROR;
+			#else
+				state = IDLE;
+				return NOT_HANDLED;
+			#endif
+			break;
+
+		case ERROR_WITH_GET_OUT :
+			state = IDLE;
+			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		GET_IN,
+		POS_DEPART,
+		OPEN_LABIUM,
+		POS_FIN,
+		GET_OUT_WITH_ERROR,
+		DONE,
+		ERROR,
+		ERROR_WITH_GET_OUT
+	);
+
+	static const Uint8 NBPOINT = 2;
+
+	static Uint8 get_out_try = 0;
+	static GEOMETRY_point_t escape_point[3];
+
+	displacement_t point[2];
+	static displacement_t courbe[2];
+	Uint8 i;
+	static way_e sensRobot;
+
+	switch(state){
+		case IDLE:
+			strat_fruit_sucess = NO_ONE;
+
+			if( tree == CHOICE_TREE_1){
+				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
+				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
+			}else{
+				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2450+offset_recalage.y},					SLOW};
+				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2000+offset_recalage.y},					SLOW};
+			}
+
+
+			for(i=0;i<NBPOINT;i++){
+				if(sens == HORAIRE)
+					courbe[i] = point[i];
+				else
+					courbe[i] = point[NBPOINT-1-i];
+			}
+
+			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
+			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
+			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
+
+			if(sens == TRIGO)  // Modifie le sens
+				sensRobot = BACKWARD;
+			else
+				sensRobot = FORWARD;
+
+			#ifdef USE_GET_IN_OUT
+				state = GET_IN;
+			#else
+				state = POS_DEPART;
+			#endif
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
+					GET_IN, POS_DEPART, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+			break;
+
+		case POS_DEPART:
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			break;
+
+		case OPEN_LABIUM :
+			if(entrance)
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
+			#ifdef USE_WAIT_LABIUM
+				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, POS_FIN, POS_FIN);
+			#else
+				state = POS_FIN;
+			#endif
+			break;
+
+		case POS_FIN:
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state != GET_OUT_WITH_ERROR)
+				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			break;
+
+		case DONE:
+			if( tree == CHOICE_TREE_1)
+				strat_fruit_sucess = TREE_1;
+			else
+				strat_fruit_sucess = TREE_2;
+
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
 			state = IDLE;
 			return END_OK;
