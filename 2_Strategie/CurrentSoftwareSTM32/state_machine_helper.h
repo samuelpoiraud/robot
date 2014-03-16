@@ -55,6 +55,18 @@ typedef enum {
 	if(entrance && initialized) UTILS_LOG_state_changed(#state_machine_id, state_machine_id, state_str[last_state], last_state, state_str[state], state); \
 	initialized = TRUE
 
+// Macro à utiliser pour détecter la sortie d'un état
+// current_state : l'état dans lequel on est
+// Ne marche qu'avec 'CREATE_MAE_WITH_VERBOSE'
+// Exemple d'utilisation :
+//case SUB_ACTION :
+//    ....
+//    if(sortance(SUB_ACTION)){
+//		// Action à effectuer lors de la sortie de la sub_action
+//	  }
+//    break;
+#define ON_LEAVING(current_state) (state != current_state)
+
 //Réinitialise une machine à état déclarée avec CREATE_MAE_WITH_VERBOSE.
 #define RESET_MAE() \
 	state = last_state = last_state_for_check_entrance = 0;	//0 est la première valeur d'une énumeration sans donner explicitement une autre valeur
