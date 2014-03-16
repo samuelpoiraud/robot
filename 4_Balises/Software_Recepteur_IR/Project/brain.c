@@ -373,7 +373,7 @@ error_t BRAIN_find_angle(Uint8 i)
 	else
 	{
 		views[i].angle = 0;
-		return SIGNAL_INSUFFISANT;
+		return AUCUN_SIGNAL;
 	}	
 
 	barycentre = -(barycentre*2*PI4096)/NOMBRE_TSOP;

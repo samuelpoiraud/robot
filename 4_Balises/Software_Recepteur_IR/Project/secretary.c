@@ -44,7 +44,6 @@ void SECRETARY_init(void)
 
 volatile Uint8 t_adversary1_is_seen = 0;
 volatile Uint8 t_adversary2_is_seen = 0;
-volatile Uint8 t_synchro_received = 0;
 volatile bool_e flag_synchro_received = FALSE;
 
 #define ADVERSARY_SEEN_TIMEOUT		20 //[100 ms]	//2 secondes
@@ -64,24 +63,13 @@ void SECRETARY_process_it_100ms(void)
 		t_adversary1_is_seen = ADVERSARY_SEEN_TIMEOUT;
 	if(p_adversary_location[ADVERSARY_2].error == AUCUNE_ERREUR || p_adversary_location[ADVERSARY_2].error == SIGNAL_INSUFFISANT)
 		t_adversary2_is_seen = ADVERSARY_SEEN_TIMEOUT;
-	if(flag_synchro_received)
-	{
-		flag_synchro_received = FALSE;
-		t_synchro_received = SYNCHRO_RECEIVED_TIMEOUT;
-	}
 
 	if(t_adversary1_is_seen)
 		t_adversary1_is_seen--;
 	if(t_adversary2_is_seen)
 		t_adversary2_is_seen--;
-	if(t_synchro_received)
-		t_synchro_received--;
 }	
 
-void SECRETARY_synchro_received(void)
-{
-	flag_synchro_received = TRUE;
-}
 
 bool_e SECRETARY_msg_processing_direct_treatment_function(CAN_msg_t* msg)
 {
@@ -227,7 +215,7 @@ void SECRETARY_selftest(void)
 	if(t_adversary2_is_seen == 0)
 		msg.data[i++] = SELFTEST_BEACON_ADV2_NOT_SEEN;	//L'adversaire 2 n'a pas été vu depuis plus de 2 secondes
 
-	if(t_synchro_received == 0)
+	if(!SYNCHRO_get_synchro_received())
 		msg.data[i++] = SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED;	//Nous n'avons pas reçu de synchro depuis 2 secondes
 
 	msg.size = i;
