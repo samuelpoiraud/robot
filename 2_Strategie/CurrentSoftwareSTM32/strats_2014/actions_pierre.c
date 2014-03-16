@@ -23,9 +23,6 @@
 // Define à activer pour activer le get_in / get_ou des subactions
 //#define USE_GET_IN_OUT
 
-// Define à activer pour activer les attentes de l'ouverture des verrins
-#define USE_WAIT_LABIUM
-
 // Define à activer pour activer les triangles des torches
 #define USE_TRIANGLE_TORCHE
 
@@ -50,6 +47,7 @@
 /* ----------------------------------------------------------------------------- */
 
 #define LARGEUR_ROBOT_BACK	124
+#define LARGEUR_LABIUM	250
 
 #define DECALAGE_LARGEUR 200
 #define ELOIGNEMENT_SHOOT_BALL 510
@@ -65,10 +63,9 @@
 
 //Les differente's actions que pierre devra faire lors d'un match
 static bool_e action_fresco_filed = FALSE;
-static bool_e action_recup_fruit_group_1 = FALSE;
-static bool_e action_recup_fruit_group_2 = FALSE;
+static tree_sucess_e action_recup_fruit_group_1 = NO_ONE;
+static tree_sucess_e action_recup_fruit_group_2 = NO_ONE;
 
-static GEOMETRY_point_t offset_recalage = {0, 0};
 
 //Provisoire pour le moment juste pour test
 #define ADVERSARY_DETECTED_HOKUYO FALSE
@@ -85,6 +82,7 @@ void strat_inutile(void){
 		POS_DEPART,
 		CHEMIN,
 		LANCE_LAUNCHER,
+		RAMMASSE_FRUIT,
 		DONE,
 		ERROR
 	);
@@ -94,7 +92,7 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(440,COLOR_Y(350),POS_DEPART,LANCE_LAUNCHER,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			state = try_going_until_break(440,COLOR_Y(350),POS_DEPART,RAMMASSE_FRUIT,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 			break;
 
 
@@ -102,8 +100,8 @@ void strat_inutile(void){
 			state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,CHEMIN,ERROR);
 			break;
 
-		case CHEMIN:
-			state = try_going_until_break(500,COLOR_Y(1700),CHEMIN,DONE,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+		case RAMMASSE_FRUIT:
+			state = check_sub_action_result(strat_ramasser_fruit_arbre2_simple(CHOICE_TREE_2,HORAIRE),RAMMASSE_FRUIT,DONE,ERROR);
 			break;
 
 		case DONE:
@@ -576,9 +574,9 @@ void strat_test_point2(){
 					else
 						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
 				#endif
-				if(strat_fruit_sucess == TRUE){
+				if(strat_fruit_sucess != NO_ONE){
 					presenceFruit = TRUE;
-					action_recup_fruit_group_1 = TRUE;
+					action_recup_fruit_group_1 = strat_fruit_sucess;
 				}
 
 				break;
@@ -621,9 +619,9 @@ void strat_test_point2(){
 					else
 						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
 			   #endif
-				if(strat_fruit_sucess == TRUE){
+				if(strat_fruit_sucess != NO_ONE){
 					presenceFruit = TRUE;
-					action_recup_fruit_group_2 = TRUE;
+					action_recup_fruit_group_2 = strat_fruit_sucess;
 				}
 
 				break;
@@ -657,10 +655,10 @@ void strat_test_point2(){
 				static bool_e tryRammasseFruit1 = FALSE;
 				static bool_e tryRammasseFruit2 = FALSE;
 
-				if(action_recup_fruit_group_1 == FALSE && tryRammasseFruit1 == FALSE){
+				if(action_recup_fruit_group_1 != ALL_TREE && tryRammasseFruit1 == FALSE){
 					tryRammasseFruit1 = TRUE;
 					state = AGAIN_RAMASSER_FRUIT_ARBRE1;
-				}else if(action_recup_fruit_group_2 == FALSE && tryRammasseFruit2 == FALSE){
+				}else if(action_recup_fruit_group_2 != ALL_TREE && tryRammasseFruit2 == FALSE){
 					tryRammasseFruit2 = TRUE;
 					state = AGAIN_RAMASSER_FRUIT_ARBRE2;
 				}else if(presenceFruit == TRUE)
@@ -676,9 +674,9 @@ void strat_test_point2(){
 				else
 					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
 
-				if(strat_fruit_sucess == TRUE){
+				if(strat_fruit_sucess != NO_ONE){
 					presenceFruit = TRUE;
-					action_recup_fruit_group_1 = TRUE;
+					action_recup_fruit_group_1 = strat_fruit_sucess;
 				}
 
 				break;
@@ -689,9 +687,9 @@ void strat_test_point2(){
 				else
 					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
 
-				if(strat_fruit_sucess == TRUE){
+				if(strat_fruit_sucess != NO_ONE){
 					presenceFruit = TRUE;
-					action_recup_fruit_group_2 = TRUE;
+					action_recup_fruit_group_2 = strat_fruit_sucess;
 				}
 
 				break;
