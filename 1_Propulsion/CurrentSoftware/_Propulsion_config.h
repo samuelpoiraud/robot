@@ -17,12 +17,12 @@
 
 
 	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
-	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
-	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
-	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
-	//#define LCD_TOUCH								//Active le LCD tactile
+//	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+//	#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
+//	#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+//	#define LCD_TOUCH								//Active le LCD tactile
 
-/*	MODE d'EMPLOI MODE SIMULATION AVEC ECRAN TACTILE
+/*	MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
  * 	 1 - activez les 4 defines ci-dessus
  * 	 2 - activez MODE_SIMULATION sur la carte STRATEGIE
  *   3 - avec 4 fils : reliez entre les cartes PROP et STRAT (éventuellement le 5V...) :
@@ -32,6 +32,20 @@
  *   	PB7<->PB6
  *   4 - désactivez le verbose stratégie en reliant PA7 à un potentiel GND. (par exemple jumper entre PA7 et PA5).
  *   Vous avez un robot virtuel parfait...
+ */
+
+
+/* MODE d'EMPLOI : carte propulsion sur un fond de panier sans robot réel
+ *
+ * Activer les define SIMULATION_VIRTUAL_PERFECT_ROBOT et CAN_SEND_OVER_UART (et c'est tout !)
+ *
+ */
+
+/* ECRAN TACTILE - sans simulation (= à coté d'un fond de panier, avec un robot virtuel ou réel)
+ *
+ * Vous pouvez brancher une carte avec un LCD, avec les paramètres suivants :
+ * - Activer les 4 defines ci-dessus. (oui, oui !)
+ * - Relier l'UART Tx de la propulsion vers l'UART Rx de la carte supportant l'écran tactile.
  */
 
 //MODES INDISPENSABLES EN MATCHS
