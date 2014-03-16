@@ -37,7 +37,6 @@ int main (void)
 	global.mode_double_emetteurs = FALSE;
 	LED_RUN = 1;
 	LED_CAN = 0;
-	LED_USER = 1;
 	LED_USER2 = 0;
 
 	debug_printf(".RST\r\n");

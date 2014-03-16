@@ -34,8 +34,6 @@
 		
 		SECRETARY_init();
 		debug_printf("BeaconIR>i'm alive\n");
-	
-		LED_RUN=0;	//Allumée en IT pour dire que tout va bien...
 	}
 	
 
@@ -50,6 +48,7 @@
 			SECRETARY_process_main();	//Gestion de la communication CAN et UART.
 			BRAIN_process_main();		//Analyse des mesure obtenues après chaque cycle de 100ms
 			Synchro_process_main();		//Correction de la déviation de la synchro
+			EYES_process_main();
 		}
 		return 0; //satisfaction de la perversité du compilateur, ligne jamais atteinte...
 	}
