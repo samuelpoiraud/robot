@@ -12,13 +12,6 @@
 #ifndef LCD_CAN_INJECTOR_H
 #define	LCD_CAN_INJECTOR_H
 
-/* Tableau des 4 messages can à afficher */
-typedef struct{
-	CAN_msg_t msg[4];
-	Uint8 start;
-}can_t;
-
-can_t message;
 
 /*
  * Filtre les messages qui arrivent.
@@ -28,7 +21,7 @@ void LCD_incoming_can(CAN_msg_t* incomming_msg);
 /*
  * Affiche sur l'écran le message can en paramètre à la position donnée
  */
-void display_can(CAN_msg_t msg, Uint8 pos);
+void LCD_display_CAN_msg(CAN_msg_t * msg, Uint8 line);
 
 #endif	/* LCD_CAN_INJECTOR_H */
 

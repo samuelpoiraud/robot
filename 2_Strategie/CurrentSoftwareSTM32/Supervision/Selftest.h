@@ -44,6 +44,11 @@
 	void SELFTEST_get_match_report_IR(CAN_msg_t * msg);
 	void SELFTEST_get_match_report_US(CAN_msg_t * msg);
 
-	char * getError_string(SELFTEST_error_code_e error_num);
+	SELFTEST_error_code_e SELFTEST_getError(Uint8 index);
+	char * SELFTEST_getError_string(SELFTEST_error_code_e error_num);
+	bool_e SELFTEST_is_running(void);
+	bool_e SELFTEST_is_over(void);
+	Uint8 SELFTEST_get_errors_number(void);
+
 
 #endif

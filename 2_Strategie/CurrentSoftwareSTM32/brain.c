@@ -37,21 +37,20 @@
  *
  **************************************************************/
 
-// Define à activer si l'on souhaite utiliser la high_level_strat
-//#define USE_HIGH_LEVEL_STRAT
 
-// GROS = PIERRE (pour la cohérence pour les années suivantes
-#define STRAT_0_GROS strat_test_point2
-#define STRAT_1_GROS test_strat_robot_virtuel_with_avoidance
-#define STRAT_2_GROS Strat_Detection_Triangle
-#define STRAT_3_GROS test_strat_robot_virtuel_with_avoidance
+#define STRAT_0_BIG high_level_strat
+#define STRAT_1_BIG high_level_strat
+#define STRAT_2_BIG strat_lannion
+#define STRAT_3_BIG test_strat_robot_virtuel_with_avoidance
 
-// PETIT = GUY
-#define STRAT_0_PETIT test_strat_robot_virtuel_with_avoidance
-#define STRAT_1_PETIT TEST_pathfind
-#define STRAT_2_PETIT Strat_Detection_Triangle
-#define STRAT_3_PETIT strat_reglage_asser
+#define STRAT_0_SMALL high_level_strat
+#define STRAT_1_SMALL TEST_pathfind
+#define STRAT_2_SMALL Strat_Detection_Triangle
+#define STRAT_3_SMALL strat_reglage_asser
 
+volatile bool_e strat_updated = FALSE;
+static ia_fun_t strategy;
+static void update_strategy(void);
 
 /* 	execute un match de match_duration secondes à partir de la
 	liberation de la biroute. Arrete le robot à la fin du match.
@@ -60,9 +59,6 @@
 */
 void any_match(void)
 {
-	static ia_fun_t strategy;
-	static calibration_square_e calibration = ASSER_CALIBRATION_SQUARE_1;
-	static way_e calibration_way = ANY_WAY;
 	static time32_t match_duration = MATCH_DURATION;
 	if (!global.env.match_started)
 	{
@@ -89,7 +85,6 @@ void any_match(void)
 			ENV_set_color(global.env.wanted_color);
 		}
 
-
 		/* mise à jour de la configuration de match */
 		if(global.env.config_updated)
 			global.env.config = global.env.wanted_config;
@@ -99,81 +94,22 @@ void any_match(void)
 		{
 			CAN_msg_t msg;
 			msg.sid = ASSER_CALIBRATION;
-			msg.data[0] = (Uint8)calibration_way;
-			msg.data[1] = (Uint8)calibration;
-			msg.size = 2;
+			msg.size = 0;
 			CAN_send(&msg);
 		}
 
 		/*************************/
 		/* Choix de la stratégie */
 		/*************************/
-	#ifdef USE_HIGH_LEVEL_STRAT
-		high_level_strat();
-	#else
-		if(QS_WHO_AM_I_get()==GUY)
-		{
-			calibration_way = (global.env.color == BLUE)?FORWARD:BACKWARD;	//En bleu, TINY se cale en avant pour avoir son bras coté cadeaux.
-			calibration = ASSER_CALIBRATION_SQUARE_0;						//Sauf si décision contraire dans certaines stratégies... Tiny est par défaut dans la case 0.
-
-			switch(strat_number())
-			{
-				case 0x01:	//STRAT_1_GUY
-					strategy = STRAT_1_PETIT;
-				break;
-				case 0x02:	//STRAT_2_GUY
-					strategy = STRAT_2_PETIT;
-				break;
-				case 0x03:	//STRAT_3_GUY
-					strategy = STRAT_3_PETIT;
-
-				break;
-				case 0x00:	//STRAT_0_TINY (aucun switch)
-				//no break;
-				default:
-					strategy = STRAT_0_PETIT;
-				break;
-			}
-		}
-		else	//Pierre
-		{
-			calibration_way = BACKWARD;	//Krusty se cale TOUJOURS en backward (pas de callage contre l'ascenseur à verres)
-			calibration = ASSER_CALIBRATION_SQUARE_2; //Et toujours à l'assiette 2 (sachant que Tiny est sur la 0)
-
-			static int debug_strat = -1;
-
-			if(debug_strat != strat_number()) {
-				debug_strat = strat_number();
-				debug_printf("Using strat %d\n", debug_strat);
-			}
-
-			switch(debug_strat)
-			{
-				case 0x01:	//STRAT_1_PIERRE
-					strategy = STRAT_1_GROS;
-				break;
-
-				case 0x02:	//STRAT_2_PIERRE
-					strategy = STRAT_2_GROS;
-				break;
-
-				case 0x03:	//STRAT_3_PIERRE
-					strategy = STRAT_3_GROS;
-				break;
-
-				case 0x00:	//STRAT_0_PIERRE (aucun switch)
-				//no break;
-				default:
-					strategy = STRAT_0_GROS;
-				break;
-			}
-		}
+		update_strategy();
 
 		if(strategy == strat_reglage_asser)	//Liste ici les stratégie "infinies"...
 			match_duration = 0;
 		else
 			match_duration = MATCH_DURATION;
-	#endif
+
+		if(strategy == high_level_strat)	//Liste ici les stratégie qui doivent être appelées même avant le début du match
+			high_level_strat();
 	}
 	else
 	{
@@ -205,24 +141,11 @@ void any_match(void)
 					}
 				#endif /* def USE_SCHEDULED_POSITION_REQUEST */
 
-				if(global.env.config.balise)
+				//Stratégie du match
+				if(strategy)
 				{
-					static bool_e initialized = FALSE;
-					if(!initialized)
-					{
-						initialized = TRUE;
-						CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
-					}
+					(*strategy)();
 				}
-				#ifdef USE_HIGH_LEVEL_STRAT
-					high_level_strat();
-				#else
-					//programme du match
-					if(strategy)
-					{
-						(*strategy)();
-					}
-				#endif
 			}
 		}
 		else
@@ -232,19 +155,51 @@ void any_match(void)
 	}
 }
 
-Uint8 strat_number(void)
+
+
+
+static void update_strategy(void)
 {
-	//#ifndef FDP_2013
-	//	return 0x00;
-	//#else
-		if(SWITCH_STRAT_1)
-			return 0x01;
-		else if(SWITCH_STRAT_2)
-			return 0x02;
-		else if(SWITCH_STRAT_3)
-			return 0x03;
-	//#endif
-	return 0x00;	//Aucun switch -> stratégie 0.
+
+	static ia_fun_t previous_strategy = NULL;
+	ia_fun_t current_strat;
+	current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_0_BIG:STRAT_0_SMALL;
+	if(SWITCH_STRAT_1)
+		current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_1_BIG:STRAT_1_SMALL;
+	else if(SWITCH_STRAT_2)
+		current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_2_BIG:STRAT_2_SMALL;
+	else if(SWITCH_STRAT_3)
+		current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_3_BIG:STRAT_3_SMALL;
+	strat_updated = (current_strat != previous_strategy)?TRUE:FALSE;	//Flag d'update, pendant un tour de boucle.
+	if(strat_updated)
+	{
+		strategy = current_strat;
+		debug_printf("Using strat : %s\n", BRAIN_get_current_strat_name());
+	}
+	previous_strategy = strategy;
 }
 
+bool_e BRAIN_get_strat_updated(void)
+{
+	return strat_updated;
+}
+
+//Retourne une chaine de 20 caractères max
+char * BRAIN_get_current_strat_name(void)
+{
+	if(strategy == high_level_strat)
+		return "high_level_strat";
+	if(strategy == strat_lannion)
+		return "strat_lannion";
+	if(strategy == Strat_Detection_Triangle )
+		return "Str_Detect_Triangle";
+	if(strategy == strat_reglage_asser)
+		return "Str_reglage_asser";
+	if(strategy == test_strat_robot_virtuel_with_avoidance)
+		return "Str_avoidance";
+	if(strategy == TEST_pathfind)
+		return "TEST_pathfind";
+
+	return "strat not declared !";
+}
 

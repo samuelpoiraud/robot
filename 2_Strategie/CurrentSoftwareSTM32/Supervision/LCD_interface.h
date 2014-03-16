@@ -40,41 +40,32 @@ void LCD_change_pos(void);
 /*
  * Ajoute un message can à la liste de can à afficher en écrasant le plus ancien
  */
-void LCD_add_can(CAN_msg_t msg);
+void LCD_add_can(CAN_msg_t * msg);
 
-/*
- * Se base sur les switchs pour mettre à jour les infos stratégies
- */
-void LCD_strat_number_update(void);
 
 
 /*
- * Ecrit une ligne définie par l'utilisateur à la position demandée
+ * Ecrit une ligne définie par l'utilisateur à la position demandée (et bascule le LCD en menu utilisateur !)
+ * Line doit être entre 0 et 3 inclus.
+ * La ligne 0 correspond à la dernière ligne du menu principal (INFOS)
+ * Les 3 autres lignes correspondent aux lignes du menu utilisateur.
  */
 //__attribute__((format (printf, 2, 3)))  permet au compilateur de verifier l'argument chaine avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
-void LCD_printf(Uint8 pos, char * chaine, ...) __attribute__((format (printf, 2, 3)));
+void LCD_printf(Uint8 line, char * chaine, ...) __attribute__((format (printf, 2, 3)));
 
-/*
- * Prend le control de l'écran pour afficher les messages utilisateurs
- */
-void LCD_take_control(void);
 
 /*
  * Redonne le control à l'écran
  */
 void LCD_free_control(void);
 
-/*
- * Lance l'affichage des erreurs de selftest
- */
-void LCD_write_selftest_errors(Uint8 size);
-
+void sprintf_line(Uint8 line, const char * format, ...);
 
 /*
  * Fonctions d'action des boutons
  */
-void LCD_button_minus(void);
-void LCD_button_plus(void);
+void LCD_button_down(void);
+void LCD_button_up(void);
 void LCD_button_ok(void);
 void LCD_button_set(void);
 

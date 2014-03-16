@@ -21,6 +21,8 @@
 #include "../config/config_pin.h"
 #include "../state_machine_helper.h"
 
+
+
 // Cette variable est mise à TRUE quand une sub action prioritaire urgente doit être faite
 bool_e stop_request; // Initialisé à FALSE dans le brain, si on n'utilise pas la stratégie principale que ce flag n'ai pas d'incidence
 
@@ -93,9 +95,12 @@ void dec_sub_act_t_end(subaction_id_e sub_action);
 
 Uint8 get_sub_act_priority(subaction_id_e sub_action);
 bool_e get_sub_act_enable(subaction_id_e sub_action);
+bool_e get_sub_act_done(subaction_id_e sub_action);
 Uint32 get_sub_act_t_begin(subaction_id_e sub_action);
 Uint32 get_sub_act_t_end(subaction_id_e sub_action);
 char * get_sub_act_chaine(subaction_id_e sub_action);
+bool_e get_sub_act_updated_for_lcd(subaction_id_e sub_action);
+void reset_sub_act_updated_for_lcd(subaction_id_e sub_action);
 bool_e get_sub_act_ask_stop_request(subaction_id_e sub_action);
 
 

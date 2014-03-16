@@ -50,15 +50,14 @@ void DETECTION_update(void)
 {
 	bool_e must_update=FALSE;
 
-
 	//Necessaire pour des match infini de test, on reactive les balises toutes les 90sec
-	static time32_t last_beacon_activate_msg = 0;
-	if(global.env.match_started && !global.env.match_over && global.env.match_time > last_beacon_activate_msg + 90000) {
-		last_beacon_activate_msg = global.env.match_time;
+	static time32_t next_beacon_activate_msg = 1000;	//Prochain instant d'envoi de message.
+	if(!global.env.match_over && global.env.absolute_time > next_beacon_activate_msg)
+	{
+		next_beacon_activate_msg += 90000;
 		CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
 	}
-	
-	
+
 	if(must_update)
 	{
 	}
