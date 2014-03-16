@@ -23,13 +23,13 @@
 //#define USE_GET_IN_OUT
 
 // Define à activer pour activer les attentes de l'ouverture des verrins
-//#define USE_WAIT_LABIUM
+#define USE_WAIT_LABIUM
 
 // Define à activer pour activer les triangles des torches
-//#define USE_TRIANGLE_TORCHE
+#define USE_TRIANGLE_TORCHE
 
 // Define à activer pour activer la correction triangle 2
-//#define USE_CORRECTION_TRIANGLE_2
+#define USE_CORRECTION_TRIANGLE_2
 
 /**********************************************************************************************************************************
  *
@@ -53,7 +53,7 @@
 #define LARGEUR_LABIUM	250
 
 #define DECALAGE_LARGEUR 200
-#define ELOIGNEMENT_ARBRE 320
+#define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
 #define ELOIGNEMENT_POSE_BAC_FRUIT 500
 #define ELOIGNEMENT_SHOOT_BALL 510
 #define SPEED_LANCE_LAUNCHER 125
@@ -442,8 +442,8 @@ void strat_test_point2(){
 
 		// Triangle 2 x = 600 / yr = 2100 / yj = 900
 		{{700					,COLOR_Y(1800)},FAST},
-		{{600+LARGEUR_LABIUM	,COLOR_Y(2100)},FAST},
-		{{600+LARGEUR_LABIUM	,COLOR_Y(2600-LARGEUR_LABIUM)},FAST},
+		{{600+15+LARGEUR_LABIUM	,COLOR_Y(2100)},FAST},
+		{{600+15+LARGEUR_LABIUM	,COLOR_Y(2600-LARGEUR_LABIUM)},FAST},
 
 		// Triangle 3 x = 1100 / yr = 2600 / yj = 400
 		{{1400					,COLOR_Y(2600-LARGEUR_LABIUM)},SLOW}, // Labium fermé
@@ -481,7 +481,7 @@ void strat_test_point2(){
 				break;
 
 			case POS_DEPART:
-				state = try_going_until_break(450,COLOR_Y(350),POS_DEPART,LANCE_LAUNCHER,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+				state = try_going_until_break(450,COLOR_Y(350),POS_DEPART,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);
 				break;
 
 			case LANCE_LAUNCHER:
@@ -497,6 +497,8 @@ void strat_test_point2(){
 
 
 			case DEPOSE_FRESCO:
+//				state = ESCAPE_FRESCO;
+//				break;
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 				state = check_sub_action_result(strat_manage_fresco(),DEPOSE_FRESCO,ESCAPE_FRESCO,ERROR);
@@ -504,60 +506,62 @@ void strat_test_point2(){
 
 			case ESCAPE_FRESCO:
 				#ifdef USE_CORRECTION_TRIANGLE_2
-					state = try_going(680, 1500,ESCAPE_FRESCO,TRIANGLE2,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+				state = try_going(725, COLOR_Y(1700),ESCAPE_FRESCO,TRIANGLE2,TRIANGLE2,FAST,ANY_WAY,NO_AVOIDANCE);
 				#else
-					state = try_going(500, 1500,ESCAPE_FRESCO,TRIANGLE2,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+					state = try_going(500, 1500,ESCAPE_FRESCO,TRIANGLE2,TRIANGLE2,FAST,ANY_WAY,NO_AVOIDANCE);
 				#endif
 				break;
 
 			case TRIANGLE2:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-				state = try_going_multipoint(&deplacement[3],3,TRIANGLE2,TRIANGLE3,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+				state = try_going_multipoint(&deplacement[3],3,TRIANGLE2,TRIANGLE3,TRIANGLE3,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 				break;
 
 			case TRIANGLE3:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
-				state = try_going_until_break(deplacement[6].point.x,deplacement[6].point.y,TRIANGLE3,TRIANGLE3_AVANCER,ERROR,deplacement[6].speed,sensRobot,NO_AVOIDANCE);
+				state = try_going_until_break(deplacement[6].point.x,deplacement[6].point.y,TRIANGLE3,TRIANGLE3_AVANCER,TRIANGLE3_AVANCER,deplacement[6].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
 			case TRIANGLE3_AVANCER:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-				state = try_going_until_break(deplacement[7].point.x,deplacement[7].point.y,TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,deplacement[7].speed,(sensRobot == FORWARD)?BACKWARD:FORWARD,NO_AVOIDANCE);
+				state = try_going_until_break(deplacement[7].point.x,deplacement[7].point.y,TRIANGLE3_AVANCER,TRIANGLE4_5,TRIANGLE4_5,deplacement[7].speed,(sensRobot == FORWARD)?BACKWARD:FORWARD,NO_AVOIDANCE);
 				break;
 
 			case TRIANGLE4_5:
-					state = try_going_multipoint(&deplacement[8],6,TRIANGLE4_5,TRIANGLE6,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
+					state = try_going_multipoint(&deplacement[8],6,TRIANGLE4_5,TRIANGLE6,TRIANGLE6,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 				break;
 
 			case TRIANGLE6:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
 
-				state = try_going_until_break(deplacement[14].point.x,deplacement[14].point.y,TRIANGLE6,TRIANGLE6_AVANCER,ERROR,deplacement[14].speed,sensRobot,NO_AVOIDANCE);
+				state = try_going_until_break(deplacement[14].point.x,deplacement[14].point.y,TRIANGLE6,TRIANGLE6_AVANCER,TRIANGLE6_AVANCER,deplacement[14].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
 			case TRIANGLE6_AVANCER:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
 
-				state = try_going_until_break(deplacement[15].point.x,deplacement[15].point.y,TRIANGLE6_AVANCER,DEGAGEMENT,ERROR,deplacement[15].speed,(sensRobot == FORWARD)?BACKWARD:FORWARD,NO_AVOIDANCE);
+				state = try_going_until_break(deplacement[15].point.x,deplacement[15].point.y,TRIANGLE6_AVANCER,DEGAGEMENT,DEGAGEMENT,deplacement[15].speed,(sensRobot == FORWARD)?BACKWARD:FORWARD,NO_AVOIDANCE);
 				break;
 
 			case DEGAGEMENT:
 				if(entrance)
 					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
-				state = try_going_until_break(450,COLOR_Y(350),DEGAGEMENT,RECALAGE1,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+				state = try_going_until_break(450,COLOR_Y(350),DEGAGEMENT,RECALAGE1,RECALAGE1,FAST,ANY_WAY,NO_AVOIDANCE);
 				break;
 
 			case RECALAGE1 :
+//				state = RAMASSER_FRUIT_ARBRE1;
+//				break;
 				if(global.env.color == RED)
-					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE1, RAMASSER_FRUIT_ARBRE1, ERROR);
+					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE1, RAMASSER_FRUIT_ARBRE1, RAMASSER_FRUIT_ARBRE1);
 				else
-					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE1, RAMASSER_FRUIT_ARBRE1, ERROR);
+					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE1, RAMASSER_FRUIT_ARBRE1, RAMASSER_FRUIT_ARBRE1);
 				break;
 
 //				// Premier shoot sur notre mammouth
@@ -614,9 +618,9 @@ void strat_test_point2(){
 			case RAMASSER_FRUIT_ARBRE2:
 				#ifdef USE_TRIANGLE_TORCHE
 					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,ERROR);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,PLACEMENT_TORCHE2);
 					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,ERROR);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,PLACEMENT_TORCHE2);
 				#else
 					if(global.env.color == RED)
 						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
@@ -645,7 +649,7 @@ void strat_test_point2(){
 				if(presenceFruit == FALSE){
 					state = VERIFY;
 				}else
-					state = PATHFIND_try_going(M0, POINT_DEPOSE_FRUIT, DEPOSER_FRUIT, ERROR, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					state = PATHFIND_try_going(M0, POINT_DEPOSE_FRUIT, DEPOSER_FRUIT, DEPOSER_FRUIT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 				break;
 
 			case DEPOSER_FRUIT:
@@ -1116,7 +1120,7 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case END:
-			state = try_going_until_break(250,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(350,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case END_IMPOSSIBLE:
@@ -1230,7 +1234,7 @@ error_e strat_file_fruit(){
 			break;
 
 		case POS_BEGINNING:
-			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,SLOW,sensRobot,DODGE_AND_WAIT);
 			break;
 
 		case POS_END:
@@ -1239,7 +1243,7 @@ error_e strat_file_fruit(){
 				ASSER_WARNER_arm_y(posOpen);
 			}
 
-			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_DODGE_AND_NO_WAIT);
 
 			if(global.env.asser.reach_y){ // Ouvrir le bac à fruit pour les faire tomber et sortir le bras
 				ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_OPEN);
@@ -2034,9 +2038,9 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 
 		case PLACEMENT_RECALAGE_X :
 			if(begin_zone_color == RED)
-				state = try_going(200, 200, PLACEMENT_RECALAGE_X, RECALAGE_X, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+				state = try_going(200, 225, PLACEMENT_RECALAGE_X, RECALAGE_X, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
 			else
-				state = try_going(200, 2800, PLACEMENT_RECALAGE_X, RECALAGE_X, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+				state = try_going(200, 2775, PLACEMENT_RECALAGE_X, RECALAGE_X, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case RECALAGE_X :
@@ -2048,9 +2052,9 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 
 		case GET_OUT :
 			if(begin_zone_color == RED)
-				state = try_going(600, 250, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(600, 300, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			else
-				state = try_going(600, 2750, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(600, 2700, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
