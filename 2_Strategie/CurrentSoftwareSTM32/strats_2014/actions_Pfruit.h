@@ -20,7 +20,6 @@
 #include "../QS/QS_types.h"
 #include "../config/config_pin.h"
 
-static GEOMETRY_point_t offset_recalage = {0, 0};
 
 typedef enum{
 	HORAIRE,

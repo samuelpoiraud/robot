@@ -66,6 +66,8 @@ static bool_e action_fresco_filed = FALSE;
 static tree_sucess_e action_recup_fruit_group_1 = NO_ONE;
 static tree_sucess_e action_recup_fruit_group_2 = NO_ONE;
 
+// Lors de la recalibration, sera appeler en extern vers d'autre fichier ( ne pas passer en static )
+volatile GEOMETRY_point_t offset_recalage = {0, 0};
 
 //Provisoire pour le moment juste pour test
 #define ADVERSARY_DETECTED_HOKUYO FALSE
@@ -92,7 +94,7 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(440,COLOR_Y(350),POS_DEPART,RAMMASSE_FRUIT,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,RAMMASSE_FRUIT,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 			break;
 
 
@@ -101,7 +103,7 @@ void strat_inutile(void){
 			break;
 
 		case RAMMASSE_FRUIT:
-			state = check_sub_action_result(strat_ramasser_fruit_arbre2_simple(CHOICE_TREE_2,HORAIRE),RAMMASSE_FRUIT,DONE,ERROR);
+			state = check_sub_action_result(strat_ramasser_fruit_arbre2_simple(CHOICE_TREE_2,TRIGO),RAMMASSE_FRUIT,DONE,ERROR);
 			break;
 
 		case DONE:

@@ -25,6 +25,7 @@
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
 #define ELOIGNEMENT_POSE_BAC_FRUIT 500
 
+extern GEOMETRY_point_t offset_recalage;
 
 error_e strat_file_fruit(){
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -163,6 +164,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		GET_IN,
 		POS_DEPART,
 		OPEN_LABIUM,
+		RECUP_TREE_1,
 		COURBE,
 		RECUP_TREE_2,
 		POS_FIN,
@@ -228,10 +230,14 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			if(entrance)
 				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 			#ifdef USE_WAIT_LABIUM
-				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, COURBE, COURBE);
+				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, RECUP_TREE_1, RECUP_TREE_1);
 			#else
-				state = COURBE;
+				state = RECUP_TREE_1;
 			#endif
+			break;
+
+		case RECUP_TREE_1:
+			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COURBE:
@@ -242,7 +248,8 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 					strat_fruit_sucess = TREE_2;
 			}
 
-			state = try_going_multipoint(&courbe[1],2,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				// multipoint si rajoutes des points pour la courbes plus simples
+			state = try_going_multipoint(&courbe[2],1,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case RECUP_TREE_2:
@@ -295,6 +302,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		GET_IN,
 		POS_DEPART,
 		OPEN_LABIUM,
+		RECUP_TREE_1,
 		COURBE,
 		RECUP_TREE_2,
 		POS_FIN,
@@ -372,10 +380,14 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			if(entrance)
 				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 			#ifdef USE_WAIT_LABIUM
-				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, COURBE, COURBE);
+				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, RECUP_TREE_1, RECUP_TREE_1);
 			#else
-				state = COURBE;
+				state = RECUP_TREE_1;
 			#endif
+			break;
+
+		case RECUP_TREE_1:
+			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COURBE:
@@ -386,7 +398,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 					strat_fruit_sucess = TREE_1;
 			}
 
-			state = try_going_multipoint(&courbe[1],2,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(&courbe[2],1,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case RECUP_TREE_2:
