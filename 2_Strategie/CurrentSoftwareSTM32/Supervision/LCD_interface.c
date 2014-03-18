@@ -482,7 +482,9 @@ static void LCD_menu_strategy(bool_e init)
 	static subaction_id_e index = 0;
 	Uint8 i;
 	bool_e update_lines;
+	bool_e update_led_button;
 	update_lines = FALSE;
+	update_led_button = FALSE;
 	if(init)
 	{
 		sprintf_line(0,"Réglages stratégie..");
@@ -491,6 +493,7 @@ static void LCD_menu_strategy(bool_e init)
 		clear_line(3);
 		index = 0;
 		update_lines = TRUE;
+		update_led_button = TRUE;
 		edit_step = EDIT_OFF;
 		cursor = CURSOR_BLINK;
 		cursor_line = 1;
@@ -508,24 +511,30 @@ static void LCD_menu_strategy(bool_e init)
 			{
 				cursor_column = 0;
 				update_lines = TRUE;
+				update_led_button = TRUE;
+				set_update_subaction_order(TRUE);
 			}
 			if(flag_bp_down)
 			{
-				if(cursor_line < (LINE_NUMBER - 1))
+				if(cursor_line < (LINE_NUMBER - 1)){
 					cursor_line++;
-				else if(SUB_NB > (LINE_NUMBER - 1) && index < (SUB_NB - LINE_NUMBER + 1)  )
+					update_led_button = TRUE;
+				}else if(number_of_sub_action > (LINE_NUMBER - 1) && index < (number_of_sub_action - LINE_NUMBER + 1))
 				{
 					index++;
+					update_led_button = TRUE;
 					update_lines = TRUE;
 				}
 			}
 			if(flag_bp_up)
 			{
-				if(cursor_line > 1)
+				if(cursor_line > 1){
 					cursor_line--;
-				else if(index > 0)
+					update_led_button = TRUE;
+				}else if(index > 0)
 				{
 					index--;
+					update_led_button = TRUE;
 					update_lines = TRUE;
 				}
 			}
@@ -534,8 +543,10 @@ static void LCD_menu_strategy(bool_e init)
 				edit_step = EDIT_T_END;
 			if(flag_bp_ok)
 				edit_step++;
-			if(update_lines)
-				IHM_LEDS(TRUE, ((index < (SUB_NB - LINE_NUMBER + 1) || cursor_line < (LINE_NUMBER - 1))?TRUE:FALSE), ((index>0 || cursor_line > 1)?TRUE:FALSE), TRUE);
+			if(update_led_button && init)
+				IHM_LEDS(TRUE, TRUE, FALSE, TRUE);
+			else if(update_led_button)
+				IHM_LEDS(TRUE, ((index+cursor_line < number_of_sub_action)?TRUE:FALSE), ((index+cursor_line > 1)?TRUE:FALSE), TRUE);
 			break;
 		case EDIT_ENABLE:
 			if(entrance)
@@ -543,10 +554,10 @@ static void LCD_menu_strategy(bool_e init)
 				cursor_column = 10;
 				IHM_LEDS(TRUE, TRUE, TRUE, TRUE);
 			}
-			if(!get_sub_act_done(index+cursor_line-1))		//Si l'action n'est pas DONE
+			if(!get_sub_act_done(sub_action_order[index+cursor_line-1]))		//Si l'action n'est pas DONE
 			{
 				if(flag_bp_down || flag_bp_up)
-					set_sub_act_enable(index+cursor_line-1,!get_sub_act_enable(index+cursor_line-1));	//On inverse l'activation
+					set_sub_act_enable(sub_action_order[index+cursor_line-1],!get_sub_act_enable(sub_action_order[index+cursor_line-1]));	//On inverse l'activation
 			}
 			if(flag_bp_set)
 				edit_step--;
@@ -560,9 +571,9 @@ static void LCD_menu_strategy(bool_e init)
 				IHM_LEDS(TRUE, TRUE, TRUE, TRUE);
 			}
 			if(flag_bp_down)
-				dec_sub_act_priority(index+cursor_line-1);
+				dec_sub_act_priority(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_up)
-				inc_sub_act_priority(index+cursor_line-1);
+				inc_sub_act_priority(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_set)
 				edit_step--;
 			if(flag_bp_ok)
@@ -575,9 +586,9 @@ static void LCD_menu_strategy(bool_e init)
 				IHM_LEDS(TRUE, TRUE, TRUE, TRUE);
 			}
 			if(flag_bp_down)
-				dec_sub_act_t_begin(index+cursor_line-1);
+				dec_sub_act_t_begin(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_up)
-				inc_sub_act_t_begin(index+cursor_line-1);
+				inc_sub_act_t_begin(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_set)
 				edit_step--;
 			if(flag_bp_ok)
@@ -590,9 +601,9 @@ static void LCD_menu_strategy(bool_e init)
 				IHM_LEDS(TRUE, TRUE, TRUE, TRUE);
 			}
 			if(flag_bp_down)
-				dec_sub_act_t_end(index+cursor_line-1);
+				dec_sub_act_t_end(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_up)
-				inc_sub_act_t_end(index+cursor_line-1);
+				inc_sub_act_t_end(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_set)
 				edit_step--;
 			if(flag_bp_ok)
@@ -607,10 +618,10 @@ static void LCD_menu_strategy(bool_e init)
 
 	for(i=0;i<LINE_NUMBER - 1;i++)
 	{
-		if(update_lines || get_sub_act_updated_for_lcd(i+index))
+		if(update_lines || get_sub_act_updated_for_lcd(sub_action_order[i+index]))
 		{
-			reset_sub_act_updated_for_lcd(i+index);
-			display_subaction_struct(i+1, i+index);
+			reset_sub_act_updated_for_lcd(sub_action_order[i+index]);
+			display_subaction_struct(i+1, sub_action_order[i+index]);
 		}
 	}
 
