@@ -37,7 +37,10 @@
  *
  **************************************************************/
 
+#define STRAT_BIG	high_level_strat
 
+#define STRAT_SMALL	high_level_strat
+/*
 #define STRAT_0_BIG high_level_strat
 #define STRAT_1_BIG high_level_strat
 #define STRAT_2_BIG strat_lannion
@@ -46,11 +49,40 @@
 #define STRAT_0_SMALL high_level_strat
 #define STRAT_1_SMALL TEST_pathfind
 #define STRAT_2_SMALL Strat_Detection_Triangle
-#define STRAT_3_SMALL strat_reglage_asser
+#define STRAT_3_SMALL strat_reglage_asser*/
+
+static void update_strategy(void);
+static void update_match_duration(time32_t *match_duration);
 
 volatile bool_e strat_updated = FALSE;
 static ia_fun_t strategy;
-static void update_strategy(void);
+
+typedef struct{
+	char *name;
+	ia_fun_t function;
+	time32_t match_duration;
+}strategy_list_s;
+
+static const strategy_list_s list_strategie[] = {
+	//display name			name function					// match duration
+	{"high_level_strat",	high_level_strat,				MATCH_DURATION},
+	{"strat_lannion",		strat_lannion,					MATCH_DURATION},
+	{"strat_odo_rot",		strat_reglage_odo_rotation,		0},
+	{"strat_odo_tra",		strat_reglage_odo_translation,	0},
+	{"strat_odo_sym",		strat_reglage_odo_symetrie,		0},
+	{"strat_asser",			strat_reglage_asser,			0},
+	{"strat_pts",			strat_test_point,				MATCH_DURATION},
+	{"strat_pts_2",			strat_test_point2,				MATCH_DURATION}
+};
+
+static const Uint8 number_of_strategy = sizeof(list_strategie)/sizeof(strategy_list_s);
+
+void BRAIN_init(void){
+	if(QS_WHO_AM_I_get() == BIG_ROBOT)
+		strategy = STRAT_BIG;
+	else
+		strategy = STRAT_SMALL;
+}
 
 /* 	execute un match de match_duration secondes à partir de la
 	liberation de la biroute. Arrete le robot à la fin du match.
@@ -101,12 +133,13 @@ void any_match(void)
 		/*************************/
 		/* Choix de la stratégie */
 		/*************************/
-		update_strategy();
-
+		//update_strategy();
+		update_match_duration(&match_duration);
+		/*
 		if(strategy == strat_reglage_asser)	//Liste ici les stratégie "infinies"...
 			match_duration = 0;
 		else
-			match_duration = MATCH_DURATION;
+			match_duration = MATCH_DURATION;*/
 
 		if(strategy == high_level_strat)	//Liste ici les stratégie qui doivent être appelées même avant le début du match
 			high_level_strat();
@@ -160,8 +193,7 @@ void any_match(void)
 
 static void update_strategy(void)
 {
-
-	static ia_fun_t previous_strategy = NULL;
+	/*
 	ia_fun_t current_strat;
 	current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_0_BIG:STRAT_0_SMALL;
 	if(SWITCH_STRAT_1)
@@ -171,12 +203,13 @@ static void update_strategy(void)
 	else if(SWITCH_STRAT_3)
 		current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_3_BIG:STRAT_3_SMALL;
 	strat_updated = (current_strat != previous_strategy)?TRUE:FALSE;	//Flag d'update, pendant un tour de boucle.
+	*/
 	if(strat_updated)
 	{
-		strategy = current_strat;
+		//strategy = current_strat;
 		debug_printf("Using strat : %s\n", BRAIN_get_current_strat_name());
 	}
-	previous_strategy = strategy;
+	//previous_strategy = strategy;
 }
 
 bool_e BRAIN_get_strat_updated(void)
@@ -184,22 +217,57 @@ bool_e BRAIN_get_strat_updated(void)
 	return strat_updated;
 }
 
+void BRAIN_set_strategy(ia_fun_t function){
+	assert(function != NULL);
+	strategy = function;
+	strat_updated = TRUE;
+}
+
 //Retourne une chaine de 20 caractères max
 char * BRAIN_get_current_strat_name(void)
 {
-	if(strategy == high_level_strat)
-		return "high_level_strat";
-	if(strategy == strat_lannion)
-		return "strat_lannion";
+	Uint8 i;
+	for(i=0;i<number_of_strategy;i++){
+		if(strategy == list_strategie[i].function)
+			return list_strategie[i].name;
+	}
+
+// Stratégie affichant le nom dans le menu info sans être sélectionnable dans le menu select strat
 	if(strategy == Strat_Detection_Triangle )
 		return "Str_Detect_Triangle";
-	if(strategy == strat_reglage_asser)
-		return "Str_reglage_asser";
 	if(strategy == test_strat_robot_virtuel_with_avoidance)
 		return "Str_avoidance";
 	if(strategy == TEST_pathfind)
 		return "TEST_pathfind";
-
 	return "strat not declared !";
 }
 
+ia_fun_t BRAIN_get_strat_function(Uint8 i){
+	assert(i<number_of_strategy);
+	return list_strategie[i].function;
+}
+
+char * BRAIN_get_strat_name(Uint8 i){
+	assert(i<number_of_strategy);
+	return list_strategie[i].name;
+}
+
+Uint8 BRAIN_get_number_strategy(){
+	return number_of_strategy;
+}
+
+ia_fun_t BRAIN_get_current_strat_function(void){
+	return strategy;
+}
+
+
+static void update_match_duration(time32_t *match_duration){
+	Uint8 i;
+	for(i=0;i<number_of_strategy;i++){
+		if(strategy == list_strategie[i].function){
+			*match_duration = list_strategie[i].match_duration;
+			return;
+		}
+	}
+	*match_duration = MATCH_DURATION;
+}
