@@ -384,7 +384,6 @@ static void LCD_menu_selftest(bool_e init)
 		case SELFTEST_ENDED:
 			if(entrance)
 			{
-				IHM_LEDS(TRUE, TRUE, TRUE, TRUE);	//Tous !
 				sprintf_line(0,"SELFTEST : %2d errors",SELFTEST_get_errors_number());
 				update_lines = TRUE;
 				index = 0;
@@ -410,6 +409,8 @@ static void LCD_menu_selftest(bool_e init)
 				SELFTEST_ask_launch();
 			if(SELFTEST_is_running())
 				selftest_state = SELFTEST_RUNNING;
+			if(update_lines)
+				IHM_LEDS(TRUE, SELFTEST_get_errors_number() > (LINE_NUMBER - 1) && index < (SELFTEST_get_errors_number() - LINE_NUMBER + 1), index > 0, TRUE);
 			break;
 	}
 
@@ -447,7 +448,6 @@ static void LCD_menu_can_msg(bool_e init)
 	}
 
 }
-
 
 static void LCD_menu_user(bool_e init)
 {
@@ -540,9 +540,8 @@ static void LCD_menu_strategy(bool_e init)
 			}
 
 			if(flag_bp_set)
-				edit_step = EDIT_T_END;
-			if(flag_bp_ok)
-				edit_step++;
+				edit_step = EDIT_ENABLE;
+
 			if(update_led_button && init)
 				IHM_LEDS(TRUE, TRUE, FALSE, TRUE);
 			else if(update_led_button)
@@ -560,9 +559,9 @@ static void LCD_menu_strategy(bool_e init)
 					set_sub_act_enable(sub_action_order[index+cursor_line-1],!get_sub_act_enable(sub_action_order[index+cursor_line-1]));	//On inverse l'activation
 			}
 			if(flag_bp_set)
-				edit_step--;
+				edit_step = EDIT_PRIORITY;
 			if(flag_bp_ok)
-				edit_step++;
+				edit_step = EDIT_OFF;
 			break;
 		case EDIT_PRIORITY:
 			if(entrance)
@@ -575,9 +574,9 @@ static void LCD_menu_strategy(bool_e init)
 			if(flag_bp_up)
 				inc_sub_act_priority(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_set)
-				edit_step--;
+				edit_step = EDIT_T_BEGIN;
 			if(flag_bp_ok)
-				edit_step++;
+				edit_step = EDIT_OFF;
 			break;
 		case EDIT_T_BEGIN:
 			if(entrance)
@@ -590,9 +589,9 @@ static void LCD_menu_strategy(bool_e init)
 			if(flag_bp_up)
 				inc_sub_act_t_begin(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_set)
-				edit_step--;
+				edit_step = EDIT_T_END;
 			if(flag_bp_ok)
-				edit_step++;
+				edit_step = EDIT_OFF;
 			break;
 		case EDIT_T_END:
 			if(entrance)
@@ -605,7 +604,7 @@ static void LCD_menu_strategy(bool_e init)
 			if(flag_bp_up)
 				inc_sub_act_t_end(sub_action_order[index+cursor_line-1]);
 			if(flag_bp_set)
-				edit_step--;
+				edit_step = EDIT_ENABLE;
 			if(flag_bp_ok)
 				edit_step = EDIT_OFF;
 			break;
