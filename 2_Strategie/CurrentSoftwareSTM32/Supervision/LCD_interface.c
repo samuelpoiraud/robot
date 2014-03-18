@@ -25,6 +25,7 @@
 #include "../brain.h"
 #include "stdarg.h"
 #include "config_use.h"
+#include "../brain.h"
 
 #define LINE_NUMBER (4)
 	volatile bool_e flag_bp_set 	= FALSE;
@@ -39,6 +40,7 @@
 	static void LCD_menu_selftest(bool_e init);
 	static void LCD_menu_can_msg(bool_e init);
 	static void LCD_menu_user(bool_e init);
+	static void LCD_menu_select_strategy(bool_e init);
 	static bool_e LCD_strat_number_update(void);
 	static void display_pos(Uint8 line);
 	static void display_beacon(Uint8 line);
@@ -217,6 +219,7 @@ void LCD_Update(void){
 		MENU_INFOS,
 		MENU_SELFTEST,
 		MENU_CAN,
+		MENU_SELECT_STRATEGY,
 		MENU_USER,
 		MENU_STRATEGY
 	}menu_e;
@@ -232,12 +235,13 @@ void LCD_Update(void){
 
 	switch(menu)
 	{
-		case INIT:				if(initialized)				menu = MENU_INFOS;			break;
-		case MENU_INFOS:		if(flag_bp_set)				menu = MENU_SELFTEST;		break;
-		case MENU_SELFTEST:		if(flag_bp_set)				menu = MENU_CAN;			break;
-		case MENU_CAN:			if(flag_bp_set)				menu = MENU_USER;			break;
-		case MENU_USER:			if(flag_bp_set)			{	menu = MENU_INFOS;		ask_for_menu_user = FALSE;	}	break;
-		case MENU_STRATEGY:		if(!SWITCH_LCD)				menu = MENU_INFOS;			break;
+		case INIT:					if(initialized)				menu = MENU_INFOS;				break;
+		case MENU_INFOS:			if(flag_bp_set)				menu = MENU_SELFTEST;			break;
+		case MENU_SELFTEST:			if(flag_bp_set)				menu = MENU_CAN;				break;
+		case MENU_CAN:				if(flag_bp_set)				menu = MENU_SELECT_STRATEGY;	break;
+		case MENU_SELECT_STRATEGY:	if(flag_bp_set)				menu = MENU_USER;				break;
+		case MENU_USER:				if(flag_bp_set)			{	menu = MENU_INFOS;		ask_for_menu_user = FALSE;	}	break;
+		case MENU_STRATEGY:			if(!SWITCH_LCD)				menu = MENU_INFOS;			break;
 		default:
 			menu = INIT;
 			break;
@@ -254,6 +258,7 @@ void LCD_Update(void){
 		case MENU_INFOS:			LCD_menu_infos(entrance);				break;
 		case MENU_SELFTEST:			LCD_menu_selftest(entrance);			break;
 		case MENU_CAN:				LCD_menu_can_msg(entrance);				break;
+		case MENU_SELECT_STRATEGY:	LCD_menu_select_strategy(entrance);	break;
 		case MENU_USER:				LCD_menu_user(entrance);				break;
 		case MENU_STRATEGY:			LCD_menu_strategy(entrance);			break;
 		default:					menu = INIT;							break;
@@ -418,6 +423,100 @@ static void LCD_menu_selftest(bool_e init)
 	{
 		for(i=1;i<LINE_NUMBER;i++)
 			sprintf_line(i, SELFTEST_getError_string(SELFTEST_getError(index+i-1)));
+	}
+}
+
+static void LCD_menu_select_strategy(bool_e init)
+{
+	typedef enum
+	{
+		INIT = 0,
+		LIST
+	}select_strategie_state_e;
+	bool_e update_lines;
+	bool_e update_led_button;
+	static Uint8 index;
+	static select_strategie_state_e select_strategie_state = INIT;
+	static select_strategie_state_e previous_select_strategie_state = INIT;
+	bool_e entrance;
+	char chaine[20];
+	Uint8 i;
+	entrance = (select_strategie_state != previous_select_strategie_state)? TRUE : FALSE;
+	previous_select_strategie_state = select_strategie_state;
+	update_lines = FALSE;
+	update_led_button = FALSE;
+
+	if(init)
+	{
+		select_strategie_state = INIT;
+		previous_select_strategie_state = INIT;
+		update_lines = TRUE;
+		update_led_button = TRUE;
+	}
+
+	switch(select_strategie_state)
+	{
+		case INIT:
+			clear_line(0);
+			clear_line(1);
+			clear_line(2);
+			clear_line(3);
+			cursor = CURSOR_BLINK;
+			cursor_line = 1;
+			select_strategie_state = LIST;
+			break;
+
+		case LIST:
+			if(entrance)
+			{
+				sprintf_line(0,"Select stratégie : ");
+				update_led_button = TRUE;
+				update_lines = TRUE;
+				index = 0;
+			}
+			if(flag_bp_down)
+			{
+				if(cursor_line < (LINE_NUMBER - 1)){
+					cursor_line++;
+					update_led_button = TRUE;
+				}else if(BRAIN_get_number_strategy() > (LINE_NUMBER - 1) && index < (BRAIN_get_number_strategy() - LINE_NUMBER + 1))
+				{
+					index++;
+					update_led_button = TRUE;
+					update_lines = TRUE;
+				}
+			}
+			if(flag_bp_up)
+			{
+				if(cursor_line > 1){
+					cursor_line--;
+					update_led_button = TRUE;
+				}else if(index > 0)
+				{
+					index--;
+					update_led_button = TRUE;
+					update_lines = TRUE;
+				}
+			}
+
+			if(flag_bp_ok){
+				BRAIN_set_strategy(BRAIN_get_strat_function(index+cursor_line-1));
+				update_lines = TRUE;
+			}
+			if(update_led_button)
+				IHM_LEDS(TRUE, (index+cursor_line < BRAIN_get_number_strategy()), (index+cursor_line > 1), TRUE);
+			break;
+	}
+
+	if(update_lines)
+	{
+		for(i=0;i<LINE_NUMBER-1;i++){
+			if(BRAIN_get_current_strat_function() == BRAIN_get_strat_function((index+i)))
+				snprintf(chaine, 20, ">%s", BRAIN_get_strat_name(index+i));
+			else
+				snprintf(chaine, 20, "%s", BRAIN_get_strat_name(index+i));
+			sprintf_line(i+1, chaine);
+		}
 	}
 }
 

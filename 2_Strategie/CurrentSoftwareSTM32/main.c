@@ -100,6 +100,7 @@ int main (void)
 			debug_printf(".");
 	}
 	Supervision_init();
+	BRAIN_init();
 #if 0
 	while(1)
 		test_Pathfind();
