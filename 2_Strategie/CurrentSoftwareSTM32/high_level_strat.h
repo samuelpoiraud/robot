@@ -75,8 +75,16 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	TURN_IF_NO_CALIBRATION
 );
 
+
+// Contient la liste des subactions initialisées et se termine par -1
+Sint16 sub_action_order[SUB_NB];
+
+// Contient le nombre de subactions initialisées
+Uint8 number_of_sub_action;
+
 void high_level_strat();
 
+void set_update_subaction_order(bool_e update);
 void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, bool_e ask_stop_request, char * chaine);
 void set_sub_act_priority(subaction_id_e sub_action, Uint8 priority);
 void set_sub_act_enable(subaction_id_e sub_action, bool_e enable);
