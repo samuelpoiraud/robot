@@ -13,6 +13,13 @@
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
 #include "../elements.h"
+#include "../Geometry.h"
+#include "../Pathfind.h"
+
+#define DIM_START_TRAVEL_TORCH 200
+
+static GEOMETRY_point_t posTorch[2] = {{1050,900},		// Torche Rouge
+									   {1050,2100}};	// Torche Jaune
 
 
 
@@ -25,6 +32,38 @@
 /* ----------------------------------------------------------------------------- */
 /* 							Autre strats de test             			 */
 /* ----------------------------------------------------------------------------- */
+
+
+void strat_inutile_guy(void){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		RAMEMENER_TORCH,
+		DONE,
+		ERROR
+	);
+
+	switch(state){
+		case IDLE:
+			state = POS_DEPART;
+			break;
+		case POS_DEPART:
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,RAMEMENER_TORCH,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
+			break;
+
+		case RAMEMENER_TORCH:
+			state = check_sub_action_result(travel_torch_line(OUR_TORCH,1750,250),RAMEMENER_TORCH,DONE,ERROR);
+			break;
+
+		case DONE:
+			break;
+		case ERROR:
+			break;
+		default:
+			break;
+	}
+
+}
 
 // Stratégie de test des déctections de triangle
 void Strat_Detection_Triangle(void){
@@ -123,4 +162,87 @@ void strat_test_warner_triangle(){
 
 	}
 
+}
+
+
+error_e travel_torch_line(torch_choice_e torch_choice,Sint16 posEndx, Sint16 posEndy){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		PLACEMENT,
+		POS_START_TORCH,
+		MOVE_TORCH,
+		POS_END,
+		ERROR,
+		DONE
+	);
+
+
+	static GEOMETRY_point_t posStart;
+
+	// S'éloigne de la torche à la fin de la pousser
+	static GEOMETRY_point_t eloignement;
+	static pathfind_node_id_t node;
+
+
+	switch(state){
+		case IDLE :{
+			GEOMETRY_point_t torch;
+
+			if(global.env.color == RED){
+				if(torch_choice == OUR_TORCH)
+					torch = posTorch[0];
+				else
+					torch = posTorch[1];
+			}else{
+				if(torch_choice == OUR_TORCH)
+					torch = posTorch[1];
+				else
+					torch = posTorch[0];
+			}
+
+			Uint16 norm = GEOMETRY_distance(torch,(GEOMETRY_point_t){posEndx,posEndy});
+
+			float coefx = (torch.x - posEndx)/(norm*1.);
+			float coefy = (torch.y - posEndy)/(norm*1.);
+
+			posStart.x = torch.x + DIM_START_TRAVEL_TORCH*coefx;
+			posStart.y = torch.y + DIM_START_TRAVEL_TORCH*coefy;
+
+			node = PATHFIND_closestNode(posStart.x, posStart.y, 0);
+
+			eloignement.x = posEndx + DIM_START_TRAVEL_TORCH*coefx;
+			eloignement.y = posEndy + DIM_START_TRAVEL_TORCH*coefy;
+
+			state = PLACEMENT;
+
+		}	break;
+
+		case PLACEMENT:
+			state = PATHFIND_try_going(node, PLACEMENT, POS_START_TORCH, ERROR, ANY_WAY, FAST, NO_AVOIDANCE, END_AT_BREAK);
+			break;
+
+		case POS_START_TORCH:
+			state = try_going(posStart.x, posStart.y, POS_START_TORCH, MOVE_TORCH, ERROR, FAST, FORWARD, NO_AVOIDANCE);
+			break;
+
+		case MOVE_TORCH :
+			state = try_going(posEndx, posEndy, MOVE_TORCH, POS_END, ERROR, SLOW, FORWARD, NO_AVOIDANCE);
+			break;
+
+		case POS_END:
+			state = try_going(eloignement.x, eloignement.y, POS_END, DONE, ERROR, FAST, BACKWARD, NO_AVOIDANCE);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
 }

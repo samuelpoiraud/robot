@@ -17,8 +17,18 @@
 
 #include "../asser_functions.h"
 #include "../act_functions.h"
+#include "../Geometry.h"
+
+typedef enum{
+	ADVERSARY_TORCH,
+	OUR_TORCH
+}torch_choice_e;
+
+void strat_inutile_guy(void);
 
 void Strat_Detection_Triangle(void);
 void strat_test_warner_triangle(void);
+
+error_e travel_torch_line(torch_choice_e torch,Sint16 posEndx, Sint16 posEndy);
 
 #endif /* ACTIONS_GUY_H_ */
