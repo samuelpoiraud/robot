@@ -747,6 +747,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_PROP_DT10_1_FAILED:				return "DT10 1 failed";			break;
 		case SELFTEST_PROP_DT10_2_FAILED:				return "DT10 2 failed";			break;
 		case SELFTEST_PROP_DT10_3_FAILED:				return "DT10 3 failed";			break;
+		case SELFTEST_PROP_DT50_2_FAILED:				return "DT50 2 failed";			break;
+		case SELFTEST_PROP_DT50_3_FAILED:				return "DT50 3 failed";			break;
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
 		case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			return "PROP in LCD T mode"; 	break;
 		case SELFTEST_STRAT_RTC:						return "RTC failed";			break;
