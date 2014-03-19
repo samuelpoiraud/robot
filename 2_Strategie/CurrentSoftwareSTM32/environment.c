@@ -15,6 +15,7 @@
 #include "act_functions.h"
 #include "can_utils.h"
 #include "zone_mutex.h"
+#include "fix_beacon.h"
 #include "Supervision/Buffer.h"
 #include "Supervision/Eeprom_can_msg.h"
 #include "Supervision/RTC.h"
@@ -238,6 +239,19 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 	//if(SWITCH_DEBUG  && !SWITCH_XBEE)
 	//	CANmsgToU2tx(sent_msg);
 
+	//Messages de BROADCAST transmis aussi à la balise mère.
+	switch(sent_msg->sid)
+	{
+		case BROADCAST_START:
+			//no break;
+		case BROADCAST_STOP_ALL:
+			//no break;
+		case BROADCAST_COULEUR:
+			CANMsgToXBeeDestination(sent_msg, BALISE_MERE);
+			break;
+		default:
+			break;
+	}
 }
 
 
@@ -467,6 +481,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_PROP_PONG:
 		case STRAT_BEACON_PONG:
 			SELFTEST_update(incoming_msg);
+			break;
+/************************************* Récupération des messages de la balise fixe ***************************/
+		case STRAT_ZONE_INFOS:
+			FIX_BEACON_process_msg(incoming_msg);
 			break;
 		default:
 			break;
