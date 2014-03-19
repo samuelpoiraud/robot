@@ -476,8 +476,14 @@ bool_e XBee_is_destination_reachable(void)
 {
 	if(initialized)
 		return module_reachable[XBee_module_id_destination];
-	else
-		return FALSE;
+	return FALSE;
+}
+
+bool_e XBee_is_module_reachable(module_id_e module)
+{
+	if(initialized)
+		return module_reachable[module];
+	return FALSE;
 }
 
 
