@@ -40,7 +40,7 @@
 	
 	typedef enum
 	{
-		RED=0, BLUE=1
+		RED=0, BLUE=1, YELLOW=1
 	} color_e;
 	
 	typedef struct 
