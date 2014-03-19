@@ -479,7 +479,7 @@ static void LCD_menu_select_strategy(bool_e init)
 				if(cursor_line < (LINE_NUMBER - 1)){
 					cursor_line++;
 					update_led_button = TRUE;
-				}else if(BRAIN_get_number_strategy() > (LINE_NUMBER - 1) && index < (BRAIN_get_number_strategy() - LINE_NUMBER + 1))
+				}else if(BRAIN_get_number_of_displayed_strategy() > (LINE_NUMBER - 1) && index < (BRAIN_get_number_of_displayed_strategy() - LINE_NUMBER + 1))
 				{
 					index++;
 					update_led_button = TRUE;
@@ -500,21 +500,21 @@ static void LCD_menu_select_strategy(bool_e init)
 			}
 
 			if(flag_bp_ok){
-				BRAIN_set_strategy(BRAIN_get_strat_function(index+cursor_line-1));
+				BRAIN_set_strategy_index(index+cursor_line-1);
 				update_lines = TRUE;
 			}
 			if(update_led_button)
-				IHM_LEDS(TRUE, (index+cursor_line < BRAIN_get_number_strategy()), (index+cursor_line > 1), TRUE);
+				IHM_LEDS(TRUE, (index+cursor_line < BRAIN_get_number_of_displayed_strategy()), (index+cursor_line > 1), TRUE);
 			break;
 	}
 
 	if(update_lines)
 	{
 		for(i=0;i<LINE_NUMBER-1;i++){
-			if(BRAIN_get_current_strat_function() == BRAIN_get_strat_function((index+i)))
-				snprintf(chaine, 20, ">%s", BRAIN_get_strat_name(index+i));
+			if(BRAIN_get_current_strat_function() == BRAIN_get_displayed_strat_function((index+i)))
+				snprintf(chaine, 20, ">%s", BRAIN_get_displayed_strat_name(index+i));
 			else
-				snprintf(chaine, 20, "%s", BRAIN_get_strat_name(index+i));
+				snprintf(chaine, 20, "%s", BRAIN_get_displayed_strat_name(index+i));
 			sprintf_line(i+1, chaine);
 		}
 	}
