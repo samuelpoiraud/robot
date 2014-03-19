@@ -19,10 +19,6 @@
 //définition de la précision et des modes de calcul des sinus et cosinus
 	#define FAST_COS_SIN
 
-//demande à l'asser d'envoyer regulierement la position du robot
-//utilisé en 2010-2011 pour la détection des pions avec les capteurs de distance SICK (cf. brain.c)
-#define USE_SCHEDULED_POSITION_REQUEST
-
 
 //Module de gestion des capteurs SICK pour scan de la zone de jeu... Ce module est très dépendant du règlement et du robot !
 //#define USE_SICK

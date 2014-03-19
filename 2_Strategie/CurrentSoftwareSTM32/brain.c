@@ -31,35 +31,20 @@
 #include "high_level_strat.h"
 
 
-/**************************************************************
- *
- * Déclaration des strats pour les deux robots
- *
- **************************************************************/
+//Stratégie par défaut... (modifiable par les codeurs qui auraient la flemme ou l'impossibilité de configurer leur strat sur le LCD à chaque reset...)
+//							Valeur souhaitable pour le commit SVN : high_level_strat
+#define DEFAULT_STRAT_BIG	high_level_strat
 
-#define STRAT_BIG	high_level_strat
+#define DEFAULT_STRAT_SMALL	high_level_strat
 
-#define STRAT_SMALL	high_level_strat
-/*
-#define STRAT_0_BIG high_level_strat
-#define STRAT_1_BIG high_level_strat
-#define STRAT_2_BIG strat_lannion
-#define STRAT_3_BIG test_strat_robot_virtuel_with_avoidance
 
-#define STRAT_0_SMALL high_level_strat
-#define STRAT_1_SMALL TEST_pathfind
-#define STRAT_2_SMALL Strat_Detection_Triangle
-#define STRAT_3_SMALL strat_reglage_asser*/
-
-static void update_strategy(void);
-static void update_match_duration(time32_t *match_duration);
-
-volatile bool_e strat_updated = FALSE;
 static ia_fun_t strategy;
+static time32_t match_duration = MATCH_DURATION;
 static Sint8 index_strategy = -1;
 static Uint8 number_of_strategy = 0;
 static Uint8 number_of_displayed_strategy = 0;
-
+static bool_e strat_updated = TRUE;
+static void update_match_duration(void);
 
 typedef struct{
 	char *name;
@@ -100,10 +85,10 @@ static const strategy_list_s *list_displayed_strategy[50];
 void BRAIN_init(void){
 	Uint8 i;
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
-		strategy = STRAT_BIG;
+		strategy = DEFAULT_STRAT_BIG;
 		number_of_strategy = sizeof(list_strategy_pierre)/sizeof(strategy_list_s);
 	}else{
-		strategy = STRAT_SMALL;
+		strategy = DEFAULT_STRAT_SMALL;
 		number_of_strategy = sizeof(list_strategy_guy)/sizeof(strategy_list_s);
 	}
 	index_strategy = -1;
@@ -122,6 +107,7 @@ void BRAIN_init(void){
 				index_strategy = i;
 		}
 	}
+	update_match_duration();
 }
 
 /* 	execute un match de match_duration secondes à partir de la
@@ -131,7 +117,8 @@ void BRAIN_init(void){
 */
 void any_match(void)
 {
-	static time32_t match_duration = MATCH_DURATION;
+
+
 	if (!global.env.match_started)
 	{
 		// Initialisation à FALSE des machines à état principale pour que les autres stratégie n'ai pas d'influence
@@ -141,11 +128,14 @@ void any_match(void)
 
 		/* we are before the match */
 		/* regarder si le match doit commencer */
-		if (global.env.ask_start)
+		if (global.env.ask_start && strategy != NULL)
 		{
+			global.env.match_started = TRUE;
 			CLOCK_run_match();
+			XBEE_send_sid(XBEE_START_MATCH, TRUE);				//URGENT : on lance le match sur notre robot AMI...
 			CAN_send_sid(BROADCAST_START);
-			XBEE_send_sid(XBEE_START_MATCH, TRUE);
+			Supervision_send_periodically_pos(20,PI4096/45);	//Demande d'envoi de la position : tout les 20 mm et tout les 4°
+			XBEE_ping_pong_enable(FALSE);						//Désactive le ping/pong... c'est trop tard pour ça...
 			return;
 		}
 
@@ -156,10 +146,6 @@ void any_match(void)
 		{
 			ENV_set_color(global.env.wanted_color);
 		}
-
-		/* mise à jour de la configuration de match */
-		if(global.env.config_updated)
-			global.env.config = global.env.wanted_config;
 
 		/* demande de calibration */
 		if(global.env.ask_asser_calibration && !global.env.asser.calibrated)
@@ -173,8 +159,7 @@ void any_match(void)
 		/*************************/
 		/* Choix de la stratégie */
 		/*************************/
-		update_strategy();
-		update_match_duration(&match_duration);
+		update_match_duration();
 		/*
 		if(strategy == strat_reglage_asser)	//Liste ici les stratégie "infinies"...
 			match_duration = 0;
@@ -203,22 +188,7 @@ void any_match(void)
 			}
 			else
 			{
-				//MATCH EN ATTENTE DE LANCEMENT
-				#ifdef USE_SCHEDULED_POSITION_REQUEST
-					static bool_e initialized = FALSE;
-					if(!initialized)
-					{
-						initialized = TRUE;
-
-						Supervision_send_periodically_pos(20,PI4096/45);	// Envoyer tous les 20 mm la position du robot, tous les 4°
-					}
-				#endif /* def USE_SCHEDULED_POSITION_REQUEST */
-
-				//Stratégie du match
-				if(strategy)
-				{
-					(*strategy)();
-				}
+				(*strategy)();	//Stratégie du match
 			}
 		}
 		else
@@ -230,38 +200,25 @@ void any_match(void)
 
 
 
-
-static void update_strategy(void)
-{
-	/*
-	ia_fun_t current_strat;
-	current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_0_BIG:STRAT_0_SMALL;
-	if(SWITCH_STRAT_1)
-		current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_1_BIG:STRAT_1_SMALL;
-	else if(SWITCH_STRAT_2)
-		current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_2_BIG:STRAT_2_SMALL;
-	else if(SWITCH_STRAT_3)
-		current_strat =  (QS_WHO_AM_I_get()==BIG_ROBOT)?STRAT_3_BIG:STRAT_3_SMALL;
-	strat_updated = (current_strat != previous_strategy)?TRUE:FALSE;	//Flag d'update, pendant un tour de boucle.
-	*/
-	if(strat_updated)
-	{
-		//strategy = current_strat;
-		debug_printf("Using strat : %s\n", BRAIN_get_current_strat_name());
-	}
-	//previous_strategy = strategy;
-}
-
+//Attention, ne renvoit qu'une fois VRAI lorsque la strategy a été mise à jour.... (destination LCD...)
 bool_e BRAIN_get_strat_updated(void)
 {
-	return strat_updated;
+	if(strat_updated)
+	{
+		strat_updated = FALSE;
+		return TRUE;
+	}
+	return FALSE;
 }
+
 
 void BRAIN_set_strategy_index(Uint8 i){
 	if(global.env.match_started == FALSE){
 		assert(i >= 0 && i < number_of_displayed_strategy);
 		strategy = list_displayed_strategy[i]->function;
 		index_strategy = i;
+		update_match_duration();
+		debug_printf("Using strat : %s\n", BRAIN_get_current_strat_name());
 		strat_updated = TRUE;
 	}else
 		debug_printf("Essai de modification de la stratégie alors que le match est lancé !\n");
@@ -296,11 +253,12 @@ ia_fun_t BRAIN_get_current_strat_function(void){
 	return strategy;
 }
 
-static void update_match_duration(time32_t *match_duration){
+static void update_match_duration(void)
+{
 	if(index_strategy != -1 && QS_WHO_AM_I_get() == BIG_ROBOT)
-		*match_duration = list_strategy_pierre[index_strategy].match_duration;
+		match_duration = list_strategy_pierre[index_strategy].match_duration;
 	else if(index_strategy != -1 && QS_WHO_AM_I_get() == SMALL_ROBOT)
-		*match_duration = list_strategy_guy[index_strategy].match_duration;
+		match_duration = list_strategy_guy[index_strategy].match_duration;
 	else
-		*match_duration = MATCH_DURATION;
+		match_duration = MATCH_DURATION;
 }

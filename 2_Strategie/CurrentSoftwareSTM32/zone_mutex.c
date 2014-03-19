@@ -25,8 +25,8 @@
 #define RETRY_TIMEOUT			300
 
 //Zone ou les 2 robots peuvent passer, donc on doit éviter le cas ou les 2 robots sont en même temps dans la même zone
-static zone_state_e zones[ZONE_NUMBER];
-static const zone_info_t ZONE_INITIAL_STATE[ZONE_NUMBER] = ZONE_INITIAL_STATE_DATA;
+static zone_state_e zones[ZONE_MUTEX_NUMBER];
+static const zone_info_t ZONE_INITIAL_STATE[ZONE_MUTEX_NUMBER] = ZONE_INITIAL_STATE_DATA;
 
 static void ZONE_send_lock_request(map_zone_e zone);
 static void ZONE_send_lock_response(map_zone_e zone);
@@ -35,7 +35,7 @@ void ZONE_init() {
 	Uint8 i;
 	robot_id_e me = QS_WHO_AM_I_get();
 
-	for(i = 0; i < ZONE_NUMBER; i++) {
+	for(i = 0; i < ZONE_MUTEX_NUMBER; i++) {
 		if(ZONE_INITIAL_STATE[i].init_state == ZIS_Free)
 			zones[i] = ZS_Free;
 		else if((ZONE_INITIAL_STATE[i].init_state == ZIS_Krusty && me == KRUSTY) ||
@@ -158,7 +158,7 @@ zone_state_e ZONE_get_status(map_zone_e zone) {
 void ZONE_CAN_process_msg(CAN_msg_t *msg) {
 	assert(msg->sid == XBEE_ZONE_COMMAND);	//Si le SID correspond à une commande liée aux zones
 
-	if(msg->data[1] >= ZONE_NUMBER) {
+	if(msg->data[1] >= ZONE_MUTEX_NUMBER) {
 		debug_printf("zone: unknown zone %d !!!\n", msg->data[1]);
 		return;
 	}

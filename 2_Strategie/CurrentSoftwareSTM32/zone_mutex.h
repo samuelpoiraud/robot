@@ -22,7 +22,7 @@ typedef enum {
 	MZ_StartTiny,		//Case de départ de Tiny, Krusty peut y passer pour déposer les verres
 	MZ_CakeNearUs,		//Quart du gateau de notre coté, Krusty peut avoir besoin de s'éloigné des assiettes à cause d'un évitement
 } map_zone_e;
-#define ZONE_NUMBER 3
+#define ZONE_MUTEX_NUMBER 3
 
 typedef enum {
 	ZIS_Free,		//La zone est initialement libre

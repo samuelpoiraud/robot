@@ -454,12 +454,7 @@ void EEPROM_CAN_MSG_process_msg(CAN_msg_t * msg)
 		case BROADCAST_START:
 			//Dans le cas de la réception d'un broadcast start, on ajoute des informations dans les datas inutilisées afin d'enregistrer des infos sur le match lancé !
 			msg->data[0] = global.env.color;
-			msg->data[1] = global.env.config.strategie;
-			msg->data[2] = global.env.config.evitement;
-			msg->data[3] = global.env.config.balise;
-			msg->data[4] = SWITCH_DEBUG;
-			//TODO : récupérer le résultat du selftest pour enregistrement...
-			msg->size = 8;
+			msg->size = 1;
 			break;
 		default:
 			break;

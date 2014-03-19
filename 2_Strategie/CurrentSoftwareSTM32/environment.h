@@ -107,9 +107,6 @@
 		bool_e ask_start;
 		bool_e alim;
 		Uint16 alim_value;		// en mV
-		config_t config;
-		config_t wanted_config;
-		bool_e config_updated;
 		asser_env_t asser;
 		position_t pos;					//comme son nom l'indique, c'est la position de notre robot
 		foe_t foe[MAX_NB_FOES];		//l'ensemble des adversaires vus sur le terrain - ces données concernent plus l'évitement que le zoning !
