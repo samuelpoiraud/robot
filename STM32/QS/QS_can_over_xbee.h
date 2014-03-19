@@ -97,7 +97,7 @@
 	void CAN_over_XBee_process_main(void);
 	void CAN_over_XBee_every_second(void);
 	bool_e XBee_is_destination_reachable(void);
-	bool_e XBEE_ping_pong_enable(bool_e enable);
+	void XBEE_ping_pong_enable(bool_e enable);
 
 	
 #endif // def USE_XBEE
