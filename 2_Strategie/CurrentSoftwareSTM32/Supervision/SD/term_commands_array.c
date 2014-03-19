@@ -25,7 +25,8 @@ term_command_info_t term_commands[] = {
 	DECLARE_CMD(gohome),
 	DECLARE_CMD(setdate),
 	DECLARE_CMD(date),
-	DECLARE_CMD(launch)
+	DECLARE_CMD(launch),
+	DECLARE_CMD(stop)
 
 //	{"md", &term_cmd_md, NULL, NULL},
 //	{"dd", &term_cmd_dd, NULL, NULL},

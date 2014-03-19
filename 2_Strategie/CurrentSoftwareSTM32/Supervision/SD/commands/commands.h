@@ -17,5 +17,6 @@
 #include "setdate.h"
 #include "date.h"
 #include "launch.h"
+#include "stop.h"
 
 #endif // COMMANDS_H
