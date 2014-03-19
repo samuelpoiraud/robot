@@ -613,6 +613,13 @@ static void LCD_menu_strategy(bool_e init)
 				update_led_button = TRUE;
 				set_update_subaction_order(TRUE);
 			}
+			if(BRAIN_get_current_strat_function() != high_level_strat){
+				if(entrance){
+					cursor = CURSOR_OFF;
+					sprintf_line(1,"high strat disabled");
+				}
+				return;
+			}
 			if(flag_bp_down)
 			{
 				if(cursor_line < (LINE_NUMBER - 1)){
