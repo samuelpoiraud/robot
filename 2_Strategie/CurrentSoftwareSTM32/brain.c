@@ -46,66 +46,64 @@ static Uint8 number_of_displayed_strategy = 0;
 static bool_e strat_updated = TRUE;
 static void update_match_duration(void);
 
+typedef enum{
+	BIG,
+	SMALL,
+	BOTH
+}robot_type_e;
+
 typedef struct{
 	char *name;
 	ia_fun_t function;
 	time32_t match_duration; // (MATCH_DURATION de base à 90 000 ms et 0 signifit stratégie avec un temps infini)
 	bool_e display_on;
+	robot_type_e robot_type;
 }strategy_list_s;
 
-static const strategy_list_s list_strategy_pierre[] = {
-	//display name			name function							// match duration	// afficher sur le LCD
-	{"high_level_strat",	high_level_strat,						MATCH_DURATION,		TRUE},
-	{"strat_lannion",		strat_lannion,							MATCH_DURATION,		TRUE},
-	{"strat_odo_rot",		strat_reglage_odo_rotation,				0,					TRUE},
-	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE},
-	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE},
-	{"strat_asser",			strat_reglage_asser,					0,					TRUE},
-	{"strat_pts",			strat_test_point,						MATCH_DURATION,		TRUE},
-	{"strat_pts_2",			strat_test_point2,						MATCH_DURATION,		TRUE},
-	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE},
-	{"Str_avoidance",		test_strat_robot_virtuel_with_avoidance,MATCH_DURATION,		FALSE},
-	{"TEST_pathfind",		TEST_pathfind,							MATCH_DURATION,		FALSE}
-};
+static const strategy_list_s list_strategy[] = {
 
-static const strategy_list_s list_strategy_guy[] = {
-	//display name			name function							// match duration	// afficher sur le LCD
-	{"high_level_strat",	high_level_strat,						MATCH_DURATION,		TRUE},
-	{"strat_odo_rot",		strat_reglage_odo_rotation,				0,					TRUE},
-	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE},
-	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE},
-	{"strat_asser",			strat_reglage_asser,					0,					TRUE},
-	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE},
-	{"Str_avoidance",		test_strat_robot_virtuel_with_avoidance,MATCH_DURATION,		FALSE},
-	{"TEST_pathfind",		TEST_pathfind,							MATCH_DURATION,		FALSE}
+	// Pour les deux robots
+	//display name			name function							// match duration	// afficher sur le LCD	// stratégie pour quel robot BIG/SMALL/BOTH(les deux)
+	{"high_level_strat",	high_level_strat,						MATCH_DURATION,		TRUE,					BOTH},
+	{"strat_odo_rot",		strat_reglage_odo_rotation,				0,					TRUE,					BOTH},
+	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE,					BOTH},
+	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE,					BOTH},
+	{"strat_asser",			strat_reglage_asser,					0,					TRUE,					BOTH},
+	{"Str_avoidance",		test_strat_robot_virtuel_with_avoidance,MATCH_DURATION,		FALSE,					BOTH},
+	{"TEST_pathfind",		TEST_pathfind,							MATCH_DURATION,		FALSE,					BOTH},
+	{"test_evitement",		test_strat_robot_virtuel_with_avoidance,0,					FALSE,					BOTH},
+
+	// Pour pierre
+	{"strat_lannion",		strat_lannion,							MATCH_DURATION,		TRUE,					BIG},
+	{"strat_pts",			strat_test_point,						MATCH_DURATION,		TRUE,					BIG},
+	{"strat_pts_2",			strat_test_point2,						MATCH_DURATION,		TRUE,					BIG},
+	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE,					BIG}
+
+	// Pour guy
+
 };
 
 static const strategy_list_s *list_displayed_strategy[50];
 
 void BRAIN_init(void){
 	Uint8 i;
-	if(QS_WHO_AM_I_get() == BIG_ROBOT){
+	if(QS_WHO_AM_I_get() == BIG_ROBOT)
 		strategy = DEFAULT_STRAT_BIG;
-		number_of_strategy = sizeof(list_strategy_pierre)/sizeof(strategy_list_s);
-	}else{
+	else
 		strategy = DEFAULT_STRAT_SMALL;
-		number_of_strategy = sizeof(list_strategy_guy)/sizeof(strategy_list_s);
-	}
+
+	number_of_strategy = sizeof(list_strategy)/sizeof(strategy_list_s);
 	index_strategy = -1;
 
 	number_of_displayed_strategy = 0;
 	for(i=0;i<number_of_strategy;i++){
-		if(QS_WHO_AM_I_get() == BIG_ROBOT){
-			if(list_strategy_pierre[i].display_on == TRUE)
-				list_displayed_strategy[number_of_displayed_strategy++] = &list_strategy_pierre[i];
-			if(list_strategy_pierre[i].function == strategy)
-				index_strategy = i;
-		}else{
-			if(list_strategy_guy[i].display_on == TRUE)
-				list_displayed_strategy[number_of_displayed_strategy++] = &list_strategy_guy[i];
-			if(list_strategy_guy[i].function == strategy)
-				index_strategy = i;
-		}
+		if(list_strategy[i].display_on == TRUE && (
+					(QS_WHO_AM_I_get() == BIG_ROBOT && list_strategy[i].robot_type == BIG)
+					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && list_strategy[i].robot_type == SMALL)
+					|| list_strategy[i].robot_type == BOTH))
+			list_displayed_strategy[number_of_displayed_strategy++] = &list_strategy[i];
+		if(list_strategy[i].function == strategy)
+			index_strategy = i;
 	}
 	update_match_duration();
 }
@@ -156,15 +154,8 @@ void any_match(void)
 			CAN_send(&msg);
 		}
 
-		/*************************/
-		/* Choix de la stratégie */
-		/*************************/
+		// mise à jours de match_duration en fonction de la stratégie sélectionnée
 		update_match_duration();
-		/*
-		if(strategy == strat_reglage_asser)	//Liste ici les stratégie "infinies"...
-			match_duration = 0;
-		else
-			match_duration = MATCH_DURATION;*/
 
 		if(strategy == high_level_strat)	//Liste ici les stratégie qui doivent être appelées même avant le début du match
 			high_level_strat();
@@ -227,10 +218,8 @@ void BRAIN_set_strategy_index(Uint8 i){
 //Retourne une chaine de 20 caractères max
 char * BRAIN_get_current_strat_name(void)
 {
-	if(index_strategy != -1 && QS_WHO_AM_I_get() == BIG_ROBOT)
-		return list_strategy_pierre[index_strategy].name;
-	else if(index_strategy != -1 && QS_WHO_AM_I_get() == SMALL_ROBOT)
-		return list_strategy_guy[index_strategy].name;
+	if(index_strategy != -1)
+		return list_strategy[index_strategy].name;
 	else
 		return "strat not declared !";
 }
@@ -255,10 +244,8 @@ ia_fun_t BRAIN_get_current_strat_function(void){
 
 static void update_match_duration(void)
 {
-	if(index_strategy != -1 && QS_WHO_AM_I_get() == BIG_ROBOT)
-		match_duration = list_strategy_pierre[index_strategy].match_duration;
-	else if(index_strategy != -1 && QS_WHO_AM_I_get() == SMALL_ROBOT)
-		match_duration = list_strategy_guy[index_strategy].match_duration;
+	if(index_strategy != -1)
+		match_duration = list_strategy[index_strategy].match_duration;
 	else
 		match_duration = MATCH_DURATION;
 }
