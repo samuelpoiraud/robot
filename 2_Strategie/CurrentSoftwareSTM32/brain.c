@@ -56,32 +56,72 @@ static void update_match_duration(time32_t *match_duration);
 
 volatile bool_e strat_updated = FALSE;
 static ia_fun_t strategy;
+static Sint8 index_strategy = -1;
+static Uint8 number_of_strategy = 0;
+static Uint8 number_of_displayed_strategy = 0;
+
 
 typedef struct{
 	char *name;
 	ia_fun_t function;
-	time32_t match_duration;
+	time32_t match_duration; // (MATCH_DURATION de base à 90 000 ms et 0 signifit stratégie avec un temps infini)
+	bool_e display_on;
 }strategy_list_s;
 
-static const strategy_list_s list_strategie[] = {
-	//display name			name function					// match duration
-	{"high_level_strat",	high_level_strat,				MATCH_DURATION},
-	{"strat_lannion",		strat_lannion,					MATCH_DURATION},
-	{"strat_odo_rot",		strat_reglage_odo_rotation,		0},
-	{"strat_odo_tra",		strat_reglage_odo_translation,	0},
-	{"strat_odo_sym",		strat_reglage_odo_symetrie,		0},
-	{"strat_asser",			strat_reglage_asser,			0},
-	{"strat_pts",			strat_test_point,				MATCH_DURATION},
-	{"strat_pts_2",			strat_test_point2,				MATCH_DURATION}
+static const strategy_list_s list_strategy_pierre[] = {
+	//display name			name function							// match duration	// afficher sur le LCD
+	{"high_level_strat",	high_level_strat,						MATCH_DURATION,		TRUE},
+	{"strat_lannion",		strat_lannion,							MATCH_DURATION,		TRUE},
+	{"strat_odo_rot",		strat_reglage_odo_rotation,				0,					TRUE},
+	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE},
+	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE},
+	{"strat_asser",			strat_reglage_asser,					0,					TRUE},
+	{"strat_pts",			strat_test_point,						MATCH_DURATION,		TRUE},
+	{"strat_pts_2",			strat_test_point2,						MATCH_DURATION,		TRUE},
+	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE},
+	{"Str_avoidance",		test_strat_robot_virtuel_with_avoidance,MATCH_DURATION,		FALSE},
+	{"TEST_pathfind",		TEST_pathfind,							MATCH_DURATION,		FALSE}
 };
 
-static const Uint8 number_of_strategy = sizeof(list_strategie)/sizeof(strategy_list_s);
+static const strategy_list_s list_strategy_guy[] = {
+	//display name			name function							// match duration	// afficher sur le LCD
+	{"high_level_strat",	high_level_strat,						MATCH_DURATION,		TRUE},
+	{"strat_odo_rot",		strat_reglage_odo_rotation,				0,					TRUE},
+	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE},
+	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE},
+	{"strat_asser",			strat_reglage_asser,					0,					TRUE},
+	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE},
+	{"Str_avoidance",		test_strat_robot_virtuel_with_avoidance,MATCH_DURATION,		FALSE},
+	{"TEST_pathfind",		TEST_pathfind,							MATCH_DURATION,		FALSE}
+};
+
+static const strategy_list_s *list_displayed_strategy[50];
 
 void BRAIN_init(void){
-	if(QS_WHO_AM_I_get() == BIG_ROBOT)
+	Uint8 i;
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
 		strategy = STRAT_BIG;
-	else
+		number_of_strategy = sizeof(list_strategy_pierre)/sizeof(strategy_list_s);
+	}else{
 		strategy = STRAT_SMALL;
+		number_of_strategy = sizeof(list_strategy_guy)/sizeof(strategy_list_s);
+	}
+	index_strategy = -1;
+
+	number_of_displayed_strategy = 0;
+	for(i=0;i<number_of_strategy;i++){
+		if(QS_WHO_AM_I_get() == BIG_ROBOT){
+			if(list_strategy_pierre[i].display_on == TRUE)
+				list_displayed_strategy[number_of_displayed_strategy++] = &list_strategy_pierre[i];
+			if(list_strategy_pierre[i].function == strategy)
+				index_strategy = i;
+		}else{
+			if(list_strategy_guy[i].display_on == TRUE)
+				list_displayed_strategy[number_of_displayed_strategy++] = &list_strategy_guy[i];
+			if(list_strategy_guy[i].function == strategy)
+				index_strategy = i;
+		}
+	}
 }
 
 /* 	execute un match de match_duration secondes à partir de la
@@ -133,7 +173,7 @@ void any_match(void)
 		/*************************/
 		/* Choix de la stratégie */
 		/*************************/
-		//update_strategy();
+		update_strategy();
 		update_match_duration(&match_duration);
 		/*
 		if(strategy == strat_reglage_asser)	//Liste ici les stratégie "infinies"...
@@ -217,57 +257,50 @@ bool_e BRAIN_get_strat_updated(void)
 	return strat_updated;
 }
 
-void BRAIN_set_strategy(ia_fun_t function){
-	assert(function != NULL);
-	strategy = function;
-	strat_updated = TRUE;
+void BRAIN_set_strategy_index(Uint8 i){
+	if(global.env.match_started == FALSE){
+		assert(i >= 0 && i < number_of_displayed_strategy);
+		strategy = list_displayed_strategy[i]->function;
+		index_strategy = i;
+		strat_updated = TRUE;
+	}else
+		debug_printf("Essai de modification de la stratégie alors que le match est lancé !\n");
 }
 
 //Retourne une chaine de 20 caractères max
 char * BRAIN_get_current_strat_name(void)
 {
-	Uint8 i;
-	for(i=0;i<number_of_strategy;i++){
-		if(strategy == list_strategie[i].function)
-			return list_strategie[i].name;
-	}
-
-// Stratégie affichant le nom dans le menu info sans être sélectionnable dans le menu select strat
-	if(strategy == Strat_Detection_Triangle )
-		return "Str_Detect_Triangle";
-	if(strategy == test_strat_robot_virtuel_with_avoidance)
-		return "Str_avoidance";
-	if(strategy == TEST_pathfind)
-		return "TEST_pathfind";
-	return "strat not declared !";
+	if(index_strategy != -1 && QS_WHO_AM_I_get() == BIG_ROBOT)
+		return list_strategy_pierre[index_strategy].name;
+	else if(index_strategy != -1 && QS_WHO_AM_I_get() == SMALL_ROBOT)
+		return list_strategy_guy[index_strategy].name;
+	else
+		return "strat not declared !";
 }
 
-ia_fun_t BRAIN_get_strat_function(Uint8 i){
-	assert(i<number_of_strategy);
-	return list_strategie[i].function;
+ia_fun_t BRAIN_get_displayed_strat_function(Uint8 i){
+	assert(i<number_of_displayed_strategy);
+	return list_displayed_strategy[i]->function;
 }
 
-char * BRAIN_get_strat_name(Uint8 i){
-	assert(i<number_of_strategy);
-	return list_strategie[i].name;
+char * BRAIN_get_displayed_strat_name(Uint8 i){
+	assert(i<number_of_displayed_strategy);
+	return list_displayed_strategy[i]->name;
 }
 
-Uint8 BRAIN_get_number_strategy(){
-	return number_of_strategy;
+Uint8 BRAIN_get_number_of_displayed_strategy(){
+	return number_of_displayed_strategy;
 }
 
 ia_fun_t BRAIN_get_current_strat_function(void){
 	return strategy;
 }
 
-
 static void update_match_duration(time32_t *match_duration){
-	Uint8 i;
-	for(i=0;i<number_of_strategy;i++){
-		if(strategy == list_strategie[i].function){
-			*match_duration = list_strategie[i].match_duration;
-			return;
-		}
-	}
-	*match_duration = MATCH_DURATION;
+	if(index_strategy != -1 && QS_WHO_AM_I_get() == BIG_ROBOT)
+		*match_duration = list_strategy_pierre[index_strategy].match_duration;
+	else if(index_strategy != -1 && QS_WHO_AM_I_get() == SMALL_ROBOT)
+		*match_duration = list_strategy_guy[index_strategy].match_duration;
+	else
+		*match_duration = MATCH_DURATION;
 }

@@ -19,7 +19,7 @@
 
 	void BRAIN_init(void);
 
-	/* 	execute un match de match_duration secondes à partir de la 
+	/* 	execute un match de match_duration secondes à partir de la
 		liberation de la biroute. Arrete le robot à la fin du match.
 		Appelle une autre routine pour l'IA pendant le match.
 	*/
@@ -29,11 +29,11 @@
 	bool_e BRAIN_get_strat_updated(void);
 	char * BRAIN_get_current_strat_name(void);
 	ia_fun_t BRAIN_get_current_strat_function(void);
+	ia_fun_t BRAIN_get_displayed_strat_function(Uint8 i);
+	char * BRAIN_get_displayed_strat_name(Uint8 i);
+	Uint8 BRAIN_get_number_of_displayed_strategy();
 
-	void BRAIN_set_strategy(ia_fun_t function);
-	ia_fun_t BRAIN_get_strat_function(Uint8 i);
-	char * BRAIN_get_strat_name(Uint8 i);
-	Uint8 BRAIN_get_number_strategy();
+	void BRAIN_set_strategy_index(Uint8 i);
 
 
 #endif /* ndef BRAIN_H */
