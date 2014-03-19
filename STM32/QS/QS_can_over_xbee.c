@@ -79,6 +79,7 @@ void CAN_over_XBee_init(module_id_e me, module_id_e destination)
 		 module_reachable[module] = FALSE;		//Tout les modules sont injoignables.
 	assert(XBee_i_am_module < MODULE_NUMBER);
 	module_reachable[XBee_i_am_module] = TRUE;	//En principe, on a pas besoin de vérifier qu'on peut se parler à soit-même.
+	ping_pong_enable = TRUE; //On active le ping_pong...
 	initialized = TRUE;
 }
 
@@ -183,7 +184,7 @@ void CAN_over_XBee_process_main(void)
 				//ces demandes sont périssables en quelques secondes. Ceci afin d'éviter qu'un flux de donnée ne soit actif longtemps vers un destinataire qui a été éteint.
 
 				if(ping_pong_enable)
-					XBee_state = INIT;
+					XBee_state = PING_PONG;
 			break;
 			default:
 			break;
@@ -194,7 +195,7 @@ void CAN_over_XBee_process_main(void)
 
 
 //Typiquement, lorsque le match commence, on cesse les ping pong...
-bool_e XBEE_ping_pong_enable(bool_e enable)
+void XBEE_ping_pong_enable(bool_e enable)
 {
 	ping_pong_enable = enable;
 }
