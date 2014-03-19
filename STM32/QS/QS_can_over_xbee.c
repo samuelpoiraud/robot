@@ -55,6 +55,7 @@ volatile static bool_e initialized = FALSE;
 volatile static bool_e XBee_ready_to_talk = FALSE;
 volatile static bool_e module_reachable[MODULE_NUMBER];	//Etat des autres modules (joignables ou non...)
 volatile static bool_e flag_1s = FALSE;
+volatile static bool_e ping_pong_enable = FALSE;
 
 void CAN_over_XBee_every_second(void)
 {
@@ -171,14 +172,17 @@ void CAN_over_XBee_process_main(void)
 						//debug_printf("ping %d->%d\n",XBee_i_am_module, module);
 					}
 				}
-				if(everyone_is_reachable || global.env.match_started)
+				if(everyone_is_reachable || !ping_pong_enable)
+				{
 					XBee_state = IDLE;
+				}
 			break;
 			case IDLE:
 				//Soit le match à commencé, soit tout le monde a été joint -> on arrête les pings...
 				//TOUT LES MESSAGES CAN ENVOYES SONT ALORS CONSECUTIFS A UNE DEMANDE PROVENANT DU DESTINATAIRE DES MESSAGES !
 				//ces demandes sont périssables en quelques secondes. Ceci afin d'éviter qu'un flux de donnée ne soit actif longtemps vers un destinataire qui a été éteint.
-				if(global.env.match_started == FALSE)
+
+				if(ping_pong_enable)
 					XBee_state = INIT;
 			break;
 			default:
@@ -187,6 +191,14 @@ void CAN_over_XBee_process_main(void)
 	}
 
 }
+
+
+//Typiquement, lorsque le match commence, on cesse les ping pong...
+bool_e XBEE_ping_pong_enable(bool_e enable)
+{
+	ping_pong_enable = enable;
+}
+
 
 bool_e process_received_can_msg(CAN_msg_t * msg)
 {
