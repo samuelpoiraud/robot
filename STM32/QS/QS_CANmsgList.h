@@ -122,6 +122,49 @@
 				robot_id : robot_id_e (Uint8)
 				+ 3 octets RFU
 			*/
+
+/******************************************************************
+ *
+ * 		Messages échangés entre les cartes stratégies et la balise fixe
+ */
+											//B comme Beacon (ou Balise !)
+	#define ENABLE_WATCHING_ZONE			0x5BE	//E comme Enable
+	#define DISABLE_WATCHING_ZONES			0x5BD	//D comme Disable
+	#define GET_ZONE_INFOS					0x5B1	//1 comme 1nfos...
+
+	#define STRAT_ZONE_INFOS				0x551	//5tratégie 1nfos
+
+	typedef enum
+	{
+		ZONE_FRESQUO = 0,
+		ZONE_CENTRAL_QUATER_HEART_RED_MAMMOTH,
+		ZONE_CENTRAL_QUATER_HEART_RED_TREE,
+		ZONE_RED_TORCH,
+		ZONE_RED_START_FIRE,
+		ZONE_RED_HEART,
+		ZONE_RED_TREE,
+		ZONE_TWICE_FIXED_FIRES,
+		ZONE_YELLOW_TREE,
+		ZONE_YELLOW_HEART,
+		ZONE_YELLOW_START_FIRE,
+		ZONE_YELLOW_TORCH,
+		ZONE_CENTRAL_QUATER_HEART_YELLOW_MAMMOTH,
+		ZONE_CENTRAL_QUATER_HEART_YELLOW_TREE,
+		ZONE_YELLOW_MAMMOTH,
+		ZONE_RED_MAMMOTH,
+		ZONE_START_YELLOW,
+		ZONE_START_RED,
+		ZONE_NUMBER		//Nombre de zones...
+	}zone_e;
+
+	typedef Uint8 zone_event_t;
+	#define EVENT_NO_EVENT	0b00000000
+	#define EVENT_GET_IN	0b00000001
+	#define EVENT_GET_OUT	0b00000010
+	#define EVENT_TIME_IN	0b00000100
+	#define EVENT_SPECIAL	0b00001000
+
+
  /*****************************************************************
  *
  *		Messages echangés entre la carte Supervision
