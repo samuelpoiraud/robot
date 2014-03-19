@@ -514,7 +514,7 @@ static void LCD_menu_select_strategy(bool_e init)
 			if(BRAIN_get_current_strat_function() == BRAIN_get_displayed_strat_function((index+i)))
 				snprintf(chaine, 20, ">%s", BRAIN_get_displayed_strat_name(index+i));
 			else
-				snprintf(chaine, 20, "%s", BRAIN_get_displayed_strat_name(index+i));
+				snprintf(chaine, 20, " %s", BRAIN_get_displayed_strat_name(index+i));
 			sprintf_line(i+1, chaine);
 		}
 	}

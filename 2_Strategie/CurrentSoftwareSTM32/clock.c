@@ -63,7 +63,6 @@ void CLOCK_run_match()
 	TIMER1_stop();
 	TIMER1_run_us(1000);
 	show_color_on_leds();	//On fixe la couleur sur les leds avant le début du match.. -> plus de clignotement.
-	global.env.match_started = TRUE;
 }
 
 

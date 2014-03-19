@@ -69,7 +69,6 @@ void ENV_init(void)
 	DETECTION_init();
 
 	ENV_clean();
-	global.env.config=(config_t){/*strategie*/0, /*evitement*/TRUE, /*balise*/TRUE};
 	global.env.wanted_color=BLUE;
 	global.env.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
 	global.env.color_updated = TRUE;
@@ -527,7 +526,6 @@ void ENV_clean (void)
 	//DETECTION_clear_updates();
 	if(global.env.color == global.env.wanted_color)
 		global.env.color_updated = FALSE;
-	global.env.config_updated = FALSE;
 	global.env.asser.fini = FALSE;
 	global.env.asser.erreur = FALSE;
 	global.env.asser.freine = FALSE;
