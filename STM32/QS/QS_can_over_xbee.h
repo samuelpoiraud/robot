@@ -95,7 +95,7 @@
 	void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e destination);
 
 	void CAN_over_XBee_process_main(void);
-	void CAN_over_XBee_every_second(void);
+	void CAN_over_XBee_process_ms(void);
 	bool_e XBee_is_destination_reachable(void);
 	bool_e XBee_is_module_reachable(module_id_e module);
 	void XBEE_ping_pong_enable(bool_e enable);
