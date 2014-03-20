@@ -144,7 +144,7 @@ void CAN_over_XBee_process_main(void)
 			}
 			//Transition immédiate.
 			XBEE_RESET = 1;	//RESET du module XBee
-			t = 100;	//100ms
+			t = 2;	//2ms
 			state = WAIT_BEFORE_RELEASE_RESET;
 		break;
 		case WAIT_BEFORE_RELEASE_RESET:
