@@ -3,8 +3,8 @@
  *	Krusty & Tiny
  *
  *	Fichier : zone_mutex.h
- *	Package : 
- *	Description : 
+ *	Package :
+ *	Description :
  *	Auteur : amurzeau
  *	Version 2 mai 2013
  */
@@ -18,41 +18,40 @@
 
 //Différentes zone ou les 2 robots passent
 typedef enum {
-	MZ_Center,			//Centre du terrain, Krusty peut y passer pour prendre les verres proches du centre du terrain
-	MZ_StartTiny,		//Case de départ de Tiny, Krusty peut y passer pour déposer les verres
-	MZ_CakeNearUs,		//Quart du gateau de notre coté, Krusty peut avoir besoin de s'éloigné des assiettes à cause d'un évitement
+	MZ_FRUIT_TRAY,		//Zone du bac à fruit
+	MZ_ZONE_LIBRE
 } map_zone_e;
-#define ZONE_MUTEX_NUMBER 3
+#define ZONE_MUTEX_NUMBER 2
 
 typedef enum {
 	ZIS_Free,		//La zone est initialement libre
-	ZIS_Krusty,		//La zone est initialement à Krusty
-	ZIS_Tiny		//La zone est initialement à Tiny
-} zone_initial_state_e;
+	ZIS_BIG,		//La zone appartient au BIG_ROBOT
+	ZIS_SMALL		//La zone appartient au SMALL_ROBOT
+} zone_owner_e;
 
 typedef enum {
+
 	ZS_Free,			//La zone est libre, on ne se base pas sur cette info, on demandera toujours à l'autre robot si on peut y aller dans la zone
-	ZS_OwnedByMe,		//La zone est occupée par nous-même
+	ZS_OwnedByMe,		//La zone est occupée par nous-même quand j'occupe une zone libre ou qui ne apprtient pas
 	ZS_OwnedByOther,	//La zone est occupée par l'autre robot
-	ZS_Acquiring		//On a demandé le verrouillage de la zone, on attend une réponse de l'autre robot
+	ZS_Acquiring,		//On a demandé le verrouillage de la zone, on attend une réponse de l'autre robot
+	ZS_OtherTryLock		//L'autre robot a fait une demande pour aller dans une de nos zones
+
 } zone_state_e;
 
 typedef struct {
-	zone_initial_state_e init_state;
-	robot_id_e owner;
+	zone_owner_e owner;
+	zone_state_e state;
+
 } zone_info_t;
 
 //Attention à mettre des backslahes a la fin des lignes
 #define ZONE_INITIAL_STATE_DATA {                    \
-/*  {init_state, owner }                    */       \
-	{ZIS_Free  , KRUSTY},	/*MZ_Center     */       \
-	{ZIS_Tiny  , TINY  },	/*MZ_StartTiny  */       \
-	{ZIS_Free  , TINY  }	/*MZ_CakeNearUs */       \
+/*  {owner, state }                    */       \
+	{ZIS_BIG  , ZS_Free  },		/*MZ_FRUIT_TRAY */			\
+	{ZIS_Free  , ZS_Free  }		/*MZ_ZONE_LIBRE */			\
 };
 
-
-//Initialise le système de zone. QS_WHO_AM_I doit être initialisé AVANT !!!
-void ZONE_init();
 
 //Tente de verrouiller une zone. Cette fonction marche comme try_goto et autre, on donne des états, elle retourne le bon état suivant l'état de l'action.
 Uint8 try_lock_zone(map_zone_e zone, Uint16 timeout_msec, Uint8 in_progress_state, Uint8 success_state, Uint8 cant_lock_state, Uint8 no_response_state);
