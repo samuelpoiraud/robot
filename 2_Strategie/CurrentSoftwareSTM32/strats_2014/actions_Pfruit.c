@@ -15,6 +15,7 @@
 #include "../avoidance.h"
 #include "../act_can.h"
 #include "../Pathfind.h"
+#include "../Geometry.h"
 
 
 // Define à activer pour activer les attentes de l'ouverture des verrins
@@ -91,11 +92,13 @@ error_e strat_file_fruit(){
 
 			escape_point[0] = dplt[1];
 			escape_point[1] = dplt[0];
-			#ifdef USE_GET_IN_OUT
+
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){0, 1500}, (GEOMETRY_point_t){1000,3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){1000, 1500}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = GET_IN;
-			#else
+			else
 				state = POS_BEGINNING;
-			#endif
+
 			break;
 
 		case GET_IN :
@@ -136,12 +139,7 @@ error_e strat_file_fruit(){
 		case ERROR: // Fermer le bac à fruit et rentrer le bras
 			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-			#ifdef USE_GET_IN_OUT
-				state = GET_OUT_WITH_ERROR;
-			#else
-				state = IDLE;
-				return NOT_HANDLED;
-			#endif
+			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
@@ -210,11 +208,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = FORWARD;
 
-			#ifdef USE_GET_IN_OUT
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){600, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){600, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = GET_IN;
-			#else
+			else
 				state = POS_DEPART;
-			#endif
 			break;
 
 		case GET_IN:
@@ -275,12 +273,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case ERROR:
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-			#ifdef USE_GET_IN_OUT
-				state = GET_OUT_WITH_ERROR;
-			#else
-				state = IDLE;
-				return NOT_HANDLED;
-			#endif
+			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
@@ -351,11 +344,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = BACKWARD;
 
-			#ifdef USE_GET_IN_OUT
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){600, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){600, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = GET_IN;
-			#else
+			else
 				state = POS_DEPART;
-			#endif
 			break;
 
 		case GET_IN:
@@ -424,12 +417,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case ERROR:
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-			#ifdef USE_GET_IN_OUT
-				state = GET_OUT_WITH_ERROR;
-			#else
-				state = IDLE;
-				return NOT_HANDLED;
-			#endif
+			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
@@ -444,7 +432,6 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 	return IN_PROGRESS;
 }
-
 
 error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -498,11 +485,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				sensRobot = FORWARD;
 
-			#ifdef USE_GET_IN_OUT
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){600, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){600, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = GET_IN;
-			#else
+			else
 				state = POS_DEPART;
-			#endif
 			break;
 
 		case GET_IN:
@@ -547,12 +534,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 		case ERROR:
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-			#ifdef USE_GET_IN_OUT
-				state = GET_OUT_WITH_ERROR;
-			#else
-				state = IDLE;
-				return NOT_HANDLED;
-			#endif
+			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
@@ -567,7 +549,6 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 	return IN_PROGRESS;
 }
-
 
 error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -621,11 +602,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				sensRobot = FORWARD;
 
-			#ifdef USE_GET_IN_OUT
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){600, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){600, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = GET_IN;
-			#else
+			else
 				state = POS_DEPART;
-			#endif
 			break;
 
 		case GET_IN:
@@ -670,12 +651,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 		case ERROR:
 			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
-			#ifdef USE_GET_IN_OUT
-				state = GET_OUT_WITH_ERROR;
-			#else
-				state = IDLE;
-				return NOT_HANDLED;
-			#endif
+			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
