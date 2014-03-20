@@ -342,6 +342,20 @@ void SECRETARY_send_triangle_warner(bool_e present, Uint8 number_triangle){
 	#endif
 }
 
+void SECRETARY_send_scan_anything(bool_e anything_found){
+	CAN_msg_t msg;
+	msg.sid = STRAT_SCAN_ANYTHING;
+	msg.data[0] = anything_found;
+	msg.size = 1;
+	SECRETARY_send_canmsg(&msg);
+	#ifdef VERBOSE_MSG_SEND_OVER_UART
+		if(anything_found == TRUE)
+			debug_printf("Objet détecté dans la zone scannée\n");
+		else
+			debug_printf("Zone de scan vide\n");
+	#endif
+}
+
 
 #endif
 
