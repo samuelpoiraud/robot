@@ -13,6 +13,8 @@
 
 #include <math.h>
 
+#define square(x) (x*x)
+
 Uint16 GEOMETRY_distance(GEOMETRY_point_t a, GEOMETRY_point_t b)
 {
 	double dx = a.x - b.x;
@@ -128,7 +130,7 @@ GEOMETRY_circle_t GEOMETRY_circle_from_diameter(GEOMETRY_segment_t diameter)
 /*
  * Equations trouvées sur
  * Explications sur : http://2000clicks.com/MathHelp/GeometryConicSectionCircleIntersection.aspx
- * Renvoie une segment avec les deux coordonées valant 0,0 si les cercles ne se croisent pas 
+ * Renvoie une segment avec les deux coordonées valant 0,0 si les cercles ne se croisent pas
  * ou sont coradiaux.
  */
 GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c1, GEOMETRY_circle_t c2)
@@ -140,41 +142,50 @@ GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c1, GEOMETRY_
 	double x2 = c2.c.x;
 	double y2 = c2.c.y;
 	double r2 = c2.r;
-	
+
 	double x_diff = x2-x1;
 	double y_diff = y2-y1;
 	double sq_r1 = r1*r1;
 	double sq_r2 = r2*r2;
-	
-    double radius_sum_square = (r1+r2)*(r1+r2); /* somme des rayons au carré */
-    double radius_diff_square = (r1-r2)*(r1-r2); /* différence des rayons au carré */
+
+	double radius_sum_square = (r1+r2)*(r1+r2); /* somme des rayons au carré */
+	double radius_diff_square = (r1-r2)*(r1-r2); /* différence des rayons au carré */
 	double d2 = x_diff*x_diff+y_diff*y_diff; /* d est la distance entre les centres des cercles */
 	double k; /* k vaut deux fois l'aire du triangle formé par les centres des deux cercles et un point d'intersection */
 	double x_midpoint; /* Coordonnée en x du milieu des deux points d'intersection des cercles */
-    double y_midpoint; /* Coordonnée en y du milieu des deux points d'intersection des cercles */
-    double x_ratio_of_change;
-    double y_ratio_of_change;
+	double y_midpoint; /* Coordonnée en y du milieu des deux points d'intersection des cercles */
+	double x_ratio_of_change;
+	double y_ratio_of_change;
 
-    /*On s'assure que la distance entre les centres des cercles se situe entre la différence de leurs rayons et la somme de leurs rayons (inclus) */
-    if(d2>radius_diff_square && d2<=radius_sum_square && d2!=0)
-    {
-        k = sqrt((radius_sum_square-d2)*(d2-radius_diff_square))/2.;
-        x_midpoint = (x2+x1)/2. + (x_diff*(sq_r1-sq_r2))/(2.*d2);
-        y_midpoint = (y2+y1)/2. + (y_diff*(sq_r1-sq_r2))/(2.*d2);
-        x_ratio_of_change = y_diff*k/d2;
-        y_ratio_of_change = x_diff*k/d2;
-        points.a.x = x_midpoint + x_ratio_of_change;
-        points.a.y = y_midpoint - y_ratio_of_change;
-        points.b.x = x_midpoint - x_ratio_of_change;
-        points.b.y = y_midpoint + y_ratio_of_change;
-    }
-    else
-    {
-        points.a.x = 0;
-        points.a.y = 0;
-        points.b.x = 0;
-        points.b.y = 0;
-    }
+	/*On s'assure que la distance entre les centres des cercles se situe entre la différence de leurs rayons et la somme de leurs rayons (inclus) */
+	if(d2>radius_diff_square && d2<=radius_sum_square && d2!=0)
+	{
+		k = sqrt((radius_sum_square-d2)*(d2-radius_diff_square))/2.;
+		x_midpoint = (x2+x1)/2. + (x_diff*(sq_r1-sq_r2))/(2.*d2);
+		y_midpoint = (y2+y1)/2. + (y_diff*(sq_r1-sq_r2))/(2.*d2);
+		x_ratio_of_change = y_diff*k/d2;
+		y_ratio_of_change = x_diff*k/d2;
+		points.a.x = x_midpoint + x_ratio_of_change;
+		points.a.y = y_midpoint - y_ratio_of_change;
+		points.b.x = x_midpoint - x_ratio_of_change;
+		points.b.y = y_midpoint + y_ratio_of_change;
+	}
+	else
+	{
+		points.a.x = 0;
+		points.a.y = 0;
+		points.b.x = 0;
+		points.b.y = 0;
+	}
 
-    return points;
+	return points;
 }
+
+bool_e est_dans_carre(GEOMETRY_point_t high, GEOMETRY_point_t low, GEOMETRY_point_t current){
+	return current.x > low.x && current.x < high.x && current.y > low.y && current.y < high.y;
+}
+
+bool_e est_dans_cercle(GEOMETRY_point_t current, GEOMETRY_circle_t circle){
+	return square(current.x-circle.c.x) + square(current.y-circle.c.y) <= square(circle.r);
+}
+
