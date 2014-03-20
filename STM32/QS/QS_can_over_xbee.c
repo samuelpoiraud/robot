@@ -399,11 +399,11 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 
 void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 {
-	static Uint8 ack = 0;
 	Uint8 cs;
 	Uint8 i;
 	if(!XBee_ready_to_talk)
 		return;
+
 	if(src->sid != XBEE_PING && module_reachable[module_dest] == FALSE)	//Module non atteignable
 			return;	//On se refuse d'envoyer un message si le module n'est pas joignable, sauf s'il s'agit d'un ping !
 
@@ -413,11 +413,13 @@ void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 
 	cs = 0x00;
 	SEND(0x10);	//API identifier pour TRANSMIT REQUEST
-	ack++;
-	if(ack==0)
-		ack=1;	//car à 0 on a pas d'acquittement.
-	#ifdef ASK_FOR_ACK
-		SEND(ack);//(ack++);	//msg id (pour acknoledge). 0 pour ne pas demander d'acknowledge.
+
+	#ifdef ASK_FOR_ACK			//Acquittement au niveau UART.. (pour avoir un retour et savoir si le message est arrivé... à implémenter un jour ... ???)
+		static Uint8 ack = 0;
+		ack++;
+		if(ack==0)
+			ack=1;	//car à 0 on a pas d'acquittement.
+		SEND(ack);	//msg id (pour acknoledge). 0 pour ne pas demander d'acknowledge.
 	#else
 		SEND(0x00);
 	#endif
@@ -428,8 +430,15 @@ void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 
 	SEND(0xFF);	//Network address : on ne la connait pas (variable). 0xFFFE indique au module de la déterminer par lui même...
 	SEND(0xFE);	//
-	SEND(0x00);	//Nombre max de noeud que le message peut traverser (Si 0 : valeur par défaut = 10)
-	SEND(0x00);	//Mode unicast
+	SEND(0x01);	//Nombre max de noeud que le message peut traverser (Si 0 : valeur par défaut = 10)
+	if(src->sid != XBEE_PING)
+	{	//Les accollades sont importantes (à cause du fait que SEND est une macro à deux instructions.
+		SEND(0x00);	//Retries enable
+	}
+	else
+	{	//Les accollades sont importantes (à cause du fait que SEND est une macro à deux instructions.
+		SEND(0x01);	//Retries disable (utile quand on se fiche que le message passe... par exemple pour un ping)
+	}
 
 	//Datas
 	SEND(SOH);
