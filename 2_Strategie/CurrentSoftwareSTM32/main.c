@@ -86,7 +86,6 @@ int main (void)
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-	ZONE_init();
 
 	STACKS_init();
 
