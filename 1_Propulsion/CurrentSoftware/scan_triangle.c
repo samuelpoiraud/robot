@@ -9,6 +9,7 @@
 #include "QS/QS_adc.h"
 #include "QS/QS_all.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_who_am_i.h"
 #include "supervisor.h"
 #include "secretary.h"
 #include "corrector.h"
@@ -24,33 +25,35 @@
 
 #define square(x) ((float)(x)*(float)(x))
 #define conversion_DT10_mm(x) (((((Sint32)(597)*(x))/1024)- 78))
+#define conversion_DT50_mm(x) (((((Sint32)(597)*(x))/1024)- 78))  // A étalonner
 // étalonnage antiérieur : ((((Sint32)(39970UL*(x)))>>16)- 56)
 // Rapport sur la courbe DT10 couleur noir  y = 0,667*x - 119
 // Rapport sur la courbe DT10 couleur blanc y = 0,583*x - 78,19
 
 //------------------------------------------------------------------------------------ Define
 
-#define X_SENSOR_BOT	-66
-#define Y_SENSOR_BOT	90
-#define X_SENSOR_MID	78
-#define Y_SENSOR_MID	98
-#define X_SENSOR_TOP	46
-#define Y_SENSOR_TOP	98
+#define X_SENSOR_BOT			-66
+#define Y_SENSOR_BOT			90
+#define X_SENSOR_MID			78
+#define Y_SENSOR_MID			98
+#define X_SENSOR_TOP			46
+#define Y_SENSOR_TOP			98
 
-#define COEF_DECTECTION_SEUIL 6
+#define COEF_DECTECTION_SEUIL	6
 
-#define NB_POINTS_MAX 180
+#define NB_POINTS_MAX			180
 
 #define VITESSE_ANGULAIRE_SCAN_SLOW 20
 #define VITESSE_ANGULAIRE_SCAN_FAST FAST
 
-#define MARGE_SCAN_DECOR 30
+#define MARGE_SCAN_DECOR		30
+#define MARGE_SCAN_ANYTHING		15
 
-#define LONGUEUR_MIN_TRIANGLE 50
-#define LONGUEUR_MIN_TORCHE 25
-#define DIST_ARETE_MILIEU	37
-#define RAYON_MIN_TORCHE	115
-#define RAYON_MAX_TORCHE	145
+#define LONGUEUR_MIN_TRIANGLE	50
+#define LONGUEUR_MIN_TORCHE		25
+#define DIST_ARETE_MILIEU		37
+#define RAYON_MIN_TORCHE		115
+#define RAYON_MAX_TORCHE		145
 
 //------------------------------------------------------------------------------------ Prototype des fonctions local
 
@@ -129,46 +132,52 @@ typedef struct{
 
 //------------------------------------------------------------------------------------ Variable Globale
 
-scan_param_s scan_param;
+static scan_param_s scan_param;
 	// Variable contenant tout les paramètres du scan à effectuer
 
-warner_param_s warner_param;
+static warner_param_s warner_param;
 	// Variable contenant tout les paramètres des warners à effectuer
 
 volatile struct{Sint16 dist[3]; Sint16 x[3]; Sint16 y[3]; position_t pos;} scan[NB_POINTS_MAX];
 	// Variable contenant la distance et les coordonées x y de chaque points du scan
 
-objet_s objet[3][20];
+static objet_s objet[3][20];
 	// Variable contenant les informations sur chaque objets différent repérés pendant le scan
 
-struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS_MAX-1];
+static struct{Sint16 x; Sint16 y;} vect[3][NB_POINTS_MAX-1];
 	// Variable contenant les vecteurs des entre-points des coordonnées du scan
 
-Sint16 angle_vecteur[3][NB_POINTS_MAX-1];
+static Sint16 angle_vecteur[3][NB_POINTS_MAX-1];
 	// Variable contenant les angles de chaque vecteurs
 
-Uint8 nb_objet[3];
+static Uint8 nb_objet[3];
 	// Variable contenant le nombre d'objet par capteur
 
-struct{Sint8 lvl; Sint8 nb;} dernier_triangle_valide;
+static struct{Sint8 lvl; Sint8 nb;} dernier_triangle_valide;
 	// Variable contenant l'indice des derniers triangles valides ou -1 si non présent
 
-receve_msg_can_e receve_msg_can;
+static receve_msg_can_e receve_msg_can;
 	// Variable contenant le type de message CAN reçut ou NO_MSG_CAN si aucun message CAN reçut
 
-bool_e move_completed, run_calcul;
+static bool_e move_completed, run_calcul;
 	// Flag indiquant si le mouvement est finit, si un calcul est en cours
 
-triangle_localisation position_triangle[]={
-	{WARN_X_PI, ADC_SENSOR_DT10_NV2, 800, 0},
-	{WARN_Y_N, ADC_SENSOR_DT10_NV2, 2000, 1300},
-	{WARN_Y_N, ADC_SENSOR_DT10_NV2, 2000, 1700},
-	{WARN_X_0, ADC_SENSOR_DT10_NV2, 800, 3000}
+static triangle_localisation position_triangle[]={
+	{WARN_X_PI, ADC_SENSOR_SMALL_DT10_NV2, 800, 0},
+	{WARN_Y_N, ADC_SENSOR_SMALL_DT10_NV2, 2000, 1300},
+	{WARN_Y_N, ADC_SENSOR_SMALL_DT10_NV2, 2000, 1700},
+	{WARN_X_0, ADC_SENSOR_SMALL_DT10_NV2, 800, 3000}
 };
+	// Tableau des triangles détectable avec la warner
 
 #define NOMBER_MAX_TRIANGLE (sizeof(position_triangle)/sizeof(triangle_localisation))
+	// Nombre de triangle présent dans le tableau ci-dessus
 
-Sint16 distance_warner;
+static Sint16 distance_warner;
+	// Distance mesurée au coordonnée du triangle mesuré
+
+static bool_e anything_found = FALSE;
+	// Flag qui est mis à TRUE lors d'un scan si celui-ci détecte quoi que ce soit lors du scan
 
 //------------------------------------------------------------------------------------ Fonction
 
@@ -177,7 +186,6 @@ void SCAN_TRIANGLE_init(void){
 	run_calcul = 0;
 	// Initialisation des convertisseurs analogiques numériques pour les DT10 de détection triangle
 }
-
 
 void SCAN_TRIANGLE_process_it(void){
 	static state_e state = INIT;
@@ -203,8 +211,8 @@ void SCAN_TRIANGLE_process_it(void){
 		case TEST :
 			if(temp > 500){
 					temp = 0;
-					debug_printf("%d,%d,%d\n", (Sint16)ADC_getValue(ADC_SENSOR_DT10_FLOOR), (Sint16)ADC_getValue(ADC_SENSOR_DT10_NV1), (Sint16)ADC_getValue(ADC_SENSOR_DT10_NV2));
-					debug_printf("%d,%d,%d\n\n", (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_FLOOR)), (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_NV1)), (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_NV2)));
+					debug_printf("%d,%d,%d\n", (Sint16)ADC_getValue(ADC_SENSOR_SMALL_DT10_FLOOR), (Sint16)ADC_getValue(ADC_SENSOR_SMALL_DT10_NV1), (Sint16)ADC_getValue(ADC_SENSOR_SMALL_DT10_NV2));
+					debug_printf("%d,%d,%d\n\n", (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_SMALL_DT10_FLOOR)), (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_SMALL_DT10_NV1)), (Sint16)conversion_DT10_mm(ADC_getValue(ADC_SENSOR_SMALL_DT10_NV2)));
 				}
 				else
 					temp++;
@@ -301,6 +309,7 @@ void SCAN_TRIANGLE_process_it(void){
 			}
 			if(dernier_triangle_valide.lvl == -1 && dernier_triangle_valide.nb == -1)
 				SECRETARY_send_triangle_position(TRUE, 0, 0, 0, 0, 0);
+			SECRETARY_send_scan_anything(anything_found);
 			state = INIT;
 			break;
 
@@ -313,9 +322,15 @@ void SCAN_TRIANGLE_process_it(void){
 
 static void SCAN_TRIANGLE_in_process(Uint8 *n_mesure){
 	if((*n_mesure) < scan_param.nb_points){
-		scan[(*n_mesure)].dist[0] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_FLOOR));
-		scan[(*n_mesure)].dist[1] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_NV1));
-		scan[(*n_mesure)].dist[2] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_DT10_NV2));
+		if(QS_WHO_AM_I_get() == BIG_ROBOT){
+			scan[(*n_mesure)].dist[0] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_BIG_DT10_FLOOR));
+			scan[(*n_mesure)].dist[1] = conversion_DT50_mm(ADC_getValue(ADC_SENSOR_BIG_DT50_NV1));
+			scan[(*n_mesure)].dist[2] = conversion_DT50_mm(ADC_getValue(ADC_SENSOR_BIG_DT50_NV2));
+		}else{
+			scan[(*n_mesure)].dist[0] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_SMALL_DT10_FLOOR));
+			scan[(*n_mesure)].dist[1] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_SMALL_DT10_NV1));
+			scan[(*n_mesure)].dist[2] = conversion_DT10_mm(ADC_getValue(ADC_SENSOR_SMALL_DT10_NV2));
+		}
 		scan[*n_mesure].pos = global.position;
 		(*n_mesure)++;
 	}
@@ -328,6 +343,7 @@ void SCAN_TRIANGLE_calculate(void){
 		Sint16 i, j;
 		Sint16 cos, sin;
 		bool_e in_objet = FALSE;
+		anything_found = FALSE;
 
 		// Initialisation
 		for(i=0;i<20;i++)
@@ -488,13 +504,6 @@ void SCAN_TRIANGLE_calculate(void){
 			for(k=0;k<nb_objet[j];k++){
 				objet[j][k].active = FALSE;
 				for(i=objet[j][k].indice_debut_point;i<=objet[j][k].indice_fin_point;i++){
-					/*if((j == 0 && (est_dans_carre(0, 1675, 50, 2950, scan[i].x[j], scan[i].y[j])
-							|| est_dans_carre(1675, 1950, 325, 2675, scan[i].x[j], scan[i].y[j])
-							|| (scan[i].x[j] > 1675 && scan[i].y[j] < 325 && scan[i].x[j]-scan[i].y[j] < 1625)
-							|| (scan[i].x[j] > 1675 && scan[i].y[j] > 2675 && scan[i].x[j]+scan[i].y[j] < 4625)))
-						|| (j == 1 && est_dans_carre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j]))
-						|| (j == 2 && est_dans_carre(50, 1950, 50, 2950, scan[i].x[j], scan[i].y[j])))
-						objet[j][k].active = TRUE;*/
 					if(    (j == 0 && !est_dans_cercle(scan[i].x[j], scan[i].y[j], 1050, 1500, 150 + MARGE_SCAN_DECOR)				// Foyer centre
 								   && !est_dans_cercle(scan[i].x[j], scan[i].y[j], 2000, 0, 250 + MARGE_SCAN_DECOR)					// Foyer droite
 								   && !est_dans_cercle(scan[i].x[j], scan[i].y[j], 2000, 3000, 250 + MARGE_SCAN_DECOR)				// Foyer gauche
@@ -516,13 +525,7 @@ void SCAN_TRIANGLE_calculate(void){
 													 3000-MARGE_SCAN_DECOR, scan[i].x[j], scan[i].y[j])))							// Terrain
 						objet[j][k].active = TRUE;
 				}
-
-				// droite partant de 1625/3000 à 2000/2625
-				// droite d'équation : y = -x + 4625
-				// droite partant de 1625/0 à 2000/375
-				// droite d'équation : y = x - 1625
 			}
-
 		}
 
 		// Calcul de la longueur de chaque objet
@@ -594,8 +597,33 @@ void SCAN_TRIANGLE_calculate(void){
 			}
 		}
 
+		// Détection d'une chose quelconque dans la zone scannée
+		for(i=0;i<scan_param.nb_points;i++){
+			if(!est_dans_cercle(scan[i].x[0], scan[i].y[0], 1050, 1500, 150 + MARGE_SCAN_ANYTHING)					// Foyer centre
+				&& !est_dans_cercle(scan[i].x[0], scan[i].y[0], 2000, 0, 250 + MARGE_SCAN_ANYTHING)				// Foyer droite
+				&& !est_dans_cercle(scan[i].x[0], scan[i].y[0], 2000, 3000, 250 + MARGE_SCAN_ANYTHING)				// Foyer gauche
+				&& !est_dans_carre(0-MARGE_SCAN_ANYTHING, 300+MARGE_SCAN_ANYTHING,
+						400-MARGE_SCAN_ANYTHING, 1100+MARGE_SCAN_ANYTHING, scan[i].x[0], scan[i].y[0])				// Bac à fruit jaune
+				&& !est_dans_carre(0-MARGE_SCAN_ANYTHING, 300+MARGE_SCAN_ANYTHING,
+						1900-MARGE_SCAN_ANYTHING, 2600+MARGE_SCAN_ANYTHING, scan[i].x[0], scan[i].y[0])				// Bac à fruit rouge
+				&& est_dans_carre(0+MARGE_SCAN_ANYTHING, 2000-MARGE_SCAN_ANYTHING, 0+MARGE_SCAN_ANYTHING,
+						3000-MARGE_SCAN_ANYTHING, scan[i].x[0], scan[i].y[0])){									// Terrain
+				anything_found = TRUE;
+				break;
+			}
+		}
+
+		/*
+		for(i=0;i<scan_param.nb_points;i++)
+			for(j=0;j<scan_param.nb_points;j++)
+				for(k=0;k<scan_param.nb_points;k++){
+					if(est_dans_cercle(scan[i].x[0], scan[i].y[0], scan[k].x[2], scan[k].y[2], 20)
+							&& est_dans_cercle(scan[i].x[1], scan[i].y[1], scan[k].x[2], scan[k].y[2], 20)){}
+
+				}
+
 		// Détection de torche
-		/*for(j=0;j<3;j++){
+		for(j=0;j<3;j++){
 			for(i=0;i<nb_objet[j];j++){
 				if(objet[j][i].active){
 					objet[j][i].torche = TRUE;
@@ -696,7 +724,6 @@ void SCAN_TRIANGLE_canMsg(CAN_msg_t *msg){
 		receve_msg_can = MSG_CAN_SCAN_LINEAR;
 }
 
-
 void SCAN_TRIANGLE_WARNER_canMsg(CAN_msg_t *msg){
 	warner_param.number_triangle = msg->data[0];
 	if(warner_param.number_triangle < NOMBER_MAX_TRIANGLE){
@@ -709,7 +736,7 @@ void SCAN_TRIANGLE_WARNER_canMsg(CAN_msg_t *msg){
 	}
 }
 
-static Uint8 est_dans_carre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y){
+static bool_e est_dans_carre(Sint16 lx, Sint16 hx, Sint16 ly, Sint16 hy, Sint16 x, Sint16 y){
 	return x > lx && x < hx && y > ly && y < hy;
 }
 
