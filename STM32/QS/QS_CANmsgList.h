@@ -279,6 +279,7 @@
 		 * 		5-6		: teta
 		 */
 	#define STRAT_TRIANGLE_WARNER		0x217
+	#define STRAT_SCAN_ANYTHING			0x218
 	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
 		#define IT_IS_THE_LAST_ADVERSARY	0x80	//Bit levé si l'adversaire envoyé est le dernier...
 		/*		0 : ADVERSARY_NUMBER | IT_IS_THE_LAST_ADVERSARY	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
