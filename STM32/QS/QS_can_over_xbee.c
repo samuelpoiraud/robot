@@ -19,6 +19,9 @@
 #include "QS_CANmsgList.h"
 #include "QS_outputlog.h"
 
+
+#define XBEE_PING_PERIOD	500	//ms
+
 #ifdef NEW_CONFIG_ORGANISATION
 	#include "config_pin.h"
 #endif
@@ -54,14 +57,13 @@
 volatile static bool_e initialized = FALSE;
 volatile static bool_e XBee_ready_to_talk = FALSE;
 volatile static bool_e module_reachable[MODULE_NUMBER];	//Etat des autres modules (joignables ou non...)
-volatile static bool_e flag_1s = FALSE;
+volatile static Uint16 t = 0;
 volatile static bool_e ping_pong_enable = FALSE;
 
-void CAN_over_XBee_every_second(void)
+void CAN_over_XBee_process_ms(void)
 {
-	//if(flag_1s == TRUE)
-	//	debug_printf("Attention, vous n'avez pas appelé CAN_over_XBee_process_main depuis 1 seconde !\n");
-	flag_1s = TRUE;
+	if(t)
+		t--;
 }
 
 volatile module_id_e XBee_i_am_module = BIG_ROBOT_MODULE;
@@ -115,7 +117,6 @@ void XBee_Ping(module_id_e  module)
 */
 void CAN_over_XBee_process_main(void)
 {
-	static Uint8 time = 0;
 	bool_e everyone_is_reachable;
 	typedef enum
 	{
@@ -125,44 +126,45 @@ void CAN_over_XBee_process_main(void)
 		PING_PONG,					//Etat d'échanges de ping et de pong entre les différents modules
 		IDLE						//Réseau en fonctionnement
 	}XBee_state_e;
-	static XBee_state_e XBee_state = INIT;
+	static XBee_state_e state = INIT;
 	module_id_e module;
 	//Note : la mise en place d'un PING au niveau applicatif peut être sympatique... et peut permettre de déclencher l'envoi des messages !
 	//Dès que je reçois un ping, je réponds pong, et je m'autorise à contacter ce correspondant !
 	//Tant que je n'ai pas reçu de ping de tous les correspondants et que je n'ai pas envoyé un pong à tout les correspondants, je leur envoie un ping périodiquement (1 seconde par exemple)
 	//A terme, il faudrait traiter l'acquittement des messages envoyés pour maintenir à jour la connaissance du fonctionnement du réseau...
 	//Et pouvoir reprendre les ping envers un destinataire absenté... ! (Donc géré dans un état IDLE normal)
-	if(flag_1s)
+
+	switch(state)	//Machine à état exécutée toutes les secondes !
 	{
-		flag_1s = FALSE;
-		switch(XBee_state)	//Machine à état exécutée toutes les secondes !
-		{
-			case INIT:
-				if(initialized == FALSE)
-				{
-					debug_printf("ERREUR : VOUS DEVEZ APPELER CAN_over_XBee_init() AVANT d'APPELER LE PROCESS MAIN...\n");
-					return;
-				}
-				//Transition immédiate.
-				XBee_state = WAIT_BEFORE_RELEASE_RESET;
-				//RESET du module XBee
-				XBEE_RESET = 1;
-			break;
-			case WAIT_BEFORE_RELEASE_RESET:
+		case INIT:
+			if(initialized == FALSE)
+			{
+				debug_printf("ERREUR : VOUS DEVEZ APPELER CAN_over_XBee_init() AVANT d'APPELER LE PROCESS MAIN...\n");
+				return;
+			}
+			//Transition immédiate.
+			XBEE_RESET = 1;	//RESET du module XBee
+			t = 100;	//100ms
+			state = WAIT_BEFORE_RELEASE_RESET;
+		break;
+		case WAIT_BEFORE_RELEASE_RESET:
+			if(!t)
+			{
 				XBEE_RESET = 0;
-				XBee_state = WAIT_FOR_NETWORK;
-				time = 5;
-			break;
-			case WAIT_FOR_NETWORK:
-				if(time)
-					time--;
-				else
-				{
-					XBee_ready_to_talk = TRUE;
-					XBee_state = PING_PONG;
-				}
-			break;
-			case PING_PONG:
+				t = 3000;
+				state = WAIT_FOR_NETWORK;
+			}
+		break;
+		case WAIT_FOR_NETWORK:
+			if(!t)
+			{
+				XBee_ready_to_talk = TRUE;
+				state = PING_PONG;
+			}
+		break;
+		case PING_PONG:
+			if(!t)
+			{
 				everyone_is_reachable = TRUE;	//on suppose que tout le monde est joignable
 				for(module = 0; module<MODULE_NUMBER; module++)
 				{	//Pour tout les modules non reachable, on envoi un ping !
@@ -174,23 +176,22 @@ void CAN_over_XBee_process_main(void)
 					}
 				}
 				if(everyone_is_reachable || !ping_pong_enable)
-				{
-					XBee_state = IDLE;
-				}
-			break;
-			case IDLE:
-				//Soit le match à commencé, soit tout le monde a été joint -> on arrête les pings...
-				//TOUT LES MESSAGES CAN ENVOYES SONT ALORS CONSECUTIFS A UNE DEMANDE PROVENANT DU DESTINATAIRE DES MESSAGES !
-				//ces demandes sont périssables en quelques secondes. Ceci afin d'éviter qu'un flux de donnée ne soit actif longtemps vers un destinataire qui a été éteint.
+					state = IDLE;
+				else
+					t = XBEE_PING_PERIOD;
+			}
+		break;
+		case IDLE:
+			//Soit le match à commencé, soit tout le monde a été joint -> on arrête les pings...
+			//TOUT LES MESSAGES CAN ENVOYES SONT ALORS CONSECUTIFS A UNE DEMANDE PROVENANT DU DESTINATAIRE DES MESSAGES !
+			//ces demandes sont périssables en quelques secondes. Ceci afin d'éviter qu'un flux de donnée ne soit actif longtemps vers un destinataire qui a été éteint.
 
-				if(ping_pong_enable)
-					XBee_state = PING_PONG;
-			break;
-			default:
-			break;
-		}
+			if(ping_pong_enable)
+				state = PING_PONG;
+		break;
+		default:
+		break;
 	}
-
 }
 
 
