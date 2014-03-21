@@ -40,6 +40,4 @@ void strat_test_filet();
 void strat_test_small_arm();
 void strat_test_vide();
 
-pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2);
-
 #endif /* ACTIONS_PIERRE_H_ */

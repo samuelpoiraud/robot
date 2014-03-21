@@ -15,6 +15,7 @@
 #include "../elements.h"
 #include "../Geometry.h"
 #include "../Pathfind.h"
+#include "../zone_mutex.h"
 
 #define DIM_START_TRAVEL_TORCH 200
 
@@ -64,6 +65,51 @@ void strat_inutile_guy(void){
 	}
 
 }
+
+void strat_xbee_guy(void){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POS_DEPART,
+		XBEE,
+		POS_END,
+		RELACHE_ZONE,
+		DONE,
+		ERROR
+	);
+
+	switch(state){
+		case IDLE:
+			state = POS_DEPART;
+			break;
+		case POS_DEPART:
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(250),POS_DEPART,XBEE,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
+			break;
+
+		case XBEE:
+			state = try_lock_zone(MZ_FRUIT_TRAY, 1000, XBEE, POS_END, ERROR, ERROR);
+			break;
+
+		case POS_END:
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_END,RELACHE_ZONE,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
+			break;
+
+		case RELACHE_ZONE:
+			if(entrance)
+				ZONE_unlock(MZ_FRUIT_TRAY);
+
+			state = DONE;
+			break;
+
+		case DONE:
+			break;
+		case ERROR:
+			break;
+		default:
+			break;
+	}
+
+}
+
 
 // Stratégie de test des déctections de triangle
 void Strat_Detection_Triangle(void){

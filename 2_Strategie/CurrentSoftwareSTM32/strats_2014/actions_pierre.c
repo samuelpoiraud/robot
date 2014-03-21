@@ -1729,11 +1729,3 @@ void strat_test_small_arm(){
 	}
 }
 
-// Retourne le node le plus proche de notre position
-pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2){
-	if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(n1),PATHFIND_get_node_y(n1),global.env.pos.x,global.env.pos.y)
-			< PATHFIND_manhattan_dist(PATHFIND_get_node_x(n2),PATHFIND_get_node_y(n2),global.env.pos.x,global.env.pos.y))
-		return n1;
-	else
-		return n2;
-}
