@@ -172,4 +172,8 @@ Uint16 PATHFING_get_symetric(Uint8 n);
 
 Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, ASSER_speed_e speed, avoidance_type_e avoidance, ASSER_end_condition_e end_condition);
 
+/*
+ *	Compare deux node et revoit la plus pres
+ */
+pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2);
 #endif /* PATHFIND_H */

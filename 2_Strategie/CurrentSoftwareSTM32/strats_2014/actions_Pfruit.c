@@ -28,6 +28,9 @@
 
 extern GEOMETRY_point_t offset_recalage;
 
+
+
+
 error_e strat_file_fruit(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
@@ -155,6 +158,158 @@ error_e strat_file_fruit(){
 
 	return IN_PROGRESS;
 }
+
+
+error_e manage_fruit(tree_group_e group, tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		RECUP_TREE_1,
+		RECUP_TREE_1_SIMPLE,
+		RECUP_TREE_2,
+		RECUP_TREE_2_SIMPLE,
+		DONE,
+		ERROR
+	);
+
+	static tree_choice_e tree;
+	static tree_sucess_e fruit_group_our = NO_ONE;
+	static tree_sucess_e fruit_group_adversary = NO_ONE;
+
+	switch(state){
+		case IDLE:
+
+			if(global.env.color == RED){
+				if(group == TREE_OUR){
+					if(fruit_group_our == NO_ONE)
+						state = RECUP_TREE_1;
+					else if(fruit_group_our == TREE_1){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_1_SIMPLE;
+					}else if(fruit_group_our == TREE_2){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_1_SIMPLE;
+					}else
+						state = ERROR;
+				}else{ // Arbre adeverse, ici ceux côté jaune
+					if(fruit_group_adversary == NO_ONE)
+						state = RECUP_TREE_2;
+					else if(fruit_group_adversary == TREE_1){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_2_SIMPLE;
+					}else if(fruit_group_adversary == TREE_2){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_2_SIMPLE;
+					}else
+						state = ERROR;
+				}
+			}else{
+				if(group == TREE_OUR){
+					if(fruit_group_our == NO_ONE)
+						state = RECUP_TREE_2;
+					else if(fruit_group_our == TREE_1){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_2_SIMPLE;
+					}else if(fruit_group_our == TREE_2){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_2_SIMPLE;
+					}else
+						state = ERROR;
+				}else{ // Arbre adeverse, ici ceux côté rouge
+					if(fruit_group_adversary == NO_ONE)
+						state = RECUP_TREE_1;
+					else if(fruit_group_adversary == TREE_1){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_1_SIMPLE;
+					}else if(fruit_group_adversary == TREE_2){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_1_SIMPLE;
+					}else
+						state = ERROR;
+				}
+			}
+
+			if(sens == CHOICE){ // On laisse la strat choisir le sens
+				if(state == RECUP_TREE_1)
+					sens = ((min_node_dist(A1,C3) == A1)?TRIGO : HORAIRE);
+
+				else if(state == RECUP_TREE_1_SIMPLE && tree == CHOICE_TREE_1)
+					sens = ((min_node_dist(A1,A2) == A1)?TRIGO : HORAIRE);
+
+				else if(state == RECUP_TREE_1_SIMPLE && tree == CHOICE_TREE_2)
+					sens = ((min_node_dist(B3,C3) == B3)?TRIGO : HORAIRE);
+
+				else if(state == RECUP_TREE_2)
+					sens = ((min_node_dist(W3,Z1) == W3)?TRIGO : HORAIRE);
+
+				else if(state == RECUP_TREE_2_SIMPLE && tree == CHOICE_TREE_1)
+					sens = ((min_node_dist(W3,Y3) == W3)?TRIGO : HORAIRE);
+
+				else if(state == RECUP_TREE_2_SIMPLE && tree == CHOICE_TREE_2)
+					sens = ((min_node_dist(Z2,Z1) == Z1)?TRIGO : HORAIRE);
+
+				else
+					sens = TRIGO; // Impose un sens par defaut si n'a pas trouver de choix
+			}
+
+			break;
+
+		case RECUP_TREE_1:
+			state = check_sub_action_result(strat_ramasser_fruit_arbre1_double(sens),RECUP_TREE_1,DONE,ERROR);
+
+			if(global.env.color == RED)
+				fruit_group_our = strat_fruit_sucess;
+			else
+				fruit_group_adversary = strat_fruit_sucess;
+
+			break;
+
+		case RECUP_TREE_1_SIMPLE:
+			state = check_sub_action_result(strat_ramasser_fruit_arbre1_simple(tree,sens),RECUP_TREE_1_SIMPLE,DONE,ERROR);
+
+			if(global.env.color == RED)
+				fruit_group_our = strat_fruit_sucess;
+			else
+				fruit_group_adversary = strat_fruit_sucess;
+
+			break;
+
+		case RECUP_TREE_2:
+			state = check_sub_action_result(strat_ramasser_fruit_arbre2_double(sens),RECUP_TREE_2,DONE,ERROR);
+
+			if(global.env.color == RED)
+				fruit_group_adversary = strat_fruit_sucess;
+			else
+				fruit_group_our = strat_fruit_sucess;
+
+			break;
+
+		case RECUP_TREE_2_SIMPLE:
+			state = check_sub_action_result(strat_ramasser_fruit_arbre2_simple(tree,sens),RECUP_TREE_2_SIMPLE,DONE,ERROR);
+
+			if(global.env.color == RED)
+				fruit_group_adversary = strat_fruit_sucess;
+			else
+				fruit_group_our = strat_fruit_sucess;
+
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
 
 error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,

@@ -25,6 +25,7 @@ typedef enum{
 }torch_choice_e;
 
 void strat_inutile_guy(void);
+void strat_xbee_guy(void);
 
 void Strat_Detection_Triangle(void);
 void strat_test_warner_triangle(void);
