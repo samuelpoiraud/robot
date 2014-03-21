@@ -101,14 +101,17 @@ static void DETECTION_compute(detection_reason_e reason)
 			{
 				for(i=0;i<2;i++)
 				{
-					global.env.foe[i].x 			= beacon_ir_objects[i].x;
-					global.env.foe[i].y 			= beacon_ir_objects[i].y;
-					global.env.foe[i].angle 		= beacon_ir_objects[i].angle;
-					global.env.foe[i].dist 			= beacon_ir_objects[i].dist;
-					global.env.foe[i].update_time 	= beacon_ir_objects[i].update_time;
-					global.env.foe[i].updated 		= TRUE;
-					global.env.foe[i].obsolete 		= DETECTION_IS_RECENT;
-					global.env.foe[i].from 			= DETECTION_FROM_BEACON_IR;
+					if(beacon_ir_objects[i].enable)	//Si les données sont cohérentes... (signal vu...)
+					{
+						global.env.foe[i].x 			= beacon_ir_objects[i].x;
+						global.env.foe[i].y 			= beacon_ir_objects[i].y;
+						global.env.foe[i].angle 		= beacon_ir_objects[i].angle;
+						global.env.foe[i].dist 			= beacon_ir_objects[i].dist;
+						global.env.foe[i].update_time 	= beacon_ir_objects[i].update_time;
+						global.env.foe[i].updated 		= TRUE;
+						global.env.foe[i].obsolete 		= DETECTION_IS_RECENT;
+						global.env.foe[i].from 			= DETECTION_FROM_BEACON_IR;
+					}
 				}
 			}
 			break;
