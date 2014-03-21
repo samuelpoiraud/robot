@@ -63,8 +63,8 @@
 
 //Les differente's actions que pierre devra faire lors d'un match
 static bool_e action_fresco_filed = FALSE;
-static tree_sucess_e action_recup_fruit_group_1 = NO_ONE;
-static tree_sucess_e action_recup_fruit_group_2 = NO_ONE;
+static tree_sucess_e action_recup_fruit_group_1 = NO_TREE;
+static tree_sucess_e action_recup_fruit_group_2 = NO_TREE;
 
 // Lors de la recalibration, sera appeler en extern vers d'autre fichier ( ne pas passer en static )
 volatile GEOMETRY_point_t offset_recalage = {0, 0};
@@ -103,7 +103,7 @@ void strat_inutile(void){
 			break;
 
 		case RAMMASSE_FRUIT:
-			state = check_sub_action_result(strat_ramasser_fruit_arbre2_simple(CHOICE_TREE_2,TRIGO),RAMMASSE_FRUIT,DONE,ERROR);
+			state = check_sub_action_result(strat_ramasser_fruit_arbre2_simple(CHOICE_TREE_2,TREE_TRIGO),RAMMASSE_FRUIT,DONE,ERROR);
 			break;
 
 		case DONE:
@@ -567,16 +567,16 @@ void strat_test_point2(){
 			case RAMASSER_FRUIT_ARBRE1:
 				#ifdef USE_TRIANGLE_TORCHE
 					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,PLACEMENT_TORCHE1,PLACEMENT_TORCHE1);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),RAMASSER_FRUIT_ARBRE1,PLACEMENT_TORCHE1,PLACEMENT_TORCHE1);
 					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE1,PLACEMENT_TORCHE1,PLACEMENT_TORCHE1);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),RAMASSER_FRUIT_ARBRE1,PLACEMENT_TORCHE1,PLACEMENT_TORCHE1);
 				#else
 					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
 					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
 				#endif
-				if(strat_fruit_sucess != NO_ONE){
+				if(strat_fruit_sucess != NO_TREE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_1 = strat_fruit_sucess;
 				}
@@ -612,16 +612,16 @@ void strat_test_point2(){
 			case RAMASSER_FRUIT_ARBRE2:
 				#ifdef USE_TRIANGLE_TORCHE
 					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,PLACEMENT_TORCHE2);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,PLACEMENT_TORCHE2);
 					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,PLACEMENT_TORCHE2);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,PLACEMENT_TORCHE2);
 				#else
 					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
 					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
+						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
 			   #endif
-				if(strat_fruit_sucess != NO_ONE){
+				if(strat_fruit_sucess != NO_TREE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_2 = strat_fruit_sucess;
 				}
@@ -672,11 +672,11 @@ void strat_test_point2(){
 
 			case AGAIN_RAMASSER_FRUIT_ARBRE1:
 				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
 				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
 
-				if(strat_fruit_sucess != NO_ONE){
+				if(strat_fruit_sucess != NO_TREE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_1 = strat_fruit_sucess;
 				}
@@ -685,11 +685,11 @@ void strat_test_point2(){
 
 			case AGAIN_RAMASSER_FRUIT_ARBRE2:
 				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
 				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
+					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
 
-				if(strat_fruit_sucess != NO_ONE){
+				if(strat_fruit_sucess != NO_TREE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_2 = strat_fruit_sucess;
 				}
