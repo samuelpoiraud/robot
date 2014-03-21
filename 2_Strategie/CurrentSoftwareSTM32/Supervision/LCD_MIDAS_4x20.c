@@ -275,6 +275,7 @@ void LCD_Write_text(char * string)
 			//case 'Ä':	datas[index++] = (0x8E);	break;
 			case '|':	datas[index++] = (0xFE);	break;
 			case '_':	datas[index++] = (0xC4);	break;
+			case '°':	datas[index++] = (0xDC);	break;
 			case (char)(0xFF):	datas[index++] = (0x1F);	break;	//FULL SQUARE
 
 			default:

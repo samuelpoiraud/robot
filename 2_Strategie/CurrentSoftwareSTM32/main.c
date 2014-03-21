@@ -32,7 +32,6 @@
 	#endif
 #include "config_pin.h"
 #include "config_use.h"
-#include "fix_beacon.h"
 
 void test_bp_switchs(void);
 void test_leds(void);
@@ -126,7 +125,6 @@ int main (void)
 		QUEUE_run();
 
 		any_match();
-		FIX_BEACON_process_main();	//Doit être après le any_match !
 
 		process_measure_loop_duration();
 	}

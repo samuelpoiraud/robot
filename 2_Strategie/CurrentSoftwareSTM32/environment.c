@@ -88,6 +88,7 @@ void ENV_init(void)
 	global.env.asser.current_status = NO_ERROR;
 	global.env.alim = FALSE;
 	global.env.alim_value = 0;
+	FIX_BEACON_init();
 }
 
 
@@ -557,6 +558,7 @@ void ENV_clean (void)
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
 	global.env.duration_trajectory_for_test_coefs = 0;
+	FIX_BEACON_clean();	//Doit être après le any_match !
 }
 
 

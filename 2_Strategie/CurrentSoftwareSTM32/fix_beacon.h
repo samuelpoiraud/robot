@@ -33,7 +33,7 @@ zone_t * FIX_BEACON_get_pzone(zone_e i);
 void FIX_BEACON_init(void);
 
 //Attention à appeler cette fonction après le any_match (les flags d'updated y sont resetés)
-void FIX_BEACON_process_main(void);
+void FIX_BEACON_clean(void);
 
 //Sub-action demandant une info sur une zone
 //Il FAUT envoyer NULL dans le paramètre msg !!!
