@@ -984,7 +984,7 @@ bool_e foe_in_path(void)
 	there_is_at_least_one_updated = FALSE;
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		if (global.env.foe[i].updated)//(global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
+		if (global.env.foe[i].updated)
 			there_is_at_least_one_updated = TRUE;
 	}
 	//if(!there_is_at_least_one_updated)
@@ -1018,7 +1018,7 @@ bool_e foe_in_path(void)
 
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		if (global.env.foe[i].updated)//(global.env.match_time - global.env.foe[i].update_time)<(DETECTION_TIMEOUT))
+		if (global.env.foe[i].updated)
 		{
 			COS_SIN_4096_get(global.env.foe[i].angle, &cosinus, &sinus);
 			relative_foe_x = (((Sint32)(cosinus)) * global.env.foe[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]

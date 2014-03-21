@@ -39,7 +39,7 @@ void FIX_BEACON_init(void)
 }
 
 //Doit être appelé après le any_match (car reset des flag updated)
-void FIX_BEACON_process_main(void)
+void FIX_BEACON_clean(void)
 {
 	zone_e i;
 	if(!initialized)

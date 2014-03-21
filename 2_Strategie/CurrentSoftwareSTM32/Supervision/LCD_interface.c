@@ -41,7 +41,6 @@
 	static void LCD_menu_can_msg(bool_e init);
 	static void LCD_menu_user(bool_e init);
 	static void LCD_menu_select_strategy(bool_e init);
-	static bool_e LCD_strat_number_update(void);
 	static void display_pos(Uint8 line);
 	static void display_beacon(Uint8 line);
 	static void display_strats(Uint8 line);
@@ -307,7 +306,7 @@ static void LCD_menu_infos(bool_e init)
 	if(init || global.env.pos.updated)
 		display_pos(0);
 
-	if(init || global.env.foe[0].updated || global.env.foe[1].updated)
+	if(init || global.env.foe[0].updated || global.env.foe[1].updated || global.env.foe[0].obsolete == DETECTION_IS_GETTING_OBSOLETE || global.env.foe[1].obsolete == DETECTION_IS_GETTING_OBSOLETE)
 		display_beacon(1);
 
 	if(init || BRAIN_get_strat_updated())	//Temporaire !	//TODO add updated
@@ -746,29 +745,6 @@ void LCD_add_can(CAN_msg_t * msg)
 }
 
 
-static bool_e LCD_strat_number_update(void)
-{
-	static Uint8 previous_strat = 0x0;
-	Uint8 new_strat = 0x0;
-	Uint8 i;
-	bool_e ret;
-	ret = FALSE;
-
-	strat_nb[0]=SWITCH_STRAT_1;
-	strat_nb[1]=SWITCH_STRAT_2;
-	strat_nb[2]=SWITCH_STRAT_3;
-
-	for(i=0; i<3; i++){
-		new_strat += strat_nb[i]<<i;
-	}
-
-	if(previous_strat != new_strat)
-		ret = TRUE;
-	previous_strat = new_strat;
-	return ret;
-}
-
-
 //Line doit être entre 0 et 3 inclus.
 //La ligne 0 correspond à la dernière ligne du menu principal (INFOS)
 //Les 3 autres lignes correspondent aux lignes du menu utilisateur.
@@ -873,15 +849,34 @@ static void display_pos(Uint8 line)
 static void display_beacon(Uint8 line)
 {
 	Sint16 d1,d2,a1,a2;
-	d1 = global.env.foe[0].dist;
+	char from;
+	char str[21];
+	Uint8 index;
+	d1 = global.env.foe[0].dist/10;
 	a1 = global.env.foe[0].angle;
-	d2 = global.env.foe[1].dist;
+	d2 = global.env.foe[1].dist/10;
 	a2 = global.env.foe[1].angle;
 
 	a1 *= (180/PI4096);
 	a2 *= (180/PI4096);
+	if(global.env.foe[0].from == DETECTION_FROM_BEACON_IR)
+		from = 'B';
+	else if(global.env.foe[0].from == DETECTION_FROM_PROPULSION)
+		from = 'H';	//Hokuyo
+	else
+		from = '?';
 
-	sprintf_line(line,"d%3d a%3d d%3d a%3d",d1,a1,d2,a2);
+	index = sprintf(str, "%c ", from);
+	if(global.env.foe[0].obsolete != DETECTION_IS_RECENT)
+		index += sprintf(str+index, "OBSOLATE ");
+	else
+		index += sprintf(str+index, "%3d %3d° ", d1, a1);
+	if(global.env.foe[1].obsolete != DETECTION_IS_RECENT)
+		index += sprintf(str+index, "OBSOLATE");
+	else
+		index += sprintf(str+index, "%3d %3d°", d2, a2);
+	str[20] = '\0';
+	sprintf_line(line, str);
 }
 
 /* Affiche les strats sélectionnées pour le match à la troisieme ligne du mode info */

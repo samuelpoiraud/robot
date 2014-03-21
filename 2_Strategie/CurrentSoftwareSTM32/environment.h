@@ -76,14 +76,31 @@
 		volatile bool_e updated;			//Attention, ce flag sera levé pendant UNE SEULE boucle de tâche de fond, suite à la mise à jour.
 	}position_t;
 
+	typedef enum
+	{
+		DETECTION_FROM_USER = 0,
+		DETECTION_FROM_PROPULSION,
+		DETECTION_FROM_BEACON_IR
+	}detection_from_e;
+
+	typedef enum
+	{
+		DETECTION_IS_RECENT = 0,
+		DETECTION_IS_GETTING_OBSOLETE,		//Etape qui ne dure qu'un tour de boucle lorsque l'adversaire devient "obsolete"
+		DETECTION_IS_OBSOLETE
+	}detection_obsolete_e;
+
+
 	typedef struct
 	{
 		volatile Sint16 angle;
 		volatile Sint16 dist;
 		volatile Sint16 x;
 		volatile Sint16 y;
-		volatile time32_t update_time;
 		volatile bool_e updated;
+		volatile detection_obsolete_e obsolete;		//Rendu obsolete
+		volatile time32_t update_time;
+		volatile detection_from_e from;	//Source de l'information
 	}foe_t;
 	///////////////////////////////
 

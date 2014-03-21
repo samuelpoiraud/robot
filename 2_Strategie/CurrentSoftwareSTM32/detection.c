@@ -17,6 +17,7 @@
 #include "config_use.h"
 #include "config_debug.h"
 #include "environment.h"
+#include "maths_home.h"
 
 typedef struct
 {
@@ -31,9 +32,20 @@ typedef struct
 }adversary_t;
 
 
+typedef enum
+{
+	DETECTION_REASON_PROCESS_MAIN = 0,		//Process main...
+	DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION,
+	DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR
+}detection_reason_e;		//Raison de l'appel à la fonction DETECTION_compute
 
+static void DETECTION_compute(detection_reason_e reason);
+
+#define FOE_DATA_LIFETIME	250		//[ms] Durée de vie des données envoyées par la propulsion
 volatile adversary_t hokuyo_objects[MAX_NB_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
 volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
+
+volatile adversary_t beacon_ir_objects[2];
 
 void DETECTION_init(void)
 {
@@ -48,8 +60,6 @@ void DETECTION_init(void)
 	courant de l'environnement */
 void DETECTION_update(void)
 {
-	bool_e must_update=FALSE;
-
 	//Necessaire pour des match infini de test, on reactive les balises toutes les 90sec
 	static time32_t next_beacon_activate_msg = 1000;	//Prochain instant d'envoi de message.
 	if(!global.env.match_over && global.env.absolute_time > next_beacon_activate_msg)
@@ -58,58 +68,94 @@ void DETECTION_update(void)
 		CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
 	}
 
-	if(must_update)
-	{
-	}
+	DETECTION_compute(DETECTION_REASON_PROCESS_MAIN);
 }
 
-
 //Cette fonction utilise les données accumulées... selon un algo très sophistiqué... et détermine les positions adverses.
-void DETECTION_compute(void)
+static void DETECTION_compute(detection_reason_e reason)
 {
 	Uint8 i,j, j_min;
 	Sint16 dist_min;
 	bool_e objects_chosen[MAX_NB_FOES];
+	static time32_t data_from_propulsion_update_time = 0;
+
+	#warning "Algo non testé..."
+	//On se contente de choisir les NB_FOES objets hokuyo les plus proches observés et de les enregistrer dans le tableau d'adversaires.
+	//Si pas de données venant de la propulsion (hokuyo ou adversaire virtuel parfait) -> on prend les données IR.
 
 
-
-	#warning "cet algo minable est temporaire. mais permet des évitements avec hokuyo"
-	//Pour l'instant, il se contente de choisir les NB_FOES objets hokuyo les plus proches observés et de les enregistrer dans le tableau d'adversaires.
-
-
-
-	//debug_printf("Compute :");
-	for(j = 0; j < hokuyo_objects_number; j++)
-		objects_chosen[j] = FALSE;			//init, aucun des objets n'est choisi
-
-	for(i = 0 ; i < MAX_NB_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
+	switch(reason)
 	{
-		dist_min = 0x7FFF;
-		j_min = 0xFF;		//On suppose qu'il n'y a pas d'objet hokuyo.
-		for(j = 0; j < hokuyo_objects_number; j++)	//Pour tout les objets hokuyos recus
-		{
-			if(hokuyo_objects[i].enable && objects_chosen[j] == FALSE && dist_min > hokuyo_objects[j].dist)	//Pour tout objet restant (activé, non choisi)
+		case DETECTION_REASON_PROCESS_MAIN:
+			for(i=0;i<MAX_NB_FOES;i++)
 			{
-				j_min = j;
-				dist_min = hokuyo_objects[j].dist;		//On cherche la distance mini parmi les objet restant
+				if((global.env.foe[i].obsolete == DETECTION_IS_RECENT) && (global.env.absolute_time - global.env.foe[i].update_time > FOE_DATA_LIFETIME))
+					global.env.foe[i].obsolete = DETECTION_IS_GETTING_OBSOLETE;
+				else if(global.env.foe[i].obsolete == DETECTION_IS_GETTING_OBSOLETE)
+					global.env.foe[i].obsolete = DETECTION_IS_OBSOLETE;
 			}
-		}
-		if(j_min != 0xFF)									//Si on a trouvé un objet
-		{
-			objects_chosen[j_min] = TRUE;					//On "consomme" cet objet
-			global.env.foe[i].x = hokuyo_objects[j_min].x;	//On enregistre cet objet à la case i.
-			global.env.foe[i].y = hokuyo_objects[j_min].y;
-			global.env.foe[i].angle = hokuyo_objects[j_min].angle;
-			global.env.foe[i].dist = hokuyo_objects[j_min].dist;
-			global.env.foe[i].update_time = hokuyo_objects[j_min].update_time;
-			global.env.foe[i].updated = TRUE;
-			//debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
-		}
-		else
-			global.env.foe[i].updated = FALSE;				//Plus d'objet dispo... on vide la case i.
+			break;
+		case DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR:
+			//Si je n'ai pas de données en provenance de la propulsion depuis un moment... j'utilise les données de la BEACON_IR.
+			if	(global.env.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME)
+			{
+				for(i=0;i<2;i++)
+				{
+					global.env.foe[i].x 			= beacon_ir_objects[i].x;
+					global.env.foe[i].y 			= beacon_ir_objects[i].y;
+					global.env.foe[i].angle 		= beacon_ir_objects[i].angle;
+					global.env.foe[i].dist 			= beacon_ir_objects[i].dist;
+					global.env.foe[i].update_time 	= beacon_ir_objects[i].update_time;
+					global.env.foe[i].updated 		= TRUE;
+					global.env.foe[i].obsolete 		= DETECTION_IS_RECENT;
+					global.env.foe[i].from 			= DETECTION_FROM_BEACON_IR;
+				}
+			}
+			break;
+		case DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION:		//Cette source d'info est prioritaire...
+			data_from_propulsion_update_time = global.env.absolute_time;
+			//debug_printf("Compute :");
+			for(j = 0; j < hokuyo_objects_number; j++)
+				objects_chosen[j] = FALSE;			//init, aucun des objets n'est choisi
 
-		//TODO le tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
+			for(i = 0 ; i < MAX_NB_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
+			{
+				dist_min = 0x7FFF;
+				j_min = 0xFF;		//On suppose qu'il n'y a pas d'objet hokuyo.
+				for(j = 0; j < hokuyo_objects_number; j++)	//Pour tout les objets hokuyos recus
+				{
+					if(hokuyo_objects[i].enable && objects_chosen[j] == FALSE && dist_min > hokuyo_objects[j].dist)	//Pour tout objet restant (activé, non choisi)
+					{
+						j_min = j;
+						dist_min = hokuyo_objects[j].dist;		//On cherche la distance mini parmi les objet restant
+					}
+				}
+				if(j_min != 0xFF)									//Si on a trouvé un objet
+				{
+					objects_chosen[j_min] = TRUE;					//On "consomme" cet objet
+					global.env.foe[i].x 			= hokuyo_objects[j_min].x;	//On enregistre cet objet à la case i.
+					global.env.foe[i].y 			= hokuyo_objects[j_min].y;
+					global.env.foe[i].angle 		= hokuyo_objects[j_min].angle;
+					global.env.foe[i].dist 			= hokuyo_objects[j_min].dist;
+					global.env.foe[i].update_time 	= hokuyo_objects[j_min].update_time;
+					global.env.foe[i].updated 		= TRUE;
+					global.env.foe[i].obsolete 		= DETECTION_IS_RECENT;
+					global.env.foe[i].from 			= DETECTION_FROM_PROPULSION;
+					//debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
+				}
+				else
+					global.env.foe[i].updated = FALSE;				//Plus d'objet dispo... on vide la case i.
+
+				//TODO le tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
+			}
+			break;
+		default:
+			break;
 	}
+
+
+
+
 	//S'il y a plus d'objets hokuyo que d'adversaires possibles dans notre évitement, on choisit les plus proches.
 	//debug_printf("\n");
 }
@@ -120,7 +166,8 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 {
 	//bool_e slashn;
 	Uint8 fiability;
-	Uint8 adversary_nb;
+	Uint8 adversary_nb, i;
+	Sint16 cosinus, sinus;
 	switch(msg->sid)
 	{
 		case STRAT_ADVERSARIES_POSITION:
@@ -156,10 +203,30 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
 			{
 				hokuyo_objects_number = adversary_nb + 1;
-				DETECTION_compute();
+				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
 			}
 			break;
 		case BEACON_ADVERSARY_POSITION_IR:
+
+			for(i = 0; i<2; i++)
+			{
+				beacon_ir_objects[i].angle = U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]);
+				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*10;
+				beacon_ir_objects[i].update_time = global.env.absolute_time;
+				COS_SIN_4096_get(beacon_ir_objects[i].angle, &cosinus, &sinus);
+				beacon_ir_objects[i].x = global.env.pos.x + (beacon_ir_objects[i].dist * (cosinus * global.env.pos.cosAngle - sinus * global.env.pos.sinAngle));
+				beacon_ir_objects[i].y = global.env.pos.y + (beacon_ir_objects[i].dist * (cosinus * global.env.pos.sinAngle + sinus * global.env.pos.cosAngle));
+
+				if((msg->data[0+4*i] & ~SIGNAL_INSUFFISANT) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
+					beacon_ir_objects[i].enable = TRUE;
+				else
+					beacon_ir_objects[i].enable = FALSE;
+			}
+			if(beacon_ir_objects[0].enable || beacon_ir_objects[1].enable)
+				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);	//Si l'un des deux adversaires à été vu... on prévient l'algo COMPUTE.
+
+
+
 
 		/*	slashn = FALSE;
 			if((msg->data[0] & 0xFE) == AUCUNE_ERREUR)	//Si l'octet de fiabilité vaut SIGNAL_INSUFFISANT, on le laisse passer quand même
