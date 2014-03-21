@@ -160,7 +160,7 @@ error_e strat_file_fruit(){
 }
 
 
-error_e manage_fruit(tree_group_e group, tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
+error_e manage_fruit(tree_group_e group, tree_way_e parmSens){ //Commence côté mammouth si sens == TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		RECUP_TREE_1,
@@ -172,6 +172,7 @@ error_e manage_fruit(tree_group_e group, tree_way_e sens){ //Commence côté mammo
 	);
 
 	static tree_choice_e tree;
+	static tree_way_e sens;
 	static tree_sucess_e fruit_group_our = NO_ONE;
 	static tree_sucess_e fruit_group_adversary = NO_ONE;
 
@@ -228,7 +229,7 @@ error_e manage_fruit(tree_group_e group, tree_way_e sens){ //Commence côté mammo
 				}
 			}
 
-			if(sens == CHOICE){ // On laisse la strat choisir le sens
+			if(parmSens == CHOICE){ // On laisse la strat choisir le sens
 				if(state == RECUP_TREE_1)
 					sens = ((min_node_dist(A1,C3) == A1)?TRIGO : HORAIRE);
 
@@ -249,7 +250,8 @@ error_e manage_fruit(tree_group_e group, tree_way_e sens){ //Commence côté mammo
 
 				else
 					sens = TRIGO; // Impose un sens par defaut si n'a pas trouver de choix
-			}
+			}else
+				sens = parmSens;
 
 			break;
 
