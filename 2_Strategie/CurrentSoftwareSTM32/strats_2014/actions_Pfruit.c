@@ -160,7 +160,7 @@ error_e strat_file_fruit(){
 }
 
 
-error_e manage_fruit(tree_group_e group, tree_way_e parmSens){ //Commence côté mammouth si sens == TRIGO
+error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e parmSens){ //Commence côté mammouth si sens == TREE_TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		RECUP_TREE_1,
@@ -173,15 +173,21 @@ error_e manage_fruit(tree_group_e group, tree_way_e parmSens){ //Commence côté m
 
 	static tree_choice_e tree;
 	static tree_way_e sens;
-	static tree_sucess_e fruit_group_our = NO_ONE;
-	static tree_sucess_e fruit_group_adversary = NO_ONE;
+	static tree_sucess_e fruit_group_our = NO_TREE;
+	static tree_sucess_e fruit_group_adversary = NO_TREE;
 
 	switch(state){
 		case IDLE:
 
 			if(global.env.color == RED){
 				if(group == TREE_OUR){
-					if(fruit_group_our == NO_ONE)
+					if(choiceTree == CHOICE_TREE_1){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_1_SIMPLE;
+					}else if(choiceTree == CHOICE_TREE_2){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_2_SIMPLE;
+					}else if(fruit_group_our == NO_TREE) // Si on mets ALL_TREE va regarder ceux qui l'as deja fait et ne prend que ceux qu il a pas fait
 						state = RECUP_TREE_1;
 					else if(fruit_group_our == TREE_1){
 						tree = CHOICE_TREE_2;
@@ -192,7 +198,13 @@ error_e manage_fruit(tree_group_e group, tree_way_e parmSens){ //Commence côté m
 					}else
 						state = ERROR;
 				}else{ // Arbre adeverse, ici ceux côté jaune
-					if(fruit_group_adversary == NO_ONE)
+					if(choiceTree == CHOICE_TREE_1){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_1_SIMPLE;
+					}else if(choiceTree == CHOICE_TREE_2){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_2_SIMPLE;
+					}else if(fruit_group_adversary == NO_TREE)
 						state = RECUP_TREE_2;
 					else if(fruit_group_adversary == TREE_1){
 						tree = CHOICE_TREE_2;
@@ -205,7 +217,13 @@ error_e manage_fruit(tree_group_e group, tree_way_e parmSens){ //Commence côté m
 				}
 			}else{
 				if(group == TREE_OUR){
-					if(fruit_group_our == NO_ONE)
+					if(choiceTree == CHOICE_TREE_1){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_1_SIMPLE;
+					}else if(choiceTree == CHOICE_TREE_2){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_2_SIMPLE;
+					}else if(fruit_group_our == NO_TREE)
 						state = RECUP_TREE_2;
 					else if(fruit_group_our == TREE_1){
 						tree = CHOICE_TREE_2;
@@ -216,7 +234,13 @@ error_e manage_fruit(tree_group_e group, tree_way_e parmSens){ //Commence côté m
 					}else
 						state = ERROR;
 				}else{ // Arbre adeverse, ici ceux côté rouge
-					if(fruit_group_adversary == NO_ONE)
+					if(choiceTree == CHOICE_TREE_1){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_1_SIMPLE;
+					}else if(choiceTree == CHOICE_TREE_2){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_2_SIMPLE;
+					}else if(fruit_group_adversary == NO_TREE)
 						state = RECUP_TREE_1;
 					else if(fruit_group_adversary == TREE_1){
 						tree = CHOICE_TREE_2;
@@ -229,27 +253,27 @@ error_e manage_fruit(tree_group_e group, tree_way_e parmSens){ //Commence côté m
 				}
 			}
 
-			if(parmSens == CHOICE){ // On laisse la strat choisir le sens
+			if(parmSens == TREE_CHOICE){ // On laisse la strat choisir le sens
 				if(state == RECUP_TREE_1)
-					sens = ((min_node_dist(A1,C3) == A1)?TRIGO : HORAIRE);
+					sens = ((min_node_dist(A1,C3) == A1)?TREE_TRIGO : TREE_HORAIRE);
 
 				else if(state == RECUP_TREE_1_SIMPLE && tree == CHOICE_TREE_1)
-					sens = ((min_node_dist(A1,A2) == A1)?TRIGO : HORAIRE);
+					sens = ((min_node_dist(A1,A2) == A1)?TREE_TRIGO : TREE_HORAIRE);
 
 				else if(state == RECUP_TREE_1_SIMPLE && tree == CHOICE_TREE_2)
-					sens = ((min_node_dist(B3,C3) == B3)?TRIGO : HORAIRE);
+					sens = ((min_node_dist(B3,C3) == B3)?TREE_TRIGO : TREE_HORAIRE);
 
 				else if(state == RECUP_TREE_2)
-					sens = ((min_node_dist(W3,Z1) == W3)?TRIGO : HORAIRE);
+					sens = ((min_node_dist(W3,Z1) == W3)?TREE_TRIGO : TREE_HORAIRE);
 
 				else if(state == RECUP_TREE_2_SIMPLE && tree == CHOICE_TREE_1)
-					sens = ((min_node_dist(W3,Y3) == W3)?TRIGO : HORAIRE);
+					sens = ((min_node_dist(W3,Y3) == W3)?TREE_TRIGO : TREE_HORAIRE);
 
 				else if(state == RECUP_TREE_2_SIMPLE && tree == CHOICE_TREE_2)
-					sens = ((min_node_dist(Z2,Z1) == Z1)?TRIGO : HORAIRE);
+					sens = ((min_node_dist(Z2,Z1) == Z1)?TREE_TRIGO : TREE_HORAIRE);
 
 				else
-					sens = TRIGO; // Impose un sens par defaut si n'a pas trouver de choix
+					sens = TREE_TRIGO; // Impose un sens par defaut si n'a pas trouver de choix
 			}else
 				sens = parmSens;
 
@@ -313,7 +337,7 @@ error_e manage_fruit(tree_group_e group, tree_way_e parmSens){ //Commence côté m
 }
 
 
-error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
+error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mammouth si sens == TREE_TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		GET_IN,
@@ -341,7 +365,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 	switch(state){
 		case IDLE:
-			strat_fruit_sucess = NO_ONE;
+			strat_fruit_sucess = NO_TREE;
 
 			point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
 			point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
@@ -350,7 +374,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						SLOW};
 
 			for(i=0;i<NBPOINT;i++){
-				if(sens == TRIGO)
+				if(sens == TREE_TRIGO)
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
@@ -360,7 +384,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
 
-			if(sens == TRIGO)  // Modifie le sens
+			if(sens == TREE_TRIGO)  // Modifie le sens
 				sensRobot = BACKWARD;
 			else
 				sensRobot = FORWARD;
@@ -397,7 +421,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case COURBE:
 			if(entrance){
-				if(sens == TRIGO)
+				if(sens == TREE_TRIGO)
 					strat_fruit_sucess = TREE_1;
 				else
 					strat_fruit_sucess = TREE_2;
@@ -446,7 +470,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 	return IN_PROGRESS;
 }
 
-error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mammouth si sens == HORAIRE
+error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mammouth si sens == TREE_HORAIRE
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		GET_IN,
@@ -477,7 +501,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 	switch(state){
 		case IDLE:
 
-			strat_fruit_sucess = NO_ONE;
+			strat_fruit_sucess = NO_TREE;
 
 				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
 				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
@@ -486,7 +510,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1800+offset_recalage.y},					SLOW};
 
 			for(i=0;i<NBPOINT;i++){
-				if(sens == HORAIRE)
+				if(sens == TREE_HORAIRE)
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
@@ -496,7 +520,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
 
-			if(sens == HORAIRE)  // Modifie le sens
+			if(sens == TREE_HORAIRE)  // Modifie le sens
 				sensRobot = FORWARD;
 			else
 				sensRobot = BACKWARD;
@@ -510,11 +534,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case GET_IN:
 			if(entrance){
-				if(global.env.color == RED && sens==HORAIRE)
+				if(global.env.color == RED && sens==TREE_HORAIRE)
 					point_pathfind = Z1;
-				else if(global.env.color == RED && sens==TRIGO)
+				else if(global.env.color == RED && sens==TREE_TRIGO)
 					point_pathfind = W3;
-				else if(sens==TRIGO)
+				else if(sens==TREE_TRIGO)
 					point_pathfind = A1;
 				else
 					point_pathfind = C3;
@@ -542,7 +566,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case COURBE:
 			if(entrance){
-				if(sens == TRIGO)
+				if(sens == TREE_TRIGO)
 					strat_fruit_sucess = TREE_2;
 				else
 					strat_fruit_sucess = TREE_1;
@@ -590,7 +614,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 	return IN_PROGRESS;
 }
 
-error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
+error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TREE_TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		GET_IN,
@@ -615,7 +639,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 	switch(state){
 		case IDLE:
-			strat_fruit_sucess = NO_ONE;
+			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
 				point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
@@ -627,7 +651,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 
 			for(i=0;i<NBPOINT;i++){
-				if(sens == TRIGO)
+				if(sens == TREE_TRIGO)
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
@@ -637,7 +661,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
 
-			if(sens == TRIGO)  // Modifie le sens
+			if(sens == TREE_TRIGO)  // Modifie le sens
 				sensRobot = BACKWARD;
 			else
 				sensRobot = FORWARD;
@@ -707,7 +731,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 	return IN_PROGRESS;
 }
 
-error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TRIGO
+error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TREE_TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		GET_IN,
@@ -732,7 +756,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 	switch(state){
 		case IDLE:
-			strat_fruit_sucess = NO_ONE;
+			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
 				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
@@ -744,7 +768,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 
 			for(i=0;i<NBPOINT;i++){
-				if(sens == HORAIRE)
+				if(sens == TREE_HORAIRE)
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
@@ -754,7 +778,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
 
-			if(sens == TRIGO)  // Modifie le sens
+			if(sens == TREE_TRIGO)  // Modifie le sens
 				sensRobot = BACKWARD;
 			else
 				sensRobot = FORWARD;

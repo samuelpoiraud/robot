@@ -22,14 +22,15 @@
 
 
 typedef enum{
-	HORAIRE,
-	TRIGO,
-	CHOICE // C'est la strat manage qui va choisir elle-même le sens
+	TREE_HORAIRE,
+	TREE_TRIGO,
+	TREE_CHOICE // C'est la strat manage qui va choisir elle-même le sens
 }tree_way_e;
 
 typedef enum{
 	CHOICE_TREE_1,
-	CHOICE_TREE_2
+	CHOICE_TREE_2,
+	CHOICE_ALL_TREE
 }tree_choice_e;
 
 typedef enum{
@@ -38,16 +39,16 @@ typedef enum{
 }tree_group_e;
 
 typedef enum{
-	NO_ONE,
+	NO_TREE,
 	TREE_1, // Toujours celui à côté du mammouth
 	TREE_2, // Toujours celui situé en face au mammouth
 	ALL_TREE
 }tree_sucess_e;
 
-static tree_sucess_e strat_fruit_sucess = NO_ONE;
+static tree_sucess_e strat_fruit_sucess = NO_TREE;
 
 error_e strat_file_fruit();
-error_e manage_fruit(tree_group_e group, tree_way_e parmSens);
+error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e parmSens);
 
 error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens);
 error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens);
