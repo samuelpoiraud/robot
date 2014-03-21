@@ -16,9 +16,7 @@
 #include "Synchro.h"
 #include "eyes.h"
 #include "QS/QS_can_over_uart.h"
-#include "QS/QS_CANmsgList.h"
-
-volatile Uint16 count_intervalle_envois_can;	
+#include "QS/QS_CANmsgList.h"	
 
 volatile Uint32 periodic_sending_enabled;	//activation de l'envoi périodique pour les X prochaines [ms]
 
@@ -37,7 +35,6 @@ void SECRETARY_init(void)
 		CAN_init();
 		CAN_set_direct_treatment_function(SECRETARY_msg_processing_direct_treatment_function);
 	#endif
-	count_intervalle_envois_can = 3;
 		
 	periodic_sending_enabled = 0;
 }
@@ -45,6 +42,7 @@ void SECRETARY_init(void)
 volatile Uint8 t_adversary1_is_seen = 0;
 volatile Uint8 t_adversary2_is_seen = 0;
 volatile bool_e flag_synchro_received = FALSE;
+volatile bool_e flag_new_datas_available = FALSE;
 
 #define ADVERSARY_SEEN_TIMEOUT		20 //[100 ms]	//2 secondes
 #define SYNCHRO_RECEIVED_TIMEOUT	20 //[100 ms]	//2 secondes
@@ -54,8 +52,6 @@ void SECRETARY_process_it_100ms(void)
 	volatile adversary_location_t * p_adversary_location;
 
 	global.flag_100ms = TRUE;
-	if(count_intervalle_envois_can)
-		count_intervalle_envois_can--;
 	periodic_sending_enabled = (periodic_sending_enabled>100)?periodic_sending_enabled-100:0;
 
 	p_adversary_location = BRAIN_get_adversary_location();
@@ -70,7 +66,11 @@ void SECRETARY_process_it_100ms(void)
 		t_adversary2_is_seen--;
 }	
 
-
+void SECRETARY_set_new_datas_available(void)
+{
+	flag_new_datas_available = TRUE;
+}
+	
 bool_e SECRETARY_msg_processing_direct_treatment_function(CAN_msg_t* msg)
 {
 	bool_e bret = FALSE;
@@ -150,12 +150,11 @@ void SECRETARY_process_main(void)
 		SECRETARY_process_msg(&msg_over_uart2);	
 	#endif
 	
-	if(count_intervalle_envois_can == 0 && periodic_sending_enabled != 0)
+	if(flag_new_datas_available && periodic_sending_enabled != 0)
 	{
-		//On envois un message de position adverse QUE SI ca n'a pas été fait depuis un certain temps, et que la fonctionnalité d'envoi est activée !
-		count_intervalle_envois_can = 3;	//On recharge pour 300ms.
+		flag_new_datas_available = FALSE;
 		SECRETARY_send_adversary_location();
-	}
+	}	
 }	
 
 

@@ -18,7 +18,7 @@
 	void SECRETARY_process_it_100ms();
 	void SECRETARY_process_main(void);
 	void SECRETARY_synchro_received(void);
-	
+	void SECRETARY_set_new_datas_available(void);
 #endif /* ndef SECRETARY_H */
 
 

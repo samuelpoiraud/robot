@@ -12,6 +12,7 @@
 #define BRAIN_C
 #include "brain.h"
 #include "eyes.h"
+#include "Secretary.h"
 #include "QS/QS_CANmsgList.h"
 
 
@@ -96,7 +97,7 @@ void BRAIN_process_main(void)
 		adversary_location[next_adversary_detection->adversary].distance 	= BRAIN_find_mediane_distance();
 		adversary_location[next_adversary_detection->adversary].angle 		= BRAIN_modulo_angle(BRAIN_find_mediane_angle() + OFFSET_ANGLE);
 		adversary_location[next_adversary_detection->adversary].error		= next_adversary_detection->error;
-		
+		SECRETARY_set_new_datas_available();
 		
 		//DONNEES UTILISEES ET NETTOYABLES... ON REINITIALISE POUR LES PROCHAINES 100ms
 		EYES_init_adversary_detection(next_adversary_detection);
