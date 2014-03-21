@@ -853,12 +853,10 @@ static void display_beacon(Uint8 line)
 	char str[21];
 	Uint8 index;
 	d1 = global.env.foe[0].dist/10;
-	a1 = global.env.foe[0].angle;
 	d2 = global.env.foe[1].dist/10;
-	a2 = global.env.foe[1].angle;
+	a1 = (((Sint32)(global.env.foe[0].angle))*180)/PI4096;
+	a2 = (((Sint32)(global.env.foe[1].angle))*180)/PI4096;
 
-	a1 *= (180/PI4096);
-	a2 *= (180/PI4096);
 	if(global.env.foe[0].from == DETECTION_FROM_BEACON_IR)
 		from = 'B';
 	else if(global.env.foe[0].from == DETECTION_FROM_PROPULSION)
