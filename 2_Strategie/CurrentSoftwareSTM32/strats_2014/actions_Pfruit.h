@@ -45,7 +45,7 @@ typedef enum{
 	ALL_TREE
 }tree_sucess_e;
 
-static tree_sucess_e strat_fruit_sucess = NO_TREE;
+tree_sucess_e strat_fruit_sucess = NO_TREE;
 
 error_e strat_file_fruit();
 error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e parmSens);
