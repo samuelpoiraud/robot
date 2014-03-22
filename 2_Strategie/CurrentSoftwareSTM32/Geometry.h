@@ -53,7 +53,7 @@
 		GEOMETRY_circle_t c0,
 		GEOMETRY_circle_t c1);
 
-	bool_e est_dans_carre(GEOMETRY_point_t high, GEOMETRY_point_t low, GEOMETRY_point_t current);
+	bool_e est_dans_carre(GEOMETRY_point_t low, GEOMETRY_point_t high, GEOMETRY_point_t current);
 
 	bool_e est_dans_cercle(GEOMETRY_point_t current, GEOMETRY_circle_t circle);
 
