@@ -10,6 +10,7 @@
  */
 
 #include "actions_Pfruit.h"
+#include "../high_level_strat.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
 #include "../avoidance.h"
@@ -410,6 +411,10 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 					strat_fruit_sucess = TREE_1;
 				else
 					strat_fruit_sucess = TREE_2;
+				if(main_strategie_used == TRUE){
+					set_sub_act_done(SUB_DROP_FRUITS, FALSE);
+					set_sub_act_enable(SUB_DROP_FRUITS, TRUE);
+				}
 			}
 
 				// multipoint si rajoutes des points pour la courbes plus simples
@@ -554,6 +559,10 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 					strat_fruit_sucess = TREE_2;
 				else
 					strat_fruit_sucess = TREE_1;
+				if(main_strategie_used == TRUE){
+					set_sub_act_done(SUB_DROP_FRUITS, FALSE);
+					set_sub_act_enable(SUB_DROP_FRUITS, TRUE);
+				}
 			}
 
 			state = try_going_multipoint(&courbe[2],1,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
