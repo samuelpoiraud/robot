@@ -35,8 +35,7 @@ error_e strat_file_fruit(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		GET_IN,
-		POS_BEGINNING,
-		POS_END,
+		GO,
 		GET_OUT_WITH_ERROR,
 		DONE,
 		ERROR,
@@ -46,84 +45,70 @@ error_e strat_file_fruit(){
 	static Uint8 get_out_try = 0;
 	static GEOMETRY_point_t escape_point[2];
 
-	static GEOMETRY_point_t dplt[2]; // Deplacement
+	static displacement_t dplt[3]; // Deplacement
 	static way_e sensRobot;
 	static Uint16 posOpen; // Position à laquelle, on va ouvrir le bac à fruit
 
 	switch(state){
 		case IDLE:
-			if(global.env.pos.y > 2225 && global.env.color == RED){ // Va commencer en haut du bac rouge
-				dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[0].y = 2700;
+			if(global.env.color == RED){
+				dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[0].point.y = 1800;
+				dplt[0].speed = FAST;
 
-				dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[1].y = 1800;
+				dplt[1].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[1].point.y = 2200;
+				dplt[1].speed = FAST;
 
-				sensRobot = BACKWARD;
-				posOpen = 2600;
-
-			}else if(global.env.color == RED){ // Commence au milieu du terrain en étant Rouge
-				dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[0].y = 1500;
-
-				dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[1].y = 2700;
+				dplt[2].point.x = ELOIGNEMENT_POSE_BAC_FRUIT+30;
+				dplt[2].point.y = 2400;
+				dplt[2].speed = FAST;
 
 				sensRobot = FORWARD;
 				posOpen = 1900;
 
-			}else if(global.env.pos.y > 750){ // Il est de couleur Jaune commence au milieu
-				dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[0].y = 1200;
+			}else{
+				dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[0].point.y = 1200;
+				dplt[0].speed = FAST;
 
-				dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[1].y = 300;
+				dplt[1].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
+				dplt[1].point.y = 800;
+				dplt[1].speed = FAST;
+
+				dplt[2].point.x = ELOIGNEMENT_POSE_BAC_FRUIT+30;
+				dplt[2].point.y = 600;
+				dplt[2].speed = FAST;
 
 				sensRobot = BACKWARD;
 				posOpen = 1100;
 
-			}else{							// Va commencer en bas
-				dplt[0].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[0].y = 300;
-
-				dplt[1].x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[1].y = 1200;
-
-				sensRobot = FORWARD;
-				posOpen = 400;
 			}
 
-			escape_point[0] = dplt[1];
-			escape_point[1] = dplt[0];
+			escape_point[0] = dplt[2].point;
+			escape_point[1] = dplt[0].point;
 
 			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){0, 1500}, (GEOMETRY_point_t){1000,3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){1000, 1500}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-				state = GET_IN;
+				state = GO;
 			else
-				state = POS_BEGINNING;
+				state = GET_IN;
 
 			break;
 
 		case GET_IN :
-			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].x,dplt[0].y, 0x00),
-					GET_IN, POS_BEGINNING, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].point.x,dplt[0].point.y, 0x00),
+					GET_IN, GO, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
-		case POS_BEGINNING:
-			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,SLOW,sensRobot,DODGE_AND_WAIT);
-			break;
-
-		case POS_END:
+		case GO :
 			if(entrance){
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 				ASSER_WARNER_arm_y(posOpen);
+				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
 			}
-
-			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SLOW,sensRobot,NO_DODGE_AND_NO_WAIT);
-
-			if(global.env.asser.reach_y){ // Ouvrir le bac à fruit pour les faire tomber et sortir le bras
+			if(global.env.asser.reach_y)
 				ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_OPEN);
-			}
+			state = try_going_multipoint(dplt, 3, GO, DONE , ERROR, sensRobot, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -389,11 +374,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = FORWARD;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){600, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){600, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-				state = GET_IN;
-			else
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = POS_DEPART;
+			else
+				state = GET_IN;
 			break;
 
 		case GET_IN:
@@ -500,7 +485,6 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 	switch(state){
 		case IDLE:
-
 			strat_fruit_sucess = NO_TREE;
 
 				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
@@ -525,11 +509,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = BACKWARD;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){600, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){600, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-				state = GET_IN;
-			else
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = POS_DEPART;
+			else
+				state = GET_IN;
 			break;
 
 		case GET_IN:
@@ -666,11 +650,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				sensRobot = FORWARD;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){600, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){600, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-				state = GET_IN;
-			else
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = POS_DEPART;
+			else
+				state = GET_IN;
 			break;
 
 		case GET_IN:
@@ -783,11 +767,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				sensRobot = FORWARD;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){600, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){600, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-				state = GET_IN;
-			else
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = POS_DEPART;
+			else
+				state = GET_IN;
 			break;
 
 		case GET_IN:
