@@ -21,7 +21,7 @@
 
 
 // Define à activer pour activer le get_in / get_ou des subactions
-//#define USE_GET_IN_OUT
+#define USE_GET_IN_OUT
 
 // Define à activer pour activer les triangles des torches
 #define USE_TRIANGLE_TORCHE
@@ -895,6 +895,8 @@ void strat_test_fresque(){
 	}
 }
 
+
+
 error_e strat_manage_fresco(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
@@ -922,79 +924,76 @@ error_e strat_manage_fresco(){
 
 			if(MODE_MANUAL_FRESCO){
 				posY = POS_Y_MANUAL_FRESCO;
-				#ifdef USE_GET_IN_OUT
-					state = GET_IN;
-				#else
+				if(est_dans_carre((GEOMETRY_point_t){0, 900}, (GEOMETRY_point_t){1100,2000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					state = FILE_FRESCO;
-				#endif
+				else
+					state = GET_IN;
 			}else if(ADVERSARY_DETECTED_HOKUYO == FALSE){//Pose les fresques au milieu si on a pas vu l'adversaire poser les siennes
 				posY = 1500;
-				#ifdef USE_GET_IN_OUT
-					state = GET_IN;
-				#else
+				if(est_dans_carre((GEOMETRY_point_t){0, 900}, (GEOMETRY_point_t){1100,2000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					state = FILE_FRESCO;
-				#endif
+				else
+					state = GET_IN;
 			}else
 				state = ADVERSARY_DETECTED;
 			break;
 
 		case ADVERSARY_DETECTED:
 			switch(adversary_fresco_index){
-			case 1:
-				if(adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO)// La valeur n est pas comprise
-					posY = 1500;
+				case 1:
+					if(adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO)// La valeur n est pas comprise
+						posY = 1500;
 
-				if(adversary_fresco_positions[0] > 1500)
-					posY = POS_MIN_FRESCO;
-				else
-					posY = POS_MAX_FRESCO;
+					if(adversary_fresco_positions[0] > 1500)
+						posY = POS_MIN_FRESCO;
+					else
+						posY = POS_MAX_FRESCO;
 
-				break;
-			case 2:
-				if((adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO) || (adversary_fresco_positions[1] > POS_MAX_FRESCO && adversary_fresco_positions[1] < POS_MIN_FRESCO))
-					posY = 1500;
+					break;
+				case 2:
+					if((adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO) || (adversary_fresco_positions[1] > POS_MAX_FRESCO && adversary_fresco_positions[1] < POS_MIN_FRESCO))
+						posY = 1500;
 
-				if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)// Les 2 poses ennemis sont sup au milieu de la fresque
-					posY = POS_MIN_FRESCO;
-				else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500) // sont inf au milieu
-					posY = POS_MAX_FRESCO;
-				else{    // Il y a une fresque de chaque coté par rapport au milieu
-					Uint16 fresco_inf,fresco_sup; //Correspond a la plus grande et plus petite variable ou l'adversaire aurait poser ses fresques
+					if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)// Les 2 poses ennemis sont sup au milieu de la fresque
+						posY = POS_MIN_FRESCO;
+					else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500) // sont inf au milieu
+						posY = POS_MAX_FRESCO;
+					else{    // Il y a une fresque de chaque coté par rapport au milieu
+						Uint16 fresco_inf,fresco_sup; //Correspond a la plus grande et plus petite variable ou l'adversaire aurait poser ses fresques
 
-					if(adversary_fresco_positions[0] < adversary_fresco_positions[1]){
-						fresco_inf = adversary_fresco_positions[0];
-						fresco_sup = adversary_fresco_positions[1];
-					}else{
-						fresco_inf = adversary_fresco_positions[1];
-						fresco_sup = adversary_fresco_positions[0];
+						if(adversary_fresco_positions[0] < adversary_fresco_positions[1]){
+							fresco_inf = adversary_fresco_positions[0];
+							fresco_sup = adversary_fresco_positions[1];
+						}else{
+							fresco_inf = adversary_fresco_positions[1];
+							fresco_sup = adversary_fresco_positions[0];
+						}
+
+						if(POS_MAX_FRESCO-fresco_sup > fresco_inf-POS_MIN_FRESCO){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
+							if(POS_MAX_FRESCO-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
+								posY = POS_MAX_FRESCO;
+							else
+								posY = (fresco_inf+fresco_sup)/2;
+
+						}else{ //Si la zone entre la POS_MIN_FRESCO est plus grande que celle avec POS_MAX_FRESCO
+							if(fresco_inf-POS_MIN_FRESCO >= fresco_sup-fresco_inf)
+								posY = POS_MIN_FRESCO;
+							else
+								posY = (fresco_inf+fresco_sup)/2;
+						}
 					}
 
-					if(POS_MAX_FRESCO-fresco_sup > fresco_inf-POS_MIN_FRESCO){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
-						if(POS_MAX_FRESCO-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
-							posY = POS_MAX_FRESCO;
-						else
-							posY = (fresco_inf+fresco_sup)/2;
-
-					}else{ //Si la zone entre la POS_MIN_FRESCO est plus grande que celle avec POS_MAX_FRESCO
-						if(fresco_inf-POS_MIN_FRESCO >= fresco_sup-fresco_inf)
-							posY = POS_MIN_FRESCO;
-						else
-							posY = (fresco_inf+fresco_sup)/2;
-					}
-				}
-
-				break;
-			default: // On ne sait jamais si aucun adversaire a été detecte
-				posY = 1500;
-				break;
+					break;
+				default: // On ne sait jamais si aucun adversaire a été detecte
+					posY = 1500;
+					break;
 			}
 
 			debug_printf("psoY   %d\n",posY);
-			#ifdef USE_GET_IN_OUT
-				state = GET_IN;
-			#else
+			if(est_dans_carre((GEOMETRY_point_t){0, 900}, (GEOMETRY_point_t){1100,2000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = FILE_FRESCO;
-			#endif
+			else
+				state = GET_IN;
 			break;
 
 		case GET_IN :
@@ -1151,8 +1150,6 @@ error_e strat_file_fresco(Sint16 posY){
 	return IN_PROGRESS;
 }
 
-
-
 error_e strat_lance_launcher(bool_e lanceAll){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
@@ -1224,11 +1221,11 @@ error_e strat_lance_launcher(bool_e lanceAll){
 			 escape_point[0] = dplt[0];
 			 escape_point[1] = dplt[1];
 
-			#ifdef USE_GET_IN_OUT
-				state = GET_IN;
-			#else
-				state = POS_BEGINNING;
-			#endif
+			 if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){300, 100}, (GEOMETRY_point_t){2000,1350}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					 || (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){300, 1650}, (GEOMETRY_point_t){2000,3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+				 state = POS_BEGINNING;
+			 else
+				 state = GET_IN;
 			break;
 
 		case GET_IN:
@@ -1266,12 +1263,7 @@ error_e strat_lance_launcher(bool_e lanceAll){
 			break;
 
 		case ERROR:
-			#ifdef USE_GET_IN_OUT
-				state = GET_OUT_WITH_ERROR;
-			#else
-				state = IDLE;
-				return NOT_HANDLED;
-			#endif
+			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
@@ -1357,11 +1349,11 @@ error_e strat_lance_launcher_ennemy(){
 			escape_point[0] = dplt[0];
 			escape_point[1] = dplt[1];
 
-			#ifdef USE_GET_IN_OUT
-				state = GET_IN;
-			#else
+			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){300, 1650}, (GEOMETRY_point_t){2000,3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){300, 100}, (GEOMETRY_point_t){2000,1350}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = POS_BEGINNING;
-			#endif
+			else
+				state = GET_IN;
 			break;
 
 		case GET_IN:
@@ -1395,12 +1387,7 @@ error_e strat_lance_launcher_ennemy(){
 			break;
 
 		case ERROR:
-			#ifdef USE_GET_IN_OUT
-				state = GET_OUT_WITH_ERROR;
-			#else
-				state = IDLE;
-				return NOT_HANDLED;
-			#endif
+			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
