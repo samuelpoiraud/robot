@@ -576,10 +576,10 @@ void strat_test_point2(){
 					else
 						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
 				#endif
-				if(strat_fruit_sucess != NO_TREE){
+				/*if(strat_fruit_sucess != NO_TREE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_1 = strat_fruit_sucess;
-				}
+				}*/
 
 				break;
 
@@ -621,10 +621,10 @@ void strat_test_point2(){
 					else
 						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
 			   #endif
-				if(strat_fruit_sucess != NO_TREE){
+				/*if(strat_fruit_sucess != NO_TREE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_2 = strat_fruit_sucess;
-				}
+				}*/
 
 				break;
 
@@ -676,10 +676,10 @@ void strat_test_point2(){
 				else
 					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
 
-				if(strat_fruit_sucess != NO_TREE){
+				/*if(strat_fruit_sucess != NO_TREE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_1 = strat_fruit_sucess;
-				}
+				}*/
 
 				break;
 
@@ -689,10 +689,10 @@ void strat_test_point2(){
 				else
 					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
 
-				if(strat_fruit_sucess != NO_TREE){
+				/*if(strat_fruit_sucess != NO_TREE){
 					presenceFruit = TRUE;
 					action_recup_fruit_group_2 = strat_fruit_sucess;
-				}
+				}*/
 
 				break;
 

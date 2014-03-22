@@ -29,7 +29,7 @@
 
 extern GEOMETRY_point_t offset_recalage;
 
-
+static tree_sucess_e strat_fruit_sucess = NO_TREE;
 
 
 error_e strat_file_fruit(){
