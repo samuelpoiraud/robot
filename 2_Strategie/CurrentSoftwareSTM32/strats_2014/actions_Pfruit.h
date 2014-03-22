@@ -22,9 +22,9 @@
 
 
 typedef enum{
-	TREE_HORAIRE,
-	TREE_TRIGO,
-	TREE_CHOICE // C'est la strat manage qui va choisir elle-même le sens
+	HORAIRE,
+	TRIGO,
+	WAY_CHOICE // C'est la strat manage qui va choisir elle-même le sens
 }tree_way_e;
 
 typedef enum{

@@ -99,7 +99,7 @@ error_e strat_file_fruit(){
 
 		case GET_IN :
 			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].point.x,dplt[0].point.y, 0x00),
-					GET_IN, GO, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, GO, ERROR_WITH_GET_OUT, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case GO :
@@ -163,103 +163,90 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 	static tree_sucess_e fruit_group_adversary = NO_TREE;
 
 	switch(state){
+
 		case IDLE:
 
-			if(global.env.color == RED){
-				if(group == TREE_OUR){
-					if(choiceTree == CHOICE_TREE_1){
-						tree = CHOICE_TREE_1;
-						state = RECUP_TREE_1_SIMPLE;
-					}else if(choiceTree == CHOICE_TREE_2){
-						tree = CHOICE_TREE_2;
-						state = RECUP_TREE_2_SIMPLE;
-					}else if(fruit_group_our == NO_TREE) // Si on mets ALL_TREE va regarder ceux qui l'as deja fait et ne prend que ceux qu il a pas fait
-						state = RECUP_TREE_1;
-					else if(fruit_group_our == TREE_1){
-						tree = CHOICE_TREE_2;
-						state = RECUP_TREE_1_SIMPLE;
-					}else if(fruit_group_our == TREE_2){
-						tree = CHOICE_TREE_1;
-						state = RECUP_TREE_1_SIMPLE;
-					}else
-						state = ERROR;
-				}else{ // Arbre adeverse, ici ceux côté jaune
-					if(choiceTree == CHOICE_TREE_1){
-						tree = CHOICE_TREE_1;
-						state = RECUP_TREE_1_SIMPLE;
-					}else if(choiceTree == CHOICE_TREE_2){
-						tree = CHOICE_TREE_2;
-						state = RECUP_TREE_2_SIMPLE;
-					}else if(fruit_group_adversary == NO_TREE)
-						state = RECUP_TREE_2;
-					else if(fruit_group_adversary == TREE_1){
-						tree = CHOICE_TREE_2;
-						state = RECUP_TREE_2_SIMPLE;
-					}else if(fruit_group_adversary == TREE_2){
-						tree = CHOICE_TREE_1;
-						state = RECUP_TREE_2_SIMPLE;
-					}else
-						state = ERROR;
-				}
-			}else{
-				if(group == TREE_OUR){
-					if(choiceTree == CHOICE_TREE_1){
-						tree = CHOICE_TREE_1;
-						state = RECUP_TREE_1_SIMPLE;
-					}else if(choiceTree == CHOICE_TREE_2){
-						tree = CHOICE_TREE_2;
-						state = RECUP_TREE_2_SIMPLE;
-					}else if(fruit_group_our == NO_TREE)
-						state = RECUP_TREE_2;
-					else if(fruit_group_our == TREE_1){
-						tree = CHOICE_TREE_2;
-						state = RECUP_TREE_2_SIMPLE;
-					}else if(fruit_group_our == TREE_2){
-						tree = CHOICE_TREE_1;
-						state = RECUP_TREE_2_SIMPLE;
-					}else
-						state = ERROR;
-				}else{ // Arbre adeverse, ici ceux côté rouge
-					if(choiceTree == CHOICE_TREE_1){
-						tree = CHOICE_TREE_1;
-						state = RECUP_TREE_1_SIMPLE;
-					}else if(choiceTree == CHOICE_TREE_2){
-						tree = CHOICE_TREE_2;
-						state = RECUP_TREE_2_SIMPLE;
-					}else if(fruit_group_adversary == NO_TREE)
-						state = RECUP_TREE_1;
-					else if(fruit_group_adversary == TREE_1){
-						tree = CHOICE_TREE_2;
-						state = RECUP_TREE_1_SIMPLE;
-					}else if(fruit_group_adversary == TREE_2){
-						tree = CHOICE_TREE_1;
-						state = RECUP_TREE_1_SIMPLE;
-					}else
-						state = ERROR;
+			if(choiceTree == CHOICE_TREE_1){
+				tree = CHOICE_TREE_1;
+				state = RECUP_TREE_1_SIMPLE;
+			}else if(choiceTree == CHOICE_TREE_2){
+				tree = CHOICE_TREE_2;
+				state = RECUP_TREE_2_SIMPLE;
+			}else if(choiceTree == CHOICE_ALL_TREE){
+				//----------------------------------------------------- Rouge
+				if(global.env.color == RED){
+					if(group == TREE_OUR){
+						if(fruit_group_our == NO_TREE)
+							state = RECUP_TREE_1;
+						else if(fruit_group_our == TREE_1){
+							tree = CHOICE_TREE_2;
+							state = RECUP_TREE_1_SIMPLE;
+						}else if(fruit_group_our == TREE_2){
+							tree = CHOICE_TREE_1;
+							state = RECUP_TREE_1_SIMPLE;
+						}else
+							state = ERROR;
+					}else{ // Arbre adeverse, ici ceux côté jaune
+						 if(fruit_group_adversary == NO_TREE)
+							state = RECUP_TREE_2;
+						else if(fruit_group_adversary == TREE_1){
+							tree = CHOICE_TREE_2;
+							state = RECUP_TREE_2_SIMPLE;
+						}else if(fruit_group_adversary == TREE_2){
+							tree = CHOICE_TREE_1;
+							state = RECUP_TREE_2_SIMPLE;
+						}else
+							state = ERROR;
+					}
+				//----------------------------------------------------- Jaune
+				}else{
+					if(group == TREE_OUR){
+						if(fruit_group_our == NO_TREE)
+							state = RECUP_TREE_2;
+						else if(fruit_group_our == TREE_1){
+							tree = CHOICE_TREE_2;
+							state = RECUP_TREE_2_SIMPLE;
+						}else if(fruit_group_our == TREE_2){
+							tree = CHOICE_TREE_1;
+							state = RECUP_TREE_2_SIMPLE;
+						}else
+							state = ERROR;
+					}else{ // Arbre adeverse, ici ceux côté rouge
+						if(fruit_group_adversary == NO_TREE)
+							state = RECUP_TREE_1;
+						else if(fruit_group_adversary == TREE_1){
+							tree = CHOICE_TREE_2;
+							state = RECUP_TREE_1_SIMPLE;
+						}else if(fruit_group_adversary == TREE_2){
+							tree = CHOICE_TREE_1;
+							state = RECUP_TREE_1_SIMPLE;
+						}else
+							state = ERROR;
+					}
 				}
 			}
 
-			if(parmSens == TREE_CHOICE){ // On laisse la strat choisir le sens
+			if(parmSens == WAY_CHOICE){ // On laisse la strat choisir le sens
 				if(state == RECUP_TREE_1)
-					sens = ((min_node_dist(A1,C3) == A1)?TREE_TRIGO : TREE_HORAIRE);
+					sens = ((min_node_dist(A1,C3) == A1)?TRIGO : HORAIRE);
 
 				else if(state == RECUP_TREE_1_SIMPLE && tree == CHOICE_TREE_1)
-					sens = ((min_node_dist(A1,A2) == A1)?TREE_TRIGO : TREE_HORAIRE);
+					sens = ((min_node_dist(A1,A2) == A1)?TRIGO : HORAIRE);
 
 				else if(state == RECUP_TREE_1_SIMPLE && tree == CHOICE_TREE_2)
-					sens = ((min_node_dist(B3,C3) == B3)?TREE_TRIGO : TREE_HORAIRE);
+					sens = ((min_node_dist(B3,C3) == B3)?TRIGO : HORAIRE);
 
 				else if(state == RECUP_TREE_2)
-					sens = ((min_node_dist(W3,Z1) == W3)?TREE_TRIGO : TREE_HORAIRE);
+					sens = ((min_node_dist(W3,Z1) == W3)?TRIGO : HORAIRE);
 
 				else if(state == RECUP_TREE_2_SIMPLE && tree == CHOICE_TREE_1)
-					sens = ((min_node_dist(W3,Y3) == W3)?TREE_TRIGO : TREE_HORAIRE);
+					sens = ((min_node_dist(W3,Y3) == W3)?TRIGO : HORAIRE);
 
 				else if(state == RECUP_TREE_2_SIMPLE && tree == CHOICE_TREE_2)
-					sens = ((min_node_dist(Z2,Z1) == Z1)?TREE_TRIGO : TREE_HORAIRE);
+					sens = ((min_node_dist(Z2,Z1) == Z1)?TRIGO : HORAIRE);
 
 				else
-					sens = TREE_TRIGO; // Impose un sens par defaut si n'a pas trouver de choix
+					sens = TRIGO; // Impose un sens par defaut si n'a pas trouver de choix
 			}else
 				sens = parmSens;
 
@@ -322,7 +309,6 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 	return IN_PROGRESS;
 }
 
-
 error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mammouth si sens == TREE_TRIGO
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
@@ -360,7 +346,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						SLOW};
 
 			for(i=0;i<NBPOINT;i++){
-				if(sens == TREE_TRIGO)
+				if(sens == TRIGO)
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
@@ -370,7 +356,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
 
-			if(sens == TREE_TRIGO)  // Modifie le sens
+			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = BACKWARD;
 			else
 				sensRobot = FORWARD;
@@ -384,11 +370,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, OPEN_LABIUM, ERROR, FAST, sensRobot, NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case OPEN_LABIUM :
@@ -402,12 +388,12 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case RECUP_TREE_1:
-			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,courbe[1].speed, sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case COURBE:
 			if(entrance){
-				if(sens == TREE_TRIGO)
+				if(sens == TRIGO)
 					strat_fruit_sucess = TREE_1;
 				else
 					strat_fruit_sucess = TREE_2;
@@ -422,11 +408,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case RECUP_TREE_2:
-			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,courbe[NBPOINT-2].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -499,7 +485,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1800+offset_recalage.y},					SLOW};
 
 			for(i=0;i<NBPOINT;i++){
-				if(sens == TREE_HORAIRE)
+				if(sens == HORAIRE)
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
@@ -509,7 +495,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
 
-			if(sens == TREE_HORAIRE)  // Modifie le sens
+			if(sens == HORAIRE)  // Modifie le sens
 				sensRobot = FORWARD;
 			else
 				sensRobot = BACKWARD;
@@ -523,20 +509,20 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case GET_IN:
 			if(entrance){
-				if(global.env.color == RED && sens==TREE_HORAIRE)
+				if(global.env.color == RED && sens==HORAIRE)
 					point_pathfind = Z1;
-				else if(global.env.color == RED && sens==TREE_TRIGO)
+				else if(global.env.color == RED && sens==TRIGO)
 					point_pathfind = W3;
-				else if(sens==TREE_TRIGO)
+				else if(sens==TRIGO)
 					point_pathfind = A1;
 				else
 					point_pathfind = C3;
 			}
-			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case OPEN_LABIUM :
@@ -550,12 +536,12 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case RECUP_TREE_1:
-			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,courbe[1].speed, sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case COURBE:
 			if(entrance){
-				if(sens == TREE_TRIGO)
+				if(sens == TRIGO)
 					strat_fruit_sucess = TREE_2;
 				else
 					strat_fruit_sucess = TREE_1;
@@ -569,11 +555,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case RECUP_TREE_2:
-			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,courbe[NBPOINT-2].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -644,7 +630,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 
 			for(i=0;i<NBPOINT;i++){
-				if(sens == TREE_TRIGO)
+				if(sens == TRIGO)
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
@@ -654,7 +640,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
 
-			if(sens == TREE_TRIGO)  // Modifie le sens
+			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = BACKWARD;
 			else
 				sensRobot = FORWARD;
@@ -668,11 +654,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case OPEN_LABIUM :
@@ -686,7 +672,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -761,7 +747,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 
 			for(i=0;i<NBPOINT;i++){
-				if(sens == TREE_HORAIRE)
+				if(sens == HORAIRE)
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
@@ -771,7 +757,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
 
-			if(sens == TREE_TRIGO)  // Modifie le sens
+			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = BACKWARD;
 			else
 				sensRobot = FORWARD;
@@ -785,11 +771,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case OPEN_LABIUM :
@@ -803,7 +789,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
