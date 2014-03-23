@@ -255,7 +255,7 @@ static void ELEMENT_scan_triangle_init(){
 			objet[j][i].x = 0;
 		}
 	}
-	scan_anything = NO_REPONSE;
+	scan_anything = NO_ANSWER;
 }
 
 static void TRIANGLE_WARNER_init(){
