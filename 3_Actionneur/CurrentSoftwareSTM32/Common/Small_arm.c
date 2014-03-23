@@ -9,14 +9,14 @@
  *  Robot : SMALL
  */
 
+#include "Small_arm.h"
+#include "Small_arm_config.h"
+
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../config/config_pin.h"
-#include "Small_arm_config.h"
-#include "Small_arm.h"
-
 
 #include "config_debug.h"
 #define LOG_PREFIX "Small_arm.c : "
