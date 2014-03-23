@@ -140,12 +140,12 @@ void Strat_Detection_Triangle(void){
 			break;
 
 		case SCAN_FOYER_GAUCHE :
-			state = try_going_and_rotate_scan(0, -PI4096/2, 90,
+			state = ELEMENT_try_going_and_rotate_scan(0, -PI4096/2, 90,
 							 1600, 2600, SCAN_FOYER_GAUCHE, PLACEMENT_FOYER_MILIEU, PLACEMENT_FOYER_MILIEU, FAST, FORWARD, NO_AVOIDANCE);
 			break;
 
 		case PLACEMENT_FOYER_MILIEU :
-			state = try_going_and_rotate_scan(3*PI4096/4, -3*PI4096/4, 90,
+			state = ELEMENT_try_going_and_rotate_scan(3*PI4096/4, -3*PI4096/4, 90,
 							  1000, 1900, PLACEMENT_FOYER_MILIEU, LIBERE_MILIEU, LIBERE_MILIEU, SLOW, FORWARD, NO_AVOIDANCE);
 			break;
 
@@ -154,7 +154,7 @@ void Strat_Detection_Triangle(void){
 			break;
 
 		case PLACEMENT_FOYER_DROIT :
-			state =  try_going_and_rotate_scan(-PI4096/2, -PI4096, 90,
+			state =  ELEMENT_try_going_and_rotate_scan(-PI4096/2, -PI4096, 90,
 							   1600, 400, PLACEMENT_FOYER_DROIT, SCAN_FOYER_GAUCHE, SCAN_FOYER_GAUCHE, SLOW, FORWARD, NO_AVOIDANCE);
 			break;
 
@@ -191,12 +191,12 @@ void strat_test_warner_triangle(){
 
 		case DETECTION_TRIANGLE_3 :
 			if(entrance)
-				launch_triangle_warner(3);
+				ELEMENT_launch_triangle_warner(3);
 			state = try_going(1600, 650, DETECTION_TRIANGLE_3, DISPLAY_ANSWER, DISPLAY_ANSWER, SLOW, ANY_WAY, NO_AVOIDANCE);
 			break;
 
 		case DISPLAY_ANSWER :
-			if(triangle_present())
+			if(ELEMENT_triangle_present())
 				debug_printf("triangle n°3 présent\n");
 			else
 				debug_printf("triangle n°3 non présent\n");
