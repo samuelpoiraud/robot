@@ -172,6 +172,9 @@ Uint16 PATHFING_get_symetric(Uint8 n);
 
 Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, ASSER_speed_e speed, avoidance_type_e avoidance, ASSER_end_condition_e end_condition);
 
+// Ne pas utiliser pour le moment
+pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filteredNodes, Sint16 final_x, Sint16 final_y);
+
 /*
  *	Compare deux node et revoit la plus pres
  */

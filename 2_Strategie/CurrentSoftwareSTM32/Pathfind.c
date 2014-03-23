@@ -14,6 +14,7 @@
 #include "config_use.h"
 #include "../state_machine_helper.h"
 #include "avoidance.h"
+#include <math.h>
 
 #define pathfind_debug_printf(...)	debug_printf(__VA_ARGS__)
 //#define pathfind_debug_printf(...)	void(0)
@@ -289,6 +290,7 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 
 	from_without_adversaries = 	PATHFIND_closestNode(xFrom, yFrom, 0);
 	from = 						PATHFIND_closestNode(xFrom, yFrom, adversaries_nodes);	//On cherche le noeud le plus proche (en enlevant les noeuds occupés par l'adversaire)
+	//from =						PATHFIND_closestNodeToEnd(xFrom, yFrom, adversaries_nodes, PATHFIND_get_node_x(to), PATHFIND_get_node_y(to));
 
 	if(from == NOT_IN_NODE)
 		return 0;	//Pas de chemin possible... c'est d'ailleurs très étrange...
@@ -541,6 +543,85 @@ pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2){
 		return n1;
 	else
 		return n2;
+}
+
+
+/* Fonction de sélection du point le plus proche en fonction du point final voulue
+ * TODO : Finir et tester cette fonction
+*/
+#define square(x) ((float)x*(float)x)
+
+pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filteredNodes, Sint16 final_x, Sint16 final_y)
+{
+	typedef struct{
+		Uint16 x;
+		Uint16 y;
+	}vecteur_s;
+	Uint8 i;
+	Uint16 dist, minDist = 65535, minAngle;
+	pathfind_node_id_t n, closestNode = NOT_IN_NODE, closestNodes[4] = {NOT_IN_NODE, NOT_IN_NODE, NOT_IN_NODE, NOT_IN_NODE};
+	vecteur_s vecteur[5];
+	float angle_vector[4];
+
+	// On trouve les 4 plus proches node
+	for(i=0; i<4; i++){
+		for (n = 0; n < PATHFIND_NODE_NB; n++)
+		{
+			if (PATHFIND_TST_NODE_IN(n, filteredNodes) == FALSE)
+			{
+				dist = PATHFIND_manhattan_dist(x, y, nodes[n].x, nodes[n].y);
+				if (dist < minDist)
+				{
+					minDist = dist;
+					closestNode = n;
+				}
+			}
+		}
+		if(i == 0 && closestNode == NOT_IN_NODE)
+			return closestNode;
+		closestNodes[i] = closestNode;
+		filteredNodes |= ((Uint32)1) << closestNode;
+	}
+
+	// On retire les nodes qui ne sont pas voisin avec le node le plus proche
+	for(i=1;i<4;i++){
+		if(closestNodes[i] == NOT_IN_NODE || ((((Uint32)1) << closestNodes[i]) & nodes[closestNodes[0]].neighbors) == 0)
+			closestNodes[i] = NOT_IN_NODE;
+	}
+
+	// On calcule le vecteur entre chaque node et nous
+	for(i=0;i<4;i++){
+		if(closestNodes[i] != NOT_IN_NODE){
+			vecteur[i].x = x-PATHFIND_get_node_x(closestNodes[i]);
+			vecteur[i].y = y-PATHFIND_get_node_y(closestNodes[i]);
+		}else
+			vecteur[i] = (vecteur_s){0,0};
+	}
+
+	// On calcule le vecteur entre nous et le node final
+	vecteur[4].x = final_x-x;
+	vecteur[4].y = final_y-y;
+
+	// On calcule l'angle entre chaque vecteur (node -> nous) et le vecteur final (nous -> fin)
+	for(i=0;i<4;i++){
+		if(closestNodes[i] != NOT_IN_NODE)
+			angle_vector[i] = acos(vecteur[i].x*final_x + vecteur[i].y*final_y /
+									(sqrt(square(vecteur[i].x) + square(vecteur[i].y))
+										* sqrt(square(final_x) + square(final_y))));
+	}
+
+	// On cherche qui a le plus petit angle entre chaque vecteur (node -> nous) et le vecteur final (nous -> fin)
+	closestNode = closestNodes[0];
+	minAngle = angle_vector[0];
+	for(i=1;i<4;i++){
+		if(minAngle > angle_vector[i]){
+			minAngle = angle_vector[i];
+			closestNode = closestNodes[i];
+		}
+	}
+
+	// On retourne le node le plus optimisé
+	return closestNode;
 }
 
 #if VIEILLE_FONCTION_OBSOLETE
