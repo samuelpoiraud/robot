@@ -296,21 +296,44 @@
 		#endif /* def USE_ELEMENT_CAN_DEBUG */
 
 #endif /* def ELEMENTS_C */
+
+	// Enumération
+
 	typedef enum{
 		LABIUM_OPEN,
 		LABIUM_CLOSE,
 		UNKNOWN
 	}labium_state_e;
 
-	void TRIANGLE_add_to_list(CAN_msg_t* msg);
-	bool_e propulsion_send_triangle();
-	void afficher_donnee_triangle();
-	void TRIANGLE_init_list();
-	void LAUNCH_SCAN_TRIANGLE();
-	void TRIANGLE_WARNER(CAN_msg_t* msg);
-	Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
-	void launch_triangle_warner(Uint8 number_triangle);
-	bool_e triangle_present();
-	Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+	typedef enum{
+		OBJECT_IN_ZONE,
+		ZONE_EMPTY,
+		NO_ANSWER
+	}scan_anything_e;
 
+	// Fonction de réception de message CAN
+	void ELEMENT_triangle_add_to_list(CAN_msg_t* msg);	// Ajoute le triangle du message can dans la liste
+	void ELEMENT_triangle_warner(CAN_msg_t* msg);		// Recupère le résultat du warner
+	void ELEMENT_update_labium_state(CAN_msg_t* msg);	// Mets à jours l'état du labium
+	void ELEMENT_answer_scan_anything(CAN_msg_t* msg);	// Recupère le résultat du scan
+
+	// Fonction utilisateur
+	void ELEMENT_afficher_triangle();			// Affiche tout les triangles que le scan a trouver
+	bool_e ELEMENT_triangle_present();			// Retourne la présence d'un triangle après demande de la warner
+	bool_e ELEMENT_torche_present();			// Retounre la présence d'une torche après un scan
+	scan_anything_e ELEMENT_get_result_scan();	// Retourne l'état du dernier scan
+
+	// Fonction de lancement / subaction
+
+	// Lance une warner pour la détection des triangles contre bordure de 0 à 3 en commençant par le triangle contre la bordure côté rouge
+	void ELEMENT_launch_triangle_warner(Uint8 number_triangle);
+
+	// subaction qui donne l'ordre puis attend que le labium soit dans la position 'labium_order'
+	Uint8 ELEMENT_do_and_wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+
+	// subaction qui dit d'aller en telle position puis d'effectuer un scan
+	Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
+
+	// subaction qui effectue un scan
+	Uint8 rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 #endif /* ndef ELEMENTS_H */

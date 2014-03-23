@@ -8,68 +8,52 @@
  *	Auteur : Ronan, Adrien
  *	Version 20110430
  */
- #include "elements.h"
+#include "elements.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_CANmsgList.h"
+#include "act_functions.h"
 
+#define SCAN_TIMEOUT			4000
 #define LABIUM_TIMEOUT			500
 #define LABIUM_ORDER_TIMEOUT	200
 
-bool_e prop_send_all_triangle = FALSE;
+static bool_e ELEMENT_propulsion_send_triangle();
+static void ELEMENT_scan_triangle_init();
+static void TRIANGLE_WARNER_init();
 
+static bool_e prop_send_all_triangle = FALSE;
+static scan_anything_e scan_anything = NO_ANSWER;
 static labium_state_e labium_state = UNKNOWN;
-static Uint16 time_labium_state = 0;
+static time32_t time_labium_state = 0;
 
-struct{
+static struct{
 	enum{NO_REPONSE, TRIANGLE_PRESENT, TRIANGLE_NO_PRESENT}state_warner_triangle;
 	Uint8 number_triangle;
 }warner_param;
 
-struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
-Uint8 nb_objet[3];
+static struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
+static Uint8 nb_objet[3];
 
-Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance){
+//------------------------------------
+// Fonction de lancement / subaction
+//------------------------------------
+
+Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance){
 	typedef enum
 	{
 		TRY_GOING,
-		BEGIN_SCAN,
 		SCAN,
 		SCAN_END,
 		ERROR
 	}state_e;
 	static state_e state = TRY_GOING;
-	CAN_msg_t msg;
-	static time32_t timeLaunch;
 	switch(state){
 		case TRY_GOING:
-			state = try_going(x, y, TRY_GOING, BEGIN_SCAN, ERROR, speed, way, avoidance);
-			break;
-
-		case BEGIN_SCAN:
-			msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
-			msg.data[0] = 0x00;
-			msg.data[1] = nb_points;
-			msg.data[2] = (Uint8)((startTeta >> 8) & 0x00FF);
-			msg.data[3] = (Uint8)(startTeta & 0x00FF);
-			msg.data[4] = (Uint8)((endTeta >> 8) & 0x00FF);
-			msg.data[5] = (Uint8)(endTeta & 0x00FF);
-			msg.size = 6;
-			CAN_send(&msg);
-			TRIANGLE_init_list();
-			timeLaunch = global.env.match_time;
-			state = SCAN;
+			state = try_going(x, y, TRY_GOING, SCAN, ERROR, speed, way, avoidance);
 			break;
 
 		case SCAN:
-			if(propulsion_send_triangle()){
-				afficher_donnee_triangle();
-				state = SCAN_END;
-			}else if(timeLaunch-global.env.match_time > 5000){
-				#ifdef VERBOSE_MODE
-					debug_printf("TIMEOUT SCAN TRIANGLE\n");
-				#endif
-				state = ERROR;
-			}
+			state = rotate_scan(startTeta, endTeta, nb_points, SCAN, SCAN_END, ERROR);
 			break;
 
 		case SCAN_END:
@@ -83,86 +67,56 @@ Uint8 try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_point
 	return in_progress;
 }
 
-void LAUNCH_SCAN_TRIANGLE(){
+Uint8 rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	typedef enum
+	{
+		BEGIN_SCAN,
+		SCAN,
+		SCAN_END,
+		ERROR
+	}state_e;
+	static state_e state = BEGIN_SCAN;
+	static time32_t timeLaunch;
 	CAN_msg_t msg;
-	msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
-	msg.size = 0;
-	CAN_send(&msg);
-	TRIANGLE_init_list();
-}
+	switch(state){
 
-void TRIANGLE_init_list(){
-	Uint8 i, j;
-	for(j=0;j<3;j++){
-		nb_objet[j] = 0;
-		for(i=0;i<20;i++){
-			objet[j][i].teta = 0;
-			objet[j][i].y = 0;
-			objet[j][i].x = 0;
-		}
+		case BEGIN_SCAN:
+			msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
+			msg.data[0] = 0x00;
+			msg.data[1] = nb_points;
+			msg.data[2] = (Uint8)((startTeta >> 8) & 0x00FF);
+			msg.data[3] = (Uint8)(startTeta & 0x00FF);
+			msg.data[4] = (Uint8)((endTeta >> 8) & 0x00FF);
+			msg.data[5] = (Uint8)(endTeta & 0x00FF);
+			msg.size = 6;
+			CAN_send(&msg);
+			ELEMENT_scan_triangle_init();
+			timeLaunch = global.env.match_time;
+			state = SCAN;
+			break;
+
+		case SCAN:
+			if(ELEMENT_propulsion_send_triangle() == TRUE){
+				//ELEMENT_afficher_triangle();
+				state = SCAN_END;
+			}else if(global.env.match_time-timeLaunch >= SCAN_TIMEOUT){
+				debug_printf("TIMEOUT SCAN TRIANGLE\n");
+				state = ERROR;
+			}
+			break;
+
+		case SCAN_END:
+			state = BEGIN_SCAN;
+			return success_state;
+
+		case ERROR:
+			state = BEGIN_SCAN;
+			return fail_state;
 	}
+	return in_progress;
 }
 
-void TRIANGLE_WARNER_init_list(){
-	warner_param.state_warner_triangle = NO_REPONSE;
-}
-
-void TRIANGLE_add_to_list(CAN_msg_t* msg){
-	Uint8 level, number;
-	level = (msg->data[0] & 0x60) >> 5;
-	number = (msg->data[0] & 0x1F);
-	if(level < 3 && number < 20){
-		objet[level][number].x = (((Sint16)(msg->data[1]) << 8) & 0xFF00) | ((Sint16)(msg->data[2]) & 0x00FF);
-		objet[level][number].y = (((Sint16)(msg->data[3]) << 8) & 0xFF00) | ((Sint16)(msg->data[4]) & 0x00FF);
-		objet[level][number].teta = (((Sint16)(msg->data[5]) << 8) & 0xFF00) | ((Sint16)(msg->data[6]) & 0x00FF);
-		nb_objet[level] = number+1;
-	}
-	if(msg->data[0] & 0x80){
-		prop_send_all_triangle = TRUE;
-	}
-}
-
-bool_e propulsion_send_triangle(){
-	if(prop_send_all_triangle){
-		prop_send_all_triangle = FALSE;
-		return TRUE;
-	}else
-		return FALSE;
-}
-
-void afficher_donnee_triangle(){
-	Uint8 i, j;
-	for(i=0;i<3;i++){
-		for(j=0;j<nb_objet[i];j++){
-			debug_printf("%d %d  x:%d  y:%d  teta:%d\n", i, j, objet[i][j].x, objet[i][j].y, objet[i][j].teta);
-		}
-	}
-}
-
-void launch_triangle_warner(Uint8 number_triangle){
-	CAN_msg_t msg;
-	msg.sid = ASSER_LAUNCH_WARNER_TRIANGLE;
-	msg.data[0] = number_triangle;
-	msg.size = 1;
-	CAN_send(&msg);
-	TRIANGLE_WARNER_init_list();
-}
-
-void TRIANGLE_WARNER(CAN_msg_t* msg){
-	warner_param.number_triangle = msg->data[0];
-	if(msg->data[1])
-		warner_param.state_warner_triangle = TRIANGLE_PRESENT;
-}
-
-bool_e triangle_present(){
-	return warner_param.state_warner_triangle == TRIANGLE_PRESENT;
-}
-
-bool_e torche_present(){
-	return nb_objet[2] > 0;
-}
-
-Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+Uint8 ELEMENT_do_and_wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 	typedef enum
 	{
 		IDLE,
@@ -175,6 +129,10 @@ Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint
 	switch(state){
 
 		case IDLE :
+			if(labium_order == LABIUM_OPEN)
+				ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
+			else if(labium_order == LABIUM_CLOSE)
+				ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
 			timeLaunch = global.env.match_time;
 			if(global.env.match_time - time_labium_state >= LABIUM_ORDER_TIMEOUT)
 				labium_state = UNKNOWN;
@@ -202,7 +160,64 @@ Uint8 wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint
 	return in_progress;
 }
 
-void update_labium_state(CAN_msg_t* msg){
+void ELEMENT_launch_triangle_warner(Uint8 number_triangle){
+	CAN_msg_t msg;
+	msg.sid = ASSER_LAUNCH_WARNER_TRIANGLE;
+	msg.data[0] = number_triangle;
+	msg.size = 1;
+	CAN_send(&msg);
+	TRIANGLE_WARNER_init();
+}
+
+//------------------------------------
+// Fonction utilisateur
+//------------------------------------
+
+void ELEMENT_afficher_triangle(){
+	Uint8 i, j;
+	for(i=0;i<3;i++){
+		for(j=0;j<nb_objet[i];j++){
+			debug_printf("%d %d  x:%d  y:%d  teta:%d\n", i, j, objet[i][j].x, objet[i][j].y, objet[i][j].teta);
+		}
+	}
+}
+
+bool_e ELEMENT_triangle_present(){
+	return warner_param.state_warner_triangle == TRIANGLE_PRESENT;
+}
+
+bool_e ELEMENT_torche_present(){
+	return nb_objet[2] > 0;
+}
+
+scan_anything_e ELEMENT_get_result_scan(){
+	return scan_anything;
+}
+
+//------------------------------------
+// Fonction de reception message CAN
+//------------------------------------
+
+void ELEMENT_triangle_add_to_list(CAN_msg_t* msg){
+	Uint8 level, number;
+	level = (msg->data[0] & 0x60) >> 5;
+	number = (msg->data[0] & 0x1F);
+	if(level < 3 && number < 20){
+		objet[level][number].x = (((Sint16)(msg->data[1]) << 8) & 0xFF00) | ((Sint16)(msg->data[2]) & 0x00FF);
+		objet[level][number].y = (((Sint16)(msg->data[3]) << 8) & 0xFF00) | ((Sint16)(msg->data[4]) & 0x00FF);
+		objet[level][number].teta = (((Sint16)(msg->data[5]) << 8) & 0xFF00) | ((Sint16)(msg->data[6]) & 0x00FF);
+		nb_objet[level] = number+1;
+	}
+	if(msg->data[0] & 0x80){
+		prop_send_all_triangle = TRUE;
+	}
+}
+
+void ELEMENT_answer_scan_anything(CAN_msg_t* msg){
+
+}
+
+void ELEMENT_update_labium_state(CAN_msg_t* msg){
 	time_labium_state = global.env.match_time;
 	if(msg->data[0] == STRAT_INFORM_FRUIT_MOUTH_OPEN)
 		labium_state = OPEN;
@@ -211,6 +226,43 @@ void update_labium_state(CAN_msg_t* msg){
 	else
 		labium_state = UNKNOWN;
 }
+
+void ELEMENT_triangle_warner(CAN_msg_t* msg){
+	warner_param.number_triangle = msg->data[0];
+	if(msg->data[1])
+		warner_param.state_warner_triangle = TRIANGLE_PRESENT;
+}
+
+//------------------------------------
+// Fonction interne
+//------------------------------------
+
+static bool_e ELEMENT_propulsion_send_triangle(){
+	if(prop_send_all_triangle){
+		prop_send_all_triangle = FALSE;
+		return TRUE;
+	}else
+		return FALSE;
+}
+
+static void ELEMENT_scan_triangle_init(){
+	Uint8 i, j;
+	for(j=0;j<3;j++){
+		nb_objet[j] = 0;
+		for(i=0;i<20;i++){
+			objet[j][i].teta = 0;
+			objet[j][i].y = 0;
+			objet[j][i].x = 0;
+		}
+	}
+	scan_anything = NO_REPONSE;
+}
+
+static void TRIANGLE_WARNER_init(){
+	warner_param.state_warner_triangle = NO_REPONSE;
+}
+
+
 
 #if 0
  #define ELEMENTS_C
