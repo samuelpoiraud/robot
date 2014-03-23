@@ -274,7 +274,7 @@ void strat_lannion(void){
 
 			case TRIANGLE1:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 
 				state = try_going_multipoint(deplacement,3,TRIANGLE1,DEPOSER_FRESQUE,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 				break;
@@ -289,14 +289,14 @@ void strat_lannion(void){
 
 			case TRIANGLE3:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 
 				state = try_going_until_break(deplacement[6].point.x,deplacement[6].point.y,TRIANGLE3,TRIANGLE3_AVANCER,ERROR,deplacement[6].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
 			case TRIANGLE3_AVANCER:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 				state = try_going_until_break(deplacement[7].point.x,deplacement[7].point.y,TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,deplacement[7].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
@@ -306,21 +306,21 @@ void strat_lannion(void){
 
 			case TRIANGLE6:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 
 				state = try_going_until_break(deplacement[14].point.x,deplacement[14].point.y,TRIANGLE6,TRIANGLE6_AVANCER,ERROR,deplacement[14].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
 			case TRIANGLE6_AVANCER:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 
 				state = try_going_until_break(deplacement[15].point.x,deplacement[15].point.y,TRIANGLE6_AVANCER,DEGAGEMENT,ERROR,deplacement[15].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
 			case DEGAGEMENT:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 				state = try_going_until_break(deplacement[16].point.x,deplacement[16].point.y,DEGAGEMENT,RECALAGE,ERROR,deplacement[16].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
@@ -494,7 +494,7 @@ void strat_test_point2(){
 //				state = ESCAPE_FRESCO;
 //				break;
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 				state = check_sub_action_result(strat_manage_fresco(),DEPOSE_FRESCO,ESCAPE_FRESCO,ERROR);
 				break;
 
@@ -508,20 +508,20 @@ void strat_test_point2(){
 
 			case TRIANGLE2:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 				state = try_going_multipoint(&deplacement[3],3,TRIANGLE2,TRIANGLE3,TRIANGLE3,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
 				break;
 
 			case TRIANGLE3:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 
 				state = try_going_until_break(deplacement[6].point.x,deplacement[6].point.y,TRIANGLE3,TRIANGLE3_AVANCER,TRIANGLE3_AVANCER,deplacement[6].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
 			case TRIANGLE3_AVANCER:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 				state = try_going_until_break(deplacement[7].point.x,deplacement[7].point.y,TRIANGLE3_AVANCER,TRIANGLE4_5,TRIANGLE4_5,deplacement[7].speed,(sensRobot == FORWARD)?BACKWARD:FORWARD,NO_AVOIDANCE);
 				break;
 
@@ -531,21 +531,21 @@ void strat_test_point2(){
 
 			case TRIANGLE6:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 
 				state = try_going_until_break(deplacement[14].point.x,deplacement[14].point.y,TRIANGLE6,TRIANGLE6_AVANCER,TRIANGLE6_AVANCER,deplacement[14].speed,sensRobot,NO_AVOIDANCE);
 				break;
 
 			case TRIANGLE6_AVANCER:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 
 				state = try_going_until_break(deplacement[15].point.x,deplacement[15].point.y,TRIANGLE6_AVANCER,DEGAGEMENT,DEGAGEMENT,deplacement[15].speed,(sensRobot == FORWARD)?BACKWARD:FORWARD,NO_AVOIDANCE);
 				break;
 
 			case DEGAGEMENT:
 				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Close);
+					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 				state = try_going_until_break(450,COLOR_Y(350),DEGAGEMENT,RECALAGE1,RECALAGE1,FAST,ANY_WAY,NO_AVOIDANCE);
 				break;
 

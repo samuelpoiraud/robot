@@ -18,11 +18,6 @@
 #include "../Pathfind.h"
 #include "../Geometry.h"
 
-
-// Define à activer pour activer les attentes de l'ouverture des verrins
-#define USE_WAIT_LABIUM
-
-
 #define LARGEUR_LABIUM	250
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
 #define ELOIGNEMENT_POSE_BAC_FRUIT 500
@@ -105,10 +100,10 @@ error_e strat_file_fruit(){
 		case GO :
 			if(entrance){
 				ASSER_WARNER_arm_y(posOpen);
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 			}
 			if(global.env.asser.reach_y)
-				ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_OPEN);
+				ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
 			state = try_going_multipoint(dplt, 3, GO, DONE , ERROR, sensRobot, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
@@ -119,21 +114,21 @@ error_e strat_file_fruit(){
 			break;
 
 		case DONE: // Fermer le bac à fruit et rentrer le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR: // Fermer le bac à fruit et rentrer le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
-			ACT_fruit_mouth_goto(ACT_FRUIT_LABIUM_CLOSE);
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
@@ -378,13 +373,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case OPEN_LABIUM :
-			if(entrance)
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-			#ifdef USE_WAIT_LABIUM
-				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, RECUP_TREE_1, RECUP_TREE_1);
-			#else
-				state = RECUP_TREE_1;
-			#endif
+			state = ELEMENT_do_and_wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, RECUP_TREE_1, RECUP_TREE_1);
 			break;
 
 		case RECUP_TREE_1:
@@ -423,19 +412,19 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case DONE:
 			strat_fruit_sucess = ALL_TREE;
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
 			state = IDLE;
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			return NOT_HANDLED;
 			break;
 
@@ -526,13 +515,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case OPEN_LABIUM :
-			if(entrance)
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-			#ifdef USE_WAIT_LABIUM
-				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, RECUP_TREE_1, RECUP_TREE_1);
-			#else
-				state = RECUP_TREE_1;
-			#endif
+			state = ELEMENT_do_and_wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, RECUP_TREE_1, RECUP_TREE_1);
 			break;
 
 		case RECUP_TREE_1:
@@ -570,19 +553,19 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case DONE:
 			strat_fruit_sucess = ALL_TREE;
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
 			state = IDLE;
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			return NOT_HANDLED;
 			break;
 
@@ -662,13 +645,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case OPEN_LABIUM :
-			if(entrance)
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-			#ifdef USE_WAIT_LABIUM
-				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, POS_FIN, POS_FIN);
-			#else
-				state = POS_FIN;
-			#endif
+			state = ELEMENT_do_and_wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, POS_FIN, POS_FIN);
 			break;
 
 		case POS_FIN:
@@ -682,24 +659,24 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case DONE:
-			if( tree == CHOICE_TREE_1)
+			if(tree == CHOICE_TREE_1)
 				strat_fruit_sucess = TREE_1;
 			else
 				strat_fruit_sucess = TREE_2;
 
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
 			state = IDLE;
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			return NOT_HANDLED;
 			break;
 
@@ -779,13 +756,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case OPEN_LABIUM :
-			if(entrance)
-				ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_OPEN);
-			#ifdef USE_WAIT_LABIUM
-				state = wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, POS_FIN, POS_FIN);
-			#else
-				state = POS_FIN;
-			#endif
+			state = ELEMENT_do_and_wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, POS_FIN, POS_FIN);
 			break;
 
 		case POS_FIN:
@@ -799,24 +770,24 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case DONE:
-			if( tree == CHOICE_TREE_1)
+			if(tree == CHOICE_TREE_1)
 				strat_fruit_sucess = TREE_1;
 			else
 				strat_fruit_sucess = TREE_2;
 
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = GET_OUT_WITH_ERROR;
 			break;
 
 		case ERROR_WITH_GET_OUT :
 			state = IDLE;
-			ACT_fruit_mouth_goto(ACT_FRUIT_MOUTH_CLOSE);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			return NOT_HANDLED;
 			break;
 
