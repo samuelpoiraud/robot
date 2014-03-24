@@ -12,6 +12,7 @@
 #define STACKS_C
 #include "Stacks.h"
 #include "QS/QS_outputlog.h"
+#include "Supervision/Buzzer.h"
 
 typedef struct
 {
