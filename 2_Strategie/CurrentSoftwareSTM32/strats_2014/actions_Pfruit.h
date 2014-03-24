@@ -45,6 +45,8 @@ typedef enum{
 	ALL_TREE
 }tree_sucess_e;
 
+
+
 error_e strat_file_fruit();
 error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e parmSens);
 
@@ -53,6 +55,8 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens);
 
 error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens);
 error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens);
+
+bool_e get_presenceFruit();
 
 #endif /* ACTIONS_PFRUIT_H */
 

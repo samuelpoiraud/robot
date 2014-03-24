@@ -26,6 +26,8 @@ extern GEOMETRY_point_t offset_recalage;
 
 static tree_sucess_e strat_fruit_sucess = NO_TREE;
 
+// Des qu'un arbre est bien reussi s'est fort probable que nous ayons des fruits dans notre Labium
+bool_e presenceFruit = FALSE;
 
 error_e strat_file_fruit(){
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -116,6 +118,7 @@ error_e strat_file_fruit(){
 		case DONE: // Fermer le bac à fruit et rentrer le bras
 			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			presenceFruit = FALSE;
 			state = IDLE;
 			return END_OK;
 			break;
@@ -379,6 +382,8 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case COURBE:
 			if(entrance){
+				presenceFruit = TRUE;
+
 				if(sens == TRIGO)
 					strat_fruit_sucess = TREE_1;
 				else
@@ -408,6 +413,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case DONE:
+			presenceFruit = TRUE;
 			strat_fruit_sucess = ALL_TREE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
@@ -521,6 +527,8 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case COURBE:
 			if(entrance){
+				presenceFruit = TRUE;
+
 				if(sens == TRIGO)
 					strat_fruit_sucess = TREE_2;
 				else
@@ -549,6 +557,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case DONE:
+			presenceFruit = TRUE;
 			strat_fruit_sucess = ALL_TREE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
@@ -656,6 +665,8 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case DONE:
+			presenceFruit = TRUE;
+
 			if(tree == CHOICE_TREE_1)
 				strat_fruit_sucess = TREE_1;
 			else
@@ -767,6 +778,8 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case DONE:
+			presenceFruit = TRUE;
+
 			if(tree == CHOICE_TREE_1)
 				strat_fruit_sucess = TREE_1;
 			else
@@ -793,4 +806,8 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 	}
 
 	return IN_PROGRESS;
+}
+
+bool_e get_presenceFruit(){
+	return presenceFruit;
 }
