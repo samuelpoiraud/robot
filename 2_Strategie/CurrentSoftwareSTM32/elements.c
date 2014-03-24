@@ -15,7 +15,7 @@
 
 #define SCAN_TIMEOUT			4000
 #define LABIUM_TIMEOUT			500
-#define LABIUM_ORDER_TIMEOUT	200
+#define verin_order_TIMEOUT	200
 
 static bool_e ELEMENT_propulsion_send_triangle();
 static void ELEMENT_scan_triangle_init();
@@ -23,8 +23,8 @@ static void TRIANGLE_WARNER_init();
 
 static bool_e prop_send_all_triangle = FALSE;
 static scan_anything_e scan_anything = NO_ANSWER;
-static labium_state_e labium_state = UNKNOWN;
-static time32_t time_labium_state = 0;
+static fruit_verin_state_e fruit_verin_state = UNKNOWN;
+static time32_t time_fruit_verin_state = 0;
 
 static struct{
 	enum{NO_REPONSE, TRIANGLE_PRESENT, TRIANGLE_NO_PRESENT}state_warner_triangle;
@@ -116,7 +116,7 @@ Uint8 rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Uint8 in_pr
 	return in_progress;
 }
 
-Uint8 ELEMENT_do_and_wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+Uint8 ELEMENT_do_and_wait_end_fruit_verin_order(fruit_verin_state_e verin_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 	typedef enum
 	{
 		IDLE,
@@ -129,20 +129,20 @@ Uint8 ELEMENT_do_and_wait_end_labium_order(labium_state_e labium_order, Uint8 in
 	switch(state){
 
 		case IDLE :
-			if(labium_order == LABIUM_OPEN)
-				ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
-			else if(labium_order == LABIUM_CLOSE)
-				ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+			if(verin_order == FRUIT_VERIN_OPEN)
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
+			else if(verin_order == FRUIT_VERIN_CLOSE)
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			timeLaunch = global.env.match_time;
-			if(global.env.match_time - time_labium_state >= LABIUM_ORDER_TIMEOUT)
-				labium_state = UNKNOWN;
+			if(global.env.match_time - time_fruit_verin_state >= verin_order_TIMEOUT)
+				fruit_verin_state = UNKNOWN;
 			state = WAIT;
 			break;
 
 		case WAIT:
-			if(labium_order == LABIUM_OPEN && labium_state == LABIUM_OPEN)
+			if(verin_order == FRUIT_VERIN_OPEN && fruit_verin_state == FRUIT_VERIN_OPEN)
 				state = END_OK;
-			else if(labium_order == LABIUM_CLOSE && labium_state == LABIUM_CLOSE)
+			else if(verin_order == FRUIT_VERIN_CLOSE && fruit_verin_state == FRUIT_VERIN_CLOSE)
 				state = END_OK;
 			else if(global.env.match_time - timeLaunch >= LABIUM_TIMEOUT)
 				state = ERROR;
@@ -154,7 +154,7 @@ Uint8 ELEMENT_do_and_wait_end_labium_order(labium_state_e labium_order, Uint8 in
 
 		case ERROR:
 			state = IDLE;
-			labium_state = UNKNOWN;
+			fruit_verin_state = UNKNOWN;
 			return fail_state;
 	}
 	return in_progress;
@@ -217,14 +217,14 @@ void ELEMENT_answer_scan_anything(CAN_msg_t* msg){
 
 }
 
-void ELEMENT_update_labium_state(CAN_msg_t* msg){
-	time_labium_state = global.env.match_time;
+void ELEMENT_update_fruit_verin_state(CAN_msg_t* msg){
+	time_fruit_verin_state = global.env.match_time;
 	if(msg->data[0] == STRAT_INFORM_FRUIT_MOUTH_OPEN)
-		labium_state = OPEN;
+		fruit_verin_state = OPEN;
 	else if(msg->data[0] == STRAT_INFORM_FRUIT_MOUTH_CLOSE)
-		labium_state = CLOSE;
+		fruit_verin_state = CLOSE;
 	else
-		labium_state = UNKNOWN;
+		fruit_verin_state = UNKNOWN;
 }
 
 void ELEMENT_triangle_warner(CAN_msg_t* msg){

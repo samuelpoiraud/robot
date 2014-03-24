@@ -300,10 +300,10 @@
 	// Enumération
 
 	typedef enum{
-		LABIUM_OPEN,
-		LABIUM_CLOSE,
+		FRUIT_VERIN_OPEN,
+		FRUIT_VERIN_CLOSE,
 		UNKNOWN
-	}labium_state_e;
+	}fruit_verin_state_e;
 
 	typedef enum{
 		OBJECT_IN_ZONE,
@@ -314,7 +314,7 @@
 	// Fonction de réception de message CAN
 	void ELEMENT_triangle_add_to_list(CAN_msg_t* msg);	// Ajoute le triangle du message can dans la liste
 	void ELEMENT_triangle_warner(CAN_msg_t* msg);		// Recupère le résultat du warner
-	void ELEMENT_update_labium_state(CAN_msg_t* msg);	// Mets à jours l'état du labium
+	void ELEMENT_update_fruit_verin_state(CAN_msg_t* msg);	// Mets à jours l'état du labium
 	void ELEMENT_answer_scan_anything(CAN_msg_t* msg);	// Recupère le résultat du scan
 
 	// Fonction utilisateur
@@ -329,7 +329,7 @@
 	void ELEMENT_launch_triangle_warner(Uint8 number_triangle);
 
 	// subaction qui donne l'ordre puis attend que le labium soit dans la position 'labium_order'
-	Uint8 ELEMENT_do_and_wait_end_labium_order(labium_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+	Uint8 ELEMENT_do_and_wait_end_fruit_verin_order(fruit_verin_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
 	// subaction qui dit d'aller en telle position puis d'effectuer un scan
 	Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
