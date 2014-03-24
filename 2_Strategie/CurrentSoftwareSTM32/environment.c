@@ -428,7 +428,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 		case STRAT_INFORM_FRUIT_MOUTH:
-			ELEMENT_update_labium_state(incoming_msg);
+			ELEMENT_update_fruit_verin_state(incoming_msg);
 			break;
 /******************************** Récupération des données du scan des triangles **************************/
 		case STRAT_TRIANGLE_POSITON :

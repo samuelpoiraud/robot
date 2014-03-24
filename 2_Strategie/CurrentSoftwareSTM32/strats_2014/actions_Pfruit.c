@@ -161,63 +161,79 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 
 		case IDLE:
 
-			if(choiceTree == CHOICE_TREE_1){
-				tree = CHOICE_TREE_1;
-				state = RECUP_TREE_1_SIMPLE;
-			}else if(choiceTree == CHOICE_TREE_2){
-				tree = CHOICE_TREE_2;
-				state = RECUP_TREE_2_SIMPLE;
-			}else if(choiceTree == CHOICE_ALL_TREE){
-				//----------------------------------------------------- Rouge
-				if(global.env.color == RED){
-					if(group == TREE_OUR){
-						if(fruit_group_our == NO_TREE)
-							state = RECUP_TREE_1;
-						else if(fruit_group_our == TREE_1){
-							tree = CHOICE_TREE_2;
-							state = RECUP_TREE_1_SIMPLE;
-						}else if(fruit_group_our == TREE_2){
-							tree = CHOICE_TREE_1;
-							state = RECUP_TREE_1_SIMPLE;
-						}else
-							state = ERROR;
-					}else{ // Arbre adeverse, ici ceux côté jaune
-						 if(fruit_group_adversary == NO_TREE)
-							state = RECUP_TREE_2;
-						else if(fruit_group_adversary == TREE_1){
-							tree = CHOICE_TREE_2;
-							state = RECUP_TREE_2_SIMPLE;
-						}else if(fruit_group_adversary == TREE_2){
-							tree = CHOICE_TREE_1;
-							state = RECUP_TREE_2_SIMPLE;
-						}else
-							state = ERROR;
-					}
-				//----------------------------------------------------- Jaune
-				}else{
-					if(group == TREE_OUR){
-						if(fruit_group_our == NO_TREE)
-							state = RECUP_TREE_2;
-						else if(fruit_group_our == TREE_1){
-							tree = CHOICE_TREE_2;
-							state = RECUP_TREE_2_SIMPLE;
-						}else if(fruit_group_our == TREE_2){
-							tree = CHOICE_TREE_1;
-							state = RECUP_TREE_2_SIMPLE;
-						}else
-							state = ERROR;
-					}else{ // Arbre adeverse, ici ceux côté rouge
-						if(fruit_group_adversary == NO_TREE)
-							state = RECUP_TREE_1;
-						else if(fruit_group_adversary == TREE_1){
-							tree = CHOICE_TREE_2;
-							state = RECUP_TREE_1_SIMPLE;
-						}else if(fruit_group_adversary == TREE_2){
-							tree = CHOICE_TREE_1;
-							state = RECUP_TREE_1_SIMPLE;
-						}else
-							state = ERROR;
-					}
+			//----------------------------------------------------- Rouge
+			if(global.env.color == RED){
+				if(choiceTree == CHOICE_TREE_1){
+					tree = CHOICE_TREE_1;
+					if(group == TREE_OUR)
+						state = RECUP_TREE_1_SIMPLE;
+					else
+						state = RECUP_TREE_2_SIMPLE;
+				}else if(choiceTree == CHOICE_TREE_2){
+					tree = CHOICE_TREE_2;
+					if(group == TREE_OUR)
+						state = RECUP_TREE_1_SIMPLE;
+					else
+						state = RECUP_TREE_2_SIMPLE;
+				}else if(group == TREE_OUR){
+					if(fruit_group_our == NO_TREE)
+						state = RECUP_TREE_1;
+					else if(fruit_group_our == TREE_1){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_1_SIMPLE;
+					}else if(fruit_group_our == TREE_2){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_1_SIMPLE;
+					}else
+						state = ERROR;
+				}else{ // Arbre adeverse, ici ceux côté jaune
+					 if(fruit_group_adversary == NO_TREE)
+						state = RECUP_TREE_2;
+					else if(fruit_group_adversary == TREE_1){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_2_SIMPLE;
+					}else if(fruit_group_adversary == TREE_2){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_2_SIMPLE;
+					}else
+						state = ERROR;
+				}
+			//----------------------------------------------------- Jaune
+			}else{
+				if(choiceTree == CHOICE_TREE_1){
+					tree = CHOICE_TREE_1;
+					if(group == TREE_OUR)
+						state = RECUP_TREE_2_SIMPLE;
+					else
+						state = RECUP_TREE_1_SIMPLE;
+				}else if(choiceTree == CHOICE_TREE_2){
+					tree = CHOICE_TREE_2;
+					if(group == TREE_OUR)
+						state = RECUP_TREE_2_SIMPLE;
+					else
+						state = RECUP_TREE_1_SIMPLE;
+				}else if(group == TREE_OUR){
+					if(fruit_group_our == NO_TREE)
+						state = RECUP_TREE_2;
+					else if(fruit_group_our == TREE_1){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_2_SIMPLE;
+					}else if(fruit_group_our == TREE_2){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_2_SIMPLE;
+					}else
+						state = ERROR;
+				}else{ // Arbre adeverse, ici ceux côté rouge
+					if(fruit_group_adversary == NO_TREE)
+						state = RECUP_TREE_1;
+					else if(fruit_group_adversary == TREE_1){
+						tree = CHOICE_TREE_2;
+						state = RECUP_TREE_1_SIMPLE;
+					}else if(fruit_group_adversary == TREE_2){
+						tree = CHOICE_TREE_1;
+						state = RECUP_TREE_1_SIMPLE;
+					}else
+						state = ERROR;
 				}
 			}
 
@@ -249,45 +265,26 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 
 		case RECUP_TREE_1:
 			state = check_sub_action_result(strat_ramasser_fruit_arbre1_double(sens),RECUP_TREE_1,DONE,ERROR);
-
-			if(global.env.color == RED)
-				fruit_group_our = strat_fruit_sucess;
-			else
-				fruit_group_adversary = strat_fruit_sucess;
-
 			break;
 
 		case RECUP_TREE_1_SIMPLE:
 			state = check_sub_action_result(strat_ramasser_fruit_arbre1_simple(tree,sens),RECUP_TREE_1_SIMPLE,DONE,ERROR);
-
-			if(global.env.color == RED)
-				fruit_group_our = strat_fruit_sucess;
-			else
-				fruit_group_adversary = strat_fruit_sucess;
-
 			break;
 
 		case RECUP_TREE_2:
 			state = check_sub_action_result(strat_ramasser_fruit_arbre2_double(sens),RECUP_TREE_2,DONE,ERROR);
-
-			if(global.env.color == RED)
-				fruit_group_adversary = strat_fruit_sucess;
-			else
-				fruit_group_our = strat_fruit_sucess;
-
 			break;
 
 		case RECUP_TREE_2_SIMPLE:
 			state = check_sub_action_result(strat_ramasser_fruit_arbre2_simple(tree,sens),RECUP_TREE_2_SIMPLE,DONE,ERROR);
-
-			if(global.env.color == RED)
-				fruit_group_adversary = strat_fruit_sucess;
-			else
-				fruit_group_our = strat_fruit_sucess;
-
 			break;
 
 		case DONE:
+			if(global.env.color == RED)
+				fruit_group_our = strat_fruit_sucess;
+			else
+				fruit_group_adversary = strat_fruit_sucess;
+
 			state = IDLE;
 			return END_OK;
 			break;
@@ -309,7 +306,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		IDLE,
 		GET_IN,
 		POS_DEPART,
-		OPEN_LABIUM,
+		OPEN_FRUIT_VERIN,
 		RECUP_TREE_1,
 		COURBE,
 		RECUP_TREE_2,
@@ -369,11 +366,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, OPEN_LABIUM, ERROR, FAST, sensRobot, NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, OPEN_FRUIT_VERIN, ERROR, FAST, sensRobot, NO_DODGE_AND_NO_WAIT);
 			break;
 
-		case OPEN_LABIUM :
-			state = ELEMENT_do_and_wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, RECUP_TREE_1, RECUP_TREE_1);
+		case OPEN_FRUIT_VERIN :
+			state = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, RECUP_TREE_1, RECUP_TREE_1);
 			break;
 
 		case RECUP_TREE_1:
@@ -440,7 +437,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		IDLE,
 		GET_IN,
 		POS_DEPART,
-		OPEN_LABIUM,
+		OPEN_FRUIT_VERIN,
 		RECUP_TREE_1,
 		COURBE,
 		RECUP_TREE_2,
@@ -511,11 +508,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
-		case OPEN_LABIUM :
-			state = ELEMENT_do_and_wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, RECUP_TREE_1, RECUP_TREE_1);
+		case OPEN_FRUIT_VERIN :
+			state = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, RECUP_TREE_1, RECUP_TREE_1);
 			break;
 
 		case RECUP_TREE_1:
@@ -581,7 +578,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 		IDLE,
 		GET_IN,
 		POS_DEPART,
-		OPEN_LABIUM,
+		OPEN_FRUIT_VERIN,
 		POS_FIN,
 		GET_OUT_WITH_ERROR,
 		DONE,
@@ -641,11 +638,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
-		case OPEN_LABIUM :
-			state = ELEMENT_do_and_wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, POS_FIN, POS_FIN);
+		case OPEN_FRUIT_VERIN :
+			state = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, POS_FIN, POS_FIN);
 			break;
 
 		case POS_FIN:
@@ -692,7 +689,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 		IDLE,
 		GET_IN,
 		POS_DEPART,
-		OPEN_LABIUM,
+		OPEN_FRUIT_VERIN,
 		POS_FIN,
 		GET_OUT_WITH_ERROR,
 		DONE,
@@ -752,11 +749,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_LABIUM,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
-		case OPEN_LABIUM :
-			state = ELEMENT_do_and_wait_end_labium_order(LABIUM_OPEN, OPEN_LABIUM, POS_FIN, POS_FIN);
+		case OPEN_FRUIT_VERIN :
+			state = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, POS_FIN, POS_FIN);
 			break;
 
 		case POS_FIN:
