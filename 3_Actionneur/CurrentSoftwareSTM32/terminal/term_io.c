@@ -11,7 +11,7 @@
 
 #define TIME_TO_REFRESH_POS		500
 
-void uart_chekcer(char c){
+void uart_checker(char c){
 	typedef enum{
 		NONE,
 		DC_MOTOR_TOP_BOT,

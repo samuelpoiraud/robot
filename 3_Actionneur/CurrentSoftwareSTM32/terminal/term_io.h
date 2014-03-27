@@ -3,6 +3,6 @@
 
 #include "../QS/QS_types.h"
 
-void uart_chekcer(char c);
+void uart_checker(char c);
 
 #endif /* TERM_IO_H_ */
