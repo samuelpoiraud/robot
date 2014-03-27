@@ -1079,13 +1079,13 @@ error_e strat_manage_fresco(){
 
 			if(MODE_MANUAL_FRESCO){
 				posY = POS_Y_MANUAL_FRESCO;
-				if(est_dans_carre((GEOMETRY_point_t){0, 900}, (GEOMETRY_point_t){1100,2000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				if(est_dans_carre(0, 1100, 900, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					state = FILE_FRESCO;
 				else
 					state = GET_IN;
 			}else if(ADVERSARY_DETECTED_HOKUYO == FALSE){//Pose les fresques au milieu si on a pas vu l'adversaire poser les siennes
 				posY = 1500;
-				if(est_dans_carre((GEOMETRY_point_t){0, 900}, (GEOMETRY_point_t){1100,2000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				if(est_dans_carre(0, 1100, 900, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					state = FILE_FRESCO;
 				else
 					state = GET_IN;
@@ -1144,7 +1144,7 @@ error_e strat_manage_fresco(){
 					break;
 			}
 
-			if(est_dans_carre((GEOMETRY_point_t){0, 900}, (GEOMETRY_point_t){1100,2000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(0, 1100, 900, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = FILE_FRESCO;
 			else
 				state = GET_IN;
@@ -1375,8 +1375,8 @@ error_e strat_lance_launcher(bool_e lanceAll){
 			 escape_point[0] = dplt[0];
 			 escape_point[1] = dplt[1];
 
-			 if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){300, 100}, (GEOMETRY_point_t){2000,1350}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					 || (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){300, 1650}, (GEOMETRY_point_t){2000,3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+			 if((global.env.color == RED && est_dans_carre(300, 2000, 100, 1350, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					 || (global.env.color == YELLOW && est_dans_carre(300, 2000, 1650, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				 state = POS_BEGINNING;
 			 else
 				 state = GET_IN;
@@ -1503,8 +1503,8 @@ error_e strat_lance_launcher_ennemy(){
 			escape_point[0] = dplt[0];
 			escape_point[1] = dplt[1];
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){300, 1650}, (GEOMETRY_point_t){2000,3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){300, 100}, (GEOMETRY_point_t){2000,1350}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))){
+			if((global.env.color == RED && est_dans_carre(300, 2000, 1650, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre(300, 2000, 100, 1350, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))){
 				state = POS_BEGINNING;
 			}
 

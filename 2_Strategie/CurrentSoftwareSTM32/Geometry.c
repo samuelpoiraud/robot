@@ -181,8 +181,8 @@ GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c1, GEOMETRY_
 	return points;
 }
 
-bool_e est_dans_carre(GEOMETRY_point_t low, GEOMETRY_point_t high, GEOMETRY_point_t current){
-	return current.x > low.x && current.x < high.x && current.y > low.y && current.y < high.y;
+bool_e est_dans_carre(Sint16 x_low, Sint16 x_high, Sint16 y_low, Sint16 y_high, GEOMETRY_point_t current){
+	return current.x > x_low && current.x < x_high && current.y > y_low && current.y < y_high;
 }
 
 bool_e est_dans_cercle(GEOMETRY_point_t current, GEOMETRY_circle_t circle){
