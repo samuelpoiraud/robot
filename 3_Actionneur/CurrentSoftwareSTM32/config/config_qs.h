@@ -39,6 +39,9 @@
 #define CLOCK_TIMER_ID 4
 #define CLOCK_UPDATE_BUTTONS_PRESS_TIME
 
+/* UART */
+#define USE_UART
+
 /* CAN */
 #define USE_CAN
 #define CAN_BUF_SIZE	32
