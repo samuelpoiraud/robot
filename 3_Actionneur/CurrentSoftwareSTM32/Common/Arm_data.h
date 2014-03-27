@@ -56,6 +56,7 @@ extern const Uint8 ARM_INIT_NUMBER;
 
 extern bool_e ARM_ax12_is_initialized[];
 Sint16 ARM_get_motor_pos(ARM_state_e state, Uint8 motor);
+Sint16 ARM_readDCMPos();
 
 #endif	/* ARM_DATA_H */
 

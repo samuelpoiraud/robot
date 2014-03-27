@@ -17,17 +17,88 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_adc.h"
+#include "../QS/QS_who_am_i.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "config_pin.h"
 #include "Arm_config.h"
 #include "Arm_data.h"
 #include <string.h>
+#include <math.h>
 
 #include "config_debug.h"
 #define LOG_PREFIX "Arm: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ARM
 #include "../QS/QS_outputlog.h"
+
+#define LONGUEUR_AVANT_BRAS_PIERRE		138		//(138)
+#define	LONGUEUR_BRAS_PIERRE			126		//(125,5)
+#define LONGUEUR_AVANT_BRAS_GUY			84		//(83,6)
+#define	LONGUEUR_BRAS_GUY				126		//(125,5)
+
+#define BRAS_POS_X_PIERRE				50
+#define BRAS_POS_Y_PIERRE				50
+#define BRAS_POS_X_GUY					50
+#define BRAS_POS_Y_GUY					50
+
+#define DISTANCE_MAX_TO_TAKE			20
+
+typedef struct{
+	Sint16 x;
+	Sint16 y;
+	Sint16 z;
+	Uint16 rayon;
+	Sint16 angle;
+}data_pos_triangle_s;
+
+typedef struct{
+	Uint16 rayon;
+	Sint16 value_ax12;
+}rayon_pos_triangle_s;
+
+typedef struct{
+	Sint16 angle;
+	Sint16 value_rx24;
+	Uint16 rayon_min;
+}angle_pos_triangle_s;
+
+#define DELTA_ANGLE			(PI4096/8)
+
+static const rayon_pos_triangle_s rayon_pos_triangle[] = {
+	{10,		45},
+	{20,		45},
+	{30,		45},
+	{40,		45},
+	{50,		45},
+	{60,		45},
+	{70,		45},
+	{80,		45},
+	{90,		45},
+	{100,		45},
+	{110,		45},
+	{120,		45}
+};
+
+static const Uint8 taille_rayon_pos_triangle = sizeof(rayon_pos_triangle)/sizeof(rayon_pos_triangle_s);
+
+static const angle_pos_triangle_s angle_pos_triangle[] = {
+	{PI4096 + DELTA_ANGLE*1,		45,			30},
+	{PI4096 + DELTA_ANGLE*2,		45,			30},
+	{PI4096 + DELTA_ANGLE*3,		45,			30},
+	{PI4096 + DELTA_ANGLE*4,		45,			30},
+	{PI4096 + DELTA_ANGLE*5,		45,			30},
+	{PI4096 + DELTA_ANGLE*6,		45,			30},
+	{PI4096 + DELTA_ANGLE*7,		45,			30},
+	{PI4096 + DELTA_ANGLE*8,		45,			30},
+	{PI4096 + DELTA_ANGLE*9,		45,			30},
+	{PI4096 + DELTA_ANGLE*10,		45,			30},
+	{PI4096 + DELTA_ANGLE*11,		45,			30},
+	{PI4096 + DELTA_ANGLE*12,		45,			30}
+};
+
+static const Uint8 taille_angle_pos_triangle = sizeof(angle_pos_triangle)/sizeof(angle_pos_triangle_s);
+
+static data_pos_triangle_s data_pos_triangle;
 
 #define XX(val) #val,
 const char* ARM_STATES_NAME[] = {
@@ -36,13 +107,17 @@ const char* ARM_STATES_NAME[] = {
 #undef XX
 
 static void ARM_initAX12();
-
-static Sint8 old_state = -1;
-
 static bool_e gotoState(ARM_state_e state);
 static bool_e check_state_transitions();
 static void print_state_transitions(bool_e correct);
 static bool_e find_state();
+static void get_data_pos_triangle(CAN_msg_t* msg);
+static bool_e goto_triangle_pos();
+static void get_data_pos_triangle(CAN_msg_t* msg);
+static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
+
+
+static Sint8 old_state = -1;
 
 void ARM_init() {
 	static bool_e initialized = FALSE;
@@ -90,7 +165,7 @@ void ARM_init() {
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
-static void ARM_initAX12() {
+static void ARM_initAX12(){
 	static bool_e allInitialized = FALSE;
 	Uint8 i;
 	bool_e allOk = TRUE;
@@ -153,6 +228,8 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data[0]) {
 			case ACT_ARM_GOTO:
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
+				if(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE)
+					get_data_pos_triangle(msg);
 				break;
 
 			case ACT_ARM_STOP:
@@ -302,6 +379,9 @@ static bool_e gotoState(ARM_state_e state) {
 	if(state < 0 || state >= ARM_ST_NUMBER)
 		return FALSE;
 
+	if(state == ACT_ARM_POS_ON_TRIANGLE)
+		return goto_triangle_pos();
+
 	for(i = 0; ok && i < ARM_MOTORS_NUMBER; i++) {
 		if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
 			DCM_setPosValue(ARM_MOTORS[i].id, 0, ARM_get_motor_pos(state, i));
@@ -406,6 +486,64 @@ static bool_e find_state() {
 
 	debug_printf("Etat initial non détecté\n");
 	return FALSE;
+}
+
+static bool_e goto_triangle_pos(){
+	Uint8 i_min_rayon, min_rayon, i_min_angle, min_angle;
+	Uint8 i;
+
+	// Calcul du rayon
+	// Formule de math à revoir c'est completement faux ... mais l'idée est là
+	if(QS_WHO_AM_I_get() == BIG_ROBOT)
+		data_pos_triangle.rayon = dist_point_to_point(data_pos_triangle.x, data_pos_triangle.y, BRAS_POS_X_PIERRE, BRAS_POS_Y_PIERRE);
+	else
+		data_pos_triangle.rayon = dist_point_to_point(data_pos_triangle.x, data_pos_triangle.y, BRAS_POS_X_GUY, BRAS_POS_Y_GUY);
+
+	// Calcul de l'angle
+	/*if(QS_WHO_AM_I_get() == BIG_ROBOT)
+		data_pos_triangle.angle = ;
+	else
+		data_pos_triangle.angle = ;*/
+
+	// Choix du rayon le plus proche du rayon voulu
+	i_min_rayon = 0;
+	min_rayon = rayon_pos_triangle[0].rayon;
+	for(i=1;i<taille_rayon_pos_triangle;i++){
+		if(absolute(min_rayon - data_pos_triangle.rayon) < absolute(rayon_pos_triangle[i].rayon - data_pos_triangle.rayon)){
+			i_min_rayon = i;
+			min_rayon = rayon_pos_triangle[i].rayon;
+		}
+	}
+
+	// Choix de l'angle le plus proche de l'angle voulu
+	i_min_angle = 0;
+	min_angle = angle_pos_triangle[0].angle;
+	for(i=1;i<taille_angle_pos_triangle;i++){
+		if(absolute(min_angle - data_pos_triangle.angle) < absolute(angle_pos_triangle[i].angle - data_pos_triangle.angle)
+				&& min_rayon >= angle_pos_triangle[i].rayon_min){
+			i_min_angle = i;
+			min_angle = angle_pos_triangle[i].angle;
+		}
+	}
+
+	// Check si le rayon et l'angle trouvé est suffisant pour la prise ou est impossible
+	if(DISTANCE_MAX_TO_TAKE){}
+
+	// Placement du bras dans les états voulus
+
+
+
+}
+
+static void get_data_pos_triangle(CAN_msg_t* msg){
+	assert(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE);
+	data_pos_triangle.x = (((Sint16)(msg->data[2]) << 8) & 0xFF00) | ((Sint16)(msg->data[3]) & 0x00FF);
+	data_pos_triangle.y = (((Sint16)(msg->data[4]) << 8) & 0xFF00) | ((Sint16)(msg->data[5]) & 0x00FF);
+	data_pos_triangle.z = (((Sint16)(msg->data[6]) << 8) & 0xFF00) | ((Sint16)(msg->data[7]) & 0x00FF);
+}
+
+static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
+	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
 }
 
 #endif
