@@ -50,6 +50,12 @@ void uart_checker(char c){
 			debug_printf("AX12_SUCKER Selected\n");
 			state = AX12_SUCKER;
 			break;
+
+		case 'p' :
+		case 'P' :
+			debug_printf("{%d, %d, %d, %d}\n", ARM_readDCMPos(), AX12_get_position(ARM_ACT_RX24_ID),
+						 AX12_get_position(ARM_ACT_AX12_MID_ID), AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID));
+			break;
 	}
 
 	switch(state){
