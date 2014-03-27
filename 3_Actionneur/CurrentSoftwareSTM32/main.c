@@ -17,6 +17,7 @@
 #include "QS/QS_uart.h"
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
+#include "terminal/term_io.h"
 #include "queue.h"
 #include "clock.h"
 #include "QS/QS_who_am_i.h"
@@ -153,6 +154,13 @@ int main (void)
 				CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
 			}
 		#endif
+
+		#ifdef USE_UART
+			while(UART1_data_ready()){
+				uart_chekcer(UART1_get_next_msg());
+			}
+		#endif
+
 	}//Endloop
 	return 0;
 }
