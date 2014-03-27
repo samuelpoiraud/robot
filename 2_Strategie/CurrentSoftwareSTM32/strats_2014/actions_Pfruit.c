@@ -86,8 +86,8 @@ error_e strat_file_fruit(){
 			escape_point[0] = dplt[2].point;
 			escape_point[1] = dplt[0].point;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){0, 1500}, (GEOMETRY_point_t){1000,3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){1000, 1500}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+			if((global.env.color == RED && est_dans_carre(0, 1000, 1500, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre(0, 1000, 0, 1500, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = GO;
 			else
 				state = GET_IN;
@@ -356,7 +356,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = FORWARD;
 
-			if(est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
 			else
 				state = GET_IN;
@@ -491,7 +491,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = BACKWARD;
 
-			if(est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(400, 2000, 1800, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
 			else
 				state = GET_IN;
@@ -632,7 +632,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				sensRobot = FORWARD;
 
-			if(est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
 			else
 				state = GET_IN;
@@ -744,7 +744,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				sensRobot = FORWARD;
 
-			if(est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(400, 2000, 1800, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
 			else
 				state = GET_IN;
