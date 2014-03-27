@@ -9,7 +9,6 @@
  *	Version 2013/10/03
  */
 
-
 #include "actions_pierre.h"
 #include "actions_net.h"
 #include "actions_Pfruit.h"
@@ -32,13 +31,13 @@
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
-#define POS_Y_MANUAL_FRESCO 1500 // Mettre une valeur entre 1300 et 1700
+#define POS_Y_MANUAL_FRESCO 1300 // Mettre une valeur entre 1300 et 1700
 
 //Pour activer si on doit lancer toute les balles sur le premier mammouth ou non
 //#define ALL_SHOOT_OUR_MAMMOUTH
 
-//Pour privilége les fruits à la fresque dans les sub_action_nominale
-#define FAVOR_FILE_FRUIT_AT_FRESCO
+//Pour privilége les fruits à la fresque dans la sub_action_nominale
+//#define FAVOR_FILE_FRUIT_AT_FRESCO
 
 /**********************************************************************************************************************************
  *
@@ -77,7 +76,7 @@ volatile GEOMETRY_point_t offset_recalage = {0, 0};
 
 //Provisoire pour le moment juste pour test
 #define ADVERSARY_DETECTED_HOKUYO FALSE
-#define FRESQUE_ENLEVER_APRS_1_COUP TRUE
+#define FRESQUE_ENLEVER_APRS_1_COUP FALSE
 #define FRESQUE_ENLEVER_APRS_2_COUP TRUE
 #define NB_MAX_ADVERSARY_FRESCO_POSITION   2 //Les positions devront etre compris entre 1700 et 1300
 volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={1450,1590};
@@ -924,23 +923,15 @@ error_e sub_action_initiale(){
 		ERROR
 	);
 
-	static displacement_t point[3];
+	displacement_t point[] = {{{550,COLOR_Y(1144)},	FAST},
+							  {{720,COLOR_Y(1125)},	FAST},
+							  {{900,COLOR_Y(1020)},	FAST}
+							 };
 
 	switch(state){
 
 		case IDLE:
 			state = LANCE_LAUNCHER;
-
-			if(global.env.color == RED){
-				point[0] = (displacement_t){{550,1144},	FAST};
-				point[1] = (displacement_t){{700,1125},	FAST};
-				point[2] = (displacement_t){{860,1020},	FAST};
-			}else{
-				point[0] = (displacement_t){{550,1856},	FAST};
-				point[1] = (displacement_t){{700,1875},	FAST};
-				point[2] = (displacement_t){{860,1980},	FAST};
-			}
-
 			break;
 
 		case LANCE_LAUNCHER:
@@ -958,23 +949,20 @@ error_e sub_action_initiale(){
 
 
 		case GOTO_TREE_2:{
-			static Uint8 s1 = GOTO_TREE_2 ,s2 = GOTO_TREE_2;
+			static Uint8 s1 = IN_PROGRESS ,s2 = IN_PROGRESS;
 
-			if(s1 == GOTO_TREE_2)
-				s1 = try_going_until_break(1700,COLOR_Y(1050),GOTO_TREE_2,SUCESS,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+			if(s1 == IN_PROGRESS)
+				s1 = try_going_until_break(1700,COLOR_Y(1050),IN_PROGRESS,SUCESS,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
 
-			if(s2 == GOTO_TREE_2)
-				s2 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, GOTO_TREE_2, SUCESS, ERROR);
+			if(s2 == IN_PROGRESS)
+				s2 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, IN_PROGRESS, SUCESS, ERROR);
 
 
 			if(s1 == ERROR){
-				state = DO_TREE_2;
+				state = DEPLOY_FIRE_CENTER;
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 
-			}else if(s2 == ERROR)
-				state = DO_TREE_2;
-
-			else if(s1 == SUCESS && s2 == SUCESS)
+			}else if(s1 == SUCESS && s2 != IN_PROGRESS) // Si le bras est en sucess ou pars en erreur( timeout, problème capteur)
 				state = DO_TREE_2;
 
 			else if(s1 != ERROR && s2 != ERROR)
@@ -1005,20 +993,36 @@ error_e sub_action_initiale(){
 			#endif
 			break;
 
-		case DO_FRESCO:
-			state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,(get_presenceFruit() == TRUE)? FILE_FRUIT:DONE,(get_presenceFruit() == TRUE)? FILE_FRUIT:DONE);
-			break;
+		case DO_FRESCO:{
+			static Uint8 passHere = 0;
+			if(entrance)
+				passHere++;
 
-		case FILE_FRUIT:
-			#ifdef ALL_SHOOT_OUR_MAMMOUTH
-				state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,(action_fresco_filed == FALSE)? GOTO_FRESCO_2 : DONE, (action_fresco_filed == FALSE)? GOTO_FRESCO_2 : DONE);
-			#else
-				state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,LANCE_LAUNCHER_ADVERSARY,(action_fresco_filed == FALSE)? GOTO_FRESCO_2 : LANCE_LAUNCHER_ADVERSARY);
-			#endif
-			break;
+			if(passHere < 3) // Ne pourra passer que deux fois ici
+				state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,(get_presenceFruit() == TRUE)? FILE_FRUIT:DONE,(get_presenceFruit() == TRUE)? FILE_FRUIT:DONE);
+			else
+				state = ERROR;
+
+			}break;
+
+		case FILE_FRUIT:{
+			static Uint8 passHere = 0;
+			if(entrance)
+				passHere++;
+
+			if(passHere < 3){ // Ne pourra passer que deux fois ici
+				#ifdef ALL_SHOOT_OUR_MAMMOUTH
+					state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,(action_fresco_filed == FALSE)? GOTO_FRESCO_2 : DONE, (action_fresco_filed == FALSE)? GOTO_FRESCO_2 : DONE);
+				#else
+					state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,LANCE_LAUNCHER_ADVERSARY,(action_fresco_filed == FALSE)? GOTO_FRESCO_2 : LANCE_LAUNCHER_ADVERSARY);
+				#endif
+			}else
+				state = ERROR;
+
+			}break;
 
 		case GOTO_FRESCO_2:
-			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_2,DO_FRESCO,DO_FRESCO,FAST,ANY_WAY,NO_AVOIDANCE);
+			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_2,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,NO_AVOIDANCE);
 			break;
 
 		// Si on lance une balle sur le mammouth ennemis
@@ -1035,7 +1039,6 @@ error_e sub_action_initiale(){
 		case GOTO_FRESCO_BY_TORCH_ROAD:
 			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,DO_TREE_2,FAST,ANY_WAY,NO_AVOIDANCE);
 			break;
-
 
 		case DONE:
 			return END_OK;
@@ -1180,7 +1183,7 @@ error_e strat_manage_fresco(){
 			break;
 
 		case VERIFICATION_2:
-			if(FRESCO_1 && FRESCO_2)//fresque plus presente sur le support grace au capteur
+			if(FRESQUE_ENLEVER_APRS_2_COUP)//FRESCO_1 && FRESCO_2)//fresque plus presente sur le support grace au capteur
 				state = DONE;
 			else
 				state = LAST_LAST_CHANCE_FILE_FRESCO;
@@ -1201,11 +1204,13 @@ error_e strat_manage_fresco(){
 			break;
 
 		case DONE:
+			state = IDLE;
 			action_fresco_filed = TRUE;
 			return END_OK;
 			break;
 
 		case ERROR:
+			state = IDLE;
 			return NOT_HANDLED;
 			break;
 
@@ -1220,6 +1225,7 @@ error_e strat_file_fresco(Sint16 posY){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		WALL,
+		BEFORE_WALL,
 		PUSH_MOVE,
 		WAIT_END_OF_MOVE,
 		END,
@@ -1248,11 +1254,15 @@ error_e strat_file_fresco(Sint16 posY){
 			escape_point[1] = (GEOMETRY_point_t){300, 1350};
 			escape_point[2] = (GEOMETRY_point_t){300, 1650};
 
-			state = WALL;
+			state = BEFORE_WALL;
+			break;
+
+		case BEFORE_WALL:
+			state = try_going(270,posY,BEFORE_WALL,WALL,END,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case WALL:
-			state = try_going(260,posY,WALL,PUSH_MOVE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(160,posY,WALL,PUSH_MOVE,END,FAST,BACKWARD,NO_DODGE_AND_WAIT); // Si en erreur on va a END seule veut dire qu un triangle a géné, la strat_manage fresco va donc choisir une autre position
 			break;
 
 		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
@@ -1267,7 +1277,7 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case END:
-			state = try_going_until_break(350,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(400,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case END_IMPOSSIBLE:
@@ -1455,9 +1465,13 @@ error_e strat_lance_launcher_ennemy(){
 	switch(state){
 		case IDLE:
 
-			if(global.env.pos.y > 2200 && global.env.color == RED){ // Va tirer sur le Jaune, case depart jaune
+			if(global.env.pos.y > 2100 && global.env.color == RED){ // Va tirer sur le Jaune, case depart jaune
 			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-			   dplt[0].y = 2500;
+
+			   if(est_dans_carre(ELOIGNEMENT_SHOOT_BALL-30,700,2410,2600,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				   dplt[0].y = global.env.pos.y;
+			   else
+				  dplt[0].y = 2500;
 
 			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 			   dplt[1].y = 1800;
@@ -1477,7 +1491,7 @@ error_e strat_lance_launcher_ennemy(){
 			   sensShoot = TRUE;
 			   posShoot = 2200;
 
-		   }else if(global.env.pos.y > 750){ // tire sur le Rouge milieu
+		   }else if(global.env.pos.y > 850){ // tire sur le Rouge milieu
 			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
 			   dplt[0].y = 1200;
 
@@ -1490,7 +1504,11 @@ error_e strat_lance_launcher_ennemy(){
 
 		   }else{	// Tire Rouge et case depart
 			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-			   dplt[0].y = 300;
+
+				if(est_dans_carre(ELOIGNEMENT_SHOOT_BALL-30,700,400,690,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					dplt[0].y = global.env.pos.y;
+				else
+				   dplt[0].y = 300;
 
 			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 			   dplt[1].y = 1200;

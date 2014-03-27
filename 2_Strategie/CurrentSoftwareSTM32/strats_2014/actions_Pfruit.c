@@ -20,7 +20,7 @@
 
 #define LARGEUR_LABIUM	250
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
-#define ELOIGNEMENT_POSE_BAC_FRUIT 500
+#define ELOIGNEMENT_POSE_BAC_FRUIT 480
 
 extern GEOMETRY_point_t offset_recalage;
 
@@ -86,8 +86,8 @@ error_e strat_file_fruit(){
 			escape_point[0] = dplt[2].point;
 			escape_point[1] = dplt[0].point;
 
-			if((global.env.color == RED && est_dans_carre(0, 1000, 1500, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre(0, 1000, 0, 1500, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+			if((global.env.color == RED && est_dans_carre(0, 1000, 1200, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (global.env.color == YELLOW && est_dans_carre(0, 1000, 0, 1800, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
 				state = GO;
 			else
 				state = GET_IN;
