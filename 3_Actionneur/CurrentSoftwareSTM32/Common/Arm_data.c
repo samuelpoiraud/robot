@@ -18,14 +18,13 @@
 #define DECLARE_AX12(prefix)                { ARM_AX12   , prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_ASSER_POS_LARGE_EPSILON, prefix##_MAX_TORQUE_PERCENT, 0                    , 0               , 0                , 0                    , 0                , 0                , 0                , NULL       }
 #define DECLARE_RX24(prefix)                { ARM_RX24   , prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_ASSER_POS_LARGE_EPSILON, prefix##_MAX_TORQUE_PERCENT, 0                    , 0               , 0                , 0                    , 0                , 0                , 0                , NULL       }
 
-static Sint16 ARM_readDCMPos();
 
 // Liste de moteurs
 const ARM_motor_data_t ARM_MOTORS[] = {
-//	DECLARE_DCMOTOR(ARM_ACT_UPDOWN, &ARM_readDCMPos),
+	//DECLARE_DCMOTOR(ARM_ACT_UPDOWN, &ARM_readDCMPos),
 	DECLARE_RX24(ARM_ACT_RX24),
-	DECLARE_AX12(ARM_ACT_AX12_MID),
-//	DECLARE_AX12(ARM_ACT_AX12_TRIANGLE)
+	DECLARE_AX12(ARM_ACT_AX12_MID)
+	//DECLARE_AX12(ARM_ACT_AX12_TRIANGLE)
 };
 
 
@@ -35,7 +34,11 @@ const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_dat
 // moteur (dans l'ordre)
 	{0  , 150},	//ARM_ST_Parked
 	{150, 300},	//ARM_ST_Open
-	{54, 176}	//ARM_ST_Mid
+	{54, 176},	//ARM_ST_Mid
+	{54, 176},	//ARM_ST_On_Torche
+	{54, 176},	//ARM_ST_To_Storage
+	{54, 176},	//ARM_ST_To_Return_Triangle
+	{150, 300}	//ARM_ST_On_Triangle
 };
 
 
@@ -44,10 +47,15 @@ const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_dat
 //                              lignes         colonnes
 //                             ancien état    nouvel état
 const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //<LF>
-//   ACT_ARM_POS_PARKED ACT_ARM_POS_OPEN   ACT_ARM_POS_MID    <LF>
-	{0                 ,0                 ,1                 },  //ACT_ARM_POS_PARKED<LF>
-	{1                 ,0                 ,1                 },  //ACT_ARM_POS_OPEN<LF>
-	{1                 ,1                 ,0                 },  //ACT_ARM_POS_MID<LF>
+//   ACT_ARM_POS_PARKED ACT_ARM_POS_OPEN   ACT_ARM_POS_MID	ACT_POS_ON_TORCHE	ACT_ARM_POS_TO_STORAGE	ACT_ARM_POS_TO_RETURN_TRIANGLE		ACT_ARM_POS_ON_TRIANGLE    <LF>
+	{0                 ,0                 ,1				,0					,0						,0									,0},  //ACT_ARM_POS_PARKED<LF>
+	{1                 ,0                 ,1                ,1					,1						,1									,1},  //ACT_ARM_POS_OPEN<LF>
+	{1                 ,1                 ,0                ,0					,0						,0									,0},  //ACT_ARM_POS_MID<LF>
+	{0                 ,1                 ,0                ,0					,1						,0									,0},  //ACT_ARM_POS_ON_TORCHE<LF>
+	{0                 ,1                 ,0                ,1					,0						,0									,0},  //ACT_ARM_POS_TO_STORAGE<LF>
+	{0                 ,1                 ,0                ,0					,0						,0									,0},  //ACT_ARM_POS_TO_RETURN_TRIANGLE<LF>
+	{0                 ,1                 ,0                ,0					,0						,0									,0},  //ACT_ARM_POS_ON_TRIANGLE<LF>
+
 };  //<LF>
 
 
@@ -55,7 +63,11 @@ const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //<LF>
 const ARM_state_e ARM_INIT[] = {
 	ACT_ARM_POS_OPEN,
 	ACT_ARM_POS_MID,
-	ACT_ARM_POS_PARKED
+	ACT_ARM_POS_PARKED,
+	ACT_ARM_POS_ON_TORCHE,
+	ACT_ARM_POS_TO_STORAGE,
+	ACT_ARM_POS_TO_RETURN_TRIANGLE,
+	ACT_ARM_POS_ON_TRIANGLE
 };
 
 
@@ -64,11 +76,9 @@ const Uint8 ARM_INIT_NUMBER = sizeof(ARM_INIT) / sizeof(ARM_state_e);
 
 //Fonctions de récupération des positions des moteurs DC
 
-static Sint16 ARM_readDCMPos() {
+Sint16 ARM_readDCMPos() {
 	return -ADC_getValue(ARM_ACT_UPDOWN_ID_POTAR_ADC_ID);
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /// Interne, à ne pas changer
