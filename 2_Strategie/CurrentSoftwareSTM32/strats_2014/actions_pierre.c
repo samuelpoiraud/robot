@@ -90,6 +90,7 @@ void strat_inutile(void){
 		CHEMIN,
 		LANCE_LAUNCHER,
 		SUB_ACTION,
+		PROTECTED_FIRES,
 		RAMMASSE_FRUIT,
 		DONE,
 		ERROR
@@ -100,12 +101,15 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,SUB_ACTION,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,PROTECTED_FIRES,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 			break;
-
 
 		case SUB_ACTION:
 			state = check_sub_action_result(sub_action_initiale(),SUB_ACTION,DONE,ERROR);
+			break;
+
+		case PROTECTED_FIRES:
+			state = check_sub_action_result(protected_fires(),PROTECTED_FIRES,DONE,ERROR);
 			break;
 
 		case RAMMASSE_FRUIT:
@@ -1054,6 +1058,73 @@ error_e sub_action_initiale(){
 
 	return IN_PROGRESS;
 }
+
+error_e protected_fires(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		POINT_0,
+		POINT_1,
+		POINT_2,
+		POINT_3,
+		SUCESS,
+		NOT_REACHED,
+		DONE,
+		ERROR,
+	);
+
+	static GEOMETRY_point_t points[4];
+
+	switch(state){
+		case IDLE:
+			if(global.env.color == RED){
+				points[0] = (GEOMETRY_point_t){1350,400};   // A2
+				points[1] = (GEOMETRY_point_t){1600,650};	// B3
+				points[2] = (GEOMETRY_point_t){1250,1100};  // C2
+				points[3] = (GEOMETRY_point_t){850,650};    // B1
+			}else{
+				points[0] = (GEOMETRY_point_t){1350,2600};  // Z2
+				points[1] = (GEOMETRY_point_t){1600,2300};	// Y3
+				points[2] = (GEOMETRY_point_t){1250,1900};  // W2
+				points[3] = (GEOMETRY_point_t){850,2300};   // Y1
+			}
+
+			state = POINT_0;
+			last_state = POINT_0;
+			break;
+
+		case POINT_0:
+			state = try_going(points[0].x,points[0].y,POINT_0,POINT_3,POINT_1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case POINT_1:
+			state = try_going(points[1].x,points[1].y,POINT_1,POINT_2,POINT_0,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case POINT_2:
+			state = try_going(points[2].x,points[2].y,POINT_2,POINT_0,POINT_3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case POINT_3:
+			state = try_going(points[3].x,points[3].y,POINT_3,POINT_1,POINT_2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
 
 error_e strat_manage_fresco(){
 	CREATE_MAE_WITH_VERBOSE(0,

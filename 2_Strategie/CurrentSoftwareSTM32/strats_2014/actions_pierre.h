@@ -35,6 +35,7 @@ error_e strat_lance_launcher_ennemy();
 error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x);
 error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y);
 error_e recalage_begin_zone(color_e begin_zone_color);
+error_e protected_fires();
 
 error_e sub_action_initiale();
 
