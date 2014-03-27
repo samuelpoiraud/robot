@@ -356,8 +356,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = FORWARD;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+			if(est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
 			else
 				state = GET_IN;
@@ -403,7 +402,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -492,8 +491,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = BACKWARD;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+			if(est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
 			else
 				state = GET_IN;
@@ -547,7 +545,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -610,11 +608,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
-				point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
-				point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
+				point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		FAST};
+				point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		FAST};
 			}else{
-				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	450+offset_recalage.y},						SLOW};
-				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						SLOW};
+				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	450+offset_recalage.y},						FAST};
+				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						FAST};
 			}
 
 
@@ -634,8 +632,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				sensRobot = FORWARD;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+			if(est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
 			else
 				state = GET_IN;
@@ -655,7 +652,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -723,11 +720,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
-				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
-				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
+				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	FAST};
+				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	FAST};
 			}else{
-				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2450+offset_recalage.y},					SLOW};
-				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2000+offset_recalage.y},					SLOW};
+				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2450+offset_recalage.y},					FAST};
+				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2000+offset_recalage.y},					FAST};
 			}
 
 
@@ -747,8 +744,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				sensRobot = FORWARD;
 
-			if((global.env.color == RED && est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre((GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){2000, 1300}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+			if(est_dans_carre((GEOMETRY_point_t){400, 1800}, (GEOMETRY_point_t){2000, 3000}, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
 			else
 				state = GET_IN;
@@ -768,7 +764,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_FIN:
-			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
