@@ -157,7 +157,7 @@ int main (void)
 
 		#ifdef USE_UART
 			while(UART1_data_ready()){
-				uart_chekcer(UART1_get_next_msg());
+				uart_checker(UART1_get_next_msg());
 			}
 		#endif
 
