@@ -214,7 +214,7 @@ void ELEMENT_triangle_add_to_list(CAN_msg_t* msg){
 }
 
 void ELEMENT_answer_scan_anything(CAN_msg_t* msg){
-
+	scan_anything = (msg->data[0] == 1) ? OBJECT_IN_ZONE : ZONE_EMPTY;
 }
 
 void ELEMENT_update_fruit_verin_state(CAN_msg_t* msg){
