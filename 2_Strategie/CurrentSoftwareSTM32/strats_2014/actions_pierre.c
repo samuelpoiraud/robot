@@ -109,7 +109,7 @@ void strat_inutile(void){
 			break;
 
 		case PROTECTED_FIRES:
-			state = check_sub_action_result(protected_fires(),PROTECTED_FIRES,DONE,ERROR);
+			state = check_sub_action_result(protected_fires(OUR_FIRES),PROTECTED_FIRES,DONE,ERROR);
 			break;
 
 		case RAMMASSE_FRUIT:
@@ -1059,7 +1059,7 @@ error_e sub_action_initiale(){
 	return IN_PROGRESS;
 }
 
-error_e protected_fires(){
+error_e protected_fires(protected_fires_e fires){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POINT_0,
@@ -1076,7 +1076,8 @@ error_e protected_fires(){
 
 	switch(state){
 		case IDLE:
-			if(global.env.color == RED){
+
+			if((global.env.color == RED && fires == OUR_FIRES) || (global.env.color != RED && fires == ADVERSARY_FIRES)){
 				points[0] = (GEOMETRY_point_t){1350,400};   // A2
 				points[1] = (GEOMETRY_point_t){1600,650};	// B3
 				points[2] = (GEOMETRY_point_t){1250,1100};  // C2
@@ -1089,7 +1090,6 @@ error_e protected_fires(){
 			}
 
 			state = POINT_0;
-			last_state = POINT_0;
 			break;
 
 		case POINT_0:
@@ -1101,7 +1101,7 @@ error_e protected_fires(){
 			break;
 
 		case POINT_2:
-			state = try_going(points[2].x,points[2].y,POINT_2,POINT_0,POINT_3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(points[2].x,points[2].y,POINT_2,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case POINT_3:
