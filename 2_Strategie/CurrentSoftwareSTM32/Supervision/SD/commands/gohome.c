@@ -24,18 +24,16 @@ int term_cmd_gohome(int argc, const char *argv[]) {
 
 	if(QS_WHO_AM_I_get()==TINY){
 		if(global.env.color == RED){
-			ASSER_push_goto(250, COLOR_Y(72), FAST, BACKWARD, 0, END_AT_BREAK, FALSE);
-			ASSER_push_goto(250, COLOR_Y(200), FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
+			ASSER_push_goto(960, COLOR_Y(73), FAST, BACKWARD, 0, END_AT_BREAK, FALSE);
+			ASSER_push_goto(960, COLOR_Y(300), FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
 		}else{
-			ASSER_push_goto(250, COLOR_Y(72), FAST, BACKWARD, 0, END_AT_BREAK, FALSE);
-			ASSER_push_goto(250, COLOR_Y(200), FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
+			ASSER_push_goto(250, COLOR_Y(73), FAST, BACKWARD, 0, END_AT_BREAK, FALSE);
+			ASSER_push_goto(250, COLOR_Y(300), FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
 		}
-
 	}else if(QS_WHO_AM_I_get()==KRUSTY){
-		ASSER_push_goto(1000, COLOR_Y(120), FAST, BACKWARD, 0, END_AT_BREAK, FALSE);
-		ASSER_push_goto(1000, COLOR_Y(300), FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
+		ASSER_push_goto(603, COLOR_Y(132), FAST, BACKWARD, 0, END_AT_BREAK, FALSE);
+		ASSER_push_goto(603, COLOR_Y(300), FAST, ANY_WAY, 0, END_AT_BREAK, TRUE);
 	}
-
 	return 0;
 }
 
