@@ -20,5 +20,10 @@
 	bool_e match_started;
 	bool_e alim;
 	Uint16 alim_value;			// en mV
+	struct {
+		volatile Sint16 angle;
+		volatile Sint16 x;
+		volatile Sint16 y;
+	}pos;				// position robot
 
 #endif /* ndef CONFIG_GLOBAL_VARS_H */

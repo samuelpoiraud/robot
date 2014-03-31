@@ -55,7 +55,9 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		case BROADCAST_POSITION_ROBOT:
-			//Rien, mais pas inclus dans le cas default où l'on peut afficher le sid...
+				global.pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
+				global.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
+				global.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
 			break;
 
 		case BROADCAST_ALIM:
