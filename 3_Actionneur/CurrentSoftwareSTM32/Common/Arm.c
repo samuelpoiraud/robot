@@ -38,10 +38,12 @@
 
 #define BRAS_POS_X_PIERRE				50
 #define BRAS_POS_Y_PIERRE				50
-#define BRAS_POS_X_GUY					50
-#define BRAS_POS_Y_GUY					50
+#define BRAS_POS_X_GUY					4.07
+#define BRAS_POS_Y_GUY					4.07
 
 #define DISTANCE_MAX_TO_TAKE			20
+
+#define square(x) (x*x)
 
 typedef struct{
 	Sint16 x;
@@ -49,6 +51,7 @@ typedef struct{
 	Sint16 z;
 	Uint16 rayon;
 	Sint16 angle;
+	Sint16 real_angle;
 }data_pos_triangle_s;
 
 typedef struct{
@@ -63,6 +66,8 @@ typedef struct{
 }angle_pos_triangle_s;
 
 #define DELTA_ANGLE			(PI4096/8)
+#define RAYON_MIN			10
+#define RAYON_MAX			208
 
 static const rayon_pos_triangle_s rayon_pos_triangle[] = {
 	{10,		45},
@@ -491,19 +496,38 @@ static bool_e find_state() {
 static bool_e goto_triangle_pos(){
 	Uint8 i_min_rayon, min_rayon, i_min_angle, min_angle;
 	Uint8 i;
+	Sint16 x_bras, y_bras;
+	Sint16 off_set_angle;
+
+	// Calcul de la position de l'origine du bras
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
+		x_bras = sqrt(square(BRAS_POS_X_PIERRE) + square(BRAS_POS_Y_PIERRE)) * sin(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_PIERRE, BRAS_POS_X_PIERRE)));
+		y_bras = sqrt(square(BRAS_POS_X_PIERRE) + square(BRAS_POS_Y_PIERRE)) * cos(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_PIERRE, BRAS_POS_X_PIERRE)));
+	}else{
+		x_bras = sqrt(square(BRAS_POS_X_GUY) + square(BRAS_POS_Y_GUY)) * sin(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_GUY, BRAS_POS_X_GUY)));
+		y_bras = sqrt(square(BRAS_POS_X_GUY) + square(BRAS_POS_Y_GUY)) * cos(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_GUY, BRAS_POS_X_GUY)));
+	}
 
 	// Calcul du rayon
-	// Formule de math à revoir c'est completement faux ... mais l'idée est là
+	data_pos_triangle.rayon = dist_point_to_point(data_pos_triangle.x, data_pos_triangle.y,global.pos.x +  x_bras, global.pos.y + y_bras);
+
+	// Gestion erreur rayon
+	if(data_pos_triangle.rayon < RAYON_MIN || data_pos_triangle.rayon > RAYON_MAX){
+		debug_printf("Le bras ne peut pas aller chercher le triangle car rayon hors d'atteinte %d < %d < %d", RAYON_MIN, data_pos_triangle.rayon, RAYON_MAX);
+		return FALSE;
+	}
+
+	// Calcul de l'offset de l'angle du à l'ax12 du rayon
 	if(QS_WHO_AM_I_get() == BIG_ROBOT)
-		data_pos_triangle.rayon = dist_point_to_point(data_pos_triangle.x, data_pos_triangle.y, BRAS_POS_X_PIERRE, BRAS_POS_Y_PIERRE);
+		off_set_angle = acos((square(LONGUEUR_BRAS_PIERRE) + square(data_pos_triangle.rayon) - square(LONGUEUR_AVANT_BRAS_PIERRE))/(2*LONGUEUR_BRAS_PIERRE*LONGUEUR_AVANT_BRAS_PIERRE));
 	else
-		data_pos_triangle.rayon = dist_point_to_point(data_pos_triangle.x, data_pos_triangle.y, BRAS_POS_X_GUY, BRAS_POS_Y_GUY);
+		off_set_angle = acos((square(LONGUEUR_BRAS_PIERRE) + square(data_pos_triangle.rayon) - square(LONGUEUR_AVANT_BRAS_PIERRE))/(2*LONGUEUR_BRAS_PIERRE*LONGUEUR_AVANT_BRAS_PIERRE));
 
 	// Calcul de l'angle
-	/*if(QS_WHO_AM_I_get() == BIG_ROBOT)
-		data_pos_triangle.angle = ;
-	else
-		data_pos_triangle.angle = ;*/
+	data_pos_triangle.angle = cos((data_pos_triangle.x - x_bras)/data_pos_triangle.rayon);
+
+	// Calcul de l'angle réel pour l'rx24
+	data_pos_triangle.real_angle = data_pos_triangle.angle - off_set_angle;
 
 	// Choix du rayon le plus proche du rayon voulu
 	i_min_rayon = 0;
@@ -519,7 +543,7 @@ static bool_e goto_triangle_pos(){
 	i_min_angle = 0;
 	min_angle = angle_pos_triangle[0].angle;
 	for(i=1;i<taille_angle_pos_triangle;i++){
-		if(absolute(min_angle - data_pos_triangle.angle) < absolute(angle_pos_triangle[i].angle - data_pos_triangle.angle)
+		if(absolute(min_angle - data_pos_triangle.real_angle) < absolute(angle_pos_triangle[i].angle - data_pos_triangle.real_angle)
 				&& min_rayon >= angle_pos_triangle[i].rayon_min){
 			i_min_angle = i;
 			min_angle = angle_pos_triangle[i].angle;
@@ -527,9 +551,13 @@ static bool_e goto_triangle_pos(){
 	}
 
 	// Check si le rayon et l'angle trouvé est suffisant pour la prise ou est impossible
-	if(DISTANCE_MAX_TO_TAKE){}
+	if(DISTANCE_MAX_TO_TAKE > square(data_pos_triangle.rayon)+square(min_rayon+off_set_angle) - 2*min_rayon*data_pos_triangle.rayon*cos(min_angle+off_set_angle - data_pos_triangle.angle)){
+		debug_printf("Le bras ne peut pas aller chercher le triangle écart entre triangle et position trouvé > à %d", DISTANCE_MAX_TO_TAKE);
+		return FALSE;
+	}
 
 	// Placement du bras dans les états voulus
+
 
 
 
