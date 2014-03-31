@@ -513,7 +513,7 @@ static bool_e goto_triangle_pos(){
 
 	// Gestion erreur rayon
 	if(data_pos_triangle.rayon < RAYON_MIN || data_pos_triangle.rayon > RAYON_MAX){
-		debug_printf("Le bras ne peut pas aller chercher le triangle car rayon hors d'atteinte %d < %d < %d", RAYON_MIN, data_pos_triangle.rayon, RAYON_MAX);
+		debug_printf("Le bras ne peut pas aller chercher le triangle car rayon hors d'atteinte %d < %d < %d\n", RAYON_MIN, data_pos_triangle.rayon, RAYON_MAX);
 		return FALSE;
 	}
 
@@ -552,14 +552,21 @@ static bool_e goto_triangle_pos(){
 
 	// Check si le rayon et l'angle trouvé est suffisant pour la prise ou est impossible
 	if(DISTANCE_MAX_TO_TAKE > square(data_pos_triangle.rayon)+square(min_rayon+off_set_angle) - 2*min_rayon*data_pos_triangle.rayon*cos(min_angle+off_set_angle - data_pos_triangle.angle)){
-		debug_printf("Le bras ne peut pas aller chercher le triangle écart entre triangle et position trouvé > à %d", DISTANCE_MAX_TO_TAKE);
+		debug_printf("Le bras ne peut pas aller chercher le triangle écart entre triangle et position trouvé > à %d\n", DISTANCE_MAX_TO_TAKE);
 		return FALSE;
 	}
 
 	// Placement du bras dans les états voulus
+	if(!AX12_set_position(ARM_ACT_RX24, angle_pos_triangle[i_min_angle].value_rx24)){
+		debug_printf("Placement du bras (servo RX24) impossible\n");
+		return FALSE;
+	}
+	if(!AX12_set_position(ARM_ACT_AX12_MID, rayon_pos_triangle[i_min_rayon].value_ax12)){
+		debug_printf("Placement du bras (servo AX12 MID) impossible\n");
+		return FALSE;
+	}
 
-
-
+	return TRUE;
 
 }
 
