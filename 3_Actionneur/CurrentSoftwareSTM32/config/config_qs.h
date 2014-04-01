@@ -64,4 +64,7 @@
 #	include "config_small/config_qs.h"
 #endif
 
+#define USE_AN11
+
+
 #endif /* CONFIG_QS_H */
