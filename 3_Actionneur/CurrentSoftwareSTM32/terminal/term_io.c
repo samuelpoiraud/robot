@@ -11,13 +11,16 @@
 
 #define TIME_TO_REFRESH_POS		2000
 
+#define TIME_SET_POSITION	500
+
 #define INC_DC_MOTOR		2
 #define INC_RX24_ARM		2
 #define INC_AX12_FOREARM	2
 #define INC_AX12_SUCKER		2
 
-#define CARA_INC			'+'
-#define CARA_DEC			'-'
+#define CARA_INC			'p'
+#define CARA_DEC			'm'
+#define CARA_PRINT			' '
 
 void uart_checker(char c){
 	typedef enum{
@@ -28,8 +31,9 @@ void uart_checker(char c){
 		AX12_SUCKER
 	}state_e;
 	static state_e state = NONE;
-	static Uint16 position;
-	static clock_time_t time_ask_position;
+	static Uint16 position = 150;
+	static clock_time_t time_ask_position = 0;
+	static clock_time_t time_last_set_position = 0;
 
 	ARM_init();
 
@@ -44,6 +48,7 @@ void uart_checker(char c){
 			state = DC_MOTOR_TOP_BOT;
 			position = ARM_readDCMPos();
 			time_ask_position = CLOCK_get_time()*100;
+			time_last_set_position = 0;
 			break;
 
 		case '2' :
@@ -51,6 +56,7 @@ void uart_checker(char c){
 			state = RX24_ARM;
 			position = AX12_get_position(ARM_ACT_RX24_ID);
 			time_ask_position = CLOCK_get_time()*100;
+			time_last_set_position = 0;
 			break;
 
 		case '3' :
@@ -58,6 +64,7 @@ void uart_checker(char c){
 			state = AX12_FOREARM;
 			position = AX12_get_position(ARM_ACT_AX12_MID_ID);
 			time_ask_position = CLOCK_get_time()*100;
+			time_last_set_position = 0;
 			break;
 
 		case '4' :
@@ -65,64 +72,67 @@ void uart_checker(char c){
 			state = AX12_SUCKER;
 			position = AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID);
 			time_ask_position = CLOCK_get_time()*100;
+			time_last_set_position = 0;
 			break;
 
-		case 'p' :
-		case 'P' :
+		case CARA_PRINT :
 			debug_printf("{%d, %d, %d, %d}\n", ARM_readDCMPos(), AX12_get_position(ARM_ACT_RX24_ID),
 						 AX12_get_position(ARM_ACT_AX12_MID_ID), AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID));
 			break;
 	}
 
+	if(c != CARA_INC && c != CARA_DEC)
+		return;
+
 	switch(state){
 		case DC_MOTOR_TOP_BOT :
-			if(CLOCK_get_time() - time_ask_position > TIME_TO_REFRESH_POS){
+			if(CLOCK_get_time()*100 - time_ask_position > TIME_TO_REFRESH_POS){
 				time_ask_position = CLOCK_get_time()*100;
 				position = ARM_readDCMPos();
 			}
 			if(c == CARA_INC)
-				position += INC_DC_MOTOR;
+				position = (position+INC_DC_MOTOR > ARM_ACT_UPDOWN_MAX_VALUE) ? position : position+INC_DC_MOTOR;
 			else if(c == CARA_DEC)
-				position -= INC_DC_MOTOR;
-			DCM_setPosValue(ARM_ACT_UPDOWN_ID, 0, position);
-			DCM_goToPos(ARM_ACT_UPDOWN_ID, 0);
-			DCM_restart(ARM_ACT_UPDOWN_ID);
+				position = ((Sint16)position-INC_DC_MOTOR < ARM_ACT_UPDOWN_MIN_VALUE) ? position : position-INC_DC_MOTOR;
+				DCM_setPosValue(ARM_ACT_UPDOWN_ID, 0, position);
+				DCM_goToPos(ARM_ACT_UPDOWN_ID, 0);
+				DCM_restart(ARM_ACT_UPDOWN_ID);
 			break;
 
 		case RX24_ARM :
-			if(CLOCK_get_time() - time_ask_position > TIME_TO_REFRESH_POS){
+			if(CLOCK_get_time()*100 - time_ask_position > TIME_TO_REFRESH_POS){
 				time_ask_position = CLOCK_get_time()*100;
 				position = AX12_get_position(ARM_ACT_RX24_ID);
 			}
 			if(c == CARA_INC)
-				position += INC_RX24_ARM;
+				position = (position+INC_RX24_ARM> ARM_ACT_RX24_MAX_VALUE) ? position : position+INC_RX24_ARM;
 			else if(c == CARA_DEC)
-				position -= INC_RX24_ARM;
-			AX12_set_position(ARM_ACT_RX24_ID, position);
+				position = ((Sint16)position-INC_RX24_ARM < ARM_ACT_RX24_MIN_VALUE) ? position : position-INC_RX24_ARM;
+				AX12_set_position(ARM_ACT_RX24_ID, position);
 			break;
 
 		case AX12_FOREARM :
-			if(CLOCK_get_time() - time_ask_position > TIME_TO_REFRESH_POS){
+			if(CLOCK_get_time()*100 - time_ask_position > TIME_TO_REFRESH_POS){
 				time_ask_position = CLOCK_get_time()*100;
 				position = AX12_get_position(ARM_ACT_AX12_MID_ID);
 			}
 			if(c == CARA_INC)
-				position += INC_AX12_FOREARM;
+				position = (position+INC_AX12_FOREARM> ARM_ACT_AX12_MID_MAX_VALUE) ? position : position+INC_AX12_FOREARM;
 			else if(c == CARA_DEC)
-				position -= INC_AX12_FOREARM;
-			AX12_set_position(ARM_ACT_AX12_MID_ID, position);
+				position = ((Sint16)position-INC_AX12_FOREARM < ARM_ACT_AX12_MID_MIN_VALUE) ? position : position-INC_AX12_FOREARM;
+				AX12_set_position(ARM_ACT_AX12_MID_ID, position);
 			break;
 
 		case AX12_SUCKER :
-			if(CLOCK_get_time() - time_ask_position > TIME_TO_REFRESH_POS){
+			if(CLOCK_get_time()*100 - time_ask_position > TIME_TO_REFRESH_POS){
 				time_ask_position = CLOCK_get_time()*100;
 				position = AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID);
 			}
 			if(c == CARA_INC)
-				position += INC_AX12_SUCKER;
+				position = (position+INC_AX12_SUCKER> ARM_ACT_AX12_TRIANGLE_MAX_VALUE) ? position : position+INC_AX12_SUCKER;
 			else if(c == CARA_DEC)
-				position -= INC_AX12_SUCKER;
-			AX12_set_position(ARM_ACT_AX12_TRIANGLE_ID, position);
+				position = ((Sint16)position-INC_AX12_SUCKER < ARM_ACT_AX12_TRIANGLE_MIN_VALUE) ? position : position-INC_AX12_SUCKER;
+				AX12_set_position(ARM_ACT_AX12_TRIANGLE_ID, position);
 			break;
 
 		case NONE :
