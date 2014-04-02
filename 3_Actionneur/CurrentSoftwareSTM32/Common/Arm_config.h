@@ -16,8 +16,8 @@
 
 // ID des moteurs
 #define ARM_ACT_UPDOWN_ID                        0
-#define ARM_ACT_RX24_ID                          20
-#define ARM_ACT_AX12_MID_ID                      21
+#define ARM_ACT_RX24_ID                          21
+#define ARM_ACT_AX12_MID_ID                      3
 #define ARM_ACT_AX12_TRIANGLE_ID                 1
 
 #define ARM_ACT_UPDOWN_ID_POTAR_ADC_ID           ADC_11
@@ -34,6 +34,8 @@
 #define ARM_ACT_UPDOWN_PORT_WAY_BIT              4
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY0              20
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY1              20
+#define ARM_ACT_UPDOWN_MAX_VALUE				 500
+#define ARM_ACT_UPDOWN_MIN_VALUE				 0
 
 //#define ARM_ACT_RX24                             1
 #define ARM_ACT_RX24                             0		//non utilisé, mais utilisé comme prefix dans arm_data (les autres moteurs c'est pareil)
@@ -41,18 +43,24 @@
 #define ARM_ACT_RX24_ASSER_POS_EPSILON           5
 #define ARM_ACT_RX24_ASSER_POS_LARGE_EPSILON     10 //arbitraire, a changer
 #define ARM_ACT_RX24_MAX_TORQUE_PERCENT          100
+#define ARM_ACT_RX24_MAX_VALUE					 300
+#define ARM_ACT_RX24_MIN_VALUE					 0
 
 #define ARM_ACT_AX12_MID                         2
 #define ARM_ACT_AX12_MID_ASSER_TIMEOUT           20
 #define ARM_ACT_AX12_MID_ASSER_POS_EPSILON       5
 #define ARM_ACT_AX12_MID_ASSER_POS_LARGE_EPSILON 10 //arbitraire, a changer
 #define ARM_ACT_AX12_MID_MAX_TORQUE_PERCENT      100
+#define ARM_ACT_AX12_MID_MAX_VALUE				 300
+#define ARM_ACT_AX12_MID_MIN_VALUE				 0
 
 #define ARM_ACT_AX12_TRIANGLE                             3
 #define ARM_ACT_AX12_TRIANGLE_ASSER_TIMEOUT               20
 #define ARM_ACT_AX12_TRIANGLE_ASSER_POS_EPSILON           5
 #define ARM_ACT_AX12_TRIANGLE_ASSER_POS_LARGE_EPSILON     10 //arbitraire, a changer
 #define ARM_ACT_AX12_TRIANGLE_MAX_TORQUE_PERCENT          100
+#define ARM_ACT_AX12_TRIANGLE_MAX_VALUE					 300
+#define ARM_ACT_AX12_TRIANGLE_MIN_VALUE					 0
 
 #endif	/* ARM_CONFIG_H */
 
