@@ -13,6 +13,7 @@
 #include "clock.h"
 #include "QS/QS_buttons.h"
 #include "Pierre/PFilet.h"
+#include "QS/QS_DCMotor2.h"
 
 #include "config_pin.h"
 
@@ -43,14 +44,15 @@ void CLOCK_init()
 	BUTTONS_init();
 #endif
 	TIMER_SRC_TIMER_init();
-	TIMER_SRC_TIMER_start_ms(100);
+	TIMER_SRC_TIMER_start_ms(10);
 }
 
 #include "QS/QS_uart.h"
 void TIMER_SRC_TIMER_interrupt()
 {
 #ifdef I_AM_ROBOT_BIG
-	FILET_process_100ms(); // Gestion du réarmement du filet
+	FILET_process_10ms(); // Gestion du réarmement du filet
+	DCM_process_it();     // Asservissement du bras
 #endif
 	LED_RUN = !LED_RUN;
 	time++;
@@ -61,6 +63,11 @@ void TIMER_SRC_TIMER_interrupt()
 }
 
 clock_time_t CLOCK_get_time()
+{
+	return time/10;
+}
+
+clock_time_t CLOCK_get_time_10()
 {
 	return time;
 }

@@ -33,7 +33,6 @@ void uart_checker(char c){
 	static state_e state = NONE;
 	static Uint16 position = 150;
 	static clock_time_t time_ask_position = 0;
-	static clock_time_t time_last_set_position = 0;
 
 	ARM_init();
 
@@ -48,7 +47,6 @@ void uart_checker(char c){
 			state = DC_MOTOR_TOP_BOT;
 			position = ARM_readDCMPos();
 			time_ask_position = CLOCK_get_time()*100;
-			time_last_set_position = 0;
 			break;
 
 		case '2' :
@@ -56,7 +54,6 @@ void uart_checker(char c){
 			state = RX24_ARM;
 			position = AX12_get_position(ARM_ACT_RX24_ID);
 			time_ask_position = CLOCK_get_time()*100;
-			time_last_set_position = 0;
 			break;
 
 		case '3' :
@@ -64,7 +61,6 @@ void uart_checker(char c){
 			state = AX12_FOREARM;
 			position = AX12_get_position(ARM_ACT_AX12_MID_ID);
 			time_ask_position = CLOCK_get_time()*100;
-			time_last_set_position = 0;
 			break;
 
 		case '4' :
@@ -72,7 +68,6 @@ void uart_checker(char c){
 			state = AX12_SUCKER;
 			position = AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID);
 			time_ask_position = CLOCK_get_time()*100;
-			time_last_set_position = 0;
 			break;
 
 		case CARA_PRINT :
