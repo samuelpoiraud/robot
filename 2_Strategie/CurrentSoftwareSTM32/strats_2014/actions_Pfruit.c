@@ -283,10 +283,16 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 			break;
 
 		case DONE:
-			if(global.env.color == RED)
+			if(group == TREE_OUR){
 				fruit_group_our = strat_fruit_sucess;
-			else
+				set_sub_act_done(SUB_FRUITS,TRUE);
+			}else{
 				fruit_group_adversary = strat_fruit_sucess;
+				set_sub_act_done(SUB_FRUITS_ADV,TRUE);
+			}
+
+			if(get_presenceFruit() == TRUE)
+				set_sub_act_done(SUB_DROP_FRUITS,FALSE);
 
 			state = IDLE;
 			return END_OK;
