@@ -1293,6 +1293,7 @@ error_e strat_manage_fresco(){
 		case DONE:
 			state = IDLE;
 			action_fresco_filed = TRUE;
+			set_sub_act_done(SUB_FRESCO,TRUE);
 			return END_OK;
 			break;
 
@@ -1523,6 +1524,7 @@ error_e strat_lance_launcher(bool_e lanceAll){
 
 		case DONE:
 			state = IDLE;
+			set_sub_act_done(SUB_LANCE,TRUE);
 			return END_OK;
 			break;
 
@@ -1665,6 +1667,7 @@ error_e strat_lance_launcher_ennemy(){
 
 		case DONE:
 			state = IDLE;
+			set_sub_act_done(SUB_LANCE_ADV,TRUE);
 			launcher_ball_adversary = TRUE;
 			return END_OK;
 			break;
