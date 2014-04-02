@@ -12,9 +12,9 @@
 
 #ifndef QS_DCMOTOR2_H
 	#define QS_DCMOTOR2_H
-	
+
 	#include "QS_all.h"
-	
+
 	#ifdef USE_DCMOTOR2
 
 		//fonction sans argument renvoyant une valeur de type Sint16
@@ -44,22 +44,22 @@
 		/*-------------------------------------
 			Fonctions
 		-------------------------------------*/
-	
+
 		// fonction d'initialisation du module QS
 		void DCM_init();
-	
+
 		// Fonction pour modifier la consigne d'un actionneur
 		void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos);
 
 		// Indique si le moteur a fini son travail
 		DCM_working_state_e DCM_get_state (Uint8 dc_motor_id);
-	
+
 		// configurer un moteur CC après initialisation du module QS
 		void DCM_config ( Uint8 dc_motor_id, DCMotor_config_t* config);
-		
+
 		//Change la valeur d'une position sans arrêter l'asservissement. Si le moteur était asservi à cette position, l'asservissement prend en compte le changement
 		void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value);
-		
+
 		//Récupère la valeur d'une position
 		Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get);
 
@@ -68,7 +68,7 @@
 
 		//Récupère les coefs d'asservissement.
 		void DCM_getCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd);
-	
+
 		// Arret de l'asservissement d'un actionneur
 		void DCM_stop(Uint8 dc_motor_id);
 
@@ -80,6 +80,10 @@
 
 		// Reactivation de tous les asservissements
 		void DCM_restart_all();
+
+		//-----------------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// Fonction à appeler en it pour l'asservissement du moteur
+		void DCM_process_it();
 
 	#endif /* def USE_DCMOTOR2 */
 #endif /* ndef QS_DCMOTOR2_H */
