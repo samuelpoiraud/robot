@@ -14,23 +14,10 @@
 #ifdef USE_DCMOTOR2
 
 #include "QS_pwm.h"
-#include "QS_timer.h"
 #ifdef USE_CAN
 	#include "QS_can.h"
 #endif
 #include "QS_CANmsgList.h"
-
-
-/*-----------------------------------------
-		Selection du timer
------------------------------------------*/
-#if !defined(DCM_TIMER)
-	#error "DCM_TIMER doit etre 1 2 3 ou 4, le watchdog n'est pas utilisable avec ce module"
-#else
-	#define TIMER_SRC_TIMER_ID DCM_TIMER
-
-	#include "QS_setTimerSource.h"
-#endif
 
 
 	typedef enum
@@ -43,7 +30,7 @@
 /*-----------------------------------------
 		Variables globales privées
 -----------------------------------------*/
-	
+
 	typedef struct
 	{
 		DCMotor_config_t config;	// la config du DCMotor
@@ -81,9 +68,6 @@ void DCM_init()
 	PWM_init();
 	// Initialisation
 	DCM_uninitialize_all();
-	// Lancement de l'interruption de commande
-	TIMER_SRC_TIMER_init();
-	TIMER_SRC_TIMER_start_ms(DCM_TIMER_PERIOD);
 }
 
 DCM_working_state_e DCM_get_state (Uint8 dc_motor_id)
@@ -116,7 +100,7 @@ static void DCM_uninitialize_all()
 	{
 		(DCMotors[i]).init_state = NOT_INITIALIZED;
 	}
-}	
+}
 
 
 /*-----------------------------------------
@@ -130,7 +114,7 @@ static void DCM_setWay(Uint8 dc_motor_id, Uint8 value)
 		BIT_SET(*(this->way_latch), this->way_bit_number);
 	else
 		BIT_CLR(*(this->way_latch), this->way_bit_number);
-}	
+}
 
 static Uint8 DCM_getWay(Uint8 dc_motor_id)
 {
@@ -176,7 +160,7 @@ Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get) {
 }
 
 /*-----------------------------------------
-        Change les coefs d'asservissement.
+		Change les coefs d'asservissement.
 -----------------------------------------*/
 void DCM_setCoefs(Uint8 dc_motor_id, Sint16 Kp, Sint16 Ki, Sint16 Kd) {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
@@ -193,7 +177,7 @@ void DCM_setCoefs(Uint8 dc_motor_id, Sint16 Kp, Sint16 Ki, Sint16 Kd) {
 }
 
 /*-----------------------------------------
-        Récupère les coefs d'asservissement.
+		Récupère les coefs d'asservissement.
 -----------------------------------------*/
 void DCM_getCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd) {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
@@ -216,8 +200,8 @@ void DCM_stop(Uint8 dc_motor_id)
 		this->init_state = STOPPED;
 		this->cmd_state = DCM_IDLE;
 		PWM_stop(this->config.pwm_number);
-	}	
-}	
+	}
+}
 
 
 /*-----------------------------------------
@@ -230,7 +214,7 @@ void DCM_stop_all()
 	{
 		DCM_stop(i);
 	}
-}	
+}
 
 /*-----------------------------------------
 		Reactivation de l'asservissement d'un actionneur
@@ -244,8 +228,8 @@ void DCM_restart(Uint8 dc_motor_id)
 		this->cmd_time = 0;
 		this->cmd_state = DCM_WORKING;
 		this->init_state = INITIALIZED;
-	}	
-}	
+	}
+}
 
 /*-----------------------------------------
 		Reactivation de tous les asservissements
@@ -257,13 +241,13 @@ void DCM_restart_all()
 	{
 		DCM_restart(i);
 	}
-}	
+}
 
 
 /*-----------------------------------------
 	Interruption de commande
 -----------------------------------------*/
-void TIMER_SRC_TIMER_interrupt()
+void DCM_process_it()
 {
 	DCMotor_t* this;
 	DCMotor_config_t* config;
@@ -277,7 +261,7 @@ void TIMER_SRC_TIMER_interrupt()
 		this = &(DCMotors[dc_motor_id]);
 		config = &(this->config);
 
-		if (this->init_state == INITIALIZED) 
+		if (this->init_state == INITIALIZED)
 		{
 			// Acquisition de la position pour la détection de l'arrêt du moteur
 			error = config->pos[this->posToGo]-(config->sensor_read)();
@@ -332,7 +316,7 @@ void TIMER_SRC_TIMER_interrupt()
 //				}
 
 				this->previous_error = error;
-								
+
 				// Sens et saturation
 				if (computed_cmd > 0)
 				{
@@ -341,7 +325,7 @@ void TIMER_SRC_TIMER_interrupt()
 						this->current_cmd = config->way0_max_duty;
 					else this->current_cmd = (Uint8)computed_cmd;
 				}
-				else 
+				else
 				{
 					DCM_setWay(dc_motor_id, 0);
 					computed_cmd = -computed_cmd;
@@ -349,14 +333,12 @@ void TIMER_SRC_TIMER_interrupt()
 						this->current_cmd = config->way1_max_duty;
 					else this->current_cmd = (Uint8)computed_cmd;
 				}
-				
+
 				// application de la commande
 				PWM_run(this->current_cmd, config->pwm_number);
 			}
-		}	
+		}
 	}
-	// acquittement de l'interruption
-	TIMER_SRC_TIMER_resetFlag();
 }
 
 
@@ -377,7 +359,7 @@ static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 
 		// Envoi
 		CAN_send(&msg);
 	#endif
-	
+
 }
 //*/
 
