@@ -234,9 +234,9 @@ static void FILET_gache_process(){
 
 //************************************** Gestion du réarmement et information /**************************************/
 
-void FILET_process_100ms(void){
-	if(time_filet >= 100)
-		time_filet -= 100;
+void FILET_process_10ms(void){
+	if(time_filet >= QUANTUM_IT)
+		time_filet -= QUANTUM_IT;
 	else
 		time_filet = 0;
 }

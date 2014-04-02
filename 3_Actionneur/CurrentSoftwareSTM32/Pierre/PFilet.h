@@ -42,7 +42,7 @@ bool_e FILET_CAN_process_msg(CAN_msg_t* msg);
  * Fonction à mettre sur la file pour demander une action.
  */
 void FILET_run_command(queue_id_t queueId, bool_e init);
-void FILET_process_100ms(void);
+void FILET_process_10ms(void);
 void FILET_process_main(void);
 void FILET_BOUTON_process(void);
 
