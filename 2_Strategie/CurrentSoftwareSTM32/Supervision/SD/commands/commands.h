@@ -19,5 +19,6 @@
 #include "launch.h"
 #include "stop.h"
 #include "calibration.h"
+#include "setPos.h"
 
 #endif // COMMANDS_H
