@@ -96,7 +96,7 @@ error_e strat_file_fruit(){
 
 		case GET_IN :
 			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].point.x,dplt[0].point.y, 0x00),
-					GET_IN, GO, ERROR_WITH_GET_OUT, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, GO, ERROR_WITH_GET_OUT, sensRobot, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case GO :
@@ -106,11 +106,11 @@ error_e strat_file_fruit(){
 			}
 			if(global.env.asser.reach_y)
 				ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
-			state = try_going_multipoint(dplt, 3, GO, DONE , ERROR, sensRobot, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(dplt, 3, GO, DONE , ERROR, sensRobot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -370,11 +370,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, OPEN_FRUIT_VERIN, ERROR, FAST, sensRobot, NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, OPEN_FRUIT_VERIN, ERROR, FAST, sensRobot, NO_DODGE_AND_WAIT);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -382,7 +382,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case RECUP_TREE_1:
-			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,courbe[1].speed, sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,courbe[1].speed, sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case COURBE:
@@ -400,19 +400,19 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			}
 
 				// multipoint si rajoutes des points pour la courbes plus simples
-			state = try_going_multipoint(&courbe[2],1,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(&courbe[2],1,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case RECUP_TREE_2:
-			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,courbe[NBPOINT-2].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,courbe[NBPOINT-2].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case POS_FIN:
-			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -514,11 +514,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 				else
 					point_pathfind = C3;
 			}
-			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,FAST,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -526,7 +526,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case RECUP_TREE_1:
-			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,courbe[1].speed, sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,courbe[1].speed, sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case COURBE:
@@ -543,19 +543,19 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 				}
 			}
 
-			state = try_going_multipoint(&courbe[2],1,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(&courbe[2],1,COURBE,RECUP_TREE_2,ERROR,sensRobot,NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case RECUP_TREE_2:
-			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,courbe[NBPOINT-2].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[NBPOINT-2].point.x,courbe[NBPOINT-2].point.y,RECUP_TREE_2,POS_FIN,ERROR,courbe[NBPOINT-2].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case POS_FIN:
-			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -646,11 +646,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -658,11 +658,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_FIN:
-			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -762,7 +762,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -770,11 +770,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case POS_FIN:
-			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;

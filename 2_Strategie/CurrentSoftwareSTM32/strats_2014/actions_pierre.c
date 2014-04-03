@@ -117,6 +117,7 @@ void strat_inutile(void){
 			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_1,WAY_CHOICE),RAMMASSE_FRUIT,DONE,ERROR);
 			break;
 
+
 		case DONE:
 			break;
 		case ERROR:
@@ -949,7 +950,7 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_TORCH:
-			state = try_going_multipoint(&point[0],3,GOTO_TORCH,GOTO_TREE_2,GOTO_TREE_2,(global.env.color == RED)? BACKWARD : FORWARD,NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = try_going_multipoint(&point[0],3,GOTO_TORCH,GOTO_TREE_2,GOTO_TREE_2,(global.env.color == RED)? BACKWARD : FORWARD,NO_DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 
@@ -957,7 +958,7 @@ error_e sub_action_initiale(){
 			static Uint8 s1 = IN_PROGRESS ,s2 = IN_PROGRESS;
 
 			if(s1 == IN_PROGRESS)
-				s1 = try_going_until_break(1700,COLOR_Y(1050),IN_PROGRESS,SUCESS,ERROR,FAST,ANY_WAY,NO_AVOIDANCE);
+				s1 = try_going_until_break(1700,COLOR_Y(1050),IN_PROGRESS,SUCESS,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 
 			if(s2 == IN_PROGRESS)
 				s2 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, IN_PROGRESS, SUCESS, ERROR);
@@ -987,7 +988,7 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_FRESCO:
-			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO,DECISION_FRUIT_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,NO_AVOIDANCE);
+			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO,DECISION_FRUIT_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case DECISION_FRUIT_FRESCO:
@@ -1035,7 +1036,7 @@ error_e sub_action_initiale(){
 			}break;
 
 		case GOTO_FRESCO_2:
-			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_2,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,NO_AVOIDANCE);
+			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_2,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		// Si on lance une balle sur le mammouth ennemis
@@ -1057,7 +1058,7 @@ error_e sub_action_initiale(){
 
 		// Cas d'erreur à DO_TREE_2 et GOTO_FRESCO
 		case GOTO_FRESCO_BY_TORCH_ROAD:
-			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,DO_TREE_2,FAST,ANY_WAY,NO_AVOIDANCE);
+			state = try_going(1400,COLOR_Y(2200),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,DO_TREE_2,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case DONE:
@@ -1078,6 +1079,7 @@ error_e sub_action_initiale(){
 error_e protected_fires(protected_fires_e fires){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		GET_IN,
 		POINT_0,
 		POINT_1,
 		POINT_2,
@@ -1106,22 +1108,33 @@ error_e protected_fires(protected_fires_e fires){
 			}
 
 			state = POINT_0;
-			break;
+
+			if((((global.env.color == RED && fires == OUR_FIRES) && (global.env.color != RED && fires == ADVERSARY_FIRES)) && est_dans_carre(400, 2000, 0, 1500, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (((global.env.color == RED && fires == ADVERSARY_FIRES) && (global.env.color != RED && fires == OUR_FIRES)) && est_dans_carre(400, 2000, 1500, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+				state = POINT_0;
+			else
+				state = GET_IN;
+		   break;
+
+	   case GET_IN:
+		   state = PATHFIND_try_going(PATHFIND_closestNode(points[0].x,points[0].y, 0x00),
+				   GET_IN, POINT_0, ERROR, ANY_WAY, FAST,DODGE_AND_NO_WAIT, END_AT_BREAK);
+		   break;
 
 		case POINT_0:
-			state = try_going(points[0].x,points[0].y,POINT_0,POINT_3,POINT_1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(points[0].x,points[0].y,POINT_0,POINT_3,POINT_1,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case POINT_1:
-			state = try_going(points[1].x,points[1].y,POINT_1,POINT_2,POINT_0,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(points[1].x,points[1].y,POINT_1,POINT_2,POINT_0,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case POINT_2:
-			state = try_going(points[2].x,points[2].y,POINT_2,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(points[2].x,points[2].y,POINT_2,DONE,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case POINT_3:
-			state = try_going(points[3].x,points[3].y,POINT_3,POINT_1,POINT_2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(points[3].x,points[3].y,POINT_3,POINT_1,POINT_2,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case DONE:
@@ -1241,7 +1254,7 @@ error_e strat_manage_fresco(){
 			break;
 
 		case GET_IN :
-			state = PATHFIND_try_going(M0, GET_IN, FILE_FRESCO, ERROR, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(M0, GET_IN, FILE_FRESCO, ERROR, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case FILE_FRESCO:
@@ -1348,11 +1361,11 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case BEFORE_WALL:
-			state = try_going(270,posY,BEFORE_WALL,WALL,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(270,posY,BEFORE_WALL,WALL,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case WALL:
-			state = try_going(170,posY,WALL,PUSH_MOVE,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT); // Si en erreur on va a END seule veut dire qu un triangle a géné, la strat_manage fresco va donc choisir une autre position
+			state = try_going(170,posY,WALL,PUSH_MOVE,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT); // Si en erreur on va a END seule veut dire qu un triangle a géné, la strat_manage fresco va donc choisir une autre position
 			break;
 
 		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
@@ -1495,18 +1508,18 @@ error_e strat_lance_launcher(bool_e lanceAll){
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].x,dplt[0].y, 0x00),
-					GET_IN, POS_BEGINNING, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_BEGINNING, ERROR, sensRobot, FAST,DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_BEGINNING:
-			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case POS_END:
 			if(entrance)
 				ASSER_WARNER_arm_y(posShoot);
 
-			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_WAIT);
 
 			if(global.env.asser.reach_y){
 				if(lanceAll == TRUE)
@@ -1517,7 +1530,7 @@ error_e strat_lance_launcher(bool_e lanceAll){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -1638,29 +1651,29 @@ error_e strat_lance_launcher_ennemy(){
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].x,dplt[0].y, 0x00),
-					GET_IN, POS_BEGINNING, ERROR, sensRobot, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_BEGINNING, ERROR, sensRobot, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_BEGINNING:
-			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,DODGE_AND_WAIT);
+			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case POS_END:
 			if(entrance)
 				ASSER_WARNER_arm_y(posShoot);
 
-			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,(do_pos_finish == TRUE)? POS_FINISH:DONE,(do_pos_finish == TRUE)? POS_FINISH:ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,(do_pos_finish == TRUE)? POS_FINISH:DONE,(do_pos_finish == TRUE)? POS_FINISH:ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_WAIT);
 
 			if(global.env.asser.reach_y)
 				ACT_lance_launcher_run(ACT_Lance_1_BALL,sensShoot);
 			break;
 
 		case POS_FINISH:
-			state = try_going_until_break(ELOIGNEMENT_SHOOT_BALL,COLOR_Y(1700),POS_FINISH,DONE,ERROR,SPEED_LANCE_LAUNCHER,(global.env.color == RED)? FORWARD:BACKWARD,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(ELOIGNEMENT_SHOOT_BALL,COLOR_Y(1700),POS_FINISH,DONE,ERROR,SPEED_LANCE_LAUNCHER,(global.env.color == RED)? FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
