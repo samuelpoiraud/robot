@@ -45,6 +45,8 @@
 
 	static DCMotor_t DCMotors[DCM_NUMBER];
 
+	static bool_e DCM_initialized = FALSE;
+
 /*-----------------------------------------
 		Prototypes des fonctions privées
 -----------------------------------------*/
@@ -60,10 +62,9 @@
 -----------------------------------------*/
 void DCM_init()
 {
-	static bool_e initialized = FALSE;
-	if(initialized)
+	if(DCM_initialized)
 		return;
-	initialized = TRUE;
+	DCM_initialized = TRUE;
 
 	PWM_init();
 	// Initialisation
@@ -249,6 +250,9 @@ void DCM_restart_all()
 -----------------------------------------*/
 void DCM_process_it()
 {
+	if(DCM_initialized == FALSE)
+		return;
+
 	DCMotor_t* this;
 	DCMotor_config_t* config;
 	Uint8 dc_motor_id;
