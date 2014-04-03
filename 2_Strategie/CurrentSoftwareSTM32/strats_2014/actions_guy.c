@@ -17,6 +17,22 @@
 #include "../Pathfind.h"
 #include "../zone_mutex.h"
 
+
+// Par defaut si les deux defines suivant sont desactivés le guy va passer par le foyer centrale
+//#define WAY_INIT_TREE_SIDE  // Est prioritaire sur le chemin par le mammouth
+#define WAY_INIT_MAMMOUTH_SIDE
+
+
+//#define FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
+
+// Fonctionne que pour les chemins MAMMOUTH_SIDE et HEART_SIDE (chemin par defaut si aucun define)
+bool_e rush_to_torch = FALSE;  // Si FALSE va faire tomber un ou des triangle(s) avant
+bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait que l'ennemis ne le fais pas tomber des le debut
+
+
+
+
+
 #define DIM_START_TRAVEL_TORCH 200
 
 static GEOMETRY_point_t posTorch[2] = {{1050,900},		// Torche Rouge
@@ -208,6 +224,123 @@ void strat_test_warner_triangle(){
 
 	}
 
+}
+
+
+error_e sub_action_initiale_guy(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		SUCESS,
+		GET_OUT_POS_START,
+		FALL_FIRST_FIRE,
+		TAKE_DECISION_FIRST_WAY,
+		GOTO_TREE_INIT,
+		FALL_FIRE_WALL_TREE,  // Fait tomber les deux feux contre le mur milieu
+		GOTO_MAMMOUTH_INIT,
+		FALL_MOBILE_MM_ADV,
+		GOTO_HEART_INIT,
+		FALL_FIRE_MOBILE_TREE_ADV,
+		GOTO_TORCH_ADVERSARY,
+		FALL_FIRE_MOBILE_MM_ADV,
+		FALL_FIRE_WALL_ADV,
+		DONE,
+		ERROR
+	);
+
+	static displacement_t points[4];
+
+	#ifdef WAY_INIT_TREE_SIDE
+		points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
+		points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
+		points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
+		points[3] = (displacement_t){{1780,COLOR_Y(1390)},FAST};
+	#elif defined WAY_INIT_MAMMOUTH_SIDE
+		points[0] = (displacement_t){{760,COLOR_Y(605)},FAST};
+		points[1] = (displacement_t){{800,COLOR_Y(975)},FAST};
+		points[2] = (displacement_t){{640,COLOR_Y(1390)},FAST};
+		points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
+	#else
+		points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
+		points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
+		points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
+		points[3] = (displacement_t){{1400,COLOR_Y(1710)},FAST};
+	#endif
+
+
+
+	switch(state){
+
+		case IDLE:
+			#if FALL_FIRST_FIRE
+				state = FALL_FIRST_FIRE;
+			#else
+				state = GET_OUT_POS_START;
+			#endif
+			break;
+
+		case FALL_FIRST_FIRE:
+			state = GET_OUT_POS_START;
+			break;
+
+		case GET_OUT_POS_START:
+			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,TAKE_DECISION_FIRST_WAY, TAKE_DECISION_FIRST_WAY,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			break;
+
+		case TAKE_DECISION_FIRST_WAY:
+			#ifdef WAY_INIT_TREE_SIDE
+				state = GOTO_TREE_INIT;
+			#elif defined WAY_INIT_MAMMOUTH_SIDE
+					state = GOTO_MAMMOUTH_INIT;
+			#else
+				state = GOTO_HEART_INIT;
+			#endif
+			break;
+
+		case GOTO_TREE_INIT:
+			state  = try_going_multipoint(points,4,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,DODGE_AND_NO_WAIT, END_AT_BREAK);
+			break;
+
+		case FALL_FIRE_WALL_TREE:
+			state = GOTO_TORCH_ADVERSARY;
+			break;
+
+		case GOTO_HEART_INIT:
+			state  = try_going_multipoint(points,4,GOTO_HEART_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_TREE_ADV,ERROR,ANY_WAY,DODGE_AND_NO_WAIT, END_AT_BREAK);
+			break;
+
+		case FALL_FIRE_MOBILE_TREE_ADV:
+			state = GOTO_TORCH_ADVERSARY;
+			break;
+
+		case GOTO_MAMMOUTH_INIT:
+			state  = try_going_multipoint(points,4,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,DODGE_AND_NO_WAIT, END_AT_BREAK);
+			break;
+
+		case FALL_FIRE_MOBILE_MM_ADV:
+			state = GOTO_TORCH_ADVERSARY;
+			break;
+
+		case GOTO_TORCH_ADVERSARY:
+			state = try_going_until_break(1100,COLOR_Y(1900),GOTO_TORCH_ADVERSARY,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : DONE,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			break;
+
+		case FALL_FIRE_WALL_ADV:
+			state = DONE;
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+
+		case ERROR:
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
 }
 
 
