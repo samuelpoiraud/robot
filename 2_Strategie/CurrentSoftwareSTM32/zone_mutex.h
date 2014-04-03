@@ -18,6 +18,7 @@
 
 //Différentes zone ou les 2 robots passent
 typedef enum {
+	MZ_MAMMOUTH_OUR,
 	MZ_FRUIT_TRAY,		//Zone du bac à fruit
 	MZ_ZONE_LIBRE
 } map_zone_e;
@@ -42,14 +43,16 @@ typedef enum {
 typedef struct {
 	zone_owner_e owner;
 	zone_state_e state;
+	bool_e accept_donate;
 
 } zone_info_t;
 
 //Attention à mettre des backslahes a la fin des lignes
 #define ZONE_INITIAL_STATE_DATA {                    \
 /*  {owner, state }                    */       \
-	{ZIS_BIG  , ZS_Free  },		/*MZ_FRUIT_TRAY */			\
-	{ZIS_Free  , ZS_Free  }		/*MZ_ZONE_LIBRE */			\
+	{ZIS_BIG  , ZS_Free , FALSE },		/*MZ_MAMMOUTH_OUR*/			\
+	{ZIS_BIG  , ZS_Free , FALSE },		/*MZ_FRUIT_TRAY */			\
+	{ZIS_Free  , ZS_Free ,FALSE }		/*MZ_ZONE_LIBRE */			\
 };
 
 
@@ -77,6 +80,10 @@ zone_state_e ZONE_get_status(map_zone_e zone);
 //Gère les messages CAN liés au zones
 void ZONE_CAN_process_msg(CAN_msg_t *msg);
 
+bool_e ZONE_validate();
+
+// Si a un moment du match, nous savons que nous passerons plus par là, nous pouvons donner une zone
+void ZONE_donate(map_zone_e zone);
 
 #endif	/* ZONE_MUTEX_H */
 
