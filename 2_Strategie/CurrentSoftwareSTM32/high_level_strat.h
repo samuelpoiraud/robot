@@ -52,12 +52,16 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 
 	//--------------Sub action de pierre
 
+	SUB_ACTION_INIT,
 	SUB_LANCE,
 	SUB_LANCE_ADV,
 	SUB_FRUITS,
 	SUB_DROP_FRUITS,
 	SUB_FRUITS_ADV,
 	SUB_FRESCO,
+	SUB_PROTECTED_FIRE,
+	SUB_PROTECTED_FIRE_2,
+	SUB_PROTECTED_FIRE_ADV,
 	SUB_FILET,		//Peu importe l'ordre des états... (sauf en cas de priorité égale)
 
 	//--------------Sub action de guy
