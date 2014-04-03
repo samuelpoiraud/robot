@@ -17,6 +17,7 @@
 #include "../act_can.h"
 #include "../Pathfind.h"
 #include "../high_level_strat.h"
+#include "../zone_mutex.h"
 
 
 // Define à activer pour activer le get_in / get_ou des subactions
@@ -950,7 +951,15 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_TORCH:
+
+			if(entrance)
+				ASSER_WARNER_arm_x(750);
+
 			state = try_going_multipoint(&point[0],3,GOTO_TORCH,GOTO_TREE_2,GOTO_TREE_2,(global.env.color == RED)? BACKWARD : FORWARD,NO_DODGE_AND_WAIT, END_AT_BREAK);
+
+			if(global.env.asser.reach_x)
+				ZONE_donate(MZ_MAMMOUTH_OUR);
+
 			break;
 
 

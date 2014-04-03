@@ -236,6 +236,7 @@ error_e sub_action_initiale_guy(){
 		TAKE_DECISION_FIRST_WAY,
 		GOTO_TREE_INIT,
 		FALL_FIRE_WALL_TREE,  // Fait tomber les deux feux contre le mur milieu
+		WAIT_GOTO_MAMMOUTH_INIT,
 		GOTO_MAMMOUTH_INIT,
 		FALL_MOBILE_MM_ADV,
 		GOTO_HEART_INIT,
@@ -255,9 +256,9 @@ error_e sub_action_initiale_guy(){
 		points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
 		points[3] = (displacement_t){{1780,COLOR_Y(1390)},FAST};
 	#elif defined WAY_INIT_MAMMOUTH_SIDE
-		points[0] = (displacement_t){{760,COLOR_Y(605)},FAST};
-		points[1] = (displacement_t){{800,COLOR_Y(975)},FAST};
-		points[2] = (displacement_t){{640,COLOR_Y(1390)},FAST};
+		points[0] = (displacement_t){{560,COLOR_Y(580)},FAST};
+		points[1] = (displacement_t){{530,COLOR_Y(975)},FAST};
+		points[2] = (displacement_t){{590,COLOR_Y(1530)},FAST};
 		points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
 	#else
 		points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
@@ -290,7 +291,7 @@ error_e sub_action_initiale_guy(){
 			#ifdef WAY_INIT_TREE_SIDE
 				state = GOTO_TREE_INIT;
 			#elif defined WAY_INIT_MAMMOUTH_SIDE
-					state = GOTO_MAMMOUTH_INIT;
+				state = WAIT_GOTO_MAMMOUTH_INIT;
 			#else
 				state = GOTO_HEART_INIT;
 			#endif
@@ -312,8 +313,19 @@ error_e sub_action_initiale_guy(){
 			state = GOTO_TORCH_ADVERSARY;
 			break;
 
+		case WAIT_GOTO_MAMMOUTH_INIT:  // Attend le passage de pierre pour pouvoir passer à son tour
+			state = try_lock_zone(MZ_MAMMOUTH_OUR, 1000, WAIT_GOTO_MAMMOUTH_INIT, GOTO_MAMMOUTH_INIT, GOTO_MAMMOUTH_INIT, GOTO_MAMMOUTH_INIT);
+			break;
+
 		case GOTO_MAMMOUTH_INIT:
+			if(entrance)
+				ASSER_WARNER_arm_y(1200);
+
 			state  = try_going_multipoint(points,4,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,DODGE_AND_NO_WAIT, END_AT_BREAK);
+
+			if(global.env.asser.reach_x)
+				ZONE_unlock(MZ_MAMMOUTH_OUR);
+
 			break;
 
 		case FALL_FIRE_MOBILE_MM_ADV:

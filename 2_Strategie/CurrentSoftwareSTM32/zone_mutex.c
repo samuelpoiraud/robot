@@ -124,6 +124,7 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 
 		case TL_TIMEOUT:
 			zones[zone].state = ZS_Free;
+			zones[zone].accept_donate = FALSE;
 			state = TL_INIT;
 			return NOT_HANDLED;
 
@@ -133,6 +134,7 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 
 		case TL_NO_RESPONSE:
 			zones[zone].state = ZS_Free;
+			zones[zone].accept_donate = FALSE;
 			state = TL_INIT;
 			return END_WITH_TIMEOUT;
 	}
@@ -149,6 +151,7 @@ void ZONE_unlock(map_zone_e zone) {
 		msg.size = 2;
 		CANMsgToXbee(&msg,FALSE);
 		zones[zone].state = ZS_Free; // Remets la zone que j'ai prise en libre
+		zones[zone].accept_donate = FALSE;
 	} else {
 		debug_printf("zone: unlock zone %d not owned !!!, state = %d\n", zone, zones[zone].state);
 	}
@@ -194,6 +197,7 @@ void ZONE_CAN_process_msg(CAN_msg_t *msg) {
 		case XBEE_ZONE_UNLOCK:
 			if(zones[msg->data[1]].state == ZS_OwnedByOther){
 				zones[msg->data[1]].state = ZS_Free;
+				zones[zone].accept_donate = FALSE;
 			}
 			break;
 	}
@@ -223,12 +227,13 @@ static void ZONE_send_lock_response(map_zone_e zone) {
 
 
 	if(zones[zone].state == ZS_OtherTryLock) {  // L'autre robot veut aller dans une de nos zones
-			if(1){ // Fonction de demande de prise de zone
+		if(ZONE_validate(zone)){ // Fonction de demande de prise de zone
 				msg.data[2] = TRUE;
 				zones[zone].state = ZS_OwnedByOther;  // Si nous avons renvoyer TRUE, l'autre robot va donc occuper cette zone
 			}else{
 				msg.data[2] = FALSE;
 				zones[zone].state = ZS_Free; // La zone nous appartient pas donc repasse en libre
+				zones[zone].accept_donate = FALSE;
 			}
 
 	}else{
@@ -239,4 +244,12 @@ static void ZONE_send_lock_response(map_zone_e zone) {
 	msg.size = 3;
 
 	CANMsgToXbee(&msg,FALSE);
+}
+
+bool_e ZONE_validate(map_zone_e zone){
+	return zones[zone].accept_donate;
+}
+
+void ZONE_donate(map_zone_e zone){
+	zones[zone].accept_donate = TRUE;
 }
