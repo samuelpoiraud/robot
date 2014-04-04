@@ -197,7 +197,7 @@ void ZONE_CAN_process_msg(CAN_msg_t *msg) {
 		case XBEE_ZONE_UNLOCK:
 			if(zones[msg->data[1]].state == ZS_OwnedByOther){
 				zones[msg->data[1]].state = ZS_Free;
-				zones[zone].accept_donate = FALSE;
+				zones[msg->data[1]].accept_donate = FALSE;
 			}
 			break;
 	}

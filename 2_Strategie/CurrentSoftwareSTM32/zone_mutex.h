@@ -22,7 +22,7 @@ typedef enum {
 	MZ_FRUIT_TRAY,		//Zone du bac à fruit
 	MZ_ZONE_LIBRE
 } map_zone_e;
-#define ZONE_MUTEX_NUMBER 2
+#define ZONE_MUTEX_NUMBER 3
 
 typedef enum {
 	ZIS_Free,		//La zone est initialement libre
@@ -80,7 +80,7 @@ zone_state_e ZONE_get_status(map_zone_e zone);
 //Gère les messages CAN liés au zones
 void ZONE_CAN_process_msg(CAN_msg_t *msg);
 
-bool_e ZONE_validate();
+bool_e ZONE_validate(map_zone_e zone);
 
 // Si a un moment du match, nous savons que nous passerons plus par là, nous pouvons donner une zone
 void ZONE_donate(map_zone_e zone);
