@@ -110,6 +110,8 @@
 	#define XBEE_START_MATCH				0x5A4	//Ce message est envoyé pour lancer le match de l'autre robot
 	#define XBEE_PING						0x516	//PING = pInG = p1n6, Ce message est envoyé pour pinger l'autre carte stratégie
 	#define XBEE_PONG						0x506	//PONG = pOnG = p0n6, Ce message est envoyé en réponse d'un ping vers l'autre carte stratégie
+	#define XBEE_REACH_POINT_GET_OUT_INIT	0x507	// Envoie un message quand il sort de la zone de départ
+	#define XBEE_REACH_POINT_C1				0x508	// Envoie un message quand il arrive au point C1
 	#define XBEE_ZONE_COMMAND				0x5AA	//Effectue une demande lié au zones (un SID pour toute la gestion des zones comme ça)
 	//Commande dans data[0]:
 		#define XBEE_ZONE_TRY_LOCK       0	//Dans data[1]: la zone, type: map_zone_e. La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT

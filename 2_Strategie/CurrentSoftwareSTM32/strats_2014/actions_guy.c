@@ -18,6 +18,8 @@
 #include "../zone_mutex.h"
 
 
+static void REACH_POINT_GET_OUT_INIT_send_request();
+
 // Par defaut si les deux defines suivant sont desactivés le guy va passer par le foyer centrale
 //#define WAY_INIT_TREE_SIDE  // Est prioritaire sur le chemin par le mammouth
 #define WAY_INIT_MAMMOUTH_SIDE
@@ -249,6 +251,10 @@ error_e sub_action_initiale_guy(){
 	);
 
 	static displacement_t points[4];
+	static bool_e pierre_reach_point_C1 = FALSE;
+
+	if(global.env.reach_point_C1)
+		pierre_reach_point_C1 = TRUE;
 
 	#ifdef WAY_INIT_TREE_SIDE
 		points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
@@ -288,6 +294,9 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case TAKE_DECISION_FIRST_WAY:
+			if(entrance)
+				REACH_POINT_GET_OUT_INIT_send_request();
+
 			#ifdef WAY_INIT_TREE_SIDE
 				state = GOTO_TREE_INIT;
 			#elif defined WAY_INIT_MAMMOUTH_SIDE
@@ -313,9 +322,15 @@ error_e sub_action_initiale_guy(){
 			state = GOTO_TORCH_ADVERSARY;
 			break;
 
-		case WAIT_GOTO_MAMMOUTH_INIT:  // Attend le passage de pierre pour pouvoir passer à son tour
-			state = try_lock_zone(MZ_MAMMOUTH_OUR, 1000, WAIT_GOTO_MAMMOUTH_INIT, GOTO_MAMMOUTH_INIT, GOTO_MAMMOUTH_INIT, GOTO_MAMMOUTH_INIT);
-			break;
+		case WAIT_GOTO_MAMMOUTH_INIT:{  // Attend le passage de pierre pour pouvoir passer à son tour
+			static Uint16 last_time;
+			if(entrance)
+				last_time = global.env.match_time;
+
+			if(pierre_reach_point_C1 || global.env.match_time > last_time + 5000)
+				state = GOTO_MAMMOUTH_INIT;
+
+			}break;
 
 		case GOTO_MAMMOUTH_INIT:
 			if(entrance)
@@ -436,4 +451,13 @@ error_e travel_torch_line(torch_choice_e torch_choice,Sint16 posEndx, Sint16 pos
 	}
 
 	return IN_PROGRESS;
+}
+
+static void REACH_POINT_GET_OUT_INIT_send_request() {
+	CAN_msg_t msg;
+
+	msg.sid = XBEE_REACH_POINT_C1;
+	msg.size = 0;
+
+	CANMsgToXbee(&msg,FALSE);
 }

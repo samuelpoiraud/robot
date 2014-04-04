@@ -19,6 +19,8 @@
 #include "../high_level_strat.h"
 #include "../zone_mutex.h"
 
+static void REACH_POINT_C1_send_request();
+
 
 // Define à activer pour activer le get_in / get_ou des subactions
 #define USE_GET_IN_OUT
@@ -911,6 +913,7 @@ void strat_test_fresque(){
 error_e sub_action_initiale(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		WAIT_TELL_GUY,
 		LANCE_LAUNCHER,
 		GOTO_TREE_2,
 		DO_TREE_2,
@@ -935,11 +938,25 @@ error_e sub_action_initiale(){
 							  {{900,COLOR_Y(1020)},	FAST}
 							 };
 
+	static bool_e guy_get_out_init = FALSE;
+
+	if(global.env.reach_point_get_out_init)
+		guy_get_out_init = TRUE;
+
 	switch(state){
 
 		case IDLE:
-			state = LANCE_LAUNCHER;
+			state = WAIT_TELL_GUY;
 			break;
+
+		case WAIT_TELL_GUY:{
+			static Uint16 last_time;
+			if(entrance)
+				last_time = global.env.match_time;
+
+			if(guy_get_out_init || global.env.match_time > last_time + 5000)
+				state = LANCE_LAUNCHER;
+			}break;
 
 		case LANCE_LAUNCHER:
 			#ifdef ALL_SHOOT_OUR_MAMMOUTH
@@ -953,7 +970,7 @@ error_e sub_action_initiale(){
 		case GOTO_TORCH:
 
 			if(entrance)
-				ASSER_WARNER_arm_x(750);
+				ASSER_WARNER_arm_x(800);
 
 			state = try_going_multipoint(&point[0],3,GOTO_TORCH,GOTO_TREE_2,GOTO_TREE_2,(global.env.color == RED)? BACKWARD : FORWARD,NO_DODGE_AND_WAIT, END_AT_BREAK);
 
@@ -2024,3 +2041,12 @@ void strat_test_small_arm(){
 	}
 }
 
+
+static void REACH_POINT_C1_send_request() {
+	CAN_msg_t msg;
+
+	msg.sid = XBEE_REACH_POINT_C1;
+	msg.size = 0;
+
+	CANMsgToXbee(&msg,FALSE);
+}

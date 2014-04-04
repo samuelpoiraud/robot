@@ -133,6 +133,8 @@
 		time32_t absolute_time; //temps depuis le lancement du module clock en ms.
 		bool_e debug_force_foe;
 		Uint16 duration_trajectory_for_test_coefs;
+		bool_e reach_point_C1;
+		bool_e reach_point_get_out_init;
 	}environment_t;
 
 
