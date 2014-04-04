@@ -17,10 +17,10 @@
 
 
 	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
-//	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
-//	#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
-//	#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
-//	#define LCD_TOUCH								//Active le LCD tactile
+	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
+	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+	//#define LCD_TOUCH								//Active le LCD tactile
 
 /*	MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
  * 	 1 - activez les 4 defines ci-dessus
@@ -140,8 +140,10 @@
 	#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE 	83		//distance entre le 'centre' du robot et l'arrière en calage
 	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	83 		//distance entre le 'centre' du robot et l'avant en calage
 
-	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	132 		//distance entre le 'centre' du robot et l'arrière en calage
-	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	120 		//distance entre le 'centre' du robot et l'avant en calage
+	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	155 		//distance entre le 'centre' du robot et l'arrière en calage
+	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	155 		//distance entre le 'centre' du robot et l'avant en calage
+
+	#define BIG_CALIBRATION_WIDTH					 	285 		//largeur du robot
 
 	#define FIELD_SIZE_Y 3000	//[mm]
 	#define FIELD_SIZE_X 2000	//[mm]
@@ -154,19 +156,19 @@
 		#define SMALL_RED_START_TETA 	(-6588416)			//-PI/2 //(-3294199)
 
 		// YELLOW
-		#define SMALL_YELLOW_START_X 		16384000 			//250mm
+		#define SMALL_YELLOW_START_X 		16384000 			//250mm * 65536
 		#define SMALL_YELLOW_START_Y 		(196608000-4784128)	//(3000-73)mm
 		#define SMALL_YELLOW_START_TETA 	(6588416)				//PI/2 //3294199
 
 	//BIG
 		// RED
-		#define BIG_RED_START_X  	39518208 			//603mm
-		#define BIG_RED_START_Y  	8650752 			//132mm
+		#define BIG_RED_START_X  	(730 - BIG_CALIBRATION_WIDTH/2)*65536			// 587mm
+		#define BIG_RED_START_Y  	65536 * BIG_CALIBRATION_FORWARD_BORDER_DISTANCE			//155mm
 		#define BIG_RED_START_TETA 	6588416				//PI/2
 
 		// YELLOW
-		#define BIG_YELLOW_START_X 	39518208 			//603mm
-		#define BIG_YELLOW_START_Y 	(196608000-8650752) //3000-132mm
+		#define BIG_YELLOW_START_X  (730 - BIG_CALIBRATION_WIDTH/2)*65536			// 587mm
+		#define BIG_YELLOW_START_Y 	(196608000-(65536 * BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)) //3000-155mm
 		#define BIG_YELLOW_START_TETA 	(-6588416)			//-PI/2
 
 
@@ -184,14 +186,14 @@
 
 	//BIG
 		//RED
-		#define BIG_RED_CALIBRATION_X  		350
-		#define BIG_RED_CALIBRATION_Y  		230
-		#define BIG_RED_CALIBRATION_TETA	15873		//environ 42° + 180° fait une rotation à avoir les balles du bon côté
+		#define BIG_RED_CALIBRATION_X  		260
+		#define BIG_RED_CALIBRATION_Y  		200
+		#define BIG_RED_CALIBRATION_TETA	3003		//environ 42° (42*71.5)
 
 		//YELLOW
-		#define BIG_YELLOW_CALIBRATION_X  		321
-		#define BIG_YELLOW_CALIBRATION_Y  		(3000 - 240)
-		#define BIG_YELLOW_CALIBRATION_TETA 	(-3003)  //-42°
+		#define BIG_YELLOW_CALIBRATION_X  		260
+		#define BIG_YELLOW_CALIBRATION_Y  		(3000 - 200)
+		#define BIG_YELLOW_CALIBRATION_TETA 	9867	 //-42° + 180° fait une rotation à avoir les balles du bon côté
 
 
 
