@@ -95,6 +95,7 @@ void strat_inutile(void){
 		LANCE_LAUNCHER,
 		SUB_ACTION,
 		PROTECTED_FIRES,
+		DEPOSE_FRUIT,
 		RAMMASSE_FRUIT,
 		DONE,
 		ERROR
@@ -105,7 +106,11 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,SUB_ACTION,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,DEPOSE_FRUIT,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			break;
+
+		case LANCE_LAUNCHER:
+			state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,DONE,ERROR);
 			break;
 
 		case SUB_ACTION:
@@ -117,9 +122,12 @@ void strat_inutile(void){
 			break;
 
 		case RAMMASSE_FRUIT:
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_1,WAY_CHOICE),RAMMASSE_FRUIT,DONE,ERROR);
+			state = check_sub_action_result(manage_fruit(TREE_ADVERSARY,CHOICE_ALL_TREE,WAY_CHOICE),RAMMASSE_FRUIT,DONE,ERROR);
 			break;
 
+		case DEPOSE_FRUIT:
+			state = check_sub_action_result(strat_file_fruit(),DEPOSE_FRUIT,DONE,ERROR);
+			break;
 
 		case DONE:
 			break;
@@ -1484,7 +1492,7 @@ error_e strat_lance_launcher(bool_e lanceAll){
 				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 				dplt[1].y = 300;
 
-				sensRobot = FORWARD;
+				sensRobot = BACKWARD;
 				sensShoot = FALSE;
 				posShoot = 800;
 
@@ -1495,7 +1503,7 @@ error_e strat_lance_launcher(bool_e lanceAll){
 				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 				dplt[1].y = 1100;
 
-				sensRobot = BACKWARD;
+				sensRobot = FORWARD;
 				sensShoot = TRUE;
 				posShoot = 640;
 			}else if(global.env.pos.y > 2225){ // Jaune, case depart
@@ -1505,7 +1513,7 @@ error_e strat_lance_launcher(bool_e lanceAll){
 				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 				dplt[1].y = 1900;
 
-				sensRobot = FORWARD;
+				sensRobot = BACKWARD;
 				sensShoot = FALSE;
 				posShoot = 2340;
 
@@ -1516,7 +1524,7 @@ error_e strat_lance_launcher(bool_e lanceAll){
 				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 				dplt[1].y = 2700;
 
-				sensRobot = BACKWARD;
+				sensRobot = FORWARD;
 				sensShoot = TRUE;
 				posShoot = 2100;
 
@@ -1619,7 +1627,7 @@ error_e strat_lance_launcher_ennemy(){
 			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 			   dplt[1].y = 1800;
 
-			   sensRobot = FORWARD;
+			   sensRobot = BACKWARD;
 			   sensShoot = FALSE;
 			   posShoot = 2300;
 
@@ -1630,7 +1638,7 @@ error_e strat_lance_launcher_ennemy(){
 			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 			   dplt[1].y = 2300;
 
-			   sensRobot = BACKWARD;
+			   sensRobot = FORWARD;
 			   sensShoot = TRUE;
 			   posShoot = 2200;
 			   do_pos_finish = TRUE;
@@ -1642,7 +1650,7 @@ error_e strat_lance_launcher_ennemy(){
 			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 			   dplt[1].y = 800;
 
-			   sensRobot = FORWARD;
+			   sensRobot = BACKWARD;
 			   sensShoot = FALSE;
 			   posShoot = 700;
 			   do_pos_finish = TRUE;
@@ -1658,7 +1666,7 @@ error_e strat_lance_launcher_ennemy(){
 			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
 			   dplt[1].y = 1200;
 
-			   sensRobot = BACKWARD;
+			   sensRobot = FORWARD;
 			   sensShoot = TRUE;
 			   posShoot = 700;
 		   }

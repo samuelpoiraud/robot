@@ -62,7 +62,7 @@ error_e strat_file_fruit(){
 				dplt[2].point.y = 2400;
 				dplt[2].speed = FAST;
 
-				sensRobot = FORWARD;
+				sensRobot = BACKWARD;
 				posOpen = 1900;
 
 			}else{
@@ -78,7 +78,7 @@ error_e strat_file_fruit(){
 				dplt[2].point.y = 600;
 				dplt[2].speed = FAST;
 
-				sensRobot = BACKWARD;
+				sensRobot = FORWARD;
 				posOpen = 1100;
 
 			}
@@ -189,7 +189,7 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 						state = RECUP_TREE_1_SIMPLE;
 					}else
 						state = ERROR;
-				}else{ // Arbre adeverse, ici ceux côté jaune
+				}else{
 					 if(fruit_group_adversary == NO_TREE)
 						state = RECUP_TREE_2;
 					else if(fruit_group_adversary == TREE_1){
@@ -226,7 +226,7 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 						state = RECUP_TREE_2_SIMPLE;
 					}else
 						state = ERROR;
-				}else{ // Arbre adeverse, ici ceux côté rouge
+				}else{
 					if(fruit_group_adversary == NO_TREE)
 						state = RECUP_TREE_1;
 					else if(fruit_group_adversary == TREE_1){
@@ -358,9 +358,9 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
 
 			if(sens == TRIGO)  // Modifie le sens
-				sensRobot = BACKWARD;
-			else
 				sensRobot = FORWARD;
+			else
+				sensRobot = BACKWARD;
 
 			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
@@ -493,9 +493,9 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
 
 			if(sens == HORAIRE)  // Modifie le sens
-				sensRobot = FORWARD;
-			else
 				sensRobot = BACKWARD;
+			else
+				sensRobot = FORWARD;
 
 			if(est_dans_carre(400, 2000, 1800, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
@@ -634,9 +634,9 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
 
 			if(sens == TRIGO)  // Modifie le sens
-				sensRobot = BACKWARD;
-			else
 				sensRobot = FORWARD;
+			else
+				sensRobot = BACKWARD;
 
 			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
@@ -746,9 +746,9 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
 
 			if(sens == TRIGO)  // Modifie le sens
-				sensRobot = BACKWARD;
-			else
 				sensRobot = FORWARD;
+			else
+				sensRobot = BACKWARD;
 
 			if(est_dans_carre(400, 2000, 1800, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_DEPART;
