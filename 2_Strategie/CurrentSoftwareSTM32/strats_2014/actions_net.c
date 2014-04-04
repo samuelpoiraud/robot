@@ -115,9 +115,9 @@ void strat_placement_net(){
 		case PLACEMENT_TETA :
 			if(entrance){
 				if(global.env.pos.y >= 1500)
-					forced_angle = PI4096-(atan2((2350-global.env.pos.y),global.env.pos.x)*4096);
+					forced_angle = PI4096/2-(atan2((2350-global.env.pos.y),global.env.pos.x)*4096);
 				else
-					forced_angle =  PI4096-(atan2((750-global.env.pos.y),global.env.pos.x)*4096);
+					forced_angle =  PI4096/2-(atan2((750-global.env.pos.y),global.env.pos.x)*4096);
 			}
 			state = try_go_angle(forced_angle, PLACEMENT_TETA, DONE, DONE, FAST);
 		break;
