@@ -477,6 +477,14 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_ZONE_COMMAND:
 			ZONE_CAN_process_msg(incoming_msg);
 			break;
+
+		case XBEE_REACH_POINT_C1:
+			global.env.reach_point_C1 = TRUE;
+			break;
+
+		case XBEE_REACH_POINT_GET_OUT_INIT:
+			global.env.reach_point_get_out_init = TRUE;
+			break;
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
 		case STRAT_BEACON_US_SELFTEST_DONE :
@@ -561,6 +569,8 @@ void ENV_clean (void)
 		global.env.foe[i].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
+	global.env.reach_point_C1 = FALSE;
+	global.env.reach_point_get_out_init = FALSE;
 	global.env.duration_trajectory_for_test_coefs = 0;
 	FIX_BEACON_clean();	//Doit être après le any_match !
 }
