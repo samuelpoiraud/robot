@@ -24,6 +24,7 @@ void strat_xbee_guy(void);
 
 void Strat_Detection_Triangle(void);
 void strat_test_warner_triangle(void);
+void strat_test_arm(void);
 
 error_e travel_torch_line(torch_choice_e torch_choice,torch_push_e choice,Sint16 posEndxIn, Sint16 posEndyIn);
 error_e sub_action_initiale_guy();
