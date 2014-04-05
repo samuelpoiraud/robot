@@ -645,11 +645,11 @@ static bool_e goto_triangle_pos(){
 }
 
 static void get_data_pos_triangle(CAN_msg_t* msg){
-	data_pos_triangle.x = 350;
-	data_pos_triangle.y = 500;
+	data_pos_triangle.x = U16FROMU8(msg->data[3], msg->data[4]);
+	data_pos_triangle.y = U16FROMU8(msg->data[5], msg->data[6]);
 	data_pos_triangle.z = msg->data[7];
-	display(msg->data[3]);
-	display(msg->data[4]);
+	display(data_pos_triangle.x);
+	display(data_pos_triangle.y);
 }
 
 static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){

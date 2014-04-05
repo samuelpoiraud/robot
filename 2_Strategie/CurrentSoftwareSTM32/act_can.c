@@ -139,6 +139,11 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 		msg.data[0] = command->data[0];
 		msg.data[1] = command->data[1];
 		msg.data[2] = command->data[2];
+		msg.data[3] = command->data[3];
+		msg.data[4] = command->data[4];
+		msg.data[5] = command->data[5];
+		msg.data[6] = command->data[6];
+		msg.data[7] = command->data[7];
 		msg.size    = command->size;
 		CAN_send(&msg);
 
