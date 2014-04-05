@@ -52,8 +52,8 @@ void TIMER_SRC_TIMER_interrupt()
 {
 #ifdef I_AM_ROBOT_BIG
 	FILET_process_10ms(); // Gestion du réarmement du filet
-	DCM_process_it();     // Asservissement du bras
 #endif
+	DCM_process_it();     // Asservissement du bras
 	LED_RUN = !LED_RUN;
 	time++;
 #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)
