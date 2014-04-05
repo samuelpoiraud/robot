@@ -1,7 +1,7 @@
 /*
  *  Club Robot ESEO 2013 - 2014
  *
- *  $Id$
+ *  $Id: Arm_config.h 1983 2014-04-05 09:00:40Z aguilmet $
  *
  *  Package : Carte Actionneur
  *  Description : Configuration de la gestion du bras

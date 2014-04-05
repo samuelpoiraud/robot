@@ -28,17 +28,30 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 };
 
 
-
 // Position d'états (ligne = état, colonne = position moteur dans l'ordre de ARM_MOTORS)
-const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
-// moteur (dans l'ordre)
-	{148	,282,	174},	//ARM_ST_Parked
-	{148	,214,	145},	//ARM_ST_Open
-	{176	,246,	145},	//ARM_ST_On_Torche
-	{150	,289,	145},	//ARM_ST_To_Storage
-	{140	,76,	240},	//ARM_ST_To_Return_Triangle
-	{150	,150,	150}	//ARM_ST_On_Triangle
-};
+#ifdef I_AM_ROBOT_BIG
+	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
+	// moteur (dans l'ordre)
+		{148	,282,	174},	//ARM_ST_Parked
+		{148	,214,	145},	//ARM_ST_Open
+		{176	,246,	145},	//ARM_ST_On_Torche
+		{150	,289,	145},	//ARM_ST_To_Storage
+		{140	,76,	240},	//ARM_ST_To_Return_Triangle
+		{150	,150,	150}	//ARM_ST_On_Triangle
+	};
+#else
+	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
+	// moteur (dans l'ordre)
+		{148	,282,	174},	//ARM_ST_Parked
+		{148	,214,	145},	//ARM_ST_Open
+		{176	,246,	145},	//ARM_ST_On_Torche
+		{150	,289,	145},	//ARM_ST_To_Storage
+		{140	,76,	240},	//ARM_ST_To_Return_Triangle
+		{150	,150,	150}	//ARM_ST_On_Triangle
+	};
+#endif
+
+
 
 
 
