@@ -73,7 +73,7 @@ void ASSER_set_position(Sint16 x, Sint16 y, Sint16 teta)
 	msg.data[0]=HIGHINT(x);
 	msg.data[1]=LOWINT(x);
 	msg.data[2]=HIGHINT(y);
-	msg.data[3]=HIGHINT(y);
+	msg.data[3]=LOWINT(y);
 	msg.data[4]=HIGHINT(teta);
 	msg.data[5]=LOWINT(teta);
 	msg.size=6;
