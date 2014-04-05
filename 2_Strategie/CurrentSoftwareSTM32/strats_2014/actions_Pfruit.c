@@ -25,6 +25,8 @@
 extern GEOMETRY_point_t offset_recalage;
 
 static tree_sucess_e strat_fruit_sucess = NO_TREE;
+static tree_sucess_e fruit_group_our = NO_TREE;
+static tree_sucess_e fruit_group_adversary = NO_TREE;
 
 // Des qu'un arbre est bien reussi s'est fort probable que nous ayons des fruits dans notre Labium
 bool_e presenceFruit = FALSE;
@@ -157,8 +159,6 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 
 	static tree_choice_e tree;
 	static tree_way_e sens;
-	static tree_sucess_e fruit_group_our = NO_TREE;
-	static tree_sucess_e fruit_group_adversary = NO_TREE;
 
 	switch(state){
 
@@ -284,11 +284,18 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 
 		case DONE:
 			if(group == TREE_OUR){
-				fruit_group_our = strat_fruit_sucess;
-				set_sub_act_done(SUB_FRUITS,TRUE);
+				if((fruit_group_our == TREE_1  && strat_fruit_sucess == TREE_2) || (fruit_group_our == TREE_2 && strat_fruit_sucess == TREE_1) || strat_fruit_sucess == ALL_TREE){
+					fruit_group_our = ALL_TREE;
+					set_sub_act_done(SUB_FRUITS,TRUE);
+				}else
+					fruit_group_our = strat_fruit_sucess;
+
 			}else{
-				fruit_group_adversary = strat_fruit_sucess;
-				set_sub_act_done(SUB_FRUITS_ADV,TRUE);
+				if((fruit_group_adversary == TREE_1  && strat_fruit_sucess == TREE_2) || (fruit_group_adversary == TREE_2 && strat_fruit_sucess == TREE_1) || strat_fruit_sucess == ALL_TREE){
+					fruit_group_adversary = ALL_TREE;
+					set_sub_act_done(SUB_FRUITS_ADV,TRUE);
+				}else
+					fruit_group_adversary = strat_fruit_sucess;
 			}
 
 			if(get_presenceFruit() == TRUE)
@@ -812,4 +819,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 bool_e get_presenceFruit(){
 	return presenceFruit;
+}
+
+tree_sucess_e FRUIT_sucess_tree(tree_group_e group){
+	if(group == TREE_OUR)
+		return fruit_group_our;
+
+	return fruit_group_adversary;
 }
