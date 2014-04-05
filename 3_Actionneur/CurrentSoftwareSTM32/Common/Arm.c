@@ -197,8 +197,8 @@ static void ARM_initAX12(){
 				AX12_config_set_lowest_voltage(ARM_MOTORS[i].id, 60);
 				AX12_config_set_maximum_torque_percentage(ARM_MOTORS[i].id, ARM_MOTORS[i].maxPowerWay0);
 				AX12_set_torque_limit(ARM_MOTORS[i].id, ARM_MOTORS[i].maxPowerWay0);
-				AX12_config_set_maximal_angle(ARM_MOTORS[i].id, 300);
-				AX12_config_set_minimal_angle(ARM_MOTORS[i].id, 0);
+				AX12_config_set_maximal_angle(ARM_MOTORS[i].id, ARM_MOTORS[i].max_value);
+				AX12_config_set_minimal_angle(ARM_MOTORS[i].id, ARM_MOTORS[i].min_value);
 
 				AX12_config_set_error_before_led(ARM_MOTORS[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 				AX12_config_set_error_before_shutdown(ARM_MOTORS[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
