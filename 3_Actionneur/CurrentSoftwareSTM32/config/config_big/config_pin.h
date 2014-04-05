@@ -17,7 +17,7 @@
 	//	AX12/U2TX					  2
 	//	AX12/U2RX					  3
 	//	-				 			  4
-	//	-				 			  5
+	#define AX12_DIRECTION_PORT_RX24 GPIOA->ODR5
 	//	-				 			  6
 	#define PRESENCE_FILET		GPIOA->IDR7
 	//	-				 			  7
@@ -43,7 +43,6 @@
 	#define LANCELAUNCHER_PIN_1 GPIOB->ODR9
 	#define LANCELAUNCHER_PIN_2 GPIOB->ODR10
 	#define AX12_DIRECTION_PORT_AX12 GPIOB->ODR11
-	#define AX12_DIRECTION_PORT_RX24 GPIOA->ODR5
 	#define LANCELAUNCHER_PIN_3 GPIOB->ODR12
 	#define LANCELAUNCHER_PIN_4 GPIOB->ODR13
 	#define LANCELAUNCHER_PIN_5 GPIOB->ODR14
@@ -118,7 +117,7 @@
 
 
 /* Config proto Fruit_labium*/
-	#define FRUIT_LABIUM_AX12_ID					  6
+	#define FRUIT_LABIUM_AX12_ID					  5
 
 /* Config proto filet*/
 	#define FILET_AX12_ID							  4
@@ -127,7 +126,7 @@
 	#define LANCELAUNCHER_TIMER_USE_WATCHDOG
 
 /* Config proto petit bras*/
-	#define SMALL_ARM_AX12_ID						  3
+	#define SMALL_ARM_AX12_ID						  0
 
 /* Config proto pompe*/
 	#define POMPE_PWM_NUM				1
