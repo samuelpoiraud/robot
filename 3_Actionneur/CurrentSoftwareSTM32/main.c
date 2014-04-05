@@ -21,8 +21,11 @@
 #include "queue.h"
 #include "clock.h"
 #include "QS/QS_who_am_i.h"
-#include "Pierre/PFilet.h"
-#include "Pierre/PFruit.h"
+
+#ifdef I_AM_ROBOT_BIG
+	#include "Pierre/PFilet.h"
+	#include "Pierre/PFruit.h"
+#endif
 
 #include "BIG/BActManager.h"
 #include "SMALL/SActManager.h"
@@ -129,8 +132,8 @@ int main (void)
 		LED_USER = !LED_USER;
 		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
 
-		if(EXECUTING_LAUNCH)
-			debug_printf("message passé\n");
+		//if(EXECUTING_LAUNCH)
+			//debug_printf("message passé\n");
 
 		QUEUE_run();
 		BUTTONS_update();
@@ -209,13 +212,42 @@ static void MAIN_onButton4() {}
 
 #else // ROBOT_SMALL
 
-static void MAIN_onButton0() {}
+static void MAIN_onButton0() {
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_PARKED;
+	CAN_process_msg(&msg);
+}
 
-static void MAIN_onButton1() {}
+static void MAIN_onButton1() {
+}
 
-static void MAIN_onButton2() {}
+static void MAIN_onButton2() {
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_OPEN;
+	CAN_process_msg(&msg);
+}
 
-static void MAIN_onButton3() {}
+static void MAIN_onButton3() {
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_ON_TORCHE;
+	CAN_process_msg(&msg);
+}
 
-static void MAIN_onButton4() {}
+static void MAIN_onButton4() {
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_TO_RETURN_TRIANGLE;
+	CAN_process_msg(&msg);
+}
 #endif // ROBOT_BIG et ROBOT_SMALL
