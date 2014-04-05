@@ -472,3 +472,67 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 
 	CANMsgToXbee(&msg,FALSE);
 }
+
+void strat_test_arm(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		OPEN1,
+		TORCHE,
+		OPEN2,
+		RETURN,
+		OPEN3,
+		PARKED,
+		DONE
+	);
+
+	switch(state){
+		case IDLE :
+			state = OPEN1;
+			break;
+
+		case OPEN1 :
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_OPEN);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = TORCHE;
+			break;
+
+		case TORCHE :
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_ON_TORCHE);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = OPEN2;
+			break;
+
+		case OPEN2 :
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_OPEN);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = RETURN;
+			break;
+
+		case RETURN :
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_TO_RETURN_TRIANGLE);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = OPEN3;
+			break;
+
+		case OPEN3 :
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_OPEN);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = PARKED;
+			break;
+
+		case PARKED :
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_PARKED);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = OPEN1;
+			break;
+
+		case DONE :
+			break;
+	}
+}
