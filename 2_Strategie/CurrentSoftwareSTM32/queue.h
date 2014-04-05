@@ -38,7 +38,7 @@ typedef enum {
 //Version allégé pour nos besoin d'un message CAN, histoire de pas prendre trop de RAM dans la variable act_args ...
 typedef struct {
 	Uint11 sid;
-	Uint8 data[3];
+	Uint8 data[8];
 	Uint8 size;
 } ACT_can_msg_t;
 
