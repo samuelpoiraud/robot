@@ -27,6 +27,7 @@
 	#include "../Guy/Arm_config.h"
 #endif
 #include "Arm_data.h"
+#include "../maths_home.h"
 #include <string.h>
 #include <math.h>
 
@@ -45,9 +46,12 @@
 #define BRAS_POS_X_GUY					4.07
 #define BRAS_POS_Y_GUY					4.07
 
-#define DISTANCE_MAX_TO_TAKE			20
+#define DISTANCE_MAX_TO_TAKE			90
 
-#define square(x) (x*x)
+#define square(x) ((Sint32)x*(Sint32)x)
+
+#define display(x) debug_printf("%s : %d\n", #x, x)
+#define display_float(x) debug_printf("%s : %d\n", #x, )
 
 typedef struct{
 	Sint16 x;
@@ -60,54 +64,53 @@ typedef struct{
 
 typedef struct{
 	Uint16 rayon;
-	Sint16 value_ax12;
+	Sint16 value_ax12_right;
+	Sint16 value_ax12_left;
 }rayon_pos_triangle_s;
 
 typedef struct{
 	Sint16 angle;
 	Sint16 value_rx24;
-	Uint16 rayon_min;
+	Uint16 rayon_min_right;
+	Uint16 rayon_min_left;
 }angle_pos_triangle_s;
 
 typedef struct{
 	Uint8 i_min_angle;
 	Uint8 i_min_rayon;
+	enum{RIGHT, LEFT} arm_way;
 }data_arm_triangle_s;
 
-#define DELTA_ANGLE			(PI4096/8)
 #define RAYON_MIN			10
 #define RAYON_MAX			208
 
 static const rayon_pos_triangle_s rayon_pos_triangle[] = {
-	{10,		45},
-	{20,		45},
-	{30,		45},
-	{40,		45},
-	{50,		45},
-	{60,		45},
-	{70,		45},
-	{80,		45},
-	{90,		45},
-	{100,		45},
-	{110,		45},
-	{120,		45}
+	{110,	266,	-1},
+	{120,	258,	-1},
+	{130,	250,	-1},
+	{140,	242,	41},
+	{150,	232,	49},
+	{160,	224,	60},
+	{170,	218,	75},
+	{180,	210,	80},
+	{190,	200,	91},
+	{200,	176,	107},
+	{210,	142,	123},
+	{220,	148,    148}
 };
 
 static const Uint8 taille_rayon_pos_triangle = sizeof(rayon_pos_triangle)/sizeof(rayon_pos_triangle_s);
 
 static const angle_pos_triangle_s angle_pos_triangle[] = {
-	{PI4096 + DELTA_ANGLE*1,		45,			30},
-	{PI4096 + DELTA_ANGLE*2,		45,			30},
-	{PI4096 + DELTA_ANGLE*3,		45,			30},
-	{PI4096 + DELTA_ANGLE*4,		45,			30},
-	{PI4096 + DELTA_ANGLE*5,		45,			30},
-	{PI4096 + DELTA_ANGLE*6,		45,			30},
-	{PI4096 + DELTA_ANGLE*7,		45,			30},
-	{PI4096 + DELTA_ANGLE*8,		45,			30},
-	{PI4096 + DELTA_ANGLE*9,		45,			30},
-	{PI4096 + DELTA_ANGLE*10,		45,			30},
-	{PI4096 + DELTA_ANGLE*11,		45,			30},
-	{PI4096 + DELTA_ANGLE*12,		45,			30}
+	{0,				110,	170,	0},
+	{10*PI4096/180,	120,	170,	0},
+	{20*PI4096/180,	130,	160,	0},
+	{30*PI4096/180,	140,	140,	0},
+	{40*PI4096/180,	150,	0,		0},
+	{50*PI4096/180,	160,	0,		150},
+	{60*PI4096/180,	170,	0,		170},
+	{70*PI4096/180,	180,	0,		170},
+	{80*PI4096/180,	185,	0,		170}
 };
 
 static const Uint8 taille_angle_pos_triangle = sizeof(angle_pos_triangle)/sizeof(angle_pos_triangle_s);
@@ -241,9 +244,9 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 
 		switch(msg->data[0]) {
 			case ACT_ARM_GOTO:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
-				if(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE)
+				if(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE || msg->data[1] == ACT_ARM_POS_ON_TORCHE)
 					get_data_pos_triangle(msg);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
 				break;
 
 			case ACT_ARM_STOP:
@@ -347,8 +350,8 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 			debug_printf("Going from state %s(%d) to %s(%d)\n",
 						 (old_state >= 0) ? ARM_STATES_NAME[old_state] : "non-initialisé", old_state,
 						 ARM_STATES_NAME[new_state], new_state);
-			gotoState(new_state);
-
+			if(!gotoState(new_state))
+				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_UNKNOWN, __LINE__);
 		} else {
 			bool_e done = TRUE, return_result = TRUE;
 			Uint8 result = ACT_RESULT_DONE, error_code = ACT_RESULT_ERROR_OK;
@@ -358,8 +361,16 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 			for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
 				if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
 					done = ACTQ_check_status_dcmotor(ARM_MOTORS[i].id, FALSE, &result, &error_code, &line);
-				} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
-					done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, ARM_get_motor_pos(new_state, i), ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
+				}else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24){
+					if(new_state == ACT_ARM_POS_ON_TRIANGLE || new_state == ACT_ARM_POS_ON_TORCHE){
+						if(ARM_MOTORS[i].id == ARM_ACT_RX24_ID)
+							done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, angle_pos_triangle[data_arm_triangle.i_min_angle].value_rx24, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
+						else if(ARM_MOTORS[i].id == ARM_ACT_AX12_MID && data_arm_triangle.arm_way == RIGHT)
+							done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, rayon_pos_triangle[data_arm_triangle.i_min_rayon].value_ax12_right, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
+						else if(ARM_MOTORS[i].id == ARM_ACT_AX12_MID && data_arm_triangle.arm_way == LEFT)
+							done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, rayon_pos_triangle[data_arm_triangle.i_min_rayon].value_ax12_left, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
+					}else
+						done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, ARM_get_motor_pos(new_state, i), ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
 				}
 
 				//Si au moins un moteur n'a pas terminé son mouvement, alors l'action de déplacer le bras n'est pas terminée
@@ -378,8 +389,10 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 			}
 
 			if(return_result) {
-				if(result == ACT_RESULT_DONE)
+				if(result == ACT_RESULT_DONE){
+					debug_printf("Mise à jours de l'état du bras : %s\n", ARM_STATES_NAME[new_state]);
 					old_state = new_state;
+				}
 				QUEUE_next(queueId, ACT_ARM, result, error_code, line);
 			}
 		}
@@ -396,7 +409,7 @@ static bool_e gotoState(ARM_state_e state) {
 	if(state < 0 || state >= ARM_ST_NUMBER)
 		return FALSE;
 
-	if(state == ACT_ARM_POS_ON_TRIANGLE)
+	if(state == ACT_ARM_POS_ON_TRIANGLE || state == ACT_ARM_POS_ON_TORCHE)
 		return goto_triangle_pos();
 
 	for(i = 0; ok && i < ARM_MOTORS_NUMBER; i++) {
@@ -506,18 +519,19 @@ static Sint8 find_state() {
 }
 
 static bool_e goto_triangle_pos(){
-	Uint8 i_min_rayon, min_rayon, i_min_angle, min_angle;
+	Uint8 i_min_rayon, i_min_angle;
+	Sint16 min_rayon, min_angle;
 	Uint8 i;
 	Sint16 x_bras, y_bras;
 	Sint16 off_set_angle;
 
 	// Calcul de la position de l'origine du bras
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
-		x_bras = sqrt(square(BRAS_POS_X_PIERRE) + square(BRAS_POS_Y_PIERRE)) * sin(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_PIERRE, BRAS_POS_X_PIERRE)));
-		y_bras = sqrt(square(BRAS_POS_X_PIERRE) + square(BRAS_POS_Y_PIERRE)) * cos(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_PIERRE, BRAS_POS_X_PIERRE)));
+		x_bras = sqrt(square(BRAS_POS_X_PIERRE) + square(BRAS_POS_Y_PIERRE)) * sin4096(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_PIERRE, BRAS_POS_X_PIERRE)*4096.));
+		y_bras = sqrt(square(BRAS_POS_X_PIERRE) + square(BRAS_POS_Y_PIERRE)) * cos4096(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_PIERRE, BRAS_POS_X_PIERRE)*4096.));
 	}else{
-		x_bras = sqrt(square(BRAS_POS_X_GUY) + square(BRAS_POS_Y_GUY)) * sin(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_GUY, BRAS_POS_X_GUY)));
-		y_bras = sqrt(square(BRAS_POS_X_GUY) + square(BRAS_POS_Y_GUY)) * cos(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_GUY, BRAS_POS_X_GUY)));
+		x_bras = sqrt(square(BRAS_POS_X_GUY) + square(BRAS_POS_Y_GUY)) * sin4096(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_GUY, BRAS_POS_X_GUY)*4096.));
+		y_bras = sqrt(square(BRAS_POS_X_GUY) + square(BRAS_POS_Y_GUY)) * cos4096(PI4096 - (global.pos.angle + atan2(BRAS_POS_Y_GUY, BRAS_POS_X_GUY)*4096.));
 	}
 
 	// Calcul du rayon
@@ -531,21 +545,27 @@ static bool_e goto_triangle_pos(){
 
 	// Calcul de l'offset de l'angle du à l'ax12 du rayon
 	if(QS_WHO_AM_I_get() == BIG_ROBOT)
-		off_set_angle = acos((square(LONGUEUR_BRAS_PIERRE) + square(data_pos_triangle.rayon) - square(LONGUEUR_AVANT_BRAS_PIERRE))/(2*LONGUEUR_BRAS_PIERRE*LONGUEUR_AVANT_BRAS_PIERRE));
+		off_set_angle = acos((square(LONGUEUR_BRAS_PIERRE) + square(data_pos_triangle.rayon) - square(LONGUEUR_AVANT_BRAS_PIERRE))/(float)(2*LONGUEUR_BRAS_PIERRE*data_pos_triangle.rayon))*4096;
 	else
-		off_set_angle = acos((square(LONGUEUR_BRAS_PIERRE) + square(data_pos_triangle.rayon) - square(LONGUEUR_AVANT_BRAS_PIERRE))/(2*LONGUEUR_BRAS_PIERRE*LONGUEUR_AVANT_BRAS_PIERRE));
+		off_set_angle = acos((square(LONGUEUR_BRAS_GUY) + square(data_pos_triangle.rayon) - square(LONGUEUR_AVANT_BRAS_GUY))/(float)(2*LONGUEUR_BRAS_GUY*data_pos_triangle.rayon))*4096;
 
 	// Calcul de l'angle
-	data_pos_triangle.angle = cos((data_pos_triangle.x - x_bras)/data_pos_triangle.rayon);
+	data_pos_triangle.angle = acos((data_pos_triangle.x - x_bras)/data_pos_triangle.rayon)*4096;
+
+
+	//------------------------------------------------------------------------------------------------------------------------ Avant bras à droite du bras
 
 	// Calcul de l'angle réel pour l'rx24
-	data_pos_triangle.real_angle = data_pos_triangle.angle - off_set_angle;
+	data_pos_triangle.real_angle = data_pos_triangle.angle + off_set_angle;
+	display(data_pos_triangle.real_angle*180/PI4096);
+
 
 	// Choix du rayon le plus proche du rayon voulu
 	i_min_rayon = 0;
 	min_rayon = rayon_pos_triangle[0].rayon;
 	for(i=1;i<taille_rayon_pos_triangle;i++){
-		if(absolute(min_rayon - data_pos_triangle.rayon) < absolute(rayon_pos_triangle[i].rayon - data_pos_triangle.rayon)){
+		if(absolute(min_rayon - data_pos_triangle.rayon) > absolute(rayon_pos_triangle[i].rayon - data_pos_triangle.rayon)
+				&& rayon_pos_triangle[i].value_ax12_right != -1){
 			i_min_rayon = i;
 			min_rayon = rayon_pos_triangle[i].rayon;
 		}
@@ -555,25 +575,59 @@ static bool_e goto_triangle_pos(){
 	i_min_angle = 0;
 	min_angle = angle_pos_triangle[0].angle;
 	for(i=1;i<taille_angle_pos_triangle;i++){
-		if(absolute(min_angle - data_pos_triangle.real_angle) < absolute(angle_pos_triangle[i].angle - data_pos_triangle.real_angle)
-				&& min_rayon >= angle_pos_triangle[i].rayon_min){
+		if(absolute(min_angle - data_pos_triangle.real_angle) > absolute(angle_pos_triangle[i].angle - data_pos_triangle.real_angle)
+				&& min_rayon >= angle_pos_triangle[i].rayon_min_right){
 			i_min_angle = i;
 			min_angle = angle_pos_triangle[i].angle;
 		}
 	}
 
 	// Check si le rayon et l'angle trouvé est suffisant pour la prise ou est impossible
-	if(DISTANCE_MAX_TO_TAKE > square(data_pos_triangle.rayon)+square(min_rayon+off_set_angle) - 2*min_rayon*data_pos_triangle.rayon*cos(min_angle+off_set_angle - data_pos_triangle.angle)){
-		debug_printf("Le bras ne peut pas aller chercher le triangle écart entre triangle et position trouvé > à %d\n", DISTANCE_MAX_TO_TAKE);
-		return FALSE;
-	}
+	if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2*min_rayon*data_pos_triangle.rayon*cos4096(data_pos_triangle.angle - (min_angle-off_set_angle)))){
+
+		//----------------------------------------------------------------------------- Nous ne pouvons pas aller chercher le triangle avec cette configuration...
+		//------------------------------------------------------------------------------------------------------------------------ Avant bras à gauche du bras
+
+		// Calcul de l'angle réel pour l'rx24
+		data_pos_triangle.real_angle = data_pos_triangle.angle - off_set_angle;
+
+		// Choix du rayon le plus proche du rayon voulu
+		i_min_rayon = 0;
+		min_rayon = rayon_pos_triangle[0].rayon;
+		for(i=1;i<taille_rayon_pos_triangle;i++){
+			if(absolute(min_rayon - data_pos_triangle.rayon) > absolute(rayon_pos_triangle[i].rayon - data_pos_triangle.rayon)
+					&& rayon_pos_triangle[i].value_ax12_left != -1){
+				i_min_rayon = i;
+				min_rayon = rayon_pos_triangle[i].rayon;
+			}
+		}
+
+		// Choix de l'angle le plus proche de l'angle voulu
+		i_min_angle = 0;
+		min_angle = angle_pos_triangle[0].angle;
+		for(i=1;i<taille_angle_pos_triangle;i++){
+			if(absolute(min_angle - data_pos_triangle.real_angle) > absolute(angle_pos_triangle[i].angle - data_pos_triangle.real_angle)
+					&& min_rayon >= angle_pos_triangle[i].rayon_min_left){
+				i_min_angle = i;
+				min_angle = angle_pos_triangle[i].angle;
+			}
+		}
+
+		if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2*min_rayon*data_pos_triangle.rayon*cos4096(data_pos_triangle.angle - (min_angle+off_set_angle)))){
+			debug_printf("Le bras ne peut pas aller chercher le triangle écart entre triangle et position trouvé > à %d\n", DISTANCE_MAX_TO_TAKE);
+			return FALSE;
+		}else
+			data_arm_triangle.arm_way = LEFT;
+	}else
+		data_arm_triangle.arm_way = RIGHT;
+
 
 	// Placement du bras dans les états voulus
-	if(!AX12_set_position(ARM_ACT_RX24, angle_pos_triangle[i_min_angle].value_rx24)){
+	if(!AX12_set_position(ARM_ACT_RX24_ID, angle_pos_triangle[i_min_angle].value_rx24)){
 		debug_printf("Placement du bras (servo RX24) impossible\n");
 		return FALSE;
 	}
-	if(!AX12_set_position(ARM_ACT_AX12_MID, rayon_pos_triangle[i_min_rayon].value_ax12)){
+	if(!AX12_set_position(ARM_ACT_AX12_MID_ID, rayon_pos_triangle[i_min_rayon].value_ax12_right)){
 		debug_printf("Placement du bras (servo AX12 MID) impossible\n");
 		return FALSE;
 	}
@@ -581,19 +635,21 @@ static bool_e goto_triangle_pos(){
 	data_arm_triangle.i_min_angle = i_min_angle;
 	data_arm_triangle.i_min_rayon = i_min_rayon;
 
+	display(i_min_angle);
+	display(min_angle*180/PI4096);
+	display(i_min_rayon);
+	display(min_rayon);
+
 	return TRUE;
 
 }
 
-static Uint8 check_pos_triangle(){
-
-}
-
 static void get_data_pos_triangle(CAN_msg_t* msg){
-	assert(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE);
-	data_pos_triangle.x = (((Sint16)(msg->data[2]) << 8) & 0xFF00) | ((Sint16)(msg->data[3]) & 0x00FF);
-	data_pos_triangle.y = (((Sint16)(msg->data[4]) << 8) & 0xFF00) | ((Sint16)(msg->data[5]) & 0x00FF);
-	data_pos_triangle.z = (((Sint16)(msg->data[6]) << 8) & 0xFF00) | ((Sint16)(msg->data[7]) & 0x00FF);
+	data_pos_triangle.x = 350;
+	data_pos_triangle.y = 500;
+	data_pos_triangle.z = msg->data[7];
+	display(msg->data[3]);
+	display(msg->data[4]);
 }
 
 static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
