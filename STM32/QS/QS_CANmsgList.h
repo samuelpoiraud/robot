@@ -435,7 +435,6 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ARM_STATE_ENUMVALS(XX) \
 			XX(ACT_ARM_POS_PARKED) \
 			XX(ACT_ARM_POS_OPEN) \
-			XX(ACT_ARM_POS_MID) \
 			XX(ACT_ARM_POS_ON_TORCHE) \
 			XX(ACT_ARM_POS_TO_STORAGE) \
 			XX(ACT_ARM_POS_TO_RETURN_TRIANGLE) \
