@@ -108,7 +108,7 @@ bool_e ACT_POMPE_order(ACT_pompe_cmd_e cmd, Uint8 param){
 bool_e ACT_arm_goto(ARM_state_e position) {
 	QUEUE_arg_t args;
 
-	ACT_arg_init(&args, ACT_ARM, position);
+	ACT_arg_init_with_param(&args, ACT_ARM, ACT_ARM_GOTO, position);
 
 	debug_printf("Pushing ARM goto %d\n", position);
 	return ACT_push_operation(ACT_QUEUE_Arm, &args);
