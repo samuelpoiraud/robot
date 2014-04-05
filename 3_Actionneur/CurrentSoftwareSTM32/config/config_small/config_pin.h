@@ -8,8 +8,8 @@
  *  Auteur : Jacen, Alexis
  */
 
-#ifndef TINY_CONFIG_PIN_H
-#define TINY_CONFIG_PIN_H
+#ifndef GUY_CONFIG_PIN_H
+#define GUY_CONFIG_PIN_H
 #define PORT_A_IO_MASK	0xFEDF
 	#define BUTTON0_PORT		GPIOA->IDR0
 	//	-				 			  1
@@ -117,4 +117,10 @@
 /* Config proto pompe*/
 	#define POMPE_PWM_NUM								1
 
-#endif /* TINY_CONFIG_PIN_H */
+	// ID des moteurs du bras
+	#define ARM_ACT_UPDOWN_ID                        0
+	#define ARM_ACT_RX24_ID                          20
+	#define ARM_ACT_AX12_MID_ID                      2
+	#define ARM_ACT_AX12_TRIANGLE_ID                 6
+
+#endif /* GUY_CONFIG_PIN_H */

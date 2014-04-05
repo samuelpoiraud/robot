@@ -5,7 +5,11 @@
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_outputlog.h"
 #include "../clock.h"
-#include "../Common/Arm_config.h"
+#ifdef I_AM_ROBOT_BIG
+	#include "../Pierre/Arm_config.h"
+#else
+	#include "../Guy/Arm_config.h"
+#endif
 #include "../Common/Arm_data.h"
 #include "../Common/Arm.h"
 
@@ -72,7 +76,7 @@ void uart_checker(unsigned char c){
 
 		case CARA_PRINT :
 			debug_printf("{%d, %d, %d, %d}\n", ARM_readDCMPos(), AX12_get_position(ARM_ACT_RX24_ID),
-						 AX12_get_position(ARM_ACT_AX12_MID_ID), AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID));
+						 AX12_get_position(SMALL_ARM_AX12_ID), AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID));
 			break;
 	}
 

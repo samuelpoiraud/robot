@@ -14,7 +14,11 @@
 #define	ARM_DATA_H
 
 #include "../QS/QS_all.h"
-#include "Arm_config.h"
+#ifdef I_AM_ROBOT_BIG
+	#include "../Pierre/Arm_config.h"
+#else
+	#include "../Guy/Arm_config.h"
+#endif
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_CANmsgList.h"
 
