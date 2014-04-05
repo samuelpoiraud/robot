@@ -65,6 +65,11 @@ typedef struct{
 	Uint16 rayon_min;
 }angle_pos_triangle_s;
 
+typedef struct{
+	Uint8 i_min_angle;
+	Uint8 i_min_rayon;
+}data_arm_triangle_s;
+
 #define DELTA_ANGLE			(PI4096/8)
 #define RAYON_MIN			10
 #define RAYON_MAX			208
@@ -104,6 +109,7 @@ static const angle_pos_triangle_s angle_pos_triangle[] = {
 static const Uint8 taille_angle_pos_triangle = sizeof(angle_pos_triangle)/sizeof(angle_pos_triangle_s);
 
 static data_pos_triangle_s data_pos_triangle;
+static data_arm_triangle_s data_arm_triangle;
 
 #define XX(val) #val,
 const char* ARM_STATES_NAME[] = {
@@ -164,7 +170,7 @@ void ARM_init() {
 
 	info_printf("Bras initialisé (DCMotor)\n");
 
-	//AX12_config_set_id(21);
+
 
 	ARM_initAX12();
 }
@@ -186,7 +192,7 @@ static void ARM_initAX12(){
 				AX12_config_set_highest_voltage(ARM_MOTORS[i].id, 150);
 				AX12_config_set_lowest_voltage(ARM_MOTORS[i].id, 60);
 				AX12_config_set_maximum_torque_percentage(ARM_MOTORS[i].id, ARM_MOTORS[i].maxPowerWay0);
-
+				AX12_set_torque_limit(ARM_MOTORS[i].id, ARM_MOTORS[i].maxPowerWay0);
 				AX12_config_set_maximal_angle(ARM_MOTORS[i].id, 300);
 				AX12_config_set_minimal_angle(ARM_MOTORS[i].id, 0);
 
@@ -566,7 +572,14 @@ static bool_e goto_triangle_pos(){
 		return FALSE;
 	}
 
+	data_arm_triangle.i_min_angle = i_min_angle;
+	data_arm_triangle.i_min_rayon = i_min_rayon;
+
 	return TRUE;
+
+}
+
+static Uint8 check_pos_triangle(){
 
 }
 

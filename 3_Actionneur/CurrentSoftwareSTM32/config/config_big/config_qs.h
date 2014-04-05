@@ -8,8 +8,8 @@
  *  Auteur : Jacen, Alexis
  */
 
-#ifndef KRUSTY_CONFIG_QS_H
-#define KRUSTY_CONFIG_QS_H
+#ifndef PIERRE_CONFIG_QS_H
+#define PIERRE_CONFIG_QS_H
 
 /* Definition des périphériques, connectiques capteurs et actionneurs de Krusty */
 
@@ -70,4 +70,4 @@
 	#define WATCHDOG_MAX_COUNT 5
 	#define WATCHDOG_QUANTUM 1
 
-#endif /* KRUSTY_CONFIG_QS_H */
+#endif /* PIERRE_CONFIG_QS_H */
