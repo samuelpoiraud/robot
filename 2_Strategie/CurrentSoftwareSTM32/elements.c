@@ -12,10 +12,17 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_CANmsgList.h"
 #include "act_functions.h"
+#include "../QS/QS_can_over_xbee.h"
+#include <math.h>
 
 #define SCAN_TIMEOUT			4000
 #define LABIUM_TIMEOUT			500
 #define verin_order_TIMEOUT	200
+
+
+// Pour torche
+#define SMALL_FORWARD_WIDTH 83
+#define RADIUS_TORCH 80
 
 static bool_e ELEMENT_propulsion_send_triangle();
 static void ELEMENT_scan_triangle_init();
@@ -34,9 +41,64 @@ static struct{
 static struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
 static Uint8 nb_objet[3];
 
+
+static GEOMETRY_point_t posTorch[2] = {{1050,900},		// Torche Rouge
+									   {1050,2100}};	// Torche Jaune
+
 //------------------------------------
 // Fonction de lancement / subaction
 //------------------------------------
+
+
+
+void TORCH_new_position(torch_choice_e choice){
+	GEOMETRY_point_t torch;
+
+	torch.x = cos((global.env.pos.angle)/12868.0)*(SMALL_FORWARD_WIDTH+RADIUS_TORCH) + global.env.pos.x;
+	torch.y = sin((global.env.pos.angle)/12868.0)*(SMALL_FORWARD_WIDTH+RADIUS_TORCH) + global.env.pos.y;
+
+	if((global.env.color == RED && choice == OUR_TORCH) || (global.env.color != RED && choice == ADVERSARY_TORCH))
+		posTorch[0] = torch;
+	else
+		posTorch[1] = torch;
+
+	TORCH_CAN_send_msg(choice, torch);
+}
+
+GEOMETRY_point_t TORCH_get_position(torch_choice_e choice){
+	if((global.env.color == RED && choice == OUR_TORCH) || (global.env.color != RED && choice == ADVERSARY_TORCH))
+		return posTorch[0];
+
+	return posTorch[1];
+}
+
+void TORCH_CAN_process_msg(CAN_msg_t *msg){
+	if(msg->sid != XBEE_TORCH_NEW_POS)
+		return;
+
+	if((global.env.color == RED && msg->data[0] == OUR_TORCH) || (global.env.color != RED && msg->data[0] == ADVERSARY_TORCH)){
+		posTorch[0].x = U16FROMU8(msg->data[1],msg->data[2]);
+		posTorch[0].y = U16FROMU8(msg->data[3],msg->data[4]);
+	}else{
+		posTorch[1].x = U16FROMU8(msg->data[1],msg->data[2]);
+		posTorch[1].y = U16FROMU8(msg->data[3],msg->data[4]);
+	}
+
+}
+
+void TORCH_CAN_send_msg(torch_choice_e choice, GEOMETRY_point_t pos){
+	CAN_msg_t msg;
+
+	msg.sid = XBEE_TORCH_NEW_POS;
+	msg.data[0] = choice;
+	msg.data[1] = HIGHINT(pos.x);
+	msg.data[2] = LOWINT(pos.x);
+	msg.data[3] = HIGHINT(pos.y);
+	msg.data[4] = LOWINT(pos.y);
+	msg.size = 5;
+
+	CANMsgToXbee(&msg,FALSE);
+}
 
 Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance){
 	typedef enum

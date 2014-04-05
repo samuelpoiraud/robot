@@ -19,18 +19,13 @@
 #include "../act_functions.h"
 #include "../Geometry.h"
 
-typedef enum{
-	ADVERSARY_TORCH,
-	OUR_TORCH
-}torch_choice_e;
-
 void strat_inutile_guy(void);
 void strat_xbee_guy(void);
 
 void Strat_Detection_Triangle(void);
 void strat_test_warner_triangle(void);
 
-error_e travel_torch_line(torch_choice_e torch,Sint16 posEndx, Sint16 posEndy);
+error_e travel_torch_line(torch_choice_e torch_choice,torch_push_e choice,Sint16 posEndxIn, Sint16 posEndyIn);
 error_e sub_action_initiale_guy();
 
 #endif /* ACTIONS_GUY_H_ */

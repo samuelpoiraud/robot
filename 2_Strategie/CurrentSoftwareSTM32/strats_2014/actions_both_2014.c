@@ -399,17 +399,17 @@ void strat_reglage_odo_symetrie(void){
 	/******TEST******/
 	//state = COMPARE_N_CORRECT;
 	static bool_e timeout=FALSE;
-	static Uint16 coefOdoSymetrie = 0; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_SYM_DEFAULT dans _Propulsion_config.h
-	CAN_msg_t msg;
+//	static Uint16 coefOdoSymetrie = 0; //Mofifier la valeur KRUSTY_ODOMETRY_COEF_SYM_DEFAULT dans _Propulsion_config.h
+//	CAN_msg_t msg;
 
 	switch(state){
 	case IDLE: //Cas d'attente et de réinitialisation
 		state = CALAGE;
 
-		if(QS_WHO_AM_I_get() == PIERRE)
+		/*if(QS_WHO_AM_I_get() == PIERRE)
 			coefOdoSymetrie = 0;
 		else // GUY
-			coefOdoSymetrie = 0;
+			coefOdoSymetrie = 0;*/
 
 		break;
 

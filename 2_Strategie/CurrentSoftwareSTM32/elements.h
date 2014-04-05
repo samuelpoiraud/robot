@@ -311,6 +311,19 @@
 		NO_ANSWER
 	}scan_anything_e;
 
+	typedef enum{
+		ADVERSARY_TORCH,
+		OUR_TORCH
+	}torch_choice_e;
+
+	typedef enum{
+		PUSH_FRESCO,
+		PUSH_HEARTH_CENTRAL,
+		PUSH_HEARTH_ADV,
+		PUSH_CAVERN_ADV,
+		PUSH_CHOICE
+	}torch_push_e;
+
 	// Fonction de réception de message CAN
 	void ELEMENT_triangle_add_to_list(CAN_msg_t* msg);	// Ajoute le triangle du message can dans la liste
 	void ELEMENT_triangle_warner(CAN_msg_t* msg);		// Recupère le résultat du warner
@@ -336,4 +349,17 @@
 
 	// subaction qui effectue un scan
 	Uint8 rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+
+	// Nouvelle position de la torche apres une poussée
+	void TORCH_new_position(torch_choice_e choice);
+
+	// Renvois les position de la torche
+	GEOMETRY_point_t TORCH_get_position(torch_choice_e choice);
+
+	// Gere le message can de la nouvelle position de la torche
+	void TORCH_CAN_process_msg(CAN_msg_t *msg);
+
+	// Envois la nouvelle position de la torche par XBEE
+	void TORCH_CAN_send_msg(torch_choice_e choice, GEOMETRY_point_t pos);
+
 #endif /* ndef ELEMENTS_H */
