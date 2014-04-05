@@ -399,13 +399,13 @@ error_e travel_torch_line(torch_choice_e torch_choice,torch_push_e choice,Sint16
 				posEnd.y = 1500;
 			}else if(choice == PUSH_HEARTH_ADV){
 				posEnd.x = 1600;
-				posEnd.y = 300;
+				posEnd.y = COLOR_Y(300);
 			}else if(choice == PUSH_HEARTH_CENTRAL){
 				posEnd.x = 800;
-				posEnd.y = 1300;
+				posEnd.y = COLOR_Y(1300);
 			}else{ // PUSH_CAVERN_ADV
 				posEnd.x = 400;
-				posEnd.y = 200;
+				posEnd.y = COLOR_Y(200);
 			}
 
 			Uint16 norm = GEOMETRY_distance(torch,posEnd);

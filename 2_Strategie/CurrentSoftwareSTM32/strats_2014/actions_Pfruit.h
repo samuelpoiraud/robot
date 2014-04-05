@@ -58,6 +58,8 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens);
 
 bool_e get_presenceFruit();
 
+tree_sucess_e FRUIT_sucess_tree(tree_group_e group);
+
 #endif /* ACTIONS_PFRUIT_H */
 
 
