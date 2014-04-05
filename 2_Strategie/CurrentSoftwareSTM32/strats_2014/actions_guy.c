@@ -476,6 +476,7 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 void strat_test_arm(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		TR,
 		OPEN1,
 		TORCHE,
 		OPEN2,
@@ -487,17 +488,26 @@ void strat_test_arm(){
 
 	switch(state){
 		case IDLE :
+			ASSER_set_position(500, 500, 0);
 			state = OPEN1;
 			break;
+
 
 		case OPEN1 :
 			if(entrance)
 				ACT_arm_goto(ACT_ARM_POS_OPEN);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = TORCHE;
+				state = TR;
 			break;
 
-		case TORCHE :
+		case TR :
+			if(entrance)
+				ACT_arm_goto_XY(ACT_ARM_POS_ON_TRIANGLE, 350, 500, 50);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = DONE;
+		break;
+
+		/*case TORCHE :
 			if(entrance)
 				ACT_arm_goto(ACT_ARM_POS_ON_TORCHE);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
@@ -530,7 +540,7 @@ void strat_test_arm(){
 				ACT_arm_goto(ACT_ARM_POS_PARKED);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
 				state = OPEN1;
-			break;
+			break;*/
 
 		case DONE :
 			break;

@@ -114,18 +114,19 @@ bool_e ACT_arm_goto(ARM_state_e position) {
 	return ACT_push_operation(ACT_QUEUE_Arm, &args);
 }
 
-bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y, Sint16 z){
+bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y, Uint8 z){
 	QUEUE_arg_t args;
 	ACT_can_msg_t msg;
 	msg.sid = ACT_ARM;
 	msg.data[0]=ACT_ARM_GOTO;
-	msg.data[1]=position;
-	msg.data[2]=HIGHINT(x);
-	msg.data[3]=LOWINT(x);
-	msg.data[4]=HIGHINT(y);
-	msg.data[5]=LOWINT(y);
-	msg.data[6]=HIGHINT(z);
-	msg.data[7]=LOWINT(z);
+	msg.data[1]=LOWINT(position);
+	msg.data[2]=HIGHINT(position);
+	msg.data[3]=HIGHINT(x);
+	msg.data[4]=LOWINT(x);
+	msg.data[5]=HIGHINT(y);
+	msg.data[6]=LOWINT(y);
+	msg.data[7]=z;
+	msg.size = 8;
 
 	ACT_arg_init_with_msg(&args, msg);
 
