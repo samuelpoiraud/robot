@@ -125,7 +125,7 @@ static void ARM_initAX12();
 static bool_e gotoState(ARM_state_e state);
 static bool_e check_state_transitions();
 static void print_state_transitions(bool_e correct);
-static bool_e find_state();
+static Sint8 find_state();
 static void get_data_pos_triangle(CAN_msg_t* msg);
 static bool_e goto_triangle_pos();
 static void get_data_pos_triangle(CAN_msg_t* msg);
@@ -217,10 +217,9 @@ static void ARM_initAX12(){
 	}
 }
 
-void ARM_initPos() {
+void ARM_init_pos() {
 	CAN_msg_t msg = {ACT_ARM, {ACT_ARM_INIT}, 1};
-
-	if(find_state() == FALSE)
+	if(find_state() != ACT_ARM_POS_PARKED)
 		ARM_CAN_process_msg(&msg);
 }
 
@@ -332,6 +331,9 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
 				return;
 			}
+
+			if(old_state == new_state)
+				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 
 			if(old_state >= 0 && ARM_STATES_TRANSITIONS[old_state][new_state] == 0) {
 				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
@@ -468,7 +470,7 @@ static void print_state_transitions(bool_e correct) {
 	OUTPUTLOG_printf(LOG_LEVEL_Info, "};  //\n");
 }
 
-static bool_e find_state() {
+static Sint8 find_state() {
 	Uint8 state, i;
 	bool_e stateOk;
 
@@ -494,13 +496,13 @@ static bool_e find_state() {
 			old_state = state;
 			debug_printf("Etat initial auto détecté: %s(%d)\n",
 						ARM_STATES_NAME[old_state], old_state);
-			return TRUE;
+			return old_state;
 		}
 	}
 
 
 	debug_printf("Etat initial non détecté\n");
-	return FALSE;
+	return -1;
 }
 
 static bool_e goto_triangle_pos(){

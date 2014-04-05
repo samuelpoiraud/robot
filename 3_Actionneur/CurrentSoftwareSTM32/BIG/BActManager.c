@@ -32,10 +32,10 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 static ACTQ_functions_t actionneurs[] = {
 	ACT_DECLARE(FRUIT),
 	ACT_DECLARE(SMALL_ARM),
+	ACT_DECLARE(ARM),
 	ACT_DECLARE(POMPE),
 	{&LANCE_LAUNCHER_init, NULL, &LANCE_LAUNCHER_stop, &LANCE_LAUNCHER_CAN_process_msg},
-	{&FILET_init, NULL, NULL, &FILET_CAN_process_msg},
-	{&ARM_init, NULL, &ARM_stop, &ARM_CAN_process_msg}
+	{&FILET_init, NULL, NULL, &FILET_CAN_process_msg}
 };
 
 static const Uint8 NB_ACTIONNEURS = sizeof(actionneurs) / sizeof(ACTQ_functions_t);
