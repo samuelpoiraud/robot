@@ -18,6 +18,7 @@
 #include "../Pathfind.h"
 #include "../high_level_strat.h"
 #include "../zone_mutex.h"
+#include "../QS/QS_can_over_xbee.h"
 
 static void REACH_POINT_C1_send_request();
 

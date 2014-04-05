@@ -113,3 +113,23 @@ bool_e ACT_arm_goto(ARM_state_e position) {
 	debug_printf("Pushing ARM goto %d\n", position);
 	return ACT_push_operation(ACT_QUEUE_Arm, &args);
 }
+
+bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y, Sint16 z){
+	QUEUE_arg_t args;
+	ACT_can_msg_t msg;
+	msg.sid = ACT_ARM;
+	msg.data[0]=ACT_ARM_GOTO;
+	msg.data[1]=position;
+	msg.data[2]=HIGHINT(x);
+	msg.data[3]=LOWINT(x);
+	msg.data[4]=HIGHINT(y);
+	msg.data[5]=LOWINT(y);
+	msg.data[6]=HIGHINT(z);
+	msg.data[7]=LOWINT(z);
+
+	ACT_arg_init_with_msg(&args, msg);
+
+	debug_printf("Pushing ARM gotoXY %d / x : %d    y : %d   z : %d\n", position, x, y, z);
+	return ACT_push_operation(ACT_QUEUE_Arm, &args);
+
+}
