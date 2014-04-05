@@ -112,6 +112,8 @@
 	#define XBEE_PONG						0x506	//PONG = pOnG = p0n6, Ce message est envoyé en réponse d'un ping vers l'autre carte stratégie
 	#define XBEE_REACH_POINT_GET_OUT_INIT	0x507	// Envoie un message quand il sort de la zone de départ
 	#define XBEE_REACH_POINT_C1				0x508	// Envoie un message quand il arrive au point C1
+
+	#define XBEE_TORCH_NEW_POS				0x509	// Envoie la nouvelle position de la torche a l autre robot si l'un des deux a déplacée une torche
 	#define XBEE_ZONE_COMMAND				0x5AA	//Effectue une demande lié au zones (un SID pour toute la gestion des zones comme ça)
 	//Commande dans data[0]:
 		#define XBEE_ZONE_TRY_LOCK       0	//Dans data[1]: la zone, type: map_zone_e. La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT

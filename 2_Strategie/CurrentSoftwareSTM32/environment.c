@@ -485,6 +485,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_REACH_POINT_GET_OUT_INIT:
 			global.env.reach_point_get_out_init = TRUE;
 			break;
+
+		case XBEE_TORCH_NEW_POS:
+			TORCH_CAN_process_msg(incoming_msg);
+			break;
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
 		case STRAT_BEACON_US_SELFTEST_DONE :
