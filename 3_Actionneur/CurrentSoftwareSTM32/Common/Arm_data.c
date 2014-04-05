@@ -23,8 +23,8 @@
 const ARM_motor_data_t ARM_MOTORS[] = {
 	//DECLARE_DCMOTOR(ARM_ACT_UPDOWN, &ARM_readDCMPos),
 	DECLARE_RX24(ARM_ACT_RX24),
-	DECLARE_AX12(ARM_ACT_AX12_MID)
-	//DECLARE_AX12(ARM_ACT_AX12_TRIANGLE)
+	DECLARE_AX12(ARM_ACT_AX12_MID),
+	DECLARE_AX12(ARM_ACT_AX12_TRIANGLE)
 };
 
 
@@ -32,13 +32,12 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 // Position d'états (ligne = état, colonne = position moteur dans l'ordre de ARM_MOTORS)
 const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 // moteur (dans l'ordre)
-	{0  , 150},	//ARM_ST_Parked
-	{150, 300},	//ARM_ST_Open
-	{54, 176},	//ARM_ST_Mid
-	{54, 176},	//ARM_ST_On_Torche
-	{54, 176},	//ARM_ST_To_Storage
-	{54, 176},	//ARM_ST_To_Return_Triangle
-	{150, 300}	//ARM_ST_On_Triangle
+	{148	,282,	174},	//ARM_ST_Parked
+	{148	,214,	145},	//ARM_ST_Open
+	{176	,246,	145},	//ARM_ST_On_Torche
+	{150	,289,	145},	//ARM_ST_To_Storage
+	{140	,76,	240},	//ARM_ST_To_Return_Triangle
+	{150	,150,	150}	//ARM_ST_On_Triangle
 };
 
 
@@ -47,14 +46,13 @@ const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_dat
 //                              lignes         colonnes
 //                             ancien état    nouvel état
 const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //<LF>
-//   ACT_ARM_POS_PARKED ACT_ARM_POS_OPEN   ACT_ARM_POS_MID	ACT_POS_ON_TORCHE	ACT_ARM_POS_TO_STORAGE	ACT_ARM_POS_TO_RETURN_TRIANGLE		ACT_ARM_POS_ON_TRIANGLE    <LF>
-	{0                 ,0                 ,1				,0					,0						,0									,0},  //ACT_ARM_POS_PARKED<LF>
-	{1                 ,0                 ,1                ,1					,1						,1									,1},  //ACT_ARM_POS_OPEN<LF>
-	{1                 ,1                 ,0                ,0					,0						,0									,0},  //ACT_ARM_POS_MID<LF>
-	{0                 ,1                 ,0                ,0					,1						,0									,0},  //ACT_ARM_POS_ON_TORCHE<LF>
-	{0                 ,1                 ,0                ,1					,0						,0									,0},  //ACT_ARM_POS_TO_STORAGE<LF>
-	{0                 ,1                 ,0                ,0					,0						,0									,0},  //ACT_ARM_POS_TO_RETURN_TRIANGLE<LF>
-	{0                 ,1                 ,0                ,0					,0						,0									,0},  //ACT_ARM_POS_ON_TRIANGLE<LF>
+//   ACT_ARM_POS_PARKED ACT_ARM_POS_OPEN  ACT_POS_ON_TORCHE		ACT_ARM_POS_TO_STORAGE	ACT_ARM_POS_TO_RETURN_TRIANGLE		ACT_ARM_POS_ON_TRIANGLE    <LF>
+	{0                 ,1                 ,0					,0						,0									,0},  //ACT_ARM_POS_PARKED<LF>
+	{1                 ,0                 ,1					,1						,1									,1},  //ACT_ARM_POS_OPEN<LF>
+	{0                 ,1                 ,0					,1						,0									,0},  //ACT_ARM_POS_ON_TORCHE<LF>
+	{0                 ,1                 ,1					,0						,0									,0},  //ACT_ARM_POS_TO_STORAGE<LF>
+	{0                 ,1                 ,0					,0						,0									,0},  //ACT_ARM_POS_TO_RETURN_TRIANGLE<LF>
+	{0                 ,1                 ,0					,0						,0									,0},  //ACT_ARM_POS_ON_TRIANGLE<LF>
 
 };  //<LF>
 
@@ -62,7 +60,6 @@ const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //<LF>
 // Etats à prendre pour initialiser le bras dans une position connue
 const ARM_state_e ARM_INIT[] = {
 	ACT_ARM_POS_OPEN,
-	ACT_ARM_POS_MID,
 	ACT_ARM_POS_PARKED,
 	ACT_ARM_POS_ON_TORCHE,
 	ACT_ARM_POS_TO_STORAGE,
