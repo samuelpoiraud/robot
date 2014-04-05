@@ -73,11 +73,7 @@ const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //<LF>
 // Etats à prendre pour initialiser le bras dans une position connue
 const ARM_state_e ARM_INIT[] = {
 	ACT_ARM_POS_OPEN,
-	ACT_ARM_POS_PARKED,
-	ACT_ARM_POS_ON_TORCHE,
-	ACT_ARM_POS_TO_STORAGE,
-	ACT_ARM_POS_TO_RETURN_TRIANGLE,
-	ACT_ARM_POS_ON_TRIANGLE
+	ACT_ARM_POS_PARKED
 };
 
 

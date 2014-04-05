@@ -22,6 +22,12 @@
  */
 void ARM_init();
 
+/** Initialisation en position du gestionnaire de ARM.
+ *
+ * Initialise la position de l'AX12
+ */
+void ARM_init_pos();
+
 /** Stoppe l'actionneur.
  *
  * Cette fonction est appelée en fin de match
