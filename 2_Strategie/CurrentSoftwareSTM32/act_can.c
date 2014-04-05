@@ -78,6 +78,12 @@ void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 par
 	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
 }
 
+void ACT_arg_init_with_msg(QUEUE_arg_t* arg, ACT_can_msg_t msg){
+	arg->msg = msg;
+	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
+	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
+}
+
 void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout) {
 	arg->timeout = timeout;
 }

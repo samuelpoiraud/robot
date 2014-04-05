@@ -38,6 +38,7 @@ ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
 
 void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);
 void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param);
+void ACT_arg_init_with_msg(QUEUE_arg_t* arg, ACT_can_msg_t msg);
 void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout);
 void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd);
 void ACT_arg_set_fallbackmsg_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param);
