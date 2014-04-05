@@ -3,140 +3,92 @@
 #include "../QS/QS_all.h"
 #include "../QS/QS_uart.h"
 #include "../QS/QS_ax12.h"
+#include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_outputlog.h"
 #include "../clock.h"
 #ifdef I_AM_ROBOT_BIG
 	#include "../Pierre/Arm_config.h"
+	#include "../config/config_big/config_pin.h"
 #else
 	#include "../Guy/Arm_config.h"
+	#include "../config/config_small/config_pin.h"
 #endif
 #include "../Common/Arm_data.h"
 #include "../Common/Arm.h"
+#include "../Common/Small_arm_config.h"
 
-#define TIME_TO_REFRESH_POS		2000
+typedef struct{
+	bool_e is_ax12;
+	Uint8 inc_quantum;
+	char cara_selection;
+	char name[30];
+	Uint8 id;
+	Sint16 min_value;
+	Sint16 max_value;
+	sensor_read_fun_t fun;
+}terminal_motor_s;
 
-#define TIME_SET_POSITION	500
+#define DECLARE_AX12_RX24(inc, cara, prefix) {TRUE, inc, cara, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, NULL}
+#define DECLARE_MOTOR(inc, cara, prefix, fun) {FALSE, inc, cara, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, fun}
 
-#define INC_DC_MOTOR		2
-#define INC_RX24_ARM		5
-#define INC_AX12_FOREARM	5
-#define INC_AX12_SUCKER		5
+terminal_motor_s terminal_motor[] = {
+	DECLARE_AX12_RX24(2, '1', ARM_ACT_RX24),
+	DECLARE_AX12_RX24(2, '2', ARM_ACT_AX12_MID),
+	DECLARE_AX12_RX24(2, '3', ARM_ACT_AX12_TRIANGLE),
+	DECLARE_MOTOR(2, '5', ARM_ACT_UPDOWN, ARM_readDCMPos),
+	DECLARE_AX12_RX24(2, '4', SMALL_ARM_AX12)
+};
 
-#define CARA_INC			'p'
+Uint8 terminal_motor_size = sizeof(terminal_motor)/sizeof(terminal_motor_s);
+
+#define CARA_INC			'l'
 #define CARA_DEC			'm'
 #define CARA_PRINT			' '
 
+
+
 void uart_checker(unsigned char c){
-	typedef enum{
-		NONE,
-		DC_MOTOR_TOP_BOT,
-		RX24_ARM,
-		AX12_FOREARM,
-		AX12_SUCKER
-	}state_e;
-	static state_e state = NONE;
+
+	static Uint8 state = -1;
 	static Uint16 position = 150;
-	static clock_time_t time_ask_position = 0;
+	Uint8 i;
 
-	ARM_init();
-
-	switch(c){
-		case '0' :
-			debug_printf("NONE Selected\n");
-			state = NONE;
-			break;
-
-		case '1' :
-			debug_printf("DC_MOTOR_TOP_BOT Selected\n");
-			state = DC_MOTOR_TOP_BOT;
-			position = ARM_readDCMPos();
-			time_ask_position = CLOCK_get_time()*100;
-			break;
-
-		case '2' :
-			debug_printf("RX24_ARM\n");
-			state = RX24_ARM;
-			position = AX12_get_position(ARM_ACT_RX24_ID);
-			time_ask_position = CLOCK_get_time()*100;
-			break;
-
-		case '3' :
-			debug_printf("AX12_FOREARM Selected\n");
-			state = AX12_FOREARM;
-			position = AX12_get_position(SMALL_ARM_AX12_ID);
-			time_ask_position = CLOCK_get_time()*100;
-			break;
-
-		case '4' :
-			debug_printf("AX12_SUCKER Selected\n");
-			state = AX12_SUCKER;
-			position = AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID);
-			time_ask_position = CLOCK_get_time()*100;
-			break;
-
-		case CARA_PRINT :
-			debug_printf("{%d, %d, %d, %d}\n", ARM_readDCMPos(), AX12_get_position(ARM_ACT_RX24_ID),
-						 AX12_get_position(SMALL_ARM_AX12_ID), AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID));
-			break;
+	for(i=0;i<terminal_motor_size;i++){
+		if(terminal_motor[i].cara_selection == c){
+			debug_printf("%s selected\n", terminal_motor[i].name);
+			state = i;
+			if(terminal_motor[i].is_ax12)
+				position = AX12_get_position(terminal_motor[i].id);
+			else
+				position = terminal_motor[i].fun();
+		}
 	}
+
+	if(c == CARA_PRINT){
+		for(i=0;i<terminal_motor_size;i++){
+			if(terminal_motor[i].is_ax12)
+				debug_printf("%s : %d\n", terminal_motor[i].name, AX12_get_position(terminal_motor[i].id));
+			else
+				debug_printf("%s : %d\n" , terminal_motor[i].name, terminal_motor[i].fun());
+		}
+	}
+
+	if(state == -1)
+		return;
 
 	if(c != CARA_INC && c != CARA_DEC)
 		return;
 
-	switch(state){
-		case DC_MOTOR_TOP_BOT :
-			if(CLOCK_get_time()*100 - time_ask_position > TIME_TO_REFRESH_POS){
-				time_ask_position = CLOCK_get_time()*100;
-				position = ARM_readDCMPos();
-			}
-			if(c == CARA_INC)
-				position = ((Sint16)position+INC_DC_MOTOR > ARM_ACT_UPDOWN_MAX_VALUE) ? position : position+INC_DC_MOTOR;
-			else if(c == CARA_DEC)
-				position = ((Sint16)position-INC_DC_MOTOR < ARM_ACT_UPDOWN_MIN_VALUE) ? position : position-INC_DC_MOTOR;
-			DCM_setPosValue(ARM_ACT_UPDOWN_ID, 0, position);
-			DCM_goToPos(ARM_ACT_UPDOWN_ID, 0);
-			DCM_restart(ARM_ACT_UPDOWN_ID);
-			break;
+	if(c == CARA_INC)
+		position = ((Sint16)position+terminal_motor[state].inc_quantum >= terminal_motor[state].max_value) ? position : position+terminal_motor[state].inc_quantum;
+	else
+		position = ((Sint16)position-terminal_motor[state].inc_quantum <= terminal_motor[state].min_value) ? position : position-terminal_motor[state].inc_quantum;
 
-		case RX24_ARM :
-			if(CLOCK_get_time()*100 - time_ask_position > TIME_TO_REFRESH_POS){
-				time_ask_position = CLOCK_get_time()*100;
-				position = AX12_get_position(ARM_ACT_RX24_ID);
-			}
-			if(c == CARA_INC)
-				position = ((Sint16)position+INC_RX24_ARM > ARM_ACT_RX24_MAX_VALUE) ? position : position+INC_RX24_ARM;
-			else if(c == CARA_DEC)
-				position = ((Sint16)position-INC_RX24_ARM < ARM_ACT_RX24_MIN_VALUE) ? position : position-INC_RX24_ARM;
-			AX12_set_position(ARM_ACT_RX24_ID, position);
-			break;
-
-		case AX12_FOREARM :
-			if(CLOCK_get_time()*100 - time_ask_position > TIME_TO_REFRESH_POS){
-				time_ask_position = CLOCK_get_time()*100;
-				position = AX12_get_position(SMALL_ARM_AX12_ID);
-			}
-			if(c == CARA_INC)
-				position = ((Sint16)position+INC_AX12_FOREARM > ARM_ACT_AX12_MID_MAX_VALUE) ? position : position+INC_AX12_FOREARM;
-			else if(c == CARA_DEC)
-				position = ((Sint16)position-INC_AX12_FOREARM < ARM_ACT_AX12_MID_MIN_VALUE) ? position : position-INC_AX12_FOREARM;
-			AX12_set_position(SMALL_ARM_AX12_ID, position);
-			break;
-
-		case AX12_SUCKER :
-			if(CLOCK_get_time()*100 - time_ask_position > TIME_TO_REFRESH_POS){
-				time_ask_position = CLOCK_get_time()*100;
-				position = AX12_get_position(ARM_ACT_AX12_TRIANGLE_ID);
-			}
-			if(c == CARA_INC)
-				position = ((Sint16)position+INC_AX12_SUCKER > ARM_ACT_AX12_TRIANGLE_MAX_VALUE) ? position : position+INC_AX12_SUCKER;
-			else if(c == CARA_DEC)
-				position = ((Sint16)position-INC_AX12_SUCKER < ARM_ACT_AX12_TRIANGLE_MIN_VALUE) ? position : position-INC_AX12_SUCKER;
-			AX12_set_position(ARM_ACT_AX12_TRIANGLE_ID, position);
-			break;
-
-		case NONE :
-		default :
-			break;
+	if(terminal_motor[state].is_ax12)
+		AX12_set_position(terminal_motor[state].id, position);
+	else{
+		DCM_setPosValue(terminal_motor[state].id, 0, position);
+		DCM_goToPos(terminal_motor[state].id, 0);
+		DCM_restart(terminal_motor[state].id);
 	}
-
 }

@@ -29,6 +29,9 @@
 /** Position initiale de l'AX12. Doit être un define du type PLATE_PLIER_AX12_* */
 	#define SMALL_ARM_AX12_INIT_POS        SMALL_ARM_AX12_IDLE_POS
 
+	#define SMALL_ARM_AX12_MAX_VALUE	218
+	#define SMALL_ARM_AX12_MIN_VALUE	156
+
 
 #endif	/* PSMALL_ARM_CONFIG_H */
 
