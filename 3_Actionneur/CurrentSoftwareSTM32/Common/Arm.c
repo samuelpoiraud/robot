@@ -178,8 +178,13 @@ void ARM_init() {
 	AX12_init();
 	ADC_init();
 
-	if(check_state_transitions() == FALSE)
-		print_state_transitions(TRUE);
+	init_perm_transitions_table();
+	if(check_all_state_perm_transitions_initialized() == FALSE)
+		debug_printf("Attention toutes les transitions d'état du bras n'ont pas été paramètrées !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+
+	check_state_transitions();
+//	if(check_state_transitions() == FALSE)
+//		print_state_transitions(TRUE);
 
 	Uint8 i;
 	for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
@@ -370,7 +375,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				return;
 			}
 
-			if(old_state >= 0 && ARM_STATES_TRANSITIONS[old_state][new_state] == 0) {
+			if(old_state >= 0 && arm_states_transitions[old_state][new_state] == 0) {
 				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
 				warn_printf("Déplacement impossible de l\'etat %s(%d) à %s(%d)\n",
 							ARM_STATES_NAME[old_state], old_state,
@@ -465,10 +470,10 @@ static bool_e check_state_transitions() {
 
 	for(i = 0; i < ARM_ST_NUMBER; i++) {
 		for(j = 0; j < ARM_ST_NUMBER; j++) {
-			if(ARM_STATES_TRANSITIONS[i][j] != ARM_STATES_TRANSITIONS[j][i]) {
+			if(arm_states_transitions[i][j] != arm_states_transitions[j][i]) {
 				warn_printf("Déplacement non reversible: %s(%d) %s %s(%d)\n",
 							ARM_STATES_NAME[i], i,
-							ARM_STATES_TRANSITIONS[i][j] ? "=>" : "<=",
+							arm_states_transitions[i][j] ? "=>" : "<=",
 							ARM_STATES_NAME[j], j);
 				ok = FALSE;
 			}
@@ -503,9 +508,9 @@ static void print_state_transitions(bool_e correct) {
 			bool_e val;
 
 			if(correct)
-				val = MAX(ARM_STATES_TRANSITIONS[i][j], ARM_STATES_TRANSITIONS[j][i]);  //avec correction
+				val = MAX(arm_states_transitions[i][j], arm_states_transitions[j][i]);  //avec correction
 			else
-				val = ARM_STATES_TRANSITIONS[i][j]; //sans correction
+				val = arm_states_transitions[i][j]; //sans correction
 
 			OUTPUTLOG_printf(LOG_LEVEL_Info, "%s%-*d", isFirstVal ? "" : ",", columnSize, val);
 			isFirstVal = FALSE;

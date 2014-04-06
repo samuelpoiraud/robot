@@ -54,7 +54,7 @@ extern const Uint8 ARM_MOTORS_NUMBER;
 
 //                                    lignes         colonnes
 //                                   ancien état    nouvel état
-extern const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER];
+extern bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 
 // Etats à prendre pour initialiser le bras dans une position connue
 extern const ARM_state_e ARM_INIT[];
@@ -63,6 +63,8 @@ extern const Uint8 ARM_INIT_NUMBER;
 extern bool_e ARM_ax12_is_initialized[];
 Sint16 ARM_get_motor_pos(ARM_state_e state, Uint8 motor);
 Sint16 ARM_readDCMPos();
+void init_perm_transitions_table();
+bool_e check_all_state_perm_transitions_initialized();
 
 #endif	/* ARM_DATA_H */
 

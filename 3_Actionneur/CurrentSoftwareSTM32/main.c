@@ -222,9 +222,6 @@ static void MAIN_onButton0() {
 }
 
 static void MAIN_onButton1() {
-}
-
-static void MAIN_onButton2() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_ARM;
@@ -233,12 +230,22 @@ static void MAIN_onButton2() {
 	CAN_process_msg(&msg);
 }
 
-static void MAIN_onButton3() {
+static void MAIN_onButton2() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_ARM;
 	msg.data[0] = ACT_ARM_GOTO;
 	msg.data[1] = ACT_ARM_POS_ON_TORCHE;
+	CAN_process_msg(&msg);
+
+}
+
+static void MAIN_onButton3() {
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_ARM;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_ON_TRIANGLE;
 	CAN_process_msg(&msg);
 }
 
@@ -247,7 +254,7 @@ static void MAIN_onButton4() {
 	msg.size = 2;
 	msg.sid = ACT_ARM;
 	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_TO_RETURN_TRIANGLE;
+	msg.data[1] = ACT_ARM_POS_TO_PREPARE_RETURN;
 	CAN_process_msg(&msg);
 }
 #endif // ROBOT_BIG et ROBOT_SMALL

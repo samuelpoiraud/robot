@@ -36,7 +36,10 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{148	,214,	145},	//ARM_ST_Open
 		{176	,246,	145},	//ARM_ST_On_Torche
 		{150	,289,	145},	//ARM_ST_To_Storage
-		{140	,76,	240},	//ARM_ST_To_Return_Triangle
+		{140	,76,	240},	//ARM_ST_To_Prepare_Return
+		{140	,76,	240},	//ARM_ST_To_Down_Return
+		{140	,76,	240},	//ARM_ST_To_Return
+		{140	,76,	240},	//ARM_ST_To_Take_Return
 		{150	,150,	150}	//ARM_ST_On_Triangle
 	};
 #else
@@ -46,28 +49,21 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{148	,214,	145},	//ARM_ST_Open
 		{176	,246,	145},	//ARM_ST_On_Torche
 		{150	,289,	145},	//ARM_ST_To_Storage
-		{140	,76,	240},	//ARM_ST_To_Return_Triangle
+		{140	,76,	240},	//ARM_ST_To_Prepare_Return
+		{140	,76,	240},	//ARM_ST_To_Down_Return
+		{140	,76,	240},	//ARM_ST_To_Return
+		{140	,76,	240},	//ARM_ST_To_Take_Return
 		{150	,150,	150}	//ARM_ST_On_Triangle
 	};
 #endif
 
 
-
-
-
 // Changement d'état possible (ligne -> colonne)
 //                              lignes         colonnes
 //                             ancien état    nouvel état
-const bool_e ARM_STATES_TRANSITIONS[ARM_ST_NUMBER][ARM_ST_NUMBER] = {  //<LF>
-//   ACT_ARM_POS_PARKED ACT_ARM_POS_OPEN  ACT_POS_ON_TORCHE		ACT_ARM_POS_TO_STORAGE	ACT_ARM_POS_TO_RETURN_TRIANGLE		ACT_ARM_POS_ON_TRIANGLE    <LF>
-	{0                 ,1                 ,0					,0						,0									,0},  //ACT_ARM_POS_PARKED<LF>
-	{1                 ,0                 ,1					,1						,1									,1},  //ACT_ARM_POS_OPEN<LF>
-	{0                 ,1                 ,0					,1						,0									,0},  //ACT_ARM_POS_ON_TORCHE<LF>
-	{0                 ,1                 ,1					,0						,0									,0},  //ACT_ARM_POS_TO_STORAGE<LF>
-	{0                 ,1                 ,0					,0						,0									,0},  //ACT_ARM_POS_TO_RETURN_TRIANGLE<LF>
-	{0                 ,1                 ,0					,0						,0									,0},  //ACT_ARM_POS_ON_TRIANGLE<LF>
+bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 
-};  //<LF>
+static void add_perm_transitions_table(ARM_state_e old_state, Uint8 number_of_new_state, ARM_state_e new_state[]);
 
 
 // Etats à prendre pour initialiser le bras dans une position connue
@@ -96,4 +92,42 @@ bool_e ARM_ax12_is_initialized[sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = 
 
 Sint16 ARM_get_motor_pos(ARM_state_e state, Uint8 motor) {
 	return ARM_STATES[state][motor];
+}
+
+static bool_e initialized_transitions[ARM_ST_NUMBER] = {FALSE};
+
+void init_perm_transitions_table(){
+	Uint8 i,j;
+	for(i=0;i<ARM_ST_NUMBER;i++)
+		for(j=0;j<ARM_ST_NUMBER;j++)
+			arm_states_transitions[i][j] = 0;
+	//						   /Ancien état       /Nombre d'état suivant possible      /Liste des états suivant possible
+	add_perm_transitions_table(ACT_ARM_POS_PARKED,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_OPEN,				5,	(ARM_state_e[]){ACT_ARM_POS_PARKED, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE, ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_STORAGE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_RETURN,	3,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_DOWN_RETURN, ACT_ARM_POS_TO_TAKE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,		1,	(ARM_state_e[]){ACT_ARM_POS_TO_PREPARE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_PREPARE_RETURN});
+}
+
+void add_perm_transitions_table(ARM_state_e old_state, Uint8 number_of_new_state, ARM_state_e new_state[]){
+	Uint8 i, j;
+	for(i=0;i<number_of_new_state;i++){
+		for(j=0;j<ARM_ST_NUMBER;j++){
+			if(j == new_state[i])
+				arm_states_transitions[old_state][j] = 1;
+		}
+	}
+	initialized_transitions[old_state] = TRUE;
+}
+
+bool_e check_all_state_perm_transitions_initialized(){
+	Uint8 i;
+	for(i=0;i<ARM_ST_NUMBER;i++)
+		if(initialized_transitions[i] == FALSE)
+			return FALSE;
+	return TRUE;
 }
