@@ -504,10 +504,15 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = FORWARD;
 
-			if(est_dans_carre(400, 2000, 1800, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-				state = POS_DEPART;
+			if(est_dans_carre(800, 2000, 1750, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			{
+				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
+				else
+					state = POS_DEPART;				//On se rend à la première position directement
+			}
 			else
-				state = GET_IN;
+				state = GET_IN;						//On se rend à la première position par le pathfind
 			break;
 
 		case GET_IN:

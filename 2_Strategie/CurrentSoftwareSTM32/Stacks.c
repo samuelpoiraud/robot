@@ -137,7 +137,7 @@ bool_e STACKS_wait_end_auto_pull (stack_id_e stack_id, bool_e* got_timeout)
 		#ifdef VERBOSE_MODE
 			debug_printf("TIMEOUT (stack_id : %d)\n", stack_id);
 		#endif
-		BUZZER_play(5,NOTE_LA,10);
+		BUZZER_play(50,NOTE_RE,10);
 		*got_timeout=TRUE;	//En fait, il y a un timeout.
 		if(STACKS_get_action(stack_id,STACKS_get_top(stack_id))!=&wait_forever)
 			STACKS_pull(stack_id);
