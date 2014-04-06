@@ -21,6 +21,8 @@
 #define LARGEUR_LABIUM	250
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
 #define ELOIGNEMENT_POSE_BAC_FRUIT 480
+#define PROFONDEUR_BAC_FRUIT		300
+#define RAYON_MAX_PIERRE			250	//Avec marge. (théorique : 212)
 
 extern GEOMETRY_point_t offset_recalage;
 
@@ -35,94 +37,112 @@ error_e strat_file_fruit(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		GET_IN,
-		GO,
+		GOTO_FIRST_DISPOSE_POINT,
+		DO_DISPOSE,
 		GET_OUT_WITH_ERROR,
+		GOBACK_FIRST_POINT,
+		GOBACK_LAST_POINT,
 		DONE,
 		ERROR,
-		ERROR_WITH_GET_OUT
+		RETURN_NOT_HANDLED
 	);
 
-	static Uint8 get_out_try = 0;
-	static GEOMETRY_point_t escape_point[2];
+	typedef enum
+	{
+		LABIUM_CLOSED_VERIN_IN = 0,
+		LABIUM_CLOSED_VERIN_OUT,
+		LABIUM_OPENED_VERIN_OUT
+	}labium_state_e;
+	static labium_state_e labium_state = LABIUM_CLOSED_VERIN_IN;
+
 
 	static displacement_t dplt[3]; // Deplacement
 	static way_e sensRobot;
+	static way_e firstPointway;
 	static Uint16 posOpen; // Position à laquelle, on va ouvrir le bac à fruit
+	static Uint16 posClose; // Position à laquelle, on va fermer le bac à fruit
+	static Uint16 posOpenVerin;	//Position à laquelle on sort le vérin
 
 	switch(state){
 		case IDLE:
-			if(global.env.color == RED){
-				dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[0].point.y = 1800;
-				dplt[0].speed = FAST;
+			dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
+			dplt[0].point.y = COLOR_Y(1800);
+			dplt[0].speed = FAST;
 
-				dplt[1].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[1].point.y = 2200;
-				dplt[1].speed = FAST;
+			dplt[1].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
+			dplt[1].point.y = COLOR_Y(2200);
+			dplt[1].speed = FAST;
 
-				dplt[2].point.x = ELOIGNEMENT_POSE_BAC_FRUIT+30;
-				dplt[2].point.y = 2400;
-				dplt[2].speed = FAST;
+			dplt[2].point.x = PROFONDEUR_BAC_FRUIT+RAYON_MAX_PIERRE;
+			dplt[2].point.y = COLOR_Y(2400);
+			dplt[2].speed = FAST;
 
-				sensRobot = BACKWARD;
-				posOpen = 1900;
 
-			}else{
-				dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[0].point.y = 1200;
-				dplt[0].speed = FAST;
+			sensRobot = (global.env.color == RED)?BACKWARD:FORWARD;
+			if(COLOR_Y(global.env.pos.y) < 1800)
+				firstPointway = sensRobot;
+			else
+				firstPointway = (sensRobot==BACKWARD)?FORWARD:BACKWARD;
 
-				dplt[1].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
-				dplt[1].point.y = 800;
-				dplt[1].speed = FAST;
+			posOpenVerin = COLOR_Y(1850);
+			posOpen = COLOR_Y(1900);
+			posClose = COLOR_Y(2300);
 
-				dplt[2].point.x = ELOIGNEMENT_POSE_BAC_FRUIT+30;
-				dplt[2].point.y = 600;
-				dplt[2].speed = FAST;
+			labium_state = LABIUM_CLOSED_VERIN_IN;
 
-				sensRobot = FORWARD;
-				posOpen = 1100;
-
-			}
-
-			escape_point[0] = dplt[2].point;
-			escape_point[1] = dplt[0].point;
-
-			if((global.env.color == RED && est_dans_carre(0, 1000, 1200, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					|| (global.env.color == YELLOW && est_dans_carre(0, 1000, 0, 1800, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-				state = GO;
+			//Zone d'acceptation
+			if(		est_dans_carre(0, 1000, COLOR_Y(1600), COLOR_Y(3000), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})
+				|| 	est_dans_carre(250, 700, 0, COLOR_Y(1600), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				state = GOTO_FIRST_DISPOSE_POINT;
 			else
 				state = GET_IN;
 
 			break;
 
 		case GET_IN :
-			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].point.x,dplt[0].point.y, 0x00),
-					GET_IN, GO, ERROR_WITH_GET_OUT, sensRobot, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
+			//Le point de départ est : M1...
+			state = PATHFIND_try_going(M1,GET_IN, GOTO_FIRST_DISPOSE_POINT, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
-		case GO :
-			if(entrance){
-				ASSER_WARNER_arm_y(posOpen);
-				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
+		case GOTO_FIRST_DISPOSE_POINT:
+			state = try_going_until_break(dplt[0].point.x, dplt[0].point.y, GOTO_FIRST_DISPOSE_POINT, DO_DISPOSE, ERROR, FAST, firstPointway, NO_DODGE_AND_WAIT);
+			break;
+		case DO_DISPOSE:
+			if(entrance)
+			{
+				ASSER_WARNER_arm_y(posOpenVerin);
 			}
-			if(global.env.asser.reach_y)
-				ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
-			state = try_going_multipoint(dplt, 3, GO, DONE , ERROR, sensRobot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
-			if(state != GET_OUT_WITH_ERROR)
-				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
-			break;
-
-		case DONE: // Fermer le bac à fruit et rentrer le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
-			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-			presenceFruit = FALSE;
-			state = IDLE;
-			return END_OK;
+			switch(labium_state)
+			{
+				case LABIUM_CLOSED_VERIN_IN:
+					if(global.env.asser.reach_y)
+					{
+						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
+						ASSER_WARNER_arm_y(posOpen);
+						labium_state = LABIUM_CLOSED_VERIN_OUT;
+					}
+					break;
+				case LABIUM_CLOSED_VERIN_OUT:
+					if(global.env.asser.reach_y)
+					{
+						ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
+						ASSER_WARNER_arm_y(posClose);
+						labium_state = LABIUM_OPENED_VERIN_OUT;
+					}
+					break;
+				case LABIUM_OPENED_VERIN_OUT:
+					if(global.env.asser.reach_y)
+					{
+						presenceFruit = FALSE;			//Dès cet instant, on a plus de fruits... (même si on termine pas la trajectoire, on reviendra pas les déposer !)
+						ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+						labium_state = LABIUM_CLOSED_VERIN_IN;
+					}
+					break;
+				default:
+					break;
+			}
+			state = try_going_multipoint(&dplt[1], 2, DO_DISPOSE, DONE , ERROR, sensRobot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR: // Fermer le bac à fruit et rentrer le bras
@@ -131,9 +151,32 @@ error_e strat_file_fruit(){
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case ERROR_WITH_GET_OUT :
-			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
-			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+
+		case GET_OUT_WITH_ERROR :
+			//On recherche le point de sortie le plus proche.
+			if(global.env.pos.x > 530)	//Le point actuel est acceptable comme sortie
+				state = RETURN_NOT_HANDLED;
+			else
+			{
+				if(absolute(global.env.pos.y - 1500) < 300)	//Je suis a moins de 300 de l'axe de symétrie du terrain
+					state = RETURN_NOT_HANDLED;		//Je peux rendre la main
+				else
+					state = GOBACK_FIRST_POINT;		//Je suis trop proche du bac pour pouvoir rendre la main
+			}
+		break;
+		case GOBACK_FIRST_POINT:
+			state = try_going(dplt[0].point.x,dplt[0].point.y,GOBACK_FIRST_POINT,RETURN_NOT_HANDLED,GOBACK_LAST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GOBACK_LAST_POINT:
+			state = try_going(dplt[2].point.x,dplt[2].point.y,GOBACK_LAST_POINT,RETURN_NOT_HANDLED,GOBACK_FIRST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case RETURN_NOT_HANDLED :
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
@@ -330,7 +373,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		GET_OUT_WITH_ERROR,
 		DONE,
 		ERROR,
-		ERROR_WITH_GET_OUT
+		RETURN_NOT_HANDLED
 	);
 
 	static const Uint8 NBPOINT = 5;
@@ -362,26 +405,32 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
-			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
+			escape_point[2] = (GEOMETRY_point_t) {1250, 750};
 
 			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = FORWARD;
 			else
 				sensRobot = BACKWARD;
 
-			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-				state = POS_DEPART;
+			if(est_dans_carre(400, 2000, 1700, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			{
+				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
+				else
+					state = POS_DEPART;				//On se rend à la première position directement
+			}
 			else
-				state = GET_IN;
+				state = GET_IN;						//On se rend à la première position par le pathfind
 			break;
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, OPEN_FRUIT_VERIN, ERROR, FAST, sensRobot, NO_DODGE_AND_WAIT);
+			//en cas d'échec, on peut rendre la main où l'on se trouve.
+			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, OPEN_FRUIT_VERIN, RETURN_NOT_HANDLED, FAST, sensRobot, NO_DODGE_AND_WAIT);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -419,7 +468,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -437,7 +486,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case ERROR_WITH_GET_OUT :
+		case RETURN_NOT_HANDLED :
 			state = IDLE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			return NOT_HANDLED;
@@ -463,7 +512,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		GET_OUT_WITH_ERROR,
 		DONE,
 		ERROR,
-		ERROR_WITH_GET_OUT
+		RETURN_NOT_HANDLED
 	);
 
 	static const Uint8 NBPOINT = 5;
@@ -497,14 +546,14 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
-			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
+			escape_point[2] = (GEOMETRY_point_t) {1250, 2250};
 
 			if(sens == HORAIRE)  // Modifie le sens
 				sensRobot = BACKWARD;
 			else
 				sensRobot = FORWARD;
 
-			if(est_dans_carre(800, 2000, 1750, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(400, 2000, 1750, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{
 				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
@@ -526,10 +575,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 				else
 					point_pathfind = C3;
 			}
-			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
+			//en cas d'échec, on peut rendre la main où l'on se trouve.
 			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
@@ -567,7 +617,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -585,7 +635,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case ERROR_WITH_GET_OUT :
+		case RETURN_NOT_HANDLED :
 			state = IDLE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			return NOT_HANDLED;
@@ -608,7 +658,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 		GET_OUT_WITH_ERROR,
 		DONE,
 		ERROR,
-		ERROR_WITH_GET_OUT
+		RETURN_NOT_HANDLED
 	);
 
 	static const Uint8 NBPOINT = 2;
@@ -643,26 +693,35 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
-			escape_point[2] = (GEOMETRY_point_t) {1600, 400};
+			escape_point[2] = (GEOMETRY_point_t) {1250, 750};
 
 			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = FORWARD;
 			else
 				sensRobot = BACKWARD;
 
+
+
+
 			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-				state = POS_DEPART;
+			{
+				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
+				else
+					state = POS_DEPART;				//On se rend à la première position directement
+			}
 			else
-				state = GET_IN;
+				state = GET_IN;						//On se rend à la première position par le pathfind
 			break;
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
+			//en cas d'échec, on peut rendre la main où l'on se trouve.
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -674,7 +733,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -697,7 +756,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case ERROR_WITH_GET_OUT :
+		case RETURN_NOT_HANDLED :
 			state = IDLE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			return NOT_HANDLED;
@@ -720,7 +779,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 		GET_OUT_WITH_ERROR,
 		DONE,
 		ERROR,
-		ERROR_WITH_GET_OUT
+		RETURN_NOT_HANDLED
 	);
 
 	static const Uint8 NBPOINT = 2;
@@ -755,7 +814,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
-			escape_point[2] = (GEOMETRY_point_t) {1600, 2600};
+			escape_point[2] = (GEOMETRY_point_t) {1250, 2250};
 
 			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = FORWARD;
@@ -763,18 +822,24 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 				sensRobot = BACKWARD;
 
 			if(est_dans_carre(400, 2000, 1800, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-				state = POS_DEPART;
+			{
+				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
+				else
+					state = POS_DEPART;				//On se rend à la première position directement
+			}
 			else
-				state = GET_IN;
+				state = GET_IN;						//On se rend à la première position par le pathfind
 			break;
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, ERROR_WITH_GET_OUT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
+			//en cas d'échec, on peut rendre la main où l'on se trouve.
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -786,7 +851,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -809,7 +874,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case ERROR_WITH_GET_OUT :
+		case RETURN_NOT_HANDLED :
 			state = IDLE;
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			return NOT_HANDLED;

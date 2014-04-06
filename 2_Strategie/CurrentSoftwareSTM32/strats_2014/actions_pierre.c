@@ -93,6 +93,255 @@ volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={14
 volatile Uint8 adversary_fresco_index = 2;
 
 
+
+
+
+
+error_e sub_action_initiale(){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		WAIT_TELL_GUY,
+		LANCE_LAUNCHER,
+		GOTO_TREE_2,
+		DO_TREE,
+#ifdef DROP_TRIANGLE_END
+		GO_DROP_TRIANGLE_END,
+		DO_DROP_TRIANGLE_END,
+		DO_TREE_1,
+#endif
+		GOTO_TORCH,
+		COME_BACK_FOR_GOING_FRESCO,
+		GOTO_FRESCO,
+		GOTO_FRESCO_2,
+		DO_FRESCO,
+		FILE_FRUIT,
+		TAKE_DECISION,
+		TAKE_DECISION_ERROR,
+		DECISION_FRUIT_FRESCO,
+#ifndef ALL_SHOOT_OUR_MAMMOUTH
+		LANCE_LAUNCHER_ADVERSARY,
+#endif
+		GOTO_FRESCO_BY_TORCH_ROAD,
+		TRY_AGAIN_FRUIT,
+		SUCESS,
+		DONE,
+		ERROR
+	);
+
+	displacement_t point[] = {{{550,COLOR_Y(1144)},	FAST},
+							  {{1050,COLOR_Y(1160)},FAST},
+							  {{1650,COLOR_Y(1100)},FAST}
+							 };
+
+
+	// Mettre a false si pas le cas
+	static bool_e guy_get_out_init = FALSE;
+
+	if(global.env.reach_point_get_out_init)
+		guy_get_out_init = TRUE;
+
+
+	switch(state){
+
+		case IDLE:
+			if(global.env.asser.calibrated)
+				state = WAIT_TELL_GUY;
+			else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !
+				state = LANCE_LAUNCHER;
+			break;
+
+		case WAIT_TELL_GUY:{
+			static Uint16 last_time;
+			if(entrance)
+				last_time = global.env.match_time;
+
+			if(guy_get_out_init || global.env.match_time > last_time + 2000)
+				state = LANCE_LAUNCHER;
+			}break;
+
+		case LANCE_LAUNCHER:
+#ifdef ALL_SHOOT_OUR_MAMMOUTH
+			state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,GOTO_TORCH,GOTO_TORCH);
+#else
+			state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,GOTO_TORCH,GOTO_TORCH);
+#endif
+
+			break;
+
+		case GOTO_TORCH:
+
+			if(entrance)
+				ASSER_WARNER_arm_x(800);
+
+			state = try_going_multipoint(&point[0],3,GOTO_TORCH,GOTO_TREE_2,COME_BACK_FOR_GOING_FRESCO,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT, END_AT_BREAK);
+
+			if(global.env.asser.reach_x)
+				REACH_POINT_C1_send_request();
+
+			break;
+
+		case COME_BACK_FOR_GOING_FRESCO:	//On a pas réussi à rejoindre le premier arbre... on file vers la fresque
+			state = try_going_until_break(520, COLOR_Y(1100), COME_BACK_FOR_GOING_FRESCO, GOTO_FRESCO, GOTO_TORCH, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+		case GOTO_TREE_2:{
+			static Uint8 s1 = IN_PROGRESS ,s2 = IN_PROGRESS;
+
+			if(s1 == IN_PROGRESS)
+				s1 = try_going(1633,COLOR_Y(1200),IN_PROGRESS,SUCESS,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+
+			if(s2 == IN_PROGRESS)
+				s2 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, IN_PROGRESS, SUCESS, ERROR);
+
+
+			if(s1 == ERROR){
+				state = COME_BACK_FOR_GOING_FRESCO;
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+
+			}else if(s1 == SUCESS && s2 != IN_PROGRESS) // Si le bras est en sucess ou pars en erreur( timeout, problème capteur)
+				state = DO_TREE;
+
+			else if(s1 != ERROR && s2 != ERROR)
+				state = GOTO_TREE_2;
+			}break;
+
+		case DO_TREE:
+			#ifdef DROP_TRIANGLE_END
+			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_2,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,GO_DROP_TRIANGLE_END,TAKE_DECISION_ERROR);
+			#else
+			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_ALL_TREE,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,GOTO_FRESCO,TAKE_DECISION_ERROR);
+			#endif
+			break;
+
+		#ifdef DROP_TRIANGLE_END
+		case GO_DROP_TRIANGLE_END:
+			state = try_going(850,COLOR_Y(650),GO_DROP_TRIANGLE_END,DO_DROP_TRIANGLE_END,TAKE_DECISION_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case DO_DROP_TRIANGLE_END:
+			if(entrance)
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
+
+			state = try_going(1250,COLOR_Y(650),DO_DROP_TRIANGLE_END,DO_TREE_1,TAKE_DECISION_ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+
+			if(state != DO_DROP_TRIANGLE_END)
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			break;
+
+		case DO_TREE_1:
+			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_ALL_TREE,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE_1,GOTO_FRESCO,TAKE_DECISION_ERROR);
+			break;
+		#endif
+
+		case GOTO_FRESCO:
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DECISION_FRUIT_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			break;
+
+		case DECISION_FRUIT_FRESCO:
+			#ifdef FAVOR_FILE_FRUIT_AT_FRESCO
+				state = FILE_FRUIT;
+			#else
+				state = DO_FRESCO;
+			#endif
+			break;
+
+		case TAKE_DECISION:
+
+			#ifndef ALL_SHOOT_OUR_MAMMOUTH
+			if(launcher_ball_adversary == FALSE && last_state == FILE_FRUIT){
+				state = LANCE_LAUNCHER_ADVERSARY;
+				break;
+			}
+			#endif
+
+			if(action_fresco_filed == FALSE && last_state != DO_FRESCO){
+				state = DO_FRESCO;
+			}else if(get_presenceFruit() == TRUE && last_state != FILE_FRUIT){
+				state = FILE_FRUIT;
+			}
+			#ifndef ALL_SHOOT_OUR_MAMMOUTH
+			else if(launcher_ball_adversary == FALSE && last_state != LANCE_LAUNCHER_ADVERSARY){
+				state = LANCE_LAUNCHER_ADVERSARY;
+			}
+			#endif
+			else if(FRUIT_sucess_tree(TREE_OUR) != ALL_TREE){
+				state = TRY_AGAIN_FRUIT;
+			}else
+				state = DONE;
+
+
+			break;
+
+		case TAKE_DECISION_ERROR:
+
+			if(action_fresco_filed == FALSE && last_state != DO_FRESCO){
+				state = DO_FRESCO;
+			}else if(get_presenceFruit() == TRUE && last_state != FILE_FRUIT && last_state != LANCE_LAUNCHER_ADVERSARY){
+				state = FILE_FRUIT;
+			}
+			#ifndef ALL_SHOOT_OUR_MAMMOUTH
+			else if(launcher_ball_adversary == FALSE && last_state != LANCE_LAUNCHER_ADVERSARY && last_state != FILE_FRUIT){
+				state = LANCE_LAUNCHER_ADVERSARY;
+			}
+			#endif
+			else if(FRUIT_sucess_tree(TREE_OUR) != ALL_TREE && last_state != TRY_AGAIN_FRUIT){
+				state = TRY_AGAIN_FRUIT;
+			}else
+				state = ERROR;
+
+			break;
+
+		case DO_FRESCO:
+			state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,TAKE_DECISION,TAKE_DECISION_ERROR);
+			break;
+
+		case FILE_FRUIT:
+			state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,TAKE_DECISION,TAKE_DECISION_ERROR);
+			break;
+
+		case GOTO_FRESCO_2:
+			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_2,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			break;
+
+		#ifndef ALL_SHOOT_OUR_MAMMOUTH
+		// Si on lance une balle sur le mammouth ennemis
+		case LANCE_LAUNCHER_ADVERSARY:
+			state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ADVERSARY,TAKE_DECISION, TAKE_DECISION_ERROR);
+			break;
+		#endif
+
+		// Cas d'erreur à DO_TREE_2 et GOTO_FRESCO
+		case GOTO_FRESCO_BY_TORCH_ROAD:
+			state = try_going(1400,COLOR_Y(800),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,TAKE_DECISION_ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			break;
+
+		// Cas erreur fruit non ramassé au début
+		case TRY_AGAIN_FRUIT:
+			state = check_sub_action_result(manage_fruit(TREE_OUR,ALL_TREE,WAY_CHOICE),TRY_AGAIN_FRUIT,TAKE_DECISION,TAKE_DECISION_ERROR);
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+
+		case ERROR:
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+
+
+
+
+
+
+
 void strat_inutile(void){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
@@ -218,6 +467,8 @@ void strat_tourne_en_rond(void){
 }
 
 void strat_lannion(void){
+}
+#if 0
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		POS_DEPART,
@@ -418,6 +669,7 @@ void strat_lannion(void){
 				break;
 		}
 }
+#endif
 
 void strat_test_point2(){
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -929,239 +1181,6 @@ void strat_test_fresque(){
 	}
 }
 
-error_e sub_action_initiale(){
-	CREATE_MAE_WITH_VERBOSE(0,
-		IDLE,
-		WAIT_TELL_GUY,
-		LANCE_LAUNCHER,
-		GOTO_TREE_2,
-		DO_TREE,
-#ifdef DROP_TRIANGLE_END
-		GO_DROP_TRIANGLE_END,
-		DO_DROP_TRIANGLE_END,
-		DO_TREE_1,
-#endif
-		GOTO_TORCH,
-		GOTO_FRESCO,
-		GOTO_FRESCO_2,
-		DO_FRESCO,
-		FILE_FRUIT,
-		TAKE_DECISION,
-		TAKE_DECISION_ERROR,
-		DECISION_FRUIT_FRESCO,
-#ifndef ALL_SHOOT_OUR_MAMMOUTH
-		LANCE_LAUNCHER_ADVERSARY,
-#endif
-		GOTO_FRESCO_BY_TORCH_ROAD,
-		TRY_AGAIN_FRUIT,
-		SUCESS,
-		DONE,
-		ERROR
-	);
-
-	displacement_t point[] = {{{550,COLOR_Y(1144)},	FAST},
-							  {{1050,COLOR_Y(1160)},FAST},
-							  {{1650,COLOR_Y(1100)},FAST}
-							 };
-
-
-	// Mettre a false si pas le cas
-	static bool_e guy_get_out_init = FALSE;
-
-	if(global.env.reach_point_get_out_init)
-		guy_get_out_init = TRUE;
-
-
-	switch(state){
-
-		case IDLE:
-			if(global.env.asser.calibrated)
-				state = WAIT_TELL_GUY;
-			else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !
-				state = LANCE_LAUNCHER;
-			break;
-
-		case WAIT_TELL_GUY:{
-			static Uint16 last_time;
-			if(entrance)
-				last_time = global.env.match_time;
-
-			if(guy_get_out_init || global.env.match_time > last_time + 2000)
-				state = LANCE_LAUNCHER;
-			}break;
-
-		case LANCE_LAUNCHER:
-#ifdef ALL_SHOOT_OUR_MAMMOUTH
-			state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,GOTO_TORCH,GOTO_TORCH);
-#else
-			state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,GOTO_TORCH,GOTO_TORCH);
-#endif
-
-			break;
-
-		case GOTO_TORCH:
-
-			if(entrance)
-				ASSER_WARNER_arm_x(800);
-
-			state = try_going_multipoint(&point[0],3,GOTO_TORCH,GOTO_TREE_2,GOTO_FRESCO,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT, END_AT_BREAK);
-
-			if(global.env.asser.reach_x)
-				REACH_POINT_C1_send_request();
-
-			break;
-
-
-		case GOTO_TREE_2:{
-			static Uint8 s1 = IN_PROGRESS ,s2 = IN_PROGRESS;
-
-			if(s1 == IN_PROGRESS)
-				s1 = try_going(1633,COLOR_Y(1200),IN_PROGRESS,SUCESS,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
-
-			if(s2 == IN_PROGRESS)
-				s2 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, IN_PROGRESS, SUCESS, ERROR);
-
-
-			if(s1 == ERROR){
-				state = GOTO_FRESCO;
-				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-
-			}else if(s1 == SUCESS && s2 != IN_PROGRESS) // Si le bras est en sucess ou pars en erreur( timeout, problème capteur)
-				state = DO_TREE;
-
-			else if(s1 != ERROR && s2 != ERROR)
-				state = GOTO_TREE_2;
-			}break;
-
-		case DO_TREE:
-			#ifdef DROP_TRIANGLE_END
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_2,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,GO_DROP_TRIANGLE_END,TAKE_DECISION_ERROR);
-			#else
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_ALL_TREE,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,GOTO_FRESCO,TAKE_DECISION_ERROR);
-			#endif
-			break;
-
-		#ifdef DROP_TRIANGLE_END
-		case GO_DROP_TRIANGLE_END:
-			state = try_going(850,COLOR_Y(650),GO_DROP_TRIANGLE_END,DO_DROP_TRIANGLE_END,TAKE_DECISION_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
-			break;
-
-		case DO_DROP_TRIANGLE_END:
-			if(entrance)
-				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-
-			state = try_going(1250,COLOR_Y(650),DO_DROP_TRIANGLE_END,DO_TREE_1,TAKE_DECISION_ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
-
-			if(state != DO_DROP_TRIANGLE_END)
-				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-			break;
-
-		case DO_TREE_1:
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_ALL_TREE,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE_1,GOTO_FRESCO,TAKE_DECISION_ERROR);
-			break;
-		#endif
-
-		case GOTO_FRESCO:
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DECISION_FRUIT_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
-			break;
-
-		case DECISION_FRUIT_FRESCO:
-			#ifdef FAVOR_FILE_FRUIT_AT_FRESCO
-				state = FILE_FRUIT;
-			#else
-				state = DO_FRESCO;
-			#endif
-			break;
-
-		case TAKE_DECISION:
-
-			#ifndef ALL_SHOOT_OUR_MAMMOUTH
-			if(launcher_ball_adversary == FALSE && last_state == FILE_FRUIT){
-				state = LANCE_LAUNCHER_ADVERSARY;
-				break;
-			}
-			#endif
-
-			if(action_fresco_filed == FALSE && last_state != DO_FRESCO){
-				state = DO_FRESCO;
-			}else if(get_presenceFruit() == TRUE && last_state != FILE_FRUIT){
-				state = FILE_FRUIT;
-			}
-			#ifndef ALL_SHOOT_OUR_MAMMOUTH
-			else if(launcher_ball_adversary == FALSE && last_state != LANCE_LAUNCHER_ADVERSARY){
-				state = LANCE_LAUNCHER_ADVERSARY;
-			}
-			#endif
-			else if(FRUIT_sucess_tree(TREE_OUR) != ALL_TREE){
-				state = TRY_AGAIN_FRUIT;
-			}else
-				state = DONE;
-
-
-			break;
-
-		case TAKE_DECISION_ERROR:
-
-			if(action_fresco_filed == FALSE && last_state != DO_FRESCO){
-				state = DO_FRESCO;
-			}else if(get_presenceFruit() == TRUE && last_state != FILE_FRUIT && last_state != LANCE_LAUNCHER_ADVERSARY){
-				state = FILE_FRUIT;
-			}
-			#ifndef ALL_SHOOT_OUR_MAMMOUTH
-			else if(launcher_ball_adversary == FALSE && last_state != LANCE_LAUNCHER_ADVERSARY && last_state != FILE_FRUIT){
-				state = LANCE_LAUNCHER_ADVERSARY;
-			}
-			#endif
-			else if(FRUIT_sucess_tree(TREE_OUR) != ALL_TREE && last_state != TRY_AGAIN_FRUIT){
-				state = TRY_AGAIN_FRUIT;
-			}else
-				state = ERROR;
-
-			break;
-
-		case DO_FRESCO:
-			state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,TAKE_DECISION,TAKE_DECISION_ERROR);
-			break;
-
-		case FILE_FRUIT:
-			state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,TAKE_DECISION,TAKE_DECISION_ERROR);
-			break;
-
-		case GOTO_FRESCO_2:
-			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_2,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
-			break;
-
-		#ifndef ALL_SHOOT_OUR_MAMMOUTH
-		// Si on lance une balle sur le mammouth ennemis
-		case LANCE_LAUNCHER_ADVERSARY:
-			state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ADVERSARY,TAKE_DECISION, TAKE_DECISION_ERROR);
-			break;
-		#endif
-
-		// Cas d'erreur à DO_TREE_2 et GOTO_FRESCO
-		case GOTO_FRESCO_BY_TORCH_ROAD:
-			state = try_going(1400,COLOR_Y(2200),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,TAKE_DECISION_ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
-			break;
-
-		// Cas erreur fruit non ramassé au début
-		case TRY_AGAIN_FRUIT:
-			state = check_sub_action_result(manage_fruit(TREE_OUR,ALL_TREE,WAY_CHOICE),TRY_AGAIN_FRUIT,TAKE_DECISION,TAKE_DECISION_ERROR);
-			break;
-
-		case DONE:
-			return END_OK;
-			break;
-
-		case ERROR:
-			return NOT_HANDLED;
-			break;
-
-		default:
-			break;
-	}
-
-	return IN_PROGRESS;
-}
 
 error_e protected_fires(protected_fires_e fires){
 	CREATE_MAE_WITH_VERBOSE(0,
@@ -1325,7 +1344,7 @@ error_e strat_manage_fresco(){
 			state = CHOICE_GET_IN;
 			break;
 		case CHOICE_GET_IN:
-			if(est_dans_carre(0, 1100, 850, 2050, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(0, 700, 850, 2050, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = FILE_FRESCO;
 			else
 				state = GET_IN;
