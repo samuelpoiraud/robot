@@ -88,6 +88,6 @@ bool_e ACT_filet_launch(ACT_filet_cmd_e cmd);
 bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);
 bool_e ACT_pompe_order(ACT_pompe_cmd_e cmd, Uint8 param);
 bool_e ACT_arm_goto(ARM_state_e position);
-bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y, Uint8 z);
+bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y);
 
 #endif /* ndef ACT_FUNCTIONS_H */
