@@ -983,7 +983,7 @@ error_e sub_action_initiale(){
 			if(entrance)
 				last_time = global.env.match_time;
 
-			if(guy_get_out_init || global.env.match_time > last_time + 5000)
+			if(guy_get_out_init || global.env.match_time > last_time + 2000)
 				state = LANCE_LAUNCHER;
 			}break;
 
