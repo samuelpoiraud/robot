@@ -506,7 +506,7 @@ void strat_test_arm(){
 
 		case TORCHE :
 			if(entrance)
-				ACT_arm_goto_XY(ACT_ARM_POS_ON_TORCHE, 500, 650, 50);
+				ACT_arm_goto_XY(ACT_ARM_POS_ON_TORCHE, 500, 680);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
 				state = WAIT1;
 		break;
@@ -527,7 +527,7 @@ void strat_test_arm(){
 
 		case TRIANGLE :
 			if(entrance)
-				ACT_arm_goto_XY(ACT_ARM_POS_ON_TRIANGLE, 650, 500, 50);
+				ACT_arm_goto_XY(ACT_ARM_POS_ON_TRIANGLE, 650, 500);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
 				state = DONE;
 			break;
