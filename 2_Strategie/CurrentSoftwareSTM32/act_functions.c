@@ -132,3 +132,12 @@ bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y){
 	debug_printf("Pushing ARM gotoXY %d / x : %d    y : %d\n", position, x, y);
 	return ACT_push_operation(ACT_QUEUE_Arm, &args);
 }
+
+bool_e ACT_arm_updown_goto(Sint16 height){
+	QUEUE_arg_t args;
+
+	ACT_arg_init_with_param(&args, ACT_ARM, ACT_ARM_UPDOWN_GOTO, height);
+
+	debug_printf("Pushing Arm updown to z : %d mm \n", height);
+	return ACT_push_operation(ACT_QUEUE_Arm, &args);
+}
