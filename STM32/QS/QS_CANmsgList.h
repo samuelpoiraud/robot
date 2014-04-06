@@ -387,6 +387,14 @@
 		#define STRAT_INFORM_FRUIT_MOUTH_CLOSE	(0b000000001)
 	//////////////////////////////////////////////
 
+	/////////////////// POMPE ///////////////////
+	#define ACT_ASK_POMPE_IN_PRESSURE	(STRAT_FILTER | (ACT_FILTER >> 4) | 3)
+	#define STRAT_ANSWER_POMPE			(STRAT_FILTER | (ACT_FILTER >> 4) | 4)
+	// Dans data[0]
+		#define STRAT_ANSWER_POMPE_NO		(0b00000000)
+		#define STRAT_ANSWER_POMPE_YES		(0b00000001)
+	/////////////////////////////////////////////
+
 // Code des SID des messages: 0x30x = message pour Tiny, 0x31x = message pour Krusty.
 // Le SID 0x300 est reservé pour le self_test
 // Ceci est un enum de SID d'actionneur avec les paramètres de chaque actions définie par des defines. L'enum est utilisé pour vérifier que tous les messages de retour d'actionneurs sont géré en strat

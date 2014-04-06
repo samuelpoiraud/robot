@@ -51,6 +51,9 @@
 #define USE_UART1RXINTERRUPT
 #define UART_RX_BUF_SIZE	12
 
+/* ADC */
+#define USE_AN15 // mesure de courant pompe
+
 /* Bouton */
 #define I_ASSUME_I_WILL_CALL_BUTTONS_PROCESS_IT_ON_MY_OWN //Fait par clock.h/c
 #define USE_BUTTONS

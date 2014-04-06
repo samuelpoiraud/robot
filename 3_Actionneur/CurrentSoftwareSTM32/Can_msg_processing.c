@@ -20,6 +20,7 @@
 
 #include "BIG/BActManager.h"
 #include "SMALL/SActManager.h"
+#include "Common/Pompe.h"
 
 #include "config_debug.h"
 #define LOG_PREFIX "CANProcess: "
@@ -81,6 +82,11 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			#endif
 			CAN_send(&answer);
 			break;
+
+		case ACT_ASK_POMPE_IN_PRESSURE:
+			measure_current_pump();
+			break;
+
 		default:
 			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
 			break;

@@ -12,6 +12,7 @@
 #ifndef PPOMPE_CONFIG_H
 #define	PPOMPE_CONFIG_H
 
+#define ADC_POMPE	ADC_15
 
 #endif	/* PPOMPE_CONFIG_H */
 
