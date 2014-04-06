@@ -47,13 +47,13 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 	// moteur (dans l'ordre)
 		{148	,282,	174},	//ARM_ST_Parked
 		{148	,214,	145},	//ARM_ST_Open
-		{176	,246,	145},	//ARM_ST_On_Torche
+		{176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
 		{150	,289,	145},	//ARM_ST_To_Storage
-		{140	,76,	240},	//ARM_ST_To_Prepare_Return
-		{140	,76,	240},	//ARM_ST_To_Down_Return
-		{140	,76,	240},	//ARM_ST_To_Return
-		{140	,76,	240},	//ARM_ST_To_Take_Return
-		{150	,150,	150}	//ARM_ST_On_Triangle
+		{140	,82,	240},	//ARM_ST_To_Prepare_Return
+		{140	,82,	240},	//ARM_ST_To_Down_Return
+		{118	,49,	240},	//ARM_ST_To_Return
+		{120	,48,	157},	//ARM_ST_To_Take_Return
+		{150	,150,	150}	//ARM_ST_On_Triangle			// Distance factice
 	};
 #endif
 
