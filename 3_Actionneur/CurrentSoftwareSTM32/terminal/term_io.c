@@ -41,9 +41,9 @@ terminal_motor_s terminal_motor[] = {
 
 Uint8 terminal_motor_size = sizeof(terminal_motor)/sizeof(terminal_motor_s);
 
-#define CARA_INC			'l'
-#define CARA_DEC			'm'
-#define CARA_PRINT			' '
+#define EGAL_CARA_INC(c)			(c == 'p' || c == '+')
+#define EGAL_CARA_DEC(c)			(c == 'm' || c == '-')
+#define EGAL_CARA_PRINT(c)		(c == ' ')
 
 
 
@@ -54,7 +54,7 @@ void uart_checker(unsigned char c){
 	Uint8 i;
 
 	for(i=0;i<terminal_motor_size;i++){
-		if(terminal_motor[i].cara_selection == c){
+		if(terminal_motor[i].cara_selection == c && state != i){
 			debug_printf("%s selected\n", terminal_motor[i].name);
 			state = i;
 			if(terminal_motor[i].is_ax12)
@@ -64,7 +64,7 @@ void uart_checker(unsigned char c){
 		}
 	}
 
-	if(c == CARA_PRINT){
+	if(EGAL_CARA_PRINT(c)){
 		for(i=0;i<terminal_motor_size;i++){
 			if(terminal_motor[i].is_ax12)
 				debug_printf("%s : %d\n", terminal_motor[i].name, AX12_get_position(terminal_motor[i].id));
@@ -76,12 +76,12 @@ void uart_checker(unsigned char c){
 	if(state == -1)
 		return;
 
-	if(c != CARA_INC && c != CARA_DEC)
+	if(!EGAL_CARA_INC(c) && !EGAL_CARA_DEC(c))
 		return;
 
-	if(c == CARA_INC)
+	if(EGAL_CARA_INC(c))
 		position = ((Sint16)position+terminal_motor[state].inc_quantum >= terminal_motor[state].max_value) ? position : position+terminal_motor[state].inc_quantum;
-	else
+	else if(EGAL_CARA_DEC(c))
 		position = ((Sint16)position-terminal_motor[state].inc_quantum <= terminal_motor[state].min_value) ? position : position-terminal_motor[state].inc_quantum;
 
 	if(terminal_motor[state].is_ax12)

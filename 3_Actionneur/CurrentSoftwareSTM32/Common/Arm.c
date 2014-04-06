@@ -625,7 +625,9 @@ static bool_e goto_triangle_pos(){
 	}
 
 	// Check si le rayon et l'angle trouvé est suffisant pour la prise ou est impossible
-	if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2.*min_rayon*data_pos_triangle.rayon*cos4096(data_pos_triangle.angle - (min_angle-off_set_angle)))){
+	if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2.*min_rayon*data_pos_triangle.rayon*cos4096(data_pos_triangle.angle - (min_angle-off_set_angle)))
+			|| angle_pos_triangle[i_min_angle].value_rx24 == -1
+			|| rayon_pos_triangle[i_min_rayon].value_ax12_right == -1){
 
 		//----------------------------------------------------------------------------- Nous ne pouvons pas aller chercher le triangle avec cette configuration...
 		//------------------------------------------------------------------------------------------------------------------------ Avant bras à gauche du bras
@@ -655,7 +657,9 @@ static bool_e goto_triangle_pos(){
 			}
 		}
 
-		if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2.*min_rayon*data_pos_triangle.rayon*cos4096(data_pos_triangle.angle - (min_angle+off_set_angle)))){
+		if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2.*min_rayon*data_pos_triangle.rayon*cos4096(data_pos_triangle.angle - (min_angle+off_set_angle)))
+				|| angle_pos_triangle[i_min_angle].value_rx24 == -1
+				|| rayon_pos_triangle[i_min_rayon].value_ax12_left == -1){
 			debug_printf("Le bras ne peut pas aller chercher le triangle écart entre triangle et position trouvé > à %d\n", DISTANCE_MAX_TO_TAKE);
 			return FALSE;
 		}else
