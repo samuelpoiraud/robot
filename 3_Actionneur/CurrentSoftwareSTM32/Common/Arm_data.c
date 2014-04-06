@@ -110,7 +110,7 @@ void init_perm_transitions_table(){
 	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,		1,	(ARM_state_e[]){ACT_ARM_POS_TO_PREPARE_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_PREPARE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 }
 
 void add_perm_transitions_table(ARM_state_e old_state, Uint8 number_of_new_state, ARM_state_e new_state[]){
