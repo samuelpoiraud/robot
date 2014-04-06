@@ -7,7 +7,7 @@
 #include "QS/QS_who_am_i.h"
 #include "cos_sin.h"
 #include "odometry.h"
-
+#include "warner.h"
 
 //border_mode peut être BORDER_MODE_WITH_UPDATE_POSITION ou BORDER_MODE
 void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, acknowledge_e acquittement, Sint32 far_point_x, Sint32 far_point_y, border_mode_e border_mode, corrector_e corrector)
@@ -57,7 +57,7 @@ void SEQUENCES_calibrate()
 			ODOMETRY_set(SMALL_YELLOW_CALIBRATION_X, SMALL_YELLOW_CALIBRATION_Y, SMALL_YELLOW_CALIBRATION_TETA);
 		COPILOT_reset_absolute_destination();
 	}
-
+	WARNER_inform(WARNING_CALIBRATION_FINISHED, NO_ERROR);
 #else
 	if(QS_WHO_AM_I_get() == PIERRE){
 
