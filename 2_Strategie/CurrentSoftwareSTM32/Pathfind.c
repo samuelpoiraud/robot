@@ -32,10 +32,10 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 	(pathfind_node_t){ 1350, 400, neighbors : (1<<0)|(1<<3)|(1<<4)|(1<<5)},							//[A2] 1
 
 	//Colonne 2 coté rouge [B]
-	(pathfind_node_t){ 520, 650, neighbors : (1<<0)|(1<<3)|(1<<6)|(1<<7)},							//[B0] 2
-	(pathfind_node_t){ 850, 650, neighbors : (1<<0)|(1<<1)|(1<<2)|(1<<4)|(1<<6)|(1<<7)},			//[B1] 3
-	(pathfind_node_t){ 1250, 650, neighbors : (1<<0)|(1<<1)|(1<<3)|(1<<5)|(1<<8)|(1<<9)},			//[B2] 4
-	(pathfind_node_t){ 1600, 650, neighbors :(1<<1)|(1<<4)|(1<<8)|(1<<9)},							//[B3] 5
+	(pathfind_node_t){ 520, 750, neighbors : (1<<0)|(1<<3)|(1<<6)|(1<<7)},							//[B0] 2
+	(pathfind_node_t){ 850, 750, neighbors : (1<<0)|(1<<1)|(1<<2)|(1<<4)|(1<<6)|(1<<7)},			//[B1] 3
+	(pathfind_node_t){ 1250, 750, neighbors : (1<<0)|(1<<1)|(1<<3)|(1<<5)|(1<<8)|(1<<9)},			//[B2] 4
+	(pathfind_node_t){ 1600, 750, neighbors :(1<<1)|(1<<4)|(1<<8)|(1<<9)},							//[B3] 5
 
 	//Colonne 3 coté rouge [C]
 	(pathfind_node_t){ 520, 1100, neighbors : (1<<2)|(1<<3)|(1<<7)|(1<<10)|(1<<11)},				//[C0] 6
@@ -45,8 +45,8 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 
 	//Colonne 4 milieu [M]
 	(pathfind_node_t){ 400, 1500, neighbors : (1<<6)|(1<<7)|(1<<11)|(1<<14)|(1<<15)},				//[M0] 10
-	(pathfind_node_t){ 700, 1500, neighbors : (1<<6)|(1<<7)|(1<<10)|(1<<14)|(1<<15)},				//[M1] 11
-	(pathfind_node_t){ 1400, 1500, neighbors : (1<<8)|(1<<9)|(1<<13)|(1<<16)|(1<<17)},				//[M2] 12
+	(pathfind_node_t){ 650, 1500, neighbors : (1<<6)|(1<<7)|(1<<10)|(1<<14)|(1<<15)},				//[M1] 11
+	(pathfind_node_t){ 1450, 1500, neighbors : (1<<8)|(1<<9)|(1<<13)|(1<<16)|(1<<17)},				//[M2] 12
 	(pathfind_node_t){ 1700, 1500, neighbors :(1<<8)|(1<<9)|(1<<12)|(1<<16)|(1<<17)},				//[M3] 13
 
 	//Colonne 4 coté jaune [W]
@@ -56,10 +56,10 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 	(pathfind_node_t){ 1600, 1900, neighbors :(1<<12)|(1<<13)|(1<<16)|(1<<20)|(1<<21)},				//[W3] 17
 
 	//Colonne 5 coté jaune [Y]
-	(pathfind_node_t){ 520, 2300, neighbors : (1<<14)|(1<<15)|(1<<19)|(1<<22)},						//[Y0] 18
-	(pathfind_node_t){ 850, 2300, neighbors : (1<<14)|(1<<15)|(1<<18)|(1<<20)|(1<<22)|(1<<23)},		//[Y1] 19
-	(pathfind_node_t){ 1250, 2300, neighbors : (1<<16)|(1<<17)|(1<<19)|(1<<21)|(1<<22)|(1<<23)},	//[Y2] 20
-	(pathfind_node_t){ 1600, 2300, neighbors :(1<<16)|(1<<17)|(1<<20)|(1<<23)},						//[Y3] 21
+	(pathfind_node_t){ 520, 2250, neighbors : (1<<14)|(1<<15)|(1<<19)|(1<<22)},						//[Y0] 18
+	(pathfind_node_t){ 850, 2250, neighbors : (1<<14)|(1<<15)|(1<<18)|(1<<20)|(1<<22)|(1<<23)},		//[Y1] 19
+	(pathfind_node_t){ 1250, 2250, neighbors : (1<<16)|(1<<17)|(1<<19)|(1<<21)|(1<<22)|(1<<23)},	//[Y2] 20
+	(pathfind_node_t){ 1600, 2250, neighbors :(1<<16)|(1<<17)|(1<<20)|(1<<23)},						//[Y3] 21
 
 	//Colonne 6 coté Jaune [Z]
 	(pathfind_node_t){ 750, 2600, neighbors : (1<<18)|(1<<19)|(1<<20)|(1<<23)},				//[Z1] 22
