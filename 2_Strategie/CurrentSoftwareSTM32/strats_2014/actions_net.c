@@ -69,12 +69,11 @@ void strat_placement_net(){
 			break;
 
 		case STOP_ROBOT :
+			if(entrance){} // Retrait des actionneurs
 			state = try_stop(STOP_ROBOT, INIT_PATH, INIT_PATH);
 			break;
 
 		case INIT_PATH :
-			// Retrait des actionneurs
-
 			for(i=0;i<NB_NODE;i++)
 				pos.dist_with_node[i] = PATHFIND_manhattan_dist(global.env.pos.x, global.env.pos.y,
 															PATHFIND_get_node_x(pos.node[i]),
@@ -103,21 +102,26 @@ void strat_placement_net(){
 
 		case PLACEMENT :
 			state = PATHFIND_try_going(pos.node[pos.selected_node], PLACEMENT, PLACEMENT_TETA, FOUND_PATH, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			pos.tryed_node[pos.selected_node] = TRUE;
+			if(ON_LEAVING(PLACEMENT))
+				pos.tryed_node[pos.selected_node] = TRUE;
 			break;
 
 		case STOP_ALL :
-			if(entrance)
+			if(entrance){
 				BUZZER_play(1000, DEFAULT_NOTE, 1);
+				STACKS_flush_all();
+				QUEUE_reset_all();
+				// Retrait des actionneurs
+			}
 			state = try_stop(STOP_ALL, PLACEMENT_TETA, PLACEMENT_TETA);
 			break;
 
 		case PLACEMENT_TETA :
 			if(entrance){
 				if(global.env.pos.y >= 1500)
-					forced_angle = PI4096/2-(atan2((2350-global.env.pos.y),global.env.pos.x)*4096);
+					forced_angle = PI4096/2-(atan2((2350-global.env.pos.y),global.env.pos.x)*4096.);
 				else
-					forced_angle =  PI4096/2-(atan2((750-global.env.pos.y),global.env.pos.x)*4096);
+					forced_angle =  PI4096/2-(atan2((750-global.env.pos.y),global.env.pos.x)*4096.);
 			}
 			state = try_go_angle(forced_angle, PLACEMENT_TETA, DONE, DONE, FAST);
 		break;
