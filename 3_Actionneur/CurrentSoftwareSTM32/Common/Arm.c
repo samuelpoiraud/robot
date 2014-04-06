@@ -324,7 +324,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 		return;
 	}
 
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_Arm) {    // Gestion des mouvements de rotation de l'assiette
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_Arm) {    // Gestion des mouvements du bras
 		Sint16 new_state = QUEUE_get_arg(queueId)->param;
 
 		if(init) {
@@ -337,8 +337,10 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				return;
 			}
 
-			if(old_state == new_state)
+			if(old_state == new_state){
 				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+				return;
+			}
 
 			if(old_state >= 0 && ARM_STATES_TRANSITIONS[old_state][new_state] == 0) {
 				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
