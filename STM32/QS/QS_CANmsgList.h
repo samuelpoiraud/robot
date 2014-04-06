@@ -442,6 +442,10 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_ARM_PRINT_POS 2  //Affiche les positions des actionneurs sur l'uart
 
 		#define ACT_ARM_PRINT_STATE_TRANSITIONS 4
+
+		// Paramètres permettant de gérer la hauteur du bras
+		#define ACT_ARM_UPDOWN_GOTO 5
+
 	/////////////////////////////////////////
 
 	/////////////////////FILET///////////////////
