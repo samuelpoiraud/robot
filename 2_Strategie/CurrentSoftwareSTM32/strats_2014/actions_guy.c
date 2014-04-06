@@ -476,15 +476,19 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 void strat_test_arm(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
-		TR,
+		TRIANGLE,
 		OPEN1,
 		TORCHE,
 		OPEN2,
 		RETURN,
 		OPEN3,
 		PARKED,
+		WAIT1,
+		WAIT2,
 		DONE
 	);
+
+	static time32_t time;
 
 	switch(state){
 		case IDLE :
@@ -497,15 +501,37 @@ void strat_test_arm(){
 			if(entrance)
 				ACT_arm_goto(ACT_ARM_POS_OPEN);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = TR;
+				state = TORCHE;
 			break;
 
-		case TR :
+		case TORCHE :
 			if(entrance)
-				ACT_arm_goto_XY(ACT_ARM_POS_ON_TRIANGLE, 350, 500, 50);
+				ACT_arm_goto_XY(ACT_ARM_POS_ON_TORCHE, 500, 650, 50);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = WAIT1;
+		break;
+
+		case WAIT1 :
+			if(entrance)
+				time = global.env.match_time;
+			if(global.env.match_time - time > 2000)
+				state = OPEN2;
+			break;
+
+		case OPEN2:
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_OPEN);
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+				state = TRIANGLE;
+			break;
+
+		case TRIANGLE :
+			if(entrance)
+				ACT_arm_goto_XY(ACT_ARM_POS_ON_TRIANGLE, 650, 500, 50);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
 				state = DONE;
-		break;
+			break;
+
 
 		/*case TORCHE :
 			if(entrance)
