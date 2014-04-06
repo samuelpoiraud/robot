@@ -46,7 +46,7 @@ static void REACH_POINT_C1_send_request();
 //#define FAVOR_FILE_FRUIT_AT_FRESCO
 
 //Fait tomber le triangle du bout si tout va bien ou guy l'aura fait tomber avant
-#define DROP_TRIANGLE_END
+//#define DROP_TRIANGLE_END
 
 /**********************************************************************************************************************************
  *
@@ -966,7 +966,7 @@ error_e sub_action_initiale(){
 
 
 	// Mettre a false si pas le cas
-	static bool_e guy_get_out_init = TRUE;
+	static bool_e guy_get_out_init = FALSE;
 
 	if(global.env.reach_point_get_out_init)
 		guy_get_out_init = TRUE;
@@ -975,7 +975,10 @@ error_e sub_action_initiale(){
 	switch(state){
 
 		case IDLE:
-			state = WAIT_TELL_GUY;
+			if(global.env.asser.calibrated)
+				state = WAIT_TELL_GUY;
+			else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !
+				state = LANCE_LAUNCHER;
 			break;
 
 		case WAIT_TELL_GUY:{
@@ -1013,7 +1016,7 @@ error_e sub_action_initiale(){
 			static Uint8 s1 = IN_PROGRESS ,s2 = IN_PROGRESS;
 
 			if(s1 == IN_PROGRESS)
-				s1 = try_going_until_break(1700,COLOR_Y(1050),IN_PROGRESS,SUCESS,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+				s1 = try_going(1633,COLOR_Y(1200),IN_PROGRESS,SUCESS,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 
 			if(s2 == IN_PROGRESS)
 				s2 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, IN_PROGRESS, SUCESS, ERROR);
@@ -1040,14 +1043,14 @@ error_e sub_action_initiale(){
 
 		#ifdef DROP_TRIANGLE_END
 		case GO_DROP_TRIANGLE_END:
-			state = try_going(850,COLOR_Y(650),GO_DROP_TRIANGLE_END,DO_DROP_TRIANGLE_END,TAKE_DECISION_ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT);
+			state = try_going(850,COLOR_Y(650),GO_DROP_TRIANGLE_END,DO_DROP_TRIANGLE_END,TAKE_DECISION_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case DO_DROP_TRIANGLE_END:
 			if(entrance)
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 
-			state = try_going(1250,COLOR_Y(650),DO_DROP_TRIANGLE_END,DO_TREE_1,TAKE_DECISION_ERROR,FAST,FORWARD,DODGE_AND_NO_WAIT);
+			state = try_going(1250,COLOR_Y(650),DO_DROP_TRIANGLE_END,DO_TREE_1,TAKE_DECISION_ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
 
 			if(state != DO_DROP_TRIANGLE_END)
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
