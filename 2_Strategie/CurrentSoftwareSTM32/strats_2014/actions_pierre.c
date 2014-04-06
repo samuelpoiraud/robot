@@ -35,7 +35,7 @@ static void REACH_POINT_C1_send_request();
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
-#define POS_Y_MANUAL_FRESCO 1300 // Mettre une valeur entre 1300 et 1700
+#define POS_Y_MANUAL_FRESCO 1350 // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
 
 
 
@@ -71,8 +71,8 @@ static void REACH_POINT_C1_send_request();
 #define DECALAGE_LARGEUR 200
 #define ELOIGNEMENT_SHOOT_BALL 510
 #define SPEED_LANCE_LAUNCHER 125
-#define POS_MIN_FRESCO 1300
-#define POS_MAX_FRESCO 1700
+#define POS_MIN_FRESCO 1350		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
+#define POS_MAX_FRESCO 1750		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
 
 
 //Les differente's actions que pierre devra faire lors d'un match
@@ -1062,7 +1062,7 @@ error_e sub_action_initiale(){
 		#endif
 
 		case GOTO_FRESCO:
-			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO,DECISION_FRUIT_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DECISION_FRUIT_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case DECISION_FRUIT_FRESCO:
@@ -1246,7 +1246,7 @@ error_e strat_manage_fresco(){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		GET_IN,
-		ADVERSARY_DETECTED,
+		CHOICE_GET_IN,
 		FILE_FRESCO,
 		VERIFICATION,
 		LAST_CHANCE_FILE_FRESCO,
@@ -1267,81 +1267,71 @@ error_e strat_manage_fresco(){
 				return END_OK;
 			}
 
-			if(MODE_MANUAL_FRESCO){
+			if(MODE_MANUAL_FRESCO)
 				posY = POS_Y_MANUAL_FRESCO;
-				if(est_dans_carre(0, 1100, 900, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					state = FILE_FRESCO;
-				else
-					state = GET_IN;
-			}else if(ADVERSARY_DETECTED_HOKUYO == FALSE){//Pose les fresques au milieu si on a pas vu l'adversaire poser les siennes
+			else if(ADVERSARY_DETECTED_HOKUYO == FALSE)//Pose les fresques au milieu si on a pas vu l'adversaire poser les siennes
 				posY = 1500;
-				if(est_dans_carre(0, 1100, 900, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					state = FILE_FRESCO;
-				else
-					state = GET_IN;
-			}else
-				state = ADVERSARY_DETECTED;
-			break;
+			else	//ADVERSARY_DETECTED...
+			{
+				switch(adversary_fresco_index)
+				{
+					case 1:
+						if(adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO)// La valeur n est pas comprise
+							posY = 1500;
+						else if(adversary_fresco_positions[0] > 1500)
+							posY = POS_MIN_FRESCO;
+						else
+							posY = POS_MAX_FRESCO;
+						break;
+					case 2:
+						if((adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO) || (adversary_fresco_positions[1] > POS_MAX_FRESCO && adversary_fresco_positions[1] < POS_MIN_FRESCO))
+							posY = 1500;
+						else if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)// Les 2 poses ennemis sont sup au milieu de la fresque
+							posY = POS_MIN_FRESCO;
+						else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500) // sont inf au milieu
+							posY = POS_MAX_FRESCO;
+						else{    // Il y a une fresque de chaque coté par rapport au milieu
+							Uint16 fresco_inf,fresco_sup; //Correspond a la plus grande et plus petite variable ou l'adversaire aurait poser ses fresques
 
-		case ADVERSARY_DETECTED:
-			switch(adversary_fresco_index){
-				case 1:
-					if(adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO)// La valeur n est pas comprise
-						posY = 1500;
+							if(adversary_fresco_positions[0] < adversary_fresco_positions[1]){
+								fresco_inf = adversary_fresco_positions[0];
+								fresco_sup = adversary_fresco_positions[1];
+							}else{
+								fresco_inf = adversary_fresco_positions[1];
+								fresco_sup = adversary_fresco_positions[0];
+							}
 
-					if(adversary_fresco_positions[0] > 1500)
-						posY = POS_MIN_FRESCO;
-					else
-						posY = POS_MAX_FRESCO;
+							if(POS_MAX_FRESCO-fresco_sup > fresco_inf-POS_MIN_FRESCO){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
+								if(POS_MAX_FRESCO-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
+									posY = POS_MAX_FRESCO;
+								else
+									posY = (fresco_inf+fresco_sup)/2;
 
-					break;
-				case 2:
-					if((adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO) || (adversary_fresco_positions[1] > POS_MAX_FRESCO && adversary_fresco_positions[1] < POS_MIN_FRESCO))
-						posY = 1500;
-
-					if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)// Les 2 poses ennemis sont sup au milieu de la fresque
-						posY = POS_MIN_FRESCO;
-					else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500) // sont inf au milieu
-						posY = POS_MAX_FRESCO;
-					else{    // Il y a une fresque de chaque coté par rapport au milieu
-						Uint16 fresco_inf,fresco_sup; //Correspond a la plus grande et plus petite variable ou l'adversaire aurait poser ses fresques
-
-						if(adversary_fresco_positions[0] < adversary_fresco_positions[1]){
-							fresco_inf = adversary_fresco_positions[0];
-							fresco_sup = adversary_fresco_positions[1];
-						}else{
-							fresco_inf = adversary_fresco_positions[1];
-							fresco_sup = adversary_fresco_positions[0];
+							}else{ //Si la zone entre la POS_MIN_FRESCO est plus grande que celle avec POS_MAX_FRESCO
+								if(fresco_inf-POS_MIN_FRESCO >= fresco_sup-fresco_inf)
+									posY = POS_MIN_FRESCO;
+								else
+									posY = (fresco_inf+fresco_sup)/2;
+							}
 						}
 
-						if(POS_MAX_FRESCO-fresco_sup > fresco_inf-POS_MIN_FRESCO){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
-							if(POS_MAX_FRESCO-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
-								posY = POS_MAX_FRESCO;
-							else
-								posY = (fresco_inf+fresco_sup)/2;
-
-						}else{ //Si la zone entre la POS_MIN_FRESCO est plus grande que celle avec POS_MAX_FRESCO
-							if(fresco_inf-POS_MIN_FRESCO >= fresco_sup-fresco_inf)
-								posY = POS_MIN_FRESCO;
-							else
-								posY = (fresco_inf+fresco_sup)/2;
-						}
-					}
-
-					break;
-				default: // On ne sait jamais si aucun adversaire a été detecte
-					posY = 1500;
-					break;
+						break;
+					default: // On ne sait jamais si aucun adversaire a été detecte
+						posY = 1500;
+						break;
+				}
 			}
 
-			if(est_dans_carre(0, 1100, 900, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			state = CHOICE_GET_IN;
+			break;
+		case CHOICE_GET_IN:
+			if(est_dans_carre(0, 1100, 850, 2050, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = FILE_FRESCO;
 			else
 				state = GET_IN;
 			break;
-
 		case GET_IN :
-			state = PATHFIND_try_going(M0, GET_IN, FILE_FRESCO, ERROR, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(M0, GET_IN, FILE_FRESCO, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case FILE_FRESCO:
@@ -1421,15 +1411,18 @@ error_e strat_file_fresco(Sint16 posY){
 		END_ERROR,
 		END_IMPOSSIBLE_ERROR,
 		GET_OUT_WITH_ERROR,
+		GET_OUT_WITH_ERROR_RED_NORTH,
+		GET_OUT_WITH_ERROR_RED_MIDDLE,
+		GET_OUT_WITH_ERROR_RED_SOUTH,
+		GET_OUT_WITH_ERROR_YELLOW_NORTH,
+		GET_OUT_WITH_ERROR_YELLOW_MIDDLE,
+		GET_OUT_WITH_ERROR_YELLOW_SOUTH,
 		DONE,
 		ERROR,
-		ERROR_WITH_GET_OUT
+		DONE_BUT_NOT_HANDLED
 	);
-
+	static enum state_e from;
 	static bool_e timeout=FALSE;
-
-	static Uint8 get_out_try = 0;
-	static GEOMETRY_point_t escape_point[3];
 
 	switch(state){
 		case IDLE:
@@ -1439,10 +1432,6 @@ error_e strat_file_fresco(Sint16 posY){
 			}
 
 			timeout=FALSE;
-
-			escape_point[0] = (GEOMETRY_point_t){300, 1500};
-			escape_point[1] = (GEOMETRY_point_t){300, 1350};
-			escape_point[2] = (GEOMETRY_point_t){300, 1650};
 
 			state = BEFORE_WALL;
 			break;
@@ -1489,10 +1478,74 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
-			if(state != GET_OUT_WITH_ERROR)
-				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			//On recherche le point de sortie le plus proche.
+			if(global.env.pos.y < 1500)
+			{
+				if(global.env.pos.x < 300)
+				{
+					state = GET_OUT_WITH_ERROR_RED_MIDDLE;
+					from  = GET_OUT_WITH_ERROR_RED_NORTH;
+				}
+				else if(global.env.pos.x < 600)
+				{
+					state = GET_OUT_WITH_ERROR_RED_SOUTH;
+					from  = GET_OUT_WITH_ERROR_RED_MIDDLE;
+				}
+				else
+				{
+					state = DONE_BUT_NOT_HANDLED;	//Je rend la main
+				}
+			}
+			else
+			{
+				if(global.env.pos.x < 300)
+				{
+					state = GET_OUT_WITH_ERROR_YELLOW_MIDDLE;
+					from  = GET_OUT_WITH_ERROR_YELLOW_NORTH;
+				}
+				else if(global.env.pos.x < 600)
+				{
+					state = GET_OUT_WITH_ERROR_YELLOW_SOUTH;
+					from  = GET_OUT_WITH_ERROR_YELLOW_MIDDLE;
+				}
+				else
+				{
+					state = DONE_BUT_NOT_HANDLED;	//Je rend la main
+				}
+			}
 			break;
+
+
+			case GET_OUT_WITH_ERROR_RED_SOUTH:		//Cette position permet de sortir et de rendre la main !
+				state = try_going(700,1350,GET_OUT_WITH_ERROR_RED_SOUTH,DONE_BUT_NOT_HANDLED,(from == GET_OUT_WITH_ERROR_RED_MIDDLE)? GET_OUT_WITH_ERROR_RED_MIDDLE:GET_OUT_WITH_ERROR_YELLOW_SOUTH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				if(state != GET_OUT_WITH_ERROR_RED_SOUTH)
+					from = GET_OUT_WITH_ERROR_RED_SOUTH;
+				break;
+			case GET_OUT_WITH_ERROR_RED_MIDDLE:
+				state = try_going(500,1350,GET_OUT_WITH_ERROR_RED_MIDDLE,(from == GET_OUT_WITH_ERROR_RED_SOUTH)?GET_OUT_WITH_ERROR_RED_NORTH:GET_OUT_WITH_ERROR_RED_SOUTH, (from == GET_OUT_WITH_ERROR_RED_SOUTH)? GET_OUT_WITH_ERROR_RED_SOUTH:GET_OUT_WITH_ERROR_RED_NORTH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				if(state != GET_OUT_WITH_ERROR_RED_MIDDLE)
+					from = GET_OUT_WITH_ERROR_RED_MIDDLE;
+				break;
+			case GET_OUT_WITH_ERROR_RED_NORTH:
+				state = try_going(250,1350,GET_OUT_WITH_ERROR_RED_NORTH,(from == GET_OUT_WITH_ERROR_RED_MIDDLE)?GET_OUT_WITH_ERROR_YELLOW_NORTH:GET_OUT_WITH_ERROR_RED_MIDDLE,(from == GET_OUT_WITH_ERROR_RED_MIDDLE)? GET_OUT_WITH_ERROR_RED_MIDDLE:GET_OUT_WITH_ERROR_YELLOW_NORTH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				if(state != GET_OUT_WITH_ERROR_RED_NORTH)
+					from = GET_OUT_WITH_ERROR_RED_NORTH;
+				break;
+			case GET_OUT_WITH_ERROR_YELLOW_NORTH:
+				state = try_going(250,1650,GET_OUT_WITH_ERROR_YELLOW_NORTH,(from == GET_OUT_WITH_ERROR_YELLOW_MIDDLE)?GET_OUT_WITH_ERROR_RED_NORTH:GET_OUT_WITH_ERROR_YELLOW_MIDDLE,(from == GET_OUT_WITH_ERROR_YELLOW_MIDDLE)? GET_OUT_WITH_ERROR_YELLOW_MIDDLE:GET_OUT_WITH_ERROR_RED_NORTH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				if(state != GET_OUT_WITH_ERROR_YELLOW_NORTH)
+					from = GET_OUT_WITH_ERROR_YELLOW_NORTH;
+				break;
+			case GET_OUT_WITH_ERROR_YELLOW_MIDDLE:
+				state = try_going(500,1650,GET_OUT_WITH_ERROR_YELLOW_MIDDLE,(from == GET_OUT_WITH_ERROR_YELLOW_SOUTH)?GET_OUT_WITH_ERROR_YELLOW_NORTH:GET_OUT_WITH_ERROR_YELLOW_SOUTH, (from == GET_OUT_WITH_ERROR_YELLOW_SOUTH)? GET_OUT_WITH_ERROR_YELLOW_SOUTH:GET_OUT_WITH_ERROR_YELLOW_NORTH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				if(state != GET_OUT_WITH_ERROR_YELLOW_MIDDLE)
+					from = GET_OUT_WITH_ERROR_YELLOW_MIDDLE;
+				break;
+			case GET_OUT_WITH_ERROR_YELLOW_SOUTH:		//Cette position permet de sortir et de rendre la main !
+				state = try_going(700,1650,GET_OUT_WITH_ERROR_YELLOW_SOUTH,DONE_BUT_NOT_HANDLED,(from == GET_OUT_WITH_ERROR_YELLOW_MIDDLE)? GET_OUT_WITH_ERROR_YELLOW_MIDDLE:GET_OUT_WITH_ERROR_RED_SOUTH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				if(state != GET_OUT_WITH_ERROR_YELLOW_SOUTH)
+					from = GET_OUT_WITH_ERROR_YELLOW_SOUTH;
+				break;
 
 		case DONE:
 			state = IDLE;
@@ -1503,7 +1556,7 @@ error_e strat_file_fresco(Sint16 posY){
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case ERROR_WITH_GET_OUT :
+		case DONE_BUT_NOT_HANDLED :
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
