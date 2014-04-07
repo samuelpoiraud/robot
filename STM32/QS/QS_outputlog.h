@@ -14,6 +14,9 @@
 #include "QS_all.h"
 #include <stdarg.h>
 
+/* Macro de d'affichage d'une expression rapide */
+#define display(x) debug_printf("%s : %d\n", #x, x)
+
 /*
  * Paramètres (optionnels, à définir avant l'inclusion de ce header):
  * - LOG_PREFIX: à définir à une chaine de caractère. Tous les printf auront ce texte devant chaque nouvelles lignes.

@@ -55,9 +55,6 @@
 
 #define square(x) ((Sint32)x*x)
 
-#define display(x) debug_printf("%s : %d\n", #x, x)
-#define display_float(x) debug_printf("%s : %d\n", #x, )
-
 typedef struct{
 	Sint16 x;
 	Sint16 y;
