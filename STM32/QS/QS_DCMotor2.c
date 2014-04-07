@@ -189,6 +189,65 @@ void DCM_getCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd) {
 	if(Kd) *Kd = this->config.Kd;
 }
 
+/*-----------------------------------------
+  Change les double coefs d'asservissement.
+-----------------------------------------*/
+void DCM_setDoubleCoefs(Uint8 dc_motor_id, Sint16 Kp, Sint16 Ki, Sint16 Kd, Sint16 Kp2, Sint16 Ki2, Sint16 Kd2){
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state == STOPPED));
+	init_state_e previousState = this->init_state;
+
+	this->init_state = STOPPED; //Aucun calcul d'asservissement ne doit être fait pendant ce temps
+
+	this->config.Kp = Kp;
+	this->config.Ki = Ki;
+	this->config.Kd = Kd;
+	this->config.Kp2 = Kp2;
+	this->config.Ki2 = Ki2;
+	this->config.Kd2 = Kd2;
+
+	this->init_state = previousState;
+}
+
+/*-----------------------------------------
+  Récupère les double coefs d'asservissement.
+-----------------------------------------*/
+void DCM_getDoubleCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd, Sint16* Kp2, Sint16* Ki2, Sint16* Kd2){
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state == STOPPED));
+
+	if(Kp) *Kp = this->config.Kp;
+	if(Ki) *Ki = this->config.Ki;
+	if(Kd) *Kd = this->config.Kd;
+	if(Kp2) *Kp2 = this->config.Kp2;
+	if(Ki2) *Ki2 = this->config.Ki2;
+	if(Kd2) *Kd2 = this->config.Kd2;
+}
+
+/*-----------------------------------------
+  Change si le moteur fonctionne en double PID
+-----------------------------------------*/
+void DCM_setDoublePID(Uint8 dc_motor_id, bool_e double_PID){
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state == STOPPED));
+
+	init_state_e previousState = this->init_state;
+	this->init_state = STOPPED; //Aucun calcul d'asservissement ne doit être fait pendant ce temps
+
+	this->config.double_PID = double_PID;
+
+	this->init_state = previousState;
+}
+
+/*-----------------------------------------
+  Change si le moteur fonctionne en double PID
+-----------------------------------------*/
+bool_e DCM_getDoublePID(Uint8 dc_motor_id){
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state == STOPPED));
+
+	return this->config.double_PID;
+}
 
 /*-----------------------------------------
 		Arret de l'asservissement d'un actionneur
@@ -273,7 +332,7 @@ void DCM_process_it()
 			//Gestion des changements d'états
 			switch(this->cmd_state) {
 				case DCM_WORKING:
-					this->cmd_time += DCM_TIMER_PERIOD;
+					this->cmd_time += DCM_TIME_PERIOD;
 					if(absolute(error) < (Sint16)config->epsilon && absolute(this->previous_error) < (Sint16)config->epsilon)
 						this->cmd_state = DCM_IDLE;
 					else if(config->timeout && this->cmd_time >= config->timeout)
@@ -294,30 +353,59 @@ void DCM_process_it()
 			if(this->cmd_state == DCM_TIMEOUT) {
 				PWM_stop(config->pwm_number);
 			} else {
-				// Asservissement PID
-				/* integration si on n'est pas en saturation de commande (permet de désaturer plus vite) */
-				/* l'expression si dessous vaut pour erreur = consigne-position */
-				if(!(		( (DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way1_max_duty) && (!((config->Ki>0) ^ (error>0))))
-						||	(!(DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way0_max_duty) && (!((config->Ki>0) ^ (error<0))))
-					))
-				{
-					this->integrator += error;
-					//la multiplication par la période se fait après pour éviter que l'incrément soit nul
+
+				if(this->config.double_PID == FALSE ||  config->pos[this->posToGo] < (config->sensor_read)()){
+
+					// Asservissement PID
+					/* integration si on n'est pas en saturation de commande (permet de désaturer plus vite) */
+					/* l'expression si dessous vaut pour erreur = consigne-position */
+					if(!(		( (DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way1_max_duty) && (!((config->Ki>0) ^ (error>0))))
+							||	(!(DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way0_max_duty) && (!((config->Ki>0) ^ (error<0))))
+						))
+					{
+						this->integrator += error;
+						//la multiplication par la période se fait après pour éviter que l'incrément soit nul
+					}
+					differential = error - this->previous_error;
+					/*computed_cmd = 	(__builtin_mulss(config->Kp, error) >> 10) // / 1024)
+									+ ((__builtin_mulss(config->Ki, this->integrator) * DCM_TIMER_PERIOD) >> 20) // / 1048576)
+									+ (__builtin_divsd(__builtin_mulss(config->Kd, differential), (DCM_TIMER_PERIOD*1024)));
+					 */
+					//TODO: clean ça, pas de Kd quand on est a la bonne position
+	//				if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon) {
+	//					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+	//								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576);
+	//				} else {
+						computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+									+ (((Sint32)(config->Ki) * this->integrator * DCM_TIME_PERIOD) / 1048576)
+									+ (((Sint32)(config->Kd) * differential)/DCM_TIME_PERIOD) / 1024;
+	//				}
+				}else{
+					// Asservissement PID
+					/* integration si on n'est pas en saturation de commande (permet de désaturer plus vite) */
+					/* l'expression si dessous vaut pour erreur = consigne-position */
+					if(!(		( (DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way1_max_duty) && (!((config->Ki2>0) ^ (error>0))))
+							||	(!(DCM_getWay(dc_motor_id)) && (this->current_cmd == config->way0_max_duty) && (!((config->Ki2>0) ^ (error<0))))
+						))
+					{
+						this->integrator += error;
+						//la multiplication par la période se fait après pour éviter que l'incrément soit nul
+					}
+					differential = error - this->previous_error;
+					/*computed_cmd = 	(__builtin_mulss(config->Kp, error) >> 10) // / 1024)
+									+ ((__builtin_mulss(config->Ki, this->integrator) * DCM_TIMER_PERIOD) >> 20) // / 1048576)
+									+ (__builtin_divsd(__builtin_mulss(config->Kd, differential), (DCM_TIMER_PERIOD*1024)));
+					 */
+					//TODO: clean ça, pas de Kd quand on est a la bonne position
+	//				if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon) {
+	//					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
+	//								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576);
+	//				} else {
+						computed_cmd = 	((Sint32)(config->Kp2 * (Sint32)error) / 1024)
+									+ (((Sint32)(config->Ki2) * this->integrator * DCM_TIME_PERIOD) / 1048576)
+									+ (((Sint32)(config->Kd2) * differential)/DCM_TIME_PERIOD) / 1024;
+	//				}
 				}
-				differential = error - this->previous_error;
-				/*computed_cmd = 	(__builtin_mulss(config->Kp, error) >> 10) // / 1024)
-								+ ((__builtin_mulss(config->Ki, this->integrator) * DCM_TIMER_PERIOD) >> 20) // / 1048576)
-								+ (__builtin_divsd(__builtin_mulss(config->Kd, differential), (DCM_TIMER_PERIOD*1024)));
-				 */
-				//TODO: clean ça, pas de Kd quand on est a la bonne position
-//				if(abs(error) < (Sint16)config->epsilon && abs(this->previous_error) < (Sint16)config->epsilon) {
-//					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
-//								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576);
-//				} else {
-					computed_cmd = 	((Sint32)(config->Kp * (Sint32)error) / 1024)
-								+ (((Sint32)(config->Ki) * this->integrator * DCM_TIMER_PERIOD) / 1048576)
-								+ (((Sint32)(config->Kd) * differential)/DCM_TIMER_PERIOD) / 1024;
-//				}
 
 				this->previous_error = error;
 

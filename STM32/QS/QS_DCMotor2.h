@@ -34,7 +34,9 @@
 			Sint16 pos[DCMOTOR_NB_POS];		// valeurs de l'adc pour les différentes positions de l'actionneur
 			Uint8 way0_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens à 0
 			Uint8 way1_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens à 1
-			Sint16 Kp, Ki, Kd;				// valeurs des gains pour le PID
+			bool_e double_PID;				// TRUE si utilisation du double PID
+			Sint16 Kp, Ki, Kd;				// valeurs des gains pour le PID (si double PID -> valeurs pour si on est au dessus de la consigne)
+			Sint16 Kp2, Ki2, Kd2;			// (utilisé si double PID) valeurs des gains pour le PID si on est en dessous de la consigne
 			volatile uint32_t* way_latch;	// adresse du port contenant le bit de sens de controle du pont en H (utilisation des types de base pour correspondre à ceux du header du pic)
 			Uint8 way_bit_number;			// numero du bit de sens dans le port
 			Uint16 timeout;					// timeout en ms, si la position demandée n'est pas atteinte avant ce temps, l'asservissement est arreté (évite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
@@ -63,11 +65,23 @@
 		//Récupère la valeur d'une position
 		Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get);
 
+		// Change si le moteur fonctionne en double PID
+		void DCM_setDoublePID(Uint8 dc_motor_id, bool_e double_PID);
+
+		// Récupère si le moteur fonctionne en double PID
+		bool_e DCM_getDoublePID(Uint8 dc_motor_id);
+
 		//Change les coefs d'asservissement. si le moteur était asservis, les nouveaux coef sont automatiquement pris en compte.
 		void DCM_setCoefs(Uint8 dc_motor_id, Sint16 Kp, Sint16 Ki, Sint16 Kd);
 
 		//Récupère les coefs d'asservissement.
 		void DCM_getCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd);
+
+		//Change les double coefs d'asservissement. si le moteur était asservis, les nouveaux coef sont automatiquement pris en compte.
+		void DCM_setDoubleCoefs(Uint8 dc_motor_id, Sint16 Kp, Sint16 Ki, Sint16 Kd, Sint16 Kp2, Sint16 Ki2, Sint16 Kd2);
+
+		//Récupère les double coefs d'asservissement.
+		void DCM_getDoubleCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd, Sint16* Kp2, Sint16* Ki2, Sint16* Kd2);
 
 		// Arret de l'asservissement d'un actionneur
 		void DCM_stop(Uint8 dc_motor_id);

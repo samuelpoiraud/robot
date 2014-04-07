@@ -284,6 +284,10 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
 				break;
 
+			case ACT_ARM_UPDOWN_GOTO :
+
+				break;
+
 			case ACT_ARM_STOP:
 				ARM_stop();
 				break;
