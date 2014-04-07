@@ -24,6 +24,6 @@ typedef enum
 
 
 void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool_e insert_time);
-
+int SD_printf(const char *format, ...);
 
 #endif /* SD_H */

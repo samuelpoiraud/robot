@@ -47,7 +47,7 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 
 
 void strat_inutile_guy(void){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_GUY_INUTILE,
 		IDLE,
 		POS_DEPART,
 		RAMEMENER_TORCH,
@@ -78,7 +78,7 @@ void strat_inutile_guy(void){
 }
 
 void strat_xbee_guy(void){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_GUY_XBEE,
 		IDLE,
 		POS_DEPART,
 		XBEE,
@@ -127,7 +127,7 @@ void Strat_Detection_Triangle(void){
 	// x = 1000
 	// y = 120 led verte / 2880 led rouge
 
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_GUY_DETECTION_TRIANGLE,
 		INIT,
 		AVANCER,
 		SCAN_FOYER_GAUCHE,
@@ -179,7 +179,7 @@ void Strat_Detection_Triangle(void){
 
 
 void strat_test_warner_triangle(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_GUY_TEST_WARNER_TRIANGLE,
 		INIT,
 		AVANCER,
 		PLACEMENT,
@@ -223,7 +223,7 @@ void strat_test_warner_triangle(){
 
 
 error_e sub_action_initiale_guy(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_INITIALE,
 		IDLE,
 		SUCESS,
 		GET_OUT_POS_START,
@@ -283,7 +283,7 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GET_OUT_POS_START:
-			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,TAKE_DECISION_FIRST_WAY, TAKE_DECISION_FIRST_WAY,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,TAKE_DECISION_FIRST_WAY, TAKE_DECISION_FIRST_WAY,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case TAKE_DECISION_FIRST_WAY:
@@ -300,7 +300,7 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GOTO_TREE_INIT:
-			state  = try_going_multipoint(points,4,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state  = try_going_multipoint(points,4,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case FALL_FIRE_WALL_TREE:
@@ -308,7 +308,7 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GOTO_HEART_INIT:
-			state  = try_going_multipoint(points,4,GOTO_HEART_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_TREE_ADV,ERROR,ANY_WAY,DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state  = try_going_multipoint(points,4,GOTO_HEART_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_TREE_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case FALL_FIRE_MOBILE_TREE_ADV:
@@ -329,7 +329,7 @@ error_e sub_action_initiale_guy(){
 			if(entrance)
 				ASSER_WARNER_arm_y(1200);
 
-			state  = try_going_multipoint(points,4,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state  = try_going_multipoint(points,4,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
 
 			if(global.env.asser.reach_x)
 				ZONE_unlock(MZ_MAMMOUTH_OUR);
@@ -341,7 +341,7 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GOTO_TORCH_ADVERSARY:
-			state = try_going_until_break(1100,COLOR_Y(1900),GOTO_TORCH_ADVERSARY,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : DONE,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(1100,COLOR_Y(1900),GOTO_TORCH_ADVERSARY,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : DONE,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case FALL_FIRE_WALL_ADV:
@@ -365,7 +365,7 @@ error_e sub_action_initiale_guy(){
 
 
 error_e travel_torch_line(torch_choice_e torch_choice,torch_push_e choice,Sint16 posEndxIn, Sint16 posEndyIn){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
 		IDLE,
 		PLACEMENT,
 		POS_START_TORCH,
@@ -426,7 +426,7 @@ error_e travel_torch_line(torch_choice_e torch_choice,torch_push_e choice,Sint16
 		}	break;
 
 		case PLACEMENT:
-			state = PATHFIND_try_going(node, PLACEMENT, POS_START_TORCH, ERROR, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(node, PLACEMENT, POS_START_TORCH, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_START_TORCH:
@@ -474,7 +474,7 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 }
 
 void strat_test_arm(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TEST_ARM,
 		IDLE,
 		TRIANGLE,
 		OPEN1,

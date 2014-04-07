@@ -99,9 +99,10 @@ volatile Uint8 adversary_fresco_index = 2;
 
 
 error_e sub_action_initiale(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_INITIALE,
 		IDLE,
 		WAIT_TELL_GUY,
+		GET_OUT,
 		LANCE_LAUNCHER,
 		GOTO_TREE_2,
 		DO_TREE,
@@ -162,14 +163,16 @@ error_e sub_action_initiale(){
 				last_time = global.env.match_time;
 
 			if(guy_get_out_init || global.env.match_time > last_time + 2000)
-				state = LANCE_LAUNCHER;
+				state = GET_OUT;
 			}break;
-
+		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
+			state = try_going_until_break(510, COLOR_Y(425),GET_OUT,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);		//On force le passage si Guy est devant nous..........
+			break;
 		case LANCE_LAUNCHER:
 #ifdef ALL_SHOOT_OUR_MAMMOUTH
-			state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,FAIL_FIRST_POINT);
+			state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,FAIL_FIRST_POINT);
 #else
-			state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,FAIL_FIRST_POINT);
+			state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,FAIL_FIRST_POINT);
 #endif
 
 			break;
@@ -315,19 +318,19 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_FRESCO_2:
-			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_2,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going(400,COLOR_Y(1500),GOTO_FRESCO_2,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		#ifndef ALL_SHOOT_OUR_MAMMOUTH
 		// Si on lance une balle sur le mammouth ennemis
 		case LANCE_LAUNCHER_ADVERSARY:
-			state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ADVERSARY,TAKE_DECISION, TAKE_DECISION_ERROR);
+			state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color == RED)?YELLOW:RED),LANCE_LAUNCHER_ADVERSARY,TAKE_DECISION, TAKE_DECISION_ERROR);
 			break;
 		#endif
 
 		// Cas d'erreur à DO_TREE_2 et GOTO_FRESCO
 		case GOTO_FRESCO_BY_TORCH_ROAD:
-			state = try_going(1400,COLOR_Y(800),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,TAKE_DECISION_ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going(1400,COLOR_Y(800),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,TAKE_DECISION_ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		// Cas erreur fruit non ramassé au début
@@ -359,7 +362,7 @@ error_e sub_action_initiale(){
 
 
 void strat_inutile(void){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_INUTILE,
 		IDLE,
 		POS_DEPART,
 		CHEMIN,
@@ -382,7 +385,7 @@ void strat_inutile(void){
 			break;
 
 		case LANCE_LAUNCHER:
-			state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,DONE,ERROR);
+			state = check_sub_action_result(strat_lance_launcher(TRUE,global.env.color),LANCE_LAUNCHER,DONE,ERROR);
 			break;
 
 		case SUB_ACTION:
@@ -416,7 +419,7 @@ void strat_inutile(void){
 }
 
 void strat_tourne_en_rond(void){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TOURNE_EN_ROND,
 		IDLE,
 		POS_DEPART,
 		POS_POINT,
@@ -485,7 +488,7 @@ void strat_tourne_en_rond(void){
 void strat_lannion(void){
 }
 #if 0
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_LANNION,
 		IDLE,
 		POS_DEPART,
 		TRIANGLE1,
@@ -634,7 +637,7 @@ void strat_lannion(void){
 
 				// Balles et fresques
 			case LANCE_LAUNCHER:
-				state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,POINT_M0,ERROR);
+				state = check_sub_action_result(strat_lance_launcher(FALSE,global.env.color),LANCE_LAUNCHER,POINT_M0,ERROR);
 				break;
 
 			case POINT_M0:
@@ -642,7 +645,7 @@ void strat_lannion(void){
 				break;
 
 			case LANCE_LAUNCHER_ENNEMY:
-				state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
+				state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color==RED)?YELLOW:RED),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
 				break;
 
 				// Fruit
@@ -688,7 +691,7 @@ void strat_lannion(void){
 #endif
 
 void strat_test_point2(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_POINT2,
 		IDLE,
 		POS_DEPART,
 		TRIANGLE1,
@@ -781,7 +784,7 @@ void strat_test_point2(){
 				break;
 
 			case LANCE_LAUNCHER:
-				state = check_sub_action_result(strat_lance_launcher(TRUE),LANCE_LAUNCHER,DEPOSE_FRESCO,DEPOSE_FRESCO);
+				state = check_sub_action_result(strat_lance_launcher(TRUE,global.env.color),LANCE_LAUNCHER,DEPOSE_FRESCO,DEPOSE_FRESCO);
 				break;
 
 //			case TRIANGLE1:
@@ -862,7 +865,7 @@ void strat_test_point2(){
 
 //				// Premier shoot sur notre mammouth
 //			case LANCE_LAUNCHER:
-//				state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,RAMASSER_FRUIT_ARBRE1,RAMASSER_FRUIT_ARBRE1);
+//				state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),LANCE_LAUNCHER,RAMASSER_FRUIT_ARBRE1,RAMASSER_FRUIT_ARBRE1);
 //				break;
 
 				// Rammasse notre groupe de fruit
@@ -887,26 +890,26 @@ void strat_test_point2(){
 
 #ifdef USE_TRIANGLE_TORCHE
 			case PLACEMENT_TORCHE1 :
-				state = try_going(1650, COLOR_Y(1150), PLACEMENT_TORCHE1, END_TORCHE1, POINT_DEPOSE_FRESCO, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(1650, COLOR_Y(1150), PLACEMENT_TORCHE1, END_TORCHE1, POINT_DEPOSE_FRESCO, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 				break;
 
 			case END_TORCHE1 :
-				state = try_going_until_break(650, COLOR_Y(1150), END_TORCHE1, END2_TORCHE1, POINT_DEPOSE_FRESCO, FAST,(global.env.color == RED)?FORWARD:BACKWARD, NO_DODGE_AND_NO_WAIT);
+				state = try_going_until_break(650, COLOR_Y(1150), END_TORCHE1, END2_TORCHE1, POINT_DEPOSE_FRESCO, FAST,(global.env.color == RED)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 				break;
 
 			case END2_TORCHE1 :
-				state = try_going(500, 1500, END2_TORCHE1, RAMASSER_FRUIT_ARBRE2, RAMASSER_FRUIT_ARBRE2, SLOW, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(500, 1500, END2_TORCHE1, RAMASSER_FRUIT_ARBRE2, RAMASSER_FRUIT_ARBRE2, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
 				break;
 #endif
 
 				// Depose fresque
 			case POINT_DEPOSE_FRESCO:
-				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, RAMASSER_FRUIT_ARBRE2, POINT_DEPOSE_FRESCO, (global.env.color == RED)? FORWARD:BACKWARD, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, RAMASSER_FRUIT_ARBRE2, POINT_DEPOSE_FRESCO, (global.env.color == RED)? FORWARD:BACKWARD, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
 				break;
 
 //				// Tire seconde balle
 //			case LANCE_LAUNCHER_ENNEMY:
-//				state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,RAMASSER_FRUIT_ARBRE2,ERROR);
+//				state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color==RED)?YELLOW:RED),LANCE_LAUNCHER_ENNEMY,RAMASSER_FRUIT_ARBRE2,ERROR);
 //				break;
 
 				// Rammasse second groupe de fruit
@@ -932,11 +935,11 @@ void strat_test_point2(){
 
 #ifdef USE_TRIANGLE_TORCHE
 			case PLACEMENT_TORCHE2 :
-				state = try_going(1650, COLOR_Y(1850), PLACEMENT_TORCHE2, END_TORCHE2, POINT_DEPOSE_FRUIT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(1650, COLOR_Y(1850), PLACEMENT_TORCHE2, END_TORCHE2, POINT_DEPOSE_FRUIT, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 				break;
 
 			case END_TORCHE2 :
-				state = try_going(600, COLOR_Y(1850), END_TORCHE2, DEPOSER_FRUIT, POINT_DEPOSE_FRUIT, FAST, (global.env.color == RED)?FORWARD:BACKWARD, NO_DODGE_AND_NO_WAIT);
+				state = try_going(600, COLOR_Y(1850), END_TORCHE2, DEPOSER_FRUIT, POINT_DEPOSE_FRUIT, FAST, (global.env.color == RED)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 				break;
 #endif
 
@@ -945,7 +948,7 @@ void strat_test_point2(){
 				if(presenceFruit == FALSE){
 					state = VERIFY;
 				}else
-					state = PATHFIND_try_going(M0, POINT_DEPOSE_FRUIT, DEPOSER_FRUIT, DEPOSER_FRUIT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					state = PATHFIND_try_going(M0, POINT_DEPOSE_FRUIT, DEPOSER_FRUIT, DEPOSER_FRUIT, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
 				break;
 
 			case DEPOSER_FRUIT:
@@ -1008,7 +1011,7 @@ void strat_test_point2(){
 }
 
 void strat_test_point(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_POINT,
 		IDLE,
 		POS_DEPART,
 		POINT_A1, // Point arbre1A cote couloir
@@ -1075,7 +1078,7 @@ void strat_test_point(){
 
 
 	case LANCE_LAUNCHER:
-		state = check_sub_action_result(strat_lance_launcher(FALSE),LANCE_LAUNCHER,POINT_M0,ERROR);
+		state = check_sub_action_result(strat_lance_launcher(FALSE,global.env.color),LANCE_LAUNCHER,POINT_M0,ERROR);
 		break;
 
 
@@ -1086,7 +1089,7 @@ void strat_test_point(){
 		state = check_sub_action_result(strat_manage_fresco(),DEPOSER_FRESQUE,LANCE_LAUNCHER_ENNEMY,ERROR);
 		break;
 	case LANCE_LAUNCHER_ENNEMY:
-		state = check_sub_action_result(strat_lance_launcher_ennemy(),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
+		state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color==RED)?YELLOW:RED),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
 		break;
 
 
@@ -1149,7 +1152,7 @@ void strat_test_point(){
 }
 
 void strat_test_fresque(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_FRESQUE,
 		IDLE,
 		POS_DEPART,
 		POINT_C1,
@@ -1252,7 +1255,7 @@ error_e protected_fires(protected_fires_e fires){
 		case POINT_1:	//no break;
 		case POINT_2:	//no break;
 		case POINT_3:
-			state = PATHFIND_try_going(points[next_point_protected-POINT_0], state, DONE,ERROR,ANY_WAY,FAST, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = PATHFIND_try_going(points[next_point_protected-POINT_0], state, DONE,ERROR,ANY_WAY,FAST, NO_DODGE_AND_WAIT, END_AT_LAST_POINT); //No dodge volontaire
 			if(state != next_point_protected)
 			{
 				BUZZER_play(200, DEFAULT_NOTE, 2);
@@ -1279,7 +1282,7 @@ error_e protected_fires(protected_fires_e fires){
 
 
 error_e strat_manage_fresco(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_MANAGE_FRESCO,
 		IDLE,
 		GET_IN,
 		CHOICE_GET_IN,
@@ -1436,7 +1439,7 @@ error_e strat_manage_fresco(){
 }
 
 error_e strat_file_fresco(Sint16 posY){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_FILE_FRESCO,
 		IDLE,
 		WALL,
 		BEFORE_WALL,
@@ -1473,11 +1476,11 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case BEFORE_WALL:
-			state = try_going(270,posY,BEFORE_WALL,WALL,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT);
+			state = try_going(270,posY,BEFORE_WALL,WALL,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case WALL:
-			state = try_going(170,posY,WALL,PUSH_MOVE,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT); // Si en erreur on va a END seule veut dire qu un triangle a géné, la strat_manage fresco va donc choisir une autre position
+			state = try_going(170,posY,WALL,PUSH_MOVE,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT); // Si en erreur on va a END seule veut dire qu un triangle a géné, la strat_manage fresco va donc choisir une autre position
 			break;
 
 		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
@@ -1492,7 +1495,7 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case END:
-			state = try_going_until_break(400,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(400,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case END_IMPOSSIBLE:
@@ -1503,7 +1506,7 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case END_ERROR: //Pour le faire forcer à partir au droit
-			state = try_going_until_break(400,posY,END_ERROR,ERROR,END_IMPOSSIBLE_ERROR,FAST,FORWARD,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(400,posY,END_ERROR,ERROR,END_IMPOSSIBLE_ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case END_IMPOSSIBLE_ERROR:
@@ -1604,124 +1607,182 @@ error_e strat_file_fresco(Sint16 posY){
 	return IN_PROGRESS;
 }
 
-error_e strat_lance_launcher(bool_e lanceAll){
-	CREATE_MAE_WITH_VERBOSE(0,
+#define OFFSET_BALL_LAUNCHER	20		//Distance entre le centre du robot et le centre du ball launcher
+
+error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_LANCE_LAUNCHER,
 		IDLE,
 		GET_IN,
 		POS_BEGINNING,
-		LANCE_LAUNCHER,
+		POS_LAUNCH,
 		POS_END,
-		GET_OUT_WITH_ERROR,
-		DONE,
 		ERROR,
-		ERROR_WITH_GET_OUT
+		GET_OUT_WITH_ERROR,
+		GOBACK_FIRST_POINT,
+		GOBACK_LAST_POINT,
+		DONE,
+		RETURN_NOT_HANDLED
 	);
 
-	static Uint8 get_out_try = 0;
-	static GEOMETRY_point_t escape_point[2];
+	//static Uint8 get_out_try = 0;
+	//static GEOMETRY_point_t escape_point[2];
 
-	static GEOMETRY_point_t dplt[2]; // Deplacement
+	static displacement_t dplt[3]; // Deplacement
 	static way_e sensRobot;
 	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
 	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
+	Uint16 zone_access_posShoot_x1, zone_access_posShoot_x2, zone_access_posShoot_y1, zone_access_posShoot_y2;
+	Uint16 zone_access_firstPoint_y1, zone_access_firstPoint_y2;
+	Uint16 middle_mammouth;
 
 	switch(state){
 		case IDLE:
-			 if(global.env.pos.y > 750  && global.env.color == RED){ // Rouge milieu
-				dplt[0].x = ELOIGNEMENT_SHOOT_BALL + 40;	//550 : pour pouvoir tourner sur place !
-				dplt[0].y = 1200;
+			dplt[0].point.x = ELOIGNEMENT_SHOOT_BALL + 40;	//550 : pour pouvoir tourner sur place lorsqu'on est sur le premier point !
+			dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL;
+			dplt[2].point.x = ELOIGNEMENT_SHOOT_BALL + 40;	//	pour pouvoir tourner sur place lorsqu'on est sur le dernier point !
+			dplt[0].speed = FAST;
+			dplt[1].speed = SPEED_LANCE_LAUNCHER;
+			dplt[2].speed = SPEED_LANCE_LAUNCHER;
 
-				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-				dplt[1].y = 300;
+			middle_mammouth = (mammouth == RED)?750:2250;
 
-				sensRobot = BACKWARD;
-				sensShoot = FALSE;
-				posShoot = 800;
-
-			}else if(global.env.color == RED){	// Rouge et case depart
-				dplt[0].x = ELOIGNEMENT_SHOOT_BALL + 40;	//550 : pour pouvoir tourner sur place !
-				dplt[0].y = 300;
-
-				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-				dplt[1].y = 1100;
-
+			if(global.env.pos.y < middle_mammouth)	//Par rapport au mammouth visé, je suis plutôt coté rouge
+			{
 				sensRobot = FORWARD;
 				sensShoot = TRUE;
-				posShoot = 640;
-			}else if(global.env.pos.y > 2225){ // Jaune, case depart
-				dplt[0].x = ELOIGNEMENT_SHOOT_BALL + 40;	//550 : pour pouvoir tourner sur place !
-				dplt[0].y = 2700;
-
-				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-				dplt[1].y = 1900;
-
+				if(mammouth == RED)		//3 points, sens rouge vers jaune, pour le mammouth rouge
+				{
+					posShoot = 640 - OFFSET_BALL_LAUNCHER;
+					zone_access_posShoot_x1 = 300;
+					zone_access_posShoot_x2 = 600;
+					zone_access_posShoot_y1 = 0;
+					zone_access_posShoot_y2 = 450;
+					zone_access_firstPoint_y1 = 0;
+					zone_access_firstPoint_y2 = 750;
+					dplt[0].point.y = 500;
+					dplt[1].point.y = posShoot;
+					dplt[2].point.y = 1100;
+				}
+				else					//3 points, sens rouge vers jaune, pour le mammouth jaune
+				{
+					posShoot = 2140 - OFFSET_BALL_LAUNCHER;
+					zone_access_posShoot_x1 = 400;
+					zone_access_posShoot_x2 = 600;
+					zone_access_posShoot_y1 = 1500;
+					zone_access_posShoot_y2 = 2000;
+					zone_access_firstPoint_y1 = 1800;
+					zone_access_firstPoint_y2 = 2300;
+					dplt[0].point.y = 1900;
+					dplt[1].point.y = posShoot;
+					dplt[2].point.y = 2500;
+				}
+			}
+			else							//Par rapport au mammouth visé, je suis plutôt coté jaune
+			{
 				sensRobot = BACKWARD;
 				sensShoot = FALSE;
-				posShoot = 2340;
-
-			}else{ // Jaune milieu
-				dplt[0].x = ELOIGNEMENT_SHOOT_BALL + 40;	//550 : pour pouvoir tourner sur place !
-				dplt[0].y = 1800;
-
-				dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-				dplt[1].y = 2700;
-
-				sensRobot = FORWARD;
-				sensShoot = TRUE;
-				posShoot = 2100;
-
+				if(mammouth == RED)		//3 points, sens jaune vers rouge, pour le mammouth rouge
+				{
+					posShoot = 860 + OFFSET_BALL_LAUNCHER;
+					zone_access_posShoot_x1 = 400;
+					zone_access_posShoot_x2 = 600;
+					zone_access_posShoot_y1 = 3000-1500;
+					zone_access_posShoot_y2 = 3000-2000;
+					zone_access_firstPoint_y1 = 3000-1800;
+					zone_access_firstPoint_y2 = 3000-2300;
+					dplt[0].point.y = 1100;
+					dplt[1].point.y = posShoot;
+					dplt[2].point.y = 500;
+				}
+				else					//3 points, sens jaune vers rouge, pour le mammouth jaune
+				{
+					posShoot = 2360 + OFFSET_BALL_LAUNCHER;
+					zone_access_posShoot_x1 = 300;
+					zone_access_posShoot_x2 = 600;
+					zone_access_posShoot_y1 = 3000-0;
+					zone_access_posShoot_y2 = 3000-450;
+					zone_access_firstPoint_y1 = 3000-0;
+					zone_access_firstPoint_y2 = 3000-750;
+					dplt[0].point.y = 2500;
+					dplt[1].point.y = posShoot;
+					dplt[2].point.y = 1900;
+				}
 			}
 
-			 escape_point[0] = dplt[0];
-			 escape_point[1] = dplt[1];
 
-			 if((global.env.color == RED && (est_dans_carre(200, 2000, 100, 1350, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) || est_dans_carre(250, 750, 100, 1800, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-					 || (global.env.color == YELLOW && (est_dans_carre(200, 2000, 1650, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) || est_dans_carre(250, 750, 1200, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))))
-				 state = POS_BEGINNING;
-			 else
-				 state = GET_IN;
+			//Plusieurs cas possibles :
+			//1- on peut se rendre au premier point sans s'arrêter pour faire la trajectoire de lancé
+			//2- on peut se rendre au premier point en s'y arrêtant puis faire la trajectoire de lancé
+			//3- on ne peut pas s'y rendre directement -> pathfind
+			if(est_dans_carre(zone_access_posShoot_x1, zone_access_posShoot_x2, zone_access_posShoot_y1, zone_access_posShoot_y2, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			{	//1- on peut se rendre directement au point de lancé
+				state = POS_LAUNCH;
+			}
+			else if(est_dans_carre(400, 1800, zone_access_firstPoint_y1, zone_access_firstPoint_y2, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			{	//2- on peut se rendre au premier point en s'y arrêtant puis faire la trajectoire de lancé
+				state = POS_BEGINNING;
+			}
+			else
+			{	//3- on ne peut pas s'y rendre directement -> pathfind
+				state = GET_IN;
+			}
+
+
 			break;
 
 		case GET_IN:
-			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].x,dplt[0].y, 0x00),
-					GET_IN, POS_BEGINNING, ERROR_WITH_GET_OUT, ANY_WAY, FAST,DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].point.x,dplt[0].point.y, 0x00),
+					GET_IN, POS_LAUNCH, RETURN_NOT_HANDLED, ANY_WAY, FAST,DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//On considère que le point du pathfind est satisfaisant pour rejoindre directement ensuite le point de lancé
 			break;
 
 		case POS_BEGINNING:
-			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(dplt[0].point.x,dplt[0].point.y,POS_BEGINNING,POS_LAUNCH,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
 			break;
-
-		case POS_END:
+		case POS_LAUNCH:
 			if(entrance)
 				ASSER_WARNER_arm_y(posShoot);
 
-			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,DONE,ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going_multipoint(&dplt[1], 2, POS_LAUNCH, DONE , ERROR, sensRobot, NO_DODGE_AND_WAIT, END_AT_BREAK);
 
-			if(global.env.asser.reach_y){
-				if(lanceAll == TRUE)
-					ACT_lance_launcher_run(ACT_Lance_ALL,sensShoot);
-				else
-					ACT_lance_launcher_run(ACT_Lance_5_BALL,sensShoot);
+			if(global.env.asser.reach_y)		//Peu probable... mais par sécurité (si on était super lent, on va peut etre recevoir le warner avant le point de freinage
+			{
+				ACT_lance_launcher_run((lanceAll)?ACT_Lance_ALL:((mammouth==global.env.color)?ACT_Lance_5_BALL:ACT_Lance_1_BALL),sensShoot);
+				set_sub_act_done((mammouth == global.env.color)?SUB_LANCE:SUB_LANCE_ADV,TRUE);	//On lance, donc l'action est faite...
 			}
-			break;
-
-		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
-			if(state != GET_OUT_WITH_ERROR)
-				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
-			break;
-
-		case DONE:
-			state = IDLE;
-			set_sub_act_done(SUB_LANCE,TRUE);
-			return END_OK;
 			break;
 
 		case ERROR:
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case ERROR_WITH_GET_OUT :
+		case GET_OUT_WITH_ERROR :
+			//On recherche le point de sortie le plus proche.
+			if(global.env.pos.x > 530)	//Le point actuel est acceptable comme sortie
+				state = RETURN_NOT_HANDLED;
+			else
+			{
+				if(absolute(global.env.pos.y - 1500) < 300)	//Je suis a moins de 300 de l'axe de symétrie du terrain
+					state = RETURN_NOT_HANDLED;		//Je peux rendre la main
+				else
+					state = GOBACK_FIRST_POINT;		//Je suis trop proche du bac pour pouvoir rendre la main
+			}
+			break;
+		case GOBACK_FIRST_POINT:
+			state = try_going(dplt[0].point.x,dplt[0].point.y,GOBACK_FIRST_POINT,RETURN_NOT_HANDLED,GOBACK_LAST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GOBACK_LAST_POINT:
+			state = try_going(dplt[2].point.x,dplt[2].point.y,GOBACK_LAST_POINT,RETURN_NOT_HANDLED,GOBACK_FIRST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case DONE:
+			state = IDLE;
+
+			return END_OK;
+			break;
+
+
+
+		case RETURN_NOT_HANDLED :
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
@@ -1732,9 +1793,9 @@ error_e strat_lance_launcher(bool_e lanceAll){
 
 	return IN_PROGRESS;
 }
-
+/*
 error_e strat_lance_launcher_ennemy(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_LANCE_LAUNCHER_ENNEMY,
 		IDLE,
 		GET_IN,
 		POS_BEGINNING,
@@ -1849,7 +1910,7 @@ error_e strat_lance_launcher_ennemy(){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -1865,7 +1926,7 @@ error_e strat_lance_launcher_ennemy(){
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case ERROR_WITH_GET_OUT :
+		case RETURN_NOT_HANDLED :
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
@@ -1876,9 +1937,11 @@ error_e strat_lance_launcher_ennemy(){
 
 	return IN_PROGRESS;
 }
+*/
+
 
 error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_X,
 		IDLE,
 		RUSH_WALL,
 		WAIT,
@@ -1920,13 +1983,13 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
 
 		case GET_OUT :
 			if(global.env.pos.x > 1000)
-				state = try_going(wanted_x - 50, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(wanted_x - 50, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(wanted_x + 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(wanted_x + 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -1947,7 +2010,7 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
 }
 
 error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_Y,
 		IDLE,
 		RUSH_WALL,
 		WAIT,
@@ -1988,13 +2051,13 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 
 		case GET_OUT :
 			if(global.env.pos.y > 1500)
-				state = try_going(global.env.pos.x, wanted_y - 80, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(global.env.pos.x, wanted_y - 80, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(global.env.pos.x, wanted_y + 80, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(global.env.pos.x, wanted_y + 80, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -2015,7 +2078,7 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 }
 
 error_e recalage_begin_zone(color_e begin_zone_color){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_BEGIN_ZONE,
 		IDLE,
 		GET_IN,
 		PLACEMENT_RECALAGE_X,
@@ -2047,16 +2110,16 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 
 		case GET_IN :
 			if(begin_zone_color == RED)
-				state = PATHFIND_try_going(A1, GET_IN, PLACEMENT_RECALAGE_Y, ERROR_WITH_GET_OUT, ANY_WAY, FAST , NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(A1, GET_IN, PLACEMENT_RECALAGE_Y, ERROR_WITH_GET_OUT, ANY_WAY, FAST , DODGE_AND_WAIT, END_AT_BREAK);
 			else
-				state = PATHFIND_try_going(Z1, GET_IN, PLACEMENT_RECALAGE_Y, ERROR_WITH_GET_OUT, ANY_WAY, FAST , NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(Z1, GET_IN, PLACEMENT_RECALAGE_Y, ERROR_WITH_GET_OUT, ANY_WAY, FAST , DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case PLACEMENT_RECALAGE_Y :
 			if(begin_zone_color == RED)
-				state = try_going(ELOIGNEMENT_SHOOT_BALL, 200, PLACEMENT_RECALAGE_Y, RECALAGE_Y, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+				state = try_going(ELOIGNEMENT_SHOOT_BALL, 200, PLACEMENT_RECALAGE_Y, RECALAGE_Y, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(ELOIGNEMENT_SHOOT_BALL, 2800, PLACEMENT_RECALAGE_Y, RECALAGE_Y, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+				state = try_going(ELOIGNEMENT_SHOOT_BALL, 2800, PLACEMENT_RECALAGE_Y, RECALAGE_Y, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case RECALAGE_Y :
@@ -2068,9 +2131,9 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 
 		case PLACEMENT_RECALAGE_X :
 			if(begin_zone_color == RED)
-				state = try_going(200, 225, PLACEMENT_RECALAGE_X, RECALAGE_X, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+				state = try_going(200, 225, PLACEMENT_RECALAGE_X, RECALAGE_X, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(200, 2775, PLACEMENT_RECALAGE_X, RECALAGE_X, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+				state = try_going(200, 2775, PLACEMENT_RECALAGE_X, RECALAGE_X, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case RECALAGE_X :
@@ -2082,13 +2145,13 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 
 		case GET_OUT :
 			if(begin_zone_color == RED)
-				state = try_going(600, 300, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(600, 300, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(600, 2700, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+				state = try_going(600, 2700, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -2112,7 +2175,7 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 
 void strat_test_vide(){
 
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_VIDE,
 		INIT,
 		AVANCER,
 		DONE
@@ -2136,7 +2199,7 @@ void strat_test_vide(){
 }
 
 void strat_test_small_arm(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_SMALL_ARM,
 		INIT,
 		IDLE,
 		MID,
