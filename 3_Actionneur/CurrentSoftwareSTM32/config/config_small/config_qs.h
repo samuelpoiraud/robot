@@ -43,14 +43,12 @@
 /* Asservissement en position/vitesse de moteurs CC */
 	/* déclarer l'utilisation du pilote */
 	#define USE_DCMOTOR2
-	/* timer utilisé pour l'asservissement (1, 2, ou 3) */
-	#define DCM_TIMER			1
 	/* définir le nombre d'actionneurs asservis */
-	#define DCM_NUMBER			4
+	#define DCM_NUMBER			1
 	/* Période d'asservisement (en ms) */
-	#define DCM_TIMER_PERIOD	2  //Bas pour le lanceur de balle ...
+	#define DCM_TIME_PERIOD	10
 	/* nombre maximum de positions à gérer par moteur */
-	#define DCMOTOR_NB_POS		3
+	#define DCMOTOR_NB_POS		1
 
 /* Servo-Moteurs AX12 */
 // !!!!!!!!!!!!!!!! ADC 2 & 3 sont sur les pins de l'uart 2 !!!!!!!!!!!!!!!!

@@ -43,9 +43,13 @@ typedef struct {
 	Uint8 pwmNum;
 	GPIO_TypeDef* pwmWayPort;
 	Uint8 pwmWayBit;
+	bool_e double_PID;
 	Uint16 kp;
 	Uint16 ki;
 	Uint16 kd;
+	Uint16 kp2;
+	Uint16 ki2;
+	Uint16 kd2;
 	sensor_read_fun_t sensorRead;
 } ARM_motor_data_t;
 

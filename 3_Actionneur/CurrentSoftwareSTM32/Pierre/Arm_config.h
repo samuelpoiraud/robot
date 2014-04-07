@@ -23,9 +23,13 @@
 #define ARM_ACT_UPDOWN_ID_POTAR_ADC_ID           ADC_11
 
 //#define ARM_ACT_UPDOWN                           0
+#define ARM_ACT_UPDOWN_DOUBLE_PID				 TRUE
 #define ARM_ACT_UPDOWN_ASSER_KP                  100
 #define ARM_ACT_UPDOWN_ASSER_KI                  0
 #define ARM_ACT_UPDOWN_ASSER_KD                  0
+#define ARM_ACT_UPDOWN_ASSER_KP2                 100
+#define ARM_ACT_UPDOWN_ASSER_KI2                 0
+#define ARM_ACT_UPDOWN_ASSER_KD2                 0
 #define ARM_ACT_UPDOWN_ASSER_TIMEOUT             5000
 #define ARM_ACT_UPDOWN_ASSER_POS_EPSILON         20
 #define ARM_ACT_UPDOWN_ASSER_POS_LARGE_EPSILON   300 //arbitraire, a changer
