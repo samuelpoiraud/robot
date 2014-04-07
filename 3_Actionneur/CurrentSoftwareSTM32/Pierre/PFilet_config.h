@@ -37,6 +37,8 @@
 #define NB_OSC_STRING					6			//((3500-TIME_BEFORE_FREE_STRING)/TIME_OSC_STRING) pour avoir des oscillations jusqu'a la fin du match
 #define EPSILON_POS_FILET				8
 
+#define FILET_AX12_MAX_VALUE	240
+#define FILET_AX12_MIN_VALUE	120
 
 #endif	/* PFILET_CONFIG_H */
 

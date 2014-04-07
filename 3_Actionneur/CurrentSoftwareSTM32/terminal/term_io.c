@@ -6,9 +6,12 @@
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_outputlog.h"
 #include "../clock.h"
+#include "../config/config_global.h"
 #ifdef I_AM_ROBOT_BIG
 	#include "../Pierre/Arm_config.h"
 	#include "../config/config_big/config_pin.h"
+	#include "../Pierre/PFilet_config.h"
+	#include "../Pierre/PFruit_config.h"
 #else
 	#include "../Guy/Arm_config.h"
 	#include "../config/config_small/config_pin.h"
@@ -35,8 +38,14 @@ terminal_motor_s terminal_motor[] = {
 	DECLARE_AX12_RX24(2, '1', ARM_ACT_RX24),
 	DECLARE_AX12_RX24(2, '2', ARM_ACT_AX12_MID),
 	DECLARE_AX12_RX24(2, '3', ARM_ACT_AX12_TRIANGLE),
-	DECLARE_MOTOR(2, '5', ARM_ACT_UPDOWN, ARM_readDCMPos),
-	DECLARE_AX12_RX24(2, '4', SMALL_ARM_AX12)
+	DECLARE_MOTOR(2,	 '4', ARM_ACT_UPDOWN, ARM_readDCMPos),
+	DECLARE_AX12_RX24(2, '5', SMALL_ARM_AX12),
+	#ifdef I_AM_ROBOT_BIG
+		DECLARE_AX12_RX24(2, '6', FILET_AX12),
+		DECLARE_AX12_RX24(2, '7', FRUIT_LABIUM_AX12)
+	#else
+
+	#endif
 };
 
 Uint8 terminal_motor_size = sizeof(terminal_motor)/sizeof(terminal_motor_s);
