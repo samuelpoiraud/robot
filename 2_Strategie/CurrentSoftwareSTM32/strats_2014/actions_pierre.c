@@ -1222,6 +1222,7 @@ error_e protected_fires(protected_fires_e fires){
 	{
 		state = IDLE;		//On force l'état IDLE si les feux à protéger ne sont plus les mêmes...
 	}
+
 	switch(state){
 		case IDLE:
 
@@ -1255,7 +1256,12 @@ error_e protected_fires(protected_fires_e fires){
 		case POINT_1:	//no break;
 		case POINT_2:	//no break;
 		case POINT_3:
-			state = PATHFIND_try_going(points[next_point_protected-POINT_0], state, DONE,ERROR,ANY_WAY,FAST, NO_DODGE_AND_WAIT, END_AT_LAST_POINT); //No dodge volontaire
+
+			if(stop_request) // Le fait sortir a tout moment de la strat
+				state = DONE;
+			else
+				state = PATHFIND_try_going(points[next_point_protected-POINT_0], state, DONE,ERROR,ANY_WAY,FAST, NO_DODGE_AND_WAIT, END_AT_LAST_POINT); //No dodge volontaire
+
 			if(state != next_point_protected)
 			{
 				BUZZER_play(200, DEFAULT_NOTE, 2);
