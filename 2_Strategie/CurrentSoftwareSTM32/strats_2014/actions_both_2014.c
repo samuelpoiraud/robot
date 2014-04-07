@@ -239,7 +239,7 @@ void strat_reglage_odo_rotation(void){
 
 
 void strat_reglage_odo_translation(void){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_REGLAGE_ODO_TRANSLATION,
 		IDLE,
 		CALAGE,
 		REINIT,
@@ -376,7 +376,7 @@ void strat_reglage_odo_translation(void){
  *		Il va faire un rectangle sens anti-trigo
  */
 void strat_reglage_odo_symetrie(void){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_REGLAGE_ODO_SYMETRIE,
 		IDLE,
 		CALAGE,
 		REINIT,
@@ -546,7 +546,7 @@ void send_default_coefs(void)
 //Précondition : la première trajectoire (coefs par défaut) doit fonctionner sans FAIL !!
 bool_e strat_reglage_asser_compute_coefs(time32_t duration)
 {
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_REGLAGE_COMPUTE_COEFS,
 				INIT,
 				FIRST_MEASURE_LAUNCH,
 				FIRST_MEASURE_SAVE_DURATION,
@@ -897,7 +897,7 @@ void test_Pathfind(void){
 
 
 void test_strat_robot_virtuel_with_avoidance(void){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ROBOT_VIRTUEL_AVOIDANCE,
 		INIT,
 		GOTO,
 		BACK,

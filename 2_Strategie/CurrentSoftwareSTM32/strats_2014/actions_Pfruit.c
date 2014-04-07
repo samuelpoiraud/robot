@@ -34,7 +34,7 @@ static tree_sucess_e fruit_group_adversary = NO_TREE;
 bool_e presenceFruit = FALSE;
 
 error_e strat_file_fruit(){
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_FILE_FRUITS,
 		IDLE,
 		GET_IN,
 		GOTO_FIRST_DISPOSE_POINT,
@@ -101,7 +101,7 @@ error_e strat_file_fruit(){
 
 		case GET_IN :
 			//Le point de départ est : M1...
-			state = PATHFIND_try_going(M1,GET_IN, GOTO_FIRST_DISPOSE_POINT, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(M1,GET_IN, GOTO_FIRST_DISPOSE_POINT, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case GOTO_FIRST_DISPOSE_POINT:
@@ -190,7 +190,7 @@ error_e strat_file_fruit(){
 
 
 error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e parmSens){ //Commence côté mammouth si sens == TREE_TRIGO
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_MANAGE_FRUIT,
 		IDLE,
 		RECUP_TREE_1,
 		RECUP_TREE_1_SIMPLE,
@@ -361,7 +361,7 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 }
 
 error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mammouth si sens == TREE_TRIGO
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_TAKE_TREE1_DOUBLE,
 		IDLE,
 		GET_IN,
 		POS_DEPART,
@@ -425,7 +425,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
@@ -468,7 +468,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -500,7 +500,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 }
 
 error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mammouth si sens == TREE_HORAIRE
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_TAKE_TREE2_DOUBLE,
 		IDLE,
 		GET_IN,
 		POS_DEPART,
@@ -575,7 +575,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 				else
 					point_pathfind = C3;
 			}
-			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
@@ -617,7 +617,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -649,7 +649,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 }
 
 error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TREE_TRIGO
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE,
 		IDLE,
 		GET_IN,
 		POS_DEPART,
@@ -716,7 +716,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
@@ -733,7 +733,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
@@ -770,7 +770,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 }
 
 error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){ //Commence côté mammouth si sens == TREE_TRIGO
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_TAKE_TREE2_SIMPLE,
 		IDLE,
 		GET_IN,
 		POS_DEPART,
@@ -834,7 +834,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 		case GET_IN:
 			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
+					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
@@ -851,7 +851,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			if(state != GET_OUT_WITH_ERROR)
 				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
 			break;
