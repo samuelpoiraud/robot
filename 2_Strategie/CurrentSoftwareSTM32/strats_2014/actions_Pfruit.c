@@ -341,14 +341,21 @@ error_e manage_fruit(tree_group_e group, tree_choice_e choiceTree,tree_way_e par
 					fruit_group_adversary = strat_fruit_sucess;
 			}
 
-			if(get_presenceFruit() == TRUE)
+			if(get_presenceFruit() == TRUE){
 				set_sub_act_done(SUB_DROP_FRUITS,FALSE);
+				set_sub_act_enable(SUB_DROP_FRUITS, TRUE);
+			}
 
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
+			if(get_presenceFruit() == TRUE){  // Meme si une strat ramasse de fruit a ete mise en erreur, cette derniere a peut etre ramasser des fruits
+				set_sub_act_done(SUB_DROP_FRUITS,FALSE);
+				set_sub_act_enable(SUB_DROP_FRUITS, TRUE);
+			}
+
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
