@@ -326,9 +326,10 @@
 
 	// Fonction de réception de message CAN
 	void ELEMENT_triangle_add_to_list(CAN_msg_t* msg);	// Ajoute le triangle du message can dans la liste
-	void ELEMENT_triangle_warner(CAN_msg_t* msg);		// Recupère le résultat du warner
+	void ELEMENT_triangle_warner(CAN_msg_t* msg);		// Récupère le résultat du warner
 	void ELEMENT_update_fruit_verin_state(CAN_msg_t* msg);	// Mets à jours l'état du labium
-	void ELEMENT_answer_scan_anything(CAN_msg_t* msg);	// Recupère le résultat du scan
+	void ELEMENT_answer_scan_anything(CAN_msg_t* msg);	// Récupère le résultat du scan
+	void ELEMENT_answer_pump(CAN_msg_t *msg);			// Récupère la réponse de la pompe
 
 	// Fonction utilisateur
 	void ELEMENT_afficher_triangle();			// Affiche tout les triangles que le scan a trouver
@@ -361,5 +362,8 @@
 
 	// Envois la nouvelle position de la torche par XBEE
 	void TORCH_CAN_send_msg(torch_choice_e choice, GEOMETRY_point_t pos);
+
+	// Attends que la pompe renvoie si elle détecte la une prise d'objet
+	Uint8 ELEMENT_wait_pump_capture_object(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
 #endif /* ndef ELEMENTS_H */

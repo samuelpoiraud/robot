@@ -17,7 +17,8 @@
 
 #define SCAN_TIMEOUT			4000
 #define LABIUM_TIMEOUT			500
-#define verin_order_TIMEOUT	200
+#define verin_order_TIMEOUT		200
+#define PUMP_TIMEOUT			500
 
 
 // Pour torche
@@ -37,6 +38,10 @@ static struct{
 	enum{NO_REPONSE, TRIANGLE_PRESENT, TRIANGLE_NO_PRESENT}state_warner_triangle;
 	Uint8 number_triangle;
 }warner_param;
+
+static enum{
+	PUMP_ANSWER_ANYTHING, PUMP_ANSWER_NO, PUMP_ANSWER_YES
+}pump_answer = PUMP_ANSWER_ANYTHING;
 
 static struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
 static Uint8 nb_objet[3];
@@ -98,6 +103,42 @@ void TORCH_CAN_send_msg(torch_choice_e choice, GEOMETRY_point_t pos){
 	msg.size = 5;
 
 	CANMsgToXbee(&msg,FALSE);
+}
+
+Uint8 ELEMENT_wait_pump_capture_object(Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	typedef enum
+	{
+		ASK,
+		WAIT,
+		DONE
+	}state_e;
+	static state_e state = ASK;
+	static time32_t timeLaunch;
+	CAN_msg_t msg;
+	switch(state){
+		case ASK:
+			pump_answer = PUMP_ANSWER_ANYTHING;
+			msg.sid = ACT_ASK_POMPE_IN_PRESSURE;
+			msg.size = 0;
+			CAN_send(&msg);
+			timeLaunch = global.env.match_time;
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(pump_answer != PUMP_ANSWER_ANYTHING || (global.env.match_time - timeLaunch > PUMP_TIMEOUT))
+				state = DONE;
+			break;
+
+		case DONE:
+			state = ASK;
+			if(pump_answer == PUMP_ANSWER_ANYTHING || pump_answer == PUMP_ANSWER_NO)
+				return fail_state;
+			else
+				return success_state;
+			break;
+	}
+	return in_progress;
 }
 
 Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance){
@@ -293,6 +334,10 @@ void ELEMENT_triangle_warner(CAN_msg_t* msg){
 	warner_param.number_triangle = msg->data[0];
 	if(msg->data[1])
 		warner_param.state_warner_triangle = TRIANGLE_PRESENT;
+}
+
+void ELEMENT_answer_pump(CAN_msg_t *msg){
+	pump_answer = (msg->data[0] == STRAT_ANSWER_POMPE_NO) ? PUMP_ANSWER_NO : PUMP_ANSWER_YES;
 }
 
 //------------------------------------
