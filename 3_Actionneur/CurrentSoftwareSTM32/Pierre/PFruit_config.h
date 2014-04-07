@@ -27,7 +27,8 @@
 /** Position initiale de l'AX12. Doit être un define du type PLATE_PLIER_AX12_* */
 	#define FRUIT_AX12_LABIUM_INIT_POS		FRUIT_AX12_LABIUM_CLOSE_POS
 
-
+#define FRUIT_LABIUM_AX12_MAX_VALUE	240
+#define FRUIT_LABIUM_AX12_MIN_VALUE	60
 
 /******** POMPE ********/
 
