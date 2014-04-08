@@ -64,7 +64,7 @@ volatile Sint32 vitesse_rotation_max;
 
 volatile Sint32 coefs[PILOT_NUMBER_COEFS];
 
-#define SOUS_QUANTIFICATION (2)	//Simplification de la courbe (permet de réduire le nombre de calculs de sinus..) Doit être une puissance de 2...
+#define SOUS_QUANTIFICATION (0)	//Simplification de la courbe (permet de réduire le nombre de calculs de sinus..) Doit être une puissance de 2...
 
 void PILOT_init(void)
 {
