@@ -36,7 +36,7 @@ static void REACH_POINT_C1_send_request();
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
-#define POS_Y_MANUAL_FRESCO 1350 // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
+#define POS_Y_MANUAL_FRESCO COLOR_Y(1350) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
 
 
 
@@ -1643,9 +1643,9 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 
 	switch(state){
 		case IDLE:
-			dplt[0].point.x = ELOIGNEMENT_SHOOT_BALL + 40;	//550 : pour pouvoir tourner sur place lorsqu'on est sur le premier point !
+			dplt[0].point.x = ELOIGNEMENT_SHOOT_BALL + 90;	//600 : pour pouvoir tourner sur place lorsqu'on est sur le premier point !
 			dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[2].point.x = ELOIGNEMENT_SHOOT_BALL + 40;	//	pour pouvoir tourner sur place lorsqu'on est sur le dernier point !
+			dplt[2].point.x = ELOIGNEMENT_SHOOT_BALL + 90;	//600 : pour pouvoir tourner sur place lorsqu'on est sur le dernier point !
 			dplt[0].speed = FAST;
 			dplt[1].speed = SPEED_LANCE_LAUNCHER;
 			dplt[2].speed = SPEED_LANCE_LAUNCHER;
