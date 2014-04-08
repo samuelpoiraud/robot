@@ -116,10 +116,7 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 				switch(command) {
 					case ACT_LANCELAUNCHER_RUN_1_BALL:
-						if(sens == TRUE)
 							orderShootLauncher[0] = 1;
-						else
-							orderShootLauncher[0] = 6;
 
 						lance_launcher_last_launch = 1;
 						break;
@@ -132,9 +129,9 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 							orderShootLauncher[0] = 6;
 						}else{
 							orderShootLauncher[4] = 5;
+							orderShootLauncher[0] = 6;
 							orderShootLauncher[3] = 3;
 							orderShootLauncher[2] = 4;
-							orderShootLauncher[1] = 1;
 							orderShootLauncher[0] = 2;
 						}
 
