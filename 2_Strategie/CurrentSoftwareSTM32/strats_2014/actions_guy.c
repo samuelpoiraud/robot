@@ -22,7 +22,7 @@ static void REACH_POINT_GET_OUT_INIT_send_request();
 
 // Par defaut si les deux defines suivant sont desactivés le guy va passer par le foyer centrale
 //#define WAY_INIT_TREE_SIDE  // Est prioritaire sur le chemin par le mammouth
-#define WAY_INIT_MAMMOUTH_SIDE
+//#define WAY_INIT_MAMMOUTH_SIDE
 
 
 //#define FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
@@ -33,6 +33,7 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 
 
 #define DIM_START_TRAVEL_TORCH 200
+#define ARM_TIMEOUT 500
 
 
 /* ----------------------------------------------------------------------------- */
@@ -51,6 +52,7 @@ void strat_inutile_guy(void){
 		IDLE,
 		POS_DEPART,
 		RAMEMENER_TORCH,
+		DO_TORCH,
 		DONE,
 		ERROR
 	);
@@ -60,11 +62,15 @@ void strat_inutile_guy(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,RAMEMENER_TORCH,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,DO_TORCH,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
 			break;
 
 		case RAMEMENER_TORCH:
-			state = check_sub_action_result(travel_torch_line(OUR_TORCH,PUSH_FRESCO,1750,250),RAMEMENER_TORCH,DONE,ERROR);
+			state = check_sub_action_result(travel_torch_line(OUR_TORCH,FILED_FRESCO,1750,250),RAMEMENER_TORCH,DONE,ERROR);
+			break;
+
+		case DO_TORCH:
+			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_OUR),DO_TORCH,DONE,ERROR);
 			break;
 
 		case DONE:
@@ -363,8 +369,56 @@ error_e sub_action_initiale_guy(){
 	return IN_PROGRESS;
 }
 
+error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
+		IDLE,
+		PUSH_TORCH,
+		RECULE,
+		PLACEMENT,
+		DEPLOY_TORCH,
+		ERROR,
+		DONE
+	);
 
-error_e travel_torch_line(torch_choice_e torch_choice,torch_push_e choice,Sint16 posEndxIn, Sint16 posEndyIn){
+
+
+	switch(state){
+		case IDLE :
+			break;
+
+		case PUSH_TORCH:
+			state = check_sub_action_result(travel_torch_line(torch_choice,filed,0, 0),PUSH_TORCH,RECULE,ERROR);
+			break;
+
+		case RECULE:
+			state = try_going(1500, 400, RECULE, PLACEMENT, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case PLACEMENT:
+			state = try_going(1600, 300, PLACEMENT, DEPLOY_TORCH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case DEPLOY_TORCH:
+			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,filed),DEPLOY_TORCH,DONE,ERROR);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+
+error_e travel_torch_line(torch_choice_e torch_choice,torch_filed_e choice,Sint16 posEndxIn, Sint16 posEndyIn){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
 		IDLE,
 		PLACEMENT,
@@ -391,16 +445,16 @@ error_e travel_torch_line(torch_choice_e torch_choice,torch_push_e choice,Sint16
 
 			torch = TORCH_get_position(torch_choice);
 
-			if(choice == PUSH_CHOICE){
+			if(choice == ANYWHERE){
 				posEnd.x = posEndxIn;
 				posEnd.y = posEndyIn;
-			}else if(choice == PUSH_FRESCO){
+			}else if(choice == FILED_FRESCO){
 				posEnd.x = 300;
 				posEnd.y = 1500;
-			}else if(choice == PUSH_HEARTH_ADV){
+			}else if(choice == HEARTH_OUR){
 				posEnd.x = 1600;
 				posEnd.y = COLOR_Y(300);
-			}else if(choice == PUSH_HEARTH_CENTRAL){
+			}else if(choice == HEARTH_CENTRAL){
 				posEnd.x = 800;
 				posEnd.y = COLOR_Y(1300);
 			}else{ // PUSH_CAVERN_ADV
@@ -471,6 +525,189 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 	msg.size = 0;
 
 	CANMsgToXbee(&msg,FALSE);
+}
+
+error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
+		IDLE,
+		OPEN,
+		TORCHE,
+		DOWN_ARM,
+		UP_ARM,
+		OPEN_2,
+		FILED_TRIANGLE,
+		BACK,
+		PREPARE_RETURN,
+		DOWN_RETURN,
+		RETURN,
+		INVERSE_PUMP,
+		DOWN_RETURN_2,
+		PREPARE_RETURN_2,
+		SAMLL_ARM_DEPLOYED,
+		SMALL_ARM_PARKED,
+		TAKE_RETURN,
+		OPEN_3,
+		ADVANCE,
+		OPEN_NOT_HANDLED,
+		PARKED_NOT_HANDLED,
+		ERROR,
+		DONE
+	);
+
+	static GEOMETRY_point_t torch;
+
+	static GEOMETRY_point_t point[3];
+	static Uint8 i = 0;
+
+	if(filed == HEARTH_OUR){
+		point[0] = (GEOMETRY_point_t){1800,COLOR_Y(200)};
+		point[1] = (GEOMETRY_point_t){1900,COLOR_Y(250)};
+		point[2] = (GEOMETRY_point_t){1900,COLOR_Y(250)};
+	}
+
+	switch(state){
+		case IDLE :
+			torch = TORCH_get_position(choiceTorch);
+			state = OPEN;
+			break;
+
+
+		case OPEN :
+			if(entrance)
+				; //Eteindre pompe
+
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN, TORCHE, PARKED_NOT_HANDLED);
+			break;
+
+		case TORCHE :
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, OPEN_NOT_HANDLED);
+		break;
+
+		case DOWN_ARM:
+			if(entrance)
+				; // Lancer la pompe
+
+			state = UP_ARM; // gera niveau avec i
+			break;
+
+		case UP_ARM:
+			if(i == 1) // Va retourne le deuxieme triangle
+				state = BACK;
+			else
+				state = OPEN_2;
+			break;
+
+		case OPEN_2:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_2, FILED_TRIANGLE, OPEN_NOT_HANDLED);
+			break;
+
+		case FILED_TRIANGLE :
+			if(entrance)
+				i++;
+
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, (i>=2)? DONE:OPEN, OPEN_NOT_HANDLED);
+
+			break;
+
+		case BACK:
+			state = try_going(1600, 400, BACK, PREPARE_RETURN, OPEN_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case PREPARE_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, DOWN_RETURN, OPEN_NOT_HANDLED);
+			break;
+
+		case DOWN_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN, RETURN, OPEN_NOT_HANDLED);
+			break;
+
+		case RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, FILED_TRIANGLE, OPEN_NOT_HANDLED);
+			break;
+
+		case INVERSE_PUMP:
+			state = DOWN_RETURN_2;
+			break;
+
+		case DOWN_RETURN_2:
+			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN_2, PREPARE_RETURN_2, OPEN_NOT_HANDLED);
+			break;
+
+		case PREPARE_RETURN_2:
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN_2, DOWN_RETURN, OPEN_NOT_HANDLED);
+			break;
+
+		case SAMLL_ARM_DEPLOYED:
+			state = SMALL_ARM_PARKED;
+			break;
+
+		case SMALL_ARM_PARKED:
+			if(entrance)
+				; // Eteindre pompe
+
+			state = TAKE_RETURN;
+			break;
+
+		case TAKE_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, TAKE_RETURN, OPEN_3, OPEN_NOT_HANDLED);
+			break;
+
+		case OPEN_3:
+			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, OPEN_3, PREPARE_RETURN_2, OPEN_NOT_HANDLED);
+			break;
+
+		case ADVANCE:
+			state = try_going(1700, 300, ADVANCE, OPEN_2, OPEN_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case OPEN_NOT_HANDLED:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_NOT_HANDLED, PARKED_NOT_HANDLED, ERROR);
+			break;
+
+		case PARKED_NOT_HANDLED:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
+			break;
+
+		case DONE:
+			// Eteindre pompe
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			// Eteindre pompe
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e ACT_arm_move(ARM_state_e state_arm,Uint8 x, Uint8 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;global.env.match_time;
+	static bool_e entrance = FALSE;
+
+	if(!entrance){
+		begin_time = global.env.match_time;
+
+		if(state_arm == ACT_ARM_POS_ON_TORCHE || state_arm == ACT_ARM_POS_ON_TRIANGLE)
+			ACT_arm_goto_XY(state_arm, x, y);
+		else
+			ACT_arm_goto(state_arm);
+
+
+		entrance = TRUE;
+	}
+
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT)
+		return fail_state;
+
+	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+		return success_state;
+
+	return in_progress;
 }
 
 void strat_test_arm(){
