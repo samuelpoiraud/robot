@@ -298,9 +298,16 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 	//si le noeud le plus proche est un noeud situé de l'autre coté d'un obstacle car les adversaires empêchent l'accès aux autres noeuds !!!!
 	//Le noeud le plus proche sans filtrage adverse... correspond à notre position, doit permettre d'accéder par la logique des voisinages au noeud le plus proche avec filtrage adverse/
 	//Sinon : pas de chemin !
-	if((from != from_without_adversaries) && !(PATHFIND_TST_NODE_IN(from_without_adversaries, nodes[n].neighbors)))
+	//AUTREMENT DIT.... (la même chose en différent)
+	//Si le noeud 'from' (le plus proche parmi ceux qui ne sont pas recouvert par des adversaires) 
+	//		n'est pas dans la liste des voisins du noeud réel le plus proche (from_without_adversaries).. 
+	//Alors, on ne peut pas considérer que l'on se trouve sur le noeud from...
+	if((from != from_without_adversaries) && !(PATHFIND_TST_NODE_IN(from, nodes[from_without_adversaries].neighbors)))
 		return 0;
 
+	//Une meilleure piste devrait être dans ce cas de choisir un point calculé permettant de s'extraire de l'adversaire.
+	
+		
 	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
 
 	/* On reinitialise les listes et penalites */
