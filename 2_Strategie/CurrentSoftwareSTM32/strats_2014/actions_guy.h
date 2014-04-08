@@ -26,7 +26,10 @@ void Strat_Detection_Triangle(void);
 void strat_test_warner_triangle(void);
 void strat_test_arm(void);
 
-error_e travel_torch_line(torch_choice_e torch_choice,torch_push_e choice,Sint16 posEndxIn, Sint16 posEndyIn);
+error_e travel_torch_line(torch_choice_e torch_choice,torch_filed_e choice,Sint16 posEndxIn, Sint16 posEndyIn);
 error_e sub_action_initiale_guy();
+error_e ACT_arm_move(ARM_state_e state_arm,Uint8 x, Uint8 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed);
+error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed);
 
 #endif /* ACTIONS_GUY_H_ */

@@ -67,7 +67,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	//--------------Sub action de guy
 
 	SUB_SCAN,
-
+	SUB_ACTION_INIT_GUY,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
