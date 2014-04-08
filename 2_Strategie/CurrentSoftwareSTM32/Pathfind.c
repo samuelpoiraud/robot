@@ -407,7 +407,7 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 	n = to;
 	suivant = to;
 
-	if(nb_displacements>0 && PATHFIND_manhattan_dist(xFrom, yFrom, nodes[from].x, nodes[from].y) < IGNORE_FIRST_POINT_DISTANCE)
+	if(nb_displacements>1 && PATHFIND_manhattan_dist(xFrom, yFrom, nodes[from].x, nodes[from].y) < IGNORE_FIRST_POINT_DISTANCE)
 	{	//Si le premier noeud est trop proche de nous pour qu'il faille le rejoindre, on considère qu'on y est déjà
 		nb_displacements--;	//Le premier déplacement ne compte pas...
 		//Comme ce serait le dernier à être enregistré... il ne sera pas enregistré.
