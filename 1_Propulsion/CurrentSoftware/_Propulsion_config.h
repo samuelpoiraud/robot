@@ -115,7 +115,7 @@
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT 0x0000
 
 	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010AC0	//Guy : 92mm entre roue codeuse et centre
-	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000B308  	//Pierre : 138mm entre roue codeuse et centre
+	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000B40F  	//Pierre : 138mm entre roue codeuse et centre - théorique : B308
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
 	// COEF_ODOMETRIE_ROTATION = 1024*4096*64*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
 	// d : diametre des roues codeuse en mm = 60
@@ -210,15 +210,15 @@
 	#define KRUSTY_KD_TRANSLATION 	(0x36) //0x80
 
 	#define TINY_KP_TRANSLATION 	(34)
-	#define KRUSTY_KP_TRANSLATION 	(32)
+	#define KRUSTY_KP_TRANSLATION 	(17)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
 	#define TINY_KD_ROTATION 	(288) //0x800
-	#define KRUSTY_KD_ROTATION 	(0x800) //0x800
+	#define KRUSTY_KD_ROTATION 	(0x200) //0x800
 
 	#define TINY_KP_ROTATION 	(130)//40 //0x80
-	#define KRUSTY_KP_ROTATION 	(0xA0) //0x80
+	#define KRUSTY_KP_ROTATION 	(0xF0) //0x80
 
 	//Ordre de grandeur :
 	//A la vitesse lumière, KV_TRANSLATION * vitesse_translation doit valoir 100*4096
@@ -230,7 +230,7 @@
 	#define KRUSTY_KV_ROTATION 	1//CHOMP 1
 
 	#define TINY_KV_TRANSLATION 	19
-	#define KRUSTY_KV_TRANSLATION 	19
+	#define KRUSTY_KV_TRANSLATION 	12
 
 	#ifdef CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION
 		#warning "mode non utilisé jusqu'à maintenant : coefs non reglés"
