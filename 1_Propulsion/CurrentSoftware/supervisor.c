@@ -181,8 +181,10 @@ void SUPERVISOR_error_check(bool_e reset_error_check)
 	}
 	//ERREUR DE POINT FICTIF PAS TROP LOIN, MAIS DE ROBOT QU'ARRIVE PAS !
 	//Conditions : robot non arrivé, mais robot statique depuis trop longtemps
+	//Si l'on est en mode bordure, et qu'on avance lentement, on aura une longue immobilité "normale" avant de considérer que le point fictif est trop loin et qu'on est "arrivé contre la bordure"
 	if(
 				!COPILOT_is_arrived()
+				&& COPILOT_get_border_mode() == NOT_BORDER_MODE
 				&& (absolute(global.real_speed_translation) < 4*PRECISION_ARRIVE_SPEED_TRANSLATION)
 				&& (absolute(global.real_speed_rotation) < 4*PRECISION_ARRIVE_SPEED_ROTATION)
 		)
