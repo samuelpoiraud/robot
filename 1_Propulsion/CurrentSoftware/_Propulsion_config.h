@@ -186,14 +186,14 @@
 
 	//BIG
 		//RED
-		#define BIG_RED_CALIBRATION_X  		260
-		#define BIG_RED_CALIBRATION_Y  		200
-		#define BIG_RED_CALIBRATION_TETA	3003		//environ 42° (42*71.5)
+		#define BIG_RED_CALIBRATION_X  		243
+		#define BIG_RED_CALIBRATION_Y  		191
+		#define BIG_RED_CALIBRATION_TETA	1981		//environ 28° (28*71.5)
 
 		//YELLOW
-		#define BIG_YELLOW_CALIBRATION_X  		260
-		#define BIG_YELLOW_CALIBRATION_Y  		(3000 - 200)
-		#define BIG_YELLOW_CALIBRATION_TETA 	9867	 //-42° + 180° fait une rotation à avoir les balles du bon côté
+		#define BIG_YELLOW_CALIBRATION_X  		243
+		#define BIG_YELLOW_CALIBRATION_Y  		(3000 - 191)
+		#define BIG_YELLOW_CALIBRATION_TETA 	10868	 //-28° + 180° fait une rotation à avoir les balles du bon côté
 
 
 
