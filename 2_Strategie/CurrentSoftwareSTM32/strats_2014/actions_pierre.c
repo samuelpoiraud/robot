@@ -166,7 +166,7 @@ error_e sub_action_initiale(){
 				state = GET_OUT;
 			}break;
 		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
-			state = try_going_until_break(510, COLOR_Y(425),GET_OUT,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);		//On force le passage si Guy est devant nous..........
+			state = try_going_until_break(500, COLOR_Y(327),GET_OUT,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);		//On force le passage si Guy est devant nous..........
 			break;
 		case LANCE_LAUNCHER:
 #ifdef ALL_SHOOT_OUR_MAMMOUTH
@@ -381,7 +381,7 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,LANCER_FILET,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,LANCE_LAUNCHER,ERROR,FAST,FORWARD,NO_AVOIDANCE);
 			break;
 
 		case LANCE_LAUNCHER:
