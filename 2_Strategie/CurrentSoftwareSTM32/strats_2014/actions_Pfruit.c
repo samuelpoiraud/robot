@@ -173,6 +173,8 @@ error_e strat_file_fruit(){
 
 		case DONE:
 			state = IDLE;
+			set_sub_act_done(SUB_DROP_FRUITS,TRUE);
+			set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
 			return END_OK;
 			break;
 
