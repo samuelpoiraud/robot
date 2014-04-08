@@ -92,7 +92,7 @@ error_e strat_file_fruit(){
 
 			//Zone d'acceptation
 			if(		est_dans_carre(0, 1000, COLOR_Y(1600), COLOR_Y(3000), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})
-				|| 	est_dans_carre(250, 700, 0, COLOR_Y(1600), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				|| 	est_dans_carre(250, 700, COLOR_Y(0), COLOR_Y(1700), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = GOTO_FIRST_DISPOSE_POINT;
 			else
 				state = GET_IN;
