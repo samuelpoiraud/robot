@@ -22,6 +22,7 @@
 #define DISTANCE_CONSIDERE_ADVERSARY				1000	//Distance entre nous et l'adversaire pour qu'il soit pris en compte (s'il est loin, on le néglige.. en espérant qu'il bouge d'ici à notre arrivée)
 #define	TIME_CONSIDERE_ADVERSARY					500		//[ms] temps au delà duquel un adversaire mis à jour n'est plus considéré
 #define NB_TRY_WHEN_DODGE							3		//Nombre de tentatives d'évitement (recalcul de chemin..)
+#define IGNORE_FIRST_POINT_DISTANCE					150		//Distance du noeud en dessous de laquelle on ne s'y rend pas et on attaque directement le voisin
 
 #ifndef USE_POLYGON
 
@@ -403,9 +404,16 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 	//}
 	/* On a le chemin inverse (to->from) */
 	nb_displacements = nodes[to].nb_nodes;
-	pathfind_debug_printf("Nodes : ");
 	n = to;
 	suivant = to;
+
+	if(nb_displacements>0 && PATHFIND_manhattan_dist(xFrom, yFrom, nodes[from].x, nodes[from].y) < IGNORE_FIRST_POINT_DISTANCE)
+	{	//Si le premier noeud est trop proche de nous pour qu'il faille le rejoindre, on considère qu'on y est déjà
+		nb_displacements--;	//Le premier déplacement ne compte pas...
+		//Comme ce serait le dernier à être enregistré... il ne sera pas enregistré.
+		pathfind_debug_printf("Le node %d est proche de nous. On ne va pas s'y rendre, on va sur le point suivant.\n",from);
+	}
+	pathfind_debug_printf("Nodes : ");
 	for(i=0;i<nb_displacements;i++)
 	{
 		displacements[nb_displacements-i-1].point.x = nodes[n].x;
