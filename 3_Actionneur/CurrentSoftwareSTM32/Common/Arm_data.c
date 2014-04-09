@@ -103,13 +103,13 @@ void init_perm_transitions_table(){
 			arm_states_transitions[i][j] = 0;
 	//						   /Ancien état       /Nombre d'état suivant possible      /Liste des états suivant possible
 	add_perm_transitions_table(ACT_ARM_POS_PARKED,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
-	add_perm_transitions_table(ACT_ARM_POS_OPEN,				5,	(ARM_state_e[]){ACT_ARM_POS_PARKED, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE, ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_TAKE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_OPEN,				6,	(ARM_state_e[]){ACT_ARM_POS_PARKED, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE, ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_TAKE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_STORAGE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_RETURN,	3,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_DOWN_RETURN, ACT_ARM_POS_TO_TAKE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,		1,	(ARM_state_e[]){ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 }
 
