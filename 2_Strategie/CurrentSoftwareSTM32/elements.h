@@ -317,12 +317,14 @@
 	}torch_choice_e;
 
 	typedef enum{
-		PUSH_FRESCO,
-		PUSH_HEARTH_CENTRAL,
-		PUSH_HEARTH_ADV,
-		PUSH_CAVERN_ADV,
-		PUSH_CHOICE
-	}torch_push_e;
+		HEARTH_OUR,
+		HEARTH_YELLOW,
+		HEARTH_CENTRAL,
+		FILED_FRESCO,
+		ANYWHERE
+	}torch_filed_e;
+
+
 
 	// Fonction de réception de message CAN
 	void ELEMENT_triangle_add_to_list(CAN_msg_t* msg);	// Ajoute le triangle du message can dans la liste
