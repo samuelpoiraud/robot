@@ -193,7 +193,7 @@
 		//YELLOW
 		#define BIG_YELLOW_CALIBRATION_X  		243
 		#define BIG_YELLOW_CALIBRATION_Y  		(3000 - 191)
-		#define BIG_YELLOW_CALIBRATION_TETA 	10868	 //-28° + 180° fait une rotation à avoir les balles du bon côté
+		#define BIG_YELLOW_CALIBRATION_TETA 	11440	 //-20° + 180° fait une rotation à avoir les balles du bon côté
 
 
 
