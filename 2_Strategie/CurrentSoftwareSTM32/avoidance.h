@@ -87,7 +87,7 @@
 		bool_e curve;
 	} displacement_curve_t;
 
-	bool_e foe_in_path(void);
+	bool_e foe_in_path(bool_e verbose);
 
 	/*
 	 * Affecture une trajectoire courbe de la position actuelle. Le robot

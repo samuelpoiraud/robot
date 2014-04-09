@@ -679,7 +679,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 		//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
 		//				avoidance_printf("Not in translation but foe in path\n");
 
-					if(foe_in_path() && global.env.asser.is_in_translation)	//Si un adversaire est sur le chemin
+					if(global.env.asser.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
 					{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
 						//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
 						//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
@@ -776,7 +776,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 					avoidance_printf("wait_move_and_scan_foe: timeout avec ennemi sur path\n");
 					ret = FOE_IN_PATH;
 				}
-				else if(foe_in_path())	//Si on vient de recevoir un update de sa position et qu'il est toujours devant nous...
+				else if(foe_in_path(FALSE))	//Si on vient de recevoir un update de sa position et qu'il est toujours devant nous...
 				{
 					BUZZER_play(20, DEFAULT_NOTE, 1);
 					no_foe_count = 0;	//On reset le compteur de no_foe.
@@ -902,11 +902,13 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 				case END_WITH_TIMEOUT:
 					timeout = TRUE;
 					avoidance_printf("wait_move_and_scan_foe -- timeout\n");
+					SD_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
 					state = DONE;
 					break;
 
 				case NOT_HANDLED:
 					avoidance_printf("wait_move_and_scan_foe -- probleme\n");
+					SD_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					state = LOAD_MOVE;
 					return NOT_HANDLED;
@@ -914,6 +916,7 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 
 				case FOE_IN_PATH:
 					avoidance_printf("wait_move_and_scan_foe -- foe in path\n");
+					SD_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					state = LOAD_MOVE;
 					return FOE_IN_PATH;
@@ -944,6 +947,8 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 }
 
 
+
+
 /* ----------------------------------------------------------------------------- */
 /* 		Fonctions de scrutation de la position de l'adversaire           */
 /* ----------------------------------------------------------------------------- */
@@ -951,7 +956,7 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 /* Fonction qui regarde si le robot est dans notre chemin */
 //Pas en static pour tests
 /*static*/
-bool_e foe_in_path(void)
+bool_e foe_in_path(bool_e verbose)
 {
 	bool_e in_path;
 	Sint16 cosinus, sinus;
@@ -1028,7 +1033,8 @@ bool_e foe_in_path(void)
 				&& 	relative_foe_x > avoidance_rectangle_min_x 		&& 	relative_foe_x < avoidance_rectangle_max_x)
 				{
 					in_path = TRUE;	//On est dans le rectangle d'évitement !!!
-					avoidance_printf("FOE[%d]_IN_PATH|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, global.env.foe[i].dist, global.env.foe[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
+					if(verbose)
+						SD_printf("FOE[%d]_IN_PATH|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, global.env.foe[i].dist, global.env.foe[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
 				}
 		}
 	}

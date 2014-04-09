@@ -160,10 +160,8 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 /*
  * Calcule le chemin le plus court pour aller au noeud to.
  * Utilise l'algorithme A*.
- *
- * TODO Si on est dans la zone verte et l'adversaire en 9, regarder si on peut commencer en 6 ou 11
  */
-Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to);
+error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to);
 
 /*
  * Calcule le point symétrique au point rentré n
