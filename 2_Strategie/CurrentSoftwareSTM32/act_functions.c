@@ -92,7 +92,7 @@ bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd){
 	return ACT_push_operation(ACT_QUEUE_Small_arm, &args);
 }
 
-bool_e ACT_POMPE_order(ACT_pompe_cmd_e cmd, Uint8 param){
+bool_e ACT_pompe_order(ACT_pompe_cmd_e cmd, Uint8 param){
 	QUEUE_arg_t args;
 
 	if(cmd == ACT_Pompe_Normal || cmd == ACT_Pompe_Reverse)
