@@ -12,6 +12,7 @@
 	#include "../config/config_big/config_pin.h"
 	#include "../Pierre/PFilet_config.h"
 	#include "../Pierre/PFruit_config.h"
+	#include "../Pierre/PTorch_locker_config.h"
 #else
 	#include "../Guy/Arm_config.h"
 	#include "../config/config_small/config_pin.h"
@@ -42,7 +43,9 @@ terminal_motor_s terminal_motor[] = {
 	DECLARE_AX12_RX24(2, '5', SMALL_ARM_AX12),
 	#ifdef I_AM_ROBOT_BIG
 		DECLARE_AX12_RX24(2, '6', FILET_AX12),
-		DECLARE_AX12_RX24(2, '7', FRUIT_LABIUM_AX12)
+		DECLARE_AX12_RX24(2, '7', FRUIT_LABIUM_AX12),
+		DECLARE_AX12_RX24(2, '8', TORCH_LOCKER_AX12_1),
+		DECLARE_AX12_RX24(2, '9', TORCH_LOCKER_AX12_2),
 	#else
 
 	#endif

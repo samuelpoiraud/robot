@@ -117,7 +117,7 @@
 
 
 /* Config proto Fruit_labium*/
-	#define FRUIT_LABIUM_AX12_ID					  5
+	#define FRUIT_LABIUM_AX12_ID					  9
 
 /* Config proto filet*/
 	#define FILET_AX12_ID							  4
@@ -129,12 +129,16 @@
 	#define SMALL_ARM_AX12_ID						  0
 
 /* Config proto pompe*/
-	#define POMPE_PWM_NUM				1
+	#define POMPE_PWM_NUM							  1
+
+/* Config torch locker*/
+	#define TORCH_LOCKER_AX12_1_ID					 7
+	#define TORCH_LOCKER_AX12_2_ID					 11
 
 	// ID des moteurs du bras
 	#define ARM_ACT_UPDOWN_ID                        0
-	#define ARM_ACT_RX24_ID                          20
-	#define ARM_ACT_AX12_MID_ID                      2
-	#define ARM_ACT_AX12_TRIANGLE_ID                 6
+	#define ARM_ACT_RX24_ID                          21
+	#define ARM_ACT_AX12_MID_ID                      8
+	#define ARM_ACT_AX12_TRIANGLE_ID                 3
 
 #endif /* PIERRE_CONFIG_PIN_H */

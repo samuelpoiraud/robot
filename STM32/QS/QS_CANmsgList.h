@@ -477,7 +477,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////////
 
 	/////////////////////POMPE///////////////////
-	ACT_POMPE = (ACT_FILTER | 0x06)
+	ACT_POMPE = (ACT_FILTER | 0x06),
 		//Paramètres de SMALL_ARM (dans data[0])
 		#define ACT_POMPE_NORMAL			0x11
 		#define ACT_POMPE_REVERSE			0x12
@@ -486,6 +486,14 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 
 		#define ACT_POMPE_STOP				0x13
 
+	/////////////////////////////////////////////
+
+	//////////////////TORCH LOCKER/////////////////
+	ACT_TORCH_LOCKER = (ACT_FILTER | 0x07)
+		//Paramètres de TORCH_LOCKER (dans data[0])
+		#define ACT_TORCH_LOCKER_LOCK		0x11
+		#define ACT_TORCH_LOCKER_UNLOCK		0x12
+		#define ACT_TORCH_LOCKER_STOP		0x13
 	/////////////////////////////////////////////
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs

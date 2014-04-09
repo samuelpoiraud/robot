@@ -51,7 +51,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{150	,289,	145},	//ARM_ST_To_Storage
 		{140	,82,	240},	//ARM_ST_To_Prepare_Return
 		{140	,82,	240},	//ARM_ST_To_Down_Return
-		{118	,49,	240},	//ARM_ST_To_Return
+		{137	,67,	239},	//ARM_ST_To_Return
 		{120	,48,	157},	//ARM_ST_To_Take_Return
 		{150	,150,	150}	//ARM_ST_On_Triangle			// Distance factice
 	};
