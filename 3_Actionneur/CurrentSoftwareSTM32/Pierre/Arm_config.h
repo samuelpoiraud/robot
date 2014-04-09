@@ -14,12 +14,6 @@
 
 #include "config_pin.h"
 
-// ID des moteurs
-#define ARM_ACT_UPDOWN_ID                        0
-#define ARM_ACT_RX24_ID                          20
-#define ARM_ACT_AX12_MID_ID                      2
-#define ARM_ACT_AX12_TRIANGLE_ID                 6
-
 #define ARM_ACT_UPDOWN_ID_POTAR_ADC_ID           ADC_11
 
 //#define ARM_ACT_UPDOWN                           0

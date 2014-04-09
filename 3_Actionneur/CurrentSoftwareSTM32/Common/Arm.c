@@ -11,8 +11,6 @@
 
 #include "Arm.h"
 
-#if 1
-
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
@@ -54,6 +52,9 @@
 #define DISTANCE_MAX_TO_TAKE			30
 
 #define square(x) ((Sint32)x*x)
+
+
+#define conv_dist_to_potar_updown(x) (x*2)
 
 typedef struct{
 	Sint16 x;
@@ -160,6 +161,8 @@ static void get_data_pos_triangle(CAN_msg_t* msg);
 static bool_e goto_triangle_pos();
 static void get_data_pos_triangle(CAN_msg_t* msg);
 static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
+static bool_e move_updown_to(Sint16 pos);
+
 
 
 static Sint8 old_state = -1;
@@ -189,9 +192,13 @@ void ARM_init() {
 			DCMotor_config_t dcconfig;
 
 			dcconfig.sensor_read = ARM_MOTORS[i].sensorRead;
+			dcconfig.double_PID = ARM_MOTORS[i].double_PID;
 			dcconfig.Kp = ARM_MOTORS[i].kp;
 			dcconfig.Ki = ARM_MOTORS[i].ki;
 			dcconfig.Kd = ARM_MOTORS[i].kd;
+			dcconfig.Kp2 = ARM_MOTORS[i].kp2;
+			dcconfig.Ki2 = ARM_MOTORS[i].ki2;
+			dcconfig.Kd2 = ARM_MOTORS[i].kd2;
 			dcconfig.pos[0] = 0;
 			dcconfig.pwm_number = ARM_MOTORS[i].pwmNum;
 			dcconfig.way_latch = &ARM_MOTORS[i].pwmWayPort->ODR;
@@ -353,6 +360,8 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 void ARM_run_command(queue_id_t queueId, bool_e init) {
+	static Sint16 old_DCM_post;
+
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
 		return;
@@ -364,65 +373,83 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 		if(init) {
 			Uint8 canCommand = QUEUE_get_arg(queueId)->canCommand;
 
-			if(old_state < 0 && canCommand != ACT_ARM_INIT) {
-				warn_printf("Etat non initialisé, impossible d\'aller à l\'état %s(%d)\n",
-							ARM_STATES_NAME[new_state], new_state);
-				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
-				return;
-			}
+			if(canCommand == ACT_ARM_UPDOWN_GOTO){
+				old_DCM_post = ARM_readDCMPos();
+				if(!move_updown_to(new_state))
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+			}else{
+				if(old_state < 0 && canCommand != ACT_ARM_INIT) {
+					warn_printf("Etat non initialisé, impossible d\'aller à l\'état %s(%d)\n",
+								ARM_STATES_NAME[new_state], new_state);
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+					return;
+				}
 
-			if(old_state == new_state){
-				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
-				return;
-			}
+				if(old_state == new_state){
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+					return;
+				}
 
-			if(old_state >= 0 && arm_states_transitions[old_state][new_state] == 0) {
-				//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
-				warn_printf("Déplacement impossible de l\'etat %s(%d) à %s(%d)\n",
-							ARM_STATES_NAME[old_state], old_state,
-							ARM_STATES_NAME[new_state], new_state);
-				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
-				return;
-			}
+				if(old_state >= 0 && arm_states_transitions[old_state][new_state] == 0) {
+					//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
+					warn_printf("Déplacement impossible de l\'etat %s(%d) à %s(%d)\n",
+								ARM_STATES_NAME[old_state], old_state,
+								ARM_STATES_NAME[new_state], new_state);
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+					return;
+				}
 
-			debug_printf("Going from state %s(%d) to %s(%d)\n",
-						 (old_state >= 0) ? ARM_STATES_NAME[old_state] : "non-initialisé", old_state,
-						 ARM_STATES_NAME[new_state], new_state);
-			if(!gotoState(new_state))
-				QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_UNKNOWN, __LINE__);
+				debug_printf("Going from state %s(%d) to %s(%d)\n",
+							 (old_state >= 0) ? ARM_STATES_NAME[old_state] : "non-initialisé", old_state,
+							 ARM_STATES_NAME[new_state], new_state);
+				if(!gotoState(new_state))
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_UNKNOWN, __LINE__);
+			}
 		} else {
+			Uint8 canCommand = QUEUE_get_arg(queueId)->canCommand;
 			bool_e done = TRUE, return_result = TRUE;
 			Uint8 result = ACT_RESULT_DONE, error_code = ACT_RESULT_ERROR_OK;
 			Uint16 line = 0;
 			Uint8 i;
 
-			for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
-				if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
-					done = ACTQ_check_status_dcmotor(ARM_MOTORS[i].id, FALSE, &result, &error_code, &line);
-				}else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24){
-					if(new_state == ACT_ARM_POS_ON_TRIANGLE || new_state == ACT_ARM_POS_ON_TORCHE){
-						if(ARM_MOTORS[i].id == ARM_ACT_RX24_ID)
-							done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, angle_pos_triangle[data_arm_triangle.i_min_angle].value_rx24, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
-						else if(ARM_MOTORS[i].id == ARM_ACT_AX12_MID && data_arm_triangle.arm_way == RIGHT)
-							done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, rayon_pos_triangle[data_arm_triangle.i_min_rayon].value_ax12_right, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
-						else if(ARM_MOTORS[i].id == ARM_ACT_AX12_MID && data_arm_triangle.arm_way == LEFT)
-							done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, rayon_pos_triangle[data_arm_triangle.i_min_rayon].value_ax12_left, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
-					}else
-						done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, ARM_get_motor_pos(new_state, i), ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
-				}
-
-				//Si au moins un moteur n'a pas terminé son mouvement, alors l'action de déplacer le bras n'est pas terminée
-				if(!done) {
-					return_result = FALSE;
-				}
-
-				//Si au moins un moteur n'a pas pu correctement se déplacer, alors on a fail l'action et on retourne à la position précédente
+			if(canCommand == ACT_ARM_UPDOWN_GOTO){
+				done = ACTQ_check_status_dcmotor(ARM_ACT_UPDOWN_ID, FALSE, &result, &error_code, &line);
 				if(done && result != ACT_RESULT_DONE) {
 					return_result = TRUE;
-					if(old_state >= 0) {
-						gotoState(old_state);
+					// TODO : Choisir de la réaction du moteur DCM lors d'une erreur
+					//move_updown_to(ARM_readDCMPos()); // On laisse le moteur à la position actuelle
+					move_updown_to(old_DCM_post); // On remet le moteur  à la position antérieur
+				}
+			}else{
+				for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
+					if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
+							done = ACTQ_check_status_dcmotor(ARM_MOTORS[i].id, FALSE, &result, &error_code, &line);
+					}else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24){
+						//------------------------------------------------------------------------------------------------------------
+						if(new_state == ACT_ARM_POS_ON_TRIANGLE || new_state == ACT_ARM_POS_ON_TORCHE){
+							if(ARM_MOTORS[i].id == ARM_ACT_RX24_ID)
+								done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, angle_pos_triangle[data_arm_triangle.i_min_angle].value_rx24, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
+							else if(ARM_MOTORS[i].id == ARM_ACT_AX12_MID && data_arm_triangle.arm_way == RIGHT)
+								done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, rayon_pos_triangle[data_arm_triangle.i_min_rayon].value_ax12_right, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
+							else if(ARM_MOTORS[i].id == ARM_ACT_AX12_MID && data_arm_triangle.arm_way == LEFT)
+								done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, rayon_pos_triangle[data_arm_triangle.i_min_rayon].value_ax12_left, ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
+						}else//------------------------------------------------------------------------------------------------------------
+							done = ACTQ_check_status_ax12(queueId, ARM_MOTORS[i].id, ARM_get_motor_pos(new_state, i), ARM_MOTORS[i].epsilon, ARM_MOTORS[i].timeout, 0, &result, &error_code, &line);
 					}
-					break;
+
+					//Si au moins un moteur n'a pas terminé son mouvement, alors l'action de déplacer le bras n'est pas terminée
+					if(!done) {
+						return_result = FALSE;
+					}
+
+					//Si au moins un moteur n'a pas pu correctement se déplacer, alors on a fail l'action et on retourne à la position précédente
+					if(done && result != ACT_RESULT_DONE) {
+						return_result = TRUE;
+						if(old_state >= 0) {
+							gotoState(old_state);
+						}
+						break;
+					}
 				}
 			}
 
@@ -703,4 +730,14 @@ static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
 }
 
-#endif
+static bool_e move_updown_to(Sint16 pos){
+	Uint16 value = conv_dist_to_potar_updown(pos);
+
+	if(value < ARM_ACT_UPDOWN_MIN_VALUE || value > ARM_ACT_UPDOWN_MAX_VALUE)
+		return FALSE;
+
+	DCM_setPosValue(ARM_ACT_UPDOWN_ID, 0, value);
+	DCM_goToPos(ARM_ACT_UPDOWN_ID, 0);
+	DCM_restart(ARM_ACT_UPDOWN_ID);
+	return TRUE;
+}
