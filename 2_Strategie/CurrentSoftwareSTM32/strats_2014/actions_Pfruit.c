@@ -111,22 +111,23 @@ error_e strat_file_fruit(){
 			if(entrance)
 			{
 				ASSER_WARNER_arm_y(posOpenVerin);
+				labium_state = LABIUM_CLOSED_VERIN_IN;
 			}
 			switch(labium_state)
 			{
 				case LABIUM_CLOSED_VERIN_IN:
 					if(global.env.asser.reach_y)
 					{
-						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 						ASSER_WARNER_arm_y(posOpen);
+						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 						labium_state = LABIUM_CLOSED_VERIN_OUT;
 					}
 					break;
 				case LABIUM_CLOSED_VERIN_OUT:
 					if(global.env.asser.reach_y)
 					{
-						ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
 						ASSER_WARNER_arm_y(posClose);
+						ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
 						labium_state = LABIUM_OPENED_VERIN_OUT;
 					}
 					break;
@@ -175,6 +176,17 @@ error_e strat_file_fruit(){
 
 		case DONE:
 			state = IDLE;
+
+			//Inutile en principe.. mais par sécurité...
+			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			#ifdef MODE_SIMULATION
+				//Sécurité inutile en principe.... mais sur le robot virtuel, les messages ne vont pas assez vite... donc le warner n'est pas levé à temps.
+				//Ceci permet d'éviter de refaire la dépose...
+				set_sub_act_done(SUB_DROP_FRUITS,TRUE);
+				set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
+				presenceFruit = FALSE;
+			#endif
 			return END_OK;
 			break;
 
@@ -421,7 +433,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			else
 				sensRobot = BACKWARD;
 
-			if(est_dans_carre(400, 2000, 1700, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{
 				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)

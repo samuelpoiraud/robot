@@ -1754,7 +1754,16 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			if(global.env.asser.reach_y)		//Peu probable... mais par sécurité (si on était super lent, on va peut etre recevoir le warner avant le point de freinage
 			{
 				ACT_lance_launcher_run((lanceAll)?ACT_Lance_ALL:((mammouth==global.env.color)?ACT_Lance_5_BALL:ACT_Lance_1_BALL),sensShoot);
-				set_sub_act_done((mammouth == global.env.color)?SUB_LANCE:SUB_LANCE_ADV,TRUE);	//On lance, donc l'action est faite...
+
+				if(mammouth == global.env.color)
+				{
+					set_sub_act_done(SUB_LANCE,TRUE);	//On lance, donc l'action est faite...
+				}
+				else
+				{
+					set_sub_act_done(SUB_LANCE_ADV,TRUE);	//On lance, donc l'action est faite...
+					launcher_ball_adversary = TRUE;
+				}
 			}
 			break;
 
