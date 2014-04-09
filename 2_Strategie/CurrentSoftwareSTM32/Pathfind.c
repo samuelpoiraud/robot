@@ -13,6 +13,7 @@
 #include "QS/QS_outputlog.h"
 #include "config_use.h"
 #include "../state_machine_helper.h"
+#include "../Supervision/SD/SD.h"
 #include "avoidance.h"
 #include <math.h>
 
@@ -263,14 +264,13 @@ void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to
 */
 
 //Retourne le nombre de déplacements, ou 0 si pas de chemin possible
-Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to)
+error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to)
 {
 	pathfind_node_id_t from, n, current, from_without_adversaries, suivant;
 	pathfind_node_list_t adversaries_nodes;
-	Uint8 nb_displacements = 0;
 	Uint16 minCost, cost;
 	Uint8 i;
-
+	Uint8 nb_displacements = 0;
 	//On identifie les noeuds placés à moins de 500mm manhattan d'un adversaire.
 	adversaries_nodes = 0;
 	for(i=0;i<MAX_NB_FOES;i++)
@@ -283,7 +283,7 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 				if(PATHFIND_manhattan_dist(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y)<MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY)
 				{
 					PATHFIND_SET_NODE_IN(n,adversaries_nodes);
-					pathfind_debug_printf("Adv%d in node %d\n",i,n);
+					SD_printf("Adv%d in node %d\n",i,n);
 				}
 			}
 		}
@@ -294,7 +294,7 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 	//from =						PATHFIND_closestNodeToEnd(xFrom, yFrom, adversaries_nodes, PATHFIND_get_node_x(to), PATHFIND_get_node_y(to));
 
 	if(from == NOT_IN_NODE)
-		return 0;	//Pas de chemin possible... c'est d'ailleurs très étrange...
+		return NOT_HANDLED;	//Pas de chemin possible... c'est d'ailleurs très étrange...
 
 	//si le noeud le plus proche est un noeud situé de l'autre coté d'un obstacle car les adversaires empêchent l'accès aux autres noeuds !!!!
 	//Le noeud le plus proche sans filtrage adverse... correspond à notre position, doit permettre d'accéder par la logique des voisinages au noeud le plus proche avec filtrage adverse/
@@ -304,7 +304,7 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 	//		n'est pas dans la liste des voisins du noeud réel le plus proche (from_without_adversaries).. 
 	//Alors, on ne peut pas considérer que l'on se trouve sur le noeud from...
 	if((from != from_without_adversaries) && !(PATHFIND_TST_NODE_IN(from, nodes[from_without_adversaries].neighbors)))
-		return 0;
+		return NOT_HANDLED;
 
 	//Une meilleure piste devrait être dans ce cas de choisir un point calculé permettant de s'extraire de l'adversaire.
 	
@@ -390,7 +390,7 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 
 	/* Si le chemin n'a pas été trouvé */
 	if (!PATHFIND_TST_NODE_IN(to, closedList))
-		return 0;
+		return NOT_HANDLED;
 
 
 	/*le noeud de départ ne doit pas avoir de parent*/
@@ -433,7 +433,8 @@ Uint16 PATHFIND_compute(displacement_curve_t * displacements, Sint16 xFrom, Sint
 	if(nb_displacements > 1)
 		displacements[1].curve = FALSE;
 	pathfind_debug_printf(" = %d displacements\n", nb_displacements);
-	return nb_displacements;
+	*p_nb_displacements = nb_displacements;
+	return END_OK;
 }
 
 
@@ -479,22 +480,28 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 		case COMPUTE:
 			pathfind_debug_printf("Compute\n");
 			//Calcul d'un chemin pour atteindre l'objectif.
-			nb_displacements = PATHFIND_compute(displacements, global.env.pos.x, global.env.pos.y, node_wanted);
-			if(nb_displacements)
+			if(PATHFIND_compute(displacements, &nb_displacements, global.env.pos.x, global.env.pos.y, node_wanted) != END_OK)
 			{
-				for(i=0;i<nb_displacements;i++)
-				{
-					pathfind_debug_printf("[%d,%d]->\n",displacements[i].point.x, displacements[i].point.y);
-					displacements[i].speed = speed;
-				}
-				state = DISPLACEMENT;
-
-				//Pour tester le module sans générer de déplacement :
-				//	state = INIT;
-				//	return success_state;
+				SD_printf("I cannot find any path. x=%d y=%d to node %d\n",global.env.pos.x, global.env.pos.y, node_wanted);
+				state = FAIL;
 			}
 			else
-				state = FAIL;
+			{
+				if(nb_displacements)	//on a trouvé des déplacements à faire
+				{
+					for(i=0;i<nb_displacements;i++)
+					{
+						pathfind_debug_printf("[%d,%d]->\n",displacements[i].point.x, displacements[i].point.y);
+						displacements[i].speed = speed;
+					}
+					state = DISPLACEMENT;
+				}
+				else
+				{
+					pathfind_debug_printf("No displacements, we are already on the point\n");
+					state = SUCCESS;	//aucun déplacement n'est nécessaire, on est déjà sur le point...
+				}
+			}
 			break;
 		case DISPLACEMENT:
 			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, no_dodge_avoidance, end_condition);
