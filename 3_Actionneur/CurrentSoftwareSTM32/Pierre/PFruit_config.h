@@ -19,16 +19,16 @@
 /** Lorsque l'ax12 atteint sa position avec +/- PLATE_PLIER_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define FRUIT_AX12_ASSER_POS_EPSILON   2     //en degré
 /** Position en degré de l'ax12 lorsque la pince est ouverte */
-	#define FRUIT_AX12_LABIUM_OPEN_POS		240    //en degré
+	#define FRUIT_AX12_LABIUM_OPEN_POS		123    //en degré
 /** Position en degré de l'ax12 lorsque la pince est fermée ou serre une assiette */
-	#define FRUIT_AX12_LABIUM_CLOSE_POS		60   //en degré
+	#define FRUIT_AX12_LABIUM_CLOSE_POS		0   //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur lorsque l'on serre une assiette en continu */
 	#define FRUIT_AX12_MAX_TORQUE_PERCENT  100     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 /** Position initiale de l'AX12. Doit être un define du type PLATE_PLIER_AX12_* */
 	#define FRUIT_AX12_LABIUM_INIT_POS		FRUIT_AX12_LABIUM_CLOSE_POS
 
-#define FRUIT_LABIUM_AX12_MAX_VALUE	240
-#define FRUIT_LABIUM_AX12_MIN_VALUE	60
+#define FRUIT_LABIUM_AX12_MAX_VALUE	123
+#define FRUIT_LABIUM_AX12_MIN_VALUE	0
 
 /******** POMPE ********/
 
