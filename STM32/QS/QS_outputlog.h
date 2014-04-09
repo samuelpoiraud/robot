@@ -16,6 +16,14 @@
 
 /* Macro de d'affichage d'une expression rapide */
 #define display(x) debug_printf("%s : %d\n", #x, x)
+#define display_float(x) unsigned char var_ftoa[30];  debug_printf("%s : %s\n", #x, ftoa(x, var_ftoa, 3, 'f'))
+
+
+// prec indique la précison (nb de chiffrers après la virgule) 0 pour avoir le maximum
+// si format ='s' -> affichage scientifique 1.6666666
+// si format ='f' -> affichage classique 1666.6666
+
+unsigned char *ftoa (float x, unsigned char *str, char prec, char format);
 
 /*
  * Paramètres (optionnels, à définir avant l'inclusion de ce header):
