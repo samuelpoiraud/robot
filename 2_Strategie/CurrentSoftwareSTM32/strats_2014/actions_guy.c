@@ -536,6 +536,7 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 		UP_ARM,
 		OPEN_2,
 		FILED_TRIANGLE,
+		WAIT_TRIANGLE_BREAK,
 		BACK,
 		PREPARE_RETURN,
 		DOWN_RETURN,
@@ -543,9 +544,10 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 		INVERSE_PUMP,
 		DOWN_RETURN_2,
 		PREPARE_RETURN_2,
-		SAMLL_ARM_DEPLOYED,
+		SMALL_ARM_DEPLOYED,
 		SMALL_ARM_PARKED,
 		TAKE_RETURN,
+		GRAP_TRIANGLE,
 		OPEN_3,
 		ADVANCE,
 		OPEN_NOT_HANDLED,
@@ -573,28 +575,32 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 
 
 		case OPEN :
-			if(entrance)
-				; //Eteindre pompe
-
 			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN, TORCHE, PARKED_NOT_HANDLED);
 			break;
 
 		case TORCHE :
 			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, OPEN_NOT_HANDLED);
-		break;
-
-		case DOWN_ARM:
-			if(entrance)
-				; // Lancer la pompe
-
-			state = UP_ARM; // gera niveau avec i
 			break;
 
-		case UP_ARM:
-			if(i == 1) // Va retourne le deuxieme triangle
-				state = BACK;
-			else
-				state = OPEN_2;
+		case DOWN_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
+			if(entrance){
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+				//ACT_arm_updown_goto(50); // gera niveau avec i
+			}
+			//if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){ // TODO faire une action plus haut niveau avec time out
+				state = ELEMENT_wait_pump_capture_object(DOWN_ARM, UP_ARM, UP_ARM); // L'error est un TIMEOUT on passe quand même à l'étape suivante
+			//}
+			break;
+
+		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
+			if(entrance)
+				//ACT_arm_updown_goto(100);
+			//if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){ // TODO faire une action plus haut niveau avec time out
+				if((i == 1 && choiceTorch == OUR_TORCH) || ((i == 0 || i == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
+					state = BACK;
+				else
+					state = OPEN_2;
+			//}
 			break;
 
 		case OPEN_2:
@@ -605,8 +611,15 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			if(entrance)
 				i++;
 
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, (i>=2)? DONE:OPEN, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_NOT_HANDLED);
 
+			break;
+
+		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
+			//On peut avoir l'information avec le WT100 qui sera dans la main du robot
+			state = (i>=2)? DONE:OPEN;
 			break;
 
 		case BACK:
@@ -622,11 +635,14 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			break;
 
 		case RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, FILED_TRIANGLE, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, INVERSE_PUMP, OPEN_NOT_HANDLED);
 			break;
 
 		case INVERSE_PUMP:
-			state = DOWN_RETURN_2;
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+
+			state = ELEMENT_wait_pump_capture_object(INVERSE_PUMP, DOWN_RETURN_2, DOWN_RETURN_2);
 			break;
 
 		case DOWN_RETURN_2:
@@ -637,23 +653,37 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN_2, DOWN_RETURN, OPEN_NOT_HANDLED);
 			break;
 
-		case SAMLL_ARM_DEPLOYED:
-			state = SMALL_ARM_PARKED;
+		case SMALL_ARM_DEPLOYED:
+			if(entrance)
+				ACT_small_arm_goto(ACT_SMALL_ARM_DEPLOYED);
+
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done) // TODO faire une action plus haut niveau avec time out
+				state = SMALL_ARM_PARKED;
 			break;
 
 		case SMALL_ARM_PARKED:
-			if(entrance)
-				; // Eteindre pompe
+			if(entrance){
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
+				ACT_small_arm_goto(ACT_SMALL_ARM_IDLE);
+			}
 
-			state = TAKE_RETURN;
+			if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done) // TODO faire une action plus haut niveau avec time out
+				state = TAKE_RETURN;
 			break;
 
 		case TAKE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, TAKE_RETURN, OPEN_3, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, TAKE_RETURN, GRAP_TRIANGLE, OPEN_NOT_HANDLED);
+			break;
+
+		case GRAP_TRIANGLE: // prise du triangle au sol
+			if(entrance){
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+			}
+			state = ELEMENT_wait_pump_capture_object(GRAP_TRIANGLE, OPEN_3, OPEN_3); // L'error est un TIMEOUT on passe quand même à l'étape suivante
 			break;
 
 		case OPEN_3:
-			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, OPEN_3, PREPARE_RETURN_2, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_3, ADVANCE, OPEN_NOT_HANDLED);
 			break;
 
 		case ADVANCE:
@@ -669,13 +699,13 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			break;
 
 		case DONE:
-			// Eteindre pompe
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case ERROR:
-			// Eteindre pompe
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
@@ -685,11 +715,11 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 }
 
 
-error_e ACT_arm_move(ARM_state_e state_arm,Uint8 x, Uint8 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;global.env.match_time;
-	static bool_e entrance = FALSE;
+error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;
+	static bool_e entrance = TRUE;
 
-	if(!entrance){
+	if(entrance){
 		begin_time = global.env.match_time;
 
 		if(state_arm == ACT_ARM_POS_ON_TORCHE || state_arm == ACT_ARM_POS_ON_TRIANGLE)
@@ -698,14 +728,18 @@ error_e ACT_arm_move(ARM_state_e state_arm,Uint8 x, Uint8 y, Uint8 in_progress, 
 			ACT_arm_goto(state_arm);
 
 
-		entrance = TRUE;
+		entrance = FALSE;
 	}
 
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT)
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT){
+		entrance = TRUE;
 		return fail_state;
+	}
 
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
+	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
+		entrance = TRUE;
 		return success_state;
+	}
 
 	return in_progress;
 }
