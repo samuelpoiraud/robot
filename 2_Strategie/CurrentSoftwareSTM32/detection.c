@@ -189,23 +189,30 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					hokuyo_objects[adversary_nb].x = ((Sint16)msg->data[1])*20;
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
 					hokuyo_objects[adversary_nb].y = ((Sint16)msg->data[2])*20;
-				if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
-					hokuyo_objects[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
-				else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
+				if(fiability)
 				{
-					hokuyo_objects[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y);
-					hokuyo_objects[adversary_nb].angle = GEOMETRY_modulo_angle(hokuyo_objects[adversary_nb].angle - global.env.pos.angle);
+					if(ADVERSARY_DETECTION_FIABILITY_TETA)
+						hokuyo_objects[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
+					else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
+					{
+						hokuyo_objects[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y);
+						hokuyo_objects[adversary_nb].angle = GEOMETRY_modulo_angle(hokuyo_objects[adversary_nb].angle - global.env.pos.angle);
+					}
+					if(ADVERSARY_DETECTION_FIABILITY_DISTANCE)
+						hokuyo_objects[adversary_nb].dist = ((Sint16)msg->data[5])*20;
+					else	//je dois calculer moi-même la distance de l'adversaire
+						hokuyo_objects[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y},
+																				(GEOMETRY_point_t){hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y}
+																				);
 				}
-				if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
-					hokuyo_objects[adversary_nb].dist = ((Sint16)msg->data[5])*20;
-				else	//je dois calculer moi-même la distance de l'adversaire
-					hokuyo_objects[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y},
-																			(GEOMETRY_point_t){hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y}
-																			);
+
 			}
 			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
 			{
-				hokuyo_objects_number = adversary_nb + 1;
+				if(adversary_nb == 0 && !fiability)
+					hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
+				else
+					hokuyo_objects_number = adversary_nb + 1;
 				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
 			}
 			break;

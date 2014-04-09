@@ -92,7 +92,7 @@ error_e strat_file_fruit(){
 
 			//Zone d'acceptation
 			if(		est_dans_carre(0, 1000, COLOR_Y(1600), COLOR_Y(3000), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})
-				|| 	est_dans_carre(250, 700, COLOR_Y(0), COLOR_Y(1700), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				|| 	est_dans_carre(250, 700, 0, COLOR_Y(1600), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = GOTO_FIRST_DISPOSE_POINT;
 			else
 				state = GET_IN;
@@ -136,6 +136,8 @@ error_e strat_file_fruit(){
 						presenceFruit = FALSE;			//Dès cet instant, on a plus de fruits... (même si on termine pas la trajectoire, on reviendra pas les déposer !)
 						ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
 						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+						set_sub_act_done(SUB_DROP_FRUITS,TRUE);
+						set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
 						labium_state = LABIUM_CLOSED_VERIN_IN;
 					}
 					break;
@@ -173,8 +175,6 @@ error_e strat_file_fruit(){
 
 		case DONE:
 			state = IDLE;
-			set_sub_act_done(SUB_DROP_FRUITS,TRUE);
-			set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
 			return END_OK;
 			break;
 

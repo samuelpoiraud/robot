@@ -555,8 +555,13 @@ void Compute_dist_and_teta(void)
 void send_adversaries_datas(void)
 {
 	Uint8 i;
-	for(i=0;i<adversaries_number;i++)
-		SECRETARY_send_adversary_position((i==adversaries_number-1)?TRUE:FALSE,i, hokuyo_adversaries[i].coordX, hokuyo_adversaries[i].coordY, hokuyo_adversaries[i].teta, hokuyo_adversaries[i].dist, ADVERSARY_DETECTION_FIABILITY_ALL);
+	if(adversaries_number==0)
+		SECRETARY_send_adversary_position(TRUE,0, 0, 0, 0, 0, 0x0000);
+	else
+	{
+		for(i=0;i<adversaries_number;i++)
+			SECRETARY_send_adversary_position((i==adversaries_number-1)?TRUE:FALSE,i, hokuyo_adversaries[i].coordX, hokuyo_adversaries[i].coordY, hokuyo_adversaries[i].teta, hokuyo_adversaries[i].dist, ADVERSARY_DETECTION_FIABILITY_ALL);
+	}
 }
 
 //Retourne si le module logiciel HOKUYO a envoyé des positions adverses récemment = preuve de bon fonctionnement pour le selftest de la propulsion

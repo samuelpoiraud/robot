@@ -1660,7 +1660,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 				{
 					posShoot = 640 - OFFSET_BALL_LAUNCHER;
 					zone_access_posShoot_x1 = 300;
-					zone_access_posShoot_x2 = 600;
+					zone_access_posShoot_x2 = 650;
 					zone_access_posShoot_y1 = 0;
 					zone_access_posShoot_y2 = 450;
 					zone_access_firstPoint_y1 = 0;
@@ -1704,7 +1704,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 				{
 					posShoot = 2360 + OFFSET_BALL_LAUNCHER;
 					zone_access_posShoot_x1 = 300;
-					zone_access_posShoot_x2 = 600;
+					zone_access_posShoot_x2 = 650;
 					zone_access_posShoot_y1 = 3000-0;
 					zone_access_posShoot_y2 = 3000-450;
 					zone_access_firstPoint_y1 = 3000-0;
