@@ -18,9 +18,9 @@
 #include "../Pathfind.h"
 #include "../Geometry.h"
 
-#define LARGEUR_LABIUM	250
+#define LARGEUR_LABIUM	200
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
-#define ELOIGNEMENT_POSE_BAC_FRUIT 480
+#define ELOIGNEMENT_POSE_BAC_FRUIT 520
 #define PROFONDEUR_BAC_FRUIT		300
 #define RAYON_MAX_PIERRE			300	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
 
@@ -84,7 +84,7 @@ error_e strat_file_fruit(){
 			else
 				firstPointway = (sensRobot==BACKWARD)?FORWARD:BACKWARD;
 
-			posOpenVerin = COLOR_Y(1850);
+			posOpenVerin = COLOR_Y(1800);
 			posOpen = COLOR_Y(1900);
 			posClose = COLOR_Y(2300);
 
