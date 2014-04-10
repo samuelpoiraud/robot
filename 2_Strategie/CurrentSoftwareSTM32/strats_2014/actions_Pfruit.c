@@ -127,7 +127,7 @@ error_e strat_file_fruit(){
 					if(global.env.asser.reach_y)
 					{
 						ASSER_WARNER_arm_y(posClose);
-						ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Open);
+						ACT_fruit_labium_goto(ACT_FRUIT_Labium_Open);
 						labium_state = LABIUM_OPENED_VERIN_OUT;
 					}
 					break;
@@ -135,7 +135,7 @@ error_e strat_file_fruit(){
 					if(global.env.asser.reach_y)
 					{
 						presenceFruit = FALSE;			//Dès cet instant, on a plus de fruits... (même si on termine pas la trajectoire, on reviendra pas les déposer !)
-						ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+						ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
 						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 						set_sub_act_done(SUB_DROP_FRUITS,TRUE);
 						set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
@@ -149,7 +149,7 @@ error_e strat_file_fruit(){
 			break;
 
 		case ERROR: // Fermer le bac à fruit et rentrer le bras
-			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+			ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = GET_OUT_WITH_ERROR;
 			break;
@@ -178,7 +178,7 @@ error_e strat_file_fruit(){
 			state = IDLE;
 
 			//Inutile en principe.. mais par sécurité...
-			ACT_fruit_mouth_goto(ACT_FRUIT_Labium_Close);
+			ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			#ifdef MODE_SIMULATION
 				//Sécurité inutile en principe.... mais sur le robot virtuel, les messages ne vont pas assez vite... donc le warner n'est pas levé à temps.
