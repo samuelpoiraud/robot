@@ -17,10 +17,11 @@
 #include "../act_can.h"
 #include "../Pathfind.h"
 #include "../Geometry.h"
+#include "../Supervision/SD/SD.h"
 
 #define LARGEUR_LABIUM	200
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
-#define ELOIGNEMENT_POSE_BAC_FRUIT 520
+#define ELOIGNEMENT_POSE_BAC_FRUIT 490
 #define PROFONDEUR_BAC_FRUIT		300
 #define RAYON_MAX_PIERRE			300	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
 
@@ -70,12 +71,12 @@ error_e strat_file_fruit(){
 			dplt[0].speed = FAST;
 
 			dplt[1].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[1].point.y = COLOR_Y(2200);
-			dplt[1].speed = FAST;
+			dplt[1].point.y = COLOR_Y(2300);
+			dplt[1].speed = SLOW;
 
 			dplt[2].point.x = PROFONDEUR_BAC_FRUIT+RAYON_MAX_PIERRE;
-			dplt[2].point.y = COLOR_Y(2400);
-			dplt[2].speed = FAST;
+			dplt[2].point.y = COLOR_Y(2500);
+			dplt[2].speed = SLOW;
 
 
 			sensRobot = (global.env.color == RED)?BACKWARD:FORWARD;
@@ -105,7 +106,7 @@ error_e strat_file_fruit(){
 			break;
 
 		case GOTO_FIRST_DISPOSE_POINT:
-			state = try_going_until_break(dplt[0].point.x, dplt[0].point.y, GOTO_FIRST_DISPOSE_POINT, DO_DISPOSE, ERROR, FAST, firstPointway, NO_DODGE_AND_WAIT);
+			state = try_going(dplt[0].point.x, dplt[0].point.y, GOTO_FIRST_DISPOSE_POINT, DO_DISPOSE, ERROR, FAST, firstPointway, NO_DODGE_AND_WAIT);
 			break;
 		case DO_DISPOSE:
 			if(entrance)
@@ -386,6 +387,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		IDLE,
 		GET_IN,
 		POS_DEPART,
+		ORIENTATION,
 		OPEN_FRUIT_VERIN,
 		RECUP_TREE_1,
 		COURBE,
@@ -436,7 +438,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{
 				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
+					state = ORIENTATION;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
 				else
 					state = POS_DEPART;				//On se rend à la première position directement
 			}
@@ -454,7 +456,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case POS_DEPART:
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, OPEN_FRUIT_VERIN, RETURN_NOT_HANDLED, FAST, sensRobot, NO_DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, ORIENTATION, RETURN_NOT_HANDLED, FAST, sensRobot, NO_DODGE_AND_WAIT);
+			break;
+
+		case ORIENTATION:
+			state = try_go_angle((sens == TRIGO)?0:PI4096/2,ORIENTATION,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,FAST);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -528,6 +534,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		IDLE,
 		GET_IN,
 		POS_DEPART,
+		ORIENTATION,
 		OPEN_FRUIT_VERIN,
 		RECUP_TREE_1,
 		COURBE,
@@ -539,7 +546,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		RETURN_NOT_HANDLED
 	);
 
-	static const Uint8 NBPOINT = 5;
+	const Uint8 NBPOINT = 5;
 
 	static pathfind_node_id_t point_pathfind;
 
@@ -580,7 +587,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 			if(est_dans_carre(400, 2000, 1750, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{
 				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
+					state = ORIENTATION;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
 				else
 					state = POS_DEPART;				//On se rend à la première position directement
 			}
@@ -600,7 +607,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case POS_DEPART:
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
+			break;
+
+		case ORIENTATION:
+			state = try_go_angle((sens == TRIGO)?PI4096/2:PI4096,ORIENTATION,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,FAST);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -673,6 +684,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 		IDLE,
 		GET_IN,
 		POS_DEPART,
+		ORIENTATION,
 		OPEN_FRUIT_VERIN,
 		POS_FIN,
 		GET_OUT_WITH_ERROR,
@@ -726,7 +738,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			if(est_dans_carre(400, 2000, 0, 1300, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{
 				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
+					state = ORIENTATION;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
 				else
 					state = POS_DEPART;				//On se rend à la première position directement
 			}
@@ -741,7 +753,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 
 		case POS_DEPART:
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
+			break;
+
+		case ORIENTATION:
+					state = try_go_angle((tree == CHOICE_TREE_1)?0:PI4096/2,ORIENTATION,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,FAST);
 			break;
 
 		case OPEN_FRUIT_VERIN :
@@ -794,6 +810,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 		IDLE,
 		GET_IN,
 		POS_DEPART,
+		ORIENTATION,
 		OPEN_FRUIT_VERIN,
 		POS_FIN,
 		GET_OUT_WITH_ERROR,
@@ -844,7 +861,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			if(est_dans_carre(400, 2000, 1800, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{
 				if(est_dans_carre(courbe[0].point.x-50, courbe[0].point.x+50, courbe[0].point.y-50, courbe[0].point.y+50, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					state = OPEN_FRUIT_VERIN;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
+					state = ORIENTATION;		//On est déjà sur la position de départ ou juste à coté... (- de 5cm)
 				else
 					state = POS_DEPART;				//On se rend à la première position directement
 			}
@@ -859,7 +876,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 
 		case POS_DEPART:
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
+			break;
+
+		case ORIENTATION:
+			state = try_go_angle((tree == CHOICE_TREE_1)?PI4096:PI4096/2,ORIENTATION,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,FAST);
 			break;
 
 		case OPEN_FRUIT_VERIN :
