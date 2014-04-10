@@ -129,9 +129,9 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 							orderShootLauncher[0] = 6;
 						}else{
 							orderShootLauncher[4] = 5;
-							orderShootLauncher[0] = 6;
-							orderShootLauncher[3] = 3;
-							orderShootLauncher[2] = 4;
+							orderShootLauncher[3] = 6;
+							orderShootLauncher[2] = 3;
+							orderShootLauncher[1] = 4;
 							orderShootLauncher[0] = 2;
 						}
 
