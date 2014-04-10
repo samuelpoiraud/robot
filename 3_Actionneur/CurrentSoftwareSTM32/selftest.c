@@ -165,8 +165,16 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						failed_act_tests[i] = SELFTEST_ACT_FILET;
 						break;
 
+					case ACT_GACHE:
+						failed_act_tests[i] = SELFTEST_ACT_GACHE;
+						break;
+
 					case ACT_POMPE:
 						failed_act_tests[i] = SELFTEST_POMPE;
+						break;
+
+					case ACT_TORCH_LOCKER:
+						failed_act_tests[i] = SELFTEST_ACT_TORCH_LOCKER;
 						break;
 
 					default:

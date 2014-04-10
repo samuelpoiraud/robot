@@ -242,6 +242,8 @@
 		SELFTEST_ACT_ARM,
 		SELFTEST_ACT_SMALL_ARM,
 		SELFTEST_ACT_FILET,
+		SELFTEST_ACT_GACHE,
+		SELFTEST_ACT_TORCH_LOCKER,
 		SELFTEST_POMPE,
 		SELFTEST_FAIL_UNKNOW_REASON,
 		SELFTEST_ERROR_NB,
@@ -489,11 +491,19 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////////
 
 	//////////////////TORCH LOCKER/////////////////
-	ACT_TORCH_LOCKER = (ACT_FILTER | 0x07)
+	ACT_TORCH_LOCKER = (ACT_FILTER | 0x07),
 		//Paramètres de TORCH_LOCKER (dans data[0])
 		#define ACT_TORCH_LOCKER_LOCK		0x11
 		#define ACT_TORCH_LOCKER_UNLOCK		0x12
 		#define ACT_TORCH_LOCKER_STOP		0x13
+	/////////////////////////////////////////////
+
+	/////////////////////GACHE///////////////////
+	ACT_GACHE = (ACT_FILTER | 0x08),
+		//Paramètres de FILET (dans data[0])
+		#define ACT_GACHE_IDLE				0x11
+		#define ACT_GACHE_LAUNCHED			0x12
+		#define ACT_GACHE_STOP				0x13
 	/////////////////////////////////////////////
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs
