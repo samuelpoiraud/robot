@@ -54,13 +54,15 @@ static void SMALL_ARM_initAX12() {
 		AX12_config_set_error_before_led(SMALL_ARM_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(SMALL_ARM_AX12_ID, AX12_ERROR_OVERHEATING);
 	}
-	debug_printf("Init !\n");
+
+	debug_printf("Small Arm init config %s\n", ax12_is_initialized ? "DONE" : "FAIL");
 }
 
 void SMALL_ARM_init_pos(){
 	SMALL_ARM_initAX12();
+	debug_printf("Small Arm init pos : \n");
 	if(!AX12_set_position(SMALL_ARM_AX12_ID, SMALL_ARM_AX12_INIT_POS))
-		debug_printf("L'AX12 n°%d n'est pas là\n", SMALL_ARM_AX12_ID);
+		debug_printf("   L'AX12 n°%d n'est pas là\n", SMALL_ARM_AX12_ID);
 }
 
 void SMALL_ARM_stop(){

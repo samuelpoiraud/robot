@@ -247,7 +247,6 @@ static void ARM_initAX12(){
 			} else if(ARM_ax12_is_initialized[i] == FALSE) {
 				// Au moins un RX24/AX12 non prêt => pas allOk, on affiche pas le message d'init
 				allOk = FALSE;
-				debug_printf("AX12 %d not here\n", ARM_MOTORS[i].id);
 			}
 		}
 	}
@@ -257,12 +256,16 @@ static void ARM_initAX12(){
 		allInitialized = TRUE;
 		find_state();
 	}
+
+	debug_printf("Arm init config %s\n", allInitialized ? "DONE" : "FAIL");
 }
 
 void ARM_init_pos() {
 	CAN_msg_t msg = {ACT_ARM, {ACT_ARM_INIT}, 1};
+	debug_printf("Arm init pos :\n");
 	if(find_state() != ACT_ARM_POS_PARKED)
 		ARM_CAN_process_msg(&msg);
+
 }
 
 void ARM_stop() {

@@ -52,7 +52,7 @@ void POMPE_init() {
 static void POMPE_initDCM() {
 	static bool_e initialized = FALSE;
 
-	if(initialized && !global.alim)
+	if(initialized)
 		return;
 	initialized = TRUE;
 

@@ -68,11 +68,10 @@ static void FILET_initAX12() {
 
 		AX12_config_set_error_before_led(FILET_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(FILET_AX12_ID, AX12_ERROR_OVERHEATING);
-
-		// Pas d'initialisation sinon réarmement impossible
-		//AX12_set_position(FILET_AX12_ID, FILET_AX12_INIT_POS);
-		//info_printf("FILET AX12 initialisé\n");
 	}
+
+	debug_printf("Filet init config %s\n", ax12_is_initialized ? "DONE" : "FAIL");
+
 }
 
 bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {

@@ -58,9 +58,8 @@ static void GACHE_initAX12() {
 
 		AX12_config_set_error_before_led(GACHE_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(GACHE_AX12_ID, AX12_ERROR_OVERHEATING);
-
-		info_printf("GACHE AX12 init config\n");
 	}
+	debug_printf("Gache init config %s\n", ax12_is_initialized ? "DONE" : "FAIL");
 }
 
 void GACHE_stop() {
@@ -68,8 +67,9 @@ void GACHE_stop() {
 
 void GACHE_init_pos(){
 	GACHE_initAX12();
+	debug_printf("Gache init pos : \n");
 	if(!AX12_set_position(GACHE_AX12_ID, GACHE_AX12_IDLE_POS))
-		debug_printf("L'AX12 n°%d n'est pas la\n", GACHE_AX12_ID);
+		debug_printf("   L'AX12 n°%d n'est pas la\n", GACHE_AX12_ID);
 }
 
 

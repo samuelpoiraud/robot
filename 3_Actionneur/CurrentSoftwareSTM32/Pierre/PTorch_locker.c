@@ -70,7 +70,7 @@ static void TORCH_LOCKER_initAX12() {
 		AX12_config_set_error_before_shutdown(TORCH_LOCKER_AX12_2_ID, AX12_ERROR_OVERHEATING);
 	}
 
-	debug_printf("Torch locker init config !\n");
+	debug_printf("Torch locker init config %s  (%s %s)\n", (ax12_1_is_initialized && ax12_2_is_initialized) ? "DONE" : "FAIL", ax12_1_is_initialized ? "DONE" : "FAIL", ax12_2_is_initialized ? "DONE" : "FAIL");
 }
 
 void TORCH_LOCKER_init_pos(){
@@ -155,15 +155,14 @@ static void TORCH_LOCKER_command_init(queue_id_t queueId) {
 		error_printf("Invalid ax12 %d position for command: %u, code is broken !\n", TORCH_LOCKER_AX12_1_ID, command);
 		QUEUE_next(queueId, ACT_TORCH_LOCKER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
-	}
-	if(*ax12_2_goalPosition == 0xFFFF) {
+	}else if(*ax12_2_goalPosition == 0xFFFF) {
 		error_printf("Invalid ax12 %d position for command: %u, code is broken !\n", TORCH_LOCKER_AX12_2_ID, command);
 		QUEUE_next(queueId, ACT_TORCH_LOCKER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
 
-	debug_printf("Move TORCH_LOCKER ax12 %d to %d\n", TORCH_LOCKER_AX12_1_ID, *ax12_1_goalPosition);
-	debug_printf("Move TORCH_LOCKER ax12 %d to %d\n", TORCH_LOCKER_AX12_2_ID, *ax12_1_goalPosition);
+	debug_printf("Move TORCH_LOCKER ax12_1 %d to %d\n", TORCH_LOCKER_AX12_1_ID, *ax12_1_goalPosition);
+	debug_printf("Move TORCH_LOCKER ax12_2 %d to %d\n", TORCH_LOCKER_AX12_2_ID, *ax12_1_goalPosition);
 	AX12_reset_last_error(TORCH_LOCKER_AX12_1_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	AX12_reset_last_error(TORCH_LOCKER_AX12_2_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	if(!AX12_set_position(TORCH_LOCKER_AX12_1_ID, *ax12_1_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
