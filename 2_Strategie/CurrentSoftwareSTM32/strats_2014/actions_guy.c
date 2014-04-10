@@ -18,6 +18,8 @@
 #include "../zone_mutex.h"
 #include "../QS/QS_can_over_xbee.h"
 #include "../act_functions.h"
+#include "../config/config_pin.h"
+#include "../maths_home.h"
 #include <math.h>
 
 static void REACH_POINT_GET_OUT_INIT_send_request();
@@ -42,9 +44,76 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 /* ----------------------------------------------------------------------------- */
 
 
+/* ----------------------------------------------------------------------------- */
+/* 							Fonctions Belgique					                 */
+/* ----------------------------------------------------------------------------- */
+
+void strat_belgique_guy(void){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_BELGIUM_STRAT,
+		IDLE,
+		EXTRACT_FROM_ZONE,
+		OPEN_ARM,
+		DEPLOY_ARM,
+		TORCHE_MOI_LA_FLAMME,
+		CARRY_TORCH,
+		EXTRACT_FROM_TORCH,
+		BYPASS_TORCH,
+		TORCHE_LA,
+		DEPILE,
+		DONE,
+		ERROR
+	);
+
+	const displacement_t points_torcheMoiLaFlamme[] = {(displacement_t){{1000,COLOR_Y(600)},FAST},(displacement_t){{1100,COLOR_Y(940)},SLOW}};
+	const displacement_t points_bypassTorch[] = {(displacement_t){{1430,COLOR_Y(1170)},FAST},(displacement_t){{1500,COLOR_Y(1480)},FAST}};
+
+
+
+	switch(state){
+		case IDLE:
+			ASSER_set_position(500,210,PI4096/6);
+			state = EXTRACT_FROM_ZONE;
+			break;
+		case EXTRACT_FROM_ZONE:
+			state = try_going(740,COLOR_Y(380),EXTRACT_FROM_ZONE,OPEN_ARM,TORCHE_MOI_LA_FLAMME,FAST,FORWARD,NO_AVOIDANCE); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
+			break;
+		case OPEN_ARM:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_ARM, DEPLOY_ARM, TORCHE_MOI_LA_FLAMME);
+			break;
+		case DEPLOY_ARM:
+			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,global.env.pos.x + 50*cos(global.env.pos.angle/PI4096), global.env.pos.y + 50*sin(global.env.pos.angle/PI4096), DEPLOY_ARM, TORCHE_MOI_LA_FLAMME, TORCHE_MOI_LA_FLAMME);
+			break;
+		case TORCHE_MOI_LA_FLAMME:
+			state = try_going_multipoint(points_torcheMoiLaFlamme,2,TORCHE_MOI_LA_FLAMME,CARRY_TORCH,ERROR,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+			break;
+		case CARRY_TORCH:
+			state = try_going(1150,COLOR_Y(1150),CARRY_TORCH,EXTRACT_FROM_TORCH,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+		case EXTRACT_FROM_TORCH:
+			state = try_going(1150,COLOR_Y(1050),EXTRACT_FROM_TORCH,BYPASS_TORCH,ERROR,BACKWARD,FAST,NO_DODGE_AND_WAIT);
+			break;
+		case BYPASS_TORCH:
+			state = try_going_multipoint(points_bypassTorch,2,BYPASS_TORCH,TORCHE_LA,ERROR,BACKWARD,NO_DODGE_AND_WAIT,END_AT_BREAK);
+			break;
+		case TORCHE_LA:
+			state = try_going(1360,COLOR_Y(1500),TORCHE_LA,DEPILE,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+		case DEPILE:
+			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_CENTRAL),DEPILE,DONE,ERROR);
+			break;
+		case DONE:
+			break;
+		case ERROR:
+			debug_printf("Got an ERR %s:%d", __FILE__,__LINE__);
+			break;
+		default:
+			break;
+	}
+}
+
 
 /* ----------------------------------------------------------------------------- */
-/* 							Autre strats de test             			 */
+/* 							Autre strats de test			         			 */
 /* ----------------------------------------------------------------------------- */
 
 
