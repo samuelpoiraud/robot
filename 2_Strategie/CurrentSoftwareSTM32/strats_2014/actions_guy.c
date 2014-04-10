@@ -48,26 +48,20 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 /* 							Fonctions Belgique					                 */
 /* ----------------------------------------------------------------------------- */
 
+Uint8 putTorchInMidle(Uint8 currentState, Uint8 successState, Uint8 failState);
+Uint8 putTorchInAdversary(Uint8 currentState, Uint8 successState, Uint8 failState);
+
 void strat_belgique_guy(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_BELGIUM_STRAT,
 		IDLE,
 		EXTRACT_FROM_ZONE,
 		OPEN_ARM,
 		DEPLOY_ARM,
-		TORCHE_MOI_LA_FLAMME,
-		CARRY_TORCH,
-		EXTRACT_FROM_TORCH,
-		BYPASS_TORCH,
-		TORCHE_LA,
-		DEPILE,
+		TIDY_ARM,
+		TORCH,
 		DONE,
 		ERROR
 	);
-
-	const displacement_t points_torcheMoiLaFlamme[] = {(displacement_t){{1000,COLOR_Y(600)},FAST},(displacement_t){{1100,COLOR_Y(940)},SLOW}};
-	const displacement_t points_bypassTorch[] = {(displacement_t){{1430,COLOR_Y(1170)},FAST},(displacement_t){{1500,COLOR_Y(1480)},FAST}};
-
-
 
 	switch(state){
 		case IDLE:
@@ -75,31 +69,23 @@ void strat_belgique_guy(void){
 			state = EXTRACT_FROM_ZONE;
 			break;
 		case EXTRACT_FROM_ZONE:
-			state = try_going(740,COLOR_Y(380),EXTRACT_FROM_ZONE,OPEN_ARM,TORCHE_MOI_LA_FLAMME,FAST,FORWARD,NO_AVOIDANCE); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
+			state = try_going(740,COLOR_Y(380),EXTRACT_FROM_ZONE,OPEN_ARM,TORCH,
+							  FAST,FORWARD,NO_AVOIDANCE); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
 			break;
 		case OPEN_ARM:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_ARM, DEPLOY_ARM, TORCHE_MOI_LA_FLAMME);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_ARM, DEPLOY_ARM, TORCH);
 			break;
 		case DEPLOY_ARM:
-			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,global.env.pos.x + 50*cos(global.env.pos.angle/PI4096), global.env.pos.y + 50*sin(global.env.pos.angle/PI4096), DEPLOY_ARM, TORCHE_MOI_LA_FLAMME, TORCHE_MOI_LA_FLAMME);
+			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,
+								 global.env.pos.x + 50*cos(global.env.pos.angle/PI4096),
+								 global.env.pos.y + 50*sin(global.env.pos.angle/PI4096),
+								 DEPLOY_ARM, TORCH, TORCH);
 			break;
-		case TORCHE_MOI_LA_FLAMME:
-			state = try_going_multipoint(points_torcheMoiLaFlamme,2,TORCHE_MOI_LA_FLAMME,CARRY_TORCH,ERROR,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+		case TIDY_ARM:
+			// TODO a gérer
 			break;
-		case CARRY_TORCH:
-			state = try_going(1150,COLOR_Y(1150),CARRY_TORCH,EXTRACT_FROM_TORCH,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
-			break;
-		case EXTRACT_FROM_TORCH:
-			state = try_going(1150,COLOR_Y(1050),EXTRACT_FROM_TORCH,BYPASS_TORCH,ERROR,BACKWARD,FAST,NO_DODGE_AND_WAIT);
-			break;
-		case BYPASS_TORCH:
-			state = try_going_multipoint(points_bypassTorch,2,BYPASS_TORCH,TORCHE_LA,ERROR,BACKWARD,NO_DODGE_AND_WAIT,END_AT_BREAK);
-			break;
-		case TORCHE_LA:
-			state = try_going(1360,COLOR_Y(1500),TORCHE_LA,DEPILE,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
-			break;
-		case DEPILE:
-			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_CENTRAL),DEPILE,DONE,ERROR);
+		case TORCH:
+			state = putTorchInAdversary(TORCH,DONE,ERROR);
 			break;
 		case DONE:
 			break;
@@ -111,6 +97,118 @@ void strat_belgique_guy(void){
 	}
 }
 
+
+Uint8 putTorchInMidle(Uint8 currentState, Uint8 successState, Uint8 failState){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_BELGIUM_STRAT,
+		IDLE,
+		TORCHE_MOI_LA_FLAMME,
+		CARRY_TORCH,
+		EXTRACT_FROM_TORCH,
+		BYPASS_TORCH,
+		TORCHE_LA,
+		DEPILE,
+		DONE,
+		ERROR
+	);
+
+
+	const displacement_t points_torcheMoiLaFlamme[] = {(displacement_t){{1000,COLOR_Y(600)},FAST},
+													   (displacement_t){{1320,COLOR_Y(1200)},SLOW},
+													   (displacement_t){{1380, COLOR_Y(1320)},SLOW}
+													  };
+	const displacement_t points_bypassTorch[] = {(displacement_t){{1570,COLOR_Y(1310)},FAST},
+												 (displacement_t){{1510,COLOR_Y(1750)},FAST}};
+	switch (state){
+		case IDLE:
+			state = TORCHE_MOI_LA_FLAMME;
+			break;
+		case TORCHE_MOI_LA_FLAMME:
+			state = try_going_multipoint(points_torcheMoiLaFlamme,2,TORCHE_MOI_LA_FLAMME,CARRY_TORCH,ERROR,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+			break;
+		case CARRY_TORCH:
+			state = try_going(1380,COLOR_Y(1320),CARRY_TORCH,EXTRACT_FROM_TORCH,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+		case EXTRACT_FROM_TORCH:
+			state = try_going(1390,COLOR_Y(1260),EXTRACT_FROM_TORCH,BYPASS_TORCH,ERROR,BACKWARD,FAST,NO_DODGE_AND_WAIT);
+			break;
+		case BYPASS_TORCH:
+			state = try_going_multipoint(points_bypassTorch,2,BYPASS_TORCH,TORCHE_LA,ERROR,BACKWARD,NO_DODGE_AND_WAIT,END_AT_BREAK);
+			break;
+		case TORCHE_LA:
+			state = try_going(1380,COLOR_Y(1650),TORCHE_LA,DEPILE,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+		case DEPILE:
+			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_CENTRAL),DEPILE,DONE,ERROR);
+			state = DONE;
+			break;
+		case DONE:
+			return successState;
+			break;
+		case ERROR:
+			return failState;
+			break;
+		default:
+			break;
+	}
+	return currentState;
+}
+
+Uint8 putTorchInAdversary(Uint8 currentState, Uint8 successState, Uint8 failState){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_BELGIUM_STRAT,
+		IDLE,
+		TORCHE_MOI_LA_FLAMME,
+		CARRY_TORCH,
+		EXTRACT_FROM_TORCH,
+		BYPASS_TORCH,
+		TORCHE_LA,
+		DEPILE,
+		DONE,
+		ERROR
+	);
+
+
+	const displacement_t points_torcheMoiLaFlamme[] = {(displacement_t){{900,COLOR_Y(600)},FAST},
+													   (displacement_t){{1150,COLOR_Y(930)},FAST},
+													   (displacement_t){{1600, COLOR_Y(1470)},FAST},
+													   (displacement_t){{1730, COLOR_Y(1520)},FAST},
+													   (displacement_t){{1640, COLOR_Y(2590)},FAST}
+													  };
+	const displacement_t points_bypassTorch[] = {(displacement_t){{1570,COLOR_Y(1310)},FAST},
+												 (displacement_t){{1510,COLOR_Y(1750)},FAST}};
+	switch (state){
+		case IDLE:
+			state = TORCHE_MOI_LA_FLAMME;
+			break;
+		case TORCHE_MOI_LA_FLAMME:
+			state = try_going_multipoint(points_torcheMoiLaFlamme,5,TORCHE_MOI_LA_FLAMME,EXTRACT_FROM_TORCH,ERROR,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+			break;
+		case CARRY_TORCH:
+			state = try_going(1600,COLOR_Y(2420),CARRY_TORCH,EXTRACT_FROM_TORCH,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+		case EXTRACT_FROM_TORCH:
+			state = try_going(1600,COLOR_Y(2420),EXTRACT_FROM_TORCH,DONE,ERROR,BACKWARD,FAST,NO_DODGE_AND_WAIT);
+			break;
+		case BYPASS_TORCH:
+			state = try_going_multipoint(points_bypassTorch,2,BYPASS_TORCH,TORCHE_LA,ERROR,BACKWARD,NO_DODGE_AND_WAIT,END_AT_BREAK);
+			break;
+		case TORCHE_LA:
+			state = try_going(1380,COLOR_Y(1650),TORCHE_LA,DEPILE,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+		case DEPILE:
+			//state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_CENTRAL),DEPILE,DONE,ERROR);
+			state = DONE;
+			break;
+		case DONE:
+			return successState;
+			break;
+		case ERROR:
+			return failState;
+			break;
+		default:
+			break;
+	}
+	return currentState;
+}
 
 /* ----------------------------------------------------------------------------- */
 /* 							Autre strats de test			         			 */
