@@ -406,7 +406,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 	static displacement_t courbe[5];
 	Uint8 i;
 	static way_e sensRobot;
-
+	static pathfind_node_id_t point_pathfind;
 	switch(state){
 		case IDLE:
 			strat_fruit_sucess = NO_TREE;
@@ -445,8 +445,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case GET_IN:
-			state = PATHFIND_try_going(PATHFIND_closestNode(courbe[0].point.x,courbe[0].point.y, 0x00),
-					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			if(entrance)
+			{
+				point_pathfind = (sens == HORAIRE)?C3:A1:
+			}
+			state = PATHFIND_try_going(point_pathfind,GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case POS_DEPART:
@@ -538,7 +541,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 	static const Uint8 NBPOINT = 5;
 
-	pathfind_node_id_t point_pathfind;
+	static pathfind_node_id_t point_pathfind;
 
 	static Uint8 get_out_try = 0;
 	static GEOMETRY_point_t escape_point[3];
@@ -587,14 +590,10 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case GET_IN:
 			if(entrance){
-				if(global.env.color == RED && sens==HORAIRE)
+				if(sens==HORAIRE)
 					point_pathfind = Z1;
-				else if(global.env.color == RED && sens==TRIGO)
-					point_pathfind = W3;
-				else if(sens==TRIGO)
-					point_pathfind = A1;
 				else
-					point_pathfind = C3;
+					point_pathfind = W3;
 			}
 			state = PATHFIND_try_going(point_pathfind, GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
