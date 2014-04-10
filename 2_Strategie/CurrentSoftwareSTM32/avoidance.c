@@ -19,6 +19,7 @@
 #include "config/config_pin.h"
 #include "config/config_debug.h"
 #include "Supervision/Buzzer.h"
+#include "Supervision/SD/SD.h"
 
 #define SMALL_ROBOT_ACCELERATION_NORMAL	468*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
 #define BIG_ROBOT_ACCELERATION_NORMAL	937*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]

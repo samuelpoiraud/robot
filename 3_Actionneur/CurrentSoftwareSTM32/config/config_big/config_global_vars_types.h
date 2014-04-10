@@ -19,8 +19,10 @@ typedef enum {
 	QUEUE_ACT_POMPE_Fruit,
 	QUEUE_ACT_lancelauncher,
 	QUEUE_ACT_AX12_Filet,
+	QUEUE_ACT_AX12_Gache,
 	QUEUE_ACT_Arm,
 	QUEUE_ACT_AX12_Small_Arm,
 	QUEUE_ACT_Pompe,
+	QUEUE_ACT_Torch_Locker,
 	NB_ACT
 } QUEUE_act_e;
