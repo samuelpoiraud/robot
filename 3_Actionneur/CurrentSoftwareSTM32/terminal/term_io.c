@@ -55,8 +55,8 @@ terminal_motor_s terminal_motor[] = {
 
 Uint8 terminal_motor_size = sizeof(terminal_motor)/sizeof(terminal_motor_s);
 
-#define EGAL_CARA_INC(c)			(c == 'p' || c == '+')
-#define EGAL_CARA_DEC(c)			(c == 'm' || c == '-')
+#define EGAL_CARA_INC(c)			(c == 'p' || c == 'P' || c == '+')
+#define EGAL_CARA_DEC(c)			(c == 'm' || c == 'M'|| c == '-')
 #define EGAL_CARA_PRINT(c)		(c == ' ')
 #define EGAL_CARA_HELP(c)		(c == 'h' || c == 'H')
 
@@ -89,11 +89,13 @@ void uart_checker(unsigned char c){
 	}
 
 	if(EGAL_CARA_HELP(c)){
-		debug_printf("---------------------- Terminal help ----------------------\n");
-		debug_printf("Actionneur testable : \n");
+		debug_printf("---------------------- Terminal ----------------------\n");
+		debug_printf("Actionneur : \n");
 		for(i=0;i<terminal_motor_size;i++){
-			debug_printf("touche : %c ID :%d Name %s\n", terminal_motor[i].cara_selection, terminal_motor[i].id, terminal_motor[i].name);
+			debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", AX12_is_ready(terminal_motor[i].id) ? "  Connecté" : "Déconnecté", terminal_motor[i].cara_selection, terminal_motor[i].id, terminal_motor[i].name);
 		}
+		debug_printf("\nCommande : \n");
+		debug_printf("p/+ incrémenter\nm/- décrémenter\nESPACE affichage position\nh affichage aide\n");
 	}
 
 	if(state == -1)

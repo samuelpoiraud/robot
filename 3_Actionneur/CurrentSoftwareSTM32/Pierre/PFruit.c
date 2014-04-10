@@ -89,6 +89,7 @@ static void FRUIT_initAX12() {
 
 		debug_printf("FRUIT_LABIUM AX12 initialisé\n");
 	}
+	debug_printf("Fruit init config %s\n", ax12_is_initialized ? "DONE" : "FAIL");
 }
 
 void FRUIT_stop() {
@@ -109,9 +110,9 @@ void FRUIT_stop() {
 
 void FRUIT_init_pos(){
 	FRUIT_initAX12();
-
+	debug_printf("Fruit init pos : \n");
 	if(!AX12_set_position(FRUIT_LABIUM_AX12_ID, FRUIT_AX12_LABIUM_INIT_POS))
-		debug_printf("L'AX12 n°%d n'est pas la\n", FRUIT_LABIUM_AX12_ID);
+		debug_printf("    L'AX12 n°%d n'est pas la\n", FRUIT_LABIUM_AX12_ID);
 }
 
 bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
