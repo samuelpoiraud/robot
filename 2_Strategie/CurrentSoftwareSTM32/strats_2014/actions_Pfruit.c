@@ -449,7 +449,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		case GET_IN:
 			if(entrance)
 			{
-				point_pathfind = (sens == HORAIRE)?C3:A1:
+				point_pathfind = (sens == HORAIRE)?C3:A1;
 			}
 			state = PATHFIND_try_going(point_pathfind,GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
