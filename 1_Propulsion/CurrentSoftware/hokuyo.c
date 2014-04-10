@@ -35,7 +35,7 @@
 	#define HOKUYO_ANGLE_ROBOT_TERRAIN 0
 	#define HOKUYO_DETECTION_MARGE 130
 	#define HOKUYO_EVITEMENT_MIN 150
-	#define HOKUYO_MARGIN_FIELD_SIDE_IGNORE 80
+	#define HOKUYO_MARGIN_FIELD_SIDE_IGNORE 100
 
 	#define GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE		250	//Distance d'un point trop proche de nous qui doit être ignoré.
 	#define PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	150	//Distance d'un point trop proche de nous qui doit être ignoré.
@@ -362,18 +362,23 @@ void hokuyo_find_valid_points(void)
 				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
 
 				#define MAMOUTH_RECTANGLES_X		300
-				#define MAMOUTH_RECTANGLES_Y_START	400
-				#define MAMOUTH_RECTANGLES_Y_STOP	1100
+				#define MAMOUTH_RECTANGLES_Y_START	350
+				#define MAMOUTH_RECTANGLES_Y_STOP	1150
 				#define CORNER_SQUARE				150
+				#define MARGIN						100
 
 				//On va éliminer certaines zones volontairement.
-				if(x_absolute > FIELD_SIZE_X - CORNER_SQUARE)
-					if(y_absolute < CORNER_SQUARE || y_absolute > FIELD_SIZE_Y - CORNER_SQUARE)	//Foyers des deux cotés
+				if(x_absolute > FIELD_SIZE_X - MARGIN || x_absolute < MARGIN || absolute(x_absolute - FIELD_SIZE_X/2) < MARGIN)
+					if(y_absolute < MARGIN || y_absolute > FIELD_SIZE_Y - MARGIN)	//Les 4 coins et deux balises fixes
 						point_filtered = TRUE;	//on refuse les points
 				if(x_absolute < MAMOUTH_RECTANGLES_X)
 					if (  	(y_absolute > MAMOUTH_RECTANGLES_Y_START && y_absolute < MAMOUTH_RECTANGLES_Y_STOP) 	//zones de dépose devant mamouths
 						|| 	(y_absolute > FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_STOP && y_absolute < FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_START)	)
 						point_filtered = TRUE;	//on refuse les points
+
+				if(angle < 100*5 || angle > 100*225)//on retire les 5 premiers degrés et les 5 derniers
+					point_filtered = TRUE;
+
 				if(point_filtered == FALSE)
 				{
 					detected_valid_points[nb_valid_points].dist = distance;
