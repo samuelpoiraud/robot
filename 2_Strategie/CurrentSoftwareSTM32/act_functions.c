@@ -62,6 +62,16 @@ bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Fruit, &args);
 }
 
+bool_e ACT_fruit_labium_goto(ACT_fruit_labium_cmd_e cmd) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_FRUIT_MOUTH, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_FRUIT_MOUTH, ACT_FRUIT_MOUTH_STOP);
+
+	debug_printf("Pushing Fruit labium Run cmd\n");
+	return ACT_push_operation(ACT_QUEUE_Fruit_labium, &args);
+}
+
 bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param){
 	QUEUE_arg_t args;
 

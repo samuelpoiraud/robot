@@ -51,10 +51,13 @@ typedef enum {
 	ACT_FRUIT_Verrin_Close = ACT_FRUIT_MOUTH_CLOSE,
 	ACT_FRUIT_Verrin_Canceled = ACT_FRUIT_MOUTH_CANCELED,
 	ACT_FRUIT_Verrin_Stop = ACT_FRUIT_MOUTH_STOP,
+} ACT_fruit_mouth_cmd_e;
+
+typedef enum {
 	ACT_FRUIT_Labium_Open = ACT_FRUIT_LABIUM_OPEN,
 	ACT_FRUIT_Labium_Close = ACT_FRUIT_LABIUM_CLOSE,
 	ACT_FRUIT_Labium_Stop = ACT_FRUIT_LABIUM_STOP
-} ACT_fruit_mouth_cmd_e;
+} ACT_fruit_labium_cmd_e;
 
 typedef enum {
 	ACT_Lance_1_BALL =  ACT_LANCELAUNCHER_RUN_1_BALL,
@@ -83,6 +86,7 @@ typedef enum {
 } ACT_pompe_cmd_e;
 
 bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd);
+bool_e ACT_fruit_labium_goto(ACT_fruit_labium_cmd_e cmd);
 bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param);
 bool_e ACT_filet_launch(ACT_filet_cmd_e cmd);
 bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);
