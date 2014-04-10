@@ -121,6 +121,7 @@
 
 /* Config proto filet*/
 	#define FILET_AX12_ID							  4
+	#define GACHE_AX12_ID							  1
 
 /* config watchdog lance lanceur*/
 	#define LANCELAUNCHER_TIMER_USE_WATCHDOG

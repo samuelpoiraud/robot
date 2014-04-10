@@ -14,6 +14,8 @@
 #include "../Pierre/Plance_launcher.h"
 #include "../Pierre/PFruit.h"
 #include "../Pierre/PFilet.h"
+#include "../Pierre/PGache.h"
+#include "../Pierre/PTorch_locker.h"
 #include "../Common/Arm.h"
 #include "../Common/Small_arm.h"
 #include "../Common/Pompe.h"
@@ -35,7 +37,9 @@ static ACTQ_functions_t actionneurs[] = {
 	ACT_DECLARE(ARM),
 	ACT_DECLARE(POMPE),
 	{&LANCE_LAUNCHER_init, NULL, &LANCE_LAUNCHER_stop, &LANCE_LAUNCHER_CAN_process_msg},
-	{&FILET_init, NULL, NULL, &FILET_CAN_process_msg}
+	{&FILET_init, NULL, NULL, &FILET_CAN_process_msg},
+	ACT_DECLARE(GACHE),
+	ACT_DECLARE(TORCH_LOCKER)
 };
 
 static const Uint8 NB_ACTIONNEURS = sizeof(actionneurs) / sizeof(ACTQ_functions_t);

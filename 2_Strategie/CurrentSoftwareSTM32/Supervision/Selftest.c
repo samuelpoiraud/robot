@@ -485,7 +485,9 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_SMALL_ARM:					debug_printf("SELFTEST_ACT_SMALL_ARM");					break;
 				case SELFTEST_ACT_ARM:							debug_printf("SELFTEST_ACT_ARM");						break;
 				case SELFTEST_ACT_FILET:						debug_printf("SELFTEST_ACT_FILET");						break;
+				case SELFTEST_ACT_GACHE:						debug_printf("SELFTEST_ACT_GACHE");						break;
 				case SELFTEST_POMPE:							debug_printf("SELFTEST_POMPE");							break;
+				case SELFTEST_ACT_TORCH_LOCKER:					debug_printf("SELFTEST_ACT_TORCH_LOCKER");				break;
 
 				default:										debug_printf("UNKNOW_ERROR_CODE"); 						break;
 			}
@@ -762,12 +764,14 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";	break;
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
-		case SELFTEST_ACT_FRUIT_MOUTH:					return "ACT FRUIT";				break;
+		case SELFTEST_ACT_FRUIT_MOUTH:					return "ACT Fruit";				break;
 		case SELFTEST_ACT_LANCELAUNCHER:				return "ACT LanceLauch";		break;
-		case SELFTEST_ACT_ARM:							return "ACT arm";				break;
-		case SELFTEST_ACT_SMALL_ARM:					return "ACT small arm";			break;
-		case SELFTEST_ACT_FILET:						return "ACT filet";				break;
-		case SELFTEST_POMPE:							return "POMPE ERR";				break;
+		case SELFTEST_ACT_ARM:							return "ACT Arm";				break;
+		case SELFTEST_ACT_SMALL_ARM:					return "ACT Small arm";			break;
+		case SELFTEST_ACT_FILET:						return "ACT Filet";				break;
+		case SELFTEST_ACT_GACHE:						return "ACT Gache";				break;
+		case SELFTEST_POMPE:							return "ACT Pompe"; 			break;
+		case SELFTEST_ACT_TORCH_LOCKER:					return "ACT Torch Locker";		break;
 
 		case SELFTEST_ERROR_NB: return NULL; break;
 		case SELFTEST_NO_ERROR: return NULL; break;

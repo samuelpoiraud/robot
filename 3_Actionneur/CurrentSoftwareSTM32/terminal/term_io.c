@@ -13,6 +13,7 @@
 	#include "../Pierre/PFilet_config.h"
 	#include "../Pierre/PFruit_config.h"
 	#include "../Pierre/PTorch_locker_config.h"
+	#include "../Pierre/PGache_config.h"
 #else
 	#include "../Guy/Arm_config.h"
 	#include "../config/config_small/config_pin.h"
@@ -46,6 +47,7 @@ terminal_motor_s terminal_motor[] = {
 		DECLARE_AX12_RX24(2, '7', FRUIT_LABIUM_AX12),
 		DECLARE_AX12_RX24(2, '8', TORCH_LOCKER_AX12_1),
 		DECLARE_AX12_RX24(2, '9', TORCH_LOCKER_AX12_2),
+		DECLARE_AX12_RX24(2, '0', GACHE_AX12),
 	#else
 
 	#endif
@@ -56,6 +58,7 @@ Uint8 terminal_motor_size = sizeof(terminal_motor)/sizeof(terminal_motor_s);
 #define EGAL_CARA_INC(c)			(c == 'p' || c == '+')
 #define EGAL_CARA_DEC(c)			(c == 'm' || c == '-')
 #define EGAL_CARA_PRINT(c)		(c == ' ')
+#define EGAL_CARA_HELP(c)		(c == 'h' || c == 'H')
 
 
 
@@ -82,6 +85,14 @@ void uart_checker(unsigned char c){
 				debug_printf("%s : %d\n", terminal_motor[i].name, AX12_get_position(terminal_motor[i].id));
 			else
 				debug_printf("%s : %d\n" , terminal_motor[i].name, terminal_motor[i].fun());
+		}
+	}
+
+	if(EGAL_CARA_HELP(c)){
+		debug_printf("---------------------- Terminal help ----------------------\n");
+		debug_printf("Actionneur testable : \n");
+		for(i=0;i<terminal_motor_size;i++){
+			debug_printf("touche : %c ID :%d Name %s\n", terminal_motor[i].cara_selection, terminal_motor[i].id, terminal_motor[i].name);
 		}
 	}
 
