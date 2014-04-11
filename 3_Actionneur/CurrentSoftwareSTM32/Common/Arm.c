@@ -246,6 +246,7 @@ static void ARM_initAX12(){
 				AX12_config_set_error_before_shutdown(ARM_MOTORS[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
 			} else if(ARM_ax12_is_initialized[i] == FALSE) {
 				// Au moins un RX24/AX12 non prêt => pas allOk, on affiche pas le message d'init
+				debug_printf("AX12 %d absent\n", ARM_MOTORS[i].id);
 				allOk = FALSE;
 			}
 		}
