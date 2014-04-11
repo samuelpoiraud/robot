@@ -185,15 +185,17 @@ static void MAIN_onButton0() {
 
 static void MAIN_onButton1() {
 	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_FRUIT_MOUTH;
-	if(state == 0)
-		msg.data[0] = ACT_FRUIT_LABIUM_OPEN;
-	else if(state == 1)
-		msg.data[0] = ACT_FRUIT_LABIUM_CLOSE;
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
+	if(FRUIT_POMPE_TOR_OPEN == 0){
+		CAN_msg_t msg;
+		msg.size = 1;
+		msg.sid = ACT_FRUIT_MOUTH;
+		if(state == 0)
+			msg.data[0] = ACT_FRUIT_LABIUM_OPEN;
+		else if(state == 1)
+			msg.data[0] = ACT_FRUIT_LABIUM_CLOSE;
+		CAN_process_msg(&msg);
+		state = (state == 1)? 0 : state + 1;
+	}
 }
 
 static void MAIN_onButton2() {
