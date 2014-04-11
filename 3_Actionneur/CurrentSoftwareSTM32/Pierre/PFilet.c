@@ -57,6 +57,8 @@ void FILET_init() {
 //Initialise l'AX12 du filet s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void FILET_initAX12() {
 	static bool_e ax12_is_initialized = FALSE;
+	if(ax12_is_initialized)
+		return;
 	if(ax12_is_initialized == FALSE && AX12_is_ready(FILET_AX12_ID) == TRUE) {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(FILET_AX12_ID, 136);
@@ -69,9 +71,7 @@ static void FILET_initAX12() {
 		AX12_config_set_error_before_led(FILET_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(FILET_AX12_ID, AX12_ERROR_OVERHEATING);
 	}
-
 	debug_printf("Filet init config %s\n", ax12_is_initialized ? "DONE" : "FAIL");
-
 }
 
 bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
@@ -258,7 +258,7 @@ void FILET_BOUTON_process(void){
 	queue_id_t queueId1;
 	FILET_initAX12();
 
-	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID) || !global.alim)
+	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID))
 		return;
 
 	typedef enum{
@@ -339,7 +339,7 @@ static void FILET_rearm(){
 	queue_id_t queueId1;
 	FILET_initAX12();
 
-	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID) || !global.alim)
+	if(!AX12_is_ready(FILET_AX12_ID) || AX12_is_moving(FILET_AX12_ID))
 		return;
 
 	typedef enum{
