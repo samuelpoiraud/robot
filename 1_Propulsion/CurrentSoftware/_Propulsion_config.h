@@ -101,7 +101,7 @@
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
 	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C10
-	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C35  //Original 0x0C47
+	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C35  //Théorique pour 60mm : 0x0C10
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
@@ -112,12 +112,12 @@
 
 
 	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (0)
-	#define BIG_ODOMETRY_COEF_SYM_DEFAULT 0x0029
+	#define BIG_ODOMETRY_COEF_SYM_DEFAULT 0x0000
 
-	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010AC0//0XA054	//(CHOMP : 43632)	Théorique : 41335
-	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000C5AD  //Secondaire 0x0000C581 // Original 0x0000C5A2
+	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010AC0	//Guy : 92mm entre roue codeuse et centre
+	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000B3FC  	//Pierre : 138mm entre roue codeuse et centre - théorique : B308
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
-	// COEF_ODOMETRIE_ROTATION = 1024*4096*16*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
+	// COEF_ODOMETRIE_ROTATION = 1024*4096*64*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
 	// r : rayon du cercle ayant pour diamètre le segment définit entre les roues codeuses en mm
@@ -210,15 +210,15 @@
 	#define KRUSTY_KD_TRANSLATION 	(0x36) //0x80
 
 	#define TINY_KP_TRANSLATION 	(34)
-	#define KRUSTY_KP_TRANSLATION 	(32)
+	#define KRUSTY_KP_TRANSLATION 	(17)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
 	#define TINY_KD_ROTATION 	(288) //0x800
-	#define KRUSTY_KD_ROTATION 	(0x800) //0x800
+	#define KRUSTY_KD_ROTATION 	(0x200) //0x800
 
 	#define TINY_KP_ROTATION 	(130)//40 //0x80
-	#define KRUSTY_KP_ROTATION 	(0xA0) //0x80
+	#define KRUSTY_KP_ROTATION 	(0xF0) //0x80
 
 	//Ordre de grandeur :
 	//A la vitesse lumière, KV_TRANSLATION * vitesse_translation doit valoir 100*4096
@@ -230,7 +230,7 @@
 	#define KRUSTY_KV_ROTATION 	1//CHOMP 1
 
 	#define TINY_KV_TRANSLATION 	19
-	#define KRUSTY_KV_TRANSLATION 	19
+	#define KRUSTY_KV_TRANSLATION 	12
 
 	#ifdef CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION
 		#warning "mode non utilisé jusqu'à maintenant : coefs non reglés"
@@ -264,7 +264,7 @@
 	#define TINY_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 
 	#define KRUSTY_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 10
+	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 7
 
 	// 13 = (1024 / (distance entre les roues de propulsions divisée par 2 ) )
 	//sur archi'tech : 2*80mm entre les roues
@@ -303,8 +303,8 @@
 	#define KRUSTY_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
 
 	//Une vitesse de 1024[rad/4096/1024/5ms] en rotation correspond à un déplacement des roues de 80[mm/4096/5ms]
-	#define KRUSTY_ROTATION_SPEED_LIGHT 		(Sint32)(135160)			//[rad/4096/1024/5ms]
-	#define KRUSTY_ROTATION_SPEED_MAX 			(Sint32)(135160)			//[rad/4096/1024/5ms]
+	#define KRUSTY_ROTATION_SPEED_LIGHT 		(Sint32)(67580)			//[rad/4096/1024/5ms]
+	#define KRUSTY_ROTATION_SPEED_MAX 			(Sint32)(67580)			//[rad/4096/1024/5ms]
 	#define KRUSTY_ROTATION_SPEED_LOW 			(Sint32)(21120)			//environ 1,5 rad/s
 	#define KRUSTY_ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
 	#define KRUSTY_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
