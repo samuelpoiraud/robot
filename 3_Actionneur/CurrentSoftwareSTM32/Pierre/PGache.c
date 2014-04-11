@@ -53,8 +53,8 @@ static void GACHE_initAX12() {
 		AX12_config_set_lowest_voltage(GACHE_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(GACHE_AX12_ID, GACHE_AX12_MAX_TORQUE_PERCENT);
 
-		AX12_config_set_maximal_angle(GACHE_AX12_ID, 300);
-		AX12_config_set_minimal_angle(GACHE_AX12_ID, 0);
+		AX12_config_set_maximal_angle(GACHE_AX12_ID, GACHE_AX12_MAX_VALUE);
+		AX12_config_set_minimal_angle(GACHE_AX12_ID, GACHE_AX12_MIN_VALUE);
 
 		AX12_config_set_error_before_led(GACHE_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(GACHE_AX12_ID, AX12_ERROR_OVERHEATING);

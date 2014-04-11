@@ -57,16 +57,18 @@ void FILET_init() {
 //Initialise l'AX12 du filet s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void FILET_initAX12() {
 	static bool_e ax12_is_initialized = FALSE;
+
 	if(ax12_is_initialized)
 		return;
+
 	if(ax12_is_initialized == FALSE && AX12_is_ready(FILET_AX12_ID) == TRUE) {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(FILET_AX12_ID, 136);
 		AX12_config_set_lowest_voltage(FILET_AX12_ID, 70);
 		AX12_config_set_maximum_torque_percentage(FILET_AX12_ID, FILET_AX12_MAX_TORQUE_PERCENT);
 
-		AX12_config_set_maximal_angle(FILET_AX12_ID, 300);
-		AX12_config_set_minimal_angle(FILET_AX12_ID, 0);
+		AX12_config_set_maximal_angle(FILET_AX12_ID, FILET_AX12_MAX_VALUE);
+		AX12_config_set_minimal_angle(FILET_AX12_ID, FILET_AX12_MIN_VALUE);
 
 		AX12_config_set_error_before_led(FILET_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(FILET_AX12_ID, AX12_ERROR_OVERHEATING);
