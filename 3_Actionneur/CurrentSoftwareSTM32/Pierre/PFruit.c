@@ -63,8 +63,8 @@ static void FRUIT_initDCM() {
 	static bool_e dcm_is_initialized = FALSE;
 
 	if(dcm_is_initialized == FALSE ) {
-		PORTS_pwm_init();
-		PWM_stop(FRUIT_POMPE_PWM_NUM);
+		//PORTS_pwm_init();
+		FRUIT_POMPE_PIN = 0;
 		wanted_state = CLOSE;
 		dcm_is_initialized = TRUE;
 		info_printf("VERIN FRUIT initialisé (pompe) \n");
@@ -196,7 +196,8 @@ static void FRUIT_command_pompe_init(queue_id_t queueId) {
 			break;
 
 		case ACT_FRUIT_MOUTH_STOP:
-			PWM_stop(FRUIT_POMPE_PWM_NUM);
+			FRUIT_POMPE_PIN = 0;
+			//PWM_stop(FRUIT_POMPE_PWM_NUM);
 			return;
 
 		default: {
@@ -225,7 +226,8 @@ static void FRUIT_command_pompe_run(queue_id_t queueId){
 
 		stopActVerin = FALSE;
 	} else if(ACTQ_check_timeout(queueId, FRUIT_POMPE_ASSER_TIMEOUT)) { //Si timeout, on arrete
-		PWM_stop(FRUIT_POMPE_PWM_NUM);
+		FRUIT_POMPE_PIN = 0;
+		//PWM_stop(FRUIT_POMPE_PWM_NUM);
 		QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_FAILED, ACT_RESULT_ERROR_TIMEOUT, __LINE__);
 	}
 }
@@ -238,7 +240,8 @@ static void POMPE_goToPos(Uint8 command){
 		wanted_state = CLOSE;
 		FRUIT_POMPE_SENS = 1;
 	}
-	PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
+	FRUIT_POMPE_PIN = 1;
+	//PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
 }
 
 static void FRUIT_command_labium_init(queue_id_t queueId) {
@@ -303,7 +306,8 @@ void FRUIT_process_main(){
 				POMPE_goToPos(ACT_FRUIT_MOUTH_OPEN);
 				verrin_order = IN_OPENING;
 			}else if(FRUIT_POMPE_TOR_OPEN == 0 && verrin_order != NO_ORDER){
-				PWM_stop(FRUIT_POMPE_PWM_NUM);
+				FRUIT_POMPE_PIN = 0;
+				//PWM_stop(FRUIT_POMPE_PWM_NUM);
 				verrin_order = NO_ORDER;
 			}
 			break;
@@ -313,7 +317,8 @@ void FRUIT_process_main(){
 				POMPE_goToPos(ACT_FRUIT_MOUTH_CLOSE);
 				verrin_order = IN_CLOSING;
 			}else if(FRUIT_POMPE_TOR_CLOSE == 0 && verrin_order != NO_ORDER){
-				PWM_stop(FRUIT_POMPE_PWM_NUM);
+				//PWM_stop(FRUIT_POMPE_PWM_NUM);
+				FRUIT_POMPE_PIN = 0;
 				verrin_order = NO_ORDER;
 			}
 			break;
