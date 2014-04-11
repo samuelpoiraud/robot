@@ -82,7 +82,7 @@ void strat_belgique_guy(void){
 
 		case EXTRACT_FROM_ZONE:
 			state = try_going(997,COLOR_Y(150),EXTRACT_FROM_ZONE,WAIT,EXTRACT_FROM_ZONE,
-							  FAST,ANY_WAY,NO_AVOIDANCE); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
+							  FAST,ANY_WAY,NO_DODGE_AND_WAIT); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
 			break;
 
 		case WAIT :
