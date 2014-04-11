@@ -31,6 +31,7 @@
 Uint8 time_filet = 0;
 bool_e rearm_auto_active = TRUE;
 
+static void FILET_gache_process();
 static void FILET_initAX12();
 static void FILET_command_init(queue_id_t queueId);
 static void FILET_command_run(queue_id_t queueId);
@@ -190,11 +191,8 @@ static void FILET_command_init(queue_id_t queueId) {
 	//La commande a été envoyée et l'AX12 l'a bien reçu
 
 	if(command == ACT_FILET_LAUNCHED){
-		CAN_msg_t msg;
-		msg.size = 1;
-		msg.sid = ACT_GACHE;
-		msg.data[0] = ACT_GACHE_LAUNCHED;
-		CAN_process_msg(&msg);
+		if(WATCHDOG_create(TIME_BEFORE_FREE_STRING, FILET_gache_process, FALSE) == 0xFF)
+			debug_printf("Création du watchdog pour lacher les ficelles impossible\n");
 	}
 
 }
@@ -206,6 +204,14 @@ static void FILET_command_run(queue_id_t queueId) {
 
 	if(ACTQ_check_status_ax12(queueId, FILET_AX12_ID, QUEUE_get_arg(queueId)->param, FILET_AX12_ASSER_POS_EPSILON, FILET_AX12_ASSER_TIMEOUT, 0, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_FILET, result, errorCode, line);
+}
+
+static void FILET_gache_process(){
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_GACHE;
+	msg.data[0] = ACT_GACHE_LAUNCHED;
+	CAN_process_msg(&msg);
 }
 
 //************************************** Gestion du réarmement et information /**************************************/
