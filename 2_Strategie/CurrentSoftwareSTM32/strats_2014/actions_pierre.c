@@ -137,9 +137,9 @@ error_e sub_action_initiale(){
 		ERROR
 	);
 
-	displacement_t point[] = {{{550,COLOR_Y(1144)},	FAST},
+	displacement_t point[] = {{{650,COLOR_Y(1144)},	FAST},
 							  {{1050,COLOR_Y(1160)},FAST},
-							  {{1650,COLOR_Y(1100)},FAST}
+							  {{1650,COLOR_Y(1200)},FAST}
 							 };
 
 
@@ -180,17 +180,17 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_TORCH_FIRST_POINT:
-			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,(global.env.color == RED)?  BACKWARD : FORWARD,NO_DODGE_AND_WAIT);
 			break;
 		case GOTO_TORCH_SECOND_POINT:
 			if(entrance)
 				ASSER_WARNER_arm_x(800);
 			if(global.env.asser.reach_x)
 				REACH_POINT_C1_send_request();
-			state = try_going_until_break(point[1].point.x, point[1].point.y,GOTO_TORCH_SECOND_POINT,GOTO_TORCH_THIRD_POINT,FAIL_SECOND_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(point[1].point.x, point[1].point.y,GOTO_TORCH_SECOND_POINT,GOTO_TORCH_THIRD_POINT,FAIL_SECOND_POINT,FAST,(global.env.color == RED)? BACKWARD : FORWARD,NO_DODGE_AND_WAIT);
 			break;
 		case GOTO_TORCH_THIRD_POINT:
-			state = try_going_until_break(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,DO_TREE,FAIL_THIRD_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,DO_TREE,FAIL_THIRD_POINT,FAST,(global.env.color == RED)? BACKWARD : FORWARD,NO_DODGE_AND_WAIT);
 			break;
 		case FAIL_FIRST_POINT:
 			state = try_going_until_break(750, COLOR_Y(400),FAIL_FIRST_POINT,DO_TREE,GOTO_TORCH_FIRST_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
@@ -267,54 +267,6 @@ error_e sub_action_initiale(){
 			#else
 				state = DO_FRESCO;
 			#endif
-			break;
-
-		case TAKE_DECISION:
-
-//			#ifndef ALL_SHOOT_OUR_MAMMOUTH
-//			if(launcher_ball_adversary == FALSE && last_state == FILE_FRUIT){
-//				state = LANCE_LAUNCHER_ADVERSARY;
-//				break;
-//			}
-//			#endif
-//			if(!lance_ball && last_state != TRY_LANCE_LAUNCHER)
-//				state = TRY_LANCE_LAUNCHER;
-//			else if(action_fresco_filed == FALSE && last_state != DO_FRESCO){
-//				state = DO_FRESCO;
-//			}else if(get_presenceFruit() == TRUE && last_state != FILE_FRUIT){
-//				state = FILE_FRUIT;
-//			}
-//			#ifndef ALL_SHOOT_OUR_MAMMOUTH
-//			else if(launcher_ball_adversary == FALSE && last_state != LANCE_LAUNCHER_ADVERSARY){
-//				state = LANCE_LAUNCHER_ADVERSARY;
-//			}
-//			#endif
-//			else if(FRUIT_sucess_tree(TREE_OUR) != ALL_TREE){
-//				state = TRY_AGAIN_FRUIT;
-//			}else
-//				state = DONE;
-
-
-			break;
-
-		case TAKE_DECISION_ERROR:
-//			if(!lance_ball && last_state != TRY_LANCE_LAUNCHER)
-//				state = TRY_LANCE_LAUNCHER;
-//			else if(action_fresco_filed == FALSE && last_state != DO_FRESCO){
-//				state = DO_FRESCO;
-//			}else if(get_presenceFruit() == TRUE && last_state != FILE_FRUIT && last_state != LANCE_LAUNCHER_ADVERSARY){
-//				state = FILE_FRUIT;
-//			}
-//			#ifndef ALL_SHOOT_OUR_MAMMOUTH
-//			else if(launcher_ball_adversary == FALSE && last_state != LANCE_LAUNCHER_ADVERSARY && last_state != FILE_FRUIT){
-//				state = LANCE_LAUNCHER_ADVERSARY;
-//			}
-//			#endif
-//			else if(FRUIT_sucess_tree(TREE_OUR) != ALL_TREE && last_state != TRY_AGAIN_FRUIT){
-//				state = TRY_AGAIN_FRUIT;
-//			}else
-//				state = ERROR;
-
 			break;
 
 		case DO_FRESCO:
