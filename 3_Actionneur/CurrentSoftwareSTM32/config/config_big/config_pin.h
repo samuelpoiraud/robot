@@ -48,7 +48,7 @@
 	#define LANCELAUNCHER_PIN_5 GPIOB->ODR14
 	#define LANCELAUNCHER_PIN_6 GPIOB->ODR15
 
-#define PORT_C_IO_MASK	0xF7FF
+#define PORT_C_IO_MASK	0xF6FF
 	//	-				 			  0
 	//	-				 			  1
 	//	-				 			  2
@@ -56,7 +56,7 @@
 	//	-				 			  4
 	//	-				 			  5
 	//	-				 			  6
-	//	-				 			  7
+	#define FRUIT_POMPE_PIN		GPIOC->ODR8
 	//	-				 			  8
 	//	-				 			  9
 	//	-	sortie libre 			  10
@@ -130,7 +130,7 @@
 	#define SMALL_ARM_AX12_ID						  0
 
 /* Config proto pompe*/
-	#define POMPE_PWM_NUM							  1
+	#define POMPE_PWM_NUM							  3
 
 /* Config torch locker*/
 	#define TORCH_LOCKER_AX12_1_ID					 7
