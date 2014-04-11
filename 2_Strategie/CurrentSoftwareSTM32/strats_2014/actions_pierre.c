@@ -38,9 +38,9 @@ static void REACH_POINT_C1_send_request();
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
-#define POS_Y_MANUAL_FRESCO COLOR_Y(1350) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
+#define POS_Y_MANUAL_FRESCO COLOR_Y(1400) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
 
-
+#define TIME_BEGINNING_NO_AVOIDANCE 5000
 
 //Pour activer si on doit lancer toute les balles sur le premier mammouth ou non
 //#define ALL_SHOOT_OUR_MAMMOUTH
@@ -49,7 +49,7 @@ static void REACH_POINT_C1_send_request();
 //#define FAVOR_FILE_FRUIT_AT_FRESCO
 
 //Fait tomber le triangle du bout si tout va bien ou guy l'aura fait tomber avant
-//#define DROP_TRIANGLE_END
+#define DROP_TRIANGLE_END
 
 /**********************************************************************************************************************************
  *
@@ -108,6 +108,7 @@ error_e sub_action_initiale(){
 		GOTO_TREE_2,
 		DO_TREE,
 #ifdef DROP_TRIANGLE_END
+		BEFORE_DROP_TRIANGLE_END,
 		GO_DROP_TRIANGLE_END,
 		DO_DROP_TRIANGLE_END,
 		DO_TREE_1,
@@ -171,9 +172,9 @@ error_e sub_action_initiale(){
 			break;
 		case LANCE_LAUNCHER:
 #ifdef ALL_SHOOT_OUR_MAMMOUTH
-			state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,FAIL_FIRST_POINT);
+			state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,ERROR);
 #else
-			state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,FAIL_FIRST_POINT);
+			state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,ERROR);
 #endif
 
 			break;
@@ -226,22 +227,26 @@ error_e sub_action_initiale(){
 
 		case DO_TREE:
 			#ifdef DROP_TRIANGLE_END
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_2,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,GO_DROP_TRIANGLE_END,ERROR);
+			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_2,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,BEFORE_DROP_TRIANGLE_END,ERROR);
 			#else
 			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_ALL_TREE,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,GOTO_FRESCO,ERROR);
 			#endif
 			break;
 
 		#ifdef DROP_TRIANGLE_END
+		case BEFORE_DROP_TRIANGLE_END:
+			state = try_going(1200,COLOR_Y(620),BEFORE_DROP_TRIANGLE_END,GO_DROP_TRIANGLE_END,DO_TREE_1,FAST,(global.env.color == RED)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
 		case GO_DROP_TRIANGLE_END:
-			state = try_going(850,COLOR_Y(650),GO_DROP_TRIANGLE_END,DO_DROP_TRIANGLE_END,DO_TREE_1,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(1000,COLOR_Y(620),GO_DROP_TRIANGLE_END,DO_DROP_TRIANGLE_END,DO_TREE_1,FAST,(global.env.color == RED)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case DO_DROP_TRIANGLE_END:
 			if(entrance)
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 
-			state = try_going(1250,COLOR_Y(650),DO_DROP_TRIANGLE_END,DO_TREE_1,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(1200,COLOR_Y(620),DO_DROP_TRIANGLE_END,DO_TREE_1,ERROR,FAST,(global.env.color == RED)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
 
 			if(state != DO_DROP_TRIANGLE_END)
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
@@ -1389,7 +1394,7 @@ error_e strat_manage_fresco(){
 			break;
 
 		case FILE_FRESCO:
-			state = check_sub_action_result(strat_file_fresco(posY),FILE_FRESCO,VERIFICATION,ERROR);
+			state = check_sub_action_result(strat_file_fresco(posY),FILE_FRESCO,DONE,ERROR);
 			break;
 
 		case VERIFICATION:
@@ -1442,7 +1447,11 @@ error_e strat_manage_fresco(){
 			break;
 
 		case ERROR:
-			state = IDLE;
+			if(last_state == LAST_CHANCE_FILE_FRESCO) // Refait au prochain tour si il y a une erreur
+				state = LAST_LAST_CHANCE_FILE_FRESCO;
+			else
+				state = LAST_CHANCE_FILE_FRESCO;
+
 			return NOT_HANDLED;
 			break;
 
@@ -1733,7 +1742,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 					if(mammouth == global.env.color)
 						posShoot = 2300 + OFFSET_BALL_LAUNCHER;
 					else
-						posShoot = 2050 + OFFSET_BALL_LAUNCHER;
+						posShoot = 2350 + OFFSET_BALL_LAUNCHER;
 
 					zone_access_posShoot_x1 = 300;
 					zone_access_posShoot_x2 = 650;
@@ -1776,13 +1785,13 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			break;
 
 		case POS_BEGINNING:
-			state = try_going(dplt[0].point.x,dplt[0].point.y,POS_BEGINNING,POS_LAUNCH,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(dplt[0].point.x,dplt[0].point.y,POS_BEGINNING,POS_LAUNCH,ERROR,FAST,sensRobot,(global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE);
 			break;
 		case POS_LAUNCH:
 			if(entrance)
 				ASSER_WARNER_arm_y(posShoot);
 
-			state = try_going_multipoint(&dplt[1], 3, POS_LAUNCH, DONE , ERROR, sensRobot, NO_DODGE_AND_WAIT, END_AT_BREAK);
+			state = try_going_multipoint(&dplt[1], 3, POS_LAUNCH, DONE , ERROR, sensRobot, (global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE, END_AT_BREAK);
 			//state = try_going(dplt[1].point.x,dplt[1].point.y,POS_LAUNCH,POS_SHOOT,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
 
 			if(global.env.asser.reach_y)		//Peu probable... mais par sécurité (si on était super lent, on va peut etre recevoir le warner avant le point de freinage
@@ -1798,7 +1807,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			break;
 
 		case POS_SHOOT:
-			state = try_going(dplt[1].point.x,posShoot,POS_SHOOT,WAIT_SHOOT,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(dplt[1].point.x,posShoot,POS_SHOOT,WAIT_SHOOT,ERROR,FAST,sensRobot,(global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE);
 			break;
 
 		case WAIT_SHOOT:{
@@ -1825,7 +1834,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			}break;
 
 		case POS_END:
-			state = try_going(dplt[3].point.x,dplt[3].point.y,POS_END,DONE,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(dplt[3].point.x,dplt[3].point.y,POS_END,DONE,ERROR,FAST,sensRobot,(global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE);
 			break;
 
 		case ERROR:
