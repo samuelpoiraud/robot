@@ -94,7 +94,7 @@ static void FRUIT_initAX12() {
 
 void FRUIT_stop() {
 	CAN_msg_t msg;
-	PWM_stop(FRUIT_POMPE_PWM_NUM);
+	//PWM_stop(FRUIT_POMPE_PWM_NUM);
 	if(have_send_answer == FALSE){
 		msg.size = 1;
 		msg.sid = STRAT_INFORM_FRUIT_MOUTH;
@@ -105,6 +105,7 @@ void FRUIT_stop() {
 		CAN_send(&msg);
 		have_send_answer = TRUE;
 	}
+	FRUIT_POMPE_PIN = 0;
 
 }
 
@@ -217,7 +218,8 @@ static void FRUIT_command_pompe_run(queue_id_t queueId){
 	   (FRUIT_POMPE_TOR_CLOSE == 0 && command == ACT_FRUIT_MOUTH_CLOSE) ||
 	   stopActVerin == TRUE)
 	{
-		PWM_stop(FRUIT_POMPE_PWM_NUM);
+		//PWM_stop(FRUIT_POMPE_PWM_NUM);
+		FRUIT_POMPE_PIN = 0;
 
 		if(stopActVerin == TRUE)
 			QUEUE_next(queueId, ACT_FRUIT_MOUTH, ACT_RESULT_FAILED, ACT_RESULT_ERROR_CANCELED, __LINE__);
