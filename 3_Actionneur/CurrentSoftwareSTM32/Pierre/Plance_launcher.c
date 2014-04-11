@@ -125,8 +125,8 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 							orderShootLauncher[4] = 2; // Premeire balle qui va être tirer
 							orderShootLauncher[3] = 3; // 2émé balle à partir, ainsi de suite...
 							orderShootLauncher[2] = 4;
-							orderShootLauncher[1] = 5;
-							orderShootLauncher[0] = 6;
+							orderShootLauncher[1] = 6;
+							orderShootLauncher[0] = 5;
 						}else{
 							orderShootLauncher[4] = 5;
 							orderShootLauncher[3] = 6;

@@ -199,18 +199,6 @@ static void MAIN_onButton1() {
 }
 
 static void MAIN_onButton2() {
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_LANCELAUNCHER;
-	msg.data[0] = ACT_LANCELAUNCHER_RUN_ALL;
-	CAN_process_msg(&msg);
-}
-
-static void MAIN_onButton3() {
-	FILET_BOUTON_process();
-}
-
-static void MAIN_onButton4() {
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 1;
@@ -221,6 +209,18 @@ static void MAIN_onButton4() {
 		msg.data[0] = ACT_GACHE_IDLE;
 	CAN_process_msg(&msg);
 	state = (state == 1)? 0 :1;
+}
+
+static void MAIN_onButton3() {
+	FILET_BOUTON_process();
+}
+
+static void MAIN_onButton4() {
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_LANCELAUNCHER;
+	msg.data[0] = ACT_LANCELAUNCHER_RUN_ALL;
+	CAN_process_msg(&msg);
 }
 
 #else // ROBOT_SMALL

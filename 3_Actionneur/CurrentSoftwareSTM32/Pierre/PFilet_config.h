@@ -20,7 +20,7 @@
 /** Lorsque l'ax12 atteint sa position avec +/- PLATE_PLIER_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define FILET_AX12_ASSER_POS_EPSILON   2     //en degré
 /** Position en degré de l'ax12 lorsque filet pas lancé  */
-	#define FILET_AX12_IDLE_POS            120    //en degré
+	#define FILET_AX12_IDLE_POS            68    //en degré
 /** Position en degré de l'ax12 lorsque filet lancé */
 	#define FILET_AX12_LAUNCHED_POS          240    //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur  */
@@ -38,7 +38,7 @@
 #define EPSILON_POS_FILET				8
 
 #define FILET_AX12_MAX_VALUE	240
-#define FILET_AX12_MIN_VALUE	120
+#define FILET_AX12_MIN_VALUE	68
 
 #endif	/* PFILET_CONFIG_H */
 
