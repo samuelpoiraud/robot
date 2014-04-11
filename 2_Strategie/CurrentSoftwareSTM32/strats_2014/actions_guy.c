@@ -55,43 +55,114 @@ void strat_belgique_guy(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_BELGIUM_STRAT,
 		IDLE,
 		EXTRACT_FROM_ZONE,
+		WAIT,
+		AVANCE,
+		TOURNE,
+		TOURNE2,
 		OPEN_ARM,
 		DEPLOY_ARM,
-		TIDY_ARM,
-		TORCH,
+		CLOSE_ARM,
+		PARK_ARM,
+		RANGER,
+		OPEN_END,
+		CLOSE_END,
+		/*DO_FIRST_TRIANGLE,
+		CLOSE_ARM,
+		PARK_ARM,
+		POS_MID,
+		TORCH,*/
 		DONE,
 		ERROR
 	);
-
+	static time32_t time;
 	switch(state){
 		case IDLE:
-			ASSER_set_position(500,210,PI4096/6);
 			state = EXTRACT_FROM_ZONE;
 			break;
+
 		case EXTRACT_FROM_ZONE:
-			state = try_going(740,COLOR_Y(380),EXTRACT_FROM_ZONE,OPEN_ARM,TORCH,
-							  FAST,FORWARD,NO_AVOIDANCE); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
+			state = try_going(997,COLOR_Y(150),EXTRACT_FROM_ZONE,WAIT,EXTRACT_FROM_ZONE,
+							  FAST,ANY_WAY,NO_AVOIDANCE); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
 			break;
+
+		case WAIT :
+			if(entrance)
+				time = global.env.match_time;
+			if(global.env.match_time - time > 5000)
+				state = AVANCE;
+			break;
+
+		case AVANCE :
+			state = try_going(610,COLOR_Y(150),AVANCE,TOURNE,RANGER,
+							  FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case TOURNE :
+			if(global.env.color == RED)
+				state = try_go_angle(-PI4096/2, TOURNE, OPEN_ARM, RANGER, FAST);
+			else
+				state = try_go_angle(PI4096/2, TOURNE, OPEN_ARM, RANGER, FAST);
+			break;
+
 		case OPEN_ARM:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_ARM, DEPLOY_ARM, TORCH);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_ARM, DEPLOY_ARM, RANGER);
 			break;
+
 		case DEPLOY_ARM:
-			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,
-								 global.env.pos.x + 50*cos(global.env.pos.angle/PI4096),
-								 global.env.pos.y + 50*sin(global.env.pos.angle/PI4096),
-								 DEPLOY_ARM, TORCH, TORCH);
+			if(global.env.color == RED)
+				state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, DEPLOY_ARM, CLOSE_ARM, CLOSE_ARM);
+			else
+				state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, DEPLOY_ARM, TOURNE2, CLOSE_ARM);
 			break;
-		case TIDY_ARM:
-			// TODO a gérer
+
+		case TOURNE2:
+			state = try_go_angle(0, TOURNE2, CLOSE_ARM, CLOSE_ARM, FAST);
 			break;
+
+		case CLOSE_ARM:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, CLOSE_ARM, PARK_ARM, PARK_ARM);
+			break;
+
+		case PARK_ARM:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARK_ARM, RANGER, RANGER);
+			break;
+
+		case RANGER :
+			state = try_going(150, COLOR_Y(150), RANGER, OPEN_END, OPEN_END, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case OPEN_END :
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_END, CLOSE_END, CLOSE_END);
+			break;
+
+		case CLOSE_END :
+			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, CLOSE_END, DONE, DONE);
+			break;
+
+
+
+		/*case DO_FIRST_TRIANGLE:
+			state = try_going(1444, COLOR_Y(298), DO_FIRST_TRIANGLE, CLOSE_ARM, CLOSE_ARM, FAST, FORWARD, DODGE_AND_NO_WAIT);
+			break;
+
+		case CLOSE_ARM:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, CLOSE_ARM, PARK_ARM, PARK_ARM);
+			break;
+
+		case PARK_ARM:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARK_ARM, TORCH, TORCH);
+			break;
+
 		case TORCH:
-			state = putTorchInAdversary(TORCH,DONE,ERROR);
+			state = putTorchInAdversary(TORCH,POS_MID,ERROR);
 			break;
+
+		case POS_MID:
+			state = try_going(1500, 1500, POS_MID, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);*/
+
 		case DONE:
 			break;
-		case ERROR:
-			debug_printf("Got an ERR %s:%d", __FILE__,__LINE__);
-			break;
+
 		default:
 			break;
 	}
@@ -123,7 +194,7 @@ Uint8 putTorchInMidle(Uint8 currentState, Uint8 successState, Uint8 failState){
 			state = TORCHE_MOI_LA_FLAMME;
 			break;
 		case TORCHE_MOI_LA_FLAMME:
-			state = try_going_multipoint(points_torcheMoiLaFlamme,2,TORCHE_MOI_LA_FLAMME,CARRY_TORCH,ERROR,FORWARD,NO_AVOIDANCE,END_AT_BREAK);
+			state = try_going_multipoint(points_torcheMoiLaFlamme,2,TORCHE_MOI_LA_FLAMME,CARRY_TORCH,ERROR,FORWARD,NO_DODGE_AND_WAIT,END_AT_BREAK);
 			break;
 		case CARRY_TORCH:
 			state = try_going(1380,COLOR_Y(1320),CARRY_TORCH,EXTRACT_FROM_TORCH,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
@@ -209,6 +280,7 @@ Uint8 putTorchInAdversary(Uint8 currentState, Uint8 successState, Uint8 failStat
 	}
 	return currentState;
 }
+
 
 /* ----------------------------------------------------------------------------- */
 /* 							Autre strats de test			         			 */

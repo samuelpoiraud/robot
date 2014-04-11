@@ -17,7 +17,6 @@
 #include "../act_can.h"
 #include "../Pathfind.h"
 #include "../Supervision/Buzzer.h"
-#include "../QS/QS_who_am_i.h"
 #include <math.h>
 
 
