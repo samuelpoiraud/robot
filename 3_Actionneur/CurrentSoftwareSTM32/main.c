@@ -208,7 +208,18 @@ static void MAIN_onButton3() {
 	FILET_BOUTON_process();
 }
 
-static void MAIN_onButton4() {}
+static void MAIN_onButton4() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_GACHE;
+	if(state == 0)
+		msg.data[0] = ACT_GACHE_LAUNCHED;
+	else if(state == 1)
+		msg.data[0] = ACT_GACHE_IDLE;
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 :1;
+}
 
 #else // ROBOT_SMALL
 
