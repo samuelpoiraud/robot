@@ -1,0 +1,622 @@
+
+12/04/2014 16:11:29.887 [RX] - ?BP print match pressed<LF>
+Match : 0104.MCH<LF>
+t=00.000s BCAN<- sid=410 BEACON_ENABLE_PERIODIC_SENDING   <HT>	|<LF>
+t=00.000s BCAN<- sid=SID=5                            | | DATA=1 3b 2a | SIZE=3<LF>
+t=00.000s BCAN-> sid=SID=231                            | | DATA=1 | SIZE=1<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=587 y=156 t=0x192b=90° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=587 y=218 t=0x1937=90° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x40<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=609 y=201 t=0xffffcdc3=-179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x10<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=609 y=201 t=0xffffcdc5=-179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=155 y=202 t=0x3244=180° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x8<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=509 y=202 t=0x3242=179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x40<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=519 y=218 t=0xffffe6d4=-90° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x10<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=519 y=218 t=0xffffe6d4=-90° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=519 y=155 t=0xffffe6de=-90° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=519 y=255 t=0xffffe6dc=-90° Vt=0mm/s Vr=0rd/s reas=0x40 st=0xc8<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=522 y=246 t=0x3d1=13° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x8<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=522 y=246 t=0x3d1=13° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=235 y=190 t=0x25e=8° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x0<LF>
+t=00.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=235 y=190 t=0x25f=8° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x40<LF>
+t=00.000s BCAN-> sid=214 CARTE_P_ROBOT_CALIBRE            <HT>	| DATA=0 e7 0 bd 5 cc 0 0 | SIZE=8<LF>
+t=00.000s BCAN<- sid=001 BROADCAST_START                  <LF>
+Couleur :JAUNE<LF>
+Stratégie :255<LF>
+Evitement :ACTIF<LF>
+Balise :ACTIF<LF>
+Selftest : <LF>
+t=00.000s BCAN<- sid=188 ASSER_SEND_PERIODICALLY_POSITION <HT>	| DitPos    période=0 | translation = 20mm | rotation = 3°<LF>
+t=00.000s SOFT-> SUBACTION change SUB_INIT (0) -> TAKE_DECISION (16)<LF>
+t=00.000s SOFT-> SUBACTION change TAKE_DECISION (16) -> SUB_GETOUT (1)<LF>
+t=00.000s SOFT-> SUBACTION change SUB_GETOUT (1) -> TAKE_DECISION (16)<LF>
+t=00.002s SOFT-> SUBACTION change TAKE_DECISION (16) -> SUB_ACTION_INIT (2)<LF>
+t=00.002s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): IDLE(0) -> WAIT_TELL_GUY(1)<LF>
+t=00.096s XBEE-> sid=SID=5a4                            | |<LF>
+t=02.004s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): WAIT_TELL_GUY(1) -> GET_OUT(2)<LF>
+t=02.004s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=520 y=290 multi pas_now   vitesse 0=rapide <LF>
+t=02.006s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=231 y=189 t=0x5a2=20° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=02.636s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=362 y=236 t=0x58b=19° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x90<LF>
+t=02.640s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): GET_OUT(2) -> LANCE_LAUNCHER(3)<LF>
+t=02.642s SOFT-> state change: SM_ID_SUB_LANCE_LAUNCHER(0x0204): IDLE(0) -> POS_LAUNCH(3)<LF>
+t=02.642s BCAN<- sid=10e ASSER_WARN_Y                     <HT>	| avertisseur en y=620<LF>
+t=02.642s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=520 y=470 multi pas_now   vitesse 125 <LF>
+t=02.642s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=520 y=820 multi pas_now   vitesse 125 <LF>
+t=02.642s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=610 y=1100 multi pas_now   vitesse 125 <LF>
+t=02.652s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=368 y=238 t=0x58a=19° Vt=250mm/s Vr=0rd/s reas=0x42 st=0x90<LF>
+t=04.498s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=541 y=412 t=0x1ea2=109° Vt=250mm/s Vr=0rd/s reas=0x0 st=0xd0<LF>
+t=04.504s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=541 y=412 t=0x1ea2=109° Vt=250mm/s Vr=0rd/s reas=0x40 st=0xd0<LF>
+t=05.124s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=516 y=609 t=0x18eb=89° Vt=250mm/s Vr=0rd/s reas=0x12 st=0x90<LF>
+t=05.130s BCAN<- sid=SID=302                            | | DATA=12 1 0 | SIZE=3<LF>
+t=05.230s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=517 y=656 t=0x18dc=89° Vt=250mm/s Vr=0rd/s reas=0x0 st=0xd0<LF>
+t=05.234s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=517 y=656 t=0x18dc=89° Vt=250mm/s Vr=0rd/s reas=0x40 st=0xd0<LF>
+t=05.264s BCAN-> sid=SID=230                            | | DATA=2 12 0 0 b7 0 | SIZE=6<LF>
+t=05.698s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=555 y=896 t=0x14fa=75° Vt=500mm/s Vr=0rd/s reas=0x0 st=0x90<LF>
+t=05.708s SOFT-> state change: SM_ID_SUB_LANCE_LAUNCHER(0x0204): POS_LAUNCH(3) -> DONE(11)<LF>
+t=05.708s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): LANCE_LAUNCHER(3) -> GOTO_TORCH_FIRST_POINT(10)<LF>
+t=05.708s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1100 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=05.714s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=557 y=904 t=0x1506=75° Vt=500mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=06.184s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=594 y=1044 t=0x151d=75° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x8<LF>
+t=06.194s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=594 y=1044 t=0x151e=75° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=07.602s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=624 y=1048 t=0xffffda66=-134° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=08.316s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=635 y=1069 t=0xffffdf86=-116° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=08.322s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): GOTO_TORCH_FIRST_POINT(10) -> GOTO_TORCH_SECOND_POINT(11)<LF>
+t=08.322s BCAN<- sid=10d ASSER_WARN_X                     <HT>	| avertisseur en x=800<LF>
+t=08.322s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=1050 y=1140 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=08.332s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=636 y=1072 t=0xffffdf82=-116° Vt=0mm/s Vr=0rd/s reas=0x40 st=0xc8<LF>
+t=09.616s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=901 y=1152 t=0x30fa=175° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=09.620s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): GOTO_TORCH_SECOND_POINT(11) -> GOTO_TORCH_THIRD_POINT(12)<LF>
+t=09.620s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=1650 y=1200 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=09.632s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=908 y=1151 t=0x30fd=175° Vt=250mm/s Vr=0rd/s reas=0x40 st=0xc8<LF>
+t=10.324s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=1270 y=1164 t=0xffffced3=-176° Vt=500mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=11.258s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=1654 y=1200 t=0xffffced3=-176° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=11.264s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): GOTO_TORCH_THIRD_POINT(12) -> DO_TREE(5)<LF>
+t=11.264s SOFT-> state change: SM_ID_SUB_PIERRE_MANAGE_FRUIT(0x0211): IDLE(0) -> RECUP_TREE_1_SIMPLE(2)<LF>
+t=11.266s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): IDLE(0) -> POS_DEPART(2)<LF>
+t=11.266s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=1678 y=900 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=11.270s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1654 y=1200 t=0xffffced3=-176° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=12.948s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=1663 y=1059 t=0x1a5f=94° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=13.542s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=1678 y=899 t=0x1a2b=93° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=13.548s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): POS_DEPART(2) -> ORIENTATION(3)<LF>
+t=13.548s BCAN<- sid=177 ASSER_GO_ANGLE                   <HT>	| VaAngle   teta=6434=90°   now   0=rapide <LF>
+t=13.552s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1678 y=898 t=0x1a33=93° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x40<LF>
+t=13.806s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=1678 y=896 t=0x18cb=88° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=13.812s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): ORIENTATION(3) -> OPEN_FRUIT_VERIN(4)<LF>
+t=13.812s BCAN<- sid=SID=301                            | | DATA=11 | SIZE=1<LF>
+t=14.164s BCAN-> sid=SID=230                            | | DATA=1 11 0 0 e3 0 | SIZE=6<LF>
+t=14.312s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): OPEN_FRUIT_VERIN(4) -> POS_FIN(5)<LF>
+t=14.314s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=1678 y=450 multi pas_now   vitesse 40 marche avant<LF>
+t=14.316s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1678 y=896 t=0x1916=89° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=16.534s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=1678 y=480 t=0x191a=89° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=16.540s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): POS_FIN(5) -> DONE(7)<LF>
+t=16.540s BCAN<- sid=SID=301                            | | DATA=10 | SIZE=1<LF>
+t=16.540s SOFT-> state change: SM_ID_SUB_PIERRE_MANAGE_FRUIT(0x0211): RECUP_TREE_1_SIMPLE(2) -> DONE(5)<LF>
+t=16.540s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): DO_TREE(5) -> BEFORE_DROP_TRIANGLE_END(6)<LF>
+t=16.542s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=1200 y=620 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=16.544s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1678 y=478 t=0x1919=89° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=16.810s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1678 y=448 t=0x1932=90° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=16.966s BCAN-> sid=SID=230                            | | DATA=1 10 0 0 e3 0 | SIZE=6<LF>
+t=17.988s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1678 y=451 t=0xfffffa77=-19° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=18.798s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=1442 y=535 t=0xfffffa8c=-19° Vt=500mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=18.982s BCAN<- sid=410 BEACON_ENABLE_PERIODIC_SENDING   <HT>	|<LF>
+t=19.612s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=1196 y=622 t=0xfffffa2d=-20° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=19.618s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): BEFORE_DROP_TRIANGLE_END(6) -> GO_DROP_TRIANGLE_END(7)<LF>
+t=19.618s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=930 y=620 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=19.622s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1196 y=622 t=0xfffffa32=-20° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=20.692s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=1070 y=621 t=0x1b=0° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=21.286s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=926 y=620 t=0xfffffffe=0° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=21.292s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): GO_DROP_TRIANGLE_END(7) -> DO_DROP_TRIANGLE_END(8)<LF>
+t=21.292s BCAN<- sid=SID=301                            | | DATA=11 | SIZE=1<LF>
+t=21.292s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=1200 y=620 multi pas_now   vitesse 0=rapide <LF>
+t=21.298s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=926 y=620 t=0x2=0° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x50<LF>
+t=21.612s BCAN-> sid=SID=230                            | | DATA=1 11 0 0 e3 0 | SIZE=6<LF>
+t=21.906s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=1058 y=620 t=0x8=0° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x90<LF>
+t=22.480s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=1204 y=620 t=0xfffffff5=0° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x10<LF>
+t=22.486s BCAN<- sid=SID=301                            | | DATA=10 | SIZE=1<LF>
+t=22.486s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): DO_DROP_TRIANGLE_END(8) -> DO_TREE_1(9)<LF>
+t=22.486s SOFT-> state change: SM_ID_SUB_PIERRE_MANAGE_FRUIT(0x0211): DONE(5) -> IDLE(0)<LF>
+t=22.486s SOFT-> state change: SM_ID_SUB_PIERRE_MANAGE_FRUIT(0x0211): IDLE(0) -> RECUP_TREE_1_SIMPLE(2)<LF>
+t=22.488s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): DONE(7) -> IDLE(0)<LF>
+t=22.488s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): IDLE(0) -> POS_DEPART(2)<LF>
+t=22.488s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=1500 y=322 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=22.490s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1203 y=620 t=0xfffffff5=0° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=22.912s BCAN-> sid=SID=230                            | | DATA=1 10 0 0 e3 0 | SIZE=6<LF>
+t=23.810s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1203 y=607 t=0x25b1=134° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=24.538s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=1347 y=468 t=0x260a=136° Vt=500mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=25.292s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=1501 y=321 t=0x25cd=135° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=25.298s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): POS_DEPART(2) -> ORIENTATION(3)<LF>
+t=25.298s BCAN<- sid=177 ASSER_GO_ANGLE                   <HT>	| VaAngle   teta=0=0°   now   0=rapide <LF>
+t=25.302s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1501 y=321 t=0x25cf=135° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x40<LF>
+t=26.652s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=1505 y=324 t=0xb=0° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=26.656s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): ORIENTATION(3) -> OPEN_FRUIT_VERIN(4)<LF>
+t=26.658s BCAN<- sid=SID=301                            | | DATA=11 | SIZE=1<LF>
+t=26.974s BCAN-> sid=SID=230                            | | DATA=1 11 0 0 e3 0 | SIZE=6<LF>
+t=27.158s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): OPEN_FRUIT_VERIN(4) -> POS_FIN(5)<LF>
+t=27.158s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=1000 y=322 multi pas_now   vitesse 40 marche avant<LF>
+t=27.162s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1504 y=324 t=0x10=0° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=29.672s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=1028 y=322 t=0xfffffff5=0° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=29.678s SOFT-> state change: SM_ID_SUB_PIERRE_TAKE_TREE1_SIMPLE(0x0214): POS_FIN(5) -> DONE(7)<LF>
+t=29.678s BCAN<- sid=SID=301                            | | DATA=10 | SIZE=1<LF>
+t=29.678s SOFT-> state change: SM_ID_SUB_PIERRE_MANAGE_FRUIT(0x0211): RECUP_TREE_1_SIMPLE(2) -> DONE(5)<LF>
+t=29.680s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): DO_TREE_1(9) -> GOTO_FRESCO(17)<LF>
+t=29.680s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=400 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=29.686s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=1025 y=322 t=0xfffffff2=0° Vt=0mm/s Vr=0rd/s reas=0x40 st=0xc8<LF>
+t=30.142s BCAN-> sid=SID=230                            | | DATA=1 10 0 0 e3 0 | SIZE=6<LF>
+t=31.592s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=652 y=941 t=0xffffed90=-66° Vt=750mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=31.598s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): GOTO_FRESCO(17) -> DECISION_FRUIT_FRESCO(22)<LF>
+t=31.598s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): DECISION_FRUIT_FRESCO(22) -> DO_FRESCO(18)<LF>
+t=31.598s SOFT-> state change: SM_ID_SUB_MANAGE_FRESCO(0x0202): IDLE(0) -> CHOICE_GET_IN(2)<LF>
+t=31.600s SOFT-> state change: SM_ID_SUB_MANAGE_FRESCO(0x0202): CHOICE_GET_IN(2) -> GET_IN(1)<LF>
+t=31.600s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): INIT(0) -> COMPUTE(1)<LF>
+t=31.600s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): COMPUTE(1) -> DISPLACEMENT(2)<LF>
+t=31.600s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=520 y=1100 multi pas_now   vitesse 0=rapide <LF>
+t=31.602s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=31.602s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=648 y=950 t=0xffffed93=-65° Vt=750mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=32.098s SOFT-> FOE[1]_IN_PATH|d:490|a:-11308|rel_x-455|rel_y-183   RECT:[-516>0][-350>350]<LF>
+t=32.100s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=32.102s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=496 y=1277 t=0xffffee11=-64° Vt=250mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=32.342s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=481 y=1306 t=0xffffeddb=-64° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=32.848s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=520 y=1100 multi pas_now   vitesse 0=rapide <LF>
+t=32.848s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=32.852s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=485 y=1299 t=0xffffedfc=-64° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x50<LF>
+t=33.262s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=487 y=1294 t=0xffffe99a=-80° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=33.762s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=502 y=1212 t=0xffffe993=-80° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=33.766s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=502 y=1212 t=0xffffe993=-80° Vt=250mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=33.910s SOFT-> FOE[1]_IN_PATH|d:520|a:-10765|rel_x-453|rel_y-256   RECT:[-516>0][-350>350]<LF>
+t=33.910s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=33.916s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=511 y=1153 t=0xffffe97f=-80° Vt=250mm/s Vr=0rd/s reas=0x42 st=0x80<LF>
+t=34.270s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=520 y=1100 t=0xffffe9a5=-80° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=34.774s SOFT-> FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=34.776s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): DISPLACEMENT(2) -> COMPUTE(1)<LF>
+t=34.776s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): COMPUTE(1) -> DISPLACEMENT(2)<LF>
+t=34.776s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=34.780s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=520 y=1100 t=0xffffe99c=-80° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=35.360s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=520 y=1104 t=0xffffe1e4=-107° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=35.526s SOFT-> FOE[1]_IN_PATH|d:280|a:-8820|rel_x-155|rel_y-234   RECT:[-500>0][-350>350]<LF>
+t=35.526s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=35.530s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=522 y=1111 t=0xffffe1c6=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=35.704s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=526 y=1123 t=0xffffe1fc=-107° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=35.960s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=35.964s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=526 y=1124 t=0xffffe1f2=-107° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=36.130s SOFT-> FOE[1]_IN_PATH|d:320|a:-8827|rel_x-177|rel_y-267   RECT:[-500>0][-350>350]<LF>
+t=36.130s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=36.134s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=528 y=1131 t=0xffffe1b0=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=36.324s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=533 y=1144 t=0xffffe1dd=-107° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=37.078s SOFT-> FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=37.078s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): DISPLACEMENT(2) -> COMPUTE(1)<LF>
+t=37.080s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): COMPUTE(1) -> DISPLACEMENT(2)<LF>
+t=37.080s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=37.084s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=533 y=1145 t=0xffffe1d8=-107° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=37.140s SOFT-> FOE[1]_IN_PATH|d:340|a:-9023|rel_x-201|rel_y-275   RECT:[-500>0][-350>350]<LF>
+t=37.140s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=37.144s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=533 y=1145 t=0xffffe1d0=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=37.218s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=533 y=1146 t=0xffffe1c1=-108° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=37.490s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=37.494s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=534 y=1147 t=0xffffe1c3=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=37.544s SOFT-> FOE[1]_IN_PATH|d:280|a:-9079|rel_x-169|rel_y-224   RECT:[-500>0][-350>350]<LF>
+t=37.544s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=37.548s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=534 y=1147 t=0xffffe1c1=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=37.622s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=534 y=1148 t=0xffffe1c6=-108° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=38.096s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=38.098s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=534 y=1148 t=0xffffe1cf=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=38.148s SOFT-> FOE[1]_IN_PATH|d:500|a:-11260|rel_x-462|rel_y-192   RECT:[-500>0][-350>350]<LF>
+t=38.148s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=38.152s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=534 y=1149 t=0xffffe1c6=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=38.232s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=535 y=1150 t=0xffffe1bc=-108° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=38.502s SOFT-> FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=38.502s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): DISPLACEMENT(2) -> COMPUTE(1)<LF>
+t=38.504s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): COMPUTE(1) -> DISPLACEMENT(2)<LF>
+t=38.504s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=38.508s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=535 y=1151 t=0xffffe1c5=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=38.552s SOFT-> FOE[1]_IN_PATH|d:330|a:-9205|rel_x-207|rel_y-258   RECT:[-500>0][-350>350]<LF>
+t=38.552s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=38.558s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=535 y=1151 t=0xffffe1c0=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=38.632s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=535 y=1152 t=0xffffe1bb=-108° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=39.306s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=39.312s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=535 y=1152 t=0xffffe1c3=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=39.360s SOFT-> FOE[1]_IN_PATH|d:390|a:-8729|rel_x-208|rel_y-331   RECT:[-500>0][-350>350]<LF>
+t=39.360s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=39.362s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=536 y=1153 t=0xffffe1bc=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=39.452s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=536 y=1154 t=0xffffe1c9=-108° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=39.712s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=39.716s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=536 y=1154 t=0xffffe1cc=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=39.762s SOFT-> FOE[1]_IN_PATH|d:440|a:-11445|rel_x-414|rel_y-150   RECT:[-500>0][-350>350]<LF>
+t=39.764s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=39.766s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=536 y=1155 t=0xffffe1c5=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=39.856s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=537 y=1156 t=0xffffe1bd=-108° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=39.938s SOFT-> FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=39.938s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): DISPLACEMENT(2) -> FAIL(3)<LF>
+t=39.938s SOFT-> state change: SM_ID_SUB_MANAGE_FRESCO(0x0202): GET_IN(1) -> ERROR(9)<LF>
+t=39.938s SOFT-> state change: SM_ID_SUB_PIERRE_INITIALE(0x0200): DO_FRESCO(18) -> ERROR(29)<LF>
+t=39.938s SOFT-> SUBACTION change SUB_ACTION_INIT (2) -> TAKE_DECISION (16)<LF>
+t=39.938s SOFT-> SUBACTION change TAKE_DECISION (16) -> SUB_FRESCO (8)<LF>
+t=39.940s SOFT-> state change: SM_ID_SUB_MANAGE_FRESCO(0x0202): ERROR(9) -> LAST_CHANCE_FILE_FRESCO(5)<LF>
+t=39.940s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): IDLE(0) -> BEFORE_ROTATION(2)<LF>
+t=39.940s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=300 y=1700 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=39.942s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=537 y=1156 t=0xffffe1be=-108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=40.974s SOFT-> FOE[1]_IN_PATH|d:310|a:-11951|rel_x-303|rel_y-69   RECT:[-500>0][-350>350]<LF>
+t=40.974s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=40.976s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=523 y=1185 t=0xffffed6c=-66° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=41.290s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=506 y=1223 t=0xffffed76=-66° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=41.544s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=300 y=1700 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=41.550s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=507 y=1222 t=0xffffed7a=-66° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=41.580s SOFT-> FOE[1]_IN_PATH|d:460|a:-11975|rel_x-450|rel_y-100   RECT:[-500>0][-350>350]<LF>
+t=41.580s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=41.584s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=507 y=1222 t=0xffffed76=-66° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=41.620s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=506 y=1223 t=0xffffed6d=-66° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=41.930s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=300 y=1700 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=41.934s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=506 y=1223 t=0xffffed6f=-66° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=41.982s SOFT-> FOE[1]_IN_PATH|d:190|a:-12041|rel_x-187|rel_y-39   RECT:[-500>0][-350>350]<LF>
+t=41.982s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=41.984s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=506 y=1223 t=0xffffed6a=-66° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=42.014s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=506 y=1223 t=0xffffed65=-66° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=42.334s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=300 y=1700 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=42.340s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=506 y=1224 t=0xffffed68=-66° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=42.588s SOFT-> FOE[1]_IN_PATH|d:460|a:-11703|rel_x-442|rel_y-130   RECT:[-500>0][-350>350]<LF>
+t=42.588s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=42.594s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=498 y=1243 t=0xffffed5e=-66° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=42.854s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=486 y=1271 t=0xffffed87=-66° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=42.992s SOFT-> FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=42.992s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): BEFORE_ROTATION(2) -> END_ERROR(9)<LF>
+t=42.992s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=400 y=1700 multi pas_now   vitesse 0=rapide <LF>
+t=42.994s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=485 y=1271 t=0xffffed81=-66° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x50<LF>
+t=44.498s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=475 y=1253 t=0x1c49=101° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=44.508s SOFT-> FOE[1]_IN_PATH|d:360|a:2915|rel_x272|rel_y235   RECT:[0>500][-350>350]<LF>
+t=44.508s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=44.512s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=475 y=1253 t=0x1c43=101° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=44.632s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=475 y=1252 t=0x1ba7=99° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=45.158s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=400 y=1700 multi pas_now   vitesse 0=rapide <LF>
+t=45.162s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=475 y=1253 t=0x1bec=99° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=45.212s SOFT-> FOE[1]_IN_PATH|d:390|a:2296|rel_x330|rel_y207   RECT:[0>500][-350>350]<LF>
+t=45.212s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=45.218s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=474 y=1253 t=0x1bdc=99° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=45.262s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=474 y=1254 t=0x1bce=99° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=45.562s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=400 y=1700 multi pas_now   vitesse 0=rapide <LF>
+t=45.566s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=474 y=1255 t=0x1bcf=99° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=46.220s SOFT-> FOE[1]_IN_PATH|d:310|a:4018|rel_x172|rel_y257   RECT:[0>516][-350>350]<LF>
+t=46.220s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=46.226s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=451 y=1393 t=0x1c1d=100° Vt=250mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=46.586s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=439 y=1441 t=0x1f6f=112° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=46.774s SOFT-> FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=46.774s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): END_ERROR(9) -> END_IMPOSSIBLE_ERROR(10)<LF>
+t=46.774s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): END_IMPOSSIBLE_ERROR(10) -> ERROR(19)<LF>
+t=46.774s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): ERROR(19) -> GET_OUT_WITH_ERROR(11)<LF>
+t=46.774s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR(11) -> GET_OUT_WITH_ERROR_RED_SOUTH(14)<LF>
+t=46.776s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1350 multi pas_now   vitesse 0=rapide <LF>
+t=46.780s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=441 y=1435 t=0x1dbe=106° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=49.118s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=394 y=1459 t=0x2b56=155° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x12<LF>
+t=49.124s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=49.124s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_RED_SOUTH(14) -> GET_OUT_WITH_ERROR_RED_MIDDLE(13)<LF>
+t=49.124s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1350 multi pas_now   vitesse 0=rapide <LF>
+t=49.128s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=394 y=1459 t=0x2b56=155° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=50.034s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=443 y=1408 t=0x2574=134° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=50.442s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=501 y=1349 t=0x24b1=131° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=50.448s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_RED_MIDDLE(13) -> GET_OUT_WITH_ERROR_RED_NORTH(12)<LF>
+t=50.448s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=250 y=1350 multi pas_now   vitesse 0=rapide <LF>
+t=50.452s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=501 y=1349 t=0x24b7=131° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x50<LF>
+t=51.568s SOFT-> FOE[1]_IN_PATH|d:410|a:-2813|rel_x317|rel_y-260   RECT:[0>500][-350>350]<LF>
+t=51.568s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=51.572s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=465 y=1349 t=0x3237=179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=51.916s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=416 y=1349 t=0xffffcdc2=-179° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=52.222s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=250 y=1350 multi pas_now   vitesse 0=rapide <LF>
+t=52.226s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=417 y=1349 t=0xffffcdc6=-179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=52.274s SOFT-> FOE[1]_IN_PATH|d:420|a:-3128|rel_x303|rel_y-291   RECT:[0>500][-350>350]<LF>
+t=52.276s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=52.278s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=417 y=1349 t=0x323c=179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=52.316s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=416 y=1349 t=0x3230=179° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=52.626s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=250 y=1350 multi pas_now   vitesse 0=rapide <LF>
+t=52.632s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=415 y=1349 t=0x322b=179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=52.678s SOFT-> FOE[1]_IN_PATH|d:420|a:-2954|rel_x315|rel_y-278   RECT:[0>500][-350>350]<LF>
+t=52.678s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=52.682s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=415 y=1349 t=0x322d=179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=52.706s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=415 y=1349 t=0x322c=179° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=53.106s SOFT-> FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=53.106s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_RED_NORTH(12) -> GET_OUT_WITH_ERROR_RED_MIDDLE(13)<LF>
+t=53.106s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1350 multi pas_now   vitesse 0=rapide <LF>
+t=53.110s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=415 y=1349 t=0x322e=179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=53.446s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=452 y=1349 t=0x322b=179° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=53.788s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=500 y=1350 t=0xffffcdd4=-179° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=53.794s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_RED_MIDDLE(13) -> GET_OUT_WITH_ERROR_RED_SOUTH(14)<LF>
+t=53.794s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1350 multi pas_now   vitesse 0=rapide <LF>
+t=53.796s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=500 y=1350 t=0xffffcdd7=-179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=54.304s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=595 y=1350 t=0x3240=179° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=54.796s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=701 y=1350 t=0xffffcdc3=-179° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=54.802s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_RED_SOUTH(14) -> DONE_BUT_NOT_HANDLED(20)<LF>
+t=54.802s SOFT-> state change: SM_ID_SUB_MANAGE_FRESCO(0x0202): LAST_CHANCE_FILE_FRESCO(5) -> ERROR(9)<LF>
+t=54.802s SOFT-> SUBACTION change SUB_FRESCO (8) -> TAKE_DECISION (16)<LF>
+t=54.802s SOFT-> SUBACTION change TAKE_DECISION (16) -> SUB_ACTION_INIT (2)<LF>
+t=54.804s SOFT-> SUBACTION change SUB_ACTION_INIT (2) -> TAKE_DECISION (16)<LF>
+t=54.804s SOFT-> SUBACTION change TAKE_DECISION (16) -> SUB_DROP_FRUITS (6)<LF>
+t=54.810s SOFT-> state change: SM_ID_SUB_PIERRE_FILE_FRUITS(0x0210): IDLE(0) -> GET_IN(1)<LF>
+t=54.810s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): FAIL(3) -> INIT(0)<LF>
+t=54.810s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): INIT(0) -> COMPUTE(1)<LF>
+t=54.810s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): COMPUTE(1) -> DISPLACEMENT(2)<LF>
+t=54.812s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=650 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=54.812s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=400 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=54.814s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=702 y=1350 t=0xffffcdc1=-179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x50<LF>
+t=55.748s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=672 y=1375 t=0x1e70=108° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x50<LF>
+t=56.028s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=672 y=1375 t=0x1bab=99° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=56.434s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=663 y=1426 t=0x1be0=99° Vt=250mm/s Vr=0rd/s reas=0x0 st=0x90<LF>
+t=56.438s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=663 y=1426 t=0x1be0=99° Vt=250mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=56.848s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=650 y=1501 t=0x1be9=99° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x50<LF>
+t=57.842s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=655 y=1498 t=0xffffcdd7=-179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x10<LF>
+t=57.846s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=655 y=1498 t=0xffffcdd7=-179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=58.330s SOFT-> FOE[1]_IN_PATH|d:220|a:-1000|rel_x213|rel_y-54   RECT:[0>516][-350>350]<LF>
+t=58.332s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=58.338s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=568 y=1499 t=0x322f=179° Vt=250mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=58.752s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=474 y=1499 t=0x3241=179° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=59.006s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=400 y=1500 multi pas_now   vitesse 0=rapide <LF>
+t=59.010s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=474 y=1499 t=0xffffcdc5=-179° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x90<LF>
+t=59.330s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=445 y=1500 t=0x31c0=178° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x90<LF>
+t=59.340s SOFT-> state change: SM_ID_PATHFIND_TRY_GOING(0x0401): DISPLACEMENT(2) -> SUCCESS(4)<LF>
+t=59.340s SOFT-> state change: SM_ID_SUB_PIERRE_FILE_FRUITS(0x0210): GET_IN(1) -> GOTO_FIRST_DISPOSE_POINT(2)<LF>
+t=59.340s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=510 y=1750 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=59.346s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=443 y=1500 t=0x3192=177° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=61.254s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=479 y=1587 t=0xffffe3dc=-100° Vt=500mm/s Vr=0rd/s reas=0x0 st=0x88<LF>
+t=61.894s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=510 y=1754 t=0xffffe4a0=-98° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=61.898s SOFT-> state change: SM_ID_SUB_PIERRE_FILE_FRUITS(0x0210): GOTO_FIRST_DISPOSE_POINT(2) -> DO_DISPOSE(3)<LF>
+t=61.898s BCAN<- sid=10e ASSER_WARN_Y                     <HT>	| avertisseur en y=1840<LF>
+t=61.900s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=510 y=2300 multi pas_now   vitesse 1=lente marche avant<LF>
+t=61.900s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=610 y=2500 multi pas_now   vitesse 1=lente marche avant<LF>
+t=61.904s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=510 y=1754 t=0xffffe494=-98° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=62.682s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=510 y=1830 t=0xffffe6dc=-90° Vt=250mm/s Vr=0rd/s reas=0x10 st=0x88<LF>
+t=62.688s BCAN<- sid=10e ASSER_WARN_Y                     <HT>	| avertisseur en y=1900<LF>
+t=62.688s BCAN<- sid=SID=301                            | | DATA=11 | SIZE=1<LF>
+t=62.828s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=510 y=1890 t=0xffffe6de=-90° Vt=250mm/s Vr=0rd/s reas=0x10 st=0x88<LF>
+t=62.832s BCAN<- sid=10e ASSER_WARN_Y                     <HT>	| avertisseur en y=2300<LF>
+t=62.834s BCAN<- sid=SID=301                            | | DATA=14 | SIZE=1<LF>
+t=63.018s BCAN-> sid=SID=230                            | | DATA=1 11 0 0 e3 0 | SIZE=6<LF>
+t=63.228s BCAN-> sid=SID=230                            | | DATA=1 14 0 0 0 1 | SIZE=6<LF>
+t=63.568s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=510 y=2195 t=0xffffe6dc=-90° Vt=250mm/s Vr=0rd/s reas=0x0 st=0xc8<LF>
+t=63.574s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=510 y=2195 t=0xffffe6dc=-90° Vt=250mm/s Vr=0rd/s reas=0x40 st=0xc8<LF>
+t=63.802s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=514 y=2289 t=0xffffe491=-98° Vt=250mm/s Vr=1rd/s reas=0x10 st=0xc8<LF>
+t=63.808s BCAN<- sid=SID=301                            | | DATA=10 | SIZE=1<LF>
+t=64.158s BCAN-> sid=213 CARTE_P_ROBOT_FREINE             <HT>	| J'freine  x=559 y=2424 t=0xffffdec6=-118° Vt=250mm/s Vr=0rd/s reas=0x0 st=0xc8<LF>
+t=64.646s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=612 y=2502 t=0xffffdcbb=-126° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x8<LF>
+t=64.652s SOFT-> state change: SM_ID_SUB_PIERRE_FILE_FRUITS(0x0210): DO_DISPOSE(3) -> DONE(7)<LF>
+t=64.652s SOFT-> SUBACTION change SUB_DROP_FRUITS (6) -> TAKE_DECISION (16)<LF>
+t=64.652s SOFT-> SUBACTION change TAKE_DECISION (16) -> SUB_ACTION_INIT (2)<LF>
+t=64.654s SOFT-> SUBACTION change SUB_ACTION_INIT (2) -> TAKE_DECISION (16)<LF>
+t=64.654s SOFT-> SUBACTION change TAKE_DECISION (16) -> SUB_FRESCO (8)<LF>
+t=64.654s SOFT-> state change: SM_ID_SUB_MANAGE_FRESCO(0x0202): ERROR(9) -> LAST_LAST_CHANCE_FILE_FRESCO(7)<LF>
+t=64.654s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): DONE_BUT_NOT_HANDLED(20) -> IDLE(0)<LF>
+t=64.654s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): IDLE(0) -> BEFORE_ROTATION(2)<LF>
+t=64.656s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=300 y=1400 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=64.656s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=612 y=2502 t=0xffffdcbb=-126° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=65.834s BCAN<- sid=SID=301                            | | DATA=13 | SIZE=1<LF>
+t=65.922s BCAN-> sid=SID=230                            | | DATA=1 10 0 0 e3 0 | SIZE=6<LF>
+t=65.922s BCAN<- sid=SID=301                            | | DATA=10 | SIZE=1<LF>
+t=65.952s BCAN-> sid=SID=230                            | | DATA=1 10 0 0 e3 0 | SIZE=6<LF>
+t=66.106s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=614 y=2512 t=0x14aa=73° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x88<LF>
+t=66.212s BCAN-> sid=SID=230                            | | DATA=1 13 0 0 0 1 | SIZE=6<LF>
+t=67.208s SOFT-> FOE[1]_IN_PATH|d:360|a:11160|rel_x-330|rel_y145   RECT:[-650>0][-350>350]<LF>
+t=67.208s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=67.210s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=485 y=2058 t=0x14b9=74° Vt=750mm/s Vr=0rd/s reas=0x40 st=0x80<LF>
+t=68.540s BCAN<- sid=SID=5                            | | DATA=0 3a 89 | SIZE=3<LF>
+t=68.834s BCAN<- sid=SID=301                            | | DATA=13 | SIZE=1<LF>
+t=68.900s BCAN-> sid=SID=230                            | | DATA=1 13 1 3 19 1 | SIZE=6<LF>
+t=68.932s BCAN-> sid=210 CARTE_P_TRAJ_FINIE               <HT>	| J'arrive  x=396 y=1771 t=0x1437=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x0<LF>
+t=69.188s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=300 y=1400 multi pas_now   vitesse 0=rapide marche avant<LF>
+t=69.192s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1443=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=70.192s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x12<LF>
+t=70.196s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=70.198s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): BEFORE_ROTATION(2) -> END_ERROR(9)<LF>
+t=70.198s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=400 y=1400 multi pas_now   vitesse 0=rapide <LF>
+t=70.202s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x50<LF>
+t=70.626s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=70.632s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=70.632s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): END_ERROR(9) -> END_IMPOSSIBLE_ERROR(10)<LF>
+t=70.632s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): END_IMPOSSIBLE_ERROR(10) -> ERROR(19)<LF>
+t=70.632s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): ERROR(19) -> GET_OUT_WITH_ERROR(11)<LF>
+t=70.632s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR(11) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=70.632s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=70.638s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=71.066s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=71.072s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=71.072s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=71.072s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=71.076s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=71.506s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=71.510s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=71.512s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=71.512s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=71.516s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=71.950s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=71.954s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=71.954s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=71.956s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=71.960s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=72.390s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=72.396s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=72.396s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=72.396s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=72.400s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=72.830s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=72.834s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=72.836s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=72.836s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=72.840s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=73.270s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=73.274s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=73.274s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=73.274s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=73.280s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=73.710s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=73.714s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=73.714s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=73.714s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=73.720s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=74.148s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=74.154s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=74.154s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=74.154s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=74.158s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=74.588s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=74.594s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=74.594s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=74.594s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=74.598s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=75.028s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=75.034s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=75.034s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=75.034s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=75.038s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1444=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=75.468s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=75.472s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=75.472s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=75.474s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=75.482s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=75.908s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=75.912s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=75.912s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=75.914s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=75.918s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=76.348s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=76.352s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=76.352s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=76.352s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=76.358s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=76.786s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=76.792s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=76.796s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=76.796s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=76.802s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=77.232s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=77.238s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=77.238s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=77.238s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=77.244s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=77.672s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=77.676s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=77.676s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=77.676s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=77.682s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=78.110s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=78.116s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=78.116s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=78.116s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=78.120s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=78.550s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=78.556s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=78.556s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=78.556s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=78.560s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=78.990s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=78.994s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=78.996s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=78.996s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=79.000s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=79.430s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=79.434s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=79.434s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=79.436s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=79.440s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=79.870s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=79.874s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=79.874s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=79.874s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=79.880s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=80.308s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=80.314s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=80.314s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=80.316s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=80.320s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=80.748s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=80.754s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=80.754s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=80.754s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=80.758s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=81.188s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=81.194s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=81.194s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=81.194s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=81.198s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=81.628s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=81.632s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=81.638s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=81.638s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=81.642s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=82.072s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=82.078s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=82.078s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=82.078s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=82.082s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=82.512s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=82.518s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=82.518s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=82.518s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=82.522s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=82.952s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=82.956s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=82.956s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=82.958s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=82.962s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=83.392s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=83.396s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=83.398s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=83.398s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=83.402s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=83.832s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=83.836s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=83.836s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=83.836s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=83.842s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=84.270s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=84.276s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=84.276s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=84.278s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=84.280s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=84.710s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=84.716s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=84.716s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=84.716s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=84.720s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=85.150s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=85.156s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=85.156s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=85.156s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=85.160s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=85.590s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=85.594s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=85.594s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=85.596s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=85.600s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=86.030s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=86.034s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=86.034s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=86.034s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=86.040s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=86.470s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=86.474s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=86.474s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=86.476s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=86.480s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=86.908s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=86.914s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=86.914s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=86.914s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=86.918s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=87.348s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=87.354s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=87.354s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=87.354s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=87.358s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=87.790s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=87.796s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=87.796s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_SOUTH(17) -> GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16)<LF>
+t=87.796s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=500 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=87.798s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=88.228s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=88.232s SOFT-> ERROR on WAIT_MOVE_AND_SCAN_FOE<LF>
+t=88.232s SOFT-> state change: SM_ID_SUB_FILE_FRESCO(0x0203): GET_OUT_WITH_ERROR_YELLOW_MIDDLE(16) -> GET_OUT_WITH_ERROR_YELLOW_SOUTH(17)<LF>
+t=88.234s BCAN<- sid=155 ASSER_GO_POSITION                <HT>	| VaPos     x=700 y=1650 multi pas_now   vitesse 0=rapide <LF>
+t=88.238s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x48<LF>
+t=88.500s BCAN<- sid=101 ASSER_STOP                       <HT>	|<LF>
+t=88.500s SOFT-> SUBACTION change SUB_FRESCO (8) -> SUB_FILET (12)<LF>
+t=88.500s SOFT-> state change: SM_ID_STRAT_PLACEMENT_NET(0x0130): INIT(0) -> STOP_ALL(6)<LF>
+t=88.502s SOFT-> state change: SM_ID_STRAT_PLACEMENT_NET(0x0130): STOP_ALL(6) -> PLACEMENT_TETA(5)<LF>
+t=88.502s BCAN<- sid=177 ASSER_GO_ANGLE                   <HT>	| VaAngle   teta=2452=34°   now   0=rapide <LF>
+t=88.502s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x0<LF>
+t=88.508s BCAN-> sid=004 BROADCAST_POSITION_ROBOT         | JeSuisEn  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x40 st=0x40<LF>
+t=89.042s BCAN-> sid=211 CARTE_P_ASSER_ERREUR             <HT>	| J'erreur  x=395 y=1771 t=0x1445=72° Vt=0mm/s Vr=0rd/s reas=0x0 st=0x11<LF>
+t=90.000s BCAN<- sid=002 BROADCAST_STOP_ALL               |<LF>
+<EOT>
