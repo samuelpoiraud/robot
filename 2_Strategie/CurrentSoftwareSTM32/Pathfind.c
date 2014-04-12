@@ -37,7 +37,7 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 	(pathfind_node_t){ 520, 750, neighbors : (1<<0)|(1<<3)|(1<<6)|(1<<7)},							//[B0] 2
 	(pathfind_node_t){ 850, 750, neighbors : (1<<0)|(1<<1)|(1<<2)|(1<<4)|(1<<6)|(1<<7)},			//[B1] 3
 	(pathfind_node_t){ 1250, 750, neighbors : (1<<0)|(1<<1)|(1<<3)|(1<<5)|(1<<8)|(1<<9)},			//[B2] 4
-	(pathfind_node_t){ 1600, 750, neighbors :(1<<1)|(1<<4)|(1<<8)|(1<<9)},							//[B3] 5
+	(pathfind_node_t){ 1550, 750, neighbors :(1<<1)|(1<<4)|(1<<8)|(1<<9)},							//[B3] 5
 
 	//Colonne 3 coté rouge [C]
 	(pathfind_node_t){ 520, 1100, neighbors : (1<<2)|(1<<3)|(1<<7)|(1<<10)|(1<<11)},				//[C0] 6
@@ -61,7 +61,7 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 	(pathfind_node_t){ 520, 2250, neighbors : (1<<14)|(1<<15)|(1<<19)|(1<<22)},						//[Y0] 18
 	(pathfind_node_t){ 850, 2250, neighbors : (1<<14)|(1<<15)|(1<<18)|(1<<20)|(1<<22)|(1<<23)},		//[Y1] 19
 	(pathfind_node_t){ 1250, 2250, neighbors : (1<<16)|(1<<17)|(1<<19)|(1<<21)|(1<<22)|(1<<23)},	//[Y2] 20
-	(pathfind_node_t){ 1600, 2250, neighbors :(1<<16)|(1<<17)|(1<<20)|(1<<23)},						//[Y3] 21
+	(pathfind_node_t){ 1550, 2250, neighbors :(1<<16)|(1<<17)|(1<<20)|(1<<23)},						//[Y3] 21
 
 	//Colonne 6 coté Jaune [Z]
 	(pathfind_node_t){ 750, 2600, neighbors : (1<<18)|(1<<19)|(1<<20)|(1<<23)},				//[Z1] 22
@@ -300,15 +300,15 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	//Le noeud le plus proche sans filtrage adverse... correspond à notre position, doit permettre d'accéder par la logique des voisinages au noeud le plus proche avec filtrage adverse/
 	//Sinon : pas de chemin !
 	//AUTREMENT DIT.... (la même chose en différent)
-	//Si le noeud 'from' (le plus proche parmi ceux qui ne sont pas recouvert par des adversaires) 
-	//		n'est pas dans la liste des voisins du noeud réel le plus proche (from_without_adversaries).. 
+	//Si le noeud 'from' (le plus proche parmi ceux qui ne sont pas recouvert par des adversaires)
+	//		n'est pas dans la liste des voisins du noeud réel le plus proche (from_without_adversaries)..
 	//Alors, on ne peut pas considérer que l'on se trouve sur le noeud from...
 	if((from != from_without_adversaries) && !(PATHFIND_TST_NODE_IN(from, nodes[from_without_adversaries].neighbors)))
 		return NOT_HANDLED;
 
 	//Une meilleure piste devrait être dans ce cas de choisir un point calculé permettant de s'extraire de l'adversaire.
-	
-		
+
+
 	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
 
 	/* On reinitialise les listes et penalites */
