@@ -326,7 +326,7 @@ void hokuyo_find_valid_points(void)
 	Sint32 to_close_distance;
 	bool_e point_filtered;
 	nb_valid_points = 0;	//RAZ des points valides.
-	
+
 	if(QS_WHO_AM_I_get() == PIERRE)
 		to_close_distance = GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
 	else
@@ -375,6 +375,10 @@ void hokuyo_find_valid_points(void)
 					if (  	(y_absolute > MAMOUTH_RECTANGLES_Y_START && y_absolute < MAMOUTH_RECTANGLES_Y_STOP) 	//zones de dépose devant mamouths
 						|| 	(y_absolute > FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_STOP && y_absolute < FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_START)	)
 						point_filtered = TRUE;	//on refuse les points
+
+				if((x_absolute < 500 && x_absolute	> 50) && ((y_absolute < 400 && y_absolute >50) || (y_absolute < 2950 && y_absolute >2600)))
+						point_filtered = TRUE;	//on refuse les points spawn
+
 
 				if(angle < 100*5 || angle > 100*225)//on retire les 5 premiers degrés et les 5 derniers
 					point_filtered = TRUE;
