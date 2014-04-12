@@ -35,7 +35,7 @@
 //							Valeur souhaitable pour le commit SVN : high_level_strat
 #define DEFAULT_STRAT_BIG	high_level_strat
 
-#define DEFAULT_STRAT_SMALL	high_level_strat
+#define DEFAULT_STRAT_SMALL	strat_belgique_guy
 
 
 static ia_fun_t strategy;
@@ -77,10 +77,10 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_lannion",		strat_lannion,							MATCH_DURATION,		TRUE,					BIG},
 	{"strat_pts",			strat_test_point,						MATCH_DURATION,		TRUE,					BIG},
 	{"strat_pts_2",			strat_test_point2,						MATCH_DURATION,		TRUE,					BIG},
-	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE,					BIG}
+	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE,					BIG},
 
 	// Pour guy
-
+	{"Strat Belgique",		strat_belgique_guy,						MATCH_DURATION,		TRUE,					SMALL}
 };
 
 static const strategy_list_s *list_displayed_strategy[50];
