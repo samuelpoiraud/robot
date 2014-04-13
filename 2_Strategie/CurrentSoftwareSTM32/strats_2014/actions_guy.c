@@ -294,16 +294,19 @@ void strat_inutile_guy(void){
 		RAMEMENER_TORCH,
 		DEPLOY_TORCH,
 		DO_TORCH,
+		POINT_1,
+		POINT_2,
+		POINT_3,
 		DONE,
 		ERROR
 	);
 
 	switch(state){
 		case IDLE:
-			state = DEPLOY_TORCH;
+			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,DO_TORCH,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,POINT_1,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
 			break;
 
 		case RAMEMENER_TORCH:
@@ -316,6 +319,18 @@ void strat_inutile_guy(void){
 
 		case DEPLOY_TORCH:
 			state = check_sub_action_result(ACT_arm_deploy_torche(OUR_TORCH,HEARTH_OUR),DEPLOY_TORCH,DONE,ERROR);
+			break;
+
+		case POINT_1:
+			state = try_going(1350,400,POINT_1,POINT_2,POINT_1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case POINT_2:
+			state = try_going(1650,1100,POINT_2,POINT_3,POINT_2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case POINT_3:
+			state = try_going(520,1100,POINT_3,POINT_1,POINT_3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case DONE:
