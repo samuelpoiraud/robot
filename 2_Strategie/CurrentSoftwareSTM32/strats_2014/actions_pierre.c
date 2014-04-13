@@ -2300,3 +2300,30 @@ static void REACH_POINT_C1_send_request() {
 
 	CANMsgToXbee(&msg,FALSE);
 }
+
+void strat_test_evitement(){
+	CREATE_MAE_WITH_VERBOSE(0,
+							INIT,
+							GO_1,
+							GO_2,
+							GO_3,
+							DONE
+						);
+	switch(state){
+		case INIT :
+			ASSER_set_position(500, 500, 0);
+			state = GO_1;
+			break;
+
+		case GO_1 :
+			state = try_going(2500, 500, GO_1, GO_2, GO_1, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case GO_2 :
+			state = try_going(500, 500, GO_2, GO_1, GO_2, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE :
+			break;
+	}
+}

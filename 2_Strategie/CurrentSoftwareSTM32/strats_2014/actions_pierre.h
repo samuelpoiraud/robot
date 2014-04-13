@@ -47,5 +47,6 @@ error_e sub_action_initiale();
 void strat_test_filet();
 void strat_test_small_arm();
 void strat_test_vide();
+void strat_test_evitement();
 
 #endif /* ACTIONS_PIERRE_H_ */

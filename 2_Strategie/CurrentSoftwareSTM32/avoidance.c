@@ -20,6 +20,7 @@
 #include "config/config_debug.h"
 #include "Supervision/Buzzer.h"
 #include "Supervision/SD/SD.h"
+#include "math.h"
 
 #define SMALL_ROBOT_ACCELERATION_NORMAL	468*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
 #define BIG_ROBOT_ACCELERATION_NORMAL	937*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
@@ -28,6 +29,8 @@
 #define SMALL_ROBOT_WIDTH				200		//Largeur du petit robot [mm]
 #define BIG_ROBOT_WIDTH					300		//Largeur du gros robot [mm]
 #define	FOE_SIZE						400		//taille supposée de l'adversaire
+#define MARGE_COULOIR_EVITEMENT_STATIC	(300 + 100)
+#define DISTANCE_EVITEMENT_STATIC		500
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
@@ -40,6 +43,7 @@ static error_e AVOIDANCE_watch_asser_stack();
 	#define avoidance_printf(...)	(void)0
 #endif
 
+static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 
 #ifdef USE_POLYGON
 
@@ -831,11 +835,12 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 {
 	enum state_e
 	{
-		LOAD_MOVE = 0,
+		CHECK_SCAN_FOE = 0,
+		LOAD_MOVE,
 		WAIT_MOVE_AND_SCAN_FOE,
 		DONE
 	};
-	static enum state_e state = LOAD_MOVE;
+	static enum state_e state = CHECK_SCAN_FOE;
 
 	static bool_e timeout = FALSE;
 	static error_e sub_action;
@@ -843,11 +848,21 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 	Uint8 i;
 
 	//Si nouveau déplacement et qu'aucun point n'est donné, on a rien a faire
-	if(state == LOAD_MOVE && nb_displacements == 0)
+	if(state == CHECK_SCAN_FOE && nb_displacements == 0)
 		return END_OK;
 
 	switch(state)
 	{
+		case CHECK_SCAN_FOE :
+//			debug_printf("CHECK_SCAN_FOE\n");
+//			if(foe_in_zone(TRUE, displacements[0].point.x, displacements[0].point.y)){
+//				state = CHECK_SCAN_FOE;
+//				return NOT_HANDLED;
+//			}else
+				state = LOAD_MOVE;
+			break;
+
+
 		case LOAD_MOVE:
 			timeout = FALSE;
 			for(i=nb_displacements-1;i>=1;i--)
@@ -911,7 +926,7 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 					avoidance_printf("wait_move_and_scan_foe -- probleme\n");
 					SD_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
-					state = LOAD_MOVE;
+					state = CHECK_SCAN_FOE;
 					return NOT_HANDLED;
 					break;
 
@@ -919,7 +934,7 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 					avoidance_printf("wait_move_and_scan_foe -- foe in path\n");
 					SD_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
-					state = LOAD_MOVE;
+					state = CHECK_SCAN_FOE;
 					return FOE_IN_PATH;
 					break;
 
@@ -927,7 +942,7 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 					break;
 
 				default:
-					state = LOAD_MOVE;
+					state = CHECK_SCAN_FOE;
 					return NOT_HANDLED;
 					break;
 			}
@@ -935,13 +950,13 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 
 		case DONE:
 			wait_timeout = WAIT_TIME_DETECTION;
-			state = LOAD_MOVE;
+			state = CHECK_SCAN_FOE;
 			return timeout?END_WITH_TIMEOUT:END_OK;
 			break;
 
 		default:
 			debug_printf("Cas Default state, panique !!!\n");
-			state = LOAD_MOVE;
+			state = CHECK_SCAN_FOE;
 			return NOT_HANDLED;
 	}
 	return IN_PROGRESS;
@@ -1040,6 +1055,54 @@ bool_e foe_in_path(bool_e verbose)
 		}
 	}
 	return in_path;
+}
+
+bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
+{
+	bool_e inZone;
+	Uint8 i;
+	Sint32 a, b, c; // avec a, b et c les coefficients de la droite entre nous et la cible
+
+	a = y - global.env.pos.y;
+	b = x - global.env.pos.x;
+	c = -global.env.pos.x*y + global.env.pos.y*x;
+
+	if(global.env.pos.x == x && global.env.pos.y == y)
+		return FALSE;
+
+
+	inZone = FALSE;	//On suppose que pas d'adversaire dans le chemin
+
+	for (i=0; i<MAX_NB_FOES; i++)
+	{
+		if (global.env.foe[i].updated){
+			// d(D, A) < L
+			// D : droite que le robot empreinte pour aller au point
+			// A : Point adversaire
+			// L : Largeur du robot maximum * 2
+
+			debug_printf("Nous x:%d y:%d / ad x:%d y:%d \n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y);
+
+			if((Uint32)(absolute(a*global.env.foe[i].x + b*global.env.foe[i].y + c) / (float)sqrt(a*a + b*b)) < MARGE_COULOIR_EVITEMENT_STATIC){
+				// NC.NA ¤ [0,NC*d]
+				// NC : Vecteur entre nous et le point cible
+				// NA : Vecteur entre nous et l'adversaire
+				// d : distance d'évitement de l'adversaire (longueur couloir)
+
+				if((global.env.pos.x*global.env.foe[i].y + global.env.pos.y*global.env.foe[i].x) > 0
+						&& (global.env.pos.x*global.env.foe[i].y + global.env.pos.y*global.env.foe[i].x)
+							 > dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC){
+					inZone = TRUE;
+					debug_printf("DETECTED\n");
+				}
+				else
+					debug_printf("NO\n");
+			}
+			else
+				debug_printf("NO\n");
+		}
+	}
+	return inZone;
 }
 
 /* Fonction qui regarde si notre robot est immobile ou non */
@@ -1234,4 +1297,8 @@ void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
 	msg_to_send.data[3] = distance >> 8;
 	msg_to_send.data[4] = distance & 0xFF;
 	CAN_send(&msg_to_send);
+}
+
+static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
+	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
 }
