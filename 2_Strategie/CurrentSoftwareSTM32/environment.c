@@ -574,8 +574,8 @@ void ENV_clean (void)
 	global.env.asser.reach_teta = FALSE;
 		//global.env.asser.last_time_pos_updated = 0;
 	global.env.pos.updated = FALSE;
-	for(i=0;i<MAX_NB_FOES;i++)
-		global.env.foe[i].updated = FALSE;
+	//for(i=0;i<MAX_NB_FOES;i++)
+		//global.env.foe[i].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
 	global.env.reach_point_C1 = FALSE;

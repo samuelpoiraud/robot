@@ -318,4 +318,6 @@ void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
 
 Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
+bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y);
+
 #endif /* ndef AVOIDANCE_H */

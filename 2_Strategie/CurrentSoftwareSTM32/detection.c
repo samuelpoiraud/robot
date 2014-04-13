@@ -54,7 +54,7 @@ void DETECTION_init(void)
 		return;
 	hokuyo_objects_number = 0;
 
-}	
+}
 
 /*	mise à jour de l'information de détection avec le contenu
 	courant de l'environnement */
@@ -171,6 +171,8 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 	Uint8 fiability;
 	Uint8 adversary_nb, i;
 	Sint16 cosinus, sinus;
+	for(i=0;i<MAX_NB_FOES;i++)
+		global.env.foe[i].updated = FALSE;
 	switch(msg->sid)
 	{
 		case STRAT_ADVERSARIES_POSITION:
@@ -276,7 +278,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 
 
 	/*
- 	static bool_e ultrasonic_fiable = TRUE;
+	static bool_e ultrasonic_fiable = TRUE;
 	Sint16 beacon_foe_x, beacon_foe_y;
 	bool_e update_dist_by_ir;
 	Uint8 foe_id;
@@ -306,7 +308,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 		if(global.env.sensor[BEACON_IR(foe_id)].updated)
 		{
 			update_dist_by_ir = FALSE;
-			
+
 			if(global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time > MAXIMUM_TIME_FOR_BEACON_REFRESH ||
 				ultrasonic_fiable == FALSE) //Si la balise US n'a rien reçu depuis 500ms
 			{
@@ -316,10 +318,10 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			if(global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION || update_dist_by_ir)
 			{
 				//L'ancienne distance est conservee
-				beacon_foe_x = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.cosAngle 
+				beacon_foe_x = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.cosAngle
 					- (global.env.foe[foe_id].dist * sin4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.sinAngle + global.env.pos.x;
 
-				beacon_foe_y  = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.sinAngle 
+				beacon_foe_y  = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.sinAngle
 					+ (global.env.foe[foe_id].dist * sin4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.cosAngle + global.env.pos.y;
 
 				if(ENV_game_zone_filter(beacon_foe_x,beacon_foe_y,BORDER_DELTA))
@@ -330,7 +332,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					global.env.foe[foe_id].updated = TRUE;
 				}
 			}
-			global.env.foe[foe_id].angle = global.env.sensor[BEACON_IR(foe_id)].angle;		
+			global.env.foe[foe_id].angle = global.env.sensor[BEACON_IR(foe_id)].angle;
 			//detection_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 
@@ -339,10 +341,10 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			// L'ancien angle est conserve
 			if(global.env.match_time - global.env.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION)
 			{
-				beacon_foe_x = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.cosAngle 
+				beacon_foe_x = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.cosAngle
 					- (global.env.sensor[BEACON_US(foe_id)].distance * sin4096(global.env.foe[foe_id].angle)) * global.env.pos.sinAngle + global.env.pos.x;
 
-				beacon_foe_y  = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.sinAngle 
+				beacon_foe_y  = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.sinAngle
 					+ (global.env.sensor[BEACON_US(foe_id)].distance * sin4096(global.env.foe[foe_id].angle)) * global.env.pos.cosAngle + global.env.pos.y;
 
 				if(ENV_game_zone_filter(beacon_foe_x,beacon_foe_y,BORDER_DELTA))
