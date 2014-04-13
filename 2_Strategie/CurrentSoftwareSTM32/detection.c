@@ -53,6 +53,7 @@ volatile adversary_t beacon_ir_objects[2];
 static bool_e flag_Hokuyo;
 static bool_e flag_IR;
 static bool_e flag_DEFCON_5;
+static Uint8 nb_failed=0;
 
 void DETECTION_init(void)
 {
@@ -242,7 +243,7 @@ static void DETECTION_WITH_IR_AND_HOKUYO(void){
 		case LOOK_DEADZONE_WITH_IR: //DEFCON 2
 			for(i=0;i<2;i++)
 			{
-				if(beacon_ir_objects[i].enable && (beacon_ir_objects[i].angle> 9651 && beacon_ir_objects[i].angle < -9651 ))	//Si les données IR sont cohérentes et sont dans la DEADZONE
+				if(beacon_ir_objects[i].enable && (beacon_ir_objects[i].angle> 3217 || beacon_ir_objects[i].angle < -16085 ))	//Si les données IR sont cohérentes et sont dans la DEADZONE
 				{
 					global.env.foe[k].x 			= beacon_ir_objects[i].x;
 					global.env.foe[k].y 			= beacon_ir_objects[i].y;
@@ -296,6 +297,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 	Uint8 adversary_nb, i;
 	Sint16 cosinus, sinus;
 
+
 	for(i=0;i<MAX_NB_FOES;i++)
 		global.env.foe[i].updated = FALSE;
 
@@ -339,13 +341,19 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			}
 			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
 			{
-				if(adversary_nb == 0 && !fiability)
+				if(adversary_nb == 0 && !fiability){
 					hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
-				else
+					nb_failed++;
+				}else{
+					nb_failed=0;
+					flag_Hokuyo=TRUE;
 					hokuyo_objects_number = adversary_nb + 1;
+				}
 
-				//DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
-				DETECTION_compute(DETECTION_W_FUSION);
+				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
+				/*if(hokuyo_objects_number == 0 && nb_failed	> 3) DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);
+				if(flag_IR) DETECTION_compute(DETECTION_W_FUSION);
+				else break;*/
 			}
 			break;
 		case BEACON_ADVERSARY_POSITION_IR:
@@ -365,7 +373,16 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					beacon_ir_objects[i].enable = FALSE;
 			}
 			if(beacon_ir_objects[0].enable || beacon_ir_objects[1].enable)
-				DETECTION_compute(DETECTION_W_FUSION);
+				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);
+
+				//flag_IR=TRUE;
+
+			/*if(flag_Hokuyo) DETECTION_compute(DETECTION_W_FUSION);
+			else if (nb_failed>3) DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);  //L'IR a la priorité
+			else{
+				nb_failed++;
+				break;
+			}*/
 
 
 
