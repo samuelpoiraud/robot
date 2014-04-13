@@ -52,6 +52,7 @@ volatile adversary_t beacon_ir_objects[2];
 
 static bool_e flag_Hokuyo;
 static bool_e flag_IR;
+static bool_e flag_DEFCON_5;
 
 void DETECTION_init(void)
 {
@@ -61,6 +62,7 @@ void DETECTION_init(void)
 	hokuyo_objects_number = 0;
 	flag_Hokuyo=FALSE;
 	flag_IR=FALSE;
+	flag_DEFCON_5=FALSE;
 
 }	
 
@@ -163,9 +165,9 @@ static void DETECTION_compute(detection_reason_e reason)
 
 		case DETECTION_W_FUSION:
 			DETECTION_WITH_IR_AND_HOKUYO();
-		break;
+			break;
 		default:
-		break;
+			break;
 	}
 
 
@@ -276,7 +278,8 @@ static void DETECTION_WITH_IR_AND_HOKUYO(void){
 		break;
 
 		case DONE:
-
+			flag_Hokuyo=FALSE;
+			flag_IR=FALSE;
 		break;
 
 		default:
@@ -292,11 +295,18 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 	Uint8 fiability;
 	Uint8 adversary_nb, i;
 	Sint16 cosinus, sinus;
+	static time32_t data_from_propulsion_update_time = 0;
 	for(i=0;i<MAX_NB_FOES;i++)
 		global.env.foe[i].updated = FALSE;
+
+	data_from_propulsion_update_time = global.env.absolute_time;
 	switch(msg->sid)
 	{
 		case STRAT_ADVERSARIES_POSITION:
+			if (flag_Hokuyo==TRUE && flag_IR==FALSE){ //On a déja des données Hokuyo trop et pas d'IR
+				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
+				break;
+			}
 			adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
 			if(adversary_nb < MAX_NB_FOES)
 			{
@@ -338,13 +348,17 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					hokuyo_objects_number = adversary_nb + 1;
 
 				//DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
+
 				flag_Hokuyo=TRUE;
 				if(flag_IR==TRUE)
 					DETECTION_compute(DETECTION_W_FUSION);
 			}
 			break;
 		case BEACON_ADVERSARY_POSITION_IR:
-
+			if (flag_IR==TRUE && flag_Hokuyo==FALSE){ //On a déja des données IR et pas d'HOKUYO
+				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);
+				break;
+			}
 			for(i = 0; i<2; i++)
 			{
 				beacon_ir_objects[i].angle = U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]);
