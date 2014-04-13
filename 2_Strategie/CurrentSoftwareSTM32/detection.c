@@ -36,10 +36,13 @@ typedef enum
 {
 	DETECTION_REASON_PROCESS_MAIN = 0,		//Process main...
 	DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION,
-	DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR
+	DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR,
+	DETECTION_W_FUSION
 }detection_reason_e;		//Raison de l'appel à la fonction DETECTION_compute
 
+
 static void DETECTION_compute(detection_reason_e reason);
+static void DETECTION_WITH_IR_AND_HOKUYO(void);
 
 #define FOE_DATA_LIFETIME	250		//[ms] Durée de vie des données envoyées par la propulsion
 volatile adversary_t hokuyo_objects[MAX_NB_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
@@ -47,14 +50,19 @@ volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
 
 volatile adversary_t beacon_ir_objects[2];
 
+static bool_e flag_Hokuyo;
+static bool_e flag_IR;
+
 void DETECTION_init(void)
 {
 	static bool_e initialized = FALSE;
 	if(initialized)
 		return;
 	hokuyo_objects_number = 0;
+	flag_Hokuyo=FALSE;
+	flag_IR=FALSE;
 
-}
+}	
 
 /*	mise à jour de l'information de détection avec le contenu
 	courant de l'environnement */
@@ -152,8 +160,12 @@ static void DETECTION_compute(detection_reason_e reason)
 				//TODO le tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
 			}
 			break;
+
+		case DETECTION_W_FUSION:
+			DETECTION_WITH_IR_AND_HOKUYO();
+		break;
 		default:
-			break;
+		break;
 	}
 
 
@@ -161,6 +173,115 @@ static void DETECTION_compute(detection_reason_e reason)
 
 	//S'il y a plus d'objets hokuyo que d'adversaires possibles dans notre évitement, on choisit les plus proches.
 	//debug_printf("\n");
+}
+
+
+static void DETECTION_WITH_IR_AND_HOKUYO(void){
+	typedef enum
+	{
+	INIT = 0,
+	LOOK_HOKUYO_DATA,
+	LOOK_DEADZONE_WITH_IR,
+	LOOK_ONLY_WITH_IR,
+	DONE
+	}fusion_e;
+
+	static fusion_e state=INIT;
+
+	Uint8 i,j,k, j_min;
+	Sint16 dist_min;
+	bool_e objects_chosen[MAX_NB_FOES];
+	k=0;
+
+	switch(state){
+		case INIT:
+			state=LOOK_DEADZONE_WITH_IR;
+		break;
+
+		case LOOK_HOKUYO_DATA: //DEFCON 1
+			if ( hokuyo_objects_number == 0){
+				state = LOOK_ONLY_WITH_IR;
+				break;
+			}
+
+			for(j = 0; j < hokuyo_objects_number; j++)
+				objects_chosen[j] = FALSE;			//init, aucun des objets n'est choisi
+
+			for(i = 0 ; i < MAX_NB_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
+			{
+				dist_min = 0x7FFF;
+				j_min = 0xFF;		//On suppose qu'il n'y a pas d'objet hokuyo.
+				for(j = 0; j < hokuyo_objects_number; j++)	//Pour tout les objets hokuyos recus
+				{
+					if(hokuyo_objects[i].enable && objects_chosen[j] == FALSE && dist_min > hokuyo_objects[j].dist)	//Pour tout objet restant (activé, non choisi)
+					{
+						j_min = j;
+						dist_min = hokuyo_objects[j].dist;		//On cherche la distance mini parmi les objet restant
+					}
+				}
+				if(j_min != 0xFF)									//Si on a trouvé un objet
+				{
+					objects_chosen[j_min] = TRUE;					//On "consomme" cet objet
+					global.env.foe[k].x 			= hokuyo_objects[j_min].x;	//On enregistre cet objet à la case i.
+					global.env.foe[k].y 			= hokuyo_objects[j_min].y;
+					global.env.foe[k].angle 		= hokuyo_objects[j_min].angle;
+					global.env.foe[k].dist 			= hokuyo_objects[j_min].dist;
+					global.env.foe[k].update_time 	= hokuyo_objects[j_min].update_time;
+					global.env.foe[k].updated 		= TRUE;
+					global.env.foe[k].obsolete 		= DETECTION_IS_RECENT;
+					global.env.foe[k].from 			= DETECTION_FROM_PROPULSION;
+					k++;
+					//debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
+				}
+			}
+			state = LOOK_DEADZONE_WITH_IR;
+		break;
+
+		case LOOK_DEADZONE_WITH_IR: //DEFCON 2
+			for(i=0;i<2;i++)
+			{
+				if(beacon_ir_objects[i].enable && (beacon_ir_objects[i].angle> 9651 && beacon_ir_objects[i].angle < -9651 ))	//Si les données IR sont cohérentes et sont dans la DEADZONE
+				{
+					global.env.foe[k].x 			= beacon_ir_objects[i].x;
+					global.env.foe[k].y 			= beacon_ir_objects[i].y;
+					global.env.foe[k].angle 		= beacon_ir_objects[i].angle;
+					global.env.foe[k].dist 			= beacon_ir_objects[i].dist;
+					global.env.foe[k].update_time 	= beacon_ir_objects[i].update_time;
+					global.env.foe[k].updated 		= TRUE;
+					global.env.foe[k].obsolete 		= DETECTION_IS_RECENT;
+					global.env.foe[k].from 			= DETECTION_FROM_BEACON_IR;
+					k++;
+				}
+			}
+			state = DONE;
+		break;
+
+		case LOOK_ONLY_WITH_IR: //DEFCON 3
+			for(i=0;i<2;i++)
+			{
+				if(beacon_ir_objects[i].enable)
+				{
+					global.env.foe[k].x 			= beacon_ir_objects[i].x;
+					global.env.foe[k].y 			= beacon_ir_objects[i].y;
+					global.env.foe[k].angle 		= beacon_ir_objects[i].angle;
+					global.env.foe[k].dist 			= beacon_ir_objects[i].dist;
+					global.env.foe[k].update_time 	= beacon_ir_objects[i].update_time;
+					global.env.foe[k].updated 		= TRUE;
+					global.env.foe[k].obsolete 		= DETECTION_IS_RECENT;
+					global.env.foe[k].from 			= DETECTION_FROM_BEACON_IR;
+					k++;
+				}
+			}
+			state = DONE;
+		break;
+
+		case DONE:
+
+		break;
+
+		default:
+		break;
+	}
 }
 
 
@@ -215,7 +336,11 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
 				else
 					hokuyo_objects_number = adversary_nb + 1;
-				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
+
+				//DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
+				flag_Hokuyo=TRUE;
+				if(flag_IR==TRUE)
+					DETECTION_compute(DETECTION_W_FUSION);
 			}
 			break;
 		case BEACON_ADVERSARY_POSITION_IR:
@@ -235,8 +360,9 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					beacon_ir_objects[i].enable = FALSE;
 			}
 			if(beacon_ir_objects[0].enable || beacon_ir_objects[1].enable)
-				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);	//Si l'un des deux adversaires à été vu... on prévient l'algo COMPUTE.
-
+				flag_IR=TRUE;
+			if(flag_Hokuyo==TRUE)
+				DETECTION_compute(DETECTION_W_FUSION);
 
 
 
