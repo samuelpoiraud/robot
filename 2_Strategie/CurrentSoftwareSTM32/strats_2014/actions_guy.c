@@ -84,6 +84,14 @@ void strat_belgique_guy(void){
 		OPEN_ARM2,
 		DEPLOY_ARM2,
 		CLOSE_ARM2,
+		PARK_ARM3,
+		GO_TORCHE,
+		TOURNE5,
+		OPEN_ARM3,
+		DEPLOY_ARM3,
+		TOURNE6,
+		CLOSE_ARM3,
+		PARK_ARM2,
 		/*DO_FIRST_TRIANGLE,
 		CLOSE_ARM,
 		PARK_ARM,
@@ -185,7 +193,7 @@ void strat_belgique_guy(void){
 			break;
 
 		case TRIANGLE_1SHOOT:
-			state = try_going(1109, COLOR_Y(380), TRIANGLE_1SHOOT, TRIANGLE_2, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			state = try_going(1109, COLOR_Y(380), TRIANGLE_1SHOOT, PASSAGE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case TRIANGLE_2:
@@ -220,7 +228,7 @@ void strat_belgique_guy(void){
 			break;
 
 		case PASSAGE:
-			state = try_going(1100, COLOR_Y(1100), PASSAGE, TRIANGLE_3, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+			state = try_going(1350, COLOR_Y(1000), PASSAGE, TRIANGLE_3, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case TRIANGLE_3:
@@ -255,8 +263,13 @@ void strat_belgique_guy(void){
 			break;
 
 		case CLOSE_ARM2:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, CLOSE_ARM2, DONE, DONE);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, CLOSE_ARM2, PARK_ARM3, DONE);
 			break;
+
+		case PARK_ARM3:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARK_ARM3, DONE, ERROR);
+			break;
+
 
 		case DONE:
 			break;
