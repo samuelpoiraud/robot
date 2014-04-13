@@ -66,6 +66,24 @@ void strat_belgique_guy(void){
 		RANGER,
 		OPEN_END,
 		CLOSE_END,
+		TRIANGLE_1,
+		TRIANGLE_1SHOOT,
+		TRIANGLE_2,
+		TRIANGLE_2SHOOT,
+		TRIANGLE_3,
+		TRIANGLE_3SHOOT,
+		GO_FRESCO,
+		BEFORE_WALL,
+		PUSH_MOVE,
+		WAIT_END_OF_MOVE,
+		EXTRACTION,
+		PASSAGE,
+		AVANCE2,
+		TOURNE3,
+		TOURNE4,
+		OPEN_ARM2,
+		DEPLOY_ARM2,
+		CLOSE_ARM2,
 		/*DO_FIRST_TRIANGLE,
 		CLOSE_ARM,
 		PARK_ARM,
@@ -75,6 +93,8 @@ void strat_belgique_guy(void){
 		ERROR
 	);
 	static time32_t time;
+	static bool_e timeout=FALSE;
+
 	switch(state){
 		case IDLE:
 			state = EXTRACT_FROM_ZONE;
@@ -82,7 +102,7 @@ void strat_belgique_guy(void){
 
 		case EXTRACT_FROM_ZONE:
 			state = try_going(997,COLOR_Y(150),EXTRACT_FROM_ZONE,WAIT,EXTRACT_FROM_ZONE,
-							  FAST,ANY_WAY,NO_DODGE_AND_WAIT); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
+							  FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT); // Pas d'évitement on sort de la zone de départ, il ne faut pas bloquer Pierre
 			break;
 
 		case WAIT :
@@ -94,18 +114,18 @@ void strat_belgique_guy(void){
 
 		case AVANCE :
 			state = try_going(610,COLOR_Y(150),AVANCE,TOURNE,RANGER,
-							  FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+							  FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case TOURNE :
 			if(global.env.color == RED)
-				state = try_go_angle(-PI4096/2, TOURNE, OPEN_ARM, RANGER, FAST);
+				state = try_go_angle(-PI4096/2, TOURNE, OPEN_ARM, TRIANGLE_1, FAST);
 			else
-				state = try_go_angle(PI4096/2, TOURNE, OPEN_ARM, RANGER, FAST);
+				state = try_go_angle(PI4096/2, TOURNE, OPEN_ARM, TRIANGLE_1, FAST);
 			break;
 
 		case OPEN_ARM:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_ARM, DEPLOY_ARM, RANGER);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_ARM, DEPLOY_ARM, ERROR);
 			break;
 
 		case DEPLOY_ARM:
@@ -124,7 +144,7 @@ void strat_belgique_guy(void){
 			break;
 
 		case PARK_ARM:
-			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARK_ARM, RANGER, RANGER);
+			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARK_ARM, TRIANGLE_1, TRIANGLE_1);
 			break;
 
 		case RANGER :
@@ -160,7 +180,88 @@ void strat_belgique_guy(void){
 		case POS_MID:
 			state = try_going(1500, 1500, POS_MID, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);*/
 
+		case TRIANGLE_1:
+			state = try_going(825, COLOR_Y(389), TRIANGLE_1, TRIANGLE_1SHOOT, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case TRIANGLE_1SHOOT:
+			state = try_going(1109, COLOR_Y(380), TRIANGLE_1SHOOT, TRIANGLE_2, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case TRIANGLE_2:
+			state = try_going(596, COLOR_Y(500), TRIANGLE_2, TRIANGLE_2SHOOT, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case TRIANGLE_2SHOOT:
+			state = try_going(596, COLOR_Y(858), TRIANGLE_2SHOOT, GO_FRESCO, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case GO_FRESCO:
+			state = try_going(500, COLOR_Y(1300), GO_FRESCO, BEFORE_WALL, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case BEFORE_WALL:
+			state = try_going(300, COLOR_Y(1300), BEFORE_WALL, PUSH_MOVE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
+			ASSER_push_rush_in_the_wall(FORWARD,TRUE,PI4096,TRUE);//Le fait forcer en marche arriere
+			state = WAIT_END_OF_MOVE;
+			break;
+
+		case WAIT_END_OF_MOVE:
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+				state = EXTRACTION;
+			}
+			break;
+
+		case EXTRACTION:
+			state = try_going(500, COLOR_Y(1300), EXTRACTION, PASSAGE, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case PASSAGE:
+			state = try_going(1100, COLOR_Y(1100), PASSAGE, TRIANGLE_3, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case TRIANGLE_3:
+			state = try_going(1600, COLOR_Y(1100), TRIANGLE_3, TRIANGLE_3SHOOT, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case TRIANGLE_3SHOOT:
+			state = try_going(1600, COLOR_Y(750), TRIANGLE_3SHOOT, AVANCE2, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case AVANCE2 :
+			state = try_going(2000-140,COLOR_Y(1500),AVANCE2,TOURNE3,ERROR,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case TOURNE3 :
+			state = try_go_angle(0, TOURNE3, OPEN_ARM2, ERROR, FAST);
+			break;
+
+		case OPEN_ARM2:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_ARM2, DEPLOY_ARM2, ERROR);
+			break;
+
+		case DEPLOY_ARM2:
+			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,global.env.pos.x + 200, global.env.pos.y, DEPLOY_ARM2, TOURNE4, TOURNE4);
+			break;
+
+		case TOURNE4 :
+			if(global.env.color == RED)
+				state = try_go_angle(PI4096/2, TOURNE4, CLOSE_ARM2, ERROR, FAST);
+			else
+				state = try_go_angle(-PI4096/2, TOURNE4, CLOSE_ARM2, ERROR, FAST);
+			break;
+
+		case CLOSE_ARM2:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, CLOSE_ARM2, DONE, DONE);
+			break;
+
 		case DONE:
+			break;
+
+		case ERROR:
 			break;
 
 		default:
@@ -306,7 +407,7 @@ void strat_inutile_guy(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,POINT_1,ERROR,FAST,BACKWARD,NO_AVOIDANCE);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,POINT_1,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case RAMEMENER_TORCH:
