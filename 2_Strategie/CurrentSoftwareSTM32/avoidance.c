@@ -96,7 +96,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Cette fonction permet le multipoint.
-Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition)
+Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition)
 {
 	error_e sub_action;
 	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition);
@@ -487,7 +487,7 @@ void AVOIDANCE_set_timeout(Uint16 msec) {
 
 
 /* Fonction qui réalise un ASSER_push_goto avec la possibilité de courbe ou non, avec la gestion de l'évitement */
-error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
+error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
 {
 	enum state_e
 	{
@@ -510,11 +510,11 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 	switch(state)
 	{
 		case CHECK_SCAN_FOE :
-//			debug_printf("CHECK_SCAN_FOE\n");
-//			if(foe_in_zone(TRUE, displacements[0].point.x, displacements[0].point.y)){
-//				state = CHECK_SCAN_FOE;
-//				return NOT_HANDLED;
-//			}else
+			if(foe_in_zone(TRUE, displacements[0].point.x, displacements[0].point.y)){
+				avoidance_printf("goto_pos_with_scan_foe NOT HANDLED because foe in target zone");
+				state = CHECK_SCAN_FOE;
+				return NOT_HANDLED;
+			}else
 				state = LOAD_MOVE;
 			break;
 
