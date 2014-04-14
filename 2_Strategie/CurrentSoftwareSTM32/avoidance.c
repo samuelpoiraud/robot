@@ -1091,7 +1091,7 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 
 				if((global.env.pos.x*global.env.foe[i].y + global.env.pos.y*global.env.foe[i].x) > 0
 						&& (global.env.pos.x*global.env.foe[i].y + global.env.pos.y*global.env.foe[i].x)
-							 > dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC){
+							 < dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC){
 					inZone = TRUE;
 					debug_printf("DETECTED\n");
 				}
