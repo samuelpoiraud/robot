@@ -1171,11 +1171,11 @@ void strat_test_arm(){
 		OPEN1,
 		TORCHE,
 		OPEN2,
-		RETURN,
-		OPEN3,
-		PARKED,
+//		RETURN,
+//		OPEN3,
+//		PARKED,
 		WAIT1,
-		WAIT2,
+//		WAIT2,
 		DONE
 	);
 

@@ -2306,7 +2306,7 @@ void strat_test_evitement(){
 							INIT,
 							GO_1,
 							GO_2,
-							GO_3,
+							//GO_3,
 							DONE
 						);
 	switch(state){
