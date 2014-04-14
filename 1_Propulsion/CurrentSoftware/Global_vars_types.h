@@ -64,13 +64,7 @@
 	}relative_e;
 
 
-	typedef enum {
-			FAST = 0,
-			SLOW,
-			SLOW_TRANSLATION_AND_FAST_ROTATION,
-			EXTREMELY_VERY_SLOW,
-			CUSTOM	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
-	  } speed_e;
+
 
 	  
 	

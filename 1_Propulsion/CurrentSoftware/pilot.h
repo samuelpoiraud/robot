@@ -39,7 +39,7 @@
 	
 	void PILOT_process_it(void);
 
-	void PILOT_set_speed(speed_e speed);
+	void PILOT_set_speed(ASSER_speed_e speed);
 
 	void PILOT_referential_init(void);
 
