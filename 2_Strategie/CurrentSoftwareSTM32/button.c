@@ -101,19 +101,6 @@ void SWITCH_change_color()
 	}
 }
 
-void BUTTON_rotation()
-{
-	ASSER_push_goangle ((-PI4096)/2, FAST, TRUE);
-}
-
-void BUTTON_pi_rotation()
-{
-	ASSER_push_relative_goangle (PI4096,FAST,TRUE);
-}
-void BUTTON_translation()
-{
-	relative_move (1000, FAST, FORWARD, END_AT_LAST_POINT);
-}
 
 void BUTTON_verbose(void)
 {
