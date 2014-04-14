@@ -521,7 +521,7 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 
 		case LOAD_MOVE:
 			timeout = FALSE;
-			global.env.aimpoint = displacements[nb_displacements-1].point;
+			global.env.destination = displacements[nb_displacements-1].point;
 			for(i=nb_displacements-1;i>=1;i--)
 			{
 				if(displacements)
