@@ -36,6 +36,7 @@
 	void PILOT_init(void);
 
 	Sint32 PILOT_get_coef(PILOT_coef_e id);
+	void PILOT_set_coef(PILOT_coef_e id, Sint32 value);
 	
 	void PILOT_process_it(void);
 

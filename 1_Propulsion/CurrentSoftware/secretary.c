@@ -619,6 +619,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 
 		//REGLAGES DES COEFFICIENTS !!!!!!!!
+		case DEBUG_PROPULSION_SET_ACCELERATION:
+			if(U16FROMU8(msg->data[0], msg->data[1]) < 200)	//Sécurité...
+				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
+		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_SYM:
 			ODOMETRY_set_coef(ODOMETRY_COEF_SYM,(Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
