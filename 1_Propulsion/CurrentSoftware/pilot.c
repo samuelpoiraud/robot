@@ -564,7 +564,7 @@ void PILOT_update_position_rotation()
 
 
 
-void PILOT_set_speed(speed_e speed)
+void PILOT_set_speed(ASSER_speed_e speed)
 {
 	switch(speed)
 	{
@@ -581,11 +581,15 @@ void PILOT_set_speed(speed_e speed)
 			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_MAX];
 			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_VERY_LOW];
 		break;
+		case FAST_TRANSLATION_AND_SLOW_ROTATION:
+			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_LOW];
+			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_MAX];
+		break;
 		case SLOW:
 			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_LOW];
 			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_LOW];
 		break;
-				case CUSTOM:
+		case CUSTOM:
 		default:
 			vitesse_translation_max = (Sint32)(speed-8) * 128;	//"vitesse" varie de 8 à 255 et la vitesse finallement obtenue varie de 0 à 32702
 			vitesse_rotation_max = (Sint32)(speed-8) * 1024;	//"vitesse" varie de 8 à 255 et la vitesse finallement obtenue varie de 0 à 252928 (c'est trop ! mais il y a un écretage ensuite)
