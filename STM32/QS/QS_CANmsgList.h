@@ -74,6 +74,9 @@
 
 	#define DEBUG_DO_TRAJECTORY_FOR_TEST_COEFS						0x711
 	#define DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE					0x712
+
+	#define DEBUG_PROPULSION_SET_ACCELERATION						0x713		//Data sur 16 bits. (unité : mm/4096/5ms/5ms) Grandeur typique : 100
+
 		//Uint16 : durée de la trajectoire en [ms]
 
 
