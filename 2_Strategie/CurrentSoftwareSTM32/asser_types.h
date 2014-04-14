@@ -24,14 +24,6 @@
 		RELATIVE=0x0F
 	} ASSER_mode_e;
 	
-	typedef enum
-	{
-		FAST = 0,
-		SLOW,
-		VERY_SLOW_TRANSLATION_AND_FAST_ROTATION,  //comme en calibrage
-		EXTREMELY_VERY_SLOW,
-		CUSTOM	//Les valeurs a partir de 8 sont valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
-	} ASSER_speed_e;
 	
 	typedef enum
 	{
