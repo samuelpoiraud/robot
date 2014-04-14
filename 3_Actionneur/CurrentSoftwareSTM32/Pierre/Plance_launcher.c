@@ -16,6 +16,7 @@
 #include "../QS/QS_global_vars.h"
 #include "../act_queue_utils.h"
 #include "config_pin.h"
+#include "../selftest.h"
 
 #include "config_debug.h"
 #define LOG_PREFIX "LL: "
@@ -40,6 +41,7 @@ bool_e EXECUTING_LAUNCH = FALSE;
 
 static bool_e start_next_launcher();
 static bool_e hold_state();
+static void LANCE_run_selftest(queue_id_t queueId, bool_e init);
 
 static Uint8 lance_launcher_last_launch = 0;
 static bool_e start_next_launcher();
@@ -70,6 +72,7 @@ void LANCE_LAUNCHER_stop() {
 
 
 bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
+	queue_id_t queueId;
 	if(msg->sid == ACT_LANCELAUNCHER) {
 		LANCE_LAUNCHER_init();
 
@@ -97,6 +100,17 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 		sens = msg->data[1];
 
 		return TRUE;
+	} else if(msg->sid == ACT_DO_SELFTEST) {
+		queueId = QUEUE_create();
+		if(queueId != QUEUE_CREATE_FAILED){ // Selftest différent des autres actionneurs car on ne peut pas le déclencher pour le tester
+			// Donc selftest vide pour ne pas faire attendre la carte actionneur (TIMEOUT selftest) et ne pas avoir ACT_Missing_test
+			QUEUE_add(queueId, &LANCE_run_selftest, (QUEUE_arg_t){0, 0, &SELFTEST_finish}, QUEUE_ACT_lancelauncher);
+			QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_lancelauncher);
+			// On lache quand même le sémaphore pour que SELFTEST_finish prenne en compte le selftest du filet
+		}else{
+			QUEUE_flush(queueId);
+			ACTQ_printResult(ACT_DO_SELFTEST, 0, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES, 0);
+		}
 	}
 
 	return FALSE;
@@ -308,6 +322,19 @@ void TIMER_SRC_TIMER_interrupt() {
 	}
 
 	TIMER_SRC_TIMER_resetFlag();
+}
+
+
+static void LANCE_run_selftest(queue_id_t queueId, bool_e init){
+	if(QUEUE_has_error(queueId)) {
+		QUEUE_behead(queueId);
+		return;
+	}
+
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_lancelauncher) {
+		if(!init)
+			QUEUE_next(queueId, ACT_LANCELAUNCHER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
+	}
 }
 
 #endif	//I_AM_ROBOT_BIG
