@@ -206,19 +206,19 @@
 
 
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
-	#define TINY_KD_TRANSLATION 	(12) //0x80
-	#define KRUSTY_KD_TRANSLATION 	(0x36) //0x80
+	#define SMALL_KD_TRANSLATION 	(12) //0x80
+	#define BIG_KD_TRANSLATION 	(0x36) //0x80
 
-	#define TINY_KP_TRANSLATION 	(34)
-	#define KRUSTY_KP_TRANSLATION 	(17)
+	#define SMALL_KP_TRANSLATION 	(34)
+	#define BIG_KP_TRANSLATION 	(17)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
-	#define TINY_KD_ROTATION 	(288) //0x800
-	#define KRUSTY_KD_ROTATION 	(0x200) //0x800
+	#define SMALL_KD_ROTATION 	(288) //0x800
+	#define BIG_KD_ROTATION 	(0x200) //0x800
 
-	#define TINY_KP_ROTATION 	(130)//40 //0x80
-	#define KRUSTY_KP_ROTATION 	(0xF0) //0x80
+	#define SMALL_KP_ROTATION 	(130)//40 //0x80
+	#define BIG_KP_ROTATION 	(0xF0) //0x80
 
 	//Ordre de grandeur :
 	//A la vitesse lumière, KV_TRANSLATION * vitesse_translation doit valoir 100*4096
@@ -226,25 +226,25 @@
 	//KVtrans  	= 16
 	//KVrot = 1
 
-	#define TINY_KV_ROTATION 	1//CHOMP 1
-	#define KRUSTY_KV_ROTATION 	1//CHOMP 1
+	#define SMALL_KV_ROTATION 	1//CHOMP 1
+	#define BIG_KV_ROTATION 	1//CHOMP 1
 
-	#define TINY_KV_TRANSLATION 	19
-	#define KRUSTY_KV_TRANSLATION 	12
+	#define SMALL_KV_TRANSLATION 	19
+	#define BIG_KV_TRANSLATION 	12
 
 	#ifdef CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION
 		#warning "mode non utilisé jusqu'à maintenant : coefs non reglés"
-		#define TINY_KA_ROTATION 	0
-		#define KRUSTY_KA_ROTATION 	0
+		#define SMALL_KA_ROTATION 	0
+		#define BIG_KA_ROTATION 	0
 
-		#define TINY_KA_TRANSLATION 	(200)
-		#define KRUSTY_KA_TRANSLATION 	(200)
+		#define SMALL_KA_TRANSLATION 	(200)
+		#define BIG_KA_TRANSLATION 	(200)
 	#else
-		#define TINY_KA_ROTATION 	0
-		#define KRUSTY_KA_ROTATION 	0
+		#define SMALL_KA_ROTATION 	0
+		#define BIG_KA_ROTATION 	0
 
-		#define TINY_KA_TRANSLATION 	0
-		#define KRUSTY_KA_TRANSLATION 	0
+		#define SMALL_KA_TRANSLATION 	0
+		#define BIG_KA_TRANSLATION 	0
 	#endif
 
 
@@ -260,11 +260,11 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 
 	// de combien on accelere à chaque boucle d'asser
-	#define TINY_ACCELERATION_NORMAL	48	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define TINY_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
+	#define SMALL_ACCELERATION_NORMAL	48	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define SMALL_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 
-	#define KRUSTY_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
-	#define KRUSTY_ACCELERATION_ROTATION_TRANSLATION 7
+	#define BIG_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define BIG_ACCELERATION_ROTATION_TRANSLATION 7
 
 	// 13 = (1024 / (distance entre les roues de propulsions divisée par 2 ) )
 	//sur archi'tech : 2*80mm entre les roues
@@ -282,32 +282,32 @@
 			8192  = 2[mm/5ms] = 0,4m/s
 		*/
 	// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
-	#define TINY_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
-	#define TINY_TRANSLATION_SPEED_MAX 		(Sint32)(20448)		 	//environ = 5[mm/5ms] = 1,0m/s
-	#define TINY_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
-	#define TINY_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
-	#define TINY_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
+	#define SMALL_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
+	#define SMALL_TRANSLATION_SPEED_MAX 		(Sint32)(20448)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define SMALL_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
+	#define SMALL_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
+	#define SMALL_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
 
 	//Une vitesse de 1024[rad/4096/1024/5ms] en rotation correspond à un déplacement des roues de 80[mm/4096/5ms]
-	#define TINY_ROTATION_SPEED_LIGHT 		(Sint32)(135160)			//[rad/4096/1024/5ms]
-	#define TINY_ROTATION_SPEED_MAX 			(Sint32)(135160)			//[rad/4096/1024/5ms]
-	#define TINY_ROTATION_SPEED_LOW 			(Sint32)(41140)			//environ 1,5 rad/s
-	#define TINY_ROTATION_SPEED_VERY_LOW 	(Sint32)(21120)			//environ 0,75 rad/s
-	#define TINY_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
+	#define SMALL_ROTATION_SPEED_LIGHT 		(Sint32)(135160)			//[rad/4096/1024/5ms]
+	#define SMALL_ROTATION_SPEED_MAX 			(Sint32)(135160)			//[rad/4096/1024/5ms]
+	#define SMALL_ROTATION_SPEED_LOW 			(Sint32)(41140)			//environ 1,5 rad/s
+	#define SMALL_ROTATION_SPEED_VERY_LOW 	(Sint32)(21120)			//environ 0,75 rad/s
+	#define SMALL_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
 
 		// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
-	#define KRUSTY_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
-	#define KRUSTY_TRANSLATION_SPEED_MAX 		(Sint32)(22448)		 	//environ = 5[mm/5ms] = 1,0m/s
-	#define KRUSTY_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
-	#define KRUSTY_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
-	#define KRUSTY_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
+	#define BIG_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
+	#define BIG_TRANSLATION_SPEED_MAX 		(Sint32)(22448)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define BIG_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
+	#define BIG_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
+	#define BIG_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
 
 	//Une vitesse de 1024[rad/4096/1024/5ms] en rotation correspond à un déplacement des roues de 80[mm/4096/5ms]
-	#define KRUSTY_ROTATION_SPEED_LIGHT 		(Sint32)(67580)			//[rad/4096/1024/5ms]
-	#define KRUSTY_ROTATION_SPEED_MAX 			(Sint32)(67580)			//[rad/4096/1024/5ms]
-	#define KRUSTY_ROTATION_SPEED_LOW 			(Sint32)(21120)			//environ 1,5 rad/s
-	#define KRUSTY_ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
-	#define KRUSTY_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
+	#define BIG_ROTATION_SPEED_LIGHT 		(Sint32)(67580)			//[rad/4096/1024/5ms]
+	#define BIG_ROTATION_SPEED_MAX 			(Sint32)(67580)			//[rad/4096/1024/5ms]
+	#define BIG_ROTATION_SPEED_LOW 			(Sint32)(21120)			//environ 1,5 rad/s
+	#define BIG_ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
+	#define BIG_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
 
 
 
