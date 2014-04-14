@@ -136,7 +136,7 @@
 		Uint16 duration_trajectory_for_test_coefs;
 		bool_e reach_point_C1;
 		bool_e reach_point_get_out_init;
-		GEOMETRY_point_t aimpoint;
+		GEOMETRY_point_t destination;
 	}environment_t;
 
 

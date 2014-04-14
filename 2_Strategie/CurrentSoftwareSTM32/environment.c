@@ -88,7 +88,7 @@ void ENV_init(void)
 	global.env.asser.current_status = NO_ERROR;
 	global.env.alim = FALSE;
 	global.env.alim_value = 0;
-	global.env.aimpoint = (GEOMETRY_point_t){0,0};
+	global.env.destination = (GEOMETRY_point_t){0,0};
 	FIX_BEACON_init();
 }
 
