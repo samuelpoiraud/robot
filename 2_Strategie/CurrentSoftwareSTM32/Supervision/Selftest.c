@@ -330,9 +330,13 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_AVOIDANCE, (bool_e*) &(flag_timeout));
 				debug_printf("SELFTEST AVOIDANCE\r\n");
 			}
-
-			if(foe_in_zone(FALSE, global.env.pos.x + 500, global.env.pos.y))
-				BUZZER_play(30, NOTE_LA, 5);
+			if(global.env.color == RED){
+				if(foe_in_zone(FALSE, global.env.pos.x, global.env.pos.y+500))
+					BUZZER_play(30, NOTE_LA, 5);
+			}else{
+				if(foe_in_zone(FALSE, global.env.pos.x, global.env.pos.y-500))
+					BUZZER_play(30, NOTE_LA, 5);
+			}
 
 			if(flag_timeout) // Fin du test
 			{
