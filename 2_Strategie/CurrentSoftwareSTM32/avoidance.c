@@ -45,335 +45,15 @@ static error_e AVOIDANCE_watch_asser_stack();
 
 static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 
-#ifdef USE_POLYGON
-
-	/* Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements
-	puis seulement avec les notres s'il est impossible de trouver un chemin */
-	error_e goto_polygon_default(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve,polygon_elements_type_e element_type)
-	{
-		enum state_e
-		{
-			GOTO_POLYGON_WITH_ALL_ELEMENTS = 0,
-			GOTO_POLYGON_WITH_OUR_AND_OPPONENT_ELEMENTS,
-			GOTO_POLYGON_WITH_OUR_ELEMENTS,
-			DONE
-		};
-		static enum state_e state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
-
-		static error_e sub_action;
-		static bool_e timeout = FALSE;
-		static bool_e init = FALSE;
-
-		if(!init)
-		{
-			switch(element_type)
-			{
-				case ALL_ELEMENTS:
-					state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
-					break;
-
-				case OUR_AND_OPPONENT_ELEMENTS:
-					state = GOTO_POLYGON_WITH_OUR_AND_OPPONENT_ELEMENTS;
-					break;
-
-				case OUR_ELEMENTS:
-					state = GOTO_POLYGON_WITH_OUR_ELEMENTS;
-					break;
-
-				default:
-					state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
-					break;
-			}
-			init = TRUE;
-		}
-
-		switch (state)
-		{
-			case GOTO_POLYGON_WITH_ALL_ELEMENTS:
-				sub_action = goto_polygon(x, y, way, speed, curve, ALL_ELEMENTS);
-				switch(sub_action)
-				{
-					case END_OK:
-						state = DONE;
-						break;
-
-					case END_WITH_TIMEOUT:
-						timeout = TRUE;
-						state = DONE;
-						break;
-
-					case NOT_HANDLED:
-						/* Aucun chemin possible avec tous les elements */
-						avoidance_printf("goto_polygon : impossible avec tous les elements !\r\n");
-						state = GOTO_POLYGON_WITH_OUR_AND_OPPONENT_ELEMENTS;
-						break;
-
-					case IN_PROGRESS:
-						break;
-
-					default:
-						state = DONE;
-						break;
-				}
-				break;
-
-			case GOTO_POLYGON_WITH_OUR_AND_OPPONENT_ELEMENTS:
-				sub_action = goto_polygon(x, y, way, speed, curve, OUR_AND_OPPONENT_ELEMENTS);
-				switch(sub_action)
-				{
-					case END_OK:
-						state = DONE;
-						break;
-
-					case END_WITH_TIMEOUT:
-						timeout = TRUE;
-						state = DONE;
-						break;
-
-					case NOT_HANDLED:
-						/* Aucun chemin possible avec tous nos elements */
-						avoidance_printf("goto_polygon : impossible avec nos elements !\r\n");
-						state = GOTO_POLYGON_WITH_OUR_ELEMENTS;
-						break;
-
-					case IN_PROGRESS:
-						break;
-
-					default:
-						state = DONE;
-						break;
-				}
-				break;
-
-			case GOTO_POLYGON_WITH_OUR_ELEMENTS:
-				sub_action = goto_polygon(x, y, way, speed, curve, OUR_ELEMENTS);
-				switch(sub_action)
-				{
-					case END_OK:
-						state = DONE;
-						break;
-
-					case END_WITH_TIMEOUT:
-						timeout = TRUE;
-						state = DONE;
-						break;
-
-					case NOT_HANDLED:
-						/* Aucun chemin possible avec tous nos elements */
-						avoidance_printf("goto_polygon : impossible avec nos elements !\r\n");
-						state = DONE;
-						return NOT_HANDLED;
-						break;
-
-					case IN_PROGRESS:
-						break;
-
-					default:
-						state = DONE;
-						break;
-				}
-				break;
-
-			case DONE:
-				state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
-				init = FALSE;
-				return timeout?END_WITH_TIMEOUT:END_OK;
-				break;
-
-			default:
-				state = GOTO_POLYGON_WITH_ALL_ELEMENTS;
-				return NOT_HANDLED;
-				break;
-		}
-		return IN_PROGRESS;
-	}
-
-	/* Action qui déplace le robot grâce à l'algorithme des polygones en choisissant le type d'elements */
-	error_e goto_polygon(Sint16 x, Sint16 y, way_e way, ASSER_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements)
-	{
-		/* Gestion de la machine à états */
-		enum state_e
-		{
-			INIT = 0,
-			COMPUTE,
-			WAIT_GO_POLYGON,
-			DONE
-		};
-		static enum state_e state = INIT;
-
-		Uint16 cost;
-
-		/* relève les timeout */
-		static bool_e timeout = FALSE;
-		static bool_e use_opponent = FALSE;
-
-		switch (state)
-		{
-			case INIT :
-				use_opponent = FALSE;
-				state = COMPUTE;
-				break;
-
-			case COMPUTE:
-				cost=POLYGON_compute(global.env.pos.x, global.env.pos.y, x, y, way, speed, curve,type_elements,use_opponent);
-				if(cost==POLYGON_PATHFIND_OPPONENT_COST)
-				{
-					avoidance_printf("POLYGON_compute : chemin polygon invalide !\n");
-					state = COMPUTE;
-					return NOT_HANDLED;
-				}
-				else
-				{
-					avoidance_printf("POLYGON_compute : chemin polygon trouve !\n");
-					STACKS_pull(ASSER);	// On supprime le wait_forever pour lancer le déplacement
-					state = WAIT_GO_POLYGON;
-				}
-				break;
-
-			case WAIT_GO_POLYGON:
-				switch(wait_move_and_scan_foe(NO_DODGE_AND_NO_WAIT))
-				{
-					case END_OK:
-					case END_WITH_TIMEOUT:
-						debug_printf("Pas d'adversaire sur polygone\n");
-						state = DONE;
-						break;
-
-					case NOT_HANDLED:
-					case FOE_IN_PATH:
-						debug_printf("Adversaire detecte sur polygon!\r\n");
-						use_opponent = TRUE;
-						state = COMPUTE;
-						break;
-
-					case IN_PROGRESS :
-					default :
-						break;
-				}
-				break;
-
-			case DONE:
-				state = INIT;
-				return (timeout?END_WITH_TIMEOUT:END_OK);
-				break;
-
-			default :
-				state = INIT;
-				break;
-		}
-		return IN_PROGRESS;
-	}
-
-	/* Action qui va à un noeud */
-	error_e goto_node(Uint8 node,...)
-	{
-		avoidance_printf("USE_POLYGON activé, fonction indisponible\n");
-		return NOT_HANDLED;
-	}
-
-#else
-	/* Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements
-	puis seulement avec les notres s'il est impossible de trouver un chemin */
-	error_e goto_polygon_default(Sint16 x,...)
-	{
-		avoidance_printf("USE_POYGON désactivé, fonction indisponible\n");
-		return NOT_HANDLED;
-	}
-
-	/* Action qui déplace le robot grâce à l'algorythme de polygones */
-	error_e goto_polygon(Sint16 x,...)
-	{
-		avoidance_printf("USE_POLYGON désactivé, fonction indisponible\n");
-		return NOT_HANDLED;
-	}
-
-#endif
 
 
-/*Equivalent de ASSER_goangle avec gestion de pile*/
-error_e goto_angle (Sint16 angle, ASSER_speed_e speed){
-	enum state_e {
-		EMPILE,
-		WAIT,
-		DONE,
-	};
-	static enum state_e state = EMPILE;
-
-	static bool_e timeout;
-
-	switch(state){
-		case EMPILE:
-			ASSER_push_goangle(angle, speed, TRUE);
-			state = WAIT;
-			return IN_PROGRESS;
-			break;
-		case WAIT:
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
-				state = DONE;
-			}
-			return IN_PROGRESS;
-			break;
-		case DONE:
-			state = EMPILE;
-			return (timeout)? END_WITH_TIMEOUT : END_OK;
-			break;
-		default:
-			state = EMPILE;
-			return NOT_HANDLED;
-	}
-	return NOT_HANDLED;
-}
-
-
-/* Equivalent d'un ASSER_push_goto avec la gestion de la pile */
-error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition)
-{
-	debug_printf("\nA=%d\n",x);
-	enum state_e
-	{
-		PUSH_MOVE = 0,
-		WAIT_END_OF_MOVE,
-		DONE
-	};
-	static enum state_e state = PUSH_MOVE;
-
-	static bool_e timeout=FALSE;
-
-	switch(state)
-	{
-		case PUSH_MOVE:
-			timeout = FALSE;
-			ASSER_push_goto(x,y,speed,way, 0, end_condition,TRUE);
-
-			state = WAIT_END_OF_MOVE;
-			break;
-
-		case WAIT_END_OF_MOVE:
-			if(STACKS_wait_end_auto_pull(ASSER,&timeout))
-			{
-				state = DONE;
-			}
-			break;
-
-		case DONE:
-			state = PUSH_MOVE;
-			return ((timeout)? END_WITH_TIMEOUT : END_OK);
-			break;
-
-		default :
-			state = PUSH_MOVE;
-			return NOT_HANDLED;
-			break;
-	}
-	return IN_PROGRESS;
-}
 
 //Fonction de déplacement qui renvoie un état de stratégie suivant l'avancement du déplacement. Il s'arrète à la fin du déplacement
 Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance)
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
-	sub_action = goto_pos_with_avoidance((displacement_t[]){{{x, y},speed}},1,way,avoidance, END_AT_BREAK);
+	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}},NULL, 1,way,avoidance, END_AT_BREAK);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -396,7 +76,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
-	sub_action = goto_pos_with_avoidance((displacement_t[]){{{x, y},speed}}, 1, way, avoidance, END_AT_LAST_POINT);
+	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, END_AT_LAST_POINT);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -419,7 +99,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition)
 {
 	error_e sub_action;
-	sub_action = goto_pos_with_avoidance(displacements, nb_displacements, way, avoidance, end_condition);
+	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -439,22 +119,37 @@ Uint8 try_going_multipoint(displacement_t displacements[], Uint8 nb_displacement
 
 Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed)
 {
-	error_e sub_action;
-	sub_action = goto_angle(angle, speed);
-	switch(sub_action){
-		case IN_PROGRESS:
-			return in_progress;
-		break;
-		case NOT_HANDLED:
-			return fail_state;
-		break;
-		case END_OK:
-		case END_WITH_TIMEOUT:
+	enum state_e
+	{
+		EMPILE,
+		WAIT,
+		DONE,
+	};
+	static enum state_e state = EMPILE;
+	Uint8 ret;
+	static bool_e timeout;
+	ret = in_progress;
+	switch(state)
+	{
+		case EMPILE:
+			ASSER_push_goangle(angle, speed, TRUE);
+			state = WAIT;
+			break;
+		case WAIT:
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+				state = DONE;
+			}
+			break;
+		case DONE:
+			state = EMPILE;
+			ret = (timeout)? fail_state : success_state;
+			break;
 		default:
-			return success_state;
-		break;
+			state = EMPILE;
+			ret = fail_state;
+			break;
 	}
-	return in_progress;
+	return ret;
 }
 
 Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition)
@@ -812,23 +507,11 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	return ret;
 }
 
-error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type) {
-	return goto_pos_with_avoidance(displacements, nb_displacements, way, avoidance_type, END_AT_LAST_POINT);
-}
-
-error_e goto_pos_with_scan_foe_until_break(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type) {
-	return goto_pos_with_avoidance(displacements, nb_displacements, way, avoidance_type, END_AT_BREAK);
-}
 
 void AVOIDANCE_set_timeout(Uint16 msec) {
 	wait_timeout = msec;
 }
 
-/* Fonction qui réalise un ASSER_push_goto tout simple avec la gestion de l'évitement */
-error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
-{
-	return goto_pos_curve_with_avoidance(displacements,NULL,nb_displacements,way,avoidance_type,end_condition);
-}
 
 /* Fonction qui réalise un ASSER_push_goto avec la possibilité de courbe ou non, avec la gestion de l'évitement */
 error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
@@ -865,6 +548,7 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 
 		case LOAD_MOVE:
 			timeout = FALSE;
+			global.env.aimpoint = displacements[nb_displacements-1].point;
 			for(i=nb_displacements-1;i>=1;i--)
 			{
 				if(displacements){
