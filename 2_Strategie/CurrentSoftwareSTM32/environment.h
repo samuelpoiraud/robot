@@ -17,6 +17,7 @@
 	#include "detection.h"
 	#include "sick.h"
 	#include "elements.h"
+	#include "Geometry.h"
 
 	/* #define communs à plusieurs modules */
 	#define MATCH_DURATION 				90000UL //90 secondes)
@@ -135,6 +136,7 @@
 		Uint16 duration_trajectory_for_test_coefs;
 		bool_e reach_point_C1;
 		bool_e reach_point_get_out_init;
+		GEOMETRY_point_t aimpoint;
 	}environment_t;
 
 

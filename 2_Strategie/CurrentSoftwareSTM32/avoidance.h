@@ -39,11 +39,7 @@
 	// Macro permettant d'utiliser les courbes ou pas selon USE_ASSER_MULTI_POINT
 	// En effet, on ne fait des courbes que si l'on est en multi-poinrs car sinon
 	// il est plus rapide de faire une rotation puis une translation
-	#ifdef USE_ASSER_MULTI_POINT
-		#define ASSER_CURVES	1
-	#else
-		#define ASSER_CURVES	0
-	#endif
+	#define ASSER_CURVES	1
 
 	typedef enum
 	{
@@ -166,13 +162,6 @@
 	 */
 	error_e goto_angle (Sint16 angle, ASSER_speed_e speed);
 
-	/*
-	 * Envoie le robot à la position spécifiée. renvoie NOT_HANDLED si adversaire en travers du chemin
-	 * pre  : le robot doit être à la position global.env.pos
-	 * post : la pile ASSER est vidée.
-	 * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT, NOT_HANDLED
-	 */
-	error_e goto_pos(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition);
 
 	/*
 	 * Avance d'une distance d à partir de la position actuelle.
@@ -267,14 +256,6 @@
 	* return END_WITH_TIMEOUT : Timeout
 	* return FOE_IN_PATH : un adversaire nous bloque
 	*/
-	error_e goto_pos_with_scan_foe(displacement_t displacements[], Uint8 nb_displacements, way_e way,
-			avoidance_type_e avoidance_type);
-
-	error_e goto_pos_with_scan_foe_until_break(displacement_t displacements[], Uint8 nb_displacements, way_e way,
-			avoidance_type_e avoidance_type);
-
-	//Comme goto_pos_with_scan_foe mais avec choix de la fin, je savais pas quoi mettre comme nom ... si quelqu'un a une idée de nom utile, go changer ça :)
-	error_e goto_pos_with_avoidance(displacement_t displacements[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
 
 	error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition);
 

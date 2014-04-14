@@ -170,7 +170,7 @@ void ASSER_goto_until_break (stack_id_e stack_id, bool_e init)
 }
 
 
-#ifdef USE_ASSER_MULTI_POINT
+
 void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init)
 {
 	CAN_msg_t order;
@@ -381,7 +381,7 @@ void ASSER_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 		}
 	}
 }
-#endif /* def USE_ASSER_MULTI_POINT */
+
 
 /* Va a l'angle indiquée, se termine à l'arret */
 void ASSER_goangle (stack_id_e stack_id, bool_e init)
@@ -710,7 +710,7 @@ void ASSER_push_relative_goto(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way
 	STACKS_push (ASSER, &ASSER_relative_goto, run);
 }
 
-#ifdef USE_ASSER_MULTI_POINT
+
 void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, ASSER_end_condition_e end_condition ,bool_e run)
 {
 	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
@@ -735,7 +735,7 @@ void ASSER_push_relative_goangle_multi_point (Sint16 angle, ASSER_speed_e speed,
 	pos->speed = speed;
 	STACKS_push (ASSER, &ASSER_relative_goangle_multi_point, run);
 }
-#endif /* def USE_ASSER_MULTI_POINT */
+
 
 /* ajoute une instruction goangle sur la pile asser */
 void ASSER_push_goangle (Sint16 angle, ASSER_speed_e speed, bool_e run)
@@ -772,28 +772,7 @@ void ASSER_push_rush_in_the_wall (way_e way, bool_e asser_rotate,Sint16 angle, b
 }
 
 
-/*
-void ASSER_push_rush_in_the_totem_south (way_e way, bool_e asser_rotate, bool_e run)
-{
-	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
 
-	pos->way = way;
-	//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
-	pos->speed= asser_rotate;
-	STACKS_push (ASSER, &ASSER_rush_in_the_totem_south, run);
-}
-
-void ASSER_push_rush_in_the_totem_north (way_e way, bool_e asser_rotate, bool_e run)
-{
-	asser_arg_t* pos = &asser_args[STACKS_get_top(ASSER)+1];
-
-	pos->way = way;
-	//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
-	pos->speed= asser_rotate;
-	STACKS_push (ASSER, &ASSER_rush_in_the_totem_north, run);
-}
-
-*/
 /* fonction retournant si on se situe à moins de 30 cm de la destination.
    (distance Manhattan) */
 bool_e ASSER_near_destination()
@@ -869,10 +848,8 @@ void ASSER_dump_stack ()
 
 		if (command == &ASSER_goto)
 			debug_printf("ASSER_goto (%d, %d, %s, %s)\n", args.x, args.y, speed, way);
-#ifdef USE_ASSER_MULTI_POINT
 		else if (command == &ASSER_goto_multi_point)
 			debug_printf("ASSER_multi_point (%d, %d, %s, %s, %s)\n", args.x, args.y, speed, way, priority_order);
-#endif /* def #ifdef USE_ASSER_MULTI_POINT */
 		else if (command == &ASSER_goangle)
 			debug_printf("ASSER_goangle (%d [%.1f°], %s)\n", args.angle, 180 * ((double)args.angle) / PI4096, speed);
 		else if (command == &wait_forever)

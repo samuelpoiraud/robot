@@ -57,11 +57,9 @@
 				polygon_printf("\n node : %d \n",current);
 				point = POLYGON_get_point(&minimal,current);
 	
-				#ifdef USE_ASSER_MULTI_POINT
-					ASSER_push_goto_multi_point((*point).x,(*point).y, speed, way, curve, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
-				#else
-					ASSER_push_goto((*point).x, (*point).y, speed, way, curve,END_AT_LAST_POINT, FALSE);
-				#endif
+
+				ASSER_push_goto_multi_point((*point).x,(*point).y, speed, way, curve, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
+
 				minimal.destination.cost -= minimal.destination.cost - (*point).cost;
 				current = (*point).parent;	
 			}

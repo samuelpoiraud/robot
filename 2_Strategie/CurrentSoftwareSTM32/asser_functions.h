@@ -40,13 +40,13 @@
 	/* Va a la position indiquée, se termine à l'arret */
 	void ASSER_goto (stack_id_e stack_id, bool_e init);
 
-	#ifdef USE_ASSER_MULTI_POINT
-		void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init);
-		void ASSER_goto_multi_point_until_break(stack_id_e stack_id, bool_e init);
-		void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, ASSER_end_condition_e end_condition, bool_e run);
-		void ASSER_relative_goangle_multi_point (stack_id_e stack_id, bool_e init);
-		void ASSER_push_relative_goangle_multi_point (Sint16 angle, ASSER_speed_e speed, bool_e run);
-	#endif /* def USE_ASSER_MULTI_POINT */
+
+	void ASSER_goto_multi_point (stack_id_e stack_id, bool_e init);
+	void ASSER_goto_multi_point_until_break(stack_id_e stack_id, bool_e init);
+	void ASSER_push_goto_multi_point (Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, ASSER_end_condition_e end_condition, bool_e run);
+	void ASSER_relative_goangle_multi_point (stack_id_e stack_id, bool_e init);
+	void ASSER_push_relative_goangle_multi_point (Sint16 angle, ASSER_speed_e speed, bool_e run);
+
 	
 	/* Va a l'angle indiquée, se termine à l'arret */
 	void ASSER_goangle (stack_id_e stack_id, bool_e init);
