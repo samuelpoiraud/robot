@@ -154,30 +154,6 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 
 Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition)
 {
-	error_e sub_action;
-	sub_action = relative_move(distance, speed, way, end_condition);
-	switch(sub_action){
-		case IN_PROGRESS:
-			return in_progress;
-			break;
-
-		case FOE_IN_PATH:
-		case NOT_HANDLED:
-			return fail_state;
-			break;
-
-		case END_OK:
-		case END_WITH_TIMEOUT:
-		default:
-			return success_state;
-			break;
-	}
-	return in_progress;
-}
-
-/* Action va à une position relative */
-error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition)
-{
 	/* Gestion de la machine à états */
 	enum state_e {
 		COMPUTE_AND_GO,
@@ -188,51 +164,48 @@ error_e relative_move (Sint16 d, ASSER_speed_e speed, way_e way, ASSER_end_condi
 	static bool_e timeout=FALSE;
 	Sint32 x,y;
 	Sint16 cosinus, sinus;
-
+	Uint8 ret;
+	ret = in_progress;
 	switch (state)
 	{
 		case COMPUTE_AND_GO :
 			//STACKS_flush(ASSER);
 			/* Si la distance fournie est négative, on inverse la direction */
-			if (d < 0) {
+			if (distance < 0) {
 				if (way == BACKWARD) way = FORWARD;
 				if (way == FORWARD) way = BACKWARD;
 			}
 			/* Si l'utilisateur demande d'aller en arrière, on inverse la direction */
 			else if (way == BACKWARD) {
-				d = -d;
+				distance = -distance;
 			}
 			COS_SIN_4096_get(global.env.pos.angle, &cosinus, &sinus);
-			x = global.env.pos.x + ((d * (Sint32)cosinus)>>12);
-			y = global.env.pos.y + ((d * (Sint32)sinus)>>12);
+			x = global.env.pos.x + ((distance * (Sint32)cosinus)>>12);
+			y = global.env.pos.y + ((distance * (Sint32)sinus)>>12);
 
 			//debug_printf("relative_move::current_pos x=%d y=%d\n", global.env.pos.x, global.env.pos.y);
 			//debug_printf("relative_move::x=%f y=%f\n", x, y);
 			if (x >= 0 && y >= 0) {
-#ifdef USE_ASSER_MULTI_POINT
 				ASSER_push_goto_multi_point((Sint16)x, (Sint16)y, speed, way, 0, END_OF_BUFFER, end_condition, TRUE);
-#else
-				ASSER_push_goto((Sint16)x, (Sint16)y, speed, way, 0, end_condition, TRUE);
-#endif
 				state = GOING;
-				return IN_PROGRESS;
 			}
 			else {
 				/* On ne gère pas les x ou y négatifs */
 				state = COMPUTE_AND_GO;
-				return NOT_HANDLED;
+				ret = fail_state;
 			}
 			break;
 		case GOING :
 			if (STACKS_wait_end_auto_pull (ASSER, &timeout))
 			{
 				state = COMPUTE_AND_GO;
-				return (timeout?END_WITH_TIMEOUT:END_OK);
+				ret = (timeout?fail_state:success_state);
 			}
 			break;
 	}
-	return IN_PROGRESS;
+	return ret;
 }
+
 
 
 /* Action qui update la position */
@@ -551,43 +524,24 @@ error_e goto_pos_curve_with_avoidance(displacement_t displacements[], displaceme
 			global.env.aimpoint = displacements[nb_displacements-1].point;
 			for(i=nb_displacements-1;i>=1;i--)
 			{
-				if(displacements){
-					#ifdef USE_ASSER_MULTI_POINT
-						ASSER_push_goto_multi_point
-							(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, FALSE);
-					#else
-						ASSER_push_goto
-							(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, 0,END_AT_BREAK, FALSE);
-					#endif
-				}else{
-					#ifdef USE_ASSER_MULTI_POINT
-						ASSER_push_goto_multi_point
-							(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, displacements_curve[i].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, FALSE);
-					#else
-						ASSER_push_goto
-							(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, 0,END_AT_BREAK, FALSE);
-					#endif
-				}
+				if(displacements)
+					ASSER_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, FALSE);
+				else if(displacements_curve)
+					ASSER_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, displacements_curve[i].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, FALSE);
 			}
-			if(displacements){
-				#ifdef USE_ASSER_MULTI_POINT
-					ASSER_push_goto_multi_point
-						(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, TRUE);
-				#else
-					ASSER_push_goto
-						(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, 0,END_AT_BREAK, TRUE);
-				#endif
-			}else{
-				#ifdef USE_ASSER_MULTI_POINT
-					ASSER_push_goto_multi_point
-						(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, TRUE);
-				#else
-					ASSER_push_goto
-						(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, 0,END_AT_BREAK, TRUE);
-				#endif
-			}
+			if(displacements)
+				ASSER_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, TRUE);
+			else if(displacements_curve)
+				ASSER_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, TRUE);
+
 						avoidance_printf("goto_pos_with_scan_foe : load_move\n");
-			state = WAIT_MOVE_AND_SCAN_FOE;
+			if(displacements || displacements_curve)
+				state = WAIT_MOVE_AND_SCAN_FOE;
+			else
+			{
+				state = CHECK_SCAN_FOE;
+				return NOT_HANDLED;
+			}
 			break;
 
 		case WAIT_MOVE_AND_SCAN_FOE:
