@@ -30,6 +30,7 @@
 #define TIMEOUT_SELFTEST_STRAT		5000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_IR 	1000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_US 	1000	// en ms
+#define TIMEOUT_SELFTEST_AVOIDANCE	5000	// en ms
 #define MAX_ERRORS_NUMBER 			200
 #define THRESHOLD_BATTERY_OFF	15000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW	22000	//[mV] Réglage du seuil de batterie faible
@@ -140,6 +141,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		SELFTEST_BEACON_IR,
 		SELFTEST_BEACON_US,
 		SELFTEST_STRAT,
+		SELFTEST_AVOIDANCE,
 		SELFTEST_END
 	}state_e;
 	static state_e state = INIT;
@@ -304,7 +306,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					debug_printf("SELFTEST BEACON\r\n");
 				}
 				else
-					state = SELFTEST_END;
+					state = SELFTEST_AVOIDANCE;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_BEACON_IR_SELFTEST_DONE)
@@ -313,11 +315,28 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					if(!flag_timeout)
 						WATCHDOG_stop(watchdog_id);
-					state = SELFTEST_END;
+					state = SELFTEST_AVOIDANCE;
 				}
 			if(flag_timeout)	//Timeout
 			{
 				debug_printf("SELFTEST BEACON TIMEOUT\r\n");
+				state = SELFTEST_AVOIDANCE;
+			}
+			break;
+
+		case SELFTEST_AVOIDANCE:
+			if(entrance){
+				flag_timeout = FALSE;
+				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_AVOIDANCE, (bool_e*) &(flag_timeout));
+				debug_printf("SELFTEST AVOIDANCE\r\n");
+			}
+
+			if(foe_in_zone(FALSE, global.env.pos.x + 500, global.env.pos.y))
+				BUZZER_play(30, NOTE_LA, 5);
+
+			if(flag_timeout) // Fin du test
+			{
+				debug_printf("SELFTEST AVOIDANCE END\r\n");
 				state = SELFTEST_END;
 			}
 			break;
