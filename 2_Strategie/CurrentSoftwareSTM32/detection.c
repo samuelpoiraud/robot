@@ -96,12 +96,17 @@ static void DETECTION_compute(detection_reason_e reason)
 			}
 			break;
 		case DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR:
-			//Si je n'ai pas de données en provenance de la propulsion depuis un moment... j'utilise les données de la BEACON_IR.
-			if	(global.env.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME)
+
+			for(i=0;i<2;i++)
 			{
-				for(i=0;i<2;i++)
+				if(beacon_ir_objects[i].enable)	//Si les données sont cohérentes... (signal vu...)
 				{
-					if(beacon_ir_objects[i].enable)	//Si les données sont cohérentes... (signal vu...)
+					//Si je n'ai pas de données en provenance de la propulsion depuis un moment... j'utilise les données de la BEACON_IR.
+					// Ou bien si l'objet observé est dans l'angle mort de l'hokuyo...
+					if	(global.env.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME
+						|| 	(		global.env.foe[i].angle > -PI4096/2-PI4096/3		//Angle entre -150° et -30° --> angle mort hokuyo + marge de 15° de chaque coté.
+								&& 	global.env.foe[i].angle < -PI4096/2+PI4096/3 )
+						)
 					{
 						global.env.foe[i].x 			= beacon_ir_objects[i].x;
 						global.env.foe[i].y 			= beacon_ir_objects[i].y;
@@ -114,6 +119,8 @@ static void DETECTION_compute(detection_reason_e reason)
 					}
 				}
 			}
+
+
 			break;
 		case DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION:		//Cette source d'info est prioritaire...
 			data_from_propulsion_update_time = global.env.absolute_time;
@@ -222,12 +229,12 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 
 			for(i = 0; i<2; i++)
 			{
-				beacon_ir_objects[i].angle = U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]);
+				beacon_ir_objects[i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
 				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*10;
 				beacon_ir_objects[i].update_time = global.env.absolute_time;
 				COS_SIN_4096_get(beacon_ir_objects[i].angle, &cosinus, &sinus);
-				beacon_ir_objects[i].x = global.env.pos.x + (beacon_ir_objects[i].dist * (cosinus * global.env.pos.cosAngle - sinus * global.env.pos.sinAngle));
-				beacon_ir_objects[i].y = global.env.pos.y + (beacon_ir_objects[i].dist * (cosinus * global.env.pos.sinAngle + sinus * global.env.pos.cosAngle));
+				beacon_ir_objects[i].x = global.env.pos.x + (((beacon_ir_objects[i].dist * ((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle)))/4096)/4096);
+				beacon_ir_objects[i].y = global.env.pos.y + (((beacon_ir_objects[i].dist * ((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle)))/4096)/4096);
 
 				if((msg->data[0+4*i] & ~SIGNAL_INSUFFISANT) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
 					beacon_ir_objects[i].enable = TRUE;
