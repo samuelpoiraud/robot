@@ -703,7 +703,7 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 
 	a = y - global.env.pos.y;
 	b = x - global.env.pos.x;
-	c = -global.env.pos.x*y + global.env.pos.y*x;
+	c = -(Sint32)global.env.pos.x*y + (Sint32)global.env.pos.y*x;
 
 	if(global.env.pos.x == x && global.env.pos.y == y)
 		return FALSE;
@@ -721,15 +721,15 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 
 			debug_printf("Nous x:%d y:%d / ad x:%d y:%d \n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y);
 
-			if((Uint32)(absolute(a*global.env.foe[i].x + b*global.env.foe[i].y + c) / (float)sqrt(a*a + b*b)) < MARGE_COULOIR_EVITEMENT_STATIC){
+			if((Uint32)(absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (float)sqrt((Sint32)a*a + (Sint32)b*b)) < MARGE_COULOIR_EVITEMENT_STATIC){
 				// NC.NA ¤ [0,NC*d]
 				// NC : Vecteur entre nous et le point cible
 				// NA : Vecteur entre nous et l'adversaire
 				// d : distance d'évitement de l'adversaire (longueur couloir)
 
-				if((global.env.pos.x*global.env.foe[i].y + global.env.pos.y*global.env.foe[i].x) > 0
-						&& (global.env.pos.x*global.env.foe[i].y + global.env.pos.y*global.env.foe[i].x)
-							 < dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC){
+				if(((Sint32)global.env.pos.x*global.env.foe[i].y + (Sint32)global.env.pos.y*global.env.foe[i].x) > 0
+						&& ((Sint32)global.env.pos.x*global.env.foe[i].y + (Sint32)global.env.pos.y*global.env.foe[i].x)
+							 < (Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC){
 					inZone = TRUE;
 					debug_printf("DETECTED\n");
 				}
