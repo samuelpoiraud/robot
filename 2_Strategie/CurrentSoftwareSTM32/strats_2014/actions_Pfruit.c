@@ -20,10 +20,11 @@
 #include "../Supervision/SD/SD.h"
 
 #define LARGEUR_LABIUM	200
-#define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+117)
-#define ELOIGNEMENT_POSE_BAC_FRUIT 490
+#define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+122)
+#define ELOIGNEMENT_POSE_BAC_FRUIT 510
 #define PROFONDEUR_BAC_FRUIT		300
-#define RAYON_MAX_PIERRE			300	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
+#define RAYON_MAX_PIERRE			310	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
+#define VITESSE_FRUIT				40
 
 extern GEOMETRY_point_t offset_recalage;
 
@@ -67,7 +68,7 @@ error_e strat_file_fruit(){
 	switch(state){
 		case IDLE:
 			dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[0].point.y = COLOR_Y(1800);
+			dplt[0].point.y = COLOR_Y(1750);
 			dplt[0].speed = FAST;
 
 			dplt[1].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
@@ -85,7 +86,7 @@ error_e strat_file_fruit(){
 			else
 				firstPointway = (sensRobot==BACKWARD)?FORWARD:BACKWARD;
 
-			posOpenVerin = COLOR_Y(1800);
+			posOpenVerin = COLOR_Y(1840);
 			posOpen = COLOR_Y(1900);
 			posClose = COLOR_Y(2300);
 
@@ -102,7 +103,7 @@ error_e strat_file_fruit(){
 
 		case GET_IN :
 			//Le point de départ est : M1...
-			state = PATHFIND_try_going(M1,GET_IN, GOTO_FIRST_DISPOSE_POINT, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(M0,GET_IN, GOTO_FIRST_DISPOSE_POINT, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case GOTO_FIRST_DISPOSE_POINT:
@@ -565,7 +566,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
 				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
 				point[2] = (displacement_t){{1620+offset_recalage.x,					2625+offset_recalage.y},					SLOW};
-				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2450+offset_recalage.y},					SLOW};
+				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2500+offset_recalage.y},					SLOW};
 				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1800+offset_recalage.y},					SLOW};
 
 			for(i=0;i<NBPOINT;i++){
@@ -708,11 +709,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
-				point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
-				point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
+				point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		VITESSE_FRUIT};
+				point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		VITESSE_FRUIT};
 			}else{
-				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	450+offset_recalage.y},						SLOW};
-				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						SLOW};
+				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	450+offset_recalage.y},						VITESSE_FRUIT};
+				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						VITESSE_FRUIT};
 			}
 
 
@@ -722,6 +723,8 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 				else
 					courbe[i] = point[NBPOINT-1-i];
 			}
+
+			courbe[0].speed = FAST;
 
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
@@ -834,11 +837,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
-				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
-				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
+				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
+				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
 			}else{
-				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2500+offset_recalage.y},					SLOW};
-				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1950+offset_recalage.y},					SLOW};
+				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2550+offset_recalage.y},					VITESSE_FRUIT};
+				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1950+offset_recalage.y},					VITESSE_FRUIT};
 			}
 
 
@@ -848,6 +851,8 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 				else
 					courbe[i] = point[NBPOINT-1-i];
 			}
+
+			courbe[0].speed = FAST;
 
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
