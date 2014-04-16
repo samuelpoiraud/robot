@@ -21,6 +21,7 @@
 #include "Supervision/Buzzer.h"
 #include "Supervision/SD/SD.h"
 #include "math.h"
+#include "state_machine_helper.h"
 
 #define SMALL_ROBOT_ACCELERATION_NORMAL	468*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
 #define BIG_ROBOT_ACCELERATION_NORMAL	937*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
@@ -939,4 +940,99 @@ void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
 
 static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
+}
+
+/*	Trouve une extraction d'un ennemis qui nous pose problème */
+error_e extraction_of_foe(GEOMETRY_point_t foe){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_INUTILE,
+		IDLE,
+		GO_POINT,
+		WAIT,
+		DONE,
+		ERROR
+	);
+
+	static GEOMETRY_point_t goodPoint = (GEOMETRY_point_t){0,0};
+
+	switch(state){
+		case IDLE:{
+			BUZZER_play(1000, NOTE_SOL, 5);
+
+			// Incroyable mais VRAI, idée de GRAVOUILLE d'utliser un tableau au lieu de calcul d'angle
+			GEOMETRY_point_t pointEx[12];
+			Uint16 TAILLE_CIRCLE = 300;
+
+			int i;
+			for(i = 0; i < 12; i++){
+				pointEx[i].x = cos(30*i)*TAILLE_CIRCLE + global.env.pos.x;
+				pointEx[i].y = sin(30*i)*TAILLE_CIRCLE + global.env.pos.y;
+			}
+
+			Uint8 widthRobot = (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH : SMALL_ROBOT_WIDTH;;
+			const Uint8 MARGE = 100;
+			const Uint16 REMOTENESS_MIN = 500;
+
+			for(i = 0;i < 12;i++){
+				if( !est_dans_cercle(pointEx[i],(GEOMETRY_circle_t){foe, REMOTENESS_MIN})							// Distance ennemi du point
+					&& !est_dans_cercle(pointEx[i],(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, widthRobot + MARGE})				// Foyer centre
+					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, widthRobot + MARGE})					// Foyer droite
+					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, widthRobot + MARGE})				// Foyer gauche
+					&& !est_dans_carre(0-(widthRobot + MARGE), 300+(widthRobot + MARGE), 400-(widthRobot + MARGE), 1100+(widthRobot + MARGE), pointEx[i])		// Bac à fruit jaune
+					&& !est_dans_carre(0-(widthRobot + MARGE), 300+(widthRobot + MARGE), 1900-(widthRobot + MARGE), 2600+(widthRobot + MARGE), pointEx[i])		// Bac à fruit rouge
+					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, widthRobot + MARGE})					// Arbre rouge 1
+					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 700}, widthRobot + MARGE})					// Arbre rouge 2
+					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 2000}, widthRobot + MARGE})				// Arbre jaune 1
+					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, widthRobot + MARGE})				// Arbre jaune 2
+					&& est_dans_carre(0+(widthRobot + MARGE), 2000-(widthRobot + MARGE), 0+(widthRobot + MARGE), 3000-(widthRobot + MARGE), pointEx[i])){		// Terrain
+
+					int j;
+					for(j = 0; j < MAX_NB_FOES; j++){
+						if(global.env.foe[j].updated && !est_dans_cercle((GEOMETRY_point_t){global.env.foe[j].x,global.env.foe[j].y},(GEOMETRY_circle_t){pointEx[0], REMOTENESS_MIN})){
+							if(goodPoint.x == 0 && goodPoint.y == 0)
+								goodPoint = pointEx[i];
+							else if((goodPoint.x-foe.x)*(goodPoint.x-foe.x) + (goodPoint.y-foe.y)*(goodPoint.y-foe.y) < (pointEx[i].x-foe.x)*(pointEx[i].x-foe.x) + (pointEx[i].y-foe.y)*(pointEx[i].y-foe.y))
+								goodPoint = pointEx[i];
+						}
+					}
+				}
+			}
+
+			if(goodPoint.x != 0 && goodPoint.y != 0) // Si nous avons trouve un point d'extraction
+				state = GO_POINT;
+			else
+				state = ERROR;
+
+			}break;
+
+		case GO_POINT:
+			state = try_going(goodPoint.x,goodPoint.y,GO_POINT,DONE,WAIT,SLOW,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case WAIT:{ // Etat d'attente si il n'a pas trouvé de chemin dans l'immédiat
+			static Uint8 begin_time;
+
+			if(entrance){
+				BUZZER_play(500, NOTE_LA, 10);
+				begin_time = global.env.match_time;
+			}
+
+			if(global.env.match_time > begin_time + 1000)
+				state = ERROR;
+
+			}break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
 }
