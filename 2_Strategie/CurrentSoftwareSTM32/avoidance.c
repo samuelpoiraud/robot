@@ -701,9 +701,10 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 	bool_e inZone;
 	Uint8 i;
 	Sint32 a, b, c; // avec a, b et c les coefficients de la droite entre nous et la cible
+	Sint32 NCx, NCy, NAx, NAy;
 
 	a = y - global.env.pos.y;
-	b = x - global.env.pos.x;
+	b = -(x - global.env.pos.x);
 	c = -(Sint32)global.env.pos.x*y + (Sint32)global.env.pos.y*x;
 
 	if(global.env.pos.x == x && global.env.pos.y == y)
@@ -715,22 +716,35 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
 		if (global.env.foe[i].updated){
+			display(i);
+			display(global.env.foe[i].x);
+			display(global.env.foe[i].y);
 			// d(D, A) < L
 			// D : droite que le robot empreinte pour aller au point
 			// A : Point adversaire
 			// L : Largeur du robot maximum * 2
 
+			display(a);
+			display(b);
+			display(c);
+
+
 			debug_printf("Nous x:%d y:%d / ad x:%d y:%d \n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y);
 
-			if((Uint32)(absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (float)sqrt((Sint32)a*a + (Sint32)b*b)) < MARGE_COULOIR_EVITEMENT_STATIC){
+			if(absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC){
 				// NC.NA ¤ [0,NC*d]
 				// NC : Vecteur entre nous et le point cible
 				// NA : Vecteur entre nous et l'adversaire
 				// d : distance d'évitement de l'adversaire (longueur couloir)
 
-				if(((Sint32)global.env.pos.x*global.env.foe[i].y + (Sint32)global.env.pos.y*global.env.foe[i].x) > 0
-						&& ((Sint32)global.env.pos.x*global.env.foe[i].y + (Sint32)global.env.pos.y*global.env.foe[i].x)
-							 < (Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC){
+				NCx = x - global.env.pos.x;
+				NCy = y - global.env.pos.y;
+
+				NAx = global.env.foe[i].x - global.env.pos.x;
+				NAy = global.env.foe[i].y - global.env.pos.y;
+
+
+				if((NCx*NAx + NCy*NAy) >= 100 && (NCx*NAx + NCy*NAy) < (Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC){
 					inZone = TRUE;
 					debug_printf("DETECTED\n");
 				}
