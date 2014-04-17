@@ -22,7 +22,7 @@ volatile static Sint32 coefs[CORRECTOR_NUMBER_COEFS];
 
 void CORRECTOR_init(void)
 {
-	if(QS_WHO_AM_I_get()==SMALL)
+	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
 	{
 		//SMALL
 		coefs[CORRECTOR_COEF_KP_TRANSLATION] =  SMALL_KP_TRANSLATION;

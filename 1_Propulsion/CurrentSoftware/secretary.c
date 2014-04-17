@@ -20,6 +20,7 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_adc.h"
+#include "pilot.h"
 #include "warner.h"
 #include "corrector.h"
 #include "odometry.h"
