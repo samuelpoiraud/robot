@@ -498,7 +498,8 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		//Paramètres de TORCH_LOCKER (dans data[0])
 		#define ACT_TORCH_LOCKER_LOCK		0x11
 		#define ACT_TORCH_LOCKER_UNLOCK		0x12
-		#define ACT_TORCH_LOCKER_STOP		0x13
+		#define ACT_TORCH_LOCKER_INSIDE		0x13
+		#define ACT_TORCH_LOCKER_STOP		0x14
 	/////////////////////////////////////////////
 
 	/////////////////////GACHE///////////////////
