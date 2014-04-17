@@ -62,19 +62,12 @@ void SEQUENCES_calibrate()
 	if(QS_WHO_AM_I_get() == PIERRE){
 
 		//Eloignement de la bordure
-
 		if(color == RED)
-			y = 62;
+			y = 100;
 		else
-			y = -62;
+			y = -100;
 
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, y, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
-
-		//Calage en X
-		SEQUENCES_rush_in_the_wall(PI4096, FORWARD, NO_ACKNOWLEDGE, -4096, 0, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
-
-		//Eloignement de la bordure pour calage en Y
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 350, 0, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, y,0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
 
 		if(color == RED){
@@ -88,13 +81,21 @@ void SEQUENCES_calibrate()
 		//Calage en Y
 		SEQUENCES_rush_in_the_wall(teta, FORWARD, NO_ACKNOWLEDGE, 0, y, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
 
-		//Fait avancer du bord
+		//Eloignement de la bordure
 		if(color == RED)
-			y = 100;
+			y = 65;
 		else
-			y = -100;
+			y = -65;
 
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, y,0, RELATIVE, NOT_NOW, BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
+
+
+		//Calage en X
+		SEQUENCES_rush_in_the_wall(PI4096, FORWARD, NO_ACKNOWLEDGE, -4096, 0, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
+
+		//Eloignement de la bordure pour calage en Y
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 350, 0, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
+
 
 		//Position finale PIERRE
 		if(color == RED){
