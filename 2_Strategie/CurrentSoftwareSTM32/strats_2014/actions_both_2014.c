@@ -899,6 +899,7 @@ void test_Pathfind(void){
 void test_strat_robot_virtuel_with_avoidance(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ROBOT_VIRTUEL_AVOIDANCE,
 		INIT,
+		EXTRACT,
 		GOTO,
 		BACK,
 		DONE
@@ -906,13 +907,16 @@ void test_strat_robot_virtuel_with_avoidance(void){
 
 	switch(state){
 		case INIT:
-			state = GOTO;
+			state = EXTRACT;
+			break;
+		case EXTRACT:
+			state = try_going(588, COLOR_Y(500), EXTRACT, GOTO, GOTO, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 		case GOTO:
-			state = try_going(1000, COLOR_Y(2000),GOTO,BACK,BACK,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1000, COLOR_Y(2500),GOTO,BACK,GOTO,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case BACK:
-			state = try_going(1000, COLOR_Y(300),BACK,GOTO,GOTO,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1000, COLOR_Y(500),BACK,GOTO,BACK,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case DONE:
 			break;
