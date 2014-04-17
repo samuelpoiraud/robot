@@ -956,82 +956,151 @@ static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
 }
 
-/*	Trouve une extraction d'un ennemis qui nous pose problème */
-error_e extraction_of_foe(GEOMETRY_point_t foe){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_INUTILE,
+
+//Un point est-t-il une position permettant les rotations sans tapper dans un élément de jeu.
+bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
+{
+	Uint8 widthRobot;
+	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH : SMALL_ROBOT_WIDTH;
+	widthRobot += 100;	//Marge !
+
+	if(!est_dans_carre(0+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p))		// Terrain
+		return FALSE;
+	if(est_dans_cercle(*p,(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, widthRobot}))				// Foyer centre
+		return FALSE;
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, widthRobot}))				// Foyer droite
+		return FALSE;
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, widthRobot}))			// Foyer gauche
+		return FALSE;
+	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))		// Bac à fruit jaune
+		return FALSE;
+	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 1900-(widthRobot), 2600+(widthRobot), *p))		// Bac à fruit rouge
+		return FALSE;
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, widthRobot}))				// Arbre rouge 1
+		return FALSE;
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 700}, widthRobot}))				// Arbre rouge 2
+		return FALSE;
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 2000}, widthRobot}))			// Arbre jaune 1
+		return FALSE;
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, widthRobot}))			// Arbre jaune 2
+		return FALSE;
+	
+	return  TRUE;
+}
+
+#define	TIME_CONSIDERE_ADVERSARY					500		//[ms] temps au delà duquel un adversaire mis à jour n'est plus considéré
+#define EXTRACTION_DISTANCE  	300
+/*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
+error_e extraction_of_foe(void)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_EXTRACTION_OF_FOE,
 		IDLE,
+		COMPUTE,
 		GO_POINT,
 		WAIT,
 		DONE,
 		ERROR
 	);
+	static Uint8 remaining_try;
+	static Uint8 bestPoint;									//Indice du meilleur point dans le tableau
+	static Uint32 bestPoint_distance2_with_nearest_foe;		//Distance entre le meilleur point et l'adversaire qui en est le plus proche
+	static Uint32 adversary_to_close_distance;				//Distance minimale exigée entre un adversaire et un point candidat
+	static GEOMETRY_point_t pointEx[12];					//Incroyable mais VRAI, idée de GRAVOUILLE d'utliser un tableau au lieu de calcul d'angle
+	Uint8 i;
+	Sint16 cos,sin;
+	Uint32 distance2_between_point_and_foe;					//Distance au carré entre le point courant et l'adversaire courant
+	Uint32 distance2_between_point_and_foe_min;				//Distance au carré entre le point courant l'adversaire le plus proche trouvé
 
-	static GEOMETRY_point_t goodPoint = (GEOMETRY_point_t){0,0};
+	switch(state)
+	{
+		case IDLE:
+			adversary_to_close_distance = (QS_WHO_AM_I_get() == BIG_ROBOT)? 500 : 400;
+			remaining_try = 3;
+			state = COMPUTE;
+			break;
+		case COMPUTE:
 
-	switch(state){
-		case IDLE:{
+			// Algo de recherche du meilleur point....
+			// Parmi les 12 points candidats (tout les 30°, à EXTRACTION_DISTANCE [mm] de notre robot)
+			//	On recherche le point le plus éloigné des adversaires.
+			//	C'est à dire, le point ayant son adversaire le plus proche...... le plus loin de lui.
+			//	Ainsi, si un seul adversaire est le plus proche de tout les points candidats (plutot probable)... Le meilleur point est celui diamétralement opposé à l'adversaire en question.
+			//	Si par contre certains points sont plus proches d'un autre adversaire... ils peuvent ne pas être choisis pour cette raison
+			//  Si aucun point n'est accessible (car trop proche bordure, élément fixe de jeu, ou adversaire)... L'algo échoue et patiente 1 seconde avant de retenter.
+			// 	On tente 3 fois avant d'abandonner...
+
+			remaining_try--;
 			BUZZER_play(1000, NOTE_SOL, 5);
 
-			// Incroyable mais VRAI, idée de GRAVOUILLE d'utliser un tableau au lieu de calcul d'angle
-			GEOMETRY_point_t pointEx[12];
-			Uint16 TAILLE_CIRCLE = 300;
-
-			int i;
-			for(i = 0; i < 12; i++){
-				pointEx[i].x = cos(30*i)*TAILLE_CIRCLE + global.env.pos.x;
-				pointEx[i].y = sin(30*i)*TAILLE_CIRCLE + global.env.pos.y;
+			for(i = 0; i < 12; i++)		//Calcul des 12 points d'extractions envisageables.
+			{
+				COS_SIN_4096_get((PI4096*30*i)/180,&cos,&sin);
+				pointEx[i].x = ((Sint32)(cos)*EXTRACTION_DISTANCE)/4096 + global.env.pos.x;
+				pointEx[i].y = ((Sint32)(sin)*EXTRACTION_DISTANCE)/4096 + global.env.pos.y;
 			}
-
-			Uint8 widthRobot = (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH : SMALL_ROBOT_WIDTH;;
-			const Uint8 MARGE = 100;
-			const Uint16 REMOTENESS_MIN = 500;
-
-			for(i = 0;i < 12;i++){
-				if( !est_dans_cercle(pointEx[i],(GEOMETRY_circle_t){foe, REMOTENESS_MIN})							// Distance ennemi du point
-					&& !est_dans_cercle(pointEx[i],(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, widthRobot + MARGE})				// Foyer centre
-					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, widthRobot + MARGE})					// Foyer droite
-					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, widthRobot + MARGE})				// Foyer gauche
-					&& !est_dans_carre(0-(widthRobot + MARGE), 300+(widthRobot + MARGE), 400-(widthRobot + MARGE), 1100+(widthRobot + MARGE), pointEx[i])		// Bac à fruit jaune
-					&& !est_dans_carre(0-(widthRobot + MARGE), 300+(widthRobot + MARGE), 1900-(widthRobot + MARGE), 2600+(widthRobot + MARGE), pointEx[i])		// Bac à fruit rouge
-					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, widthRobot + MARGE})					// Arbre rouge 1
-					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 700}, widthRobot + MARGE})					// Arbre rouge 2
-					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 2000}, widthRobot + MARGE})				// Arbre jaune 1
-					&& !est_dans_cercle(pointEx[i], (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, widthRobot + MARGE})				// Arbre jaune 2
-					&& est_dans_carre(0+(widthRobot + MARGE), 2000-(widthRobot + MARGE), 0+(widthRobot + MARGE), 3000-(widthRobot + MARGE), pointEx[i])){		// Terrain
-
-					int j;
-					for(j = 0; j < MAX_NB_FOES; j++){
-						if(global.env.foe[j].updated && !est_dans_cercle((GEOMETRY_point_t){global.env.foe[j].x,global.env.foe[j].y},(GEOMETRY_circle_t){pointEx[0], REMOTENESS_MIN})){
-							if(goodPoint.x == 0 && goodPoint.y == 0)
-								goodPoint = pointEx[i];
-							else if((goodPoint.x-foe.x)*(goodPoint.x-foe.x) + (goodPoint.y-foe.y)*(goodPoint.y-foe.y) < (pointEx[i].x-foe.x)*(pointEx[i].x-foe.x) + (pointEx[i].y-foe.y)*(pointEx[i].y-foe.y))
-								goodPoint = pointEx[i];
+			bestPoint = 0xFF;
+			bestPoint_distance2_with_nearest_foe = 0;
+			
+			for(i = 0; i < 12; i++)	//Pour chaque point
+			{
+				if(is_possible_point_for_rotation(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
+				{
+					Uint8 foe;
+					distance2_between_point_and_foe_min = 0xFFFFFFFF;
+					//On recherche la distance minimale entre le point 'i' et l'adversaire le plus proche.
+					for(foe = 0; foe < MAX_NB_FOES; foe++)		//Pour tout les adversaires obsersés
+					{
+						if(global.env.absolute_time - global.env.foe[foe].update_time < TIME_CONSIDERE_ADVERSARY)
+						{
+							distance2_between_point_and_foe = (pointEx[i].x-global.env.foe[foe].x)*(pointEx[i].x-global.env.foe[foe].x) + (pointEx[i].y-global.env.foe[foe].y)*(pointEx[i].y-global.env.foe[foe].y);
+							if(distance2_between_point_and_foe < distance2_between_point_and_foe_min)	//Si l'adversaire en cours est plus proche du point que les autres, on le prend en compte.
+								distance2_between_point_and_foe_min = distance2_between_point_and_foe;
 						}
+					}
+
+					//On recherche maintenant le point ayant "la distance avec son adversaire le plus proche", la plus GRANDE possible...
+					if(distance2_between_point_and_foe_min > bestPoint_distance2_with_nearest_foe)
+					{	//Si le point 'i' est plus loin des adversaires que les autres points calculés... il est le meilleur point candidat
+						bestPoint_distance2_with_nearest_foe = distance2_between_point_and_foe_min;
+						bestPoint = i;
 					}
 				}
 			}
 
-			if(goodPoint.x != 0 && goodPoint.y != 0) // Si nous avons trouve un point d'extraction
+			//Si on a trouvé un point et qu'il est suffisamment loin des adversaires.... Champomy !!!
+			if(bestPoint != 0xFF && bestPoint_distance2_with_nearest_foe > adversary_to_close_distance*adversary_to_close_distance)
+			{
+				SD_printf("Extraction : nous avons choisi le point %d : x=%d y=%d\n", i, pointEx[bestPoint].x, pointEx[bestPoint].y);
 				state = GO_POINT;
+			}
 			else
-				state = ERROR;
+			{
+				SD_printf("Extraction : PAS DE POINT TROUVE !!! Nous allons attendre un peu...\n");
+				state = WAIT;
+			}
 
-			}break;
+			break;
 
 		case GO_POINT:
-			state = try_going(goodPoint.x,goodPoint.y,GO_POINT,DONE,WAIT,SLOW,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(pointEx[bestPoint].x,pointEx[bestPoint].y,GO_POINT,DONE,WAIT,SLOW_TRANSLATION_AND_FAST_ROTATION,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case WAIT:{ // Etat d'attente si il n'a pas trouvé de chemin dans l'immédiat
-			static Uint8 begin_time;
+			static time32_t begin_time;
 
-			if(entrance){
-				BUZZER_play(500, NOTE_LA, 10);
+			if(entrance)
+			{
+				//BUZZER_play(500, NOTE_LA, 10);
 				begin_time = global.env.match_time;
 			}
 
 			if(global.env.match_time > begin_time + 1000)
-				state = ERROR;
+			{
+				if(remaining_try)
+					state = COMPUTE;
+				else
+					state = ERROR;
+			}
 
 			}break;
 

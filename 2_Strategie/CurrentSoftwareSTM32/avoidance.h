@@ -297,8 +297,8 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type);
  */
 void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
 
-/*	Trouve une extraction d'un ennemis qui nous pose problème */
-error_e extraction_of_foe(GEOMETRY_point_t foe);
+/*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
+error_e extraction_of_foe(void);
 
 Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
