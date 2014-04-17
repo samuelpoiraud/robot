@@ -52,6 +52,16 @@
 
 // PIERRE
 
+bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_TORCH_LOCKER, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_TORCH_LOCKER, ACT_TORCH_LOCKER_STOP);
+
+	debug_printf("Pushing torch locker Run cmd\n");
+	return ACT_push_operation(ACT_QUEUE_Torch_locker, &args);
+}
+
 bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd) {
 	QUEUE_arg_t args;
 

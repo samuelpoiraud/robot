@@ -26,6 +26,7 @@ typedef enum {
 	ACT_QUEUE_Fruit,
 	ACT_QUEUE_Fruit_labium,
 	ACT_QUEUE_launcher,
+	ACT_QUEUE_Torch_locker,
 	ACT_QUEUE_Filet,
 	ACT_QUEUE_Small_arm,
 	ACT_QUEUE_Pompe,
