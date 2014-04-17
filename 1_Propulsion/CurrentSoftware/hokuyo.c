@@ -380,7 +380,7 @@ void hokuyo_find_valid_points(void)
 						point_filtered = TRUE;	//on refuse les points spawn
 
 
-				if(angle < 100*5 || angle > 100*225)//on retire les 5 premiers degrés et les 5 derniers
+				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
 					point_filtered = TRUE;
 
 				if(point_filtered == FALSE)
