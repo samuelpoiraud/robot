@@ -25,6 +25,9 @@
 
 static void REACH_POINT_C1_send_request();
 
+// SWITCH_STRAT_1 est utilisée pour le lancer de balles (5 balles nous et une sur ennemis si active sinon 6 balles chez nous)
+// SWITCH_STRAT_2 est utilisée pour le choix dés le début aller vers la torche directement apres les balles ou faire les fresques si actif fait torche
+
 
 // Define à activer pour activer le get_in / get_ou des subactions
 #define USE_GET_IN_OUT
@@ -38,18 +41,10 @@ static void REACH_POINT_C1_send_request();
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
-#define POS_Y_MANUAL_FRESCO COLOR_Y(1400) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
+#define POS_Y_MANUAL_FRESCO COLOR_Y(1500) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
 
 #define TIME_BEGINNING_NO_AVOIDANCE 5000
 
-//Pour activer si on doit lancer toute les balles sur le premier mammouth ou non
-//#define ALL_SHOOT_OUR_MAMMOUTH
-
-//Pour privilége les fruits à la fresque dans la sub_action_nominale
-//#define FAVOR_FILE_FRUIT_AT_FRESCO
-
-//Fait tomber le triangle du bout si tout va bien ou guy l'aura fait tomber avant
-#define DROP_TRIANGLE_END
 
 /**********************************************************************************************************************************
  *
@@ -74,8 +69,8 @@ static void REACH_POINT_C1_send_request();
 #define DECALAGE_LARGEUR 200
 #define ELOIGNEMENT_SHOOT_BALL 520
 #define SPEED_LANCE_LAUNCHER 125
-#define POS_MIN_FRESCO 1350		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
-#define POS_MAX_FRESCO 1750		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
+#define POS_MIN_FRESCO 1400		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
+#define POS_MAX_FRESCO 1700		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
 
 
 //Les differente's actions que pierre devra faire lors d'un match
@@ -97,8 +92,6 @@ volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={14
 volatile Uint8 adversary_fresco_index = 2;
 
 
-
-
 error_e sub_action_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_INITIALE,
 		IDLE,
@@ -106,13 +99,9 @@ error_e sub_action_initiale(){
 		GET_OUT,
 		LANCE_LAUNCHER,
 		GOTO_TREE_2,
-		DO_TREE,
-#ifdef DROP_TRIANGLE_END
-		BEFORE_DROP_TRIANGLE_END,
-		GO_DROP_TRIANGLE_END,
-		DO_DROP_TRIANGLE_END,
 		DO_TREE_1,
-#endif
+		DO_TREE_2,
+		DO_FIRE_HOME,
 		GOTO_TORCH_FIRST_POINT,
 		GOTO_TORCH_SECOND_POINT,
 		GOTO_TORCH_THIRD_POINT,
@@ -120,15 +109,12 @@ error_e sub_action_initiale(){
 		FAIL_SECOND_POINT,
 		FAIL_THIRD_POINT,
 		COME_BACK_FOR_GOING_FRESCO,
+		DEPLOY_TORCH,
 		GOTO_FRESCO,
 		DO_FRESCO,
 		FILE_FRUIT,
-		TAKE_DECISION,
-		TAKE_DECISION_ERROR,
 		DECISION_FRUIT_FRESCO,
-#ifndef ALL_SHOOT_OUR_MAMMOUTH
 		LANCE_LAUNCHER_ADVERSARY,
-#endif
 		GOTO_FRESCO_BY_TORCH_ROAD,
 		TRY_AGAIN_FRUIT,
 		TRY_LANCE_LAUNCHER,
@@ -137,9 +123,9 @@ error_e sub_action_initiale(){
 		ERROR
 	);
 
-	displacement_t point[] = {{{650,COLOR_Y(1144)},	FAST},
-							  {{1050,COLOR_Y(1160)},FAST},
-							  {{1650,COLOR_Y(1200)},FAST}
+	displacement_t point[] = {{{650,COLOR_Y(1100)},	FAST},
+							  {{1000,COLOR_Y(1000)},FAST},
+							  {{1650,COLOR_Y(350)},FAST}
 							 };
 
 
@@ -171,29 +157,33 @@ error_e sub_action_initiale(){
 			state = try_going_until_break(520, COLOR_Y(290),GET_OUT,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);		//On force le passage si Guy est devant nous..........
 			break;
 		case LANCE_LAUNCHER:
-#ifdef ALL_SHOOT_OUR_MAMMOUTH
-			state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,ERROR);
-#else
-			state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),LANCE_LAUNCHER,GOTO_TORCH_FIRST_POINT,ERROR);
-#endif
+			if(SWITCH_STRAT_1)
+				state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),LANCE_LAUNCHER,(SWITCH_STRAT_2)? GOTO_TORCH_FIRST_POINT : GOTO_FRESCO,ERROR);
+			else
+				state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,(SWITCH_STRAT_2)? GOTO_TORCH_FIRST_POINT : GOTO_FRESCO,ERROR);
 
 			break;
 
 		case GOTO_TORCH_FIRST_POINT:
-			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,(global.env.color == RED)?  BACKWARD : FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 		case GOTO_TORCH_SECOND_POINT:
-			if(entrance)
-				ASSER_WARNER_arm_x(800);
-			if(global.env.asser.reach_x)
-				REACH_POINT_C1_send_request();
-			state = try_going_until_break(point[1].point.x, point[1].point.y,GOTO_TORCH_SECOND_POINT,GOTO_TORCH_THIRD_POINT,FAIL_SECOND_POINT,FAST,(global.env.color == RED)? BACKWARD : FORWARD,NO_DODGE_AND_WAIT);
+			if(entrance) // Ouvre les pinces
+				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
+
+			state = try_going_until_break(point[1].point.x, point[1].point.y,GOTO_TORCH_SECOND_POINT,GOTO_TORCH_THIRD_POINT,FAIL_SECOND_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
+
 		case GOTO_TORCH_THIRD_POINT:
-			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,DO_TREE,FAIL_THIRD_POINT,FAST,(global.env.color == RED)? BACKWARD : FORWARD,NO_DODGE_AND_WAIT);
+			if(entrance) // Serre l'objet les pinces
+				ACT_torch_locker(ACT_TORCH_Locker_Lock);
+//				ASSER_WARNER_arm_x(800);
+//			if(global.env.asser.reach_x)
+//				;//REACH_POINT_C1_send_request();
+			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,DEPLOY_TORCH,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 		case FAIL_FIRST_POINT:
-			state = try_going_until_break(750, COLOR_Y(400),FAIL_FIRST_POINT,DO_TREE,GOTO_TORCH_FIRST_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(750, COLOR_Y(400),FAIL_FIRST_POINT,DEPLOY_TORCH,GOTO_TORCH_FIRST_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 		case FAIL_SECOND_POINT:
 			state = COME_BACK_FOR_GOING_FRESCO;
@@ -201,110 +191,62 @@ error_e sub_action_initiale(){
 		case FAIL_THIRD_POINT:
 			state = COME_BACK_FOR_GOING_FRESCO;
 			break;
-		case COME_BACK_FOR_GOING_FRESCO:	//On a pas réussi à rejoindre le premier arbre... on file vers la fresque
+		case COME_BACK_FOR_GOING_FRESCO:	//On a pas réussi à rejoindre la torche... on file vers la fresque
 			state = try_going_until_break(520, COLOR_Y(1100), COME_BACK_FOR_GOING_FRESCO, GOTO_FRESCO, GOTO_TORCH_FIRST_POINT, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
-		case GOTO_TREE_2:{
-			static Uint8 s1 = IN_PROGRESS ,s2 = IN_PROGRESS;
-
-			if(s1 == IN_PROGRESS)
-				s1 = try_going(1633,COLOR_Y(1200),IN_PROGRESS,SUCESS,ERROR,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
-
-			if(s2 == IN_PROGRESS)
-				s2 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, IN_PROGRESS, SUCESS, ERROR);
-
-
-			if(s1 == ERROR){
-				state = COME_BACK_FOR_GOING_FRESCO;
-				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-
-			}else if(s1 == SUCESS && s2 != IN_PROGRESS) // Si le bras est en sucess ou pars en erreur( timeout, problème capteur)
-				state = DO_TREE;
-
-			else if(s1 != ERROR && s2 != ERROR)
-				state = GOTO_TREE_2;
-			}break;
-
-		case DO_TREE:
-			#ifdef DROP_TRIANGLE_END
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_2,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,BEFORE_DROP_TRIANGLE_END,ERROR);
-			#else
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_ALL_TREE,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE,GOTO_FRESCO,ERROR);
-			#endif
-			break;
-
-		#ifdef DROP_TRIANGLE_END
-		case BEFORE_DROP_TRIANGLE_END:
-			state = try_going(1200,COLOR_Y(620),BEFORE_DROP_TRIANGLE_END,GO_DROP_TRIANGLE_END,DO_TREE_1,FAST,(global.env.color == RED)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
-			break;
-
-		case GO_DROP_TRIANGLE_END:
-			state = try_going(1000,COLOR_Y(620),GO_DROP_TRIANGLE_END,DO_DROP_TRIANGLE_END,DO_TREE_1,FAST,(global.env.color == RED)?BACKWARD:FORWARD,NO_DODGE_AND_WAIT);
-			break;
-
-		case DO_DROP_TRIANGLE_END:
-			if(entrance)
-				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-
-			state = try_going(1200,COLOR_Y(620),DO_DROP_TRIANGLE_END,DO_TREE_1,ERROR,FAST,(global.env.color == RED)?FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
-
-			if(state != DO_DROP_TRIANGLE_END)
-				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-			break;
-
-		case DO_TREE_1:
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_ALL_TREE,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE_1,GOTO_FRESCO,ERROR);
-			break;
-		#endif
 
 		case GOTO_FRESCO:
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DECISION_FRUIT_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
-			break;
-
-		case DECISION_FRUIT_FRESCO:
-			#ifdef FAVOR_FILE_FRUIT_AT_FRESCO
-				state = FILE_FRUIT;
-			#else
-				state = DO_FRESCO;
-			#endif
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case DO_FRESCO:
-			state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,(get_presenceFruit())?FILE_FRUIT:DONE,ERROR);
+			if(SWITCH_STRAT_2)
+				state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,(get_presenceFruit())?FILE_FRUIT:DONE,ERROR);
+			else
+				state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,GOTO_TORCH_FIRST_POINT,ERROR);
+			break;
+
+		case DEPLOY_TORCH:{
+			static Uint16 last_time;
+
+			if(entrance){ // Ouvre les pinces
+				last_time = global.env.match_time;
+				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
+			}
+
+			if(guy_get_out_init || global.env.match_time > last_time + 2000){
+				state = DO_TREE_2;
+			}
+
+			}break;
+
+		case DO_TREE_1:
+			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_1,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE_1,DO_FIRE_HOME,ERROR);
+			break;
+
+		case DO_TREE_2:
+			if(entrance) // Ouvre les pinces
+				ACT_torch_locker(ACT_TORCH_Locker_Inside);
+
+			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_2,(global.env.color == RED)? TRIGO : HORAIRE),DO_TREE_2,DO_TREE_1,ERROR);
+			break;
+
+		case DO_FIRE_HOME:
+			state = try_going(800,COLOR_Y(400),DO_FIRE_HOME,(SWITCH_STRAT_2)?GOTO_FRESCO:FILE_FRUIT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case FILE_FRUIT:
-#ifndef ALL_SHOOT_OUR_MAMMOUTH
-			state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,LANCE_LAUNCHER_ADVERSARY,ERROR);
-#else
-			state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,DONE,ERROR);
-#endif
+			state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,(SWITCH_STRAT_1)?LANCE_LAUNCHER_ADVERSARY:DONE,ERROR);
 			break;
 
-		#ifndef ALL_SHOOT_OUR_MAMMOUTH
 		// Si on lance une balle sur le mammouth ennemis
 		case LANCE_LAUNCHER_ADVERSARY:
 			state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color == RED)?YELLOW:RED),LANCE_LAUNCHER_ADVERSARY,DONE, ERROR);
 			break;
-		#endif
 
 		// Cas d'erreur à DO_TREE_2 et GOTO_FRESCO
 		case GOTO_FRESCO_BY_TORCH_ROAD:
-			state = try_going(1400,COLOR_Y(800),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,TAKE_DECISION_ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		// Cas erreur fruit non ramassé au début
-		case TRY_AGAIN_FRUIT:
-			state = check_sub_action_result(manage_fruit(TREE_OUR,ALL_TREE,WAY_CHOICE),TRY_AGAIN_FRUIT,TAKE_DECISION,TAKE_DECISION_ERROR);
-			break;
-
-		// Cas d'erreur si il ne lance pas les balles au démarrage
-		case TRY_LANCE_LAUNCHER:
-#ifdef ALL_SHOOT_OUR_MAMMOUTH
-			state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),TRY_LANCE_LAUNCHER,TAKE_DECISION,TAKE_DECISION_ERROR);
-#else
-			state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),TRY_LANCE_LAUNCHER,TAKE_DECISION,TAKE_DECISION_ERROR);
-#endif
+			state = try_going(1400,COLOR_Y(800),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case DONE:
@@ -321,11 +263,6 @@ error_e sub_action_initiale(){
 
 	return IN_PROGRESS;
 }
-
-
-
-
-
 
 
 
@@ -457,529 +394,6 @@ void strat_tourne_en_rond(void){
 void strat_lannion(void){
 }
 #if 0
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_LANNION,
-		IDLE,
-		POS_DEPART,
-		TRIANGLE1,
-		FRESQUE,
-		AVANCER_FRESQUE,
-		TRIANGLE2,
-		TRIANGLE3,
-		TRIANGLE3_AVANCER,
-		TRIANGLE4_5,
-		TRIANGLE6,
-		TRIANGLE6_AVANCER,
-		MUR,
-		DEGAGEMENT,
-		RECALAGE,
-
-		POINT_W0,
-		POINT_C3,
-		POINT_CO, // Pour deposser fruit
-		POINT_M0, // Pour deposer la fresque
-		POINT_M0_BIS,
-		POINT_Z1,
-		RAMASSER_FRUIT_ARBRE1,
-		RAMASSER_FRUIT_ARBRE2,
-		DEPOSER_FRUIT,
-		DEPOSER_FRESQUE,
-		LANCE_LAUNCHER,
-		LANCE_LAUNCHER_ENNEMY,
-		POS_FIN,
-
-		FIN,
-		DONE,
-		ERROR
-	);
-
-
-	displacement_t deplacement[17] = {
-		// Triangle 1 x = 600 / yr = 900 / yj = 2100
-		{{600+LARGEUR_LABIUM	,COLOR_Y(600)},FAST},
-		{{600+LARGEUR_LABIUM	,COLOR_Y(920)},FAST},
-		{{700					,COLOR_Y(1500)},FAST},
-
-		// Triangle 2 x = 600 / yr = 2100 / yj = 900
-		{{700					,COLOR_Y(1500)},FAST},
-		{{600+LARGEUR_LABIUM	,COLOR_Y(2100)},FAST},
-		{{600+LARGEUR_LABIUM	,COLOR_Y(2600-LARGEUR_LABIUM)},FAST},
-
-		// Triangle 3 x = 1100 / yr = 2600 / yj = 400
-		{{1400					,COLOR_Y(2600-LARGEUR_LABIUM)},FAST}, // Labium fermé
-		{{900					,COLOR_Y(2600-LARGEUR_LABIUM)},FAST}, // Labium ouvert
-
-		// Triangle 4 x = 1600 / yr = 2100 / yj = 900
-		{{1280					,COLOR_Y(2360)},FAST},
-		{{1340					,COLOR_Y(2100)},FAST},
-		{{1415					,COLOR_Y(1645)},FAST},
-
-		// Triangle 5 x = 1600 / yr = 900 / yj = 2100
-		{{1415					,COLOR_Y(1360)},FAST},
-		{{1370					,COLOR_Y(900)},FAST},
-		{{1305					,COLOR_Y(400+LARGEUR_LABIUM)},FAST},
-
-		// Triangle 6 x = 1100 / yr = 400 / yj = 2600
-		{{750				,COLOR_Y(400+LARGEUR_LABIUM)},FAST}, // Labium fermé
-		{{1400				,COLOR_Y(400+LARGEUR_LABIUM)},FAST}, // Labium ouvert
-
-		// Dégagement
-		{{750				,COLOR_Y(500)}} // Labium fermé
-	};
-
-	static way_e sensRobot;
-	static color_e colorIsRed;
-
-	if(TIME_TO_NET < global.env.match_time)
-		strat_placement_net();
-	else
-		switch(state){
-			case IDLE:
-				state = POS_DEPART;
-				if(global.env.color == RED)
-					sensRobot = FORWARD;
-				else
-					sensRobot = BACKWARD;
-				break;
-
-			case POS_DEPART:
-				state = try_going_until_break(440,COLOR_Y(350),POS_DEPART,TRIANGLE1,ERROR,FAST,sensRobot,NO_AVOIDANCE);
-				break;
-
-			case TRIANGLE1:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-
-				state = try_going_multipoint(deplacement,3,TRIANGLE1,DEPOSER_FRESQUE,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-				break;
-
-			case DEPOSER_FRESQUE:
-				state = check_sub_action_result(strat_manage_fresco(),DEPOSER_FRESQUE,TRIANGLE2,ERROR);
-				break;
-
-			case TRIANGLE2:
-				state = try_going_multipoint(&deplacement[3],3,TRIANGLE2,TRIANGLE3,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-				break;
-
-			case TRIANGLE3:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-
-				state = try_going_until_break(deplacement[6].point.x,deplacement[6].point.y,TRIANGLE3,TRIANGLE3_AVANCER,ERROR,deplacement[6].speed,sensRobot,NO_AVOIDANCE);
-				break;
-
-			case TRIANGLE3_AVANCER:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-				state = try_going_until_break(deplacement[7].point.x,deplacement[7].point.y,TRIANGLE3_AVANCER,TRIANGLE4_5,ERROR,deplacement[7].speed,sensRobot,NO_AVOIDANCE);
-				break;
-
-			case TRIANGLE4_5:
-					state = try_going_multipoint(&deplacement[8],6,TRIANGLE4_5,TRIANGLE6,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-				break;
-
-			case TRIANGLE6:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-
-				state = try_going_until_break(deplacement[14].point.x,deplacement[14].point.y,TRIANGLE6,TRIANGLE6_AVANCER,ERROR,deplacement[14].speed,sensRobot,NO_AVOIDANCE);
-				break;
-
-			case TRIANGLE6_AVANCER:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-
-				state = try_going_until_break(deplacement[15].point.x,deplacement[15].point.y,TRIANGLE6_AVANCER,DEGAGEMENT,ERROR,deplacement[15].speed,sensRobot,NO_AVOIDANCE);
-				break;
-
-			case DEGAGEMENT:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-				state = try_going_until_break(deplacement[16].point.x,deplacement[16].point.y,DEGAGEMENT,RECALAGE,ERROR,deplacement[16].speed,sensRobot,NO_AVOIDANCE);
-				break;
-
-			case RECALAGE :
-				if(global.env.color == RED)
-					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE, LANCE_LAUNCHER, ERROR);
-				else
-					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE, LANCE_LAUNCHER, ERROR);
-				break;
-
-				// Balles et fresques
-			case LANCE_LAUNCHER:
-				state = check_sub_action_result(strat_lance_launcher(FALSE,global.env.color),LANCE_LAUNCHER,POINT_M0,ERROR);
-				break;
-
-			case POINT_M0:
-				state = PATHFIND_try_going(M0, POINT_M0, LANCE_LAUNCHER_ENNEMY, ERROR, ANY_WAY, FAST, NO_AVOIDANCE, END_AT_BREAK);
-				break;
-
-			case LANCE_LAUNCHER_ENNEMY:
-				state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color==RED)?YELLOW:RED),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
-				break;
-
-				// Fruit
-			case POINT_Z1:
-				state = PATHFIND_try_going(Z1, POINT_Z1, RAMASSER_FRUIT_ARBRE2, ERROR, ANY_WAY, FAST, NO_AVOIDANCE, END_AT_BREAK);
-				break;
-
-			case RAMASSER_FRUIT_ARBRE2:
-				state = check_sub_action_result(strat_ramasser_fruit_arbre2_double(colorIsRed),RAMASSER_FRUIT_ARBRE2,POINT_C3,ERROR);
-				break;
-
-			case POINT_C3:
-				state = PATHFIND_try_going(C3, POINT_C3, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, FAST, NO_AVOIDANCE, END_AT_BREAK);
-				break;
-
-			case RAMASSER_FRUIT_ARBRE1:
-				state = check_sub_action_result(strat_ramasser_fruit_arbre1_double(!colorIsRed),RAMASSER_FRUIT_ARBRE1,POINT_M0_BIS,ERROR);
-				break;
-
-			case POINT_M0_BIS:
-				state = PATHFIND_try_going(M0, POINT_M0_BIS, DEPOSER_FRUIT, ERROR, ANY_WAY, FAST, NO_AVOIDANCE, END_AT_BREAK);
-				break;
-
-			case DEPOSER_FRUIT:
-				state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,DONE,ERROR);
-				break;
-
-
-//			case POS_FIN:
-//				state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-//				break;
-
-			case DONE:
-				break;
-
-			case ERROR:
-				break;
-
-			default:
-				break;
-		}
-}
-#endif
-
-void strat_test_point2(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_POINT2,
-		IDLE,
-		POS_DEPART,
-		TRIANGLE1,
-		DEPOSE_FRESCO,
-		ESCAPE_FRESCO,
-		TRIANGLE2,
-		TRIANGLE3,
-		TRIANGLE3_AVANCER,
-		TRIANGLE4_5,
-		TRIANGLE6,
-		TRIANGLE6_AVANCER,
-		MUR,
-		DEGAGEMENT,
-		RECALAGE1,
-
-#ifdef USE_TRIANGLE_TORCHE
-		PLACEMENT_TORCHE1,
-		END_TORCHE1,
-		END2_TORCHE1,
-		PLACEMENT_TORCHE2,
-		END_TORCHE2,
-#endif
-
-		RAMASSER_FRUIT_ARBRE1,
-		RAMASSER_FRUIT_ARBRE2,
-		AGAIN_RAMASSER_FRUIT_ARBRE1,
-		AGAIN_RAMASSER_FRUIT_ARBRE2,
-		POINT_DEPOSE_FRUIT,
-		DEPOSER_FRUIT,
-		POINT_DEPOSE_FRESCO,
-		LANCE_LAUNCHER,
-		LANCE_LAUNCHER_ENNEMY,
-		POS_FIN,
-		VERIFY,
-		DONE,
-		ERROR
-	);
-
-	static bool_e presenceFruit = FALSE;
-	static way_e sensRobot;
-
-	displacement_t deplacement[17] = {
-		// Triangle 1 x = 600 / yr = 900 / yj = 2100
-		{{600+LARGEUR_LABIUM	,COLOR_Y(600)},SLOW},
-		{{600+LARGEUR_LABIUM	,COLOR_Y(920)},FAST},
-		{{700					,COLOR_Y(1500)},FAST},
-
-		// Triangle 2 x = 600 / yr = 2100 / yj = 900
-		{{700					,COLOR_Y(1800)},FAST},
-		{{600+15+LARGEUR_LABIUM	,COLOR_Y(2100)},FAST},
-		{{600+15+LARGEUR_LABIUM	,COLOR_Y(2600-LARGEUR_LABIUM)},FAST},
-
-		// Triangle 3 x = 1100 / yr = 2600 / yj = 400
-		{{1400					,COLOR_Y(2600-LARGEUR_LABIUM)},SLOW}, // Labium fermé
-		{{900					,COLOR_Y(2600-LARGEUR_LABIUM)},SLOW}, // Labium ouvert
-
-		// Triangle 4 x = 1600 / yr = 2100 / yj = 900
-		{{1600-LARGEUR_LABIUM		,COLOR_Y(2320)},FAST},
-		{{1600-LARGEUR_LABIUM		,COLOR_Y(2100)},FAST},
-		{{1600-LARGEUR_LABIUM+100	,COLOR_Y(1645)},FAST},
-
-		// Triangle 5 x = 1600 / yr = 900 / yj = 2100
-		{{1415					,COLOR_Y(1360)},FAST},
-		{{1370					,COLOR_Y(900)},FAST},
-		{{1305					,COLOR_Y(400+LARGEUR_LABIUM)},FAST},
-
-		// Triangle 6 x = 1100 / yr = 400 / yj = 2600
-		{{750				,COLOR_Y(400+LARGEUR_LABIUM)},SLOW}, // Labium fermé
-		{{1400				,COLOR_Y(400+LARGEUR_LABIUM)},SLOW}, // Labium ouvert
-
-		// Dégagement
-		{{750				,COLOR_Y(500)},FAST} // Labium fermé
-	};
-
-
-	if(TIME_TO_NET < global.env.match_time)
-		strat_placement_net();
-	else
-		switch(state){
-			case IDLE:
-				state = POS_DEPART;
-				if(global.env.color == RED)
-					sensRobot = FORWARD;
-				else
-					sensRobot = BACKWARD;
-				break;
-
-			case POS_DEPART:
-				state = try_going_until_break(450,COLOR_Y(350),POS_DEPART,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);
-				break;
-
-			case LANCE_LAUNCHER:
-				state = check_sub_action_result(strat_lance_launcher(TRUE,global.env.color),LANCE_LAUNCHER,DEPOSE_FRESCO,DEPOSE_FRESCO);
-				break;
-
-//			case TRIANGLE1:
-//				if(entrance)
-//					ACT_fruit_mouth_goto(ACT_FRUIT_Open);
-
-//				state = try_going_multipoint(deplacement,3,TRIANGLE1,DEPOSE_FRESCO,ERROR,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-//				break;
-
-
-			case DEPOSE_FRESCO:
-//				state = ESCAPE_FRESCO;
-//				break;
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-				state = check_sub_action_result(strat_manage_fresco(),DEPOSE_FRESCO,ESCAPE_FRESCO,ERROR);
-				break;
-
-			case ESCAPE_FRESCO:
-				#ifdef USE_CORRECTION_TRIANGLE_2
-				state = try_going(725, COLOR_Y(1700),ESCAPE_FRESCO,TRIANGLE2,TRIANGLE2,FAST,ANY_WAY,NO_AVOIDANCE);
-				#else
-					state = try_going(500, 1500,ESCAPE_FRESCO,TRIANGLE2,TRIANGLE2,FAST,ANY_WAY,NO_AVOIDANCE);
-				#endif
-				break;
-
-			case TRIANGLE2:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-				state = try_going_multipoint(&deplacement[3],3,TRIANGLE2,TRIANGLE3,TRIANGLE3,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-				break;
-
-			case TRIANGLE3:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-
-				state = try_going_until_break(deplacement[6].point.x,deplacement[6].point.y,TRIANGLE3,TRIANGLE3_AVANCER,TRIANGLE3_AVANCER,deplacement[6].speed,sensRobot,NO_AVOIDANCE);
-				break;
-
-			case TRIANGLE3_AVANCER:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-				state = try_going_until_break(deplacement[7].point.x,deplacement[7].point.y,TRIANGLE3_AVANCER,TRIANGLE4_5,TRIANGLE4_5,deplacement[7].speed,(sensRobot == FORWARD)?BACKWARD:FORWARD,NO_AVOIDANCE);
-				break;
-
-			case TRIANGLE4_5:
-					state = try_going_multipoint(&deplacement[8],6,TRIANGLE4_5,TRIANGLE6,TRIANGLE6,sensRobot,NO_AVOIDANCE, END_AT_LAST_POINT);
-				break;
-
-			case TRIANGLE6:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-
-				state = try_going_until_break(deplacement[14].point.x,deplacement[14].point.y,TRIANGLE6,TRIANGLE6_AVANCER,TRIANGLE6_AVANCER,deplacement[14].speed,sensRobot,NO_AVOIDANCE);
-				break;
-
-			case TRIANGLE6_AVANCER:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-
-				state = try_going_until_break(deplacement[15].point.x,deplacement[15].point.y,TRIANGLE6_AVANCER,DEGAGEMENT,DEGAGEMENT,deplacement[15].speed,(sensRobot == FORWARD)?BACKWARD:FORWARD,NO_AVOIDANCE);
-				break;
-
-			case DEGAGEMENT:
-				if(entrance)
-					ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-				state = try_going_until_break(450,COLOR_Y(350),DEGAGEMENT,RECALAGE1,RECALAGE1,FAST,ANY_WAY,NO_AVOIDANCE);
-				break;
-
-			case RECALAGE1 :
-//				state = RAMASSER_FRUIT_ARBRE1;
-//				break;
-				if(global.env.color == RED)
-					state = check_sub_action_result(recalage_begin_zone(RED), RECALAGE1, RAMASSER_FRUIT_ARBRE1, RAMASSER_FRUIT_ARBRE1);
-				else
-					state = check_sub_action_result(recalage_begin_zone(BLUE), RECALAGE1, RAMASSER_FRUIT_ARBRE1, RAMASSER_FRUIT_ARBRE1);
-				break;
-
-//				// Premier shoot sur notre mammouth
-//			case LANCE_LAUNCHER:
-//				state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),LANCE_LAUNCHER,RAMASSER_FRUIT_ARBRE1,RAMASSER_FRUIT_ARBRE1);
-//				break;
-
-				// Rammasse notre groupe de fruit
-			case RAMASSER_FRUIT_ARBRE1:
-				#ifdef USE_TRIANGLE_TORCHE
-					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE1,PLACEMENT_TORCHE1,PLACEMENT_TORCHE1);
-					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE1,PLACEMENT_TORCHE1,PLACEMENT_TORCHE1);
-				#else
-					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
-					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),RAMASSER_FRUIT_ARBRE1,POINT_DEPOSE_FRESCO,POINT_DEPOSE_FRESCO);
-				#endif
-				/*if(strat_fruit_sucess != NO_TREE){
-					presenceFruit = TRUE;
-					action_recup_fruit_group_1 = strat_fruit_sucess;
-				}*/
-
-				break;
-
-#ifdef USE_TRIANGLE_TORCHE
-			case PLACEMENT_TORCHE1 :
-				state = try_going(1650, COLOR_Y(1150), PLACEMENT_TORCHE1, END_TORCHE1, POINT_DEPOSE_FRESCO, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
-				break;
-
-			case END_TORCHE1 :
-				state = try_going_until_break(650, COLOR_Y(1150), END_TORCHE1, END2_TORCHE1, POINT_DEPOSE_FRESCO, FAST,(global.env.color == RED)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
-				break;
-
-			case END2_TORCHE1 :
-				state = try_going(500, 1500, END2_TORCHE1, RAMASSER_FRUIT_ARBRE2, RAMASSER_FRUIT_ARBRE2, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
-				break;
-#endif
-
-				// Depose fresque
-			case POINT_DEPOSE_FRESCO:
-				state = PATHFIND_try_going(M0, POINT_DEPOSE_FRESCO, RAMASSER_FRUIT_ARBRE2, POINT_DEPOSE_FRESCO, (global.env.color == RED)? FORWARD:BACKWARD, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
-				break;
-
-//				// Tire seconde balle
-//			case LANCE_LAUNCHER_ENNEMY:
-//				state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color==RED)?YELLOW:RED),LANCE_LAUNCHER_ENNEMY,RAMASSER_FRUIT_ARBRE2,ERROR);
-//				break;
-
-				// Rammasse second groupe de fruit
-
-			case RAMASSER_FRUIT_ARBRE2:
-				#ifdef USE_TRIANGLE_TORCHE
-					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,PLACEMENT_TORCHE2);
-					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),RAMASSER_FRUIT_ARBRE2,PLACEMENT_TORCHE2,PLACEMENT_TORCHE2);
-				#else
-					if(global.env.color == RED)
-						state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? TREE_HORAIRE:TREE_TRIGO),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
-					else
-						state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TREE_TRIGO:TREE_HORAIRE),RAMASSER_FRUIT_ARBRE2,POINT_DEPOSE_FRUIT,ERROR);
-			   #endif
-				/*if(strat_fruit_sucess != NO_TREE){
-					presenceFruit = TRUE;
-					action_recup_fruit_group_2 = strat_fruit_sucess;
-				}*/
-
-				break;
-
-#ifdef USE_TRIANGLE_TORCHE
-			case PLACEMENT_TORCHE2 :
-				state = try_going(1650, COLOR_Y(1850), PLACEMENT_TORCHE2, END_TORCHE2, POINT_DEPOSE_FRUIT, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
-				break;
-
-			case END_TORCHE2 :
-				state = try_going(600, COLOR_Y(1850), END_TORCHE2, DEPOSER_FRUIT, POINT_DEPOSE_FRUIT, FAST, (global.env.color == RED)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
-				break;
-#endif
-
-				// Depose de fruit
-			case POINT_DEPOSE_FRUIT:
-				if(presenceFruit == FALSE){
-					state = VERIFY;
-				}else
-					state = PATHFIND_try_going(M0, POINT_DEPOSE_FRUIT, DEPOSER_FRUIT, DEPOSER_FRUIT, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
-				break;
-
-			case DEPOSER_FRUIT:
-				state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,VERIFY,ERROR);
-
-				if(state == VERIFY)
-					presenceFruit = FALSE;
-				break;
-
-			case VERIFY: {
-				static bool_e tryRammasseFruit1 = FALSE;
-				static bool_e tryRammasseFruit2 = FALSE;
-
-				if(action_recup_fruit_group_1 != ALL_TREE && tryRammasseFruit1 == FALSE){
-					tryRammasseFruit1 = TRUE;
-					state = AGAIN_RAMASSER_FRUIT_ARBRE1;
-				}else if(action_recup_fruit_group_2 != ALL_TREE && tryRammasseFruit2 == FALSE){
-					tryRammasseFruit2 = TRUE;
-					state = AGAIN_RAMASSER_FRUIT_ARBRE2;
-				}else if(presenceFruit == TRUE)
-					state = POINT_DEPOSE_FRUIT;
-				else
-					state = DONE;
-				break;
-			}
-
-			case AGAIN_RAMASSER_FRUIT_ARBRE1:
-				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
-				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE1,VERIFY,VERIFY);
-
-				/*if(strat_fruit_sucess != NO_TREE){
-					presenceFruit = TRUE;
-					action_recup_fruit_group_1 = strat_fruit_sucess;
-				}*/
-
-				break;
-
-			case AGAIN_RAMASSER_FRUIT_ARBRE2:
-				if(global.env.color == RED)
-					state = check_sub_action_result(strat_ramasser_fruit_arbre2_double((min_node_dist(Z1,W3) == Z1)? HORAIRE:TRIGO),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
-				else
-					state = check_sub_action_result(strat_ramasser_fruit_arbre1_double((min_node_dist(A1,C3) == A1)? TRIGO:HORAIRE),AGAIN_RAMASSER_FRUIT_ARBRE2,VERIFY,VERIFY);
-
-				/*if(strat_fruit_sucess != NO_TREE){
-					presenceFruit = TRUE;
-					action_recup_fruit_group_2 = strat_fruit_sucess;
-				}*/
-
-				break;
-
-			case DONE:
-				break;
-			case ERROR:
-				break;
-			default:
-				break;
-		}
-}
-
-void strat_test_point(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_POINT,
 		IDLE,
 		POS_DEPART,
@@ -1035,8 +449,8 @@ void strat_test_point(){
 		CAN_send(&msg);
 
 
-//		debug_printf("Envoie Message ACtionneur\n");
-//		ACT_lance_launcher_run(ACT_Lance_ALL);
+	//		debug_printf("Envoie Message ACtionneur\n");
+	//		ACT_lance_launcher_run(ACT_Lance_ALL);
 
 		state = POS_DEPART;
 
@@ -1063,27 +477,27 @@ void strat_test_point(){
 
 
 		//Fruit sens rouge vers jaune
-//	case POINT_A1:
-//		state = PATHFIND_try_going(A1, POINT_A1, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
-//		break;
-//	case RAMASSER_FRUIT_ARBRE1:
-//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(TRUE),RAMASSER_FRUIT_ARBRE1,RAMASSER_FRUIT_ARBRE2,ERROR);
-//		break;
-//	case POINT_W3:
-//		state = PATHFIND_try_going(W3, POINT_W3, RAMASSER_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
-//		break;
-//	case RAMASSER_FRUIT_ARBRE2:
-//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(FALSE),RAMASSER_FRUIT_ARBRE2,POINT_M0_BIS,ERROR);
-//		break;
-//	case POINT_M0_BIS:
-//		state = PATHFIND_try_going(M0, POINT_M0_BIS, DEPOSER_FRUIT, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
-//		break;
-//	case DEPOSER_FRUIT:
-//		state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,DONE,ERROR);
-//		break;
-//	case POS_FIN:
-//		state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
-//		break;
+	//	case POINT_A1:
+	//		state = PATHFIND_try_going(A1, POINT_A1, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+	//		break;
+	//	case RAMASSER_FRUIT_ARBRE1:
+	//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(TRUE),RAMASSER_FRUIT_ARBRE1,RAMASSER_FRUIT_ARBRE2,ERROR);
+	//		break;
+	//	case POINT_W3:
+	//		state = PATHFIND_try_going(W3, POINT_W3, RAMASSER_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+	//		break;
+	//	case RAMASSER_FRUIT_ARBRE2:
+	//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(FALSE),RAMASSER_FRUIT_ARBRE2,POINT_M0_BIS,ERROR);
+	//		break;
+	//	case POINT_M0_BIS:
+	//		state = PATHFIND_try_going(M0, POINT_M0_BIS, DEPOSER_FRUIT, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+	//		break;
+	//	case DEPOSER_FRUIT:
+	//		state = check_sub_action_result(strat_file_fruit(),DEPOSER_FRUIT,DONE,ERROR);
+	//		break;
+	//	case POS_FIN:
+	//		state = try_going(500,300,POS_FIN,DONE,ERROR,SLOW,FORWARD,NO_AVOIDANCE);
+	//		break;
 
 
 
@@ -1119,6 +533,8 @@ void strat_test_point(){
 		break;
 	}
 }
+#endif
+
 
 void strat_test_fresque(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_FRESQUE,
@@ -1197,12 +613,12 @@ error_e protected_fires(protected_fires_e fires){
 
 			if((global.env.color == RED && fires == OUR_FIRES) || (global.env.color != RED && fires == ADVERSARY_FIRES)){
 				points[0] = A2;   // A2
-				points[1] = B3;	// B3
+				points[1] = C3;	// B3
 				points[2] = C2;  // C2
 				points[3] = B1;    // B1
 			}else{
 				points[0] = Z2;  // Z2
-				points[1] = Y3;	// Y3
+				points[1] = W3;	// Y3
 				points[2] = W2;  // W2
 				points[3] = Y1;   // Y1
 			}
@@ -1269,6 +685,7 @@ error_e strat_manage_fresco(){
 
 	static Sint16 posY = 1500;
 	static Sint16 oldPosY = 1500; // Si les deux premiere pose ne fonctionne pas nous aurons besoins de lui
+	static Uint8 statePosFresco = 0;
 
 	switch(state){
 
@@ -1278,7 +695,21 @@ error_e strat_manage_fresco(){
 				return END_OK;
 			}
 
-			if(MODE_MANUAL_FRESCO)
+			if(statePosFresco == LAST_CHANCE_FILE_FRESCO){ // Si il a deja tenter une fois la fresque
+				oldPosY = posY;
+
+				if(posY > 1500) //Ne prend plus en compte les positions des adversaires eu precedement (Elles sont fausses sinon ne serait pas dans cet état)
+					posY = POS_MIN_FRESCO;
+				else
+					posY = POS_MAX_FRESCO;
+			}else if(statePosFresco == LAST_LAST_CHANCE_FILE_FRESCO){ // Si il a deja tenter 2 fois la fresque
+				if(posY == POS_MAX_FRESCO && oldPosY != POS_MIN_FRESCO)
+					posY = POS_MIN_FRESCO;
+				else if(posY == POS_MIN_FRESCO && oldPosY != POS_MAX_FRESCO)
+					posY = POS_MAX_FRESCO;
+				else
+					posY = 1500;
+			}else if(MODE_MANUAL_FRESCO) // A partir n as jamais poser la fresque
 				posY = POS_Y_MANUAL_FRESCO;
 			else if(ADVERSARY_DETECTED_HOKUYO == FALSE)//Pose les fresques au milieu si on a pas vu l'adversaire poser les siennes
 				posY = 1500;
@@ -1336,13 +767,13 @@ error_e strat_manage_fresco(){
 			state = CHOICE_GET_IN;
 			break;
 		case CHOICE_GET_IN:
-			if(est_dans_carre(0, 700, 850, 2050, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(0, 700, 1150, 1850, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = FILE_FRESCO;
 			else
 				state = GET_IN;
 			break;
 		case GET_IN :
-			state = PATHFIND_try_going(M0, GET_IN, FILE_FRESCO, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(M1, GET_IN, FILE_FRESCO, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case FILE_FRESCO:
@@ -1400,10 +831,11 @@ error_e strat_manage_fresco(){
 
 		case ERROR:
 			if(last_state == LAST_CHANCE_FILE_FRESCO) // Refait au prochain tour si il y a une erreur
-				state = LAST_LAST_CHANCE_FILE_FRESCO;
+				statePosFresco = LAST_LAST_CHANCE_FILE_FRESCO;
 			else
-				state = LAST_CHANCE_FILE_FRESCO;
+				statePosFresco = LAST_CHANCE_FILE_FRESCO;
 
+			state = IDLE;
 			return NOT_HANDLED;
 			break;
 
@@ -1418,6 +850,8 @@ error_e strat_file_fresco(Sint16 posY){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_FILE_FRESCO,
 		IDLE,
 		WALL,
+		BEFORE_ROTATION,
+		ROTATION,
 		BEFORE_WALL,
 		PUSH_MOVE,
 		WAIT_END_OF_MOVE,
@@ -1450,6 +884,14 @@ error_e strat_file_fresco(Sint16 posY){
 
 			state = BEFORE_WALL;
 			break;
+
+//		case BEFORE_ROTATION:
+//			state = try_going(300,posY,BEFORE_ROTATION,ROTATION,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+//			break;
+
+//		case ROTATION:
+//			state = try_go_angle(PI4096,ROTATION,WALL,END_ERROR,FAST);
+//			break;
 
 		case BEFORE_WALL:
 			state = try_going(270,posY,BEFORE_WALL,WALL,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
@@ -1676,7 +1118,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 					if(mammouth == global.env.color)
 						posShoot = 740 + OFFSET_BALL_LAUNCHER;
 					else
-						posShoot = 640 + OFFSET_BALL_LAUNCHER;
+						posShoot = 900 + OFFSET_BALL_LAUNCHER;
 
 					zone_access_posShoot_x1 = 400;
 					zone_access_posShoot_x2 = 600;

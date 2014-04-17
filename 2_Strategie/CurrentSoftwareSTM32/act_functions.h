@@ -47,6 +47,13 @@
 //ACT_truc_enum = MSG_CAN,
 // ...
 typedef enum {
+	ACT_TORCH_Locker_Lock = ACT_TORCH_LOCKER_LOCK,
+	ACT_TORCH_Locker_Unlock = ACT_TORCH_LOCKER_UNLOCK,
+	ACT_TORCH_Locker_Inside = ACT_TORCH_LOCKER_INSIDE,
+	ACT_TORCH_Locker_Stop = ACT_TORCH_LOCKER_STOP
+} ACT_torch_locker_cmd_e;
+
+typedef enum {
 	ACT_FRUIT_Verrin_Open = ACT_FRUIT_MOUTH_OPEN,
 	ACT_FRUIT_Verrin_Close = ACT_FRUIT_MOUTH_CLOSE,
 	ACT_FRUIT_Verrin_Canceled = ACT_FRUIT_MOUTH_CANCELED,
@@ -85,6 +92,7 @@ typedef enum {
 	ACT_Pompe_Stop = ACT_POMPE_STOP
 } ACT_pompe_cmd_e;
 
+bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
 bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd);
 bool_e ACT_fruit_labium_goto(ACT_fruit_labium_cmd_e cmd);
 bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param);

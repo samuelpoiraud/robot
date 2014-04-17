@@ -24,7 +24,7 @@
 #define ELOIGNEMENT_POSE_BAC_FRUIT 510
 #define PROFONDEUR_BAC_FRUIT		300
 #define RAYON_MAX_PIERRE			310	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
-#define VITESSE_FRUIT				40
+#define VITESSE_FRUIT				80
 
 extern GEOMETRY_point_t offset_recalage;
 
