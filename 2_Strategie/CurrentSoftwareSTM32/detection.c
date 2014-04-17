@@ -19,6 +19,8 @@
 #include "environment.h"
 #include "maths_home.h"
 
+#define TIMER_CONSIDERE_ADVERSARY 500
+
 typedef struct
 {
 	Sint16 angle;
@@ -179,7 +181,8 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 	Uint8 adversary_nb, i;
 	Sint16 cosinus, sinus;
 	for(i=0;i<MAX_NB_FOES;i++)
-		global.env.foe[i].updated = FALSE;
+		if(global.env.absolute_time - global.env.foe[i].updated < TIMER_CONSIDERE_ADVERSARY)
+			global.env.foe[i].updated = FALSE;
 	switch(msg->sid)
 	{
 		case STRAT_ADVERSARIES_POSITION:
