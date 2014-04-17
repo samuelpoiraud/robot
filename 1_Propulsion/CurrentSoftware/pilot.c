@@ -504,6 +504,12 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 		ptrans = ptrans * 2; // 3/2
 	}
 
+	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
+	{
+		ptrans = ptrans * 2;
+		prot = prot * 2;
+	}
+
 	global.acceleration_translation = (coefs[PILOT_ACCELERATION_NORMAL] * ptrans) / 64;
 	global.acceleration_rotation = (coefs[PILOT_ACCELERATION_NORMAL] * prot) / 64;
 
