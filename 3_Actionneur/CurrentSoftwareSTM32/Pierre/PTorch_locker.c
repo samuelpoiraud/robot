@@ -92,6 +92,7 @@ bool_e TORCH_LOCKER_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data[0]) {
 			case ACT_TORCH_LOCKER_LOCK :
 			case ACT_TORCH_LOCKER_UNLOCK :
+			case ACT_TORCH_LOCKER_INSIDE :
 			case ACT_TORCH_LOCKER_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Torch_Locker, &TORCH_LOCKER_run_command, 0);
 				break;
@@ -102,9 +103,9 @@ bool_e TORCH_LOCKER_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	} else if(msg->sid == ACT_DO_SELFTEST) {
 		SELFTEST_set_actions(&TORCH_LOCKER_run_command, 3, (SELFTEST_action_t[]){
-								 {ACT_TORCH_LOCKER_LOCK,     0,  QUEUE_ACT_Torch_Locker},
+								 {ACT_TORCH_LOCKER_INSIDE,     0,  QUEUE_ACT_Torch_Locker},
 								 {ACT_TORCH_LOCKER_UNLOCK,   0,  QUEUE_ACT_Torch_Locker},
-								 {ACT_TORCH_LOCKER_LOCK,	 0,  QUEUE_ACT_Torch_Locker}
+								 {ACT_TORCH_LOCKER_INSIDE,   0,  QUEUE_ACT_Torch_Locker}
 								 // Vérifier présence SMALL_ARM
 							 });
 	}
@@ -129,15 +130,16 @@ void TORCH_LOCKER_run_command(queue_id_t queueId, bool_e init) {
 //Initialise une commande
 static void TORCH_LOCKER_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	Uint16* ax12_1_goalPosition = &QUEUE_get_arg(queueId)->param;
-	Uint16* ax12_2_goalPosition = &QUEUE_get_arg(queueId)->param;
+	Uint16 ax12_1_goalPosition = 0xFFFF;//&QUEUE_get_arg(queueId)->param;
+	Uint16 ax12_2_goalPosition = 0xFFFF;//&QUEUE_get_arg(queueId)->param;
 
-	*ax12_1_goalPosition = 0xFFFF;
-	*ax12_2_goalPosition = 0xFFFF;
+//	ax12_1_goalPosition = 0xFFFF;
+//	ax12_2_goalPosition = 0xFFFF;
 
 	switch(command) {
-		case ACT_TORCH_LOCKER_LOCK :  *ax12_1_goalPosition = TORCH_LOCKER_AX12_1_LOCK_POS; *ax12_2_goalPosition = TORCH_LOCKER_AX12_2_LOCK_POS; break;
-		case ACT_TORCH_LOCKER_UNLOCK : *ax12_1_goalPosition = TORCH_LOCKER_AX12_1_UNLOCK_POS; *ax12_2_goalPosition = TORCH_LOCKER_AX12_2_UNLOCK_POS; break;
+		case ACT_TORCH_LOCKER_LOCK : ax12_1_goalPosition = TORCH_LOCKER_AX12_1_LOCK_POS; ax12_2_goalPosition = TORCH_LOCKER_AX12_2_LOCK_POS; break;
+		case ACT_TORCH_LOCKER_UNLOCK : ax12_1_goalPosition = TORCH_LOCKER_AX12_1_UNLOCK_POS;ax12_2_goalPosition = TORCH_LOCKER_AX12_2_UNLOCK_POS; break;
+		case ACT_TORCH_LOCKER_INSIDE : ax12_1_goalPosition = TORCH_LOCKER_AX12_1_INSIDE_POS; ax12_2_goalPosition = TORCH_LOCKER_AX12_2_INSIDE_POS; break;
 
 		case ACT_SMALL_ARM_STOP :
 			AX12_set_torque_enabled(TORCH_LOCKER_AX12_1_ID, FALSE); //Stopper l'asservissement de l'AX12 qui gère le TORCH_LOCKER
@@ -151,25 +153,26 @@ static void TORCH_LOCKER_command_init(queue_id_t queueId) {
 			return;
 		}
 	}
-	if(*ax12_1_goalPosition == 0xFFFF) {
+
+	if(ax12_1_goalPosition == 0xFFFF) {
 		error_printf("Invalid ax12 %d position for command: %u, code is broken !\n", TORCH_LOCKER_AX12_1_ID, command);
 		QUEUE_next(queueId, ACT_TORCH_LOCKER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
-	}else if(*ax12_2_goalPosition == 0xFFFF) {
+	}else if(ax12_2_goalPosition == 0xFFFF) {
 		error_printf("Invalid ax12 %d position for command: %u, code is broken !\n", TORCH_LOCKER_AX12_2_ID, command);
 		QUEUE_next(queueId, ACT_TORCH_LOCKER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
 
-	debug_printf("Move TORCH_LOCKER ax12_1 %d to %d\n", TORCH_LOCKER_AX12_1_ID, *ax12_1_goalPosition);
-	debug_printf("Move TORCH_LOCKER ax12_2 %d to %d\n", TORCH_LOCKER_AX12_2_ID, *ax12_1_goalPosition);
+	debug_printf("Move TORCH_LOCKER ax12_1 %d to %d\n", TORCH_LOCKER_AX12_1_ID, ax12_1_goalPosition);
+	debug_printf("Move TORCH_LOCKER ax12_2 %d to %d\n", TORCH_LOCKER_AX12_2_ID, ax12_2_goalPosition);
 	AX12_reset_last_error(TORCH_LOCKER_AX12_1_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	AX12_reset_last_error(TORCH_LOCKER_AX12_2_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
-	if(!AX12_set_position(TORCH_LOCKER_AX12_1_ID, *ax12_1_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
+	if(!AX12_set_position(TORCH_LOCKER_AX12_1_ID, ax12_1_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		error_printf("AX12_set_position id : %d error: 0x%x\n", TORCH_LOCKER_AX12_1_ID, AX12_get_last_error(TORCH_LOCKER_AX12_1_ID).error);
 		QUEUE_next(queueId, ACT_TORCH_LOCKER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
-	}else if(!AX12_set_position(TORCH_LOCKER_AX12_2_ID, *ax12_2_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
+	}else if(!AX12_set_position(TORCH_LOCKER_AX12_2_ID, ax12_2_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 			 error_printf("AX12_set_position id : %d error: 0x%x\n", TORCH_LOCKER_AX12_2_ID, AX12_get_last_error(TORCH_LOCKER_AX12_2_ID).error);
 			 QUEUE_next(queueId, ACT_TORCH_LOCKER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 			 return;
