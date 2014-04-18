@@ -95,6 +95,7 @@
 		volatile bool_e updated;				//Ce flag est levé pendant 1 tour de boucle lorsque la donnée correspondance est mise à jour.
 		volatile bool_e enable;					//Ce flag est levé entre l'instant de mise à jour de l'adversaire JUSQU'A son obsolescence (gerée par Detection).
 		volatile time32_t update_time;
+		volatile Uint8 fiability_error;
 		volatile detection_from_e from;	//Source de l'information
 	}foe_t;
 	///////////////////////////////

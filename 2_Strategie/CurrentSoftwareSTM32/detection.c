@@ -26,6 +26,7 @@ typedef struct
 	Sint16 dist;
 	Sint16 x;
 	Sint16 y;
+	Uint8 fiability_error;
 	bool_e enable;					//cet objet est activé.
 	bool_e enable_for_avoidance;	//Objet activé pour l'évitement
 	bool_e enable_for_zoning;		//Objet acivé pour le zoning
@@ -81,7 +82,6 @@ static void DETECTION_compute(detection_reason_e reason)
 	bool_e objects_chosen[MAX_HOKUYO_FOES];
 	static time32_t data_from_propulsion_update_time = 0;
 
-	#warning "Algo non testé..."
 	//On se contente de choisir les NB_FOES objets hokuyo les plus proches observés et de les enregistrer dans le tableau d'adversaires.
 	//Si pas de données venant de la propulsion (hokuyo ou adversaire virtuel parfait) -> on prend les données IR.
 
@@ -102,16 +102,17 @@ static void DETECTION_compute(detection_reason_e reason)
 			}
 			break;
 		case DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR:
-
+			global.env.foes_updated_for_lcd = TRUE;
 			for(i=0;i<MAX_BEACON_FOES;i++)
 			{
+				global.env.foe[MAX_HOKUYO_FOES+i].fiability_error = beacon_ir_objects[i].fiability_error;
 				if(beacon_ir_objects[i].enable)	//Si les données sont cohérentes... (signal vu...)
 				{
 					//Si je n'ai pas de données en provenance de la propulsion depuis un moment... j'utilise les données de la BEACON_IR.
 					// Ou bien si l'objet observé est dans l'angle mort de l'hokuyo...
 					if	(global.env.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME
-						|| 	(		global.env.foe[i].angle > -PI4096/2-PI4096/3		//Angle entre -150° et -30° --> angle mort hokuyo + marge de 15° de chaque coté.
-								&& 	global.env.foe[i].angle < -PI4096/2+PI4096/3 )
+						|| 	(		beacon_ir_objects[i].angle > PI4096/2-PI4096/3		//Angle entre 30° et 150° --> angle mort hokuyo + marge de 15° de chaque coté.
+								&& 	beacon_ir_objects[i].angle < PI4096/2+PI4096/3 )
 						)
 					{
 						global.env.foe[MAX_HOKUYO_FOES+i].x 			= beacon_ir_objects[i].x;
@@ -122,14 +123,16 @@ static void DETECTION_compute(detection_reason_e reason)
 						global.env.foe[MAX_HOKUYO_FOES+i].enable 		= TRUE;
 						global.env.foe[MAX_HOKUYO_FOES+i].updated 		= TRUE;
 						global.env.foe[MAX_HOKUYO_FOES+i].from 			= DETECTION_FROM_BEACON_IR;
-						global.env.foes_updated_for_lcd = TRUE;
 					}
 				}
+
+
 			}
 
 
 			break;
 		case DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION:		//Cette source d'info est prioritaire...
+			global.env.foes_updated_for_lcd = TRUE;
 			data_from_propulsion_update_time = global.env.absolute_time;
 			//debug_printf("Compute :");
 			for(j = 0; j < hokuyo_objects_number; j++)
@@ -158,7 +161,6 @@ static void DETECTION_compute(detection_reason_e reason)
 					global.env.foe[i].enable 		= TRUE;
 					global.env.foe[i].updated 		= TRUE;
 					global.env.foe[i].from 			= DETECTION_FROM_PROPULSION;
-					global.env.foes_updated_for_lcd = TRUE;
 					//debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
 				}
 				else
@@ -242,14 +244,14 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				COS_SIN_4096_get(beacon_ir_objects[i].angle, &cosinus, &sinus);
 				beacon_ir_objects[i].x = global.env.pos.x + (((beacon_ir_objects[i].dist * ((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle)))/4096)/4096);
 				beacon_ir_objects[i].y = global.env.pos.y + (((beacon_ir_objects[i].dist * ((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle)))/4096)/4096);
-
-				if((msg->data[0+4*i] & ~SIGNAL_INSUFFISANT) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
+				beacon_ir_objects[i].fiability_error = msg->data[0+4*i];
+				if((beacon_ir_objects[i].fiability_error & ~SIGNAL_INSUFFISANT) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
 					beacon_ir_objects[i].enable = TRUE;
 				else
 					beacon_ir_objects[i].enable = FALSE;
 			}
-			if(beacon_ir_objects[0].enable || beacon_ir_objects[1].enable)
-				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);	//Si l'un des deux adversaires à été vu... on prévient l'algo COMPUTE.
+
+			DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);	//On prévient l'algo COMPUTE.
 
 
 
