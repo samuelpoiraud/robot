@@ -92,11 +92,11 @@ void strat_placement_net(){
 
 			if(pos.all_node_try == FALSE){
 				for(i=0;i<NB_NODE;i++)
-					if(global.env.color == RED && pos.node[pos.selected_node].x < 1000){
+					if(global.env.color == RED && pos.node[pos.selected_node].y < 1500){
 						if((pos.dist_with_node[i] < pos.dist_with_node[pos.selected_node])
 								&& pos.tryed_node[i] == FALSE)
 							pos.selected_node = i;
-					}else if(global.env.color == YELLOW && pos.node[pos.selected_node].x > 1000){
+					}else if(global.env.color == YELLOW && pos.node[pos.selected_node].y > 1500){
 						if((pos.dist_with_node[i] < pos.dist_with_node[pos.selected_node])
 								&& pos.tryed_node[i] == FALSE)
 							pos.selected_node = i;
