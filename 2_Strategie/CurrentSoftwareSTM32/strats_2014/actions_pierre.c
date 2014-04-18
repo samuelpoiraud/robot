@@ -123,7 +123,7 @@ error_e sub_action_initiale(){
 		ERROR
 	);
 
-	displacement_t point[] = {{{650,COLOR_Y(1100)},	FAST},
+	displacement_t point[] = {{{750,COLOR_Y(1100)},	FAST},
 							  {{1000,COLOR_Y(1000)},FAST},
 							  {{1650,COLOR_Y(350)},FAST}
 							 };
@@ -143,6 +143,14 @@ error_e sub_action_initiale(){
 				state = WAIT_TELL_GUY;
 			else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !
 				state = LANCE_LAUNCHER;
+
+			// Si on active le switch de façon à envoyer toute les balles sur le premier mammouth, nous devons désactive
+			//le lancer de balles sur le mammouth adverse dans la high_level_strat
+			if(!SWITCH_STRAT_1){
+				set_sub_act_done(SUB_LANCE_ADV,TRUE);
+				set_sub_act_enable(SUB_LANCE_ADV,FALSE);
+			}
+
 			break;
 
 		case WAIT_TELL_GUY:{
@@ -156,12 +164,9 @@ error_e sub_action_initiale(){
 		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
 			state = try_going_until_break(520, COLOR_Y(290),GET_OUT,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);		//On force le passage si Guy est devant nous..........
 			break;
-		case LANCE_LAUNCHER:
-			if(SWITCH_STRAT_1)
-				state = check_sub_action_result(strat_lance_launcher(FALSE, global.env.color),LANCE_LAUNCHER,(SWITCH_STRAT_2)? GOTO_TORCH_FIRST_POINT : GOTO_FRESCO,ERROR);
-			else
-				state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,(SWITCH_STRAT_2)? GOTO_TORCH_FIRST_POINT : GOTO_FRESCO,ERROR);
 
+		case LANCE_LAUNCHER:
+			state = check_sub_action_result(strat_lance_launcher((SWITCH_STRAT_1)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,(SWITCH_STRAT_2)? GOTO_TORCH_FIRST_POINT : GOTO_FRESCO,ERROR);
 			break;
 
 		case GOTO_TORCH_FIRST_POINT:
@@ -250,10 +255,14 @@ error_e sub_action_initiale(){
 			break;
 
 		case DONE:
+			// On indique a high_strat_level que la sub_action_initiale a deja été faite pour pas la refaire une prochaine fois
+			set_sub_act_done(SUB_ACTION_INIT,TRUE);
 			return END_OK;
 			break;
 
 		case ERROR:
+			// On indique a high_strat_level que la sub_action_initiale a deja été faite pour pas la refaire une prochaine fois
+			set_sub_act_done(SUB_ACTION_INIT,TRUE);
 			return NOT_HANDLED;
 			break;
 
@@ -674,6 +683,7 @@ error_e strat_manage_fresco(){
 		IDLE,
 		GET_IN,
 		CHOICE_GET_IN,
+		NEAR_FRESCO,
 		FILE_FRESCO,
 		VERIFICATION,
 		LAST_CHANCE_FILE_FRESCO,
@@ -769,11 +779,18 @@ error_e strat_manage_fresco(){
 		case CHOICE_GET_IN:
 			if(est_dans_carre(0, 700, 1150, 1850, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = FILE_FRESCO;
+			else if(est_dans_carre(500 , 700, 900, 2100, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				state = NEAR_FRESCO;
 			else
 				state = GET_IN;
 			break;
+
 		case GET_IN :
 			state = PATHFIND_try_going(M1, GET_IN, FILE_FRESCO, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case NEAR_FRESCO :
+			state = try_going_until_break(500,1500,NEAR_FRESCO,FILE_FRESCO,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case FILE_FRESCO:
@@ -1033,9 +1050,6 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 		GET_IN,
 		POS_BEGINNING,
 		POS_LAUNCH,
-		POS_SHOOT,
-		WAIT_SHOOT,
-		POS_END,
 		ERROR,
 		GET_OUT_WITH_ERROR,
 		GOBACK_FIRST_POINT,
@@ -1190,45 +1204,21 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 
 			if(global.env.asser.reach_y)		//Peu probable... mais par sécurité (si on était super lent, on va peut etre recevoir le warner avant le point de freinage
 			{
-				ACT_lance_launcher_run((lanceAll)?ACT_Lance_ALL:((mammouth==global.env.color)?ACT_Lance_5_BALL:ACT_Lance_1_BALL),sensShoot);
-				set_sub_act_done((mammouth == global.env.color)?SUB_LANCE:SUB_LANCE_ADV,TRUE);	//On lance, donc l'action est faite...
-
-				if(mammouth == global.env.color)
-					lance_ball = TRUE;
-				else
+				// Si nous avons echoué le tire de l'autre balle sur le mammouth adverse, onrevient tirer la balle sur notre mammouth
+				if(get_sub_act_enable(SUB_LANCE_ADV_FAIL) && !get_sub_act_done(SUB_LANCE_ADV_FAIL)){
+					ACT_lance_launcher_run(ACT_Lance_1_BALL,sensShoot);
+					set_sub_act_done(SUB_LANCE_ADV_FAIL,TRUE);
 					launcher_ball_adversary = TRUE;
-			}
-			break;
+				}else{
+					ACT_lance_launcher_run((lanceAll)?ACT_Lance_ALL:((mammouth==global.env.color)?ACT_Lance_5_BALL:ACT_Lance_1_BALL),sensShoot);
+					set_sub_act_done((mammouth == global.env.color)?SUB_LANCE:SUB_LANCE_ADV,TRUE);	//On lance, donc l'action est faite...
 
-		case POS_SHOOT:
-			state = try_going(dplt[1].point.x,posShoot,POS_SHOOT,WAIT_SHOOT,ERROR,FAST,sensRobot,(global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE);
-			break;
-
-		case WAIT_SHOOT:{
-			static Uint8 begin_time;
-			if(entrance){
-				ACT_lance_launcher_run((lanceAll)?ACT_Lance_ALL:((mammouth==global.env.color)?ACT_Lance_5_BALL:ACT_Lance_1_BALL),sensShoot);
-
-				if(mammouth == global.env.color)
-				{
-					set_sub_act_done(SUB_LANCE,TRUE);	//On lance, donc l'action est faite...
+					if(mammouth == global.env.color)
+						lance_ball = TRUE;
+					else
+						launcher_ball_adversary = TRUE;
 				}
-				else
-				{
-					set_sub_act_done(SUB_LANCE_ADV,TRUE);	//On lance, donc l'action est faite...
-					launcher_ball_adversary = TRUE;
-				}
-				lance_ball = TRUE;
-				begin_time = global.env.match_time;
 			}
-
-			if(global.env.match_time >= begin_time+1000)
-				state = POS_END;
-
-			}break;
-
-		case POS_END:
-			state = try_going(dplt[3].point.x,dplt[3].point.y,POS_END,DONE,ERROR,FAST,sensRobot,(global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE);
 			break;
 
 		case ERROR:
@@ -1258,8 +1248,6 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 
 			return END_OK;
 			break;
-
-
 
 		case RETURN_NOT_HANDLED :
 			state = IDLE;
