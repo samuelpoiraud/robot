@@ -226,7 +226,7 @@ static bool_e start_next_launcher() {
 			break;
 		case 3 :
 			LANCELAUNCHER_PIN_3 = 1;
-			stateLauncher[2] = 20;
+			stateLauncher[2] = 25;
 			break;
 		case 4 :
 			LANCELAUNCHER_PIN_4 = 1;
