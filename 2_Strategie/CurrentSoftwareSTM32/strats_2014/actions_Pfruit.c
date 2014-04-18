@@ -65,8 +65,13 @@ error_e strat_file_fruit(){
 	static Uint16 posClose; // Position à laquelle, on va fermer le bac à fruit
 	static Uint16 posOpenVerin;	//Position à laquelle on sort le vérin
 
+	 // Prend le temps quand nous avons ouvert le labium, si le labium a été ouvert plus d'une seconde
+	// cela veut dire que les fruits sont forcément tombé de ce dernier
+	static Uint16 last_time_Open_labium;
 	switch(state){
 		case IDLE:
+
+
 			dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[0].point.y = COLOR_Y(1750);
 			dplt[0].speed = FAST;
@@ -130,6 +135,7 @@ error_e strat_file_fruit(){
 					{
 						ASSER_WARNER_arm_y(posClose);
 						ACT_fruit_labium_goto(ACT_FRUIT_Labium_Open);
+						last_time_Open_labium = global.env.match_time;
 						labium_state = LABIUM_OPENED_VERIN_OUT;
 					}
 					break;
@@ -153,6 +159,14 @@ error_e strat_file_fruit(){
 		case ERROR: // Fermer le bac à fruit et rentrer le bras
 			ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+
+			// Si le labium a été ouvert les fruits sont forcément tombée sur le sol ou dans le bac (ce qui sera le cas ^^, j'espére)
+			if(global.env.match_time > last_time_Open_labium + 1000){
+					set_sub_act_done(SUB_DROP_FRUITS,TRUE);
+					set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
+					presenceFruit = FALSE;
+			}
+
 			state = GET_OUT_WITH_ERROR;
 			break;
 
