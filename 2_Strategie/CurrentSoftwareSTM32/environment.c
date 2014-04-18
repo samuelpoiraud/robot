@@ -77,6 +77,7 @@ void ENV_init(void)
 	global.env.match_over = FALSE;
 	for(i=0;i<MAX_NB_FOES;i++)
 	{
+		global.env.foe[i].fiability_error = 0;
 		global.env.foe[i].enable = FALSE;
 		global.env.foe[i].update_time = 0;
 	}
