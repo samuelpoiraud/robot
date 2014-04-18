@@ -626,7 +626,6 @@ bool_e foe_in_path(bool_e verbose)
 	Sint32 avoidance_rectangle_min_x;
 	Sint32 avoidance_rectangle_max_x;
 	Sint32 avoidance_rectangle_width_y;
-	bool_e there_is_at_least_one_updated;
 
 	move_way = global.env.asser.current_way;	//TODO cracra.. a nettoyer ultérieurement.
 
@@ -641,15 +640,6 @@ bool_e foe_in_path(bool_e verbose)
 		}
 		return FALSE;
 	}
-	there_is_at_least_one_updated = FALSE;
-	for (i=0; i<MAX_NB_FOES; i++)
-	{
-		if (global.env.foe[i].updated)
-			there_is_at_least_one_updated = TRUE;
-	}
-	//if(!there_is_at_least_one_updated)
-		//return FALSE;	//On économise la suite des calculs qui sont inutiles.
-
 
 	/*	On définit un "rectangle d'évitement" comme la somme :
 	 * 		- du rectangle que le robot va recouvrir s'il décide de freiner maintenant.
@@ -678,7 +668,7 @@ bool_e foe_in_path(bool_e verbose)
 
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		if (global.env.foe[i].updated)
+		if (global.env.foe[i].enable)
 		{
 			COS_SIN_4096_get(global.env.foe[i].angle, &cosinus, &sinus);
 			relative_foe_x = (((Sint32)(cosinus)) * global.env.foe[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
@@ -715,7 +705,7 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		if (global.env.foe[i].updated){
+		if (global.env.foe[i].enable){
 			display(i);
 			display(global.env.foe[i].x);
 			display(global.env.foe[i].y);
@@ -989,7 +979,7 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	return  TRUE;
 }
 
-#define	TIME_CONSIDERE_ADVERSARY					500		//[ms] temps au delà duquel un adversaire mis à jour n'est plus considéré
+
 #define EXTRACTION_DISTANCE  	300
 /*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
 error_e extraction_of_foe(void)
@@ -1051,7 +1041,7 @@ error_e extraction_of_foe(void)
 					//On recherche la distance minimale entre le point 'i' et l'adversaire le plus proche.
 					for(foe = 0; foe < MAX_NB_FOES; foe++)		//Pour tout les adversaires obsersés
 					{
-						if(global.env.absolute_time - global.env.foe[foe].update_time < TIME_CONSIDERE_ADVERSARY)
+						if(global.env.foe[foe].enable)
 						{
 							distance2_between_point_and_foe = (pointEx[i].x-global.env.foe[foe].x)*(pointEx[i].x-global.env.foe[foe].x) + (pointEx[i].y-global.env.foe[foe].y)*(pointEx[i].y-global.env.foe[foe].y);
 							if(distance2_between_point_and_foe < distance2_between_point_and_foe_min)	//Si l'adversaire en cours est plus proche du point que les autres, on le prend en compte.

@@ -76,8 +76,11 @@ void ENV_init(void)
 	global.env.match_started = FALSE;
 	global.env.match_over = FALSE;
 	for(i=0;i<MAX_NB_FOES;i++)
+	{
+		global.env.foe[i].enable = FALSE;
 		global.env.foe[i].update_time = 0;
-
+	}
+	global.env.foes_updated_for_lcd = FALSE;
 	global.env.match_time = 0;
 	global.env.pos.dist = 0;
 	global.env.ask_start = FALSE;
@@ -311,10 +314,6 @@ void ENV_update(void)
 
 	/* Récupération des données des boutons */
 	BUTTON_update();
-
-	/* Mise à jour de l'info de position de l'adversaire */
-	/* à faire après récupération des infos des capteurs */
-	DETECTION_update();
 
 
 	/* Traitement des données des capteurs Sick (télémètres LASER)
@@ -564,7 +563,8 @@ void ENV_clean (void)
 {
 	Uint8 i;
 	STACKS_clear_timeouts();
-	//DETECTION_clear_updates();
+	DETECTION_clean();
+
 	if(global.env.color == global.env.wanted_color)
 		global.env.color_updated = FALSE;
 	global.env.asser.fini = FALSE;
@@ -575,8 +575,6 @@ void ENV_clean (void)
 	global.env.asser.reach_teta = FALSE;
 		//global.env.asser.last_time_pos_updated = 0;
 	global.env.pos.updated = FALSE;
-	//for(i=0;i<MAX_NB_FOES;i++)
-		//global.env.foe[i].updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
 	global.env.reach_point_C1 = FALSE;

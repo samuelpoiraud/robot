@@ -75,8 +75,8 @@ static const strategy_list_s list_strategy[] = {
 
 	// Pour pierre
 	{"strat_lannion",		strat_lannion,							MATCH_DURATION,		TRUE,					BIG},
-	{"strat_pts",			strat_test_point,						MATCH_DURATION,		TRUE,					BIG},
-	{"strat_pts_2",			strat_test_point2,						MATCH_DURATION,		TRUE,					BIG},
+//	{"strat_pts",			strat_test_point,						MATCH_DURATION,		TRUE,					BIG},
+//	{"strat_pts_2",			strat_test_point2,						MATCH_DURATION,		TRUE,					BIG},
 	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE,					BIG},
 
 	// Pour guy

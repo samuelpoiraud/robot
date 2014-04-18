@@ -306,7 +306,7 @@ static void LCD_menu_infos(bool_e init)
 	if(init || global.env.pos.updated)
 		display_pos(0);
 
-	if(init || global.env.foe[0].updated || global.env.foe[1].updated || global.env.foe[0].obsolete == DETECTION_IS_GETTING_OBSOLETE || global.env.foe[1].obsolete == DETECTION_IS_GETTING_OBSOLETE)
+	if(init || global.env.foes_updated_for_lcd)
 		display_beacon(1);
 
 	if(init || BRAIN_get_strat_updated())	//Temporaire !	//TODO add updated
@@ -848,31 +848,46 @@ static void display_pos(Uint8 line)
 /* Affiche les infos de la balise*/
 static void display_beacon(Uint8 line)
 {
-	Sint16 d1,d2,a1,a2;
-	char from;
+	Sint16 dist, angle;
+	Uint8 foe_id;	//Indice du premier adversaire à afficher. (le second est son suivant)
+	Uint8 i;
 	char str[21];
 	Uint8 index;
-	d1 = global.env.foe[0].dist/10;
-	d2 = global.env.foe[1].dist/10;
-	a1 = (((Sint32)(global.env.foe[0].angle))*180)/PI4096;
-	a2 = (((Sint32)(global.env.foe[1].angle))*180)/PI4096;
 
-	if(global.env.foe[0].from == DETECTION_FROM_BEACON_IR)
-		from = 'B';
-	else if(global.env.foe[0].from == DETECTION_FROM_PROPULSION)
-		from = 'H';	//Hokuyo
-	else
-		from = '?';
 
-	index = sprintf(str, "%c ", from);
-	if(global.env.foe[0].obsolete != DETECTION_IS_RECENT)
-		index += sprintf(str+index, "OBSOLATE ");
-	else
-		index += sprintf(str+index, "%3d %3d° ", d1, a1);
-	if(global.env.foe[1].obsolete != DETECTION_IS_RECENT)
-		index += sprintf(str+index, "OBSOLATE");
-	else
-		index += sprintf(str+index, "%3d %3d°", d2, a2);
+	//Les deux objets Hokuyo les plus proches sont les objets 0 et 1, on oublie les autres.
+	//Les deux objets balises, s'ils sont actifs, sont les objets MAX_HOKUYO_FOES et MAX_HOKUYO_FOES+1
+	index = 2;
+	str[1] = ' ';
+	if(global.env.foe[0].enable || global.env.foe[1].enable)
+	{
+		str[0] = 'H';	//Au moins 1 objet hokuyo actif -> on affiche les 2 objets hokuyo les plus proches (les premiers dans le tableau)
+		foe_id = 0;
+	}
+	else if(global.env.foe[MAX_HOKUYO_FOES].enable || global.env.foe[MAX_HOKUYO_FOES+1].enable)
+	{
+		str[0] = 'B';	//SINON, si objets balises actifs -> on les affiche
+		foe_id = MAX_HOKUYO_FOES;
+	}
+	else			//Aucun objet actif... on affiche rien (les objets 0 et 1 sont inactifs, donc cela revient à ne rien afficher)
+	{
+		str[0] = '?';
+		foe_id = 0;
+	}
+
+	for(i=0;i<2;i++)	//Affichage des deux adversaires choisis.
+	{
+		assert(foe_id+i < MAX_NB_FOES);
+		if(global.env.foe[foe_id+i].enable)
+		{
+			dist = global.env.foe[foe_id+i].dist/10;
+			angle = (((Sint32)(global.env.foe[foe_id+i].angle))*180)/PI4096;
+			index += sprintf(str+index, "%3d %3d° ", dist, angle);
+		}
+		else
+			index += sprintf(str+index, "OBSOLATE ");
+	}
+
 	str[20] = '\0';
 	sprintf_line(line, str);
 }

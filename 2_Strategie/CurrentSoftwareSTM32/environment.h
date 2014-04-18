@@ -84,12 +84,6 @@
 		DETECTION_FROM_BEACON_IR
 	}detection_from_e;
 
-	typedef enum
-	{
-		DETECTION_IS_RECENT = 0,
-		DETECTION_IS_GETTING_OBSOLETE,		//Etape qui ne dure qu'un tour de boucle lorsque l'adversaire devient "obsolete"
-		DETECTION_IS_OBSOLETE
-	}detection_obsolete_e;
 
 
 	typedef struct
@@ -98,8 +92,8 @@
 		volatile Sint16 dist;
 		volatile Sint16 x;
 		volatile Sint16 y;
-		volatile bool_e updated;
-		volatile detection_obsolete_e obsolete;		//Rendu obsolete
+		volatile bool_e updated;				//Ce flag est levé pendant 1 tour de boucle lorsque la donnée correspondance est mise à jour.
+		volatile bool_e enable;					//Ce flag est levé entre l'instant de mise à jour de l'adversaire JUSQU'A son obsolescence (gerée par Detection).
 		volatile time32_t update_time;
 		volatile detection_from_e from;	//Source de l'information
 	}foe_t;
@@ -112,7 +106,9 @@
 		ELEMENT_NONE //Non applicable
 	}map_state_e;
 
-	#define MAX_NB_FOES	16	//Nombre max d'aversaires
+	#define MAX_BEACON_FOES	2
+	#define	MAX_HOKUYO_FOES	16
+	#define MAX_NB_FOES	(MAX_HOKUYO_FOES  + MAX_BEACON_FOES)	//Nombre max d'aversaires  (16 pour l'hokuyo + 2 pour la balise IR)
 
 	typedef struct
 	{
@@ -128,6 +124,7 @@
 		asser_env_t asser;
 		position_t pos;					//comme son nom l'indique, c'est la position de notre robot
 		foe_t foe[MAX_NB_FOES];		//l'ensemble des adversaires vus sur le terrain - ces données concernent plus l'évitement que le zoning !
+		bool_e foes_updated_for_lcd;
 			//Attention, un même adversaire peut être mis à jour sur plusieurs cases différents du tableau de foe !
 		bool_e match_started, match_over;
 		time32_t match_time; //temps de match en ms.

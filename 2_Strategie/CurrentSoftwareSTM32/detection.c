@@ -19,7 +19,6 @@
 #include "environment.h"
 #include "maths_home.h"
 
-#define TIMER_CONSIDERE_ADVERSARY 500
 
 typedef struct
 {
@@ -43,11 +42,12 @@ typedef enum
 
 static void DETECTION_compute(detection_reason_e reason);
 
-#define FOE_DATA_LIFETIME	250		//[ms] Durée de vie des données envoyées par la propulsion
-volatile adversary_t hokuyo_objects[MAX_NB_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
+#define FOE_DATA_LIFETIME	250		//[ms] Durée de vie des données envoyées par la propulsion et par la balise
+
+volatile adversary_t hokuyo_objects[MAX_HOKUYO_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
 volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
 
-volatile adversary_t beacon_ir_objects[2];
+volatile adversary_t beacon_ir_objects[MAX_BEACON_FOES];
 
 void DETECTION_init(void)
 {
@@ -60,7 +60,7 @@ void DETECTION_init(void)
 
 /*	mise à jour de l'information de détection avec le contenu
 	courant de l'environnement */
-void DETECTION_update(void)
+void DETECTION_clean(void)
 {
 	//Necessaire pour des match infini de test, on reactive les balises toutes les 90sec
 	static time32_t next_beacon_activate_msg = 1000;	//Prochain instant d'envoi de message.
@@ -78,7 +78,7 @@ static void DETECTION_compute(detection_reason_e reason)
 {
 	Uint8 i,j, j_min;
 	Sint16 dist_min;
-	bool_e objects_chosen[MAX_NB_FOES];
+	bool_e objects_chosen[MAX_HOKUYO_FOES];
 	static time32_t data_from_propulsion_update_time = 0;
 
 	#warning "Algo non testé..."
@@ -88,18 +88,22 @@ static void DETECTION_compute(detection_reason_e reason)
 
 	switch(reason)
 	{
-		case DETECTION_REASON_PROCESS_MAIN:
+		case DETECTION_REASON_PROCESS_MAIN:		//CLEAN
+			global.env.foes_updated_for_lcd = FALSE;
 			for(i=0;i<MAX_NB_FOES;i++)
 			{
-				if((global.env.foe[i].obsolete == DETECTION_IS_RECENT) && (global.env.absolute_time - global.env.foe[i].update_time > FOE_DATA_LIFETIME))
-					global.env.foe[i].obsolete = DETECTION_IS_GETTING_OBSOLETE;
-				else if(global.env.foe[i].obsolete == DETECTION_IS_GETTING_OBSOLETE)
-					global.env.foe[i].obsolete = DETECTION_IS_OBSOLETE;
+				global.env.foe[i].updated = FALSE;		//On baisse le flag updated à chaque tour de boucle.
+
+				if((global.env.foe[i].enable == TRUE) && (global.env.absolute_time - global.env.foe[i].update_time > FOE_DATA_LIFETIME))
+				{
+					global.env.foes_updated_for_lcd = TRUE;
+					global.env.foe[i].enable = FALSE;
+				}
 			}
 			break;
 		case DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR:
 
-			for(i=0;i<2;i++)
+			for(i=0;i<MAX_BEACON_FOES;i++)
 			{
 				if(beacon_ir_objects[i].enable)	//Si les données sont cohérentes... (signal vu...)
 				{
@@ -110,14 +114,15 @@ static void DETECTION_compute(detection_reason_e reason)
 								&& 	global.env.foe[i].angle < -PI4096/2+PI4096/3 )
 						)
 					{
-						global.env.foe[i].x 			= beacon_ir_objects[i].x;
-						global.env.foe[i].y 			= beacon_ir_objects[i].y;
-						global.env.foe[i].angle 		= beacon_ir_objects[i].angle;
-						global.env.foe[i].dist 			= beacon_ir_objects[i].dist;
-						global.env.foe[i].update_time 	= beacon_ir_objects[i].update_time;
-						global.env.foe[i].updated 		= TRUE;
-						global.env.foe[i].obsolete 		= DETECTION_IS_RECENT;
-						global.env.foe[i].from 			= DETECTION_FROM_BEACON_IR;
+						global.env.foe[MAX_HOKUYO_FOES+i].x 			= beacon_ir_objects[i].x;
+						global.env.foe[MAX_HOKUYO_FOES+i].y 			= beacon_ir_objects[i].y;
+						global.env.foe[MAX_HOKUYO_FOES+i].angle 		= beacon_ir_objects[i].angle;
+						global.env.foe[MAX_HOKUYO_FOES+i].dist 			= beacon_ir_objects[i].dist;
+						global.env.foe[MAX_HOKUYO_FOES+i].update_time 	= beacon_ir_objects[i].update_time;
+						global.env.foe[MAX_HOKUYO_FOES+i].enable 		= TRUE;
+						global.env.foe[MAX_HOKUYO_FOES+i].updated 		= TRUE;
+						global.env.foe[MAX_HOKUYO_FOES+i].from 			= DETECTION_FROM_BEACON_IR;
+						global.env.foes_updated_for_lcd = TRUE;
 					}
 				}
 			}
@@ -130,7 +135,7 @@ static void DETECTION_compute(detection_reason_e reason)
 			for(j = 0; j < hokuyo_objects_number; j++)
 				objects_chosen[j] = FALSE;			//init, aucun des objets n'est choisi
 
-			for(i = 0 ; i < MAX_NB_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
+			for(i = 0 ; i < MAX_HOKUYO_FOES ; i++)	//Pour chaque case du tableau d'adversaires qu'on doit remplir
 			{
 				dist_min = 0x7FFF;
 				j_min = 0xFF;		//On suppose qu'il n'y a pas d'objet hokuyo.
@@ -150,13 +155,14 @@ static void DETECTION_compute(detection_reason_e reason)
 					global.env.foe[i].angle 		= hokuyo_objects[j_min].angle;
 					global.env.foe[i].dist 			= hokuyo_objects[j_min].dist;
 					global.env.foe[i].update_time 	= hokuyo_objects[j_min].update_time;
+					global.env.foe[i].enable 		= TRUE;
 					global.env.foe[i].updated 		= TRUE;
-					global.env.foe[i].obsolete 		= DETECTION_IS_RECENT;
 					global.env.foe[i].from 			= DETECTION_FROM_PROPULSION;
+					global.env.foes_updated_for_lcd = TRUE;
 					//debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
 				}
 				else
-					global.env.foe[i].updated = FALSE;				//Plus d'objet dispo... on vide la case i.
+					global.env.foe[i].enable = FALSE;				//Plus d'objet dispo... on vide la case i.
 
 				//TODO le tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
 			}
@@ -180,14 +186,12 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 	Uint8 fiability;
 	Uint8 adversary_nb, i;
 	Sint16 cosinus, sinus;
-	for(i=0;i<MAX_NB_FOES;i++)
-		if(global.env.absolute_time - global.env.foe[i].updated < TIMER_CONSIDERE_ADVERSARY)
-			global.env.foe[i].updated = FALSE;
+
 	switch(msg->sid)
 	{
 		case STRAT_ADVERSARIES_POSITION:
 			adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
-			if(adversary_nb < MAX_NB_FOES)
+			if(adversary_nb < MAX_HOKUYO_FOES)
 			{
 				fiability = msg->data[6];
 				if(fiability)
@@ -339,7 +343,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					global.env.foe[foe_id].x = beacon_foe_x;
 					global.env.foe[foe_id].y = beacon_foe_y;
 					global.env.foe[foe_id].update_time = global.env.match_time;
-					global.env.foe[foe_id].updated = TRUE;
+					global.env.foe[foe_id].enable = TRUE;
 				}
 			}
 			global.env.foe[foe_id].angle = global.env.sensor[BEACON_IR(foe_id)].angle;
@@ -362,7 +366,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					global.env.foe[foe_id].x = beacon_foe_x;
 					global.env.foe[foe_id].y = beacon_foe_y;
 					global.env.foe[foe_id].update_time = global.env.match_time;
-					global.env.foe[foe_id].updated = TRUE;
+					global.env.foe[foe_id].enable = TRUE;
 				}
 			}
 			// On mets a jour la distance
