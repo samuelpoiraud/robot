@@ -180,7 +180,7 @@ Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool_e hand
 
 		for(i=0; i<MAX_NB_FOES; i++)
 		{
-			if((global.env.absolute_time - global.env.foe[i].update_time < TIME_CONSIDERE_ADVERSARY)	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
+			if(global.env.foe[i].enable	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
 			{
 				dist = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
 				if (dist < ((Uint32)900))	//Si l'adversaire proche de nous est proche du noeud en question... on allourdi sérieusement le coût de ce noeud.
@@ -275,7 +275,7 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	adversaries_nodes = 0;
 	for(i=0;i<MAX_NB_FOES;i++)
 	{
-		if((global.env.absolute_time - global.env.foe[i].update_time < TIME_CONSIDERE_ADVERSARY)	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
+		if(global.env.foe[i].enable && global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
 		{
 			for(n = 0; n < PATHFIND_NODE_NB; n++)	//Pour chaque noeud
 			{	//Si l'adversaire en question est proche du noeud : on ajoute le noeud dans la liste des noeuds innaccessibles.
