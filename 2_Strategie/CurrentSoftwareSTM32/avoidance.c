@@ -495,6 +495,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 		CHECK_SCAN_FOE = 0,
 		LOAD_MOVE,
 		WAIT_MOVE_AND_SCAN_FOE,
+		EXTRACT,
 		DONE
 	};
 	static enum state_e state = CHECK_SCAN_FOE;
@@ -573,6 +574,38 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					avoidance_printf("wait_move_and_scan_foe -- foe in path\n");
 					SD_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
+					state = EXTRACT;
+					break;
+
+				case IN_PROGRESS:
+					break;
+
+				default:
+					state = CHECK_SCAN_FOE;
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case EXTRACT:
+			sub_action = extraction_of_foe();
+			switch(sub_action)
+			{
+				case END_OK:
+					state = DONE;
+					break;
+
+				case END_WITH_TIMEOUT:
+					timeout = TRUE;
+					state = DONE;
+					break;
+
+				case NOT_HANDLED:
+					state = CHECK_SCAN_FOE;
+					return NOT_HANDLED;
+					break;
+
+				case FOE_IN_PATH:
 					state = CHECK_SCAN_FOE;
 					return FOE_IN_PATH;
 					break;
@@ -649,7 +682,7 @@ bool_e foe_in_path(bool_e verbose)
 	 */
 
 	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
-	current_speed = (Uint32)(absolute(global.env.pos.translation_speed));
+	current_speed = (Uint32)(absolute(global.env.pos.translation_speed)*1);
 	break_distance = current_speed*current_speed/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
 	respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
 
@@ -706,18 +739,10 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
 		if (global.env.foe[i].enable){
-			display(i);
-			display(global.env.foe[i].x);
-			display(global.env.foe[i].y);
 			// d(D, A) < L
 			// D : droite que le robot empreinte pour aller au point
 			// A : Point adversaire
 			// L : Largeur du robot maximum * 2
-
-			display(a);
-			display(b);
-			display(c);
-
 
 			debug_printf("Nous x:%d y:%d / ad x:%d y:%d \n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y);
 
@@ -952,30 +977,30 @@ static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 {
 	Uint8 widthRobot;
-	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH : SMALL_ROBOT_WIDTH;
+	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
 	widthRobot += 100;	//Marge !
 
 	if(!est_dans_carre(0+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p))		// Terrain
 		return FALSE;
-	if(est_dans_cercle(*p,(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, widthRobot}))				// Foyer centre
+	if(est_dans_cercle(*p,(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, 150+widthRobot}))				// Foyer centre
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, widthRobot}))				// Foyer droite
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, 125+widthRobot}))				// Foyer droite
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, widthRobot}))			// Foyer gauche
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, 125+widthRobot}))			// Foyer gauche
 		return FALSE;
-	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))		// Bac à fruit jaune
+	/*if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))		// Bac à fruit jaune
 		return FALSE;
 	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 1900-(widthRobot), 2600+(widthRobot), *p))		// Bac à fruit rouge
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, widthRobot}))				// Arbre rouge 1
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, 150+widthRobot}))				// Arbre rouge 1
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 700}, widthRobot}))				// Arbre rouge 2
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 700}, 150+widthRobot}))				// Arbre rouge 2
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 2000}, widthRobot}))			// Arbre jaune 1
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, 150+widthRobot}))			// Arbre jaune 1
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, widthRobot}))			// Arbre jaune 2
-		return FALSE;
-	
+	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 3000}, 150+widthRobot}))			// Arbre jaune 2
+		return FALSE;*/
+
 	return  TRUE;
 }
 
@@ -1031,7 +1056,7 @@ error_e extraction_of_foe(void)
 			}
 			bestPoint = 0xFF;
 			bestPoint_distance2_with_nearest_foe = 0;
-			
+
 			for(i = 0; i < 12; i++)	//Pour chaque point
 			{
 				if(is_possible_point_for_rotation(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
@@ -1073,7 +1098,7 @@ error_e extraction_of_foe(void)
 			break;
 
 		case GO_POINT:
-			state = try_going(pointEx[bestPoint].x,pointEx[bestPoint].y,GO_POINT,DONE,WAIT,SLOW_TRANSLATION_AND_FAST_ROTATION,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = check_sub_action_result(goto_extract_with_avoidance((displacement_t){(GEOMETRY_point_t){pointEx[bestPoint].x,pointEx[bestPoint].y}, SLOW_TRANSLATION_AND_FAST_ROTATION}), GO_POINT, DONE, WAIT);
 			break;
 
 		case WAIT:{ // Etat d'attente si il n'a pas trouvé de chemin dans l'immédiat
@@ -1108,5 +1133,124 @@ error_e extraction_of_foe(void)
 			break;
 	}
 
+	return IN_PROGRESS;
+}
+
+/* Fonction qui réalise un ASSER_push_goto spécifique à l'extration du robot avec la gestion de l'évitement */
+error_e goto_extract_with_avoidance(const displacement_t displacements)
+{
+	enum state_e
+	{
+		CHECK_SCAN_FOE = 0,
+		LOAD_MOVE,
+		WAIT_MOVE_AND_SCAN_FOE,
+		DONE
+	};
+	static enum state_e state = CHECK_SCAN_FOE;
+	static bool_e timeout = FALSE;
+
+	switch(state)
+	{
+		case CHECK_SCAN_FOE :
+			if(foe_in_zone(TRUE, displacements.point.x, displacements.point.y)){
+				avoidance_printf("goto_extract_with_avoidance NOT HANDLED because foe in target zone");
+				state = CHECK_SCAN_FOE;
+				return NOT_HANDLED;
+			}else
+				state = LOAD_MOVE;
+			break;
+
+		case LOAD_MOVE:
+			global.env.destination = displacements.point;
+			ASSER_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, ASSER_CURVES, END_OF_BUFFER, END_AT_LAST_POINT, TRUE);
+			avoidance_printf("goto_extract_with_avoidance : load_move\n");
+			state = WAIT_MOVE_AND_SCAN_FOE;
+			break;
+
+		case WAIT_MOVE_AND_SCAN_FOE:
+			if(global.env.debug_force_foe)	//Evitement manuel forcé !
+			{
+				STACKS_flush(ASSER);
+				debug_foe_reason(FORCED_BY_USER, 0, 0);
+				ASSER_push_stop();
+				global.env.debug_force_foe = FALSE;
+				state = CHECK_SCAN_FOE;
+				return FOE_IN_PATH;
+			}
+			else
+			{
+				//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
+				//Necessaire pour que l'angle de detection de l'adversaire soit valide (car sinon on ne pointe pas forcément vers notre point d'arrivé ...)
+				//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
+	//			if((global.env.asser.current_trajectory != TRAJECTORY_TRANSLATION && global.env.asser.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
+	//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
+	//				avoidance_printf("Not in translation but foe in path\n");
+
+				if(global.env.asser.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
+				{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
+					//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
+					//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
+					BUZZER_play(20, DEFAULT_NOTE, 3);
+					avoidance_printf("goto_extract_with_avoidance: foe detected\n");
+					STACKS_flush(ASSER);
+					ASSER_push_stop();
+					state = CHECK_SCAN_FOE;
+					return FOE_IN_PATH;
+				}
+				else
+				{
+					// aucun adversaire n'est détecté, on fait notre mouvement normalement
+					// on regarde si la pile s'est vidée
+					error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
+					switch(asser_stack_state)
+					{
+						case END_OK:
+							avoidance_printf("goto_extract_with_avoidance -- fini\n");
+							state = DONE;
+							break;
+
+						case END_WITH_TIMEOUT:
+							timeout = TRUE;
+							avoidance_printf("goto_extract_with_avoidance -- timeout\n");
+							SD_printf("TIMEOUT on goto_extract_with_avoidance");
+							state = DONE;
+							break;
+
+						case NOT_HANDLED:
+							avoidance_printf("goto_extract_with_avoidance -- probleme\n");
+							SD_printf("ERROR on goto_extract_with_avoidance");
+							state = CHECK_SCAN_FOE;
+							return NOT_HANDLED;
+							break;
+
+						case FOE_IN_PATH:
+							avoidance_printf("goto_extract_with_avoidance -- foe in path\n");
+							SD_printf("FOE_IN_PATH on goto_extract_with_avoidance");
+							state = CHECK_SCAN_FOE;
+							return FOE_IN_PATH;
+							break;
+
+						case IN_PROGRESS:
+							break;
+
+						default:
+							state = CHECK_SCAN_FOE;
+							return NOT_HANDLED;
+							break;
+					}
+				}
+			}
+			break;
+
+		case DONE:
+			state = CHECK_SCAN_FOE;
+			return timeout?END_WITH_TIMEOUT:END_OK;
+			break;
+
+		default:
+			debug_printf("Cas Default state, panique !!!\n");
+			state = CHECK_SCAN_FOE;
+			return NOT_HANDLED;
+	}
 	return IN_PROGRESS;
 }

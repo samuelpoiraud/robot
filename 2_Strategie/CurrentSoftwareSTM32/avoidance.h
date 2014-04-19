@@ -304,4 +304,6 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
 bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y);
 
+error_e goto_extract_with_avoidance(const displacement_t displacements);
+
 #endif /* ndef AVOIDANCE_H */
