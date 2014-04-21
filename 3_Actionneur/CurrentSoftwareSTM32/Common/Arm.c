@@ -53,8 +53,12 @@
 
 #define square(x) ((Sint32)x*x)
 
+#ifdef I_AM_ROBOT_SMALL
+	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1983*x+40.465))
+#else
+	#define conv_dist_to_potar_updown(x) (x*2)
+#endif
 
-#define conv_dist_to_potar_updown(x) (x*2)
 
 typedef struct{
 	Sint16 x;
@@ -293,7 +297,7 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			case ACT_ARM_UPDOWN_GOTO :
-
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
 				break;
 
 			case ACT_ARM_STOP:
@@ -449,6 +453,10 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 					//Si au moins un moteur n'a pas pu correctement se déplacer, alors on a fail l'action et on retourne à la position précédente
 					if(done && result != ACT_RESULT_DONE) {
 						return_result = TRUE;
+						if(ARM_MOTORS[i].type == ARM_DCMOTOR)
+							debug_printf("Le moteur %d n'a pas atteint la position voulue\n", ARM_MOTORS[i].id);
+						else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24)
+							debug_printf("L'AX12/RX24 %d n'a pas atteint la position voulue\n",  ARM_MOTORS[i].id);
 						if(old_state >= 0) {
 							gotoState(old_state);
 						}
@@ -457,7 +465,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				}
 			}
 
-			if(return_result) {
+			if(return_result && (canCommand == ACT_ARM_GOTO || canCommand == ACT_ARM_INIT)) {
 				if(result == ACT_RESULT_DONE){
 					debug_printf("Mise à jours de l'état du bras : %s\n", ARM_STATES_NAME[new_state]);
 					old_state = new_state;
@@ -735,7 +743,7 @@ static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 }
 
 static bool_e move_updown_to(Sint16 pos){
-	Uint16 value = conv_dist_to_potar_updown(pos);
+	Sint16 value = conv_dist_to_potar_updown(pos);
 
 	if(value < ARM_ACT_UPDOWN_MIN_VALUE || value > ARM_ACT_UPDOWN_MAX_VALUE)
 		return FALSE;

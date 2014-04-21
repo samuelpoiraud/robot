@@ -46,7 +46,7 @@
 	//	-				 			  14
 	//	-				 			  15
 
-#define PORT_C_IO_MASK	0xFFFF
+#define PORT_C_IO_MASK	0xFBFF
 	//	-				 			  0
 	//	-				 			  1
 	//	-				 			  2
@@ -57,7 +57,7 @@
 	//	-				 			  7
 	//	-				 			  8
 	//	-				 			  9
-	//	-	sortie libre 			  10
+	#define BRAS_UPDOWN_SENS		GPIOC->ODR10
 	//	-				 			  11
 	//	-				 			  12
 	//	-				 			  13
