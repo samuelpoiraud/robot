@@ -18,22 +18,22 @@
 
 //#define ARM_ACT_UPDOWN                           0
 #define ARM_ACT_UPDOWN_DOUBLE_PID				 TRUE
-#define ARM_ACT_UPDOWN_ASSER_KP                  100
+#define ARM_ACT_UPDOWN_ASSER_KP					 1600
 #define ARM_ACT_UPDOWN_ASSER_KI                  0
 #define ARM_ACT_UPDOWN_ASSER_KD                  0
-#define ARM_ACT_UPDOWN_ASSER_KP2                 100
+#define ARM_ACT_UPDOWN_ASSER_KP2                 900
 #define ARM_ACT_UPDOWN_ASSER_KI2                 0
 #define ARM_ACT_UPDOWN_ASSER_KD2                 0
 #define ARM_ACT_UPDOWN_ASSER_TIMEOUT             5000
-#define ARM_ACT_UPDOWN_ASSER_POS_EPSILON         20
-#define ARM_ACT_UPDOWN_ASSER_POS_LARGE_EPSILON   300 //arbitraire, a changer
+#define ARM_ACT_UPDOWN_ASSER_POS_EPSILON         5
+#define ARM_ACT_UPDOWN_ASSER_POS_LARGE_EPSILON   30 //arbitraire, a changer
 #define ARM_ACT_UPDOWN_PWM_NUM                   2
 #define ARM_ACT_UPDOWN_PORT_WAY                  GPIOC
-#define ARM_ACT_UPDOWN_PORT_WAY_BIT              4
-#define ARM_ACT_UPDOWN_MAX_PWM_WAY0              20
-#define ARM_ACT_UPDOWN_MAX_PWM_WAY1              20
-#define ARM_ACT_UPDOWN_MAX_VALUE				 500
-#define ARM_ACT_UPDOWN_MIN_VALUE				 0
+#define ARM_ACT_UPDOWN_PORT_WAY_BIT              10
+#define ARM_ACT_UPDOWN_MAX_PWM_WAY0              70
+#define ARM_ACT_UPDOWN_MAX_PWM_WAY1              70
+#define ARM_ACT_UPDOWN_MAX_VALUE				 -10
+#define ARM_ACT_UPDOWN_MIN_VALUE				 -353
 
 //#define ARM_ACT_RX24                             1
 #define ARM_ACT_RX24                             0		//non utilisé, mais utilisé comme prefix dans arm_data (les autres moteurs c'est pareil)
@@ -55,7 +55,7 @@
 #define ARM_ACT_AX12_TRIANGLE                             3
 #define ARM_ACT_AX12_TRIANGLE_ASSER_TIMEOUT               20
 #define ARM_ACT_AX12_TRIANGLE_ASSER_POS_EPSILON           5
-#define ARM_ACT_AX12_TRIANGLE_ASSER_POS_LARGE_EPSILON     10 //arbitraire, a changer
+#define ARM_ACT_AX12_TRIANGLE_ASSER_POS_LARGE_EPSILON     20 //arbitraire, a changer
 #define ARM_ACT_AX12_TRIANGLE_MAX_TORQUE_PERCENT          100
 #define ARM_ACT_AX12_TRIANGLE_MAX_VALUE					 280
 #define ARM_ACT_AX12_TRIANGLE_MIN_VALUE					 54

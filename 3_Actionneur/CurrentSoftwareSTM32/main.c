@@ -15,6 +15,7 @@
 #include "QS/QS_ports.h"
 #include "QS/QS_adc.h"
 #include "QS/QS_uart.h"
+#include "QS/QS_pwm.h"
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "terminal/term_io.h"
@@ -226,20 +227,27 @@ static void MAIN_onButton4() {
 #else // ROBOT_SMALL
 
 static void MAIN_onButton0() {
+	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_PARKED;
+	msg.sid = ACT_POMPE;
+	if(state == 0)
+		msg.data[0] = ACT_POMPE_NORMAL;
+	else if(state == 1)
+		msg.data[0] = ACT_POMPE_REVERSE;
+	else if(state == 2)
+		msg.data[0] = ACT_POMPE_STOP;
+	msg.data[1] = 100;
 	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton1() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_OPEN;
+	msg.data[0] = ACT_ARM_UPDOWN_GOTO;
+	msg.data[1] = 50;
 	CAN_process_msg(&msg);
 }
 
@@ -247,8 +255,8 @@ static void MAIN_onButton2() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_ON_TORCHE;
+	msg.data[0] = ACT_ARM_UPDOWN_GOTO;
+	msg.data[1] = 100;
 	CAN_process_msg(&msg);
 
 }
@@ -258,7 +266,7 @@ static void MAIN_onButton3() {
 	msg.size = 2;
 	msg.sid = ACT_ARM;
 	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_ON_TRIANGLE;
+	msg.data[1] = ACT_ARM_POS_TO_DOWN_RETURN;
 	CAN_process_msg(&msg);
 }
 
@@ -267,7 +275,8 @@ static void MAIN_onButton4() {
 	msg.size = 2;
 	msg.sid = ACT_ARM;
 	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_TO_PREPARE_RETURN;
+	msg.data[1] = ACT_ARM_POS_TO_RETURN;
 	CAN_process_msg(&msg);
+
 }
 #endif // ROBOT_BIG et ROBOT_SMALL
