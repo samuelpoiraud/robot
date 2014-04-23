@@ -51,6 +51,10 @@
 
 #define DISTANCE_MAX_TO_TAKE			30
 
+#define ITME_TO_INC_RUSH			250		//ms
+#define INC_RUSH					0.5
+#define TIME_RUSH_IN_FLOOR			5000
+
 #define square(x) ((Sint32)x*x)
 
 #ifdef I_AM_ROBOT_SMALL
@@ -166,6 +170,8 @@ static bool_e goto_triangle_pos();
 static void get_data_pos_triangle(CAN_msg_t* msg);
 static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 static bool_e move_updown_to(Sint16 pos);
+static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line, bool_e init, Sint16 order);
+
 
 
 
@@ -300,6 +306,10 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
 				break;
 
+			case ACT_ARM_UPDOWN_RUSH_IN_FLOOR :
+
+				break;
+
 			case ACT_ARM_STOP:
 				ARM_stop();
 				break;
@@ -370,6 +380,10 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 void ARM_run_command(queue_id_t queueId, bool_e init) {
 	static Sint16 old_DCM_post;
 
+	bool_e done = TRUE, return_result = TRUE;
+	Uint8 result = ACT_RESULT_DONE, error_code = ACT_RESULT_ERROR_OK;
+	Uint16 line = 0;
+
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
 		return;
@@ -384,6 +398,10 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 			if(canCommand == ACT_ARM_UPDOWN_GOTO){
 				old_DCM_post = ARM_readDCMPos();
 				if(!move_updown_to(new_state))
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+			}else if(canCommand == ACT_ARM_UPDOWN_GOTO){
+				old_DCM_post = ARM_readDCMPos();
+				if(!check_state_and_rush_in_floor(ARM_ACT_UPDOWN_ID, FALSE, &result, &error_code, &line, init, new_state))
 					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
 			}else{
 				if(old_state < 0 && canCommand != ACT_ARM_INIT) {
@@ -413,21 +431,21 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				if(!gotoState(new_state))
 					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_UNKNOWN, __LINE__);
 			}
-		} else {
+		} else {//------------------------------------------------------------------------------------------------------------------------------------
 			Uint8 canCommand = QUEUE_get_arg(queueId)->canCommand;
-			bool_e done = TRUE, return_result = TRUE;
-			Uint8 result = ACT_RESULT_DONE, error_code = ACT_RESULT_ERROR_OK;
-			Uint16 line = 0;
 			Uint8 i;
 
 			if(canCommand == ACT_ARM_UPDOWN_GOTO){
 				done = ACTQ_check_status_dcmotor(ARM_ACT_UPDOWN_ID, FALSE, &result, &error_code, &line);
-				if(done && result != ACT_RESULT_DONE) {
-					return_result = TRUE;
-					// TODO : Choisir de la réaction du moteur DCM lors d'une erreur
-					//move_updown_to(ARM_readDCMPos()); // On laisse le moteur à la position actuelle
+				if(done && result != ACT_RESULT_DONE){
 					move_updown_to(old_DCM_post); // On remet le moteur  à la position antérieur
 				}
+				if(done)
+					QUEUE_next(queueId, ACT_ARM, result, error_code, line);
+			}else if(canCommand == ACT_ARM_UPDOWN_GOTO){
+				done = check_state_and_rush_in_floor(ARM_ACT_UPDOWN_ID, FALSE, &result, &error_code, &line, init, new_state);
+				if(done)
+					QUEUE_next(queueId, ACT_ARM, result, error_code, line);
 			}else{
 				for(i = 0; i < ARM_MOTORS_NUMBER; i++) {
 					if(ARM_MOTORS[i].type == ARM_DCMOTOR) {
@@ -477,6 +495,60 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 		error_printf("Invalid act: %d\n", QUEUE_get_act(queueId));
 		QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 	}
+}
+
+static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line, bool_e init, Sint16 order){
+	static Uint32 begin_time, last_time;
+	static Sint16 actual_pos;
+
+	bool_e actualised = FALSE;
+	bool_e done;
+
+	if(init){
+		begin_time = CLOCK_get_time_10()*10;
+		last_time = CLOCK_get_time_10()*10;
+		actual_pos = ARM_readDCMPos() + INC_RUSH;
+		actualised = TRUE;
+	}
+
+	if(CLOCK_get_time_10()*10 - last_time >= TIME_RUSH_IN_FLOOR){
+		last_time = CLOCK_get_time_10()*10;
+		actual_pos = ARM_readDCMPos() + INC_RUSH;
+		actualised = TRUE;
+	}
+
+	if(actualised){
+		bool_e res = move_updown_to(actual_pos);
+		if(!res && init){
+			*result =    ACT_RESULT_NOT_HANDLED;
+			*error_code = ACT_RESULT_ERROR_INVALID_ARG;
+			*line = __LINE__;
+			return TRUE;
+		}else if(!res){
+			*result =    ACT_RESULT_FAILED;
+			*error_code = ACT_RESULT_ERROR_INVALID_ARG;
+			*line = __LINE__;
+			return TRUE;
+		}
+	}
+
+	if(CLOCK_get_time_10()*10 - begin_time >= TIME_RUSH_IN_FLOOR){
+		*result =    ACT_RESULT_FAILED;
+		*error_code = ACT_RESULT_ERROR_TIMEOUT;
+		*line = __LINE__;
+		return TRUE;
+	}
+
+	done = ACTQ_check_status_dcmotor(dcmotor_id, timeout_is_ok, result, error_code, line);
+
+	if(done && *result == ACT_RESULT_FAILED){
+		*result =    ACT_RESULT_DONE;
+		*error_code = ACT_RESULT_ERROR_OK;
+		*line = __LINE__;
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 static bool_e gotoState(ARM_state_e state) {

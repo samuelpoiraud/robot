@@ -462,6 +462,9 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		// Paramètres permettant de gérer la hauteur du bras
 		#define ACT_ARM_UPDOWN_GOTO 5
 
+		// Paramètres permettant de gérer la hauteur du bras
+		#define ACT_ARM_UPDOWN_RUSH_IN_FLOOR 6
+
 	/////////////////////////////////////////
 
 	/////////////////////FILET///////////////////
