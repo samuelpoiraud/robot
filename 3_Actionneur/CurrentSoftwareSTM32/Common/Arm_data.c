@@ -46,7 +46,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 	// moteur (dans l'ordre)
 		{-355	,148	,282,	174},	//ARM_ST_Parked
-		{-355	,145	,218,	67},	//ARM_ST_Open
+		{-355	,145	,218,	145},	//ARM_ST_Open
 		{-355	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
 		{-200	,148	,214,	145},	//ARM_ST_To_Storage
 		{-355	,123	,115,	237},	//ARM_ST_To_Prepare_Return
