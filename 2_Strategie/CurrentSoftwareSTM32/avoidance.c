@@ -26,7 +26,7 @@
 #define SMALL_ROBOT_ACCELERATION_NORMAL	468*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
 #define BIG_ROBOT_ACCELERATION_NORMAL	937*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
 #define SMALL_ROBOT_RESPECT_DIST_MIN	400		//Distance à laquelle on se tient d'un adversaire [mm]
-#define BIG_ROBOT_RESPECT_DIST_MIN		500		//Distance à laquelle on se tient d'un adversaire [mm]
+#define BIG_ROBOT_RESPECT_DIST_MIN		700		//Distance à laquelle on se tient d'un adversaire [mm]
 #define SMALL_ROBOT_WIDTH				200		//Largeur du petit robot [mm]
 #define BIG_ROBOT_WIDTH					300		//Largeur du gros robot [mm]
 #define	FOE_SIZE						400		//taille supposée de l'adversaire
@@ -981,7 +981,7 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
 	widthRobot += 100;	//Marge !
 
-	if(!est_dans_carre(0+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p))		// Terrain
+	if(!est_dans_carre(0+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p))			// Terrain
 		return FALSE;
 	if(est_dans_cercle(*p,(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, 150+widthRobot}))				// Foyer centre
 		return FALSE;
@@ -989,9 +989,9 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 		return FALSE;
 	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, 125+widthRobot}))			// Foyer gauche
 		return FALSE;
-	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))		// Bac à fruit jaune
+	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))			// Bac à fruit jaune
 		return FALSE;
-	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 1900-(widthRobot), 2600+(widthRobot), *p))		// Bac à fruit rouge
+	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 1900-(widthRobot), 2600+(widthRobot), *p))			// Bac à fruit rouge
 		return FALSE;
 	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, 150+widthRobot}))				// Arbre rouge 1
 		return FALSE;
@@ -1027,6 +1027,7 @@ error_e extraction_of_foe(void)
 	Sint16 cos,sin;
 	Uint32 distance2_between_point_and_foe;					//Distance au carré entre le point courant et l'adversaire courant
 	Uint32 distance2_between_point_and_foe_min;				//Distance au carré entre le point courant l'adversaire le plus proche trouvé
+	bool_e can_i_go_to_point = FALSE;
 
 	switch(state)
 	{
@@ -1058,6 +1059,9 @@ error_e extraction_of_foe(void)
 			bestPoint = 0xFF;
 			bestPoint_distance2_with_nearest_foe = 0;
 
+			SD_printf("pos x : %d, pos y : %d\n",global.env.pos.x,global.env.pos.y);
+
+
 			for(i = 0; i < 12; i++)	//Pour chaque point
 			{
 				if(is_possible_point_for_rotation(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
@@ -1069,23 +1073,63 @@ error_e extraction_of_foe(void)
 					{
 						if(global.env.foe[foe].enable)
 						{
+							display(foe);
+							SD_printf("foe x : %d, foe y : %d\n",global.env.foe[foe].x,global.env.foe[foe].y);
 							distance2_between_point_and_foe = (pointEx[i].x-global.env.foe[foe].x)*(pointEx[i].x-global.env.foe[foe].x) + (pointEx[i].y-global.env.foe[foe].y)*(pointEx[i].y-global.env.foe[foe].y);
-							if(distance2_between_point_and_foe < distance2_between_point_and_foe_min)	//Si l'adversaire en cours est plus proche du point que les autres, on le prend en compte.
+							if(distance2_between_point_and_foe < distance2_between_point_and_foe_min){	//Si l'adversaire en cours est plus proche du point que les autres, on le prend en compte.
 								distance2_between_point_and_foe_min = distance2_between_point_and_foe;
+
+							}
 						}
 					}
+
+					SD_printf("curr x : %d, curr y : %d\n",pointEx[i].x,pointEx[i].y);
 
 					//On recherche maintenant le point ayant "la distance avec son adversaire le plus proche", la plus GRANDE possible...
 					if(distance2_between_point_and_foe_min > bestPoint_distance2_with_nearest_foe)
 					{	//Si le point 'i' est plus loin des adversaires que les autres points calculés... il est le meilleur point candidat
 						bestPoint_distance2_with_nearest_foe = distance2_between_point_and_foe_min;
 						bestPoint = i;
+						SD_printf("best point x : %d, best point y : %d\n",pointEx[i].x,pointEx[i].y);
+					}
+				}
+			}
+
+			display(bestPoint != 0xFF);
+			display(bestPoint_distance2_with_nearest_foe);
+			display( bestPoint_distance2_with_nearest_foe > adversary_to_close_distance*adversary_to_close_distance);
+
+
+			if(bestPoint != 0xFF){
+				can_i_go_to_point = TRUE; // Si le point faux, on le mettra a faux
+
+				//Pour gerer un cas d'erreur, si nous somme trop prêt d'un adversaire, un point derrière peut être supprimé alors que l'adversaire est devant nous
+				Uint8 foe;
+				for(foe = 0; foe < MAX_NB_FOES; foe++){// Si nous sommes encercle par deux ennemis, on peut pas se permettre de comparer seulement avec l'ennemis le plus proche du point
+					if(global.env.foe[foe].enable){
+						distance2_between_point_and_foe = (pointEx[bestPoint].x-global.env.foe[foe].x)*(pointEx[bestPoint].x-global.env.foe[foe].x) + (pointEx[bestPoint].y-global.env.foe[foe].y)*(pointEx[bestPoint].y-global.env.foe[foe].y);
+
+						if(distance2_between_point_and_foe < adversary_to_close_distance*adversary_to_close_distance){ // Si le point est pres de l'adveraire, on regarde où il se situe par rapport à nous et l'adversaire
+							Sint32 vecAdX = global.env.foe[foe].x-global.env.pos.x;
+							Sint32 vecAdY = global.env.foe[foe].y-global.env.pos.y;
+							Sint32 vecPointX = pointEx[bestPoint].x-global.env.pos.x;
+							Sint32 vecPointY = pointEx[bestPoint].y-global.env.pos.y;
+
+							SD_printf("Check le produit vect avec foe %d\n",foe);
+							display(vecAdX*vecPointX + vecAdY*vecPointY);
+
+							if(vecAdX*vecPointX + vecAdY*vecPointY > 0){ // Si le produit scalaire des deux vecteurs est positif nous pouvons pas aller au point car le point se situe entre nous et l'adversaire
+								can_i_go_to_point = FALSE;
+								SD_printf("Ne peut pas aller au point");
+								break;
+							}
+						}
 					}
 				}
 			}
 
 			//Si on a trouvé un point et qu'il est suffisamment loin des adversaires.... Champomy !!!
-			if(bestPoint != 0xFF && bestPoint_distance2_with_nearest_foe > adversary_to_close_distance*adversary_to_close_distance)
+			if(can_i_go_to_point)
 			{
 				SD_printf("Extraction : nous avons choisi le point %d : x=%d y=%d\n", i, pointEx[bestPoint].x, pointEx[bestPoint].y);
 				state = GO_POINT;
