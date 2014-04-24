@@ -10,7 +10,6 @@
  */
 
 #include "Geometry.h"
-
 #include <math.h>
 
 #define square(x) (x*x)
@@ -181,12 +180,11 @@ GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c1, GEOMETRY_
 	return points;
 }
 
-bool_e est_dans_carre(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current)
-{
+bool_e est_dans_carre(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current){
 	return current.x >= MIN(x1,x2) && current.x <= MAX(x1,x2) && current.y >= MIN(y1,y2) && current.y <= MAX(y1,y2);
 }
 
 bool_e est_dans_cercle(GEOMETRY_point_t current, GEOMETRY_circle_t circle){
-	return square(current.x-circle.c.x) + square(current.y-circle.c.y) <= square(circle.r);
+	return square((Uint32){current.x-circle.c.x}) + square((Uint32){current.y-circle.c.y}) <= square((Uint32){circle.r});
 }
 
