@@ -592,7 +592,8 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			switch(sub_action)
 			{
 				case END_OK:
-					state = DONE;
+					state = CHECK_SCAN_FOE;
+					return FOE_IN_PATH;
 					break;
 
 				case END_WITH_TIMEOUT:
@@ -988,7 +989,7 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 		return FALSE;
 	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, 125+widthRobot}))			// Foyer gauche
 		return FALSE;
-	/*if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))		// Bac à fruit jaune
+	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))		// Bac à fruit jaune
 		return FALSE;
 	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 1900-(widthRobot), 2600+(widthRobot), *p))		// Bac à fruit rouge
 		return FALSE;
@@ -999,7 +1000,7 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, 150+widthRobot}))			// Arbre jaune 1
 		return FALSE;
 	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 3000}, 150+widthRobot}))			// Arbre jaune 2
-		return FALSE;*/
+		return FALSE;
 
 	return  TRUE;
 }
