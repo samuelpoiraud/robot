@@ -242,8 +242,8 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*10;
 				beacon_ir_objects[i].update_time = global.env.absolute_time;
 				COS_SIN_4096_get(beacon_ir_objects[i].angle, &cosinus, &sinus);
-				beacon_ir_objects[i].x = global.env.pos.x + (((beacon_ir_objects[i].dist * ((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle)))/4096)/4096);
-				beacon_ir_objects[i].y = global.env.pos.y + (((beacon_ir_objects[i].dist * ((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle)))/4096)/4096);
+				beacon_ir_objects[i].x = global.env.pos.x + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle))}/(4096*4096)));
+				beacon_ir_objects[i].y = global.env.pos.y + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle))}/(4096*4096)));
 				beacon_ir_objects[i].fiability_error = msg->data[0+4*i];
 				if((beacon_ir_objects[i].fiability_error & ~SIGNAL_INSUFFISANT) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
 					beacon_ir_objects[i].enable = TRUE;
