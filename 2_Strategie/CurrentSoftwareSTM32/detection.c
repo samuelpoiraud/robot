@@ -124,8 +124,8 @@ static void DETECTION_compute(detection_reason_e reason)
 						global.env.foe[MAX_HOKUYO_FOES+i].updated 		= TRUE;
 						global.env.foe[MAX_HOKUYO_FOES+i].from 			= DETECTION_FROM_BEACON_IR;
 					}
-				}
-
+				}else
+					global.env.foe[MAX_HOKUYO_FOES+i].updated = FALSE;
 
 			}
 
