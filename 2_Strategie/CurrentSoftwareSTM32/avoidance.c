@@ -1049,7 +1049,7 @@ error_e extraction_of_foe(void){
 			// 	On tente 3 fois avant d'abandonner...
 
 			remaining_try--;
-			BUZZER_play(1000, NOTE_SOL, 5);
+			//BUZZER_play(1000, NOTE_SOL, 5);
 
 			for(i = 0; i < 12; i++)		//Calcul des 12 points d'extractions envisageables.
 			{
