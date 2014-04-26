@@ -21,10 +21,10 @@
 
 #define LARGEUR_LABIUM	200
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+122)
-#define ELOIGNEMENT_POSE_BAC_FRUIT 510
+#define ELOIGNEMENT_POSE_BAC_FRUIT  470
 #define PROFONDEUR_BAC_FRUIT		300
 #define RAYON_MAX_PIERRE			310	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
-#define VITESSE_FRUIT				80
+#define VITESSE_FRUIT				120
 
 extern GEOMETRY_point_t offset_recalage;
 
@@ -91,7 +91,7 @@ error_e strat_file_fruit(){
 			else
 				firstPointway = (sensRobot==BACKWARD)?FORWARD:BACKWARD;
 
-			posOpenVerin = COLOR_Y(1840);
+			posOpenVerin = COLOR_Y(1800);
 			posOpen = COLOR_Y(1900);
 			posClose = COLOR_Y(2300);
 
@@ -428,11 +428,11 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		case IDLE:
 			strat_fruit_sucess = NO_TREE;
 
-			point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
-			point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		SLOW};
-			point[2] = (displacement_t){{1580+offset_recalage.x,					350+offset_recalage.y},						SLOW};
-			point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	480+offset_recalage.y},						SLOW};
-			point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						SLOW};
+			point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		VITESSE_FRUIT};
+			point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		VITESSE_FRUIT};
+			point[2] = (displacement_t){{1580+offset_recalage.x,					350+offset_recalage.y},						VITESSE_FRUIT};
+			point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	480+offset_recalage.y},						VITESSE_FRUIT};
+			point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1100+offset_recalage.y},						VITESSE_FRUIT};
 
 			for(i=0;i<NBPOINT;i++){
 				if(sens == TRIGO)
@@ -577,11 +577,11 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		case IDLE:
 			strat_fruit_sucess = NO_TREE;
 
-				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
-				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	SLOW};
-				point[2] = (displacement_t){{1620+offset_recalage.x,					2625+offset_recalage.y},					SLOW};
-				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2500+offset_recalage.y},					SLOW};
-				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1800+offset_recalage.y},					SLOW};
+				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
+				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
+				point[2] = (displacement_t){{1620+offset_recalage.x,					2625+offset_recalage.y},					VITESSE_FRUIT};
+				point[3] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2500+offset_recalage.y},					VITESSE_FRUIT};
+				point[4] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1800+offset_recalage.y},					VITESSE_FRUIT};
 
 			for(i=0;i<NBPOINT;i++){
 				if(sens == HORAIRE)

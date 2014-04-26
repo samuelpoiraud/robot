@@ -33,6 +33,8 @@ void COS_SIN_4096_get(Sint16 teta,Sint16 * cos, Sint16 * sin)
 	if(teta < 0)
 		teta += TWO_PI4096;	// rad/4096
 
+	teta %= TWO_PI4096;
+
 	if (teta < HALF_PI4096)				//premier quadrant
 	{
 		*cos = array_4096((Sint16)(teta));
