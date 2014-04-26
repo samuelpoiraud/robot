@@ -124,8 +124,12 @@ static void DETECTION_compute(detection_reason_e reason)
 						global.env.foe[MAX_HOKUYO_FOES+i].updated 		= TRUE;
 						global.env.foe[MAX_HOKUYO_FOES+i].from 			= DETECTION_FROM_BEACON_IR;
 					}
-				}else
+				}
+				else
+				{
+					global.env.foe[MAX_HOKUYO_FOES+i].enable = FALSE;
 					global.env.foe[MAX_HOKUYO_FOES+i].updated = FALSE;
+				}
 
 			}
 
@@ -209,14 +213,14 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 					hokuyo_objects[adversary_nb].y = ((Sint16)msg->data[2])*20;
 				if(fiability)
 				{
-					if(ADVERSARY_DETECTION_FIABILITY_TETA)
+					if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
 						hokuyo_objects[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
 					else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
 					{
 						hokuyo_objects[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y);
 						hokuyo_objects[adversary_nb].angle = GEOMETRY_modulo_angle(hokuyo_objects[adversary_nb].angle - global.env.pos.angle);
 					}
-					if(ADVERSARY_DETECTION_FIABILITY_DISTANCE)
+					if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
 						hokuyo_objects[adversary_nb].dist = ((Sint16)msg->data[5])*20;
 					else	//je dois calculer moi-même la distance de l'adversaire
 						hokuyo_objects[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y},
