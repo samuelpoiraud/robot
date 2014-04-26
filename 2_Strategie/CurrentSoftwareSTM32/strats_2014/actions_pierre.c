@@ -32,11 +32,6 @@ static void REACH_POINT_C1_send_request();
 // Define à activer pour activer le get_in / get_ou des subactions
 #define USE_GET_IN_OUT
 
-// Define à activer pour activer les triangles des torches
-#define USE_TRIANGLE_TORCHE
-
-// Define à activer pour activer la correction triangle 2
-#define USE_CORRECTION_TRIANGLE_2
 
 
 //Pour Activer le mode manual de pose de fresque
@@ -281,10 +276,17 @@ void strat_inutile(void){
 		IDLE,
 		POS_DEPART,
 		CHEMIN,
+		GO_1,
+		GO_2,
+		GO_3,
+		GO_4,
 		LANCE_LAUNCHER,
 		SUB_ACTION,
 		PROTECTED_FIRES,
 		DEPOSE_FRUIT,
+		GET_OUT_CALIBRE,
+		FRUIT_RED,
+		FRUIT_YELLOW,
 		RAMMASSE_FRUIT,
 		LANCER_FILET,
 		DONE,
@@ -296,7 +298,27 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,LANCE_LAUNCHER,ERROR,FAST,FORWARD,NO_AVOIDANCE);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,GO_1,POS_DEPART,250,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case GET_OUT_CALIBRE:
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),GET_OUT_CALIBRE,FRUIT_RED,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case GO_1:
+			state = try_going(1650,COLOR_Y(450),GO_1,GO_2,GO_1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case GO_2:
+			state = try_going(1650,COLOR_Y(3000-450),GO_2,GO_3,GO_2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case GO_3:
+			state = try_going(600,COLOR_Y(3000-450),GO_3,GO_4,GO_3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case GO_4:
+			state = try_going(600,COLOR_Y(450),GO_4,GO_1,GO_4,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case LANCE_LAUNCHER:
@@ -305,6 +327,14 @@ void strat_inutile(void){
 
 		case SUB_ACTION:
 			state = check_sub_action_result(sub_action_initiale(),SUB_ACTION,DONE,ERROR);
+			break;
+
+		case FRUIT_RED:
+			state = check_sub_action_result(strat_ramasser_fruit_arbre1_double(TRIGO),FRUIT_RED,FRUIT_YELLOW,ERROR);
+			break;
+
+		case FRUIT_YELLOW:
+			state = check_sub_action_result(strat_ramasser_fruit_arbre2_double(TRIGO),FRUIT_YELLOW,FRUIT_RED,ERROR);
 			break;
 
 		case PROTECTED_FIRES:
@@ -1132,7 +1162,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 					if(mammouth == global.env.color)
 						posShoot = 740 + OFFSET_BALL_LAUNCHER;
 					else
-						posShoot = 900 + OFFSET_BALL_LAUNCHER;
+						posShoot = 800 + OFFSET_BALL_LAUNCHER;
 
 					zone_access_posShoot_x1 = 400;
 					zone_access_posShoot_x2 = 600;
@@ -1150,7 +1180,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 					if(mammouth == global.env.color)
 						posShoot = 2300 + OFFSET_BALL_LAUNCHER;
 					else
-						posShoot = 2350 + OFFSET_BALL_LAUNCHER;
+						posShoot = 2300 + OFFSET_BALL_LAUNCHER;
 
 					zone_access_posShoot_x1 = 300;
 					zone_access_posShoot_x2 = 650;
@@ -1172,7 +1202,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			//3- on ne peut pas s'y rendre directement -> pathfind
 			if(est_dans_carre(zone_access_posShoot_x1, zone_access_posShoot_x2, zone_access_posShoot_y1, zone_access_posShoot_y2, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{	//1- on peut se rendre directement au point de lancé
-				state = POS_LAUNCH;
+					state = POS_LAUNCH;
 			}
 			else if(est_dans_carre(400, 1800, zone_access_firstPoint_y1, zone_access_firstPoint_y2, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{	//2- on peut se rendre au premier point en s'y arrêtant puis faire la trajectoire de lancé
@@ -1195,6 +1225,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 		case POS_BEGINNING:
 			state = try_going(dplt[0].point.x,dplt[0].point.y,POS_BEGINNING,POS_LAUNCH,ERROR,FAST,sensRobot,(global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE);
 			break;
+
 		case POS_LAUNCH:
 			if(entrance)
 				ASSER_WARNER_arm_y(posShoot);

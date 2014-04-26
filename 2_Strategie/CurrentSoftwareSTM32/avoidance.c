@@ -1008,17 +1008,19 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 
 #define EXTRACTION_DISTANCE  	300
 /*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
-error_e extraction_of_foe(void)
-{
+error_e extraction_of_foe(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_EXTRACTION_OF_FOE,
 		IDLE,
 		COMPUTE,
 		GO_POINT,
+		TURN_TRIGO,
+		TURN_HORAIRE,
 		WAIT,
 		DONE,
 		ERROR
 	);
 	static Uint8 remaining_try;
+	static Uint8 sens = TURN_TRIGO;							//Si il arrive pas à trouver un point au bout de 3 coups tourne sur lui-même pour permettre à l'hokuyo de voir partout
 	static Uint8 bestPoint;									//Indice du meilleur point dans le tableau
 	static Uint32 bestPoint_distance2_with_nearest_foe;		//Distance entre le meilleur point et l'adversaire qui en est le plus proche
 	static Uint32 adversary_to_close_distance;				//Distance minimale exigée entre un adversaire et un point candidat
@@ -1029,8 +1031,7 @@ error_e extraction_of_foe(void)
 	Uint32 distance2_between_point_and_foe_min;				//Distance au carré entre le point courant l'adversaire le plus proche trouvé
 	bool_e can_i_go_to_point = FALSE;
 
-	switch(state)
-	{
+	switch(state){
 		case IDLE:
 			adversary_to_close_distance = (QS_WHO_AM_I_get() == BIG_ROBOT)? 500 : 400;
 			remaining_try = 3;
@@ -1052,14 +1053,12 @@ error_e extraction_of_foe(void)
 
 			for(i = 0; i < 12; i++)		//Calcul des 12 points d'extractions envisageables.
 			{
-				COS_SIN_4096_get((PI4096*30*i)/180,&cos,&sin);
+				COS_SIN_4096_get((PI4096*30*i + global.env.pos.angle)/180,&cos,&sin);
 				pointEx[i].x = ((Sint32)(cos)*EXTRACTION_DISTANCE)/4096 + global.env.pos.x;
 				pointEx[i].y = ((Sint32)(sin)*EXTRACTION_DISTANCE)/4096 + global.env.pos.y;
 			}
 			bestPoint = 0xFF;
 			bestPoint_distance2_with_nearest_foe = 0;
-
-			SD_printf("pos x : %d, pos y : %d\n",global.env.pos.x,global.env.pos.y);
 
 
 			for(i = 0; i < 12; i++)	//Pour chaque point
@@ -1071,10 +1070,7 @@ error_e extraction_of_foe(void)
 					//On recherche la distance minimale entre le point 'i' et l'adversaire le plus proche.
 					for(foe = 0; foe < MAX_NB_FOES; foe++)		//Pour tout les adversaires obsersés
 					{
-						if(global.env.foe[foe].enable)
-						{
-							display(foe);
-							SD_printf("foe x : %d, foe y : %d\n",global.env.foe[foe].x,global.env.foe[foe].y);
+						if(global.env.foe[foe].enable){
 							distance2_between_point_and_foe = (pointEx[i].x-global.env.foe[foe].x)*(pointEx[i].x-global.env.foe[foe].x) + (pointEx[i].y-global.env.foe[foe].y)*(pointEx[i].y-global.env.foe[foe].y);
 							if(distance2_between_point_and_foe < distance2_between_point_and_foe_min){	//Si l'adversaire en cours est plus proche du point que les autres, on le prend en compte.
 								distance2_between_point_and_foe_min = distance2_between_point_and_foe;
@@ -1083,21 +1079,14 @@ error_e extraction_of_foe(void)
 						}
 					}
 
-					SD_printf("curr x : %d, curr y : %d\n",pointEx[i].x,pointEx[i].y);
-
 					//On recherche maintenant le point ayant "la distance avec son adversaire le plus proche", la plus GRANDE possible...
 					if(distance2_between_point_and_foe_min > bestPoint_distance2_with_nearest_foe)
 					{	//Si le point 'i' est plus loin des adversaires que les autres points calculés... il est le meilleur point candidat
 						bestPoint_distance2_with_nearest_foe = distance2_between_point_and_foe_min;
 						bestPoint = i;
-						SD_printf("best point x : %d, best point y : %d\n",pointEx[i].x,pointEx[i].y);
 					}
 				}
 			}
-
-			display(bestPoint != 0xFF);
-			display(bestPoint_distance2_with_nearest_foe);
-			display( bestPoint_distance2_with_nearest_foe > adversary_to_close_distance*adversary_to_close_distance);
 
 
 			if(bestPoint != 0xFF){
@@ -1110,17 +1099,26 @@ error_e extraction_of_foe(void)
 						distance2_between_point_and_foe = (pointEx[bestPoint].x-global.env.foe[foe].x)*(pointEx[bestPoint].x-global.env.foe[foe].x) + (pointEx[bestPoint].y-global.env.foe[foe].y)*(pointEx[bestPoint].y-global.env.foe[foe].y);
 
 						if(distance2_between_point_and_foe < adversary_to_close_distance*adversary_to_close_distance){ // Si le point est pres de l'adveraire, on regarde où il se situe par rapport à nous et l'adversaire
-							Sint32 vecAdX = global.env.foe[foe].x-global.env.pos.x;
-							Sint32 vecAdY = global.env.foe[foe].y-global.env.pos.y;
-							Sint32 vecPointX = pointEx[bestPoint].x-global.env.pos.x;
-							Sint32 vecPointY = pointEx[bestPoint].y-global.env.pos.y;
+							//Calcul du point sur le bord du robot en direction de l'adversaire de façon à offrir un point de plus pour la sortie si il est encerclée
+							Uint16 norm = GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){global.env.foe[foe].x,global.env.foe[foe].y});
 
-							SD_printf("Check le produit vect avec foe %d\n",foe);
-							display(vecAdX*vecPointX + vecAdY*vecPointY);
+							float coefx = (global.env.foe[foe].x-global.env.pos.x)/(norm*1.);
+							float coefy = (global.env.foe[foe].y-global.env.pos.y)/(norm*1.);
+
+							GEOMETRY_point_t center; // Le centre d'où nous allons faire le produit scalaire
+							Uint8 widthRobot;
+							widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
+
+							center.x = global.env.pos.x + widthRobot*coefx;
+							center.y = global.env.pos.y + widthRobot*coefy;
+
+							Sint32 vecAdX = global.env.foe[foe].x-center.x;
+							Sint32 vecAdY = global.env.foe[foe].y-center.y;
+							Sint32 vecPointX = pointEx[bestPoint].x-center.x;
+							Sint32 vecPointY = pointEx[bestPoint].y-center.y;
 
 							if(vecAdX*vecPointX + vecAdY*vecPointY > 0){ // Si le produit scalaire des deux vecteurs est positif nous pouvons pas aller au point car le point se situe entre nous et l'adversaire
 								can_i_go_to_point = FALSE;
-								SD_printf("Ne peut pas aller au point");
 								break;
 							}
 						}
@@ -1130,15 +1128,9 @@ error_e extraction_of_foe(void)
 
 			//Si on a trouvé un point et qu'il est suffisamment loin des adversaires.... Champomy !!!
 			if(can_i_go_to_point)
-			{
-				SD_printf("Extraction : nous avons choisi le point %d : x=%d y=%d\n", i, pointEx[bestPoint].x, pointEx[bestPoint].y);
 				state = GO_POINT;
-			}
 			else
-			{
-				SD_printf("Extraction : PAS DE POINT TROUVE !!! Nous allons attendre un peu...\n");
 				state = WAIT;
-			}
 
 			break;
 
@@ -1159,11 +1151,29 @@ error_e extraction_of_foe(void)
 			{
 				if(remaining_try)
 					state = COMPUTE;
-				else
-					state = ERROR;
+				else if(is_possible_point_for_rotation(&((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))){
+					state = sens;
+				}else
+					state = COMPUTE;
 			}
 
 			}break;
+
+		case TURN_TRIGO:
+			remaining_try = 3;
+			state = try_go_angle(global.env.pos.angle + PI4096/2,TURN_TRIGO,COMPUTE,TURN_HORAIRE,FAST);
+
+			if(state == TURN_HORAIRE)
+				sens = TURN_HORAIRE;
+			break;
+
+		case TURN_HORAIRE:
+			remaining_try = 3;
+			state = try_go_angle(global.env.pos.angle - PI4096/2,TURN_HORAIRE,COMPUTE,TURN_TRIGO,FAST);
+
+			if(state == TURN_TRIGO)
+				sens = TURN_TRIGO;
+			break;
 
 		case DONE:
 			state = IDLE;
