@@ -159,6 +159,10 @@ void CORRECTOR_update(void)
 									((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION])
 								  )>>10;
 
+#if 0	//Code a tester								  
+	if(COPILOT_get_trajectory() == TRAJECTORY_ROTATION)
+		commande_translation = commande_translation * 4;	//Augmentation artificielle de la correction en translation lors d'une rotation pour tourner mieux par rapport au centre du robot.
+#endif							  
 		//sauvegarde des valeurs actuelles pour la prochaine boucle
 	global.ecart_translation_prec = global.ecart_translation;
 	global.ecart_rotation_prec = global.ecart_rotation;
