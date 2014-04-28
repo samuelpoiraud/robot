@@ -57,6 +57,7 @@ static void POMPE_initDCM() {
 	initialized = TRUE;
 
 	PORTS_pwm_init();
+	PWM_init();
 	PWM_stop(POMPE_PWM_NUM);
 	actual_PWM = 0;
 
