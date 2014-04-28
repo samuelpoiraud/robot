@@ -74,6 +74,39 @@ void DETECTION_clean(void)
 	DETECTION_compute(DETECTION_REASON_PROCESS_MAIN);
 }
 
+#define BEACON_IR_SIZE_FILTER 3
+static Sint16 beacon_ir_distance_filter(bool_e enable, Uint8 foe_id, Sint16 new_distance)
+{
+	static Uint8 index[MAX_BEACON_FOES];
+	static Uint8 nb_datas[MAX_BEACON_FOES];
+	static Sint16 previous_distances[MAX_BEACON_FOES][BEACON_IR_SIZE_FILTER];
+	Uint8 i;
+	Sint32 sum;
+	assert(foe_id < MAX_BEACON_FOES);
+
+	if(enable)
+	{
+		assert(index[foe_id] < BEACON_IR_SIZE_FILTER);
+		previous_distances[foe_id][index[foe_id]] = new_distance;	//Ajout de la nouvelle distance dans le tableau de filtrage
+		if(nb_datas[foe_id] < BEACON_IR_SIZE_FILTER)
+			nb_datas[foe_id]++;							//le nombre de données est entre 1 et 3
+		index[foe_id] = (index[foe_id]<BEACON_IR_SIZE_FILTER-1)?index[foe_id]+1:0;	//l'index de la prochaine donnée à écrire
+		sum = 0;
+		for(i=0;i<nb_datas[foe_id];i++)
+		{
+			sum += previous_distances[foe_id][i];
+		}
+		assert(nb_datas[foe_id] != 0);	//n'est jamais sensé se produire.
+		return (Sint16)(sum/nb_datas[foe_id]);	//on renvoie la moyenne des distances enregistrées dans le tableau
+	}
+	else
+	{
+		index[foe_id] = 0;
+		nb_datas[foe_id] = 0;
+		return new_distance;
+	}
+}
+
 //Cette fonction utilise les données accumulées... selon un algo très sophistiqué... et détermine les positions adverses.
 static void DETECTION_compute(detection_reason_e reason)
 {
@@ -240,19 +273,23 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			break;
 		case BEACON_ADVERSARY_POSITION_IR:
 
-			for(i = 0; i<2; i++)
+			for(i = 0; i<MAX_BEACON_FOES; i++)
 			{
-				beacon_ir_objects[i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
-				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*10;
-				beacon_ir_objects[i].update_time = global.env.absolute_time;
-				COS_SIN_4096_get(beacon_ir_objects[i].angle, &cosinus, &sinus);
-				beacon_ir_objects[i].x = global.env.pos.x + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle))}/(4096*4096)));
-				beacon_ir_objects[i].y = global.env.pos.y + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle))}/(4096*4096)));
 				beacon_ir_objects[i].fiability_error = msg->data[0+4*i];
 				if((beacon_ir_objects[i].fiability_error & ~SIGNAL_INSUFFISANT) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
 					beacon_ir_objects[i].enable = TRUE;
 				else
 					beacon_ir_objects[i].enable = FALSE;
+
+				beacon_ir_objects[i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
+				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*10;
+				//filtrage de la distance
+				beacon_ir_objects[i].dist = beacon_ir_distance_filter(beacon_ir_objects[i].enable,i,beacon_ir_objects[i].dist);
+
+				beacon_ir_objects[i].update_time = global.env.absolute_time;
+				COS_SIN_4096_get(beacon_ir_objects[i].angle, &cosinus, &sinus);
+				beacon_ir_objects[i].x = global.env.pos.x + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle))}/(4096*4096)));
+				beacon_ir_objects[i].y = global.env.pos.y + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle))}/(4096*4096)));
 			}
 
 			DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);	//On prévient l'algo COMPUTE.
