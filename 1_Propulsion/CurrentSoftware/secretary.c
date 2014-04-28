@@ -597,7 +597,22 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case ASSER_TELL_POSITION:
 			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
-
+		case ASSER_SET_CORRECTORS:
+			if(msg->data[0])	//Rotation
+			{
+				if(msg->data[1])	//Translation
+					CORRECTOR_PD_enable(CORRECTOR_ENABLE);
+				else
+					CORRECTOR_PD_enable(CORRECTOR_ROTATION_ONLY);
+			}
+			else
+			{
+				if(msg->data[1])	//Translation
+					CORRECTOR_PD_enable(CORRECTOR_TRANSLATION_ONLY);
+				else
+					CORRECTOR_PD_enable(CORRECTOR_DISABLE);
+			}
+		break;
 		//Une carte nous demande de l'avertir lorsque nous serons en approche d'une position...
 		case ASSER_WARN_ANGLE:
 			WARNER_arm_teta(U16FROMU8(msg->data[0],msg->data[1]));

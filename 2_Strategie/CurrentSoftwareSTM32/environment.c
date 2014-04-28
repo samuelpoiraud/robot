@@ -48,7 +48,7 @@ void CAN_update (CAN_msg_t* incoming_msg);
 void ENV_pos_update (CAN_msg_t* msg);
 
 void ENV_process_can_msg_sent(CAN_msg_t * sent_msg);
-
+void ENV_set_correctors(bool_e corrector_rotation, bool_e corrector_translation);
 void ENV_clean (void);
 
 #define ADC_THRESHOLD 10 //Valeur de l'ADC sans dispositif de connecté
@@ -383,7 +383,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case CARTE_P_ROBOT_CALIBRE:
 			global.env.asser.calibrated = TRUE;
-
+			
+			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
+			if(QS_WHO_AM_I_get() == GUY)		
+				ENV_set_correctors(FALSE, FALSE);
 			break;
 		case BROADCAST_POSITION_ROBOT:
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
@@ -600,6 +603,16 @@ void ENV_set_color(color_e color)
 	CAN_send(&msg);
 }
 
-
+//Modifie l'état des correcteurs de la propulsion. (attention, les correcteurs sont remis à un bon fonctionnement à chaque nouvel ordre de déplacement !) 
+//Cela permet notamment de désasservir le robot lorsqu'on le souhaite...
+void ENV_set_correctors(bool_e corrector_rotation, bool_e corrector_translation)
+{
+	CAN_msg_t msg;
+	msg.sid = ASSER_SET_CORRECTORS;
+	msg.data[0] = corrector_rotation;
+	msg.data[1] = corrector_translation;
+	msg.size = 2;
+	CAN_send(&msg);
+}
 
 

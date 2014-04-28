@@ -320,6 +320,9 @@
 	#define ASSER_WARN_ANGLE					0x10C
 	#define ASSER_WARN_X						0x10D
 	#define ASSER_WARN_Y						0x10E
+	#define ASSER_SET_CORRECTORS				0x10F
+		//data 0 : bool_e  correcteur en rotation
+		//data 1 : bool_e  correcteur en translation
 	#define ASSER_JOYSTICK 						0x111
 
 	//modif amaury pour les 3position de calibrage initiale
