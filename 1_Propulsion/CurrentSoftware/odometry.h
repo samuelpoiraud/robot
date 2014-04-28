@@ -12,28 +12,20 @@
 #ifndef _ODOMETRY_H
 	#define _ODOMETRY_H
 
-		#include "QS/QS_all.h"
+	#include "QS/QS_all.h"
+	#include "QS/QS_CANmsgList.h"
 
 	void ODOMETRY_init(void);
 
 	void ODOMETRY_update(void);
 
-
-
-	typedef enum
-	{
-		ODOMETRY_COEF_TRANSLATION = 0,
-		ODOMETRY_COEF_SYM,
-		ODOMETRY_COEF_ROTATION,
-		ODOMETRY_COEF_CENTRIFUGAL,
-		ODOMETRY_NUMBER_COEFS	//Nombre de coefficients.
-	}ODOMETRY_coef_e;
-
 	Sint16 get_calibration_backward_distance(void);
 
-	void ODOMETRY_set_coef(ODOMETRY_coef_e coef, Sint32 value);
-
-		color_e ODOMETRY_get_color();
+	void ODOMETRY_set_coef(PROPULSION_coef_e coef, Sint32 value);
+	
+	Sint32 ODOMETRY_get_coef(PROPULSION_coef_e coef);
+	
+	color_e ODOMETRY_get_color();
 
 	//Permet d'imposer une positon au robot... utile pour les tests !!!
 	//Par exemple pour les tests de trajectoires rectangles sans se prendre la tete !

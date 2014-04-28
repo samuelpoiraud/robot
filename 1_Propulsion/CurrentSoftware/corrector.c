@@ -18,7 +18,7 @@
 
 volatile bool_e corrector_pd_rotation = TRUE;
 volatile bool_e corrector_pd_translation = TRUE;
-volatile static Sint32 coefs[CORRECTOR_NUMBER_COEFS];
+volatile static Sint32 coefs[PROPULSION_NUMBER_COEFS];
 
 void CORRECTOR_init(void)
 {
@@ -51,9 +51,14 @@ void CORRECTOR_init(void)
 }
 	
 
-void CORRECTOR_set_coef(CORRECTOR_coef_e coef, Sint32 value)
+void CORRECTOR_set_coef(PROPULSION_coef_e coef, Sint32 value)
 {
 	coefs[coef] = value;
+}
+
+Sint32 CORRECTOR_get_coef(PROPULSION_coef_e coef)
+{
+	return coefs[coef];
 }
 
 	//fonction d'activation/désactivation du correcteur PD.

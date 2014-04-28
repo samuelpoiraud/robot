@@ -31,7 +31,6 @@
 #include "QS/QS_can.h"
 #include "QS/QS_adc.h"
 #include "QS/QS_uart.h"
-#include "QS/QS_CANmsgList.h"
 #include "maths_home.h"
 #include "sick.h"
 #include "button.h"
@@ -93,6 +92,9 @@ void ENV_init(void)
 	global.env.alim = FALSE;
 	global.env.alim_value = 0;
 	global.env.destination = (GEOMETRY_point_t){0,0};
+	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
+		global.env.propulsion_coefs[i] = 0;
+		
 	FIX_BEACON_init();
 }
 
@@ -100,7 +102,7 @@ void ENV_init(void)
 
 void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filter, bool_e * bSAVE_filter)
  {
-	static time32_t filter_beacon_ir = 0;
+	//static time32_t filter_beacon_ir = 0;
 	static time32_t filter_beacon_us = 0;
 	static time32_t filter_broadcast_position = 0;
 
@@ -388,6 +390,13 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			if(QS_WHO_AM_I_get() == GUY)		
 				ENV_set_correctors(FALSE, FALSE);
 			break;
+		case DEBUG_PROPULSION_COEF_IS:
+			if(incoming_msg->data[0] < PROPULSION_NUMBER_COEFS)
+			{
+				global.env.propulsion_coefs_updated |=  (Uint32)(1) << incoming_msg->data[0];
+				global.env.propulsion_coefs[incoming_msg->data[0]] = (Sint32)(U32FROMU8(incoming_msg->data[1],incoming_msg->data[2],incoming_msg->data[3],incoming_msg->data[4]));
+			}
+			break;
 		case BROADCAST_POSITION_ROBOT:
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
@@ -565,10 +574,9 @@ void ENV_pos_update (CAN_msg_t* msg)
 /* Appelée en début de tache de fond : baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
 void ENV_clean (void)
 {
-	Uint8 i;
 	STACKS_clear_timeouts();
 	DETECTION_clean();
-
+	global.env.propulsion_coefs_updated = 0x00000000;
 	if(global.env.color == global.env.wanted_color)
 		global.env.color_updated = FALSE;
 	global.env.asser.fini = FALSE;
@@ -612,6 +620,14 @@ void ENV_set_correctors(bool_e corrector_rotation, bool_e corrector_translation)
 	msg.data[0] = corrector_rotation;
 	msg.data[1] = corrector_translation;
 	msg.size = 2;
+	CAN_send(&msg);
+}
+
+void ENV_ask_propulsion_coefs(void)
+{
+	CAN_msg_t msg;
+	msg.sid = DEBUG_PROPULSION_GET_COEFS;
+	msg.size = 0;
 	CAN_send(&msg);
 }
 

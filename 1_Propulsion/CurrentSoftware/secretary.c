@@ -206,6 +206,9 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 			case STRAT_TRIANGLE_WARNER:
 				add_pos_datas = FALSE;
 				break;
+			case DEBUG_PROPULSION_COEF_IS:
+				add_pos_datas = FALSE;
+				break;
 			default:
 				debug_printf("SID=%x ", msg->sid);
 			break;
@@ -413,6 +416,53 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 	}
 #endif
 
+
+void SECRETARY_send_coef(PROPULSION_coef_e i)
+{
+	const char * PROPULSION_coefs_strings[PROPULSION_NUMBER_COEFS] = {
+																		"ODOMETRY_COEF_TRANSLATION",
+																		"ODOMETRY_COEF_SYM",
+																		"ODOMETRY_COEF_ROTATION",
+																		"ODOMETRY_COEF_CENTRIFUGAL",
+																		"CORRECTOR_COEF_KP_TRANSLATION",
+																		"CORRECTOR_COEF_KD_TRANSLATION",
+																		"CORRECTOR_COEF_KV_TRANSLATION",
+																		"CORRECTOR_COEF_KA_TRANSLATION",
+																		"CORRECTOR_COEF_KP_ROTATION",
+																		"CORRECTOR_COEF_KD_ROTATION",
+																		"CORRECTOR_COEF_KV_ROTATION",
+																		"CORRECTOR_COEF_KA_ROTATION"};
+
+	CAN_msg_t msg;
+	Sint32 coef;
+	if(i < PROPULSION_NUMBER_COEFS)
+	{
+		if(i <= ODOMETRY_COEF_CENTRIFUGAL)
+			coef = ODOMETRY_get_coef(i);
+		else	
+			coef = CORRECTOR_get_coef(i);
+		msg.sid = DEBUG_PROPULSION_COEF_IS;
+		msg.data[0] = i;
+		msg.data[1] = (Uint8)((coef >> 24) & 0xFF);
+		msg.data[2] = (Uint8)((coef >> 16) & 0xFF);
+		msg.data[3] = (Uint8)((coef >> 8) & 0xFF);
+		msg.data[4] = (Uint8)((coef 	) & 0xFF);
+		msg.size = 5;
+		debug_printf("Coef %d:%s is %ld\n",i,PROPULSION_coefs_strings[i],coef);
+		SECRETARY_send_canmsg(&msg);
+	}
+	else
+	{
+		debug_printf("WARNING : Coef %d > PROPULSION_NUMBER_COEFS=%d !\n",i,PROPULSION_NUMBER_COEFS);
+	}
+}
+
+void SECRETARY_send_all_coefs(void)
+{
+	PROPULSION_coef_e i;
+	for(i=(PROPULSION_coef_e)(0);i<PROPULSION_NUMBER_COEFS;i++)
+		SECRETARY_send_coef(i);
+}
 
 
 /*
@@ -668,6 +718,21 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 		case DEBUG_PROPULSION_REGLAGE_COEF_KV_TRANSLATION:
 			CORRECTOR_set_coef(CORRECTOR_COEF_KV_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
+		break;
+		case DEBUG_PROPULSION_GET_COEFS:
+			SECRETARY_send_all_coefs();
+		break;
+		case DEBUG_PROPULSION_SET_COEF:
+			if(msg->data[0] < PROPULSION_NUMBER_COEFS && msg->size == 5)
+			{
+				if(msg->data[0] <= ODOMETRY_COEF_CENTRIFUGAL)
+					ODOMETRY_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
+				else
+					CORRECTOR_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
+			}
+			else
+				debug_printf("WARNING : bad datas in DEBUG_PROPULSION_SET_COEF message received\n");
+			SECRETARY_send_coef(msg->data[0]);	//feedback
 		break;
 		case DEBUG_ENABLE_MODE_BEST_EFFORT:
 			#ifndef MODE_SIMULATION
