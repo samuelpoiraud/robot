@@ -249,6 +249,24 @@ bool_e DCM_getDoublePID(Uint8 dc_motor_id){
 	return this->config.double_PID;
 }
 
+/*-------------------------------------------
+  Récupère les coefficients pwm
+--------------------------------------------*/
+void DCM_getPwmWay(Uint8 dc_motor_id, Uint8 *way0_max_duty, Uint8 *way1_max_duty){
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	*way0_max_duty = this->config.way0_max_duty;
+	*way1_max_duty = this->config.way1_max_duty;
+}
+
+/*-------------------------------------------
+  Change les coefficients pwm
+--------------------------------------------*/
+void DCM_setPwmWay(Uint8 dc_motor_id, Uint8 way0_max_duty, Uint8 way1_max_duty){
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	this->config.way0_max_duty = way0_max_duty;
+	this->config.way1_max_duty = way1_max_duty;
+}
+
 /*-----------------------------------------
 		Arret de l'asservissement d'un actionneur
 -----------------------------------------*/
