@@ -45,6 +45,7 @@
 /* CAN */
 #define USE_CAN
 #define CAN_BUF_SIZE	32
+#define CAN_SEND_TIMEOUT_ENABLE
 
 /* Réglages UART */
 #define USE_UART1
