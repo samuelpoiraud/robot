@@ -14,6 +14,8 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
+#include "../QS/QS_ports.h"
+#include "../QS/QS_pwm.h"
 #include "../QS/QS_adc.h"
 #include "../QS/QS_who_am_i.h"
 #include "../act_queue_utils.h"
@@ -192,6 +194,8 @@ void ARM_init() {
 		return;
 	initialized = TRUE;
 
+	PORTS_pwm_init();
+	PWM_init();
 	DCM_init();
 	AX12_init();
 	ADC_init();
