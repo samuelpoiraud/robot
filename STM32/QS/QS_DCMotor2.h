@@ -83,6 +83,11 @@
 		//Récupère les double coefs d'asservissement.
 		void DCM_getDoubleCoefs(Uint8 dc_motor_id, Sint16* Kp, Sint16* Ki, Sint16* Kd, Sint16* Kp2, Sint16* Ki2, Sint16* Kd2);
 
+		//Récupère les coefficients pwm
+		void DCM_getPwmWay(Uint8 dc_motor_id, Uint8 *way0_max_duty, Uint8 *way1_max_duty);
+		// Change les coefficients pwm
+		void DCM_setPwmWay(Uint8 dc_motor_id, Uint8 way0_max_duty, Uint8 way1_max_duty);
+
 		// Arret de l'asservissement d'un actionneur
 		void DCM_stop(Uint8 dc_motor_id);
 
