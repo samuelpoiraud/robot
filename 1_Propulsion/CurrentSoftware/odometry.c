@@ -21,7 +21,7 @@
 #include "supervisor.h"
 #include "QS/QS_who_am_i.h"
 
-volatile static Sint32 coefs[ODOMETRY_NUMBER_COEFS];
+volatile static Sint32 coefs[ODOMETRY_COEF_CENTRIFUGAL+1];
 
 
 volatile Sint32 x32;		//Position précise en x [mm/65536]		<<16
@@ -58,13 +58,23 @@ void ODOMETRY_init()
 	}
 }
 
-Sint16 get_calibration_backward_distance(void) {
+Sint16 get_calibration_backward_distance(void) 
+{
 	return calibration_backward_border_distance;
 }
 
-void ODOMETRY_set_coef(ODOMETRY_coef_e coef, Sint32 value)
+void ODOMETRY_set_coef(PROPULSION_coef_e coef, Sint32 value)
 {
-	coefs[coef] = value;
+	if(coef <= ODOMETRY_COEF_CENTRIFUGAL)
+		coefs[coef] = value;
+}
+
+Sint32 ODOMETRY_get_coef(PROPULSION_coef_e coef)
+{
+	if(coef <= ODOMETRY_COEF_CENTRIFUGAL)
+		return coefs[coef];
+	else
+		return 0;
 }
 
 void ODOMETRY_set_color(color_e new_color)

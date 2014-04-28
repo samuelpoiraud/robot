@@ -13,7 +13,7 @@
 
 #ifndef ENVIRONMENT_H
 	#define ENVIRONMENT_H
-
+	#include "QS/QS_CANmsgList.h"
 	#include "detection.h"
 	#include "sick.h"
 	#include "elements.h"
@@ -135,6 +135,8 @@
 		bool_e reach_point_C1;
 		bool_e reach_point_get_out_init;
 		GEOMETRY_point_t destination;
+		Sint32 propulsion_coefs[PROPULSION_NUMBER_COEFS];
+		Uint32 propulsion_coefs_updated;	//par soucis de compacité mémoire et temporel, les flags d'updated sont concaténés ici dans un seul entier...
 	}environment_t;
 
 
@@ -153,6 +155,7 @@
 	/* Traitement d'un message CAN et renvoie vers d'autres bus */
 	void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool_e bU2, bool_e bXBee);
 
-
+	/* Demande un envoi par la propulsion de l'ensemble de ses coefs */
+	void ENV_ask_propulsion_coefs(void);
 
 #endif /* ndef ENVIRONMENT_H */

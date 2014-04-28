@@ -11,21 +11,10 @@
 	#define _CORRECTOR_H
 	
 	#include "QS/QS_all.h"
+	#include "QS/QS_CANmsgList.h"
 	
 	void CORRECTOR_init(void);
 	
-	typedef enum
-	{
-		CORRECTOR_COEF_KP_TRANSLATION = 0,
-		CORRECTOR_COEF_KD_TRANSLATION,
-		CORRECTOR_COEF_KV_TRANSLATION,
-		CORRECTOR_COEF_KA_TRANSLATION,
-		CORRECTOR_COEF_KP_ROTATION,
-		CORRECTOR_COEF_KD_ROTATION,
-		CORRECTOR_COEF_KV_ROTATION,
-		CORRECTOR_COEF_KA_ROTATION,
-		CORRECTOR_NUMBER_COEFS
-	}CORRECTOR_coef_e;
 
 	typedef enum
 	{
@@ -36,7 +25,9 @@
 	}corrector_e;
 
 	  
-	void CORRECTOR_set_coef(CORRECTOR_coef_e coef, Sint32 value);
+	void CORRECTOR_set_coef(PROPULSION_coef_e coef, Sint32 value);
+	
+	Sint32 CORRECTOR_get_coef(PROPULSION_coef_e coef);
 	
 		//fonction d'activation/désactivation du correcteur PD.
 	//Rotation = FALSE -> désactive la correction en rotation

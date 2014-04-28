@@ -69,6 +69,7 @@
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KD_TRANSLATION			0x709
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KV_TRANSLATION			0x70A
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KV_ROTATION				0x70B
+	
 	#define DEBUG_ENABLE_MODE_BEST_EFFORT							0x70F
 	#define DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT					0x710
 
@@ -76,10 +77,34 @@
 	#define DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE					0x712
 
 	#define DEBUG_PROPULSION_SET_ACCELERATION						0x713		//Data sur 16 bits. (unité : mm/4096/5ms/5ms) Grandeur typique : 100
-
 		//Uint16 : durée de la trajectoire en [ms]
+		
+	typedef enum
+	{
+		ODOMETRY_COEF_TRANSLATION = 0,
+		ODOMETRY_COEF_SYM,
+		ODOMETRY_COEF_ROTATION,
+		ODOMETRY_COEF_CENTRIFUGAL,		//attention, la valeur de ODOMETRY_COEF_CENTRIFUGAL est utilisé comme borne dans le code de propulsion, il faut le laisser en dernier dans les coefs d'odométrie !
+		CORRECTOR_COEF_KP_TRANSLATION,
+		CORRECTOR_COEF_KD_TRANSLATION,
+		CORRECTOR_COEF_KV_TRANSLATION,
+		CORRECTOR_COEF_KA_TRANSLATION,
+		CORRECTOR_COEF_KP_ROTATION,
+		CORRECTOR_COEF_KD_ROTATION,
+		CORRECTOR_COEF_KV_ROTATION,
+		CORRECTOR_COEF_KA_ROTATION,
+		PROPULSION_NUMBER_COEFS
+	}PROPULSION_coef_e;
 
-
+	#define DEBUG_PROPULSION_GET_COEFS								0x720
+		//Demande à connaitre l'ensemble des coefs de la propulsion
+	#define DEBUG_PROPULSION_COEF_IS								0x721
+		//data[0] : id du coef
+		//datas[1 à 4] : coef  !!! sur 32 bits !!!
+	#define DEBUG_PROPULSION_SET_COEF								0x722
+		//data[0] : id du coef
+		//datas[1 à 4] : coef !!! sur 32 bits !!!
+		
 	/* Message de l'utilisateur vers Super */
 	#define SUPER_EEPROM_RESET				0x770
 	#define SUPER_EEPROM_TEST_ALL_MEMORY	0x771
