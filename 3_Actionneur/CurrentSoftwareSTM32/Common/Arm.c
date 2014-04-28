@@ -51,14 +51,18 @@
 
 #define DISTANCE_MAX_TO_TAKE			30
 
-#define ITME_TO_INC_RUSH			250		//ms
-#define INC_RUSH					0.5
+#define TIME_TO_INC_RUSH			25		//ms
+#define INC_RUSH					5
 #define TIME_RUSH_IN_FLOOR			5000
+#define DIFF_POS_FICT_RUSH				25
+#define EPSILON_POS_RUSH_FLOOR					20
+
 
 #define square(x) ((Sint32)x*x)
 
 #ifdef I_AM_ROBOT_SMALL
 	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1983*x+40.465))
+	#define conv_potar_updown_to_dist(x) ((Sint16)(-x/3.1983+40.465/3.1983))
 #else
 	#define conv_dist_to_potar_updown(x) (x*2)
 #endif
@@ -171,11 +175,15 @@ static void get_data_pos_triangle(CAN_msg_t* msg);
 static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 static bool_e move_updown_to(Sint16 pos);
 static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line, bool_e init, Sint16 order);
-
+static bool_e find_state_path(Sint8 begin_state, Sint8 end_state);
+static bool_e est_dans_liste(Sint8 liste[], Uint8 taille, Sint8 search);
+static Sint8 ajout_liste(Sint8 liste[], Uint8 taille, Sint8 val);
+static Sint8 del_liste(Sint8 liste[], Uint8 taille, Sint8 val);
 
 
 
 static Sint8 old_state = -1;
+static Sint8 switch_state[ARM_ST_NUMBER];
 
 void ARM_init() {
 	static bool_e initialized = FALSE;
@@ -307,7 +315,7 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			case ACT_ARM_UPDOWN_RUSH_IN_FLOOR :
-
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
 				break;
 
 			case ACT_ARM_STOP:
@@ -399,10 +407,10 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				old_DCM_post = ARM_readDCMPos();
 				if(!move_updown_to(new_state))
 					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
-			}else if(canCommand == ACT_ARM_UPDOWN_GOTO){
+			}else if(canCommand == ACT_ARM_UPDOWN_RUSH_IN_FLOOR){
 				old_DCM_post = ARM_readDCMPos();
-				if(!check_state_and_rush_in_floor(ARM_ACT_UPDOWN_ID, FALSE, &result, &error_code, &line, init, new_state))
-					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+				if(check_state_and_rush_in_floor(ARM_ACT_UPDOWN_ID, FALSE, &result, &error_code, &line, init, new_state))
+					QUEUE_next(queueId, ACT_ARM, result, error_code, __LINE__);
 			}else{
 				if(old_state < 0 && canCommand != ACT_ARM_INIT) {
 					warn_printf("Etat non initialisé, impossible d\'aller à l\'état %s(%d)\n",
@@ -442,7 +450,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				}
 				if(done)
 					QUEUE_next(queueId, ACT_ARM, result, error_code, line);
-			}else if(canCommand == ACT_ARM_UPDOWN_GOTO){
+			}else if(canCommand == ACT_ARM_UPDOWN_RUSH_IN_FLOOR){
 				done = check_state_and_rush_in_floor(ARM_ACT_UPDOWN_ID, FALSE, &result, &error_code, &line, init, new_state);
 				if(done)
 					QUEUE_next(queueId, ACT_ARM, result, error_code, line);
@@ -505,46 +513,79 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 	bool_e done;
 
 	if(init){
+		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM, ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM);
 		begin_time = CLOCK_get_time_10()*10;
 		last_time = CLOCK_get_time_10()*10;
 		actual_pos = ARM_readDCMPos() + INC_RUSH;
 		actualised = TRUE;
 	}
 
-	if(CLOCK_get_time_10()*10 - last_time >= TIME_RUSH_IN_FLOOR){
+	if(CLOCK_get_time_10()*10 - last_time >= TIME_TO_INC_RUSH){
 		last_time = CLOCK_get_time_10()*10;
-		actual_pos = ARM_readDCMPos() + INC_RUSH;
+		actual_pos = actual_pos + INC_RUSH;
 		actualised = TRUE;
+
 	}
 
 	if(actualised){
-		bool_e res = move_updown_to(actual_pos);
+		bool_e res = move_updown_to(conv_potar_updown_to_dist(actual_pos));
 		if(!res && init){
-			*result =    ACT_RESULT_NOT_HANDLED;
+			*result = ACT_RESULT_NOT_HANDLED;
 			*error_code = ACT_RESULT_ERROR_INVALID_ARG;
 			*line = __LINE__;
+			DCM_stop(ARM_ACT_UPDOWN_ID);
+			DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 			return TRUE;
 		}else if(!res){
-			*result =    ACT_RESULT_FAILED;
+			*result = ACT_RESULT_FAILED;
 			*error_code = ACT_RESULT_ERROR_INVALID_ARG;
 			*line = __LINE__;
+			DCM_stop(ARM_ACT_UPDOWN_ID);
+			DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 			return TRUE;
 		}
 	}
 
 	if(CLOCK_get_time_10()*10 - begin_time >= TIME_RUSH_IN_FLOOR){
-		*result =    ACT_RESULT_FAILED;
+		*result = ACT_RESULT_FAILED;
 		*error_code = ACT_RESULT_ERROR_TIMEOUT;
 		*line = __LINE__;
+		DCM_stop(ARM_ACT_UPDOWN_ID);
+		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 		return TRUE;
 	}
 
 	done = ACTQ_check_status_dcmotor(dcmotor_id, timeout_is_ok, result, error_code, line);
 
 	if(done && *result == ACT_RESULT_FAILED){
-		*result =    ACT_RESULT_DONE;
+		*result = ACT_RESULT_DONE;
 		*error_code = ACT_RESULT_ERROR_OK;
 		*line = __LINE__;
+		DCM_stop(ARM_ACT_UPDOWN_ID);
+		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
+		return TRUE;
+	}
+	if(ARM_readDCMPos() >= conv_dist_to_potar_updown(order)){
+		*result = ACT_RESULT_DONE;
+		*error_code = ACT_RESULT_ERROR_OK;
+		*line = __LINE__;
+		DCM_stop(ARM_ACT_UPDOWN_ID);
+		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
+		return TRUE;
+	}
+
+	if(absolute(actual_pos - ARM_readDCMPos() > DIFF_POS_FICT_RUSH)){
+		if(absolute(ARM_readDCMPos() - conv_dist_to_potar_updown(order)) > EPSILON_POS_RUSH_FLOOR){
+			*result = ACT_RESULT_FAILED;
+			*error_code = ACT_RESULT_ERROR_UNKNOWN;
+			*line = __LINE__;
+		}else{
+			*result = ACT_RESULT_DONE;
+			*error_code = ACT_RESULT_ERROR_OK;
+			*line = __LINE__;
+		}
+		DCM_stop(ARM_ACT_UPDOWN_ID);
+		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 		return TRUE;
 	}
 
@@ -817,6 +858,8 @@ static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 static bool_e move_updown_to(Sint16 pos){
 	Sint16 value = conv_dist_to_potar_updown(pos);
 
+	display(value);
+
 	if(value < ARM_ACT_UPDOWN_MIN_VALUE || value > ARM_ACT_UPDOWN_MAX_VALUE)
 		return FALSE;
 
@@ -824,4 +867,92 @@ static bool_e move_updown_to(Sint16 pos){
 	DCM_goToPos(ARM_ACT_UPDOWN_ID, 0);
 	DCM_restart(ARM_ACT_UPDOWN_ID);
 	return TRUE;
+}
+
+static bool_e find_state_path(Sint8 begin_state, Sint8 end_state){
+	Uint8 i;
+	Sint8 open_liste[ARM_ST_NUMBER], close_liste[ARM_ST_NUMBER];
+	Sint8 path[ARM_ST_NUMBER];
+	Sint8 open_liste_i = -1;
+
+	// Initialisation des tableaux
+	for(i=0;i<ARM_ST_NUMBER;i++){
+		open_liste[i] = -1;
+		close_liste[i] = -1;
+		path[i] = -1;
+		switch_state[i] = -1;
+	}
+	// Ajout de l'état de début dans l'open liste
+	open_liste_i = ajout_liste(open_liste, ARM_ST_NUMBER, begin_state);
+
+	// Tant que l'open liste n'est pas vide et que l'état final n'est pas dans l'open liste
+	while(open_liste_i != -1 && !est_dans_liste(open_liste, ARM_ST_NUMBER, end_state)){
+		for(i=0;i<ARM_ST_NUMBER;i++){
+			// S'il y a un chemin possible entre ces deux états, et que l'état n'est pas déjà dans l'open liste ni dans la close liste
+			if(arm_states_transitions[open_liste[0]][i] == 1 && !est_dans_liste(open_liste, ARM_ST_NUMBER, i)
+															 && !est_dans_liste(close_liste, ARM_ST_NUMBER, i)){
+
+				// On note se chemin dans le path
+				path[i] = open_liste[0];
+
+				// On ajout l'état du chemin dans l'open liste
+				open_liste_i = ajout_liste(open_liste, ARM_ST_NUMBER, i);
+			}
+		}
+		// Une fois tout les chemins de cette état testé on met cet état dans la close liste et on l'enlève de l'open liste
+		ajout_liste(close_liste, ARM_ST_NUMBER, open_liste[0]);
+		open_liste_i = del_liste(open_liste, ARM_ST_NUMBER, open_liste[0]);
+	}
+
+	// Si l'état final n'est pas dans l'open liste cela veut dire qu'on n'a pas trouvé de chemin
+	if(!est_dans_liste(open_liste, ARM_ST_NUMBER, end_state))
+		return FALSE;
+
+	Uint8 taille_path=0;
+	Sint8 st = end_state;
+	// On calcule la taille du chemin
+	while(st != begin_state){
+		st = path[st];
+		taille_path++;
+	}
+
+	// On stocke le chemin trouvé dans switch_state
+	for(i=taille_path;i>=0;i--){
+		switch_state[i] = path[st];
+		st = path[st];
+	}
+
+	return TRUE;
+}
+
+static bool_e est_dans_liste(Sint8 liste[], Uint8 taille, Sint8 search){
+	Uint8 i;
+	for(i=0;i<taille;i++){
+		if(liste[i] == search)
+			return TRUE;
+	}
+	return FALSE;
+}
+
+static Sint8 ajout_liste(Sint8 liste[], Uint8 taille, Sint8 val){
+	Uint8 i;
+	for(i=0;i<taille;i++){
+		if(liste[i] == -1){
+			liste[i] = val;
+			return i;
+		}
+	}
+	return taille-1;
+}
+
+static Sint8 del_liste(Sint8 liste[], Uint8 taille, Sint8 val){
+	Uint8 i, j;
+	for(i=0;i<taille;i++){
+		if(liste[i] == val){
+			for(j=i;j<taille-1;j++)
+				liste[j] = liste[j+1];
+			return i;
+		}
+	}
+	return taille-1;
 }
