@@ -10,7 +10,11 @@
  */
 
 #include "Small_arm.h"
-#include "Small_arm_config.h"
+#ifdef I_AM_ROBOT_BIG
+	#include "../Guy/Small_arm_config.h"
+#else
+	#include "../Pierre/Small_arm_config.h"
+#endif
 
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"

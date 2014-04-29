@@ -8,19 +8,20 @@
 #include "../clock.h"
 #include "../config/config_global.h"
 #ifdef I_AM_ROBOT_BIG
-	#include "../Pierre/Arm_config.h"
 	#include "../config/config_big/config_pin.h"
+	#include "../Pierre/Arm_config.h"
 	#include "../Pierre/PFilet_config.h"
 	#include "../Pierre/PFruit_config.h"
 	#include "../Pierre/PTorch_locker_config.h"
 	#include "../Pierre/PGache_config.h"
+	#include "../Pierre/Small_arm_config.h"
 #else
 	#include "../Guy/Arm_config.h"
+	#include "../Guy/Small_arm_config.h"
 	#include "../config/config_small/config_pin.h"
 #endif
 #include "../Common/Arm_data.h"
 #include "../Common/Arm.h"
-#include "../Common/Small_arm_config.h"
 
 typedef struct{
 	bool_e is_ax12;
