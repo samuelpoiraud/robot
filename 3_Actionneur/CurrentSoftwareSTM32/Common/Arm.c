@@ -67,6 +67,7 @@
 	#define conv_potar_updown_to_dist(x) ((Sint16)(-x/3.1983+40.465/3.1983))
 #else
 	#define conv_dist_to_potar_updown(x) (x*2)
+	#define conv_potar_updown_to_dist(x) ((Sint16)(-x/3.1983+40.465/3.1983))
 #endif
 
 
