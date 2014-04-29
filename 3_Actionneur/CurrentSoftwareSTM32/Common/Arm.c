@@ -183,9 +183,9 @@ static Sint8 ajout_liste(Sint8 liste[], Uint8 taille, Sint8 val);
 static Sint8 del_liste(Sint8 liste[], Uint8 taille, Sint8 val);
 
 
-
 static Sint8 old_state = -1;
 static Sint8 switch_state[ARM_ST_NUMBER];
+static Uint8 taille_path = 0;
 
 void ARM_init() {
 	static bool_e initialized = FALSE;
@@ -311,7 +311,24 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_ARM_GOTO:
 				if(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE || msg->data[1] == ACT_ARM_POS_ON_TORCHE)
 					get_data_pos_triangle(msg);
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
+				if(arm_states_transitions[old_state][msg->data[1]] == 1)
+					ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
+				else{
+					queue_id_t queueId = QUEUE_create();
+					assert(queueId != QUEUE_CREATE_FAILED);
+					if(queueId != QUEUE_CREATE_FAILED) {
+						Uint8 i;
+						QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
+
+						for(i = 0; i < taille_path; i++) {
+							QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], switch_state[i], &ACTQ_finish_SendResult}, QUEUE_ACT_Arm);
+						}
+
+						QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
+					} else {	//on indique qu'on a pas géré la commande
+						ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
+					}
+				}
 				break;
 
 			case ACT_ARM_UPDOWN_GOTO :
@@ -419,21 +436,20 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 				if(old_state < 0 && canCommand != ACT_ARM_INIT) {
 					warn_printf("Etat non initialisé, impossible d\'aller à l\'état %s(%d)\n",
 								ARM_STATES_NAME[new_state], new_state);
-					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, new_state);
 					return;
 				}
 
 				if(old_state == new_state){
-					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, new_state);
 					return;
 				}
 
-				if(old_state >= 0 && arm_states_transitions[old_state][new_state] == 0) {
-					//déplacement impossible, le bras doit passer par d'autre positions avant d'atteindre la position demandée
+				if(old_state >= 0 && arm_states_transitions[old_state][new_state] == 0){
 					warn_printf("Déplacement impossible de l\'etat %s(%d) à %s(%d)\n",
 								ARM_STATES_NAME[old_state], old_state,
 								ARM_STATES_NAME[new_state], new_state);
-					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, __LINE__);
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG, new_state);
 					return;
 				}
 
@@ -441,7 +457,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 							 (old_state >= 0) ? ARM_STATES_NAME[old_state] : "non-initialisé", old_state,
 							 ARM_STATES_NAME[new_state], new_state);
 				if(!gotoState(new_state))
-					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_UNKNOWN, __LINE__);
+					QUEUE_next(queueId, ACT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_UNKNOWN, new_state);
 			}
 		} else {//------------------------------------------------------------------------------------------------------------------------------------
 			Uint8 canCommand = QUEUE_get_arg(queueId)->canCommand;
@@ -500,7 +516,7 @@ void ARM_run_command(queue_id_t queueId, bool_e init) {
 					debug_printf("Mise à jours de l'état du bras : %s\n", ARM_STATES_NAME[new_state]);
 					old_state = new_state;
 				}
-				QUEUE_next(queueId, ACT_ARM, result, error_code, line);
+				QUEUE_next(queueId, ACT_ARM, result, error_code, new_state);
 			}
 		}
 	} else {
@@ -912,7 +928,6 @@ static bool_e find_state_path(Sint8 begin_state, Sint8 end_state){
 	if(!est_dans_liste(open_liste, ARM_ST_NUMBER, end_state))
 		return FALSE;
 
-	Uint8 taille_path=0;
 	Sint8 st = end_state;
 	// On calcule la taille du chemin
 	while(st != begin_state){
