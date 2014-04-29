@@ -40,9 +40,10 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 	switch(msg->sid)
 	{
 		case BROADCAST_START:					print(string, len, "%.3x BROADCAST_START                  ", BROADCAST_START					);	break;
-		case BROADCAST_STOP_ALL:				print(string, len, "%.3x BROADCAST_STOP_ALL               ", BROADCAST_STOP_ALL				);	break;
-		case BROADCAST_COULEUR:					print(string, len, "%.3x BROADCAST_COULEUR                ", BROADCAST_COULEUR				);	break;
+		case BROADCAST_STOP_ALL:				print(string, len, "%.3x BROADCAST_STOP_ALL               ", BROADCAST_STOP_ALL					);	break;
+		case BROADCAST_COULEUR:					print(string, len, "%.3x BROADCAST_COULEUR                ", BROADCAST_COULEUR					);	break;
 		case BROADCAST_POSITION_ROBOT:			print(string, len, "%.3x BROADCAST_POSITION_ROBOT         ", BROADCAST_POSITION_ROBOT			);	break;
+		case BROADCAST_ALIM:					print(string, len, "%.3x BROADCAST_ALIM				      ", BROADCAST_ALIM						);	break;
 		case DEBUG_CARTE_P:						print(string, len, "%x DEBUG_CARTE_P                    	", DEBUG_CARTE_P					);	break;
 		case DEBUG_FOE_POS:						print(string, len, "%x DEBUG_FOE_POS                    	", DEBUG_FOE_POS					);	break;
 		case DEBUG_ELEMENT_UPDATED:				print(string, len, "%x DEBUG_ELEMENT_UPDATED            	", DEBUG_ELEMENT_UPDATED			);	break;
@@ -104,6 +105,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 	{
 		case BROADCAST_START:					print_broadcast_start_infos(msg, &string, &len);									break;
 	//	case BROADCAST_STOP_ALL:				print(string, len, "|\n");												break;
+	//	case BROADCAST_ALIM:				    print(string, len, "|\n");												break;
 		case IR_ERROR_RESULT:					print_ir_result(msg, &string, &len);												break;
 		case US_ERROR_RESULT:					print_us_result(msg, &string, &len);												break;
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"JAUNE":"ROUGE"	);		break;
