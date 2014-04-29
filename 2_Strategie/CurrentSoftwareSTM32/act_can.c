@@ -39,6 +39,7 @@ typedef enum {
 typedef struct {
 	bool_e disabled;	//TRUE si l'actionneur est désactivé car inutilisable
 	act_result_e operationResult;	//Resultat de la derrnière opération faite
+	Uint8 paramResult[4];
 	act_error_recommended_behavior_e recommendedBehavior;		//Quoi faire suite à l'opération faite
 	ACT_function_result_e lastResult;
 } act_state_info_t;
@@ -381,6 +382,11 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			}
 			break;
 	}
+	act_states[act_id].paramResult[0] = msg->data[4];
+	act_states[act_id].paramResult[1] = msg->data[5];
+	act_states[act_id].paramResult[2] = msg->data[6];
+	act_states[act_id].paramResult[3] = msg->data[7];
+
 #endif /* not def ACT_NO_ERROR_HANDLING */
 }
 

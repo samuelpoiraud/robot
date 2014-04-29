@@ -63,7 +63,7 @@ void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Ui
 }
 
 //Comme CAN_sendResult mais ajoute un paramètre au message. Peut servir pour debuggage.
-void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param) {
+void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint32 param) {
 #ifdef USE_CAN
 	CAN_msg_t resultMsg;
 
@@ -72,8 +72,10 @@ void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 r
 	resultMsg.data[1] = originalCommand;
 	resultMsg.data[2] = result;
 	resultMsg.data[3] = errorCode;
-	resultMsg.data[4] = LOWINT(param);
-	resultMsg.data[5] = HIGHINT(param);
+	resultMsg.data[4] = (param & 0x000000FF);
+	resultMsg.data[5] = (param & 0x0000FF00) >> 8;
+	resultMsg.data[4] = (param & 0x00FF0000) >> 16;
+	resultMsg.data[5] = (param & 0xFF000000) >> 24;
 	resultMsg.size = 6;
 
 	CAN_send(&resultMsg);
