@@ -69,7 +69,7 @@
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KD_TRANSLATION			0x709
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KV_TRANSLATION			0x70A
 	#define DEBUG_PROPULSION_REGLAGE_COEF_KV_ROTATION				0x70B
-	
+
 	#define DEBUG_ENABLE_MODE_BEST_EFFORT							0x70F
 	#define DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT					0x710
 
@@ -78,7 +78,7 @@
 
 	#define DEBUG_PROPULSION_SET_ACCELERATION						0x713		//Data sur 16 bits. (unité : mm/4096/5ms/5ms) Grandeur typique : 100
 		//Uint16 : durée de la trajectoire en [ms]
-		
+
 	typedef enum
 	{
 		ODOMETRY_COEF_TRANSLATION = 0,
@@ -104,7 +104,7 @@
 	#define DEBUG_PROPULSION_SET_COEF								0x722
 		//data[0] : id du coef
 		//datas[1 à 4] : coef !!! sur 32 bits !!!
-		
+
 	/* Message de l'utilisateur vers Super */
 	#define SUPER_EEPROM_RESET				0x770
 	#define SUPER_EEPROM_TEST_ALL_MEMORY	0x771
@@ -439,12 +439,13 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		//Paramètres de la pompe
 		#define ACT_FRUIT_MOUTH_CLOSE           0x10
 		#define ACT_FRUIT_MOUTH_OPEN            0x11
-		#define ACT_FRUIT_MOUTH_CANCELED        0x12
+		#define ACT_FRUIT_MOUTH_VIBRATION		0x12
+		#define ACT_FRUIT_MOUTH_CANCELED        0x13
 		#define ACT_FRUIT_MOUTH_STOP	        0x1F
 
 		//Fruit Labium (trappe)
-		#define ACT_FRUIT_LABIUM_CLOSE          0x13
-		#define ACT_FRUIT_LABIUM_OPEN           0x14
+		#define ACT_FRUIT_LABIUM_CLOSE          0x14
+		#define ACT_FRUIT_LABIUM_OPEN           0x15
 		#define ACT_FRUIT_LABIUM_STOP           0x1E
 
 	/////////////////////////////////////////

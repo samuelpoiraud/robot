@@ -56,6 +56,7 @@ typedef enum {
 typedef enum {
 	ACT_FRUIT_Verrin_Open = ACT_FRUIT_MOUTH_OPEN,
 	ACT_FRUIT_Verrin_Close = ACT_FRUIT_MOUTH_CLOSE,
+	ACT_FRUIT_Verrin_Vibration = ACT_FRUIT_MOUTH_VIBRATION,
 	ACT_FRUIT_Verrin_Canceled = ACT_FRUIT_MOUTH_CANCELED,
 	ACT_FRUIT_Verrin_Stop = ACT_FRUIT_MOUTH_STOP,
 } ACT_fruit_mouth_cmd_e;
