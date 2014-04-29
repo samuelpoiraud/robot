@@ -89,7 +89,7 @@
 	void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode);
 
 	//Comme CAN_sendResult mais ajoute un paramètre au message. Peut servir pour debuggage.
-	void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param);
+	void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint32 param);
 
 	//Comme CAN_sendResultWithParam mais le paramètre est considéré comme étant un numéro de ligne.
 	void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 lineNumber);
