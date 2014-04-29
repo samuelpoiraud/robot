@@ -35,10 +35,11 @@
 //							Valeur souhaitable pour le commit SVN : high_level_strat
 #define DEFAULT_STRAT_BIG	high_level_strat
 
-#define DEFAULT_STRAT_SMALL	strat_belgique_guy
+#define DEFAULT_STRAT_SMALL	strat_test_arm
 
 
 static ia_fun_t strategy;
+static char *strategy_name;
 static time32_t match_duration = MATCH_DURATION;
 static Sint8 index_strategy = -1;
 static Uint8 number_of_strategy = 0;
@@ -87,6 +88,7 @@ static const strategy_list_s *list_displayed_strategy[50];
 
 void BRAIN_init(void){
 	Uint8 i;
+	bool_e found = FALSE;
 	if(QS_WHO_AM_I_get() == BIG_ROBOT)
 		strategy = DEFAULT_STRAT_BIG;
 	else
@@ -94,18 +96,26 @@ void BRAIN_init(void){
 
 	number_of_strategy = sizeof(list_strategy)/sizeof(strategy_list_s);
 	index_strategy = -1;
-
 	number_of_displayed_strategy = 0;
+
 	for(i=0;i<number_of_strategy;i++){
 		if(list_strategy[i].display_on == TRUE && (
 					(QS_WHO_AM_I_get() == BIG_ROBOT && list_strategy[i].robot_type == BIG)
 					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && list_strategy[i].robot_type == SMALL)
-					|| list_strategy[i].robot_type == BOTH))
+					|| list_strategy[i].robot_type == BOTH)){
 			list_displayed_strategy[number_of_displayed_strategy++] = &list_strategy[i];
-		if(list_strategy[i].function == strategy)
-			index_strategy = i;
+			if(list_strategy[i].function == strategy)
+				index_strategy = number_of_displayed_strategy-1;
+		}
+
+		if(list_strategy[i].function == strategy){
+			strategy_name = list_strategy[i].name;
+			match_duration = list_strategy[i].match_duration;
+			found = TRUE;
+		}
 	}
-	update_match_duration();
+	if(!found)
+		update_match_duration();
 }
 
 /* 	execute un match de match_duration secondes à partir de la
@@ -153,9 +163,6 @@ void any_match(void)
 			msg.size = 0;
 			CAN_send(&msg);
 		}
-
-		// mise à jours de match_duration en fonction de la stratégie sélectionnée
-		update_match_duration();
 
 		if(strategy == high_level_strat)	//Liste ici les stratégie qui doivent être appelées même avant le début du match
 			high_level_strat();
@@ -209,6 +216,7 @@ void BRAIN_set_strategy_index(Uint8 i){
 	if(global.env.match_started == FALSE){
 		assert(i >= 0 && i < number_of_displayed_strategy);
 		strategy = list_displayed_strategy[i]->function;
+		strategy_name = list_displayed_strategy[i]->name;
 		index_strategy = i;
 		update_match_duration();
 		debug_printf("Using strat : %s\n", BRAIN_get_current_strat_name());
@@ -220,8 +228,8 @@ void BRAIN_set_strategy_index(Uint8 i){
 //Retourne une chaine de 20 caractères max
 char * BRAIN_get_current_strat_name(void)
 {
-	if(index_strategy != -1)
-		return list_strategy[index_strategy].name;
+	if(strategy_name != NULL)
+		return strategy_name;
 	else
 		return "strat not declared !";
 }
