@@ -7,6 +7,7 @@ void SD_process_1ms(void);
 void SD_process_main(void);
 void SD_init(void);
 void SD_print_previous_match(void);
+void SD_print_match(Uint16 nb_match);
 
 typedef enum
 {
