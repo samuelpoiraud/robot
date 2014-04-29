@@ -56,8 +56,8 @@
 #define TIME_TO_INC_RUSH			25		//ms
 #define INC_RUSH					5
 #define TIME_RUSH_IN_FLOOR			5000
-#define DIFF_POS_FICT_RUSH				25
-#define EPSILON_POS_RUSH_FLOOR					20
+#define DIFF_POS_FICT_RUSH			25
+#define EPSILON_POS_RUSH_FLOOR		20
 
 
 #define square(x) ((Sint32)x*x)
@@ -310,11 +310,14 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 
 		switch(msg->data[0]) {
 			case ACT_ARM_GOTO:
+				display(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE || msg->data[1] == ACT_ARM_POS_ON_TORCHE);
+				display(arm_states_transitions[old_state][msg->data[1]] == 1);
 				if(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE || msg->data[1] == ACT_ARM_POS_ON_TORCHE)
 					get_data_pos_triangle(msg);
+
 				if(arm_states_transitions[old_state][msg->data[1]] == 1)
 					ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
-				else{
+				else if(find_state_path(old_state, msg->data[1])){
 					queue_id_t queueId = QUEUE_create();
 					assert(queueId != QUEUE_CREATE_FAILED);
 					if(queueId != QUEUE_CREATE_FAILED) {
@@ -323,13 +326,17 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 
 						for(i = 0; i < taille_path; i++) {
 							QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], switch_state[i], &ACTQ_finish_SendResult}, QUEUE_ACT_Arm);
+							debug_printf("-> %s", ARM_STATES_NAME[switch_state[i]]);
 						}
+						debug_printf("\n");
 
 						QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
 					} else {	//on indique qu'on a pas géré la commande
+						debug_printf("suce !!!\n");
 						ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 					}
-				}
+				}else
+					ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 				break;
 
 			case ACT_ARM_UPDOWN_GOTO :
@@ -891,10 +898,13 @@ static bool_e move_updown_to(Sint16 pos){
 }
 
 static bool_e find_state_path(Sint8 begin_state, Sint8 end_state){
-	Uint8 i;
+	Sint8 i;
 	Sint8 open_liste[ARM_ST_NUMBER], close_liste[ARM_ST_NUMBER];
 	Sint8 path[ARM_ST_NUMBER];
 	Sint8 open_liste_i = -1;
+
+	if(begin_state == -1)
+		return FALSE;
 
 	// Initialisation des tableaux
 	for(i=0;i<ARM_ST_NUMBER;i++){
