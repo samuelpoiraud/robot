@@ -214,6 +214,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 	//debug_printf("next traj\n");
 	static Sint16 angle_a_parcourir;
 
+	CORRECTOR_PD_enable(order->corrector);
 
 	if(order->relative == RELATIVE) //Si l'ordre est relatif, c'est maintenant qu'il doit devenir absolu !
 	{
@@ -369,8 +370,6 @@ void COPILOT_do_order(order_t * order)
 
 	//MAJ Vitesse
 	PILOT_set_speed(current_order.speed);
-
-	CORRECTOR_PD_enable(current_order.corrector);
 
 	SUPERVISOR_state_machine(EVENT_NEW_ORDER, current_order.acknowledge);
 
