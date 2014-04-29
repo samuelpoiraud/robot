@@ -342,10 +342,7 @@ void SD_process_main(void)
 
 }
 
-
-
-void SD_print_previous_match(void)
-{
+void SD_print_match(Uint16 nb_match){
 	char path[16];
 	char read_byte;
 	Uint32 nb_read;
@@ -367,13 +364,13 @@ void SD_print_previous_match(void)
 		f_close(&file_match);	//Je ferme...
 	}
 */
-	if(read_match_id == 0)
+	if(nb_match == 0)
 	{
 		debug_printf("Fin des matchs en mémoire\n");
 		return;
 	}
 
-	sprintf(path, "%04d.MCH", read_match_id);
+	sprintf(path, "%04d.MCH", nb_match);
 
 	//On ouvre le fichier du match précédent.
 	if(f_open(&file_read_match, path, FA_READ) == FR_OK)	//Ouverture en lecture seule.
@@ -484,7 +481,10 @@ void SD_print_previous_match(void)
 	{
 		debug_printf("Can't open match : %s\n",path);
 	}
-	read_match_id--;
+}
+
+void SD_print_previous_match(void){
+	SD_print_match(read_match_id--);
 }
 
 
