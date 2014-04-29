@@ -9,8 +9,8 @@
  *  Robot : SMALL
  */
 
-#ifndef PSMALL_ARM_CONFIG_H
-#define	PSMALL_ARM_CONFIG_H
+#ifndef GSMALL_ARM_CONFIG_H
+#define	GSMALL_ARM_CONFIG_H
 
 /** Si l'ax12 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en centaine de ms. */
 	#define SMALL_ARM_AX12_ASSER_TIMEOUT       10      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
@@ -33,6 +33,6 @@
 	#define SMALL_ARM_AX12_MIN_VALUE	100
 
 
-#endif	/* PSMALL_ARM_CONFIG_H */
+#endif	/* GSMALL_ARM_CONFIG_H */
 
 
