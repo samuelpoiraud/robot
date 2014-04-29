@@ -4,7 +4,7 @@
  *	Fichier : Fruit.c
  *	Package : Carte actionneur
  *	Description : Gestion des fruit_mouths
- *  Auteur : Amaury
+ *  Auteur : Amaury, Anthony
  *  Version 20130219
  *  Robot : BIG
  */
@@ -17,6 +17,7 @@
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_pwm.h"
 #include "../QS/QS_ports.h"
+#include "../QS/QS_watchdog.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "config_pin.h"
@@ -37,10 +38,12 @@ static void FRUIT_command_labium_run(queue_id_t queueId);
 static void POMPE_goToPos(Uint8 command);
 
 static bool_e stopActVerin = FALSE;
+static bool_e flagEndWatchDog; // Pour la vibration
 
 static enum {
 	OPEN,
-	CLOSE
+	CLOSE,
+	VIBRATION
 }wanted_state = CLOSE;
 
 static bool_e have_send_answer = TRUE;
@@ -131,6 +134,8 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 				//Pour les 2 cas (open ou close), la différence est faite dans FRUIT_command_init
+			case ACT_FRUIT_MOUTH_VIBRATION:
+				WATCHDOG_create_flag(FRUIT_POMPE_TIMER_VIBRATION,&flagEndWatchDog);
 			case ACT_FRUIT_MOUTH_CLOSE:
 			case ACT_FRUIT_MOUTH_OPEN:
 				have_send_answer = TRUE;
@@ -197,6 +202,10 @@ static void FRUIT_command_pompe_init(queue_id_t queueId) {
 			POMPE_goToPos(ACT_FRUIT_MOUTH_CLOSE);
 			break;
 
+		case ACT_FRUIT_MOUTH_VIBRATION:
+			POMPE_goToPos(ACT_FRUIT_MOUTH_VIBRATION);
+			break;
+
 		case ACT_FRUIT_MOUTH_STOP:
 			//FRUIT_POMPE_PIN = 0;
 			PWM_stop(FRUIT_POMPE_PWM_NUM);
@@ -217,6 +226,7 @@ static void FRUIT_command_pompe_run(queue_id_t queueId){
 	// le verin atteint la postion du capteur de sortie ou la commande a été annulée, on arrete
 	if((FRUIT_POMPE_TOR_OPEN == 0 && command == ACT_FRUIT_MOUTH_OPEN) ||
 	   (FRUIT_POMPE_TOR_CLOSE == 0 && command == ACT_FRUIT_MOUTH_CLOSE) ||
+	   (command == ACT_FRUIT_MOUTH_VIBRATION) ||	//Passe directement a la queue mais est toujours asservi de façon à bouger pendant qu'aucune action est demandée
 	   stopActVerin == TRUE)
 	{
 		PWM_stop(FRUIT_POMPE_PWM_NUM);
@@ -242,9 +252,17 @@ static void POMPE_goToPos(Uint8 command){
 	}else if(command == ACT_FRUIT_MOUTH_CLOSE){
 		wanted_state = CLOSE;
 		FRUIT_POMPE_SENS = 1;
+	}else if(command == ACT_FRUIT_MOUTH_VIBRATION){
+		if(FRUIT_POMPE_TOR_OPEN == 0)
+			FRUIT_POMPE_SENS = 1;
+		else
+			FRUIT_POMPE_SENS = 0;
+
+		wanted_state = VIBRATION;
 	}
 	//FRUIT_POMPE_PIN = 1;
 	PWM_run(FRUIT_POMPE_MAX_PWM_WAY, FRUIT_POMPE_PWM_NUM);
+
 }
 
 static void FRUIT_command_labium_init(queue_id_t queueId) {
@@ -302,6 +320,7 @@ void FRUIT_process_main(){
 		IN_CLOSING
 	}verrin_order_e;
 	static verrin_order_e verrin_order = NO_ORDER;
+	static bool_e flagWatchDog = TRUE;
 
 	switch(wanted_state){
 		case OPEN :
@@ -324,6 +343,25 @@ void FRUIT_process_main(){
 				//FRUIT_POMPE_PIN = 0;
 				verrin_order = NO_ORDER;
 			}
+			break;
+
+		case VIBRATION :
+			if(verrin_order != IN_CLOSING && flagWatchDog){
+				POMPE_goToPos(ACT_FRUIT_MOUTH_VIBRATION);
+				verrin_order = IN_CLOSING;
+				WATCHDOG_create_flag(FRUIT_POMPE_PULSE_VIBRATION,&flagWatchDog);
+			}else if(verrin_order != IN_OPENING && flagWatchDog){
+				POMPE_goToPos(ACT_FRUIT_MOUTH_VIBRATION);
+				verrin_order = IN_OPENING;
+				WATCHDOG_create_flag(FRUIT_POMPE_PULSE_VIBRATION,&flagWatchDog);
+			}
+
+			if(flagEndWatchDog)
+				wanted_state = OPEN;
+
+			break;
+
+		default:
 			break;
 	}
 }
