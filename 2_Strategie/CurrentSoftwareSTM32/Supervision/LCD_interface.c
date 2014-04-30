@@ -748,7 +748,7 @@ void LCD_add_can(CAN_msg_t * msg)
 //Line doit être entre 0 et 3 inclus.
 //La ligne 0 correspond à la dernière ligne du menu principal (INFOS)
 //Les 3 autres lignes correspondent aux lignes du menu utilisateur.
-void LCD_printf(Uint8 line, char * chaine, ...)
+void LCD_printf(Uint8 line, bool_e switch_on_menu, char * chaine, ...)
 {
 	assert(line < 4);
 
@@ -757,7 +757,7 @@ void LCD_printf(Uint8 line, char * chaine, ...)
 	vsnprintf(free_msg[line], 21, chaine, args_list);
 	va_end(args_list);
 	if(line>0)
-		ask_for_menu_user = TRUE;
+		ask_for_menu_user = switch_on_menu;
 	free_msg_updated = TRUE;
 }
 
