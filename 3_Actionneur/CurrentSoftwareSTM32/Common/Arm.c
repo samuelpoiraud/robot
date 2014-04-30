@@ -310,8 +310,6 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 
 		switch(msg->data[0]) {
 			case ACT_ARM_GOTO:
-				display(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE || msg->data[1] == ACT_ARM_POS_ON_TORCHE);
-				display(arm_states_transitions[old_state][msg->data[1]] == 1);
 				if(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE || msg->data[1] == ACT_ARM_POS_ON_TORCHE)
 					get_data_pos_triangle(msg);
 
@@ -903,6 +901,8 @@ static bool_e find_state_path(Sint8 begin_state, Sint8 end_state){
 	Sint8 path[ARM_ST_NUMBER];
 	Sint8 open_liste_i = -1;
 
+	debug_printf("Recherche d'un chemin du bras pour aller de %s à %s\n", ARM_STATES_NAME[begin_state], ARM_STATES_NAME[end_state]);
+
 	if(begin_state == -1)
 		return FALSE;
 
@@ -941,14 +941,16 @@ static bool_e find_state_path(Sint8 begin_state, Sint8 end_state){
 
 	Sint8 st = end_state;
 	// On calcule la taille du chemin
+	taille_path = 0;
 	while(st != begin_state){
 		st = path[st];
 		taille_path++;
 	}
 
 	// On stocke le chemin trouvé dans switch_state
-	for(i=taille_path;i>=0;i--){
-		switch_state[i] = path[st];
+	st = end_state;
+	for(i=taille_path-1;i>=0;i--){
+		switch_state[i] = st;
 		st = path[st];
 	}
 
