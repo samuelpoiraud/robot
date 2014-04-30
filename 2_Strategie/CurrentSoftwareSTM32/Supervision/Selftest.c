@@ -723,7 +723,7 @@ void SELFTEST_check_alim(){
 		ALIM_On
 	}state_e;
 	static state_e state = ALIM_Off;
-	static bool_e says = FALSE;
+	static bool_e said = FALSE;
 	static Uint16 values[NB_AVERAGED_VALUE] = {0};
 	static Uint8 index = 0;
 	static Uint16 count = 0;
@@ -771,11 +771,12 @@ void SELFTEST_check_alim(){
 		global.env.alim = FALSE;
 	}
 
-	if(global.env.alim_value > 10000 && global.env.alim_value < THRESHOLD_BATTERY_LOW && !says && state != ALIM_Off){
+	if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW && !said){
 		BUZZER_play(40, DEFAULT_NOTE, 10);
-		says = TRUE;
+		LCD_printf(4, "CHANGER BAT:%d", global.env.alim_value);
+		said = TRUE;
 	}else
-		says = FALSE;
+		said = FALSE;
 }
 
 SELFTEST_error_code_e SELFTEST_getError(Uint8 index)

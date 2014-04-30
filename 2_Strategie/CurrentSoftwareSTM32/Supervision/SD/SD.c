@@ -484,7 +484,9 @@ void SD_print_match(Uint16 nb_match){
 }
 
 void SD_print_previous_match(void){
-	SD_print_match(read_match_id--);
+	SD_print_match(read_match_id);
+	if(read_match_id != 0)
+		read_match_id--;
 }
 
 
