@@ -1,0 +1,67 @@
+
+'''Message envoyé par GARGAMEL (RCVA) sur le forum de planètes-sciences'''
+''ici :   http://www.planete-sciences.org/forums/viewtopic.php?f=1&t=14276''
+
+'''(Le message a une telle pertinence et une telle importance qu'il est ici préfèré le recopier plutôt que de ne mettre qu'un lien susceptible de mourir... !)
+Merci à GARGAMEL et aux personnes qui ont contribuées à l'élaboration des résultats de cette expérience.'''
+
+_____________________
+
+Un véhicule se déplaçant sur une trajectoire courbe est soumis à la force centrifuge F. (Centrifuge ou centripète, c'est comme on veut).
+Cette force qui tire le robot à l'extérieur de sa trajectoire, induit des déplacements non pris en compte par une odométrie classique.
+La méthode présentée ici permet de corriger dans une certaine mesure ces erreurs odométriques induites.
+La force centrifuge F étant perpendiculaire à la tangente à la trajectoire, l'idée est de supposer que le déplacement latéral résultant est proportionnel à cette force. Le coefficient de proportionnalité sera déterminé expérimentalement.
+
+Cette force centrifuge peut prendre les 3 formes équivalentes.
+'''F= M*(v^2)/R = M*(w^2)*R = M*w*v '''
+
+F: force centrifuge
+M: masse du véhicule
+v: vitesse linéaire
+w: vitesse de rotation
+R: Rayon de courbure de la trajectoire
+
+Pour le calcul, la 3eme forme '''F=M*w*v''' est la plus intéressante car elle ne fait pas intervenir R .
+En 1 point n de la trajectoire on peut facilement calculer:
+* '''v(n)= d(n) - d(n-1) --> d= distance parcourue'''
+* '''w(n)= teta(n) - teta(n-1) --> teta= orientation du robot dans le repère xy'''
+
+== Odométrie classique sans correction centrifuge (dans un repère xy): ==
+
+* '''dx = v(n)*cos(teta(n)) représente la projection du vecteur vitesse sur l'axe x'''<br>
+* '''dy = v(n)*sin(teta(n)) représente la projection du vecteur vitesse sur l'axe y'''<br>
+<br>
+* '''x(n) = x(n-1) + dx '''<br>
+* '''y(n) = y(n-1) + dy '''<br>
+
+== Odométrie avec correction centrifuge: ==
+
+La force centrifuge F=M*w(n)*v(n) étant perpendiculaire à la tangente à la trajectoire:
+
+* Fx= -M*w(n)*v(n)*sin(teta(n)) = -M*w(n)*dy
+* Fy= M*w(n)*v(n)*cos(teta(n)) = M*w(n)*dx
+
+On admet que la déviation latérale est proportionnelle à la force centrifuge F:<br>
+
+* deviation_x = K1*Fx = -K*w(n)*dy 
+* deviation_y= K1*Fy = K*w(n)*dx
+En posant K=K1*M qui devient la constante de proportionnalité qui sera déterminée expérimentalement.
+
+'''Soit l'algo d'une odométrie avec correction centrifuge:'''
+
+* dx = v(n)*cos(teta(n)) 
+* dy = v(n)*sin(teta(n))
+
+* deviation_x =- K*w(n)*dy 
+* deviation_y= K*w(n)*dx 
+(a noter la réaction croissée en x et y!)
+
+* x(n) = x(n-1) + dx + deviation_x 
+* y(n) = y(n-1) + dy + deviation_y 
+
+* Remarque:
+Cette correction n'entraîne pas de sinus et cosinus supplémentaires à calculer.
+La constante K va être déterminé expérimentalement par des essais sur trajectoires courbes en optimisant sa valeur de manière à ce que la position finale réelle du robot (valeurs de x et y) s'approche au mieux de la position calculée par odométrie.
+Procéder par valeurs croissantes de la vitesse linéaire de déplacement ce qui permet de définir un vitesse max autorisée au delà de laquelle, cette correction centrifuge montre ses limites.
+
+Cette méthode nous a permis à trajectoires courbes données et précision odométrique donnée d'augmenter considérablement la vitesse de déplacement.
