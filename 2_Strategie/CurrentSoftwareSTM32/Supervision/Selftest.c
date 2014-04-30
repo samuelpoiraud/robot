@@ -723,7 +723,6 @@ void SELFTEST_check_alim(){
 		ALIM_On
 	}state_e;
 	static state_e state = ALIM_Off;
-	static bool_e said = FALSE;
 	static Uint16 values[NB_AVERAGED_VALUE] = {0};
 	static Uint8 index = 0;
 	static Uint16 count = 0;
@@ -738,7 +737,13 @@ void SELFTEST_check_alim(){
 
 	count++;
 	if(count >= REFRESH_DISPLAY_BAT){
-		LCD_printf(0, "VBAT : %d", global.env.alim_value);
+		LCD_printf(0, FALSE, "VBAT : %d", global.env.alim_value);
+
+		if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW){
+			BUZZER_play(40, DEFAULT_NOTE, 10);
+			LCD_printf(3, TRUE, "CHANGER BAT:%d", global.env.alim_value);
+		}
+
 		count = 0;
 	}
 
@@ -770,13 +775,6 @@ void SELFTEST_check_alim(){
 		state = ALIM_Off;
 		global.env.alim = FALSE;
 	}
-
-	if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW && !said){
-		BUZZER_play(40, DEFAULT_NOTE, 10);
-		LCD_printf(4, "CHANGER BAT:%d", global.env.alim_value);
-		said = TRUE;
-	}else
-		said = FALSE;
 }
 
 SELFTEST_error_code_e SELFTEST_getError(Uint8 index)
