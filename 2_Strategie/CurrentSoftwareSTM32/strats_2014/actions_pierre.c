@@ -64,8 +64,8 @@ static void REACH_POINT_C1_send_request();
 #define DECALAGE_LARGEUR 200
 #define ELOIGNEMENT_SHOOT_BALL 520
 #define SPEED_LANCE_LAUNCHER 125
-#define POS_MIN_FRESCO 1400		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
-#define POS_MAX_FRESCO 1700		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
+#define POS_MIN_FRESCO 1450		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
+#define POS_MAX_FRESCO 1650		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
 
 
 //Les differente's actions que pierre devra faire lors d'un match
@@ -80,8 +80,7 @@ volatile GEOMETRY_point_t offset_recalage = {0, 0};
 
 //Provisoire pour le moment juste pour test
 #define ADVERSARY_DETECTED_HOKUYO FALSE
-#define FRESQUE_ENLEVER_APRS_1_COUP TRUE
-#define FRESQUE_ENLEVER_APRS_2_COUP TRUE
+
 #define NB_MAX_ADVERSARY_FRESCO_POSITION   2 //Les positions devront etre compris entre 1700 et 1300
 volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={1450,1590};
 volatile Uint8 adversary_fresco_index = 2;
@@ -298,7 +297,7 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,GO_1,POS_DEPART,250,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,FRUIT_RED,POS_DEPART,250,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_CALIBRE:
@@ -306,19 +305,19 @@ void strat_inutile(void){
 			break;
 
 		case GO_1:
-			state = try_going(1650,COLOR_Y(450),GO_1,GO_2,GO_1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1400,COLOR_Y(450),GO_1,GO_2,GO_1,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GO_2:
-			state = try_going(1650,COLOR_Y(3000-450),GO_2,GO_3,GO_2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1400,COLOR_Y(3000-500),GO_2,GO_3,GO_2,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GO_3:
-			state = try_going(600,COLOR_Y(3000-450),GO_3,GO_4,GO_3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(600,COLOR_Y(3000-500),GO_3,GO_4,GO_3,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GO_4:
-			state = try_going(600,COLOR_Y(450),GO_4,GO_1,GO_4,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(600,COLOR_Y(450),GO_4,GO_1,GO_4,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case LANCE_LAUNCHER:
@@ -824,11 +823,11 @@ error_e strat_manage_fresco(){
 			break;
 
 		case FILE_FRESCO:
-			state = check_sub_action_result(strat_file_fresco(posY),FILE_FRESCO,DONE,ERROR);
+			state = check_sub_action_result(strat_file_fresco(posY),FILE_FRESCO,VERIFICATION,ERROR);
 			break;
 
 		case VERIFICATION:
-			if(FRESQUE_ENLEVER_APRS_1_COUP)//fresque plus presente sur le support grace au capteur
+			if(FRESCO_1)//fresque plus presente sur le support grace au capteur
 				state = DONE;
 			else
 				state = LAST_CHANCE_FILE_FRESCO;
@@ -849,7 +848,7 @@ error_e strat_manage_fresco(){
 			break;
 
 		case VERIFICATION_2:
-			if(FRESQUE_ENLEVER_APRS_2_COUP)//FRESCO_1 && FRESCO_2)//fresque plus presente sur le support grace au capteur
+			if(FRESCO_1)// && FRESCO_2)//fresque plus presente sur le support grace au capteur
 				state = DONE;
 			else
 				state = LAST_LAST_CHANCE_FILE_FRESCO;
