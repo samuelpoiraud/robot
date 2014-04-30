@@ -35,7 +35,8 @@
 
 #define THRESHOLD_BATTERY_OFF	15000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW	20000	//[mV] Réglage du seuil de batterie faible
-#define NB_AVERAGED_VALUE		10
+#define NB_AVERAGED_VALUE		20
+#define REFRESH_DISPLAY_BAT		4000
 
 #define LED_ON	1
 #define LED_OFF	0
@@ -725,15 +726,29 @@ void SELFTEST_check_alim(){
 	static bool_e says = FALSE;
 	static Uint16 values[NB_AVERAGED_VALUE] = {0};
 	static Uint8 index = 0;
-	Uint8 i, average = 0;
+	static Uint16 count = 0;
+	Uint8 i;
+	Uint32 average = 0;
 	CAN_msg_t msg;
 
 	// Mesure moyenné de la tension 24V
-	values[index] = SELFTEST_measure24_mV();
+	values[index++] = SELFTEST_measure24_mV();
+	if(index >= NB_AVERAGED_VALUE)
+		index = 0;
+
+	count++;
+	if(count >= REFRESH_DISPLAY_BAT){
+		LCD_printf(0, "VBAT : %d", global.env.alim_value);
+		count = 0;
+	}
+
 	for(i=0;i<NB_AVERAGED_VALUE;i++)
 		average += values[i];
+
 	average /= NB_AVERAGED_VALUE;
 	global.env.alim_value = average;
+
+
 
 
 	if(global.env.alim_value > THRESHOLD_BATTERY_OFF && state != ALIM_On){
@@ -756,9 +771,8 @@ void SELFTEST_check_alim(){
 		global.env.alim = FALSE;
 	}
 
-	if(global.env.alim_value > 5000 && global.env.alim_value < THRESHOLD_BATTERY_LOW && !says){
-		debug_printf("Batterie instable -> %d mV\n", global.env.alim_value);
-		BUZZER_play(40, NOTE_SOL, 40);
+	if(global.env.alim_value > 10000 && global.env.alim_value < THRESHOLD_BATTERY_LOW && !says && state != ALIM_Off){
+		BUZZER_play(40, DEFAULT_NOTE, 10);
 		says = TRUE;
 	}else
 		says = FALSE;
