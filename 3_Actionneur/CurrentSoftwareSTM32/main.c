@@ -246,8 +246,8 @@ static void MAIN_onButton1() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_UPDOWN_GOTO;
-	msg.data[1] = 50;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_PARKED;
 	CAN_process_msg(&msg);
 }
 
@@ -255,8 +255,8 @@ static void MAIN_onButton2() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_UPDOWN_GOTO;
-	msg.data[1] = 100;
+	msg.data[0] = ACT_ARM_GOTO;
+	msg.data[1] = ACT_ARM_POS_TO_TAKE_RETURN;
 	CAN_process_msg(&msg);
 
 }
@@ -265,18 +265,15 @@ static void MAIN_onButton3() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_TO_DOWN_RETURN;
+	msg.data[0] = ACT_ARM_UPDOWN_RUSH_IN_FLOOR;
+	msg.data[1] = 60;
 	CAN_process_msg(&msg);
 }
 
 static void MAIN_onButton4() {
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_TO_RETURN;
-	CAN_process_msg(&msg);
+	AX12_set_torque_limit(20, 0);
+	AX12_set_torque_limit(2, 0);
+	AX12_set_torque_limit(6, 0);
 
 }
 #endif // ROBOT_BIG et ROBOT_SMALL
