@@ -57,6 +57,13 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 	};
 #endif
 
+// Liste des positions à effectuer pendant un selftest
+const SELFTEST_action_t arm_selftest_action[] = {
+	{ACT_ARM_GOTO, ACT_ARM_POS_OPEN, QUEUE_ACT_Arm},
+	{ACT_ARM_GOTO, ACT_ARM_POS_PARKED, QUEUE_ACT_Arm}
+};
+
+const Uint8 ARM_SELFTEST_NUMBER = sizeof(arm_selftest_action) / sizeof(SELFTEST_action_t);
 
 // Changement d'état possible (ligne -> colonne)
 //                              lignes         colonnes
@@ -64,16 +71,6 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 
 static void add_perm_transitions_table(ARM_state_e old_state, Uint8 number_of_new_state, ARM_state_e new_state[]);
-
-
-// Etats à prendre pour initialiser le bras dans une position connue
-const ARM_state_e ARM_INIT[] = {
-	ACT_ARM_POS_OPEN,
-	ACT_ARM_POS_PARKED
-};
-
-
-const Uint8 ARM_INIT_NUMBER = sizeof(ARM_INIT) / sizeof(ARM_state_e);
 
 
 //Fonctions de récupération des positions des moteurs DC
