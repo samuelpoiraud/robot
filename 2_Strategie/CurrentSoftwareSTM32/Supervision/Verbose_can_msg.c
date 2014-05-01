@@ -57,6 +57,13 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case STRAT_PROP_SELFTEST_DONE :			print(string, len, "%x STRAT_PROP_SELFTEST_DONE                   	", STRAT_PROP_SELFTEST_DONE 					);	break;
 		case STRAT_BEACON_IR_SELFTEST_DONE:		print(string, len, "%x STRAT_BEACON_IR_SELFTEST_DONE               	", STRAT_BEACON_IR_SELFTEST_DONE				);	break;
 		case STRAT_BEACON_US_SELFTEST_DONE:		print(string, len, "%x STRAT_BEACON_US_SELFTEST_DONE               	", STRAT_BEACON_US_SELFTEST_DONE				);	break;
+		case STRAT_TRIANGLE_POSITON:			print(string, len, "%x STRAT_TRIANGLE_POSITON              ", STRAT_TRIANGLE_POSITON			);	break;
+		case STRAT_TRIANGLE_WARNER:				print(string, len, "%x STRAT_TRIANGLE_WARNER               ", STRAT_TRIANGLE_WARNER				);	break;
+		case STRAT_SCAN_ANYTHING:				print(string, len, "%x STRAT_SCAN_ANYTHING                 ", STRAT_SCAN_ANYTHING				);	break;
+		case STRAT_ADVERSARIES_POSITION:		print(string, len, "%x STRAT_ADVERSARIES_POSITION          ", STRAT_ADVERSARIES_POSITION		);	break;
+		case STRAT_INFORM_FILET:				print(string, len, "%x STRAT_INFORM_FILET				   ", STRAT_INFORM_FILET				);	break;
+		case STRAT_INFORM_FRUIT_MOUTH:			print(string, len, "%x STRAT_INFORM_FRUIT_MOUTH			   ", STRAT_INFORM_FRUIT_MOUTH			);	break;
+		case STRAT_ANSWER_POMPE:				print(string, len, "%x STRAT_ANSWER_POMPE				   ", STRAT_ANSWER_POMPE				);	break;
 		case CARTE_P_TRAJ_FINIE:				print(string, len, "%x CARTE_P_TRAJ_FINIE               	", CARTE_P_TRAJ_FINIE				);	break;
 		case CARTE_P_ASSER_ERREUR:				print(string, len, "%x CARTE_P_ASSER_ERREUR             	", CARTE_P_ASSER_ERREUR				);	break;
 		case CARTE_P_ROBOT_FREINE:				print(string, len, "%x CARTE_P_ROBOT_FREINE             	",	CARTE_P_ROBOT_FREINE			);	break;
@@ -75,6 +82,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case ASSER_WARN_Y:						print(string, len, "%x ASSER_WARN_Y                     	", ASSER_WARN_Y						);	break;
 		case CARTE_ASSER_FIN_ERREUR:			print(string, len, "%x CARTE_ASSER_FIN_ERREUR           	", CARTE_ASSER_FIN_ERREUR			);	break;
 		case ASSER_LAUNCH_SCAN_TRIANGLE:		print(string, len, "%x ASSER_LAUNCH_SCAN_TRIANGLE           ", ASSER_LAUNCH_SCAN_TRIANGLE		);	break;
+		case ASSER_LAUNCH_WARNER_TRIANGLE:		print(string, len, "%x ASSER_LAUNCH_WARNER_TRIANGLE         ", ASSER_LAUNCH_WARNER_TRIANGLE		);	break;
 /*		case ACT_DCM_POS:						print(string, len, "%x ACT_DCM_POS                      	", ACT_DCM_POS						);	break;
 		case ACT_CLAMP_PREPARED:				print(string, len, "%x ACT_CLAMP_PREPARED               	", ACT_CLAMP_PREPARED				);	break;
 		case ACT_PAWN_GOT:						print(string, len, "%x ACT_PAWN_GOT                     	", ACT_PAWN_GOT						);	break;
@@ -103,13 +111,20 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 // Les lignes commentées à gauche sont celles qui ne sont pas traitées.
 	switch(msg->sid)
 	{
-		case BROADCAST_START:					print_broadcast_start_infos(msg, &string, &len);									break;
+		case BROADCAST_START:					print_broadcast_start_infos(msg, &string, &len);						break;
 	//	case BROADCAST_STOP_ALL:				print(string, len, "|\n");												break;
-	//	case BROADCAST_ALIM:				    print(string, len, "|\n");												break;
-		case IR_ERROR_RESULT:					print_ir_result(msg, &string, &len);												break;
-		case US_ERROR_RESULT:					print_us_result(msg, &string, &len);												break;
+		case BROADCAST_ALIM:				    print(string, len, "état : %s\n", (u8(0))?"ALIM_ON":"ALIM_OFF");		break;
+		case IR_ERROR_RESULT:					print_ir_result(msg, &string, &len);									break;
+		case US_ERROR_RESULT:					print_us_result(msg, &string, &len);									break;
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"JAUNE":"ROUGE"	);		break;
 		case BROADCAST_POSITION_ROBOT :			print(string, len, "| JeSuisEn  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
+	//	case STRAT_TRIANGLE_POSITON:			print(string, len, "|\n");												break;
+		case STRAT_TRIANGLE_WARNER:				print(string, len, "Triangle %d est %s\n", msg->data[0], (msg->data[1])?"Présent":"Absent");	break;
+		case STRAT_SCAN_ANYTHING:				print(string, len, "%s\n",(u8(0))?"Element dans la zone":"Zone vide");	break;
+	//	case STRAT_ADVERSARIES_POSITION:		print(string, len, "|\n");												break;
+		case STRAT_INFORM_FILET:				print(string, len, "Filet %s\n",(u8(0))?"Absent":"Présent");			break;
+		case STRAT_INFORM_FRUIT_MOUTH:			print(string, len, "Fruit mouth %s\n",(u8(0))?"Ouvert":"Fermé");		break;
+		case STRAT_ANSWER_POMPE:				print(string, len, "Pompe %s\n",(u8(0))?"dans le vide":"sous pression");;	break;
 	//	case DEBUG_CARTE_P:						print(string, len, "|\n");												break;
 //		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 //		case DEBUG_ELEMENT_UPDATED:				print(string, len, "|\n");												break;
@@ -133,6 +148,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case ASSER_GO_ANGLE:					print(string, len, "| VaAngle   teta=%d=%d° %s %s %s %d%s %s\n",  angle_rad(1, 2),  angle_deg(1, 2), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"marche avant":((u8(6)&0x10)?"marche arrière":"")	);						break;
 		case ASSER_GO_POSITION:					print(string, len, "| VaPos     x=%d y=%d %s %s %s vitesse %d%s %s\n", u16(1,2), u16(3,4), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"marche avant":((u8(6)&0x10)?"marche arrière":"")	);	break;
 		case ASSER_SET_POSITION:				print(string, len, "| PrendPos  X=%d | Y=%d | teta=0x%x=%d°\n", u16(0,1), u16(2,3),angle_rad(4, 5),  angle_deg(4, 5));													break;
+	//	case ASSER_LAUNCH_WARNER_TRIANGLE:		print(string, len, "|\n");												break;
 		case ASSER_SEND_PERIODICALLY_POSITION: 	print(string, len, "| DitPos    période=%d | translation = %dmm | rotation = %d°\n", u16(0,1),u16(2, 3),  angle_deg(4, 5));										break;
 	//	case ASSER_STOP:						print(string, len, "|\n");												break;
 	//	case ASSER_TELL_POSITION:				print(string, len, "|\n");												break;
