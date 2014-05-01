@@ -18,11 +18,11 @@
 
 //#define ARM_ACT_UPDOWN                           0
 #define ARM_ACT_UPDOWN_DOUBLE_PID				 TRUE
-#define ARM_ACT_UPDOWN_ASSER_KP					 1800
-#define ARM_ACT_UPDOWN_ASSER_KI                  2500
+#define ARM_ACT_UPDOWN_ASSER_KP					 1500
+#define ARM_ACT_UPDOWN_ASSER_KI                  2000
 #define ARM_ACT_UPDOWN_ASSER_KD                  0
-#define ARM_ACT_UPDOWN_ASSER_KP2                 900
-#define ARM_ACT_UPDOWN_ASSER_KI2                 2500
+#define ARM_ACT_UPDOWN_ASSER_KP2                 800
+#define ARM_ACT_UPDOWN_ASSER_KI2                 2000
 #define ARM_ACT_UPDOWN_ASSER_KD2                 0
 #define ARM_ACT_UPDOWN_ASSER_TIMEOUT             5000
 #define ARM_ACT_UPDOWN_ASSER_POS_EPSILON         5
@@ -58,7 +58,7 @@
 #define ARM_ACT_AX12_TRIANGLE_ASSER_TIMEOUT               20
 #define ARM_ACT_AX12_TRIANGLE_ASSER_POS_EPSILON           5
 #define ARM_ACT_AX12_TRIANGLE_ASSER_POS_LARGE_EPSILON     20 //arbitraire, a changer
-#define ARM_ACT_AX12_TRIANGLE_MAX_TORQUE_PERCENT          100
+#define ARM_ACT_AX12_TRIANGLE_MAX_TORQUE_PERCENT          50
 #define ARM_ACT_AX12_TRIANGLE_MAX_VALUE					 280
 #define ARM_ACT_AX12_TRIANGLE_MIN_VALUE					 54
 
