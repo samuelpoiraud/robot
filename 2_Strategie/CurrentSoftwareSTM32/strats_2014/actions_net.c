@@ -31,6 +31,7 @@ void strat_placement_net(){
 		STOP_ROBOT,
 		INIT_PATH,
 		FOUND_PATH,
+		GET_IN,
 		PLACEMENT,
 		PLACEMENT_TETA,
 		STOP_ALL,
@@ -43,6 +44,7 @@ void strat_placement_net(){
 		struct{Sint16 x; Sint16 y;}	node[NB_NODE];
 		Uint16 dist_with_node[NB_NODE];
 		bool_e tryed_node[NB_NODE];
+		enum{RED_MAMMOTH, YELLOW_MAMMOTH} focused_mammoth[NB_NODE];
 		Uint8 selected_node;
 		bool_e all_node_try;
 	}Position;
@@ -51,6 +53,7 @@ void strat_placement_net(){
 		{{600, 450},	{700, 750},		{600, 1050},	{600, 1950},	{600, 2250},	{600, 2550}},
 		{0,				0,				0,				0,				0,				0},
 		{FALSE,			FALSE,			FALSE,			FALSE,			FALSE,			FALSE},
+		{RED_MAMMOTH,	RED_MAMMOTH,	RED_MAMMOTH,	YELLOW_MAMMOTH,	YELLOW_MAMMOTH,	YELLOW_MAMMOTH},
 		0,
 		FALSE
 	};
@@ -91,24 +94,30 @@ void strat_placement_net(){
 				}
 
 			if(pos.all_node_try == FALSE){
-				for(i=0;i<NB_NODE;i++)/*
-					if(global.env.color == RED && pos.node[i].y < 1500){
-						if((pos.dist_with_node[i] < pos.dist_with_node[pos.selected_node])
-								&& pos.tryed_node[i] == FALSE)
-							pos.selected_node = i;
-					}else if(global.env.color == YELLOW && pos.node[i].y > 1500){*/
-						if((pos.dist_with_node[i] < pos.dist_with_node[pos.selected_node])
-								&& pos.tryed_node[i] == FALSE)
-							pos.selected_node = i;
-					//}
-				state = PLACEMENT;
+				for(i=0;i<NB_NODE;i++)
+					if((pos.dist_with_node[i] < pos.dist_with_node[pos.selected_node])
+							&& pos.tryed_node[i] == FALSE)
+						pos.selected_node = i;
+				if((est_dans_carre(250, 2000, 100, 1350, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && pos.focused_mammoth[pos.selected_node] == RED_MAMMOTH)
+								  ||
+				   (est_dans_carre(250, 2000, 2900, 1750, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && pos.focused_mammoth[pos.selected_node] == YELLOW_MAMMOTH))
+					state = PLACEMENT;
+				else
+					state = GET_IN;
 			}else
 				state = NO_PATH;
 
 			break;
 
+		case GET_IN :
+			if(pos.focused_mammoth[pos.selected_node] == RED_MAMMOTH)
+				state = PATHFIND_try_going(B1, GET_IN, PLACEMENT, INIT_PATH, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
+			else
+				state = PATHFIND_try_going(Y1, GET_IN, PLACEMENT, INIT_PATH, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
 		case PLACEMENT :
-			state = try_going(pos.node[pos.selected_node].x, pos.node[pos.selected_node].y, PLACEMENT, PLACEMENT_TETA, INIT_PATH, FAST, ANY_WAY, DODGE_AND_WAIT);
+			state = try_going(pos.node[pos.selected_node].x, pos.node[pos.selected_node].y, PLACEMENT, PLACEMENT_TETA, INIT_PATH, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			if(ON_LEAVING(PLACEMENT))
 				pos.tryed_node[pos.selected_node] = TRUE;
 			break;
