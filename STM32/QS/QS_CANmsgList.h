@@ -313,7 +313,12 @@
 		 * 		5-6		: teta
 		 */
 	#define STRAT_TRIANGLE_WARNER		0x217
+		/*	0 : Numéro du triangle
+		 *  1 : Présence du triangle
+		 */
 	#define STRAT_SCAN_ANYTHING			0x218
+		/*  0 : 0 Si il n'y a rien dans la zone, 1 s'il y a quelque chose
+		 */
 	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
 		#define IT_IS_THE_LAST_ADVERSARY	0x80	//Bit levé si l'adversaire envoyé est le dernier...
 		/*		0 : ADVERSARY_NUMBER | IT_IS_THE_LAST_ADVERSARY	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
@@ -413,7 +418,7 @@
 	//////////////////////////////////////////////
 
 	/////////////////// FRUIT_MOUTH ///////////////////
-	// Message de l'actionneur vers la stratégie pour informer de l'état du filet
+	// Message de l'actionneur vers la stratégie pour informer de l'état du fruit mouth
 	#define STRAT_INFORM_FRUIT_MOUTH (STRAT_FILTER | (ACT_FILTER >> 4) | 2)
 		// Dans data[0]
 		#define STRAT_INFORM_FRUIT_MOUTH_OPEN	(0b000000000)
