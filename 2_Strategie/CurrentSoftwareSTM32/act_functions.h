@@ -103,5 +103,6 @@ bool_e ACT_pompe_order(ACT_pompe_cmd_e cmd, Uint8 param);
 bool_e ACT_arm_goto(ARM_state_e position);
 bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y);
 bool_e ACT_arm_updown_goto(Sint16 height);
+bool_e ACT_arm_updown_rush_in_the_floor(Sint16 height);
 
 #endif /* ndef ACT_FUNCTIONS_H */

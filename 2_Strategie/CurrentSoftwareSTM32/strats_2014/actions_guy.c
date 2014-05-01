@@ -924,7 +924,6 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 		GRAP_TRIANGLE,
 		OPEN_3,
 		ADVANCE,
-		OPEN_NOT_HANDLED,
 		PARKED_NOT_HANDLED,
 		ERROR,
 		DONE
@@ -951,7 +950,7 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 		case IDLE :
 			//torch = TORCH_get_position(choiceTorch);
 
-			torch.x = global.env.pos.x + 200;
+			torch.x = global.env.pos.x + 150;
 			torch.y = global.env.pos.y;
 
 			state = OPEN;
@@ -964,17 +963,17 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			break;
 
 		case TORCHE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, PARKED_NOT_HANDLED);
 			break;
 
 		case DOWN_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
 			if(entrance){
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-				//ACT_arm_updown_goto(50); // gera niveau avec i
+				ACT_arm_updown_rush_in_the_floor(120-i*30); // gera niveau avec i
 			}
-			//if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){ // TODO faire une action plus haut niveau avec time out
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){ // TODO faire une action plus haut niveau avec time out
 				state = ELEMENT_wait_pump_capture_object(DOWN_ARM, UP_ARM, UP_ARM); // L'error est un TIMEOUT on passe quand même à l'étape suivante
-			//}
+			}
 			break;
 
 		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
@@ -985,14 +984,14 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			break;
 
 		case OPEN_2:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_2, FILED_TRIANGLE, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_2, FILED_TRIANGLE, PARKED_NOT_HANDLED);
 			break;
 
 		case FILED_TRIANGLE :
 			if(entrance)
 				i++;
 
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
 
 			break;
 
@@ -1004,19 +1003,19 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			break;
 
 		case BACK:
-			state = try_going(global.env.pos.x, global.env.pos.y+300, BACK, PREPARE_RETURN, OPEN_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_going(global.env.pos.x, global.env.pos.y+300, BACK, PREPARE_RETURN, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case PREPARE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, DOWN_RETURN, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, DOWN_RETURN, PARKED_NOT_HANDLED);
 			break;
 
 		case DOWN_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN, RETURN, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN, RETURN, PARKED_NOT_HANDLED);
 			break;
 
 		case RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, INVERSE_PUMP, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, INVERSE_PUMP, PARKED_NOT_HANDLED);
 			break;
 
 		case INVERSE_PUMP:
@@ -1027,26 +1026,26 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			break;
 
 		case DOWN_RETURN_2:
-			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN_2, PREPARE_RETURN_2, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN_2, PREPARE_RETURN_2, PARKED_NOT_HANDLED);
 			break;
 
 		case PREPARE_RETURN_2:
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN_2, SMALL_ARM_DEPLOYED, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN_2, SMALL_ARM_DEPLOYED, PARKED_NOT_HANDLED);
 			break;
 
 		case SMALL_ARM_DEPLOYED:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, OPEN_NOT_HANDLED);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, PARKED_NOT_HANDLED);
 			break;
 
 		case SMALL_ARM_PARKED:
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 
-			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, TAKE_RETURN, OPEN_NOT_HANDLED);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, TAKE_RETURN, PARKED_NOT_HANDLED);
 			break;
 
 		case TAKE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, TAKE_RETURN, GRAP_TRIANGLE, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, TAKE_RETURN, GRAP_TRIANGLE, PARKED_NOT_HANDLED);
 			break;
 
 		case GRAP_TRIANGLE: // prise du triangle au sol
@@ -1057,15 +1056,11 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 			break;
 
 		case OPEN_3:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_3, ADVANCE, OPEN_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_3, ADVANCE, PARKED_NOT_HANDLED);
 			break;
 
 		case ADVANCE:
-			state = try_going(global.env.pos.x, global.env.pos.y-300, ADVANCE, OPEN_2, OPEN_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case OPEN_NOT_HANDLED:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_NOT_HANDLED, PARKED_NOT_HANDLED, ERROR);
+			state = try_going(global.env.pos.x, global.env.pos.y-300, ADVANCE, OPEN_2, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case PARKED_NOT_HANDLED:
@@ -1184,18 +1179,19 @@ void strat_test_arm(){
 	switch(state){
 		case IDLE :
 			ASSER_set_position(500, 500, 0);
+			global.env.pos.x = 500;
+			global.env.pos.y = 500;
+			global.env.pos.angle = 0;
+
 			state = OPEN1;
 			break;
 
 
 		case OPEN1 :
-			if(entrance)
-				ACT_arm_goto(ACT_ARM_POS_OPEN);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = TORCHE;
+			state = check_sub_action_result(ACT_arm_deploy_torche(OUR_TORCH, HEARTH_OUR), OPEN1, DONE, DONE);
 			break;
 
-		case TORCHE :
+		/*case TORCHE :
 			if(entrance)
 				ACT_arm_goto_XY(ACT_ARM_POS_ON_TORCHE, 500, 680);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
@@ -1221,7 +1217,7 @@ void strat_test_arm(){
 				ACT_arm_goto_XY(ACT_ARM_POS_ON_TRIANGLE, 650, 500);
 			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
 				state = DONE;
-			break;
+			break;*/
 
 
 		/*case TORCHE :
