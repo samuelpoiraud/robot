@@ -51,7 +51,7 @@
 #define RAYON_MIN_GUY				10
 #define RAYON_MAX_GUY				208
 
-#define DISTANCE_MAX_TO_TAKE			30
+#define DISTANCE_MAX_TO_TAKE		30
 
 #define TIME_TO_INC_RUSH			25		//ms
 #define INC_RUSH					5
@@ -318,7 +318,7 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				else if(find_state_path(old_state, msg->data[1])){
 					queue_id_t queueId = QUEUE_create();
 					assert(queueId != QUEUE_CREATE_FAILED);
-					if(queueId != QUEUE_CREATE_FAILED) {
+					if(queueId != QUEUE_CREATE_FAILED){
 						Uint8 i;
 						QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
 
@@ -329,12 +329,10 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 						debug_printf("\n");
 
 						QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
-					} else {	//on indique qu'on a pas géré la commande
-						debug_printf("suce !!!\n");
+					}else	//on indique qu'on a pas géré la commande
 						ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-					}
 				}else
-					ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
+					ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG);
 				break;
 
 			case ACT_ARM_UPDOWN_GOTO :
@@ -349,21 +347,31 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				ARM_stop();
 				break;
 
-			case ACT_ARM_INIT: {
+			case ACT_ARM_INIT:{
 				queue_id_t queueId = QUEUE_create();
 				assert(queueId != QUEUE_CREATE_FAILED);
-				if(queueId != QUEUE_CREATE_FAILED) {
-					Uint8 i;
+				Sint8 temp_old_state = old_state;
+				if(queueId != QUEUE_CREATE_FAILED){
 					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
-
-					for(i = 0; i < ARM_INIT_NUMBER; i++) {
-						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], ARM_INIT[i], &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
+					if(temp_old_state < 0){
+						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], ACT_ARM_POS_OPEN, &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
+						temp_old_state = ACT_ARM_POS_OPEN;
 					}
-
+					if(arm_states_transitions[temp_old_state][POS_INIT_ARM] == 1 && 0){
+						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], POS_INIT_ARM, &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
+					}else if(find_state_path(temp_old_state, POS_INIT_ARM && 0)){
+						Uint8 i;
+						for(i = 0; i < taille_path; i++){
+							QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], switch_state[i], &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
+							debug_printf("-> %s", ARM_STATES_NAME[switch_state[i]]);
+						}
+						debug_printf("\n");
+					}else
+						ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG);
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
-				} else {	//on indique qu'on a pas géré la commande
+				}else
 					ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
-				}
+
 				break;
 			}
 
@@ -396,18 +404,8 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				warn_printf("invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
-	} else if(msg->sid == ACT_DO_SELFTEST) {
-		SELFTEST_action_t tests[ARM_INIT_NUMBER];
-		Uint8 i;
-
-		for(i = 0; i < ARM_INIT_NUMBER; i++) {
-			tests[i].canCommand = ACT_ARM_INIT;
-			tests[i].optionnal_act = QUEUE_ACT_Arm;
-			tests[i].param = ARM_INIT[i];
-		}
-
-		SELFTEST_set_actions(&ARM_run_command, ARM_INIT_NUMBER, tests);
-	}
+	} else if(msg->sid == ACT_DO_SELFTEST)
+		SELFTEST_set_actions(&ARM_run_command, ARM_SELFTEST_NUMBER, arm_selftest_action);
 
 	return FALSE;
 }
