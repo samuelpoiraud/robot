@@ -272,7 +272,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 	if(result != ACT_RESULT_DONE)
 		level = LOG_LEVEL_Error;
 	if(paramType == CAN_TPT_Normal) {
-		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), param: 0x%x(%u) (%s)\n",
+		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), param: 0x%x(%u) (%s)\n\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
@@ -280,7 +280,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 			param, param,
 			sendedStr);
 	} else if(paramType == CAN_TPT_Line) {
-		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), line: %u (%s)\n",
+		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u), line: %u (%s)\n\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
@@ -288,7 +288,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 			param,
 			sendedStr);
 	} else {
-		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u) (%s)\n",
+		component_printf(level, "Result msg: Act: %s(0x%x), cmd: 0x%x(%u), result: %s(%u), error: %s(%u) (%s)\n\n",
 			originalSidStr, originalSid & 0xFF,
 			originalCommand, originalCommand,
 			resultStr, result,
