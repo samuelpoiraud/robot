@@ -48,10 +48,10 @@
 
 #define RAYON_MIN_PIERRE			10
 #define RAYON_MAX_PIERRE			208
-#define RAYON_MIN_GUY				10
-#define RAYON_MAX_GUY				208
+#define RAYON_MIN_GUY				110
+#define RAYON_MAX_GUY				220
 
-#define DISTANCE_MAX_TO_TAKE		30
+#define DISTANCE_MAX_TO_TAKE		50
 
 #define TIME_TO_INC_RUSH			25		//ms
 #define INC_RUSH					5
@@ -357,9 +357,9 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], ACT_ARM_POS_OPEN, &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
 						temp_old_state = ACT_ARM_POS_OPEN;
 					}
-					if(arm_states_transitions[temp_old_state][POS_INIT_ARM] == 1 && 0){
+					if(arm_states_transitions[temp_old_state][POS_INIT_ARM] == 1){
 						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], POS_INIT_ARM, &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
-					}else if(find_state_path(temp_old_state, POS_INIT_ARM && 0)){
+					}else if(find_state_path(temp_old_state, POS_INIT_ARM)){
 						Uint8 i;
 						for(i = 0; i < taille_path; i++){
 							QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], switch_state[i], &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);

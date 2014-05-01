@@ -33,6 +33,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 	// moteur (dans l'ordre)
 	{-345	,153	,274,	249},	//ARM_ST_Parked
+	{-345	,142	,239,	245},	//ARM_ST_Mid
 	{-345	,145	,218,	249},	//ARM_ST_Open
 	{-345	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
 	{-200	,148	,214,	145},	//ARM_ST_To_Storage
@@ -47,7 +48,8 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 	// moteur (dans l'ordre)
 	{-345	,153	,274,	249},	//ARM_ST_Parked
-	{-345	,145	,218,	249},	//ARM_ST_Open
+	{-345	,142	,239,	245},	//ARM_ST_Mid
+	{-345	,145	,218,	152},	//ARM_ST_Open
 	{-345	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
 	{-200	,148	,214,	145},	//ARM_ST_To_Storage
 	{-351	,169	,280,	233},	//ARM_ST_To_Carry
@@ -101,8 +103,9 @@ void init_perm_transitions_table(){
 		for(j=0;j<ARM_ST_NUMBER;j++)
 			arm_states_transitions[i][j] = 0;
 	//						   /Ancien état       /Nombre d'état suivant possible      /Liste des états suivant possible
-	add_perm_transitions_table(ACT_ARM_POS_PARKED,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
-	add_perm_transitions_table(ACT_ARM_POS_OPEN,				7,	(ARM_state_e[]){ACT_ARM_POS_PARKED, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE, ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_CARRY});
+	add_perm_transitions_table(ACT_ARM_POS_PARKED,				1,	(ARM_state_e[]){ACT_ARM_POS_MID});
+	add_perm_transitions_table(ACT_ARM_POS_MID,					2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_PARKED});
+	add_perm_transitions_table(ACT_ARM_POS_OPEN,				6,	(ARM_state_e[]){ACT_ARM_POS_MID, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE, ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_CARRY});
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_STORAGE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_CARRY,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});

@@ -161,3 +161,12 @@ bool_e ACT_arm_updown_goto(Sint16 height){
 	debug_printf("Pushing Arm updown to z : %d mm \n", height);
 	return ACT_push_operation(ACT_QUEUE_Arm, &args);
 }
+
+bool_e ACT_arm_updown_rush_in_the_floor(Sint16 height){
+	QUEUE_arg_t args;
+
+	ACT_arg_init_with_param(&args, ACT_ARM, ACT_ARM_UPDOWN_RUSH_IN_FLOOR, height);
+
+	debug_printf("Pushing Arm updown rush in the floor to z : %d mm \n", height);
+	return ACT_push_operation(ACT_QUEUE_Arm, &args);
+}
