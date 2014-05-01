@@ -479,6 +479,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_OPEN) \
 			XX(ACT_ARM_POS_ON_TORCHE) \
 			XX(ACT_ARM_POS_TO_STORAGE) \
+			XX(ACT_ARM_POS_TO_CARRY) \
 			XX(ACT_ARM_POS_TO_PREPARE_RETURN) \
 			XX(ACT_ARM_POS_TO_DOWN_RETURN) \
 			XX(ACT_ARM_POS_TO_RETURN) \
