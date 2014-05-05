@@ -324,6 +324,12 @@
 		ANYWHERE
 	}torch_filed_e;
 
+	typedef struct{
+		Sint16 x;
+		Sint16 y;
+		Sint16 teta;
+	}objet_t;
+
 
 
 	// Fonction de réception de message CAN
@@ -334,6 +340,7 @@
 	void ELEMENT_answer_pump(CAN_msg_t *msg);			// Récupère la réponse de la pompe
 
 	// Fonction utilisateur
+	void ELEMENT_get_object(objet_t obj[3][20]);	// Retourne le tableau d'objet
 	void ELEMENT_afficher_triangle();			// Affiche tout les triangles que le scan a trouver
 	bool_e ELEMENT_triangle_present();			// Retourne la présence d'un triangle après demande de la warner
 	bool_e ELEMENT_torche_present();			// Retounre la présence d'une torche après un scan

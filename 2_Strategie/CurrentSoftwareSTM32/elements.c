@@ -43,7 +43,7 @@ static enum{
 	PUMP_ANSWER_ANYTHING, PUMP_ANSWER_NO, PUMP_ANSWER_YES
 }pump_answer = PUMP_ANSWER_ANYTHING;
 
-static struct{Sint16 x; Sint16 y; Sint16 teta;} objet[3][20];
+static objet_t objet[3][20];
 static Uint8 nb_objet[3];
 
 
@@ -281,6 +281,15 @@ void ELEMENT_afficher_triangle(){
 	for(i=0;i<3;i++){
 		for(j=0;j<nb_objet[i];j++){
 			debug_printf("%d %d  x:%d  y:%d  teta:%d\n", i, j, objet[i][j].x, objet[i][j].y, objet[i][j].teta);
+		}
+	}
+}
+
+void ELEMENT_get_object(objet_t obj[][20]){
+	Uint8 i, j;
+	for(i=0;i<3;i++){
+		for(j=0;j<nb_objet[i];j++){
+			obj[i][j] = objet[i][j];
 		}
 	}
 }
