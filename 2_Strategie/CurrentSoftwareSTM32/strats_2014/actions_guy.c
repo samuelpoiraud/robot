@@ -43,6 +43,7 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 
 #define DIM_START_TRAVEL_TORCH 200
 #define ARM_TIMEOUT 10000
+#define DIM_TRIANGLE 100
 
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions d'homologation			                 */
@@ -802,10 +803,155 @@ error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed){
 }
 
 
-/* Fait tomber le premier triangle par une rotation,
- * puis prend le 2éme et l'emmène soit sur le foyer
- * ou bien au pied d'un arbre
- */
+error_e do_triangle_start_adversary(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLE_START_ADVERSARY,
+		IDLE,
+		GET_IN,
+		POS_START,
+		SCAN_TRIANGLE,
+		ANALYZE,
+		POS_TAKE,
+		TAKE,
+		MOVE_DROP_TRIANGLE,
+		DROP_TRIANGLE,
+		DROP_ANYWHERE,
+		GET_OUT_CAVERN,
+		GET_OUT_TREE,
+		DONE,
+		ERROR,
+		RETURN_NOT_HANDLED
+	);
+
+	static objet_t objet;
+	static GEOMETRY_point_t point;
+	static bool_e i_have_triangle = FALSE;
+
+	switch(state){
+		case IDLE:
+
+			if((est_dans_carre(400, 1200, 2000, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color == RED) ||
+				(est_dans_carre(400, 1200, 400, 1000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color != RED))
+				state = POS_START;
+			else
+				state = GET_IN;						//On se rend à la première position par le pathfind
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going((global.env.color == RED)?Z1:A1,GET_IN, POS_START, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case POS_START:
+			state = try_going(900,(global.env.color == RED)? 2600:400, POS_START, SCAN_TRIANGLE, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case SCAN_TRIANGLE:
+			state = ELEMENT_try_going_and_rotate_scan((global.env.color == RED)?3*PI4096/4:-PI4096/4, (global.env.color == RED)?PI4096/4:-3*PI4096/4, 90,
+							 900, (global.env.color == RED)? 2600:400, SCAN_TRIANGLE, ANALYZE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case ANALYZE:{
+			objet_t tabObjet[3][20];
+			ELEMENT_get_object(tabObjet);
+
+			if(tabObjet[0][0].x != 0 && tabObjet[0][0].y != 0){
+				objet = tabObjet[0][0];
+				state = POS_TAKE;
+			}else{
+				state = ERROR;
+				set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
+			}
+
+		}break;
+
+		case POS_TAKE:{
+			if(entrance){
+				Uint16 norm = GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){objet.x,objet.y});
+
+				float coefx = (global.env.pos.x - objet.x)/(norm*1.);
+				float coefy = (global.env.pos.y - objet.y)/(norm*1.);
+
+
+				point.x = objet.x + DIM_TRIANGLE*coefx;
+				point.y = objet.y + DIM_TRIANGLE*coefy;
+			}
+
+			state = try_going(point.x,point.y, POS_TAKE, TAKE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+
+			}break;
+
+		case TAKE:
+			//Prend le triangle a la position objet
+
+			state = MOVE_DROP_TRIANGLE;
+			i_have_triangle = TRUE;
+			break;
+
+		case MOVE_DROP_TRIANGLE:
+#ifdef DROP_TRIANGLE_UNDER_TREE
+			state = try_going(1300,(global.env.color == RED)?2750:250,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+#else
+			state = DROP_ANYWHERE;
+#endif
+			break;
+
+		case DROP_TRIANGLE:
+			//Pose le triangle à l'endroit voulu
+#ifdef DROP_TRIANGLE_UNDER_TREE
+			state = GET_OUT_TREE;
+#else
+			state = DROP_ANYWHERE;
+#endif
+			i_have_triangle = FALSE;
+			set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
+			break;
+
+		case DROP_ANYWHERE:
+			state = GET_OUT_CAVERN;
+			i_have_triangle = FALSE;
+			set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
+			break;
+
+		case GET_OUT_CAVERN:
+			state = try_going(750,(global.env.color == RED)?2600:400,GET_OUT_CAVERN,RETURN_NOT_HANDLED,GET_OUT_TREE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case GET_OUT_TREE:
+			state = try_going(1350,(global.env.color == RED)?2600:400,GET_OUT_TREE,RETURN_NOT_HANDLED,GET_OUT_CAVERN,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			if((est_dans_carre(400, 1600, 1900, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color == RED) ||
+				(est_dans_carre(400, 1600, 400, 1100, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color != RED)  ) // Est sur le pathfind
+				state = RETURN_NOT_HANDLED;
+			else if(global.env.pos.x > 1050)
+				state = GET_OUT_TREE;
+			else
+				state = GET_OUT_CAVERN;
+
+			break;
+
+		case RETURN_NOT_HANDLED :
+			if(i_have_triangle)
+				state = DROP_ANYWHERE;
+			else{
+				state = IDLE;
+				return NOT_HANDLED;
+			}
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
 error_e do_triangles_between_trees(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLES_BETWEEN_TREES,
 		IDLE,
@@ -878,14 +1024,14 @@ error_e do_triangles_between_trees(){
 			break;
 
 		case POS_START_DETECTION:
-			state = try_going(dpl_dect[0].x, dpl_dect[0].y, POS_START_DETECTION, DETECTION_TRIANGLE_1, ERROR, SLOW, ANY_WAY, NO_AVOIDANCE);
+			state = try_going(dpl_dect[0].x, dpl_dect[0].y, POS_START_DETECTION, DETECTION_TRIANGLE_1, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case DETECTION_TRIANGLE_1:
 			if(entrance)
 				ELEMENT_launch_triangle_warner((global.env.pos.y > 1500)? 3:2);
 
-			state = try_going(1600, 1500, DETECTION_TRIANGLE_1, DETECTION_TRIANGLE_2, ERROR, SLOW, ANY_WAY, NO_AVOIDANCE);
+			state = try_going(1600, 1500, DETECTION_TRIANGLE_1, DETECTION_TRIANGLE_2, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case DETECTION_TRIANGLE_2:
@@ -900,7 +1046,7 @@ error_e do_triangles_between_trees(){
 				ELEMENT_launch_triangle_warner((dpl_dect[0].y > dpl_dect[1].y)? 2:3); // Ne peut pas faire confiance à la comparaison global.env.pos.y trop proche de 1500
 			}
 
-			state = try_going(dpl_dect[1].x, dpl_dect[1].y, DETECTION_TRIANGLE_2, CHOICE, ERROR, SLOW, ANY_WAY, NO_AVOIDANCE);
+			state = try_going(dpl_dect[1].x, dpl_dect[1].y, DETECTION_TRIANGLE_2, CHOICE, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
 
 			break;
 
@@ -955,9 +1101,9 @@ error_e do_triangles_between_trees(){
 
 		case MOVE_DROP_TRIANGLE:
 #ifdef DROP_TRIANGLE_UNDER_TREE
-			state = try_going(1750,(global.env.color == RED)?2300:700,MOVE_DROP_TRIANGLE,TAKE_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1750,(global.env.color == RED)?2300:700,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 #else
-			state = try_going(1350,1500,MOVE_DROP_TRIANGLE,TAKE_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1350,1500,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			try_drop_triangle_center = TRUE;
 #endif
 			break;
@@ -1071,6 +1217,7 @@ error_e do_triangles_between_trees(){
 
 	return IN_PROGRESS;
 }
+
 
 error_e travel_torch_line(torch_choice_e torch_choice,torch_filed_e choice,Sint16 posEndxIn, Sint16 posEndyIn){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
