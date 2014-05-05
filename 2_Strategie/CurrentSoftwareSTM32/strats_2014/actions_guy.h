@@ -35,5 +35,6 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed);
 error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed);
 error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+error_e do_triangles_between_trees();
 
 #endif /* ACTIONS_GUY_H_ */
