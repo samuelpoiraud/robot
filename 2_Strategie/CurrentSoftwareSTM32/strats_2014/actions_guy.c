@@ -29,6 +29,9 @@ static void REACH_POINT_GET_OUT_INIT_send_request();
 //#define WAY_INIT_MAMMOUTH_SIDE
 
 
+//#define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
+
+
 //#define FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
 
 // Fonctionne que pour les chemins MAMMOUTH_SIDE et HEART_SIDE (chemin par defaut si aucun define)
@@ -792,6 +795,201 @@ error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed){
 }
 
 
+/* Fait tomber le premier triangle par une rotation,
+ * puis prend le 2éme et l'emmène soit sur le foyer
+ * ou bien au pied d'un arbre
+ */
+error_e do_triangles_between_trees(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLES_BETWEEN_TREES,
+		IDLE,
+		GET_IN,
+		POS_START,
+		ORIENTATION,
+		GET_OUT_ARM,
+		TURN,
+		MOVE,
+		TAKE_TRIANGLE,
+		MOVE_DROP_TRIANGLE,
+		DROP_TRIANGLE,
+		MOVE_FORCED_DROP_HEARTH,
+		FORCED_DROP_HEARTH,
+		DROP_TRIANGLE_ANYWHERE,
+		GET_OUT_SIDE_RED,
+		GET_OUT_SIDE_MIDDLE,
+		GET_OUT_SIDE_YELLOW,
+		GET_OUT_M2,
+		GET_OUT_W2,
+		GET_OUT_C2,
+		GET_OUT_Y3,
+		GET_OUT_B3,
+		GET_OUT_C3,
+		GET_OUT_W3,
+		DONE,
+		ERROR,
+		RETURN_NOT_HANDLED
+	);
+
+	static bool_e i_have_triangle = FALSE;
+	static bool_e try_drop_triangle_center = FALSE;
+
+	switch(state){
+		case IDLE:
+
+			if(est_dans_carre(1500, 2000, 1000, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				state = POS_START;				//On se rend à la première position directement
+			else
+				state = GET_IN;						//On se rend à la première position par le pathfind
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going(M3,GET_IN, POS_START, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case POS_START:
+			//en cas d'échec, on peut rendre la main où l'on se trouve.
+			state = try_going(1800, 1500, POS_START, ORIENTATION, RETURN_NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case ORIENTATION:
+			state = try_go_angle(0,ORIENTATION,GET_OUT_ARM,RETURN_NOT_HANDLED,FAST);
+			break;
+
+		case GET_OUT_ARM:
+
+			// A remplir
+
+			state = TURN;
+			break;
+
+		// Tourne pour faire tomber le premier trinagle
+		case TURN:
+			state = try_go_angle((global.env.color == RED)?PI4096/2:-PI4096/2,TURN,MOVE,RETURN_NOT_HANDLED,FAST);
+			break;
+
+		case MOVE: // Bouge vers le second triangle
+			state = try_going(1800,(global.env.color == RED)?1300:1700,MOVE,TAKE_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case TAKE_TRIANGLE:
+			state = MOVE_DROP_TRIANGLE;
+			i_have_triangle = TRUE;
+			break;
+
+		case MOVE_DROP_TRIANGLE:
+#ifdef DROP_TRIANGLE_UNDER_TREE
+			state = try_going(1750,(global.env.color == RED)?2300:700,MOVE_DROP_TRIANGLE,TAKE_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+#else
+			state = try_going(1350,1500,MOVE_DROP_TRIANGLE,TAKE_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			try_drop_triangle_center = TRUE;
+#endif
+			break;
+
+		case DROP_TRIANGLE:
+			// A partir d'ici les get_out partent dans tous les sens
+			//Pose le triangle à l'endroit voulu
+#ifdef DROP_TRIANGLE_UNDER_TREE
+			if(global.env.color == RED){
+				state = GET_OUT_Y3;
+			}else{
+				state = GET_OUT_B3;
+			}
+#else
+			state = GET_OUT_M2;
+#endif
+			i_have_triangle = FALSE;
+			break;
+
+		case DROP_TRIANGLE_ANYWHERE:
+			state = RETURN_NOT_HANDLED;
+			i_have_triangle = FALSE;
+			break;
+
+
+		// Si l'action de poser le triangle sous l'arbre a echoué, on réssaye sur le foyer
+		case MOVE_FORCED_DROP_HEARTH:
+			state = try_going(1350,1500,MOVE_FORCED_DROP_HEARTH,FORCED_DROP_HEARTH,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case FORCED_DROP_HEARTH:
+			state = GET_OUT_M2;
+			i_have_triangle = FALSE;
+			break;
+
+		// Sorti du bord
+		case GET_OUT_SIDE_RED: // C3
+			state = try_going(1650,1100,GET_OUT_SIDE_RED,RETURN_NOT_HANDLED,GET_OUT_SIDE_MIDDLE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_SIDE_MIDDLE: // M3
+			state = try_going(1700,1500,GET_OUT_SIDE_MIDDLE,RETURN_NOT_HANDLED,(global.env.color == RED)?GET_OUT_SIDE_RED:GET_OUT_SIDE_YELLOW,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_SIDE_YELLOW: // W3
+			state = try_going(1650,1900,GET_OUT_SIDE_YELLOW,RETURN_NOT_HANDLED,GET_OUT_SIDE_MIDDLE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		// Sorti du milieu va chercher a rejoindre soit le point M2 ou un point situé chez l'adversaire pour ne pas déranger pierre
+		case GET_OUT_M2:
+			state = try_going(1450,1500,GET_OUT_M2,RETURN_NOT_HANDLED,(global.env.color == RED)?GET_OUT_W2:GET_OUT_C2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_W2:
+			state = try_going(1250,1900,GET_OUT_W2,RETURN_NOT_HANDLED,GET_OUT_M2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_C2:
+			state = try_going(1250,1100,GET_OUT_C2,RETURN_NOT_HANDLED,GET_OUT_M2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		// Sorti de sous l'arbre jaune
+		case GET_OUT_Y3:
+			state = try_going(1600,2250,GET_OUT_Y3,(last_state == DROP_TRIANGLE)? DONE:RETURN_NOT_HANDLED,GET_OUT_W3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_W3:
+			state = try_going(1650,1900,GET_OUT_W3,RETURN_NOT_HANDLED,GET_OUT_Y3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		// Sorti de sous l'arbre rouge
+		case GET_OUT_B3:
+			state = try_going(1600,750,GET_OUT_B3,(last_state == DROP_TRIANGLE)? DONE:RETURN_NOT_HANDLED,GET_OUT_C3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_C3:
+			state = try_going(1650,1100,GET_OUT_C3,RETURN_NOT_HANDLED,GET_OUT_B3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			if(est_dans_carre(1400, 1750, 600, 2400, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le pathfind
+				state = RETURN_NOT_HANDLED;
+			else if(est_dans_carre(1750, 2000, 1200, 1800, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le bord
+				state = GET_OUT_SIDE_MIDDLE;
+			else if(est_dans_carre(1750, 2000, 500, 1000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // sous l'arbre rouge
+				state = GET_OUT_B3;
+			else if(est_dans_carre(1750, 2000, 2000, 2500, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // sous l'arbre jaune
+				state = GET_OUT_Y3;
+			else
+				state = GET_OUT_M2;
+
+			break;
+
+		case RETURN_NOT_HANDLED :
+			if(try_drop_triangle_center == FALSE && i_have_triangle == TRUE){ // Si nous avons essayer de poser le triangle sous l'arbre et l'action est echoue
+				try_drop_triangle_center = TRUE;
+				state = MOVE_FORCED_DROP_HEARTH;
+			}else if(i_have_triangle == TRUE){ // Si nous avons toujours un triangle, on le pose ou nous sommes
+				state = DROP_TRIANGLE_ANYWHERE;
+			}else{
+				state = IDLE;
+				return NOT_HANDLED;
+			}
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
 
 error_e travel_torch_line(torch_choice_e torch_choice,torch_filed_e choice,Sint16 posEndxIn, Sint16 posEndyIn){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
