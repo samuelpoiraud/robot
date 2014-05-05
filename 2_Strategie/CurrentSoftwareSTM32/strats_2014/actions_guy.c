@@ -12,6 +12,7 @@
 #include "actions_guy.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
+#include "../high_level_strat.h"
 #include "../elements.h"
 #include "../Geometry.h"
 #include "../Pathfind.h"
@@ -29,7 +30,8 @@ static void REACH_POINT_GET_OUT_INIT_send_request();
 //#define WAY_INIT_MAMMOUTH_SIDE
 
 
-//#define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
+#define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
+#define DETECTION_TRIANGLE_MIDDLE	// Pour savoir si nous avons besoins de faire un dection des triangles du milieu ou non pour la strat triangles_between_tree
 
 
 //#define FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
@@ -411,6 +413,7 @@ void strat_inutile_guy(void){
 		RAMEMENER_TORCH,
 		DEPLOY_TORCH,
 		DO_TORCH,
+		DO_TRIANGLE,
 		POINT_1,
 		POINT_2,
 		POINT_3,
@@ -423,7 +426,7 @@ void strat_inutile_guy(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,POINT_1,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,DO_TRIANGLE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case RAMEMENER_TORCH:
@@ -436,6 +439,10 @@ void strat_inutile_guy(void){
 
 		case DEPLOY_TORCH:
 			state = check_sub_action_result(ACT_arm_deploy_torche(OUR_TORCH,HEARTH_OUR),DEPLOY_TORCH,DONE,ERROR);
+			break;
+
+		case DO_TRIANGLE:
+			state = check_sub_action_result(do_triangles_between_trees(),DO_TRIANGLE,DONE,ERROR);
 			break;
 
 		case POINT_1:
@@ -803,6 +810,11 @@ error_e do_triangles_between_trees(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLES_BETWEEN_TREES,
 		IDLE,
 		GET_IN,
+		CHOICE_DETECTION,
+		POS_START_DETECTION,
+		DETECTION_TRIANGLE_1,
+		DETECTION_TRIANGLE_2,
+		CHOICE,
 		POS_START,
 		ORIENTATION,
 		GET_OUT_ARM,
@@ -831,27 +843,91 @@ error_e do_triangles_between_trees(){
 
 	static bool_e i_have_triangle = FALSE;
 	static bool_e try_drop_triangle_center = FALSE;
+	static GEOMETRY_point_t dpl_dect[2]; // Les deplacement pour la detection
+
+	static bool_e presence_triangle_2 = TRUE;
+	static bool_e presence_triangle_3 = TRUE;
 
 	switch(state){
 		case IDLE:
 
 			if(est_dans_carre(1500, 2000, 1000, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-				state = POS_START;				//On se rend à la première position directement
+				state = CHOICE_DETECTION;
 			else
 				state = GET_IN;						//On se rend à la première position par le pathfind
 			break;
 
 		case GET_IN:
-			state = PATHFIND_try_going(M3,GET_IN, POS_START, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			state = PATHFIND_try_going(M3,GET_IN, CHOICE_DETECTION, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case CHOICE_DETECTION:
+#ifdef DETECTION_TRIANGLE_MIDDLE
+				if(global.env.pos.y > 1500){
+					dpl_dect[0] = (GEOMETRY_point_t){1600,1900};
+					dpl_dect[1] = (GEOMETRY_point_t){1600,1100};
+				}else{
+					dpl_dect[1] = (GEOMETRY_point_t){1600,1900};
+					dpl_dect[0] = (GEOMETRY_point_t){1600,1100};
+				}
+
+				state = POS_START_DETECTION;
+#else
+				state = POS_START;				//On se rend à la première position directement
+#endif
+			break;
+
+		case POS_START_DETECTION:
+			state = try_going(dpl_dect[0].x, dpl_dect[0].y, POS_START_DETECTION, DETECTION_TRIANGLE_1, ERROR, SLOW, ANY_WAY, NO_AVOIDANCE);
+			break;
+
+		case DETECTION_TRIANGLE_1:
+			if(entrance)
+				ELEMENT_launch_triangle_warner((global.env.pos.y > 1500)? 3:2);
+
+			state = try_going(1600, 1500, DETECTION_TRIANGLE_1, DETECTION_TRIANGLE_2, ERROR, SLOW, ANY_WAY, NO_AVOIDANCE);
+			break;
+
+		case DETECTION_TRIANGLE_2:
+			if(entrance){
+				if(!ELEMENT_triangle_present()){ // Par default, les triangles sont présent
+					if(dpl_dect[0].y > dpl_dect[1].y) // On regarde le triangle 3 en premier
+						presence_triangle_3 = FALSE;
+					else
+						presence_triangle_2 = FALSE;
+				}
+
+				ELEMENT_launch_triangle_warner((dpl_dect[0].y > dpl_dect[1].y)? 2:3); // Ne peut pas faire confiance à la comparaison global.env.pos.y trop proche de 1500
+			}
+
+			state = try_going(dpl_dect[1].x, dpl_dect[1].y, DETECTION_TRIANGLE_2, CHOICE, ERROR, SLOW, ANY_WAY, NO_AVOIDANCE);
+
+			break;
+
+		case CHOICE:
+			if(!ELEMENT_triangle_present()){ // Par default, les triangles sont présent
+				if(dpl_dect[0].y > dpl_dect[1].y) // On regarde le triangle 3 en premier
+					presence_triangle_2 = FALSE;
+				else
+					presence_triangle_3 = FALSE;
+			}
+
+			if((global.env.color == RED && presence_triangle_3) || (global.env.color != RED && presence_triangle_2)) // Regarde, si le premier triangle est present
+				state = POS_START;
+			else if((global.env.color == RED && presence_triangle_2) || (global.env.color != RED && presence_triangle_3)) // Si le premier n'est pas présent, on regarde le 2éme
+				state = MOVE;
+			else
+				state = DONE;
+
 			break;
 
 		case POS_START:
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(1800, 1500, POS_START, ORIENTATION, RETURN_NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(1800, 1500, POS_START, ORIENTATION, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case ORIENTATION:
-			state = try_go_angle(0,ORIENTATION,GET_OUT_ARM,RETURN_NOT_HANDLED,FAST);
+			state = try_go_angle(0,ORIENTATION,GET_OUT_ARM,ERROR,FAST);
 			break;
 
 		case GET_OUT_ARM:
@@ -863,7 +939,7 @@ error_e do_triangles_between_trees(){
 
 		// Tourne pour faire tomber le premier trinagle
 		case TURN:
-			state = try_go_angle((global.env.color == RED)?PI4096/2:-PI4096/2,TURN,MOVE,RETURN_NOT_HANDLED,FAST);
+			state = try_go_angle((global.env.color == RED)?PI4096/2:-PI4096/2,TURN,((global.env.color == RED && presence_triangle_2) || (global.env.color != RED && presence_triangle_3))? MOVE:DONE,ERROR,FAST); // On regarde si le deuxiéme triangle est present
 			break;
 
 		case MOVE: // Bouge vers le second triangle
@@ -873,6 +949,8 @@ error_e do_triangles_between_trees(){
 		case TAKE_TRIANGLE:
 			state = MOVE_DROP_TRIANGLE;
 			i_have_triangle = TRUE;
+
+			set_sub_act_done(SUB_ACTION_TRIANGLE_BETWEEN_TREE,TRUE);// On indique que l'action a été faite, pour ne l'a faire qu'une seule fois, si echec derrière
 			break;
 
 		case MOVE_DROP_TRIANGLE:
@@ -908,6 +986,7 @@ error_e do_triangles_between_trees(){
 		// Si l'action de poser le triangle sous l'arbre a echoué, on réssaye sur le foyer
 		case MOVE_FORCED_DROP_HEARTH:
 			state = try_going(1350,1500,MOVE_FORCED_DROP_HEARTH,FORCED_DROP_HEARTH,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			try_drop_triangle_center = TRUE;
 			break;
 		case FORCED_DROP_HEARTH:
 			state = GET_OUT_M2;
@@ -961,7 +1040,7 @@ error_e do_triangles_between_trees(){
 		case ERROR:
 			if(est_dans_carre(1400, 1750, 600, 2400, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le pathfind
 				state = RETURN_NOT_HANDLED;
-			else if(est_dans_carre(1750, 2000, 1200, 1800, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le bord
+			else if(est_dans_carre(1750, 2000, 1300, 1700, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le bord
 				state = GET_OUT_SIDE_MIDDLE;
 			else if(est_dans_carre(1750, 2000, 500, 1000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // sous l'arbre rouge
 				state = GET_OUT_B3;
@@ -982,6 +1061,8 @@ error_e do_triangles_between_trees(){
 				state = IDLE;
 				return NOT_HANDLED;
 			}
+
+
 			break;
 
 		default:
