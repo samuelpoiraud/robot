@@ -13,6 +13,8 @@
 #include "QS/QS_CANmsgList.h"
 #include "act_functions.h"
 #include "../QS/QS_can_over_xbee.h"
+#include "state_machine_helper.h"
+#include "Pathfind.h"
 #include <math.h>
 
 #define SCAN_TIMEOUT			4000
@@ -24,6 +26,7 @@
 // Pour torche
 #define SMALL_FORWARD_WIDTH 83
 #define RADIUS_TORCH 80
+#define DIM_TRIANGLE 100
 
 static bool_e ELEMENT_propulsion_send_triangle();
 static void ELEMENT_scan_triangle_init();
@@ -50,9 +53,122 @@ static Uint8 nb_objet[3];
 static GEOMETRY_point_t posTorch[2] = {{1050,900},		// Torche Rouge
 									   {1050,2100}};	// Torche Jaune
 
+
+
+
+typedef struct{
+	GEOMETRY_point_t drop;
+	GEOMETRY_point_t getIn;
+	GEOMETRY_point_t getOut;
+
+	//Rectangle d'acceptation
+	Uint16 xMin;
+	Uint16 xMax;
+	Uint16 yMin;
+	Uint16 yMax;
+}pos_drop_t;
+
+pos_drop_t pos_drop[] = {{{400,200},{600,300},{600,300},500,1600,400,1200},			// RED_CAVERN
+						 {{400,2800},{600,2700},{600,2700},500,1600,1800,2600},		// YELLOW_CAVERN
+						 {{1300,150},{1300,400},{1300,400},500,1600,400,1200},		// RED_TREE_MAMOU
+						 {{1850,700},{1600,700},{1600,700},500,1600,400,1200},		// RED_TREE
+						 {{1300,2850},{1300,2600},{1300,2600},500,1600,1800,2600},	// YELLOW_TREE_MAMOU
+						 {{1850,2300},{1600,2300},{1600,2300},500,1600,1800,2600}	// YELLOW_TREE
+						};
+
 //------------------------------------
 // Fonction de lancement / subaction
 //------------------------------------
+
+
+error_e ELEMENT_go_and_drop(pos_drop_e choice){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLE_START_ADVERSARY,
+		IDLE,
+		GET_IN,
+		POS_START,
+		POS_DROP,
+		DROP,
+		GET_OUT,
+		DONE,
+		ERROR,
+		RETURN_NOT_HANDLED
+	);
+
+	static pathfind_node_id_t pathfind;
+	static GEOMETRY_point_t point;
+
+	switch(state){
+		case IDLE:
+
+			if(est_dans_carre(pos_drop[choice].xMin, pos_drop[choice].xMax, pos_drop[choice].yMin, pos_drop[choice].yMax, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				state = POS_START;
+			else
+				state = GET_IN;						//On se rend à la première position par le pathfind
+			break;
+
+		case GET_IN:
+			if(entrance)
+				pathfind = PATHFIND_closestNode(pos_drop[choice].getIn.x, pos_drop[choice].getIn.y, 0);
+
+			state = PATHFIND_try_going(pathfind,GET_IN, POS_START, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case POS_START:
+			state = try_going(pos_drop[choice].getIn.x,pos_drop[choice].getIn.y, POS_START, POS_DROP, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case POS_DROP:{
+			if(entrance){ // On veut déposer le triangle à pos_drop.drop et non placé le robot là
+				Uint16 norm = GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){pos_drop[choice].drop.x,pos_drop[choice].drop.y});
+
+				float coefx = (global.env.pos.x - pos_drop[choice].drop.x)/(norm*1.);
+				float coefy = (global.env.pos.y - pos_drop[choice].drop.y)/(norm*1.);
+
+
+				point.x = pos_drop[choice].drop.x + DIM_TRIANGLE*coefx;
+				point.y = pos_drop[choice].drop.y + DIM_TRIANGLE*coefy;
+			}
+
+			state = try_going(point.x,point.y, POS_DROP, DROP, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			}break;
+
+		case DROP:
+			// Depose le triangle ici
+			state = GET_OUT;
+			break;
+
+		case GET_OUT: // Ne dipose que d'un point de sorti car se trouve trop prêt du bord ou bien pas de sorti possible autrement pour les cavernes
+			state = try_going(pos_drop[choice].getOut.x,pos_drop[choice].getOut.x, GET_OUT, (last_state == DROP)? DONE:RETURN_NOT_HANDLED, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			if(	est_dans_carre(500, 1650, 400, 1200, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) || // Est sur le pathfind
+				est_dans_carre(500, 1650, 1800, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) ||
+				est_dans_carre(500, 700, 400, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) ||
+				est_dans_carre(1400, 1650, 400, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+
+				state = RETURN_NOT_HANDLED;
+			else
+				state = GET_OUT;
+
+			break;
+
+		case RETURN_NOT_HANDLED :
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
 
 
 

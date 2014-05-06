@@ -324,13 +324,23 @@
 		ANYWHERE
 	}torch_filed_e;
 
+	typedef enum{
+		RED_CAVERN,
+		YELLOW_CAVERN,
+		RED_TREE_MAMOU,
+		RED_TREE,
+		YELLOW_TREE_MAMOU,
+		YELLOW_TREE
+	}pos_drop_e;
+
 	typedef struct{
 		Sint16 x;
 		Sint16 y;
 		Sint16 teta;
 	}objet_t;
 
-
+	// Va poser un triangle à l'endriot demandé
+	error_e ELEMENT_go_and_drop(pos_drop_e choice);
 
 	// Fonction de réception de message CAN
 	void ELEMENT_triangle_add_to_list(CAN_msg_t* msg);	// Ajoute le triangle du message can dans la liste

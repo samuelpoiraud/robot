@@ -32,7 +32,7 @@ static void REACH_POINT_GET_OUT_INIT_send_request();
 
 #define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
 #define DETECTION_TRIANGLE_MIDDLE	// Pour savoir si nous avons besoins de faire un dection des triangles du milieu ou non pour la strat triangles_between_tree
-
+#define DIM_TRIANGLE 100
 
 //#define FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
 
@@ -43,7 +43,6 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 
 #define DIM_START_TRAVEL_TORCH 200
 #define ARM_TIMEOUT 10000
-#define DIM_TRIANGLE 100
 
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions d'homologation			                 */
