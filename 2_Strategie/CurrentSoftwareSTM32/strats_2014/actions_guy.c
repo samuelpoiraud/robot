@@ -21,13 +21,15 @@
 #include "../act_functions.h"
 #include "../config/config_pin.h"
 #include "../maths_home.h"
+#include "../Supervision/SD/SD.h"
 #include <math.h>
 
 static void REACH_POINT_GET_OUT_INIT_send_request();
 
-// Par defaut si les deux defines suivant sont desactivés le guy va passer par le foyer centrale
-//#define WAY_INIT_TREE_SIDE  //Chemin proche arbres (Est prioritaire sur le chemin par le mammouth si les deux defines sont actifs)
-//#define WAY_INIT_MAMMOUTH_SIDE	//Chemin coté mamouth
+
+//SWITCH_STRAT2 et SWITCH_STRAT1 permettent de choisir le chemin à emprunter pour se rendre chez l'adversaire
+//Voir le case INIT de la subaction initiale
+//ATTENTION, la route coté mammouths suggère fortement que Pierre commence par la torche et non par la fresque :: sinon conflit !
 
 
 #define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
@@ -36,25 +38,38 @@ static void REACH_POINT_GET_OUT_INIT_send_request();
 
 //#define GUY_FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
 
-// Fonctionne que pour les chemins MAMMOUTH_SIDE et HEART_SIDE (chemin par defaut si aucun define)
+// Fonctionne que pour les chemins MAMMOUTH_SIDE et HEART_SIDE
 bool_e rush_to_torch = FALSE;  // Si FALSE va faire tomber un ou des triangle(s) avant
 bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait que l'ennemis ne le fais pas tomber des le debut
 
 
 //IL FAUT définir une zone de dépose pour la torche adverse. (si on a réussi à la prendre)
-//#define DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
-#define DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
-//#define DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
+	//#define DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+	//#define DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
+	#define DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
 
+//IL FAUT définir une zone de dépose en cas d'échec de la première tentative pour la torche adverse. (si on a réussi à la prendre)
+	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
+	#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
+	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_NO_DISPOSE
 
 #define DIM_START_TRAVEL_TORCH 200
 #define ARM_TIMEOUT 10000
 
+typedef enum
+{
+	NORTH_MAMMOUTH = 0,
+	NORTH_HEART,
+	SOUTH_HEART,
+	SOUTH_TREES
+}initial_path_e;	//Chemin initial choisi pour se rendre du coté adverse
 
+volatile initial_path_e initial_path;
 
 error_e sub_action_initiale_guy(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_INITIALE,
-		IDLE,
+		INIT,
 		SUCESS,
 		GET_OUT_POS_START,
 		FALL_FIRST_FIRE,
@@ -74,33 +89,76 @@ error_e sub_action_initiale_guy(){
 		ERROR
 	);
 
-	static displacement_t points[4];
+	static displacement_t points[6];
+	static Uint8	nb_points = 0;
 	static bool_e pierre_reach_point_C1 = FALSE;
-	static torch_filed_e dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
+	static torch_dispose_zone_e dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
+	static torch_dispose_zone_e if_fail_dispose_zone_for_adversary_torch = NO_DISPOSE;
+	static GEOMETRY_point_t pos_for_take_torch;
 	if(global.env.reach_point_C1)
 		pierre_reach_point_C1 = TRUE;
 
 
 	switch(state)
 	{
-		case IDLE:
+		case INIT:
+			if(SWITCH_STRAT_2)	//NORTH ou SOUTH
+			{
+				if(SWITCH_STRAT_3)	//intérieur ou extérieur
+					initial_path = SOUTH_TREES;		//Sud extérieur : proche des arbres
+				else
+					initial_path = SOUTH_HEART;		//Sud intérieur : proche du foyer central
+			}
+			else
+			{
+				if(SWITCH_STRAT_3)	//intérieur ou extérieur
+					initial_path = NORTH_MAMMOUTH;	//Nord extérieur : proche des mammouths
+				else
+					initial_path = NORTH_HEART;		//Nord intérieur : proche du foyer central
+			}
+
 			//Initialisation des points selon le chemin défini.
-			#ifdef WAY_INIT_TREE_SIDE	//Chemin prêt des arbres
-				points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
-				points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
-				points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
-				points[3] = (displacement_t){{1780,COLOR_Y(1390)},FAST};
-			#elif defined WAY_INIT_MAMMOUTH_SIDE //Chemin coté mammouths
-				points[0] = (displacement_t){{560,COLOR_Y(580)},FAST};
-				points[1] = (displacement_t){{530,COLOR_Y(975)},FAST};
-				points[2] = (displacement_t){{590,COLOR_Y(1530)},FAST};
-				points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
-			#else	//Chemin prêt du foyer central
-				points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
-				points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
-				points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
-				points[3] = (displacement_t){{1400,COLOR_Y(1710)},FAST};
-			#endif
+			switch(initial_path)
+			{
+				case SOUTH_TREES:
+					points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
+					points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
+					points[2] = (displacement_t){{1500,COLOR_Y(1100)},FAST};
+					points[3] = (displacement_t){{1780,COLOR_Y(1390)},FAST};
+					points[4] = (displacement_t){{1780,COLOR_Y(1700)},FAST};
+					nb_points = 5;
+					break;
+				case SOUTH_HEART:
+					points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
+					points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
+					points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
+					#ifdef DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+						points[3] = (displacement_t){{1400,COLOR_Y(1710)},FAST};
+					#else
+						points[3] = (displacement_t){{1400,COLOR_Y(2400)},FAST};
+					#endif
+					nb_points = 4;
+					break;
+				case NORTH_HEART:
+					points[0] = (displacement_t){{560,COLOR_Y(580)},FAST};
+					points[1] = (displacement_t){{530,COLOR_Y(975)},FAST};
+					points[2] = (displacement_t){{590,COLOR_Y(1530)},FAST};
+					#ifdef DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+						points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
+					#else
+						points[3] = (displacement_t){{700,COLOR_Y(2400)},FAST};
+					#endif
+					nb_points = 4;
+					break;
+				case NORTH_MAMMOUTH:
+					points[0] = (displacement_t){{560,COLOR_Y(580)},FAST};
+					points[1] = (displacement_t){{530,COLOR_Y(975)},FAST};
+					points[2] = (displacement_t){{590,COLOR_Y(1530)},FAST};
+					points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
+					nb_points = 4;
+					break;
+			}
+
 			#ifdef GUY_FALL_FIRST_FIRE
 				state = FALL_FIRST_FIRE;
 			#else
@@ -122,17 +180,25 @@ error_e sub_action_initiale_guy(){
 			if(entrance)
 				REACH_POINT_GET_OUT_INIT_send_request();
 
-			#ifdef WAY_INIT_TREE_SIDE
-				state = GOTO_TREE_INIT;
-			#elif defined WAY_INIT_MAMMOUTH_SIDE
-				state = WAIT_GOTO_MAMMOUTH_INIT;
-			#else
-				state = GOTO_HEART_INIT;
-			#endif
+			switch(initial_path)
+			{
+				case SOUTH_TREES:
+					state = GOTO_TREE_INIT;
+					break;
+				case SOUTH_HEART:
+					state = GOTO_HEART_INIT;
+					break;
+				case NORTH_HEART:
+					state = GOTO_HEART_INIT;
+					break;
+				case NORTH_MAMMOUTH:
+					state = WAIT_GOTO_MAMMOUTH_INIT;
+					break;
+			}
 			break;
 
 		case GOTO_TREE_INIT:		//On emprunte le chemin proche des arbres.
-			state  = try_going_multipoint(points,4,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
+			state  = try_going_multipoint(points,nb_points,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case FALL_FIRE_WALL_TREE:
@@ -140,10 +206,11 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GOTO_HEART_INIT:
-			state  = try_going_multipoint(points,4,GOTO_HEART_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_TREE_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
+			state  = try_going_multipoint(points,nb_points,GOTO_HEART_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_TREE_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
 		case FALL_FIRE_MOBILE_TREE_ADV:
+			//TODO (attention, ce même état est utilisé pour les deux chemins proches du foyer... la façon de faire tomber le feu est différente)
 			state = GOTO_TORCH_ADVERSARY;
 			break;
 
@@ -161,7 +228,7 @@ error_e sub_action_initiale_guy(){
 			if(entrance)
 				ASSER_WARNER_arm_y(COLOR_Y(1200));
 
-			state  = try_going_multipoint(points,4,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
+			state  = try_going_multipoint(points,nb_points,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
 
 			if(global.env.asser.reach_y)
 				ZONE_unlock(MZ_MAMMOUTH_OUR);
@@ -174,27 +241,54 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GOTO_TORCH_ADVERSARY:
-			state = try_going_until_break(1100,COLOR_Y(1900),GOTO_TORCH_ADVERSARY,DO_TORCH,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			//TODO ajouter gestion de la torche...
+			if(!SWITCH_STRAT_1)
+				state = DONE;	//On ne fait pas la torche -> on rend la main à la high_level_strat
+			else
+			{
+				if(entrance)
+				{
+					#if !defined(DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH) && !defined(DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH) && !defined (DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH)
+					#error "Vous devez définir l'un de ces 3 defines : DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH, DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH, DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH"
+					#endif
+					#ifdef DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
+						dispose_zone_for_adversary_torch = HEARTH_OUR;
+						pos_for_take_torch.x = 1100;
+						pos_for_take_torch.y = COLOR_Y(2600);
+					#endif
+					#ifdef DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+						dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
+						pos_for_take_torch.x = 902;
+						pos_for_take_torch.y = COLOR_Y(1965);
+					#endif
+					#ifdef DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
+						dispose_zone_for_adversary_torch = HEARTH_CENTRAL;
+						pos_for_take_torch.x = 1100;
+						pos_for_take_torch.y = COLOR_Y(2600);
+					#endif
+
+					#if !defined(IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH) && !defined(IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH) && !defined (IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH) && !defined (IF_FAIL_DISPOSE_ADVERSARY_TORCH_NO_DISPOSE)
+					#error "Vous devez définir l'un de ces 4 defines : DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH, DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH, DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH"
+					#endif
+					#ifdef IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
+						if_fail_dispose_zone_for_adversary_torch = HEARTH_OUR;
+					#endif
+					#ifdef IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+						if_fail_dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
+					#endif
+					#ifdef IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
+						if_fail_dispose_zone_for_adversary_torch = HEARTH_CENTRAL;
+					#endif
+					#ifdef IF_FAIL_DISPOSE_ADVERSARY_TORCH_NO_DISPOSE
+						if_fail_dispose_zone_for_adversary_torch = NO_DISPOSE;
+					#endif
+				}
+				state = try_going(pos_for_take_torch.x,pos_for_take_torch.y,GOTO_TORCH_ADVERSARY,DO_TORCH,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			}
 			break;
 
 		case DO_TORCH:
-			if(entrance)
-			{
-				#if !defined(DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH) && !defined(DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH) && !defined (DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH)
-				#error "Vous devez définir l'un de ces 3 defines : DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH, DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH, DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH"
-				#endif
-				#ifdef DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
-					dispose_zone_for_adversary_torch = HEARTH_OUR;
-				#endif
-				#ifdef DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
-					dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
-				#endif
-				#ifdef DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
-					dispose_zone_for_adversary_torch = HEARTH_CENTRAL;
-				#endif
-			}
-			switch(do_torch(ADVERSARY_TORCH, dispose_zone_for_adversary_torch))
+
+			switch(do_torch(ADVERSARY_TORCH, dispose_zone_for_adversary_torch, if_fail_dispose_zone_for_adversary_torch))
 			{
 				case IN_PROGRESS:
 					break;
@@ -228,9 +322,17 @@ error_e sub_action_initiale_guy(){
 
 
 
-/* Faire une torche signifie
- * - se rend à coté de la torche SI NECESSAIRE (si on y est pas déjà)
- * - Fonction de récupération : pousse la torche sur 10cm dans la bonne direction (en fonction du foyer de dépose)
+/*
+ * PRECONDITIONS ! ATTENTION c'est IMPORTANT
+ * La fonction do_torch calcule un moyen de pousser la torche vers le foyer de destination... MAIS n'INTEGRE PAS DE PATHFIND !
+ * MAIS, elle ne contourne par la torche pour se rendre au premier point de la poussée...
+ * Il FAUT donc appeler cette fonction au bon point, ou éventuellement un peu derrière ce point...
+ *
+ * Attention, la position if_fail_dispose_zone doit être choisie intelligemment, il n'y a pas de protection anti-recouvrement d'élément fixe !
+ *
+ * Faire une torche signifie
+ * - se rend à coté de la torche SI NECESSAIRE (si on y est pas déjà.. mais c'est mieux si on y est !)
+ * - Fonction de récupération : pousse la torche dans la bonne direction (en fonction du foyer de dépose)
  * - Se rend au foyer de dépose
  * 	- en cas d'échec... tente une seconde position de dépose (passée en paramètre)
  * 	- en cas d'échec... abandonne le dépilement de la torche
@@ -240,36 +342,151 @@ error_e sub_action_initiale_guy(){
  * - enregistre le fait de la dépose (et la zone déposée)
  */
 
-error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed){
+error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone, torch_dispose_zone_e if_fail_dispose_zone)
+{
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TORCH,
 		IDLE,
-		PUSH_TORCH,
+		COMPUTE,
+		POS_START_TORCH,
+		POS_INTERMEDIATE,
+		MOVE_TORCH,
+		END_TORCH,
+		REMOTENESS,
 		DEPLOY_TORCH,
 		ERROR,
 		DONE
 	);
+	static torch_dispose_zone_e current_dispose_zone = NO_DISPOSE;
+	static bool_e fail_at_first_dispose_try = FALSE;	//
+	static bool_e i_have_the_torch = FALSE;	//
+	static GEOMETRY_point_t posStart,posEnd,posIntermediate;
+	static bool_e posIntermediate_enable = FALSE;
+	// S'éloigne à la fin de la poussée mais ralenti aussi avant la fin de la poussée
+	static GEOMETRY_point_t eloignement;
+
+	static GEOMETRY_point_t torch;
+	Uint16 norm;
+
 	switch(state){
 		case IDLE :
-			state = PUSH_TORCH;
-			//TODO ajouter zone d'acceptation et raccourcis dans la machine à état si l'on est déjà prêt à prendre une torche !
+			fail_at_first_dispose_try = FALSE;
+			current_dispose_zone = dispose_zone;
+			state = COMPUTE;
+			break;
+		case COMPUTE:
+			torch = TORCH_get_position(torch_choice);
+			posIntermediate_enable = FALSE;
+			switch(current_dispose_zone)
+			{
+				case FILED_FRESCO:
+					posEnd.x = 300;
+					posEnd.y = 1500;
+					break;
+				case HEARTH_OUR:
+					posEnd.x = 1700;		//TODO positions à régler. (il faudra sans doute 2 positions en fonction de notre couleur !)
+					posEnd.y = COLOR_Y(300);
+					if(torch_choice == ADVERSARY_TORCH)
+					{
+						posIntermediate.x = 1450;
+						posIntermediate.y = 1500;
+						posIntermediate_enable = TRUE;
+					}
+					break;
+				case HEARTH_ADVERSARY:
+					posEnd.x = 1700;			//TODO positions à régler.
+					posEnd.y = COLOR_Y(2700);
+					if(torch_choice == OUR_TORCH)
+					{
+						posIntermediate.x = 1450;
+						posIntermediate.y = 1500;
+						posIntermediate_enable = TRUE;
+					}
+					break;
+				case ANYWHERE:
+						//No break;
+				case HEARTH_CENTRAL:
+						//No break;
+				default:
+					posEnd.x = 1400;
+					posEnd.y = 1500;
+					break;
+			}
+
+			norm = GEOMETRY_distance(torch,posEnd);
+
+			float coefx = (torch.x - posEnd.x)/(norm*1.);
+			float coefy = (torch.y - posEnd.y)/(norm*1.);
+
+			posStart.x = torch.x + DIM_START_TRAVEL_TORCH*coefx;
+			posStart.y = torch.y + DIM_START_TRAVEL_TORCH*coefy;
+
+			eloignement.x = posEnd.x + DIM_START_TRAVEL_TORCH*coefx;
+			eloignement.y = posEnd.y + DIM_START_TRAVEL_TORCH*coefy;
+
+			if(last_state == ERROR)
+				state = POS_INTERMEDIATE;	//On a échoué lors d'une précédente tentative de pose... on va directement sur le MOVE_TORCH pour rejoindre le point eloignement de la nouvelle zone de dépsose !
+			else if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, posStart) < 50)
+				state = MOVE_TORCH;
+			else
+				state = POS_START_TORCH;
+
+			SD_printf("Torch: start=[%d;%d] | torch=[%d;%d] | end=[%d;%d] | remotness=[%d;%d]\n",posStart.x, posStart.y, torch.x, torch.y, posEnd.x, posEnd.y, eloignement.x, eloignement.y);
 			break;
 
-		case PUSH_TORCH:
-			state = check_sub_action_result(travel_torch_line(torch_choice,filed,0, 0),PUSH_TORCH,ERROR,ERROR);
+		case POS_START_TORCH:
+			state = try_going(posStart.x, posStart.y, POS_START_TORCH, POS_INTERMEDIATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 			break;
+		case POS_INTERMEDIATE:
+			if(entrance)
+				i_have_the_torch = TRUE;
+			if(posIntermediate_enable)	//On se rend d'abord à une position intermédiaire.
+				state = try_going_until_break(posIntermediate.x, posIntermediate.y, POS_INTERMEDIATE, MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			else
+				state = MOVE_TORCH;	//Pas de position intermédiaire.. on file directement au MOVE_TORCH
+			break;
+		case MOVE_TORCH :
+			state = try_going_until_break(eloignement.x, eloignement.y, MOVE_TORCH, END_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case END_TORCH:
+			state = try_going_until_break(posEnd.x, posEnd.y, END_TORCH, REMOTENESS, REMOTENESS, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case REMOTENESS:  // eloignement
+			if(entrance)
+			{
+				i_have_the_torch = FALSE;
+				TORCH_new_position(torch_choice);
+			}
+
+			state = try_going(eloignement.x, eloignement.y, REMOTENESS, DEPLOY_TORCH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case ERROR:
+			if(fail_at_first_dispose_try || if_fail_dispose_zone == NO_DISPOSE || i_have_the_torch == FALSE)
+			{
+				if(i_have_the_torch)
+					TORCH_new_position(torch_choice);
+				//TODO : libérer la torche ! (il faudrait d'ailleurs s'en extraire...)
+				state = IDLE;
+				return NOT_HANDLED;
+			}
+			else
+			{
+				fail_at_first_dispose_try = TRUE;
+				current_dispose_zone = if_fail_dispose_zone;
+				state = COMPUTE;
+			}
+			break;
+
 
 		case DEPLOY_TORCH:	//On déploie la torche sur le foyer
-			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,filed),DEPLOY_TORCH,DONE,ERROR);
+			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,current_dispose_zone),DEPLOY_TORCH,DONE,ERROR);
 			break;
 
 		case DONE:
 			state = IDLE;
 			return END_OK;
-			break;
-
-		case ERROR:
-			state = IDLE;
-			return NOT_HANDLED;
 			break;
 	}
 
@@ -693,114 +910,6 @@ error_e do_triangles_between_trees(){
 }
 
 
-error_e travel_torch_line(torch_choice_e torch_choice,torch_filed_e choice,Sint16 posEndxIn, Sint16 posEndyIn){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
-		IDLE,
-		PLACEMENT,
-		POS_START_TORCH,
-		MOVE_TORCH,
-		END_TORCH,
-		REMOTENESS,
-		BACK_IF_FAIL,
-		ERROR,
-		DONE
-	);
-
-
-	static GEOMETRY_point_t posStart,posEnd;
-
-	// S'éloigne à la fin de la poussée mais ralenti aussi avant la fin de la poussée
-	static GEOMETRY_point_t eloignement;
-
-	static pathfind_node_id_t node;
-
-	switch(state){
-		case IDLE :{
-			GEOMETRY_point_t torch;
-
-			torch = TORCH_get_position(torch_choice);
-
-			if(choice == ANYWHERE){
-				posEnd.x = posEndxIn;
-				posEnd.y = posEndyIn;
-			}else if(choice == FILED_FRESCO){
-				posEnd.x = 300;
-				posEnd.y = 1500;
-			}else if(choice == HEARTH_OUR){
-				posEnd.x = 1800;
-				posEnd.y = COLOR_Y(360);
-			}else if(choice == HEARTH_CENTRAL){
-				posEnd.x = 800;
-				posEnd.y = COLOR_Y(1300);
-			}else{ // PUSH_CAVERN_ADV
-				posEnd.x = 400;
-				posEnd.y = COLOR_Y(200);
-			}
-
-			Uint16 norm = GEOMETRY_distance(torch,posEnd);
-
-			float coefx = (torch.x - posEnd.x)/(norm*1.);
-			float coefy = (torch.y - posEnd.y)/(norm*1.);
-
-			posStart.x = torch.x + DIM_START_TRAVEL_TORCH*coefx;
-			posStart.y = torch.y + DIM_START_TRAVEL_TORCH*coefy;
-
-			node = PATHFIND_closestNode(posStart.x, posStart.y, 0);
-
-			eloignement.x = posEnd.x + DIM_START_TRAVEL_TORCH*coefx;
-			eloignement.y = posEnd.y + DIM_START_TRAVEL_TORCH*coefy;
-
-			if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, posStart) < 50)
-				state = MOVE_TORCH;
-			else if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, (GEOMETRY_point_t){PATHFIND_get_node_x(node),PATHFIND_get_node_y(node)}) < 50)
-				state = POS_START_TORCH;
-			else
-				state = PLACEMENT;
-
-		}	break;
-
-		case PLACEMENT:
-			state = PATHFIND_try_going(node, PLACEMENT, POS_START_TORCH, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
-			break;
-
-		case POS_START_TORCH:
-			state = try_going(posStart.x, posStart.y, POS_START_TORCH, MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case MOVE_TORCH :
-			state = try_going_until_break(eloignement.x, eloignement.y, MOVE_TORCH, END_TORCH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case END_TORCH:
-			state = try_going_until_break(posEnd.x, posEnd.y, END_TORCH, REMOTENESS, REMOTENESS, SLOW, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case REMOTENESS:  // eloignement
-			if(entrance)
-				TORCH_new_position(choice);
-
-			state = try_going(eloignement.x, eloignement.y, REMOTENESS, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case DONE:
-			state = IDLE;
-			return END_OK;
-			break;
-
-		case BACK_IF_FAIL:	//Si on a pas réussi à prendre la torche... on recule..
-			state = try_going(1630, 300, BACK_IF_FAIL, ERROR, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
-			break;
-			break;
-		case ERROR:
-			TORCH_new_position(choice);
-			state = IDLE;
-			return NOT_HANDLED;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
 
 static void REACH_POINT_GET_OUT_INIT_send_request() {
 	CAN_msg_t msg;
@@ -811,8 +920,8 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 	CANMsgToXbee(&msg,FALSE);
 }
 
-error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
+error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e dispose_zone){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DEPLOY_TORCH,
 		IDLE,
 		OPEN,
 		TORCHE,
@@ -844,7 +953,7 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
 	static GEOMETRY_point_t point[3];
 	static Uint8 i = 0;	//TODO renommer ce i.... pour un nom plus explicite !
 
-	if(filed == HEARTH_OUR){
+	if(dispose_zone == HEARTH_OUR){
 		point[0] = (GEOMETRY_point_t){global.env.pos.x+150,global.env.pos.y-150};
 		point[1] = (GEOMETRY_point_t){global.env.pos.x,global.env.pos.y-175};
 		point[2] = (GEOMETRY_point_t){global.env.pos.x+175,global.env.pos.y-175};
@@ -1353,7 +1462,7 @@ Uint8 putTorchInMidle(Uint8 currentState, Uint8 successState, Uint8 failState){
 			state = try_going(1380,COLOR_Y(1650),TORCHE_LA,DEPILE,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 		case DEPILE:
-			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_CENTRAL),DEPILE,DONE,ERROR);
+			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_CENTRAL,NO_DISPOSE),DEPILE,DONE,ERROR);
 			state = DONE;
 			break;
 		case DONE:
@@ -1454,12 +1563,12 @@ void strat_inutile_guy(void){
 			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,DO_TRIANGLE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
-		case RAMEMENER_TORCH:
-			state = check_sub_action_result(travel_torch_line(OUR_TORCH,FILED_FRESCO,1750,250),RAMEMENER_TORCH,DONE,ERROR);
-			break;
+		//case RAMEMENER_TORCH:
+		//	state = check_sub_action_result(travel_torch_line(OUR_TORCH,FILED_FRESCO,1750,250),RAMEMENER_TORCH,DONE,ERROR);
+		//	break;
 
 		case DO_TORCH:
-			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_OUR),DO_TORCH,DONE,ERROR);
+			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_OUR,HEARTH_CENTRAL),DO_TORCH,DONE,ERROR);
 			break;
 
 		case DEPLOY_TORCH:

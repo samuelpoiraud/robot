@@ -183,7 +183,7 @@ void TORCH_new_position(torch_choice_e choice){
 	else
 		posTorch[1] = torch;
 
-	TORCH_CAN_send_msg(choice, torch);
+	TORCH_XBee_send_msg(choice, torch);
 }
 
 GEOMETRY_point_t TORCH_get_position(torch_choice_e choice){
@@ -207,7 +207,7 @@ void TORCH_CAN_process_msg(CAN_msg_t *msg){
 
 }
 
-void TORCH_CAN_send_msg(torch_choice_e choice, GEOMETRY_point_t pos){
+void TORCH_XBee_send_msg(torch_choice_e choice, GEOMETRY_point_t pos){
 	CAN_msg_t msg;
 
 	msg.sid = XBEE_TORCH_NEW_POS;
