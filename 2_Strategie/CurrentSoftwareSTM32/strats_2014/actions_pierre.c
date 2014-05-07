@@ -107,9 +107,7 @@ error_e sub_action_initiale(){
 		GOTO_FRESCO,
 		DO_FRESCO,
 		FILE_FRUIT,
-		DECISION_FRUIT_FRESCO,
 		LANCE_LAUNCHER_ADVERSARY,
-		GOTO_FRESCO_BY_TORCH_ROAD,
 		TRY_AGAIN_FRUIT,
 		TRY_LANCE_LAUNCHER,
 		SUCESS,
@@ -195,7 +193,7 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_FRESCO:
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,GOTO_FRESCO_BY_TORCH_ROAD,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,(SWITCH_STRAT_2)? DONE : GOTO_TORCH_FIRST_POINT,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
 			break;
 
 		case DO_FRESCO:
@@ -243,10 +241,6 @@ error_e sub_action_initiale(){
 			state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color == RED)?YELLOW:RED),LANCE_LAUNCHER_ADVERSARY,DONE, ERROR);
 			break;
 
-		// Cas d'erreur à DO_TREE_2 et GOTO_FRESCO
-		case GOTO_FRESCO_BY_TORCH_ROAD:
-			state = try_going(1400,COLOR_Y(800),GOTO_FRESCO_BY_TORCH_ROAD,DECISION_FRUIT_FRESCO,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
 
 		case DONE:
 			// On indique a high_strat_level que la sub_action_initiale a deja été faite pour pas la refaire une prochaine fois
@@ -259,9 +253,8 @@ error_e sub_action_initiale(){
 			set_sub_act_done(SUB_ACTION_INIT,TRUE);
 			return NOT_HANDLED;
 			break;
-
-		default:
-			break;
+		//default:	//Pour être avertis s'il manque un cas !
+		//	break;
 	}
 
 	return IN_PROGRESS;

@@ -5,7 +5,7 @@
  *	Fichier : actions_guy.c
  *	Package : Carte S²/strats2013
  *	Description : Tests des actions réalisables par le robot
- *	Auteur : Herzaeone, modifié par .
+ *	Auteur : Herzaeone, modifié par Anthony.
  *	Version 2013/10/03
  */
 
@@ -26,27 +26,1053 @@
 static void REACH_POINT_GET_OUT_INIT_send_request();
 
 // Par defaut si les deux defines suivant sont desactivés le guy va passer par le foyer centrale
-//#define WAY_INIT_TREE_SIDE  // Est prioritaire sur le chemin par le mammouth
-//#define WAY_INIT_MAMMOUTH_SIDE
+//#define WAY_INIT_TREE_SIDE  //Chemin proche arbres (Est prioritaire sur le chemin par le mammouth si les deux defines sont actifs)
+//#define WAY_INIT_MAMMOUTH_SIDE	//Chemin coté mamouth
 
 
 #define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
 #define DETECTION_TRIANGLE_MIDDLE	// Pour savoir si nous avons besoins de faire un dection des triangles du milieu ou non pour la strat triangles_between_tree
 #define DIM_TRIANGLE 100
 
-//#define FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
+//#define GUY_FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
 
 // Fonctionne que pour les chemins MAMMOUTH_SIDE et HEART_SIDE (chemin par defaut si aucun define)
 bool_e rush_to_torch = FALSE;  // Si FALSE va faire tomber un ou des triangle(s) avant
 bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait que l'ennemis ne le fais pas tomber des le debut
 
 
+//IL FAUT définir une zone de dépose pour la torche adverse. (si on a réussi à la prendre)
+//#define DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+#define DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
+//#define DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
+
+
 #define DIM_START_TRAVEL_TORCH 200
 #define ARM_TIMEOUT 10000
 
-/* ----------------------------------------------------------------------------- */
-/* 							Fonctions d'homologation			                 */
-/* ----------------------------------------------------------------------------- */
+
+
+error_e sub_action_initiale_guy(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_INITIALE,
+		IDLE,
+		SUCESS,
+		GET_OUT_POS_START,
+		FALL_FIRST_FIRE,
+		TAKE_DECISION_FIRST_WAY,
+		GOTO_TREE_INIT,
+		FALL_FIRE_WALL_TREE,  // Fait tomber les deux feux contre le mur milieu
+		WAIT_GOTO_MAMMOUTH_INIT,
+		GOTO_MAMMOUTH_INIT,
+		FALL_MOBILE_MM_ADV,
+		GOTO_HEART_INIT,
+		FALL_FIRE_MOBILE_TREE_ADV,
+		GOTO_TORCH_ADVERSARY,
+		DO_TORCH,
+		FALL_FIRE_MOBILE_MM_ADV,
+		FALL_FIRE_WALL_ADV,
+		DONE,
+		ERROR
+	);
+
+	static displacement_t points[4];
+	static bool_e pierre_reach_point_C1 = FALSE;
+	static torch_filed_e dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
+	if(global.env.reach_point_C1)
+		pierre_reach_point_C1 = TRUE;
+
+
+	switch(state)
+	{
+		case IDLE:
+			//Initialisation des points selon le chemin défini.
+			#ifdef WAY_INIT_TREE_SIDE	//Chemin prêt des arbres
+				points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
+				points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
+				points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
+				points[3] = (displacement_t){{1780,COLOR_Y(1390)},FAST};
+			#elif defined WAY_INIT_MAMMOUTH_SIDE //Chemin coté mammouths
+				points[0] = (displacement_t){{560,COLOR_Y(580)},FAST};
+				points[1] = (displacement_t){{530,COLOR_Y(975)},FAST};
+				points[2] = (displacement_t){{590,COLOR_Y(1530)},FAST};
+				points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
+			#else	//Chemin prêt du foyer central
+				points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
+				points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
+				points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
+				points[3] = (displacement_t){{1400,COLOR_Y(1710)},FAST};
+			#endif
+			#ifdef GUY_FALL_FIRST_FIRE
+				state = FALL_FIRST_FIRE;
+			#else
+				state = GET_OUT_POS_START;
+			#endif
+			break;
+
+		case FALL_FIRST_FIRE:
+			//TODO faire tomber le premier feu avant de partir lorsque la macro GUY_FALL_FIRST_FIRE est définie
+			//Attention, cette action peut être conditionnée par la calibration... !
+			state = GET_OUT_POS_START;
+			break;
+
+		case GET_OUT_POS_START:
+			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,TAKE_DECISION_FIRST_WAY, TAKE_DECISION_FIRST_WAY,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case TAKE_DECISION_FIRST_WAY:
+			if(entrance)
+				REACH_POINT_GET_OUT_INIT_send_request();
+
+			#ifdef WAY_INIT_TREE_SIDE
+				state = GOTO_TREE_INIT;
+			#elif defined WAY_INIT_MAMMOUTH_SIDE
+				state = WAIT_GOTO_MAMMOUTH_INIT;
+			#else
+				state = GOTO_HEART_INIT;
+			#endif
+			break;
+
+		case GOTO_TREE_INIT:		//On emprunte le chemin proche des arbres.
+			state  = try_going_multipoint(points,4,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case FALL_FIRE_WALL_TREE:
+			state = GOTO_TORCH_ADVERSARY;
+			break;
+
+		case GOTO_HEART_INIT:
+			state  = try_going_multipoint(points,4,GOTO_HEART_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_TREE_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case FALL_FIRE_MOBILE_TREE_ADV:
+			state = GOTO_TORCH_ADVERSARY;
+			break;
+
+		case WAIT_GOTO_MAMMOUTH_INIT:{  // Attend le passage de pierre pour pouvoir passer à son tour
+			static time32_t last_time;
+			if(entrance)
+				last_time = global.env.match_time;
+
+			if(pierre_reach_point_C1 || global.env.match_time > last_time + 5000)
+				state = GOTO_MAMMOUTH_INIT;
+
+			}break;
+
+		case GOTO_MAMMOUTH_INIT:
+			if(entrance)
+				ASSER_WARNER_arm_y(COLOR_Y(1200));
+
+			state  = try_going_multipoint(points,4,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
+
+			if(global.env.asser.reach_y)
+				ZONE_unlock(MZ_MAMMOUTH_OUR);
+
+			break;
+
+		case FALL_FIRE_MOBILE_MM_ADV:
+			//TODO mouvement pour le triangle mobile coté adverse
+			state = GOTO_TORCH_ADVERSARY;
+			break;
+
+		case GOTO_TORCH_ADVERSARY:
+			state = try_going_until_break(1100,COLOR_Y(1900),GOTO_TORCH_ADVERSARY,DO_TORCH,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			//TODO ajouter gestion de la torche...
+			break;
+
+		case DO_TORCH:
+			if(entrance)
+			{
+				#if !defined(DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH) && !defined(DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH) && !defined (DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH)
+				#error "Vous devez définir l'un de ces 3 defines : DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH, DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH, DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH"
+				#endif
+				#ifdef DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
+					dispose_zone_for_adversary_torch = HEARTH_OUR;
+				#endif
+				#ifdef DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+					dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
+				#endif
+				#ifdef DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
+					dispose_zone_for_adversary_torch = HEARTH_CENTRAL;
+				#endif
+			}
+			switch(do_torch(ADVERSARY_TORCH, dispose_zone_for_adversary_torch))
+			{
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					state = (fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : DONE;
+					break;
+				case NOT_HANDLED:	//no break
+				default:
+					state = (fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV: ERROR;
+			}
+			break;
+		case FALL_FIRE_WALL_ADV:
+			state = DONE;
+			break;
+
+		case DONE:
+			return END_OK;
+			break;
+
+		case ERROR:
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+
+
+/* Faire une torche signifie
+ * - se rend à coté de la torche SI NECESSAIRE (si on y est pas déjà)
+ * - Fonction de récupération : pousse la torche sur 10cm dans la bonne direction (en fonction du foyer de dépose)
+ * - Se rend au foyer de dépose
+ * 	- en cas d'échec... tente une seconde position de dépose (passée en paramètre)
+ * 	- en cas d'échec... abandonne le dépilement de la torche
+ * - dépile la torche
+ *  - en cas d'échec, abandonne
+ * - s'extrait de la zone pour pouvoir rendre la main
+ * - enregistre le fait de la dépose (et la zone déposée)
+ */
+
+error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TORCH,
+		IDLE,
+		PUSH_TORCH,
+		PLACEMENT,
+		DEPLOY_TORCH,
+		ERROR,
+		DONE
+	);
+	switch(state){
+		case IDLE :
+			state = PUSH_TORCH;
+			//TODO ajouter zone d'acceptation et raccourcis dans la machine à état si l'on est déjà prêt à prendre une torche !
+			break;
+
+		case PUSH_TORCH:
+			state = check_sub_action_result(travel_torch_line(torch_choice,filed,0, 0),PUSH_TORCH,ERROR,ERROR);
+			break;
+
+		case DEPLOY_TORCH:	//On déploie la torche sur le foyer
+			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,filed),DEPLOY_TORCH,DONE,ERROR);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e do_triangle_start_adversary(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLE_START_ADVERSARY,
+		IDLE,
+		GET_IN,
+		POS_START,
+		SCAN_TRIANGLE,
+		ANALYZE,
+		POS_TAKE,
+		TAKE,
+		MOVE_DROP_TRIANGLE,
+		DROP_TRIANGLE,
+		DROP_ANYWHERE,
+		GET_OUT_CAVERN,
+		GET_OUT_TREE,
+		DONE,
+		ERROR,
+		RETURN_NOT_HANDLED
+	);
+
+	static objet_t objet;
+	static GEOMETRY_point_t point;
+	static bool_e i_have_triangle = FALSE;
+
+	switch(state){
+		case IDLE:
+
+			if((est_dans_carre(400, 1200, 2000, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color == RED) ||
+				(est_dans_carre(400, 1200, 400, 1000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color != RED))
+				state = POS_START;
+			else
+				state = GET_IN;						//On se rend à la première position par le pathfind
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going((global.env.color == RED)?Z1:A1,GET_IN, POS_START, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case POS_START:
+			state = try_going(900,(global.env.color == RED)? 2600:400, POS_START, SCAN_TRIANGLE, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case SCAN_TRIANGLE:
+			state = ELEMENT_try_going_and_rotate_scan((global.env.color == RED)?3*PI4096/4:-PI4096/4, (global.env.color == RED)?PI4096/4:-3*PI4096/4, 90,
+							 900, (global.env.color == RED)? 2600:400, SCAN_TRIANGLE, ANALYZE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case ANALYZE:{
+			objet_t tabObjet[3][20];
+			ELEMENT_get_object(tabObjet);
+
+			if(tabObjet[0][0].x != 0 && tabObjet[0][0].y != 0){
+				objet = tabObjet[0][0];
+				state = POS_TAKE;
+			}else{
+				state = ERROR;
+				set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
+			}
+
+		}break;
+
+		case POS_TAKE:{
+			if(entrance){
+				Uint16 norm = GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){objet.x,objet.y});
+
+				float coefx = (global.env.pos.x - objet.x)/(norm*1.);
+				float coefy = (global.env.pos.y - objet.y)/(norm*1.);
+
+
+				point.x = objet.x + DIM_TRIANGLE*coefx;
+				point.y = objet.y + DIM_TRIANGLE*coefy;
+			}
+
+			state = try_going(point.x,point.y, POS_TAKE, TAKE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+
+			}break;
+
+		case TAKE:
+			//Prend le triangle a la position objet
+
+			state = MOVE_DROP_TRIANGLE;
+			i_have_triangle = TRUE;
+			break;
+
+		case MOVE_DROP_TRIANGLE:
+#ifdef DROP_TRIANGLE_UNDER_TREE
+			state = try_going(1300,(global.env.color == RED)?2750:250,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+#else
+			state = DROP_ANYWHERE;
+#endif
+			break;
+
+		case DROP_TRIANGLE:
+			//Pose le triangle à l'endroit voulu
+#ifdef DROP_TRIANGLE_UNDER_TREE
+			state = GET_OUT_TREE;
+#else
+			state = DROP_ANYWHERE;
+#endif
+			i_have_triangle = FALSE;
+			set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
+			break;
+
+		case DROP_ANYWHERE:
+			state = GET_OUT_CAVERN;
+			i_have_triangle = FALSE;
+			set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
+			break;
+
+		case GET_OUT_CAVERN:
+			state = try_going(750,(global.env.color == RED)?2600:400,GET_OUT_CAVERN,RETURN_NOT_HANDLED,GET_OUT_TREE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case GET_OUT_TREE:
+			state = try_going(1350,(global.env.color == RED)?2600:400,GET_OUT_TREE,RETURN_NOT_HANDLED,GET_OUT_CAVERN,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			if((est_dans_carre(400, 1600, 1900, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color == RED) ||
+				(est_dans_carre(400, 1600, 400, 1100, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color != RED)  ) // Est sur le pathfind
+				state = RETURN_NOT_HANDLED;
+			else if(global.env.pos.x > 1050)
+				state = GET_OUT_TREE;
+			else
+				state = GET_OUT_CAVERN;
+
+			break;
+
+		case RETURN_NOT_HANDLED :
+			if(i_have_triangle)
+				state = DROP_ANYWHERE;
+			else{
+				state = IDLE;
+				return NOT_HANDLED;
+			}
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e do_triangles_between_trees(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLES_BETWEEN_TREES,
+		IDLE,
+		GET_IN,
+		CHOICE_DETECTION,
+		POS_START_DETECTION,
+		DETECTION_TRIANGLE_1,
+		DETECTION_TRIANGLE_2,
+		CHOICE,
+		POS_START,
+		ORIENTATION,
+		GET_OUT_ARM,
+		TURN,
+		MOVE,
+		TAKE_TRIANGLE,
+		MOVE_DROP_TRIANGLE,
+		DROP_TRIANGLE,
+		MOVE_FORCED_DROP_HEARTH,
+		FORCED_DROP_HEARTH,
+		DROP_TRIANGLE_ANYWHERE,
+		GET_OUT_SIDE_RED,
+		GET_OUT_SIDE_MIDDLE,
+		GET_OUT_SIDE_YELLOW,
+		GET_OUT_M2,
+		GET_OUT_W2,
+		GET_OUT_C2,
+		GET_OUT_Y3,
+		GET_OUT_B3,
+		GET_OUT_C3,
+		GET_OUT_W3,
+		DONE,
+		ERROR,
+		RETURN_NOT_HANDLED
+	);
+
+	static bool_e i_have_triangle = FALSE;
+	static bool_e try_drop_triangle_center = FALSE;
+	static GEOMETRY_point_t dpl_dect[2]; // Les deplacement pour la detection
+
+	static bool_e presence_triangle_2 = TRUE;
+	static bool_e presence_triangle_3 = TRUE;
+
+	switch(state){
+		case IDLE:
+
+			if(est_dans_carre(1500, 2000, 1000, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				state = CHOICE_DETECTION;
+			else
+				state = GET_IN;						//On se rend à la première position par le pathfind
+			break;
+
+		case GET_IN:
+			state = PATHFIND_try_going(M3,GET_IN, CHOICE_DETECTION, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case CHOICE_DETECTION:
+#ifdef DETECTION_TRIANGLE_MIDDLE
+				if(global.env.pos.y > 1500){
+					dpl_dect[0] = (GEOMETRY_point_t){1600,1900};
+					dpl_dect[1] = (GEOMETRY_point_t){1600,1100};
+				}else{
+					dpl_dect[1] = (GEOMETRY_point_t){1600,1900};
+					dpl_dect[0] = (GEOMETRY_point_t){1600,1100};
+				}
+
+				state = POS_START_DETECTION;
+#else
+				state = POS_START;				//On se rend à la première position directement
+#endif
+			break;
+
+		case POS_START_DETECTION:
+			state = try_going(dpl_dect[0].x, dpl_dect[0].y, POS_START_DETECTION, DETECTION_TRIANGLE_1, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case DETECTION_TRIANGLE_1:
+			if(entrance)
+				ELEMENT_launch_triangle_warner((global.env.pos.y > 1500)? 3:2);
+
+			state = try_going(1600, 1500, DETECTION_TRIANGLE_1, DETECTION_TRIANGLE_2, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case DETECTION_TRIANGLE_2:
+			if(entrance){
+				if(!ELEMENT_triangle_present()){ // Par default, les triangles sont présent
+					if(dpl_dect[0].y > dpl_dect[1].y) // On regarde le triangle 3 en premier
+						presence_triangle_3 = FALSE;
+					else
+						presence_triangle_2 = FALSE;
+				}
+
+				ELEMENT_launch_triangle_warner((dpl_dect[0].y > dpl_dect[1].y)? 2:3); // Ne peut pas faire confiance à la comparaison global.env.pos.y trop proche de 1500
+			}
+
+			state = try_going(dpl_dect[1].x, dpl_dect[1].y, DETECTION_TRIANGLE_2, CHOICE, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+
+			break;
+
+		case CHOICE:
+			if(!ELEMENT_triangle_present()){ // Par default, les triangles sont présent
+				if(dpl_dect[0].y > dpl_dect[1].y) // On regarde le triangle 3 en premier
+					presence_triangle_2 = FALSE;
+				else
+					presence_triangle_3 = FALSE;
+			}
+
+			if((global.env.color == RED && presence_triangle_3) || (global.env.color != RED && presence_triangle_2)) // Regarde, si le premier triangle est present
+				state = POS_START;
+			else if((global.env.color == RED && presence_triangle_2) || (global.env.color != RED && presence_triangle_3)) // Si le premier n'est pas présent, on regarde le 2éme
+				state = MOVE;
+			else
+				state = DONE;
+
+			break;
+
+		case POS_START:
+			//en cas d'échec, on peut rendre la main où l'on se trouve.
+			state = try_going(1800, 1500, POS_START, ORIENTATION, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case ORIENTATION:
+			state = try_go_angle(0,ORIENTATION,GET_OUT_ARM,ERROR,FAST);
+			break;
+
+		case GET_OUT_ARM:
+
+			// A remplir
+
+			state = TURN;
+			break;
+
+		// Tourne pour faire tomber le premier trinagle
+		case TURN:
+			state = try_go_angle((global.env.color == RED)?PI4096/2:-PI4096/2,TURN,((global.env.color == RED && presence_triangle_2) || (global.env.color != RED && presence_triangle_3))? MOVE:DONE,ERROR,FAST); // On regarde si le deuxiéme triangle est present
+			break;
+
+		case MOVE: // Bouge vers le second triangle
+			state = try_going(1800,(global.env.color == RED)?1300:1700,MOVE,TAKE_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case TAKE_TRIANGLE:
+			state = MOVE_DROP_TRIANGLE;
+			i_have_triangle = TRUE;
+
+			set_sub_act_done(SUB_ACTION_TRIANGLE_BETWEEN_TREE,TRUE);// On indique que l'action a été faite, pour ne l'a faire qu'une seule fois, si echec derrière
+			break;
+
+		case MOVE_DROP_TRIANGLE:
+#ifdef DROP_TRIANGLE_UNDER_TREE
+			state = try_going(1750,(global.env.color == RED)?2300:700,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+#else
+			state = try_going(1350,1500,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			try_drop_triangle_center = TRUE;
+#endif
+			break;
+
+		case DROP_TRIANGLE:
+			// A partir d'ici les get_out partent dans tous les sens
+			//Pose le triangle à l'endroit voulu
+#ifdef DROP_TRIANGLE_UNDER_TREE
+			if(global.env.color == RED){
+				state = GET_OUT_Y3;
+			}else{
+				state = GET_OUT_B3;
+			}
+#else
+			state = GET_OUT_M2;
+#endif
+			i_have_triangle = FALSE;
+			break;
+
+		case DROP_TRIANGLE_ANYWHERE:
+			state = RETURN_NOT_HANDLED;
+			i_have_triangle = FALSE;
+			break;
+
+
+		// Si l'action de poser le triangle sous l'arbre a echoué, on réssaye sur le foyer
+		case MOVE_FORCED_DROP_HEARTH:
+			state = try_going(1350,1500,MOVE_FORCED_DROP_HEARTH,FORCED_DROP_HEARTH,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			try_drop_triangle_center = TRUE;
+			break;
+		case FORCED_DROP_HEARTH:
+			state = GET_OUT_M2;
+			i_have_triangle = FALSE;
+			break;
+
+		// Sorti du bord
+		case GET_OUT_SIDE_RED: // C3
+			state = try_going(1650,1100,GET_OUT_SIDE_RED,RETURN_NOT_HANDLED,GET_OUT_SIDE_MIDDLE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_SIDE_MIDDLE: // M3
+			state = try_going(1700,1500,GET_OUT_SIDE_MIDDLE,RETURN_NOT_HANDLED,(global.env.color == RED)?GET_OUT_SIDE_RED:GET_OUT_SIDE_YELLOW,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_SIDE_YELLOW: // W3
+			state = try_going(1650,1900,GET_OUT_SIDE_YELLOW,RETURN_NOT_HANDLED,GET_OUT_SIDE_MIDDLE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		// Sorti du milieu va chercher a rejoindre soit le point M2 ou un point situé chez l'adversaire pour ne pas déranger pierre
+		case GET_OUT_M2:
+			state = try_going(1450,1500,GET_OUT_M2,RETURN_NOT_HANDLED,(global.env.color == RED)?GET_OUT_W2:GET_OUT_C2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_W2:
+			state = try_going(1250,1900,GET_OUT_W2,RETURN_NOT_HANDLED,GET_OUT_M2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_C2:
+			state = try_going(1250,1100,GET_OUT_C2,RETURN_NOT_HANDLED,GET_OUT_M2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		// Sorti de sous l'arbre jaune
+		case GET_OUT_Y3:
+			state = try_going(1600,2250,GET_OUT_Y3,(last_state == DROP_TRIANGLE)? DONE:RETURN_NOT_HANDLED,GET_OUT_W3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_W3:
+			state = try_going(1650,1900,GET_OUT_W3,RETURN_NOT_HANDLED,GET_OUT_Y3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		// Sorti de sous l'arbre rouge
+		case GET_OUT_B3:
+			state = try_going(1600,750,GET_OUT_B3,(last_state == DROP_TRIANGLE)? DONE:RETURN_NOT_HANDLED,GET_OUT_C3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GET_OUT_C3:
+			state = try_going(1650,1100,GET_OUT_C3,RETURN_NOT_HANDLED,GET_OUT_B3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			if(est_dans_carre(1400, 1750, 600, 2400, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le pathfind
+				state = RETURN_NOT_HANDLED;
+			else if(est_dans_carre(1750, 2000, 1300, 1700, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le bord
+				state = GET_OUT_SIDE_MIDDLE;
+			else if(est_dans_carre(1750, 2000, 500, 1000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // sous l'arbre rouge
+				state = GET_OUT_B3;
+			else if(est_dans_carre(1750, 2000, 2000, 2500, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // sous l'arbre jaune
+				state = GET_OUT_Y3;
+			else
+				state = GET_OUT_M2;
+
+			break;
+
+		case RETURN_NOT_HANDLED :
+			if(try_drop_triangle_center == FALSE && i_have_triangle == TRUE){ // Si nous avons essayer de poser le triangle sous l'arbre et l'action est echoue
+				try_drop_triangle_center = TRUE;
+				state = MOVE_FORCED_DROP_HEARTH;
+			}else if(i_have_triangle == TRUE){ // Si nous avons toujours un triangle, on le pose ou nous sommes
+				state = DROP_TRIANGLE_ANYWHERE;
+			}else{
+				state = IDLE;
+				return NOT_HANDLED;
+			}
+
+
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e travel_torch_line(torch_choice_e torch_choice,torch_filed_e choice,Sint16 posEndxIn, Sint16 posEndyIn){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
+		IDLE,
+		PLACEMENT,
+		POS_START_TORCH,
+		MOVE_TORCH,
+		END_TORCH,
+		REMOTENESS,
+		BACK_IF_FAIL,
+		ERROR,
+		DONE
+	);
+
+
+	static GEOMETRY_point_t posStart,posEnd;
+
+	// S'éloigne à la fin de la poussée mais ralenti aussi avant la fin de la poussée
+	static GEOMETRY_point_t eloignement;
+
+	static pathfind_node_id_t node;
+
+	switch(state){
+		case IDLE :{
+			GEOMETRY_point_t torch;
+
+			torch = TORCH_get_position(torch_choice);
+
+			if(choice == ANYWHERE){
+				posEnd.x = posEndxIn;
+				posEnd.y = posEndyIn;
+			}else if(choice == FILED_FRESCO){
+				posEnd.x = 300;
+				posEnd.y = 1500;
+			}else if(choice == HEARTH_OUR){
+				posEnd.x = 1800;
+				posEnd.y = COLOR_Y(360);
+			}else if(choice == HEARTH_CENTRAL){
+				posEnd.x = 800;
+				posEnd.y = COLOR_Y(1300);
+			}else{ // PUSH_CAVERN_ADV
+				posEnd.x = 400;
+				posEnd.y = COLOR_Y(200);
+			}
+
+			Uint16 norm = GEOMETRY_distance(torch,posEnd);
+
+			float coefx = (torch.x - posEnd.x)/(norm*1.);
+			float coefy = (torch.y - posEnd.y)/(norm*1.);
+
+			posStart.x = torch.x + DIM_START_TRAVEL_TORCH*coefx;
+			posStart.y = torch.y + DIM_START_TRAVEL_TORCH*coefy;
+
+			node = PATHFIND_closestNode(posStart.x, posStart.y, 0);
+
+			eloignement.x = posEnd.x + DIM_START_TRAVEL_TORCH*coefx;
+			eloignement.y = posEnd.y + DIM_START_TRAVEL_TORCH*coefy;
+
+			if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, posStart) < 50)
+				state = MOVE_TORCH;
+			else if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, (GEOMETRY_point_t){PATHFIND_get_node_x(node),PATHFIND_get_node_y(node)}) < 50)
+				state = POS_START_TORCH;
+			else
+				state = PLACEMENT;
+
+		}	break;
+
+		case PLACEMENT:
+			state = PATHFIND_try_going(node, PLACEMENT, POS_START_TORCH, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case POS_START_TORCH:
+			state = try_going(posStart.x, posStart.y, POS_START_TORCH, MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case MOVE_TORCH :
+			state = try_going_until_break(eloignement.x, eloignement.y, MOVE_TORCH, END_TORCH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case END_TORCH:
+			state = try_going_until_break(posEnd.x, posEnd.y, END_TORCH, REMOTENESS, REMOTENESS, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case REMOTENESS:  // eloignement
+			if(entrance)
+				TORCH_new_position(choice);
+
+			state = try_going(eloignement.x, eloignement.y, REMOTENESS, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case BACK_IF_FAIL:	//Si on a pas réussi à prendre la torche... on recule..
+			state = try_going(1630, 300, BACK_IF_FAIL, ERROR, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+			break;
+		case ERROR:
+			TORCH_new_position(choice);
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+static void REACH_POINT_GET_OUT_INIT_send_request() {
+	CAN_msg_t msg;
+
+	msg.sid = XBEE_REACH_POINT_GET_OUT_INIT;
+	msg.size = 0;
+
+	CANMsgToXbee(&msg,FALSE);
+}
+
+error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
+		IDLE,
+		OPEN,
+		TORCHE,
+		DOWN_ARM,
+		UP_ARM,
+		OPEN_2,
+		FILED_TRIANGLE,
+		WAIT_TRIANGLE_BREAK,
+		BACK,
+		PREPARE_RETURN,
+		DOWN_RETURN,
+		RETURN,
+		INVERSE_PUMP,
+		DOWN_RETURN_2,
+		PREPARE_RETURN_2,
+		SMALL_ARM_DEPLOYED,
+		SMALL_ARM_PARKED,
+		TAKE_RETURN,
+		GRAP_TRIANGLE,
+		OPEN_3,
+		ADVANCE,
+		PARKED_NOT_HANDLED,
+		ERROR,
+		DONE
+	);
+
+	static GEOMETRY_point_t torch;
+
+	static GEOMETRY_point_t point[3];
+	static Uint8 i = 0;	//TODO renommer ce i.... pour un nom plus explicite !
+
+	if(filed == HEARTH_OUR){
+		point[0] = (GEOMETRY_point_t){global.env.pos.x+150,global.env.pos.y-150};
+		point[1] = (GEOMETRY_point_t){global.env.pos.x,global.env.pos.y-175};
+		point[2] = (GEOMETRY_point_t){global.env.pos.x+175,global.env.pos.y-175};
+
+
+
+		/*point[0] = (GEOMETRY_point_t){1800,COLOR_Y(200)};
+		point[1] = (GEOMETRY_point_t){1900,COLOR_Y(250)};
+		point[2] = (GEOMETRY_point_t){1900,COLOR_Y(250)};*/
+	}
+
+	switch(state){
+		case IDLE :
+			//torch = TORCH_get_position(choiceTorch);
+
+			torch.x = global.env.pos.x + 150;
+			torch.y = global.env.pos.y;
+
+			state = OPEN;
+			i = 0;
+			break;
+
+
+		case OPEN :
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN, TORCHE, PARKED_NOT_HANDLED);
+			break;
+
+		case TORCHE :
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, PARKED_NOT_HANDLED);
+			break;
+
+		case DOWN_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
+			if(entrance){
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+				ACT_arm_updown_rush_in_the_floor(120-i*30); // gera niveau avec i
+			}
+			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){ // TODO faire une action plus haut niveau avec time out
+				state = ELEMENT_wait_pump_capture_object(DOWN_ARM, UP_ARM, UP_ARM); // L'error est un TIMEOUT on passe quand même à l'étape suivante
+			}
+			break;
+
+		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
+			if((i == 1 && choiceTorch == OUR_TORCH) || ((i == 0 || i == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
+				state = BACK;//ACT_elevator_arm_move(100, UP_ARM, BACK, OPEN_NOT_HANDLED);
+			else
+				state = OPEN_2;//ACT_elevator_arm_move(100, UP_ARM, OPEN_2, OPEN_NOT_HANDLED);
+			break;
+
+		case OPEN_2:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_2, FILED_TRIANGLE, PARKED_NOT_HANDLED);
+			break;
+
+		case FILED_TRIANGLE :
+			if(entrance)
+				i++;
+
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+
+			break;
+
+		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
+			//On peut avoir l'information avec le WT100 qui sera dans la main du robot
+			state = (i>=2)? DONE:OPEN;
+			break;
+
+		case BACK:
+			state = try_going(global.env.pos.x, global.env.pos.y+300, BACK, PREPARE_RETURN, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case PREPARE_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, DOWN_RETURN, PARKED_NOT_HANDLED);
+			break;
+
+		case DOWN_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN, RETURN, PARKED_NOT_HANDLED);
+			break;
+
+		case RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, INVERSE_PUMP, PARKED_NOT_HANDLED);
+			break;
+
+		case INVERSE_PUMP:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+
+			state = ELEMENT_wait_pump_capture_object(INVERSE_PUMP, DOWN_RETURN_2, DOWN_RETURN_2);
+			break;
+
+		case DOWN_RETURN_2:
+			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN_2, PREPARE_RETURN_2, PARKED_NOT_HANDLED);
+			break;
+
+		case PREPARE_RETURN_2:
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN_2, SMALL_ARM_DEPLOYED, PARKED_NOT_HANDLED);
+			break;
+
+		case SMALL_ARM_DEPLOYED:
+			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, PARKED_NOT_HANDLED);
+			break;
+
+		case SMALL_ARM_PARKED:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
+
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, TAKE_RETURN, PARKED_NOT_HANDLED);
+			break;
+
+		case TAKE_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, TAKE_RETURN, GRAP_TRIANGLE, PARKED_NOT_HANDLED);
+			break;
+
+		case GRAP_TRIANGLE: // prise du triangle au sol
+			if(entrance){
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+			}
+			state = ELEMENT_wait_pump_capture_object(GRAP_TRIANGLE, OPEN_3, OPEN_3); // L'error est un TIMEOUT on passe quand même à l'étape suivante
+			break;
+
+		case OPEN_3:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_3, ADVANCE, PARKED_NOT_HANDLED);
+			break;
+
+		case ADVANCE:
+			state = try_going(global.env.pos.x, global.env.pos.y-300, ADVANCE, OPEN_2, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case PARKED_NOT_HANDLED:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
+			break;
+
+		case DONE:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;
+	static bool_e entrance = TRUE;
+
+	if(entrance){
+		begin_time = global.env.match_time;
+
+		if(state_arm == ACT_ARM_POS_ON_TORCHE || state_arm == ACT_ARM_POS_ON_TRIANGLE)
+			ACT_arm_goto_XY(state_arm, x, y);
+		else
+			ACT_arm_goto(state_arm);
+
+
+		entrance = FALSE;
+	}
+
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
+		entrance = TRUE;
+		return fail_state;
+	}
+
+	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
+		entrance = TRUE;
+		return success_state;
+	}
+
+	return in_progress;
+}
+
+error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;
+	static bool_e entrance = TRUE;
+
+	if(entrance){
+		begin_time = global.env.match_time;
+		ACT_small_arm_goto(state_arm);
+		entrance = FALSE;
+	}
+
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_RetryLater){
+		entrance = TRUE;
+		return fail_state;
+	}
+
+	if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done){
+		entrance = TRUE;
+		return success_state;
+	}
+
+	return in_progress;
+}
+
+error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;
+	static bool_e entrance = TRUE;
+
+	if(entrance){
+		begin_time = global.env.match_time;
+		ACT_arm_updown_goto(state_arm);
+		entrance = FALSE;
+	}
+
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
+		entrance = TRUE;
+		return fail_state;
+	}
+
+	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
+		entrance = TRUE;
+		return success_state;
+	}
+
+	return in_progress;
+}
+
+
+
+
 
 
 /* ----------------------------------------------------------------------------- */
@@ -612,978 +1638,6 @@ void strat_test_warner_triangle(){
 }
 
 
-error_e sub_action_initiale_guy(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_INITIALE,
-		IDLE,
-		SUCESS,
-		GET_OUT_POS_START,
-		FALL_FIRST_FIRE,
-		TAKE_DECISION_FIRST_WAY,
-		GOTO_TREE_INIT,
-		FALL_FIRE_WALL_TREE,  // Fait tomber les deux feux contre le mur milieu
-		WAIT_GOTO_MAMMOUTH_INIT,
-		GOTO_MAMMOUTH_INIT,
-		FALL_MOBILE_MM_ADV,
-		GOTO_HEART_INIT,
-		FALL_FIRE_MOBILE_TREE_ADV,
-		GOTO_TORCH_ADVERSARY,
-		FALL_FIRE_MOBILE_MM_ADV,
-		FALL_FIRE_WALL_ADV,
-		DONE,
-		ERROR
-	);
-
-	static displacement_t points[4];
-	static bool_e pierre_reach_point_C1 = FALSE;
-
-	if(global.env.reach_point_C1)
-		pierre_reach_point_C1 = TRUE;
-
-	#ifdef WAY_INIT_TREE_SIDE
-		points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
-		points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
-		points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
-		points[3] = (displacement_t){{1780,COLOR_Y(1390)},FAST};
-	#elif defined WAY_INIT_MAMMOUTH_SIDE
-		points[0] = (displacement_t){{560,COLOR_Y(580)},FAST};
-		points[1] = (displacement_t){{530,COLOR_Y(975)},FAST};
-		points[2] = (displacement_t){{590,COLOR_Y(1530)},FAST};
-		points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
-	#else
-		points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
-		points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
-		points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
-		points[3] = (displacement_t){{1400,COLOR_Y(1710)},FAST};
-	#endif
-
-
-
-	switch(state){
-
-		case IDLE:
-			#if FALL_FIRST_FIRE
-				state = FALL_FIRST_FIRE;
-			#else
-				state = GET_OUT_POS_START;
-			#endif
-			break;
-
-		case FALL_FIRST_FIRE:
-			state = GET_OUT_POS_START;
-			break;
-
-		case GET_OUT_POS_START:
-			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,TAKE_DECISION_FIRST_WAY, TAKE_DECISION_FIRST_WAY,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		case TAKE_DECISION_FIRST_WAY:
-			if(entrance)
-				REACH_POINT_GET_OUT_INIT_send_request();
-
-			#ifdef WAY_INIT_TREE_SIDE
-				state = GOTO_TREE_INIT;
-			#elif defined WAY_INIT_MAMMOUTH_SIDE
-				state = WAIT_GOTO_MAMMOUTH_INIT;
-			#else
-				state = GOTO_HEART_INIT;
-			#endif
-			break;
-
-		case GOTO_TREE_INIT:
-			state  = try_going_multipoint(points,4,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
-			break;
-
-		case FALL_FIRE_WALL_TREE:
-			state = GOTO_TORCH_ADVERSARY;
-			break;
-
-		case GOTO_HEART_INIT:
-			state  = try_going_multipoint(points,4,GOTO_HEART_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_TREE_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
-			break;
-
-		case FALL_FIRE_MOBILE_TREE_ADV:
-			state = GOTO_TORCH_ADVERSARY;
-			break;
-
-		case WAIT_GOTO_MAMMOUTH_INIT:{  // Attend le passage de pierre pour pouvoir passer à son tour
-			static Uint16 last_time;
-			if(entrance)
-				last_time = global.env.match_time;
-
-			if(pierre_reach_point_C1 || global.env.match_time > last_time + 5000)
-				state = GOTO_MAMMOUTH_INIT;
-
-			}break;
-
-		case GOTO_MAMMOUTH_INIT:
-			if(entrance)
-				ASSER_WARNER_arm_y(1200);
-
-			state  = try_going_multipoint(points,4,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
-
-			if(global.env.asser.reach_x)
-				ZONE_unlock(MZ_MAMMOUTH_OUR);
-
-			break;
-
-		case FALL_FIRE_MOBILE_MM_ADV:
-			state = GOTO_TORCH_ADVERSARY;
-			break;
-
-		case GOTO_TORCH_ADVERSARY:
-			state = try_going_until_break(1100,COLOR_Y(1900),GOTO_TORCH_ADVERSARY,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : DONE,(fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		case FALL_FIRE_WALL_ADV:
-			state = DONE;
-			break;
-
-		case DONE:
-			return END_OK;
-			break;
-
-		case ERROR:
-			return NOT_HANDLED;
-			break;
-
-		default:
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
-		IDLE,
-		PUSH_TORCH,
-		RECULE,
-		PLACEMENT,
-		DEPLOY_TORCH,
-		ERROR,
-		DONE
-	);
-
-
-
-	switch(state){
-		case IDLE :
-			state = PUSH_TORCH;
-			break;
-
-		case PUSH_TORCH:
-			state = check_sub_action_result(travel_torch_line(torch_choice,filed,0, 0),PUSH_TORCH,RECULE,RECULE);
-			break;
-
-		case RECULE:
-			state = try_going(1630, 300, RECULE, PLACEMENT, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case PLACEMENT:
-			state = try_going(1740, 180, PLACEMENT, DEPLOY_TORCH, DEPLOY_TORCH, FAST, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case DEPLOY_TORCH:
-			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,filed),DEPLOY_TORCH,DONE,ERROR);
-			break;
-
-		case DONE:
-			state = IDLE;
-			return END_OK;
-			break;
-
-		case ERROR:
-			state = IDLE;
-			return NOT_HANDLED;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-
-error_e do_triangle_start_adversary(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLE_START_ADVERSARY,
-		IDLE,
-		GET_IN,
-		POS_START,
-		SCAN_TRIANGLE,
-		ANALYZE,
-		POS_TAKE,
-		TAKE,
-		MOVE_DROP_TRIANGLE,
-		DROP_TRIANGLE,
-		DROP_ANYWHERE,
-		GET_OUT_CAVERN,
-		GET_OUT_TREE,
-		DONE,
-		ERROR,
-		RETURN_NOT_HANDLED
-	);
-
-	static objet_t objet;
-	static GEOMETRY_point_t point;
-	static bool_e i_have_triangle = FALSE;
-
-	switch(state){
-		case IDLE:
-
-			if((est_dans_carre(400, 1200, 2000, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color == RED) ||
-				(est_dans_carre(400, 1200, 400, 1000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color != RED))
-				state = POS_START;
-			else
-				state = GET_IN;						//On se rend à la première position par le pathfind
-			break;
-
-		case GET_IN:
-			state = PATHFIND_try_going((global.env.color == RED)?Z1:A1,GET_IN, POS_START, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
-			break;
-
-		case POS_START:
-			state = try_going(900,(global.env.color == RED)? 2600:400, POS_START, SCAN_TRIANGLE, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
-			break;
-
-		case SCAN_TRIANGLE:
-			state = ELEMENT_try_going_and_rotate_scan((global.env.color == RED)?3*PI4096/4:-PI4096/4, (global.env.color == RED)?PI4096/4:-3*PI4096/4, 90,
-							 900, (global.env.color == RED)? 2600:400, SCAN_TRIANGLE, ANALYZE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case ANALYZE:{
-			objet_t tabObjet[3][20];
-			ELEMENT_get_object(tabObjet);
-
-			if(tabObjet[0][0].x != 0 && tabObjet[0][0].y != 0){
-				objet = tabObjet[0][0];
-				state = POS_TAKE;
-			}else{
-				state = ERROR;
-				set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
-			}
-
-		}break;
-
-		case POS_TAKE:{
-			if(entrance){
-				Uint16 norm = GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){objet.x,objet.y});
-
-				float coefx = (global.env.pos.x - objet.x)/(norm*1.);
-				float coefy = (global.env.pos.y - objet.y)/(norm*1.);
-
-
-				point.x = objet.x + DIM_TRIANGLE*coefx;
-				point.y = objet.y + DIM_TRIANGLE*coefy;
-			}
-
-			state = try_going(point.x,point.y, POS_TAKE, TAKE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
-
-			}break;
-
-		case TAKE:
-			//Prend le triangle a la position objet
-
-			state = MOVE_DROP_TRIANGLE;
-			i_have_triangle = TRUE;
-			break;
-
-		case MOVE_DROP_TRIANGLE:
-#ifdef DROP_TRIANGLE_UNDER_TREE
-			state = try_going(1300,(global.env.color == RED)?2750:250,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-#else
-			state = DROP_ANYWHERE;
-#endif
-			break;
-
-		case DROP_TRIANGLE:
-			//Pose le triangle à l'endroit voulu
-#ifdef DROP_TRIANGLE_UNDER_TREE
-			state = GET_OUT_TREE;
-#else
-			state = DROP_ANYWHERE;
-#endif
-			i_have_triangle = FALSE;
-			set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
-			break;
-
-		case DROP_ANYWHERE:
-			state = GET_OUT_CAVERN;
-			i_have_triangle = FALSE;
-			set_sub_act_done(SUB_ACTION_TRIANGLE_START_ADVERSARY, TRUE);
-			break;
-
-		case GET_OUT_CAVERN:
-			state = try_going(750,(global.env.color == RED)?2600:400,GET_OUT_CAVERN,RETURN_NOT_HANDLED,GET_OUT_TREE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		case GET_OUT_TREE:
-			state = try_going(1350,(global.env.color == RED)?2600:400,GET_OUT_TREE,RETURN_NOT_HANDLED,GET_OUT_CAVERN,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		case DONE:
-			state = IDLE;
-			return END_OK;
-			break;
-
-		case ERROR:
-			if((est_dans_carre(400, 1600, 1900, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color == RED) ||
-				(est_dans_carre(400, 1600, 400, 1100, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) && global.env.color != RED)  ) // Est sur le pathfind
-				state = RETURN_NOT_HANDLED;
-			else if(global.env.pos.x > 1050)
-				state = GET_OUT_TREE;
-			else
-				state = GET_OUT_CAVERN;
-
-			break;
-
-		case RETURN_NOT_HANDLED :
-			if(i_have_triangle)
-				state = DROP_ANYWHERE;
-			else{
-				state = IDLE;
-				return NOT_HANDLED;
-			}
-			break;
-
-		default:
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-
-error_e do_triangles_between_trees(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TRIANGLES_BETWEEN_TREES,
-		IDLE,
-		GET_IN,
-		CHOICE_DETECTION,
-		POS_START_DETECTION,
-		DETECTION_TRIANGLE_1,
-		DETECTION_TRIANGLE_2,
-		CHOICE,
-		POS_START,
-		ORIENTATION,
-		GET_OUT_ARM,
-		TURN,
-		MOVE,
-		TAKE_TRIANGLE,
-		MOVE_DROP_TRIANGLE,
-		DROP_TRIANGLE,
-		MOVE_FORCED_DROP_HEARTH,
-		FORCED_DROP_HEARTH,
-		DROP_TRIANGLE_ANYWHERE,
-		GET_OUT_SIDE_RED,
-		GET_OUT_SIDE_MIDDLE,
-		GET_OUT_SIDE_YELLOW,
-		GET_OUT_M2,
-		GET_OUT_W2,
-		GET_OUT_C2,
-		GET_OUT_Y3,
-		GET_OUT_B3,
-		GET_OUT_C3,
-		GET_OUT_W3,
-		DONE,
-		ERROR,
-		RETURN_NOT_HANDLED
-	);
-
-	static bool_e i_have_triangle = FALSE;
-	static bool_e try_drop_triangle_center = FALSE;
-	static GEOMETRY_point_t dpl_dect[2]; // Les deplacement pour la detection
-
-	static bool_e presence_triangle_2 = TRUE;
-	static bool_e presence_triangle_3 = TRUE;
-
-	switch(state){
-		case IDLE:
-
-			if(est_dans_carre(1500, 2000, 1000, 2000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-				state = CHOICE_DETECTION;
-			else
-				state = GET_IN;						//On se rend à la première position par le pathfind
-			break;
-
-		case GET_IN:
-			state = PATHFIND_try_going(M3,GET_IN, CHOICE_DETECTION, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
-			break;
-
-		case CHOICE_DETECTION:
-#ifdef DETECTION_TRIANGLE_MIDDLE
-				if(global.env.pos.y > 1500){
-					dpl_dect[0] = (GEOMETRY_point_t){1600,1900};
-					dpl_dect[1] = (GEOMETRY_point_t){1600,1100};
-				}else{
-					dpl_dect[1] = (GEOMETRY_point_t){1600,1900};
-					dpl_dect[0] = (GEOMETRY_point_t){1600,1100};
-				}
-
-				state = POS_START_DETECTION;
-#else
-				state = POS_START;				//On se rend à la première position directement
-#endif
-			break;
-
-		case POS_START_DETECTION:
-			state = try_going(dpl_dect[0].x, dpl_dect[0].y, POS_START_DETECTION, DETECTION_TRIANGLE_1, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
-			break;
-
-		case DETECTION_TRIANGLE_1:
-			if(entrance)
-				ELEMENT_launch_triangle_warner((global.env.pos.y > 1500)? 3:2);
-
-			state = try_going(1600, 1500, DETECTION_TRIANGLE_1, DETECTION_TRIANGLE_2, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
-			break;
-
-		case DETECTION_TRIANGLE_2:
-			if(entrance){
-				if(!ELEMENT_triangle_present()){ // Par default, les triangles sont présent
-					if(dpl_dect[0].y > dpl_dect[1].y) // On regarde le triangle 3 en premier
-						presence_triangle_3 = FALSE;
-					else
-						presence_triangle_2 = FALSE;
-				}
-
-				ELEMENT_launch_triangle_warner((dpl_dect[0].y > dpl_dect[1].y)? 2:3); // Ne peut pas faire confiance à la comparaison global.env.pos.y trop proche de 1500
-			}
-
-			state = try_going(dpl_dect[1].x, dpl_dect[1].y, DETECTION_TRIANGLE_2, CHOICE, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
-
-			break;
-
-		case CHOICE:
-			if(!ELEMENT_triangle_present()){ // Par default, les triangles sont présent
-				if(dpl_dect[0].y > dpl_dect[1].y) // On regarde le triangle 3 en premier
-					presence_triangle_2 = FALSE;
-				else
-					presence_triangle_3 = FALSE;
-			}
-
-			if((global.env.color == RED && presence_triangle_3) || (global.env.color != RED && presence_triangle_2)) // Regarde, si le premier triangle est present
-				state = POS_START;
-			else if((global.env.color == RED && presence_triangle_2) || (global.env.color != RED && presence_triangle_3)) // Si le premier n'est pas présent, on regarde le 2éme
-				state = MOVE;
-			else
-				state = DONE;
-
-			break;
-
-		case POS_START:
-			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(1800, 1500, POS_START, ORIENTATION, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case ORIENTATION:
-			state = try_go_angle(0,ORIENTATION,GET_OUT_ARM,ERROR,FAST);
-			break;
-
-		case GET_OUT_ARM:
-
-			// A remplir
-
-			state = TURN;
-			break;
-
-		// Tourne pour faire tomber le premier trinagle
-		case TURN:
-			state = try_go_angle((global.env.color == RED)?PI4096/2:-PI4096/2,TURN,((global.env.color == RED && presence_triangle_2) || (global.env.color != RED && presence_triangle_3))? MOVE:DONE,ERROR,FAST); // On regarde si le deuxiéme triangle est present
-			break;
-
-		case MOVE: // Bouge vers le second triangle
-			state = try_going(1800,(global.env.color == RED)?1300:1700,MOVE,TAKE_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		case TAKE_TRIANGLE:
-			state = MOVE_DROP_TRIANGLE;
-			i_have_triangle = TRUE;
-
-			set_sub_act_done(SUB_ACTION_TRIANGLE_BETWEEN_TREE,TRUE);// On indique que l'action a été faite, pour ne l'a faire qu'une seule fois, si echec derrière
-			break;
-
-		case MOVE_DROP_TRIANGLE:
-#ifdef DROP_TRIANGLE_UNDER_TREE
-			state = try_going(1750,(global.env.color == RED)?2300:700,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-#else
-			state = try_going(1350,1500,MOVE_DROP_TRIANGLE,DROP_TRIANGLE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			try_drop_triangle_center = TRUE;
-#endif
-			break;
-
-		case DROP_TRIANGLE:
-			// A partir d'ici les get_out partent dans tous les sens
-			//Pose le triangle à l'endroit voulu
-#ifdef DROP_TRIANGLE_UNDER_TREE
-			if(global.env.color == RED){
-				state = GET_OUT_Y3;
-			}else{
-				state = GET_OUT_B3;
-			}
-#else
-			state = GET_OUT_M2;
-#endif
-			i_have_triangle = FALSE;
-			break;
-
-		case DROP_TRIANGLE_ANYWHERE:
-			state = RETURN_NOT_HANDLED;
-			i_have_triangle = FALSE;
-			break;
-
-
-		// Si l'action de poser le triangle sous l'arbre a echoué, on réssaye sur le foyer
-		case MOVE_FORCED_DROP_HEARTH:
-			state = try_going(1350,1500,MOVE_FORCED_DROP_HEARTH,FORCED_DROP_HEARTH,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			try_drop_triangle_center = TRUE;
-			break;
-		case FORCED_DROP_HEARTH:
-			state = GET_OUT_M2;
-			i_have_triangle = FALSE;
-			break;
-
-		// Sorti du bord
-		case GET_OUT_SIDE_RED: // C3
-			state = try_going(1650,1100,GET_OUT_SIDE_RED,RETURN_NOT_HANDLED,GET_OUT_SIDE_MIDDLE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-		case GET_OUT_SIDE_MIDDLE: // M3
-			state = try_going(1700,1500,GET_OUT_SIDE_MIDDLE,RETURN_NOT_HANDLED,(global.env.color == RED)?GET_OUT_SIDE_RED:GET_OUT_SIDE_YELLOW,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-		case GET_OUT_SIDE_YELLOW: // W3
-			state = try_going(1650,1900,GET_OUT_SIDE_YELLOW,RETURN_NOT_HANDLED,GET_OUT_SIDE_MIDDLE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		// Sorti du milieu va chercher a rejoindre soit le point M2 ou un point situé chez l'adversaire pour ne pas déranger pierre
-		case GET_OUT_M2:
-			state = try_going(1450,1500,GET_OUT_M2,RETURN_NOT_HANDLED,(global.env.color == RED)?GET_OUT_W2:GET_OUT_C2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-		case GET_OUT_W2:
-			state = try_going(1250,1900,GET_OUT_W2,RETURN_NOT_HANDLED,GET_OUT_M2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-		case GET_OUT_C2:
-			state = try_going(1250,1100,GET_OUT_C2,RETURN_NOT_HANDLED,GET_OUT_M2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		// Sorti de sous l'arbre jaune
-		case GET_OUT_Y3:
-			state = try_going(1600,2250,GET_OUT_Y3,(last_state == DROP_TRIANGLE)? DONE:RETURN_NOT_HANDLED,GET_OUT_W3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-		case GET_OUT_W3:
-			state = try_going(1650,1900,GET_OUT_W3,RETURN_NOT_HANDLED,GET_OUT_Y3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-		// Sorti de sous l'arbre rouge
-		case GET_OUT_B3:
-			state = try_going(1600,750,GET_OUT_B3,(last_state == DROP_TRIANGLE)? DONE:RETURN_NOT_HANDLED,GET_OUT_C3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-		case GET_OUT_C3:
-			state = try_going(1650,1100,GET_OUT_C3,RETURN_NOT_HANDLED,GET_OUT_B3,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-
-
-		case DONE:
-			state = IDLE;
-			return END_OK;
-			break;
-
-		case ERROR:
-			if(est_dans_carre(1400, 1750, 600, 2400, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le pathfind
-				state = RETURN_NOT_HANDLED;
-			else if(est_dans_carre(1750, 2000, 1300, 1700, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le bord
-				state = GET_OUT_SIDE_MIDDLE;
-			else if(est_dans_carre(1750, 2000, 500, 1000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // sous l'arbre rouge
-				state = GET_OUT_B3;
-			else if(est_dans_carre(1750, 2000, 2000, 2500, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // sous l'arbre jaune
-				state = GET_OUT_Y3;
-			else
-				state = GET_OUT_M2;
-
-			break;
-
-		case RETURN_NOT_HANDLED :
-			if(try_drop_triangle_center == FALSE && i_have_triangle == TRUE){ // Si nous avons essayer de poser le triangle sous l'arbre et l'action est echoue
-				try_drop_triangle_center = TRUE;
-				state = MOVE_FORCED_DROP_HEARTH;
-			}else if(i_have_triangle == TRUE){ // Si nous avons toujours un triangle, on le pose ou nous sommes
-				state = DROP_TRIANGLE_ANYWHERE;
-			}else{
-				state = IDLE;
-				return NOT_HANDLED;
-			}
-
-
-			break;
-
-		default:
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-
-error_e travel_torch_line(torch_choice_e torch_choice,torch_filed_e choice,Sint16 posEndxIn, Sint16 posEndyIn){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
-		IDLE,
-		PLACEMENT,
-		POS_START_TORCH,
-		MOVE_TORCH,
-		END_TORCH,
-		REMOTENESS,
-		ERROR,
-		DONE
-	);
-
-
-	static GEOMETRY_point_t posStart,posEnd;
-
-	// S'éloigne à la fin de la pousser mais ralenti aussi avant la fin de la pousser de la torche
-	static GEOMETRY_point_t eloignement;
-
-	static pathfind_node_id_t node;
-
-	switch(state){
-		case IDLE :{
-			GEOMETRY_point_t torch;
-
-			torch = TORCH_get_position(torch_choice);
-
-			if(choice == ANYWHERE){
-				posEnd.x = posEndxIn;
-				posEnd.y = posEndyIn;
-			}else if(choice == FILED_FRESCO){
-				posEnd.x = 300;
-				posEnd.y = 1500;
-			}else if(choice == HEARTH_OUR){
-				posEnd.x = 1800;
-				posEnd.y = COLOR_Y(360);
-			}else if(choice == HEARTH_CENTRAL){
-				posEnd.x = 800;
-				posEnd.y = COLOR_Y(1300);
-			}else{ // PUSH_CAVERN_ADV
-				posEnd.x = 400;
-				posEnd.y = COLOR_Y(200);
-			}
-
-			Uint16 norm = GEOMETRY_distance(torch,posEnd);
-
-			float coefx = (torch.x - posEnd.x)/(norm*1.);
-			float coefy = (torch.y - posEnd.y)/(norm*1.);
-
-			posStart.x = torch.x + DIM_START_TRAVEL_TORCH*coefx;
-			posStart.y = torch.y + DIM_START_TRAVEL_TORCH*coefy;
-
-			node = PATHFIND_closestNode(posStart.x, posStart.y, 0);
-
-			eloignement.x = posEnd.x + DIM_START_TRAVEL_TORCH*coefx;
-			eloignement.y = posEnd.y + DIM_START_TRAVEL_TORCH*coefy;
-
-			state = PLACEMENT;
-
-		}	break;
-
-		case PLACEMENT:
-			state = PATHFIND_try_going(node, PLACEMENT, POS_START_TORCH, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
-			break;
-
-		case POS_START_TORCH:
-			state = try_going(posStart.x, posStart.y, POS_START_TORCH, MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case MOVE_TORCH :
-			state = try_going_until_break(eloignement.x, eloignement.y, MOVE_TORCH, END_TORCH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case END_TORCH:
-			state = try_going_until_break(posEnd.x, posEnd.y, END_TORCH, REMOTENESS, REMOTENESS, SLOW, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case REMOTENESS:  // eloignement
-			if(entrance)
-				TORCH_new_position(choice);
-
-			state = try_going(eloignement.x, eloignement.y, REMOTENESS, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case DONE:
-			state = IDLE;
-			return END_OK;
-			break;
-
-		case ERROR:
-			TORCH_new_position(choice);
-			state = IDLE;
-			return NOT_HANDLED;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-
-static void REACH_POINT_GET_OUT_INIT_send_request() {
-	CAN_msg_t msg;
-
-	msg.sid = XBEE_REACH_POINT_GET_OUT_INIT;
-	msg.size = 0;
-
-	CANMsgToXbee(&msg,FALSE);
-}
-
-error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TRAVEL_TORCH_LINE,
-		IDLE,
-		OPEN,
-		TORCHE,
-		DOWN_ARM,
-		UP_ARM,
-		OPEN_2,
-		FILED_TRIANGLE,
-		WAIT_TRIANGLE_BREAK,
-		BACK,
-		PREPARE_RETURN,
-		DOWN_RETURN,
-		RETURN,
-		INVERSE_PUMP,
-		DOWN_RETURN_2,
-		PREPARE_RETURN_2,
-		SMALL_ARM_DEPLOYED,
-		SMALL_ARM_PARKED,
-		TAKE_RETURN,
-		GRAP_TRIANGLE,
-		OPEN_3,
-		ADVANCE,
-		PARKED_NOT_HANDLED,
-		ERROR,
-		DONE
-	);
-
-	static GEOMETRY_point_t torch;
-
-	static GEOMETRY_point_t point[3];
-	static Uint8 i = 0;
-
-	if(filed == HEARTH_OUR){
-		point[0] = (GEOMETRY_point_t){global.env.pos.x+150,global.env.pos.y-150};
-		point[1] = (GEOMETRY_point_t){global.env.pos.x,global.env.pos.y-175};
-		point[2] = (GEOMETRY_point_t){global.env.pos.x+175,global.env.pos.y-175};
-
-
-
-		/*point[0] = (GEOMETRY_point_t){1800,COLOR_Y(200)};
-		point[1] = (GEOMETRY_point_t){1900,COLOR_Y(250)};
-		point[2] = (GEOMETRY_point_t){1900,COLOR_Y(250)};*/
-	}
-
-	switch(state){
-		case IDLE :
-			//torch = TORCH_get_position(choiceTorch);
-
-			torch.x = global.env.pos.x + 150;
-			torch.y = global.env.pos.y;
-
-			state = OPEN;
-			i = 0;
-			break;
-
-
-		case OPEN :
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN, TORCHE, PARKED_NOT_HANDLED);
-			break;
-
-		case TORCHE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, PARKED_NOT_HANDLED);
-			break;
-
-		case DOWN_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
-			if(entrance){
-				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-				ACT_arm_updown_rush_in_the_floor(120-i*30); // gera niveau avec i
-			}
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){ // TODO faire une action plus haut niveau avec time out
-				state = ELEMENT_wait_pump_capture_object(DOWN_ARM, UP_ARM, UP_ARM); // L'error est un TIMEOUT on passe quand même à l'étape suivante
-			}
-			break;
-
-		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
-			if((i == 1 && choiceTorch == OUR_TORCH) || ((i == 0 || i == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
-				state = BACK;//ACT_elevator_arm_move(100, UP_ARM, BACK, OPEN_NOT_HANDLED);
-			else
-				state = OPEN_2;//ACT_elevator_arm_move(100, UP_ARM, OPEN_2, OPEN_NOT_HANDLED);
-			break;
-
-		case OPEN_2:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_2, FILED_TRIANGLE, PARKED_NOT_HANDLED);
-			break;
-
-		case FILED_TRIANGLE :
-			if(entrance)
-				i++;
-
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
-
-			break;
-
-		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_STOP, 0);
-			//On peut avoir l'information avec le WT100 qui sera dans la main du robot
-			state = (i>=2)? DONE:OPEN;
-			break;
-
-		case BACK:
-			state = try_going(global.env.pos.x, global.env.pos.y+300, BACK, PREPARE_RETURN, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case PREPARE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, DOWN_RETURN, PARKED_NOT_HANDLED);
-			break;
-
-		case DOWN_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN, RETURN, PARKED_NOT_HANDLED);
-			break;
-
-		case RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, INVERSE_PUMP, PARKED_NOT_HANDLED);
-			break;
-
-		case INVERSE_PUMP:
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
-
-			state = ELEMENT_wait_pump_capture_object(INVERSE_PUMP, DOWN_RETURN_2, DOWN_RETURN_2);
-			break;
-
-		case DOWN_RETURN_2:
-			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN_2, PREPARE_RETURN_2, PARKED_NOT_HANDLED);
-			break;
-
-		case PREPARE_RETURN_2:
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN_2, SMALL_ARM_DEPLOYED, PARKED_NOT_HANDLED);
-			break;
-
-		case SMALL_ARM_DEPLOYED:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, PARKED_NOT_HANDLED);
-			break;
-
-		case SMALL_ARM_PARKED:
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_STOP, 0);
-
-			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, TAKE_RETURN, PARKED_NOT_HANDLED);
-			break;
-
-		case TAKE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, TAKE_RETURN, GRAP_TRIANGLE, PARKED_NOT_HANDLED);
-			break;
-
-		case GRAP_TRIANGLE: // prise du triangle au sol
-			if(entrance){
-				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-			}
-			state = ELEMENT_wait_pump_capture_object(GRAP_TRIANGLE, OPEN_3, OPEN_3); // L'error est un TIMEOUT on passe quand même à l'étape suivante
-			break;
-
-		case OPEN_3:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_3, ADVANCE, PARKED_NOT_HANDLED);
-			break;
-
-		case ADVANCE:
-			state = try_going(global.env.pos.x, global.env.pos.y-300, ADVANCE, OPEN_2, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case PARKED_NOT_HANDLED:
-			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
-			break;
-
-		case DONE:
-			ACT_pompe_order(ACT_POMPE_STOP, 0);
-			state = IDLE;
-			return END_OK;
-			break;
-
-		case ERROR:
-			ACT_pompe_order(ACT_POMPE_STOP, 0);
-			state = IDLE;
-			return NOT_HANDLED;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-
-error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-
-		if(state_arm == ACT_ARM_POS_ON_TORCHE || state_arm == ACT_ARM_POS_ON_TRIANGLE)
-			ACT_arm_goto_XY(state_arm, x, y);
-		else
-			ACT_arm_goto(state_arm);
-
-
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
-
-error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-		ACT_small_arm_goto(state_arm);
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
-
-error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-		ACT_arm_updown_goto(state_arm);
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
-
 void strat_test_arm(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_TEST_ARM,
 		IDLE,
@@ -1599,7 +1653,7 @@ void strat_test_arm(){
 		DONE
 	);
 
-	static time32_t time;
+	//static time32_t time;
 
 	switch(state){
 		case IDLE :
@@ -1682,5 +1736,9 @@ void strat_test_arm(){
 
 		case DONE :
 			break;
+		default:
+			break;
 	}
 }
+
+
