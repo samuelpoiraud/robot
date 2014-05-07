@@ -28,11 +28,10 @@ void strat_test_warner_triangle(void);
 void strat_test_arm(void);
 void strat_belgique_guy(void);
 
-error_e travel_torch_line(torch_choice_e torch_choice,torch_filed_e choice,Sint16 posEndxIn, Sint16 posEndyIn);
 error_e sub_action_initiale_guy();
 error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
-error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_filed_e filed);
-error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed);
+error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e filed);
+error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone, torch_dispose_zone_e if_fail_dispose_zone);
 error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 

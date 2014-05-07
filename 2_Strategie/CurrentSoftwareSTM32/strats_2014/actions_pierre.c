@@ -88,7 +88,7 @@ volatile Uint8 adversary_fresco_index = 2;
 
 error_e sub_action_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_INITIALE,
-		IDLE,
+		INIT,
 		WAIT_TELL_GUY,
 		GET_OUT,
 		LANCE_LAUNCHER,
@@ -130,7 +130,7 @@ error_e sub_action_initiale(){
 
 	switch(state){
 
-		case IDLE:
+		case INIT:
 			if(global.env.asser.calibrated)
 				state = WAIT_TELL_GUY;
 			else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !

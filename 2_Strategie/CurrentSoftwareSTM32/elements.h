@@ -317,12 +317,13 @@
 	}torch_choice_e;
 
 	typedef enum{
-		HEARTH_OUR,
-		HEARTH_ADVERSARY,
-		HEARTH_CENTRAL,
-		FILED_FRESCO,
-		ANYWHERE
-	}torch_filed_e;
+		NO_DISPOSE = 0,			//l'action do_torch se termine dès qu'on a la torche (sans la dépiler)
+		HEARTH_OUR,			//Dépilage de la torche sur notre foyer
+		HEARTH_ADVERSARY,	//Dépilage sur foyer adverse
+		HEARTH_CENTRAL,		//Dépilage sur foyer central
+		FILED_FRESCO,		//Dépilage devant les fresques
+		ANYWHERE			//Dépilage n'importe où (la fonction choisit elle même le plus pertinent)
+	}torch_dispose_zone_e;
 
 	typedef enum{
 		RED_CAVERN,
@@ -380,7 +381,7 @@
 	void TORCH_CAN_process_msg(CAN_msg_t *msg);
 
 	// Envois la nouvelle position de la torche par XBEE
-	void TORCH_CAN_send_msg(torch_choice_e choice, GEOMETRY_point_t pos);
+	void TORCH_XBee_send_msg(torch_choice_e choice, GEOMETRY_point_t pos);
 
 	// Attends que la pompe renvoie si elle détecte la une prise d'objet
 	Uint8 ELEMENT_wait_pump_capture_object(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
