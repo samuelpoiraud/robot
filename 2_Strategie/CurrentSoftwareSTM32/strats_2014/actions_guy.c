@@ -244,7 +244,6 @@ error_e do_torch(torch_choice_e torch_choice,torch_filed_e filed){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TORCH,
 		IDLE,
 		PUSH_TORCH,
-		PLACEMENT,
 		DEPLOY_TORCH,
 		ERROR,
 		DONE
