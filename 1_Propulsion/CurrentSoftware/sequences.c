@@ -8,6 +8,7 @@
 #include "cos_sin.h"
 #include "odometry.h"
 #include "warner.h"
+#include "copilot.h"
 
 //border_mode peut être BORDER_MODE_WITH_UPDATE_POSITION ou BORDER_MODE
 void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, acknowledge_e acquittement, Sint32 far_point_x, Sint32 far_point_y, border_mode_e border_mode, corrector_e corrector)
