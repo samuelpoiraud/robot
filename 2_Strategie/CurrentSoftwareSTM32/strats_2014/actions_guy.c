@@ -25,6 +25,9 @@
 #include <math.h>
 
 static void REACH_POINT_GET_OUT_INIT_send_request();
+error_e goto_adversary_zone(void);
+
+//TODO Si absence de Pierre, on doit être capable de compiler un code de GUY qui met un max de points (tout nos feux... !)
 
 
 //SWITCH_STRAT2 et SWITCH_STRAT1 permettent de choisir le chemin à emprunter pour se rendre chez l'adversaire
@@ -66,14 +69,22 @@ typedef enum
 }initial_path_e;	//Chemin initial choisi pour se rendre du coté adverse
 
 volatile initial_path_e initial_path;
+static bool_e pierre_reach_point_C1 = FALSE;
 
+/*
+ * Le but de la strat_initiale de guy est :
+ * 	1- se rendre dans la zone adverse, par un chemin choisi (+ gestion des cas d'erreurs) => sous traité à ############
+ *  2- si activé -> voler la torche adverse + la déposer à l'endroit choisi -> puis rendre la main à high_level_strat
+ *  3- sinon -> rendre la main à high_level_strat
+ */
 error_e sub_action_initiale_guy(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_INITIALE,
 		INIT,
 		SUCESS,
 		GET_OUT_POS_START,
 		FALL_FIRST_FIRE,
-		TAKE_DECISION_FIRST_WAY,
+		PREVENT_PIERRE_WE_ARE_GOT_OUT,
+		GOTO_ADVERSARY_ZONE,
 		GOTO_TREE_INIT,
 		FALL_FIRE_WALL_TREE,  // Fait tomber les deux feux contre le mur milieu
 		WAIT_GOTO_MAMMOUTH_INIT,
@@ -89,15 +100,14 @@ error_e sub_action_initiale_guy(){
 		ERROR
 	);
 
-	static displacement_t points[6];
-	static Uint8	nb_points = 0;
-	static bool_e pierre_reach_point_C1 = FALSE;
+	//static displacement_t points[6];
+	//static Uint8	nb_points = 0;
+
 	static torch_dispose_zone_e dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
 	static torch_dispose_zone_e if_fail_dispose_zone_for_adversary_torch = NO_DISPOSE;
 	static GEOMETRY_point_t pos_for_take_torch;
 	if(global.env.reach_point_C1)
 		pierre_reach_point_C1 = TRUE;
-
 
 	switch(state)
 	{
@@ -118,7 +128,7 @@ error_e sub_action_initiale_guy(){
 			}
 
 			//Initialisation des points selon le chemin défini.
-			switch(initial_path)
+			/*switch(initial_path)
 			{
 				case SOUTH_TREES:
 					points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
@@ -158,7 +168,7 @@ error_e sub_action_initiale_guy(){
 					nb_points = 4;
 					break;
 			}
-
+*/
 			#ifdef GUY_FALL_FIRST_FIRE
 				state = FALL_FIRST_FIRE;
 			#else
@@ -173,29 +183,21 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GET_OUT_POS_START:
-			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,TAKE_DECISION_FIRST_WAY, TAKE_DECISION_FIRST_WAY,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,PREVENT_PIERRE_WE_ARE_GOT_OUT, PREVENT_PIERRE_WE_ARE_GOT_OUT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
-		case TAKE_DECISION_FIRST_WAY:
+		case PREVENT_PIERRE_WE_ARE_GOT_OUT:
 			if(entrance)
 				REACH_POINT_GET_OUT_INIT_send_request();
-
-			switch(initial_path)
-			{
-				case SOUTH_TREES:
-					state = GOTO_TREE_INIT;
-					break;
-				case SOUTH_HEART:
-					state = GOTO_HEART_INIT;
-					break;
-				case NORTH_HEART:
-					state = GOTO_HEART_INIT;
-					break;
-				case NORTH_MAMMOUTH:
-					state = WAIT_GOTO_MAMMOUTH_INIT;
-					break;
-			}
+			state = GOTO_ADVERSARY_ZONE;
 			break;
+		case GOTO_ADVERSARY_ZONE:
+			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,GOTO_TORCH_ADVERSARY,ERROR);
+			//ERROR n'est pas censé se produire... la sub_action étant censée trouver une solution pour se rendre en zone adverse !
+			break;
+/*
+
+
 
 		case GOTO_TREE_INIT:		//On emprunte le chemin proche des arbres.
 			state  = try_going_multipoint(points,nb_points,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
@@ -239,10 +241,13 @@ error_e sub_action_initiale_guy(){
 			//TODO mouvement pour le triangle mobile coté adverse
 			state = GOTO_TORCH_ADVERSARY;
 			break;
-
+*/
 		case GOTO_TORCH_ADVERSARY:
 			if(!SWITCH_STRAT_1)
+			{
+				SD_printf("Récupération de la torche adverse : désactivée\n");
 				state = DONE;	//On ne fait pas la torche -> on rend la main à la high_level_strat
+			}
 			else
 			{
 				if(entrance)
@@ -321,6 +326,153 @@ error_e sub_action_initiale_guy(){
 
 
 
+/*
+ * Sub action qui permet à guy de se rendre dans la zone adverse.
+ * Cette sub action gère les cas d'erreur et ne rendra la main que lorsque Guy est dans la zone adverse !
+ *
+ * Actions activables (par macros) et intégrées à cette sub-action :
+ * 	- TOUT les feux mobiles debout		TODO !!
+ * 	- les feux fixes du sud				TODO !!
+ * Attention, ces feux ne seront traités que lorsque le chemin choisi le permet et que les macros correspondantes sont actives !
+ */
+error_e goto_adversary_zone(void)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GOTO_ADVERSARY_ZONE,
+		INIT,
+		WAIT_FOR_PIERRE,
+		SB2,
+		SC0,
+		SC1,
+		SC12,	//Point intermédiaire en cas d'échec
+		SC2,
+		SC3,
+		SW0,
+		SW1,
+		SW2,
+		SW3,
+		DONE
+	);
+	static enum state_e fail_state = INIT;
+	static enum state_e success_state = INIT;
+	switch(state)
+	{
+		case INIT:
+			switch(initial_path)
+			{
+				case SOUTH_TREES:
+					state = SB2;
+					break;
+				case SOUTH_HEART:
+					state = SB2;
+					break;
+				case NORTH_HEART:
+					state = SC1;
+					break;
+				case NORTH_MAMMOUTH:
+					state = WAIT_FOR_PIERRE;
+					break;
+			}
+			break;
+		case WAIT_FOR_PIERRE:
+			{  // Attend le passage de pierre pour pouvoir passer à son tour
+				static time32_t last_time;
+				if(entrance)
+					last_time = global.env.match_time;
+
+				if(pierre_reach_point_C1 || global.env.match_time > last_time + 5000)
+					state = SC0;
+			}
+			break;
+		case SB2:
+			if(entrance)
+			{
+				if(initial_path == SOUTH_HEART)
+					success_state = SC2;
+				else
+					success_state = SC3;
+			}
+			//TODO sur cette trajectoire, bouger le bras ou adapter la trajectoire pour gérer le feu mobile central !
+			state = try_going_until_break(1350,COLOR_Y(900),SB2,success_state,SC12,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SC0:
+			if(entrance)
+				ASSER_WARNER_arm_y(COLOR_Y(1200));
+			if(global.env.asser.reach_y)
+				ZONE_unlock(MZ_MAMMOUTH_OUR);
+			state = try_going_until_break(500,COLOR_Y(1200),SC0,SW0,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SC1:
+			if(entrance)
+			{
+				if(last_state == SW1)	//On revient en échec du prochain point -> changement de chemin
+				{
+					success_state = SC12;
+					fail_state = SW1;
+				}
+				else
+				{
+					success_state = SW1;
+					fail_state = SC12;
+				}
+			}
+			state = try_going_until_break(750,COLOR_Y(1200),SC1,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SC12://Point intermédiaire en cas d'échec
+			if(entrance)
+			{
+				if(last_state == SC1)
+				{
+					success_state = SC2;
+					fail_state = SC1;
+				}
+				else 	//SC2 ou SB2 !!
+				{
+					success_state = SC1;
+					fail_state = SC2;
+				}
+			}
+			state = try_going_until_break(1050,COLOR_Y(1200),SC12,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SC2:
+			if(entrance)
+			{
+				if(last_state == SW2)	//On revient en échec du prochain point -> changement de chemin
+				{
+					success_state = SC12;
+					fail_state = SW2;
+				}
+				else
+				{
+					success_state = SW2;
+					fail_state = SC12;
+				}
+			}
+			state = try_going_until_break(1350,COLOR_Y(1200),SC2,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SC3:
+			state = try_going_until_break(1750,COLOR_Y(1200),SC3,SW3,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SW0:
+			if(global.env.asser.reach_y)
+				ZONE_unlock(MZ_MAMMOUTH_OUR);
+			state = try_going_until_break(500,COLOR_Y(1800),SW0,DONE,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SW1:
+			state = try_going_until_break(750,COLOR_Y(1800),SW1,DONE,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SW2:
+			state = try_going_until_break(1350,COLOR_Y(1800),SW2,DONE,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case SW3:
+			state = try_going_until_break(1750,COLOR_Y(1800),SW3,DONE,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case DONE:
+			state = INIT;
+			return END_OK;
+			break;
+	}
+	return IN_PROGRESS;
+}
 
 /*
  * PRECONDITIONS ! ATTENTION c'est IMPORTANT
