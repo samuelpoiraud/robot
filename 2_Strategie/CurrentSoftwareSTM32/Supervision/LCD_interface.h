@@ -50,9 +50,8 @@ void LCD_add_can(CAN_msg_t * msg);
  * La ligne 0 correspond à la dernière ligne du menu principal (INFOS)
  * Les 3 autres lignes correspondent aux lignes du menu utilisateur.
  */
-//__attribute__((format (printf, 3, 4)))  permet au compilateur de verifier l'argument chaine avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
-void LCD_printf(Uint8 line, bool_e switch_on_menu, char * chaine, ...) __attribute__((format (printf, 3, 4)));
-
+//__attribute__((format (printf, 4, 5)))  permet au compilateur de verifier l'argument chaine avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
+void LCD_printf(Uint8 line, bool_e switch_on_menu, bool_e log_on_sd, char * chaine, ...) __attribute__((format (printf, 4, 5)));
 
 /*
  * Redonne le control à l'écran

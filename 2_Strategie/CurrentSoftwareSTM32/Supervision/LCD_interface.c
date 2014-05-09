@@ -748,7 +748,7 @@ void LCD_add_can(CAN_msg_t * msg)
 //Line doit être entre 0 et 3 inclus.
 //La ligne 0 correspond à la dernière ligne du menu principal (INFOS)
 //Les 3 autres lignes correspondent aux lignes du menu utilisateur.
-void LCD_printf(Uint8 line, bool_e switch_on_menu, char * chaine, ...)
+void LCD_printf(Uint8 line, bool_e switch_on_menu, bool_e log_on_sd, char * chaine, ...)
 {
 	assert(line < 4);
 
@@ -759,6 +759,9 @@ void LCD_printf(Uint8 line, bool_e switch_on_menu, char * chaine, ...)
 	if(line>0)
 		ask_for_menu_user = switch_on_menu;
 	free_msg_updated = TRUE;
+	if(log_on_sd)
+		SD_printf("LCD_printf(%d):%s\n",line,chaine);	//On logue sur la LCD ce qu'on demande d'afficher à l'écran (parce que si on l'affiche, c'est que c'est important)
+	//Cela permet aussi d'éviter le spam...
 }
 
 
@@ -773,50 +776,18 @@ void LCD_button_down(void)
 	flag_bp_down = TRUE;
 }
 
-void LCD_button_up(void){
+void LCD_button_up(void)
+{
 	flag_bp_up = TRUE;
 }
 
-void LCD_button_ok(void){
+void LCD_button_ok(void)
+{
 	flag_bp_ok = TRUE;
-	/*
-	switch(state){
-		case MENU:
-			switch(menu_choice){
-				case SELF_TEST:
-					LCD_printf(0,"SelfTest asked");
-					SELFTEST_ask_launch();
-					break;
-				case LAST_MATCH:
-					LCD_printf(0,"Decharge match");
-					SD_print_previous_match();
-					break;
-				case REGLAGE_ODO:
-					LCD_printf(0,"Reglage ODO");
-					//odometry_set(); //N'existe pas encore
-					break;
-				case RETURN:
-				default:
-					break;
-			}
-			LCD_cursor_display(FALSE,FALSE);
-			LCD_switch_mode();
-			break;
-		case USER_MODE:
-			LCD_free_control();
-			break;
-		case SELFTEST:
-			LCD_switch_mode();
-			break;
-		default:
-			if(state != INIT){
-				LCD_take_control();
-			}
-			break;
-	}*/
 }
 
-void LCD_button_set(void){
+void LCD_button_set(void)
+{
 	flag_bp_set = TRUE;
 }
 

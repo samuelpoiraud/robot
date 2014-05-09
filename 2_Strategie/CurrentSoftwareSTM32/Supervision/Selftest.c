@@ -737,11 +737,11 @@ void SELFTEST_check_alim(){
 
 	count++;
 	if(count >= REFRESH_DISPLAY_BAT){
-		LCD_printf(0, FALSE, "VBAT : %d", global.env.alim_value);
+		LCD_printf(0, FALSE, FALSE, "VBAT : %d", global.env.alim_value);
 
 		if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW){
 			BUZZER_play(40, DEFAULT_NOTE, 10);
-			LCD_printf(3, TRUE, "CHANGER BAT:%d", global.env.alim_value);
+			LCD_printf(3, TRUE, TRUE, "CHANGER BAT:%d", global.env.alim_value);
 		}
 
 		count = 0;

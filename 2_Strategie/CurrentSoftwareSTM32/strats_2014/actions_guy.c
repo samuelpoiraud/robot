@@ -182,7 +182,7 @@ error_e sub_action_initiale_guy(){
 			//TODO modifier si besoin (c'est probable la position du bras)
 			//Attention, cette action est conditionnée par la calibration... !
 			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0,0,FALL_FIRST_FIRE,GET_OUT_POS_START,GET_OUT_POS_START);
-			if(t > 1500)	//C'est grand temps de partir si on veut pas se faire *** par Pierre...
+			if(t > 1000)	//C'est grand temps de partir si on veut pas se faire *** par Pierre...
 				state = GET_OUT_POS_START;
 
 			if(state != FALL_FIRST_FIRE)	//Si on a fini (échec ou réussite...)
@@ -204,53 +204,7 @@ error_e sub_action_initiale_guy(){
 			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,DO_TORCH,ERROR);
 			//ERROR n'est pas censé se produire... la sub_action étant censée trouver une solution pour se rendre en zone adverse !
 			break;
-/*
 
-
-
-		case GOTO_TREE_INIT:		//On emprunte le chemin proche des arbres.
-			state  = try_going_multipoint(points,nb_points,GOTO_TREE_INIT,FALL_FIRE_WALL_TREE,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
-			break;
-
-		case FALL_FIRE_WALL_TREE:
-			state = GOTO_TORCH_ADVERSARY;
-			break;
-
-		case GOTO_HEART_INIT:
-			state  = try_going_multipoint(points,nb_points,GOTO_HEART_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_TREE_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
-			break;
-
-		case FALL_FIRE_MOBILE_TREE_ADV:
-			//TODO (attention, ce même état est utilisé pour les deux chemins proches du foyer... la façon de faire tomber le feu est différente)
-			state = GOTO_TORCH_ADVERSARY;
-			break;
-
-		case WAIT_GOTO_MAMMOUTH_INIT:{  // Attend le passage de pierre pour pouvoir passer à son tour
-			static time32_t last_time;
-			if(entrance)
-				last_time = global.env.match_time;
-
-			if(pierre_reach_point_C1 || global.env.match_time > last_time + 5000)
-				state = GOTO_MAMMOUTH_INIT;
-
-			}break;
-
-		case GOTO_MAMMOUTH_INIT:
-			if(entrance)
-				ASSER_WARNER_arm_y(COLOR_Y(1200));
-
-			state  = try_going_multipoint(points,nb_points,GOTO_MAMMOUTH_INIT,(rush_to_torch == TRUE)? GOTO_TORCH_ADVERSARY : FALL_FIRE_MOBILE_MM_ADV,ERROR,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_BREAK);
-
-			if(global.env.asser.reach_y)
-				ZONE_unlock(MZ_MAMMOUTH_OUR);
-
-			break;
-
-		case FALL_FIRE_MOBILE_MM_ADV:
-			//TODO mouvement pour le triangle mobile coté adverse
-			state = GOTO_TORCH_ADVERSARY;
-			break;
-*/
 		case DO_TORCH:
 			if(dispose_zone_for_adversary_torch == NO_DISPOSE)
 			{
@@ -293,7 +247,7 @@ error_e sub_action_initiale_guy(){
 }
 
 
-// Gestion du bras pendant le déplacement
+// Gestion du bras pendant le déplacement vers la zone adverse
 void goto_adversary_zone_arm_management(void)
 {
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GOTO_ADVERSARY_ZONE_ARM_MGT,
@@ -498,6 +452,7 @@ error_e goto_adversary_zone(void)
 		case SW3:
 			state = try_going_until_break(1750,COLOR_Y(1800),SW3,DONE,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
+			//TODO poursuivre le déplacement vers d'autres points clés pour chaque chemin... afin de mettre les feux mobiles (selon deines)
 		case DONE:
 			state = INIT;
 			ret = END_OK;
