@@ -80,23 +80,21 @@ void _ISR _T1Interrupt()
 		if(global.env.match_time & 0x100)
 			LED_USER=!LED_USER;
 	}
-	else
+
+	local_time++;
+	if(local_time == 250)
+		show_color_on_leds();	//Màj de la couleur des LEDS + clignotement ON si nécessaire.
+	if(local_time == 500)
 	{
-		//Avant le début du match.
-		local_time++;
-		if(local_time == 250)
-			show_color_on_leds();	//Màj de la couleur des LEDS + clignotement ON si nécessaire.
-		if(local_time == 500)
-		{
-			local_time = 0;
-			if(XBee_is_destination_reachable() == FALSE)
-			{	//On a pas de lien XBEE avec l'autre Robot : les leds clignotent.
-				BLUE_LEDS = 0;
-				RED_LEDS = 0;
-				GREEN_LEDS = 0;
-			}
-			SELFTEST_process_500ms();
+		local_time = 0;
+		if(XBee_is_destination_reachable() == FALSE || SWITCH_XBEE == FALSE)
+		{	//On a pas de lien XBEE avec l'autre Robot : les leds clignotent.
+			//ATTENTION, si l'on désactive après allumage le XBEE sur l'un des robot... l'autre robot qui a eu le temps de dialoguer en XBEE ne clignotera pas !
+			BLUE_LEDS = 0;
+			RED_LEDS = 0;
+			GREEN_LEDS = 0;
 		}
+		SELFTEST_process_500ms();
 	}
 
 	count_1sec++;

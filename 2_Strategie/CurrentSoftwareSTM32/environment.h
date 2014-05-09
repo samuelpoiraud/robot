@@ -155,7 +155,6 @@
 	/* Traitement d'un message CAN et renvoie vers d'autres bus */
 	void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool_e bU2, bool_e bXBee);
 
-	/* Demande un envoi par la propulsion de l'ensemble de ses coefs */
-	void ENV_ask_propulsion_coefs(void);
+
 
 #endif /* ndef ENVIRONMENT_H */

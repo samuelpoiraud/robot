@@ -619,6 +619,25 @@ void ASSER_rush_in_the_totem_south (stack_id_e stack_id, bool_e init)
 }
 */
 
+void ASSER_ask_propulsion_coefs(void)
+{
+	CAN_msg_t msg;
+	msg.sid = DEBUG_PROPULSION_GET_COEFS;
+	msg.size = 0;
+	CAN_send(&msg);
+}
+
+
+void ASSER_set_correctors(bool_e corrector_rotation, bool_e corrector_translation)
+{
+	CAN_msg_t msg;
+	msg.sid = ASSER_SET_CORRECTORS;
+	msg.data[0] = corrector_rotation;
+	msg.data[1] = corrector_translation;
+	msg.size = 2;
+	CAN_send(&msg);
+}
+
 /*
 	Fonction permettant d'armer un avertisseur sur la propulsion.
 	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_X sera envoyé dès que le robot atteindra cette ligne virtuelle...

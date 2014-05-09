@@ -143,7 +143,7 @@ void Supervision_process_main(void)
 		flag_xbee_msg = 0;
 		#ifdef USE_XBEE
 			#warning "désactivé pour l'instant, tant que pas testé... ->"
-			if(0)	//if(PORT_SWITCH_XBEE)
+			if(0)	//if(SWITCH_XBEE)
 				SUPERVISION_send_pos_over_xbee();	//Envoi périodique de notre position en XBee (cet envoi ne fonctionnera que lorsque le module est initialisé, et qu'auprès des modules PINGés)
 		#endif
 	}
@@ -154,7 +154,7 @@ void Supervision_process_main(void)
 
 
 	#ifdef USE_XBEE
-		if(PORT_SWITCH_XBEE)
+		if(SWITCH_XBEE)
 			CAN_over_XBee_process_main();
 	#endif
 
