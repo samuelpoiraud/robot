@@ -29,15 +29,12 @@ static void REACH_POINT_C1_send_request();
 // SWITCH_STRAT_2 est utilisée pour le choix dés le début aller vers la torche directement apres les balles ou faire les fresques si actif fait torche
 
 
-// Define à activer pour activer le get_in / get_ou des subactions
-#define USE_GET_IN_OUT
-
 
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
 #define POS_Y_MANUAL_FRESCO COLOR_Y(1500) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
-
+#define NB_TRY_FRESCO 2	//(Choix possible : 1, 2 ou 3 : nombre de tentatives de dépose de la fresque en cas de détection de fresque non posée.
 #define TIME_BEGINNING_NO_AVOIDANCE 5000
 
 
@@ -108,9 +105,6 @@ error_e sub_action_initiale(){
 		DO_FRESCO,
 		FILE_FRUIT,
 		LANCE_LAUNCHER_ADVERSARY,
-		TRY_AGAIN_FRUIT,
-		TRY_LANCE_LAUNCHER,
-		SUCESS,
 		DONE,
 		ERROR
 	);
@@ -158,7 +152,9 @@ error_e sub_action_initiale(){
 			break;
 
 		case LANCE_LAUNCHER:
-			state = check_sub_action_result(strat_lance_launcher((SWITCH_STRAT_1)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,(SWITCH_STRAT_2)? GOTO_TORCH_FIRST_POINT : GOTO_FRESCO,ERROR);
+			//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
+			//Il y a aussi le risque que cet évittement soit du à Guy...
+			state = check_sub_action_result(strat_lance_launcher((SWITCH_STRAT_1)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,(SWITCH_STRAT_2)? GOTO_TORCH_FIRST_POINT : GOTO_FRESCO,GOTO_TORCH_FIRST_POINT);
 			break;
 
 		case GOTO_TORCH_FIRST_POINT:
@@ -734,7 +730,7 @@ error_e strat_manage_fresco(){
 					posY = POS_MIN_FRESCO;
 				else
 					posY = POS_MAX_FRESCO;
-			}else if(statePosFresco == LAST_LAST_CHANCE_FILE_FRESCO){ // Si il a deja tenter 2 fois la fresque
+			}else if(statePosFresco == LAST_LAST_CHANCE_FILE_FRESCO){ // Si il a deja tenté 2 fois la fresque
 				if(posY == POS_MAX_FRESCO && oldPosY != POS_MIN_FRESCO)
 					posY = POS_MIN_FRESCO;
 				else if(posY == POS_MIN_FRESCO && oldPosY != POS_MAX_FRESCO)
@@ -820,7 +816,7 @@ error_e strat_manage_fresco(){
 			break;
 
 		case VERIFICATION:
-			if(FRESCO_1)//fresque plus presente sur le support grace au capteur
+			if(FRESCO_1 || NB_TRY_FRESCO < 2)//fresque plus presente sur le support grace au capteur
 				state = DONE;
 			else
 				state = LAST_CHANCE_FILE_FRESCO;
@@ -841,7 +837,7 @@ error_e strat_manage_fresco(){
 			break;
 
 		case VERIFICATION_2:
-			if(FRESCO_1)// && FRESCO_2)//fresque plus presente sur le support grace au capteur
+			if(FRESCO_1  || NB_TRY_FRESCO < 3)// && FRESCO_2)//fresque plus presente sur le support grace au capteur
 				state = DONE;
 			else
 				state = LAST_LAST_CHANCE_FILE_FRESCO;
@@ -1080,8 +1076,6 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 		RETURN_NOT_HANDLED
 	);
 
-	//static Uint8 get_out_try = 0;
-	//static GEOMETRY_point_t escape_point[2];
 
 	static displacement_t dplt[4]; // Deplacement
 	static way_e sensRobot;
@@ -1591,11 +1585,7 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 				escape_point[0] = (GEOMETRY_point_t){200, 200};
 			else
 				escape_point[0] = (GEOMETRY_point_t){200, 1800};
-			#ifdef USE_GET_IN_OUT
-				state = GET_IN;
-			#else
-				state = PLACEMENT_RECALAGE_Y;
-			#endif
+			state = GET_IN;
 			break;
 
 		case GET_IN :

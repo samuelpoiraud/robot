@@ -22,6 +22,7 @@
 #include "../config/config_pin.h"
 #include "../maths_home.h"
 #include "../Supervision/SD/SD.h"
+#include "../Supervision/Buzzer.h"
 #include <math.h>
 
 static void REACH_POINT_GET_OUT_INIT_send_request();
@@ -83,7 +84,6 @@ error_e sub_action_initiale_guy(){
 		SUCESS,
 		GET_OUT_POS_START,
 		FALL_FIRST_FIRE,
-		PREVENT_PIERRE_WE_ARE_GOT_OUT,
 		GOTO_ADVERSARY_ZONE,
 		GOTO_TREE_INIT,
 		FALL_FIRE_WALL_TREE,  // Fait tomber les deux feux contre le mur milieu
@@ -102,6 +102,8 @@ error_e sub_action_initiale_guy(){
 
 	//static displacement_t points[6];
 	//static Uint8	nb_points = 0;
+	static bool_e we_prevented_pierre_to_get_out = FALSE;
+	static Sint16 y_to_prevent_pierre_to_get_out;
 	static time32_t t;
 	static torch_dispose_zone_e dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
 	static torch_dispose_zone_e if_fail_dispose_zone_for_adversary_torch = NO_DISPOSE;
@@ -111,6 +113,7 @@ error_e sub_action_initiale_guy(){
 	switch(state)
 	{
 		case INIT:
+			we_prevented_pierre_to_get_out = FALSE;
 			if(SWITCH_STRAT_2)	//NORTH ou SOUTH
 			{
 				if(SWITCH_STRAT_3)	//intérieur ou extérieur
@@ -192,15 +195,33 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GET_OUT_POS_START:
-			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,PREVENT_PIERRE_WE_ARE_GOT_OUT, PREVENT_PIERRE_WE_ARE_GOT_OUT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
-		case PREVENT_PIERRE_WE_ARE_GOT_OUT:
+		/*case PREVENT_PIERRE_WE_ARE_GOT_OUT:
 			if(entrance)
 				REACH_POINT_GET_OUT_INIT_send_request();
 			state = GOTO_ADVERSARY_ZONE;
 			break;
+		*/
 		case GOTO_ADVERSARY_ZONE:
+			if(entrance)
+			{
+				if(initial_path == NORTH_MAMMOUTH)
+					y_to_prevent_pierre_to_get_out = 1000;	//Pas de COLOR_Y() ici !
+				else
+					y_to_prevent_pierre_to_get_out = 500;
+			}
+			if(!we_prevented_pierre_to_get_out)
+			{
+				//ATTENTION, on utilise pas les warners qui peuvent ainsi être utilisés pour le bras !
+				if(COLOR_Y(global.env.pos.y) > COLOR_Y(y_to_prevent_pierre_to_get_out))
+				{
+					we_prevented_pierre_to_get_out = TRUE;
+					REACH_POINT_GET_OUT_INIT_send_request();
+					BUZZER_play(100,DEFAULT_NOTE,1);
+				}
+			}
 			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,DO_TORCH,ERROR);
 			//ERROR n'est pas censé se produire... la sub_action étant censée trouver une solution pour se rendre en zone adverse !
 			break;
@@ -322,7 +343,7 @@ error_e goto_adversary_zone(void)
 {
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GOTO_ADVERSARY_ZONE,
 		INIT,
-		WAIT_FOR_PIERRE,
+		//WAIT_FOR_PIERRE,
 		SB2,
 		SC0,
 		SC1,
@@ -346,20 +367,24 @@ error_e goto_adversary_zone(void)
 			switch(initial_path)
 			{
 				case SOUTH_TREES:
+					SD_printf("CHEMIN : Sud, arbres (SOUTH Ext)\n");
 					state = SB2;
 					break;
 				case SOUTH_HEART:
+					SD_printf("CHEMIN : Sud, proche foyer (SOUTH Int)\n");
 					state = SB2;
 					break;
 				case NORTH_HEART:
+					SD_printf("CHEMIN : Nord, proche foyer (NORTH Int)\n");
 					state = SC1;
 					break;
 				case NORTH_MAMMOUTH:
-					state = WAIT_FOR_PIERRE;
+					SD_printf("CHEMIN : Nord, proche mammouths (NORTH Ext)\n");
+					state = SC0;	//WAIT_FOR_PIERRE;
 					break;
 			}
 			break;
-		case WAIT_FOR_PIERRE:
+		/*case WAIT_FOR_PIERRE:
 			{  // Attend le passage de pierre pour pouvoir passer à son tour
 				static time32_t last_time;
 				if(entrance)
@@ -369,6 +394,7 @@ error_e goto_adversary_zone(void)
 					state = SC0;
 			}
 			break;
+		*/
 		case SB2:
 			if(entrance)
 			{
@@ -381,10 +407,6 @@ error_e goto_adversary_zone(void)
 			state = try_going_until_break(1350,COLOR_Y(800),SB2,success_state,SC12,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SC0:
-			if(entrance)
-				ASSER_WARNER_arm_y(COLOR_Y(1200));
-			if(global.env.asser.reach_y)
-				ZONE_unlock(MZ_MAMMOUTH_OUR);
 			state = try_going_until_break(500,COLOR_Y(1200),SC0,SW0,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SC1:
@@ -439,8 +461,6 @@ error_e goto_adversary_zone(void)
 			state = try_going_until_break(1750,COLOR_Y(1200),SC3,SW3,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SW0:
-			if(global.env.asser.reach_y)
-				ZONE_unlock(MZ_MAMMOUTH_OUR);
 			state = try_going_until_break(500,COLOR_Y(1800),SW0,DONE,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SW1:
