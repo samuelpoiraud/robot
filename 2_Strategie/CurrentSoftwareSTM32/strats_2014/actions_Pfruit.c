@@ -70,7 +70,7 @@ error_e strat_file_fruit(){
 	static Uint16 last_time_Open_labium;
 	switch(state){
 		case IDLE:
-
+			last_time_Open_labium = 0;	//Cette ligne est importante...
 
 			dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[0].point.y = COLOR_Y(1750);
@@ -161,7 +161,7 @@ error_e strat_file_fruit(){
 			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 
 			// Si le labium a été ouvert les fruits sont forcément tombée sur le sol ou dans le bac (ce qui sera le cas ^^, j'espére)
-			if(global.env.match_time > last_time_Open_labium + 1000){
+			if(last_time_Open_labium != 0 && global.env.match_time > last_time_Open_labium + 1000){
 					set_sub_act_done(SUB_DROP_FRUITS,TRUE);
 					set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
 					presenceFruit = FALSE;

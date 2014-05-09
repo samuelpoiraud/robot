@@ -375,6 +375,7 @@ error_e SELFTEST_strategy(bool_e reset)
 	{
 		INIT = 0,
 		TEST_LEDS_AND_BUZZER,
+		TEST_XBEE,
 		TEST_RTC,
 		TEST_MEASURE24,
 		TEST_BIROUTE,
@@ -417,7 +418,17 @@ error_e SELFTEST_strategy(bool_e reset)
 			LED_USER 	= LED_SELFTEST;
 
 			if(!t500ms)	//Lorsque T vaut 0 (et que les leds sont éteintes...)
-				state = TEST_RTC;
+				state = TEST_XBEE;
+			break;
+		case TEST_XBEE:
+			if(SWITCH_XBEE == FALSE)
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_XBEE_SWITCH_DISABLE);
+			else
+			{
+				if(XBee_is_destination_reachable() == FALSE)
+					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE);
+			}
+			state = TEST_RTC;
 			break;
 		case TEST_RTC:
 			status = RTC_get_local_time (&date);
@@ -492,10 +503,12 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_DT10_3_FAILED:				debug_printf("PROP_DT10_3_FAILED");						break;
 				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");		break;
 				case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			debug_printf("SELFTEST_PROP_IN_LCD_TOUCH_MODE");		break;
+				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
+				case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE:debug_printf("SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE");	break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");						break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");			break;
 				case SELFTEST_STRAT_BATTERY_LOW:				debug_printf("SELFTEST_STRAT_BATTERY_LOW");				break;
-				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");break;
+				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
 				case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_STRAT_BIROUTE_FORGOTTEN");		break;
 				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");			break;
 				case SELFTEST_ACT_UNREACHABLE:					debug_printf("SELFTEST_ACT_UNREACHABLE");				break;
@@ -802,6 +815,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_PROP_DT50_3_FAILED:				return "DT50 3 failed";			break;
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
 		case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			return "PROP in LCD T mode"; 	break;
+		case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		return "XBee Switch disable";	break;
+		case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE: return "XBee dest unreach";	break;
 		case SELFTEST_STRAT_RTC:						return "RTC failed";			break;
 		case SELFTEST_STRAT_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_STRAT_BATTERY_LOW:				return "BATTERY LOW";			break;
