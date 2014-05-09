@@ -48,8 +48,8 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 
 //IL FAUT définir une zone de dépose pour la torche adverse. (si on a réussi à la prendre)
 	//#define DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
-	//#define DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
-	#define DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
+	#define DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
+	//#define DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
 
 //IL FAUT définir une zone de dépose en cas d'échec de la première tentative pour la torche adverse. (si on a réussi à la prendre)
 	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
@@ -102,7 +102,7 @@ error_e sub_action_initiale_guy(){
 
 	//static displacement_t points[6];
 	//static Uint8	nb_points = 0;
-
+	static time32_t t;
 	static torch_dispose_zone_e dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
 	static torch_dispose_zone_e if_fail_dispose_zone_for_adversary_torch = NO_DISPOSE;
 	if(global.env.reach_point_C1)
@@ -160,59 +160,35 @@ error_e sub_action_initiale_guy(){
 			}
 			else
 				dispose_zone_for_adversary_torch = NO_DISPOSE;
-			//Initialisation des points selon le chemin défini.
-			/*switch(initial_path)
-			{
-				case SOUTH_TREES:
-					points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
-					points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
-					points[2] = (displacement_t){{1500,COLOR_Y(1100)},FAST};
-					points[3] = (displacement_t){{1780,COLOR_Y(1390)},FAST};
-					points[4] = (displacement_t){{1780,COLOR_Y(1700)},FAST};
-					nb_points = 5;
-					break;
-				case SOUTH_HEART:
-					points[0] = (displacement_t){{950,COLOR_Y(580)},FAST};
-					points[1] = (displacement_t){{1350,COLOR_Y(780)},FAST};
-					points[2] = (displacement_t){{1395,COLOR_Y(1070)},FAST};
-					#ifdef DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
-						points[3] = (displacement_t){{1400,COLOR_Y(1710)},FAST};
-					#else
-						points[3] = (displacement_t){{1400,COLOR_Y(2400)},FAST};
-					#endif
-					nb_points = 4;
-					break;
-				case NORTH_HEART:
-					points[0] = (displacement_t){{560,COLOR_Y(580)},FAST};
-					points[1] = (displacement_t){{530,COLOR_Y(975)},FAST};
-					points[2] = (displacement_t){{590,COLOR_Y(1530)},FAST};
-					#ifdef DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
-						points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
-					#else
-						points[3] = (displacement_t){{700,COLOR_Y(2400)},FAST};
-					#endif
-					nb_points = 4;
-					break;
-				case NORTH_MAMMOUTH:
-					points[0] = (displacement_t){{560,COLOR_Y(580)},FAST};
-					points[1] = (displacement_t){{530,COLOR_Y(975)},FAST};
-					points[2] = (displacement_t){{590,COLOR_Y(1530)},FAST};
-					points[3] = (displacement_t){{700,COLOR_Y(1720)},FAST};
-					nb_points = 4;
-					break;
-			}
-*/
+
 			#ifdef GUY_FALL_FIRST_FIRE
-				state = FALL_FIRST_FIRE;
+				if(global.env.asser.calibrated)
+					state = FALL_FIRST_FIRE;
+				else
 			#else
-				state = GET_OUT_POS_START;
+					state = GET_OUT_POS_START;
 			#endif
 			break;
 
 		case FALL_FIRST_FIRE:
-			//TODO faire tomber le premier feu avant de partir lorsque la macro GUY_FALL_FIRST_FIRE est définie
-			//Attention, cette action peut être conditionnée par la calibration... !
-			state = GET_OUT_POS_START;
+			if(entrance)
+			{
+				t = global.env.match_time;
+				//ATTENTION : le timeout supplémentaire ajouté ici doit être très court... car si le bras ne fonctionne pas, Pierre va vouloir partir et nous foncer dedans !
+				//On réactive l'asservissement de la propulsion pour que le bras ne nous fasse pas tourner sur nous-même
+				ASSER_set_correctors(TRUE,TRUE);
+			}
+
+			//TODO modifier si besoin (c'est probable la position du bras)
+			//Attention, cette action est conditionnée par la calibration... !
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0,0,FALL_FIRST_FIRE,GET_OUT_POS_START,GET_OUT_POS_START);
+			if(t > 1500)	//C'est grand temps de partir si on veut pas se faire *** par Pierre...
+				state = GET_OUT_POS_START;
+
+			if(state != FALL_FIRST_FIRE)	//Si on a fini (échec ou réussite...)
+				ACT_arm_goto(ACT_ARM_POS_PARKED);	//On range le bras, sans attendre l'acquittement
+
+
 			break;
 
 		case GET_OUT_POS_START:
@@ -317,13 +293,74 @@ error_e sub_action_initiale_guy(){
 }
 
 
+// Gestion du bras pendant le déplacement
+void goto_adversary_zone_arm_management(void)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GOTO_ADVERSARY_ZONE_ARM_MGT,
+		INIT,
+		WAIT_FOR_PIERRE,
+		WAIT_FOR_TREE_FIRE,
+		EXIT_ARM_FOR_TREE_FIRE,
+		ARM_AT_HOME,
+		DONE
+		);
 
+	switch(state)
+	{
+		case INIT:
+			switch(initial_path)
+			{
+				case SOUTH_TREES:
+					state = WAIT_FOR_TREE_FIRE;
+					break;
+				case SOUTH_HEART:
+					state = WAIT_FOR_TREE_FIRE;
+					break;
+				case NORTH_HEART:
+					state = DONE;
+					break;
+				case NORTH_MAMMOUTH:
+					state = DONE;
+					break;
+			}
+			break;
+			case WAIT_FOR_TREE_FIRE:
+				if(entrance)
+					ASSER_WARNER_arm_y(COLOR_Y(600));
+				if(global.env.asser.reach_y)
+					state = EXIT_ARM_FOR_TREE_FIRE;
+				break;
+			case EXIT_ARM_FOR_TREE_FIRE:
+				if(entrance)
+				{
+					ASSER_WARNER_arm_y(COLOR_Y(1000));
+					//TODO demander la sortie du bras pour tacler le feu
+				}
+				if(global.env.asser.reach_y)
+					state = ARM_AT_HOME;
+				break;
+			case ARM_AT_HOME:
+				if(entrance)
+				{
+					//TODO demander le rangement du bras
+
+				}
+				break;
+				//TODO faire de même pour le feu adverse coté arbres... la position du bras dépend du chemin emprunté
+			case DONE:
+				//ETAT PUIS, plus rien à faire !
+				break;
+			default:
+				break;
+	}
+
+}
 /*
  * Sub action qui permet à guy de se rendre dans la zone adverse.
  * Cette sub action gère les cas d'erreur et ne rendra la main que lorsque Guy est dans la zone adverse !
  *
  * Actions activables (par macros) et intégrées à cette sub-action :
- * 	- TOUT les feux mobiles debout		TODO !!
+ * 	- une grande partie des feux mobiles debout		TODO !!
  * 	- les feux fixes du sud				TODO !!
  * Attention, ces feux ne seront traités que lorsque le chemin choisi le permet et que les macros correspondantes sont actives !
  */
@@ -346,6 +383,9 @@ error_e goto_adversary_zone(void)
 	);
 	static enum state_e fail_state = INIT;
 	static enum state_e success_state = INIT;
+
+	error_e ret;
+	ret = IN_PROGRESS;
 	switch(state)
 	{
 		case INIT:
@@ -384,7 +424,7 @@ error_e goto_adversary_zone(void)
 					success_state = SC3;
 			}
 			//TODO sur cette trajectoire, bouger le bras ou adapter la trajectoire pour gérer le feu mobile central !
-			state = try_going_until_break(1350,COLOR_Y(900),SB2,success_state,SC12,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1350,COLOR_Y(800),SB2,success_state,SC12,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SC0:
 			if(entrance)
@@ -439,7 +479,7 @@ error_e goto_adversary_zone(void)
 					fail_state = SC12;
 				}
 			}
-			state = try_going_until_break(1350,COLOR_Y(1200),SC2,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1400,COLOR_Y(1200),SC2,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SC3:
 			state = try_going_until_break(1750,COLOR_Y(1200),SC3,SW3,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
@@ -453,17 +493,19 @@ error_e goto_adversary_zone(void)
 			state = try_going_until_break(750,COLOR_Y(1800),SW1,DONE,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SW2:
-			state = try_going_until_break(1350,COLOR_Y(1800),SW2,DONE,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1400,COLOR_Y(1800),SW2,DONE,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SW3:
 			state = try_going_until_break(1750,COLOR_Y(1800),SW3,DONE,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case DONE:
 			state = INIT;
-			return END_OK;
+			ret = END_OK;
 			break;
 	}
-	return IN_PROGRESS;
+
+
+	return ret;
 }
 
 /*
@@ -596,10 +638,53 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 			//On connait le start, la position de la torche et notre position actuelle... Dans certains cas de figure, il faut une position de prépositionnement.
 			//TODO calculer si besoin le prepositionning point...
 
+			//On doit passer par un point de prépositionnement SSSI nous sommes du mauvais coté de la torche par rapport au posStart.
+			//LE CALCUL GENERIQUE DE TOUT LES CAS EST UN ALGO DIFFICILE A TESTER, TRES EXIGEANT... et inutile compte tenu du peu de cas d'application en match.
+			//Les points de prépositionnement sont donc ajoutés à la main, pour certains cas de figure identifiés seulement !
+
+			if(torch_choice == ADVERSARY_TORCH)
+			{
+				switch(current_dispose_zone)
+				{
+					case FILED_FRESCO:
+
+						break;
+					case HEARTH_ADVERSARY:
+						if(global.env.pos.x > posStart.x && COLOR_Y(global.env.pos.y) > COLOR_Y(posStart.y))
+						{
+							posPrepositionning_enable = TRUE;
+							posPre.x = posStart.x;
+							posPre.y = posStart.y;
+							if(global.env.pos.x - posStart.x < absolute(global.env.pos.y - posStart.y))
+								posPre.y = global.env.pos.y;	//Je suis plus prêt des x, je rejoins le bon x en gardant mon y
+							else
+								posPre.x = global.env.pos.x;	//Je suis plus prêt des y, je rejoins le bon y en gardant mon x
+						}
+						break;
+					case HEARTH_OUR:		//no break
+					case ANYWHERE:			//no break;
+					case HEARTH_CENTRAL:	//no break;
+					default:
+						if(global.env.pos.x > posStart.x && COLOR_Y(global.env.pos.y) < COLOR_Y(posStart.y))
+						{
+							posPre.x = 1350;
+							posPre.y = COLOR_Y(2300);
+							posPrepositionning_enable = TRUE;
+						}
+						break;
+				}
+			}
+			else	//OUR TORCH...
+			{
+				//Pas de point de prépositionnement.. On assume la précondition que pour prendre notre torche il faut être bien placé !!!
+			}
+
 			if(last_state == ERROR)
 				state = POS_INTERMEDIATE;	//On a échoué lors d'une précédente tentative de pose... on va directement sur le MOVE_TORCH pour rejoindre le point eloignement de la nouvelle zone de dépsose !
 			else if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, posStart) < 50)
 				state = MOVE_TORCH;
+			else if(posPrepositionning_enable)
+				state = PRE_POSITIONNING;
 			else
 				state = POS_START_TORCH;
 
@@ -624,7 +709,7 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 			break;
 
 		case END_TORCH:
-			state = try_going_until_break(posEnd.x, posEnd.y, END_TORCH, REMOTENESS, REMOTENESS, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going_until_break(posEnd.x, posEnd.y, END_TORCH, REMOTENESS, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case REMOTENESS:  // eloignement

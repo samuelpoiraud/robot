@@ -130,8 +130,5 @@
 #define GLASS_SENSOR_LEFT			FALSE//(!PORTBbits.RB3)    //sur Krusty, en logique inversée
 #define GLASS_SENSOR_RIGHT			FALSE//(!PORTBbits.RB5)    //sur Krusty, en logique inversée
 
-#define PORT_SWITCH_XBEE	GPIOB->IDR4
-//#define PORT_SWITCH_XBEE	FALSE	//Utiliser cette ligne pour désactiver le XBee...
-
 
 #endif /* CONFIG_PIN_H */

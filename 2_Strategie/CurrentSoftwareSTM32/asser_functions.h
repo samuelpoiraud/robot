@@ -77,6 +77,13 @@
 	/* ajoute une instruction rush_in_the_wall sur la pile asser */
 	void ASSER_push_rush_in_the_wall (way_e way, bool_e asser_rotate,Sint16 angle, bool_e run);
 	
+	void ASSER_set_correctors(bool_e corrector_rotation, bool_e corrector_translation);
+	//Modifie l'état des correcteurs de la propulsion. (attention, les correcteurs sont remis à un bon fonctionnement à chaque nouvel ordre de déplacement !)
+	//Cela permet notamment de désasservir le robot lorsqu'on le souhaite...
+
+	/* Demande un envoi par la propulsion de l'ensemble de ses coefs */
+	void ASSER_ask_propulsion_coefs(void);
+
 	void ASSER_WARNER_arm_x(Sint16 x);
 	
 	void ASSER_WARNER_arm_y(Sint16 y);
