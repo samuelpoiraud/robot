@@ -401,7 +401,24 @@ void ELEMENT_afficher_triangle(){
 	}
 }
 
-void ELEMENT_get_object(objet_t obj[][20]){
+void ELEMENT_get_nb_object(Uint8 nb_obj[3]){
+//	nb_objet[0] = 2;
+//	nb_objet[1] = 1;
+//	nb_objet[2] = 2;
+
+	Uint8 i;
+	for(i=0;i<3;i++){
+		nb_obj[i] = nb_objet[i];
+	}
+}
+
+void ELEMENT_get_object(objet_t obj[3][20]){
+//	objet[0][0] = (objet_t){1800,2700,1700};
+//	objet[0][1] = (objet_t){1800,2700,1700};
+//	objet[1][0] = (objet_t){1800,2700,1700};
+//	objet[2][0] = (objet_t){1800,2700,1700};
+//	objet[2][1] = (objet_t){1800,2700,1700};
+
 	Uint8 i, j;
 	for(i=0;i<3;i++){
 		for(j=0;j<nb_objet[i];j++){

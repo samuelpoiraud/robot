@@ -351,6 +351,7 @@
 	void ELEMENT_answer_pump(CAN_msg_t *msg);			// Récupère la réponse de la pompe
 
 	// Fonction utilisateur
+	void ELEMENT_get_nb_object(Uint8 nb_obj[3]);	// Retourne le nb d'objet
 	void ELEMENT_get_object(objet_t obj[3][20]);	// Retourne le tableau d'objet
 	void ELEMENT_afficher_triangle();			// Affiche tout les triangles que le scan a trouver
 	bool_e ELEMENT_triangle_present();			// Retourne la présence d'un triangle après demande de la warner
