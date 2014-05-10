@@ -28,6 +28,28 @@ void strat_test_warner_triangle(void);
 void strat_test_arm(void);
 void strat_belgique_guy(void);
 
+
+typedef enum{
+	SCAN_CENTRAL_HEARTH = 0,
+	SCAN_ADV_HEARTH
+}pos_scan_e;	//Positions de scanne
+
+typedef struct{
+	GEOMETRY_point_t scan;
+	GEOMETRY_point_t get_out;
+
+	//Rectangle d'acceptation
+	Uint16 xMin;
+	Uint16 xMax;
+	Uint16 yMin;
+	Uint16 yMax;
+
+	// Angle de scan
+	Sint16 tetaMin;
+	Sint16 tetaMax;
+}pos_scan_t;
+
+
 error_e sub_action_initiale_guy();
 error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e filed);
@@ -46,5 +68,6 @@ error_e do_triangles_between_trees();
  * de quel sens est son premier triangle
  */
 error_e do_triangle_start_adversary();
+error_e scan_and_back(pos_scan_e scan);
 
 #endif /* ACTIONS_GUY_H_ */
