@@ -210,12 +210,12 @@ error_e sub_action_initiale_guy(){
 				if(initial_path == NORTH_MAMMOUTH)
 					y_to_prevent_pierre_to_get_out = 1000;	//Pas de COLOR_Y() ici !
 				else
-					y_to_prevent_pierre_to_get_out = 500;
+					y_to_prevent_pierre_to_get_out = 400;
 			}
 			if(!we_prevented_pierre_to_get_out)
 			{
 				//ATTENTION, on utilise pas les warners qui peuvent ainsi être utilisés pour le bras !
-				if(COLOR_Y(global.env.pos.y) > COLOR_Y(y_to_prevent_pierre_to_get_out))
+				if(COLOR_Y(global.env.pos.y) > y_to_prevent_pierre_to_get_out)
 				{
 					we_prevented_pierre_to_get_out = TRUE;
 					REACH_POINT_GET_OUT_INIT_send_request();
