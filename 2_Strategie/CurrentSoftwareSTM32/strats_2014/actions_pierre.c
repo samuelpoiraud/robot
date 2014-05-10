@@ -27,7 +27,7 @@ static void REACH_POINT_C1_send_request();
 
 // SWITCH_STRAT_1 est utilisée pour le lancer de balles (5 balles nous et une sur ennemis si active sinon 6 balles chez nous)
 // SWITCH_STRAT_2 est utilisée pour le choix dés le début aller vers la torche directement apres les balles ou faire les fresques si actif fait torche
-
+// SWITCH_STRAT_3 : non utilisé pour l'instant...
 
 
 
@@ -144,7 +144,7 @@ error_e sub_action_initiale(){
 			if(entrance)
 				last_time = global.env.match_time;
 
-			if(guy_get_out_init || global.env.match_time > last_time + 2000)
+			if(guy_get_out_init || global.env.match_time > last_time + 3000)
 				state = GET_OUT;
 			}break;
 		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles

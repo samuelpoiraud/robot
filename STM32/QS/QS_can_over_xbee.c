@@ -397,11 +397,16 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 */
 
 #define SEND(x)	XBee_putc(x); cs+=x
+#include "../Supervision/SD/SD.h"
 
 void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 {
 	Uint8 cs;
 	Uint8 i;
+
+	if(src->sid != XBEE_PING)
+		SD_new_event(TO_XBEE_DESTINATION,src,NULL,TRUE);
+
 	if(!XBee_ready_to_talk)
 		return;
 
