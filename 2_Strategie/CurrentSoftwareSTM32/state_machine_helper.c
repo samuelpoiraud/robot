@@ -32,7 +32,7 @@ void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint
 
 void UTILS_LOG_state_changed(const char* sm_name, UTILS_state_machine_id_e sm_id, const char* old_state_name, Uint8 old_state_id, const char* new_state_name, Uint8 new_state_id) {
 	//UTILS_CAN_send_state_changed(sm_id, old_state_id, new_state_id, 0);
-	SD_printf("state change: %s(0x%04X): %s(%d) -> %s(%d)\n",
+	SD_printf("  # %s(0x%04X): %s(%d) -> %s(%d)\n",
 			sm_name, sm_id,
 			old_state_name, old_state_id,
 			new_state_name, new_state_id);
