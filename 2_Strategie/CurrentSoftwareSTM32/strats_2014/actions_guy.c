@@ -768,7 +768,7 @@ error_e scan_and_back(pos_scan_e scan){
 			i = 0;
 			level = 0;
 
-			if(est_dans_carre(pos_scan[scan].xMin, pos_scan[scan].xMin, COLOR_Y(pos_scan[scan].yMin), COLOR_Y(pos_scan[scan].yMax), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(est_dans_carre(pos_scan[scan].xMin, pos_scan[scan].xMax, COLOR_Y(pos_scan[scan].yMin), COLOR_Y(pos_scan[scan].yMax), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_START;
 			else
 				state = GET_IN;						//On se rend à la première position par le pathfind
@@ -825,7 +825,7 @@ error_e scan_and_back(pos_scan_e scan){
 				}else if(scan == SCAN_ADV_HEARTH && level != 0){
 					dir.x = 2000;
 					dir.y = COLOR_Y(3000);
-					size = 270; // Rayon d'unn foyer des coins
+					size = 270; // Rayon d'un foyer des coins
 				}else{
 					dir.x = objet.x;
 					dir.y = objet.y;
