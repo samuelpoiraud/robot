@@ -56,7 +56,7 @@
 #define TIME_TO_INC_RUSH			25		//ms
 #define INC_RUSH					5
 #define TIME_RUSH_IN_FLOOR			5000
-#define DIFF_POS_FICT_RUSH			25
+#define DIFF_POS_FICT_RUSH			40
 #define EPSILON_POS_RUSH_FLOOR		20
 
 
