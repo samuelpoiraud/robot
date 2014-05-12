@@ -59,7 +59,6 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_NO_DISPOSE
 
 #define DIM_START_TRAVEL_TORCH 200
-#define ARM_TIMEOUT 10000
 
 typedef enum{
 	NORTH_MAMMOUTH = 0,
@@ -1357,25 +1356,20 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e dispose_zone){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DEPLOY_TORCH,
 		IDLE,
-		OPEN,
 		TORCHE,
 		DOWN_ARM,
 		UP_ARM,
-		OPEN_2,
 		FILED_TRIANGLE,
 		WAIT_TRIANGLE_BREAK,
 		BACK,
-		PREPARE_RETURN,
-		DOWN_RETURN,
 		RETURN,
 		INVERSE_PUMP,
-		DOWN_RETURN_2,
-		PREPARE_RETURN_2,
+		PREPARE_RETURN,
 		SMALL_ARM_DEPLOYED,
 		SMALL_ARM_PARKED,
 		TAKE_RETURN,
 		GRAP_TRIANGLE,
-		OPEN_3,
+		OPEN,
 		ADVANCE,
 		PARKED_NOT_HANDLED,
 		ERROR,
@@ -1388,9 +1382,9 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 	static Uint8 i = 0;	//TODO renommer ce i.... pour un nom plus explicite !
 
 	if(dispose_zone == HEARTH_OUR){
-		point[0] = (GEOMETRY_point_t){global.env.pos.x+150,global.env.pos.y-150};
-		point[1] = (GEOMETRY_point_t){global.env.pos.x,global.env.pos.y-175};
-		point[2] = (GEOMETRY_point_t){global.env.pos.x+175,global.env.pos.y-175};
+		point[0] = (GEOMETRY_point_t){global.env.pos.x+110,global.env.pos.y+110};
+		point[1] = (GEOMETRY_point_t){global.env.pos.x+110,global.env.pos.y+50};
+		point[2] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
 
 
 
@@ -1403,16 +1397,11 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 		case IDLE :
 			//torch = TORCH_get_position(choiceTorch);
 
-			torch.x = global.env.pos.x + 150;
-			torch.y = global.env.pos.y;
+			torch.x = global.env.pos.x;
+			torch.y = global.env.pos.y+150;
 
-			state = OPEN;
+			state = TORCHE;
 			i = 0;
-			break;
-
-
-		case OPEN :
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN, TORCHE, PARKED_NOT_HANDLED);
 			break;
 
 		case TORCHE :
@@ -1422,49 +1411,36 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 		case DOWN_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
 			if(entrance){
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-				ACT_arm_updown_rush_in_the_floor(120-i*30); // gera niveau avec i
 			}
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){ // TODO faire une action plus haut niveau avec time out
-				state = ELEMENT_wait_pump_capture_object(DOWN_ARM, UP_ARM, UP_ARM); // L'error est un TIMEOUT on passe quand même à l'étape suivante
-			}
+			state = ACT_elevator_arm_rush_in_the_floor(70-i*30, DOWN_ARM, UP_ARM, UP_ARM);
 			break;
 
 		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
 			if((i == 1 && choiceTorch == OUR_TORCH) || ((i == 0 || i == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
-				state = BACK;//ACT_elevator_arm_move(100, UP_ARM, BACK, OPEN_NOT_HANDLED);
+				state = ACT_elevator_arm_move(120, UP_ARM, BACK, PARKED_NOT_HANDLED);
 			else
-				state = OPEN_2;//ACT_elevator_arm_move(100, UP_ARM, OPEN_2, OPEN_NOT_HANDLED);
-			break;
-
-		case OPEN_2:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_2, FILED_TRIANGLE, PARKED_NOT_HANDLED);
+				state = ACT_elevator_arm_move(120, UP_ARM, FILED_TRIANGLE, PARKED_NOT_HANDLED);
 			break;
 
 		case FILED_TRIANGLE :
 			if(entrance)
 				i++;
 
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
-
+			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
 			break;
 
 		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
 			if(entrance)
+				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+
+			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (i>=2)? DONE:TORCHE);
+
+			if(ON_LEAVING(WAIT_TRIANGLE_BREAK))
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
-			//On peut avoir l'information avec le WT100 qui sera dans la main du robot
-			state = (i>=2)? DONE:OPEN;
 			break;
 
 		case BACK:
-			state = try_going(global.env.pos.x, global.env.pos.y+300, BACK, PREPARE_RETURN, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case PREPARE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, DOWN_RETURN, PARKED_NOT_HANDLED);
-			break;
-
-		case DOWN_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN, RETURN, PARKED_NOT_HANDLED);
+			state = try_going(global.env.pos.x, global.env.pos.y+300, BACK, RETURN, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case RETURN:
@@ -1475,15 +1451,11 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 
-			state = ELEMENT_wait_pump_capture_object(INVERSE_PUMP, DOWN_RETURN_2, DOWN_RETURN_2);
+			state = ELEMENT_wait_pump_capture_object(INVERSE_PUMP, PREPARE_RETURN, PREPARE_RETURN);
 			break;
 
-		case DOWN_RETURN_2:
-			state = ACT_arm_move(ACT_ARM_POS_TO_DOWN_RETURN,0, 0, DOWN_RETURN_2, PREPARE_RETURN_2, PARKED_NOT_HANDLED);
-			break;
-
-		case PREPARE_RETURN_2:
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN_2, SMALL_ARM_DEPLOYED, PARKED_NOT_HANDLED);
+		case PREPARE_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, SMALL_ARM_DEPLOYED, PARKED_NOT_HANDLED);
 			break;
 
 		case SMALL_ARM_DEPLOYED:
@@ -1492,9 +1464,12 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 
 		case SMALL_ARM_PARKED:
 			if(entrance)
-				ACT_pompe_order(ACT_POMPE_STOP, 0);
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
 			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, TAKE_RETURN, PARKED_NOT_HANDLED);
+
+			if(ON_LEAVING(SMALL_ARM_PARKED))
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
 			break;
 
 		case TAKE_RETURN:
@@ -1505,20 +1480,34 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 			if(entrance){
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 			}
-			state = ELEMENT_wait_pump_capture_object(GRAP_TRIANGLE, OPEN_3, OPEN_3); // L'error est un TIMEOUT on passe quand même à l'étape suivante
+			state = ELEMENT_wait_pump_capture_object(GRAP_TRIANGLE, OPEN, OPEN);
 			break;
 
-		case OPEN_3:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN_3, ADVANCE, PARKED_NOT_HANDLED);
+		case OPEN:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN, ADVANCE, PARKED_NOT_HANDLED);
 			break;
 
 		case ADVANCE:
-			state = try_going(global.env.pos.x, global.env.pos.y-300, ADVANCE, OPEN_2, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(global.env.pos.x, global.env.pos.y-300, ADVANCE, FILED_TRIANGLE, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
-		case PARKED_NOT_HANDLED:
-			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
-			break;
+		case PARKED_NOT_HANDLED:{
+			static enum state_e state1, state2;
+
+			if(entrance){
+				state1 = PARKED_NOT_HANDLED;
+				state2 = PARKED_NOT_HANDLED;
+			}
+			if(state1 == PARKED_NOT_HANDLED)
+				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
+			if(state2 == PARKED_NOT_HANDLED)
+				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLED, ERROR, ERROR);
+
+			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
+				state = ERROR;
+			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
+				state = ERROR;
+		}break;
 
 		case DONE:
 			ACT_pompe_order(ACT_POMPE_STOP, 0);
@@ -1535,87 +1524,6 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 
 	return IN_PROGRESS;
 }
-
-
-error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-
-		if(state_arm == ACT_ARM_POS_ON_TORCHE || state_arm == ACT_ARM_POS_ON_TRIANGLE)
-			ACT_arm_goto_XY(state_arm, x, y);
-		else
-			ACT_arm_goto(state_arm);
-
-
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
-
-error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-		ACT_small_arm_goto(state_arm);
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
-
-error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-		ACT_arm_updown_goto(state_arm);
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
-
-
-
-
-
 
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions Belgique					                 */
@@ -2211,70 +2119,6 @@ void strat_test_arm(){
 		case OPEN1 :
 			state = check_sub_action_result(ACT_arm_deploy_torche(OUR_TORCH, HEARTH_OUR), OPEN1, DONE, DONE);
 			break;
-
-		/*case TORCHE :
-			if(entrance)
-				ACT_arm_goto_XY(ACT_ARM_POS_ON_TORCHE, 500, 680);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = WAIT1;
-		break;
-
-		case WAIT1 :
-			if(entrance)
-				time = global.env.match_time;
-			if(global.env.match_time - time > 2000)
-				state = OPEN2;
-			break;
-
-		case OPEN2:
-			if(entrance)
-				ACT_arm_goto(ACT_ARM_POS_OPEN);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = TRIANGLE;
-			break;
-
-		case TRIANGLE :
-			if(entrance)
-				ACT_arm_goto_XY(ACT_ARM_POS_ON_TRIANGLE, 650, 500);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = DONE;
-			break;*/
-
-
-		/*case TORCHE :
-			if(entrance)
-				ACT_arm_goto(ACT_ARM_POS_ON_TORCHE);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = OPEN2;
-			break;
-
-		case OPEN2 :
-			if(entrance)
-				ACT_arm_goto(ACT_ARM_POS_OPEN);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = RETURN;
-			break;
-
-		case RETURN :
-			if(entrance)
-				ACT_arm_goto(ACT_ARM_POS_TO_RETURN_TRIANGLE);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = OPEN3;
-			break;
-
-		case OPEN3 :
-			if(entrance)
-				ACT_arm_goto(ACT_ARM_POS_OPEN);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = PARKED;
-			break;
-
-		case PARKED :
-			if(entrance)
-				ACT_arm_goto(ACT_ARM_POS_PARKED);
-			if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done)
-				state = OPEN1;
-			break;*/
 
 		case DONE :
 			break;

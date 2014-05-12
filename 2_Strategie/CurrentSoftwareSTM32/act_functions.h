@@ -105,4 +105,9 @@ bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y);
 bool_e ACT_arm_updown_goto(Sint16 height);
 bool_e ACT_arm_updown_rush_in_the_floor(Sint16 height);
 
+error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+error_e ACT_elevator_arm_rush_in_the_floor(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+
 #endif /* ndef ACT_FUNCTIONS_H */

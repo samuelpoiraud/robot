@@ -46,6 +46,7 @@
 //La fonction ACT_check_result (act_function.c) convertit et gère les messages act_state_info_t::operationResult et act_state_info_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
 
 
+#define ARM_TIMEOUT 6000
 
 //FONCTIONS D'ACTIONNEURS
 
@@ -170,3 +171,102 @@ bool_e ACT_arm_updown_rush_in_the_floor(Sint16 height){
 	debug_printf("Pushing Arm updown rush in the floor to z : %d mm \n", height);
 	return ACT_push_operation(ACT_QUEUE_Arm, &args);
 }
+
+error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;
+	static bool_e entrance = TRUE;
+
+	if(entrance){
+		begin_time = global.env.match_time;
+
+		if(state_arm == ACT_ARM_POS_ON_TORCHE || state_arm == ACT_ARM_POS_ON_TRIANGLE)
+			ACT_arm_goto_XY(state_arm, x, y);
+		else
+			ACT_arm_goto(state_arm);
+
+
+		entrance = FALSE;
+	}
+
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
+		entrance = TRUE;
+		return fail_state;
+	}
+
+	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done && ACT_get_result_param(ACT_QUEUE_Arm, 0) == state_arm){
+		entrance = TRUE;
+		return success_state;
+	}
+
+	return in_progress;
+}
+
+error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;
+	static bool_e entrance = TRUE;
+
+	if(entrance){
+		begin_time = global.env.match_time;
+		ACT_small_arm_goto(state_arm);
+		entrance = FALSE;
+	}
+
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_RetryLater){
+		entrance = TRUE;
+		return fail_state;
+	}
+
+	if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done){
+		entrance = TRUE;
+		return success_state;
+	}
+
+	return in_progress;
+}
+
+error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;
+	static bool_e entrance = TRUE;
+
+	if(entrance){
+		begin_time = global.env.match_time;
+		ACT_arm_updown_goto(state_arm);
+		entrance = FALSE;
+	}
+
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
+		entrance = TRUE;
+		return fail_state;
+	}
+
+	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
+		entrance = TRUE;
+		return success_state;
+	}
+
+	return in_progress;
+}
+
+error_e ACT_elevator_arm_rush_in_the_floor(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	static time32_t begin_time;
+	static bool_e entrance = TRUE;
+
+	if(entrance){
+		begin_time = global.env.match_time;
+		ACT_arm_updown_rush_in_the_floor(state_arm);
+		entrance = FALSE;
+	}
+
+	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
+		entrance = TRUE;
+		return fail_state;
+	}
+
+	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
+		entrance = TRUE;
+		return success_state;
+	}
+
+	return in_progress;
+}
+
