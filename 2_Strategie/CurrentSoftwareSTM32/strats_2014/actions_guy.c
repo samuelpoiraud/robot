@@ -200,7 +200,10 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GET_OUT_POS_START:
-			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			if(global.env.asser.calibrated)
+				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			else
+				state  = try_going_until_break(960,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		/*case PREVENT_PIERRE_WE_ARE_GOT_OUT:
