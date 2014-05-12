@@ -203,7 +203,7 @@ error_e sub_action_initiale_guy(){
 			if(global.env.asser.calibrated)
 				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			else
-				state  = try_going_until_break(960,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				state  = try_going_until_break(635,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		/*case PREVENT_PIERRE_WE_ARE_GOT_OUT:
@@ -789,9 +789,9 @@ error_e scan_and_back(pos_scan_e scan){
 			break;
 
 		case SCAN_TRIANGLE:
-			//state = ELEMENT_try_going_and_rotate_scan(COLOR_ANGLE(pos_scan[scan].tetaMin), COLOR_ANGLE(pos_scan[scan].tetaMax), 90,
-			//										  pos_scan[scan].scan.x, COLOR_Y(pos_scan[scan].scan.y), SCAN_TRIANGLE, ANALYZE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
-			state = ANALYZE;
+			state = ELEMENT_try_going_and_rotate_scan(COLOR_ANGLE(pos_scan[scan].tetaMin), COLOR_ANGLE(pos_scan[scan].tetaMax), 90,
+													  pos_scan[scan].scan.x, COLOR_Y(pos_scan[scan].scan.y), SCAN_TRIANGLE, ANALYZE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			//state = ANALYZE;
 			break;
 
 		case ANALYZE:{

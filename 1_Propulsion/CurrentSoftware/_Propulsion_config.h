@@ -17,10 +17,10 @@
 
 
 	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
-	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
-	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
-	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
-	//#define LCD_TOUCH								//Active le LCD tactile
+//	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+//	#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
+//	#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+//	#define LCD_TOUCH								//Active le LCD tactile
 
 /*	MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
  * 	 1 - activez les 4 defines ci-dessus
@@ -151,12 +151,12 @@
 
 	//SMALL  Positin initiale
 		// RED
-		#define SMALL_RED_START_X  		62914560 			//960mm
+		#define SMALL_RED_START_X  		41615360 			//635mm
 		#define SMALL_RED_START_Y  		5308416				//81mm
 		#define SMALL_RED_START_TETA 	(-6588416)			//-PI/2 //(-3294199)
 
 		// YELLOW
-		#define SMALL_YELLOW_START_X 		62914560 			//960mm
+		#define SMALL_YELLOW_START_X 		41615360 			//635mm
 		#define SMALL_YELLOW_START_Y 		(196608000-5308416)	//(3000-81)mm
 		#define SMALL_YELLOW_START_TETA 	(6588416)				//PI/2 //3294199
 
