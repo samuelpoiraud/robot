@@ -137,8 +137,8 @@
 	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
 
 	//à regler avec éléments mécaniques de blocages extrèmement parallèles à l'axe des codeurs !
-	#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE 	83		//distance entre le 'centre' du robot et l'arrière en calage
-	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	83 		//distance entre le 'centre' du robot et l'avant en calage
+	#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE 	81		//distance entre le 'centre' du robot et l'arrière en calage
+	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	81 		//distance entre le 'centre' du robot et l'avant en calage
 
 	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	155 		//distance entre le 'centre' du robot et l'arrière en calage
 	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	155 		//distance entre le 'centre' du robot et l'avant en calage
@@ -152,12 +152,12 @@
 	//SMALL  Positin initiale
 		// RED
 		#define SMALL_RED_START_X  		62914560 			//960mm
-		#define SMALL_RED_START_Y  		4784128				//73mm
+		#define SMALL_RED_START_Y  		5308416				//81mm
 		#define SMALL_RED_START_TETA 	(-6588416)			//-PI/2 //(-3294199)
 
 		// YELLOW
-		#define SMALL_YELLOW_START_X 		16384000 			//250mm * 65536
-		#define SMALL_YELLOW_START_Y 		(196608000-4784128)	//(3000-73)mm
+		#define SMALL_YELLOW_START_X 		62914560 			//960mm
+		#define SMALL_YELLOW_START_Y 		(196608000-5308416)	//(3000-81)mm
 		#define SMALL_YELLOW_START_TETA 	(6588416)				//PI/2 //3294199
 
 	//BIG
