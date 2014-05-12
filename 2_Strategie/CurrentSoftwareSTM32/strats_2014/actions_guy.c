@@ -817,7 +817,7 @@ error_e scan_and_back(pos_scan_e scan){
 		case POS_TAKE:{
 			if(entrance){
 				GEOMETRY_point_t dir;
-				Uint8 size;
+				Uint16 size;
 
 				// Pour éviter de frapper dans le foyer
 				if(scan == SCAN_CENTRAL_HEARTH && level != 0){

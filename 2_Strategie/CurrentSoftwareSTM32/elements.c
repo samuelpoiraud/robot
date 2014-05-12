@@ -393,8 +393,7 @@ Uint8 ELEMENT_wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 	{
 		IDLE,
 		WAIT,
-		END_OK,
-		ERROR
+		END_OK
 	}state_e;
 	static state_e state = IDLE;
 	static time32_t timeEnd;
