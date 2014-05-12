@@ -74,8 +74,8 @@ void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 r
 	resultMsg.data[3] = errorCode;
 	resultMsg.data[4] = (param & 0x000000FF);
 	resultMsg.data[5] = (param & 0x0000FF00) >> 8;
-	resultMsg.data[4] = (param & 0x00FF0000) >> 16;
-	resultMsg.data[5] = (param & 0xFF000000) >> 24;
+	resultMsg.data[6] = (param & 0x00FF0000) >> 16;
+	resultMsg.data[7] = (param & 0xFF000000) >> 24;
 	resultMsg.size = 6;
 
 	CAN_send(&resultMsg);

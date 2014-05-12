@@ -61,6 +61,10 @@ ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id) {
 	return act_states[act_id].lastResult;
 }
 
+Uint8 ACT_get_result_param(queue_id_e act_id, Uint8 i_param){
+	return act_states[act_id].paramResult[i_param];
+}
+
 void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
 	arg->msg.sid = sid;
 	arg->msg.data[0] = cmd;
@@ -312,10 +316,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	}
 
 	//Erreur de codage, ça ne devrait jamais arriver sauf si la commande en question a été lancé par quelqu'un d'autre que la strategie (par exemple via un bouton pour debug)
-	if(act_states[act_id].operationResult != ACT_RESULT_Working) {
+	/*if(act_states[act_id].operationResult != ACT_RESULT_Working) {
 		warn_printf("act is not in working mode but received result, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], act_states[act_id].operationResult);
 		return;
-	}
+	}*/
 
 	switch(msg->data[2]) {
 		case ACT_RESULT_DONE:

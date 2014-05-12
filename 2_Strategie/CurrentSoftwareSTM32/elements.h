@@ -387,4 +387,6 @@
 	// Attends que la pompe renvoie si elle détecte la une prise d'objet
 	Uint8 ELEMENT_wait_pump_capture_object(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
+	Uint8 ELEMENT_wait_time(time32_t time, Uint8 in_progress, Uint8 success_state);
+
 #endif /* ndef ELEMENTS_H */
