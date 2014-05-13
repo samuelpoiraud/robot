@@ -143,9 +143,9 @@ static void POMPE_command_run(queue_id_t queueId){
 
 static void POMPE_do_order(Uint8 command, Uint8 param){
 	if(command == ACT_POMPE_NORMAL)
-		POMPE_SENS = 1;
-	else if(command == ACT_POMPE_REVERSE)
 		POMPE_SENS = 0;
+	else if(command == ACT_POMPE_REVERSE)
+		POMPE_SENS = 1;
 	else{
 		debug_printf("commande envoyée à POMPE_do_order inconnue -> %d	%x\n", command, command);
 		PWM_stop(POMPE_PWM_NUM);

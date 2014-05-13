@@ -1382,8 +1382,8 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 	static Uint8 i = 0;	//TODO renommer ce i.... pour un nom plus explicite !
 
 	if(dispose_zone == HEARTH_OUR){
-		point[0] = (GEOMETRY_point_t){global.env.pos.x+110,global.env.pos.y+110};
-		point[1] = (GEOMETRY_point_t){global.env.pos.x+110,global.env.pos.y+50};
+		point[0] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
+		point[1] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
 		point[2] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
 
 
@@ -1412,7 +1412,7 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 			if(entrance){
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 			}
-			state = ACT_elevator_arm_rush_in_the_floor(70-i*30, DOWN_ARM, UP_ARM, UP_ARM);
+			state = ACT_elevator_arm_rush_in_the_floor(120-i*30, DOWN_ARM, UP_ARM, UP_ARM);
 			break;
 
 		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
@@ -1433,14 +1433,14 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 
-			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (i>=2)? DONE:TORCHE);
+			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (i>2)? DONE:TORCHE);
 
 			if(ON_LEAVING(WAIT_TRIANGLE_BREAK))
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 			break;
 
 		case BACK:
-			state = try_going(global.env.pos.x, global.env.pos.y+300, BACK, RETURN, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_going(global.env.pos.x-300, global.env.pos.y, BACK, RETURN, PARKED_NOT_HANDLED, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case RETURN:
@@ -1488,7 +1488,7 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 			break;
 
 		case ADVANCE:
-			state = try_going(global.env.pos.x, global.env.pos.y-300, ADVANCE, FILED_TRIANGLE, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(global.env.pos.x+300, global.env.pos.y, ADVANCE, FILED_TRIANGLE, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case PARKED_NOT_HANDLED:{
