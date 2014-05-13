@@ -18,10 +18,11 @@
 #include "../Pathfind.h"
 #include "../Geometry.h"
 #include "../Supervision/SD/SD.h"
+#include "../QS/QS_watchdog.h"
 
 #define LARGEUR_LABIUM	200
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+122)
-#define ELOIGNEMENT_POSE_BAC_FRUIT  470
+#define ELOIGNEMENT_POSE_BAC_FRUIT  500
 #define PROFONDEUR_BAC_FRUIT		300
 #define RAYON_MAX_PIERRE			310	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
 #define VITESSE_FRUIT				120
@@ -44,6 +45,9 @@ error_e strat_file_fruit(){
 		GET_OUT_WITH_ERROR,
 		GOBACK_FIRST_POINT,
 		GOBACK_LAST_POINT,
+		DROP_NEAR_FRESCO,
+		DROP_FRUIT,
+		GET_OUT_NEAR_FRESCO,
 		DONE,
 		ERROR,
 		RETURN_NOT_HANDLED
@@ -73,7 +77,7 @@ error_e strat_file_fruit(){
 			last_time_Open_labium = 0;	//Cette ligne est importante...
 
 			dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
-			dplt[0].point.y = COLOR_Y(1750);
+			dplt[0].point.y = COLOR_Y(1700);
 			dplt[0].speed = FAST;
 
 			dplt[1].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
@@ -117,16 +121,21 @@ error_e strat_file_fruit(){
 		case DO_DISPOSE:
 			if(entrance)
 			{
+				display(foe_in_zone(FALSE,500,COLOR_Y(2800)));
+				if(foe_in_zone(FALSE,500,COLOR_Y(2800))){
+					state = DROP_NEAR_FRESCO;
+					break;
+				}
 				ASSER_WARNER_arm_y(posOpenVerin);
 				labium_state = LABIUM_CLOSED_VERIN_IN;
-			}
+			}else
 			switch(labium_state)
 			{
 				case LABIUM_CLOSED_VERIN_IN:
 					if(global.env.asser.reach_y)
 					{
 						ASSER_WARNER_arm_y(posOpen);
-						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
+						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Vibration);
 						labium_state = LABIUM_CLOSED_VERIN_OUT;
 					}
 					break;
@@ -154,6 +163,32 @@ error_e strat_file_fruit(){
 					break;
 			}
 			state = try_going_multipoint(&dplt[1], 2, DO_DISPOSE, DONE , ERROR, sensRobot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case DROP_NEAR_FRESCO:
+			state = try_going(200, dplt[0].point.y, DROP_NEAR_FRESCO, DROP_FRUIT, GET_OUT_NEAR_FRESCO, FAST, (global.env.color == RED)? FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case DROP_FRUIT:{
+			static bool_e watchdog = FALSE;
+			if(entrance){
+				WATCHDOG_create_flag(2000,&watchdog);
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Vibration);
+				ACT_fruit_labium_goto(ACT_FRUIT_Labium_Open);
+			}
+
+			if(watchdog)
+				state = GET_OUT_NEAR_FRESCO;
+
+		}break;
+
+		case GET_OUT_NEAR_FRESCO:
+			if(entrance){
+				ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			}
+
+			state = try_going(dplt[0].point.x, dplt[0].point.y, GET_OUT_NEAR_FRESCO, (last_state == DROP_FRUIT)?DONE:ERROR, GET_OUT_NEAR_FRESCO, FAST, (global.env.color == RED)? BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case ERROR: // Fermer le bac à fruit et rentrer le bras

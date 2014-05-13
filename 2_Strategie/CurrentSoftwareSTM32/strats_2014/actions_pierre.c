@@ -69,8 +69,6 @@ static void REACH_POINT_C1_send_request();
 static bool_e action_fresco_filed = FALSE;
 static bool_e lance_ball = FALSE;
 static bool_e launcher_ball_adversary = FALSE;  // Si il doit lancer une balle sur le mammouth ennemis
-static tree_sucess_e action_recup_fruit_group_1 = NO_TREE;
-static tree_sucess_e action_recup_fruit_group_2 = NO_TREE;
 
 // Lors de la recalibration, sera appeler en extern vers d'autre fichier ( ne pas passer en static )
 volatile GEOMETRY_point_t offset_recalage = {0, 0};
@@ -277,6 +275,7 @@ void strat_inutile(void){
 		FRUIT_YELLOW,
 		RAMMASSE_FRUIT,
 		LANCER_FILET,
+		DROP_FRUIT,
 		DONE,
 		ERROR
 	);
@@ -286,7 +285,7 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,FRUIT_RED,POS_DEPART,250,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,DROP_FRUIT,POS_DEPART,250,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_CALIBRE:
@@ -319,6 +318,10 @@ void strat_inutile(void){
 
 		case FRUIT_RED:
 			state = check_sub_action_result(strat_ramasser_fruit_arbre1_double(TRIGO),FRUIT_RED,FRUIT_YELLOW,ERROR);
+			break;
+
+		case DROP_FRUIT:
+			state = check_sub_action_result(strat_file_fruit(),DROP_FRUIT,DONE,ERROR);
 			break;
 
 		case FRUIT_YELLOW:
@@ -1189,6 +1192,11 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			if(est_dans_carre(zone_access_posShoot_x1, zone_access_posShoot_x2, zone_access_posShoot_y1, zone_access_posShoot_y2, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{	//1- on peut se rendre directement au point de lancé
 					state = POS_LAUNCH;
+
+					// Si un adversaire se trouve dans la zone du premier point, nous allons au premier point de tire
+//					if(foe_in_zone(FALSE,dplt[0].point.x,dplt[0].point.y)){
+
+//					}
 			}
 			else if(est_dans_carre(400, 1800, zone_access_firstPoint_y1, zone_access_firstPoint_y2, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 			{	//2- on peut se rendre au premier point en s'y arrêtant puis faire la trajectoire de lancé
@@ -1213,8 +1221,11 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			break;
 
 		case POS_LAUNCH:
-			if(entrance)
+			if(entrance){
 				ASSER_WARNER_arm_y(posShoot);
+				// Trop prêt et tourne à angle droit devant le bac sinon et fini par taper
+				dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL + 30;
+			}
 
 			state = try_going_multipoint(&dplt[1], 3, POS_LAUNCH, DONE , ERROR, sensRobot, (global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE, END_AT_BREAK);
 			//state = try_going(dplt[1].point.x,dplt[1].point.y,POS_LAUNCH,POS_SHOOT,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
