@@ -335,10 +335,10 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				debug_printf("SELFTEST AVOIDANCE\r\n");
 			}
 			if(global.env.color == RED){
-				if(foe_in_zone(FALSE, global.env.pos.x, global.env.pos.y+500))
+				if(foe_in_zone(FALSE, global.env.pos.x, global.env.pos.y+500, FALSE))
 					BUZZER_play(30, NOTE_LA, 5);
 			}else{
-				if(foe_in_zone(FALSE, global.env.pos.x, global.env.pos.y-500))
+				if(foe_in_zone(FALSE, global.env.pos.x, global.env.pos.y-500, FALSE))
 					BUZZER_play(30, NOTE_LA, 5);
 			}
 

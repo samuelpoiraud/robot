@@ -14,7 +14,7 @@
 #ifndef MATHS_HOME_H
 #define MATHS_HOME_H
 
-	
+
 	#ifdef FAST_COS_SIN
 		void COS_SIN_4096_get(Sint16 teta,Sint16 * cos, Sint16 * sin);
 	#endif
@@ -30,6 +30,8 @@
 	#define TWO_PI4096	 (25736)
 	#define HALF_PI4096 (6434)
 	#define THREE_HALF_PI4096 (19302)
+
+	#define SQUARE(x)	(x*x)
 
 #endif /* ndef MATHS_HOME_H */
 

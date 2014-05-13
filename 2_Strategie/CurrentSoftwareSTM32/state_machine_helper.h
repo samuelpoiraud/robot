@@ -134,8 +134,8 @@ typedef enum {
 // Réinitialise une machine à état déclarée avec CREATE_MAE_WITH_VERBOSE ou CREATE_MAE
 // 0 est la première valeur d'une énumeration sans donner explicitement une autre valeur
 #define RESET_MAE() \
-	state = last_state = last_state_for_check_entrance = 0;  \
-	initialized = FALSE;
+	{state = last_state = last_state_for_check_entrance = 0;  \
+	initialized = FALSE;}
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -512,7 +512,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 	switch(state)
 	{
 		case CHECK_SCAN_FOE :
-			if(avoidance_type != NO_AVOIDANCE && foe_in_zone(TRUE, displacements[0].point.x, displacements[0].point.y)){
+			if(avoidance_type != NO_AVOIDANCE && foe_in_zone(TRUE, displacements[0].point.x, displacements[0].point.y, FALSE)){
 				avoidance_printf("goto_pos_with_scan_foe NOT HANDLED because foe in target zone");
 				state = CHECK_SCAN_FOE;
 				return NOT_HANDLED;
@@ -720,8 +720,17 @@ bool_e foe_in_path(bool_e verbose)
 	return in_path;
 }
 
-bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
-{
+/**
+ * @brief foe_in_zone
+ *
+ * @param verbose				: A activer afin d'avoir un affichage de notre position, de l'ennemie et de la détection de l'ennemie
+ * @param x						: La position X du point à tester
+ * @param y						: La position Y du point à tester
+ * @param check_on_all_traject	: A activer si l'ont veut tester la présence d'un ennemie sur toute la trajectoire ou juste dans la distance d'évitement
+ *
+ * @return						: Retounre TRUE si un ennemi est dans la zone
+ */
+bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject){
 	bool_e inZone;
 	Uint8 i;
 	Sint32 a, b, c; // avec a, b et c les coefficients de la droite entre nous et la cible
@@ -744,14 +753,15 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 			// D : droite que le robot empreinte pour aller au point
 			// A : Point adversaire
 			// L : Largeur du robot maximum * 2
-
-			debug_printf("Nous x:%d y:%d / ad x:%d y:%d \n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y);
+			if(verbose)
+				debug_printf("Nous x:%d y:%d / ad x:%d y:%d \n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y);
 
 			if(absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC){
-				// NC.NA ¤ [0,NC*d]
-				// NC : Vecteur entre nous et le point cible
-				// NA : Vecteur entre nous et l'adversaire
-				// d : distance d'évitement de l'adversaire (longueur couloir)
+				// /NC./NA ¤ [0,NC*d]
+				// /NC : Vecteur entre nous et le point cible
+				// /NA : Vecteur entre nous et l'adversaire
+				// NC : Distance entre nous et le point cible
+				// d : Distance d'évitement de l'adversaire (longueur couloir)
 
 				NCx = x - global.env.pos.x;
 				NCy = y - global.env.pos.y;
@@ -761,15 +771,21 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y)
 
 
 				if((NCx*NAx + NCy*NAy) >= (Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*100
-						&& (NCx*NAx + NCy*NAy) < (Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC){
+						&& (
+							(check_on_all_traject &&(NCx*NAx + NCy*NAy) < (Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC)
+							||
+							(check_on_all_traject &&(NCx*NAx + NCy*NAy) < SQUARE((Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y))))){
 					inZone = TRUE;
-					debug_printf("DETECTED\n");
+					if(verbose)
+						debug_printf("DETECTED\n");
+				}else{
+					if(verbose)
+						debug_printf("NO\n");
 				}
-				else
+			}else{
+				if(verbose)
 					debug_printf("NO\n");
 			}
-			else
-				debug_printf("NO\n");
 		}
 	}
 	return inZone;
@@ -1207,7 +1223,7 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 	switch(state)
 	{
 		case CHECK_SCAN_FOE :
-			if(foe_in_zone(TRUE, displacements.point.x, displacements.point.y)){
+			if(foe_in_zone(TRUE, displacements.point.x, displacements.point.y, FALSE)){
 				avoidance_printf("goto_extract_with_avoidance NOT HANDLED because foe in target zone");
 				state = CHECK_SCAN_FOE;
 				return NOT_HANDLED;
