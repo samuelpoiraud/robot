@@ -20,7 +20,7 @@
 #define SCAN_TIMEOUT			4000
 #define LABIUM_TIMEOUT			500
 #define verin_order_TIMEOUT		200
-#define PUMP_TIMEOUT			500
+#define PUMP_TIMEOUT			1000
 
 
 // Pour torche

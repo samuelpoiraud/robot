@@ -47,16 +47,17 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 #else
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 	// moteur (dans l'ordre)
-	{-345	,153	,274,	249},	//ARM_ST_Parked
-	{-345	,142	,239,	245},	//ARM_ST_Mid
-	{-345	,145	,218,	152},	//ARM_ST_Open
-	{-345	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
+	{-355	,153	,274,	249},	//ARM_ST_Parked
+	{-355	,142	,239,	245},	//ARM_ST_Mid
+	{-355	,145	,218,	152},	//ARM_ST_Open
+	{-355	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
 	{-200	,148	,214,	145},	//ARM_ST_To_Storage
 	{-351	,169	,280,	233},	//ARM_ST_To_Carry
-	{-355	,123	,115,	237},	//ARM_ST_To_Prepare_Return
-	{-230	,123	,115,	237},	//ARM_ST_To_Down_Return
-	{-230	,127	,53,	236},	//ARM_ST_To_Return
-	{-36	,111	,43,	148},	//ARM_ST_To_Take_Return
+	{-355	,158	,164,	235},	//ARM_ST_To_Prepare_Return
+	{-211	,135	,69,	235},	//ARM_ST_To_Down_Return
+	{-213	,133	,65,	232},	//ARM_ST_To_Return
+	{-213	,133	,65,	232},	//ARM_ST_To_Prepare_Take_Return
+	{-74	,109	,38,	148},	//ARM_ST_To_Take_Return
 	{-345	,150	,150,	150}	//ARM_ST_On_Triangle			// Distance factice
 	};
 #endif
@@ -103,17 +104,18 @@ void init_perm_transitions_table(){
 		for(j=0;j<ARM_ST_NUMBER;j++)
 			arm_states_transitions[i][j] = 0;
 	//						   /Ancien état       /Nombre d'état suivant possible      /Liste des états suivant possible
-	add_perm_transitions_table(ACT_ARM_POS_PARKED,				1,	(ARM_state_e[]){ACT_ARM_POS_MID});
-	add_perm_transitions_table(ACT_ARM_POS_MID,					2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_PARKED});
-	add_perm_transitions_table(ACT_ARM_POS_OPEN,				6,	(ARM_state_e[]){ACT_ARM_POS_MID, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE, ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_CARRY});
-	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_STORAGE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_CARRY,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_RETURN,	3,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_DOWN_RETURN, ACT_ARM_POS_TO_TAKE_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_TO_PREPARE_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_PARKED,					1,	(ARM_state_e[]){ACT_ARM_POS_MID});
+	add_perm_transitions_table(ACT_ARM_POS_MID,						2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_PARKED});
+	add_perm_transitions_table(ACT_ARM_POS_OPEN,					7,	(ARM_state_e[]){ACT_ARM_POS_MID, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE, ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_CARRY, ACT_ARM_POS_TO_PREPARE_TAKE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_STORAGE,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_CARRY,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_DOWN_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,			2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,				1,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_TAKE_RETURN,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_TAKE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_PREPARE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 }
 
 void add_perm_transitions_table(ARM_state_e old_state, Uint8 number_of_new_state, ARM_state_e new_state[]){
