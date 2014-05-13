@@ -302,7 +302,17 @@ error_e extraction_of_foe(void);
 
 Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
-bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y);
+/**
+ * @brief foe_in_zone
+ *
+ * @param verbose				: A activer afin d'avoir un affichage de notre position, de l'ennemie et de la détection de l'ennemie
+ * @param x						: La position X du point à tester
+ * @param y						: La position Y du point à tester
+ * @param check_on_all_traject	: A activer si l'ont veut tester la présence d'un ennemie sur toute la trajectoire ou juste dans la distance d'évitement
+ *
+ * @return						: Retounre TRUE si un ennemi est dans la zone
+ */
+bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
 
 error_e goto_extract_with_avoidance(const displacement_t displacements);
 
