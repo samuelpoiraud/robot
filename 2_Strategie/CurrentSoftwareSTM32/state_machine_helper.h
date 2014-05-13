@@ -79,6 +79,11 @@ typedef enum {
 
 #define STATE_CONVERT_TO_STRING(val) #val
 
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------Machine à état rapide verbosée ou non------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 //Déclare les états pour une faire une machine à états.
 // Déclare les variables:
 // - state : contient l'état courant. C'est la variable à modifier quand on veut changer d'état.
@@ -101,9 +106,22 @@ typedef enum {
 	if(entrance && initialized) UTILS_LOG_state_changed(#state_machine_id, state_machine_id, state_str[last_state], last_state, state_str[state], state); \
 	initialized = TRUE
 
+// La même sans verbose afin de pouvoir crée rapidement une machine à état avec la gestion de l'entrance automatique
+// et de pouvoir utiliser ON_LEAVING et RESET_MAE pour améliorer la lisibilité du code
+#define CREATE_MAE(state_machine_id, init_state, ...) \
+	enum state_e { init_state, __VA_ARGS__ }; \
+	static enum state_e state = init_state; \
+	static enum state_e last_state = init_state; \
+	static enum state_e last_state_for_check_entrance = init_state; \
+	static bool_e initialized = FALSE; \
+	bool_e entrance = last_state_for_check_entrance != state || !initialized; \
+	if(entrance) last_state = last_state_for_check_entrance; \
+	last_state_for_check_entrance = state; \
+	initialized = TRUE
+
 // Macro à utiliser pour détecter la sortie d'un état
 // current_state : l'état dans lequel on est
-// Ne marche qu'avec 'CREATE_MAE_WITH_VERBOSE'
+// Ne marche qu'avec 'CREATE_MAE_WITH_VERBOSE' et 'CREATE_MAE'
 // Exemple d'utilisation :
 //case SUB_ACTION :
 //    ....
@@ -113,15 +131,27 @@ typedef enum {
 //    break;
 #define ON_LEAVING(current_state) (state != current_state)
 
-//Réinitialise une machine à état déclarée avec CREATE_MAE_WITH_VERBOSE.
+// Réinitialise une machine à état déclarée avec CREATE_MAE_WITH_VERBOSE ou CREATE_MAE
+// 0 est la première valeur d'une énumeration sans donner explicitement une autre valeur
 #define RESET_MAE() \
-	state = last_state = last_state_for_check_entrance = 0;	//0 est la première valeur d'une énumeration sans donner explicitement une autre valeur
+	state = last_state = last_state_for_check_entrance = 0;  \
+	initialized = FALSE;
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 //Déclare seulement l'enum state_e et le tableau de correspondance état <-> représentation textuelle
 //Utilisé quand CREATE_MAE_WITH_VERBOSE ne peut l'être (machines à états spéciales)
 #define DECLARE_STATES(...) \
 	enum state_e { __VA_ARGS__ }; \
 	static const char * const state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, __VA_ARGS__) };
+
+// Crée une typedef enum de nom 'enum_name' et une tableau de chaine de caractère de nom 'string_name' contenant toutes les valeurs qui suivent
+#define TYPEDEF_ENUM_WITH_STRING(enum_name, string_name, init_state, ...) \
+	typedef enum { init_state = 0, __VA_ARGS__ } enum_name; \
+	static const char * const string_name[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }
 
 #define STATECHANGE_log(state_define, old_state_name, old_state_id, new_state_name, new_state_id) \
 	UTILS_LOG_state_changed(#state_define, state_define, old_state_name, old_state_id, new_state_name, new_state_id)
@@ -136,9 +166,6 @@ Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 s
 //Vérifie l'état d'une microstrat: microstrat en cours, microstrat terminée correctement ou microstrat terminée avec une erreur. S'utilise comme try_going pour les états.
 Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state);
 
-// Crée une typedef enum de nom 'enum_name' et une tableau de chaine de caractère de nom 'string_name' contenant toutes les valeurs qui suivent
-#define TYPEDEF_ENUM_WITH_STRING(enum_name, string_name, init_state, ...) \
-	typedef enum { init_state = 0, __VA_ARGS__ } enum_name; \
-	static const char * const string_name[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }
+
 
 #endif // STATE_MACHINE_HELPER_H
