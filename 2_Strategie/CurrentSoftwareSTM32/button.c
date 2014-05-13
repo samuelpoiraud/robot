@@ -107,6 +107,7 @@ void BUTTON_verbose(void)
 	#define SW_BP_NUMBER 20
 	static Uint32 previous_state = 0;
 	Uint32 current_state, up, down;
+	bool_e change;
 
 	current_state = 	(BUTTON0_PORT	<< 0) 	|	//Run match
 						(SWITCH_DEBUG	<< 1) 	|
@@ -131,41 +132,47 @@ void BUTTON_verbose(void)
 
 	up = ~previous_state & current_state;
 	down = previous_state & ~current_state;
+	change = previous_state != current_state;
 	previous_state = current_state;
 
-	if(up & ((Uint32)(1) << 0	))	debug_printf("BP run match pressed\n");
-	if(up & ((Uint32)(1) << 1	))	debug_printf("SW debug enabled\n");
-	if(up & ((Uint32)(1) << 2	))	debug_printf("SW verbose enabled\n");
-	if(up & ((Uint32)(1) << 3	))	debug_printf("BP print match pressed\n");
-	if(up & ((Uint32)(1) << 4	))	debug_printf("SW XBEE enabled\n");
-	if(up & ((Uint32)(1) << 5	))	debug_printf("SW saved enabled\n");
-	if(up & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 added\n");
-	if(up & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 added\n");
-	if(up & ((Uint32)(1) << 8	))	debug_printf("BP Set pressed\n");
-	if(up & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
-	if(up & ((Uint32)(1) << 10	))	debug_printf("Biroute inserted\n");
-	if(up & ((Uint32)(1) << 11	))	debug_printf("SW LCD : coord/config\n");
-	if(up & ((Uint32)(1) << 12	))	debug_printf("SW Evit enabled\n");
-	if(up & ((Uint32)(1) << 13	))	debug_printf("SW Strat1 enabled\n");
-	if(up & ((Uint32)(1) << 14	))	debug_printf("SW Strat2 enabled\n");
-	if(up & ((Uint32)(1) << 15	))	debug_printf("SW Strat3 enabled\n");
-	if(up & ((Uint32)(1) << 16	))	debug_printf("BP Selftest pressed\n");
-	if(up & ((Uint32)(1) << 17	))	debug_printf("BP OK pressed\n");
-	if(up & ((Uint32)(1) << 18	))	debug_printf("BP MenuUp pressed\n");
-	if(up & ((Uint32)(1) << 19	))	debug_printf("BP MenuDown pressed\n");
+	if(change){
+		LCD_printf(1, FALSE, FALSE, "EVIT%d DBG%d XBEE%d", (Sint16)((current_state >> 12) & 1), (Sint16)((current_state >> 1) & 1), (Sint16)((current_state >> 4) & 1));
+		LCD_printf(2, FALSE, FALSE, "VERBOSE%d SAVE%d", (Sint16)((current_state >> 2) & 1), (Sint16)((current_state >> 5) & 1));
 
-	if(down & ((Uint32)(1) << 1	))	debug_printf("SW debug disabled\n");
-	if(down & ((Uint32)(1) << 2	))	debug_printf("SW verbose disabled\n");
-	if(down & ((Uint32)(1) << 4	))	debug_printf("SW XBEE disabled\n");
-	if(down & ((Uint32)(1) << 5	))	debug_printf("SW saved disabled\n");
-	if(down & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 removed\n");
-	if(down & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 removed\n");
-	if(down & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
-	if(down & ((Uint32)(1) << 10	))	debug_printf("Biroute removed\n");
-	if(down & ((Uint32)(1) << 11	))	debug_printf("SW LCD : CAN msgs\n");
-	if(down & ((Uint32)(1) << 12	))	debug_printf("SW Evit disabled\n");
-	if(down & ((Uint32)(1) << 13	))	debug_printf("SW Strat1 disabled\n");
-	if(down & ((Uint32)(1) << 14	))	debug_printf("SW Strat2 disabled\n");
-	if(down & ((Uint32)(1) << 15	))	debug_printf("SW Strat3 disabled\n");
+		if(up & ((Uint32)(1) << 0	))	debug_printf("BP run match pressed\n");
+		if(up & ((Uint32)(1) << 1	))	debug_printf("SW debug enabled\n");
+		if(up & ((Uint32)(1) << 2	))	debug_printf("SW verbose enabled\n");
+		if(up & ((Uint32)(1) << 3	))	debug_printf("BP print match pressed\n");
+		if(up & ((Uint32)(1) << 4	))	debug_printf("SW XBEE enabled\n");
+		if(up & ((Uint32)(1) << 5	))	debug_printf("SW saved enabled\n");
+		if(up & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 added\n");
+		if(up & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 added\n");
+		if(up & ((Uint32)(1) << 8	))	debug_printf("BP Set pressed\n");
+		if(up & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
+		if(up & ((Uint32)(1) << 10	))	debug_printf("Biroute inserted\n");
+		if(up & ((Uint32)(1) << 11	))	debug_printf("SW LCD : coord/config\n");
+		if(up & ((Uint32)(1) << 12	))	debug_printf("SW Evit enabled\n");
+		if(up & ((Uint32)(1) << 13	))	debug_printf("SW Strat1 enabled\n");
+		if(up & ((Uint32)(1) << 14	))	debug_printf("SW Strat2 enabled\n");
+		if(up & ((Uint32)(1) << 15	))	debug_printf("SW Strat3 enabled\n");
+		if(up & ((Uint32)(1) << 16	))	debug_printf("BP Selftest pressed\n");
+		if(up & ((Uint32)(1) << 17	))	debug_printf("BP OK pressed\n");
+		if(up & ((Uint32)(1) << 18	))	debug_printf("BP MenuUp pressed\n");
+		if(up & ((Uint32)(1) << 19	))	debug_printf("BP MenuDown pressed\n");
+
+		if(down & ((Uint32)(1) << 1	))	debug_printf("SW debug disabled\n");
+		if(down & ((Uint32)(1) << 2	))	debug_printf("SW verbose disabled\n");
+		if(down & ((Uint32)(1) << 4	))	debug_printf("SW XBEE disabled\n");
+		if(down & ((Uint32)(1) << 5	))	debug_printf("SW saved disabled\n");
+		if(down & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 removed\n");
+		if(down & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 removed\n");
+		if(down & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
+		if(down & ((Uint32)(1) << 10	))	debug_printf("Biroute removed\n");
+		if(down & ((Uint32)(1) << 11	))	debug_printf("SW LCD : CAN msgs\n");
+		if(down & ((Uint32)(1) << 12	))	debug_printf("SW Evit disabled\n");
+		if(down & ((Uint32)(1) << 13	))	debug_printf("SW Strat1 disabled\n");
+		if(down & ((Uint32)(1) << 14	))	debug_printf("SW Strat2 disabled\n");
+		if(down & ((Uint32)(1) << 15	))	debug_printf("SW Strat3 disabled\n");
+	}
 
 }
