@@ -121,8 +121,8 @@ error_e strat_file_fruit(){
 		case DO_DISPOSE:
 			if(entrance)
 			{
-				display(foe_in_zone(FALSE,500,COLOR_Y(2800)));
-				if(foe_in_zone(FALSE,500,COLOR_Y(2800))){
+				display(foe_in_zone(FALSE,500,COLOR_Y(2800),FALSE));
+				if(foe_in_zone(FALSE,500,COLOR_Y(2800), FALSE)){
 					state = DROP_NEAR_FRESCO;
 					break;
 				}
