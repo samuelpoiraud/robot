@@ -31,7 +31,7 @@
 	#define HALF_PI4096 (6434)
 	#define THREE_HALF_PI4096 (19302)
 
-	#define SQUARE(x)	(x*x)
+	#define SQUARE(x)	((x)*(x))
 
 #endif /* ndef MATHS_HOME_H */
 

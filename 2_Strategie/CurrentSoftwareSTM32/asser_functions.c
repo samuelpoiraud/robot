@@ -619,6 +619,18 @@ void ASSER_rush_in_the_totem_south (stack_id_e stack_id, bool_e init)
 }
 */
 
+
+//Acceleration en mm/4096/5ms/5ms..
+void ASSER_set_acceleration(Uint8 acceleration)
+{
+	CAN_msg_t msg;
+	msg.sid = DEBUG_PROPULSION_SET_ACCELERATION;
+	msg.data[0] = 0x00;
+	msg.data[1] = acceleration;
+	msg.size = 2;
+	CAN_send(&msg);
+}
+
 void ASSER_ask_propulsion_coefs(void)
 {
 	CAN_msg_t msg;

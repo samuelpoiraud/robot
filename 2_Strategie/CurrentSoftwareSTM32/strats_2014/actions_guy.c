@@ -199,6 +199,8 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case GET_OUT_POS_START:
+			if(entrance)
+				ASSER_set_acceleration(80);	//Acceleration de guy au démarrage...
 			if(global.env.asser.calibrated)
 				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			else
@@ -230,6 +232,9 @@ error_e sub_action_initiale_guy(){
 				}
 			}
 			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,DO_TORCH,ERROR);
+			if(state != GOTO_ADVERSARY_ZONE)
+				ASSER_set_acceleration(64);
+
 			//ERROR n'est pas censé se produire... la sub_action étant censée trouver une solution pour se rendre en zone adverse !
 			break;
 

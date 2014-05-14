@@ -446,7 +446,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 	error_e sub_action;
 	static displacement_curve_t displacements[PATHFIND_NODE_NB];
 	static Uint8 nb_displacements;
-	static avoidance_type_e no_dodge_avoidance;
+	//static avoidance_type_e no_dodge_avoidance;
 	static bool_e dodge_nb_try;
 	Uint8 i;
 	CREATE_MAE_WITH_VERBOSE(SM_ID_PATHFIND_TRY_GOING,
@@ -464,15 +464,15 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 			{
 				case DODGE_AND_WAIT:
 					dodge_nb_try = NB_TRY_WHEN_DODGE;
-					no_dodge_avoidance = NO_DODGE_AND_WAIT;
+					//no_dodge_avoidance = NO_DODGE_AND_WAIT;
 					break;
 				case DODGE_AND_NO_WAIT:
 					dodge_nb_try = NB_TRY_WHEN_DODGE;
-					no_dodge_avoidance = NO_DODGE_AND_NO_WAIT;
+					//no_dodge_avoidance = NO_DODGE_AND_NO_WAIT;
 					break;
 				default:
 					dodge_nb_try = 0;
-					no_dodge_avoidance = avoidance;
+					//no_dodge_avoidance = avoidance;
 					break;
 			}
 			state = COMPUTE;
@@ -504,7 +504,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 			}
 			break;
 		case DISPLACEMENT:
-			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, no_dodge_avoidance, end_condition);
+			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, avoidance, end_condition);
 			switch(sub_action)
 			{
 				case IN_PROGRESS:
