@@ -187,7 +187,7 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_FRESCO:
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,(SWITCH_STRAT_2)? DONE : GOTO_TORCH_FIRST_POINT,FAST,ANY_WAY,DODGE_AND_NO_WAIT);
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,(SWITCH_STRAT_2)? DONE : GOTO_TORCH_FIRST_POINT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case DO_FRESCO:
