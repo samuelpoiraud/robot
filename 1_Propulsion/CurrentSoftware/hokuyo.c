@@ -147,6 +147,8 @@ void HOKUYO_process_main(void)
 	if(flag_device_disconnected)
 	{
 		flag_device_disconnected = FALSE;
+		hokuyo_initialized = FALSE;
+		HOKUYO_init();
 		state = INIT;
 	}
 
@@ -171,7 +173,7 @@ void HOKUYO_process_main(void)
 			if(HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
 				state=REMOVE_LF;
 			else if(datas_index>2278)
-				state=ERROR;
+				state=ASK_NEW_MEASUREMENT;
 		break;
 		case REMOVE_LF:
 			hokuyo_format_data();
@@ -197,7 +199,7 @@ void HOKUYO_process_main(void)
 			}
 			state=ASK_NEW_MEASUREMENT;
 			break;
-		case ERROR:
+		case ERROR:	//Never Happen !!!
 			debug_printf("ERROR SEQUENCE INITIALIZING");
 			state=RESET_HOKUYO;
 		break;
