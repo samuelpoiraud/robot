@@ -18,7 +18,7 @@
 
 #define QUANTUM_CLOCK_IT 10
 
-typedef Uint16 clock_time_t;
+typedef Uint32 clock_time_t;
 
 void CLOCK_init();
 

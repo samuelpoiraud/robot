@@ -28,6 +28,7 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_FRUIT
 #include "../QS/QS_outputlog.h"
 
+#define TIMEOUT_ASSERVISEMENT_DC	2000
 
 static void FRUIT_initAX12();
 static void FRUIT_initDCM();
@@ -321,28 +322,31 @@ void FRUIT_process_main(){
 	}verrin_order_e;
 	static verrin_order_e verrin_order = NO_ORDER;
 	static bool_e flagWatchDog = TRUE;
+	static clock_time_t begin_time_order;
 
 	switch(wanted_state){
 		case OPEN :
 			if(FRUIT_POMPE_TOR_OPEN == 1 && verrin_order != IN_OPENING){
 				POMPE_goToPos(ACT_FRUIT_MOUTH_OPEN);
 				verrin_order = IN_OPENING;
+				begin_time_order = CLOCK_get_time_10() * 10;
 			}else if(FRUIT_POMPE_TOR_OPEN == 0 && verrin_order != NO_ORDER){
-				//FRUIT_POMPE_PIN = 0;
 				PWM_stop(FRUIT_POMPE_PWM_NUM);
 				verrin_order = NO_ORDER;
-			}
+			}else if(CLOCK_get_time_10() * 10 - begin_time_order > TIMEOUT_ASSERVISEMENT_DC)
+				PWM_stop(FRUIT_POMPE_PWM_NUM);
 			break;
 
 		case CLOSE :
 			if(FRUIT_POMPE_TOR_CLOSE == 1 && verrin_order != IN_CLOSING){
 				POMPE_goToPos(ACT_FRUIT_MOUTH_CLOSE);
 				verrin_order = IN_CLOSING;
+				begin_time_order = CLOCK_get_time_10() * 10;
 			}else if(FRUIT_POMPE_TOR_CLOSE == 0 && verrin_order != NO_ORDER){
 				PWM_stop(FRUIT_POMPE_PWM_NUM);
-				//FRUIT_POMPE_PIN = 0;
 				verrin_order = NO_ORDER;
-			}
+			}else if(CLOCK_get_time_10() * 10 - begin_time_order > TIMEOUT_ASSERVISEMENT_DC)
+				PWM_stop(FRUIT_POMPE_PWM_NUM);
 			break;
 
 		case VIBRATION :
