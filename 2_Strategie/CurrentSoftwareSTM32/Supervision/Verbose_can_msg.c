@@ -16,6 +16,7 @@ void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
 void print_us_result(CAN_msg_t * msg, char ** string, int * len);
 void print_broadcast_start_infos(CAN_msg_t * msg, char ** string, int * len);
 
+#define	u32(x1,x2,x3,x4) (U32FROMU8(msg->data[x1], msg->data[x2], msg->data[x3], msg->data[x4]))
 #define	u16(x,y)		(U16FROMU8(msg->data[x], msg->data[y]))
 #define s16(x,y)		((Sint16)(U16FROMU8(msg->data[x], msg->data[y])))
 #define	u8(x)			(msg->data[x])
@@ -102,11 +103,22 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case BEACON_ADVERSARY_POSITION_IR:		print(string, len, "%x BEACON_ADVERSARY_POSITION_IR         ", BEACON_ADVERSARY_POSITION_IR		);	break;
 		case BEACON_ADVERSARY_POSITION_US:		print(string, len, "%x BEACON_ADVERSARY_POSITION_US         ", BEACON_ADVERSARY_POSITION_US		);	break;
 		case DEBUG_STRAT_STATE_CHANGED:			print(string, len, "%x DEBUG_STRAT_STATE_CHANGED            ", DEBUG_STRAT_STATE_CHANGED		);	break;
-		case XBEE_START_MATCH:					print(string, len, "%x XBEE_START_MATCH                     ", XBEE_START_MATCH		);	break;
-		case XBEE_PING:							print(string, len, "%x XBEE_PING                            ", XBEE_PING		);	break;
-		case XBEE_PONG:							print(string, len, "%x XBEE_PONG                            ", XBEE_PONG		);	break;
-		case XBEE_REACH_POINT_GET_OUT_INIT:		print(string, len, "%x XBEE_REACH_POINT_GET_OUT_INIT        ", XBEE_REACH_POINT_GET_OUT_INIT		);	break;
-		case XBEE_REACH_POINT_C1:				print(string, len, "%x XBEE_REACH_POINT_C1                  ", XBEE_REACH_POINT_C1		);	break;
+		case XBEE_START_MATCH:					print(string, len, "%x XBEE_START_MATCH                     ", XBEE_START_MATCH					);	break;
+		case XBEE_PING:							print(string, len, "%x XBEE_PING                            ", XBEE_PING						);	break;
+		case XBEE_PONG:							print(string, len, "%x XBEE_PONG                            ", XBEE_PONG						);	break;
+		case XBEE_REACH_POINT_GET_OUT_INIT:		print(string, len, "%x XBEE_REACH_POINT_GET_OUT_INIT        ", XBEE_REACH_POINT_GET_OUT_INIT	);	break;
+		case XBEE_REACH_POINT_C1:				print(string, len, "%x XBEE_REACH_POINT_C1                  ", XBEE_REACH_POINT_C1				);	break;
+		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "%x DEBUG_PROPULSION_SET_COEF            ", DEBUG_PROPULSION_SET_COEF		);	break;
+		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "%x DEBUG_PROPULSION_SET_ACCELERATION    ", DEBUG_PROPULSION_SET_ACCELERATION);	break;
+
+
+
+
+
+
+
+	#define DEBUG_PROPULSION_SET_ACCELERATION						0x713		//Data sur 16 bits. (unité : mm/4096/5ms/5ms) Grandeur typique : 100
+
 		default:								print(string, len, "%x UNKNOW : you should add SID in code !", msg->sid);								break;
 	}
 
@@ -171,6 +183,8 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case BEACON_ADVERSARY_POSITION_US:		if(u8(0))
 													print(string, len, "ERRs:0x%x 0x%x|",u8(0), u8(4));
 												print(string, len, "dR1=%dmm|dR2=%dmm|id=%d\n", u16(1,2), u16(5,6), u8(3));								break;
+		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", u8(0),u32(1,2,3,4));								break;
+		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%d\n", u16(0,1));									break;
 
 		default:
 			if(msg->size)
