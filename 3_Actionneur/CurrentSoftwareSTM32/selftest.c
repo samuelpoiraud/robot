@@ -58,7 +58,7 @@ bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 	return TRUE;
 }
 
-void SELFTEST_set_actions(action_t action, Uint8 action_num, SELFTEST_action_t actions[]) {
+void SELFTEST_set_actions(action_t action, Uint8 action_num, const SELFTEST_action_t actions[]) {
 	Uint8 i, j;
 	queue_id_t queueId = QUEUE_create();
 
