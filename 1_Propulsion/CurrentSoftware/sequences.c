@@ -64,9 +64,9 @@ void SEQUENCES_calibrate()
 
 		//Eloignement de la bordure
 		if(color == RED)
-			y = 100;
+			y = 150;
 		else
-			y = -100;
+			y = -150;
 
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, y,0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
