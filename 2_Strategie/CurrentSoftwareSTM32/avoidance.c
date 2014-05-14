@@ -574,7 +574,13 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					avoidance_printf("wait_move_and_scan_foe -- foe in path\n");
 					SD_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
-					state = EXTRACT;
+					if(avoidance_type == DODGE_AND_WAIT || avoidance_type == DODGE_AND_NO_WAIT)
+						state = EXTRACT;
+					else
+					{
+						state = CHECK_SCAN_FOE;
+						return FOE_IN_PATH;			//Pas d'extraction demandée... on retourne tel quel FOE_IN_PATH !
+					}
 					break;
 
 				case IN_PROGRESS:
