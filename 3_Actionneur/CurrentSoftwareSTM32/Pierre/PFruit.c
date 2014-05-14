@@ -160,9 +160,9 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 	}else if(msg->sid == ACT_DO_SELFTEST) {
 		SELFTEST_set_actions(&FRUIT_run_command, 4, (SELFTEST_action_t[]){
 								 {ACT_FRUIT_MOUTH_OPEN,   0, QUEUE_ACT_POMPE_Fruit},
-								 {ACT_FRUIT_MOUTH_CLOSE,  0, QUEUE_ACT_POMPE_Fruit},
 								 {ACT_FRUIT_LABIUM_OPEN,  0, QUEUE_ACT_AX12_Fruit},
-								 {ACT_FRUIT_LABIUM_CLOSE, 0, QUEUE_ACT_AX12_Fruit}
+								 {ACT_FRUIT_LABIUM_CLOSE, 0, QUEUE_ACT_AX12_Fruit},
+								 {ACT_FRUIT_MOUTH_CLOSE,  0, QUEUE_ACT_POMPE_Fruit}
 							 });
 	}
 
