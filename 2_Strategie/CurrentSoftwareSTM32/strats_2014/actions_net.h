@@ -21,7 +21,7 @@
 #include "../config/config_pin.h"
 
 #define TIME_TO_NET			(MATCH_DURATION - 6500)
-#define TIME_MAX_ROTATE				1500
+#define TIME_MAX_ROTATE				2500
 #define TIME_MATCH_TO_NET_ROTATE	(MATCH_DURATION - TIME_MAX_ROTATE)
 
 void strat_placement_net();
