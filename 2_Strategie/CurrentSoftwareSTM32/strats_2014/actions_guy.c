@@ -40,6 +40,8 @@ static void send_message_to_pierre(Uint11 sid) ;
 #define DETECTION_TRIANGLE_MIDDLE	// Pour savoir si nous avons besoins de faire un dection des triangles du milieu ou non pour la strat triangles_between_tree
 #define DIM_TRIANGLE 100
 
+#define DIST_RETURN_RETURN_TRIANGLE		250
+
 //#define GUY_FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
 
 // Fonctionne que pour les chemins MAMMOUTH_SIDE et HEART_SIDE
@@ -1373,9 +1375,13 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 		TORCHE,
 		DOWN_ARM,
 		UP_ARM,
-		FILED_TRIANGLE,
+		UP_ARM_ERROR,
+		DROP_TRIANGLE,
 		WAIT_TRIANGLE_BREAK,
 		BACK,
+		BACK_FAIL,
+		WAIT,
+		DROP_ADV_TRIANGLE,
 		RETURN,
 		INVERSE_PUMP,
 		PREPARE_RETURN,
@@ -1392,13 +1398,18 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 
 	static GEOMETRY_point_t torch;
 
-	static GEOMETRY_point_t point[3];
-	static Uint8 i = 0;	//TODO renommer ce i.... pour un nom plus explicite !
+	static GEOMETRY_point_t drop_pos[3];
+	static GEOMETRY_point_t work_point;
+	static GEOMETRY_point_t return_point;
+	static GEOMETRY_point_t drop_adv_pos;
+	static bool_e droped_triangle[3];
+	static Uint8 niveau;
+	static Uint8 nb_try_back;
 
 	if(dispose_zone == HEARTH_OUR){
-		point[0] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
-		point[1] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
-		point[2] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
+		drop_pos[0] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
+		drop_pos[1] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
+		drop_pos[2] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
 
 
 
@@ -1408,53 +1419,109 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 	}
 
 	switch(state){
-		case IDLE :
-			//torch = TORCH_get_position(choiceTorch);
+		case IDLE :{
+			Sint16 cos, sin;
 
+			torch = TORCH_get_position(choiceTorch);
+
+			// Imposé pour les test
 			torch.x = global.env.pos.x;
 			torch.y = global.env.pos.y+150;
 
+			drop_adv_pos.x = global.env.pos.x;
+			drop_adv_pos.y = global.env.pos.y;// A définir
+
+			COS_SIN_4096_get(global.env.pos.angle, &cos, &sin);
+			return_point.x = global.env.pos.x + cos*DIST_RETURN_RETURN_TRIANGLE;
+			return_point.y = global.env.pos.y + sin*DIST_RETURN_RETURN_TRIANGLE;
+
+			work_point.x = global.env.pos.x;
+			work_point.y = global.env.pos.y;
+
 			state = TORCHE;
-			i = 0;
-			break;
+			niveau = 0;
+			nb_try_back = 0;
+			droped_triangle[0] = FALSE;
+			droped_triangle[1] = FALSE;
+			droped_triangle[2] = FALSE;
+		}break;
 
 		case TORCHE :
 			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, PARKED_NOT_HANDLED);
 			break;
 
-		case DOWN_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
-			if(entrance){
+		case DOWN_ARM:
+			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-			}
-			state = ACT_elevator_arm_rush_in_the_floor(120-i*30, DOWN_ARM, UP_ARM, UP_ARM);
+
+			state = ACT_elevator_arm_rush_in_the_floor(120-niveau*30, DOWN_ARM, UP_ARM, UP_ARM_ERROR);
 			break;
 
 		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
-			if((i == 1 && choiceTorch == OUR_TORCH) || ((i == 0 || i == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
+			if(entrance)
+				nb_try_back = 0;
+
+			if((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
 				state = ACT_elevator_arm_move(120, UP_ARM, BACK, PARKED_NOT_HANDLED);
 			else
-				state = ACT_elevator_arm_move(120, UP_ARM, FILED_TRIANGLE, PARKED_NOT_HANDLED);
+				state = ACT_elevator_arm_move(120, UP_ARM, DROP_TRIANGLE, PARKED_NOT_HANDLED);
 			break;
 
-		case FILED_TRIANGLE :
+		case UP_ARM_ERROR:
 			if(entrance)
-				i++;
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
 
-			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,point[i-1].x, point[i-1].y, FILED_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+			state = ACT_elevator_arm_move(120, UP_ARM, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+			break;
+
+		case DROP_TRIANGLE :
+			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+
+			if(ON_LEAVING(DROP_TRIANGLE))
+				droped_triangle[niveau] = TRUE;
 			break;
 
 		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 
-			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (i>2)? DONE:TORCHE);
+			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? DONE:TORCHE);
 
-			if(ON_LEAVING(WAIT_TRIANGLE_BREAK))
+			if(ON_LEAVING(WAIT_TRIANGLE_BREAK)){
+				niveau++;
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
+			}
 			break;
 
 		case BACK:
-			state = try_going(global.env.pos.x-300, global.env.pos.y, BACK, RETURN, PARKED_NOT_HANDLED, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(return_point.x, return_point.y, BACK, RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case BACK_FAIL:
+			state = try_going(work_point.x, work_point.y, BACK_FAIL, WAIT, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case WAIT:
+			if(entrance)
+				nb_try_back++;
+
+			if(nb_try_back <= 2)
+				state = ELEMENT_wait_time(1500, WAIT, BACK);
+			else
+				state = DROP_ADV_TRIANGLE;
+			break;
+
+		case DROP_ADV_TRIANGLE:
+			if(niveau == 0) // Si c'est le premier triangle on le pose hors terrain
+				state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE, drop_adv_pos.x, drop_adv_pos.y, DROP_ADV_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+			else if((niveau == 1 || niveau == 2) && droped_triangle[0]) // Sinon si on a déjà posé un triangle on le pose dessus
+				state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE, drop_pos[0].x, drop_pos[0].y, DROP_ADV_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+			else if(niveau == 2 && droped_triangle[1]) // Sinon si on a pas posé le premier triangle mais le deuxième
+				state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE, drop_pos[1].x, drop_pos[1].y, DROP_ADV_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+			else if(niveau == 1 || niveau == 2)	// Sinon pose le triangle hors terrain
+				state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE, drop_adv_pos.x, drop_adv_pos.y, DROP_ADV_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+			else	// sinon c'est qu'il ya un soucis
+				state = PARKED_NOT_HANDLED;
 			break;
 
 		case RETURN:
@@ -1491,9 +1558,9 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 			break;
 
 		case GRAP_TRIANGLE: // prise du triangle au sol
-			if(entrance){
+			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-			}
+
 			state = ELEMENT_wait_pump_capture_object(GRAP_TRIANGLE, OPEN, OPEN);
 			break;
 
@@ -1502,7 +1569,7 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 			break;
 
 		case ADVANCE:
-			state = try_going(global.env.pos.x+300, global.env.pos.y, ADVANCE, FILED_TRIANGLE, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(work_point.x, work_point.y, ADVANCE, DROP_TRIANGLE, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case PARKED_NOT_HANDLED:{
@@ -1525,13 +1592,13 @@ error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e d
 
 		case DONE:
 			ACT_pompe_order(ACT_POMPE_STOP, 0);
-			state = IDLE;
+			RESET_MAE();
 			return END_OK;
 			break;
 
 		case ERROR:
 			ACT_pompe_order(ACT_POMPE_STOP, 0);
-			state = IDLE;
+			RESET_MAE();
 			return NOT_HANDLED;
 			break;
 	}
