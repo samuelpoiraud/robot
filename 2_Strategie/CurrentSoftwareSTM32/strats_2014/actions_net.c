@@ -117,7 +117,12 @@ void strat_placement_net(){
 			break;
 
 		case PLACEMENT :
-			state = try_going(pos.node[pos.selected_node].x, pos.node[pos.selected_node].y, PLACEMENT, PLACEMENT_TETA, INIT_PATH, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			if(entrance){
+				if(foe_in_zone(FALSE, pos.node[pos.selected_node].x, pos.node[pos.selected_node].y, TRUE))
+					state = INIT_PATH;
+			}
+			if(state == PLACEMENT)
+				state = try_going(pos.node[pos.selected_node].x, pos.node[pos.selected_node].y, PLACEMENT, PLACEMENT_TETA, INIT_PATH, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			if(ON_LEAVING(PLACEMENT))
 				pos.tryed_node[pos.selected_node] = TRUE;
 			break;
