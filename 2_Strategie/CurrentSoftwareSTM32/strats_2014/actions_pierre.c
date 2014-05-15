@@ -90,12 +90,15 @@ error_e sub_action_initiale(){
 		GET_OUT,
 		LANCE_LAUNCHER,
 		GOTO_TREE_2,
+		GOTO_PUSH_TRIANGLE,
+		PUSH_TRIANGLE,
 		DO_TREE_1,
 		DO_TREE_2,
 		DO_FIRE_HOME,
 		GOTO_TORCH_FIRST_POINT,
 		GOTO_TORCH_SECOND_POINT,
 		GOTO_TORCH_THIRD_POINT,
+		GOTO_TORCH,
 		FAIL_FIRST_POINT,
 		FAIL_SECOND_POINT,
 		FAIL_THIRD_POINT,
@@ -109,10 +112,14 @@ error_e sub_action_initiale(){
 		ERROR
 	);
 
-	displacement_t point[] = {{{750,COLOR_Y(1100)},	FAST},
+	displacement_t point[] = {{{(global.env.color == RED) ?750:620,(global.env.color == RED) ?1100:1670},	FAST}, // Point pos bonne prise de torche
 							  {{1000,COLOR_Y(1000)},FAST},
-							  {{1650,COLOR_Y(350)},FAST}
+							  {{1150,COLOR_Y(850)},FAST},
+							  {{(global.env.color == RED) ?750:1650,(global.env.color == RED) ?400:1900},FAST}, // Pos se mettre devant l'arbre
+							  {{(global.env.color == RED) ?1000:1350,(global.env.color == RED) ?700:1870},FAST}, // Pos si triangle pas tomber par guy
+							  {{(global.env.color == RED) ?1200:1400,(global.env.color == RED) ?600:2250},FAST}
 							 };
+
 	static enum state_e fail_state, success_state;
 
 	// Mettre a false si pas le cas
@@ -120,6 +127,13 @@ error_e sub_action_initiale(){
 
 	if(global.env.reach_point_get_out_init)
 		guy_get_out_init = TRUE;
+
+
+	// Si guy a fait tomber les triangles de la zone de départ ou pas
+	static bool_e guy_do_triangle = FALSE;
+
+	if(global.env.guy_do_triangle_start)
+		guy_do_triangle = TRUE;
 
 	if(global.env.guy_took_our_torch)		//Lorsque Guy décide de se diriger vers notre torche (et avant que Pierre ait pu finir son lancé, Guy envoie un message levant ce flag...)
 		i_must_deal_with_our_torch = FALSE;	//Si Guy a pris notre torche, on abandonne son éventuelle récupération prévue.
@@ -190,11 +204,14 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_TORCH_FIRST_POINT:
-			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
-			break;
-		case GOTO_TORCH_SECOND_POINT:
 			if(entrance) // Ouvre les pinces
 				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
+
+			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case GOTO_TORCH_SECOND_POINT:
+//			if(entrance) // Ouvre les pinces
+//				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
 
 			state = try_going_until_break(point[1].point.x, point[1].point.y,GOTO_TORCH_SECOND_POINT,GOTO_TORCH_THIRD_POINT,FAIL_SECOND_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
@@ -205,14 +222,37 @@ error_e sub_action_initiale(){
 //				ASSER_WARNER_arm_x(800);
 //			if(global.env.asser.reach_x)
 //				;//REACH_POINT_C1_send_request();
-			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,DEPLOY_TORCH,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,(guy_do_triangle==TRUE)? DO_TREE_1:GOTO_PUSH_TRIANGLE,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
+
+		case GOTO_PUSH_TRIANGLE:
+			state = try_going(point[4].point.x, point[4].point.y,GOTO_PUSH_TRIANGLE,PUSH_TRIANGLE,FAIL_THIRD_POINT,FAST,(global.env.color == RED) ? FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case PUSH_TRIANGLE:
+			if(entrance)
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
+
+			state = try_going(point[5].point.x, point[5].point.y,PUSH_TRIANGLE,DO_TREE_1,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
+
+			break;
+
 		case FAIL_FIRST_POINT:
+			if(entrance)
+				ACT_torch_locker(ACT_TORCH_Locker_Inside);
+
 			state = try_going_until_break(750, COLOR_Y(400),FAIL_FIRST_POINT,DEPLOY_TORCH,GOTO_TORCH_FIRST_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
 			break;
+
 		case FAIL_SECOND_POINT:
+			if(entrance){
+				ACT_torch_locker(ACT_TORCH_Locker_Inside);
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			}
+
 			state = COME_BACK_FOR_GOING_FRESCO;
 			break;
+
 		case FAIL_THIRD_POINT:
 			state = COME_BACK_FOR_GOING_FRESCO;
 			break;
@@ -229,6 +269,14 @@ error_e sub_action_initiale(){
 					fail_state = DONE;	//Il n'y a plus rien à faire
 			}
 			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,fail_state,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case DO_TREE_1:
+			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_1:CHOICE_TREE_2,TRIGO),DO_TREE_1,GOTO_TORCH,ERROR);
+			break;
+
+		case GOTO_TORCH:
+			state = try_going_until_break(1650, COLOR_Y(350), GOTO_TORCH, DEPLOY_TORCH, COME_BACK_FOR_GOING_FRESCO, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case DO_FRESCO:
@@ -261,20 +309,17 @@ error_e sub_action_initiale(){
 
 			}break;
 
-		case DO_TREE_1:
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_1,(global.env.color == RED)? HORAIRE : TRIGO),DO_TREE_1,DO_FIRE_HOME,ERROR);
-			break;
+
 
 		case DO_TREE_2:
-			if(entrance) // Ouvre les pinces
-				ACT_torch_locker(ACT_TORCH_Locker_Inside);
-
-			state = check_sub_action_result(manage_fruit(TREE_OUR,CHOICE_TREE_2,(global.env.color == RED)? TRIGO : HORAIRE),DO_TREE_2,DO_TREE_1,ERROR);
+			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_2:CHOICE_TREE_1,TRIGO),DO_TREE_2,DO_FIRE_HOME,ERROR);
 			break;
 
 		case DO_FIRE_HOME:
 			if(entrance)
 			{
+				ACT_torch_locker(ACT_TORCH_Locker_Inside);
+
 				if(i_do_torch_before_fresco)
 					success_state = GOTO_FRESCO;
 				else
@@ -1281,7 +1326,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			if(entrance){
 				ASSER_WARNER_arm_y(posShoot);
 				// Trop prêt et tourne à angle droit devant le bac sinon et fini par taper
-				dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL + 30;
+				dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL + 40;
 			}
 
 			state = try_going_multipoint(&dplt[1], 3, POS_LAUNCH, DONE , ERROR, sensRobot, (global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE, END_AT_BREAK);
