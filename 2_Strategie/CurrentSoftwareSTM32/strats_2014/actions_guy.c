@@ -27,7 +27,7 @@
 
 static void REACH_POINT_GET_OUT_INIT_send_request();
 error_e goto_adversary_zone(void);
-
+static void send_message_to_pierre(Uint11 sid) ;
 //TODO Si absence de Pierre, on doit être capable de compiler un code de GUY qui met un max de points (tout nos feux... !)
 
 
@@ -110,6 +110,7 @@ error_e sub_action_initiale_guy(){
 	static Sint16 y_to_prevent_pierre_to_get_out;
 	static time32_t t;
 	static torch_dispose_zone_e dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
+	static torch_dispose_zone_e dispose_zone_for_our_torch = HEARTH_CENTRAL;
 	static torch_dispose_zone_e if_fail_dispose_zone_for_adversary_torch = NO_DISPOSE;
 	if(global.env.reach_point_C1)
 		pierre_reach_point_C1 = TRUE;
@@ -133,6 +134,14 @@ error_e sub_action_initiale_guy(){
 					initial_path = NORTH_HEART;		//Nord intérieur : proche du foyer central
 			}
 
+
+			if(SWITCH_SAVE)
+			{
+				send_message_to_pierre(XBEE_GUY_TOOK_OUR_TORCH);
+				dispose_zone_for_our_torch = HEARTH_CENTRAL;	//On s'occupe de notre torche... des define pourront enrichir avec d'autres choix de zone de dépose.
+			}
+			else
+				dispose_zone_for_our_torch = NO_DISPOSE;	//On ne s'occupe pas de notre torche
 
 			if(SWITCH_STRAT_1)
 			{
@@ -2131,5 +2140,17 @@ void strat_test_arm(){
 			break;
 	}
 }
+
+
+static void send_message_to_pierre(Uint11 sid)
+{
+	CAN_msg_t msg;
+
+	msg.sid = sid;
+	msg.size = 0;
+
+	CANMsgToXbee(&msg,FALSE);
+}
+
 
 
