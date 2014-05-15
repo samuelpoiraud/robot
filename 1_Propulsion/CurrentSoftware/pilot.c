@@ -504,7 +504,7 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 		ptrans = ptrans * 2; // 3/2
 	}
 
-	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
+	if(COPILOT_get_trajectory() == TRAJECTORY_STOP && QS_WHO_AM_I_get() == BIG_ROBOT)
 	{
 		ptrans = ptrans * 2;
 		prot = prot * 2;
