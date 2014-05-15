@@ -16,6 +16,7 @@
 #include "act_functions.h"
 #include "Supervision/Selftest.h"
 #include "Supervision/Eeprom_can_msg.h"
+#include "QS/QS_who_am_i.h"
 #include "Supervision/SD/SD.h"
 #include "config_use.h"
 #include "config_pin.h"
@@ -139,14 +140,21 @@ void BUTTON_verbose(void)
 
 	if(change){
 		LCD_printf(1, FALSE, FALSE, "EVIT%d DBG%d XBEE%d", (Sint16)((current_state >> 12) & 1), (Sint16)((current_state >> 1) & 1), (Sint16)((current_state >> 4) & 1));
-		LCD_printf(2, FALSE, FALSE, "VERBOSE%d SAVE%d", (Sint16)((current_state >> 2) & 1), (Sint16)((current_state >> 5) & 1));
+		if(QS_WHO_AM_I_get() == BIG_ROBOT)
+			LCD_printf(2, FALSE, FALSE, "VERBOSE%d SAVE%d", (Sint16)((current_state >> 2) & 1), (Sint16)((current_state >> 5) & 1));
+		else
+			LCD_printf(2, FALSE, FALSE, "VERBOSE%d", (Sint16)((current_state >> 2) & 1));
 
 		if(up & ((Uint32)(1) << 0	))	debug_printf("BP run match pressed\n");
 		if(up & ((Uint32)(1) << 1	))	debug_printf("SW debug enabled\n");
 		if(up & ((Uint32)(1) << 2	))	debug_printf("SW verbose enabled\n");
 		if(up & ((Uint32)(1) << 3	))	debug_printf("BP print match pressed\n");
 		if(up & ((Uint32)(1) << 4	))	debug_printf("SW XBEE enabled\n");
-		if(up & ((Uint32)(1) << 5	))	debug_printf("SW saved enabled\n");
+		if(QS_WHO_AM_I_get() == BIG_ROBOT){
+			if(up & ((Uint32)(1) << 5	))	debug_printf("SW saved enabled\n");
+		}else{
+			if(up & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 (our torch) enabled\n");
+		}
 		if(up & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 added\n");
 		if(up & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 added\n");
 		if(up & ((Uint32)(1) << 8	))	debug_printf("BP Set pressed\n");
@@ -166,7 +174,11 @@ void BUTTON_verbose(void)
 		if(down & ((Uint32)(1) << 1	))	debug_printf("SW debug disabled\n");
 		if(down & ((Uint32)(1) << 2	))	debug_printf("SW verbose disabled\n");
 		if(down & ((Uint32)(1) << 4	))	debug_printf("SW XBEE disabled\n");
-		if(down & ((Uint32)(1) << 5	))	debug_printf("SW saved disabled\n");
+		if(QS_WHO_AM_I_get() == BIG_ROBOT){
+			if(down & ((Uint32)(1) << 5	))	debug_printf("SW saved disabled\n");
+		}else{
+			if(down & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 (our torch) enabled\n");
+		}
 		if(down & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 removed\n");
 		if(down & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 removed\n");
 		if(down & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
