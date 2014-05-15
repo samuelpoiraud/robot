@@ -19,6 +19,7 @@
 #include "Supervision/SD/SD.h"
 #include "config_use.h"
 #include "config_pin.h"
+#include "elements.h"
 #include "Supervision/LCD_interface.h"
 
 /*
@@ -115,8 +116,8 @@ void BUTTON_verbose(void)
 						(BUTTON5_PORT	<< 3) 	| //Print match
 						(SWITCH_XBEE	<< 4) 	|
 						(SWITCH_SAVE	<< 5) 	|
-						(FRESCO_1		<< 6) 	|
-						(FRESCO_2		<< 7) 	|
+						(!get_fresco(1)	<< 6) 	|
+						(!get_fresco(2)	<< 7) 	|
 						(BUTTON6_PORT	<< 8) 	|	 //BP Set
 						(SWITCH_COLOR	<< 9) 	|
 						(BIROUTE		<< 10) 	|
@@ -128,7 +129,8 @@ void BUTTON_verbose(void)
 						(BUTTON1_PORT	<< 16) 	|	//Selftest
 						(BUTTON2_PORT	<< 17) 	|	//LCD OK
 						(BUTTON3_PORT	<< 18) 	|	//LCD Menu +
-						(BUTTON4_PORT	<< 19);	//LCD Menu
+						(BUTTON4_PORT	<< 19)	|//LCD Menu
+						(!get_fresco(3)	<< 20);
 
 	up = ~previous_state & current_state;
 	down = previous_state & ~current_state;
@@ -159,6 +161,7 @@ void BUTTON_verbose(void)
 		if(up & ((Uint32)(1) << 17	))	debug_printf("BP OK pressed\n");
 		if(up & ((Uint32)(1) << 18	))	debug_printf("BP MenuUp pressed\n");
 		if(up & ((Uint32)(1) << 19	))	debug_printf("BP MenuDown pressed\n");
+		if(up & ((Uint32)(1) << 20	))	debug_printf("FRESCO3 added\n");
 
 		if(down & ((Uint32)(1) << 1	))	debug_printf("SW debug disabled\n");
 		if(down & ((Uint32)(1) << 2	))	debug_printf("SW verbose disabled\n");
@@ -173,6 +176,7 @@ void BUTTON_verbose(void)
 		if(down & ((Uint32)(1) << 13	))	debug_printf("SW Strat1 disabled\n");
 		if(down & ((Uint32)(1) << 14	))	debug_printf("SW Strat2 disabled\n");
 		if(down & ((Uint32)(1) << 15	))	debug_printf("SW Strat3 disabled\n");
+		if(down & ((Uint32)(1) << 20	))	debug_printf("FRESCO3 removed\n");
 	}
 
 }

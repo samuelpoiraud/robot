@@ -13,6 +13,8 @@
 #include "QS/QS_CANmsgList.h"
 #include "act_functions.h"
 #include "../QS/QS_can_over_xbee.h"
+#include "../QS/QS_adc.h"
+#include "config/config_pin.h"
 #include "state_machine_helper.h"
 #include "Pathfind.h"
 #include <math.h>
@@ -27,6 +29,10 @@
 #define SMALL_FORWARD_WIDTH 83
 #define RADIUS_TORCH 80
 #define DIM_TRIANGLE 100
+
+#define FRESQUE_2_ADC_VALUE		2048
+#define FRESQUE_3_ADC_VALUE		1024
+#define FRESQUE_ADC_EPSILON		100
 
 static bool_e ELEMENT_propulsion_send_triangle();
 static void ELEMENT_scan_triangle_init();
@@ -509,6 +515,41 @@ void ELEMENT_triangle_warner(CAN_msg_t* msg){
 void ELEMENT_answer_pump(CAN_msg_t *msg){
 	pump_answer = (msg->data[0] == STRAT_ANSWER_POMPE_NO) ? PUMP_ANSWER_NO : PUMP_ANSWER_YES;
 }
+
+
+bool_e get_fresco(Uint8 nb){
+	ADC_init();
+	Sint16 value = ADC_getValue(12);
+
+	if(nb == 1)
+		return FRESCO_1;
+
+	if(value > MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) + FRESQUE_ADC_EPSILON){
+
+		if(nb == 2 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_2_ADC_VALUE)
+			return TRUE;
+		else if(nb == 3 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_3_ADC_VALUE)
+			return TRUE;
+
+		value -= MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE);
+
+	}else{
+		if(nb == 2 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_2_ADC_VALUE)
+			return FALSE;
+		else if(nb == 3 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_3_ADC_VALUE)
+			return FALSE;
+	}
+
+	if(value > MIN(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) - FRESQUE_ADC_EPSILON){
+		if(nb == 2 && MIN(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_2_ADC_VALUE)
+			return TRUE;
+		else if(nb == 3 && MIN(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_3_ADC_VALUE)
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
 
 //------------------------------------
 // Fonction interne

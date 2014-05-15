@@ -21,6 +21,7 @@
 #include "../QS/QS_adc.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_can_over_xbee.h"
+#include "../elements.h"
 #include "SD/Libraries/fat_sd/ff.h"
 #include "RTC.h"
 #include "Buzzer.h"
@@ -378,8 +379,7 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_LEDS_AND_BUZZER,
 		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
-		TEST_FRESQUE_1,
-		TEST_FRESQUE_2,
+		TEST_FRESQUE,
 		TEST_RTC,
 		TEST_MEASURE24,
 		TEST_BIROUTE,
@@ -437,16 +437,15 @@ error_e SELFTEST_strategy(bool_e reset)
 				if(XBee_is_destination_reachable() == FALSE)
 					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE);
 			}
-			state = TEST_FRESQUE_1;
+			state = TEST_FRESQUE;
 			break;
-		case TEST_FRESQUE_1:
-			if(FRESCO_1)
+		case TEST_FRESQUE:
+			if(get_fresco(1))
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_1_MISSING);
-			state = TEST_FRESQUE_2;
-			break;
-		case TEST_FRESQUE_2:
-			if(FRESCO_2)
+			if(get_fresco(2))
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_2_MISSING);
+			if(get_fresco(3))
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_3_MISSING);
 			state = TEST_RTC;
 			break;
 		case TEST_RTC:
@@ -528,6 +527,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");								break;
 				case SELFTEST_STRAT_FRESQUE_1_MISSING:			debug_printf("SELFTEST_STRAT_FRESQUE_1_MISSING");				break;
 				case SELFTEST_STRAT_FRESQUE_2_MISSING:			debug_printf("SELFTEST_STRAT_FRESQUE_2_MISSING");				break;
+				case SELFTEST_STRAT_FRESQUE_3_MISSING:			debug_printf("SELFTEST_STRAT_FRESQUE_3_MISSING");				break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");					break;
 				case SELFTEST_STRAT_BATTERY_LOW:				debug_printf("SELFTEST_STRAT_BATTERY_LOW");						break;
 				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
@@ -843,6 +843,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE: return "XBee dest unreach";	break;
 		case SELFTEST_STRAT_FRESQUE_1_MISSING:			return "Fresque 1 missing";		break;
 		case SELFTEST_STRAT_FRESQUE_2_MISSING:			return "Fresque 2 missing";		break;
+		case SELFTEST_STRAT_FRESQUE_3_MISSING:			return "Fresque 3 missing";		break;
 		case SELFTEST_STRAT_RTC:						return "RTC failed";			break;
 		case SELFTEST_STRAT_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_STRAT_BATTERY_LOW:				return "BATTERY LOW";			break;
