@@ -25,9 +25,9 @@
 
 static void REACH_POINT_C1_send_request();
 
-// SWITCH_STRAT_1 est utilisée pour le lancer de balles (5 balles nous et une sur ennemis si active sinon 6 balles chez nous)
-// SWITCH_STRAT_2 est utilisée pour le choix dés le début aller vers la torche directement apres les balles ou faire les fresques si actif fait torche
-// SWITCH_STRAT_3 : non utilisé pour l'instant...
+// SWITCH_STRAT_1 est utilisé pour le lancer de balles (5 balles nous et une sur ennemis si active sinon 6 balles chez nous)
+// SWITCH_STRAT_2 est utilisé pour le choix dés le début aller vers la torche directement apres les balles ou faire les fresques si actif fait torche
+// SWITCH_STRAT_3 : activation du ramassage de la torche.
 
 
 
@@ -69,6 +69,8 @@ static void REACH_POINT_C1_send_request();
 static bool_e action_fresco_filed = FALSE;
 static bool_e lance_ball = FALSE;
 static bool_e launcher_ball_adversary = FALSE;  // Si il doit lancer une balle sur le mammouth ennemis
+static bool_e i_must_deal_with_our_torch = FALSE;	//On doit gérer notre torche.
+static bool_e i_do_torch_before_fresco = FALSE;		//On fait la torche en priorité... ou le contraire.
 
 // Lors de la recalibration, sera appeler en extern vers d'autre fichier ( ne pas passer en static )
 volatile GEOMETRY_point_t offset_recalage = {0, 0};
@@ -111,7 +113,7 @@ error_e sub_action_initiale(){
 							  {{1000,COLOR_Y(1000)},FAST},
 							  {{1650,COLOR_Y(350)},FAST}
 							 };
-
+	static enum state_e fail_state, success_state;
 
 	// Mettre a false si pas le cas
 	static bool_e guy_get_out_init = FALSE;
@@ -119,6 +121,8 @@ error_e sub_action_initiale(){
 	if(global.env.reach_point_get_out_init)
 		guy_get_out_init = TRUE;
 
+	if(global.env.guy_took_our_torch)		//Lorsque Guy décide de se diriger vers notre torche (et avant que Pierre ait pu finir son lancé, Guy envoie un message levant ce flag...)
+		i_must_deal_with_our_torch = FALSE;	//Si Guy a pris notre torche, on abandonne son éventuelle récupération prévue.
 
 	switch(state){
 
@@ -135,6 +139,16 @@ error_e sub_action_initiale(){
 				set_sub_act_enable(SUB_LANCE_ADV,FALSE);
 			}
 
+			if(SWITCH_STRAT_3)
+				i_must_deal_with_our_torch = TRUE;
+			else
+				i_must_deal_with_our_torch = FALSE;
+
+			if(SWITCH_STRAT_2)
+				i_do_torch_before_fresco = TRUE;
+			else
+				i_do_torch_before_fresco = FALSE;
+
 			break;
 
 		case WAIT_TELL_GUY:{
@@ -150,9 +164,29 @@ error_e sub_action_initiale(){
 			break;
 
 		case LANCE_LAUNCHER:
-			//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
+			if(entrance)
+			{
+				if(i_must_deal_with_our_torch && !global.env.guy_took_our_torch)
+				{
+					//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
+					fail_state = GOTO_TORCH_FIRST_POINT;
+					if(i_do_torch_before_fresco)
+						success_state =  GOTO_TORCH_FIRST_POINT;
+					else
+						success_state = GOTO_FRESCO;
+				}
+				else
+				{
+					fail_state = DONE;
+					if(i_do_torch_before_fresco)
+						success_state =  DONE;	//On a plus rien à faire... La priorité des actions dans la high-level décidera de la prochaine action...
+					else
+						success_state = GOTO_FRESCO;
+				}
+			}
+
 			//Il y a aussi le risque que cet évittement soit du à Guy...
-			state = check_sub_action_result(strat_lance_launcher((SWITCH_STRAT_1)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,(SWITCH_STRAT_2)? GOTO_TORCH_FIRST_POINT : GOTO_FRESCO,GOTO_TORCH_FIRST_POINT);
+			state = check_sub_action_result(strat_lance_launcher((SWITCH_STRAT_1)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,success_state,fail_state);
 			break;
 
 		case GOTO_TORCH_FIRST_POINT:
@@ -187,14 +221,30 @@ error_e sub_action_initiale(){
 			break;
 
 		case GOTO_FRESCO:
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,(SWITCH_STRAT_2)? DONE : GOTO_TORCH_FIRST_POINT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(entrance)
+			{
+				if(!i_do_torch_before_fresco && i_must_deal_with_our_torch)
+					fail_state = GOTO_TORCH_FIRST_POINT;
+				else
+					fail_state = DONE;	//Il n'y a plus rien à faire
+			}
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,fail_state,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case DO_FRESCO:
-			if(SWITCH_STRAT_2)
-				state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,(get_presenceFruit())?FILE_FRUIT:DONE,ERROR);
-			else
-				state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,GOTO_TORCH_FIRST_POINT,ERROR);
+			if(entrance)
+			{
+				if(get_presenceFruit())
+					success_state = FILE_FRUIT;	//J'ai des fruits, alors je vais les poser maintenant que je suis prêt du bac
+				else
+				{
+					if(i_do_torch_before_fresco)	//J'ai déjà fait la torche, je n'ai plus rien à faire
+						success_state = DONE;
+					else
+						success_state = GOTO_TORCH_FIRST_POINT;	//Je dois aller faire la torche
+				}
+			}
+			state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,success_state,ERROR);
 			break;
 
 		case DEPLOY_TORCH:{
@@ -223,7 +273,14 @@ error_e sub_action_initiale(){
 			break;
 
 		case DO_FIRE_HOME:
-			state = try_going(800,COLOR_Y(400),DO_FIRE_HOME,(SWITCH_STRAT_2)?GOTO_FRESCO:FILE_FRUIT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			if(entrance)
+			{
+				if(i_do_torch_before_fresco)
+					success_state = GOTO_FRESCO;
+				else
+					success_state = FILE_FRUIT;
+			}
+			state = try_going(800,COLOR_Y(400),DO_FIRE_HOME,success_state,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case FILE_FRUIT:
