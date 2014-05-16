@@ -81,7 +81,7 @@ bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_SMALL_ARM_MID :
 			case ACT_SMALL_ARM_DEPLOYED :
 			case ACT_SMALL_ARM_STOP :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Small_Arm, &SMALL_ARM_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Small_Arm, &SMALL_ARM_run_command, 0,TRUE);
 				break;
 
 

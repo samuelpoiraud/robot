@@ -83,7 +83,7 @@ bool_e GACHE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_GACHE_IDLE :
 			case ACT_GACHE_LAUNCHED :
 			case ACT_GACHE_STOP :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Gache, &GACHE_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Gache, &GACHE_run_command, 0,TRUE);
 				break;
 
 			default:

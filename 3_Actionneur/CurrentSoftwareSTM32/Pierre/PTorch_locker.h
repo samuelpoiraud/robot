@@ -33,6 +33,11 @@ void TORCH_LOCKER_init_pos();
  */
 void TORCH_LOCKER_stop();
 
+/**	Remets les derniéres position des bras
+ * de la torche si ils sont partis en erreur
+ */
+void PTORCH_process_main();
+
 /** Gère les messages CAN liés au TORCH_LOCKER.
  *
  * Cette fonction s'occupe toute seule de gérer la queue et d'agir en conséquence.

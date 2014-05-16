@@ -18,9 +18,9 @@
 /** Si le déplacement de l'ax12 timeout mais que sa position est à +/- TORCH_LOCKER_AX12_ASSER_POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define TORCH_LOCKER_AX12_1_ASSER_POS_LARGE_EPSILON   10     //en degré
 /** Position en degré de l'ax12 lorsque TORCH_LOCKER est rentré  */
-	#define TORCH_LOCKER_AX12_1_LOCK_POS            115    //en degré
+	#define TORCH_LOCKER_AX12_1_LOCK_POS            103    //en degré
 /** Position en degré de l'ax12 lorsque TORCH_LOCKER est mi sortie */
-	#define TORCH_LOCKER_AX12_1_UNLOCK_POS			150    //en degré^
+	#define TORCH_LOCKER_AX12_1_UNLOCK_POS			150    //en degré
 /** Position en degré de l'ax12 lorsque TORCH_LOCKER est mi en position rentrer */
 	#define TORCH_LOCKER_AX12_1_INSIDE_POS			60    //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur  */
@@ -39,7 +39,7 @@
 /** Si le déplacement de l'ax12 timeout mais que sa position est à +/- TORCH_LOCKER_AX12_ASSER_POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define TORCH_LOCKER_AX12_2_ASSER_POS_LARGE_EPSILON   10     //en degré
 /** Position en degré de l'ax12 lorsque TORCH_LOCKER est rentré  */
-	#define TORCH_LOCKER_AX12_2_LOCK_POS            190    //en degré
+	#define TORCH_LOCKER_AX12_2_LOCK_POS            194    //en degré
 /** Position en degré de l'ax12 lorsque TORCH_LOCKER est mi sortie */
 	#define TORCH_LOCKER_AX12_2_UNLOCK_POS			150    //en degré
 /** Position en degré de l'ax12 lorsque TORCH_LOCKER est mi en position rentrer */

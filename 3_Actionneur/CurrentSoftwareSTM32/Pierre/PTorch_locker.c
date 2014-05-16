@@ -18,6 +18,7 @@
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../config/config_pin.h"
+#include "../QS/QS_watchdog.h"
 
 #include "config_debug.h"
 #define LOG_PREFIX "Torch locker.c : "
@@ -32,6 +33,8 @@ static void TORCH_LOCKER_command_init(queue_id_t queueId);
 
 static Uint16 ax12_1_goalPosition = 0xFFFF;
 static Uint16 ax12_2_goalPosition = 0xFFFF;
+static Uint8 last_command;
+static watchdog_id_t watchdog_PTorch;
 
 void TORCH_LOCKER_init() {
 	static bool_e initialized = FALSE;
@@ -90,6 +93,33 @@ void TORCH_LOCKER_stop(){
 
 }
 
+void PTORCH_process_main(){
+	static bool_e flag_watchDog = FALSE;
+	static bool_e init = FALSE;
+
+	if(flag_watchDog)
+		display(flag_watchDog);
+
+	if(init == FALSE){
+		watchdog_PTorch = WATCHDOG_create_flag(3000,&flag_watchDog);
+		init = TRUE;
+		return;
+	}
+
+	if(!flag_watchDog) // Retourne si le flag n'est pas encore levé
+		return;
+
+	flag_watchDog = FALSE;
+	init = FALSE;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_TORCH_LOCKER;
+	msg.data[0] = last_command;
+
+	ACTQ_push_operation_from_msg(&msg, QUEUE_ACT_Torch_Locker, &TORCH_LOCKER_run_command, 0,FALSE);
+	global.PTorchErrorLastCode = FALSE;
+}
+
 bool_e TORCH_LOCKER_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_TORCH_LOCKER) {
 		TORCH_LOCKER_initAX12();
@@ -98,7 +128,7 @@ bool_e TORCH_LOCKER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_TORCH_LOCKER_UNLOCK :
 			case ACT_TORCH_LOCKER_INSIDE :
 			case ACT_TORCH_LOCKER_STOP :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Torch_Locker, &TORCH_LOCKER_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Torch_Locker, &TORCH_LOCKER_run_command, 0,TRUE);
 				break;
 
 			default:
@@ -184,6 +214,11 @@ static void TORCH_LOCKER_command_run(queue_id_t queueId) {
 	Uint8 result1, result2, errorCode1, errorCode2;
 	Uint16 line1, line2;
 	static bool_e check_1 = FALSE, check_2 = FALSE;
+	last_command = QUEUE_get_arg(queueId)->canCommand;
+
+	if(watchdog_PTorch != 0xFF)
+		WATCHDOG_stop(watchdog_PTorch);
+
 
 	if(!check_1)
 		check_1 = ACTQ_check_status_ax12(queueId, TORCH_LOCKER_AX12_1_ID, ax12_1_goalPosition, TORCH_LOCKER_AX12_1_ASSER_POS_EPSILON, TORCH_LOCKER_AX12_1_ASSER_TIMEOUT, TORCH_LOCKER_AX12_1_ASSER_POS_LARGE_EPSILON, &result1, &errorCode1, &line1);
@@ -198,6 +233,9 @@ static void TORCH_LOCKER_command_run(queue_id_t queueId) {
 			QUEUE_next(queueId, ACT_TORCH_LOCKER, result1, errorCode1, line1);
 		else
 			QUEUE_next(queueId, ACT_TORCH_LOCKER, result2, errorCode2, line2);
+
+		if(errorCode1 != ACT_RESULT_ERROR_OK || errorCode2 != ACT_RESULT_ERROR_OK)
+			global.PTorchErrorLastCode = TRUE;
 	}
 }
 

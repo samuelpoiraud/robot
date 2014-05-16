@@ -85,7 +85,7 @@ bool_e LANCE_LAUNCHER_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_LANCELAUNCHER_RUN_5_BALL:
 			case ACT_LANCELAUNCHER_RUN_ALL:
 				EXECUTING_LAUNCH = TRUE;
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0);  //param en centaine de ms, data[1] en sec
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_lancelauncher, &LANCE_LAUNCHER_run_command, 0,TRUE);  //param en centaine de ms, data[1] en sec
 				break;
 
 			case ACT_LANCELAUNCHER_STOP:
