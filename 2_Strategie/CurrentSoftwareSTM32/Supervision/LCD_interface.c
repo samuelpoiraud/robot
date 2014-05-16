@@ -26,6 +26,7 @@
 #include "stdarg.h"
 #include "config_use.h"
 #include "../brain.h"
+#include "Buzzer.h"
 
 #define LINE_NUMBER (4)
 	volatile bool_e flag_bp_set 	= FALSE;
@@ -34,6 +35,7 @@
 	volatile bool_e flag_bp_down 	= FALSE;
 	volatile bool_e ask_for_menu_user = FALSE;
 	volatile bool_e can_msg_updated = FALSE;
+	static bool_e reset_config = FALSE;
 
 	static void LCD_menu_infos(bool_e init);
 	static void LCD_menu_strategy(bool_e init);
@@ -246,8 +248,10 @@ void LCD_Update(void){
 			break;
 	}
 
-	entrance = (previous_menu != menu)? TRUE : FALSE;
+	entrance = (previous_menu != menu || reset_config)? TRUE : FALSE;
 	previous_menu = menu;
+	if(reset_config)
+		reset_config = FALSE;
 
 	//Affichage des menus et actions boutons.
 	//Chaque menu est responsable de son raffraichissement raisonnable, et de la mise à jour des leds.
@@ -299,7 +303,7 @@ static void LCD_menu_infos(bool_e init)
 {
 	if(init)
 	{
-		IHM_LEDS(TRUE, FALSE, FALSE, FALSE);	//Seul le bouton SET est actif.
+		IHM_LEDS(TRUE, FALSE, FALSE, TRUE);
 		cursor = CURSOR_OFF;
 	}
 
@@ -317,8 +321,14 @@ static void LCD_menu_infos(bool_e init)
 		free_msg_updated = FALSE;
 		display_debug_msg(3);
 	}
-}
 
+	if(flag_bp_ok){
+		BUZZER_play(80, DEFAULT_NOTE, 2);
+		reset_config = TRUE;
+		cursor = CURSOR_SHOW; // le cursor est visible après un reset
+		LCD_init();
+	}
+}
 
 static void LCD_menu_selftest(bool_e init)
 {
