@@ -50,5 +50,8 @@
 	bool_e SELFTEST_is_over(void);
 	Uint8 SELFTEST_get_errors_number(void);
 
+	bool_e get_warning_bat();
+	void clean_warning_bat();
+
 
 #endif
