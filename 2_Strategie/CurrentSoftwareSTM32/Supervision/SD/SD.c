@@ -505,4 +505,8 @@ void SD_process_1ms(void)
 	}
 }
 
+Uint16 SD_get_match_id(){
+	return match_id;
+}
+
 

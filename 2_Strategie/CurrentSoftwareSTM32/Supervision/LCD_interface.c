@@ -562,7 +562,10 @@ static void LCD_menu_user(bool_e init)
 		for(i=1;i<LINE_NUMBER;i++)
 			sprintf_line(i, free_msg[i]);
 	}
-
+	if(get_warning_bat())
+		IHM_LEDS(TRUE, FALSE, FALSE, TRUE);
+	if(flag_bp_ok)
+		clean_warning_bat();
 }
 
 static void LCD_menu_strategy(bool_e init)

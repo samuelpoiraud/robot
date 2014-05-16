@@ -23,6 +23,7 @@
 #include "../QS/QS_can_over_xbee.h"
 #include "../elements.h"
 #include "SD/Libraries/fat_sd/ff.h"
+#include "SD/SD.h"
 #include "RTC.h"
 #include "Buzzer.h"
 #include "LCD_interface.h"
@@ -55,6 +56,7 @@ volatile bool_e selftest_is_over = FALSE;
 volatile SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
 volatile Uint8 errors_index = 0;
 volatile Uint8 t500ms = 0;	//Minuteur [500ms]
+static bool_e warning_bat = FALSE;
 
 
 error_e SELFTEST_strategy(bool_e reset);
@@ -775,10 +777,12 @@ void SELFTEST_check_alim(){
 
 		if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW){
 			BUZZER_play(40, DEFAULT_NOTE, 10);
-			LCD_printf(3, TRUE, TRUE, "CHANGER BAT:%d", global.env.alim_value);
+			LCD_printf(3, TRUE, TRUE, "CHANGE BAT : %d", global.env.alim_value);
+			warning_bat = TRUE;
 		}
-		else
-			LCD_printf(3, FALSE, FALSE, "VBAT : %d", global.env.alim_value);
+
+		if(!warning_bat)
+			LCD_printf(3, FALSE, FALSE, "VBAT : %d  N°%d", global.env.alim_value, SD_get_match_id());
 
 		count = 0;
 	}
@@ -896,4 +900,12 @@ bool_e SELFTEST_is_over(void)
 Uint8 SELFTEST_get_errors_number(void)
 {
 	return errors_index;
+}
+
+bool_e get_warning_bat(){
+	return warning_bat;
+}
+
+void clean_warning_bat(){
+	warning_bat = FALSE;
 }
