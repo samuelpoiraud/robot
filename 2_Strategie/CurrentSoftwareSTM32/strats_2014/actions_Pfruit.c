@@ -826,24 +826,22 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case OPEN_FRUIT_VERIN :{
-			static enum state_e state1, state2;
+			static enum state_e state1, state2 = OPEN_FRUIT_VERIN;
 
 			if(entrance){
 				state1 = OPEN_FRUIT_VERIN;
 
-				if(tree == CHOICE_TREE_2 && global.env.color == RED && !global.env.guy_do_triangle_start)
+				if(tree == CHOICE_TREE_2 && global.env.color == RED && !global.env.guy_do_triangle_start && state2 == OPEN_FRUIT_VERIN)// Pour effectuer seulement une fois cette action
 					state2 = OPEN_FRUIT_VERIN;
 				else
 					state2 = POS_FIN;
 			}
 			if(state1 == OPEN_FRUIT_VERIN)
 				state1 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, POS_FIN, POS_FIN);
-			if(state2 == OPEN_FRUIT_VERIN)
-				state2 = ACT_arm_move(ACT_ARM_POS_TAKE_ON_ROAD, 0, 0, OPEN_FRUIT_VERIN,POS_FIN, ERROR);
+			if(state2 == OPEN_FRUIT_VERIN) // Effectue quand la ramasse des fruits si le bras n'a pas pu se mettre correctement en position
+				state2 = ACT_arm_move(ACT_ARM_POS_TAKE_ON_ROAD, 0, 0, OPEN_FRUIT_VERIN,POS_FIN, POS_FIN);
 
-			if((state1 == ERROR && state2 != OPEN_FRUIT_VERIN) || (state1 != OPEN_FRUIT_VERIN && state2 == ERROR))
-				state = ERROR;
-			else if(state1 != OPEN_FRUIT_VERIN && state2 != OPEN_FRUIT_VERIN)
+			if(state1 == ERROR || state2 == ERROR)
 				state = ERROR;
 			else if(state1 == POS_FIN && state2 == POS_FIN)
 				state = POS_FIN;
@@ -982,24 +980,22 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			break;
 
 		case OPEN_FRUIT_VERIN :{
-				static enum state_e state1, state2;
+				static enum state_e state1, state2 = OPEN_FRUIT_VERIN;
 
 				if(entrance){
 					state1 = OPEN_FRUIT_VERIN;
 
-					if(tree == CHOICE_TREE_1 && global.env.color != RED && !global.env.guy_do_triangle_start)
+					if(tree == CHOICE_TREE_1 && global.env.color != RED && !global.env.guy_do_triangle_start && state2 == OPEN_FRUIT_VERIN)//Pour effectuer seulement un efois cette action
 						state2 = OPEN_FRUIT_VERIN;
 					else
 						state2 = POS_FIN;
 				}
 				if(state1 == OPEN_FRUIT_VERIN)
 					state1 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, POS_FIN, POS_FIN);
-				if(state2 == OPEN_FRUIT_VERIN)
-					state2 = ACT_arm_move(ACT_ARM_POS_TAKE_ON_ROAD, 0, 0, OPEN_FRUIT_VERIN,POS_FIN, ERROR);
+				if(state2 == OPEN_FRUIT_VERIN) // Idem, effectue quand même l'action de prendre les fruits si bras pas sortie
+					state2 = ACT_arm_move(ACT_ARM_POS_TAKE_ON_ROAD, 0, 0, OPEN_FRUIT_VERIN,POS_FIN, POS_FIN);
 
-				if((state1 == ERROR && state2 != OPEN_FRUIT_VERIN) || (state1 != OPEN_FRUIT_VERIN && state2 == ERROR))
-					state = ERROR;
-				else if(state1 != OPEN_FRUIT_VERIN && state2 != OPEN_FRUIT_VERIN)
+				if(state1 == ERROR ||  state2 == ERROR)
 					state = ERROR;
 				else if(state1 == POS_FIN && state2 == POS_FIN)
 					state = POS_FIN;
