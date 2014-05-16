@@ -882,7 +882,7 @@ error_e scan_and_back(pos_scan_e scan){
 			break;
 
 		case MOVE_DROP_TRIANGLE:
-			state = try_going(pos_scan[scan].scan.x,pos_scan[scan].scan.y, MOVE_DROP_TRIANGLE, DROP_TRIANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_going(pos_scan[scan].scan.x,COLOR_Y(pos_scan[scan].scan.y), MOVE_DROP_TRIANGLE, DROP_TRIANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case DROP_TRIANGLE:
@@ -918,7 +918,7 @@ error_e scan_and_back(pos_scan_e scan){
 			break;
 
 		case GET_OUT:
-			state = try_going(pos_scan[scan].get_out.x,pos_scan[scan].get_out.y, GET_OUT, (last_state != ERROR)? DONE:ERROR, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(pos_scan[scan].get_out.x,COLOR_Y(pos_scan[scan].get_out.y), GET_OUT, (last_state != ERROR)? DONE:ERROR, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case DONE:
