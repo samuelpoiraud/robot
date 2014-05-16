@@ -177,7 +177,7 @@ void BUTTON_verbose(void)
 		if(QS_WHO_AM_I_get() == BIG_ROBOT){
 			if(down & ((Uint32)(1) << 5	))	debug_printf("SW saved disabled\n");
 		}else{
-			if(down & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 (our torch) enabled\n");
+			if(down & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 (our torch) disabled\n");
 		}
 		if(down & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 removed\n");
 		if(down & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 removed\n");
