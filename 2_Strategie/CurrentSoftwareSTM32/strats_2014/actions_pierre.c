@@ -1206,7 +1206,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 				if(mammouth == RED)		//3 points, sens rouge vers jaune, pour le mammouth rouge
 				{
 					if(mammouth == global.env.color)
-						posShoot = 640 - OFFSET_BALL_LAUNCHER;
+						posShoot = 690 - OFFSET_BALL_LAUNCHER;
 					else
 						posShoot = 740 - OFFSET_BALL_LAUNCHER;
 
@@ -1265,9 +1265,9 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 				else					//3 points, sens jaune vers rouge, pour le mammouth jaune
 				{
 					if(mammouth == global.env.color)
-						posShoot = 2300 + OFFSET_BALL_LAUNCHER;
+						posShoot = 2280 + OFFSET_BALL_LAUNCHER;
 					else
-						posShoot = 2300 + OFFSET_BALL_LAUNCHER;
+						posShoot = 2280 + OFFSET_BALL_LAUNCHER;
 
 					zone_access_posShoot_x1 = 300;
 					zone_access_posShoot_x2 = 650;
