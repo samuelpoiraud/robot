@@ -20,6 +20,7 @@
 #include "../Supervision/SD/SD.h"
 #include "../QS/QS_watchdog.h"
 
+
 #define LARGEUR_LABIUM	200
 #define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+122)
 #define ELOIGNEMENT_POSE_BAC_FRUIT  500
@@ -758,11 +759,11 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
-				point[0] = (displacement_t){{1000+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		VITESSE_FRUIT};
-				point[1] = (displacement_t){{1500+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		VITESSE_FRUIT};
+				point[0] = (displacement_t){{850+offset_recalage.x,						ELOIGNEMENT_ARBRE+offset_recalage.y},		VITESSE_FRUIT};
+				point[1] = (displacement_t){{1600+offset_recalage.x,					ELOIGNEMENT_ARBRE+offset_recalage.y},		VITESSE_FRUIT};
 			}else{
-				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	450+offset_recalage.y},						VITESSE_FRUIT};
-				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	900+offset_recalage.y},						VITESSE_FRUIT};
+				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	350+offset_recalage.y},						VITESSE_FRUIT};
+				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1000+offset_recalage.y},						VITESSE_FRUIT};
 			}
 
 
@@ -778,6 +779,8 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
 			escape_point[2] = (GEOMETRY_point_t) {1250, 750};
+
+
 
 			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = FORWARD;
@@ -803,21 +806,52 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
-		case POS_DEPART:
+		case POS_DEPART:{
+			// Petit gain de temps de choisir le sens de la zone depart
+			static way_e sens_Start;
+
+			if(entrance){
+				if(tree == CHOICE_TREE_1 && global.env.color == RED && global.env.pos.x>900)
+					sens_Start = BACKWARD;
+				else
+					sens_Start = sensRobot;
+			}
+
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
-			break;
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,courbe[0].speed,sens_Start,NO_DODGE_AND_WAIT);
+			}break;
 
 		case ORIENTATION:
-					state = try_go_angle((tree == CHOICE_TREE_1)?0:PI4096/2,ORIENTATION,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,FAST);
+			state = try_go_angle((tree == CHOICE_TREE_1)?0:PI4096/2,ORIENTATION,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,FAST);
 			break;
 
-		case OPEN_FRUIT_VERIN :
-			state = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, POS_FIN, POS_FIN);
-			break;
+		case OPEN_FRUIT_VERIN :{
+			static enum state_e state1, state2;
+
+			if(entrance){
+				state1 = OPEN_FRUIT_VERIN;
+
+				if(tree == CHOICE_TREE_2 && global.env.color == RED && !global.env.guy_do_triangle_start)
+					state2 = OPEN_FRUIT_VERIN;
+				else
+					state2 = POS_FIN;
+			}
+			if(state1 == OPEN_FRUIT_VERIN)
+				state1 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, POS_FIN, POS_FIN);
+			if(state2 == OPEN_FRUIT_VERIN)
+				state2 = ACT_arm_move(ACT_ARM_POS_TAKE_ON_ROAD, 0, 0, OPEN_FRUIT_VERIN,POS_FIN, ERROR);
+
+			if((state1 == ERROR && state2 != OPEN_FRUIT_VERIN) || (state1 != OPEN_FRUIT_VERIN && state2 == ERROR))
+				state = ERROR;
+			else if(state1 != OPEN_FRUIT_VERIN && state2 != OPEN_FRUIT_VERIN)
+				state = ERROR;
+			else if(state1 == POS_FIN && state2 == POS_FIN)
+				state = POS_FIN;
+
+		}break;
 
 		case POS_FIN:
-			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :
@@ -886,11 +920,11 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
-				point[0] = (displacement_t){{1000+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
-				point[1] = (displacement_t){{1500+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
+				point[0] = (displacement_t){{950+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
+				point[1] = (displacement_t){{1550+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
 			}else{
-				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2550+offset_recalage.y},					VITESSE_FRUIT};
-				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1950+offset_recalage.y},					VITESSE_FRUIT};
+				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2600+offset_recalage.y},					VITESSE_FRUIT};
+				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1900+offset_recalage.y},					VITESSE_FRUIT};
 			}
 
 
@@ -928,18 +962,49 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 					GET_IN, POS_DEPART, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			break;
 
-		case POS_DEPART:
+		case POS_DEPART:{
+			// Petit gain de temps de choisir le sens de la zone depart
+			static way_e sens_Start;
+
+			if(entrance){
+				if(tree == CHOICE_TREE_2 && global.env.color != RED && global.env.pos.y > 1950)
+					sens_Start = BACKWARD;
+				else
+					sens_Start = sensRobot;
+			}
+
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,courbe[0].speed,sensRobot,NO_DODGE_AND_WAIT);
-			break;
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,courbe[0].speed,sens_Start,NO_DODGE_AND_WAIT);
+			}break;
 
 		case ORIENTATION:
 			state = try_go_angle((tree == CHOICE_TREE_1)?PI4096:PI4096/2,ORIENTATION,OPEN_FRUIT_VERIN,RETURN_NOT_HANDLED,FAST);
 			break;
 
-		case OPEN_FRUIT_VERIN :
-			state = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, POS_FIN, POS_FIN);
-			break;
+		case OPEN_FRUIT_VERIN :{
+				static enum state_e state1, state2;
+
+				if(entrance){
+					state1 = OPEN_FRUIT_VERIN;
+
+					if(tree == CHOICE_TREE_1 && global.env.color != RED && !global.env.guy_do_triangle_start)
+						state2 = OPEN_FRUIT_VERIN;
+					else
+						state2 = POS_FIN;
+				}
+				if(state1 == OPEN_FRUIT_VERIN)
+					state1 = ELEMENT_do_and_wait_end_fruit_verin_order(FRUIT_VERIN_OPEN, OPEN_FRUIT_VERIN, POS_FIN, POS_FIN);
+				if(state2 == OPEN_FRUIT_VERIN)
+					state2 = ACT_arm_move(ACT_ARM_POS_TAKE_ON_ROAD, 0, 0, OPEN_FRUIT_VERIN,POS_FIN, ERROR);
+
+				if((state1 == ERROR && state2 != OPEN_FRUIT_VERIN) || (state1 != OPEN_FRUIT_VERIN && state2 == ERROR))
+					state = ERROR;
+				else if(state1 != OPEN_FRUIT_VERIN && state2 != OPEN_FRUIT_VERIN)
+					state = ERROR;
+				else if(state1 == POS_FIN && state2 == POS_FIN)
+					state = POS_FIN;
+
+			}break;
 
 		case POS_FIN:
 			state = try_going_until_break(courbe[NBPOINT-1].point.x,courbe[NBPOINT-1].point.y,POS_FIN,DONE,ERROR,courbe[NBPOINT-1].speed,sensRobot,NO_DODGE_AND_WAIT);

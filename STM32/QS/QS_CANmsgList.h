@@ -143,6 +143,7 @@
 
 	#define XBEE_TORCH_NEW_POS				0x509	// Envoie la nouvelle position de la torche a l autre robot si l'un des deux a déplacée une torche
 	#define XBEE_GUY_TOOK_OUR_TORCH			0x50A	// Informe Pierre que Guy a décidé de prendre notre torche
+	#define XBEE_GUY_HAVE_DONE_TRIANGLE		0x50B	// Informe Pierre que Guy a décidé de prendre notre torche
 	#define XBEE_ZONE_COMMAND				0x5AA	//Effectue une demande lié au zones (un SID pour toute la gestion des zones comme ça)
 	//Commande dans data[0]:
 		#define XBEE_ZONE_TRY_LOCK       0	//Dans data[1]: la zone, type: map_zone_e. La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT

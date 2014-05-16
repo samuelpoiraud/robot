@@ -89,7 +89,6 @@ error_e sub_action_initiale(){
 		WAIT_TELL_GUY,
 		GET_OUT,
 		LANCE_LAUNCHER,
-		GOTO_TREE_2,
 		GOTO_PUSH_TRIANGLE,
 		PUSH_TRIANGLE,
 		DO_TREE_1,
@@ -128,10 +127,7 @@ error_e sub_action_initiale(){
 	if(global.env.reach_point_get_out_init)
 		guy_get_out_init = TRUE;
 
-
-	// Si guy a fait tomber les triangles de la zone de départ ou pas
-	static bool_e guy_do_triangle = FALSE;
-
+	static bool_e guy_do_triangle = FALSE; // Si guy a fait tomber les triangles de la zone de départ ou pas
 	if(global.env.guy_do_triangle_start)
 		guy_do_triangle = TRUE;
 

@@ -90,11 +90,12 @@ void ENV_init(void)
 	global.env.asser.is_in_rotation = FALSE;
 	global.env.asser.current_status = NO_ERROR;
 	global.env.alim = FALSE;
+	global.env.guy_do_triangle_start = FALSE;
 	global.env.alim_value = 0;
 	global.env.destination = (GEOMETRY_point_t){0,0};
 	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
 		global.env.propulsion_coefs[i] = 0;
-		
+
 	FIX_BEACON_init();
 }
 
@@ -385,9 +386,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case CARTE_P_ROBOT_CALIBRE:
 			global.env.asser.calibrated = TRUE;
-			
+
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
-			if(QS_WHO_AM_I_get() == GUY)		
+			if(QS_WHO_AM_I_get() == GUY)
 				ASSER_set_correctors(FALSE, FALSE);
 			break;
 		case DEBUG_PROPULSION_COEF_IS:
@@ -501,6 +502,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case XBEE_GUY_TOOK_OUR_TORCH:
 			global.env.guy_took_our_torch = TRUE;
+			break;
+		case XBEE_GUY_HAVE_DONE_TRIANGLE:
+			global.env.guy_do_triangle_start = TRUE;
 			break;
 		case XBEE_REACH_POINT_GET_OUT_INIT:
 			global.env.reach_point_get_out_init = TRUE;
