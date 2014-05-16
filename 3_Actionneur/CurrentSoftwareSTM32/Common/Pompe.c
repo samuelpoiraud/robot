@@ -81,7 +81,7 @@ bool_e POMPE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_POMPE_NORMAL:
 			case ACT_POMPE_REVERSE:
 			case ACT_POMPE_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Pompe, &POMPE_run_command, msg->data[1]);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Pompe, &POMPE_run_command, msg->data[1],TRUE);
 				break;
 
 			default:

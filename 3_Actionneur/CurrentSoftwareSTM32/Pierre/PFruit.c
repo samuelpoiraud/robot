@@ -140,7 +140,7 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_FRUIT_MOUTH_CLOSE:
 			case ACT_FRUIT_MOUTH_OPEN:
 				have_send_answer = TRUE;
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_Fruit, &FRUIT_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_Fruit, &FRUIT_run_command, 0,TRUE);
 				break;
 
 
@@ -149,7 +149,7 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 
 			case ACT_FRUIT_LABIUM_CLOSE:
 			case ACT_FRUIT_LABIUM_OPEN:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Fruit, &FRUIT_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Fruit, &FRUIT_run_command, 0,TRUE);
 				break;
 
 

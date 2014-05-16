@@ -314,7 +314,7 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 					get_data_pos_triangle(msg);
 
 				if(arm_states_transitions[old_state][msg->data[1]] == 1)
-					ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
+					ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1],TRUE);
 				else if(find_state_path(old_state, msg->data[1])){
 					queue_id_t queueId = QUEUE_create();
 					assert(queueId != QUEUE_CREATE_FAILED);
@@ -336,11 +336,11 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			case ACT_ARM_UPDOWN_GOTO :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1],TRUE);
 				break;
 
 			case ACT_ARM_UPDOWN_RUSH_IN_FLOOR :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1]);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1],TRUE);
 				break;
 
 			case ACT_ARM_STOP:

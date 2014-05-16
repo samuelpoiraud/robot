@@ -30,12 +30,18 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 
 //Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
 //Cette fonction est appelée par les fonctions de traitement des messages CAN de chaque actionneur.
-void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Uint16 param) {
+void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Uint16 param, bool_e sendResult) {
 	queue_id_t queueId = QUEUE_create();
 	assert(queueId != QUEUE_CREATE_FAILED);
 	if(queueId != QUEUE_CREATE_FAILED) {	//Si on est pas en verbose_mode, l'assert sera ignoré et la suite risque de vraiment planter ...
 		QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, act_id);
-		QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data[0], param, &ACTQ_finish_SendResult}, act_id);
+
+		// Si nous voulons, nous envoyer des messages nous-même sans avertir les autres cartes
+		if(sendResult == TRUE)
+			QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data[0], param, &ACTQ_finish_SendResult}, act_id);
+		else
+			QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data[0], param, &ACTQ_finish_SendNothing}, act_id);
+
 		QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, act_id);
 	} else {	//on indique qu'on a pas géré la commande
 		ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);

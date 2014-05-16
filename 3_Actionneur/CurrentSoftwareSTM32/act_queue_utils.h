@@ -30,7 +30,7 @@
 	//Cette fonction est appelée par les fonctions de traitement des messages CAN de chaque actionneur.
 	//act_function_ptr est une des fonctions ACTQ_finish_* ci-dessous dans ce fichier.
 	//Quand une action est terminée, il faut appeler QUEUE_next.
-	void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Uint16 param);
+	void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Uint16 param, bool_e sendResult);
 
 	//Gestion des états des actionneurs (ax12 / DCMotor)
 	//Retourne TRUE si l'action en cours n'est pas terminée, sinon FALSE

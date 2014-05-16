@@ -85,7 +85,7 @@ bool_e FILET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_FILET_IDLE :
 			case ACT_FILET_LAUNCHED :
 			case ACT_FILET_STOP :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Filet, &FILET_run_command, 0);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Filet, &FILET_run_command, 0,TRUE);
 				break;
 
 			default:
