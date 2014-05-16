@@ -37,7 +37,7 @@
 #define MAX_ERRORS_NUMBER 			200
 
 #define THRESHOLD_BATTERY_OFF	15000	//[mV] En dessous cette valeur, on considère que la puissance est absente
-#define THRESHOLD_BATTERY_LOW	20000	//[mV] Réglage du seuil de batterie faible
+#define THRESHOLD_BATTERY_LOW	21300	//[mV] Réglage du seuil de batterie faible
 #define NB_AVERAGED_VALUE		20
 #define REFRESH_DISPLAY_BAT		4000
 
