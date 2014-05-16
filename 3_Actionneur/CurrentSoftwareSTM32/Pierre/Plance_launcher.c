@@ -154,8 +154,8 @@ void LANCE_LAUNCHER_run_command(queue_id_t queueId, bool_e init) {
 
 					case ACT_LANCELAUNCHER_RUN_ALL:
 						if(sens == TRUE){
-							orderShootLauncher[5] = 2;
-							orderShootLauncher[4] = 1;
+							orderShootLauncher[5] = 1;
+							orderShootLauncher[4] = 2;
 							orderShootLauncher[3] = 3;
 							orderShootLauncher[2] = 4;
 							orderShootLauncher[1] = 5;
@@ -222,7 +222,7 @@ static bool_e start_next_launcher() {
 			break;
 		case 2 :
 			LANCELAUNCHER_PIN_2 = 1;
-			stateLauncher[1] = 20;
+			stateLauncher[1] = 25;
 			break;
 		case 3 :
 			LANCELAUNCHER_PIN_3 = 1;

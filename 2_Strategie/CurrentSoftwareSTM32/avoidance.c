@@ -760,7 +760,7 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traje
 			// A : Point adversaire
 			// L : Largeur du robot maximum * 2
 			if(verbose)
-				debug_printf("Nous x:%d y:%d / ad x:%d y:%d \n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y);
+				debug_printf("Nous x:%d y:%d / ad x:%d y:%d / destination x:%d y:%d /\n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y,x,y);
 
 			if(absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC){
 				// /NC./NA ¤ [0,NC*d]
