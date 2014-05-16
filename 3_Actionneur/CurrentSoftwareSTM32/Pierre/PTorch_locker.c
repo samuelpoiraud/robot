@@ -29,6 +29,10 @@ static void TORCH_LOCKER_command_run(queue_id_t queueId);
 static void TORCH_LOCKER_initAX12();
 static void TORCH_LOCKER_command_init(queue_id_t queueId);
 
+
+static Uint16 ax12_1_goalPosition = 0xFFFF;
+static Uint16 ax12_2_goalPosition = 0xFFFF;
+
 void TORCH_LOCKER_init() {
 	static bool_e initialized = FALSE;
 
@@ -130,11 +134,6 @@ void TORCH_LOCKER_run_command(queue_id_t queueId, bool_e init) {
 //Initialise une commande
 static void TORCH_LOCKER_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	Uint16 ax12_1_goalPosition = 0xFFFF;//&QUEUE_get_arg(queueId)->param;
-	Uint16 ax12_2_goalPosition = 0xFFFF;//&QUEUE_get_arg(queueId)->param;
-
-//	ax12_1_goalPosition = 0xFFFF;
-//	ax12_2_goalPosition = 0xFFFF;
 
 	switch(command) {
 		case ACT_TORCH_LOCKER_LOCK : ax12_1_goalPosition = TORCH_LOCKER_AX12_1_LOCK_POS; ax12_2_goalPosition = TORCH_LOCKER_AX12_2_LOCK_POS; break;
@@ -184,9 +183,17 @@ static void TORCH_LOCKER_command_init(queue_id_t queueId) {
 static void TORCH_LOCKER_command_run(queue_id_t queueId) {
 	Uint8 result1, result2, errorCode1, errorCode2;
 	Uint16 line1, line2;
+	static bool_e check_1 = FALSE, check_2 = FALSE;
 
-	if(ACTQ_check_status_ax12(queueId, TORCH_LOCKER_AX12_1_ID, QUEUE_get_arg(queueId)->param,TORCH_LOCKER_AX12_1_ASSER_POS_EPSILON, TORCH_LOCKER_AX12_1_ASSER_TIMEOUT, TORCH_LOCKER_AX12_1_ASSER_POS_LARGE_EPSILON, &result1, &errorCode1, &line1)
-			&& ACTQ_check_status_ax12(queueId, TORCH_LOCKER_AX12_2_ID, QUEUE_get_arg(queueId)->param,TORCH_LOCKER_AX12_2_ASSER_POS_EPSILON, TORCH_LOCKER_AX12_2_ASSER_TIMEOUT, TORCH_LOCKER_AX12_2_ASSER_POS_LARGE_EPSILON, &result2, &errorCode2, &line2)){
+	if(!check_1)
+		check_1 = ACTQ_check_status_ax12(queueId, TORCH_LOCKER_AX12_1_ID, ax12_1_goalPosition, TORCH_LOCKER_AX12_1_ASSER_POS_EPSILON, TORCH_LOCKER_AX12_1_ASSER_TIMEOUT, TORCH_LOCKER_AX12_1_ASSER_POS_LARGE_EPSILON, &result1, &errorCode1, &line1);
+
+	if(!check_2)
+		check_2 = ACTQ_check_status_ax12(queueId, TORCH_LOCKER_AX12_2_ID, ax12_2_goalPosition,TORCH_LOCKER_AX12_2_ASSER_POS_EPSILON, TORCH_LOCKER_AX12_2_ASSER_TIMEOUT, TORCH_LOCKER_AX12_2_ASSER_POS_LARGE_EPSILON, &result2, &errorCode2, &line2);
+
+	if(check_1 && check_2){
+		check_1 = FALSE;
+		check_2 = FALSE;
 		if(result1 != ACT_RESULT_DONE)
 			QUEUE_next(queueId, ACT_TORCH_LOCKER, result1, errorCode1, line1);
 		else
