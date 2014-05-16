@@ -41,6 +41,7 @@ error_e recalage_begin_zone(color_e begin_zone_color);
 error_e protected_fires(protected_fires_e fires);
 
 error_e sub_action_initiale();
+void strat_homologation();
 
 void strat_test_filet();
 void strat_test_small_arm();
