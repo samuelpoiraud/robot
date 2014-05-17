@@ -5,11 +5,11 @@
  * \version 20140123
  * \date 23 janvier 2014
  *
- * Fichier d' implémentation des fonctions d'initialisation et de routine du LCD_TOUCH
+ * Fichier d'implémentation des fonctions d'initialisation et de routine du LCD_TOUCH
  */
 #include "LCD.h"
 
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 #include "stm32f4_discovery_lcd.h"
 #include "image.h"
 #include "LCD_Touch_Calibration.h"
@@ -19,7 +19,7 @@
 #include "../odometry.h"
 #include "../secretary.h"
 #include "../QS/QS_CANmsgList.h"
-
+#include "../QS/QS_who_am_i.h"
 #ifndef LED_GREEN
 	#define LED_GREEN GPIOD->ODR12
 #endif
@@ -30,17 +30,12 @@
  */
 #define POS_ROBOT(num) ((robots[num].enable)?robots[num].y:0) , ((robots[num].enable)?robots[num].x:0)
 
-/**
- * \def robots_updated
- * \brief Macro qui indique si au moins un des robot a été mis à jour
- */
-#define robots_updated (robots[0].updated || robots[1].updated || robots[2].updated || robots[3].updated)	// au moins l'un des robots a été update
 
 /**
  * \def adversary_color
  * \brief Renvoie la couleur de l'adversaire (l'inverse de la notre)
  */
-#define adversary_color ((robots[US].color == Rouge)?Jaune:Rouge) // couleur de l'équipe adverse
+#define adversary_color ((robots[FRIEND_1].color == Rouge)?Jaune:Rouge) // couleur de l'équipe adverse
 
 
 	display_robot_t robots[ROBOTS_NUMBER];				/**< Définition des robots présents: le nombre dépend du sujet de la coupe */
@@ -114,11 +109,18 @@ void LCD_pos_init(void){
 	robots[ADVERSARY_1].friend = FALSE;
 	robots[ADVERSARY_2].friend = FALSE;
 
-	robots[FRIEND_1].enable = TRUE;
-	robots[FRIEND_2].enable = FALSE;
+	if(QS_WHO_AM_I_get()==BIG_ROBOT)
+	{
+		robots[FRIEND_1].enable = TRUE;
+		robots[FRIEND_2].enable = FALSE;
+	}
+	else
+	{
+		robots[FRIEND_1].enable = FALSE;
+		robots[FRIEND_2].enable = TRUE;
+	}
 	robots[ADVERSARY_1].enable = FALSE;
 	robots[ADVERSARY_2].enable = FALSE;
-
 }
 
 /**
@@ -187,6 +189,25 @@ void LCD_send_message(void)
 #endif
 			break;
 		case FRIEND_2:
+			//go pos
+			data[0] = 0x20;	//Multipoint, MAINTENANT.
+			data[1] = HIGHINT(robots[FRIEND_2].x*10);
+			data[2] = LOWINT(robots[FRIEND_2].x*10);
+			data[3] = HIGHINT(robots[FRIEND_2].y*10);
+			data[4] = LOWINT(robots[FRIEND_2].y*10);
+			data[5] = 0x01; 	//slow
+			data[6] = 0x00;		//Avant ou arrière
+			data[7] = 0;
+#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+			msg.sid = ASSER_GO_POSITION;
+			msg.size = 0x8;
+			for(i=0;i<msg.size;i++){
+				msg.data[i] = data[i];
+			}
+			SECRETARY_process_CANmsg(&msg);
+#else
+			SECRETARY_send_canmsg(ASSER_GO_POSITION, data, 8);
+#endif
 		case ADVERSARY_1:
 		case ADVERSARY_2:
 			break;
@@ -204,44 +225,47 @@ void LCD_send_message(void)
  */
 void LCD_process_main(void){
 	Uint8 i;
+	static robots_e me;
 
 	if(t_10ms>=10)
 	{	//Toutes les 100ms
+		me = (QS_WHO_AM_I_get()==BIG_ROBOT)?FRIEND_1:FRIEND_2;
 
 		t_10ms=0; // reinit compteur
 
 		current_color = (ODOMETRY_get_color()==RED)?Rouge : Jaune; // Récupération de la couleur
 
-		if( 	(robots[US].color != current_color)		||
-				(robots[US].x != global.position.x/10) 	||
-				(robots[US].y != global.position.y/10) 	||
-				(robots[US].teta != global.position.teta) )
+		if( 	(robots[me].color != current_color)		||
+				(robots[me].x != global.position.x/10) 	||
+				(robots[me].y != global.position.y/10) 	||
+				(robots[me].teta != global.position.teta) )
 		{
-			robots[US].color = current_color;
+			robots[FRIEND_1].color = current_color;
 			robots[FRIEND_2].color = current_color;
 			robots[ADVERSARY_1].color = adversary_color;
 			robots[ADVERSARY_2].color = adversary_color;
 
-			robots[US].x = global.position.x/10; //Calcul de la position pour affichage ecran
-			robots[US].y = global.position.y/10;
-			robots[US].teta = global.position.teta;
-			robots[US].updated = TRUE;			// Déclarer changement pour l'affichage
+			robots[me].x = global.position.x/10; //Calcul de la position pour affichage ecran
+			robots[me].y = global.position.y/10;
+			robots[me].teta = global.position.teta;
+			robots[me].updated = TRUE;			// Déclarer changement pour l'affichage
 		}
 
 		Calibration_Test_Dispose(&robots[robot_selected] , &robot_selected);
 
 		LCD_send_message();
 
-		if(robots_updated == TRUE){
+		if(robots[0].updated || robots[1].updated || robots[2].updated || robots[3].updated){
 			for(i=0; i<ROBOTS_NUMBER; i++){
 				if(robots[i].enable == TRUE){
 					delete_previous_robot(&robots[i]);	// Efface la position précédente du robot
 					display_robot(&robots[i]);			// Affiche le robot a sa nouvelle position
 				}
+				robots[i].updated = FALSE;
 			}
 
 
-			remplissage_info_position_v2(	robots[US].y,	robots[0].x,
+			remplissage_info_position_v2(	robots[FRIEND_1].y,	robots[FRIEND_1].x,
 										POS_ROBOT(FRIEND_2),
 										POS_ROBOT(ADVERSARY_1),
 										POS_ROBOT(ADVERSARY_2)); // MAJ des positions

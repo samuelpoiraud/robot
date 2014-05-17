@@ -79,7 +79,8 @@ void SECRETARY_process_main(void)
 				#ifdef LCD_TOUCH
 				if(	global.disable_virtual_perfect_robot == FALSE 				||	//Si le robot virtuel est actif, je laisse passer le message
 					receivedCanMsg_over_uart.sid == BROADCAST_POSITION_ROBOT 	||	//Sinon, je laisse passer les messages de position et de position adverse.
-					receivedCanMsg_over_uart.sid == STRAT_ADVERSARIES_POSITION
+					receivedCanMsg_over_uart.sid == STRAT_ADVERSARIES_POSITION	||
+					receivedCanMsg_over_uart.sid == BROADCAST_COULEUR
 					)
 				#endif
 					SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
@@ -594,7 +595,12 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case BROADCAST_COULEUR :
 			//Le type couleur est normalisé en QS...
 			ODOMETRY_set_color((color_e)(msg->data[0]));
-			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
+			//Propagation sur UART (pour un éventuel robot virtuel branché sur notre UART)
+			#ifdef CAN_SEND_OVER_UART
+				CANmsgToU1tx(msg);
+			#endif
+			if(global.disable_virtual_perfect_robot == FALSE)
+				SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
 
 		// Impose une position (uniquement pour les tests !!!)
