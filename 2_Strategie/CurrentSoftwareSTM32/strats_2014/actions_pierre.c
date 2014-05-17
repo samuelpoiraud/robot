@@ -1095,16 +1095,16 @@ error_e strat_file_fresco(Sint16 posY){
 		END_IMPOSSIBLE,
 		END_ERROR,
 		END_IMPOSSIBLE_ERROR,
-	//	GET_OUT_WITH_ERROR,
-	//	GET_OUT_WITH_ERROR_RED_NORTH,
-	//	GET_OUT_WITH_ERROR_RED_MIDDLE,
-	//	GET_OUT_WITH_ERROR_RED_SOUTH,
-	//	GET_OUT_WITH_ERROR_YELLOW_NORTH,
-	//	GET_OUT_WITH_ERROR_YELLOW_MIDDLE,
-	//	GET_OUT_WITH_ERROR_YELLOW_SOUTH,
+		GET_OUT_WITH_ERROR,
+		GET_OUT_WITH_ERROR_RED_NORTH,
+		GET_OUT_WITH_ERROR_RED_MIDDLE,
+		GET_OUT_WITH_ERROR_RED_SOUTH,
+		GET_OUT_WITH_ERROR_YELLOW_NORTH,
+		GET_OUT_WITH_ERROR_YELLOW_MIDDLE,
+		GET_OUT_WITH_ERROR_YELLOW_SOUTH,
 		DONE,
 		ERROR,
-	//	DONE_BUT_NOT_HANDLED
+		DONE_BUT_NOT_HANDLED
 	);
 	static enum state_e from;
 	static bool_e timeout=FALSE;
@@ -1170,7 +1170,7 @@ error_e strat_file_fresco(Sint16 posY){
 				state = END_ERROR;
 			break;
 
-	/*	case GET_OUT_WITH_ERROR :
+		case GET_OUT_WITH_ERROR :
 			//On recherche le point de sortie le plus proche.
 			if(global.env.pos.y < 1500)
 			{
@@ -1239,7 +1239,7 @@ error_e strat_file_fresco(Sint16 posY){
 				if(state != GET_OUT_WITH_ERROR_YELLOW_SOUTH)
 					from = GET_OUT_WITH_ERROR_YELLOW_SOUTH;
 				break;
-*/
+
 		case DONE:
 			state = IDLE;
 			return END_OK;
@@ -1249,11 +1249,11 @@ error_e strat_file_fresco(Sint16 posY){
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-/*		case DONE_BUT_NOT_HANDLED :
+		case DONE_BUT_NOT_HANDLED :
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
-*/
+
 		default:
 			break;
 	}
