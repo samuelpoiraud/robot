@@ -111,28 +111,23 @@ error_e sub_action_initiale(){
 		ERROR
 	);
 
-	displacement_t point[] = {{{(global.env.color == RED) ?750:620,(global.env.color == RED) ?1100:1670},	FAST}, // Point pos bonne prise de torche
-							  {{1000,COLOR_Y(1000)},FAST},
-							  {{1150,COLOR_Y(850)},FAST},
-							  {{(global.env.color == RED) ?750:1650,(global.env.color == RED) ?400:1900},FAST}, // Pos se mettre devant l'arbre
-							  {{(global.env.color == RED) ?1000:1350,(global.env.color == RED) ?700:1870},FAST}, // Pos si triangle pas tomber par guy
-							  {{(global.env.color == RED) ?1200:1400,(global.env.color == RED) ?600:2250},FAST}
-							 };
 
 	static enum state_e fail_state, success_state;
 
 	// Mettre a false si pas le cas
 	static bool_e guy_get_out_init = FALSE;
-
-	if(global.env.reach_point_get_out_init)
-		guy_get_out_init = TRUE;
+	static displacement_t point[6];
 
 	static bool_e guy_do_triangle = FALSE; // Si guy a fait tomber les triangles de la zone de départ ou pas
+
 	if(global.env.guy_do_triangle_start)
 		guy_do_triangle = TRUE;
 
 	if(global.env.guy_took_our_torch)		//Lorsque Guy décide de se diriger vers notre torche (et avant que Pierre ait pu finir son lancé, Guy envoie un message levant ce flag...)
 		i_must_deal_with_our_torch = FALSE;	//Si Guy a pris notre torche, on abandonne son éventuelle récupération prévue.
+
+	if(global.env.reach_point_get_out_init)
+			guy_get_out_init = TRUE;
 
 	switch(state){
 
@@ -158,6 +153,26 @@ error_e sub_action_initiale(){
 				i_do_torch_before_fresco = TRUE;
 			else
 				i_do_torch_before_fresco = FALSE;
+
+			if(global.env.color == RED)
+			{
+				point[0] =  (displacement_t){{750,1100},	FAST}; // Point pos bonne prise de torche
+				point[1] =  (displacement_t){{1000,1000},	FAST};
+				point[2] = 	(displacement_t){{1150,850},	FAST};
+				point[3] = 	(displacement_t){{750,400},		FAST}; // Pos se mettre devant l'arbre
+				point[4] = 	(displacement_t){{1000,700},	FAST}; // Pos si triangle pas tomber par guy
+				point[5] = 	(displacement_t){{1200,600},	FAST};
+			}
+			else
+			{
+				point[0] =  (displacement_t){{620,1670},	FAST}; // Point pos bonne prise de torche
+				point[1] =  (displacement_t){{1000,2000},	FAST};
+				point[2] = 	(displacement_t){{1150,2150},	FAST};
+				point[3] = 	(displacement_t){{1650,1900},	FAST}; // Pos se mettre devant l'arbre
+				point[4] = 	(displacement_t){{1350,1870},	FAST}; // Pos si triangle pas tomber par guy
+				point[5] = 	(displacement_t){{1400,2250},	FAST};
+			}
+
 
 			break;
 

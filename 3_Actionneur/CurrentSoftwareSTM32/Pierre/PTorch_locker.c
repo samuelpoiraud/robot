@@ -34,7 +34,7 @@ static void TORCH_LOCKER_command_init(queue_id_t queueId);
 static Uint16 ax12_1_goalPosition = 0xFFFF;
 static Uint16 ax12_2_goalPosition = 0xFFFF;
 static Uint8 last_command;
-static watchdog_id_t watchdog_PTorch;
+static watchdog_id_t watchdog_PTorch = 0xFF;
 
 void TORCH_LOCKER_init() {
 	static bool_e initialized = FALSE;
@@ -109,6 +109,7 @@ void PTORCH_process_main(){
 	if(!flag_watchDog) // Retourne si le flag n'est pas encore levé
 		return;
 
+	watchdog_PTorch = 0xFF;
 	flag_watchDog = FALSE;
 	init = FALSE;
 	CAN_msg_t msg;

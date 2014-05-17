@@ -90,7 +90,6 @@ void ENV_init(void)
 	global.env.asser.is_in_rotation = FALSE;
 	global.env.asser.current_status = NO_ERROR;
 	global.env.alim = FALSE;
-	global.env.guy_do_triangle_start = FALSE;
 	global.env.alim_value = 0;
 	global.env.destination = (GEOMETRY_point_t){0,0};
 	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
@@ -598,6 +597,7 @@ void ENV_clean (void)
 	global.env.reach_point_C1 = FALSE;
 	global.env.guy_took_our_torch = FALSE;
 	global.env.reach_point_get_out_init = FALSE;
+	global.env.guy_do_triangle_start = FALSE;
 	global.env.duration_trajectory_for_test_coefs = 0;
 	FIX_BEACON_clean();	//Doit être après le any_match !
 }
