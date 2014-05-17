@@ -17,10 +17,10 @@
 
 
 	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
-	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
-	#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
-	#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
-	#define LCD_TOUCH								//Active le LCD tactile
+	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
+	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+	//#define LCD_TOUCH								//Active le LCD tactile
 
 /*	MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
  * 	 1 - activez les 4 defines ci-dessus
