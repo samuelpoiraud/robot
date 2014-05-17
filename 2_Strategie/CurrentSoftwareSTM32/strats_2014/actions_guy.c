@@ -430,7 +430,10 @@ error_e goto_adversary_zone(void)
 			state = try_going_until_break(1350,COLOR_Y(800),SB2,success_state,SC12,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SC0:
-			state = try_going_until_break(500,COLOR_Y(1200),SC0,SW0,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			//NO WAIT : on file direct vers SC1 pour pas géner Pierre...
+			state = try_going_until_break(500,COLOR_Y(1200),SC0,SW0,SC1,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state == SC1)	//En cas d'échec, il faut absolument prévenir Pierre qu'on est arrêté !
+				send_message_to_pierre(XBEE_GUY_IS_BLOQUED_IN_NORTH);
 			break;
 		case SC1:
 			if(entrance)
@@ -446,7 +449,9 @@ error_e goto_adversary_zone(void)
 					fail_state = SC12;
 				}
 			}
-			state = try_going_until_break(750,COLOR_Y(1200),SC1,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(750,COLOR_Y(1200),SC1,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			if(state == fail_state && last_state == INIT)
+				send_message_to_pierre(XBEE_GUY_IS_BLOQUED_IN_NORTH);
 			break;
 		case SC12://Point intermédiaire en cas d'échec
 			if(entrance)
@@ -478,10 +483,10 @@ error_e goto_adversary_zone(void)
 					fail_state = SC12;
 				}
 			}
-			state = try_going_until_break(1400,COLOR_Y(1200),SC2,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1400,COLOR_Y(1200),SC2,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			break;
 		case SC3:
-			state = try_going_until_break(1750,COLOR_Y(1200),SC3,SW3,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1750,COLOR_Y(1200),SC3,SW3,SC2,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			break;
 		case SW0:
 			state = try_going_until_break(500,COLOR_Y(1800),SW0,DONE,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
@@ -689,6 +694,7 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 			SD_printf("Torch: start=[%d;%d] | torch=[%d;%d] | end=[%d;%d] | remotness=[%d;%d]\n",posStart.x, posStart.y, torch.x, torch.y, posEnd.x, posEnd.y, eloignement.x, eloignement.y);
 			break;
 		case PRE_POSITIONNING:	//Il faut parfois se mettre dans un prépositionnement qui permet de pas recouvrir la torche avant de la pousser comme souhaité
+			//NO_DODGE...
 			state = try_going(posPre.x, posPre.y, PRE_POSITIONNING, POS_START_TORCH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 		case POS_START_TORCH:
@@ -737,6 +743,7 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 			}
 			break;
 
+//TODO un GET_OUT en cas d'erreur serait le bienvenu (?)
 
 		case DEPLOY_TORCH:	//On déploie la torche sur le foyer
 			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,current_dispose_zone),DEPLOY_TORCH,DONE,ERROR);
@@ -781,6 +788,7 @@ error_e scan_and_back(pos_scan_e scan){
 	static objet_t tabObjet[3][20];
 	static Uint8 nb_obj[3];
 
+
 	switch(state){
 		case IDLE:{
 			i = 0;
@@ -800,13 +808,12 @@ error_e scan_and_back(pos_scan_e scan){
 			break;
 
 		case POS_START:
-			state = try_going(pos_scan[scan].scan.x, COLOR_Y(pos_scan[scan].scan.y), POS_START, SCAN_TRIANGLE, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(pos_scan[scan].scan.x, COLOR_Y(pos_scan[scan].scan.y), POS_START, SCAN_TRIANGLE, ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case SCAN_TRIANGLE:
 			state = ELEMENT_try_going_and_rotate_scan(COLOR_ANGLE(pos_scan[scan].tetaMin), COLOR_ANGLE(pos_scan[scan].tetaMax), 90,
-													  pos_scan[scan].scan.x, COLOR_Y(pos_scan[scan].scan.y), SCAN_TRIANGLE, ANALYZE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
-			//state = ANALYZE;
+													  pos_scan[scan].scan.x, COLOR_Y(pos_scan[scan].scan.y), SCAN_TRIANGLE, ANALYZE, ERROR, FAST, FORWARD, DODGE_AND_WAIT);
 			break;
 
 		case ANALYZE:{
@@ -860,7 +867,7 @@ error_e scan_and_back(pos_scan_e scan){
 				point.y = dir.y + size*coefy;
 			}
 
-			state = try_going(point.x,point.y, POS_TAKE, TAKE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(point.x,point.y, POS_TAKE, TAKE, GET_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT);
 
 			}break;
 
@@ -883,6 +890,7 @@ error_e scan_and_back(pos_scan_e scan){
 
 		case MOVE_DROP_TRIANGLE:
 			state = try_going(pos_scan[scan].scan.x,COLOR_Y(pos_scan[scan].scan.y), MOVE_DROP_TRIANGLE, DROP_TRIANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+
 			break;
 
 		case DROP_TRIANGLE:
@@ -918,7 +926,7 @@ error_e scan_and_back(pos_scan_e scan){
 			break;
 
 		case GET_OUT:
-			state = try_going(pos_scan[scan].get_out.x,COLOR_Y(pos_scan[scan].get_out.y), GET_OUT, (last_state != ERROR)? DONE:ERROR, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(pos_scan[scan].get_out.x,COLOR_Y(pos_scan[scan].get_out.y), GET_OUT, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case DONE:
@@ -927,11 +935,7 @@ error_e scan_and_back(pos_scan_e scan){
 			break;
 
 		case ERROR:
-			if(est_dans_carre(500, 1650, COLOR_Y(1850), COLOR_Y(2650), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})) // Est sur le pathfind
-				state = RETURN_NOT_HANDLED;
-			else
-				state = GET_OUT;
-
+			state = RETURN_NOT_HANDLED;
 			break;
 
 		case RETURN_NOT_HANDLED :

@@ -212,7 +212,10 @@ error_e sub_action_initiale(void)
 						success_state = GOTO_FRESCO;
 				}
 			}
-
+			if(success_state == GOTO_FRESCO && global.env.guy_is_bloqued_in_north && i_must_deal_with_our_torch && !global.env.guy_took_our_torch)
+			{	//Si Guy est bloqué au nord et que l'on prévoyait d'aller à la fresque, on va plutôt aller faire la torche...
+				success_state = GOTO_TORCH_FIRST_POINT;
+			}
 			//Il y a aussi le risque que cet évittement soit du à Guy...
 			state = check_sub_action_result(strat_lance_launcher((SWITCH_STRAT_1)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,success_state,fail_state);
 			break;
@@ -1285,6 +1288,9 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 	Uint16 zone_access_posShoot_x1, zone_access_posShoot_x2, zone_access_posShoot_y1, zone_access_posShoot_y2;
 	Uint16 zone_access_firstPoint_y1, zone_access_firstPoint_y2;
 	Uint16 middle_mammouth;
+	avoidance_type_e avoidance;
+	//Si on est en début de match (<5 sec) et que Guy ne nous a pas indiqué qu'il était bloqué au Nord, l'évitement est désactivé...
+	avoidance = (global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE || global.env.guy_is_bloqued_in_north)?NO_DODGE_AND_WAIT:NO_AVOIDANCE;
 
 	switch(state){
 		case IDLE:
@@ -1415,7 +1421,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 			break;
 
 		case POS_BEGINNING:
-			state = try_going(dplt[0].point.x,dplt[0].point.y,POS_BEGINNING,POS_LAUNCH,ERROR,FAST,sensRobot,(global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE);
+			state = try_going(dplt[0].point.x,dplt[0].point.y,POS_BEGINNING,POS_LAUNCH,ERROR,FAST,sensRobot,avoidance);
 			break;
 
 		case POS_LAUNCH:
@@ -1425,7 +1431,7 @@ error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
 				dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL + 40;
 			}
 
-			state = try_going_multipoint(&dplt[1], 3, POS_LAUNCH, DONE , ERROR, sensRobot, (global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE)?NO_DODGE_AND_WAIT:NO_AVOIDANCE, END_AT_BREAK);
+			state = try_going_multipoint(&dplt[1], 3, POS_LAUNCH, DONE , ERROR, sensRobot, avoidance, END_AT_BREAK);
 			//state = try_going(dplt[1].point.x,dplt[1].point.y,POS_LAUNCH,POS_SHOOT,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
 
 			if(global.env.asser.reach_y)		//Peu probable... mais par sécurité (si on était super lent, on va peut etre recevoir le warner avant le point de freinage

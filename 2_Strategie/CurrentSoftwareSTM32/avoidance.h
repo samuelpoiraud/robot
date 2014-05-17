@@ -298,7 +298,7 @@ error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type);
 void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
 
 /*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
-error_e extraction_of_foe(void);
+error_e extraction_of_foe(ASSER_speed_e speed);
 
 Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
@@ -315,5 +315,9 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
 
 error_e goto_extract_with_avoidance(const displacement_t displacements);
+
+//Le point passé en paramètre permet-il les rotations ?
+bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p);
+
 
 #endif /* ndef AVOIDANCE_H */
