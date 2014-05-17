@@ -83,7 +83,8 @@ volatile Uint16 adversary_fresco_positions[NB_MAX_ADVERSARY_FRESCO_POSITION]={14
 volatile Uint8 adversary_fresco_index = 2;
 
 
-error_e sub_action_initiale(){
+error_e sub_action_initiale(void)
+{
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_INITIALE,
 		INIT,
 		WAIT_TELL_GUY,
@@ -97,7 +98,7 @@ error_e sub_action_initiale(){
 		GOTO_TORCH_FIRST_POINT,
 		GOTO_TORCH_SECOND_POINT,
 		GOTO_TORCH_THIRD_POINT,
-		GOTO_TORCH,
+		GOTO_HEARTH,
 		FAIL_FIRST_POINT,
 		FAIL_SECOND_POINT,
 		FAIL_THIRD_POINT,
@@ -118,7 +119,7 @@ error_e sub_action_initiale(){
 	static bool_e guy_get_out_init = FALSE;
 	static displacement_t point[6];
 
-	static bool_e guy_do_triangle = FALSE; // Si guy a fait tomber les triangles de la zone de départ ou pas
+	static bool_e guy_do_triangle = FALSE; // Si guy a fait tomber le triangle de la zone de départ
 
 	if(global.env.guy_do_triangle_start)
 		guy_do_triangle = TRUE;
@@ -129,7 +130,8 @@ error_e sub_action_initiale(){
 	if(global.env.reach_point_get_out_init)
 			guy_get_out_init = TRUE;
 
-	switch(state){
+	switch(state)
+	{
 
 		case INIT:
 			if(global.env.asser.calibrated)
@@ -139,7 +141,8 @@ error_e sub_action_initiale(){
 
 			// Si on active le switch de façon à envoyer toute les balles sur le premier mammouth, nous devons désactive
 			//le lancer de balles sur le mammouth adverse dans la high_level_strat
-			if(!SWITCH_STRAT_1){
+			if(!SWITCH_STRAT_1)
+			{
 				set_sub_act_done(SUB_LANCE_ADV,TRUE);
 				set_sub_act_enable(SUB_LANCE_ADV,FALSE);
 			}
@@ -217,13 +220,13 @@ error_e sub_action_initiale(){
 		case GOTO_TORCH_FIRST_POINT:
 			if(entrance) // Ouvre les pinces
 				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
-
+			//NO_DODGE : on gère nous même l'échec.
 			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case GOTO_TORCH_SECOND_POINT:
 //			if(entrance) // Ouvre les pinces
 //				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
-
+			//NO_DODGE : on gère nous même l'échec.
 			state = try_going_until_break(point[1].point.x, point[1].point.y,GOTO_TORCH_SECOND_POINT,GOTO_TORCH_THIRD_POINT,FAIL_SECOND_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
@@ -233,6 +236,7 @@ error_e sub_action_initiale(){
 //				ASSER_WARNER_arm_x(800);
 //			if(global.env.asser.reach_x)
 //				;//REACH_POINT_C1_send_request();
+			//NO_DODGE : on gère nous même l'échec.
 			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,(guy_do_triangle==TRUE)? DO_TREE_1:GOTO_PUSH_TRIANGLE,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
@@ -243,7 +247,7 @@ error_e sub_action_initiale(){
 		case PUSH_TRIANGLE:
 			if(entrance)
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
-
+			//NO_DODGE : on gère nous même l'échec.
 			state = try_going(point[5].point.x, point[5].point.y,PUSH_TRIANGLE,DO_TREE_1,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 
 			break;
@@ -251,7 +255,7 @@ error_e sub_action_initiale(){
 		case FAIL_FIRST_POINT:
 			if(entrance)
 				ACT_torch_locker(ACT_TORCH_Locker_Inside);
-
+			//NO_DODGE : on gère nous même l'échec.
 			state = try_going_until_break(750, COLOR_Y(400),FAIL_FIRST_POINT,DEPLOY_TORCH,GOTO_TORCH_FIRST_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
@@ -268,7 +272,10 @@ error_e sub_action_initiale(){
 			state = COME_BACK_FOR_GOING_FRESCO;
 			break;
 		case COME_BACK_FOR_GOING_FRESCO:	//On a pas réussi à rejoindre la torche... on file vers la fresque
-			state = try_going_until_break(520, COLOR_Y(1100), COME_BACK_FOR_GOING_FRESCO, GOTO_FRESCO, GOTO_TORCH_FIRST_POINT, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			if(action_fresco_filed)	//Fresque déjà faite
+				state = ERROR;		//On rend la main à la high_level
+			else
+				state = try_going_until_break(520, COLOR_Y(1100), COME_BACK_FOR_GOING_FRESCO, GOTO_FRESCO, GOTO_TORCH_FIRST_POINT, FAST, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case GOTO_FRESCO:
@@ -279,22 +286,33 @@ error_e sub_action_initiale(){
 				else
 					fail_state = DONE;	//Il n'y a plus rien à faire
 			}
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,fail_state,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			//Si on doit aller faire la torche en cas d'échec, pas de DODGE, c'est notre échapatoire.
+			//Si on doit rendre la main ensuite, on fait un DODGE
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,fail_state,FAST,ANY_WAY,(fail_state==DONE)?DODGE_AND_WAIT:NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case DO_TREE_1:
-			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_1:CHOICE_TREE_2,TRIGO),DO_TREE_1,GOTO_TORCH,ERROR);
+			if(entrance)
+			{
+				if(i_must_deal_with_our_torch)	//TODO : à remplacer par l'information si(j'ai une torche !)
+					success_state = GOTO_HEARTH;
+				else
+					success_state = DO_TREE_2;
+			}
+			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_1:CHOICE_TREE_2,TRIGO),DO_TREE_1,success_state,ERROR);
 			break;
 
-		case GOTO_TORCH:
-			state = try_going_until_break(1650, COLOR_Y(350), GOTO_TORCH, DEPLOY_TORCH, COME_BACK_FOR_GOING_FRESCO, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+		case GOTO_HEARTH:	//Va vers le foyer pour déployer la torche
+			//On tente un DODGE... et on rend la main à la high_level
+			//TODO : en cas d'échec, trouver une alternative pour aller lâcher la torche ou la dépiler ailleurs !
+			state = try_going_until_break(1650, COLOR_Y(350), GOTO_HEARTH, DEPLOY_TORCH, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case DO_FRESCO:
 			if(entrance)
 			{
 				if(get_presenceFruit())
-					success_state = FILE_FRUIT;	//J'ai des fruits, alors je vais les poser maintenant que je suis prêt du bac
+					success_state = FILE_FRUIT;	//J'ai des fruits, alors je vais les poser maintenant que je suis près du bac
 				else
 				{
 					if(i_do_torch_before_fresco)	//J'ai déjà fait la torche, je n'ai plus rien à faire
@@ -302,8 +320,12 @@ error_e sub_action_initiale(){
 					else
 						success_state = GOTO_TORCH_FIRST_POINT;	//Je dois aller faire la torche
 				}
+				if(i_do_torch_before_fresco && i_must_deal_with_our_torch)
+					fail_state = GOTO_TORCH_FIRST_POINT;		//Je dois aller faire la torche
+				else
+					fail_state = ERROR;							//Je n'ai plus rien à faire ici.. (le FILE_FRUIT sera fait en high_level)
 			}
-			state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,success_state,ERROR);
+			state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,success_state,fail_state);
 			break;
 
 		case DEPLOY_TORCH:{
@@ -315,7 +337,7 @@ error_e sub_action_initiale(){
 			}
 
 			if(guy_get_out_init || global.env.match_time > last_time + 2000){
-				state = DO_TREE_2;
+				state = DO_TREE_2;	//TODO !
 			}
 
 			}break;
@@ -336,7 +358,12 @@ error_e sub_action_initiale(){
 				else
 					success_state = FILE_FRUIT;
 			}
-			state = try_going(800,COLOR_Y(400),DO_FIRE_HOME,success_state,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			if(guy_do_triangle)
+			{
+				SD_printf("Guy a fait le feu de la zone de départ\n");
+				state = success_state;
+			}
+			state = try_going(800,COLOR_Y(400),DO_FIRE_HOME,success_state,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT);
 			break;
 
 		case FILE_FRUIT:
@@ -367,7 +394,8 @@ error_e sub_action_initiale(){
 	return IN_PROGRESS;
 }
 
-void strat_homologation(){
+void strat_homologation(void)
+{
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_HOMOLOGATION,
 		INIT,
 		WAIT_TELL_GUY,
@@ -980,7 +1008,8 @@ error_e strat_manage_fresco(){
 			break;
 
 		case NEAR_FRESCO :
-			state = try_going(500,1500,NEAR_FRESCO,FILE_FRESCO,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			//DODGE acceptable, car plutot intéressant ici.. mais il y a un risque si l'odométrie n'est pas bonne de taper un coin dans le bac (si le point d'extraction est malchanceux)
+			state = try_going(500,1500,NEAR_FRESCO,FILE_FRESCO,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT);
 			break;
 
 		case FILE_FRESCO:
@@ -1066,16 +1095,16 @@ error_e strat_file_fresco(Sint16 posY){
 		END_IMPOSSIBLE,
 		END_ERROR,
 		END_IMPOSSIBLE_ERROR,
-		GET_OUT_WITH_ERROR,
-		GET_OUT_WITH_ERROR_RED_NORTH,
-		GET_OUT_WITH_ERROR_RED_MIDDLE,
-		GET_OUT_WITH_ERROR_RED_SOUTH,
-		GET_OUT_WITH_ERROR_YELLOW_NORTH,
-		GET_OUT_WITH_ERROR_YELLOW_MIDDLE,
-		GET_OUT_WITH_ERROR_YELLOW_SOUTH,
+	//	GET_OUT_WITH_ERROR,
+	//	GET_OUT_WITH_ERROR_RED_NORTH,
+	//	GET_OUT_WITH_ERROR_RED_MIDDLE,
+	//	GET_OUT_WITH_ERROR_RED_SOUTH,
+	//	GET_OUT_WITH_ERROR_YELLOW_NORTH,
+	//	GET_OUT_WITH_ERROR_YELLOW_MIDDLE,
+	//	GET_OUT_WITH_ERROR_YELLOW_SOUTH,
 		DONE,
 		ERROR,
-		DONE_BUT_NOT_HANDLED
+	//	DONE_BUT_NOT_HANDLED
 	);
 	static enum state_e from;
 	static bool_e timeout=FALSE;
@@ -1141,7 +1170,7 @@ error_e strat_file_fresco(Sint16 posY){
 				state = END_ERROR;
 			break;
 
-		case GET_OUT_WITH_ERROR :
+	/*	case GET_OUT_WITH_ERROR :
 			//On recherche le point de sortie le plus proche.
 			if(global.env.pos.y < 1500)
 			{
@@ -1210,7 +1239,7 @@ error_e strat_file_fresco(Sint16 posY){
 				if(state != GET_OUT_WITH_ERROR_YELLOW_SOUTH)
 					from = GET_OUT_WITH_ERROR_YELLOW_SOUTH;
 				break;
-
+*/
 		case DONE:
 			state = IDLE;
 			return END_OK;
@@ -1220,11 +1249,11 @@ error_e strat_file_fresco(Sint16 posY){
 			state = GET_OUT_WITH_ERROR;
 			break;
 
-		case DONE_BUT_NOT_HANDLED :
+/*		case DONE_BUT_NOT_HANDLED :
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
-
+*/
 		default:
 			break;
 	}
@@ -1611,14 +1640,15 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
 		WAIT,
 		GET_OUT,
 		GET_OUT_WITH_ERROR,
+		WAIT_FOR_EXIT,
 		DONE,
 		ERROR,
 		ERROR_WITH_GET_OUT
 	);
 
 	static bool_e timeout;
+	static time32_t local_time;
 
-	static Uint8 get_out_try = 0;
 	static GEOMETRY_point_t escape_point[1];
 
 	switch(state){
@@ -1653,11 +1683,16 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			if(state != GET_OUT_WITH_ERROR)
-				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			state = try_going_until_break(escape_point[0].x,escape_point[0].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,WAIT_FOR_EXIT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
-
+		case WAIT_FOR_EXIT:		//On a pas d'autre choix que d'attendre et de réessayer périodiquement.
+			if(entrance)
+			{
+				local_time = global.env.match_time;
+			}
+			if(global.env.match_time - local_time > 2000)
+				state = GET_OUT_WITH_ERROR;
+			break;
 		case DONE :
 			state = IDLE;
 			return END_OK;
@@ -1680,14 +1715,14 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 		WAIT,
 		GET_OUT,
 		GET_OUT_WITH_ERROR,
+		WAIT_FOR_EXIT,
 		DONE,
 		ERROR,
 		ERROR_WITH_GET_OUT
 	);
 
 	static bool_e timeout;
-
-	static Uint8 get_out_try = 0;
+	static time32_t local_time;
 	static GEOMETRY_point_t escape_point[1];
 
 	switch(state){
@@ -1721,11 +1756,16 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			if(state != GET_OUT_WITH_ERROR)
-				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			state = try_going_until_break(escape_point[0].x,escape_point[0].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,WAIT_FOR_EXIT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
-
+		case WAIT_FOR_EXIT:		//On a pas d'autre choix que d'attendre et de réessayer périodiquement.
+			if(entrance)
+			{
+				local_time = global.env.match_time;
+			}
+			if(global.env.match_time - local_time > 2000)
+				state = GET_OUT_WITH_ERROR;
+			break;
 		case DONE :
 			state = IDLE;
 			return END_OK;
@@ -1750,14 +1790,15 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 		PLACEMENT_RECALAGE_Y,
 		RECALAGE_Y,
 		GET_OUT,
+		WAIT_FOR_EXIT,
 		GET_OUT_WITH_ERROR,
 		DONE,
 		ERROR,
 		ERROR_WITH_GET_OUT
 	);
 
-	static Uint8 get_out_try = 0;
 	static GEOMETRY_point_t escape_point[1];
+	static time32_t local_time;
 
 	switch(state){
 		case IDLE :
@@ -1811,11 +1852,16 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			if(state != GET_OUT_WITH_ERROR)
-				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
+			state = try_going_until_break(escape_point[0].x,escape_point[0].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,WAIT_FOR_EXIT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
-
+		case WAIT_FOR_EXIT:		//On a pas d'autre choix que d'attendre et de réessayer périodiquement.
+			if(entrance)
+			{
+				local_time = global.env.match_time;
+			}
+			if(global.env.match_time - local_time > 2000)
+				state = GET_OUT_WITH_ERROR;
+			break;
 		case DONE:
 			state = IDLE;
 			return END_OK;
