@@ -32,6 +32,7 @@ void strat_placement_net(){
 		INIT_PATH,
 		FOUND_PATH,
 		GET_IN,
+		MANUAL_FAST_EXTRACT,
 		PLACEMENT,
 		PLACEMENT_TETA,
 		STOP_ALL,
@@ -110,19 +111,31 @@ void strat_placement_net(){
 			break;
 
 		case GET_IN :
+			//En cas d'échec, on a plus vraiment le temps pour le WAIT... mais le DODGE est intéressant...
+			//		sauf que comme le DODGE ne recalcule pas ce qui est fait dans INIT_PATH...alors, on fait une extraction manuelle.... en FAST !
+			//Est-ce vraiment le plus pertinent.....?
 			if(pos.focused_mammoth[pos.selected_node] == RED_MAMMOTH)
-				state = PATHFIND_try_going(B1, GET_IN, PLACEMENT, INIT_PATH, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(B1, GET_IN, PLACEMENT, MANUAL_FAST_EXTRACT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			else
-				state = PATHFIND_try_going(Y1, GET_IN, PLACEMENT, INIT_PATH, ANY_WAY, FAST, NO_DODGE_AND_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(Y1, GET_IN, PLACEMENT, MANUAL_FAST_EXTRACT, ANY_WAY, FAST, NO_DODGE_AND_NO_WAIT, END_AT_BREAK);
 			break;
-
+		case MANUAL_FAST_EXTRACT:
+			switch(extraction_of_foe(FAST))
+			{
+				case IN_PROGRESS:
+					break;
+				default:
+					state = INIT_PATH;	//Quelque soit le résultat de l'extraction, on retente le pathfind.
+					break;
+			}
+			break;
 		case PLACEMENT :
 			if(entrance){
 				if(foe_in_zone(FALSE, pos.node[pos.selected_node].x, pos.node[pos.selected_node].y, TRUE))
 					state = INIT_PATH;
 			}
 			if(state == PLACEMENT)
-				state = try_going(pos.node[pos.selected_node].x, pos.node[pos.selected_node].y, PLACEMENT, PLACEMENT_TETA, INIT_PATH, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+				state = try_going(pos.node[pos.selected_node].x, pos.node[pos.selected_node].y, PLACEMENT, PLACEMENT_TETA, MANUAL_FAST_EXTRACT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
 			if(ON_LEAVING(PLACEMENT))
 				pos.tryed_node[pos.selected_node] = TRUE;
 			break;

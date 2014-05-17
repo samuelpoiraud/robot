@@ -594,7 +594,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			break;
 
 		case EXTRACT:
-			sub_action = extraction_of_foe();
+			sub_action = extraction_of_foe(SLOW_TRANSLATION_AND_FAST_ROTATION);
 			switch(sub_action)
 			{
 				case END_OK:
@@ -1030,7 +1030,7 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 
 #define EXTRACTION_DISTANCE  	300
 /*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
-error_e extraction_of_foe(void){
+error_e extraction_of_foe(ASSER_speed_e speed){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_EXTRACTION_OF_FOE,
 		IDLE,
 		COMPUTE,
@@ -1157,7 +1157,7 @@ error_e extraction_of_foe(void){
 			break;
 
 		case GO_POINT:
-			state = check_sub_action_result(goto_extract_with_avoidance((displacement_t){(GEOMETRY_point_t){pointEx[bestPoint].x,pointEx[bestPoint].y}, SLOW_TRANSLATION_AND_FAST_ROTATION}), GO_POINT, DONE, WAIT);
+			state = check_sub_action_result(goto_extract_with_avoidance((displacement_t){(GEOMETRY_point_t){pointEx[bestPoint].x,pointEx[bestPoint].y}, speed}), GO_POINT, DONE, WAIT);
 			break;
 
 		case WAIT:{ // Etat d'attente si il n'a pas trouvé de chemin dans l'immédiat

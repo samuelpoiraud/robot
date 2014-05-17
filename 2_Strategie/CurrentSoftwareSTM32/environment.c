@@ -95,6 +95,7 @@ void ENV_init(void)
 	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
 		global.env.propulsion_coefs[i] = 0;
 	global.env.guy_do_triangle_start = FALSE;
+	global.env.guy_is_bloqued_in_north = FALSE;
 	FIX_BEACON_init();
 }
 
@@ -502,6 +503,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case XBEE_GUY_TOOK_OUR_TORCH:
 			global.env.guy_took_our_torch = TRUE;
+			break;
+		case XBEE_GUY_IS_BLOQUED_IN_NORTH:
+			global.env.guy_is_bloqued_in_north = TRUE;
 			break;
 		case XBEE_GUY_HAVE_DONE_TRIANGLE:
 			global.env.guy_do_triangle_start = TRUE;

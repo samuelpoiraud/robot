@@ -43,12 +43,14 @@ error_e strat_file_fruit(){
 		GET_IN,
 		GOTO_FIRST_DISPOSE_POINT,
 		DO_DISPOSE,
+		CORRECT_TRAJECTORY_WHEN_ODOMETRY_IS_NOT_GOOD,
 		GET_OUT_WITH_ERROR,
 		GOBACK_FIRST_POINT,
 		GOBACK_LAST_POINT,
 		DROP_NEAR_FRESCO,
 		DROP_FRUIT,
 		GET_OUT_NEAR_FRESCO,
+		WAIT_FOR_EXIT,
 		DONE,
 		ERROR,
 		RETURN_NOT_HANDLED
@@ -73,9 +75,28 @@ error_e strat_file_fruit(){
 	 // Prend le temps quand nous avons ouvert le labium, si le labium a été ouvert plus d'une seconde
 	// cela veut dire que les fruits sont forcément tombé de ce dernier
 	static Uint16 last_time_Open_labium;
+	static bool_e i_am_trying_an_other_trajectory;
+	static time32_t local_time;
+	bool_e b;
+	avoidance_type_e avoidance;
+	GEOMETRY_point_t p;
+	p = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
+	//Astuce permettant d'activer sur une portion seulement des trajectoires l'extraction DODGE.
+	if(is_possible_point_for_rotation(&p))
+		avoidance = DODGE_AND_WAIT;
+	else
+		avoidance = NO_DODGE_AND_WAIT;
+
 	switch(state){
 		case IDLE:
+			if(presenceFruit == FALSE)
+			{
+				SD_printf("On a pas de fruit, pas la peine de vider !\n");
+				state = DONE;
+				break;
+			}
 			last_time_Open_labium = 0;	//Cette ligne est importante...
+			i_am_trying_an_other_trajectory = FALSE;
 
 			dplt[0].point.x = ELOIGNEMENT_POSE_BAC_FRUIT;
 			dplt[0].point.y = COLOR_Y(1700);
@@ -117,19 +138,35 @@ error_e strat_file_fruit(){
 			break;
 
 		case GOTO_FIRST_DISPOSE_POINT:
-			state = try_going(dplt[0].point.x, dplt[0].point.y, GOTO_FIRST_DISPOSE_POINT, DO_DISPOSE, ERROR, FAST, firstPointway, NO_DODGE_AND_WAIT);
+			switch(goto_pos_curve_with_avoidance(&dplt[0], NULL, 1, firstPointway, avoidance, END_AT_LAST_POINT))
+			{
+				case FOE_IN_PATH:
+					state = ERROR; //On ferme les actionneurs et on vérifie qu'on peut rendre la main...
+					break;
+				case NOT_HANDLED:
+					state = CORRECT_TRAJECTORY_WHEN_ODOMETRY_IS_NOT_GOOD;
+					break;
+				case END_OK:
+				case END_WITH_TIMEOUT:
+					state = DO_DISPOSE;
+					break;
+				default:
+					break;
+			}
 			break;
 		case DO_DISPOSE:
 			if(entrance)
 			{
-				display(foe_in_zone(FALSE,500,COLOR_Y(2800),FALSE));
-				if(foe_in_zone(FALSE,500,COLOR_Y(2800), FALSE)){
+				b = foe_in_zone(FALSE,500,COLOR_Y(2800),FALSE);
+				display(b);
+				if(b)
+				{
 					state = DROP_NEAR_FRESCO;
 					break;
 				}
 				ASSER_WARNER_arm_y(posOpenVerin);
 				labium_state = LABIUM_CLOSED_VERIN_IN;
-			}else
+			}
 			switch(labium_state)
 			{
 				case LABIUM_CLOSED_VERIN_IN:
@@ -163,10 +200,44 @@ error_e strat_file_fruit(){
 				default:
 					break;
 			}
-			state = try_going_multipoint(&dplt[1], 2, DO_DISPOSE, DONE , ERROR, sensRobot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+
+			//NO_DODGE : on gère nous même la sortie...
+			switch(goto_pos_curve_with_avoidance(&dplt[1], NULL, 2, firstPointway, NO_DODGE_AND_WAIT, END_AT_LAST_POINT))
+			{
+				case FOE_IN_PATH:
+					state = ERROR; //On ferme les actionneurs et on vérifie qu'on peut rendre la main...
+					break;
+				case NOT_HANDLED:
+					state = CORRECT_TRAJECTORY_WHEN_ODOMETRY_IS_NOT_GOOD;
+					break;
+				case END_OK:
+				case END_WITH_TIMEOUT:
+					state = DONE;
+					break;
+				default:
+					break;
+			}
+			break;
+		case CORRECT_TRAJECTORY_WHEN_ODOMETRY_IS_NOT_GOOD:
+			if(entrance)
+			{
+				if(i_am_trying_an_other_trajectory)
+				{
+					state = ERROR;	//Ca ne marche pas non plus, on abandonne
+					break;
+				}
+				//Modification de la trajectoire prévue...
+				dplt[0].point.x += 30;	//On ajoute 3cm.
+				dplt[1].point.x += 30;	//On ajoute 3cm.
+				i_am_trying_an_other_trajectory = TRUE;
+			}
+
+			//On revient en M0 pour pouvoir retenter une trajectoire plus éloignée.
+			state = try_going(500, 1500, CORRECT_TRAJECTORY_WHEN_ODOMETRY_IS_NOT_GOOD, GOTO_FIRST_DISPOSE_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case DROP_NEAR_FRESCO:
+			//NO_DODGE, on gère la sortie.
 			state = try_going(200, dplt[0].point.y, DROP_NEAR_FRESCO, DROP_FRUIT, GET_OUT_NEAR_FRESCO, FAST, (global.env.color == RED)? FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
@@ -189,7 +260,15 @@ error_e strat_file_fruit(){
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			}
 
-			state = try_going(dplt[0].point.x, dplt[0].point.y, GET_OUT_NEAR_FRESCO, (last_state == DROP_FRUIT)?DONE:ERROR, GET_OUT_NEAR_FRESCO, FAST, (global.env.color == RED)? BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(dplt[0].point.x, dplt[0].point.y, GET_OUT_NEAR_FRESCO, (last_state == DROP_FRUIT)?DONE:ERROR, WAIT_FOR_EXIT, FAST, (global.env.color == RED)? BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
+			break;
+		case WAIT_FOR_EXIT:		//On a pas d'autre choix que d'attendre et de réessayer périodiquement.
+			if(entrance)
+			{
+				local_time = global.env.match_time;
+			}
+			if(global.env.match_time - local_time > 2000)
+				state = GET_OUT_NEAR_FRESCO;
 			break;
 
 		case ERROR: // Fermer le bac à fruit et rentrer le bras
@@ -507,7 +586,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 
 		case POS_DEPART:
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, ORIENTATION, RETURN_NOT_HANDLED, FAST, sensRobot, NO_DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x, courbe[0].point.y, POS_DEPART, ORIENTATION, RETURN_NOT_HANDLED, FAST, sensRobot, DODGE_AND_WAIT);
 			break;
 
 		case ORIENTATION:
@@ -519,6 +598,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 			break;
 
 		case RECUP_TREE_1:
+			//NO_DODGE : on gère nous même la sortie
 			state = try_going_until_break(courbe[1].point.x,courbe[1].point.y,RECUP_TREE_1,COURBE,ERROR,courbe[1].speed, sensRobot,NO_DODGE_AND_WAIT);
 			break;
 
@@ -658,7 +738,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 
 		case POS_DEPART:
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,FAST,sensRobot,DODGE_AND_WAIT);
 			break;
 
 		case ORIENTATION:
@@ -772,9 +852,8 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
+				courbe[i].speed = FAST;
 			}
-
-			courbe[0].speed = FAST;
 
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
@@ -918,8 +997,8 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			strat_fruit_sucess = NO_TREE;
 
 			if( tree == CHOICE_TREE_1){
-				point[0] = (displacement_t){{950+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
-				point[1] = (displacement_t){{1550+offset_recalage.x,					3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
+				point[0] = (displacement_t){{950+offset_recalage.x,		3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
+				point[1] = (displacement_t){{1550+offset_recalage.x,	3000-ELOIGNEMENT_ARBRE+offset_recalage.y},	VITESSE_FRUIT};
 			}else{
 				point[0] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	2600+offset_recalage.y},					VITESSE_FRUIT};
 				point[1] = (displacement_t){{2000-ELOIGNEMENT_ARBRE+offset_recalage.x,	1900+offset_recalage.y},					VITESSE_FRUIT};
@@ -931,9 +1010,9 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
+				courbe[i].speed = FAST;
 			}
 
-			courbe[0].speed = FAST;
 
 			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
@@ -972,7 +1051,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			}
 
 			//en cas d'échec, on peut rendre la main où l'on se trouve.
-			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,courbe[0].speed,sens_Start,NO_DODGE_AND_WAIT);
+			state = try_going(courbe[0].point.x,courbe[0].point.y,POS_DEPART,ORIENTATION,RETURN_NOT_HANDLED,courbe[0].speed,sens_Start,DODGE_AND_WAIT);
 			}break;
 
 		case ORIENTATION:

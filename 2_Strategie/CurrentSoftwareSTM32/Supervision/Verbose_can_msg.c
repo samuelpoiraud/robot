@@ -109,7 +109,8 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case XBEE_REACH_POINT_GET_OUT_INIT:		print(string, len, "%x XBEE_REACH_POINT_GET_OUT_INIT        ", XBEE_REACH_POINT_GET_OUT_INIT	);	break;
 		case XBEE_REACH_POINT_C1:				print(string, len, "%x XBEE_REACH_POINT_C1                  ", XBEE_REACH_POINT_C1				);	break;
 		case XBEE_GUY_TOOK_OUR_TORCH:			print(string, len, "%x XBEE_GUY_TOOK_OUR_TORCH              ", XBEE_GUY_TOOK_OUR_TORCH			);	break;
-		case XBEE_GUY_HAVE_DONE_TRIANGLE:		print(string, len, "%x XBEE_GUY_HAVE_DONE_TRIANGLE          ", XBEE_GUY_HAVE_DONE_TRIANGLE			);	break;
+		case XBEE_GUY_HAVE_DONE_TRIANGLE:		print(string, len, "%x XBEE_GUY_HAVE_DONE_TRIANGLE          ", XBEE_GUY_HAVE_DONE_TRIANGLE		);	break;
+		case XBEE_GUY_IS_BLOQUED_IN_NORTH:		print(string, len, "%x XBEE_GUY_IS_BLOQUED_IN_NORTH         ", XBEE_GUY_IS_BLOQUED_IN_NORTH		);	break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "%x DEBUG_PROPULSION_SET_COEF            ", DEBUG_PROPULSION_SET_COEF		);	break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "%x DEBUG_PROPULSION_SET_ACCELERATION    ", DEBUG_PROPULSION_SET_ACCELERATION);	break;
 												//ATTENTION, ici, ce sont des espaces, pas des tabulations ^
