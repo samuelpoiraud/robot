@@ -97,9 +97,6 @@ void PTORCH_process_main(){
 	static bool_e flag_watchDog = FALSE;
 	static bool_e init = FALSE;
 
-	if(flag_watchDog)
-		display(flag_watchDog);
-
 	if(init == FALSE){
 		watchdog_PTorch = WATCHDOG_create_flag(3000,&flag_watchDog);
 		init = TRUE;
