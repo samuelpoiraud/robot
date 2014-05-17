@@ -516,7 +516,8 @@ void ELEMENT_answer_pump(CAN_msg_t *msg){
 	pump_answer = (msg->data[0] == STRAT_ANSWER_POMPE_NO) ? PUMP_ANSWER_NO : PUMP_ANSWER_YES;
 }
 
-
+//Renvoie FALSE si la fresque est présente : NON, ce n'est PAS une erreur
+//Renvoie TRUE si la fresque est absente : NON, ce n'est PAS une erreur
 bool_e get_fresco(Uint8 nb){
 	ADC_init();
 	Sint16 value = ADC_getValue(12);
