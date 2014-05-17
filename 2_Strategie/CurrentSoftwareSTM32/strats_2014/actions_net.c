@@ -154,6 +154,7 @@ void strat_placement_net(){
 			break;
 
 		case DONE :
+			//Etat puy.
 			break;
 	}
 }
