@@ -373,7 +373,8 @@ void strat_homologation(){
 		WAIT_TELL_GUY,
 		GET_OUT,
 		LANCE_LAUNCHER,
-		PROTECTED_FIRE
+		PROTECTED_FIRE,
+		DO_NET
 	);
 
 	// Mettre a false si pas le cas
@@ -383,43 +384,44 @@ void strat_homologation(){
 		guy_get_out_init = TRUE;
 
 
-	if(TIME_TO_NET < global.env.match_time)
-		strat_placement_net();
-	else
-		switch(state){
+	switch(state){
 
-			case INIT:
-				if(global.env.asser.calibrated)
-					state = WAIT_TELL_GUY;
-				else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !
-					state = LANCE_LAUNCHER;
+		case INIT:
+			if(global.env.asser.calibrated)
+				state = WAIT_TELL_GUY;
+			else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !
+				state = LANCE_LAUNCHER;
 
-				break;
+			break;
 
-			case WAIT_TELL_GUY:{
-				static Uint16 last_time;
-				if(entrance)
-					last_time = global.env.match_time;
+		case WAIT_TELL_GUY:{
+			static Uint16 last_time;
+			if(entrance)
+				last_time = global.env.match_time;
 
-				if(guy_get_out_init || global.env.match_time > last_time + 3000)
-					state = GET_OUT;
-				}break;
-			case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
-				state = try_going_until_break(520, COLOR_Y(290),GET_OUT,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);		//On force le passage si Guy est devant nous..........
-				break;
+			if(guy_get_out_init || global.env.match_time > last_time + 3000)
+				state = GET_OUT;
+			}break;
+		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
+			state = try_going_until_break(520, COLOR_Y(290),GET_OUT,LANCE_LAUNCHER,LANCE_LAUNCHER,FAST,ANY_WAY,NO_AVOIDANCE);		//On force le passage si Guy est devant nous..........
+			break;
 
-			case LANCE_LAUNCHER:
-				//Il y a aussi le risque que cet évittement soit du à Guy...
-				state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,PROTECTED_FIRE,PROTECTED_FIRE);
-				break;
+		case LANCE_LAUNCHER:
+			//Il y a aussi le risque que cet évittement soit du à Guy...
+			state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,PROTECTED_FIRE,PROTECTED_FIRE);
+			break;
 
-			case PROTECTED_FIRE:
-				state = check_sub_action_result(protected_fires(OUR_FIRES),PROTECTED_FIRE,PROTECTED_FIRE,PROTECTED_FIRE);
-				break;
+		case PROTECTED_FIRE:
+			state = check_sub_action_result(protected_fires(OUR_FIRES),PROTECTED_FIRE,(TIME_TO_NET > global.env.match_time)?PROTECTED_FIRE:DO_NET,(TIME_TO_NET > global.env.match_time)?PROTECTED_FIRE:DO_NET);
+			break;
 
-			default:
-				break;
-		}
+		case DO_NET:
+			strat_placement_net();
+			break;
+
+		default:
+			break;
+	}
 }
 
 
@@ -839,7 +841,7 @@ error_e protected_fires(protected_fires_e fires){
 		case POINT_2:	//no break;
 		case POINT_3:
 
-			state = PATHFIND_try_going(points[next_point_protected-POINT_0], state, DONE,ERROR,ANY_WAY,FAST, NO_DODGE_AND_WAIT, END_AT_LAST_POINT); //No dodge volontaire
+			state = PATHFIND_try_going(points[next_point_protected-POINT_0], state, DONE,ERROR,ANY_WAY,FAST, DODGE_AND_WAIT, END_AT_LAST_POINT); //No dodge volontaire
 
 			if(state != next_point_protected)
 			{
