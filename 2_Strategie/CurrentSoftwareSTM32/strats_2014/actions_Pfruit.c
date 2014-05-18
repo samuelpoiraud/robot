@@ -47,6 +47,7 @@ error_e strat_file_fruit(){
 		GET_OUT_WITH_ERROR,
 		GOBACK_FIRST_POINT,
 		GOBACK_LAST_POINT,
+		COME_BACK_FOR_DROPING_NEAR_FRESCO,
 		DROP_NEAR_FRESCO,
 		DROP_FRUIT,
 		GET_OUT_NEAR_FRESCO,
@@ -125,7 +126,8 @@ error_e strat_file_fruit(){
 
 			//Zone d'acceptation
 			if(		est_dans_carre(0, 1000, COLOR_Y(1600), COLOR_Y(3000), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})
-				|| 	est_dans_carre(250, 700, 0, COLOR_Y(1600), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				|| 	est_dans_carre(250, 700, COLOR_Y(0), COLOR_Y(1600), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})
+				|| 	est_dans_carre(600, 1000, COLOR_Y(0), COLOR_Y(1000), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))	//Le cas de la récup du feu de start avant de venir ici...
 				state = GOTO_FIRST_DISPOSE_POINT;
 			else
 				state = GET_IN;
@@ -157,6 +159,8 @@ error_e strat_file_fruit(){
 		case DO_DISPOSE:
 			if(entrance)
 			{
+				//Si l'adversaire est très proche devant nous, on file direct vers le DROP_NEAR_FRESCO.
+				//Sinon, on tente de déposer......... si jamais on rencontre l'adversaire ensuite lors de la dépose.. on verra en fonction de presenceFruit.
 				b = foe_in_zone(FALSE,500,COLOR_Y(2800),FALSE);
 				display(b);
 				if(b)
@@ -205,7 +209,10 @@ error_e strat_file_fruit(){
 			switch(goto_pos_curve_with_avoidance(&dplt[1], NULL, 2, firstPointway, NO_DODGE_AND_WAIT, END_AT_LAST_POINT))
 			{
 				case FOE_IN_PATH:
-					state = ERROR; //On ferme les actionneurs et on vérifie qu'on peut rendre la main...
+					if(presenceFruit)	//On a toujours les fruits... on tente de reculer pour déposer à coté des fresques
+						state = COME_BACK_FOR_DROPING_NEAR_FRESCO;
+					else
+						state = ERROR; //On ferme les actionneurs et on vérifie qu'on peut rendre la main...
 					break;
 				case NOT_HANDLED:
 					state = CORRECT_TRAJECTORY_WHEN_ODOMETRY_IS_NOT_GOOD;
@@ -235,7 +242,9 @@ error_e strat_file_fruit(){
 			//On revient en M0 pour pouvoir retenter une trajectoire plus éloignée.
 			state = try_going(500, 1500, CORRECT_TRAJECTORY_WHEN_ODOMETRY_IS_NOT_GOOD, GOTO_FIRST_DISPOSE_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
-
+		case COME_BACK_FOR_DROPING_NEAR_FRESCO:		//On a échoué la dépose normale, on revient pour tenter la dépose près des fresques
+			state = try_going(dplt[0].point.x, dplt[0].point.y, COME_BACK_FOR_DROPING_NEAR_FRESCO, DROP_NEAR_FRESCO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
 		case DROP_NEAR_FRESCO:
 			//NO_DODGE, on gère la sortie.
 			state = try_going(200, dplt[0].point.y, DROP_NEAR_FRESCO, DROP_FRUIT, GET_OUT_NEAR_FRESCO, FAST, (global.env.color == RED)? FORWARD:BACKWARD, NO_DODGE_AND_WAIT);
@@ -244,22 +253,24 @@ error_e strat_file_fruit(){
 		case DROP_FRUIT:{
 			static bool_e watchdog = FALSE;
 			if(entrance){
-				WATCHDOG_create_flag(2000,&watchdog);
+				WATCHDOG_create_flag(1500,&watchdog);
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Vibration);
 				ACT_fruit_labium_goto(ACT_FRUIT_Labium_Open);
 			}
 
 			if(watchdog)
+			{
+				presenceFruit = FALSE;			//Dès cet instant, on a plus de fruits...
+				ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
+				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+				set_sub_act_done(SUB_DROP_FRUITS,TRUE);
+				set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
 				state = GET_OUT_NEAR_FRESCO;
+			}
 
 		}break;
 
 		case GET_OUT_NEAR_FRESCO:
-			if(entrance){
-				ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
-				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
-			}
-
 			state = try_going(dplt[0].point.x, dplt[0].point.y, GET_OUT_NEAR_FRESCO, (last_state == DROP_FRUIT)?DONE:ERROR, WAIT_FOR_EXIT, FAST, (global.env.color == RED)? BACKWARD:FORWARD, NO_DODGE_AND_WAIT);
 			break;
 		case WAIT_FOR_EXIT:		//On a pas d'autre choix que d'attendre et de réessayer périodiquement.

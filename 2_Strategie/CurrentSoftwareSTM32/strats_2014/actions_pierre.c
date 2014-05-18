@@ -824,10 +824,9 @@ error_e protected_fires(protected_fires_e fires){
 		POINT_1,
 		POINT_2,
 		POINT_3,
-		SUCESS,
 		NOT_REACHED,
 		DONE,
-		ERROR,
+		ERROR
 	);
 	static enum state_e next_point_protected = IDLE;
 	static protected_fires_e current_protected_fires = OUR_FIRES;
@@ -893,6 +892,93 @@ error_e protected_fires(protected_fires_e fires){
 
 		default:
 			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e protect_north_way(void)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PROTECT_NORTH_WAY,
+		IDLE,
+		GET_IN,
+		POINT_0,
+		POINT_1,
+		NODE_0,
+		NODE_1,
+		NOT_REACHED,
+		DONE,
+		ERROR
+	);
+	static enum state_e next_point_protected = IDLE;
+	static way_e way;
+	static GEOMETRY_point_t points[2];
+	static pathfind_node_id_t nodes[2];
+	switch(state){
+		case IDLE:
+
+			if(global.env.color == RED)
+			{
+				nodes[0] = C1;   // A2
+				nodes[1] = W1;	// B3
+				points[0] = (GEOMETRY_point_t){700,1200};
+				points[1] = (GEOMETRY_point_t){700,1800};
+			}
+			else
+			{
+				nodes[0] = W1;  // Z2
+				nodes[1] = C1;	// Y3
+				points[0] = (GEOMETRY_point_t){700,1800};
+				points[1] = (GEOMETRY_point_t){700,1200};
+			}
+			next_point_protected = NODE_0;
+			state = GET_IN;
+
+		   break;
+
+	   case GET_IN:
+
+		   if(est_dans_carre(points[0].x - 200, points[0].x + 200, points[0].y - 150, points[0].y + 150,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))	//Je suis proche du POINT_0
+			   state = POINT_1;
+		   else if (est_dans_carre(points[1].x - 200, points[1].x + 200, points[1].y - 150, points[1].y + 150,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))//Proche du POINT_1
+			   state = POINT_0;
+		   else	//Je suis loin -> PATHFIND
+		   {
+			   if(next_point_protected == NODE_0)
+				   state = NODE_0;
+			   else
+				   state = NODE_1;
+		   }
+		   break;
+
+	   case NODE_0:
+		   state = PATHFIND_try_going(nodes[0], NODE_0, DONE,ERROR,ANY_WAY,FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		   break;
+	   case NODE_1:
+		   state = PATHFIND_try_going(nodes[1], NODE_1, DONE,ERROR,ANY_WAY,FAST, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		   break;
+	   case POINT_0:
+		   if(entrance)
+			   way = (points[0].y < points[1].y)?BACKWARD:FORWARD; //Si le point 0 est du coté rouge, on s'y rend en reculant (filet ET angle mort du coté des fresques)
+		   state = try_going(points[0].x, points[0].y,state,DONE,ERROR,FAST,way,NO_DODGE_AND_WAIT);
+		   break;
+	   case POINT_1:
+		   if(entrance)
+			   way = (points[1].y < points[0].y)?BACKWARD:FORWARD; //Si le point 1 est du coté rouge, on s'y rend en reculant (filet ET angle mort du coté des fresques)
+		   state = try_going(points[1].x, points[1].y,state,DONE,ERROR,FAST,way,NO_DODGE_AND_WAIT);
+		   break;
+	   case DONE:
+		   state = GET_IN;	//ATTENTION, on ne retourne pas vers IDLE, mais vers le prochain point, pour le prochain appel !
+		   return END_OK;
+		   break;
+	   case ERROR:
+		   state = GET_IN;	//ATTENTION, on ne retourne pas vers IDLE, mais vers le prochain point, pour le prochain appel !
+		   next_point_protected = (next_point_protected == NODE_0)?NODE_1:NODE_0;	//On vise l'autre point...
+		   return NOT_HANDLED;
+		   break;
+	   default:
+		   break;
 	}
 
 	return IN_PROGRESS;
@@ -1033,8 +1119,10 @@ error_e strat_manage_fresco(){
 
 					if(posY > 1500) //Ne prend plus en compte les positions des adversaires eu precedement (Elles sont fausses sinon ne serait pas dans cet état)
 						posY = POS_MIN_FRESCO;
-					else
+					else if (posY < 1500)
 						posY = POS_MAX_FRESCO;
+					else	// == 1500	//Si la première tentative était en 1500, la seconde est du coté de notre zone de départ.
+						posY = (global.env.color == RED)?POS_MIN_FRESCO:POS_MAX_FRESCO;
 				}
 
 				state = check_sub_action_result(strat_file_fresco(posY),LAST_CHANCE_FILE_FRESCO,VERIFICATION_2,ERROR);

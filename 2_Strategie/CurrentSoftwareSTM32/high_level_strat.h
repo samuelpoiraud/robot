@@ -63,6 +63,8 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_PROTECTED_FIRE,
 	SUB_PROTECTED_FIRE_2,
 	SUB_PROTECTED_FIRE_ADV,
+	SUB_PROTECT_NORTH_WAY,
+	SUB_PROTECT_NORTH_WAY2,
 	SUB_FILET,		//Peu importe l'ordre des états... (sauf en cas de priorité égale)
 
 	//--------------Sub action de guy

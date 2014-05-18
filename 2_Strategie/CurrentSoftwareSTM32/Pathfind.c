@@ -20,7 +20,7 @@
 #define pathfind_debug_printf(...)	debug_printf(__VA_ARGS__)
 //#define pathfind_debug_printf(...)	void(0)
 #define MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY	400		//Distance manhattan entre un advesaire et les noeuds dont il bloque l'accès
-#define DISTANCE_CONSIDERE_ADVERSARY				1000	//Distance entre nous et l'adversaire pour qu'il soit pris en compte (s'il est loin, on le néglige.. en espérant qu'il bouge d'ici à notre arrivée)
+#define DISTANCE_CONSIDERE_ADVERSARY				1200	//Distance entre nous et l'adversaire pour qu'il soit pris en compte (s'il est loin, on le néglige.. en espérant qu'il bouge d'ici à notre arrivée)
 #define	TIME_CONSIDERE_ADVERSARY					500		//[ms] temps au delà duquel un adversaire mis à jour n'est plus considéré
 #define NB_TRY_WHEN_DODGE							3		//Nombre de tentatives d'évitement (recalcul de chemin..)
 #define IGNORE_FIRST_POINT_DISTANCE					150		//Distance du noeud en dessous de laquelle on ne s'y rend pas et on attaque directement le voisin

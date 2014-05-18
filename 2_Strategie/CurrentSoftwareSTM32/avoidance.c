@@ -797,6 +797,29 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traje
 	return inZone;
 }
 
+
+
+//Retourne si un adversaire est dans le carré dont deux coins 1 et 2 sont passés en paramètres
+bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
+{
+	Uint8 i;
+	for (i=0; i<MAX_NB_FOES; i++)
+	{
+		if (global.env.foe[i].enable)
+		{
+			if(est_dans_carre(x1,x2,y1,y2,(GEOMETRY_point_t){global.env.foe[i].x,global.env.foe[i].y}))
+			{
+				if(verbose)
+					SD_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,global.env.foe[i].x,global.env.foe[i].y,x1,x2,y1,y2);
+				return TRUE;
+			}
+		}
+	}
+	SD_printf("NO FOE found in zone x[%d->%d] y[%d->%d]\n",x1,x2,y1,y2);
+	return FALSE;
+}
+
+
 /* Fonction qui regarde si notre robot est immobile ou non */
 //static bool_e AVOIDANCE_robot_translation_move()
 //{
