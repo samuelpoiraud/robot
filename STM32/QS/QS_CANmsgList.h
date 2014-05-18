@@ -142,8 +142,25 @@
 	#define XBEE_REACH_POINT_C1				0x508	// Envoie un message quand il arrive au point C1
 
 	#define XBEE_TORCH_NEW_POS				0x509	// Envoie la nouvelle position de la torche a l autre robot si l'un des deux a déplacée une torche
-	#define XBEE_GUY_TOOK_OUR_TORCH			0x50A	// Informe Pierre que Guy a décidé de prendre notre torche
-	#define XBEE_GUY_HAVE_DONE_TRIANGLE		0x50B	// Informe Pierre que Guy a décidé de prendre notre torche
+	#define XBEE_GUY_HAVE_DONE_FIRE			0x50B	// Informe Pierre que Guy a décidé de prendre un feu ou une torche
+		//Data[0] : ID du fire
+		typedef enum
+		{									//ATTENTION, SI VOUS CHANGEZ CETTE ENUM, VOUS DEVEZ CHANGER AUSSI fire_id_string dans Verbose_can_msg
+			FIRE_ID_TORCH_OUR = 0x00,
+			FIRE_ID_ADV_TORCH,
+			FIRE_ID_START,		//Notre feu fixe près de la zone de départ
+			FIRE_ID_MOBILE_NORTH,
+			FIRE_ID_MOBILE_CENTRAL,
+			FIRE_ID_MOBILE_SOUTH,
+			FIRE_ID_SOUTH_OUR,	//Au sud, de notre coté
+			FIRE_ID_ADV_START,
+			FIRE_ID_ADV_MOBILE_NORTH,
+			FIRE_ID_ADV_MOBILE_CENTRAL,
+			FIRE_ID_ADV_MOBILE_SOUTH,
+			FIRE_ID_ADV_SOUTH,	//Au sud, du coté adverse
+			FIRE_ID_NB
+		}fire_id_e;
+
 	#define XBEE_GUY_IS_BLOQUED_IN_NORTH	0x50C	// Informe Pierre que Guy est bloqué au Nord et que Pierre ferait mieux d'activer son évitement.
 	#define XBEE_ZONE_COMMAND				0x5AA	//Effectue une demande lié au zones (un SID pour toute la gestion des zones comme ça)
 	//Commande dans data[0]:

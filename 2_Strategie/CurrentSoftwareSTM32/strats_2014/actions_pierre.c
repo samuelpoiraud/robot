@@ -12,6 +12,7 @@
 #include "actions_pierre.h"
 #include "actions_net.h"
 #include "actions_Pfruit.h"
+#include "actions_balls.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
 #include "../act_can.h"
@@ -35,7 +36,7 @@ static void REACH_POINT_C1_send_request();
 #define MODE_MANUAL_FRESCO TRUE
 #define POS_Y_MANUAL_FRESCO COLOR_Y(1500) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
 #define NB_TRY_FRESCO 2	//(Choix possible : 1, 2 ou 3 : nombre de tentatives de dépose de la fresque en cas de détection de fresque non posée.
-#define TIME_BEGINNING_NO_AVOIDANCE 5000
+
 
 
 /**********************************************************************************************************************************
@@ -59,18 +60,15 @@ static void REACH_POINT_C1_send_request();
 #define LARGEUR_LABIUM	250
 
 #define DECALAGE_LARGEUR 200
-#define ELOIGNEMENT_SHOOT_BALL 520
-#define SPEED_LANCE_LAUNCHER 125
 #define POS_MIN_FRESCO 1450		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
 #define POS_MAX_FRESCO 1650		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
 
 
 //Les differente's actions que pierre devra faire lors d'un match
 static bool_e action_fresco_filed = FALSE;
-static bool_e lance_ball = FALSE;
-static bool_e launcher_ball_adversary = FALSE;  // Si il doit lancer une balle sur le mammouth ennemis
 static bool_e i_must_deal_with_our_torch = FALSE;	//On doit gérer notre torche.
 static bool_e i_do_torch_before_fresco = FALSE;		//On fait la torche en priorité... ou le contraire.
+static bool_e cooperation_enable = FALSE;			//Action de coopération
 
 // Lors de la recalibration, sera appeler en extern vers d'autre fichier ( ne pas passer en static )
 volatile GEOMETRY_point_t offset_recalage = {0, 0};
@@ -119,12 +117,7 @@ error_e sub_action_initiale(void)
 	static bool_e guy_get_out_init = FALSE;
 	static displacement_t point[6];
 
-	static bool_e guy_do_triangle = FALSE; // Si guy a fait tomber le triangle de la zone de départ
-
-	if(global.env.guy_do_triangle_start)
-		guy_do_triangle = TRUE;
-
-	if(global.env.guy_took_our_torch)		//Lorsque Guy décide de se diriger vers notre torche (et avant que Pierre ait pu finir son lancé, Guy envoie un message levant ce flag...)
+	if(global.env.guy_took_fire[FIRE_ID_TORCH_OUR])		//Lorsque Guy décide de se diriger vers notre torche (et avant que Pierre ait pu finir son lancé, Guy envoie un message levant ce flag...)
 		i_must_deal_with_our_torch = FALSE;	//Si Guy a pris notre torche, on abandonne son éventuelle récupération prévue.
 
 	if(global.env.reach_point_get_out_init)
@@ -145,7 +138,10 @@ error_e sub_action_initiale(void)
 			{
 				set_sub_act_done(SUB_LANCE_ADV,TRUE);
 				set_sub_act_enable(SUB_LANCE_ADV,FALSE);
+				cooperation_enable = FALSE;
 			}
+			else
+				cooperation_enable = TRUE;
 
 			if(SWITCH_STRAT_3)
 				i_must_deal_with_our_torch = TRUE;
@@ -194,7 +190,7 @@ error_e sub_action_initiale(void)
 		case LANCE_LAUNCHER:
 			if(entrance)
 			{
-				if(i_must_deal_with_our_torch && !global.env.guy_took_our_torch)
+				if(i_must_deal_with_our_torch && !global.env.guy_took_fire[FIRE_ID_TORCH_OUR])
 				{
 					//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
 					fail_state = GOTO_TORCH_FIRST_POINT;
@@ -212,12 +208,12 @@ error_e sub_action_initiale(void)
 						success_state = GOTO_FRESCO;
 				}
 			}
-			if(success_state == GOTO_FRESCO && global.env.guy_is_bloqued_in_north && i_must_deal_with_our_torch && !global.env.guy_took_our_torch)
+			if(success_state == GOTO_FRESCO && global.env.guy_is_bloqued_in_north && i_must_deal_with_our_torch && !global.env.guy_took_fire[FIRE_ID_TORCH_OUR])
 			{	//Si Guy est bloqué au nord et que l'on prévoyait d'aller à la fresque, on va plutôt aller faire la torche...
 				success_state = GOTO_TORCH_FIRST_POINT;
 			}
 			//Il y a aussi le risque que cet évittement soit du à Guy...
-			state = check_sub_action_result(strat_lance_launcher((SWITCH_STRAT_1)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,success_state,fail_state);
+			state = check_sub_action_result(sub_lance_launcher((cooperation_enable)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,success_state,fail_state);
 			break;
 
 		case GOTO_TORCH_FIRST_POINT:
@@ -240,7 +236,7 @@ error_e sub_action_initiale(void)
 //			if(global.env.asser.reach_x)
 //				;//REACH_POINT_C1_send_request();
 			//NO_DODGE : on gère nous même l'échec.
-			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,(guy_do_triangle==TRUE)? DO_TREE_1:GOTO_PUSH_TRIANGLE,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,(global.env.guy_took_fire[FIRE_ID_MOBILE_CENTRAL]==TRUE)? DO_TREE_1:GOTO_PUSH_TRIANGLE,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GOTO_PUSH_TRIANGLE:
@@ -361,21 +357,22 @@ error_e sub_action_initiale(void)
 				else
 					success_state = FILE_FRUIT;
 			}
-			if(guy_do_triangle)
+			if(global.env.guy_took_fire[FIRE_ID_START])
 			{
 				SD_printf("Guy a fait le feu de la zone de départ\n");
 				state = success_state;
 			}
-			state = try_going(800,COLOR_Y(400),DO_FIRE_HOME,success_state,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT);
+			else
+				state = try_going(800,COLOR_Y(400),DO_FIRE_HOME,success_state,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT);
 			break;
 
 		case FILE_FRUIT:
-			state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,(SWITCH_STRAT_1)?LANCE_LAUNCHER_ADVERSARY:DONE,ERROR);
+			state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,(cooperation_enable)?LANCE_LAUNCHER_ADVERSARY:DONE,ERROR);
 			break;
 
 		// Si on lance une balle sur le mammouth ennemis
 		case LANCE_LAUNCHER_ADVERSARY:
-			state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color == RED)?YELLOW:RED),LANCE_LAUNCHER_ADVERSARY,DONE, ERROR);
+			state = check_sub_action_result(sub_lance_launcher(FALSE, (global.env.color == RED)?YELLOW:RED),LANCE_LAUNCHER_ADVERSARY,DONE, ERROR);
 			break;
 
 
@@ -439,7 +436,7 @@ void strat_homologation(void)
 
 		case LANCE_LAUNCHER:
 			//Il y a aussi le risque que cet évittement soit du à Guy...
-			state = check_sub_action_result(strat_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,PROTECTED_FIRE,PROTECTED_FIRE);
+			state = check_sub_action_result(sub_lance_launcher(TRUE, global.env.color),LANCE_LAUNCHER,PROTECTED_FIRE,PROTECTED_FIRE);
 			break;
 
 		case PROTECTED_FIRE:
@@ -509,7 +506,7 @@ void strat_inutile(void){
 			break;
 
 		case LANCE_LAUNCHER:
-			state = check_sub_action_result(strat_lance_launcher(TRUE,global.env.color),LANCE_LAUNCHER,DONE,ERROR);
+			state = check_sub_action_result(sub_lance_launcher(TRUE,global.env.color),LANCE_LAUNCHER,DONE,ERROR);
 			break;
 
 		case SUB_ACTION:
@@ -691,7 +688,7 @@ void strat_lannion(void){
 
 
 	case LANCE_LAUNCHER:
-		state = check_sub_action_result(strat_lance_launcher(FALSE,global.env.color),LANCE_LAUNCHER,POINT_M0,ERROR);
+		state = check_sub_action_result(sub_lance_launcher(FALSE,global.env.color),LANCE_LAUNCHER,POINT_M0,ERROR);
 		break;
 
 
@@ -702,7 +699,7 @@ void strat_lannion(void){
 		state = check_sub_action_result(strat_manage_fresco(),DEPOSER_FRESQUE,LANCE_LAUNCHER_ENNEMY,ERROR);
 		break;
 	case LANCE_LAUNCHER_ENNEMY:
-		state = check_sub_action_result(strat_lance_launcher(FALSE, (global.env.color==RED)?YELLOW:RED),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
+		state = check_sub_action_result(sub_lance_launcher(FALSE, (global.env.color==RED)?YELLOW:RED),LANCE_LAUNCHER_ENNEMY,POINT_Z1,ERROR);
 		break;
 
 
@@ -1352,379 +1349,7 @@ error_e strat_file_fresco(Sint16 posY){
 	return IN_PROGRESS;
 }
 
-#define OFFSET_BALL_LAUNCHER	20		//Distance entre le centre du robot et le centre du ball launcher
 
-error_e strat_lance_launcher(bool_e lanceAll, color_e mammouth){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_LANCE_LAUNCHER,
-		IDLE,
-		GET_IN,
-		POS_BEGINNING,
-		POS_LAUNCH,
-		ERROR,
-		GET_OUT_WITH_ERROR,
-		GOBACK_FIRST_POINT,
-		GOBACK_LAST_POINT,
-		DONE,
-		RETURN_NOT_HANDLED
-	);
-
-
-	static displacement_t dplt[4]; // Deplacement
-	static way_e sensRobot;
-	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
-	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
-	Uint16 zone_access_posShoot_x1, zone_access_posShoot_x2, zone_access_posShoot_y1, zone_access_posShoot_y2;
-	Uint16 zone_access_firstPoint_y1, zone_access_firstPoint_y2;
-	Uint16 middle_mammouth;
-	avoidance_type_e avoidance;
-	//Si on est en début de match (<5 sec) et que Guy ne nous a pas indiqué qu'il était bloqué au Nord, l'évitement est désactivé...
-	avoidance = (global.env.match_time > TIME_BEGINNING_NO_AVOIDANCE || global.env.guy_is_bloqued_in_north)?NO_DODGE_AND_WAIT:NO_AVOIDANCE;
-
-	switch(state){
-		case IDLE:
-			dplt[0].point.x = ELOIGNEMENT_SHOOT_BALL + 90;	//600 : pour pouvoir tourner sur place lorsqu'on est sur le premier point !
-			dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[2].point.x = ELOIGNEMENT_SHOOT_BALL;
-			dplt[3].point.x = ELOIGNEMENT_SHOOT_BALL + 90;	//600 : pour pouvoir tourner sur place lorsqu'on est sur le dernier point !
-			dplt[0].speed = FAST;
-			dplt[1].speed = SPEED_LANCE_LAUNCHER;
-			dplt[2].speed = SPEED_LANCE_LAUNCHER;
-			dplt[3].speed = SPEED_LANCE_LAUNCHER;
-
-			middle_mammouth = (mammouth == RED)?750:2250;
-
-			if(global.env.pos.y < middle_mammouth)	//Par rapport au mammouth visé, je suis plutôt coté rouge
-			{
-				sensRobot = FORWARD;
-				sensShoot = TRUE;
-				if(mammouth == RED)		//3 points, sens rouge vers jaune, pour le mammouth rouge
-				{
-					if(mammouth == global.env.color)
-						posShoot = 690 - OFFSET_BALL_LAUNCHER;
-					else
-						posShoot = 740 - OFFSET_BALL_LAUNCHER;
-
-					zone_access_posShoot_x1 = 300;
-					zone_access_posShoot_x2 = 650;
-					zone_access_posShoot_y1 = 0;
-					zone_access_posShoot_y2 = 450;
-					zone_access_firstPoint_y1 = 0;
-					zone_access_firstPoint_y2 = 750;
-					dplt[0].point.y = 500;
-					dplt[1].point.y = posShoot - 150;
-					dplt[2].point.y = posShoot + 200;
-					dplt[3].point.y = 1100;
-				}
-				else					//3 points, sens rouge vers jaune, pour le mammouth jaune
-				{
-					if(mammouth == global.env.color)
-						posShoot = 2200 - OFFSET_BALL_LAUNCHER;
-					else
-						posShoot = 2300 - OFFSET_BALL_LAUNCHER;
-
-					zone_access_posShoot_x1 = 400;
-					zone_access_posShoot_x2 = 600;
-					zone_access_posShoot_y1 = 1500;
-					zone_access_posShoot_y2 = 2000;
-					zone_access_firstPoint_y1 = 1800;
-					zone_access_firstPoint_y2 = 2300;
-					dplt[0].point.y = 1900;
-					dplt[1].point.y = posShoot - 150;
-					dplt[2].point.y = posShoot + 200;
-					dplt[3].point.y = 2500;
-				}
-			}
-			else							//Par rapport au mammouth visé, je suis plutôt coté jaune
-			{
-				sensRobot = BACKWARD;
-				sensShoot = FALSE;
-				if(mammouth == RED)		//3 points, sens jaune vers rouge, pour le mammouth rouge
-				{
-					if(mammouth == global.env.color)
-						posShoot = 740 + OFFSET_BALL_LAUNCHER;
-					else
-						posShoot = 800 + OFFSET_BALL_LAUNCHER;
-
-					zone_access_posShoot_x1 = 400;
-					zone_access_posShoot_x2 = 600;
-					zone_access_posShoot_y1 = 3000-1500;
-					zone_access_posShoot_y2 = 3000-2000;
-					zone_access_firstPoint_y1 = 3000-1800;
-					zone_access_firstPoint_y2 = 3000-2300;
-					dplt[0].point.y = 1100;
-					dplt[1].point.y = posShoot + 150;
-					dplt[2].point.y = posShoot - 200;
-					dplt[3].point.y = 500;
-				}
-				else					//3 points, sens jaune vers rouge, pour le mammouth jaune
-				{
-					if(mammouth == global.env.color)
-						posShoot = 2280 + OFFSET_BALL_LAUNCHER;
-					else
-						posShoot = 2280 + OFFSET_BALL_LAUNCHER;
-
-					zone_access_posShoot_x1 = 300;
-					zone_access_posShoot_x2 = 650;
-					zone_access_posShoot_y1 = 3000-0;
-					zone_access_posShoot_y2 = 3000-450;
-					zone_access_firstPoint_y1 = 3000-0;
-					zone_access_firstPoint_y2 = 3000-750;
-					dplt[0].point.y = 2500;
-					dplt[1].point.y = posShoot + 150;
-					dplt[2].point.y = posShoot - 200;
-					dplt[3].point.y = 1900;
-				}
-			}
-
-
-			//Plusieurs cas possibles :
-			//1- on peut se rendre au premier point sans s'arrêter pour faire la trajectoire de lancé
-			//2- on peut se rendre au premier point en s'y arrêtant puis faire la trajectoire de lancé
-			//3- on ne peut pas s'y rendre directement -> pathfind
-			if(est_dans_carre(zone_access_posShoot_x1, zone_access_posShoot_x2, zone_access_posShoot_y1, zone_access_posShoot_y2, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-			{	//1- on peut se rendre directement au point de lancé
-					state = POS_LAUNCH;
-
-					// Si un adversaire se trouve dans la zone du premier point, nous allons au premier point de tire
-//					if(foe_in_zone(FALSE,dplt[0].point.x,dplt[0].point.y)){
-
-//					}
-			}
-			else if(est_dans_carre(400, 1800, zone_access_firstPoint_y1, zone_access_firstPoint_y2, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-			{	//2- on peut se rendre au premier point en s'y arrêtant puis faire la trajectoire de lancé
-				state = POS_BEGINNING;
-			}
-			else
-			{	//3- on ne peut pas s'y rendre directement -> pathfind
-				state = GET_IN;
-			}
-
-
-			break;
-
-		case GET_IN:
-			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].point.x,dplt[0].point.y, 0x00),
-					GET_IN, POS_LAUNCH, RETURN_NOT_HANDLED, ANY_WAY, FAST,DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//On considère que le point du pathfind est satisfaisant pour rejoindre directement ensuite le point de lancé
-			break;
-
-		case POS_BEGINNING:
-			state = try_going(dplt[0].point.x,dplt[0].point.y,POS_BEGINNING,POS_LAUNCH,ERROR,FAST,sensRobot,avoidance);
-			break;
-
-		case POS_LAUNCH:
-			if(entrance){
-				ASSER_WARNER_arm_y(posShoot);
-				// Trop prêt et tourne à angle droit devant le bac sinon et fini par taper
-				dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL + 40;
-			}
-
-			state = try_going_multipoint(&dplt[1], 3, POS_LAUNCH, DONE , ERROR, sensRobot, avoidance, END_AT_BREAK);
-			//state = try_going(dplt[1].point.x,dplt[1].point.y,POS_LAUNCH,POS_SHOOT,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
-
-			if(global.env.asser.reach_y)		//Peu probable... mais par sécurité (si on était super lent, on va peut etre recevoir le warner avant le point de freinage
-			{
-				// Si nous avons echoué le tire de l'autre balle sur le mammouth adverse, onrevient tirer la balle sur notre mammouth
-				if(get_sub_act_enable(SUB_LANCE_ADV_FAIL) && !get_sub_act_done(SUB_LANCE_ADV_FAIL)){
-					ACT_lance_launcher_run(ACT_Lance_1_BALL,sensShoot);
-					set_sub_act_done(SUB_LANCE_ADV_FAIL,TRUE);
-					launcher_ball_adversary = TRUE;
-				}else{
-					ACT_lance_launcher_run((lanceAll)?ACT_Lance_ALL:((mammouth==global.env.color)?ACT_Lance_5_BALL:ACT_Lance_1_BALL),sensShoot);
-					set_sub_act_done((mammouth == global.env.color)?SUB_LANCE:SUB_LANCE_ADV,TRUE);	//On lance, donc l'action est faite...
-
-					if(mammouth == global.env.color)
-						lance_ball = TRUE;
-					else
-						launcher_ball_adversary = TRUE;
-				}
-			}
-			break;
-
-		case ERROR:
-			state = GET_OUT_WITH_ERROR;
-			break;
-
-		case GET_OUT_WITH_ERROR :
-			//On recherche le point de sortie le plus proche.
-			if(global.env.pos.x > 530)	//Le point actuel est acceptable comme sortie
-				state = RETURN_NOT_HANDLED;
-			else
-			{
-				if(absolute(global.env.pos.y - 1500) < 300)	//Je suis a moins de 300 de l'axe de symétrie du terrain
-					state = RETURN_NOT_HANDLED;		//Je peux rendre la main
-				else
-					state = GOBACK_FIRST_POINT;		//Je suis trop proche du bac pour pouvoir rendre la main
-			}
-			break;
-		case GOBACK_FIRST_POINT:
-			state = try_going(dplt[0].point.x,dplt[0].point.y,GOBACK_FIRST_POINT,RETURN_NOT_HANDLED,GOBACK_LAST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-		case GOBACK_LAST_POINT:
-			state = try_going(dplt[2].point.x,dplt[2].point.y,GOBACK_LAST_POINT,RETURN_NOT_HANDLED,GOBACK_FIRST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			break;
-		case DONE:
-			state = IDLE;
-
-			return END_OK;
-			break;
-
-		case RETURN_NOT_HANDLED :
-			state = IDLE;
-			return NOT_HANDLED;
-			break;
-
-		default:
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-/*
-error_e strat_lance_launcher_ennemy(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_LANCE_LAUNCHER_ENNEMY,
-		IDLE,
-		GET_IN,
-		POS_BEGINNING,
-		POS_END,
-		POS_FINISH,
-		GET_OUT_WITH_ERROR,
-		DONE,
-		ERROR,
-		ERROR_WITH_GET_OUT
-	);
-
-	static Uint8 get_out_try = 0;
-	static GEOMETRY_point_t escape_point[2];
-
-	static bool_e do_pos_finish = FALSE;
-	static GEOMETRY_point_t dplt[2]; // Deplacement
-	static way_e sensRobot;
-	static Uint16 sensShoot; // Vrai si il va de rouge vers jaune sinon faux
-	static Uint16 posShoot; // Position à laquelle, on va tirer les balles
-
-	switch(state){
-		case IDLE:
-
-			if(global.env.pos.y > 2100 && global.env.color == RED){ // Va tirer sur le Jaune, case depart jaune
-			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-
-			   if(est_dans_carre(ELOIGNEMENT_SHOOT_BALL-30,700,2350,2700,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-				   dplt[0].y = global.env.pos.y;
-			   else
-				  dplt[0].y = 2500;
-
-			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-			   dplt[1].y = 1800;
-
-			   sensRobot = BACKWARD;
-			   sensShoot = FALSE;
-			   posShoot = 2300;
-
-			}else if(global.env.color == RED){ // Tire sur le Jaune milieu
-			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-			   dplt[0].y = 1800;
-
-			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-			   dplt[1].y = 2300;
-
-			   sensRobot = FORWARD;
-			   sensShoot = TRUE;
-			   posShoot = 2200;
-			   do_pos_finish = TRUE;
-
-		   }else if(global.env.pos.y > 850){ // tire sur le Rouge milieu
-			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-			   dplt[0].y = 1200;
-
-			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-			   dplt[1].y = 800;
-
-			   sensRobot = BACKWARD;
-			   sensShoot = FALSE;
-			   posShoot = 700;
-			   do_pos_finish = TRUE;
-
-		   }else{	// Tire Rouge et case depart
-			   dplt[0].x = ELOIGNEMENT_SHOOT_BALL;
-
-				if(est_dans_carre(ELOIGNEMENT_SHOOT_BALL-30,700,400,690,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
-					dplt[0].y = global.env.pos.y;
-				else
-				   dplt[0].y = 300;
-
-			   dplt[1].x = ELOIGNEMENT_SHOOT_BALL;
-			   dplt[1].y = 1200;
-
-			   sensRobot = FORWARD;
-			   sensShoot = TRUE;
-			   posShoot = 700;
-		   }
-
-			escape_point[0] = dplt[0];
-			escape_point[1] = dplt[1];
-
-
-			if((global.env.color == RED && (est_dans_carre(300, 2000, 1650, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) || est_dans_carre(250, 850, 1200, 2500, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-					|| (global.env.color == YELLOW && (est_dans_carre(300, 2000, 100, 1350, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) || est_dans_carre(250, 850,500, 1800, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))){
-				state = POS_BEGINNING;
-
-			}else
-				state = GET_IN;
-			break;
-
-		case GET_IN:
-			state = PATHFIND_try_going(PATHFIND_closestNode(dplt[0].x,dplt[0].y, 0x00),
-					GET_IN, POS_BEGINNING, ERROR_WITH_GET_OUT, ANY_WAY, FAST, DODGE_AND_NO_WAIT, END_AT_BREAK);
-			break;
-
-		case POS_BEGINNING:
-			state = try_going(dplt[0].x,dplt[0].y,POS_BEGINNING,POS_END,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
-			break;
-
-		case POS_END:
-			if(entrance)
-				ASSER_WARNER_arm_y(posShoot);
-
-			state = try_going_until_break(dplt[1].x,dplt[1].y,POS_END,(do_pos_finish == TRUE)? POS_FINISH:DONE,(do_pos_finish == TRUE)? POS_FINISH:ERROR,SPEED_LANCE_LAUNCHER,sensRobot,NO_DODGE_AND_WAIT);
-
-			if(global.env.asser.reach_y)
-				ACT_lance_launcher_run(ACT_Lance_1_BALL,sensShoot);
-			break;
-
-		case POS_FINISH:
-			state = try_going_until_break(ELOIGNEMENT_SHOOT_BALL,COLOR_Y(1700),POS_FINISH,DONE,ERROR,SPEED_LANCE_LAUNCHER,(global.env.color == RED)? FORWARD:BACKWARD,NO_DODGE_AND_WAIT);
-			break;
-
-		case GET_OUT_WITH_ERROR :
-			state = try_going_until_break(escape_point[get_out_try].x,escape_point[get_out_try].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			if(state != GET_OUT_WITH_ERROR)
-				get_out_try = (get_out_try == sizeof(escape_point)/sizeof(GEOMETRY_point_t)-1)?0:get_out_try+1;
-			break;
-
-		case DONE:
-			state = IDLE;
-			set_sub_act_done(SUB_LANCE_ADV,TRUE);
-			launcher_ball_adversary = TRUE;
-			return END_OK;
-			break;
-
-		case ERROR:
-			state = GET_OUT_WITH_ERROR;
-			break;
-
-		case RETURN_NOT_HANDLED :
-			state = IDLE;
-			return NOT_HANDLED;
-			break;
-
-		default:
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-*/
 
 
 error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
@@ -1875,6 +1500,7 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 	return IN_PROGRESS;
 }
 
+#define RELACAGE_Y 520
 error_e recalage_begin_zone(color_e begin_zone_color){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_BEGIN_ZONE,
 		IDLE,
@@ -1912,9 +1538,9 @@ error_e recalage_begin_zone(color_e begin_zone_color){
 
 		case PLACEMENT_RECALAGE_Y :
 			if(begin_zone_color == RED)
-				state = try_going(ELOIGNEMENT_SHOOT_BALL, 200, PLACEMENT_RECALAGE_Y, RECALAGE_Y, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+				state = try_going(RELACAGE_Y, 200, PLACEMENT_RECALAGE_Y, RECALAGE_Y, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(ELOIGNEMENT_SHOOT_BALL, 2800, PLACEMENT_RECALAGE_Y, RECALAGE_Y, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+				state = try_going(RELACAGE_Y, 2800, PLACEMENT_RECALAGE_Y, RECALAGE_Y, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case RECALAGE_Y :

@@ -134,9 +134,8 @@
 		Uint16 duration_trajectory_for_test_coefs;
 		bool_e reach_point_C1;
 		bool_e reach_point_get_out_init;
-		bool_e guy_took_our_torch;
-		bool_e guy_do_triangle_start;
 		bool_e guy_is_bloqued_in_north;
+		bool_e guy_took_fire[FIRE_ID_NB];
 		GEOMETRY_point_t destination;
 		Sint32 propulsion_coefs[PROPULSION_NUMBER_COEFS];
 		Uint32 propulsion_coefs_updated;	//par soucis de compacité mémoire et temporel, les flags d'updated sont concaténés ici dans un seul entier...

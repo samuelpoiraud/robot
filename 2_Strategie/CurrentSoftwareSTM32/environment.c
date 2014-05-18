@@ -94,8 +94,10 @@ void ENV_init(void)
 	global.env.destination = (GEOMETRY_point_t){0,0};
 	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
 		global.env.propulsion_coefs[i] = 0;
-	global.env.guy_do_triangle_start = FALSE;
+	for(i=0;i<FIRE_ID_NB; i++)
+		global.env.guy_took_fire[i] = FALSE;
 	global.env.guy_is_bloqued_in_north = FALSE;
+	global.env.reach_point_C1 = FALSE;
 	FIX_BEACON_init();
 }
 
@@ -501,14 +503,12 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_REACH_POINT_C1:
 			global.env.reach_point_C1 = TRUE;
 			break;
-		case XBEE_GUY_TOOK_OUR_TORCH:
-			global.env.guy_took_our_torch = TRUE;
-			break;
 		case XBEE_GUY_IS_BLOQUED_IN_NORTH:
 			global.env.guy_is_bloqued_in_north = TRUE;
 			break;
-		case XBEE_GUY_HAVE_DONE_TRIANGLE:
-			global.env.guy_do_triangle_start = TRUE;
+		case XBEE_GUY_HAVE_DONE_FIRE:
+			if(incoming_msg->data[0] < FIRE_ID_NB)
+				global.env.guy_took_fire[incoming_msg->data[0]] = TRUE;
 			break;
 		case XBEE_REACH_POINT_GET_OUT_INIT:
 			global.env.reach_point_get_out_init = TRUE;
@@ -599,8 +599,6 @@ void ENV_clean (void)
 	global.env.pos.updated = FALSE;
 	global.env.ask_asser_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
-	global.env.reach_point_C1 = FALSE;
-	global.env.guy_took_our_torch = FALSE;
 	global.env.reach_point_get_out_init = FALSE;
 	global.env.duration_trajectory_for_test_coefs = 0;
 	FIX_BEACON_clean();	//Doit être après le any_match !

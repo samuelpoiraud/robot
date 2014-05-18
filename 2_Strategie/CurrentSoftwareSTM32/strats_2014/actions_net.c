@@ -152,13 +152,26 @@ void strat_placement_net(){
 
 		case PLACEMENT_TETA :
 			if(entrance){
+				CAN_msg_t msg;
 				if(global.env.pos.y >= 1500)
 					forced_angle = PI4096/2-(atan2((2350-global.env.pos.y),global.env.pos.x)*4096.);
 				else
 					forced_angle =  PI4096/2-(atan2((750-global.env.pos.y),global.env.pos.x)*4096.);
+				msg.sid = ASSER_GO_ANGLE;
+				msg.data[0]=0x00;//NOW+NO_MULTIPOINT+ABSOLUTE;
+				msg.data[1]=HIGHINT(forced_angle);
+				msg.data[2]=LOWINT(forced_angle);
+				msg.data[3]=0x0;
+				msg.data[4]=0x0;
+				msg.data[5]=FAST;
+				msg.data[6]=0x00;
+				msg.data[7]=0x00;
+				msg.size = 8;
+				CAN_send (&msg);
+				//Message envoyé à la main, sans utiliser le try_go_angle qui est peut être déjà en cours d'appel !
 			}
-			state = try_go_angle(forced_angle, PLACEMENT_TETA, DONE, DONE, FAST);
-		break;
+			state = DONE;
+			break;
 
 		case NO_PATH :
 			if(entrance)
