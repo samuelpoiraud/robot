@@ -314,6 +314,8 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
  */
 bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
 
+bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
+
 error_e goto_extract_with_avoidance(const displacement_t displacements);
 
 //Le point passé en paramètre permet-il les rotations ?
