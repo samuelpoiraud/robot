@@ -34,8 +34,10 @@ Sint16 CALCULATOR_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destinati
 	Sint16 deltaX,deltaY;
 	deltaX= destination_x - start_x;
 	deltaY= destination_y - start_y;
-	return (float)atan2(deltaY,deltaX)*4096;
-	return (Sint16)((float)atan2(destination_y - start_y , destination_x - start_x)*4096);
+	if(deltaX || deltaY)
+		return (float)atan2(deltaY,deltaX)*4096;
+	else
+		return 0;
 }	
 
 Sint16 CALCULATOR_modulo_angle(Sint16 angle)
