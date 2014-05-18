@@ -27,7 +27,7 @@
 
 static void REACH_POINT_GET_OUT_INIT_send_request();
 error_e goto_adversary_zone(void);
-static void send_message_to_pierre(Uint11 sid) ;
+static void send_message_to_pierre(Uint11 sid, Uint8 data0);
 //TODO Si absence de Pierre, on doit être capable de compiler un code de GUY qui met un max de points (tout nos feux... !)
 
 
@@ -139,7 +139,7 @@ error_e sub_action_initiale_guy(){
 
 			if(SWITCH_SAVE)
 			{
-				send_message_to_pierre(XBEE_GUY_TOOK_OUR_TORCH);
+				send_message_to_pierre(XBEE_GUY_HAVE_DONE_FIRE,FIRE_ID_TORCH_OUR);
 				dispose_zone_for_our_torch = HEARTH_CENTRAL;	//On s'occupe de notre torche... des define pourront enrichir avec d'autres choix de zone de dépose.
 			}
 			else
@@ -433,7 +433,7 @@ error_e goto_adversary_zone(void)
 			//NO WAIT : on file direct vers SC1 pour pas géner Pierre...
 			state = try_going_until_break(500,COLOR_Y(1200),SC0,SW0,SC1,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			if(state == SC1)	//En cas d'échec, il faut absolument prévenir Pierre qu'on est arrêté !
-				send_message_to_pierre(XBEE_GUY_IS_BLOQUED_IN_NORTH);
+				send_message_to_pierre(XBEE_GUY_IS_BLOQUED_IN_NORTH,0);
 			break;
 		case SC1:
 			if(entrance)
@@ -451,7 +451,7 @@ error_e goto_adversary_zone(void)
 			}
 			state = try_going_until_break(750,COLOR_Y(1200),SC1,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			if(state == fail_state && last_state == INIT)
-				send_message_to_pierre(XBEE_GUY_IS_BLOQUED_IN_NORTH);
+				send_message_to_pierre(XBEE_GUY_IS_BLOQUED_IN_NORTH,0);
 			break;
 		case SC12://Point intermédiaire en cas d'échec
 			if(entrance)
@@ -2213,12 +2213,21 @@ void strat_test_arm(){
 }
 
 
-static void send_message_to_pierre(Uint11 sid)
+static void send_message_to_pierre(Uint11 sid, Uint8 data0)
 {
 	CAN_msg_t msg;
 
 	msg.sid = sid;
-	msg.size = 0;
+	switch(sid)
+	{
+		case XBEE_GUY_HAVE_DONE_FIRE:
+			msg.size = 1;
+			msg.data[0] = data0;
+			break;
+		default:
+			msg.size = 0;
+			break;
+	}
 
 	CANMsgToXbee(&msg,FALSE);
 }

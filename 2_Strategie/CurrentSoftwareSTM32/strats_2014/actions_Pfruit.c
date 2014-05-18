@@ -921,7 +921,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			if(entrance){
 				state1 = OPEN_FRUIT_VERIN;
 
-				if(tree == CHOICE_TREE_2 && global.env.color == RED && !global.env.guy_do_triangle_start && state2 == OPEN_FRUIT_VERIN)// Pour effectuer seulement une fois cette action
+				if(tree == CHOICE_TREE_2 && global.env.color == RED && !(global.env.guy_took_fire[FIRE_ID_START]) && state2 == OPEN_FRUIT_VERIN)// Pour effectuer seulement une fois cette action
 					state2 = OPEN_FRUIT_VERIN;
 				else
 					state2 = POS_FIN;
@@ -1075,7 +1075,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 				if(entrance){
 					state1 = OPEN_FRUIT_VERIN;
 
-					if(tree == CHOICE_TREE_1 && global.env.color != RED && !global.env.guy_do_triangle_start && state2 == OPEN_FRUIT_VERIN)//Pour effectuer seulement un efois cette action
+					if(tree == CHOICE_TREE_1 && global.env.color != RED && !(global.env.guy_took_fire[FIRE_ID_START]) && state2 == OPEN_FRUIT_VERIN)//Pour effectuer seulement un efois cette action
 						state2 = OPEN_FRUIT_VERIN;
 					else
 						state2 = POS_FIN;

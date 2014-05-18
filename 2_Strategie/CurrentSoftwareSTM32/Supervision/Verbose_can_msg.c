@@ -16,6 +16,23 @@ void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
 void print_us_result(CAN_msg_t * msg, char ** string, int * len);
 void print_broadcast_start_infos(CAN_msg_t * msg, char ** string, int * len);
 
+
+const char * fire_id_string[FIRE_ID_NB] =
+{
+		"TORCH_OUR",
+		"ADV_TORCH",
+		"START",		//Notre feu fixe près de la zone de départ
+		"MOBILE_NORTH",
+		"MOBILE_CENTRAL",
+		"MOBILE_SOUTH",
+		"SOUTH_OUR",	//Au sud, de notre coté
+		"ADV_START",
+		"ADV_MOBILE_NORTH",
+		"ADV_MOBILE_CENTRAL",
+		"ADV_MOBILE_SOUTH",
+		"ADV_SOUTH"	//Au sud, du coté adverse
+};
+
 #define	u32(x1,x2,x3,x4) (U32FROMU8(msg->data[x1], msg->data[x2], msg->data[x3], msg->data[x4]))
 #define	u16(x,y)		(U16FROMU8(msg->data[x], msg->data[y]))
 #define s16(x,y)		((Sint16)(U16FROMU8(msg->data[x], msg->data[y])))
@@ -108,8 +125,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case XBEE_PONG:							print(string, len, "%x XBEE_PONG                            ", XBEE_PONG						);	break;
 		case XBEE_REACH_POINT_GET_OUT_INIT:		print(string, len, "%x XBEE_REACH_POINT_GET_OUT_INIT        ", XBEE_REACH_POINT_GET_OUT_INIT	);	break;
 		case XBEE_REACH_POINT_C1:				print(string, len, "%x XBEE_REACH_POINT_C1                  ", XBEE_REACH_POINT_C1				);	break;
-		case XBEE_GUY_TOOK_OUR_TORCH:			print(string, len, "%x XBEE_GUY_TOOK_OUR_TORCH              ", XBEE_GUY_TOOK_OUR_TORCH			);	break;
-		case XBEE_GUY_HAVE_DONE_TRIANGLE:		print(string, len, "%x XBEE_GUY_HAVE_DONE_TRIANGLE          ", XBEE_GUY_HAVE_DONE_TRIANGLE		);	break;
+		case XBEE_GUY_HAVE_DONE_FIRE:			print(string, len, "%x XBEE_GUY_HAVE_DONE_FIRE              ", XBEE_GUY_HAVE_DONE_FIRE			);	break;
 		case XBEE_GUY_IS_BLOQUED_IN_NORTH:		print(string, len, "%x XBEE_GUY_IS_BLOQUED_IN_NORTH         ", XBEE_GUY_IS_BLOQUED_IN_NORTH		);	break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "%x DEBUG_PROPULSION_SET_COEF            ", DEBUG_PROPULSION_SET_COEF		);	break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "%x DEBUG_PROPULSION_SET_ACCELERATION    ", DEBUG_PROPULSION_SET_ACCELERATION);	break;
@@ -181,7 +197,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 												print(string, len, "dR1=%dmm|dR2=%dmm|id=%d\n", u16(1,2), u16(5,6), u8(3));								break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", u8(0),u32(1,2,3,4));								break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%d\n", u16(0,1));									break;
-
+		case XBEE_GUY_HAVE_DONE_FIRE:			print(string, len, "| fire_id=%d : %s\n", u8(0), (u8(0) < FIRE_ID_NB)?fire_id_string[u8(0)]:"UNKNOW_FIRE_ID");	break;
 		default:
 			if(msg->size)
 			{
