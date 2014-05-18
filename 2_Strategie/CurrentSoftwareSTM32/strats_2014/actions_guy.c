@@ -41,30 +41,34 @@ static void send_message_to_pierre(Uint11 sid, Uint8 data0);
 #define DIM_TRIANGLE 100
 
 #define DIST_RETURN_RETURN_TRIANGLE		250
-
+#define DISTANCE_BETWEEN_GUY_AND_HEARTH	80	//Entre le centre de guy, et le foyer contre lequel il se place
+#define CENTRAL_HEARTH_RADIUS			150
 //#define GUY_FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
 
 // Fonctionne que pour les chemins MAMMOUTH_SIDE et HEART_SIDE
 bool_e rush_to_torch = FALSE;  // Si FALSE va faire tomber un ou des triangle(s) avant
 bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait que l'ennemis ne le fais pas tomber des le debut
 
+#define	DISPOSE_POINT_X		1400//Point où l'on se rend avec NOTRE torche
+#define	DISPOSE_POINT_Y		1500//Point où l'on se rend avec NOTRE torche
 
 //IL FAUT définir une zone de dépose pour la torche adverse. (si on a réussi à la prendre)
-	//#define DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
-	#define DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
+	#define DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+	//#define DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
 	//#define DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
 
 //IL FAUT définir une zone de dépose en cas d'échec de la première tentative pour la torche adverse. (si on a réussi à la prendre)
 	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_OUR_HEARTH
-	#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
+	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
 	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_ON_CENTRAL_HEARTH
-	//#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_NO_DISPOSE
+	#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_NO_DISPOSE
 
 #define DIM_START_TRAVEL_TORCH 200
 
 typedef enum{
 	NORTH_MAMMOUTH = 0,
 	NORTH_HEART,
+	TORCH_ROAD,
 	SOUTH_HEART,
 	SOUTH_TREES
 }initial_path_e;	//Chemin initial choisi pour se rendre du coté adverse
@@ -77,7 +81,7 @@ pos_scan_t pos_scan[2] = {{{1200,1800},{1200,1900},600,1600,1800,2300,-PI4096,-P
 
 volatile initial_path_e initial_path;
 static bool_e pierre_reach_point_C1 = FALSE;
-
+static bool_e we_have_a_torch = FALSE;
 /*
  * Le but de la strat_initiale de guy est :
  * 	1- se rendre dans la zone adverse, par un chemin choisi (+ gestion des cas d'erreurs) => sous traité à ############
@@ -90,6 +94,7 @@ error_e sub_action_initiale_guy(){
 		SUCESS,
 		GET_OUT_POS_START,
 		FALL_FIRST_FIRE,
+		ROTATION_IF_NOT_CALIBRATED,
 		GOTO_ADVERSARY_ZONE,
 		GOTO_TREE_INIT,
 		FALL_FIRE_WALL_TREE,  // Fait tomber les deux feux contre le mur milieu
@@ -99,7 +104,8 @@ error_e sub_action_initiale_guy(){
 		GOTO_HEART_INIT,
 		FALL_FIRE_MOBILE_TREE_ADV,
 		GOTO_TORCH_ADVERSARY,
-		DO_TORCH,
+		DO_OUR_TORCH,
+		DO_ADV_TORCH,
 		FALL_FIRE_MOBILE_MM_ADV,
 		FALL_FIRE_WALL_ADV,
 		DONE,
@@ -108,6 +114,7 @@ error_e sub_action_initiale_guy(){
 
 	//static displacement_t points[6];
 	//static Uint8	nb_points = 0;
+	static enum state_e success_state;
 	static bool_e we_prevented_pierre_to_get_out = FALSE;
 	static Sint16 y_to_prevent_pierre_to_get_out;
 	static time32_t t;
@@ -120,6 +127,7 @@ error_e sub_action_initiale_guy(){
 	switch(state)
 	{
 		case INIT:
+			we_have_a_torch = FALSE;
 			we_prevented_pierre_to_get_out = FALSE;
 			if(SWITCH_STRAT_2)	//NORTH ou SOUTH
 			{
@@ -139,6 +147,7 @@ error_e sub_action_initiale_guy(){
 
 			if(SWITCH_SAVE)
 			{
+				initial_path = TORCH_ROAD;	//En fait, on prend la TORCH_ROAD !
 				send_message_to_pierre(XBEE_GUY_HAVE_DONE_FIRE,FIRE_ID_TORCH_OUR);
 				dispose_zone_for_our_torch = HEARTH_CENTRAL;	//On s'occupe de notre torche... des define pourront enrichir avec d'autres choix de zone de dépose.
 			}
@@ -211,11 +220,14 @@ error_e sub_action_initiale_guy(){
 
 		case GET_OUT_POS_START:
 			if(entrance)
+			{
 				ASSER_set_acceleration(80);	//Acceleration de guy au démarrage...
+				success_state = (global.env.asser.calibrated)?GOTO_ADVERSARY_ZONE:ROTATION_IF_NOT_CALIBRATED;
+			}
 			if(global.env.asser.calibrated)
-				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			else
-				state  = try_going_until_break(635,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				state  = try_going_until_break(635,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		/*case PREVENT_PIERRE_WE_ARE_GOT_OUT:
@@ -224,6 +236,9 @@ error_e sub_action_initiale_guy(){
 			state = GOTO_ADVERSARY_ZONE;
 			break;
 		*/
+		case ROTATION_IF_NOT_CALIBRATED:
+			state = try_go_angle((global.env.color == RED)?PI4096/4:-PI4096/4,state,GOTO_ADVERSARY_ZONE,GOTO_ADVERSARY_ZONE,FAST);
+			break;
 		case GOTO_ADVERSARY_ZONE:
 			if(entrance)
 			{
@@ -242,14 +257,29 @@ error_e sub_action_initiale_guy(){
 					BUZZER_play(100,DEFAULT_NOTE,1);
 				}
 			}
-			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,DO_TORCH,ERROR);
+			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,DO_OUR_TORCH,ERROR);
 			if(state != GOTO_ADVERSARY_ZONE)
 				ASSER_set_acceleration(64);
 
 			//ERROR n'est pas censé se produire... la sub_action étant censée trouver une solution pour se rendre en zone adverse !
 			break;
-
-		case DO_TORCH:
+		case DO_OUR_TORCH:
+			if(we_have_a_torch)
+			{
+				switch(do_torch(OUR_TORCH,TRUE,HEARTH_CENTRAL,NO_DISPOSE))
+				{
+					case IN_PROGRESS:
+						break;
+					case END_OK:		//no break
+					case NOT_HANDLED:	//no break
+					default:
+						state = DO_ADV_TORCH;
+				}
+			}
+			else
+				state = DO_ADV_TORCH;
+			break;
+		case DO_ADV_TORCH:
 			if(dispose_zone_for_adversary_torch == NO_DISPOSE)
 			{
 				SD_printf("Récupération de la torche adverse : désactivée\n");
@@ -257,7 +287,7 @@ error_e sub_action_initiale_guy(){
 			}
 			else
 			{
-				switch(do_torch(ADVERSARY_TORCH, dispose_zone_for_adversary_torch, if_fail_dispose_zone_for_adversary_torch))
+				switch(do_torch(ADVERSARY_TORCH, FALSE, dispose_zone_for_adversary_torch, if_fail_dispose_zone_for_adversary_torch))
 				{
 					case IN_PROGRESS:
 						break;
@@ -314,6 +344,9 @@ void goto_adversary_zone_arm_management(void)
 				case SOUTH_HEART:
 					state = WAIT_FOR_TREE_FIRE;
 					break;
+				case TORCH_ROAD:
+					state = DONE;
+					break;
 				case NORTH_HEART:
 					state = DONE;
 					break;
@@ -354,7 +387,7 @@ void goto_adversary_zone_arm_management(void)
 
 }
 /*
- * Sub action qui permet à guy de se rendre dans la zone adverse.
+ * Sub action qui permet à guy de se rendre dans la zone adverse ou au point de dépose avec notre torche
  * Cette sub action gère les cas d'erreur et ne rendra la main que lorsque Guy est dans la zone adverse !
  *
  * Actions activables (par macros) et intégrées à cette sub-action :
@@ -367,6 +400,7 @@ error_e goto_adversary_zone(void)
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GOTO_ADVERSARY_ZONE,
 		INIT,
 		//WAIT_FOR_PIERRE,
+		ST2,
 		SB2,
 		SC0,
 		SC1,
@@ -377,6 +411,8 @@ error_e goto_adversary_zone(void)
 		SW1,
 		SW2,
 		SW3,
+		DISPOSE_POINT_TORCH,
+		FAIL_DISPOSE_POINT,
 		DONE
 	);
 	static enum state_e fail_state = INIT;
@@ -396,6 +432,10 @@ error_e goto_adversary_zone(void)
 				case SOUTH_HEART:
 					SD_printf("CHEMIN : Sud, proche foyer (SOUTH Int)\n");
 					state = SB2;
+					break;
+				case TORCH_ROAD:
+					SD_printf("CHEMIN : Torche\n");
+					state = ST2;
 					break;
 				case NORTH_HEART:
 					SD_printf("CHEMIN : Nord, proche foyer (NORTH Int)\n");
@@ -418,6 +458,10 @@ error_e goto_adversary_zone(void)
 			}
 			break;
 		*/
+		case ST2:	//On veut récupérer la torche
+			//Si on échoue, on abandonne la torche, on on file en SC1...
+			state = try_going_until_break(1000,COLOR_Y(750),ST2,DISPOSE_POINT_TORCH,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
 		case SB2:
 			if(entrance)
 			{
@@ -427,13 +471,16 @@ error_e goto_adversary_zone(void)
 					success_state = SC3;
 			}
 			//TODO sur cette trajectoire, bouger le bras ou adapter la trajectoire pour gérer le feu mobile central !
-			state = try_going_until_break(1350,COLOR_Y(800),SB2,success_state,SC12,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1350,COLOR_Y(800),SB2,SC2,SC12,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SC0:
 			//NO WAIT : on file direct vers SC1 pour pas géner Pierre...
 			state = try_going_until_break(500,COLOR_Y(1200),SC0,SW0,SC1,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			if(state == SC1)	//En cas d'échec, il faut absolument prévenir Pierre qu'on est arrêté !
+			{
+				BUZZER_play(200,DEFAULT_NOTE,1);
 				send_message_to_pierre(XBEE_GUY_IS_BLOQUED_IN_NORTH,0);
+			}
 			break;
 		case SC1:
 			if(entrance)
@@ -451,7 +498,10 @@ error_e goto_adversary_zone(void)
 			}
 			state = try_going_until_break(750,COLOR_Y(1200),SC1,success_state,fail_state,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			if(state == fail_state && last_state == INIT)
+			{
+				BUZZER_play(200,DEFAULT_NOTE,1);
 				send_message_to_pierre(XBEE_GUY_IS_BLOQUED_IN_NORTH,0);
+			}
 			break;
 		case SC12://Point intermédiaire en cas d'échec
 			if(entrance)
@@ -501,13 +551,20 @@ error_e goto_adversary_zone(void)
 			state = try_going_until_break(1750,COLOR_Y(1800),SW3,DONE,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 			//TODO poursuivre le déplacement vers d'autres points clés pour chaque chemin... afin de mettre les feux mobiles (selon deines)
+		case DISPOSE_POINT_TORCH:
+			state = try_going(DISPOSE_POINT_X,DISPOSE_POINT_Y,DISPOSE_POINT_TORCH,DONE,FAIL_DISPOSE_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			if(state == DONE)
+				we_have_a_torch = TRUE;
+			break;
+		case FAIL_DISPOSE_POINT:
+			state = INIT;
+			ret = END_OK;
+			break;
 		case DONE:
 			state = INIT;
 			ret = END_OK;
 			break;
 	}
-
-
 	return ret;
 }
 
@@ -520,18 +577,21 @@ error_e goto_adversary_zone(void)
  * Attention, la position if_fail_dispose_zone doit être choisie intelligemment, il n'y a pas de protection anti-recouvrement d'élément fixe !
  *
  * Faire une torche signifie
- * - se rend à coté de la torche SI NECESSAIRE (si on y est pas déjà.. mais c'est mieux si on y est !)
- * - Fonction de récupération : pousse la torche dans la bonne direction (en fonction du foyer de dépose)
- * - Se rend au foyer de dépose
- * 	- en cas d'échec... tente une seconde position de dépose (passée en paramètre)
- * 	- en cas d'échec... abandonne le dépilement de la torche
+ * SI on a pas déjà une torche :
+ * {
+ * 		- se rend à coté de la torche SI NECESSAIRE (si on y est pas déjà.. mais c'est mieux si on y est !)
+ * 		- Fonction de récupération : pousse la torche dans la bonne direction (en fonction du foyer de dépose)
+ * 		- Se rend au foyer de dépose
+ * 		- en cas d'échec... tente une seconde position de dépose (passée en paramètre)
+ * 		- en cas d'échec... abandonne le dépilement de la torche
+ * 	}
  * - dépile la torche
  *  - en cas d'échec, abandonne
  * - s'extrait de la zone pour pouvoir rendre la main
  * - enregistre le fait de la dépose (et la zone déposée)
  */
 
-error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone, torch_dispose_zone_e if_fail_dispose_zone)
+error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, torch_dispose_zone_e dispose_zone, torch_dispose_zone_e if_fail_dispose_zone)
 {
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TORCH,
 		IDLE,
@@ -543,15 +603,20 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 		END_TORCH,
 		REMOTENESS,
 		DEPLOY_TORCH,
+		EXTRACT_FROM_HEART,
+		EXTRACT_FROM_HEART_WITH_ERROR,
+		WAIT_FOR_EXIT,
+		RETURN_NOT_HANDLED,
 		ERROR,
 		DONE
 	);
 	static torch_dispose_zone_e current_dispose_zone = NO_DISPOSE;
 	static bool_e fail_at_first_dispose_try = FALSE;	//
 	static bool_e i_have_the_torch = FALSE;	//
-	static GEOMETRY_point_t posStart,posEnd,posIntermediate,posPre;
+	static GEOMETRY_point_t posStart,posEnd,posIntermediate,posPre,get_out;
 	static bool_e posIntermediate_enable = FALSE;
 	static bool_e posPrepositionning_enable = FALSE;
+	static bool_e get_out_enable = FALSE;
 	// S'éloigne à la fin de la poussée mais ralenti aussi avant la fin de la poussée
 	static GEOMETRY_point_t eloignement;
 
@@ -608,6 +673,9 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 				default:
 					posEnd.x = 1400;
 					posEnd.y = 1500;
+					get_out.x = 1500;
+					get_out.y = COLOR_Y(1600);
+					get_out_enable = TRUE;
 					break;
 			}
 
@@ -681,8 +749,9 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 			{
 				//Pas de point de prépositionnement.. On assume la précondition que pour prendre notre torche il faut être bien placé !!!
 			}
-
-			if(last_state == ERROR)
+			if(we_are_already_in_pos_end)	//Le cas particulier où on a déjà la torche en position correcte en arrivant dans cette fonction ! AUCUNE VERIFICATION, le développeur est responsable !
+				state = REMOTENESS;
+			else if(last_state == ERROR)
 				state = POS_INTERMEDIATE;	//On a échoué lors d'une précédente tentative de pose... on va directement sur le MOVE_TORCH pour rejoindre le point eloignement de la nouvelle zone de dépsose !
 			else if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, posStart) < 50)
 				state = MOVE_TORCH;
@@ -732,8 +801,8 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 				if(i_have_the_torch)
 					TORCH_new_position(torch_choice);
 				//TODO : libérer la torche ! (il faudrait d'ailleurs s'en extraire...)
-				state = IDLE;
-				return NOT_HANDLED;
+				state = EXTRACT_FROM_HEART_WITH_ERROR;
+
 			}
 			else
 			{
@@ -746,9 +815,39 @@ error_e do_torch(torch_choice_e torch_choice, torch_dispose_zone_e dispose_zone,
 //TODO un GET_OUT en cas d'erreur serait le bienvenu (?)
 
 		case DEPLOY_TORCH:	//On déploie la torche sur le foyer
-			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,current_dispose_zone),DEPLOY_TORCH,DONE,ERROR);
+			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,current_dispose_zone),DEPLOY_TORCH,EXTRACT_FROM_HEART,ERROR);
 			break;
-
+		case EXTRACT_FROM_HEART:
+			if(get_out_enable)
+				state = try_going(get_out.x, get_out.y, state, DONE, WAIT_FOR_EXIT, FAST, ANY_WAY, DODGE_AND_WAIT);
+			else
+			{
+				state = DONE;
+				SD_printf("get_out disabled");
+			}
+			break;
+		case EXTRACT_FROM_HEART_WITH_ERROR:
+			if(get_out_enable)
+				state = try_going(get_out.x, get_out.y, state, RETURN_NOT_HANDLED, WAIT_FOR_EXIT, FAST, ANY_WAY, DODGE_AND_WAIT);
+			else
+			{
+				state = RETURN_NOT_HANDLED;
+				SD_printf("get_out disabled");
+			}
+			break;
+		case WAIT_FOR_EXIT:{
+			static time32_t local_time;
+			if(entrance)
+			{
+				local_time = global.env.match_time;
+			}
+			if(global.env.match_time > local_time + 1000)
+				state = EXTRACT_FROM_HEART_WITH_ERROR;
+			}break;
+		case RETURN_NOT_HANDLED:
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
 		case DONE:
 			state = IDLE;
 			return END_OK;
@@ -846,7 +945,7 @@ error_e scan_and_back(pos_scan_e scan){
 				if(scan == SCAN_CENTRAL_HEARTH && level != 0){
 					dir.x = 1050;
 					dir.y = 1500;
-					size = 170; // Rayon du milieu
+					size = CENTRAL_HEARTH_RADIUS + DISTANCE_BETWEEN_GUY_AND_HEARTH; // Rayon du milieu
 				}else if(scan == SCAN_ADV_HEARTH && level != 0){
 					dir.x = 2000;
 					dir.y = COLOR_Y(3000);
@@ -866,8 +965,8 @@ error_e scan_and_back(pos_scan_e scan){
 				point.x = dir.x + size*coefx;
 				point.y = dir.y + size*coefy;
 			}
-
-			state = try_going(point.x,point.y, POS_TAKE, TAKE, GET_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			//On considère l'erreur comme une réussite (un peu comme un RUSH...)
+			state = try_going(point.x,point.y, POS_TAKE, TAKE, TAKE, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 
 			}break;
 
@@ -1889,7 +1988,7 @@ Uint8 putTorchInMidle(Uint8 currentState, Uint8 successState, Uint8 failState){
 			state = try_going(1380,COLOR_Y(1650),TORCHE_LA,DEPILE,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 		case DEPILE:
-			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_CENTRAL,NO_DISPOSE),DEPILE,DONE,ERROR);
+			state = check_sub_action_result(do_torch(OUR_TORCH,FALSE, HEARTH_CENTRAL,NO_DISPOSE),DEPILE,DONE,ERROR);
 			state = DONE;
 			break;
 		case DONE:
@@ -1946,7 +2045,7 @@ Uint8 putTorchInAdversary(Uint8 currentState, Uint8 successState, Uint8 failStat
 			state = try_going(1380,COLOR_Y(1650),TORCHE_LA,DEPILE,ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 		case DEPILE:
-			//state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_CENTRAL),DEPILE,DONE,ERROR);
+			//state = check_sub_action_result(do_torch(OUR_TORCH,FALSE,HEARTH_CENTRAL),DEPILE,DONE,ERROR);
 			state = DONE;
 			break;
 		case DONE:
@@ -1995,7 +2094,7 @@ void strat_inutile_guy(void){
 		//	break;
 
 		case DO_TORCH:
-			state = check_sub_action_result(do_torch(OUR_TORCH,HEARTH_OUR,HEARTH_CENTRAL),DO_TORCH,DONE,ERROR);
+			state = check_sub_action_result(do_torch(OUR_TORCH,FALSE,HEARTH_OUR,HEARTH_CENTRAL),DO_TORCH,DONE,ERROR);
 			break;
 
 		case DEPLOY_TORCH:
