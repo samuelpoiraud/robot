@@ -38,8 +38,10 @@
 
 #define THRESHOLD_BATTERY_OFF	15000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW	21300	//[mV] Réglage du seuil de batterie faible
-#define NB_AVERAGED_VALUE		20
-#define REFRESH_DISPLAY_BAT		4000
+#define NB_AVERAGED_VALUE		60
+#define REFRESH_DISPLAY_BAT		500
+#define TIME_TO_REFRESH_BAT		1000
+#define TIME_TO_TAKE_VALUE		(TIME_TO_REFRESH_BAT/NB_AVERAGED_VALUE)
 
 #define LED_ON	1
 #define LED_OFF	0
@@ -754,6 +756,7 @@ void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 	}
 }
 
+
 void SELFTEST_check_alim(){
 	typedef enum{
 		ALIM_Off = 0,
@@ -761,19 +764,24 @@ void SELFTEST_check_alim(){
 	}state_e;
 	static state_e state = ALIM_Off;
 	static Uint16 values[NB_AVERAGED_VALUE] = {0};
-	static Uint8 index = 0;
-	static Uint16 count = 0;
+	static time32_t begin_time = 0;
 	Uint8 i;
 	Uint32 average = 0;
 	CAN_msg_t msg;
 
-	// Mesure moyenné de la tension 24V
-	values[index++] = SELFTEST_measure24_mV();
-	if(index >= NB_AVERAGED_VALUE)
-		index = 0;
+	if(begin_time == 0)
+		begin_time = global.env.absolute_time;
 
-	count++;
-	if(count >= REFRESH_DISPLAY_BAT){
+	values[(int)((global.env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE)] = SELFTEST_measure24_mV();
+
+	for(i=0;i<NB_AVERAGED_VALUE;i++)
+		average += values[i];
+
+	average /= NB_AVERAGED_VALUE;
+	global.env.alim_value = average;
+
+	if(global.env.absolute_time-begin_time >= TIME_TO_REFRESH_BAT){
+		begin_time = global.env.absolute_time;
 
 		if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW){
 			BUZZER_play(40, DEFAULT_NOTE, 10);
@@ -783,17 +791,7 @@ void SELFTEST_check_alim(){
 
 		if(!warning_bat)
 			LCD_printf(3, FALSE, FALSE, "VBAT : %d  N°%d", global.env.alim_value, SD_get_match_id());
-
-		count = 0;
 	}
-
-	for(i=0;i<NB_AVERAGED_VALUE;i++)
-		average += values[i];
-
-	average /= NB_AVERAGED_VALUE;
-	global.env.alim_value = average;
-
-
 
 
 	if(global.env.alim_value > THRESHOLD_BATTERY_OFF && state != ALIM_On){
