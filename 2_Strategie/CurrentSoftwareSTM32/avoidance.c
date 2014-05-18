@@ -594,7 +594,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			break;
 
 		case EXTRACT:
-			sub_action = extraction_of_foe(SLOW_TRANSLATION_AND_FAST_ROTATION);
+			sub_action = extraction_of_foe(FAST);//SLOW_TRANSLATION_AND_FAST_ROTATION);
 			switch(sub_action)
 			{
 				case END_OK:
