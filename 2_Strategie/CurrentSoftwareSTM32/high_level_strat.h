@@ -96,10 +96,11 @@ Uint8 number_of_sub_action;
 void high_level_strat();
 
 void set_update_subaction_order(bool_e update);
-void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, bool_e ask_stop_request, char * chaine);
+void set_sub_act(subaction_id_e sub_action, Uint8 priority, bool_e enable, time32_t t_begin, time32_t t_end, bool_e ask_stop_request, bool_e call_again, char * chaine);
 void set_sub_act_priority(subaction_id_e sub_action, Uint8 priority);
 void set_sub_act_enable(subaction_id_e sub_action, bool_e enable);
 void set_sub_act_done(subaction_id_e sub_action, bool_e done);
+void set_sub_act_call_again(subaction_id_e sub_action, bool_e call_again);
 void set_sub_act_t_begin(subaction_id_e sub_action, time32_t t_begin);
 void set_sub_act_t_end(subaction_id_e sub_action, time32_t t_end);
 void set_sub_act_chaine(subaction_id_e sub_action, char* chaine);
@@ -114,6 +115,7 @@ void dec_sub_act_t_end(subaction_id_e sub_action);
 
 Uint8 get_sub_act_priority(subaction_id_e sub_action);
 bool_e get_sub_act_enable(subaction_id_e sub_action);
+bool_e get_sub_act_call_again(subaction_id_e sub_action);
 bool_e get_sub_act_done(subaction_id_e sub_action);
 Uint32 get_sub_act_t_begin(subaction_id_e sub_action);
 Uint32 get_sub_act_t_end(subaction_id_e sub_action);
