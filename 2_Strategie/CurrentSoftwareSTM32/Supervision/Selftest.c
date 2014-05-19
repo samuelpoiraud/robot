@@ -38,7 +38,7 @@
 
 #define THRESHOLD_BATTERY_OFF	15000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW	21300	//[mV] Réglage du seuil de batterie faible
-#define NB_AVERAGED_VALUE		60
+#define NB_AVERAGED_VALUE		50
 #define REFRESH_DISPLAY_BAT		500
 #define TIME_TO_REFRESH_BAT		1000
 #define TIME_TO_TAKE_VALUE		(TIME_TO_REFRESH_BAT/NB_AVERAGED_VALUE)
@@ -772,7 +772,7 @@ void SELFTEST_check_alim(){
 	if(begin_time == 0)
 		begin_time = global.env.absolute_time;
 
-	values[(int)((global.env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE)] = SELFTEST_measure24_mV();
+	//values[(int){(global.env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE}] = SELFTEST_measure24_mV();
 
 	for(i=0;i<NB_AVERAGED_VALUE;i++)
 		average += values[i];
