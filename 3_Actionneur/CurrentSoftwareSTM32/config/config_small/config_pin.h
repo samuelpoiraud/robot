@@ -119,7 +119,7 @@
 
 	// ID des moteurs du bras
 	#define ARM_ACT_UPDOWN_ID                        0
-	#define ARM_ACT_RX24_ID                          20
+	#define ARM_ACT_RX24_ID                          21
 	#define ARM_ACT_AX12_MID_ID                      2
 	#define ARM_ACT_AX12_TRIANGLE_ID                 6
 
