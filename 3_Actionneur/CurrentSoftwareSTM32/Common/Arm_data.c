@@ -52,22 +52,22 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 #else
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 		// moteur (dans l'ordre)
-		{-355	,153	,274,	249},	//ARM_ST_Parked
-		{-355	,142	,239,	245},	//ARM_ST_Mid
-		{-355	,145	,218,	152},	//ARM_ST_Open
-		{-355	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
+		{-432	,154	,283,	249},	//ARM_ST_Parked
+		{-432	,152	,246,	245},	//ARM_ST_Mid
+		{-432	,145	,218,	152},	//ARM_ST_Open
+		{-432	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
 		{-200	,148	,214,	145},	//ARM_ST_To_Storage
 		{-351	,169	,280,	233},	//ARM_ST_To_Carry
-		{-355	,158	,164,	235},	//ARM_ST_To_Prepare_Return
-		{-211	,135	,69,	235},	//ARM_ST_To_Down_Return
-		{-213	,133	,65,	232},	//ARM_ST_To_Return
-		{-213	,133	,65,	232},	//ARM_ST_To_Prepare_Take_Return
-		{-74	,109	,38,	148},	//ARM_ST_To_Take_Return
-		{-355	,150	,150,	150},	//ARM_ST_On_Triangle			// Distance factice
-		{-355	,113	,151,	79},	//ARM_ST_Prepare_Backward
-		{-215	,113	,154,	79},	//ARM_ST_Down_Backward
-		{-215	,113	,154,	148},	//ARM_ST_Lock_Backward
-		{-215	,113	,154,	148}	//ARM_ST_Take_On_Road
+		{-432	,158	,164,	235},	//ARM_ST_To_Prepare_Return
+		{-271	,135	,69,	235},	//ARM_ST_To_Down_Return
+		{-273	,133	,65,	232},	//ARM_ST_To_Return
+		{-273	,133	,65,	232},	//ARM_ST_To_Prepare_Take_Return
+		{-134	,109	,38,	148},	//ARM_ST_To_Take_Return
+		{-432	,150	,150,	150},	//ARM_ST_On_Triangle			// Distance factice
+		{-432	,113	,151,	79},	//ARM_ST_Prepare_Backward
+		{-275	,113	,154,	79},	//ARM_ST_Down_Backward
+		{-275	,113	,154,	148},	//ARM_ST_Lock_Backward
+		{-275	,113	,154,	148}	//ARM_ST_Take_On_Road
 		};
 #endif
 

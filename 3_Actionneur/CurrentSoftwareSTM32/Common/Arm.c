@@ -56,18 +56,18 @@
 #define TIME_TO_INC_RUSH			25		//ms
 #define INC_RUSH					5
 #define TIME_RUSH_IN_FLOOR			5000
-#define DIFF_POS_FICT_RUSH			40
+#define DIFF_POS_FICT_RUSH			55
 #define EPSILON_POS_RUSH_FLOOR		20
 
 
-#define square(x) ((Sint32)x*x)
+#define square(x) ((Sint32)(x)*(x))
 
 #ifdef I_AM_ROBOT_SMALL
-	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1983*x+40.465))
-	#define conv_potar_updown_to_dist(x) ((Sint16)(-x/3.1983+40.465/3.1983))
+	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1822*(x)+29.086))
+	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1822+29.086/3.1822))
 #else
 	#define conv_dist_to_potar_updown(x) (x*2)
-	#define conv_potar_updown_to_dist(x) ((Sint16)(-x/3.1983+40.465/3.1983))
+	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1983+40.465/3.1983))
 #endif
 
 
@@ -882,7 +882,7 @@ static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 static bool_e move_updown_to(Sint16 pos){
 	Sint16 value = conv_dist_to_potar_updown(pos);
 
-	display(value);
+	display(pos);
 
 	if(value < ARM_ACT_UPDOWN_MIN_VALUE || value > ARM_ACT_UPDOWN_MAX_VALUE)
 		return FALSE;
