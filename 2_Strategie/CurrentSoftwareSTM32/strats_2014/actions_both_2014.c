@@ -15,6 +15,7 @@
 #include "../Pathfind.h"
 #include "../avoidance.h"
 #include "../QS/QS_who_am_i.h"
+#include "../Pathfind.h"
 
 //#define LOG_PREFIX "strat_tests: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
@@ -923,4 +924,71 @@ void test_strat_robot_virtuel_with_avoidance(void){
 		default:
 			break;
 	}
+}
+
+#define WAIT_TIME	1000		//[ms] temps d'attente sur le point visé.
+/*
+ * Cette sub_action se rend au point (x,y) OU au noeud le plus proche si le point(x,y) est à moins de 5cm manhattan d'un noeud.
+ * Ensuite, l'action marque une attente d'une seconde avant de rendre la main.
+ * Si elle est appelée ou rappelée, alors qu'on est sur ce point, elle marque simplement une attente d'une seconde.
+ *
+ * Cas d'exemple : sub_wait(1000,COLOR_Y(2000));								//Va passer une seconde en 1000, COLOR_Y(2000)
+ * Autre exemple intéressant : sub_wait(global.env.pos.x, global.env.pos.y);	//Marque une attente où que tu sois
+ */
+error_e sub_wait(Sint16 x, Sint16 y)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_BOTH_WAIT,
+			INIT,
+			GET_IN,
+			GOTO_POINT,
+			WAIT,
+			ERROR,
+			DONE
+		);
+	static enum state_e success_state;
+	static pathfind_node_id_t node;
+	static time32_t local_time;
+
+	switch(state)
+	{
+		case INIT:
+			node = PATHFIND_closestNode(x,y,(Uint32)(NULL));
+			if(est_dans_carre(x-50, x+50, y-50, y+50,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))	//Je suis sur le point (5cm près)
+				state = WAIT;
+			else if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(node),PATHFIND_get_node_y(node),global.env.pos.x,global.env.pos.y) < 50)
+				state = GOTO_POINT;
+			else
+				state = GET_IN;
+			break;
+		case GET_IN:
+			if(entrance)
+			{
+				if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(node),PATHFIND_get_node_y(node),x,y) < 50)
+					success_state = WAIT;	//Le point demandé est très près d'un noeud... on se contente d'aller au noeud.
+				else
+					success_state = GOTO_POINT; 	//Le point demandé n'est pas sur un noeud...
+			}
+			state = PATHFIND_try_going(node,GET_IN,success_state,ERROR,ANY_WAY,FAST,DODGE_AND_WAIT,END_AT_LAST_POINT);
+			break;
+		case GOTO_POINT:
+			state = try_going(x,y,GOTO_POINT,WAIT,ERROR,FAST,DODGE_AND_WAIT,END_AT_LAST_POINT);
+			break;
+		case WAIT:
+			if(entrance)
+			{
+				local_time = global.env.match_time;
+			}
+			if(global.env.match_time > local_time + WAIT_TIME)
+				state = DONE;
+			break;
+		case ERROR:
+			state = INIT;
+			return NOT_HANDLED;
+			break;
+		case DONE:
+			state = INIT;
+			return END_OK;
+			break;
+	}
+	return IN_PROGRESS;
 }

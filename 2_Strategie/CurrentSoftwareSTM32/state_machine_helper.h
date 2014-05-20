@@ -71,6 +71,8 @@ typedef enum {
 	SM_ID_SUB_GOTO_ADVERSARY_ZONE_ARM_MGT	= 0x0227,
 	SM_ID_SUB_GUY_SCAN_AND_BACK				= 0x0228,
 
+	SM_ID_SUB_BOTH_WAIT						= 0x0230,
+
 	SM_ID_ZONE_TRY_LOCK	 					= 0x0301,
 	SM_ID_PATHFIND_TRY_GOING				= 0x0401,
 	SM_ID_ACTIONS_BOTH_2014_TEST_PATHFIND 	= 0x0402,
@@ -96,7 +98,7 @@ typedef enum {
 // Le 2ème argument est l'état à l'initialisation.
 // Les autres arguments sont les autre états de la machine à états.
 #define CREATE_MAE_WITH_VERBOSE(state_machine_id, init_state, ...) \
-	enum state_e { init_state, __VA_ARGS__ }; \
+	enum state_e { init_state = 0, __VA_ARGS__ }; \
 	static const char * const state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }; \
 	static enum state_e state = init_state; \
 	static enum state_e last_state = init_state; \
@@ -111,7 +113,7 @@ typedef enum {
 // La même sans verbose afin de pouvoir crée rapidement une machine à état avec la gestion de l'entrance automatique
 // et de pouvoir utiliser ON_LEAVING et RESET_MAE pour améliorer la lisibilité du code
 #define CREATE_MAE(state_machine_id, init_state, ...) \
-	enum state_e { init_state, __VA_ARGS__ }; \
+	enum state_e { init_state = 0, __VA_ARGS__ }; \
 	static enum state_e state = init_state; \
 	static enum state_e last_state = init_state; \
 	static enum state_e last_state_for_check_entrance = init_state; \
