@@ -17,6 +17,7 @@
 #include "config/config_pin.h"
 #include "state_machine_helper.h"
 #include "Pathfind.h"
+#include "config/config_qs.h"
 #include <math.h>
 
 #define SCAN_TIMEOUT			4000
@@ -520,11 +521,14 @@ void ELEMENT_answer_pump(CAN_msg_t *msg){
 //Renvoie TRUE si la fresque est absente : NON, ce n'est PAS une erreur
 bool_e get_fresco(Uint8 nb){
 	ADC_init();
+
+#ifdef USE_AN12
 	Sint16 value = ADC_getValue(12);
+#endif
 
 	if(nb == 1)
 		return FRESCO_1;
-
+#ifdef USE_AN12
 	if(value > MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) + FRESQUE_ADC_EPSILON){
 
 		if(nb == 2 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_2_ADC_VALUE)
@@ -547,6 +551,12 @@ bool_e get_fresco(Uint8 nb){
 		else if(nb == 3 && MIN(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_3_ADC_VALUE)
 			return TRUE;
 	}
+#else
+	if(nb == 2)
+		return FRESCO_2;
+	else if(nb == 3)
+		return FRESCO_3;
+#endif
 
 	return FALSE;
 }
