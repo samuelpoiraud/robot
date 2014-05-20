@@ -127,7 +127,7 @@
 	#define LANCELAUNCHER_TIMER_USE_WATCHDOG
 
 /* Config proto petit bras*/
-	#define SMALL_ARM_AX12_ID						  0
+	#define SMALL_ARM_AX12_ID						  12
 
 /* Config proto pompe*/
 	#define POMPE_PWM_NUM							  3
@@ -138,8 +138,8 @@
 
 	// ID des moteurs du bras
 	#define ARM_ACT_UPDOWN_ID                        0
-	#define ARM_ACT_RX24_ID                          21
-	#define ARM_ACT_AX12_MID_ID                      8
+	#define ARM_ACT_RX24_ID                          22
+	#define ARM_ACT_AX12_MID_ID                      10
 	#define ARM_ACT_AX12_TRIANGLE_ID                 3
 
 #endif /* PIERRE_CONFIG_PIN_H */
