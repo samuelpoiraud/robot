@@ -114,6 +114,13 @@ void error_exit(void)
 	I2C_init();
 }
 
+void I2C_reset(void){
+	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,ENABLE);
+	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,DISABLE);
+	I2C_DeInit(I2C2_I2C_HANDLE);
+	I2C_init();
+}
+
 //Interruption appelée en cas d'erreur de communication sur le Bus.
 void I2C2_ER_IRQHandler(void)
 {
