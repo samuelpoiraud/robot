@@ -815,7 +815,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 //TODO un GET_OUT en cas d'erreur serait le bienvenu (?)
 
 		case DEPLOY_TORCH:	//On déploie la torche sur le foyer
-			state = check_sub_action_result(ACT_arm_deploy_torche(torch_choice,current_dispose_zone),DEPLOY_TORCH,EXTRACT_FROM_HEART,ERROR);
+			state = check_sub_action_result(ACT_arm_deploy_torche_guy(torch_choice,current_dispose_zone),DEPLOY_TORCH,EXTRACT_FROM_HEART,ERROR);
 			break;
 		case EXTRACT_FROM_HEART:
 			if(get_out_enable)
@@ -1472,7 +1472,7 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 	CANMsgToXbee(&msg,FALSE);
 }
 
-error_e ACT_arm_deploy_torche(torch_choice_e choiceTorch, torch_dispose_zone_e dispose_zone){
+error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone_e dispose_zone){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DEPLOY_TORCH,
 		IDLE,
 		TORCHE,
@@ -2098,7 +2098,7 @@ void strat_inutile_guy(void){
 			break;
 
 		case DEPLOY_TORCH:
-			state = check_sub_action_result(ACT_arm_deploy_torche(OUR_TORCH,HEARTH_OUR),DEPLOY_TORCH,DONE,ERROR);
+			state = check_sub_action_result(ACT_arm_deploy_torche_guy(OUR_TORCH,HEARTH_OUR),DEPLOY_TORCH,DONE,ERROR);
 			break;
 
 		case DO_TRIANGLE:
@@ -2301,7 +2301,7 @@ void strat_test_arm(){
 
 
 		case OPEN1 :
-			state = check_sub_action_result(ACT_arm_deploy_torche(OUR_TORCH, HEARTH_OUR), OPEN1, DONE, DONE);
+			state = check_sub_action_result(ACT_arm_deploy_torche_guy(OUR_TORCH, HEARTH_OUR), OPEN1, DONE, DONE);
 			break;
 
 		case DONE :
