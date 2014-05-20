@@ -1173,10 +1173,26 @@ error_e extraction_of_foe(ASSER_speed_e speed){
 				}
 			}
 
+
+
 			//Si on a trouvé un point et qu'il est suffisamment loin des adversaires.... Champomy !!!
-			if(can_i_go_to_point)
-				state = GO_POINT;
-			else
+			if(can_i_go_to_point){
+
+				// Regarde si une rotation est possible
+				if(is_possible_point_for_rotation(&(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+					state = GO_POINT;
+				else{
+
+					// Calcul de l'angle (extraction,Robot,zero)
+					Uint16 teta = atan2(global.env.pos.y-pointEx[bestPoint].y,global.env.pos.x-pointEx[bestPoint].x)*4096;
+
+					// On divise par 18, pour comparer avec un angle de 10°
+					if(abs(abs(teta) - abs(global.env.pos.angle)) < PI4096/18)
+						state = GO_POINT;
+					else
+						state = WAIT;
+				}
+			}else
 				state = WAIT;
 
 			break;
