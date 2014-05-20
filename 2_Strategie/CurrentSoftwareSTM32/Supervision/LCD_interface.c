@@ -574,6 +574,8 @@ static void LCD_menu_user(bool_e init)
 	}
 	if(get_warning_bat())
 		IHM_LEDS(TRUE, FALSE, FALSE, TRUE);
+	else
+		IHM_LEDS(TRUE, FALSE, FALSE, FALSE);
 	if(flag_bp_ok)
 		clean_warning_bat();
 }

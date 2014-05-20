@@ -765,6 +765,8 @@ void SELFTEST_check_alim(){
 	static state_e state = ALIM_Off;
 	static Uint16 values[NB_AVERAGED_VALUE] = {0};
 	static time32_t begin_time = 0;
+	static time32_t last_display_time = 0;
+
 	Uint8 i;
 	Uint32 average = 0;
 	CAN_msg_t msg;
@@ -772,7 +774,8 @@ void SELFTEST_check_alim(){
 	if(begin_time == 0)
 		begin_time = global.env.absolute_time;
 
-	//values[(int){(global.env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE}] = SELFTEST_measure24_mV();
+	if((int)((global.env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE) < NB_AVERAGED_VALUE)
+		values[(int)((global.env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE)] = SELFTEST_measure24_mV();
 
 	for(i=0;i<NB_AVERAGED_VALUE;i++)
 		average += values[i];
@@ -782,8 +785,12 @@ void SELFTEST_check_alim(){
 
 	if(global.env.absolute_time-begin_time >= TIME_TO_REFRESH_BAT){
 		begin_time = global.env.absolute_time;
+	}
 
-		if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW){
+	if(global.env.absolute_time-last_display_time >= REFRESH_DISPLAY_BAT){
+		last_display_time = global.env.absolute_time;
+
+		if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW && global.env.alim_value > THRESHOLD_BATTERY_OFF){
 			BUZZER_play(40, DEFAULT_NOTE, 10);
 			LCD_printf(3, TRUE, TRUE, "CHANGE BAT : %d", global.env.alim_value);
 			warning_bat = TRUE;
@@ -792,7 +799,6 @@ void SELFTEST_check_alim(){
 		if(!warning_bat)
 			LCD_printf(3, FALSE, FALSE, "VBAT : %d  N°%d", global.env.alim_value, SD_get_match_id());
 	}
-
 
 	if(global.env.alim_value > THRESHOLD_BATTERY_OFF && state != ALIM_On){
 		msg.sid = BROADCAST_ALIM;
@@ -813,6 +819,7 @@ void SELFTEST_check_alim(){
 		state = ALIM_Off;
 		global.env.alim = FALSE;
 	}
+
 }
 
 SELFTEST_error_code_e SELFTEST_getError(Uint8 index)
