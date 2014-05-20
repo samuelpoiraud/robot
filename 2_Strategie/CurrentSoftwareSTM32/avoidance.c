@@ -30,7 +30,8 @@
 #define SMALL_ROBOT_WIDTH				200		//Largeur du petit robot [mm]
 #define BIG_ROBOT_WIDTH					300		//Largeur du gros robot [mm]
 #define	FOE_SIZE						400		//taille supposée de l'adversaire
-#define MARGE_COULOIR_EVITEMENT_STATIC	(300 + 100)
+#define MARGE_COULOIR_EVITEMENT_STATIC_PIERRE	(300 + 100)
+#define MARGE_COULOIR_EVITEMENT_STATIC_GUY		(240 + 100)
 #define DISTANCE_EVITEMENT_STATIC		500
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
@@ -762,7 +763,8 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traje
 			if(verbose)
 				debug_printf("Nous x:%d y:%d / ad x:%d y:%d / destination x:%d y:%d /\n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y,x,y);
 
-			if(absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC){
+			if((QS_WHO_AM_I_get() == BIG_ROBOT && absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_PIERRE)
+					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_GUY)){
 				// /NC./NA ¤ [0,NC*d]
 				// /NC : Vecteur entre nous et le point cible
 				// /NA : Vecteur entre nous et l'adversaire
