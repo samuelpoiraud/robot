@@ -1535,9 +1535,10 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			drop_adv_pos.x = global.env.pos.x;
 			drop_adv_pos.y = global.env.pos.y;// A définir
 
-			COS_SIN_4096_get(global.env.pos.angle, &cos, &sin);
-			return_point.x = global.env.pos.x + cos*DIST_RETURN_RETURN_TRIANGLE/4096;
-			return_point.y = global.env.pos.y + sin*DIST_RETURN_RETURN_TRIANGLE/4096;
+			COS_SIN_4096_get(global.env.pos.angle + PI4096, &cos, &sin);
+
+			return_point.x = global.env.pos.x + (Sint32)cos*DIST_RETURN_RETURN_TRIANGLE/4096;
+			return_point.y = global.env.pos.y + (Sint32)sin*DIST_RETURN_RETURN_TRIANGLE/4096;
 
 			work_point.x = global.env.pos.x;
 			work_point.y = global.env.pos.y;
@@ -1598,11 +1599,11 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case BACK:
-			state = try_going(return_point.x, return_point.y, BACK, RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_going(return_point.x, return_point.y, BACK, RETURN, BACK_FAIL, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case BACK_FAIL:
-			state = try_going(work_point.x, work_point.y, BACK_FAIL, WAIT, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(work_point.x, work_point.y, BACK_FAIL, WAIT, PARKED_NOT_HANDLED, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case WAIT:
