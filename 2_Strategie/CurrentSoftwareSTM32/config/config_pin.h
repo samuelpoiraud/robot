@@ -36,7 +36,7 @@
 	//	-	programmation 			  14
 	#define BUTTON5_PORT		(!GPIOA->IDR15)
 #define PORT_B_IO_MASK	0x00BF
-	//	Capteur						  0
+	#define FRESCO_3			GPIOB->IDR1
 	//	Capteur						  1
 	#define POWER_WATCH_INT		GPIOB->IDR2
 	// - programmation -			  3
@@ -58,7 +58,7 @@
 #define PORT_C_IO_MASK	0x202E
 	#define	USB_POWER_ON	 	GPIOC->ODR0
 	#define FRESCO_1			GPIOC->IDR1
-	#define FRESCO_2_3			GPIOC->IDR2			// Analogique
+	#define FRESCO_2			GPIOC->IDR2
 	//	Capteur						  3
 	//	Capteur			 			  4
 	#define BUTTON6_PORT		(!GPIOC->IDR5)
