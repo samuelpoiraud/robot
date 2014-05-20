@@ -27,6 +27,7 @@
 #include "config_use.h"
 #include "../brain.h"
 #include "Buzzer.h"
+#include "../QS/QS_i2c.h"
 
 #define LINE_NUMBER (4)
 	volatile bool_e flag_bp_set 	= FALSE;
@@ -326,6 +327,7 @@ static void LCD_menu_infos(bool_e init)
 		BUZZER_play(80, DEFAULT_NOTE, 2);
 		reset_config = TRUE;
 		cursor = CURSOR_SHOW; // le cursor est visible après un reset
+		I2C_reset();
 		LCD_init();
 	}
 }
