@@ -35,12 +35,13 @@ static void send_message_to_pierre(Uint11 sid, Uint8 data0);
 //Voir le case INIT de la subaction initiale
 //ATTENTION, la route coté mammouths suggère fortement que Pierre commence par la torche et non par la fresque :: sinon conflit !
 
+#define MAX_HEIGHT_ARM	135
+#define DIST_RETURN_RETURN_TRIANGLE		250
 
 #define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
 #define DETECTION_TRIANGLE_MIDDLE	// Pour savoir si nous avons besoins de faire un dection des triangles du milieu ou non pour la strat triangles_between_tree
 #define DIM_TRIANGLE 100
 
-#define DIST_RETURN_RETURN_TRIANGLE		250
 #define DISTANCE_BETWEEN_GUY_AND_HEARTH	80	//Entre le centre de guy, et le foyer contre lequel il se place
 #define CENTRAL_HEARTH_RADIUS			150
 //#define GUY_FALL_FIRST_FIRE // Si on souhaite faire tomber le premier feux dés le début
@@ -1535,8 +1536,8 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			drop_adv_pos.y = global.env.pos.y;// A définir
 
 			COS_SIN_4096_get(global.env.pos.angle, &cos, &sin);
-			return_point.x = global.env.pos.x + cos*DIST_RETURN_RETURN_TRIANGLE;
-			return_point.y = global.env.pos.y + sin*DIST_RETURN_RETURN_TRIANGLE;
+			return_point.x = global.env.pos.x + cos*DIST_RETURN_RETURN_TRIANGLE/4096;
+			return_point.y = global.env.pos.y + sin*DIST_RETURN_RETURN_TRIANGLE/4096;
 
 			work_point.x = global.env.pos.x;
 			work_point.y = global.env.pos.y;
@@ -1557,7 +1558,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
-			state = ACT_elevator_arm_rush_in_the_floor(120-niveau*30, DOWN_ARM, UP_ARM, UP_ARM_ERROR);
+			state = ACT_elevator_arm_rush_in_the_floor(125-niveau*30, DOWN_ARM, UP_ARM, UP_ARM_ERROR);
 			break;
 
 		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
@@ -1565,16 +1566,16 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 				nb_try_back = 0;
 
 			if((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
-				state = ACT_elevator_arm_move(120, UP_ARM, BACK, PARKED_NOT_HANDLED);
+				state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, BACK, PARKED_NOT_HANDLED);
 			else
-				state = ACT_elevator_arm_move(120, UP_ARM, DROP_TRIANGLE, PARKED_NOT_HANDLED);
+				state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, PARKED_NOT_HANDLED);
 			break;
 
 		case UP_ARM_ERROR:
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 
-			state = ACT_elevator_arm_move(120, UP_ARM, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_ERROR, TORCHE, PARKED_NOT_HANDLED);
 			break;
 
 		case DROP_TRIANGLE :
