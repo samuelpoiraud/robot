@@ -17,6 +17,11 @@
 #include "../asser_functions.h"
 #include "../act_functions.h"
 
+typedef enum{
+	OUR_FIRES,
+	ADVERSARY_FIRES
+}protected_fires_e;
+
 void strat_reglage_odo_rotation(void);
 void strat_reglage_odo_translation(void);
 void strat_reglage_odo_symetrie(void);
@@ -32,5 +37,6 @@ void test_strat_robot_virtuel_with_avoidance(void);
 void strat_reglage_asser(void);
 
 error_e sub_wait(Sint16 x, Sint16 y);
+error_e protected_fires(protected_fires_e fires);
 
 #endif

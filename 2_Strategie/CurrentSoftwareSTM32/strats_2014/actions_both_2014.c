@@ -16,6 +16,7 @@
 #include "../avoidance.h"
 #include "../QS/QS_who_am_i.h"
 #include "../Pathfind.h"
+#include "../Supervision/Buzzer.h"
 
 //#define LOG_PREFIX "strat_tests: "
 //#define STATECHANGE_log(log_level, format, ...) OUTPUTLOG_printf(OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES, log_level, LOG_PREFIX format, ## __VA_ARGS__)
@@ -992,3 +993,85 @@ error_e sub_wait(Sint16 x, Sint16 y)
 	}
 	return IN_PROGRESS;
 }
+
+error_e protected_fires(protected_fires_e fires){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PROTECTED_FIRES,
+		IDLE,
+	//	GET_IN,
+		POINT_0,
+		POINT_1,
+		POINT_2,
+		POINT_3,
+		NOT_REACHED,
+		DONE,
+		ERROR
+	);
+	static enum state_e next_point_protected = IDLE;
+	static protected_fires_e current_protected_fires = OUR_FIRES;
+
+	static pathfind_node_id_t points[4];
+	if(current_protected_fires != fires)
+	{
+		state = IDLE;		//On force l'état IDLE si les feux à protéger ne sont plus les mêmes...
+	}
+
+	switch(state){
+		case IDLE:
+
+			if((global.env.color == RED && fires == OUR_FIRES) || (global.env.color != RED && fires == ADVERSARY_FIRES)){
+				points[0] = A2;   // A2
+				points[1] = C3;	// B3
+				points[2] = C2;  // C2
+				points[3] = B1;    // B1
+			}else{
+				points[0] = Z2;  // Z2
+				points[1] = W3;	// Y3
+				points[2] = W2;  // W2
+				points[3] = Y1;   // Y1
+			}
+			current_protected_fires = fires;
+			next_point_protected = POINT_0;
+
+			//if((((global.env.color == RED && fires == OUR_FIRES) && (global.env.color != RED && fires == ADVERSARY_FIRES)) && est_dans_carre(400, 2000, 0, 1500, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			//		|| (((global.env.color == RED && fires == ADVERSARY_FIRES) && (global.env.color != RED && fires == OUR_FIRES)) && est_dans_carre(400, 2000, 1500, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+				state = next_point_protected;
+			//else
+			//	state = GET_IN;
+		   break;
+
+	   //case GET_IN:
+		//   state = PATHFIND_try_going(PATHFIND_closestNode(points[next_point_protected-POINT_0].x,points[next_point_protected-POINT_0].y, 0x00),
+		//		   GET_IN, next_point_protected, ERROR, ANY_WAY, FAST,DODGE_AND_WAIT, END_AT_BREAK);
+		//   break;
+
+		case POINT_0:	//no break;
+		case POINT_1:	//no break;
+		case POINT_2:	//no break;
+		case POINT_3:
+
+			state = PATHFIND_try_going(points[next_point_protected-POINT_0], state, DONE,ERROR,ANY_WAY,FAST, DODGE_AND_WAIT, END_AT_LAST_POINT); //No dodge volontaire
+
+			if(state != next_point_protected)
+			{
+				BUZZER_play(200, DEFAULT_NOTE, 2);
+				next_point_protected = (next_point_protected>=POINT_3)?POINT_0:next_point_protected+1;
+			}
+			break;
+
+		case DONE:
+			state = next_point_protected;	//ATTENTION, on ne retourne pas vers IDLE, mais vers le prochain point, pour le prochain appel !
+			return END_OK;
+			break;
+
+		case ERROR:
+			state = next_point_protected;	//ATTENTION, on ne retourne pas vers IDLE, mais vers le prochain point, pour le prochain appel !
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+

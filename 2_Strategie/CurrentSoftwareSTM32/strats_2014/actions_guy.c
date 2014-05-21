@@ -23,6 +23,7 @@
 #include "../maths_home.h"
 #include "../Supervision/SD/SD.h"
 #include "../Supervision/Buzzer.h"
+#include "actions_both_2014.h"
 #include <math.h>
 
 static void REACH_POINT_GET_OUT_INIT_send_request();
@@ -76,8 +77,8 @@ typedef enum{
 
 
 
-pos_scan_t pos_scan[2] = {{{1200,1800},{1200,1900},600,1600,1800,2300,-PI4096,-PI4096/2}, // FOYER CENTRALE
-						  {{1650,2600},{1600,2550},800,1700,2000,2700,0,PI4096/2}		// FOYER ADVERSE
+pos_scan_t pos_scan[2] = {{{1200,1800},{1200,1900},600,1600,1800,2300,-PI4096/2,0}, // FOYER CENTRALE
+						  {{1650,2600},{1600,2550},800,1700,2000,2700,PI4096/2,PI4096}		// FOYER ADVERSE
 						 };
 
 volatile initial_path_e initial_path;
@@ -319,6 +320,128 @@ error_e sub_action_initiale_guy(){
 	}
 
 	return IN_PROGRESS;
+}
+
+
+void strat_homologation_guy(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_GUY_HOMOLOGATION,
+		INIT,
+		FALL_FIRST_FIRE,
+		GET_OUT_POS_START,
+		GOTO_ADVERSARY_ZONE,
+		DO_OUR_TORCH,
+		DO_ADV_TORCH,
+		PROTECTED_FIRE,
+		DONE,
+		ERROR
+	);
+
+	static bool_e we_prevented_pierre_to_get_out = FALSE;
+	static Sint16 y_to_prevent_pierre_to_get_out;
+	static time32_t t;
+
+	switch(state)
+	{
+		case INIT:
+			we_have_a_torch = FALSE;
+			we_prevented_pierre_to_get_out = FALSE;
+
+			initial_path = TORCH_ROAD;	//En fait, on prend la TORCH_ROAD !
+
+			state = FALL_FIRST_FIRE;
+			break;
+
+		case FALL_FIRST_FIRE:
+			if(entrance)
+			{
+				t = global.env.match_time;
+				//ATTENTION : le timeout supplémentaire ajouté ici doit être très court... car si le bras ne fonctionne pas, Pierre va vouloir partir et nous foncer dedans !
+				//On réactive l'asservissement de la propulsion pour que le bras ne nous fasse pas tourner sur nous-même
+				ASSER_set_correctors(TRUE,TRUE);
+			}
+
+			//TODO modifier si besoin (c'est probable la position du bras)
+			//Attention, cette action est conditionnée par la calibration... !
+			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0,0,FALL_FIRST_FIRE,GET_OUT_POS_START,GET_OUT_POS_START);
+			if(t > 1000)	//C'est grand temps de partir si on veut pas se faire *** par Pierre...
+				state = GET_OUT_POS_START;
+
+			if(state != FALL_FIRST_FIRE)	//Si on a fini (échec ou réussite...)
+				ACT_arm_goto(ACT_ARM_POS_PARKED);	//On range le bras, sans attendre l'acquittement
+
+			break;
+
+		case GET_OUT_POS_START:
+			if(entrance)
+			{
+				ASSER_set_acceleration(80);	//Acceleration de guy au démarrage...
+			}
+
+			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,GOTO_ADVERSARY_ZONE, GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+
+			break;
+
+		case GOTO_ADVERSARY_ZONE:
+			if(entrance)
+			{
+				y_to_prevent_pierre_to_get_out = 400;
+			}
+			if(!we_prevented_pierre_to_get_out)
+			{
+				//ATTENTION, on utilise pas les warners qui peuvent ainsi être utilisés pour le bras !
+				if(COLOR_Y(global.env.pos.y) > y_to_prevent_pierre_to_get_out)
+				{
+					we_prevented_pierre_to_get_out = TRUE;
+					REACH_POINT_GET_OUT_INIT_send_request();
+					BUZZER_play(100,DEFAULT_NOTE,1);
+				}
+			}
+			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,DO_OUR_TORCH,ERROR);
+
+			if(state != GOTO_ADVERSARY_ZONE)
+				ASSER_set_acceleration(64);
+
+			//ERROR n'est pas censé se produire... la sub_action étant censée trouver une solution pour se rendre en zone adverse !
+			break;
+		case DO_OUR_TORCH:
+			if(we_have_a_torch)
+			{
+				switch(do_torch(OUR_TORCH,TRUE,HEARTH_CENTRAL,NO_DISPOSE))
+				{
+					case IN_PROGRESS:
+						break;
+					case END_OK:		//no break
+					case NOT_HANDLED:	//no break
+					default:
+						state = DO_ADV_TORCH;
+				}
+			}
+			else
+				state = DO_ADV_TORCH;
+			break;
+		case DO_ADV_TORCH:
+			switch(do_torch(ADVERSARY_TORCH, FALSE, HEARTH_ADVERSARY, NO_DISPOSE))
+			{
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+				case NOT_HANDLED:	//no break
+				default:
+					state = DONE;
+			}
+
+			break;
+
+		case PROTECTED_FIRE:
+			state = check_sub_action_result(protected_fires(ADVERSARY_FIRES),PROTECTED_FIRE,PROTECTED_FIRE,PROTECTED_FIRE);
+			break;
+
+		case DONE:
+			break;
+
+		default:
+			break;
+	}
 }
 
 
@@ -1258,11 +1381,11 @@ error_e do_triangles_between_trees(){
 		case CHOICE_DETECTION:
 #ifdef DETECTION_TRIANGLE_MIDDLE
 				if(global.env.pos.y > 1500){
-					dpl_dect[0] = (GEOMETRY_point_t){1600,1900};
-					dpl_dect[1] = (GEOMETRY_point_t){1600,1100};
+					dpl_dect[0] = (GEOMETRY_point_t){1800,1900};
+					dpl_dect[1] = (GEOMETRY_point_t){1800,1100};
 				}else{
-					dpl_dect[1] = (GEOMETRY_point_t){1600,1900};
-					dpl_dect[0] = (GEOMETRY_point_t){1600,1100};
+					dpl_dect[1] = (GEOMETRY_point_t){1800,1900};
+					dpl_dect[0] = (GEOMETRY_point_t){1800,1100};
 				}
 
 				state = POS_START_DETECTION;
