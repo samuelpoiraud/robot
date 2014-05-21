@@ -1069,18 +1069,18 @@ error_e extraction_of_foe(ASSER_speed_e speed){
 	static Uint8 remaining_try;
 	static Uint8 sens = TURN_TRIGO;							//Si il arrive pas à trouver un point au bout de 3 coups tourne sur lui-même pour permettre à l'hokuyo de voir partout
 	static Uint8 bestPoint;									//Indice du meilleur point dans le tableau
-	static Uint32 bestPoint_distance2_with_nearest_foe;		//Distance entre le meilleur point et l'adversaire qui en est le plus proche
-	static Uint32 adversary_to_close_distance;				//Distance minimale exigée entre un adversaire et un point candidat
+	Uint32 bestPoint_distance2_with_nearest_foe;		//Distance entre le meilleur point et l'adversaire qui en est le plus proche
+	Uint32 adversary_to_close_distance;						//Distance minimale exigée entre un adversaire et un point candidat
 	static GEOMETRY_point_t pointEx[12];					//Incroyable mais VRAI, idée de GRAVOUILLE d'utliser un tableau au lieu de calcul d'angle
-	Uint8 i;
+	Uint8 i,foe;
 	Sint16 cos,sin;
 	Uint32 distance2_between_point_and_foe;					//Distance au carré entre le point courant et l'adversaire courant
 	Uint32 distance2_between_point_and_foe_min;				//Distance au carré entre le point courant l'adversaire le plus proche trouvé
 	bool_e can_i_go_to_point = FALSE;
+	bool_e i_can_turn_in_my_position = FALSE;
 
 	switch(state){
 		case IDLE:
-			adversary_to_close_distance = (QS_WHO_AM_I_get() == BIG_ROBOT)? 500 : 400;
 			remaining_try = 3;
 			state = COMPUTE;
 			break;
@@ -1094,58 +1094,62 @@ error_e extraction_of_foe(ASSER_speed_e speed){
 			//	Si par contre certains points sont plus proches d'un autre adversaire... ils peuvent ne pas être choisis pour cette raison
 			//  Si aucun point n'est accessible (car trop proche bordure, élément fixe de jeu, ou adversaire)... L'algo échoue et patiente 1 seconde avant de retenter.
 			// 	On tente 3 fois avant d'abandonner...
-
 			remaining_try--;
-			//BUZZER_play(1000, NOTE_SOL, 5);
 
-			for(i = 0; i < 12; i++)		//Calcul des 12 points d'extractions envisageables.
-			{
-				COS_SIN_4096_get((PI4096*30*i + global.env.pos.angle)/180,&cos,&sin);
-				pointEx[i].x = ((Sint32)(cos)*EXTRACTION_DISTANCE)/4096 + global.env.pos.x;
-				pointEx[i].y = ((Sint32)(sin)*EXTRACTION_DISTANCE)/4096 + global.env.pos.y;
-			}
+			adversary_to_close_distance = (QS_WHO_AM_I_get() == BIG_ROBOT)? 500 : 400;
+			i_can_turn_in_my_position = is_possible_point_for_rotation(&((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}));
+
 			bestPoint = 0xFF;
 			bestPoint_distance2_with_nearest_foe = 0;
 
-
-			for(i = 0; i < 12; i++)	//Pour chaque point
+			for(i = 0; i < 12; i++)	//Pour chaque point parmi les 12...
 			{
-				if(is_possible_point_for_rotation(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
+				//Si je peux tourner là où je suis, ou que les points que je vais calculer sont pile devant ou pile derrière... alors je calcule le point i
+				if(i_can_turn_in_my_position || i == 0 || i == 6)
 				{
-					Uint8 foe;
-					distance2_between_point_and_foe_min = 0xFFFFFFFF;
-					//On recherche la distance minimale entre le point 'i' et l'adversaire le plus proche.
-					for(foe = 0; foe < MAX_NB_FOES; foe++)		//Pour tout les adversaires obsersés
-					{
-						if(global.env.foe[foe].enable){
-							distance2_between_point_and_foe = (pointEx[i].x-global.env.foe[foe].x)*(pointEx[i].x-global.env.foe[foe].x) + (pointEx[i].y-global.env.foe[foe].y)*(pointEx[i].y-global.env.foe[foe].y);
-							if(distance2_between_point_and_foe < distance2_between_point_and_foe_min){	//Si l'adversaire en cours est plus proche du point que les autres, on le prend en compte.
-								distance2_between_point_and_foe_min = distance2_between_point_and_foe;
+					//Calcul des coordonnées du point.
+					COS_SIN_4096_get((PI4096*30*i + global.env.pos.angle)/180,&cos,&sin);
+					pointEx[i].x = ((Sint32)(cos)*EXTRACTION_DISTANCE)/4096 + global.env.pos.x;
+					pointEx[i].y = ((Sint32)(sin)*EXTRACTION_DISTANCE)/4096 + global.env.pos.y;
 
+					if(is_possible_point_for_rotation(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
+					{
+						distance2_between_point_and_foe_min = 0xFFFFFFFF;
+						//On recherche la distance minimale entre le point 'i' et l'adversaire le plus proche.
+						for(foe = 0; foe < MAX_NB_FOES; foe++)		//Pour tout les adversaires obsersés
+						{
+							if(global.env.foe[foe].enable){
+								distance2_between_point_and_foe = (pointEx[i].x-global.env.foe[foe].x)*(pointEx[i].x-global.env.foe[foe].x) + (pointEx[i].y-global.env.foe[foe].y)*(pointEx[i].y-global.env.foe[foe].y);
+								if(distance2_between_point_and_foe < distance2_between_point_and_foe_min){	//Si l'adversaire en cours est plus proche du point que les autres, on le prend en compte.
+									distance2_between_point_and_foe_min = distance2_between_point_and_foe;
+								}
 							}
 						}
-					}
 
-					//On recherche maintenant le point ayant "la distance avec son adversaire le plus proche", la plus GRANDE possible...
-					if(distance2_between_point_and_foe_min > bestPoint_distance2_with_nearest_foe)
-					{	//Si le point 'i' est plus loin des adversaires que les autres points calculés... il est le meilleur point candidat
-						bestPoint_distance2_with_nearest_foe = distance2_between_point_and_foe_min;
-						bestPoint = i;
+						//On recherche maintenant le point ayant "la distance avec son adversaire le plus proche", la plus GRANDE possible...
+						if(distance2_between_point_and_foe_min > bestPoint_distance2_with_nearest_foe)
+						{	//Si le point 'i' est plus loin des adversaires que les autres points calculés... il est le meilleur point candidat
+							bestPoint_distance2_with_nearest_foe = distance2_between_point_and_foe_min;
+							bestPoint = i;
+						}
 					}
 				}
 			}
 
 
-			if(bestPoint != 0xFF){
+			if(bestPoint != 0xFF)
+			{
 				can_i_go_to_point = TRUE; // Si le point faux, on le mettra a faux
 
 				//Pour gerer un cas d'erreur, si nous somme trop prêt d'un adversaire, un point derrière peut être supprimé alors que l'adversaire est devant nous
-				Uint8 foe;
-				for(foe = 0; foe < MAX_NB_FOES; foe++){// Si nous sommes encercle par deux ennemis, on peut pas se permettre de comparer seulement avec l'ennemis le plus proche du point
-					if(global.env.foe[foe].enable){
+				for(foe = 0; foe < MAX_NB_FOES; foe++)
+				{// Si nous sommes encercle par deux ennemis, on peut pas se permettre de comparer seulement avec l'ennemis le plus proche du point
+					if(global.env.foe[foe].enable)
+					{
 						distance2_between_point_and_foe = (pointEx[bestPoint].x-global.env.foe[foe].x)*(pointEx[bestPoint].x-global.env.foe[foe].x) + (pointEx[bestPoint].y-global.env.foe[foe].y)*(pointEx[bestPoint].y-global.env.foe[foe].y);
 
-						if(distance2_between_point_and_foe < adversary_to_close_distance*adversary_to_close_distance){ // Si le point est pres de l'adveraire, on regarde où il se situe par rapport à nous et l'adversaire
+						if(distance2_between_point_and_foe < adversary_to_close_distance*adversary_to_close_distance)
+						{ // Si le point est pres de l'adveraire, on regarde où il se situe par rapport à nous et l'adversaire
 							//Calcul du point sur le bord du robot en direction de l'adversaire de façon à offrir un point de plus pour la sortie si il est encerclée
 							Uint16 norm = GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){global.env.foe[foe].x,global.env.foe[foe].y});
 
@@ -1164,7 +1168,8 @@ error_e extraction_of_foe(ASSER_speed_e speed){
 							Sint32 vecPointX = pointEx[bestPoint].x-center.x;
 							Sint32 vecPointY = pointEx[bestPoint].y-center.y;
 
-							if(vecAdX*vecPointX + vecAdY*vecPointY > 0){ // Si le produit scalaire des deux vecteurs est positif nous pouvons pas aller au point car le point se situe entre nous et l'adversaire
+							if(vecAdX*vecPointX + vecAdY*vecPointY > 0)
+							{ // Si le produit scalaire des deux vecteurs est positif nous pouvons pas aller au point car le point se situe entre nous et l'adversaire
 								can_i_go_to_point = FALSE;
 								break;
 							}
@@ -1176,23 +1181,9 @@ error_e extraction_of_foe(ASSER_speed_e speed){
 
 
 			//Si on a trouvé un point et qu'il est suffisamment loin des adversaires.... Champomy !!!
-			if(can_i_go_to_point){
-
-				// Regarde si une rotation est possible
-				if(is_possible_point_for_rotation(&(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
-					state = GO_POINT;
-				else{
-
-					// Calcul de l'angle (extraction,Robot,zero)
-					Uint16 teta = atan2(global.env.pos.y-pointEx[bestPoint].y,global.env.pos.x-pointEx[bestPoint].x)*4096;
-
-					// On divise par 18, pour comparer avec un angle de 10°
-					if(abs(abs(teta) - abs(global.env.pos.angle)) < PI4096/18)
-						state = GO_POINT;
-					else
-						state = WAIT;
-				}
-			}else
+			if(can_i_go_to_point)
+				state = GO_POINT;
+			else
 				state = WAIT;
 
 			break;
