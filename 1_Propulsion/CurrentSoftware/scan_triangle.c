@@ -32,12 +32,12 @@
 
 //------------------------------------------------------------------------------------ Define
 
-#define X_SENSOR_BOT			-66
-#define Y_SENSOR_BOT			90
-#define X_SENSOR_MID			78
-#define Y_SENSOR_MID			98
-#define X_SENSOR_TOP			46
-#define Y_SENSOR_TOP			98
+#define X_SENSOR_BOT			48
+#define Y_SENSOR_BOT			92
+#define X_SENSOR_MID			66
+#define Y_SENSOR_MID			92
+#define X_SENSOR_TOP			30
+#define Y_SENSOR_TOP			92
 
 #define COEF_DECTECTION_SEUIL	6
 
