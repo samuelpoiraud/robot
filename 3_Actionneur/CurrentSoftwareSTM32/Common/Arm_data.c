@@ -59,15 +59,15 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-200	,148	,214,	145},	//ARM_ST_To_Storage
 		{-351	,169	,280,	233},	//ARM_ST_To_Carry
 		{-432	,158	,164,	235},	//ARM_ST_To_Prepare_Return
-		{-271	,135	,69,	235},	//ARM_ST_To_Down_Return
-		{-273	,133	,65,	232},	//ARM_ST_To_Return
-		{-273	,133	,65,	232},	//ARM_ST_To_Prepare_Take_Return
-		{-134	,109	,38,	148},	//ARM_ST_To_Take_Return
+		{-306	,135	,69,	235},	//ARM_ST_To_Down_Return
+		{-306	,133	,65,	232},	//ARM_ST_To_Return
+		{-432	,115	,42,	148},	//ARM_ST_To_Prepare_Take_Return
+		{-74	,115	,42,	148},	//ARM_ST_To_Take_Return
 		{-432	,150	,150,	150},	//ARM_ST_On_Triangle			// Distance factice
 		{-432	,113	,151,	79},	//ARM_ST_Prepare_Backward
-		{-275	,113	,154,	79},	//ARM_ST_Down_Backward
-		{-275	,113	,154,	148},	//ARM_ST_Lock_Backward
-		{-275	,113	,154,	148}	//ARM_ST_Take_On_Road
+		{-360	,113	,154,	79},	//ARM_ST_Down_Backward
+		{-360	,113	,154,	148},	//ARM_ST_Lock_Backward
+		{-360	,113	,154,	148}	//ARM_ST_Take_On_Road
 		};
 #endif
 
@@ -123,7 +123,7 @@ void init_perm_transitions_table(){
 	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,			2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,				1,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_TAKE_RETURN,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_TAKE_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_PREPARE_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_PREPARE_TAKE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_PREPARE_BACKWARD,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_DOWN_BACKWARD});
 	add_perm_transitions_table(ACT_ARM_POS_DOWN_BACKWARD,			2,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_BACKWARD, ACT_ARM_POS_LOCK_BACKWARD});

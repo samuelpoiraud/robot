@@ -1653,7 +1653,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 
 			// Imposé pour les test
 			torch.x = global.env.pos.x;
-			torch.y = global.env.pos.y+150;
+			torch.y = global.env.pos.y+180;
 
 			drop_adv_pos.x = global.env.pos.x;
 			drop_adv_pos.y = global.env.pos.y;// A définir

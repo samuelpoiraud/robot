@@ -35,7 +35,7 @@
 #define ARM_ACT_UPDOWN_MAX_VALUE				 -10
 #define ARM_ACT_UPDOWN_MIN_VALUE				 -440
 
-#define ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM		16
+#define ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM		25
 
 //#define ARM_ACT_RX24                             1
 #define ARM_ACT_RX24                             0		//non utilisé, mais utilisé comme prefix dans arm_data (les autres moteurs c'est pareil)

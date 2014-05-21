@@ -38,7 +38,7 @@
 
 #define LONGUEUR_AVANT_BRAS_PIERRE		138
 #define	LONGUEUR_BRAS_PIERRE			126
-#define LONGUEUR_AVANT_BRAS_GUY			125
+#define LONGUEUR_AVANT_BRAS_GUY			140
 #define	LONGUEUR_BRAS_GUY				84
 
 #define BRAS_POS_X_PIERRE				50
@@ -56,7 +56,7 @@
 #define TIME_TO_INC_RUSH			25		//ms
 #define INC_RUSH					5
 #define TIME_RUSH_IN_FLOOR			5000
-#define DIFF_POS_FICT_RUSH			55
+#define DIFF_POS_FICT_RUSH			45
 #define EPSILON_POS_RUSH_FLOOR		20
 
 
@@ -128,18 +128,19 @@ typedef struct{
 	};
 #else
 	static const rayon_pos_triangle_s rayon_pos_triangle[] = {
-		{110,	266,	-1},
-		{120,	258,	-1},
-		{130,	250,	-1},
-		{140,	242,	41},
-		{150,	236,	49},
-		{160,	224,	60},
-		{170,	218,	75},
-		{180,	210,	80},
-		{190,	200,	91},
-		{200,	176,	107},
-		{210,	142,	123},
-		{220,	148,    148}
+		{110,	267,	-1},
+		{120,	261,	-1},
+		{130,	254,	-1},
+		{140,	246,	-1},
+		{150,	237,	39},
+		{160,	231,	44},
+		{170,	226,	52},
+		{180,	216,	60},
+		{190,	208,	68},
+		{200,	197,	78},
+		{210,	185,	87},
+		{220,	177,    103},
+		{230,	163,    147}
 	};
 
 	static const angle_pos_triangle_s angle_pos_triangle[] = {
