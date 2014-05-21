@@ -1106,7 +1106,7 @@ error_e strat_manage_fresco(){
 			break;
 
 		case VERIFICATION: // Si fresque présente renvoie 0 donc try again
-			if((get_fresco(1) && get_fresco(2) && get_fresco(3)) || NB_TRY_FRESCO < 2)//fresque plus presente sur le support grace au capteur
+			if((!get_fresco(1) && !get_fresco(2) && !get_fresco(3)) || NB_TRY_FRESCO < 2)//fresque plus presente sur le support grace au capteur
 				state = DONE;
 			else
 				state = LAST_CHANCE_FILE_FRESCO;
@@ -1129,7 +1129,7 @@ error_e strat_manage_fresco(){
 			break;
 
 		case VERIFICATION_2:
-			if((get_fresco(1) && get_fresco(2) && get_fresco(3)) || NB_TRY_FRESCO < 3)//fresque plus presente sur le support grace au capteur
+			if((!get_fresco(1) && !get_fresco(2) && !get_fresco(3)) || NB_TRY_FRESCO < 3)//fresque plus presente sur le support grace au capteur
 				state = DONE;
 			else
 				state = LAST_LAST_CHANCE_FILE_FRESCO;

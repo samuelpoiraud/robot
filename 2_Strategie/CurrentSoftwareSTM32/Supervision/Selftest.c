@@ -444,12 +444,17 @@ error_e SELFTEST_strategy(bool_e reset)
 			state = TEST_FRESQUE;
 			break;
 		case TEST_FRESQUE:
-			if(get_fresco(1))
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_1_MISSING);
-			if(get_fresco(2))
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_2_MISSING);
-			if(get_fresco(3))
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_3_MISSING);
+			//Il y a erreur s'il y a moins de 2 fresques...
+			//S'il y a erreur, on indique les fresques manquantes (1, 2, ou 3), même si il y en aura jamais 3...
+			if(((get_fresco(1))?1:0) + ((get_fresco(2))?1:0) + ((get_fresco(3))?1:0) < 2)
+			{
+				if(!get_fresco(1))
+					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_1_MISSING);
+				if(!get_fresco(2))
+					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_2_MISSING);
+				if(!get_fresco(3))
+					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_3_MISSING);
+			}
 			state = TEST_RTC;
 			break;
 		case TEST_RTC:
