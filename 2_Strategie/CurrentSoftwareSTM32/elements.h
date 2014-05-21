@@ -389,7 +389,7 @@
 
 	Uint8 ELEMENT_wait_time(time32_t time, Uint8 in_progress, Uint8 success_state);
 
-	// Renvoie l'état du capteur de fresque numéro NB (1 vide, 0 pour présence)
+	// Renvoie l'état du capteur de fresque numéro NB (1 présence, 0 absence)
 	// NB allant de 1 à 3
 	bool_e get_fresco(Uint8 nb);
 

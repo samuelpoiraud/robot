@@ -117,8 +117,8 @@ void BUTTON_verbose(void)
 						(BUTTON5_PORT	<< 3) 	| //Print match
 						(SWITCH_XBEE	<< 4) 	|
 						(SWITCH_SAVE	<< 5) 	|
-						(!get_fresco(1)	<< 6) 	|
-						(!get_fresco(2)	<< 7) 	|
+						(get_fresco(1)	<< 6) 	|
+						(get_fresco(2)	<< 7) 	|
 						(BUTTON6_PORT	<< 8) 	|	 //BP Set
 						(SWITCH_COLOR	<< 9) 	|
 						(BIROUTE		<< 10) 	|
@@ -131,7 +131,7 @@ void BUTTON_verbose(void)
 						(BUTTON2_PORT	<< 17) 	|	//LCD OK
 						(BUTTON3_PORT	<< 18) 	|	//LCD Menu +
 						(BUTTON4_PORT	<< 19)	|//LCD Menu
-						(!get_fresco(3)	<< 20);
+						(get_fresco(3)	<< 20);
 
 	up = ~previous_state & current_state;
 	down = previous_state & ~current_state;
