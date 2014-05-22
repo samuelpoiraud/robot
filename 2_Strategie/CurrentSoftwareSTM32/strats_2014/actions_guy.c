@@ -1625,6 +1625,57 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 	CANMsgToXbee(&msg,FALSE);
 }
 
+error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		PLACEMENT_INIT,
+		PLACEMENT_BRAS,
+		PLACEMENT_TAKE_EDGE,
+		UP_ARM,
+		PROTECTED_TRIANGLE,
+		PLACEMENT_FOYER,
+		DROP,
+		PARKED_NOT_HANDLED,
+		ERROR,
+		DONE
+	);
+
+	switch (state) {
+		case IDLE:
+			break;
+
+		case PLACEMENT_INIT:
+			break;
+
+		case PLACEMENT_BRAS:
+			break;
+
+		case PLACEMENT_TAKE_EDGE:
+			break;
+
+		case UP_ARM:
+			break;
+
+		case PROTECTED_TRIANGLE:
+			break;
+
+		case PLACEMENT_FOYER:
+			break;
+
+		case DROP:
+			break;
+
+		case PARKED_NOT_HANDLED:
+			break;
+
+		case ERROR:
+			break;
+
+		case DONE:
+			break;
+	}
+}
+
 error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone_e dispose_zone){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DEPLOY_TORCH,
 		IDLE,
@@ -1796,7 +1847,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case PREPARE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, SMALL_ARM_DEPLOYED, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_WAIT_RETURN,0, 0, PREPARE_RETURN, SMALL_ARM_DEPLOYED, PARKED_NOT_HANDLED);
 			break;
 
 		case SMALL_ARM_DEPLOYED:
@@ -1814,13 +1865,13 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case TAKE_RETURN:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+
 			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, TAKE_RETURN, GRAP_TRIANGLE, PARKED_NOT_HANDLED);
 			break;
 
 		case GRAP_TRIANGLE: // prise du triangle au sol
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-
 			state = ELEMENT_wait_pump_capture_object(GRAP_TRIANGLE, OPEN, OPEN);
 			break;
 
