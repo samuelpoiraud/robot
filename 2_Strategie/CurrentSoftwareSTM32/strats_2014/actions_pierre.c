@@ -843,15 +843,15 @@ error_e protect_north_way(void)
 			{
 				nodes[0] = C1;   // A2
 				nodes[1] = W1;	// B3
-				points[0] = (GEOMETRY_point_t){700,1200};
-				points[1] = (GEOMETRY_point_t){700,1800};
+				points[0] = (GEOMETRY_point_t){600,1200};
+				points[1] = (GEOMETRY_point_t){600,1800};
 			}
 			else
 			{
 				nodes[0] = W1;  // Z2
 				nodes[1] = C1;	// Y3
-				points[0] = (GEOMETRY_point_t){700,1800};
-				points[1] = (GEOMETRY_point_t){700,1200};
+				points[0] = (GEOMETRY_point_t){600,1800};
+				points[1] = (GEOMETRY_point_t){600,1200};
 			}
 			next_point_protected = NODE_0;
 			state = GET_IN;
