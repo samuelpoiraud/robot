@@ -554,7 +554,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 	static const Uint8 NBPOINT = 5;
 
 	static Uint8 get_out_try = 0;
-	static GEOMETRY_point_t escape_point[3];
+	static GEOMETRY_point_t escape_point[2];
 
 	displacement_t point[5];
 	static displacement_t courbe[5];
@@ -578,9 +578,9 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 					courbe[i] = point[NBPOINT-1-i];
 			}
 
-			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
-			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
-			escape_point[2] = (GEOMETRY_point_t) {1250, 750};
+			escape_point[0] = (GEOMETRY_point_t) {1250, 750};
+			escape_point[1] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
+
 
 			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = FORWARD;
@@ -849,7 +849,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 	static const Uint8 NBPOINT = 2;
 
 	static Uint8 get_out_try = 0;
-	static GEOMETRY_point_t escape_point[3];
+	static GEOMETRY_point_t escape_point[2];
 
 	displacement_t point[2];
 	static displacement_t courbe[2];
@@ -877,11 +877,8 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 				courbe[i].speed = FAST;
 			}
 
-			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
-			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
-			escape_point[2] = (GEOMETRY_point_t) {1250, 750};
-
-
+			escape_point[0] = (GEOMETRY_point_t) {1250, 750};
+			escape_point[1] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 
 			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = FORWARD;
@@ -1007,7 +1004,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 	static const Uint8 NBPOINT = 2;
 
 	static Uint8 get_out_try = 0;
-	static GEOMETRY_point_t escape_point[3];
+	static GEOMETRY_point_t escape_point[2];
 
 	displacement_t point[2];
 	static displacement_t courbe[2];
@@ -1035,10 +1032,9 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 				courbe[i].speed = FAST;
 			}
 
+			escape_point[0] = (GEOMETRY_point_t) {1250, 2250};
+			escape_point[1] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 
-			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
-			escape_point[1] = (GEOMETRY_point_t) {courbe[NBPOINT-1].point.x, courbe[NBPOINT-1].point.y};
-			escape_point[2] = (GEOMETRY_point_t) {1250, 2250};
 
 			if(sens == TRIGO)  // Modifie le sens
 				sensRobot = FORWARD;
