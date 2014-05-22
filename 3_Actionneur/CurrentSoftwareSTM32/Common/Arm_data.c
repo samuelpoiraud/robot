@@ -55,21 +55,30 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-432	,154	,283,	249},	//ARM_ST_Parked
 		{-432	,152	,246,	245},	//ARM_ST_Mid
 		{-432	,145	,218,	152},	//ARM_ST_Open
+
 		{-432	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
+
 		{-200	,148	,214,	145},	//ARM_ST_To_Storage
 		{-351	,169	,280,	233},	//ARM_ST_To_Carry
+
 		{-432	,158	,164,	232},	//ARM_ST_To_Prepare_Return
 		{-287	,158	,94,	232},	//ARM_ST_To_Down_Return
 		{-306	,133	,65,	232},	//ARM_ST_To_Return
+
 		{-432	,133	,65,	120},	//ARM_ST_Wait_Return
+
 		{-432	,115	,42,	148},	//ARM_ST_To_Prepare_Take_Return
 		{-74	,132	,56,	148},	//ARM_ST_To_Take_Return
 		{-432	,132	,56,	110},	//ARM_ST_To_Unblock_Return
+
 		{-432	,150	,150,	150},	//ARM_ST_On_Triangle			// Distance factice
+
 		{-432	,113	,151,	79},	//ARM_ST_Prepare_Backward
 		{-360	,113	,154,	79},	//ARM_ST_Down_Backward
 		{-360	,113	,154,	148},	//ARM_ST_Lock_Backward
+
 		{-302	,113	,205,	148},	//ARM_ST_Take_On_Edge
+
 		{-215	,130	,173,	146}	//ARM_ST_Take_On_Road
 		};
 #endif
