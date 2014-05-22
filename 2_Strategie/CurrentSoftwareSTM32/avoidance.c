@@ -209,6 +209,31 @@ Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state,
 }
 
 
+Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance)
+{
+	static bool_e init = FALSE;
+	static GEOMETRY_point_t point;
+
+	if(init == FALSE){
+
+		Sint16 cos,sin;
+
+		COS_SIN_4096_get((way == FORWARD)? global.env.pos.angle:global.env.pos.angle+PI4096, &cos, &sin);
+
+		point.x = (Sint32)cos*dist/4096 + global.env.pos.x;
+		point.y = (Sint32)sin*dist/4096 + global.env.pos.y;
+		init = TRUE;
+	}
+
+	Uint8 state;
+	state = try_going(point.x, point.y, in_progress, success_state, fail_state, speed, way, avoidance);
+
+	if(state != in_progress)
+		init = FALSE;
+
+	return state;
+}
+
 
 /* Action qui update la position */
 error_e ACTION_update_position()

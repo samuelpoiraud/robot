@@ -182,8 +182,11 @@ error_e ELEMENT_go_and_drop(pos_drop_e choice){
 void TORCH_new_position(torch_choice_e choice){
 	GEOMETRY_point_t torch;
 
-	torch.x = cos((global.env.pos.angle)/12868.0)*(SMALL_FORWARD_WIDTH+RADIUS_TORCH) + global.env.pos.x;
-	torch.y = sin((global.env.pos.angle)/12868.0)*(SMALL_FORWARD_WIDTH+RADIUS_TORCH) + global.env.pos.y;
+	Sint16 cos,sin;
+	COS_SIN_4096_get(global.env.pos.angle, &cos, &sin);
+
+	torch.x = (Sint32)cos*(SMALL_FORWARD_WIDTH+RADIUS_TORCH)/4096 + global.env.pos.x;
+	torch.y = (Sint32)sin*(SMALL_FORWARD_WIDTH+RADIUS_TORCH)/4096 + global.env.pos.y;
 
 	if((global.env.color == RED && choice == OUR_TORCH) || (global.env.color != RED && choice == ADVERSARY_TORCH))
 		posTorch[0] = torch;
