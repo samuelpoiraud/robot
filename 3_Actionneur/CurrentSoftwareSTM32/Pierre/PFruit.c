@@ -47,6 +47,13 @@ static enum {
 	VIBRATION
 }wanted_state = CLOSE;
 
+typedef enum{
+	NO_ORDER,
+	IN_OPENING,
+	IN_CLOSING
+}verrin_order_e;
+static verrin_order_e verrin_order = NO_ORDER;
+
 static bool_e have_send_answer = TRUE;
 
 void FRUIT_init() {
@@ -140,6 +147,7 @@ bool_e FRUIT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_FRUIT_MOUTH_CLOSE:
 			case ACT_FRUIT_MOUTH_OPEN:
 				have_send_answer = TRUE;
+				verrin_order = NO_ORDER;
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_Fruit, &FRUIT_run_command, 0,TRUE);
 				break;
 
@@ -315,12 +323,6 @@ static void FRUIT_command_labium_run(queue_id_t queueId) {
 // Asservissement verrin
 void FRUIT_process_main(){
 	FRUIT_initDCM();
-	typedef enum{
-		NO_ORDER,
-		IN_OPENING,
-		IN_CLOSING
-	}verrin_order_e;
-	static verrin_order_e verrin_order = NO_ORDER;
 	static bool_e flagWatchDog = TRUE;
 	static clock_time_t begin_time_order;
 
