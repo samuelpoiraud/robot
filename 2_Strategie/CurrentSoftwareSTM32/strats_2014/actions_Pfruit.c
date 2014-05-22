@@ -704,7 +704,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 	static pathfind_node_id_t point_pathfind;
 
 	static Uint8 get_out_try = 0;
-	static GEOMETRY_point_t escape_point[3];
+	static GEOMETRY_point_t escape_point[2];
 
 	Uint8 i;
 	displacement_t point[5];
@@ -728,9 +728,9 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 					courbe[i] = point[NBPOINT-1-i];
 			}
 
-			escape_point[0] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
-			escape_point[1] = (GEOMETRY_point_t) {courbe[4].point.x, courbe[4].point.y};
-			escape_point[2] = (GEOMETRY_point_t) {1250, 2250};
+			escape_point[0] = (GEOMETRY_point_t) {1250, 2250};
+			escape_point[1] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
+
 
 			if(sens == HORAIRE)  // Modifie le sens
 				sensRobot = BACKWARD;
