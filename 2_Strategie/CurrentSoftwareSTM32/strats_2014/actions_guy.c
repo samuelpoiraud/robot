@@ -1699,6 +1699,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		OPEN,
 		ADVANCE,
 		PARKED_NOT_HANDLED,
+		PARKED,
 		ERROR,
 		DONE
 	);
@@ -1710,6 +1711,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 	static GEOMETRY_point_t return_point;
 	static GEOMETRY_point_t drop_adv_pos;
 	static bool_e droped_triangle[3];
+	static bool_e fail_return;
 	static Uint8 niveau;
 	static Uint8 nb_try_back;
 
@@ -1751,6 +1753,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 
 			state = TORCHE;
 			niveau = 0;
+			fail_return = FALSE;
 			nb_try_back = 0;
 			droped_triangle[0] = FALSE;
 			droped_triangle[1] = FALSE;
@@ -1786,7 +1789,11 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case DROP_TRIANGLE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+
+			if(fail_return && ((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)))
+				state = WAIT_TRIANGLE_BREAK;
+			else
+				state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
 
 			if(ON_LEAVING(DROP_TRIANGLE))
 				droped_triangle[niveau] = TRUE;
@@ -1796,9 +1803,11 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 
-			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? DONE:TORCHE);
+			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? PARKED:TORCHE);
 
 			if(ON_LEAVING(WAIT_TRIANGLE_BREAK)){
+				if(niveau == 0 && choiceTorch == ADVERSARY_TORCH && fail_return)
+					state = PARKED;
 				niveau++;
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 			}
@@ -1860,8 +1869,13 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 
 			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, TAKE_RETURN, PARKED_NOT_HANDLED);
 
-			if(ON_LEAVING(SMALL_ARM_PARKED))
+			if(ON_LEAVING(SMALL_ARM_PARKED)){
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
+				if(state == PARKED_NOT_HANDLED){
+					fail_return = TRUE;
+					state = OPEN;
+				}
+			}
 			break;
 
 		case TAKE_RETURN:
@@ -1899,6 +1913,24 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 				state = ERROR;
 			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
 				state = ERROR;
+		}break;
+
+		case PARKED:{
+			static enum state_e state1, state2;
+
+			if(entrance){
+				state1 = PARKED;
+				state2 = PARKED;
+			}
+			if(state1 == PARKED)
+				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED, DONE, ERROR);
+			if(state2 == PARKED)
+				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED, DONE, ERROR);
+
+			if((state1 == DONE && state2 == ERROR) || (state1 == ERROR && state2 == DONE))
+				state = ERROR;
+			else if(state1 == DONE && state2 == DONE)
+				state = DONE;
 		}break;
 
 		case DONE:
