@@ -28,6 +28,8 @@
 #define RAYON_MAX_PIERRE			310	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
 #define VITESSE_FRUIT				120
 
+#define TIME_CONSIDERING_FRUITS_FALL_SINCE_OPENING_LABIUM	500	//[ms]
+
 extern GEOMETRY_point_t offset_recalage;
 
 static tree_sucess_e strat_fruit_sucess = NO_TREE;
@@ -72,7 +74,7 @@ error_e strat_file_fruit(){
 	static Uint16 posOpen; // Position à laquelle, on va ouvrir le bac à fruit
 	static Uint16 posClose; // Position à laquelle, on va fermer le bac à fruit
 	static Uint16 posOpenVerin;	//Position à laquelle on sort le vérin
-
+	static time32_t labium_opening_time;
 	 // Prend le temps quand nous avons ouvert le labium, si le labium a été ouvert plus d'une seconde
 	// cela veut dire que les fruits sont forcément tombé de ce dernier
 	static Uint16 last_time_Open_labium;
@@ -188,22 +190,31 @@ error_e strat_file_fruit(){
 						ACT_fruit_labium_goto(ACT_FRUIT_Labium_Open);
 						last_time_Open_labium = global.env.match_time;
 						labium_state = LABIUM_OPENED_VERIN_OUT;
+
+						labium_opening_time = global.env.match_time;
 					}
 					break;
 				case LABIUM_OPENED_VERIN_OUT:
 					if(global.env.asser.reach_y)
 					{
-						presenceFruit = FALSE;			//Dès cet instant, on a plus de fruits... (même si on termine pas la trajectoire, on reviendra pas les déposer !)
 						ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
 						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+						labium_state = LABIUM_CLOSED_VERIN_IN;
+					}
+					if(presenceFruit == TRUE && (global.env.asser.reach_y || global.env.match_time > labium_opening_time + TIME_CONSIDERING_FRUITS_FALL_SINCE_OPENING_LABIUM))
+					{
+						//On considère qu'on a plus de fruits SI on a commencé à fermer, ou si on a ouvert le labium depuis 500ms
+						//S'il y a évitement maintenant entre 500ms et notre arrivée au reach_y, on ira pas poser ailleurs, considérant que la dépose est faite.
+						presenceFruit = FALSE;			//Dès cet instant, on a plus de fruits... (même si on termine pas la trajectoire, on reviendra pas les déposer !)
 						set_sub_act_done(SUB_DROP_FRUITS,TRUE);
 						set_sub_act_enable(SUB_DROP_FRUITS, FALSE);
-						labium_state = LABIUM_CLOSED_VERIN_IN;
 					}
 					break;
 				default:
 					break;
 			}
+
+
 
 			//NO_DODGE : on gère nous même la sortie...
 			switch(goto_pos_curve_with_avoidance(&dplt[1], NULL, 2, firstPointway, NO_DODGE_AND_WAIT, END_AT_LAST_POINT))
