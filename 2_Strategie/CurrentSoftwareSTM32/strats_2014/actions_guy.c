@@ -726,6 +726,9 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 		MOVE_TORCH,
 		END_TORCH,
 		REMOTENESS,
+		BACK,
+		DECALE_TO_HEARTH,
+		MOVE_TO_HEARTH,
 		DEPLOY_TORCH,
 		EXTRACT_FROM_HEART,
 		EXTRACT_FROM_HEART_WITH_ERROR,
@@ -770,26 +773,30 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 					posEnd.x = 300;
 					posEnd.y = 1500;
 					break;
+
 				case HEARTH_OUR:
-					posEnd.x = 1700;		//TODO positions à régler. (il faudra sans doute 2 positions en fonction de notre couleur !)
-					posEnd.y = COLOR_Y(300);
-					if(torch_choice == ADVERSARY_TORCH)
-					{
-						posIntermediate.x = 1450;
-						posIntermediate.y = 1500;
-						posIntermediate_enable = TRUE;
-					}
-					break;
 				case HEARTH_ADVERSARY:
-					posEnd.x = 1700;			//TODO positions à régler.
-					posEnd.y = COLOR_Y(2700);
-					if(torch_choice == OUR_TORCH)
-					{
-						posIntermediate.x = 1450;
-						posIntermediate.y = 1500;
-						posIntermediate_enable = TRUE;
+					if((global.env.color == RED && current_dispose_zone == HEARTH_OUR)||(global.env.color != RED && current_dispose_zone == HEARTH_ADVERSARY)){
+						posEnd.x = 1910;		//TODO positions à régler. (il faudra sans doute 2 positions en fonction de notre couleur !)
+						posEnd.y = 260;
+//						if(torch_choice == ADVERSARY_TORCH)
+//						{
+//							posIntermediate.x = 1450;
+//							posIntermediate.y = 1500;
+//							posIntermediate_enable = TRUE;
+//						}
+					}else{
+						posEnd.x = 1740;			//TODO positions à régler.
+						posEnd.y = 2910;
+//						if(torch_choice == OUR_TORCH)
+//						{
+//							posIntermediate.x = 1450;
+//							posIntermediate.y = 1500;
+//							posIntermediate_enable = TRUE;
+//						}
 					}
 					break;
+
 				case ANYWHERE:
 						//No break;
 				case HEARTH_CENTRAL:
@@ -900,9 +907,33 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 				state = try_going_until_break(posIntermediate.x, posIntermediate.y, POS_INTERMEDIATE, MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 			else
 				state = MOVE_TORCH;	//Pas de position intermédiaire.. on file directement au MOVE_TORCH
+
 			break;
 		case MOVE_TORCH :
-			state = try_going_until_break(eloignement.x, eloignement.y, MOVE_TORCH, END_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(eloignement.x, eloignement.y, MOVE_TORCH,(current_dispose_zone != HEARTH_ADVERSARY && current_dispose_zone != HEARTH_OUR)? END_TORCH : BACK, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+
+			if(global.env.pos.x > 1700 && state == ERROR && (current_dispose_zone == HEARTH_ADVERSARY || current_dispose_zone == HEARTH_OUR))
+				state = BACK;
+
+			if(ON_LEAVING(MOVE_TORCH))
+				TORCH_new_position(torch_choice);
+			break;
+
+		case BACK:
+			state = try_advance(200, BACK, DECALE_TO_HEARTH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case DECALE_TO_HEARTH:
+			state = try_going(1630, COLOR_Y(285), DECALE_TO_HEARTH, MOVE_TO_HEARTH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+
+			break;
+
+		case MOVE_TO_HEARTH:
+			state = try_going(1700, COLOR_Y(215), MOVE_TO_HEARTH, DEPLOY_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+
+			if(global.env.pos.x > 1650 && state == ERROR && (current_dispose_zone == HEARTH_ADVERSARY || current_dispose_zone == HEARTH_OUR))
+				state = DEPLOY_TORCH;
+
 			break;
 
 		case END_TORCH:
@@ -1172,8 +1203,6 @@ error_e scan_and_back(pos_scan_e scan){
 
 	return IN_PROGRESS;
 }
-
-
 
 
 /*
@@ -1633,17 +1662,20 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 	static Uint8 niveau;
 	static Uint8 nb_try_back;
 
-	if(dispose_zone == HEARTH_OUR){
-		drop_pos[0] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
+	//if(dispose_zone == HEARTH_OUR){
+		/*drop_pos[0] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
 		drop_pos[1] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
-		drop_pos[2] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
-	}
+		drop_pos[2] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};*/
+	//}
 
 	switch(state){
 		case IDLE :{
 			Sint16 cos, sin;
 
 			torch = TORCH_get_position(choiceTorch);
+
+			display(torch.x);
+			display(torch.y);
 
 			// Imposé pour les test
 			//torch.x = global.env.pos.x;
@@ -1659,6 +1691,12 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 
 			work_point.x = global.env.pos.x;
 			work_point.y = global.env.pos.y;
+
+			COS_SIN_4096_get(global.env.pos.angle, &cos, &sin);
+
+			drop_pos[0] = (GEOMETRY_point_t){(Sint32)cos*130/4096 + global.env.pos.x, (Sint32)sin*130/4096 + global.env.pos.y};
+			drop_pos[1] = (GEOMETRY_point_t){(Sint32)cos*130/4096 + global.env.pos.x, (Sint32)sin*130/4096 + global.env.pos.y};
+			drop_pos[2] = (GEOMETRY_point_t){(Sint32)cos*130/4096 + global.env.pos.x, (Sint32)sin*130/4096 + global.env.pos.y};
 
 			state = TORCHE;
 			niveau = 0;
@@ -1762,7 +1800,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case SMALL_ARM_DEPLOYED:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, PARKED_NOT_HANDLED);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_MID, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, PARKED_NOT_HANDLED);
 			break;
 
 		case SMALL_ARM_PARKED:
@@ -2189,6 +2227,8 @@ void strat_inutile_guy(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_GUY_INUTILE,
 		IDLE,
 		POS_DEPART,
+		BACK,
+		ADVANCE,
 		RAMEMENER_TORCH,
 		DEPLOY_TORCH,
 		DO_TORCH,
@@ -2205,15 +2245,23 @@ void strat_inutile_guy(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,DO_TRIANGLE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(400),POS_DEPART,DO_TORCH,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		//case RAMEMENER_TORCH:
 		//	state = check_sub_action_result(travel_torch_line(OUR_TORCH,FILED_FRESCO,1750,250),RAMEMENER_TORCH,DONE,ERROR);
 		//	break;
 
+		case BACK:
+			state = try_advance(200, BACK, ADVANCE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case ADVANCE:
+			state = try_advance(200, ADVANCE, BACK, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			break;
+
 		case DO_TORCH:
-			state = check_sub_action_result(do_torch(OUR_TORCH,FALSE,HEARTH_OUR,HEARTH_CENTRAL),DO_TORCH,DONE,ERROR);
+			state = check_sub_action_result(do_torch(OUR_TORCH,FALSE,HEARTH_OUR,NO_DISPOSE),DO_TORCH,DONE,ERROR);
 			break;
 
 		case DEPLOY_TORCH:

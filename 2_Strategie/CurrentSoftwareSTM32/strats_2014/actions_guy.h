@@ -49,7 +49,6 @@ typedef struct{
 	Sint16 tetaMax;
 }pos_scan_t;
 
-
 error_e sub_action_initiale_guy();
 error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone_e filed);
 error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, torch_dispose_zone_e dispose_zone, torch_dispose_zone_e if_fail_dispose_zone);
