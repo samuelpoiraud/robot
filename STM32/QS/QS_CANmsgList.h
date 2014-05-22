@@ -515,12 +515,14 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_TO_PREPARE_RETURN) \
 			XX(ACT_ARM_POS_TO_DOWN_RETURN) \
 			XX(ACT_ARM_POS_TO_RETURN) \
+			XX(ACT_ARM_POS_WAIT_RETURN) \
 			XX(ACT_ARM_POS_TO_PREPARE_TAKE_RETURN) \
 			XX(ACT_ARM_POS_TO_TAKE_RETURN) \
 			XX(ACT_ARM_POS_ON_TRIANGLE) \
 			XX(ACT_ARM_POS_PREPARE_BACKWARD) \
 			XX(ACT_ARM_POS_DOWN_BACKWARD) \
 			XX(ACT_ARM_POS_LOCK_BACKWARD) \
+			XX(ACT_ARM_POS_TAKE_ON_EDGE) \
 			XX(ACT_ARM_POS_TAKE_ON_ROAD)
 
 		#define ACT_ARM_PRINT_POS 2  //Affiche les positions des actionneurs sur l'uart
@@ -574,7 +576,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////////
 
 	/////////////////////GACHE///////////////////
-	ACT_GACHE = (ACT_FILTER | 0x08),
+	ACT_GACHE = (ACT_FILTER | 0x08)
 		//Paramètres de FILET (dans data[0])
 		#define ACT_GACHE_IDLE				0x11
 		#define ACT_GACHE_LAUNCHED			0x12

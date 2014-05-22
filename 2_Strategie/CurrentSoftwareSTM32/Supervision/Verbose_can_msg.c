@@ -129,6 +129,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case XBEE_GUY_IS_BLOQUED_IN_NORTH:		print(string, len, "%x XBEE_GUY_IS_BLOQUED_IN_NORTH         ", XBEE_GUY_IS_BLOQUED_IN_NORTH		);	break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "%x DEBUG_PROPULSION_SET_COEF            ", DEBUG_PROPULSION_SET_COEF		);	break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "%x DEBUG_PROPULSION_SET_ACCELERATION    ", DEBUG_PROPULSION_SET_ACCELERATION);	break;
+		case ACT_RESULT:						print(string, len, "%x ACT_RESULT							", ACT_RESULT						);	break;
 												//ATTENTION, ici, ce sont des espaces, pas des tabulations ^
 
 		default:								print(string, len, "%x UNKNOW : you should add SID in code !", msg->sid);								break;

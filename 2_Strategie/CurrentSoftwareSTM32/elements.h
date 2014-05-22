@@ -334,6 +334,13 @@
 		YELLOW_TREE
 	}pos_drop_e;
 
+	typedef enum{
+		V_TRIANGLE_1, // Base rouge
+		V_TRIANGLE_2, // Milieu côté rouge
+		V_TRIANGLE_3, // Milieu côté jaune
+		V_TRIANGLE_4  // Base Jaune
+	}vertical_triangle_e;
+
 	typedef struct{
 		Sint16 x;
 		Sint16 y;
