@@ -36,7 +36,7 @@ static void send_message_to_pierre(Uint11 sid, Uint8 data0);
 //Voir le case INIT de la subaction initiale
 //ATTENTION, la route coté mammouths suggère fortement que Pierre commence par la torche et non par la fresque :: sinon conflit !
 
-#define MAX_HEIGHT_ARM	135
+#define MAX_HEIGHT_ARM	143
 #define DIST_RETURN_RETURN_TRIANGLE		250
 
 #define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
@@ -1637,12 +1637,6 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		drop_pos[0] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
 		drop_pos[1] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
 		drop_pos[2] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
-
-
-
-		/*point[0] = (GEOMETRY_point_t){1800,COLOR_Y(200)};
-		point[1] = (GEOMETRY_point_t){1900,COLOR_Y(250)};
-		point[2] = (GEOMETRY_point_t){1900,COLOR_Y(250)};*/
 	}
 
 	switch(state){
@@ -1652,8 +1646,8 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			torch = TORCH_get_position(choiceTorch);
 
 			// Imposé pour les test
-			torch.x = global.env.pos.x;
-			torch.y = global.env.pos.y+180;
+			//torch.x = global.env.pos.x;
+			//torch.y = global.env.pos.y+180;
 
 			drop_adv_pos.x = global.env.pos.x;
 			drop_adv_pos.y = global.env.pos.y;// A définir
