@@ -556,9 +556,9 @@ bool_e get_fresco(Uint8 nb){
 	}
 #else
 	if(nb == 2)
-		return !FRESCO_2;
+		return FRESCO_2;
 	else if(nb == 3)
-		return !FRESCO_3;
+		return FRESCO_3;
 #endif
 
 	return TRUE;
