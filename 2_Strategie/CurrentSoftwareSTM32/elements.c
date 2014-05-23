@@ -57,8 +57,8 @@ static objet_t objet[3][20];
 static Uint8 nb_objet[3];
 
 
-static GEOMETRY_point_t posTorch[2] = {{1050,900},		// Torche Rouge
-									   {1050,2100}};	// Torche Jaune
+static GEOMETRY_point_t posTorch[2] = {{1100,900},		// Torche Rouge
+									   {1100,2100}};	// Torche Jaune
 
 
 
@@ -177,8 +177,6 @@ error_e ELEMENT_go_and_drop(pos_drop_e choice){
 	return IN_PROGRESS;
 }
 
-
-
 void TORCH_new_position(torch_choice_e choice){
 	GEOMETRY_point_t torch;
 
@@ -192,6 +190,11 @@ void TORCH_new_position(torch_choice_e choice){
 		posTorch[0] = torch;
 	else
 		posTorch[1] = torch;
+
+	display(posTorch[0].x);
+	display(posTorch[0].y);
+	display(posTorch[1].x);
+	display(posTorch[1].y);
 
 	TORCH_XBee_send_msg(choice, torch);
 }

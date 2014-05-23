@@ -66,6 +66,7 @@ bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait qu
 	#define IF_FAIL_DISPOSE_ADVERSARY_TORCH_NO_DISPOSE
 
 #define DIM_START_TRAVEL_TORCH 200
+#define RADIUS_TORCH 80
 
 typedef enum{
 	NORTH_MAMMOUTH = 0,
@@ -720,14 +721,14 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TORCH,
 		IDLE,
 		COMPUTE,
-		PRE_POSITIONNING,
+//		PRE_POSITIONNING,
 		POS_START_TORCH,
-		POS_INTERMEDIATE,
+//		POS_INTERMEDIATE,
 		MOVE_TORCH,
-		END_TORCH,
-		REMOTENESS,
+//		END_TORCH,
+//		REMOTENESS,
 		BACK,
-		DECALE_TO_HEARTH,
+		CENTER_TO_HEARTH,
 		MOVE_TO_HEARTH,
 		DEPLOY_TORCH,
 		EXTRACT_FROM_HEART,
@@ -739,13 +740,18 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 	);
 	static torch_dispose_zone_e current_dispose_zone = NO_DISPOSE;
 	static bool_e fail_at_first_dispose_try = FALSE;	//
-	static bool_e i_have_the_torch = FALSE;	//
-	static GEOMETRY_point_t posStart,posEnd,posIntermediate,posPre,get_out;
-	static bool_e posIntermediate_enable = FALSE;
-	static bool_e posPrepositionning_enable = FALSE;
+	static bool_e i_have_the_torch = FALSE;
+
+	// PosEndTorch : Position finale de la torche
+	// PosStart : Position de départ du robot
+	// PosEnd : Position finale du robot quand il déplace la torche
+	// PosCenter : Postion pour correctement s'alligner en face d'un foyer
+	// PosHearth : Position au prés du foyer
+	static GEOMETRY_point_t posStart,posEndTorch,posIntermediate,get_out,posEnd,posCenter,posHearth;
+//	static bool_e posIntermediate_enable = FALSE;
+//	static bool_e posPrepositionning_enable = FALSE;
 	static bool_e get_out_enable = FALSE;
-	// S'éloigne à la fin de la poussée mais ralenti aussi avant la fin de la poussée
-	static GEOMETRY_point_t eloignement;
+
 
 	static GEOMETRY_point_t torch;
 	Uint16 norm;
@@ -758,7 +764,6 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			break;
 		case COMPUTE:
 			torch = TORCH_get_position(torch_choice);
-			posIntermediate_enable = FALSE;
 
 			/*	La trajectoire de poussé de torche est construite ainsi :
 			 * 1- posPre : SSSI posPrepositionning_enable !
@@ -770,15 +775,22 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			switch(current_dispose_zone)
 			{
 				case FILED_FRESCO:
-					posEnd.x = 300;
-					posEnd.y = 1500;
+					posEndTorch.x = 300;
+					posEndTorch.y = 1500;
 					break;
 
 				case HEARTH_OUR:
 				case HEARTH_ADVERSARY:
 					if((global.env.color == RED && current_dispose_zone == HEARTH_OUR)||(global.env.color != RED && current_dispose_zone == HEARTH_ADVERSARY)){
-						posEnd.x = 1910;		//TODO positions à régler. (il faudra sans doute 2 positions en fonction de notre couleur !)
-						posEnd.y = 260;
+						posEndTorch.x = 2000 - RADIUS_TORCH;
+						posEndTorch.y = 250 + RADIUS_TORCH;
+
+						posCenter.x = 1680;
+						posCenter.y = 300;
+
+						posHearth.x = 1760;
+						posHearth.y = 220;
+
 //						if(torch_choice == ADVERSARY_TORCH)
 //						{
 //							posIntermediate.x = 1450;
@@ -786,8 +798,15 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 //							posIntermediate_enable = TRUE;
 //						}
 					}else{
-						posEnd.x = 1740;			//TODO positions à régler.
-						posEnd.y = 2910;
+						posEndTorch.x = 2000 - 250 - RADIUS_TORCH;
+						posEndTorch.y = 3000 - RADIUS_TORCH;
+
+						posCenter.x = 1630;
+						posCenter.y = 285;
+
+						posHearth.x = 1700;
+						posHearth.y = 215;
+
 //						if(torch_choice == OUR_TORCH)
 //						{
 //							posIntermediate.x = 1450;
@@ -802,8 +821,15 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 				case HEARTH_CENTRAL:
 						//No break;
 				default:
-					posEnd.x = 1400;
-					posEnd.y = 1500;
+					posEndTorch.x = 1050 + 150 + RADIUS_TORCH + 20;
+					posEndTorch.y = 1500;
+
+					posCenter.x = 1440;
+					posCenter.y = 1770;
+
+					posHearth.x = 1220;
+					posHearth.y = 1620;
+
 					get_out.x = 1500;
 					get_out.y = COLOR_Y(1600);
 					get_out_enable = TRUE;
@@ -811,31 +837,40 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			}
 
 			float coefx, coefy;
-			if(posIntermediate_enable)
-			{
-				norm = GEOMETRY_distance(torch,posIntermediate);
-				coefx = (torch.x - posIntermediate.x)/(norm*1.);
-				coefy = (torch.y - posIntermediate.y)/(norm*1.);
-			}
-			else
-			{
-				norm = GEOMETRY_distance(torch,posEnd);
-				coefx = (torch.x - posEnd.x)/(norm*1.);
-				coefy = (torch.y - posEnd.y)/(norm*1.);
-			}
+//			if(posIntermediate_enable)
+//			{
+//				norm = GEOMETRY_distance(torch,posIntermediate);
+//				coefx = (torch.x - posIntermediate.x)/(norm*1.);
+//				coefy = (torch.y - posIntermediate.y)/(norm*1.);
+//			}
+//			else
+//			{
+				norm = GEOMETRY_distance(torch,posEndTorch);
+				coefx = (torch.x - posEndTorch.x)/(norm*1.);
+				coefy = (torch.y - posEndTorch.y)/(norm*1.);
+//			}
 
 			posStart.x = torch.x + DIM_START_TRAVEL_TORCH*coefx;
 			posStart.y = torch.y + DIM_START_TRAVEL_TORCH*coefy;
 
-			if(posIntermediate_enable)
-			{
-				norm = GEOMETRY_distance(torch,posEnd);
-				coefx = (torch.x - posEnd.x)/(norm*1.);
-				coefy = (torch.y - posEnd.y)/(norm*1.);
-			}
-			//Sinon, l'angle calculé plus haut est le bon... pas besoin de le recalculer
-			eloignement.x = posEnd.x + DIM_START_TRAVEL_TORCH*coefx;
-			eloignement.y = posEnd.y + DIM_START_TRAVEL_TORCH*coefy;
+			display(posStart.x);
+			display(posStart.y);
+
+//			if(posIntermediate_enable)
+//			{
+//				norm = GEOMETRY_distance(torch,posEndTorch);
+//				coefx = (torch.x - posEndTorch.x)/(norm*1.);
+//				coefy = (torch.y - posEndTorch.y)/(norm*1.);
+//			}
+
+			posEnd.x = posEndTorch.x + RADIUS_TORCH*coefx;
+			posEnd.y = posEndTorch.y + RADIUS_TORCH*coefy;
+
+			display(posEnd.x);
+			display(posEnd.y);
+			display(posEndTorch.x);
+			display(posEndTorch.y);
+
 
 			//On connait le start, la position de la torche et notre position actuelle... Dans certains cas de figure, il faut une position de prépositionnement.
 			//TODO calculer si besoin le prepositionning point...
@@ -844,110 +879,92 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			//LE CALCUL GENERIQUE DE TOUT LES CAS EST UN ALGO DIFFICILE A TESTER, TRES EXIGEANT... et inutile compte tenu du peu de cas d'application en match.
 			//Les points de prépositionnement sont donc ajoutés à la main, pour certains cas de figure identifiés seulement !
 
-			if(torch_choice == ADVERSARY_TORCH)
-			{
-				switch(current_dispose_zone)
-				{
-					case FILED_FRESCO:
+//			if(torch_choice == ADVERSARY_TORCH)
+//			{
+//				switch(current_dispose_zone)
+//				{
+//					case FILED_FRESCO:
 
-						break;
-					case HEARTH_ADVERSARY:
-						if(global.env.pos.x > posStart.x && COLOR_Y(global.env.pos.y) > COLOR_Y(posStart.y))
-						{
-							posPrepositionning_enable = TRUE;
-							posPre.x = posStart.x;
-							posPre.y = posStart.y;
-							if(global.env.pos.x - posStart.x < absolute(global.env.pos.y - posStart.y))
-								posPre.y = global.env.pos.y;	//Je suis plus prêt des x, je rejoins le bon x en gardant mon y
-							else
-								posPre.x = global.env.pos.x;	//Je suis plus prêt des y, je rejoins le bon y en gardant mon x
-						}
-						break;
-					case HEARTH_OUR:		//no break
-					case ANYWHERE:			//no break;
-					case HEARTH_CENTRAL:	//no break;
-					default:
-						if(global.env.pos.x > posStart.x && COLOR_Y(global.env.pos.y) < COLOR_Y(posStart.y))
-						{
-							posPre.x = 1350;
-							posPre.y = COLOR_Y(2300);
-							posPrepositionning_enable = TRUE;
-						}
-						break;
-				}
-			}
-			else	//OUR TORCH...
-			{
-				//Pas de point de prépositionnement.. On assume la précondition que pour prendre notre torche il faut être bien placé !!!
-			}
-			if(we_are_already_in_pos_end)	//Le cas particulier où on a déjà la torche en position correcte en arrivant dans cette fonction ! AUCUNE VERIFICATION, le développeur est responsable !
-				state = REMOTENESS;
-			else if(last_state == ERROR)
-				state = POS_INTERMEDIATE;	//On a échoué lors d'une précédente tentative de pose... on va directement sur le MOVE_TORCH pour rejoindre le point eloignement de la nouvelle zone de dépsose !
+//						break;
+//					case HEARTH_ADVERSARY:
+//						if(global.env.pos.x > posStart.x && COLOR_Y(global.env.pos.y) > COLOR_Y(posStart.y))
+//						{
+//							posPrepositionning_enable = TRUE;
+//							posPre.x = posStart.x;
+//							posPre.y = posStart.y;
+//							if(global.env.pos.x - posStart.x < absolute(global.env.pos.y - posStart.y))
+//								posPre.y = global.env.pos.y;	//Je suis plus prêt des x, je rejoins le bon x en gardant mon y
+//							else
+//								posPre.x = global.env.pos.x;	//Je suis plus prêt des y, je rejoins le bon y en gardant mon x
+//						}
+//						break;
+//					case HEARTH_OUR:		//no break
+//					case ANYWHERE:			//no break;
+//					case HEARTH_CENTRAL:	//no break;
+//					default:
+//						if(global.env.pos.x > posStart.x && COLOR_Y(global.env.pos.y) < COLOR_Y(posStart.y))
+//						{
+//							posPre.x = 1350;
+//							posPre.y = COLOR_Y(2300);
+//							posPrepositionning_enable = TRUE;
+//						}
+//						break;
+//				}
+//			}
+//			else	//OUR TORCH...
+//			{
+//				//Pas de point de prépositionnement.. On assume la précondition que pour prendre notre torche il faut être bien placé !!!
+//			}
+
+
+			if(we_are_already_in_pos_end || GEOMETRY_distance((GEOMETRY_point_t){torch.x, torch.y}, (GEOMETRY_point_t){posEndTorch.x, posEndTorch.y}) < 20)	//Le cas particulier où on a déjà la torche en position correcte en arrivant dans cette fonction ! AUCUNE VERIFICATION, le développeur est responsable !
+				state = CENTER_TO_HEARTH;
 			else if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, posStart) < 50)
 				state = MOVE_TORCH;
-			else if(posPrepositionning_enable)
-				state = PRE_POSITIONNING;
 			else
 				state = POS_START_TORCH;
 
-			SD_printf("Torch: start=[%d;%d] | torch=[%d;%d] | end=[%d;%d] | remotness=[%d;%d]\n",posStart.x, posStart.y, torch.x, torch.y, posEnd.x, posEnd.y, eloignement.x, eloignement.y);
+			SD_printf("Torch: start=[%d;%d] | torch=[%d;%d] | end=[%d;%d] | remotness=[%d;%d]\n",posStart.x, posStart.y, torch.x, torch.y, posEndTorch.x, posEndTorch.y, posEnd.x, posEnd.y);
 			break;
-		case PRE_POSITIONNING:	//Il faut parfois se mettre dans un prépositionnement qui permet de pas recouvrir la torche avant de la pousser comme souhaité
-			//NO_DODGE...
-			state = try_going(posPre.x, posPre.y, PRE_POSITIONNING, POS_START_TORCH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
-			break;
+
 		case POS_START_TORCH:
-			state = try_going(posStart.x, posStart.y, POS_START_TORCH, POS_INTERMEDIATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(posStart.x, posStart.y, POS_START_TORCH, MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 			break;
-		case POS_INTERMEDIATE:
+
+		case MOVE_TORCH :
 			if(entrance)
 				i_have_the_torch = TRUE;
-			if(posIntermediate_enable)	//On se rend d'abord à une position intermédiaire.
-				state = try_going_until_break(posIntermediate.x, posIntermediate.y, POS_INTERMEDIATE, MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
-			else
-				state = MOVE_TORCH;	//Pas de position intermédiaire.. on file directement au MOVE_TORCH
 
-			break;
-		case MOVE_TORCH :
-			state = try_going(eloignement.x, eloignement.y, MOVE_TORCH,(current_dispose_zone != HEARTH_ADVERSARY && current_dispose_zone != HEARTH_OUR)? END_TORCH : BACK, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(posEnd.x, posEnd.y, MOVE_TORCH, BACK, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 
-			if(global.env.pos.x > 1700 && state == ERROR && (current_dispose_zone == HEARTH_ADVERSARY || current_dispose_zone == HEARTH_OUR))
+			if(state == ERROR && ((global.env.pos.x > 1700 && ((global.env.color == RED && current_dispose_zone == HEARTH_OUR) || (global.env.color != RED && current_dispose_zone == HEARTH_ADVERSARY))) ||
+			   (global.env.pos.y > 2700 && ((global.env.color != RED && current_dispose_zone == HEARTH_OUR) || (global.env.color == RED && current_dispose_zone == HEARTH_ADVERSARY)))))
 				state = BACK;
 
-			if(ON_LEAVING(MOVE_TORCH))
+			if(ON_LEAVING(MOVE_TORCH)){
+				i_have_the_torch = FALSE;
 				TORCH_new_position(torch_choice);
+			}
 			break;
 
+		// S'éloigne de la torche
 		case BACK:
-			state = try_advance(200, BACK, DECALE_TO_HEARTH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance(200, BACK, CENTER_TO_HEARTH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
-		case DECALE_TO_HEARTH:
-			state = try_going(1630, COLOR_Y(285), DECALE_TO_HEARTH, MOVE_TO_HEARTH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+		case CENTER_TO_HEARTH:
+			state = try_going(posCenter.x, posCenter.y, CENTER_TO_HEARTH, MOVE_TO_HEARTH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 
 			break;
 
 		case MOVE_TO_HEARTH:
-			state = try_going(1700, COLOR_Y(215), MOVE_TO_HEARTH, DEPLOY_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(posHearth.x, posHearth.y, MOVE_TO_HEARTH, DEPLOY_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 
-			if(global.env.pos.x > 1650 && state == ERROR && (current_dispose_zone == HEARTH_ADVERSARY || current_dispose_zone == HEARTH_OUR))
+			if(state == ERROR && ((global.env.pos.x > 1650 && ((global.env.color == RED && current_dispose_zone == HEARTH_OUR) || (global.env.color != RED && current_dispose_zone == HEARTH_ADVERSARY))) || // Foyer rouge
+			   (global.env.pos.y > 2650 && ((global.env.color != RED && current_dispose_zone == HEARTH_OUR) || (global.env.color == RED && current_dispose_zone == HEARTH_ADVERSARY)))) ||					 // Foyer jaune
+				(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, (GEOMETRY_point_t){1050, 1500}) < 150+120 && current_dispose_zone == HEARTH_CENTRAL))								 // Foyer centrale
 				state = DEPLOY_TORCH;
 
-			break;
-
-		case END_TORCH:
-			state = try_going_until_break(posEnd.x, posEnd.y, END_TORCH, REMOTENESS, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
-			break;
-
-		case REMOTENESS:  // eloignement
-			if(entrance)
-			{
-				i_have_the_torch = FALSE;
-				TORCH_new_position(torch_choice);
-			}
-
-			state = try_going(eloignement.x, eloignement.y, REMOTENESS, DEPLOY_TORCH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case ERROR:
@@ -2344,7 +2361,7 @@ void strat_inutile_guy(void){
 			break;
 
 		case DO_TORCH:
-			state = check_sub_action_result(do_torch(OUR_TORCH,FALSE,HEARTH_OUR,NO_DISPOSE),DO_TORCH,DONE,ERROR);
+			state = check_sub_action_result(do_torch(OUR_TORCH,FALSE,HEARTH_CENTRAL,NO_DISPOSE),DO_TORCH,DONE,ERROR);
 			break;
 
 		case DEPLOY_TORCH:
