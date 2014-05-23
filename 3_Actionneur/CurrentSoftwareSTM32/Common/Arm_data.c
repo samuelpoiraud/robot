@@ -68,7 +68,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-432	,133	,65,	120},	//ARM_ST_Wait_Return
 
 		{-432	,115	,42,	148},	//ARM_ST_To_Prepare_Take_Return
-		{-74	,132	,56,	148},	//ARM_ST_To_Take_Return
+		{-432	,132	,56,	148},	//ARM_ST_To_Take_Return
 		{-432	,132	,56,	110},	//ARM_ST_To_Unblock_Return
 
 		{-432	,150	,150,	150},	//ARM_ST_On_Triangle			// Distance factice
@@ -77,7 +77,10 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-360	,113	,154,	79},	//ARM_ST_Down_Backward
 		{-360	,113	,154,	148},	//ARM_ST_Lock_Backward
 
-		{-302	,113	,205,	148},	//ARM_ST_Take_On_Edge
+		{-432	,110	,160,	145},	//ARM_ST_Prepare_Take_On_Edge
+		{-261	,110	,160,	145},	//ARM_ST_Take_On_Edge
+		{-309	,120	,160,	145},	//ARM_ST_Return_On_Edge
+		{-302	,113	,205,	148},	//ARM_ST_Disposed_Simple
 
 		{-215	,130	,173,	146}	//ARM_ST_Take_On_Road
 		};
@@ -127,22 +130,39 @@ void init_perm_transitions_table(){
 	//						   /Ancien état       /Nombre d'état suivant possible      /Liste des états suivant possible
 	add_perm_transitions_table(ACT_ARM_POS_PARKED,					1,	(ARM_state_e[]){ACT_ARM_POS_MID});
 	add_perm_transitions_table(ACT_ARM_POS_MID,						2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_PARKED});
-	add_perm_transitions_table(ACT_ARM_POS_OPEN,					10,	(ARM_state_e[]){ACT_ARM_POS_MID, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE, ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_CARRY, ACT_ARM_POS_TO_PREPARE_TAKE_RETURN, ACT_ARM_POS_PREPARE_BACKWARD, ACT_ARM_POS_TAKE_ON_ROAD, ACT_ARM_POS_TAKE_ON_EDGE});
+	add_perm_transitions_table(ACT_ARM_POS_OPEN,					12,	(ARM_state_e[]){ACT_ARM_POS_MID, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_TO_STORAGE,
+																						ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_CARRY,
+																						ACT_ARM_POS_TO_PREPARE_TAKE_RETURN, ACT_ARM_POS_PREPARE_BACKWARD,
+																						ACT_ARM_POS_TAKE_ON_ROAD, ACT_ARM_POS_PREPARE_TAKE_ON_EDGE,
+																						ACT_ARM_POS_RETURN_ON_EDGE, ACT_ARM_POS_DISPOSED_SIMPLE});
+
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE,				3,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_PREPARE_RETURN});
+
 	add_perm_transitions_table(ACT_ARM_POS_TO_STORAGE,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+
 	add_perm_transitions_table(ACT_ARM_POS_TO_CARRY,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+
 	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_DOWN_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,			2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,				2,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN, ACT_ARM_POS_WAIT_RETURN});
+
 	add_perm_transitions_table(ACT_ARM_POS_WAIT_RETURN,				3,	(ARM_state_e[]){ACT_ARM_POS_TO_TAKE_RETURN, ACT_ARM_POS_OPEN});
+
 	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_TAKE_RETURN,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_TAKE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_UNBLOCK_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_UNBLOCK_RETURN,		1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+
 	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,				2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_ON_TORCHE});
+
 	add_perm_transitions_table(ACT_ARM_POS_PREPARE_BACKWARD,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_DOWN_BACKWARD});
 	add_perm_transitions_table(ACT_ARM_POS_DOWN_BACKWARD,			2,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_BACKWARD, ACT_ARM_POS_LOCK_BACKWARD});
 	add_perm_transitions_table(ACT_ARM_POS_LOCK_BACKWARD,			1,	(ARM_state_e[]){ACT_ARM_POS_DOWN_BACKWARD});
-	add_perm_transitions_table(ACT_ARM_POS_TAKE_ON_EDGE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+
+	add_perm_transitions_table(ACT_ARM_POS_PREPARE_TAKE_ON_EDGE,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TAKE_ON_EDGE});
+	add_perm_transitions_table(ACT_ARM_POS_TAKE_ON_EDGE,			1,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_TAKE_ON_EDGE});
+	add_perm_transitions_table(ACT_ARM_POS_RETURN_ON_EDGE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_DISPOSED_SIMPLE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+
 	add_perm_transitions_table(ACT_ARM_POS_TAKE_ON_ROAD,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 }
 

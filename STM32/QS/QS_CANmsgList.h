@@ -523,7 +523,10 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_PREPARE_BACKWARD) \
 			XX(ACT_ARM_POS_DOWN_BACKWARD) \
 			XX(ACT_ARM_POS_LOCK_BACKWARD) \
+			XX(ACT_ARM_POS_PREPARE_TAKE_ON_EDGE) \
 			XX(ACT_ARM_POS_TAKE_ON_EDGE) \
+			XX(ACT_ARM_POS_RETURN_ON_EDGE) \
+			XX(ACT_ARM_POS_DISPOSED_SIMPLE) \
 			XX(ACT_ARM_POS_TAKE_ON_ROAD)
 
 		#define ACT_ARM_PRINT_POS 2  //Affiche les positions des actionneurs sur l'uart
