@@ -21,6 +21,7 @@
 #include "Supervision/Buzzer.h"
 #include "Supervision/SD/SD.h"
 #include "math.h"
+#include "maths_home.h"
 #include "state_machine_helper.h"
 
 #define SMALL_ROBOT_ACCELERATION_NORMAL	468*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
@@ -44,9 +45,6 @@ static error_e AVOIDANCE_watch_asser_stack();
 #else
 	#define avoidance_printf(...)	(void)0
 #endif
-
-static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
-
 
 
 
@@ -1039,10 +1037,6 @@ void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
 	msg_to_send.data[3] = distance >> 8;
 	msg_to_send.data[4] = distance & 0xFF;
 	CAN_send(&msg_to_send);
-}
-
-static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
-	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
 }
 
 

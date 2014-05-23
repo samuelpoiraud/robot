@@ -9,7 +9,12 @@
  */
 
 #include "maths_home.h"
+#include "math.h"
 #include "QS/QS_outputlog.h"
+
+Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
+	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
+}
 
 #ifdef FAST_COS_SIN
 
