@@ -21,7 +21,7 @@
 	//	-				 			  6
 	#define PRESENCE_FILET		GPIOA->IDR7
 	//	-				 			  7
-	#define FRUIT_POMPE_SENS		GPIOA->ODR8
+	//#define FRUIT_POMPE_SENS		GPIOA->ODR8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -59,7 +59,7 @@
 	#define POMPE_PIN		GPIOC->ODR8
 	//	-				 			  8
 	//	-				 			  9
-	//	-	sortie libre 			  10
+	#define FRUIT_POMPE_SENS	GPIOC->ODR10
 	#define POMPE_SENS	GPIOC->ODR11
 	//	-				 			  12
 	//	-				 			  13
@@ -111,7 +111,7 @@
 
 
 /* Config Fruit Pompe */
-#define FRUIT_POMPE_PWM_NUM				1
+#define FRUIT_POMPE_PWM_NUM				2
 #define FRUIT_POMPE_TOR_OPEN			FRUIT_VERIN_OUT  // Capteur
 #define FRUIT_POMPE_TOR_CLOSE			FRUIT_VERIN_IN
 

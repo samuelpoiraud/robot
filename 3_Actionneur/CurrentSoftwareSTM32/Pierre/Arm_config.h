@@ -27,9 +27,9 @@
 #define ARM_ACT_UPDOWN_ASSER_TIMEOUT             5000
 #define ARM_ACT_UPDOWN_ASSER_POS_EPSILON         20
 #define ARM_ACT_UPDOWN_ASSER_POS_LARGE_EPSILON   300 //arbitraire, a changer
-#define ARM_ACT_UPDOWN_PWM_NUM                   2
-#define ARM_ACT_UPDOWN_PORT_WAY                  GPIOC
-#define ARM_ACT_UPDOWN_PORT_WAY_BIT              4
+#define ARM_ACT_UPDOWN_PWM_NUM                   1
+#define ARM_ACT_UPDOWN_PORT_WAY                  GPIOA
+#define ARM_ACT_UPDOWN_PORT_WAY_BIT              8
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY0              20
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY1              20
 #define ARM_ACT_UPDOWN_MAX_VALUE				 500
