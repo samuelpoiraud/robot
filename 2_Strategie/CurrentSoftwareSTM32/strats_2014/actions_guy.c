@@ -1660,17 +1660,17 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 	);
 
 	const GEOMETRY_point_t triangle_pos_begin[4] = {
-		{800,	200},
-		{1300,	1800},
-		{1800,	1800},
-		{2800,	800}
+		{800,	180},
+		{1820,	1300},
+		{1820,	1700},
+		{800,	2820}
 	};
 
 	const GEOMETRY_point_t triangle_pos_end[4] = {
 		{800,	340},
-		{1300,	1760},
-		{1800,	1760},
-		{2760,	800}
+		{1740,	1300},
+		{1740,	1700},
+		{800,	2720}
 	};
 
 	switch (state) {
@@ -1683,7 +1683,12 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case ROTATION:
-			state = try_go_angle(-PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
+			if(vertical_triangle == V_TRIANGLE_1)
+				state = try_go_angle(-PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
+			if(vertical_triangle == V_TRIANGLE_2 || vertical_triangle == V_TRIANGLE_3)
+				state = try_go_angle(0, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
+			if(vertical_triangle == V_TRIANGLE_4)
+				state = try_go_angle(PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
 			break;
 
 		case PLACEMENT_BRAS:
@@ -1702,17 +1707,141 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case UP_ARM:
-			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, PLACEMENT_FOYER, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_DISPOSED_SIMPLE,0, 0, UP_ARM, PLACEMENT_FOYER, PARKED_NOT_HANDLED);
 			break;
 
 		case PLACEMENT_FOYER:{
 			static GEOMETRY_point_t goal_pos;
-			Sint16 cos, sin, l;
+			Sint16 cos, sin, l, teta;
 			if(entrance){
-				COS_SIN_4096_get(global.env.pos.angle, &cos, &sin);
+				teta = atan2(1500-global.env.pos.y, 1050-global.env.pos.x)*4096.;
+				COS_SIN_4096_get(teta, &cos, &sin);
+				display(teta);
 				l = dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500);
-				goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+83)) + global.env.pos.x;
-				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+83)) + global.env.pos.y;
+				display(l);
+				goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+83))/4096. + global.env.pos.x;
+				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+83))/4096. + global.env.pos.y;
+				display(goal_pos.x);
+				display(goal_pos.y);
+
+			}
+			state = try_going(goal_pos.x, goal_pos.y, PLACEMENT_FOYER, DROP, PARKED_NOT_HANDLED, FAST, FORWARD, DODGE_AND_WAIT);
+
+		}break;
+
+		case DROP:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+
+			state = ELEMENT_wait_time(500, DROP, PARKED);
+			break;
+
+		case PARKED_NOT_HANDLED:{
+			static enum state_e state1, state2;
+
+			if(entrance){
+				state1 = PARKED_NOT_HANDLED;
+				state2 = PARKED_NOT_HANDLED;
+			}
+			if(state1 == PARKED_NOT_HANDLED)
+				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
+			if(state2 == PARKED_NOT_HANDLED)
+				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLED, ERROR, ERROR);
+
+			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
+				state = ERROR;
+			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
+				state = ERROR;
+		}break;
+
+		case PARKED:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, DONE, ERROR);
+			break;
+
+		case DONE:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		PLACEMENT_INIT,
+		PLACEMENT_BRAS,
+		BACK,
+		RUSH_IN_THE_FLOOR,
+		UP_ARM,
+		PLACEMENT_FOYER,
+		DROP,
+		PARKED_NOT_HANDLED,
+		PARKED,
+		ERROR,
+		DONE
+	);
+
+	const GEOMETRY_point_t triangle_pos_begin[4] = {
+		{800,	400},
+		{1600,	1300},
+		{1600,	1700},
+		{800,	2600}
+	};
+
+	const GEOMETRY_point_t triangle_pos_end[4] = {
+		{800,	200},
+		{1800,	1300},
+		{1800,	1700},
+		{800,	280}
+	};
+
+	switch (state) {
+		case IDLE:
+			state = PLACEMENT_INIT;
+			break;
+
+		case PLACEMENT_INIT:
+			state = try_going(triangle_pos_begin[vertical_triangle].x, triangle_pos_begin[vertical_triangle].y, PLACEMENT_INIT, ROTATION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+			break;
+
+		case PLACEMENT_BRAS:
+			state = ACT_arm_move(ACT_ARM_POS_TAKE_ON_EDGE, 0, 0, PLACEMENT_BRAS, BACK, PARKED_NOT_HANDLED);
+			break;
+
+		case BACK:
+			state = try_going(triangle_pos_end[vertical_triangle].x, triangle_pos_end[vertical_triangle].y, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, FAST, ANY_WAY, DODGE_AND_WAIT);
+			break;
+
+		case RUSH_IN_THE_FLOOR:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+
+			state = ACT_elevator_arm_rush_in_the_floor(35, RUSH_IN_THE_FLOOR, UP_ARM, PARKED_NOT_HANDLED);
+			break;
+
+		case UP_ARM:
+			state = ACT_arm_move(ACT_ARM_POS_DISPOSED_SIMPLE,0, 0, UP_ARM, PLACEMENT_FOYER, PARKED_NOT_HANDLED);
+			break;
+
+		case PLACEMENT_FOYER:{
+			static GEOMETRY_point_t goal_pos;
+			Sint16 cos, sin, l, teta;
+			if(entrance){
+				teta = atan2(1500-global.env.pos.y, 1050-global.env.pos.x)*4096.;
+				COS_SIN_4096_get(teta, &cos, &sin);
+				display(teta);
+				l = dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500);
+				display(l);
+				goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+83))/4096. + global.env.pos.x;
+				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+83))/4096. + global.env.pos.y;
 				display(goal_pos.x);
 				display(goal_pos.y);
 
@@ -2431,7 +2560,7 @@ void strat_inutile_guy(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(400),POS_DEPART,DO_TORCH,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(400),POS_DEPART,ON,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		//case RAMEMENER_TORCH:
@@ -2439,7 +2568,7 @@ void strat_inutile_guy(void){
 		//	break;
 
 		case ON:
-			state = check_sub_action_result(ACT_take_triangle_on_edge(V_TRIANGLE_1), ON, DONE, ERROR);
+			state = check_sub_action_result(ACT_take_triangle_on_edge(V_TRIANGLE_2), ON, DONE, ERROR);
 			break;
 
 		case BACK:
