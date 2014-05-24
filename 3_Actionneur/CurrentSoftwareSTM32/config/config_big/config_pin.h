@@ -48,7 +48,7 @@
 	#define LANCELAUNCHER_PIN_5 GPIOB->ODR14
 	#define LANCELAUNCHER_PIN_6 GPIOB->ODR15
 
-#define PORT_C_IO_MASK	0xF6FF
+#define PORT_C_IO_MASK	0xF3FF
 	//	-				 			  0
 	//	-				 			  1
 	//	-				 			  2
