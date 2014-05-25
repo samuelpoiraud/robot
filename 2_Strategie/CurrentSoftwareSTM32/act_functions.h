@@ -96,6 +96,7 @@ typedef enum {
 bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
 bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd);
 bool_e ACT_fruit_labium_goto(ACT_fruit_labium_cmd_e cmd);
+bool_e ACT_fruit_mouth_goto_close();
 bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param);
 bool_e ACT_filet_launch(ACT_filet_cmd_e cmd);
 bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);

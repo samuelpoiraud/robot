@@ -27,6 +27,7 @@
 #define PROFONDEUR_BAC_FRUIT		300
 #define RAYON_MAX_PIERRE			310	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
 #define VITESSE_FRUIT				120
+#define TIME_CLOSE_MOUTH			1000 // Quand il fini de prendre les friuts correctement, il attend pour refermer le bras
 
 #define TIME_CONSIDERING_FRUITS_FALL_SINCE_OPENING_LABIUM	500	//[ms]
 
@@ -659,7 +660,8 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		case DONE:
 			presenceFruit = TRUE;
 			strat_fruit_sucess = ALL_TREE;
-			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			WATCHDOG_create(TIME_CLOSE_MOUTH, ACT_fruit_mouth_goto_close,FALSE);
+			//ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
@@ -809,7 +811,8 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		case DONE:
 			presenceFruit = TRUE;
 			strat_fruit_sucess = ALL_TREE;
-			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			WATCHDOG_create(TIME_CLOSE_MOUTH, ACT_fruit_mouth_goto_close,FALSE);
+			//ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
@@ -964,7 +967,8 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				strat_fruit_sucess = TREE_2;
 
-			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			WATCHDOG_create(TIME_CLOSE_MOUTH, ACT_fruit_mouth_goto_close,FALSE);
+			//ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
@@ -1117,7 +1121,8 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				strat_fruit_sucess = TREE_2;
 
-			ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
+			WATCHDOG_create(TIME_CLOSE_MOUTH, ACT_fruit_mouth_goto_close,FALSE);
+			//ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
 			break;
