@@ -35,14 +35,14 @@
 #define ARM_ACT_UPDOWN_MAX_VALUE				 -10
 #define ARM_ACT_UPDOWN_MIN_VALUE				 -440
 
-#define ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM		25
+#define ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM		35
 
 //#define ARM_ACT_RX24                             1
 #define ARM_ACT_RX24                             0		//non utilisé, mais utilisé comme prefix dans arm_data (les autres moteurs c'est pareil)
 #define ARM_ACT_RX24_ASSER_TIMEOUT               20
 #define ARM_ACT_RX24_ASSER_POS_EPSILON           5
 #define ARM_ACT_RX24_ASSER_POS_LARGE_EPSILON     10 //arbitraire, a changer
-#define ARM_ACT_RX24_MAX_TORQUE_PERCENT          60
+#define ARM_ACT_RX24_MAX_TORQUE_PERCENT          100
 #define ARM_ACT_RX24_MAX_VALUE					 190
 #define ARM_ACT_RX24_MIN_VALUE					 108
 

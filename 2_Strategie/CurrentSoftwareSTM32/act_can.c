@@ -42,6 +42,7 @@ typedef struct {
 	Uint8 paramResult[4];
 	act_error_recommended_behavior_e recommendedBehavior;		//Quoi faire suite à l'opération faite
 	ACT_function_result_e lastResult;
+	Uint8 lastParamResult[4];
 } act_state_info_t;
 
 static act_state_info_t act_states[NB_QUEUE];  //Info lié a chaque actionneur
@@ -62,7 +63,7 @@ ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id) {
 }
 
 Uint8 ACT_get_result_param(queue_id_e act_id, Uint8 i_param){
-	return act_states[act_id].paramResult[i_param];
+	return act_states[act_id].lastParamResult[i_param];
 }
 
 void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
@@ -243,6 +244,10 @@ static void ACT_check_result(queue_id_e act_id) {
 						QUEUE_next(act_id);
 						break;
 				}
+				act_states[act_id].lastParamResult[0] = act_states[act_id].paramResult[0];
+				act_states[act_id].lastParamResult[1] = act_states[act_id].paramResult[1];
+				act_states[act_id].lastParamResult[2] = act_states[act_id].paramResult[2];
+				act_states[act_id].lastParamResult[3] = act_states[act_id].paramResult[3];
 				break;
 
 			case ACT_RESULT_Ok:
@@ -258,6 +263,10 @@ static void ACT_check_result(queue_id_e act_id) {
 					act_states[act_id].lastResult = ACT_FUNCTION_Done;
 					QUEUE_next(act_id);
 				}
+				act_states[act_id].lastParamResult[0] = act_states[act_id].paramResult[0];
+				act_states[act_id].lastParamResult[1] = act_states[act_id].paramResult[1];
+				act_states[act_id].lastParamResult[2] = act_states[act_id].paramResult[2];
+				act_states[act_id].lastParamResult[3] = act_states[act_id].paramResult[3];
 				break;
 
 			case ACT_RESULT_Working:	//Pas encore fini l'opération, on a pas reçu de message de la carte actionneur
@@ -316,10 +325,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	}
 
 	//Erreur de codage, ça ne devrait jamais arriver sauf si la commande en question a été lancé par quelqu'un d'autre que la strategie (par exemple via un bouton pour debug)
-	/*if(act_states[act_id].operationResult != ACT_RESULT_Working) {
+	if(act_states[act_id].operationResult != ACT_RESULT_Working) {
 		warn_printf("act is not in working mode but received result, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], act_states[act_id].operationResult);
 		return;
-	}*/
+	}
 
 	switch(msg->data[2]) {
 		case ACT_RESULT_DONE:

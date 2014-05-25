@@ -60,7 +60,9 @@
 #define EPSILON_POS_RUSH_FLOOR		20
 
 
-#define square(x) ((Sint32)(x)*(x))
+#define square(x)				((Sint32)(x)*(x))
+#define SIGNE(x)				(((x) >= 0)?1:-1)
+#define PROTECTION_SIN_COS(x)	(((x) > 1)?1:(((x) <-1)?-1:x))
 
 #ifdef I_AM_ROBOT_SMALL
 	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1822*(x)+29.086))
@@ -202,7 +204,7 @@ static bool_e find_state_path(Sint8 begin_state, Sint8 end_state);
 static bool_e est_dans_liste(Sint8 liste[], Uint8 taille, Sint8 search);
 static Sint8 ajout_liste(Sint8 liste[], Uint8 taille, Sint8 val);
 static Sint8 del_liste(Sint8 liste[], Uint8 taille, Sint8 val);
-
+static Sint16 modulo_angle(Sint32 angle);
 
 static Sint8 old_state = -1;
 static Sint8 switch_state[ARM_ST_NUMBER];
@@ -288,9 +290,15 @@ static void ARM_initAX12(){
 
 				AX12_config_set_error_before_led(ARM_MOTORS[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 				AX12_config_set_error_before_shutdown(ARM_MOTORS[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+				if(ARM_MOTORS[i].type == ARM_RX24){
+					AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 60);
+					AX12_set_torque_response(ARM_MOTORS[i].id, 2, 1, 0, 2);
+				}else{
+					AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 20);
+					AX12_set_torque_response(ARM_MOTORS[i].id, 4, 1, 0, 4);
+				}
 				AX12_get_torque_response(ARM_MOTORS[i].id, &A, &B, &C, &D);
-				AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 25);
-				AX12_set_torque_response(ARM_MOTORS[i].id, 70, 0, 0, 70);
+				display(ARM_MOTORS[i].id);
 				display(AX12_get_punch_torque_percentage(ARM_MOTORS[i].id));
 				display(A);
 				display(B);
@@ -352,10 +360,12 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 						Uint8 i;
 						QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
 
-						for(i = 0; i < taille_path; i++) {
-							QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], switch_state[i], &ACTQ_finish_SendResult}, QUEUE_ACT_Arm);
+						for(i = 0; i < taille_path-1; i++) {
+							QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], switch_state[i], &ACTQ_finish_SendResultIfFail}, QUEUE_ACT_Arm);
 							debug_printf("-> %s", ARM_STATES_NAME[switch_state[i]]);
 						}
+						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], switch_state[i], &ACTQ_finish_SendResult}, QUEUE_ACT_Arm);
+						debug_printf("-> %s", ARM_STATES_NAME[switch_state[i]]);
 						debug_printf("\n");
 
 						QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
@@ -619,9 +629,10 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 		return TRUE;
 	}
-	if(ARM_readDCMPos() >= conv_dist_to_potar_updown(order)){
-		*result = ACT_RESULT_DONE;
-		*error_code = ACT_RESULT_ERROR_OK;
+
+	if(conv_dist_to_potar_updown(order) - ARM_readDCMPos() < -EPSILON_POS_RUSH_FLOOR){
+		*result = ACT_RESULT_FAILED;
+		*error_code = ACT_RESULT_ERROR_UNKNOWN;
 		*line = __LINE__;
 		DCM_stop(ARM_ACT_UPDOWN_ID);
 		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
@@ -802,17 +813,13 @@ static bool_e goto_triangle_pos(){
 
 	// Calcul de l'angle
 		//data_pos_triangle.angle = PI4096/2 - absolute(global.pos.angle) + (Sint32)(acos((data_pos_triangle.y - global.pos.y)/(float)data_pos_triangle.rayon)*4096.);
-	data_pos_triangle.angle = PI4096/2 - ((Sint32)(acos((data_pos_triangle.y - global.pos.y)/(float)data_pos_triangle.rayon)*4096.) + global.pos.angle);
+	//data_pos_triangle.angle = PI4096/2 - ((Sint32)(acos((data_pos_triangle.y - global.pos.y)/(float)data_pos_triangle.rayon)*4096.) + global.pos.angle);
+	data_pos_triangle.angle = (Sint32)(SIGNE(data_pos_triangle.y - global.pos.y)*acos(PROTECTION_SIN_COS((data_pos_triangle.x - global.pos.x)/(float)data_pos_triangle.rayon))*4096.) - global.pos.angle;
 
 	//------------------------------------------------------------------------------------------------------------------------ Avant bras à droite du bras
 
 	// Calcul de l'angle réel pour l'rx24
-	data_pos_triangle.real_angle = data_pos_triangle.angle + off_set_angle;
-
-	display(data_pos_triangle.angle);
-	display(off_set_angle);
-	display(data_pos_triangle.real_angle);
-
+	data_pos_triangle.real_angle = modulo_angle(data_pos_triangle.angle + off_set_angle);
 
 	// Choix du rayon le plus proche du rayon voulu
 	i_min_rayon = 0;
@@ -837,7 +844,7 @@ static bool_e goto_triangle_pos(){
 	}
 
 	// Check si le rayon et l'angle trouvé est suffisant pour la prise ou est impossible
-	if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2.*min_rayon*data_pos_triangle.rayon*cos4096(data_pos_triangle.angle - (min_angle-off_set_angle)))
+	if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2.*min_rayon*data_pos_triangle.rayon*cos4096(modulo_angle(data_pos_triangle.angle - (min_angle-off_set_angle))))
 			|| angle_pos_triangle[i_min_angle].value_rx24 == -1
 			|| rayon_pos_triangle[i_min_rayon].value_ax12_right == -1){
 
@@ -845,7 +852,7 @@ static bool_e goto_triangle_pos(){
 		//------------------------------------------------------------------------------------------------------------------------ Avant bras à gauche du bras
 
 		// Calcul de l'angle réel pour l'rx24
-		data_pos_triangle.real_angle = data_pos_triangle.angle - off_set_angle;
+		data_pos_triangle.real_angle = modulo_angle(data_pos_triangle.angle - off_set_angle);
 
 		// Choix du rayon le plus proche du rayon voulu
 		i_min_rayon = 0;
@@ -869,7 +876,7 @@ static bool_e goto_triangle_pos(){
 			}
 		}
 
-		if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2.*min_rayon*data_pos_triangle.rayon*cos4096(data_pos_triangle.angle - (min_angle+off_set_angle)))
+		if(DISTANCE_MAX_TO_TAKE < (int)sqrt(square(data_pos_triangle.rayon)+square(min_rayon) - 2.*min_rayon*data_pos_triangle.rayon*cos4096(modulo_angle((data_pos_triangle.angle - (min_angle+off_set_angle)))))
 				|| angle_pos_triangle[i_min_angle].value_rx24 == -1
 				|| rayon_pos_triangle[i_min_rayon].value_ax12_left == -1){
 			debug_printf("Le bras ne peut pas aller chercher le triangle écart entre triangle et position trouvé > à %d\n", DISTANCE_MAX_TO_TAKE);
@@ -1027,4 +1034,14 @@ static Sint8 del_liste(Sint8 liste[], Uint8 taille, Sint8 val){
 		}
 	}
 	return taille-1;
+}
+
+static Sint16 modulo_angle(Sint32 angle){
+	while(angle > PI4096)
+		angle -= 2*PI4096;
+
+	while(angle < -PI4096)
+		angle += 2*PI4096;
+
+	return angle;
 }
