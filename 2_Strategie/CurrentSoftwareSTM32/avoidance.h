@@ -199,7 +199,14 @@
 	Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed);
 
 
-
+	/*
+	 * Avance d'une distance d à partir de la position actuelle et en fonction du sens donné.
+	 *
+	 * pre    : la position du robot doit être à jour
+	 * post   : la pile asser est vidée
+	 * param dist : distance à se déplacer.
+	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
+	 */
 	Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
 
 
