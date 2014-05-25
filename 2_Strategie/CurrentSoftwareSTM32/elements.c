@@ -26,6 +26,7 @@
 #define verin_order_TIMEOUT		200
 #define PUMP_TIMEOUT			100
 
+#define conv_value_to_dist_laser_torch(x)	(Sint16)((x)*0.2615-66.868)
 
 // Pour torche
 #define SMALL_FORWARD_WIDTH 83
@@ -566,6 +567,11 @@ bool_e get_fresco(Uint8 nb){
 #endif
 
 	return TRUE;
+}
+
+
+Sint16 get_dist_torch_laser(){
+	return conv_value_to_dist_laser_torch(ADC_getValue(ADC_14));
 }
 
 
