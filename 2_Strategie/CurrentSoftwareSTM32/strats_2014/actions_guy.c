@@ -1937,10 +1937,12 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DEPLOY_TORCH,
 		IDLE,
 		TORCHE,
+		WAIT_STABILISATION_1,
 		DOWN_ARM,
 		UP_ARM,
 		UP_ARM_ERROR,
 		DROP_TRIANGLE,
+		WAIT_STABILISATION_2,
 		WAIT_TRIANGLE_BREAK,
 		BACK,
 		BACK_FAIL,
@@ -1990,8 +1992,8 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			display(torch.y);
 
 			// Imposé pour les test
-			//torch.x = global.env.pos.x;
-			//torch.y = global.env.pos.y+180;
+			//COS_SIN_4096_get(global.env.pos.angle + PI4096/2, &cos, &sin);
+			//torch = (GEOMETRY_point_t){global.env.pos.x+(Sint32)cos*180/4096, global.env.pos.y+(Sint32)sin*180/4096};
 
 			drop_adv_pos.x = global.env.pos.x;
 			drop_adv_pos.y = global.env.pos.y;// A définir
@@ -2009,6 +2011,10 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			drop_pos[0] = (GEOMETRY_point_t){2000-160, 80};
 			drop_pos[1] = (GEOMETRY_point_t){2000-80, 160};
 			drop_pos[2] = (GEOMETRY_point_t){2000-80, 80};
+			/*drop_pos[0] = (GEOMETRY_point_t){(Sint32)cos*150/4096 + global.env.pos.x, (Sint32)sin*150/4096 + global.env.pos.y};
+			drop_pos[1] = (GEOMETRY_point_t){(Sint32)cos*150/4096 + global.env.pos.x, (Sint32)sin*150/4096 + global.env.pos.y};
+			drop_pos[2] = (GEOMETRY_point_t){(Sint32)cos*150/4096 + global.env.pos.x, (Sint32)sin*150/4096 + global.env.pos.y};*/
+
 
 			state = TORCHE;
 			niveau = 0;
@@ -2020,7 +2026,11 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		}break;
 
 		case TORCHE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, WAIT_STABILISATION_1, PARKED_NOT_HANDLED);
+			break;
+
+		case WAIT_STABILISATION_1 :
+			state = ELEMENT_wait_time(300, WAIT_STABILISATION_1, DOWN_ARM);
 			break;
 
 		case DOWN_ARM:
@@ -2050,12 +2060,16 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		case DROP_TRIANGLE :
 
 			if(fail_return && ((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)))
-				state = WAIT_TRIANGLE_BREAK;
+				state = WAIT_STABILISATION_2;
 			else
-				state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED);
+				state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_STABILISATION_2, PARKED_NOT_HANDLED);
 
 			if(ON_LEAVING(DROP_TRIANGLE))
 				droped_triangle[niveau] = TRUE;
+			break;
+
+		case WAIT_STABILISATION_2 :
+			state = ELEMENT_wait_time(300, WAIT_STABILISATION_2, WAIT_TRIANGLE_BREAK);
 			break;
 
 		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
@@ -2111,7 +2125,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 
-			state = ELEMENT_wait_pump_capture_object(INVERSE_PUMP, PREPARE_RETURN, PREPARE_RETURN);
+			state = ELEMENT_wait_time(300, INVERSE_PUMP, PREPARE_RETURN);
 			break;
 
 		case PREPARE_RETURN:
@@ -2156,7 +2170,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case GRAP_TRIANGLE: // prise du triangle au sol
-			state = ELEMENT_wait_pump_capture_object(GRAP_TRIANGLE, OPEN, OPEN);
+			state = ELEMENT_wait_time(300, GRAP_TRIANGLE, OPEN);
 			break;
 
 		case OPEN:
@@ -2816,10 +2830,10 @@ void strat_test_arm(){
 
 	switch(state){
 		case IDLE :
-			ASSER_set_position(500, 500, 0);
+			ASSER_set_position(500, 500, -PI4096/4);
 			global.env.pos.x = 500;
 			global.env.pos.y = 500;
-			global.env.pos.angle = 0;
+			global.env.pos.angle = -PI4096/4;
 
 			state = OPEN1;
 			break;
