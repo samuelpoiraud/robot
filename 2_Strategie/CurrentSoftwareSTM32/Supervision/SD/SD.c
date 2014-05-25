@@ -15,7 +15,7 @@
 #include "config_pin.h"
 
 #define MAX_TIME_BEFORE_SYNC	500	//Durée max entre la demande d'enregistrement d'un message et son enregistrement effectif sur la carte SD.
-#define SIZE_CONSIDERING_NOTHING_IN_MATCH	50	//En octet, la taille en dessous de laquelle on écrase un match "presque vide"...
+#define SIZE_CONSIDERING_NOTHING_IN_MATCH	120	//En octet, la taille en dessous de laquelle on écrase un match "presque vide"...
 #define PRINTF_BUFFER_SIZE 128
 
 //TODO :
