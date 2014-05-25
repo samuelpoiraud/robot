@@ -507,10 +507,13 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		// XX(<nom état>) \                                                                            text ici pour garder des espaces après le slash, sinon multiline comment
 		// N'oubliez pas le \ !!!!! (sauf pour le dernier)
 		#define ARM_STATE_ENUMVALS(XX) \
+			XX(ACT_ARM_POS_PRE_PARKED_1) \
+			XX(ACT_ARM_POS_PRE_PARKED_2) \
 			XX(ACT_ARM_POS_PARKED) \
 			XX(ACT_ARM_POS_MID) \
 			XX(ACT_ARM_POS_OPEN) \
 			XX(ACT_ARM_POS_ON_TORCHE) \
+			XX(ACT_ARM_POS_ON_TORCHE_SMALL_ARM) \
 			XX(ACT_ARM_POS_TO_STORAGE) \
 			XX(ACT_ARM_POS_TO_CARRY) \
 			XX(ACT_ARM_POS_TO_PREPARE_RETURN) \
@@ -528,6 +531,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_TAKE_ON_EDGE) \
 			XX(ACT_ARM_POS_RETURN_ON_EDGE) \
 			XX(ACT_ARM_POS_DISPOSED_SIMPLE) \
+			XX(ACT_ARM_POS_PREPARE_TAKE_ON_ROAD) \
 			XX(ACT_ARM_POS_TAKE_ON_ROAD)
 
 		#define ACT_ARM_PRINT_POS 2  //Affiche les positions des actionneurs sur l'uart

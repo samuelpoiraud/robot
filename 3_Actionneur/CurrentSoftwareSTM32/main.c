@@ -187,6 +187,45 @@ static void MAIN_onButton0() {
 
 	CAN_process_msg(&msg);
 	state = (state == 3)? 0 : state + 1;
+	/*static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_POMPE;
+	if(state == 0)
+		msg.data[0] = ACT_POMPE_NORMAL;
+	else if(state == 1)
+		msg.data[0] = ACT_POMPE_REVERSE;
+	else if(state == 2)
+		msg.data[0] = ACT_POMPE_STOP;
+	msg.data[1] = 100;
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;*/
+	/*static Uint8 state = 0;
+		CAN_msg_t msg;
+		msg.size = 2;
+		msg.sid = ACT_ARM;
+		msg.data[0] = ACT_ARM_GOTO;
+		if(state == 0)
+			msg.data[1] = ACT_ARM_POS_PARKED;
+		else if(state == 1)
+			msg.data[1] = ACT_ARM_POS_TAKE_ON_ROAD;
+		CAN_process_msg(&msg);
+		state = (state == 1)? 0 : state + 1;*/
+	/*static Uint8 state = 0;
+	CAN_msg_t msg;
+	if(state == 0){
+		msg.size = 2;
+		msg.sid = ACT_ARM;
+		msg.data[0] = ACT_ARM_UPDOWN_GOTO;
+		msg.data[1] = 126;
+	}else if(state == 1){
+		msg.size = 2;
+		msg.sid = ACT_ARM;
+		msg.data[0] = ACT_ARM_UPDOWN_RUSH_IN_FLOOR;
+		msg.data[1] = 66;
+	}
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;*/
 }
 
 static void MAIN_onButton1() {
