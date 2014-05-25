@@ -198,6 +198,7 @@ error_e sub_action_initiale_guy(){
 			#else
 					state = GET_OUT_POS_START;
 			#endif
+
 			break;
 
 		case FALL_FIRST_FIRE:
@@ -269,7 +270,7 @@ error_e sub_action_initiale_guy(){
 		case DO_OUR_TORCH:
 			if(we_have_a_torch)
 			{
-				switch(do_torch(OUR_TORCH,TRUE,HEARTH_CENTRAL,NO_DISPOSE))
+				switch(do_torch(OUR_TORCH,TRUE,dispose_zone_for_our_torch,NO_DISPOSE))
 				{
 					case IN_PROGRESS:
 						break;
@@ -343,8 +344,6 @@ void strat_homologation_guy(){
 	);
 
 	static bool_e we_prevented_pierre_to_get_out = FALSE;
-	static Sint16 y_to_prevent_pierre_to_get_out;
-	static time32_t t;
 
 	switch(state)
 	{
@@ -355,26 +354,6 @@ void strat_homologation_guy(){
 			initial_path = TORCH_ROAD;	//En fait, on prend la TORCH_ROAD !
 
 			state = GET_OUT_POS_START;
-			break;
-
-		case FALL_FIRST_FIRE:
-			if(entrance)
-			{
-				t = global.env.match_time;
-				//ATTENTION : le timeout supplémentaire ajouté ici doit être très court... car si le bras ne fonctionne pas, Pierre va vouloir partir et nous foncer dedans !
-				//On réactive l'asservissement de la propulsion pour que le bras ne nous fasse pas tourner sur nous-même
-				ASSER_set_correctors(TRUE,TRUE);
-			}
-
-			//TODO modifier si besoin (c'est probable la position du bras)
-			//Attention, cette action est conditionnée par la calibration... !
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0,0,FALL_FIRST_FIRE,GET_OUT_POS_START,GET_OUT_POS_START);
-			if(t > 1000)	//C'est grand temps de partir si on veut pas se faire *** par Pierre...
-				state = GET_OUT_POS_START;
-
-			if(state != FALL_FIRST_FIRE)	//Si on a fini (échec ou réussite...)
-				ACT_arm_goto(ACT_ARM_POS_PARKED);	//On range le bras, sans attendre l'acquittement
-
 			break;
 
 		case GET_OUT_POS_START:
@@ -582,7 +561,7 @@ error_e goto_adversary_zone(void)
 			break;
 		*/
 		case ST2:	//On veut récupérer la torche
-			//Si on échoue, on abandonne la torche, on on file en SC1...
+			//Si on échoue, on abandonne la torche, on file en SC1...
 			state = try_going_until_break(1000,COLOR_Y(750),ST2,DISPOSE_POINT_TORCH,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SB2:
@@ -719,13 +698,9 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TORCH,
 		IDLE,
 		COMPUTE,
-//		PRE_POSITIONNING,
 		POS_START_TORCH,
-//		POS_INTERMEDIATE,
 		WAY_ADVERSARY,
 		MOVE_TORCH,
-//		END_TORCH,
-//		REMOTENESS,
 		WAIT,
 		BACK,
 		RED_CENTRAL,
@@ -749,9 +724,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 	// PosEnd : Position finale du robot quand il déplace la torche
 	// PosCenter : Postion pour correctement s'alligner en face d'un foyer
 	// PosHearth : Position au prés du foyer
-	static GEOMETRY_point_t posStart,posEndTorch,posIntermediate,get_out,posEnd,posCenter,posHearth;
-//	static bool_e posIntermediate_enable = FALSE;
-//	static bool_e posPrepositionning_enable = FALSE;
+	static GEOMETRY_point_t posStart,posEndTorch,get_out,posEnd,posCenter,posHearth;
 	static bool_e get_out_enable = FALSE;
 
 
@@ -762,19 +735,13 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 	switch(state){
 		case IDLE :
 			fail_at_first_dispose_try = FALSE;
+			get_out_enable = FALSE;
 			current_dispose_zone = dispose_zone;
 			state = COMPUTE;
 			break;
 		case COMPUTE:
 			torch = TORCH_get_position(torch_choice);
 
-			/*	La trajectoire de poussé de torche est construite ainsi :
-			 * 1- posPre : SSSI posPrepositionning_enable !
-			 * 2- posStart
-			 * 3- posIntermediate : SSSI posIntermediate_enable
-			 * 4- posEnd
-			 * 5- eloignement
-			 */
 			switch(current_dispose_zone)
 			{
 				case FILED_FRESCO:
@@ -783,7 +750,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 					break;
 
 				case HEARTH_OUR:
-				case HEARTH_ADVERSARY:
+				case HEARTH_ADVERSARY: // Foyer ROUGE
 					if((global.env.color == RED && current_dispose_zone == HEARTH_OUR)||(global.env.color != RED && current_dispose_zone == HEARTH_ADVERSARY)){
 						posEndTorch.x = 2000 - RADIUS_TORCH;
 						posEndTorch.y = 250 + RADIUS_TORCH;
@@ -794,13 +761,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 						posHearth.x = 1760;
 						posHearth.y = 220;
 
-//						if(torch_choice == ADVERSARY_TORCH)
-//						{
-//							posIntermediate.x = 1450;
-//							posIntermediate.y = 1500;
-//							posIntermediate_enable = TRUE;
-//						}
-					}else{
+					}else{ // Foyer Jaune
 						posEndTorch.x = 2000 - 250 - RADIUS_TORCH;
 						posEndTorch.y = 3000 - RADIUS_TORCH;
 
@@ -809,14 +770,11 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 
 						posHearth.x = 1815;
 						posHearth.y = 2760;
-
-//						if(torch_choice == OUR_TORCH)
-//						{
-//							posIntermediate.x = 1450;
-//							posIntermediate.y = 1500;
-//							posIntermediate_enable = TRUE;
-//						}
 					}
+
+					get_out.x = 1500;
+					get_out.y = COLOR_Y(600);
+					get_out_enable = TRUE;
 					break;
 
 				case ANYWHERE:
@@ -825,7 +783,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 						//No break;
 				default:
 					posEndTorch.x = 1050 + 150 + RADIUS_TORCH + 20;
-					posEndTorch.y = (global.env.color == RED)?1400:1500; // La pousse trop loin sinon pas de bordure pour arrêter la torche
+					posEndTorch.y = ((global.env.color == RED && torch_choice == OUR_TORCH) || (global.env.color != RED && torch_choice != OUR_TORCH))?1400:1500; // La pousse trop loin sinon pas de bordure pour arrêter la torche
 
 					posCenter.x = 1440;
 					posCenter.y = 1770;
@@ -840,78 +798,15 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			}
 
 			float coefx, coefy;
-//			if(posIntermediate_enable)
-//			{
-//				norm = GEOMETRY_distance(torch,posIntermediate);
-//				coefx = (torch.x - posIntermediate.x)/(norm*1.);
-//				coefy = (torch.y - posIntermediate.y)/(norm*1.);
-//			}
-//			else
-//			{
-				norm = GEOMETRY_distance(torch,posEndTorch);
-				coefx = (torch.x - posEndTorch.x)/(norm*1.);
-				coefy = (torch.y - posEndTorch.y)/(norm*1.);
-//			}
+			norm = GEOMETRY_distance(torch,posEndTorch);
+			coefx = (torch.x - posEndTorch.x)/(norm*1.);
+			coefy = (torch.y - posEndTorch.y)/(norm*1.);
 
 			posStart.x = torch.x + DIM_START_TRAVEL_TORCH*coefx;
 			posStart.y = torch.y + DIM_START_TRAVEL_TORCH*coefy;
 
-
-//			if(posIntermediate_enable)
-//			{
-//				norm = GEOMETRY_distance(torch,posEndTorch);
-//				coefx = (torch.x - posEndTorch.x)/(norm*1.);
-//				coefy = (torch.y - posEndTorch.y)/(norm*1.);
-//			}
-
 			posEnd.x = posEndTorch.x + RADIUS_TORCH*coefx;
 			posEnd.y = posEndTorch.y + RADIUS_TORCH*coefy;
-
-
-
-			//On connait le start, la position de la torche et notre position actuelle... Dans certains cas de figure, il faut une position de prépositionnement.
-			//TODO calculer si besoin le prepositionning point...
-
-			//On doit passer par un point de prépositionnement SSSI nous sommes du mauvais coté de la torche par rapport au posStart.
-			//LE CALCUL GENERIQUE DE TOUT LES CAS EST UN ALGO DIFFICILE A TESTER, TRES EXIGEANT... et inutile compte tenu du peu de cas d'application en match.
-			//Les points de prépositionnement sont donc ajoutés à la main, pour certains cas de figure identifiés seulement !
-
-//			if(torch_choice == ADVERSARY_TORCH)
-//			{
-//				switch(current_dispose_zone)
-//				{
-//					case FILED_FRESCO:
-
-//						break;
-//					case HEARTH_ADVERSARY:
-//						if(global.env.pos.x > posStart.x && COLOR_Y(global.env.pos.y) > COLOR_Y(posStart.y))
-//						{
-//							posPrepositionning_enable = TRUE;
-//							posPre.x = posStart.x;
-//							posPre.y = posStart.y;
-//							if(global.env.pos.x - posStart.x < absolute(global.env.pos.y - posStart.y))
-//								posPre.y = global.env.pos.y;	//Je suis plus prêt des x, je rejoins le bon x en gardant mon y
-//							else
-//								posPre.x = global.env.pos.x;	//Je suis plus prêt des y, je rejoins le bon y en gardant mon x
-//						}
-//						break;
-//					case HEARTH_OUR:		//no break
-//					case ANYWHERE:			//no break;
-//					case HEARTH_CENTRAL:	//no break;
-//					default:
-//						if(global.env.pos.x > posStart.x && COLOR_Y(global.env.pos.y) < COLOR_Y(posStart.y))
-//						{
-//							posPre.x = 1350;
-//							posPre.y = COLOR_Y(2300);
-//							posPrepositionning_enable = TRUE;
-//						}
-//						break;
-//				}
-//			}
-//			else	//OUR TORCH...
-//			{
-//				//Pas de point de prépositionnement.. On assume la précondition que pour prendre notre torche il faut être bien placé !!!
-//			}
 
 
 			if(we_are_already_in_pos_end || GEOMETRY_distance((GEOMETRY_point_t){torch.x, torch.y}, (GEOMETRY_point_t){posEndTorch.x, posEndTorch.y}) < 20)	//Le cas particulier où on a déjà la torche en position correcte en arrivant dans cette fonction ! AUCUNE VERIFICATION, le développeur est responsable !
@@ -921,7 +816,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			else
 				state = POS_START_TORCH;
 
-			SD_printf("Torch: start=[%d;%d] | torch=[%d;%d] | end Torch=[%d;%d] | remotness=[%d;%d]\n",posStart.x, posStart.y, torch.x, torch.y, posEndTorch.x, posEndTorch.y, posEnd.x, posEnd.y);
+			SD_printf("Torch: start=[%d;%d] | torch=[%d;%d] | end Torch=[%d;%d] | remotness robot=[%d;%d]\n",posStart.x, posStart.y, torch.x, torch.y, posEndTorch.x, posEndTorch.y, posEnd.x, posEnd.y);
 			break;
 
 		case POS_START_TORCH:
@@ -940,8 +835,12 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 
 			break;
 
+
+		// Si nous voulons déposer notre torche sur le foyer adverse
 		case WAY_ADVERSARY:
 			if(entrance){
+				i_have_the_torch = TRUE;
+
 				dpl_adv[0].point.x = 1520;
 				dpl_adv[0].point.y = COLOR_Y(1380);
 				dpl_adv[0].speed = SLOW;
@@ -971,8 +870,8 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 
 			state = try_advance(200, BACK, CENTER_TO_HEARTH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 
-			if(ON_LEAVING(BACK)){
-				if(current_dispose_zone == HEARTH_CENTRAL && global.env.color == RED)
+			if(ON_LEAVING(BACK)){ // Petit décalage afin de ne pas toucher la torche car guy est gaucher
+				if(current_dispose_zone == HEARTH_CENTRAL && ((global.env.color == RED && torch_choice == OUR_TORCH) || (global.env.color != RED && torch_choice != OUR_TORCH)))
 					state = RED_CENTRAL;
 			}
 			break;
@@ -1002,7 +901,15 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 				if(i_have_the_torch)
 					TORCH_new_position(torch_choice);
 				//TODO : libérer la torche ! (il faudrait d'ailleurs s'en extraire...)
-				state = EXTRACT_FROM_HEART_WITH_ERROR;
+
+				// Sinon nous sommes sur le pathfind, pas de get_out
+				if(est_dans_carre(500,1700,400,1300,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}) ||
+				   est_dans_carre(500,1700,1700,2600,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}) ||
+				   est_dans_carre(500, 700,400,2600,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}) ||
+				   est_dans_carre(1500,1700,400,2600,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+					state = RETURN_NOT_HANDLED;
+				else
+					state = EXTRACT_FROM_HEART_WITH_ERROR;
 
 			}
 			else
@@ -1012,8 +919,6 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 				state = COMPUTE;
 			}
 			break;
-
-//TODO un GET_OUT en cas d'erreur serait le bienvenu (?)
 
 		case DEPLOY_TORCH:	//On déploie la torche sur le foyer
 			state = check_sub_action_result(ACT_arm_deploy_torche_guy(torch_choice,current_dispose_zone),DEPLOY_TORCH,EXTRACT_HEARTH,EXTRACT_HEARTH);
@@ -1033,7 +938,13 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			}
 			break;
 		case EXTRACT_FROM_HEART_WITH_ERROR:
-			if(get_out_enable)
+			// Sinon nous sommes sur le pathfind, pas de get_out
+			if(est_dans_carre(500,1700,400,1300,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}) ||
+			   est_dans_carre(500,1700,1700,2600,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}) ||
+			   est_dans_carre(500, 700,400,2600,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}) ||
+			   est_dans_carre(1500,1700,400,2600,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+				state = RETURN_NOT_HANDLED;
+			else if(get_out_enable)
 				state = try_going(get_out.x, get_out.y, state, RETURN_NOT_HANDLED, WAIT_FOR_EXIT, FAST, ANY_WAY, DODGE_AND_WAIT);
 			else
 			{
