@@ -203,7 +203,7 @@ error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progres
 		return fail_state;
 	}
 
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done && ACT_get_result_param(ACT_QUEUE_Arm, 0) == state_arm){
+	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
 		entrance = TRUE;
 		return success_state;
 	}

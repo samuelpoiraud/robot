@@ -26,7 +26,7 @@
 typedef enum {
 	ARM_DCMOTOR,
 	ARM_AX12,
-	ARM_RX24 = ARM_AX12  //même gestion pour les 2
+	ARM_RX24  //même gestion pour les 2
 } ARM_motor_type_e;
 
 typedef struct {
