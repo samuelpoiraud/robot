@@ -384,6 +384,7 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
 		TEST_FRESQUE,
+		TEST_LASER_TORCH,
 		TEST_RTC,
 		TEST_MEASURE24,
 		TEST_BIROUTE,
@@ -444,17 +445,24 @@ error_e SELFTEST_strategy(bool_e reset)
 			state = TEST_FRESQUE;
 			break;
 		case TEST_FRESQUE:
-			//Il y a erreur s'il y a moins de 2 fresques...
-			//S'il y a erreur, on indique les fresques manquantes (1, 2, ou 3), même si il y en aura jamais 3...
-			if(((get_fresco(1))?1:0) + ((get_fresco(2))?1:0) + ((get_fresco(3))?1:0) < 2)
-			{
-				if(!get_fresco(1))
-					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_1_MISSING);
-				if(!get_fresco(2))
-					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_2_MISSING);
-				if(!get_fresco(3))
-					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_3_MISSING);
+			if(QS_WHO_AM_I_get() == BIG_ROBOT){
+				//Il y a erreur s'il y a moins de 2 fresques...
+				//S'il y a erreur, on indique les fresques manquantes (1, 2, ou 3), même si il y en aura jamais 3...
+				if(((get_fresco(1))?1:0) + ((get_fresco(2))?1:0) + ((get_fresco(3))?1:0) < 2)
+				{
+					if(!get_fresco(1))
+						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_1_MISSING);
+					if(!get_fresco(2))
+						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_2_MISSING);
+					if(!get_fresco(3))
+						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_FRESQUE_3_MISSING);
+				}
 			}
+			state = TEST_LASER_TORCH;
+			break;
+		case TEST_LASER_TORCH:
+			if(ADC_getValue(ADC_14) < 10)
+				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_LASER_TORCH);
 			state = TEST_RTC;
 			break;
 		case TEST_RTC:
@@ -537,6 +545,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_FRESQUE_1_MISSING:			debug_printf("SELFTEST_STRAT_FRESQUE_1_MISSING");				break;
 				case SELFTEST_STRAT_FRESQUE_2_MISSING:			debug_printf("SELFTEST_STRAT_FRESQUE_2_MISSING");				break;
 				case SELFTEST_STRAT_FRESQUE_3_MISSING:			debug_printf("SELFTEST_STRAT_FRESQUE_3_MISSING");				break;
+				case SELFTEST_STRAT_LASER_TORCH:				debug_printf("SELFTEST_STRAT_LASER_TORCH");				break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");					break;
 				case SELFTEST_STRAT_BATTERY_LOW:				debug_printf("SELFTEST_STRAT_BATTERY_LOW");						break;
 				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
@@ -858,6 +867,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_FRESQUE_1_MISSING:			return "Fresque 1 missing";		break;
 		case SELFTEST_STRAT_FRESQUE_2_MISSING:			return "Fresque 2 missing";		break;
 		case SELFTEST_STRAT_FRESQUE_3_MISSING:			return "Fresque 3 missing";		break;
+		case SELFTEST_STRAT_LASER_TORCH:				return "Laser torch fail";		break;
 		case SELFTEST_STRAT_RTC:						return "RTC failed";			break;
 		case SELFTEST_STRAT_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_STRAT_BATTERY_LOW:				return "BATTERY LOW";			break;
