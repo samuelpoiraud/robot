@@ -579,7 +579,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 					courbe[i] = point[NBPOINT-1-i];
 			}
 
-			escape_point[0] = (GEOMETRY_point_t) {1250, 750};
+			escape_point[0] = (GEOMETRY_point_t) {1600, 400};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 
 
@@ -730,7 +730,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 					courbe[i] = point[NBPOINT-1-i];
 			}
 
-			escape_point[0] = (GEOMETRY_point_t) {1250, 2250};
+			escape_point[0] = (GEOMETRY_point_t) {1600, 2600};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 
 
@@ -880,7 +880,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 				courbe[i].speed = FAST;
 			}
 
-			escape_point[0] = (GEOMETRY_point_t) {1250, 750};
+			escape_point[0] = (GEOMETRY_point_t) {1600, 400};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 
 			if(sens == TRIGO)  // Modifie le sens
@@ -1036,7 +1036,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 				courbe[i].speed = FAST;
 			}
 
-			escape_point[0] = (GEOMETRY_point_t) {1250, 2250};
+			escape_point[0] = (GEOMETRY_point_t) {1600, 2600};
 			escape_point[1] = (GEOMETRY_point_t) {courbe[0].point.x, courbe[0].point.y};
 
 
