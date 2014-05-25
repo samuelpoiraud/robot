@@ -49,11 +49,11 @@
 #define RAYON_MIN_PIERRE			10
 #define RAYON_MAX_PIERRE			208
 #define RAYON_MIN_GUY				110
-#define RAYON_MAX_GUY				220
+#define RAYON_MAX_GUY				230
 
 #define DISTANCE_MAX_TO_TAKE		50
 
-#define TIME_TO_INC_RUSH			25		//ms
+#define TIME_TO_INC_RUSH			20		//ms
 #define INC_RUSH					5
 #define TIME_RUSH_IN_FLOOR			5000
 #define DIFF_POS_FICT_RUSH			45
@@ -76,8 +76,8 @@ typedef struct{
 	Sint16 y;
 	Sint16 z;
 	Uint16 rayon;
-	Sint16 angle;
-	Sint16 real_angle;
+	Sint32 angle;
+	Sint32 real_angle;
 }data_pos_triangle_s;
 
 typedef struct{
@@ -129,29 +129,48 @@ typedef struct{
 #else
 	static const rayon_pos_triangle_s rayon_pos_triangle[] = {
 		{110,	267,	-1},
+		{115,	263,	-1},
 		{120,	261,	-1},
+		{125,	257,	-1},
 		{130,	254,	-1},
+		{135,	249,	-1},
 		{140,	246,	-1},
+		{145,	240,	-1},
 		{150,	237,	39},
+		{155,	234,	42},
 		{160,	231,	44},
+		{165,	228,	47},
 		{170,	226,	52},
+		{175,	220,	56},
 		{180,	216,	60},
+		{185,	212,	64},
 		{190,	208,	68},
+		{195,	202,	62},
 		{200,	197,	78},
+		{205,	190,	82},
 		{210,	185,	87},
+		{215,	180,	93},
 		{220,	177,    103},
+		{225,	170,    124},
 		{230,	163,    147}
 	};
 
 	static const angle_pos_triangle_s angle_pos_triangle[] = {
 		{0,				110,	170,	0},
 		{10*PI4096/180,	120,	170,	0},
+		{15*PI4096/180,	125,	170,	0},
 		{20*PI4096/180,	130,	160,	0},
+		{25*PI4096/180,	135,	160,	0},
 		{30*PI4096/180,	140,	140,	0},
+		{35*PI4096/180,	145,	140,	0},
 		{40*PI4096/180,	150,	0,		0},
+		{45*PI4096/180,	155,	0,		0},
 		{50*PI4096/180,	160,	0,		150},
+		{55*PI4096/180,	165,	0,		150},
 		{60*PI4096/180,	170,	0,		170},
+		{65*PI4096/180,	175,	0,		170},
 		{70*PI4096/180,	180,	0,		170},
+		{75*PI4096/180,	185,	0,		170},
 		{80*PI4096/180,	185,	0,		170}
 	};
 #endif
@@ -249,6 +268,7 @@ void ARM_init() {
 static void ARM_initAX12(){
 	static bool_e allInitialized = FALSE;
 	Uint8 i;
+	Uint16 A, B, C, D;
 	bool_e allOk = TRUE;
 
 	if(allInitialized)
@@ -268,6 +288,15 @@ static void ARM_initAX12(){
 
 				AX12_config_set_error_before_led(ARM_MOTORS[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 				AX12_config_set_error_before_shutdown(ARM_MOTORS[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+				AX12_get_torque_response(ARM_MOTORS[i].id, &A, &B, &C, &D);
+				AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 25);
+				AX12_set_torque_response(ARM_MOTORS[i].id, 70, 0, 0, 70);
+				display(AX12_get_punch_torque_percentage(ARM_MOTORS[i].id));
+				display(A);
+				display(B);
+				display(C);
+				display(D);
+
 			} else if(ARM_ax12_is_initialized[i] == FALSE) {
 				// Au moins un RX24/AX12 non prêt => pas allOk, on affiche pas le message d'init
 				debug_printf("AX12 %d absent\n", ARM_MOTORS[i].id);
@@ -772,12 +801,17 @@ static bool_e goto_triangle_pos(){
 	#endif
 
 	// Calcul de l'angle
+		//data_pos_triangle.angle = PI4096/2 - absolute(global.pos.angle) + (Sint32)(acos((data_pos_triangle.y - global.pos.y)/(float)data_pos_triangle.rayon)*4096.);
 	data_pos_triangle.angle = PI4096/2 - ((Sint32)(acos((data_pos_triangle.y - global.pos.y)/(float)data_pos_triangle.rayon)*4096.) + global.pos.angle);
 
 	//------------------------------------------------------------------------------------------------------------------------ Avant bras à droite du bras
 
 	// Calcul de l'angle réel pour l'rx24
 	data_pos_triangle.real_angle = data_pos_triangle.angle + off_set_angle;
+
+	display(data_pos_triangle.angle);
+	display(off_set_angle);
+	display(data_pos_triangle.real_angle);
 
 
 	// Choix du rayon le plus proche du rayon voulu
@@ -848,22 +882,29 @@ static bool_e goto_triangle_pos(){
 
 	// Placement du bras dans les états voulus
 	if(!AX12_set_position(ARM_ACT_RX24_ID, angle_pos_triangle[i_min_angle].value_rx24)){
-		debug_printf("Placement du bras (servo RX24) impossible\n");
+		debug_printf("Placement du bras (servo RX24) impossible position %d\n", angle_pos_triangle[i_min_angle].value_rx24);
 		return FALSE;
 	}
 	if(data_arm_triangle.arm_way == RIGHT){
 		if(!AX12_set_position(ARM_ACT_AX12_MID_ID, rayon_pos_triangle[i_min_rayon].value_ax12_right)){
-			debug_printf("Placement du bras (servo AX12 MID) impossible\n");
+			debug_printf("Placement du bras (servo AX12 MID) impossible position %d\n", rayon_pos_triangle[i_min_rayon].value_ax12_right);
 			return FALSE;
 		}
 	}else{
 		if(!AX12_set_position(ARM_ACT_AX12_MID_ID, rayon_pos_triangle[i_min_rayon].value_ax12_left)){
-			debug_printf("Placement du bras (servo AX12 MID) impossible\n");
+			debug_printf("Placement du bras (servo AX12 MID) impossible position %d\n", rayon_pos_triangle[i_min_rayon].value_ax12_left);
 			return FALSE;
 		}
 	}
 	data_arm_triangle.i_min_angle = i_min_angle;
 	data_arm_triangle.i_min_rayon = i_min_rayon;
+
+	display(angle_pos_triangle[i_min_angle].value_rx24);
+	if(data_arm_triangle.arm_way == RIGHT)
+		display(rayon_pos_triangle[i_min_rayon].value_ax12_right);
+	else
+		display(rayon_pos_triangle[i_min_rayon].value_ax12_left);
+
 
 	return TRUE;
 

@@ -61,9 +61,9 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-200	,148	,214,	145},	//ARM_ST_To_Storage
 		{-351	,169	,280,	233},	//ARM_ST_To_Carry
 
-		{-432	,158	,164,	232},	//ARM_ST_To_Prepare_Return
-		{-287	,158	,94,	232},	//ARM_ST_To_Down_Return
-		{-306	,133	,65,	232},	//ARM_ST_To_Return
+		{-432	,158	,164,	238},	//ARM_ST_To_Prepare_Return
+		{-287	,158	,94,	238},	//ARM_ST_To_Down_Return
+		{-306	,133	,65,	238},	//ARM_ST_To_Return
 
 		{-432	,133	,65,	120},	//ARM_ST_Wait_Return
 
@@ -77,10 +77,10 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-360	,113	,154,	79},	//ARM_ST_Down_Backward
 		{-360	,113	,154,	148},	//ARM_ST_Lock_Backward
 
-		{-432	,110	,160,	145},	//ARM_ST_Prepare_Take_On_Edge
-		{-261	,110	,160,	145},	//ARM_ST_Take_On_Edge
+		{-432	,119	,160,	145},	//ARM_ST_Prepare_Take_On_Edge
+		{-261	,119	,160,	145},	//ARM_ST_Take_On_Edge
 		{-309	,120	,160,	145},	//ARM_ST_Return_On_Edge
-		{-302	,113	,205,	148},	//ARM_ST_Disposed_Simple
+		{-236	,172	,241,	145},	//ARM_ST_Disposed_Simple
 
 		{-215	,130	,173,	146}	//ARM_ST_Take_On_Road
 		};
