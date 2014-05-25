@@ -33,9 +33,9 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, acknowledge_e acquittem
 
 	//le point obtenu cos / sin est situé à 4096 mm de notre position, et droit devant nous !
 	if(far_point_x || far_point_y)
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, SLOW_TRANSLATION_AND_FAST_ROTATION, acquittement, corrector);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, EXTREMELY_VERY_SLOW, acquittement, corrector);
 	else
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a, sin_a, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, SLOW_TRANSLATION_AND_FAST_ROTATION, acquittement, corrector);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a, sin_a, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, EXTREMELY_VERY_SLOW, acquittement, corrector);
 }
 
 // Calibration de PIERRE ET GUY
