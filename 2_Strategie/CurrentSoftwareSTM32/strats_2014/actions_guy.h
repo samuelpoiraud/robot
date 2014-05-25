@@ -21,6 +21,7 @@
 #include "../elements.h"
 
 void strat_inutile_guy(void);
+void strat_homologation_guy();
 void strat_xbee_guy(void);
 
 void Strat_Detection_Triangle(void);
@@ -64,5 +65,7 @@ error_e do_triangles_between_trees();
  */
 error_e do_triangle_start_adversary();
 error_e scan_and_back(pos_scan_e scan);
+
+error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle);
 
 #endif /* ACTIONS_GUY_H_ */
