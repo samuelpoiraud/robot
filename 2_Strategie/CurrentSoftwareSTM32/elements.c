@@ -19,6 +19,7 @@
 #include "Pathfind.h"
 #include "config/config_qs.h"
 #include <math.h>
+#include "maths_home.h"
 
 #define SCAN_TIMEOUT			4000
 #define LABIUM_TIMEOUT			500
