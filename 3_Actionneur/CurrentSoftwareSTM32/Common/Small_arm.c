@@ -10,7 +10,7 @@
  */
 
 #include "Small_arm.h"
-#ifdef I_AM_ROBOT_BIG
+#ifdef I_AM_ROBOT_SMALL
 	#include "../Guy/Small_arm_config.h"
 #else
 	#include "../Pierre/Small_arm_config.h"

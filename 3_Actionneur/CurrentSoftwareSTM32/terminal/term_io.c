@@ -93,7 +93,10 @@ void uart_checker(unsigned char c){
 		debug_printf("---------------------- Terminal ----------------------\n");
 		debug_printf("Actionneur : \n");
 		for(i=0;i<terminal_motor_size;i++){
-			debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", AX12_is_ready(terminal_motor[i].id) ? "  Connecté" : "Déconnecté", terminal_motor[i].cara_selection, terminal_motor[i].id, terminal_motor[i].name);
+			if(terminal_motor[i].is_ax12)
+				debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", AX12_is_ready(terminal_motor[i].id) ? "  Connecté" : "Déconnecté", terminal_motor[i].cara_selection, terminal_motor[i].id, terminal_motor[i].name);
+			else
+				debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", "----------", terminal_motor[i].cara_selection, terminal_motor[i].id, terminal_motor[i].name);
 		}
 		debug_printf("\nCommande : \n");
 		debug_printf("p/+ incrémenter\nm/- décrémenter\nESPACE affichage position\nh affichage aide\n");

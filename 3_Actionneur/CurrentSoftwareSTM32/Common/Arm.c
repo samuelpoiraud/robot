@@ -53,11 +53,19 @@
 
 #define DISTANCE_MAX_TO_TAKE		50
 
-#define TIME_TO_INC_RUSH			20		//ms
-#define INC_RUSH					5
-#define TIME_RUSH_IN_FLOOR			5000
-#define DIFF_POS_FICT_RUSH			45
-#define EPSILON_POS_RUSH_FLOOR		20
+#ifdef I_AM_ROBOT_SMALL
+	#define TIME_TO_INC_RUSH			20		//ms
+	#define INC_RUSH					5
+	#define TIME_RUSH_IN_FLOOR			5000
+	#define DIFF_POS_FICT_RUSH			45
+	#define EPSILON_POS_RUSH_FLOOR		20
+#else
+	#define TIME_TO_INC_RUSH			20		//ms
+	#define INC_RUSH					-5
+	#define TIME_RUSH_IN_FLOOR			5000
+	#define DIFF_POS_FICT_RUSH			95
+	#define EPSILON_POS_RUSH_FLOOR		20
+#endif
 
 
 #define square(x)				((Sint32)(x)*(x))
@@ -68,8 +76,8 @@
 	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1822*(x)+29.086))
 	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1822+29.086/3.1822))
 #else
-	#define conv_dist_to_potar_updown(x) (x*2)
-	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1983+40.465/3.1983))
+	#define conv_dist_to_potar_updown(x) ((Sint16)(2.9143*(x)-457.65))
+	#define conv_potar_updown_to_dist(x) ((Sint16)((x)/2.9143+457.65/2.9143))
 #endif
 
 
@@ -227,7 +235,7 @@ void ARM_init() {
 	if(check_all_state_perm_transitions_initialized() == FALSE)
 		debug_printf("Attention toutes les transitions d'état du bras n'ont pas été paramètrées !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 
-	check_state_transitions();
+	//check_state_transitions();
 //	if(check_state_transitions() == FALSE)
 //		print_state_transitions(TRUE);
 
@@ -290,6 +298,7 @@ static void ARM_initAX12(){
 
 				AX12_config_set_error_before_led(ARM_MOTORS[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 				AX12_config_set_error_before_shutdown(ARM_MOTORS[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
+#ifdef I_AM_ROBOT_SMALL
 				if(ARM_MOTORS[i].type == ARM_RX24){
 					AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 60);
 					AX12_set_torque_response(ARM_MOTORS[i].id, 2, 1, 0, 2);
@@ -297,6 +306,7 @@ static void ARM_initAX12(){
 					AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 20);
 					AX12_set_torque_response(ARM_MOTORS[i].id, 4, 1, 0, 4);
 				}
+#endif
 				AX12_get_torque_response(ARM_MOTORS[i].id, &A, &B, &C, &D);
 				display(ARM_MOTORS[i].id);
 				display(AX12_get_punch_torque_percentage(ARM_MOTORS[i].id));
@@ -325,8 +335,20 @@ static void ARM_initAX12(){
 void ARM_init_pos() {
 	CAN_msg_t msg = {ACT_ARM, {ACT_ARM_INIT}, 1};
 	debug_printf("Arm init pos :\n");
+#ifdef I_AM_ROBOT_SMALL
 	if(find_state() != ACT_ARM_POS_PARKED)
 		ARM_CAN_process_msg(&msg);
+#else
+	if(find_state() == -1)
+		ARM_CAN_process_msg(&msg);
+	else{
+		msg.sid = ACT_ARM;
+		msg.data[0] = ACT_ARM_GOTO;
+		msg.data[1] = ACT_ARM_POS_PRE_PARKED_1;
+		msg.size = 2;
+		ARM_CAN_process_msg(&msg);
+	}
+#endif
 
 }
 
@@ -342,6 +364,8 @@ void ARM_stop() {
 }
 
 bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
+	bool_e stateOk;
+	Uint8 i;
 	if(msg->sid == ACT_ARM) {
 		//Initialise les RX24/AX12 du bras s'ils n'étaient pas alimentés lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 		ARM_initAX12();
@@ -393,6 +417,7 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 				Sint8 temp_old_state = old_state;
 				if(queueId != QUEUE_CREATE_FAILED){
 					QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
+#ifdef I_AM_ROBOT_SMALL
 					if(temp_old_state < 0){
 						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], ACT_ARM_POS_OPEN, &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
 						temp_old_state = ACT_ARM_POS_OPEN;
@@ -408,6 +433,40 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 						debug_printf("\n");
 					}else
 						ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG);
+#else
+					stateOk = TRUE;
+
+					for(i = 0; i < ARM_MOTORS_NUMBER; i++){
+						if(ARM_MOTORS[i].type == ARM_DCMOTOR){
+							if(absolute(ARM_MOTORS[i].sensorRead() - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 30){
+								stateOk = FALSE;
+								break;
+							}
+						}else if(ARM_MOTORS[i].id == ARM_ACT_RX24_ID){
+							if(absolute(AX12_get_position(ARM_MOTORS[i].id) - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 20){
+								stateOk = FALSE;
+								break;
+							}
+						}else if(ARM_MOTORS[i].id == ARM_ACT_AX12_MID_ID){
+							if(absolute(AX12_get_position(ARM_MOTORS[i].id) - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 20){
+								stateOk = FALSE;
+								break;
+							}
+						}else if(ARM_MOTORS[i].id == ARM_ACT_AX12_TRIANGLE_ID){
+							if(absolute(AX12_get_position(ARM_MOTORS[i].id) - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 40){
+								stateOk = FALSE;
+								break;
+							}
+						}
+					}
+
+					if(stateOk){
+						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], ACT_ARM_POS_PRE_PARKED_1, &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
+					}else{
+						debug_printf("Echec d'initialisation du bras !\n");
+					}
+
+#endif
 					QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_Arm);
 				}else
 					ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
@@ -621,25 +680,29 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 
 	done = ACTQ_check_status_dcmotor(dcmotor_id, timeout_is_ok, result, error_code, line);
 
-	if(done && *result == ACT_RESULT_FAILED){
+	/*if(done && *result == ACT_RESULT_FAILED){
 		*result = ACT_RESULT_DONE;
 		*error_code = ACT_RESULT_ERROR_OK;
 		*line = __LINE__;
 		DCM_stop(ARM_ACT_UPDOWN_ID);
 		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 		return TRUE;
-	}
-
+	}*/
+#ifdef I_AM_ROBOT_SMALL
 	if(conv_dist_to_potar_updown(order) - ARM_readDCMPos() < -EPSILON_POS_RUSH_FLOOR){
+#else
+	if(conv_dist_to_potar_updown(order) - ARM_readDCMPos() > EPSILON_POS_RUSH_FLOOR){
+#endif
 		*result = ACT_RESULT_FAILED;
 		*error_code = ACT_RESULT_ERROR_UNKNOWN;
 		*line = __LINE__;
 		DCM_stop(ARM_ACT_UPDOWN_ID);
+		display(conv_potar_updown_to_dist(actual_pos));
 		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 		return TRUE;
 	}
 
-	if(absolute(actual_pos - ARM_readDCMPos() > DIFF_POS_FICT_RUSH)){
+	if(absolute(actual_pos - ARM_readDCMPos()) > DIFF_POS_FICT_RUSH){
 		if(absolute(ARM_readDCMPos() - conv_dist_to_potar_updown(order)) > EPSILON_POS_RUSH_FLOOR){
 			*result = ACT_RESULT_FAILED;
 			*error_code = ACT_RESULT_ERROR_UNKNOWN;
@@ -650,6 +713,7 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 			*line = __LINE__;
 		}
 		DCM_stop(ARM_ACT_UPDOWN_ID);
+		display(conv_potar_updown_to_dist(actual_pos));
 		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 		return TRUE;
 	}
