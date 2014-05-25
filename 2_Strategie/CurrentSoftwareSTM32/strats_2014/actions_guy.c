@@ -1742,7 +1742,7 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case WAIT:
-			state = ELEMENT_wait_time(500,WAIT,UP_ARM);
+			state = ELEMENT_wait_time(300,WAIT,UP_ARM);
 			break;
 
 		case UP_ARM:
@@ -1779,6 +1779,7 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			static enum state_e state1, state2;
 
 			if(entrance){
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
 				state1 = PARKED_NOT_HANDLED;
 				state2 = PARKED_NOT_HANDLED;
 			}
@@ -1817,9 +1818,11 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		IDLE,
 		PLACEMENT_INIT,
 		PLACEMENT_BRAS,
-		BACK,
-		RUSH_IN_THE_FLOOR,
+		ADVANCE,
+		WAIT,
 		UP_ARM,
+		BACK,
+		PLACEMENT_BRAS_2,
 		PLACEMENT_FOYER,
 		DROP,
 		PARKED_NOT_HANDLED,
@@ -1852,22 +1855,27 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case PLACEMENT_BRAS:
-			state = ACT_arm_move(ACT_ARM_POS_TAKE_ON_EDGE, 0, 0, PLACEMENT_BRAS, BACK, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TAKE_ON_EDGE, 0, 0, PLACEMENT_BRAS, ADVANCE, PARKED_NOT_HANDLED);
 			break;
 
-		case BACK:
-			state = try_going(triangle_pos_end[vertical_triangle].x, triangle_pos_end[vertical_triangle].y, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, FAST, ANY_WAY, DODGE_AND_WAIT);
+		case ADVANCE:
+			state = try_going(triangle_pos_end[vertical_triangle].x, triangle_pos_end[vertical_triangle].y, ADVANCE, WAIT, PARKED_NOT_HANDLED, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
-		case RUSH_IN_THE_FLOOR:
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-
-			state = ACT_elevator_arm_rush_in_the_floor(35, RUSH_IN_THE_FLOOR, UP_ARM, PARKED_NOT_HANDLED);
+		case WAIT:
+			state = ELEMENT_wait_time(300,WAIT,UP_ARM);
 			break;
 
 		case UP_ARM:
-			state = ACT_arm_move(ACT_ARM_POS_DISPOSED_SIMPLE,0, 0, UP_ARM, PLACEMENT_FOYER, PARKED_NOT_HANDLED);
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, BACK, PARKED_NOT_HANDLED);
+			break;
+
+		case BACK:
+			state = try_going(triangle_pos_begin[vertical_triangle].x, triangle_pos_begin[vertical_triangle].y, BACK, PLACEMENT_BRAS_2, PARKED_NOT_HANDLED, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case PLACEMENT_BRAS_2:
+			state = ACT_arm_move(ACT_ARM_POS_DISPOSED_SIMPLE,0, 0, PLACEMENT_BRAS_2, PLACEMENT_FOYER, PARKED_NOT_HANDLED);
 			break;
 
 		case PLACEMENT_FOYER:{
@@ -1876,13 +1884,9 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			if(entrance){
 				teta = atan2(1500-global.env.pos.y, 1050-global.env.pos.x)*4096.;
 				COS_SIN_4096_get(teta, &cos, &sin);
-				display(teta);
 				l = dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500);
-				display(l);
 				goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+83))/4096. + global.env.pos.x;
 				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+83))/4096. + global.env.pos.y;
-				display(goal_pos.x);
-				display(goal_pos.y);
 
 			}
 			state = try_going(goal_pos.x, goal_pos.y, PLACEMENT_FOYER, DROP, PARKED_NOT_HANDLED, FAST, FORWARD, DODGE_AND_WAIT);
@@ -1893,13 +1897,14 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 
-			state = ELEMENT_wait_time(500, DROP, PARKED);
+			state = ELEMENT_wait_time(300, DROP, PARKED);
 			break;
 
 		case PARKED_NOT_HANDLED:{
 			static enum state_e state1, state2;
 
 			if(entrance){
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
 				state1 = PARKED_NOT_HANDLED;
 				state2 = PARKED_NOT_HANDLED;
 			}
@@ -2185,6 +2190,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			static enum state_e state1, state2;
 
 			if(entrance){
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
 				state1 = PARKED_NOT_HANDLED;
 				state2 = PARKED_NOT_HANDLED;
 			}
