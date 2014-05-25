@@ -1901,8 +1901,7 @@ bool_e AX12_set_torque_limit(Uint8 id_servo, Uint8 percentage) {
 
 bool_e AX12_set_punch_torque_percentage(Uint8 id_servo, Uint8 percentage) {
 	if(percentage > AX12_MAX_PERCENTAGE) percentage = AX12_MAX_PERCENTAGE;
-
-	return AX12_instruction_write16(id_servo, AX12_TORQUE_LIMIT_L, AX12_PERCENTAGE_TO_1024(percentage));
+	return AX12_instruction_write16(id_servo, AX12_PUNCH_L, AX12_PERCENTAGE_TO_1024(percentage));
 }
 
 #endif /* def USE_AX12_SERVO */
