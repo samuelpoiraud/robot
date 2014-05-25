@@ -22,7 +22,7 @@
 
 #include "config_debug.h"
 #define LOG_PREFIX "Torch locker.c : "
-#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SMALL_ARM
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_TORCH_LOCKER
 #include "../QS/QS_outputlog.h"
 
 
@@ -135,7 +135,7 @@ bool_e TORCH_LOCKER_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	} else if(msg->sid == ACT_DO_SELFTEST) {
 		SELFTEST_set_actions(&TORCH_LOCKER_run_command, 3, (SELFTEST_action_t[]){
-								 {ACT_TORCH_LOCKER_INSIDE,     0,  QUEUE_ACT_Torch_Locker},
+								 {ACT_TORCH_LOCKER_LOCK,     0,  QUEUE_ACT_Torch_Locker},
 								 {ACT_TORCH_LOCKER_UNLOCK,   0,  QUEUE_ACT_Torch_Locker},
 								 {ACT_TORCH_LOCKER_INSIDE,   0,  QUEUE_ACT_Torch_Locker}
 								 // Vérifier présence SMALL_ARM
@@ -216,7 +216,7 @@ static void TORCH_LOCKER_command_run(queue_id_t queueId) {
 
 	if(watchdog_PTorch != 0xFF)
 		WATCHDOG_stop(watchdog_PTorch);
-
+	debug_printf("...\n"); // Avec un debug printf se selftest marche sinon il bug.... Aller comprendre ><
 
 	if(!check_1)
 		check_1 = ACTQ_check_status_ax12(queueId, TORCH_LOCKER_AX12_1_ID, ax12_1_goalPosition, TORCH_LOCKER_AX12_1_ASSER_POS_EPSILON, TORCH_LOCKER_AX12_1_ASSER_TIMEOUT, TORCH_LOCKER_AX12_1_ASSER_POS_LARGE_EPSILON, &result1, &errorCode1, &line1);

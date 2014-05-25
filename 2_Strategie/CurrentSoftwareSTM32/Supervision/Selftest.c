@@ -461,8 +461,10 @@ error_e SELFTEST_strategy(bool_e reset)
 			state = TEST_LASER_TORCH;
 			break;
 		case TEST_LASER_TORCH:
-			if(ADC_getValue(ADC_14) < 10)
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_LASER_TORCH);
+			if(QS_WHO_AM_I_get() == BIG_ROBOT){
+				if(ADC_getValue(ADC_14) < 10)
+					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_LASER_TORCH);
+			}
 			state = TEST_RTC;
 			break;
 		case TEST_RTC:
