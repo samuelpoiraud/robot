@@ -91,11 +91,20 @@ bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	} else if(msg->sid == ACT_DO_SELFTEST) {
 		SELFTEST_set_actions(&SMALL_ARM_run_command, 5, (SELFTEST_action_t[]){
-								 {ACT_SMALL_ARM_IDLE,     0,  QUEUE_ACT_AX12_Small_Arm},
-								 {ACT_SMALL_ARM_MID,      0,  QUEUE_ACT_AX12_Small_Arm},
-								 {ACT_SMALL_ARM_DEPLOYED, 0,  QUEUE_ACT_AX12_Small_Arm},
-								 {ACT_SMALL_ARM_MID,      0,  QUEUE_ACT_AX12_Small_Arm},
-								 {ACT_SMALL_ARM_IDLE,     0,  QUEUE_ACT_AX12_Small_Arm},
+						 #ifdef I_AM_ROBOT_BIG
+								 {ACT_SMALL_ARM_DEPLOYED,	0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_MID,		0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_IDLE,		0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_MID,		0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_DEPLOYED,	0,  QUEUE_ACT_AX12_Small_Arm}
+						 #else
+
+								 {ACT_SMALL_ARM_IDLE,		0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_MID,		0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_DEPLOYED,	0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_MID,		0,  QUEUE_ACT_AX12_Small_Arm},
+								 {ACT_SMALL_ARM_IDLE,		0,  QUEUE_ACT_AX12_Small_Arm}
+						 #endif
 								 // Vérifier présence SMALL_ARM
 							 });
 	}
