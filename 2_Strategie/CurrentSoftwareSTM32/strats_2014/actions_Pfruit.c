@@ -660,7 +660,7 @@ error_e strat_ramasser_fruit_arbre1_double(tree_way_e sens){ //Commence côté mam
 		case DONE:
 			presenceFruit = TRUE;
 			strat_fruit_sucess = ALL_TREE;
-			WATCHDOG_create(TIME_CLOSE_MOUTH, ACT_fruit_mouth_goto_close,FALSE);
+			WATCHDOG_create(TIME_CLOSE_MOUTH, (watchdog_callback_fun_t)ACT_fruit_mouth_goto_close,FALSE);
 			//ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
@@ -811,7 +811,7 @@ error_e strat_ramasser_fruit_arbre2_double(tree_way_e sens){ //Commence côté mam
 		case DONE:
 			presenceFruit = TRUE;
 			strat_fruit_sucess = ALL_TREE;
-			WATCHDOG_create(TIME_CLOSE_MOUTH, ACT_fruit_mouth_goto_close,FALSE);
+			WATCHDOG_create(TIME_CLOSE_MOUTH, (watchdog_callback_fun_t)ACT_fruit_mouth_goto_close,FALSE);
 			//ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
@@ -967,7 +967,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				strat_fruit_sucess = TREE_2;
 
-			WATCHDOG_create(TIME_CLOSE_MOUTH, ACT_fruit_mouth_goto_close,FALSE);
+			WATCHDOG_create(TIME_CLOSE_MOUTH, (watchdog_callback_fun_t)ACT_fruit_mouth_goto_close,FALSE);
 			//ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
@@ -1121,7 +1121,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 			else
 				strat_fruit_sucess = TREE_2;
 
-			WATCHDOG_create(TIME_CLOSE_MOUTH, ACT_fruit_mouth_goto_close,FALSE);
+			WATCHDOG_create(TIME_CLOSE_MOUTH, (watchdog_callback_fun_t)ACT_fruit_mouth_goto_close,FALSE);
 			//ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 			state = IDLE;
 			return END_OK;
