@@ -112,17 +112,12 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 #endif
 
 // Liste des positions à effectuer pendant un selftest
-#ifdef I_AM_ROBOT_BIG
-	const SELFTEST_action_t arm_selftest_action[] = {
-		{ACT_ARM_GOTO, ACT_ARM_POS_OPEN, QUEUE_ACT_Arm},
-		{ACT_ARM_GOTO, ACT_ARM_POS_PARKED, QUEUE_ACT_Arm}
-	};
-#else
-	const SELFTEST_action_t arm_selftest_action[] = {
-		{ACT_ARM_GOTO, ACT_ARM_POS_OPEN, QUEUE_ACT_Arm},
-		{ACT_ARM_GOTO, ACT_ARM_POS_PARKED, QUEUE_ACT_Arm}
-	};
-#endif
+const SELFTEST_action_t arm_selftest_action[] = {
+	{ACT_ARM_GOTO, ACT_ARM_POS_MID, QUEUE_ACT_Arm},
+	{ACT_ARM_GOTO, ACT_ARM_POS_OPEN, QUEUE_ACT_Arm},
+	{ACT_ARM_GOTO, ACT_ARM_POS_MID, QUEUE_ACT_Arm},
+	{ACT_ARM_GOTO, ACT_ARM_POS_PARKED, QUEUE_ACT_Arm}
+};
 
 const Uint8 ARM_SELFTEST_NUMBER = sizeof(arm_selftest_action) / sizeof(SELFTEST_action_t);
 
