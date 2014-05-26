@@ -765,7 +765,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 					}
 
 					get_out.x = 1500;
-					get_out.y = COLOR_Y(600);
+					get_out.y = (current_dispose_zone == HEARTH_OUR)?(COLOR_Y(600)):(COLOR_Y(2400));
 					get_out_enable = TRUE;
 					break;
 
