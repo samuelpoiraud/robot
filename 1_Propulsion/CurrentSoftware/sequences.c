@@ -33,9 +33,9 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, acknowledge_e acquittem
 
 	//le point obtenu cos / sin est situé à 4096 mm de notre position, et droit devant nous !
 	if(far_point_x || far_point_y)
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, 16, acquittement, corrector);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, (QS_WHO_AM_I_get() == PIERRE)?SLOW_TRANSLATION_AND_FAST_ROTATION:16, acquittement, corrector);
 	else
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a, sin_a, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, 16, acquittement, corrector);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a, sin_a, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, (QS_WHO_AM_I_get() == PIERRE)?SLOW_TRANSLATION_AND_FAST_ROTATION:16, acquittement, corrector);
 }
 
 // Calibration de PIERRE ET GUY
@@ -69,6 +69,7 @@ void SEQUENCES_calibrate()
 			y = -150;
 
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, y,0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, -y+50,0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
 
 		if(color == RED){
@@ -90,6 +91,7 @@ void SEQUENCES_calibrate()
 
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, y,0, RELATIVE, NOT_NOW, BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, -350, 0,0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
 		//Calage en X
 		SEQUENCES_rush_in_the_wall(PI4096, FORWARD, NO_ACKNOWLEDGE, -4096, 0, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
@@ -108,9 +110,9 @@ void SEQUENCES_calibrate()
 		}
 	}else{// GUY
 		if(color == RED)
-			y = 100;
+			y = 50;
 		else
-			y = -100;
+			y = -50;
 
 		//Eloignement de la bordure
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, y, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
@@ -134,7 +136,7 @@ void SEQUENCES_calibrate()
 		//Eloignement de la bordure pour calage en X
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, y, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 800,0, 0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 870,0, 0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
 		//Calage en X
 		x = 4096;
