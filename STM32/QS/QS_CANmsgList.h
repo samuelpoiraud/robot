@@ -140,8 +140,7 @@
 	#define XBEE_PONG						0x506	//PONG = pOnG = p0n6, Ce message est envoyé en réponse d'un ping vers l'autre carte stratégie
 	#define XBEE_REACH_POINT_GET_OUT_INIT	0x507	// Envoie un message quand il sort de la zone de départ
 	#define XBEE_REACH_POINT_C1				0x508	// Envoie un message quand il arrive au point C1
-	#define XBEE_GUY_TOOK_OUR_TORCH			0x50A
-#define XBEE_GUY_HAVE_DONE_TRIANGLE 0x514
+
 	#define XBEE_TORCH_NEW_POS				0x509	// Envoie la nouvelle position de la torche a l autre robot si l'un des deux a déplacée une torche
 	#define XBEE_GUY_HAVE_DONE_FIRE			0x50B	// Informe Pierre que Guy a décidé de prendre un feu ou une torche
 		//Data[0] : ID du fire
