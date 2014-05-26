@@ -32,14 +32,14 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 #ifdef I_AM_ROBOT_BIG
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 		// moteur (dans l'ordre)
-		{-177	,240	,49,	177},	//ARM_ST_Pre_Parked_1
-		{-177	,217	,32,	177},	//ARM_ST_Pre_Parked_2
-		{-124	,217	,32,	177},	//ARM_ST_Parked
-		{-124	,180	,29,	177},	//ARM_ST_Mid
-		{-124	,180	,84,	177},	//ARM_ST_Open
+		{-168	,240	,49,	55},	//ARM_ST_Pre_Parked_1
+		{-168	,217	,32,	55},	//ARM_ST_Pre_Parked_2
+		{-124	,217	,32,	55},	//ARM_ST_Parked
+		{-124	,180	,29,	55},	//ARM_ST_Mid
+		{-124	,180	,84,	55},	//ARM_ST_Open
 
 		{-432	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
-		{-124	,212	,189,	177},	//ARM_ST_On_Torche_Small_Arm
+		{-124	,212	,189,	227},	//ARM_ST_On_Torche_Small_Arm
 
 		{-200	,148	,214,	145},	//ARM_ST_To_Storage						NOT USE
 		{-351	,169	,280,	233},	//ARM_ST_To_Carry
@@ -65,8 +65,9 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-309	,120	,160,	145},	//ARM_ST_Return_On_Edge					NOT USE
 		{-236	,172	,241,	145},	//ARM_ST_Disposed_Simple				NOT USE
 
-		{-220	,200	,248,	177},	//ARM_ST_Prepare_Take_On_Road
-		{-457	,232	,248,	177}	//ARM_ST_Take_On_Road
+		{-220	,200	,248,	249},	//ARM_ST_Prepare_Take_On_Road
+		{-457	,232	,248,	249},	//ARM_ST_Take_On_Road
+		{-457	,232	,248,	249}	//ARM_ST_Take_On_Road_Mamouth
 		};
 #else
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
@@ -105,7 +106,8 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-236	,172	,241,	145},	//ARM_ST_Disposed_Simple
 
 		{-215	,130	,173,	146},	//ARM_ST_Prepare_Take_On_Road	NOT USE
-		{-215	,130	,173,	146}	//ARM_ST_Take_On_Road
+		{-215	,130	,173,	146},	//ARM_ST_Take_On_Road
+		{-215	,124	,182,	146}	//ARM_ST_Take_On_Road_Mamouth
 		};
 #endif
 
@@ -113,7 +115,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 #ifdef I_AM_ROBOT_BIG
 	const SELFTEST_action_t arm_selftest_action[] = {
 		{ACT_ARM_GOTO, ACT_ARM_POS_OPEN, QUEUE_ACT_Arm},
-		{ACT_ARM_GOTO, ACT_ARM_POS_PRE_PARKED_1, QUEUE_ACT_Arm}
+		{ACT_ARM_GOTO, ACT_ARM_POS_PARKED, QUEUE_ACT_Arm}
 	};
 #else
 	const SELFTEST_action_t arm_selftest_action[] = {
