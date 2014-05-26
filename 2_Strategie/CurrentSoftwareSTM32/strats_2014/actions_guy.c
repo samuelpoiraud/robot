@@ -378,20 +378,12 @@ void strat_homologation_guy(){
 			}
 			break;
 
-		case TRIANGLE_1:
-			state = check_sub_action_result(ACT_take_triangle_on_edge(V_TRIANGLE_1),TRIANGLE_1,BACK,BACK);
+		case TRIANGLE_3:
+			state = check_sub_action_result(ACT_take_triangle_on_edge(V_TRIANGLE_3),TRIANGLE_3,BACK,BACK);
 			break;
 
 		 case BACK:
-			state = try_advance(200,BACK,MOVE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
-
-		case MOVE:
-			state = PATHFIND_try_going(C2,MOVE,TRIANGLE_3, ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
-			break;
-
-		case TRIANGLE_3:
-			state = check_sub_action_result(ACT_take_triangle_on_edge(V_TRIANGLE_3),TRIANGLE_3,DONE,DONE);
-			 break;
+			state = try_advance(200,BACK,DO_ADV_TORCH,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 
 		case MOVE_ADV_TORCH:
 			state  = try_going_until_break(1600,1500,MOVE_ADV_TORCH,DO_ADV_TORCH, ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT);

@@ -81,7 +81,8 @@ static const strategy_list_s list_strategy[] = {
 	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE,					BIG},
 
 	// Pour guy
-	{"Strat Belgique",		strat_belgique_guy,						MATCH_DURATION,		TRUE,					SMALL}
+	{"Strat Belgique",		strat_belgique_guy,						MATCH_DURATION,		TRUE,					SMALL},
+	{"Strat Homologation",	strat_homologation_guy,					MATCH_DURATION,		TRUE,					SMALL}
 };
 
 static const strategy_list_s *list_displayed_strategy[50];
