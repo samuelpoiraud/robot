@@ -62,7 +62,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 
 		{-432	,119	,160,	145},	//ARM_ST_Prepare_Take_On_Edge			NOT USE
 		{-261	,119	,160,	145},	//ARM_ST_Take_On_Edge					NOT USE
-		{-309	,120	,160,	145},	//ARM_ST_Return_On_Edge					NOT USE
+		{-330	,120	,160,	145},	//ARM_ST_Return_On_Edge					NOT USE
 		{-236	,172	,241,	145},	//ARM_ST_Disposed_Simple				NOT USE
 
 		{-220	,200	,248,	249},	//ARM_ST_Prepare_Take_On_Road

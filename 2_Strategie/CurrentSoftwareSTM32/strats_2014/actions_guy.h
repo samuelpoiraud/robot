@@ -67,5 +67,7 @@ error_e do_triangle_start_adversary();
 error_e scan_and_back(pos_scan_e scan);
 
 error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle);
+error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle);
+error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle);
 
 #endif /* ACTIONS_GUY_H_ */
