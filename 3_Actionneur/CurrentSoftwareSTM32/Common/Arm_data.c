@@ -213,8 +213,9 @@ void init_perm_transitions_table(){
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_SMALL_ARM,		1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 
-	add_perm_transitions_table(ACT_ARM_POS_PREPARE_TAKE_ON_ROAD,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TAKE_ON_ROAD});
+	add_perm_transitions_table(ACT_ARM_POS_PREPARE_TAKE_ON_ROAD,	3,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TAKE_ON_ROAD, ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH});
 	add_perm_transitions_table(ACT_ARM_POS_TAKE_ON_ROAD,			1,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_TAKE_ON_ROAD});
+	add_perm_transitions_table(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH,	1,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_TAKE_ON_ROAD});
 #endif
 }
 
