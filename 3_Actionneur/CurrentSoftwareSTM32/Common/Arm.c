@@ -326,7 +326,6 @@ static void ARM_initAX12(){
 	if(allOk) {
 		info_printf("AX12 et RX24 du bras initialisés\n");
 		allInitialized = TRUE;
-		find_state();
 	}
 
 	debug_printf("Arm init config %s\n", allInitialized ? "DONE" : "FAIL");
@@ -339,9 +338,10 @@ void ARM_init_pos() {
 	if(find_state() != ACT_ARM_POS_PARKED)
 		ARM_CAN_process_msg(&msg);
 #else
-	if(find_state() == -1)
+	if(find_state() == -1 || find_state() == ACT_ARM_POS_PRE_PARKED_1){
+		old_state = -1;
 		ARM_CAN_process_msg(&msg);
-	else{
+	}else{
 		msg.sid = ACT_ARM;
 		msg.data[0] = ACT_ARM_GOTO;
 		msg.data[1] = ACT_ARM_POS_PRE_PARKED_1;
@@ -438,17 +438,17 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 
 					for(i = 0; i < ARM_MOTORS_NUMBER; i++){
 						if(ARM_MOTORS[i].type == ARM_DCMOTOR){
-							if(absolute(ARM_MOTORS[i].sensorRead() - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 30){
+							if(absolute(ARM_MOTORS[i].sensorRead() - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 40){
 								stateOk = FALSE;
 								break;
 							}
 						}else if(ARM_MOTORS[i].id == ARM_ACT_RX24_ID){
-							if(absolute(AX12_get_position(ARM_MOTORS[i].id) - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 20){
+							if(absolute(AX12_get_position(ARM_MOTORS[i].id) - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 25){
 								stateOk = FALSE;
 								break;
 							}
 						}else if(ARM_MOTORS[i].id == ARM_ACT_AX12_MID_ID){
-							if(absolute(AX12_get_position(ARM_MOTORS[i].id) - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 20){
+							if(absolute(AX12_get_position(ARM_MOTORS[i].id) - ARM_get_motor_pos(ACT_ARM_POS_PRE_PARKED_1, i)) >= 25){
 								stateOk = FALSE;
 								break;
 							}
