@@ -170,7 +170,7 @@ error_e sub_action_initiale(void)
 			{
 				point[0] =  (displacement_t){{620,1670},	FAST}; // Point pos bonne prise de torche
 				point[1] =  (displacement_t){{1000,2000},	FAST};
-				point[2] = 	(displacement_t){{1150,2150},	FAST};
+				point[2] = 	(displacement_t){{1200,2200},	FAST};
 				point[3] = 	(displacement_t){{1650,1900},	FAST}; // Pos se mettre devant l'arbre
 				point[4] = 	(displacement_t){{1350,1870},	FAST}; // Pos si triangle pas tomber par guy
 				point[5] = 	(displacement_t){{1400,2250},	FAST};
@@ -181,10 +181,15 @@ error_e sub_action_initiale(void)
 
 		case WAIT_TELL_GUY:{
 			static Uint16 last_time;
+			static Uint8 state1;
+
 			if(entrance)
 				last_time = global.env.match_time;
 
-			if(guy_get_out_init || global.env.match_time > last_time + 3000)
+			// Mettre le bras en position de sortie
+			state1 = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, WAIT_TELL_GUY, GET_OUT, ERROR);
+
+			if((guy_get_out_init && state1 == GET_OUT) || global.env.match_time > last_time + 3000)
 				state = GET_OUT;
 			}break;
 		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
@@ -428,10 +433,15 @@ void strat_homologation(void)
 
 		case WAIT_TELL_GUY:{
 			static Uint16 last_time;
+			static Uint8 state1;
+
 			if(entrance)
 				last_time = global.env.match_time;
 
-			if(guy_get_out_init || global.env.match_time > last_time + 3000)
+			// Mettre le bras en position de sortie
+			state1 = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, WAIT_TELL_GUY, GET_OUT, ERROR);
+
+			if((guy_get_out_init && state1 == GET_OUT) || global.env.match_time > last_time + 3000)
 				state = GET_OUT;
 			}break;
 		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
@@ -860,9 +870,9 @@ error_e protect_north_way(void)
 
 	   case GET_IN:
 
-		   if(est_dans_carre(points[0].x - 200, points[0].x + 200, points[0].y - 150, points[0].y + 150,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))	//Je suis proche du POINT_0
+		   if(est_dans_carre(points[0].x - 200, points[0].x + 300, points[0].y - 150, points[0].y + 150,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))	//Je suis proche du POINT_0
 			   state = POINT_1;
-		   else if (est_dans_carre(points[1].x - 200, points[1].x + 200, points[1].y - 150, points[1].y + 150,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))//Proche du POINT_1
+		   else if (est_dans_carre(points[1].x - 200, points[1].x + 300, points[1].y - 150, points[1].y + 150,(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))//Proche du POINT_1
 			   state = POINT_0;
 		   else	//Je suis loin -> PATHFIND
 		   {
