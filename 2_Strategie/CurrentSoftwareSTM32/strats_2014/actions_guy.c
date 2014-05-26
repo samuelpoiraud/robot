@@ -1579,6 +1579,81 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 	CANMsgToXbee(&msg,FALSE);
 }
 
+error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
+	static vertical_triangle_e save_vertical_triangle;
+	static error_e sub_error;
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		CHECK_POSITION,
+		GET_IN,
+		ACTION,
+		ERROR,
+		DONE
+	);
+	switch (state) {
+		case IDLE:
+			save_vertical_triangle = vertical_triangle;
+			state = CHECK_POSITION;
+			break;
+
+		case CHECK_POSITION:
+			if((save_vertical_triangle == V_TRIANGLE_1 && est_dans_carre(300, 1800, 0, 1000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (save_vertical_triangle == V_TRIANGLE_2 && est_dans_carre(1200, 2000, 800, 2200, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (save_vertical_triangle == V_TRIANGLE_3 && est_dans_carre(1200, 2000, 800, 2200, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+					|| (save_vertical_triangle == V_TRIANGLE_4 && est_dans_carre(300, 1800, 2000, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+				state = ACTION;
+			else
+				state = GET_IN;
+			break;
+
+		case GET_IN:
+			if(save_vertical_triangle == V_TRIANGLE_1)
+				state = PATHFIND_try_going(A1, GET_IN, ACTION, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			else if(save_vertical_triangle == V_TRIANGLE_2)
+				state = PATHFIND_try_going(C3, GET_IN, ACTION, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			else if(save_vertical_triangle == V_TRIANGLE_3)
+				state = PATHFIND_try_going(W3, GET_IN, ACTION, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			else if(save_vertical_triangle == V_TRIANGLE_4)
+				state = PATHFIND_try_going(Z1, GET_IN, ACTION, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			else
+				state = ERROR;
+			break;
+
+		case ACTION:
+			if((global.env.color == RED && (save_vertical_triangle == V_TRIANGLE_1 || save_vertical_triangle == V_TRIANGLE_3))
+					|| (global.env.color == YELLOW && (save_vertical_triangle == V_TRIANGLE_2 || save_vertical_triangle == V_TRIANGLE_4)))
+				sub_error = ACT_take_triangle_on_edge(save_vertical_triangle);
+			else
+				sub_error = ACT_return_triangle_on_edge(save_vertical_triangle);
+			switch(sub_error){
+				case END_OK:
+					state = DONE;
+					break;
+
+				case IN_PROGRESS:
+					break;
+
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+				default:
+					state = ERROR;
+					break;
+			}
+
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return sub_error;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+	}
+	return IN_PROGRESS;
+}
+
 error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
@@ -1593,6 +1668,7 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		DROP,
 		PARKED_NOT_HANDLED,
 		PARKED,
+		EXTRACT,
 		ERROR,
 		DONE
 	);
@@ -1698,7 +1774,11 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		}break;
 
 		case PARKED:
-			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, DONE, ERROR);
+			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, EXTRACT, ERROR);
+			break;
+
+		case EXTRACT:
+			state = try_advance(300, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
 			break;
 
 		case DONE:
@@ -1720,6 +1800,7 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
 		PLACEMENT_INIT,
+		ROTATION,
 		PLACEMENT_BRAS,
 		ADVANCE,
 		WAIT,
@@ -1730,6 +1811,7 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		DROP,
 		PARKED_NOT_HANDLED,
 		PARKED,
+		EXTRACT,
 		ERROR,
 		DONE
 	);
@@ -1745,7 +1827,7 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		{800,	200},
 		{1800,	1300},
 		{1800,	1700},
-		{800,	280}
+		{800,	2800}
 	};
 
 	switch (state) {
@@ -1754,14 +1836,26 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case PLACEMENT_INIT:
-			state = try_going(triangle_pos_begin[vertical_triangle].x, triangle_pos_begin[vertical_triangle].y, PLACEMENT_INIT, PLACEMENT_BRAS, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+			state = try_going(triangle_pos_begin[vertical_triangle].x, triangle_pos_begin[vertical_triangle].y, PLACEMENT_INIT, ROTATION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+			break;
+
+		case ROTATION:
+			if(vertical_triangle == V_TRIANGLE_1)
+				state = try_go_angle(-PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
+			if(vertical_triangle == V_TRIANGLE_2 || vertical_triangle == V_TRIANGLE_3)
+				state = try_go_angle(0, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
+			if(vertical_triangle == V_TRIANGLE_4)
+				state = try_go_angle(PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
 			break;
 
 		case PLACEMENT_BRAS:
-			state = ACT_arm_move(ACT_ARM_POS_TAKE_ON_EDGE, 0, 0, PLACEMENT_BRAS, ADVANCE, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_RETURN_ON_EDGE, 0, 0, PLACEMENT_BRAS, ADVANCE, PARKED_NOT_HANDLED);
 			break;
 
 		case ADVANCE:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+
 			state = try_going(triangle_pos_end[vertical_triangle].x, triangle_pos_end[vertical_triangle].y, ADVANCE, WAIT, PARKED_NOT_HANDLED, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
@@ -1823,7 +1917,11 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		}break;
 
 		case PARKED:
-			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, DONE, ERROR);
+			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, EXTRACT, ERROR);
+			break;
+
+		case EXTRACT:
+			state = try_advance(300, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
 			break;
 
 		case DONE:
@@ -2530,7 +2628,7 @@ void strat_inutile_guy(void){
 		//	break;
 
 		case ON:
-			state = check_sub_action_result(ACT_take_triangle_on_edge(V_TRIANGLE_2), ON, DONE, ERROR);
+			state = check_sub_action_result(sub_action_triangle_on_edge(V_TRIANGLE_4), ON, DONE, ERROR);
 			break;
 
 		case BACK:
