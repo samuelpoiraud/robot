@@ -28,7 +28,6 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 #define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_CAN_process_msg}
 
 static ACTQ_functions_t actionneurs[] = {
-	{&ARM_init, NULL, &ARM_stop, &ARM_CAN_process_msg},
 	ACT_DECLARE(SMALL_ARM),
 	ACT_DECLARE(POMPE),
 	ACT_DECLARE(ARM)
