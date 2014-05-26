@@ -38,7 +38,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-124	,180	,29,	55},	//ARM_ST_Mid
 		{-124	,180	,84,	55},	//ARM_ST_Open
 
-		{-432	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
+		{0		,0		,0		,0},	//ARM_ST_On_Torche				// Distance factice
 		{-124	,212	,189,	227},	//ARM_ST_On_Torche_Small_Arm
 
 		{-200	,148	,214,	145},	//ARM_ST_To_Storage						NOT USE
@@ -54,7 +54,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-432	,132	,56,	148},	//ARM_ST_To_Take_Return					NOT USE
 		{-432	,132	,56,	110},	//ARM_ST_To_Unblock_Return				NOT USE
 
-		{-432	,150	,150,	150},	//ARM_ST_On_Triangle			// Distance factice
+		{0		,0		,0		,0},	//ARM_ST_On_Triangle			// Distance factice
 
 		{-432	,113	,151,	79},	//ARM_ST_Prepare_Backward				NOT USE
 		{-360	,113	,154,	79},	//ARM_ST_Down_Backward					NOT USE
@@ -72,16 +72,16 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 #else
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 		// moteur (dans l'ordre)
-		{-432	,154	,283,	249},	//ARM_ST_Pre_Parked_1			NOT USE
-		{-432	,154	,283,	249},	//ARM_ST_Pre_Parked_2			NOT USE
+		{0		,0		,0		,0},	//ARM_ST_Pre_Parked_1			NOT USE
+		{0		,0		,0		,0},	//ARM_ST_Pre_Parked_2			NOT USE
 		{-432	,154	,283,	249},	//ARM_ST_Parked
 		{-432	,152	,246,	245},	//ARM_ST_Mid
 		{-432	,145	,218,	152},	//ARM_ST_Open
 
-		{-432	,176	,246,	145},	//ARM_ST_On_Torche				// Distance factice
-		{-432	,176	,246,	145},	//ARM_ST_On_Torche_Small_Arm	NOT USE
+		{0		,0		,0		,0},	//ARM_ST_On_Torche				// Distance factice
+		{0		,0		,0		,0},	//ARM_ST_On_Torche_Small_Arm	NOT USE
 
-		{-200	,148	,214,	145},	//ARM_ST_To_Storage				NOT USE
+		{0		,0		,0		,0},	//ARM_ST_To_Storage				NOT USE
 		{-351	,169	,280,	233},	//ARM_ST_To_Carry
 
 		{-432	,158	,164,	238},	//ARM_ST_To_Prepare_Return
@@ -94,7 +94,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-432	,132	,56,	148},	//ARM_ST_To_Take_Return
 		{-432	,132	,56,	110},	//ARM_ST_To_Unblock_Return
 
-		{-432	,150	,150,	150},	//ARM_ST_On_Triangle			// Distance factice
+		{0		,0		,0		,0},	//ARM_ST_On_Triangle			// Distance factice
 
 		{-432	,113	,151,	79},	//ARM_ST_Prepare_Backward
 		{-360	,113	,154,	79},	//ARM_ST_Down_Backward
@@ -105,7 +105,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-309	,120	,160,	145},	//ARM_ST_Return_On_Edge
 		{-236	,172	,241,	145},	//ARM_ST_Disposed_Simple
 
-		{-215	,130	,173,	146},	//ARM_ST_Prepare_Take_On_Road	NOT USE
+		{0		,0		,0		,0},	//ARM_ST_Prepare_Take_On_Road	NOT USE
 		{-215	,130	,173,	146},	//ARM_ST_Take_On_Road
 		{-215	,124	,182,	146}	//ARM_ST_Take_On_Road_Mamouth
 		};

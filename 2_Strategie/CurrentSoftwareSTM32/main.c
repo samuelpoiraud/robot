@@ -13,6 +13,7 @@
 #include "main.h"
 	#include "QS/QS_ports.h"
 	#include "QS/QS_uart.h"
+	#include "queue.h"
 	#include "Stacks.h"
 	#include "environment.h"
 	#include "brain.h"
@@ -87,6 +88,7 @@ int main (void)
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 
 	STACKS_init();
+	QUEUE_init();
 
 	CLOCK_init();
 	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
