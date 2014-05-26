@@ -22,6 +22,7 @@
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_can_over_xbee.h"
 #include "../elements.h"
+#include "../act_functions.h"
 #include "SD/Libraries/fat_sd/ff.h"
 #include "SD/SD.h"
 #include "RTC.h"
@@ -172,6 +173,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		case WAIT_SELFTEST_LAUNCH:
 			if(ask_launch_selftest)	//demande de lancement du selftest (PAS PENDANT LE MATCH !)
 			{
+				ACT_arm_goto(ACT_ARM_POS_PARKED);
 				debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
 				errors_index = 0;	//On REMET le compteur d'erreur à 0.
 				state = SELFTEST_STRAT;
@@ -368,6 +370,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				LED_SELFTEST = FALSE;
 				SELFTEST_print_errors((SELFTEST_error_code_e *)errors, errors_index);
 			}
+			ACT_arm_goto(ACT_ARM_POS_PRE_PARKED_1);
 			state = WAIT_SELFTEST_LAUNCH;
 			break;
 		default :
