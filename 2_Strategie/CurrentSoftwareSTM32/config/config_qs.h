@@ -97,7 +97,6 @@
 
 #define USE_AN8
 #define ADC_CHANNEL_MEASURE24	ADC_8
-#define USE_AN9 			// DT10 glasses sur TINY
 //#define USE_AN12			// Fresque 2 et 3 // Changement fresque 3 sur PB1
 #define USE_AN14			// Capteur laser torche
 
