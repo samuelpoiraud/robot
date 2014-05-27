@@ -99,6 +99,9 @@ void COPILOT_process_it(void)
 	COPILOT_update_arrived();
 	COPILOT_update_brake_state();
 
+	if(current_order.trajectory == TRAJECTORY_STOP && arrived == ARRIVED && SUPERVISOR_get_state() == SUPERVISOR_MATCH_ENDED)
+		CORRECTOR_PD_enable(CORRECTOR_DISABLE);
+
 	if(COPILOT_decision_change_order(&change_order_in_multipoint_without_reaching_destination))
 	{
 		if(ROADMAP_get_next(&next_order))
