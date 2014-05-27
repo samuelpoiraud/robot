@@ -57,6 +57,11 @@
 
 	#define USE_HOKUYO	//Active le module HOKUYO et la détection des ennemis... !
 
+	#define USE_WATCHDOG
+	#define WATCHDOG_TIMER 4
+	#define WATCHDOG_MAX_COUNT 5
+	#define WATCHDOG_QUANTUM 1
+
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
 

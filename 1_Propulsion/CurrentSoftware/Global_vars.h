@@ -112,6 +112,7 @@
 		volatile Uint16 alim_value;			// en mV
 		volatile bool_e mode_best_effort_enable;
 		volatile bool_e disable_virtual_perfect_robot;
+		volatile bool_e match_started, match_over;
 
 
 #endif /* ndef GLOBAL_VARS_H */

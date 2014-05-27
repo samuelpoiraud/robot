@@ -19,6 +19,7 @@
 #include "odometry.h"
 #include "cos_sin.h"
 #include "debug.h"
+#include "QS/QS_watchdog.h"
 
 volatile order_t current_order;
 
@@ -66,6 +67,8 @@ void COPILOT_process_it(void)
 {
 	order_t next_order;
 	bool_e  change_order_in_multipoint_without_reaching_destination = FALSE;
+	static watchdog_id_t id_end_enslavement = 0xFF;
+	static bool_e flag_end_enslavement = FALSE;
 
 	if(current_order.trajectory == TRAJECTORY_STOP)
 		COPILOT_reset_absolute_destination();
@@ -99,7 +102,10 @@ void COPILOT_process_it(void)
 	COPILOT_update_arrived();
 	COPILOT_update_brake_state();
 
-	if(current_order.trajectory == TRAJECTORY_STOP && arrived == ARRIVED && SUPERVISOR_get_state() == SUPERVISOR_MATCH_ENDED)
+	if(current_order.trajectory == TRAJECTORY_STOP && arrived == ARRIVED && global.match_over == TRUE && id_end_enslavement == 0xFF)
+		id_end_enslavement = WATCHDOG_create_flag(1500, &flag_end_enslavement);
+
+	if(flag_end_enslavement)
 		CORRECTOR_PD_enable(CORRECTOR_DISABLE);
 
 	if(COPILOT_decision_change_order(&change_order_in_multipoint_without_reaching_destination))

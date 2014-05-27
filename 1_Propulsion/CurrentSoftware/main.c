@@ -30,6 +30,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_watchdog.h"
 #include "hokuyo.h"
 
 #if defined (STM32F40XX)
@@ -116,10 +117,13 @@ void initialisation(void)
 
 
 	ODOMETRY_init();
+	WATCHDOG_init();
 	SUPERVISOR_init();
 	COPILOT_init();
 	PILOT_init();
 	global.mode_best_effort_enable = FALSE;
+	global.match_started = FALSE;
+	global.match_over = FALSE;
 
 	ROADMAP_init();
 	WARNER_init();
