@@ -1660,12 +1660,9 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 		UP_ARM,
 		DROP_TRIANGLE,
 		WAIT_TRIANGLE_BREAK,
+		PREPARE_ARM_RETURN,
 		PREPARE_SMALL_ARM,
-		DOWN_SMALL_ARM,
-		UP_SMALL_ARM,
-		PREPARE_RETURN,
 		RETURN,
-		WAIT_RETURN,
 		REPLACE_SMALL_ARM,
 		OPEN_ARM_FAIL,
 		FAIL,
@@ -1680,27 +1677,8 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 	static Uint8 niveau;
 	Sint16 value_adc;
 
-	if(dispose_zone == HEARTH_OUR){
-		drop_pos[0] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
-		drop_pos[1] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
-		drop_pos[2] = (GEOMETRY_point_t){global.env.pos.x+130,global.env.pos.y+0};
-
-
-
-		/*point[0] = (GEOMETRY_point_t){1800,COLOR_Y(200)};
-		point[1] = (GEOMETRY_point_t){1900,COLOR_Y(250)};
-		point[2] = (GEOMETRY_point_t){1900,COLOR_Y(250)};*/
-	}
-
 	switch(state){
 		case IDLE :
-
-			torch = TORCH_get_position(choiceTorch);
-
-			// Imposé pour les test
-			torch.x = global.env.pos.x;
-			torch.y = global.env.pos.y+150;
-
 			state = TORCHE;
 			niveau = 0;
 			break;
@@ -1718,19 +1696,23 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 				state = DONE;
 
 			if((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
-				state = PREPARE_SMALL_ARM;
+				state = PREPARE_ARM_RETURN;
 			else
 				state = TORCHE;
 
 			break;
 
 		case TORCHE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, DOWN_ARM, OPEN_ARM_FAIL);
+			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE_SMALL_ARM, 0, 0, TORCHE, DOWN_ARM, OPEN_ARM_FAIL);
 			break;
 
 		case DOWN_ARM:
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+			if(entrance){
+				if(niveau == 0 || niveau == 1)
+					ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+				else
+					ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+			}
 
 			state = ACT_elevator_arm_rush_in_the_floor(120-niveau*30, DOWN_ARM, UP_ARM, OPEN_ARM_FAIL);
 			break;
@@ -1740,12 +1722,21 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 			break;
 
 		case DROP_TRIANGLE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
+			if(niveau == 0)
+				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_1_AUTO, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
+			else if(niveau == 1)
+				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_2_AUTO, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
+			else if(niveau == 2)
+				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_3_AUTO, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
 			break;
 
 		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+			if(entrance){
+				if(niveau == 0 || niveau == 1)
+					ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+				else
+					ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+			}
 
 			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? DONE:TORCHE);
 
@@ -1754,39 +1745,24 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 			}
 			break;
 
+		case PREPARE_ARM_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, PREPARE_ARM_RETURN, PREPARE_SMALL_ARM, OPEN_ARM_FAIL);
+			break;
+
 
 		case PREPARE_SMALL_ARM:
-			state = ACT_arm_move(ACT_ARM_POS_TO_TAKE_RETURN,0, 0, PREPARE_SMALL_ARM, DOWN_SMALL_ARM, OPEN_ARM_FAIL);
-			break;
-
-		case DOWN_SMALL_ARM:
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
-
-			state = ACT_elevator_arm_rush_in_the_floor(120-niveau*30, DOWN_SMALL_ARM, UP_SMALL_ARM, OPEN_ARM_FAIL);
-			break;
-
-		case UP_SMALL_ARM:
-			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_SMALL_ARM, PREPARE_RETURN, OPEN_ARM_FAIL);
-			break;
-
-		case PREPARE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_PREPARE_RETURN,0, 0, PREPARE_RETURN, RETURN, OPEN_ARM_FAIL);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PREPARE_SMALL_ARM, RETURN, OPEN_ARM_FAIL);
 			break;
 
 		case RETURN:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, RETURN, WAIT_RETURN, OPEN_ARM_FAIL);
-			break;
-
-		case WAIT_RETURN:
 			if(entrance)
-				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
-			state = ELEMENT_wait_time(500, WAIT_RETURN, REPLACE_SMALL_ARM);
+			state = ELEMENT_wait_time(500, RETURN, REPLACE_SMALL_ARM);
 			break;
 
 		case REPLACE_SMALL_ARM:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, REPLACE_SMALL_ARM, DROP_TRIANGLE, OPEN_ARM_FAIL);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, REPLACE_SMALL_ARM, DROP_TRIANGLE, OPEN_ARM_FAIL);
 			break;
 
 		case OPEN_ARM_FAIL:{
