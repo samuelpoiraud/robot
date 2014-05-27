@@ -63,7 +63,7 @@
 	#define TIME_TO_INC_RUSH			20		//ms
 	#define INC_RUSH					-5
 	#define TIME_RUSH_IN_FLOOR			5000
-	#define DIFF_POS_FICT_RUSH			95
+	#define DIFF_POS_FICT_RUSH			25
 	#define EPSILON_POS_RUSH_FLOOR		20
 #endif
 
@@ -76,8 +76,8 @@
 	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1822*(x)+29.086))
 	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1822+29.086/3.1822))
 #else
-	#define conv_dist_to_potar_updown(x) ((Sint16)(2.9143*(x)-457.65))
-	#define conv_potar_updown_to_dist(x) ((Sint16)((x)/2.9143+457.65/2.9143))
+	#define conv_dist_to_potar_updown(x) ((Sint16)(2.662*(x)-462.4))
+	#define conv_potar_updown_to_dist(x) ((Sint16)((x)*0.374+159.9))
 #endif
 
 
@@ -374,8 +374,8 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_ARM_GOTO:
 				if(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE || msg->data[1] == ACT_ARM_POS_ON_TORCHE)
 					get_data_pos_triangle(msg);
-
-				if(arm_states_transitions[old_state][msg->data[1]] == 1)
+				if(old_state == msg->data[1]){}
+				else if(arm_states_transitions[old_state][msg->data[1]] == 1)
 					ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1],TRUE);
 				else if(find_state_path(old_state, msg->data[1])){
 					queue_id_t queueId = QUEUE_create();
@@ -652,6 +652,7 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 	}
 
 	if(actualised){
+		display(actual_pos);
 		bool_e res = move_updown_to(conv_potar_updown_to_dist(actual_pos));
 		if(!res && init){
 			*result = ACT_RESULT_NOT_HANDLED;
@@ -681,14 +682,6 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 
 	done = ACTQ_check_status_dcmotor(dcmotor_id, timeout_is_ok, result, error_code, line);
 
-	/*if(done && *result == ACT_RESULT_FAILED){
-		*result = ACT_RESULT_DONE;
-		*error_code = ACT_RESULT_ERROR_OK;
-		*line = __LINE__;
-		DCM_stop(ARM_ACT_UPDOWN_ID);
-		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
-		return TRUE;
-	}*/
 #ifdef I_AM_ROBOT_SMALL
 	if(conv_dist_to_potar_updown(order) - ARM_readDCMPos() < -EPSILON_POS_RUSH_FLOOR){
 #else
