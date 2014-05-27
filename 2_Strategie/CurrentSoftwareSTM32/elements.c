@@ -185,8 +185,8 @@ void TORCH_new_position(torch_choice_e choice){
 	Sint16 cos,sin;
 	COS_SIN_4096_get(global.env.pos.angle, &cos, &sin);
 
-	torch.x = (Sint32)cos*(SMALL_FORWARD_WIDTH+RADIUS_TORCH)/4096 + global.env.pos.x;
-	torch.y = (Sint32)sin*(SMALL_FORWARD_WIDTH+RADIUS_TORCH)/4096 + global.env.pos.y;
+	torch.x = (Sint32)cos*(SMALL_FORWARD_WIDTH+RADIUS_TORCH - 23)/4096 + global.env.pos.x; // -23 creux du robot
+	torch.y = (Sint32)sin*(SMALL_FORWARD_WIDTH+RADIUS_TORCH - 23)/4096 + global.env.pos.y;
 
 	if((global.env.color == RED && choice == OUR_TORCH) || (global.env.color != RED && choice == ADVERSARY_TORCH))
 		posTorch[0] = torch;

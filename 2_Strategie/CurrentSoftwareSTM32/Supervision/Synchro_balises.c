@@ -107,7 +107,7 @@ void SYNCHRO_process_main()
 
 	//Pour debug
 	if(offset != 0x0FFF) {
-		info_printf("Offset: %d\n", offset);
+		//info_printf("Offset: %d\n", offset);
 		offset = 0x0FFF;
 	}
 }
