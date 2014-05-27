@@ -335,8 +335,8 @@ void ARM_init_pos() {
 	CAN_msg_t msg = {ACT_ARM, {ACT_ARM_INIT}, 1};
 	debug_printf("Arm init pos :\n");
 #ifdef I_AM_ROBOT_SMALL
-	if(find_state() != ACT_ARM_POS_PARKED)
-		ARM_CAN_process_msg(&msg);
+	find_state();
+	ARM_CAN_process_msg(&msg);
 #else
 	if(find_state() == -1 || find_state() == ACT_ARM_POS_PRE_PARKED_1){
 		old_state = -1;
@@ -421,8 +421,9 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 					if(temp_old_state < 0){
 						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], ACT_ARM_POS_OPEN, &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
 						temp_old_state = ACT_ARM_POS_OPEN;
-					}
-					if(arm_states_transitions[temp_old_state][POS_INIT_ARM] == 1){
+					}else if(temp_old_state == POS_INIT_ARM || arm_states_transitions[temp_old_state][POS_INIT_ARM] == 1){
+						if(temp_old_state == POS_INIT_ARM)
+							old_state = -1;
 						QUEUE_add(queueId, &ARM_run_command, (QUEUE_arg_t){msg->data[0], POS_INIT_ARM, &ACTQ_finish_SendNothing}, QUEUE_ACT_Arm);
 					}else if(find_state_path(temp_old_state, POS_INIT_ARM)){
 						Uint8 i;
