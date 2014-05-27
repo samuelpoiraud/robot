@@ -400,4 +400,7 @@
 	// NB allant de 1 à 3
 	bool_e get_fresco(Uint8 nb);
 
+
+	Sint16 get_dist_torch_laser();
+
 #endif /* ndef ELEMENTS_H */

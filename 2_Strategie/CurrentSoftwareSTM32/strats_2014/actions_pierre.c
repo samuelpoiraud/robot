@@ -34,7 +34,6 @@ static void REACH_POINT_C1_send_request();
 
 
 #define MAX_HEIGHT_ARM	120
-#define CONVERT_LASERS_VALUE_TO_DIST(x)	(x*2)
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
@@ -1660,8 +1659,10 @@ void strat_test_evitement(){
 error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_zone_e dispose_zone){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_DEPLOY_TORCH,
 		IDLE,
+		OPEN,
 		SCAN,
 		TORCHE,
+		OPEN_SMALL_ARM,
 		DOWN_ARM,
 		UP_ARM,
 		DROP_TRIANGLE,
@@ -1677,39 +1678,49 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 		DONE
 	);
 
-	static GEOMETRY_point_t torch;
-
-	static GEOMETRY_point_t drop_pos[3];
 	static Uint8 niveau;
 	Sint16 value_adc;
 
 	switch(state){
 		case IDLE :
-			state = TORCHE;
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_PARKED);
+			state = ELEMENT_wait_time(5000, IDLE, OPEN);
 			niveau = 0;
 			break;
 
+		case OPEN :
+			state = ACT_arm_move(ACT_ARM_POS_OPEN, 0, 0, OPEN, SCAN, PARKED_NOT_HANDLED);
+			break;
+
 		case SCAN :
-			value_adc = CONVERT_LASERS_VALUE_TO_DIST(ADC_getValue(ADC_14));
+			value_adc = get_dist_torch_laser();
 
 			if(value_adc < 135 && value_adc > 120)
-				niveau = 2;
+				niveau = 0;
 			else if(value_adc < 105 && value_adc > 90)
 				niveau = 1;
 			else if(value_adc < 75 && value_adc > 60)
-				niveau = 0;
+				niveau = 2;
 			else
 				state = DONE;
 
-			if((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
-				state = PREPARE_ARM_RETURN;
-			else
+			if(state != DONE){
+				debug_printf("Niveau de torche détécté : %d\n", niveau);
 				state = TORCHE;
-
+			}else
+				debug_printf("Pas de détection, valeur : %d", value_adc);
 			break;
 
 		case TORCHE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE_SMALL_ARM, 0, 0, TORCHE, DOWN_ARM, OPEN_ARM_FAIL);
+			if(niveau == 0 || niveau == 1)
+				state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE_SMALL_ARM, 0, 0, TORCHE, OPEN_SMALL_ARM, OPEN_ARM_FAIL);
+			else
+				state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE_AUTO, 0, 0, TORCHE, DOWN_ARM, OPEN_ARM_FAIL);
+			break;
+
+		case OPEN_SMALL_ARM:
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, OPEN_SMALL_ARM, DOWN_ARM, ERROR);
 			break;
 
 		case DOWN_ARM:
@@ -1719,12 +1730,20 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 				else
 					ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 			}
-
-			state = ACT_elevator_arm_rush_in_the_floor(120-niveau*30, DOWN_ARM, UP_ARM, OPEN_ARM_FAIL);
+			if(niveau == 0 || niveau == 1)
+				state = ACT_elevator_arm_rush_in_the_floor(120-75-niveau*30, DOWN_ARM, UP_ARM, OPEN_ARM_FAIL);
+			else
+				state = ACT_elevator_arm_rush_in_the_floor(60, DOWN_ARM, UP_ARM, OPEN_ARM_FAIL);
 			break;
 
 		case UP_ARM:
 			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, OPEN_ARM_FAIL);
+			if(ON_LEAVING(UP_ARM)){
+				if((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
+					state = PREPARE_ARM_RETURN;
+				else
+					state = DROP_TRIANGLE;
+			}
 			break;
 
 		case DROP_TRIANGLE :
@@ -1744,11 +1763,10 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 					ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 			}
 
-			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? DONE:TORCHE);
+			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? DONE:OPEN);
 
-			if(ON_LEAVING(WAIT_TRIANGLE_BREAK)){
+			if(ON_LEAVING(WAIT_TRIANGLE_BREAK))
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
-			}
 			break;
 
 		case PREPARE_ARM_RETURN:
