@@ -19,6 +19,8 @@
 #define DECLARE_RX24(prefix)                { ARM_RX24   , prefix##_ID, prefix##_ASSER_TIMEOUT, prefix##_ASSER_POS_EPSILON, prefix##_ASSER_POS_LARGE_EPSILON, prefix##_MIN_VALUE, prefix##_MAX_VALUE, prefix##_MAX_TORQUE_PERCENT, 0                    , 0               , 0                , 0                    , 0                  , 0                , 0                , 0                , 0                 , 0                 , 0                 , NULL       }
 
 
+#define SMALL_VENTOUSE_HORIZONTALE 153
+
 // Liste de moteurs
 const ARM_motor_data_t ARM_MOTORS[] = {
 	DECLARE_DCMOTOR(ARM_ACT_UPDOWN, &ARM_readDCMPos),
@@ -84,7 +86,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{0		,0		,0		,0},	//ARM_ST_Pre_Parked_2			NOT USE
 		{-432	,154	,283,	249},	//ARM_ST_Parked
 		{-432	,152	,246,	245},	//ARM_ST_Mid
-		{-432	,145	,218,	152},	//ARM_ST_Open
+		{-432	,145	,218,	SMALL_VENTOUSE_HORIZONTALE},	//ARM_ST_Open
 
 		{0		,0		,0		,0},	//ARM_ST_On_Torche				// Distance factice
 		{0		,0		,0		,0},	//ARM_ST_On_Torche_Small_Arm	NOT USE
@@ -106,7 +108,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-432	,133	,65,	120},	//ARM_ST_Wait_Return
 
 		{-432	,115	,42,	148},	//ARM_ST_To_Prepare_Take_Return
-		{-432	,132	,56,	148},	//ARM_ST_To_Take_Return
+		{-432	,132	,56,	SMALL_VENTOUSE_HORIZONTALE},	//ARM_ST_To_Take_Return
 		{-432	,132	,56,	110},	//ARM_ST_To_Unblock_Return
 
 		{0		,0		,0		,0},	//ARM_ST_On_Triangle			// Distance factice
