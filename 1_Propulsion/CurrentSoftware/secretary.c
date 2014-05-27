@@ -440,7 +440,7 @@ void SECRETARY_send_coef(PROPULSION_coef_e i)
 	{
 		if(i <= ODOMETRY_COEF_CENTRIFUGAL)
 			coef = ODOMETRY_get_coef(i);
-		else	
+		else
 			coef = CORRECTOR_get_coef(i);
 		msg.sid = DEBUG_PROPULSION_COEF_IS;
 		msg.data[0] = i;
@@ -619,6 +619,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 
 		//Stop tout
 		case BROADCAST_STOP_ALL:
+			debug_printf("Broadcast_stop\n");
+			global.match_over = TRUE;
 			ROADMAP_add_order(  TRAJECTORY_STOP,
 								0,
 								0,
@@ -636,6 +638,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			WARNER_init();
 			//arret robot
 			SUPERVISOR_state_machine(EVENT_BROADCAST_STOP, 0);
+		break;
+
+		case BROADCAST_START:
+			debug_printf("Broadcast_start, \n");
+			global.match_started = TRUE;
 		break;
 
 		case BROADCAST_ALIM :

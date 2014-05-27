@@ -70,8 +70,7 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 			current_acknowledge = ack;
 			SUPERVISOR_error_check(TRUE);	//Remise à zéro de la vérif d'erreur
 			WARNER_inform(WARNING_NEW_TRAJECTORY, error_source);
-			if(state != SUPERVISOR_MATCH_ENDED)
-				state = SUPERVISOR_TRAJECTORY;
+			state = SUPERVISOR_TRAJECTORY;
 		break;
 
 		//REMONTEE D'INFORMATIONS A TRANSMETTRE.
@@ -127,8 +126,7 @@ void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 				current_acknowledge = NO_ACKNOWLEDGE;
 				error_transmitted = TRUE;
 			}
-			if(state != SUPERVISOR_MATCH_ENDED)
-				state = SUPERVISOR_ERROR;
+			state = SUPERVISOR_ERROR;
 		break;
 
 		//FIN DE MATCH
