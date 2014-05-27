@@ -36,7 +36,7 @@ typedef struct {
 	OperationFinishedCallback callback; //function called when operation is finished, can be NULL
 } QUEUE_arg_t;
 
-#define NB_QUEUE	8
+#define NB_QUEUE	10
 #define QUEUE_SIZE	32
 #define NB_SYNCHRO 8
 #define QUEUE_SYNCHRO_TIMEOUT 150 //15 secondes
