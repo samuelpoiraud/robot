@@ -63,7 +63,7 @@
 	#define TIME_TO_INC_RUSH			20		//ms
 	#define INC_RUSH					-5
 	#define TIME_RUSH_IN_FLOOR			5000
-	#define DIFF_POS_FICT_RUSH			25
+	#define DIFF_POS_FICT_RUSH			45
 	#define EPSILON_POS_RUSH_FLOOR		20
 #endif
 
@@ -71,14 +71,6 @@
 #define square(x)				((Sint32)(x)*(x))
 #define SIGNE(x)				(((x) >= 0)?1:-1)
 #define PROTECTION_SIN_COS(x)	(((x) > 1)?1:(((x) <-1)?-1:x))
-
-#ifdef I_AM_ROBOT_SMALL
-	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1822*(x)+29.086))
-	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1822+29.086/3.1822))
-#else
-	#define conv_dist_to_potar_updown(x) ((Sint16)(2.662*(x)-462.4))
-	#define conv_potar_updown_to_dist(x) ((Sint16)((x)*0.374+159.9))
-#endif
 
 
 typedef struct{
@@ -682,6 +674,9 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 
 	done = ACTQ_check_status_dcmotor(dcmotor_id, timeout_is_ok, result, error_code, line);
 
+	display(conv_dist_to_potar_updown(order));
+	display(conv_dist_to_potar_updown(order) - ARM_readDCMPos());
+
 #ifdef I_AM_ROBOT_SMALL
 	if(conv_dist_to_potar_updown(order) - ARM_readDCMPos() < -EPSILON_POS_RUSH_FLOOR){
 #else
@@ -695,6 +690,9 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_MAX_PWM_WAY0, ARM_ACT_UPDOWN_MAX_PWM_WAY1);
 		return TRUE;
 	}
+
+	display(absolute(actual_pos - ARM_readDCMPos()));
+	display(absolute(ARM_readDCMPos() - conv_dist_to_potar_updown(order)));
 
 	if(absolute(actual_pos - ARM_readDCMPos()) > DIFF_POS_FICT_RUSH){
 		if(absolute(ARM_readDCMPos() - conv_dist_to_potar_updown(order)) > EPSILON_POS_RUSH_FLOOR){

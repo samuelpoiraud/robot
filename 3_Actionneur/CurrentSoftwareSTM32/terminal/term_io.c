@@ -81,11 +81,12 @@ void uart_checker(unsigned char c){
 	}
 
 	if(EGAL_CARA_PRINT(c)){
+		debug_printf("---------------------- Position ----------------------\n");
 		for(i=0;i<terminal_motor_size;i++){
 			if(terminal_motor[i].is_ax12)
 				debug_printf("%s : %d\n", terminal_motor[i].name, AX12_get_position(terminal_motor[i].id));
 			else
-				debug_printf("%s : %d\n" , terminal_motor[i].name, terminal_motor[i].fun());
+				debug_printf("%s : value : %d /  real : %d\n" , terminal_motor[i].name, terminal_motor[i].fun(), conv_potar_updown_to_dist(terminal_motor[i].fun()));
 		}
 	}
 

@@ -514,6 +514,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_OPEN) \
 			XX(ACT_ARM_POS_ON_TORCHE) \
 			XX(ACT_ARM_POS_ON_TORCHE_SMALL_ARM) \
+			XX(ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE) \
 			XX(ACT_ARM_POS_PREPARE_1_TORCHE_AUTO) \
 			XX(ACT_ARM_POS_PREPARE_2_TORCHE_AUTO) \
 			XX(ACT_ARM_POS_ON_TORCHE_AUTO) \
@@ -542,7 +543,10 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_DISPOSED_SIMPLE) \
 			XX(ACT_ARM_POS_PREPARE_TAKE_ON_ROAD) \
 			XX(ACT_ARM_POS_TAKE_ON_ROAD) \
-			XX(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH)
+			XX(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH) \
+			XX(ACT_ARM_POS_DISPOSED_TORCH) \
+			XX(ACT_ARM_POS_ESCAPE_TORCH_1) \
+			XX(ACT_ARM_POS_ESCAPE_TORCH_2)
 
 		#define ACT_ARM_PRINT_POS 2  //Affiche les positions des actionneurs sur l'uart
 
