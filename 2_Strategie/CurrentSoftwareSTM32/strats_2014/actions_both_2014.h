@@ -22,6 +22,7 @@ typedef enum{
 	ADVERSARY_FIRES
 }protected_fires_e;
 
+void strat_tourne_en_rond(void);
 void strat_reglage_odo_rotation(void);
 void strat_reglage_odo_translation(void);
 void strat_reglage_odo_symetrie(void);

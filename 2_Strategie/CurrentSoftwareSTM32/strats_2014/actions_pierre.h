@@ -25,7 +25,6 @@
 void strat_inutile(void);
 void strat_lannion(void);
 void strat_test_fresque();
-void strat_tourne_en_rond(void);
 error_e strat_manage_fresco();
 error_e strat_file_fresco(Sint16 posY);
 //error_e strat_lance_launcher_ennemy();

@@ -38,6 +38,74 @@
 /* 							Fonctions de réglage odométrique		             */
 /* ----------------------------------------------------------------------------- */
 
+
+void strat_tourne_en_rond(void){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_TOURNE_EN_ROND,
+		IDLE,
+		POS_DEPART,
+		POS_POINT,
+		TOUR,
+		FIN,
+		DONE,
+		ERROR
+	);
+
+	displacement_t tour[6] = {
+		{{650,600},SLOW},
+		{{700,2250},SLOW},
+		{{960,2600},SLOW},
+		{{1500,2300},SLOW},
+		{{1500,750},SLOW},
+		{{1200,450},SLOW}
+	};
+
+	CAN_msg_t msg;
+
+	static Uint16 i = 0;
+	Uint16 nbTour = 1;
+
+	switch(state){
+	case IDLE:
+		msg.sid=ASSER_SET_POSITION;
+		msg.data[0]=500 >> 8;
+		msg.data[1]=500 & 0xFF;
+		msg.data[2]=120 >> 8;
+		msg.data[3]=120 & 0xFF;
+		msg.data[4]=PI4096/2 >> 8;
+		msg.data[5]=PI4096/2 & 0xFF;
+		msg.size = 6;
+		CAN_send(&msg);
+
+		state = POS_DEPART;
+		break;
+	case POS_DEPART:
+		state = try_going_until_break(global.env.pos.x,200,POS_DEPART,POS_POINT,ERROR,SLOW,(QS_WHO_AM_I_get_name() == BIG_ROBOT)?FORWARD:BACKWARD,NO_AVOIDANCE);
+		break;
+	case POS_POINT:
+		state = try_going_until_break(650,600,POS_POINT,TOUR,ERROR,SLOW,(QS_WHO_AM_I_get_name() == BIG_ROBOT)?FORWARD:BACKWARD,NO_AVOIDANCE);
+		break;
+	case TOUR:
+		state = try_going_multipoint(tour,6,TOUR,FIN,ERROR,(QS_WHO_AM_I_get_name() == BIG_ROBOT)?FORWARD:BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
+		break;
+	case FIN:
+		i++;
+
+		if(i >= nbTour)
+			state = DONE;
+		else
+			state = POS_POINT;
+
+		break;
+	case DONE:
+		break;
+	case ERROR:
+		break;
+	default:
+		break;
+	}
+
+}
+
 void strat_reglage_odo_rotation(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_COEF_PROPULSION,
 		IDLE,
