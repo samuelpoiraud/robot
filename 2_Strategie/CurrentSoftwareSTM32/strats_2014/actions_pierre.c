@@ -33,6 +33,8 @@ static void REACH_POINT_C1_send_request();
 // SWITCH_STRAT_3 : activation du ramassage de la torche.
 
 
+//#define DISPOSED_TORCH
+
 #define MAX_HEIGHT_ARM	120
 
 //Pour Activer le mode manual de pose de fresque
@@ -1649,7 +1651,7 @@ void strat_test_evitement(){
 	}
 }
 
-error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_zone_e dispose_zone){
+error_e ACT_arm_deploy_torche_pierre(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_DEPLOY_TORCH,
 		IDLE,
 		OPEN,
@@ -1658,6 +1660,7 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 		OPEN_SMALL_ARM,
 		DOWN_ARM,
 		UP_ARM,
+		UP_ARM_FAIL,
 		DROP_TRIANGLE,
 		WAIT_TRIANGLE_BREAK,
 		PREPARE_ARM_RETURN,
@@ -1695,6 +1698,10 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 				niveau = 1;
 			else if(value_adc < 75 && value_adc > 60)
 				niveau = 2;
+#ifdef	DISPOSED_TORCH
+			else if(value_adc < 46 && value_adc > 32)
+				niveau = 3;
+#endif
 			else
 				state = DONE;
 
@@ -1723,20 +1730,28 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 				else
 					ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 			}
-			if(niveau == 0 || niveau == 1)
-				state = ACT_elevator_arm_rush_in_the_floor(120-75-niveau*30, DOWN_ARM, UP_ARM, OPEN_ARM_FAIL);
+			if(niveau == 0)
+				state = ACT_elevator_arm_rush_in_the_floor(120-75, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
+			else if(niveau == 1)
+				state = ACT_elevator_arm_rush_in_the_floor(120-90, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
+			else if(niveau == 2)
+				state = ACT_elevator_arm_rush_in_the_floor(75, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
 			else
-				state = ACT_elevator_arm_rush_in_the_floor(60, DOWN_ARM, UP_ARM, OPEN_ARM_FAIL);
+				state = ACT_elevator_arm_rush_in_the_floor(40, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
 			break;
 
 		case UP_ARM:
 			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, OPEN_ARM_FAIL);
 			if(ON_LEAVING(UP_ARM)){
-				if((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
+				if(niveau == 1) // Va retourne le deuxieme triangle
 					state = PREPARE_ARM_RETURN;
 				else
 					state = DROP_TRIANGLE;
 			}
+			break;
+
+		case UP_ARM_FAIL:
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_FAIL, OPEN_ARM_FAIL, OPEN_ARM_FAIL);
 			break;
 
 		case DROP_TRIANGLE :
@@ -1746,11 +1761,13 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_2_AUTO, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
 			else if(niveau == 2)
 				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_3_AUTO, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
+			else if(niveau == 3)
+				state = ACT_arm_move(ACT_ARM_POS_DISPOSED_TORCH, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
 			break;
 
 		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
 			if(entrance){
-				if(niveau == 0 || niveau == 1)
+				if(niveau == 0)
 					ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 				else
 					ACT_pompe_order(ACT_POMPE_REVERSE, 100);
@@ -1766,23 +1783,24 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, PREPARE_ARM_RETURN, PREPARE_SMALL_ARM, OPEN_ARM_FAIL);
 			break;
 
-
 		case PREPARE_SMALL_ARM:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PREPARE_SMALL_ARM, RETURN, OPEN_ARM_FAIL);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, PREPARE_SMALL_ARM, RETURN, OPEN_ARM_FAIL);
 			break;
 
 		case RETURN:
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
-			state = ELEMENT_wait_time(500, RETURN, REPLACE_SMALL_ARM);
+			state = ELEMENT_wait_time(800, RETURN, REPLACE_SMALL_ARM);
 			break;
 
 		case REPLACE_SMALL_ARM:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, REPLACE_SMALL_ARM, DROP_TRIANGLE, OPEN_ARM_FAIL);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, REPLACE_SMALL_ARM, DROP_TRIANGLE, OPEN_ARM_FAIL);
 			break;
 
 		case OPEN_ARM_FAIL:{
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
 			static enum state_e state1, state2;
 
 			if(entrance){
@@ -1805,6 +1823,8 @@ error_e ACT_arm_deploy_torche_pierre(torch_choice_e choiceTorch, torch_dispose_z
 			break;
 
 		case PARKED_NOT_HANDLED:{
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
 			static enum state_e state1, state2;
 
 			if(entrance){

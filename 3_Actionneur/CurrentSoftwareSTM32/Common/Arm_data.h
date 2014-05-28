@@ -64,6 +64,14 @@ extern bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 // Etat à prendre pour initialiser le bras dans une position connue
 #define POS_INIT_ARM	ACT_ARM_POS_PARKED
 
+#ifdef I_AM_ROBOT_SMALL
+	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1822*(x)+29.086))
+	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1822+29.086/3.1822))
+#else
+	#define conv_dist_to_potar_updown(x) ((Sint16)(2.662*(x)-462.4))
+	#define conv_potar_updown_to_dist(x) ((Sint16)((x)*0.374+159.9))
+#endif
+
 // Etats à prendre pour exécuter le selftest du bras
 extern const SELFTEST_action_t arm_selftest_action[];
 extern const Uint8 ARM_SELFTEST_NUMBER;
