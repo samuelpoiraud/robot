@@ -470,10 +470,12 @@ error_e do_torch_pierre(){
 		DEPLOY_TORCH,
 		BACK,
 		GET_OUT_WITH_ERROR,
+		WAIT_BEFORE_GET_OUT_AGAIN,
 		DONE,
 		ERROR,
 		RETURN_NOT_HANDLED
 	);
+	static time32_t wait_time;
 
 	switch(state){
 		case IDLE:
@@ -508,14 +510,27 @@ error_e do_torch_pierre(){
 			state = try_advance(200,BACK,DONE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
-		case ERROR:
-			state = GET_OUT_WITH_ERROR;
+		case ERROR:	//Si on peut rendre la main, on le fait. Sinon, on doit s'extraire de la bordure où nous sommes.
+			if(est_dans_carre(700,1700,COLOR_Y(400),COLOR_Y(1000),(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				state = RETURN_NOT_HANDLED;	//On peut rendre la main
+			else
+			{	//On ne peut pas rendre la main... Soit on tente de s'extraire, soit on attend avant de retenter.
+				if(last_state == GET_OUT_WITH_ERROR)
+					state = WAIT_BEFORE_GET_OUT_AGAIN;
+				else
+					state = GET_OUT_WITH_ERROR;
+			}
 			break;
 
 		case GET_OUT_WITH_ERROR :
-			state = try_going(1450,COLOR_Y(640),GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,GET_OUT_WITH_ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(1450,COLOR_Y(640),GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
-
+		case WAIT_BEFORE_GET_OUT_AGAIN:	//Si on a pas réussi à s'extraire, on attend une seconde avant de retenter.
+			if(entrance)
+				wait_time = global.env.match_time;
+			if(global.env.match_time > wait_time + 1000)
+				state = GET_OUT_WITH_ERROR;
+			break;
 		case DONE:
 			ACT_torch_locker(ACT_TORCH_Locker_Inside);
 			state = IDLE;
