@@ -500,7 +500,7 @@ error_e do_torch_pierre(){
 			break;
 
 		case DEPLOY_TORCH:
-			state = check_sub_action_result(ACT_arm_deploy_torche_pierre(OUR_TORCH, HEARTH_OUR),DEPLOY_TORCH,BACK,ERROR);
+			state = check_sub_action_result(ACT_arm_deploy_torche_pierre(),DEPLOY_TORCH,BACK,ERROR);
 			break;
 
 		case BACK:
