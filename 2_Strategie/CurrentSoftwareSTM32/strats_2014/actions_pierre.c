@@ -436,7 +436,7 @@ void strat_homologation(void)
 			// Mettre le bras en position de sortie
 			state1 = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, WAIT_TELL_GUY, GET_OUT, ERROR);
 
-			if((guy_get_out_init && state1 == GET_OUT) || global.env.match_time > last_time + 3000)
+			if((guy_get_out_init && state1 == GET_OUT) || global.env.match_time > last_time + 4000)
 				state = GET_OUT;
 			}break;
 		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
