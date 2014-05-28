@@ -276,13 +276,18 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			for(i = 0; i<MAX_BEACON_FOES; i++)
 			{
 				beacon_ir_objects[i].fiability_error = msg->data[0+4*i];
-				if((beacon_ir_objects[i].fiability_error & ~SIGNAL_INSUFFISANT) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
+				if((beacon_ir_objects[i].fiability_error & ~SIGNAL_INSUFFISANT & ~TACHE_TROP_GRANDE) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
 					beacon_ir_objects[i].enable = TRUE;
 				else
 					beacon_ir_objects[i].enable = FALSE;
 
+
 				beacon_ir_objects[i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
-				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*10;
+				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*12;	//*12 : normalement, c'est *10, mais on corrige ici la précision de la distance.
+
+				if(beacon_ir_objects[i].fiability_error & TACHE_TROP_GRANDE)
+					beacon_ir_objects[i].dist = 250;	//Lorsque l'on reçoit l'erreur TACHE TROP GRANDE, la distance est fausse, mais l'adversaire est probablement très proche. On impose 25cm.
+
 				//filtrage de la distance
 				beacon_ir_objects[i].dist = beacon_ir_distance_filter(beacon_ir_objects[i].enable,i,beacon_ir_objects[i].dist);
 
