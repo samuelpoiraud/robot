@@ -340,21 +340,9 @@ error_e sub_action_initiale(void)
 			state = check_sub_action_result(strat_manage_fresco(),DO_FRESCO,success_state,fail_state);
 			break;
 
-		case DEPLOY_TORCH:{
-			static Uint16 last_time;
-
-			if(entrance){ // Ouvre les pinces
-				last_time = global.env.match_time;
-				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
-			}
-
-			if(guy_get_out_init || global.env.match_time > last_time + 2000){
-				state = DO_TREE_2;	//TODO !
-			}
-
-			}break;
-
-
+		case DEPLOY_TORCH:
+			state = check_sub_action_result(do_torch_pierre(),DEPLOY_TORCH,DO_TREE_2,ERROR);
+			break;
 
 		case DO_TREE_2:
 			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_2:CHOICE_TREE_1,TRIGO),DO_TREE_2,DO_FIRE_HOME,ERROR);
@@ -512,6 +500,9 @@ error_e do_torch_pierre(){
 			break;
 
 		case BACK:
+			if(entrance)
+				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
+
 			state = try_advance(200,BACK,DONE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
@@ -524,11 +515,13 @@ error_e do_torch_pierre(){
 			break;
 
 		case DONE:
+			ACT_torch_locker(ACT_TORCH_Locker_Inside);
 			state = IDLE;
 			return END_OK;
 			break;
 
 		case RETURN_NOT_HANDLED :
+			ACT_torch_locker(ACT_TORCH_Locker_Inside);
 			state = IDLE;
 			return NOT_HANDLED;
 			break;
