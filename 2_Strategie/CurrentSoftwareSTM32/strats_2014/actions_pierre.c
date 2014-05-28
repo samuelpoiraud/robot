@@ -471,7 +471,74 @@ void strat_homologation(void)
 	}
 }
 
+error_e do_torch_pierre(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_DO_TORCH,
+		IDLE,
+		GET_IN,
+		GOTO_CENTER,
+		GOTO_HEARTH,
+		DEPLOY_TORCH,
+		BACK,
+		GET_OUT_WITH_ERROR,
+		DONE,
+		ERROR,
+		RETURN_NOT_HANDLED
+	);
 
+	switch(state){
+		case IDLE:
+			//Zone d'acceptation
+			if(est_dans_carre(500, 1650, COLOR_Y(350), COLOR_Y(1150), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				state = GOTO_CENTER;
+			else
+				state = GET_IN;
+
+			break;
+
+		case GET_IN :
+			state = PATHFIND_try_going(COLOR_NODE(A2),GET_IN, GOTO_CENTER, RETURN_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case GOTO_CENTER: // Va aller se centrer sur la torche
+			state = try_going(1550,COLOR_Y(550),GOTO_CENTER,GOTO_HEARTH,RETURN_NOT_HANDLED,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case GOTO_HEARTH:
+			state = try_going(1700,COLOR_Y(375),GOTO_CENTER,DEPLOY_TORCH,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case DEPLOY_TORCH:
+			state = check_sub_action_result(ACT_arm_deploy_torche_pierre(OUR_TORCH, HEARTH_OUR),DEPLOY_TORCH,BACK,ERROR);
+			break;
+
+		case BACK:
+			state = try_advance(200,BACK,DONE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case ERROR:
+			state = GET_OUT_WITH_ERROR;
+			break;
+
+		case GET_OUT_WITH_ERROR :
+			state = try_going(1450,COLOR_Y(640),GET_OUT_WITH_ERROR,RETURN_NOT_HANDLED,GET_OUT_WITH_ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			state = IDLE;
+			return END_OK;
+			break;
+
+		case RETURN_NOT_HANDLED :
+			state = IDLE;
+			return NOT_HANDLED;
+			break;
+
+		default:
+			break;
+	}
+
+	return IN_PROGRESS;
+}
 
 void strat_inutile(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_INUTILE,
