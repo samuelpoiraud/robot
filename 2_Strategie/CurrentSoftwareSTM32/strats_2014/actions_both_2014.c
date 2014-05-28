@@ -66,15 +66,15 @@ void strat_tourne_en_rond(void){
 
 	switch(state){
 	case IDLE:
-		msg.sid=ASSER_SET_POSITION;
-		msg.data[0]=500 >> 8;
-		msg.data[1]=500 & 0xFF;
-		msg.data[2]=120 >> 8;
-		msg.data[3]=120 & 0xFF;
-		msg.data[4]=PI4096/2 >> 8;
-		msg.data[5]=PI4096/2 & 0xFF;
-		msg.size = 6;
-		CAN_send(&msg);
+//		msg.sid=ASSER_SET_POSITION;
+//		msg.data[0]=500 >> 8;
+//		msg.data[1]=500 & 0xFF;
+//		msg.data[2]=120 >> 8;
+//		msg.data[3]=120 & 0xFF;
+//		msg.data[4]=PI4096/2 >> 8;
+//		msg.data[5]=PI4096/2 & 0xFF;
+//		msg.size = 6;
+//		CAN_send(&msg);
 
 		state = POS_DEPART;
 		break;

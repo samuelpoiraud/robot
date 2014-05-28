@@ -404,7 +404,7 @@ void strat_homologation_guy(){
 			break;
 
 		case POS_INTER:
-			state  = try_going_until_break(1385,COLOR_Y(920),POS_INTER,TRIANGLE_2, TRIANGLE_2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state  = try_going_until_break(1300,COLOR_Y(1000),POS_INTER,TRIANGLE_2, TRIANGLE_2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case DO_OUR_TORCH:
@@ -438,7 +438,7 @@ void strat_homologation_guy(){
 			break;
 
 		case TRIANGLE_ADV:
-			state = check_sub_action_result(sub_action_triangle_on_edge((global.env.color == RED)?V_TRIANGLE_4:V_TRIANGLE_1),TRIANGLE_ADV,DONE,ERROR);
+			state = check_sub_action_result(sub_action_triangle_on_edge((global.env.color == RED)?V_TRIANGLE_4:V_TRIANGLE_1),TRIANGLE_ADV,PROTECTED_FIRE,PROTECTED_FIRE);
 			break;
 
 		case PROTECTED_FIRE:
