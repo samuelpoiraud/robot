@@ -346,11 +346,15 @@ void strat_homologation_guy(){
 		INIT,
 		FALL_FIRST_FIRE,
 		GET_OUT_POS_START,
-		GOTO_ADVERSARY_ZONE,
+		FALL_FIRST_TRIANGLE,
+		RUSH_IN_THE_FLOOR,
 		PATHFIND,
 		DO_OUR_TORCH,
 		MOVE_ADV_TORCH,
 		DO_ADV_TORCH,
+		POS_PARKED,
+		POS_OPEN,
+		POS_INTER,
 		TRIANGLE_2,
 		TRIANGLE_3,
 		TRIANGLE_ADV,
@@ -360,7 +364,6 @@ void strat_homologation_guy(){
 	);
 
 	static bool_e we_prevented_pierre_to_get_out = FALSE;
-	static pathfind_node_id_t pathfind;
 
 	switch(state)
 	{
@@ -380,9 +383,30 @@ void strat_homologation_guy(){
 				ASSER_set_acceleration(80);	//Acceleration de guy au démarrage...
 			}
 
-			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,DO_OUR_TORCH, DO_OUR_TORCH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,POS_OPEN, POS_OPEN,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 
 			break;
+
+		case POS_OPEN:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN, 0, 0, POS_OPEN, RUSH_IN_THE_FLOOR, FALL_FIRST_TRIANGLE);
+			break;
+
+		case RUSH_IN_THE_FLOOR:
+			state = ACT_elevator_arm_rush_in_the_floor(100, RUSH_IN_THE_FLOOR, FALL_FIRST_TRIANGLE, FALL_FIRST_TRIANGLE);
+			break;
+
+		case FALL_FIRST_TRIANGLE:
+			state  = try_going_until_break(1230,COLOR_Y(470),FALL_FIRST_TRIANGLE,POS_PARKED, POS_PARKED,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case POS_PARKED:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, POS_PARKED, POS_INTER, POS_INTER);
+			break;
+
+		case POS_INTER:
+			state  = try_going_until_break(1385,COLOR_Y(920),POS_INTER,TRIANGLE_2, TRIANGLE_2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
 		case DO_OUR_TORCH:
 			switch(do_torch(OUR_TORCH,FALSE,HEARTH_CENTRAL,NO_DISPOSE))
 			{
@@ -406,15 +430,15 @@ void strat_homologation_guy(){
 			break;
 
 		case TRIANGLE_2:
-			state = check_sub_action_result(ACT_take_triangle_on_edge(V_TRIANGLE_2),TRIANGLE_2,TRIANGLE_3,TRIANGLE_3);
+			state = check_sub_action_result(sub_action_triangle_on_edge((global.env.color == RED)?V_TRIANGLE_2:V_TRIANGLE_3),TRIANGLE_2,TRIANGLE_3,TRIANGLE_3);
 			break;
 
 		case TRIANGLE_3:
-			state = check_sub_action_result(ACT_take_triangle_on_edge(V_TRIANGLE_3),TRIANGLE_3,TRIANGLE_ADV,TRIANGLE_ADV);
+			state = check_sub_action_result(sub_action_triangle_on_edge((global.env.color == RED)?V_TRIANGLE_3:V_TRIANGLE_2),TRIANGLE_3,TRIANGLE_ADV,TRIANGLE_ADV);
 			break;
 
 		case TRIANGLE_ADV:
-			state = check_sub_action_result(ACT_take_triangle_on_edge((global.env.color == RED)?V_TRIANGLE_4:V_TRIANGLE_1),TRIANGLE_ADV,DONE,ERROR);
+			state = check_sub_action_result(sub_action_triangle_on_edge((global.env.color == RED)?V_TRIANGLE_4:V_TRIANGLE_1),TRIANGLE_ADV,DONE,ERROR);
 			break;
 
 		case PROTECTED_FIRE:
@@ -1759,6 +1783,11 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 
 		case BACK:
 			state = try_going(triangle_pos_end[vertical_triangle].x, triangle_pos_end[vertical_triangle].y, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, FAST, ANY_WAY, DODGE_AND_WAIT);
+
+#ifdef NOT_DROP_TRI_VERTICAL_HEARTH
+			if(ON_LEAVING(BACK))
+				state = DROP;
+#endif
 			break;
 
 		case RUSH_IN_THE_FLOOR:
@@ -1830,7 +1859,11 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case EXTRACT:
+#ifdef NOT_DROP_TRI_VERTICAL_HEARTH
+			state = DONE;
+#else
 			state = try_advance(300, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
+#endif
 			break;
 
 		case DONE:
@@ -1924,7 +1957,7 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			state = try_going(triangle_pos_begin[vertical_triangle].x, triangle_pos_begin[vertical_triangle].y, BACK, PLACEMENT_BRAS_2, PARKED_NOT_HANDLED, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 
 #ifdef NOT_DROP_TRI_VERTICAL_HEARTH
-			if(ON_LEAVING(BACK))
+			if(ON_LEAVING(BACK) && strat_homologation_triangle && (vertical_triangle == V_TRIANGLE_1 || vertical_triangle == V_TRIANGLE_4))
 				state = DROP;
 #endif
 			break;
