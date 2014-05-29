@@ -378,8 +378,8 @@ void hokuyo_find_valid_points(void)
 						|| 	(y_absolute > FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_STOP && y_absolute < FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_START)	)
 						point_filtered = TRUE;	//on refuse les points
 
-				if((x_absolute < 500 && x_absolute	> 50) && ((y_absolute < 400 && y_absolute >50) || (y_absolute < 2950 && y_absolute >2600)))
-						point_filtered = TRUE;	//on refuse les points spawn
+				//if((x_absolute < 500 && x_absolute	> 50) && ((y_absolute < 400 && y_absolute >50) || (y_absolute < 2950 && y_absolute >2600)))
+				//		point_filtered = TRUE;	//on refuse les points de la zone de départ...
 
 
 				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers

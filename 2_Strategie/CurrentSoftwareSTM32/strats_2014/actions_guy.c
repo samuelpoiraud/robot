@@ -77,7 +77,7 @@ bool_e strat_homologation_triangle = FALSE;
 #define DIM_BACK_TORCH 200
 #define RADIUS_TORCH 80
 #define NOT_DROP_TRI_VERTICAL_HEARTH // Ne dépose pas les triangles verticale si define
-#define MANCHOT
+//#define MANCHOT
 
 typedef enum{
 	NORTH_MAMMOUTH = 0,
@@ -386,7 +386,7 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case THIRD_MANCHOT:
-			state = try_going(1600,COLOR_Y(1700),THIRD_MANCHOT,ADV_FIRES_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(1600,COLOR_Y(1700),THIRD_MANCHOT,ADV_FIRES_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 
 			if(ON_LEAVING(THIRD_MANCHOT) && state == GOTO_ADVERSARY_ZONE && global.env.pos.y > 1600)
 				state = DONE;
@@ -1760,6 +1760,10 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		IDLE,
 		CHECK_POSITION,
 		GET_IN,
+		SHOULD_WE_DO_CALAGE,
+		GOTO_CALAGE_X,
+		CALAGE_X,
+		BACK_FROM_CALAGE_X,
 		ACTION,
 		ERROR,
 		DONE
@@ -1775,24 +1779,62 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 					|| (save_vertical_triangle == V_TRIANGLE_2 && est_dans_carre(1200, 2000, 800, 2200, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					|| (save_vertical_triangle == V_TRIANGLE_3 && est_dans_carre(1200, 2000, 800, 2200, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 					|| (save_vertical_triangle == V_TRIANGLE_4 && est_dans_carre(300, 1800, 2000, 3000, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
-				state = ACTION;
+				state = SHOULD_WE_DO_CALAGE;
 			else
 				state = GET_IN;
 			break;
 
 		case GET_IN:
 			if(save_vertical_triangle == V_TRIANGLE_1)
-				state = PATHFIND_try_going(A1, GET_IN, ACTION, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(A1, GET_IN, SHOULD_WE_DO_CALAGE, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			else if(save_vertical_triangle == V_TRIANGLE_2)
-				state = PATHFIND_try_going(C3, GET_IN, ACTION, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(C3, GET_IN, SHOULD_WE_DO_CALAGE, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			else if(save_vertical_triangle == V_TRIANGLE_3)
-				state = PATHFIND_try_going(W3, GET_IN, ACTION, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(W3, GET_IN, SHOULD_WE_DO_CALAGE, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			else if(save_vertical_triangle == V_TRIANGLE_4)
-				state = PATHFIND_try_going(Z1, GET_IN, ACTION, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+				state = PATHFIND_try_going(Z1, GET_IN, SHOULD_WE_DO_CALAGE, ERROR, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
 			else
 				state = ERROR;
 			break;
 
+		case SHOULD_WE_DO_CALAGE:
+			state = ACTION;	//Par défaut, pas de calage.
+
+			if(save_vertical_triangle == V_TRIANGLE_1 && !foe_in_square(FALSE,0,500,0,500))
+			{	//Si on veut faire le feu de départ, et s'il n'y a pas de robot dans la zone de départ rouge... on va tenter un calage
+				state = GOTO_CALAGE_X;
+			}
+
+			if(save_vertical_triangle == V_TRIANGLE_4 && !foe_in_square(FALSE,0,500,2500,3000))
+			{	//Si on veut faire le feu de départ, et s'il n'y a pas de robot dans la zone de départ rouge... on va tenter un calage
+				state = GOTO_CALAGE_X;
+			}
+			break;
+
+		case GOTO_CALAGE_X:
+		{
+			static displacement_t displacements[2];
+			if(entrance)
+			{
+				displacements[0] = (displacement_t){(GEOMETRY_point_t){300, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
+				displacements[1] = (displacement_t){(GEOMETRY_point_t){150, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
+			}
+			state = try_going_multipoint(displacements,2,state,CALAGE_X,ACTION,FORWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			break;
+		}
+		case CALAGE_X:
+			switch(action_recalage_x(FORWARD, 0, 0))
+			{
+				case IN_PROGRESS:
+					break;
+				default:
+					state = BACK_FROM_CALAGE_X;
+					break;
+			}
+			break;
+		case BACK_FROM_CALAGE_X:
+			state = try_going_until_break(800,(save_vertical_triangle == V_TRIANGLE_1)?300:2700,state,ACTION,ACTION,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			break;
 		case ACTION:
 			if((global.env.color == RED && (save_vertical_triangle == V_TRIANGLE_1 || save_vertical_triangle == V_TRIANGLE_3))
 					|| (global.env.color == YELLOW && (save_vertical_triangle == V_TRIANGLE_2 || save_vertical_triangle == V_TRIANGLE_4)))
@@ -1818,34 +1860,6 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case ERROR:
-			//Si on échoue en faisant l'action -> on désactive la subaction, pas la peine de retenter un feu à moitié tombé.....
-			//Si on échoue en GET_IN, le feu est probablement toujours là... il faudra retourner le faire !
-			if(entrance)
-			{
-				if(last_state == ACTION)
-				{
-					switch(vertical_triangle)
-					{
-						case V_TRIANGLE_1: // Base rouge
-							if(global.env.color == YELLOW)
-								set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
-							break;
-						case V_TRIANGLE_2: // Milieu côté rouge
-							set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_2,TRUE);
-							break;
-						case V_TRIANGLE_3: // Milieu côté jaune
-							set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_3,TRUE);
-							break;
-						case V_TRIANGLE_4:
-							if(global.env.color == RED)
-								set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
-							break;
-						default:
-							break;
-
-					}
-				}
-			}
 			RESET_MAE();
 			return sub_error;
 
@@ -1889,9 +1903,16 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		{1685,		1700-OFFSET_V_TRIANGLE},
 		{800+OFFSET_V_TRIANGLE,	2720}
 	};
-
+	static Sint16 offset_x, offset_y;
 	switch (state) {
 		case IDLE:
+			//Calcul des offsets liés à un éventuel calage récent.
+			offset_x = 0;
+			offset_y = 0;
+			if(global.env.match_time - global.env.recalage_x.last_time < 10000)	//Il y a moins de 10 secondes que nous nous sommes callés
+				offset_x = global.env.recalage_x.offset;
+			if(global.env.match_time - global.env.recalage_y.last_time < 10000)	//Il y a moins de 10 secondes que nous nous sommes callés
+				offset_x = global.env.recalage_y.offset;
 			state = PLACEMENT_INIT;
 			break;
 
@@ -1900,6 +1921,31 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case ROTATION:
+			if(entrance)
+			{
+				//Nous sommes placés face au feu.. on considère qu'il est inutile de refaire plus tard cette action si l'on échoue
+				switch(vertical_triangle)
+				{
+					case V_TRIANGLE_1: // Base rouge
+						if(global.env.color == YELLOW)
+							set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
+						break;
+					case V_TRIANGLE_2: // Milieu côté rouge
+						set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_2,TRUE);
+						break;
+					case V_TRIANGLE_3: // Milieu côté jaune
+						set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_3,TRUE);
+						break;
+					case V_TRIANGLE_4:
+						if(global.env.color == RED)
+							set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
+						break;
+					default:
+						break;
+
+				}
+			}
+
 			if(vertical_triangle == V_TRIANGLE_1)
 				state = try_go_angle(-PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
 			if(vertical_triangle == V_TRIANGLE_2 || vertical_triangle == V_TRIANGLE_3)
@@ -2057,6 +2103,32 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case ROTATION:
+
+			if(entrance)
+			{
+				//Nous sommes placés face au feu.. on considère qu'il est inutile de refaire plus tard cette action si l'on échoue
+				switch(vertical_triangle)
+				{
+					case V_TRIANGLE_1: // Base rouge
+						if(global.env.color == YELLOW)
+							set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
+						break;
+					case V_TRIANGLE_2: // Milieu côté rouge
+						set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_2,TRUE);
+						break;
+					case V_TRIANGLE_3: // Milieu côté jaune
+						set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_3,TRUE);
+						break;
+					case V_TRIANGLE_4:
+						if(global.env.color == RED)
+							set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
+						break;
+					default:
+						break;
+
+				}
+			}
+
 			if(vertical_triangle == V_TRIANGLE_1)
 				state = try_go_angle(-PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
 			if(vertical_triangle == V_TRIANGLE_2 || vertical_triangle == V_TRIANGLE_3)
