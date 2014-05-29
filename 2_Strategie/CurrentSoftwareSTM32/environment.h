@@ -108,7 +108,7 @@
 	}map_state_e;
 
 	typedef struct{
-		GEOMETRY_point_t offset;
+		Sint16 offset;
 		time32_t last_time;
 	}recalage_e;
 
@@ -126,7 +126,8 @@
 		bool_e ask_asser_calibration;
 		bool_e ask_start;
 		bool_e alim;
-		recalage_e recalage;
+		recalage_e recalage_x;
+		recalage_e recalage_y;
 		Uint16 alim_value;		// en mV
 		asser_env_t asser;
 		position_t pos;					//comme son nom l'indique, c'est la position de notre robot

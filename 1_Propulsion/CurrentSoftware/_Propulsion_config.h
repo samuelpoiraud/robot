@@ -347,7 +347,7 @@
 		// pour calculer la distance correspondant à 100% moteur (hors terme dérivé) :
 		//		distance_erreur_mini = 100/Kp = 100/8 = 12.5 cm
 
-	#define BIG_TRESHOLD_CALIBRATION_TRANSLATION 	100000 			//Attention, forcément inférieur au seuil d'erreur distance !
+	#define BIG_TRESHOLD_CALIBRATION_TRANSLATION 	150000 			//Attention, forcément inférieur au seuil d'erreur distance !
 	#define SMALL_TRESHOLD_CALIBRATION_TRANSLATION 	100000 			//Attention, forcément inférieur au seuil d'erreur distance !
 				// Attention, dépend aussi fortement de la vitesse en calage..
 				//Si cette valeur est trop faible, le point fictif sera trop loin du robot à cause du besoin de vitesse...
