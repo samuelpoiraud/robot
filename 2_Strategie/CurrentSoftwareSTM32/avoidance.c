@@ -743,7 +743,7 @@ bool_e foe_in_path(bool_e verbose)
 				{
 					in_path = TRUE;	//On est dans le rectangle d'évitement !!!
 					if(verbose)
-						SD_printf("FOE[%d]_IN_PATH|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, global.env.foe[i].dist, global.env.foe[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
+						SD_printf("FOE[%d]_IN_PATH|%c|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, (global.env.foe[i].from == DETECTION_FROM_BEACON_IR)?'B':'H',global.env.foe[i].dist, global.env.foe[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
 				}
 		}
 	}
