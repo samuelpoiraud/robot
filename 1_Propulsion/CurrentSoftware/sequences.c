@@ -11,7 +11,7 @@
 #include "copilot.h"
 
 //border_mode peut être BORDER_MODE_WITH_UPDATE_POSITION ou BORDER_MODE
-void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, acknowledge_e acquittement, Sint32 far_point_x, Sint32 far_point_y, border_mode_e border_mode, corrector_e corrector)
+void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, ASSER_speed_e rush_speed, acknowledge_e acquittement, Sint32 far_point_x, Sint32 far_point_y, border_mode_e border_mode, corrector_e corrector)
 {
 	Sint16 cos_a, sin_a;
 	//on va vers l'angle demandé.
@@ -33,9 +33,9 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, acknowledge_e acquittem
 
 	//le point obtenu cos / sin est situé à 4096 mm de notre position, et droit devant nous !
 	if(far_point_x || far_point_y)
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, (QS_WHO_AM_I_get() == PIERRE)?16:16, acquittement, corrector);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, rush_speed, acquittement, corrector);
 	else
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a, sin_a, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, (QS_WHO_AM_I_get() == PIERRE)?16:16, acquittement, corrector);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a, sin_a, 0, RELATIVE, NOT_NOW, way, border_mode, NO_MULTIPOINT, rush_speed, acquittement, corrector);
 }
 
 // Calibration de PIERRE ET GUY
@@ -81,7 +81,7 @@ void SEQUENCES_calibrate()
 		}
 
 		//Calage en Y
-		SEQUENCES_rush_in_the_wall(teta, FORWARD, NO_ACKNOWLEDGE, 0, y, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
+		SEQUENCES_rush_in_the_wall(teta, FORWARD, 16, NO_ACKNOWLEDGE, 0, y, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
 
 		//Eloignement de la bordure
 		if(color == RED)
@@ -94,7 +94,7 @@ void SEQUENCES_calibrate()
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, -350, 0,0, RELATIVE, NOT_NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
 
 		//Calage en X
-		SEQUENCES_rush_in_the_wall(PI4096, FORWARD, NO_ACKNOWLEDGE, -4096, 0, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
+		SEQUENCES_rush_in_the_wall(PI4096, FORWARD, 16, NO_ACKNOWLEDGE, -4096, 0, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
 
 		//Eloignement de la bordure pour calage en Y
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 350, 0, 0, RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);
@@ -126,7 +126,7 @@ void SEQUENCES_calibrate()
 		}
 
 		//Calage en Y
-		SEQUENCES_rush_in_the_wall(teta, FORWARD, NO_ACKNOWLEDGE, 0, y, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
+		SEQUENCES_rush_in_the_wall(teta, FORWARD, 16, NO_ACKNOWLEDGE, 0, y, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
 
 		if(color == RED)
 			y = 320;
@@ -141,7 +141,7 @@ void SEQUENCES_calibrate()
 		//Calage en X
 		x = 4096;
 		teta = 0;
-		SEQUENCES_rush_in_the_wall(teta, FORWARD, NO_ACKNOWLEDGE, x, 0, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
+		SEQUENCES_rush_in_the_wall(teta, FORWARD, 16, NO_ACKNOWLEDGE, x, 0, BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
 
 		//Fait avancer du bord
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, -1000, 0,0, RELATIVE, NOT_NOW, BACKWARD, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE);

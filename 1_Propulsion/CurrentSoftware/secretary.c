@@ -615,7 +615,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 
 		break;
 		case ASSER_RUSH_IN_THE_WALL:
-			SEQUENCES_rush_in_the_wall((U16FROMU8(msg->data[2],msg->data[3])), msg->data[0], ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data[1])?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
+			SEQUENCES_rush_in_the_wall((U16FROMU8(msg->data[2],msg->data[3])), msg->data[0], SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data[1])?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
 		break;
 
 		//Stop tout
