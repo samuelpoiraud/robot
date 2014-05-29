@@ -116,8 +116,8 @@
 	//Si le robot va trop loin, il faut augmenter le coeff et vice versa
 
 
-	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (0)
-	#define BIG_ODOMETRY_COEF_SYM_DEFAULT 0x0032
+	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (0)//(0x0010)
+	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0x0032)
 
 	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010F05	//Guy : 92mm entre roue codeuse et centre
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000AEEE  	//Pierre : 138mm entre roue codeuse et centre - théorique : B308
@@ -348,7 +348,7 @@
 		//		distance_erreur_mini = 100/Kp = 100/8 = 12.5 cm
 
 	#define BIG_TRESHOLD_CALIBRATION_TRANSLATION 	200000 			//Attention, forcément inférieur au seuil d'erreur distance !
-	#define SMALL_TRESHOLD_CALIBRATION_TRANSLATION 	200000 			//Attention, forcément inférieur au seuil d'erreur distance !
+	#define SMALL_TRESHOLD_CALIBRATION_TRANSLATION 	100000 			//Attention, forcément inférieur au seuil d'erreur distance !
 				// Attention, dépend aussi fortement de la vitesse en calage..
 				//Si cette valeur est trop faible, le point fictif sera trop loin du robot à cause du besoin de vitesse...
 

@@ -478,7 +478,7 @@ arrived_e Decision_robot_arrive_bordure(void)
 		return DEBUG_get_we_touch_border();
 	#endif
 	//si on est en mode calage, la condition d'arrivée est un écart entre le point fictif et notre position...
-	if(absolute(global.ecart_translation)>(QS_WHO_AM_I_get()==BIG_ROBOT)?BIG_TRESHOLD_CALIBRATION_TRANSLATION:SMALL_TRESHOLD_CALIBRATION_TRANSLATION)
+	if(absolute(global.ecart_translation)>((QS_WHO_AM_I_get()==BIG_ROBOT)?BIG_TRESHOLD_CALIBRATION_TRANSLATION:SMALL_TRESHOLD_CALIBRATION_TRANSLATION))
 	{
 		//accepter l'écart obtenu...
 		PILOT_referential_reset();
