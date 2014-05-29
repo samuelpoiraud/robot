@@ -1123,8 +1123,8 @@ error_e extraction_of_foe(ASSER_speed_e speed){
 
 			for(i = 0; i < 12; i++)	//Pour chaque point parmi les 12...
 			{
-				//Si je peux tourner là où je suis, ou que les points que je vais calculer sont pile devant ou pile derrière... alors je calcule le point i
-				if(i_can_turn_in_my_position || i == 0 || i == 6)
+				//Si je peux tourner là où je suis, ou que les points que je vais calculer sont pile devant ou pile derrière... à 30° près... alors je calcule le point i
+				if(i_can_turn_in_my_position || i <= 1 || (i >=5 && i<=7) || i>=11)
 				{
 					//Calcul des coordonnées du point.
 					COS_SIN_4096_get((PI4096*30*i + global.env.pos.angle)/180,&cos,&sin);
