@@ -1187,10 +1187,9 @@ error_e action_recalage_x(way_e sens, Sint16 wanted_x, Sint16 diff_x){
 
 		case WAIT :
 			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
-				global.env.recalage.offset.x = global.env.pos.x - wanted_x;
-				global.env.recalage.offset.y = 0;
-				global.env.recalage.last_time = global.env.match_time;
-				display(global.env.recalage.offset.x);
+				global.env.recalage_x.offset = global.env.pos.x - wanted_x;
+				global.env.recalage_x.last_time = global.env.match_time;
+				display(global.env.recalage_x.offset);
 				state = GET_OUT;
 			}
 			break;
@@ -1262,10 +1261,9 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 
 		case WAIT :
 			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
-				global.env.recalage.offset.x = 0;
-				global.env.recalage.offset.y = global.env.pos.y - wanted_y;
-				global.env.recalage.last_time = global.env.match_time;
-				display(global.env.recalage.offset.y);
+				global.env.recalage_y.offset = global.env.pos.y - wanted_y;
+				global.env.recalage_y.last_time = global.env.match_time;
+				display(global.env.recalage_y.offset);
 				state = GET_OUT;
 			}
 			break;

@@ -364,9 +364,16 @@ error_e sub_action_initiale_guy(){
 			{
 				dispose_zone_for_adversary_torch = NO_DISPOSE;
 				initial_path = FAIL_IN_MANCHOT;
+
+				//Désactivation de toutes les subactions qui nécessitent un bras fonctionnel.
+				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
+				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_2,TRUE);
+				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_3,TRUE);
 			}
 
 			state = try_going_multipoint(way_manchot,3,FIRST_MANCHOT,SECOND_MANCHOT,GOTO_ADVERSARY_ZONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
+			if(ON_LEAVING(FIRST_MANCHOT))
+				ASSER_set_acceleration(64);
 			break;
 
 		case SECOND_MANCHOT:
