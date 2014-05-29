@@ -180,21 +180,17 @@ error_e sub_action_initiale(void)
 				point[4] = 	(displacement_t){{1350,1870},	FAST}; // Pos si triangle pas tomber par guy
 				point[5] = 	(displacement_t){{1400,2250},	FAST};
 			}
-
+			ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, WAIT_TELL_GUY, GET_OUT, ERROR);
 
 			break;
 
 		case WAIT_TELL_GUY:{
 			static Uint16 last_time;
-			static Uint8 state1;
 
 			if(entrance)
 				last_time = global.env.match_time;
 
-			// Mettre le bras en position de sortie
-			state1 = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, WAIT_TELL_GUY, GET_OUT, ERROR);
-
-			if((guy_get_out_init && state1 == GET_OUT) || global.env.match_time > last_time + 3000)
+			if((guy_get_out_init) || global.env.match_time > last_time + 3000)
 				state = GET_OUT;
 			}break;
 		case GET_OUT:	//Sort de la zone de départ SANS ROTATION, pour rejoindre un point intérieur au rectangle d'acceptation de la subaction de lancé des balles
@@ -513,7 +509,7 @@ error_e do_torch_pierre(){
 			break;
 
 		case GOTO_HEARTH:
-			state = try_going(1700,COLOR_Y(375),GOTO_CENTER,DEPLOY_TORCH,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(1700,COLOR_Y(375),GOTO_HEARTH,DEPLOY_TORCH,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case DEPLOY_TORCH:
