@@ -1308,6 +1308,7 @@ error_e strat_file_fresco(Sint16 posY){
 	);
 	static enum state_e from;
 	static bool_e timeout=FALSE;
+	static enum state_e fail_state;
 
 	switch(state){
 		case IDLE:
@@ -1410,7 +1411,30 @@ error_e strat_file_fresco(Sint16 posY){
 
 
 			case GET_OUT_WITH_ERROR_RED_SOUTH:		//Cette position permet de sortir et de rendre la main !
-				state = try_going(700,1400,GET_OUT_WITH_ERROR_RED_SOUTH,DONE_BUT_NOT_HANDLED,(from == GET_OUT_WITH_ERROR_RED_MIDDLE)? GET_OUT_WITH_ERROR_RED_MIDDLE:GET_OUT_WITH_ERROR_YELLOW_SOUTH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+
+				if(entrance)
+					fail_state = (from == GET_OUT_WITH_ERROR_RED_MIDDLE)? GET_OUT_WITH_ERROR_RED_MIDDLE:GET_OUT_WITH_ERROR_YELLOW_SOUTH;
+
+				switch(goto_pos_curve_with_avoidance((displacement_t[]){{{600, 1400},FAST}}, NULL, 1, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT)){
+					case IN_PROGRESS:
+						break;
+					case FOE_IN_PATH:
+						state = fail_state;
+						break;
+					case NOT_HANDLED:
+						if(is_possible_point_for_rotation((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+							state = DONE_BUT_NOT_HANDLED;
+						else
+							state = fail_state;
+						break;
+					case END_OK:			//No break
+					case END_WITH_TIMEOUT:	//No break
+					default:
+						state = DONE_BUT_NOT_HANDLED;
+						break;
+				}
+
+
 				if(state != GET_OUT_WITH_ERROR_RED_SOUTH)
 					from = GET_OUT_WITH_ERROR_RED_SOUTH;
 				break;
@@ -1435,7 +1459,28 @@ error_e strat_file_fresco(Sint16 posY){
 					from = GET_OUT_WITH_ERROR_YELLOW_MIDDLE;
 				break;
 			case GET_OUT_WITH_ERROR_YELLOW_SOUTH:		//Cette position permet de sortir et de rendre la main !
-				state = try_going(700,1600,GET_OUT_WITH_ERROR_YELLOW_SOUTH,DONE_BUT_NOT_HANDLED,(from == GET_OUT_WITH_ERROR_YELLOW_MIDDLE)? GET_OUT_WITH_ERROR_YELLOW_MIDDLE:GET_OUT_WITH_ERROR_RED_SOUTH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				if(entrance)
+					fail_state = (from == GET_OUT_WITH_ERROR_YELLOW_MIDDLE)? GET_OUT_WITH_ERROR_YELLOW_MIDDLE:GET_OUT_WITH_ERROR_RED_SOUTH;
+
+				switch(goto_pos_curve_with_avoidance((displacement_t[]){{{600, 1600},FAST}}, NULL, 1, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT)){
+					case IN_PROGRESS:
+						break;
+					case FOE_IN_PATH:
+						state = fail_state;
+						break;
+					case NOT_HANDLED:
+						if(is_possible_point_for_rotation((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+							state = DONE_BUT_NOT_HANDLED;
+						else
+							state = fail_state;
+						break;
+					case END_OK:			//No break
+					case END_WITH_TIMEOUT:	//No break
+					default:
+						state = DONE_BUT_NOT_HANDLED;
+						break;
+				}
+
 				if(state != GET_OUT_WITH_ERROR_YELLOW_SOUTH)
 					from = GET_OUT_WITH_ERROR_YELLOW_SOUTH;
 				break;
