@@ -41,8 +41,8 @@ static void REACH_POINT_C1_send_request();
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
-#define POS_Y_MANUAL_FRESCO COLOR_Y(1500) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
-#define NB_TRY_FRESCO 2	//(Choix possible : 1, 2 ou 3 : nombre de tentatives de dépose de la fresque en cas de détection de fresque non posée.
+#define POS_Y_MANUAL_FRESCO COLOR_Y(1300) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
+#define NB_TRY_FRESCO 3	//(Choix possible : 1, 2 ou 3 : nombre de tentatives de dépose de la fresque en cas de détection de fresque non posée.
 #define CENTRAL_HEARTH_RADIUS			150
 
 
@@ -67,8 +67,12 @@ static void REACH_POINT_C1_send_request();
 #define LARGEUR_LABIUM	250
 
 #define DECALAGE_LARGEUR 200
-#define POS_MIN_FRESCO 1450		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
-#define POS_MAX_FRESCO 1650		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
+
+#define POS_MIN_FRESCO 1300
+#define POS_MAX_FRESCO 1700
+
+#define POS_MIN_FRESCO_ERROR 1450		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
+#define POS_MAX_FRESCO_ERROR 1650		//A cause de l'incapacité de tourner à moins de 25cm du bac de fruits...
 
 
 //Les differente's actions que pierre devra faire lors d'un match
@@ -153,7 +157,7 @@ error_e sub_action_initiale(void)
 				cooperation_enable = TRUE;
 
 			if(SWITCH_STRAT_3)
-				i_must_deal_with_our_torch = FALSE; // PROVISOIRE
+				i_must_deal_with_our_torch = TRUE;
 			else
 				i_must_deal_with_our_torch = FALSE;
 
@@ -200,7 +204,7 @@ error_e sub_action_initiale(void)
 		case LANCE_LAUNCHER:
 			if(entrance)
 			{
-				//ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH);
+				ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH);
 				if(i_must_deal_with_our_torch && !global.env.guy_took_fire[FIRE_ID_TORCH_OUR])
 				{
 					//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
@@ -321,9 +325,9 @@ error_e sub_action_initiale(void)
 		case DO_TREE_1:
 			if(entrance)
 			{
-//				if(i_must_deal_with_our_torch)	//TODO : à remplacer par l'information si(j'ai une torche !)
-//					success_state = DEPLOY_TORCH;
-//				else
+				if(i_must_deal_with_our_torch)	//TODO : à remplacer par l'information si(j'ai une torche !)
+					success_state = DEPLOY_TORCH;
+				else
 					success_state = DO_TREE_2;
 			}
 			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_1:CHOICE_TREE_2,TRIGO),DO_TREE_1,success_state,ERROR);
@@ -1125,14 +1129,14 @@ error_e strat_manage_fresco(){
 				oldPosY = posY;
 
 				if(posY > 1500) //Ne prend plus en compte les positions des adversaires eu precedement (Elles sont fausses sinon ne serait pas dans cet état)
-					posY = POS_MIN_FRESCO;
+					posY = POS_MIN_FRESCO_ERROR;
 				else
-					posY = POS_MAX_FRESCO;
+					posY = POS_MAX_FRESCO_ERROR;
 			}else if(statePosFresco == LAST_LAST_CHANCE_FILE_FRESCO){ // Si il a deja tenté 2 fois la fresque
-				if(posY == POS_MAX_FRESCO && oldPosY != POS_MIN_FRESCO)
-					posY = POS_MIN_FRESCO;
-				else if(posY == POS_MIN_FRESCO && oldPosY != POS_MAX_FRESCO)
-					posY = POS_MAX_FRESCO;
+				if(posY == POS_MAX_FRESCO_ERROR && oldPosY != POS_MIN_FRESCO_ERROR)
+					posY = POS_MIN_FRESCO_ERROR;
+				else if(posY == POS_MIN_FRESCO_ERROR && oldPosY != POS_MAX_FRESCO_ERROR)
+					posY = POS_MAX_FRESCO_ERROR;
 				else
 					posY = 1500;
 			}else if(MODE_MANUAL_FRESCO) // A partir n as jamais poser la fresque
@@ -1144,20 +1148,20 @@ error_e strat_manage_fresco(){
 				switch(adversary_fresco_index)
 				{
 					case 1:
-						if(adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO)// La valeur n est pas comprise
+						if(adversary_fresco_positions[0] > POS_MAX_FRESCO_ERROR && adversary_fresco_positions[0] < POS_MIN_FRESCO_ERROR)// La valeur n est pas comprise
 							posY = 1500;
 						else if(adversary_fresco_positions[0] > 1500)
-							posY = POS_MIN_FRESCO;
+							posY = POS_MIN_FRESCO_ERROR;
 						else
-							posY = POS_MAX_FRESCO;
+							posY = POS_MAX_FRESCO_ERROR;
 						break;
 					case 2:
-						if((adversary_fresco_positions[0] > POS_MAX_FRESCO && adversary_fresco_positions[0] < POS_MIN_FRESCO) || (adversary_fresco_positions[1] > POS_MAX_FRESCO && adversary_fresco_positions[1] < POS_MIN_FRESCO))
+						if((adversary_fresco_positions[0] > POS_MAX_FRESCO_ERROR && adversary_fresco_positions[0] < POS_MIN_FRESCO_ERROR) || (adversary_fresco_positions[1] > POS_MAX_FRESCO_ERROR && adversary_fresco_positions[1] < POS_MIN_FRESCO_ERROR))
 							posY = 1500;
 						else if(adversary_fresco_positions[0] > 1500 && adversary_fresco_positions[1] > 1500)// Les 2 poses ennemis sont sup au milieu de la fresque
-							posY = POS_MIN_FRESCO;
+							posY = POS_MIN_FRESCO_ERROR;
 						else if(adversary_fresco_positions[0] < 1500 && adversary_fresco_positions[1] < 1500) // sont inf au milieu
-							posY = POS_MAX_FRESCO;
+							posY = POS_MAX_FRESCO_ERROR;
 						else{    // Il y a une fresque de chaque coté par rapport au milieu
 							Uint16 fresco_inf,fresco_sup; //Correspond a la plus grande et plus petite variable ou l'adversaire aurait poser ses fresques
 
@@ -1169,15 +1173,15 @@ error_e strat_manage_fresco(){
 								fresco_sup = adversary_fresco_positions[0];
 							}
 
-							if(POS_MAX_FRESCO-fresco_sup > fresco_inf-POS_MIN_FRESCO){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
-								if(POS_MAX_FRESCO-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
-									posY = POS_MAX_FRESCO;
+							if(POS_MAX_FRESCO_ERROR-fresco_sup > fresco_inf-POS_MIN_FRESCO_ERROR){// La zone la plus grande est entre le POS_MAX_FRECO et le point sup de la pose
+								if(POS_MAX_FRESCO_ERROR-fresco_sup >= fresco_sup-fresco_inf)// Testons si la zone entre les deux fresques n'est pas plus grande
+									posY = POS_MAX_FRESCO_ERROR;
 								else
 									posY = (fresco_inf+fresco_sup)/2;
 
-							}else{ //Si la zone entre la POS_MIN_FRESCO est plus grande que celle avec POS_MAX_FRESCO
-								if(fresco_inf-POS_MIN_FRESCO >= fresco_sup-fresco_inf)
-									posY = POS_MIN_FRESCO;
+							}else{ //Si la zone entre la POS_MIN_FRESCO_ERROR est plus grande que celle avec POS_MAX_FRESCO_ERROR
+								if(fresco_inf-POS_MIN_FRESCO_ERROR >= fresco_sup-fresco_inf)
+									posY = POS_MIN_FRESCO_ERROR;
 								else
 									posY = (fresco_inf+fresco_sup)/2;
 							}
@@ -1207,7 +1211,7 @@ error_e strat_manage_fresco(){
 
 		case NEAR_FRESCO :
 			//DODGE acceptable, car plutot intéressant ici.. mais il y a un risque si l'odométrie n'est pas bonne de taper un coin dans le bac (si le point d'extraction est malchanceux)
-			state = try_going(500,1500,NEAR_FRESCO,FILE_FRESCO,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT);
+			state = try_going(600,1500,NEAR_FRESCO,FILE_FRESCO,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT);
 			break;
 
 		case FILE_FRESCO:
@@ -1227,11 +1231,11 @@ error_e strat_manage_fresco(){
 					oldPosY = posY;
 
 					if(posY > 1500) //Ne prend plus en compte les positions des adversaires eu precedement (Elles sont fausses sinon ne serait pas dans cet état)
-						posY = POS_MIN_FRESCO;
+						posY = POS_MIN_FRESCO_ERROR; // ne choisis pas les positions max sinon resort que tout droit
 					else if (posY < 1500)
-						posY = POS_MAX_FRESCO;
+						posY = POS_MAX_FRESCO_ERROR;
 					else	// == 1500	//Si la première tentative était en 1500, la seconde est du coté de notre zone de départ.
-						posY = (global.env.color == RED)?POS_MIN_FRESCO:POS_MAX_FRESCO;
+						posY = (global.env.color == RED)?POS_MIN_FRESCO_ERROR:POS_MAX_FRESCO_ERROR;
 				}
 
 				state = check_sub_action_result(strat_file_fresco(posY),LAST_CHANCE_FILE_FRESCO,VERIFICATION_2,ERROR);
@@ -1247,10 +1251,10 @@ error_e strat_manage_fresco(){
 
 		case LAST_LAST_CHANCE_FILE_FRESCO:
 				if(entrance){
-					if(posY == POS_MAX_FRESCO && oldPosY != POS_MIN_FRESCO)
-						posY = POS_MIN_FRESCO;
-					else if(posY == POS_MIN_FRESCO && oldPosY != POS_MAX_FRESCO)
-						posY = POS_MAX_FRESCO;
+					if(posY == POS_MAX_FRESCO_ERROR && oldPosY != POS_MIN_FRESCO_ERROR)
+						posY = POS_MIN_FRESCO_ERROR; // POS_MIN_FRESCO_ERROR;
+					else if(posY == POS_MIN_FRESCO_ERROR && oldPosY != POS_MAX_FRESCO_ERROR)
+						posY = POS_MAX_FRESCO_ERROR;
 					else
 						posY = 1500;
 				}
@@ -1291,6 +1295,7 @@ error_e strat_file_fresco(Sint16 posY){
 		BEFORE_WALL,
 		PUSH_MOVE,
 		WAIT_END_OF_MOVE,
+		WAIT_END,
 		END,
 		END_IMPOSSIBLE,
 		END_ERROR,
@@ -1331,11 +1336,11 @@ error_e strat_file_fresco(Sint16 posY){
 //			break;
 
 		case BEFORE_WALL:
-			state = try_going(270,posY,BEFORE_WALL,WALL,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(500,posY,BEFORE_WALL,WALL,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case WALL:
-			state = try_going(220,posY,WALL,PUSH_MOVE,END_ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT); // Si en erreur on va a END seule veut dire qu un triangle a géné, la strat_manage fresco va donc choisir une autre position
+			state = try_going(220,posY,WALL,PUSH_MOVE,END,FAST,BACKWARD,NO_DODGE_AND_WAIT); // Si en erreur on va a END seule veut dire qu un triangle a géné, la strat_manage fresco va donc choisir une autre position
 			break;
 
 		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
@@ -1350,14 +1355,18 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case END:
-			state = try_going_until_break(400,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(500,posY,END,DONE,END_IMPOSSIBLE,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case END_IMPOSSIBLE:
-			if(global.env.pos.x > 200)
+			if(global.env.pos.x > 200 || (global.env.pos.y > 1450 && global.env.pos.y < 1650))
 				state = ERROR;
 			else
-				state = END;
+				state = WAIT_END;
+			break;
+
+		case WAIT_END:
+			state = ELEMENT_wait_time(500,WAIT_END,END);
 			break;
 
 		case END_ERROR: //Pour le faire forcer à partir au droit
