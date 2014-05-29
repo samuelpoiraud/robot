@@ -28,8 +28,6 @@ void strat_test_fresque();
 error_e strat_manage_fresco();
 error_e strat_file_fresco(Sint16 posY);
 //error_e strat_lance_launcher_ennemy();
-error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x);
-error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y);
 error_e do_triangle_start();
 error_e do_torch_pierre();
 error_e ACT_arm_deploy_torche_pierre();

@@ -39,5 +39,7 @@ void strat_reglage_asser(void);
 
 error_e sub_wait(Sint16 x, Sint16 y);
 error_e protected_fires(protected_fires_e fires);
+error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x);
+error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y);
 
 #endif

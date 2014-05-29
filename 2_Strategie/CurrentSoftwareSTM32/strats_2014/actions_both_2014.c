@@ -29,6 +29,9 @@
 #define USE_CURVE	0
 #define NB_TOUR_ODO_ROTATION 2
 
+#define DIST_CALLAGE_GUY		83
+#define DIST_CALLAGE_PIERRE		155
+
 
 // Start Translation
 #define ODOMETRIE_PLAGE_TRANSLATION 2 // + ou -
@@ -1143,3 +1146,159 @@ error_e protected_fires(protected_fires_e fires){
 	return IN_PROGRESS;
 }
 
+#define DIST_CALLAGE_GUY		83
+#define DIST_CALLAGE_PIERRE		155
+
+error_e action_recalage_x(way_e sens, Sint16 wanted_x, Sint16 diff_x){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_X,
+		IDLE,
+		RUSH_WALL,
+		WAIT,
+		GET_OUT,
+		GET_OUT_WITH_ERROR,
+		WAIT_FOR_EXIT,
+		DONE,
+		ERROR,
+		ERROR_WITH_GET_OUT
+	);
+
+	static bool_e timeout;
+	static time32_t local_time;
+
+	static GEOMETRY_point_t escape_point[1];
+
+	switch(state){
+		case IDLE :
+			timeout = FALSE;
+			if(global.env.pos.x > 1000)
+				escape_point[0] = (GEOMETRY_point_t){wanted_x - 200, global.env.pos.y};
+			else
+				escape_point[0] = (GEOMETRY_point_t){wanted_x + 200, global.env.pos.y};
+			state = RUSH_WALL;
+			break;
+
+		case RUSH_WALL :
+			if(global.env.pos.x > 1000)
+				ASSER_push_rush_in_the_wall(sens, TRUE, 0, TRUE);
+			else
+				ASSER_push_rush_in_the_wall(sens, TRUE, PI4096, TRUE);
+			state = WAIT;
+			break;
+
+		case WAIT :
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+				global.env.recalage.offset.x = global.env.pos.x - wanted_x;
+				global.env.recalage.offset.y = 0;
+				global.env.recalage.last_time = global.env.match_time;
+				display(global.env.recalage.offset.x);
+				state = GET_OUT;
+			}
+			break;
+
+		case GET_OUT :
+			if(global.env.pos.x > 1000)
+				state = try_going(wanted_x - 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			else
+				state = try_going(wanted_x + 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[0].x,escape_point[0].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,WAIT_FOR_EXIT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case WAIT_FOR_EXIT:		//On a pas d'autre choix que d'attendre et de réessayer périodiquement.
+			if(entrance)
+			{
+				local_time = global.env.match_time;
+			}
+			if(global.env.match_time - local_time > 2000)
+				state = GET_OUT_WITH_ERROR;
+			break;
+		case DONE :
+			state = IDLE;
+			return END_OK;
+
+		case ERROR:
+			state = GET_OUT_WITH_ERROR;
+			break;
+
+		case ERROR_WITH_GET_OUT :
+			state = IDLE;
+			return NOT_HANDLED;
+	}
+	return IN_PROGRESS;
+}
+
+error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_Y,
+		IDLE,
+		RUSH_WALL,
+		WAIT,
+		GET_OUT,
+		GET_OUT_WITH_ERROR,
+		WAIT_FOR_EXIT,
+		DONE,
+		ERROR,
+		ERROR_WITH_GET_OUT
+	);
+
+	static bool_e timeout;
+	static time32_t local_time;
+	static GEOMETRY_point_t escape_point[1];
+
+	switch(state){
+		case IDLE :
+			timeout = FALSE;
+			if(global.env.pos.y > 1500)
+				escape_point[0] = (GEOMETRY_point_t){global.env.pos.x, wanted_y - 200};
+			else
+				escape_point[0] = (GEOMETRY_point_t){global.env.pos.x, wanted_y + 200};
+			state = RUSH_WALL;
+			break;
+
+		case RUSH_WALL :
+			ASSER_push_rush_in_the_wall(sens, TRUE, angle, TRUE);
+			state = WAIT;
+			break;
+
+		case WAIT :
+			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+				global.env.recalage.offset.x = 0;
+				global.env.recalage.offset.y = global.env.pos.y - wanted_y;
+				global.env.recalage.last_time = global.env.match_time;
+				display(global.env.recalage.offset.y);
+				state = GET_OUT;
+			}
+			break;
+
+		case GET_OUT :
+			if(global.env.pos.y > 1500)
+				state = try_going(global.env.pos.x, wanted_y - 80, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			else
+				state = try_going(global.env.pos.x, wanted_y + 80, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			break;
+
+		case GET_OUT_WITH_ERROR :
+			state = try_going_until_break(escape_point[0].x,escape_point[0].y,GET_OUT_WITH_ERROR,ERROR_WITH_GET_OUT,WAIT_FOR_EXIT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+		case WAIT_FOR_EXIT:		//On a pas d'autre choix que d'attendre et de réessayer périodiquement.
+			if(entrance)
+			{
+				local_time = global.env.match_time;
+			}
+			if(global.env.match_time - local_time > 2000)
+				state = GET_OUT_WITH_ERROR;
+			break;
+		case DONE :
+			state = IDLE;
+			return END_OK;
+
+		case ERROR:
+			state = GET_OUT_WITH_ERROR;
+			break;
+
+		case ERROR_WITH_GET_OUT :
+			state = IDLE;
+			return NOT_HANDLED;
+	}
+	return IN_PROGRESS;
+}

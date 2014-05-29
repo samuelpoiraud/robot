@@ -36,6 +36,8 @@ static void send_message_to_pierre(Uint11 sid, Uint8 data0);
 //Voir le case INIT de la subaction initiale
 //ATTENTION, la route coté mammouths suggère fortement que Pierre commence par la torche et non par la fresque :: sinon conflit !
 
+#define OFFSET_V_TRIANGLE	30
+
 #define MAX_HEIGHT_ARM	143
 #define DIST_RETURN_RETURN_TRIANGLE		250
 
@@ -931,7 +933,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 		break;
 
 		case WAIT:
-			state = ELEMENT_wait_time(1000,WAIT,BACK);
+			state = ELEMENT_wait_time(200,WAIT,BACK);
 			break;
 
 		// S'éloigne de la torche
@@ -1799,17 +1801,17 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 	);
 
 	const GEOMETRY_point_t triangle_pos_begin[4] = {
-		{800,	180}, // Triangle 1
-		{1820,	1300},
-		{1820,	1700},
-		{800,	2820}
+		{800+OFFSET_V_TRIANGLE,	180}, // Triangle 1
+		{1820,		1300-OFFSET_V_TRIANGLE},
+		{1820,		1700-OFFSET_V_TRIANGLE},
+		{800+OFFSET_V_TRIANGLE,	2820}
 	};
 
 	const GEOMETRY_point_t triangle_pos_end[4] = {
-		{805,	355},
-		{1740,	1300},
-		{1685,	1700},
-		{800,	2720}
+		{805+OFFSET_V_TRIANGLE,	355},
+		{1740,		1300-OFFSET_V_TRIANGLE},
+		{1685,		1700-OFFSET_V_TRIANGLE},
+		{800+OFFSET_V_TRIANGLE,	2720}
 	};
 
 	switch (state) {
@@ -1956,17 +1958,17 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 	);
 
 	const GEOMETRY_point_t triangle_pos_begin[4] = {
-		{800,	400},
-		{1600,	1300},
-		{1600,	1700},
-		{800,	2600}
+		{800+OFFSET_V_TRIANGLE,		400},
+		{1600,			1300-OFFSET_V_TRIANGLE},
+		{1600,			1700-OFFSET_V_TRIANGLE},
+		{800+OFFSET_V_TRIANGLE,		2600}
 	};
 
 	const GEOMETRY_point_t triangle_pos_end[4] = {
-		{800,	200},
-		{1800,	1300},
-		{1800,	1700},
-		{800,	2800}
+		{800+OFFSET_V_TRIANGLE,		200},
+		{1800,			1300-OFFSET_V_TRIANGLE},
+		{1800,			1700-OFFSET_V_TRIANGLE},
+		{800+OFFSET_V_TRIANGLE,		2800}
 	};
 
 	switch (state) {
@@ -2295,7 +2297,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case SMALL_ARM_DEPLOYED:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_MID, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, PARKED_NOT_HANDLED);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_MID, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, SMALL_ARM_PARKED);
 			break;
 
 		case SMALL_ARM_PARKED:
@@ -2343,7 +2345,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case OPEN:
-			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN, ADVANCE, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_UNBLOCK_RETURN_UP,0, 0, OPEN, ADVANCE, PARKED_NOT_HANDLED);
 			break;
 
 		case ADVANCE:
