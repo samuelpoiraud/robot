@@ -103,7 +103,7 @@ error_e sub_action_initiale(void)
 		GOTO_TORCH_FIRST_POINT,
 		GOTO_TORCH_SECOND_POINT,
 		GOTO_TORCH_THIRD_POINT,
-		GOTO_HEARTH,
+		//GOTO_HEARTH,
 		FAIL_FIRST_POINT,
 		FAIL_SECOND_POINT,
 		FAIL_THIRD_POINT,
@@ -322,18 +322,18 @@ error_e sub_action_initiale(void)
 			if(entrance)
 			{
 				if(i_must_deal_with_our_torch)	//TODO : à remplacer par l'information si(j'ai une torche !)
-					success_state = GOTO_HEARTH;
+					success_state = DEPLOY_TORCH;
 				else
 					success_state = DO_TREE_2;
 			}
 			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_1:CHOICE_TREE_2,TRIGO),DO_TREE_1,success_state,ERROR);
 			break;
 
-		case GOTO_HEARTH:	//Va vers le foyer pour déployer la torche
+	///	case GOTO_HEARTH:	//Va vers le foyer pour déployer la torche
 			//On tente un DODGE... et on rend la main à la high_level
 			//TODO : en cas d'échec, trouver une alternative pour aller lâcher la torche ou la dépiler ailleurs !
-			state = try_going_until_break(1650, COLOR_Y(350), GOTO_HEARTH, DEPLOY_TORCH, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
-			break;
+	//		state = try_going_until_break(1650, COLOR_Y(350), GOTO_HEARTH, DEPLOY_TORCH, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+	//		break;
 
 		case DO_FRESCO:
 			if(entrance)
@@ -356,7 +356,7 @@ error_e sub_action_initiale(void)
 			break;
 
 		case DEPLOY_TORCH:
-			state = check_sub_action_result(do_torch_pierre(),DEPLOY_TORCH,DO_TREE_2,ERROR);
+			state = check_sub_action_result(do_torch_pierre(),DEPLOY_TORCH,DO_TREE_2,DO_TREE_2);
 			break;
 
 		case DO_TREE_2:
