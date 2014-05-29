@@ -138,7 +138,6 @@ bool_e TORCH_LOCKER_CAN_process_msg(CAN_msg_t* msg) {
 								 {ACT_TORCH_LOCKER_LOCK,     0,  QUEUE_ACT_Torch_Locker},
 								 {ACT_TORCH_LOCKER_UNLOCK,   0,  QUEUE_ACT_Torch_Locker},
 								 {ACT_TORCH_LOCKER_INSIDE,   0,  QUEUE_ACT_Torch_Locker}
-								 // Vérifier présence SMALL_ARM
 							 });
 	}
 
@@ -168,7 +167,7 @@ static void TORCH_LOCKER_command_init(queue_id_t queueId) {
 		case ACT_TORCH_LOCKER_UNLOCK : ax12_1_goalPosition = TORCH_LOCKER_AX12_1_UNLOCK_POS;ax12_2_goalPosition = TORCH_LOCKER_AX12_2_UNLOCK_POS; break;
 		case ACT_TORCH_LOCKER_INSIDE : ax12_1_goalPosition = TORCH_LOCKER_AX12_1_INSIDE_POS; ax12_2_goalPosition = TORCH_LOCKER_AX12_2_INSIDE_POS; break;
 
-		case ACT_SMALL_ARM_STOP :
+		case ACT_TORCH_LOCKER_STOP :
 			AX12_set_torque_enabled(TORCH_LOCKER_AX12_1_ID, FALSE); //Stopper l'asservissement de l'AX12 qui gère le TORCH_LOCKER
 			AX12_set_torque_enabled(TORCH_LOCKER_AX12_2_ID, FALSE);
 			QUEUE_next(queueId, ACT_TORCH_LOCKER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);

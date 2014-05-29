@@ -184,7 +184,7 @@ error_e sub_action_initiale(void)
 				point[4] = 	(displacement_t){{1350,1870},	FAST}; // Pos si triangle pas tomber par guy
 				point[5] = 	(displacement_t){{1400,2250},	FAST};
 			}
-			ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, WAIT_TELL_GUY, GET_OUT, ERROR);
+			ACT_arm_goto(ACT_ARM_POS_PARKED);
 
 			break;
 
@@ -1765,9 +1765,8 @@ error_e ACT_arm_deploy_torche_pierre(){
 
 	switch(state){
 		case IDLE :
-			if(entrance)
-				ACT_arm_goto(ACT_ARM_POS_PARKED);
-			state = ELEMENT_wait_time(5000, IDLE, OPEN);
+			//state = ELEMENT_wait_time(5000, IDLE, OPEN);
+			state = OPEN;
 			niveau = 0;
 			break;
 
