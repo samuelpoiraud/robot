@@ -29,6 +29,8 @@
 		Uint8 priority_order; 
 	}asser_arg_t;
 		
+	void ASSER_set_threshold_error_translation(Uint8 value, bool_e reset);
+
 	/* Accesseur en lecture sur les arguments de la pile ASSER */ 
 	asser_arg_t ASSER_get_stack_arg(Uint8 index);
 	

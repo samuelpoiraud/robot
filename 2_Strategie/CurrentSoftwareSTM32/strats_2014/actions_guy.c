@@ -897,11 +897,15 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 
 		// Ralenti avant d'arriver sur le foyer
 		case SLOW_MOTION:
+			if(entrance)
+				ASSER_set_threshold_error_translation(50,FALSE); //On diminue le seuil d'erreur
 			state = try_going(posEnd.x, posEnd.y, SLOW_MOTION, WAIT, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 
 			if(state == ERROR && ((global.env.pos.x > 1700 && ((global.env.color == RED && current_dispose_zone == HEARTH_OUR) || (global.env.color != RED && current_dispose_zone == HEARTH_ADVERSARY))) ||
 			   (global.env.pos.y > 2700 && ((global.env.color != RED && current_dispose_zone == HEARTH_OUR) || (global.env.color == RED && current_dispose_zone == HEARTH_ADVERSARY)))))
 				state = WAIT;
+			if(state != SLOW_MOTION)
+				ASSER_set_threshold_error_translation(0,TRUE);	//On remet le seuil d'erreur
 			break;
 
 
