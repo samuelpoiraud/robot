@@ -101,7 +101,17 @@ int main (void)
 		#define ROBOT_CODE_NAME	"Guy"
 		if(QS_WHO_AM_I_get() != SMALL_ROBOT)
 	#endif	// Pour changer le code du robot aller dans : "config/config_global.h"
+		{
 			debug_printf("ATTENTION ! Vous avez programmé la carte actionneur de %s avec le code de %s\n", QS_WHO_AM_I_get_name(), ROBOT_CODE_NAME);
+			msg.sid = STRAT_ACT_SELFTEST_DONE;
+			msg.data[0] = SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME;
+			msg.size = 1;
+			CAN_send(&msg);
+			LED_ERROR = 1;
+			LED_RUN = 1;
+			LED_ORANGE = 1;
+			while(1);	//On plante le code ici.
+		}
 
 	#undef ROBOT_CODE_NAME
 
