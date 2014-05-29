@@ -22,6 +22,9 @@ typedef enum{
 	ADVERSARY_FIRES
 }protected_fires_e;
 
+#define DIST_CALLAGE_GUY		83
+#define DIST_CALLAGE_PIERRE		155
+
 void strat_tourne_en_rond(void);
 void strat_reglage_odo_rotation(void);
 void strat_reglage_odo_translation(void);
