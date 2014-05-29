@@ -258,12 +258,17 @@ error_e sub_action_initiale_guy(){
 			{
 				ASSER_set_acceleration(80);	//Acceleration de guy au démarrage...
 				success_state = (global.env.asser.calibrated)?GOTO_ADVERSARY_ZONE:ROTATION_IF_NOT_CALIBRATED;
+				if(global.env.asser.calibrated)
+					ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD);
 			}
 			if(global.env.asser.calibrated)
 				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			else
 				state  = try_going_until_break(635,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 
+			if(ON_LEAVING(GET_OUT_POS_START))
+				if(!global.env.asser.calibrated)
+					ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD);
 
 			#ifdef MANCHOT
 
@@ -762,7 +767,6 @@ error_e goto_adversary_zone(void)
 				way_our_fires[0] = (displacement_t) {{1200,COLOR_Y(420)},	FAST};
 				way_our_fires[1] = (displacement_t) {{1370,COLOR_Y(970)},	FAST};
 				way_our_fires[2] = (displacement_t) {{1570,COLOR_Y(1200)},FAST};
-				ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD);
 			}
 			state = try_going_multipoint(way_our_fires,3,state,BEHIND_SOUTH_FIRE,SB2,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 			if(ON_LEAVING(CENTRAL_FIRE))
