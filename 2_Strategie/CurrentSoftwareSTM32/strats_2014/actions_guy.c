@@ -147,7 +147,7 @@ error_e sub_action_initiale_guy(){
 		pierre_reach_point_C1 = TRUE;
 
 	static displacement_t way_manchot[3];
-	static displacement_t way_manchot_adv_fires[3];
+	static displacement_t way_manchot_adv_fires[5];
 
 	switch(state)
 	{
@@ -372,7 +372,7 @@ error_e sub_action_initiale_guy(){
 
 				way_manchot[0] = (displacement_t) {{1200,COLOR_Y(420)},	FAST};
 				way_manchot[1] = (displacement_t) {{1370,COLOR_Y(970)},	FAST};
-				way_manchot[2] = (displacement_t) {{1570,COLOR_Y(1100)},FAST};
+				way_manchot[2] = (displacement_t) {{1570,COLOR_Y(1200)},FAST};
 			}
 
 			state = try_going_multipoint(way_manchot,3,FIRST_MANCHOT,SECOND_MANCHOT,GOTO_ADVERSARY_ZONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
@@ -381,11 +381,11 @@ error_e sub_action_initiale_guy(){
 			break;
 
 		case SECOND_MANCHOT:
-			state = try_going(1600,COLOR_Y(950),SECOND_MANCHOT,THIRD_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1600,COLOR_Y(900),SECOND_MANCHOT,THIRD_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 
 		case THIRD_MANCHOT:
-			state = try_going(1600,COLOR_Y(1800),THIRD_MANCHOT,ADV_FIRES_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going(1600,COLOR_Y(1700),THIRD_MANCHOT,ADV_FIRES_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 
 			if(ON_LEAVING(THIRD_MANCHOT) && state == GOTO_ADVERSARY_ZONE && global.env.pos.y > 1600)
 				state = DONE;
@@ -394,12 +394,13 @@ error_e sub_action_initiale_guy(){
 		case ADV_FIRES_MANCHOT:
 			if(entrance)
 			{
-				way_manchot_adv_fires[0] = (displacement_t) {{1410,COLOR_Y(2130)},	FAST};
-				way_manchot_adv_fires[1] = (displacement_t) {{1600,COLOR_Y(2330)},	FAST};
+				way_manchot_adv_fires[0] = (displacement_t) {{1350,COLOR_Y(2100)},	FAST};
+				way_manchot_adv_fires[1] = (displacement_t) {{1600,COLOR_Y(2500)},	FAST};
 				way_manchot_adv_fires[2] = (displacement_t) {{1600,COLOR_Y(2000)},	FAST};
+				way_manchot_adv_fires[3] = (displacement_t) {{1600,COLOR_Y(2600)},	FAST};
+				way_manchot_adv_fires[4] = (displacement_t) {{1000,COLOR_Y(2650)},	FAST};
 			}
-			state = try_going_multipoint(way_manchot_adv_fires,3,ADV_FIRES_MANCHOT,DONE,DONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
-
+			state = try_going_multipoint(way_manchot_adv_fires,5,ADV_FIRES_MANCHOT,DONE,DONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 
 			break;
 
