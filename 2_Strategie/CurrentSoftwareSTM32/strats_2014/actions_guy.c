@@ -77,6 +77,7 @@ bool_e strat_homologation_triangle = FALSE;
 #define DIM_BACK_TORCH 200
 #define RADIUS_TORCH 80
 #define NOT_DROP_TRI_VERTICAL_HEARTH // Ne dépose pas les triangles verticale si define
+#define MANCHOT
 
 typedef enum{
 	NORTH_MAMMOUTH = 0,
@@ -125,6 +126,9 @@ error_e sub_action_initiale_guy(){
 		DO_ADV_TORCH,
 		FALL_FIRE_MOBILE_MM_ADV,
 		FALL_FIRE_WALL_ADV,
+			FIRST_MANCHOT,
+			SECOND_MANCHOT,
+			THIRD_MANCHOT,
 		DONE,
 		ERROR
 	);
@@ -141,9 +145,16 @@ error_e sub_action_initiale_guy(){
 	if(global.env.reach_point_C1)
 		pierre_reach_point_C1 = TRUE;
 
+	static displacement_t way_manchot[3];
+
 	switch(state)
 	{
 		case INIT:
+
+			way_manchot[0] = (displacement_t) {{1200,COLOR_Y(420)},	FAST};
+			way_manchot[1] = (displacement_t) {{1370,COLOR_Y(970)},	FAST};
+			way_manchot[2] = (displacement_t) {{1570,COLOR_Y(1100)},FAST};
+
 			we_have_a_torch = FALSE;
 			we_prevented_pierre_to_get_out = FALSE;
 			if(SWITCH_STRAT_2)	//NORTH ou SOUTH
@@ -247,6 +258,14 @@ error_e sub_action_initiale_guy(){
 				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			else
 				state  = try_going_until_break(635,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+
+
+			#ifdef MANCHOT
+			if(ON_LEAVING(GET_OUT_POS_START))
+				state = FIRST_MANCHOT;
+			#endif
+
+
 			break;
 
 		/*case PREVENT_PIERRE_WE_ARE_GOT_OUT:
@@ -338,6 +357,31 @@ error_e sub_action_initiale_guy(){
 		case FALL_FIRE_WALL_ADV:
 			state = DONE;
 			break;
+
+
+		case FIRST_MANCHOT:
+			if(entrance)
+			{
+				dispose_zone_for_adversary_torch = NO_DISPOSE;
+				initial_path = FAIL_IN_MANCHOT;
+			}
+
+			state = try_going_multipoint(way_manchot,3,FIRST_MANCHOT,SECOND_MANCHOT,GOTO_ADVERSARY_ZONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
+			break;
+
+		case SECOND_MANCHOT:
+			state = try_going(1600,COLOR_Y(950),SECOND_MANCHOT,THIRD_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case THIRD_MANCHOT:
+			state = try_going(1600,COLOR_Y(1800),THIRD_MANCHOT,DONE,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+
+			if(ON_LEAVING(THIRD_MANCHOT) && state == GOTO_ADVERSARY_ZONE && global.env.pos.y > 1600)
+				state = DONE;
+
+			break;
+
+
 
 		case DONE:
 			return END_OK;
@@ -444,11 +488,11 @@ void strat_homologation_guy(){
 			break;
 
 		case TRIANGLE_2:
-			state = check_sub_action_result(sub_action_triangle_on_edge((global.env.color == RED)?V_TRIANGLE_2:V_TRIANGLE_3),TRIANGLE_2,TRIANGLE_3,TRIANGLE_3);
+			state = check_sub_action_result(sub_action_triangle_on_edge(V_TRIANGLE_2),TRIANGLE_2,TRIANGLE_3,TRIANGLE_3);
 			break;
 
 		case TRIANGLE_3:
-			state = check_sub_action_result(sub_action_triangle_on_edge((global.env.color == RED)?V_TRIANGLE_3:V_TRIANGLE_2),TRIANGLE_3,TRIANGLE_ADV,TRIANGLE_ADV);
+			state = check_sub_action_result(sub_action_triangle_on_edge(V_TRIANGLE_3),TRIANGLE_3,TRIANGLE_ADV,TRIANGLE_ADV);
 			break;
 
 		case TRIANGLE_ADV:
