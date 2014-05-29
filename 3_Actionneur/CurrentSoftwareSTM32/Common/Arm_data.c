@@ -55,7 +55,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-131	,194	,145,	152},	//ARM_ST_On_Drop_3_Auto
 
 		{0		,0		,0		,0},	//ARM_ST_To_Storage						NOT USE
-		{0		,0		,0		,0},	//ARM_ST_To_Carry						NOT USE
+		{-221	,238	,265	,154},	//ARM_ST_To_Carry
 
 		{-131	,146	,134	,56},	//ARM_ST_To_Prepare_Return
 		{-71	,146	,134	,56},	//ARM_ST_To_Down_Return
@@ -65,7 +65,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 
 		{0		,0		,0		,0},	//ARM_ST_To_Prepare_Take_Return			NOT USE
 		{0		,0		,0		,0},	//ARM_ST_To_Take_Return					NOT USE
-		{-71	,146	,134	,152},	//ARM_ST_To_Unblock_Return				NOT USE
+		{-71	,146	,134	,152},	//ARM_ST_To_Unblock_Return
 
 		{0		,0		,0		,0},	//ARM_ST_On_Triangle					NOT USE			// Distance factice
 
@@ -73,14 +73,15 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{0		,0		,0		,0},	//ARM_ST_Down_Backward					NOT USE
 		{0		,0		,0		,0},	//ARM_ST_Lock_Backward					NOT USE
 
-		{0		,0		,0		,0},	//ARM_ST_Prepare_Take_On_Edge			NOT USE
-		{0		,0		,0		,0},	//ARM_ST_Take_On_Edge					NOT USE
+		{-71	,214	,214	,244},	//ARM_ST_Prepare_Take_On_Edge
+		{-181	,214	,214	,244},	//ARM_ST_Prepare_Take_On_Edge_2
+		{-181	,214	,214	,161},	//ARM_ST_Take_On_Edge
 		{0		,0		,0		,0},	//ARM_ST_Return_On_Edge					NOT USE
-		{0		,0		,0		,0},	//ARM_ST_Disposed_Simple				NOT USE
+		{-221	,205	,204	,169},	//ARM_ST_Disposed_Simple
 
 		{0		,0		,0		,0},	//ARM_ST_Prepare_Take_On_Road			NOT USE
-		{-215	,130	,173,	146},	//ARM_ST_Take_On_Road
-		{-215	,124	,182,	146},	//ARM_ST_Take_On_Road_Mamouth
+		{-215	,130	,173,	244},	//ARM_ST_Take_On_Road
+		{-215	,124	,182,	244},	//ARM_ST_Take_On_Road_Mamouth
 
 		{-71	,171	,140	,152},	//ARM_ST_Deposed_Torch
 		{-71	,171	,140	,243},	//ARM_ST_Escape_Torch_1
@@ -128,6 +129,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-360	,113	,154,	148},	//ARM_ST_Lock_Backward
 
 		{-432	,119	,160,	145},	//ARM_ST_Prepare_Take_On_Edge
+		{0		,0		,0		,0 },	//ARM_ST_Prepare_Take_On_Edge_2					NOT USE
 		{-261	,119	,160,	145},	//ARM_ST_Take_On_Edge
 		{-309	,120	,160,	145},	//ARM_ST_Return_On_Edge
 		{-236	,172	,241,	145},	//ARM_ST_Disposed_Simple
@@ -207,7 +209,7 @@ void init_perm_transitions_table(){
 	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,			2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,				2,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN, ACT_ARM_POS_WAIT_RETURN});
 
-	add_perm_transitions_table(ACT_ARM_POS_WAIT_RETURN,				3,	(ARM_state_e[]){ACT_ARM_POS_TO_TAKE_RETURN, ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_WAIT_RETURN,				2,	(ARM_state_e[]){ACT_ARM_POS_TO_TAKE_RETURN, ACT_ARM_POS_OPEN});
 
 	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_TAKE_RETURN,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_TAKE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_UNBLOCK_RETURN});
@@ -227,19 +229,20 @@ void init_perm_transitions_table(){
 	add_perm_transitions_table(ACT_ARM_POS_TAKE_ON_ROAD,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 
 #else
-	add_perm_transitions_table(ACT_ARM_POS_PRE_PARKED_1,			2,	(ARM_state_e[]){ACT_ARM_POS_PRE_PARKED_2});
+	add_perm_transitions_table(ACT_ARM_POS_PRE_PARKED_1,			1,	(ARM_state_e[]){ACT_ARM_POS_PRE_PARKED_2});
 	add_perm_transitions_table(ACT_ARM_POS_PRE_PARKED_2,			2,	(ARM_state_e[]){ACT_ARM_POS_PARKED, ACT_ARM_POS_PRE_PARKED_1});
 	add_perm_transitions_table(ACT_ARM_POS_PARKED,					2,	(ARM_state_e[]){ACT_ARM_POS_MID, ACT_ARM_POS_PRE_PARKED_2});
 	add_perm_transitions_table(ACT_ARM_POS_MID,						2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_PARKED});
 
-	add_perm_transitions_table(ACT_ARM_POS_OPEN,					8,	(ARM_state_e[]){ACT_ARM_POS_MID,
+	add_perm_transitions_table(ACT_ARM_POS_OPEN,					9,	(ARM_state_e[]){ACT_ARM_POS_MID,
 																						ACT_ARM_POS_ON_TORCHE_SMALL_ARM,
 																						ACT_ARM_POS_PREPARE_TAKE_ON_ROAD,
 																						ACT_ARM_POS_PREPARE_1_TORCHE_AUTO,
 																						ACT_ARM_POS_PREPARE_DROP_AUTO,
 																						ACT_ARM_POS_TO_PREPARE_RETURN,
 																						ACT_ARM_POS_DISPOSED_TORCH,
-																						ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE});
+																						ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE,
+																						ACT_ARM_POS_PREPARE_TAKE_ON_EDGE});
 
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_SMALL_ARM,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_ON_DROP_1_AUTO});
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE,	1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
@@ -270,6 +273,13 @@ void init_perm_transitions_table(){
 	add_perm_transitions_table(ACT_ARM_POS_DISPOSED_TORCH,			1,	(ARM_state_e[]){ACT_ARM_POS_ESCAPE_TORCH_1});
 	add_perm_transitions_table(ACT_ARM_POS_ESCAPE_TORCH_1,			1,	(ARM_state_e[]){ACT_ARM_POS_ESCAPE_TORCH_2});
 	add_perm_transitions_table(ACT_ARM_POS_ESCAPE_TORCH_2,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+
+	add_perm_transitions_table(ACT_ARM_POS_TAKE_ON_EDGE,			3,	(ARM_state_e[]){ACT_ARM_POS_OPEN,ACT_ARM_POS_DISPOSED_SIMPLE,ACT_ARM_POS_TO_CARRY});
+	add_perm_transitions_table(ACT_ARM_POS_DISPOSED_SIMPLE,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
+	add_perm_transitions_table(ACT_ARM_POS_PREPARE_TAKE_ON_EDGE,	1,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_TAKE_ON_EDGE_2});
+	add_perm_transitions_table(ACT_ARM_POS_PREPARE_TAKE_ON_EDGE_2,	1,	(ARM_state_e[]){ACT_ARM_POS_TAKE_ON_EDGE});
+
+	add_perm_transitions_table(ACT_ARM_POS_TO_CARRY,				1,	(ARM_state_e[]){ACT_ARM_POS_TAKE_ON_EDGE});
 
 #endif
 }
