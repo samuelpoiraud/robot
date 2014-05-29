@@ -1194,9 +1194,9 @@ error_e action_recalage_x(way_e sens, Sint16 wanted_x, Sint16 diff_x){
 
 		case GET_OUT :
 			if(global.env.pos.x > 1000)
-				state = try_going(wanted_x - 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+				state = try_going_until_break(wanted_x - 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(wanted_x + 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+				state = try_going_until_break(wanted_x + 200, global.env.pos.y, GET_OUT, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_WITH_ERROR :

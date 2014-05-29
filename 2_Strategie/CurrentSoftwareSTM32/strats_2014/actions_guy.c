@@ -55,7 +55,7 @@ static void send_message_to_pierre(Uint11 sid, Uint8 data0);
 
 // Fonctionne que pour les chemins MAMMOUTH_SIDE et HEART_SIDE
 bool_e rush_to_torch = FALSE;  // Si FALSE va faire tomber un ou des triangle(s) avant
-bool_e fall_fire_wall_adv = TRUE;  // Va aller faire tomber le feu si on sait que l'ennemis ne le fais pas tomber des le debut
+
 
 bool_e strat_homologation_triangle = FALSE;
 
@@ -85,8 +85,7 @@ typedef enum{
 	TORCH_ROAD,
 	SOUTH_HEART,
 	SOUTH_TREES,
-	ALREADY_ON_CENTRAL_HEARTH,
-	FAIL_IN_MANCHOT
+	ALREADY_ON_CENTRAL_HEARTH
 }initial_path_e;	//Chemin initial choisi pour se rendre du coté adverse
 
 
@@ -125,12 +124,6 @@ error_e sub_action_initiale_guy(){
 		GO_ADV_TORCH,
 		DO_ADV_TORCH,
 		FALL_FIRE_MOBILE_MM_ADV,
-		FALL_FIRE_WALL_ADV,
-			FIRST_MANCHOT,
-			SECOND_MANCHOT,
-			THIRD_MANCHOT,
-			ADV_FIRES_MANCHOT,
-			ADV_CENTRAL_FIRE_MANCHOT,
 		DONE,
 		ERROR
 	);
@@ -147,21 +140,27 @@ error_e sub_action_initiale_guy(){
 	if(global.env.reach_point_C1)
 		pierre_reach_point_C1 = TRUE;
 
-	static displacement_t way_manchot[3];
-	static displacement_t way_manchot_adv_fires[4];
+
+	if(!we_prevented_pierre_to_get_out)
+	{
+		//ATTENTION, on utilise pas les warners qui peuvent ainsi être utilisés pour le bras !
+		if(COLOR_Y(global.env.pos.y) > y_to_prevent_pierre_to_get_out)
+		{
+			we_prevented_pierre_to_get_out = TRUE;
+			REACH_POINT_GET_OUT_INIT_send_request();
+			BUZZER_play(100,DEFAULT_NOTE,1);
+		}
+	}
 
 	switch(state)
 	{
 		case INIT:
-
-
-
 			we_have_a_torch = FALSE;
 			we_prevented_pierre_to_get_out = FALSE;
 			if(SWITCH_STRAT_2)	//NORTH ou SOUTH
 			{
 				if(SWITCH_STRAT_3)	//intérieur ou extérieur
-					initial_path = SOUTH_TREES;		//Sud extérieur : proche des arbres
+					initial_path = SOUTH_TREES;		//Sud extérieur : proche des arbres, CE CHEMIN POSE LES FEUX AU PASSAGE
 				else
 					initial_path = SOUTH_HEART;		//Sud intérieur : proche du foyer central
 			}
@@ -226,6 +225,11 @@ error_e sub_action_initiale_guy(){
 					state = GET_OUT_POS_START;
 			#endif
 
+			if(initial_path == NORTH_MAMMOUTH)
+				y_to_prevent_pierre_to_get_out = 1000;	//Pas de COLOR_Y() ici !
+			else
+				y_to_prevent_pierre_to_get_out = 400;
+
 			break;
 
 		case FALL_FIRST_FIRE:
@@ -262,8 +266,17 @@ error_e sub_action_initiale_guy(){
 
 
 			#ifdef MANCHOT
-			if(ON_LEAVING(GET_OUT_POS_START))
-				state = FIRST_MANCHOT;
+
+				if(ON_LEAVING(GET_OUT_POS_START))
+					state = FIRST_MANCHOT;
+
+				dispose_zone_for_adversary_torch = NO_DISPOSE;
+
+				//Désactivation de toutes les subactions qui nécessitent un bras fonctionnel.
+				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
+				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_2,TRUE);
+				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_3,TRUE);
+
 			#endif
 
 
@@ -279,23 +292,7 @@ error_e sub_action_initiale_guy(){
 			state = try_go_angle((global.env.color == RED)?PI4096/4:-PI4096/4,state,GOTO_ADVERSARY_ZONE,GOTO_ADVERSARY_ZONE,FAST);
 			break;
 		case GOTO_ADVERSARY_ZONE:
-			if(entrance)
-			{
-				if(initial_path == NORTH_MAMMOUTH)
-					y_to_prevent_pierre_to_get_out = 1000;	//Pas de COLOR_Y() ici !
-				else
-					y_to_prevent_pierre_to_get_out = 400;
-			}
-			if(!we_prevented_pierre_to_get_out)
-			{
-				//ATTENTION, on utilise pas les warners qui peuvent ainsi être utilisés pour le bras !
-				if(COLOR_Y(global.env.pos.y) > y_to_prevent_pierre_to_get_out)
-				{
-					we_prevented_pierre_to_get_out = TRUE;
-					REACH_POINT_GET_OUT_INIT_send_request();
-					BUZZER_play(100,DEFAULT_NOTE,1);
-				}
-			}
+
 			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,DO_OUR_TORCH,ERROR);
 			if(state != GOTO_ADVERSARY_ZONE)
 				ASSER_set_acceleration(64);
@@ -345,69 +342,37 @@ error_e sub_action_initiale_guy(){
 				{
 					case IN_PROGRESS:
 						break;
-					case END_OK:
-						state = (fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV : DONE;
-						break;
-					case NOT_HANDLED:	//no break
 					default:
-						state = (fall_fire_wall_adv == TRUE)? FALL_FIRE_WALL_ADV: ERROR;
+						state = DONE;
 				}
 			}
 
 			break;
-		case FALL_FIRE_WALL_ADV:
-			state = DONE;
-			break;
-
-
-		case FIRST_MANCHOT:
-			if(entrance)
-			{
-				dispose_zone_for_adversary_torch = NO_DISPOSE;
-				initial_path = FAIL_IN_MANCHOT;
-
-				//Désactivation de toutes les subactions qui nécessitent un bras fonctionnel.
-				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
-				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_2,TRUE);
-				set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_3,TRUE);
-
-				way_manchot[0] = (displacement_t) {{1200,COLOR_Y(420)},	FAST};
-				way_manchot[1] = (displacement_t) {{1370,COLOR_Y(970)},	FAST};
-				way_manchot[2] = (displacement_t) {{1570,COLOR_Y(1200)},FAST};
-			}
-
-			state = try_going_multipoint(way_manchot,3,FIRST_MANCHOT,SECOND_MANCHOT,GOTO_ADVERSARY_ZONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
-			if(ON_LEAVING(FIRST_MANCHOT))
-				ASSER_set_acceleration(64);
-			break;
-
-		case SECOND_MANCHOT:
-			state = try_going(1600,COLOR_Y(900),SECOND_MANCHOT,THIRD_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,FORWARD,NO_DODGE_AND_WAIT);
-			break;
-
-		case THIRD_MANCHOT:
-			state = try_going_until_break(1600,COLOR_Y(1700),THIRD_MANCHOT,ADV_FIRES_MANCHOT,GOTO_ADVERSARY_ZONE,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-
-			if(ON_LEAVING(THIRD_MANCHOT) && state == GOTO_ADVERSARY_ZONE && global.env.pos.y > 1600)
-				state = DONE;
-
-			break;
-		case ADV_FIRES_MANCHOT:
-			if(entrance)
-			{
-				way_manchot_adv_fires[0] = (displacement_t) {{1350,COLOR_Y(2100)},	FAST};
-				way_manchot_adv_fires[1] = (displacement_t) {{1600,COLOR_Y(2500)},	FAST};
-				way_manchot_adv_fires[2] = (displacement_t) {{1600,COLOR_Y(2000)},	FAST};
-				way_manchot_adv_fires[3] = (displacement_t) {{1600,COLOR_Y(2600)},	FAST};
-			}
-			state = try_going_multipoint(way_manchot_adv_fires,4,ADV_FIRES_MANCHOT,ADV_CENTRAL_FIRE_MANCHOT,DONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
-
-			break;
-		case ADV_CENTRAL_FIRE_MANCHOT:
-			state = try_going(1000,COLOR_Y(2650),ADV_CENTRAL_FIRE_MANCHOT,DONE,DONE,FAST,FORWARD,NO_DODGE_AND_WAIT);
-			break;
 
 		case DONE:
+			//En fonction de notre position, on peut jouer sur la priorité des feux fixes à faire.
+
+			if(est_dans_carre(400,1200,COLOR_Y(2400),COLOR_Y(3000),(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+			{	//On donne la priorité au feu start de l'adversaire
+				//Si cette action est désactivé, peu importe, on peut quand même régler sa priorité.
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_ADV,3);
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_2,4);
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_3,5);
+
+			}
+			else if(est_dans_carre(1400,2000,1500,2000,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+			{
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_ADV,5);
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_2,4);
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_3,3);
+			}
+			else if(est_dans_carre(1400,2000,1000,1500,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+			{
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_ADV,5);
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_2,3);
+				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_3,4);
+			}
+
 			return END_OK;
 			break;
 
@@ -574,9 +539,7 @@ void goto_adversary_zone_arm_management(void)
 				case ALREADY_ON_CENTRAL_HEARTH:
 					state = DONE;
 					break;
-				case FAIL_IN_MANCHOT:
-					state = DONE;
-					break;
+
 			}
 			break;
 			case WAIT_FOR_TREE_FIRE:
@@ -635,12 +598,19 @@ error_e goto_adversary_zone(void)
 		SW1,
 		SW2,
 		SW3,
+		CENTRAL_FIRE,
+		BEHIND_SOUTH_FIRE,
+		DO_SOUTH_FIRE,
+		ADV_SOUTH_FIRE,
+		ADV_CENTRAL_FIRE,
 		DISPOSE_POINT_TORCH,
 		FAIL_DISPOSE_POINT,
 		DONE
 	);
 	static enum state_e fail_state = INIT;
 	static enum state_e success_state = INIT;
+	static displacement_t way_our_fires[3];
+	static displacement_t way_adv_fires[4];
 
 	error_e ret;
 	ret = IN_PROGRESS;
@@ -651,7 +621,7 @@ error_e goto_adversary_zone(void)
 			{
 				case SOUTH_TREES:
 					SD_printf("CHEMIN : Sud, arbres (SOUTH Ext)\n");
-					state = SB2;
+					state = CENTRAL_FIRE;		//Dans ce chemin, on fait les feux au passage. C'est plus long, mais c'est rentable.
 					break;
 				case SOUTH_HEART:
 					SD_printf("CHEMIN : Sud, proche foyer (SOUTH Int)\n");
@@ -673,10 +643,6 @@ error_e goto_adversary_zone(void)
 					SD_printf("CHEMIN : Already on central hearth\n");
 					state = SW3;
 					break;
-				case FAIL_IN_MANCHOT:
-					SD_printf("CHEMIN : Fail in manchot\n");
-					state = SB2;
-					break;
 			}
 			break;
 		/*case WAIT_FOR_PIERRE:
@@ -697,7 +663,7 @@ error_e goto_adversary_zone(void)
 		case SB2:
 			if(entrance)
 			{
-				if(initial_path == SOUTH_HEART || initial_path == FAIL_IN_MANCHOT)
+				if(initial_path == SOUTH_HEART)
 					success_state = SC2;
 				else
 					success_state = SC3;
@@ -782,18 +748,62 @@ error_e goto_adversary_zone(void)
 		case SW3:
 			state = try_going_until_break(1750,COLOR_Y(1800),SW3,DONE,SC2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
-			//TODO poursuivre le déplacement vers d'autres points clés pour chaque chemin... afin de mettre les feux mobiles (selon deines)
 		case DISPOSE_POINT_TORCH:
-			//state = try_going(DISPOSE_POINT_X,DISPOSE_POINT_Y,DISPOSE_POINT_TORCH,DONE,FAIL_DISPOSE_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
-			//if(state == DONE)
-				we_have_a_torch = TRUE;
-				state = DONE;
+			we_have_a_torch = TRUE;
+			state = DONE;
 			break;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+		//CHEMIN SOUTH EXT : MARQUAGE DES FEUX CENTRAUX ET SUD.
+
+		case CENTRAL_FIRE:
+			if(entrance)
+			{
+				way_our_fires[0] = (displacement_t) {{1200,COLOR_Y(420)},	FAST};
+				way_our_fires[1] = (displacement_t) {{1370,COLOR_Y(970)},	FAST};
+				way_our_fires[2] = (displacement_t) {{1570,COLOR_Y(1200)},FAST};
+				ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD);
+			}
+			state = try_going_multipoint(way_our_fires,3,state,BEHIND_SOUTH_FIRE,SB2,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
+			if(ON_LEAVING(CENTRAL_FIRE))
+				ASSER_set_acceleration(64);
+			break;
+
+		case BEHIND_SOUTH_FIRE:
+			state = try_going(1600,COLOR_Y(900),BEHIND_SOUTH_FIRE,DO_SOUTH_FIRE,SB2,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case DO_SOUTH_FIRE:
+			state = try_going_until_break(1600,COLOR_Y(1700),DO_SOUTH_FIRE,ADV_SOUTH_FIRE,SW2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+
+			break;
+		case ADV_SOUTH_FIRE:
+			if(entrance)
+			{
+				way_adv_fires[0] = (displacement_t) {{1300,COLOR_Y(2100)},	FAST};
+				way_adv_fires[1] = (displacement_t) {{1500,COLOR_Y(2400)},	FAST};
+			}
+			state = try_going_multipoint(way_adv_fires,2,ADV_SOUTH_FIRE,ADV_CENTRAL_FIRE,DONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
+
+			break;
+		case ADV_CENTRAL_FIRE:
+			if(entrance)
+			{
+				way_adv_fires[0] = (displacement_t) {{1600,COLOR_Y(2000)},	FAST};
+				way_adv_fires[1] = (displacement_t) {{1350,COLOR_Y(2600)},	FAST};
+				way_adv_fires[2] = (displacement_t) {{1000,COLOR_Y(2650)},	FAST};
+			}
+			state = try_going_multipoint(way_adv_fires,3,ADV_CENTRAL_FIRE,DONE,DONE,FORWARD,NO_DODGE_AND_WAIT,END_AT_BREAK);
+
+			break;
+////////////////////////////////////////////////////////////////////////////////////////////
+
 		case FAIL_DISPOSE_POINT:
 			state = INIT;
 			ret = END_OK;
 			break;
 		case DONE:
+			ACT_arm_goto(ACT_ARM_POS_PARKED);
 			state = INIT;
 			ret = END_OK;
 			break;
@@ -1800,14 +1810,18 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		case SHOULD_WE_DO_CALAGE:
 			state = ACTION;	//Par défaut, pas de calage.
 
-			if(save_vertical_triangle == V_TRIANGLE_1 && !foe_in_square(FALSE,0,500,0,500))
-			{	//Si on veut faire le feu de départ, et s'il n'y a pas de robot dans la zone de départ rouge... on va tenter un calage
-				state = GOTO_CALAGE_X;
-			}
+			if(global.env.match_time < 70000)
+			{
+				//S'il me reste du temps dans le match
+				if(save_vertical_triangle == V_TRIANGLE_1 && !foe_in_square(FALSE,0,500,0,500))
+				{	//Si on veut faire le feu de départ, et s'il n'y a pas de robot dans la zone de départ rouge... on va tenter un calage
+					state = GOTO_CALAGE_X;
+				}
 
-			if(save_vertical_triangle == V_TRIANGLE_4 && !foe_in_square(FALSE,0,500,2500,3000))
-			{	//Si on veut faire le feu de départ, et s'il n'y a pas de robot dans la zone de départ rouge... on va tenter un calage
-				state = GOTO_CALAGE_X;
+				if(save_vertical_triangle == V_TRIANGLE_4 && !foe_in_square(FALSE,0,500,2500,3000))
+				{	//Si on veut faire le feu de départ, et s'il n'y a pas de robot dans la zone de départ rouge... on va tenter un calage
+					state = GOTO_CALAGE_X;
+				}
 			}
 			break;
 
@@ -1817,7 +1831,7 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			if(entrance)
 			{
 				displacements[0] = (displacement_t){(GEOMETRY_point_t){400, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
-				displacements[1] = (displacement_t){(GEOMETRY_point_t){200, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
+				displacements[1] = (displacement_t){(GEOMETRY_point_t){120, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
 			}
 			state = try_going_multipoint(displacements,2,state,CALAGE_X,ACTION,FORWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
