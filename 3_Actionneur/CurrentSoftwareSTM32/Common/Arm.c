@@ -366,7 +366,8 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_ARM_GOTO:
 				if(msg->data[1] == ACT_ARM_POS_ON_TRIANGLE || msg->data[1] == ACT_ARM_POS_ON_TORCHE)
 					get_data_pos_triangle(msg);
-				if(old_state == msg->data[1]){}
+				if(old_state == msg->data[1])
+					ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_DONE, ACT_RESULT_ERROR_OK);
 				else if(arm_states_transitions[old_state][msg->data[1]] == 1)
 					ACTQ_push_operation_from_msg(msg, QUEUE_ACT_Arm, &ARM_run_command, msg->data[1],TRUE);
 				else if(find_state_path(old_state, msg->data[1])){

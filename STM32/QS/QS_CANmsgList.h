@@ -525,6 +525,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_PREPARE_DROP_AUTO) \
 			XX(ACT_ARM_POS_ON_DROP_1_AUTO) \
 			XX(ACT_ARM_POS_ON_DROP_2_AUTO) \
+			XX(ACT_ARM_POS_ON_PREPARE_DROP_3_AUTO) \
 			XX(ACT_ARM_POS_ON_DROP_3_AUTO) \
 			XX(ACT_ARM_POS_TO_STORAGE) \
 			XX(ACT_ARM_POS_TO_CARRY) \

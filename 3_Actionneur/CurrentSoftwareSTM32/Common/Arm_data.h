@@ -64,9 +64,17 @@ extern bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 // Etat à prendre pour initialiser le bras dans une position connue
 #define POS_INIT_ARM	ACT_ARM_POS_PARKED
 
+#define OFFSET_BIG_UP_DOWN	-5
+#define OFFSET_BIG_AX12_MID	17
+
+
+#define SMALL_VENTOUSE_HORIZONTALE 152
+#define OFFSET_SMALL_UPDOWN 25
+
+
 #ifdef I_AM_ROBOT_SMALL
-	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1822*(x)+29.086))
-	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1822+29.086/3.1822))
+	#define conv_dist_to_potar_updown(x) ((Sint16)(-3.1822*(x)+29.086 + OFFSET_SMALL_UPDOWN))
+	#define conv_potar_updown_to_dist(x) ((Sint16)(-(x)/3.1822+(29.086 + OFFSET_SMALL_UPDOWN)/3.1822))
 #else
 	#define conv_dist_to_potar_updown(x) ((Sint16)(2.662*(x)-462.4))
 	#define conv_potar_updown_to_dist(x) ((Sint16)((x)*0.374+159.9))
