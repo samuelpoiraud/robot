@@ -32,6 +32,7 @@
 #include "scan_triangle.h"
 #include "LCDTouch/LCD.h"
 #include "hokuyo.h"
+#include "supervisor.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -752,6 +753,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 				global.mode_best_effort_enable = TRUE;
 			#endif
 		break;
+		case DEBUG_SET_ERROR_TRESHOLD_TRANSLATION:
+			SUPERVISOR_set_treshold_error_translation(msg->data[0]);
+			break;
 		case CARTE_ASSER_FIN_ERREUR:
 			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
 		break;

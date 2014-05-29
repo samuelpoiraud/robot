@@ -25,6 +25,7 @@
 void SUPERVISOR_error_check_enable(bool_e enable);  //Active la surveillance des erreurs.
 void SUPERVISOR_error_check(bool_e raz_cteur_immo);
 
+volatile Sint32 treshold_error_translation;
 volatile SUPERVISOR_state_e state = SUPERVISOR_INIT;
 volatile Uint8 number_of_rounds_returns;
 volatile bool_e error_check_enable;
@@ -39,6 +40,7 @@ void SUPERVISOR_init(void)
 {
 	SUPERVISOR_state_machine(EVENT_NOTHING_TO_DO,FALSE);
 	SUPERVISOR_error_check_enable(TRUE);
+	SUPERVISOR_set_treshold_error_translation(TRESHOLD_ERROR_TRANSLATION);
 }
 
 
@@ -48,7 +50,14 @@ void SUPERVISOR_process_it(void)
 }
 
 
-
+//unité : mm
+void SUPERVISOR_set_treshold_error_translation(Uint8 value)
+{
+	if(value == 0)
+		treshold_error_translation = TRESHOLD_ERROR_TRANSLATION;	//RESET
+	else
+		treshold_error_translation = (Sint32)(value) * 4096;
+}
 
 void SUPERVISOR_state_machine(SUPERVISOR_event_e event, acknowledge_e ack)
 {
@@ -173,7 +182,7 @@ void SUPERVISOR_error_check(bool_e reset_error_check)
 
 	//	On regarde si on doit y aller...
 	//ERREUR de point fictif trop loin... on semble bloqués.
-	if (	(CORRECTOR_PD_enable_get_translation()  && absolute(global.ecart_translation)>TRESHOLD_ERROR_TRANSLATION ) ||
+	if (	(CORRECTOR_PD_enable_get_translation()  && absolute(global.ecart_translation)>treshold_error_translation ) ||
 			 (CORRECTOR_PD_enable_get_rotation()  && absolute(global.ecart_rotation)>THRESHOLD_ERROR_ROTATION)	 )
 	{
 		error_source = UNABLE_TO_GO_ERROR;

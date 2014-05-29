@@ -48,4 +48,7 @@
 	void SUPERVISOR_number_of_rounds_returns_increment(void);
 	void SUPERVISOR_config_intern_acknowledge(void (*prt)(void));
 
+	void SUPERVISOR_set_treshold_error_translation(Uint8 value);
+
+
 #endif //def _SUPERVISOR_H

@@ -21,8 +21,8 @@
  * Pour ceux qui veulent, il est possible de prédéfinir PREDEF_BUILD_SMALL ou PREDEF_BUILD_BIG avec le switch -DPREDEF_BUILD_SMALL ou -DPREDEF_BUILD_BIG de gcc, permet la creation de plusieurs target dans mplab X au moins.
  * PREDEF_BUILD_SMALL et PREDEF_BUILD_BIG sont prioritaire sur la définition manuelle.
  */
-//#define I_AM_ROBOT_BIG
-#define I_AM_ROBOT_SMALL
+#define I_AM_ROBOT_BIG
+//#define I_AM_ROBOT_SMALL
 
 
 //Compatibilité avec les fichiers qui utilise l'ancien #define pour KRUSTY et TINY
