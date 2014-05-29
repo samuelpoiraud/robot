@@ -65,6 +65,18 @@ void ASSER_stop_stack(stack_id_e stack_id, bool_e init) {
 	}
 }
 
+
+void ASSER_set_threshold_error_translation(Uint8 value, bool_e reset)
+{
+	CAN_msg_t msg;
+	msg.sid = DEBUG_SET_ERROR_TRESHOLD_TRANSLATION;
+	if(reset)
+		msg.data[0] = 0;
+	else
+		msg.data[0] = value;
+	msg.size = 1;
+	CAN_send(&msg);
+}
 //Impose une position à la propulsion... (A ne pas faire en match !!!!!)
 void ASSER_set_position(Sint16 x, Sint16 y, Sint16 teta)
 {

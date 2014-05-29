@@ -79,6 +79,8 @@
 	#define DEBUG_PROPULSION_SET_ACCELERATION						0x713		//Data sur 16 bits. (unité : mm/4096/5ms/5ms) Grandeur typique : 100
 		//Uint16 : durée de la trajectoire en [ms]
 
+	#define DEBUG_SET_ERROR_TRESHOLD_TRANSLATION					0x714
+		//Sint32 sur data 0 à 3 : en mm.
 	typedef enum
 	{
 		ODOMETRY_COEF_TRANSLATION = 0,

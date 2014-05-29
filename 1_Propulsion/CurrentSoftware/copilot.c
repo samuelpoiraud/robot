@@ -20,7 +20,7 @@
 #include "cos_sin.h"
 #include "debug.h"
 #include "QS/QS_watchdog.h"
-
+#include "QS/QS_who_am_i.h"
 volatile order_t current_order;
 
 trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, Sint16 destination_y, Sint16 viewing_angle, way_e way);
@@ -478,7 +478,7 @@ arrived_e Decision_robot_arrive_bordure(void)
 		return DEBUG_get_we_touch_border();
 	#endif
 	//si on est en mode calage, la condition d'arrivée est un écart entre le point fictif et notre position...
-	if(absolute(global.ecart_translation)>TRESHOLD_CALIBRATION_TRANSLATION)
+	if(absolute(global.ecart_translation)>(QS_WHO_AM_I_get()==BIG_ROBOT)?BIG_TRESHOLD_CALIBRATION_TRANSLATION:SMALL_TRESHOLD_CALIBRATION_TRANSLATION)
 	{
 		//accepter l'écart obtenu...
 		PILOT_referential_reset();
