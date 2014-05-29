@@ -29,8 +29,8 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 static ACTQ_functions_t actionneurs[] = {
 	ACT_DECLARE(SMALL_ARM),
-	ACT_DECLARE(POMPE),
-	ACT_DECLARE(ARM)
+	ACT_DECLARE(POMPE)//,
+	//ACT_DECLARE(ARM)
 };
 
 static const Uint8 NB_ACTIONNEURS = sizeof(actionneurs) / sizeof(ACTQ_functions_t);

@@ -22,6 +22,7 @@
 #define SMALL_VENTOUSE_HORIZONTALE 153
 
 #define OFFSET_BIG_UP_DOWN	-5
+#define OFFSET_AX12_MID_BIG	17
 
 // Liste de moteurs
 const ARM_motor_data_t ARM_MOTORS[] = {
@@ -36,38 +37,38 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 #ifdef I_AM_ROBOT_BIG
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
 		// moteur (dans l'ordre)
-		{-168+OFFSET_BIG_UP_DOWN	,240	,49,	43},	//ARM_ST_Pre_Parked_1
-		{-168+OFFSET_BIG_UP_DOWN	,217	,32,	43},	//ARM_ST_Pre_Parked_2
-		{-131+OFFSET_BIG_UP_DOWN	,217	,32,	43},	//ARM_ST_Parked
-		{-131+OFFSET_BIG_UP_DOWN	,180	,29,	43},	//ARM_ST_Mid
-		{-131+OFFSET_BIG_UP_DOWN	,180	,84,	43},	//ARM_ST_Open
+		{-168+OFFSET_BIG_UP_DOWN	,240	,49+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_Pre_Parked_1
+		{-168+OFFSET_BIG_UP_DOWN	,217	,32+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_Pre_Parked_2
+		{-131+OFFSET_BIG_UP_DOWN	,217	,32+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_Parked
+		{-131+OFFSET_BIG_UP_DOWN	,180	,29+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_Mid
+		{-131+OFFSET_BIG_UP_DOWN	,180	,84+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_Open
 
 		{0		,0		,0		,0},	//ARM_ST_On_Torche						NOT USE			// Distance factice
 
-		{-131+OFFSET_BIG_UP_DOWN	,212	,200,	43},	//ARM_ST_On_Torche_Small_Arm
-		{-131+OFFSET_BIG_UP_DOWN	,224	,164,	43},	//ARM_ST_On_Torche_Small_Arm_Rescue
-		{-131+OFFSET_BIG_UP_DOWN	,159	,23,	43},	//ARM_ST_Prepare_1_Torche_Auto
-		{-99+OFFSET_BIG_UP_DOWN	,159	,23,	43},	//ARM_ST_Prepare_2_Torche_Auto
-		{-99+OFFSET_BIG_UP_DOWN	,163	,22,	158},	//ARM_ST_On_Torche_Auto
-		{-71+OFFSET_BIG_UP_DOWN	,159	,23,	158},	//ARM_ST_On_Torche_Auto_Escape_1
-		{-71+OFFSET_BIG_UP_DOWN	,159	,120,	158},	//ARM_ST_On_Torche_Auto_Escape_2
-		{-131+OFFSET_BIG_UP_DOWN	,180	,84,	43},	//ARM_ST_Prepare_Drop_Auto
-		{-131+OFFSET_BIG_UP_DOWN	,151	,276,	43},	//ARM_ST_On_Drop_1_Auto
-		{-131+OFFSET_BIG_UP_DOWN	,152	,103,	152},	//ARM_ST_On_Drop_2_Auto
-		{-131+OFFSET_BIG_UP_DOWN	,194	,145,	152},	//ARM_ST_On_Drop_3_Auto
+		{-131+OFFSET_BIG_UP_DOWN	,212	,200+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_On_Torche_Small_Arm
+		{-131+OFFSET_BIG_UP_DOWN	,224	,164+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_On_Torche_Small_Arm_Rescue
+		{-131+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_Prepare_1_Torche_Auto
+		{-99+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_Prepare_2_Torche_Auto
+		{-99+OFFSET_BIG_UP_DOWN	,163	,22+OFFSET_AX12_MID_BIG,	158},	//ARM_ST_On_Torche_Auto
+		{-71+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_AX12_MID_BIG,	158},	//ARM_ST_On_Torche_Auto_Escape_1
+		{-71+OFFSET_BIG_UP_DOWN	,159	,120+OFFSET_AX12_MID_BIG,	158},	//ARM_ST_On_Torche_Auto_Escape_2
+		{-131+OFFSET_BIG_UP_DOWN	,180	,84+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_Prepare_Drop_Auto
+		{-131+OFFSET_BIG_UP_DOWN	,151	,270+OFFSET_AX12_MID_BIG,	43},	//ARM_ST_On_Drop_1_Auto
+		{-131+OFFSET_BIG_UP_DOWN	,152	,103+OFFSET_AX12_MID_BIG,	152},	//ARM_ST_On_Drop_2_Auto
+		{-131+OFFSET_BIG_UP_DOWN	,194	,145+OFFSET_AX12_MID_BIG,	152},	//ARM_ST_On_Drop_3_Auto
 
 		{0		,0		,0		,0},	//ARM_ST_To_Storage						NOT USE
-		{-221+OFFSET_BIG_UP_DOWN	,238	,265	,154},	//ARM_ST_To_Carry
+		{-221+OFFSET_BIG_UP_DOWN	,238	,265+OFFSET_AX12_MID_BIG	,154},	//ARM_ST_To_Carry
 
-		{-131+OFFSET_BIG_UP_DOWN	,146	,134	,56},	//ARM_ST_To_Prepare_Return
-		{-71+OFFSET_BIG_UP_DOWN	,146	,134	,56},	//ARM_ST_To_Down_Return
-		{-71+OFFSET_BIG_UP_DOWN	,146	,134	,56},	//ARM_ST_To_Return
+		{-131+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_AX12_MID_BIG	,56},	//ARM_ST_To_Prepare_Return
+		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_AX12_MID_BIG	,56},	//ARM_ST_To_Down_Return
+		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_AX12_MID_BIG	,56},	//ARM_ST_To_Return
 
 		{0		,0		,0		,0},	//ARM_ST_Wait_Return					NOT USE
 
 		{0		,0		,0		,0},	//ARM_ST_To_Prepare_Take_Return			NOT USE
 		{0		,0		,0		,0},	//ARM_ST_To_Take_Return					NOT USE
-		{-71+OFFSET_BIG_UP_DOWN	,146	,134	,152},	//ARM_ST_To_Unblock_Return
+		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_AX12_MID_BIG	,152},	//ARM_ST_To_Unblock_Return
 		{0		,0		,0		,0},	//ARM_ST_To_Unblock_Return_Up
 
 		{0		,0		,0		,0},	//ARM_ST_On_Triangle					NOT USE			// Distance factice
@@ -76,19 +77,19 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{0		,0		,0		,0},	//ARM_ST_Down_Backward					NOT USE
 		{0		,0		,0		,0},	//ARM_ST_Lock_Backward					NOT USE
 
-		{-71+OFFSET_BIG_UP_DOWN	,214	,214	,244},	//ARM_ST_Prepare_Take_On_Edge
-		{-181+OFFSET_BIG_UP_DOWN	,214	,214	,244},	//ARM_ST_Prepare_Take_On_Edge_2
-		{-181+OFFSET_BIG_UP_DOWN	,214	,214	,161},	//ARM_ST_Take_On_Edge
+		{-71+OFFSET_BIG_UP_DOWN	,214	,214+OFFSET_AX12_MID_BIG,	244},	//ARM_ST_Prepare_Take_On_Edge
+		{-181+OFFSET_BIG_UP_DOWN	,214	,214+OFFSET_AX12_MID_BIG	,244},	//ARM_ST_Prepare_Take_On_Edge_2
+		{-181+OFFSET_BIG_UP_DOWN	,214	,214+OFFSET_AX12_MID_BIG	,161},	//ARM_ST_Take_On_Edge
 		{0		,0		,0		,0},	//ARM_ST_Return_On_Edge					NOT USE
-		{-221+OFFSET_BIG_UP_DOWN	,205	,204	,169},	//ARM_ST_Disposed_Simple
+		{-221+OFFSET_BIG_UP_DOWN	,205	,204+OFFSET_AX12_MID_BIG	,169},	//ARM_ST_Disposed_Simple
 
-		{0		,0		,0		,0},	//ARM_ST_Prepare_Take_On_Road			NOT USE
-		{-215+OFFSET_BIG_UP_DOWN	,130	,173,	244},	//ARM_ST_Take_On_Road
-		{-215+OFFSET_BIG_UP_DOWN	,124	,182,	244},	//ARM_ST_Take_On_Road_Mamouth
+		{-215+OFFSET_BIG_UP_DOWN	,130	,173+OFFSET_AX12_MID_BIG,	244},	//ARM_ST_Prepare_Take_On_Road			NOT USE
+		{-215+OFFSET_BIG_UP_DOWN	,130	,173+OFFSET_AX12_MID_BIG,	244},	//ARM_ST_Take_On_Road
+		{-489	,188	,234,	244},	//ARM_ST_Take_On_Road_Mamouth
 
-		{-71+OFFSET_BIG_UP_DOWN	,171	,140	,152},	//ARM_ST_Deposed_Torch
-		{-71+OFFSET_BIG_UP_DOWN	,171	,140	,243},	//ARM_ST_Escape_Torch_1
-		{-71+OFFSET_BIG_UP_DOWN	,182	,200	,243}	//ARM_ST_Escape_Torch_2
+		{-71+OFFSET_BIG_UP_DOWN	,171	,140+OFFSET_AX12_MID_BIG	,152},	//ARM_ST_Deposed_Torch
+		{-71+OFFSET_BIG_UP_DOWN	,171	,140+OFFSET_AX12_MID_BIG	,243},	//ARM_ST_Escape_Torch_1
+		{-71+OFFSET_BIG_UP_DOWN	,182	,200+OFFSET_AX12_MID_BIG	,243}	//ARM_ST_Escape_Torch_2
 		};
 #else
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
@@ -210,15 +211,17 @@ void init_perm_transitions_table(){
 	add_perm_transitions_table(ACT_ARM_POS_TO_CARRY,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 
 	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_RETURN,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_DOWN_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,			2,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN, ACT_ARM_POS_TO_PREPARE_RETURN});
-	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,				2,	(ARM_state_e[]){ACT_ARM_POS_TO_DOWN_RETURN, ACT_ARM_POS_WAIT_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_DOWN_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_RETURN});
+	add_perm_transitions_table(ACT_ARM_POS_TO_RETURN,				1,	(ARM_state_e[]){ACT_ARM_POS_WAIT_RETURN});
 
 	add_perm_transitions_table(ACT_ARM_POS_WAIT_RETURN,				2,	(ARM_state_e[]){ACT_ARM_POS_TO_TAKE_RETURN, ACT_ARM_POS_OPEN});
 
 	add_perm_transitions_table(ACT_ARM_POS_TO_PREPARE_TAKE_RETURN,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_TO_TAKE_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_TAKE_RETURN,			1,	(ARM_state_e[]){ACT_ARM_POS_TO_UNBLOCK_RETURN});
 	add_perm_transitions_table(ACT_ARM_POS_TO_UNBLOCK_RETURN,		1,	(ARM_state_e[]){ACT_ARM_POS_TO_UNBLOCK_RETURN_UP});
-	add_perm_transitions_table(ACT_ARM_POS_TO_UNBLOCK_RETURN_UP,	3,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_ON_TORCHE, ACT_ARM_POS_ON_TRIANGLE});
+	add_perm_transitions_table(ACT_ARM_POS_TO_UNBLOCK_RETURN_UP,	3,	(ARM_state_e[]){ACT_ARM_POS_OPEN,
+																						ACT_ARM_POS_ON_TORCHE,
+																						ACT_ARM_POS_ON_TRIANGLE});
 
 	add_perm_transitions_table(ACT_ARM_POS_ON_TRIANGLE,				2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_ON_TORCHE});
 
@@ -249,13 +252,15 @@ void init_perm_transitions_table(){
 																						ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE,
 																						ACT_ARM_POS_PREPARE_TAKE_ON_EDGE});
 
-	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_SMALL_ARM,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_ON_DROP_1_AUTO});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_SMALL_ARM,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE,	1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
-	add_perm_transitions_table(ACT_ARM_POS_PREPARE_1_TORCHE_AUTO,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_PREPARE_2_TORCHE_AUTO});
-	add_perm_transitions_table(ACT_ARM_POS_PREPARE_2_TORCHE_AUTO,	2,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_1_TORCHE_AUTO, ACT_ARM_POS_ON_TORCHE_AUTO});
-	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_AUTO,			1,	(ARM_state_e[]){ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_1});
-	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_1,	1,	(ARM_state_e[]){ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_2});
-	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_2,	2,	(ARM_state_e[]){ACT_ARM_POS_OPEN,
+	add_perm_transitions_table(ACT_ARM_POS_PREPARE_1_TORCHE_AUTO,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN,
+																						ACT_ARM_POS_PREPARE_2_TORCHE_AUTO});
+	add_perm_transitions_table(ACT_ARM_POS_PREPARE_2_TORCHE_AUTO,		2,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_1_TORCHE_AUTO,
+																						ACT_ARM_POS_ON_TORCHE_AUTO});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_AUTO,				1,	(ARM_state_e[]){ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_1});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_1,		1,	(ARM_state_e[]){ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_2});
+	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_2,		2,	(ARM_state_e[]){ACT_ARM_POS_OPEN,
 																						ACT_ARM_POS_ON_DROP_3_AUTO});
 
 	add_perm_transitions_table(ACT_ARM_POS_PREPARE_DROP_AUTO,		4,	(ARM_state_e[]){ACT_ARM_POS_OPEN,

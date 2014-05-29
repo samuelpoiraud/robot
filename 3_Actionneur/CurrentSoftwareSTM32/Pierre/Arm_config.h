@@ -44,16 +44,16 @@
 #define ARM_ACT_RX24_ASSER_POS_EPSILON           5
 #define ARM_ACT_RX24_ASSER_POS_LARGE_EPSILON     10 //arbitraire, a changer
 #define ARM_ACT_RX24_MAX_TORQUE_PERCENT          50
-#define ARM_ACT_RX24_MAX_VALUE					 240
-#define ARM_ACT_RX24_MIN_VALUE					 52
+#define ARM_ACT_RX24_MAX_VALUE					 300
+#define ARM_ACT_RX24_MIN_VALUE					 0
 
 #define ARM_ACT_AX12_MID                         2
 #define ARM_ACT_AX12_MID_ASSER_TIMEOUT           50
 #define ARM_ACT_AX12_MID_ASSER_POS_EPSILON       5
 #define ARM_ACT_AX12_MID_ASSER_POS_LARGE_EPSILON 10 //arbitraire, a changer
-#define ARM_ACT_AX12_MID_MAX_TORQUE_PERCENT      60
-#define ARM_ACT_AX12_MID_MAX_VALUE				 285
-#define ARM_ACT_AX12_MID_MIN_VALUE				 11
+#define ARM_ACT_AX12_MID_MAX_TORQUE_PERCENT      75
+#define ARM_ACT_AX12_MID_MAX_VALUE				 300
+#define ARM_ACT_AX12_MID_MIN_VALUE				 0
 
 #define ARM_ACT_AX12_TRIANGLE                             3
 #define ARM_ACT_AX12_TRIANGLE_ASSER_TIMEOUT               50

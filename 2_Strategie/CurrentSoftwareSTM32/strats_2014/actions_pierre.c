@@ -153,7 +153,7 @@ error_e sub_action_initiale(void)
 				cooperation_enable = TRUE;
 
 			if(SWITCH_STRAT_3)
-				i_must_deal_with_our_torch = TRUE;
+				i_must_deal_with_our_torch = FALSE; // PROVISOIRE
 			else
 				i_must_deal_with_our_torch = FALSE;
 
@@ -200,7 +200,7 @@ error_e sub_action_initiale(void)
 		case LANCE_LAUNCHER:
 			if(entrance)
 			{
-				ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH);
+				//ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH);
 				if(i_must_deal_with_our_torch && !global.env.guy_took_fire[FIRE_ID_TORCH_OUR])
 				{
 					//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
@@ -321,9 +321,9 @@ error_e sub_action_initiale(void)
 		case DO_TREE_1:
 			if(entrance)
 			{
-				if(i_must_deal_with_our_torch)	//TODO : à remplacer par l'information si(j'ai une torche !)
-					success_state = DEPLOY_TORCH;
-				else
+//				if(i_must_deal_with_our_torch)	//TODO : à remplacer par l'information si(j'ai une torche !)
+//					success_state = DEPLOY_TORCH;
+//				else
 					success_state = DO_TREE_2;
 			}
 			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_1:CHOICE_TREE_2,TRIGO),DO_TREE_1,success_state,ERROR);
@@ -1724,21 +1724,21 @@ error_e ACT_arm_deploy_torche_pierre(){
 		case SCAN :
 			value_adc = get_dist_torch_laser();
 
-			if(value_adc < 135 && value_adc > 120)
+			if(value_adc < 140 && value_adc > 115)
 				niveau = 0;
-			else if(value_adc < 105 && value_adc > 90)
+			else if(value_adc < 110 && value_adc > 85)
 				niveau = 1;
-			else if(value_adc < 75 && value_adc > 60)
+			else if(value_adc < 80 && value_adc > 55)
 				niveau = 2;
 #ifdef	DISPOSED_TORCH
-			else if(value_adc < 46 && value_adc > 32)
+			else if(value_adc < 51 && value_adc > 28)
 				niveau = 3;
 #endif
 			else
 				state = DONE;
 
 			if(state != DONE){
-				debug_printf("Niveau de torche détécté : %d\n", niveau);
+				debug_printf("Niveau de torche détécté : %d / value %d\n", niveau, value_adc);
 				state = TORCHE;
 			}else
 				debug_printf("Pas de détection, valeur : %d", value_adc);
@@ -1765,7 +1765,7 @@ error_e ACT_arm_deploy_torche_pierre(){
 			if(niveau == 0)
 				state = ACT_elevator_arm_rush_in_the_floor(120-75, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
 			else if(niveau == 1)
-				state = ACT_elevator_arm_rush_in_the_floor(120-90, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
+				state = ACT_elevator_arm_rush_in_the_floor(120-100, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
 			else if(niveau == 2)
 				state = ACT_elevator_arm_rush_in_the_floor(75, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
 			else

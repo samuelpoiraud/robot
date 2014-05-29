@@ -290,7 +290,7 @@ static void ARM_initAX12(){
 
 				AX12_config_set_error_before_led(ARM_MOTORS[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 				AX12_config_set_error_before_shutdown(ARM_MOTORS[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
-#ifdef I_AM_ROBOT_SMALL
+/*#ifdef I_AM_ROBOT_SMALL
 				if(ARM_MOTORS[i].type == ARM_RX24){
 					AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 60);
 					AX12_set_torque_response(ARM_MOTORS[i].id, 2, 1, 0, 2);
@@ -298,7 +298,7 @@ static void ARM_initAX12(){
 					AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 20);
 					AX12_set_torque_response(ARM_MOTORS[i].id, 4, 1, 0, 4);
 				}
-#endif
+#endif*/
 				AX12_get_torque_response(ARM_MOTORS[i].id, &A, &B, &C, &D);
 				display(ARM_MOTORS[i].id);
 				display(AX12_get_punch_torque_percentage(ARM_MOTORS[i].id));
@@ -717,6 +717,8 @@ static bool_e gotoState(ARM_state_e state) {
 	bool_e ok = TRUE;
 	Uint8 i;
 
+	display(state < 0 || state >= ARM_ST_NUMBER);
+
 	if(state < 0 || state >= ARM_ST_NUMBER)
 		return FALSE;
 
@@ -728,9 +730,12 @@ static bool_e gotoState(ARM_state_e state) {
 			DCM_setPosValue(ARM_MOTORS[i].id, 0, ARM_get_motor_pos(state, i));
 			DCM_goToPos(ARM_MOTORS[i].id, 0);
 			DCM_restart(ARM_MOTORS[i].id);
+			debug_printf("Placement du moteur DC %s lancé\n", ARM_MOTORS[i].id);
 		} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
 			if(!AX12_set_position(ARM_MOTORS[i].id, ARM_get_motor_pos(state, i)))
 				ok = FALSE;
+			else
+				debug_printf("Placement AX12/RX24 : %d lancé\n", ARM_MOTORS[i].id);
 		}
 	}
 
