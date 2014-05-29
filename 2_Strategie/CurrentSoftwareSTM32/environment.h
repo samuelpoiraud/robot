@@ -107,6 +107,11 @@
 		ELEMENT_NONE //Non applicable
 	}map_state_e;
 
+	typedef struct{
+		GEOMETRY_point_t offset;
+		time32_t last_time;
+	}recalage_e;
+
 	#define MAX_BEACON_FOES	2
 	#define	MAX_HOKUYO_FOES	16
 	#define MAX_NB_FOES	(MAX_HOKUYO_FOES  + MAX_BEACON_FOES)	//Nombre max d'aversaires  (16 pour l'hokuyo + 2 pour la balise IR)
@@ -121,6 +126,7 @@
 		bool_e ask_asser_calibration;
 		bool_e ask_start;
 		bool_e alim;
+		recalage_e recalage;
 		Uint16 alim_value;		// en mV
 		asser_env_t asser;
 		position_t pos;					//comme son nom l'indique, c'est la position de notre robot
