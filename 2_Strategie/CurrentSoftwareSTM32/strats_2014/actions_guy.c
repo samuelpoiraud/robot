@@ -1816,14 +1816,14 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			static displacement_t displacements[2];
 			if(entrance)
 			{
-				displacements[0] = (displacement_t){(GEOMETRY_point_t){300, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
-				displacements[1] = (displacement_t){(GEOMETRY_point_t){150, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
+				displacements[0] = (displacement_t){(GEOMETRY_point_t){400, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
+				displacements[1] = (displacement_t){(GEOMETRY_point_t){200, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
 			}
 			state = try_going_multipoint(displacements,2,state,CALAGE_X,ACTION,FORWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 		}
 		case CALAGE_X:
-			switch(action_recalage_x(FORWARD, 0, 0))
+			switch(action_recalage_x(FORWARD, DIST_CALLAGE_GUY, 0))
 			{
 				case IN_PROGRESS:
 					break;
@@ -1917,7 +1917,7 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case PLACEMENT_INIT:
-			state = try_going(triangle_pos_begin[vertical_triangle].x, triangle_pos_begin[vertical_triangle].y, PLACEMENT_INIT, ROTATION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+			state = try_going(triangle_pos_begin[vertical_triangle].x+offset_x, triangle_pos_begin[vertical_triangle].y+offset_y, PLACEMENT_INIT, ROTATION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case ROTATION:
@@ -1959,7 +1959,7 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case BACK:
-			state = try_going(triangle_pos_end[vertical_triangle].x, triangle_pos_end[vertical_triangle].y, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, FAST, ANY_WAY, DODGE_AND_WAIT);
+			state = try_going(triangle_pos_end[vertical_triangle].x+offset_x, triangle_pos_end[vertical_triangle].y+offset_y, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, FAST, ANY_WAY, DODGE_AND_WAIT);
 
 #ifdef NOT_DROP_TRI_VERTICAL_HEARTH
 			if(ON_LEAVING(BACK))
@@ -2092,14 +2092,21 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		{1800,			1700-OFFSET_V_TRIANGLE},
 		{800+OFFSET_V_TRIANGLE,		2800}
 	};
-
-	switch (state) {
-		case IDLE:
+	static Sint16 offset_x, offset_y;
+		switch (state) {
+			case IDLE:
+				//Calcul des offsets liés à un éventuel calage récent.
+				offset_x = 0;
+				offset_y = 0;
+				if(global.env.match_time - global.env.recalage_x.last_time < 10000)	//Il y a moins de 10 secondes que nous nous sommes callés
+					offset_x = global.env.recalage_x.offset;
+				if(global.env.match_time - global.env.recalage_y.last_time < 10000)	//Il y a moins de 10 secondes que nous nous sommes callés
+					offset_x = global.env.recalage_y.offset;
 			state = PLACEMENT_INIT;
 			break;
 
 		case PLACEMENT_INIT:
-			state = try_going(triangle_pos_begin[vertical_triangle].x, triangle_pos_begin[vertical_triangle].y, PLACEMENT_INIT, ROTATION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+			state = try_going(triangle_pos_begin[vertical_triangle].x+offset_x, triangle_pos_begin[vertical_triangle].y+offset_y, PLACEMENT_INIT, ROTATION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case ROTATION:
@@ -2145,7 +2152,7 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
-			state = try_going(triangle_pos_end[vertical_triangle].x, triangle_pos_end[vertical_triangle].y, ADVANCE, WAIT, PARKED_NOT_HANDLED, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(triangle_pos_end[vertical_triangle].x+offset_x, triangle_pos_end[vertical_triangle].y+offset_y, ADVANCE, WAIT, PARKED_NOT_HANDLED, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case WAIT:
@@ -2157,7 +2164,7 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case BACK:
-			state = try_going(triangle_pos_begin[vertical_triangle].x, triangle_pos_begin[vertical_triangle].y, BACK, PLACEMENT_BRAS_2, PARKED_NOT_HANDLED, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going(triangle_pos_begin[vertical_triangle].x+offset_x, triangle_pos_begin[vertical_triangle].y+offset_y, BACK, PLACEMENT_BRAS_2, PARKED_NOT_HANDLED, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 
 #ifdef NOT_DROP_TRI_VERTICAL_HEARTH
 			if(ON_LEAVING(BACK) && strat_homologation_triangle && (vertical_triangle == V_TRIANGLE_1 || vertical_triangle == V_TRIANGLE_4))

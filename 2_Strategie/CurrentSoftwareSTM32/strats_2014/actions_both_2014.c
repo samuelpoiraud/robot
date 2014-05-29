@@ -29,8 +29,7 @@
 #define USE_CURVE	0
 #define NB_TOUR_ODO_ROTATION 2
 
-#define DIST_CALLAGE_GUY		83
-#define DIST_CALLAGE_PIERRE		155
+
 
 
 // Start Translation
@@ -1146,8 +1145,7 @@ error_e protected_fires(protected_fires_e fires){
 	return IN_PROGRESS;
 }
 
-#define DIST_CALLAGE_GUY		83
-#define DIST_CALLAGE_PIERRE		155
+
 
 error_e action_recalage_x(way_e sens, Sint16 wanted_x, Sint16 diff_x){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_X,
