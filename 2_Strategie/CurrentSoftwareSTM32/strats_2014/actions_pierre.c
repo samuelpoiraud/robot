@@ -466,7 +466,7 @@ void strat_homologation(void)
 			break;
 
 		case PROTECTED_FIRE:
-			state = check_sub_action_result(protected_fires(OUR_FIRES),PROTECTED_FIRE,(TIME_TO_NET > global.env.match_time)?PROTECTED_FIRE:DO_NET,(TIME_TO_NET > global.env.match_time)?PROTECTED_FIRE:DO_NET);
+			state = check_sub_action_result(protected_fires(OUR_FIRES),PROTECTED_FIRE,(TIME_TO_NET-3000 > global.env.match_time)?PROTECTED_FIRE:DO_NET,(TIME_TO_NET > global.env.match_time)?PROTECTED_FIRE:DO_NET);
 			break;
 
 		case DO_NET:
