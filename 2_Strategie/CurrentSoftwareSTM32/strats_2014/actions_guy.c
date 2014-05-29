@@ -81,7 +81,8 @@ typedef enum{
 	NORTH_HEART,
 	TORCH_ROAD,
 	SOUTH_HEART,
-	SOUTH_TREES
+	SOUTH_TREES,
+	ALREADY_ON_CENTRAL_HEARTH
 }initial_path_e;	//Chemin initial choisi pour se rendre du coté adverse
 
 
@@ -116,6 +117,7 @@ error_e sub_action_initiale_guy(){
 		FALL_FIRE_MOBILE_TREE_ADV,
 		GOTO_TORCH_ADVERSARY,
 		DO_OUR_TORCH,
+		GO_ADV_ZONE_AFTER_FAILING_OUR_TORCH,
 		GO_ADV_TORCH,
 		DO_ADV_TORCH,
 		FALL_FIRE_MOBILE_MM_ADV,
@@ -285,9 +287,11 @@ error_e sub_action_initiale_guy(){
 					case IN_PROGRESS:
 						break;
 					case END_OK:		//no break
+						state = (global.env.color == RED)?DO_ADV_TORCH:GO_ADV_TORCH;
+						break;
 					case NOT_HANDLED:	//no break
 					default:
-						state = (global.env.color == RED)? DO_ADV_TORCH:GO_ADV_TORCH;
+						state = GO_ADV_ZONE_AFTER_FAILING_OUR_TORCH;
 				}
 			}
 			else
@@ -297,6 +301,13 @@ error_e sub_action_initiale_guy(){
 		// Tape la torche quand nous partons seulement en jaune
 		case GO_ADV_TORCH:
 			state = try_going(1620,1300,GO_ADV_TORCH,DO_ADV_TORCH,DO_ADV_TORCH,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			break;
+
+		case GO_ADV_ZONE_AFTER_FAILING_OUR_TORCH:
+			if(entrance)
+				initial_path = ALREADY_ON_CENTRAL_HEARTH;
+
+			state = check_sub_action_result(goto_adversary_zone(),GO_ADV_ZONE_AFTER_FAILING_OUR_TORCH,DO_ADV_TORCH,ERROR);
 			break;
 
 		case DO_ADV_TORCH:
@@ -489,6 +500,9 @@ void goto_adversary_zone_arm_management(void)
 				case NORTH_MAMMOUTH:
 					state = DONE;
 					break;
+				case ALREADY_ON_CENTRAL_HEARTH:
+					state = DONE;
+					break;
 			}
 			break;
 			case WAIT_FOR_TREE_FIRE:
@@ -581,6 +595,10 @@ error_e goto_adversary_zone(void)
 					SD_printf("CHEMIN : Nord, proche mammouths (NORTH Ext)\n");
 					state = SC0;	//WAIT_FOR_PIERRE;
 					break;
+				case ALREADY_ON_CENTRAL_HEARTH:
+					SD_printf("CHEMIN : Already on central hearth\n");
+					state = SW3;
+					break;
 			}
 			break;
 		/*case WAIT_FOR_PIERRE:
@@ -596,7 +614,7 @@ error_e goto_adversary_zone(void)
 		*/
 		case ST2:	//On veut récupérer la torche
 			//Si on échoue, on abandonne la torche, on file en SC1...
-			state = try_going_until_break(1000,COLOR_Y(750),ST2,DISPOSE_POINT_TORCH,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(850,COLOR_Y(502),ST2,DISPOSE_POINT_TORCH,SC1,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
 		case SB2:
 			if(entrance)
@@ -708,7 +726,7 @@ error_e goto_adversary_zone(void)
 /*
  * PRECONDITIONS ! ATTENTION c'est IMPORTANT
  * La fonction do_torch calcule un moyen de pousser la torche vers le foyer de destination... MAIS n'INTEGRE PAS DE PATHFIND !
- * MAIS, elle ne contourne par la torche pour se rendre au premier point de la poussée...
+ * MAIS, elle contourne la torche pour se rendre au premier point de la poussée...
  * Il FAUT donc appeler cette fonction au bon point, ou éventuellement un peu derrière ce point...
  *
  * Attention, la position if_fail_dispose_zone doit être choisie intelligemment, il n'y a pas de protection anti-recouvrement d'élément fixe !
@@ -860,7 +878,10 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			break;
 
 		case POS_START_TORCH:
-			state = try_going(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			if(torch_choice == OUR_TORCH)
+				state = try_going_until_break(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+			else
+				state = try_going(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case MOVE_TORCH :
@@ -1653,7 +1674,7 @@ static void REACH_POINT_GET_OUT_INIT_send_request() {
 error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 	static vertical_triangle_e save_vertical_triangle;
 	static error_e sub_error;
-	CREATE_MAE_WITH_VERBOSE(0,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_TRIANGLE_ON_EDGE,
 		IDLE,
 		CHECK_POSITION,
 		GET_IN,
@@ -1715,6 +1736,34 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case ERROR:
+			//Si on échoue en faisant l'action -> on désactive la subaction, pas la peine de retenter un feu à moitié tombé.....
+			//Si on échoue en GET_IN, le feu est probablement toujours là... il faudra retourner le faire !
+			if(entrance)
+			{
+				if(last_state == ACTION)
+				{
+					switch(vertical_triangle)
+					{
+						case V_TRIANGLE_1: // Base rouge
+							if(global.env.color == YELLOW)
+								set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
+							break;
+						case V_TRIANGLE_2: // Milieu côté rouge
+							set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_2,TRUE);
+							break;
+						case V_TRIANGLE_3: // Milieu côté jaune
+							set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_3,TRUE);
+							break;
+						case V_TRIANGLE_4:
+							if(global.env.color == RED)
+								set_sub_act_done(SUB_ACTION_TRIANGLE_VERTICALE_ADV,TRUE);
+							break;
+						default:
+							break;
+
+					}
+				}
+			}
 			RESET_MAE();
 			return sub_error;
 
