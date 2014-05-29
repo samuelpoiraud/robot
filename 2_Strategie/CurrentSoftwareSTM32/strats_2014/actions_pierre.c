@@ -24,6 +24,8 @@
 #include "../Supervision/Buzzer.h"
 #include "../Supervision/SD/SD.h"
 #include "actions_both_2014.h"
+#include "../maths_home.h"
+#include <math.h>
 
 
 static void REACH_POINT_C1_send_request();
@@ -41,7 +43,7 @@ static void REACH_POINT_C1_send_request();
 #define MODE_MANUAL_FRESCO TRUE
 #define POS_Y_MANUAL_FRESCO COLOR_Y(1500) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
 #define NB_TRY_FRESCO 2	//(Choix possible : 1, 2 ou 3 : nombre de tentatives de dépose de la fresque en cas de détection de fresque non posée.
-
+#define CENTRAL_HEARTH_RADIUS			150
 
 
 /**********************************************************************************************************************************
@@ -108,6 +110,8 @@ error_e sub_action_initiale(void)
 		COME_BACK_FOR_GOING_FRESCO,
 		DEPLOY_TORCH,
 		GOTO_FRESCO,
+		EXTRACT_BAC,
+		EXTRACT_FRESCO,
 		DO_FRESCO,
 		FILE_FRUIT,
 		LANCE_LAUNCHER_ADVERSARY,
@@ -263,7 +267,6 @@ error_e sub_action_initiale(void)
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 			//NO_DODGE : on gère nous même l'échec.
 			state = try_going(point[5].point.x, point[5].point.y,PUSH_TRIANGLE,DO_TREE_1,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
-
 			break;
 
 		case FAIL_FIRST_POINT:
@@ -293,16 +296,30 @@ error_e sub_action_initiale(void)
 			break;
 
 		case GOTO_FRESCO:
-			if(entrance)
-			{
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT); // NO_DODGE_AND_NO_WAIT, prôblème évitement avec le bac et ennemi, extraction ne peut s'extraire
+			break;
+
+		// S'extraire entre le bac et la fresque
+		case EXTRACT_BAC:
+			state = try_going_until_break(500,COLOR_Y(700),EXTRACT_BAC,DONE,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+
+			if(ON_LEAVING(EXTRACT_BAC) && state == DONE){
 				if(!i_do_torch_before_fresco && i_must_deal_with_our_torch)
 					fail_state = GOTO_TORCH_FIRST_POINT;
 				else
 					fail_state = DONE;	//Il n'y a plus rien à faire
 			}
-			//Si on doit aller faire la torche en cas d'échec, pas de DODGE, c'est notre échapatoire.
-			//Si on doit rendre la main ensuite, on fait un DODGE
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,fail_state,FAST,ANY_WAY,(fail_state==DONE)?DODGE_AND_WAIT:NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case EXTRACT_FRESCO:
+			state = try_going_until_break(500,COLOR_Y(1200),EXTRACT_FRESCO,DONE,EXTRACT_BAC,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+
+			if(ON_LEAVING(EXTRACT_FRESCO) && state == DONE){
+				if(!i_do_torch_before_fresco && i_must_deal_with_our_torch)
+					fail_state = GOTO_TORCH_FIRST_POINT;
+				else
+					fail_state = DONE;	//Il n'y a plus rien à faire
+			}
 			break;
 
 		case DO_TREE_1:
@@ -550,6 +567,151 @@ error_e do_torch_pierre(){
 	return IN_PROGRESS;
 }
 
+
+error_e do_triangle_start(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_DO_TRIANGLE_START,
+		IDLE,
+		GET_IN,
+		PLACEMENT_INIT,
+		SMALL_BRAS,
+		ROTATION,
+		PLACEMENT_BRAS,
+		BACK,
+		RUSH_IN_THE_FLOOR,
+		WAIT,
+		CARRY,
+		PLACEMENT_BRAS_2,
+		PLACEMENT_FOYER,
+		DISPOSE,
+		DROP,
+		PARKED_NOT_HANDLED,
+		PARKED,
+		EXTRACT,
+		DONE,
+		ERROR
+	);
+
+	switch(state){
+		case IDLE:
+			//Zone d'acceptation
+			if(est_dans_carre(500, 1650, COLOR_Y(350), COLOR_Y(1100), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+				state = PLACEMENT_INIT;
+			else
+				state = GET_IN;
+
+			break;
+
+		case GET_IN :
+			state = PATHFIND_try_going(COLOR_NODE(A1),GET_IN, PLACEMENT_INIT, PARKED_NOT_HANDLED, ANY_WAY, FAST, DODGE_AND_WAIT, END_AT_BREAK);
+			break;
+
+		case PLACEMENT_INIT:
+			state = try_going(800,300, PLACEMENT_INIT, SMALL_BRAS, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+			break;
+
+		case SMALL_BRAS:
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_BRAS, ROTATION, PARKED_NOT_HANDLED);
+			break;
+
+		case ROTATION:
+			if(global.env.color == RED)
+				state = try_go_angle(-PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
+			else
+				state = try_go_angle(PI4096/2, ROTATION, PLACEMENT_BRAS, ERROR, FAST);
+			break;
+
+		case PLACEMENT_BRAS:
+			state = ACT_arm_move(ACT_ARM_POS_TAKE_ON_EDGE, 0, 0, PLACEMENT_BRAS, BACK, PARKED_NOT_HANDLED);
+			break;
+
+		case BACK:
+			state = try_advance(150, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case RUSH_IN_THE_FLOOR:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+
+			state = ACT_elevator_arm_rush_in_the_floor(33, RUSH_IN_THE_FLOOR, WAIT, PARKED_NOT_HANDLED);
+			break;
+
+		case WAIT:
+			state = ELEMENT_wait_time(300,WAIT,CARRY);
+			break;
+
+		case CARRY:
+			state = ACT_arm_move(ACT_ARM_POS_TO_CARRY,0, 0, CARRY, PLACEMENT_FOYER, PARKED_NOT_HANDLED);
+			break;
+
+		case PLACEMENT_FOYER:{
+			static GEOMETRY_point_t goal_pos;
+			Sint16 cos, sin, l, teta;
+			if(entrance){
+				teta = atan2(1500-global.env.pos.y, 1050-global.env.pos.x)*4096.;
+				COS_SIN_4096_get(teta, &cos, &sin);
+				l = dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500);
+				goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+200))/4096. + global.env.pos.x;
+				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+200))/4096. + global.env.pos.y;
+
+			}
+			state = try_going(goal_pos.x, goal_pos.y, PLACEMENT_FOYER, DISPOSE, PARKED_NOT_HANDLED, FAST, FORWARD, DODGE_AND_WAIT);
+
+		}break;
+
+		case DISPOSE:
+			state = ACT_arm_move(ACT_ARM_POS_DISPOSED_SIMPLE,0, 0, DISPOSE, DROP, PARKED_NOT_HANDLED);
+			break;
+
+		case DROP:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+
+			state = ELEMENT_wait_time(300, DROP, PARKED);
+			break;
+
+		case PARKED_NOT_HANDLED:{
+			static enum state_e state1, state2;
+
+			if(entrance){
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
+				state1 = PARKED_NOT_HANDLED;
+				state2 = PARKED_NOT_HANDLED;
+			}
+			if(state1 == PARKED_NOT_HANDLED)
+				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
+			if(state2 == PARKED_NOT_HANDLED)
+				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLED, ERROR, ERROR);
+
+			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
+				state = ERROR;
+			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
+				state = ERROR;
+		}break;
+
+		case PARKED:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, EXTRACT, ERROR);
+			break;
+
+		case EXTRACT:
+			state = try_advance(300, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
 void strat_inutile(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_INUTILE,
 		IDLE,
@@ -561,6 +723,7 @@ void strat_inutile(void){
 		GO_4,
 		LANCE_LAUNCHER,
 		SUB_ACTION,
+		SUB_START_TRIANGLE,
 		PROTECTED_FIRES,
 		DEPOSE_FRUIT,
 		GET_OUT_CALIBRE,
@@ -578,7 +741,7 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,DROP_FRUIT,POS_DEPART,250,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,SUB_START_TRIANGLE,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GET_OUT_CALIBRE:
@@ -607,6 +770,10 @@ void strat_inutile(void){
 
 		case SUB_ACTION:
 			state = check_sub_action_result(sub_action_initiale(),SUB_ACTION,DONE,ERROR);
+			break;
+
+		case SUB_START_TRIANGLE:
+			state = check_sub_action_result(do_triangle_start(),SUB_START_TRIANGLE,DONE,ERROR);
 			break;
 
 		case FRUIT_RED:
