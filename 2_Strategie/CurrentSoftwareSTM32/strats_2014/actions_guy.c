@@ -84,7 +84,8 @@ typedef enum{
 	TORCH_ROAD,
 	SOUTH_HEART,
 	SOUTH_TREES,
-	ALREADY_ON_CENTRAL_HEARTH
+	ALREADY_ON_CENTRAL_HEARTH,
+	FAIL_IN_MANCHOT
 }initial_path_e;	//Chemin initial choisi pour se rendre du coté adverse
 
 
@@ -505,6 +506,9 @@ void goto_adversary_zone_arm_management(void)
 				case ALREADY_ON_CENTRAL_HEARTH:
 					state = DONE;
 					break;
+				case FAIL_IN_MANCHOT:
+					state = DONE;
+					break;
 			}
 			break;
 			case WAIT_FOR_TREE_FIRE:
@@ -601,6 +605,10 @@ error_e goto_adversary_zone(void)
 					SD_printf("CHEMIN : Already on central hearth\n");
 					state = SW3;
 					break;
+				case FAIL_IN_MANCHOT:
+					SD_printf("CHEMIN : Fail in manchot\n");
+					state = SB2;
+					break;
 			}
 			break;
 		/*case WAIT_FOR_PIERRE:
@@ -621,7 +629,7 @@ error_e goto_adversary_zone(void)
 		case SB2:
 			if(entrance)
 			{
-				if(initial_path == SOUTH_HEART)
+				if(initial_path == SOUTH_HEART || initial_path == FAIL_IN_MANCHOT)
 					success_state = SC2;
 				else
 					success_state = SC3;
