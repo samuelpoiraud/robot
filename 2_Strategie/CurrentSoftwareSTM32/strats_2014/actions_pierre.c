@@ -1422,7 +1422,7 @@ error_e strat_file_fresco(Sint16 posY){
 						state = fail_state;
 						break;
 					case NOT_HANDLED:
-						if(is_possible_point_for_rotation((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+						if(is_possible_point_for_rotation(&(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 							state = DONE_BUT_NOT_HANDLED;
 						else
 							state = fail_state;
@@ -1469,7 +1469,7 @@ error_e strat_file_fresco(Sint16 posY){
 						state = fail_state;
 						break;
 					case NOT_HANDLED:
-						if(is_possible_point_for_rotation((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+						if(is_possible_point_for_rotation(&(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 							state = DONE_BUT_NOT_HANDLED;
 						else
 							state = fail_state;
