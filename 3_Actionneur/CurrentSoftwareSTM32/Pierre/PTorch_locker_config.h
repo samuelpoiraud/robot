@@ -24,7 +24,7 @@
 /** Position en degré de l'ax12 lorsque TORCH_LOCKER est mi en position rentrer */
 	#define TORCH_LOCKER_AX12_1_INSIDE_POS			60    //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur  */
-	#define TORCH_LOCKER_AX12_1_MAX_TORQUE_PERCENT  80     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+	#define TORCH_LOCKER_AX12_1_MAX_TORQUE_PERCENT  95     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 /** Position initiale de l'AX12. */
 	#define TORCH_LOCKER_AX12_1_INIT_POS        TORCH_LOCKER_AX12_1_INSIDE_POS
 
@@ -45,7 +45,7 @@
 /** Position en degré de l'ax12 lorsque TORCH_LOCKER est mi en position rentrer */
 	#define TORCH_LOCKER_AX12_2_INSIDE_POS			240    //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur  */
-	#define TORCH_LOCKER_AX12_2_MAX_TORQUE_PERCENT  80     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+	#define TORCH_LOCKER_AX12_2_MAX_TORQUE_PERCENT  95     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 /** Position initiale de l'AX12. */
 	#define TORCH_LOCKER_AX12_2_INIT_POS        TORCH_LOCKER_AX12_2_INSIDE_POS
 

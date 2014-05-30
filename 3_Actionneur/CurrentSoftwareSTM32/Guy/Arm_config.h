@@ -18,8 +18,8 @@
 
 //#define ARM_ACT_UPDOWN                           0
 #define ARM_ACT_UPDOWN_DOUBLE_PID				 TRUE
-#define ARM_ACT_UPDOWN_ASSER_KP					 2000
-#define ARM_ACT_UPDOWN_ASSER_KI                  2000
+#define ARM_ACT_UPDOWN_ASSER_KP					 2500
+#define ARM_ACT_UPDOWN_ASSER_KI                  2500
 #define ARM_ACT_UPDOWN_ASSER_KD                  0
 #define ARM_ACT_UPDOWN_ASSER_KP2                 1200
 #define ARM_ACT_UPDOWN_ASSER_KI2                 2000

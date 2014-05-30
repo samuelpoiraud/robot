@@ -25,7 +25,7 @@
 /** Position en degré de l'ax12 lorsque SMALL_ARM est sortie */
 	#define SMALL_ARM_AX12_DEPLOYED_POS        219   //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur  */
-	#define SMALL_ARM_AX12_MAX_TORQUE_PERCENT  50     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+	#define SMALL_ARM_AX12_MAX_TORQUE_PERCENT  65     //A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 /** Position initiale de l'AX12. Doit être un define du type PLATE_PLIER_AX12_* */
 	#define SMALL_ARM_AX12_INIT_POS        SMALL_ARM_AX12_DEPLOYED_POS
 

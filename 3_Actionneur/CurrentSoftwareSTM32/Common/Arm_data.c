@@ -48,15 +48,17 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-99+OFFSET_BIG_UP_DOWN	,163	,22+OFFSET_BIG_AX12_MID,	158},	//ARM_ST_On_Torche_Auto
 		{-71+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_BIG_AX12_MID,	158},	//ARM_ST_On_Torche_Auto_Escape_1
 		{-71+OFFSET_BIG_UP_DOWN	,159	,120+OFFSET_BIG_AX12_MID,	158},	//ARM_ST_On_Torche_Auto_Escape_2
-		{-71	,151	,200+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Prepare_Drop_1_Auto
 
+
+			// Position de dépose des triangles de pierre
+		{-71	,151	,200+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Prepare_Drop_1_Auto
 		{-71	,151	,270+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Prepare_Drop_2_Auto
 		{-71.	,151	,270+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Drop_1_Auto
 		{-71	,157	,127	,152},	//ARM_ST_On_Drop_2_Auto
 		{-131	,194	,133	,154},	//ARM_ST_On_Prepare_1_Drop_3_Auto
 		{-200	,194	,133	,154},	//ARM_ST_On_Prepare_2_Drop_3_Auto
-
 		{-200   ,176	,134	,154},	//ARM_ST_On_Drop_3_Auto
+
 		{0		,0		,0		,0},	//ARM_ST_To_Storage						NOT USE
 		{-221+OFFSET_BIG_UP_DOWN	,238	,265+OFFSET_BIG_AX12_MID	,154},	//ARM_ST_To_Carry
 		{-131+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,56},	//ARM_ST_To_Prepare_Return
@@ -86,8 +88,8 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-71+OFFSET_BIG_UP_DOWN	,171	,140+OFFSET_BIG_AX12_MID	,152},	//ARM_ST_Deposed_Torch
 		{-71+OFFSET_BIG_UP_DOWN	,171	,140+OFFSET_BIG_AX12_MID	,243},	//ARM_ST_Escape_Torch_1
 
-		{-71+OFFSET_BIG_UP_DOWN	,182	,200+OFFSET_BIG_AX12_MID	,243}	//ARM_ST_Escape_Torch_2
-		{0		,0		,0		,0}  // ACT_ARM_POS_TORCHE_CENTRAL				NOT USE
+		{-71+OFFSET_BIG_UP_DOWN	,182	,200+OFFSET_BIG_AX12_MID	,243},	//ARM_ST_Escape_Torch_2
+		{0		,0		,0		,0},  // ACT_ARM_POS_TORCHE_CENTRAL				NOT USE
 		{0		,0		,0		,0}  // ACT_ARM_POS_TORCHE_ADV					NOT USE
 		};
 #else
@@ -121,7 +123,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{0		,0		,0		,0},	//ARM_ST_To_Storage					NOT USE
 		{-351+OFFSET_SMALL_UPDOWN	,169	,280,	233},	//ARM_ST_To_Carry
 		{-432+OFFSET_SMALL_UPDOWN	,158	,102,	238},	//ARM_ST_To_Prepare_Return
-		{-287+OFFSET_SMALL_UPDOWN	,158	,107,	238},	//ARM_ST_To_Down_Return
+		{-432+OFFSET_SMALL_UPDOWN	,158	,107,	238},	//ARM_ST_To_Down_Return
 
 		{-403						,186	,171,	237},	//ARM_ST_To_Return
 		{-432+OFFSET_SMALL_UPDOWN	,133	,65,	120},	//ARM_ST_Wait_Return
