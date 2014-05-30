@@ -79,6 +79,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_ACTION_TRIANGLE_VERTICALE_2,
 	SUB_ACTION_TRIANGLE_VERTICALE_3,
 	SUB_ACTION_TRIANGLE_VERTICALE_ADV,
+	SUB_STEAL_SPACE_CRACKERS,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !

@@ -55,6 +55,8 @@
 
 	bool_e est_dans_carre(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
 
+	bool_e i_am_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
+
 	bool_e est_dans_cercle(GEOMETRY_point_t current, GEOMETRY_circle_t circle);
 
 #endif /* ndef GEOMETRY_H */
