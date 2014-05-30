@@ -28,6 +28,10 @@
 #include <math.h>
 
 
+// A utiliser contre ENSIM elec
+//#define FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
+
+
 static void REACH_POINT_C1_send_request();
 
 // SWITCH_STRAT_1 est utilisé pour le lancer de balles (5 balles nous et une sur ennemis si active sinon 6 balles chez nous)
@@ -118,6 +122,8 @@ error_e sub_action_initiale(void)
 		EXTRACT_BAC,
 		EXTRACT_FRESCO,
 		DO_FRESCO,
+		FIRE_BITCH,
+		BACK_FIRE_BITCH,
 		FILE_FRUIT,
 		LANCE_LAUNCHER_ADVERSARY,
 		DONE,
@@ -205,6 +211,7 @@ error_e sub_action_initiale(void)
 		case LANCE_LAUNCHER:
 			if(entrance)
 			{
+
 				if(global.env.color == RED)
 					ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH);
 
@@ -226,6 +233,12 @@ error_e sub_action_initiale(void)
 						success_state = GOTO_FRESCO;
 				}
 			}
+
+#ifdef FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
+		if(success_state == GOTO_FRESCO){
+			ACT_torch_locker(ACT_TORCH_Locker_Unlock);
+		}
+#endif
 			if(success_state == GOTO_FRESCO && global.env.guy_is_bloqued_in_north && i_must_deal_with_our_torch && !global.env.guy_took_fire[FIRE_ID_TORCH_OUR])
 			{	//Si Guy est bloqué au nord et que l'on prévoyait d'aller à la fresque, on va plutôt aller faire la torche...
 				success_state = GOTO_TORCH_FIRST_POINT;
@@ -300,7 +313,19 @@ error_e sub_action_initiale(void)
 			break;
 
 		case GOTO_FRESCO:
+#ifndef FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
 			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT); // NO_DODGE_AND_NO_WAIT, prôblème évitement avec le bac et ennemi, extraction ne peut s'extraire
+#else
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,FIRE_BITCH,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT); // NO_DODGE_AND_NO_WAIT, prôblème évitement avec le bac et ennemi, extraction ne peut s'extraire
+#endif
+			break;
+
+		case FIRE_BITCH:
+			state = try_going(250, COLOR_Y(1560), FIRE_BITCH, BACK_FIRE_BITCH,BACK_FIRE_BITCH, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+			break;
+
+		case BACK_FIRE_BITCH:
+			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		// S'extraire entre le bac et la fresque
@@ -316,6 +341,9 @@ error_e sub_action_initiale(void)
 			break;
 
 		case EXTRACT_FRESCO:
+#ifdef FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
+				ACT_torch_locker(ACT_TORCH_Locker_Lock);
+#endif
 			state = try_going_until_break(500,COLOR_Y(1200),EXTRACT_FRESCO,DONE,EXTRACT_BAC,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 
 			if(ON_LEAVING(EXTRACT_FRESCO) && state == DONE){
@@ -346,6 +374,9 @@ error_e sub_action_initiale(void)
 		case DO_FRESCO:
 			if(entrance)
 			{
+#ifdef FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
+				ACT_torch_locker(ACT_TORCH_Locker_Lock);
+#endif
 				if(get_presenceFruit())
 					success_state = FILE_FRUIT;	//J'ai des fruits, alors je vais les poser maintenant que je suis près du bac
 				else
