@@ -70,4 +70,6 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle);
 error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle);
 error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle);
 
+error_e put_fire_down(void);
+
 #endif /* ACTIONS_GUY_H_ */
