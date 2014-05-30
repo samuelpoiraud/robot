@@ -2047,7 +2047,7 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 
-			state = ELEMENT_wait_time(500, DROP, PARKED);
+			state = ELEMENT_wait_time(600, DROP, PARKED);
 			break;
 
 		case PARKED_NOT_HANDLED:{
@@ -2243,7 +2243,7 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 
-			state = ELEMENT_wait_time(300, DROP, PARKED);
+			state = ELEMENT_wait_time(600, DROP, PARKED);
 			break;
 
 		case PARKED_NOT_HANDLED:{
