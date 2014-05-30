@@ -21,7 +21,7 @@
 /** Position en degré de l'ax12 lorsque SMALL_ARM est rentré  */
 	#define SMALL_ARM_AX12_IDLE_POS            230    //en degré
 /** Position en degré de l'ax12 lorsque SMALL_ARM est mi sortie */
-	#define SMALL_ARM_AX12_MID_POS			   200    //en degré
+	#define SMALL_ARM_AX12_MID_POS			   180    //en degré
 /** Position en degré de l'ax12 lorsque SMALL_ARM est sortie */
 	#define SMALL_ARM_AX12_DEPLOYED_POS        156   //en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur  */

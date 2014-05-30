@@ -33,7 +33,7 @@
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY0              90
 #define ARM_ACT_UPDOWN_MAX_PWM_WAY1              90
 #define ARM_ACT_UPDOWN_MAX_VALUE				 -10
-#define ARM_ACT_UPDOWN_MIN_VALUE				 -440
+#define ARM_ACT_UPDOWN_MIN_VALUE				 -500
 
 #define ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM		35
 
