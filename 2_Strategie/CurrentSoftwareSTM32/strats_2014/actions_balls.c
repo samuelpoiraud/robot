@@ -16,7 +16,7 @@
 
 #define OFFSET_BALL_LAUNCHER	20		//Distance entre le centre du robot et le centre du ball launcher
 #define ELOIGNEMENT_SHOOT_BALL 520
-#define SPEED_LANCE_LAUNCHER 125
+#define SPEED_LANCE_LAUNCHER 110
 #define TIME_BEGINNING_NO_AVOIDANCE 5000
 
 static bool_e lance_ball = FALSE;
@@ -69,7 +69,7 @@ error_e sub_lance_launcher(bool_e lanceAll, color_e mammouth)
 				if(mammouth == RED)		//3 points, sens rouge vers jaune, pour le mammouth rouge
 				{
 					if(mammouth == global.env.color)
-						posShoot = 690 - OFFSET_BALL_LAUNCHER;
+						posShoot = 720 - OFFSET_BALL_LAUNCHER; // Depart Rouge
 					else
 						posShoot = 740 - OFFSET_BALL_LAUNCHER;
 
@@ -128,7 +128,7 @@ error_e sub_lance_launcher(bool_e lanceAll, color_e mammouth)
 				else					//3 points, sens jaune vers rouge, pour le mammouth jaune
 				{
 					if(mammouth == global.env.color)
-						posShoot = 2280 + OFFSET_BALL_LAUNCHER;
+						posShoot = 2280 + OFFSET_BALL_LAUNCHER; // Depart Jaune
 					else
 						posShoot = 2280 + OFFSET_BALL_LAUNCHER;
 
