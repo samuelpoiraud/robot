@@ -26,7 +26,7 @@
 #define ELOIGNEMENT_POSE_BAC_FRUIT  500
 #define PROFONDEUR_BAC_FRUIT		300
 #define RAYON_MAX_PIERRE			310	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
-#define VITESSE_FRUIT				120
+#define VITESSE_FRUIT				100
 #define TIME_CLOSE_MOUTH			1000 // Quand il fini de prendre les friuts correctement, il attend pour refermer le bras
 
 #define TIME_CONSIDERING_FRUITS_FALL_SINCE_OPENING_LABIUM	500	//[ms]

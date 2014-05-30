@@ -42,7 +42,7 @@ static void REACH_POINT_C1_send_request();
 
 //Pour Activer le mode manual de pose de fresque
 #define MODE_MANUAL_FRESCO TRUE
-#define POS_Y_MANUAL_FRESCO COLOR_Y(1300) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
+#define POS_Y_MANUAL_FRESCO COLOR_Y(1400) // Mettre une valeur entre POS_MIN_FRESCO et POS_MAX_FRESCO
 #define NB_TRY_FRESCO 3	//(Choix possible : 1, 2 ou 3 : nombre de tentatives de dépose de la fresque en cas de détection de fresque non posée.
 #define CENTRAL_HEARTH_RADIUS			150
 
@@ -169,7 +169,7 @@ error_e sub_action_initiale(void)
 
 			if(global.env.color == RED)
 			{
-				point[0] =  (displacement_t){{750,1100},	FAST}; // Point pos bonne prise de torche
+				point[0] =  (displacement_t){{750,1200},	FAST}; // Point pos bonne prise de torche
 				point[1] =  (displacement_t){{1000,1000},	FAST};
 				point[2] = 	(displacement_t){{1150,850},	FAST};
 				point[3] = 	(displacement_t){{750,400},		FAST}; // Pos se mettre devant l'arbre
@@ -240,8 +240,9 @@ error_e sub_action_initiale(void)
 			if(entrance) // Ouvre les pinces
 				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
 			//NO_DODGE : on gère nous même l'échec.
-			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,(global.env.color == RED)?BACKWARD:ANY_WAY,NO_DODGE_AND_WAIT);
 			break;
+
 		case GOTO_TORCH_SECOND_POINT:
 //			if(entrance) // Ouvre les pinces
 //				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
