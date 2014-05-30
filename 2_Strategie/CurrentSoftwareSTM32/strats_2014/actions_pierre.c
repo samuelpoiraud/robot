@@ -37,6 +37,7 @@ static void REACH_POINT_C1_send_request();
 
 //#define DISPOSED_TORCH
 
+#define MAX_NB_FAIL_ARM	2
 #define MAX_HEIGHT_ARM	120
 
 //Pour Activer le mode manual de pose de fresque
@@ -1747,6 +1748,7 @@ error_e ACT_arm_deploy_torche_pierre(){
 		DOWN_ARM,
 		UP_ARM,
 		UP_ARM_FAIL,
+		WAIT_PLACEMENT,
 		DROP_TRIANGLE,
 		WAIT_TRIANGLE_BREAK,
 		PREPARE_ARM_RETURN,
@@ -1756,17 +1758,24 @@ error_e ACT_arm_deploy_torche_pierre(){
 		OPEN_ARM_FAIL,
 		FAIL,
 		PARKED_NOT_HANDLED,
+		PARKED,
 		ERROR,
 		DONE
 	);
 
 	static Uint8 niveau;
 	Sint16 value_adc;
+	static Uint8 nb_fail[4] = {0};
 
 	switch(state){
 		case IDLE :
 			//state = ELEMENT_wait_time(5000, IDLE, OPEN);
 			state = OPEN;
+			nb_fail[0] = 0;
+			nb_fail[1] = 0;
+			nb_fail[2] = 0;
+			nb_fail[3] = 0;
+
 			niveau = 0;
 			break;
 
@@ -1799,9 +1808,9 @@ error_e ACT_arm_deploy_torche_pierre(){
 
 		case TORCHE :
 			if(niveau == 0 || niveau == 1)
-				state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE_SMALL_ARM, 0, 0, TORCHE, OPEN_SMALL_ARM, OPEN_ARM_FAIL);
+				state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE_SMALL_ARM, 0, 0, TORCHE, OPEN_SMALL_ARM, FAIL);
 			else
-				state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE_AUTO, 0, 0, TORCHE, DOWN_ARM, OPEN_ARM_FAIL);
+				state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE_AUTO, 0, 0, TORCHE, DOWN_ARM, FAIL);
 			break;
 
 		case OPEN_SMALL_ARM:
@@ -1816,17 +1825,17 @@ error_e ACT_arm_deploy_torche_pierre(){
 					ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 			}
 			if(niveau == 0)
-				state = ACT_elevator_arm_rush_in_the_floor(120-75, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
+				state = ACT_elevator_arm_rush_in_the_floor(120-75, DOWN_ARM, UP_ARM, FAIL);
 			else if(niveau == 1)
-				state = ACT_elevator_arm_rush_in_the_floor(120-100, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
+				state = ACT_elevator_arm_rush_in_the_floor(120-100, DOWN_ARM, UP_ARM, FAIL);
 			else if(niveau == 2)
-				state = ACT_elevator_arm_rush_in_the_floor(75, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
+				state = ACT_elevator_arm_rush_in_the_floor(75, DOWN_ARM, UP_ARM, FAIL);
 			else
-				state = ACT_elevator_arm_rush_in_the_floor(40, DOWN_ARM, UP_ARM, UP_ARM_FAIL);
+				state = ACT_elevator_arm_rush_in_the_floor(40, DOWN_ARM, UP_ARM, FAIL);
 			break;
 
 		case UP_ARM:
-			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, OPEN_ARM_FAIL);
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, FAIL);
 			if(ON_LEAVING(UP_ARM)){
 				if(niveau == 1) // Va retourne le deuxieme triangle
 					state = PREPARE_ARM_RETURN;
@@ -1836,18 +1845,22 @@ error_e ACT_arm_deploy_torche_pierre(){
 			break;
 
 		case UP_ARM_FAIL:
-			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_FAIL, OPEN_ARM_FAIL, OPEN_ARM_FAIL);
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_FAIL, FAIL, FAIL);
 			break;
 
 		case DROP_TRIANGLE :
 			if(niveau == 0)
-				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_1_AUTO, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
+				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_1_AUTO, 0, 0, DROP_TRIANGLE, WAIT_PLACEMENT, FAIL);
 			else if(niveau == 1)
-				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_2_AUTO, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
+				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_2_AUTO, 0, 0, DROP_TRIANGLE, WAIT_PLACEMENT, FAIL);
 			else if(niveau == 2)
-				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_3_AUTO, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
+				state = ACT_arm_move(ACT_ARM_POS_ON_DROP_3_AUTO, 0, 0, DROP_TRIANGLE, WAIT_PLACEMENT, FAIL);
 			else if(niveau == 3)
-				state = ACT_arm_move(ACT_ARM_POS_DISPOSED_TORCH, 0, 0, DROP_TRIANGLE, WAIT_TRIANGLE_BREAK, OPEN_ARM_FAIL);
+				state = ACT_arm_move(ACT_ARM_POS_DISPOSED_TORCH, 0, 0, DROP_TRIANGLE, WAIT_PLACEMENT, FAIL);
+			break;
+
+		case WAIT_PLACEMENT:
+			state = ELEMENT_wait_time(200, WAIT_PLACEMENT, WAIT_TRIANGLE_BREAK);
 			break;
 
 		case WAIT_TRIANGLE_BREAK : // Attendre que le triangle soit relacher avant de faire autre chose
@@ -1858,18 +1871,20 @@ error_e ACT_arm_deploy_torche_pierre(){
 					ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 			}
 
-			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? DONE:OPEN);
+			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? PARKED:OPEN);
 
-			if(ON_LEAVING(WAIT_TRIANGLE_BREAK))
+			if(ON_LEAVING(WAIT_TRIANGLE_BREAK)){
+				nb_fail[niveau]++;
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
+			}
 			break;
 
 		case PREPARE_ARM_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, PREPARE_ARM_RETURN, PREPARE_SMALL_ARM, OPEN_ARM_FAIL);
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, PREPARE_ARM_RETURN, PREPARE_SMALL_ARM, FAIL);
 			break;
 
 		case PREPARE_SMALL_ARM:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, PREPARE_SMALL_ARM, RETURN, OPEN_ARM_FAIL);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, PREPARE_SMALL_ARM, RETURN, FAIL);
 			break;
 
 		case RETURN:
@@ -1880,7 +1895,7 @@ error_e ACT_arm_deploy_torche_pierre(){
 			break;
 
 		case REPLACE_SMALL_ARM:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, REPLACE_SMALL_ARM, DROP_TRIANGLE, OPEN_ARM_FAIL);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, REPLACE_SMALL_ARM, DROP_TRIANGLE, FAIL);
 			break;
 
 		case OPEN_ARM_FAIL:{
@@ -1904,7 +1919,13 @@ error_e ACT_arm_deploy_torche_pierre(){
 		}break;
 
 		case FAIL:
+			if(entrance)
+				nb_fail[niveau]++;
 
+			if(nb_fail[niveau] > MAX_NB_FAIL_ARM)
+				state = OPEN_ARM_FAIL;
+			else
+				state = OPEN;
 			break;
 
 		case PARKED_NOT_HANDLED:{
@@ -1924,6 +1945,26 @@ error_e ACT_arm_deploy_torche_pierre(){
 			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
 				state = ERROR;
 			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
+				state = ERROR;
+		}break;
+
+		case PARKED:{
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
+			static enum state_e state1, state2;
+
+			if(entrance){
+				state1 = PARKED;
+				state2 = PARKED;
+			}
+			if(state1 == PARKED)
+				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED, DONE, ERROR);
+			if(state2 == PARKED)
+				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED, DONE, ERROR);
+
+			if(state1 == DONE && state2 == DONE)
+				state = DONE;
+			else if(state1 != PARKED && state2 != PARKED)
 				state = ERROR;
 		}break;
 

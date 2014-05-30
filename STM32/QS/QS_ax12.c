@@ -1468,7 +1468,7 @@ void AX12_init() {
 
 //Angle max: 360°
 #define AX12_MAX_DEGRE 360
-#define AX12_ANGLE_TO_DEGRE(angle) ((((Uint16)(angle))*75) >> 8) // >> 8 <=> / 256, 75/256 = 300/1024 = 0.29296875
+#define AX12_ANGLE_TO_DEGRE(angle) ((((Uint32)(angle))*75) >> 8) // >> 8 <=> / 256, 75/256 = 300/1024 = 0.29296875
 //#define AX12_DEGRE_TO_ANGLE(angle) ((((Uint32)(angle)) << 8) / 75)	//L'utilisation d'entier 32bits est nécessaire, l'angle max 360° * 256 donne un nombre supérieur à 65535
 //Aproximation pour eviter les entier 32bits (le dspic30F est 16bits), une unité d'angle vaut 0.296875°, perte de précision de 1,3%, AX12_DEGRE_TO_ANGLE(300) donne un angle réel de 296°, soit une perte de 4° pour un angle de 300°
 #define AX12_DEGRE_TO_ANGLE(angle) ((((Uint16)(angle)) << 7) / 38)
