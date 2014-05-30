@@ -39,7 +39,7 @@ static void send_message_to_pierre(Uint11 sid, Uint8 data0);
 #define OFFSET_V_TRIANGLE	30
 
 #define MAX_HEIGHT_ARM	143
-#define DIST_RETURN_RETURN_TRIANGLE		250
+#define DIST_RETURN_RETURN_TRIANGLE		200
 
 #define DROP_TRIANGLE_UNDER_TREE    // Va deposer l'un des deux triangles sous les arbres
 #define DETECTION_TRIANGLE_MIDDLE	// Pour savoir si nous avons besoins de faire un dection des triangles du milieu ou non pour la strat triangles_between_tree
@@ -61,6 +61,7 @@ bool_e strat_homologation_triangle = FALSE;
 
 #define	DISPOSE_POINT_X		1400//Point où l'on se rend avec NOTRE torche
 #define	DISPOSE_POINT_Y		1500//Point où l'on se rend avec NOTRE torche
+//#define ABANDON_RETURN
 
 //IL FAUT définir une zone de dépose pour la torche adverse. (si on a réussi à la prendre)
 	#define DISPOSE_ADVERSARY_TORCH_ON_ADVERSARY_HEARTH
@@ -842,6 +843,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TORCH,
 		IDLE,
 		COMPUTE,
+		PRE_POSITION,
 		POS_START_TORCH,
 		WAY_ADVERSARY,
 		MOVE_TORCH,
@@ -962,10 +964,16 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 				state = CENTER_TO_HEARTH;
 			else if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, posStart) < 50)
 				state = (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH;
+			else if(torch_choice == ADVERSARY_TORCH && est_dans_carre(900,2200,COLOR_Y(2100),COLOR_Y(2600),(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+				state = PRE_POSITION;
 			else
 				state = POS_START_TORCH;
 
 			SD_printf("Torch: start=[%d;%d] | torch=[%d;%d] | end Torch=[%d;%d] | remotness robot=[%d;%d]\n",posStart.x, posStart.y, torch.x, torch.y, posEndTorch.x, posEndTorch.y, posEnd.x, posEnd.y);
+			break;
+
+		case PRE_POSITION:
+			state = try_going_until_break(800, COLOR_Y(2200), PRE_POSITION, POS_START_TORCH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case POS_START_TORCH:
@@ -1100,7 +1108,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			break;
 
 		case DEPLOY_TORCH:	//On déploie la torche sur le foyer
-			state = check_sub_action_result(ACT_arm_deploy_torche_guy(torch_choice,current_dispose_zone),DEPLOY_TORCH,EXTRACT_HEARTH,EXTRACT_HEARTH);
+			state = check_sub_action_result(ACT_arm_deploy_torche_guy(torch_choice,current_dispose_zone),DEPLOY_TORCH,(torch_choice == ADVERSARY_TORCH)?EXTRACT_FROM_HEART:EXTRACT_HEARTH,(torch_choice == ADVERSARY_TORCH)?EXTRACT_FROM_HEART:EXTRACT_HEARTH);
 			break;
 
 		case EXTRACT_HEARTH:
@@ -2288,6 +2296,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		DOWN_ARM,
 		UP_ARM,
 		UP_ARM_ERROR,
+		BACK_ERROR_ARM,
 		DROP_TRIANGLE,
 		WAIT_STABILISATION_2,
 		WAIT_TRIANGLE_BREAK,
@@ -2296,6 +2305,9 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		WAIT,
 		DROP_ADV_TRIANGLE,
 		RETURN,
+		WAIT_RETURN,
+		TURN,
+		SMALL_ARM_PREPARE,
 		INVERSE_PUMP,
 		PREPARE_RETURN,
 		SMALL_ARM_DEPLOYED,
@@ -2354,14 +2366,23 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			// Si c'est notre torche, nous ponsons que le triangle 0 et 2
 			// sinon si c'est l'autre torche, nous posons que les triangles 0 et 1
 
-			COS_SIN_4096_get(global.env.pos.angle-28.5*71.5, &cos, &sin); // Angle de 20° par rapport au robot
-			drop_pos[0] = (GEOMETRY_point_t){(Sint32)cos*150/4096 + global.env.pos.x, (Sint32)sin*150/4096 + global.env.pos.y};
-
-			// Ne devrait pas poser les deux triangles au même endroit
-			// plus facile à gérer si nous laisons le triangle devant le foyer ou devant la torche
-			COS_SIN_4096_get(global.env.pos.angle+33.3*71.5, &cos, &sin);
-			drop_pos[1] = (GEOMETRY_point_t){(Sint32)cos*176/4096 + global.env.pos.x, (Sint32)sin*176/4096 + global.env.pos.y};
-			drop_pos[2] = (GEOMETRY_point_t){drop_pos[1].x, drop_pos[1].y};
+			if(choiceTorch == OUR_TORCH){
+				COS_SIN_4096_get(global.env.pos.angle-28.5*71.5, &cos, &sin); // Angle de 20° par rapport au robot
+				drop_pos[0] = (GEOMETRY_point_t){(Sint32)cos*150/4096 + global.env.pos.x, (Sint32)sin*150/4096 + global.env.pos.y};
+				drop_pos[1] = (GEOMETRY_point_t){drop_pos[0].x, drop_pos[0].y};
+				// Ne devrait pas poser les deux triangles au même endroit
+				// plus facile à gérer si nous laisons le triangle devant le foyer ou devant la torche
+				COS_SIN_4096_get(global.env.pos.angle+33.3*71.5, &cos, &sin);
+				drop_pos[2] = (GEOMETRY_point_t){(Sint32)cos*176/4096 + global.env.pos.x, (Sint32)sin*176/4096 + global.env.pos.y};
+			}else{
+				COS_SIN_4096_get(global.env.pos.angle, &cos, &sin); // Angle de 20° par rapport au robot
+				drop_pos[0] = (GEOMETRY_point_t){(Sint32)cos*170/4096 + global.env.pos.x, (Sint32)sin*170/4096 + global.env.pos.y};
+				drop_pos[1] = (GEOMETRY_point_t){drop_pos[0].x, drop_pos[0].y};
+				// Ne devrait pas poser les deux triangles au même endroit
+				// plus facile à gérer si nous laisons le triangle devant le foyer ou devant la torche
+				COS_SIN_4096_get(global.env.pos.angle+33.3*71.5, &cos, &sin);
+				drop_pos[2] = (GEOMETRY_point_t){(Sint32)cos*176/4096 + global.env.pos.x, (Sint32)sin*176/4096 + global.env.pos.y};
+			}
 
 
 			state = TORCHE;
@@ -2376,7 +2397,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		}break;
 
 		case TORCHE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TORCHE,torch.x, torch.y, TORCHE, WAIT_STABILISATION_1, PARKED_NOT_HANDLED);
+			state = ACT_arm_move((choiceTorch == OUR_TORCH)?ACT_ARM_POS_TORCHE_CENTRAL :ACT_ARM_POS_TORCHE_ADV ,0 , 0, TORCHE, WAIT_STABILISATION_1, PARKED_NOT_HANDLED);
 			break;
 
 		case WAIT_STABILISATION_1 :
@@ -2393,22 +2414,44 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		case UP_ARM: // Commentaire à enlever quand on aura le moteur DC sur le bras
 			if(entrance)
 				nb_try_back = 0;
-
+#ifdef ABANDON_RETURN
+			state = state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, PARKED_NOT_HANDLED);
+#else
 			if((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
 				state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, BACK, PARKED_NOT_HANDLED);
 			else
 				state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, PARKED_NOT_HANDLED);
+#endif
 			break;
 
-		case UP_ARM_ERROR:
+		case UP_ARM_ERROR:{
+			static bool_e oneShoot = FALSE;
+
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 
-			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_ERROR, TORCHE, PARKED_NOT_HANDLED);
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_ERROR, BACK_ERROR_ARM, PARKED_NOT_HANDLED);
+
+			// Essaye qu'une seule fois que pour le premier triangle
+			if(ON_LEAVING(UP_ARM_ERROR) && state == TORCHE){
+				if(oneShoot == FALSE)
+					oneShoot = TRUE;
+				else{
+					state = PARKED_NOT_HANDLED;
+					oneShoot = FALSE;
+				}
+			}
+
+			}break;
+
+		case BACK_ERROR_ARM:
+			state = try_advance(10,BACK_ERROR_ARM,TORCHE,TORCHE,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		case DROP_TRIANGLE :
-
+		#ifdef ABANDON_RETURN
+			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_STABILISATION_2, PARKED_NOT_HANDLED);
+		#else
 			if(fail_return && ((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)))
 				state = WAIT_STABILISATION_2;
 			else
@@ -2416,6 +2459,8 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 
 			if(ON_LEAVING(DROP_TRIANGLE))
 				droped_triangle[niveau] = TRUE;
+		#endif
+
 			break;
 
 		case WAIT_STABILISATION_2 :
@@ -2442,7 +2487,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case BACK:
-			state = try_advance((choiceTorch == ADVERSARY_TORCH && niveau == 2)?DIST_RETURN_RETURN_TRIANGLE+150:DIST_RETURN_RETURN_TRIANGLE, BACK, RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance((choiceTorch == ADVERSARY_TORCH && niveau == 2)?DIST_RETURN_RETURN_TRIANGLE:DIST_RETURN_RETURN_TRIANGLE, BACK,(choiceTorch == ADVERSARY_TORCH && niveau == 2)? TURN:SMALL_ARM_PREPARE, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case BACK_FAIL:
@@ -2472,8 +2517,20 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 				state = PARKED_NOT_HANDLED;
 			break;
 
+		case TURN:
+			state = try_go_angle(global.env.pos.angle + (global.env.color == RED)? -PI4096/2:PI4096/2,TURN,SMALL_ARM_PREPARE,SMALL_ARM_PREPARE,FAST);
+			break;
+
+		case SMALL_ARM_PREPARE:
+			state = ACT_small_arm_move(ACT_SMALL_ARM_MID, SMALL_ARM_PREPARE, RETURN, RETURN);
+			break;
+
 		case RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, INVERSE_PUMP, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, WAIT_RETURN, INVERSE_PUMP);
+			break;
+
+		case WAIT_RETURN:
+			state = ELEMENT_wait_time(300,WAIT_RETURN,INVERSE_PUMP);
 			break;
 
 		case INVERSE_PUMP:
@@ -2488,14 +2545,14 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case SMALL_ARM_DEPLOYED:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_MID, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, SMALL_ARM_PARKED);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, SMALL_ARM_PARKED);
 			break;
 
 		case SMALL_ARM_PARKED:
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
-			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, TAKE_RETURN, PARKED_NOT_HANDLED);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, OPEN, PARKED_NOT_HANDLED);
 
 			if(ON_LEAVING(SMALL_ARM_PARKED)){
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
@@ -2536,7 +2593,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case OPEN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_UNBLOCK_RETURN_UP,0, 0, OPEN, ADVANCE, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN,0, 0, OPEN, ADVANCE, PARKED_NOT_HANDLED);
 			break;
 
 		case ADVANCE:
