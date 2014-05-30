@@ -132,7 +132,7 @@ error_e sub_action_initiale_guy(){
 	//static Uint8	nb_points = 0;
 	static enum state_e success_state;
 	static bool_e we_prevented_pierre_to_get_out = FALSE;
-	static Sint16 y_to_prevent_pierre_to_get_out;
+	static Sint16 y_to_prevent_pierre_to_get_out = 0;
 	static time32_t t;
 	static torch_dispose_zone_e dispose_zone_for_adversary_torch = HEARTH_ADVERSARY;
 	static torch_dispose_zone_e dispose_zone_for_our_torch = HEARTH_CENTRAL;
@@ -141,7 +141,7 @@ error_e sub_action_initiale_guy(){
 		pierre_reach_point_C1 = TRUE;
 
 
-	if(!we_prevented_pierre_to_get_out)
+	if(!we_prevented_pierre_to_get_out && y_to_prevent_pierre_to_get_out)
 	{
 		//ATTENTION, on utilise pas les warners qui peuvent ainsi être utilisés pour le bras !
 		if(COLOR_Y(global.env.pos.y) > y_to_prevent_pierre_to_get_out)
