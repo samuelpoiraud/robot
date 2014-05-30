@@ -37,45 +37,39 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-131+OFFSET_BIG_UP_DOWN	,217	,32+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Parked
 		{-131+OFFSET_BIG_UP_DOWN	,180	,29+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Mid
 		{-131+OFFSET_BIG_UP_DOWN	,180	,84+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Open
+
 		{-131+OFFSET_BIG_UP_DOWN	,200	,161,		54},	//ARM_ST_Open_2
-
 		{0		,0		,0		,0},	//ARM_ST_On_Torche						NOT USE			// Distance factice
-
 		{-131+OFFSET_BIG_UP_DOWN	,212	,200+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Torche_Small_Arm
 		{-131+OFFSET_BIG_UP_DOWN	,224	,164+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Torche_Small_Arm_Rescue
-
 		{-131+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Prepare_1_Torche_Auto
+
 		{-99+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Prepare_2_Torche_Auto
 		{-99+OFFSET_BIG_UP_DOWN	,163	,22+OFFSET_BIG_AX12_MID,	158},	//ARM_ST_On_Torche_Auto
 		{-71+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_BIG_AX12_MID,	158},	//ARM_ST_On_Torche_Auto_Escape_1
 		{-71+OFFSET_BIG_UP_DOWN	,159	,120+OFFSET_BIG_AX12_MID,	158},	//ARM_ST_On_Torche_Auto_Escape_2
-
 		{-71	,151	,200+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Prepare_Drop_1_Auto
+
 		{-71	,151	,270+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Prepare_Drop_2_Auto
 		{-71.	,151	,270+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Drop_1_Auto
-
 		{-71	,157	,127	,152},	//ARM_ST_On_Drop_2_Auto
-
 		{-131	,194	,133	,154},	//ARM_ST_On_Prepare_1_Drop_3_Auto
 		{-200	,194	,133	,154},	//ARM_ST_On_Prepare_2_Drop_3_Auto
-		{-200   ,176	,134	,154},	//ARM_ST_On_Drop_3_Auto
 
+		{-200   ,176	,134	,154},	//ARM_ST_On_Drop_3_Auto
 		{0		,0		,0		,0},	//ARM_ST_To_Storage						NOT USE
 		{-221+OFFSET_BIG_UP_DOWN	,238	,265+OFFSET_BIG_AX12_MID	,154},	//ARM_ST_To_Carry
-
 		{-131+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,56},	//ARM_ST_To_Prepare_Return
 		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,56},	//ARM_ST_To_Down_Return
+
 		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,56},	//ARM_ST_To_Return
-
 		{0		,0		,0		,0},	//ARM_ST_Wait_Return					NOT USE
-
 		{0		,0		,0		,0},	//ARM_ST_To_Prepare_Take_Return			NOT USE
 		{0		,0		,0		,0},	//ARM_ST_To_Take_Return					NOT USE
 		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,152},	//ARM_ST_To_Unblock_Return
+
 		{0		,0		,0		,0},	//ARM_ST_To_Unblock_Return_Up
-
 		{0		,0		,0		,0},	//ARM_ST_On_Triangle					NOT USE			// Distance factice
-
 		{0		,0		,0		,0},	//ARM_ST_Prepare_Backward				NOT USE
 		{0		,0		,0		,0},	//ARM_ST_Down_Backward					NOT USE
 		{0		,0		,0		,0},	//ARM_ST_Lock_Backward					NOT USE
@@ -89,9 +83,9 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-145	,150	,86,	42},	//ARM_ST_Prepare_Take_On_Road
 		{-353	,178	,112,	42},	//ARM_ST_Take_On_Road
 		{-395	,152	,88,	47},	//ARM_ST_Take_On_Road_Mamouth
-
 		{-71+OFFSET_BIG_UP_DOWN	,171	,140+OFFSET_BIG_AX12_MID	,152},	//ARM_ST_Deposed_Torch
 		{-71+OFFSET_BIG_UP_DOWN	,171	,140+OFFSET_BIG_AX12_MID	,243},	//ARM_ST_Escape_Torch_1
+
 		{-71+OFFSET_BIG_UP_DOWN	,182	,200+OFFSET_BIG_AX12_MID	,243}	//ARM_ST_Escape_Torch_2
 		{0		,0		,0		,0}  // ACT_ARM_POS_TORCHE_CENTRAL				NOT USE
 		};
@@ -104,36 +98,38 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-432+OFFSET_SMALL_UPDOWN	,152	,246,	245},	//ARM_ST_Mid
 		{-432+OFFSET_SMALL_UPDOWN	,145	,218,	SMALL_VENTOUSE_HORIZONTALE},	//ARM_ST_Open
 
+		{0		,0		,0		,0},	//ARM_ST_Open_2		NOT USE
 		{0		,0		,0		,0},	//ARM_ST_On_Torche				// Distance factice
 		{0		,0		,0		,0},	//ARM_ST_On_Torche_Small_Arm		NOT USE
 		{0		,0		,0		,0},	//ARM_ST_On_Torche_Small_Arm_Rescue	NOT USE
 		{0		,0		,0		,0},	//ARM_ST_Prepare_1_Torche_Auto		NOT USE
+
 		{0		,0		,0		,0},	//ARM_ST_Prepare_2_Torche_Auto		NOT USE
 		{0		,0		,0		,0},	//ARM_ST_On_Torche_Auto				NOT USE
 		{-131+OFFSET_SMALL_UPDOWN	,159	,23,	158},	//ARM_ST_On_Torche_Auto_Escape_1	NOT USE
 		{-131+OFFSET_SMALL_UPDOWN	,159	,120,	158},	//ARM_ST_On_Torche_Auto_Escape_2	NOT USE
-		{0		,0		,0		,0},	//ARM_ST_Prepare_Drop_Auto			NOT USE
+		{0		,0		,0		,0},	//ARM_ST_Prepare_Drop_1_Auto			NOT USE
+
+		{0		,0		,0		,0},	//ARM_ST_Prepare_Drop_2_Auto			NOT USE
 		{0		,0		,0		,0},	//ARM_ST_On_Drop_1_Auto				NOT USE
 		{0		,0		,0		,0},	//ARM_ST_On_Drop_2_Auto				NOT USE
-		{0		,0		,0		,0},	//ARM_ST_On_Prepare_Drop_3_Auto		NOT USE
-		{0		,0		,0		,0},	//ARM_ST_On_Drop_3_Auto				NOT USE
+		{0		,0		,0		,0},	//ARM_ST_On_Prepare1_Drop_3_Auto		NOT USE
+		{0		,0		,0		,0},	//ARM_ST_On_Prepare2_Drop_3_Auto		NOT USE
 
+		{0		,0		,0		,0},	//ARM_ST_On_Drop_3_Auto				NOT USE
 		{0		,0		,0		,0},	//ARM_ST_To_Storage					NOT USE
 		{-351+OFFSET_SMALL_UPDOWN	,169	,280,	233},	//ARM_ST_To_Carry
-
 		{-432+OFFSET_SMALL_UPDOWN	,158	,102,	238},	//ARM_ST_To_Prepare_Return
 		{-287+OFFSET_SMALL_UPDOWN	,158	,107,	238},	//ARM_ST_To_Down_Return
+
 		{-350+OFFSET_SMALL_UPDOWN	,186	,171,	237},	//ARM_ST_To_Return
-
 		{-432+OFFSET_SMALL_UPDOWN	,133	,65,	120},	//ARM_ST_Wait_Return
-
 		{-432+OFFSET_SMALL_UPDOWN	,115	,42,	148},	//ARM_ST_To_Prepare_Take_Return
 		{-432+OFFSET_SMALL_UPDOWN	,132	,80,	SMALL_VENTOUSE_HORIZONTALE},	//ARM_ST_To_Take_Return
 		{-432+OFFSET_SMALL_UPDOWN	,132	,56,	110},	//ARM_ST_To_Unblock_Return
+
 		{-432+OFFSET_SMALL_UPDOWN	,132	,56,	SMALL_VENTOUSE_HORIZONTALE},	//ARM_ST_To_Unblock_Return_Up
-
 		{0		,0		,0		,0},	//ARM_ST_On_Triangle			// Distance factice
-
 		{-432+OFFSET_SMALL_UPDOWN	,113	,151,	79},	//ARM_ST_Prepare_Backward
 		{-360+OFFSET_SMALL_UPDOWN	,113	,154,	79},	//ARM_ST_Down_Backward
 		{-360+OFFSET_SMALL_UPDOWN	,113	,154,	148},	//ARM_ST_Lock_Backward
@@ -147,9 +143,9 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{0		,0		,0		,0},	//ARM_ST_Prepare_Take_On_Road		NOT USE
 		{-146	,174	,260	,SMALL_VENTOUSE_HORIZONTALE},	//ARM_ST_Take_On_Road
 		{0		,0		,0		,0},	//ARM_ST_Take_On_Road_Mamouth		NOT USE
-
 		{0		,0		,0		,0},	//ARM_ST_Deposed_Torch				NOT USE
 		{0		,0		,0		,0},	//ARM_ST_Escape_Torch_1				NOT USE
+
 		{0		,0		,0		,0},	//ARM_ST_Escape_Torch_2				NOT USE
 		{-403	,149	,89 	,SMALL_VENTOUSE_HORIZONTALE}	 // ACT_ARM_POS_TORCHE_CENTRAL
 		};
