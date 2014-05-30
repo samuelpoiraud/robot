@@ -2415,7 +2415,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			if(entrance)
 				nb_try_back = 0;
 #ifdef ABANDON_RETURN
-			state = state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, PARKED_NOT_HANDLED);
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, DROP_TRIANGLE, PARKED_NOT_HANDLED);
 #else
 			if((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)) // Va retourne le deuxieme triangle
 				state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, BACK, PARKED_NOT_HANDLED);
@@ -2597,7 +2597,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case ADVANCE:
-			state = try_going(work_point.x, work_point.y, ADVANCE, DROP_TRIANGLE, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(work_point.x, work_point.y, ADVANCE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 
 			if(ON_LEAVING(ADVANCE)){
 				if(not_drop_on_the_hearth == TRUE && state == DROP_TRIANGLE)
