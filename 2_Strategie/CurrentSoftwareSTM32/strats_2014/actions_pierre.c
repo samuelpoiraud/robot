@@ -205,7 +205,9 @@ error_e sub_action_initiale(void)
 		case LANCE_LAUNCHER:
 			if(entrance)
 			{
-				ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH);
+				if(global.env.color == RED)
+					ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH);
+
 				if(i_must_deal_with_our_torch && !global.env.guy_took_fire[FIRE_ID_TORCH_OUR])
 				{
 					//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
@@ -231,7 +233,7 @@ error_e sub_action_initiale(void)
 			//Il y a aussi le risque que cet évittement soit du à Guy...
 			state = check_sub_action_result(sub_lance_launcher((cooperation_enable)?FALSE:TRUE, global.env.color),LANCE_LAUNCHER,success_state,fail_state);
 
-			if(ON_LEAVING(LANCE_LAUNCHER))
+			if(ON_LEAVING(LANCE_LAUNCHER) && global.env.color == RED)
 				ACT_arm_goto(ACT_ARM_POS_PARKED);
 
 			break;
