@@ -69,7 +69,7 @@ extern bool_e arm_states_transitions[ARM_ST_NUMBER][ARM_ST_NUMBER];
 
 
 #define SMALL_VENTOUSE_HORIZONTALE 152
-#define OFFSET_SMALL_UPDOWN 25
+#define OFFSET_SMALL_UPDOWN (-41)
 
 
 #ifdef I_AM_ROBOT_SMALL
