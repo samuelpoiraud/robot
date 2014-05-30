@@ -79,6 +79,7 @@ bool_e strat_homologation_triangle = FALSE;
 #define RADIUS_TORCH 80
 #define NOT_DROP_TRI_VERTICAL_HEARTH // Ne dépose pas les triangles verticale si define
 //#define MANCHOT
+#define PUT_TORCH_HEARTH // Mets la torche adverse sur le foyer adverse
 
 typedef enum{
 	NORTH_MAMMOUTH = 0,
@@ -795,7 +796,7 @@ error_e goto_adversary_zone(void)
 			{
 				way_adv_fires[0] = (displacement_t) {{1600,COLOR_Y(2000)},	FAST};
 				way_adv_fires[1] = (displacement_t) {{1350,COLOR_Y(2600)},	FAST};
-				way_adv_fires[2] = (displacement_t) {{1000,COLOR_Y(2650)},	FAST};
+				way_adv_fires[2] = (displacement_t) {{1000,COLOR_Y(2650)},	SLOW};
 			}
 			state = try_going_multipoint(way_adv_fires,3,ADV_CENTRAL_FIRE,DONE,DONE,FORWARD,NO_DODGE_AND_WAIT,END_AT_BREAK);
 
@@ -964,7 +965,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 				state = CENTER_TO_HEARTH;
 			else if(GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}, posStart) < 50)
 				state = (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH;
-			else if(torch_choice == ADVERSARY_TORCH && est_dans_carre(900,2200,COLOR_Y(2100),COLOR_Y(2600),(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+			else if(torch_choice == ADVERSARY_TORCH && est_dans_carre(900,2200,COLOR_Y(2100),COLOR_Y(2700),(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
 				state = PRE_POSITION;
 			else
 				state = POS_START_TORCH;
@@ -973,14 +974,14 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			break;
 
 		case PRE_POSITION:
-			state = try_going_until_break(800, COLOR_Y(2200), PRE_POSITION, POS_START_TORCH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT);
+			state = try_going_until_break(800, COLOR_Y(2200), PRE_POSITION, POS_START_TORCH, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT);
 			break;
 
 		case POS_START_TORCH:
 			if(torch_choice == OUR_TORCH)
-				state = try_going_until_break(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+				state = try_going_until_break(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
+				state = try_going(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case MOVE_TORCH :
@@ -2260,13 +2261,13 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLED, ERROR, ERROR);
 
 			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
-				state = ERROR;
+				state = EXTRACT;
 			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
-				state = ERROR;
+				state = EXTRACT;
 		}break;
 
 		case PARKED:
-			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, EXTRACT, ERROR);
+			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, EXTRACT, EXTRACT);
 			break;
 
 		case EXTRACT:
@@ -2296,7 +2297,6 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 		DOWN_ARM,
 		UP_ARM,
 		UP_ARM_ERROR,
-		BACK_ERROR_ARM,
 		DROP_TRIANGLE,
 		WAIT_STABILISATION_2,
 		WAIT_TRIANGLE_BREAK,
@@ -2430,7 +2430,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 
-			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_ERROR, BACK_ERROR_ARM, PARKED_NOT_HANDLED);
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_ERROR, TORCHE, PARKED_NOT_HANDLED);
 
 			// Essaye qu'une seule fois que pour le premier triangle
 			if(ON_LEAVING(UP_ARM_ERROR) && state == TORCHE){
@@ -2444,18 +2444,22 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 
 			}break;
 
-		case BACK_ERROR_ARM:
-			state = try_advance(10,BACK_ERROR_ARM,TORCHE,TORCHE,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT);
-			break;
-
 		case DROP_TRIANGLE :
 		#ifdef ABANDON_RETURN
 			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_STABILISATION_2, PARKED_NOT_HANDLED);
 		#else
 			if(fail_return && ((niveau == 1 && choiceTorch == OUR_TORCH) || ((niveau == 0 || niveau == 2) && choiceTorch == ADVERSARY_TORCH)))
 				state = WAIT_STABILISATION_2;
-			else
+			else{
+#ifdef PUT_TORCH_HEARTH
+				if(niveau > 2)
+					state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[0].x, drop_pos[0].y, DROP_TRIANGLE, WAIT_STABILISATION_2, PARKED_NOT_HANDLED);
+				else
+					state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_STABILISATION_2, PARKED_NOT_HANDLED);
+#else
 				state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE,drop_pos[niveau].x, drop_pos[niveau].y, DROP_TRIANGLE, WAIT_STABILISATION_2, PARKED_NOT_HANDLED);
+#endif
+			}
 
 			if(ON_LEAVING(DROP_TRIANGLE))
 				droped_triangle[niveau] = TRUE;
@@ -2484,10 +2488,27 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 				niveau++;
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 			}
+
+#ifdef PUT_TORCH_HEARTH
+			if(niveau>2){
+				static bool_e oneShoot = FALSE;
+
+				if(!oneShoot){
+					state = TORCHE; // Va mettre la torche sur le foyer
+					oneShoot = TRUE;
+				}else
+					state = PARKED;
+			}
+#endif
+
 			break;
 
 		case BACK:
-			state = try_advance((choiceTorch == ADVERSARY_TORCH && niveau == 2)?DIST_RETURN_RETURN_TRIANGLE:DIST_RETURN_RETURN_TRIANGLE, BACK,(choiceTorch == ADVERSARY_TORCH && niveau == 2)? TURN:SMALL_ARM_PREPARE, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+#ifdef PUT_TORCH_HEARTH
+			state = try_advance((choiceTorch == ADVERSARY_TORCH && niveau == 2)?DIST_RETURN_RETURN_TRIANGLE+200:DIST_RETURN_RETURN_TRIANGLE, BACK,RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+#else
+			state = try_advance(DIST_RETURN_RETURN_TRIANGLE, BACK,(choiceTorch == ADVERSARY_TORCH && niveau == 2)? TURN:RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+#endif
 			break;
 
 		case BACK_FAIL:
@@ -2518,15 +2539,15 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case TURN:
-			state = try_go_angle(global.env.pos.angle + (global.env.color == RED)? -PI4096/2:PI4096/2,TURN,SMALL_ARM_PREPARE,SMALL_ARM_PREPARE,FAST);
-			break;
-
-		case SMALL_ARM_PREPARE:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_MID, SMALL_ARM_PREPARE, RETURN, RETURN);
+			state = try_go_angle(global.env.pos.angle + (global.env.color == RED)? -PI4096/4:PI4096/4,TURN,RETURN,RETURN,FAST);
 			break;
 
 		case RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, WAIT_RETURN, INVERSE_PUMP);
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, RETURN, SMALL_ARM_PREPARE, SMALL_ARM_PREPARE);
+			break;
+
+		case SMALL_ARM_PREPARE:
+			state = ACT_small_arm_move(ACT_SMALL_ARM_MID, SMALL_ARM_PREPARE, WAIT_RETURN, WAIT_RETURN);
 			break;
 
 		case WAIT_RETURN:
@@ -2552,19 +2573,23 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
-			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, OPEN, PARKED_NOT_HANDLED);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, ADVANCE, PARKED_NOT_HANDLED);
 
 			if(ON_LEAVING(SMALL_ARM_PARKED)){
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 
 				if(choiceTorch == OUR_TORCH && niveau == 1){ // Si notre torche, on laisse seulement celui du milieu par terre
-					state = OPEN;
+					state = ADVANCE;
 					not_drop_on_the_hearth = TRUE;
 				}else if(choiceTorch == ADVERSARY_TORCH && niveau == 2) // Si torche adverse, on laisse le dernier triangle
+#ifdef PUT_TORCH_HEARTH
+					state = ADVANCE;
+#else
 					state = PARKED;
+#endif
 				else if(state == PARKED_NOT_HANDLED){
 					fail_return = TRUE;
-					state = OPEN;
+					state = ADVANCE;
 				}
 			}
 
@@ -2597,7 +2622,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case ADVANCE:
-			state = try_going(work_point.x, work_point.y, ADVANCE, WAIT_TRIANGLE_BREAK, PARKED_NOT_HANDLED, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+			state = try_going(work_point.x, work_point.y, ADVANCE, WAIT_TRIANGLE_BREAK, WAIT_TRIANGLE_BREAK, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 
 			if(ON_LEAVING(ADVANCE)){
 				if(not_drop_on_the_hearth == TRUE && state == DROP_TRIANGLE)
