@@ -66,6 +66,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_PROTECT_NORTH_WAY,
 	SUB_PROTECT_NORTH_WAY2,
 	SUB_FILET,		//Peu importe l'ordre des états... (sauf en cas de priorité égale)
+	SUB_TRIANGLE_START,
 
 	//--------------Sub action de guy
 
