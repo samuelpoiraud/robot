@@ -146,6 +146,7 @@
 		GEOMETRY_point_t destination;
 		Sint32 propulsion_coefs[PROPULSION_NUMBER_COEFS];
 		Uint32 propulsion_coefs_updated;	//par soucis de compacité mémoire et temporel, les flags d'updated sont concaténés ici dans un seul entier...
+		bool_e we_posed_on_adversary_hearth;
 	}environment_t;
 
 

@@ -2458,7 +2458,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 				drop_pos[2] = (GEOMETRY_point_t){(Sint32)cos*176/4096 + global.env.pos.x, (Sint32)sin*176/4096 + global.env.pos.y};
 			}
 
-
+			global.env.we_posed_on_adversary_hearth = TRUE;
 			state = TORCHE;
 			niveau = 0;
 
