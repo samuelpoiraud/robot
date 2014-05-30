@@ -357,13 +357,12 @@ error_e sub_action_initiale_guy(){
 		case DONE:
 			//En fonction de notre position, on peut jouer sur la priorité des feux fixes à faire.
 
-			if(est_dans_carre(400,1200,COLOR_Y(2400),COLOR_Y(3000),(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+			if(est_dans_carre(400,1300,COLOR_Y(2400),COLOR_Y(3000),(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
 			{	//On donne la priorité au feu start de l'adversaire
 				//Si cette action est désactivé, peu importe, on peut quand même régler sa priorité.
 				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_ADV,3);
 				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_2,4);
 				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_3,5);
-
 			}
 			else if(est_dans_carre(1400,2000,1500,2000,(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
 			{
@@ -1776,6 +1775,7 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		GET_IN,
 		SHOULD_WE_DO_CALAGE,
 		GOTO_CALAGE_X,
+		ANGLE_BEFORE_CALAGE,
 		CALAGE_X,
 		BACK_FROM_CALAGE_X,
 		ACTION,
@@ -1814,6 +1814,7 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 		case SHOULD_WE_DO_CALAGE:
 			state = ACTION;	//Par défaut, pas de calage.
 
+			/* CALAGE DESACTIVE... ca apporte pas mal de merdes + le risque de pousser un feu...
 			if(global.env.match_time < 70000)
 			{
 				//S'il me reste du temps dans le match
@@ -1827,6 +1828,7 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 					state = GOTO_CALAGE_X;
 				}
 			}
+			*/
 			break;
 
 		case GOTO_CALAGE_X:
@@ -1835,11 +1837,14 @@ error_e sub_action_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			if(entrance)
 			{
 				displacements[0] = (displacement_t){(GEOMETRY_point_t){400, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
-				displacements[1] = (displacement_t){(GEOMETRY_point_t){120, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
+				displacements[1] = (displacement_t){(GEOMETRY_point_t){150, (save_vertical_triangle == V_TRIANGLE_1)?200:2800},FAST};
 			}
-			state = try_going_multipoint(displacements,2,state,CALAGE_X,ACTION,FORWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state = try_going_multipoint(displacements,2,state,ANGLE_BEFORE_CALAGE,ACTION,FORWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 		}
+		case ANGLE_BEFORE_CALAGE:
+			state = try_go_angle(PI4096,state,CALAGE_X, CALAGE_X,FAST);
+			break;
 		case CALAGE_X:
 			switch(action_recalage_x(FORWARD, DIST_CALLAGE_GUY, 0))
 			{
@@ -1928,14 +1933,21 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			offset_x = 0;
 			offset_y = 0;
 			if(global.env.match_time - global.env.recalage_x.last_time < 10000)	//Il y a moins de 10 secondes que nous nous sommes callés
+			{
 				offset_x = global.env.recalage_x.offset;
+				SD_printf("OFFSET recalage x : %d\n",offset_x);
+			}
 			if(global.env.match_time - global.env.recalage_y.last_time < 10000)	//Il y a moins de 10 secondes que nous nous sommes callés
-				offset_x = global.env.recalage_y.offset;
+			{
+				offset_y = global.env.recalage_y.offset;
+				SD_printf("OFFSET recalage y : %d\n",offset_y);
+			}
+
 			state = PLACEMENT_INIT;
 			break;
 
 		case PLACEMENT_INIT:
-			state = try_going(triangle_pos_begin[vertical_triangle].x+offset_x, triangle_pos_begin[vertical_triangle].y+offset_y, PLACEMENT_INIT, ROTATION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+			state = try_going(triangle_pos_begin[vertical_triangle].x-offset_x, triangle_pos_begin[vertical_triangle].y-offset_y, PLACEMENT_INIT, ROTATION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case ROTATION:
@@ -1977,7 +1989,7 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case BACK:
-			state = try_going(triangle_pos_end[vertical_triangle].x+offset_x, triangle_pos_end[vertical_triangle].y+offset_y, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, FAST, ANY_WAY, DODGE_AND_WAIT);
+			state = try_going(triangle_pos_end[vertical_triangle].x-offset_x, triangle_pos_end[vertical_triangle].y-offset_y, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, FAST, ANY_WAY, DODGE_AND_WAIT);
 
 #ifdef NOT_DROP_TRI_VERTICAL_HEARTH
 			if(ON_LEAVING(BACK))
@@ -2117,9 +2129,15 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 				offset_x = 0;
 				offset_y = 0;
 				if(global.env.match_time - global.env.recalage_x.last_time < 10000)	//Il y a moins de 10 secondes que nous nous sommes callés
+				{
 					offset_x = global.env.recalage_x.offset;
+					SD_printf("OFFSET recalage x : %d\n",offset_x);
+				}
 				if(global.env.match_time - global.env.recalage_y.last_time < 10000)	//Il y a moins de 10 secondes que nous nous sommes callés
-					offset_x = global.env.recalage_y.offset;
+				{
+					offset_y = global.env.recalage_y.offset;
+					SD_printf("OFFSET recalage y : %d\n",offset_y);
+				}
 			state = PLACEMENT_INIT;
 			break;
 
