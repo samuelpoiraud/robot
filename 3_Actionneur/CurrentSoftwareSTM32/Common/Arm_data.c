@@ -84,7 +84,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 
 		{-145	,150	,86,	42},	//ARM_ST_Prepare_Take_On_Road
 		{-353	,178	,112,	42},	//ARM_ST_Take_On_Road
-		{-395	,152	,88,	47},	//ARM_ST_Take_On_Road_Mamouth
+		{-295	,152	,88,	47},	//ARM_ST_Take_On_Road_Mamouth
 		{-71+OFFSET_BIG_UP_DOWN	,171	,140+OFFSET_BIG_AX12_MID	,152},	//ARM_ST_Deposed_Torch
 		{-71+OFFSET_BIG_UP_DOWN	,171	,140+OFFSET_BIG_AX12_MID	,243},	//ARM_ST_Escape_Torch_1
 
