@@ -115,6 +115,7 @@ error_e sub_action_initiale(void)
 		GOTO_TORCH_SECOND_POINT,
 		GOTO_TORCH_THIRD_POINT,
 		//GOTO_HEARTH,
+		BACK_FAIL_FIRST_POINT,
 		FAIL_FIRST_POINT,
 		FAIL_SECOND_POINT,
 		FAIL_THIRD_POINT,
@@ -219,7 +220,7 @@ error_e sub_action_initiale(void)
 				if(i_must_deal_with_our_torch && !global.env.guy_took_fire[FIRE_ID_TORCH_OUR])
 				{
 					//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
-					fail_state = GOTO_TORCH_FIRST_POINT;
+					fail_state = BACK_FAIL_FIRST_POINT;
 					if(i_do_torch_before_fresco)
 						success_state =  GOTO_TORCH_FIRST_POINT;
 					else
@@ -270,6 +271,8 @@ error_e sub_action_initiale(void)
 			break;
 
 		case WAIT_TORCH_LOCKER:
+			if(entrance) // Ouvre les pinces
+				ACT_torch_locker(ACT_TORCH_Locker_Lock);
 			state = ELEMENT_wait_time(1500, WAIT_TORCH_LOCKER, GOTO_TORCH_THIRD_POINT);
 			break;
 
@@ -301,11 +304,15 @@ error_e sub_action_initiale(void)
 				state = try_going(1650, 1900, ROTATE_PUSH_TRIANGLE, DO_TREE_1, FAIL_THIRD_POINT, FAST, FORWARD, DODGE_AND_WAIT);
 			break;
 
+		case BACK_FAIL_FIRST_POINT:
+			state = try_going(600, COLOR_Y(600), BACK_FAIL_FIRST_POINT, FAIL_FIRST_POINT, DO_TREE_1, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT);
+			break;
+
 		case FAIL_FIRST_POINT:
-			if(entrance)
-				ACT_torch_locker(ACT_TORCH_Locker_Inside);
+			if(entrance) // Ouvre les pinces
+				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
 			//NO_DODGE : on gère nous même l'échec.
-			state = try_going_until_break(750, COLOR_Y(400),FAIL_FIRST_POINT,DEPLOY_TORCH,GOTO_TORCH_FIRST_POINT,FAST,(global.env.color == RED)? FORWARD : BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_going(1100, COLOR_Y(900),FAIL_FIRST_POINT,WAIT_TORCH_LOCKER,DO_TREE_1,FAST, FORWARD ,NO_DODGE_AND_WAIT);
 			break;
 
 		case FAIL_SECOND_POINT:
@@ -320,11 +327,12 @@ error_e sub_action_initiale(void)
 		case FAIL_THIRD_POINT:
 			state = COME_BACK_FOR_GOING_FRESCO;
 			break;
+
 		case COME_BACK_FOR_GOING_FRESCO:	//On a pas réussi à rejoindre la torche... on file vers la fresque
 			if(action_fresco_filed)	//Fresque déjà faite
 				state = ERROR;		//On rend la main à la high_level
 			else
-				state = try_going_until_break(520, COLOR_Y(1100), COME_BACK_FOR_GOING_FRESCO, GOTO_FRESCO, GOTO_TORCH_FIRST_POINT, FAST, ANY_WAY, DODGE_AND_WAIT);
+				state = try_going_until_break(520, COLOR_Y(1100), COME_BACK_FOR_GOING_FRESCO, GOTO_FRESCO, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case GOTO_FRESCO:
@@ -350,9 +358,7 @@ error_e sub_action_initiale(void)
 
 			if(ON_LEAVING(EXTRACT_BAC) && state == DONE){
 				if(!i_do_torch_before_fresco && i_must_deal_with_our_torch)
-					fail_state = GOTO_TORCH_FIRST_POINT;
-				else
-					fail_state = DONE;	//Il n'y a plus rien à faire
+					state = GOTO_TORCH_FIRST_POINT;
 			}
 			break;
 
@@ -365,9 +371,7 @@ error_e sub_action_initiale(void)
 
 			if(ON_LEAVING(EXTRACT_FRESCO) && state == DONE){
 				if(!i_do_torch_before_fresco && i_must_deal_with_our_torch)
-					fail_state = GOTO_TORCH_FIRST_POINT;
-				else
-					fail_state = DONE;	//Il n'y a plus rien à faire
+					state = GOTO_TORCH_FIRST_POINT;
 			}
 			break;
 
@@ -2140,11 +2144,9 @@ error_e sub_action_balayage(){
 		}break;
 
 		case DEPLOYED:{
-			static enum state_e state1;
 			static GEOMETRY_point_t goal_pos;
 			Sint16 cos, sin, l, teta;
 			if(entrance){
-				state1 = GET_IN;
 				teta = atan2(1500-global.env.pos.y, 1050-global.env.pos.x)*4096.;
 				COS_SIN_4096_get(teta, &cos, &sin);
 				l = dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500);
