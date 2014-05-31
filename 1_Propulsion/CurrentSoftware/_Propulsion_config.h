@@ -117,7 +117,7 @@
 
 
 	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (0)//(0x0010)
-	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0xFFFFFF60)
+	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (-160)
 
 	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010F05	//Guy : 92mm entre roue codeuse et centre
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000AFC0  	//Pierre : 138mm entre roue codeuse et centre - théorique : B308
