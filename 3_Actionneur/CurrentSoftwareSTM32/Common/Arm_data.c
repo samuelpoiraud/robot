@@ -72,7 +72,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 
 		{0		,0		,0		,0},	//ARM_ST_To_Unblock_Return_Up
 		{0		,0		,0		,0},	//ARM_ST_On_Triangle					NOT USE			// Distance factice
-		{0		,0		,0		,0},	//ARM_ST_Prepare_Backward				NOT USE
+		{-71+OFFSET_BIG_UP_DOWN,151	,169		,229},	//ARM_ST_Prepare_Backward
 		{0		,0		,0		,0},	//ARM_ST_Down_Backward					NOT USE
 		{0		,0		,0		,0},	//ARM_ST_Lock_Backward					NOT USE
 
@@ -254,7 +254,7 @@ void init_perm_transitions_table(){
 																						ACT_ARM_POS_ON_PREPARE_1_DROP_3_AUTO,
 																						ACT_ARM_POS_ON_PREPARE_DROP_1_AUTO});
 
-	add_perm_transitions_table(ACT_ARM_POS_OPEN_2,					11,	(ARM_state_e[]){ACT_ARM_POS_OPEN,
+	add_perm_transitions_table(ACT_ARM_POS_OPEN_2,					10,	(ARM_state_e[]){ACT_ARM_POS_OPEN,
 																						ACT_ARM_POS_ON_TORCHE_SMALL_ARM,
 																						ACT_ARM_POS_PREPARE_TAKE_ON_ROAD,
 																						ACT_ARM_POS_PREPARE_1_TORCHE_AUTO,
@@ -263,8 +263,7 @@ void init_perm_transitions_table(){
 																						ACT_ARM_POS_DISPOSED_TORCH,
 																						ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE,
 																						ACT_ARM_POS_PREPARE_TAKE_ON_EDGE,
-																						ACT_ARM_POS_TORCHE_CENTRAL,
-																						ACT_ARM_POS_TORCHE_ADV});
+																						ACT_ARM_POS_PREPARE_BACKWARD});
 
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_SMALL_ARM,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN_2});
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE,	1,	(ARM_state_e[]){ACT_ARM_POS_OPEN_2});
@@ -307,8 +306,11 @@ void init_perm_transitions_table(){
 
 	add_perm_transitions_table(ACT_ARM_POS_TO_CARRY,				1,	(ARM_state_e[]){ACT_ARM_POS_TAKE_ON_EDGE});
 
-	add_perm_transitions_table(ACT_ARM_POS_TORCHE_CENTRAL,			2,	(ARM_state_e[]){ACT_ARM_POS_OPEN_2,ACT_ARM_POS_TORCHE_ADV});
-	add_perm_transitions_table(ACT_ARM_POS_TORCHE_ADV,				2,	(ARM_state_e[]){ACT_ARM_POS_OPEN_2,ACT_ARM_POS_TORCHE_CENTRAL});
+	add_perm_transitions_table(ACT_ARM_POS_PREPARE_BACKWARD,		3,  (ARM_state_e[]){ACT_ARM_POS_OPEN_2,
+																						ACT_ARM_POS_TORCHE_CENTRAL,
+																						ACT_ARM_POS_TORCHE_ADV});
+	add_perm_transitions_table(ACT_ARM_POS_TORCHE_CENTRAL,			2,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_BACKWARD,ACT_ARM_POS_TORCHE_ADV});
+	add_perm_transitions_table(ACT_ARM_POS_TORCHE_ADV,				2,	(ARM_state_e[]){ACT_ARM_POS_PREPARE_BACKWARD,ACT_ARM_POS_TORCHE_CENTRAL});
 
 #endif
 }
