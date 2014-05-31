@@ -433,7 +433,7 @@ void strat_homologation_guy(){
 		case GET_OUT_POS_START:
 			if(entrance)
 			{
-				ASSER_set_acceleration(80);	//Acceleration de guy au démarrage...
+				ASSER_set_acceleration(75);	//Acceleration de guy au démarrage...
 			}
 
 			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,POS_OPEN, POS_OPEN,FAST,ANY_WAY,NO_DODGE_AND_WAIT);

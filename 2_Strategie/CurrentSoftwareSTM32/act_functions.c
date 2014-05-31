@@ -46,7 +46,7 @@
 //La fonction ACT_check_result (act_function.c) convertit et gère les messages act_state_info_t::operationResult et act_state_info_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
 
 
-#define ARM_TIMEOUT 2000
+#define ARM_TIMEOUT 2500
 
 //FONCTIONS D'ACTIONNEURS
 

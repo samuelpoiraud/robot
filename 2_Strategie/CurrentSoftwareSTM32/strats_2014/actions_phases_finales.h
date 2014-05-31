@@ -21,6 +21,8 @@
 #include "../config/config_pin.h"
 
 
+error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time, bool_e scan_before);
+
 
 #endif /* ACTIONS_PHASES_FINALES_H */
 

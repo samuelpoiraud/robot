@@ -1,4 +1,4 @@
-
+#include "actions_phases_finales.h"
 #include "actions_guy.h"
 #include "../QS/QS_outputlog.h"
 #include "../state_machine_helper.h"
@@ -22,7 +22,7 @@
 //Essai de prendre un feu situé à la position indiquée sur un foyer. (va à la position, descend ET remonte !)
 //retourne NOT_HANDLED en cas de rush plus bas que le feu absent
 //retourne END_OK en cas de rush contre un feu
-error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos);
+error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos, bool_e on_floor);
 
 //Essai de lâcher un feu à une position située sur notre gauche, au niveau indiqué
 //retourne NOT_HANDLED en cas de problème
@@ -50,6 +50,9 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 
 		SCAN,
 		REMOVE_OBSTACLE,
+		TAKE_OBSTACLE,
+		BACK_WITH_OBSTACLE,
+		DISPOSE_OBSTACLE,
 
 		GOTO_HEART,
 		COMPUTE_POS_FIRE,
@@ -68,9 +71,11 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 	static time32_t t;
 	static GEOMETRY_point_t pos;
 	static Uint8 fire_index = 0, took_fire_index = 0;
+	static bool_e already_removed_obstacle = FALSE;
 	switch(state)
 	{
 		case INIT:
+			already_removed_obstacle = FALSE;
 			fire_index = 0;
 			took_fire_index = 0;
 			if(global.env.we_posed_on_adversary_hearth)
@@ -99,7 +104,7 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 			}
 			break;
 		case COMPUTE:
-			if(i_am_in_square(500,1600,COLOR_Y(1900),COLOR_Y(2700)))
+			if(i_am_in_square(1000,1600,COLOR_Y(2400),COLOR_Y(2700)))
 				state = GOTO_SCAN_POINT;
 			else
 				state = GET_IN;
@@ -116,11 +121,46 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 			state = GOTO_HEART;
 			break;
 		case REMOVE_OBSTACLE:
+			//On est arrivé en erreur sur le foyer. On recule de 3cm, et on essaye de virer l'obstacle
+			state = try_advance(30, entrance, state,TAKE_OBSTACLE,EXTRACT_FROM_HEART,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
-
+		case TAKE_OBSTACLE:
+			if(entrance)
+			{
+				pos.x = 1790;
+				pos.y = COLOR_Y(2790);
+			}
+			switch(sub_try_take_fire_on_heart(pos,TRUE))
+			{
+				case END_OK:
+					state = BACK_WITH_OBSTACLE;
+					break;
+				case IN_PROGRESS:
+					break;
+				default:	//FAIL
+					state = ERROR;
+					break;
+			}
+			break;
+		case BACK_WITH_OBSTACLE:
+			state = try_advance(450, entrance, state,DISPOSE_OBSTACLE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			break;
+		case DISPOSE_OBSTACLE:
+			switch(sub_drop_fire_at_left())
+			{
+				case IN_PROGRESS:
+					break;
+				default:	//FAIL ou END_OK
+					state = GOTO_HEART;
+					already_removed_obstacle = TRUE;
+					break;
+			}
+			break;
 		case GOTO_HEART:
 			if(entrance)
 			{
+				if(entrance)
+					ASSER_set_threshold_error_translation(50,FALSE);
 				if(global.env.color == RED)
 				{
 					pos.x = 1750;
@@ -132,7 +172,9 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 					pos.y = 250;
 				}
 			}
-			state = try_going(pos.x, pos.y,state,TAKE_FIRE,EXTRACT_FROM_HEART,SLOW,FORWARD,NO_DODGE_AND_NO_WAIT);
+			state = try_going(pos.x, pos.y,state,TAKE_FIRE,(already_removed_obstacle)?TAKE_FIRE:REMOVE_OBSTACLE,SLOW,FORWARD,NO_DODGE_AND_NO_WAIT);
+			if(ON_LEAVING(GOTO_HEART))
+				ASSER_set_threshold_error_translation(0,TRUE);
 			break;
 		case COMPUTE_POS_FIRE:
 #define NB_FIRE_TO_TAKE	4
@@ -152,7 +194,7 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 
 
 			//Position du feu : en x et y.
-			switch(sub_try_take_fire_on_heart(pos))
+			switch(sub_try_take_fire_on_heart(pos,FALSE))
 			{
 				case END_OK:
 					state = BACK_WITH_FIRE;
@@ -259,9 +301,10 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 //retourne NOT_HANDLED en cas de rush plus bas que le feu absent ou prôblème bras
 //retourne END_OK en cas de rush contre un feu
 // ATTENTION : Ne rentre pas le bras
-error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos){
+error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos, bool_e on_floor){
 	CREATE_MAE_WITH_VERBOSE(0,
 		IDLE,
+		FIRE_AGAIN,
 		FIRE,
 		WAIT_STABILISATION,
 		DOWN_ARM,
@@ -271,14 +314,21 @@ error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos){
 		ERROR,
 		DONE
 	);
+	static Uint8 nb_try;
 
 	switch(state){
 		case IDLE :
+			nb_try = 0;
 			state = FIRE;
 			break;
 
+		case FIRE_AGAIN:
+			state = FIRE;
+			break;
 		case FIRE :
-			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE, pos.x, pos.y, FIRE, WAIT_STABILISATION, ARM_OPEN);
+			if(entrance)
+				nb_try++;
+			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE, pos.x, pos.y, FIRE, WAIT_STABILISATION, (nb_try > 2)?ARM_OPEN:FIRE_AGAIN);
 			break;
 
 		case WAIT_STABILISATION :
@@ -289,7 +339,7 @@ error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos){
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
-			state = ACT_elevator_arm_rush_in_the_floor(60, DOWN_ARM, UP_ARM, UP_ARM_ERROR);
+			state = ACT_elevator_arm_rush_in_the_floor((on_floor)?30:60, DOWN_ARM, UP_ARM, UP_ARM_ERROR);
 			break;
 
 		case UP_ARM:
