@@ -29,7 +29,7 @@
 
 
 // A utiliser contre ENSIM elec
-//#define FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
+#define FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
 
 
 static void REACH_POINT_C1_send_request();
@@ -313,11 +313,12 @@ error_e sub_action_initiale(void)
 			break;
 
 		case GOTO_FRESCO:
-#ifndef FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT); // NO_DODGE_AND_NO_WAIT, prôblème évitement avec le bac et ennemi, extraction ne peut s'extraire
-#else
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,FIRE_BITCH,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT); // NO_DODGE_AND_NO_WAIT, prôblème évitement avec le bac et ennemi, extraction ne peut s'extraire
+#ifdef FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
+			if(!i_do_torch_before_fresco)
+				state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,FIRE_BITCH,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT); // NO_DODGE_AND_NO_WAIT, prôblème évitement avec le bac et ennemi, extraction ne peut s'extraire
+			else
 #endif
+				state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT); // NO_DODGE_AND_NO_WAIT, prôblème évitement avec le bac et ennemi, extraction ne peut s'extraire
 			break;
 
 		case FIRE_BITCH:
@@ -325,7 +326,7 @@ error_e sub_action_initiale(void)
 			break;
 
 		case BACK_FIRE_BITCH:
-			state = try_going_until_break(400,COLOR_Y(1500),GOTO_FRESCO,DO_FRESCO,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
+			state = try_going_until_break(400,COLOR_Y(1500),BACK_FIRE_BITCH,DO_FRESCO,EXTRACT_FRESCO,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
 			break;
 
 		// S'extraire entre le bac et la fresque
@@ -342,6 +343,7 @@ error_e sub_action_initiale(void)
 
 		case EXTRACT_FRESCO:
 #ifdef FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
+			if(entrance)
 				ACT_torch_locker(ACT_TORCH_Locker_Lock);
 #endif
 			state = try_going_until_break(500,COLOR_Y(1200),EXTRACT_FRESCO,DONE,EXTRACT_BAC,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT);
