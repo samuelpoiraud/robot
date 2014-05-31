@@ -32,6 +32,8 @@ static void send_message_to_pierre(Uint11 sid, Uint8 data0);
 //TODO Si absence de Pierre, on doit être capable de compiler un code de GUY qui met un max de points (tout nos feux... !)
 
 
+//#define TELECOM_ROBOTICS
+
 //SWITCH_STRAT2 et SWITCH_STRAT1 permettent de choisir le chemin à emprunter pour se rendre chez l'adversaire
 //Voir le case INIT de la subaction initiale
 //ATTENTION, la route coté mammouths suggère fortement que Pierre commence par la torche et non par la fresque :: sinon conflit !
@@ -779,7 +781,13 @@ error_e goto_adversary_zone(void)
 			break;
 
 		case DO_SOUTH_FIRE:
-			state = try_going_until_break(1600,COLOR_Y(1700),DO_SOUTH_FIRE,ADV_SOUTH_FIRE,SW2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+
+			#ifdef TELECOM_ROBOTICS;
+				state = try_going(1600,COLOR_Y(1700),DO_SOUTH_FIRE,DONE,SW2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			#else
+				state = try_going_until_break(1600,COLOR_Y(1700),DO_SOUTH_FIRE,success_state,SW2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+			#endif
+
 
 			break;
 		case ADV_SOUTH_FIRE:
@@ -787,6 +795,9 @@ error_e goto_adversary_zone(void)
 			{
 				way_adv_fires[0] = (displacement_t) {{1300,COLOR_Y(2100)},	FAST};
 				way_adv_fires[1] = (displacement_t) {{1500,COLOR_Y(2400)},	FAST};
+
+
+
 			}
 			state = try_going_multipoint(way_adv_fires,2,ADV_SOUTH_FIRE,ADV_CENTRAL_FIRE,DONE,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 
@@ -979,9 +990,9 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 
 		case POS_START_TORCH:
 			if(torch_choice == OUR_TORCH)
-				state = try_going_until_break(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+				state = try_going_until_break(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 			else
-				state = try_going(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
+				state = try_going(posStart.x, posStart.y, POS_START_TORCH, (dispose_zone == HEARTH_ADVERSARY && torch_choice == OUR_TORCH)? WAY_ADVERSARY:MOVE_TORCH, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case MOVE_TORCH :
