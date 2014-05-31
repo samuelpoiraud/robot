@@ -236,7 +236,7 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 			break;
 
 		case EXTRACT_FROM_HEART:
-			state = try_going(1600,COLOR_Y(2600),state,DONE,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT);
+			state = try_advance(150,entrance,state,DONE,ERROR,FAST,BACKWARD,DODGE_AND_WAIT);
 			break;
 		case ERROR:
 			if(i_am_in_square(1700,2000,COLOR_Y(2700),COLOR_Y(3000)))
@@ -245,6 +245,7 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 				state = DONE;
 			break;
 		case DONE:
+			ACT_arm_goto(ACT_ARM_POS_PARKED);
 			state = INIT;
 			return END_OK;
 			break;
