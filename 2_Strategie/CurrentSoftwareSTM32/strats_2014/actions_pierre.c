@@ -236,7 +236,7 @@ error_e sub_action_initiale(void)
 			}
 
 #ifdef FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
-		if(success_state == GOTO_FRESCO){
+		if(success_state == GOTO_FRESCO && entrance){
 			ACT_torch_locker(ACT_TORCH_Locker_Unlock);
 		}
 #endif

@@ -22,8 +22,8 @@
 
 
 #define LARGEUR_LABIUM	235
-#define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+122)
-#define ELOIGNEMENT_POSE_BAC_FRUIT  500
+#define ELOIGNEMENT_ARBRE (LARGEUR_LABIUM+100)
+#define ELOIGNEMENT_POSE_BAC_FRUIT  470
 #define PROFONDEUR_BAC_FRUIT		300
 #define RAYON_MAX_PIERRE			310	//Avec marge de 9cm... (théorique : 212).. Et il faut bien cette marge...
 #define VITESSE_FRUIT				100
@@ -877,7 +877,7 @@ error_e strat_ramasser_fruit_arbre1_simple(tree_choice_e tree, tree_way_e sens){
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
-				courbe[i].speed = FAST;
+				courbe[i].speed = point[i].speed;
 			}
 
 			escape_point[0] = (GEOMETRY_point_t) {1600, 400};
@@ -1033,7 +1033,7 @@ error_e strat_ramasser_fruit_arbre2_simple(tree_choice_e tree, tree_way_e sens){
 					courbe[i] = point[i];
 				else
 					courbe[i] = point[NBPOINT-1-i];
-				courbe[i].speed = FAST;
+				courbe[i].speed = point[i].speed;
 			}
 
 			escape_point[0] = (GEOMETRY_point_t) {1600, 2600};
