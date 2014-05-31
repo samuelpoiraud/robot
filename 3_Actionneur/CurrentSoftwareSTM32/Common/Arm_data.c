@@ -34,15 +34,15 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		// moteur (dans l'ordre)
 		{-168+OFFSET_BIG_UP_DOWN	,240	,49+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Pre_Parked_1
 		{-168+OFFSET_BIG_UP_DOWN	,217	,32+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Pre_Parked_2
-		{-131+OFFSET_BIG_UP_DOWN	,217	,32+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Parked
-		{-131+OFFSET_BIG_UP_DOWN	,180	,29+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Mid
-		{-131+OFFSET_BIG_UP_DOWN	,180	,84+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Open
+		{-128+OFFSET_BIG_UP_DOWN	,217	,32+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Parked
+		{-128+OFFSET_BIG_UP_DOWN	,180	,29+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Mid
+		{-128+OFFSET_BIG_UP_DOWN	,180	,84+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Open
 
-		{-131+OFFSET_BIG_UP_DOWN	,200	,161,		54},	//ARM_ST_Open_2
+		{-128+OFFSET_BIG_UP_DOWN	,200	,161,		54},	//ARM_ST_Open_2
 		{0		,0		,0		,0},	//ARM_ST_On_Torche						NOT USE			// Distance factice
-		{-131+OFFSET_BIG_UP_DOWN	,212	,200+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Torche_Small_Arm
-		{-131+OFFSET_BIG_UP_DOWN	,224	,164+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Torche_Small_Arm_Rescue
-		{-131+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Prepare_1_Torche_Auto
+		{-128+OFFSET_BIG_UP_DOWN	,212	,200+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Torche_Small_Arm
+		{-128+OFFSET_BIG_UP_DOWN	,224	,164+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Torche_Small_Arm_Rescue
+		{-128+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Prepare_1_Torche_Auto
 
 		{-99+OFFSET_BIG_UP_DOWN	,159	,23+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_Prepare_2_Torche_Auto
 		{-99+OFFSET_BIG_UP_DOWN	,163	,22+OFFSET_BIG_AX12_MID,	158},	//ARM_ST_On_Torche_Auto
@@ -51,24 +51,24 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 
 
 			// Position de dépose des triangles de pierre
-		{-71	,151	,200+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Prepare_Drop_1_Auto
-		{-71	,151	,270+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Prepare_Drop_2_Auto
-		{-71.	,151	,270+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Drop_1_Auto
-		{-71	,157	,127	,152},	//ARM_ST_On_Drop_2_Auto
-		{-131	,194	,133	,154},	//ARM_ST_On_Prepare_1_Drop_3_Auto
+		{-71	,169	,200+OFFSET_BIG_AX12_MID,	43},	//ARM_ST_On_Prepare_Drop_1_Auto
+		{-71	,169	,49,	43},	//ARM_ST_On_Prepare_Drop_2_Auto
+		{-71	,169	,49,	43},	//ARM_ST_On_Drop_1_Auto
+		{-71	,146	,115	,154},	//ARM_ST_On_Drop_2_Auto
+		{-128	,194	,133	,154},	//ARM_ST_On_Prepare_1_Drop_3_Auto
 		{-200	,194	,133	,154},	//ARM_ST_On_Prepare_2_Drop_3_Auto
 		{-200   ,176	,134	,154},	//ARM_ST_On_Drop_3_Auto
 
 		{0		,0		,0		,0},	//ARM_ST_To_Storage						NOT USE
 		{-221+OFFSET_BIG_UP_DOWN	,238	,265+OFFSET_BIG_AX12_MID	,154},	//ARM_ST_To_Carry
-		{-131+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,56},	//ARM_ST_To_Prepare_Return
-		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,56},	//ARM_ST_To_Down_Return
+		{-128+OFFSET_BIG_UP_DOWN	,166	,125	,56},	//ARM_ST_To_Prepare_Return
+		{-71+OFFSET_BIG_UP_DOWN	,166	,125	,56},	//ARM_ST_To_Down_Return
 
-		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,56},	//ARM_ST_To_Return
+		{-81	,53	,32	, 56},	//ARM_ST_To_Return
 		{0		,0		,0		,0},	//ARM_ST_Wait_Return					NOT USE
 		{0		,0		,0		,0},	//ARM_ST_To_Prepare_Take_Return			NOT USE
 		{0		,0		,0		,0},	//ARM_ST_To_Take_Return					NOT USE
-		{-71+OFFSET_BIG_UP_DOWN	,146	,134+OFFSET_BIG_AX12_MID	,152},	//ARM_ST_To_Unblock_Return
+		{-71+OFFSET_BIG_UP_DOWN	,146	,115	,152},	//ARM_ST_To_Unblock_Return
 
 		{0		,0		,0		,0},	//ARM_ST_To_Unblock_Return_Up
 		{0		,0		,0		,0},	//ARM_ST_On_Triangle					NOT USE			// Distance factice
@@ -284,7 +284,7 @@ void init_perm_transitions_table(){
 
 	add_perm_transitions_table(ACT_ARM_POS_ON_PREPARE_DROP_1_AUTO,	2,	(ARM_state_e[]){ACT_ARM_POS_ON_PREPARE_DROP_2_AUTO, ACT_ARM_POS_OPEN_2});
 	add_perm_transitions_table(ACT_ARM_POS_ON_PREPARE_DROP_2_AUTO,	2,	(ARM_state_e[]){ACT_ARM_POS_ON_DROP_1_AUTO, ACT_ARM_POS_ON_PREPARE_DROP_1_AUTO});
-	add_perm_transitions_table(ACT_ARM_POS_ON_DROP_1_AUTO,			2,	(ARM_state_e[]){ACT_ARM_POS_ON_PREPARE_DROP_2_AUTO, ACT_ARM_POS_OPEN_2});
+	add_perm_transitions_table(ACT_ARM_POS_ON_DROP_1_AUTO,			2,	(ARM_state_e[]){ACT_ARM_POS_ON_PREPARE_DROP_2_AUTO});
 
 	add_perm_transitions_table(ACT_ARM_POS_ON_DROP_2_AUTO,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN_2});
 

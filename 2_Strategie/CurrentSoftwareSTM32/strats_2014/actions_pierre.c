@@ -106,10 +106,12 @@ error_e sub_action_initiale(void)
 		LANCE_LAUNCHER,
 		GOTO_PUSH_TRIANGLE,
 		PUSH_TRIANGLE,
+		ROTATE_PUSH_TRIANGLE,
 		DO_TREE_1,
 		DO_TREE_2,
 		DO_FIRE_HOME,
 		GOTO_TORCH_FIRST_POINT,
+		WAIT_TORCH_LOCKER,
 		GOTO_TORCH_SECOND_POINT,
 		GOTO_TORCH_THIRD_POINT,
 		//GOTO_HEARTH,
@@ -214,7 +216,6 @@ error_e sub_action_initiale(void)
 
 				if(global.env.color == RED)
 					ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH);
-
 				if(i_must_deal_with_our_torch && !global.env.guy_took_fire[FIRE_ID_TORCH_OUR])
 				{
 					//En cas d'échec (rencontre adverse dès le lancé...) on file vers la torche... même s'il était prévu qu'on commence par la fresque... (chemin fresque innaccessible, il y a un adversaire)
@@ -255,18 +256,25 @@ error_e sub_action_initiale(void)
 			if(entrance) // Ouvre les pinces
 				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
 			//NO_DODGE : on gère nous même l'échec.
-			state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT,GOTO_TORCH_SECOND_POINT,FAIL_FIRST_POINT,FAST,(global.env.color == RED)?BACKWARD:ANY_WAY,NO_DODGE_AND_WAIT);
+			if(i_do_torch_before_fresco)
+				state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT, GOTO_TORCH_SECOND_POINT, FAIL_FIRST_POINT,FAST,(global.env.color == RED)?BACKWARD:ANY_WAY,NO_DODGE_AND_WAIT);
+			else
+				state = try_going_until_break(point[0].point.x, point[0].point.y,GOTO_TORCH_FIRST_POINT, GOTO_TORCH_SECOND_POINT, FAIL_FIRST_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case GOTO_TORCH_SECOND_POINT:
-//			if(entrance) // Ouvre les pinces
-//				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
+			if(entrance) // Ouvre les pinces
+				ACT_torch_locker(ACT_TORCH_Locker_Lock);
 			//NO_DODGE : on gère nous même l'échec.
-			state = try_going_until_break(point[1].point.x, point[1].point.y,GOTO_TORCH_SECOND_POINT,GOTO_TORCH_THIRD_POINT,FAIL_SECOND_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(point[1].point.x, point[1].point.y,GOTO_TORCH_SECOND_POINT,WAIT_TORCH_LOCKER,FAIL_SECOND_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case WAIT_TORCH_LOCKER:
+			state = ELEMENT_wait_time(1500, WAIT_TORCH_LOCKER, GOTO_TORCH_THIRD_POINT);
 			break;
 
 		case GOTO_TORCH_THIRD_POINT:
-			if(entrance) // Serre l'objet les pinces
+			if(entrance && global.env.color == YELLOW) // Serre l'objet les pinces
 				ACT_torch_locker(ACT_TORCH_Locker_Lock);
 //				ASSER_WARNER_arm_x(800);
 //			if(global.env.asser.reach_x)
@@ -283,7 +291,14 @@ error_e sub_action_initiale(void)
 			if(entrance)
 				ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Open);
 			//NO_DODGE : on gère nous même l'échec.
-			state = try_going(point[5].point.x, point[5].point.y,PUSH_TRIANGLE,DO_TREE_1,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(point[5].point.x, point[5].point.y,PUSH_TRIANGLE,ROTATE_PUSH_TRIANGLE,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case ROTATE_PUSH_TRIANGLE:
+			if(global.env.color == RED)
+				state = try_go_angle(-3*PI4096/4, ROTATE_PUSH_TRIANGLE, DO_TREE_1, FAIL_THIRD_POINT, FAST);
+			else
+				state = try_going(1650, 1900, ROTATE_PUSH_TRIANGLE, DO_TREE_1, FAIL_THIRD_POINT, FAST, FORWARD, DODGE_AND_WAIT);
 			break;
 
 		case FAIL_FIRST_POINT:
@@ -401,6 +416,8 @@ error_e sub_action_initiale(void)
 			break;
 
 		case DO_TREE_2:
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_PARKED);
 			state = check_sub_action_result(manage_fruit(TREE_OUR,(global.env.color == RED)?CHOICE_TREE_2:CHOICE_TREE_1,TRIGO),DO_TREE_2,DO_FIRE_HOME,ERROR);
 			break;
 
@@ -424,6 +441,8 @@ error_e sub_action_initiale(void)
 			break;
 
 		case FILE_FRUIT:
+			if(entrance)
+				ACT_arm_goto(ACT_ARM_POS_PARKED);
 			state = check_sub_action_result(strat_file_fruit(),FILE_FRUIT,(cooperation_enable)?LANCE_LAUNCHER_ADVERSARY:DONE,ERROR);
 			break;
 
@@ -436,12 +455,15 @@ error_e sub_action_initiale(void)
 		case DONE:
 			// On indique a high_strat_level que la sub_action_initiale a deja été faite pour pas la refaire une prochaine fois
 			set_sub_act_done(SUB_ACTION_INIT,TRUE);
+			ACT_torch_locker(ACT_TORCH_Locker_Inside);
+			ACT_arm_goto(ACT_ARM_POS_PARKED);
 			return END_OK;
 			break;
 
 		case ERROR:
 			// On indique a high_strat_level que la sub_action_initiale a deja été faite pour pas la refaire une prochaine fois
 			set_sub_act_done(SUB_ACTION_INIT,TRUE);
+			ACT_torch_locker(ACT_TORCH_Locker_Inside);
 			ACT_arm_goto(ACT_ARM_POS_PARKED);
 			return NOT_HANDLED;
 			break;
@@ -522,6 +544,10 @@ error_e do_torch_pierre(){
 		GOTO_CENTER,
 		GOTO_HEARTH,
 		DEPLOY_TORCH,
+		DEGAGE,
+		LITTLE_BACK,
+		ROTATE,
+		ADVANCE,
 		BACK,
 		GET_OUT_WITH_ERROR,
 		WAIT_BEFORE_GET_OUT_AGAIN,
@@ -550,17 +576,38 @@ error_e do_torch_pierre(){
 			break;
 
 		case GOTO_HEARTH:
-			state = try_going(1700,COLOR_Y(375),GOTO_HEARTH,DEPLOY_TORCH,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going(1700,COLOR_Y(375),GOTO_HEARTH,DEPLOY_TORCH,DEPLOY_TORCH,FAST,FORWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case DEPLOY_TORCH:
-			state = check_sub_action_result(ACT_arm_deploy_torche_pierre(),DEPLOY_TORCH,BACK,ERROR);
+			state = check_sub_action_result(ACT_arm_deploy_torche_pierre(),DEPLOY_TORCH, LITTLE_BACK, LITTLE_BACK);
+			break;
+
+		case LITTLE_BACK:
+			state = try_advance(20, entrance, LITTLE_BACK,DEGAGE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case DEGAGE :
+			if(global.env.color == YELLOW)
+				state = try_go_angle(3*PI4096/4, DEGAGE, ROTATE, ERROR, FAST);
+			else
+				state = try_go_angle(-3*PI4096/4, DEGAGE, ROTATE, ERROR, FAST);
+			break;
+
+		case ROTATE :
+			if(global.env.color == RED)
+				state = try_go_angle(3*PI4096/4, ROTATE, ADVANCE, ERROR, FAST);
+			else
+				state = try_go_angle(-3*PI4096/4, ROTATE, ADVANCE, ERROR, FAST);
+			break;
+
+		case ADVANCE:
+			state = try_advance(300, entrance, ADVANCE,BACK,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			if(ON_LEAVING(ADVANCE))
+				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
 			break;
 
 		case BACK:
-			if(entrance)
-				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
-
 			state = try_advance(200, entrance, BACK,DONE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
@@ -1849,13 +1896,16 @@ error_e ACT_arm_deploy_torche_pierre(){
 			else if(value_adc < 80 && value_adc > 55)
 				niveau = 2;
 #ifdef	DISPOSED_TORCH
-			else if(value_adc < 51 && value_adc > 28)
+			else if(value_adc < 52 && value_adc > 28)
 				niveau = 3;
 #endif
 			else
 				state = DONE;
 
-			if(state != DONE){
+			if(nb_fail[niveau] >= MAX_NB_FAIL_ARM){
+				debug_printf("Fail %d fois au niveau %d\n", nb_fail[niveau], niveau);
+				state = DONE;
+			}else if(state != DONE){
 				debug_printf("Niveau de torche détécté : %d / value %d\n", niveau, value_adc);
 				state = TORCHE;
 			}else
@@ -1901,6 +1951,12 @@ error_e ACT_arm_deploy_torche_pierre(){
 			break;
 
 		case UP_ARM_FAIL:
+			if(entrance){
+				if(niveau == 0 || niveau == 1)
+					ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+				else
+					ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+			}
 			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_FAIL, FAIL, FAIL);
 			break;
 
@@ -1927,7 +1983,11 @@ error_e ACT_arm_deploy_torche_pierre(){
 					ACT_pompe_order(ACT_POMPE_REVERSE, 100);
 			}
 
+#ifdef DISPOSED_TORCH
+			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=3)? PARKED:OPEN);
+#else
 			state = ELEMENT_wait_time(500, WAIT_TRIANGLE_BREAK, (niveau>=2)? PARKED:OPEN);
+#endif
 
 			if(ON_LEAVING(WAIT_TRIANGLE_BREAK)){
 				nb_fail[niveau]++;
@@ -1955,6 +2015,7 @@ error_e ACT_arm_deploy_torche_pierre(){
 			break;
 
 		case OPEN_ARM_FAIL:{
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
 			state = PARKED_NOT_HANDLE;
 		}break;
 
