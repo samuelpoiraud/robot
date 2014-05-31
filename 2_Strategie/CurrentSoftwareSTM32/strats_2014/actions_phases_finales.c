@@ -194,7 +194,7 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 						break;
 				}
 			}
-			state = try_advance(dist,state,success_state,fail_state,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_advance(dist, entrance, state,success_state,fail_state,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 
 			if(ON_LEAVING(BACK_WITH_FIRE))
 				took_fire_index++;
