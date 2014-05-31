@@ -34,6 +34,7 @@ error_e ACT_arm_deploy_torche_pierre();
 error_e recalage_begin_zone(color_e begin_zone_color);
 error_e protect_north_way(void);
 error_e sub_action_initiale();
+error_e sub_action_balayage();
 void strat_homologation();
 
 void strat_test_filet();

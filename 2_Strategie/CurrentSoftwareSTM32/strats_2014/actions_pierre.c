@@ -767,6 +767,7 @@ void strat_inutile(void){
 		RAMMASSE_FRUIT,
 		LANCER_FILET,
 		DROP_FRUIT,
+		BAL,
 		DONE,
 		ERROR
 	);
@@ -776,7 +777,11 @@ void strat_inutile(void){
 			state = POS_DEPART;
 			break;
 		case POS_DEPART:
-			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,SUB_START_TRIANGLE,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			state = try_going_until_break(global.env.pos.x,COLOR_Y(450),POS_DEPART,BAL,ERROR,FAST,FORWARD,NO_DODGE_AND_WAIT);
+			break;
+
+		case BAL:
+			state = check_sub_action_result(sub_action_balayage(), BAL, DONE, ERROR);
 			break;
 
 		case GET_OUT_CALIBRE:
@@ -1791,8 +1796,8 @@ error_e ACT_arm_deploy_torche_pierre(){
 		REPLACE_SMALL_ARM,
 		OPEN_ARM_FAIL,
 		FAIL,
-		PARKED_NOT_HANDLED,
 		PARKED,
+		PARKED_NOT_HANDLE,
 		ERROR,
 		DONE
 	);
@@ -1814,7 +1819,7 @@ error_e ACT_arm_deploy_torche_pierre(){
 			break;
 
 		case OPEN :
-			state = ACT_arm_move(ACT_ARM_POS_OPEN, 0, 0, OPEN, SCAN, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_OPEN, 0, 0, OPEN, SCAN, OPEN_ARM_FAIL);
 			break;
 
 		case SCAN :
@@ -1848,7 +1853,7 @@ error_e ACT_arm_deploy_torche_pierre(){
 			break;
 
 		case OPEN_SMALL_ARM:
-			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, OPEN_SMALL_ARM, DOWN_ARM, ERROR);
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, OPEN_SMALL_ARM, DOWN_ARM, FAIL);
 			break;
 
 		case DOWN_ARM:
@@ -1933,22 +1938,26 @@ error_e ACT_arm_deploy_torche_pierre(){
 			break;
 
 		case OPEN_ARM_FAIL:{
+			state = PARKED_NOT_HANDLE;
+		}break;
+
+		case PARKED_NOT_HANDLE:{
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_STOP, 0);
 			static enum state_e state1, state2;
 
 			if(entrance){
-				state1 = PARKED_NOT_HANDLED;
-				state2 = PARKED_NOT_HANDLED;
+				state1 = PARKED_NOT_HANDLE;
+				state2 = PARKED_NOT_HANDLE;
 			}
-			if(state1 == PARKED_NOT_HANDLED)
-				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
-			if(state2 == PARKED_NOT_HANDLED)
-				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLED, ERROR, ERROR);
+			if(state1 == PARKED_NOT_HANDLE)
+				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLE, ERROR, ERROR);
+			if(state2 == PARKED_NOT_HANDLE)
+				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLE, ERROR, ERROR);
 
-			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
+			if(state1 == ERROR && state2 == ERROR)
 				state = ERROR;
-			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
+			else if(state1 != PARKED_NOT_HANDLE && state2 != PARKED_NOT_HANDLE)
 				state = ERROR;
 		}break;
 
@@ -1961,26 +1970,6 @@ error_e ACT_arm_deploy_torche_pierre(){
 			else
 				state = OPEN;
 			break;
-
-		case PARKED_NOT_HANDLED:{
-			if(entrance)
-				ACT_pompe_order(ACT_POMPE_STOP, 0);
-			static enum state_e state1, state2;
-
-			if(entrance){
-				state1 = PARKED_NOT_HANDLED;
-				state2 = PARKED_NOT_HANDLED;
-			}
-			if(state1 == PARKED_NOT_HANDLED)
-				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
-			if(state2 == PARKED_NOT_HANDLED)
-				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLED, ERROR, ERROR);
-
-			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
-				state = ERROR;
-			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
-				state = ERROR;
-		}break;
 
 		case PARKED:{
 			if(entrance)
@@ -2015,5 +2004,135 @@ error_e ACT_arm_deploy_torche_pierre(){
 			break;
 	}
 
+	return IN_PROGRESS;
+}
+
+
+error_e sub_action_balayage(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PIERRE_BALAYAGE,
+		IDLE,
+		GET_IN,
+		FIRST_GET_IN,
+		DEPLOYED,
+		PARKED,
+		PARKED_NOT_HANDLE,
+		BACK,
+		ERROR,
+		DONE
+	);
+
+	typedef enum{
+		RIGHT_ARM,
+		LEFT_ARM,
+		STOP_ARM,
+		DONE_ARM
+	}arm_state_e;
+
+
+	static arm_state_e arm_state;
+
+	switch(state){
+		case IDLE:
+			ACT_arm_goto(ACT_ARM_POS_PARKED);
+			arm_state = LEFT_ARM;
+			state = FIRST_GET_IN;
+			break;
+
+		case FIRST_GET_IN:{
+			static GEOMETRY_point_t goal_pos;
+			Sint16 cos, sin, l, teta;
+			if(entrance){
+				teta = atan2(1500-global.env.pos.y, 1050-global.env.pos.x)*4096.;
+				COS_SIN_4096_get(teta, &cos, &sin);
+				l = dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500);
+				goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+150))/4096. + global.env.pos.x;
+				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+150))/4096. + global.env.pos.y;
+				if(foe_in_zone(FALSE, goal_pos.x, goal_pos.y, TRUE))
+					state = ERROR;
+				else if(dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500) > 600){
+					goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+150+600))/4096. + global.env.pos.x;
+					goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+150+600))/4096. + global.env.pos.y;
+				}
+				else
+					state = DEPLOYED;
+
+			}
+			if(state == FIRST_GET_IN)
+				state = try_going(goal_pos.x, goal_pos.y, FIRST_GET_IN, DEPLOYED, ERROR, FAST, FORWARD, DODGE_AND_WAIT);
+		}break;
+
+		case DEPLOYED:{
+			static enum state_e state1;
+			static GEOMETRY_point_t goal_pos;
+			Sint16 cos, sin, l, teta;
+			if(entrance){
+				state1 = GET_IN;
+				teta = atan2(1500-global.env.pos.y, 1050-global.env.pos.x)*4096.;
+				COS_SIN_4096_get(teta, &cos, &sin);
+				l = dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500);
+				goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+160))/4096. + global.env.pos.x;
+				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+160))/4096. + global.env.pos.y;
+
+			}
+			if(foe_in_zone(FALSE, goal_pos.x, goal_pos.y, TRUE))
+				state = ACT_arm_move(ACT_ARM_POS_TORCHE_CENTRAL, 0, 0, DEPLOYED, GET_IN, GET_IN);
+			else
+				state = ERROR;
+		}break;
+
+		case GET_IN:{
+			static enum state_e state1;
+			static GEOMETRY_point_t goal_pos;
+			Sint16 cos, sin, l, teta;
+			if(entrance){
+				state1 = GET_IN;
+				teta = atan2(1500-global.env.pos.y, 1050-global.env.pos.x)*4096.;
+				COS_SIN_4096_get(teta, &cos, &sin);
+				l = dist_point_to_point(global.env.pos.x, global.env.pos.y, 1050, 1500);
+				goal_pos.x = cos*(l-(CENTRAL_HEARTH_RADIUS+160))/4096. + global.env.pos.x;
+				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+160))/4096. + global.env.pos.y;
+
+			}
+			if(state1 == GET_IN)
+				state1 = try_going(goal_pos.x, goal_pos.y, GET_IN, PARKED, PARKED_NOT_HANDLE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT);
+
+			if(arm_state == RIGHT_ARM)
+				arm_state = ACT_arm_move(ACT_ARM_POS_TORCHE_CENTRAL,0, 0, RIGHT_ARM,
+										 (state1 != GET_IN || foe_in_zone(FALSE, goal_pos.x, goal_pos.y, TRUE))? STOP_ARM : LEFT_ARM,
+										 (state1 != GET_IN || foe_in_zone(FALSE, goal_pos.x, goal_pos.y, TRUE))? STOP_ARM : LEFT_ARM);
+			else if(arm_state == LEFT_ARM)
+				arm_state = ACT_arm_move(ACT_ARM_POS_TORCHE_ADV,0, 0, LEFT_ARM,
+										 (state1 != GET_IN || foe_in_zone(FALSE, goal_pos.x, goal_pos.y, TRUE))? STOP_ARM : RIGHT_ARM,
+										 (state1 != GET_IN || foe_in_zone(FALSE, goal_pos.x, goal_pos.y, TRUE))? STOP_ARM : RIGHT_ARM);
+			else if(arm_state == STOP_ARM)
+				arm_state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, STOP_ARM, DONE_ARM, DONE_ARM);
+
+			if(arm_state == STOP_ARM && state1 != GET_IN)
+				state = PARKED;
+		}break;
+
+		case PARKED:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED, BACK, BACK);
+			break;
+
+
+		case PARKED_NOT_HANDLE:
+			state = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLE, ERROR, ERROR);
+			break;
+
+		case BACK:
+			state = try_advance(200, BACK, DONE, BACK, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+	}
 	return IN_PROGRESS;
 }
