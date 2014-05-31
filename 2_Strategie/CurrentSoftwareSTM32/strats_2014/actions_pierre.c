@@ -417,6 +417,8 @@ error_e sub_action_initiale(void)
 
 		case DEPLOY_TORCH:
 			state = check_sub_action_result(do_torch_pierre(),DEPLOY_TORCH,DO_TREE_2,DO_TREE_2);
+			if(ON_LEAVING(DEPLOY_TORCH))
+				i_must_deal_with_our_torch = FALSE;
 			break;
 
 		case DO_TREE_2:
@@ -694,7 +696,7 @@ error_e do_triangle_start(){
 			break;
 
 		case PLACEMENT_INIT:
-			state = try_going(800,300, PLACEMENT_INIT, SMALL_BRAS, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
+			state = try_going(800,COLOR_Y(300), PLACEMENT_INIT, SMALL_BRAS, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT);
 			break;
 
 		case SMALL_BRAS:
@@ -2154,7 +2156,7 @@ error_e sub_action_balayage(){
 				goal_pos.y = sin*(l-(CENTRAL_HEARTH_RADIUS+160))/4096. + global.env.pos.y;
 
 			}
-			if(foe_in_zone(FALSE, goal_pos.x, goal_pos.y, TRUE))
+			if(!foe_in_zone(FALSE, goal_pos.x, goal_pos.y, TRUE))
 				state = ACT_arm_move(ACT_ARM_POS_TORCHE_CENTRAL, 0, 0, DEPLOYED, GET_IN, GET_IN);
 			else
 				state = ERROR;
