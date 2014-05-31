@@ -105,7 +105,7 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 				state = GET_IN;
 			break;
 		case GET_IN:
-			state = PATHFIND_try_going((global.env.color == RED)?A2:Z2,state,GOTO_SCAN_POINT,ERROR,ANY_WAY,FAST,DODGE_AND_WAIT,END_AT_LAST_POINT);
+			state = PATHFIND_try_going((global.env.color == RED)?Z2:A2,state,GOTO_SCAN_POINT,ERROR,ANY_WAY,FAST,DODGE_AND_WAIT,END_AT_LAST_POINT);
 			break;
 		case GOTO_SCAN_POINT:
 			state = try_going(1600,COLOR_Y(2600),state,SCAN,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT);
@@ -288,7 +288,7 @@ error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos){
 			if(entrance)
 				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
 
-			state = ACT_elevator_arm_rush_in_the_floor(35, DOWN_ARM, UP_ARM, UP_ARM_ERROR);
+			state = ACT_elevator_arm_rush_in_the_floor(60, DOWN_ARM, UP_ARM, UP_ARM_ERROR);
 			break;
 
 		case UP_ARM:
@@ -447,7 +447,7 @@ error_e sub_return_fire_at_left(void){
 
 
 
-error_e put_fire_down(void){
+error_e put_fire_down(Sint16 dropXpos, Sint16 dropYpos){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_GUY_PUT_FIRE_DOWN,
 			IDLE,
 			POS_START,
@@ -458,7 +458,7 @@ error_e put_fire_down(void){
 			ERROR
 			);
 
-	const Sint16 dropXpos = 1650, dropYpos = 350;
+
 	const Sint16 extractXpos = 1600, extractYpos = 400;
 
 	switch(state){

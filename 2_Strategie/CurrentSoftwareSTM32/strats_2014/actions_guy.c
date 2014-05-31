@@ -359,7 +359,7 @@ error_e sub_action_initiale_guy(){
 		case DONE:
 			//En fonction de notre position, on peut jouer sur la priorité des feux fixes à faire.
 
-			if(est_dans_carre(400,1300,COLOR_Y(2400),COLOR_Y(3000),(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
+			if(est_dans_carre(400,1300,COLOR_Y(1100),COLOR_Y(3000),(GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))
 			{	//On donne la priorité au feu start de l'adversaire
 				//Si cette action est désactivé, peu importe, on peut quand même régler sa priorité.
 				set_sub_act_priority(SUB_ACTION_TRIANGLE_VERTICALE_ADV,3);
