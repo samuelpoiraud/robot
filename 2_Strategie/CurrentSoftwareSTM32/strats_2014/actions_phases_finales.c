@@ -281,3 +281,78 @@ error_e sub_return_fire_at_left(void)
 }
 
 
+
+
+error_e put_fire_down(void){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_GUY_PUT_FIRE_DOWN,
+			IDLE,
+			POS_START,
+			DROP,
+			PARKED_NOT_HANDLED,
+			EXTRACT,
+			CORRECTLY_ENDED,
+			ERROR
+			);
+
+	const Sint16 dropXpos = 1650, dropYpos = 350;
+	const Sint16 extractXpos = 1600, extractYpos = 400;
+
+	switch(state){
+	case IDLE:
+
+		if(i_am_in_square(1200, 2000, COLOR_Y(1000), COLOR_Y(2000)))
+			state = POS_START;
+		else
+			state = ERROR;						// On a pas lieux d'être appelé si on est pas dans la bonne zone
+		break;
+
+	case POS_START:
+		state = try_going(dropXpos,COLOR_Y(dropYpos),POS_START, DROP, PARKED_NOT_HANDLED,FAST,FORWARD,NO_DODGE_AND_WAIT);
+		break;
+
+	case DROP:
+		ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+		state = CORRECTLY_ENDED;
+		break;
+
+	case PARKED_NOT_HANDLED:{
+		static enum state_e state1, state2;
+
+		if(entrance){
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			state1 = PARKED_NOT_HANDLED;
+			state2 = PARKED_NOT_HANDLED;
+		}
+
+		if(state1 == PARKED_NOT_HANDLED)
+			state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
+		if(state2 == PARKED_NOT_HANDLED)
+			state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLED, ERROR, ERROR);
+
+		if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
+			state = ERROR;
+		else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
+			state = ERROR;
+	}break;
+
+	case EXTRACT:
+		state = try_going(extractXpos, extractYpos, EXTRACT, CORRECTLY_ENDED, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+		break;
+
+	case ERROR:
+		state = IDLE;
+		return NOT_HANDLED;
+		break;
+
+	case CORRECTLY_ENDED:
+		state = IDLE;
+		return END_OK;
+		break;
+	default:
+		break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
