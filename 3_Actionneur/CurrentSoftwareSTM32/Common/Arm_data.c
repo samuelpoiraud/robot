@@ -155,7 +155,7 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 		{-430+OFFSET_SMALL_UPDOWN	,149	,89 	,SMALL_VENTOUSE_HORIZONTALE},	 // ACT_ARM_POS_TORCHE_CENTRAL
 		{-430+OFFSET_SMALL_UPDOWN	,129	,72 	,SMALL_VENTOUSE_HORIZONTALE},	 // ACT_ARM_POS_TORCHE_ADV
 
-		{-430+OFFSET_SMALL_UPDOWN	,129	,72 	,SMALL_VENTOUSE_HORIZONTALE}	 // ACT_ARM_POS_ON_THE_LEFT
+		{-324+OFFSET_SMALL_UPDOWN	,151	,122 	,SMALL_VENTOUSE_HORIZONTALE}	 // ACT_ARM_POS_ON_THE_LEFT
 		};
 #endif
 
@@ -208,12 +208,13 @@ void init_perm_transitions_table(){
 	//						   /Ancien état       /Nombre d'état suivant possible      /Liste des états suivant possible
 	add_perm_transitions_table(ACT_ARM_POS_PARKED,					1,	(ARM_state_e[]){ACT_ARM_POS_MID});
 	add_perm_transitions_table(ACT_ARM_POS_MID,						2,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_PARKED});
-	add_perm_transitions_table(ACT_ARM_POS_OPEN,					13,	(ARM_state_e[]){ACT_ARM_POS_MID, ACT_ARM_POS_ON_TORCHE,
+	add_perm_transitions_table(ACT_ARM_POS_OPEN,					14,	(ARM_state_e[]){ACT_ARM_POS_MID, ACT_ARM_POS_ON_TORCHE,
 																						ACT_ARM_POS_TO_PREPARE_RETURN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_CARRY,
 																						ACT_ARM_POS_TO_PREPARE_TAKE_RETURN, ACT_ARM_POS_PREPARE_BACKWARD,
 																						ACT_ARM_POS_TAKE_ON_ROAD, ACT_ARM_POS_PREPARE_TAKE_ON_EDGE,
 																						ACT_ARM_POS_RETURN_ON_EDGE, ACT_ARM_POS_DISPOSED_SIMPLE,
-																						ACT_ARM_POS_TORCHE_CENTRAL,ACT_ARM_POS_TORCHE_ADV});
+																						ACT_ARM_POS_TORCHE_CENTRAL,ACT_ARM_POS_TORCHE_ADV,
+																						ACT_ARM_POS_ON_THE_LEFT});
 
 	add_perm_transitions_table(ACT_ARM_POS_ON_TORCHE,				3,	(ARM_state_e[]){ACT_ARM_POS_OPEN, ACT_ARM_POS_ON_TRIANGLE, ACT_ARM_POS_TO_PREPARE_RETURN});
 
