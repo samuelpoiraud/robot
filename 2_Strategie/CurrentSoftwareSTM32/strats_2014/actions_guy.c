@@ -1041,7 +1041,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 				TORCH_new_position(torch_choice);
 			}
 
-			state = try_advance(DIM_BACK_TORCH, BACK, CENTER_TO_HEARTH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance(DIM_BACK_TORCH, entrance, BACK, CENTER_TO_HEARTH, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 
 			if(ON_LEAVING(BACK)){ // Petit décalage afin de ne pas toucher la torche car guy est gaucher
 				if(current_dispose_zone == HEARTH_CENTRAL && ((global.env.color == RED && torch_choice == OUR_TORCH) || (global.env.color != RED && torch_choice != OUR_TORCH)))
@@ -1113,7 +1113,7 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 			break;
 
 		case EXTRACT_HEARTH:
-			state = try_advance(200, EXTRACT_HEARTH, (dispose_zone != HEARTH_CENTRAL)? EXTRACT_FROM_HEART : DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance(200, entrance, EXTRACT_HEARTH, (dispose_zone != HEARTH_CENTRAL)? EXTRACT_FROM_HEART : DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case EXTRACT_FROM_HEART:
@@ -2078,7 +2078,7 @@ error_e ACT_take_triangle_on_edge(vertical_triangle_e vertical_triangle){
 #ifdef NOT_DROP_TRI_VERTICAL_HEARTH
 			state = DONE;
 #else
-			state = try_advance(300, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
+			state = try_advance(300, entrance, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
 #endif
 			break;
 
@@ -2271,7 +2271,7 @@ error_e ACT_return_triangle_on_edge(vertical_triangle_e vertical_triangle){
 			break;
 
 		case EXTRACT:
-			state = try_advance(300, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
+			state = try_advance(300, entrance, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
 			break;
 
 		case DONE:
@@ -2505,9 +2505,9 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 
 		case BACK:
 #ifdef PUT_TORCH_HEARTH
-			state = try_advance((choiceTorch == ADVERSARY_TORCH && niveau == 2)?DIST_RETURN_RETURN_TRIANGLE+200:DIST_RETURN_RETURN_TRIANGLE, BACK,RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance((choiceTorch == ADVERSARY_TORCH && niveau == 2)?DIST_RETURN_RETURN_TRIANGLE+200:DIST_RETURN_RETURN_TRIANGLE, entrance, BACK,RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
 #else
-			state = try_advance(DIST_RETURN_RETURN_TRIANGLE, BACK,(choiceTorch == ADVERSARY_TORCH && niveau == 2)? TURN:RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance(DIST_RETURN_RETURN_TRIANGLE, entrance BACK,(choiceTorch == ADVERSARY_TORCH && niveau == 2)? TURN:RETURN, BACK_FAIL, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
 #endif
 			break;
 
@@ -3075,7 +3075,7 @@ void strat_inutile_guy(void){
 			break;
 
 		case BACK:
-			state = try_advance(200, BACK, ADVANCE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance(200, entrance, BACK, ADVANCE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case ADVANCE:

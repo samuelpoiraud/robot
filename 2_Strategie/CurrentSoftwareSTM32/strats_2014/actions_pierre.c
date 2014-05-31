@@ -561,7 +561,7 @@ error_e do_torch_pierre(){
 			if(entrance)
 				ACT_torch_locker(ACT_TORCH_Locker_Unlock);
 
-			state = try_advance(200,BACK,DONE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
+			state = try_advance(200, entrance, BACK,DONE,ERROR,FAST,BACKWARD,NO_DODGE_AND_WAIT);
 			break;
 
 		case ERROR:	//Si on peut rendre la main, on le fait. Sinon, on doit s'extraire de la bordure où nous sommes.
@@ -662,7 +662,7 @@ error_e do_triangle_start(){
 			break;
 
 		case BACK:
-			state = try_advance(150, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance(150, entrance, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case RUSH_IN_THE_FLOOR:
@@ -730,7 +730,7 @@ error_e do_triangle_start(){
 			break;
 
 		case EXTRACT:
-			state = try_advance(300, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
+			state = try_advance(300, entrance, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);
 			break;
 
 		case DONE:
@@ -2123,7 +2123,7 @@ error_e sub_action_balayage(){
 			break;
 
 		case BACK:
-			state = try_advance(200, BACK, DONE, BACK, FAST, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance(200, entrance, BACK, DONE, BACK, FAST, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case DONE:
