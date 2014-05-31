@@ -90,7 +90,9 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 
 		{-71+OFFSET_BIG_UP_DOWN	,182	,200+OFFSET_BIG_AX12_MID	,243},	//ARM_ST_Escape_Torch_2
 		{-413+OFFSET_BIG_UP_DOWN,214	,169		,229},  // ACT_ARM_POS_TORCHE_CENTRAL
-		{-413+OFFSET_BIG_UP_DOWN,151	,169		,229}  // ACT_ARM_POS_TORCHE_ADV
+		{-413+OFFSET_BIG_UP_DOWN,151	,169		,229},  // ACT_ARM_POS_TORCHE_ADV
+
+		{0	,0	,0 	,0}	 // ACT_ARM_POS_ON_THE_LEFT								NOT_USE
 		};
 #else
 	const Sint16 ARM_STATES[ARM_ST_NUMBER][sizeof(ARM_MOTORS) / sizeof(ARM_motor_data_t)] = {
@@ -151,7 +153,9 @@ const ARM_motor_data_t ARM_MOTORS[] = {
 
 		{0		,0		,0		,0},	//ARM_ST_Escape_Torch_2				NOT USE
 		{-430+OFFSET_SMALL_UPDOWN	,149	,89 	,SMALL_VENTOUSE_HORIZONTALE},	 // ACT_ARM_POS_TORCHE_CENTRAL
-		{-430+OFFSET_SMALL_UPDOWN	,129	,72 	,SMALL_VENTOUSE_HORIZONTALE}	 // ACT_ARM_POS_TORCHE_ADV
+		{-430+OFFSET_SMALL_UPDOWN	,129	,72 	,SMALL_VENTOUSE_HORIZONTALE},	 // ACT_ARM_POS_TORCHE_ADV
+
+		{-430+OFFSET_SMALL_UPDOWN	,129	,72 	,SMALL_VENTOUSE_HORIZONTALE}	 // ACT_ARM_POS_ON_THE_LEFT
 		};
 #endif
 
@@ -242,6 +246,8 @@ void init_perm_transitions_table(){
 	add_perm_transitions_table(ACT_ARM_POS_TAKE_ON_ROAD,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_TORCHE_CENTRAL,			1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 	add_perm_transitions_table(ACT_ARM_POS_TORCHE_ADV,				2,	(ARM_state_e[]){ACT_ARM_POS_OPEN,ACT_ARM_POS_WAIT_RETURN});
+
+	add_perm_transitions_table(ACT_ARM_POS_ON_THE_LEFT,				1,	(ARM_state_e[]){ACT_ARM_POS_OPEN});
 
 #else
 	add_perm_transitions_table(ACT_ARM_POS_PRE_PARKED_1,			1,	(ARM_state_e[]){ACT_ARM_POS_PRE_PARKED_2});

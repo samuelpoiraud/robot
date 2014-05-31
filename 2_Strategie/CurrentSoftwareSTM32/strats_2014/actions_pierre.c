@@ -662,7 +662,7 @@ error_e do_triangle_start(){
 			break;
 
 		case BACK:
-			state = try_advance(150, entrance, BACK, RUSH_IN_THE_FLOOR, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
+			state = try_advance(150, entrance, BACK, PARKED, PARKED_NOT_HANDLED, SLOW, BACKWARD, NO_DODGE_AND_WAIT);
 			break;
 
 		case RUSH_IN_THE_FLOOR:
@@ -722,12 +722,27 @@ error_e do_triangle_start(){
 			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
 				state = ERROR;
 			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
-				state = ERROR;
+				state = DONE;
 		}break;
 
-		case PARKED:
-			state = ACT_arm_move(ACT_ARM_POS_PARKED, 0, 0, PARKED, EXTRACT, ERROR);
-			break;
+		case PARKED:{
+			static enum state_e state1, state2;
+
+			if(entrance){
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
+				state1 = PARKED_NOT_HANDLED;
+				state2 = PARKED_NOT_HANDLED;
+			}
+			if(state1 == PARKED_NOT_HANDLED)
+				state1 = ACT_arm_move(ACT_ARM_POS_PARKED,0, 0, PARKED_NOT_HANDLED, ERROR, ERROR);
+			if(state2 == PARKED_NOT_HANDLED)
+				state2 = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, PARKED_NOT_HANDLED, ERROR, ERROR);
+
+			if((state1 == ERROR && state2 != PARKED_NOT_HANDLED) || (state1 != PARKED_NOT_HANDLED && state2 == ERROR))
+				state = ERROR;
+			else if(state1 != PARKED_NOT_HANDLED && state2 != PARKED_NOT_HANDLED)
+				state = DONE;
+		}break;
 
 		case EXTRACT:
 			state = try_advance(300, entrance, EXTRACT, DONE, DONE, FAST, BACKWARD, DODGE_AND_WAIT);

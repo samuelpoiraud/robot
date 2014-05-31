@@ -2562,7 +2562,7 @@ error_e ACT_arm_deploy_torche_guy(torch_choice_e choiceTorch, torch_dispose_zone
 			break;
 
 		case PREPARE_RETURN:
-			state = ACT_arm_move(ACT_ARM_POS_WAIT_RETURN,0, 0, PREPARE_RETURN, SMALL_ARM_DEPLOYED, PARKED_NOT_HANDLED);
+			state = ACT_arm_move(ACT_ARM_POS_WAIT_RETURN,0, 0, PREPARE_RETURN, SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED);
 			break;
 
 		case SMALL_ARM_DEPLOYED:

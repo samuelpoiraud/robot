@@ -556,7 +556,8 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 			XX(ACT_ARM_POS_ESCAPE_TORCH_1) \
 			XX(ACT_ARM_POS_ESCAPE_TORCH_2) \
 			XX(ACT_ARM_POS_TORCHE_CENTRAL) \
-			XX(ACT_ARM_POS_TORCHE_ADV)
+			XX(ACT_ARM_POS_TORCHE_ADV)	\
+			XX(ACT_ARM_POS_ON_THE_LEFT)
 
 		#define ACT_ARM_PRINT_POS 2  //Affiche les positions des actionneurs sur l'uart
 

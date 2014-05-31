@@ -16,6 +16,8 @@
 #include "actions_both_2014.h"
 #include <math.h>
 
+#define MAX_HEIGHT_ARM	143
+
 
 //Essai de prendre un feu situé à la position indiquée sur un foyer. (va à la position, descend ET remonte !)
 //retourne NOT_HANDLED en cas de rush plus bas que le feu absent
@@ -253,11 +255,70 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 
 
 //Essai de prendre un feu situé à la position indiquée sur un foyer. (va à la position, descend ET remonte !)
-//retourne NOT_HANDLED en cas de rush plus bas que le feu absent
+//retourne NOT_HANDLED en cas de rush plus bas que le feu absent ou prôblème bras
 //retourne END_OK en cas de rush contre un feu
-error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos)
-{
-	return END_OK;
+// ATTENTION : Ne rentre pas le bras
+error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		FIRE,
+		WAIT_STABILISATION,
+		DOWN_ARM,
+		UP_ARM,
+		UP_ARM_ERROR,
+		ARM_OPEN,
+		ERROR,
+		DONE
+	);
+
+	switch(state){
+		case IDLE :
+			state = FIRE;
+			break;
+
+		case FIRE :
+			state = ACT_arm_move(ACT_ARM_POS_ON_TRIANGLE, pos.x, pos.y, FIRE, WAIT_STABILISATION, ARM_OPEN);
+			break;
+
+		case WAIT_STABILISATION :
+			state = ELEMENT_wait_time(300, WAIT_STABILISATION, DOWN_ARM);
+			break;
+
+		case DOWN_ARM:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_NORMAL, 100);
+
+			state = ACT_elevator_arm_rush_in_the_floor(35, DOWN_ARM, UP_ARM, UP_ARM_ERROR);
+			break;
+
+		case UP_ARM:
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM, ARM_OPEN, ARM_OPEN);
+			break;
+
+		case UP_ARM_ERROR:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_STOP, 0);
+
+			state = ACT_elevator_arm_move(MAX_HEIGHT_ARM, UP_ARM_ERROR, ARM_OPEN, ARM_OPEN);
+			break;
+
+		case ARM_OPEN:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN, 0, 0, ARM_OPEN, (last_state == UP_ARM)?DONE:ERROR, (last_state == UP_ARM)?DONE:ERROR);
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
 }
 
 
@@ -265,9 +326,51 @@ error_e sub_try_take_fire_on_heart(GEOMETRY_point_t pos)
 //retourne NOT_HANDLED en cas de problème
 //retourne END_OK en cas de réussite
 //Coupe la pompe à la fin !
-error_e sub_drop_fire_at_left(void)
-{
-	return END_OK;
+error_e sub_drop_fire_at_left(void){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		ARM_RETURN,
+		INVERSE_PUMP,
+		PREPARE_RETURN,
+		ARM_OPEN,
+		ERROR,
+		DONE
+	);
+
+	switch(state){
+		case IDLE :
+			state = ARM_RETURN;
+			break;
+
+		case ARM_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, ARM_RETURN, INVERSE_PUMP, INVERSE_PUMP);
+			break;
+
+		case INVERSE_PUMP:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+
+			state = ELEMENT_wait_time(300, INVERSE_PUMP, ARM_OPEN);
+			break;
+
+		case ARM_OPEN:
+			state = ACT_arm_move(ACT_ARM_POS_OPEN, 0, 0, ARM_OPEN, DONE, ERROR);
+			break;
+
+		case DONE:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
 }
 
 
@@ -275,9 +378,70 @@ error_e sub_drop_fire_at_left(void)
 //retourne NOT_HANDLED en cas de problème
 //retourne END_OK en cas de réussite
 //Coupe la pompe à la fin !
-error_e sub_return_fire_at_left(void)
-{
-	return END_OK;
+error_e sub_return_fire_at_left(void){
+	CREATE_MAE_WITH_VERBOSE(0,
+		IDLE,
+		ARM_RETURN,
+		SMALL_ARM_PREPARE,
+		WAIT_RETURN,
+		INVERSE_PUMP,
+		PREPARE_RETURN,
+		SMALL_ARM_DEPLOYED,
+		SMALL_ARM_PARKED,
+		ERROR,
+		DONE
+	);
+
+	switch(state){
+		case IDLE :
+			state = ARM_RETURN;
+			break;
+
+		case ARM_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_TO_RETURN,0, 0, ARM_RETURN, SMALL_ARM_PREPARE, ERROR);
+			break;
+
+		case SMALL_ARM_PREPARE:
+			state = ACT_small_arm_move(ACT_SMALL_ARM_MID, SMALL_ARM_PREPARE, WAIT_RETURN, WAIT_RETURN);
+			break;
+
+		case WAIT_RETURN:
+			state = ELEMENT_wait_time(300,WAIT_RETURN,INVERSE_PUMP);
+			break;
+
+		case INVERSE_PUMP:
+			if(entrance)
+				ACT_pompe_order(ACT_POMPE_REVERSE, 100);
+
+			state = ELEMENT_wait_time(300, INVERSE_PUMP, PREPARE_RETURN);
+			break;
+
+		case PREPARE_RETURN:
+			state = ACT_arm_move(ACT_ARM_POS_WAIT_RETURN,0, 0, PREPARE_RETURN, SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED);
+			break;
+
+		case SMALL_ARM_DEPLOYED:
+			state = ACT_small_arm_move(ACT_SMALL_ARM_DEPLOYED, SMALL_ARM_DEPLOYED, SMALL_ARM_PARKED, SMALL_ARM_PARKED);
+			break;
+
+		case SMALL_ARM_PARKED:
+			state = ACT_small_arm_move(ACT_SMALL_ARM_IDLE, SMALL_ARM_PARKED, DONE, ERROR);
+			break;
+
+		case DONE:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		case ERROR:
+			ACT_pompe_order(ACT_POMPE_STOP, 0);
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+	}
+
+	return IN_PROGRESS;
 }
 
 
