@@ -74,5 +74,13 @@
 		return "Robot inconnu";
 	}
 
+	bool_e I_AM_BIG(){
+		return robot_id == BIG_ROBOT;
+	}
+
+	bool_e I_AM_SMALL(){
+		return robot_id == SMALL_ROBOT;
+	}
+
 
 

@@ -39,6 +39,18 @@
 	  */
 	const char * QS_WHO_AM_I_get_name(void);
 
+	/**
+	 * @brief Cette fonction permet de savoir si on est le gros robot
+	 * @return un boolean de si on est le gros robot ou pas
+	 */
+	bool_e I_AM_BIG();
+
+	/**
+	 * @brief Cette fonction permet de savoir si on est le petit robot
+	 * @return un boolean de si on est le petit robot ou pas
+	 */
+	bool_e I_AM_SMALL();
+
 
 	/*
 		Exemple de définition pour global_config, conforme à _PORTS.xlsx à l'heure où j'écris ces lignes.
