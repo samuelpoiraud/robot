@@ -33,17 +33,17 @@
 	}adc_id_e;
 	// Enumération des convertisseurs analogique numérique sélectionnable
 
+
+	/**
+	 * @brief Fonction d'initialisation des ADCs
+	 */
 	void ADC_init();
 
-	Sint16 ADC_getValue(adc_id_e channel);
-	/*
-	 *	cette fonction permet de récupérer la valeur echantillonnée par
-	 *	le convertisseur analogique numerique (adc). Le channel est le
-	 *	numero de la voie choisie parmis les voies selectionnées,
-	 *	numerotees a partir de 0.
-	 *	Par exemple, si l'utilisateur a choisi USE_AN4 et USE_AN8,
-	 *	il faudra lire ADC_getValue(0) pour lire l'entree analogique 4 et ADC_getValue(1) pour lire l'entree analogique 8.
-	 *
+	/**
+	 * @brief Cette fonction permet de récupéré la valeur echantillonnée d'un canal voulu
+	 * @param channel : valeur de l'énumération adc_id_e
+	 * @return la valeur echantillonnée du canal
 	 */
+	Sint16 ADC_getValue(adc_id_e channel);
 
 #endif /* ndef QS_ADC_H */
