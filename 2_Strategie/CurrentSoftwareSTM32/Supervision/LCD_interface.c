@@ -328,6 +328,7 @@ static void LCD_menu_infos(bool_e init)
 		reset_config = TRUE;
 		cursor = CURSOR_SHOW; // le cursor est visible après un reset
 		I2C_reset();
+		LCD_I2C_init();
 		LCD_init();
 	}
 }
