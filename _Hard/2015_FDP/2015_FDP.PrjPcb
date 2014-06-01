@@ -72,7 +72,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
 [Document4]
-DocumentPath=2015_FDP_SCHEMA.SchDoc
+DocumentPath=2015_FDP_PCB.PcbDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -87,7 +87,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
 [Document5]
-DocumentPath=2015_FDP_PROPULSION.SchDoc
+DocumentPath=2015_FDP_SCHEMA.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -102,7 +102,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
 [Document6]
-DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\_ROBOT.PcbLib
+DocumentPath=2015_FDP_PROPULSION.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -117,7 +117,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
 [Document7]
-DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\_ROBOT.SchLib
+DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\_ROBOT.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -132,7 +132,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
 [Document8]
-DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\Circuit intégré.SchLib
+DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\_ROBOT.SchLib
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -147,7 +147,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
 [Document9]
-DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\Connecteur.PcbLib
+DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\Circuit intégré.SchLib
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -162,7 +162,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
 [Document10]
-DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\Connecteur.SchLib
+DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\Connecteur.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -177,6 +177,21 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
 [Document11]
+DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\Connecteur.SchLib
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+
+[Document12]
 DocumentPath=..\_Libraries_Docs\Librairies_Altium_ROBOT\IPC.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
