@@ -266,9 +266,9 @@ error_e sub_action_initiale_guy(){
 					ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD);
 			}
 			if(global.env.asser.calibrated)
-				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_AVOIDANCE);
 			else
-				state  = try_going_until_break(635,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
+				state  = try_going_until_break(635,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_AVOIDANCE);
 
 			if(ON_LEAVING(GET_OUT_POS_START))
 				if(!global.env.asser.calibrated)
