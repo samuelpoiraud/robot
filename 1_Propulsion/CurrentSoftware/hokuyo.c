@@ -329,7 +329,7 @@ void hokuyo_find_valid_points(void)
 	bool_e point_filtered;
 	nb_valid_points = 0;	//RAZ des points valides.
 
-	if(QS_WHO_AM_I_get() == PIERRE)
+	if(QS_WHO_AM_I_get() == BIG_ROBOT)
 		to_close_distance = GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
 	else
 		to_close_distance = PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
