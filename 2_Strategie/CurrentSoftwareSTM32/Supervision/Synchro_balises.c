@@ -22,7 +22,7 @@
 #define COMPTEUR_MAX              RF_MODULE_COUNT*TIME_PER_MODULE
 #define TIME_WHEN_SYNCHRO         TIME_PER_MODULE*RF_get_module_id()  //valeur compteur quand demander la synchro
 
-#define LAST_REPLY_TIMEOUT 10000  //[ms] temps avant de considérer le robot maitre (pierre) comme éteint (dans ce cas, guy passe en maitre)
+#define LAST_REPLY_TIMEOUT 10000  //[ms] temps avant de considérer le robot maitre (BIG) comme éteint (dans ce cas, SMALL passe en maitre)
 #define LAST_SYNCHRO_TIMEOUT 1000  //[ms] temps avant de considérer un problème d'un module quand on ne detecte plus rien de lui pendant ce temps
 
 
@@ -30,7 +30,7 @@ static bool_e canmsg_received;
 static CAN_msg_t canmsg_pending;
 
 static Sint16 offset;
-static time32_t last_received_reply; //si ça fait longtemps, pierre est off et ne répond plus aux demandes
+static time32_t last_received_reply; //si ça fait longtemps, BIG est off et ne répond plus aux demandes
 
 //temps depuis la dernière activité RF, permet de savoir si les autres modules RF sont là
 static time32_t last_activity_time[RF_MODULE_COUNT] = {0};
@@ -70,14 +70,14 @@ void SYNCHRO_init() {
 
 	PIN_RF_CONFIG = 1;
 
-	if(QS_WHO_AM_I_get() == PIERRE) {
+	if(QS_WHO_AM_I_get() == BIG_ROBOT) {
 		SEND_REQ = FALSE;
 		REPLY_REQ = TRUE;
-		RF_init(RF_PIERRE, &rf_packet_received_callback, &rf_can_received_callback);
+		RF_init(RF_BIG, &rf_packet_received_callback, &rf_can_received_callback);
 	} else {
-		SEND_REQ = TRUE;		//Pour voir si il y a PIERRE
+		SEND_REQ = TRUE;		//Pour voir si il y a Le gros robot
 		REPLY_REQ = FALSE;
-		RF_init(RF_GUY, &rf_packet_received_callback, &rf_can_received_callback);
+		RF_init(RF_SMALL, &rf_packet_received_callback, &rf_can_received_callback);
 	}
 
 	// X indique la fin de la config => passage en mode normal de transmission / reception (la pin de config doit être à 1)
@@ -96,10 +96,10 @@ void SYNCHRO_process_main()
 		canmsg_received = FALSE;
 	}
 
-	//Si on voit pas de réponse pendant plus de LAST_REPLY_TIMEOUT ms, on répond au demandes de synchro (si pierre pas là)
-	if(REPLY_REQ == FALSE && RF_get_module_id() == RF_GUY && last_received_reply + LAST_REPLY_TIMEOUT <= global.env.absolute_time) {
+	//Si on voit pas de réponse pendant plus de LAST_REPLY_TIMEOUT ms, on répond au demandes de synchro (si BIG_ROBOT pas là)
+	if(REPLY_REQ == FALSE && RF_get_module_id() == RF_SMALL && last_received_reply + LAST_REPLY_TIMEOUT <= global.env.absolute_time) {
 		REPLY_REQ = TRUE;
-		debug_printf("La derniere réponse reçu de PIERRE est trop vieille, passage en maitre\n");
+		debug_printf("La derniere réponse reçu de BIG_ROBOT est trop vieille, passage en maitre\n");
 	}
 
 	//Met à jour balise_here
@@ -132,8 +132,8 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			RF_synchro_response(header.sender_id, offset);
 			LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
 		}
-	} else if(QS_WHO_AM_I_get() == GUY && header.type == RF_PT_SynchroResponse) {
-		//Pierre nous à répondu, on maj notre base de temps
+	} else if(QS_WHO_AM_I_get() == SMALL_ROBOT && header.type == RF_PT_SynchroResponse) {
+		//BIG_ROBOT nous à répondu, on maj notre base de temps
 		if(for_me) {
 			Sint16 fullOffset = (data[0] | data[1] << 8);
 			offset = fullOffset - (wrap_timebase(((Sint16)time_base) - TIME_WHEN_SYNCHRO) / 2);
@@ -143,10 +143,10 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
 		}
 
-		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => Pierre est là
+		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => BIG_ROBOT est là
 		if(REPLY_REQ) {
 			REPLY_REQ = FALSE;
-			debug_printf("Réponse reçue de PIERRE, passage en esclave\n");
+			debug_printf("Réponse reçue de BIG_ROBOT, passage en esclave\n");
 		}
 		last_received_reply = global.env.absolute_time;
 	}

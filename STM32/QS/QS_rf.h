@@ -17,12 +17,10 @@
 
 // !!!!!!!!!!!! MAX 7 modules !!!!!!!!!!!! (0-6, 7 = broadcast)
 typedef enum {
-	RF_TINY,
-	RF_KRUSTY,
+	RF_SMALL,
+	RF_BIG,
 	RF_FOE1,
 	RF_FOE2,
-	RF_GUY = RF_TINY,
-	RF_PIERRE = RF_KRUSTY,
 	RF_BROADCAST = 7
 } RF_module_e;
 #define RF_MODULE_COUNT 4
