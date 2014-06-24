@@ -17,8 +17,8 @@
 
 
 	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
-	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
-	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
+	#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+	#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
 	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
 	//#define LCD_TOUCH								//Active le LCD tactile
 
@@ -56,6 +56,8 @@
 	#define USE_CODEUR_SUR_IT_ET_QE		//Utiliser les IT externes et les QEx pour acquérir les infos codeurs au lieu du CPLD !
 
 	#define USE_HOKUYO	//Active le module HOKUYO et la détection des ennemis... !
+
+	#define USE_GYROSCOPE
 
 	#define USE_WATCHDOG
 	#define WATCHDOG_TIMER 4

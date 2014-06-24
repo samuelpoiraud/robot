@@ -61,8 +61,10 @@
 			//	-	programmation 			  14
 
 	#define PORT_B_IO_MASK	0x00BF
-			//	U1TX						  6
-			//	U1RX						  7
+		#define GYRO_CS				GPIOB->ODR12
+		#define GYRO_SCK			GPIOB->ODR13
+		#define GYRO_MISO			GPIOB->ODR14
+		#define GYRO_MOSI			GPIOB->ODR15
 
 	#define PORT_C_IO_MASK	0x200E
 			#define	USB_POWER_ON	 	GPIOC->ODR0
@@ -108,7 +110,13 @@
 
 #else
 	#define PORT_A_IO_MASK	0xFFFF
-	#define PORT_B_IO_MASK	0xFFFF
+
+	#define PORT_B_IO_MASK	0x0FFF
+		#define GYRO_CS				GPIOB->ODR12
+		#define GYRO_SCK			GPIOB->ODR13
+		#define GYRO_MISO			GPIOB->ODR14
+		#define GYRO_MOSI			GPIOB->ODR15
+
 	#define PORT_C_IO_MASK	0xFFFF
 	#define PORT_D_IO_MASK	0xC0FF
 	#define PORT_E_IO_MASK	0xFFF0
@@ -155,6 +163,8 @@
 	#define UART1_BAUDRATE	115200
 	#define USE_UART1TXINTERRUPT
 	#define BUFFER_U1TX_SIZE	128
+
+	#define USE_SPI2 // GYROSCOPE
 
 //	#define USE_UART2
 //	#define USE_UART2RXINTERRUPT
