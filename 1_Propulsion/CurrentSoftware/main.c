@@ -32,6 +32,7 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_watchdog.h"
 #include "hokuyo.h"
+#include "gyroscope.h"
 
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
@@ -137,7 +138,7 @@ void initialisation(void)
 		HOKUYO_init();
 	#endif
 
-
+	GYRO_init();
 
 	#if defined (LCD_TOUCH)
 		LCD_init();
@@ -199,6 +200,10 @@ int main (void)
 
 
 */
+
+
+	WATCHDOG_create(1000, &GYRO_test, TRUE);
+
 
 	while(1)
 	{
