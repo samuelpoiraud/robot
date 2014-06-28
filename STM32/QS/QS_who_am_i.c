@@ -20,7 +20,7 @@
 
 	volatile robot_id_e robot_id = 0;
 	volatile bool_e found = FALSE;
-	volatile bool_e initialized = FALSE;
+	static volatile bool_e initialized = FALSE;
 
 	//@brief 	Cette fonction doit être appelée lors de l'initialisation.
 	//@pre 		le fond de panier sur lequel la carte est branché doit être cablé conformément à "_PORTS.xlsx"
