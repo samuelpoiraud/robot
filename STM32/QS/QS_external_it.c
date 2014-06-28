@@ -13,10 +13,20 @@
 #include "stm32f4xx_syscfg.h"
 #include "stm32f4xx_exti.h"
 
+
+#ifdef USE_EXTERNAL_IT
+#warning "SOYEZ PRUDENT AVEC LES IT EXTERNES"
+// Elles font facilement planté la carte. Ne pas laisser une pin en l'air possédant une it externe sinon risque de plantage
+
 EXTERNALIT_callback_it_t callbacks[16];
 
+
 void EXTERNALIT_init() {
-	int i;
+	static bool_e initialized = FALSE;
+	if (initialized)
+		return;
+
+	Uint8 i;
 
 	for(i = 0; i < 16; i++) {
 		callbacks[i] = NULL;
@@ -120,3 +130,105 @@ void EXTERNALIT_set_it_enabled(EXTERNALIT_port_e port, Uint8 pin, bool_e enabled
 	else
 		NVIC_DisableIRQ(irq);
 }
+
+
+
+//Interrupts management and redirection
+
+void EXTI0_IRQHandler() {
+	if(EXTI_GetITStatus(EXTI_Line0))
+		callbacks[0]();
+
+	EXTI_ClearITPendingBit(EXTI_Line0);
+}
+
+
+void EXTI1_IRQHandler() {
+	if(EXTI_GetITStatus(EXTI_Line1))
+		callbacks[1]();
+
+	EXTI_ClearITPendingBit(EXTI_Line1);
+}
+
+void EXTI2_IRQHandler() {
+	if(EXTI_GetITStatus(EXTI_Line2))
+		callbacks[2]();
+
+	EXTI_ClearITPendingBit(EXTI_Line2);
+
+}
+
+void EXTI3_IRQHandler() {
+	if(EXTI_GetITStatus(EXTI_Line3))
+		callbacks[3]();
+
+	EXTI_ClearITPendingBit(EXTI_Line3);
+}
+
+void EXTI4_IRQHandler() {
+	if(EXTI_GetITStatus(EXTI_Line4))
+		callbacks[4]();
+
+	EXTI_ClearITPendingBit(EXTI_Line4);
+}
+
+void EXTI9_5_IRQHandler() {
+	if(EXTI_GetFlagStatus(EXTI_Line5)){ // External Interrupt 5
+		callbacks[5]();
+		EXTI_ClearITPendingBit(EXTI_Line5);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line6)){ // External Interrupt 6
+		callbacks[6]();
+		EXTI_ClearITPendingBit(EXTI_Line6);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line7)){ // External Interrupt 7
+		callbacks[7]();
+		EXTI_ClearITPendingBit(EXTI_Line7);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line8)){ // External Interrupt 8
+		callbacks[8]();
+		EXTI_ClearITPendingBit(EXTI_Line8);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line9)){ // External Interrupt 9
+		callbacks[9]();
+		EXTI_ClearITPendingBit(EXTI_Line9);
+	}
+}
+
+void EXTI15_10_IRQHandler() {
+	if(EXTI_GetFlagStatus(EXTI_Line10)){ // External Interrupt 10
+		callbacks[10]();
+		EXTI_ClearITPendingBit(EXTI_Line10);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line11)){ // External Interrupt 11
+		callbacks[11]();
+		EXTI_ClearITPendingBit(EXTI_Line11);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line12)){ // External Interrupt 12
+		callbacks[12]();
+		EXTI_ClearITPendingBit(EXTI_Line12);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line13)){ // External Interrupt 13
+		callbacks[13]();
+		EXTI_ClearITPendingBit(EXTI_Line13);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line14)){ // External Interrupt 14
+		callbacks[14]();
+		EXTI_ClearITPendingBit(EXTI_Line14);
+	}
+
+	if(EXTI_GetFlagStatus(EXTI_Line15)){ // External Interrupt 15
+		callbacks[15]();
+		EXTI_ClearITPendingBit(EXTI_Line15);
+	}
+}
+
+#endif //USE_EXTERNAL_IT
