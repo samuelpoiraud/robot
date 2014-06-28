@@ -24,7 +24,7 @@
 		multipoint_e multipoint;
 		border_mode_e border_mode;
 		way_e way;
-		ASSER_speed_e speed;
+		PROP_speed_e speed;
 		acknowledge_e acknowledge;	//doit on rendre compte a la carte stratégie
 		corrector_e corrector;
 	}order_t;
@@ -38,7 +38,7 @@
 						way_e way,
 						border_mode_e border_mode,
 						multipoint_e multipoint,
-						ASSER_speed_e speed,
+						PROP_speed_e speed,
 						acknowledge_e acknowledge,
 						corrector_e corrector);
 

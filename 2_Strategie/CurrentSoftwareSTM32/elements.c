@@ -272,7 +272,7 @@ Uint8 ELEMENT_wait_pump_capture_object(Uint8 in_progress, Uint8 success_state, U
 	return in_progress;
 }
 
-Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance){
+Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance){
 	typedef enum
 	{
 		TRY_GOING,
@@ -315,7 +315,7 @@ Uint8 rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Uint8 in_pr
 	switch(state){
 
 		case BEGIN_SCAN:
-			msg.sid = ASSER_LAUNCH_SCAN_TRIANGLE;
+			msg.sid = PROP_LAUNCH_SCAN_TRIANGLE;
 			msg.data[0] = 0x00;
 			msg.data[1] = nb_points;
 			msg.data[2] = (Uint8)((startTeta >> 8) & 0x00FF);
@@ -396,7 +396,7 @@ Uint8 ELEMENT_do_and_wait_end_fruit_verin_order(fruit_verin_state_e verin_order,
 
 void ELEMENT_launch_triangle_warner(Uint8 number_triangle){
 	CAN_msg_t msg;
-	msg.sid = ASSER_LAUNCH_WARNER_TRIANGLE;
+	msg.sid = PROP_LAUNCH_WARNER_TRIANGLE;
 	msg.data[0] = number_triangle;
 	msg.size = 1;
 	CAN_send(&msg);
@@ -915,7 +915,7 @@ void ELEMENTS_add_or_update(Sint32 x, Sint32 y, game_element_e type, bool_e buil
 	time32_t max_delta_time=0,delta_time=0;
 	bool_e expiry = FALSE;
 
-	if(!global.env.asser.calibrated)
+	if(!global.env.prop.calibrated)
 	{
 		return;
 	}

@@ -14,7 +14,7 @@
 #ifndef ACTIONS_BOTH_2014_H
 #define ACTIONS_BOTH_2014_H
 
-#include "../asser_functions.h"
+#include "../prop_functions.h"
 #include "../act_functions.h"
 
 typedef enum{
@@ -38,7 +38,7 @@ void test_Pathfind(void);
 
 void test_strat_robot_virtuel_with_avoidance(void);
 
-void strat_reglage_asser(void);
+void strat_reglage_prop(void);
 
 error_e sub_wait(Sint16 x, Sint16 y);
 error_e protected_fires(protected_fires_e fires);

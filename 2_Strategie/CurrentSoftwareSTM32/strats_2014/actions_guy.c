@@ -221,7 +221,7 @@ error_e sub_action_initiale_guy(){
 				dispose_zone_for_adversary_torch = NO_DISPOSE;
 
 			#ifdef GUY_FALL_FIRST_FIRE
-				if(global.env.asser.calibrated)
+				if(global.env.prop.calibrated)
 					state = FALL_FIRST_FIRE;
 				else
 					state = GET_OUT_POS_START;
@@ -242,7 +242,7 @@ error_e sub_action_initiale_guy(){
 				t = global.env.match_time;
 				//ATTENTION : le timeout supplémentaire ajouté ici doit être très court... car si le bras ne fonctionne pas, Pierre va vouloir partir et nous foncer dedans !
 				//On réactive l'asservissement de la propulsion pour que le bras ne nous fasse pas tourner sur nous-même
-				ASSER_set_correctors(TRUE,TRUE);
+				PROP_set_correctors(TRUE,TRUE);
 			}
 
 			//TODO modifier si besoin (c'est probable la position du bras)
@@ -260,18 +260,18 @@ error_e sub_action_initiale_guy(){
 		case GET_OUT_POS_START:
 			if(entrance)
 			{
-				ASSER_set_acceleration(80);	//Acceleration de guy au démarrage...
-				success_state = (global.env.asser.calibrated)?GOTO_ADVERSARY_ZONE:ROTATION_IF_NOT_CALIBRATED;
-				if(global.env.asser.calibrated)
+				PROP_set_acceleration(80);	//Acceleration de guy au démarrage...
+				success_state = (global.env.prop.calibrated)?GOTO_ADVERSARY_ZONE:ROTATION_IF_NOT_CALIBRATED;
+				if(global.env.prop.calibrated)
 					ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD);
 			}
-			if(global.env.asser.calibrated)
+			if(global.env.prop.calibrated)
 				state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_AVOIDANCE);
 			else
 				state  = try_going_until_break(635,COLOR_Y(300),GET_OUT_POS_START,success_state, success_state,FAST,ANY_WAY,NO_AVOIDANCE);
 
 			if(ON_LEAVING(GET_OUT_POS_START))
-				if(!global.env.asser.calibrated)
+				if(!global.env.prop.calibrated)
 					ACT_arm_goto(ACT_ARM_POS_TAKE_ON_ROAD);
 
 			#ifdef MANCHOT
@@ -304,7 +304,7 @@ error_e sub_action_initiale_guy(){
 
 			state = check_sub_action_result(goto_adversary_zone(),GOTO_ADVERSARY_ZONE,DO_OUR_TORCH,ERROR);
 			if(state != GOTO_ADVERSARY_ZONE)
-				ASSER_set_acceleration(64);
+				PROP_set_acceleration(64);
 
 			//ERROR n'est pas censé se produire... la sub_action étant censée trouver une solution pour se rendre en zone adverse !
 			break;
@@ -435,7 +435,7 @@ void strat_homologation_guy(){
 		case GET_OUT_POS_START:
 			if(entrance)
 			{
-				ASSER_set_acceleration(75);	//Acceleration de guy au démarrage...
+				PROP_set_acceleration(75);	//Acceleration de guy au démarrage...
 			}
 
 			state  = try_going_until_break(700,COLOR_Y(300),GET_OUT_POS_START,POS_OPEN, POS_OPEN,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
@@ -552,17 +552,17 @@ void goto_adversary_zone_arm_management(void)
 			break;
 			case WAIT_FOR_TREE_FIRE:
 				if(entrance)
-					ASSER_WARNER_arm_y(COLOR_Y(600));
-				if(global.env.asser.reach_y)
+					PROP_WARNER_arm_y(COLOR_Y(600));
+				if(global.env.prop.reach_y)
 					state = EXIT_ARM_FOR_TREE_FIRE;
 				break;
 			case EXIT_ARM_FOR_TREE_FIRE:
 				if(entrance)
 				{
-					ASSER_WARNER_arm_y(COLOR_Y(1000));
+					PROP_WARNER_arm_y(COLOR_Y(1000));
 					//TODO demander la sortie du bras pour tacler le feu
 				}
-				if(global.env.asser.reach_y)
+				if(global.env.prop.reach_y)
 					state = ARM_AT_HOME;
 				break;
 			case ARM_AT_HOME:
@@ -773,7 +773,7 @@ error_e goto_adversary_zone(void)
 			}
 			state = try_going_multipoint(way_our_fires,3,state,BEHIND_SOUTH_FIRE,SB2,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 			if(ON_LEAVING(CENTRAL_FIRE))
-				ASSER_set_acceleration(64);
+				PROP_set_acceleration(64);
 			break;
 
 		case BEHIND_SOUTH_FIRE:
@@ -1009,14 +1009,14 @@ error_e do_torch(torch_choice_e torch_choice, bool_e we_are_already_in_pos_end, 
 		// Ralenti avant d'arriver sur le foyer
 		case SLOW_MOTION:
 			if(entrance)
-				ASSER_set_threshold_error_translation(50,FALSE); //On diminue le seuil d'erreur
+				PROP_set_threshold_error_translation(50,FALSE); //On diminue le seuil d'erreur
 			state = try_going(posEnd.x, posEnd.y, SLOW_MOTION, WAIT, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT);
 
 			if(state == ERROR && ((global.env.pos.x > 1700 && ((global.env.color == RED && current_dispose_zone == HEARTH_OUR) || (global.env.color != RED && current_dispose_zone == HEARTH_ADVERSARY))) ||
 			   (global.env.pos.y > 2700 && ((global.env.color != RED && current_dispose_zone == HEARTH_OUR) || (global.env.color == RED && current_dispose_zone == HEARTH_ADVERSARY)))))
 				state = WAIT;
 			if(state != SLOW_MOTION)
-				ASSER_set_threshold_error_translation(0,TRUE);	//On remet le seuil d'erreur
+				PROP_set_threshold_error_translation(0,TRUE);	//On remet le seuil d'erreur
 			break;
 
 
@@ -2863,12 +2863,12 @@ void strat_belgique_guy(void){
 			break;
 
 		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
-			ASSER_push_rush_in_the_wall(FORWARD,TRUE,PI4096,TRUE);//Le fait forcer en marche arriere
+			PROP_push_rush_in_the_wall(FORWARD,TRUE,PI4096,TRUE);//Le fait forcer en marche arriere
 			state = WAIT_END_OF_MOVE;
 			break;
 
 		case WAIT_END_OF_MOVE:
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 				state = EXTRACTION;
 			}
 			break;
@@ -3291,7 +3291,7 @@ void strat_test_arm(){
 
 	switch(state){
 		case IDLE :
-			ASSER_set_position(500, 500, -PI4096/4);
+			PROP_set_position(500, 500, -PI4096/4);
 			global.env.pos.x = 500;
 			global.env.pos.y = 500;
 			global.env.pos.angle = -PI4096/4;

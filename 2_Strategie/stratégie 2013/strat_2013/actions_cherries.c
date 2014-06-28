@@ -12,7 +12,7 @@
 #include "actions_cherries.h"
 #include "../state_machine_helper.h"
 #include "../zone_mutex.h"
-#include "../asser_functions.h"
+#include "../prop_functions.h"
 #include "config_debug.h"
 #define LOG_PREFIX "strat_cherries: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
@@ -481,9 +481,9 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 
 		//Va à la position indiqué par current_plate et current_line
 		case MP_SWITCH_PLATE: {
-			static bool_e retrying_after_asser_error;
+			static bool_e retrying_after_prop_error;
 			if(entrance) {
-				retrying_after_asser_error = FALSE;
+				retrying_after_prop_error = FALSE;
 				AVOIDANCE_set_timeout(1000);
 //				STATECHANGE_log(LOG_LEVEL_Debug, "K_STRAT_micro_move_to_plate: go to line %d, plate %d\n", current_line, dest_plate);
 			}
@@ -506,9 +506,9 @@ error_e K_STRAT_micro_move_to_plate(Uint8 plate_goal, line_pos_t line_goal, bool
 			else if(last_action_result == FOE_IN_PATH)
 				state = MP_FAILED;
 			else if(last_action_result != IN_PROGRESS) {
-				if(retrying_after_asser_error == TRUE)	//Si on avait déja fail on retente pas
+				if(retrying_after_prop_error == TRUE)	//Si on avait déja fail on retente pas
 					state = MP_FAILED;
-				else retrying_after_asser_error = TRUE;
+				else retrying_after_prop_error = TRUE;
 			}
 
 
@@ -780,8 +780,8 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 				catching_plate = FALSE;
 				if(CLOSING_AX12_OFFSET != 0) {
 					if(axis == STRAT_PGA_Y)
-						ASSER_WARNER_arm_y(COLOR_Y(grab_trajectory[GRAB_BeginAX12Closing].y));
-					else ASSER_WARNER_arm_x(grab_trajectory[GRAB_BeginAX12Closing].x);
+						PROP_WARNER_arm_y(COLOR_Y(grab_trajectory[GRAB_BeginAX12Closing].y));
+					else PROP_WARNER_arm_x(grab_trajectory[GRAB_BeginAX12Closing].x);
 				}
 			}
 			state = try_going_multipoint((displacement_t[]){
@@ -793,7 +793,7 @@ error_e K_STRAT_micro_grab_plate(STRAT_plate_grap_axis_e axis, STRAT_plate_grap_
 
 			//Gestion du serrage en parallèle quand on atteint la position Y_POS_AX12_CLOSING ou quand on change d'état sans que le warner n'ait été déclenché
 			//si Y_POS_AX12_CLOSING vaut 0, on n'utilise pas le warner et on fait le serrage systématiquement à la fin du mouvement
-			if((CLOSING_AX12_OFFSET != 0 && (global.env.asser.reach_y || global.env.asser.reach_x)) || (state != GP_CATCH_PLATE && catching_plate == FALSE)) {
+			if((CLOSING_AX12_OFFSET != 0 && (global.env.prop.reach_y || global.env.prop.reach_x)) || (state != GP_CATCH_PLATE && catching_plate == FALSE)) {
 				if(USE_DOUBLE_CLOSE_AX12) {					//Si on fait un double serrage, on serre juste
 					ACT_plate_plier(ACT_PLATE_PlierClose);
 				} else {									//Sinon on serre & monte l'assiette directement
@@ -989,7 +989,7 @@ error_e K_STRAT_micro_launch_cherries(STRAT_launch_cherries_positions_e position
 		{1015, 700 ,   -4150  ,  -9400   ,    6400           },		//STRAT_LC_PositionMid
 		{1400, 620 ,   -2900  , -10549   ,    5850           }		//STRAT_LC_PositionNear
 	};
-	static const ASSER_speed_e AIM_ROTATION_SPEED = FAST;	//Vitesse de rotation pour viser le gateau
+	static const PROP_speed_e AIM_ROTATION_SPEED = FAST;	//Vitesse de rotation pour viser le gateau
 
 	///////////////////////////////////////////////////////////////
 

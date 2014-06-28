@@ -157,7 +157,7 @@ void strat_placement_net(){
 					forced_angle = PI4096/2-(atan2((2350-global.env.pos.y),global.env.pos.x)*4096.);
 				else
 					forced_angle =  PI4096/2-(atan2((750-global.env.pos.y),global.env.pos.x)*4096.);
-				msg.sid = ASSER_GO_ANGLE;
+				msg.sid = PROP_GO_ANGLE;
 				msg.data[0]=0x00;//NOW+NO_MULTIPOINT+ABSOLUTE;
 				msg.data[1]=HIGHINT(forced_angle);
 				msg.data[2]=LOWINT(forced_angle);

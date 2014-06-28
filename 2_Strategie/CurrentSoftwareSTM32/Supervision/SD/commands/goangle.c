@@ -8,7 +8,7 @@
 #include "goangle.h"
 #include <errno.h>
 #include "../term_commands_utils.h"
-#include "../../../asser_functions.h"
+#include "../../../prop_functions.h"
 #include "../../../QS/QS_all.h"
 
 const char term_cmd_goangle_brief[] = "Tourner le robot à l'angle voulu";
@@ -46,7 +46,7 @@ int term_cmd_goangle(int argc, const char *argv[]) {
 	teta *= PI4096;
 	teta /= 180;
 
-	ASSER_push_goangle(teta, FAST, TRUE);
+	PROP_push_goangle(teta, FAST, TRUE);
 
 	return 0;
 }

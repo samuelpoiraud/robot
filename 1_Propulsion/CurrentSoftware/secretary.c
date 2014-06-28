@@ -158,19 +158,16 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 			case CARTE_P_TRAJ_FINIE:
 				debug_printf("TrajFinie:");
 			break;
-			case CARTE_P_ASSER_ERREUR:
+			case CARTE_P_PROP_ERREUR:
 				debug_printf("Err:0x%x", msg->data[7]&0b111);
 			break;
 			case CARTE_P_ROBOT_FREINE:
 				debug_printf("Freine:");
 			break;
-						//case ASSER_SELFTEST:
+						//case PROP_SELFTEST:
 						//break;
 						case CARTE_P_ROBOT_CALIBRE:
 						break;
-			case DEBUG_ASSER_POINT_FICTIF:
-				debug_printf("PF:");
-				break;
 			case STRAT_PROP_PONG:
 				debug_printf("Pong\n");
 				add_pos_datas = FALSE;
@@ -470,8 +467,8 @@ void SECRETARY_send_all_coefs(void)
 /*
 types d'ordres
 
-ASSER_GO_ANGLE
-ASSER_GO_POSITION
+PROP_GO_ANGLE
+PROP_GO_POSITION
 
 	arguments
 	dans l'ordre :
@@ -506,17 +503,15 @@ ASSER_GO_POSITION
 
 
 
-		case ASSER_TELL_POSITION:		RIEN
-		case CARTE_ASSER_FIN_ERREUR:	RIEN
-		case ASSER_STOP:				RIEN
-		case ASSER_SET_POSITION:		x, y, teta
-		case ASSER_TYPE_ASSERVISSEMENT:	mode d'asser rot et trans
-		case ASSER_RUSH_IN_THE_WALL:	0.CONFIG, 5.VITESSE, 6.MARCHE			//TODO !!!!!
+		case PROP_TELL_POSITION:		RIEN
+		case PROP_STOP:					RIEN
+		case PROP_SET_POSITION:			x, y, teta
+		case PROP_RUSH_IN_THE_WALL:	0.CONFIG, 5.VITESSE, 6.MARCHE			//TODO !!!!!
 
-		case ASSER_CALIBRATION:			RIEN (la couleur doit etre bonne...)
-		case ASSER_WARN_ANGLE:			teta
-		case ASSER_WARN_X:				x
-		case ASSER_WARN_Y:				y
+		case PROP_CALIBRATION:			RIEN (la couleur doit etre bonne...)
+		case PROP_WARN_ANGLE:			teta
+		case PROP_WARN_X:				x
+		case PROP_WARN_Y:				y
 
 */
 
@@ -530,7 +525,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 
 	switch (msg->sid)
 	{
-		case ASSER_STOP :
+		case PROP_STOP:
 			ROADMAP_add_order(  TRAJECTORY_STOP,
 								0,
 								0,
@@ -546,7 +541,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 							);
 		break;
 
-		case ASSER_GO_ANGLE:
+		case PROP_GO_ANGLE:
 
 			ROADMAP_add_order( 	TRAJECTORY_ROTATION,							// type trajectoire
 								0,									//x
@@ -564,7 +559,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 							);
 		break;
 
-		case ASSER_GO_POSITION:
+		case PROP_GO_POSITION:
 
 			//Réglage sens:
 			if ((msg->data[6] == BACKWARD) || (msg->data[6] == FORWARD))
@@ -587,7 +582,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 							);
 		break;
 
-		case ASSER_CALIBRATION:	//Autocalage !
+		case PROP_CALIBRATION:	//Autocalage !
 			SEQUENCES_calibrate();
 
 		break;
@@ -605,7 +600,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 
 		// Impose une position (uniquement pour les tests !!!)
-		case ASSER_SET_POSITION:
+		case PROP_SET_POSITION:
 			ODOMETRY_set(
 							(U16FROMU8(msg->data[0],msg->data[1])),	//x
 							(U16FROMU8(msg->data[2],msg->data[3])), 	//y
@@ -614,7 +609,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			COPILOT_reset_absolute_destination();
 
 		break;
-		case ASSER_RUSH_IN_THE_WALL:
+		case PROP_RUSH_IN_THE_WALL:
 			SEQUENCES_rush_in_the_wall((U16FROMU8(msg->data[2],msg->data[3])), msg->data[0], SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data[1])?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
 		break;
 
@@ -658,10 +653,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			break;
 
 		//Carte stratégie demande la position
-		case ASSER_TELL_POSITION:
+		case PROP_TELL_POSITION:
 			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
-		case ASSER_SET_CORRECTORS:
+		case PROP_SET_CORRECTORS:
 			if(msg->data[0])	//Rotation
 			{
 				if(msg->data[1])	//Translation
@@ -678,22 +673,22 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			}
 		break;
 		//Une carte nous demande de l'avertir lorsque nous serons en approche d'une position...
-		case ASSER_WARN_ANGLE:
+		case PROP_WARN_ANGLE:
 			WARNER_arm_teta(U16FROMU8(msg->data[0],msg->data[1]));
 		break;
-		case ASSER_WARN_X:
+		case PROP_WARN_X:
 			WARNER_arm_x(U16FROMU8(msg->data[0],msg->data[1]));
 		break;
-		case ASSER_WARN_Y:
+		case PROP_WARN_Y:
 			WARNER_arm_y(U16FROMU8(msg->data[0],msg->data[1]));
 		break;
-		case ASSER_SEND_PERIODICALLY_POSITION:
+		case PROP_SEND_PERIODICALLY_POSITION:
 			WARNER_arm_timer(U16FROMU8(msg->data[0],msg->data[1]));
 			WARNER_arm_translation(U16FROMU8(msg->data[2],msg->data[3]));
 			WARNER_arm_rotation(U16FROMU8(msg->data[4],msg->data[5]));
 		break;
 
-		case ASSER_JOYSTICK:
+		case PROP_JOYSTICK:
 			JOYSTICK_enable(100, (Sint8)msg->data[0], (Sint8)msg->data[1], (bool_e)msg->data[2], (bool_e)msg->data[3]);
 						//durée d'activation du joystick en ms
 		break;
@@ -703,36 +698,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			if(U16FROMU8(msg->data[0], msg->data[1]) < 200)	//Sécurité...
 				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
 		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_SYM:
-			ODOMETRY_set_coef(ODOMETRY_COEF_SYM,(Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION:
-			ODOMETRY_set_coef(ODOMETRY_COEF_ROTATION, (Sint32)(U32FROMU8(msg->data[0], msg->data[1], msg->data[2], msg->data[3])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_TRANSLATION:
-			ODOMETRY_set_coef(ODOMETRY_COEF_TRANSLATION, (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_CENTRIFUGE:
-			ODOMETRY_set_coef(ODOMETRY_COEF_CENTRIFUGAL,(Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_KP_ROTATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KP_ROTATION, (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_KD_ROTATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KD_ROTATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_KP_TRANSLATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KP_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_KD_TRANSLATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KD_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_KV_ROTATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KV_ROTATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
-		case DEBUG_PROPULSION_REGLAGE_COEF_KV_TRANSLATION:
-			CORRECTOR_set_coef(CORRECTOR_COEF_KV_TRANSLATION,  (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
-		break;
+
 		case DEBUG_PROPULSION_GET_COEFS:
 			SECRETARY_send_all_coefs();
 		break;
@@ -756,9 +722,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case DEBUG_SET_ERROR_TRESHOLD_TRANSLATION:
 			SUPERVISOR_set_treshold_error_translation(msg->data[0]);
 			break;
-		case CARTE_ASSER_FIN_ERREUR:
-			SUPERVISOR_state_machine(EVENT_ERROR_EXIT, 0);
-		break;
 		case PROP_PING:
 			SECRETARY_send_pong();
 		break;
@@ -770,10 +733,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			WARNER_enable_counter_trajectory_for_test_coefs_finished();
 		break;
 		#ifdef SCAN_TRIANGLE
-		case ASSER_LAUNCH_SCAN_TRIANGLE :
+		case PROP_LAUNCH_SCAN_TRIANGLE :
 			SCAN_TRIANGLE_canMsg(msg);
 		break;
-		/*case ASSER_LAUNCH_WARNER_TRIANGLE :
+		/*case PROP_LAUNCH_WARNER_TRIANGLE :
 			SCAN_TRIANGLE_WARNER_canMsg(msg);
 		break;*/
 		#endif

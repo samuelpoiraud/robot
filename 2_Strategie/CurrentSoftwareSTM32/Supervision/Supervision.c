@@ -85,7 +85,7 @@ void Supervision_process_1ms(void)
  */
 void Supervision_send_periodically_pos(Uint16 dist, Sint16 angle){
 	CAN_msg_t msg;
-	msg.sid = ASSER_SEND_PERIODICALLY_POSITION;
+	msg.sid = PROP_SEND_PERIODICALLY_POSITION;
 	msg.data[0] = 0;
 	msg.data[1] = 0; 					//toutes les XX ms -> si 0, pas de msg en fonction du temps.
 	msg.data[2] = HIGHINT(dist);

@@ -96,7 +96,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 				SINON, (hors match... pour gain de temps) une rotation aura lieu dès qu'on est "extrait" de la bordure (sens imposé) !
 			*/
 		case GET_OUT:
-			if(global.env.asser.calibrated || global.env.color == RED)
+			if(global.env.prop.calibrated || global.env.color == RED)
 				state = SUBACTION_OPEN_2_OR_4_GIFTS;
 			else
 				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !
@@ -134,7 +134,7 @@ void STRAT_TINY_gifts_cake_and_steal(void)
 
 		case TAKE_A_DECISION:
 			//On dispose de previous_subaction qui contient la précédente actions effectuée.
-			//ASSER_dump_stack ();
+			//PROP_dump_stack ();
 			if(previous_subaction == PROTECT_GLASSES)
 			{
 				if(all_gifts_done() && all_candles_done && moisson_done && we_are_protecting_our_glasses)	//SI ON A MIS TOUT NOS POINTS... ON RESTE ICI (la moisson compte, pas le scan)
@@ -411,7 +411,7 @@ void STRAT_TINY_4_gifts_only(void)
 				SINON, (hors match... pour gain de temps) une rotation aura lieu dès qu'on est "extrait" de la bordure (sens imposé) !
 			*/
 		case GET_OUT:
-			if(global.env.asser.calibrated || global.env.color == RED)
+			if(global.env.prop.calibrated || global.env.color == RED)
 				state = SUBACTION_OPEN_ALL_GIFTS;
 			else
 				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !
@@ -651,11 +651,11 @@ error_e TEST_STRAT_in_da_wall(void)
 
 	switch(state){
 		case PUSH_MOVE:
-			ASSER_push_rush_in_the_wall(FORWARD,TRUE,0,TRUE);
+			PROP_push_rush_in_the_wall(FORWARD,TRUE,0,TRUE);
 			state = WAIT_END_OF_MOVE;
 			break;
 		case WAIT_END_OF_MOVE:
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 				state = DONE;
 			}
 			break;
@@ -702,7 +702,7 @@ void STRAT_TINY_test_steals(void)
 				SINON, (hors match... pour gain de temps) une rotation aura lieu dès qu'on est "extrait" de la bordure (sens imposé) !
 			*/
 		case GET_OUT:
-			if(global.env.asser.calibrated || global.env.color == RED)
+			if(global.env.prop.calibrated || global.env.color == RED)
 				state = SUBACTION_STEAL_ADVERSARY_GLASSES;
 			else
 				state = GET_OUT_IF_NO_CALIBRATION;	//En bleu, il faut se retourner si on s'est pas calibré !

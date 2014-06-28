@@ -20,8 +20,8 @@
 
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
-	#define I_AM CARTE_ASSER
-	#define I_AM_CARTE_ASSER
+	#define I_AM CARTE_PROP
+	#define I_AM_CARTE_PROP
 
 #if defined(STM32F40XX)
 	#define HCLK_FREQUENCY_HZ     168000000	//40Mhz, Max: 168Mhz

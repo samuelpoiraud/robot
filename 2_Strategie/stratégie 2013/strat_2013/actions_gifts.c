@@ -12,7 +12,7 @@
 #include "actions_gifts.h"
 #include "actions_utils.h"
 #include "../act_functions.h"
-#include "../asser_functions.h"
+#include "../prop_functions.h"
 #include "../QS/QS_outputlog.h"
 
 #include "config_pin.h"
@@ -226,65 +226,65 @@ void TINY_hammer_open_all_gift(bool_e reset)
 	{
 		case INIT:
 			ACT_hammer_goto(HAMMER_POSITION_DOWN);		//Bras : READY !
-			ASSER_WARNER_arm_y(COLOR_Y(480));	//On arme et on attend le premier cadeau.
+			PROP_WARNER_arm_y(COLOR_Y(480));	//On arme et on attend le premier cadeau.
 			state = WAIT_FIRST_GIFT;
 		break;
 		case WAIT_FIRST_GIFT:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(800));
+				PROP_WARNER_arm_y(COLOR_Y(800));
 				state = OPENING_FIRST_GIFT;
 			}
 		break;
 		case OPENING_FIRST_GIFT:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 			{
 				global.env.map_elements[GOAL_Cadeau0] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(1000));
+				PROP_WARNER_arm_y(COLOR_Y(1000));
 				state = WAIT_SECOND_GIFT;
 			}
 		break;
 		case WAIT_SECOND_GIFT:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(1400));
+				PROP_WARNER_arm_y(COLOR_Y(1400));
 				state = OPENING_SECOND_GIFT;
 			}
 		break;
 		case OPENING_SECOND_GIFT:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 			{
 				global.env.map_elements[GOAL_Cadeau1] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(1580));
+				PROP_WARNER_arm_y(COLOR_Y(1580));
 				state = WAIT_THIRD_GIFT;
 			}
 		break;
 		case WAIT_THIRD_GIFT:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(2000));
+				PROP_WARNER_arm_y(COLOR_Y(2000));
 				state = OPENING_THIRD_GIFT;
 			}
 		break;
 		case OPENING_THIRD_GIFT:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 			{
 				global.env.map_elements[GOAL_Cadeau2] = ELEMENT_DONE;
 				ACT_hammer_goto(HAMMER_POSITION_DOWN);		//BAISSER BRAS
-				ASSER_WARNER_arm_y(COLOR_Y(2180));
+				PROP_WARNER_arm_y(COLOR_Y(2180));
 				state = WAIT_FOURTH_GIFT;
 			}
 		break;
 		case WAIT_FOURTH_GIFT:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 			{
 				ACT_hammer_goto(HAMMER_POSITION_UP); 	//LEVER BRAS
-				//ASSER_WARNER_arm_y(COLOR_Y(2600));
+				//PROP_WARNER_arm_y(COLOR_Y(2600));
 				state = OPENING_FOURTH_GIFT;
 			}
 		break;

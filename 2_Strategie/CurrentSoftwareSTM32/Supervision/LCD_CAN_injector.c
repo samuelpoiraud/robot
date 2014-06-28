@@ -19,14 +19,14 @@
 void LCD_incoming_can(CAN_msg_t * incomming_msg)
 {
 	switch(incomming_msg->sid){
-		case ASSER_WARN_ANGLE:
-		case ASSER_WARN_X:
-		case ASSER_WARN_Y:
-		case ASSER_STOP:
-		case ASSER_GO_POSITION:
-		case ASSER_GO_ANGLE:
-		case ASSER_CALIBRATION:
-		case CARTE_P_ASSER_ERREUR:
+		case PROP_WARN_ANGLE:
+		case PROP_WARN_X:
+		case PROP_WARN_Y:
+		case PROP_STOP:
+		case PROP_GO_POSITION:
+		case PROP_GO_ANGLE:
+		case PROP_CALIBRATION:
+		case CARTE_P_PROP_ERREUR:
 		case CARTE_P_ROBOT_CALIBRE:
 		case CARTE_P_TRAJ_FINIE:
 		case BROADCAST_START:
@@ -45,14 +45,14 @@ void LCD_display_CAN_msg(CAN_msg_t * msg, Uint8 line)
 	char * str;
 	switch(msg->sid)
 	{
-		case ASSER_WARN_ANGLE:			str = "Warner angle";		break;
-		case ASSER_WARN_X:				str = "Warner X";			break;
-		case ASSER_WARN_Y:				str = "Warner Y";			break;
-		case ASSER_STOP:				str = "ASSER STOP";			break;
-		case ASSER_GO_POSITION:			str = "GOTO POS";			break;
-		case ASSER_GO_ANGLE:			str = "GOTO ANGLE";			break;
-		case ASSER_CALIBRATION:			str = "CALIBRATION";		break;
-		case CARTE_P_ASSER_ERREUR:		str = "ASSER ERROR";		break;
+		case PROP_WARN_ANGLE:			str = "Warner angle";		break;
+		case PROP_WARN_X:				str = "Warner X";			break;
+		case PROP_WARN_Y:				str = "Warner Y";			break;
+		case PROP_STOP:					str = "PROP STOP";			break;
+		case PROP_GO_POSITION:			str = "GOTO POS";			break;
+		case PROP_GO_ANGLE:				str = "GOTO ANGLE";			break;
+		case PROP_CALIBRATION:			str = "CALIBRATION";		break;
+		case CARTE_P_PROP_ERREUR:		str = "PROP ERROR";			break;
 		case CARTE_P_ROBOT_CALIBRE:		str = "CALIBRATE DONE";		break;
 		case CARTE_P_TRAJ_FINIE:		str = "END OF MOVE";		break;
 		case BROADCAST_START:			str = "BROAD. START";		break;

@@ -70,7 +70,7 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_odo_rot",		strat_reglage_odo_rotation,				0,					TRUE,					BOTH},
 	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE,					BOTH},
 	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE,					BOTH},
-	{"strat_asser",			strat_reglage_asser,					0,					TRUE,					BOTH},
+	{"strat_prop",			strat_reglage_prop,					0,					TRUE,					BOTH},
 	{"Str_avoidance",		test_strat_robot_virtuel_with_avoidance,MATCH_DURATION,		FALSE,					BOTH},
 	{"TEST_pathfind",		TEST_pathfind,							MATCH_DURATION,		FALSE,					BOTH},
 	{"test_evitement",		test_strat_robot_virtuel_with_avoidance,0,					FALSE,					BOTH},
@@ -151,16 +151,16 @@ void any_match(void)
 		SWITCH_change_color();	//Check the Color switch
 
 		/* accepter et prévenir des mises à jour de couleur (BLUE par défaut) */
-		if(global.env.color_updated && !global.env.asser.calibrated && !global.env.ask_asser_calibration)
+		if(global.env.color_updated && !global.env.prop.calibrated && !global.env.ask_prop_calibration)
 		{
 			ENV_set_color(global.env.wanted_color);
 		}
 
 		/* demande de calibration */
-		if(global.env.ask_asser_calibration && !global.env.asser.calibrated)
+		if(global.env.ask_prop_calibration && !global.env.prop.calibrated)
 		{
 			CAN_msg_t msg;
-			msg.sid = ASSER_CALIBRATION;
+			msg.sid = PROP_CALIBRATION;
 			msg.size = 0;
 			CAN_send(&msg);
 		}

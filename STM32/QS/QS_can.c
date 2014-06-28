@@ -23,8 +23,8 @@
 #define MASK_CAN_S			0x000 /* 0b00000000000 */
 /* on filtre les messages nous meme en aval */
 
-#if defined I_AM_CARTE_ASSER	//if (I_AM == CARTE_ASSER)
-	#define MY_FILTER	ASSER_FILTER
+#if defined I_AM_CARTE_PROP	//if (I_AM == CARTE_PROP)
+	#define MY_FILTER	PROP_FILTER
 #elif defined I_AM_CARTE_ACT	//(I_AM == CARTE_ACT)
 	#define MY_FILTER	ACT_FILTER
 #elif defined I_AM_CARTE_STRAT	//(I_AM == CARTE_STRAT)

@@ -117,7 +117,7 @@ void WARNER_process_main(void)
 	if(flag_error)
 	{
 		flag_error = FALSE;
-		SECRETARY_process_send(CARTE_P_ASSER_ERREUR,0, error_source);
+		SECRETARY_process_send(CARTE_P_PROP_ERREUR,0, error_source);
 	}
 	
 	if(flag_brake)

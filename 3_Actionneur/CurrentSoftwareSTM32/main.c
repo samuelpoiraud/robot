@@ -53,8 +53,6 @@ static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
 
-extern bool_e EXECUTING_LAUNCH;
-
 int main (void)
 {
 	Sint8 lastSwitchState[2] = {-1, -1};
@@ -142,9 +140,6 @@ int main (void)
 
 		LED_USER = !LED_USER;
 		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
-
-		//if(EXECUTING_LAUNCH)
-			//debug_printf("message passé\n");
 
 		QUEUE_run();
 		BUTTONS_update();

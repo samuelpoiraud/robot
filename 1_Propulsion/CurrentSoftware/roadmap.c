@@ -30,7 +30,7 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 						way_e way,
 						border_mode_e border_mode,
 						multipoint_e multipoint,
-						ASSER_speed_e speed,
+						PROP_speed_e speed,
 						acknowledge_e acknowledge,
 						corrector_e corrector)
 {
