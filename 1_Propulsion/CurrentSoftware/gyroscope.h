@@ -8,14 +8,14 @@
 #ifndef GYROSCOPE_H_
 #define GYROSCOPE_H_
 
-#include "_Propulsion_config.h"
-#include "QS/QS_types.h"
+#include "QS/QS_all.h"
 
 	#ifdef USE_GYROSCOPE
 		void GYRO_test();
 		void GYRO_init(void);
-		Uint32 GYRO_GetSensorData(void);
-		Uint16 GYRO_GetRegisterValue(Uint8 registerAddress);
+		Sint16 GYRO_GetSensorData(bool_e verbose, bool_e * valid);
+		Sint16 ADXRS453_GetTemperature(void);
+		Sint32 GYRO_get_speed_rotation(bool_e * valid);
 	#endif
 
 
