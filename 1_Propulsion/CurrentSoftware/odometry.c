@@ -19,7 +19,9 @@
 #include "cos_sin.h"
 #include "debug.h"
 #include "supervisor.h"
+#include "gyroscope.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_outputlog.h"
 
 volatile static Sint32 coefs[ODOMETRY_COEF_CENTRIFUGAL+1];
 
@@ -171,6 +173,7 @@ void ODOMETRY_correct_with_border(way_e way)
 
 void ODOMETRY_update(void)
 {
+	static Sint32 gyro_teta = 0;
 	Sint16 cos,sin; 	//[pas d'unité/4096]
 	Sint32 cos32, sin32;
 		Sint32 left, right;
@@ -179,6 +182,12 @@ void ODOMETRY_update(void)
 		Sint32 deviation_y;
 		Sint32 real_speed_x;	//[mm/65536/5ms]
 		Sint32 real_speed_y;	//[mm/65536/5ms]
+
+	//TEMPORAIRE pour tests gyro :
+	static Uint8 loop = 0;
+	bool_e gyro_valid;
+	Sint16 degre;
+	Sint32 gyro_speed;
 
 	//CALCUL PREALABLE...DES COS ET SIN...
 	//ATTENTION... le calcul des x et y se fait avec l'angle de la précédente IT, on considère qu'on s'est déplacé avec l'angle précédent...
@@ -189,7 +198,24 @@ void ODOMETRY_update(void)
 	cos32 = (Sint32)(cos);
 	sin32 = (Sint32)(sin);
 
-		ENCODERS_get(&left, &right);
+	ENCODERS_get(&left, &right);
+
+
+	gyro_speed = GYRO_get_speed_rotation(&gyro_valid);	//[rad/4096/1024/5ms]
+	gyro_teta += gyro_speed;
+
+	if(gyro_valid)
+	{
+		degre = ((gyro_teta / PI4096)*180) >> 10;
+		if(!loop)
+		{
+			debug_printf("%6ld, %6ld, %d\n",gyro_speed, gyro_teta, degre);
+			loop = 50;
+		}
+		loop--;
+	}
+	//TODO : comparer speed avec global.real_speed_rotation produit ci-dessous
+
 	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
 	global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
 	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]

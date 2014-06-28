@@ -66,7 +66,7 @@
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
-
+	#define USE_GYROSCOPE
 	#define VERBOSE_MSG_SEND_OVER_UART	//A la place d'un envoi CAN, envoi d'un texte explicite sur l'UART : "Position : " ou "TrajFinie : ....."
 
 
