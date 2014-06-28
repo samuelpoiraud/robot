@@ -84,7 +84,7 @@ typedef struct{
 	Uint8 nb_points;
 	position_t startPos;
 	position_t endPos;
-	ASSER_speed_e speed;
+	PROP_speed_e speed;
 	way_e way;
 }scan_param_s;
 

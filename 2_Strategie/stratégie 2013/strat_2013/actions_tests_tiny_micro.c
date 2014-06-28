@@ -539,10 +539,10 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 	//	break;
 		case COME_BACK_HOME:
 			if(entrance)
-				ASSER_WARNER_arm_y(COLOR_Y(500));
+				PROP_WARNER_arm_y(COLOR_Y(500));
 			//Point 2 : la dépose dans la zone de départ TINY (début de zone !) ATTENTION A NE PAS DETRUIRE NOS VERRES.
 			state = try_going(300,COLOR_Y(400),	COME_BACK_HOME, BACK_TO_CLOSE,	FAIL, SLOW,FORWARD, NO_DODGE_AND_WAIT);
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 				ACT_plier_open();
 		break;
 	//	case OPEN_HAMMERS_IN_HOME:
@@ -553,7 +553,7 @@ error_e STRAT_TINY_scan_and_steal_adversary_glasses(bool_e reset)
 	//		state = wait_hammers(WAIT_OPEN_HAMMERS_IN_HOME, BACK_TO_CLOSE, BACK_TO_CLOSE);
 	//	break;
 		case BACK_TO_CLOSE:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 				ACT_plier_open();
 			state = try_going(300,COLOR_Y(650),	BACK_TO_CLOSE, CLOSE_HAMMERS,	FAIL, FAST,BACKWARD, NO_DODGE_AND_WAIT);
 		break;

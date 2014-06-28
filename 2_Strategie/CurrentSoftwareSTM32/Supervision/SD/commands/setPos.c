@@ -37,7 +37,7 @@ int term_cmd_setPos(int argc, const char *argv[]) {
 	if(x >= 200 && x <= 1800 && y >= 200 && y <= 2800)
 	{
 		CAN_msg_t msg;
-		msg.sid = ASSER_SET_POSITION;
+		msg.sid = PROP_SET_POSITION;
 		msg.data[0]=HIGHINT((Sint16)(x));
 		msg.data[1]=LOWINT((Sint16)(x));
 		msg.data[2]=HIGHINT((Sint16)(y));

@@ -2,7 +2,7 @@
  *	Club Robot ESEO 2008 - 2010
  *	Archi'Tech, PACMAN
  *
- *	Fichier : asser_types.h
+ *	Fichier : prop_types.h
  *	Package : Carte Principale
  *	Description : 	types spécifiques de l'asser
  *	Auteur : Jacen
@@ -11,8 +11,8 @@
 
 #include "QS/QS_all.h"
 
-#ifndef ASSER_TYPES_H
-#define ASSER_TYPES_H
+#ifndef PROP_TYPES_H
+#define PROP_TYPES_H
 
 	typedef enum
 	{
@@ -22,13 +22,13 @@
 		MULTIPOINT=0x20,
 		ABSOLUTE=0x00, 
 		RELATIVE=0x0F
-	} ASSER_mode_e;
+	} PROP_mode_e;
 	
 	
 	typedef enum
 	{
 		END_AT_LAST_POINT = 0,
 		END_AT_BREAK
-	} ASSER_end_condition_e;
+	} PROP_end_condition_e;
 
-#endif /* ndef ASSER_TYPES_H */
+#endif /* ndef PROP_TYPES_H */

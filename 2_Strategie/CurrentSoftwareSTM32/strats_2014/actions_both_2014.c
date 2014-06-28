@@ -68,7 +68,7 @@ void strat_tourne_en_rond(void){
 
 	switch(state){
 	case IDLE:
-//		msg.sid=ASSER_SET_POSITION;
+//		msg.sid=PROP_SET_POSITION;
 //		msg.data[0]=500 >> 8;
 //		msg.data[1]=500 & 0xFF;
 //		msg.data[2]=120 >> 8;
@@ -146,14 +146,6 @@ void strat_reglage_odo_rotation(void){
 		else // GUY
 			coefOdoRotation = 0x00010AC0;
 
-		// Enlever le commentaire si vous voulez imposer le coefficient des le début de la stratégie
-		/*msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION;
-		msg.data[0] = coefOdoRotation >> 24;
-		msg.data[1] = coefOdoRotation >> 16;
-		msg.data[2] = coefOdoRotation >> 8;
-		msg.data[3] = coefOdoRotation;
-		msg.size=4;
-		CAN_send(&msg);*/
 		state = CALAGE;
 		break;
 
@@ -188,7 +180,7 @@ void strat_reglage_odo_rotation(void){
 		debug_printf("REINIT\n\n");
 
 		debug_printf("\nGlobale variable de x %d\n	de y %d\n l'angle %d\n",global.env.pos.x,global.env.pos.y,global.env.pos.angle);
-		ASSER_set_position(1000, LARGEUR_ROBOT/2, PI4096/2);
+		PROP_set_position(1000, LARGEUR_ROBOT/2, PI4096/2);
 		//Je lui dis qu'il est au milieu du terrain ( si je mets 0, il risque d'aller dans les négatifs)
 		state = CALAGE;
 
@@ -231,11 +223,11 @@ void strat_reglage_odo_rotation(void){
 
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
-		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
+		PROP_push_rush_in_the_wall(BACKWARD,TRUE,PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
 		state = WAIT_END_OF_MOVE;
 		break;
 	case WAIT_END_OF_MOVE:
-		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+		if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 			state = CALAGE;
 		}
 		break;
@@ -278,12 +270,13 @@ void strat_reglage_odo_rotation(void){
 			}
 
 			//Envoie du message CAN
-			msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION;
-			msg.data[0] = coefOdoRotation >> 24;
-			msg.data[1] = coefOdoRotation >> 16;
-			msg.data[2] = coefOdoRotation >> 8;
-			msg.data[3] = coefOdoRotation;
-			msg.size=4;
+			msg.sid = DEBUG_PROPULSION_SET_COEF;
+			msg.data[0] = ODOMETRY_COEF_ROTATION;
+			msg.data[1] = coefOdoRotation >> 24;
+			msg.data[2] = coefOdoRotation >> 16;
+			msg.data[3] = coefOdoRotation >> 8;
+			msg.data[4] = coefOdoRotation;
+			msg.size=5;
 			CAN_send(&msg);
 
 			debug_printf("Nouvelle valeur du coef odométrie rotation %lx\n\n",coefOdoRotation);
@@ -373,7 +366,7 @@ void strat_reglage_odo_translation(void){
 	case REINIT:	// Envoie le message can pour réinitialiser la position ou a minima l'angle du robot
 		//send message can set(0,0,0);  le robot doit se trouver a peut pres a set(2000,500,PI4096)
 		debug_printf("REINIT\n\n");
-		ASSER_set_position(1000, LARGEUR_ROBOT/2, PI4096/2);
+		PROP_set_position(1000, LARGEUR_ROBOT/2, PI4096/2);
 		//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
 		state = CALAGE;
 
@@ -388,11 +381,11 @@ void strat_reglage_odo_translation(void){
 		state = try_go_angle(3*PI4096/2,DEMI_TOUR2,CALAGE,ERROR,SLOW);
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
-		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,3*PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
+		PROP_push_rush_in_the_wall(BACKWARD,TRUE,3*PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
 		state = WAIT_END_OF_MOVE;
 		break;
 	case WAIT_END_OF_MOVE:
-		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+		if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 			state = CALAGE;
 		}
 		break;
@@ -416,10 +409,13 @@ void strat_reglage_odo_translation(void){
 		if(state == REINIT){
 			debug_printf("Nouveau coefficient  %x\n",coefOdoTranslation);
 
-			msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_TRANSLATION;
-			msg.data[0] = coefOdoTranslation >> 8;
-			msg.data[1] = coefOdoTranslation;
-			msg.size=2;
+			msg.sid = DEBUG_PROPULSION_SET_COEF;
+			msg.data[0] = ODOMETRY_COEF_TRANSLATION;
+			msg.data[1] = 0;
+			msg.data[2] = 0;
+			msg.data[3] = coefOdoTranslation >> 8;
+			msg.data[4] = coefOdoTranslation;
+			msg.size=5;
 			CAN_send(&msg);
 		}
 
@@ -514,7 +510,7 @@ void strat_reglage_odo_symetrie(void){
 
 		debug_printf("REINIT\n\n");
 
-		ASSER_set_position(500, LARGEUR_ROBOT/2, PI4096/2);
+		PROP_set_position(500, LARGEUR_ROBOT/2, PI4096/2);
 		//Je lui dis qu'il est au milieu du terrain ( si je mest 0, il risque d'aller dans les négatifs)
 		state = CALAGE;
 
@@ -538,11 +534,11 @@ void strat_reglage_odo_symetrie(void){
 		state = try_go_angle(PI4096/2,ALLIGNER_ANGLE1,CALAGE,ERROR,SLOW);
 		break;
 	case PUSH_MOVE://Le fait forcer contre le mur si mal réglé
-		ASSER_push_rush_in_the_wall(BACKWARD,TRUE,PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
+		PROP_push_rush_in_the_wall(BACKWARD,TRUE,PI4096/2,TRUE);//Le fait forcer en marche avant pour protéger les pinces à l'arriére
 		state = WAIT_END_OF_MOVE;
 		break;
 	case WAIT_END_OF_MOVE:
-		if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+		if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 			state = CALAGE;
 		}
 		break;
@@ -585,18 +581,22 @@ void send_coef(coefs_e coef, Uint32 value)
 {
 	CAN_msg_t msg;
 	debug_printf("send coef : ");
+
+	msg.sid =  DEBUG_PROPULSION_SET_COEF;
 	switch(coef)
 	{
-		case KPT_COMPUTE:	msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_KP_TRANSLATION;		debug_printf("Kp translation");	break;
-		case KDT_COMPUTE:	msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_KD_TRANSLATION;		debug_printf("Kd translation");	break;
-		case KPR_COMPUTE:	msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_KP_ROTATION;		debug_printf("Kp rotation");	break;
-		case KDR_COMPUTE:	msg.sid = DEBUG_PROPULSION_REGLAGE_COEF_KD_ROTATION;		debug_printf("Kd rotation");	break;
+		case KPT_COMPUTE:	msg.data[0] = CORRECTOR_COEF_KP_TRANSLATION;	debug_printf("Kp translation");	break;
+		case KDT_COMPUTE:	msg.data[0] = CORRECTOR_COEF_KD_TRANSLATION;	debug_printf("Kd translation");	break;
+		case KPR_COMPUTE:	msg.data[0] = CORRECTOR_COEF_KP_ROTATION;		debug_printf("Kp rotation");	break;
+		case KDR_COMPUTE:	msg.data[0] = CORRECTOR_COEF_KD_ROTATION;		debug_printf("Kd rotation");	break;
 		default:				break;
 	}
-	msg.data[0] = HIGHINT(value);
-	msg.data[1] = LOWINT(value);
-	msg.size = 2;
-	debug_printf(" = %ld\n",value);//TODO
+	msg.data[1] = (Uint8)(value >> 24);
+	msg.data[2] = (Uint8)(value >> 16);
+	msg.data[3] = (Uint8)(value >> 8);
+	msg.data[4] = (Uint8)(value);
+	msg.size = 5;
+	debug_printf(" = %ld\n",value);
 	CAN_send(&msg);
 }
 
@@ -616,7 +616,7 @@ void send_default_coefs(void)
 #define PRECISION	16	//Puissance de 2... plus c'est élevé, plus on cherchera un coef précis...
 
 //Précondition : la première trajectoire (coefs par défaut) doit fonctionner sans FAIL !!
-bool_e strat_reglage_asser_compute_coefs(time32_t duration)
+bool_e strat_reglage_prop_compute_coefs(time32_t duration)
 {
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_REGLAGE_COMPUTE_COEFS,
 				INIT,
@@ -772,9 +772,9 @@ bool_e strat_reglage_asser_compute_coefs(time32_t duration)
 }
 
 
-void strat_reglage_asser(void)
+void strat_reglage_prop(void)
 {
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_COEF_ASSER,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_COEF_PROP,
 			INIT,
 			COMPUTE_COEFS,
 			WAIT_TRAJECTORY,
@@ -796,12 +796,12 @@ void strat_reglage_asser(void)
 			debug_printf("Assurez vous que le robot est à 50cm de la bordure derrière lui, qu'il a 2m devant lui et 80cm de chaque coté...\n");
 			//Send mode BEST_EFFORT
 			CAN_send_sid(DEBUG_ENABLE_MODE_BEST_EFFORT);
-			ASSER_set_position(1000,500,PI4096/2);
+			PROP_set_position(1000,500,PI4096/2);
 			send_default_coefs();
 			state = COMPUTE_COEFS;
 			break;
 		case COMPUTE_COEFS:
-			if(strat_reglage_asser_compute_coefs(duration))
+			if(strat_reglage_prop_compute_coefs(duration))
 				state = TRAJECTORY_TRANSLATION;
 			break;
 		case TRAJECTORY_TRANSLATION:
@@ -821,7 +821,7 @@ void strat_reglage_asser(void)
 				duration = global.env.duration_trajectory_for_test_coefs;
 				state = PRINT_RESULT;
 			}
-			if(global.env.asser.erreur)
+			if(global.env.prop.erreur)
 				state = FAILED;
 			//TODO gestion d'un timeout sur cette action...
 			break;
@@ -1177,14 +1177,14 @@ error_e action_recalage_x(way_e sens, Sint16 wanted_x, Sint16 diff_x){
 
 		case RUSH_WALL :
 			if(global.env.pos.x > 1000)
-				ASSER_push_rush_in_the_wall(sens, TRUE, 0, TRUE);
+				PROP_push_rush_in_the_wall(sens, TRUE, 0, TRUE);
 			else
-				ASSER_push_rush_in_the_wall(sens, TRUE, PI4096, TRUE);
+				PROP_push_rush_in_the_wall(sens, TRUE, PI4096, TRUE);
 			state = WAIT;
 			break;
 
 		case WAIT :
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 				global.env.recalage_x.offset = global.env.pos.x - wanted_x;
 				global.env.recalage_x.last_time = global.env.match_time;
 				display(global.env.recalage_x.offset);
@@ -1253,12 +1253,12 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 			break;
 
 		case RUSH_WALL :
-			ASSER_push_rush_in_the_wall(sens, TRUE, angle, TRUE);
+			PROP_push_rush_in_the_wall(sens, TRUE, angle, TRUE);
 			state = WAIT;
 			break;
 
 		case WAIT :
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 				global.env.recalage_y.offset = global.env.pos.y - wanted_y;
 				global.env.recalage_y.last_time = global.env.match_time;
 				display(global.env.recalage_y.offset);

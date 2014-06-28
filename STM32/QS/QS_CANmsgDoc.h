@@ -56,15 +56,6 @@
 		Sint16	position element y	[mm]
 	*/
 
-	#define DEBUG_ASSER_POINT_FICTIF
-	/*
-	Message utilisé par le code Asser pour le debug...
-		argument
-		X : Sint16 (mm)
-		Y : Sint16 (mm)
-		Angle : Sint16 (RAD4096)
-	*/
-
 
 	#define SUPER_EEPROM_RESET			(0x770)
 	/*
@@ -134,7 +125,7 @@
 	*/
 
 	/* Carte super vers carte propulsion */
-	#define SUPER_ASK_ASSER_SELFTEST
+	#define SUPER_ASK_PROP_SELFTEST
 	/*
 		sens : Uint8 (FORWARD|BACKWARD)
 	*/
@@ -169,7 +160,7 @@
 	*/
 
 	/* Carte propulsion vers Super */
-	#define ASSER_SELFTEST
+	#define PROP_SELFTEST
 	/* arguments :
 		etat_moteur_g : Uint8
 		etat_moteur_d : Uint8
@@ -210,7 +201,7 @@
  *			{
  *				FAST,
  * 				SLOW
- *	 		}ASSER_speed_e;
+ *	 		}PROP_speed_e;
  *****************************************************************/
 
 	/* carte propulsion vers carte stratégie */
@@ -220,7 +211,7 @@
 		Y : Sint16 (mm)
 		Angle : Sint16 (RAD4096)
 	*/
-	#define CARTE_P_ASSER_ERREUR
+	#define CARTE_P_PROP_ERREUR
 	/*
 		X : Sint16 (mm)
 		Y : Sint16 (mm)
@@ -302,7 +293,7 @@
 /************************************************************************************/
 
 	/* carte stratégie vers carte propulsion */
-	#define ASSER_GO_ANGLE
+	#define PROP_GO_ANGLE
 	/* argument :
 		CONFIG : Uint8	=>	|..0. .... - ordre non multipoint
 							|..1. .... - ou multipoint
@@ -330,7 +321,7 @@
 
 		RAYONCRB : Uint8
 	*/
-		#define ASSER_GO_POSITION
+		#define PROP_GO_POSITION
 	/* arguments :
 		CONFIG : Uint8	=>	|..0. .... - ordre non multipoint
 							|..1. .... - ou multipoint
@@ -357,7 +348,7 @@
 							|...1 ...0 	- marche arrière obligée
 		RAYONCRB : Uint8
 	*/
-	#define ASSER_SET_POSITION
+	#define PROP_SET_POSITION
 	/*
 		XHIGH : Uint8		bits les plus significatifs de X, (mm)
 		XLOW : Uint8		bits les moins significatifs de X
@@ -366,7 +357,7 @@
 		TETAHIGH : Uint8	bits les plus significatifs de TETA,(rad/4096)
 		TETALOW : Uint8		bits les moins significatifs de TETA
 	*/
-	#define ASSER_SEND_PERIODICALLY_POSITION
+	#define PROP_SEND_PERIODICALLY_POSITION
 	/*
 		PERIODE : 		Uint16 		unité : [ms] 	Période à laquelle on veut recevoir des messages de BROADCAST_POSITION
 		TRANSLATION : 	Sint16 		unité : mm		Déplacement du robot au delà duquel on veut recevoir un BROADCAST_POSITION
@@ -380,45 +371,39 @@
 
 	*/
 
-	#define ASSER_STOP
+	#define PROP_STOP
 	/* pas d'argument */
 
-	#define ASSER_TELL_POSITION
+	#define PROP_TELL_POSITION
 	/* pas d'argument */
 
-	#define ASSER_TYPE_ASSERVISSEMENT
-	/* argument :
-		Rotation : Uint8		asservissement en rotation on (1)/ off(0)
-		Translation : Uint8		asservissement en translation on (1)/ off(0)
-		au demarrage du robot les deux asservissements sont actifs
-	*/
-	#define ASSER_RUSH_IN_THE_WALL
+	#define PROP_RUSH_IN_THE_WALL
 	/*
 		SENS : way_e Uint8
 		asservissement en rotation on (1)/off(0) : Uint8
 	*/
-	#define ASSER_CALIBRATION
+	#define PROP_CALIBRATION
 	/* argument :
 		SENS : way_e (Uint8)
 		0 pour demander un désarmement !!!
 	*/
-	#define ASSER_WARN_ANGLE
+	#define PROP_WARN_ANGLE
 	/* argument :
 		Angle : Sint16 (RAD4096)
 			0 pour demander un désarmement !!!
 			ATTENTION, pas d'armement possible en 0, demandez 1[rad/4096], c'est pas si loin.
 	*/
-	#define ASSER_WARN_X
+	#define PROP_WARN_X
 	/* argument :
 		x : Sint16 (mm)
 			0 pour demander un désarmement !!!
 	*/
-	#define ASSER_WARN_Y
+	#define PROP_WARN_Y
 	/* argument :
 		y : Sint16 (mm)
 			0 pour demander un désarmement !!!
 	*/
-	#define CARTE_ASSER_FIN_ERREUR
+	#define CARTE_PROP_FIN_ERREUR
 	/* pas d'argument */
 
 /******************************************************************

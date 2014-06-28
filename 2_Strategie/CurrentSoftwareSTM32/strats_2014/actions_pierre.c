@@ -150,7 +150,7 @@ error_e sub_action_initiale(void)
 	{
 
 		case INIT:
-			if(global.env.asser.calibrated)
+			if(global.env.prop.calibrated)
 				state = WAIT_TELL_GUY;
 			else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !
 				state = LANCE_LAUNCHER;
@@ -279,8 +279,8 @@ error_e sub_action_initiale(void)
 		case GOTO_TORCH_THIRD_POINT:
 			if(entrance && global.env.color == YELLOW) // Serre l'objet les pinces
 				ACT_torch_locker(ACT_TORCH_Locker_Lock);
-//				ASSER_WARNER_arm_x(800);
-//			if(global.env.asser.reach_x)
+//				PROP_WARNER_arm_x(800);
+//			if(global.env.prop.reach_x)
 //				;//REACH_POINT_C1_send_request();
 			//NO_DODGE : on gère nous même l'échec.
 			state = try_going(point[2].point.x, point[2].point.y,GOTO_TORCH_THIRD_POINT,(global.env.guy_took_fire[FIRE_ID_MOBILE_CENTRAL]==TRUE)? DO_TREE_1:GOTO_PUSH_TRIANGLE,FAIL_THIRD_POINT,FAST,FORWARD,NO_DODGE_AND_WAIT);
@@ -501,7 +501,7 @@ void strat_homologation(void)
 	switch(state){
 
 		case INIT:
-			if(global.env.asser.calibrated)
+			if(global.env.prop.calibrated)
 				state = WAIT_TELL_GUY;
 			else	//On est en train de jouer un match de test sans l'avoir calibré... donc Guy n'est pas là !
 				state = LANCE_LAUNCHER;
@@ -939,10 +939,10 @@ void strat_lannion(void){
 		POINT_M0, // Pour deposer la fresque
 		POINT_M0_BIS,
 		POINT_Z1,
-		RAMASSER_FRUIT_ARBRE1,
-		RAMASSER_FRUIT_ARBRE2,
-		RAMASSER_FRUIT_ARBRE1A,
-		RAMASSER_FRUIT_ARBRE1B,
+		ramasser_FRUIT_ARBRE1,
+		ramasser_FRUIT_ARBRE2,
+		ramasser_FRUIT_ARBRE1A,
+		ramasser_FRUIT_ARBRE1B,
 		DEPOSER_FRUIT,
 		DEPOSER_FRESQUE,
 		DEPOSER_FRUIT_ROUGE,
@@ -961,7 +961,7 @@ void strat_lannion(void){
 	switch(state){
 	case IDLE:
 
-		msg.sid=ASSER_SET_POSITION;
+		msg.sid=PROP_SET_POSITION;
 		msg.data[0]=500 >> 8;
 		msg.data[1]=500 & 0xFF;
 		msg.data[2]=COLOR_Y(120) >> 8;
@@ -1011,16 +1011,16 @@ void strat_lannion(void){
 
 		//Fruit sens rouge vers jaune
 	//	case POINT_A1:
-	//		state = PATHFIND_try_going(A1, POINT_A1, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+	//		state = PATHFIND_try_going(A1, POINT_A1, ramasser_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
 	//		break;
-	//	case RAMASSER_FRUIT_ARBRE1:
-	//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(TRUE),RAMASSER_FRUIT_ARBRE1,RAMASSER_FRUIT_ARBRE2,ERROR);
+	//	case ramasser_FRUIT_ARBRE1:
+	//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre1_double(TRUE),ramasser_FRUIT_ARBRE1,ramasser_FRUIT_ARBRE2,ERROR);
 	//		break;
 	//	case POINT_W3:
-	//		state = PATHFIND_try_going(W3, POINT_W3, RAMASSER_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+	//		state = PATHFIND_try_going(W3, POINT_W3, ramasser_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
 	//		break;
-	//	case RAMASSER_FRUIT_ARBRE2:
-	//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(FALSE),RAMASSER_FRUIT_ARBRE2,POINT_M0_BIS,ERROR);
+	//	case ramasser_FRUIT_ARBRE2:
+	//		state = check_sub_action_result(strat_test_ramasser_fruit_arbre2_double(FALSE),ramasser_FRUIT_ARBRE2,POINT_M0_BIS,ERROR);
 	//		break;
 	//	case POINT_M0_BIS:
 	//		state = PATHFIND_try_going(M0, POINT_M0_BIS, DEPOSER_FRUIT, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
@@ -1036,16 +1036,16 @@ void strat_lannion(void){
 
 		//Fruit jaune vers rouge
 	case POINT_Z1:
-		state = PATHFIND_try_going(Z1, POINT_Z1, RAMASSER_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+		state = PATHFIND_try_going(Z1, POINT_Z1, ramasser_FRUIT_ARBRE2, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
 		break;
-	case RAMASSER_FRUIT_ARBRE2:
-		state = check_sub_action_result(strat_ramasser_fruit_arbre2_double(colorIsRed),RAMASSER_FRUIT_ARBRE2,POINT_C3,ERROR);
+	case ramasser_FRUIT_ARBRE2:
+		state = check_sub_action_result(strat_ramasser_fruit_arbre2_double(colorIsRed),ramasser_FRUIT_ARBRE2,POINT_C3,ERROR);
 		break;
 	case POINT_C3:
-		state = PATHFIND_try_going(C3, POINT_C3, RAMASSER_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
+		state = PATHFIND_try_going(C3, POINT_C3, ramasser_FRUIT_ARBRE1, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
 		break;
-	case RAMASSER_FRUIT_ARBRE1:
-		state = check_sub_action_result(strat_ramasser_fruit_arbre1_double(colorIsRed),RAMASSER_FRUIT_ARBRE1,POINT_M0_BIS,ERROR);
+	case ramasser_FRUIT_ARBRE1:
+		state = check_sub_action_result(strat_ramasser_fruit_arbre1_double(colorIsRed),ramasser_FRUIT_ARBRE1,POINT_M0_BIS,ERROR);
 		break;
 	case POINT_M0_BIS:
 		state = PATHFIND_try_going(M0, POINT_M0_BIS, DEPOSER_FRUIT, ERROR, ANY_WAY, SLOW, NO_AVOIDANCE, END_AT_BREAK);
@@ -1085,7 +1085,7 @@ void strat_test_fresque(){
 
 	switch(state){
 	case IDLE:
-		msg.sid=ASSER_SET_POSITION;
+		msg.sid=PROP_SET_POSITION;
 		msg.data[0]=500 >> 8;
 		msg.data[1]=500 & 0xFF;
 		msg.data[2]=120 >> 8;
@@ -1454,12 +1454,12 @@ error_e strat_file_fresco(Sint16 posY){
 			break;
 
 		case PUSH_MOVE://Le fait forcer contre le mur pour poser la fresque
-			ASSER_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
+			PROP_push_rush_in_the_wall(BACKWARD,TRUE,0,TRUE);//Le fait forcer en marche arriere
 			state = WAIT_END_OF_MOVE;
 			break;
 
 		case WAIT_END_OF_MOVE:
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 				state = END;
 			}
 			break;
@@ -1830,7 +1830,7 @@ void strat_test_evitement(){
 						);
 	switch(state){
 		case INIT :
-			ASSER_set_position(500, 500, 0);
+			PROP_set_position(500, 500, 0);
 			state = GO_1;
 			break;
 

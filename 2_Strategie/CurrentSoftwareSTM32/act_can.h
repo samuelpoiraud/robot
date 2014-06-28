@@ -32,7 +32,7 @@ typedef enum {
 	ACT_FUNCTION_RetryLater = NOT_HANDLED         //L'opération n'a pas pu se terminer: il faudra retenter plus tard (plus tard = faire autre chose avant de retest, pas juste 3ms, causé par une position impossible à atteindre, robot adverse qui bloque ? positionnement en mode loto trop près du bord ?)
 } ACT_function_result_e;
 
-// Récupère le resultat de la dernière action associé à une pile (non valable pour ASSER) Cette valeur ne change pas tant qu'aucune opération ne commence ou se finie.
+// Récupère le resultat de la dernière action associé à une pile (non valable pour PROP) Cette valeur ne change pas tant qu'aucune opération ne commence ou se finie.
 // A utiliser pour savoir l'état d'une ou plusieurs action en cours.
 ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
 

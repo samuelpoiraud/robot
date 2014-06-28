@@ -160,7 +160,7 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 			if(entrance)
 			{
 				if(entrance)
-					ASSER_set_threshold_error_translation(50,FALSE);
+					PROP_set_threshold_error_translation(50,FALSE);
 				if(global.env.color == RED)
 				{
 					pos.x = 1750;
@@ -174,7 +174,7 @@ error_e sub_steal_space_crackers(GEOMETRY_point_t wait_point, time32_t wait_time
 			}
 			state = try_going(pos.x, pos.y,state,TAKE_FIRE,(already_removed_obstacle)?TAKE_FIRE:REMOVE_OBSTACLE,SLOW,FORWARD,NO_DODGE_AND_NO_WAIT);
 			if(ON_LEAVING(GOTO_HEART))
-				ASSER_set_threshold_error_translation(0,TRUE);
+				PROP_set_threshold_error_translation(0,TRUE);
 			break;
 		case COMPUTE_POS_FIRE:
 #define NB_FIRE_TO_TAKE	4

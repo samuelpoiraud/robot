@@ -83,7 +83,7 @@ void BUTTON_start()
 void BUTTON_calibration()
 {
 	debug_printf("CALIBRATION\r\n");
-	global.env.ask_asser_calibration = TRUE;
+	global.env.ask_prop_calibration = TRUE;
 }
 
 void BUTTON_change_color()

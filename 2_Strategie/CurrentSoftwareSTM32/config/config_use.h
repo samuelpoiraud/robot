@@ -29,10 +29,10 @@
 //#define USE_POLYGON
 
 //utilise le buffer de l'asser pour les trajectoires multi-points et permet d'utiliser les courbes
-#define USE_ASSER_MULTI_POINT
+#define USE_PROP_MULTI_POINT
 
-//les ASSER_TRAJECTOIRE_FINIE dépilent les asser goto meme si on est loin de la destination
-#define ASSER_PULL_EVEN_WHEN_FAR_FROM_DESTINATION
+//les PROP_TRAJECTOIRE_FINIE dépilent les asser goto meme si on est loin de la destination
+#define PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION
 
 
 #define SD_ENABLE

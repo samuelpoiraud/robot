@@ -17,7 +17,7 @@
 	/* Masque des cartes (des destinataires) */
 	#define MASK_BITS					0x700
 	#define BROADCAST_FILTER			0x000
-	#define ASSER_FILTER				0x100
+	#define PROP_FILTER					0x100
 	#define STRAT_FILTER				0x200
 	#define ACT_FILTER					0x300
 	#define BALISE_FILTER				0x400
@@ -57,18 +57,6 @@
 	#define DEBUG_STRAT_STATE_CHANGED	0x760  //Envoyé par la strat quand un état change d'une machine à état
 		//Paramètres: data[0]:data[1] = ID d'une machine à état (data[0] le poids fort), data[2] = old_state, data[3] = new_state, data suivant: paramètres divers
 
-
-	#define DEBUG_ASSER_POINT_FICTIF								0x701
-	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_SYM 			0x702
-	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_ROTATION 		0x703
-	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_TRANSLATION 	0x704
-	#define DEBUG_PROPULSION_REGLAGE_COEF_ODOMETRIE_CENTRIFUGE 		0x705
-	#define DEBUG_PROPULSION_REGLAGE_COEF_KP_ROTATION 				0x706
-	#define DEBUG_PROPULSION_REGLAGE_COEF_KD_ROTATION 				0x707
-	#define DEBUG_PROPULSION_REGLAGE_COEF_KP_TRANSLATION			0x708
-	#define DEBUG_PROPULSION_REGLAGE_COEF_KD_TRANSLATION			0x709
-	#define DEBUG_PROPULSION_REGLAGE_COEF_KV_TRANSLATION			0x70A
-	#define DEBUG_PROPULSION_REGLAGE_COEF_KV_ROTATION				0x70B
 
 	#define DEBUG_ENABLE_MODE_BEST_EFFORT							0x70F
 	#define DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT					0x710
@@ -328,7 +316,7 @@
 	/* carte propulsion vers carte stratégie */
 //TODO renommer ces messages pour respecter le nom es cartes (STRAT et PROP)
 	#define CARTE_P_TRAJ_FINIE			0x210
-	#define CARTE_P_ASSER_ERREUR		0x211
+	#define CARTE_P_PROP_ERREUR			0x211
 	#define CARTE_P_POSITION_ROBOT		BROADCAST_POSITION_ROBOT
 	#define CARTE_P_ROBOT_FREINE		0x213
 	#define CARTE_P_ROBOT_CALIBRE		0x214
@@ -365,32 +353,25 @@
 
 
 	/* carte stratégie vers carte propulsion */
-	#define ASSER_GO_POSITION					0x155
-	#define ASSER_GO_ANGLE						0x177
-	#define ASSER_SEND_PERIODICALLY_POSITION	0x188
-	#define ASSER_STOP							0x101
-	#define ASSER_TELL_POSITION					0x105
-	#define CARTE_ASSER_FIN_ERREUR				0x106
-	#define	ASSER_SET_POSITION					0x107
-	#define ASSER_TYPE_ASSERVISSEMENT			0x108
-	#define ASSER_RUSH_IN_THE_WALL				0x109
-	#define ASSER_CALIBRATION					0x10B
+	#define PROP_GO_POSITION					0x155
+	#define PROP_GO_ANGLE						0x177
+	#define PROP_SEND_PERIODICALLY_POSITION		0x188
+	#define PROP_STOP							0x101
+	#define PROP_TELL_POSITION					0x105
+	#define	PROP_SET_POSITION					0x107
+	#define PROP_RUSH_IN_THE_WALL				0x109
+	#define PROP_CALIBRATION					0x10B
 
-	#define ASSER_WARN_ANGLE					0x10C
-	#define ASSER_WARN_X						0x10D
-	#define ASSER_WARN_Y						0x10E
-	#define ASSER_SET_CORRECTORS				0x10F
+	#define PROP_WARN_ANGLE					0x10C
+	#define PROP_WARN_X						0x10D
+	#define PROP_WARN_Y						0x10E
+	#define PROP_SET_CORRECTORS				0x10F
 		//data 0 : bool_e  correcteur en rotation
 		//data 1 : bool_e  correcteur en translation
-	#define ASSER_JOYSTICK 						0x111
-
-	//modif amaury pour les 3position de calibrage initiale
-	#define ASSER_CASE_CALIBRAGE_1              0x112
-	#define ASSER_CASE_CALIBRAGE_2              0x113
-	#define ASSER_CASE_CALIBRAGE_3              0x114
+	#define PROP_JOYSTICK 						0x111
 
 	//Modif Arnaud pour la détection de triangle
-	#define ASSER_LAUNCH_SCAN_TRIANGLE			0x115
+	#define PROP_LAUNCH_SCAN_TRIANGLE			0x115
 	/*		0:7		: type		0 -> ROTATE / 1 -> LINEAR
 	 *		0:6		: speed 	0 -> SLOW / 1 -> FAST
 	 *		0:5		: way		0 -> FORWARD / 1 -> BACKWARD
@@ -403,7 +384,7 @@
 	 * 		3		: startY
 	 * 		4		: endY
 	 */
-	 #define ASSER_LAUNCH_WARNER_TRIANGLE		0x117
+	 #define PROP_LAUNCH_WARNER_TRIANGLE		0x117
 	 //		0		: number_triangle
 
 

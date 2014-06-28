@@ -441,7 +441,7 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 /*
  * DODGE_AND_WAIT / DODGE_AND_NO_WAIT : lorsqu'un adversaire est détecté, l'évittement est tenté en recalculant une alternative.
  */
-Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, ASSER_speed_e speed, avoidance_type_e avoidance, ASSER_end_condition_e end_condition)
+Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, PROP_speed_e speed, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	error_e sub_action;
 	static displacement_curve_t displacements[PATHFIND_NODE_NB];
@@ -649,7 +649,7 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
 #if VIEILLE_FONCTION_OBSOLETE
 
 
-Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER_speed_e speed, way_e way, bool_e handleOpponent)
+Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, PROP_speed_e speed, way_e way, bool_e handleOpponent)
 {
 	pathfind_node_id_t from, n, current;
 
@@ -735,7 +735,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 	/* Si le chemin n'a pas été trouvé */
 	if (!PATHFIND_TST_NODE_IN(to, closedList))
 	{
-		STACKS_push(ASSER, &wait_forever, TRUE);
+		STACKS_push(PROP, &wait_forever, TRUE);
 		return PATHFIND_OPPONENT_COST;
 	}
 
@@ -753,7 +753,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 		// pour passer d'un noeud à l'autre
 /*
 
-		ASSER_push_goto_multi_point(nodes[n].x, nodes[n].y, speed, way, 0, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
+		PROP_push_goto_multi_point(nodes[n].x, nodes[n].y, speed, way, 0, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
 
 		nodes[to].cost -= PATHFIND_STEP_COST;
 */
@@ -765,7 +765,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 		(PATHFIND_squared_dist(nodes[n].x, nodes[n].y, xFrom, yFrom) > ((Uint32)NODE_PROXIMITY_DISTANCE*NODE_PROXIMITY_DISTANCE))
 	) {
 /*
-			ASSER_push_goto_multi_point(nodes[from].x, nodes[from].y, speed, way, 1, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
+			PROP_push_goto_multi_point(nodes[from].x, nodes[from].y, speed, way, 1, END_OF_BUFFER, END_AT_LAST_POINT, FALSE);
 
 */
 		debug_printf("goto %d\n",from);
@@ -777,7 +777,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, ASSER
 		}
 	}
 
-	STACKS_push(ASSER, &wait_forever, TRUE);
+	STACKS_push(PROP, &wait_forever, TRUE);
 
 	return nodes[to].cost;
 }

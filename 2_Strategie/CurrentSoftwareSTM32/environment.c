@@ -84,11 +84,11 @@ void ENV_init(void)
 	global.env.match_time = 0;
 	global.env.pos.dist = 0;
 	global.env.ask_start = FALSE;
-	global.env.asser.calibrated = FALSE;
-	global.env.asser.current_way = ANY_WAY;
-	global.env.asser.is_in_translation = FALSE;
-	global.env.asser.is_in_rotation = FALSE;
-	global.env.asser.current_status = NO_ERROR;
+	global.env.prop.calibrated = FALSE;
+	global.env.prop.current_way = ANY_WAY;
+	global.env.prop.is_in_translation = FALSE;
+	global.env.prop.is_in_rotation = FALSE;
+	global.env.prop.current_status = NO_ERROR;
 	global.env.alim = FALSE;
 	global.env.alim_value = 0;
 	global.env.destination = (GEOMETRY_point_t){0,0};
@@ -343,7 +343,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond
 		case CARTE_P_ROBOT_FREINE:
 		case CARTE_P_ROBOT_CALIBRE:
-		case CARTE_P_ASSER_ERREUR:
+		case CARTE_P_PROP_ERREUR:
 		case CARTE_P_TRAJ_FINIE:
 			ENV_pos_update(incoming_msg);	//Tout ces messages contiennent une position... et d'autres infos communes
 		break;
@@ -378,24 +378,24 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 //****************************** Messages carte propulsion/asser *************************/
 		case CARTE_P_TRAJ_FINIE:
-			global.env.asser.fini = TRUE;
+			global.env.prop.ended = TRUE;
 			break;
-		case CARTE_P_ASSER_ERREUR:
+		case CARTE_P_PROP_ERREUR:
 
-			global.env.asser.erreur = TRUE;
-			global.env.asser.vitesse_translation_erreur =
+			global.env.prop.erreur = TRUE;
+			global.env.prop.vitesse_translation_erreur =
 				((Sint32)U16FROMU8(incoming_msg->data[1],incoming_msg->data[0]) << 16)
 					+ U16FROMU8(incoming_msg->data[3],incoming_msg->data[2]);
-			global.env.asser.vitesse_rotation_erreur =
+			global.env.prop.vitesse_rotation_erreur =
 				((Sint32)U16FROMU8(incoming_msg->data[5],incoming_msg->data[4]) << 16)
 					+ U16FROMU8(incoming_msg->data[7],incoming_msg->data[6]);
 			break;
 		case CARTE_P_ROBOT_CALIBRE:
-			global.env.asser.calibrated = TRUE;
+			global.env.prop.calibrated = TRUE;
 
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
 			if(QS_WHO_AM_I_get() == GUY)
-				ASSER_set_correctors(FALSE, FALSE);
+				PROP_set_correctors(FALSE, FALSE);
 			break;
 		case DEBUG_PROPULSION_COEF_IS:
 			if(incoming_msg->data[0] < PROPULSION_NUMBER_COEFS)
@@ -410,24 +410,24 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 			if(incoming_msg->data[6] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 			{
-				global.env.asser.reach_x = TRUE;
+				global.env.prop.reach_x = TRUE;
 				debug_printf("Rx\n");
 			}
 
 			if(incoming_msg->data[6] & WARNING_REACH_Y)	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
 			{
-				global.env.asser.reach_y = TRUE;
+				global.env.prop.reach_y = TRUE;
 				debug_printf("Ry\n");
 			}
 			if(incoming_msg->data[6] & WARNING_REACH_TETA)	//Nous venons d'atteindre une position en Teta pour laquelle on a demandé une surveillance à la propulsion.
 			{
-				global.env.asser.reach_teta = TRUE;
+				global.env.prop.reach_teta = TRUE;
 				debug_printf("Rt\n");
 			}
 
 			break;
 		case CARTE_P_ROBOT_FREINE:
-			global.env.asser.freine = TRUE;
+			global.env.prop.freine = TRUE;
 
 			break;
 		case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
@@ -484,7 +484,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case XBEE_START_MATCH:
-			if(global.env.asser.calibrated)	//Vérification pour éviter de lancer un match si on est pas "sur le terrain"...et près à partir.
+			if(global.env.prop.calibrated)	//Vérification pour éviter de lancer un match si on est pas "sur le terrain"...et près à partir.
 				global.env.ask_start = TRUE;	//Inconvénient : il FAUT être calibré pour lancer un match à partir de l'autre robot.
 			break;
 		case XBEE_PING:
@@ -559,11 +559,11 @@ void ENV_pos_update (CAN_msg_t* msg)
 	COS_SIN_4096_get(global.env.pos.angle, &cosinus, &sinus);
 	global.env.pos.cosAngle = cosinus;
 	global.env.pos.sinAngle = sinus;
-	global.env.asser.last_time_pos_updated = global.env.match_time;
-	global.env.asser.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
-	global.env.asser.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
-	global.env.asser.is_in_translation = (((msg->data[7] >> 5) & 0x07) >> 2) & 1;
-	global.env.asser.is_in_rotation = (((msg->data[7] >> 5) & 0x07) >> 1) & 1;
+	global.env.prop.last_time_pos_updated = global.env.match_time;
+	global.env.prop.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
+	global.env.prop.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
+	global.env.prop.is_in_translation = (((msg->data[7] >> 5) & 0x07) >> 2) & 1;
+	global.env.prop.is_in_rotation = (((msg->data[7] >> 5) & 0x07) >> 1) & 1;
 
 	global.env.pos.updated = TRUE;
 			/*msg->data[7] : 8 bits  : T R x W W E E E
@@ -593,15 +593,15 @@ void ENV_clean (void)
 	global.env.propulsion_coefs_updated = 0x00000000;
 	if(global.env.color == global.env.wanted_color)
 		global.env.color_updated = FALSE;
-	global.env.asser.fini = FALSE;
-	global.env.asser.erreur = FALSE;
-	global.env.asser.freine = FALSE;
-	global.env.asser.reach_x = FALSE;
-	global.env.asser.reach_y = FALSE;
-	global.env.asser.reach_teta = FALSE;
-		//global.env.asser.last_time_pos_updated = 0;
+	global.env.prop.ended = FALSE;
+	global.env.prop.erreur = FALSE;
+	global.env.prop.freine = FALSE;
+	global.env.prop.reach_x = FALSE;
+	global.env.prop.reach_y = FALSE;
+	global.env.prop.reach_teta = FALSE;
+		//global.env.prop.last_time_pos_updated = 0;
 	global.env.pos.updated = FALSE;
-	global.env.ask_asser_calibration = FALSE;
+	global.env.ask_prop_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
 	global.env.reach_point_get_out_init = FALSE;
 	global.env.duration_trajectory_for_test_coefs = 0;

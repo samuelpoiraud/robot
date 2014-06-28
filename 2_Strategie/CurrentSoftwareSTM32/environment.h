@@ -40,7 +40,7 @@
 	typedef struct
 	{
 		volatile bool_e freine;
-		volatile bool_e fini;
+		volatile bool_e ended;
 		volatile bool_e calibrated;
 		volatile bool_e erreur;
 		volatile bool_e reach_x;
@@ -53,7 +53,7 @@
 		volatile bool_e is_in_translation;  //TRUE si le robot est en translation
 		volatile bool_e is_in_rotation;		//TRUE si le robot est en rotation
 		volatile time32_t	last_time_pos_updated;
-	}asser_env_t;
+	}prop_env_t;
 
 	typedef struct
 	{
@@ -123,13 +123,13 @@
 		color_e	color;
 		color_e	wanted_color;
 		bool_e color_updated;
-		bool_e ask_asser_calibration;
+		bool_e ask_prop_calibration;
 		bool_e ask_start;
 		bool_e alim;
 		recalage_e recalage_x;
 		recalage_e recalage_y;
 		Uint16 alim_value;		// en mV
-		asser_env_t asser;
+		prop_env_t prop;
 		position_t pos;					//comme son nom l'indique, c'est la position de notre robot
 		foe_t foe[MAX_NB_FOES];		//l'ensemble des adversaires vus sur le terrain - ces données concernent plus l'évitement que le zoning !
 		bool_e foes_updated_for_lcd;

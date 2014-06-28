@@ -19,7 +19,7 @@
 
 
 //active les debug_printf pour les sections concernées
-//	#define DEBUG_ASSER_FUN
+//	#define DEBUG_PROP_FUN
 //	#define DEBUG_ACT_FUN
 //	#define DEBUG_SICK
 //	#define DEBUG_ELEMENTS

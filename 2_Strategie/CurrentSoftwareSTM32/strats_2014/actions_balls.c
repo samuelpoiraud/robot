@@ -6,7 +6,7 @@
  */
 
 #include "actions_balls.h"
-#include "../asser_functions.h"
+#include "../prop_functions.h"
 #include "../act_functions.h"
 #include "../QS/QS_types.h"
 #include "../QS/QS_outputlog.h"
@@ -183,7 +183,7 @@ error_e sub_lance_launcher(bool_e lanceAll, color_e mammouth)
 
 		case POS_LAUNCH:
 			if(entrance){
-				ASSER_WARNER_arm_y(posShoot);
+				PROP_WARNER_arm_y(posShoot);
 				// Trop prêt et tourne à angle droit devant le bac sinon et fini par taper
 				dplt[1].point.x = ELOIGNEMENT_SHOOT_BALL + 40;
 			}
@@ -191,7 +191,7 @@ error_e sub_lance_launcher(bool_e lanceAll, color_e mammouth)
 			state = try_going_multipoint(&dplt[1], 3, POS_LAUNCH, DONE , ERROR, sensRobot, avoidance, END_AT_BREAK);
 			//state = try_going(dplt[1].point.x,dplt[1].point.y,POS_LAUNCH,POS_SHOOT,ERROR,FAST,sensRobot,NO_DODGE_AND_WAIT);
 
-			if(global.env.asser.reach_y)		//Peu probable... mais par sécurité (si on était super lent, on va peut etre recevoir le warner avant le point de freinage
+			if(global.env.prop.reach_y)		//Peu probable... mais par sécurité (si on était super lent, on va peut etre recevoir le warner avant le point de freinage
 			{
 				// Si nous avons echoué le tire de l'autre balle sur le mammouth adverse, onrevient tirer la balle sur notre mammouth
 				if(get_sub_act_enable(SUB_LANCE_ADV_FAIL) && !get_sub_act_done(SUB_LANCE_ADV_FAIL)){

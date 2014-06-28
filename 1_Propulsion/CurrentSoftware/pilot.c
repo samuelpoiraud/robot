@@ -576,7 +576,7 @@ void PILOT_update_position_rotation()
 
 
 
-void PILOT_set_speed(ASSER_speed_e speed)
+void PILOT_set_speed(PROP_speed_e speed)
 {
 	switch(speed)
 	{

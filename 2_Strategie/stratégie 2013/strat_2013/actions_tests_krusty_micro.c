@@ -97,7 +97,7 @@ error_e two_first_rows(void){
 			ret_prioritaire = (global.env.color == BLUE)? ACT_QUEUE_LiftLeft : ACT_QUEUE_LiftRight;
 			ret_secondaire = (global.env.color == RED)? ACT_QUEUE_LiftRight : ACT_QUEUE_LiftLeft;
 
-			ASSER_WARNER_arm_y(COLOR_Y(900));
+			PROP_WARNER_arm_y(COLOR_Y(900));
 			state =FIRST_ROW;
 
 		case FIRST_ROW:
@@ -106,7 +106,7 @@ error_e two_first_rows(void){
 				2,FORWARD,NO_AVOIDANCE);
 			if(sub_action != IN_PROGRESS){
 				state = SECOND_ROW;
-				ASSER_WARNER_arm_y(COLOR_Y(1350));
+				PROP_WARNER_arm_y(COLOR_Y(1350));
 				right_ok = FALSE;
 			}
 			break;
@@ -127,11 +127,11 @@ error_e two_first_rows(void){
  // MAE de l'ascenseur principale
 	switch(act_prioritaire){
 		case GRAB:
-			if(global.env.asser.reach_y){
+			if(global.env.prop.reach_y){
 				//debug_printf("fst warner recieved");
 				ACT_lift_plier(prioritaire, ACT_LIFT_PlierClose);
 				act_prioritaire = WAIT_GRAB;
-				ASSER_WARNER_arm_y(COLOR_Y(1200));
+				PROP_WARNER_arm_y(COLOR_Y(1200));
 			}
 			break;
 		case WAIT_GRAB:
@@ -144,10 +144,10 @@ error_e two_first_rows(void){
 			break;
 		case LIFT_DOWN:
 			if(state == SECOND_ROW){
-				if(global.env.asser.reach_y){
+				if(global.env.prop.reach_y){
 					ACT_lift_plier(prioritaire, ACT_LIFT_PlierOpen);
 					ACT_lift_translate(prioritaire, ACT_LIFT_TranslateDown);
-					ASSER_WARNER_arm_y(COLOR_Y(1050));
+					PROP_WARNER_arm_y(COLOR_Y(1050));
 					act_prioritaire = WAIT_LIFT_DOWN;
 				}
 			}
@@ -173,7 +173,7 @@ error_e two_first_rows(void){
 	switch(act_secondaire){
 		case GRAB:
 			if(right_ok){
-				if(global.env.asser.reach_y){
+				if(global.env.prop.reach_y){
 					//debug_printf("snd warner recieved");
 					ACT_lift_plier(secondaire, ACT_LIFT_PlierClose);
 					act_secondaire = WAIT_GRAB;
@@ -189,10 +189,10 @@ error_e two_first_rows(void){
 			break;
 		case LIFT_DOWN:
 			if(state == SECOND_ROW && right_ok){
-				if(global.env.asser.reach_y){
+				if(global.env.prop.reach_y){
 					ACT_lift_plier(secondaire, ACT_LIFT_PlierOpen);
 					ACT_lift_translate(secondaire, ACT_LIFT_TranslateDown);
-					ASSER_WARNER_arm_y(COLOR_Y(1050));
+					PROP_WARNER_arm_y(COLOR_Y(1050));
 					act_secondaire = WAIT_LIFT_DOWN;
 				}
 			}
@@ -492,14 +492,14 @@ error_e K_push_half_row_glasses(void){
 	static error_e act_right;
 	static bool_e captor_ok;
 	static avoidance_type_e avoidance=NO_DODGE_AND_NO_WAIT;
-	if(global.env.asser.reach_y){
+	if(global.env.prop.reach_y){
 		captor_ok = TRUE;
 	}
 
 
 	switch(state){
 		case ASK_WARNER:
-			ASSER_WARNER_arm_y(COLOR_Y(690));
+			PROP_WARNER_arm_y(COLOR_Y(690));
 			state = PUSH_ROW;
 			break;
 
@@ -4070,14 +4070,14 @@ error_e K_push_half_row_glasses_HOMOLO(void){
 	static error_e act_right;
 	static bool_e captor_ok;
 
-	if(global.env.asser.reach_y){
+	if(global.env.prop.reach_y){
 		captor_ok = TRUE;
 	}
 
 
 	switch(state){
 		case ASK_WARNER:
-			ASSER_WARNER_arm_y(COLOR_Y(690));
+			PROP_WARNER_arm_y(COLOR_Y(690));
 			state = PUSH_ROW;
 			break;
 

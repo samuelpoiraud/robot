@@ -52,7 +52,7 @@
 
 	typedef enum 
 	{
-		CARTE_ASSER, 
+		CARTE_PROP, 
 		CARTE_ACT, 
 		CARTE_P,
 		CARTE_SUPER,
@@ -104,6 +104,6 @@
 			FAST_TRANSLATION_AND_SLOW_ROTATION,
 			EXTREMELY_VERY_SLOW,
 			CUSTOM	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
-	 } ASSER_speed_e;
+	 } PROP_speed_e;
 
 #endif /* ndef QS_TYPES_H */

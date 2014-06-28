@@ -171,23 +171,23 @@ error_e strat_file_fruit(){
 					state = DROP_NEAR_FRESCO;
 					break;
 				}
-				ASSER_WARNER_arm_y(posOpenVerin);
+				PROP_WARNER_arm_y(posOpenVerin);
 				labium_state = LABIUM_CLOSED_VERIN_IN;
 			}
 			switch(labium_state)
 			{
 				case LABIUM_CLOSED_VERIN_IN:
-					if(global.env.asser.reach_y)
+					if(global.env.prop.reach_y)
 					{
-						ASSER_WARNER_arm_y(posOpen);
+						PROP_WARNER_arm_y(posOpen);
 						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Vibration);
 						labium_state = LABIUM_CLOSED_VERIN_OUT;
 					}
 					break;
 				case LABIUM_CLOSED_VERIN_OUT:
-					if(global.env.asser.reach_y)
+					if(global.env.prop.reach_y)
 					{
-						ASSER_WARNER_arm_y(posClose);
+						PROP_WARNER_arm_y(posClose);
 						ACT_fruit_labium_goto(ACT_FRUIT_Labium_Open);
 						last_time_Open_labium = global.env.match_time;
 						labium_state = LABIUM_OPENED_VERIN_OUT;
@@ -196,13 +196,13 @@ error_e strat_file_fruit(){
 					}
 					break;
 				case LABIUM_OPENED_VERIN_OUT:
-					if(global.env.asser.reach_y)
+					if(global.env.prop.reach_y)
 					{
 						ACT_fruit_labium_goto(ACT_FRUIT_Labium_Close);
 						ACT_fruit_mouth_goto(ACT_FRUIT_Verrin_Close);
 						labium_state = LABIUM_CLOSED_VERIN_IN;
 					}
-					if(presenceFruit == TRUE && (global.env.asser.reach_y || global.env.match_time > labium_opening_time + TIME_CONSIDERING_FRUITS_FALL_SINCE_OPENING_LABIUM))
+					if(presenceFruit == TRUE && (global.env.prop.reach_y || global.env.match_time > labium_opening_time + TIME_CONSIDERING_FRUITS_FALL_SINCE_OPENING_LABIUM))
 					{
 						//On considère qu'on a plus de fruits SI on a commencé à fermer, ou si on a ouvert le labium depuis 500ms
 						//S'il y a évitement maintenant entre 500ms et notre arrivée au reach_y, on ira pas poser ailleurs, considérant que la dépose est faite.

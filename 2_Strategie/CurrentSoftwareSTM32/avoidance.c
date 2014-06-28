@@ -13,7 +13,7 @@
 #include "can_utils.h"
 #include "maths_home.h"
 #include "QS/QS_who_am_i.h"
-#include "asser_functions.h"
+#include "prop_functions.h"
 #include "config_use.h"
 #include "QS/QS_outputlog.h"
 #include "config/config_pin.h"
@@ -38,7 +38,7 @@
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
 
-static error_e AVOIDANCE_watch_asser_stack();
+static error_e AVOIDANCE_watch_prop_stack();
 
 #ifdef DEBUG_AVOIDANCE
 	#define avoidance_printf(format, ...)	debug_printf("t=%lums " format, global.env.match_time, ##__VA_ARGS__)
@@ -49,7 +49,7 @@ static error_e AVOIDANCE_watch_asser_stack();
 
 
 //Fonction de déplacement qui renvoie un état de stratégie suivant l'avancement du déplacement. Il s'arrète à la fin du déplacement
-Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance)
+Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance)
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
@@ -72,7 +72,7 @@ Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success
 }
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Ne s'arrète qu'à la fin que si aucun autre déplacement n'est demandé.
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance)
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance)
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
@@ -96,7 +96,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Cette fonction permet le multipoint.
-Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, ASSER_end_condition_e end_condition)
+Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	error_e sub_action;
 	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition);
@@ -117,7 +117,7 @@ Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displa
 	return in_progress;
 }
 
-Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed)
+Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed)
 {
 	enum state_e
 	{
@@ -132,11 +132,11 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 	switch(state)
 	{
 		case EMPILE:
-			ASSER_push_goangle(angle, speed, TRUE);
+			PROP_push_goangle(angle, speed, TRUE);
 			state = WAIT;
 			break;
 		case WAIT:
-			if(STACKS_wait_end_auto_pull(ASSER, &timeout)){
+			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 				state = DONE;
 			}
 			break;
@@ -152,7 +152,7 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 	return ret;
 }
 
-Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, ASSER_end_condition_e end_condition)
+Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, PROP_end_condition_e end_condition)
 {
 	/* Gestion de la machine à états */
 	enum state_e {
@@ -169,7 +169,7 @@ Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state,
 	switch (state)
 	{
 		case COMPUTE_AND_GO :
-			//STACKS_flush(ASSER);
+			//STACKS_flush(PROP);
 			/* Si la distance fournie est négative, on inverse la direction */
 			if (distance < 0) {
 				if (way == BACKWARD) way = FORWARD;
@@ -186,7 +186,7 @@ Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state,
 			//debug_printf("relative_move::current_pos x=%d y=%d\n", global.env.pos.x, global.env.pos.y);
 			//debug_printf("relative_move::x=%f y=%f\n", x, y);
 			if (x >= 0 && y >= 0) {
-				ASSER_push_goto_multi_point((Sint16)x, (Sint16)y, speed, way, 0, END_OF_BUFFER, end_condition, TRUE);
+				PROP_push_goto_multi_point((Sint16)x, (Sint16)y, speed, way, 0, END_OF_BUFFER, end_condition, TRUE);
 				state = GOING;
 			}
 			else {
@@ -196,7 +196,7 @@ Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state,
 			}
 			break;
 		case GOING :
-			if (STACKS_wait_end_auto_pull (ASSER, &timeout))
+			if (STACKS_wait_end_auto_pull (PROP, &timeout))
 			{
 				state = COMPUTE_AND_GO;
 				ret = (timeout?fail_state:success_state);
@@ -207,7 +207,7 @@ Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state,
 }
 
 
-Uint8 try_advance(Uint16 dist, bool_e compute, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance)
+Uint8 try_advance(Uint16 dist, bool_e compute, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance)
 {
 	static GEOMETRY_point_t point;
 
@@ -241,7 +241,7 @@ error_e ACTION_update_position()
 		case SEND_CAN_MSG :
 			if (!global.env.pos.updated)
 			{
-				CAN_send_sid(ASSER_TELL_POSITION);
+				CAN_send_sid(PROP_TELL_POSITION);
 				state = WAIT_RECEPTION;
 				return IN_PROGRESS;
 			}
@@ -263,7 +263,7 @@ error_e ACTION_update_position()
 }
 
 /* Action qui arrête le robot, met la position à jour */
-error_e ACTION_asser_stop()
+error_e ACTION_prop_stop()
 {
 	enum state_e {
 		SEND_CAN_MSG,
@@ -277,13 +277,13 @@ error_e ACTION_asser_stop()
 	{
 		case SEND_CAN_MSG :
 			initial_time = global.env.match_time;
-			STACKS_flush(ASSER);
-			CAN_send_sid(ASSER_STOP);
+			STACKS_flush(PROP);
+			CAN_send_sid(PROP_STOP);
 			state = WAIT_RECEPTION;
 			break;
 
 		case WAIT_RECEPTION :
-			if (global.env.asser.fini || (global.env.match_time-initial_time > (1000/*ms*/)))
+			if (global.env.prop.ended || (global.env.match_time-initial_time > (1000/*ms*/)))
 			{
 				state = SEND_CAN_MSG;
 				return END_OK;
@@ -319,8 +319,8 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	//Si pas d'évitement, on fait pas d'évitement
 	if(avoidance_type == NO_AVOIDANCE)
 	{
-		error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
-		switch(asser_stack_state)
+		error_e prop_stack_state = AVOIDANCE_watch_prop_stack();
+		switch(prop_stack_state)
 		{
 			case IN_PROGRESS:
 				break;
@@ -328,12 +328,12 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			case END_OK:
 			case END_WITH_TIMEOUT:
 			case NOT_HANDLED:
-				avoidance_printf("wait_move_and_scan_foe: end state = %d\n", asser_stack_state);
-				ret = asser_stack_state;
+				avoidance_printf("wait_move_and_scan_foe: end state = %d\n", prop_stack_state);
+				ret = prop_stack_state;
 				break;
 
-			default: //Ne devrait jamais arriver, AVOIDANCE_watch_asser_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
-				avoidance_printf("wait_move_and_scan_foe: DEFAULT asser_stack_state = %d!!\n", asser_stack_state);
+			default: //Ne devrait jamais arriver, AVOIDANCE_watch_prop_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
+				avoidance_printf("wait_move_and_scan_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
 				ret = NOT_HANDLED;
 				break;
 		}
@@ -355,9 +355,9 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 				if(global.env.debug_force_foe)	//Evitement manuel forcé !
 				{
-					STACKS_flush(ASSER);
+					STACKS_flush(PROP);
 					debug_foe_reason(FORCED_BY_USER, 0, 0);
-					ASSER_push_stop();
+					PROP_push_stop();
 					state = WAIT_STOP;
 					global.env.debug_force_foe = FALSE;
 					debug_foe_forced = TRUE;	//Nous allons juste attendre le stop.. et puis on retournera un FOE_IN_PATH.
@@ -367,11 +367,11 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 					//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
 					//Necessaire pour que l'angle de detection de l'adversaire soit valide (car sinon on ne pointe pas forcément vers notre point d'arrivé ...)
 					//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
-		//			if((global.env.asser.current_trajectory != TRAJECTORY_TRANSLATION && global.env.asser.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
+		//			if((global.env.prop.current_trajectory != TRAJECTORY_TRANSLATION && global.env.prop.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
 		//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
 		//				avoidance_printf("Not in translation but foe in path\n");
 
-					if(global.env.asser.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
+					if(global.env.prop.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
 					{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
 						//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
 						//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
@@ -384,16 +384,16 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 								avoidance_printf("wait_move_and_scan_foe: foe detected, waiting\n");
 
 								// adversaire détecté ! on s'arrête !
-								STACKS_push(ASSER, &wait_forever, FALSE);
-								ASSER_push_stop();
+								STACKS_push(PROP, &wait_forever, FALSE);
+								PROP_push_stop();
 								// un adversaire est détecté devant nous, on attend de s'arreter avant de voir s'il est toujours la
 								state = WAIT_STOP;
 								break;
 							case DODGE_AND_NO_WAIT:
 							case NO_DODGE_AND_NO_WAIT:
 								avoidance_printf("wait_move_and_scan_foe: foe detected\n");
-								STACKS_flush(ASSER);
-								ASSER_push_stop();
+								STACKS_flush(PROP);
+								PROP_push_stop();
 								state = WAIT_STOP;
 								break;
 
@@ -407,14 +407,14 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 					{
 						// aucun adversaire n'est détecté, on fait notre mouvement normalement
 						// on regarde si la pile s'est vidée
-						error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
-						switch(asser_stack_state)
+						error_e prop_stack_state = AVOIDANCE_watch_prop_stack();
+						switch(prop_stack_state)
 						{
 							case END_OK:
 							case END_WITH_TIMEOUT:
 							case NOT_HANDLED:
-								avoidance_printf("wait_move_and_scan_foe: end no foe state = %d\n", asser_stack_state);
-								ret = asser_stack_state;
+								avoidance_printf("wait_move_and_scan_foe: end no foe state = %d\n", prop_stack_state);
+								ret = prop_stack_state;
 								break;
 							case IN_PROGRESS:
 								break;
@@ -427,7 +427,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 
 			case WAIT_STOP:
 				//Quand on s'est arreté, on regarde si l'adversaire est toujours devant nous avant de redémarrer
-				if(STACKS_wait_end_auto_pull(ASSER, &timeout))
+				if(STACKS_wait_end_auto_pull(PROP, &timeout))
 				{
 					if(debug_foe_forced)
 					{			//L'evitement a été forcé pour debuggage, on sort direct
@@ -479,7 +479,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 					if(no_foe_count >= FOE_IS_LEFT_TIME) 	//L'adversaire est parti depuis FOE_IS_LEFT_TIME ms
 					{
 						avoidance_printf("wait_move_and_scan_foe: no more foe, continuing\n");
-						STACKS_pull(ASSER);	// on vire le wait_forever et on lance l'action suivante
+						STACKS_pull(PROP);	// on vire le wait_forever et on lance l'action suivante
 						state = NO_FOE;	// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
 					}
 				}
@@ -493,7 +493,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	last_match_time = current_match_time;
 	if(ret != IN_PROGRESS)
 	{
-		STACKS_flush(ASSER);	//TIMEOUT -> ON VIDE LE BUFFER PROPREMENT.
+		STACKS_flush(PROP);	//TIMEOUT -> ON VIDE LE BUFFER PROPREMENT.
 		state = INITIALIZATION;
 	}
 	return ret;
@@ -505,8 +505,8 @@ void AVOIDANCE_set_timeout(Uint16 msec) {
 }
 
 
-/* Fonction qui réalise un ASSER_push_goto avec la possibilité de courbe ou non, avec la gestion de l'évitement */
-error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, ASSER_end_condition_e end_condition)
+/* Fonction qui réalise un PROP_push_goto avec la possibilité de courbe ou non, avec la gestion de l'évitement */
+error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition)
 {
 	enum state_e
 	{
@@ -545,14 +545,14 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			for(i=nb_displacements-1;i>=1;i--)
 			{
 				if(displacements)
-					ASSER_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, FALSE);
+					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVES, END_OF_BUFFER, end_condition, FALSE);
 				else if(displacements_curve)
-					ASSER_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, displacements_curve[i].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, FALSE);
+					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, displacements_curve[i].curve?PROP_CURVES:0, END_OF_BUFFER, end_condition, FALSE);
 			}
 			if(displacements)
-				ASSER_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, ASSER_CURVES, END_OF_BUFFER, end_condition, TRUE);
+				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVES, END_OF_BUFFER, end_condition, TRUE);
 			else if(displacements_curve)
-				ASSER_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?ASSER_CURVES:0, END_OF_BUFFER, end_condition, TRUE);
+				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?PROP_CURVES:0, END_OF_BUFFER, end_condition, TRUE);
 
 						avoidance_printf("goto_pos_with_scan_foe : load_move\n");
 			if(displacements || displacements_curve)
@@ -685,7 +685,7 @@ bool_e foe_in_path(bool_e verbose)
 	Sint32 avoidance_rectangle_max_x;
 	Sint32 avoidance_rectangle_width_y;
 
-	move_way = global.env.asser.current_way;	//TODO cracra.. a nettoyer ultérieurement.
+	move_way = global.env.prop.current_way;	//TODO cracra.. a nettoyer ultérieurement.
 
 	in_path = FALSE;	//On suppose que pas d'adversaire dans le chemin
 
@@ -875,21 +875,21 @@ bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
 
 
 /*
- * Surveille l'execution de la pile ASSER. Renvoie vrai si toutes les fonctions sont finies
+ * Surveille l'execution de la pile PROP. Renvoie vrai si toutes les fonctions sont finies
  * Rattrappe le robot quand il part en erreur.
  * Inscrit dans le booléen got_timeout si un timeout a été levé
  */
-static error_e AVOIDANCE_watch_asser_stack ()
+static error_e AVOIDANCE_watch_prop_stack ()
 {
 	bool_e timeout = FALSE;
 
-	if (STACKS_wait_end_auto_pull(ASSER,&timeout))
+	if (STACKS_wait_end_auto_pull(PROP,&timeout))
 	{
 		return timeout?END_WITH_TIMEOUT:END_OK;
 	}
-	else if (global.env.asser.erreur)
+	else if (global.env.prop.erreur)
 	{
-		STACKS_flush(ASSER);
+		STACKS_flush(PROP);
 		return NOT_HANDLED;
 	}
 
@@ -908,15 +908,15 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 
 	switch(state){
 		case STOP :
-			ASSER_push_stop();
+			PROP_push_stop();
 			state = WAIT_AND_CHECK;
 			break;
 
 		case WAIT_AND_CHECK :
-			subaction = AVOIDANCE_watch_asser_stack();
+			subaction = AVOIDANCE_watch_prop_stack();
 			switch (subaction) {
 				case END_OK:
-					debug_printf("ASSER_STOP effectué\n");
+					debug_printf("PROP_STOP effectué\n");
 					state = STOP;
 					return success_state;
 					break;
@@ -925,19 +925,19 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 					break;
 
 				case END_WITH_TIMEOUT:
-					debug_printf("ASSER_STOP effectué avec TIMEOUT\n");
+					debug_printf("PROP_STOP effectué avec TIMEOUT\n");
 					state = STOP;
 					return fail_state;
 					break;
 
 				case NOT_HANDLED:
-					debug_printf("ASSER_STOP erreur\n");
+					debug_printf("PROP_STOP erreur\n");
 					state = STOP;
 					return fail_state;
 					break;
 
 				default:
-					debug_printf("ASSER_STOP erreur\n");
+					debug_printf("PROP_STOP erreur\n");
 					state = STOP;
 					return fail_state;
 					break;
@@ -948,7 +948,7 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 }
 
 
-/*error_e AVOIDANCE_homologation(Sint16 x, Sint16 y, ASSER_speed_e speed, way_e way, Uint8 curve, bool_e run)
+/*error_e AVOIDANCE_homologation(Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, bool_e run)
 {
 	static enum
 	{
@@ -961,17 +961,17 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 	switch (state)
 	{
 		case INIT:
-			ASSER_push_goto(x, y,speed,way,curve,END_AT_LAST_POINT,run);
+			PROP_push_goto(x, y,speed,way,curve,END_AT_LAST_POINT,run);
 			state = GO;
 			break;
 		case GO:
 			if((((global.env.match_time - global.env.foe[1].udapte_time) <= 1000) && global && global.env.foe[1].dist <= 400) ||
 				(((global.env.match_time - global.env.foe[2].udapte_time) <= 1000) && global && global.env.foe[2].dist <= 400))
 			{
-				STACKS_push(ASSER, &wait_forever, TRUE);
+				STACKS_push(PROP, &wait_forever, TRUE);
 				state = WAIT;
 			}
-			else if(STACKS_wait_end_auto_pull(ASSER, &timeout))
+			else if(STACKS_wait_end_auto_pull(PROP, &timeout))
 			{
 				state=DONE;
 			}
@@ -981,7 +981,7 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 			if((((global.env.match_time - global.env.foe[1].udapte_time) >= 1000) || global && global.env.foe[1].dist <= 400) &&
 				(((global.env.match_time - global.env.foe[2].udapte_time) >= 1000) || global && global.env.foe[2].dist <= 400))
 			{
-				STACKS_pull(ASSER);
+				STACKS_pull(PROP);
 				state = GO;
 			}
 			break;
@@ -1068,7 +1068,7 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 
 #define EXTRACTION_DISTANCE  	300
 /*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
-error_e extraction_of_foe(ASSER_speed_e speed){
+error_e extraction_of_foe(PROP_speed_e speed){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_EXTRACTION_OF_FOE,
 		IDLE,
 		COMPUTE,
@@ -1258,7 +1258,7 @@ error_e extraction_of_foe(ASSER_speed_e speed){
 	return IN_PROGRESS;
 }
 
-/* Fonction qui réalise un ASSER_push_goto spécifique à l'extration du robot avec la gestion de l'évitement */
+/* Fonction qui réalise un PROP_push_goto spécifique à l'extration du robot avec la gestion de l'évitement */
 error_e goto_extract_with_avoidance(const displacement_t displacements)
 {
 	enum state_e
@@ -1284,7 +1284,7 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 
 		case LOAD_MOVE:
 			global.env.destination = displacements.point;
-			ASSER_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, ASSER_CURVES, END_OF_BUFFER, END_AT_LAST_POINT, TRUE);
+			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, END_OF_BUFFER, END_AT_LAST_POINT, TRUE);
 			avoidance_printf("goto_extract_with_avoidance : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
@@ -1292,9 +1292,9 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 		case WAIT_MOVE_AND_SCAN_FOE:
 			if(global.env.debug_force_foe)	//Evitement manuel forcé !
 			{
-				STACKS_flush(ASSER);
+				STACKS_flush(PROP);
 				debug_foe_reason(FORCED_BY_USER, 0, 0);
-				ASSER_push_stop();
+				PROP_push_stop();
 				global.env.debug_force_foe = FALSE;
 				state = CHECK_SCAN_FOE;
 				return FOE_IN_PATH;
@@ -1304,18 +1304,18 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 				//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
 				//Necessaire pour que l'angle de detection de l'adversaire soit valide (car sinon on ne pointe pas forcément vers notre point d'arrivé ...)
 				//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
-	//			if((global.env.asser.current_trajectory != TRAJECTORY_TRANSLATION && global.env.asser.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
+	//			if((global.env.prop.current_trajectory != TRAJECTORY_TRANSLATION && global.env.prop.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
 	//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
 	//				avoidance_printf("Not in translation but foe in path\n");
 
-				if(global.env.asser.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
+				if(global.env.prop.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
 				{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
 					//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
 					//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 					BUZZER_play(20, DEFAULT_NOTE, 3);
 					avoidance_printf("goto_extract_with_avoidance: foe detected\n");
-					STACKS_flush(ASSER);
-					ASSER_push_stop();
+					STACKS_flush(PROP);
+					PROP_push_stop();
 					state = CHECK_SCAN_FOE;
 					return FOE_IN_PATH;
 				}
@@ -1323,8 +1323,8 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 				{
 					// aucun adversaire n'est détecté, on fait notre mouvement normalement
 					// on regarde si la pile s'est vidée
-					error_e asser_stack_state = AVOIDANCE_watch_asser_stack();
-					switch(asser_stack_state)
+					error_e prop_stack_state = AVOIDANCE_watch_prop_stack();
+					switch(prop_stack_state)
 					{
 						case END_OK:
 							avoidance_printf("goto_extract_with_avoidance -- fini\n");

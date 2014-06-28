@@ -11,7 +11,7 @@
 #include "copilot.h"
 
 //border_mode peut être BORDER_MODE_WITH_UPDATE_POSITION ou BORDER_MODE
-void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, ASSER_speed_e rush_speed, acknowledge_e acquittement, Sint32 far_point_x, Sint32 far_point_y, border_mode_e border_mode, corrector_e corrector)
+void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed, acknowledge_e acquittement, Sint32 far_point_x, Sint32 far_point_y, border_mode_e border_mode, corrector_e corrector)
 {
 	Sint16 cos_a, sin_a;
 	//on va vers l'angle demandé.

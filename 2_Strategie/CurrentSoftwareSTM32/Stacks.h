@@ -19,7 +19,7 @@
 #define STACKS_SIZE 32 //doit être < à 256
 
 typedef enum {
-	ASSER,
+	PROP,
 			//Les actionneurs utilisent maintenant queue_id_e (voir dans queue.h)
 	ACTUATORS_NB
 }stack_id_e;

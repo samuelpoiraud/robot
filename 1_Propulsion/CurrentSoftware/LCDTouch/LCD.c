@@ -178,14 +178,14 @@ void LCD_send_message(void)
 			data[6] = 0x00;		//Avant ou arrière
 			data[7] = 0;
 #if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
-			msg.sid = ASSER_GO_POSITION;
+			msg.sid = PROP_GO_POSITION;
 			msg.size = 0x8;
 			for(i=0;i<msg.size;i++){
 				msg.data[i] = data[i];
 			}
 			SECRETARY_process_CANmsg(&msg);
 #else
-			SECRETARY_send_canmsg(ASSER_GO_POSITION, data, 8);
+			SECRETARY_send_canmsg(PROP_GO_POSITION, data, 8);
 #endif
 			break;
 		case FRIEND_2:
@@ -199,14 +199,14 @@ void LCD_send_message(void)
 			data[6] = 0x00;		//Avant ou arrière
 			data[7] = 0;
 #if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
-			msg.sid = ASSER_GO_POSITION;
+			msg.sid = PROP_GO_POSITION;
 			msg.size = 0x8;
 			for(i=0;i<msg.size;i++){
 				msg.data[i] = data[i];
 			}
 			SECRETARY_process_CANmsg(&msg);
 #else
-			SECRETARY_send_canmsg(ASSER_GO_POSITION, data, 8);
+			SECRETARY_send_canmsg(PROP_GO_POSITION, data, 8);
 #endif
 		case ADVERSARY_1:
 		case ADVERSARY_2:

@@ -20,10 +20,10 @@ int term_cmd_calibration(int argc, const char *argv[]) {
 	if(argc > 0)
 		return EINVAL;
 
-	if(!global.env.asser.calibrated)
+	if(!global.env.prop.calibrated)
 	{
 		CAN_msg_t msg;
-		msg.sid = ASSER_CALIBRATION;
+		msg.sid = PROP_CALIBRATION;
 		msg.size = 0;
 		CAN_send(&msg);
 	}

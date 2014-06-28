@@ -13,7 +13,7 @@
 #include "actions_cake.h"
 #include "actions_utils.h"
 #include "../act_functions.h"
-#include "../asser_functions.h"
+#include "../prop_functions.h"
 //STRAT BOUGIES
 
 
@@ -356,12 +356,12 @@ error_e TINY_warner_blow_one_candle(bool_e reset)
 		break;
 
 		case WAIT_CANDLE:
-			ASSER_WARNER_arm_y(candles[candle_index].y);
+			PROP_WARNER_arm_y(candles[candle_index].y);
 			state = BLOW_CANDLE;
 		break;
 
 		case BLOW_CANDLE:
-			if(global.env.asser.reach_y)
+			if(global.env.prop.reach_y)
 			{
 				ACT_hammer_blow_candle(); 	//souffler pfuuuuuu pfuuuuuuu
 				TINY_candles_shoutbox(candle_index); // J'ANNONCE a la grille quelles bougies ont été soufflées

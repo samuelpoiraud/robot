@@ -14,7 +14,7 @@
 	#define ELEMENTS_H
 
 	#include "Geometry.h"
-	#include "asser_types.h"
+	#include "prop_types.h"
 	#include "avoidance.h"
 
 	#define NB_ELEMENTS 				19
@@ -374,7 +374,7 @@
 	Uint8 ELEMENT_do_and_wait_end_fruit_verin_order(fruit_verin_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
 	// subaction qui dit d'aller en telle position puis d'effectuer un scan
-	Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, ASSER_speed_e speed, way_e way, avoidance_type_e avoidance);
+	Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance);
 
 	// subaction qui effectue un scan
 	Uint8 rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
