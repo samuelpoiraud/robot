@@ -652,7 +652,7 @@ void SELFTEST_beacon_counter_init(){
 
 void error_counters_update(CAN_msg_t * msg){
 	switch(msg->sid){
-		case BEACON_ADVERSARY_POSITION_IR:
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			if(msg->data[0] & 0b0)
 				beacon_error_report.beacon_error_ir_counter[msg->data[0]]++;
 			if(msg->data[0] & 0b00000001)
@@ -747,7 +747,7 @@ void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 {
 	switch(can_msg->sid)
 	{
-		case BEACON_ADVERSARY_POSITION_IR:
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			if(global.env.match_started == TRUE)
 				//Enregistrement du type d'erreur
 				error_counters_update(can_msg);

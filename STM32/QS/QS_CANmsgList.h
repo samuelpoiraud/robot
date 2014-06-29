@@ -42,6 +42,8 @@
 	#define BROADCAST_ALIM				0x005		// Message envoyé lors d'un changement d'état de l'alimentation 12/24V
 		#define ALIM_OFF					(0b00000000)
 		#define ALIM_ON						(0b00000001)
+	#define BROADCAST_BEACON_ADVERSARY_POSITION_IR	0x006	//Balise InfraRouge
+
 	/* Message pour personne */
 	#define DEBUG_CARTE_P				0x742
 	#define DEBUG_FOE_POS				0x748
@@ -692,7 +694,6 @@ typedef enum {
 	#define BEACON_DISABLE_PERIODIC_SENDING	0x411
 
 	/* Carte balises vers carte stratégie */
-	#define BEACON_ADVERSARY_POSITION_IR					0x250	//Balise InfraRouge
 	#define BEACON_ADVERSARY_POSITION_US					0x251	//Balise UltraSon
 	#define BEACON_ADVERSARY_POSITION_IR_ARROUND_AREA		0x252	//Balises terrain avec réception InfraRouge
 	#define BEACON_ADVERSARY_POSITION_US_ARROUND_AREA		0x253	//Balises terrain avec réception UltraSon

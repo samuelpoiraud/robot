@@ -135,7 +135,7 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 			*bUART_filter = FALSE;	//Ca passe pas... 				(mieux vaut carrément afficher 	ponctuellement les infos qui découlent de ce message)
 			*bSAVE_filter = FALSE;	//Pas d'enregistrement non plus	(mieux vaut carrément sauver 	ponctuellement les infos qui découlent de ce message)
 			break;
-		case BEACON_ADVERSARY_POSITION_IR:
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			//if(global.env.absolute_time-1000>filter_beacon_ir) //global.compteur_de_secondes est incrémenté toutes les 250 ms ...
 			//	filter_beacon_ir=global.env.absolute_time;
 			//else
@@ -468,7 +468,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 /************************************ Récupération des données de la balise *******************************/
-		case BEACON_ADVERSARY_POSITION_IR:
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.
 			DETECTION_pos_foe_update(incoming_msg);
 			SELFTEST_update_led_beacon(incoming_msg);
