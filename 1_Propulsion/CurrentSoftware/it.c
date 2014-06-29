@@ -27,6 +27,7 @@
 #include "debug.h"
 #include "hokuyo.h"
 #include "main.h"
+#include "detection.h"
 
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>
@@ -105,6 +106,8 @@ void _ISR _T1Interrupt()
 	#ifdef USE_HOKUYO
 		HOKUYO_process_it(PERIODE_IT_ASSER);
 	#endif
+
+	DETECTION_process_it();
 
 	#ifdef MODE_PRINTF_TABLEAU
 		debug_print_tableau();

@@ -33,6 +33,7 @@
 #include "QS/QS_watchdog.h"
 #include "hokuyo.h"
 #include "gyroscope.h"
+#include "detection.h"
 
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
@@ -134,6 +135,8 @@ void initialisation(void)
 	BUTTONS_init();
 	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
 	BUTTONS_define_actions(BUTTON1,&calibration_button_action, NULL, 1);
+
+	DETECTION_init();
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
 	#endif
@@ -235,6 +238,7 @@ int main (void)
 		#ifdef USE_HOKUYO
 			HOKUYO_process_main();
 		#endif
+		DETECTION_process_main();
 
 		if(flag_calibration_asked)
 		{

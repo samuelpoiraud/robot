@@ -33,6 +33,7 @@
 #include "LCDTouch/LCD.h"
 #include "hokuyo.h"
 #include "supervisor.h"
+#include "detection.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -751,6 +752,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 						);
 		break;
 		#endif
+		case BEACON_ADVERSARY_POSITION_IR:
+			DETECTION_new_adversary_position(msg, NULL, 0);
+			break;
 		default :
 		break;
 	}
