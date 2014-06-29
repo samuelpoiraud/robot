@@ -112,7 +112,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case ACT_FILE_PAWN:						print(string, len, "%x ACT_FILE_PAWN                        ", ACT_FILE_PAWN					);	break;
 */		case BEACON_ENABLE_PERIODIC_SENDING: 	print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING       ", BEACON_ENABLE_PERIODIC_SENDING	);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 	print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING      ", BEACON_DISABLE_PERIODIC_SENDING	);	break;
-		case BEACON_ADVERSARY_POSITION_IR:		print(string, len, "%x BEACON_ADVERSARY_POSITION_IR         ", BEACON_ADVERSARY_POSITION_IR		);	break;
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR: print(string, len, "%x BROADCAST_BEACON_ADVERSARY_POS_IR    ", BROADCAST_BEACON_ADVERSARY_POSITION_IR	);	break;
 		case BEACON_ADVERSARY_POSITION_US:		print(string, len, "%x BEACON_ADVERSARY_POSITION_US         ", BEACON_ADVERSARY_POSITION_US		);	break;
 		case DEBUG_STRAT_STATE_CHANGED:			print(string, len, "%x DEBUG_STRAT_STATE_CHANGED            ", DEBUG_STRAT_STATE_CHANGED		);	break;
 		case XBEE_START_MATCH:					print(string, len, "%x XBEE_START_MATCH                     ", XBEE_START_MATCH					);	break;
@@ -180,7 +180,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		//	case PROP_LAUNCH_SCAN_TRIANGLE:		print(string, len, "|\n");												break;
 		//case BEACON_ENABLE_PERIODIC_SENDING: 	print(string, len, "|\n");												break;
 		//case BEACON_DISABLE_PERIODIC_SENDING: 	print(string, len, "|\n");												break;
-		case BEACON_ADVERSARY_POSITION_IR:		if(u8(0) || u8(4))
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:		if(u8(0) || u8(4))
 													print(string, len, "ERRs:0x%x 0x%x|",u8(0), u8(4));
 												print(string, len, "angleR1=%d |dR1=%dcm |angleR2=%d |dR2=%dcm \n", angle_deg(1,2), (Uint16)(u8(3)),angle_deg(5,6), (Uint16)(u8(7)));	break;
 		case BEACON_ADVERSARY_POSITION_US:		if(u8(0))

@@ -60,7 +60,8 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				global.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
 				global.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
 			break;
-
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
+			break;
 		case BROADCAST_ALIM:
 			if(msg->data[0] == ALIM_OFF){
 				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_OFF\n");

@@ -752,7 +752,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 						);
 		break;
 		#endif
-		case BEACON_ADVERSARY_POSITION_IR:
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			DETECTION_new_adversary_position(msg, NULL, 0);
 			break;
 		default :

@@ -165,7 +165,7 @@ void SECRETARY_send_adversary_location(void)
 	volatile adversary_location_t * p_adversary_location;
 	p_adversary_location = BRAIN_get_adversary_location();
 	
-	msg.sid = BEACON_ADVERSARY_POSITION_IR;
+	msg.sid = BROADCAST_BEACON_ADVERSARY_POSITION_IR;
 	msg.data[0] = 			p_adversary_location[ADVERSARY_1].error;	//Si !=0 c'est qu'il y a une erreur ! (et on sait laquelle dans le debug msg can !)	
 	msg.data[1] = HIGHINT(	p_adversary_location[ADVERSARY_1].angle);
 	msg.data[2] = LOWINT (	p_adversary_location[ADVERSARY_1].angle);

@@ -45,7 +45,7 @@ static void DETECTION_compute(detection_reason_e reason);
 
 #define FOE_DATA_LIFETIME	250		//[ms] Durée de vie des données envoyées par la propulsion et par la balise
 
-volatile adversary_t hokuyo_objects[MAX_HOKUYO_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
+volatile adversary_t adversaries[MAX_HOKUYO_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
 volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
 
 volatile adversary_t beacon_ir_objects[MAX_BEACON_FOES];
@@ -181,20 +181,20 @@ static void DETECTION_compute(detection_reason_e reason)
 				j_min = 0xFF;		//On suppose qu'il n'y a pas d'objet hokuyo.
 				for(j = 0; j < hokuyo_objects_number; j++)	//Pour tout les objets hokuyos recus
 				{
-					if(hokuyo_objects[i].enable && objects_chosen[j] == FALSE && dist_min > hokuyo_objects[j].dist)	//Pour tout objet restant (activé, non choisi)
+					if(adversaries[i].enable && objects_chosen[j] == FALSE && dist_min > adversaries[j].dist)	//Pour tout objet restant (activé, non choisi)
 					{
 						j_min = j;
-						dist_min = hokuyo_objects[j].dist;		//On cherche la distance mini parmi les objet restant
+						dist_min = adversaries[j].dist;		//On cherche la distance mini parmi les objet restant
 					}
 				}
 				if(j_min != 0xFF)									//Si on a trouvé un objet
 				{
 					objects_chosen[j_min] = TRUE;					//On "consomme" cet objet
-					global.env.foe[i].x 			= hokuyo_objects[j_min].x;	//On enregistre cet objet à la case i.
-					global.env.foe[i].y 			= hokuyo_objects[j_min].y;
-					global.env.foe[i].angle 		= hokuyo_objects[j_min].angle;
-					global.env.foe[i].dist 			= hokuyo_objects[j_min].dist;
-					global.env.foe[i].update_time 	= hokuyo_objects[j_min].update_time;
+					global.env.foe[i].x 			= adversaries[j_min].x;	//On enregistre cet objet à la case i.
+					global.env.foe[i].y 			= adversaries[j_min].y;
+					global.env.foe[i].angle 		= adversaries[j_min].angle;
+					global.env.foe[i].dist 			= adversaries[j_min].dist;
+					global.env.foe[i].update_time 	= adversaries[j_min].update_time;
 					global.env.foe[i].enable 		= TRUE;
 					global.env.foe[i].updated 		= TRUE;
 					global.env.foe[i].from 			= DETECTION_FROM_PROPULSION;
@@ -235,29 +235,29 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				fiability = msg->data[6];
 				if(fiability)
 				{
-					hokuyo_objects[adversary_nb].enable = TRUE;
-					hokuyo_objects[adversary_nb].update_time = global.env.absolute_time;
+					adversaries[adversary_nb].enable = TRUE;
+					adversaries[adversary_nb].update_time = global.env.absolute_time;
 				}
 				else
-					hokuyo_objects[adversary_nb].enable = FALSE;
+					adversaries[adversary_nb].enable = FALSE;
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
-					hokuyo_objects[adversary_nb].x = ((Sint16)msg->data[1])*20;
+					adversaries[adversary_nb].x = ((Sint16)msg->data[1])*20;
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
-					hokuyo_objects[adversary_nb].y = ((Sint16)msg->data[2])*20;
+					adversaries[adversary_nb].y = ((Sint16)msg->data[2])*20;
 				if(fiability)
 				{
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
-						hokuyo_objects[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
+						adversaries[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
 					else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
 					{
-						hokuyo_objects[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y);
-						hokuyo_objects[adversary_nb].angle = GEOMETRY_modulo_angle(hokuyo_objects[adversary_nb].angle - global.env.pos.angle);
+						adversaries[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,adversaries[adversary_nb].x, adversaries[adversary_nb].y);
+						adversaries[adversary_nb].angle = GEOMETRY_modulo_angle(adversaries[adversary_nb].angle - global.env.pos.angle);
 					}
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
-						hokuyo_objects[adversary_nb].dist = ((Sint16)msg->data[5])*20;
+						adversaries[adversary_nb].dist = ((Sint16)msg->data[5])*20;
 					else	//je dois calculer moi-même la distance de l'adversaire
-						hokuyo_objects[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y},
-																				(GEOMETRY_point_t){hokuyo_objects[adversary_nb].x, hokuyo_objects[adversary_nb].y}
+						adversaries[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y},
+																				(GEOMETRY_point_t){adversaries[adversary_nb].x, adversaries[adversary_nb].y}
 																				);
 				}
 
@@ -271,7 +271,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
 			}
 			break;
-		case BEACON_ADVERSARY_POSITION_IR:
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 
 			for(i = 0; i<MAX_BEACON_FOES; i++)
 			{
