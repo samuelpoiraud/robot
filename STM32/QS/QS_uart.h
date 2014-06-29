@@ -1,12 +1,12 @@
 /*
- *	Club Robot ESEO 2008 - 2009
- *	Archi-Tech'
+ *	Club Robot ESEO 2008 - 2014
+ *	Archi-Tech' / Pierre & Guy
  *
  *	Fichier : QS_uart.h
  *	Package : Qualite Soft
  *	Description : fonction d'utilisation des uart pour
  *				interfacage rs232
- *	Auteur : Jacen
+ *	Auteur : Jacen / Alexis / Nirgal
  *	Licence : CeCILL-C (voir LICENCE.txt)
  *	Version 20100924
  */
@@ -67,5 +67,43 @@
 			Uint8 UART3_get_next_msg();
 		#endif /* def USE_UART3RXINTERRUPT */
 	#endif
+	#ifdef USE_UART4
+		/*	fonction envoyant un octet sur l'uart4 */
+		void UART4_putc(Uint8 mes);
+		#ifdef USE_UART4RXINTERRUPT
+			/* fonction indiquant si il y a un octet à lire */
+			bool_e UART4_data_ready();
 
+			/*	fonction lisant le prochain octet à lire dans le
+			 *	buffer de reception uart4
+			 */
+			Uint8 UART4_get_next_msg();
+		#endif /* def USE_UART4RXINTERRUPT */
+	#endif
+	#ifdef USE_UART5
+		/*	fonction envoyant un octet sur l'uart5 */
+		void UART5_putc(Uint8 mes);
+		#ifdef USE_UART5RXINTERRUPT
+			/* fonction indiquant si il y a un octet à lire */
+			bool_e UART5_data_ready();
+
+			/*	fonction lisant le prochain octet à lire dans le
+			 *	buffer de reception uart5
+			 */
+			Uint8 UART5_get_next_msg();
+		#endif /* def USE_UART5RXINTERRUPT */
+	#endif
+	#ifdef USE_UART6
+		/*	fonction envoyant un octet sur l'uart6 */
+		void UART6_putc(Uint8 mes);
+		#ifdef USE_UART6RXINTERRUPT
+			/* fonction indiquant si il y a un octet à lire */
+			bool_e UART6_data_ready();
+
+			/*	fonction lisant le prochain octet à lire dans le
+			 *	buffer de reception uart6
+			 */
+			Uint8 UART6_get_next_msg();
+		#endif /* def USE_UART6RXINTERRUPT */
+	#endif
 #endif /* ndef QS_UART_H */
