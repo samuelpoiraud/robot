@@ -19,10 +19,9 @@
 // Elles font facilement planté la carte. Ne pas laisser une pin en l'air possédant une it externe sinon risque de plantage
 
 EXTERNALIT_callback_it_t callbacks[16];
-
+volatile static bool_e initialized = FALSE;
 
 void EXTERNALIT_init() {
-	static bool_e initialized = FALSE;
 	if (initialized)
 		return;
 
@@ -33,6 +32,7 @@ void EXTERNALIT_init() {
 	}
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+	initialized = TRUE;
 }
 
 void EXTERNALIT_configure(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_t callback) {
@@ -132,102 +132,85 @@ void EXTERNALIT_set_it_enabled(EXTERNALIT_port_e port, Uint8 pin, bool_e enabled
 }
 
 
-
 //Interrupts management and redirection
-
-void EXTI0_IRQHandler() {
+void EXTI0_IRQHandler()
+{
 	if(EXTI_GetITStatus(EXTI_Line0))
-		callbacks[0]();
-
-	EXTI_ClearITPendingBit(EXTI_Line0);
+	{
+		if(callbacks[0] != NULL)
+			callbacks[0]();
+		EXTI_ClearITPendingBit(EXTI_Line0);
+	}
 }
 
-
-void EXTI1_IRQHandler() {
+void EXTI1_IRQHandler()
+{
 	if(EXTI_GetITStatus(EXTI_Line1))
-		callbacks[1]();
-
-	EXTI_ClearITPendingBit(EXTI_Line1);
+	{
+		if(callbacks[1] != NULL)
+			callbacks[1]();
+		EXTI_ClearITPendingBit(EXTI_Line1);
+	}
 }
 
-void EXTI2_IRQHandler() {
+void EXTI2_IRQHandler()
+{
 	if(EXTI_GetITStatus(EXTI_Line2))
-		callbacks[2]();
-
-	EXTI_ClearITPendingBit(EXTI_Line2);
-
+	{
+		if(callbacks[2] != NULL)
+			callbacks[2]();
+		EXTI_ClearITPendingBit(EXTI_Line2);
+	}
 }
-
-void EXTI3_IRQHandler() {
+void EXTI3_IRQHandler()
+{
 	if(EXTI_GetITStatus(EXTI_Line3))
-		callbacks[3]();
-
-	EXTI_ClearITPendingBit(EXTI_Line3);
+	{
+		if(callbacks[3] != NULL)
+			callbacks[3]();
+		EXTI_ClearITPendingBit(EXTI_Line3);
+	}
 }
-
-void EXTI4_IRQHandler() {
+void EXTI4_IRQHandler()
+{
 	if(EXTI_GetITStatus(EXTI_Line4))
-		callbacks[4]();
-
-	EXTI_ClearITPendingBit(EXTI_Line4);
-}
-
-void EXTI9_5_IRQHandler() {
-	if(EXTI_GetFlagStatus(EXTI_Line5)){ // External Interrupt 5
-		callbacks[5]();
-		EXTI_ClearITPendingBit(EXTI_Line5);
-	}
-
-	if(EXTI_GetFlagStatus(EXTI_Line6)){ // External Interrupt 6
-		callbacks[6]();
-		EXTI_ClearITPendingBit(EXTI_Line6);
-	}
-
-	if(EXTI_GetFlagStatus(EXTI_Line7)){ // External Interrupt 7
-		callbacks[7]();
-		EXTI_ClearITPendingBit(EXTI_Line7);
-	}
-
-	if(EXTI_GetFlagStatus(EXTI_Line8)){ // External Interrupt 8
-		callbacks[8]();
-		EXTI_ClearITPendingBit(EXTI_Line8);
-	}
-
-	if(EXTI_GetFlagStatus(EXTI_Line9)){ // External Interrupt 9
-		callbacks[9]();
-		EXTI_ClearITPendingBit(EXTI_Line9);
+	{
+		if(callbacks[4] != NULL)
+			callbacks[4]();
+		EXTI_ClearITPendingBit(EXTI_Line4);
 	}
 }
 
-void EXTI15_10_IRQHandler() {
-	if(EXTI_GetFlagStatus(EXTI_Line10)){ // External Interrupt 10
-		callbacks[10]();
-		EXTI_ClearITPendingBit(EXTI_Line10);
-	}
 
-	if(EXTI_GetFlagStatus(EXTI_Line11)){ // External Interrupt 11
-		callbacks[11]();
-		EXTI_ClearITPendingBit(EXTI_Line11);
+void EXTI9_5_IRQHandler()
+{
+	Uint8 i;
+	Uint32 EXTI_Line;
+	for(i = 5; i <= 9; i++)
+	{
+		EXTI_Line = ((Uint32)(1))<< (i+1);
+		if(EXTI_GetITStatus(EXTI_Line))
+		{
+			if(callbacks[i] != NULL)
+				callbacks[i]();
+			EXTI_ClearITPendingBit(EXTI_Line);
+		}
 	}
+}
 
-	if(EXTI_GetFlagStatus(EXTI_Line12)){ // External Interrupt 12
-		callbacks[12]();
-		EXTI_ClearITPendingBit(EXTI_Line12);
-	}
-
-	if(EXTI_GetFlagStatus(EXTI_Line13)){ // External Interrupt 13
-		callbacks[13]();
-		EXTI_ClearITPendingBit(EXTI_Line13);
-	}
-
-	if(EXTI_GetFlagStatus(EXTI_Line14)){ // External Interrupt 14
-		callbacks[14]();
-		EXTI_ClearITPendingBit(EXTI_Line14);
-	}
-
-	if(EXTI_GetFlagStatus(EXTI_Line15)){ // External Interrupt 15
-		callbacks[15]();
-		EXTI_ClearITPendingBit(EXTI_Line15);
+void EXTI15_10_IRQHandler()
+{
+	Uint8 i;
+	Uint32 EXTI_Line;
+	for(i = 10; i <= 15; i++)
+	{
+		EXTI_Line = ((Uint32)(1))<< (i);
+		if(EXTI_GetITStatus(EXTI_Line))
+		{
+			if(callbacks[i] != NULL)
+				callbacks[i]();
+			EXTI_ClearITPendingBit(EXTI_Line);
+		}
 	}
 }
 
