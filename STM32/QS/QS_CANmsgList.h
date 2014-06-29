@@ -348,11 +348,84 @@
 
 	/* carte stratégie vers carte propulsion */
 	#define PROP_GO_POSITION					0x155
+	/* arguments :
+		CONFIG : Uint8	=>	|..0. .... - ordre non multipoint
+							|..1. .... - ou multipoint
+							|
+							|...0 .... - ordre a executer maintenant
+							|...1 .... - ou a la fin du buffer
+							|
+							|.... ...0 - ordre dans referentiel pas relatif (donc absolu)
+							|.... ...1 - ou relatif
+		XHIGH : Uint8	bits les plus significatifs de X, (mm)
+		XLOW : Uint8	bits les moins significatifs de X
+		YHIGH : Uint8	bits les plus significatifs de Y, (mm)
+		YLOW  : Uint8	bits les moins significatifs de Y
+		VITESSE : Uint8	=>	0x00 : rapide
+							0x01 : lent
+							0x02 : très lent
+							....
+							0x08 à 0xFF : vitesse "analogique"
+
+		MARCHE : Uint8	=>	|...0 ...0 |_ marche avt ou arrière
+							|...1 ...1 |
+							|
+							|...0 ...1 	- marche avant obligé
+							|...1 ...0 	- marche arrière obligée
+		RAYONCRB : Uint8
+	*/
 	#define PROP_GO_ANGLE						0x177
+	/* argument :
+			CONFIG : Uint8	=>	|..0. .... - ordre non multipoint
+								|..1. .... - ou multipoint
+								|
+								|...0 .... - ordre a executer maintenant
+								|...1 .... - ou a la fin du buffer
+								|
+								|.... ...0 - ordre dans referentiel pas relatif (donc absolu)
+								|.... ...1 - ou relatif
+			TETAHIGH : Uint8	bits les plus significatifs de TETA,(rad/4096)
+			TETALOW : Uint8		bits les moins significatifs de TETA
+			0
+			0
+			VITESSE : Uint8	=>	0x00 : rapide
+								0x01 : lent
+								0x02 : très lent
+								....
+								0x08 à 0xFF : vitesse "analogique"
+
+			MARCHE : Uint8	=>	|...0 ...0 |_ marche avt ou arrière
+								|...1 ...1 |
+								|
+								|...0 ...1 	- marche avant obligé
+								|...1 ...0 	- marche arrière obligée
+
+			RAYONCRB : Uint8
+		*/
 	#define PROP_SEND_PERIODICALLY_POSITION		0x188
+		/*
+			PERIODE : 		Uint16 		unité : [ms] 	Période à laquelle on veut recevoir des messages de BROADCAST_POSITION
+			TRANSLATION : 	Sint16 		unité : mm		Déplacement du robot au delà duquel on veut recevoir un BROADCAST_POSITION
+			ROTATION : 		Sint16		unité : rad4096	Déplacement du robot au delà duquel on veut recevoir un BROADCAST_POSITION
+
+			Si l'un des paramètres vaut 0, l'avertisseur correspondant est désactivé.
+
+			Remarque :
+			l'it tourne à 5ms => plus petite période d'envoi
+			donc la PERIODE effective sera la période demandée arrondie au 5ms supérieur !
+
+		*/
 	#define PROP_STOP							0x101
 	#define PROP_TELL_POSITION					0x105
 	#define	PROP_SET_POSITION					0x107
+	/*
+		XHIGH : Uint8		bits les plus significatifs de X, (mm)
+		XLOW : Uint8		bits les moins significatifs de X
+		YHIGH : Uint8		bits les plus significatifs de Y, (mm)
+		YLOW  : Uint8		bits les moins significatifs de Y
+		TETAHIGH : Uint8	bits les plus significatifs de TETA,(rad/4096)
+		TETALOW : Uint8		bits les moins significatifs de TETA
+	*/
 	#define PROP_RUSH_IN_THE_WALL				0x109
 	#define PROP_CALIBRATION					0x10B
 
