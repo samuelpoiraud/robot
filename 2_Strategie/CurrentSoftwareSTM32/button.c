@@ -15,7 +15,6 @@
 #include "button.h"
 #include "act_functions.h"
 #include "Supervision/Selftest.h"
-#include "Supervision/Eeprom_can_msg.h"
 #include "QS/QS_who_am_i.h"
 #include "Supervision/SD/SD.h"
 #include "config_use.h"

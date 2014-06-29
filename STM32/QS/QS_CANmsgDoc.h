@@ -57,22 +57,6 @@
 	*/
 
 
-	#define SUPER_EEPROM_RESET			(0x770)
-	/*
-		Message de l'utilisateur vers Super
-		Permet de demander (exceptionnellement et en toute conscience) le reset de la mémoire EEPROM externe
-		Aucun argument.
-	*/
-
-	#define SUPER_EEPROM_PRINT_MATCH	(0x777)
-	/*
-		demande l'affichage d'un match dont on connait l'adresse de l'entête.
-		(l'adresse de l'entête d'un match est affichée lorsque l'on affiche un match...)
-		exemple d'utilisation : si vous avez retenu l'adresse du match d'hier que vous voulez voir, vous pouvez le revoir (s'il n'a pas été écrabouillé par les nombreux tests de la nuit...)
-		argument
-		match_address_x8 : Uint16 (x8 signifie ici que l'unité de ce nombre est une adresse physique d'eeprom/8, voir le code pour plus d'infos)
-	*/
-
 	#define SUPER_RTC_GET				(0x780)
 
 	#define SUPER_RTC_SET				(0x781)

@@ -34,11 +34,7 @@
 //les PROP_TRAJECTOIRE_FINIE dépilent les asser goto meme si on est loin de la destination
 #define PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION
 
-
 #define SD_ENABLE
-
-//Activation du module d'enregistrement des messages CAN reçus pendant les matchs en mémoire EEPROM.
-//#define EEPROM_CAN_MSG_ENABLE
 
 
 #endif /* CONFIG_USE_H */

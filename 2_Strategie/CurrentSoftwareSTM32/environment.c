@@ -17,7 +17,6 @@
 #include "zone_mutex.h"
 #include "fix_beacon.h"
 #include "Supervision/Buffer.h"
-#include "Supervision/Eeprom_can_msg.h"
 #include "Supervision/RTC.h"
 #include "Supervision/Selftest.h"
 #include "Supervision/Supervision.h"

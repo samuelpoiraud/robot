@@ -95,12 +95,6 @@
 		//data[0] : id du coef
 		//datas[1 à 4] : coef !!! sur 32 bits !!!
 
-	/* Message de l'utilisateur vers Super */
-	#define SUPER_EEPROM_RESET				0x770
-	#define SUPER_EEPROM_TEST_ALL_MEMORY	0x771
-	#define SUPER_EEPROM_PRINT_ALL_MEMORY	0x772
-	#define SUPER_EEPROM_PRINT_MATCH		0x777
-
 	#define DEBUG_RTC_GET				(0x780)
 	#define DEBUG_RTC_SET				(0x781)
 					/*	GET et SET :
