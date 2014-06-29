@@ -28,6 +28,7 @@
 	#include "hokuyo.h"
 	#include "calculator.h"
 	#include "secretary.h"
+	#include "detection.h"
 
 #ifdef USE_HOKUYO
 
@@ -43,19 +44,14 @@
 	#define ROBOT_COORDX 150
 	#define ROBOT_COORDY 150
 	#define DISTANCE_POINTS_IN_THE_SAME_OBJECT 150
-	#define NB_MAX_ADVERSARIES	16
+
 	#define NB_BYTES_FROM_HOKUYO	5000
 	#define PERIOD_SEND_ADVERSARIES_DATAS	200	//[ms]
 
 	__ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core __ALIGN_END;
 	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
 
-	typedef struct{
-		Sint32 dist;
-		int teta;
-		Sint32 coordX;
-		Sint32 coordY;
-	}HOKUYO_adversary_position;
+
 
 
 	static Uint8 HOKUYO_datas[NB_BYTES_FROM_HOKUYO];				//Données brutes issues du capteur HOKUYO
@@ -65,7 +61,7 @@
 	static HOKUYO_adversary_position detected_valid_points[NB_DETECTED_VALID_POINTS];	//Points valides détectés par le capteur (X, Y, teta, distance)
 	static Uint16 nb_valid_points=0;								//Nombre de points valides détectés
 
-	static HOKUYO_adversary_position hokuyo_adversaries[NB_MAX_ADVERSARIES];	//Positions des adversaires détectés
+	static HOKUYO_adversary_position hokuyo_adversaries[HOKUYO_MAX_FOES];	//Positions des adversaires détectés
 	static Uint8 adversaries_number=0;											//Nombre d'adversaires détectés
 
 	static bool_e hokuyo_initialized = FALSE;						//Module initialisé - sécurité.
@@ -441,7 +437,7 @@ void hokuyo_detection_ennemis(void){
 				moyenne_y=(y_comp+detected_valid_points[i-1].coordY)/2;
 				hokuyo_adversaries[adversaries_number].coordX=moyenne_x;
 				hokuyo_adversaries[adversaries_number].coordY=moyenne_y;
-				if(adversaries_number < NB_MAX_ADVERSARIES - 1)
+				if(adversaries_number < HOKUYO_MAX_FOES - 1)
 					adversaries_number++;
 				x_comp=detected_valid_points[i].coordX;
 				y_comp=detected_valid_points[i].coordY;
@@ -521,7 +517,7 @@ void DetectRobots(void)
 		}
 		else	//Si la distance est plus grande (le point n'appartient pas à l'objet), on clos l'objet en court.
 		{
-			if(adversaries_number < NB_MAX_ADVERSARIES - 1)
+			if(adversaries_number < HOKUYO_MAX_FOES - 1)
 			{
 				hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
 				hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
@@ -535,7 +531,7 @@ void DetectRobots(void)
 		}
 	}
 	//Il nous faut maintenant clore le dernier objet.
-	if(adversaries_number < NB_MAX_ADVERSARIES - 1)
+	if(adversaries_number < HOKUYO_MAX_FOES - 1)
 	{
 		hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
 		hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
@@ -566,6 +562,9 @@ void Compute_dist_and_teta(void)
 void send_adversaries_datas(void)
 {
 	Uint8 i;
+
+	DETECTION_new_adversary_position(NULL, hokuyo_adversaries, adversaries_number);
+
 	if(adversaries_number==0)
 		SECRETARY_send_adversary_position(TRUE,0, 0, 0, 0, 0, 0x0000);
 	else
