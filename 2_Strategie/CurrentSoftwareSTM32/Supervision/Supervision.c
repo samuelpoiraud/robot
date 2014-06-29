@@ -16,7 +16,6 @@
 #include "../QS/QS_outputlog.h"
 #include "SD/SD.h"
 #include "Selftest.h"
-#include "Eeprom_can_msg.h"
 #include "RTC.h"
 #include "Buffer.h"
 #include "config_use.h"
@@ -34,21 +33,9 @@ void Supervision_init(void)
 	BUFFER_init();
 	SYNCHRO_init();
 
-	EEPROM_HOLD = 1;
-	EEPROM_CS = 1;
-	#ifdef EEPROM_CAN_MSG_ENABLE
-		EEPROM_CAN_MSG_init();
-	#endif
-	//#define FLUSH_EEPROM
-	#ifdef FLUSH_EEPROM
-		EEPROM_CAN_MSG_flush_eeprom();	//Activer ceci permet de vider la mémoire EEPROM lors de l'init (attention, cela peut prendre plusieurs secondes !)
-		debug_printf("EEPROM_flushed\n");
-	#endif
-
 	#ifdef USE_LCD
 		init_LCD_interface();
 	#endif
-
 
 	#ifdef USE_XBEE
 		if(QS_WHO_AM_I_get() == SMALL_ROBOT)
@@ -115,9 +102,6 @@ void SUPERVISION_send_pos_over_xbee(void)
 void Supervision_process_main(void)
 {
 	static bool_e first_second_elapsed = FALSE;
-//	print_all_msg(); //désolé...
-//	EEPROM_CAN_MSG_verbose_all_match_header();
-
 
 	if(flag_1sec)
 	{

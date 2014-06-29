@@ -65,8 +65,6 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case DEBUG_CARTE_P:						print(string, len, "%x DEBUG_CARTE_P                        ", DEBUG_CARTE_P					);	break;
 		case DEBUG_FOE_POS:						print(string, len, "%x DEBUG_FOE_POS                        ", DEBUG_FOE_POS					);	break;
 		case DEBUG_ELEMENT_UPDATED:				print(string, len, "%x DEBUG_ELEMENT_UPDATED                ", DEBUG_ELEMENT_UPDATED			);	break;
-		case SUPER_EEPROM_RESET:				print(string, len, "%x SUPER_EEPROM_RESET                   ", SUPER_EEPROM_RESET				);	break;
-		case SUPER_EEPROM_PRINT_MATCH:			print(string, len, "%x SUPER_EEPROM_PRINT_MATCH             ", SUPER_EEPROM_PRINT_MATCH			);	break;
 		case ACT_DO_SELFTEST:					print(string, len, "%x ACT_DO_SELFTEST                      ", ACT_DO_SELFTEST			);	break;
 		case PROP_DO_SELFTEST:					print(string, len, "%x PROP_DO_SELFTEST                     ", PROP_DO_SELFTEST			);	break;
 		case BEACON_DO_SELFTEST:				print(string, len, "%x BEACON_DO_SELFTEST                   ", BEACON_DO_SELFTEST		);	break;
@@ -153,8 +151,6 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 	//	case DEBUG_CARTE_P:						print(string, len, "|\n");												break;
 //		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 //		case DEBUG_ELEMENT_UPDATED:				print(string, len, "|\n");												break;
-	//	case SUPER_EEPROM_RESET:				print(string, len, "|\n");												break;
-		case SUPER_EEPROM_PRINT_MATCH:			print(string, len, "| match_address_x8 : %x\n", u16(0,1));				break;
 	//	case SUPER_ASK_STRAT_SELFTEST:			print(string, len, "|\n");												break;
 	//	case SUPER_ASK_ACT_SELFTEST:			print(string, len, "|\n");												break;
 	//	case SUPER_ASK_PROP_SELFTEST:			print(string, len, "|\n");												break;
