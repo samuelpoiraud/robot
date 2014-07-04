@@ -10,12 +10,18 @@ Si vous souhaitez vous en servir :
 - merci de garder un lien vers leur origine
 - un petit mail pour nous le demander, ça fait toujours plaisir !
 
+
+Arborescence :
+- les logiciels sont rangés par carte électronique (Propulsion, Actionneur, Stratégie, Balises)
+- un package logiciel est commun à nos codes, et se trouve dans STM32\QS (et pour historique, DsPIC30F\QS)
+
+
 Si vous trouvez des bogues, ou que vous avez des questions, vous pouvez nous contacter :
 presidence@robot-eseo.fr
 
 Merci !
 
 Bonne lecture,
-Le club robotique de l'eseo.
+Le club robotique de l'ESEO
 www.robot-eseo.fr
 
