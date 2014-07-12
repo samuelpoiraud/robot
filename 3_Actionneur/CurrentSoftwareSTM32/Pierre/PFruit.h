@@ -54,6 +54,11 @@ void FRUIT_run_command(queue_id_t queueId, bool_e init);
  */
 void FRUIT_process_main();
 
+/**
+ * Réinitialise la configuration de l'AX12
+ */
+void FRUIT_reset_config();
+
 #endif  /* I_AM_ROBOT_BIG */
 #endif	/* PFRUIT_H */
 

@@ -48,5 +48,11 @@ bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg);
  */
 void SMALL_ARM_run_command(queue_id_t queueId, bool_e init);
 
+
+/**
+ * Réinitialise la configuration de l'AX12
+ */
+void SMALL_ARM_reset_config();
+
 #endif	/* PSMALL_ARM_H */
 

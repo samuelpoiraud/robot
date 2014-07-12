@@ -40,6 +40,9 @@ static void FILET_rearm();
 static void FILET_run_selftest(queue_id_t queueId, bool_e init);
 static void FILET_selftest_run(queue_id_t queueId);
 
+static bool_e ax12_is_initialized = FALSE;
+
+
 
 void FILET_init() {
 	static bool_e initialized = FALSE;
@@ -53,10 +56,14 @@ void FILET_init() {
 	//info_printf("FILET initialisé\n");
 }
 
+void FILET_reset_config(){
+	ax12_is_initialized = FALSE;
+	FILET_initAX12();
+}
+
+
 //Initialise l'AX12 du filet s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void FILET_initAX12() {
-	static bool_e ax12_is_initialized = FALSE;
-
 	if(ax12_is_initialized)
 		return;
 

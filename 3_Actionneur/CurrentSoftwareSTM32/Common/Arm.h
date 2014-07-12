@@ -48,5 +48,10 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg);
  */
 void ARM_run_command(queue_id_t queueId, bool_e init);
 
+/**
+ * Réinitialise la configuration de l'AX12
+ */
+void ARM_reset_config();
+
 #endif	/* ARM_H */
 

@@ -18,8 +18,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "queue.h"
 
-#include "BIG/BActManager.h"
-#include "SMALL/SActManager.h"
+#include "ActManager.h"
 #include "Common/Pompe.h"
 
 #include "config_debug.h"
@@ -67,8 +66,13 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_OFF\n");
 				global.alim = FALSE;
 			}else if(msg->data[0] == ALIM_ON){
+				static bool_e first_on = TRUE;
 				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_ON\n");
 				global.alim = TRUE;
+				if(first_on)
+					first_on = FALSE;
+				else
+					ACTMGR_reset_config();
 			}
 			global.alim_value = (((Uint16)(msg->data[1]) << 8) & 0xFF00) | ((Uint16)(msg->data[2]) & 0x00FF);
 			break;

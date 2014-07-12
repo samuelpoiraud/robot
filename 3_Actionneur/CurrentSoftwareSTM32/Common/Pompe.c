@@ -48,6 +48,8 @@ void POMPE_init() {
 	POMPE_initDCM();
 }
 
+void POMPE_reset_config(){}
+
 // Initialisation du moteur, si init ne fait rien
 static void POMPE_initDCM() {
 	static bool_e initialized = FALSE;

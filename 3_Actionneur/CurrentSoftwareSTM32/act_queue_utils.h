@@ -16,12 +16,14 @@
 	typedef void (*ACT_OnInit)();
 	typedef void (*ACT_OnInitPos)();
 	typedef void (*ACT_OnStop)();
+	typedef void (*ACT_OnResetConfig)();
 	typedef bool_e (*ACT_OnCanMsg)(CAN_msg_t* msg);
 
 	typedef struct {
 		ACT_OnInit onInit;
 		ACT_OnInitPos onInitPos;
 		ACT_OnStop onStop;
+		ACT_OnResetConfig onResetConfig;
 		ACT_OnCanMsg onCanMsg;
 	} ACTQ_functions_t;
 
