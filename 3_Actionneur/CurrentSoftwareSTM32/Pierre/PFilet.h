@@ -46,6 +46,10 @@ void FILET_process_10ms(void);
 void FILET_process_main(void);
 void FILET_BOUTON_process(void);
 
+/**
+ * Réinitialise la configuration de l'AX12
+ */
+void FILET_reset_config();
 
 #endif  /* I_AM_ROBOT_BIG */
 #endif	/* PFILET_H */

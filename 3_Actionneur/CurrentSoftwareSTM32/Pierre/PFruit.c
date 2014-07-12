@@ -56,6 +56,9 @@ static verrin_order_e verrin_order = NO_ORDER;
 
 static bool_e have_send_answer = TRUE;
 
+
+static bool_e ax12_is_initialized = FALSE;
+
 void FRUIT_init() {
 	static bool_e initialized = FALSE;
 
@@ -83,9 +86,13 @@ static void FRUIT_initDCM() {
 	}
 }
 
+void FRUIT_reset_config(){
+	ax12_is_initialized = FALSE;
+	FRUIT_initAX12();
+}
+
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void FRUIT_initAX12() {
-	static bool_e ax12_is_initialized = FALSE;
 
 	if(ax12_is_initialized == FALSE && AX12_is_ready(FRUIT_LABIUM_AX12_ID) == TRUE) {
 		ax12_is_initialized = TRUE;

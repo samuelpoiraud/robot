@@ -49,6 +49,10 @@ bool_e GACHE_CAN_process_msg(CAN_msg_t* msg);
  */
 void GACHE_run_command(queue_id_t queueId, bool_e init);
 
+/**
+ * Réinitialise la configuration de l'AX12
+ */
+void GACHE_reset_config();
 
 #endif  /* I_AM_ROBOT_BIG */
 #endif	/* PGACHE_H */

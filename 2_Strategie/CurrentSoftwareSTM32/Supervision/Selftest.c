@@ -37,7 +37,7 @@
 #define TIMEOUT_SELFTEST_AVOIDANCE	5000	// en ms
 #define MAX_ERRORS_NUMBER 			200
 
-#define THRESHOLD_BATTERY_OFF	15000	//[mV] En dessous cette valeur, on considère que la puissance est absente
+#define THRESHOLD_BATTERY_OFF	18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW	21300	//[mV] Réglage du seuil de batterie faible
 #define NB_AVERAGED_VALUE		50
 #define REFRESH_DISPLAY_BAT		500

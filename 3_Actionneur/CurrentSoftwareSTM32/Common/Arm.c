@@ -210,6 +210,8 @@ static Sint8 old_state = -1;
 static Sint8 switch_state[ARM_ST_NUMBER];
 static Uint8 taille_path = 0;
 
+static bool_e allInitialized = FALSE;
+
 void ARM_init() {
 	static bool_e initialized = FALSE;
 
@@ -266,9 +268,17 @@ void ARM_init() {
 	ARM_initAX12();
 }
 
+
+void ARM_reset_config(){
+	allInitialized = FALSE;
+	ARM_ax12_is_initialized[1] = FALSE;
+	ARM_ax12_is_initialized[2] = FALSE;
+	ARM_ax12_is_initialized[3] = FALSE;
+	ARM_initAX12();
+}
+
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void ARM_initAX12(){
-	static bool_e allInitialized = FALSE;
 	Uint8 i;
 	Uint16 A, B, C, D;
 	bool_e allOk = TRUE;
@@ -299,13 +309,13 @@ static void ARM_initAX12(){
 					AX12_set_torque_response(ARM_MOTORS[i].id, 4, 1, 0, 4);
 				}
 #endif*/
-				AX12_get_torque_response(ARM_MOTORS[i].id, &A, &B, &C, &D);
+				/*AX12_get_torque_response(ARM_MOTORS[i].id, &A, &B, &C, &D);
 				display(ARM_MOTORS[i].id);
 				display(AX12_get_punch_torque_percentage(ARM_MOTORS[i].id));
 				display(A);
 				display(B);
 				display(C);
-				display(D);
+				display(D);*/
 
 			} else if(ARM_ax12_is_initialized[i] == FALSE) {
 				// Au moins un RX24/AX12 non prêt => pas allOk, on affiche pas le message d'init
@@ -356,8 +366,6 @@ void ARM_stop() {
 }
 
 bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
-	bool_e stateOk;
-	Uint8 i;
 	if(msg->sid == ACT_ARM) {
 		//Initialise les RX24/AX12 du bras s'ils n'étaient pas alimentés lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 		ARM_initAX12();
@@ -428,6 +436,9 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 					}else
 						ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_INVALID_ARG);
 #else
+					bool_e stateOk;
+					Uint8 i;
+
 					stateOk = TRUE;
 
 					for(i = 0; i < ARM_MOTORS_NUMBER; i++){
@@ -731,7 +742,7 @@ static bool_e gotoState(ARM_state_e state) {
 			DCM_setPosValue(ARM_MOTORS[i].id, 0, ARM_get_motor_pos(state, i));
 			DCM_goToPos(ARM_MOTORS[i].id, 0);
 			DCM_restart(ARM_MOTORS[i].id);
-			debug_printf("Placement du moteur DC %s lancé\n", ARM_MOTORS[i].id);
+			debug_printf("Placement du moteur DC %d lancé\n", ARM_MOTORS[i].id);
 		} else if(ARM_MOTORS[i].type == ARM_AX12 || ARM_MOTORS[i].type == ARM_RX24) {
 			if(!AX12_set_position(ARM_MOTORS[i].id, ARM_get_motor_pos(state, i)))
 				ok = FALSE;

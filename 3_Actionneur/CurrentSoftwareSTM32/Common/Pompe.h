@@ -47,6 +47,11 @@ bool_e POMPE_CAN_process_msg(CAN_msg_t* msg);
  */
 void POMPE_run_command(queue_id_t queueId, bool_e init);
 
+/**
+ * Réinitialise la configuration de l'AX12
+ */
+void POMPE_reset_config();
+
 void measure_current_pump();
 
 #endif	/* PPOMPE_H */

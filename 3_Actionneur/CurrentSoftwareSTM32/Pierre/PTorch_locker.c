@@ -36,6 +36,10 @@ static Uint16 ax12_2_goalPosition = 0xFFFF;
 static Uint8 last_command;
 static watchdog_id_t watchdog_PTorch = 0xFF;
 
+
+static bool_e ax12_1_is_initialized = FALSE;
+static bool_e ax12_2_is_initialized = FALSE;
+
 void TORCH_LOCKER_init() {
 	static bool_e initialized = FALSE;
 
@@ -47,10 +51,14 @@ void TORCH_LOCKER_init() {
 	TORCH_LOCKER_initAX12();
 }
 
+void TORCH_LOCKER_reset_config(){
+	ax12_1_is_initialized = FALSE;
+	ax12_2_is_initialized = FALSE;
+	TORCH_LOCKER_initAX12();
+}
+
 //Initialise l'AX12 du TORCH_LOCKER s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void TORCH_LOCKER_initAX12() {
-	static bool_e ax12_1_is_initialized = FALSE;
-	static bool_e ax12_2_is_initialized = FALSE;
 	if(ax12_1_is_initialized == FALSE && AX12_is_ready(TORCH_LOCKER_AX12_1_ID) == TRUE) {
 		ax12_1_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(TORCH_LOCKER_AX12_1_ID, 136);

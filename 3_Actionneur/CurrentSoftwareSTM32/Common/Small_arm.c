@@ -21,6 +21,7 @@
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../config/config_pin.h"
+#include "../ActManager.h"
 
 #include "config_debug.h"
 #define LOG_PREFIX "Small_arm.c : "
@@ -31,6 +32,8 @@
 static void SMALL_ARM_command_run(queue_id_t queueId);
 static void SMALL_ARM_initAX12();
 static void SMALL_ARM_command_init(queue_id_t queueId);
+
+static bool_e ax12_is_initialized = FALSE;
 
 void SMALL_ARM_init() {
 	static bool_e initialized = FALSE;
@@ -43,9 +46,13 @@ void SMALL_ARM_init() {
 	SMALL_ARM_initAX12();
 }
 
+void SMALL_ARM_reset_config(){
+	ax12_is_initialized = FALSE;
+	SMALL_ARM_initAX12();
+}
+
 //Initialise l'AX12 du SMALL_ARM s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void SMALL_ARM_initAX12() {
-	static bool_e ax12_is_initialized = FALSE;
 	if(ax12_is_initialized == FALSE && AX12_is_ready(SMALL_ARM_AX12_ID) == TRUE) {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(SMALL_ARM_AX12_ID, 136);
@@ -62,6 +69,17 @@ static void SMALL_ARM_initAX12() {
 	debug_printf("Small Arm init config %s\n", ax12_is_initialized ? "DONE" : "FAIL");
 }
 
+void SMALL_ARM_config(CAN_msg_t* msg){
+	switch(msg->data[1]){
+		case 0 : // Premier élement de l'actionneur
+			ACTMGR_config_AX12(SMALL_ARM_AX12_ID, msg);
+			break;
+
+		default :
+			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data[1]);
+	}
+}
+
 void SMALL_ARM_init_pos(){
 	SMALL_ARM_initAX12();
 	debug_printf("Small Arm init pos : \n");
@@ -69,12 +87,10 @@ void SMALL_ARM_init_pos(){
 		debug_printf("   L'AX12 n°%d n'est pas là\n", SMALL_ARM_AX12_ID);
 }
 
-void SMALL_ARM_stop(){
-
-}
+void SMALL_ARM_stop(){}
 
 bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
-	if(msg->sid == ACT_SMALL_ARM) {
+	if(msg->sid == ACT_SMALL_ARM){
 		SMALL_ARM_initAX12();
 		switch(msg->data[0]) {
 			case ACT_SMALL_ARM_IDLE :
@@ -84,12 +100,16 @@ bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_Small_Arm, &SMALL_ARM_run_command, 0,TRUE);
 				break;
 
+			case ACT_CONFIG :
+				SMALL_ARM_config(msg);
+				break;
+
 
 			default:
 				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
-	} else if(msg->sid == ACT_DO_SELFTEST) {
+	}else if(msg->sid == ACT_DO_SELFTEST){
 		SELFTEST_set_actions(&SMALL_ARM_run_command, 5, (SELFTEST_action_t[]){
 						 #ifdef I_AM_ROBOT_BIG
 								 {ACT_SMALL_ARM_DEPLOYED,	0,  QUEUE_ACT_AX12_Small_Arm},
@@ -108,7 +128,6 @@ bool_e SMALL_ARM_CAN_process_msg(CAN_msg_t* msg) {
 								 // Vérifier présence SMALL_ARM
 							 });
 	}
-
 	return FALSE;
 }
 

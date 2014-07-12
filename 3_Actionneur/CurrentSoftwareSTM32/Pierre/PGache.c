@@ -33,6 +33,9 @@ static void GACHE_command_init(queue_id_t queueId);
 static void GACHE_command_run(queue_id_t queueId);
 
 
+static bool_e ax12_is_initialized = FALSE;
+
+
 void GACHE_init() {
 	static bool_e initialized = FALSE;
 
@@ -44,9 +47,13 @@ void GACHE_init() {
 	GACHE_initAX12();
 }
 
+void GACHE_reset_config(){
+	ax12_is_initialized = FALSE;
+	GACHE_initAX12();
+}
+
 //Initialise l'AX12 du GACHE s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void GACHE_initAX12() {
-	static bool_e ax12_is_initialized = FALSE;
 	if(ax12_is_initialized == FALSE && AX12_is_ready(GACHE_AX12_ID) == TRUE) {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(GACHE_AX12_ID, 136);

@@ -52,5 +52,10 @@ bool_e TORCH_LOCKER_CAN_process_msg(CAN_msg_t* msg);
  */
 void TORCH_LOCKER_run_command(queue_id_t queueId, bool_e init);
 
+/**
+ * Réinitialise la configuration de l'AX12
+ */
+void TORCH_LOCKER_reset_config();
+
 #endif	/* PTORCH_LOCKER_H */
 
