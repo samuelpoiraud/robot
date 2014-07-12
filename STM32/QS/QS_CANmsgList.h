@@ -488,6 +488,17 @@
 		#define ACT_RESULT_ERROR_UNKNOWN      255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
 	/////////////////////////////////////////
 
+	///////////////COMMON ARG////////////////////
+	// Dans data[1]
+	#define ACT_CONFIG						0xFF	// Argument ajouté aprés un SID d'actionneur pour le configure
+		// Dans data[2]
+		#define AX12_SPEED_CONFIG				0x00
+		   // wheel mode (0 à 100)
+		   // position mode (0 à 500)
+		#define AX12_TORQUE_CONFIG				0x01
+		   // (0 à 100)
+	/////////////////////////////////////////////
+
 	/////////////////// FILET ///////////////////
 	// Message de l'actionneur vers la stratégie pour informer de l'état du filet
 	#define STRAT_INFORM_FILET (STRAT_FILTER | (ACT_FILTER >> 4) | 1)

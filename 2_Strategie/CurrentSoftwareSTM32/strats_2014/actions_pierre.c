@@ -25,6 +25,7 @@
 #include "../Supervision/SD/SD.h"
 #include "actions_both_2014.h"
 #include "../maths_home.h"
+#include "../QS/QS_CANmsgList.h"
 #include <math.h>
 
 
@@ -1733,25 +1734,38 @@ void strat_test_vide(){
 
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_PIERRE_TEST_VIDE,
 		INIT,
-		AVANCER,
+		MOVE,
+		CONFIG,
+		MOVE2,
 		DONE
 	);
 
-	if(TIME_TO_NET < global.env.match_time)
-		strat_placement_net();
-	else
-		switch (state){
-			case INIT :
-				state = AVANCER;
-				break;
+	switch (state){
+		case INIT :
+			ACT__config(ACT_SMALL_ARM, AX12_SPEED_CONFIG, 500);
+			state = MOVE;
+			break;
 
-			case AVANCER :
-				state = try_going(603, 2500, AVANCER, DONE, DONE, SLOW, ANY_WAY, NO_AVOIDANCE);
-				break;
+		case MOVE :
+			if(entrance)
+				ACT_small_arm_goto(ACT_SMALL_ARM_IDLE);
+			state = check_act_status(ACT_QUEUE_Small_arm, MOVE, CONFIG, CONFIG);
+			break;
 
-			case DONE :
-				break;
-		}
+		case CONFIG :
+			ACT__config(ACT_SMALL_ARM, AX12_SPEED_CONFIG, 50);
+			state = MOVE2;
+			break;
+
+		case MOVE2 :
+			if(entrance)
+				ACT_small_arm_goto(ACT_SMALL_ARM_DEPLOYED);
+			state = check_act_status(ACT_QUEUE_Small_arm, MOVE2, DONE, DONE);
+			break;
+
+		case DONE :
+			break;
+	}
 }
 
 void strat_test_small_arm(){

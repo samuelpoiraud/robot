@@ -28,8 +28,7 @@
 	#include "Pierre/PFruit.h"
 #endif
 
-#include "BIG/BActManager.h"
-#include "SMALL/SActManager.h"
+#include "ActManager.h"
 
 //Information pour le bouton 4
 #include "QS/QS_ax12.h"
