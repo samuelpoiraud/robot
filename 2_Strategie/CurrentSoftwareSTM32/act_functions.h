@@ -111,4 +111,6 @@ error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_sta
 error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 error_e ACT_elevator_arm_rush_in_the_floor(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
+bool_e ACT__config(Uint16 sid, Uint8 cmd, Uint16 value);
+
 #endif /* ndef ACT_FUNCTIONS_H */

@@ -280,3 +280,64 @@ error_e ACT_elevator_arm_rush_in_the_floor(Uint8 state_arm, Uint8 in_progress, U
 	return in_progress;
 }
 
+bool_e ACT__config(Uint16 sid, Uint8 cmd, Uint16 value){
+	QUEUE_arg_t args;
+	queue_id_e queue_id;
+	ACT_can_msg_t msg;
+
+	msg.sid = sid;
+	msg.data[0]=ACT_CONFIG;
+	msg.data[1]=cmd;
+	msg.data[2]=LOWINT(value);
+	msg.data[3]=HIGHINT(value);
+	msg.size = 4;
+
+	ACT_arg_init_with_msg(&args, msg);
+	ACT_arg_set_timeout(&args, 0);
+
+	switch(sid){
+		case ACT_FRUIT_MOUTH :
+			queue_id = ACT_QUEUE_Fruit;
+			//queue_id = ACT_QUEUE_Fruit_labium;
+			debug_printf("Config : ACT_FRUIT_MOUTH\n");
+			break;
+
+		case ACT_LANCELAUNCHER :
+			queue_id = ACT_QUEUE_launcher;
+			debug_printf("Config : ACT_LANCELAUNCHER\n");
+			break;
+
+		case ACT_TORCH_LOCKER :
+			queue_id = ACT_QUEUE_Torch_locker;
+			debug_printf("Config : ACT_TORCH_LOCKER\n");
+			break;
+
+		case ACT_FILET :
+			queue_id = ACT_QUEUE_Filet;
+			debug_printf("Config : ACT_FILET\n");
+			break;
+
+		case ACT_SMALL_ARM :
+			queue_id = ACT_QUEUE_Small_arm;
+			debug_printf("Config : ACT_SMALL_ARM\n");
+			break;
+
+		case ACT_POMPE :
+			queue_id = ACT_QUEUE_Pompe;
+			debug_printf("Config : ACT_POMPE\n");
+			break;
+
+		case ACT_ARM :
+			queue_id = ACT_QUEUE_Arm;
+			debug_printf("Config : ACT_ARM\n");
+			break;
+
+		default :
+			warn_printf("ACT_CONFIG : sid de l'actionneur introuvable\n");
+			return FALSE;
+	}
+	debug_printf("    cmd : %d\n", cmd);
+	debug_printf("    value : %d\n", value);
+
+	return ACT_push_operation(queue_id, &args);
+}
