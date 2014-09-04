@@ -28,6 +28,11 @@
 #include "strats_2014/actions_both_2014.h"
 #include "strats_2014/actions_guy.h"
 #include "strats_2014/actions_pierre.h"
+
+#include "strats_2015/actions_both_2015.h"
+#include "strats_2015/actions_guy.h"
+#include "strats_2015/actions_pierre.h"
+
 #include "high_level_strat.h"
 
 
