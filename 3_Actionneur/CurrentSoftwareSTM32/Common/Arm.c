@@ -28,6 +28,7 @@
 #endif
 #include "Arm_data.h"
 #include "../maths_home.h"
+#include "../ActManager.h"
 #include <string.h>
 #include <math.h>
 
@@ -205,6 +206,7 @@ static bool_e est_dans_liste(Sint8 liste[], Uint8 taille, Sint8 search);
 static Sint8 ajout_liste(Sint8 liste[], Uint8 taille, Sint8 val);
 static Sint8 del_liste(Sint8 liste[], Uint8 taille, Sint8 val);
 static Sint16 modulo_angle(Sint32 angle);
+static void ARM_config(CAN_msg_t* msg);
 
 static Sint8 old_state = -1;
 static Sint8 switch_state[ARM_ST_NUMBER];
@@ -275,6 +277,25 @@ void ARM_reset_config(){
 	ARM_ax12_is_initialized[2] = FALSE;
 	ARM_ax12_is_initialized[3] = FALSE;
 	ARM_initAX12();
+}
+
+void ARM_config(CAN_msg_t* msg){
+	switch(msg->data[1]){
+		case 0 : // Premier élement de l'actionneur (RX24)
+			ACTMGR_config_AX12(ARM_ACT_RX24_ID, msg);
+			break;
+
+		case 1 :
+			ACTMGR_config_AX12(ARM_ACT_AX12_MID, msg);
+			break;
+
+		case 2 :
+			ACTMGR_config_AX12(ARM_ACT_AX12_TRIANGLE, msg);
+			break;
+
+		default :
+			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data[1]);
+	}
 }
 
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
@@ -502,6 +523,10 @@ bool_e ARM_CAN_process_msg(CAN_msg_t* msg) {
 
 			case ACT_ARM_PRINT_STATE_TRANSITIONS:
 				print_state_transitions(FALSE);
+				break;
+
+			case ACT_CONFIG :
+				ARM_config(msg);
 				break;
 
 			default:

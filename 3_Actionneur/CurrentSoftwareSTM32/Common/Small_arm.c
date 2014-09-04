@@ -32,6 +32,7 @@
 static void SMALL_ARM_command_run(queue_id_t queueId);
 static void SMALL_ARM_initAX12();
 static void SMALL_ARM_command_init(queue_id_t queueId);
+static void SMALL_ARM_config(CAN_msg_t* msg);
 
 static bool_e ax12_is_initialized = FALSE;
 
