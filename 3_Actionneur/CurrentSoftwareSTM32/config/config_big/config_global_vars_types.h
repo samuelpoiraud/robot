@@ -24,5 +24,6 @@ typedef enum {
 	QUEUE_ACT_AX12_Small_Arm,
 	QUEUE_ACT_Pompe,
 	QUEUE_ACT_Torch_Locker,
+	QUEUE_ACT_Test_Servo,
 	NB_ACT
 } QUEUE_act_e;

@@ -17,6 +17,7 @@
 	#include "Common/Arm.h"
 	#include "Common/Small_arm.h"
 	#include "Common/Pompe.h"
+	#include "Pierre/TestServo.h"
 #else
 	#include "Common/Arm.h"
 	#include "Common/Small_arm.h"
@@ -43,7 +44,8 @@ static ACTQ_functions_t actionneurs[] = {
 		{&LANCE_LAUNCHER_init, NULL, &LANCE_LAUNCHER_stop, NULL, &LANCE_LAUNCHER_CAN_process_msg},
 		{&FILET_init, NULL, NULL, &FILET_reset_config, &FILET_CAN_process_msg},
 		ACT_DECLARE(GACHE),
-		ACT_DECLARE(TORCH_LOCKER)
+		ACT_DECLARE(TORCH_LOCKER),
+		ACT_DECLARE(TEST_SERVO)
 	#else
 		ACT_DECLARE(SMALL_ARM),
 		ACT_DECLARE(POMPE),

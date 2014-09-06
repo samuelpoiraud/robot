@@ -74,7 +74,7 @@
 	//	-				 			  3
 	//	-							  4
 	//	-	usb led red				  5
-	//	-							  6
+	#define SERVO0				GPIOD->ODR6
 	//	-							  7
 	//	U3TX						  8
 	//	U3RX						  9
@@ -141,5 +141,7 @@
 	#define ARM_ACT_RX24_ID                          22
 	#define ARM_ACT_AX12_MID_ID                      10
 	#define ARM_ACT_AX12_TRIANGLE_ID                 3
+
+	#define TEST_SERVO_ID							1
 
 #endif /* PIERRE_CONFIG_PIN_H */
