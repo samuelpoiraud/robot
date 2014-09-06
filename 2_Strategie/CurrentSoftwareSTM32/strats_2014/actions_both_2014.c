@@ -61,7 +61,7 @@ void strat_tourne_en_rond(void){
 		{{1200,450},SLOW}
 	};
 
-	CAN_msg_t msg;
+//	CAN_msg_t msg;
 
 	static Uint16 i = 0;
 	Uint16 nbTour = 1;

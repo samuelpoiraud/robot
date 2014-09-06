@@ -15,6 +15,7 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_can.h"
 #include "QS/QS_timer.h"
+#include "cos_sin.h"
 
 volatile static Uint32 absolute_time = 0;
 volatile static Uint32 hokuyo_update_time = 0;
@@ -29,6 +30,8 @@ void DETECTION_init(void)
 {
 	Uint8 i;
 	static bool_e initialized = FALSE;
+	if(initialized)
+		return;
 	hokuyo_objects_number = 0;
 	for(i = 0; i < HOKUYO_MAX_FOES+BEACON_MAX_FOES; i++)
 	{

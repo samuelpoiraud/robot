@@ -192,7 +192,7 @@ const char* ARM_STATES_NAME[] = {
 
 static void ARM_initAX12();
 static bool_e gotoState(ARM_state_e state);
-static bool_e check_state_transitions();
+//static bool_e check_state_transitions();
 static void print_state_transitions(bool_e correct);
 static Sint8 find_state();
 static void get_data_pos_triangle(CAN_msg_t* msg);
@@ -301,7 +301,6 @@ void ARM_config(CAN_msg_t* msg){
 //Initialise l'AX12 de la pince s'il n'était pas allimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void ARM_initAX12(){
 	Uint8 i;
-	Uint16 A, B, C, D;
 	bool_e allOk = TRUE;
 
 	if(allInitialized)
@@ -321,22 +320,6 @@ static void ARM_initAX12(){
 
 				AX12_config_set_error_before_led(ARM_MOTORS[i].id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 				AX12_config_set_error_before_shutdown(ARM_MOTORS[i].id, AX12_ERROR_OVERHEATING); //On ne met pas l'overload comme par defaut, il faut pouvoir tenir l'assiette et sans que l'AX12 ne s'arrête de forcer pour cause de couple resistant trop fort.
-/*#ifdef I_AM_ROBOT_SMALL
-				if(ARM_MOTORS[i].type == ARM_RX24){
-					AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 60);
-					AX12_set_torque_response(ARM_MOTORS[i].id, 2, 1, 0, 2);
-				}else{
-					AX12_set_punch_torque_percentage(ARM_MOTORS[i].id, 20);
-					AX12_set_torque_response(ARM_MOTORS[i].id, 4, 1, 0, 4);
-				}
-#endif*/
-				/*AX12_get_torque_response(ARM_MOTORS[i].id, &A, &B, &C, &D);
-				display(ARM_MOTORS[i].id);
-				display(AX12_get_punch_torque_percentage(ARM_MOTORS[i].id));
-				display(A);
-				display(B);
-				display(C);
-				display(D);*/
 
 			} else if(ARM_ax12_is_initialized[i] == FALSE) {
 				// Au moins un RX24/AX12 non prêt => pas allOk, on affiche pas le message d'init
@@ -663,7 +646,6 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 	static Sint16 actual_pos;
 
 	bool_e actualised = FALSE;
-	bool_e done;
 
 	if(init){
 		DCM_setPwmWay(ARM_ACT_UPDOWN_ID, ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM, ARM_ACT_UPDOWN_RUSH_IN_FLOOR_PWM);
@@ -709,7 +691,7 @@ static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_
 		return TRUE;
 	}
 
-	done = ACTQ_check_status_dcmotor(dcmotor_id, timeout_is_ok, result, error_code, line);
+	ACTQ_check_status_dcmotor(dcmotor_id, timeout_is_ok, result, error_code, line);
 
 	display(conv_dist_to_potar_updown(order));
 	display(conv_dist_to_potar_updown(order) - ARM_readDCMPos());
@@ -780,7 +762,7 @@ static bool_e gotoState(ARM_state_e state) {
 }
 
 //Vérifie que les transitions d'états sont reversibles
-static bool_e check_state_transitions() {
+/*static bool_e check_state_transitions() {
 	Uint8 i, j;
 	bool_e ok = TRUE;
 
@@ -797,7 +779,7 @@ static bool_e check_state_transitions() {
 	}
 
 	return ok;
-}
+}*/
 
 static void print_state_transitions(bool_e correct) {
 	Uint8 i, j;

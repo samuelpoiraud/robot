@@ -382,7 +382,7 @@ error_e sub_drop_fire_at_left(void){
 		IDLE,
 		ARM_RETURN,
 		INVERSE_PUMP,
-		PREPARE_RETURN,
+		//PREPARE_RETURN,
 		ARM_OPEN,
 		ERROR,
 		DONE
