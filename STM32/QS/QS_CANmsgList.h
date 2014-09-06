@@ -12,7 +12,6 @@
 
 #ifndef QS_CANMSGLIST_H
 	#define QS_CANMSGLIST_H
-	#include "QS_CANmsgDoc.h"
 
 	/* Masque des cartes (des destinataires) */
 	#define MASK_BITS					0x700
@@ -26,11 +25,20 @@
 	//Ces messages ne sont pas destinés à voyager sur les bus CAN des robot.
 	#define XBEE_FILTER					0x500
 
-	/* Message pour tous */
+	/***********************************************************
+						Message pour tous
+	***********************************************************/
 	#define BROADCAST_START	 			0x001
 	#define BROADCAST_STOP_ALL 			0x002
-	#define BROADCAST_COULEUR			0x003
+	#define BROADCAST_COULEUR			0x003			// couleur de notre robot : (Uint8):(RED=0, YELLOW =1)
 	#define BROADCAST_POSITION_ROBOT	0x004
+	/*
+		X : Sint16 (mm)
+		Y : Sint16 (mm)
+		Angle : Sint16 (RAD4096)
+		Raison : Uint8 (Raison de l'envoi du Broadcast... s'agit-il d'un avertisseur ? d'un envoi périodique ? sur simple demande ?...)
+			Remarque : Il est possible de CUMULER plusieurs raisons !!!
+	*/
 		#define WARNING_NO					(0b00000000)
 		#define WARNING_TIMER				(0b00000001)
 		#define WARNING_TRANSLATION			(0b00000010)
@@ -39,15 +47,55 @@
 		#define WARNING_REACH_Y				(0b00010000)		//Nous venons d'atteindre une position en Y pour laquelle on nous a demandé une surveillance.
 		#define WARNING_REACH_TETA			(0b00100000)		//Nous venons d'atteindre une position en Teta pour laquelle on nous a demandé une surveillance.
 		#define WARNING_NEW_TRAJECTORY		(0b01000000)		//Changement de trajectoire (attention, cela inclue les trajectoires préalables ajoutées en propulsion...)
-	#define BROADCAST_ALIM				0x005		// Message envoyé lors d'un changement d'état de l'alimentation 12/24V
+	/*
+		Status : Uint8 (état actuel de la carte propulsion...)
+			error_byte = ((Uint8)(COPILOT_get_trajectory()) << 5 | (Uint8)(COPILOT_get_way())) << 3 | (Uint8)(error_source);
+		 8 bits  : T R x W W E E E
+			 T : TRUE si robot en translation
+			 R : TRUE si robot en rotation
+			 x : non utilisé
+			 WW : Way, sens actuel
+				ANY_WAY						= 0,
+				BACKWARD					= 1,
+				FORWARD						= 2,
+			 EEE : Erreur
+				NO_ERROR = 0,
+				UNABLE_TO_GO_ERROR,
+				IMMOBILITY_ERROR,
+				ROUNDS_RETURNS_ERROR,
+				UNKNOW_ERROR
+	*/
+
+	#define BROADCAST_ALIM				0x005		// Message envoyé lors d'un changement d'état de l'alimentation 24V
 		#define ALIM_OFF					(0b00000000)
 		#define ALIM_ON						(0b00000001)
+	/*	argument (size = 3) :
+	 *	octet 0	: Etat de l'alimentation | ALIM_OFF / ALIM_ON
+	 *	octets 1 et 2	: Mesure de l'alimentation sur 16 bit en mV
+	 */
+
 	#define BROADCAST_BEACON_ADVERSARY_POSITION_IR	0x006	//Balise InfraRouge
 
-	/* Message pour personne */
+
+	/***********************************************************
+						Message pour personne
+	***********************************************************/
 	#define DEBUG_CARTE_P				0x742
 	#define DEBUG_FOE_POS				0x748
+	/* arguments (size = 8) :
+	 *	Uint8	octet d'erreur (toujours à 0)
+	 *	Sint16	angle de vue de l'adversaire [rad/4096] (de -PI4096 à PI4096)
+	 *	Uint8	distance de vue de l'adversaire [cm] (ATTENTION, unité = cm !!! donc maximum = 2,55m)
+	 *	Sint16	position adverse x	[mm]	(ATTENTION, peut être négatif si on le voit prêt de la bordure avec une petite erreur...)
+	 *	Sint16  position adverse y	[mm]	(idem)
+	 */
 	#define DEBUG_ELEMENT_UPDATED		0x749
+	/* arguments (size = 6) :
+	 *	Uint8	raison (ADD, UPDATE, DELETE)
+	 *	Uint8 	type de pion (cf. module element)
+	 *	Sint16	position element x	[mm]
+	 *	Sint16	position element y	[mm]
+	*/
 	#define DEBUG_BEACON_US1_ERROR      0x750  //Envoyé par la strat
 	#define DEBUG_BEACON_US2_ERROR      0x751  //Envoyé par la strat
 	#define DEBUG_BEACON_US_POWER       0x752  //Enovyé par la balise receptrice US (mais non activé actuellement)
@@ -113,6 +161,7 @@
 	//message pour debug strategie
 
 	#define DEBUG_DETECT_FOE			0x799	//Déclenchement manuel d'un évitement.
+
 /*****************************************************************
  *
  *		Messages echangés entre les cartes stratégies des
@@ -164,7 +213,8 @@
 /******************************************************************
  *
  * 		Messages échangés entre les cartes stratégies et la balise fixe
- */
+ *
+ ******************************************************************/
 											//B comme Beacon (ou Balise !)
 	#define ENABLE_WATCHING_ZONE			0x5BE	//E comme Enable
 	#define DISABLE_WATCHING_ZONES			0x5BD	//D comme Disable
@@ -311,11 +361,56 @@
 
 	/* carte propulsion vers carte stratégie */
 //TODO renommer ces messages pour respecter le nom es cartes (STRAT et PROP)
-	#define CARTE_P_TRAJ_FINIE			0x210
-	#define CARTE_P_PROP_ERREUR			0x211
-	#define CARTE_P_POSITION_ROBOT		BROADCAST_POSITION_ROBOT
-	#define CARTE_P_ROBOT_FREINE		0x213
-	#define CARTE_P_ROBOT_CALIBRE		0x214
+	#define PROP_TRAJ_FINIE			0x210
+	/*
+		X : Sint16 (mm)
+		Y : Sint16 (mm)
+		Angle : Sint16 (RAD4096)
+	*/
+	#define PROP_PROP_ERREUR			0x211
+	/*
+		X : Sint16 (mm)
+		Y : Sint16 (mm)
+		Angle : Sint16 (RAD4096)
+		0x00  : Uint8 RFU (Reserved for Future Use)
+		Error : Octet caractérisant l'erreur rencontrée :
+				0bTRxWWEEE
+					 T = bool_e
+					 R = bool_e
+					 x = non utilisé
+					 WW  = way_e
+					 EEE = SUPERVISOR_error_source_e
+				avec :
+					T = 1 si robot en translation
+					R = 1 si robot en rotation
+					La combinaison des 2 bit T et R est possible lors de courbe ou correction d'angle lors d'un mouvement
+
+					typedef enum
+					{
+						ANY_WAY=0,
+						BACKWARD,
+						FORWARD
+					} way_e;
+
+					typedef enum
+					{
+						NO_ERROR = 0,					//Ne doit pas arriver, s'il y a eu erreur, c'est qu'il y a une raison
+						UNABLE_TO_GO_ERROR,				//La raison la plus fréquente : un obstacle empêche la propulsion d'atteindre son objectif. (se produit lors d'une absence d'alim de puissance)
+						IMMOBILITY_ERROR,				//Le robot est proche de son objectif, mais est immobilisé (par un élément où un obstacle...)
+						ROUNDS_RETURNS_ERROR,			//Une erreur d'algo de propulsion ou de mécanique produit une oscillation autour de notre objectif et nous le rend difficile à atteindre. On peut considérer qu'on est arrivé à notre objectif (il est proche !)
+						UNKNOW_ERROR					//N'existe pas à l'heure où j'écris ces lignes... RFU (Reserved for Futur Use)
+					}SUPERVISOR_error_source_e;
+
+
+	*/
+
+	#define PROP_ROBOT_FREINE		0x213
+	/*
+		X : Sint16 (mm)
+		Y : Sint16 (mm)
+		Angle : Sint16 (RAD4096)
+	*/
+	#define PROP_ROBOT_CALIBRE		0x214
 	#define STRAT_TRIANGLE_POSITON		0x215
 		#define IT_IS_THE_LAST_TRIANGLE		0x80	// Bit à 1 si le triangle est le dernier
 		/*		0:7		: Indiquant si c'est le dernier triangle
@@ -429,11 +524,32 @@
 		TETALOW : Uint8		bits les moins significatifs de TETA
 	*/
 	#define PROP_RUSH_IN_THE_WALL				0x109
+	/*
+		SENS : way_e Uint8
+		asservissement en rotation on (1)/off(0) : Uint8
+	*/
 	#define PROP_CALIBRATION					0x10B
+	/* argument :
+		SENS : way_e (Uint8)
+		0 pour demander un désarmement !!!
+	*/
 
 	#define PROP_WARN_ANGLE					0x10C
+	/* argument :
+		Angle : Sint16 (RAD4096)
+			0 pour demander un désarmement !!!
+			ATTENTION, pas d'armement possible en 0, demandez 1[rad/4096], c'est pas si loin.
+	*/
 	#define PROP_WARN_X						0x10D
+	/* argument :
+		x : Sint16 (mm)
+			0 pour demander un désarmement !!!
+	*/
 	#define PROP_WARN_Y						0x10E
+	/* argument :
+		y : Sint16 (mm)
+			0 pour demander un désarmement !!!
+	*/
 	#define PROP_SET_CORRECTORS				0x10F
 		//data 0 : bool_e  correcteur en rotation
 		//data 1 : bool_e  correcteur en translation
@@ -703,23 +819,48 @@ typedef enum {
 	/* carte stratégie vers carte balises */
 	#define BEACON_ENABLE_PERIODIC_SENDING	0x410
 	#define BEACON_DISABLE_PERIODIC_SENDING	0x411
-
-	/* Carte balises vers carte stratégie */
-	#define BEACON_ADVERSARY_POSITION_US					0x251	//Balise UltraSon
-	#define BEACON_ADVERSARY_POSITION_IR_ARROUND_AREA		0x252	//Balises terrain avec réception InfraRouge
-	#define BEACON_ADVERSARY_POSITION_US_ARROUND_AREA		0x253	//Balises terrain avec réception UltraSon
 	#define STRAT_FRIEND_FORCE_POSITION						0x258	//Forcer la position du robot ami
 
 
 
-		/* Liste des messages de definition d'erreur --- Pour plus de doc, consulter QS_CANmsgDoc.h */
-		#define AUCUNE_ERREUR						(0b00000000)
-		#define AUCUN_SIGNAL						(0b00000001)
-		#define SIGNAL_INSUFFISANT					(0b00000010)
-		#define TACHE_TROP_GRANDE					(0b00000100)
-		#define TROP_DE_SIGNAL						(0b00001000)
-		#define ERREUR_POSITION_INCOHERENTE 		(0b00010000)
-		#define OBSOLESCENCE						(0b10000000)
+
+		/* DEFINITION DES ERREURS RENVOYEES PAR LA BALISE :
+		###ATTENTION : ce texte est une copie extraite du fichier "balise_config.h" du projet balise.
+		--> Plusieurs erreurs peuvent se cumuler... donc 1 bit chacune...
+		*/
+		#define AUCUNE_ERREUR						0b00000000
+						//COMPORTEMENT : le résultat délivré semble bon, il peut être utilisé.
+
+		#define AUCUN_SIGNAL						0b00000001
+						//survenue de l'interruption timer 3 car strictement aucun signal reçu depuis au moins deux tours moteurs
+						//cette erreur peut se produire si l'on est très loin
+						//COMPORTEMENT : pas d'évittement par balise, prise en compte des télémètres !
+
+		#define SIGNAL_INSUFFISANT					0b00000010
+						//il peut y avoir un peu de signal, mais pas assez pour estimer une position fiable (se produit typiquement si l'on est trop loin)
+						//cette erreur n'est pas grave, on peut considérer que le robot est LOIN !
+						//COMPORTEMENT : pas d'évittement, pas de prise en compte des télémètres !
+
+		#define TACHE_TROP_GRANDE					0b00000100
+						//Ce cas se produit si trop de récepteurs ont vu du signal.
+						// Ce seuil est STRICTEMENT supérieur au cas normal d'un robot très pret. Il y a donc probablement un autre émetteur quelque part, ou on est entouré de miroir.
+						//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
+
+		#define TROP_DE_SIGNAL						0b00001000
+						//Le récepteur ayant reçu le plus de signal en à trop recu
+						//	cas 1, peu probable, le moteur est bloqué (cas de test facile pour vérifier cette fonctionnalité !)
+						//	cas 2, probable, il y a un autre émetteur quelque part !!!
+						// 	cas 3, on est dans une enceinte fermée et on capte trop
+						//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
+
+		#define ERREUR_POSITION_INCOHERENTE 		0b00010000
+						//La position obtenue en x/y est incohérente, le robot semble être franchement hors du terrain
+						//COMPORTEMENT : si la position obtenue indique qu'il est loin, on ne fait pas d'évitement !
+						//sinon, on fait confiance à nos télémètres (?)
+
+		#define OBSOLESCENCE						0b10000000
+						//La position adverse connue est obsolète compte tenu d'une absence de résultat valide depuis un certain temps.
+						//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
 
 
 #endif	/* ndef QS_CANMSGLIST_H */

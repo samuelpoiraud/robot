@@ -686,41 +686,6 @@ void error_counters_update(CAN_msg_t * msg){
 
 			beacon_error_report.report_counter++;
 			break;
-		case BEACON_ADVERSARY_POSITION_US:
-			if(msg->data[0] & 0b0)
-				beacon_error_report.beacon_error_us_counter[msg->data[0]]++;
-			if(msg->data[0] & 0b00000001)
-				beacon_error_report.beacon_error_us_counter[msg->data[1]]++;
-			if(msg->data[0] & 0b00000010)
-				beacon_error_report.beacon_error_us_counter[msg->data[2]]++;
-			if(msg->data[0] & 0b00000100)
-				beacon_error_report.beacon_error_us_counter[msg->data[3]]++;
-			if(msg->data[0] & 0b00001000)
-				beacon_error_report.beacon_error_us_counter[msg->data[4]]++;
-			if(msg->data[0] & 0b00010000)
-				beacon_error_report.beacon_error_us_counter[msg->data[5]]++;
-			if(msg->data[0] & 0b10000000)
-				beacon_error_report.beacon_error_us_counter[msg->data[6]]++;
-
-			if(msg->data[4] & 0b0)
-				beacon_error_report.beacon_error_us_counter[msg->data[0]]++;
-			if(msg->data[4] & 0b00000001)
-				beacon_error_report.beacon_error_us_counter[msg->data[1]]++;
-			if(msg->data[4] & 0b00000010)
-				beacon_error_report.beacon_error_us_counter[msg->data[2]]++;
-			if(msg->data[4] & 0b00000100)
-				beacon_error_report.beacon_error_us_counter[msg->data[3]]++;
-			if(msg->data[4] & 0b00001000)
-				beacon_error_report.beacon_error_us_counter[msg->data[4]]++;
-			if(msg->data[4] & 0b00010000)
-				beacon_error_report.beacon_error_us_counter[msg->data[5]]++;
-			if(msg->data[4] & 0b10000000)
-				beacon_error_report.beacon_error_us_counter[msg->data[6]]++;
-
-
-
-			beacon_error_report.report_counter++;
-			break;
 		default:
 			break;
 	}
@@ -760,18 +725,6 @@ void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 				led_ir_update(BEACON_FAR);
 			break;
 
-	/*	case BEACON_ADVERSARY_POSITION_US:
-			if(global.env.match_started == TRUE)
-				//Enregistrement du type d'erreur
-				error_counters_update(can_msg);
-			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
-			if(can_msg->data[0] || can_msg->data[4])
-				led_us_update(BEACON_ERROR);
-			else if(can_msg->data[1] < 4 || can_msg->data[5] < 4) //Distance US en mm on test seulement le poids fort autrement dit 1024mm
-				led_us_update(BEACON_NEAR);
-			else
-				led_us_update(BEACON_FAR);
-			break;*/
 		default:
 			break;
 	}

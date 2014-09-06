@@ -68,11 +68,11 @@ volatile static SUPERVISOR_error_source_e error_source;
 //Cette fonction DOIT être appelée à l'initialisation. (après l'init de l'odométrie !)
 void WARNER_init()
 {
-	
+
 	warnings = WARNING_NO;
 	error_source = NO_ERROR;
 
-	
+
 	//Désactiver tout les avertisseurs...
 	warner_teta = 0;
 	warner_x = 0;
@@ -80,7 +80,7 @@ void WARNER_init()
 	warner_timer=0;
 	warner_translation = 0;
 	warner_rotation = 0;
-	
+
 	//RAZ paramètres
 		position_saved = global.position;
 
@@ -105,26 +105,26 @@ void WARNER_process_main(void)
 	if(flag_arrived)
 	{
 		flag_arrived = FALSE;
-		SECRETARY_process_send(CARTE_P_TRAJ_FINIE,(Uint8)(warnings), error_source);
-	}	
+		SECRETARY_process_send(PROP_TRAJ_FINIE,(Uint8)(warnings), error_source);
+	}
 
 	if(flag_calibration)
 	{
 		flag_calibration = FALSE;
-		SECRETARY_process_send(CARTE_P_ROBOT_CALIBRE,0, error_source);
+		SECRETARY_process_send(PROP_ROBOT_CALIBRE,0, error_source);
 	}
 
 	if(flag_error)
 	{
 		flag_error = FALSE;
-		SECRETARY_process_send(CARTE_P_PROP_ERREUR,0, error_source);
+		SECRETARY_process_send(PROP_PROP_ERREUR,0, error_source);
 	}
-	
+
 	if(flag_brake)
 	{
 		flag_brake = FALSE;
-		SECRETARY_process_send(CARTE_P_ROBOT_FREINE,0,error_source);
-	}	
+		SECRETARY_process_send(PROP_ROBOT_FREINE,0,error_source);
+	}
 
 	if(flag_selftest_failed)
 	{
@@ -192,8 +192,8 @@ void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e new_er
 		default:
 			warnings |= new_warnings;	//Seul les 8 bits faibles seront transmis !
 		break;
-	}	
-	
+	}
+
 }
 
 
@@ -219,7 +219,7 @@ void WARNER_arm_y(Sint16 y)
 void WARNER_arm_timer(Uint16 duree) //Duree en [ms]
 {
 	warner_timer = duree;
-}	
+}
 
 void WARNER_arm_translation(Uint32 translation)	//en mm
 {
@@ -229,7 +229,7 @@ void WARNER_arm_translation(Uint32 translation)	//en mm
 void WARNER_arm_rotation(Sint16 rotation)	//en rad4096
 {
 	warner_rotation = rotation;
-}	
+}
 
 void WARNER_enable_counter_trajectory_for_test_coefs_finished(void)
 {
@@ -246,16 +246,16 @@ void WARNER_process_it(void)
 	Sint32 delta_x, delta_y;
 	Uint32 delta_translation;
 	Sint16 delta_teta;
-	
+
 	//
 	//Pour louper le point, il faudrait aller a plus de  10mm/5ms, c'est à dire 2m/s !
 	//explication : (VITESSE_TRANSLATION_LUMIERE/4096)*2 )
 	//	la vitesse max qu'on ajoute est la vitesse lumière, en mm, il faut diviser par 4096, le *2 est une sécurité, pour être sur de pas louper le point !
 	//
-	//	
+	//
 	if(enable_counter_trajectory_for_test_coefs_finished)
 		counter_trajectory_for_test_coefs_finished += 5;
-	
+
 	if(warner_teta)
 	{
 		if( absolute(global.position.teta - warner_teta) <=  (PILOT_get_coef(PILOT_ROTATION_SPEED_MAX)/1024)*2)
@@ -264,14 +264,14 @@ void WARNER_process_it(void)
 			warnings |= WARNING_REACH_TETA;
 		}
 	}
-	
+
 	if(warner_x)
 	{
 		if( absolute(global.position.x - warner_x) < (PILOT_get_coef(PILOT_TRANSLATION_SPEED_LIGHT)/4096)*2 )
 		{
 			warner_x = 0;
 			warnings |= WARNING_REACH_X;
-		}	
+		}
 	}
 
 	if(warner_y)
@@ -289,7 +289,7 @@ void WARNER_process_it(void)
 		if( temps >= warner_timer)
 			warnings |= WARNING_TIMER;
 	}
-	
+
 	if(warner_translation)
 	{
 		delta_x = global.position.x - position_saved.x;
@@ -298,7 +298,7 @@ void WARNER_process_it(void)
 		if (delta_translation >= warner_translation)
 			warnings |= WARNING_TRANSLATION;	//Envoi de type
 	}
-	
+
 	if(warner_rotation)
 	{
 		delta_teta = absolute(CALCULATOR_modulo_angle(global.position.teta -  position_saved.teta));
@@ -314,7 +314,7 @@ void WARNER_process_it(void)
 		{
 					position_saved = global.position;
 		}
-	}	
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
