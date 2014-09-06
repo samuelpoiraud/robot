@@ -787,11 +787,21 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////////
 
 	/////////////////////GACHE///////////////////
-	ACT_GACHE = (ACT_FILTER | 0x08)
-		//Paramètres de FILET (dans data[0])
+	ACT_GACHE = (ACT_FILTER | 0x08),
+		//Paramètres de GACHE (dans data[0])
 		#define ACT_GACHE_IDLE				0x11
 		#define ACT_GACHE_LAUNCHED			0x12
 		#define ACT_GACHE_STOP				0x13
+	/////////////////////////////////////////////
+
+	/////////////////TEST SERVO//////////////////
+	ACT_TEST_SERVO = (ACT_FILTER | 0x09)
+		//Paramètres de TEST_SERVO (dans data[0])
+		#define ACT_TEST_SERVO_IDLE				0x11
+		#define ACT_TEST_SERVO_STATE_1			0x12
+		#define ACT_TEST_SERVO_STATE_2			0x13
+		#define ACT_TEST_SERVO_STOP				0x14
+
 	/////////////////////////////////////////////
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs

@@ -22,10 +22,12 @@
 #include "queue.h"
 #include "clock.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_servo.h"
 
 #ifdef I_AM_ROBOT_BIG
 	#include "Pierre/PFilet.h"
 	#include "Pierre/PFruit.h"
+	#include "Pierre/TestServo.h"
 #endif
 
 #include "ActManager.h"
@@ -114,6 +116,9 @@ int main (void)
 
 	//Init actioneurs
 	ACTMGR_init();
+	#ifdef I_AM_ROBOT_BIG
+	   TEST_SERVO_init();
+	#endif
 
 	BUTTONS_define_actions(BUTTON0, &MAIN_onButton0, NULL, 1);
 	BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 1);
@@ -179,6 +184,21 @@ static void MAIN_onButton0() {
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 1;
+	msg.sid = ACT_TEST_SERVO;
+
+	if(state == 0)
+		msg.data[0] = ACT_TEST_SERVO_IDLE;
+	else if(state == 1)
+		msg.data[0] = ACT_TEST_SERVO_STATE_1;
+	else if(state == 2)
+		msg.data[0] = ACT_TEST_SERVO_STATE_2;
+
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+
+	/*static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
 	msg.sid = ACT_FRUIT_MOUTH;
 	if(state == 0)
 		msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
@@ -190,7 +210,7 @@ static void MAIN_onButton0() {
 		msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
 
 	CAN_process_msg(&msg);
-	state = (state == 3)? 0 : state + 1;
+	state = (state == 3)? 0 : state + 1;*/
 	/*static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 2;
