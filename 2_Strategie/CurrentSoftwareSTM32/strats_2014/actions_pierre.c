@@ -33,7 +33,7 @@
 #define FIRE_IN_FRONT_OF_ADVERSARY_FRESCO
 
 
-static void REACH_POINT_C1_send_request();
+//static void REACH_POINT_C1_send_request();
 
 // SWITCH_STRAT_1 est utilisé pour le lancer de balles (5 balles nous et une sur ennemis si active sinon 6 balles chez nous)
 // SWITCH_STRAT_2 est utilisé pour le choix dés le début aller vers la torche directement apres les balles ou faire les fresques si actif fait torche
@@ -671,7 +671,7 @@ error_e do_triangle_start(){
 		RUSH_IN_THE_FLOOR,
 		WAIT,
 		CARRY,
-		PLACEMENT_BRAS_2,
+		//PLACEMENT_BRAS_2,
 		PLACEMENT_FOYER,
 		DISPOSE,
 		DROP,
@@ -1825,14 +1825,14 @@ void strat_test_small_arm(){
 }
 
 
-static void REACH_POINT_C1_send_request() {
+/*static void REACH_POINT_C1_send_request() {
 	CAN_msg_t msg;
 
 	msg.sid = XBEE_REACH_POINT_C1;
 	msg.size = 0;
 
 	CANMsgToXbee(&msg,FALSE);
-}
+}*/
 
 void strat_test_evitement(){
 	CREATE_MAE_WITH_VERBOSE(0,

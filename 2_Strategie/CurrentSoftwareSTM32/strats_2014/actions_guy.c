@@ -418,13 +418,13 @@ void strat_homologation_guy(){
 		ERROR
 	);
 
-	static bool_e we_prevented_pierre_to_get_out = FALSE;
+//	static bool_e we_prevented_pierre_to_get_out = FALSE;
 
 	switch(state)
 	{
 		case INIT:
 			we_have_a_torch = FALSE;
-			we_prevented_pierre_to_get_out = FALSE;
+			//we_prevented_pierre_to_get_out = FALSE;
 			strat_homologation_triangle = TRUE;
 
 			initial_path = TORCH_ROAD;	//En fait, on prend la TORCH_ROAD !
@@ -782,7 +782,7 @@ error_e goto_adversary_zone(void)
 
 		case DO_SOUTH_FIRE:
 
-			#ifdef TELECOM_ROBOTICS;
+			#ifdef TELECOM_ROBOTICS
 				state = try_going(1600,COLOR_Y(1700),DO_SOUTH_FIRE,DONE,SW2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
 			#else
 				state = try_going_until_break(1600,COLOR_Y(1700),DO_SOUTH_FIRE,success_state,SW2,FAST,ANY_WAY,NO_DODGE_AND_WAIT);
