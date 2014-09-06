@@ -26,9 +26,9 @@ void LCD_incoming_can(CAN_msg_t * incomming_msg)
 		case PROP_GO_POSITION:
 		case PROP_GO_ANGLE:
 		case PROP_CALIBRATION:
-		case CARTE_P_PROP_ERREUR:
-		case CARTE_P_ROBOT_CALIBRE:
-		case CARTE_P_TRAJ_FINIE:
+		case PROP_PROP_ERREUR:
+		case PROP_ROBOT_CALIBRE:
+		case PROP_TRAJ_FINIE:
 		case BROADCAST_START:
 		case BROADCAST_STOP_ALL:
 		case BROADCAST_COULEUR:
@@ -52,9 +52,9 @@ void LCD_display_CAN_msg(CAN_msg_t * msg, Uint8 line)
 		case PROP_GO_POSITION:			str = "GOTO POS";			break;
 		case PROP_GO_ANGLE:				str = "GOTO ANGLE";			break;
 		case PROP_CALIBRATION:			str = "CALIBRATION";		break;
-		case CARTE_P_PROP_ERREUR:		str = "PROP ERROR";			break;
-		case CARTE_P_ROBOT_CALIBRE:		str = "CALIBRATE DONE";		break;
-		case CARTE_P_TRAJ_FINIE:		str = "END OF MOVE";		break;
+		case PROP_PROP_ERREUR:			str = "PROP ERROR";			break;
+		case PROP_ROBOT_CALIBRE:		str = "CALIBRATE DONE";		break;
+		case PROP_TRAJ_FINIE:			str = "END OF MOVE";		break;
 		case BROADCAST_START:			str = "BROAD. START";		break;
 		case BROADCAST_STOP_ALL:		str = "BROAD. STOP ALL";	break;
 		case BROADCAST_COULEUR:			str = "NEW COLOR";			break;

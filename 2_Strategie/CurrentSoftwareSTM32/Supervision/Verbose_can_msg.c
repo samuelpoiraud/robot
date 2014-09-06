@@ -79,10 +79,10 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case STRAT_INFORM_FILET:				print(string, len, "%x STRAT_INFORM_FILET				    ", STRAT_INFORM_FILET				);	break;
 		case STRAT_INFORM_FRUIT_MOUTH:			print(string, len, "%x STRAT_INFORM_FRUIT_MOUTH			    ", STRAT_INFORM_FRUIT_MOUTH			);	break;
 		case STRAT_ANSWER_POMPE:				print(string, len, "%x STRAT_ANSWER_POMPE				    ", STRAT_ANSWER_POMPE				);	break;
-		case CARTE_P_TRAJ_FINIE:				print(string, len, "%x CARTE_P_TRAJ_FINIE                   ", CARTE_P_TRAJ_FINIE				);	break;
-		case CARTE_P_PROP_ERREUR:				print(string, len, "%x CARTE_P_PROP_ERREUR                  ", CARTE_P_PROP_ERREUR				);	break;
-		case CARTE_P_ROBOT_FREINE:				print(string, len, "%x CARTE_P_ROBOT_FREINE                 ",	CARTE_P_ROBOT_FREINE			);	break;
-		case CARTE_P_ROBOT_CALIBRE:				print(string, len, "%x CARTE_P_ROBOT_CALIBRE                ", CARTE_P_ROBOT_CALIBRE			);	break;
+		case PROP_TRAJ_FINIE:					print(string, len, "%x PROP_TRAJ_FINIE                   ", PROP_TRAJ_FINIE				);	break;
+		case PROP_PROP_ERREUR:					print(string, len, "%x PROP_PROP_ERREUR                  ", PROP_PROP_ERREUR				);	break;
+		case PROP_ROBOT_FREINE:					print(string, len, "%x PROP_ROBOT_FREINE                 ",	PROP_ROBOT_FREINE			);	break;
+		case PROP_ROBOT_CALIBRE:				print(string, len, "%x PROP_ROBOT_CALIBRE                ", PROP_ROBOT_CALIBRE			);	break;
 		case PROP_GO_ANGLE:						print(string, len, "%x PROPO_GO_ANGLE                       ", PROP_GO_ANGLE 					);	break;
 		case PROP_GO_POSITION:					print(string, len, "%x PROP_GO_POSITION                     ", PROP_GO_POSITION 				);	break;
 		case PROP_SET_POSITION:					print(string, len, "%x PROP_SET_POSITION                    ", PROP_SET_POSITION				);	break;
@@ -113,7 +113,6 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 */		case BEACON_ENABLE_PERIODIC_SENDING: 	print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING       ", BEACON_ENABLE_PERIODIC_SENDING	);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 	print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING      ", BEACON_DISABLE_PERIODIC_SENDING	);	break;
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR: print(string, len, "%x BROADCAST_BEACON_ADVERSARY_POS_IR    ", BROADCAST_BEACON_ADVERSARY_POSITION_IR	);	break;
-		case BEACON_ADVERSARY_POSITION_US:		print(string, len, "%x BEACON_ADVERSARY_POSITION_US         ", BEACON_ADVERSARY_POSITION_US		);	break;
 		case DEBUG_STRAT_STATE_CHANGED:			print(string, len, "%x DEBUG_STRAT_STATE_CHANGED            ", DEBUG_STRAT_STATE_CHANGED		);	break;
 		case XBEE_START_MATCH:					print(string, len, "%x XBEE_START_MATCH                     ", XBEE_START_MATCH					);	break;
 		case XBEE_PING:							print(string, len, "%x XBEE_PING                            ", XBEE_PING						);	break;
@@ -161,10 +160,10 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 //		case PROP_SELFTEST :					print(string, len, "|\n");												break;
 //		case BEACON_IR_SELFTEST:				print(string, len, "|\n");												break;
 //		case BEACON_US_SELFTEST:				print(string, len, "|\n");												break;
-		case CARTE_P_TRAJ_FINIE:				print(string, len, "| J'arrive  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
-		case CARTE_P_PROP_ERREUR:				print(string, len, "| J'erreur  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
-		case CARTE_P_ROBOT_FREINE:				print(string, len, "| J'freine  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
-	//	case CARTE_P_ROBOT_CALIBRE:				print(string, len, "|\n");												break;
+		case PROP_TRAJ_FINIE:					print(string, len, "| J'arrive  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
+		case PROP_PROP_ERREUR:					print(string, len, "| J'erreur  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
+		case PROP_ROBOT_FREINE:					print(string, len, "| J'freine  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
+	//	case PROP_ROBOT_CALIBRE:				print(string, len, "|\n");												break;
 		case PROP_GO_ANGLE:						print(string, len, "| VaAngle   teta=%d=%d° %s %s %s %d%s %s\n",  angle_rad(1, 2),  angle_deg(1, 2), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"marche avant":((u8(6)&0x10)?"marche arrière":"")	);						break;
 		case PROP_GO_POSITION:					print(string, len, "| VaPos     x=%d y=%d %s %s %s vitesse %d%s %s\n", u16(1,2), u16(3,4), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"marche avant":((u8(6)&0x10)?"marche arrière":"")	);	break;
 		case PROP_SET_POSITION:					print(string, len, "| PrendPos  X=%d | Y=%d | teta=0x%x=%d°\n", u16(0,1), u16(2,3),angle_rad(4, 5),  angle_deg(4, 5));													break;
@@ -181,11 +180,8 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		//case BEACON_ENABLE_PERIODIC_SENDING: 	print(string, len, "|\n");												break;
 		//case BEACON_DISABLE_PERIODIC_SENDING: 	print(string, len, "|\n");												break;
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:		if(u8(0) || u8(4))
-													print(string, len, "ERRs:0x%x 0x%x|",u8(0), u8(4));
+												print(string, len, "ERRs:0x%x 0x%x|",u8(0), u8(4));
 												print(string, len, "angleR1=%d |dR1=%dcm |angleR2=%d |dR2=%dcm \n", angle_deg(1,2), (Uint16)(u8(3)),angle_deg(5,6), (Uint16)(u8(7)));	break;
-		case BEACON_ADVERSARY_POSITION_US:		if(u8(0))
-													print(string, len, "ERRs:0x%x 0x%x|",u8(0), u8(4));
-												print(string, len, "dR1=%dmm|dR2=%dmm|id=%d\n", u16(1,2), u16(5,6), u8(3));								break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", u8(0),u32(1,2,3,4));								break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%d\n", u16(0,1));									break;
 		case XBEE_GUY_HAVE_DONE_FIRE:			print(string, len, "| fire_id=%d : %s\n", u8(0), (u8(0) < FIRE_ID_NB)?fire_id_string[u8(0)]:"UNKNOW_FIRE_ID");	break;

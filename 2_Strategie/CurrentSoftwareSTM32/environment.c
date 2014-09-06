@@ -109,7 +109,6 @@ void ENV_init(void)
 void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filter, bool_e * bSAVE_filter)
  {
 	//static time32_t filter_beacon_ir = 0;
-	static time32_t filter_beacon_us = 0;
 	static time32_t filter_broadcast_position = 0;
 
 	*bUART_filter = TRUE;	//On suppose que le message est autorisé.
@@ -141,12 +140,6 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 			//else
 			*bUART_filter = FALSE;	//Ca passe pas...
 			*bSAVE_filter = FALSE;
-		break;
-		case BEACON_ADVERSARY_POSITION_US:
-			if(global.env.absolute_time-1000>filter_beacon_us) //global.compteur_de_secondes est incrémenté toutes les 250 ms ...
-				filter_beacon_us=global.env.absolute_time;
-			else
-				*bUART_filter = FALSE;	//Ca passe pas...
 		break;
 		default:
 			//Message autorisé.
@@ -340,10 +333,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 	switch (incoming_msg->sid)
 	{
 		case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond
-		case CARTE_P_ROBOT_FREINE:
-		case CARTE_P_ROBOT_CALIBRE:
-		case CARTE_P_PROP_ERREUR:
-		case CARTE_P_TRAJ_FINIE:
+		case PROP_ROBOT_FREINE:
+		case PROP_ROBOT_CALIBRE:
+		case PROP_PROP_ERREUR:
+		case PROP_TRAJ_FINIE:
 			ENV_pos_update(incoming_msg);	//Tout ces messages contiennent une position... et d'autres infos communes
 		break;
 		default:
@@ -376,10 +369,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			SELFTEST_ask_launch();
 			break;
 //****************************** Messages carte propulsion/asser *************************/
-		case CARTE_P_TRAJ_FINIE:
+		case PROP_TRAJ_FINIE:
 			global.env.prop.ended = TRUE;
 			break;
-		case CARTE_P_PROP_ERREUR:
+		case PROP_PROP_ERREUR:
 
 			global.env.prop.erreur = TRUE;
 			global.env.prop.vitesse_translation_erreur =
@@ -389,7 +382,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 				((Sint32)U16FROMU8(incoming_msg->data[5],incoming_msg->data[4]) << 16)
 					+ U16FROMU8(incoming_msg->data[7],incoming_msg->data[6]);
 			break;
-		case CARTE_P_ROBOT_CALIBRE:
+		case PROP_ROBOT_CALIBRE:
 			global.env.prop.calibrated = TRUE;
 
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
@@ -425,7 +418,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			}
 
 			break;
-		case CARTE_P_ROBOT_FREINE:
+		case PROP_ROBOT_FREINE:
 			global.env.prop.freine = TRUE;
 
 			break;
@@ -472,11 +465,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.
 			DETECTION_pos_foe_update(incoming_msg);
 			SELFTEST_update_led_beacon(incoming_msg);
-			break;
-		case BEACON_ADVERSARY_POSITION_US:
-			//Pour l'Histoire... (avec un grand H)
-			//DETECTION_pos_foe_update(incoming_msg);
-			//SELFTEST_update_led_beacon(incoming_msg);
 			break;
 		case STRAT_ADVERSARIES_POSITION:
 			DETECTION_pos_foe_update(incoming_msg);

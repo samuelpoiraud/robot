@@ -156,18 +156,18 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 			case BROADCAST_POSITION_ROBOT:
 				debug_printf("Pos:");
 			break;
-			case CARTE_P_TRAJ_FINIE:
+			case PROP_TRAJ_FINIE:
 				debug_printf("TrajFinie:");
 			break;
-			case CARTE_P_PROP_ERREUR:
+			case PROP_PROP_ERREUR:
 				debug_printf("Err:0x%x", msg->data[7]&0b111);
 			break;
-			case CARTE_P_ROBOT_FREINE:
+			case PROP_ROBOT_FREINE:
 				debug_printf("Freine:");
 			break;
 						//case PROP_SELFTEST:
 						//break;
-						case CARTE_P_ROBOT_CALIBRE:
+						case PROP_ROBOT_CALIBRE:
 						break;
 			case STRAT_PROP_PONG:
 				debug_printf("Pong\n");
