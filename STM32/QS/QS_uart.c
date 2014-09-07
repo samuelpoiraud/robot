@@ -20,7 +20,21 @@
 #endif
 
 #ifndef USART_FOR_PRINTF
-	#define USART_FOR_PRINTF	1	//Default uart for output : 1.
+	#define USART_FOR_PRINTF		1	//Default uart for output : 1.
+#endif
+
+#if USART_FOR_PRINTF == 1
+	#define USART_FOR_PRINTF_PTR USART1
+#elif USART_FOR_PRINTF == 2
+	#define USART_FOR_PRINTF_PTR USART2
+#elif	USART_FOR_PRINTF == 3
+	#define USART_FOR_PRINTF_PTR USART3
+#elif USART_FOR_PRINTF == 4
+	#define USART_FOR_PRINTF_PTR USART4
+#elif	 USART_FOR_PRINTF == 5
+	#define USART_FOR_PRINTF_PTR USART5
+#elif	 USART_FOR_PRINTF == 6
+	#define USART_FOR_PRINTF_PTR USART6
 #endif
 
 //	Determination de la vitesse de l'uart en fonction
@@ -304,8 +318,8 @@ int _write(int file, char *ptr, int len)
 		case 2:  //stderr = problème (entre autre trap_handler) donc pas de buffering
 			for (i = 0; i < len; ++i)
 			{
-				while(USART_GetFlagStatus(USART_FOR_PRINTF, USART_FLAG_TXE) == RESET);
-				USART_SendData(USART_FOR_PRINTF, *ptr++);
+				while(USART_GetFlagStatus(USART_FOR_PRINTF_PTR, USART_FLAG_TXE) == RESET);
+				USART_SendData(USART_FOR_PRINTF_PTR, *ptr++);
 			}
 			return len;
 			break;

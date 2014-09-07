@@ -40,7 +40,7 @@ void SUPERVISOR_init(void)
 {
 	SUPERVISOR_state_machine(EVENT_NOTHING_TO_DO,FALSE);
 	SUPERVISOR_error_check_enable(TRUE);
-	SUPERVISOR_set_treshold_error_translation(TRESHOLD_ERROR_TRANSLATION);
+	SUPERVISOR_set_treshold_error_translation(0); // Equivalent à TRESHOLD_ERROR_TRANSLATION/4096
 }
 
 
