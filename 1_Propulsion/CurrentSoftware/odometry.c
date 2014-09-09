@@ -60,7 +60,7 @@ void ODOMETRY_init()
 	}
 }
 
-Sint16 get_calibration_backward_distance(void) 
+Sint16 get_calibration_backward_distance(void)
 {
 	return calibration_backward_border_distance;
 }
@@ -176,15 +176,17 @@ void ODOMETRY_update(void)
 	static Sint32 gyro_teta = 0;
 	Sint16 cos,sin; 	//[pas d'unité/4096]
 	Sint32 cos32, sin32;
-		Sint32 left, right;
-		//deviation occasionné par la force centrifuge
-		Sint32 deviation_x;
-		Sint32 deviation_y;
-		Sint32 real_speed_x;	//[mm/65536/5ms]
-		Sint32 real_speed_y;	//[mm/65536/5ms]
+	Sint32 left, right;
+	//deviation occasionné par la force centrifuge
+	Sint32 deviation_x;
+	Sint32 deviation_y;
+	Sint32 real_speed_x;	//[mm/65536/5ms]
+	Sint32 real_speed_y;	//[mm/65536/5ms]
 
 	//TEMPORAIRE pour tests gyro :
 	static Uint8 loop = 0;
+	static bool_e init_gyro = FALSE;
+	static float offset_gyro = 0;
 	bool_e gyro_valid;
 	Sint16 degre;
 	Sint32 gyro_speed;
@@ -200,35 +202,50 @@ void ODOMETRY_update(void)
 
 	ENCODERS_get(&left, &right);
 
+	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
+	global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
+	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
+	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
 
-	gyro_speed = GYRO_get_speed_rotation(&gyro_valid);	//[rad/4096/1024/5ms]
-	gyro_teta += gyro_speed;
+	gyro_speed = GYRO_get_speed_rotation(&gyro_valid);
 
 	if(gyro_valid)
 	{
+		if((global.real_speed_rotation <= 50)&&(global.real_speed_translation <= 10)&&(global.real_speed_rotation >= -50)&&(global.real_speed_translation >= -10)){ // Les roues codeuses n'ont pas bougé
+			if(!init_gyro){
+				offset_gyro = gyro_speed;
+				init_gyro = TRUE;
+			}else{
+				offset_gyro = offset_gyro*99./100 + gyro_speed*1./100;
+			}
+		}
+
+		gyro_teta += gyro_speed - (Sint32){offset_gyro};
+
 		degre = ((gyro_teta / PI4096)*180) >> 10;
+
 		if(!loop)
 		{
+			debug_printf("x32    %d,    y32     %6ld\n", global.real_speed_rotation, global.real_speed_translation);
+			//display_float(offset_gyro);
 			debug_printf("%6ld, %6ld, %d\n",gyro_speed, gyro_teta, degre);
 			loop = 50;
 		}
 		loop--;
 	}
+
 	//TODO : comparer speed avec global.real_speed_rotation produit ci-dessous
 
-	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
-	global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
-	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
-														//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
 
-	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-		#warning "Simulation avec robot virtuel parfait activée... ne pas utiliser ce code dans le robot sans volonté volontaire de nuire à la bonne pratique > robot en 'boucle ouverte' !"
-		DEBUG_envoi_point_fictif_alteration_coordonnees_reelles();
-	#endif
-	#ifdef LCD_TOUCH
-		if(global.disable_virtual_perfect_robot)	//Robot virtuel désactivé
-			return;
-	#endif
+
+#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+#warning "Simulation avec robot virtuel parfait activée... ne pas utiliser ce code dans le robot sans volonté volontaire de nuire à la bonne pratique > robot en 'boucle ouverte' !"
+	DEBUG_envoi_point_fictif_alteration_coordonnees_reelles();
+#endif
+#ifdef LCD_TOUCH
+	if(global.disable_virtual_perfect_robot)	//Robot virtuel désactivé
+		return;
+#endif
 	//vitesses X et Y
 	//cos et sin sont exprimés en [pas d'unité/4096]
 	real_speed_x =(global.real_speed_translation*cos32)>>8;		//[mm/65536/5ms] = [mm/4096/5ms]*[/4096]*[256]
@@ -252,8 +269,8 @@ void ODOMETRY_update(void)
 	//calcul de la deviation du à l'action de la force centrifuge
 	deviation_x = -(coefs[ODOMETRY_COEF_CENTRIFUGAL]*(global.real_speed_rotation/128)*(real_speed_y/128))/1024; //[rad/65536/5ms]*[mm/512/5ms]
 	deviation_y = (coefs[ODOMETRY_COEF_CENTRIFUGAL]*(global.real_speed_rotation/128)*(real_speed_x/128))/1024; //[rad/65536/5ms]*[mm/512/5ms]
-		//Ordre de grandeur : pour 1 unité du coef_odometrie_centrifuge, et à la vitesse max (rot et trans), on corrige de 1mm/secondes environ !
-		//Donc si on a l'impression que le robot perd un centimètre quand il est à fond, et pendant 1 seconde, le coef aura probablement une réglage en dizaine...
+	//Ordre de grandeur : pour 1 unité du coef_odometrie_centrifuge, et à la vitesse max (rot et trans), on corrige de 1mm/secondes environ !
+	//Donc si on a l'impression que le robot perd un centimètre quand il est à fond, et pendant 1 seconde, le coef aura probablement une réglage en dizaine...
 
 	//Mise a jour de la position en x et y
 	x32 += real_speed_x + deviation_x; 				//[mm/65536]
@@ -264,7 +281,7 @@ void ODOMETRY_update(void)
 	//Mise à jour de l'angle
 	teta32 += global.real_speed_rotation;	//[rad/1024/4096]
 
-		//Gestion de l'angle modulo 2PI !!!
+	//Gestion de l'angle modulo 2PI !!!
 	if(teta32 < (-PI_22) )
 		teta32 += TWO_PI22;
 	if(teta32 > PI_22)
