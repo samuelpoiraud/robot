@@ -1158,14 +1158,14 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
 	);
 
 	static bool_e timeout;
-	static bool_e sucess;
+	static bool_e success;
 	static time32_t local_time;
 	static GEOMETRY_point_t escape_point;
 
 	switch(state){
 		case IDLE :
 			timeout = FALSE;
-			sucess = FALSE;
+			success = FALSE;
 			escape_point = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 			state = RUSH_WALL;
 			break;
@@ -1180,7 +1180,7 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
 				if(/*CAPTEUR_DETECTION_BORDURE*/TRUE){
 					global.env.recalage_x.offset = global.env.pos.x - wanted_x;
 					global.env.recalage_x.last_time = global.env.match_time;
-					sucess = TRUE;
+					success = TRUE;
 					display(global.env.recalage_y.offset);
 				}else
 					BUZZER_play(500, DEFAULT_NOTE, 2);
@@ -1202,7 +1202,7 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x){
 
 	case DONE :
 		state = IDLE;
-		if(sucess)
+		if(success)
 			return END_OK;
 		else
 			return NOT_HANDLED;
@@ -1221,14 +1221,14 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 	);
 
 	static bool_e timeout;
-	static bool_e sucess;
+	static bool_e success;
 	static time32_t local_time;
 	static GEOMETRY_point_t escape_point;
 
 	switch(state){
 		case IDLE :
 			timeout = FALSE;
-			sucess = FALSE;
+			success = FALSE;
 			escape_point = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 			state = RUSH_WALL;
 			break;
@@ -1243,7 +1243,7 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 				if(/*CAPTEUR_DETECTION_BORDURE*/TRUE){
 					global.env.recalage_y.offset = global.env.pos.y - wanted_y;
 					global.env.recalage_y.last_time = global.env.match_time;
-					sucess = TRUE;
+					success = TRUE;
 					display(global.env.recalage_y.offset);
 				}else
 					BUZZER_play(500, DEFAULT_NOTE, 2);
@@ -1265,7 +1265,7 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y){
 
 		case DONE :
 			state = IDLE;
-			if(sucess)
+			if(success)
 				return END_OK;
 			else
 				return NOT_HANDLED;

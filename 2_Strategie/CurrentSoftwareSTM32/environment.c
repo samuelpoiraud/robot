@@ -333,10 +333,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 	switch (incoming_msg->sid)
 	{
 		case BROADCAST_POSITION_ROBOT:	   //Les raisons seront ensuite traitees dans la tache de fond
-		case PROP_ROBOT_FREINE:
+		case STRAT_ROBOT_FREINE:
 		case PROP_ROBOT_CALIBRE:
-		case PROP_PROP_ERREUR:
-		case PROP_TRAJ_FINIE:
+		case STRAT_PROP_ERREUR:
+		case STRAT_TRAJ_FINIE:
 			ENV_pos_update(incoming_msg);	//Tout ces messages contiennent une position... et d'autres infos communes
 		break;
 		default:
@@ -369,10 +369,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			SELFTEST_ask_launch();
 			break;
 //****************************** Messages carte propulsion/asser *************************/
-		case PROP_TRAJ_FINIE:
+		case STRAT_TRAJ_FINIE:
 			global.env.prop.ended = TRUE;
 			break;
-		case PROP_PROP_ERREUR:
+		case STRAT_PROP_ERREUR:
 
 			global.env.prop.erreur = TRUE;
 			global.env.prop.vitesse_translation_erreur =
@@ -418,7 +418,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			}
 
 			break;
-		case PROP_ROBOT_FREINE:
+		case STRAT_ROBOT_FREINE:
 			global.env.prop.freine = TRUE;
 
 			break;

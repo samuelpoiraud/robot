@@ -105,7 +105,7 @@ void WARNER_process_main(void)
 	if(flag_arrived)
 	{
 		flag_arrived = FALSE;
-		SECRETARY_process_send(PROP_TRAJ_FINIE,(Uint8)(warnings), error_source);
+		SECRETARY_process_send(STRAT_TRAJ_FINIE,(Uint8)(warnings), error_source);
 	}
 
 	if(flag_calibration)
@@ -117,13 +117,13 @@ void WARNER_process_main(void)
 	if(flag_error)
 	{
 		flag_error = FALSE;
-		SECRETARY_process_send(PROP_PROP_ERREUR,0, error_source);
+		SECRETARY_process_send(STRAT_PROP_ERREUR,0, error_source);
 	}
 
 	if(flag_brake)
 	{
 		flag_brake = FALSE;
-		SECRETARY_process_send(PROP_ROBOT_FREINE,0,error_source);
+		SECRETARY_process_send(STRAT_ROBOT_FREINE,0,error_source);
 	}
 
 	if(flag_selftest_failed)

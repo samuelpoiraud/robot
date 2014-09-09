@@ -79,9 +79,9 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case STRAT_INFORM_FILET:				print(string, len, "%x STRAT_INFORM_FILET				    ", STRAT_INFORM_FILET				);	break;
 		case STRAT_INFORM_FRUIT_MOUTH:			print(string, len, "%x STRAT_INFORM_FRUIT_MOUTH			    ", STRAT_INFORM_FRUIT_MOUTH			);	break;
 		case STRAT_ANSWER_POMPE:				print(string, len, "%x STRAT_ANSWER_POMPE				    ", STRAT_ANSWER_POMPE				);	break;
-		case PROP_TRAJ_FINIE:					print(string, len, "%x PROP_TRAJ_FINIE                   ", PROP_TRAJ_FINIE				);	break;
-		case PROP_PROP_ERREUR:					print(string, len, "%x PROP_PROP_ERREUR                  ", PROP_PROP_ERREUR				);	break;
-		case PROP_ROBOT_FREINE:					print(string, len, "%x PROP_ROBOT_FREINE                 ",	PROP_ROBOT_FREINE			);	break;
+		case STRAT_TRAJ_FINIE:					print(string, len, "%x STRAT_TRAJ_FINIE                   ", STRAT_TRAJ_FINIE				);	break;
+		case STRAT_PROP_ERREUR:					print(string, len, "%x STRAT_PROP_ERREUR                  ", STRAT_PROP_ERREUR				);	break;
+		case STRAT_ROBOT_FREINE:					print(string, len, "%x STRAT_ROBOT_FREINE                 ",	STRAT_ROBOT_FREINE			);	break;
 		case PROP_ROBOT_CALIBRE:				print(string, len, "%x PROP_ROBOT_CALIBRE                ", PROP_ROBOT_CALIBRE			);	break;
 		case PROP_GO_ANGLE:						print(string, len, "%x PROPO_GO_ANGLE                       ", PROP_GO_ANGLE 					);	break;
 		case PROP_GO_POSITION:					print(string, len, "%x PROP_GO_POSITION                     ", PROP_GO_POSITION 				);	break;
@@ -160,9 +160,9 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 //		case PROP_SELFTEST :					print(string, len, "|\n");												break;
 //		case BEACON_IR_SELFTEST:				print(string, len, "|\n");												break;
 //		case BEACON_US_SELFTEST:				print(string, len, "|\n");												break;
-		case PROP_TRAJ_FINIE:					print(string, len, "| J'arrive  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
-		case PROP_PROP_ERREUR:					print(string, len, "| J'erreur  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
-		case PROP_ROBOT_FREINE:					print(string, len, "| J'freine  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
+		case STRAT_TRAJ_FINIE:					print(string, len, "| J'arrive  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
+		case STRAT_PROP_ERREUR:					print(string, len, "| J'erreur  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
+		case STRAT_ROBOT_FREINE:					print(string, len, "| J'freine  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
 	//	case PROP_ROBOT_CALIBRE:				print(string, len, "|\n");												break;
 		case PROP_GO_ANGLE:						print(string, len, "| VaAngle   teta=%d=%d° %s %s %s %d%s %s\n",  angle_rad(1, 2),  angle_deg(1, 2), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"marche avant":((u8(6)&0x10)?"marche arrière":"")	);						break;
 		case PROP_GO_POSITION:					print(string, len, "| VaPos     x=%d y=%d %s %s %s vitesse %d%s %s\n", u16(1,2), u16(3,4), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"marche avant":((u8(6)&0x10)?"marche arrière":"")	);	break;

@@ -361,13 +361,13 @@
 
 	/* carte propulsion vers carte stratégie */
 //TODO renommer ces messages pour respecter le nom es cartes (STRAT et PROP)
-	#define PROP_TRAJ_FINIE			0x210
+	#define STRAT_TRAJ_FINIE			0x210
 	/*
 		X : Sint16 (mm)
 		Y : Sint16 (mm)
 		Angle : Sint16 (RAD4096)
 	*/
-	#define PROP_PROP_ERREUR			0x211
+	#define STRAT_PROP_ERREUR			0x211
 	/*
 		X : Sint16 (mm)
 		Y : Sint16 (mm)
@@ -404,7 +404,7 @@
 
 	*/
 
-	#define PROP_ROBOT_FREINE		0x213
+	#define STRAT_ROBOT_FREINE		0x213
 	/*
 		X : Sint16 (mm)
 		Y : Sint16 (mm)
