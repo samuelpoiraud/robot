@@ -12,7 +12,7 @@
 #ifndef LCD_INTERFACE_H
 #define	LCD_INTERFACE_H
 
-#include "selftest.h"
+#include "Selftest.h"
 
 
 /*
