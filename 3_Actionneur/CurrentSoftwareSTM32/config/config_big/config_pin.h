@@ -67,7 +67,7 @@
 	//	-	OSC32_out 			  	  15
 
 
-#define PORT_D_IO_MASK	0x03FB
+#define PORT_D_IO_MASK	0x03DB
 	//	CAN_RX						  0
 	//	CAN_TX						  1
 	#define GACHE_FILET			GPIOD->ODR2

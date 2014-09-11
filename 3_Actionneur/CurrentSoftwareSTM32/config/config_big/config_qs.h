@@ -68,7 +68,4 @@
 	#define WATCHDOG_MAX_COUNT 5
 	#define WATCHDOG_QUANTUM 1
 
-	#define USE_SERVO
-	#define SERVO_TIMER 0
-
 #endif /* PIERRE_CONFIG_QS_H */

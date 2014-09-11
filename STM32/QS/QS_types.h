@@ -37,23 +37,23 @@
 		FALSE=0,
 		TRUE
 	} bool_e;
-	
+
 	typedef enum
 	{
 		RED=0, BLUE=1, YELLOW=1
 	} color_e;
-	
-	typedef struct 
+
+	typedef struct
 	{
 		Uint11 sid;
 		Uint8 data[8];
 		Uint8 size;
 	}CAN_msg_t;
 
-	typedef enum 
+	typedef enum
 	{
-		CARTE_PROP, 
-		CARTE_ACT, 
+		CARTE_PROP,
+		CARTE_ACT,
 		CARTE_P,
 		CARTE_SUPER,
 		CARTE_BALISE
@@ -89,21 +89,29 @@
 	/*type de trajectoire - utilisé dans le code propulsion et partagé pour la stratégie... */
 	typedef enum
 	{
-			TRAJECTORY_TRANSLATION = 0,
-			TRAJECTORY_ROTATION,
-			TRAJECTORY_STOP,
-			TRAJECTORY_AUTOMATIC_CURVE,
-			TRAJECTORY_NONE
+		TRAJECTORY_TRANSLATION = 0,
+		TRAJECTORY_ROTATION,
+		TRAJECTORY_STOP,
+		TRAJECTORY_AUTOMATIC_CURVE,
+		TRAJECTORY_NONE
 	} trajectory_e;
+
+	/*type d'évitement - utilisé dans le code propulsion et partagé pour la stratégie... */
+	typedef enum
+	{
+		AVOID_DISABLED,
+		AVOID_ENABLED,
+		AVOID_ENABLED_AND_WAIT
+	} avoidance_e;
 
 	typedef enum
 	{
-			FAST = 0,
-			SLOW,
-			SLOW_TRANSLATION_AND_FAST_ROTATION,
-			FAST_TRANSLATION_AND_SLOW_ROTATION,
-			EXTREMELY_VERY_SLOW,
-			CUSTOM	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
+		FAST = 0,
+		SLOW,
+		SLOW_TRANSLATION_AND_FAST_ROTATION,
+		FAST_TRANSLATION_AND_SLOW_ROTATION,
+		EXTREMELY_VERY_SLOW,
+		CUSTOM	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
 	 } PROP_speed_e;
 
 #endif /* ndef QS_TYPES_H */
