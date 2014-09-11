@@ -25,10 +25,6 @@
 #include "config_use.h"
 #include "Supervision/Supervision.h"
 
-#include "strats_2014/actions_both_2014.h"
-#include "strats_2014/actions_guy.h"
-#include "strats_2014/actions_pierre.h"
-
 #include "strats_2015/actions_both_2015.h"
 #include "strats_2015/actions_guy.h"
 #include "strats_2015/actions_pierre.h"
@@ -70,24 +66,15 @@ static const strategy_list_s list_strategy[] = {
 
 	// Pour les deux robots
 	//display name			name function							// match duration	// afficher sur le LCD	// stratégie pour quel robot BIG/SMALL/BOTH(les deux)
-	{"high_level_strat",	high_level_strat,						MATCH_DURATION,		TRUE,					BOTH},
-	{"strat_homologation",	strat_homologation,						MATCH_DURATION,		TRUE,					BIG},
+    {"high_level_strat",	high_level_strat,						MATCH_DURATION,		TRUE,					BOTH},
 	{"strat_odo_rot",		strat_reglage_odo_rotation,				0,					TRUE,					BOTH},
 	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE,					BOTH},
 	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE,					BOTH},
-	{"strat_prop",			strat_reglage_prop,					0,					TRUE,					BOTH},
-	{"Str_avoidance",		test_strat_robot_virtuel_with_avoidance,MATCH_DURATION,		FALSE,					BOTH},
-	{"TEST_pathfind",		TEST_pathfind,							MATCH_DURATION,		FALSE,					BOTH},
-	{"test_evitement",		test_strat_robot_virtuel_with_avoidance,0,					FALSE,					BOTH},
+    {"strat_prop",			strat_reglage_prop,					0,					TRUE,					BOTH}
 
-	// Pour pierre
-	{"strat_lannion",		strat_lannion,							MATCH_DURATION,		FALSE,					BIG},
-//	{"strat_pts_2",			strat_test_point2,						MATCH_DURATION,		TRUE,					BIG},
-	{"Str_Detect_Triangle", Strat_Detection_Triangle,				MATCH_DURATION,		FALSE,					BIG},
+    // Pour pierre
 
-	// Pour guy
-	{"Strat Belgique",		strat_belgique_guy,						MATCH_DURATION,		TRUE,					SMALL},
-	{"Strat Homologation",	strat_homologation_guy,					MATCH_DURATION,		TRUE,					SMALL}
+    // Pour guy
 };
 
 static const strategy_list_s *list_displayed_strategy[50];
