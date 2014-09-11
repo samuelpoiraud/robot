@@ -58,14 +58,14 @@
 		DODGE_AND_NO_WAIT,		// tentative d'évitement immédiate, puis NOT_HANDLED
 		NO_DODGE_AND_WAIT,		// attente normale, puis NOT_HANDLED
 		NO_DODGE_AND_NO_WAIT,	// aucune attente, aucune esquive, on détecte, on NOT_HANDLED !
-		NO_AVOIDANCE,			// désactive l'évitement
+        NO_AVOIDANCE			// désactive l'évitement
 	} avoidance_type_e;
 
 	/*Type d'evitement pour construction du message de debug*/
 	typedef enum{
 		FORCED_BY_USER = 0,
 		FOE1,
-		FOE2,
+        FOE2
 	} foe_origin_e;
 
 	/* Définition du type déplacement */
@@ -167,13 +167,21 @@
 	 * Avance d'une distance d à partir de la position actuelle.
 	 *
 	 * pre    : la position du robot doit être à jour
-	 * post   : la pile asser est vidée
-	 * param d : Distance à parcourir, valeur positive.
+     * post   : la pile asser est vidée
+     *
+     * param x/y            Coordonnée du point cible
+     * param way            Sens de déplacement
+     * param avoidance      Type d'evitement à faire
+     * param end_condition  Comportement du robot en fin de trajectoire
+     * param in_progress    Etat en cours
+     * param success_state  Etat à retourner si le déplacement s'est terminé correctement
+     * param fail_state     Etat à retourner si le déplacement ne s'est pas terminé correctement
+     *
 	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
 	 */
-	Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance);
-	Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance);
-/*
+    Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+
+    /*
 	 * Comme try_going mais avec le support du multipoint
 	 *
 	 * pre : Etre sur le terrain
@@ -188,41 +196,41 @@
 	 * param fail_state état à retourner si le déplacement ne s'est pas terminé correctement
 	 */
 	Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
-	/*
-	 * Avance d'une distance d à partir de la position actuelle.
+
+    /*
+     * Placement du robot dans l'angle demandé
 	 *
 	 * pre    : la position du robot doit être à jour
 	 * post   : la pile asser est vidée
-	 * param d : Angle en PI4096.
-	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
+     * param angle : Angle en PI4096
+     * param way            Sens de déplacement
+     * param avoidance      Type d'evitement à faire
+     * param in_progress    Etat en cours
+     * param success_state  Etat à retourner si le déplacement s'est terminé correctement
+     * param fail_state     Etat à retourner si le déplacement ne s'est pas terminé correctement
+     *
+     * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
 	 */
 	Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed);
 
 
 	/*
-	 * Avance d'une distance d à partir de la position actuelle et en fonction du sens donné.
+     * Avance d'une distance dist à partir de la position actuelle et en fonction du sens donné.
 	 *
 	 * pre    : la position du robot doit être à jour
 	 * post   : la pile asser est vidée
-	 * param dist : distance à se déplacer.
-	 * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
+     *
+     * param dist           Distance à se déplacer.
+     * param way            Sens de déplacement
+     * param avoidance      Type d'evitement à faire
+     * param end_condition  Comportement du robot en fin de trajectoire
+     * param in_progress    Etat en cours
+     * param success_state  Etat à retourner si le déplacement s'est terminé correctement
+     * param fail_state     Etat à retourner si le déplacement ne s'est pas terminé correctement
+     *
+     * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
 	 */
-	Uint8 try_advance(Uint16 dist, bool_e compute, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance);
-
-
-	Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, PROP_end_condition_e end_condition);
-
-	/*
-	 * Avance d'une distance d à partir de la position actuelle.
-	 *
-	 * pre    : la position du robot doit être à jour
-	 * post   : la pile asser est vidée
-	 * param d : Distance à parcourir, valeur positive.
-	 * return IN_PROGRESS   : le déplacement est en cours.
-	 * return END_OK		: le robot s'est déplacé de d.
-	 * return NOT_HANDLED   : une des coordonées de destination est négative.
-	 */
-	error_e relative_move (Sint16 d, PROP_speed_e speed, way_e way, PROP_end_condition_e end_condition);
+    Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
 	/*
 	 * Envoie un message CAN à l'asser et attend la reponse
@@ -237,16 +245,8 @@
 	 * return END_OK		: le robot est arrêté et la pile PROP est vidée
 	 */
 	error_e ACTION_prop_stop();
+    Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
-
-	/***************************** Evitement 2010 **************************/
-
-	/*
-	* Fonction et merde ya une erreur d'asser
-	* C'est du made in Christian, faut revoir ça au calme
-	* l'évitement de l'adversaire est plus prioritaire cette année (2011)
-	*/
-	error_e move_colision();
 
 
 	/***************************** Evitement 2011 **************************/
@@ -268,7 +268,6 @@
 	* return END_WITH_TIMEOUT : Timeout
 	* return FOE_IN_PATH : un adversaire nous bloque
 	*/
-
 	error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition);
 
 
@@ -276,62 +275,60 @@
 	void AVOIDANCE_set_timeout(Uint16 msec);
 
 
-typedef enum
-{
-	NORTH_US = 0,
-	NORTH_FOE = 1,
-	SOUTH_US = 2,
-	SOUTH_FOE = 3
-} foe_pos_e;
+    typedef enum
+    {
+        NORTH_US = 0,
+        NORTH_FOE = 1,
+        SOUTH_US = 2,
+        SOUTH_FOE = 3
+    } foe_pos_e;
 
-// Vérifie adversaire dans NORTH_BLUE, NORTH_RED...
-foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id);
+    // Vérifie adversaire dans NORTH_BLUE, NORTH_RED...
+    foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id);
 
 
-/*
-* Fonction qui regarde si l'adversaire est devant nous pendant un mouvement, et on l'évite si nécessaire
-* Elle doit être appelée à la place de STACKS_wait_end_auto_pull (c'est géré dans cette fonction)
-*
-* pre : Etre sur le terrain
-* post : Pile PROP vidée
-* param : nombre de mouvements chargés dans la pile
-*
-* return IN_PROGRESS : En cours
-* return END_OK : Terminé
-* return NOT_HANDLED : Action impossible, ou timeout normal
-* return END_WITH_TIMEOUT : Adversaire rencontré, mais on est arrivé à destination
-*/
-error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type);
+    /*
+    * Fonction qui regarde si l'adversaire est devant nous pendant un mouvement, et on l'évite si nécessaire
+    * Elle doit être appelée à la place de STACKS_wait_end_auto_pull (c'est géré dans cette fonction)
+    *
+    * pre : Etre sur le terrain
+    * post : Pile PROP vidée
+    * param : nombre de mouvements chargés dans la pile
+    *
+    * return IN_PROGRESS : En cours
+    * return END_OK : Terminé
+    * return NOT_HANDLED : Action impossible, ou timeout normal
+    * return END_WITH_TIMEOUT : Adversaire rencontré, mais on est arrivé à destination
+    */
+    error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type);
 
-/*
- * Envoie un message can lors d'un evitement avec les raisons
- *
- */
-void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
+    /*
+     * Envoie un message can lors d'un evitement avec les raisons
+     *
+     */
+    void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
 
-/*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
-error_e extraction_of_foe(PROP_speed_e speed);
+    /*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
+    error_e extraction_of_foe(PROP_speed_e speed);
 
-Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+    /**
+     * @brief foe_in_zone
+     *
+     * @param verbose				: A activer afin d'avoir un affichage de notre position, de l'ennemie et de la détection de l'ennemie
+     * @param x						: La position X du point à tester
+     * @param y						: La position Y du point à tester
+     * @param check_on_all_traject	: A activer si l'ont veut tester la présence d'un ennemie sur toute la trajectoire ou juste dans la distance d'évitement
+     *
+     * @return						: Retounre TRUE si un ennemi est dans la zone
+     */
+    bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
 
-/**
- * @brief foe_in_zone
- *
- * @param verbose				: A activer afin d'avoir un affichage de notre position, de l'ennemie et de la détection de l'ennemie
- * @param x						: La position X du point à tester
- * @param y						: La position Y du point à tester
- * @param check_on_all_traject	: A activer si l'ont veut tester la présence d'un ennemie sur toute la trajectoire ou juste dans la distance d'évitement
- *
- * @return						: Retounre TRUE si un ennemi est dans la zone
- */
-bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
+    bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
 
-bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
+    error_e goto_extract_with_avoidance(const displacement_t displacements);
 
-error_e goto_extract_with_avoidance(const displacement_t displacements);
-
-//Le point passé en paramètre permet-il les rotations ?
-bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p);
+    //Le point passé en paramètre permet-il les rotations ?
+    bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p);
 
 
 #endif /* ndef AVOIDANCE_H */
