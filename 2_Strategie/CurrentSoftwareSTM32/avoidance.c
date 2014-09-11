@@ -47,36 +47,12 @@ static error_e AVOIDANCE_watch_prop_stack();
 #endif
 
 
-
-//Fonction de déplacement qui renvoie un état de stratégie suivant l'avancement du déplacement. Il s'arrète à la fin du déplacement
-Uint8 try_going_until_break(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance)
-{
-	error_e sub_action;
-	//sub_action = goto_pos_with_scan_foe_until_break((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
-	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}},NULL, 1,way,avoidance, END_AT_BREAK);
-	switch(sub_action){
-		case IN_PROGRESS:
-			return in_progress;
-			break;
-		case FOE_IN_PATH:
-		case NOT_HANDLED:
-			return fail_state;
-			break;
-		case END_OK:
-		case END_WITH_TIMEOUT:
-		default:
-			return success_state;
-			break;
-	}
-	return in_progress;
-}
-
 //Action qui gere un déplacement et renvoi le state rentré en arg. Ne s'arrète qu'à la fin que si aucun autre déplacement n'est demandé.
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance)
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
-	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, END_AT_LAST_POINT);
+    sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -93,7 +69,6 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 	}
 	return in_progress;
 }
-
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Cette fonction permet le multipoint.
 Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
@@ -117,13 +92,14 @@ Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displa
 	return in_progress;
 }
 
+//Action qui gere un changement d'angle et renvoi le state rentré en arg.
 Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed)
 {
 	enum state_e
 	{
 		EMPILE,
 		WAIT,
-		DONE,
+        DONE
 	};
 	static enum state_e state = EMPILE;
 	Uint8 ret;
@@ -152,79 +128,89 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 	return ret;
 }
 
-Uint8 try_relative_move(Sint16 distance, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, PROP_end_condition_e end_condition)
-{
-	/* Gestion de la machine à états */
-	enum state_e {
-		COMPUTE_AND_GO,
-		GOING
-	};
-	static enum state_e state = COMPUTE_AND_GO;
-
-	static bool_e timeout=FALSE;
-	Sint32 x,y;
-	Sint16 cosinus, sinus;
-	Uint8 ret;
-	ret = in_progress;
-	switch (state)
-	{
-		case COMPUTE_AND_GO :
-			//STACKS_flush(PROP);
-			/* Si la distance fournie est négative, on inverse la direction */
-			if (distance < 0) {
-				if (way == BACKWARD) way = FORWARD;
-				if (way == FORWARD) way = BACKWARD;
-			}
-			/* Si l'utilisateur demande d'aller en arrière, on inverse la direction */
-			else if (way == BACKWARD) {
-				distance = -distance;
-			}
-			COS_SIN_4096_get(global.env.pos.angle, &cosinus, &sinus);
-			x = global.env.pos.x + ((distance * (Sint32)cosinus)>>12);
-			y = global.env.pos.y + ((distance * (Sint32)sinus)>>12);
-
-			//debug_printf("relative_move::current_pos x=%d y=%d\n", global.env.pos.x, global.env.pos.y);
-			//debug_printf("relative_move::x=%f y=%f\n", x, y);
-			if (x >= 0 && y >= 0) {
-				PROP_push_goto_multi_point((Sint16)x, (Sint16)y, speed, way, 0, END_OF_BUFFER, end_condition, TRUE);
-				state = GOING;
-			}
-			else {
-				/* On ne gère pas les x ou y négatifs */
-				state = COMPUTE_AND_GO;
-				ret = fail_state;
-			}
-			break;
-		case GOING :
-			if (STACKS_wait_end_auto_pull (PROP, &timeout))
-			{
-				state = COMPUTE_AND_GO;
-				ret = (timeout?fail_state:success_state);
-			}
-			break;
-	}
-	return ret;
-}
-
-
-Uint8 try_advance(Uint16 dist, bool_e compute, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance)
+//Action qui gere un déplacement en avance ou arrière et renvoi le state rentré en arg.
+Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	static GEOMETRY_point_t point;
+    enum state_e{
+        COMPUTE,
+        GO
+    };
 
-	if(compute){
-		Sint16 cos,sin;
+    Sint16 cos,sin;
+    static enum state_e state = COMPUTE;
+    Uint8 return_state = in_progress;
 
-		COS_SIN_4096_get((way == FORWARD)? global.env.pos.angle:global.env.pos.angle+PI4096, &cos, &sin);
+    switch(state){
+        case COMPUTE :
+            COS_SIN_4096_get((way == FORWARD)? global.env.pos.angle:global.env.pos.angle+PI4096, &cos, &sin);
 
-		point.x = (Sint32)cos*dist/4096 + global.env.pos.x;
-		point.y = (Sint32)sin*dist/4096 + global.env.pos.y;
-	}
+            point.x = (Sint32)cos*dist/4096 + global.env.pos.x;
+            point.y = (Sint32)sin*dist/4096 + global.env.pos.y;
+            state = GO;
+            break;
 
-	Uint8 state;
-	state = try_going(point.x, point.y, in_progress, success_state, fail_state, speed, way, avoidance);
-
-	return state;
+        case GO :
+            return_state = try_going(point.x, point.y, in_progress, success_state, fail_state, speed, way, avoidance, end_condition);
+            if(return_state == success_state || return_state == fail_state)
+                state = COMPUTE;
+            break;
+    }
+    return return_state;
 }
+
+//Action qui gere l'arret du robot et renvoi le state rentré en arg.
+Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
+{
+    typedef enum{
+        STOP,
+        WAIT_AND_CHECK
+    }state_e;
+    static state_e state = STOP;
+
+    error_e subaction;
+
+    switch(state){
+        case STOP :
+            PROP_push_stop();
+            state = WAIT_AND_CHECK;
+            break;
+
+        case WAIT_AND_CHECK :
+            subaction = AVOIDANCE_watch_prop_stack();
+            switch (subaction) {
+                case END_OK:
+                    debug_printf("PROP_STOP effectué\n");
+                    state = STOP;
+                    return success_state;
+                    break;
+
+                case IN_PROGRESS:
+                    break;
+
+                case END_WITH_TIMEOUT:
+                    debug_printf("PROP_STOP effectué avec TIMEOUT\n");
+                    state = STOP;
+                    return fail_state;
+                    break;
+
+                case NOT_HANDLED:
+                    debug_printf("PROP_STOP erreur\n");
+                    state = STOP;
+                    return fail_state;
+                    break;
+
+                default:
+                    debug_printf("PROP_STOP erreur\n");
+                    state = STOP;
+                    return fail_state;
+                    break;
+            }
+            break;
+    }
+    return in_progress;
+}
+
 
 
 /* Action qui update la position */
@@ -292,7 +278,6 @@ error_e ACTION_prop_stop()
 	}
 	return IN_PROGRESS;
 }
-
 
 static Uint16 wait_timeout = WAIT_TIME_DETECTION;
 
@@ -499,11 +484,9 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	return ret;
 }
 
-
 void AVOIDANCE_set_timeout(Uint16 msec) {
 	wait_timeout = msec;
 }
-
 
 /* Fonction qui réalise un PROP_push_goto avec la possibilité de courbe ou non, avec la gestion de l'évitement */
 error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition)
@@ -744,16 +727,7 @@ bool_e foe_in_path(bool_e verbose)
 	return in_path;
 }
 
-/**
- * @brief foe_in_zone
- *
- * @param verbose				: A activer afin d'avoir un affichage de notre position, de l'ennemie et de la détection de l'ennemie
- * @param x						: La position X du point à tester
- * @param y						: La position Y du point à tester
- * @param check_on_all_traject	: A activer si l'ont veut tester la présence d'un ennemie sur toute la trajectoire ou juste dans la distance d'évitement
- *
- * @return						: Retounre TRUE si un ennemi est dans la zone
- */
+// Retourne si un adversaire est dans la chemin entre nous et la position
 bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject){
 	bool_e inZone;
 	Uint8 i;
@@ -816,8 +790,6 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traje
 	return inZone;
 }
 
-
-
 //Retourne si un adversaire est dans le carré dont deux coins 1 et 2 sont passés en paramètres
 bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
 {
@@ -837,202 +809,6 @@ bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
 	SD_printf("NO FOE found in zone x[%d->%d] y[%d->%d]\n",x1,x2,y1,y2);
 	return FALSE;
 }
-
-
-/* Fonction qui regarde si notre robot est immobile ou non */
-//static bool_e AVOIDANCE_robot_translation_move()
-//{
-//	static bool_e result = FALSE;
-//	static GEOMETRY_point_t old_pos = {0,0};
-//	static time32_t last_time_update = 0;
-//
-//	if((global.env.match_time - last_time_update) > US_TRANSLATION_ANALYSE_TIME)
-//	{
-//		// on recalcule si on a fait une translation
-//		if(absolute(global.env.pos.x - old_pos.x) < US_MINIMAL_MOVE)
-//		{
-//			if(absolute(global.env.pos.y - old_pos.y) < US_MINIMAL_MOVE)
-//			{
-//				result = FALSE;
-//			}
-//			else
-//			{
-//				result = TRUE;
-//			}
-//		}
-//		else
-//		{
-//			result = TRUE;
-//		}
-//
-//		// mise à jour des données sauvegardées
-//		last_time_update = global.env.match_time;
-//		old_pos.x = global.env.pos.x;
-//		old_pos.y = global.env.pos.y;
-//	}
-//	return result;
-//}
-
-
-/*
- * Surveille l'execution de la pile PROP. Renvoie vrai si toutes les fonctions sont finies
- * Rattrappe le robot quand il part en erreur.
- * Inscrit dans le booléen got_timeout si un timeout a été levé
- */
-static error_e AVOIDANCE_watch_prop_stack ()
-{
-	bool_e timeout = FALSE;
-
-	if (STACKS_wait_end_auto_pull(PROP,&timeout))
-	{
-		return timeout?END_WITH_TIMEOUT:END_OK;
-	}
-	else if (global.env.prop.erreur)
-	{
-		STACKS_flush(PROP);
-		return NOT_HANDLED;
-	}
-
-	return IN_PROGRESS;
-}
-
-Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
-{
-	typedef enum{
-		STOP,
-		WAIT_AND_CHECK
-	}state_e;
-	static state_e state = STOP;
-
-	error_e subaction;
-
-	switch(state){
-		case STOP :
-			PROP_push_stop();
-			state = WAIT_AND_CHECK;
-			break;
-
-		case WAIT_AND_CHECK :
-			subaction = AVOIDANCE_watch_prop_stack();
-			switch (subaction) {
-				case END_OK:
-					debug_printf("PROP_STOP effectué\n");
-					state = STOP;
-					return success_state;
-					break;
-
-				case IN_PROGRESS:
-					break;
-
-				case END_WITH_TIMEOUT:
-					debug_printf("PROP_STOP effectué avec TIMEOUT\n");
-					state = STOP;
-					return fail_state;
-					break;
-
-				case NOT_HANDLED:
-					debug_printf("PROP_STOP erreur\n");
-					state = STOP;
-					return fail_state;
-					break;
-
-				default:
-					debug_printf("PROP_STOP erreur\n");
-					state = STOP;
-					return fail_state;
-					break;
-			}
-			break;
-	}
-	return in_progress;
-}
-
-
-/*error_e AVOIDANCE_homologation(Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, bool_e run)
-{
-	static enum
-	{
-		INIT,
-		GO,
-		WAIT,
-		DONE
-	} state = INIT;
-
-	switch (state)
-	{
-		case INIT:
-			PROP_push_goto(x, y,speed,way,curve,END_AT_LAST_POINT,run);
-			state = GO;
-			break;
-		case GO:
-			if((((global.env.match_time - global.env.foe[1].udapte_time) <= 1000) && global && global.env.foe[1].dist <= 400) ||
-				(((global.env.match_time - global.env.foe[2].udapte_time) <= 1000) && global && global.env.foe[2].dist <= 400))
-			{
-				STACKS_push(PROP, &wait_forever, TRUE);
-				state = WAIT;
-			}
-			else if(STACKS_wait_end_auto_pull(PROP, &timeout))
-			{
-				state=DONE;
-			}
-			break;
-
-		case WAIT:
-			if((((global.env.match_time - global.env.foe[1].udapte_time) >= 1000) || global && global.env.foe[1].dist <= 400) &&
-				(((global.env.match_time - global.env.foe[2].udapte_time) >= 1000) || global && global.env.foe[2].dist <= 400))
-			{
-				STACKS_pull(PROP);
-				state = GO;
-			}
-			break;
-		case DONE:
-			break;
-	}
-	return IN_PROGRESS;
-}*/
-
-// Vérifie adversaire dans NORTH_US, NORTH_FOE, SOUTH_US, SOUTH_FOE
-foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id)
-{
-	assert(foe_id < MAX_NB_FOES);
-
-	if(global.env.foe[foe_id].x > 1000)
-	{
-		// Partie SUD
-		if(COLOR_Y(global.env.foe[foe_id].y) > 1500)
-		{
-			return SOUTH_FOE;
-		}
-		else
-		{
-			return SOUTH_US;
-		}
-	}
-	else
-	{
-		if(COLOR_Y(global.env.foe[foe_id].y) > 1500)
-		{
-			return NORTH_FOE;
-		}
-		else
-		{
-			return NORTH_US;
-		}
-	}
-}
-
-void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
-	CAN_msg_t msg_to_send;
-	msg_to_send.sid = DEBUG_FOE_REASON;
-	msg_to_send.size = 5;
-	msg_to_send.data[0] = origin;
-	msg_to_send.data[1] = angle >> 8;
-	msg_to_send.data[2] = angle & 0xFF;
-	msg_to_send.data[3] = distance >> 8;
-	msg_to_send.data[4] = distance & 0xFF;
-	CAN_send(&msg_to_send);
-}
-
 
 //Un point est-t-il une position permettant les rotations sans tapper dans un élément de jeu.
 bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
@@ -1375,4 +1151,68 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 			return NOT_HANDLED;
 	}
 	return IN_PROGRESS;
+}
+
+// Vérifie adversaire dans NORTH_US, NORTH_FOE, SOUTH_US, SOUTH_FOE
+foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id)
+{
+    assert(foe_id < MAX_NB_FOES);
+
+    if(global.env.foe[foe_id].x > 1000)
+    {
+        // Partie SUD
+        if(COLOR_Y(global.env.foe[foe_id].y) > 1500)
+        {
+            return SOUTH_FOE;
+        }
+        else
+        {
+            return SOUTH_US;
+        }
+    }
+    else
+    {
+        if(COLOR_Y(global.env.foe[foe_id].y) > 1500)
+        {
+            return NORTH_FOE;
+        }
+        else
+        {
+            return NORTH_US;
+        }
+    }
+}
+
+void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
+    CAN_msg_t msg_to_send;
+    msg_to_send.sid = DEBUG_FOE_REASON;
+    msg_to_send.size = 5;
+    msg_to_send.data[0] = origin;
+    msg_to_send.data[1] = angle >> 8;
+    msg_to_send.data[2] = angle & 0xFF;
+    msg_to_send.data[3] = distance >> 8;
+    msg_to_send.data[4] = distance & 0xFF;
+    CAN_send(&msg_to_send);
+}
+
+/*
+ * Surveille l'execution de la pile PROP. Renvoie vrai si toutes les fonctions sont finies
+ * Rattrappe le robot quand il part en erreur.
+ * Inscrit dans le booléen got_timeout si un timeout a été levé
+ */
+static error_e AVOIDANCE_watch_prop_stack ()
+{
+    bool_e timeout = FALSE;
+
+    if (STACKS_wait_end_auto_pull(PROP,&timeout))
+    {
+        return timeout?END_WITH_TIMEOUT:END_OK;
+    }
+    else if (global.env.prop.erreur)
+    {
+        STACKS_flush(PROP);
+        return NOT_HANDLED;
+    }
+
+    return IN_PROGRESS;
 }
