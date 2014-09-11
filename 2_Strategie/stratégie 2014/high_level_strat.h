@@ -51,8 +51,36 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_GETOUT,
 
 	//--------------Sub action de pierre
-    //Peu importe l'ordre des états... (sauf en cas de priorité égale)
-    //--------------Sub action de guy
+
+	SUB_ACTION_INIT,
+	SUB_LANCE,
+	SUB_LANCE_ADV,
+	SUB_LANCE_ADV_FAIL,
+	SUB_FRUITS,
+	SUB_DROP_FRUITS,
+	SUB_FRUITS_ADV,
+	SUB_FRESCO,
+	SUB_BALAYAGE,
+	SUB_PROTECTED_FIRE,
+	SUB_PROTECTED_FIRE_2,
+	SUB_PROTECTED_FIRE_ADV,
+	SUB_PROTECT_NORTH_WAY,
+	SUB_PROTECT_NORTH_WAY2,
+	SUB_FILET,		//Peu importe l'ordre des états... (sauf en cas de priorité égale)
+	SUB_TRIANGLE_START,
+
+	//--------------Sub action de guy
+
+	SUB_SCAN,
+	SUB_ACTION_INIT_GUY,
+	SUB_ACTION_SCAN_HEARTH_CENTRALE,
+	SUB_ACTION_SCAN_HEARTH_ADV,
+	SUB_ACTION_TRIANGLE_BETWEEN_TREE,
+	SUB_ACTION_TRIANGLE_START_ADVERSARY,
+	SUB_ACTION_TRIANGLE_VERTICALE_2,
+	SUB_ACTION_TRIANGLE_VERTICALE_3,
+	SUB_ACTION_TRIANGLE_VERTICALE_ADV,
+	SUB_STEAL_SPACE_CRACKERS,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
