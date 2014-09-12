@@ -516,7 +516,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			if(avoidance_type != NO_AVOIDANCE && foe_in_zone(TRUE, displacements[0].point.x, displacements[0].point.y, FALSE)){
 				avoidance_printf("goto_pos_with_scan_foe NOT HANDLED because foe in target zone");
 				state = CHECK_SCAN_FOE;
-				return NOT_HANDLED;
+				return FOE_IN_PATH;
 			}else
 				state = LOAD_MOVE;
 			break;
