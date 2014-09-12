@@ -1,15 +1,14 @@
 /*
- *  Club Robot ESEO 2014-2015
+ *	Club Robot ESEO 2014 - 2015
  *
- *  Package : Qualité Soft
- *  Description : Ensemble des mesures des robots et du terrain
- *  Auteur : aguilmet
+ *	Fichier : QS_measure.h
+ *	Package : Qualite Soft
+ *	Description : Header regroupant l'ensemble des mesures du robots / terrains
  */
 
 #ifndef QS_MEASURE_H
-#define QS_MEASURE_H
+	#define QS_MEASURE_H
 
-#define LARGEUR_ROBOT 246
-#define LARGEUR_LABIUM	235
 
-#endif // QS_MEASURE_H
+
+#endif /* ndef QS_MEASURE_H */
