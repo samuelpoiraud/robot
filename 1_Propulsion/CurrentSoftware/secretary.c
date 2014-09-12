@@ -502,6 +502,11 @@ PROP_GO_POSITION
 		...1 ...0 > marche arrière obligée
 		...1 ...1 > marche avt ou arrière
 
+	octet de RAYONCRB
+		.... ...0 > courbe automatique désactivé (choix en propulsion)
+		.... ...1 > courbe automatique activé
+		xxxx .... > type d'évitement sur la trajectoire
+
 
 
 		case PROP_TELL_POSITION:		RIEN
@@ -538,7 +543,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								NO_MULTIPOINT, 	//mode multipoints
 								FAST,				//Vitesse
 								ACKNOWLEDGE_ASKED,
-								CORRECTOR_ENABLE
+								CORRECTOR_ENABLE,
+								AVOID_DISABLED
 							);
 		break;
 
@@ -556,7 +562,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								//NOT_MULTIPOINT,
 								msg->data[5],						//Vitesse
 								ACKNOWLEDGE_ASKED,
-								(corrector_e)((msg->data[0] & 0x0C)>>2)
+								(corrector_e)((msg->data[0] & 0x0C)>>2),
+								AVOID_DISABLED
 							);
 		break;
 
@@ -579,7 +586,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								(msg->data[0] & 0x20)?MULTIPOINT:NO_MULTIPOINT, //mode multipoints
 								msg->data[5],						//Vitesse
 								ACKNOWLEDGE_ASKED,
-								(corrector_e)((msg->data[0] & 0x0C)>>2)
+								(corrector_e)((msg->data[0] & 0x0C)>>2),
+								(avoidance_e)((msg->data[7] & 0xF0)>>4)
 							);
 		break;
 
@@ -629,7 +637,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 								NO_MULTIPOINT, 	//mode multipoints
 								FAST,				//Vitesse
 								ACKNOWLEDGE_ASKED,
-								CORRECTOR_ENABLE
+								CORRECTOR_ENABLE,
+								AVOID_DISABLED
 							);
 			// désactivation de tout les avertisseurs.
 			WARNER_init();

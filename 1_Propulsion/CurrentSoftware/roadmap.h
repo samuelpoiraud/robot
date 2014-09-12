@@ -27,9 +27,10 @@
 		PROP_speed_e speed;
 		acknowledge_e acknowledge;	//doit on rendre compte a la carte stratégie
 		corrector_e corrector;
+		avoidance_e avoidance;
 	}order_t;
-	
-	void ROADMAP_add_order(	trajectory_e trajectory,
+
+	void ROADMAP_add_order(trajectory_e trajectory,
 						Sint16 x,
 						Sint16 y,
 						Sint16 teta,
@@ -40,10 +41,11 @@
 						multipoint_e multipoint,
 						PROP_speed_e speed,
 						acknowledge_e acknowledge,
-						corrector_e corrector);
+						corrector_e corrector,
+						avoidance_e avoidance);
 
 		bool_e ROADMAP_exists_prioritary_order(void);
 
 		bool_e ROADMAP_get_next(order_t * order);
-	
+
 #endif	//def _ROADMAP_H
