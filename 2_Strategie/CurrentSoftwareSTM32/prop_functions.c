@@ -24,6 +24,14 @@
 static prop_arg_t prop_args[STACKS_SIZE];
 
 void CAN_send_debug(char*);
+static void PROP_goto (stack_id_e stack_id, bool_e init);
+static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init);
+static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init);
+static void PROP_relative_goangle_multi_point (stack_id_e stack_id, bool_e init);
+static void PROP_goangle (stack_id_e stack_id, bool_e init);
+static void PROP_relative_goangle (stack_id_e stack_id, bool_e init);
+static void PROP_rush_in_the_wall(stack_id_e stack_id, bool_e init);
+
 
 /* Accesseur en lecture sur les arguments de la pile PROP */
 prop_arg_t PROP_get_stack_arg(Uint8 index)
@@ -92,6 +100,8 @@ void PROP_set_position(Sint16 x, Sint16 y, Sint16 teta)
 }
 
 
+
+
 /* Va a la position indiquée, se termine à l'arret */
 void PROP_goto (stack_id_e stack_id, bool_e init)
 {
@@ -107,7 +117,7 @@ void PROP_goto (stack_id_e stack_id, bool_e init)
 		order.data[YLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].y);
 		order.data[VITESSE]=prop_args[STACKS_get_top(stack_id)].speed;
 		order.data[MARCHE]=prop_args[STACKS_get_top(stack_id)].way;
-		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve;
+		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve | (prop_args[STACKS_get_top(stack_id)].avoidance << 4);
 		order.size = 8;
 		CAN_send (&order);
 	}
@@ -158,7 +168,7 @@ void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 		order.data[YLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].y);
 		order.data[VITESSE]=prop_args[STACKS_get_top(stack_id)].speed;
 		order.data[MARCHE]=prop_args[STACKS_get_top(stack_id)].way;
-		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve;
+		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve | (prop_args[STACKS_get_top(stack_id)].avoidance << 4);
 		order.size = 8;
 		CAN_send (&order);
 	}
@@ -179,8 +189,6 @@ void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 		}
 	}
 }
-
-
 
 void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 {
@@ -208,7 +216,7 @@ void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 			order.data[YLSB]=LOWINT(args->y);
 			order.data[VITESSE]=args->speed;
 			order.data[MARCHE]=args->way;
-			order.data[RAYONCRB]=args->curve;
+			order.data[RAYONCRB]=args->curve | (args->avoidance << 4);
 			order.size=8;
 			CAN_send(&order);
 			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){args->x,args->y});
@@ -288,7 +296,7 @@ void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 			order.data[YLSB]=LOWINT(args->y);
 			order.data[VITESSE]=args->speed;
 			order.data[MARCHE]=args->way;
-			order.data[RAYONCRB]=args->curve;
+			order.data[RAYONCRB]=args->curve | (args->avoidance << 4);
 			order.size=8;
 			CAN_send(&order);
 			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){args->x,args->y});
@@ -483,7 +491,7 @@ void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 		order.data[YLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].y);
 		order.data[VITESSE]=prop_args[STACKS_get_top(stack_id)].speed;
 		order.data[MARCHE]=prop_args[STACKS_get_top(stack_id)].way;
-		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve;
+		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve | (prop_args[STACKS_get_top(stack_id)].avoidance << 4);
 		order.size = 8;
 		CAN_send (&order);
 	}
@@ -555,6 +563,7 @@ void PROP_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 		}
 	}
 }
+
 
 
 //Acceleration en mm/4096/5ms/5ms..
@@ -636,13 +645,14 @@ void PROP_WARNER_arm_teta(Sint16 teta)
 }
 
 
+
 void PROP_push_stop ()
 {
 	STACKS_push (PROP, &PROP_stop_stack, TRUE);
 }
 
 /* ajoute une instruction goto sur la pile asser */
-void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, PROP_end_condition_e end_condition ,bool_e run)
+void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_e avoidance, PROP_end_condition_e end_condition ,bool_e run)
 {
 	debug_printf("\nD=%d\n",x);
 	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
@@ -652,24 +662,14 @@ void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 cu
 	pos->speed = speed;
 	pos->way = way;
 	pos->curve = curve;
+	pos->avoidance = avoidance;
 	if(end_condition == END_AT_LAST_POINT)
 		STACKS_push (PROP, &PROP_goto, run);
 	else
 		STACKS_push (PROP, &PROP_goto_until_break, run);
 }
 
-void PROP_push_relative_goto(Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, bool_e run) {
-	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
-	pos->x = x;
-	pos->y = y;
-	pos->speed = speed;
-	pos->way = way;
-	pos->curve = curve;
-	STACKS_push (PROP, &PROP_relative_goto, run);
-}
-
-
-void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, Uint8 priority_order, PROP_end_condition_e end_condition ,bool_e run)
+void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition ,bool_e run)
 {
 	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
 
@@ -679,6 +679,7 @@ void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e w
 	pos->way = way;
 	pos->curve = curve;
 	pos->priority_order = priority_order;
+	pos->avoidance = avoidance;
 	if(end_condition == END_AT_LAST_POINT)
 		STACKS_push (PROP, &PROP_goto_multi_point, run);
 	else
@@ -694,7 +695,6 @@ void PROP_push_relative_goangle_multi_point (Sint16 angle, PROP_speed_e speed, b
 	STACKS_push (PROP, &PROP_relative_goangle_multi_point, run);
 }
 
-
 /* ajoute une instruction goangle sur la pile asser */
 void PROP_push_goangle (Sint16 angle, PROP_speed_e speed, bool_e run)
 {
@@ -704,8 +704,6 @@ void PROP_push_goangle (Sint16 angle, PROP_speed_e speed, bool_e run)
 	pos->speed = speed;
 	STACKS_push (PROP, &PROP_goangle, run);
 }
-
-
 
 /* ajoute une instruction relative_goangle sur la pile asser */
 void PROP_push_relative_goangle (Sint16 angle, PROP_speed_e speed, bool_e run)

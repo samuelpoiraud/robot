@@ -528,14 +528,14 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			for(i=nb_displacements-1;i>=1;i--)
 			{
 				if(displacements)
-					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVES, END_OF_BUFFER, end_condition, FALSE);
+					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, FALSE);
 				else if(displacements_curve)
-					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, displacements_curve[i].curve?PROP_CURVES:0, END_OF_BUFFER, end_condition, FALSE);
+					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, displacements_curve[i].curve?PROP_CURVES:0, avoidance_type, END_OF_BUFFER, end_condition, FALSE);
 			}
 			if(displacements)
-				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVES, END_OF_BUFFER, end_condition, TRUE);
+				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
 			else if(displacements_curve)
-				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?PROP_CURVES:0, END_OF_BUFFER, end_condition, TRUE);
+				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?PROP_CURVES:0, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
 
 						avoidance_printf("goto_pos_with_scan_foe : load_move\n");
 			if(displacements || displacements_curve)
@@ -1060,7 +1060,7 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 
 		case LOAD_MOVE:
 			global.env.destination = displacements.point;
-			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, END_OF_BUFFER, END_AT_LAST_POINT, TRUE);
+			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, TRUE);
 			avoidance_printf("goto_extract_with_avoidance : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;

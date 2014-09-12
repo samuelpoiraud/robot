@@ -469,7 +469,10 @@
 							|
 							|...0 ...1 	- marche avant obligé
 							|...1 ...0 	- marche arrière obligée
-		RAYONCRB : Uint8
+
+		RAYONCRB : Uint8 =>	|.... ...0 | > courbe automatique désactivé (choix en propulsion)
+							|.... ...1 | > courbe automatique désactivé (choix en propulsion)
+							|xxxx .... | > type d'évitement sur la trajectoire
 	*/
 	#define PROP_GO_ANGLE						0x177
 	/* argument :

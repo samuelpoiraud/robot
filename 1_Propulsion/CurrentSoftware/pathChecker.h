@@ -14,7 +14,7 @@
 
 	void PATHCHECKER_init();
 
-	bool_e PATHCHECKER_target_safe();
+	bool_e PATHCHECKER_target_safe(Sint32 destx, Sint32 desty);
 
 
 

@@ -243,7 +243,7 @@ void SCAN_TRIANGLE_process_it(void){
 			SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
 			ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, scan_param.startPos.teta,
 					NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
-					SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
+					SLOW, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE, AVOID_DISABLED);
 			state = PLACEMENT_WAIT_TETA_SCAN_ROTATE;
 			break;
 
@@ -258,7 +258,7 @@ void SCAN_TRIANGLE_process_it(void){
 			SUPERVISOR_config_intern_acknowledge(Acknowledge_Intern);
 			ROADMAP_add_order(TRAJECTORY_ROTATION,	0, 0, scan_param.endPos.teta,
 					NOT_RELATIVE, NOW, FORWARD, NOT_BORDER_MODE, NO_MULTIPOINT,
-					scan_param.speed, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE);
+					scan_param.speed, INTERN_ACKNOWLEDGE, CORRECTOR_ENABLE, AVOID_DISABLED);
 			state = IN_PROGRESS_SCAN_ROTATE;
 			n_mesure = 0;
 			break;

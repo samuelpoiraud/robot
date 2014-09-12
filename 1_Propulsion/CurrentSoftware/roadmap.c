@@ -8,7 +8,7 @@
  *  Auteur : Inspiré par Val' 207 - Nirgal 2009
  *  Version 200904
  */
- 
+
 #define _ROADMAP_C
 
 #include "roadmap.h"
@@ -32,7 +32,8 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 						multipoint_e multipoint,
 						PROP_speed_e speed,
 						acknowledge_e acknowledge,
-						corrector_e corrector)
+						corrector_e corrector,
+						avoidance_e avoidance)
 {
 	order_t order;
 
@@ -47,6 +48,7 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 	order.speed = speed;
 	order.acknowledge = acknowledge;
 	order.corrector = corrector;
+	order.avoidance = avoidance;
 
 	if(now == NOW)
 	{
