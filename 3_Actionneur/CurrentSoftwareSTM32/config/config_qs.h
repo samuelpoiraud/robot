@@ -70,7 +70,7 @@
 
 #define USE_AN11
 
-#define SERVO_TIMER 1
+#define SERVO_TIMER 5
 #define USE_SERVO
 
 

@@ -31,13 +31,13 @@ static volatile Sint16 m_SERVO_cmd[10];
 
 // Fonction d'interruption du timer
 #if !defined(SERVO_TIMER)
-	#error "SERVO_TIMER doit etre 1 2 3 ou 4, le watchdog n'est pas utilisable avec ce module"
+	#error "SERVO_TIMER doit etre 1 2 3 4 ou 5, le watchdog n'est pas utilisable avec ce module"
 #else
 	#define TIMER_SRC_TIMER_ID SERVO_TIMER
 
 	#include "QS_setTimerSource.h"
 #endif
-	
+
 #define MIN_INTERVAL		1000
 
 
@@ -96,7 +96,7 @@ void SERVO_init() {
 	// Lancement du timer
 	TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 }
-		
+
 /*-------------------------------------
 Changement de la commande (entre 0 et 2000 us)
 -------------------------------------*/
@@ -117,7 +117,7 @@ void TIMER_SRC_TIMER_interrupt()
 	switch(etat)
 	{
 		case 0:
-			blanking = 20000; // 20 ms de periode 
+			blanking = 20000; // 20 ms de periode
 			if (m_SERVO_cmd[etat])
 			{
 				SERVO0 = 1;
