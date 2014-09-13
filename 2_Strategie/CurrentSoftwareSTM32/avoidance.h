@@ -213,6 +213,23 @@ Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displa
 Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed);
 
 /*
+ * Fait avancer le robot vers un points jusqu'a ce qu'il rencontre un enemie ou un obstacle
+ *
+ * pre	: la position du robot doit être à jour
+ * post   : la pile asser est vidée
+ * param x/y : Point cible
+ * param way			Sens de déplacement
+ * param avoidance	  Type d'evitement à faire
+ * param in_progress	Etat en cours
+ * param success_state  Etat à retourner si le déplacement s'est terminé correctement
+ * param fail_state	 Etat à retourner si le déplacement ne s'est pas terminé correctement
+ *
+ * return sucess_state si le robot est arrivé au point voulue OU qu'il c'est bloqué dans un obstacle
+ * return fail_state si le robot à du arrêter ça trajectoire à cause d'un ennemie
+ */
+Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
+
+/*
  * Avance d'une distance dist à partir de la position actuelle et en fonction du sens donné.
  *
  * pre	: la position du robot doit être à jour
