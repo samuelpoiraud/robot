@@ -128,6 +128,54 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 	return ret;
 }
 
+// Fait avancer le robot vers un points jusqu'a ce qu'il rencontre un enemie ou un obstacle
+Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_GUY_DO_TORCH,
+			IDLE,
+			GO,
+			ERROR,
+			DONE
+		);
+
+	error_e sub_action;
+
+	switch(state){
+		case IDLE :
+			PROP_set_threshold_error_translation(50,FALSE);
+			state = GO;
+			break;
+
+		case GO :
+			sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},SLOW}}, NULL, 1, way, avoidance, END_AT_LAST_POINT);
+			switch(sub_action){
+				case IN_PROGRESS:
+					state = GO;
+					break;
+				case FOE_IN_PATH:
+					state = ERROR;
+					break;
+				case NOT_HANDLED:
+				case END_OK:
+				case END_WITH_TIMEOUT:
+				default:
+					state = DONE;
+					break;
+			}
+			break;
+
+		case ERROR :
+			PROP_set_threshold_error_translation(0,TRUE);
+			state = IDLE;
+			return fail_state;
+
+		case DONE :
+			PROP_set_threshold_error_translation(0,TRUE);
+			state = IDLE;
+			return success_state;
+	}
+}
+
+
 //Action qui gere un déplacement en avance ou arrière et renvoi le state rentré en arg.
 Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
