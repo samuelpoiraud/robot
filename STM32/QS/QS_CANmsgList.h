@@ -427,6 +427,11 @@
 	#define STRAT_SCAN_ANYTHING			0x218
 		/*  0 : 0 Si il n'y a rien dans la zone, 1 s'il y a quelque chose
 		 */
+
+	#define STRAT_PROP_FOE_DETECTED		0x219
+	/* Message CAN envoyé par la propulsion vers la stratégie lors de la détection du adversaire dans le déplacement demandé */
+
+
 	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
 		#define IT_IS_THE_LAST_ADVERSARY	0x80	//Bit levé si l'adversaire envoyé est le dernier...
 		/*		0 : ADVERSARY_NUMBER | IT_IS_THE_LAST_ADVERSARY	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...

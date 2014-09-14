@@ -23,11 +23,12 @@
 		#include "config_global.h"
 		#include "config_qs.h"
 	#endif
-	
+
 	#include "QS_types.h"					/*	Nos types										*/
 	#include "QS_macro.h"					/*	quelques macro pratiques						*/
 	#include "QS_global_vars.h"				/*	Les variables globales (notamment les drapeaux) */
-	
+	#include "QS_measure.h"					/* Les defines importants							*/
+
 	#ifdef VERBOSE_MODE
 		#include <stdio.h>					/* pour beneficier de printf en test				*/
 	#endif /* def VERBOSE_MODE */
