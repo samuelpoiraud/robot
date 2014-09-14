@@ -59,6 +59,8 @@
 
 	#define USE_GYROSCOPE
 
+	//#define USE_PROP_AVOIDANCE
+
 	#define USE_WATCHDOG
 	#define WATCHDOG_TIMER 4
 	#define WATCHDOG_MAX_COUNT 5
