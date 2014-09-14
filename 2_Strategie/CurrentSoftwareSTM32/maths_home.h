@@ -31,7 +31,7 @@
 	#define HALF_PI4096 (6434)
 	#define THREE_HALF_PI4096 (19302)
 
-	#define SQUARE(x)	((x)*(x))
+
 
 	Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 

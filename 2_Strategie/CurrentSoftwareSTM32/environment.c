@@ -372,8 +372,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_TRAJ_FINIE:
 			global.env.prop.ended = TRUE;
 			break;
+		case STRAT_PROP_FOE_DETECTED:
+			set_prop_detected_foe();
+			break;
 		case STRAT_PROP_ERREUR:
-
 			global.env.prop.erreur = TRUE;
 			global.env.prop.vitesse_translation_erreur =
 				((Sint32)U16FROMU8(incoming_msg->data[1],incoming_msg->data[0]) << 16)

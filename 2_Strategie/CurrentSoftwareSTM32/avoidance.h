@@ -340,4 +340,8 @@ error_e goto_extract_with_avoidance(const displacement_t displacements);
 //Le point passé en paramètre permet-il les rotations ?
 bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p);
 
+void clear_prop_detected_foe();
+
+void set_prop_detected_foe();
+
 #endif /* ndef AVOIDANCE_H */
