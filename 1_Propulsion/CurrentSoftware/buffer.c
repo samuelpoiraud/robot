@@ -9,7 +9,7 @@
  *  MAJ 2009 : reprogrammation du buffer 200904 par Nirgal
  *  Version 200904
  */
- 
+
 #define BUFFER_C
 
 #include "buffer.h"
@@ -55,50 +55,50 @@ void BUFFER_enable(bool_e state)
 {	// TRUE : Active le buffer au nombre max de cases
 	// FALSE : Désactive le buffer : une seule trajectoire possible est mémorisée !
 	// Dans ce mode, toute trajectoire ajoutée écrasera les trajectoires en mémoire !!!
-	
-	//ATTENTION : ce mode peut générer des erreurs,  puisque le robot lancé, on stoppe tout ordre pour 
+
+	//ATTENTION : ce mode peut générer des erreurs,  puisque le robot lancé, on stoppe tout ordre pour
 	//envoyer un nouveau -> il peut partir en erreur... La carte P est responsable de ses actes !
 	buffer_enable = state;
-}	
+}
 
 
 void BUFFER_add(order_t * order)
 {
-	
+
 	if (buffer_enable == FALSE)
 	{	//Si le buffer est désactivé, on le vide pour ne remplir que la premiere case !!!
 		BUFFER_init();
-	}	
+	}
 	if (BUFFER_is_full() == FALSE)
 	{
 		// on ajoute une trajectoire dans le buffer
 		buffer[buffer_write] = *order;
 		buffer_nb++;
-		
+
 		//Màj Buffer_write
 		buffer_write = (buffer_write + 1) % BUFFER_SIZE;
 
-	}	
+	}
 }
 
 void BUFFER_add_begin(order_t * order)
 {
-	
-	
+
+
 	if (BUFFER_is_full() == FALSE)
 	{
 		//Màj Buffer_read
 		//Si le buffer n'est pas désactivé on ajoute la trajectoire à Buffer_read-1
-		//sinon on ajoute la valeur dans la première case du buffer 
+		//sinon on ajoute la valeur dans la première case du buffer
 		//et on incrémente Buffer_write dans le cas où on repasse en mode Buffer_ON ==TRUE pour pas écrire par dessus une trajectoire
-	
+
 		// retour à la dernière position du buffer
 		if(buffer_read == 0)
 			buffer_read = BUFFER_SIZE-1;
 		else
 			buffer_read--;
-	
-		
+
+
 		// on ajoute une trajectoire dans le buffer
 		buffer[buffer_read] = *order;
 		buffer_nb++;
@@ -110,7 +110,7 @@ bool_e BUFFER_is_full(void)
 	// TRUE : buffer plein, FALSE : buffer non plein
 	if (buffer_nb == BUFFER_SIZE)
 		return TRUE;
-	else 
+	else
 		return FALSE;
 }
 
@@ -128,9 +128,14 @@ void BUFFER_get_next(order_t * order)
 	//On lit une trajectoire dans le buffer
 	*order = (buffer[buffer_read]);
 	buffer_nb--;
-		
+
 	//Màj Buffer_read
 	buffer_read = (buffer_read + 1) % BUFFER_SIZE;
 }
-	
 
+void BUFFER_flush()
+{
+	buffer_nb = 0;
+	buffer_read = 0;
+	buffer_write = 0;
+}

@@ -209,6 +209,10 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 			case DEBUG_PROPULSION_COEF_IS:
 				add_pos_datas = FALSE;
 				break;
+			case STRAT_PROP_FOE_DETECTED:
+				debug_printf("FOE Detected !\n");
+				add_pos_datas = TRUE; // Permet de savoir ou est-ce que la détection à eu lieu sur le terrain
+				break;
 			default:
 				debug_printf("SID=%x ", msg->sid);
 			break;

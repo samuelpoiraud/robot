@@ -373,26 +373,48 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 //PRECONDITION STRICTE : ce qu'on me demande est possible !!!
 void COPILOT_do_order(order_t * order)
 {
-	//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
-	//Les coordonnées ne sont PLUS relatives !!!
-	current_order = *order;
 
-	//MAJ Vitesse
-	PILOT_set_speed(current_order.speed);
+	#ifdef USE_PROP_AVOIDANCE
+	if((order->trajectory == TRAJECTORY_AUTOMATIC_CURVE || order->trajectory == TRAJECTORY_TRANSLATION) &&
+			AVOIDANCE_foe_in_zone(FALSE, order->x, order->y, FALSE)){ // Fonction différente à faire pour une trajectoire en courbe automatique
 
-	SUPERVISOR_state_machine(EVENT_NEW_ORDER, current_order.acknowledge);
+		if(order->avoidance == AVOID_ENABLED){ // adversaire sur la trajectoire, évitement sans wait donc annulation de la trajectoire
+			CAN_msg_t msg;
+			msg.sid = STRAT_PROP_FOE_DETECTED;
+			msg.size = 0;
 
-	arrived = NOT_ARRIVED;	//Ceci pour éviter, dans le main, de croire qu'on est arrivé AVANT la mise a jour de l'état arrive dans it.c
-	arrived_rotation = NOT_ARRIVED;
-	arrived_translation = NOT_ARRIVED;
-	braking_translation = NOT_BRAKING;
-	braking_rotation = NOT_BRAKING;
-	braking = NOT_BRAKING;
-	//On remet à jour la destination (pour que la détection d'erreur soit OK...)
-	COPILOT_update_destination_translation();
-	COPILOT_update_destination_rotation();
-	COPILOT_update_arrived();
-	COPILOT_update_brake_state();
+			BUFFER_flush();
+			SECRETARY_send_canmsg(&msg);
+		}else if(order->avoidance == AVOID_ENABLED_AND_WAIT){
+			// TODO
+		}
+
+	}else{
+	#endif
+
+		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
+		//Les coordonnées ne sont PLUS relatives !!!
+		current_order = *order;
+
+		//MAJ Vitesse
+		PILOT_set_speed(current_order.speed);
+
+		SUPERVISOR_state_machine(EVENT_NEW_ORDER, current_order.acknowledge);
+
+		arrived = NOT_ARRIVED;	//Ceci pour éviter, dans le main, de croire qu'on est arrivé AVANT la mise a jour de l'état arrive dans it.c
+		arrived_rotation = NOT_ARRIVED;
+		arrived_translation = NOT_ARRIVED;
+		braking_translation = NOT_BRAKING;
+		braking_rotation = NOT_BRAKING;
+		braking = NOT_BRAKING;
+		//On remet à jour la destination (pour que la détection d'erreur soit OK...)
+		COPILOT_update_destination_translation();
+		COPILOT_update_destination_rotation();
+		COPILOT_update_arrived();
+		COPILOT_update_brake_state();
+	#ifdef USE_PROP_AVOIDANCE
+	}
+	#endif
 }
 
 

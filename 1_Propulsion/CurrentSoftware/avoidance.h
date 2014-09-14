@@ -8,14 +8,14 @@
  *  Version 201203
  */
 
-#ifndef _PATHCHECKER_H
-	#define _PATHCHECKER_H
+#ifndef _AVOIDANCE_H
+	#define _AVOIDANCE_H
 	#include "QS/QS_all.h"
 
-	void PATHCHECKER_init();
+	void AVOIDANCE_init();
 
-	bool_e PATHCHECKER_target_safe(Sint32 destx, Sint32 desty);
+	bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty);
 
-
+	bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
 
 #endif  //def _PATHCHECKER_H
