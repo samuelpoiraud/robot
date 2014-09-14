@@ -21,24 +21,20 @@
 #include "Supervision/Buzzer.h"
 #include "Supervision/SD/SD.h"
 #include "math.h"
-#include "maths_home.h"
 #include "state_machine_helper.h"
+#include "QS/QS_maths.h"
 
 #define SMALL_ROBOT_ACCELERATION_NORMAL	468*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
 #define BIG_ROBOT_ACCELERATION_NORMAL	937*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
 #define SMALL_ROBOT_RESPECT_DIST_MIN	400		//Distance à laquelle on se tient d'un adversaire [mm]
 #define BIG_ROBOT_RESPECT_DIST_MIN		700		//Distance à laquelle on se tient d'un adversaire [mm]
-#define SMALL_ROBOT_WIDTH				200		//Largeur du petit robot [mm]
-#define BIG_ROBOT_WIDTH					300		//Largeur du gros robot [mm]
-#define	FOE_SIZE						400		//taille supposée de l'adversaire
-#define MARGE_COULOIR_EVITEMENT_STATIC_BIG_ROBOT	(300 + 100)
-#define MARGE_COULOIR_EVITEMENT_STATIC_SMALL_ROBOT		(240 + 100)
-#define DISTANCE_EVITEMENT_STATIC		500
+
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
 
 static error_e AVOIDANCE_watch_prop_stack();
+static bool_e prop_detected_foe = FALSE;
 
 #ifdef DEBUG_AVOIDANCE
 	#define avoidance_printf(format, ...)	debug_printf("t=%lums " format, global.env.match_time, ##__VA_ARGS__)
@@ -173,6 +169,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			state = IDLE;
 			return success_state;
 	}
+	return in_progress;
 }
 
 
@@ -532,6 +529,44 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	return ret;
 }
 
+//Version simplifiée de wait_move_and_scan_foe. on esquive pas la cible ici. (pas de dodge)
+error_e wait_move_and_wait_foe() {
+
+
+	error_e ret = IN_PROGRESS;
+
+	// check fin de trajectoire
+	error_e prop_stack_state = AVOIDANCE_watch_prop_stack();
+	switch(prop_stack_state)
+	{
+		case IN_PROGRESS:
+			break;
+
+		case END_OK:
+		case END_WITH_TIMEOUT:
+		case NOT_HANDLED:
+			avoidance_printf("wait_move_and_scan_foe: end state = %d\n", prop_stack_state);
+			ret = prop_stack_state;
+			break;
+
+		case FOE_IN_PATH:
+			break;
+
+		default: //Ne devrait jamais arriver, AVOIDANCE_watch_prop_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
+			avoidance_printf("wait_move_and_scan_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
+			ret = NOT_HANDLED;
+			break;
+	}
+
+	// check adversaire détecté
+	if(prop_detected_foe){
+		STACKS_flush(PROP);
+		ret = FOE_IN_PATH;
+	}
+
+	return ret;
+}
+
 void AVOIDANCE_set_timeout(Uint16 msec) {
 	wait_timeout = msec;
 }
@@ -547,7 +582,13 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 		EXTRACT,
 		DONE
 	};
-	static enum state_e state = CHECK_SCAN_FOE;
+	static enum state_e state;
+
+	#ifdef USE_PROP_AVOIDANCE
+		state = LOAD_MOVE;
+	#else
+		state = CHECK_SCAN_FOE;
+	#endif
 
 	static bool_e timeout = FALSE;
 	static error_e sub_action;
@@ -555,8 +596,13 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 	Uint8 i;
 
 	//Si nouveau déplacement et qu'aucun point n'est donné, on a rien a faire
-	if(state == CHECK_SCAN_FOE && nb_displacements == 0)
-		return END_OK;
+	#ifdef USE_PROP_AVOIDANCE
+		if(state == LOAD_MOVE && nb_displacements == 0)
+			return END_OK;
+	#else
+		if(state == CHECK_SCAN_FOE && nb_displacements == 0)
+			return END_OK;
+	#endif
 
 	switch(state)
 	{
@@ -572,6 +618,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 
 		case LOAD_MOVE:
 			timeout = FALSE;
+			clear_prop_detected_foe();
 			global.env.destination = displacements[nb_displacements-1].point;
 			for(i=nb_displacements-1;i>=1;i--)
 			{
@@ -585,18 +632,27 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			else if(displacements_curve)
 				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?PROP_CURVES:0, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
 
-						avoidance_printf("goto_pos_with_scan_foe : load_move\n");
+			avoidance_printf("goto_pos_with_scan_foe : load_move\n");
 			if(displacements || displacements_curve)
 				state = WAIT_MOVE_AND_SCAN_FOE;
 			else
 			{
-				state = CHECK_SCAN_FOE;
+				#ifdef USE_PROP_AVOIDANCE
+					state = LOAD_MOVE;
+				#else
+					state = CHECK_SCAN_FOE;
+				#endif
 				return NOT_HANDLED;
 			}
 			break;
 
 		case WAIT_MOVE_AND_SCAN_FOE:
-			sub_action = wait_move_and_scan_foe2(avoidance_type);
+			#ifdef USE_PROP_AVOIDANCE
+				sub_action = wait_move_and_wait_foe();
+			#else
+				sub_action = wait_move_and_scan_foe2(avoidance_type);
+			#endif
+
 			switch(sub_action)
 			{
 				case END_OK:
@@ -615,7 +671,11 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					avoidance_printf("wait_move_and_scan_foe -- probleme\n");
 					SD_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
-					state = CHECK_SCAN_FOE;
+					#ifdef USE_PROP_AVOIDANCE
+						state = LOAD_MOVE;
+					#else
+						state = CHECK_SCAN_FOE;
+					#endif
 					return NOT_HANDLED;
 					break;
 
@@ -627,7 +687,11 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 						state = EXTRACT;
 					else
 					{
-						state = CHECK_SCAN_FOE;
+						#ifdef USE_PROP_AVOIDANCE
+							state = LOAD_MOVE;
+						#else
+							state = CHECK_SCAN_FOE;
+						#endif
 						return FOE_IN_PATH;			//Pas d'extraction demandée... on retourne tel quel FOE_IN_PATH !
 					}
 					break;
@@ -636,7 +700,11 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					break;
 
 				default:
-					state = CHECK_SCAN_FOE;
+					#ifdef USE_PROP_AVOIDANCE
+						state = LOAD_MOVE;
+					#else
+						state = CHECK_SCAN_FOE;
+					#endif
 					return NOT_HANDLED;
 					break;
 			}
@@ -647,7 +715,11 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			switch(sub_action)
 			{
 				case END_OK:
-					state = CHECK_SCAN_FOE;
+					#ifdef USE_PROP_AVOIDANCE
+						state = LOAD_MOVE;
+					#else
+						state = CHECK_SCAN_FOE;
+					#endif
 					return FOE_IN_PATH;
 					break;
 
@@ -657,12 +729,20 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					break;
 
 				case NOT_HANDLED:
-					state = CHECK_SCAN_FOE;
+					#ifdef USE_PROP_AVOIDANCE
+						state = LOAD_MOVE;
+					#else
+						state = CHECK_SCAN_FOE;
+					#endif
 					return NOT_HANDLED;
 					break;
 
 				case FOE_IN_PATH:
-					state = CHECK_SCAN_FOE;
+					#ifdef USE_PROP_AVOIDANCE
+						state = LOAD_MOVE;
+					#else
+						state = CHECK_SCAN_FOE;
+					#endif
 					return FOE_IN_PATH;
 					break;
 
@@ -670,7 +750,11 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					break;
 
 				default:
-					state = CHECK_SCAN_FOE;
+					#ifdef USE_PROP_AVOIDANCE
+						state = LOAD_MOVE;
+					#else
+						state = CHECK_SCAN_FOE;
+					#endif
 					return NOT_HANDLED;
 					break;
 			}
@@ -678,13 +762,21 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 
 		case DONE:
 			wait_timeout = WAIT_TIME_DETECTION;
-			state = CHECK_SCAN_FOE;
+			#ifdef USE_PROP_AVOIDANCE
+				state = LOAD_MOVE;
+			#else
+				state = CHECK_SCAN_FOE;
+			#endif
 			return timeout?END_WITH_TIMEOUT:END_OK;
 			break;
 
 		default:
 			debug_printf("Cas Default state, panique !!!\n");
-			state = CHECK_SCAN_FOE;
+			#ifdef USE_PROP_AVOIDANCE
+				state = LOAD_MOVE;
+			#else
+				state = CHECK_SCAN_FOE;
+			#endif
 			return NOT_HANDLED;
 	}
 	return IN_PROGRESS;
@@ -1263,4 +1355,12 @@ static error_e AVOIDANCE_watch_prop_stack ()
 	}
 
 	return IN_PROGRESS;
+}
+
+void clear_prop_detected_foe(){
+	prop_detected_foe = FALSE;
+}
+
+void set_prop_detected_foe(){
+	prop_detected_foe = TRUE;
 }
