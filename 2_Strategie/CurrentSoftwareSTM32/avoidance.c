@@ -582,12 +582,10 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 		EXTRACT,
 		DONE
 	};
-	static enum state_e state;
-
 	#ifdef USE_PROP_AVOIDANCE
-		state = LOAD_MOVE;
+		static enum state_e state = LOAD_MOVE;
 	#else
-		state = CHECK_SCAN_FOE;
+		static enum state_e state = CHECK_SCAN_FOE;
 	#endif
 
 	static bool_e timeout = FALSE;
