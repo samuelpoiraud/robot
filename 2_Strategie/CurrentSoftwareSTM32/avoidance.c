@@ -545,7 +545,7 @@ error_e wait_move_and_wait_foe() {
 		case END_OK:
 		case END_WITH_TIMEOUT:
 		case NOT_HANDLED:
-			avoidance_printf("wait_move_and_scan_foe: end state = %d\n", prop_stack_state);
+			avoidance_printf("wait_move_and_wait_foe: end state = %d\n", prop_stack_state);
 			ret = prop_stack_state;
 			break;
 
@@ -553,7 +553,7 @@ error_e wait_move_and_wait_foe() {
 			break;
 
 		default: //Ne devrait jamais arriver, AVOIDANCE_watch_prop_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
-			avoidance_printf("wait_move_and_scan_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
+			avoidance_printf("wait_move_and_wait_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
 			ret = NOT_HANDLED;
 			break;
 	}
@@ -1182,8 +1182,14 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 		WAIT_MOVE_AND_SCAN_FOE,
 		DONE
 	};
-	static enum state_e state = CHECK_SCAN_FOE;
+	#ifdef USE_PROP_AVOIDANCE
+		static enum state_e state = LOAD_MOVE;
+	#else
+		static enum state_e state = CHECK_SCAN_FOE;
+	#endif
+
 	static bool_e timeout = FALSE;
+	error_e prop_stack_state;
 
 	switch(state)
 	{
@@ -1204,6 +1210,46 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 			break;
 
 		case WAIT_MOVE_AND_SCAN_FOE:
+
+#ifdef USE_PROP_AVOIDANCE
+			prop_stack_state = AVOIDANCE_watch_prop_stack();
+			switch(prop_stack_state)
+			{
+				case END_OK:
+					avoidance_printf("goto_extract_with_avoidance -- fini\n");
+					state = DONE;
+					break;
+
+				case END_WITH_TIMEOUT:
+					timeout = TRUE;
+					avoidance_printf("goto_extract_with_avoidance -- timeout\n");
+					SD_printf("TIMEOUT on goto_extract_with_avoidance");
+					state = DONE;
+					break;
+
+				case NOT_HANDLED:
+					avoidance_printf("goto_extract_with_avoidance -- probleme\n");
+					SD_printf("ERROR on goto_extract_with_avoidance");
+					state = CHECK_SCAN_FOE;
+					return NOT_HANDLED;
+					break;
+
+				case IN_PROGRESS:
+					break;
+
+				case FOE_IN_PATH:
+				default:
+					state = CHECK_SCAN_FOE;
+					return NOT_HANDLED;
+					break;
+			}
+
+			// check adversaire détecté
+			if(prop_detected_foe){
+				STACKS_flush(PROP);
+				state = FOE_IN_PATH;
+			}
+#else
 			if(global.env.debug_force_foe)	//Evitement manuel forcé !
 			{
 				STACKS_flush(PROP);
@@ -1237,7 +1283,7 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 				{
 					// aucun adversaire n'est détecté, on fait notre mouvement normalement
 					// on regarde si la pile s'est vidée
-					error_e prop_stack_state = AVOIDANCE_watch_prop_stack();
+					prop_stack_state = AVOIDANCE_watch_prop_stack();
 					switch(prop_stack_state)
 					{
 						case END_OK:
@@ -1259,16 +1305,10 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 							return NOT_HANDLED;
 							break;
 
-						case FOE_IN_PATH:
-							avoidance_printf("goto_extract_with_avoidance -- foe in path\n");
-							SD_printf("FOE_IN_PATH on goto_extract_with_avoidance");
-							state = CHECK_SCAN_FOE;
-							return FOE_IN_PATH;
-							break;
-
 						case IN_PROGRESS:
 							break;
 
+						case FOE_IN_PATH:
 						default:
 							state = CHECK_SCAN_FOE;
 							return NOT_HANDLED;
@@ -1276,16 +1316,25 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 					}
 				}
 			}
+#endif
 			break;
 
 		case DONE:
-			state = CHECK_SCAN_FOE;
+			#ifdef USE_PROP_AVOIDANCE
+				state = LOAD_MOVE;
+			#else
+				state = CHECK_SCAN_FOE;
+			#endif
 			return timeout?END_WITH_TIMEOUT:END_OK;
 			break;
 
 		default:
 			debug_printf("Cas Default state, panique !!!\n");
-			state = CHECK_SCAN_FOE;
+			#ifdef USE_PROP_AVOIDANCE
+				state = LOAD_MOVE;
+			#else
+				state = CHECK_SCAN_FOE;
+			#endif
 			return NOT_HANDLED;
 	}
 	return IN_PROGRESS;
