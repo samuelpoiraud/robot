@@ -31,7 +31,6 @@
 #include "QS/QS_adc.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_maths.h"
-#include "sick.h"
 #include "button.h"
 #include "elements.h"
 #include "Supervision/LCD_CAN_injector.h"

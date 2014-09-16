@@ -77,7 +77,6 @@ trajectoire pour l'information de position de l'adversaire */
 
 
 		#include "QS/QS_maths.h"
-		#include "sick.h"
 
 		#define BEACON_FAR_THRESHOLD	1000
 
