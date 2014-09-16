@@ -63,6 +63,41 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 	BUFFER_add (&order);
 }
 
+//Ajout un ordre prioritaire au début du buffer
+void ROADMAP_add_in_begin_order(
+						trajectory_e trajectory,
+						Sint16 x,
+						Sint16 y,
+						Sint16 teta,
+						relative_e relative,
+						way_e way,
+						border_mode_e border_mode,
+						multipoint_e multipoint,
+						PROP_speed_e speed,
+						acknowledge_e acknowledge,
+						corrector_e corrector,
+						avoidance_e avoidance)
+{
+	order_t order;
+
+	order.trajectory = trajectory;
+	order.relative = relative;
+	order.border_mode = border_mode;
+	order.way = way;
+	order.multipoint = multipoint;
+	order.x = x;
+	order.y = y;
+	order.teta = teta;
+	order.speed = speed;
+	order.acknowledge = acknowledge;
+	order.corrector = corrector;
+	order.avoidance = avoidance;
+
+	new_prioritary_order = TRUE;
+	BUFFER_enable(TRUE);
+	BUFFER_add (&order);
+}
+
 bool_e ROADMAP_exists_prioritary_order(void)
 {
 	return new_prioritary_order;

@@ -18,7 +18,7 @@
 			NOT_BRAKING = 0,
 			BRAKING
 	} braking_e;
-	
+
 	void COPILOT_init(void);
 
 	//Consulte la roadmap pour savoir s'il faut set_order un nouvel ordre !
@@ -45,5 +45,7 @@
 	braking_e COPILOT_braking_rotation_get(void);
 
 	braking_e COPILOT_braking_translation_get(void);
+
+	order_t COPILOT_get_current_order();
 
 	#endif	//def _COPILOT_H

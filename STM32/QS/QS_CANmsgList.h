@@ -580,6 +580,8 @@
 	 #define PROP_LAUNCH_WARNER_TRIANGLE		0x117
 	 //		0		: number_triangle
 
+	#define PROP_DEBUG_FORCED_FOE				0x118
+	// Message CAN pour forcer la détection d'un adversaire
 
 /*****************************************************************
  *

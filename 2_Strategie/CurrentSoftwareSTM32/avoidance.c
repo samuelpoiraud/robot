@@ -24,12 +24,6 @@
 #include "state_machine_helper.h"
 #include "QS/QS_maths.h"
 
-#define SMALL_ROBOT_ACCELERATION_NORMAL	468*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
-#define BIG_ROBOT_ACCELERATION_NORMAL	937*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
-#define SMALL_ROBOT_RESPECT_DIST_MIN	400		//Distance à laquelle on se tient d'un adversaire [mm]
-#define BIG_ROBOT_RESPECT_DIST_MIN		700		//Distance à laquelle on se tient d'un adversaire [mm]
-
-
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
 
@@ -256,6 +250,13 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 	return in_progress;
 }
 
+
+void AVOIDANCE_forced_foe_dected(){
+	CAN_msg_t msg;
+	msg.sid = PROP_DEBUG_FORCED_FOE;
+	msg.size = 0;
+	CAN_send(&msg);
+}
 
 
 /* Action qui update la position */
@@ -547,9 +548,6 @@ error_e wait_move_and_wait_foe() {
 		case NOT_HANDLED:
 			avoidance_printf("wait_move_and_wait_foe: end state = %d\n", prop_stack_state);
 			ret = prop_stack_state;
-			break;
-
-		case FOE_IN_PATH:
 			break;
 
 		default: //Ne devrait jamais arriver, AVOIDANCE_watch_prop_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
@@ -1230,16 +1228,15 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 				case NOT_HANDLED:
 					avoidance_printf("goto_extract_with_avoidance -- probleme\n");
 					SD_printf("ERROR on goto_extract_with_avoidance");
-					state = CHECK_SCAN_FOE;
+					state = LOAD_MOVE;
 					return NOT_HANDLED;
 					break;
 
 				case IN_PROGRESS:
 					break;
 
-				case FOE_IN_PATH:
 				default:
-					state = CHECK_SCAN_FOE;
+					state = LOAD_MOVE;
 					return NOT_HANDLED;
 					break;
 			}
@@ -1247,7 +1244,8 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 			// check adversaire détecté
 			if(prop_detected_foe){
 				STACKS_flush(PROP);
-				state = FOE_IN_PATH;
+				state = LOAD_MOVE;
+				return FOE_IN_PATH;
 			}
 #else
 			if(global.env.debug_force_foe)	//Evitement manuel forcé !
@@ -1308,7 +1306,6 @@ error_e goto_extract_with_avoidance(const displacement_t displacements)
 						case IN_PROGRESS:
 							break;
 
-						case FOE_IN_PATH:
 						default:
 							state = CHECK_SCAN_FOE;
 							return NOT_HANDLED;

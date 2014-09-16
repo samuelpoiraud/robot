@@ -128,6 +128,9 @@ bool_e COPILOT_decision_change_order(bool_e * change_order_in_multipoint_without
 	if(ROADMAP_exists_prioritary_order())
 		return TRUE;
 
+	if(current_order.trajectory == WAIT_FOREVER)
+		return FALSE;
+
 	if(current_order.multipoint == MULTIPOINT)
 	{
 		if(arrived == ARRIVED)
@@ -224,6 +227,12 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 	static Sint16 angle_a_parcourir;
 
 	CORRECTOR_PD_enable(order->corrector);
+
+	if(order->trajectory == WAIT_FOREVER){
+		COPILOT_do_order(order);
+		return;
+	}
+
 
 	if(order->relative == RELATIVE) //Si l'ordre est relatif, c'est maintenant qu'il doit devenir absolu !
 	{
@@ -384,9 +393,51 @@ void COPILOT_do_order(order_t * order)
 			msg.size = 0;
 
 			BUFFER_flush();
+			ROADMAP_add_order(  TRAJECTORY_STOP,
+								0,
+								0,
+								0,					//teta
+								NOT_RELATIVE,		//relative
+								NOW,			//maintenant
+								ANY_WAY,	//sens de marche
+								NOT_BORDER_MODE,	//mode bordure
+								NO_MULTIPOINT, 	//mode multipoints
+								FAST,				//Vitesse
+								ACKNOWLEDGE_ASKED,
+								CORRECTOR_ENABLE,
+								AVOID_DISABLED
+							);
 			SECRETARY_send_canmsg(&msg);
 		}else if(order->avoidance == AVOID_ENABLED_AND_WAIT){
-			// TODO
+			TIMER1_disableInt(); // Inibation des ITs critique
+			ROADMAP_add_in_begin_order( WAIT_FOREVER,
+										0,					//x
+										0,					//y
+										0,					//teta
+										NOT_RELATIVE,		//relative
+										ANY_WAY,	//sens de marche
+										NOT_BORDER_MODE,	//mode bordure
+										NO_MULTIPOINT, 	//mode multipoints
+										FAST,				//Vitesse
+										ACKNOWLEDGE_ASKED,
+										CORRECTOR_ENABLE,
+										AVOID_DISABLED
+									);
+			ROADMAP_add_in_begin_order( TRAJECTORY_STOP,
+										0,					//x
+										0,					//y
+										0,					//teta
+										NOT_RELATIVE,		//relative
+										NOW,			//maintenant
+										ANY_WAY,	//sens de marche
+										NOT_BORDER_MODE,	//mode bordure
+										NO_MULTIPOINT, 	//mode multipoints
+										FAST,				//Vitesse
+										ACKNOWLEDGE_ASKED,
+										CORRECTOR_ENABLE,
+										AVOID_DISABLED
+									);
+			TIMER1_enableInt(); // Dé-inibation des ITs critique
 		}
 
 	}else{
@@ -395,6 +446,9 @@ void COPILOT_do_order(order_t * order)
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
 		current_order = *order;
+
+		if(current_order.trajectory == WAIT_FOREVER)
+			return;
 
 		//MAJ Vitesse
 		PILOT_set_speed(current_order.speed);
@@ -854,5 +908,7 @@ void COPILOT_destination_angle(Sint16 x, Sint16 y, Sint16 * angle_a_parcourir, S
 	}
 }
 
-
+order_t COPILOT_get_current_order(){
+	return current_order;
+}
 

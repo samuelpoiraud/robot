@@ -97,6 +97,7 @@ void _ISR _T1Interrupt()
 	COPILOT_process_it();
 	PILOT_process_it();
 	SUPERVISOR_process_it();
+	AVOIDANCE_process_it();
 	MAIN_process_it(PERIODE_IT_ASSER);
 
 	#ifdef SCAN_TRIANGLE
