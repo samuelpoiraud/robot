@@ -28,7 +28,7 @@
 //TIMER_SRC_TIMER_EnableIT() Réactivation de l'interruption du timer
 
 
-#if (!defined(TIMER_SRC_TIMER_ID) || TIMER_SRC_TIMER_ID > 5 || TIMER_SRC_TIMER_ID < 1) && !defined(TIMER_SRC_USE_WATCHDOG)
+#if (!defined(TIMER_SRC_TIMER_ID) || TIMER_SRC_TIMER_ID > 4 || TIMER_SRC_TIMER_ID < 1) && !defined(TIMER_SRC_USE_WATCHDOG)
 	#error "TIMERSRC: TIMER_SRC_TIMER_ID non défini ou invalide, vous devez choisir le numéro du timer entre 1 et 4 inclus, ou utiliser le watchdog avec TIMER_SRC_USE_WATCHDOG"
 #elif defined(TIMER_SRC_USE_WATCHDOG)
 	#include "QS_watchdog.h"
