@@ -11,7 +11,7 @@
 
 #include "avoidance.h"
 #include "detection.h"
-#include "cos_sin.h"
+#include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"

@@ -11,7 +11,7 @@
 
 #include "avoidance.h"
 #include "can_utils.h"
-#include "maths_home.h"
+#include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
 #include "prop_functions.h"
 #include "config_use.h"

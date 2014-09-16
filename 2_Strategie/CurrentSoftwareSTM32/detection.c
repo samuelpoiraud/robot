@@ -17,7 +17,7 @@
 #include "config_use.h"
 #include "config_debug.h"
 #include "environment.h"
-#include "maths_home.h"
+#include "QS/QS_maths.h"
 
 
 typedef struct

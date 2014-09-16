@@ -30,7 +30,7 @@
 #include "QS/QS_can.h"
 #include "QS/QS_adc.h"
 #include "QS/QS_uart.h"
-#include "maths_home.h"
+#include "QS/QS_maths.h"
 #include "sick.h"
 #include "button.h"
 #include "elements.h"

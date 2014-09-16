@@ -19,7 +19,7 @@
 #include "Pathfind.h"
 #include "config/config_qs.h"
 #include <math.h>
-#include "maths_home.h"
+#include "QS/QS_maths.h"
 
 #define SCAN_TIMEOUT			4000
 #define LABIUM_TIMEOUT			500
@@ -123,7 +123,7 @@ error_e ELEMENT_go_and_drop(pos_drop_e choice){
 			break;
 
 		case POS_START:
-            state = try_going(pos_drop[choice].getIn.x,pos_drop[choice].getIn.y, POS_START, POS_DROP, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(pos_drop[choice].getIn.x,pos_drop[choice].getIn.y, POS_START, POS_DROP, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case POS_DROP:{
@@ -138,7 +138,7 @@ error_e ELEMENT_go_and_drop(pos_drop_e choice){
 				point.y = pos_drop[choice].drop.y + DIM_TRIANGLE*coefy;
 			}
 
-            state = try_going(point.x,point.y, POS_DROP, DROP, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(point.x,point.y, POS_DROP, DROP, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}break;
 
 		case DROP:
@@ -147,7 +147,7 @@ error_e ELEMENT_go_and_drop(pos_drop_e choice){
 			break;
 
 		case GET_OUT: // Ne dipose que d'un point de sorti car se trouve trop prêt du bord ou bien pas de sorti possible autrement pour les cavernes
-            state = try_going(pos_drop[choice].getOut.x,pos_drop[choice].getOut.x, GET_OUT, (last_state == DROP)? DONE:RETURN_NOT_HANDLED, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(pos_drop[choice].getOut.x,pos_drop[choice].getOut.x, GET_OUT, (last_state == DROP)? DONE:RETURN_NOT_HANDLED, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case DONE:
@@ -283,7 +283,7 @@ Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 
 	static state_e state = TRY_GOING;
 	switch(state){
 		case TRY_GOING:
-            state = try_going(x, y, TRY_GOING, SCAN, ERROR, speed, way, avoidance, END_AT_LAST_POINT);
+			state = try_going(x, y, TRY_GOING, SCAN, ERROR, speed, way, avoidance, END_AT_LAST_POINT);
 			break;
 
 		case SCAN:

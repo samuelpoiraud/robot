@@ -18,7 +18,7 @@
 #include "corrector.h"
 #include "supervisor.h"
 #include "motors.h"
-#include "cos_sin.h"
+#include "QS/QS_maths.h"
 #include "calculator.h"
 #include "joystick.h"
 #include "QS/QS_who_am_i.h"
@@ -29,11 +29,11 @@ typedef enum {
 		ACCELERATION_FOR_DECREASE_SPEED,
 		ACCELERATION_FOR_INCREASE_SPEED
 	} e_acceleration;
-	
+
 	typedef enum {
 		AUCUN,
 		ACCELERATION,
-		DECELERATION	
+		DECELERATION
 	} relative_acceleration_e;
 
 void PILOT_update_acceleration_state(void);
@@ -47,7 +47,7 @@ void PILOT_update_position_rotation(void);
 void PILOT_set_extra_braking_translation(bool_e enable);
 void PILOT_set_extra_braking_rotation(bool_e enable);
 
-		
+
 //Coordonnées de la destination dans le référentiel IT
 volatile Sint32 destination_rotation;		//[rad/4096] <<12
 volatile Sint32 destination_translation;	//[mm/4096] <<12
@@ -86,7 +86,7 @@ void PILOT_init(void)
 		coefs[PILOT_ROTATION_SPEED_LOW] 				= SMALL_ROTATION_SPEED_LOW;
 		coefs[PILOT_ROTATION_SPEED_VERY_LOW] 			= SMALL_ROTATION_SPEED_VERY_LOW;
 		coefs[PILOT_ROTATION_SPEED_SNAIL] 				= SMALL_ROTATION_SPEED_SNAIL;
-	}	
+	}
 	else
 	{
 		coefs[PILOT_ACCELERATION_NORMAL] 				= BIG_ACCELERATION_NORMAL;
@@ -101,7 +101,7 @@ void PILOT_init(void)
 		coefs[PILOT_ROTATION_SPEED_LOW] 				= BIG_ROTATION_SPEED_LOW;
 		coefs[PILOT_ROTATION_SPEED_VERY_LOW] 			= BIG_ROTATION_SPEED_VERY_LOW;
 		coefs[PILOT_ROTATION_SPEED_SNAIL] 				= BIG_ROTATION_SPEED_SNAIL;
-	}	
+	}
 }
 
 Sint32 PILOT_get_coef(PILOT_coef_e id)
@@ -142,7 +142,7 @@ void PILOT_referential_reset()
 
 void PILOT_process_it(void)
 {
-	
+
 
 	PILOT_update_acceleration_translation_and_rotation();
 
@@ -211,7 +211,7 @@ void PILOT_update_acceleration_state(void)
 	{
 		alpha += PI4096;
 		vtrans=-vtrans;
-	}	
+	}
 
 	alpha = CALCULATOR_modulo_angle(alpha);
 
@@ -267,7 +267,7 @@ void PILOT_update_acceleration_state(void)
 			}
 
 			alpha += vrot >> (10-SOUS_QUANTIFICATION);	//[rad/4096] = [rad/4096/1024/5ms] *SOUS_QUANTIFICATION = [rad/4096/5ms] >> 3 lorsque SOUS_QUANTIFICATION vaut 7
-			
+
 			alpha = CALCULATOR_modulo_angle(alpha);
 
 			COS_SIN_4096_get(alpha, &cos, &sin);
@@ -319,9 +319,9 @@ void PILOT_update_acceleration_state(void)
 			{
 				vrot = -(Sint32)(vitesse_rotation_max);
 			}
-		
+
 			alpha += vrot >> (10-SOUS_QUANTIFICATION);	//[rad/4096] = [rad/4096/1024/5ms] *SOUS_QUANTIFICATION = [rad/4096/5ms] >> 3 lorsque SOUS_QUANTIFICATION vaut 7
-			
+
 			alpha = CALCULATOR_modulo_angle(alpha);
 				//Alpha exprimé de 0 à TWO_PI4096 !
 			COS_SIN_4096_get(alpha, &cos, &sin);
@@ -391,7 +391,7 @@ void PILOT_update_acceleration_state(void)
 
 	if (absolute(global.vitesse_translation) > absolute(vitesse_translation_max))
 		etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
-		
+
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
 	{
 		etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
@@ -400,8 +400,8 @@ void PILOT_update_acceleration_state(void)
 	if(SUPERVISOR_get_state() == SUPERVISOR_ERROR)
 	{
 		etat_acceleration_translation = ACCELERATION_NULLE;
-		etat_acceleration_rotation = ACCELERATION_NULLE;	
-	}	
+		etat_acceleration_rotation = ACCELERATION_NULLE;
+	}
 }
 
 
@@ -486,13 +486,13 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 			prot = 0;
 			break;
 	}
-		
+
 	if(	(ptrans == 64 && global.vitesse_translation >= vitesse_translation_max)  ||
-		(ptrans == -64 && global.vitesse_translation <= -vitesse_translation_max)	)	
+		(ptrans == -64 && global.vitesse_translation <= -vitesse_translation_max)	)
 		ptrans = 0;	//On ne dépasse pas la vitesse max
 
 	if(	(prot == 64 && global.vitesse_rotation >= vitesse_rotation_max)  ||
-		(prot == -64 && global.vitesse_rotation <= -vitesse_rotation_max)	)	
+		(prot == -64 && global.vitesse_rotation <= -vitesse_rotation_max)	)
 		prot = 0;	//On ne dépasse pas la vitesse max
 
 	if(COPILOT_braking_rotation_get() == BRAKING && extra_braking_rotation)
@@ -554,7 +554,7 @@ void PILOT_update_position_translation()
 		{
 			if(COPILOT_get_border_mode() == NOT_BORDER_MODE)	//Sauf en mode bordure, on accèpte la position du point final !
 				global.position_translation = destination_translation;
-		}		
+		}
 	}
 	else	//si on est pas arrivï¿½, on continue...
 		global.position_translation += global.vitesse_translation;

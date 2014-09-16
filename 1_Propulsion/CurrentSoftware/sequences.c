@@ -5,7 +5,7 @@
 #include "QS/QS_macro.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_who_am_i.h"
-#include "cos_sin.h"
+#include "QS/QS_maths.h"
 #include "odometry.h"
 #include "warner.h"
 #include "copilot.h"
