@@ -14,7 +14,7 @@
 #include "secretary.h"
 #include "corrector.h"
 #include "roadmap.h"
-#include "cos_sin.h"
+#include "QS/QS_maths.h"
 #include "_Propulsion_config.h"
 #include "pilot.h"
 #include <math.h>

@@ -25,13 +25,13 @@ trajectoire pour l'information de position de l'adversaire */
 	#define DETECTION_H
 
 	#include "config_use.h"
-	
+
 	#define BEACON_IR(f)	((f == FOE_1) ? BEACON_IR_FOE_1 : BEACON_IR_FOE_2)
 	#define BEACON_US(f)	((f == FOE_1) ? BEACON_US_FOE_1 : BEACON_US_FOE_2)
-	
+
 	typedef enum
 	{
-		#ifdef USE_TELEMETER	
+		#ifdef USE_TELEMETER
 		/* attention, code lié à TELEMETER_NUMBER dans telemeter.h */
 		/* les telemetres doivent rester en tête de liste */
 			TELE_FRONT_LEFT = 0,
@@ -53,39 +53,40 @@ trajectoire pour l'information de position de l'adversaire */
 		Sint16 	angle;							/*angle de vue de l'adversaire (relatif au robot)*/
 		Uint16 	distance; 						/*distance de l'obstacle mesurée par le capteur*/
 		Sint16 	foeX;							/*abscisse absolue du robot ennemie*/
-    	Sint16 	foeY;							/*ordonnée absolue du robot ennemie*/
-    	time32_t	update_time;
-    	bool_e	updated;
+		Sint16 	foeY;							/*ordonnée absolue du robot ennemie*/
+		time32_t	update_time;
+		bool_e	updated;
 	}detection_information_t;
-	
+
 	void DETECTION_init(void);
-	
+
 	void DETECTION_clean(void);
-	
+
 	/*	mise à jour de l'information de la position des adversaires à l'aide uniquement des telemetres*/
 	void DETECTION_update_foe_only_by_telemeter();
-	
+
 	void DETECTION_pos_foe_update (CAN_msg_t* msg);
-	
+
 	/*	mise à jour de l'information de la position des adversaires à l'aide des telemetres et des balises*/
 	void DETECTION_update_foe_by_telemeter();
-	
+
 	/* nettoyage des flags dans l'environnement */
 	void DETECTION_clear_updates();
-	
+
 	#ifdef DETECTION_C
-	
-		#include "maths_home.h"
+
+
+		#include "QS/QS_maths.h"
 		#include "sick.h"
-		
+
 		#define BEACON_FAR_THRESHOLD	1000
-		
+
 		#define MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION 260 // 260 ms
-		
+
 		#define MAXIMUM_TIME_FOR_BEACON_REFRESH 300 // 500ms
-		
+
 		#define BORDER_DELTA 50 // 50 mm
-		
+
 
 		/* envoie position adversaire en debug */
 

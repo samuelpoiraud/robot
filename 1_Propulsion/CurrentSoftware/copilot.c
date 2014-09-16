@@ -17,7 +17,7 @@
 #include "pilot.h"
 #include "calculator.h"
 #include "odometry.h"
-#include "cos_sin.h"
+#include "QS/QS_maths.h"
 #include "debug.h"
 #include "QS/QS_watchdog.h"
 #include "QS/QS_who_am_i.h"

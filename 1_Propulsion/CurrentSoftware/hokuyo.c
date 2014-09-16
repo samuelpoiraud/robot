@@ -24,7 +24,7 @@
 	#include "usb_host/Class/MSC/usbh_msc_core.h"
 	#include "usb_host/Class/usbh_class_switch.h"
 	#include "uart_via_usb.h"
-	#include "cos_sin.h"
+	#include "QS/QS_maths.h"
 	#include "hokuyo.h"
 	#include "calculator.h"
 	#include "secretary.h"

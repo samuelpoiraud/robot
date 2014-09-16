@@ -61,6 +61,8 @@
 
 	//#define USE_PROP_AVOIDANCE
 
+	#define FAST_COS_SIN
+
 	#define USE_WATCHDOG
 	#define WATCHDOG_TIMER 4
 	#define WATCHDOG_MAX_COUNT 5

@@ -16,7 +16,7 @@
 #include "odometry.h"
 #include "copilot.h"
 #include "encoders.h"
-#include "cos_sin.h"
+#include "QS/QS_maths.h"
 #include "debug.h"
 #include "supervisor.h"
 #include "gyroscope.h"
