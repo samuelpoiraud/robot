@@ -38,12 +38,6 @@
 	*/
 	void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e error_source);
 
-	#ifdef SCAN_TRIANGLE
-		void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 triangle_level, Uint8 triangle_number, Sint16 x, Sint16 y, Sint16 teta);
-		void SECRETARY_send_triangle_warner(bool_e present, Uint8 triangle_number);
-		void SECRETARY_send_scan_anything(bool_e anything_found);
-	#endif
-
 	void SECRETARY_process_it(void);
 
 	void SECRETARY_mailbox_add(CAN_msg_t * msg);

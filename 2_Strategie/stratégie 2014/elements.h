@@ -306,6 +306,12 @@
 	}fruit_verin_state_e;
 
 	typedef enum{
+		OBJECT_IN_ZONE,
+		ZONE_EMPTY,
+		NO_ANSWER
+	}scan_anything_e;
+
+	typedef enum{
 		ADVERSARY_TORCH,
 		OUR_TORCH
 	}torch_choice_e;
@@ -328,21 +334,50 @@
 		YELLOW_TREE
 	}pos_drop_e;
 
+	typedef enum{
+		V_TRIANGLE_1, // Base rouge
+		V_TRIANGLE_2, // Milieu côté rouge
+		V_TRIANGLE_3, // Milieu côté jaune
+		V_TRIANGLE_4  // Base Jaune
+	}vertical_triangle_e;
+
+	typedef struct{
+		Sint16 x;
+		Sint16 y;
+		Sint16 teta;
+	}objet_t;
 
 	// Va poser un triangle à l'endriot demandé
 	error_e ELEMENT_go_and_drop(pos_drop_e choice);
 
 	// Fonction de réception de message CAN
+	void ELEMENT_triangle_add_to_list(CAN_msg_t* msg);	// Ajoute le triangle du message can dans la liste
+	void ELEMENT_triangle_warner(CAN_msg_t* msg);		// Récupère le résultat du warner
 	void ELEMENT_update_fruit_verin_state(CAN_msg_t* msg);	// Mets à jours l'état du labium
 	void ELEMENT_answer_scan_anything(CAN_msg_t* msg);	// Récupère le résultat du scan
 	void ELEMENT_answer_pump(CAN_msg_t *msg);			// Récupère la réponse de la pompe
 
 	// Fonction utilisateur
+	void ELEMENT_get_nb_object(Uint8 nb_obj[3]);	// Retourne le nb d'objet
+	void ELEMENT_get_object(objet_t obj[3][20]);	// Retourne le tableau d'objet
+	void ELEMENT_afficher_triangle();			// Affiche tout les triangles que le scan a trouver
+	bool_e ELEMENT_triangle_present();			// Retourne la présence d'un triangle après demande de la warner
+	bool_e ELEMENT_torche_present();			// Retounre la présence d'une torche après un scan
+	scan_anything_e ELEMENT_get_result_scan();	// Retourne l'état du dernier scan
 
 	// Fonction de lancement / subaction
 
+	// Lance une warner pour la détection des triangles contre bordure de 0 à 3 en commençant par le triangle contre la bordure côté rouge
+	void ELEMENT_launch_triangle_warner(Uint8 number_triangle);
+
 	// subaction qui donne l'ordre puis attend que le labium soit dans la position 'labium_order'
 	Uint8 ELEMENT_do_and_wait_end_fruit_verin_order(fruit_verin_state_e labium_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+
+	// subaction qui dit d'aller en telle position puis d'effectuer un scan
+	Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance);
+
+	// subaction qui effectue un scan
+	Uint8 rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
 	// Nouvelle position de la torche apres une poussée
 	void TORCH_new_position(torch_choice_e choice);
