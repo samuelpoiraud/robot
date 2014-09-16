@@ -753,6 +753,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		/*case PROP_LAUNCH_WARNER_TRIANGLE :
 			SCAN_TRIANGLE_WARNER_canMsg(msg);
 		break;*/
+		case PROP_DEBUG_FORCED_FOE:
+			global.debug_foe_forced = TRUE;
+		break;
 		#endif
 		#ifdef LCD_TOUCH
 		case BROADCAST_POSITION_ROBOT:

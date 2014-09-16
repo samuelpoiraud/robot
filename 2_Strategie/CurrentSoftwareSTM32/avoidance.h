@@ -247,6 +247,8 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
  */
 Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
+void AVOIDANCE_forced_foe_dected();
+
 /*
  * Envoie un message CAN à l'asser et attend la reponse
  * return IN_PROGRESS   : requete de position envoyée, attente de réponse.

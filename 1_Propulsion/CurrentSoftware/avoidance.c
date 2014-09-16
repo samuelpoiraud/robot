@@ -16,12 +16,27 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_maths.h"
+#include "copilot.h"
 
 void AVOIDANCE_init(){
 
 }
 
-bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty){
+void AVOIDANCE_process_it(){
+#ifdef USE_PROP_AVOIDANCE
+	order_t current_order = COPILOT_get_current_order();
+
+	if(
+		((current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
+		(current_order.avoidance == AVOID_ENABLED || current_order.avoidance == AVOID_ENABLED_AND_WAIT)
+		) ||
+		 current_order.trajectory == WAIT_FOREVER){
+
+	}
+#endif
+}
+
+bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	Sint32 vrot;		//[rad/4096/1024/5ms]
 	Sint32 vtrans;		//[mm/4096/5ms]
 
@@ -30,10 +45,25 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty){
 	Sint16 teta;		//[rad/4096]
 
 	Sint16 sin, cos;	//[/4096]
+	Sint16 sinus, cosinus;	//[/4096]
 
 	adversary_t *adversaries;
 	Uint8 max_foes;
 	Uint8 i;
+	order_t current_order = COPILOT_get_current_order();
+
+	Sint32 avoidance_rectangle_min_x;
+	Sint32 avoidance_rectangle_max_x;
+	Sint32 avoidance_rectangle_width_y;
+
+	Uint32 breaking_acceleration;
+	Uint32 current_speed;
+	Uint32 break_distance;
+	Uint32 respect_distance;
+
+	Sint32 relative_foe_x;
+	Sint32 relative_foe_y;
+
 
 
 	TIMER1_disableInt(); // Inibation des ITs critique
@@ -49,14 +79,55 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty){
 	COS_SIN_4096_get(teta, &cos, &sin);
 	adversaries = DETECTION_get_adversaries(&max_foes); // Récupération des adversaires
 
+	bool_e in_path = FALSE;	//On suppose que pas d'adversaire dans le chemin
+
+	/*	On définit un "rectangle d'évitement" comme la somme :
+	 * 		- du rectangle que le robot va recouvrir s'il décide de freiner maintenant.
+	 *  	- du rectangle de "respect" qui nous sépare de l'adversaire lorsqu'on se sera arreté
+	 *  On calcule la position relative des robots adverses pour savoir s'ils se trouvent dans ce rectangle
+	 *
+	 */
+
+
+	way_e move_way = current_order.way;
+
+	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
+	current_speed = (Uint32)(absolute(vtrans)*1);
+	break_distance = current_speed*current_speed/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
+	respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
+
+	avoidance_rectangle_width_y = FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH);
+	//avoidance_printf("\n%d[%ld>%ld][%ld>%ld]\n", current_speed,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
+
+
+	if(move_way == FORWARD || move_way == ANY_WAY)	//On avance
+		avoidance_rectangle_max_x = break_distance + respect_distance;
+	else
+		avoidance_rectangle_max_x = 0;
+
+	if(move_way == BACKWARD || move_way == ANY_WAY)	//On recule
+		avoidance_rectangle_min_x = -(break_distance + respect_distance);
+	else
+		avoidance_rectangle_min_x = 0;
+
 	for(i=0; i<max_foes; i++){
 
 		if(adversaries[i].enable){
+			COS_SIN_4096_get(adversaries[i].angle, &cosinus, &sinus);
+			relative_foe_x = (((Sint32)(cosinus)) * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
+			relative_foe_y = (((Sint32)(sinus))   * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 
+			if(		relative_foe_y > -avoidance_rectangle_width_y/2 	&& 	relative_foe_y < avoidance_rectangle_width_y/2
+				&& 	relative_foe_x > avoidance_rectangle_min_x 		&& 	relative_foe_x < avoidance_rectangle_max_x)
+				{
+					in_path = TRUE;	//On est dans le rectangle d'évitement !!!
+					//if(verbose)
+						//SD_printf("FOE[%d]_IN_PATH|%c|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, /*(adversaries[i].from == DETECTION_FROM_BEACON_IR)?'B':*/'H',adversaries[i].dist,adversaries[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
+				}
 		}
 	}
 
-	return FALSE;
+	return in_path;
 }
 
 // Retourne si un adversaire est dans la chemin entre nous et la position

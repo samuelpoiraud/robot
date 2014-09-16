@@ -93,7 +93,8 @@
 		TRAJECTORY_ROTATION,
 		TRAJECTORY_STOP,
 		TRAJECTORY_AUTOMATIC_CURVE,
-		TRAJECTORY_NONE
+		TRAJECTORY_NONE,
+		WAIT_FOREVER
 	} trajectory_e;
 
 	/*type d'évitement - utilisé dans le code propulsion et partagé pour la stratégie... */
