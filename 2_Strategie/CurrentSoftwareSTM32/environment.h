@@ -15,7 +15,6 @@
 	#define ENVIRONMENT_H
 	#include "QS/QS_CANmsgList.h"
 	#include "detection.h"
-	#include "sick.h"
 	#include "elements.h"
 	#include "Geometry.h"
 
@@ -118,7 +117,6 @@
 
 	typedef struct
 	{
-		element_t elements_list[NB_ELEMENTS];
 		Uint8 nb_elements;
 		color_e	color;
 		color_e	wanted_color;
