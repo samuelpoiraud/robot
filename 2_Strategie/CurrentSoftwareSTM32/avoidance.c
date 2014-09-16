@@ -142,7 +142,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			break;
 
 		case GO :
-			sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},SLOW}}, NULL, 1, way, avoidance, END_AT_LAST_POINT);
+			sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},30}}, NULL, 1, way, avoidance, END_AT_LAST_POINT);
 			switch(sub_action){
 				case IN_PROGRESS:
 					state = GO;
