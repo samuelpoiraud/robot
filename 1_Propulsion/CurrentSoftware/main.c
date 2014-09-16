@@ -44,9 +44,6 @@
 	#include "LCDTouch/LCD.h"
 	#include "LCDTouch/zone.h"
 #endif
-#ifdef	SCAN_TRIANGLE
-	#include "scan_triangle.h"
-#endif
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -147,11 +144,6 @@ void initialisation(void)
 		LCD_init();
 	#endif
 
-	#ifdef SCAN_TRIANGLE
-		SCAN_TRIANGLE_init();
-		// Initialisation des ADC pour les DT10s des scans des triangles
-	#endif
-
 	IT_init();
 	/*
 	Récapitulatif des priorités des ITs :
@@ -228,9 +220,7 @@ int main (void)
 		SECRETARY_process_main();	//Communication avec l'extérieur. (Réception des messages)
 
 		WARNER_process_main();		//Communication avec l'extérieur. (Envois des messages)
-		#ifdef SCAN_TRIANGLE
-			SCAN_TRIANGLE_calculate();
-		#endif
+
 #if defined (LCD_TOUCH)
 		LCD_process_main();
 #endif

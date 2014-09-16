@@ -21,6 +21,7 @@
 #include <math.h>
 #include "QS/QS_maths.h"
 
+#define SCAN_TIMEOUT			4000
 #define LABIUM_TIMEOUT			500
 #define verin_order_TIMEOUT		200
 #define PUMP_TIMEOUT			100
@@ -36,14 +37,26 @@
 #define FRESQUE_3_ADC_VALUE		1024
 #define FRESQUE_ADC_EPSILON		100
 
+static bool_e ELEMENT_propulsion_send_triangle();
+static void ELEMENT_scan_triangle_init();
+static void TRIANGLE_WARNER_init();
+
+static bool_e prop_send_all_triangle = FALSE;
+static scan_anything_e scan_anything = NO_ANSWER;
 static fruit_verin_state_e fruit_verin_state = UNKNOWN;
 static time32_t time_fruit_verin_state = 0;
 
+static struct{
+	enum{NO_REPONSE, TRIANGLE_PRESENT, TRIANGLE_NO_PRESENT}state_warner_triangle;
+	Uint8 number_triangle;
+}warner_param;
 
 static enum{
 	PUMP_ANSWER_ANYTHING, PUMP_ANSWER_NO, PUMP_ANSWER_YES
 }pump_answer = PUMP_ANSWER_ANYTHING;
 
+static objet_t objet[3][20];
+static Uint8 nb_objet[3];
 
 
 static GEOMETRY_point_t posTorch[2] = {{1100,900},		// Torche Rouge
@@ -259,6 +272,84 @@ Uint8 ELEMENT_wait_pump_capture_object(Uint8 in_progress, Uint8 success_state, U
 	return in_progress;
 }
 
+Uint8 ELEMENT_try_going_and_rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance){
+	typedef enum
+	{
+		TRY_GOING,
+		SCAN,
+		SCAN_END,
+		ERROR
+	}state_e;
+	static state_e state = TRY_GOING;
+	switch(state){
+		case TRY_GOING:
+			state = try_going(x, y, TRY_GOING, SCAN, ERROR, speed, way, avoidance, END_AT_LAST_POINT);
+			break;
+
+		case SCAN:
+			state = rotate_scan(startTeta, endTeta, nb_points, SCAN, SCAN_END, ERROR);
+			break;
+
+		case SCAN_END:
+			state = TRY_GOING;
+			return success_state;
+
+		case ERROR:
+			state = TRY_GOING;
+			return fail_state;
+	}
+	return in_progress;
+}
+
+Uint8 rotate_scan(Sint16 startTeta, Sint16 endTeta, Uint8 nb_points, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
+	typedef enum
+	{
+		BEGIN_SCAN,
+		SCAN,
+		SCAN_END,
+		ERROR
+	}state_e;
+	static state_e state = BEGIN_SCAN;
+	static time32_t timeLaunch;
+	CAN_msg_t msg;
+	switch(state){
+
+		case BEGIN_SCAN:
+			msg.sid = PROP_LAUNCH_SCAN_TRIANGLE;
+			msg.data[0] = 0x00;
+			msg.data[1] = nb_points;
+			msg.data[2] = (Uint8)((startTeta >> 8) & 0x00FF);
+			msg.data[3] = (Uint8)(startTeta & 0x00FF);
+			msg.data[4] = (Uint8)((endTeta >> 8) & 0x00FF);
+			msg.data[5] = (Uint8)(endTeta & 0x00FF);
+			msg.size = 6;
+			CAN_send(&msg);
+			ELEMENT_scan_triangle_init();
+			timeLaunch = global.env.match_time;
+			state = SCAN;
+			break;
+
+		case SCAN:
+			if(ELEMENT_propulsion_send_triangle() == TRUE){
+				//ELEMENT_afficher_triangle();
+				state = SCAN_END;
+			}else if(global.env.match_time-timeLaunch >= SCAN_TIMEOUT){
+				debug_printf("TIMEOUT SCAN TRIANGLE\n");
+				state = ERROR;
+			}
+			break;
+
+		case SCAN_END:
+			state = BEGIN_SCAN;
+			return success_state;
+
+		case ERROR:
+			state = BEGIN_SCAN;
+			return fail_state;
+	}
+	return in_progress;
+}
+
 Uint8 ELEMENT_do_and_wait_end_fruit_verin_order(fruit_verin_state_e verin_order, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 	typedef enum
 	{
@@ -303,6 +394,15 @@ Uint8 ELEMENT_do_and_wait_end_fruit_verin_order(fruit_verin_state_e verin_order,
 	return in_progress;
 }
 
+void ELEMENT_launch_triangle_warner(Uint8 number_triangle){
+	CAN_msg_t msg;
+	msg.sid = PROP_LAUNCH_WARNER_TRIANGLE;
+	msg.data[0] = number_triangle;
+	msg.size = 1;
+	CAN_send(&msg);
+	TRIANGLE_WARNER_init();
+}
+
 Uint8 ELEMENT_wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 	typedef enum
 	{
@@ -335,10 +435,75 @@ Uint8 ELEMENT_wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 // Fonction utilisateur
 //------------------------------------
 
+void ELEMENT_afficher_triangle(){
+	Uint8 i, j;
+	for(i=0;i<3;i++){
+		for(j=0;j<nb_objet[i];j++){
+			debug_printf("%d %d  x:%d  y:%d  teta:%d\n", i, j, objet[i][j].x, objet[i][j].y, objet[i][j].teta);
+		}
+	}
+}
+
+void ELEMENT_get_nb_object(Uint8 nb_obj[3]){
+//	nb_objet[0] = 2;
+//	nb_objet[1] = 1;
+//	nb_objet[2] = 2;
+
+	Uint8 i;
+	for(i=0;i<3;i++){
+		nb_obj[i] = nb_objet[i];
+	}
+}
+
+void ELEMENT_get_object(objet_t obj[3][20]){
+//	objet[0][0] = (objet_t){1800,2700,1700};
+//	objet[0][1] = (objet_t){1800,2700,1700};
+//	objet[1][0] = (objet_t){1800,2700,1700};
+//	objet[2][0] = (objet_t){1800,2700,1700};
+//	objet[2][1] = (objet_t){1800,2700,1700};
+
+	Uint8 i, j;
+	for(i=0;i<3;i++){
+		for(j=0;j<nb_objet[i];j++){
+			obj[i][j] = objet[i][j];
+		}
+	}
+}
+
+bool_e ELEMENT_triangle_present(){
+	return warner_param.state_warner_triangle == TRIANGLE_PRESENT;
+}
+
+bool_e ELEMENT_torche_present(){
+	return nb_objet[2] > 0;
+}
+
+scan_anything_e ELEMENT_get_result_scan(){
+	return scan_anything;
+}
+
 //------------------------------------
 // Fonction de reception message CAN
 //------------------------------------
 
+void ELEMENT_triangle_add_to_list(CAN_msg_t* msg){
+	Uint8 level, number;
+	level = (msg->data[0] & 0x60) >> 5;
+	number = (msg->data[0] & 0x1F);
+	if(level < 3 && number < 20){
+		objet[level][number].x = (((Sint16)(msg->data[1]) << 8) & 0xFF00) | ((Sint16)(msg->data[2]) & 0x00FF);
+		objet[level][number].y = (((Sint16)(msg->data[3]) << 8) & 0xFF00) | ((Sint16)(msg->data[4]) & 0x00FF);
+		objet[level][number].teta = (((Sint16)(msg->data[5]) << 8) & 0xFF00) | ((Sint16)(msg->data[6]) & 0x00FF);
+		nb_objet[level] = number+1;
+	}
+	if(msg->data[0] & 0x80){
+		prop_send_all_triangle = TRUE;
+	}
+}
+
+void ELEMENT_answer_scan_anything(CAN_msg_t* msg){
+	scan_anything = (msg->data[0] == 1) ? OBJECT_IN_ZONE : ZONE_EMPTY;
+}
 
 void ELEMENT_update_fruit_verin_state(CAN_msg_t* msg){
 	time_fruit_verin_state = global.env.match_time;
@@ -348,6 +513,12 @@ void ELEMENT_update_fruit_verin_state(CAN_msg_t* msg){
 		fruit_verin_state = CLOSE;
 	else
 		fruit_verin_state = UNKNOWN;
+}
+
+void ELEMENT_triangle_warner(CAN_msg_t* msg){
+	warner_param.number_triangle = msg->data[0];
+	if(msg->data[1])
+		warner_param.state_warner_triangle = TRIANGLE_PRESENT;
 }
 
 void ELEMENT_answer_pump(CAN_msg_t *msg){
@@ -398,6 +569,7 @@ bool_e get_fresco(Uint8 nb){
 	return TRUE;
 }
 
+
 Sint16 get_dist_torch_laser(){
 	return conv_value_to_dist_laser_torch(ADC_getValue(ADC_14));
 }
@@ -406,6 +578,32 @@ Sint16 get_dist_torch_laser(){
 //------------------------------------
 // Fonction interne
 //------------------------------------
+
+static bool_e ELEMENT_propulsion_send_triangle(){
+	if(prop_send_all_triangle){
+		prop_send_all_triangle = FALSE;
+		return TRUE;
+	}else
+		return FALSE;
+}
+
+static void ELEMENT_scan_triangle_init(){
+	Uint8 i, j;
+	for(j=0;j<3;j++){
+		nb_objet[j] = 0;
+		for(i=0;i<20;i++){
+			objet[j][i].teta = 0;
+			objet[j][i].y = 0;
+			objet[j][i].x = 0;
+		}
+	}
+	scan_anything = NO_ANSWER;
+}
+
+static void TRIANGLE_WARNER_init(){
+	warner_param.state_warner_triangle = NO_REPONSE;
+}
+
 
 
 #if 0

@@ -449,18 +449,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_ANSWER_POMPE :
 			ELEMENT_answer_pump(incoming_msg);
 			break;
-/******************************** Récupération des données du scan des triangles **************************/
-		case STRAT_TRIANGLE_POSITON :
-			ELEMENT_triangle_add_to_list(incoming_msg);
-			break;
 
-		case STRAT_TRIANGLE_WARNER :
-			ELEMENT_triangle_warner(incoming_msg);
-			break;
-
-		case STRAT_SCAN_ANYTHING :
-			ELEMENT_answer_scan_anything(incoming_msg);
-			break;
 
 /************************************ Récupération des données de la balise *******************************/
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:

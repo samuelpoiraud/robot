@@ -29,6 +29,7 @@
 #include "copilot.h"
 #include "supervisor.h"
 #include "joystick.h"
+#include "scan_triangle.h"
 #include "LCDTouch/LCD.h"
 #include "hokuyo.h"
 #include "supervisor.h"
@@ -241,6 +242,21 @@ void SECRETARY_send_selftest_result(bool_e result)
 		msg.data[i++] = SELFTEST_PROP_FAILED;
 	if(HOKUYO_is_working_well() == FALSE)
 		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED;
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
+		if(ADC_getValue(ADC_SENSOR_BIG_DT10_FLOOR) < 15)				// Les DT10 ont un pull down donc si ils ne sont pas connectés l'adc doit être à 0
+			msg.data[i++] = SELFTEST_PROP_DT10_1_FAILED;
+		if(ADC_getValue(ADC_SENSOR_BIG_DT50_NV1) < 15)
+			msg.data[i++] = SELFTEST_PROP_DT50_2_FAILED;
+		if(ADC_getValue(ADC_SENSOR_BIG_DT50_NV2) < 15)
+			msg.data[i++] = SELFTEST_PROP_DT50_3_FAILED;
+	}else{
+		if(ADC_getValue(ADC_SENSOR_SMALL_DT10_FLOOR) < 15)				// Les DT10 ont un pull down donc si ils ne sont pas connectés l'adc doit être à 0
+			msg.data[i++] = SELFTEST_PROP_DT10_1_FAILED;
+		if(ADC_getValue(ADC_SENSOR_SMALL_DT10_NV1) < 15)
+			msg.data[i++] = SELFTEST_PROP_DT10_2_FAILED;
+		if(ADC_getValue(ADC_SENSOR_SMALL_DT10_NV2) < 15)
+			msg.data[i++] = SELFTEST_PROP_DT10_3_FAILED;
+	}
 
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 		msg.data[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
@@ -292,6 +308,64 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 	#endif
 }
 
+#ifdef SCAN_TRIANGLE
+//x : mm, y : mm, teta : rad4096
+void SECRETARY_send_triangle_position(bool_e it_is_the_last_triangle, Uint8 triangle_level, Uint8 triangle_number, Sint16 x, Sint16 y, Sint16 teta)
+{
+	CAN_msg_t msg;
+	/*		0:7		: Indiquant si c'est le dernier triangle
+	 *		0:6-5	: Hauteur du capteur entre 0 et 2
+	 *		0:5-0	: triangle_number
+	 * 		1		: x HIGH bit
+	 * 		2		: x LOW bit
+	 * 		3		: y HIGH bit
+	 *		4		: y LOW bit
+	 * 		5		: teta HIGH bit
+	 * 		6		: teta LOW bit
+	 */
+	msg.sid = STRAT_TRIANGLE_POSITON;
+	msg.data[0] = triangle_number | ((it_is_the_last_triangle)?IT_IS_THE_LAST_TRIANGLE:0x00) | ((triangle_level << 5) & 0x60);	//n° du triangle  + bit de poids fort si c'est le dernier triangle
+	msg.data[1] = HIGHINT(x);
+	msg.data[2] = LOWINT(x);
+	msg.data[3] = HIGHINT(y);
+	msg.data[4] = LOWINT(y);
+	msg.data[5] = HIGHINT(teta);
+	msg.data[6] = LOWINT(teta);
+	msg.size = 7;
+	SECRETARY_send_canmsg(&msg);
+	#ifdef VERBOSE_MSG_SEND_OVER_UART
+		debug_printf("Triangle %d niveau %d détécté  %d  %d  %d %s\n",triangle_number, triangle_level,x,y,teta,((it_is_the_last_triangle)?"LAST\n":""));
+	#endif
+}
+
+void SECRETARY_send_triangle_warner(bool_e present, Uint8 number_triangle){
+	CAN_msg_t msg;
+	msg.sid = STRAT_TRIANGLE_WARNER;
+	msg.data[0] = number_triangle;
+	msg.data[1] = present;
+	msg.size = 2;
+	SECRETARY_send_canmsg(&msg);
+	#ifdef VERBOSE_MSG_SEND_OVER_UART
+		debug_printf("Triangle %d %s présent\n", number_triangle, ((present)?"":"non"));
+	#endif
+}
+
+void SECRETARY_send_scan_anything(bool_e anything_found){
+	CAN_msg_t msg;
+	msg.sid = STRAT_SCAN_ANYTHING;
+	msg.data[0] = anything_found;
+	msg.size = 1;
+	SECRETARY_send_canmsg(&msg);
+	#ifdef VERBOSE_MSG_SEND_OVER_UART
+		if(anything_found == TRUE)
+			debug_printf("Objet détecté dans la zone scannée\n");
+		else
+			debug_printf("Zone de scan vide\n");
+	#endif
+}
+
+
+#endif
 
 void SECRETARY_send_pong(void)
 {
@@ -672,7 +746,17 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			SEQUENCES_trajectory_for_test_coefs();
 			WARNER_enable_counter_trajectory_for_test_coefs_finished();
 		break;
-
+		#ifdef SCAN_TRIANGLE
+		case PROP_LAUNCH_SCAN_TRIANGLE :
+			SCAN_TRIANGLE_canMsg(msg);
+		break;
+		/*case PROP_LAUNCH_WARNER_TRIANGLE :
+			SCAN_TRIANGLE_WARNER_canMsg(msg);
+		break;*/
+		case PROP_DEBUG_FORCED_FOE:
+			global.debug_foe_forced = TRUE;
+		break;
+		#endif
 		#ifdef LCD_TOUCH
 		case BROADCAST_POSITION_ROBOT:
 			//On a reçu une position robot... on la prend... et on ne bouge plus par nous même.

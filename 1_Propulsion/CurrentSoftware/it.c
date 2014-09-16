@@ -23,7 +23,6 @@
 #include "warner.h"
 #include "joystick.h"
 #include "secretary.h"
-#include "scan_triangle.h"
 #include "debug.h"
 #include "hokuyo.h"
 #include "main.h"
@@ -99,10 +98,6 @@ void _ISR _T1Interrupt()
 	SUPERVISOR_process_it();
 	AVOIDANCE_process_it();
 	MAIN_process_it(PERIODE_IT_ASSER);
-
-	#ifdef SCAN_TRIANGLE
-		SCAN_TRIANGLE_process_it();
-	#endif
 
 	#ifdef USE_HOKUYO
 		HOKUYO_process_it(PERIODE_IT_ASSER);
