@@ -58,7 +58,6 @@
 	GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c0, GEOMETRY_circle_t c1);
 
 	bool_e is_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
-	bool_e i_am_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
 	bool_e is_in_circle(GEOMETRY_point_t current, GEOMETRY_circle_t circle);
 
 	#define PI16384				51472
