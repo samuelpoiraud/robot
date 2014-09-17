@@ -8,13 +8,14 @@
  *  Version 20130518
  */
 
+#include "QS_all.h"
+
 #ifndef QS_MATHS_H
 	#define QS_MATHS_H
 
-	#include "QS_all.h"
 	#include "math.h"
 
-	#define SQUARE(x)	((x)*(x))
+	#define SQUARE(x)		((x)*(x))
 
 	Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 
@@ -26,6 +27,39 @@
 	double cos4096(Sint16 angle);
 	double sin4096(Sint16 angle);
 	Sint16 atan4096(double tangent);
+
+	typedef struct {
+		Sint16 x;
+		Sint16 y;
+	} GEOMETRY_point_t;
+
+	typedef struct {
+		Sint16 x;
+		Sint16 y;
+	} GEOMETRY_vector_t;
+
+	typedef struct {
+		GEOMETRY_point_t a;
+		GEOMETRY_point_t b;
+	} GEOMETRY_segment_t;
+
+	typedef struct {
+		GEOMETRY_point_t c;
+		Uint16 r;
+	} GEOMETRY_circle_t;
+
+	Uint16 GEOMETRY_distance(GEOMETRY_point_t a, GEOMETRY_point_t b);
+	Uint32 GEOMETRY_squared_distance(GEOMETRY_point_t a, GEOMETRY_point_t b);
+	bool_e GEOMETRY_segments_intersects(GEOMETRY_segment_t s1,GEOMETRY_segment_t s2);
+	Sint16 GEOMETRY_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destination_x, Sint16 destination_y);
+	Sint16 GEOMETRY_modulo_angle(Sint16 angle);
+	GEOMETRY_point_t GEOMETRY_segment_middle(GEOMETRY_segment_t s);
+	GEOMETRY_circle_t GEOMETRY_circle_from_diameter(GEOMETRY_segment_t diameter);
+	GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c0, GEOMETRY_circle_t c1);
+
+	bool_e is_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
+	bool_e i_am_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
+	bool_e is_in_circle(GEOMETRY_point_t current, GEOMETRY_circle_t circle);
 
 	#define PI16384				51472
 	#define HALF_PI16384		25736
