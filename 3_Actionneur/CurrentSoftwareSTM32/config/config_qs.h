@@ -70,8 +70,9 @@
 
 #define USE_AN11
 
-#define SERVO_TIMER 5
+#define SERVO_TIMER 1
 #define USE_SERVO
 
+#define FAST_COS_SIN
 
 #endif /* CONFIG_QS_H */

@@ -27,7 +27,7 @@
 	#include "../Guy/Arm_config.h"
 #endif
 #include "Arm_data.h"
-#include "../maths_home.h"
+#include "../QS/QS_maths.h"
 #include "../ActManager.h"
 #include <string.h>
 #include <math.h>
@@ -198,7 +198,6 @@ static Sint8 find_state();
 static void get_data_pos_triangle(CAN_msg_t* msg);
 static bool_e goto_triangle_pos();
 static void get_data_pos_triangle(CAN_msg_t* msg);
-static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 static bool_e move_updown_to(Sint16 pos);
 static bool_e check_state_and_rush_in_floor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line, bool_e init, Sint16 order);
 static bool_e find_state_path(Sint8 begin_state, Sint8 end_state);
@@ -1002,10 +1001,6 @@ static void get_data_pos_triangle(CAN_msg_t* msg){
 	data_pos_triangle.y = U16FROMU8(msg->data[5], msg->data[6]);
 	display(data_pos_triangle.x);
 	display(data_pos_triangle.y);
-}
-
-static Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
-	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
 }
 
 static bool_e move_updown_to(Sint16 pos){

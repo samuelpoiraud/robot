@@ -16,10 +16,6 @@
 
 #define USE_RTC
 
-//définition de la précision et des modes de calcul des sinus et cosinus
-	#define FAST_COS_SIN
-
-
 //Module de gestion des capteurs SICK pour scan de la zone de jeu... Ce module est très dépendant du règlement et du robot !
 //#define USE_SICK
 

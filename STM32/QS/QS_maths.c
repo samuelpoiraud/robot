@@ -14,6 +14,32 @@ Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
 }
 
+double cos4096(Sint16 angle)
+{
+	#ifdef FAST_COS_SIN
+		Sint16 cosinus, sinus;
+		COS_SIN_4096_get(angle, &cosinus, &sinus);
+		return cosinus/4096.;
+	#else
+		return cos(((double)angle)/4096.);
+	#endif
+}
+
+double sin4096(Sint16 angle)
+{
+	#ifdef FAST_COS_SIN
+		Sint16 cosinus, sinus;
+		COS_SIN_4096_get(angle, &cosinus, &sinus);
+		return sinus/4096.;
+	#else
+		return sin(((double)angle)/4096.);
+	#endif
+}
+
+Sint16 atan4096(double tangent)
+{
+	return (Sint16)(atan(tangent)*4096);
+}
 
 
 #ifdef FAST_COS_SIN
@@ -82,6 +108,7 @@ void COS_SIN_16384_get(Sint32 teta, Sint16 * cos, Sint16 * sin)
 	}
 
 }
+
 
 // Fonctionnement interne
 
