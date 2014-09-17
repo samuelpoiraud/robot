@@ -213,11 +213,6 @@ bool_e is_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t
 	return current.x >= MIN(x1,x2) && current.x <= MAX(x1,x2) && current.y >= MIN(y1,y2) && current.y <= MAX(y1,y2);
 }
 
-bool_e i_am_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
-{
-	return global.env.pos.x >= MIN(x1,x2) && global.env.pos.x <= MAX(x1,x2) && global.env.pos.y >= MIN(y1,y2) && global.env.pos.y <= MAX(y1,y2);
-}
-
 
 bool_e is_in_circle(GEOMETRY_point_t current, GEOMETRY_circle_t circle){
 	return SQUARE((Uint32){current.x-circle.c.x}) + SQUARE((Uint32){current.y-circle.c.y}) <= SQUARE((Uint32){circle.r});

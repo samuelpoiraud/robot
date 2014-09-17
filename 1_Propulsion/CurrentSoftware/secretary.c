@@ -199,12 +199,6 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 				//Nothing. affichage déjà géré dans la fonction appelante.
 				add_pos_datas = FALSE;
 				break;
-			case STRAT_TRIANGLE_POSITON:
-				add_pos_datas = FALSE;
-				break;
-			case STRAT_TRIANGLE_WARNER:
-				add_pos_datas = FALSE;
-				break;
 			case DEBUG_PROPULSION_COEF_IS:
 				add_pos_datas = FALSE;
 				break;
