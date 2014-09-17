@@ -80,25 +80,25 @@
 	 *	void _ISR _T5Interrupt()
 	 *	et le flag d'IT .....
 	 */
-//	void TIMER5_run(Uint8 period /* en millisecondes */);
-//	void TIMER5_stop(void);
-//	void TIMER5_run_us (Uint16 period /* en microsecondes */);
-//	void TIMER5_disableInt();
-//	void TIMER5_enableInt();
-//	int TIMER5_getCounter();
+	void TIMER5_run(Uint8 period /* en millisecondes */);
+	void TIMER5_stop(void);
+	void TIMER5_run_us (Uint16 period /* en microsecondes */);
+	void TIMER5_disableInt();
+	void TIMER5_enableInt();
+	int TIMER5_getCounter();
 
 	//Acuittement des IT timer
 	#define TIMER1_AckIT() TIM_ClearITPendingBit(TIM11, TIM_IT_Update)
 	#define TIMER2_AckIT() TIM_ClearITPendingBit(TIM12, TIM_IT_Update)
 	#define TIMER3_AckIT() TIM_ClearITPendingBit(TIM13, TIM_IT_Update)
 	#define TIMER4_AckIT() TIM_ClearITPendingBit(TIM14, TIM_IT_Update)
-	//#define TIMER5_AckIT() TIM_ClearITPendingBit(TIM10, TIM_IT_Update)
+	#define TIMER5_AckIT() TIM_ClearITPendingBit(TIM10, TIM_IT_Update)
 
 	//Verification de l'état d'une IT, pour detecter un eventuel recouvrement IT
 	#define TIMER1_getITStatus() TIM_GetITStatus(TIM11, TIM_IT_Update)
 	#define TIMER2_getITStatus() TIM_GetITStatus(TIM12, TIM_IT_Update)
 	#define TIMER3_getITStatus() TIM_GetITStatus(TIM13, TIM_IT_Update)
 	#define TIMER4_getITStatus() TIM_GetITStatus(TIM14, TIM_IT_Update)
-	//#define TIMER5_getITStatus() TIM_GetITStatus(TIM10, TIM_IT_Update)
+	#define TIMER5_getITStatus() TIM_GetITStatus(TIM10, TIM_IT_Update)
 
 #endif

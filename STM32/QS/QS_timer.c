@@ -31,7 +31,7 @@ __attribute__((weak)) void _T1Interrupt() {TIMER1_AckIT();}
 __attribute__((weak)) void _T2Interrupt() {TIMER2_AckIT();}
 __attribute__((weak)) void _T3Interrupt() {TIMER3_AckIT();}
 __attribute__((weak)) void _T4Interrupt() {TIMER4_AckIT();}
-//__attribute__((weak)) void _T5Interrupt() {TIMER5_AckIT();}
+__attribute__((weak)) void _T5Interrupt() {TIMER5_AckIT();}
 
 /* Configuation de l'ensemble du bloc timer */
 void TIMER_init(void){
@@ -40,8 +40,8 @@ void TIMER_init(void){
 
 	/* Horloges */
 	RCC_APB2PeriphClockCmd(
-		/*  RCC_APB2Periph_TIM10
-		| */RCC_APB2Periph_TIM11, ENABLE);
+		  RCC_APB2Periph_TIM10
+		| RCC_APB2Periph_TIM11, ENABLE);
 	RCC_APB1PeriphClockCmd(
 		  RCC_APB1Periph_TIM12
 		| RCC_APB1Periph_TIM13
@@ -60,25 +60,25 @@ void TIMER_init(void){
 #error "Incorrect HCLK/PCLK1 ratio, must be 1, 2 or 4"
 #endif
 
-	//TIM_TimeBaseInit(TIM10, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM10, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM11, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM12, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM13, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM14, &TIM_TimeBaseStructure);
 
-	//TIM_UpdateRequestConfig(TIM10, TIM_UpdateSource_Regular);
+	TIM_UpdateRequestConfig(TIM10, TIM_UpdateSource_Regular);
 	TIM_UpdateRequestConfig(TIM11, TIM_UpdateSource_Regular);
 	TIM_UpdateRequestConfig(TIM12, TIM_UpdateSource_Regular);
 	TIM_UpdateRequestConfig(TIM13, TIM_UpdateSource_Regular);
 	TIM_UpdateRequestConfig(TIM14, TIM_UpdateSource_Regular);
 
-	//TIM_ITConfig(TIM10, TIM_IT_Update, ENABLE);
+	TIM_ITConfig(TIM10, TIM_IT_Update, ENABLE);
 	TIM_ITConfig(TIM11, TIM_IT_Update, ENABLE);
 	TIM_ITConfig(TIM12, TIM_IT_Update, ENABLE);
 	TIM_ITConfig(TIM13, TIM_IT_Update, ENABLE);
 	TIM_ITConfig(TIM14, TIM_IT_Update, ENABLE);
 
-	//TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
+	TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
 	TIM_ClearITPendingBit(TIM11, TIM_IT_Update);
 	TIM_ClearITPendingBit(TIM12, TIM_IT_Update);
 	TIM_ClearITPendingBit(TIM13, TIM_IT_Update);
@@ -105,9 +105,9 @@ void TIMER_init(void){
 	NVICInit.NVIC_IRQChannel = TIM8_TRG_COM_TIM14_IRQn;
 	NVIC_Init(&NVICInit);
 
-	/*NVICInit.NVIC_IRQChannelPreemptionPriority = 15;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 15;
 	NVICInit.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
-	NVIC_Init(&NVICInit);*/
+	NVIC_Init(&NVICInit);
 
 	/* Fin de la configuration */
 	initialized = TRUE;
@@ -119,7 +119,7 @@ void TIMER_run(TIM_TypeDef* TIMx, Uint8 period /* en millisecondes */) {
 	RCC_GetClocksFreq(&clocksSpeed);
 
 
-	if(/*TIMx == TIM10 || */TIMx == TIM11) {
+	if(TIMx == TIM10 || TIMx == TIM11) {
 		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK2_Frequency > 1)
 			prescaler_mul = 2;
 		prescaler_mul *= clocksSpeed.PCLK2_Frequency / clocksSpeed.PCLK1_Frequency;
@@ -142,7 +142,7 @@ void TIMER_run_us(TIM_TypeDef* TIMx, Uint16 period /* en microsecondes */) {
 	RCC_GetClocksFreq(&clocksSpeed);
 
 
-	if(/*TIMx == TIM10 || */TIMx == TIM11) {
+	if(TIMx == TIM10 || TIMx == TIM11) {
 		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK2_Frequency > 1)
 			prescaler_mul = 2;
 		prescaler_mul *= clocksSpeed.PCLK2_Frequency / clocksSpeed.PCLK1_Frequency;
@@ -163,9 +163,9 @@ void TIMER_stop(TIM_TypeDef* TIMx) {
 
 void TIMER_disableInt(TIM_TypeDef* TIMx) {
 	switch((int)TIMx) {
-		/*case (int)TIM10:
+		case (int)TIM10:
 			NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
-			break;*/
+			break;
 
 		case (int)TIM11:
 			NVIC_DisableIRQ(TIM1_TRG_COM_TIM11_IRQn);
@@ -308,35 +308,35 @@ int TIMER4_getCounter() {
 	return TIM_GetCounter(TIM14);
 }
 
-//void TIMER5_run(Uint8 period /* en millisecondes */) {
-//	TIMER_run(TIM10, period);
-//}
+void TIMER5_run(Uint8 period /* en millisecondes */) {
+	TIMER_run(TIM10, period);
+}
 
-//void TIMER5_run_us (Uint16 period /* en microsecondes */) {
-//	TIMER_run_us(TIM10, period);
-//}
+void TIMER5_run_us (Uint16 period /* en microsecondes */) {
+	TIMER_run_us(TIM10, period);
+}
 
-//void TIMER5_stop(void) {
-//	TIMER_stop(TIM10);
-//}
+void TIMER5_stop(void) {
+	TIMER_stop(TIM10);
+}
 
-//void TIMER5_disableInt() {
-//	TIMER_disableInt(TIM10);
-//}
+void TIMER5_disableInt() {
+	TIMER_disableInt(TIM10);
+}
 
-//void TIMER5_enableInt() {
-//	TIMER_enableInt(TIM10);
-//}
+void TIMER5_enableInt() {
+	TIMER_enableInt(TIM10);
+}
 
-//int TIMER5_getCounter() {
-//	return TIM_GetCounter(TIM10);
-//}
+int TIMER5_getCounter() {
+	return TIM_GetCounter(TIM10);
+}
 
 //Interrupts management and redirection
-//void TIM1_UP_TIM10_IRQn_IRQHandler() {
-//	if(TIM_GetITStatus(TIM10, TIM_IT_Update))
-//		_T1Interrupt();
-//}
+void TIM1_UP_TIM10_IRQHandler() {
+	if(TIM_GetITStatus(TIM10, TIM_IT_Update))
+		_T5Interrupt();
+}
 
 void TIM1_TRG_COM_TIM11_IRQHandler() {
 	if(TIM_GetITStatus(TIM11, TIM_IT_Update))
