@@ -72,9 +72,6 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case STRAT_PROP_SELFTEST_DONE :			print(string, len, "%x STRAT_PROP_SELFTEST_DONE             ", STRAT_PROP_SELFTEST_DONE 					);	break;
 		case STRAT_BEACON_IR_SELFTEST_DONE:		print(string, len, "%x STRAT_BEACON_IR_SELFTEST_DONE        ", STRAT_BEACON_IR_SELFTEST_DONE				);	break;
 		case STRAT_BEACON_US_SELFTEST_DONE:		print(string, len, "%x STRAT_BEACON_US_SELFTEST_DONE        ", STRAT_BEACON_US_SELFTEST_DONE				);	break;
-		case STRAT_TRIANGLE_POSITON:			print(string, len, "%x STRAT_TRIANGLE_POSITON               ", STRAT_TRIANGLE_POSITON			);	break;
-		case STRAT_TRIANGLE_WARNER:				print(string, len, "%x STRAT_TRIANGLE_WARNER                ", STRAT_TRIANGLE_WARNER				);	break;
-		case STRAT_SCAN_ANYTHING:				print(string, len, "%x STRAT_SCAN_ANYTHING                  ", STRAT_SCAN_ANYTHING				);	break;
 		case STRAT_ADVERSARIES_POSITION:		print(string, len, "%x STRAT_ADVERSARIES_POSITION           ", STRAT_ADVERSARIES_POSITION		);	break;
 		case STRAT_INFORM_FILET:				print(string, len, "%x STRAT_INFORM_FILET				    ", STRAT_INFORM_FILET				);	break;
 		case STRAT_INFORM_FRUIT_MOUTH:			print(string, len, "%x STRAT_INFORM_FRUIT_MOUTH			    ", STRAT_INFORM_FRUIT_MOUTH			);	break;
@@ -94,8 +91,6 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case PROP_WARN_ANGLE:					print(string, len, "%x PROP_WARN_ANGLE                      ", PROP_WARN_ANGLE					);	break;
 		case PROP_WARN_X:						print(string, len, "%x PROP_WARN_X                          ", PROP_WARN_X						);	break;
 		case PROP_WARN_Y:						print(string, len, "%x PROP_WARN_Y                          ", PROP_WARN_Y						);	break;
-		case PROP_LAUNCH_SCAN_TRIANGLE:			print(string, len, "%x PROP_LAUNCH_SCAN_TRIANGLE            ", PROP_LAUNCH_SCAN_TRIANGLE		);	break;
-		case PROP_LAUNCH_WARNER_TRIANGLE:		print(string, len, "%x PROP_LAUNCH_WARNER_TRIANGLE          ", PROP_LAUNCH_WARNER_TRIANGLE		);	break;
 /*		case ACT_DCM_POS:						print(string, len, "%x ACT_DCM_POS                          ", ACT_DCM_POS						);	break;
 		case ACT_CLAMP_PREPARED:				print(string, len, "%x ACT_CLAMP_PREPARED                   ", ACT_CLAMP_PREPARED				);	break;
 		case ACT_PAWN_GOT:						print(string, len, "%x ACT_PAWN_GOT                         ", ACT_PAWN_GOT						);	break;
@@ -140,9 +135,6 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case US_ERROR_RESULT:					print_us_result(msg, &string, &len);									break;
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"JAUNE":"ROUGE"	);		break;
 		case BROADCAST_POSITION_ROBOT :			print(string, len, "| JeSuisEn  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
-	//	case STRAT_TRIANGLE_POSITON:			print(string, len, "|\n");												break;
-		case STRAT_TRIANGLE_WARNER:				print(string, len, "Triangle %d est %s\n", msg->data[0], (msg->data[1])?"Présent":"Absent");	break;
-		case STRAT_SCAN_ANYTHING:				print(string, len, "%s\n",(u8(0))?"Element dans la zone":"Zone vide");	break;
 	//	case STRAT_ADVERSARIES_POSITION:		print(string, len, "|\n");												break;
 		case STRAT_INFORM_FILET:				print(string, len, "Filet %s\n",(u8(0))?"Absent":"Présent");			break;
 		case STRAT_INFORM_FRUIT_MOUTH:			print(string, len, "Fruit mouth %s\n",(u8(0))?"Ouvert":"Fermé");		break;

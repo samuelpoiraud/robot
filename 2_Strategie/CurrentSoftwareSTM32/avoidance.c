@@ -26,8 +26,16 @@
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
+#define EXTRACTION_DISTANCE			300
 
 static error_e AVOIDANCE_watch_prop_stack();
+static error_e extraction_of_foe(PROP_speed_e speed);
+static error_e goto_extract_with_avoidance(const displacement_t displacements);
+static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type);
+static error_e wait_move_and_wait_foe();
+
+
+static Uint16 wait_timeout = WAIT_TIME_DETECTION;
 static bool_e prop_detected_foe = FALSE;
 
 #ifdef DEBUG_AVOIDANCE
@@ -36,6 +44,7 @@ static bool_e prop_detected_foe = FALSE;
 	#define avoidance_printf(...)	(void)0
 #endif
 
+//------------------------------------------------------------------- Machines à états de déplacements
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Ne s'arrète qu'à la fin que si aucun autre déplacement n'est demandé.
 Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
@@ -251,84 +260,23 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 }
 
 
-void AVOIDANCE_forced_foe_dected(){
-	CAN_msg_t msg;
-	msg.sid = PROP_DEBUG_FORCED_FOE;
-	msg.size = 0;
-	CAN_send(&msg);
-}
-
-
-/* Action qui update la position */
-error_e ACTION_update_position()
-{
-	enum state_e {
-		SEND_CAN_MSG,
-		WAIT_RECEPTION
-	};
-	static enum state_e state;
-
-	switch (state)
-	{
-		case SEND_CAN_MSG :
-			if (!global.env.pos.updated)
-			{
-				CAN_send_sid(PROP_TELL_POSITION);
-				state = WAIT_RECEPTION;
-				return IN_PROGRESS;
-			}
-			else
-			{
-				return END_OK;
-			}
-			break;
-
-		case WAIT_RECEPTION :
-			if (global.env.pos.updated)
-			{
-				state = SEND_CAN_MSG;
-				return END_OK;
-			}
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-/* Action qui arrête le robot, met la position à jour */
-error_e ACTION_prop_stop()
-{
-	enum state_e {
-		SEND_CAN_MSG,
-		WAIT_RECEPTION
-	};
-	static enum state_e state;
-
-	static time32_t initial_time;
-
-	switch (state)
-	{
-		case SEND_CAN_MSG :
-			initial_time = global.env.match_time;
-			STACKS_flush(PROP);
-			CAN_send_sid(PROP_STOP);
-			state = WAIT_RECEPTION;
-			break;
-
-		case WAIT_RECEPTION :
-			if (global.env.prop.ended || (global.env.match_time-initial_time > (1000/*ms*/)))
-			{
-				state = SEND_CAN_MSG;
-				return END_OK;
-			}
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-static Uint16 wait_timeout = WAIT_TIME_DETECTION;
+//------------------------------------------------------------------- Fonctions relatives à l'évitement
 
 //Version simplifiée de wait_move_and_scan_foe. on esquive pas la cible ici. (pas de dodge)
-error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
+/*
+ * Fonction qui regarde si l'adversaire est devant nous pendant un mouvement, et on l'évite si nécessaire
+ * Elle doit être appelée à la place de STACKS_wait_end_auto_pull (c'est géré dans cette fonction)
+ *
+ * pre : Etre sur le terrain
+ * post : Pile PROP vidée
+ * param : nombre de mouvements chargés dans la pile
+ *
+ * return IN_PROGRESS : En cours
+ * return END_OK : Terminé
+ * return NOT_HANDLED : Action impossible, ou timeout normal
+ * return END_WITH_TIMEOUT : Adversaire rencontré, mais on est arrivé à destination
+ */
+static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 	enum state_e
 	{
 		INITIALIZATION = 0,
@@ -531,7 +479,7 @@ error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 }
 
 //Version simplifiée de wait_move_and_scan_foe. on esquive pas la cible ici. (pas de dodge)
-error_e wait_move_and_wait_foe() {
+static error_e wait_move_and_wait_foe() {
 
 
 	error_e ret = IN_PROGRESS;
@@ -565,11 +513,36 @@ error_e wait_move_and_wait_foe() {
 	return ret;
 }
 
+
+void AVOIDANCE_forced_foe_dected(){
+	CAN_msg_t msg;
+	msg.sid = PROP_DEBUG_FORCED_FOE;
+	msg.size = 0;
+	CAN_send(&msg);
+}
+
+
 void AVOIDANCE_set_timeout(Uint16 msec) {
 	wait_timeout = msec;
 }
 
-/* Fonction qui réalise un PROP_push_goto avec la possibilité de courbe ou non, avec la gestion de l'évitement */
+/*
+ * Fonction qui réalise un PROP_push_goto tout simple avec la gestion de l'évitement (en courbe)
+ *
+ * pre : Etre sur le terrain
+ * post : Robot aux coordonnées voulues
+ *
+ * param displacements : deplacements de la trajectoire
+ * param nb_displacement : nombre de deplacements de la trajectoire
+ * param way : sens de déplacement
+ * end_condition : doit on finir quand on freine sur le dernier point ou quand on y est ?
+ *
+ * return IN_PROGRESS : En cours
+ * return END_OK : Terminé
+ * return NOT_HANDLED : Action impossible
+ * return END_WITH_TIMEOUT : Timeout
+ * return FOE_IN_PATH : un adversaire nous bloque
+ */
 error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition)
 {
 	enum state_e
@@ -780,7 +753,6 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 
 
 
-
 /* ----------------------------------------------------------------------------- */
 /* 		Fonctions de scrutation de la position de l'adversaire		   */
 /* ----------------------------------------------------------------------------- */
@@ -977,10 +949,8 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	return  TRUE;
 }
 
-
-#define EXTRACTION_DISTANCE  	300
 /*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
-error_e extraction_of_foe(PROP_speed_e speed){
+static error_e extraction_of_foe(PROP_speed_e speed){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_EXTRACTION_OF_FOE,
 		IDLE,
 		COMPUTE,
@@ -1171,7 +1141,8 @@ error_e extraction_of_foe(PROP_speed_e speed){
 }
 
 /* Fonction qui réalise un PROP_push_goto spécifique à l'extration du robot avec la gestion de l'évitement */
-error_e goto_extract_with_avoidance(const displacement_t displacements)
+
+static error_e goto_extract_with_avoidance(const displacement_t displacements)
 {
 	enum state_e
 	{
@@ -1379,6 +1350,17 @@ void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
 	CAN_send(&msg_to_send);
 }
 
+
+void clear_prop_detected_foe(){
+	prop_detected_foe = FALSE;
+}
+
+void set_prop_detected_foe(){
+	prop_detected_foe = TRUE;
+}
+
+//------------------------------------------------------------------- Fonctions autres
+
 /*
  * Surveille l'execution de la pile PROP. Renvoie vrai si toutes les fonctions sont finies
  * Rattrappe le robot quand il part en erreur.
@@ -1401,10 +1383,69 @@ static error_e AVOIDANCE_watch_prop_stack ()
 	return IN_PROGRESS;
 }
 
-void clear_prop_detected_foe(){
-	prop_detected_foe = FALSE;
+/* Action qui update la position */
+error_e ACTION_update_position()
+{
+	enum state_e {
+		SEND_CAN_MSG,
+		WAIT_RECEPTION
+	};
+	static enum state_e state;
+
+	switch (state)
+	{
+		case SEND_CAN_MSG :
+			if (!global.env.pos.updated)
+			{
+				CAN_send_sid(PROP_TELL_POSITION);
+				state = WAIT_RECEPTION;
+				return IN_PROGRESS;
+			}
+			else
+			{
+				return END_OK;
+			}
+			break;
+
+		case WAIT_RECEPTION :
+			if (global.env.pos.updated)
+			{
+				state = SEND_CAN_MSG;
+				return END_OK;
+			}
+			break;
+	}
+	return IN_PROGRESS;
 }
 
-void set_prop_detected_foe(){
-	prop_detected_foe = TRUE;
+/* Action qui arrête le robot, met la position à jour */
+error_e ACTION_prop_stop()
+{
+	enum state_e {
+		SEND_CAN_MSG,
+		WAIT_RECEPTION
+	};
+	static enum state_e state;
+
+	static time32_t initial_time;
+
+	switch (state)
+	{
+		case SEND_CAN_MSG :
+			initial_time = global.env.match_time;
+			STACKS_flush(PROP);
+			CAN_send_sid(PROP_STOP);
+			state = WAIT_RECEPTION;
+			break;
+
+		case WAIT_RECEPTION :
+			if (global.env.prop.ended || (global.env.match_time-initial_time > (1000/*ms*/)))
+			{
+				state = SEND_CAN_MSG;
+				return END_OK;
+			}
+			break;
+	}
+	return IN_PROGRESS;
 }
+

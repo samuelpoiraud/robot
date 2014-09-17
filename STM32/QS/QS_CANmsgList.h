@@ -411,24 +411,8 @@
 		Angle : Sint16 (RAD4096)
 	*/
 	#define PROP_ROBOT_CALIBRE		0x214
-	#define STRAT_TRIANGLE_POSITON		0x215
-		#define IT_IS_THE_LAST_TRIANGLE		0x80	// Bit à 1 si le triangle est le dernier
-		/*		0:7		: Indiquant si c'est le dernier triangle
-		 *		0:6-5	: Hauteur du capteur entre 0 et 2
-		 *		0:5-0	: Numéro du triangle
-		 * 		1-2		: x
-		 * 		3-4		: y
-		 * 		5-6		: teta
-		 */
-	#define STRAT_TRIANGLE_WARNER		0x217
-		/*	0 : Numéro du triangle
-		 *  1 : Présence du triangle
-		 */
-	#define STRAT_SCAN_ANYTHING			0x218
-		/*  0 : 0 Si il n'y a rien dans la zone, 1 s'il y a quelque chose
-		 */
 
-	#define STRAT_PROP_FOE_DETECTED		0x219
+	#define STRAT_PROP_FOE_DETECTED		0x215
 	/* Message CAN envoyé par la propulsion vers la stratégie lors de la détection du adversaire dans le déplacement demandé */
 
 
@@ -542,43 +526,27 @@
 		0 pour demander un désarmement !!!
 	*/
 
-	#define PROP_WARN_ANGLE					0x10C
+	#define PROP_WARN_ANGLE						0x10C
 	/* argument :
 		Angle : Sint16 (RAD4096)
 			0 pour demander un désarmement !!!
 			ATTENTION, pas d'armement possible en 0, demandez 1[rad/4096], c'est pas si loin.
 	*/
-	#define PROP_WARN_X						0x10D
+	#define PROP_WARN_X							0x10D
 	/* argument :
 		x : Sint16 (mm)
 			0 pour demander un désarmement !!!
 	*/
-	#define PROP_WARN_Y						0x10E
+	#define PROP_WARN_Y							0x10E
 	/* argument :
 		y : Sint16 (mm)
 			0 pour demander un désarmement !!!
 	*/
-	#define PROP_SET_CORRECTORS				0x10F
+	#define PROP_SET_CORRECTORS					0x10F
 		//data 0 : bool_e  correcteur en rotation
 		//data 1 : bool_e  correcteur en translation
 	#define PROP_JOYSTICK 						0x111
 
-	//Modif Arnaud pour la détection de triangle
-	#define PROP_LAUNCH_SCAN_TRIANGLE			0x115
-	/*		0:7		: type		0 -> ROTATE / 1 -> LINEAR
-	 *		0:6		: speed 	0 -> SLOW / 1 -> FAST
-	 *		0:5		: way		0 -> FORWARD / 1 -> BACKWARD
-	 *-----ROTATE
-	 * 		1-2		: startTeta
-	 * 		3-4		: endTeta
-	 *-----LINEAR
-	 * 		1		: startX
-	 *		2		: endX
-	 * 		3		: startY
-	 * 		4		: endY
-	 */
-	 #define PROP_LAUNCH_WARNER_TRIANGLE		0x117
-	 //		0		: number_triangle
 
 	#define PROP_DEBUG_FORCED_FOE				0x118
 	// Message CAN pour forcer la détection d'un adversaire

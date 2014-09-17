@@ -27,9 +27,7 @@
 #include "config_use.h"
 
 #ifdef USE_POLYGON
-#include "polygon.h"
-#else
-//#include "Pathfind.h"
+	#include "polygon.h"
 #endif
 
 // Macros permettant de symétriser le terrain
@@ -40,6 +38,8 @@
 // En effet, on ne fait des courbes que si l'on est en multi-poinrs car sinon
 // il est plus rapide de faire une rotation puis une translation
 #define PROP_CURVES	1
+
+//-------------------------------------------------------------------Enumerations
 
 typedef enum
 {
@@ -83,84 +83,7 @@ typedef struct
 	bool_e curve;
 }displacement_curve_t;
 
-bool_e foe_in_path(bool_e verbose);
-
-/*
- * Affecture une trajectoire courbe de la position actuelle. Le robot
- * arrive au point x,y avec angle comme incidence. La courbe est divisée
- * en plusieurs points (precision = nb de points)
- * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT
- */
-error_e smooth_goto (Sint16 x, Sint16 y, Sint16 angle, Uint8 precision);
-
-#ifdef USE_POLYGON
-/**
- * Action qui déplace le robot grâce à l'algorithme des polygones en testant avec tous les elements
- * puis seulement avec les notres s'il est impossible de trouver un chemin
- *
- * pre : Etre sur le terrain
- * post : Robot aux coordonnées voulues
- *
- * param x : Abscisse de la destination
- * param y : Ordonnée de la destination
- * param way : sens de déplacement
- * param speed : vitesse de déplacement
- * param curve : utilisation ou non des courbes
- * param element_type : éléments concernés par l'algo de polygones
- * return IN_PROGRESS : En cours
- * return END_OK : Terminé
- * return NOT_HANDLED : Action impossible
- * return END_WITH_TIMEOUT : Timeout
- */
-error_e goto_polygon_default(Sint16 x, Sint16 y, way_e way, PROP_speed_e speed, Uint8 curve,polygon_elements_type_e element_type);
-
-/**
- * Action qui déplace le robot grâce à l'algorithme de polygones
- * Les polygones sont construits à partir des valeurs contenues dans le tableau d'élements
- *
- * param x : Abscisse de la destination
- * param y : Ordonnée de la destination
- * param way : sens de deplacement
- * param speed : vitesse de deplacement
- * param curve : utilisation ou non des courbes
- * param type_elements : type d'éléments utilisés comme polygones
- *
- * return IN_PROGRESS : En cours
- * return END_OK : Terminé
- * return NOT_HANDLED : Action impossible
- * return END_WITH_TIMEOUT : Timeout
- */
-error_e goto_polygon(Sint16 x, Sint16 y, way_e way, PROP_speed_e speed, Uint8 curve, polygon_elements_type_e type_elements);
-
-error_e goto_node(Uint8 node, ...);
-#else
-error_e goto_polygon_default(Sint16 x,...);
-error_e goto_polygon(Sint16 x,...);
-
-/**
- * Amène le robot au noeud spécifié. renvoie NOT_HANDLED si noeud inaccessible
- *
- * pre  : le robot doit être à la position global.env.pos
- * post : la pile PROP est vidée.
- *
- * param node : noeud de destination
- * param way : sens de déplacement
- *
- * return IN_PROGRESS : En cours
- * return END_OK : Terminé
- * return NOT_HANDLED : Action impossible
- * return END_WITH_TIMEOUT : Timeout
- */
-error_e goto_node (Uint8 node, PROP_speed_e speed, way_e way);
-#endif /* ndef USE_POLYGON */
-
-/*
- * Envoie le robot à l'angle spécifiée.
- * pre  : le robot doit être à la position global.env.pos
- * post : la pile PROP est vidée.
- * return : IN_PROGRESS, END_OK, END_WITH_TIMEOUT, NOT_HANDLED
- */
-error_e goto_angle (Sint16 angle, PROP_speed_e speed);
+//------------------------------------------------------------------- Machines à états de déplacements
 
 /*
  * Avance d'une distance d à partir de la position actuelle.
@@ -247,24 +170,65 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
  */
 Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
-void AVOIDANCE_forced_foe_dected();
-
 /*
- * Envoie un message CAN à l'asser et attend la reponse
- * return IN_PROGRESS   : requete de position envoyée, attente de réponse.
- * return END_OK		: la position du robot est à jour
+ * Arrete le robot
+ *
+ * post   : la pile asser est vidée
+ *
+ * param in_progress	Etat en cours
+ * param success_state  Etat à retourner si le déplacement s'est terminé correctement
+ * param fail_state	 Etat à retourner si le déplacement ne s'est pas terminé correctement
+ *
+ * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
  */
-error_e ACTION_update_position();
-
-/*
- * Envoie un message CAN à l'asser et attend la reponse
- * return IN_PROGRESS   : requete d'arret envoyée, attente de réponse.
- * return END_OK		: le robot est arrêté et la pile PROP est vidée
- */
-error_e ACTION_prop_stop();
 Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
-/***************************** Evitement 2011 **************************/
+
+//------------------------------------------------------------------- Fonctions relatives à l'évitement
+
+// Envoi un message CAN qui va forcer l'évitement du robot à la propulsion
+void AVOIDANCE_forced_foe_dected();
+
+//Défini le temps de timeout d'evitement (pour *AND_WAIT). Ce temps est valide que pour le prochain mouvement, il est réinitialisé après.
+void AVOIDANCE_set_timeout(Uint16 msec);
+
+typedef enum
+{
+	NORTH_US = 0,
+	NORTH_FOE = 1,
+	SOUTH_US = 2,
+	SOUTH_FOE = 3
+}foe_pos_e;
+
+// Vérifie adversaire dans NORTH_BLUE, NORTH_RED...
+foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id);
+
+/*
+ * Envoie un message can lors d'un evitement avec les raisons
+ *
+ */
+void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
+
+bool_e foe_in_path(bool_e verbose);
+
+/**
+ * @brief foe_in_zone
+ *
+ * @param verbose				: A activer afin d'avoir un affichage de notre position, de l'ennemie et de la détection de l'ennemie
+ * @param x						: La position X du point à tester
+ * @param y						: La position Y du point à tester
+ * @param check_on_all_traject	: A activer si l'ont veut tester la présence d'un ennemie sur toute la trajectoire ou juste dans la distance d'évitement
+ *
+ * @return						: Retounre TRUE si un ennemi est dans la zone
+ */
+bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
+
+bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
+
+
+void clear_prop_detected_foe();
+
+void set_prop_detected_foe();
 
 /*
  * Fonction qui réalise un PROP_push_goto tout simple avec la gestion de l'évitement (en courbe)
@@ -285,65 +249,26 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
  */
 error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition);
 
-//Défini le temps de timeout d'evitement (pour *AND_WAIT). Ce temps est valide que pour le prochain mouvement, il est réinitialisé après.
-void AVOIDANCE_set_timeout(Uint16 msec);
+//------------------------------------------------------------------- Fonctions autres
 
-typedef enum
-{
-	NORTH_US = 0,
-	NORTH_FOE = 1,
-	SOUTH_US = 2,
-	SOUTH_FOE = 3
-}foe_pos_e;
-
-// Vérifie adversaire dans NORTH_BLUE, NORTH_RED...
-foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id);
 
 /*
- * Fonction qui regarde si l'adversaire est devant nous pendant un mouvement, et on l'évite si nécessaire
- * Elle doit être appelée à la place de STACKS_wait_end_auto_pull (c'est géré dans cette fonction)
- *
- * pre : Etre sur le terrain
- * post : Pile PROP vidée
- * param : nombre de mouvements chargés dans la pile
- *
- * return IN_PROGRESS : En cours
- * return END_OK : Terminé
- * return NOT_HANDLED : Action impossible, ou timeout normal
- * return END_WITH_TIMEOUT : Adversaire rencontré, mais on est arrivé à destination
+ * Envoie un message CAN à l'asser et attend la reponse
+ * return IN_PROGRESS   : requete de position envoyée, attente de réponse.
+ * return END_OK		: la position du robot est à jour
  */
-error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type);
+error_e ACTION_update_position();
 
 /*
- * Envoie un message can lors d'un evitement avec les raisons
- *
+ * Envoie un message CAN à l'asser et attend la reponse
+ * return IN_PROGRESS   : requete d'arret envoyée, attente de réponse.
+ * return END_OK		: le robot est arrêté et la pile PROP est vidée
  */
-void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
-
-/*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
-error_e extraction_of_foe(PROP_speed_e speed);
-
-/**
- * @brief foe_in_zone
- *
- * @param verbose				: A activer afin d'avoir un affichage de notre position, de l'ennemie et de la détection de l'ennemie
- * @param x						: La position X du point à tester
- * @param y						: La position Y du point à tester
- * @param check_on_all_traject	: A activer si l'ont veut tester la présence d'un ennemie sur toute la trajectoire ou juste dans la distance d'évitement
- *
- * @return						: Retounre TRUE si un ennemi est dans la zone
- */
-bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
-
-bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
-
-error_e goto_extract_with_avoidance(const displacement_t displacements);
+error_e ACTION_prop_stop();
 
 //Le point passé en paramètre permet-il les rotations ?
 bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p);
 
-void clear_prop_detected_foe();
 
-void set_prop_detected_foe();
 
 #endif /* ndef AVOIDANCE_H */
