@@ -34,7 +34,6 @@
 #include "button.h"
 #include "elements.h"
 #include "Supervision/LCD_CAN_injector.h"
-#include "Geometry.h"
 #include "config_use.h"
 #include "config_pin.h"
 

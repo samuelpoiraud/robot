@@ -97,7 +97,7 @@
 
 		#include "QS/QS_can.h"
 		#include "QS/QS_CANmsgList.h"
-		#include "Geometry.h"
+		#include "QS/QS_maths.h"
 
 		typedef enum
 		{CONFIG, XMSB, XLSB, YMSB, YLSB, VITESSE, MARCHE, RAYONCRB} PROP_CAN_msg_bytes_e;

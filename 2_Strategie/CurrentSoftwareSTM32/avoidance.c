@@ -906,7 +906,7 @@ bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
 	{
 		if (global.env.foe[i].enable)
 		{
-			if(est_dans_carre(x1,x2,y1,y2,(GEOMETRY_point_t){global.env.foe[i].x,global.env.foe[i].y}))
+			if(is_in_square(x1,x2,y1,y2,(GEOMETRY_point_t){global.env.foe[i].x,global.env.foe[i].y}))
 			{
 				if(verbose)
 					SD_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,global.env.foe[i].x,global.env.foe[i].y,x1,x2,y1,y2);
@@ -925,25 +925,25 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
 	widthRobot += 100;	//Marge !
 
-	if(!est_dans_carre(0+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p))			// Terrain
+	if(!is_in_square(0+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p))			// Terrain
 		return FALSE;
-	if(est_dans_cercle(*p,(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, 150+widthRobot}))				// Foyer centre
+	if(is_in_circle(*p,(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, 150+widthRobot}))				// Foyer centre
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, 125+widthRobot}))				// Foyer droite
+	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, 125+widthRobot}))				// Foyer droite
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, 125+widthRobot}))			// Foyer gauche
+	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, 125+widthRobot}))			// Foyer gauche
 		return FALSE;
-	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))			// Bac à fruit jaune
+	if(is_in_square(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))			// Bac à fruit jaune
 		return FALSE;
-	if(est_dans_carre(0-(widthRobot), 300+(widthRobot), 1900-(widthRobot), 2600+(widthRobot), *p))			// Bac à fruit rouge
+	if(is_in_square(0-(widthRobot), 300+(widthRobot), 1900-(widthRobot), 2600+(widthRobot), *p))			// Bac à fruit rouge
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, 150+widthRobot}))				// Arbre rouge 1
+	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, 150+widthRobot}))				// Arbre rouge 1
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 700}, 150+widthRobot}))				// Arbre rouge 2
+	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 700}, 150+widthRobot}))				// Arbre rouge 2
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, 150+widthRobot}))			// Arbre jaune 1
+	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, 150+widthRobot}))			// Arbre jaune 1
 		return FALSE;
-	if(est_dans_cercle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 3000}, 150+widthRobot}))			// Arbre jaune 2
+	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 3000}, 150+widthRobot}))			// Arbre jaune 2
 		return FALSE;
 
 	return  TRUE;

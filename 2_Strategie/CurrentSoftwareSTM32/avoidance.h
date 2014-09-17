@@ -23,7 +23,7 @@
 #define AVOIDANCE_H
 
 #include "prop_types.h"
-#include "Geometry.h"
+#include "QS/QS_maths.h"
 #include "config_use.h"
 
 #ifdef USE_POLYGON

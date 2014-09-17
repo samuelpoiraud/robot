@@ -571,8 +571,6 @@ pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2){
 /* Fonction de sélection du point le plus proche en fonction du point final voulue
  * TODO : Finir et tester cette fonction
 */
-#define square(x) ((float)x*(float)x)
-
 pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filteredNodes, Sint16 final_x, Sint16 final_y)
 {
 	typedef struct{
@@ -628,8 +626,8 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
 	for(i=0;i<4;i++){
 		if(closestNodes[i] != NOT_IN_NODE)
 			angle_vector[i] = acos(vecteur[i].x*final_x + vecteur[i].y*final_y /
-									(sqrt(square(vecteur[i].x) + square(vecteur[i].y))
-										* sqrt(square(final_x) + square(final_y))));
+									(sqrt(SQUARE((float)vecteur[i].x) + SQUARE((float)vecteur[i].y))
+										* sqrt(SQUARE((float)final_x) + SQUARE((float)final_y))));
 	}
 
 	// On cherche qui a le plus petit angle entre chaque vecteur (node -> nous) et le vecteur final (nous -> fin)
@@ -644,6 +642,19 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
 
 	// On retourne le node le plus optimisé
 	return closestNode;
+}
+
+Sint16 PATHFIND_dist_node_to_node(pathfind_node_id_t n1, pathfind_node_id_t n2){
+	return dist_point_to_point(nodes[n1].x, nodes[n1].y, nodes[n2].x, nodes[n2].y);
+}
+
+Sint16 path_length(pathfind_node_id_t* tab_node, Uint8 nb_node){
+	Uint8 i;
+	Sint16 length = 0;
+	for(i=0;i<nb_node-1;i++){
+		length += PATHFIND_dist_node_to_node(tab_node[i], tab_node[i+1]);
+	}
+	return length;
 }
 
 #if VIEILLE_FONCTION_OBSOLETE

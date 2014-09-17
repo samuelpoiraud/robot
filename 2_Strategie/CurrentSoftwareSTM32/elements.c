@@ -91,7 +91,7 @@ error_e ELEMENT_go_and_drop(pos_drop_e choice){
 	switch(state){
 		case IDLE:
 
-			if(est_dans_carre(pos_drop[choice].xMin, pos_drop[choice].xMax, pos_drop[choice].yMin, pos_drop[choice].yMax, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(is_in_square(pos_drop[choice].xMin, pos_drop[choice].xMax, pos_drop[choice].yMin, pos_drop[choice].yMax, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 				state = POS_START;
 			else
 				state = GET_IN;						//On se rend à la première position par le pathfind
@@ -138,10 +138,10 @@ error_e ELEMENT_go_and_drop(pos_drop_e choice){
 			break;
 
 		case ERROR:
-			if(	est_dans_carre(500, 1650, 400, 1200, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) || // Est sur le pathfind
-				est_dans_carre(500, 1650, 1800, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) ||
-				est_dans_carre(500, 700, 400, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) ||
-				est_dans_carre(1400, 1650, 400, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
+			if(	is_in_square(500, 1650, 400, 1200, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) || // Est sur le pathfind
+				is_in_square(500, 1650, 1800, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) ||
+				is_in_square(500, 700, 400, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}) ||
+				is_in_square(1400, 1650, 400, 2600, (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y}))
 
 				state = RETURN_NOT_HANDLED;
 			else

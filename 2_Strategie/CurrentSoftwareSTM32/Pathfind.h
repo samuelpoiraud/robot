@@ -149,6 +149,8 @@ bool_e PATHFIND_is_opponent_in_path(Uint8 foe_id);
 Sint16 PATHFIND_get_node_x (pathfind_node_id_t n);
 Sint16 PATHFIND_get_node_y (pathfind_node_id_t n);
 
+Sint16 PATHFIND_dist_node_to_node(pathfind_node_id_t n1, pathfind_node_id_t n2);
+
 /*
  * Optimise les deplacements en supprimant les
  * noeuds inutile. (si 3 noeuds 1,2 et 3 sont alignes,
@@ -177,4 +179,8 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
  *	Compare deux node et revoit la plus pres
  */
 pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2);
+
+// Retourne la longueur du chemin effectué par le pathfind
+Sint16 path_length(pathfind_node_id_t* tab_node, Uint8 nb_node);
+
 #endif /* PATHFIND_H */
