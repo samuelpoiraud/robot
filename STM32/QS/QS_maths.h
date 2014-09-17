@@ -23,6 +23,10 @@
 		void COS_SIN_16384_get(Sint32 teta, Sint16 * cos, Sint16 * sin);
 	#endif
 
+	double cos4096(Sint16 angle);
+	double sin4096(Sint16 angle);
+	Sint16 atan4096(double tangent);
+
 	#define PI16384				51472
 	#define HALF_PI16384		25736
 	#define QUATER_PI16384		12868

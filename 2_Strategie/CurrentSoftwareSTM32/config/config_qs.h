@@ -109,4 +109,7 @@
 #define RF_USE_WATCHDOG
 #define SYNCHROBALISE_TIMER 4
 
+//définition de la précision et des modes de calcul des sinus et cosinus
+	#define FAST_COS_SIN
+
 #endif /* CONFIG_QS_H */
