@@ -16,7 +16,7 @@
 	#include "QS/QS_CANmsgList.h"
 	#include "detection.h"
 	#include "elements.h"
-	#include "Geometry.h"
+	#include "QS/QS_maths.h"
 
 	/* #define communs à plusieurs modules */
 	#define MATCH_DURATION 				90000UL //90 secondes)
