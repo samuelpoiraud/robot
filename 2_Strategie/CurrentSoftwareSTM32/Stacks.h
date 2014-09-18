@@ -56,14 +56,10 @@ typedef struct
 	time32_t initial_time;
 }stack_action_t;
 
-typedef enum
-{
-	NO_TIMEOUT=0,
+typedef enum{
+	NO_TIMEOUT = 0,
 	GOTO_TIMEOUT, GOTO_MULTI_POINT_TIMEOUT, RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT,
-	GOANGLE_TIMEOUT, RUSH_TIMEOUT,ACT_PREPARE_CLAMP_FRONT_TIMEOUT,
-	ACT_PREPARE_CLAMP_BACK_TIMEOUT, ACT_TAKE_FRONT_PAWN_TIMEOUT,
-	ACT_TAKE_BACK_PAWN_TIMEOUT, ACT_FILED_FRONT_PAWN_TIMEOUT,
-	ACT_FILED_BACK_PAWN_TIMEOUT, ACT_DCM_SET_POS_TIMEOUT
+	GOANGLE_TIMEOUT, RUSH_TIMEOUT, STOP_TIMEOUT
 }timeout_e;
 
 #include "Generic_functions.h"
@@ -86,7 +82,7 @@ generic_fun_t STACKS_get_action(stack_id_e stack, Uint8 index);
 time32_t STACKS_get_action_initial_time(stack_id_e stack, Uint8 index);
 
 /* affecte le timeout à la pile désignée */
-void STACKS_set_timeout(stack_id_e stack, bool_e timeout);
+void STACKS_set_timeout(stack_id_e stack, timeout_e timeout);
 
 /* ajoute une commande en sommet de pile et l'initialise */
 void STACKS_push(stack_id_e stack_id, generic_fun_t command, bool_e init);
