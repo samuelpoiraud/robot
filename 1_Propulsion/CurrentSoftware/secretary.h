@@ -46,4 +46,6 @@
 
 	bool_e SECRETARY_is_selftest_validated(void);
 
+	void SECRETARY_send_canmsg(CAN_msg_t * msg);
+
 #endif	//def _SECRETARY_H

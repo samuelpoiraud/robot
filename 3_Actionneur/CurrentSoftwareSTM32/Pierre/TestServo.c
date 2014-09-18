@@ -24,7 +24,7 @@
 
 #define TIME_BEFORE_COMMAND_VALIDATED	500		//ms
 
-static clock_time_t last_time_command;
+static time32_t last_time_command;
 
 
 static void TEST_SERVO_command_init(queue_id_t queueId);

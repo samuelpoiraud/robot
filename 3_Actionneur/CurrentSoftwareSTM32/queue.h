@@ -62,7 +62,7 @@ QUEUE_arg_t* QUEUE_get_arg(queue_id_t queue_id);
 QUEUE_act_e QUEUE_get_act(queue_id_t queue_id);
 
 /*Renvoie le moment ou l'action a été initialisée*/
-clock_time_t QUEUE_get_initial_time(queue_id_t queue_id);
+time32_t QUEUE_get_initial_time(queue_id_t queue_id);
 
 /*Renvoie si la file rentrée en paramètre est disponible*/
 bool_e is_available(queue_id_t queue_id);

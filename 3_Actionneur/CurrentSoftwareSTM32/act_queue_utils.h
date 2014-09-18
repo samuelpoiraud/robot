@@ -71,7 +71,7 @@
 	 * @param timeout_ms_x100 timeout en centaine de msec (10 = 1 sec)
 	 * @return TRUE si le temps a été dépassé, FALSE sinon
 	 */
-	bool_e ACTQ_check_timeout(queue_id_t queueId, clock_time_t timeout_ms_x100);
+	bool_e ACTQ_check_timeout(queue_id_t queueId, time32_t timeout_ms_x100);
 
 	//Callback
 	//Renvoie un retour à la strat dans tous les cas

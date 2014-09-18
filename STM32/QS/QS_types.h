@@ -26,6 +26,10 @@
 
 	/* Type pour les SID du protocole CAN */
 	typedef Uint16	Uint11;
+
+	// time_t à l'origine, mais modifié pour être compatible avec le simulateur EVE
+	typedef Uint32 time32_t;
+
 #ifdef FALSE
 #undef FALSE
 #endif

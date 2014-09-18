@@ -27,6 +27,7 @@
 #include "hokuyo.h"
 #include "main.h"
 #include "detection.h"
+#include "avoidance.h"
 
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>

@@ -31,7 +31,7 @@
 #error "Clock ne doit pas mettre a jour les temps d'appui des boutons si un autre timer est utilisé !"
 #endif
 
-static clock_time_t time=0;
+static time32_t time=0;
 
 void CLOCK_init()
 {
@@ -62,12 +62,12 @@ void TIMER_SRC_TIMER_interrupt()
 	TIMER_SRC_TIMER_resetFlag();
 }
 
-clock_time_t CLOCK_get_time()
+time32_t CLOCK_get_time()
 {
 	return time/10;
 }
 
-clock_time_t CLOCK_get_time_10()
+time32_t CLOCK_get_time_10()
 {
 	return time;
 }

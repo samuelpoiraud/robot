@@ -46,6 +46,22 @@
 
 		bool_e ROADMAP_exists_prioritary_order(void);
 
+		void ROADMAP_add_in_begin_order(
+								trajectory_e trajectory,
+								Sint16 x,
+								Sint16 y,
+								Sint16 teta,
+								relative_e relative,
+								way_e way,
+								border_mode_e border_mode,
+								multipoint_e multipoint,
+								PROP_speed_e speed,
+								acknowledge_e acknowledge,
+								corrector_e corrector,
+								avoidance_e avoidance);
+
 		bool_e ROADMAP_get_next(order_t * order);
+
+		void ROADMAP_behead();
 
 #endif	//def _ROADMAP_H

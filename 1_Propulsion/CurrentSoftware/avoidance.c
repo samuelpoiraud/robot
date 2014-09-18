@@ -18,6 +18,9 @@
 #include "QS/QS_maths.h"
 #include "copilot.h"
 
+
+
+
 void AVOIDANCE_init(){
 
 }
@@ -25,12 +28,70 @@ void AVOIDANCE_init(){
 void AVOIDANCE_process_it(){
 #ifdef USE_PROP_AVOIDANCE
 	order_t current_order = COPILOT_get_current_order();
+	order_t buffer_order;
 
-	if(
-		((current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
-		(current_order.avoidance == AVOID_ENABLED || current_order.avoidance == AVOID_ENABLED_AND_WAIT)
-		) ||
-		 current_order.trajectory == WAIT_FOREVER){
+	if((current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
+		(current_order.avoidance == AVOID_ENABLED || current_order.avoidance == AVOID_ENABLED_AND_WAIT)){
+
+		if(AVOIDANCE_target_safe(current_order.x, current_order.y, FALSE)){
+			if(current_order.avoidance == AVOID_ENABLED){
+				CAN_msg_t msg;
+				msg.sid = STRAT_PROP_FOE_DETECTED;
+				msg.size = 0;
+
+				BUFFER_flush();
+				ROADMAP_add_order(  TRAJECTORY_STOP,
+									0,
+									0,
+									0,					//teta
+									NOT_RELATIVE,		//relative
+									NOW,			//maintenant
+									ANY_WAY,	//sens de marche
+									NOT_BORDER_MODE,	//mode bordure
+									NO_MULTIPOINT, 	//mode multipoints
+									FAST,				//Vitesse
+									ACKNOWLEDGE_ASKED,
+									CORRECTOR_ENABLE,
+									AVOID_DISABLED
+								);
+				SECRETARY_send_canmsg(&msg);
+			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
+				COPILOT_buffering_order();
+				TIMER1_disableInt(); // Inibhition des ITs critiques
+				ROADMAP_add_in_begin_order( WAIT_FOREVER,
+											0,					//x
+											0,					//y
+											0,					//teta
+											NOT_RELATIVE,		//relative
+											ANY_WAY,	//sens de marche
+											NOT_BORDER_MODE,	//mode bordure
+											NO_MULTIPOINT, 	//mode multipoints
+											FAST,				//Vitesse
+											ACKNOWLEDGE_ASKED,
+											CORRECTOR_ENABLE,
+											AVOID_DISABLED
+										);
+				ROADMAP_add_in_begin_order( TRAJECTORY_STOP,
+											0,					//x
+											0,					//y
+											0,					//teta
+											NOT_RELATIVE,		//relative
+											ANY_WAY,	//sens de marche
+											NOT_BORDER_MODE,	//mode bordure
+											NO_MULTIPOINT, 	//mode multipoints
+											FAST,				//Vitesse
+											ACKNOWLEDGE_ASKED,
+											CORRECTOR_ENABLE,
+											AVOID_DISABLED
+										);
+				TIMER1_enableInt(); // Dé-inhibition des ITs critiques
+			}else if(current_order.trajectory == WAIT_FOREVER){
+				buffer_order = COPILOT_get_buffer_order();
+				if(AVOIDANCE_foe_in_zone(FALSE, buffer_order.x, buffer_order.y, FALSE) == FALSE)
+					ROADMAP_behead();
+			}
+
+		}
 
 	}
 #endif
@@ -66,7 +127,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 
 
 
-	TIMER1_disableInt(); // Inibation des ITs critique
+	TIMER1_disableInt(); // Inhibition des ITs critiques
 
 	vrot = global.vitesse_rotation;
 	vtrans = global.vitesse_translation;
@@ -74,7 +135,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	py = global.position.y;
 	teta = global.position.teta;
 
-	TIMER1_enableInt(); // Dé-inibation des ITs critique
+	TIMER1_enableInt(); // Dé-inhibition des ITs critiques
 
 	COS_SIN_4096_get(teta, &cos, &sin);
 	adversaries = DETECTION_get_adversaries(&max_foes); // Récupération des adversaires

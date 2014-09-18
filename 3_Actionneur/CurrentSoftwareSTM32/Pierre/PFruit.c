@@ -331,7 +331,7 @@ static void FRUIT_command_labium_run(queue_id_t queueId) {
 void FRUIT_process_main(){
 	FRUIT_initDCM();
 	static bool_e flagWatchDog = TRUE;
-	static clock_time_t begin_time_order;
+	static time32_t begin_time_order;
 
 	switch(wanted_state){
 		case OPEN :

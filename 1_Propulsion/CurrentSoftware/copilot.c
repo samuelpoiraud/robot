@@ -19,9 +19,14 @@
 #include "odometry.h"
 #include "QS/QS_maths.h"
 #include "debug.h"
+#include "avoidance.h"
+#include "secretary.h"
+#include "QS/QS_timer.h"
+#include "roadmap.h"
 #include "QS/QS_watchdog.h"
 #include "QS/QS_who_am_i.h"
 volatile order_t current_order;
+volatile order_t buffer_order;
 
 trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, Sint16 destination_y, Sint16 viewing_angle, way_e way);
 typedef enum {
@@ -409,7 +414,8 @@ void COPILOT_do_order(order_t * order)
 							);
 			SECRETARY_send_canmsg(&msg);
 		}else if(order->avoidance == AVOID_ENABLED_AND_WAIT){
-			TIMER1_disableInt(); // Inibation des ITs critique
+			COPILOT_buffering_order();
+			TIMER1_disableInt(); // Inhibition des ITs critiques
 			ROADMAP_add_in_begin_order( WAIT_FOREVER,
 										0,					//x
 										0,					//y
@@ -428,7 +434,6 @@ void COPILOT_do_order(order_t * order)
 										0,					//y
 										0,					//teta
 										NOT_RELATIVE,		//relative
-										NOW,			//maintenant
 										ANY_WAY,	//sens de marche
 										NOT_BORDER_MODE,	//mode bordure
 										NO_MULTIPOINT, 	//mode multipoints
@@ -437,7 +442,7 @@ void COPILOT_do_order(order_t * order)
 										CORRECTOR_ENABLE,
 										AVOID_DISABLED
 									);
-			TIMER1_enableInt(); // Dé-inibation des ITs critique
+			TIMER1_enableInt(); // Dé-inhibition des ITs critiques
 		}
 
 	}else{
@@ -912,3 +917,10 @@ order_t COPILOT_get_current_order(){
 	return current_order;
 }
 
+order_t COPILOT_get_buffer_order(){
+	return buffer_order;
+}
+
+void COPILOT_buffering_order(){
+	buffer_order = current_order;
+}

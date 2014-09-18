@@ -190,7 +190,7 @@ bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* 
 	return TRUE;
 }
 
-bool_e ACTQ_check_timeout(queue_id_t queueId, clock_time_t timeout_ms_x100) {
+bool_e ACTQ_check_timeout(queue_id_t queueId, time32_t timeout_ms_x100) {
 	if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + timeout_ms_x100)
 		return TRUE;
 	return FALSE;
