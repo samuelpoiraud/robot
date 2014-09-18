@@ -18,6 +18,7 @@
 #include "config_debug.h"
 #include "environment.h"
 #include "QS/QS_maths.h"
+#include "Supervision/Buzzer.h"
 
 
 typedef struct
@@ -170,6 +171,10 @@ static void DETECTION_compute(detection_reason_e reason)
 			break;
 		case DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION:		//Cette source d'info est prioritaire...
 			global.env.foes_updated_for_lcd = TRUE;
+			// Emet un bip sonore lors de la premiere initialisation de l'hokuyo (réception des premières données)
+			if(global.env.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME
+			   && global.env.match_started == FALSE)
+				BUZZER_play(1000, DEFAULT_NOTE, 1);
 			data_from_propulsion_update_time = global.env.absolute_time;
 			//debug_printf("Compute :");
 			for(j = 0; j < hokuyo_objects_number; j++)
