@@ -131,15 +131,28 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance){
 	CREATE_MAE_WITH_VERBOSE(0x00,
 			IDLE,
+			FAST_ROTATE,
+			INIT_COEF,
 			GO,
 			ERROR,
 			DONE
 		);
 
 	error_e sub_action;
+	static Sint16 angle;
 
 	switch(state){
 		case IDLE :
+			state = FAST_ROTATE;
+			break;
+
+		case FAST_ROTATE:
+			if(entrance)
+				angle = atan2(y-global.env.pos.y, x-global.env.pos.x)*4096 + (way == BACKWARD)? PI4096 : 0;
+			state = try_go_angle(angle, FAST_ROTATE, INIT_COEF, ERROR, FAST);
+			break;
+
+		case INIT_COEF:
 			PROP_set_threshold_error_translation(50,FALSE);
 			state = GO;
 			break;
