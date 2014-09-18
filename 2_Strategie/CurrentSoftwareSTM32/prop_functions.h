@@ -136,6 +136,8 @@
 		// suffisant pour un demi tour en vitesse lente
 		#define GOANGLE_TIMEOUT_TIME						6000
 
+		#define WAIT_ADD_TIMEOUT_TIME						3000
+
 		// Coefficient multiplicatif de la distance pour obtenir le temps avant le timeout
 		#define COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST			4
 		#define COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW			8
