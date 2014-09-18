@@ -370,7 +370,11 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
+#ifdef USE_PROP_AVOIDANCE
+			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) + WAIT_ADD_TIMEOUT_TIME))
+#else
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
+#endif
 			{
 				CAN_send_debug("0000000");
 				prop_fun_printf("\nPROP_goto : timeout(GOTO)\n");
@@ -410,7 +414,11 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
+#ifdef USE_PROP_AVOIDANCE
+			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) + WAIT_ADD_TIMEOUT_TIME))
+#else
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
+#endif
 			{
 				CAN_send_debug("0000000");
 				prop_fun_printf("\nPROP_goto_until_break : timeout(GOTO)\n");
@@ -453,6 +461,9 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
+		#ifdef USE_PROP_AVOIDANCE
+			timeout += WAIT_ADD_TIMEOUT_TIME;
+		#endif
 
 			/*
 			 * On s'arrête quand le haut de la pile n'est plus un PROP_multi_point_goto,
@@ -533,6 +544,9 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
+		#ifdef USE_PROP_AVOIDANCE
+			timeout += WAIT_ADD_TIMEOUT_TIME;
+		#endif
 
 			/*
 			 * On s'arrête quand le haut de la pile n'est plus un PROP_multi_point_goto,
