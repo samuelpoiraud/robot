@@ -147,8 +147,13 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			break;
 
 		case FAST_ROTATE:
-			if(entrance)
-				angle = atan2(y-global.env.pos.y, x-global.env.pos.x)*4096 + (way == BACKWARD)? PI4096 : 0;
+			if(entrance){
+				angle = atan2(y-global.env.pos.y, x-global.env.pos.x)*4096;
+				if(angle > 0)
+					angle -= (way == BACKWARD)? PI4096 : 0;
+				else
+					angle += (way == BACKWARD)? PI4096 : 0;
+			}
 			state = try_go_angle(angle, FAST_ROTATE, INIT_COEF, ERROR, FAST);
 			break;
 

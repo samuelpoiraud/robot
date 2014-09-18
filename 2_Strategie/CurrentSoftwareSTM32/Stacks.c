@@ -22,6 +22,12 @@ typedef struct
 	timeout_e timeout;
 }stacks_t;
 
+static const char * timeout_name[] = {
+	"NO_TIMEOUT",
+	"GOTO_TIMEOUT", "GOTO_MULTI_POINT_TIMEOUT", "RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT",
+	"GOANGLE_TIMEOUT", "RUSH_TIMEOUT", "STOP_TIMEOUT"
+};
+
 /* Piles contenant une action, un sommet et état de timeout */
 static stacks_t stacks[ACTUATORS_NB];
 
@@ -85,7 +91,7 @@ time32_t STACKS_get_action_initial_time(stack_id_e stack, Uint8 index)
 }
 
 /* affecte le timeout à la pile désignée */
-void STACKS_set_timeout(stack_id_e stack, bool_e timeout)
+void STACKS_set_timeout(stack_id_e stack, timeout_e timeout)
 {
 	stacks[stack].timeout=timeout;
 }
@@ -134,9 +140,7 @@ bool_e STACKS_wait_end_auto_pull (stack_id_e stack_id, bool_e* got_timeout)
 	*got_timeout=FALSE;	//On suppose qu'il n'y a pas de timeout.
 	if (stack->timeout)
 	{
-		#ifdef VERBOSE_MODE
-			debug_printf("TIMEOUT (stack_id : %d)\n", stack_id);
-		#endif
+		debug_printf("TIMEOUT(%s) (stack_id : %d)\n",timeout_name[stack->timeout], stack_id);
 		BUZZER_play(50,NOTE_RE,10);
 		*got_timeout=TRUE;	//En fait, il y a un timeout.
 		if(STACKS_get_action(stack_id,STACKS_get_top(stack_id))!=&wait_forever)

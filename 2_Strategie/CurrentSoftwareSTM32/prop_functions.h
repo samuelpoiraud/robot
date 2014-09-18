@@ -30,17 +30,7 @@
 		avoidance_e avoidance;
 	}prop_arg_t;
 
-	void PROP_set_threshold_error_translation(Uint8 value, bool_e reset);
-
-	/* Accesseur en lecture sur les arguments de la pile PROP */
-	prop_arg_t PROP_get_stack_arg(Uint8 index);
-
-	/* Accesseur en écriture sur les arguments de la pile PROP */
-	void PROP_set_stack_arg(prop_arg_t arg, Uint8 index);
-
-	void PROP_set_position(Sint16 x, Sint16 y, Sint16 teta);
-
-
+// ---------------------------------------------------------------------------- Fonctions de déplacement
 
 	/* Arrête le robot, ne touche pas à la pile */
 	void PROP_push_stop ();
@@ -64,6 +54,44 @@
 	void PROP_push_relative_goangle_multi_point (Sint16 angle, PROP_speed_e speed, bool_e run);
 
 
+// ---------------------------------------------------------------------------- Fonctions de warner
+
+	/*
+		Fonction permettant d'armer un avertisseur sur la propulsion.
+		Un message de BROACAST_POSITION avec raison |= WARNING_REACH_X sera envoyé dès que le robot atteindra cette ligne virtuelle...
+		Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_x
+		@param : 0 permet de demander un désarmement de l'avertisseur.
+	*/
+	void PROP_WARNER_arm_x(Sint16 x);
+
+	/*
+		Fonction permettant d'armer un avertisseur sur la propulsion.
+		Un message de BROACAST_POSITION avec raison |= WARNING_REACH_Y sera envoyé dès que le robot atteindra cette ligne virtuelle...
+		Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_y
+		@param : 0 permet de demander un désarmement de l'avertisseur.
+	*/
+	void PROP_WARNER_arm_y(Sint16 y);
+
+	/*
+		Fonction permettant d'armer un avertisseur sur la propulsion.
+		Un message de BROACAST_POSITION avec raison |= WARNING_REACH_TETA sera envoyé dès que le robot atteindra cette ligne angulaire virtuelle...
+		Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_teta
+		@param : 0 permet de demander un désarmement de l'avertisseur.
+	*/
+	void PROP_WARNER_arm_teta(Sint16 teta);
+
+
+// ---------------------------------------------------------------------------- Fonctions autres
+
+	void PROP_set_threshold_error_translation(Uint8 value, bool_e reset);
+
+	/* Accesseur en lecture sur les arguments de la pile PROP */
+	prop_arg_t PROP_get_stack_arg(Uint8 index);
+
+	/* Accesseur en écriture sur les arguments de la pile PROP */
+	void PROP_set_stack_arg(prop_arg_t arg, Uint8 index);
+
+	void PROP_set_position(Sint16 x, Sint16 y, Sint16 teta);
 
 	void PROP_set_correctors(bool_e corrector_rotation, bool_e corrector_translation);
 	//Modifie l'état des correcteurs de la propulsion. (attention, les correcteurs sont remis à un bon fonctionnement à chaque nouvel ordre de déplacement !)
@@ -73,12 +101,6 @@
 
 	/* Demande un envoi par la propulsion de l'ensemble de ses coefs */
 	void PROP_ask_propulsion_coefs(void);
-
-	void PROP_WARNER_arm_x(Sint16 x);
-
-	void PROP_WARNER_arm_y(Sint16 y);
-
-	void PROP_WARNER_arm_teta(Sint16 teta);
 
 	/* fonction retournant si on se situe à moins de 15 cm de la destination.
 	Fonctionne en distance Manhattan */
@@ -105,6 +127,7 @@
 		// Timeout en ms
 		#define GOTO_TIMEOUT_TIME							5000	// On n'attend que 3 secondes sur les PROP_push_goto cette année
 																	// car on ne fait pas de gros déplacements sur le terrain
+		#define STOP_TIMEOUT_TIME							2000
 
 		#define GOTO_MULTI_POINT_TIMEOUT_TIME				4000	//Nombre de secondes de timeout PAR POINT en mode multipoint.
 		#define RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME	3000
