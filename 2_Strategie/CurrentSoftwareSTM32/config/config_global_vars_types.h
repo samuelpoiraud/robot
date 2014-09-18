@@ -13,9 +13,6 @@
 	#error "config_global_vars_types est inclu par la QS, ne l'incluez pas vous meme"
 #endif
 
-	// time_t à l'origine, mais modifié pour être compatible avec le simulateur EVE
-	typedef Uint32 time32_t;
-
 	//Position de l'ascenseur et de la pince
 	typedef enum
 	{

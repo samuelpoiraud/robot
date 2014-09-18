@@ -118,3 +118,9 @@ void ROADMAP_add_order_begin(order_t * order)
 {
 	BUFFER_add(order);
 }
+
+void ROADMAP_behead(){
+	BUFFER_behead();
+	if(BUFFER_is_empty() == FALSE)
+		new_prioritary_order = TRUE;
+}

@@ -43,6 +43,9 @@
 	// Fonction qui permet de vider le buffer
 	void BUFFER_flush();
 
+	// Fonction qui supprime l'élément en tête du buffer et passe à la suite
+	void BUFFER_behead();
+
 
 
 #endif	//def _BUFFER_H

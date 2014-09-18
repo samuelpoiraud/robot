@@ -25,12 +25,6 @@
 			Sint16 teta;	//[rad/4096]
 	}position_t;
 
-
-
-
-
-
-
 	typedef enum {
 			NO_ACKNOWLEDGE = 0,	 //Aucun acquittement demandé
 			ACKNOWLEDGE_ASKED,   //Acquittement demandé
@@ -64,11 +58,3 @@
 	}relative_e;
 
 
-
-
-	  
-	
-		
-	
-	
-	
