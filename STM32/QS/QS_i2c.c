@@ -15,6 +15,7 @@
 #include "QS_ports.h"
 #include "QS_watchdog.h"
 #include "QS_outputlog.h"
+#include "QS_timer.h"
 #include "../stm32f4xx/stm32f4xx_i2c.h"
 
 
@@ -385,11 +386,21 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 
 bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition)
 {
+	TIMER1_disableInt();
+	TIMER2_disableInt();
+	TIMER3_disableInt();
+	TIMER4_disableInt();
+	TIMER5_disableInt();
 	i2c_bus_error = FALSE;
 	watchdog_id = WATCHDOG_create_flag(100, &timeout);	//10ms max for the I2C frame !
 	if(watchdog_id == 0xFF)
 	{
 		debug_printf("Watchdog_create fail - I2C write exited\n");
+		TIMER1_enableInt();
+		TIMER2_enableInt();
+		TIMER3_enableInt();
+		TIMER4_enableInt();
+		TIMER5_enableInt();
 		return FALSE;
 	}
 
@@ -434,10 +445,20 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 	}
 
 	WATCHDOG_stop(watchdog_id);
+	TIMER1_enableInt();
+	TIMER2_enableInt();
+	TIMER3_enableInt();
+	TIMER4_enableInt();
+	TIMER5_enableInt();
 	return TRUE;
  errReturn:
 	 if(!timeout)
 		WATCHDOG_stop(watchdog_id);
+	TIMER1_enableInt();
+	TIMER2_enableInt();
+	TIMER3_enableInt();
+	TIMER4_enableInt();
+	TIMER5_enableInt();
 	return FALSE;
 }
 #endif
