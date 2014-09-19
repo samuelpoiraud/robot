@@ -57,7 +57,7 @@
 
 	#define USE_HOKUYO	//Active le module HOKUYO et la détection des ennemis... !
 
-	#define USE_GYROSCOPE
+	//#define USE_GYROSCOPE
 
 	//#define USE_PROP_AVOIDANCE
 
@@ -70,7 +70,6 @@
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
-	#define USE_GYROSCOPE
 	#define VERBOSE_MSG_SEND_OVER_UART	//A la place d'un envoi CAN, envoi d'un texte explicite sur l'UART : "Position : " ou "TrajFinie : ....."
 
 
