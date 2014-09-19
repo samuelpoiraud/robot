@@ -371,7 +371,8 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 		else
 		{
 #ifdef USE_PROP_AVOIDANCE
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) + WAIT_ADD_TIMEOUT_TIME))
+			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
+				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
 #else
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
 #endif
@@ -415,7 +416,8 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 		else
 		{
 #ifdef USE_PROP_AVOIDANCE
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) + WAIT_ADD_TIMEOUT_TIME))
+			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
+				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
 #else
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
 #endif
@@ -462,6 +464,7 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
 		#ifdef USE_PROP_AVOIDANCE
+		if(prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT)
 			timeout += WAIT_ADD_TIMEOUT_TIME;
 		#endif
 
@@ -545,6 +548,7 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
 		#ifdef USE_PROP_AVOIDANCE
+		if(prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT)
 			timeout += WAIT_ADD_TIMEOUT_TIME;
 		#endif
 
@@ -761,7 +765,12 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
+#ifdef USE_PROP_AVOIDANCE
+			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
+				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
+#else
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
+#endif
 			{
 				CAN_send_debug("0000000");
 				prop_fun_printf("\nPROP_relative_goto : timeout(GOTO)\n");
