@@ -202,10 +202,8 @@ void ODOMETRY_update(void)
 
 	ENCODERS_get(&left, &right);
 
-	#ifndef USE_GYROSCOPE
-		// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
-		global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
-	#endif
+	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
+	global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
 
 	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
 	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
@@ -216,26 +214,23 @@ void ODOMETRY_update(void)
 
 	if(gyro_valid)
 	{
-//		if((global.real_speed_rotation <= 50)&&(global.real_speed_translation <= 10)&&(global.real_speed_rotation >= -50)&&(global.real_speed_translation >= -10)){ // Les roues codeuses n'ont pas bougé
-//			if(!init_gyro){
-//				offset_gyro = gyro_speed;
-//				init_gyro = TRUE;
-//			}else{
+		if(global.real_speed_rotation <= 50 && global.real_speed_rotation >= -50){ // Les roues codeuses n'ont pas bougé
+			if(!init_gyro){
+				offset_gyro = gyro_speed;
+				init_gyro = TRUE;
+			}else{
 
-//				offset_gyro = offset_gyro*99./100 + (gyro_speed - global.real_speed_rotation)*1./100;
-//			}
-//		}
+				offset_gyro = (offset_gyro*99 + (gyro_speed + global.real_speed_rotation)*1)/100;
+			}
+		}
 
-		gyro_teta += gyro_speed - offset_gyro;
-		global.real_speed_rotation = -gyro_speed;
+		gyro_teta += -gyro_speed + offset_gyro;
+		global.real_speed_rotation = -gyro_speed + offset_gyro;
 
 		degre = ((gyro_teta / PI4096)*180) >> 10;
 
-		if(!loop)
-		{
-			//debug_printf("x32    %d,    y32     %6ld\n", global.real_speed_rotation, global.real_speed_translation);
-			//display_float(offset_gyro);
-			debug_printf("%6ld, %6ld, %d\n",gyro_speed, gyro_teta, degre);
+		if(!loop){
+			debug_printf("%6ld, %6ld, %d, %d\n",gyro_speed, gyro_teta, degre, offset_gyro);
 			loop = 50;
 		}
 		loop--;
@@ -288,23 +283,15 @@ void ODOMETRY_update(void)
 	//Mise à jour de l'angle
 	teta32 += global.real_speed_rotation;	//[rad/1024/4096]
 
-	#ifdef USE_GYROSCOPE
-		if(gyro_teta < (-PI_22) )
-			gyro_teta += TWO_PI22;
-		if(gyro_teta > PI_22)
-			gyro_teta -= TWO_PI22;
+	//Gestion de l'angle modulo 2PI !!!
+	if(teta32 < (-PI_22) )
+		teta32 += TWO_PI22;
+	if(teta32 > PI_22)
+		teta32 -= TWO_PI22;
 
-		global.position.teta = gyro_teta >> 10;	//[rad/4096]
-	#else
+	global.position.teta = teta32 >> 10;	//[rad/4096]
 
-		//Gestion de l'angle modulo 2PI !!!
-		if(teta32 < (-PI_22) )
-			teta32 += TWO_PI22;
-		if(teta32 > PI_22)
-			teta32 -= TWO_PI22;
 
-		global.position.teta = teta32 >> 10;	//[rad/4096]
-	#endif
 	if((!COPILOT_is_arrived()) || (SUPERVISOR_get_state() == SUPERVISOR_ERROR))
 	{	//Si je ne suis pas arrivé à destination, le référentiel me suit... et repart à zéro !)
 		global.real_position_translation = 0;
