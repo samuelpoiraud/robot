@@ -138,7 +138,9 @@ void initialisation(void)
 		HOKUYO_init();
 	#endif
 
-	GYRO_init();
+	#ifdef USE_GYROSCOPE
+		GYRO_init();
+	#endif
 
 	#if defined (LCD_TOUCH)
 		LCD_init();
@@ -196,9 +198,9 @@ int main (void)
 
 */
 
-
-	WATCHDOG_create(1000, &GYRO_test, TRUE);
-
+	#ifdef USE_GYROSCOPE
+		WATCHDOG_create(1000, &GYRO_test, TRUE);
+	#endif
 
 	while(1)
 	{

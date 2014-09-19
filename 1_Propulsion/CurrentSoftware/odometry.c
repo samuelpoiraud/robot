@@ -202,11 +202,15 @@ void ODOMETRY_update(void)
 
 	ENCODERS_get(&left, &right);
 
-	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
-	//global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
+	#ifndef USE_GYROSCOPE
+		// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
+		global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
+	#endif
 
 	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
 	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
+
+#ifdef USE_GYROSCOPE
 
 	gyro_speed = GYRO_get_speed_rotation(&gyro_valid);
 
@@ -236,7 +240,7 @@ void ODOMETRY_update(void)
 		}
 		loop--;
 	}
-
+#endif
 
 
 	//TODO : comparer speed avec global.real_speed_rotation produit ci-dessous
@@ -284,21 +288,23 @@ void ODOMETRY_update(void)
 	//Mise à jour de l'angle
 	teta32 += global.real_speed_rotation;	//[rad/1024/4096]
 
-	//Gestion de l'angle modulo 2PI !!!
-//	if(teta32 < (-PI_22) )
-//		teta32 += TWO_PI22;
-//	if(teta32 > PI_22)
-//		teta32 -= TWO_PI22;
+	#ifdef USE_GYROSCOPE
+		if(gyro_teta < (-PI_22) )
+			gyro_teta += TWO_PI22;
+		if(gyro_teta > PI_22)
+			gyro_teta -= TWO_PI22;
 
-//	global.position.teta = teta32 >> 10;	//[rad/4096]
+		global.position.teta = gyro_teta >> 10;	//[rad/4096]
+	#else
 
-	if(gyro_teta < (-PI_22) )
-		gyro_teta += TWO_PI22;
-	if(gyro_teta > PI_22)
-		gyro_teta -= TWO_PI22;
+		//Gestion de l'angle modulo 2PI !!!
+		if(teta32 < (-PI_22) )
+			teta32 += TWO_PI22;
+		if(teta32 > PI_22)
+			teta32 -= TWO_PI22;
 
-	global.position.teta = gyro_teta >> 10;	//[rad/4096]
-
+		global.position.teta = teta32 >> 10;	//[rad/4096]
+	#endif
 	if((!COPILOT_is_arrived()) || (SUPERVISOR_get_state() == SUPERVISOR_ERROR))
 	{	//Si je ne suis pas arrivé à destination, le référentiel me suit... et repart à zéro !)
 		global.real_position_translation = 0;

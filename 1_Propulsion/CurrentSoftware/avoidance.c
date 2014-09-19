@@ -17,6 +17,8 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_maths.h"
 #include "copilot.h"
+#include "buffer.h"
+#include "secretary.h"
 
 
 
