@@ -28,6 +28,7 @@
 #include "main.h"
 #include "detection.h"
 #include "avoidance.h"
+#include "clock.h"
 
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>
@@ -90,6 +91,7 @@ void _ISR _T1Interrupt()
 	#endif
 
 
+	CLOCK_process_it();
 	SECRETARY_process_it();
 	WARNER_process_it();	//MAJ des avertisseurs
 	JOYSTICK_process_it();

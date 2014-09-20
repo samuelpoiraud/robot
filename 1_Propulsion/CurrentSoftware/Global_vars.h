@@ -114,6 +114,7 @@
 		volatile bool_e disable_virtual_perfect_robot;
 		volatile bool_e match_started, match_over;
 		volatile bool_e debug_foe_forced;
+		volatile time32_t absolute_time;
 
 
 #endif /* ndef GLOBAL_VARS_H */
