@@ -34,6 +34,7 @@
 #include "hokuyo.h"
 #include "gyroscope.h"
 #include "detection.h"
+#include "clock.h"
 
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
@@ -147,6 +148,7 @@ void initialisation(void)
 	#endif
 
 	IT_init();
+	CLOCK_init();
 	/*
 	Récapitulatif des priorités des ITs :
 	-> 7 : Codeurs QEI_on_it
