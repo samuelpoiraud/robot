@@ -63,39 +63,21 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 	BUFFER_add (&order);
 }
 
-//Ajout un ordre prioritaire au début du buffer
-void ROADMAP_add_in_begin_order(
-						trajectory_e trajectory,
-						Sint16 x,
-						Sint16 y,
-						Sint16 teta,
-						relative_e relative,
-						way_e way,
-						border_mode_e border_mode,
-						multipoint_e multipoint,
-						PROP_speed_e speed,
-						acknowledge_e acknowledge,
-						corrector_e corrector,
-						avoidance_e avoidance)
-{
-	order_t order;
+void ROADMAP_add_simple_order(order_t order, bool_e add_at_begin, bool_e clean_buffer, bool_e buffer_mode){
 
-	order.trajectory = trajectory;
-	order.relative = relative;
-	order.border_mode = border_mode;
-	order.way = way;
-	order.multipoint = multipoint;
-	order.x = x;
-	order.y = y;
-	order.teta = teta;
-	order.speed = speed;
-	order.acknowledge = acknowledge;
-	order.corrector = corrector;
-	order.avoidance = avoidance;
+	if(clean_buffer){
+		BUFFER_init();
+	}
 
-	new_prioritary_order = TRUE;
-	BUFFER_enable(TRUE);
-	BUFFER_add (&order);
+	BUFFER_enable(buffer_mode);
+
+	if(add_at_begin){
+		BUFFER_add_begin(&order);
+	}else{
+		BUFFER_add(&order);
+	}
+
+
 }
 
 bool_e ROADMAP_exists_prioritary_order(void)
@@ -113,14 +95,6 @@ bool_e ROADMAP_get_next(order_t * order)
 	return TRUE;
 }
 
-
-void ROADMAP_add_order_begin(order_t * order)
-{
-	BUFFER_add(order);
-}
-
-void ROADMAP_behead(){
-	BUFFER_behead();
-	if(BUFFER_is_empty() == FALSE)
-		new_prioritary_order = TRUE;
+void ROADMAP_launch_next_order(){
+	new_prioritary_order = TRUE;
 }

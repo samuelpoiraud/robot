@@ -44,7 +44,7 @@ void PROP_push_stop ()
 }
 
 /* ajoute une instruction goto sur la pile asser */
-void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_e avoidance, PROP_end_condition_e end_condition ,bool_e run)
+void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, PROP_end_condition_e end_condition ,bool_e run)
 {
 	debug_printf("\nD=%d\n",x);
 	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
@@ -54,14 +54,19 @@ void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 cu
 	pos->speed = speed;
 	pos->way = way;
 	pos->curve = curve;
-	pos->avoidance = avoidance;
+	if(avoidance == NORMAL_WAIT || avoidance == NO_DODGE_AND_WAIT || avoidance == DODGE_AND_WAIT)
+		pos->avoidance = AVOID_ENABLED_AND_WAIT;
+	else if(avoidance == NO_DODGE_AND_NO_WAIT || avoidance == DODGE_AND_NO_WAIT)
+		pos->avoidance = AVOID_ENABLED;
+	else
+		pos->avoidance = AVOID_DISABLED;
 	if(end_condition == END_AT_LAST_POINT)
 		STACKS_push (PROP, &PROP_goto, run);
 	else
 		STACKS_push (PROP, &PROP_goto_until_break, run);
 }
 
-void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition ,bool_e run)
+void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition ,bool_e run)
 {
 	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
 
@@ -71,7 +76,12 @@ void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e w
 	pos->way = way;
 	pos->curve = curve;
 	pos->priority_order = priority_order;
-	pos->avoidance = avoidance;
+	if(avoidance == NORMAL_WAIT || avoidance == NO_DODGE_AND_WAIT || avoidance == DODGE_AND_WAIT)
+		pos->avoidance = AVOID_ENABLED_AND_WAIT;
+	else if(avoidance == NO_DODGE_AND_NO_WAIT || avoidance == DODGE_AND_NO_WAIT)
+		pos->avoidance = AVOID_ENABLED;
+	else
+		pos->avoidance = AVOID_DISABLED;
 	if(end_condition == END_AT_LAST_POINT)
 		STACKS_push (PROP, &PROP_goto_multi_point, run);
 	else

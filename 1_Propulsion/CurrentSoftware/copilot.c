@@ -31,7 +31,7 @@ volatile order_t buffer_order;
 trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, Sint16 destination_y, Sint16 viewing_angle, way_e way);
 typedef enum {
 	NOT_ARRIVED = 0,
-	ARRIVED,
+	ARRIVED
 } arrived_e;
 volatile arrived_e arrived;
 volatile arrived_e arrived_rotation;
@@ -390,63 +390,59 @@ void COPILOT_do_order(order_t * order)
 
 	#ifdef USE_PROP_AVOIDANCE
 	if((order->trajectory == TRAJECTORY_AUTOMATIC_CURVE || order->trajectory == TRAJECTORY_TRANSLATION) &&
+			order->avoidance != AVOID_DISABLED &&
 			AVOIDANCE_foe_in_zone(FALSE, order->x, order->y, FALSE)){ // Fonction différente à faire pour une trajectoire en courbe automatique
 
 		if(order->avoidance == AVOID_ENABLED){ // adversaire sur la trajectoire, évitement sans wait donc annulation de la trajectoire
-			CAN_msg_t msg;
-			msg.sid = STRAT_PROP_FOE_DETECTED;
-			msg.size = 0;
 
-			BUFFER_flush();
-			ROADMAP_add_order(  TRAJECTORY_STOP,
-								0,
-								0,
-								0,					//teta
-								NOT_RELATIVE,		//relative
-								NOW,			//maintenant
-								ANY_WAY,	//sens de marche
-								NOT_BORDER_MODE,	//mode bordure
-								NO_MULTIPOINT, 	//mode multipoints
-								FAST,				//Vitesse
-								ACKNOWLEDGE_ASKED,
-								CORRECTOR_ENABLE,
-								AVOID_DISABLED
-							);
+			BUFFER_init();
+
+			order_t supp;
+				supp.x = 0;
+				supp.y = 0;
+				supp.teta = 0;
+				supp.relative = NOT_RELATIVE;
+				supp.way = ANY_WAY;
+				supp.border_mode = NOT_BORDER_MODE;
+				supp.multipoint = NO_MULTIPOINT;
+				supp.speed = FAST;
+				supp.acknowledge = NO_ACKNOWLEDGE;
+				supp.corrector = CORRECTOR_ENABLE;
+				supp.avoidance = AVOID_DISABLED;
+				supp.trajectory = TRAJECTORY_STOP;
+			current_order = supp;
+
+			CAN_msg_t msg;
+				msg.sid = STRAT_PROP_FOE_DETECTED;
+				msg.size = 0;
 			SECRETARY_send_canmsg(&msg);
+
 		}else if(order->avoidance == AVOID_ENABLED_AND_WAIT){
-			COPILOT_buffering_order();
-			TIMER1_disableInt(); // Inhibition des ITs critiques
-			ROADMAP_add_in_begin_order( WAIT_FOREVER,
-										0,					//x
-										0,					//y
-										0,					//teta
-										NOT_RELATIVE,		//relative
-										ANY_WAY,	//sens de marche
-										NOT_BORDER_MODE,	//mode bordure
-										NO_MULTIPOINT, 	//mode multipoints
-										FAST,				//Vitesse
-										ACKNOWLEDGE_ASKED,
-										CORRECTOR_ENABLE,
-										AVOID_DISABLED
-									);
-			ROADMAP_add_in_begin_order( TRAJECTORY_STOP,
-										0,					//x
-										0,					//y
-										0,					//teta
-										NOT_RELATIVE,		//relative
-										ANY_WAY,	//sens de marche
-										NOT_BORDER_MODE,	//mode bordure
-										NO_MULTIPOINT, 	//mode multipoints
-										FAST,				//Vitesse
-										ACKNOWLEDGE_ASKED,
-										CORRECTOR_ENABLE,
-										AVOID_DISABLED
-									);
-			TIMER1_enableInt(); // Dé-inhibition des ITs critiques
+			buffer_order = *order;
+			buffer_order.wait_time_begin = global.absolute_time;
+
+			order_t supp;
+				supp.x = 0;
+				supp.y = 0;
+				supp.teta = 0;
+				supp.relative = NOT_RELATIVE;
+				supp.way = ANY_WAY;
+				supp.border_mode = NOT_BORDER_MODE;
+				supp.multipoint = NO_MULTIPOINT;
+				supp.speed = FAST;
+				supp.acknowledge = NO_ACKNOWLEDGE;
+				supp.corrector = CORRECTOR_ENABLE;
+				supp.avoidance = AVOID_DISABLED;
+				supp.trajectory = WAIT_FOREVER;
+
+			BUFFER_add_begin(&supp);
+
+			supp.trajectory = TRAJECTORY_STOP;
+			current_order = supp;
 		}
 
 	}else{
-	#endif
+	#else
 
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
@@ -454,26 +450,29 @@ void COPILOT_do_order(order_t * order)
 
 		if(current_order.trajectory == WAIT_FOREVER)
 			return;
+	#endif
 
-		//MAJ Vitesse
-		PILOT_set_speed(current_order.speed);
-
-		SUPERVISOR_state_machine(EVENT_NEW_ORDER, current_order.acknowledge);
-
-		arrived = NOT_ARRIVED;	//Ceci pour éviter, dans le main, de croire qu'on est arrivé AVANT la mise a jour de l'état arrive dans it.c
-		arrived_rotation = NOT_ARRIVED;
-		arrived_translation = NOT_ARRIVED;
-		braking_translation = NOT_BRAKING;
-		braking_rotation = NOT_BRAKING;
-		braking = NOT_BRAKING;
-		//On remet à jour la destination (pour que la détection d'erreur soit OK...)
-		COPILOT_update_destination_translation();
-		COPILOT_update_destination_rotation();
-		COPILOT_update_arrived();
-		COPILOT_update_brake_state();
 	#ifdef USE_PROP_AVOIDANCE
 	}
 	#endif
+
+	//MAJ Vitesse
+	PILOT_set_speed(current_order.speed);
+
+	SUPERVISOR_state_machine(EVENT_NEW_ORDER, current_order.acknowledge);
+
+	arrived = NOT_ARRIVED;	//Ceci pour éviter, dans le main, de croire qu'on est arrivé AVANT la mise a jour de l'état arrive dans it.c
+	arrived_rotation = NOT_ARRIVED;
+	arrived_translation = NOT_ARRIVED;
+	braking_translation = NOT_BRAKING;
+	braking_rotation = NOT_BRAKING;
+	braking = NOT_BRAKING;
+	//On remet à jour la destination (pour que la détection d'erreur soit OK...)
+	COPILOT_update_destination_translation();
+	COPILOT_update_destination_rotation();
+	COPILOT_update_arrived();
+	COPILOT_update_brake_state();
+
 }
 
 
@@ -917,8 +916,8 @@ order_t COPILOT_get_current_order(){
 	return current_order;
 }
 
-order_t COPILOT_get_buffer_order(){
-	return buffer_order;
+volatile order_t* COPILOT_get_buffer_order(){
+	return &buffer_order;
 }
 
 void COPILOT_buffering_order(){
