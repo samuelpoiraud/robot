@@ -29,6 +29,7 @@
 #include "detection.h"
 #include "avoidance.h"
 #include "clock.h"
+#include "gyroscope.h"
 
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>
@@ -54,7 +55,7 @@ void IT_init(void)
 #endif
 
 	//Note : run_us 5000 est beaucoup plus précis que run tout court à 5...
-	TIMER1_run_us(PERIODE_IT_ASSER*1000);			//IT trajectoire et Correcteur
+	TIMER1_run_us(1000);			//IT trajectoire et Correcteur
 	TIMER2_run(100);		//Affichage Leds...
 	global.flag_recouvrement_IT = FALSE;
 }
@@ -76,59 +77,70 @@ volatile static global_data_storage_t g2;
 void _ISR _T1Interrupt()
 									#endif
 {
+	static Uint8 loop;
+	bool_e trash;
 #if defined (LCD_TOUCH)
 	static Uint8 count = 0;
 #endif
 	LED_USER = 0; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 	TIMER1_AckIT(); /* interruption traitée */
-	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
-	ODOMETRY_update();
 
-	//Sauvegarde de l'état du système, en mode debug...
+	loop++;
+	if(loop < PERIODE_IT_ASSER)
+		GYRO_get_speed_rotation(&trash, FALSE);	//Acquisition gyro, non suivie d'une exploitation...
+	else
+	{
+		loop = 0;
 
-	#ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
-		void debug_save_structure_global(void);
-	#endif
+		//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
+		ODOMETRY_update();
+
+		//Sauvegarde de l'état du système, en mode debug...
+
+		#ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
+			void debug_save_structure_global(void);
+		#endif
 
 
-	CLOCK_process_it();
-	SECRETARY_process_it();
-	WARNER_process_it();	//MAJ des avertisseurs
-	JOYSTICK_process_it();
+		CLOCK_process_it();
+		SECRETARY_process_it();
+		WARNER_process_it();	//MAJ des avertisseurs
+		JOYSTICK_process_it();
 
-	COPILOT_process_it();
-	PILOT_process_it();
-	SUPERVISOR_process_it();
-	AVOIDANCE_process_it();
-	MAIN_process_it(PERIODE_IT_ASSER);
+		COPILOT_process_it();
+		PILOT_process_it();
+		SUPERVISOR_process_it();
+		AVOIDANCE_process_it();
+		MAIN_process_it(PERIODE_IT_ASSER);
 
-	#ifdef USE_HOKUYO
-		HOKUYO_process_it(PERIODE_IT_ASSER);
-	#endif
+		#ifdef USE_HOKUYO
+			HOKUYO_process_it(PERIODE_IT_ASSER);
+		#endif
 
-	DETECTION_process_it();
+		DETECTION_process_it();
 
-	#ifdef MODE_PRINTF_TABLEAU
-		debug_print_tableau();
-	#endif
+		#ifdef MODE_PRINTF_TABLEAU
+			debug_print_tableau();
+		#endif
 
-	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-		DEBUG_process_it();
-	#endif
+		#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+			DEBUG_process_it();
+		#endif
 
-	g2 = global;
-	LED_USER = 1; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
+		#ifdef LCD_TOUCH
+			if(count == 1){
+				count = 0;
+				//ZONE_process_10ms();
+				LCD_process_10ms();
+			}
+			count++;
+		#endif
+
+		g2 = global;
+	}
 	if(TIMER1_getITStatus())	//L'IT est trop longue ! il y a recouvrement !!!
 		global.flag_recouvrement_IT = TRUE;
-
-#ifdef LCD_TOUCH
-	if(count == 1){
-		count = 0;
-		//ZONE_process_10ms();
-		LCD_process_10ms();
-	}
-	count++;
-#endif
+	LED_USER = 1; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 }
 
 
