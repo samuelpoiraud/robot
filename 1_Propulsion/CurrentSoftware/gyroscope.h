@@ -15,7 +15,7 @@
 		void GYRO_init(void);
 		Sint16 GYRO_GetSensorData(bool_e verbose, bool_e * valid);
 		Sint16 ADXRS453_GetTemperature(void);
-		Sint32 GYRO_get_speed_rotation(bool_e * valid);
+		Sint32 GYRO_get_speed_rotation(bool_e * valid, bool_e reset);
 	#endif
 
 

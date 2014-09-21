@@ -169,11 +169,60 @@ void ODOMETRY_correct_with_border(way_e way)
 	}
 }
 
+#define GYRO_BUFFER_SIZE	4096
 
+Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
+{
+	static Uint8 loop = 0;
+	static Sint32 buffer_gyro[GYRO_BUFFER_SIZE];		//Buffer contenant les derniers écarts mesurés entre gyro et roues codeuses.
+	static Uint16 gyro_buffer_index = 0;
+	static Uint16 gyro_buffer_nb = 0;
+	static Sint32 sum_corrector_gyro = 0;
+	static Sint32 corrector_gyro = 0;
+
+	static Sint32 gyro_teta = 0;
+	bool_e gyro_valid;
+	Sint16 degre;
+	Sint32 gyro_speed;
+
+	gyro_speed = -GYRO_get_speed_rotation(&gyro_valid, TRUE);	//Le '-' permet d'avoir le même signe entre le gyro et l'odométrie.
+
+	if(gyro_valid)
+	{
+		//Remplissage du buffer...
+		if(global.real_speed_rotation <= 500 && global.real_speed_rotation >= -500) // Faible vitesse de rotation -> confiance accordée au roues codeuses
+		{
+			if(gyro_buffer_nb == GYRO_BUFFER_SIZE)
+				sum_corrector_gyro -= buffer_gyro[gyro_buffer_index];					//On retire la correction la plus âgée...avant de l'écraser
+			buffer_gyro[gyro_buffer_index] = gyro_speed - global.real_speed_rotation;	//On mémorise la correction actuelle
+			sum_corrector_gyro += buffer_gyro[gyro_buffer_index];						//On ajoute la correction actuelle
+			gyro_buffer_index = (gyro_buffer_index + 1) % GYRO_BUFFER_SIZE;				//On déplace l'index
+			gyro_buffer_nb = MIN(gyro_buffer_nb + 1, GYRO_BUFFER_SIZE);					//On augmente le nombre, si pas déjà au max
+			if(gyro_buffer_nb)															//Inutile... mais sage.
+				corrector_gyro = sum_corrector_gyro/gyro_buffer_nb;						//Mise à jour du correcteur
+		}
+
+		gyro_teta += gyro_speed - corrector_gyro;
+		degre = ((gyro_teta / PI4096)*180) >> 10;
+		if(!loop)
+		{
+			debug_printf("gspeed:%6ld\tgcorrect:%6ld,gspeed_corrected%ld,gteta:%ld\tgdegre%3d\n",gyro_speed, corrector_gyro, gyro_speed - corrector_gyro, gyro_teta, degre);
+			loop = 50;
+		}
+		loop--;
+
+		//Correction...
+		return gyro_speed - corrector_gyro;		//TEMPORAIRE... on fait confiance au gyro uniquement (corrigé d'une déviation estimée)
+	}
+	else
+	{
+		gyro_teta += global.real_speed_rotation;
+		return global.real_speed_rotation;	//Gyro inaccessible :  aucune modif, confiance accordée aux roues codeuses.
+	}
+}
 
 void ODOMETRY_update(void)
 {
-	static Sint32 gyro_teta = 0;
 	Sint16 cos,sin; 	//[pas d'unité/4096]
 	Sint32 cos32, sin32;
 	Sint32 left, right;
@@ -182,14 +231,6 @@ void ODOMETRY_update(void)
 	Sint32 deviation_y;
 	Sint32 real_speed_x;	//[mm/65536/5ms]
 	Sint32 real_speed_y;	//[mm/65536/5ms]
-
-	//TEMPORAIRE pour tests gyro :
-	static Uint8 loop = 0;
-	static bool_e init_gyro = FALSE;
-	static Sint32 offset_gyro = 0;
-	bool_e gyro_valid;
-	Sint16 degre;
-	Sint32 gyro_speed;
 
 	//CALCUL PREALABLE...DES COS ET SIN...
 	//ATTENTION... le calcul des x et y se fait avec l'angle de la précédente IT, on considère qu'on s'est déplacé avec l'angle précédent...
@@ -209,32 +250,7 @@ void ODOMETRY_update(void)
 	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
 
 #ifdef USE_GYROSCOPE
-
-	gyro_speed = GYRO_get_speed_rotation(&gyro_valid);
-
-	if(gyro_valid)
-	{
-		if(global.real_speed_rotation <= 50 && global.real_speed_rotation >= -50){ // Les roues codeuses n'ont pas bougé
-			if(!init_gyro){
-				offset_gyro = gyro_speed;
-				init_gyro = TRUE;
-			}else{
-
-				offset_gyro = (offset_gyro*99 + (gyro_speed + global.real_speed_rotation)*1)/100;
-			}
-		}
-
-		gyro_teta += -gyro_speed + offset_gyro;
-		global.real_speed_rotation = -gyro_speed + offset_gyro;
-
-		degre = ((gyro_teta / PI4096)*180) >> 10;
-
-		if(!loop){
-			debug_printf("%6ld, %6ld, %d, %d\n",gyro_speed, gyro_teta, degre, offset_gyro);
-			loop = 50;
-		}
-		loop--;
-	}
+	global.real_speed_rotation = ODOMETRY_get_speed_rotation_gyroway_corrected();
 #endif
 
 

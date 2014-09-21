@@ -70,20 +70,35 @@ void GYRO_test(){
 	//debug_printf("Gyro temperature is %d\n", ADXRS453_GetTemperature());
 }
 
-
-Sint32 GYRO_get_speed_rotation(bool_e * valid)
+/*
+ * @brief	Cette fonction renvoie la vitesse en rotation mesurée par le gyro.
+ * @param	l'argument reset permet de faire des mesures plus régulièrement que leur exploitation (pour être en phase avec l'échantillonnage du gyro).
+ */
+Sint32 GYRO_get_speed_rotation(bool_e * valid, bool_e reset)
 {
 	Sint16 speed;
+	Sint32 ret = 0;
+	static Sint32 sum_speed = 0;
+	static Uint8 nb = 0;
 	if(initialized)
 	{
 		speed = GYRO_GetSensorData(FALSE,valid);	//[°/sec/80]
-		return ((Sint32)(speed) * 4685) >> 10;		//[rad/4096/1024/5ms].....
+		nb++;
+		sum_speed += ((Sint32)(speed));
+		ret = ((sum_speed * 4685) >> 10)/nb;		//[rad/4096/1024/5ms].....
+		if(reset)
+		{
+			sum_speed = 0;
+			nb = 0;
+		}
 	}
 	else
 	{
+		sum_speed = 0;
 		*valid = FALSE;
-		return (Sint32)0;
+		ret = (Sint32)0;
 	}
+	return ret;
 }
 
 
@@ -129,14 +144,20 @@ void GYRO_read(Uint8 * Data, Uint8 size)
 void GYRO_init(void)
 {
 	Uint16 adxrs453Id = 0;
+	Uint8 try;
 	SPI_init();
-
-	/* Read the value of the ADXRS453 ID register. */
-	adxrs453Id = ADXRS453_GetRegisterValue(ADXRS453_REG_PID);
-	if((adxrs453Id >> 8) != 0x52)
-		initialized = FALSE;
-	else
-		initialized = TRUE;
+	for(try=0;try<3;try++)
+	{
+		/* Read the value of the ADXRS453 ID register. */
+		adxrs453Id = ADXRS453_GetRegisterValue(ADXRS453_REG_PID);
+		if((adxrs453Id >> 8) != 0x52)
+			initialized = FALSE;
+		else
+		{
+			initialized = TRUE;
+			break;
+		}
+	}
 	debug_printf("Gyro ADXRS453 : init %s\n", (initialized)?"OK":"FAILED !");
 }
 /***************************************************************************//**
