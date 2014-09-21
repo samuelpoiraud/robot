@@ -36,16 +36,7 @@
 	bool_e BUFFER_is_empty(void);
 	// TRUE : buffer vide, FALSE : buffer non vide
 
-
 	// Fonction de récupération du prochain ordre dans le buffer
 	void BUFFER_get_next(order_t * order);
-
-	// Fonction qui permet de vider le buffer
-	void BUFFER_flush();
-
-	// Fonction qui supprime l'élément en tête du buffer et passe à la suite
-	void BUFFER_behead();
-
-
 
 #endif	//def _BUFFER_H

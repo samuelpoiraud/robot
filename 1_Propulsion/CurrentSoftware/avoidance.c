@@ -30,18 +30,15 @@ void AVOIDANCE_init(){
 void AVOIDANCE_process_it(){
 #ifdef USE_PROP_AVOIDANCE
 	order_t current_order = COPILOT_get_current_order();
-	order_t buffer_order;
+	volatile order_t *buffer_order;
 
 	if((current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
-		(current_order.avoidance == AVOID_ENABLED || current_order.avoidance == AVOID_ENABLED_AND_WAIT)){
+		current_order.avoidance != AVOID_DISABLED){
 
 		if(AVOIDANCE_target_safe(current_order.x, current_order.y, FALSE)){
 			if(current_order.avoidance == AVOID_ENABLED){
-				CAN_msg_t msg;
-				msg.sid = STRAT_PROP_FOE_DETECTED;
-				msg.size = 0;
 
-				BUFFER_flush();
+				// Si on rencontre un adversaire on s'arrete
 				ROADMAP_add_order(  TRAJECTORY_STOP,
 									0,
 									0,
@@ -52,50 +49,83 @@ void AVOIDANCE_process_it(){
 									NOT_BORDER_MODE,	//mode bordure
 									NO_MULTIPOINT, 	//mode multipoints
 									FAST,				//Vitesse
-									ACKNOWLEDGE_ASKED,
+									NO_ACKNOWLEDGE,
 									CORRECTOR_ENABLE,
 									AVOID_DISABLED
 								);
+
+				// Puis on avertie la stratégie qu'il y a eu évitement
+				CAN_msg_t msg;
+					msg.sid = STRAT_PROP_FOE_DETECTED;
+					msg.size = 0;
 				SECRETARY_send_canmsg(&msg);
+
 			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
+
+				// On met l'ordre actuel dans le buffer
 				COPILOT_buffering_order();
-				TIMER1_disableInt(); // Inibhition des ITs critiques
-				ROADMAP_add_in_begin_order( WAIT_FOREVER,
-											0,					//x
-											0,					//y
-											0,					//teta
-											NOT_RELATIVE,		//relative
-											ANY_WAY,	//sens de marche
-											NOT_BORDER_MODE,	//mode bordure
-											NO_MULTIPOINT, 	//mode multipoints
-											FAST,				//Vitesse
-											ACKNOWLEDGE_ASKED,
-											CORRECTOR_ENABLE,
-											AVOID_DISABLED
-										);
-				ROADMAP_add_in_begin_order( TRAJECTORY_STOP,
-											0,					//x
-											0,					//y
-											0,					//teta
-											NOT_RELATIVE,		//relative
-											ANY_WAY,	//sens de marche
-											NOT_BORDER_MODE,	//mode bordure
-											NO_MULTIPOINT, 	//mode multipoints
-											FAST,				//Vitesse
-											ACKNOWLEDGE_ASKED,
-											CORRECTOR_ENABLE,
-											AVOID_DISABLED
-										);
-				TIMER1_enableInt(); // Dé-inhibition des ITs critiques
-			}else if(current_order.trajectory == WAIT_FOREVER){
 				buffer_order = COPILOT_get_buffer_order();
-				if(AVOIDANCE_foe_in_zone(FALSE, buffer_order.x, buffer_order.y, FALSE) == FALSE)
-					ROADMAP_behead();
+
+				// On met à jours la variable qui contient le temps du début du wait
+				buffer_order->wait_time_begin = global.absolute_time;
+
+				order_t supp;
+					supp.x = 0;
+					supp.y = 0;
+					supp.teta = 0;
+					supp.relative = NOT_RELATIVE;
+					supp.way = ANY_WAY;
+					supp.border_mode = NOT_BORDER_MODE;
+					supp.multipoint = NO_MULTIPOINT;
+					supp.speed = FAST;
+					supp.acknowledge = NO_ACKNOWLEDGE;
+					supp.corrector = CORRECTOR_ENABLE;
+					supp.avoidance = AVOID_DISABLED;
+					supp.trajectory = WAIT_FOREVER;
+				BUFFER_add_begin(&supp);
+
+				supp.trajectory = TRAJECTORY_STOP;
+				BUFFER_add_begin(&supp);
+
+				ROADMAP_launch_next_order();
 			}
-
 		}
+	}else if(current_order.trajectory == WAIT_FOREVER){
 
+				buffer_order = COPILOT_get_buffer_order();
+
+				// Si il y a timeout
+				if(buffer_order->total_wait_time + global.absolute_time - buffer_order->wait_time_begin > 3000){
+
+					// On remplace la trajectoire courante
+					ROADMAP_add_order(  TRAJECTORY_STOP,
+										0,
+										0,
+										0,					//teta
+										NOT_RELATIVE,		//relative
+										NOW,			//maintenant
+										ANY_WAY,	//sens de marche
+										NOT_BORDER_MODE,	//mode bordure
+										NO_MULTIPOINT, 	//mode multipoints
+										FAST,				//Vitesse
+										NO_ACKNOWLEDGE,
+										CORRECTOR_ENABLE,
+										AVOID_DISABLED
+									);
+
+					CAN_msg_t msg;
+						msg.sid = STRAT_PROP_FOE_DETECTED;
+						msg.size = 0;
+					SECRETARY_send_canmsg(&msg);
+
+				}else if(AVOIDANCE_foe_in_zone(FALSE, buffer_order->x, buffer_order->y, FALSE) == FALSE){
+					debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
+					buffer_order->total_wait_time += global.absolute_time - buffer_order->wait_time_begin;
+					ROADMAP_add_simple_order(*buffer_order, TRUE, FALSE, TRUE);
+					ROADMAP_launch_next_order();
+				}
 	}
+
 #endif
 }
 

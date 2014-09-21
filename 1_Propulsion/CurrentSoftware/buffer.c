@@ -132,21 +132,3 @@ void BUFFER_get_next(order_t * order)
 	//Màj Buffer_read
 	buffer_read = (buffer_read + 1) % BUFFER_SIZE;
 }
-
-void BUFFER_flush()
-{
-	buffer_nb = 0;
-	buffer_read = 0;
-	buffer_write = 0;
-}
-
-void BUFFER_behead(){
-	if (BUFFER_is_empty() == FALSE){
-		if(buffer_read == 0)
-			buffer_read = BUFFER_SIZE-1;
-		else
-			buffer_read--;
-
-		buffer_nb--;
-	}
-}

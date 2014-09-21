@@ -47,7 +47,7 @@
 	braking_e COPILOT_braking_translation_get(void);
 
 	order_t COPILOT_get_current_order();
-	order_t COPILOT_get_buffer_order();
+	volatile order_t* COPILOT_get_buffer_order();
 	void COPILOT_buffering_order();
 
 	#endif	//def _COPILOT_H

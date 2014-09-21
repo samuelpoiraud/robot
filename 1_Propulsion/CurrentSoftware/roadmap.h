@@ -28,6 +28,8 @@
 		acknowledge_e acknowledge;	//doit on rendre compte a la carte stratégie
 		corrector_e corrector;
 		avoidance_e avoidance;
+		time32_t wait_time_begin;
+		time32_t total_wait_time;
 	}order_t;
 
 	void ROADMAP_add_order(trajectory_e trajectory,
@@ -44,24 +46,12 @@
 						corrector_e corrector,
 						avoidance_e avoidance);
 
-		bool_e ROADMAP_exists_prioritary_order(void);
+	void ROADMAP_add_simple_order(order_t order, bool_e add_at_begin, bool_e clean_buffer, bool_e buffer_mode);
 
-		void ROADMAP_add_in_begin_order(
-								trajectory_e trajectory,
-								Sint16 x,
-								Sint16 y,
-								Sint16 teta,
-								relative_e relative,
-								way_e way,
-								border_mode_e border_mode,
-								multipoint_e multipoint,
-								PROP_speed_e speed,
-								acknowledge_e acknowledge,
-								corrector_e corrector,
-								avoidance_e avoidance);
+	bool_e ROADMAP_exists_prioritary_order(void);
 
-		bool_e ROADMAP_get_next(order_t * order);
+	bool_e ROADMAP_get_next(order_t * order);
 
-		void ROADMAP_behead();
+	void ROADMAP_launch_next_order();
 
 #endif	//def _ROADMAP_H
