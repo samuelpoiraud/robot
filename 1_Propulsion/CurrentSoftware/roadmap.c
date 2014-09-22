@@ -49,6 +49,7 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 	order.acknowledge = acknowledge;
 	order.corrector = corrector;
 	order.avoidance = avoidance;
+	order.total_wait_time = 0;
 
 	if(now == NOW)
 	{

@@ -102,7 +102,7 @@ void _ISR _T1Interrupt()
 		#endif
 
 
-		CLOCK_process_it();
+        CLOCK_process_it(PERIODE_IT_ASSER);
 		SECRETARY_process_it();
 		WARNER_process_it();	//MAJ des avertisseurs
 		JOYSTICK_process_it();

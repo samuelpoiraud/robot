@@ -16,6 +16,6 @@
 
 void CLOCK_init();
 
-void CLOCK_process_it();
+void CLOCK_process_it(Uint8 ms);
 
 #endif /*ndef CLOCK_H */

@@ -124,6 +124,7 @@ void initialisation(void)
 	global.mode_best_effort_enable = FALSE;
 	global.match_started = FALSE;
 	global.match_over = FALSE;
+    global.absolute_time = 0;
 
 	ROADMAP_init();
 	WARNER_init();

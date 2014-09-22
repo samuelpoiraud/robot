@@ -25,6 +25,7 @@
 #include "roadmap.h"
 #include "QS/QS_watchdog.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_outputlog.h"
 volatile order_t current_order;
 volatile order_t buffer_order;
 
@@ -55,6 +56,15 @@ arrived_e Decision_robot_arrive_rotation(void);
 void COPILOT_update_brake_state(void);
 braking_e COPILOT_update_brake_state_rotation(void);
 braking_e COPILOT_update_brake_state_translation(void);
+
+static char * trajectory_name_e[] = {
+	"TRAJECTORY_TRANSLATION",
+	"TRAJECTORY_ROTATION",
+	"TRAJECTORY_STOP",
+	"TRAJECTORY_AUTOMATIC_CURVE",
+	"TRAJECTORY_NONE",
+	"WAIT_FOREVER"
+};
 
 void COPILOT_init(void)
 {
@@ -228,7 +238,7 @@ trajectory_e COPILOT_get_trajectory(void)
 void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_without_reaching_destination)
 {
 	Sint32 d;
-	//debug_printf("next traj\n");
+    debug_printf("next traj\n");
 	static Sint16 angle_a_parcourir;
 
 	CORRECTOR_PD_enable(order->corrector);
@@ -409,6 +419,7 @@ void COPILOT_do_order(order_t * order)
 				supp.acknowledge = NO_ACKNOWLEDGE;
 				supp.corrector = CORRECTOR_ENABLE;
 				supp.avoidance = AVOID_DISABLED;
+				supp.total_wait_time = 0;
 				supp.trajectory = TRAJECTORY_STOP;
 			current_order = supp;
 
@@ -433,6 +444,7 @@ void COPILOT_do_order(order_t * order)
 				supp.acknowledge = NO_ACKNOWLEDGE;
 				supp.corrector = CORRECTOR_ENABLE;
 				supp.avoidance = AVOID_DISABLED;
+				supp.total_wait_time = 0;
 				supp.trajectory = WAIT_FOREVER;
 
 			BUFFER_add_begin(&supp);
@@ -442,7 +454,9 @@ void COPILOT_do_order(order_t * order)
 		}
 
 	}else{
-	#else
+	#endif
+
+		debug_printf("next trajectory ! %s vtrans %d\n", trajectory_name_e[order->trajectory], global.vitesse_translation);
 
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
@@ -450,7 +464,6 @@ void COPILOT_do_order(order_t * order)
 
 		if(current_order.trajectory == WAIT_FOREVER)
 			return;
-	#endif
 
 	#ifdef USE_PROP_AVOIDANCE
 	}
