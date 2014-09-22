@@ -33,6 +33,8 @@
 	#define MY_FILTER	SUPER_FILTER
 #elif defined I_AM_CARTE_BALISE	//(I_AM == CARTE_BALISE)
 	#define MY_FILTER	BALISE_FILTER
+#elif defined I_AM_CARTE_IHM	//(I_AM == I_AM_CARTE_IHM)
+	#define MY_FILTER	IHM_FILTER
 #else
 	#warning "carte inconnue : définissez I_AM_CARTE_XXXXX : voir QS_can.c"
 #endif
