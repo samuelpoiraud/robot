@@ -65,7 +65,21 @@
 		SWITCH17,
 		SWITCH18,
 		SWITCHS_NUMBER
-	}switch_id_e;
+	}switch_ihm_e;
+
+// Button de la carte ihm
+	typedef enum
+	{
+		BUTTON0_IHM=0,
+		BUTTON1_IHM,
+		BUTTON2_IHM,
+		BUTTON3_IHM,
+		BUTTON4_IHM,
+		BUTTON5_IHM,
+		BUTTON6_IHM,
+		BUTTON7_IHM,
+		BUTTONS_IHM_NUMBER
+	}button_ihm_e;
 
 	void BUTTONS_init();
 	void BUTTONS_define_actions(button_id_e button_id,button_action_t direct_push, button_action_t after_long_push, Uint8 long_push_time);

@@ -1,6 +1,16 @@
+/*
+ *	Club Robot ESEO 2014
+ *
+ *	Fichier : switch.c
+ *	Package : Carte IHM
+ *	Description : Contrôle les switchs
+ *	Auteur : Anthony
+ *	Version 2012/01/14
+ */
+
 #include "switch.h"
 
-#include "_IHM_config.h"
+#include "Global_config.h"
 #include "QS/QS_types.h"
 #include "QS/QS_buttons.h"
 #include "QS/QS_can.h"
@@ -115,8 +125,8 @@ void SWITCHS_update(){
 		if(switchs_rising_edge & (1<<i)){
 			SWITCHS_send_msg(i);
 
-		#ifdef USE_VERBOSE
-			debug_printf("SWITCH %d : State %s",i,(switchs[i])?"UP":"DOWN");
+		#ifdef VERBOSE_MODE
+			debug_printf("SWITCH %d : State %s",i,(switchs[i])?"ON":"OFF");
 		#endif
 		}
 	}
@@ -139,25 +149,24 @@ void SWITCHS_update(){
 	for(i=0;i<SW_INT_NUMBER;i++){
 		if((switchs_int_rising_edge & (1<<i)) && switchs_int[i] != NULL){
 			(switchs_int[i])();
-
-		#ifdef USE_VERBOSE
-			if(i == 0)
-				debug_printf("SWITCH COLOR : State %s",((switchs_int_rising_edge & (1<<i))?"UP":"DOWN"));
-			else if(i == 1)
-				debug_printf("SWITCH LCD : State %s",((switchs_int_rising_edge & (1<<i))?"UP":"DOWN"));
-		#endif
 		}
 	}
 
 	switchs_int_were_pressed = switchs_int_pressed;
 }
 
-
-void SWITCHS_send_msg(switch_id_e switch_id){
+void SWITCHS_send_msg(switch_ihm_e switch_id){
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = IHM_SWITCH;
 	msg.data[0] = switch_id;
 	msg.data[1] = switchs[switch_id];
 	CAN_send(&msg);
+}
+
+void SWITCHS_VERBOSE(void){
+	Uint8 sw_color=2, sw_lcd=2;
+
+	if(SWITCH_COLOR 	!= sw_color		)	{	sw_color 	= SWITCH_COLOR;		debug_printf("sw_color = %s\n",	(sw_color)?	"ON":"OFF");	 }
+	if(SWITCH_LCD_PORT 	!= sw_lcd		)	{	sw_lcd		= SWITCH_LCD_PORT;	debug_printf("sw_lcd = %s\n",	 (sw_lcd)?	"ON":"OFF");	 }
 }

@@ -861,4 +861,6 @@ typedef enum {
 #define IHM_SWITCH  0x601
 // Envois un message CAN quand un switch est déplacer
 
+#define IHM_BUTTON  0x602
+
 #endif	/* ndef QS_CANMSGLIST_H */

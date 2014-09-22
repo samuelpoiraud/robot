@@ -1,11 +1,10 @@
 /*
- *	Club Robot ESEO 2010 - 2011
- *	Check Norris
+ *	Club Robot ESEO 2014
  *
  *	Fichier : Can_msg_processing.c
  *	Package : Carte actionneur
  *	Description : Fonctions de traitement des messages CAN
- *  Auteur : Aurélien
+ *  Auteur : Anthony
  *  Version 20110225
  */
 
