@@ -1,11 +1,10 @@
 /*
- *	Club Robot ESEO 2008 - 2012
- *	Archi'Tech, CHOMP, CheckNorris, Shark & Fish
+ *	Club Robot ESEO 2014
  *
  *	Fichier : main.h
  *	Package : Carte Principale
  *	Description : Ordonnancement de la carte Principale
- *	Auteur : Jacen, modifié par Gonsevi
+ *	Auteur : Anthony
  *	Version 2012/01/14
  */
 

@@ -1,11 +1,11 @@
 /*
- *  Club Robot ESEO 2008 - 2012
+ *  Club Robot ESEO 2014
  *
  *  Fichier : Global_vars_types.h
  *  Package : Standard_Project
  *  Description : Définition de types pour les variables globales
 				définies specifiquement pour ce code.
- *  Auteur : Jacen - Nirgal 2009
+ *  Auteur : Anthony
  *  Version 201203
  */
 

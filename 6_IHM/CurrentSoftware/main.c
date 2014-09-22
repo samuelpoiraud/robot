@@ -1,13 +1,10 @@
 /*
- *	Club Robot ESEO 2008 - 2009
- *	Archi-Tech'
+ *	Club Robot 2014
  *
  *	Fichier : main.c
- *	Package : Projet Propulsion
- *	Description : fonction principale d'exemple pour le projet
- *				standard construit par la QS pour exemple, pour
- *				utilisation en Match
- *	Auteur : Jacen
+ *	Package : IHM
+ *	Description : fonction principale
+ *	Auteur : Anthony
  *	Version 20080924
  */
 
@@ -42,8 +39,6 @@ void initialisation(void)
 	// Config des ports
 	PORTS_init();
 
-
-
 	volatile Uint32 i;
 	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????
 
@@ -63,30 +58,31 @@ void initialisation(void)
 
 }
 
-int main (void)
-{
+int main (void){
 	initialisation();
 
-
-	while(1)
-	{
+	while(1){
 
 		if(t_ms > 20)	//Pour éviter les rebonds
 		{
 			t_ms = 0;
-//			BUTTONS_update();			//Gestion des boutons
+			BUTTONS_update();			//Gestion des boutons
 			SWITCHS_update();			//Surveillance des switchs
 		}
 
+
+		#ifdef VERBOSE_MODE
+			BUTTONS_IHM_VERBOSE();
+			SWITCHS_VERBOSE();
+		#endif
+
 		MAIN_process_it(5);
 	}
+
 	return 0;
 }
 
 
-
-
-void MAIN_process_it(Uint8 ms)
-{
+void MAIN_process_it(Uint8 ms){
 	t_ms += ms;
 }

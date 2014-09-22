@@ -1,11 +1,10 @@
 /*
- *	Club Robot ESEO 2010 - 2011
- *	Check Norris
+ *	Club Robot ESEO 2014
  *
  *	Fichier : Can_msg_processing.h
  *	Package : Carte actionneur
  *	Description : Fonctions de traitement des messages CAN
- *  Auteur : Aurélien
+ *  Auteur : Anthony
  *  Version 20110225
  */
 
@@ -26,5 +25,5 @@
 //		typedef bool_e (*direct_treatment_function_pt)(CAN_msg_t* msg);
 		void CAN_set_direct_treatment_function(direct_treatment_function_pt fct);
 	#endif
-	
+
 #endif /* ndef CAN_MSG_PROCESSING_H */

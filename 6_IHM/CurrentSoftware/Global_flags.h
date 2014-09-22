@@ -1,12 +1,11 @@
 /*
- *  Club Robot ESEO 2008 - 2009
- *  Archi-Tech'
+ *  Club Robot ESEO 2014
  *
  *  Fichier : Global_config.h
  *  Package : Standard_Project
  *  Description : Flags définis specifiquement pour
 					le code de la carte l'executant.
- *  Auteur : Jacen - Nirgal
+ *  Auteur : Anthony
  *  Version 200904
  */
 

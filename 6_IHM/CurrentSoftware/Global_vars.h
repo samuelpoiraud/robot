@@ -1,12 +1,11 @@
 /*
- *  Club Robot ESEO 2008 - 2011
- *  Archi-Tech',Chomp,CheckNorris
+ *  Club Robot ESEO 2014
  *
  *  Fichier : Global_vars.h
  *  Package : Standard_Project
  *  Description : Variables globales définies specifiquement pour
 					le code de la carte l'executant.
- *  Auteur : Jacen (inspiré du package QS d'Axel Voitier) - Nirgal 2009
+ *  Auteur : Anthony
  *  Version 201101
  */
 

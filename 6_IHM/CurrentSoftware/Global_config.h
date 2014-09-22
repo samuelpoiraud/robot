@@ -1,11 +1,10 @@
 /*
- *  Club Robot ESEO 2008 - 2010
- *  Archi'Tech, PACMAN
+ *  Club Robot ESEO 2014
  *
  *  Fichier : Global_config.h
  *  Package : Standard_project
  *  Description : Configuration des modules de QS
- *  Auteur : Jacen - Nirgal 2009
+ *  Auteur : Anthony
  *  Version 20100415
  */
 
