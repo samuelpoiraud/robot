@@ -21,7 +21,7 @@
 	#define ACT_FILTER					0x300
 	#define BALISE_FILTER				0x400
 	#define DEBUG_FILTER				0x700
-
+	#define IHM_FILTER					0x600
 	//Ces messages ne sont pas destinés à voyager sur les bus CAN des robot.
 	#define XBEE_FILTER					0x500
 
@@ -850,5 +850,15 @@ typedef enum {
 						//La position adverse connue est obsolète compte tenu d'une absence de résultat valide depuis un certain temps.
 						//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
 
+
+/*****************************************************************
+ *
+ *		Messages echangés entre la carte IHM
+ *		et les autres cartes
+ *
+ *****************************************************************/
+
+#define IHM_SWITCH  0x601
+// Envois un message CAN quand un switch est déplacer
 
 #endif	/* ndef QS_CANMSGLIST_H */
