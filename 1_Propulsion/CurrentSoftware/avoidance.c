@@ -62,6 +62,8 @@ void AVOIDANCE_process_it(){
 
 			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
 
+				debug_printf("t : %d      buffering !\n", global.absolute_time);
+
 				// On met l'ordre actuel dans le buffer
 				COPILOT_buffering_order();
 				buffer_order = COPILOT_get_buffer_order();
@@ -81,6 +83,7 @@ void AVOIDANCE_process_it(){
 					supp.acknowledge = NO_ACKNOWLEDGE;
 					supp.corrector = CORRECTOR_ENABLE;
 					supp.avoidance = AVOID_DISABLED;
+					supp.total_wait_time = 0;
 					supp.trajectory = WAIT_FOREVER;
 				BUFFER_add_begin(&supp);
 
@@ -92,38 +95,41 @@ void AVOIDANCE_process_it(){
 		}
 	}else if(current_order.trajectory == WAIT_FOREVER){
 
-				buffer_order = COPILOT_get_buffer_order();
+		buffer_order = COPILOT_get_buffer_order();
 
-				// Si il y a timeout
-				if(buffer_order->total_wait_time + global.absolute_time - buffer_order->wait_time_begin > 3000){
+		// Si il y a timeout
+		if(buffer_order->total_wait_time + global.absolute_time - buffer_order->wait_time_begin > 3000){
 
-					// On remplace la trajectoire courante
-					ROADMAP_add_order(  TRAJECTORY_STOP,
-										0,
-										0,
-										0,					//teta
-										NOT_RELATIVE,		//relative
-										NOW,			//maintenant
-										ANY_WAY,	//sens de marche
-										NOT_BORDER_MODE,	//mode bordure
-										NO_MULTIPOINT, 	//mode multipoints
-										FAST,				//Vitesse
-										NO_ACKNOWLEDGE,
-										CORRECTOR_ENABLE,
-										AVOID_DISABLED
-									);
+			debug_printf("t : %d      timeout !\n", global.absolute_time);
 
-					CAN_msg_t msg;
-						msg.sid = STRAT_PROP_FOE_DETECTED;
-						msg.size = 0;
-					SECRETARY_send_canmsg(&msg);
+			// On remplace la trajectoire courante
+			ROADMAP_add_order(  TRAJECTORY_STOP,
+								0,
+								0,
+								0,					//teta
+								NOT_RELATIVE,		//relative
+								NOW,			//maintenant
+								ANY_WAY,	//sens de marche
+								NOT_BORDER_MODE,	//mode bordure
+								NO_MULTIPOINT, 	//mode multipoints
+								FAST,				//Vitesse
+								NO_ACKNOWLEDGE,
+								CORRECTOR_ENABLE,
+								AVOID_DISABLED
+							);
 
-				}else if(AVOIDANCE_foe_in_zone(FALSE, buffer_order->x, buffer_order->y, FALSE) == FALSE){
-					debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
-					buffer_order->total_wait_time += global.absolute_time - buffer_order->wait_time_begin;
-					ROADMAP_add_simple_order(*buffer_order, TRUE, FALSE, TRUE);
-					ROADMAP_launch_next_order();
-				}
+			CAN_msg_t msg;
+				msg.sid = STRAT_PROP_FOE_DETECTED;
+				msg.size = 0;
+			SECRETARY_send_canmsg(&msg);
+
+		}else if(AVOIDANCE_foe_in_zone(FALSE, buffer_order->x, buffer_order->y, FALSE) == FALSE){
+			debug_printf("t : %d      free !\n", global.absolute_time);
+			debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
+			buffer_order->total_wait_time += global.absolute_time - buffer_order->wait_time_begin;
+			ROADMAP_add_simple_order(*buffer_order, TRUE, FALSE, TRUE);
+			ROADMAP_launch_next_order();
+		}
 	}
 
 #endif
@@ -162,7 +168,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	TIMER1_disableInt(); // Inhibition des ITs critiques
 
 	vrot = global.vitesse_rotation;
-	vtrans = global.vitesse_translation;
+	vtrans = global.vitesse_translation/12; // Pour avoir la vitesse de translation en mm/s comme en stratégie
 	px = global.position.x;
 	py = global.position.y;
 	teta = global.position.teta;

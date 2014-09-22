@@ -20,6 +20,6 @@ void CLOCK_init(){
 	global.absolute_time = 0;
 }
 
-void CLOCK_process_it(){
-	global.absolute_time += 10; // +10ms
+void CLOCK_process_it(Uint8 ms){
+	global.absolute_time += ms;
 }
