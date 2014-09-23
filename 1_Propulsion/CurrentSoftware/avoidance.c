@@ -62,7 +62,7 @@ void AVOIDANCE_process_it(){
 
 			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
 
-				debug_printf("t : %d      buffering !\n", global.absolute_time);
+				debug_printf("t : %ld      buffering !\n", global.absolute_time);
 
 				// On met l'ordre actuel dans le buffer
 				COPILOT_buffering_order();
@@ -100,7 +100,7 @@ void AVOIDANCE_process_it(){
 		// Si il y a timeout
 		if(buffer_order->total_wait_time + global.absolute_time - buffer_order->wait_time_begin > 3000){
 
-			debug_printf("t : %d      timeout !\n", global.absolute_time);
+			debug_printf("t : %ld      timeout !\n", global.absolute_time);
 
 			// On remplace la trajectoire courante
 			ROADMAP_add_order(  TRAJECTORY_STOP,
@@ -124,7 +124,7 @@ void AVOIDANCE_process_it(){
 			SECRETARY_send_canmsg(&msg);
 
 		}else if(AVOIDANCE_foe_in_zone(FALSE, buffer_order->x, buffer_order->y, FALSE) == FALSE){
-			debug_printf("t : %d      free !\n", global.absolute_time);
+			debug_printf("t : %ld      free !\n", global.absolute_time);
 			debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
 			buffer_order->total_wait_time += global.absolute_time - buffer_order->wait_time_begin;
 			ROADMAP_add_simple_order(*buffer_order, TRUE, FALSE, TRUE);
@@ -139,8 +139,6 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	Sint32 vrot;		//[rad/4096/1024/5ms]
 	Sint32 vtrans;		//[mm/4096/5ms]
 
-	Sint32 px;			//[mm/4096]
-	Sint32 py;			//[mm/4096]
 	Sint16 teta;		//[rad/4096]
 
 	Sint16 sin, cos;	//[/4096]
@@ -169,8 +167,6 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 
 	vrot = global.vitesse_rotation;
 	vtrans = global.vitesse_translation/12; // Pour avoir la vitesse de translation en mm/s comme en stratégie
-	px = global.position.x;
-	py = global.position.y;
 	teta = global.position.teta;
 
 	TIMER1_enableInt(); // Dé-inhibition des ITs critiques

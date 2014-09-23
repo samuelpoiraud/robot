@@ -78,7 +78,6 @@ void _ISR _T1Interrupt()
 									#endif
 {
 	static Uint8 loop;
-	bool_e trash;
 #if defined (LCD_TOUCH)
 	static Uint8 count = 0;
 #endif
