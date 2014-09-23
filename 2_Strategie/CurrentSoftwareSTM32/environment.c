@@ -33,7 +33,6 @@
 #include "QS/QS_maths.h"
 #include "button.h"
 #include "elements.h"
-#include "Supervision/LCD_CAN_injector.h"
 #include "config_use.h"
 #include "config_pin.h"
 
@@ -514,9 +513,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		default:
 			break;
 	}
-
-/************************************* Envoi du message pour stockage pour affichage LCD ********************/
-	LCD_incoming_can(incoming_msg);
 	return;
 }
 
