@@ -85,7 +85,7 @@ void COPILOT_process_it(void)
 	static watchdog_id_t id_end_enslavement = 0xFF;
 	static bool_e flag_end_enslavement = FALSE;
 
-	if(current_order.trajectory == TRAJECTORY_STOP)
+	if(current_order.trajectory == TRAJECTORY_STOP || current_order.trajectory == WAIT_FOREVER)
 		COPILOT_reset_absolute_destination();
 
 	if(arrived !=ARRIVED)
@@ -461,9 +461,6 @@ void COPILOT_do_order(order_t * order)
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
 		current_order = *order;
-
-		if(current_order.trajectory == WAIT_FOREVER)
-			return;
 
 	#ifdef USE_PROP_AVOIDANCE
 	}
