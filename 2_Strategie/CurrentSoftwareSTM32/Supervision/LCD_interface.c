@@ -14,7 +14,6 @@
 #include "../QS/QS_outputlog.h"
 #include "LCD_MIDAS_4x20.h"
 #include "LCD_interface.h"
-#include "LCD_CAN_injector.h"
 #include "Buffer.h"
 #include "config_pin.h"
 #include "../QS/QS_who_am_i.h"
@@ -41,7 +40,6 @@
 	static void LCD_menu_infos(bool_e init);
 	static void LCD_menu_strategy(bool_e init);
 	static void LCD_menu_selftest(bool_e init);
-	static void LCD_menu_can_msg(bool_e init);
 	static void LCD_menu_user(bool_e init);
 	static void LCD_menu_select_strategy(bool_e init);
 	static void display_pos(Uint8 line);
@@ -56,7 +54,6 @@
 typedef enum
 {
 	INFO_s = 0,
-	CAN_s,
 	USER_MODE,
 	MENU,
 	SELFTEST,
@@ -69,15 +66,10 @@ lcd_state previous_state;
 const char *strategy[6] = {"STR","TRG","MSN","BAL","FRT","SCN"};
 Uint8 strat_nb[LINE_NUMBER];
 
-
 /* Variable contenant un message libre*/
 #define FREE_MSG_NB	4
 char free_msg[FREE_MSG_NB][21];
 bool_e free_msg_updated; // Commande le rafraichissement de l'écran
-
-#define NB_CAN_MSG	4
-CAN_msg_t can_msgs[NB_CAN_MSG];	/* Tableau des messages can à afficher */
-volatile Uint8 index_can_msg;
 
 /* Chaines affichées à l'écran */
 char lines[4][21];
@@ -105,13 +97,7 @@ void init_LCD_interface(void){
 	state = INFO_s;
 	previous_state = INFO_s;
 	free_msg_updated = TRUE;
-	index_can_msg = 0;
 	Uint8 i;
-	for(i=0; i<NB_CAN_MSG; i++){
-		can_msgs[i].sid = 0;
-		can_msgs[i].size = 0;
-		strat_nb[i] = 0;	//TODO déplacer..
-	}
 	for(i=0;i<LINE_NUMBER;i++)
 		clear_line(i);
 	for(i=0;i<FREE_MSG_NB;i++)
@@ -220,7 +206,6 @@ void LCD_Update(void){
 		INIT = 0,
 		MENU_INFOS,
 		MENU_SELFTEST,
-		MENU_CAN,
 		MENU_SELECT_STRATEGY,
 		MENU_USER,
 		MENU_STRATEGY
@@ -239,8 +224,7 @@ void LCD_Update(void){
 	{
 		case INIT:					if(initialized)				menu = MENU_INFOS;				break;
 		case MENU_INFOS:			if(flag_bp_set)				menu = MENU_SELFTEST;			break;
-		case MENU_SELFTEST:			if(flag_bp_set)				menu = MENU_CAN;				break;
-		case MENU_CAN:				if(flag_bp_set)				menu = MENU_SELECT_STRATEGY;	break;
+		case MENU_SELFTEST:			if(flag_bp_set)				menu = MENU_SELECT_STRATEGY;	break;
 		case MENU_SELECT_STRATEGY:	if(flag_bp_set)				menu = MENU_USER;				break;
 		case MENU_USER:				if(flag_bp_set)			{	menu = MENU_INFOS;		ask_for_menu_user = FALSE;	}	break;
 		case MENU_STRATEGY:			if(!SWITCH_LCD)				menu = MENU_INFOS;			break;
@@ -261,38 +245,13 @@ void LCD_Update(void){
 		case INIT:															break;
 		case MENU_INFOS:			LCD_menu_infos(entrance);				break;
 		case MENU_SELFTEST:			LCD_menu_selftest(entrance);			break;
-		case MENU_CAN:				LCD_menu_can_msg(entrance);				break;
-		case MENU_SELECT_STRATEGY:	LCD_menu_select_strategy(entrance);	break;
+		case MENU_SELECT_STRATEGY:	LCD_menu_select_strategy(entrance);		break;
 		case MENU_USER:				LCD_menu_user(entrance);				break;
 		case MENU_STRATEGY:			LCD_menu_strategy(entrance);			break;
 		default:					menu = INIT;							break;
 	}
 
 	LCD_refresh_lines();	//Affichage sur le LCD des lignes ayant changées.
-/*
-		case MENU:
-			if(LCD_transition()){
-				display_menu();
-				LCD_set_cursor(0,0);
-				LCD_cursor_display(TRUE,TRUE);
-				menu_choice = SELF_TEST;
-			}
-
-			break;
-		case SELFTEST:
-			if(LCD_transition()){
-				display_selftest_result();
-				LCD_set_cursor(0,0);
-				menu_choice = 0;
-			}
-
-			break;
-		default:
-			break;
-	}
-	previous_state = state;
-	change = FALSE;
-*/
 
 	flag_bp_ok = FALSE;
 	flag_bp_set = FALSE;
@@ -532,34 +491,6 @@ static void LCD_menu_select_strategy(bool_e init)
 	}
 }
 
-/* Affiche les quatre derniers messages can en mode CAN */
-static void LCD_menu_can_msg(bool_e init)
-{
-	//TODO améliorer ce menu
-	/*Passer à une vingtaine de messages mémorisés (ou plus)
-	 * Permettre une navigation (UP / Down) dans ces message... et une désactivation (bouton OK) des nouveaux message pour pas se voir imposer un déplacement.
-	 *
-	 */
-	if(init)
-	{
-		IHM_LEDS(TRUE, FALSE, FALSE, FALSE);	//SET (pour l'instant...)
-		sprintf_line(0,"Menu messages CAN...");
-		clear_line(1);
-		clear_line(2);
-		clear_line(3);
-		can_msg_updated = TRUE;
-		cursor = CURSOR_OFF;
-	}
-	if(can_msg_updated)
-	{
-		can_msg_updated = FALSE;
-		LCD_display_CAN_msg(&can_msgs[index_can_msg], 1);
-		LCD_display_CAN_msg(&can_msgs[(index_can_msg+1)%4], 2);
-		LCD_display_CAN_msg(&can_msgs[(index_can_msg+2)%4], 3);
-	}
-
-}
-
 static void LCD_menu_user(bool_e init)
 {
 	Uint8 i;
@@ -754,14 +685,6 @@ static void LCD_menu_strategy(bool_e init)
 
 ////////////////////////////////////////////////////////////////////////
 /// WRITING ACCESSORS
-
-void LCD_add_can(CAN_msg_t * msg)
-{
-	can_msgs[index_can_msg] = *msg;					// On ajoute le message can a la pile can(du lcd)
-	index_can_msg = (index_can_msg+1)%NB_CAN_MSG;	// On incrémente le pointeur de pile can(du lcd)
-	can_msg_updated = TRUE;								// On force le rafraichissement de l'écran
-}
-
 
 //Line doit être entre 0 et 3 inclus.
 //La ligne 0 correspond à la dernière ligne du menu principal (INFOS)
