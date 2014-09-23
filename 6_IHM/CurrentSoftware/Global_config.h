@@ -13,6 +13,15 @@
 
 	//mode d'activation des sorties debug_printf
 	#define VERBOSE_MODE
+//#define VERBOSE_ELEMENT
+
+
+#define USE_LCD
+#define USE_I2C2
+#define USE_WATCHDOG
+#define WATCHDOG_TIMER 3
+#define WATCHDOG_MAX_COUNT 5
+#define WATCHDOG_QUANTUM 1
 
 	/* Pour certaines config particulieres, il faut definir qui on est
 	 * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
@@ -156,7 +165,6 @@
 	#define USE_UART1TXINTERRUPT
 	#define BUFFER_U1TX_SIZE	128
 
-
 /*	Taille de la chaine de caracteres memorisant
 	les caracteres recus sur UART */
 	#define UART_RX_BUF_SIZE	512
@@ -168,12 +176,6 @@
 //	#define FREQ_PWM_10KHZ
 //	#define FREQ_PWM_20KHZ
 	#define FREQ_PWM_50KHZ
-
-	#ifdef USE_CODEUR_SUR_IT_ET_QE
-		#define USE_QEI_ON_IT
-		#define QEI_ON_IT_QA 1
-		#define QEI_ON_IT_QB 2
-	#endif
 
 	#define USE_FIFO
 

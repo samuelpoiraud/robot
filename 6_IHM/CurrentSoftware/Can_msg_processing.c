@@ -2,7 +2,7 @@
  *	Club Robot ESEO 2014
  *
  *	Fichier : Can_msg_processing.c
- *	Package : Carte actionneur
+ *	Package : Carte IHM
  *	Description : Fonctions de traitement des messages CAN
  *  Auteur : Anthony
  *  Version 20110225
@@ -26,11 +26,10 @@ void CAN_process_msg(CAN_msg_t* msg) {
 	// Traitement des autres messages reçus
 	switch (msg->sid){
 		case IHM_GET_SWITCH:
-			answer.sid = IHM_SWITCH;
-			answer.size = 2;
-			answer.data[0] = msg->data[0];
-			answer.data[1] = SWITCHS_get(msg->data[0]);
-			CAN_send(&answer);
+			if(msg->size == 0)
+				SWITCHS_send_all();
+			else
+				SWITCHS_answer(msg->data, msg->size);
 			break;
 
 		default:
