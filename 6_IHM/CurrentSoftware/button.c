@@ -18,7 +18,7 @@
 #include "QS/QS_outputlog.h"
 
 // Temps pour les buttons externes pour un appuie long
-#define TIME_LONG_PUSH 200
+#define TIME_LONG_PUSH 50 // Va prendre 500ms pour retourner à 0
 
 
 // Pour les buttons internes
@@ -40,6 +40,11 @@ void BUTTONS_IHM_init(){
 	// Init des buttons internes
 	for(i=0;i<BP_INT_NUMBER;i++){
 		BUTTONS_IHM_define_actions((button_int_id_e)i,NULL,NULL,0);
+	}
+
+	// Init buttons du monde extérieure
+	for(i=0;i<BUTTONS_IHM_NUMBER;i++){
+		buttons[i] = FALSE;
 	}
 }
 
@@ -230,14 +235,3 @@ void BUTTONS_IHM_VERBOSE(void){
 	if(BUTTON_SET_PORT			!= bp_set			)	{	bp_set			= BUTTON_SET_PORT;			debug_printf("bp_set = %s\n"		, (bp_set)?			"ON":"OFF");	 }
 	if(BUTTON_RFU_PORT			!= bp_rfu			)	{	bp_rfu			= BUTTON_RFU_PORT;			debug_printf("bp_rfu = %s\n"		, (bp_rfu)?			"ON":"OFF");	 }
 }
-
-
-//#ifndef BUTTONS_NO_IT
-
-//	void TIMER_SRC_TIMER_interrupt()
-//	{
-//		BUTTONS_IHM_process_it();
-//		TIMER_SRC_TIMER_resetFlag();
-//	}
-
-//#endif

@@ -15,42 +15,22 @@
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 
-
 #define LOG_PREFIX "CANProcess: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANPROCESSMSG
 #include "QS/QS_outputlog.h"
-#include "QS/QS_who_am_i.h"
+#include "switch.h"
 
 void CAN_process_msg(CAN_msg_t* msg) {
 	CAN_msg_t answer;
 
 	// Traitement des autres messages reçus
-	switch (msg->sid)
-	{
-		//Fin de la partie
-		case BROADCAST_STOP_ALL :
-			break;
-
-		//Reprise de la partie
-		case BROADCAST_START :
-			break;
-
-		case BROADCAST_POSITION_ROBOT:
-			break;
-		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
-			break;
-		case BROADCAST_ALIM:
-			break;
-
-		case ACT_PING:
-//			answer.sid = STRAT_ACT_PONG;
-//			answer.size = 1;
-//			#ifdef I_AM_ROBOT_BIG
-//				answer.data[0] = BIG_ROBOT;
-//			#else
-//				answer.data[0] = SMALL_ROBOT;
-//			#endif
-//			CAN_send(&answer);
+	switch (msg->sid){
+		case IHM_GET_SWITCH:
+			answer.sid = IHM_SWITCH;
+			answer.size = 2;
+			answer.data[0] = msg->data[0];
+			answer.data[1] = SWITCHS_get(msg->data[0]);
+			CAN_send(&answer);
 			break;
 
 		default:

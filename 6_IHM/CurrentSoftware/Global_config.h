@@ -29,9 +29,6 @@
 	#define FREQ_10MHZ
 #endif
 
-#if !defined(STM32F40XX)
-	#define FDP_2013
-#endif
 	/* Les instructions ci dessous définissent le comportement des
 	 * entrees sorties du pic. une configuration en entree correspond
 	 * a un bit a 1 (Input) dans le masque, une sortie a un bit a
@@ -160,15 +157,10 @@
 	#define BUFFER_U1TX_SIZE	128
 
 
-//	#define USE_UART2
-//	#define USE_UART2RXINTERRUPT
-
 /*	Taille de la chaine de caracteres memorisant
 	les caracteres recus sur UART */
 	#define UART_RX_BUF_SIZE	512
-//
-	#define USE_BUTTONS
-	#define BUTTONS_TIMER 3
+
 
 /* choix de la fréquence des PWM */
 //	#define FREQ_PWM_50HZ
@@ -184,5 +176,7 @@
 	#endif
 
 	#define USE_FIFO
+
+	#define USE_BUTTONS
 
 #endif /* ndef GLOBAL_CONFIG_H */
