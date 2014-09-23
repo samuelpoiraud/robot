@@ -2,7 +2,7 @@
  *	Club Robot ESEO 2014
  *
  *	Fichier : Can_msg_processing.h
- *	Package : Carte actionneur
+ *	Package : Carte IHM
  *	Description : Fonctions de traitement des messages CAN
  *  Auteur : Anthony
  *  Version 20110225
