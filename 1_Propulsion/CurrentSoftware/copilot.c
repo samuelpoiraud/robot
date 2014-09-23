@@ -238,7 +238,6 @@ trajectory_e COPILOT_get_trajectory(void)
 void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_without_reaching_destination)
 {
 	Sint32 d;
-    debug_printf("next traj\n");
 	static Sint16 angle_a_parcourir;
 
 	CORRECTOR_PD_enable(order->corrector);
@@ -456,7 +455,7 @@ void COPILOT_do_order(order_t * order)
 	}else{
 	#endif
 
-		debug_printf("next trajectory ! %s vtrans %d\n", trajectory_name_e[order->trajectory], global.vitesse_translation);
+		debug_printf("next trajectory ! %s\n", trajectory_name_e[order->trajectory]);
 
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
