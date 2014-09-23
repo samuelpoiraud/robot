@@ -31,5 +31,6 @@ void SWITCHS_INT_define_actions(switch_int_id_e switch_id,switch_action_t change
 void SWITCHS_send_msg(switch_ihm_e switch_id);
 void SWITCHS_update();
 void SWITCHS_VERBOSE(void);
+bool_e SWITCHS_get(switch_ihm_e switch_id);
 
 #endif /* ndef SWITCH_H */

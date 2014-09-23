@@ -13,12 +13,11 @@
 #include "QS/QS_all.h"
 #include "QS/QS_ports.h"
 #include "QS/QS_uart.h"
-#include "QS/QS_buttons.h"
-#include "QS/QS_CANmsgList.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
-#include "QS/QS_watchdog.h"
-
+#include "QS/QS_can.h"
+#include "QS/QS_CANmsgList.h"
+#include "it.h"
 #include "button.h"
 #include "switch.h"
 
@@ -27,9 +26,9 @@
 	#include "QS/QS_sys.h"
 #endif
 
-void SWITCHS_update(void);
 volatile Uint8 t_ms = 0;
 
+void SWITCH_change_color();
 
 void initialisation(void)
 {
@@ -43,19 +42,20 @@ void initialisation(void)
 	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????
 
 	UART_init();
+	CAN_init();
 
-	//Doit se faire AVANT ODOMETRY_init() !!!
+	IT_init();
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
-	debug_printf("--- Hello, I'm PROP (%s) ---\n", QS_WHO_AM_I_get_name());
+	debug_printf("--- Hello, I'm IHM (%s) ---\n", QS_WHO_AM_I_get_name());
 
-
-	SWITCHS_init();
+	BUTTONS_IHM_init();
 	//BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
 	//BUTTONS_define_actions(BUTTON1,&calibration_button_action, NULL, 1);
 
-
+	SWITCHS_init();
+	SWITCHS_INT_define_actions(SW_COLOR,&SWITCH_change_color);
 }
 
 int main (void){
@@ -76,7 +76,6 @@ int main (void){
 			SWITCHS_VERBOSE();
 		#endif
 
-		MAIN_process_it(5);
 	}
 
 	return 0;
@@ -85,4 +84,13 @@ int main (void){
 
 void MAIN_process_it(Uint8 ms){
 	t_ms += ms;
+}
+
+void SWITCH_change_color(){
+	CAN_msg_t msg;
+	msg.sid = BROADCAST_COULEUR;
+	msg.data[0] = ((SWITCH_COLOR==1)?RED:BLUE);
+	msg.size=1;
+	CAN_send(&msg);
+	debug_printf("COLOR\r\n");
 }

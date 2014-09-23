@@ -170,3 +170,7 @@ void SWITCHS_VERBOSE(void){
 	if(SWITCH_COLOR 	!= sw_color		)	{	sw_color 	= SWITCH_COLOR;		debug_printf("sw_color = %s\n",	(sw_color)?	"ON":"OFF");	 }
 	if(SWITCH_LCD_PORT 	!= sw_lcd		)	{	sw_lcd		= SWITCH_LCD_PORT;	debug_printf("sw_lcd = %s\n",	 (sw_lcd)?	"ON":"OFF");	 }
 }
+
+bool_e SWITCHS_get(switch_ihm_e switch_id){
+	return switchs[switch_id];
+}
