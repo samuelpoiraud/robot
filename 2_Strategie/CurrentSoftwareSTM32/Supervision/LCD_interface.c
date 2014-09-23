@@ -671,7 +671,7 @@ static void LCD_menu_strategy(bool_e init)
 
 
 
-	for(i=0;i<LINE_NUMBER - 1;i++)
+	for(i=0;i<MIN(LINE_NUMBER-1, number_of_sub_action);i++)
 	{
 		if(update_lines || get_sub_act_updated_for_lcd(sub_action_order[i+index]))
 		{
