@@ -86,10 +86,12 @@ void _ISR _T1Interrupt()
 	TIMER1_AckIT(); /* interruption traitée */
 
 	loop++;
-	if(loop < PERIODE_IT_ASSER)
-		GYRO_get_speed_rotation(&trash, FALSE);	//Acquisition gyro, non suivie d'une exploitation...
-	else
-	{
+
+	if(loop < PERIODE_IT_ASSER){
+		#ifdef USE_GYROSCOPE
+			GYRO_get_speed_rotation(&trash, FALSE);	//Acquisition gyro, non suivie d'une exploitation...
+		#endif
+	}else{
 		loop = 0;
 
 		//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...

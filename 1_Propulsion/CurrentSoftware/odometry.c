@@ -185,7 +185,9 @@ Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 	Sint16 degre;
 	Sint32 gyro_speed;
 
+#ifdef USE_GYROSCOPE
 	gyro_speed = -GYRO_get_speed_rotation(&gyro_valid, TRUE);	//Le '-' permet d'avoir le même signe entre le gyro et l'odométrie.
+#endif
 
 	if(gyro_valid)
 	{
