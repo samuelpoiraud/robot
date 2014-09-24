@@ -228,7 +228,7 @@ bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
 
 void clear_prop_detected_foe();
 
-void set_prop_detected_foe();
+void set_prop_detected_foe(CAN_msg_t *msg);
 
 /*
  * Fonction qui réalise un PROP_push_goto tout simple avec la gestion de l'évitement (en courbe)

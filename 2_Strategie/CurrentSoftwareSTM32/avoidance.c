@@ -1373,11 +1373,12 @@ void clear_prop_detected_foe(){
 	prop_detected_foe = FALSE;
 }
 
-void set_prop_detected_foe(){
+void set_prop_detected_foe(CAN_msg_t *msg){
 	prop_detected_foe = TRUE;
+	SD_printf("PROP FOE found in zone x[%d] y[%d] %s\n", U16FROMU8(msg->data[0], msg->data[1]), U16FROMU8(msg->data[2], msg->data[3]), (msg->data[4])?"with timeout":"");
 }
 
-//------------------------------------------------------------------- Fonctions autres
+//------------------------------------------------------------------- Fonctions autress
 
 /*
  * Surveille l'execution de la pile PROP. Renvoie vrai si toutes les fonctions sont finies

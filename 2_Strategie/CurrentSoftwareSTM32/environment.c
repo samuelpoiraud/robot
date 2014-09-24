@@ -370,7 +370,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.env.prop.ended = TRUE;
 			break;
 		case STRAT_PROP_FOE_DETECTED:
-			set_prop_detected_foe();
+			set_prop_detected_foe(incoming_msg);
 			break;
 		case STRAT_PROP_ERREUR:
 			global.env.prop.erreur = TRUE;

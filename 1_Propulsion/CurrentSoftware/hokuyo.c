@@ -193,6 +193,7 @@ void HOKUYO_process_main(void)
 				time_since_last_sent_adversaries_datas = 0;
 				send_adversaries_datas();
 			}
+			refresh_adversaries();
 			state=ASK_NEW_MEASUREMENT;
 			break;
 		case ERROR:	//Never Happen !!!
@@ -563,8 +564,6 @@ void send_adversaries_datas(void)
 {
 	Uint8 i;
 
-	DETECTION_new_adversary_position(NULL, hokuyo_adversaries, adversaries_number);
-
 	if(adversaries_number==0)
 		SECRETARY_send_adversary_position(TRUE,0, 0, 0, 0, 0, 0x0000);
 	else
@@ -572,6 +571,10 @@ void send_adversaries_datas(void)
 		for(i=0;i<adversaries_number;i++)
 			SECRETARY_send_adversary_position((i==adversaries_number-1)?TRUE:FALSE,i, hokuyo_adversaries[i].coordX, hokuyo_adversaries[i].coordY, hokuyo_adversaries[i].teta, hokuyo_adversaries[i].dist, ADVERSARY_DETECTION_FIABILITY_ALL);
 	}
+}
+
+void refresh_adversaries(void){
+	DETECTION_new_adversary_position(NULL, hokuyo_adversaries, adversaries_number);
 }
 
 //Retourne si le module logiciel HOKUYO a envoyé des positions adverses récemment = preuve de bon fonctionnement pour le selftest de la propulsion

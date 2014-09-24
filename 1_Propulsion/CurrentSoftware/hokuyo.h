@@ -25,6 +25,7 @@
 	void HOKUYO_process_main(void);
 	void HOKUYO_process_it(Uint8 ms);
 	bool_e HOKUYO_is_working_well(void);
+	void refresh_adversaries(void);
 
 #endif
 

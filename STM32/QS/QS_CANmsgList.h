@@ -433,7 +433,12 @@
 	#define PROP_ROBOT_CALIBRE		0x214
 
 	#define STRAT_PROP_FOE_DETECTED		0x215
-	/* Message CAN envoyé par la propulsion vers la stratégie lors de la détection du adversaire dans le déplacement demandé */
+	/* Message CAN envoyé par la propulsion vers la stratégie lors de la détection du adversaire dans le déplacement demandé
+	 *	0/1 : x
+	 *  2/3 : y
+	 *  4 : timeout (si l'évitement a eu lieu avec un timeout ou directement)
+	 */
+
 
 
 	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
