@@ -15,6 +15,7 @@
 #include "QS/QS_timer.h"
 #include "main.h"
 #include "button.h"
+#include "led.h"
 
 
 void IT_init(void){
@@ -34,4 +35,5 @@ void _ISR _T1Interrupt(){
 
 	MAIN_process_it(10);
 	BUTTONS_IHM_process_it();
+	LEDS_process_it();
 }
