@@ -9,6 +9,8 @@
 #include "QS/QS_spi.h"
 #include "QS/QS_outputlog.h"
 
+static volatile Sint32 coef_gain = 4720;
+
 #ifdef USE_GYROSCOPE
 
 #define RATE1 0x00	// Registre Name pour recup les valeurs MSB
@@ -31,6 +33,7 @@
 #define ADXRS453_REG_SN_LOW	 0x10
 
 static volatile bool_e initialized = FALSE;
+
 // Gyro : ADXRS453
 // Datasheet : SVN/propulsion/documentation
 // Code inspiré de https://github.com/analogdevicesinc/no-OS/blob/master/drivers/ADXRS453
@@ -85,7 +88,7 @@ Sint32 GYRO_get_speed_rotation(bool_e * valid, bool_e reset)
 		speed = GYRO_GetSensorData(FALSE,valid);	//[°/sec/80]
 		nb++;
 		sum_speed += ((Sint32)(speed));
-		ret = ((sum_speed * 4685) >> 10)/nb;		//[rad/4096/1024/5ms].....
+		ret = ((sum_speed * coef_gain) >> 10)/nb;		//[rad/4096/1024/5ms].....
 		if(reset)
 		{
 			sum_speed = 0;
@@ -346,3 +349,8 @@ Sint16 ADXRS453_GetTemperature(void)
 }
 
 #endif
+
+void GYRO_set_coef(PROPULSION_coef_e coef, Sint32 value){
+	if(coef == GYRO_COEF_GAIN)
+		coef_gain = value;
+}

@@ -33,6 +33,7 @@
 #include "hokuyo.h"
 #include "supervisor.h"
 #include "detection.h"
+#include "gyroscope.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -355,7 +356,8 @@ void SECRETARY_send_coef(PROPULSION_coef_e i)
 																		"CORRECTOR_COEF_KP_ROTATION",
 																		"CORRECTOR_COEF_KD_ROTATION",
 																		"CORRECTOR_COEF_KV_ROTATION",
-																		"CORRECTOR_COEF_KA_ROTATION"};
+																		"CORRECTOR_COEF_KA_ROTATION",
+																		"GYRO_COEF_GAIN"};
 
 	CAN_msg_t msg;
 	Sint32 coef;
@@ -653,6 +655,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			{
 				if(msg->data[0] <= ODOMETRY_COEF_CENTRIFUGAL)
 					ODOMETRY_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
+				else if(msg->data[0] <= GYRO_COEF_GAIN)
+					GYRO_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
 				else
 					CORRECTOR_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
 			}
