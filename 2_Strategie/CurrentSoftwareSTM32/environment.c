@@ -365,6 +365,11 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case DEBUG_SELFTEST_LAUNCH:
 			SELFTEST_ask_launch();
 			break;
+		case STRAT_BUZZER_PLAY:
+			BUZZER_play(U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]),
+						BUZZER_convert_enum_QS(incoming_msg->data[2]),
+						incoming_msg->data[3]);
+			break;
 //****************************** Messages carte propulsion/asser *************************/
 		case STRAT_TRAJ_FINIE:
 			global.env.prop.ended = TRUE;
