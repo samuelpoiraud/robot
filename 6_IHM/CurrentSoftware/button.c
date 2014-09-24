@@ -12,7 +12,6 @@
 
 #include "Global_config.h"
 #include "QS/QS_types.h"
-#include "QS/QS_buttons.h"
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_outputlog.h"

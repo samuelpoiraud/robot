@@ -76,6 +76,26 @@
 
 	#define BROADCAST_BEACON_ADVERSARY_POSITION_IR	0x006	//Balise InfraRouge
 
+	/***********************************************************
+	 *				Message IHM pour tous
+	 ***********************************************************/
+
+	#define IHM_BUTTON  0x060
+	// Envois un message CAN quand un bouton est déplacé
+	// data 0 : est l'identifiant de type button_ihm_e
+	// data 1 : renvoie 1 si c'est un appuie long ou 0 sinon
+
+	#define IHM_SWITCH  0x061
+	// Envois un message CAN quand un switch est déplacer
+	// Chaque data correspond à un switch avec son état
+	// data : les 7 bits de points faible identifiant de type switch_ihm_e
+	// data : le bit de points fort est son état
+	// Pour savoir, combien de switch ont été envoyé regarder msg.size
+
+	#define IHM_SWITCH_ALL 0x062
+	// Envoie l'états de tous les switchs sur 4 data
+	// Le bit de points faible (soit le bit de points faible de la data[3]) correspond à SW_COLOR de switch_ihm_e
+
 
 	/***********************************************************
 						Message pour personne
@@ -853,32 +873,17 @@ typedef enum {
 
 /*****************************************************************
  *
- *		Messages echangés entre la carte IHM
- *		et les autres cartes
+ *		Messages echangés entre les autres cartes
+ *		et l'IHM
  *
  *****************************************************************/
 
 
-
-#define IHM_BUTTON  0x601
-// Envois un message CAN quand un bouton est déplacé
-// data 0 : est l'identifiant de type button_ihm_e
-// data 1 : renvoie 1 si c'est un appuie long ou 0 sinon
-
-#define IHM_SWITCH  0x602
-// Envois un message CAN quand un switch est déplacer
-// Chaque data correspond à un switch avec son état
-// data : les 7 bits de points fort identifiant de type switch_ihm_e
-// data : le bit de points faible est son état
-// Pour savoir, combien de switch ont été envoyé regarder msg.size
-
-#define IHM_GET_SWITCH 0x603
+#define IHM_GET_SWITCH 0x601
 // Demande à la carte, IHM l'état de des switchs
 // Dans chaque data mettre l'id du switch (type : switch_ihm_e) que vous souhaitez
 // ASTUCE : si vous souhaitez recevoir tous les switchs, mettre 0 en size (msg.size = 0)
 
-#define IHM_SWITCH_ALL 0x604
-// Envoie l'états de tous les switchs sur 4 data
-// Le bit de points faible (soit le bit de points faible de la data[3]) correspond à SW_COLOR de switch_ihm_e
+
 
 #endif	/* ndef QS_CANMSGLIST_H */

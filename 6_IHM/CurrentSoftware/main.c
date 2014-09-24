@@ -54,7 +54,7 @@ int main (void){
 
 		if(t_10ms > 2){	//Pour éviter les rebonds, au dessus de 20ms
 			t_10ms = 0;
-			BUTTONS_update();			//Gestion des boutons
+			BUTTONS_IHM_update();			//Gestion des boutons
 			SWITCHS_update();			//Surveillance des switchs
 		}
 	}

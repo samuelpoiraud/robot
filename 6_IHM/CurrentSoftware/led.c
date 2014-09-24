@@ -10,10 +10,15 @@
 
 #include "led.h"
 
+#include "QS/QS_macro.h"
+#include "QS/QS_ports.h"
+#include "Global_config.h"
+
 typedef struct{
 	bool_e enable;
-	Uint8 time; // Base de temps pour la frequence
-	Uint8 i; // Compteur pour la fréquence
+	Uint8 time; // Temps de clignotement *10 en ms. Si 50, va clignoter toutes les 500ms
+	Uint8 counter;
+	bool_e stateUp;
 }LED_t;
 
 static LED_t leds[LED_NUMBER_IHM];
@@ -29,6 +34,10 @@ void LEDS_init(){
 	Uint8 i;
 	for(i = 0; i < LED_NUMBER_IHM; i++){
 		set_LED(i, FALSE);
+		leds[i].enable = FALSE;
+		leds[i].stateUp = FALSE;
+		leds[i].counter = 0;
+		leds[i].time = 0;
 	}
 
 	initialized = TRUE;
@@ -36,7 +45,6 @@ void LEDS_init(){
 
 void set_LED(led_ihm_e led, bool_e stateUP){
 	assert(led >= 0 && led < LED_NUMBER_IHM);
-
 
 	switch (led) {
 		case LED_OK_IHM:
@@ -83,4 +91,31 @@ void set_LED(led_ihm_e led, bool_e stateUP){
 	}
 }
 
+void LEDS_process_it(void){
+	Uint8 i; // Compteur pour la fréquence
 
+	for(i=0;i<BP_NUMBER_IHM;i++){
+		if(!leds[i].enable) // Si led non active
+			continue;
+
+		// Led active
+		if(leds[i].time != 0){ // Clignotement
+			if(leds[i].counter == 0){
+				leds[i].counter = leds[i].time;
+				leds[i].stateUp = !leds[i].stateUp;
+				set_LED(i, leds[i].stateUp);
+			}
+
+			leds[i].counter--;
+		}
+	}
+}
+
+void LEDS_get_msg(Uint8 id, Uint8 time, bool_e enable){
+	leds[id].enable = enable;
+	leds[id].stateUp = enable;
+	leds[id].time = time;
+	leds[id].counter = time;
+
+	set_LED(id, enable);
+}
