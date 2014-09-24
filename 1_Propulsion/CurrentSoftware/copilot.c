@@ -422,10 +422,7 @@ void COPILOT_do_order(order_t * order)
 				supp.trajectory = TRAJECTORY_STOP;
 			current_order = supp;
 
-			CAN_msg_t msg;
-				msg.sid = STRAT_PROP_FOE_DETECTED;
-				msg.size = 0;
-			SECRETARY_send_canmsg(&msg);
+			AVOIDANCE_said_foe_detected();
 
 		}else if(order->avoidance == AVOID_ENABLED_AND_WAIT){
 			buffer_order = *order;

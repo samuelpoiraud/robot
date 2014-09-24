@@ -21,6 +21,8 @@
 #include "secretary.h"
 #include "pilot.h"
 
+adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
+
 void AVOIDANCE_init(){
 
 }
@@ -53,10 +55,8 @@ void AVOIDANCE_process_it(){
 								);
 
 				// Puis on avertie la stratégie qu'il y a eu évitement
-				CAN_msg_t msg;
-					msg.sid = STRAT_PROP_FOE_DETECTED;
-					msg.size = 0;
-				SECRETARY_send_canmsg(&msg);
+
+				SECRETARY_send_foe_detected(adversary->x, adversary->y, FALSE);
 
 			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
 
@@ -116,10 +116,7 @@ void AVOIDANCE_process_it(){
 								AVOID_DISABLED
 							);
 
-			CAN_msg_t msg;
-				msg.sid = STRAT_PROP_FOE_DETECTED;
-				msg.size = 0;
-			SECRETARY_send_canmsg(&msg);
+			SECRETARY_send_foe_detected(adversary->x, adversary->y, TRUE);
 
 		}else if(AVOIDANCE_foe_in_zone(FALSE, buffer_order->x, buffer_order->y, FALSE) == FALSE){
 			debug_printf("t : %ld      free !\n", global.absolute_time);
@@ -160,15 +157,9 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	Sint32 relative_foe_x;
 	Sint32 relative_foe_y;
 
-
-
-	TIMER1_disableInt(); // Inhibition des ITs critiques
-
 	vrot = global.vitesse_rotation;
 	vtrans = global.vitesse_translation/12; // Pour avoir la vitesse de translation en mm/s comme en stratégie
 	teta = global.position.teta;
-
-	TIMER1_enableInt(); // Dé-inhibition des ITs critiques
 
 	COS_SIN_4096_get(teta, &cos, &sin);
 	adversaries = DETECTION_get_adversaries(&max_foes); // Récupération des adversaires
@@ -180,21 +171,17 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	 * 		- du rectangle que le robot va recouvrir s'il décide de freiner maintenant.
 	 *  	- du rectangle de "respect" qui nous sépare de l'adversaire lorsqu'on se sera arreté
 	 *  On calcule la position relative des robots adverses pour savoir s'ils se trouvent dans ce rectangle
-	 *
 	 */
-
 
 	way_e move_way = current_order.way;
 
 	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
 	current_speed = (Uint32)(absolute(vtrans)*1);
-	break_distance = current_speed*current_speed/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
+	break_distance = SQUARE(current_speed)/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
 	respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
 	slow_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_DIST_MIN_SPEED_SLOW:BIG_ROBOT_DIST_MIN_SPEED_SLOW;	//Distance à laquelle on souhaite ralentir
 
 	avoidance_rectangle_width_y = FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH);
-	//avoidance_printf("\n%d[%ld>%ld][%ld>%ld]\n", current_speed,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
-
 
 	if(move_way == FORWARD || move_way == ANY_WAY)	//On avance
 		avoidance_rectangle_max_x = break_distance + respect_distance;
@@ -213,17 +200,18 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 			relative_foe_x = (((Sint32)(cosinus)) * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 			relative_foe_y = (((Sint32)(sinus))   * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 
-			if(		relative_foe_y > -avoidance_rectangle_width_y/2 	&& 	relative_foe_y < avoidance_rectangle_width_y/2
+			if(		relative_foe_y > -avoidance_rectangle_width_y/2 && 	relative_foe_y < avoidance_rectangle_width_y/2
 				&& 	relative_foe_x > avoidance_rectangle_min_x 		&& 	relative_foe_x < avoidance_rectangle_max_x)
 				{
 					in_path = TRUE;	//On est dans le rectangle d'évitement !!!
-					//if(verbose)
-						//SD_printf("FOE[%d]_IN_PATH|%c|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, /*(adversaries[i].from == DETECTION_FROM_BEACON_IR)?'B':*/'H',adversaries[i].dist,adversaries[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
+					adversary = &adversaries[i]; // On sauvegarde l'adversaire nous ayant fait évité
 				}
 		}
 	}
 
 	if(in_path == FALSE){
+
+		avoidance_rectangle_width_y = FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH) + 50;
 
 		if(move_way == FORWARD || move_way == ANY_WAY)	//On avance
 			avoidance_rectangle_max_x = break_distance + slow_distance;
@@ -242,7 +230,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 				relative_foe_x = (((Sint32)(cosinus)) * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 				relative_foe_y = (((Sint32)(sinus))   * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 
-				if(		relative_foe_y > -avoidance_rectangle_width_y/2 	&& 	relative_foe_y < avoidance_rectangle_width_y/2
+				if(		relative_foe_y > -avoidance_rectangle_width_y/2 && 	relative_foe_y < avoidance_rectangle_width_y/2
 					&& 	relative_foe_x > avoidance_rectangle_min_x 		&& 	relative_foe_x < avoidance_rectangle_max_x)
 					{
 						PILOT_set_speed(SLOW_TRANSLATION_AND_FAST_ROTATION);
@@ -291,8 +279,6 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 			// D : droite que le robot empreinte pour aller au point
 			// A : Point adversaire
 			// L : Largeur du robot maximum * 2
-			if(verbose)
-				debug_printf("Nous x:%d y:%d / ad x:%d y:%d / destination x:%d y:%d /\n ", px, py, adversaries[i].x, adversaries[i].y,x,y);
 
 			if((QS_WHO_AM_I_get() == BIG_ROBOT && absolute((Sint32)a*adversaries[i].x + (Sint32)b*adversaries[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_BIG_ROBOT)
 					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && absolute((Sint32)a*adversaries[i].x + (Sint32)b*adversaries[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_SMALL_ROBOT)){
@@ -314,18 +300,16 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 							(!check_on_all_traject &&(NCx*NAx + NCy*NAy) < (Sint32)dist_point_to_point(px, py, x, y)*DISTANCE_EVITEMENT_STATIC)
 							||
 							(check_on_all_traject &&(NCx*NAx + NCy*NAy) < SQUARE((Sint32)dist_point_to_point(px, py, x, y))))){
+
+					adversary = &adversaries[i]; // On sauvegarde l'adversaire nous ayant fait évité
 					inZone = TRUE;
-					if(verbose)
-						debug_printf("DETECTED\n");
-				}else{
-					if(verbose)
-						debug_printf("NO\n");
 				}
-			}else{
-				if(verbose)
-					debug_printf("NO\n");
 			}
 		}
 	}
 	return inZone;
+}
+
+void AVOIDANCE_said_foe_detected(){
+	SECRETARY_send_foe_detected(adversary->x, adversary->y, FALSE);
 }
