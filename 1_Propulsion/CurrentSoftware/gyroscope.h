@@ -9,6 +9,7 @@
 #define GYROSCOPE_H_
 
 #include "QS/QS_all.h"
+#include "QS/QS_CANmsgList.h"
 
 	#ifdef USE_GYROSCOPE
 		void GYRO_test();
@@ -18,5 +19,6 @@
 		Sint32 GYRO_get_speed_rotation(bool_e * valid, bool_e reset);
 	#endif
 
+		void GYRO_set_coef(PROPULSION_coef_e coef, Sint32 value);
 
 #endif /* GYROSCOPE_H_ */
