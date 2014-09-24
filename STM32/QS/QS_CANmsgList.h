@@ -76,6 +76,25 @@
 
 	#define BROADCAST_BEACON_ADVERSARY_POSITION_IR	0x006	//Balise InfraRouge
 
+	#define STRAT_BUZZER_PLAY			0x2FF
+	typedef enum{
+		BUZZER_DEFAULT_NOTE = 0,	//DO : c'est la note qui fait le plus de bruit (le buzzer crache 90dB à 10cm, 4,2kHz, 3V)
+		BUZZER_NOTE_DO0,
+		BUZZER_NOTE_RE0,
+		BUZZER_NOTE_MI0,
+		BUZZER_NOTE_FA,
+		BUZZER_NOTE_SOL,
+		BUZZER_NOTE_LA,
+		BUZZER_NOTE_SI,
+		BUZZER_NOTE_DO,
+		BUZZER_NOTE_RE,
+		BUZZER_NOTE_MI
+	} buzzer_play_note_e;
+	/* 0/1		: durée du bip en ms
+	 * 2		: enum de la note voulue
+	 * 3		: nombre de bip
+	 */
+
 	/***********************************************************
 	 *				Message IHM pour tous
 	 ***********************************************************/

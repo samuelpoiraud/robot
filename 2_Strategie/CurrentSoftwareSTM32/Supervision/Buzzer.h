@@ -10,10 +10,11 @@
  *	Version 201401
  */
 
- 
+
  #ifndef BUZZER_H
 	#define BUZZER_H
 	#include "../QS/QS_all.h"
+	#include "../QS/QS_CANmsgList.h"
 
 
 //Voir la bande passante du buzzer PKLCS1212E4001-R1 : 	http://www.farnell.com/datasheets/1626578.pdf
@@ -41,5 +42,7 @@ void BUZZER_play(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz);
 
 void BUZZER_process_main(void);
 
-	
+BUZZER_note_e BUZZER_convert_enum_QS(buzzer_play_note_e val);
+
+
 #endif /* ndef BUZZER_H */

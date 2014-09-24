@@ -66,6 +66,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case DEBUG_FOE_POS:								print(string, len, "%x DEBUG_FOE_POS                        ", DEBUG_FOE_POS					);	break;
 		case DEBUG_ELEMENT_UPDATED:						print(string, len, "%x DEBUG_ELEMENT_UPDATED                ", DEBUG_ELEMENT_UPDATED			);	break;
 		case DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT:	print(string, len, "%x DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT", DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT); break;
+		case STRAT_BUZZER_PLAY:							print(string, len, "%x STRAT_BUZZER_PLAY                    ", STRAT_BUZZER_PLAY		);	break;
 		case ACT_DO_SELFTEST:							print(string, len, "%x ACT_DO_SELFTEST                      ", ACT_DO_SELFTEST			);	break;
 		case PROP_DO_SELFTEST:							print(string, len, "%x PROP_DO_SELFTEST                     ", PROP_DO_SELFTEST			);	break;
 		case BEACON_DO_SELFTEST:						print(string, len, "%x BEACON_DO_SELFTEST                   ", BEACON_DO_SELFTEST		);	break;

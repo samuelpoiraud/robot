@@ -94,4 +94,42 @@ void BUZZER_process_main(void)
 	}
 }
 
+BUZZER_note_e BUZZER_convert_enum_QS(buzzer_play_note_e val){
+	switch(val){
+		case BUZZER_DEFAULT_NOTE :
+			return DEFAULT_NOTE;
 
+		case BUZZER_NOTE_DO0:
+			return NOTE_DO0;
+
+		case BUZZER_NOTE_RE0:
+			return NOTE_RE0;
+
+		case BUZZER_NOTE_MI0:
+			return NOTE_MI0;
+
+		case BUZZER_NOTE_FA:
+			return NOTE_FA;
+
+		case BUZZER_NOTE_SOL:
+			return NOTE_SOL;
+
+		case BUZZER_NOTE_LA:
+			return NOTE_LA;
+
+		case BUZZER_NOTE_SI:
+			return NOTE_SI;
+
+		case BUZZER_NOTE_DO:
+			return NOTE_DO;
+
+		case BUZZER_NOTE_RE:
+			return NOTE_RE;
+
+		case BUZZER_NOTE_MI:
+			return NOTE_MI;
+
+		default:
+			return DEFAULT_NOTE;
+	}
+}
