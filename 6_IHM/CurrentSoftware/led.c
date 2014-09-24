@@ -14,9 +14,10 @@
 #include "QS/QS_ports.h"
 #include "Global_config.h"
 
+#define LED_ID 0x00011111
+
 typedef struct{
-	bool_e enable;
-	Uint8 time; // Temps de clignotement *10 en ms. Si 50, va clignoter toutes les 500ms
+	blinkLED_ihm_e blink; // Temps de clignotement *10 en ms. Si 50, va clignoter toutes les 500ms
 	Uint8 counter;
 	bool_e stateUp;
 }LED_t;
@@ -24,6 +25,7 @@ typedef struct{
 static LED_t leds[LED_NUMBER_IHM];
 
 void set_LED(led_ihm_e led, bool_e stateUP);
+Uint8 get_blink_state(blinkLED_ihm_e blink);
 
 void LEDS_init(){
 	static bool_e initialized = FALSE;
@@ -34,10 +36,9 @@ void LEDS_init(){
 	Uint8 i;
 	for(i = 0; i < LED_NUMBER_IHM; i++){
 		set_LED(i, FALSE);
-		leds[i].enable = FALSE;
 		leds[i].stateUp = FALSE;
 		leds[i].counter = 0;
-		leds[i].time = 0;
+		leds[i].blink = OFF;
 	}
 
 	initialized = TRUE;
@@ -95,13 +96,13 @@ void LEDS_process_it(void){
 	Uint8 i; // Compteur pour la fréquence
 
 	for(i=0;i<BP_NUMBER_IHM;i++){
-		if(!leds[i].enable) // Si led non active
+		if(leds[i].blink == OFF) // Si led non active
 			continue;
 
 		// Led active
-		if(leds[i].time != 0){ // Clignotement
+		if(leds[i].blink != ON){ // Clignotement
 			if(leds[i].counter == 0){
-				leds[i].counter = leds[i].time;
+				leds[i].counter = get_blink_state(leds[i].blink);
 				leds[i].stateUp = !leds[i].stateUp;
 				set_LED(i, leds[i].stateUp);
 			}
@@ -111,11 +112,40 @@ void LEDS_process_it(void){
 	}
 }
 
-void LEDS_get_msg(Uint8 id, Uint8 time, bool_e enable){
-	leds[id].enable = enable;
-	leds[id].stateUp = enable;
-	leds[id].time = time;
-	leds[id].counter = time;
+void LEDS_get_msg(CAN_msg_t *msg){
+	Uint8 i,id,blink;
 
-	set_LED(id, enable);
+	for(i = 0; i < msg->size; i++){
+		id = msg->data[i] & LED_ID;
+		blink = msg->data[i] >> 5;
+
+		leds[id].stateUp = (blink == OFF)?FALSE:TRUE;
+		leds[id].blink = blink;
+		leds[id].counter = get_blink_state(blink);
+
+		set_LED(id, leds[id].stateUp);
+	}
+}
+
+Uint8 get_blink_state(blinkLED_ihm_e blink){
+	Uint8 value;
+
+	switch(blink){
+		case OFF:
+			value = 0;
+			break;
+		case BLINK_1HZ:
+			value = 100;
+			break;
+		case SPEED_BLINK_4HZ:
+			value = 25;
+			break;
+		case FLASH_BLINK_10MS:
+			value = 1;
+			break;
+		default:
+			break;
+	}
+
+	return value;
 }

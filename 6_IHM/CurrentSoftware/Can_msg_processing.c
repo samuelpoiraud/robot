@@ -19,6 +19,7 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANPROCESSMSG
 #include "QS/QS_outputlog.h"
 #include "switch.h"
+#include "led.h"
 
 void CAN_process_msg(CAN_msg_t* msg) {
 	CAN_msg_t answer;
@@ -29,7 +30,10 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			if(msg->size == 0)
 				SWITCHS_send_all();
 			else
-				SWITCHS_answer(msg->data, msg->size);
+				SWITCHS_answer(msg);
+			break;
+		case IHM_SET_LED:
+			LEDS_get_msg(msg);
 			break;
 
 		default:

@@ -16,6 +16,8 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_outputlog.h"
 
+#define SWITCH_ID 0b01111111
+
 // Il y a deux types de switch ceux dont l'information sera envoyé vers l'extérieure
 static bool_e switchs[SWITCHS_NUMBER];
 
@@ -129,7 +131,7 @@ void SWITCHS_send_msg(switch_ihm_e switch_id){
 	CAN_msg_t msg;
 	msg.size = 1;
 	msg.sid = IHM_SWITCH;
-	msg.data[0] = (((Uint8)(switchs[switch_id])<< 7) | ((Uint8)switch_id & 0b01111111));
+	msg.data[0] = (((Uint8)(switchs[switch_id])<< 7) | ((Uint8)switch_id & SWITCH_ID));
 	CAN_send(&msg);
 }
 
@@ -137,16 +139,16 @@ bool_e SWITCHS_get(switch_ihm_e switch_id){
 	return switchs[switch_id];
 }
 
-void SWITCHS_answer(Uint8* tab, Uint8 size){
+void SWITCHS_answer(CAN_msg_t *send){
 	CAN_msg_t msg;
 	Uint8 i;
 
-	for(i = 0; i < size; ++i) {
-		msg.data[i] = (((Uint8)(switchs[tab[i]])<< 7) | (tab[i] & 0b01111111));
+	for(i = 0; i < send->size; ++i) {
+		msg.data[i] = (((Uint8)(switchs[send->data[i]])<< 7) | (send->data[i] & SWITCH_ID));
 	}
 
 	msg.sid = IHM_SWITCH;
-	msg.size = size;
+	msg.size = send->size;
 	CAN_send(&msg);
 }
 
