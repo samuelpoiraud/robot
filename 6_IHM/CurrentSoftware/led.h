@@ -16,6 +16,6 @@
 
 void LEDS_init();
 void LEDS_process_it(void);
-void LEDS_get_msg(Uint8 id, Uint8 time, bool_e enable);
+void LEDS_get_msg(CAN_msg_t *msg);
 
 #endif /* ndef LED_H */

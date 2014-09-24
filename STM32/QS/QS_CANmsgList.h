@@ -889,6 +889,6 @@ typedef enum {
 // Dans chaque data mettre l'id du switch (type : switch_ihm_e) que vous souhaitez
 // ASTUCE : si vous souhaitez recevoir tous les switchs, mettre 0 en size (msg.size = 0)
 
-
+#define IHM_SET_LED 0x602
 
 #endif	/* ndef QS_CANMSGLIST_H */
