@@ -655,7 +655,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			{
 				if(msg->data[0] <= ODOMETRY_COEF_CENTRIFUGAL)
 					ODOMETRY_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
-				else if(msg->data[0] <= GYRO_COEF_GAIN)
+				else if(msg->data[0] == GYRO_COEF_GAIN)
 					GYRO_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
 				else
 					CORRECTOR_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
