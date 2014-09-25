@@ -97,12 +97,42 @@ OutputName3=VHDL File
 OutputDocumentPath3=
 OutputVariantName3=
 OutputDefault3=0
+OutputType4=SIMetrixNetlist
+OutputName4=SIMetrix
+OutputDocumentPath4=
+OutputVariantName4=
+OutputDefault4=0
+OutputType5=SIMPLISNetlist
+OutputName5=SIMPLIS
+OutputDocumentPath5=
+OutputVariantName5=
+OutputDefault5=0
+OutputType6=XSpiceNetlist
+OutputName6=XSpice Netlist
+OutputDocumentPath6=
+OutputVariantName6=
+OutputDefault6=0
 
 [OutputGroup2]
 Name=Simulator Outputs
 Description=
-TargetPrinter=Envoyer à OneNote 2010
+TargetPrinter=\\hp-acpro\Campus-Angers
 PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate=1|PrintWhat=1
+OutputType1=AdvSimNetlist
+OutputName1=Mixed Sim
+OutputDocumentPath1=
+OutputVariantName1=
+OutputDefault1=0
+OutputType2=SIMetrixSimulation
+OutputName2=SIMetrix
+OutputDocumentPath2=
+OutputVariantName2=
+OutputDefault2=0
+OutputType3=SIMPLISSimulation
+OutputName3=SIMPLIS
+OutputDocumentPath3=
+OutputVariantName3=
+OutputDefault3=0
 
 [OutputGroup3]
 Name=Documentation Outputs
