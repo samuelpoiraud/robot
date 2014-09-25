@@ -13,19 +13,12 @@
 #define SMALL_ROBOT_WIDTH				200		//Largeur du petit robot [mm]
 #define BIG_ROBOT_WIDTH					300		//Largeur du gros robot [mm]
 
+#define CENTRAL_HEARTH_RADIUS			150		//Rayon du foyer centrale [mm]
+#define RADIUS_TORCH					80		//Rayon d'une torche [mm]
 
-
-
-
-
-
-
-
-
-
-
-
-
+#define LARGEUR_LABIUM					235		//Largeur du labium par rapport au centre du robot [mm]
+#define ELOIGNEMENT_ARBRE				(LARGEUR_LABIUM+100) // Distance à laquel on doit se tenir par rapport à l'arbre [mm]
+#define ELOIGNEMENT_POSE_BAC_FRUIT		470		// Distance à laquel on doit se tenir par rapport au bac à fruit [mm]
 
 
 
