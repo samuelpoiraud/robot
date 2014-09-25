@@ -20,7 +20,7 @@
 #include "Global_config.h"
 #include "button.h"
 #include "switch.h"
-
+#include "led.h"
 
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"

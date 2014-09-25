@@ -15,6 +15,11 @@
 #include "Global_config.h"
 
 #define LED_ID 0x00011111
+#define TIME_BLINK_OFF 0
+#define TIME_BLINK_1HZ 100
+#define TIME_BLINK_4HZ 25
+#define TIME_BLINK_10MS 10
+
 
 typedef struct{
 	blinkLED_ihm_e blink; // Temps de clignotement *10 en ms. Si 50, va clignoter toutes les 500ms
@@ -132,16 +137,16 @@ Uint8 get_blink_state(blinkLED_ihm_e blink){
 
 	switch(blink){
 		case OFF:
-			value = 0;
+			value = TIME_BLINK_OFF;
 			break;
 		case BLINK_1HZ:
-			value = 100;
+			value = TIME_BLINK_1HZ;
 			break;
 		case SPEED_BLINK_4HZ:
-			value = 25;
+			value = TIME_BLINK_4HZ;
 			break;
 		case FLASH_BLINK_10MS:
-			value = 1;
+			value = TIME_BLINK_10MS;
 			break;
 		default:
 			break;
