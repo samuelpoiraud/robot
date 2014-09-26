@@ -17,10 +17,11 @@
 #include "QS/QS_outputlog.h"
 
 // Temps pour les buttons externes pour un appuie long
-#define TIME_LONG_PUSH 50 // Va prendre 500ms pour retourner à 0
+#define TIME_LONG_PUSH  200 // Va attendre 500ms avant d'executer le long push
+#define TIME_REPEAT 10 // Une fois le long push effectué, il se répete tous les 100ms
 
 // Pour les buttons qui communiquent avec le monde extérieure
-static bool_e buttons[BP_NUMBER_IHM]; // Pour détecter les appuies long
+static bool_e buttons[BP_NUMBER_IHM]; // Pour détecter les appuies long, pour la répitition évite de rentrer dans directe push à la fin de l'appuie
 static Uint8 push_time[BP_NUMBER_IHM]={0};
 
 // Au démarrage, n'envoyera pas de messsage CAN sur l'état des boutons
@@ -106,39 +107,39 @@ void BUTTONS_IHM_update(){
 		else{
 			buttons_falling_edge = buttons_were_pressed & (~buttons_pressed);
 
-			if(buttons[i] == FALSE) {
-				if((buttons_pressed & (1<<i)) && push_time[i] == 0 && initialized){// long push
-					buttons[i] = TRUE;
-					BUTTONS_IHM_send_msg(i,TRUE);
+			if((buttons_pressed & (1<<i)) && push_time[i] == 0 && initialized){// long push
+				buttons[i] = TRUE;
+				push_time[i] = TIME_REPEAT;
+				BUTTONS_IHM_send_msg(i,TRUE);
 
-					#ifdef VERBOSE_ELEMENT
-						if(BP_SELFTEST_IHM		== i	)	{debug_printf("bp_selftest, long push\n")}
-						if(BP_CALIBRATION_IHM 	== i	)	{debug_printf("bp_calibration, long push\n")}
-						if(BP_PRINTMATCH_IHM 	== i	)	{debug_printf("bp_print_match, long push\n")}
-						if(BP_OK_IHM			== i	)	{debug_printf("bp_ok, long push\n")}
-						if(BP_UP_IHM			== i	)	{debug_printf("bp_up, long push\n")}
-						if(BP_DOWN_IHM			== i	)	{debug_printf("bp_down, long push\n")}
-						if(BP_SET_IHM			== i	)	{debug_printf("bp_set, long push\n")}
-						if(BP_RFU_IHM			== i	)	{debug_printf("bp_rfu, long push\n")}
-						debug_printf("Button %d active, long push\n",i);
-					#endif
-				}
-				else if((buttons_falling_edge & (1<<i)) && initialized){ // direct push
-					BUTTONS_IHM_send_msg(i,FALSE);
-
-					#ifdef VERBOSE_ELEMENT
-					if(BP_SELFTEST_IHM		== i	)	{debug_printf("bp_selftest, direct push\n")}
-					if(BP_CALIBRATION_IHM 	== i	)	{debug_printf("bp_calibration, direct push\n")}
-					if(BP_PRINTMATCH_IHM 	== i	)	{debug_printf("bp_print_match, direct push\n")}
-					if(BP_OK_IHM			== i	)	{debug_printf("bp_ok, direct push\n")}
-					if(BP_UP_IHM			== i	)	{debug_printf("bp_up, direct push\n")}
-					if(BP_DOWN_IHM			== i	)	{debug_printf("bp_down, direct push\n")}
-					if(BP_SET_IHM			== i	)	{debug_printf("bp_set, direct push\n")}
-					if(BP_RFU_IHM			== i	)	{debug_printf("bp_rfu, direct push\n")}
-						debug_printf("Button %d active, direct push\n",i);
-					#endif
-				}
+			#ifdef VERBOSE_ELEMENT
+				if(BP_SELFTEST_IHM			== i	)	{debug_printf("bp_selftest, long push\n");}
+				else if(BP_CALIBRATION_IHM 	== i	)	{debug_printf("bp_calibration, long push\n");}
+				else if(BP_PRINTMATCH_IHM 	== i	)	{debug_printf("bp_print_match, long push\n");}
+				else if(BP_OK_IHM			== i	)	{debug_printf("bp_ok, long push\n");}
+				else if(BP_UP_IHM			== i	)	{debug_printf("bp_up, long push\n");}
+				else if(BP_DOWN_IHM			== i	)	{debug_printf("bp_down, long push\n");}
+				else if(BP_SET_IHM			== i	)	{debug_printf("bp_set, long push\n");}
+				else if(BP_RFU_IHM			== i	)	{debug_printf("bp_rfu, long push\n");}
+				else debug_printf("Button %d active, long push\n",i);
+			#endif
 			}
+			else if((buttons_falling_edge & (1<<i)) && initialized && !buttons[i]){ // direct push
+				BUTTONS_IHM_send_msg(i,FALSE);
+
+			#ifdef VERBOSE_ELEMENT
+				if(BP_SELFTEST_IHM			== i	)	{debug_printf("bp_selftest, direct push\n");}
+				else if(BP_CALIBRATION_IHM 	== i	)	{debug_printf("bp_calibration, direct push\n");}
+				else if(BP_PRINTMATCH_IHM 	== i	)	{debug_printf("bp_print_match, direct push\n");}
+				else if(BP_OK_IHM			== i	)	{debug_printf("bp_ok, direct push\n");}
+				else if(BP_UP_IHM			== i	)	{debug_printf("bp_up, direct push\n");}
+				else if(BP_DOWN_IHM			== i	)	{debug_printf("bp_down, direct push\n");}
+				else if(BP_SET_IHM			== i	)	{debug_printf("bp_set, direct push\n");}
+				else if(BP_RFU_IHM			== i	)	{debug_printf("bp_rfu, direct push\n");}
+				else debug_printf("Button %d active, direct push\n",i);
+			#endif
+			}
+
 		}
 	}
 

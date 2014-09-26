@@ -10,13 +10,39 @@
 
 #include "QS_IHM.h"
 #include "QS_can.h"
+#include "QS_CANmsgList.h"
+#include "QS_outputlog.h"
 #include <stdarg.h>
 
 #define SWITCH_ON       0x80
 #define SWITCH_OFF		0x00
 #define SWITCH_MASK		0x7F
 
+typedef struct{
+	ihm_button_action_t direct_push;
+	ihm_button_action_t after_long_push;
+	Uint8 long_push_time;
+	bool_e long_push_already_detected;
+}ihm_button_t;
+
 volatile static bool_e switchs[SWITCHS_NUMBER];
+static ihm_button_t buttons[BP_NUMBER_IHM];
+
+void switchs_update(CAN_msg_t * msg);
+void switchs_update_all(CAN_msg_t * msg);
+void button_update(CAN_msg_t * msg);
+
+void IHM_init(){
+	Uint8 i;
+
+	static bool_e initialized = FALSE;
+	if(initialized)
+		return;
+
+	for(i=0;i<BP_NUMBER_IHM;i++){
+		IHM_define_act_button((button_ihm_e)i,NULL,NULL);
+	}
+}
 
 void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 	assert(size < 8);
@@ -40,14 +66,14 @@ void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 	CAN_send(&msg);
 }
 
-void IHM_switchs_update(CAN_msg_t * msg){
+void switchs_update(CAN_msg_t * msg){
 	Uint8 i;
 
 	for(i=0;i<msg->size;i++)
-	  switchs[msg->data[i] &SWITCH_MASK] = (msg->data[i] & SWITCH_ON)?TRUE:FALSE;
+		switchs[msg->data[i] &SWITCH_MASK] = (msg->data[i] & SWITCH_ON)?TRUE:FALSE;
 }
 
-void IHM_switchs_update_all(CAN_msg_t * msg){
+void switchs_update_all(CAN_msg_t * msg){
 	Uint8 i;
 	Uint32 swit = U32FROMU8(msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
 
@@ -55,6 +81,45 @@ void IHM_switchs_update_all(CAN_msg_t * msg){
 		switchs[0] = swit & (1 << i);
 }
 
+void button_update(CAN_msg_t * msg){
+	ihm_button_t* button = &(buttons[msg->data[0]]);
+	ihm_button_action_t action;
+
+	if(msg->data[1] == FALSE) { // direct push
+		action = button->direct_push;
+		if(action != NULL)
+			(*action)();
+
+	}else{
+		action = button->after_long_push;
+		if(action != NULL)
+			(*action)();
+	}
+}
+
 bool_e IHM_switchs_get(switch_ihm_e swit){
 	return switchs[swit];
+}
+
+void IHM_process_main(CAN_msg_t* msg){
+	switch (msg->sid){
+		case IHM_BUTTON:
+			button_update(msg);
+			break;
+		case IHM_SWITCH:
+			switchs_update(msg);
+			break;
+		case IHM_SWITCH_ALL:
+			switchs_update_all(msg);
+			break;
+		default:
+			break;
+	}
+}
+
+void IHM_define_act_button(button_ihm_e button_id,ihm_button_action_t direct_push, ihm_button_action_t after_long_push){
+	assert(button_id<BP_NUMBER_IHM&&button_id>=0);
+	ihm_button_t* button = &(buttons[button_id]);
+	button->direct_push=direct_push;
+	button->after_long_push=after_long_push;
 }

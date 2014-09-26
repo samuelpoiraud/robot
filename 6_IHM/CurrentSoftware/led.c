@@ -53,45 +53,71 @@ void set_LED(led_ihm_e led, bool_e stateUP){
 	assert(led >= 0 && led < LED_NUMBER_IHM);
 
 	switch (led) {
+#ifdef LED_IHM_OK
 		case LED_OK_IHM:
 			LED_IHM_OK = stateUP;
 			break;
+#endif
+#ifdef LED_IHM_UP
 		case LED_UP_IHM:
 			LED_IHM_UP = stateUP;
 			break;
+#endif
+#ifdef LED_IHM_DOWN
 		case LED_DOWN_IHM:
 			LED_IHM_DOWN = stateUP;
 			break;
+#endif
+#ifdef LED_IHM_SET
 		case LED_SET_IHM:
 			LED_IHM_SET = stateUP;
 			break;
+#endif
+#ifdef GREEN_LED
 		case LED_GREEN_IHM:
-			GREEN_LEDS = stateUP;
+			GREEN_LED = stateUP;
 			break;
+#endif
+#ifdef RED_LED
 		case LED_RED_IHM:
-			RED_LEDS = stateUP;
+			RED_LED = stateUP;
 			break;
+#endif
+#ifdef BLUE_LED
 		case LED_BLUE_IHM:
-			BLUE_LEDS = stateUP;
+			BLUE_LED = stateUP;
 			break;
+#endif
+#ifdef LED0_PORT
 		case LED_0_IHM:
 			LED0_PORT = stateUP;
 			break;
+#ifdef LED1_PORT
+#endif
 		case LED_1_IHM:
 			LED1_PORT = stateUP;
 			break;
+#endif
+#ifdef LED2_PORT
 		case LED_2_IHM:
 			LED2_PORT = stateUP;
 			break;
+#endif
+#ifdef LED3_PORT
 		case LED_3_IHM:
 			LED3_PORT = stateUP;
 			break;
+#endif
+#ifdef LED4_PORT
 		case LED_4_IHM:
 			LED4_PORT = stateUP;
 			break;
+#endif
+#ifdef LED5_PORT
 		case LED_5_IHM:
 			LED5_PORT = stateUP;
 			break;
+#endif
 		default:
 			break;
 	}
