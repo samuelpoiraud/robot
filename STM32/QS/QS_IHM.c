@@ -13,6 +13,11 @@
 #include "QS_CANmsgList.h"
 #include "QS_outputlog.h"
 #include <stdarg.h>
+#include "../main.h"
+
+#ifdef I_AM_CARTE_STRAT
+	#include "../config/config_pin.h"
+#endif
 
 #define SWITCH_ON       0x80
 #define SWITCH_OFF		0x00
@@ -25,7 +30,7 @@ typedef struct{
 	bool_e long_push_already_detected;
 }ihm_button_t;
 
-volatile static bool_e switchs[SWITCHS_NUMBER];
+volatile static bool_e switchs[SWITCHS_NUMBER_IHM];
 static ihm_button_t buttons[BP_NUMBER_IHM];
 
 void switchs_update(CAN_msg_t * msg);
@@ -77,7 +82,7 @@ void switchs_update_all(CAN_msg_t * msg){
 	Uint8 i;
 	Uint32 swit = U32FROMU8(msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
 
-	for(i=0;i<SWITCHS_NUMBER;i++)
+	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
 		switchs[0] = swit & (1 << i);
 }
 
@@ -98,7 +103,61 @@ void button_update(CAN_msg_t * msg){
 }
 
 bool_e IHM_switchs_get(switch_ihm_e swit){
+#ifdef FDP_2014
+	#ifdef I_AM_CARTE_STRAT
+	bool_e value;
+
+	switch (swit) {
+		case SWITCH_DEBUG:
+			value = SWITCH_DEBUG_PORT;
+			break;
+		case SWITCH_VERBOSE:
+			value = SWITCH_VERBOSE_PORT;
+			break;
+		case SWITCH_XBEE:
+			value = SWITCH_XBEE_PORT;
+			break;
+		case SWITCH_SAVE:
+			value = SWITCH_SAVE_PORT;
+			break;
+		case SWITCH_COLOR:
+			value = SWITCH_COLOR_PORT;
+			break;
+		case SWITCH_LCD:
+			value = SWITCH_LCD_PORT;
+			break;
+		case SWITCH_EVIT:
+			value = SWITCH_EVIT_PORT;
+			break;
+		case SWITCH_STRAT_1:
+			value = SWITCH_STRAT_1_PORT;
+			break;
+		case SWITCH_STRAT_2:
+			value = SWITCH_STRAT_2_PORT;
+			break;
+		case SWITCH_STRAT_3:
+			value = SWITCH_STRAT_3_PORT;
+			break;
+		default:
+			break;
+	}
+
+	return value;
+	#endif
+
+#else
 	return switchs[swit];
+#endif
+
+
+
+
+
+
+
+
+
+
 }
 
 void IHM_process_main(CAN_msg_t* msg){

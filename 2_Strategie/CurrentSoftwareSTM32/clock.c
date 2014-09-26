@@ -20,6 +20,7 @@
 #include "QS/QS_can_over_xbee.h"
 #include "Supervision/Buzzer.h"
 #include "act_functions.h"
+#include "QS/QS_IHM.h"
 
 void CLOCK_run();
 
@@ -87,7 +88,7 @@ void _ISR _T1Interrupt()
 	if(local_time == 500)
 	{
 		local_time = 0;
-		if(XBee_is_destination_reachable() == FALSE || SWITCH_XBEE == FALSE)
+		if(XBee_is_destination_reachable() == FALSE || IHM_switchs_get(SWITCH_XBEE) == FALSE)
 		{	//On a pas de lien XBEE avec l'autre Robot : les leds clignotent.
 			//ATTENTION, si l'on désactive après allumage le XBEE sur l'un des robot... l'autre robot qui a eu le temps de dialoguer en XBEE ne clignotera pas !
 			BLUE_LEDS = 0;

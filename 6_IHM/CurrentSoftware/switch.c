@@ -19,7 +19,7 @@
 #define SWITCH_ID 0b01111111
 
 // Il y a deux types de switch ceux dont l'information sera envoyé vers l'extérieure
-static bool_e switchs[SWITCHS_NUMBER];
+static bool_e switchs[SWITCHS_NUMBER_IHM];
 
 // Au démarrage, n'envoyera pas de messsage CAN sur l'état des switchs
 static bool_e initialized = FALSE;
@@ -109,7 +109,7 @@ void SWITCHS_update(){
 	//détection des fronts montant
 	switchs_rising_edge = (~switchs_were_pressed) & switchs_pressed;
 
-	for(i=0;i<SWITCHS_NUMBER;i++){
+	for(i=0;i<SWITCHS_NUMBER_IHM;i++){
 		// Mets à jour le tableau pour une éventuelle demande extérieure
 		switchs[i] = switchs_rising_edge & (1<<i);
 
@@ -117,9 +117,9 @@ void SWITCHS_update(){
 			SWITCHS_send_msg(i);
 
 #ifdef VERBOSE_ELEMENT
-			if(SW_COLOR == i)	{debug_printf("sw_color = %s\n",	(SWITCH_COLOR)?	"ON":"OFF");}
-			if(SW_LCD 	== i)	{debug_printf("sw_lcd = %s\n",	 (SWITCH_LCD_PORT)?	"ON":"OFF");}
-			debug_printf("SWITCH %d : State %s\n",i,(switchs[i])?"ON":"OFF");
+//			if(SW_COLOR == i)	{debug_printf("sw_color = %s\n",	(SWITCH_COLOR)?	"ON":"OFF");}
+//			else if(SW_LCD 	== i)	{debug_printf("sw_lcd = %s\n",	 (SWITCH_LCD_PORT)?	"ON":"OFF");}
+//			else debug_printf("SWITCH %d : State %s\n",i,(switchs[i])?"ON":"OFF");
 #endif
 		}
 	}
@@ -156,7 +156,7 @@ void SWITCHS_send_all(){
 	Uint32 data = 0x00000000;
 	Uint8 i;
 
-	for (i = 0; i < SWITCHS_NUMBER; ++i)
+	for (i = 0; i < SWITCHS_NUMBER_IHM; ++i)
 		data |= ((switchs[i] & 1) << i);
 
 	CAN_msg_t msg;

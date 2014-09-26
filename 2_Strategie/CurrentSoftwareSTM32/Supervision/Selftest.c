@@ -28,6 +28,7 @@
 #include "RTC.h"
 #include "Buzzer.h"
 #include "LCD_interface.h"
+#include "../QS/QS_IHM.h"
 
 #define TIMEOUT_SELFTEST_ACT 		20000	// en ms
 #define TIMEOUT_SELFTEST_PROP 		10000	// en ms
@@ -435,12 +436,12 @@ error_e SELFTEST_strategy(bool_e reset)
 				state = TEST_AVOIDANCE_SW;
 			break;
 		case TEST_AVOIDANCE_SW:
-			if(SWITCH_EVIT == FALSE)
+			if(IHM_switchs_get(SWITCH_EVIT) == FALSE)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE);
 			state = TEST_XBEE;
 			break;
 		case TEST_XBEE:
-			if(SWITCH_XBEE == FALSE)
+			if(IHM_switchs_get(SWITCH_XBEE) == FALSE)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_XBEE_SWITCH_DISABLE);
 			else
 			{

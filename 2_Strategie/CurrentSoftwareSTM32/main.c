@@ -33,6 +33,8 @@
 	#endif
 #include "config_pin.h"
 #include "config_use.h"
+#include "QS/QS_IHM.h"
+
 
 void test_bp_switchs(void);
 void test_leds(void);
@@ -102,6 +104,11 @@ int main (void)
 	}
 	Supervision_init();
 	BRAIN_init();
+
+#ifdef FDP_2014
+	IHM_init();
+#endif
+
 #if 0
 	while(1)
 		test_Pathfind();
@@ -191,16 +198,16 @@ void test_bp_switchs(void)
 	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_save=2, sw_color=2, sw_lcd=2, sw_evit=2, sw_strat1=2, sw_strat2=2, sw_strat3=2, port_robot_id=2, biroute=2, bp_run_match=2, bp_selftest=2, bp_calibration=2, bp_menu_m=2, bp_menu_p=2, bp_print_match=2;
 	while(1)
 	{
-		if(SWITCH_DEBUG 	!= sw_debug		)	{	sw_debug 		= SWITCH_DEBUG;		debug_printf("sw_debug = %s\n"		, (sw_debug		)?"ON":"OFF");	 }
-		if(SWITCH_VERBOSE 	!= sw_verbose	)	{	sw_verbose 		= SWITCH_VERBOSE;	debug_printf("sw_verbose = %s\n"	, (sw_verbose	)?"ON":"OFF");	 }
-		if(SWITCH_XBEE 		!= sw_xbee		)	{	sw_xbee 		= SWITCH_XBEE;		debug_printf("sw_xbee = %s\n"		, (sw_xbee		)?"ON":"OFF");	 }
-		if(SWITCH_SAVE 		!= sw_save		)	{	sw_save 		= SWITCH_SAVE;		debug_printf("sw_save = %s\n"		, (sw_save		)?"ON":"OFF");	 }
-		if(SWITCH_COLOR 	!= sw_color		)	{	sw_color 		= SWITCH_COLOR;		debug_printf("sw_color = %s\n"		, (sw_color		)?"ON":"OFF");	 }
-		if(SWITCH_LCD 		!= sw_lcd		)	{	sw_lcd	 		= SWITCH_LCD;		debug_printf("sw_lcd = %s\n"		, (sw_lcd		)?"ON":"OFF");	 }
-		if(SWITCH_EVIT 		!= sw_evit		)	{	sw_evit 		= SWITCH_EVIT;		debug_printf("sw_evit = %s\n"		, (sw_evit		)?"ON":"OFF");	 }
-		if(SWITCH_STRAT_1 	!= sw_strat1	)	{	sw_strat1 		= SWITCH_STRAT_1;	debug_printf("sw_strat1 = %s\n"		, (sw_strat1	)?"ON":"OFF");	 }
-		if(SWITCH_STRAT_2 	!= sw_strat2	)	{	sw_strat2 		= SWITCH_STRAT_2;	debug_printf("sw_strat2 = %s\n"		, (sw_strat2	)?"ON":"OFF");	 }
-		if(SWITCH_STRAT_3 	!= sw_strat3	)	{	sw_strat3 		= SWITCH_STRAT_3;	debug_printf("sw_strat3 = %s\n"		, (sw_strat3	)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_DEBUG) 	!= sw_debug		)	{	sw_debug 		= IHM_switchs_get(SWITCH_DEBUG);	debug_printf("sw_debug = %s\n"		, (sw_debug		)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_VERBOSE) 	!= sw_verbose	)	{	sw_verbose 		= IHM_switchs_get(SWITCH_VERBOSE);	debug_printf("sw_verbose = %s\n"	, (sw_verbose	)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_XBEE) 	!= sw_xbee		)	{	sw_xbee 		= IHM_switchs_get(SWITCH_XBEE);		debug_printf("sw_xbee = %s\n"		, (sw_xbee		)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_SAVE) 	!= sw_save		)	{	sw_save 		= IHM_switchs_get(SWITCH_SAVE);		debug_printf("sw_save = %s\n"		, (sw_save		)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_COLOR) 	!= sw_color		)	{	sw_color 		= IHM_switchs_get(SWITCH_COLOR);	debug_printf("sw_color = %s\n"		, (sw_color		)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_LCD) 		!= sw_lcd		)	{	sw_lcd	 		= IHM_switchs_get(SWITCH_LCD);		debug_printf("sw_lcd = %s\n"		, (sw_lcd		)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_EVIT) 	!= sw_evit		)	{	sw_evit 		= IHM_switchs_get(SWITCH_EVIT);		debug_printf("sw_evit = %s\n"		, (sw_evit		)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_STRAT_1) 	!= sw_strat1	)	{	sw_strat1 		= IHM_switchs_get(SWITCH_STRAT_1);	debug_printf("sw_strat1 = %s\n"		, (sw_strat1	)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_STRAT_2) 	!= sw_strat2	)	{	sw_strat2 		= IHM_switchs_get(SWITCH_STRAT_2);	debug_printf("sw_strat2 = %s\n"		, (sw_strat2	)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_STRAT_3) 	!= sw_strat3	)	{	sw_strat3 		= IHM_switchs_get(SWITCH_STRAT_3);	debug_printf("sw_strat3 = %s\n"		, (sw_strat3	)?"ON":"OFF");	 }
 		if(PORT_ROBOT_ID 	!= port_robot_id)	{	port_robot_id  	= PORT_ROBOT_ID;	debug_printf("port_robot_id = %s\n"	, (port_robot_id)?"ON":"OFF");	 }
 		if(BIROUTE 			!= biroute		)	{	biroute 	   	= BIROUTE;			debug_printf("biroute = %s\n"		, (biroute		)?"ON":"OFF");	 }
 		if(BUTTON0_PORT 	!= bp_run_match	)	{	bp_run_match   	= BUTTON0_PORT;		debug_printf("bp_run_match = %s\n"	, (bp_run_match	)?"ON":"OFF");	 }

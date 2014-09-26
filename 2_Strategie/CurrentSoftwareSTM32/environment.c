@@ -35,6 +35,7 @@
 #include "elements.h"
 #include "config_use.h"
 #include "config_pin.h"
+#include "QS/QS_IHM.h"
 
 /* met à jour l'environnement en fonction du message CAN reçu */
 void CAN_update (CAN_msg_t* incoming_msg);
@@ -162,7 +163,7 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 	//Enregistrement du message CAN.
 	BUFFER_add(incoming_msg);						//BUFFERISATION
 
-	if(bSAVE_filter)// && SWITCH_SAVE)
+	if(bSAVE_filter)// && IHM_switchs_get(SWITCH_SAVE))
 	{
 		#ifdef EEPROM_CAN_MSG_ENABLE
 			EEPROM_CAN_MSG_process_msg(incoming_msg);
@@ -173,7 +174,7 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 				source = FROM_BUS_CAN;
 			else if(bU1 == FALSE)
 				source = FROM_UART1;
-			else if(!SWITCH_XBEE)
+			else if(!IHM_switchs_get(SWITCH_XBEE))
 				source = FROM_UART2;
 			else
 				source = FROM_XBEE;
@@ -190,15 +191,15 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 	if(bUART_filter)
 	{
 		#ifdef USE_XBEE
-			if(bXBee && SWITCH_XBEE)
+			if(bXBee && IHM_switchs_get(SWITCH_XBEE))
 			{
 				if((incoming_msg->sid & 0xF00) == XBEE_FILTER)
 					CANMsgToXbee(incoming_msg,TRUE);	//Envoi en BROADCAST... aux modules joignables
 			}
 		#endif
-		if(SWITCH_DEBUG && bU1)
+		if(IHM_switchs_get(SWITCH_DEBUG) && bU1)
 		{
-			if(SWITCH_VERBOSE)
+			if(IHM_switchs_get(SWITCH_VERBOSE))
 				VERBOSE_CAN_MSG_print(incoming_msg);
 			else
 			{
@@ -208,7 +209,7 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 			}
 		}
 
-		if(SWITCH_DEBUG  && !SWITCH_XBEE && bU2)
+		if(IHM_switchs_get(SWITCH_DEBUG)  && !IHM_switchs_get(SWITCH_XBEE) && bU2)
 		{
 			//Désactivé parce qu'on en a pas besoin...
 			//CANmsgToU2tx(incoming_msg);
@@ -221,7 +222,7 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 {
 
 	BUFFER_add(sent_msg);	//BUFFERISATION
-	//if(SWITCH_SAVE)			//Enregistrement du message CAN.
+	//if(IHM_switchs_get(SWITCH_SAVE))			//Enregistrement du message CAN.
 	//{
 		#ifdef EEPROM_CAN_MSG_ENABLE
 			EEPROM_CAN_MSG_process_msg(sent_msg);
@@ -232,16 +233,16 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 	//}
 
 	//UART1
-	if(SWITCH_DEBUG)
+	if(IHM_switchs_get(SWITCH_DEBUG))
 	{
-		if(SWITCH_VERBOSE)
+		if(IHM_switchs_get(SWITCH_VERBOSE))
 			VERBOSE_CAN_MSG_print(sent_msg);
 		else
 			CANmsgToU1tx(sent_msg);
 	}
 
 	//UART2 - désactivé volontairement -> parce qu'on en a pas besoin...
-	//if(SWITCH_DEBUG  && !SWITCH_XBEE)
+	//if(IHM_switchs_get(SWITCH_DEBUG)  && !IHM_switchs_get(SWITCH_XBEE))
 	//	CANmsgToU2tx(sent_msg);
 
 	//Messages de BROADCAST transmis aussi à la balise mère.
@@ -303,7 +304,7 @@ void ENV_update(void)
 
 
 #ifdef USE_XBEE
-	if(SWITCH_XBEE)
+	if(IHM_switchs_get(SWITCH_XBEE))
 	{
 		if(XBeeToCANmsg(&can_msg_from_uart2))
 			ENV_process_can_msg(&can_msg_from_uart2,TRUE, TRUE, FALSE, FALSE);	//Everywhere except U2 and XBee.

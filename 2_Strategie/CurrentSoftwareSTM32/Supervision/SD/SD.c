@@ -6,6 +6,7 @@
 #include "../../QS/QS_spi.h"
 #include "../../QS/QS_uart.h"
 #include "../../QS/QS_outputlog.h"
+#include "../../QS/QS_IHM.h"
 #include "../Verbose_can_msg.h"
 #include "ff_test_term.h"
 #include "Libraries/fat_sd/ff.h"
@@ -96,7 +97,7 @@ static int SD_vprintf(const char * s, va_list args)
 		ret = PRINTF_BUFFER_SIZE-1;
 
 	SD_new_event(FROM_SOFT, NULL, buf, b_insert_time);
-	if(SWITCH_VERBOSE)
+	if(IHM_switchs_get(SWITCH_VERBOSE))
 		puts(buf);	//On en profite pour Verboser l'événement.
 
 //	was_newline = buf[ret-1] == '\n'; //Si la ligne à un '\n' à la fin, on ajoutera un timestamp au prochain printf
@@ -383,7 +384,7 @@ void SD_print_match(Uint16 nb_match){
 				debug_printf("SD Fail during reading of match %s\n",path);
 				break;
 			}
-			if(SWITCH_VERBOSE)
+			if(IHM_switchs_get(SWITCH_VERBOSE))
 			{
 				switch(state)
 				{
@@ -470,7 +471,7 @@ void SD_print_match(Uint16 nb_match){
 			}
 		}while(nb_read == 1);
 		//Permet de reconnaitre la fin de l'envoi des trames
-		if(!SWITCH_VERBOSE){
+		if(!IHM_switchs_get(SWITCH_VERBOSE)){
 			UART1_putc('\n');
 		}
 

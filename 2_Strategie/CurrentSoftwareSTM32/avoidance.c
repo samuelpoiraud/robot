@@ -23,6 +23,7 @@
 #include "math.h"
 #include "state_machine_helper.h"
 #include "QS/QS_maths.h"
+#include "QS/QS_IHM.h"
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
@@ -798,7 +799,7 @@ bool_e foe_in_path(bool_e verbose)
 
 	in_path = FALSE;	//On suppose que pas d'adversaire dans le chemin
 
-	if (!SWITCH_EVIT)
+	if (!IHM_switchs_get(SWITCH_EVIT))
 	{	//évitement désactivé par l'interrupteur
 		static bool_e already_printed_debug_no_evitement = FALSE;
 		if(already_printed_debug_no_evitement == FALSE) {

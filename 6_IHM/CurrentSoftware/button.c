@@ -17,8 +17,8 @@
 #include "QS/QS_outputlog.h"
 
 // Temps pour les buttons externes pour un appuie long
-#define TIME_LONG_PUSH  200 // Va attendre 500ms avant d'executer le long push
-#define TIME_REPEAT 10 // Une fois le long push effectué, il se répete tous les 100ms
+#define TIME_LONG_PUSH  100 // Va attendre 1s avant d'executer le long push
+#define TIME_REPEAT 20 // Une fois le long push effectué, il se répete tous les 200ms
 
 // Pour les buttons qui communiquent avec le monde extérieure
 static bool_e buttons[BP_NUMBER_IHM]; // Pour détecter les appuies long, pour la répitition évite de rentrer dans directe push à la fin de l'appuie
