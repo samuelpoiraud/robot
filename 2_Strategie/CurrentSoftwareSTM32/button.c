@@ -21,6 +21,11 @@
 #include "config_pin.h"
 #include "elements.h"
 #include "Supervision/LCD_interface.h"
+#include "config/config_use.h"
+
+#ifdef USE_IHM
+	#include "../QS/QS_IHM.h"
+#endif
 
 /*
 static void BUTTON_TEST_button2();
@@ -94,12 +99,21 @@ void BUTTON_change_color()
 
 void SWITCH_change_color()
 {
+#ifdef USE_IHM
+	if(IHM_switchs_get(SW_COLOR) == global.env.color)
+	{
+		global.env.color_updated = TRUE;
+		global.env.wanted_color = ((IHM_switchs_get(SW_COLOR)==1)?RED:BLUE);
+		debug_printf("COLOR\r\n");
+	}
+#else
 	if(SWITCH_COLOR == global.env.color)
 	{
 		global.env.color_updated = TRUE;
 		global.env.wanted_color = ((SWITCH_COLOR==1)?RED:BLUE);
 		debug_printf("COLOR\r\n");
 	}
+#endif
 }
 
 
