@@ -63,8 +63,8 @@
 
 #define PORT_C_IO_MASK	0x202E
 	#define	USB_POWER_ON	 	GPIOC->ODR0
-	#define FRESCO_1			GPIOC->IDR1
-	#define FRESCO_2			GPIOC->IDR2
+	#define RECALAGE_1			GPIOC->IDR1
+	#define RECALAGE_2			GPIOC->IDR2
 	//	Capteur						  3
 	//	Capteur			 			  4
 	#define BUTTON6_PORT		(!GPIOC->IDR5)

@@ -78,11 +78,6 @@
 	// Attends que la pompe renvoie si elle détecte la une prise d'objet
 	Uint8 ELEMENT_wait_pump_capture_object(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
-	// Renvoie l'état du capteur de fresque numéro NB (1 présence, 0 absence)
-	// NB allant de 1 à 3
-	bool_e get_fresco(Uint8 nb);
-
-
 	Sint16 get_dist_torch_laser();
 
 #endif /* ndef ELEMENTS_H */
