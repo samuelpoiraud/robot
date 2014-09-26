@@ -23,6 +23,7 @@
 #include "LCD_interface.h"
 #include "Buzzer.h"
 #include "Synchro_balises.h"
+#include "../QS/QS_IHM.h"
 
 //@pre : QS_WHO_I_AM doit être found.
 //@pre : le CAN doit être initialisé...
@@ -127,7 +128,7 @@ void Supervision_process_main(void)
 		flag_xbee_msg = 0;
 		#ifdef USE_XBEE
 			// "Code désactivé car trop lourd sur le XBee"
-			if(0)	//if(SWITCH_XBEE)
+			if(0)	//if(IHM_switchs_get(SWITCH_XBEE))
 				SUPERVISION_send_pos_over_xbee();	//Envoi périodique de notre position en XBee (cet envoi ne fonctionnera que lorsque le module est initialisé, et qu'auprès des modules PINGés)
 		#endif
 	}
@@ -138,7 +139,7 @@ void Supervision_process_main(void)
 
 
 	#ifdef USE_XBEE
-		if(SWITCH_XBEE)
+		if(IHM_switchs_get(SWITCH_XBEE))
 			CAN_over_XBee_process_main();
 	#endif
 

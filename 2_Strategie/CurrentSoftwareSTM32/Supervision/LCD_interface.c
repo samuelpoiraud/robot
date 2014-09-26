@@ -12,6 +12,7 @@
 
 #include "../QS/QS_all.h"
 #include "../QS/QS_outputlog.h"
+#include "../QS/QS_IHM.h"
 #include "LCD_MIDAS_4x20.h"
 #include "LCD_interface.h"
 #include "Buffer.h"
@@ -28,10 +29,6 @@
 #include "Buzzer.h"
 #include "../QS/QS_i2c.h"
 #include "../config/config_use.h"
-
-#ifdef USE_IHM
-	#include "../QS/QS_IHM.h"
-#endif
 
 #define LINE_NUMBER (4)
 	volatile bool_e flag_bp_set 	= FALSE;
@@ -179,7 +176,7 @@ void LCD_refresh_lines(void)
 
 void IHM_LEDS(bool_e led_set, bool_e led_down, bool_e led_up, bool_e led_ok)
 {
-#ifdef USE_IHM
+#ifdef FDP_2014
 	IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
 #else
 	LED_IHM_SET 	= led_set;
@@ -226,13 +223,8 @@ void LCD_Update(void){
 	//Navigation dans les menus.
 	if(ask_for_menu_user)	//Flag prépondérant... ce menu rebaissera le booléen avec un appui SET. (car prioritaire devant le SWITCH !)
 		menu = MENU_USER;
-#ifdef USE_IHM
-	else if(IHM_switchs_get(SW_LCD))
+	else if(IHM_switchs_get(SWITCH_LCD))
 		menu = MENU_STRATEGY;
-#else
-	else if(SWITCH_LCD)
-		menu = MENU_STRATEGY;
-#endif
 
 	switch(menu)
 	{
@@ -241,11 +233,8 @@ void LCD_Update(void){
 		case MENU_SELFTEST:			if(flag_bp_set)				menu = MENU_SELECT_STRATEGY;	break;
 		case MENU_SELECT_STRATEGY:	if(flag_bp_set)				menu = MENU_USER;				break;
 		case MENU_USER:				if(flag_bp_set)			{	menu = MENU_INFOS;		ask_for_menu_user = FALSE;	}	break;
-#ifdef USE_IHM
-		case MENU_STRATEGY:			if(!IHM_switchs_get(SW_LCD))				menu = MENU_INFOS;			break;
-#else
-		case MENU_STRATEGY:			if(!SWITCH_LCD)				menu = MENU_INFOS;			break;
-#endif
+		case MENU_STRATEGY:			if(!IHM_switchs_get(SWITCH_LCD))	menu = MENU_INFOS;			break;
+
 
 		default:
 			menu = INIT;

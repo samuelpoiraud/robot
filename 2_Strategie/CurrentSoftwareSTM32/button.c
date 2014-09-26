@@ -21,11 +21,9 @@
 #include "config_pin.h"
 #include "elements.h"
 #include "Supervision/LCD_interface.h"
-#include "config/config_use.h"
+#include "../QS/QS_IHM.h"
+#include "main.h"
 
-#ifdef USE_IHM
-	#include "../QS/QS_IHM.h"
-#endif
 
 /*
 static void BUTTON_TEST_button2();
@@ -39,8 +37,21 @@ void BUTTON_init()
 {
 	ADC_init();
 	BUTTONS_init();
-
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
+
+#ifndef FDP_2014
+	IHM_define_act_button(BP_SELFTEST_IHM,SELFTEST_ask_launch, NULL);
+	IHM_define_act_button(BP_OK_IHM,LCD_button_ok, NULL);
+	IHM_define_act_button(BP_UP_IHM,LCD_button_up, NULL);
+	IHM_define_act_button(BP_DOWN_IHM,LCD_button_down, NULL);
+
+	#ifdef EEPROM_CAN_MSG_ENABLE
+		IHM_define_act_button(BP_PRINTMATCH_IHM,EEPROM_CAN_MSG_verbose_previous_match, NULL);
+	#else
+		IHM_define_act_button(BP_PRINTMATCH_IHM,SD_print_previous_match, NULL);
+	#endif
+	IHM_define_act_button(BP_SET_IHM,LCD_button_set, NULL);
+#else
 	BUTTONS_define_actions(BUTTON1,SELFTEST_ask_launch, NULL, 0);
 	BUTTONS_define_actions(BUTTON2,LCD_button_ok, NULL, 1);
 	BUTTONS_define_actions(BUTTON3,LCD_button_up, NULL, 1);
@@ -52,7 +63,7 @@ void BUTTON_init()
 		BUTTONS_define_actions(BUTTON5,SD_print_previous_match, NULL, 0);
 	#endif
 	BUTTONS_define_actions(BUTTON6,LCD_button_set, NULL, 1);
-
+#endif
 }
 
 void BUTTON_update()
@@ -99,21 +110,12 @@ void BUTTON_change_color()
 
 void SWITCH_change_color()
 {
-#ifdef USE_IHM
-	if(IHM_switchs_get(SW_COLOR) == global.env.color)
-	{
+	if(IHM_switchs_get(SWITCH_COLOR) == (global.env.color == 1)? TRUE:FALSE){
 		global.env.color_updated = TRUE;
-		global.env.wanted_color = ((IHM_switchs_get(SW_COLOR)==1)?RED:BLUE);
+		global.env.wanted_color = ((IHM_switchs_get(SWITCH_COLOR)==1)?RED:BLUE);
 		debug_printf("COLOR\r\n");
 	}
-#else
-	if(SWITCH_COLOR == global.env.color)
-	{
-		global.env.color_updated = TRUE;
-		global.env.wanted_color = ((SWITCH_COLOR==1)?RED:BLUE);
-		debug_printf("COLOR\r\n");
-	}
-#endif
+
 }
 
 
@@ -125,21 +127,21 @@ void BUTTON_verbose(void)
 	bool_e change;
 
 	current_state = 	(BUTTON0_PORT	<< 0) 	|	//Run match
-						(SWITCH_DEBUG	<< 1) 	|
-						(SWITCH_VERBOSE	<< 2) 	|
+						(IHM_switchs_get(SWITCH_DEBUG)	<< 1) 	|
+						(IHM_switchs_get(SWITCH_VERBOSE)	<< 2) 	|
 						(BUTTON5_PORT	<< 3) 	| //Print match
-						(SWITCH_XBEE	<< 4) 	|
-						(SWITCH_SAVE	<< 5) 	|
+						(IHM_switchs_get(SWITCH_XBEE)	<< 4) 	|
+						(IHM_switchs_get(SWITCH_SAVE)	<< 5) 	|
 						(get_fresco(1)	<< 6) 	|
 						(get_fresco(2)	<< 7) 	|
 						(BUTTON6_PORT	<< 8) 	|	 //BP Set
-						(SWITCH_COLOR	<< 9) 	|
+						(IHM_switchs_get(SWITCH_COLOR)	<< 9) 	|
 						(BIROUTE		<< 10) 	|
-						(SWITCH_LCD		<< 11) 	|
-						(SWITCH_EVIT	<< 12) 	|
-						(SWITCH_STRAT_1	<< 13) 	|
-						(SWITCH_STRAT_2	<< 14) 	|
-						(SWITCH_STRAT_3	<< 15) 	|
+						(IHM_switchs_get(SWITCH_LCD)		<< 11) 	|
+						(IHM_switchs_get(SWITCH_EVIT)	<< 12) 	|
+						(IHM_switchs_get(SWITCH_STRAT_1)	<< 13) 	|
+						(IHM_switchs_get(SWITCH_STRAT_2)	<< 14) 	|
+						(IHM_switchs_get(SWITCH_STRAT_3)	<< 15) 	|
 						(BUTTON1_PORT	<< 16) 	|	//Selftest
 						(BUTTON2_PORT	<< 17) 	|	//LCD OK
 						(BUTTON3_PORT	<< 18) 	|	//LCD Menu +
