@@ -74,6 +74,11 @@ int main (void)
 		SYS_init();
 	#endif
 	PORTS_init();
+
+	// Activation des pulls UP des capteurs de recalage
+	PORTS_set_pull(GPIOC, GPIO_Pin_1, GPIO_PuPd_UP);
+	PORTS_set_pull(GPIOC, GPIO_Pin_2, GPIO_PuPd_UP);
+
 	#ifdef MODE_SIMULATION
 		pull_bp_and_switch();
 	#endif

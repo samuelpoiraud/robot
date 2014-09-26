@@ -95,8 +95,6 @@ void ENV_init(void)
 		global.env.guy_took_fire[i] = FALSE;
 	global.env.guy_is_bloqued_in_north = FALSE;
 	global.env.reach_point_C1 = FALSE;
-	global.env.recalage_x = (recalage_e){0,(time32_t)(0)};
-	global.env.recalage_y = (recalage_e){0,(time32_t)(0)};
 	global.env.we_posed_on_adversary_hearth = FALSE;
 
 	FIX_BEACON_init();

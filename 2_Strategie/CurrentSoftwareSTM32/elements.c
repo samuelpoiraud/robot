@@ -321,50 +321,6 @@ void ELEMENT_answer_pump(CAN_msg_t *msg){
 	pump_answer = (msg->data[0] == STRAT_ANSWER_POMPE_NO) ? PUMP_ANSWER_NO : PUMP_ANSWER_YES;
 }
 
-//Renvoie TRUE si la fresque est présente
-//Renvoie FALSE si la fresque est absente
-bool_e get_fresco(Uint8 nb){
-	ADC_init();
-
-#ifdef USE_AN12
-	Sint16 value = ADC_getValue(12);
-#endif
-
-	if(nb == 1)
-		return !FRESCO_1;
-#ifdef USE_AN12
-	if(value > MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) + FRESQUE_ADC_EPSILON){
-
-		if(nb == 2 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_2_ADC_VALUE)
-			return FALSE;
-		else if(nb == 3 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_3_ADC_VALUE)
-			return FALSE;
-
-		value -= MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE);
-
-	}else{
-		if(nb == 2 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_2_ADC_VALUE)
-			return TRUE;
-		else if(nb == 3 && MAX(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_3_ADC_VALUE)
-			return TRUE;
-	}
-
-	if(value > MIN(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) - FRESQUE_ADC_EPSILON){
-		if(nb == 2 && MIN(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_2_ADC_VALUE)
-			return FALSE;
-		else if(nb == 3 && MIN(FRESQUE_2_ADC_VALUE, FRESQUE_3_ADC_VALUE) == FRESQUE_3_ADC_VALUE)
-			return FALSE;
-	}
-#else
-	if(nb == 2)
-		return FRESCO_2;
-	else if(nb == 3)
-		return FRESCO_3;
-#endif
-
-	return TRUE;
-}
-
 Sint16 get_dist_torch_laser(){
 	return conv_value_to_dist_laser_torch(ADC_getValue(ADC_14));
 }

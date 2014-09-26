@@ -132,8 +132,6 @@ void BUTTON_verbose(void)
 						(BUTTON5_PORT	<< 3) 	| //Print match
 						(IHM_switchs_get(SWITCH_XBEE)	<< 4) 	|
 						(IHM_switchs_get(SWITCH_SAVE)	<< 5) 	|
-						(get_fresco(1)	<< 6) 	|
-						(get_fresco(2)	<< 7) 	|
 						(BUTTON6_PORT	<< 8) 	|	 //BP Set
 						(IHM_switchs_get(SWITCH_COLOR)	<< 9) 	|
 						(BIROUTE		<< 10) 	|
@@ -145,8 +143,7 @@ void BUTTON_verbose(void)
 						(BUTTON1_PORT	<< 16) 	|	//Selftest
 						(BUTTON2_PORT	<< 17) 	|	//LCD OK
 						(BUTTON3_PORT	<< 18) 	|	//LCD Menu +
-						(BUTTON4_PORT	<< 19)	|//LCD Menu
-						(get_fresco(3)	<< 20);
+						(BUTTON4_PORT	<< 19);//LCD Menu
 
 	up = ~previous_state & current_state;
 	down = previous_state & ~current_state;
@@ -170,8 +167,6 @@ void BUTTON_verbose(void)
 		}else{
 			if(up & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 (our torch) enabled\n");
 		}
-		if(up & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 added\n");
-		if(up & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 added\n");
 		if(up & ((Uint32)(1) << 8	))	debug_printf("BP Set pressed\n");
 		if(up & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
 		if(up & ((Uint32)(1) << 10	))	debug_printf("Biroute inserted\n");
@@ -184,7 +179,6 @@ void BUTTON_verbose(void)
 		if(up & ((Uint32)(1) << 17	))	debug_printf("BP OK pressed\n");
 		if(up & ((Uint32)(1) << 18	))	debug_printf("BP MenuUp pressed\n");
 		if(up & ((Uint32)(1) << 19	))	debug_printf("BP MenuDown pressed\n");
-		if(up & ((Uint32)(1) << 20	))	debug_printf("FRESCO3 added\n");
 
 		if(down & ((Uint32)(1) << 1	))	debug_printf("SW debug disabled\n");
 		if(down & ((Uint32)(1) << 2	))	debug_printf("SW verbose disabled\n");
@@ -194,8 +188,6 @@ void BUTTON_verbose(void)
 		}else{
 			if(down & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 (our torch) disabled\n");
 		}
-		if(down & ((Uint32)(1) << 6	))	debug_printf("FRESCO1 removed\n");
-		if(down & ((Uint32)(1) << 7	))	debug_printf("FRESCO2 removed\n");
 		if(down & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
 		if(down & ((Uint32)(1) << 10	))	debug_printf("Biroute removed\n");
 		if(down & ((Uint32)(1) << 11	))	debug_printf("SW LCD : CAN msgs\n");
@@ -203,7 +195,6 @@ void BUTTON_verbose(void)
 		if(down & ((Uint32)(1) << 13	))	debug_printf("SW Strat1 disabled\n");
 		if(down & ((Uint32)(1) << 14	))	debug_printf("SW Strat2 disabled\n");
 		if(down & ((Uint32)(1) << 15	))	debug_printf("SW Strat3 disabled\n");
-		if(down & ((Uint32)(1) << 20	))	debug_printf("FRESCO3 removed\n");
 	}
 
 }
