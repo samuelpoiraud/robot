@@ -20,7 +20,6 @@
 	 */
 
 #include "../main.h"
-#include "../QS/QS_IHM.h"
 
 
 #ifdef FDP_2014
@@ -168,8 +167,8 @@
 	//	U1RX						7
 	//	-							8
 	#define LCD_RESET_PORT		GPIOB->ODR9
-	//	I2C RTC/LCD	 			  	  10
-	//	I2C RTC/LCD	 			  	  11
+	//	I2C RTC/LCD					10
+	//	I2C RTC/LCD					11
 	#define SD_CS				GPIOB->ODR12
 	#define EEPROM_CS			GPIOB->ODR12
 	#define EEPROM_SCK			GPIOB->ODR13
@@ -179,11 +178,11 @@
 
 #define PORT_C_IO_MASK	0x202E
 	#define	USB_POWER_ON	 	GPIOC->ODR0
-	#define FRESCO_1			GPIOC->IDR1
-	#define FRESCO_2			GPIOC->IDR2
-	//	Capteur						  3
-	//	Capteur			 			  4
-	#define BUTTON6_PORT		(!GPIOC->IDR5)
+	#define RECALAGE_1			GPIOC->IDR1
+	#define RECALAGE_2			GPIOC->IDR2
+	//	Capteur						3
+	//	Capteur						4
+	//								5
 	#define LED_BEACON_IR_GREEN	GPIOC->ODR6
 	#define LED_BEACON_IR_RED	GPIOC->ODR7
 	#define SYNCHRO_BEACON		GPIOC->ODR8
@@ -196,8 +195,8 @@
 	//#define 				GPIOC->ODR11
 	#define EEPROM_HOLD			GPIOC->ODR12
 	#define PORT_ROBOT_ID  		GPIOC->IDR13
-	//	-	OSC32_in 			  	  14
-	//	-	OSC32_out 			  	  15
+	//	-	OSC32_in				14
+	//	-	OSC32_out				15
 
 
 #define PORT_D_IO_MASK	0x02C3
@@ -249,25 +248,6 @@
 
 
 #endif
-
-
-// Définitions des switchs
-#define SWITCH_DEBUG	SWITCH0_IHM
-#define SWITCH_VERBOSE	SWITCH1_IHM
-#define SWITCH_XBEE		SWITCH2_IHM
-#define SWITCH_SAVE		SWITCH3_IHM
-#define SWITCH_COLOR	SWITCH_COLOR_IHM
-#define SWITCH_LCD		SWITCH_LCD_IHM
-#define SWITCH_EVIT		SWITCH4_IHM
-#define SWITCH_STRAT_1	SWITCH5_IHM
-#define SWITCH_STRAT_2	SWITCH6_IHM
-#define SWITCH_STRAT_3	SWITCH7_IHM
-
-
-
-//Nulle part...
-#define SWITCH_STRAT_4		FALSE	//Temporaire
-#define SWITCH_STRAT_5		FALSE	//Temporaire
 
 
 #endif /* CONFIG_PIN_H */

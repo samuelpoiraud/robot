@@ -200,7 +200,12 @@ void test_leds(void)
 void test_bp_switchs(void)
 {
 	debug_printf("Test des Entrées BP et Switch\n");
-	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_save=2, sw_color=2, sw_lcd=2, sw_evit=2, sw_strat1=2, sw_strat2=2, sw_strat3=2, port_robot_id=2, biroute=2, bp_run_match=2, bp_selftest=2, bp_calibration=2, bp_menu_m=2, bp_menu_p=2, bp_print_match=2;
+	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_save=2, sw_color=2, sw_lcd=2, sw_evit=2, sw_strat1=2, sw_strat2=2, sw_strat3=2, port_robot_id=2, biroute=2, bp_run_match=2;
+
+#ifdef FDP_2014
+	Uint8 bp_selftest=2, bp_calibration=2, bp_menu_m=2, bp_menu_p=2, bp_print_match=2;
+#endif
+
 	while(1)
 	{
 		if(IHM_switchs_get(SWITCH_DEBUG) 	!= sw_debug		)	{	sw_debug 		= IHM_switchs_get(SWITCH_DEBUG);	debug_printf("sw_debug = %s\n"		, (sw_debug		)?"ON":"OFF");	 }
@@ -216,11 +221,13 @@ void test_bp_switchs(void)
 		if(PORT_ROBOT_ID 	!= port_robot_id)	{	port_robot_id  	= PORT_ROBOT_ID;	debug_printf("port_robot_id = %s\n"	, (port_robot_id)?"ON":"OFF");	 }
 		if(BIROUTE 			!= biroute		)	{	biroute 	   	= BIROUTE;			debug_printf("biroute = %s\n"		, (biroute		)?"ON":"OFF");	 }
 		if(BUTTON0_PORT 	!= bp_run_match	)	{	bp_run_match   	= BUTTON0_PORT;		debug_printf("bp_run_match = %s\n"	, (bp_run_match	)?"ON":"OFF");	 }
+#ifdef FDP_2014
 		if(BUTTON1_PORT 	!= bp_selftest	)	{	bp_selftest    	= BUTTON1_PORT;		debug_printf("bp_selftest = %s\n"	, (bp_selftest	)?"ON":"OFF");	 }
 		if(BUTTON2_PORT 	!= bp_calibration)	{	bp_calibration 	= BUTTON2_PORT;		debug_printf("bp_calibration = %s\n", (bp_calibration)?"ON":"OFF");	 }
 		if(BUTTON3_PORT 	!= bp_menu_p	)	{	bp_menu_p 		= BUTTON3_PORT;		debug_printf("bp_menu_p = %s\n"		, (bp_menu_p	)?"ON":"OFF");	 }
 		if(BUTTON4_PORT 	!= bp_menu_m	)	{	bp_menu_m 		= BUTTON4_PORT;		debug_printf("bp_menu_m = %s\n"		, (bp_menu_m	)?"ON":"OFF");	 }
 		if(BUTTON5_PORT 	!= bp_print_match)	{	bp_print_match 	= BUTTON5_PORT;		debug_printf("bp_print_match = %s\n", (bp_print_match)?"ON":"OFF");	 }
+#endif
 	}
 }
 
