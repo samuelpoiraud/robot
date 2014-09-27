@@ -24,10 +24,10 @@
 #define LED_USER2 			GPIOD->ODR16
 
 /* Buttons */
-#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
-#define BUTTON2_PORT		(!GPIOE->IDR13)	//Calibration
-#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
-#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
+#define BUTTON1_PORT		(!GPIOE->IDR12)
+#define BUTTON2_PORT		(!GPIOE->IDR13)
+#define BUTTON3_PORT		(!GPIOE->IDR14)
+#define BUTTON4_PORT		(!GPIOE->IDR15)
 #define PORT_ROBOT_ID  		GPIOC->IDR13
 
 /* Switchs */
