@@ -27,6 +27,18 @@
 	bool_e HOKUYO_is_working_well(void);
 	void refresh_adversaries(void);
 
+	#ifdef TRIANGULATION
+	typedef struct{       //position des balises
+		Sint32 x;
+		Sint32 y;
+		Uint32 angle;
+		Uint32 weight;
+	}position;
+	
+
+	
+	#endif
+
 #endif
 
 #endif /* HOKUYO_H_ */
