@@ -22,6 +22,7 @@
 #include "gyroscope.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_timer.h"
 
 volatile static Sint32 coefs[ODOMETRY_COEF_CENTRIFUGAL+1];
 
@@ -251,8 +252,12 @@ void ODOMETRY_update(void)
 	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
 	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
 
+
+
 #ifdef USE_GYROSCOPE
+	TIMER1_disableInt();
 	global.real_speed_rotation = ODOMETRY_get_speed_rotation_gyroway_corrected();
+	TIMER1_enableInt();
 #endif
 
 
