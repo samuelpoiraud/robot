@@ -22,19 +22,20 @@
 #include "calculator.h"
 #include "joystick.h"
 #include "QS/QS_who_am_i.h"
-typedef enum {
-		ACCELERATION_NULLE,
-		ACCELERATION_POSITIVE,
-		ACCELERATION_NEGATIVE,
-		ACCELERATION_FOR_DECREASE_SPEED,
-		ACCELERATION_FOR_INCREASE_SPEED
-	} e_acceleration;
 
-	typedef enum {
-		AUCUN,
-		ACCELERATION,
-		DECELERATION
-	} relative_acceleration_e;
+typedef enum {
+	ACCELERATION_NULLE,
+	ACCELERATION_POSITIVE,
+	ACCELERATION_NEGATIVE,
+	ACCELERATION_FOR_DECREASE_SPEED,
+	ACCELERATION_FOR_INCREASE_SPEED
+} e_acceleration;
+
+typedef enum {
+	AUCUN,
+	ACCELERATION,
+	DECELERATION
+} relative_acceleration_e;
 
 void PILOT_update_acceleration_state(void);
 void PILOT_update_acceleration_translation_and_rotation(void);
@@ -236,13 +237,13 @@ void PILOT_update_acceleration_state(void)
 
 
 	if ((destination_translation > global.position_translation
-				&& global.vitesse_translation < 0)
-				|| (destination_translation < global.position_translation
-						&& global.vitesse_translation > 0))
+		 && global.vitesse_translation < 0)
+			|| (destination_translation < global.position_translation
+				&& global.vitesse_translation > 0))
 	{
-			etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
-			//Je donne tout à la translation pour qu'elle freine !
-			must_do_loop = FALSE;
+		etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
+		//Je donne tout à la translation pour qu'elle freine !
+		must_do_loop = FALSE;
 	}
 
 	if(must_do_loop)
@@ -282,7 +283,7 @@ void PILOT_update_acceleration_state(void)
 			if(alpha > HALF_PI4096)	//On a dépassé le haut de la courbe...
 			{
 				loop = FALSE;
-			//	debug_printf("gauche : haut de courbe");
+				//	debug_printf("gauche : haut de courbe");
 				bgauche = TRUE;	//La destination est forcément au dessus... (sinon détectée avant ou ci dessous !)
 			}
 
@@ -292,7 +293,7 @@ void PILOT_update_acceleration_state(void)
 
 				if(desty < py)
 				{
-				//	debug_printf("gauche : point a droite");
+					//	debug_printf("gauche : point a droite");
 					bgauche = TRUE;	//Le point est à droite du pire des cas, c'est bon ça !
 				}
 				else
@@ -323,7 +324,7 @@ void PILOT_update_acceleration_state(void)
 			alpha += vrot >> (10-SOUS_QUANTIFICATION);	//[rad/4096] = [rad/4096/1024/5ms] *SOUS_QUANTIFICATION = [rad/4096/5ms] >> 3 lorsque SOUS_QUANTIFICATION vaut 7
 
 			alpha = CALCULATOR_modulo_angle(alpha);
-				//Alpha exprimé de 0 à TWO_PI4096 !
+			//Alpha exprimé de 0 à TWO_PI4096 !
 			COS_SIN_4096_get(alpha, &cos, &sin);
 
 			vy = (vtrans * sin)>>12;	//mm/4096/5ms
@@ -334,10 +335,10 @@ void PILOT_update_acceleration_state(void)
 			//debug_printf("droite : alpha %ld | vx %ld | vy %ld | px %ld | py %ld\n", alpha, vx, vy, px, py);
 
 			//TODO enrichir le cas où la vitesse en rotation est grande, et engendre une courbe pire... je me comprends
-						// relu un an après, je me comprends plus...
+			// relu un an après, je me comprends plus...
 			if(alpha < -HALF_PI4096)	//On a dépassé le haut de la courbe...
 			{
-			//	debug_printf("droite :haut de courbe");
+				//	debug_printf("droite :haut de courbe");
 				bdroite = TRUE;	//La destination est forcément au dessus... (sinon détectée avant ou ci dessous !)
 				loop = FALSE;
 			}
@@ -347,7 +348,7 @@ void PILOT_update_acceleration_state(void)
 				loop = FALSE;	//On arrête la boucle
 				if(desty > py)
 				{
-			//		debug_printf("droite :point a gauche");
+					//		debug_printf("droite :point a gauche");
 					bdroite = TRUE;	//Le point est à gauche du pire des cas, c'est bon ça !
 				}
 				else
@@ -357,12 +358,14 @@ void PILOT_update_acceleration_state(void)
 
 		if(bdroite && bgauche)	//Cool ! Le point est accessible
 			etat_acceleration_rotation = ACCELERATION_FOR_INCREASE_SPEED;
-		else					//Le point n'est pas accessible sans freiner... => on doit freiner
+		else{					//Le point n'est pas accessible sans freiner... => on doit freiner
 			etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
+			etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
+		}
 
 
-//		fprintf(fgabarit,"%ld\t%ld\t%c\n", destx/4096, desty/4096, (bdroite && bgauche)?'+':'-');
-//						fclose (fgabarit);
+		//		fprintf(fgabarit,"%ld\t%ld\t%c\n", destx/4096, desty/4096, (bdroite && bgauche)?'+':'-');
+		//						fclose (fgabarit);
 
 	}
 
@@ -488,11 +491,11 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 	}
 
 	if(	(ptrans == 64 && global.vitesse_translation >= vitesse_translation_max)  ||
-		(ptrans == -64 && global.vitesse_translation <= -vitesse_translation_max)	)
+			(ptrans == -64 && global.vitesse_translation <= -vitesse_translation_max)	)
 		ptrans = 0;	//On ne dépasse pas la vitesse max
 
 	if(	(prot == 64 && global.vitesse_rotation >= vitesse_rotation_max)  ||
-		(prot == -64 && global.vitesse_rotation <= -vitesse_rotation_max)	)
+			(prot == -64 && global.vitesse_rotation <= -vitesse_rotation_max)	)
 		prot = 0;	//On ne dépasse pas la vitesse max
 
 	if(COPILOT_braking_rotation_get() == BRAKING && extra_braking_rotation)
@@ -520,7 +523,7 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 void PILOT_update_speed_translation() {
 
 	if(etat_acceleration_translation == ACCELERATION_FOR_DECREASE_SPEED
-				&& absolute(global.vitesse_translation) < absolute(global.acceleration_translation))
+			&& absolute(global.vitesse_translation) < absolute(global.acceleration_translation))
 		global.vitesse_translation = 0;	//Dernière étape d'une diminution de vitesse...
 	else 	//mise a jour de la vitesse de translation
 		global.vitesse_translation += global.acceleration_translation;
@@ -583,24 +586,24 @@ void PILOT_set_speed(PROP_speed_e speed)
 		case FAST:
 			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_MAX];
 			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_MAX];
-		break;
+			break;
 		case EXTREMELY_VERY_SLOW:
 			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_SNAIL];
 			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_SNAIL];
-		break;
+			break;
 		case SLOW_TRANSLATION_AND_FAST_ROTATION:
 			//Très lent est utilisé pour du calage, la rotation peut etre rapide ?
 			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_MAX];
 			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_VERY_LOW];
-		break;
+			break;
 		case FAST_TRANSLATION_AND_SLOW_ROTATION:
 			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_LOW];
 			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_MAX];
-		break;
+			break;
 		case SLOW:
 			vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_LOW];
 			vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_LOW];
-		break;
+			break;
 		case CUSTOM:
 		default:
 			vitesse_translation_max = (Sint32)(speed-8) * 128;	//"vitesse" varie de 8 à 255 et la vitesse finallement obtenue varie de 0 à 32702
@@ -609,7 +612,7 @@ void PILOT_set_speed(PROP_speed_e speed)
 				vitesse_translation_max = coefs[PILOT_TRANSLATION_SPEED_LIGHT];
 			if(vitesse_rotation_max > coefs[PILOT_ROTATION_SPEED_LIGHT])
 				vitesse_rotation_max = coefs[PILOT_ROTATION_SPEED_LIGHT];
-		break;
+			break;
 	}
 }
 
