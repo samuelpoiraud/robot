@@ -25,6 +25,8 @@
 #define NB_TRY_WHEN_DODGE							3		//Nombre de tentatives d'évitement (recalcul de chemin..)
 #define IGNORE_FIRST_POINT_DISTANCE					150		//Distance du noeud en dessous de laquelle on ne s'y rend pas et on attaque directement le voisin
 
+#define FACTEUR_DIRECTIF							10		//Facteur permettant d'avoir un compute plus rapide car priorité à ce qui est proche de la destination, mais perte d'efficacité
+
 #ifndef USE_POLYGON
 
 static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
@@ -190,6 +192,41 @@ Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool_e hand
 	}
 	return cost;
 }
+
+
+Uint16 Pathfind_cost_new(pathfind_node_id_t from, pathfind_node_id_t to, bool_e handleOpponent)
+{
+	Uint8 i;
+	Uint32 dist;
+	/* On se base sur un manhattan */
+	Uint16 cost;
+	Uint16 already_compute[PATHFIND_NODE_NB][PATHFIND_NODE_NB] = {{0}};
+
+	if(already_compute[from][to] != 0)
+		cost = already_compute[from][to];
+	else
+		already_compute[from][to] = cost = GEOMETRY_distance((GEOMETRY_point_t){nodes[from].x, nodes[from].y}, (GEOMETRY_point_t){nodes[to].x, nodes[to].y});
+
+	/*if (handleOpponent)
+	{
+	/*
+	 * Si l'adversaire est à moins de 90 cm du noeud, on
+	 * ajoute une pénalité importante, inversement proportionnelle à la distance adversaire-noeud
+
+
+		for(i=0; i<MAX_NB_FOES; i++)
+		{
+			if(global.env.foe[i].enable	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
+			{
+				dist = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
+				if (dist < ((Uint32)900))	//Si l'adversaire proche de nous est proche du noeud en question... on allourdi sérieusement le coût de ce noeud.
+					cost += (((Uint32)900) - dist);
+			}
+		}
+	}*/
+	return cost;
+}
+
 
 Sint16 PATHFIND_get_node_x (pathfind_node_id_t n) {
 	return nodes[n].x;
@@ -437,6 +474,183 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	return END_OK;
 }
 
+//Retourne le nombre de déplacements, ou 0 si pas de chemin possible
+error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to)
+{
+	pathfind_node_id_t from, n, current, from_without_adversaries, suivant;
+	pathfind_node_list_t adversaries_nodes;
+	Uint16 minLengthPath, lengthPath, distEnd;
+	Uint8 i;
+	Uint8 nb_displacements = 0;
+	//On identifie les noeuds placés à moins de 500mm manhattan d'un adversaire.
+	adversaries_nodes = 0;
+	for(i=0;i<MAX_NB_FOES;i++)
+	{
+		if(global.env.foe[i].enable && global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
+		{
+			for(n = 0; n < PATHFIND_NODE_NB; n++)	//Pour chaque noeud
+			{	//Si l'adversaire en question est proche du noeud : on ajoute le noeud dans la liste des noeuds innaccessibles.
+
+				if(PATHFIND_manhattan_dist(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y)<MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY)
+				{
+					PATHFIND_SET_NODE_IN(n,adversaries_nodes);
+					SD_printf("Adv%d in node %d\n",i,n);
+				}
+			}
+		}
+	}
+
+	from_without_adversaries = 	PATHFIND_closestNode(xFrom, yFrom, 0);
+	from = 						PATHFIND_closestNode(xFrom, yFrom, adversaries_nodes);	//On cherche le noeud le plus proche (en enlevant les noeuds occupés par l'adversaire)
+	//from =						PATHFIND_closestNodeToEnd(xFrom, yFrom, adversaries_nodes, PATHFIND_get_node_x(to), PATHFIND_get_node_y(to));
+
+	if(from == NOT_IN_NODE)
+		return NOT_HANDLED;	//Pas de chemin possible... c'est d'ailleurs très étrange...
+
+	//si le noeud le plus proche est un noeud situé de l'autre coté d'un obstacle car les adversaires empêchent l'accès aux autres noeuds !!!!
+	//Le noeud le plus proche sans filtrage adverse... correspond à notre position, doit permettre d'accéder par la logique des voisinages au noeud le plus proche avec filtrage adverse/
+	//Sinon : pas de chemin !
+	//AUTREMENT DIT.... (la même chose en différent)
+	//Si le noeud 'from' (le plus proche parmi ceux qui ne sont pas recouvert par des adversaires)
+	//		n'est pas dans la liste des voisins du noeud réel le plus proche (from_without_adversaries)..
+	//Alors, on ne peut pas considérer que l'on se trouve sur le noeud from...
+	if((from != from_without_adversaries) && !(PATHFIND_TST_NODE_IN(from, nodes[from_without_adversaries].neighbors)))
+		return NOT_HANDLED;
+
+	//Une meilleure piste devrait être dans ce cas de choisir un point calculé permettant de s'extraire de l'adversaire.
+
+
+	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
+
+	/* On reinitialise les listes et penalites */
+	openList = 0;
+	closedList = 0;
+
+	/* On ajoute le point de depart dans la liste ouverte */
+	PATHFIND_SET_NODE_IN(from, openList);
+	/* TODO mettre le cout a la distance que le robot doit parcourir pour atteindre le noeud */
+	nodes[from].total_cost = 0;
+	nodes[from].nb_nodes = 1;
+
+
+	/* Tant que la destination n'est pas dans la liste fermee
+	 * et que la liste ouverte n'est pas vide
+	 */
+	while ((!PATHFIND_TST_NODE_IN(to, closedList)) && (openList != 0))
+	{
+
+		/*
+		 * On cherche la case ayant le cout F le plus faible dans la
+		 * liste ouverte. Elle devient la case en cours.
+		 */
+		minLengthPath = 0xFFFF;	//On suppose que le cout est max.
+		current = 0;
+		for (n = 0; n < PATHFIND_NODE_NB; n++) {
+			if (PATHFIND_TST_NODE_IN(n, openList) && nodes[n].total_cost < minLengthPath) {
+				minLengthPath = nodes[n].total_cost;
+				current = n;
+			}
+		}
+
+		/* On passe la case en cours dans la liste fermee */
+		PATHFIND_CLR_NODE_IN(current, openList);
+		PATHFIND_SET_NODE_IN(current, closedList);
+		//pathfind_debug_printf("current open->close %d\n", current);
+
+		/* Pour toutes les cases adjacentes n'etant pas dans la liste fermee */
+		for (n = 0; n < PATHFIND_NODE_NB; n++) {
+
+			if ( (PATHFIND_TST_NODE_IN(n, nodes[current].neighbors)) &&
+				!(PATHFIND_TST_NODE_IN(n, closedList)) &&
+				!(PATHFIND_TST_NODE_IN(n,adversaries_nodes)) )
+			{
+				lengthPath = Pathfind_cost_new(current, n, FALSE);
+				distEnd = Pathfind_cost_new(n, to, FALSE) * FACTEUR_DIRECTIF;
+
+				/*
+				 * Si elle n'est pas dans la liste ouverte, on l'y ajoute.
+				 * La case en cours devient le parent de cette case.
+				 * On calcule les couts F, G et H de cette case.
+				 */
+				if (!PATHFIND_TST_NODE_IN(n, openList))
+				{
+					PATHFIND_SET_NODE_IN(n, openList);
+					nodes[n].parent = current;
+					nodes[n].length_path = nodes[current].length_path + lengthPath;
+					nodes[n].dist_end = distEnd;
+					nodes[n].total_cost = nodes[n].length_path + distEnd;
+					nodes[n].nb_nodes = nodes[current].nb_nodes + 1;
+				}
+				/*
+				 * Si elle est deja  dans la liste ouverte, on teste si le
+				 * chemin passant par la case en cours est meilleur en
+				 * comparant les couts G. Un cout G inferieur signifie un
+				 * meilleur chemin. Si c'est le cas, on change le parent de
+				 * la case pour devenir la case en cours, en on recalcule les
+				 * couts F et G.
+				 */
+				else {
+
+					if (lengthPath < nodes[n].length_path) {
+						nodes[n].length_path = nodes[current].length_path + lengthPath;
+						nodes[n].dist_end = distEnd;
+						nodes[n].total_cost = nodes[n].length_path + distEnd;
+						nodes[n].parent = current;
+						nodes[n].nb_nodes = nodes[current].nb_nodes + 1;
+					}
+				}
+			}
+		}
+	}
+
+	/* Si le chemin n'a pas été trouvé */
+	if (!PATHFIND_TST_NODE_IN(to, closedList))
+		return NOT_HANDLED;
+
+
+	/*le noeud de départ ne doit pas avoir de parent*/
+	nodes[from].parent=from;
+
+	/* Permet d'optimiser les deplacements*/
+	//PATHFIND_delete_useless_node(from, to);
+	//for (n = 0; n < PATHFIND_NODE_NB; n++) {
+	//	if (PATHFIND_TST_NODE_IN(n, closedList))
+	//		pathfind_debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
+	//}
+	/* On a le chemin inverse (to->from) */
+	nb_displacements = nodes[to].nb_nodes;
+	n = to;
+	suivant = to;
+
+	if(nb_displacements>1 && PATHFIND_manhattan_dist(xFrom, yFrom, nodes[from].x, nodes[from].y) < IGNORE_FIRST_POINT_DISTANCE)
+	{	//Si le premier noeud est trop proche de nous pour qu'il faille le rejoindre, on considère qu'on y est déjà
+		nb_displacements--;	//Le premier déplacement ne compte pas...
+		//Comme ce serait le dernier à être enregistré... il ne sera pas enregistré.
+		pathfind_debug_printf("Le node %d est proche de nous. On ne va pas s'y rendre, on va sur le point suivant.\n",from);
+	}
+	pathfind_debug_printf("Nodes : ");
+	for(i=0;i<nb_displacements;i++)
+	{
+		displacements[nb_displacements-i-1].point.x = nodes[n].x;
+		displacements[nb_displacements-i-1].point.y = nodes[n].y;
+		if(suivant != to)
+			displacements[nb_displacements-i-1+2].curve = (node_curve[n] & (1<<suivant))?TRUE:FALSE;
+		// On attribue le droit à la trajectoire de faire une courbe si :
+		// une trajectoire du node courant (n) vers le node suivant (suivant)
+		//		autorise une trajectoire pour le déplacement d'après (nb_displacements-i-1+2)
+
+		pathfind_debug_printf("%d <- ",n);
+		suivant = n;
+		n = nodes[n].parent;
+	}
+	if(nb_displacements > 0)
+		displacements[0].curve = FALSE;
+	if(nb_displacements > 1)
+		displacements[1].curve = FALSE;
+	pathfind_debug_printf(" = %d displacements\n", nb_displacements);
+	*p_nb_displacements = nb_displacements;
+	return END_OK;
+}
 
 /*
  * DODGE_AND_WAIT / DODGE_AND_NO_WAIT : lorsqu'un adversaire est détecté, l'évittement est tenté en recalculant une alternative.
