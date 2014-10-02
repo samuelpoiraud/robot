@@ -230,7 +230,45 @@ bool_e is_in_circle(GEOMETRY_point_t current, GEOMETRY_circle_t circle){
 	return SQUARE((Uint32){current.x-circle.c.x}) + SQUARE((Uint32){current.y-circle.c.y}) <= SQUARE((Uint32){circle.r});
 }
 
+#ifdef USE_MATHS_FILTER
+void filter_future_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb_factor){
+	Uint16 i;
+	Uint8 y;
+	float new_value;
 
+	if(nb_factor < 1)
+		return;
+
+	for(i=0;i<nb_value-1;i++){
+		new_value = factor[0]*values[i];
+
+		for(y=1;y<nb_factor;y++)
+			if(i + y < nb_value)
+				new_value += factor[y]*values[i+y];
+
+		values[i] = (Sint32)(new_value);
+	}
+}
+
+void filter_past_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb_factor){
+	Sint16 i;
+	Uint8 y;
+	float new_value;
+
+	if(nb_factor < 1)
+		return;
+
+	for(i=nb_value-1;i>=0;i++){
+		new_value = factor[0]*values[i];
+
+		for(y=1;y<nb_factor;y++)
+			if(i - y >= 0)
+				new_value += factor[y]*values[i-y];
+
+		values[i] = (Sint32)(new_value);
+	}
+}
+#endif
 
 #ifdef FAST_COS_SIN
 
