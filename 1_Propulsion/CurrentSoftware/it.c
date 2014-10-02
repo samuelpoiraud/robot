@@ -56,7 +56,7 @@ void IT_init(void)
 
 	//Note : run_us 5000 est beaucoup plus précis que run tout court à 5...
 	#ifdef USE_GYROSCOPE
-		TIMER1_run(1000);		// IT du gyro
+		TIMER1_run_us(1000);		// IT du gyro
 	#endif
 	TIMER2_run_us(1000*PERIODE_IT_ASSER);			//IT trajectoire et Correcteur
 	TIMER5_run(100);		//Affichage Leds...
