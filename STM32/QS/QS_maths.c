@@ -41,7 +41,19 @@ Sint16 atan4096(double tangent)
 	return (Sint16)(atan(tangent)*4096);
 }
 
+Sint16 atan2_4096(double x, double y)
+{
+	return (Sint16)(2*atan(y/((x+sqrt(x*x+y*y))*1.0))*4096);
+}
 
+Sint32 puissance(Sint32 value, Uint8 nb){
+	Uint8 i;
+	Sint32 answer=0;
+	for(i=0;i<nb;i++){
+		answer*=value;
+	}
+	return answer;
+}
 
 Uint16 GEOMETRY_distance(GEOMETRY_point_t a, GEOMETRY_point_t b)
 {
