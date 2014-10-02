@@ -19,6 +19,44 @@
 
 	Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 
+
+	#ifdef USE_MATHS_FILTER
+
+	// FONCTION A TESTER !!!!! Ne pas se fier aux résultats avant la fin des tests !
+
+	// L'utilisation d'un filtre à temps futur ou passé introduit un déphasage (avance pour temps futur, retard pour temps passé)
+	// Pour contrer ce déphasage il est conseillé d'utiliser les deux filtres à la fois.
+	// ex :
+	//		filter_future_time(values, 30, (float){1/2, 1/2}, 2);
+	//		filter_past_time(values, 30, (float){1/2, 1/2}, 2);
+
+	/** Filtre à temps future
+		 * @param values	: tableau de donnée à traiter
+		 * @param nb_value	: nombre de valeur à traiter dans le tableau
+		 * @param factor	: tableau des facteurs
+		 * @param nb_factor	: nombre de facteurs
+		 *
+		 * @brief exemple : filtre moyenneur sur deux valeurs :
+		 *						filter_future_time(values, 30, (float){1/2, 1/2}, 2);
+		 *						résultat pour la première valeur :	values[0] = 1/2 * values[0] + 1/2 values[1];
+		 *						effet de bord : values[29] = values[29];
+		 */
+		void filter_future_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb_factor);
+
+		/** Filtre à temps passé
+			 * @param values	: tableau de donnée à traiter
+			 * @param nb_value	: nombre de valeur à traiter dans le tableau
+			 * @param factor	: tableau des facteurs
+			 * @param nb_factor	: nombre de facteurs
+			 *
+			 * @brief exemple : filtre moyenneur sur deux valeurs :
+			 *						filter_past_time(values, 30, (float){1/2, 1/2}, 2);
+			 *						résultat pour la première valeur :	values[29] = 1/2 * values[29] + 1/2 values[28];
+			 *						effet de bord : values[0] = values[0];
+			 */
+		void filter_past_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb_factor);
+	#endif
+
 	#ifdef FAST_COS_SIN
 		void COS_SIN_4096_get(Sint16 teta,Sint16 * cos, Sint16 * sin);
 		void COS_SIN_16384_get(Sint32 teta, Sint16 * cos, Sint16 * sin);
