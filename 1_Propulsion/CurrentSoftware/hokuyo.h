@@ -7,7 +7,7 @@
 
 #ifndef HOKUYO_H_
 #define HOKUYO_H_
-
+//#define TRIANGULATION
 
 #ifdef USE_HOKUYO
 
@@ -31,12 +31,14 @@
 	typedef struct{       //position des balises
 		Sint32 x;
 		Sint32 y;
-		Uint32 angle;
+		Uint32 teta;
 		Uint32 weight;
 	}position;
-	
+	void tri_points();
+	void Hokuyo_validPointsAndBeacons();
+	//void dectect_centre_beacons();
 
-	
+
 	#endif
 
 #endif

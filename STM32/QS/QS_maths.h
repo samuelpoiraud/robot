@@ -27,6 +27,9 @@
 	double cos4096(Sint16 angle);
 	double sin4096(Sint16 angle);
 	Sint16 atan4096(double tangent);
+	Sint16 atan2_4096(double x, double y);
+
+	Sint32 puissance(Sint32 value, Uint8 nb);
 
 	typedef struct {
 		Sint16 x;
