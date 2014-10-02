@@ -48,8 +48,8 @@ Sint16 atan2_4096(double x, double y)
 
 Sint32 puissance(Sint32 value, Uint8 nb){
 	Uint8 i;
-	Sint32 answer=0;
-	for(i=0;i<nb;i++){
+	Sint32 answer=1;
+	for(i=1;i<nb;i++){
 		answer*=value;
 	}
 	return answer;
