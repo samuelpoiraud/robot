@@ -61,6 +61,8 @@
 
 	//#define USE_PROP_AVOIDANCE
 
+	//#define USE_MATHS_FILTER
+
 	#define FAST_COS_SIN
 
 	#define USE_WATCHDOG
@@ -312,6 +314,10 @@
 	#define BIG_ROTATION_SPEED_LOW 			(Sint32)(21120)			//environ 1,5 rad/s
 	#define BIG_ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
 	#define BIG_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
+
+	// Vitesse maximum en rotation que peut atteindre le robot lors de la non-accessibilité du point de destination
+	#define SMALL_MAX_ROTATION_SPEED_ON_RESEARCH	SMALL_TRANSLATION_SPEED_LOW
+	#define BIG_MAX_ROTATION_SPEED_ON_RESEARCH		BIG_TRANSLATION_SPEED_LOW
 
 
 

@@ -8,13 +8,13 @@
  *  Auteur : Nirgal 2010
  *  Version 201203
  */
- 
+
 #ifndef _PILOT_H
 	#define _PILOT_H
 
 		#include "QS/QS_all.h"
 
-	
+
 	typedef enum
 	{
 		PILOT_ACCELERATION_NORMAL,
@@ -29,15 +29,16 @@
 		PILOT_ROTATION_SPEED_LOW,
 		PILOT_ROTATION_SPEED_VERY_LOW,
 		PILOT_ROTATION_SPEED_SNAIL,
+		PILOT_MAX_ROTATION_SPEED_ON_RESEARCH,
 		PILOT_NUMBER_COEFS	//Nombre de coefficients.
 	}PILOT_coef_e;
 
-	
+
 	void PILOT_init(void);
 
 	Sint32 PILOT_get_coef(PILOT_coef_e id);
 	void PILOT_set_coef(PILOT_coef_e id, Sint32 value);
-	
+
 	void PILOT_process_it(void);
 
 	void PILOT_set_speed(PROP_speed_e speed);

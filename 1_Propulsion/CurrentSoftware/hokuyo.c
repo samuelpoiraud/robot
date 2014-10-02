@@ -192,10 +192,12 @@ void HOKUYO_process_main(void)
 		break;
 		case TREATMENT_DATA:
 			hokuyo_find_valid_points();
+			#ifdef TRIANGULATION
 			if(global.match_over){
 				Hokuyo_validPointsAndBeacons();
 				tri_points();
 			}
+			#endif
 			state=DETECTION_ADVERSARIES;
 		break;
 		case DETECTION_ADVERSARIES:
