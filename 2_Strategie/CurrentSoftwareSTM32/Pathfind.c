@@ -111,8 +111,8 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 {
 	//Colonne 1 coté Rouge [A]
 	(pathfind_node_t){ 400, 500, neighbors : (1<<1)|(1<<4)},											//[A0] 0
-	(pathfind_node_t){ 750, 500, neighbors : (1<<0)|(1<<4)|(1<<5)|(1<<2)},								//[A1] 1
-	(pathfind_node_t){ 1250, 500, neighbors : (1<<1)|(1<<4)|(1<<5)|(1<<6)|(1<<3)},						//[A2] 2
+	(pathfind_node_t){ 800, 600, neighbors : (1<<0)|(1<<4)|(1<<5)|(1<<2)},								//[A1] 1
+	(pathfind_node_t){ 1200, 600, neighbors : (1<<1)|(1<<4)|(1<<5)|(1<<6)|(1<<3)},						//[A2] 2
 	(pathfind_node_t){ 1600, 500, neighbors : (1<<2)|(1<<5)|(1<<6)},									//[A3] 3
 
 	//Colonne 2 coté rouge [B]
@@ -142,8 +142,8 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 
 	//Colonne 6 coté Jaune [Z]
 	(pathfind_node_t){ 400, 2500, neighbors : (1<<16)|(1<<20)},											//[Z0] 19
-	(pathfind_node_t){ 750, 2500, neighbors : (1<<19)|(1<<16)|(1<<17)|(1<<21)},							//[Z1] 20
-	(pathfind_node_t){ 1250, 2500, neighbors : (1<<20)|(1<<16)|(1<<17)|(1<<18)|(1<<22)},				//[Z2] 21
+	(pathfind_node_t){ 800, 2400, neighbors : (1<<19)|(1<<16)|(1<<17)|(1<<21)},							//[Z1] 20
+	(pathfind_node_t){ 1200, 2400, neighbors : (1<<20)|(1<<16)|(1<<17)|(1<<18)|(1<<22)},				//[Z2] 21
 	(pathfind_node_t){ 1600, 2500, neighbors : (1<<21)|(1<<17)|(1<<18)},								//[Z3] 22
 
 	(pathfind_node_t){ 0, 0, neighbors : 0} //[NOT_IN_NODE] 23 (invalid)
