@@ -115,6 +115,10 @@
 	// Envoie l'états de tous les switchs sur 4 data
 	// Le bit de points faible (soit le bit de points faible de la data[3]) correspond à SW_COLOR de switch_ihm_e
 
+	#define IHM_POWER 0x063
+	// Envoie l'états de la batterie a toute les cartes
+	// data 0 : de type IHM_power_e
+
 
 	/***********************************************************
 						Message pour personne

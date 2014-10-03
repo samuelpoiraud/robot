@@ -12,7 +12,10 @@
 #define VOLTAGE_MEASURE_H
 
 #include "QS/QS_all.h"
+#include "QS/QS_adc.h"
 
 void VOLTAGE_MEASURE_init();
+void VOLTAGE_MEASURE_process_it(Uint8 ms);
+Uint16 VOLTAGE_MEASURE_measure24_mV(adc_id_e id);
 
 #endif /* ndef VOLTAGE_MEASURE_H */
