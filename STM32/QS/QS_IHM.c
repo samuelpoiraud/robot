@@ -108,6 +108,9 @@ bool_e IHM_switchs_get(switch_ihm_e swit){
 	bool_e value;
 
 	switch (swit) {
+		case BIROUTE:
+			value = BIROUTE_PORT;
+			break;
 		case SWITCH_DEBUG:
 			value = SWITCH_DEBUG_PORT;
 			break;
@@ -148,15 +151,6 @@ bool_e IHM_switchs_get(switch_ihm_e swit){
 #else
 	return switchs[swit];
 #endif
-
-
-
-
-
-
-
-
-
 
 }
 

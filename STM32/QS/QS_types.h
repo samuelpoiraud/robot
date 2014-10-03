@@ -44,7 +44,8 @@
 
 	typedef enum
 	{
-		RED=0, BLUE=1, YELLOW=1
+		RED=0, GREEN=0,
+		BLUE=1, YELLOW=1
 	} color_e;
 
 	typedef struct
@@ -104,7 +105,7 @@
 	/*type d'évitement - utilisé dans le code propulsion et partagé pour la stratégie... */
 	typedef enum
 	{
-        AVOID_DISABLED = 0,
+		AVOID_DISABLED = 0,
 		AVOID_ENABLED,
 		AVOID_ENABLED_AND_WAIT
 	} avoidance_e;
