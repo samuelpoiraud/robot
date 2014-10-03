@@ -15,6 +15,8 @@
 #include "prop_functions.h"
 #include "avoidance.h"
 
+#define OLD_PATHFIND
+
 /*
  * La formule pour changer le numéro du noeud (parallélisme)
  */
@@ -25,33 +27,64 @@
 /*
  * Defines des noms des nodes
  */
-#define A1 0
-#define A2 1
-#define B0 2
-#define B1 3
-#define B2 4
-#define B3 5
-#define C0 6
-#define C1 7
-#define C2 8
-#define C3 9
-#define M0 10
-#define M1 11
-#define M2 12
-#define M3 13
-#define W0 14
-#define W1 15
-#define W2 16
-#define W3 17
-#define Y0 18
-#define Y1 19
-#define Y2 20
-#define Y3 21
-#define Z1 22
-#define Z2 23
-#define NOT_IN_NODE	24
 
-#define PATHFIND_NODE_NB NOT_IN_NODE
+#ifdef OLD_PATHFIND
+	#define A1 0
+	#define A2 1
+	#define B0 2
+	#define B1 3
+	#define B2 4
+	#define B3 5
+	#define C0 6
+	#define C1 7
+	#define C2 8
+	#define C3 9
+	#define M0 10
+	#define M1 11
+	#define M2 12
+	#define M3 13
+	#define W0 14
+	#define W1 15
+	#define W2 16
+	#define W3 17
+	#define Y0 18
+	#define Y1 19
+	#define Y2 20
+	#define Y3 21
+	#define Z1 22
+	#define Z2 23
+	#define NOT_IN_NODE	24
+
+	#define PATHFIND_NODE_NB NOT_IN_NODE
+
+#else
+	#define A0 0
+	#define A1 1
+	#define A2 2
+	#define A3 3
+	#define B1 4
+	#define B2 5
+	#define B3 6
+	#define C1 7
+	#define C2 8
+	#define C3 9
+	#define M1 10
+	#define M2 11
+	#define M3 12
+	#define W1 13
+	#define W2 14
+	#define W3 15
+	#define Y1 16
+	#define Y2 17
+	#define Y3 18
+	#define Z0 19
+	#define Z1 20
+	#define Z2 21
+	#define Z3 22
+	#define NOT_IN_NODE	23
+
+	#define PATHFIND_NODE_NB NOT_IN_NODE
+#endif
 
 /*
  * Modifie par Alexis

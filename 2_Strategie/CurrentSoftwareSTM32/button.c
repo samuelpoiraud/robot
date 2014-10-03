@@ -71,7 +71,7 @@ void BUTTON_update()
 	static bool_e biroute_forgotten = TRUE;
 	bool_e biroute_current;
 
-	biroute_current = BIROUTE;
+	biroute_current = IHM_switchs_get(BIROUTE);
 
 	BUTTONS_update();
 
@@ -132,7 +132,7 @@ void BUTTON_verbose(void)
 						(IHM_switchs_get(SWITCH_XBEE)	<< 4) 	|
 						(IHM_switchs_get(SWITCH_SAVE)	<< 5) 	|
 						(IHM_switchs_get(SWITCH_COLOR)	<< 9) 	|
-						(BIROUTE		<< 10) 	|
+						(IHM_switchs_get(BIROUTE)		<< 10) 	|
 						(IHM_switchs_get(SWITCH_LCD)		<< 11) 	|
 						(IHM_switchs_get(SWITCH_EVIT)	<< 12) 	|
 						(IHM_switchs_get(SWITCH_STRAT_1)	<< 13) 	|

@@ -472,7 +472,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			state = TEST_BIROUTE;
 			break;
 		case TEST_BIROUTE:
-			if(!BIROUTE)
+			if(!IHM_switchs_get(BIROUTE))
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BIROUTE_FORGOTTEN);
 			state = TEST_SD_CARD;
 			break;

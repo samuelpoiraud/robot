@@ -219,7 +219,7 @@ void test_bp_switchs(void)
 		if(IHM_switchs_get(SWITCH_STRAT_2) 	!= sw_strat2	)	{	sw_strat2 		= IHM_switchs_get(SWITCH_STRAT_2);	debug_printf("sw_strat2 = %s\n"		, (sw_strat2	)?"ON":"OFF");	 }
 		if(IHM_switchs_get(SWITCH_STRAT_3) 	!= sw_strat3	)	{	sw_strat3 		= IHM_switchs_get(SWITCH_STRAT_3);	debug_printf("sw_strat3 = %s\n"		, (sw_strat3	)?"ON":"OFF");	 }
 		if(PORT_ROBOT_ID 	!= port_robot_id)	{	port_robot_id  	= PORT_ROBOT_ID;	debug_printf("port_robot_id = %s\n"	, (port_robot_id)?"ON":"OFF");	 }
-		if(BIROUTE 			!= biroute		)	{	biroute 	   	= BIROUTE;			debug_printf("biroute = %s\n"		, (biroute		)?"ON":"OFF");	 }
+		if(IHM_switchs_get(BIROUTE) 		!= biroute		)	{	biroute 	   	= IHM_switchs_get(BIROUTE);			debug_printf("biroute = %s\n"		, (biroute		)?"ON":"OFF");	 }
 		if(BUTTON0_PORT 	!= bp_run_match	)	{	bp_run_match   	= BUTTON0_PORT;		debug_printf("bp_run_match = %s\n"	, (bp_run_match	)?"ON":"OFF");	 }
 #ifdef FDP_2014
 		if(BUTTON1_PORT 	!= bp_selftest	)	{	bp_selftest    	= BUTTON1_PORT;		debug_printf("bp_selftest = %s\n"	, (bp_selftest	)?"ON":"OFF");	 }

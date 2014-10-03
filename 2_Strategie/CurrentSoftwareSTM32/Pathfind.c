@@ -1,4 +1,4 @@
-/*
+   /*
  *	Club Robot ESEO 2011 - 2012 - 2014
  *	Shark & Fish / Pierre & Guy
  *
@@ -17,6 +17,7 @@
 #include "avoidance.h"
 #include <math.h>
 
+
 #define pathfind_debug_printf(...)	debug_printf(__VA_ARGS__)
 //#define pathfind_debug_printf(...)	void(0)
 #define MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY	400		//Distance manhattan entre un advesaire et les noeuds dont il bloque l'accès
@@ -29,6 +30,7 @@
 
 #ifndef USE_POLYGON
 
+#ifdef OLD_PATHFIND
 static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 {
 	//Colonne 1 coté Rouge [A]
@@ -100,6 +102,85 @@ static Uint32 node_curve[PATHFIND_NODE_NB+1] =
 	0 | (1<<19)|(1<<20)|(1<<21)|(1<<22),					//[Z1] 23
 	0
 };
+
+
+#else
+
+
+static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
+{
+	//Colonne 1 coté Rouge [A]
+	(pathfind_node_t){ 400, 500, neighbors : (1<<1)|(1<<4)},											//[A0] 0
+	(pathfind_node_t){ 750, 500, neighbors : (1<<0)|(1<<4)|(1<<5)|(1<<2)},								//[A1] 1
+	(pathfind_node_t){ 1250, 500, neighbors : (1<<1)|(1<<4)|(1<<5)|(1<<6)|(1<<3)},						//[A2] 2
+	(pathfind_node_t){ 1600, 500, neighbors : (1<<2)|(1<<5)|(1<<6)},									//[A3] 3
+
+	//Colonne 2 coté rouge [B]
+	(pathfind_node_t){ 700, 800, neighbors : (1<<0)|(1<<1)|(1<<2)|(1<<5)|(1<<8)|(1<<7)},				//[B1] 4
+	(pathfind_node_t){ 1150, 800, neighbors : (1<<1)|(1<<2)|(1<<3)|(1<<6)|(1<<9)|(1<<8)|(1<<7)|(1<<4)},	//[B2] 5
+	(pathfind_node_t){ 1550, 800, neighbors : (1<<3)|(1<<2)|(1<<5)|(1<<8)|(1<<9)},						//[B3] 6
+
+	//Colonne 3 coté rouge [C]
+	(pathfind_node_t){ 850, 1150, neighbors : (1<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10)},					//[C1] 7
+	(pathfind_node_t){ 1200, 1150, neighbors : (1<<4)|(1<<5)|(1<<6)|(1<<9)|(1<<12)|(1<<11)|(1<<10)|(1<<7)},		//[C2] 8
+	(pathfind_node_t){ 1550, 1150, neighbors : (1<<6)|(1<<5)|(1<<8)|(1<<11)|(1<<12)},					//[C3] 9
+
+	//Colonne 4 milieu [M]
+	(pathfind_node_t){ 850, 1500, neighbors : (1<<7)|(1<<8)|(1<<11)|(1<<14)|(1<<13)},					//[M1] 10
+	(pathfind_node_t){ 1200, 1500, neighbors : (1<<7)|(1<<8)|(1<<9)|(1<<12)|(1<<15)|(1<<14)|(1<<13)|(1<<10)},	//[M2] 11
+	(pathfind_node_t){ 1550, 1500, neighbors : (1<<9)|(1<<8)|(1<<11)|(1<<14)|(1<<15)},					//[M3] 12
+
+	//Colonne 4 coté jaune [W]
+	(pathfind_node_t){ 850, 1850, neighbors : (1<<10)|(1<<11)|(1<<14)|(1<<17)|(1<<16)},					//[W1] 13
+	(pathfind_node_t){ 1200, 1850, neighbors : (1<<10)|(1<<11)|(1<<12)|(1<<15)|(1<<18)|(1<<17)|(1<<16)|(1<<13)},//[W2] 14
+	(pathfind_node_t){ 1550, 1850, neighbors : (1<<12)|(1<<11)|(1<<14)|(1<<17)|(1<<18)},				//[W3] 15
+
+	//Colonne 5 coté jaune [Y]
+	(pathfind_node_t){ 700, 2200, neighbors : (1<<13)|(1<<14)|(1<<17)|(1<<21)|(1<<20)|(1<<19)},			//[Y1] 16
+	(pathfind_node_t){ 1150, 2200, neighbors : (1<<13)|(1<<14)|(1<<15)|(1<<18)|(1<<22)|(1<<21)|(1<<20)|(1<<16)},//[Y2] 17
+	(pathfind_node_t){ 1550, 2200, neighbors : (1<<15)|(1<<14)|(1<<17)|(1<<21)|(1<<22)},				//[Y3] 18
+
+	//Colonne 6 coté Jaune [Z]
+	(pathfind_node_t){ 400, 2500, neighbors : (1<<16)|(1<<20)},											//[Z0] 19
+	(pathfind_node_t){ 750, 2500, neighbors : (1<<19)|(1<<16)|(1<<17)|(1<<21)},							//[Z1] 20
+	(pathfind_node_t){ 1250, 2500, neighbors : (1<<20)|(1<<16)|(1<<17)|(1<<18)|(1<<22)},				//[Z2] 21
+	(pathfind_node_t){ 1600, 2500, neighbors : (1<<21)|(1<<17)|(1<<18)},								//[Z3] 22
+
+	(pathfind_node_t){ 0, 0, neighbors : 0} //[NOT_IN_NODE] 23 (invalid)
+};
+
+
+
+// Pas à jour
+static Uint32 node_curve[PATHFIND_NODE_NB+1] =
+{
+	0 | (1<<1)|(0<<2)|(1<<3)|(1<<4),						//[A1] 0
+	0 | (1<<0)|(1<<3)|(1<<4)|(0<<5),						//[A2] 1
+	0 | (1<<0)|(1<<3)|(1<<6)|(0<<7),						//[B0] 2
+	0 | (1<<0)|(1<<1)|(0<<2)|(1<<4)|(1<<6)|(0<<7),			//[B1] 3
+	0 | (1<<0)|(0<<1)|(1<<3)|(0<<5)|(0<<8)|(1<<9),			//[B2] 4
+	0 | (1<<1)|(1<<4)|(0<<8)|(1<<9),						//[B3] 5
+	0 | (1<<2)|(1<<3)|(0<<7)|(1<<10)|(1<<11),				//[C0] 6
+	0 | (0<<2)|(1<<3)|(0<<6)|(1<<8)|(1<<10)|(1<<11),		//[C1] 7
+	0 | (1<<4)|(1<<5)|(1<<7)|(0<<9)|(1<<12)|(1<<13),		//[C2] 8
+	0 | (1<<4)|(1<<5)|(0<<8)|(1<<12)|(1<<13),				//[C3] 9
+	0 | (1<<6)|(1<<7)|(0<<11)|(1<<14)|(1<<15),				//[M0] 10
+	0 | (1<<6)|(1<<7)|(0<<10)|(1<<14)|(1<<15),				//[M1] 11
+	0 | (1<<8)|(0<<9)|(0<<13)|(1<<16)|(0<<17),				//[M2] 12
+	0 | (1<<8)|(1<<9)|(0<<12)|(1<<16)|(1<<17),				//[M3] 13
+	0 | (1<<10)|(1<<11)|(0<<15)|(1<<18)|(1<<19),			//[W0] 14
+	0 | (1<<10)|(1<<11)|(0<<14)|(1<<16)|(0<<18)|(1<<19),	//[W1] 15
+	0 | (1<<12)|(0<<13)|(1<<15)|(0<<17)|(1<<20)|(1<<21),	//[W2] 16
+	0 | (1<<12)|(1<<13)|(0<<16)|(1<<20)|(1<<21),			//[W3] 17
+	0 | (1<<14)|(0<<15)|(1<<19)|(0<<22),					//[Y0] 18
+	0 | (1<<14)|(0<<15)|(0<<18)|(1<<20)|(0<<22)|(1<<23),	//[Y1] 19
+	0 | (0<<16)|(1<<17)|(1<<19)|(0<<21)|(0<<22)|(0<<23),	//[Y2] 20
+	0 | (0<<16)|(1<<17)|(1<<20)|(0<<23),					//[Y3] 21
+	0 | (0<<18)|(1<<19)|(1<<20)|(1<<23),					//[Z0] 22
+	0
+};
+#endif
+
 
 static pathfind_node_list_t openList;
 static pathfind_node_list_t closedList;
@@ -351,6 +432,13 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	/* On reinitialise les listes et penalites */
 	openList = 0;
 	closedList = 0;
+
+#ifndef OLD_PATHFIND
+	if(global.env.color == GREEN)
+		closedList = closedList | (1<<1)|(1<<2); // Supprime les nodes au près du spawn Jaune
+	else
+		closedList = closedList | (1<<20)|(1<<21); // Supprime les nodes au près du spawn Vert
+#endif
 
 	/* On ajoute le point de depart dans la liste ouverte */
 	PATHFIND_SET_NODE_IN(from, openList);
@@ -753,7 +841,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 }
 
 
-
+#ifdef OLD_PATHFIND
 Uint16 PATHFING_get_symetric(Uint8 n){
 	if(global.env.color == BLUE){
 		if(n<2)
@@ -771,6 +859,26 @@ Uint16 PATHFING_get_symetric(Uint8 n){
 	}
 	return n;
 }
+#else
+Uint16 PATHFING_get_symetric(Uint8 n){
+	if(global.env.color == BLUE){
+		if(n<4)
+			return n+19;
+		if(n<7 && n>3)
+			return n +12;
+		if(n<10 && n>6)
+			return n+6;
+		if(n>12 && n<16)
+			return n-6;
+		if(n>15 && n<19)
+			return n-12;
+		if(n>18 && n<23)
+			return n-19;
+	}
+	return n;
+}
+#endif
+
 
 // Retourne le node le plus proche de notre position
 pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2){
