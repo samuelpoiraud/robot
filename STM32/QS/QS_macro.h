@@ -30,6 +30,7 @@
 	#define BIT_TEST(data, bitno)	(((data) >> (bitno)) & 0x01)
 	#define MIN(a, b)				(((a) > (b)) ? (b) : (a))
 	#define MAX(a, b)				(((a) > (b)) ? (a) : (b))
+	#define SIGN(a)					((a > 0)?1:((a < 0)?-1:0))
 
 	#define nop()					__asm__("nop")
 	/* la fonction valeur absolue pour des entiers */
