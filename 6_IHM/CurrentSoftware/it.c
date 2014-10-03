@@ -17,6 +17,7 @@
 #include "button.h"
 #include "led.h"
 
+#define IT_TIME		10		// en ms (maximum 65)
 
 void IT_init(void){
 	//Et c'est parti pour les it !!!
@@ -25,7 +26,7 @@ void IT_init(void){
 	NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 10);
 
 	//Note : run_us 5000 est beaucoup plus précis que run tout court à 5...
-	TIMER1_run(10);			//IT trajectoire et Correcteur,va à une vitesse de 10ms
+	TIMER1_run_us(1000*IT_TIME);			//IT principale vitesse de 10ms
 }
 
 
@@ -33,7 +34,7 @@ void IT_init(void){
 void _ISR _T1Interrupt(){
 	TIMER1_AckIT(); /* interruption traitée */
 
-	MAIN_process_it(10);
-	BUTTONS_IHM_process_it();
+	MAIN_process_it(IT_TIME);
+	BUTTONS_IHM_process_it(IT_TIME);
 	LEDS_process_it();
 }

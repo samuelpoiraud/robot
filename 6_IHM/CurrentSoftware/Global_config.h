@@ -14,6 +14,7 @@
 	//mode d'activation des sorties debug_printf
 	#define VERBOSE_MODE
 	#define VERBOSE_ELEMENT
+	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
 
 
 #define USE_LCD
@@ -177,8 +178,7 @@
 //	#define FREQ_PWM_20KHZ
 	#define FREQ_PWM_50KHZ
 
-	#define USE_FIFO
-
-	#define USE_BUTTONS
+	#define USE_AN6		// Mesure 24V puissance
+	#define USE_AN10	// Mesure 24V permanence
 
 #endif /* ndef GLOBAL_CONFIG_H */
