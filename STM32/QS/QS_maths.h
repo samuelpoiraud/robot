@@ -101,6 +101,17 @@
 	bool_e is_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
 	bool_e is_in_circle(GEOMETRY_point_t current, GEOMETRY_circle_t circle);
 
+	/**
+	 * @brief is_in_quadri
+	 * @pre Les points doivent être donné pour que le quadrilatère soit connexe (chaques points voit tout les points)
+	 * @param points	Le tableau de point du quadrilatère (doit être dans l'ordre)
+	 * @param tested_point Le point à tester
+	 * @return si le point est dans le quadrilatère
+	 */
+	bool_e is_in_quadri(GEOMETRY_point_t points[4], GEOMETRY_point_t tested_point);
+
+
+
 	#define PI16384				51472
 	#define HALF_PI16384		25736
 	#define QUATER_PI16384		12868

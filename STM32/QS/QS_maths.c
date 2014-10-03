@@ -230,6 +230,51 @@ bool_e is_in_circle(GEOMETRY_point_t current, GEOMETRY_circle_t circle){
 	return SQUARE((Uint32){current.x-circle.c.x}) + SQUARE((Uint32){current.y-circle.c.y}) <= SQUARE((Uint32){circle.r});
 }
 
+
+/*
+ *	http://fr.wikipedia.org/wiki/Quadrilat%C3%A8re
+ *
+	(yB ? yA)x ? (xB ? xA)y ? xAyB + xByA a même signe que (yB ? yA)xC ? (xB ? xA)yC ? xAyB + xByA ;
+	(yC ? yB)x ? (xC ? xB)y ? xByC + xCyB a même signe que (yC ? yB)xD ? (xC ? xB)yD ? xByC + xCyB ;
+	(yD ? yC)x ? (xD ? xC)y ? xCyD + xDyC a même signe que (yD ? yC)xA ? (xD ? xC)yA ? xCyD + xDyC ;
+	(yA ? yD)x ? (xA ? xD)y ? xDyA + xAyD a même signe que (yA ? yD)xB ? (xA ? xD)yB ? xDyA + xAyD.
+
+	Pour le test de chaque signe nous trouvons beaucoup de calcule en commun donc ils serront stockés dans les variables suivantes :
+	temp1*x - temp2*y + temp3 a même signe que temp1*xC - temp2*Yc + temp3
+
+ */
+bool_e is_in_quadri(GEOMETRY_point_t points[4], GEOMETRY_point_t tested_point){
+
+	Sint32 temp1, temp2, temp3;
+
+	temp1 = points[1].y - points[0].y;
+	temp2 = points[1].x - points[0].x;
+	temp3 = -points[0].x*points[1].y + points[1].x*points[0].y;
+	if(SIGN(temp1*tested_point.x - temp2*tested_point.y + temp3) == SIGN(temp1*points[2].x - temp2*points[2].y + temp3)){
+
+		temp1 = points[2].y - points[1].y;
+		temp2 = points[2].x - points[1].x;
+		temp3 = -points[1].x*points[2].y + points[2].x*points[1].y;
+		if(SIGN(temp1*tested_point.x - temp2*tested_point.y + temp3) == SIGN(temp1*points[3].x - temp2*points[3].y + temp3)){
+
+			temp1 = points[3].y - points[2].y;
+			temp2 = points[3].x - points[2].x;
+			temp3 = -points[2].x*points[3].y + points[3].x*points[2].y;
+			if(SIGN(temp1*tested_point.x - temp2*tested_point.y + temp3) == SIGN(temp1*points[0].x - temp2*points[0].y + temp3)){
+
+				temp1 = points[0].y - points[3].y;
+				temp2 = points[0].x - points[3].x;
+				temp3 = -points[3].x*points[0].y + points[0].x*points[3].y;
+				if(SIGN(temp1*tested_point.x - temp2*tested_point.y + temp3) == SIGN(temp1*points[1].x - temp2*points[1].y + temp3)){
+
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
 #ifdef USE_MATHS_FILTER
 void filter_future_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb_factor){
 	Uint16 i;
