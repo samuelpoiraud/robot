@@ -118,7 +118,7 @@ void AVOIDANCE_process_it(){
 
 			SECRETARY_send_foe_detected(adversary->x, adversary->y, TRUE);
 
-		}else if(AVOIDANCE_foe_in_zone(FALSE, buffer_order->x, buffer_order->y, FALSE) == FALSE){
+		}else if(AVOIDANCE_target_safe(buffer_order->x, buffer_order->y, FALSE) == FALSE){
 			debug_printf("t : %ld      free !\n", global.absolute_time);
 			debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
 			buffer_order->total_wait_time += global.absolute_time - buffer_order->wait_time_begin;
@@ -158,7 +158,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	Sint32 relative_foe_y;
 
 	vrot = global.vitesse_rotation;
-	vtrans = global.vitesse_translation/12; // Pour avoir la vitesse de translation en mm/s comme en stratégie
+	vtrans = global.vitesse_translation;
 	teta = global.position.teta;
 
 	COS_SIN_4096_get(teta, &cos, &sin);
@@ -175,11 +175,11 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 
 	way_e move_way = current_order.way;
 
-	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
-	current_speed = (Uint32)(absolute(vtrans)*1);
-	break_distance = SQUARE(current_speed)/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
-	respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
-	slow_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_DIST_MIN_SPEED_SLOW:BIG_ROBOT_DIST_MIN_SPEED_SLOW;	//Distance à laquelle on souhaite ralentir
+	/*[mm/4096/5ms/5ms]*/	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
+	/*[mm/4096/5ms]*/		current_speed = (Uint32)(absolute(vtrans)*1);
+	/*[mm]*/				break_distance = SQUARE(current_speed)/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
+	/*[mm]*/				respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
+	/*[mm]*/				slow_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_DIST_MIN_SPEED_SLOW:BIG_ROBOT_DIST_MIN_SPEED_SLOW;	//Distance à laquelle on souhaite ralentir
 
 	avoidance_rectangle_width_y = FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH);
 
@@ -255,6 +255,18 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 	Sint16 px;			//[mm]
 	Sint16 py;			//[mm]
 
+
+	Uint32 width_distance;
+	Uint32 length_distance;
+
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
+		width_distance = BIG_ROBOT_RESPECT_DIST_MIN;
+		length_distance = FOE_SIZE + BIG_ROBOT_WIDTH;
+	}else{
+		width_distance = SMALL_ROBOT_RESPECT_DIST_MIN;
+		length_distance = FOE_SIZE + SMALL_ROBOT_WIDTH;
+	}
+
 	adversary_t *adversaries;
 	Uint8 max_foes;
 	adversaries = DETECTION_get_adversaries(&max_foes); // Récupération des adversaires
@@ -280,8 +292,7 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 			// A : Point adversaire
 			// L : Largeur du robot maximum * 2
 
-			if((QS_WHO_AM_I_get() == BIG_ROBOT && absolute((Sint32)a*adversaries[i].x + (Sint32)b*adversaries[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_BIG_ROBOT)
-					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && absolute((Sint32)a*adversaries[i].x + (Sint32)b*adversaries[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_SMALL_ROBOT)){
+			if(absolute((Sint32)a*adversaries[i].x + (Sint32)b*adversaries[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < length_distance){
 				// /NC./NA ¤ [0,NC*d]
 				// /NC : Vecteur entre nous et le point cible
 				// /NA : Vecteur entre nous et l'adversaire
@@ -297,7 +308,7 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 
 				if((NCx*NAx + NCy*NAy) >= (Sint32)dist_point_to_point(px, py, x, y)*100
 						&& (
-							(!check_on_all_traject &&(NCx*NAx + NCy*NAy) < (Sint32)dist_point_to_point(px, py, x, y)*DISTANCE_EVITEMENT_STATIC)
+							(!check_on_all_traject &&(NCx*NAx + NCy*NAy) < (Sint32)dist_point_to_point(px, py, x, y)*width_distance)
 							||
 							(check_on_all_traject &&(NCx*NAx + NCy*NAy) < SQUARE((Sint32)dist_point_to_point(px, py, x, y))))){
 
