@@ -16,6 +16,7 @@
 #include "main.h"
 #include "button.h"
 #include "led.h"
+#include "voltage_measure.h"
 
 #define IT_TIME		10		// en ms (maximum 65)
 
@@ -37,4 +38,5 @@ void _ISR _T1Interrupt(){
 	MAIN_process_it(IT_TIME);
 	BUTTONS_IHM_process_it(IT_TIME);
 	LEDS_process_it();
+	VOLTAGE_MEASURE_process_it(IT_TIME);
 }

@@ -1,3 +1,12 @@
+/*
+ *  Club Robot ESEO 2015
+ *
+ *  Fichier : QS_accelero.c
+ *  Package : Qualité Soft
+ *  Description : Gestion de l'accélérométre de la catre STM32
+ *  Auteur : Anthony
+ */
+
 #include "QS_accelero.h"
 #include "../stm32f4xx/stm32f4_discovery_lis302dl.h"
 
