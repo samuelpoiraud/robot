@@ -19,6 +19,6 @@ void BUTTONS_IHM_init();
 // Envois un message CAN pour les boutons qui communiquent avec l'extérieure
 void BUTTONS_IHM_send_msg(button_ihm_e button_id,bool_e push_long);
 void BUTTONS_IHM_update();
-void BUTTONS_IHM_process_it(void);
+void BUTTONS_IHM_process_it(Uint8 ms);
 
 #endif /* ndef BUTTON_H */

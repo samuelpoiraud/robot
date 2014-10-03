@@ -21,6 +21,7 @@
 #include "button.h"
 #include "switch.h"
 #include "led.h"
+#include "voltage_measure.h"
 
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
@@ -43,6 +44,7 @@ void initialisation(void){
 	IT_init();
 	BUTTONS_IHM_init();
 	SWITCHS_init();
+	VOLTAGE_MEASURE_init();
 
 	debug_printf("--- Hello, I'm IHM ---\n");
 }
