@@ -506,6 +506,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 
 		case PROP_GO_POSITION:
+			debug_printf("Receveid new go_position : x -> %d, y -> %d\n", U16FROMU8(msg->data[1],msg->data[2]), U16FROMU8(msg->data[3],msg->data[4]));
 
 			//Réglage sens:
 			if ((msg->data[6] == BACKWARD) || (msg->data[6] == FORWARD))
@@ -513,7 +514,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			else
 				sens_marche = ANY_WAY;	//ON SE FICHE DU SENS
 
-			ROADMAP_add_order(  	(msg->data[7] !=0)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
+			ROADMAP_add_order(  	(msg->data[7]& 0x0F !=0)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
 								(U16FROMU8(msg->data[1],msg->data[2])),	//x
 								(U16FROMU8(msg->data[3],msg->data[4])),	//y
 								0,									//teta
