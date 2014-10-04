@@ -87,7 +87,11 @@ void ENV_init(void)
 	global.env.destination = (GEOMETRY_point_t){0,0};
 	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
 		global.env.propulsion_coefs[i] = 0;
-	global.env.com.reach_point_get_out_init = FALSE;
+	for(i=0;i<FIRE_ID_NB; i++)
+		global.env.guy_took_fire[i] = FALSE;
+	global.env.guy_is_bloqued_in_north = FALSE;
+	global.env.reach_point_C1 = FALSE;
+	global.env.we_posed_on_adversary_hearth = FALSE;
 
 	FIX_BEACON_init();
 }
@@ -214,6 +218,9 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 	BUFFER_add(sent_msg);	//BUFFERISATION
 	//if(IHM_switchs_get(SWITCH_SAVE))			//Enregistrement du message CAN.
 	//{
+		#ifdef EEPROM_CAN_MSG_ENABLE
+			EEPROM_CAN_MSG_process_msg(sent_msg);
+		#endif
 		#ifdef SD_ENABLE
 			SD_new_event(TO_BUSCAN, sent_msg, NULL, TRUE);
 		#endif
@@ -415,6 +422,25 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ACT_process_result(incoming_msg);
 			break;
 
+		case STRAT_INFORM_FILET:
+			if(incoming_msg->data[0] == STRAT_INFORM_FILET_PRESENT){
+				BUZZER_play(500, NOTE_DO0, 1);
+				debug_printf("Filet chargé\n");
+			}else if(incoming_msg->data[0] == STRAT_INFORM_FILET_ABSENT){
+				BUZZER_play(500, NOTE_DO0, 2);
+				debug_printf("Filet libéré\n");
+			}
+			break;
+
+		case STRAT_INFORM_FRUIT_MOUTH:
+			ELEMENT_update_fruit_verin_state(incoming_msg);
+			break;
+
+		case STRAT_ANSWER_POMPE :
+			ELEMENT_answer_pump(incoming_msg);
+			break;
+
+
 /************************************ Récupération des données de la balise *******************************/
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.
@@ -436,6 +462,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case XBEE_PONG:
 			//On reçoit un pong, tant mieux, le lien est établi
+
 			break;
 		case DEBUG_DETECT_FOE:
 			global.env.debug_force_foe = TRUE;
@@ -445,10 +472,23 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ZONE_CAN_process_msg(incoming_msg);
 			break;
 
+		case XBEE_REACH_POINT_C1:
+			global.env.reach_point_C1 = TRUE;
+			break;
+		case XBEE_GUY_IS_BLOQUED_IN_NORTH:
+			global.env.guy_is_bloqued_in_north = TRUE;
+			break;
+		case XBEE_GUY_HAVE_DONE_FIRE:
+			if(incoming_msg->data[0] < FIRE_ID_NB)
+				global.env.guy_took_fire[incoming_msg->data[0]] = TRUE;
+			break;
 		case XBEE_REACH_POINT_GET_OUT_INIT:
-			global.env.com.reach_point_get_out_init = TRUE;
+			global.env.reach_point_get_out_init = TRUE;
 			break;
 
+		case XBEE_TORCH_NEW_POS:
+			TORCH_CAN_process_msg(incoming_msg);
+			break;
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
 		case STRAT_BEACON_US_SELFTEST_DONE :
@@ -528,6 +568,7 @@ void ENV_clean (void)
 	global.env.pos.updated = FALSE;
 	global.env.ask_prop_calibration = FALSE;
 	global.env.debug_force_foe = FALSE;
+	global.env.reach_point_get_out_init = FALSE;
 	global.env.duration_trajectory_for_test_coefs = 0;
 	FIX_BEACON_clean();	//Doit être après le any_match !
 }

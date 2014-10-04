@@ -21,9 +21,6 @@
 //active les debug_printf pour les sections concernées
 //	#define DEBUG_PROP_FUN
 //	#define DEBUG_ACT_FUN
-//	#define DEBUG_SICK
-//	#define DEBUG_ELEMENTS
-//	#define DEBUG_BARCODE
 //	#define DEBUG_DETECTION
 //	#define DEBUG_AVOIDANCE
 //	#define DEBUG_POLYGON

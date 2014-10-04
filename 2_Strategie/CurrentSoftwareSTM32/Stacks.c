@@ -29,7 +29,7 @@ static const char * timeout_name[] = {
 };
 
 /* Piles contenant une action, un sommet et état de timeout */
-static stacks_t stacks[ACTUATORS_NB];
+static stacks_t stacks[STACK_NB];
 
 void CAN_send_debug(char* string);
 
@@ -43,7 +43,7 @@ void STACKS_init(void)
 	CAN_init();
 	stacks_t* stack;
 
-	for (i=0; i<ACTUATORS_NB; i++)
+	for (i=0; i<STACK_NB; i++)
 	{
 		stack=&stacks[i];
 		stack->stack_id=i;
@@ -59,7 +59,7 @@ void STACKS_run(void)
 {
 	stack_id_e i;
 	stacks_t* stack;
-	for (i=0; i<ACTUATORS_NB; i++)
+	for (i=0; i<STACK_NB; i++)
 	{
 		stack=&stacks[i];
 		stack->action[stack->stack_top].action_function(i,FALSE);
@@ -130,7 +130,7 @@ void STACKS_flush(stack_id_e stack_id)
 void STACKS_flush_all()
 {
 	stack_id_e i;
-	for (i=0; i<ACTUATORS_NB; i++)
+	for (i=0; i<STACK_NB; i++)
 		STACKS_flush(i);
 }
 
@@ -155,6 +155,6 @@ bool_e STACKS_wait_end_auto_pull (stack_id_e stack_id, bool_e* got_timeout)
 void STACKS_clear_timeouts()
 {
 	stack_id_e i;
-	for (i=0; i<ACTUATORS_NB; i++)
+	for (i=0; i<STACK_NB; i++)
 		stacks[i].timeout=NO_TIMEOUT;
 }

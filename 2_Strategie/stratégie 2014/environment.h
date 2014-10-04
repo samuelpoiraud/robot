@@ -110,11 +110,6 @@
 	#define	MAX_HOKUYO_FOES	16
 	#define MAX_NB_FOES	(MAX_HOKUYO_FOES  + MAX_BEACON_FOES)	//Nombre max d'aversaires  (16 pour l'hokuyo + 2 pour la balise IR)
 
-	// Structure contenant les informations échangé entre les deux robots (ex : est-ce que le petit robot à fait son get_out ?)
-	typedef struct{
-		bool_e reach_point_get_out_init;
-	}communication_t;
-
 	typedef struct
 	{
 		Uint8 nb_elements;
@@ -135,10 +130,14 @@
 		time32_t absolute_time; //temps depuis le lancement du module clock en ms.
 		bool_e debug_force_foe;
 		Uint16 duration_trajectory_for_test_coefs;
+		bool_e reach_point_C1;
+		bool_e reach_point_get_out_init;
+		bool_e guy_is_bloqued_in_north;
+		bool_e guy_took_fire[FIRE_ID_NB];
 		GEOMETRY_point_t destination;
 		Sint32 propulsion_coefs[PROPULSION_NUMBER_COEFS];
 		Uint32 propulsion_coefs_updated;	//par soucis de compacité mémoire et temporel, les flags d'updated sont concaténés ici dans un seul entier...
-		communication_t com;
+		bool_e we_posed_on_adversary_hearth;
 	}environment_t;
 
 

@@ -182,9 +182,6 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 						case SELFTEST_NO_ERROR:																											break;
 						case SELFTEST_PROP_FAILED:			debug_printf(" | error %x SELFTEST_PROP_FAILED\n"			,SELFTEST_PROP_FAILED);			break;
 						case SELFTEST_PROP_HOKUYO_FAILED:	debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"	,SELFTEST_PROP_HOKUYO_FAILED);	break;
-						case SELFTEST_PROP_DT10_1_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_1_FAILED\n"	,SELFTEST_PROP_DT10_1_FAILED);	break;
-						case SELFTEST_PROP_DT10_2_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_2_FAILED\n"	,SELFTEST_PROP_DT10_2_FAILED);	break;
-						case SELFTEST_PROP_DT10_3_FAILED:	debug_printf(" | error %x SELFTEST_PROP_DT10_3_FAILED\n"	,SELFTEST_PROP_DT10_3_FAILED);	break;
 						case SELFTEST_PROP_IN_SIMULATION_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_SIMULATION_MODE\n"	,SELFTEST_PROP_IN_SIMULATION_MODE); break;
 						case SELFTEST_PROP_IN_LCD_TOUCH_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_LCD_TOUCH_MODE\n"	,SELFTEST_PROP_IN_LCD_TOUCH_MODE); 	break;
 						default:							debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);				break;
@@ -514,7 +511,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			else
 				sens_marche = ANY_WAY;	//ON SE FICHE DU SENS
 
-			ROADMAP_add_order(  	(msg->data[7]& 0x0F !=0)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
+			ROADMAP_add_order(  ((msg->data[7]&0x0F) != 0)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
 								(U16FROMU8(msg->data[1],msg->data[2])),	//x
 								(U16FROMU8(msg->data[3],msg->data[4])),	//y
 								0,									//teta

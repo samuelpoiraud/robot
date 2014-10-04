@@ -125,15 +125,6 @@
 	#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
 	#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
 
-
-#define SICK_SENSOR_FOE_GLASSES_PIN FALSE//PORTBbits.RB15   //sur Tiny
-#define GLASS_SENSOR_LEFT			FALSE//(!PORTBbits.RB3)    //sur Krusty, en logique inversée
-#define GLASS_SENSOR_RIGHT			FALSE//(!PORTBbits.RB5)    //sur Krusty, en logique inversée
-
-
-
-
-
 #else
 
 
@@ -158,7 +149,7 @@
 
 #define PORT_B_IO_MASK	0x00BF
 	//	Mesure 24V					0
-	#define FRESCO_3			GPIOB->IDR1
+	// -							1
 	#define POWER_WATCH_INT		GPIOB->IDR2
 	// - programmation -			3
 	//								4
@@ -240,12 +231,6 @@
 	//								13
 	//								14
 	//								15
-
-
-#define SICK_SENSOR_FOE_GLASSES_PIN FALSE//PORTBbits.RB15   //sur Tiny
-#define GLASS_SENSOR_LEFT			FALSE//(!PORTBbits.RB3)    //sur Krusty, en logique inversée
-#define GLASS_SENSOR_RIGHT			FALSE//(!PORTBbits.RB5)    //sur Krusty, en logique inversée
-
 
 #endif
 

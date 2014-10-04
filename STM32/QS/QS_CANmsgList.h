@@ -218,29 +218,7 @@
 	#define XBEE_PING						0x516	//PING = pInG = p1n6, Ce message est envoyé pour pinger l'autre carte stratégie
 	#define XBEE_PONG						0x506	//PONG = pOnG = p0n6, Ce message est envoyé en réponse d'un ping vers l'autre carte stratégie
 	#define XBEE_REACH_POINT_GET_OUT_INIT	0x507	// Envoie un message quand il sort de la zone de départ
-	#define XBEE_REACH_POINT_C1				0x508	// Envoie un message quand il arrive au point C1
 
-	#define XBEE_TORCH_NEW_POS				0x509	// Envoie la nouvelle position de la torche a l autre robot si l'un des deux a déplacée une torche
-	#define XBEE_GUY_HAVE_DONE_FIRE			0x50B	// Informe Pierre que Guy a décidé de prendre un feu ou une torche
-		//Data[0] : ID du fire
-		typedef enum
-		{									//ATTENTION, SI VOUS CHANGEZ CETTE ENUM, VOUS DEVEZ CHANGER AUSSI fire_id_string dans Verbose_can_msg
-			FIRE_ID_TORCH_OUR = 0x00,
-			FIRE_ID_ADV_TORCH,
-			FIRE_ID_START,		//Notre feu fixe près de la zone de départ
-			FIRE_ID_MOBILE_NORTH,
-			FIRE_ID_MOBILE_CENTRAL,
-			FIRE_ID_MOBILE_SOUTH,
-			FIRE_ID_SOUTH_OUR,	//Au sud, de notre coté
-			FIRE_ID_ADV_START,
-			FIRE_ID_ADV_MOBILE_NORTH,
-			FIRE_ID_ADV_MOBILE_CENTRAL,
-			FIRE_ID_ADV_MOBILE_SOUTH,
-			FIRE_ID_ADV_SOUTH,	//Au sud, du coté adverse
-			FIRE_ID_NB
-		}fire_id_e;
-
-	#define XBEE_GUY_IS_BLOQUED_IN_NORTH	0x50C	// Informe Pierre que Guy est bloqué au Nord et que Pierre ferait mieux d'activer son évitement.
 	#define XBEE_ZONE_COMMAND				0x5AA	//Effectue une demande lié au zones (un SID pour toute la gestion des zones comme ça)
 	//Commande dans data[0]:
 		#define XBEE_ZONE_TRY_LOCK       0	//Dans data[1]: la zone, type: map_zone_e. La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT
@@ -268,24 +246,6 @@
 
 	typedef enum
 	{
-		ZONE_FRESQUO = 0,
-		ZONE_CENTRAL_QUATER_HEART_RED_MAMMOTH,
-		ZONE_CENTRAL_QUATER_HEART_RED_TREE,
-		ZONE_RED_TORCH,
-		ZONE_RED_START_FIRE,
-		ZONE_RED_HEART,
-		ZONE_RED_TREE,
-		ZONE_TWICE_FIXED_FIRES,
-		ZONE_YELLOW_TREE,
-		ZONE_YELLOW_HEART,
-		ZONE_YELLOW_START_FIRE,
-		ZONE_YELLOW_TORCH,
-		ZONE_CENTRAL_QUATER_HEART_YELLOW_MAMMOTH,
-		ZONE_CENTRAL_QUATER_HEART_YELLOW_TREE,
-		ZONE_YELLOW_MAMMOTH,
-		ZONE_RED_MAMMOTH,
-		ZONE_START_YELLOW,
-		ZONE_START_RED,
 		ZONE_NUMBER		//Nombre de zones...
 	}zone_e;
 
@@ -345,11 +305,6 @@
 		SELFTEST_TIMEOUT,
 		SELFTEST_PROP_FAILED,
 		SELFTEST_PROP_HOKUYO_FAILED,
-		SELFTEST_PROP_DT10_1_FAILED,
-		SELFTEST_PROP_DT10_2_FAILED,
-		SELFTEST_PROP_DT10_3_FAILED,
-		SELFTEST_PROP_DT50_2_FAILED,
-		SELFTEST_PROP_DT50_3_FAILED,
 		SELFTEST_PROP_IN_SIMULATION_MODE,
 		SELFTEST_PROP_IN_LCD_TOUCH_MODE,
 		SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE,

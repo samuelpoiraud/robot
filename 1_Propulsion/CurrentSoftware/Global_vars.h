@@ -110,10 +110,13 @@
 
 		volatile bool_e alim;
 		volatile Uint16 alim_value;			// en mV
+
+
+		// Variable d'état
 		volatile bool_e mode_best_effort_enable;
 		volatile bool_e disable_virtual_perfect_robot;
-		volatile bool_e match_started, match_over;
 		volatile bool_e debug_foe_forced;
+		volatile bool_e match_started, match_over;
 		volatile time32_t absolute_time;
 
 

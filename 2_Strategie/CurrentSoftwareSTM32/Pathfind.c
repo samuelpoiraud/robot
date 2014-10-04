@@ -277,8 +277,6 @@ Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool_e hand
 
 Uint16 Pathfind_cost_new(pathfind_node_id_t from, pathfind_node_id_t to, bool_e handleOpponent)
 {
-	Uint8 i;
-	Uint32 dist;
 	/* On se base sur un manhattan */
 	Uint16 cost;
 	Uint16 already_compute[PATHFIND_NODE_NB][PATHFIND_NODE_NB] = {{0}};
@@ -290,7 +288,7 @@ Uint16 Pathfind_cost_new(pathfind_node_id_t from, pathfind_node_id_t to, bool_e 
 
 	/*if (handleOpponent)
 	{
-	/*
+
 	 * Si l'adversaire est à moins de 90 cm du noeud, on
 	 * ajoute une pénalité importante, inversement proportionnelle à la distance adversaire-noeud
 
