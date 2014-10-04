@@ -677,15 +677,6 @@ void SELFTEST_get_match_report_IR(CAN_msg_t * msg){
 		msg->data[i] = beacon_error_report.beacon_error_ir_counter[i];
 }
 
-void SELFTEST_get_match_report_US(CAN_msg_t * msg){
-	int i;
-	msg->sid = US_ERROR_RESULT;
-	msg->size = 8;
-	for(i=0;i<8;i++)
-		msg->data[i] = beacon_error_report.beacon_error_us_counter[i];
-}
-
-
 void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 {
 	switch(can_msg->sid)

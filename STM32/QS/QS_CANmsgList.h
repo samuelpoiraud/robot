@@ -143,7 +143,6 @@
 	#define DEBUG_BEACON_US2_ERROR      0x751  //Envoyé par la strat
 	#define DEBUG_BEACON_US_POWER       0x752  //Enovyé par la balise receptrice US (mais non activé actuellement)
 	#define IR_ERROR_RESULT				0x753	//Message de la super pour l'EEPROM -> compteur des erreurs de balise
-	#define US_ERROR_RESULT				0x754	//Message de la super pour l'EEPROM -> compteur des erreurs de balise
 	#define DEBUG_FOE_REASON			0x755	//Message de debug qui explique la raison d 'un evitement
 	#define DEBUG_US_NOT_RELIABLE		0x756	//Message qui indique que on ne fait plus confiance aux ultrasons
 

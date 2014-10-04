@@ -42,7 +42,6 @@
 
 	void SELFTEST_beacon_counter_init(void);
 	void SELFTEST_get_match_report_IR(CAN_msg_t * msg);
-	void SELFTEST_get_match_report_US(CAN_msg_t * msg);
 
 	SELFTEST_error_code_e SELFTEST_getError(Uint8 index);
 	char * SELFTEST_getError_string(SELFTEST_error_code_e error_num);
