@@ -13,8 +13,6 @@
 #include "Verbose_can_msg.h"
 #include "../QS/QS_outputlog.h"
 void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
-void print_us_result(CAN_msg_t * msg, char ** string, int * len);
-void print_broadcast_start_infos(CAN_msg_t * msg, char ** string, int * len);
 
 #define	u32(x1,x2,x3,x4) (U32FROMU8(msg->data[x1], msg->data[x2], msg->data[x3], msg->data[x4]))
 #define	u16(x,y)		(U16FROMU8(msg->data[x], msg->data[y]))
@@ -92,11 +90,10 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 // Les lignes commentées à gauche sont celles qui ne sont pas traitées.
 	switch(msg->sid)
 	{
-		case BROADCAST_START:					print_broadcast_start_infos(msg, &string, &len);						break;
+	//	case BROADCAST_START:					print(string, len, "|\n");												break;
 	//	case BROADCAST_STOP_ALL:				print(string, len, "|\n");												break;
 		case BROADCAST_ALIM:				    print(string, len, "état : %s\n", (u8(0))?"ALIM_ON":"ALIM_OFF");		break;
 		case IR_ERROR_RESULT:					print_ir_result(msg, &string, &len);									break;
-		case US_ERROR_RESULT:					print_us_result(msg, &string, &len);									break;
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"JAUNE":"ROUGE"	);		break;
 		case BROADCAST_POSITION_ROBOT :			print(string, len, "| JeSuisEn  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
 	//	case STRAT_ADVERSARIES_POSITION:		print(string, len, "|\n");												break;
@@ -154,57 +151,8 @@ void VERBOSE_CAN_MSG_print(CAN_msg_t * msg)
 	printf(str);
 }
 
-
-void print_broadcast_start_infos(CAN_msg_t * msg, char ** string, int * len)
-{
-	if(msg->size == 0 || global.env.match_started == TRUE)
-	{
-		print(*string, *len, "\n"); //Ce n'est pas un message broadcast où l'on a ajouté des infos... OU BIEN, le match est commencé, on ne veux pas polluer le mode débug...
-	}
-	print(*string, *len, "Couleur :%s\n",   (u8(0))?"JAUNE":"ROUGE");
-	print(*string, *len, "Stratégie :%d\n",  msg->data[1]);
-	print(*string, *len, "Evitement :%s\n", (msg->data[2])?"ACTIF":"INACTIF");
-	print(*string, *len, "Balise :%s\n",    (msg->data[3])?"ACTIF":"INACTIF");
-
-	print(*string, *len, "Selftest : ");
-	if(~msg->data[5] || ~msg->data[6] || ~msg->data[7])
-	{
-		if(!(msg->data[5] & 0b00000001))	print(*string, *len, "Etat pince avant\n");
-		if(!(msg->data[5] & 0b00000010))	print(*string, *len, "Etat pince arrière\n");
-		if(!(msg->data[5] & 0b00000100))	print(*string, *len, "Etat ascenceur avant\n");
-		if(!(msg->data[5] & 0b00001000))	print(*string, *len, "Etat ascenceur arrière\n");
-		if(!(msg->data[5] & 0b00010000))	print(*string, *len, "Etat moteur gauche\n");
-		if(!(msg->data[5] & 0b00100000))	print(*string, *len, "Etat moteur droit\n");
-		if(!(msg->data[5] & 0b01000000))	print(*string, *len, "Etat roue codeuse gauche\n");
-		if(!(msg->data[5] & 0b10000000))	print(*string, *len, "Etat roue codeuse droite\n");
-		if(!(msg->data[6] & 0b00000001))	print(*string, *len, "Etat capteurs\n");
-		if(!(msg->data[6] & 0b00000010))	print(*string, *len, "Etat biroute\n");
-		if(!(msg->data[6] & 0b00000100))	print(*string, *len, "Etat balise ir\n");
-		if(!(msg->data[6] & 0b00001000))	print(*string, *len, "Etat balise us\n");
-		if(!(msg->data[6] & 0b00010000))	print(*string, *len, "Etat synchro balise us\n");
-		if(!(msg->data[7] & 0b00000001))	print(*string, *len, "Selftest stratégie à échoué\n");
-		if(!(msg->data[7] & 0b00000010))	print(*string, *len, "Selftest propulsion à échoué\n");
-		if(!(msg->data[7] & 0b00000100))	print(*string, *len, "Selftest actionneur à échoué\n");
-		if(!(msg->data[7] & 0b00001000))	print(*string, *len, "Selftest balise à échoué\n");
-	}
-	else
-		print(*string, *len, "VALIDE");
-	print(*string, *len, "\n");
-}
-
 void print_ir_result(CAN_msg_t * msg, char ** string, int * len){
 	print(*string, *len, "\n_____Infos erreurs balise(s) infrarouge____\n");
-	print(*string, *len, "%d erreurs de type 0 : AUCUNE_ERREUR\n",msg->data[0]);
-	print(*string, *len, "%d erreurs de type 1 : ERREUR_PAS_DE_SYNCHRO\n",msg->data[1]);
-	print(*string, *len, "%d erreurs de type 2 : ERREUR_SIGNAL_INSUFFISANT\n",msg->data[2]);
-	print(*string, *len, "%d erreurs de type 3 : ERREUR_SIGNAL_SATURE\n",msg->data[3]);
-	print(*string, *len, "%d erreurs de type 4 : ERREUR_TROP_PROCHE\n",msg->data[4]);
-	print(*string, *len, "%d erreurs de type 5 : ERREUR_TROP_LOIN\n",msg->data[5]);
-	print(*string, *len, "%d erreurs de type 6 : ERROR_OBSOLESCENCE\n",msg->data[6]);
-}
-
-void print_us_result(CAN_msg_t * msg, char ** string, int * len){
-	print(*string, *len, "\n_____Infos erreurs balise(s) Ulstrason____\n");
 	print(*string, *len, "%d erreurs de type 0 : AUCUNE_ERREUR\n",msg->data[0]);
 	print(*string, *len, "%d erreurs de type 1 : ERREUR_PAS_DE_SYNCHRO\n",msg->data[1]);
 	print(*string, *len, "%d erreurs de type 2 : ERREUR_SIGNAL_INSUFFISANT\n",msg->data[2]);
