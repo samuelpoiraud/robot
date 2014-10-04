@@ -315,12 +315,6 @@
 	#define BIG_ROTATION_SPEED_VERY_LOW 	(Sint32)(10560)			//environ 0,75 rad/s
 	#define BIG_ROTATION_SPEED_SNAIL		(Sint32)(1320)			//environ 0,075 rad/s
 
-	// Vitesse maximum en rotation que peut atteindre le robot lors de la non-accessibilité du point de destination
-	#define SMALL_MAX_ROTATION_SPEED_ON_RESEARCH	SMALL_TRANSLATION_SPEED_LOW
-	#define BIG_MAX_ROTATION_SPEED_ON_RESEARCH		BIG_TRANSLATION_SPEED_LOW
-
-
-
 	//Le robot est 'arrivé' lorsque sa vitesse est faible et sa position proche :
 	#define PRECISION_ARRIVE_POSITION_TRANSLATION 40960	//1cm		//81920 //2cm
 	#define PRECISION_ARRIVE_SPEED_TRANSLATION (PILOT_get_coef(PILOT_ACCELERATION_NORMAL)*2)	//1mm/5ms = 2cm/s

@@ -87,7 +87,6 @@ void PILOT_init(void)
 		coefs[PILOT_ROTATION_SPEED_LOW] 				= SMALL_ROTATION_SPEED_LOW;
 		coefs[PILOT_ROTATION_SPEED_VERY_LOW] 			= SMALL_ROTATION_SPEED_VERY_LOW;
 		coefs[PILOT_ROTATION_SPEED_SNAIL] 				= SMALL_ROTATION_SPEED_SNAIL;
-		coefs[PILOT_MAX_ROTATION_SPEED_ON_RESEARCH] 	= SMALL_MAX_ROTATION_SPEED_ON_RESEARCH;
 	}
 	else
 	{
@@ -103,7 +102,6 @@ void PILOT_init(void)
 		coefs[PILOT_ROTATION_SPEED_LOW] 				= BIG_ROTATION_SPEED_LOW;
 		coefs[PILOT_ROTATION_SPEED_VERY_LOW] 			= BIG_ROTATION_SPEED_VERY_LOW;
 		coefs[PILOT_ROTATION_SPEED_SNAIL] 				= BIG_ROTATION_SPEED_SNAIL;
-		coefs[PILOT_MAX_ROTATION_SPEED_ON_RESEARCH] 	= BIG_MAX_ROTATION_SPEED_ON_RESEARCH;
 	}
 }
 
@@ -362,26 +360,7 @@ void PILOT_update_acceleration_state(void)
 			etat_acceleration_rotation = ACCELERATION_FOR_INCREASE_SPEED;
 		else{					//Le point n'est pas accessible sans freiner... => on doit freiner
 			etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
-
-#if 0
-			if(destination_rotation > global.position_rotation){
-				if(vrot < coefs[PILOT_MAX_ROTATION_SPEED_ON_RESEARCH])
-					etat_acceleration_rotation = ACCELERATION_FOR_INCREASE_SPEED;
-				else if(vrot > coefs[PILOT_MAX_ROTATION_SPEED_ON_RESEARCH])
-					etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
-				else
-					etat_acceleration_rotation = ACCELERATION_NULLE;
-			}else{
-				if(vrot > -coefs[PILOT_MAX_ROTATION_SPEED_ON_RESEARCH])
-					etat_acceleration_rotation = ACCELERATION_FOR_INCREASE_SPEED;
-				else if(vrot < -coefs[PILOT_MAX_ROTATION_SPEED_ON_RESEARCH])
-					etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
-				else
-					etat_acceleration_rotation = ACCELERATION_NULLE;
-			}
-#else
 			etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
-#endif
 		}
 
 
