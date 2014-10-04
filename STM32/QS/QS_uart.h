@@ -1,6 +1,6 @@
 /*
- *	Club Robot ESEO 2008 - 2014
- *	Archi-Tech' / Pierre & Guy
+ *	Club Robot ESEO 2008 - 2015
+ *	Archi-Tech' / Pierre & Guy / Holly & Wood
  *
  *	Fichier : QS_uart.h
  *	Package : Qualite Soft

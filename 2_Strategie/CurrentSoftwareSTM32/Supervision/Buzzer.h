@@ -1,6 +1,6 @@
 /*
- *	Club Robot ESEO 2013 - 2014
- *	Pierre & Guy
+ *	Club Robot ESEO 2013 - 2015
+ *	Pierre & Guy, Holly & Wood
  *
  *	Fichier : Buzzer.h
  *	Package : Supervision

@@ -45,7 +45,7 @@ void SEQUENCES_calibrate()
 	color_e color;
 	color = ODOMETRY_get_color();
 #ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-	if(QS_WHO_AM_I_get() == PIERRE){
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
 		if(color == RED)
 			ODOMETRY_set(BIG_RED_CALIBRATION_X, BIG_RED_CALIBRATION_Y, BIG_RED_CALIBRATION_TETA);
 		else
@@ -60,7 +60,7 @@ void SEQUENCES_calibrate()
 	}
 	WARNER_inform(WARNING_CALIBRATION_FINISHED, NO_ERROR);
 #else
-	if(QS_WHO_AM_I_get() == PIERRE){
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
 
 		//Eloignement de la bordure
 		if(color == RED)

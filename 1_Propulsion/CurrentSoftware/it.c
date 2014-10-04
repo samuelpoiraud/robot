@@ -1,6 +1,6 @@
 /*
- *  Club Robot ESEO 2006 - 2014
- *  Game Hoover, ..., Krusty & Tiny, Pierre & Guy
+ *  Club Robot ESEO 2006 - 2015
+ *  Game Hoover, ..., Krusty & Tiny, Pierre & Guy, Holly & Wood
  *
  *  Fichier : it.c
  *  Package : Asser

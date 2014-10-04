@@ -22,7 +22,7 @@ int term_cmd_gohome(int argc, const char *argv[]) {
 	if(argc > 0)
 		return EINVAL;
 
-	if(QS_WHO_AM_I_get()==TINY){
+	if(QS_WHO_AM_I_get()==SMALL_ROBOT){
 		if(global.env.color == RED){
 			PROP_push_goto(960, COLOR_Y(73), FAST, BACKWARD, 0, AVOID_DISABLED, END_AT_BREAK, FALSE);
 			PROP_push_goto(960, COLOR_Y(300), FAST, ANY_WAY, 0, AVOID_DISABLED, END_AT_BREAK, TRUE);
@@ -30,7 +30,7 @@ int term_cmd_gohome(int argc, const char *argv[]) {
 			PROP_push_goto(250, COLOR_Y(73), FAST, BACKWARD, 0, AVOID_DISABLED, END_AT_BREAK, FALSE);
 			PROP_push_goto(250, COLOR_Y(300), FAST, ANY_WAY, 0, AVOID_DISABLED, END_AT_BREAK, TRUE);
 		}
-	}else if(QS_WHO_AM_I_get()==KRUSTY){
+	}else if(QS_WHO_AM_I_get()==BIG_ROBOT){
 		PROP_push_goto(603, COLOR_Y(132), FAST, BACKWARD, 0, AVOID_DISABLED, END_AT_BREAK, FALSE);
 		PROP_push_goto(603, COLOR_Y(300), FAST, ANY_WAY, 0, AVOID_DISABLED, END_AT_BREAK, TRUE);
 	}

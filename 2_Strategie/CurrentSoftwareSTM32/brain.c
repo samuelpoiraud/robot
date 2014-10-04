@@ -26,8 +26,8 @@
 #include "Supervision/Supervision.h"
 
 #include "strats_2015/actions_both_2015.h"
-#include "strats_2015/actions_guy.h"
-#include "strats_2015/actions_pierre.h"
+#include "strats_2015/actions_wood.h"
+#include "strats_2015/actions_holly.h"
 
 #include "high_level_strat.h"
 
@@ -72,11 +72,11 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE,					BOTH},
 	{"strat_prop",			strat_reglage_prop,						0,					TRUE,					BOTH},
 
-	// Pour pierre
-	{"strat_inutile",		strat_inutile_pierre,					0,					TRUE,					BIG},
+	// Pour holly
+	{"strat_inutile",		strat_inutile_holly,					0,					TRUE,					BIG},
 
-	// Pour guy
-	{"strat_inutile",		strat_inutile_guy,						0,					TRUE,					SMALL}
+	// Pour wood
+	{"strat_inutile",		strat_inutile_wood,						0,					TRUE,					SMALL}
 };
 
 static const strategy_list_s *list_displayed_strategy[50];
@@ -176,7 +176,7 @@ void any_match(void)
 				QUEUE_reset_all();
 
 
-				if(QS_WHO_AM_I_get()==PIERRE)
+				if(QS_WHO_AM_I_get()==BIG_ROBOT)
 					ACT_filet_launch(ACT_FILET_LAUNCHED);
 
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment

@@ -1,18 +1,18 @@
 /*
- *	Club Robot ESEO 2013 - 2014
- *	Pierre & Guy
+ *	Club Robot ESEO 2013 - 2015
+ *	Pierre & Guy, Holly & Wood
  *
- *	Fichier : strat_pierre.h
+ *	Fichier : high_level_strat.h
  *	Package : Carte S²/strats2014
- *	Description :
+ *	Description : Stratégie générale
  *	Auteur : Arnaud
  *	Version 2014/03/08
  */
 
 #include "../QS/QS_all.h"
 
-#ifndef STRAT_PIERRE_H
-#define STRAT_PIERRE_H
+#ifndef HIGH_STRAT_LEVEL_H
+#define HIGH_STRAT_LEVEL_H
 
 
 #include "../prop_functions.h"
@@ -50,9 +50,9 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_INIT,
 	SUB_GETOUT,
 
-	//--------------Sub action de pierre
+	//--------------Sub action de holly
     //Peu importe l'ordre des états... (sauf en cas de priorité égale)
-    //--------------Sub action de guy
+    //--------------Sub action de wood
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
@@ -103,4 +103,4 @@ void reset_sub_act_updated_for_lcd(subaction_id_e sub_action);
 bool_e get_sub_act_ask_stop_request(subaction_id_e sub_action);
 
 
-#endif /* STRAT_PIERRE_H_ */
+#endif /* HIGH_STRAT_LEVEL_H */

@@ -51,7 +51,7 @@
 //FONCTIONS D'ACTIONNEURS
 
 
-// PIERRE
+// HOLLY
 
 bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd) {
 	QUEUE_arg_t args;

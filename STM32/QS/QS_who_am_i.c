@@ -63,10 +63,10 @@
 		}
 		switch(robot_id){
 			case BIG_ROBOT :
-				return "Pierre";
+				return "Holly";
 				break;
 			case SMALL_ROBOT :
-				return "Guy";
+				return "Wood";
 				break;
 
 			//Pas de default pour avoir un warning quand un cas de robot_id n'est pas géré dans ce switch
