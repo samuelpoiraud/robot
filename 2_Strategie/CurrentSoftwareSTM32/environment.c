@@ -88,6 +88,7 @@ void ENV_init(void)
 	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
 		global.env.propulsion_coefs[i] = 0;
 	global.env.com.reach_point_get_out_init = FALSE;
+	global.env.initial_position_received = FALSE;
 
 	FIX_BEACON_init();
 }
@@ -255,10 +256,17 @@ void ENV_update(void)
 	CAN_msg_t incoming_msg_from_bus_can;
 	static CAN_msg_t can_msg_from_uart1;
 	static CAN_msg_t can_msg_from_uart2;
+	static time32_t last_time_tell_position = 0;
 	char c;
 
 	// RAZ des drapeaux temporaires pour la prochaine itération
 	ENV_clean();
+
+	if(global.env.initial_position_received == FALSE
+	   && global.env.absolute_time - last_time_tell_position > 200){
+		CAN_send_sid(PROP_TELL_POSITION);
+		last_time_tell_position = global.env.absolute_time;
+	}
 
 	// Récuperation de l'évolution de l'environnement renseignee par les messages CAN
 	while (CAN_data_ready())
@@ -490,6 +498,7 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.env.prop.is_in_translation = (((msg->data[7] >> 5) & 0x07) >> 2) & 1;
 	global.env.prop.is_in_rotation = (((msg->data[7] >> 5) & 0x07) >> 1) & 1;
 
+	global.env.initial_position_received = TRUE;
 	global.env.pos.updated = TRUE;
 			/*msg->data[7] : 8 bits  : T R x W W E E E
 				 T : TRUE si robot en translation

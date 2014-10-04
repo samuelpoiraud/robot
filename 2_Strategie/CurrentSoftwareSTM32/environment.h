@@ -123,6 +123,7 @@
 		bool_e color_updated;
 		bool_e ask_prop_calibration;
 		bool_e ask_start;
+		bool_e initial_position_received;
 		bool_e alim;
 		Uint16 alim_value;		// en mV
 		prop_env_t prop;
