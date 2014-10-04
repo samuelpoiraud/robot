@@ -284,7 +284,7 @@ void filter_future_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 
 	if(nb_factor < 1)
 		return;
 
-	for(i=0;i<nb_value-1;i++){
+	for(i=0;i<nb_value;i++){
 		new_value = factor[0]*values[i];
 
 		for(y=1;y<nb_factor;y++)
@@ -303,7 +303,7 @@ void filter_past_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb
 	if(nb_factor < 1)
 		return;
 
-	for(i=nb_value-1;i>=0;i++){
+	for(i=nb_value-1;i>=0;i--){
 		new_value = factor[0]*values[i];
 
 		for(y=1;y<nb_factor;y++)
