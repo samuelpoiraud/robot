@@ -16,10 +16,6 @@
 
 #define USE_RTC
 
-//Module de gestion des capteurs SICK pour scan de la zone de jeu... Ce module est très dépendant du règlement et du robot !
-//#define USE_SICK
-
-
 //utilise le mode de déplacement avec les polygones
 //si cette ligne est commentée, on utilise par défaut le mode de déplacement avec pathfind
 //#define USE_POLYGON

@@ -20,8 +20,7 @@
 
 typedef enum {
 	PROP,
-			//Les actionneurs utilisent maintenant queue_id_e (voir dans queue.h)
-	ACTUATORS_NB
+	STACK_NB
 }stack_id_e;
 
 /*
@@ -33,7 +32,10 @@ typedef enum {
    utilisée avec un seul actionneur */
 typedef void (*action_fun_t)(stack_id_e this, bool_e init);
 
-/* Anciennement code à été implémenté par Christian Dreher et était placé
+/*
+*  Commentaire laissé pour la forme (la stack ne s'occupe plus des actionneurs cette tâche à été donnée à la queue (queue.c/.h)
+*
+*  Anciennement code à été implémenté par Christian Dreher et était placé
 *  dans Global_vars.h. Il y avait le commentaire suivant :
 *
 *  On m'a demandé de commenter la ligne suivante, en prétextant que le
@@ -44,10 +46,10 @@ typedef void (*action_fun_t)(stack_id_e this, bool_e init);
 *
 *  Les fonctions pointées gèrerons la supervision de l'execution des taches
 *  par les actionneurs.
-*  Dans la dimension de ACTUATORS_NB, on choisira la pile de l'actionneur
+*  Dans la dimension de STACK_NB, on choisira la pile de l'actionneur
 *  et la dimension de STACKS_SIZE indique la hauteur des piles d'actions
 *
-*  void (*stacks[ACTUATORS_NB][STACKS_SIZE])(bool_e init);	//j'adore cette déclaration
+*  void (*stacks[STACK_NB][STACKS_SIZE])(bool_e init);	//j'adore cette déclaration
 */
 
 typedef struct

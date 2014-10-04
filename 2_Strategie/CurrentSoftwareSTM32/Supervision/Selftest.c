@@ -524,9 +524,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");										break;
 				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");									break;
 				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");					break;
-				case SELFTEST_PROP_DT10_1_FAILED:				debug_printf("PROP_DT10_1_FAILED");								break;
-				case SELFTEST_PROP_DT10_2_FAILED:				debug_printf("PROP_DT10_2_FAILED");								break;
-				case SELFTEST_PROP_DT10_3_FAILED:				debug_printf("PROP_DT10_3_FAILED");								break;
 				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");				break;
 				case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			debug_printf("SELFTEST_PROP_IN_LCD_TOUCH_MODE");				break;
 				case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	debug_printf("SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE");		break;
@@ -795,11 +792,6 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_TIMEOUT:							return "Selftest Timeout";		break;
 		case SELFTEST_PROP_FAILED:						return "PROP failed";			break;
 		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";			break;
-		case SELFTEST_PROP_DT10_1_FAILED:				return "DT10 1 failed";			break;
-		case SELFTEST_PROP_DT10_2_FAILED:				return "DT10 2 failed";			break;
-		case SELFTEST_PROP_DT10_3_FAILED:				return "DT10 3 failed";			break;
-		case SELFTEST_PROP_DT50_2_FAILED:				return "DT50 2 failed";			break;
-		case SELFTEST_PROP_DT50_3_FAILED:				return "DT50 3 failed";			break;
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
 		case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			return "PROP in LCD T mode"; 	break;
 		case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	return "Evit Switch disable";	break;

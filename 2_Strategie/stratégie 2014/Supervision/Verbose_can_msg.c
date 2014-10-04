@@ -16,6 +16,23 @@ void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
 void print_us_result(CAN_msg_t * msg, char ** string, int * len);
 void print_broadcast_start_infos(CAN_msg_t * msg, char ** string, int * len);
 
+
+const char * fire_id_string[FIRE_ID_NB] =
+{
+		"TORCH_OUR",
+		"ADV_TORCH",
+		"START",		//Notre feu fixe près de la zone de départ
+		"MOBILE_NORTH",
+		"MOBILE_CENTRAL",
+		"MOBILE_SOUTH",
+		"SOUTH_OUR",	//Au sud, de notre coté
+		"ADV_START",
+		"ADV_MOBILE_NORTH",
+		"ADV_MOBILE_CENTRAL",
+		"ADV_MOBILE_SOUTH",
+		"ADV_SOUTH"	//Au sud, du coté adverse
+};
+
 #define	u32(x1,x2,x3,x4) (U32FROMU8(msg->data[x1], msg->data[x2], msg->data[x3], msg->data[x4]))
 #define	u16(x,y)		(U16FROMU8(msg->data[x], msg->data[y]))
 #define s16(x,y)		((Sint16)(U16FROMU8(msg->data[x], msg->data[y])))
@@ -35,6 +52,7 @@ void print_broadcast_start_infos(CAN_msg_t * msg, char ** string, int * len);
 
 Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 {
+	Uint8 i;
 	char * ret = string;
 	print(string, len, "    sid=");
 	switch(msg->sid)
@@ -57,6 +75,9 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case STRAT_BEACON_IR_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_IR_SELFTEST_DONE        ", STRAT_BEACON_IR_SELFTEST_DONE				);	break;
 		case STRAT_BEACON_US_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_US_SELFTEST_DONE        ", STRAT_BEACON_US_SELFTEST_DONE				);	break;
 		case STRAT_ADVERSARIES_POSITION:				print(string, len, "%x STRAT_ADVERSARIES_POSITION           ", STRAT_ADVERSARIES_POSITION		);	break;
+		case STRAT_INFORM_FILET:						print(string, len, "%x STRAT_INFORM_FILET				    ", STRAT_INFORM_FILET				);	break;
+		case STRAT_INFORM_FRUIT_MOUTH:					print(string, len, "%x STRAT_INFORM_FRUIT_MOUTH			    ", STRAT_INFORM_FRUIT_MOUTH			);	break;
+		case STRAT_ANSWER_POMPE:						print(string, len, "%x STRAT_ANSWER_POMPE				    ", STRAT_ANSWER_POMPE				);	break;
 		case STRAT_TRAJ_FINIE:							print(string, len, "%x STRAT_TRAJ_FINIE                   ", STRAT_TRAJ_FINIE				);	break;
 		case STRAT_PROP_ERREUR:							print(string, len, "%x STRAT_PROP_ERREUR                  ", STRAT_PROP_ERREUR				);	break;
 		case STRAT_ROBOT_FREINE:						print(string, len, "%x STRAT_ROBOT_FREINE                 ",	STRAT_ROBOT_FREINE			);	break;
@@ -72,7 +93,21 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case PROP_WARN_ANGLE:							print(string, len, "%x PROP_WARN_ANGLE                      ", PROP_WARN_ANGLE					);	break;
 		case PROP_WARN_X:								print(string, len, "%x PROP_WARN_X                          ", PROP_WARN_X						);	break;
 		case PROP_WARN_Y:								print(string, len, "%x PROP_WARN_Y                          ", PROP_WARN_Y						);	break;
-		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING       ", BEACON_ENABLE_PERIODIC_SENDING	);	break;
+/*		case ACT_DCM_POS:								print(string, len, "%x ACT_DCM_POS                          ", ACT_DCM_POS						);	break;
+		case ACT_CLAMP_PREPARED:						print(string, len, "%x ACT_CLAMP_PREPARED                   ", ACT_CLAMP_PREPARED				);	break;
+		case ACT_PAWN_GOT:								print(string, len, "%x ACT_PAWN_GOT                         ", ACT_PAWN_GOT						);	break;
+		case ACT_PAWN_FILED:							print(string, len, "%x ACT_PAWN_FILED                       ", ACT_PAWN_FILED 					);	break;
+		case ACT_PAWN_DETECTED:							print(string, len, "%x ACT_PAWN_DETECTED                    ", ACT_PAWN_DETECTED 				);	break;
+		case ACT_PAWN_NO_LONGER_DETECTED :				print(string, len, "%x ACT_PAWN_NO_LONGER_DETECTED          ", ACT_PAWN_NO_LONGER_DETECTED 		);	break;
+		case ACT_EMPTY:									print(string, len, "%x ACT_EMPTY                            ", ACT_EMPTY						);	break;
+		case ACT_FULL:									print(string, len, "%x ACT_FULL                             ", ACT_FULL							);	break;
+		case ACT_FAILURE:								print(string, len, "%x ACT_FAILURE                          ", ACT_FAILURE						);	break;
+		case ACT_READY:									print(string, len, "%x ACT_READY                            ", ACT_READY						);	break;
+		case ACT_DCM_SETPOS:							print(string, len, "%x ACT_DCM_SETPOS                       ", ACT_DCM_SETPOS					);	break;
+		case ACT_PREPARE_CLAMP:							print(string, len, "%x ACT_PREPARE_CLAMP                    ", ACT_PREPARE_CLAMP				);	break;
+		case ACT_TAKE_PAWN:								print(string, len, "%x ACT_TAKE_PAWN                        ", ACT_TAKE_PAWN					);	break;
+		case ACT_FILE_PAWN:								print(string, len, "%x ACT_FILE_PAWN                        ", ACT_FILE_PAWN					);	break;
+*/		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING       ", BEACON_ENABLE_PERIODIC_SENDING	);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING      ", BEACON_DISABLE_PERIODIC_SENDING	);	break;
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:	print(string, len, "%x BROADCAST_BEACON_ADVERSARY_POS_IR    ", BROADCAST_BEACON_ADVERSARY_POSITION_IR	);	break;
 		case DEBUG_STRAT_STATE_CHANGED:					print(string, len, "%x DEBUG_STRAT_STATE_CHANGED            ", DEBUG_STRAT_STATE_CHANGED		);	break;
@@ -80,6 +115,9 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case XBEE_PING:									print(string, len, "%x XBEE_PING                            ", XBEE_PING						);	break;
 		case XBEE_PONG:									print(string, len, "%x XBEE_PONG                            ", XBEE_PONG						);	break;
 		case XBEE_REACH_POINT_GET_OUT_INIT:				print(string, len, "%x XBEE_REACH_POINT_GET_OUT_INIT        ", XBEE_REACH_POINT_GET_OUT_INIT	);	break;
+		case XBEE_REACH_POINT_C1:						print(string, len, "%x XBEE_REACH_POINT_C1                  ", XBEE_REACH_POINT_C1				);	break;
+		case XBEE_GUY_HAVE_DONE_FIRE:					print(string, len, "%x XBEE_GUY_HAVE_DONE_FIRE              ", XBEE_GUY_HAVE_DONE_FIRE			);	break;
+		case XBEE_GUY_IS_BLOQUED_IN_NORTH:				print(string, len, "%x XBEE_GUY_IS_BLOQUED_IN_NORTH         ", XBEE_GUY_IS_BLOQUED_IN_NORTH		);	break;
 		case DEBUG_PROPULSION_SET_COEF:					print(string, len, "%x DEBUG_PROPULSION_SET_COEF            ", DEBUG_PROPULSION_SET_COEF		);	break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:			print(string, len, "%x DEBUG_PROPULSION_SET_ACCELERATION    ", DEBUG_PROPULSION_SET_ACCELERATION);	break;
 		case ACT_RESULT:								print(string, len, "%x ACT_RESULT                           ", ACT_RESULT						);	break;
@@ -100,6 +138,9 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"JAUNE":"ROUGE"	);		break;
 		case BROADCAST_POSITION_ROBOT :			print(string, len, "| JeSuisEn  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
 	//	case STRAT_ADVERSARIES_POSITION:		print(string, len, "|\n");												break;
+		case STRAT_INFORM_FILET:				print(string, len, "Filet %s\n",(u8(0))?"Absent":"Présent");			break;
+		case STRAT_INFORM_FRUIT_MOUTH:			print(string, len, "Fruit mouth %s\n",(u8(0))?"Ouvert":"Fermé");		break;
+		case STRAT_ANSWER_POMPE:				print(string, len, "Pompe %s\n",(u8(0))?"dans le vide":"sous pression");;	break;
 	//	case DEBUG_CARTE_P:						print(string, len, "|\n");												break;
 //		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 //		case DEBUG_ELEMENT_UPDATED:				print(string, len, "|\n");												break;
@@ -137,7 +178,18 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 												print(string, len, "angleR1=%d |dR1=%dcm |angleR2=%d |dR2=%dcm \n", angle_deg(1,2), (Uint16)(u8(3)),angle_deg(5,6), (Uint16)(u8(7)));	break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", u8(0),u32(1,2,3,4));								break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%d\n", u16(0,1));									break;
-
+		case XBEE_GUY_HAVE_DONE_FIRE:			print(string, len, "| fire_id=%d : %s\n", u8(0), (u8(0) < FIRE_ID_NB)?fire_id_string[u8(0)]:"UNKNOW_FIRE_ID");	break;
+		default:
+			if(msg->size)
+			{
+				print(string, len, "| DATA=");
+				for(i = 0; i<msg->size && i<8; i++)
+					print(string, len, "%x ", u8(i));
+				print(string, len, "| SIZE=%x\n", msg->size);
+			}
+			else
+				print(string, len, "|\n");
+		break;
 	}
 	return string - ret;
 }
