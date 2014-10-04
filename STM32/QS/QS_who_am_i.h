@@ -17,12 +17,10 @@
 
 	typedef enum
 	{
-		KRUSTY = 0,
-		TINY,
-		PIERRE = KRUSTY,
-		GUY = TINY,
-		SMALL_ROBOT = TINY,
-		BIG_ROBOT = KRUSTY
+		HOLLY = 0,
+		WOOD,
+		SMALL_ROBOT = WOOD,
+		BIG_ROBOT = HOLLY
 	}robot_id_e;
 
 	/** @brief  Cette fonction doit être appelée lors de l'initialisation.

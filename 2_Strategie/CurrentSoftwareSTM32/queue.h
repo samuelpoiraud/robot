@@ -22,7 +22,7 @@
 
 typedef Uint8 queue_size_t;
 typedef enum {
-	//Pierre
+	//Holly
 	ACT_QUEUE_Fruit,
 	ACT_QUEUE_Fruit_labium,
 	ACT_QUEUE_launcher,

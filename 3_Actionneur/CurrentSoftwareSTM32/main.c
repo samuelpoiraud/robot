@@ -94,10 +94,10 @@ int main (void)
 	debug_printf("--- Hello, I'm ACT (%s) ---\n", QS_WHO_AM_I_get_name());
 
 	#if defined(I_AM_ROBOT_BIG)
-		#define ROBOT_CODE_NAME	"Pierre"
+		#define ROBOT_CODE_NAME	"Holly"
 		if(QS_WHO_AM_I_get() != BIG_ROBOT)
 	#elif defined(I_AM_ROBOT_SMALL)
-		#define ROBOT_CODE_NAME	"Guy"
+		#define ROBOT_CODE_NAME	"Wood"
 		if(QS_WHO_AM_I_get() != SMALL_ROBOT)
 	#endif	// Pour changer le code du robot aller dans : "config/config_global.h"
 		{

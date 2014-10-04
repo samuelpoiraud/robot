@@ -6,7 +6,7 @@
  *  Package : Carte Actionneur
  *  Description : Selftest
  *  Auteur : Alexis
- *  Robot : Pierre & Guy
+ *  Robot : Pierre & Guy, Holly & Wood
  */
 
 #define SELFTEST_C

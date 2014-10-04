@@ -1,6 +1,6 @@
    /*
- *	Club Robot ESEO 2011 - 2012 - 2014
- *	Shark & Fish / Pierre & Guy
+ *	Club Robot ESEO 2011 - 2012 - 2015
+ *	Shark & Fish / Pierre & Guy / Holly & Wood
  *
  *	Fichier : Pathfind.c
  *	Package : Carte Principale
