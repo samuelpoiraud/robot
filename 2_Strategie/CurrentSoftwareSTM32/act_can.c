@@ -1,5 +1,4 @@
 #include "act_can.h"
-#include "avoidance.h"
 #include "QS/QS_CANmsgList.h"
 #include "config_use.h"
 
