@@ -20,6 +20,10 @@
 #include "../secretary.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_who_am_i.h"
+#include "../detection.h"
+#include "../QS/QS_maths.h"
+#include "../hokuyo.h"
+#include "../avoidance.h"
 #ifndef LED_GREEN
 	#define LED_GREEN GPIOD->ODR12
 #endif
@@ -158,12 +162,27 @@ void LCD_send_message(void)
 	Uint8 i;
 	CAN_msg_t msg;
 
-	//Si les robots adverses sont activés, on envoie leurs positions.
-	if(robots[ADVERSARY_1].enable)
-		SECRETARY_send_adversary_position((robots[ADVERSARY_2].enable)?FALSE:TRUE,0, robots[ADVERSARY_1].x*10, robots[ADVERSARY_1].y*10, 0, 0, ADVERSARY_DETECTION_FIABILITY_X | ADVERSARY_DETECTION_FIABILITY_Y);
-	if(robots[ADVERSARY_2].enable)
-		SECRETARY_send_adversary_position(TRUE,(robots[ADVERSARY_1].enable)?1:0, robots[ADVERSARY_2].x*10, robots[ADVERSARY_2].y*10, 0, 0, ADVERSARY_DETECTION_FIABILITY_X | ADVERSARY_DETECTION_FIABILITY_Y);
+	HOKUYO_adversary_position adversaries[2];
+	Uint8 nb_adversaries = (robots[ADVERSARY_1].enable)?1:0 + (robots[ADVERSARY_2].enable)?1:0;
 
+	//Si les robots adverses sont activés, on envoie leurs positions.
+	if(robots[ADVERSARY_1].enable){
+		SECRETARY_send_adversary_position((robots[ADVERSARY_2].enable)?FALSE:TRUE,0, robots[ADVERSARY_1].x*10, robots[ADVERSARY_1].y*10, 0, 0, ADVERSARY_DETECTION_FIABILITY_X | ADVERSARY_DETECTION_FIABILITY_Y);
+		adversaries[0].teta = 0;
+		adversaries[0].dist = GEOMETRY_distance((GEOMETRY_point_t){global.position.x, global.position.y}, (GEOMETRY_point_t){robots[ADVERSARY_1].x*10, robots[ADVERSARY_1].y*11});
+		adversaries[0].coordX = robots[ADVERSARY_1].x*10;
+		adversaries[0].coordY = robots[ADVERSARY_1].y*10;
+	}
+	if(robots[ADVERSARY_2].enable){
+		SECRETARY_send_adversary_position(TRUE,(robots[ADVERSARY_1].enable)?1:0, robots[ADVERSARY_2].x*10, robots[ADVERSARY_2].y*10, 0, 0, ADVERSARY_DETECTION_FIABILITY_X | ADVERSARY_DETECTION_FIABILITY_Y);
+		adversaries[nb_adversaries-1].teta = 0;
+		adversaries[nb_adversaries-1].dist = GEOMETRY_distance((GEOMETRY_point_t){global.position.x, global.position.y}, (GEOMETRY_point_t){robots[ADVERSARY_2].x*10, robots[ADVERSARY_2].y*10});
+		adversaries[nb_adversaries-1].coordX = robots[ADVERSARY_2].x*10;
+		adversaries[nb_adversaries-1].coordY = robots[ADVERSARY_2].y*10;
+	}
+
+	if(nb_adversaries)
+		DETECTION_new_adversary_position(NULL, adversaries, nb_adversaries);
 
 	switch(robot_selected)
 	{
@@ -250,6 +269,10 @@ void LCD_process_main(void){
 			robots[me].teta = global.position.teta;
 			robots[me].updated = TRUE;			// Déclarer changement pour l'affichage
 		}
+
+	#ifdef USE_PROP_AVOIDANCE
+			AVOIDANCE_refresh_avoid_poly();
+	#endif
 
 		Calibration_Test_Dispose(&robots[robot_selected] , &robot_selected);
 

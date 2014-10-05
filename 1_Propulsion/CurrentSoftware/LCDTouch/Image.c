@@ -14,6 +14,7 @@
 #ifndef IMAGE_C_
 #define IMAGE_C_
 #include "stm32f4xx.h"
+#include "stm32f4_discovery_lcd.h"
 
 uint8_t ram_tableauImage[320*200];
 

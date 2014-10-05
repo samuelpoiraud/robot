@@ -20,6 +20,7 @@
 #include "buffer.h"
 #include "secretary.h"
 #include "pilot.h"
+#include "LCDTouch/stm32f4_discovery_lcd.h"
 
 adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
 
@@ -130,6 +131,8 @@ void AVOIDANCE_process_it(){
 #endif
 }
 
+GEOMETRY_point_t avoid_poly[4];
+
 bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	Sint32 vrot;		//[rad/4096/1024/5ms]
 	Sint32 vtrans;		//[mm/4096/5ms]
@@ -158,7 +161,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	Sint32 relative_foe_y;
 
 	vrot = global.vitesse_rotation;
-	vtrans = global.vitesse_translation;
+	vtrans = global.vitesse_translation/12;
 	teta = global.position.teta;
 
 	COS_SIN_4096_get(teta, &cos, &sin);
@@ -177,7 +180,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 
 	/*[mm/4096/5ms/5ms]*/	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
 	/*[mm/4096/5ms]*/		current_speed = (Uint32)(absolute(vtrans)*1);
-	/*[mm]*/				break_distance = SQUARE(current_speed)/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
+	/*[mm]*/				break_distance = SQUARE(current_speed)/(4*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
 	/*[mm]*/				respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
 	/*[mm]*/				slow_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_DIST_MIN_SPEED_SLOW:BIG_ROBOT_DIST_MIN_SPEED_SLOW;	//Distance à laquelle on souhaite ralentir
 
@@ -192,6 +195,27 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 		avoidance_rectangle_min_x = -(break_distance + respect_distance);
 	else
 		avoidance_rectangle_min_x = 0;
+
+	#ifdef LCD_TOUCH
+
+		Sint16 angle[4];
+		angle[0] = global.position.teta + atan2(avoidance_rectangle_width_y/2, avoidance_rectangle_max_x)*4096;
+		angle[1] = global.position.teta + atan2(-avoidance_rectangle_width_y/2, avoidance_rectangle_max_x)*4096;
+		angle[2] = global.position.teta + atan2(-avoidance_rectangle_width_y/2, avoidance_rectangle_min_x)*4096;
+		angle[3] = global.position.teta + atan2(avoidance_rectangle_width_y/2, avoidance_rectangle_min_x)*4096;
+
+		Uint16 longueur[4];
+		longueur[0] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y/2, avoidance_rectangle_max_x});
+		longueur[1] = longueur[0];//GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y/2, avoidance_rectangle_max_x});
+		longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y/2, avoidance_rectangle_min_x});
+		longueur[3] = longueur[2];//GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y/2, avoidance_rectangle_max_x});
+
+		avoid_poly[0] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[0])*longueur[0], 0), MIN(global.position.y+sin4096(angle[0])*longueur[0], 3000)};
+		avoid_poly[1] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[1])*longueur[1], 2000), MIN(global.position.y+sin4096(angle[1])*longueur[1], 3000)};
+		avoid_poly[2] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[2])*longueur[2], 2000), MAX(global.position.y+sin4096(angle[2])*longueur[2], 0)};
+		avoid_poly[3] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[3])*longueur[3], 0), MAX(global.position.y+sin4096(angle[3])*longueur[3], 0)};
+
+	#endif
 
 	for(i=0; i<max_foes; i++){
 
@@ -243,6 +267,18 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	}
 
 	return in_path;
+}
+
+void AVOIDANCE_refresh_avoid_poly(){
+	Point avoid[5];
+
+	avoid[0] = (Point){avoid_poly[0].y*320/3000, avoid_poly[0].x*200/2000};
+	avoid[1] = (Point){avoid_poly[1].y*320/3000, avoid_poly[1].x*200/2000};
+	avoid[2] = (Point){avoid_poly[2].y*320/3000, avoid_poly[2].x*200/2000};
+	avoid[3] = (Point){avoid_poly[3].y*320/3000, avoid_poly[3].x*200/2000};
+	avoid[4] = (Point){avoid_poly[0].y*320/3000, avoid_poly[0].x*200/2000};
+
+	LCD_PolyLine(avoid, 5);
 }
 
 // Retourne si un adversaire est dans la chemin entre nous et la position
