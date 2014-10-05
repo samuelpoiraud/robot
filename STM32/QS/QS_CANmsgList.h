@@ -548,6 +548,12 @@
 	#define PROP_JOYSTICK 						0x111
 
 
+	#define PROP_OFFSET_AVOID					0x112
+	// data 0/1 : Uint16 Xleft
+	// data 2/3 : Uint16 Xright
+	// data 4/5 : Uint16 Yfront
+	// data 6/7 : Uint16 Yback
+
 	#define PROP_DEBUG_FORCED_FOE				0x118
 	// Message CAN pour forcer la détection d'un adversaire
 

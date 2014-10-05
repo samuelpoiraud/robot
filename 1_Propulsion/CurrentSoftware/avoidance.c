@@ -24,6 +24,15 @@
 
 adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
 
+typedef struct{
+	Uint16 Xleft;
+	Uint16 Xright;
+	Uint16 Yfront;
+	Uint16 Yback;
+}offset_avoid_s;
+
+static offset_avoid_s offset_avoid = {0};
+
 void AVOIDANCE_init(){
 
 }
@@ -149,7 +158,8 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 
 	Sint32 avoidance_rectangle_min_x;
 	Sint32 avoidance_rectangle_max_x;
-	Sint32 avoidance_rectangle_width_y;
+	Sint32 avoidance_rectangle_width_y_min;
+	Sint32 avoidance_rectangle_width_y_max;
 
 	Uint32 breaking_acceleration;
 	Uint32 current_speed;
@@ -184,31 +194,32 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	/*[mm]*/				respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
 	/*[mm]*/				slow_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_DIST_MIN_SPEED_SLOW:BIG_ROBOT_DIST_MIN_SPEED_SLOW;	//Distance à laquelle on souhaite ralentir
 
-	avoidance_rectangle_width_y = FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH);
+	avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright);
+	avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft;
 
 	if(move_way == FORWARD || move_way == ANY_WAY)	//On avance
-		avoidance_rectangle_max_x = break_distance + respect_distance;
+		avoidance_rectangle_max_x = break_distance + respect_distance + offset_avoid.Yfront;
 	else
 		avoidance_rectangle_max_x = 0;
 
 	if(move_way == BACKWARD || move_way == ANY_WAY)	//On recule
-		avoidance_rectangle_min_x = -(break_distance + respect_distance);
+		avoidance_rectangle_min_x = -(break_distance + respect_distance + offset_avoid.Yback);
 	else
 		avoidance_rectangle_min_x = 0;
 
 	#ifdef LCD_TOUCH
 
 		Sint16 angle[4];
-		angle[0] = global.position.teta + atan2(avoidance_rectangle_width_y/2, avoidance_rectangle_max_x)*4096;
-		angle[1] = global.position.teta + atan2(-avoidance_rectangle_width_y/2, avoidance_rectangle_max_x)*4096;
-		angle[2] = global.position.teta + atan2(-avoidance_rectangle_width_y/2, avoidance_rectangle_min_x)*4096;
-		angle[3] = global.position.teta + atan2(avoidance_rectangle_width_y/2, avoidance_rectangle_min_x)*4096;
+		angle[0] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_max_x)*4096;
+		angle[1] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_max_x)*4096;
+		angle[2] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_min_x)*4096;
+		angle[3] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_min_x)*4096;
 
 		Uint16 longueur[4];
-		longueur[0] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y/2, avoidance_rectangle_max_x});
-		longueur[1] = longueur[0];//GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y/2, avoidance_rectangle_max_x});
-		longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y/2, avoidance_rectangle_min_x});
-		longueur[3] = longueur[2];//GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y/2, avoidance_rectangle_max_x});
+		longueur[0] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_max_x});
+		longueur[1] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_max_x});
+		longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_min_x});
+		longueur[3] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_min_x});
 
 		avoid_poly[0] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[0])*longueur[0], 0), MIN(global.position.y+sin4096(angle[0])*longueur[0], 3000)};
 		avoid_poly[1] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[1])*longueur[1], 2000), MIN(global.position.y+sin4096(angle[1])*longueur[1], 3000)};
@@ -224,8 +235,8 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 			relative_foe_x = (((Sint32)(cosinus)) * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 			relative_foe_y = (((Sint32)(sinus))   * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 
-			if(		relative_foe_y > -avoidance_rectangle_width_y/2 && 	relative_foe_y < avoidance_rectangle_width_y/2
-				&& 	relative_foe_x > avoidance_rectangle_min_x 		&& 	relative_foe_x < avoidance_rectangle_max_x)
+			if(		relative_foe_y > avoidance_rectangle_width_y_min && 	relative_foe_y < avoidance_rectangle_width_y_max
+				&& 	relative_foe_x > avoidance_rectangle_min_x 		 && 	relative_foe_x < avoidance_rectangle_max_x)
 				{
 					in_path = TRUE;	//On est dans le rectangle d'évitement !!!
 					adversary = &adversaries[i]; // On sauvegarde l'adversaire nous ayant fait évité
@@ -235,15 +246,16 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 
 	if(in_path == FALSE){
 
-		avoidance_rectangle_width_y = FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH) + 50;
+		avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright + 50);
+		avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft + 50;
 
 		if(move_way == FORWARD || move_way == ANY_WAY)	//On avance
-			avoidance_rectangle_max_x = break_distance + slow_distance;
+			avoidance_rectangle_max_x = break_distance + slow_distance + offset_avoid.Yfront;
 		else
 			avoidance_rectangle_max_x = 0;
 
 		if(move_way == BACKWARD || move_way == ANY_WAY)	//On recule
-			avoidance_rectangle_min_x = -(break_distance + slow_distance);
+			avoidance_rectangle_min_x = -(break_distance + slow_distance + offset_avoid.Yback);
 		else
 			avoidance_rectangle_min_x = 0;
 
@@ -254,8 +266,8 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 				relative_foe_x = (((Sint32)(cosinus)) * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 				relative_foe_y = (((Sint32)(sinus))   * adversaries[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 
-				if(		relative_foe_y > -avoidance_rectangle_width_y/2 && 	relative_foe_y < avoidance_rectangle_width_y/2
-					&& 	relative_foe_x > avoidance_rectangle_min_x 		&& 	relative_foe_x < avoidance_rectangle_max_x)
+				if(		relative_foe_y > avoidance_rectangle_width_y_min && 	relative_foe_y < avoidance_rectangle_width_y_max
+					&& 	relative_foe_x > avoidance_rectangle_min_x 		 && 	relative_foe_x < avoidance_rectangle_max_x)
 					{
 						PILOT_set_speed(SLOW_TRANSLATION_AND_FAST_ROTATION);
 						in_slow_zone = TRUE;
@@ -359,4 +371,13 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 
 void AVOIDANCE_said_foe_detected(){
 	SECRETARY_send_foe_detected(adversary->x, adversary->y, FALSE);
+}
+
+void AVOIDANCE_process_CAN_msg(CAN_msg_t *msg){
+#ifdef USE_ACT_AVOID
+	offset_avoid.Xleft = U16FROMU8(msg->data[0], msg->data[1]);
+	offset_avoid.Xright = U16FROMU8(msg->data[2], msg->data[3]);
+	offset_avoid.Yfront = U16FROMU8(msg->data[4], msg->data[5]);
+	offset_avoid.Yback = U16FROMU8(msg->data[6], msg->data[7]);
+#endif
 }
