@@ -14,11 +14,6 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_can.h"
 
-
-#define ADC_12_HOKUYO		ADC_4
-#define ADC_24_PUISSANCE	ADC_6
-#define ADC_24_PERMANENCE	ADC_10
-
 #define PERCENTAGE_FILTER			10
 #define THRESHOLD_BATTERY_OFF		18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW		21300	//[mV] Réglage du seuil de batterie faible
@@ -28,17 +23,30 @@
 #define ACQUISITION					200		//[ms] Faire une acquisition de la batterie tous les..
 
 static Uint32 valuePerm;
-static bool_e ARU_enable,HOKUYO_enable;
+static bool_e ARU_enable,BATTERY_Low,HOKUYO_enable;
 
 
-void send_msgCAN(IHM_power_e state);
+static void send_msgCAN(IHM_power_e state);
 
 void VOLTAGE_MEASURE_init(){
 	ADC_init();
-
+	Uint32 valuePcse = VOLTAGE_MEASURE_measure24_mV(ADC_24_PUISSANCE);
+	Uint32 valueHokuyo = VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO);
 	valuePerm = VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE);
 
-	if(VOLTAGE_MEASURE_measure24_mV(ADC_24_PUISSANCE) < valuePerm - GAP_BETWEEN_ARU){ // ARU, enfoncé
+
+	if(valuePerm < THRESHOLD_BATTERY_OFF){
+		send_msgCAN(BATTERY_OFF);
+		BATTERY_Low = TRUE;
+	}
+	else if(valuePerm < THRESHOLD_BATTERY_LOW){
+		send_msgCAN(BATTERY_LOW);
+		BATTERY_Low = TRUE;
+	}else
+		BATTERY_Low = FALSE;
+
+
+	if(valuePcse < valuePerm - GAP_BETWEEN_ARU){ // ARU, enfoncé
 		send_msgCAN(ARU_ENABLE);
 		ARU_enable = TRUE;
 	}else{
@@ -46,7 +54,7 @@ void VOLTAGE_MEASURE_init(){
 		ARU_enable = FALSE;
 	}
 
-	if(VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO) < THRESHOLD_12V_HOKUYO_MIN || VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO) > THRESHOLD_12V_HOKUYO_MAX){
+	if(valueHokuyo < THRESHOLD_12V_HOKUYO_MIN || valueHokuyo > THRESHOLD_12V_HOKUYO_MAX){
 		send_msgCAN(HOKUYO_POWER_FAIL);
 		HOKUYO_enable = FALSE;
 	}else
@@ -57,20 +65,27 @@ void VOLTAGE_MEASURE_process_it(Uint8 ms){
 	static Uint8 time = ACQUISITION;
 
 	// Regarde, s'il doit faire une acquisition ou bien passer son chemin
-	if(time < ms){
-		time = ACQUISITION;
+	if(time > ms){
+		time -= (Uint8)(ms);
 		return;
 	}
-	time -= (Uint8)(ms);
+
+	time = ACQUISITION;
 
 	Uint32 valuePcse = VOLTAGE_MEASURE_measure24_mV(ADC_24_PUISSANCE);
-	valuePerm = valuePerm*(100-PERCENTAGE_FILTER) + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER;
+	Uint32 valueHokuyo = VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO);
+
+	valuePerm = valuePerm*(100-PERCENTAGE_FILTER)/100 + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER/100;
 
 
-	if(valuePerm < THRESHOLD_BATTERY_OFF)
+	if(valuePerm < THRESHOLD_BATTERY_OFF && !BATTERY_Low){
 		send_msgCAN(BATTERY_OFF);
-	else if(valuePerm < THRESHOLD_BATTERY_LOW)
+		BATTERY_Low = TRUE;
+	}else if(valuePerm < THRESHOLD_BATTERY_LOW && !BATTERY_Low){
 		send_msgCAN(BATTERY_LOW);
+		BATTERY_Low = TRUE;
+	}
+
 
 	if(valuePcse < valuePerm - GAP_BETWEEN_ARU && !ARU_enable){ // L'ARU vient d'être enfoncé, plus de puissance
 		send_msgCAN(ARU_ENABLE);
@@ -81,7 +96,7 @@ void VOLTAGE_MEASURE_process_it(Uint8 ms){
 	}
 
 
-	if((VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO) < THRESHOLD_12V_HOKUYO_MIN || VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO) > THRESHOLD_12V_HOKUYO_MAX)){
+	if((valueHokuyo < THRESHOLD_12V_HOKUYO_MIN || valueHokuyo > THRESHOLD_12V_HOKUYO_MAX)){
 		if(HOKUYO_enable)
 			send_msgCAN(HOKUYO_POWER_FAIL);
 		HOKUYO_enable = FALSE;
@@ -94,7 +109,7 @@ Uint16 VOLTAGE_MEASURE_measure24_mV(adc_id_e id){
 	return (Uint16)((measure * 3000*110/10)/1024);	//3000 [mV] correspond à 4096 [ADC]
 }
 
-void send_msgCAN(IHM_power_e state){
+static void send_msgCAN(IHM_power_e state){
 	CAN_msg_t msg;
 	msg.sid = IHM_POWER;
 	msg.data[0] = state;
