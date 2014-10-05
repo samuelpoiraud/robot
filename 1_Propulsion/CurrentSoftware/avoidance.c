@@ -284,11 +284,11 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 void AVOIDANCE_refresh_avoid_poly(){
 	Point avoid[5];
 
-	avoid[0] = (Point){avoid_poly[0].y*320/3000, avoid_poly[0].x*200/2000};
-	avoid[1] = (Point){avoid_poly[1].y*320/3000, avoid_poly[1].x*200/2000};
-	avoid[2] = (Point){avoid_poly[2].y*320/3000, avoid_poly[2].x*200/2000};
-	avoid[3] = (Point){avoid_poly[3].y*320/3000, avoid_poly[3].x*200/2000};
-	avoid[4] = (Point){avoid_poly[0].y*320/3000, avoid_poly[0].x*200/2000};
+	avoid[0] = (Point){avoid_poly[0].y*299/3000, avoid_poly[0].x*199/2000};
+	avoid[1] = (Point){avoid_poly[1].y*299/3000, avoid_poly[1].x*199/2000};
+	avoid[2] = (Point){avoid_poly[2].y*299/3000, avoid_poly[2].x*199/2000};
+	avoid[3] = (Point){avoid_poly[3].y*299/3000, avoid_poly[3].x*199/2000};
+	avoid[4] = (Point){avoid_poly[0].y*299/3000, avoid_poly[0].x*199/2000};
 
 	LCD_PolyLine(avoid, 5);
 }
