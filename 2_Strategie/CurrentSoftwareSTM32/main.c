@@ -34,6 +34,7 @@
 #include "config_pin.h"
 #include "config_use.h"
 #include "QS/QS_IHM.h"
+#include "act_avoidance.h"
 
 
 void test_bp_switchs(void);
@@ -113,6 +114,8 @@ int main (void)
 #ifdef FDP_2014
 	IHM_init();
 #endif
+
+	ACT_AVOIDANCE_init();
 
 #if 0
 	while(1)

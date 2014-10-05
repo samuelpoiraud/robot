@@ -34,6 +34,7 @@
 #include "supervisor.h"
 #include "detection.h"
 #include "gyroscope.h"
+#include "avoidance.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -680,6 +681,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			SEQUENCES_trajectory_for_test_coefs();
 			WARNER_enable_counter_trajectory_for_test_coefs_finished();
 		break;
+
+		case PROP_OFFSET_AVOID:
+			AVOIDANCE_process_CAN_msg(msg);
+			break;
 
 		#ifdef LCD_TOUCH
 		case BROADCAST_POSITION_ROBOT:

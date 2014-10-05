@@ -60,6 +60,7 @@
 	#define USE_GYROSCOPE
 
 	//#define USE_PROP_AVOIDANCE
+	//#define USE_ACT_AVOID
 
 	//#define USE_MATHS_FILTER
 

@@ -24,6 +24,8 @@
 #define LOG_PREFIX "act_f: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "QS/QS_outputlog.h"
+#include "act_avoidance.h"
+#include "QS/QS_who_am_i.h"
 
 
 /* Pile contenant les arguments d'une demande d'opération
@@ -60,6 +62,23 @@ bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd) {
 	ACT_arg_set_fallbackmsg(&args, ACT_TORCH_LOCKER, ACT_TORCH_LOCKER_STOP);
 
 	debug_printf("Pushing torch locker Run cmd\n");
+
+	ACT_AVOIDANCE_reset_actionneur(ACT_AVOID_TORCH_LOCKER);
+
+	switch(cmd){
+		case ACT_TORCH_Locker_Inside:
+			ACT_AVOIDANCE_new_action(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Inside, TRUE);
+			break;
+
+		case ACT_TORCH_Locker_Lock:
+			ACT_AVOIDANCE_new_action(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Lock, TRUE);
+			break;
+
+		case ACT_TORCH_Locker_Unlock:
+			ACT_AVOIDANCE_new_action(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Unlock, TRUE);
+			break;
+	}
+
 	return ACT_push_operation(ACT_QUEUE_Torch_locker, &args);
 }
 
@@ -69,17 +88,19 @@ bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd) {
 	ACT_arg_init(&args, ACT_FRUIT_MOUTH, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_FRUIT_MOUTH, ACT_FRUIT_MOUTH_STOP);
 
+	ACT_AVOIDANCE_reset_actionneur(ACT_AVOID_FRUIT_MOUTH);
+
+	switch(cmd){
+		case ACT_FRUIT_Verrin_Open:
+			ACT_AVOIDANCE_new_action(ACT_AVOID_FRUIT_MOUTH, ACT_AVOID_FRUIT_MOUTH_Open, TRUE);
+			break;
+
+		case ACT_FRUIT_Verrin_Close:
+			ACT_AVOIDANCE_new_action(ACT_AVOID_FRUIT_MOUTH, ACT_AVOID_FRUIT_MOUTH_Close, TRUE);
+			break;
+	}
+
 	debug_printf("Pushing Fruit Run cmd\n");
-	return ACT_push_operation(ACT_QUEUE_Fruit, &args);
-}
-
-bool_e ACT_fruit_mouth_goto_close() {
-	QUEUE_arg_t args;
-
-	ACT_arg_init(&args, ACT_FRUIT_MOUTH, ACT_FRUIT_MOUTH_CLOSE);
-	ACT_arg_set_fallbackmsg(&args, ACT_FRUIT_MOUTH, ACT_FRUIT_MOUTH_STOP);
-
-	debug_printf("Pushing Fruit Run close cmd\n");
 	return ACT_push_operation(ACT_QUEUE_Fruit, &args);
 }
 
@@ -118,6 +139,24 @@ bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd){
 
 	ACT_arg_init(&args, ACT_SMALL_ARM, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_SMALL_ARM, ACT_SMALL_ARM_STOP);
+
+	if(QS_WHO_AM_I_get() == SMALL_ROBOT){
+		ACT_AVOIDANCE_reset_actionneur(ACT_AVOID_SMALL_ARM);
+
+		switch(cmd){
+			case ACT_Small_arm_Idle:
+				ACT_AVOIDANCE_new_action(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Idle, TRUE);
+				break;
+
+			case ACT_Small_arm_Mid:
+				ACT_AVOIDANCE_new_action(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Mid, TRUE);
+				break;
+
+			case ACT_Small_arm_Deployed:
+				ACT_AVOIDANCE_new_action(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Deployed, TRUE);
+				break;
+		}
+	}
 
 	debug_printf("Pushing Small Arm run %d cmd\n", cmd);
 	return ACT_push_operation(ACT_QUEUE_Small_arm, &args);
@@ -280,7 +319,7 @@ error_e ACT_elevator_arm_rush_in_the_floor(Uint8 state_arm, Uint8 in_progress, U
 	return in_progress;
 }
 
-bool_e ACT__config(Uint16 sid, Uint8 cmd, Uint16 value){
+bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value){
 	QUEUE_arg_t args;
 	queue_id_e queue_id;
 	ACT_can_msg_t msg;
