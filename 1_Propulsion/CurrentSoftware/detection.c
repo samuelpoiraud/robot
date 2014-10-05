@@ -16,6 +16,7 @@
 #include "QS/QS_can.h"
 #include "QS/QS_timer.h"
 #include "QS/QS_maths.h"
+#include "hokuyo.h"
 
 volatile static Uint32 absolute_time = 0;
 volatile static Uint32 hokuyo_update_time = 0;

@@ -22,4 +22,6 @@
 
 	void AVOIDANCE_said_foe_detected();
 
+	void AVOIDANCE_refresh_avoid_poly();
+
 #endif  //def _PATHCHECKER_H

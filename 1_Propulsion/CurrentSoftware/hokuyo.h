@@ -9,6 +9,8 @@
 #define HOKUYO_H_
 //#define TRIANGULATION
 
+#include "QS/QS_all.h"
+
 #ifdef USE_HOKUYO
 
 
