@@ -14,17 +14,21 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_can.h"
 
+
+#define ADC_12_HOKUYO		ADC_4
 #define ADC_24_PUISSANCE	ADC_6
 #define ADC_24_PERMANENCE	ADC_10
 
-#define PERCENTAGE_FILTER 10
-#define THRESHOLD_BATTERY_OFF	18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
-#define THRESHOLD_BATTERY_LOW	21300	//[mV] Réglage du seuil de batterie faible
-#define GAP_BETWEEN_ARU			1000	//[mV] Ecart entre le 24V permanent et la puissance(dérrière l'ARU)
-#define ACQUISITION				200		//[ms] Faire une acquisition de la batterie tous les..
+#define PERCENTAGE_FILTER			10
+#define THRESHOLD_BATTERY_OFF		18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
+#define THRESHOLD_BATTERY_LOW		21300	//[mV] Réglage du seuil de batterie faible
+#define THRESHOLD_12V_HOKUYO_MIN	10000	//[mV] Réglage du seuil de la tension minimum hokuyo
+#define THRESHOLD_12V_HOKUYO_MAX	14000	//[mV] Réglage du seuil de la tension maximum hokuyo
+#define GAP_BETWEEN_ARU				1000	//[mV] Ecart entre le 24V permanent et la puissance(dérrière l'ARU)
+#define ACQUISITION					200		//[ms] Faire une acquisition de la batterie tous les..
 
 static Uint32 valuePerm;
-static bool_e ARU_enable;
+static bool_e ARU_enable,HOKUYO_enable;
 
 
 void send_msgCAN(IHM_power_e state);
@@ -41,12 +45,18 @@ void VOLTAGE_MEASURE_init(){
 		send_msgCAN(ARU_DISABLE);
 		ARU_enable = FALSE;
 	}
+
+	if(VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO) < THRESHOLD_12V_HOKUYO_MIN || VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO) > THRESHOLD_12V_HOKUYO_MAX){
+		send_msgCAN(HOKUYO_POWER_FAIL);
+		HOKUYO_enable = FALSE;
+	}else
+		HOKUYO_enable = TRUE;
 }
 
 void VOLTAGE_MEASURE_process_it(Uint8 ms){
 	static Uint8 time = ACQUISITION;
 
-	// Regarde si il doit faire une acquisition ou bien passer son chemin
+	// Regarde, s'il doit faire une acquisition ou bien passer son chemin
 	if(time < ms){
 		time = ACQUISITION;
 		return;
@@ -69,6 +79,14 @@ void VOLTAGE_MEASURE_process_it(Uint8 ms){
 		send_msgCAN(ARU_DISABLE);
 		ARU_enable = FALSE;
 	}
+
+
+	if((VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO) < THRESHOLD_12V_HOKUYO_MIN || VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO) > THRESHOLD_12V_HOKUYO_MAX)){
+		if(HOKUYO_enable)
+			send_msgCAN(HOKUYO_POWER_FAIL);
+		HOKUYO_enable = FALSE;
+	}else
+		HOKUYO_enable = TRUE;
 }
 
 Uint16 VOLTAGE_MEASURE_measure24_mV(adc_id_e id){
