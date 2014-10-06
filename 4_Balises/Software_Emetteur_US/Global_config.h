@@ -14,6 +14,13 @@
 #ifndef GLOBAL_CONFIG_H
 	#define GLOBAL_CONFIG_H
 	#include "QS/QS_types.h"
+
+	// Ne pas toucher, pour reconnaitre en strat qui est qui
+	#define BIG_BALISE		0
+	#define SMALL_BALISE	1
+
+	// Attention à changer selon la balise que nous programmons
+	#define I_AM_CARTE_BALISE	SMALL_BALISE
 	
 	
 	#define NUMERO_BALISE_EMETTRICE 	(1)	//ATTENTION : 1 ou 2... !!!
@@ -78,6 +85,11 @@
 	#define USE_RF
 	#define RF_UART UART2_ID
 	#define RF_TIMER_ID 2
+
+
+// Définissions des messages CAN
+#define STRAT_BALISE_BATTERY_LOW			0x247
+
 
  //RF_MODULE doit être défini a quelque chose de l'enum RF_module_e dans QS_rf.h
 #if NUMERO_BALISE_EMETTRICE == 1

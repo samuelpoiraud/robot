@@ -13,6 +13,7 @@
 #include "main.h"
 #include "QS/QS_outputlog.h"
 #include "SynchroRF.h"
+#include "QS/QS_watchdog.h"
 
 
 #if NUMERO_BALISE_EMETTRICE == 1
@@ -40,9 +41,6 @@ int main (void)
 	LED_USER2 = 0;
 
 	debug_printf(".RST\r\n");
-		
-
-
 
 
 	//Tempo, pour éviter une détection du bouton au démarrage (car chargement condo lent !)

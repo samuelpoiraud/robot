@@ -379,6 +379,11 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		default :
 			break;
 	}
+
+
+	if(CAN_msg_received->sid == STRAT_BALISE_BATTERY_LOW)
+		SELFTEST_declare_errors(NULL,(CAN_msg_received->data[0] == BIG_BALISE)?SELFTEST_BEACON_BATTERY_BIG_LOW:SELFTEST_BEACON_BATTERY_SMALL_LOW);
+
 }
 
 error_e SELFTEST_strategy(bool_e reset)
@@ -520,6 +525,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_BEACON_ADV1_NOT_SEEN:				debug_printf("SELFTEST_BEACON_ADV1_NOT_SEEN");					break;
 				case SELFTEST_BEACON_ADV2_NOT_SEEN:				debug_printf("SELFTEST_BEACON_ADV2_NOT_SEEN");					break;
 				case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		debug_printf("SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED");			break;
+				case SELFTEST_BEACON_BATTERY_BIG_LOW:			debug_printf("SELFTEST_BEACON_BATTERY_BIG_LOW");				break;
+				case SELFTEST_BEACON_BATTERY_SMALL_LOW:			debug_printf("SELFTEST_BEACON_BATTERY_SMALL_LOW");				break;
 				case SELFTEST_FAIL_UNKNOW_REASON:				debug_printf("FAIL_UNKNOW_REASON");								break;
 				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");										break;
 				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");									break;
@@ -778,6 +785,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_NOT_DONE:							return "Not done"; 				break;
 		case SELFTEST_BEACON_ADV1_NOT_SEEN:				return "IR Adv1 not seen";		break;
 		case SELFTEST_BEACON_ADV2_NOT_SEEN:				return "IR Adv2 not seen";		break;
+		case SELFTEST_BEACON_BATTERY_BIG_LOW:			return "Balise BAT BIG LOW";	break;
+		case SELFTEST_BEACON_BATTERY_SMALL_LOW:			return "Balise BAT BIG LOW";	break;
 		case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		return "IR not synchronized";	break;
 		case SELFTEST_FAIL_UNKNOW_REASON:				return "Error 404"; 			break;
 		case SELFTEST_TIMEOUT:							return "Selftest Timeout";		break;

@@ -17,6 +17,7 @@
 #include "stm32f4xx_gpio.h"
 #endif
 #include "QS_buffer_fifo.h"
+#include "QS_outputlog.h"
 
 //>1.5 STOP BIT !!!
 //CRC8 poly: 0x2F (HD=4 @data size < 120)
@@ -361,9 +362,11 @@ static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
 			Uint8 i;
 			msg.size = data[RF_CAN_SIZE] - 2;
 
-			assert(msg.size >= 8); //deja checké dans le if mais on ne sait jamais
+			assert(msg.size < 8); //deja checké dans le if mais on ne sait jamais
 
 			msg.sid = (Uint16)data[RF_CAN_SID] | (Uint16)data[RF_CAN_SID+1] << 8;
+
+			debug_printf("Pass here 0x%x\n\n",msg.sid);
 
 			for(i = 0; i < msg.size; i++) {
 				msg.data[i] = data[RF_CAN_DATA+i];

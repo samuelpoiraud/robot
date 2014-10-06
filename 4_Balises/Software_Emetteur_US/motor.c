@@ -14,6 +14,10 @@
 #include "QS/QS_pwm.h"
 #include <pwm.h>
 #include "QS/QS_timer.h"
+#include "QS_outputlog.h"
+#include "Global_config.h"
+#include "QS/QS_rf.h"
+#include "QS/QS_watchdog.h"
 
 static volatile bool_e motor_enable;
 #define PERIOD_IT_MOTOR 2 //ms
@@ -24,6 +28,12 @@ static volatile bool_e motor_enable;
 #define COMMAND 	(Sint16)(70)//pas par 2ms = 2048*17 pas par secondes = 17 tours par seconde
 
 
+#define DUTY_FILTER			30
+#define START_FILTER_DUTY	30	// Donne une valeur pour le démarrage, évite le pic du début
+#define THRESHOLD_DUTY_MAX	36	// La batterie a une tension inférieure à 6,8V
+
+
+void MOTOR_send_msg_battery_low(void);
 
 void MOTOR_init(void)
 {
@@ -36,6 +46,11 @@ void MOTOR_init(void)
 static volatile Sint16 count, error, delta_error, error_prec;
 static volatile Sint32 integral = 0;
 
+// compteur pour la reptition des messages quand la batterie est faible
+static bool_e battery_low_send = FALSE;
+static volatile Uint16 compt_bat_low = 0;
+
+#define REPITION_MSG_BAT_LOW		2500
 
 #define NB_IT_PER_TURN			(Uint8)(30)	//it = 2ms, 1 tour = 60ms => 30 it par tour.
 #define	NB_ENCODER_STEP_PER_IT	(Uint8)(68)	
@@ -76,13 +91,34 @@ void MOTOR_process_it(void)
 	//On sauvegarde pour le prochain tour.
 	count_prec = count;
 	error_prec = error;
+
+	if(battery_low_send)
+		compt_bat_low++;
 }	
 
 void MOTOR_process_main(void)
 {
-//	Uint8 i;
-	//debug_printf("d%d\tV%d",duty,speed)	;		
+	static Uint16 filter_duty = START_FILTER_DUTY;
+	//debug_printf("d%d\tV%d\tFilter_duty %d",duty,speed,filter_duty);
 	//debug_printf("\n");
+	
+	// Mise en place d'un filtre, pour les pics de valeurs et/ou le démarrage
+	filter_duty = (filter_duty*(100-DUTY_FILTER) + (duty*DUTY_FILTER))/100 ;
+
+	if((filter_duty > THRESHOLD_DUTY_MAX && !battery_low_send) || compt_bat_low > REPITION_MSG_BAT_LOW){
+		battery_low_send = TRUE;
+		compt_bat_low = 0;
+
+		CAN_msg_t msg;
+		msg.sid = STRAT_BALISE_BATTERY_LOW;
+		msg.size = 1;
+		msg.data[0] = I_AM_CARTE_BALISE;
+
+		RF_can_send(RF_SMALL, &msg);
+		RF_can_send(RF_BIG, &msg);
+
+		debug_printf("send message\n");
+	}
 }
 
 void MOTOR_togle_enable(void)
