@@ -291,6 +291,11 @@
 	#define STRAT_BEACON_IR_SELFTEST_DONE			0x2E4
 	#define STRAT_BEACON_US_SELFTEST_DONE			0x2E5
 	#define STRAT_BEACON_PONG						0x246
+	#define STRAT_BALISE_BATTERY_LOW				0x247  // Etat de la batterie interne des balises
+			// data 0 id de la balise soit :
+				#define BIG_BALISE		0	// Ne pas changer ces defines, car ils sont aussi sur les balises
+				#define SMALL_BALISE	1
+
 
 	#define DEBUG_SELFTEST_LAUNCH					0x700
 	//Jusqu'à 8 codes d'erreurs peuvent être transmis dans la réponse de chaque carte. (la size contient le nombre de code d'erreurs envoyés.)
@@ -301,6 +306,8 @@
 		SELFTEST_BEACON_ADV1_NOT_SEEN,				//Ne rien mettre avant ceci sans synchroniser le QS_CANmsgList dsPIC pour la balise !!!
 		SELFTEST_BEACON_ADV2_NOT_SEEN,
 		SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED,
+		SELFTEST_BEACON_BATTERY_BIG_LOW,
+		SELFTEST_BEACON_BATTERY_SMALL_LOW,
 		SELFTEST_TIMEOUT,
 		SELFTEST_PROP_FAILED,
 		SELFTEST_PROP_HOKUYO_FAILED,

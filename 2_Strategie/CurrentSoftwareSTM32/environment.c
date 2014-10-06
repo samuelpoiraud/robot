@@ -465,6 +465,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_ACT_PONG:
 		case STRAT_PROP_PONG:
 		case STRAT_BEACON_PONG:
+		case STRAT_BALISE_BATTERY_LOW:
 			SELFTEST_update(incoming_msg);
 			break;
 /************************************* Récupération des messages de la balise fixe ***************************/
