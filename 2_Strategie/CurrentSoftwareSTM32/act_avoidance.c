@@ -11,7 +11,7 @@
 static offset_avoid_s offset_avoid[ACT_AVOID_NB][ACT_AVOID_NB_MAX_CMD] = {{{0}}};
 static offset_avoid_s total_offset_avoid = {0};
 
-static void init_new_offset(act_avoid_e act_avoid_id, Uint8 cmd, Uint16 Xleft, Uint16 Xright, Uint16 Yfront, Uint16 Yback);
+static void init_new_offset(act_avoid_e act_avoid_id, Uint8 cmd, Uint8 act_cmd, Uint16 Xleft, Uint16 Xright, Uint16 Yfront, Uint16 Yback);
 static void send_total_offset_avoid();
 static void refresh_total_offset_avoid();
 
@@ -20,10 +20,8 @@ void ACT_AVOIDANCE_init(){
 
 	// Initialisation de tout les offsets à FALSE pour être sûr de ne pas imposer un offset non controlé
 	for(i=0;i<ACT_AVOID_NB;i++){
-		for(j=0;j<ACT_AVOID_NB_MAX_CMD;j++){
+		for(j=0;j<ACT_AVOID_NB_MAX_CMD;j++)
 			offset_avoid[i][j].init = FALSE;
-			offset_avoid[i][j].active = FALSE;
-		}
 	}
 
 
@@ -31,29 +29,26 @@ void ACT_AVOIDANCE_init(){
 
 	//ACT_AVOID_TORCH_LOCKER
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
-		init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Lock, 0, 0, 60, 0);
-		init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Unlock, 0, 0, 50, 0);
-		init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Inside, 0, 0, 0, 0);
+		init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Lock, ACT_TORCH_Locker_Lock,		0, 0, 60, 0);
+		init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Unlock, ACT_TORCH_Locker_Unlock, 0, 0, 50, 0);
 	}
 
 	//ACT_AVOID_FRUIT_MOUTH
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
-		init_new_offset(ACT_AVOID_FRUIT_MOUTH, ACT_AVOID_FRUIT_MOUTH_Open, 0, 250, 0, 0);
-		init_new_offset(ACT_AVOID_FRUIT_MOUTH, ACT_AVOID_FRUIT_MOUTH_Close, 0, 0, 0, 0);
+		init_new_offset(ACT_AVOID_FRUIT_MOUTH, ACT_AVOID_FRUIT_MOUTH_Open, ACT_FRUIT_Verrin_Open,		0, 250, 0, 0);
 	}
 
 	//ACT_AVOID_SMALL_ARM
 	if(QS_WHO_AM_I_get() == SMALL_ROBOT){ // Seulement sur le petit robot
-		init_new_offset(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Idle, 0, 0, 0, 0);
-		init_new_offset(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Mid, 20, 0, 0, 0);
-		init_new_offset(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Deployed, 35, 0, 0, 0);
+		init_new_offset(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Mid, ACT_Small_arm_Mid,				20, 0, 0, 0);
+		init_new_offset(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Deployed, ACT_Small_arm_Deployed,		35, 0, 0, 0);
 	}
 
 
 }
 
 
-static void init_new_offset(act_avoid_e act_avoid_id, Uint8 cmd, Uint16 Xleft, Uint16 Xright, Uint16 Yfront, Uint16 Yback){
+static void init_new_offset(act_avoid_e act_avoid_id, Uint8 cmd, Uint8 act_cmd, Uint16 Xleft, Uint16 Xright, Uint16 Yfront, Uint16 Yback){
 	if(cmd >= ACT_AVOID_NB_MAX_CMD){
 		debug_printf("Error : tentative d'initialisation d'évitement actionneur -> cmd %d inconnue\n", cmd);
 		return;
@@ -62,12 +57,13 @@ static void init_new_offset(act_avoid_e act_avoid_id, Uint8 cmd, Uint16 Xleft, U
 		return;
 	}
 
-
 	offset_avoid[act_avoid_id][cmd].Xleft = Xleft;
 	offset_avoid[act_avoid_id][cmd].Xright = Xright;
 	offset_avoid[act_avoid_id][cmd].Yfront = Yfront;
 	offset_avoid[act_avoid_id][cmd].Yback = Yback;
 	offset_avoid[act_avoid_id][cmd].init = TRUE;
+	offset_avoid[act_avoid_id][cmd].active = FALSE;
+	offset_avoid[act_avoid_id][cmd].act_cmd = act_cmd;
 }
 
 void ACT_AVOIDANCE_new_action(act_avoid_e act_avoid_id, Uint8 cmd, bool_e state){
@@ -136,4 +132,24 @@ static void send_total_offset_avoid(){
 	msg.data[6] = HIGHINT(total_offset_avoid.Yback);
 	msg.data[7] = LOWINT(total_offset_avoid.Yback);
 	CAN_send(&msg);
+}
+
+void ACT_AVOIDANCE_new_classic_cmd(act_avoid_e act_avoid_id, Uint8 act_cmd){
+	Uint8 i;
+	if(act_avoid_id >= ACT_AVOID_NB){
+		debug_printf("Error : tentative d'activation d'évitement actionneur -> act_avoid_id %d inconnue\n", act_avoid_id);
+		return;
+	}
+
+	ACT_AVOIDANCE_reset_actionneur(act_avoid_id);
+
+	for(i=0;i<ACT_AVOID_NB_MAX_CMD;i++){
+		if(offset_avoid[act_avoid_id][i].init == TRUE
+				&& offset_avoid[act_avoid_id][i].act_cmd == act_cmd){
+			ACT_AVOIDANCE_new_action(act_avoid_id, i, TRUE);
+			return;
+		}
+	}
+
+
 }
