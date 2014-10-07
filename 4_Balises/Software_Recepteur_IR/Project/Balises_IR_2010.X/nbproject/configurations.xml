@@ -31,6 +31,7 @@
       <itemPath>../eyes.h</itemPath>
       <itemPath>../secretary.h</itemPath>
       <itemPath>../QS/QS_buttons.h</itemPath>
+      <itemPath>../QS/QS_outputlog.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -53,6 +54,7 @@
       <itemPath>../eyes.c</itemPath>
       <itemPath>../secretary.c</itemPath>
       <itemPath>../QS/QS_buttons.c</itemPath>
+      <itemPath>../QS/QS_outputlog.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

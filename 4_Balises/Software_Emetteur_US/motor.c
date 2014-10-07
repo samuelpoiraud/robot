@@ -28,7 +28,7 @@ static volatile bool_e motor_enable;
 #define COMMAND 	(Sint16)(70)//pas par 2ms = 2048*17 pas par secondes = 17 tours par seconde
 
 
-#define DUTY_FILTER			30
+#define DUTY_FILTER			10
 #define START_FILTER_DUTY	30	// Donne une valeur pour le démarrage, évite le pic du début
 #define THRESHOLD_DUTY_MAX	36	// La batterie a une tension inférieure à 6,8V
 
@@ -48,7 +48,7 @@ static volatile Sint32 integral = 0;
 
 // compteur pour la reptition des messages quand la batterie est faible
 static bool_e battery_low_send = FALSE;
-static volatile Uint16 compt_bat_low = 0;
+static volatile Sint16 compt_bat_low = 0;
 
 #define REPITION_MSG_BAT_LOW		2500
 
@@ -56,6 +56,9 @@ static volatile Uint16 compt_bat_low = 0;
 #define	NB_ENCODER_STEP_PER_IT	(Uint8)(68)	
 static volatile Sint16 speed;
 static volatile Sint16 duty;
+
+
+void MOTOR_send_bat_low(void);
 
 //A appeler toutes les 2 ms.
 //ce choix est arbitraire, et très lié au fait que le reste du code utilise également avec une IT 2ms
@@ -93,7 +96,7 @@ void MOTOR_process_it(void)
 	error_prec = error;
 
 	if(battery_low_send)
-		compt_bat_low++;
+		MOTOR_send_bat_low();
 }	
 
 void MOTOR_process_main(void)
@@ -105,20 +108,10 @@ void MOTOR_process_main(void)
 	// Mise en place d'un filtre, pour les pics de valeurs et/ou le démarrage
 	filter_duty = (filter_duty*(100-DUTY_FILTER) + (duty*DUTY_FILTER))/100 ;
 
-	if((filter_duty > THRESHOLD_DUTY_MAX && !battery_low_send) || compt_bat_low > REPITION_MSG_BAT_LOW){
+	if(filter_duty > THRESHOLD_DUTY_MAX){
 		battery_low_send = TRUE;
-		compt_bat_low = 0;
-
-		CAN_msg_t msg;
-		msg.sid = STRAT_BALISE_BATTERY_LOW;
-		msg.size = 1;
-		msg.data[0] = I_AM_CARTE_BALISE;
-
-		RF_can_send(RF_SMALL, &msg);
-		RF_can_send(RF_BIG, &msg);
-
-		debug_printf("send message\n");
-	}
+	}else
+		battery_low_send = FALSE;
 }
 
 void MOTOR_togle_enable(void)
@@ -130,4 +123,23 @@ void _ISR _T4Interrupt(void)
 {
 	MOTOR_process_it();
 	IFS1bits.T4IF = 0;
-}	
+}
+
+void MOTOR_send_bat_low(void){
+	compt_bat_low--;
+
+	if(compt_bat_low >= 0)
+		return;
+
+	compt_bat_low = REPITION_MSG_BAT_LOW;
+
+	CAN_msg_t msg;
+	msg.sid = STRAT_BALISE_BATTERY_LOW;
+	msg.size = 1;
+	msg.data[0] = I_AM_CARTE_BALISE;
+
+	RF_can_send(RF_SMALL, &msg);
+	RF_can_send(RF_BIG, &msg);
+
+	debug_printf("Send message battery low\n");
+}
