@@ -366,8 +366,6 @@ static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
 
 			msg.sid = (Uint16)data[RF_CAN_SID] | (Uint16)data[RF_CAN_SID+1] << 8;
 
-			debug_printf("Pass here 0x%x\n\n",msg.sid);
-
 			for(i = 0; i < msg.size; i++) {
 				msg.data[i] = data[RF_CAN_DATA+i];
 			}

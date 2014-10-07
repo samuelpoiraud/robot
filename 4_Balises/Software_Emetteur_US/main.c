@@ -13,7 +13,6 @@
 #include "main.h"
 #include "QS/QS_outputlog.h"
 #include "SynchroRF.h"
-#include "QS/QS_watchdog.h"
 
 
 #if NUMERO_BALISE_EMETTRICE == 1
