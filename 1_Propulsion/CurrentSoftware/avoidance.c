@@ -16,11 +16,14 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_maths.h"
+#include "QS/QS_can.h"
 #include "copilot.h"
 #include "buffer.h"
 #include "secretary.h"
 #include "pilot.h"
 #include "LCDTouch/stm32f4_discovery_lcd.h"
+
+#define WAIT_TIME_DISPLAY_AVOID		50
 
 adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
 
@@ -42,7 +45,7 @@ void AVOIDANCE_process_it(){
 	order_t current_order = COPILOT_get_current_order();
 	volatile order_t *buffer_order;
 
-	if((current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
+	if((current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
 		current_order.avoidance != AVOID_DISABLED){
 
 		if(AVOIDANCE_target_safe(current_order.x, current_order.y, current_order.way, FALSE)){
@@ -167,6 +170,8 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbo
 	Sint32 relative_foe_x;
 	Sint32 relative_foe_y;
 
+	static time32_t last_time_refresh_avoid_displayed = 0;
+
 	vtrans = global.vitesse_translation/12;
 	teta = global.position.teta;
 
@@ -201,24 +206,50 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbo
 	else
 		avoidance_rectangle_min_x = 0;
 
-	#ifdef LCD_TOUCH
+	#ifdef MODE_SIMULATION
 
-		Sint16 angle[4];
-		angle[0] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_max_x)*4096;
-		angle[1] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_max_x)*4096;
-		angle[2] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_min_x)*4096;
-		angle[3] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_min_x)*4096;
+		if(global.absolute_time - last_time_refresh_avoid_displayed > WAIT_TIME_DISPLAY_AVOID){
 
-		Uint16 longueur[4];
-		longueur[0] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_max_x});
-		longueur[1] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_max_x});
-		longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_min_x});
-		longueur[3] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_min_x});
+				Sint16 angle[4];
+				angle[0] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_max_x)*4096;
+				angle[1] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_max_x)*4096;
+				angle[2] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_min_x)*4096;
+				angle[3] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_min_x)*4096;
 
-		avoid_poly[0] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[0])*longueur[0], 0), MIN(global.position.y+sin4096(angle[0])*longueur[0], 3000)};
-		avoid_poly[1] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[1])*longueur[1], 2000), MIN(global.position.y+sin4096(angle[1])*longueur[1], 3000)};
-		avoid_poly[2] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[2])*longueur[2], 2000), MAX(global.position.y+sin4096(angle[2])*longueur[2], 0)};
-		avoid_poly[3] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[3])*longueur[3], 0), MAX(global.position.y+sin4096(angle[3])*longueur[3], 0)};
+				Uint16 longueur[4];
+				longueur[0] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_max_x});
+				longueur[1] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_max_x});
+				longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_min_x});
+				longueur[3] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_min_x});
+
+				avoid_poly[0] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[0])*longueur[0], 0), MIN(global.position.y+sin4096(angle[0])*longueur[0], 3000)};
+				avoid_poly[1] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[1])*longueur[1], 2000), MIN(global.position.y+sin4096(angle[1])*longueur[1], 3000)};
+				avoid_poly[2] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[2])*longueur[2], 2000), MAX(global.position.y+sin4096(angle[2])*longueur[2], 0)};
+				avoid_poly[3] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[3])*longueur[3], 0), MAX(global.position.y+sin4096(angle[3])*longueur[3], 0)};
+
+				Uint16 max = AROUND_UP((3+1)/3.);
+				CAN_msg_t msg;
+				msg.sid = DEBUG_AVOIDANCE_POLY;
+				msg.size = 7;
+				for(i=0;i<max;i++){
+					if(i==0){
+						msg.data[0] = TRUE;
+						msg.data[1] = 0;
+					}else{
+						msg.data[0] = FALSE;
+						msg.data[1] = 3*i;
+					}
+					msg.data[2] = (Uint8)(avoid_poly[0].x >> 4);
+					msg.data[3] = (Uint8)(avoid_poly[0].y >> 4);
+					msg.data[4] = (Uint8)(avoid_poly[1].x >> 4);
+					msg.data[5] = (Uint8)(avoid_poly[1].y >> 4);
+					msg.data[6] = (Uint8)(avoid_poly[2].x >> 4);
+					msg.data[7] = (Uint8)(avoid_poly[2].y >> 4);
+					CAN_send(&msg);
+				}
+
+				last_time_refresh_avoid_displayed = global.absolute_time;
+			}
 
 	#endif
 
@@ -238,7 +269,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbo
 		}
 	}
 
-	if(in_path == FALSE){
+	if(in_path == FALSE && current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE || current_order.trajectory == TRAJECTORY_TRANSLATION){
 
 		avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright + 50);
 		avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft + 50;

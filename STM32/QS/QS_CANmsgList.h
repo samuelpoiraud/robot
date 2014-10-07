@@ -205,6 +205,15 @@
 
 	#define DEBUG_DETECT_FOE			0x799	//Déclenchement manuel d'un évitement.
 
+	//message pour le simulateur 2014
+
+	#define DEBUG_AVOIDANCE_POLY		0x790
+	// [0]		: new_polygonye ( TRUE / FALSE)
+	// [1]		: numero du premier point du message
+	// [2/3]	: x/16 (x>>4) / y/16 (y>>4) point n
+	// [4/5]	: x/16 (x>>4) / y/16 (y>>4) point n+1
+	// [6/7]	: x/16 (x>>4) / y/16 (y>>4) point n+2
+
 /*****************************************************************
  *
  *		Messages echangés entre les cartes stratégies des
