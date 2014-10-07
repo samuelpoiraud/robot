@@ -45,7 +45,7 @@ void AVOIDANCE_process_it(){
 	if((current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
 		current_order.avoidance != AVOID_DISABLED){
 
-		if(AVOIDANCE_target_safe(current_order.x, current_order.y, FALSE)){
+		if(AVOIDANCE_target_safe(current_order.x, current_order.y, current_order.way, FALSE)){
 			if(current_order.avoidance == AVOID_ENABLED){
 
 				// Si on rencontre un adversaire on s'arrete
@@ -128,7 +128,7 @@ void AVOIDANCE_process_it(){
 
 			SECRETARY_send_foe_detected(adversary->x, adversary->y, TRUE);
 
-		}else if(AVOIDANCE_target_safe(buffer_order->x, buffer_order->y, FALSE) == FALSE){
+		}else if(AVOIDANCE_target_safe(buffer_order->x, buffer_order->y, buffer_order->way, FALSE) == FALSE){
 			debug_printf("t : %ld      free !\n", global.absolute_time);
 			debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
 			buffer_order->total_wait_time += global.absolute_time - buffer_order->wait_time_begin;
@@ -142,12 +142,9 @@ void AVOIDANCE_process_it(){
 
 GEOMETRY_point_t avoid_poly[4];
 
-bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
-	Sint32 vrot;		//[rad/4096/1024/5ms]
+bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbose){
 	Sint32 vtrans;		//[mm/4096/5ms]
-
 	Sint16 teta;		//[rad/4096]
-
 	Sint16 sin, cos;	//[/4096]
 	Sint16 sinus, cosinus;	//[/4096]
 
@@ -170,7 +167,6 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	Sint32 relative_foe_x;
 	Sint32 relative_foe_y;
 
-	vrot = global.vitesse_rotation;
 	vtrans = global.vitesse_translation/12;
 	teta = global.position.teta;
 
@@ -186,8 +182,6 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	 *  On calcule la position relative des robots adverses pour savoir s'ils se trouvent dans ce rectangle
 	 */
 
-	way_e move_way = current_order.way;
-
 	/*[mm/4096/5ms/5ms]*/	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
 	/*[mm/4096/5ms]*/		current_speed = (Uint32)(absolute(vtrans)*1);
 	/*[mm]*/				break_distance = SQUARE(current_speed)/(4*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
@@ -197,12 +191,12 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 	avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright);
 	avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft;
 
-	if(move_way == FORWARD || move_way == ANY_WAY)	//On avance
+	if(way == FORWARD || way == ANY_WAY)	//On avance
 		avoidance_rectangle_max_x = break_distance + respect_distance + offset_avoid.Yfront;
 	else
 		avoidance_rectangle_max_x = 0;
 
-	if(move_way == BACKWARD || move_way == ANY_WAY)	//On recule
+	if(way == BACKWARD || way == ANY_WAY)	//On recule
 		avoidance_rectangle_min_x = -(break_distance + respect_distance + offset_avoid.Yback);
 	else
 		avoidance_rectangle_min_x = 0;
@@ -249,12 +243,12 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, bool_e verbose){
 		avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright + 50);
 		avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft + 50;
 
-		if(move_way == FORWARD || move_way == ANY_WAY)	//On avance
+		if(way == FORWARD || way == ANY_WAY)	//On avance
 			avoidance_rectangle_max_x = break_distance + slow_distance + offset_avoid.Yfront;
 		else
 			avoidance_rectangle_max_x = 0;
 
-		if(move_way == BACKWARD || move_way == ANY_WAY)	//On recule
+		if(way == BACKWARD || way == ANY_WAY)	//On recule
 			avoidance_rectangle_min_x = -(break_distance + slow_distance + offset_avoid.Yback);
 		else
 			avoidance_rectangle_min_x = 0;
