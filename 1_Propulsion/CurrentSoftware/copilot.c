@@ -317,8 +317,8 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 					//on ne prévient pas la carte P sur rotation préalable ajoutée par nos soins.
 					order->acknowledge = NO_ACKNOWLEDGE;
 					order->x = global.position.x;
-										order->y = global.position.y;
-										order->trajectory = TRAJECTORY_ROTATION;
+					order->y = global.position.y;
+					order->trajectory = TRAJECTORY_ROTATION;
 					//on ne fait qu'une rotation préalable pour le moment
 				break;
 				case TRAJECTORY_STOP:
@@ -400,7 +400,7 @@ void COPILOT_do_order(order_t * order)
 	#ifdef USE_PROP_AVOIDANCE
 	if((order->trajectory == TRAJECTORY_AUTOMATIC_CURVE || order->trajectory == TRAJECTORY_TRANSLATION) &&
 			order->avoidance != AVOID_DISABLED &&
-			AVOIDANCE_foe_in_zone(FALSE, order->x, order->y, FALSE)){ // Fonction différente à faire pour une trajectoire en courbe automatique
+			AVOIDANCE_target_safe(order->x, order->y, order->way, FALSE)){ // Fonction différente à faire pour une trajectoire en courbe automatique
 
 		if(order->avoidance == AVOID_ENABLED){ // adversaire sur la trajectoire, évitement sans wait donc annulation de la trajectoire
 
@@ -452,7 +452,7 @@ void COPILOT_do_order(order_t * order)
 	}else{
 	#endif
 
-		debug_printf("next trajectory ! %s\n", trajectory_name_e[order->trajectory]);
+		debug_printf("t : %ld next trajectory ! %s %s\n", global.absolute_time, trajectory_name_e[order->trajectory], (order->avoidance != AVOID_DISABLED)?"with avoidance":"without avoidance");
 
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
