@@ -20,6 +20,8 @@
 	void MOTOR_togle_enable(void);
 
 	void MOTOR_process_main(void);
+
+	void MOTOR_send_bat_state(void);
 	
 	
 #endif /* ndef MOTOR_H */

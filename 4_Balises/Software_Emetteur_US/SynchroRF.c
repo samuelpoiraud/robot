@@ -5,6 +5,7 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "QS/impl/QS_uart_impl.h"
+#include "motor.h"
 
 static bool_e synchro_received;
 static Uint16 request_duration;
@@ -45,6 +46,10 @@ void SYNCRF_process_main() {
 	
 	if(canmsg_received) {
 		//Traitement message CAN
+
+		if(canmsg_pending.sid == STRAT_BALISE_BATTERY_GET_STATE)
+			MOTOR_send_bat_state();
+
 		canmsg_received = FALSE;
 	}
 
