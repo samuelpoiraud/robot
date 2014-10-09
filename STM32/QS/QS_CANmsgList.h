@@ -300,10 +300,12 @@
 	#define STRAT_BEACON_IR_SELFTEST_DONE			0x2E4
 	#define STRAT_BEACON_US_SELFTEST_DONE			0x2E5
 	#define STRAT_BEACON_PONG						0x246
-	#define STRAT_BALISE_BATTERY_LOW				0x247  // Etat de la batterie interne des balises
+	#define STRAT_BALISE_BATTERY_STATE				0x247  // Etat de la batterie interne des balises
 			// data 0 id de la balise soit :
-				#define BIG_BALISE		0	// Ne pas changer ces defines, car ils sont aussi sur les balises
-				#define SMALL_BALISE	1
+				#define BIG_BALISE		1	// Ne pas changer ces defines, car ils sont aussi sur les balises
+				#define SMALL_BALISE	2
+			// data 1 : state battery, 1 si ok ou 0 si faible
+	#define STRAT_BALISE_BATTERY_GET_STATE			0x248
 
 
 	#define DEBUG_SELFTEST_LAUNCH					0x700

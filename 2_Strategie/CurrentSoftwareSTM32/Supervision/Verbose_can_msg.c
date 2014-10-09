@@ -54,7 +54,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case STRAT_PROP_SELFTEST_DONE :					print(string, len, "%x STRAT_PROP_SELFTEST_DONE             ", STRAT_PROP_SELFTEST_DONE 					);	break;
 		case STRAT_BEACON_IR_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_IR_SELFTEST_DONE        ", STRAT_BEACON_IR_SELFTEST_DONE				);	break;
 		case STRAT_BEACON_US_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_US_SELFTEST_DONE        ", STRAT_BEACON_US_SELFTEST_DONE				);	break;
-		case STRAT_BALISE_BATTERY_LOW	:				print(string, len, "%x STRAT_BALISE_BATTERY_LOW		        ", STRAT_BALISE_BATTERY_LOW				);	break;
+		case STRAT_BALISE_BATTERY_STATE	:				print(string, len, "%x STRAT_BALISE_BATTERY_STATE		        ", STRAT_BALISE_BATTERY_STATE			);	break;
 		case STRAT_ADVERSARIES_POSITION:				print(string, len, "%x STRAT_ADVERSARIES_POSITION           ", STRAT_ADVERSARIES_POSITION		);	break;
 		case STRAT_TRAJ_FINIE:							print(string, len, "%x STRAT_TRAJ_FINIE                   ", STRAT_TRAJ_FINIE				);	break;
 		case STRAT_PROP_ERREUR:							print(string, len, "%x STRAT_PROP_ERREUR                  ", STRAT_PROP_ERREUR				);	break;
