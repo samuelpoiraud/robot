@@ -8,6 +8,7 @@
 #ifndef HOKUYO_H_
 #define HOKUYO_H_
 //#define TRIANGULATION
+#define NB_MESURES_HOKUYO 4
 
 #include "QS/QS_all.h"
 
@@ -38,9 +39,19 @@
 	}position;
 	void tri_points();
 	void Hokuyo_validPointsAndBeacons();
-	//void dectect_centre_beacons();
+
+	//Fonction de tri des tableaux de mesures (tri à bulles)
+	void tri_tableau(HOKUYO_adversary_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon);
 
 
+	//Fonction prenant la moyenne des points mesurés pour chaque angle donné (ie tout les 0,25°)
+	void moyenne_mesures(HOKUYO_adversary_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon);
+
+	//Fonction réalisant la régression circulaire d'un nuage de points
+	HOKUYO_adversary_position regression_circulaire(HOKUYO_adversary_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon);
+
+	//Fonction trouvant le centre des balises
+	void find_beacons_centres();
 	#endif
 
 #endif
