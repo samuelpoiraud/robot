@@ -93,11 +93,13 @@
 		#define ECART_BALISE 50
 		#define ECART_FIABILITE 80  //marge de la zone où les mesures sont considérées comme non-fiable
 		#define ECART_POSITION  100  //marge au delà de laquelle un point n'est pas pris en compte dans le calcul de la position (=erreur)
-		static position robot, currentRobot[10];
-		static HOKUYO_adversary_position beacon1, beacon2, beacon3;
-		static Uint8 B1detected, B2detected, B3detected;
-		static HOKUYO_adversary_position points_beacons[3][50];
-		static Uint8 nb_points_B1=0,nb_points_B2=0,nb_points_B3=0;
+		static position robot, currentRobot[10]; //robot est la position stocké en mémoire et currentRobot correspond aux positions calculées par triangulation
+		static HOKUYO_adversary_position beacon1, beacon2, beacon3; //position des balises mesurées centre de la balise, angle
+		static Uint8 B1detected=0, B2detected=0, B3detected=0; //variables indiquant si la balise est détectée
+		static HOKUYO_adversary_position points_beacons[3][NB_MESURES_HOKUYO*20]; // mesures réalisées par l'hokuyo
+		static Uint8 nb_points_B1=0,nb_points_B2=0,nb_points_B3=0;  //le nombre de points de mesures par balises
+		static Uint8 nb_balayages=0; //correspond aux nombres de balayage de 270° réalisé par l'hokuyo
+		//static Uint8 droiteRegression1[3], droiteRegression2[3];
 	#endif
 
 
@@ -192,12 +194,18 @@ void HOKUYO_process_main(void)
 		break;
 		case TREATMENT_DATA:
 			hokuyo_find_valid_points();
-			#ifdef TRIANGULATION
+			//debug_printf("\nEntrer TREATMENT DATA\n");
+			//#ifdef TRIANGULATION
 			if(global.match_over){
 				Hokuyo_validPointsAndBeacons();
+				debug_printf("\nEntrer dans TRI POINTS \n");
 				tri_points();
+				if(nb_balayages==NB_MESURES_HOKUYO){
+					debug_printf("\n##########Debut détection centres balises##########\n");
+					find_beacons_centres();
+				}
 			}
-			#endif
+			//#endif
 			state=DETECTION_ADVERSARIES;
 		break;
 		case DETECTION_ADVERSARIES:
@@ -907,6 +915,7 @@ void findCorrectPosition(){
 
 	robot.x=(currentRobot[0].x*currentRobot[0].weight+currentRobot[1].x*currentRobot[1].weight+currentRobot[2].x*currentRobot[2].weight+currentRobot[3].x*currentRobot[3].weight+currentRobot[4].x*currentRobot[4].weight+currentRobot[5].x*currentRobot[5].weight)/(1.0*(currentRobot[0].weight+currentRobot[1].weight+currentRobot[2].weight+currentRobot[3].weight+currentRobot[4].weight+currentRobot[5].weight));
 	robot.y=(currentRobot[0].y*currentRobot[0].weight+currentRobot[1].y*currentRobot[1].weight+currentRobot[2].y*currentRobot[2].weight+currentRobot[3].y*currentRobot[3].weight+currentRobot[4].y*currentRobot[4].weight+currentRobot[5].y*currentRobot[5].weight)/(1.0*(currentRobot[0].weight+currentRobot[1].weight+currentRobot[2].weight+currentRobot[3].weight+currentRobot[4].weight+currentRobot[5].weight));
+	debug_printf("POSITION ROBOT: x=%ld   y=%ld \n", robot.x, robot.y);
 	if(B1detected==1 && B2detected==0 && B3detected==0){
 		robot.teta=currentRobot[0].teta;
 	}else if(B1detected==0 && B2detected==1 && B3detected==0){
@@ -921,21 +930,29 @@ void findCorrectPosition(){
 
 void tri_points(){
 	Uint8 i;
-	for(i=0;i<nb_valid_points;i++){
-		if(detected_valid_points[i].coordX>-62-ECART_BALISE && detected_valid_points[i].coordX<ECART_BALISE
-		   && detected_valid_points[i].coordY>-62-ECART_BALISE && detected_valid_points[i].coordY<ECART_BALISE){
-			points_beacons[0][nb_points_B1]=detected_valid_points[i];
-			nb_points_B1++;
-		}else if(detected_valid_points[i].coordX>969-ECART_BALISE && detected_valid_points[i].coordX<969+ECART_BALISE
-				 && detected_valid_points[i].coordY>3000-ECART_BALISE && detected_valid_points[i].coordY<3062+ECART_BALISE){
-				  points_beacons[1][nb_points_B2]=detected_valid_points[i];
-				  nb_points_B2++;
-		}else if(detected_valid_points[i].coordX>2000-ECART_BALISE && detected_valid_points[i].coordX<2062+ECART_BALISE
-				 && detected_valid_points[i].coordY>-62-ECART_BALISE && detected_valid_points[i].coordY<ECART_BALISE){
-				  points_beacons[2][nb_points_B3]=detected_valid_points[i];
-				  nb_points_B3++;
+
+		nb_balayages++;
+		for(i=0;i<nb_valid_points;i++){
+			if(detected_valid_points[i].coordX>-62-ECART_BALISE && detected_valid_points[i].coordX<ECART_BALISE
+			   && detected_valid_points[i].coordY>-62-ECART_BALISE && detected_valid_points[i].coordY<ECART_BALISE){
+							points_beacons[0][nb_points_B1]=detected_valid_points[i];
+							nb_points_B1++;
+			}else if(detected_valid_points[i].coordX>969-ECART_BALISE && detected_valid_points[i].coordX<969+ECART_BALISE
+					 && detected_valid_points[i].coordY>3000-ECART_BALISE && detected_valid_points[i].coordY<3062+ECART_BALISE){
+							points_beacons[1][nb_points_B2]=detected_valid_points[i];
+							nb_points_B2++;
+			}else if(detected_valid_points[i].coordX>2000-ECART_BALISE && detected_valid_points[i].coordX<2062+ECART_BALISE
+					 && detected_valid_points[i].coordY>-62-ECART_BALISE && detected_valid_points[i].coordY<ECART_BALISE){
+							points_beacons[2][nb_points_B3]=detected_valid_points[i];
+							nb_points_B3++;
+			}
 		}
-	}
+
+	if(nb_points_B1 > 7) B1detected=1;
+	if(nb_points_B2 > 7) B2detected=1;
+	if(nb_points_B3 > 7) B3detected=1;
+
+
 	debug_printf("Points balise 1 \n\nx= ");
 	for(i=0;i<nb_points_B1;i++){
 		debug_printf("%ld  ",points_beacons[0][i].coordX) ;
@@ -962,10 +979,310 @@ void tri_points(){
 	}
 }
 
-//Fonction servant à détecter le centre des balises
-void dectect_centre_beacons(){
+//Fonction de tri des tableaux de mesures (tri à bulles)
+void tri_tableau(HOKUYO_adversary_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon){
+	bool_e change = 0;
+	Uint8 i;
+	int aux;
 
+	while(change==1){
+		change=0;
+		for(i=0 ; i<nb_points-1; i++){
+			if(points_beacons[numero_beacon-1][i].teta>points_beacons[numero_beacon-1][i+1].teta){
+				aux=points_beacons[numero_beacon-1][i+1].teta;
+				points_beacons[numero_beacon-1][i+1].teta=points_beacons[numero_beacon-1][i].teta;
+				points_beacons[numero_beacon-1][i].teta=aux;
+				change=1;
+			}
+		}
+	}
 }
+
+//Fonction prenant la moyenne des points mesurés pour chaque angle donné (ie tout les 0,25°)
+void moyenne_mesures(HOKUYO_adversary_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon){
+	Uint32 nb_points_moyenne=1, nb_points_new=0, i, moyenneX, moyenneY;
+	moyenneX=points_beacons[numero_beacon][0].coordX;
+	moyenneX=points_beacons[numero_beacon][0].coordY;
+
+	for(i=1 ; i<nb_points ; i++){
+		if(fabs(points_beacons[numero_beacon][i].teta-points_beacons[numero_beacon][i-1].teta)<0.001){ //on teste l'égalité des deux angles
+			moyenneX =  (moyenneX*nb_points_moyenne + points_beacons[numero_beacon][i].coordX)/(nb_points_moyenne+1.0);
+			moyenneY =  (moyenneY*nb_points_moyenne + points_beacons[numero_beacon][i].coordY)/(nb_points_moyenne+1.0);
+			nb_points_moyenne++;
+		}else{
+			points_beacons[numero_beacon][nb_points_new].coordX = moyenneX;  //on stocke la moyenne effectuée pour un angle donné
+			points_beacons[numero_beacon][nb_points_new].coordY = moyenneY;
+			nb_points_new++;
+
+			moyenneX=points_beacons[numero_beacon][i].coordX; //on initialise les variables pour le calcul de l'angle suivant
+			moyenneX=points_beacons[numero_beacon][i].coordY;
+			nb_points_moyenne=1;
+		}
+	}
+
+	//on stocke le dernier point
+	points_beacons[numero_beacon][nb_points_new].coordX = moyenneX;  //on stocke la moyenne effectuée pour un angle donné
+	points_beacons[numero_beacon][nb_points_new].coordY = moyenneY;
+	nb_points = nb_points_new+1;
+}
+
+//Fonction réalisant une régression circulaire d'un nuage de points
+HOKUYO_adversary_position regression_circulaire(HOKUYO_adversary_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon){
+	//Uint8 i,j,k;
+	//float exprX=0, exprY=0;
+	HOKUYO_adversary_position beacon;
+
+	/*for(i=1;i<nb_points-2;i++){
+		for(j=i+1;j<nb_points-1;j++){
+			for(k=j+1;j<nb_points;k++){
+				if( ( (puissance(points_beacons[numero_beacon-1][i].coordX,2)*(points_beacons[numero_beacon-1][j].coordY-points_beacons[numero_beacon-1][k].coordY)
+					   +puissance(points_beacons[numero_beacon-1][j].coordX,2)*(points_beacons[numero_beacon-1][k].coordY-points_beacons[numero_beacon-1][i].coordY)
+					   +puissance(points_beacons[numero_beacon-1][k].coordX,2)*(points_beacons[numero_beacon-1][i].coordY-points_beacons[numero_beacon-1][j].coordY))
+					  -((points_beacons[numero_beacon-1][i].coordY-points_beacons[numero_beacon-1][j].coordY)*
+					   (points_beacons[numero_beacon-1][j].coordY-points_beacons[numero_beacon-1][k].coordY)*
+					   (points_beacons[numero_beacon-1][k].coordY-points_beacons[numero_beacon-1][i].coordY)) )
+				   /  (points_beacons[numero_beacon-1][i].coordX*(points_beacons[numero_beacon-1][j].coordY-points_beacons[numero_beacon-1][k].coordY)
+					 +points_beacons[numero_beacon-1][j].coordX*(points_beacons[numero_beacon-1][k].coordY-points_beacons[numero_beacon-1][i].coordY)
+					 +points_beacons[numero_beacon-1][k].coordX*(points_beacons[numero_beacon-1][i].coordY-points_beacons[numero_beacon-1][j].coordY))!=0){
+				exprX = exprX + ( (puissance(points_beacons[numero_beacon-1][i].coordX,2)*(points_beacons[numero_beacon-1][j].coordY-points_beacons[numero_beacon-1][k].coordY)
+								   +puissance(points_beacons[numero_beacon-1][j].coordX,2)*(points_beacons[numero_beacon-1][k].coordY-points_beacons[numero_beacon-1][i].coordY)
+								   +puissance(points_beacons[numero_beacon-1][k].coordX,2)*(points_beacons[numero_beacon-1][i].coordY-points_beacons[numero_beacon-1][j].coordY))
+								  -((points_beacons[numero_beacon-1][i].coordY-points_beacons[numero_beacon-1][j].coordY)*
+								   (points_beacons[numero_beacon-1][j].coordY-points_beacons[numero_beacon-1][k].coordY)*
+								   (points_beacons[numero_beacon-1][k].coordY-points_beacons[numero_beacon-1][i].coordY)) )
+							   /  (points_beacons[numero_beacon-1][i].coordX*(points_beacons[numero_beacon-1][j].coordY-points_beacons[numero_beacon-1][k].coordY)
+								 +points_beacons[numero_beacon-1][j].coordX*(points_beacons[numero_beacon-1][k].coordY-points_beacons[numero_beacon-1][i].coordY)
+								 +points_beacons[numero_beacon-1][k].coordX*(points_beacons[numero_beacon-1][i].coordY-points_beacons[numero_beacon-1][j].coordY));
+				}else{
+					debug_printf("Division par 0 \n");
+				}
+
+				if(( (puissance(points_beacons[numero_beacon-1][i].coordY,2)*(points_beacons[numero_beacon-1][j].coordX-points_beacons[numero_beacon-1][k].coordX)
+					  +puissance(points_beacons[numero_beacon-1][j].coordY,2)*(points_beacons[numero_beacon-1][k].coordX-points_beacons[numero_beacon-1][i].coordX)
+					  +puissance(points_beacons[numero_beacon-1][k].coordY,2)*(points_beacons[numero_beacon-1][i].coordX-points_beacons[numero_beacon-1][j].coordX))
+					 -((points_beacons[numero_beacon-1][i].coordX-points_beacons[numero_beacon-1][j].coordX)*
+					  (points_beacons[numero_beacon-1][j].coordX-points_beacons[numero_beacon-1][k].coordX)*
+					  (points_beacons[numero_beacon-1][k].coordX-points_beacons[numero_beacon-1][i].coordX)) )
+				  /  (points_beacons[numero_beacon-1][i].coordY*(points_beacons[numero_beacon-1][j].coordX-points_beacons[numero_beacon-1][k].coordX)
+					+points_beacons[numero_beacon-1][j].coordY*(points_beacons[numero_beacon-1][k].coordX-points_beacons[numero_beacon-1][i].coordX)
+					+points_beacons[numero_beacon-1][k].coordY*(points_beacons[numero_beacon-1][i].coordX-points_beacons[numero_beacon-1][j].coordX))!=0){
+
+				exprY = exprY + ( (puissance(points_beacons[numero_beacon-1][i].coordY,2)*(points_beacons[numero_beacon-1][j].coordX-points_beacons[numero_beacon-1][k].coordX)
+								   +puissance(points_beacons[numero_beacon-1][j].coordY,2)*(points_beacons[numero_beacon-1][k].coordX-points_beacons[numero_beacon-1][i].coordX)
+								   +puissance(points_beacons[numero_beacon-1][k].coordY,2)*(points_beacons[numero_beacon-1][i].coordX-points_beacons[numero_beacon-1][j].coordX))
+								  -((points_beacons[numero_beacon-1][i].coordX-points_beacons[numero_beacon-1][j].coordX)*
+								   (points_beacons[numero_beacon-1][j].coordX-points_beacons[numero_beacon-1][k].coordX)*
+								   (points_beacons[numero_beacon-1][k].coordX-points_beacons[numero_beacon-1][i].coordX)) )
+							   /  (points_beacons[numero_beacon-1][i].coordY*(points_beacons[numero_beacon-1][j].coordX-points_beacons[numero_beacon-1][k].coordX)
+								 +points_beacons[numero_beacon-1][j].coordY*(points_beacons[numero_beacon-1][k].coordX-points_beacons[numero_beacon-1][i].coordX)
+								 +points_beacons[numero_beacon-1][k].coordY*(points_beacons[numero_beacon-1][i].coordX-points_beacons[numero_beacon-1][j].coordX));
+				}else{
+					debug_printf("Division par 0 \n");
+				}
+			}
+
+		}
+	}
+	beacon.coordX = factorielle(3)*factorielle(nb_points-3)*exprX/(2.*factorielle(nb_points));
+	beacon.coordX = factorielle(3)*factorielle(nb_points-3)*exprY/(2.*factorielle(nb_points));
+	*/
+	float moyenneX=0, moyenneY=0,    varX=0,  varY=0,      covXY=0,           covX2Y=0,           covXY2=0,         covXX2=0,       covYY2=0;
+	//       espérence de X et Y , variance de X et Y,  covariance(X,Y),  covariance(X²,Y), covariance(X,Y²), covariance(X,X²), covariance(Y,Y²)
+	float  exprA, exprB, exprC, exprD, exprE; // différentes expressions notées A, B, C ,D et E qui servent d'intermédiaire aux calculs
+	Uint8 i;
+
+
+	debug_printf("\nregression circulaire :");
+	//Calculs de probabilités
+	for(i=0 ; i<nb_points ; i++){
+		moyenneX += points_beacons[numero_beacon-1][i].coordX;
+		moyenneY += points_beacons[numero_beacon-1][i].coordY;
+	}
+	moyenneX = moyenneX/(1.*nb_points);
+	moyenneY = moyenneY/(1.*nb_points);
+	display_float(moyenneX)
+	display_float(moyenneY)
+	display(puissance(4,2));
+	for(i=0 ; i<nb_points ; i++){
+		varX   += puissance(points_beacons[numero_beacon-1][i].coordX-moyenneX , 2);
+		varY   += puissance(points_beacons[numero_beacon-1][i].coordY-moyenneY , 2);
+		covXY  += (points_beacons[numero_beacon-1][i].coordX-moyenneX)*(points_beacons[numero_beacon-1][i].coordY - moyenneY);
+		covX2Y += (puissance(points_beacons[numero_beacon-1][i].coordX,2)-puissance(moyenneX,2))*(points_beacons[numero_beacon-1][i].coordY -moyenneY);
+		covXY2 += (points_beacons[numero_beacon-1][i].coordX-moyenneX)*(puissance(points_beacons[numero_beacon-1][i].coordY,2) - puissance(moyenneY,2));
+		covXX2 += (points_beacons[numero_beacon-1][i].coordX-moyenneX)*(puissance(points_beacons[numero_beacon-1][i].coordX,2)-puissance(moyenneX,2));
+		covYY2 += (points_beacons[numero_beacon-1][i].coordY-moyenneY)*(puissance(points_beacons[numero_beacon-1][i].coordY,2)-puissance(moyenneY,2));
+	}
+
+
+	varX = varX/(1.*nb_points);
+	varY = varY/(1.*nb_points);
+	covXY = covXY/(1.*nb_points);
+	covX2Y = covX2Y/(1.*nb_points);
+	covXY2 = covXY2/(1.*nb_points);
+	covXX2 = covXX2/(1.*nb_points);
+	covYY2 = covYY2/(1.*nb_points);
+
+	display_float(varX)
+	display_float(varY)
+	display_float(covXY)
+	display_float(covX2Y)
+	display_float(covXY2)
+	display_float(covXX2)
+	display_float(covYY2)
+
+
+	//Calculs des différentes expressions
+	exprA = nb_points*(nb_points-1)*varX;
+	exprB = nb_points*(nb_points-1)*covXY;
+	exprC = nb_points*(nb_points-1)*varY;
+	exprD = 0.5*nb_points*(nb_points-1)*(covXX2-covXY2);
+	exprE = 0.5*nb_points*(nb_points-1)*(covX2Y-covYY2);
+
+	display_float(exprA);
+	display_float(exprB);
+	display_float(exprC);
+	display_float(exprD);
+	display_float(exprE);
+
+
+	//calcul du centre de la balise
+	beacon.coordX = (exprD*exprC - exprB*exprE)/(1.*(exprA*exprC - exprB*exprB));
+	beacon.coordY = (exprA*exprE - exprB*exprD)/(1.*(exprA*exprC - exprB*exprB));
+	beacon.dist   = sqrt(puissance(robot.x-beacon.coordX,2) + puissance(robot.x-beacon.coordX,2));
+	beacon.teta   = atan((beacon.coordX-robot.x)/(beacon.coordY-robot.y))- robot.teta + PI4096;
+	if(beacon.teta < -PI4096)  beacon.teta += 2*PI4096;
+	if(beacon.teta >  PI4096)  beacon.teta -= 2*PI4096;
+
+	return beacon;
+}
+
+//Fonction trouvant le centre des balises
+void find_beacons_centres(){
+	robot.x = global.position.x;
+	robot.y = global.position.y;
+	robot.teta = global.position.teta;
+	robot.weight = 1;
+	//Uint8 i;
+
+
+	if(B1detected==1){
+		tri_tableau(points_beacons, nb_points_B1, 1);
+		moyenne_mesures(points_beacons, nb_points_B1, 1);
+		beacon1 = regression_circulaire(points_beacons, nb_points_B1,1);
+		debug_printf("\nCentre balise 1: x=%ld  y=%ld \n\n", beacon1.coordX, beacon1.coordY);
+	}
+
+	if(B2detected==1){
+		tri_tableau(points_beacons, nb_points_B2, 2);
+		moyenne_mesures(points_beacons, nb_points_B2, 2);
+		beacon2 = regression_circulaire(points_beacons, nb_points_B2,2);
+		debug_printf("\nCentre balise 2: x=%ld  y=%ld \n\n", beacon2.coordX, beacon2.coordY);
+	}
+
+	if(B3detected==1){
+		tri_tableau(points_beacons, nb_points_B3, 3);
+		moyenne_mesures(points_beacons, nb_points_B3, 3);
+		beacon3 = regression_circulaire(points_beacons, nb_points_B3,3);
+		debug_printf("\nCentre balise 3: x=%ld  y=%ld \n\n", beacon3.coordX, beacon3.coordY);
+	}
+	triangulation();
+	nb_balayages=0;
+	/*
+	for(i=0; i<NB_MESURES_HOKUYO*20; i++){
+		points_beacons[0][i].coordX=0;
+		points_beacons[0][i].coordY=0;
+		points_beacons[0][i].teta=0;
+		points_beacons[1][i].coordX=0;
+		points_beacons[1][i].coordY=0;
+		points_beacons[1][i].teta=0;
+		points_beacons[2][i].coordX=0;
+		points_beacons[2][i].coordY=0;
+		points_beacons[2][i].teta=0;
+
+	}*/
+	nb_points_B1=0;
+	nb_points_B2=0;
+	nb_points_B3=0;
+	B1detected=0;
+	B2detected=0;
+	B3detected=0;
+}
+
+/*
+//Fonction réalisant la regression linéaire d'un nuage de points
+void regression_linéaire(HOKUYO_adversary_position tableauM[], Uint8 nb_points, Uint8 droiteRegression[]){
+	Uint8 i, moyenneX=0, moyenneY=0, covariance=0, varX=0, varY=0;  //moyenne en X et en Y, covariance de X et Y, variance en X et en Y
+
+	for(i=0 ; i<nb_points ; i++){
+		moyenneX += tableauM[i].coordX;
+		moyenneY += tableauM[i].coordY;
+	}
+	moyenneX = moyenneX/(1.*nb_points);
+	moyenneY = moyenneY/(1.*nb_points);
+
+	for(i=0 ; i<nb_points ; i++){
+		covariance += (tableauM[i].coordX-moyenneX) * (tableauM[i].coordY-moyenneY);
+		varX += puissance(tableauM[i].coordX-moyenneX , 2);
+		varY += puissance(tableauM[i].coordY-moyenneY , 2);
+	}
+	covariance = covariance/(1.*nb_points);
+	varX = varX/(1.*nb_points);
+	varY = varY/(1.*nb_points);
+
+	//regression en Y
+	droiteRegression[0]=0; //La première case stocke le type de régression linéaire '0' pour une régression en X et '1' en Y
+	droiteRegression[1]=covariance/varX;
+	if(droiteRegression[1]>-30 && droiteRegression[0]<30){
+		droiteRegression[2] = moyenneY-droiteRegression[0]*moyenneX;
+	}else{  //la regression linéaire en X est plus adaptée
+		droiteRegression[0]=1;
+		droiteRegression[1]=covariance/varY;                         // x= droiteRegression[0]*y + droiteRegression[1] ?? à voir pour le tableau
+		droiteRegression[2]=moyenneX-droiteRegression[0]*moyenneY;
+	}
+}
+
+//Fonction trouvant le centre d'une balise
+void find_beacon_centre(Uint8 numero_beacon, HOKUYO_adversary_position tableauM[], Uint8 nb_points){
+	Uint8 x, y, vectX, vectY, xA, yA; //A est un point de la droite de régression linéaire
+	Uint8 extrem1X, extrem1Y, extrem
+	//Faire affectation regression_linéaire
+	if(){
+		if(droiteRegression1[0]==0){
+			xA=tableauM[0].coordX;
+			yA=droiteRegression1[1]*xA+droiteRegression1[2];
+			vectX=droiteRegression1[1]-xA;
+			vectY=droiteRegression1[2]-yA;
+			//faire le projeté orthogonal => milieu
+			//et pareil en Y
+		}
+
+
+	}else if(/){
+		if(droiteRegression1[0]==0 && droiteRegression2[0]==0){  //deux régressions en Y
+			on doit résoudre un système du type y=ax+b   et  y=cx+d
+			 L'intersection donne un sommet de la balise carré
+			x=(droiteRegression2[2]-droiteRegression1[2])/(droiteRegression1[1]-droiteRegression2[1]);
+			y=droiteRegression1[1]*x+droiteRegression1[2];
+		}else if(droiteRegression1[0]==0 && droiteRegression2[0]==1){  //une régression en Y et une en X (cas qui devrait se produire 50% du temps)
+			on doit résoudre un système du type y=ax+b   et  x=cy+d
+			 L'intersection donne un sommet de la balise carré
+			x=(droiteRegression2[1]*droiteRegression1[2]+droiteRegression2[2])/(1-droiteRegression1[1]*droiteRegression2[1]);
+			y=droiteRegression1[1]*x+droiteRegression1[2];
+		}else if(droiteRegression1[0]==1 && droiteRegression2[0]==0){  //une régression en Y et une en X (cas qui devrait se produire 50% du temps)
+			on doit résoudre un système du type x=ay+b   et  y=cx+d
+			 L'intersection donne un sommet de la balise carré
+			x=(droiteRegression1[1]*droiteRegression2[2]+droiteRegression1[2])/(1-droiteRegression2[1]*droiteRegression1[1]);
+			y=droiteRegression2[1]*x+droiteRegression2[2];
+		}else if(droiteRegression1[0]==1 && droiteRegression2[0]==1){  //deux régressions en X
+			on doit résoudre un système du type x=ay+b   et  x=cy+d
+			 L'intersection donne un sommet de la balise carré
+			y=(droiteRegression2[2]-droiteRegression1[2])/(droiteRegression1[1]-droiteRegression2[1]);
+			x=droiteRegression1[1]*y+droiteRegression1[2];
+		}
+	}
+}
+*/
+
 #endif
 
 
