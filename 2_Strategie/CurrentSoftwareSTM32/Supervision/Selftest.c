@@ -30,13 +30,14 @@
 #include "LCD_interface.h"
 #include "../QS/QS_IHM.h"
 
-#define TIMEOUT_SELFTEST_ACT 		20000	// en ms
-#define TIMEOUT_SELFTEST_PROP 		10000	// en ms
-#define TIMEOUT_SELFTEST_STRAT		5000	// en ms
-#define TIMEOUT_SELFTEST_BEACON_IR 	1000	// en ms
-#define TIMEOUT_SELFTEST_BEACON_US 	1000	// en ms
-#define TIMEOUT_SELFTEST_AVOIDANCE	5000	// en ms
-#define MAX_ERRORS_NUMBER 			200
+#define TIMEOUT_SELFTEST_ACT			20000	// en ms
+#define TIMEOUT_SELFTEST_PROP			10000	// en ms
+#define TIMEOUT_SELFTEST_STRAT			5000	// en ms
+#define TIMEOUT_SELFTEST_BEACON_IR		1000	// en ms
+#define TIMEOUT_SELFTEST_BEACON_BATTERY	1000	// en ms
+#define TIMEOUT_SELFTEST_BEACON_US		1000	// en ms
+#define TIMEOUT_SELFTEST_AVOIDANCE		5000	// en ms
+#define MAX_ERRORS_NUMBER				200
 
 #define THRESHOLD_BATTERY_OFF	18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW	21300	//[mV] Réglage du seuil de batterie faible
@@ -142,6 +143,8 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 	static bool_e act_ping_ok = FALSE;
 	static bool_e prop_ping_ok = FALSE;
 	static bool_e beacon_ping_ok = FALSE;
+	static bool_e receiveBigBalise = FALSE, receiveSmallBalise = FALSE;
+
 	typedef enum
 	{
 		INIT = 0,
@@ -153,6 +156,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		SELFTEST_BEACON_US,
 		SELFTEST_STRAT,
 		SELFTEST_AVOIDANCE,
+		SELFTEST_BEACON_BATTERY,
 		SELFTEST_END
 	}state_e;
 	static state_e state = INIT;
@@ -354,6 +358,57 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			if(flag_timeout) // Fin du test
 			{
 				debug_printf("SELFTEST AVOIDANCE END\r\n");
+				state = SELFTEST_BEACON_BATTERY;
+			}
+			break;
+
+		case SELFTEST_BEACON_BATTERY:
+			if(entrance){
+				flag_timeout = FALSE;
+				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_BATTERY, (bool_e*) &(flag_timeout));
+				debug_printf("SELFTEST BEACON BATTERY\r\n");
+			}
+
+
+			if(CAN_msg_received != NULL)
+				if(CAN_msg_received->sid == STRAT_BALISE_BATTERY_STATE){
+
+					if(CAN_msg_received->data[0] == BIG_BALISE){
+						if(!CAN_msg_received->data[1])
+							SELFTEST_declare_errors(NULL,SELFTEST_BEACON_BATTERY_BIG_LOW);
+
+						receiveBigBalise = TRUE;
+
+					}else{
+						if(!CAN_msg_received->data[1])
+							SELFTEST_declare_errors(NULL,SELFTEST_BEACON_BATTERY_SMALL_LOW);
+
+						receiveSmallBalise = TRUE;
+					}
+
+					if(receiveBigBalise && receiveSmallBalise){ // Fin du test
+						if(!flag_timeout)
+								WATCHDOG_stop(watchdog_id);
+						state = SELFTEST_END;
+
+						receiveBigBalise = FALSE;
+						receiveSmallBalise = FALSE;
+					}
+				}
+
+			if(flag_timeout) // Fin du test
+			{
+				if(!receiveBigBalise && !receiveSmallBalise)
+					debug_printf("SELFTEST BEACON BATTERY 2 BALISES TIMEOUT\r\n");
+				else if(!receiveBigBalise)
+					debug_printf("SELFTEST BEACON BATTERY BIG(1) TIMEOUT\r\n");
+				else if(!receiveSmallBalise)
+					debug_printf("SELFTEST BEACON BATTERY SMALL(2) TIMEOUT\r\n");
+
+				receiveBigBalise = FALSE;
+				receiveSmallBalise = FALSE;
+
+
 				state = SELFTEST_END;
 			}
 			break;
@@ -379,11 +434,6 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		default :
 			break;
 	}
-
-
-	if(CAN_msg_received->sid == STRAT_BALISE_BATTERY_LOW)
-		SELFTEST_declare_errors(NULL,(CAN_msg_received->data[0] == BIG_BALISE)?SELFTEST_BEACON_BATTERY_BIG_LOW:SELFTEST_BEACON_BATTERY_SMALL_LOW);
-
 }
 
 error_e SELFTEST_strategy(bool_e reset)
@@ -785,8 +835,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_NOT_DONE:							return "Not done"; 				break;
 		case SELFTEST_BEACON_ADV1_NOT_SEEN:				return "IR Adv1 not seen";		break;
 		case SELFTEST_BEACON_ADV2_NOT_SEEN:				return "IR Adv2 not seen";		break;
-		case SELFTEST_BEACON_BATTERY_BIG_LOW:			return "Balise BAT BIG LOW";	break;
-		case SELFTEST_BEACON_BATTERY_SMALL_LOW:			return "Balise BAT BIG LOW";	break;
+		case SELFTEST_BEACON_BATTERY_BIG_LOW:			return "Beac BAT BIG LOW";		break;
+		case SELFTEST_BEACON_BATTERY_SMALL_LOW:			return "Beac BAT SMALL LOW";	break;
 		case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		return "IR not synchronized";	break;
 		case SELFTEST_FAIL_UNKNOW_REASON:				return "Error 404"; 			break;
 		case SELFTEST_TIMEOUT:							return "Selftest Timeout";		break;
