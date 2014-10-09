@@ -73,10 +73,10 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_prop",			strat_reglage_prop,						0,					TRUE,					BOTH},
 
 	// Pour holly
-	{"strat_inutile",		strat_inutile_holly,					0,					TRUE,					BIG},
+	{"strat_inutile",		strat_inutile_holly,					MATCH_DURATION,		TRUE,					BIG},
 
 	// Pour wood
-	{"strat_inutile",		strat_inutile_wood,						0,					TRUE,					SMALL}
+	{"strat_inutile",		strat_inutile_wood,						MATCH_DURATION,		TRUE,					SMALL}
 };
 
 static const strategy_list_s *list_displayed_strategy[50];
