@@ -17,7 +17,6 @@
 #include "QS_outputlog.h"
 #include "Global_config.h"
 #include "QS/QS_rf.h"
-#include "QS/QS_watchdog.h"
 
 static volatile bool_e motor_enable;
 #define PERIOD_IT_MOTOR 2 //ms
@@ -28,9 +27,7 @@ static volatile bool_e motor_enable;
 #define COMMAND 	(Sint16)(70)//pas par 2ms = 2048*17 pas par secondes = 17 tours par seconde
 
 
-#define DUTY_FILTER			10
-#define START_FILTER_DUTY	30	// Donne une valeur pour le démarrage, évite le pic du début
-#define THRESHOLD_DUTY_MAX	36	// La batterie a une tension inférieure à 6,8V
+
 
 
 void MOTOR_send_msg_battery_low(void);
@@ -46,11 +43,15 @@ void MOTOR_init(void)
 static volatile Sint16 count, error, delta_error, error_prec;
 static volatile Sint32 integral = 0;
 
-// compteur pour la reptition des messages quand la batterie est faible
-static bool_e battery_low_send = FALSE;
-static volatile Sint16 compt_bat_low = 0;
 
-#define REPITION_MSG_BAT_LOW		2500
+#define THRESHOLD_DUTY_MAX		330    	// La batterie a une tension inférieure à 7V
+#define REPITION_MSG_BAT_LOW	2500
+#define FILTER_BATTERY			10
+#define START_VALUE_FILTER		300
+
+// compteur pour la reptition des messages quand la batterie est faible
+static volatile Sint16 compt_bat_low = 500; // Attend une seconde avant envoyer premier message car pic à l'allumage
+static volatile Uint16 duty_filter = START_VALUE_FILTER;
 
 #define NB_IT_PER_TURN			(Uint8)(30)	//it = 2ms, 1 tour = 60ms => 30 it par tour.
 #define	NB_ENCODER_STEP_PER_IT	(Uint8)(68)	
@@ -95,23 +96,18 @@ void MOTOR_process_it(void)
 	count_prec = count;
 	error_prec = error;
 
-	if(battery_low_send)
+	// Pour plus de precision multiplie par 10
+	if(duty > 20 && duty < 50) // valeurs incoherente sinon
+		duty_filter = (duty_filter*(100-FILTER_BATTERY) + (Uint16)(duty)*FILTER_BATTERY*10)/100;
+
+	if(duty_filter > THRESHOLD_DUTY_MAX)
 		MOTOR_send_bat_low();
 }	
 
 void MOTOR_process_main(void)
 {
-	static Uint16 filter_duty = START_FILTER_DUTY;
-	//debug_printf("d%d\tV%d\tFilter_duty %d",duty,speed,filter_duty);
+	//                                                                                                                                                                                                                                                                                       debug_printf("d%d\tV%d\tduty_filter %d",duty,speed,duty_filter);
 	//debug_printf("\n");
-	
-	// Mise en place d'un filtre, pour les pics de valeurs et/ou le démarrage
-	filter_duty = (filter_duty*(100-DUTY_FILTER) + (duty*DUTY_FILTER))/100 ;
-
-	if(filter_duty > THRESHOLD_DUTY_MAX){
-		battery_low_send = TRUE;
-	}else
-		battery_low_send = FALSE;
 }
 
 void MOTOR_togle_enable(void)
@@ -134,12 +130,26 @@ void MOTOR_send_bat_low(void){
 	compt_bat_low = REPITION_MSG_BAT_LOW;
 
 	CAN_msg_t msg;
-	msg.sid = STRAT_BALISE_BATTERY_LOW;
+	msg.sid = STRAT_BALISE_BATTERY_STATE;
 	msg.size = 1;
-	msg.data[0] = I_AM_CARTE_BALISE;
+	msg.data[0] = NUMERO_BALISE_EMETTRICE;
+	msg.data[1] = 0;
 
 	RF_can_send(RF_SMALL, &msg);
 	RF_can_send(RF_BIG, &msg);
 
 	debug_printf("Send message battery low\n");
+}
+
+void MOTOR_send_bat_state(void){
+	CAN_msg_t msg;
+	msg.sid = STRAT_BALISE_BATTERY_STATE;
+	msg.size = 1;
+	msg.data[0] = NUMERO_BALISE_EMETTRICE;
+	msg.data[1] = duty_filter < THRESHOLD_DUTY_MAX;
+
+	RF_can_send(RF_SMALL, &msg);
+	RF_can_send(RF_BIG, &msg);
+
+	debug_printf("Send message battery %s   duty %d     duty_filter %d\n",(duty_filter > THRESHOLD_DUTY_MAX)?"FAIBLE":"OK",duty,duty_filter);
 }
