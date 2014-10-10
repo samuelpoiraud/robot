@@ -25,8 +25,6 @@
 #include "QS/QS_servo.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Pierre/PFilet.h"
-	#include "Pierre/PFruit.h"
 	#include "Pierre/TestServo.h"
 #endif
 
@@ -35,11 +33,6 @@
 //Information pour le bouton 4
 #include "QS/QS_ax12.h"
 #include "QS/QS_CapteurCouleurCW.h"
-
-//TODO: SelfTest
-
-
-//#include "switch.h"
 
 #ifdef USE_CAN
 	#include "QS/QS_can.h"
@@ -148,13 +141,6 @@ int main (void)
 		QUEUE_run();
 		BUTTONS_update();
 
-		#ifdef I_AM_ROBOT_BIG
-		if(global.match_started == FALSE && global.match_over == FALSE) // Si le match n'a pas commencé et n'est pas terminé on gère le réarmement automatique du filet et l'avertissement
-				FILET_process_main();
-		if(global.match_over == FALSE)
-				FRUIT_process_main();
-		#endif
-
 		/*-------------------------------------
 			Réception CAN et exécution
 		-------------------------------------*/
@@ -195,61 +181,6 @@ static void MAIN_onButton0() {
 
 	CAN_process_msg(&msg);
 	state = (state == 2)? 0 : state + 1;
-
-	/*static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_FRUIT_MOUTH;
-	if(state == 0)
-		msg.data[0] = ACT_FRUIT_MOUTH_OPEN;
-	else if(state == 1)
-		msg.data[0] = ACT_FRUIT_LABIUM_OPEN;
-	else if(state == 2)
-		msg.data[0] = ACT_FRUIT_LABIUM_CLOSE;
-	else if(state == 3)
-		msg.data[0] = ACT_FRUIT_MOUTH_CLOSE;
-
-	CAN_process_msg(&msg);
-	state = (state == 3)? 0 : state + 1;*/
-	/*static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_POMPE;
-	if(state == 0)
-		msg.data[0] = ACT_POMPE_NORMAL;
-	else if(state == 1)
-		msg.data[0] = ACT_POMPE_REVERSE;
-	else if(state == 2)
-		msg.data[0] = ACT_POMPE_STOP;
-	msg.data[1] = 100;
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;*/
-	/*static Uint8 state = 0;
-		CAN_msg_t msg;
-		msg.size = 2;
-		msg.sid = ACT_ARM;
-		msg.data[0] = ACT_ARM_GOTO;
-		if(state == 0)
-			msg.data[1] = ACT_ARM_POS_PARKED;
-		else if(state == 1)
-			msg.data[1] = ACT_ARM_POS_TAKE_ON_ROAD;
-		CAN_process_msg(&msg);
-		state = (state == 1)? 0 : state + 1;*/
-	/*static Uint8 state = 0;
-	CAN_msg_t msg;
-	if(state == 0){
-		msg.size = 2;
-		msg.sid = ACT_ARM;
-		msg.data[0] = ACT_ARM_UPDOWN_GOTO;
-		msg.data[1] = 126;
-	}else if(state == 1){
-		msg.size = 2;
-		msg.sid = ACT_ARM;
-		msg.data[0] = ACT_ARM_UPDOWN_RUSH_IN_FLOOR;
-		msg.data[1] = 66;
-	}
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;*/
 }
 
 static void MAIN_onButton1() {
@@ -268,80 +199,28 @@ static void MAIN_onButton1() {
 }
 
 static void MAIN_onButton2() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_GACHE;
-	if(state == 0)
-		msg.data[0] = ACT_GACHE_LAUNCHED;
-	else if(state == 1)
-		msg.data[0] = ACT_GACHE_IDLE;
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 :1;
 }
 
 static void MAIN_onButton3() {
-	FILET_BOUTON_process();
 }
 
 static void MAIN_onButton4() {
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_LANCELAUNCHER;
-	msg.data[0] = ACT_LANCELAUNCHER_RUN_ALL;
-	CAN_process_msg(&msg);
 }
 
 #else // ROBOT_SMALL
 
 static void MAIN_onButton0() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_POMPE;
-	if(state == 0)
-		msg.data[0] = ACT_POMPE_NORMAL;
-	else if(state == 1)
-		msg.data[0] = ACT_POMPE_REVERSE;
-	else if(state == 2)
-		msg.data[0] = ACT_POMPE_STOP;
-	msg.data[1] = 100;
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton1() {
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_PARKED;
-	CAN_process_msg(&msg);
 }
 
 static void MAIN_onButton2() {
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_GOTO;
-	msg.data[1] = ACT_ARM_POS_TO_TAKE_RETURN;
-	CAN_process_msg(&msg);
-
 }
 
 static void MAIN_onButton3() {
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_ARM;
-	msg.data[0] = ACT_ARM_UPDOWN_RUSH_IN_FLOOR;
-	msg.data[1] = 60;
-	CAN_process_msg(&msg);
 }
 
 static void MAIN_onButton4() {
-	AX12_set_torque_limit(20, 0);
-	AX12_set_torque_limit(2, 0);
-	AX12_set_torque_limit(6, 0);
-
 }
 #endif // ROBOT_BIG et ROBOT_SMALL

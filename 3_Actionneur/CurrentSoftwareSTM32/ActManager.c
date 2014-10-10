@@ -9,19 +9,10 @@
 #include "ActManager.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Pierre/Plance_launcher.h"
-	#include "Pierre/PFruit.h"
-	#include "Pierre/PFilet.h"
-	#include "Pierre/PGache.h"
 	#include "Pierre/PTorch_locker.h"
-	#include "Common/Arm.h"
-	#include "Common/Small_arm.h"
-	#include "Common/Pompe.h"
 	#include "Pierre/TestServo.h"
 #else
-	#include "Common/Arm.h"
-	#include "Common/Small_arm.h"
-	#include "Common/Pompe.h"
+	#include "Guy/Small_arm.h"
 #endif
 
 #include "QS/QS_CANmsgList.h"
@@ -37,19 +28,10 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 static ACTQ_functions_t actionneurs[] = {
 	#ifdef I_AM_ROBOT_BIG
-		ACT_DECLARE(FRUIT),
-		ACT_DECLARE(SMALL_ARM),
-		ACT_DECLARE(ARM),
-		ACT_DECLARE(POMPE),
-		{&LANCE_LAUNCHER_init, NULL, &LANCE_LAUNCHER_stop, NULL, &LANCE_LAUNCHER_CAN_process_msg},
-		{&FILET_init, NULL, NULL, &FILET_reset_config, &FILET_CAN_process_msg},
-		ACT_DECLARE(GACHE),
 		ACT_DECLARE(TORCH_LOCKER),
 		ACT_DECLARE(TEST_SERVO)
 	#else
-		ACT_DECLARE(SMALL_ARM),
-		ACT_DECLARE(POMPE),
-		ACT_DECLARE(ARM)
+		ACT_DECLARE(SMALL_ARM)
 	#endif
 };
 
@@ -120,7 +102,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	} else {
 		bool_e isReady = FALSE, responseReceived;
 		#ifdef I_AM_ROBOT_BIG
-				responseReceived = AX12_async_is_ready(FILET_AX12_ID, &isReady);
+				responseReceived = AX12_async_is_ready(TORCH_LOCKER_AX12_1_ID, &isReady);
 		#else
 				responseReceived = AX12_async_is_ready(SMALL_ARM_AX12_ID, &isReady);
 		#endif

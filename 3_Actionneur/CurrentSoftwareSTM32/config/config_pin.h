@@ -12,7 +12,8 @@
 #define CONFIG_PIN_H
 #include "config_global.h"
 
-/* Definition des connectiques capteurs et actionneurs COMMUN à Tiny et Krusty */
+/* Definition des connectiques capteurs et actionneurs COMMUN à Holly & Wood */
+// Définir les configurations pin propre à chaque robot dans config_big/config_pin.h ou config_small/config_pin.h !
 
 /* LEDs */
 #define LED_ERROR 			GPIOD->ODR10

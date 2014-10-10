@@ -1,7 +1,7 @@
 /*
  *  Club Robot ESEO 2013 - 2014
  *
- *  $Id$
+ *  $Id: Arm.c 2595 2014-09-17 09:14:32Z aguilmet $
  *
  *  Package : Carte Actionneur
  *  Description : Gestion du bras

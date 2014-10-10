@@ -117,11 +117,6 @@ int main (void)
 
 	ACT_AVOIDANCE_init();
 
-#if 0
-	while(1)
-		test_Pathfind();
-#endif
-
 	while(1)
 	{
 		LED_RUN = !LED_RUN;

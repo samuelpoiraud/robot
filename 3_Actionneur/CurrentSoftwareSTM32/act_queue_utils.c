@@ -163,6 +163,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 	return TRUE;
 }
 
+#ifdef USE_DCMOTOR2
 bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line) {
 	DCM_working_state_e asserState = DCM_get_state(dcmotor_id);
 	Uint16 dummy;
@@ -189,6 +190,7 @@ bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* 
 
 	return TRUE;
 }
+#endif
 
 bool_e ACTQ_check_timeout(queue_id_t queueId, time32_t timeout_ms_x100) {
 	if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + timeout_ms_x100)
@@ -248,13 +250,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 
 	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
-		case ACT_FRUIT_MOUTH & 0xFF:        originalSidStr = "FruitMouth";   break;
-		case ACT_LANCELAUNCHER & 0xFF:      originalSidStr = "LanceLauncher";break;
-		case ACT_ARM & 0xFF:                originalSidStr = "Arm";          break;
 		case ACT_SMALL_ARM & 0xFF:			originalSidStr = "Small Arm";	 break;
-		case ACT_FILET & 0xFF:				originalSidStr = "Filet";		 break;
-		case ACT_POMPE & 0xFF:				originalSidStr = "Pompe";		 break;
-		case ACT_GACHE & 0xFF:				originalSidStr = "Gache";		 break;
 		case ACT_TORCH_LOCKER & 0xFF:		originalSidStr = "Torch Locker"; break;
 		default:                            originalSidStr = "Unknown";      break;
 	}

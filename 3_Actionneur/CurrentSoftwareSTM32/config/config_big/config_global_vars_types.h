@@ -15,14 +15,6 @@
 
 typedef enum {
 	//avec QUEUE devant, n'importe ou dans le code on sait que ça fait référence à un actionneur lié à queue.h/c
-	QUEUE_ACT_AX12_Fruit,
-	QUEUE_ACT_POMPE_Fruit,
-	QUEUE_ACT_lancelauncher,
-	QUEUE_ACT_AX12_Filet,
-	QUEUE_ACT_AX12_Gache,
-	QUEUE_ACT_Arm,
-	QUEUE_ACT_AX12_Small_Arm,
-	QUEUE_ACT_Pompe,
 	QUEUE_ACT_Torch_Locker,
 	QUEUE_ACT_Test_Servo,
 	NB_ACT

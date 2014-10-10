@@ -70,7 +70,9 @@ static void TORCH_LOCKER_initAX12() {
 
 		AX12_config_set_error_before_led(TORCH_LOCKER_AX12_1_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(TORCH_LOCKER_AX12_1_ID, AX12_ERROR_OVERHEATING);
-	}
+		debug_printf("Torch locker init config ID : %d DONE\n", TORCH_LOCKER_AX12_1_ID);
+	}else if(ax12_1_is_initialized == FALSE)
+		debug_printf("Torch locker init config ID : %d FAIL\n", TORCH_LOCKER_AX12_1_ID);
 
 	if(ax12_2_is_initialized == FALSE && AX12_is_ready(TORCH_LOCKER_AX12_2_ID) == TRUE) {
 		ax12_2_is_initialized = TRUE;
@@ -83,9 +85,9 @@ static void TORCH_LOCKER_initAX12() {
 
 		AX12_config_set_error_before_led(TORCH_LOCKER_AX12_2_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(TORCH_LOCKER_AX12_2_ID, AX12_ERROR_OVERHEATING);
-	}
-
-	debug_printf("Torch locker init config %s  (%s %s)\n", (ax12_1_is_initialized && ax12_2_is_initialized) ? "DONE" : "FAIL", ax12_1_is_initialized ? "DONE" : "FAIL", ax12_2_is_initialized ? "DONE" : "FAIL");
+		debug_printf("Torch locker init config ID : %d DONE\n", TORCH_LOCKER_AX12_2_ID);
+	}else if(ax12_2_is_initialized == FALSE)
+		debug_printf("Torch locker init config ID : %d FAIL\n", TORCH_LOCKER_AX12_2_ID);
 }
 
 void TORCH_LOCKER_init_pos(){
@@ -93,8 +95,13 @@ void TORCH_LOCKER_init_pos(){
 	debug_printf("Torch locker init pos : \n");
 	if(!AX12_set_position(TORCH_LOCKER_AX12_1_ID, TORCH_LOCKER_AX12_1_INIT_POS))
 		debug_printf("   L'AX12 n°%d n'est pas là\n", TORCH_LOCKER_AX12_1_ID);
+	else
+		debug_printf("   L'AX12 n°%d a été initialisé en position\n", TORCH_LOCKER_AX12_1_INIT_POS);
+
 	if(!AX12_set_position(TORCH_LOCKER_AX12_2_ID, TORCH_LOCKER_AX12_2_INIT_POS))
 		debug_printf("   L'AX12 n°%d n'est pas là\n", TORCH_LOCKER_AX12_2_ID);
+	else
+		debug_printf("   L'AX12 n°%d a été initialisé en position\n", TORCH_LOCKER_AX12_2_INIT_POS);
 }
 
 void TORCH_LOCKER_stop(){

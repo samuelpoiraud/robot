@@ -25,40 +25,38 @@
 #define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
 #define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 
-// DEFINIR LES PORTS DANS Tiny/Global_config.h ou Krusty/Global_config.h selon le robot !
+// Définir les configurations QS propre à chaque robot dans config_big/config_qs.h ou config_small/config_qs.h !
 
-
-/* Watchdog */
-//#define USE_WATCHDOG
-//#define WATCHDOG_TIMER 4
-//#define WATCHDOG_MAX_COUNT 5
-//#define WATCHDOG_QUANTUM 1
 
 /* Clock */
-//#define CLOCK_USE_WATCHDOG
-#define CLOCK_TIMER_ID 4
-#define CLOCK_UPDATE_BUTTONS_PRESS_TIME
+	//#define CLOCK_USE_WATCHDOG
+	#define CLOCK_TIMER_ID 4
+	#define CLOCK_UPDATE_BUTTONS_PRESS_TIME
 
 /* UART */
-#define USE_UART
+	#define USE_UART
 
 /* CAN */
-#define USE_CAN
-#define CAN_BUF_SIZE	32
-#define CAN_SEND_TIMEOUT_ENABLE
+	#define USE_CAN
+	#define CAN_BUF_SIZE	32
+	#define CAN_SEND_TIMEOUT_ENABLE
 
 /* Réglages UART */
-#define USE_UART1
-#define UART1_BAUDRATE		923076
-#define USE_UART1RXINTERRUPT
-#define UART_RX_BUF_SIZE	12
-
-/* ADC */
-#define USE_AN15 // mesure de courant pompe
+	#define USE_UART1
+	#define UART1_BAUDRATE		923076
+	#define USE_UART1RXINTERRUPT
+	#define UART_RX_BUF_SIZE	12
 
 /* Bouton */
-#define I_ASSUME_I_WILL_CALL_BUTTONS_PROCESS_IT_ON_MY_OWN //Fait par clock.h/c
-#define USE_BUTTONS
+	#define I_ASSUME_I_WILL_CALL_BUTTONS_PROCESS_IT_ON_MY_OWN //Fait par clock.h/c
+	#define USE_BUTTONS
+
+/* Réglages watchdog */
+	#define USE_WATCHDOG
+	#define WATCHDOG_TIMER 3
+	#define WATCHDOG_MAX_COUNT 5
+	#define WATCHDOG_QUANTUM 1
+
 
 //Test et inclusion des configs spécifiques au robot
 #if (defined(I_AM_ROBOT_BIG) && defined(I_AM_ROBOT_SMALL)) || (!defined(I_AM_ROBOT_BIG) && !defined(I_AM_ROBOT_SMALL))
@@ -68,11 +66,6 @@
 #elif defined(I_AM_ROBOT_SMALL)
 #	include "config_small/config_qs.h"
 #endif
-
-#define USE_AN11
-
-#define SERVO_TIMER 5
-#define USE_SERVO
 
 #define FAST_COS_SIN
 

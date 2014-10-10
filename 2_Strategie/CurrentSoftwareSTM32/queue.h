@@ -23,14 +23,12 @@
 typedef Uint8 queue_size_t;
 typedef enum {
 	//Holly
-	ACT_QUEUE_Fruit,
-	ACT_QUEUE_Fruit_labium,
-	ACT_QUEUE_launcher,
 	ACT_QUEUE_Torch_locker,
-	ACT_QUEUE_Filet,
+
+	//Wood
 	ACT_QUEUE_Small_arm,
-	ACT_QUEUE_Pompe,
-	ACT_QUEUE_Arm,
+
+	//Common
 
 	NB_QUEUE
 } queue_id_e;

@@ -296,26 +296,20 @@ void ACT_process_result(const CAN_msg_t* msg) {
 #else
 
 	switch(msg->data[0]) {
-		case ACT_POMPE & 0xFF:
-			act_id = ACT_QUEUE_Pompe;
+
+		// Holly
+		case ACT_TORCH_LOCKER & 0xFF:
+			act_id = ACT_QUEUE_Torch_locker;
 			break;
 
-		case ACT_FILET & 0xFF:
-			act_id = ACT_QUEUE_Filet;
-			break;
-
+		// Wood
 		case ACT_SMALL_ARM & 0xFF:
 			act_id = ACT_QUEUE_Small_arm;
 			break;
 
-		case ACT_ARM & 0xFF:
-			act_id = ACT_QUEUE_Arm;
-			break;
+		// Common
 
-		//Holly
-		case ACT_FRUIT_MOUTH & 0xFF:
-			act_id = ACT_QUEUE_Fruit;
-			break;
+
 	}
 
 	if(act_id >= NB_QUEUE) {

@@ -34,10 +34,6 @@ typedef enum {
 } ACT_AVOID_TORCH_LOCKER_CMD;
 
 typedef enum {
-	ACT_AVOID_FRUIT_MOUTH_Open
-} ACT_AVOID_FRUIT_MOUTH_CMD;
-
-typedef enum {
 	ACT_AVOID_SMALL_ARM_Mid,
 	ACT_AVOID_SMALL_ARM_Deployed
 } ACT_AVOID_SMALL_ARM_CMD;
