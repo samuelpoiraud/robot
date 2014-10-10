@@ -33,11 +33,6 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Unlock, ACT_TORCH_Locker_Unlock, 0, 0, 50, 0);
 	}
 
-	//ACT_AVOID_FRUIT_MOUTH
-	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
-		init_new_offset(ACT_AVOID_FRUIT_MOUTH, ACT_AVOID_FRUIT_MOUTH_Open, ACT_FRUIT_Verrin_Open,		0, 250, 0, 0);
-	}
-
 	//ACT_AVOID_SMALL_ARM
 	if(QS_WHO_AM_I_get() == SMALL_ROBOT){ // Seulement sur le petit robot
 		init_new_offset(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Mid, ACT_Small_arm_Mid,				20, 0, 0, 0);

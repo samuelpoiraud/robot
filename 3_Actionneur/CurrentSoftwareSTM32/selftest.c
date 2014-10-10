@@ -145,32 +145,8 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 		for(i = 0; i < MAX_NB_ACT; i++) {
 			if(failed_act_tests[i] == SELFTEST_NOT_DONE) {
 				switch(act_sid) {
-					case ACT_FRUIT_MOUTH:
-						failed_act_tests[i] = SELFTEST_ACT_FRUIT_MOUTH;
-						break;
-
-					case ACT_LANCELAUNCHER:
-						failed_act_tests[i] = SELFTEST_ACT_LANCELAUNCHER;
-						break;
-
-					case ACT_ARM:
-						failed_act_tests[i] = SELFTEST_ACT_ARM;
-						break;
-
 					case ACT_SMALL_ARM:
 						failed_act_tests[i] = SELFTEST_ACT_SMALL_ARM;
-						break;
-
-					case ACT_FILET:
-						failed_act_tests[i] = SELFTEST_ACT_FILET;
-						break;
-
-					case ACT_GACHE:
-						failed_act_tests[i] = SELFTEST_ACT_GACHE;
-						break;
-
-					case ACT_POMPE:
-						failed_act_tests[i] = SELFTEST_POMPE;
 						break;
 
 					case ACT_TORCH_LOCKER:

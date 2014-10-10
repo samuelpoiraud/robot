@@ -48,12 +48,11 @@
 //La fonction ACT_check_result (act_function.c) convertit et gère les messages act_state_info_t::operationResult et act_state_info_t::recommendedBehavior en information ACT_function_result_e (dans act_function.h) pour être ensuite utilisé par le reste du code stratégie.
 
 
-#define ARM_TIMEOUT 2500
-
 //FONCTIONS D'ACTIONNEURS
 
-
-// HOLLY
+////////////////////////////////////////
+//////////////// HOLLY /////////////////
+////////////////////////////////////////
 
 bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd) {
 	QUEUE_arg_t args;
@@ -68,47 +67,9 @@ bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Torch_locker, &args);
 }
 
-bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd) {
-	QUEUE_arg_t args;
-
-	ACT_arg_init(&args, ACT_FRUIT_MOUTH, cmd);
-	ACT_arg_set_fallbackmsg(&args, ACT_FRUIT_MOUTH, ACT_FRUIT_MOUTH_STOP);
-
-	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_FRUIT_MOUTH, cmd);
-
-	debug_printf("Pushing Fruit Run cmd\n");
-	return ACT_push_operation(ACT_QUEUE_Fruit, &args);
-}
-
-bool_e ACT_fruit_labium_goto(ACT_fruit_labium_cmd_e cmd) {
-	QUEUE_arg_t args;
-
-	ACT_arg_init(&args, ACT_FRUIT_MOUTH, cmd);
-	ACT_arg_set_fallbackmsg(&args, ACT_FRUIT_MOUTH, ACT_FRUIT_MOUTH_STOP);
-
-	debug_printf("Pushing Fruit labium Run cmd\n");
-	return ACT_push_operation(ACT_QUEUE_Fruit_labium, &args);
-}
-
-bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param){
-	QUEUE_arg_t args;
-
-	ACT_arg_init_with_param(&args, ACT_LANCELAUNCHER, cmd, param);
-	ACT_arg_set_fallbackmsg(&args, ACT_LANCELAUNCHER, ACT_LANCELAUNCHER_STOP);
-
-	debug_printf("Pushing launcher Run %d cmd\n", cmd);
-	return ACT_push_operation(ACT_QUEUE_launcher, &args);
-}
-
-bool_e ACT_filet_launch(ACT_filet_cmd_e cmd){
-	QUEUE_arg_t args;
-
-	ACT_arg_init(&args, ACT_FILET, cmd);
-	ACT_arg_set_fallbackmsg(&args, ACT_FILET, ACT_FILET_STOP);
-
-	debug_printf("Pushing Filet run %d cmd\n", cmd);
-	return ACT_push_operation(ACT_QUEUE_Filet, &args);
-}
+////////////////////////////////////////
+//////////////// WOOD //////////////////
+////////////////////////////////////////
 
 bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd){
 	QUEUE_arg_t args;
@@ -124,94 +85,6 @@ bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd){
 	return ACT_push_operation(ACT_QUEUE_Small_arm, &args);
 }
 
-bool_e ACT_pompe_order(ACT_pompe_cmd_e cmd, Uint8 param){
-	QUEUE_arg_t args;
-
-	if(cmd == ACT_Pompe_Normal || cmd == ACT_Pompe_Reverse)
-		ACT_arg_init_with_param(&args, ACT_POMPE, cmd, param);
-	else
-		ACT_arg_init(&args, ACT_POMPE, cmd);
-	ACT_arg_set_fallbackmsg(&args, ACT_POMPE, ACT_POMPE_STOP);
-
-	debug_printf("Pushing Pompe run %d cmd\n", cmd);
-	return ACT_push_operation(ACT_QUEUE_Pompe, &args);
-}
-
-bool_e ACT_arm_goto(ARM_state_e position) {
-	QUEUE_arg_t args;
-
-	ACT_arg_init_with_param(&args, ACT_ARM, ACT_ARM_GOTO, position);
-
-	debug_printf("Pushing ARM goto %d\n", position);
-	return ACT_push_operation(ACT_QUEUE_Arm, &args);
-}
-
-bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y){
-	QUEUE_arg_t args;
-	ACT_can_msg_t msg;
-	msg.sid = ACT_ARM;
-	msg.data[0]=ACT_ARM_GOTO;
-	msg.data[1]=LOWINT(position);
-	msg.data[2]=HIGHINT(position);
-	msg.data[3]=HIGHINT(x);
-	msg.data[4]=LOWINT(x);
-	msg.data[5]=HIGHINT(y);
-	msg.data[6]=LOWINT(y);
-	msg.size = 7;
-
-	ACT_arg_init_with_msg(&args, msg);
-
-	debug_printf("Pushing ARM gotoXY %d / x : %d    y : %d\n", position, x, y);
-	return ACT_push_operation(ACT_QUEUE_Arm, &args);
-}
-
-bool_e ACT_arm_updown_goto(Sint16 height){
-	QUEUE_arg_t args;
-
-	ACT_arg_init_with_param(&args, ACT_ARM, ACT_ARM_UPDOWN_GOTO, height);
-
-	debug_printf("Pushing Arm updown to z : %d mm \n", height);
-	return ACT_push_operation(ACT_QUEUE_Arm, &args);
-}
-
-bool_e ACT_arm_updown_rush_in_the_floor(Sint16 height){
-	QUEUE_arg_t args;
-
-	ACT_arg_init_with_param(&args, ACT_ARM, ACT_ARM_UPDOWN_RUSH_IN_FLOOR, height);
-
-	debug_printf("Pushing Arm updown rush in the floor to z : %d mm \n", height);
-	return ACT_push_operation(ACT_QUEUE_Arm, &args);
-}
-
-error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-
-		if(state_arm == ACT_ARM_POS_ON_TORCHE || state_arm == ACT_ARM_POS_ON_TRIANGLE)
-			ACT_arm_goto_XY(state_arm, x, y);
-		else
-			ACT_arm_goto(state_arm);
-
-
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
-
 error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
 	static time32_t begin_time;
 	static bool_e entrance = TRUE;
@@ -222,7 +95,7 @@ error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_sta
 		entrance = FALSE;
 	}
 
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_RetryLater){
+	if(global.env.match_time >= begin_time + 1000 || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_RetryLater){
 		entrance = TRUE;
 		return fail_state;
 	}
@@ -235,51 +108,9 @@ error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_sta
 	return in_progress;
 }
 
-error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-		ACT_arm_updown_goto(state_arm);
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
-
-error_e ACT_elevator_arm_rush_in_the_floor(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-		ACT_arm_updown_rush_in_the_floor(state_arm);
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + ARM_TIMEOUT || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
+////////////////////////////////////////
+//////////////// COMMON ////////////////
+////////////////////////////////////////
 
 bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value){
 	QUEUE_arg_t args;
@@ -297,40 +128,14 @@ bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value){
 	ACT_arg_set_timeout(&args, 0);
 
 	switch(sid){
-		case ACT_FRUIT_MOUTH :
-			queue_id = ACT_QUEUE_Fruit;
-			//queue_id = ACT_QUEUE_Fruit_labium;
-			debug_printf("Config : ACT_FRUIT_MOUTH\n");
-			break;
-
-		case ACT_LANCELAUNCHER :
-			queue_id = ACT_QUEUE_launcher;
-			debug_printf("Config : ACT_LANCELAUNCHER\n");
-			break;
-
 		case ACT_TORCH_LOCKER :
 			queue_id = ACT_QUEUE_Torch_locker;
 			debug_printf("Config : ACT_TORCH_LOCKER\n");
 			break;
 
-		case ACT_FILET :
-			queue_id = ACT_QUEUE_Filet;
-			debug_printf("Config : ACT_FILET\n");
-			break;
-
 		case ACT_SMALL_ARM :
 			queue_id = ACT_QUEUE_Small_arm;
 			debug_printf("Config : ACT_SMALL_ARM\n");
-			break;
-
-		case ACT_POMPE :
-			queue_id = ACT_QUEUE_Pompe;
-			debug_printf("Config : ACT_POMPE\n");
-			break;
-
-		case ACT_ARM :
-			queue_id = ACT_QUEUE_Arm;
-			debug_printf("Config : ACT_ARM\n");
 			break;
 
 		default :

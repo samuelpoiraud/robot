@@ -12,7 +12,6 @@
 #define CLOCK_C
 #include "clock.h"
 #include "QS/QS_buttons.h"
-#include "Pierre/PFilet.h"
 #include "QS/QS_DCMotor2.h"
 
 #include "config_pin.h"
@@ -50,10 +49,10 @@ void CLOCK_init()
 #include "QS/QS_uart.h"
 void TIMER_SRC_TIMER_interrupt()
 {
-#ifdef I_AM_ROBOT_BIG
-	FILET_process_10ms(); // Gestion du réarmement du filet
-#endif
-	DCM_process_it();     // Asservissement du bras
+	#ifdef USE_DCMOTOR2
+		DCM_process_it();
+	#endif
+
 	LED_RUN = !LED_RUN;
 	time++;
 #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)

@@ -8,9 +8,10 @@
  *  Auteur : Jacen, Alexis
  */
 
-#ifndef GUY_CONFIG_PIN_H
-#define GUY_CONFIG_PIN_H
-#define PORT_A_IO_MASK	0xFEDF
+#ifndef SMALL_CONFIG_PIN_H
+#define SMALL_CONFIG_PIN_H
+
+#define PORT_A_IO_MASK	0xFFDF
 	#define BUTTON0_PORT		GPIOA->IDR0
 	//	-				 			  1
 	//	AX12/U2TX					  2
@@ -19,7 +20,7 @@
 	#define AX12_DIRECTION_PORT_RX24 GPIOA->ODR5
 	//	-				 			  6
 	//	-				 			  7
-	#define POMPE_SENS			GPIOA->ODR8
+	//	-				 			  8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -46,7 +47,7 @@
 	//	-				 			  14
 	//	-				 			  15
 
-#define PORT_C_IO_MASK	0xFBFF
+#define PORT_C_IO_MASK	0xFFFF
 	//	-				 			  0
 	//	-				 			  1
 	//	-				 			  2
@@ -57,7 +58,7 @@
 	//	-				 			  7
 	//	-				 			  8
 	//	-				 			  9
-	#define BRAS_UPDOWN_SENS		GPIOC->ODR10
+	//	-				 			  10
 	//	-				 			  11
 	//	-				 			  12
 	//	-				 			  13
@@ -101,26 +102,14 @@
 	//	-							  9
 	//	-							  10
 	//	-							  11
-	#define BUTTON1_PORT		(!GPIOE->IDR12)	//Selftest
-	#define BUTTON2_PORT		(!GPIOE->IDR13)	//Calibration
-	#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
-	#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
+	#define BUTTON1_PORT		(!GPIOE->IDR12)
+	#define BUTTON2_PORT		(!GPIOE->IDR13)
+	#define BUTTON3_PORT		(!GPIOE->IDR14)
+	#define BUTTON4_PORT		(!GPIOE->IDR15)
 
-
-
-/* définition des actionneurs  */
-//like as 	#define PLIER_LEFT_AX12_ID                  0
 
 /* Config proto petit bras*/
 	#define SMALL_ARM_AX12_ID							0
 
-/* Config proto pompe*/
-	#define POMPE_PWM_NUM								1
 
-	// ID des moteurs du bras
-	#define ARM_ACT_UPDOWN_ID                        0
-	#define ARM_ACT_RX24_ID                          21
-	#define ARM_ACT_AX12_MID_ID                      2
-	#define ARM_ACT_AX12_TRIANGLE_ID                 6
-
-#endif /* GUY_CONFIG_PIN_H */
+#endif /* SMALL_CONFIG_PIN_H */

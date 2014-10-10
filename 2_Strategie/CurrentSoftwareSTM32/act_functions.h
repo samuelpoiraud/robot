@@ -54,41 +54,8 @@ typedef enum {
 	ACT_TORCH_Locker_Stop = ACT_TORCH_LOCKER_STOP
 } ACT_torch_locker_cmd_e;
 
-typedef enum {
-	ACT_FRUIT_Verrin_Open = ACT_FRUIT_MOUTH_OPEN,
-	ACT_FRUIT_Verrin_Close = ACT_FRUIT_MOUTH_CLOSE,
-	ACT_FRUIT_Verrin_Vibration = ACT_FRUIT_MOUTH_VIBRATION,
-	ACT_FRUIT_Verrin_Canceled = ACT_FRUIT_MOUTH_CANCELED,
-	ACT_FRUIT_Verrin_Stop = ACT_FRUIT_MOUTH_STOP
-} ACT_fruit_mouth_cmd_e;
-
-typedef enum {
-	ACT_FRUIT_Labium_Open = ACT_FRUIT_LABIUM_OPEN,
-	ACT_FRUIT_Labium_Close = ACT_FRUIT_LABIUM_CLOSE,
-	ACT_FRUIT_Labium_Stop = ACT_FRUIT_LABIUM_STOP
-} ACT_fruit_labium_cmd_e;
-
-typedef enum {
-	ACT_Lance_1_BALL =  ACT_LANCELAUNCHER_RUN_1_BALL,
-	ACT_Lance_5_BALL = ACT_LANCELAUNCHER_RUN_5_BALL,
-	ACT_Lance_ALL = ACT_LANCELAUNCHER_RUN_ALL,
-	ACT_Lance_Stop = ACT_LANCELAUNCHER_STOP
-} ACT_lance_launcher_cmd_e;
-
-typedef enum {
-	ACT_Filet_Idle = ACT_FILET_IDLE,
-	ACT_Filet_Launched = ACT_FILET_LAUNCHED,
-	ACT_Filet_Stop = ACT_FILET_STOP
-} ACT_filet_cmd_e;
-
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
-////////////////////////////////////////
-
-
-
-////////////////////////////////////////
-//////////////// COMMON ////////////////
 ////////////////////////////////////////
 
 typedef enum {
@@ -98,40 +65,34 @@ typedef enum {
 	ACT_Small_arm_Stop = ACT_SMALL_ARM_STOP
 } ACT_small_arm_cmd_e;
 
-typedef enum {
-	ACT_Pompe_Normal = ACT_POMPE_NORMAL,
-	ACT_Pompe_Reverse = ACT_POMPE_REVERSE,
-	ACT_Pompe_Stop = ACT_POMPE_STOP
-} ACT_pompe_cmd_e;
+////////////////////////////////////////
+//////////////// COMMON ////////////////
+////////////////////////////////////////
+
 
 
 // -------------------------------- Fonctions de pilotage des actionneurs
 
 // Holly
 bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
-bool_e ACT_fruit_mouth_goto(ACT_fruit_mouth_cmd_e cmd);
-bool_e ACT_fruit_labium_goto(ACT_fruit_labium_cmd_e cmd);
-bool_e ACT_lance_launcher_run(ACT_lance_launcher_cmd_e cmd,Uint16 param);
-bool_e ACT_filet_launch(ACT_filet_cmd_e cmd);
 
 // Wood
+bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);
 
 // Common
-bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);
-bool_e ACT_pompe_order(ACT_pompe_cmd_e cmd, Uint8 param);
-bool_e ACT_arm_goto(ARM_state_e position);
-bool_e ACT_arm_goto_XY(ARM_state_e position, Sint16 x, Sint16 y);
-bool_e ACT_arm_updown_goto(Sint16 height);
-bool_e ACT_arm_updown_rush_in_the_floor(Sint16 height);
 
 
 // -------------------------------- Fonctions de pilotage haut niveau des actionneurs (avec machine à état intégré)
-error_e ACT_arm_move(ARM_state_e state_arm, Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+
+// Holly
+
+// Wood
 error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
-error_e ACT_elevator_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
-error_e ACT_elevator_arm_rush_in_the_floor(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
+
+// Common
 
 
+// -------------------------------- Fonctions de configuration des actionneurs
 /*
  * Entrer le sid de l'actionneur à paramètrer (Liste des sid dans QS_CANmsgList.h)
  * Puis :

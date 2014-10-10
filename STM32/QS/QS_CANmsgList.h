@@ -341,14 +341,8 @@
 		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
 		SELFTEST_ACT_MISSING_TEST,	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 		SELFTEST_ACT_UNKNOWN_ACT,	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
-		SELFTEST_ACT_FRUIT_MOUTH,
-		SELFTEST_ACT_LANCELAUNCHER,
-		SELFTEST_ACT_ARM,
 		SELFTEST_ACT_SMALL_ARM,
-		SELFTEST_ACT_FILET,
-		SELFTEST_ACT_GACHE,
 		SELFTEST_ACT_TORCH_LOCKER,
-		SELFTEST_POMPE,
 		SELFTEST_FAIL_UNKNOW_REASON,
 		SELFTEST_ERROR_NB,
 		SELFTEST_NO_ERROR = 0xFF
@@ -617,149 +611,14 @@
 		   // (0 à 100)
 	/////////////////////////////////////////////
 
-	/////////////////// FILET ///////////////////
-	// Message de l'actionneur vers la stratégie pour informer de l'état du filet
-	#define STRAT_INFORM_FILET (STRAT_FILTER | (ACT_FILTER >> 4) | 1)
-		// Dans data[0]
-		#define STRAT_INFORM_FILET_ABSENT	(0b000000000)
-		#define STRAT_INFORM_FILET_PRESENT	(0b000000001)
-	//////////////////////////////////////////////
-
-	/////////////////// FRUIT_MOUTH ///////////////////
-	// Message de l'actionneur vers la stratégie pour informer de l'état du fruit mouth
-	#define STRAT_INFORM_FRUIT_MOUTH (STRAT_FILTER | (ACT_FILTER >> 4) | 2)
-		// Dans data[0]
-		#define STRAT_INFORM_FRUIT_MOUTH_OPEN	(0b000000000)
-		#define STRAT_INFORM_FRUIT_MOUTH_CLOSE	(0b000000001)
-	//////////////////////////////////////////////
-
-	/////////////////// POMPE ///////////////////
-	#define ACT_ASK_POMPE_IN_PRESSURE	(STRAT_FILTER | (ACT_FILTER >> 4) | 3)
-	#define STRAT_ANSWER_POMPE			(STRAT_FILTER | (ACT_FILTER >> 4) | 4)
-	// Dans data[0]
-		#define STRAT_ANSWER_POMPE_NO		(0b00000000)
-		#define STRAT_ANSWER_POMPE_YES		(0b00000001)
-	/////////////////////////////////////////////
-
-// Code des SID des messages: 0x30x = message pour Tiny, 0x31x = message pour Krusty.
+// Code des SID des messages: 0x30x = message pour Holly, 0x31x = message pour Wood.
 // Le SID 0x300 est reservé pour le self_test
 // Ceci est un enum de SID d'actionneur avec les paramètres de chaque actions définie par des defines. L'enum est utilisé pour vérifier que tous les messages de retour d'actionneurs sont géré en strat
 
 typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le reste en #DEFINE
 
-	////////////////// FRUIT_MOUTH ///////////
-	ACT_FRUIT_MOUTH = (ACT_FILTER | 0x01),   //0x16: collision avec ACT_PING
-		//Paramètres de la pompe
-		#define ACT_FRUIT_MOUTH_CLOSE           0x10
-		#define ACT_FRUIT_MOUTH_OPEN            0x11
-		#define ACT_FRUIT_MOUTH_VIBRATION		0x12
-		#define ACT_FRUIT_MOUTH_CANCELED        0x13
-		#define ACT_FRUIT_MOUTH_STOP	        0x1F
-
-		//Fruit Labium (trappe)
-		#define ACT_FRUIT_LABIUM_CLOSE          0x14
-		#define ACT_FRUIT_LABIUM_OPEN           0x15
-		#define ACT_FRUIT_LABIUM_STOP           0x1E
-
-	/////////////////////////////////////////
-
-	/////////////////LANCELAUNCHER////////////////////
-	ACT_LANCELAUNCHER = (ACT_FILTER | 0x02),
-		//Paramètres de LANCELAUNCHER (dans data[0])
-		#define ACT_LANCELAUNCHER_RUN_1_BALL	0x11
-		#define ACT_LANCELAUNCHER_RUN_5_BALL	0x12
-		#define ACT_LANCELAUNCHER_RUN_ALL		0x13
-		#define ACT_LANCELAUNCHER_STOP			0x1F
-	////////////////////////////////////////////////
-
-	////////////////// ARM  /////////////////
-	ACT_ARM = (ACT_FILTER | 0x03),
-		//Paramètres de ARM (dans data[0])
-		#define ACT_ARM_GOTO 0   // Va à la position demandée dans data[1] (une des valeurs ci-dessous)
-			// Voir position du bras ci-dessous (ARM_STATE_ENUM)
-
-		#define ACT_ARM_STOP 1  // Stoppe l'asservissement des moteurs
-
-		//Pas utilisé par la strat mais ici pour être testable
-		#define ACT_ARM_INIT 3
-
-		// Positions prise par le bras
-		// Pour ajouter une position, ajoutez une ligne avec:
-		// XX(<nom état>) \                                                                            text ici pour garder des espaces après le slash, sinon multiline comment
-		// N'oubliez pas le \ !!!!! (sauf pour le dernier)
-		#define ARM_STATE_ENUMVALS(XX) \
-			XX(ACT_ARM_POS_PRE_PARKED_1) \
-			XX(ACT_ARM_POS_PRE_PARKED_2) \
-			XX(ACT_ARM_POS_PARKED) \
-			XX(ACT_ARM_POS_MID) \
-			XX(ACT_ARM_POS_OPEN) \
-			XX(ACT_ARM_POS_OPEN_2) \
-			XX(ACT_ARM_POS_ON_TORCHE) \
-			XX(ACT_ARM_POS_ON_TORCHE_SMALL_ARM) \
-			XX(ACT_ARM_POS_ON_TORCHE_SMALL_ARM_RESCUE) \
-			XX(ACT_ARM_POS_PREPARE_1_TORCHE_AUTO) \
-			XX(ACT_ARM_POS_PREPARE_2_TORCHE_AUTO) \
-			XX(ACT_ARM_POS_ON_TORCHE_AUTO) \
-			XX(ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_1) \
-			XX(ACT_ARM_POS_ON_TORCHE_AUTO_ESCAPE_2) \
-			XX(ACT_ARM_POS_ON_PREPARE_DROP_1_AUTO) \
-			XX(ACT_ARM_POS_ON_PREPARE_DROP_2_AUTO) \
-			XX(ACT_ARM_POS_ON_DROP_1_AUTO) \
-			XX(ACT_ARM_POS_ON_DROP_2_AUTO) \
-			XX(ACT_ARM_POS_ON_PREPARE_1_DROP_3_AUTO) \
-			XX(ACT_ARM_POS_ON_PREPARE_2_DROP_3_AUTO) \
-			XX(ACT_ARM_POS_ON_DROP_3_AUTO) \
-			XX(ACT_ARM_POS_TO_STORAGE) \
-			XX(ACT_ARM_POS_TO_CARRY) \
-			XX(ACT_ARM_POS_TO_PREPARE_RETURN) \
-			XX(ACT_ARM_POS_TO_DOWN_RETURN) \
-			XX(ACT_ARM_POS_TO_RETURN) \
-			XX(ACT_ARM_POS_WAIT_RETURN) \
-			XX(ACT_ARM_POS_TO_PREPARE_TAKE_RETURN) \
-			XX(ACT_ARM_POS_TO_TAKE_RETURN) \
-			XX(ACT_ARM_POS_TO_UNBLOCK_RETURN) \
-			XX(ACT_ARM_POS_TO_UNBLOCK_RETURN_UP) \
-			XX(ACT_ARM_POS_ON_TRIANGLE) \
-			XX(ACT_ARM_POS_PREPARE_BACKWARD) \
-			XX(ACT_ARM_POS_DOWN_BACKWARD) \
-			XX(ACT_ARM_POS_LOCK_BACKWARD) \
-			XX(ACT_ARM_POS_PREPARE_TAKE_ON_EDGE) \
-			XX(ACT_ARM_POS_PREPARE_TAKE_ON_EDGE_2) \
-			XX(ACT_ARM_POS_TAKE_ON_EDGE) \
-			XX(ACT_ARM_POS_RETURN_ON_EDGE) \
-			XX(ACT_ARM_POS_DISPOSED_SIMPLE) \
-			XX(ACT_ARM_POS_PREPARE_TAKE_ON_ROAD) \
-			XX(ACT_ARM_POS_TAKE_ON_ROAD) \
-			XX(ACT_ARM_POS_TAKE_ON_ROAD_MAMOUTH) \
-			XX(ACT_ARM_POS_DISPOSED_TORCH) \
-			XX(ACT_ARM_POS_ESCAPE_TORCH_1) \
-			XX(ACT_ARM_POS_ESCAPE_TORCH_2) \
-			XX(ACT_ARM_POS_TORCHE_CENTRAL) \
-			XX(ACT_ARM_POS_TORCHE_ADV)	\
-			XX(ACT_ARM_POS_ON_THE_LEFT)
-
-		#define ACT_ARM_PRINT_POS 2  //Affiche les positions des actionneurs sur l'uart
-
-		#define ACT_ARM_PRINT_STATE_TRANSITIONS 4
-
-		// Paramètres permettant de gérer la hauteur du bras
-		#define ACT_ARM_UPDOWN_GOTO 5
-
-		// Paramètres permettant de gérer la hauteur du bras
-		#define ACT_ARM_UPDOWN_RUSH_IN_FLOOR 6
-
-	/////////////////////////////////////////
-
-	/////////////////////FILET///////////////////
-	ACT_FILET = (ACT_FILTER | 0x04),
-		//Paramètres de FILET (dans data[0])
-		#define ACT_FILET_IDLE				0x11
-		#define ACT_FILET_LAUNCHED			0x12
-		#define ACT_FILET_STOP				0x13
-	/////////////////////////////////////////////
-
 	//////////////////PETIT BRAS/////////////////
-	ACT_SMALL_ARM = (ACT_FILTER | 0x05),
+	ACT_SMALL_ARM = (ACT_FILTER | 0x10),
 		//Paramètres de SMALL_ARM (dans data[0])
 		#define ACT_SMALL_ARM_IDLE			0x11
 		#define ACT_SMALL_ARM_MID			0x12
@@ -767,20 +626,8 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_SMALL_ARM_STOP			0x14
 	/////////////////////////////////////////////
 
-	/////////////////////POMPE///////////////////
-	ACT_POMPE = (ACT_FILTER | 0x06),
-		//Paramètres de SMALL_ARM (dans data[0])
-		#define ACT_POMPE_NORMAL			0x11
-		#define ACT_POMPE_REVERSE			0x12
-		// Pour les deux actions ci-dessus dans data[1]
-		   // Le rapport cyclique voulue de la pompe entre 0 et 100
-
-		#define ACT_POMPE_STOP				0x13
-
-	/////////////////////////////////////////////
-
 	//////////////////TORCH LOCKER/////////////////
-	ACT_TORCH_LOCKER = (ACT_FILTER | 0x07),
+	ACT_TORCH_LOCKER = (ACT_FILTER | 0x01),
 		//Paramètres de TORCH_LOCKER (dans data[0])
 		#define ACT_TORCH_LOCKER_LOCK		0x11
 		#define ACT_TORCH_LOCKER_UNLOCK		0x12
@@ -788,16 +635,8 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_TORCH_LOCKER_STOP		0x14
 	/////////////////////////////////////////////
 
-	/////////////////////GACHE///////////////////
-	ACT_GACHE = (ACT_FILTER | 0x08),
-		//Paramètres de GACHE (dans data[0])
-		#define ACT_GACHE_IDLE				0x11
-		#define ACT_GACHE_LAUNCHED			0x12
-		#define ACT_GACHE_STOP				0x13
-	/////////////////////////////////////////////
-
 	/////////////////TEST SERVO//////////////////
-	ACT_TEST_SERVO = (ACT_FILTER | 0x09)
+	ACT_TEST_SERVO = (ACT_FILTER | 0x02)
 		//Paramètres de TEST_SERVO (dans data[0])
 		#define ACT_TEST_SERVO_IDLE				0x11
 		#define ACT_TEST_SERVO_STATE_1			0x12
@@ -807,18 +646,6 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	/////////////////////////////////////////////
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs
-
-#define ENUM_ITEMIZE(val) val,
-typedef enum {
-	ARM_STATE_ENUMVALS(ENUM_ITEMIZE)
-	ARM_ST_NUMBER
-} ARM_state_e;
-#undef ENUM_ITEMIZE
-
-//Info sur l'astuce du XX:
-//https://github.com/joyent/libuv/blob/422d2810b37d1ec8a12f967089d04039800c2b44/include/uv.h#L65
-//http://www.drdobbs.com/the-new-c-x-macros/184401387
-
 
 
 /*****************************************************************

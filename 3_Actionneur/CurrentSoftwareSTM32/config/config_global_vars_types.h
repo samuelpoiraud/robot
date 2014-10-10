@@ -17,14 +17,6 @@
 
 //Déclaration commune au 2 robot ici
 
-/*Pour distinguer les actionneurs avant et arrière du robot */
-typedef enum
-{
-	FRONT=0,
-	BACK,
-	NB_WAY
-}act_way_e;
-
 //Test et inclusion des configs spécifiques au robot
 #if (defined(I_AM_ROBOT_BIG) && defined(I_AM_ROBOT_SMALL)) || (!defined(I_AM_ROBOT_BIG) && !defined(I_AM_ROBOT_SMALL))
 #	error "Veuillez définir I_AM_ROBOT_BIG ou I_AM_ROBOT_SMALL selon le robot cible dans config_global.h"

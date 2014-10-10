@@ -178,8 +178,6 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		case WAIT_SELFTEST_LAUNCH:
 			if(ask_launch_selftest)	//demande de lancement du selftest (PAS PENDANT LE MATCH !)
 			{
-				if(QS_WHO_AM_I_get() == BIG_ROBOT)
-					ACT_arm_goto(ACT_ARM_POS_PARKED);
 				debug_printf("\r\n_________________________ SELFTEST __________________________\r\n\r\n");
 				errors_index = 0;	//On REMET le compteur d'erreur à 0.
 				state = SELFTEST_STRAT;
@@ -427,8 +425,6 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				LED_SELFTEST = FALSE;
 				SELFTEST_print_errors((SELFTEST_error_code_e *)errors, errors_index);
 			}
-			if(QS_WHO_AM_I_get() == BIG_ROBOT)
-				ACT_arm_goto(ACT_ARM_POS_PRE_PARKED_1);
 			state = WAIT_SELFTEST_LAUNCH;
 			break;
 		default :
@@ -601,13 +597,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");						break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
-				case SELFTEST_ACT_LANCELAUNCHER:				debug_printf("SELFTEST_ACT_LANCELAUNCHER");						break;
-				case SELFTEST_ACT_FRUIT_MOUTH:					debug_printf("SELFTEST_ACT_FRUIT_MOUTH");						break;
 				case SELFTEST_ACT_SMALL_ARM:					debug_printf("SELFTEST_ACT_SMALL_ARM");							break;
-				case SELFTEST_ACT_ARM:							debug_printf("SELFTEST_ACT_ARM");								break;
-				case SELFTEST_ACT_FILET:						debug_printf("SELFTEST_ACT_FILET");								break;
-				case SELFTEST_ACT_GACHE:						debug_printf("SELFTEST_ACT_GACHE");								break;
-				case SELFTEST_POMPE:							debug_printf("SELFTEST_POMPE");									break;
 				case SELFTEST_ACT_TORCH_LOCKER:					debug_printf("SELFTEST_ACT_TORCH_LOCKER");						break;
 
 				default:										debug_printf("UNKNOW_ERROR_CODE");								break;
@@ -859,13 +849,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";	break;
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
-		case SELFTEST_ACT_FRUIT_MOUTH:					return "ACT Fruit";				break;
-		case SELFTEST_ACT_LANCELAUNCHER:				return "ACT LanceLauch";		break;
-		case SELFTEST_ACT_ARM:							return "ACT Arm";				break;
 		case SELFTEST_ACT_SMALL_ARM:					return "ACT Small arm";			break;
-		case SELFTEST_ACT_FILET:						return "ACT Filet";				break;
-		case SELFTEST_ACT_GACHE:						return "ACT Gache";				break;
-		case SELFTEST_POMPE:							return "ACT Pompe"; 			break;
 		case SELFTEST_ACT_TORCH_LOCKER:					return "ACT Torch Locker";		break;
 
 		case SELFTEST_ERROR_NB: return NULL; break;

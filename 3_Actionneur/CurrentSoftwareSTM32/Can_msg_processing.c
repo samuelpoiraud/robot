@@ -19,7 +19,6 @@
 #include "queue.h"
 
 #include "ActManager.h"
-#include "Common/Pompe.h"
 
 #include "config_debug.h"
 #define LOG_PREFIX "CANProcess: "
@@ -45,7 +44,9 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			component_printf(LOG_LEVEL_Info, "C:BROADCAST_STOP_ALL\n");
 			QUEUE_flush_all();
 			ACTMGR_stop();
-			DCM_stop_all();
+			#ifdef USE_DCMOTOR2
+				DCM_stop_all();
+			#endif
 			break;
 
 		//Reprise de la partie
@@ -59,8 +60,10 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				global.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
 				global.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
 			break;
+
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			break;
+
 		case BROADCAST_ALIM:
 			if(msg->data[0] == ALIM_OFF){
 				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_OFF\n");
@@ -86,10 +89,6 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				answer.data[0] = SMALL_ROBOT;
 			#endif
 			CAN_send(&answer);
-			break;
-
-		case ACT_ASK_POMPE_IN_PRESSURE:
-			measure_current_pump();
 			break;
 
 		default:
