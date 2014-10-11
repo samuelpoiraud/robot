@@ -49,9 +49,6 @@ void ENV_clean (void);
 
 #define ADC_THRESHOLD 10 //Valeur de l'ADC sans dispositif de connecté
 
-		//une couleur erronnée pour forcer la maj de la couleur
-		#define COLOR_INIT_VALUE 0xFF
-
 /* initialise les variables d'environnement */
 void ENV_init(void)
 {
@@ -62,7 +59,7 @@ void ENV_init(void)
 	DETECTION_init();
 
 	ENV_clean();
-	global.env.wanted_color=BLUE;
+	global.env.wanted_color=COLOR_INIT_VALUE;
 	global.env.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
 	global.env.color_updated = TRUE;
 	global.env.match_started = FALSE;

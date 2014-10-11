@@ -23,6 +23,9 @@
 	#define GAME_ZONE_SIZE_X			2000 //2000 mm
 	#define GAME_ZONE_SIZE_Y			3000 //3000 mm
 
+	//une couleur erronnée pour forcer la maj de la couleur
+	#define COLOR_INIT_VALUE 0xFF
+
 	// Dimensions des éléments de jeu
 	#define CD_RADIUS				60
 	#define CD_DIAMETER				120
