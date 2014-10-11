@@ -74,7 +74,32 @@
 	 *	octets 1 et 2	: Mesure de l'alimentation sur 16 bit en mV
 	 */
 
+	/*
+	 * Procédure et messages échangés pour la localisation de l'adversaire.
+	 * 1- la carte propulsion localise les adversaires avec l'hokuyo
+	 * 2- la carte balise IR envoie ses infos à la carte propulsion
+	 * 3- la carte propulsion analyse la correspondance pour comprendre qui est qui (2 adv + friend) + fusion de données et calcul de la fiabilité.
+	 * 4- envoi des positions adverses à la stratégie (x, y, dist, teta) + fiabilité pour chaque donnée
+	 *
+	 * Possibilité de forcer en débog les positions adverses en envoyant le même message de position BROADCAST_ADVERSARIES_POSITION
+	 */
+
 	#define BROADCAST_BEACON_ADVERSARY_POSITION_IR	0x006	//Balise InfraRouge
+
+	#define BROADCAST_ADVERSARIES_POSITION	0x099	//Position des adversaires
+		#define IT_IS_THE_LAST_ADVERSARY	0x80	//Bit levé si l'adversaire envoyé est le dernier...
+		/*		0 : ADVERSARY_NUMBER | IT_IS_THE_LAST_ADVERSARY	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
+		 * 		1 :  x [2cm]
+		 * 		2 :  y [2cm]
+		 * 		3-4 : teta
+		 * 		5 : distance [2cm]
+		 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
+		 */
+		#define ADVERSARY_DETECTION_FIABILITY_X			0b00000001
+		#define ADVERSARY_DETECTION_FIABILITY_Y			0b00000010
+		#define ADVERSARY_DETECTION_FIABILITY_TETA		0b00000100
+		#define ADVERSARY_DETECTION_FIABILITY_DISTANCE	0b00001000
+		#define ADVERSARY_DETECTION_FIABILITY_ALL		0b00001111
 
 	#define STRAT_BUZZER_PLAY			0x2FF
 	typedef enum{
@@ -355,16 +380,6 @@
  *		et la carte stratégie
  *
  *****************************************************************/
-/*
- * Procédure et messages échangés pour la localisation de l'adversaire.
- * 1- la carte propulsion localise les adversaires avec l'hokuyo
- * 2- la carte balise IR envoie ses infos à la carte propulsion
- * 3- la carte propulsion analyse la correspondance pour comprendre qui est qui (2 adv + friend) + fusion de données et calcul de la fiabilité.
- * 4- envoi des positions adverses à la stratégie (x, y, dist, teta) + fiabilité pour chaque donnée
- *
- * Possibilité de forcer en débog les positions adverses en envoyant le même message de position STRAT_ADVERSARIES_POSITION
- */
-
 
 	/* carte propulsion vers carte stratégie */
 //TODO renommer ces messages pour respecter le nom es cartes (STRAT et PROP)
@@ -425,23 +440,6 @@
 	 *  2/3 : y
 	 *  4 : timeout (si l'évitement a eu lieu avec un timeout ou directement)
 	 */
-
-
-
-	#define STRAT_ADVERSARIES_POSITION	0x299	//Position des adversaires
-		#define IT_IS_THE_LAST_ADVERSARY	0x80	//Bit levé si l'adversaire envoyé est le dernier...
-		/*		0 : ADVERSARY_NUMBER | IT_IS_THE_LAST_ADVERSARY	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
-		 * 		1 :  x [2cm]
-		 * 		2 :  y [2cm]
-		 * 		3-4 : teta
-		 * 		5 : distance [2cm]
-		 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
-		 */
-		#define ADVERSARY_DETECTION_FIABILITY_X			0b00000001
-		#define ADVERSARY_DETECTION_FIABILITY_Y			0b00000010
-		#define ADVERSARY_DETECTION_FIABILITY_TETA		0b00000100
-		#define ADVERSARY_DETECTION_FIABILITY_DISTANCE	0b00001000
-		#define ADVERSARY_DETECTION_FIABILITY_ALL		0b00001111
 
 
 	/* carte stratégie vers carte propulsion */

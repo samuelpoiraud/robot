@@ -54,8 +54,8 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case STRAT_PROP_SELFTEST_DONE :					print(string, len, "%x STRAT_PROP_SELFTEST_DONE             ", STRAT_PROP_SELFTEST_DONE 					);	break;
 		case STRAT_BEACON_IR_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_IR_SELFTEST_DONE        ", STRAT_BEACON_IR_SELFTEST_DONE				);	break;
 		case STRAT_BEACON_US_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_US_SELFTEST_DONE        ", STRAT_BEACON_US_SELFTEST_DONE				);	break;
-		case STRAT_BALISE_BATTERY_STATE	:				print(string, len, "%x STRAT_BALISE_BATTERY_STATE		        ", STRAT_BALISE_BATTERY_STATE			);	break;
-		case STRAT_ADVERSARIES_POSITION:				print(string, len, "%x STRAT_ADVERSARIES_POSITION           ", STRAT_ADVERSARIES_POSITION		);	break;
+		case STRAT_BALISE_BATTERY_STATE	:				print(string, len, "%x STRAT_BALISE_BATTERY_STATE	        ", STRAT_BALISE_BATTERY_STATE			);	break;
+		case BROADCAST_ADVERSARIES_POSITION:			print(string, len, "%x BROADCAST_ADVERSARIES_POSITION       ", BROADCAST_ADVERSARIES_POSITION		);	break;
 		case STRAT_TRAJ_FINIE:							print(string, len, "%x STRAT_TRAJ_FINIE                     ", STRAT_TRAJ_FINIE				);	break;
 		case STRAT_PROP_ERREUR:							print(string, len, "%x STRAT_PROP_ERREUR                    ", STRAT_PROP_ERREUR				);	break;
 		case STRAT_ROBOT_FREINE:						print(string, len, "%x STRAT_ROBOT_FREINE                   ",	STRAT_ROBOT_FREINE			);	break;
@@ -101,7 +101,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len)
 		case IR_ERROR_RESULT:					print_ir_result(msg, &string, &len);									break;
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"JAUNE":"ROUGE"	);		break;
 		case BROADCAST_POSITION_ROBOT :			print(string, len, "| JeSuisEn  x=%d y=%d t=0x%x=%d° Vt=%dmm/s Vr=%drd/s reas=0x%x st=0x%x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
-	//	case STRAT_ADVERSARIES_POSITION:		print(string, len, "|\n");												break;
+	//	case BROADCAST_ADVERSARIES_POSITION:	print(string, len, "|\n");												break;
 	//	case DEBUG_CARTE_P:						print(string, len, "|\n");												break;
 		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 //		case DEBUG_ELEMENT_UPDATED:				print(string, len, "|\n");												break;

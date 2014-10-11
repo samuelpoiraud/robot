@@ -82,7 +82,7 @@ void SECRETARY_process_main(void)
 				#ifdef LCD_TOUCH
 				if(	global.disable_virtual_perfect_robot == FALSE 				||	//Si le robot virtuel est actif, je laisse passer le message
 					receivedCanMsg_over_uart.sid == BROADCAST_POSITION_ROBOT 	||	//Sinon, je laisse passer les messages de position et de position adverse.
-					receivedCanMsg_over_uart.sid == STRAT_ADVERSARIES_POSITION	||
+					receivedCanMsg_over_uart.sid == BROADCAST_ADVERSARIES_POSITION	||
 					receivedCanMsg_over_uart.sid == BROADCAST_COULEUR
 					)
 				#endif
@@ -194,7 +194,7 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 				debug_printf ("Trajectory_for_test_coef_done : %d", U16FROMU8(msg->data[0], msg->data[1]) );
 				add_pos_datas = FALSE;
 				break;
-			case STRAT_ADVERSARIES_POSITION:
+			case BROADCAST_ADVERSARIES_POSITION:
 				//Nothing. affichage déjà géré dans la fonction appelante.
 				add_pos_datas = FALSE;
 				break;
@@ -270,7 +270,7 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 	 * 		5 : distance [2cm]
 	 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
 	 */
-	msg.sid = STRAT_ADVERSARIES_POSITION;
+	msg.sid = BROADCAST_ADVERSARIES_POSITION;
 	msg.data[0] = adversary_number | ((it_is_the_last_adversary)?IT_IS_THE_LAST_ADVERSARY:0);	//n° de l'ADVERSARY  + bit de poids fort si c'est le dernier adversaire
 	msg.data[1] = x/20;	//X [2cm]
 	msg.data[2] = y/20;	//Y [2cm]
