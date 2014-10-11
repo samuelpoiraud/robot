@@ -448,7 +448,7 @@ void SD_print_match(Uint16 nb_match){
 								if(read_byte != EOT)
 									debug_printf("Bad CAN_MSG format\n");
 								else
-									VERBOSE_CAN_MSG_print(&msg);
+									VERBOSE_CAN_MSG_print(&msg, VERB_LOG_MSG);
 								state = READ_TEXT;
 								break;
 							default:	//datas...

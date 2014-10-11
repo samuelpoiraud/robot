@@ -191,7 +191,7 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 		if(IHM_switchs_get(SWITCH_DEBUG) && bU1)
 		{
 			if(IHM_switchs_get(SWITCH_VERBOSE))
-				VERBOSE_CAN_MSG_print(incoming_msg);
+				VERBOSE_CAN_MSG_print(incoming_msg, VERB_INPUT_MSG);
 			else
 			{
 				#ifndef MODE_SIMULATION	//Pour ne pas spammer l'UART en mode simulation... On ne doit y voir que les messages CAN réellement envoyés.
@@ -224,7 +224,7 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 	if(IHM_switchs_get(SWITCH_DEBUG))
 	{
 		if(IHM_switchs_get(SWITCH_VERBOSE))
-			VERBOSE_CAN_MSG_print(sent_msg);
+			VERBOSE_CAN_MSG_print(sent_msg, VERB_OUTPUT_MSG);
 		else
 			CANmsgToU1tx(sent_msg);
 	}
@@ -262,9 +262,7 @@ void ENV_update(void)
 	// RAZ des drapeaux temporaires pour la prochaine itération
 	ENV_clean();
 
-	if(global.env.initial_position_received == FALSE
-	   && (last_time_tell_position == 0 && global.env.absolute_time - last_time_tell_position > 1000)
-	   && (last_time_tell_position != 0 && global.env.absolute_time - last_time_tell_position > 200)){
+	if(global.env.initial_position_received == FALSE && last_time_tell_position != 0 && global.env.absolute_time - last_time_tell_position > 500){
 		CAN_send_sid(PROP_TELL_POSITION);
 		last_time_tell_position = global.env.absolute_time;
 	}

@@ -11,14 +11,20 @@
 
 #ifndef VERBOSE_CAN_MSG_H
 	#define VERBOSE_CAN_MSG_H
-	
+
 	#include "../QS/QS_all.h"
 	#include "../QS/QS_CANmsgList.h"
-	
+
+	typedef enum{
+		VERB_INPUT_MSG,
+		VERB_OUTPUT_MSG,
+		VERB_LOG_MSG
+	}verbose_msg_type_e;
+
 	/*
 		Affiche le message can sous la forme d'un texte intelligible.
 	*/
-	void VERBOSE_CAN_MSG_print(CAN_msg_t * can_msg);
+	void VERBOSE_CAN_MSG_print(CAN_msg_t * can_msg, verbose_msg_type_e verbose_msg_type);
 
 
 

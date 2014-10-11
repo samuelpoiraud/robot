@@ -99,6 +99,6 @@ void BUFFER_flush()
 	{
 		debug_printf("t=%.2d.%03ds ",buffer.tab[index].temps/500, ((buffer.tab[index].temps)%500)*2);
 		pmsg = &(buffer.tab[index].message);
-		VERBOSE_CAN_MSG_print(pmsg);
+		VERBOSE_CAN_MSG_print(pmsg, VERB_LOG_MSG);
 	}
 }
