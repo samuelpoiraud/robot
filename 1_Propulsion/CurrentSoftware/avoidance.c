@@ -24,6 +24,8 @@
 #include "LCDTouch/stm32f4_discovery_lcd.h"
 
 #define WAIT_TIME_DISPLAY_AVOID		50
+#define NB_SAMPLE					30
+#define SAMPLE_TIME					5		//(en ms)
 
 adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
 
@@ -45,10 +47,10 @@ void AVOIDANCE_process_it(){
 	order_t current_order = COPILOT_get_current_order();
 	volatile order_t *buffer_order;
 
-	if((current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
+	if((current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
 		current_order.avoidance != AVOID_DISABLED){
 
-		if(AVOIDANCE_target_safe(current_order.x, current_order.y, current_order.way, FALSE)){
+		if(AVOIDANCE_target_safe(current_order.way, FALSE)){
 			if(current_order.avoidance == AVOID_ENABLED){
 
 				// Si on rencontre un adversaire on s'arrete
@@ -131,7 +133,7 @@ void AVOIDANCE_process_it(){
 
 			SECRETARY_send_foe_detected(adversary->x, adversary->y, TRUE);
 
-		}else if(AVOIDANCE_target_safe(buffer_order->x, buffer_order->y, buffer_order->way, FALSE) == FALSE){
+		}else if(AVOIDANCE_target_safe(buffer_order->way, FALSE) == FALSE){
 			debug_printf("t : %ld      free !\n", global.absolute_time);
 			debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
 			buffer_order->total_wait_time += global.absolute_time - buffer_order->wait_time_begin;
@@ -145,7 +147,7 @@ void AVOIDANCE_process_it(){
 
 GEOMETRY_point_t avoid_poly[4];
 
-bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbose){
+bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 	Sint32 vtrans;		//[mm/4096/5ms]
 	Sint16 teta;		//[rad/4096]
 	Sint16 sin, cos;	//[/4096]
@@ -206,7 +208,6 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbo
 	else
 		avoidance_rectangle_min_x = 0;
 
-	#ifdef MODE_SIMULATION
 
 		if(global.absolute_time - last_time_refresh_avoid_displayed > WAIT_TIME_DISPLAY_AVOID){
 
@@ -227,31 +228,54 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbo
 				avoid_poly[2] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[2])*longueur[2], 2000), MAX(global.position.y+sin4096(angle[2])*longueur[2], 0)};
 				avoid_poly[3] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[3])*longueur[3], 0), MAX(global.position.y+sin4096(angle[3])*longueur[3], 0)};
 
-				Uint16 max = AROUND_UP((3+1)/3.);
+				Uint8 nb_point = 4;
+				Uint16 max = AROUND_UP((nb_point+1)/3.);
 				CAN_msg_t msg;
 				msg.sid = DEBUG_AVOIDANCE_POLY;
-				msg.size = 7;
+				msg.size = 8;
 				for(i=0;i<max;i++){
-					if(i==0){
+					Uint8 num = 0;
+					if(i==0)
 						msg.data[0] = TRUE;
-						msg.data[1] = 0;
-					}else{
+					else
 						msg.data[0] = FALSE;
-						msg.data[1] = 3*i;
+
+					if(i*3 < nb_point){
+						num++;
+						msg.data[2] = (Uint8)(avoid_poly[i*3].x >> 4);
+						msg.data[3] = (Uint8)(avoid_poly[i*3].y >> 4);
+					}else if(i*3 == nb_point){
+						num++;
+						msg.data[2] = (Uint8)(avoid_poly[0].x >> 4);
+						msg.data[3] = (Uint8)(avoid_poly[0].y >> 4);
 					}
-					msg.data[2] = (Uint8)(avoid_poly[0].x >> 4);
-					msg.data[3] = (Uint8)(avoid_poly[0].y >> 4);
-					msg.data[4] = (Uint8)(avoid_poly[1].x >> 4);
-					msg.data[5] = (Uint8)(avoid_poly[1].y >> 4);
-					msg.data[6] = (Uint8)(avoid_poly[2].x >> 4);
-					msg.data[7] = (Uint8)(avoid_poly[2].y >> 4);
-					CAN_send(&msg);
+
+					if(i*3+1 < nb_point){
+						num++;
+						msg.data[4] = (Uint8)(avoid_poly[i*3+1].x >> 4);
+						msg.data[5] = (Uint8)(avoid_poly[i*3+1].y >> 4);
+					}else if(i*3+1 == nb_point){
+						num++;
+						msg.data[4] = (Uint8)(avoid_poly[0].x >> 4);
+						msg.data[5] = (Uint8)(avoid_poly[0].y >> 4);
+					}
+
+					if(i*3+2 < nb_point){
+						num++;
+						msg.data[6] = (Uint8)(avoid_poly[i*3+2].x >> 4);
+						msg.data[7] = (Uint8)(avoid_poly[i*3+2].y >> 4);
+					}else if(i*3+2 == nb_point){
+						num++;
+						msg.data[6] = (Uint8)(avoid_poly[0].x >> 4);
+						msg.data[7] = (Uint8)(avoid_poly[0].y >> 4);
+					}
+
+					msg.data[1] = num;
+					SECRETARY_send_canmsg(&msg);
 				}
 
 				last_time_refresh_avoid_displayed = global.absolute_time;
 			}
-
-	#endif
 
 	for(i=0; i<max_foes; i++){
 
@@ -269,7 +293,7 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbo
 		}
 	}
 
-	if(in_path == FALSE && current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE || current_order.trajectory == TRAJECTORY_TRANSLATION){
+	if(in_path == FALSE && current_order.trajectory != TRAJECTORY_STOP && current_order.trajectory != WAIT_FOREVER){
 
 		avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright + 50);
 		avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft + 50;
@@ -301,6 +325,78 @@ bool_e AVOIDANCE_target_safe(Sint32 destx, Sint32 desty, way_e way, bool_e verbo
 		}
 		if(in_slow_zone == FALSE)
 			PILOT_set_speed(current_order.speed);
+	}
+
+	return in_path;
+}
+
+
+bool_e AVOIDANCE_target_safe_curve(way_e way, bool_e verbose){
+	Sint32 vtrans;		//[mm/4096/5ms]
+	Sint32 vrot;		//[rad/4096/1024/5ms]
+	Sint16 teta;		//[rad/4096]
+	Sint16 px;			//[mm]
+	Sint16 py;			//[mm]
+
+	adversary_t *adversaries;
+	Uint8 max_foes;
+	Uint8 i;
+	order_t current_order = COPILOT_get_current_order();
+
+	Sint32 avoidance_rectangle_min_x;
+	Sint32 avoidance_rectangle_max_x;
+	Sint32 avoidance_rectangle_width_y_min;
+	Sint32 avoidance_rectangle_width_y_max;
+
+	Uint32 breaking_acceleration;
+	Uint32 current_speed;
+	Uint32 break_distance;
+	Uint32 respect_distance;
+
+	GEOMETRY_point_t pts[NB_SAMPLE];
+
+	static time32_t last_time_refresh_avoid_displayed = 0;
+
+	vrot = global.vitesse_rotation;
+	vtrans = global.vitesse_translation/12;
+	teta = global.position.teta;
+
+	adversaries = DETECTION_get_adversaries(&max_foes); // Récupération des adversaires
+
+	bool_e in_path = FALSE;	//On suppose que pas d'adversaire dans le chemin
+
+
+	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
+	current_speed = (Uint32)(absolute(vtrans)*1);
+	break_distance = SQUARE(current_speed)/(4*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
+	respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
+
+	avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright);
+	avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft;
+
+	if(way == FORWARD || way == ANY_WAY)	//On avance
+		avoidance_rectangle_max_x = break_distance + respect_distance + offset_avoid.Yfront;
+	else
+		avoidance_rectangle_max_x = 0;
+
+	if(way == BACKWARD || way == ANY_WAY)	//On recule
+		avoidance_rectangle_min_x = -(break_distance + respect_distance + offset_avoid.Yback);
+	else
+		avoidance_rectangle_min_x = 0;
+
+	#ifdef MODE_SIMULATION
+
+		if(global.absolute_time - last_time_refresh_avoid_displayed > WAIT_TIME_DISPLAY_AVOID){
+				last_time_refresh_avoid_displayed = global.absolute_time;
+			}
+
+	#endif
+
+	for(i=0; i<max_foes; i++){
+
+		if(adversaries[i].enable){
+
+		}
 	}
 
 	return in_path;

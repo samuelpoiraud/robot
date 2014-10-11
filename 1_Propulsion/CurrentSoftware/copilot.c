@@ -400,7 +400,7 @@ void COPILOT_do_order(order_t * order)
 	#ifdef USE_PROP_AVOIDANCE
 	if((order->trajectory == TRAJECTORY_AUTOMATIC_CURVE || order->trajectory == TRAJECTORY_TRANSLATION) &&
 			order->avoidance != AVOID_DISABLED &&
-			AVOIDANCE_target_safe(order->x, order->y, order->way, FALSE)){ // Fonction différente à faire pour une trajectoire en courbe automatique
+			AVOIDANCE_target_safe(order->way, FALSE)){ // Fonction différente à faire pour une trajectoire en courbe automatique
 
 		if(order->avoidance == AVOID_ENABLED){ // adversaire sur la trajectoire, évitement sans wait donc annulation de la trajectoire
 

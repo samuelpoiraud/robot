@@ -700,6 +700,12 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			DETECTION_new_adversary_position(msg, NULL, 0);
 			break;
+
+		case STRAT_ADVERSARIES_POSITION:
+			#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+				DETECTION_new_adversary_position(msg, NULL, 0);
+			#endif
+			break;
 		default :
 		break;
 	}
