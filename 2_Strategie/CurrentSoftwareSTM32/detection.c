@@ -233,7 +233,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 
 	switch(msg->sid)
 	{
-		case STRAT_ADVERSARIES_POSITION:
+		case BROADCAST_ADVERSARIES_POSITION:
 			adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
 			if(adversary_nb < MAX_HOKUYO_FOES)
 			{

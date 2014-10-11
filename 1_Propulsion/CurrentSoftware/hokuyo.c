@@ -195,7 +195,7 @@ void HOKUYO_process_main(void)
 		case TREATMENT_DATA:
 			hokuyo_find_valid_points();
 			//debug_printf("\nEntrer TREATMENT DATA\n");
-			//#ifdef TRIANGULATION
+			#ifdef TRIANGULATION
 			if(global.match_over){
 				Hokuyo_validPointsAndBeacons();
 				debug_printf("\nEntrer dans TRI POINTS \n");
@@ -205,7 +205,7 @@ void HOKUYO_process_main(void)
 					find_beacons_centres();
 				}
 			}
-			//#endif
+			#endif
 			state=DETECTION_ADVERSARIES;
 		break;
 		case DETECTION_ADVERSARIES:

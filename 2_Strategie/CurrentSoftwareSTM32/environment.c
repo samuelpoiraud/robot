@@ -119,7 +119,7 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 			}
 
 		break;
-		case STRAT_ADVERSARIES_POSITION:
+		case BROADCAST_ADVERSARIES_POSITION:
 			*bUART_filter = FALSE;	//Ca passe pas... 				(mieux vaut carrément afficher 	ponctuellement les infos qui découlent de ce message)
 			*bSAVE_filter = FALSE;	//Pas d'enregistrement non plus	(mieux vaut carrément sauver 	ponctuellement les infos qui découlent de ce message)
 			break;
@@ -263,7 +263,8 @@ void ENV_update(void)
 	ENV_clean();
 
 	if(global.env.initial_position_received == FALSE
-	   && global.env.absolute_time - last_time_tell_position > 200){
+	   && (last_time_tell_position == 0 && global.env.absolute_time - last_time_tell_position > 1000)
+	   && (last_time_tell_position != 0 && global.env.absolute_time - last_time_tell_position > 200)){
 		CAN_send_sid(PROP_TELL_POSITION);
 		last_time_tell_position = global.env.absolute_time;
 	}
@@ -429,7 +430,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			DETECTION_pos_foe_update(incoming_msg);
 			SELFTEST_update_led_beacon(incoming_msg);
 			break;
-		case STRAT_ADVERSARIES_POSITION:
+		case BROADCAST_ADVERSARIES_POSITION:
 			DETECTION_pos_foe_update(incoming_msg);
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/

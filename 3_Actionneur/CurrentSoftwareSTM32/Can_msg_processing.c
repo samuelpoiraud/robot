@@ -64,6 +64,9 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			break;
 
+		case BROADCAST_ADVERSARIES_POSITION:
+			break;
+
 		case BROADCAST_ALIM:
 			if(msg->data[0] == ALIM_OFF){
 				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_OFF\n");
