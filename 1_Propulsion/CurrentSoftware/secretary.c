@@ -630,7 +630,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			WARNER_arm_y(U16FROMU8(msg->data[0],msg->data[1]));
 		break;
 		case PROP_SEND_PERIODICALLY_POSITION:
-			WARNER_arm_timer(U16FROMU8(msg->data[0],msg->data[1]));
+			#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+				WARNER_arm_timer(200);
+			#else
+				WARNER_arm_timer(U16FROMU8(msg->data[0],msg->data[1]));
+			#endif
 			WARNER_arm_translation(U16FROMU8(msg->data[2],msg->data[3]));
 			WARNER_arm_rotation(U16FROMU8(msg->data[4],msg->data[5]));
 		break;
@@ -701,7 +705,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			DETECTION_new_adversary_position(msg, NULL, 0);
 			break;
 
-		case STRAT_ADVERSARIES_POSITION:
+		case BROADCAST_ADVERSARIES_POSITION:
 			#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 				DETECTION_new_adversary_position(msg, NULL, 0);
 			#endif
