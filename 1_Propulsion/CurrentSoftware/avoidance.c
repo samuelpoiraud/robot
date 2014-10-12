@@ -174,7 +174,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 
 	static time32_t last_time_refresh_avoid_displayed = 0;
 
-	vtrans = global.vitesse_translation/12;
+	vtrans = ((global.vitesse_translation*1000) >> 12)/5;
 	teta = global.position.teta;
 
 	COS_SIN_4096_get(teta, &cos, &sin);
@@ -201,12 +201,12 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 	if(way == FORWARD || way == ANY_WAY)	//On avance
 		avoidance_rectangle_max_x = break_distance + respect_distance + offset_avoid.Yfront;
 	else
-		avoidance_rectangle_max_x = 0;
+		avoidance_rectangle_max_x = -100;
 
 	if(way == BACKWARD || way == ANY_WAY)	//On recule
 		avoidance_rectangle_min_x = -(break_distance + respect_distance + offset_avoid.Yback);
 	else
-		avoidance_rectangle_min_x = 0;
+		avoidance_rectangle_min_x = 100;
 
 
 		if(global.absolute_time - last_time_refresh_avoid_displayed > WAIT_TIME_DISPLAY_AVOID){
@@ -293,7 +293,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 		}
 	}
 
-	if(in_path == FALSE && current_order.trajectory != TRAJECTORY_STOP && current_order.trajectory != WAIT_FOREVER){
+	if(in_path == FALSE && (current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION)){
 
 		avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright + 50);
 		avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft + 50;

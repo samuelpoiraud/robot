@@ -83,6 +83,8 @@
 
 // ---------------------------------------------------------------------------- Fonctions autres
 
+	Uint8 PROP_custom_speed_convertor(Uint16 speed); // en mm/s cette valeur sera limitée par la propulsion en cas de vitesse trop élevée
+
 	void PROP_set_threshold_error_translation(Uint8 value, bool_e reset);
 
 	/* Accesseur en lecture sur les arguments de la pile PROP */
