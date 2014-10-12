@@ -112,4 +112,12 @@
 //définition de la précision et des modes de calcul des sinus et cosinus
 	#define FAST_COS_SIN
 
+/* Récapitulatif IT :
+ * TIMER 1 : Clock			(clock.c/h)
+ * TIMER 2 : ...
+ * TIMER 3 : Watchdog		(QS_buttons.c/h)
+ * TIMER 4 : Synchro balise	(Synchro_balises.c/h)
+ * TIMER 5 : ...
+ */
+
 #endif /* CONFIG_QS_H */

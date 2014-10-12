@@ -185,11 +185,6 @@
 //	#define FREQ_PWM_20KHZ
 	#define FREQ_PWM_50KHZ
 
-	/* Utilisation des entrées analogiques */
-	#define USE_AN11	// Capteur DT10 détection triangle
-	#define USE_AN12	// Capteur DT10 détection triangle
-	#define USE_AN14	// Capteur DT10 détection triangle
-
 	#include "_Propulsion_config.h"
 
 	#ifdef USE_CODEUR_SUR_IT_ET_QE
@@ -198,6 +193,19 @@
 		#define QEI_ON_IT_QB 2
 	#endif
 
+	#define USE_WATCHDOG
+	#define WATCHDOG_TIMER 4
+	#define WATCHDOG_MAX_COUNT 5
+	#define WATCHDOG_QUANTUM 1
+
 	#define USE_FIFO
+
+/* Récapitulatif IT :
+ * TIMER 1 : Gyroscope		(it.c/h)
+ * TIMER 2 : IT principale	(it.c/h)
+ * TIMER 3 : Boutons		(QS_buttons.c/h)
+ * TIMER 4 : Watchdog		(QS_watchdog.c/h)
+ * TIMER 5 : Clock			(clock.c/h)
+ */
 
 #endif /* ndef GLOBAL_CONFIG_H */
