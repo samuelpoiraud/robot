@@ -1388,14 +1388,16 @@ void set_prop_detected_foe(CAN_msg_t *msg){
  */
 static error_e AVOIDANCE_watch_prop_stack ()
 {
-	bool_e timeout = FALSE;
+	bool_e timeout = FALSE, action_end;
 
-	if (STACKS_wait_end_auto_pull(PROP,&timeout))
-	{
-		return timeout?END_WITH_TIMEOUT:END_OK;
-	}
-	else if (global.env.prop.erreur)
-	{
+	action_end = STACKS_wait_end(PROP,&timeout);
+
+	if(timeout){ // S'il y a timeout que la l'ensemble des trajectoires soient finit ou pas, on vide la stack puis on déclare le timeout
+		STACKS_flush(PROP);
+		return END_WITH_TIMEOUT;
+	}else if(action_end) // Si l'ensemble des trajectoires sont finit, on le déclare
+		return END_OK;
+	else if (global.env.prop.erreur){
 		STACKS_flush(PROP);
 		return NOT_HANDLED;
 	}

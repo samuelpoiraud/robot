@@ -104,6 +104,11 @@ void STACKS_flush_all();
  */
 bool_e STACKS_wait_end_auto_pull (stack_id_e stack_id, bool_e* got_timeout);
 
+/* 	indique si une pile est vide (ie si son sommet est wait_forever)
+ *	si il tombe en timeout, en passant le booléen pointé en argument à vrai.
+ */
+bool_e STACKS_wait_end (stack_id_e stack_id, bool_e* got_timeout);
+
 /* passe tous les indicateurs de timeout à NO_TIMEOUT. Appel dans env_clean */
 void STACKS_clear_timeouts();
 
