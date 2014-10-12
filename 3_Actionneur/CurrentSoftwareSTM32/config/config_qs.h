@@ -69,4 +69,12 @@
 
 #define FAST_COS_SIN
 
+/* Récapitulatif IT :
+ * TIMER 1 : ...
+ * TIMER 2 : AX12			(QS_ax12.c/h)
+ * TIMER 3 : Watchdog		(QS_buttons.c/h)
+ * TIMER 4 : Clock			(clock.c/h)
+ * TIMER 5 : Servo			(QS_servo.c/h)
+ */
+
 #endif /* CONFIG_QS_H */

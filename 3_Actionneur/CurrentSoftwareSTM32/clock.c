@@ -54,19 +54,9 @@ void TIMER_SRC_TIMER_interrupt()
 	#endif
 
 	LED_RUN = !LED_RUN;
-	time++;
+	global.absolute_time += 10;
 #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)
 	BUTTONS_process_it();
 #endif
 	TIMER_SRC_TIMER_resetFlag();
-}
-
-time32_t CLOCK_get_time()
-{
-	return time/10;
-}
-
-time32_t CLOCK_get_time_10()
-{
-	return time;
 }

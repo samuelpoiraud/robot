@@ -20,8 +20,4 @@
 
 void CLOCK_init();
 
-time32_t CLOCK_get_time(); // [0.1s] en centaine de ms, 2 correspond à 200ms
-
-time32_t CLOCK_get_time_10(); // [0.01] en dizaine de ms, 2 correspond à 20ms
-
 #endif /* ndef ndef CLOCK_H */

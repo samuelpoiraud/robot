@@ -43,7 +43,7 @@
 	 * @param ax12Id l'identifiant de l'ax12 à gérer
 	 * @param wantedPosition position voulue en degré
 	 * @param pos_epsilon précision de la position voulue, tant qu'on à pas atteint wantedPosition_degre +/- pos_epsilon on considère qu'on est pas rendu à la bonne position
-	 * @param timeout_ms_x100 timeout en centaine de msec (10 = 1 sec)
+	 * @param timeout_ms_ timeout en msec
 	 * @param large_epsilon comme pos_epsilon mais utilisé après un timeout. Après un timeout, on vérifie si on est proche de la position voulue (utile pour des pinces par ex), si oui il n'y a pas d'erreur
 	 *
 	 * @param result pointeur vers une variable qui contiendra le résultat de l'opération si la fonction retourne TRUE (ACT_RESULT*)
@@ -51,7 +51,7 @@
 	 * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
 	 * @return TRUE si l'ax12 a fini sa commande, FALSE sinon
 	 */
-	bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms_x100, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
+	bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
 
 	/** Verifie l'état d'un moteur DC et gère la file en conséquence.
 	 *
@@ -68,10 +68,10 @@
 	/** Vérifie si le temps timeout à été dépassé
 	 *
 	 * @param queueId l'identifiant de la file
-	 * @param timeout_ms_x100 timeout en centaine de msec (10 = 1 sec)
+	 * @param timeout_ms timeout en msec
 	 * @return TRUE si le temps a été dépassé, FALSE sinon
 	 */
-	bool_e ACTQ_check_timeout(queue_id_t queueId, time32_t timeout_ms_x100);
+	bool_e ACTQ_check_timeout(queue_id_t queueId, time32_t timeout_ms);
 
 	//Callback
 	//Renvoie un retour à la strat dans tous les cas

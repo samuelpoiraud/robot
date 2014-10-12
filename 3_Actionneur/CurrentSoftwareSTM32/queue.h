@@ -39,7 +39,7 @@ typedef struct {
 #define NB_QUEUE	10
 #define QUEUE_SIZE	32
 #define NB_SYNCHRO 8
-#define QUEUE_SYNCHRO_TIMEOUT 150 //15 secondes
+#define QUEUE_SYNCHRO_TIMEOUT 15000 //15 secondes
 
 // Valeur renvoyée par QUEUE_create si l'opération echoue
 #define QUEUE_CREATE_FAILED	0xFF

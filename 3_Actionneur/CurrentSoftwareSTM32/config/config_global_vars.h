@@ -20,6 +20,7 @@
 	bool_e match_started;
 	bool_e alim;
 	Uint16 alim_value;			// en mV
+	time32_t absolute_time;
 
 	bool_e PTorchErrorLastCode;
 
