@@ -31,6 +31,7 @@
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_watchdog.h"
+#include "QS/QS_can.h"
 #include "hokuyo.h"
 #include "gyroscope.h"
 #include "detection.h"
@@ -124,7 +125,7 @@ void initialisation(void)
 	global.mode_best_effort_enable = FALSE;
 	global.match_started = FALSE;
 	global.match_over = FALSE;
-    global.absolute_time = 0;
+	global.absolute_time = 0;
 
 	ROADMAP_init();
 	WARNER_init();
@@ -148,8 +149,39 @@ void initialisation(void)
 		LCD_init();
 	#endif
 
-	IT_init();
 	CLOCK_init();
+/*
+	time32_t begin_waiting_time = global.absolute_time;
+	CAN_msg_t waiting_msg;
+	while(global.absolute_time - begin_waiting_time < 300){
+		while (CAN_data_ready())
+		{
+			LED_CAN=!LED_CAN;
+			waiting_msg = CAN_get_next_msg();
+			if(waiting_msg.sid == BROADCAST_RESET){
+				NVIC_SystemReset();
+			}
+		}
+	}
+	CAN_direct_send(BROADCAST_I_AM_READY, 1, (Uint8[]){I_AM_READY_PROP});
+	display(I_AM_READY_PROP);
+	debug_printf("--- Hello, I'm PROP (%s) ---\n", QS_WHO_AM_I_get_name());
+	debug_printf("\nAsser Ready !\n");
+	debug_printf("\nWaiting others board\n");
+	begin_waiting_time = global.absolute_time;
+	bool_e FDP_init = FALSE;
+	while(global.absolute_time - begin_waiting_time < 300 && !FDP_init){
+		while (CAN_data_ready())
+		{
+			LED_CAN=!LED_CAN;
+			waiting_msg = CAN_get_next_msg();
+			if(waiting_msg.sid == BROADCAST_FDP_READY)
+				FDP_init = TRUE;
+		}
+	}*/
+
+
+	IT_init();
 	/*
 	Récapitulatif des priorités des ITs :
 	-> 7 : Codeurs QEI_on_it
@@ -169,7 +201,6 @@ int main (void)
 	LED_RUN = 1;
 
 	//Routines de tests UART et CAN
-	debug_printf("\nAsser Ready !\n");
 /*		ROADMAP_add_order(TRAJECTORY_AUTOMATIC_CURVE, 	1793,894	, 0, NOT_RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_ASKED, CORRECTOR_ENABLE);
 		ROADMAP_add_order(TRAJECTORY_AUTOMATIC_CURVE, 	1734,918	, 0, NOT_RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_ASKED, CORRECTOR_ENABLE);
 		ROADMAP_add_order(TRAJECTORY_AUTOMATIC_CURVE, 	1678,947	, 0, NOT_RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_ASKED, CORRECTOR_ENABLE);

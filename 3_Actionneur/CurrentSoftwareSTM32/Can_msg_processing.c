@@ -37,6 +37,10 @@ void CAN_process_msg(CAN_msg_t* msg) {
 	// Traitement des autres messages reçus
 	switch (msg->sid)
 	{
+		case BROADCAST_RESET:
+			NVIC_SystemReset();
+			break;
+
 		//Fin de la partie
 		case BROADCAST_STOP_ALL :
 			global.match_started = FALSE;

@@ -35,6 +35,7 @@
 #include "config_use.h"
 #include "QS/QS_IHM.h"
 #include "act_avoidance.h"
+#include "Supervision/Verbose_can_msg.h"
 
 
 void test_bp_switchs(void);
@@ -100,14 +101,53 @@ int main (void)
 
 	CLOCK_init();
 	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
-	//retard pour attendre l'initialisation des autres cartes
-	// voir si on peut faire mieux
-	for(j=0;j<100;j++)
-	{
-		for(i=1;i;i++);
-		if(j%10 == 0x00)
-			debug_printf(".");
+/*
+	time32_t begin_waiting_time = global.env.absolute_time;
+	bool_e act_ready = FALSE, prop_ready = FALSE, ihm_ready = FALSE;
+	CAN_msg_t waiting_msg;
+	while(global.env.absolute_time - begin_waiting_time < 200);
+	CAN_send_sid(BROADCAST_RESET);
+	begin_waiting_time = global.env.absolute_time;
+	while(global.env.absolute_time - begin_waiting_time < 2500
+		  ){
+
+		while (CAN_data_ready())
+		{
+			LED_CAN=!LED_CAN;
+			waiting_msg = CAN_get_next_msg();
+			if(waiting_msg.sid == BROADCAST_I_AM_READY){
+				switch(waiting_msg.data[0]){
+					case I_AM_READY_ACT :
+						act_ready = TRUE;
+						debug_printf("ACT READY !\n");
+						break;
+
+					case I_AM_READY_PROP :
+						prop_ready = TRUE;
+						debug_printf("PROP READY !\n");
+						break;
+
+					case I_AM_READY_IHM :
+						ihm_ready = TRUE;
+						debug_printf("IHM READY !\n");
+						break;
+
+					default:
+						break;
+				}
+			}
+			VERBOSE_CAN_MSG_print(&waiting_msg, VERB_INPUT_MSG);
+		}
 	}
+	CAN_send_sid(BROADCAST_FDP_READY);
+
+	if(!act_ready)
+		debug_printf("ACT NOT READY !\n");
+	if(!prop_ready)
+		debug_printf("PROP NOT READY !\n");
+	if(!ihm_ready)
+		debug_printf("IHM NOT READY !\n");
+*/
 	Supervision_init();
 	BRAIN_init();
 
@@ -151,6 +191,7 @@ void pull_bp_and_switch(void)
 	PORTS_set_pull(GPIOA, GPIO_Pin_1, GPIO_PuPd_UP);	//Switch debug : can+debug on = 1 / Rien(sauf certains printf) = 0
 	PORTS_set_pull(GPIOB, GPIO_Pin_4, GPIO_PuPd_DOWN);	//XBee OFF
 	PORTS_set_pull(GPIOB, GPIO_Pin_5, GPIO_PuPd_DOWN);	//Save OFF
+	PORTS_set_pull(GPIOB, GPIO_Pin_0, GPIO_PuPd_DOWN);	//Mesure du 24V
 	PORTS_set_pull(GPIOC, GPIO_Pin_13, GPIO_PuPd_UP);	//Who Am I : gros robot
 	PORTS_set_pull(GPIOD, GPIO_Pin_6, GPIO_PuPd_UP);	//Color (1)
 	PORTS_set_pull(GPIOD, GPIO_Pin_7, GPIO_PuPd_UP);	//Biroute OFF (1)

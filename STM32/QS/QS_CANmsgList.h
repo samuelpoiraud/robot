@@ -32,6 +32,16 @@
 	#define BROADCAST_STOP_ALL 			0x002
 	#define BROADCAST_COULEUR			0x003			// couleur de notre robot : (Uint8):(RED=0, YELLOW =1)
 	#define BROADCAST_POSITION_ROBOT	0x004
+	#define BROADCAST_RESET				0x0FF			// Envoyé par la stratégie et provoque la réinitialisation du fond de panier complet
+	#define BROADCAST_I_AM_READY		0x0FE			// Envoyé par toutes les autres cartes à la stratégie
+	#define BROADCAST_FDP_READY			0x0FD			// Envoyé par la stratégie vers les autres cartes
+	// data[0] :
+		typedef enum{
+			I_AM_READY_ACT=0,
+			I_AM_READY_PROP,
+			I_AM_READY_IHM
+		}broadcast_i_am_ready_e;
+
 	/*
 		X : Sint16 (mm)
 		Y : Sint16 (mm)
