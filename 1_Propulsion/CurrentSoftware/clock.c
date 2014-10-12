@@ -10,6 +10,9 @@
  */
 
 #include "clock.h"
+#include "QS/QS_timer.h"
+
+#define CLOCK_IT_MS		1
 
 void CLOCK_init(){
 	bool_e initialized = FALSE;
@@ -18,8 +21,12 @@ void CLOCK_init(){
 	initialized = TRUE;
 
 	global.absolute_time = 0;
+
+	TIMER_init();
+	TIMER5_run_us(1000*CLOCK_IT_MS);
 }
 
-void CLOCK_process_it(Uint8 ms){
-	global.absolute_time += ms;
+void _ISR _T5Interrupt(void){
+	global.absolute_time += CLOCK_IT_MS;
+	TIMER5_AckIT();
 }

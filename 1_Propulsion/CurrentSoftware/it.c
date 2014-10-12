@@ -28,7 +28,6 @@
 #include "main.h"
 #include "detection.h"
 #include "avoidance.h"
-#include "clock.h"
 #include "gyroscope.h"
 
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
@@ -41,6 +40,7 @@
 	#include "LCDTouch/zone.h"
 #endif
 
+static void display_led(void);
 
 void IT_init(void)
 {
@@ -59,7 +59,6 @@ void IT_init(void)
 		TIMER1_run_us(1000);		// IT du gyro
 	#endif
 	TIMER2_run_us(1000*PERIODE_IT_ASSER);			//IT trajectoire et Correcteur
-	TIMER5_run(100);		//Affichage Leds...
 	global.flag_recouvrement_IT = FALSE;
 }
 
@@ -90,6 +89,7 @@ volatile static global_data_storage_t g2;
 void _ISR _T2Interrupt()
 									#endif
 {
+	static Uint16 led_display_it = 0;
 #if defined (LCD_TOUCH)
 	static Uint8 count = 0;
 #endif
@@ -105,8 +105,6 @@ void _ISR _T2Interrupt()
 		void debug_save_structure_global(void);
 	#endif
 
-
-	CLOCK_process_it(PERIODE_IT_ASSER);
 	SECRETARY_process_it();
 	WARNER_process_it();	//MAJ des avertisseurs
 	JOYSTICK_process_it();
@@ -140,6 +138,13 @@ void _ISR _T2Interrupt()
 		count++;
 	#endif
 
+	// Affichage des leds toutes les 500ms
+	led_display_it++;
+	if(led_display_it >= 500){
+		display_led();
+		led_display_it = 0;
+	}
+
 	g2 = global;
 	if(TIMER2_getITStatus())	//L'IT est trop longue ! il y a recouvrement !!!
 		global.flag_recouvrement_IT = TRUE;
@@ -151,7 +156,7 @@ void _ISR _T2Interrupt()
 
 Uint8 compteur;
 																				//gestion des leds
-void _ISR _T5Interrupt(void)
+static void display_led(void)
 {
 	#ifdef MODE_PRINTF_TABLEAU
 		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...
@@ -218,6 +223,4 @@ void _ISR _T5Interrupt(void)
 		else
 			LED_SELFTEST = 1;
 	}
-
-	TIMER5_AckIT();
 }

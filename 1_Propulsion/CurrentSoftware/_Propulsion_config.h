@@ -66,11 +66,6 @@
 
 	#define FAST_COS_SIN
 
-	#define USE_WATCHDOG
-	#define WATCHDOG_TIMER 4
-	#define WATCHDOG_MAX_COUNT 5
-	#define WATCHDOG_QUANTUM 1
-
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
 	#define VERBOSE_MSG_SEND_OVER_UART	//A la place d'un envoi CAN, envoi d'un texte explicite sur l'UART : "Position : " ou "TrajFinie : ....."
