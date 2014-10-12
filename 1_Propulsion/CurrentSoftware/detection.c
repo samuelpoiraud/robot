@@ -18,7 +18,6 @@
 #include "QS/QS_maths.h"
 #include "hokuyo.h"
 
-volatile static Uint32 absolute_time = 0;
 volatile static Uint32 hokuyo_update_time = 0;
 
 #define BEACON_MAX_FOES		2
@@ -50,7 +49,7 @@ void DETECTION_process_main(void)
 {
 	//On reactive les balises toutes les 90sec
 	static Uint32 next_beacon_activate_msg = 1000;	//Prochain instant d'envoi de message.
-	if(absolute_time > next_beacon_activate_msg)
+	if(global.absolute_time > next_beacon_activate_msg)
 	{
 		next_beacon_activate_msg += 90000;
 		CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
@@ -97,7 +96,6 @@ static Sint16 beacon_ir_distance_filter(bool_e enable, Uint8 foe_id, Sint16 new_
 void DETECTION_process_it(void)
 {
 	Uint8 i;
-	absolute_time += PERIODE_IT_ASSER;
 
 	for(i = 0; i < HOKUYO_MAX_FOES + BEACON_MAX_FOES; i++)
 	{
@@ -105,7 +103,7 @@ void DETECTION_process_it(void)
 		//on peut descendre ce flag ici grace au fait que la fonction qui remplit le tableau "adversaries" est non préemptible.
 		//(et donc l'IT qui suivra et appelera ce DETECTION_process_it aura pu voir les données cohérentes et complètes).
 
-		if((adversaries[i].enable) && (absolute_time - adversaries[i].update_time > FOE_DATA_LIFETIME))
+		if((adversaries[i].enable) && (global.absolute_time - adversaries[i].update_time > FOE_DATA_LIFETIME))
 			adversaries[i].enable = FALSE;
 	}
 
@@ -180,7 +178,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 
 				//enable ou pas ?
 				adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
-				if	(absolute_time - hokuyo_update_time > FOE_DATA_LIFETIME
+				if	(global.absolute_time - hokuyo_update_time > FOE_DATA_LIFETIME
 						|| 	(		adversaries[HOKUYO_MAX_FOES+i].angle > PI4096/2-PI4096/3		//Angle entre 30° et 150° --> angle mort hokuyo + marge de 15° de chaque coté.
 								&& 	adversaries[HOKUYO_MAX_FOES+i].angle < PI4096/2+PI4096/3 )
 					)
@@ -206,21 +204,21 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 				adversaries[HOKUYO_MAX_FOES+i].y = global.position.y + (adversaries[HOKUYO_MAX_FOES+i].dist * ((float){((Sint32)(cosinus) * (Sint32)(our_sin) + (Sint32)(sinus) * (Sint32)(our_cos))}/(4096*4096)));
 
 				//Mise à jour de l'update_time
-				adversaries[HOKUYO_MAX_FOES+i].update_time = absolute_time;
+				adversaries[HOKUYO_MAX_FOES+i].update_time = global.absolute_time;
 			}
 		}
 	}
 	if(adv != NULL)
 	{
 		hokuyo_objects_number = adv_nb;
-		hokuyo_update_time = absolute_time;
+		hokuyo_update_time = global.absolute_time;
 		if(adv_nb > 0)
 		{
 			for(i = 0; i < adv_nb ; i++)
 			{
 				adversaries[i].enable = TRUE;
 				adversaries[i].updated = TRUE;
-				adversaries[i].update_time = absolute_time;
+				adversaries[i].update_time = global.absolute_time;
 				adversaries[i].x = adv[i].coordX;
 				adversaries[i].y = adv[i].coordY;
 				adversaries[i].angle = adv[i].teta;
