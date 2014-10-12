@@ -184,6 +184,17 @@ void PROP_WARNER_arm_teta(Sint16 teta)
 
 // ---------------------------------------------------------------------------- Fonctions autres
 
+Uint8 PROP_custom_speed_convertor(Uint16 speed){ // en mm/s
+
+	float factor = 0.16; // (4096*5)/(128*1000) conversion mm/s -> custom
+	Uint16 ret = (Uint16)((float)(speed)*factor + 8);
+
+	if(ret > 255)
+		ret = 255;
+
+	return ret;
+}
+
 /* Accesseur en lecture sur les arguments de la pile PROP */
 prop_arg_t PROP_get_stack_arg(Uint8 index)
 {
