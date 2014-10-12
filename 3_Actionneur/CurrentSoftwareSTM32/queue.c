@@ -183,7 +183,7 @@ void QUEUE_add(queue_id_t queue_id, action_t action, QUEUE_arg_t optionnal_arg, 
 	{
 		//on l'initialise
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
-		thisa->initial_time_of_current_action = CLOCK_get_time();
+		thisa->initial_time_of_current_action = global.absolute_time;
 		action(queue_id,TRUE);
 	}
 
@@ -202,7 +202,7 @@ void QUEUE_behead(queue_id_t queue_id)
 	{
 		//on initialise l'action suivante
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
-		thisa->initial_time_of_current_action = CLOCK_get_time();
+		thisa->initial_time_of_current_action = global.absolute_time;
 		(thisa->action[thisa->head])(queue_id,TRUE);
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
 	}
@@ -394,7 +394,7 @@ void QUEUE_wait_synchro(queue_id_t thisa, bool_e init)
 	if(init)
 	{
 		debug_printf("Départ Attente synchro\n");
-		initial_time = CLOCK_get_time();
+		initial_time = global.absolute_time;
 	}
 	else
 	{
@@ -404,7 +404,7 @@ void QUEUE_wait_synchro(queue_id_t thisa, bool_e init)
 			debug_printf("Synchro finie\n");
 			QUEUE_behead(thisa);
 		}
-		if(CLOCK_get_time() - initial_time > QUEUE_SYNCHRO_TIMEOUT)
+		if(global.absolute_time - initial_time > QUEUE_SYNCHRO_TIMEOUT)
 		{
 			debug_printf("Synchro timeout\n");
 			//On supprime la synchro qu'on attend

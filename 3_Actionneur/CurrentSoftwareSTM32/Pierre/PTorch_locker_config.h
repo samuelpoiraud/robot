@@ -12,7 +12,7 @@
 #define	PTORCH_LOCKER_CONFIG_H
 
 /** Si l'ax12 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en centaine de ms. */
-	#define TORCH_LOCKER_AX12_1_ASSER_TIMEOUT       10      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define TORCH_LOCKER_AX12_1_ASSER_TIMEOUT       1000      // ms
 /** Lorsque l'ax12 atteint sa position avec +/- TORCH_LOCKER_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define TORCH_LOCKER_AX12_1_ASSER_POS_EPSILON   2     //en degré
 /** Si le déplacement de l'ax12 timeout mais que sa position est à +/- TORCH_LOCKER_AX12_ASSER_POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
@@ -33,7 +33,7 @@
 
 
 /** Si l'ax12 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en centaine de ms. */
-	#define TORCH_LOCKER_AX12_2_ASSER_TIMEOUT       10      //unité: 0.1s  (une valeur de 20 correspond à 0.2s soit 200ms)
+	#define TORCH_LOCKER_AX12_2_ASSER_TIMEOUT       1000	// ms
 /** Lorsque l'ax12 atteint sa position avec +/- TORCH_LOCKER_AX12_ASSER_POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define TORCH_LOCKER_AX12_2_ASSER_POS_EPSILON   2     //en degré
 /** Si le déplacement de l'ax12 timeout mais que sa position est à +/- TORCH_LOCKER_AX12_ASSER_POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */

@@ -23,7 +23,7 @@
 #include "QS/QS_outputlog.h"
 
 #define MAX_NB_ACT 8
-#define SELFTEST_TIMEOUT 150 // unité: 0.1s, 150 = 15s, doit être inférieur au timeout en strat
+#define SELFTEST_TIMEOUT 15000 // en ms (15sec)
 
 static SELFTEST_error_code_e failed_act_tests[MAX_NB_ACT];
 static Uint8 expected_act_num = 0;
@@ -176,8 +176,8 @@ static void SELFTEST_run(queue_id_t queueId, bool_e init) {
 static bool_e SELFTEST_check_end(queue_id_t queueId) {
 	Uint8 i;
 
-	if(act_test_done_num == expected_act_num || CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + SELFTEST_TIMEOUT) {
-		if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + SELFTEST_TIMEOUT) {
+	if(act_test_done_num == expected_act_num || global.absolute_time >= QUEUE_get_initial_time(queueId) + SELFTEST_TIMEOUT) {
+		if(global.absolute_time >= QUEUE_get_initial_time(queueId) + SELFTEST_TIMEOUT) {
 			warn_printf("Timeout du selftest, reçu %d resultat vs %d attendus\n", act_test_done_num, expected_act_num);
 		}
 

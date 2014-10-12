@@ -110,7 +110,7 @@ void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, U
 	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Line, line, TRUE);
 }
 
-bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms_x100, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
+bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
 	AX12_reset_last_error(ax12Id);
 
 	Uint16 current_pos = AX12_get_position(ax12Id);
@@ -137,7 +137,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*result = ACT_RESULT_FAILED;
 		*error_code = ACT_RESULT_ERROR_NOT_HERE;
 		*line = 0x0300;
-	} else if(ACTQ_check_timeout(queueId, timeout_ms_x100)) {
+	} else if(ACTQ_check_timeout(queueId, timeout_ms)) {
 		//Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 		if(absolute((Sint16)current_pos - (Sint16)(wantedPosition)) <= large_epsilon) {
 			*result = ACT_RESULT_DONE;
@@ -192,8 +192,8 @@ bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* 
 }
 #endif
 
-bool_e ACTQ_check_timeout(queue_id_t queueId, time32_t timeout_ms_x100) {
-	if(CLOCK_get_time() >= QUEUE_get_initial_time(queueId) + timeout_ms_x100)
+bool_e ACTQ_check_timeout(queue_id_t queueId, time32_t timeout_ms) {
+	if(global.absolute_time >= QUEUE_get_initial_time(queueId) + timeout_ms)
 		return TRUE;
 	return FALSE;
 }

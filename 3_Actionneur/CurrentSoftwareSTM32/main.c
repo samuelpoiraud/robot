@@ -62,6 +62,7 @@ int main (void)
 	global.match_over = FALSE;
 	global.alim = FALSE;
 	global.alim_value = 0;
+	global.absolute_time = 0;
 
 	LED_RUN = 1;
 	LED_USER = 0;

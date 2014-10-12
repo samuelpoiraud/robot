@@ -121,14 +121,14 @@ static void TEST_SERVO_command_init(queue_id_t queueId){
 
 	SERVO_set_cmd(*goalPosition, TEST_SERVO_ID);
 
-	last_time_command = CLOCK_get_time_10()*10;
+	last_time_command = global.absolute_time;
 
 }
 
 //Attente d'un temps donné avant de rendre la main sur le servo-moteur
 static void TEST_SERVO_command_run(queue_id_t queueId){
 
-	if(CLOCK_get_time_10()*10 - last_time_command > TIME_BEFORE_COMMAND_VALIDATED)
+	if(global.absolute_time - last_time_command > TIME_BEFORE_COMMAND_VALIDATED)
 		QUEUE_next(queueId, ACT_TEST_SERVO, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0000);
 }
 
