@@ -237,6 +237,17 @@
 			CAN_send(&msg);
 		}
 
+		void CAN_direct_send(Uint11 sid, Uint8 size, Uint8 arg[]){
+			Uint8 i;
+			assert(size <= 7);
+			CAN_msg_t msg;
+			msg.sid = sid;
+			msg.size = size;
+			for(i=0;i<size;i++)
+				msg.data[i] = arg[i];
+			CAN_send(&msg);
+		}
+
 		static void CAN_receive(CAN_msg_t* can_msg)
 		{
 			CanRxMsg msg;

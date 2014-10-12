@@ -25,6 +25,7 @@
 	typedef void(*CAN_callback_action_t)(CAN_msg_t * can_msg);
 
 	void CAN_send(CAN_msg_t* can_msg);
+	void CAN_direct_send(Uint11 sid, Uint8 size, Uint8 arg[]);
 	void CAN_send_sid(Uint11 sid);
 	CAN_msg_t CAN_get_next_msg();
 	bool_e CAN_data_ready();
