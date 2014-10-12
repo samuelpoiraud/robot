@@ -12,7 +12,7 @@
 #include "QS/QS_all.h"
 
 #define I_AM_CARTE_STRAT
-//#define FDP_2014
+#define FDP_2014
 
 #ifndef MAIN_H
 	#define MAIN_H
