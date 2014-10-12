@@ -152,6 +152,22 @@ bool_e STACKS_wait_end_auto_pull (stack_id_e stack_id, bool_e* got_timeout)
 	return FALSE;
 }
 
+bool_e STACKS_wait_end (stack_id_e stack_id, bool_e* got_timeout)
+{
+	stacks_t* stack=&stacks[stack_id];
+	*got_timeout=FALSE;	//On suppose qu'il n'y a pas de timeout.
+
+	if (stack->timeout)
+	{
+		debug_printf("TIMEOUT(%s) (stack_id : %d)\n",timeout_name[stack->timeout], stack_id);
+		BUZZER_play(50,NOTE_RE,10);
+		*got_timeout=TRUE;	//En fait, il y a un timeout.
+	}else if (STACKS_get_action(stack_id,STACKS_get_top(stack_id))==&wait_forever)
+		return TRUE;	//On a atteint le bas de la pile.
+
+	return FALSE;
+}
+
 void STACKS_clear_timeouts()
 {
 	stack_id_e i;
