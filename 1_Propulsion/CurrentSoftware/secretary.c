@@ -467,6 +467,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 
 	switch (msg->sid)
 	{
+		case BROADCAST_RESET:
+			NVIC_SystemReset();
+			break;
+
 		case PROP_STOP:
 			ROADMAP_add_order(  TRAJECTORY_STOP,
 								0,
@@ -631,7 +635,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 		case PROP_SEND_PERIODICALLY_POSITION:
 			#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-				WARNER_arm_timer(200);
+				WARNER_arm_timer(100);
 			#else
 				WARNER_arm_timer(U16FROMU8(msg->data[0],msg->data[1]));
 			#endif
