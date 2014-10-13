@@ -26,6 +26,8 @@
 
 	void AVOIDANCE_refresh_avoid_poly();
 
+	bool_e AVOIDANCE_foe_near();
+
 	void AVOIDANCE_process_CAN_msg(CAN_msg_t *msg);
 
 #endif  //def _PATHCHECKER_H
