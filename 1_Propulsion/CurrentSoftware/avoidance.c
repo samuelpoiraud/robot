@@ -502,3 +502,17 @@ void AVOIDANCE_process_CAN_msg(CAN_msg_t *msg){
 	offset_avoid.Yback = U16FROMU8(msg->data[6], msg->data[7]);
 #endif
 }
+
+bool_e AVOIDANCE_foe_near(){
+	Uint8 i;
+	adversary_t *adversaries;
+	Uint8 max_foes;
+	bool_e foe_near = FALSE;
+	adversaries = DETECTION_get_adversaries(&max_foes); // Récupération des adversaires
+
+	for(i=0; i<max_foes; i++){
+		if(adversaries[i].enable && adversaries[i].dist <= DISTANCE_EVITEMENT_ROTATION)
+				foe_near = TRUE;
+	}
+	return foe_near;
+}
