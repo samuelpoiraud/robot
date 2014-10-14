@@ -88,6 +88,12 @@ void COPILOT_process_it(void)
 	if(current_order.trajectory == TRAJECTORY_STOP || current_order.trajectory == WAIT_FOREVER)
 		COPILOT_reset_absolute_destination();
 
+	// Mise à jours de la vitesses maximum en rotation en cas d'adversaire proche et de vitesse de translation quasiment nulle (rotation sur place)
+	if(AVOIDANCE_foe_near() && absolute(global.vitesse_translation) < 100)
+		PILOT_set_speed(SLOW);
+	else
+		PILOT_set_speed(current_order.speed);
+
 	if(arrived !=ARRIVED)
 	{
 		if(global.mode_best_effort_enable)

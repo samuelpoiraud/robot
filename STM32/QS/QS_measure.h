@@ -30,8 +30,8 @@
 #define DISTANCE_EVITEMENT_STATIC						500
 #define DISTANCE_EVITEMENT_ROTATION						400		// [mm] Si un adversaire est proche d'au moins DISTANCE_EVITEMENT_ROTATION alors on force une rotation douce
 
-#define SMALL_ROBOT_ACCELERATION_NORMAL					468*2	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
-#define BIG_ROBOT_ACCELERATION_NORMAL					937*2	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
+#define SMALL_ROBOT_ACCELERATION_NORMAL					(468*2)	//Réglage d'accélération de la propulsion : 625 	mm/sec = 64 	[mm/4096/5ms/5ms]
+#define BIG_ROBOT_ACCELERATION_NORMAL					(937*2)	//Réglage d'accélération de la propulsion : 1094 	mm/sec = 112 	[mm/4096/5ms/5ms]
 #define SMALL_ROBOT_RESPECT_DIST_MIN					400		//Distance à laquelle on se tient d'un adversaire [mm]
 #define BIG_ROBOT_RESPECT_DIST_MIN						550		//Distance à laquelle on se tient d'un adversaire [mm]
 #define SMALL_ROBOT_DIST_MIN_SPEED_SLOW					550		//Distance à laquelle on ralentie s'il ya un adversaire [mm]
