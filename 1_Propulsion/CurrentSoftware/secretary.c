@@ -35,6 +35,7 @@
 #include "detection.h"
 #include "gyroscope.h"
 #include "avoidance.h"
+#include "QS/QS_maths.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -679,6 +680,16 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case DEBUG_SET_ERROR_TRESHOLD_TRANSLATION:
 			SUPERVISOR_set_treshold_error_translation(msg->data[0]);
 			break;
+
+		case DEBUG_PROP_MOVE_POSITION:
+			ODOMETRY_set(
+							global.position.x + (U16FROMU8(msg->data[0],msg->data[1])),	//x
+							global.position.y + (U16FROMU8(msg->data[2],msg->data[3])), 	//y
+							GEOMETRY_modulo_angle(global.position.teta + (U16FROMU8(msg->data[4],msg->data[5])))	//teta
+						);
+			COPILOT_reset_absolute_destination();
+			break;
+
 		case PROP_PING:
 			SECRETARY_send_pong();
 		break;

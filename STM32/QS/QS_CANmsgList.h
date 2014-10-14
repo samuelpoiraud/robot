@@ -31,17 +31,8 @@
 	#define BROADCAST_START	 			0x001
 	#define BROADCAST_STOP_ALL 			0x002
 	#define BROADCAST_COULEUR			0x003			// couleur de notre robot : (Uint8):(RED=0, YELLOW =1)
-	#define BROADCAST_POSITION_ROBOT	0x004
-	#define BROADCAST_RESET				0x0FF			// Envoyé par la stratégie et provoque la réinitialisation du fond de panier complet
-	#define BROADCAST_I_AM_READY		0x0FE			// Envoyé par toutes les autres cartes à la stratégie
-	#define BROADCAST_FDP_READY			0x0FD			// Envoyé par la stratégie vers les autres cartes
-	// data[0] :
-		typedef enum{
-			I_AM_READY_ACT=0,
-			I_AM_READY_PROP,
-			I_AM_READY_IHM
-		}broadcast_i_am_ready_e;
 
+	#define BROADCAST_POSITION_ROBOT	0x004
 	/*
 		X : Sint16 (mm)
 		Y : Sint16 (mm)
@@ -75,6 +66,19 @@
 				ROUNDS_RETURNS_ERROR,
 				UNKNOW_ERROR
 	*/
+
+
+
+	#define BROADCAST_RESET				0x0FF			// Envoyé par la stratégie et provoque la réinitialisation du fond de panier complet
+	#define BROADCAST_I_AM_READY		0x0FE			// Envoyé par toutes les autres cartes à la stratégie
+	#define BROADCAST_FDP_READY			0x0FD			// Envoyé par la stratégie vers les autres cartes
+	// data[0] :
+		typedef enum{
+			I_AM_READY_ACT=0,
+			I_AM_READY_PROP,
+			I_AM_READY_IHM
+		}broadcast_i_am_ready_e;
+
 
 	#define BROADCAST_ALIM				0x005		// Message envoyé lors d'un changement d'état de l'alimentation 24V
 		#define ALIM_OFF					(0b00000000)
@@ -235,6 +239,14 @@
 						Uint8 year	(11 pour 2011)
 					*/
 	#define	DEBUG_RTC_TIME				(0x782)
+
+
+	#define DEBUG_PROP_MOVE_POSITION	0x783
+	// Altère les coordonnées sur robot de manière relative
+	/* data [0/1] = Sint16 offset en X (signé)
+	 * data [2/3] = Sint16 offset en Y (signé)
+	 * data [4/5] = Sint16 offset teta (signé)
+	 */
 
 	//message pour debug strategie
 

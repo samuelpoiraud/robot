@@ -195,6 +195,10 @@ Uint8 PROP_custom_speed_convertor(Uint16 speed){ // en mm/s
 	return ret;
 }
 
+void PROP_debug_move_position(Sint16 x, Sint16 y, Sint16 teta){
+	CAN_direct_send(DEBUG_PROP_MOVE_POSITION, 6, (Uint8[]){HIGHINT(x), LOWINT(x), HIGHINT(y), LOWINT(y), HIGHINT(teta), LOWINT(teta)});
+}
+
 /* Accesseur en lecture sur les arguments de la pile PROP */
 prop_arg_t PROP_get_stack_arg(Uint8 index)
 {
