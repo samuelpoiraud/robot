@@ -84,6 +84,10 @@
 // ---------------------------------------------------------------------------- Fonctions autres
 
 	Uint8 PROP_custom_speed_convertor(Uint16 speed); // en mm/s cette valeur sera limitée par la propulsion en cas de vitesse trop élevée
+	// A titre indicatif la vitesse maximum du robot est de 1200 mm/sec
+
+	void PROP_debug_move_position(Sint16 x, Sint16 y, Sint16 teta);
+	// Altération des coordonnées du robot x/y/teta
 
 	void PROP_set_threshold_error_translation(Uint8 value, bool_e reset);
 
