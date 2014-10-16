@@ -57,6 +57,17 @@
 	#define WATCHDOG_MAX_COUNT 5
 	#define WATCHDOG_QUANTUM 1
 
+/* Servo-Moteurs AX12 */
+	#define USE_AX12_SERVO
+	#define AX12_NUMBER 50
+	#define AX12_INSTRUCTION_BUFFER_SIZE 200
+	#define AX12_TIMER_ID 2
+	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
+	#define AX12_STATUS_RETURN_CHECK_CHECKSUM
+	#define AX12_UART_ID 3
+	#define AX12_RX24_UART_ID 2
+	//#define AX12_DEBUG_PACKETS
+
 
 //Test et inclusion des configs spécifiques au robot
 #if (defined(I_AM_ROBOT_BIG) && defined(I_AM_ROBOT_SMALL)) || (!defined(I_AM_ROBOT_BIG) && !defined(I_AM_ROBOT_SMALL))
