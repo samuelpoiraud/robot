@@ -24,6 +24,9 @@
 /*variables globales pour le pilote de servos */
 static volatile Sint16 m_SERVO_cmd[10];
 
+void SERVO_set_servo(Uint8 servo,bool_e stateUp);
+
+#include "QS_outputlog.h"
 
 /*-------------------------------------
 	Gestion des servomoteurs
@@ -39,43 +42,7 @@ static volatile Sint16 m_SERVO_cmd[10];
 #endif
 
 #define MIN_INTERVAL		1000
-
-
-/* lutte contre la non déclaration des servos */
-//Format port: GPIOx, bit (a partir de 0
-//Par defaut: SERVO sur port C, bit 10
-#ifndef SERVO0
-	#define SERVO0	GPIOC->ODR10
-#endif
-#ifndef SERVO1
-	#define SERVO1	SERVO0
-#endif
-#ifndef SERVO2
-	#define SERVO2	SERVO1
-#endif
-#ifndef SERVO3
-	#define SERVO3	SERVO2
-#endif
-#ifndef SERVO4
-	#define SERVO4	SERVO3
-#endif
-#ifndef SERVO5
-	#define SERVO5	SERVO4
-#endif
-#ifndef SERVO6
-	#define SERVO6	SERVO5
-#endif
-#ifndef SERVO7
-	#define SERVO7	SERVO6
-#endif
-#ifndef SERVO8
-	#define SERVO8	SERVO7
-#endif
-#ifndef SERVO9
-	#define SERVO9	SERVO8
-#endif
-/* tous les servos sont déclarés, le code compile */
-
+#define TIME_VARIATION		2000
 
 
 /*-------------------------------------
@@ -100,179 +67,259 @@ void SERVO_init() {
 /*-------------------------------------
 Changement de la commande (entre 0 et 2000 us)
 -------------------------------------*/
-void SERVO_set_cmd(Uint16 cmd, Uint8 num_servo)
-{
-		m_SERVO_cmd[num_servo] = cmd ;
+void SERVO_set_cmd(Uint16 cmd, Uint8 num_servo){
+	if(cmd > 2000)
+		m_SERVO_cmd[num_servo] = 2000;
+	else if(cmd < 0)
+		m_SERVO_cmd[num_servo] = 0;
+	else
+		m_SERVO_cmd[num_servo] = cmd;
 }
 
+
+void SERVO_set_servo(Uint8 servo,bool_e stateUp){
+	switch (servo) {
+	#ifdef SERVO0
+		case 0:
+			SERVO0 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO1
+		case 1:
+			SERVO1 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO2
+		case 2:
+			SERVO2 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO3
+		case 3:
+			SERVO3 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO4
+		case 4:
+			SERVO4 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO5
+		case 5:
+			SERVO5 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO6
+		case 6:
+			SERVO6 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO7
+		case 7:
+			SERVO7 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO8
+		case 8:
+			SERVO8 = stateUp;
+			break;
+	#endif
+	#ifdef SERVO9
+		case 9:
+			SERVO9 = stateUp;
+			break;
+	#endif
+			break;
+		default:
+			break;
+	}
+}
 
 /*-------------------------------------
 	Timer
 -------------------------------------*/
-void TIMER_SRC_TIMER_interrupt()
-{
-	static Uint8 etat=0;
-	static Sint16 blanking=0;
 
-	switch(etat)
-	{
-		case 0:
-			blanking = 20000; // 20 ms de periode
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO0 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
-			else
-			{
+void TIMER_SRC_TIMER_interrupt(){
+	static Uint8 etat=0;
+	static Uint8 servo=0;
+
+	switch(etat){
+		case 0: // SERVO 0
+			if (m_SERVO_cmd[servo]){ // Passe la pin à 1, si valeur différente de 0
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
 			break;
 		case 1:
-			SERVO0 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO1 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
+			SERVO_set_servo(servo,FALSE);  // Passe la pin à 0
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
 			else
-			{
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
+			servo++;
 			break;
-		case 2:
-			SERVO1 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO2 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
-			else
-			{
+		case 2: // SERVO 1
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
 			break;
 		case 3:
-			SERVO2 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO3 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
 			else
-			{
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
+			servo++;
 			break;
 		case 4:
-			SERVO3 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO4 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
-			else
-			{
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
 			break;
 		case 5:
-			SERVO4 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO5 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
 			else
-			{
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
+			servo++;
 			break;
 		case 6:
-			SERVO5 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO6 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
-			else
-			{
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
 			break;
 		case 7:
-			SERVO6 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO7 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
 			else
-			{
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
+			servo++;
 			break;
 		case 8:
-			SERVO7 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO8 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
-			else
-			{
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
+
 			break;
 		case 9:
-			SERVO8 = 0;
-			if (m_SERVO_cmd[etat])
-			{
-				SERVO9 = 1;
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[etat]);
-				blanking -= m_SERVO_cmd[etat];
-			}
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
 			else
-			{
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-				blanking -= MIN_INTERVAL;
-			}
-			etat++;
-		break;
+
+			servo++;
+			break;
+		case 10:
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			break;
+		case 11:
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
+			else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			servo++;
+			break;
+		case 12:
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			break;
+		case 13:
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
+			else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			servo++;
+			break;
+		case 14:
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			break;
+		case 15:
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
+			else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			servo++;
+			break;
+		case 16:
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			break;
+		case 17:
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
+			else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			servo++;
+			break;
+		case 18:
+			if (m_SERVO_cmd[servo]){
+				SERVO_set_servo(servo,TRUE);
+				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
+			}else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			break;
+		case 19:
+			SERVO_set_servo(servo,FALSE);
+			if (m_SERVO_cmd[servo])
+				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
+			else
+				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
 		default:
-			SERVO9 = 0;
-			blanking = (blanking >MIN_INTERVAL)?blanking:MIN_INTERVAL;
-			TIMER_SRC_TIMER_start_us(blanking);
-			etat = 0;
+			etat = -1;
+			servo = 0;
 			break;
 	}
+
+	etat++;
+
 	TIMER_SRC_TIMER_resetFlag();
 }
 
