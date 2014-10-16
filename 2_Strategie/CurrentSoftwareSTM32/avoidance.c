@@ -1191,6 +1191,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 			break;
 
 		case LOAD_MOVE:
+			clear_prop_detected_foe();
 			global.env.destination = displacements.point;
 			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, TRUE);
 			avoidance_printf("goto_extract_with_avoidance : load_move\n");
