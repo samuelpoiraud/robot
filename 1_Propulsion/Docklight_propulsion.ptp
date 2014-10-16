@@ -267,3 +267,10 @@ Send periodically position (1s ; 1mm ; 1°)
 0
 5
 
+SEND
+36
+DEBUG_PROP_MOVE_POSITION
+01 07 83 00 00 00 00 00 00 00 00 06 04
+0
+5
+
