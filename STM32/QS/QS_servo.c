@@ -43,7 +43,7 @@ void SERVO_set_servo(Uint8 servo,bool_e stateUp);
 
 #define MIN_INTERVAL		1000
 #define TIME_VARIATION		2000
-
+#define NB_SERVO			10		// Ne pas changer, sinon ne risque plus d'avoir 20ms
 
 /*-------------------------------------
 	Initialisation des servomoteurs
@@ -140,16 +140,21 @@ void SERVO_set_servo(Uint8 servo,bool_e stateUp){
 -------------------------------------*/
 
 void TIMER_SRC_TIMER_interrupt(){
+
+	debug_var = 1;
+
 	static Uint8 etat=0;
 	static Uint8 servo=0;
 
 	switch(etat){
-		case 0: // SERVO 0
+		case 0:
 			if (m_SERVO_cmd[servo]){ // Passe la pin à 1, si valeur différente de 0
 				SERVO_set_servo(servo,TRUE);
 				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
 			}else
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+
+			etat++;
 
 			break;
 		case 1:
@@ -160,167 +165,18 @@ void TIMER_SRC_TIMER_interrupt(){
 				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 
 			servo++;
-			break;
-		case 2: // SERVO 1
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
 
-			break;
-		case 3:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			servo++;
-			break;
-		case 4:
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			break;
-		case 5:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			servo++;
-			break;
-		case 6:
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			break;
-		case 7:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			servo++;
-			break;
-		case 8:
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			break;
-		case 9:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			servo++;
-			break;
-		case 10:
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			break;
-		case 11:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			servo++;
-			break;
-		case 12:
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			break;
-		case 13:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			servo++;
-			break;
-		case 14:
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			break;
-		case 15:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			servo++;
-			break;
-		case 16:
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			break;
-		case 17:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			servo++;
-			break;
-		case 18:
-			if (m_SERVO_cmd[servo]){
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
-
-			break;
-		case 19:
-			SERVO_set_servo(servo,FALSE);
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+			if(servo >= NB_SERVO)
+				servo = 0;
 
 		default:
-			etat = -1;
-			servo = 0;
+			etat = 0;
 			break;
 	}
 
-	etat++;
-
 	TIMER_SRC_TIMER_resetFlag();
+
+	debug_var = 0;
 }
 
 #endif /* def USE_SERVO */
