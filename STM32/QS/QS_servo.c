@@ -70,8 +70,6 @@ Changement de la commande (entre 0 et 2000 us)
 void SERVO_set_cmd(Uint16 cmd, Uint8 num_servo){
 	if(cmd > 2000)
 		m_SERVO_cmd[num_servo] = 2000;
-	else if(cmd < 0)
-		m_SERVO_cmd[num_servo] = 0;
 	else
 		m_SERVO_cmd[num_servo] = cmd;
 }
