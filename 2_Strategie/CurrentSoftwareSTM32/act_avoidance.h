@@ -6,9 +6,7 @@
 #include "act_functions.h"
 
 typedef enum{
-	ACT_AVOID_TORCH_LOCKER,
-	ACT_AVOID_FRUIT_MOUTH,
-	ACT_AVOID_SMALL_ARM,
+	//ACT_AVOID_TORCH_LOCKER,
 	// Lister les actionneurs modifiants l'évitement du robot
 	ACT_AVOID_NB
 }act_avoid_e;
@@ -28,15 +26,10 @@ typedef struct{
 
 #define ACT_AVOID_NB_MAX_CMD		5
 
-typedef enum {
+/*typedef enum {
 	ACT_AVOID_TORCH_Locker_Lock,
 	ACT_AVOID_TORCH_Locker_Unlock
-} ACT_AVOID_TORCH_LOCKER_CMD;
-
-typedef enum {
-	ACT_AVOID_SMALL_ARM_Mid,
-	ACT_AVOID_SMALL_ARM_Deployed
-} ACT_AVOID_SMALL_ARM_CMD;
+} ACT_AVOID_TORCH_LOCKER_CMD;*/
 
 void ACT_AVOIDANCE_init();
 void ACT_AVOIDANCE_new_action(act_avoid_e act_avoid_id, Uint8 cmd, bool_e state);

@@ -9,9 +9,7 @@
 #include "../config/config_global.h"
 #ifdef I_AM_ROBOT_BIG
 	#include "../config/config_big/config_pin.h"
-	#include "../Pierre/PTorch_locker_config.h"
 #else
-	#include "../Guy/Small_arm_config.h"
 	#include "../config/config_small/config_pin.h"
 #endif
 
@@ -32,11 +30,11 @@ typedef struct{
 #define DECLARE_MOTOR(inc, cara, prefix, fun) {FALSE, inc, cara, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, fun}
 
 terminal_motor_s terminal_motor[] = {
+	// DECLARE_AX12_RX24(2, '0', EXEMPLE_AX12),
 	#ifdef I_AM_ROBOT_BIG
-		DECLARE_AX12_RX24(2, '8', TORCH_LOCKER_AX12_1),
-		DECLARE_AX12_RX24(2, '9', TORCH_LOCKER_AX12_2)
+
 	#else
-		DECLARE_AX12_RX24(2, '5', SMALL_ARM_AX12)
+
 	#endif
 };
 

@@ -9,10 +9,9 @@
 #include "ActManager.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Pierre/PTorch_locker.h"
 	#include "Pierre/TestServo.h"
 #else
-	#include "Guy/Small_arm.h"
+
 #endif
 
 #include "QS/QS_CANmsgList.h"
@@ -27,11 +26,14 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 #define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_reset_config, &prefix##_CAN_process_msg}
 
 static ACTQ_functions_t actionneurs[] = {
+	#if 0
+		ACT_DECLARE(EXEMPLE),
+	#endif
+
 	#ifdef I_AM_ROBOT_BIG
-		ACT_DECLARE(TORCH_LOCKER),
 		ACT_DECLARE(TEST_SERVO)
 	#else
-		ACT_DECLARE(SMALL_ARM)
+
 	#endif
 };
 

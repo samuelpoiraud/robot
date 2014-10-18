@@ -388,8 +388,7 @@
 		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
 		SELFTEST_ACT_MISSING_TEST,	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 		SELFTEST_ACT_UNKNOWN_ACT,	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
-		SELFTEST_ACT_SMALL_ARM,
-		SELFTEST_ACT_TORCH_LOCKER,
+		//SELFTEST_ACT_EXEMPLE,
 		SELFTEST_FAIL_UNKNOW_REASON,
 		SELFTEST_ERROR_NB,
 		SELFTEST_NO_ERROR = 0xFF
@@ -637,23 +636,15 @@
 
 typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le reste en #DEFINE
 
-	//////////////////PETIT BRAS/////////////////
-	ACT_SMALL_ARM = (ACT_FILTER | 0x10),
-		//Paramètres de SMALL_ARM (dans data[0])
-		#define ACT_SMALL_ARM_IDLE			0x11
-		#define ACT_SMALL_ARM_MID			0x12
-		#define ACT_SMALL_ARM_DEPLOYED		0x13
-		#define ACT_SMALL_ARM_STOP			0x14
+#if 0
+	//////////////////EXEMPLE///////////////////
+	ACT_EXEMPLE = (ACT_FILTER | 0x01),
+		//Paramètres de EXEMPLE (dans data[0])
+		#define ACT_EXEMPLE_POS_1			0x11
+		#define ACT_EXEMPLE_POS_2			0x12
+		#define ACT_SMALL_ARM_STOP			0x13
 	/////////////////////////////////////////////
-
-	//////////////////TORCH LOCKER/////////////////
-	ACT_TORCH_LOCKER = (ACT_FILTER | 0x01),
-		//Paramètres de TORCH_LOCKER (dans data[0])
-		#define ACT_TORCH_LOCKER_LOCK		0x11
-		#define ACT_TORCH_LOCKER_UNLOCK		0x12
-		#define ACT_TORCH_LOCKER_INSIDE		0x13
-		#define ACT_TORCH_LOCKER_STOP		0x14
-	/////////////////////////////////////////////
+#endif
 
 	/////////////////TEST SERVO//////////////////
 	ACT_TEST_SERVO = (ACT_FILTER | 0x02)

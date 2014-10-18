@@ -14,6 +14,5 @@
 #endif
 
 typedef enum {
-	QUEUE_ACT_AX12_Small_Arm,
 	NB_ACT
 } QUEUE_act_e;

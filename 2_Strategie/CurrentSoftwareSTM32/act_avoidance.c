@@ -28,18 +28,10 @@ void ACT_AVOIDANCE_init(){
 	// Listing de tout les offsets d'évitement de tout les actionneurs
 
 	//ACT_AVOID_TORCH_LOCKER
-	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
+	/*if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
 		init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Lock, ACT_TORCH_Locker_Lock,		0, 0, 60, 0);
 		init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Unlock, ACT_TORCH_Locker_Unlock, 0, 0, 50, 0);
-	}
-
-	//ACT_AVOID_SMALL_ARM
-	if(QS_WHO_AM_I_get() == SMALL_ROBOT){ // Seulement sur le petit robot
-		init_new_offset(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Mid, ACT_Small_arm_Mid,				20, 0, 0, 0);
-		init_new_offset(ACT_AVOID_SMALL_ARM, ACT_AVOID_SMALL_ARM_Deployed, ACT_Small_arm_Deployed,		35, 0, 0, 0);
-	}
-
-
+	}*/
 }
 
 

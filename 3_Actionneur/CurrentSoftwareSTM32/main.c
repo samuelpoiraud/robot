@@ -185,18 +185,6 @@ static void MAIN_onButton0() {
 }
 
 static void MAIN_onButton1() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_TORCH_LOCKER;
-	if(state == 0)
-		msg.data[0] = ACT_TORCH_LOCKER_INSIDE;
-	else if(state == 1)
-		msg.data[0] = ACT_TORCH_LOCKER_UNLOCK;
-	else if(state == 2)
-		msg.data[0] = ACT_TORCH_LOCKER_LOCK;
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton2() {

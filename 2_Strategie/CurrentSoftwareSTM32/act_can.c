@@ -298,14 +298,11 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	switch(msg->data[0]) {
 
 		// Holly
-		case ACT_TORCH_LOCKER & 0xFF:
+		/*case ACT_TORCH_LOCKER & 0xFF:
 			act_id = ACT_QUEUE_Torch_locker;
-			break;
+			break;*/
 
 		// Wood
-		case ACT_SMALL_ARM & 0xFF:
-			act_id = ACT_QUEUE_Small_arm;
-			break;
 
 		// Common
 

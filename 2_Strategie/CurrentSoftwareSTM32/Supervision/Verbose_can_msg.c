@@ -113,8 +113,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len, verbose_m
 		case XBEE_REACH_POINT_GET_OUT_INIT:				print(string, len, "%x XBEE_REACH_POINT_GET_OUT_INIT          ", XBEE_REACH_POINT_GET_OUT_INIT					);	break;
 
 		case ACT_RESULT:								print(string, len, "%x ACT_RESULT                             ", ACT_RESULT										);	break;
-		case ACT_SMALL_ARM:								print(string, len, "%x ACT_SMALL_ARM                          ", ACT_SMALL_ARM									);	break;
-		case ACT_TORCH_LOCKER:							print(string, len, "%x ACT_TORCH_LOCKER                       ", ACT_TORCH_LOCKER								);	break;
+		//case ACT_TORCH_LOCKER:							print(string, len, "%x ACT_TORCH_LOCKER                       ", ACT_TORCH_LOCKER								);	break;
 		case ACT_TEST_SERVO:							print(string, len, "%x ACT_TEST_SERVO                         ", ACT_TEST_SERVO									);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
