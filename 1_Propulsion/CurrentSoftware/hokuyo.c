@@ -37,6 +37,8 @@
 
 #ifdef USE_HOKUYO
 
+	#define HOKUYO_BUFFER_READ_TIMEOUT	500		// ms
+
 	#define HOKUYO_OFFSET_ANGLE_RAD4096 (9651) //135 degrés
 	#define HOKUYO_ANGLE_ROBOT_TERRAIN 0
 	#define HOKUYO_DETECTION_MARGE 130
@@ -151,7 +153,16 @@ void HOKUYO_process_main(void)
 		TURN_OFF_LASER,
 		DONE
 	}state_e;
-	static state_e state = INIT;
+	static state_e state = INIT, last_state = INIT;
+	bool_e entrance;
+	static time32_t buffer_read_time_begin = 0;
+
+	if((state == INIT && last_state == INIT) || state != last_state)
+		entrance = TRUE;
+	else
+		entrance = FALSE;
+
+	last_state = state;
 
 	//Process main du périphérique USB.
 	USBH_Process(&USB_OTG_Core, &USB_Host);
@@ -182,10 +193,14 @@ void HOKUYO_process_main(void)
 			state=BUFFER_READ;
 		break;
 		case BUFFER_READ:
+			if(entrance)
+				buffer_read_time_begin = global.absolute_time;
 			hokuyo_read_buffer();
 			if(HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
 				state=REMOVE_LF;
 			else if(datas_index>2278)
+				state=ASK_NEW_MEASUREMENT;
+			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
 				state=ASK_NEW_MEASUREMENT;
 		break;
 		case REMOVE_LF:
@@ -194,7 +209,6 @@ void HOKUYO_process_main(void)
 		break;
 		case TREATMENT_DATA:
 			hokuyo_find_valid_points();
-			//debug_printf("\nEntrer TREATMENT DATA\n");
 			#ifdef TRIANGULATION
 			if(global.match_over){
 				Hokuyo_validPointsAndBeacons();
