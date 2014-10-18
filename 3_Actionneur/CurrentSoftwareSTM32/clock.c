@@ -30,7 +30,6 @@
 #error "Clock ne doit pas mettre a jour les temps d'appui des boutons si un autre timer est utilisé !"
 #endif
 
-static time32_t time=0;
 
 void CLOCK_init()
 {

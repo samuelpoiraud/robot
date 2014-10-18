@@ -54,7 +54,7 @@
 //////////////// HOLLY /////////////////
 ////////////////////////////////////////
 
-bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd) {
+/*bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd) {
 	QUEUE_arg_t args;
 
 	ACT_arg_init(&args, ACT_TORCH_LOCKER, cmd);
@@ -65,48 +65,12 @@ bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd) {
 	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_TORCH_LOCKER, cmd);
 
 	return ACT_push_operation(ACT_QUEUE_Torch_locker, &args);
-}
+}*/
 
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
 
-bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd){
-	QUEUE_arg_t args;
-
-	ACT_arg_init(&args, ACT_SMALL_ARM, cmd);
-	ACT_arg_set_fallbackmsg(&args, ACT_SMALL_ARM, ACT_SMALL_ARM_STOP);
-
-	if(QS_WHO_AM_I_get() == SMALL_ROBOT){
-		ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_SMALL_ARM, cmd);
-	}
-
-	debug_printf("Pushing Small Arm run %d cmd\n", cmd);
-	return ACT_push_operation(ACT_QUEUE_Small_arm, &args);
-}
-
-error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state){
-	static time32_t begin_time;
-	static bool_e entrance = TRUE;
-
-	if(entrance){
-		begin_time = global.env.match_time;
-		ACT_small_arm_goto(state_arm);
-		entrance = FALSE;
-	}
-
-	if(global.env.match_time >= begin_time + 1000 || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_ActDisabled || ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_RetryLater){
-		entrance = TRUE;
-		return fail_state;
-	}
-
-	if(ACT_get_last_action_result(ACT_QUEUE_Small_arm) == ACT_FUNCTION_Done){
-		entrance = TRUE;
-		return success_state;
-	}
-
-	return in_progress;
-}
 
 ////////////////////////////////////////
 //////////////// COMMON ////////////////
@@ -128,15 +92,10 @@ bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value){
 	ACT_arg_set_timeout(&args, 0);
 
 	switch(sid){
-		case ACT_TORCH_LOCKER :
+		/*case ACT_TORCH_LOCKER :
 			queue_id = ACT_QUEUE_Torch_locker;
 			debug_printf("Config : ACT_TORCH_LOCKER\n");
-			break;
-
-		case ACT_SMALL_ARM :
-			queue_id = ACT_QUEUE_Small_arm;
-			debug_printf("Config : ACT_SMALL_ARM\n");
-			break;
+			break;*/
 
 		default :
 			warn_printf("ACT_CONFIG : sid de l'actionneur introuvable\n");

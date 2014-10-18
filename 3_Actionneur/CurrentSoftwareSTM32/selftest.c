@@ -145,13 +145,11 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 		for(i = 0; i < MAX_NB_ACT; i++) {
 			if(failed_act_tests[i] == SELFTEST_NOT_DONE) {
 				switch(act_sid) {
-					case ACT_SMALL_ARM:
-						failed_act_tests[i] = SELFTEST_ACT_SMALL_ARM;
+#if 0
+					case EXEMPLE:
+						failed_act_tests[i] = SELFTEST_ACT_EXEMPLE;
 						break;
-
-					case ACT_TORCH_LOCKER:
-						failed_act_tests[i] = SELFTEST_ACT_TORCH_LOCKER;
-						break;
+#endif
 
 					default:
 						warn_printf("L\'actionneur sid 0x%x n\'a pas d\'enum SELFTEST_ACT_xxx associé, utilisation de SELFTEST_ACT_UNKNOWN_ACT\n", act_sid);

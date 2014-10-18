@@ -47,23 +47,16 @@
 //////////////// HOLLY /////////////////
 ////////////////////////////////////////
 
-typedef enum {
+/*typedef enum {
 	ACT_TORCH_Locker_Lock = ACT_TORCH_LOCKER_LOCK,
 	ACT_TORCH_Locker_Unlock = ACT_TORCH_LOCKER_UNLOCK,
 	ACT_TORCH_Locker_Inside = ACT_TORCH_LOCKER_INSIDE,
 	ACT_TORCH_Locker_Stop = ACT_TORCH_LOCKER_STOP
-} ACT_torch_locker_cmd_e;
+} ACT_torch_locker_cmd_e;*/
 
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
-
-typedef enum {
-	ACT_Small_arm_Idle = ACT_SMALL_ARM_IDLE,
-	ACT_Small_arm_Mid = ACT_SMALL_ARM_MID,
-	ACT_Small_arm_Deployed = ACT_SMALL_ARM_DEPLOYED,
-	ACT_Small_arm_Stop = ACT_SMALL_ARM_STOP
-} ACT_small_arm_cmd_e;
 
 ////////////////////////////////////////
 //////////////// COMMON ////////////////
@@ -74,10 +67,9 @@ typedef enum {
 // -------------------------------- Fonctions de pilotage des actionneurs
 
 // Holly
-bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
+//bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
 
 // Wood
-bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);
 
 // Common
 
@@ -87,7 +79,6 @@ bool_e ACT_small_arm_goto(ACT_small_arm_cmd_e cmd);
 // Holly
 
 // Wood
-error_e ACT_small_arm_move(Uint8 state_arm, Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
 // Common
 
