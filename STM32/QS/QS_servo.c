@@ -127,7 +127,6 @@ void SERVO_set_servo(Uint8 servo,bool_e stateUp){
 			SERVO9 = stateUp;
 			break;
 	#endif
-			break;
 		default:
 			break;
 	}
@@ -138,11 +137,10 @@ void SERVO_set_servo(Uint8 servo,bool_e stateUp){
 -------------------------------------*/
 
 void TIMER_SRC_TIMER_interrupt(){
-
-	debug_var = 1;
-
 	static Uint8 etat=0;
 	static Uint8 servo=0;
+
+	TIMER_SRC_TIMER_resetFlag();
 
 	switch(etat){
 		case 0:
@@ -171,10 +169,6 @@ void TIMER_SRC_TIMER_interrupt(){
 			etat = 0;
 			break;
 	}
-
-	TIMER_SRC_TIMER_resetFlag();
-
-	debug_var = 0;
 }
 
 #endif /* def USE_SERVO */
