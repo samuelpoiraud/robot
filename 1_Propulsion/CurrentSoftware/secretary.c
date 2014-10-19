@@ -34,6 +34,7 @@
 #include "supervisor.h"
 #include "detection.h"
 #include "gyroscope.h"
+#include "hokuyo.h"
 #include "avoidance.h"
 #include "QS/QS_maths.h"
 
@@ -282,7 +283,7 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 	msg.size = 7;
 	SECRETARY_send_canmsg(&msg);
 	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		debug_printf("Adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
+		//debug_printf("Adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
 	#endif
 }
 
