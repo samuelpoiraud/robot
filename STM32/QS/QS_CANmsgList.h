@@ -462,6 +462,13 @@
 	 *  4 : timeout (si l'évitement a eu lieu avec un timeout ou directement)
 	 */
 
+	#define STRAT_SEND_REPORT		0x217
+	/* Envoie à la fin du match de la prop pour la stratégie du total de rotation et de translation faite
+	 * 0/1 : rotation en PI4096/8 (>>3)
+	 * 2/3 : max rotation en PI4096/8 (>>3)
+	 * 4/5 : translation en mm/2  (>>1)
+	 */
+
 
 	/* carte stratégie vers carte propulsion */
 	#define PROP_GO_POSITION					0x155

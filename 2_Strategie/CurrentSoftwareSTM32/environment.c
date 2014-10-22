@@ -36,6 +36,7 @@
 #include "config_use.h"
 #include "config_pin.h"
 #include "QS/QS_IHM.h"
+#include "Supervision/LCD_interface.h"
 
 /* met à jour l'environnement en fonction du message CAN reçu */
 void CAN_update (CAN_msg_t* incoming_msg);
@@ -413,6 +414,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
 			global.env.duration_trajectory_for_test_coefs = U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]);
+			break;
+		case STRAT_SEND_REPORT:
+			LCD_printf(1, TRUE, FALSE, "Dist:%ld", U16FROMU8(incoming_msg->data[4], incoming_msg->data[5]) << 1);
+			LCD_printf(2, TRUE, FALSE, "Rot :%4d MRot:%4d", ((Sint32)((Sint16)(U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]))) << 3)*180/PI4096, ((Sint32)((Sint16)(U16FROMU8(incoming_msg->data[2], incoming_msg->data[3]))) << 3)*180/PI4096);
 			break;
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:

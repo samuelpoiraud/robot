@@ -41,6 +41,8 @@
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
 
+static void SECRETARY_send_report();
+
 void SECRETARY_process_CANmsg(CAN_msg_t * msg);
 void SECRETARY_mailbox_add(CAN_msg_t * msg);
 volatile static Uint8 index_read;
@@ -587,6 +589,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			WARNER_init();
 			//arret robot
 			SUPERVISOR_state_machine(EVENT_BROADCAST_STOP, 0);
+			SECRETARY_send_report();
 		break;
 
 		case BROADCAST_START:
@@ -726,4 +729,17 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 	}
 
+}
+
+static void SECRETARY_send_report(){
+	CAN_msg_t msg;
+	msg.sid = STRAT_SEND_REPORT;
+	msg.size = 6;
+	msg.data[0] = HIGHINT(ODOMETRY_get_total_teta() >> 3);
+	msg.data[1] = LOWINT(ODOMETRY_get_total_teta() >> 3);
+	msg.data[2] = HIGHINT(ODOMETRY_get_max_total_teta() >> 3);
+	msg.data[3] = LOWINT(ODOMETRY_get_max_total_teta() >> 3);
+	msg.data[4] = HIGHINT(ODOMETRY_get_total_dist() >> 1);
+	msg.data[5] = LOWINT(ODOMETRY_get_total_dist() >> 1);
+	CAN_send(&msg);
 }
