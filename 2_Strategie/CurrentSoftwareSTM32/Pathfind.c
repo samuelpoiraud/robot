@@ -432,7 +432,7 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	closedList = 0;
 
 #ifndef OLD_PATHFIND
-	if(global.env.color == GREEN)
+	if(global.env.color == BOT_COLOR)
 		closedList = closedList | (1<<1)|(1<<2); // Supprime les nodes au près du spawn Jaune
 	else
 		closedList = closedList | (1<<20)|(1<<21); // Supprime les nodes au près du spawn Vert
@@ -841,7 +841,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 
 #ifdef OLD_PATHFIND
 Uint16 PATHFING_get_symetric(Uint8 n){
-	if(global.env.color == BLUE){
+	if(global.env.color == TOP_COLOR){
 		if(n<2)
 			return n+22;
 		if(n<6 && n>1)
@@ -859,7 +859,7 @@ Uint16 PATHFING_get_symetric(Uint8 n){
 }
 #else
 Uint16 PATHFING_get_symetric(Uint8 n){
-	if(global.env.color == BLUE){
+	if(global.env.color == TOP_COLOR){
 		if(n<4)
 			return n+19;
 		if(n<7 && n>3)

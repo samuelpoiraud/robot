@@ -45,7 +45,7 @@ void CLOCK_run()
 
 void show_color_on_leds()
 {
-	if(global.env.color!=BLUE)
+	if(global.env.color!=TOP_COLOR)
 	{
 		BLUE_LEDS = 0;
 		GREEN_LEDS = 0;

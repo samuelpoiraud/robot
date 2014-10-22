@@ -38,7 +38,7 @@ volatile Sint16 calibration_forward_border_distance;
 void ODOMETRY_init()
 {
 	ENCODERS_init();
-	ODOMETRY_set_color(RED);
+	ODOMETRY_set_color(BOT_COLOR);
 	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
 	{
 		//SMALL
@@ -87,33 +87,33 @@ void ODOMETRY_set_color(color_e new_color)
 	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
 	{
 		//SMALL
-		if (new_color == BLUE)
+		if (new_color == TOP_COLOR)
 		{
-			x32	= SMALL_YELLOW_START_X;		//[mm/65536]		(<<16)
-			y32	= SMALL_YELLOW_START_Y;		//[mm/65536]		(<<16)
-			teta32 = SMALL_YELLOW_START_TETA;		//[rad/4096/1024]	(<<22)
+			x32	= SMALL_TOP_COLOR_START_X;		//[mm/65536]		(<<16)
+			y32	= SMALL_TOP_COLOR_START_Y;		//[mm/65536]		(<<16)
+			teta32 = SMALL_TOP_COLOR_START_TETA;		//[rad/4096/1024]	(<<22)
 		}
 		else
 		{
-			x32	= SMALL_RED_START_X ;		//[mm/65536]		(<<16)
-			y32	= SMALL_RED_START_Y ;		//[mm/65536]		(<<16)
-			teta32 = SMALL_RED_START_TETA ;		//[rad/4096/1024]	(<<22)
+			x32	= SMALL_BOT_COLOR_START_X ;		//[mm/65536]		(<<16)
+			y32	= SMALL_BOT_COLOR_START_Y ;		//[mm/65536]		(<<16)
+			teta32 = SMALL_BOT_COLOR_START_TETA ;		//[rad/4096/1024]	(<<22)
 		}
 	}
 	else
 	{
 		//BIG
-		if (new_color == BLUE)
+		if (new_color == TOP_COLOR)
 		{
-			x32	= BIG_YELLOW_START_X;		//[mm/65536]		(<<16)
-			y32	= BIG_YELLOW_START_Y;		//[mm/65536]		(<<16)
-			teta32 = BIG_YELLOW_START_TETA;		//[rad/4096/1024]	(<<22)
+			x32	= BIG_TOP_COLOR_START_X;		//[mm/65536]		(<<16)
+			y32	= BIG_TOP_COLOR_START_Y;		//[mm/65536]		(<<16)
+			teta32 = BIG_TOP_COLOR_START_TETA;		//[rad/4096/1024]	(<<22)
 		}
 		else
 		{
-			x32	= BIG_RED_START_X ;		//[mm/65536]		(<<16)
-			y32	= BIG_RED_START_Y ;		//[mm/65536]		(<<16)
-			teta32 = BIG_RED_START_TETA ;		//[rad/4096/1024]	(<<22)
+			x32	= BIG_BOT_COLOR_START_X ;		//[mm/65536]		(<<16)
+			y32	= BIG_BOT_COLOR_START_Y ;		//[mm/65536]		(<<16)
+			teta32 = BIG_BOT_COLOR_START_TETA ;		//[rad/4096/1024]	(<<22)
 		}
 	}
 	global.position.x	= x32  >> 16;	//[mm]

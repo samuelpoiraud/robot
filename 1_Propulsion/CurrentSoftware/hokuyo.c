@@ -678,12 +678,12 @@ void Hokuyo_validPointsAndBeacons(){
 					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
 					y_absolute 	< 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
 					y_absolute 	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
-					|| (color==RED && x_absolute<ECART_BALISE && x_absolute>-(62+ECART_BALISE) && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )  //un point est retenu s'il fait partie d'une balise fixe de sa couleur sur le bord du terrain
-					|| (color==RED && x_absolute<2062+ECART_BALISE && x_absolute>2000-ECART_BALISE && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )
-					|| (color==RED && x_absolute<1031+ECART_BALISE && x_absolute>979+ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )
-					|| (color==YELLOW && x_absolute<ECART_BALISE && x_absolute>-62+ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )  //un point est retenu s'il fait partie d'une balise fixe de sa couleur sur le bord du terrain
-					|| (color==YELLOW && x_absolute<2062+ECART_BALISE && x_absolute>2000-ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )
-					|| (color==YELLOW && x_absolute<1031+ECART_BALISE && x_absolute>979+ECART_BALISE && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )
+					|| (color==BOT_COLOR && x_absolute<ECART_BALISE && x_absolute>-(62+ECART_BALISE) && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )  //un point est retenu s'il fait partie d'une balise fixe de sa couleur sur le bord du terrain
+					|| (color==BOT_COLOR && x_absolute<2062+ECART_BALISE && x_absolute>2000-ECART_BALISE && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )
+					|| (color==BOT_COLOR && x_absolute<1031+ECART_BALISE && x_absolute>979+ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )
+					|| (color==TOP_COLOR && x_absolute<ECART_BALISE && x_absolute>-62+ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )  //un point est retenu s'il fait partie d'une balise fixe de sa couleur sur le bord du terrain
+					|| (color==TOP_COLOR && x_absolute<2062+ECART_BALISE && x_absolute>2000-ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )
+					|| (color==TOP_COLOR && x_absolute<1031+ECART_BALISE && x_absolute>979+ECART_BALISE && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )
 				)
 			{
 

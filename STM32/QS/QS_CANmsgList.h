@@ -30,7 +30,7 @@
 	***********************************************************/
 	#define BROADCAST_START	 			0x001
 	#define BROADCAST_STOP_ALL 			0x002
-	#define BROADCAST_COULEUR			0x003			// couleur de notre robot : (Uint8):(RED=0, YELLOW =1)
+	#define BROADCAST_COULEUR			0x003			// couleur de notre robot : (Uint8):(BOT_COLOR=0, TOP_COLOR =1)
 
 	#define BROADCAST_POSITION_ROBOT	0x004
 	/*
