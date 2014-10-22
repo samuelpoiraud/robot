@@ -23,7 +23,7 @@ int term_cmd_gohome(int argc, const char *argv[]) {
 		return EINVAL;
 
 	if(QS_WHO_AM_I_get()==SMALL_ROBOT){
-		if(global.env.color == RED){
+		if(global.env.color == BOT_COLOR){
 			PROP_push_goto(960, COLOR_Y(73), FAST, BACKWARD, 0, AVOID_DISABLED, END_AT_BREAK, FALSE);
 			PROP_push_goto(960, COLOR_Y(300), FAST, ANY_WAY, 0, AVOID_DISABLED, END_AT_BREAK, TRUE);
 		}else{

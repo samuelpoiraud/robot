@@ -345,7 +345,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_AVOIDANCE, (bool_e*) &(flag_timeout));
 				debug_printf("SELFTEST AVOIDANCE\r\n");
 			}
-			if(global.env.color == RED){
+			if(global.env.color == BOT_COLOR){
 				if(foe_in_zone(FALSE, global.env.pos.x, global.env.pos.y+500, FALSE))
 					BUZZER_play(30, NOTE_LA, 5);
 			}else{

@@ -252,7 +252,7 @@ void LCD_process_main(void){
 
 		t_10ms=0; // reinit compteur
 
-		current_color = (ODOMETRY_get_color()==RED)?Rouge : Jaune; // Récupération de la couleur
+		current_color = (ODOMETRY_get_color()==BOT_COLOR)?Rouge : Jaune; // Récupération de la couleur
 
 		if( 	(robots[me].color != current_color)		||
 				(robots[me].x != global.position.x/10) 	||

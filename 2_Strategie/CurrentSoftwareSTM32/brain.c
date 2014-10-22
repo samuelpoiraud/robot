@@ -144,7 +144,7 @@ void any_match(void)
 
 		SWITCH_change_color();	//Check the Color switch
 
-		/* accepter et prévenir des mises à jour de couleur (BLUE par défaut) */
+		/* accepter et prévenir des mises à jour de couleur (TOP_COLOR par défaut) */
 		if(global.env.color_updated && !global.env.prop.calibrated && !global.env.ask_prop_calibration)
 		{
 			ENV_set_color(global.env.wanted_color);
