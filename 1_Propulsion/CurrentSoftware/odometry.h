@@ -27,6 +27,11 @@
 	
 	color_e ODOMETRY_get_color();
 
+
+	Sint32 ODOMETRY_get_max_total_teta();	// PI4096
+	Sint32 ODOMETRY_get_total_teta();		// PI4096
+	Uint32 ODOMETRY_get_total_dist();		// mm
+
 	//Permet d'imposer une positon au robot... utile pour les tests !!!
 	//Par exemple pour les tests de trajectoires rectangles sans se prendre la tete !
 	void ODOMETRY_set(Sint16 x, Sint16 y, Sint16 teta);

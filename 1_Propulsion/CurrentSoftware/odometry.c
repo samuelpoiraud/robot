@@ -25,6 +25,9 @@
 #include "QS/QS_timer.h"
 
 volatile static Sint32 coefs[ODOMETRY_COEF_CENTRIFUGAL+1];
+static Sint32 total_teta = 0;
+static Sint32 max_total_teta = 0;
+static Uint32 total_dist = 0;
 
 
 volatile Sint32 x32;		//Position précise en x [mm/65536]		<<16
@@ -276,7 +279,7 @@ void ODOMETRY_update(void)
 	real_speed_x =(global.real_speed_translation*cos32)>>8;		//[mm/65536/5ms] = [mm/4096/5ms]*[/4096]*[256]
 	real_speed_y =(global.real_speed_translation*sin32)>>8;		//[mm/65536/5ms] = [mm/4096/5ms]*[/4096]*[256]
 
-	real_speed_x	/= 4;
+	real_speed_x /= 4;
 	real_speed_y /= 4;
 
 	//Explication, pourquoi xFin, yFin, vitesse_x_reelle et vitesse_y_reelle sont exprimés en [mm/65536]
@@ -306,6 +309,14 @@ void ODOMETRY_update(void)
 	//Mise à jour de l'angle
 	teta32 += global.real_speed_rotation;	//[rad/1024/4096]
 
+	//Mise à jour de la distance total parcourue
+	total_dist += (Uint32)(sqrt(SQUARE(real_speed_x + deviation_x) + SQUARE(real_speed_y + deviation_y))); //[mm/65536]
+
+	//Mise à jour de l'angle total parcourue
+	total_teta += global.real_speed_rotation;	//[rad/1024/4096]
+	if(absolute(total_teta) > absolute(max_total_teta))
+		max_total_teta = total_teta;			//[rad/1024/4096]
+
 	//Gestion de l'angle modulo 2PI !!!
 	if(teta32 < (-PI_22) )
 		teta32 += TWO_PI22;
@@ -329,4 +340,17 @@ void ODOMETRY_update(void)
 
 }
 
+
+Sint32 ODOMETRY_get_max_total_teta(){
+	return max_total_teta >> 10;
+}
+
+Sint32 ODOMETRY_get_total_teta(){
+	return total_teta >> 10;
+}
+
+
+Uint32 ODOMETRY_get_total_dist(){
+	return total_dist >> 16;
+}
 
