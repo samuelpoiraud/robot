@@ -44,8 +44,8 @@
 
 	typedef enum
 	{
-		BOT_COLOR = 0, RED=0, GREEN=0,
-		TOP_COLOR = 1, BLUE=1, YELLOW=1
+		BOT_COLOR = 0, GREEN=0,
+		TOP_COLOR = 1, YELLOW=1
 	} color_e;
 
 	typedef struct
