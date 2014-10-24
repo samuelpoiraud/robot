@@ -45,17 +45,17 @@ void CLOCK_run()
 
 void show_color_on_leds()
 {
-	if(global.env.color!=TOP_COLOR)
+	if(global.env.color == BOT_COLOR)
 	{
 		BLUE_LEDS = 0;
-		GREEN_LEDS = 0;
+		GREEN_LEDS = 1;
 		RED_LEDS = 1;
 	}
 	else
 	{
 		BLUE_LEDS = 0;
 		GREEN_LEDS = 1;
-		RED_LEDS = 1;
+		RED_LEDS = 0;
 	}
 }
 
