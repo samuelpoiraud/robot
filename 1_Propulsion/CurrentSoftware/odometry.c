@@ -25,9 +25,11 @@
 #include "QS/QS_timer.h"
 
 volatile static Sint32 coefs[ODOMETRY_COEF_CENTRIFUGAL+1];
-static Sint32 total_teta = 0;
-static Sint32 max_total_teta = 0;
-static Uint32 total_dist = 0;
+static Sint32 total_teta = 0;       //[rad/1024/4096]
+static Sint32 max_total_teta = 0;   //[rad/1024/4096]
+static Uint32 total_dist_x = 0;       //[mm/65536]
+static Uint32 total_dist_y = 0;       //[mm/65536]
+
 
 
 volatile Sint32 x32;		//Position précise en x [mm/65536]		<<16
@@ -310,7 +312,8 @@ void ODOMETRY_update(void)
 	teta32 += global.real_speed_rotation;	//[rad/1024/4096]
 
 	//Mise à jour de la distance total parcourue
-	total_dist += (Uint32)(sqrt(SQUARE(real_speed_x + deviation_x) + SQUARE(real_speed_y + deviation_y))); //[mm/65536]
+	total_dist_x += absolute(real_speed_x + deviation_x);		//[mm/65536]
+	total_dist_y += absolute(real_speed_y + deviation_y);		//[mm/65536]
 
 	//Mise à jour de l'angle total parcourue
 	total_teta += global.real_speed_rotation;	//[rad/1024/4096]
@@ -351,6 +354,6 @@ Sint32 ODOMETRY_get_total_teta(){
 
 
 Uint32 ODOMETRY_get_total_dist(){
-	return total_dist >> 16;
+	return (Uint32)sqrt(SQUARE(total_dist_x >> 16) + SQUARE(total_dist_y >> 16));
 }
 
