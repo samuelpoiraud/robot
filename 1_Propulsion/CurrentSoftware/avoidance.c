@@ -27,6 +27,8 @@
 #define NB_SAMPLE					30
 #define SAMPLE_TIME					5		//(en ms)
 
+static Sint16 ecretage_debug_rect(Sint16 val);
+
 adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
 
 typedef struct{
@@ -174,7 +176,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 
 	static time32_t last_time_refresh_avoid_displayed = 0;
 
-	vtrans = ((global.vitesse_translation*1000) >> 12)/5;
+	vtrans = global.vitesse_translation;
 	teta = global.position.teta;
 
 	COS_SIN_4096_get(teta, &cos, &sin);
@@ -189,9 +191,9 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 	 *  On calcule la position relative des robots adverses pour savoir s'ils se trouvent dans ce rectangle
 	 */
 
-	/*[mm/4096/5ms/5ms]*/	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
+	/*[mm/4096/5ms/5ms]*/	breaking_acceleration = ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ACCELERATION_NORMAL:BIG_ACCELERATION_NORMAL)*4; // Dans le cas d'un freinage on applique 4 fois notre potentiel d'accélération
 	/*[mm/4096/5ms]*/		current_speed = (Uint32)(absolute(vtrans)*1);
-	/*[mm]*/				break_distance = SQUARE(current_speed)/(4*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
+	/*[mm]*/				break_distance = SQUARE(current_speed)/(2*breaking_acceleration) >> 12;	//distance que l'on va parcourir si l'on décide de freiner maintenant. (Division par 4096 car on calcule avec des variables /4096)
 	/*[mm]*/				respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
 	/*[mm]*/				slow_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_DIST_MIN_SPEED_SLOW:BIG_ROBOT_DIST_MIN_SPEED_SLOW;	//Distance à laquelle on souhaite ralentir
 
@@ -223,10 +225,10 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 				longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_min_x});
 				longueur[3] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_min_x});
 
-				avoid_poly[0] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[0])*longueur[0], 0), MIN(global.position.y+sin4096(angle[0])*longueur[0], 3000)};
-				avoid_poly[1] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[1])*longueur[1], 2000), MIN(global.position.y+sin4096(angle[1])*longueur[1], 3000)};
-				avoid_poly[2] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[2])*longueur[2], 2000), MAX(global.position.y+sin4096(angle[2])*longueur[2], 0)};
-				avoid_poly[3] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[3])*longueur[3], 0), MAX(global.position.y+sin4096(angle[3])*longueur[3], 0)};
+				avoid_poly[0] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[0])*longueur[0], 0), ecretage_debug_rect(global.position.y+sin4096(angle[0])*longueur[0])};
+				avoid_poly[1] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[1])*longueur[1], 2000), ecretage_debug_rect(global.position.y+sin4096(angle[1])*longueur[1])};
+				avoid_poly[2] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[2])*longueur[2], 2000), ecretage_debug_rect(global.position.y+sin4096(angle[2])*longueur[2])};
+				avoid_poly[3] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[3])*longueur[3], 0), ecretage_debug_rect(global.position.y+sin4096(angle[3])*longueur[3])};
 
 				Uint8 nb_point = 4;
 				Uint16 max = AROUND_UP((nb_point+1)/3.);
@@ -515,4 +517,13 @@ bool_e AVOIDANCE_foe_near(){
 				foe_near = TRUE;
 	}
 	return foe_near;
+}
+
+static Sint16 ecretage_debug_rect(Sint16 val){
+	if(val < 0)
+		return 0;
+	else if(val > 2999)
+		return 2999;
+	else
+		return val;
 }
