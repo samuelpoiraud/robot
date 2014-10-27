@@ -37,6 +37,7 @@
 #include "hokuyo.h"
 #include "avoidance.h"
 #include "QS/QS_maths.h"
+#include "QS/QS_ports.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -78,7 +79,7 @@ void SECRETARY_process_main(void)
 
 	while(UART1_data_ready())
 	{
-		LED_UART = !LED_UART;
+		toggle_led(LED_UART);
 		#if defined(STM32F40XX)
 			if(u1rxToCANmsg(&receivedCanMsg_over_uart, UART1_get_next_msg()))
 			{
@@ -466,7 +467,7 @@ PROP_GO_POSITION
 void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 {
 	way_e sens_marche;
-	LED_CAN=!LED_CAN;
+	toggle_led(LED_CAN);
 //	debug_printf("#%x\n",msg->sid);
 
 	switch (msg->sid)

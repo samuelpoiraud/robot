@@ -11,9 +11,12 @@
 
 #ifndef QS_PORTS_H
 	#define QS_PORTS_H
-	
+
 	#include "QS_all.h"
 	#include "stm32f4xx_gpio.h"
+
+	#define toggle_led(port_comma_pin)   GPIO_WriteBit(port_comma_pin,(GPIO_ReadOutputDataBit(port_comma_pin)?Bit_RESET:Bit_SET))
+
 	/** Configure le module GPIO suivant global_config.h
 	 **/
 	void PORTS_init(void);

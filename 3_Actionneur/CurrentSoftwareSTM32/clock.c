@@ -13,6 +13,7 @@
 #include "clock.h"
 #include "QS/QS_buttons.h"
 #include "QS/QS_DCMotor2.h"
+#include "QS/QS_ports.h"
 
 #include "config_pin.h"
 
@@ -52,7 +53,7 @@ void TIMER_SRC_TIMER_interrupt()
 		DCM_process_it();
 	#endif
 
-	LED_RUN = !LED_RUN;
+	toggle_led(LED_RUN);
 	global.absolute_time += 10;
 #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)
 	BUTTONS_process_it();

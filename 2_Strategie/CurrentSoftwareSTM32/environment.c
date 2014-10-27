@@ -37,6 +37,7 @@
 #include "config_pin.h"
 #include "QS/QS_IHM.h"
 #include "Supervision/LCD_interface.h"
+#include "QS/QS_ports.h"
 
 /* met à jour l'environnement en fonction du message CAN reçu */
 void CAN_update (CAN_msg_t* incoming_msg);
@@ -268,7 +269,7 @@ void ENV_update(void)
 	// Récuperation de l'évolution de l'environnement renseignee par les messages CAN
 	while (CAN_data_ready())
 	{
-		LED_CAN=!LED_CAN;
+		toggle_led(LED_CAN);
 		incoming_msg_from_bus_can = CAN_get_next_msg();
 		ENV_process_can_msg(&incoming_msg_from_bus_can,FALSE, TRUE, TRUE, TRUE);	//Everywhere except CAN
 	}

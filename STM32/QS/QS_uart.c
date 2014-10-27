@@ -443,16 +443,13 @@ int _write(int file, char *ptr, int len)
 	#endif /* def USE_UART1TXINTERRUPT */
 
 
-	void _ISR USART1_IRQHandler(void)
-	{
+	void _ISR USART1_IRQHandler(void){
 		#ifdef USE_UART1RXINTERRUPT
 			if(USART_GetITStatus(USART1, USART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u1rxbuf[(m_u1rxnum%UART_RX_BUF_SIZE)]);
 
-				while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE))
-				{
-					LED_UART=!LED_UART;
-
+				while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE)){
+					toggle_led(LED_UART);
 					#ifdef MODE_SIMULATION
 					static Uint8 we_are_receiving_can_msg = FALSE;
 					Uint8 c;
@@ -577,7 +574,7 @@ int _write(int file, char *ptr, int len)
 
 				while(USART_GetFlagStatus(USART2, USART_FLAG_RXNE))
 				{
-					LED_UART=!LED_UART;
+					toggle_led(LED_UART);
 					*(receiveddata++) = USART_ReceiveData(USART2);
 					m_u2rxnum++;
 					m_u2rx = 1;

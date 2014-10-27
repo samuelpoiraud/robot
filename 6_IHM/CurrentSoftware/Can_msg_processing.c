@@ -22,7 +22,7 @@
 #include "led.h"
 
 void CAN_process_msg(CAN_msg_t* msg) {
-	CAN_msg_t answer;
+	//CAN_msg_t answer;
 
 	// Traitement des autres messages reçus
 	switch (msg->sid){

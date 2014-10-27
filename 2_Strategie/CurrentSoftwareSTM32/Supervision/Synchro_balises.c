@@ -6,6 +6,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../config/config_pin.h"
 #include "../QS/impl/QS_uart_impl.h"
+#include "../QS/QS_ports.h"
 
 #ifdef SYNCHROBALISE_TIMER
 	#define TIMER_SRC_TIMER_ID SYNCHROBALISE_TIMER
@@ -52,7 +53,7 @@ void TIMER_SRC_TIMER_interrupt() {
 		time_base=0;
 	}
 
-	SYNCHRO_BEACON = ((time_base % PERIODE_SIGNAL_SYNCHRO) < PERIODE_SIGNAL_SYNCHRO/2);  //Actif la moitié du temps inférieure (entre 0 et PERIODE_SIGNAL_SYNCHRO / 2)
+	GPIO_WriteBit(SYNCHRO_BEACON, ((time_base % PERIODE_SIGNAL_SYNCHRO) < PERIODE_SIGNAL_SYNCHRO/2));	//Actif la moitié du temps inférieure (entre 0 et PERIODE_SIGNAL_SYNCHRO / 2)
 
 	//Un timeslot pour chaque module différent, pour éviter les collisions lorsque tout les modules sont presque synchro
 	if(SEND_REQ && time_base == TIME_WHEN_SYNCHRO) {
@@ -68,7 +69,7 @@ void SYNCHRO_init() {
 	offset = 0x0FFF;
 	last_received_reply = global.env.absolute_time;
 
-	PIN_RF_CONFIG = 1;
+	GPIO_SetBits(PIN_RF_CONFIG);
 
 	if(QS_WHO_AM_I_get() == BIG_ROBOT) {
 		SEND_REQ = FALSE;
@@ -130,7 +131,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			offset = time_base - expected_time;
 
 			RF_synchro_response(header.sender_id, offset);
-			LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
+			toggle_led(LED_BEACON_IR_GREEN);
 		}
 	} else if(QS_WHO_AM_I_get() == SMALL_ROBOT && header.type == RF_PT_SynchroResponse) {
 		//BIG_ROBOT nous à répondu, on maj notre base de temps
@@ -140,7 +141,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 
 			time_base = wrap_timebase(((Sint16)time_base) + offset);
 
-			LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
+			toggle_led(LED_BEACON_IR_GREEN);
 		}
 
 		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => BIG_ROBOT est là
@@ -180,7 +181,7 @@ static void update_rfmodule_here() {
 	}
 
 	if(someone_not_here)
-		LED_BEACON_IR_RED = 1;
+		GPIO_SetBits(LED_BEACON_IR_RED);
 	else
-		LED_BEACON_IR_RED = 0;
+		GPIO_ResetBits(LED_BEACON_IR_RED);
 }

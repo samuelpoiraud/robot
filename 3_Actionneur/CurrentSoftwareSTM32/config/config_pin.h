@@ -11,18 +11,18 @@
 #ifndef CONFIG_PIN_H
 #define CONFIG_PIN_H
 #include "config_global.h"
+#include "../stm32f4xx/stm32f4xx_gpio.h"
 
 /* Definition des connectiques capteurs et actionneurs COMMUN à Holly & Wood */
 // Définir les configurations pin propre à chaque robot dans config_big/config_pin.h ou config_small/config_pin.h !
 
 /* LEDs */
-#define LED_ERROR 			GPIOD->ODR10
-#define LED_SELFTEST 		GPIOD->ODR11
-#define LED_RUN  			GPIOD->ODR12
-#define LED_CAN  			GPIOD->ODR13
-#define LED_UART 			GPIOD->ODR14
-#define LED_USER 			GPIOD->ODR15
-#define LED_USER2 			GPIOD->ODR16
+#define LED_ERROR 			GPIOD,GPIO_PinSource10
+#define LED_SELFTEST 		GPIOD,GPIO_PinSource11
+#define LED_RUN  			GPIOD,GPIO_PinSource12
+#define LED_CAN  			GPIOD,GPIO_PinSource13
+#define LED_UART 			GPIOD,GPIO_PinSource14
+#define LED_USER 			GPIOD,GPIO_PinSource15
 
 /* Buttons */
 #define BUTTON1_PORT		(!GPIOE->IDR12)

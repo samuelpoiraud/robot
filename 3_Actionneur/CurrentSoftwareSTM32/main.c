@@ -64,8 +64,8 @@ int main (void)
 	global.alim_value = 0;
 	global.absolute_time = 0;
 
-	LED_RUN = 1;
-	LED_USER = 0;
+	GPIO_SetBits(LED_RUN);
+	GPIO_ResetBits(LED_USER);
 
 	UART_init();
 	TIMER_init();
@@ -73,7 +73,7 @@ int main (void)
 	QUEUE_init();
 	BUTTONS_init();
 
-	LED_CAN = 1;
+	GPIO_SetBits(LED_CAN);
 	#ifdef USE_CAN
 		CAN_init();
 	#endif
@@ -100,9 +100,9 @@ int main (void)
 			msg.data[0] = SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME;
 			msg.size = 1;
 			CAN_send(&msg);
-			LED_ERROR = 1;
-			LED_RUN = 1;
-			LED_ORANGE = 1;
+			GPIO_SetBits(LED_ERROR);
+			GPIO_SetBits(LED_RUN);
+			GPIO_SetBits(LED_ORANGE);
 			while(1);	//On plante le code ici.
 		}
 
@@ -136,8 +136,7 @@ int main (void)
 			lastSwitchState[1] = SWITCH_RG1;
 		}
 
-		LED_USER = !LED_USER;
-		LED_USER2 = BUTTON1_PORT || BUTTON2_PORT || BUTTON3_PORT || BUTTON4_PORT;
+		toggle_led(LED_USER);
 
 		QUEUE_run();
 		BUTTONS_update();
@@ -148,7 +147,7 @@ int main (void)
 		#ifdef USE_CAN
 			while(CAN_data_ready()){
 				// Réception et acquittement
-				LED_CAN = !LED_CAN;
+				toggle_led(LED_CAN);
 				//debug_printf("Boucle CAN \n");
 				msg = CAN_get_next_msg();
 				CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état

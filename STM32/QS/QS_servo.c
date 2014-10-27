@@ -79,52 +79,52 @@ void SERVO_set_servo(Uint8 servo,bool_e stateUp){
 	switch (servo) {
 	#ifdef SERVO0
 		case 0:
-			SERVO0 = stateUp;
+			GPIO_WriteBit(SERVO0, stateUp);
 			break;
 	#endif
 	#ifdef SERVO1
 		case 1:
-			SERVO1 = stateUp;
+			GPIO_WriteBit(SERVO1, stateUp);
 			break;
 	#endif
 	#ifdef SERVO2
 		case 2:
-			SERVO2 = stateUp;
+			GPIO_WriteBit(SERVO2, stateUp);
 			break;
 	#endif
 	#ifdef SERVO3
 		case 3:
-			SERVO3 = stateUp;
+			GPIO_WriteBit(SERVO3, stateUp);
 			break;
 	#endif
 	#ifdef SERVO4
 		case 4:
-			SERVO4 = stateUp;
+			GPIO_WriteBit(SERVO4, stateUp);
 			break;
 	#endif
 	#ifdef SERVO5
 		case 5:
-			SERVO5 = stateUp;
+			GPIO_WriteBit(SERVO5, stateUp);
 			break;
 	#endif
 	#ifdef SERVO6
 		case 6:
-			SERVO6 = stateUp;
+			GPIO_WriteBit(SERVO6, stateUp);
 			break;
 	#endif
 	#ifdef SERVO7
 		case 7:
-			SERVO7 = stateUp;
+			GPIO_WriteBit(SERVO7, stateUp);
 			break;
 	#endif
 	#ifdef SERVO8
 		case 8:
-			SERVO8 = stateUp;
+			GPIO_WriteBit(SERVO8, stateUp);
 			break;
 	#endif
 	#ifdef SERVO9
 		case 9:
-			SERVO9 = stateUp;
+			GPIO_WriteBit(SERVO9, stateUp);
 			break;
 	#endif
 		default:

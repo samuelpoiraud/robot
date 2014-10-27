@@ -93,7 +93,7 @@ void _ISR _T2Interrupt()
 #if defined (LCD_TOUCH)
 	static Uint8 count = 0;
 #endif
-	LED_USER = 0; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
+	GPIO_ResetBits(LED_USER); //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 	TIMER2_AckIT(); /* interruption traitée */
 
 	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
@@ -148,7 +148,7 @@ void _ISR _T2Interrupt()
 	g2 = global;
 	if(TIMER2_getITStatus())	//L'IT est trop longue ! il y a recouvrement !!!
 		global.flag_recouvrement_IT = TRUE;
-	LED_USER = 1; //Permet de visualiser a l'oscillo le temps de passage dans l'IT
+	GPIO_SetBits(LED_USER);  //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 }
 
 
@@ -187,27 +187,28 @@ static void display_led(void)
 			//no break;
 		case SUPERVISOR_TRAJECTORY :
 			if(compteur >= 4)
-				LED_RUN = 0;
+				GPIO_ResetBits(LED_RUN);
 			else
-				LED_RUN = 1;
-			LED_ERROR = 0;
+				GPIO_SetBits(LED_RUN);
+
+			GPIO_ResetBits(LED_ERROR);
 		break;
 		case SUPERVISOR_ERROR :
 			if(compteur % 2)
 			{
-				LED_ERROR = 0;
-				LED_RUN = 0;
+				GPIO_ResetBits(LED_ERROR);
+				GPIO_ResetBits(LED_RUN);
 			}
 			else
 			{
-				LED_ERROR = 1;
-				LED_RUN = 1;
+				GPIO_SetBits(LED_ERROR);
+				GPIO_SetBits(LED_RUN);
 			}
 		break;
 
 		case SUPERVISOR_MATCH_ENDED :
-			LED_ERROR = 0;
-			LED_RUN = 1;
+			GPIO_ResetBits(LED_ERROR);
+			GPIO_SetBits(LED_RUN);
 		break;
 
 		default:
@@ -215,12 +216,12 @@ static void display_led(void)
 	}
 
 	if(SECRETARY_is_selftest_validated())
-		LED_SELFTEST = 1;
+		GPIO_SetBits(LED_SELFTEST);
 	else
 	{
 		if(compteur >= 4)
-			LED_SELFTEST = 0;
+			GPIO_ResetBits(LED_SELFTEST);
 		else
-			LED_SELFTEST = 1;
+			GPIO_SetBits(LED_SELFTEST);
 	}
 }

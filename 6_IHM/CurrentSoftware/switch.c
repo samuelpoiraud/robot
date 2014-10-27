@@ -117,8 +117,8 @@ void SWITCHS_update(){
 			SWITCHS_send_msg(i);
 
 #ifdef VERBOSE_ELEMENT
-//			if(BIROUTE_IHM == i)	{debug_printf("sw_color = %s\n",	(SWITCH_COLOR)?	"ON":"OFF");}
-//			else if(SWITCH_COLOR_IHM == i)	{debug_printf("sw_color = %s\n",	(SWITCH_COLOR)?	"ON":"OFF");}
+//			if(BIROUTE_IHM == i)	{debug_printf("sw_color = %s\n",	(BIROUTE_PORT)?	"ON":"OFF");}
+//			else if(SWITCH_COLOR_IHM == i)	{debug_printf("sw_color = %s\n",	(SWITCH_COLOR_PORT)?	"ON":"OFF");}
 //			else if(SWITCH_LCD_IHM 	== i)	{debug_printf("sw_lcd = %s\n",	 (SWITCH_LCD_PORT)?	"ON":"OFF");}
 //			else debug_printf("SWITCH %d : State %s\n",i,(switchs[i])?"ON":"OFF");
 #endif

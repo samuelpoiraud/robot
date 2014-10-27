@@ -125,13 +125,12 @@ void LCD_clear_display(void)
 /*
 	Initialize the LCD.
 */
-void LCD_init(void)
-{
+void LCD_init(void){
 	volatile Uint32 i;
 
-	LCD_RESET_PORT = 0;
+	GPIO_ResetBits(LCD_RESET_PORT);
 	for(i=0;i<100000;i++);	//Delay > 10ms.
-	LCD_RESET_PORT = 1;
+	GPIO_SetBits(LCD_RESET_PORT);
 	for(i=0;i<10000;i++);	//Delay > 1ms
 
 	LCD_send_command(COMMAND_CLEAR_DISPLAY);	//Clear display

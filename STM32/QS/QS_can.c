@@ -215,7 +215,7 @@
 					time--;
 					if(time == 0) {
 						#ifdef LED_ERROR
-							LED_ERROR = 1;
+							GPIO_SetBits(LED_ERROR);
 						#endif
 
 						return;
