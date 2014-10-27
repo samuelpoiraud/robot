@@ -11,6 +11,6 @@ void put_dump (const BYTE*, Uint32 ofs, int cnt);
 char * get_command (void);
 int get_line_r (char*, int len, int *idx);
 
-void SD_char_from_user(char c);
+void char_from_user(char c);
 
 #endif /* TERM_IO_H_ */
