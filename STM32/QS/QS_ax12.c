@@ -112,7 +112,7 @@
 	#endif
 
 	#if defined(AX12_DIRECTION_PORT_AX12) && defined(AX12_DIRECTION_PORT_RX24)
-		#define AX12_DIRECTION_PORT AX12_DIRECTION_PORT_AX12 = AX12_DIRECTION_PORT_RX24
+		#define AX12_DIRECTION_PORT AX12_DIRECTION_PORT_RX24
 	#elif defined(AX12_DIRECTION_PORT_AX12)
 		#define AX12_DIRECTION_PORT AX12_DIRECTION_PORT_AX12
 	#elif defined(AX12_DIRECTION_PORT_RX24)
@@ -918,7 +918,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					state_machine.current_instruction = AX12_instruction_queue_get_current();
 				else {	//s'il n'y a rien a faire, mettre en veille la machine a état, l'UART sera donc inactif (et mettre en mode reception pour ne pas forcer la sortie dont on défini la tension, celle non relié a l'AX12)
 					while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));   //inifinite loop si uart pas initialisé
-					AX12_DIRECTION_PORT = RX_DIRECTION;
+					GPIO_WriteBit(AX12_DIRECTION_PORT, RX_DIRECTION);
 					break;
 				}
 
@@ -941,7 +941,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				#endif
 
 
-				AX12_DIRECTION_PORT = TX_DIRECTION;
+				GPIO_WriteBit(AX12_DIRECTION_PORT,TX_DIRECTION);
 
 				TIMER_SRC_TIMER_start_ms(AX12_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
 
@@ -1015,7 +1015,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						//plus d'info ici: http://books.google.fr/books?id=ZNngQv_E0_MC&lpg=PA250&ots=_ZTiXKt-8p&hl=fr&pg=PA250
 						while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));
 
-						AX12_DIRECTION_PORT = RX_DIRECTION;
+						GPIO_WriteBit(AX12_DIRECTION_PORT,RX_DIRECTION);
 
 						//flush recv buffer
 						while(AX12_UART_GetFlagStatus(USART_FLAG_ORE) || AX12_UART_GetFlagStatus(USART_FLAG_FE) || AX12_UART_GetFlagStatus(USART_FLAG_NE))
@@ -1442,7 +1442,7 @@ void AX12_init() {
 
 	AX12_UART_init_all(AX12_UART_BAUDRATE);
 	TIMER_SRC_TIMER_init();
-	AX12_DIRECTION_PORT = RX_DIRECTION;
+	GPIO_WriteBit(AX12_DIRECTION_PORT, RX_DIRECTION);
 
 	AX12_prepare_commands = FALSE;
 	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12/RX24 dans le mode indiqué dans Global_config.h

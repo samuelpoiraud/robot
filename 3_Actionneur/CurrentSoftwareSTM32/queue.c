@@ -232,7 +232,7 @@ void QUEUE_next(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_c
 void QUEUE_set_error(queue_id_t queue_id) {
 	assert(queue_id < NB_QUEUE);
 
-	LED_ERROR = 1;
+	GPIO_SetBits(LED_ERROR);
 
 	if(queues[queue_id].used) {
 		queues[queue_id].error_occured = TRUE;

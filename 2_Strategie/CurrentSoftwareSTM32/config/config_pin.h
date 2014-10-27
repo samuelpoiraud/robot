@@ -20,19 +20,19 @@
 	 */
 
 #include "../main.h"
-
+#include "../stm32f4xx/stm32f4xx_gpio.h"
 
 #ifdef FDP_2014
-#define PORT_A_IO_MASK	0xFE9B
+#define PORT_A_IO_MASK	0xFE9F
 	#define BUTTON0_PORT		GPIOA->IDR0
 	#define SWITCH_DEBUG_PORT	GPIOA->IDR1
 	//	XBEE/BT/U2TX				  2
 	//	XBEE/BT/U2RX				  3
 	//	-				 			  4
-	#define XBEE_RESET			GPIOA->ODR5
-	#define PIN_RF_CONFIG		GPIOA->ODR6
+	#define XBEE_RESET			GPIOA,GPIO_PinSource5
+	#define PIN_RF_CONFIG		GPIOA,GPIO_PinSource6
 	#define SWITCH_VERBOSE_PORT	GPIOA->IDR7
-	#define LED_IHM_SET			GPIOA->ODR8
+	#define LED_IHM_SET			GPIOA,GPIO_PinSource8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -40,7 +40,9 @@
 	//	-	programmation			  13
 	//	-	programmation 			  14
 	#define BUTTON5_PORT		(!GPIOA->IDR15)
-#define PORT_B_IO_MASK	0x00BF
+
+
+#define PORT_B_IO_MASK	0x0DFF
 	#define FRESCO_3			GPIOB->IDR1
 	//	Capteur						  1
 	#define POWER_WATCH_INT		GPIOB->IDR2
@@ -50,60 +52,59 @@
 	//	U1TX						  6
 	//	U1RX						  7
 	//	-			 	  			  8
-	#define LCD_RESET_PORT		GPIOB->ODR9
+	#define LCD_RESET_PORT		GPIOB,GPIO_PinSource9
 	//	I2C RTC/LCD	 			  	  10
 	//	I2C RTC/LCD	 			  	  11
-	#define SD_CS				GPIOB->ODR12
-	#define EEPROM_CS			GPIOB->ODR12
-	#define EEPROM_SCK			GPIOB->ODR13
-	#define EEPROM_SDO			GPIOB->ODR14
-	#define EEPROM_SDI			GPIOB->ODR15
+	#define SD_CS				GPIOB,GPIO_PinSource12
+	#define EEPROM_CS			GPIOB,GPIO_PinSource12
+	#define EEPROM_SCK			GPIOB,GPIO_PinSource13
+	#define EEPROM_SDO			GPIOB,GPIO_PinSource14
+	#define EEPROM_SDI			GPIOB,GPIO_PinSource15
 
 
-#define PORT_C_IO_MASK	0x202E
-	#define	USB_POWER_ON	 	GPIOC->ODR0
+#define PORT_C_IO_MASK	0xE03E
+	#define	USB_POWER_ON	 	GPIOC,GPIO_PinSource0
 	#define RECALAGE_1			GPIOC->IDR1
 	#define RECALAGE_2			GPIOC->IDR2
 	//	Capteur						  3
 	//	Capteur			 			  4
 	#define BUTTON6_PORT		(!GPIOC->IDR5)
-	#define LED_BEACON_IR_GREEN	GPIOC->ODR6
-	#define LED_BEACON_IR_RED	GPIOC->ODR7
-	#define SYNCHRO_BEACON		GPIOC->ODR8
-	#define BUZZER				GPIOC->ODR9
-	#define LED_IHM_OK			GPIOC->ODR10
-	#define EEPROM_WP			GPIOC->ODR11
-	#define LED_IHM_UP			GPIOC->ODR11
-	#define LED_IHM_DOWN			GPIOC->ODR12
+	#define LED_BEACON_IR_GREEN	GPIOC,GPIO_PinSource6
+	#define LED_BEACON_IR_RED	GPIOC,GPIO_PinSource7
+	#define SYNCHRO_BEACON		GPIOC,GPIO_PinSource8
+	#define BUZZER				GPIOC,GPIO_PinSource9
+	#define LED_IHM_OK			GPIOC,GPIO_PinSource10
+	#define EEPROM_WP			GPIOC,GPIO_PinSource11
+	#define LED_IHM_UP			GPIOC,GPIO_PinSource11
+	#define LED_IHM_DOWN		GPIOC,GPIO_PinSource12
 
 	//#define 				GPIOC->ODR11
-	#define EEPROM_HOLD			GPIOC->ODR12
+	#define EEPROM_HOLD			GPIOC,GPIO_PinSource12
 	#define PORT_ROBOT_ID  		GPIOC->IDR13
 	//	-	OSC32_in 			  	  14
 	//	-	OSC32_out 			  	  15
 
 
-#define PORT_D_IO_MASK	0x02C3
+#define PORT_D_IO_MASK	0x03E3
 	//	CAN_RX						  0
 	//	CAN_TX						  1
-	#define RED_LEDS			GPIOD->ODR2
-	#define GREEN_LEDS			GPIOD->ODR3
-	#define BLUE_LEDS			GPIOD->ODR4
-	//	-							  4
+	#define RED_LEDS			GPIOD,GPIO_PinSource2
+	#define GREEN_LEDS			GPIOD,GPIO_PinSource3
+	#define BLUE_LEDS			GPIOD,GPIO_PinSource4
 	//	-	usb led red				  5
 	#define SWITCH_COLOR_PORT	GPIOD->IDR6
 	#define BIROUTE_PORT		(!GPIOD->IDR7)	//La biroute doit être par défaut dans l'état NON par défaut... pour qu'on soit sur qu'elle est là.
 	//	HOKUYO U3TX					  8
 	//	HOKUYO U3RX					  9
-	#define LED_ERROR 			GPIOD->ODR10
-	#define LED_SELFTEST 		GPIOD->ODR11
-	#define LED_RUN  			GPIOD->ODR12	// Led verte carte STM
+	#define LED_ERROR 			GPIOD,GPIO_PinSource10
+	#define LED_SELFTEST 		GPIOD,GPIO_PinSource11
+	#define LED_RUN  			GPIOD,GPIO_PinSource12	// Led verte carte STM
 		#define LED_GREEN 			LED_RUN
-	#define LED_CAN  			GPIOD->ODR13	// Led orange carte STM
+	#define LED_CAN  			GPIOD,GPIO_PinSource13	// Led orange carte STM
 		#define LED_ORANGE			LED_CAN
-	#define LED_UART 			GPIOD->ODR14	// Led rouge carte STM
+	#define LED_UART 			GPIOD,GPIO_PinSource14	// Led rouge carte STM
 		#define LED_ROUGE			LED_UART
-	#define LED_USER 			GPIOD->ODR15	// Led bleue carte STM
+	#define LED_USER 			GPIOD,GPIO_PinSource15	// Led bleue carte STM
 		#define LED_BLEU			LED_USER
 
 
@@ -128,16 +129,16 @@
 #else
 
 
-#define PORT_A_IO_MASK	0xFE9B
+#define PORT_A_IO_MASK	0xFE9F
 	#define BUTTON0_PORT		GPIOA->IDR0
 	//								1
 	//	XBEE/BT/U2TX				2
 	//	XBEE/BT/U2RX				3
 	//	-							4
-	#define XBEE_RESET			GPIOA->ODR5
-	#define PIN_RF_CONFIG		GPIOA->ODR6
+	#define XBEE_RESET			GPIOA,GPIO_PinSource5
+	#define PIN_RF_CONFIG		GPIOA,GPIO_PinSource6
 	//								7
-	#define LED_IHM_SET			GPIOA->ODR8
+	#define LED_IHM_SET			GPIOA,GPIO_PinSource8
 	//	-	usb						9
 	//	-	usb						10
 	//	-	usb						11
@@ -147,7 +148,7 @@
 	//								15
 
 
-#define PORT_B_IO_MASK	0x00BF
+#define PORT_B_IO_MASK	0x0DFF
 	//	Mesure 24V					0
 	// -							1
 	#define POWER_WATCH_INT		GPIOB->IDR2
@@ -157,60 +158,59 @@
 	//	U1TX						6
 	//	U1RX						7
 	//	-							8
-	#define LCD_RESET_PORT		GPIOB->ODR9
-	//	I2C RTC/LCD					10
-	//	I2C RTC/LCD					11
-	#define SD_CS				GPIOB->ODR12
-	#define EEPROM_CS			GPIOB->ODR12
-	#define EEPROM_SCK			GPIOB->ODR13
-	#define EEPROM_SDO			GPIOB->ODR14
-	#define EEPROM_SDI			GPIOB->ODR15
+	#define LCD_RESET_PORT		GPIOB,GPIO_PinSource9
+	//	I2C RTC/LCD	 				10
+	//	I2C RTC/LCD	 				11
+	#define SD_CS				GPIOB,GPIO_PinSource12
+	#define EEPROM_CS			GPIOB,GPIO_PinSource12
+	#define EEPROM_SCK			GPIOB,GPIO_PinSource13
+	#define EEPROM_SDO			GPIOB,GPIO_PinSource14
+	#define EEPROM_SDI			GPIOB,GPIO_PinSource15
 
 
-#define PORT_C_IO_MASK	0x202E
-	#define	USB_POWER_ON	 	GPIOC->ODR0
+#define PORT_C_IO_MASK	0xE03E
+	#define	USB_POWER_ON	 	GPIOC,GPIO_PinSource0
 	#define RECALAGE_1			GPIOC->IDR1
 	#define RECALAGE_2			GPIOC->IDR2
 	//	Capteur						3
 	//	Capteur						4
 	//								5
-	#define LED_BEACON_IR_GREEN	GPIOC->ODR6
-	#define LED_BEACON_IR_RED	GPIOC->ODR7
-	#define SYNCHRO_BEACON		GPIOC->ODR8
-	#define BUZZER				GPIOC->ODR9
-	#define LED_IHM_OK			GPIOC->ODR10
-	#define EEPROM_WP			GPIOC->ODR11
-	#define LED_IHM_UP			GPIOC->ODR11
-	#define LED_IHM_DOWN			GPIOC->ODR12
+	#define LED_BEACON_IR_GREEN	GPIOC,GPIO_PinSource6
+	#define LED_BEACON_IR_RED	GPIOC,GPIO_PinSource7
+	#define SYNCHRO_BEACON		GPIOC,GPIO_PinSource8
+	#define BUZZER				GPIOC,GPIO_PinSource9
+	#define LED_IHM_OK			GPIOC,GPIO_PinSource10
+	#define EEPROM_WP			GPIOC,GPIO_PinSource11
+	#define LED_IHM_UP			GPIOC,GPIO_PinSource11
+	#define LED_IHM_DOWN		GPIOC,GPIO_PinSource12
 
 	//#define 				GPIOC->ODR11
-	#define EEPROM_HOLD			GPIOC->ODR12
+	#define EEPROM_HOLD			GPIOC,GPIO_PinSource12
 	#define PORT_ROBOT_ID  		GPIOC->IDR13
 	//	-	OSC32_in				14
 	//	-	OSC32_out				15
 
 
-#define PORT_D_IO_MASK	0x02C3
+#define PORT_D_IO_MASK	0x03E3
 	//	CAN_RX						0
 	//	CAN_TX						1
-	#define RED_LEDS			GPIOD->ODR2
-	#define GREEN_LEDS			GPIOD->ODR3
-	#define BLUE_LEDS			GPIOD->ODR4
-	//	-							4
+	#define RED_LEDS			GPIOD,GPIO_PinSource2
+	#define GREEN_LEDS			GPIOD,GPIO_PinSource3
+	#define BLUE_LEDS			GPIOD,GPIO_PinSource4
 	//	-	usb led red				5
 	//								6
 	//								7
 	//	HOKUYO U3TX					8
 	//	HOKUYO U3RX					9
-	#define LED_ERROR 			GPIOD->ODR10
-	#define LED_SELFTEST 		GPIOD->ODR11
-	#define LED_RUN  			GPIOD->ODR12	// Led verte carte STM
+	#define LED_ERROR 			GPIOD,GPIO_PinSource10
+	#define LED_SELFTEST 		GPIOD,GPIO_PinSource11
+	#define LED_RUN  			GPIOD,GPIO_PinSource12	// Led verte carte STM
 		#define LED_GREEN 			LED_RUN
-	#define LED_CAN  			GPIOD->ODR13	// Led orange carte STM
+	#define LED_CAN  			GPIOD,GPIO_PinSource13	// Led orange carte STM
 		#define LED_ORANGE			LED_CAN
-	#define LED_UART 			GPIOD->ODR14	// Led rouge carte STM
+	#define LED_UART 			GPIOD,GPIO_PinSource14	// Led rouge carte STM
 		#define LED_ROUGE			LED_UART
-	#define LED_USER 			GPIOD->ODR15	// Led bleue carte STM
+	#define LED_USER 			GPIOD,GPIO_PinSource15	// Led bleue carte STM
 		#define LED_BLEU			LED_USER
 
 

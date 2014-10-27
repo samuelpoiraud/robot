@@ -108,14 +108,14 @@ Sint32 GYRO_get_speed_rotation(bool_e * valid, bool_e reset)
 void GYRO_write(Uint8 *Data, Uint8 size){
 	Uint8 i;
 	delay_50ns();
-	GYRO_CS = 0;							 // Select Device
+	GPIO_ResetBits(GYRO_CS);	// Select Device
 	delay_50ns();
 
 	for (i = 0; i < size; ++i)
 		SPI2_write(Data[i]);
 
 	delay_50ns();
-	GYRO_CS = 1;							 // Deselect Device
+	GPIO_SetBits(GYRO_CS);		// Deselect Device
 
 }
 
@@ -124,14 +124,14 @@ void GYRO_read(Uint8 * Data, Uint8 size)
 {
 	Uint16 i;
 	delay_50ns();
-	GYRO_CS = 0;							 // Select Device
+	GPIO_ResetBits(GYRO_CS);	// Select Device
 	delay_50ns();
 
 	for(i=0;i<size;i++)
 		Data[i]=SPI2_read();
 
 	delay_50ns();
-	GYRO_CS = 1;							 // Deselect Device
+	GPIO_SetBits(GYRO_CS);		// Deselect Device
 }
 
 

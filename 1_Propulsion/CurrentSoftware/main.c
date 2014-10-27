@@ -95,7 +95,7 @@ void initialisation(void)
 	// Config des ports
 	PORTS_init();
 
-	LED_RUN = 1;
+	GPIO_SetBits(LED_RUN);
 
 #ifdef __dsPIC30F6010A__
 	// Pour l'utilisation de la fenetre psv
@@ -105,7 +105,7 @@ void initialisation(void)
 	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
 	volatile Uint32 i;
 	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????
-	LED_RUN = 0;
+	GPIO_ResetBits(LED_RUN);
 	UART_init();
 
 	RCON_read();
@@ -198,7 +198,7 @@ void initialisation(void)
 int main (void)
 {
 	initialisation();
-	LED_RUN = 1;
+	GPIO_SetBits(LED_RUN);
 
 	//Routines de tests UART et CAN
 /*		ROADMAP_add_order(TRAJECTORY_AUTOMATIC_CURVE, 	1793,894	, 0, NOT_RELATIVE, NOT_NOW, ANY_WAY, NOT_BORDER_MODE, NO_MULTIPOINT, FAST, ACKNOWLEDGE_ASKED, CORRECTOR_ENABLE);

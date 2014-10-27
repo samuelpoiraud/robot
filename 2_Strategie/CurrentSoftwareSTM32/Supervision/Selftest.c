@@ -29,6 +29,7 @@
 #include "Buzzer.h"
 #include "LCD_interface.h"
 #include "../QS/QS_IHM.h"
+#include "../QS/QS_ports.h"
 
 #define TIMEOUT_SELFTEST_ACT			20000	// en ms
 #define TIMEOUT_SELFTEST_PROP			10000	// en ms
@@ -46,8 +47,8 @@
 #define TIME_TO_REFRESH_BAT		1000
 #define TIME_TO_TAKE_VALUE		(TIME_TO_REFRESH_BAT/NB_AVERAGED_VALUE)
 
-#define LED_ON	1
-#define LED_OFF	0
+#define LED_ON	Bit_SET
+#define LED_OFF	Bit_RESET
 
 #define FORWARD 0x01
 #define	REAR 0x10
@@ -124,7 +125,7 @@ void SELFTEST_process_500ms(void)
 {
 	//debug_printf("%d\n",SELFTEST_measure24_mV());
 	if(selftest_is_running)
-		LED_SELFTEST = !LED_SELFTEST;	//On fait clignoter la led selftest à 2hz pendant le selftest.
+		toggle_led(LED_SELFTEST);	//On fait clignoter la led selftest à 2hz pendant le selftest.
 	if(t500ms)
 		t500ms--;
 }
@@ -172,7 +173,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			WATCHDOG_init();
 			debug_printf("Mesure du 24V : %dmV\n",SELFTEST_measure24_mV());
 			errors_index = 0;
-			LED_SELFTEST = FALSE;
+			GPIO_ResetBits(LED_SELFTEST);
 			state = WAIT_SELFTEST_LAUNCH;
 		break;
 		case WAIT_SELFTEST_LAUNCH:
@@ -417,12 +418,12 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			ask_launch_selftest = FALSE;	//Fin du selftest (et du clignotement de la led selftest).
 			if(errors_index == 0)//Tout s'est bien passé
 			{
-				LED_SELFTEST = TRUE;
+				GPIO_SetBits(LED_SELFTEST);
 				debug_printf("SELFTEST : OK ! CHAMPOMY LES GARS !\n");
 			}
 			else	//Des problèmes ont été rencontrés
 			{
-				LED_SELFTEST = FALSE;
+				GPIO_ResetBits(LED_SELFTEST);
 				SELFTEST_print_errors((SELFTEST_error_code_e *)errors, errors_index);
 			}
 			state = WAIT_SELFTEST_LAUNCH;
@@ -475,12 +476,12 @@ error_e SELFTEST_strategy(bool_e reset)
 				t500ms = 3;	//1,5 secondes
 				BUZZER_play(100, DEFAULT_NOTE, 4);	//4 buzzs de 100ms + 3 pauses de 100ms = O,7 secondes
 			}
-			LED_SELFTEST = (t500ms&1);	//Si t est impair, on allume toutes les leds.
-			LED_ERROR 	= LED_SELFTEST;
-			LED_CAN 	= LED_SELFTEST;
-			LED_UART 	= LED_SELFTEST;
-			LED_RUN 	= LED_SELFTEST;
-			LED_USER 	= LED_SELFTEST;
+			GPIO_WriteBit(LED_SELFTEST, (t500ms&1)); //Si t est impair, on allume toutes les leds.
+			GPIO_WriteBit(LED_ERROR, (t500ms&1));
+			GPIO_WriteBit(LED_CAN, (t500ms&1));
+			GPIO_WriteBit(LED_UART, (t500ms&1));
+			GPIO_WriteBit(LED_RUN, (t500ms&1));
+			GPIO_WriteBit(LED_USER, (t500ms&1));
 
 			if(!t500ms)	//Lorsque T vaut 0 (et que les leds sont éteintes...)
 				state = TEST_AVOIDANCE_SW;
@@ -636,20 +637,20 @@ void led_ir_update(selftest_beacon_e state)
 		switch(state)
 		{
 			case BEACON_ERROR:
-				LED_BEACON_IR_GREEN = LED_OFF;
-				LED_BEACON_IR_RED = !LED_BEACON_IR_RED;
+				GPIO_WriteBit(LED_BEACON_IR_GREEN, LED_OFF);
+				toggle_led(LED_BEACON_IR_RED);
 				break;
 			case BEACON_NEAR:
-				LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
-				LED_BEACON_IR_RED = LED_BEACON_IR_GREEN;
+				toggle_led(LED_BEACON_IR_GREEN);
+				GPIO_WriteBit(LED_BEACON_IR_RED, GPIO_ReadOutputDataBit(LED_BEACON_IR_GREEN));
 				break;
 			case BEACON_FAR:
-				LED_BEACON_IR_RED = LED_OFF;
-				LED_BEACON_IR_GREEN = !LED_BEACON_IR_GREEN;
+				GPIO_WriteBit(LED_BEACON_IR_RED, LED_OFF);
+				toggle_led(LED_BEACON_IR_GREEN);
 				break;
 			default:
-				LED_BEACON_IR_RED = LED_ON;
-				LED_BEACON_IR_GREEN = LED_OFF;
+				GPIO_WriteBit(LED_BEACON_IR_RED, LED_ON);
+				GPIO_WriteBit(LED_BEACON_IR_GREEN, LED_OFF);
 				break;
 		}
 }

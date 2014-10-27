@@ -89,7 +89,7 @@ int main (void)
 	#endif /* def VERBOSE_MODE */
 	ENV_init();	//Pour être réceptif aux éventuels messages CAN envoyés très tôt...
 
-	LED_RUN=1;
+	GPIO_SetBits(LED_RUN);
 	debug_printf("\n-------\nDemarrage CarteS\n-------\n");
 	tests();
 
@@ -159,7 +159,7 @@ int main (void)
 
 	while(1)
 	{
-		LED_RUN = !LED_RUN;
+		toggle_led(LED_RUN);
 
 		// Commandes pour EVE
 		#ifdef USE_QSx86
@@ -214,24 +214,23 @@ void big_delay(void)
 	for(i=0;i<5000000;i++);
 }
 
-void test_leds(void)
-{
-	LED_RUN = 0;
+void test_leds(void){
+	GPIO_ResetBits(LED_RUN);
 	while(1)
 	{
-		LED_RUN 				= !LED_RUN;				big_delay();
-		BLUE_LEDS 				= !BLUE_LEDS;			big_delay();
-		GREEN_LEDS 				= !GREEN_LEDS;			big_delay();
-		RED_LEDS 				= !RED_LEDS;			big_delay();
-		LED_ERROR 				= !LED_ERROR;			big_delay();
-		LED_SELFTEST 			= !LED_SELFTEST;		big_delay();
-		LED_CAN 				= !LED_CAN;				big_delay();
-		LED_UART 				= !LED_UART;			big_delay();
-		LED_USER 				= !LED_USER;			big_delay();
-		LED_BEACON_IR_GREEN 	= !LED_BEACON_IR_GREEN;	big_delay();
-		LED_BEACON_IR_RED 		= !LED_BEACON_IR_RED;	big_delay();
-		//LED_BEACON_US_GREEN 	= !LED_BEACON_US_GREEN;	big_delay();
-		//LED_BEACON_US_RED 		= !LED_BEACON_US_RED;	big_delay();
+		toggle_led(LED_RUN);				big_delay();
+		toggle_led(BLUE_LEDS);				big_delay();
+		toggle_led(GREEN_LEDS);				big_delay();
+		toggle_led(RED_LEDS);				big_delay();
+		toggle_led(LED_ERROR);				big_delay();
+		toggle_led(LED_SELFTEST);			big_delay();
+		toggle_led(LED_CAN);				big_delay();
+		toggle_led(LED_UART);				big_delay();
+		toggle_led(LED_USER);				big_delay();
+		toggle_led(LED_BEACON_IR_GREEN);	big_delay();
+		toggle_led(LED_BEACON_IR_RED);		big_delay();
+		//toggle_led(LED_BEACON_US_GREEN);	big_delay();
+		//toggle_led(LED_BEACON_US_RED);	big_delay();
 	}
 }
 

@@ -21,6 +21,7 @@
 #include "Supervision/Buzzer.h"
 #include "act_functions.h"
 #include "QS/QS_IHM.h"
+#include "QS/QS_ports.h"
 
 void CLOCK_run();
 
@@ -47,15 +48,15 @@ void show_color_on_leds()
 {
 	if(global.env.color == BOT_COLOR)
 	{
-		BLUE_LEDS = 0;
-		GREEN_LEDS = 1;
-		RED_LEDS = 1;
+		GPIO_ResetBits(BLUE_LEDS);
+		GPIO_SetBits(GREEN_LEDS);
+		GPIO_SetBits(RED_LEDS);
 	}
 	else
 	{
-		BLUE_LEDS = 0;
-		GREEN_LEDS = 1;
-		RED_LEDS = 0;
+		GPIO_ResetBits(BLUE_LEDS);
+		GPIO_SetBits(GREEN_LEDS);
+		GPIO_ResetBits(RED_LEDS);
 	}
 }
 
@@ -79,7 +80,7 @@ void _ISR _T1Interrupt()
 		global.env.match_time++;
 
 		if(global.env.match_time & 0x100)
-			LED_USER=!LED_USER;
+			toggle_led(LED_USER);
 	}
 
 	local_time++;
@@ -91,9 +92,9 @@ void _ISR _T1Interrupt()
 		if(XBee_is_destination_reachable() == FALSE || IHM_switchs_get(SWITCH_XBEE) == FALSE)
 		{	//On a pas de lien XBEE avec l'autre Robot : les leds clignotent.
 			//ATTENTION, si l'on désactive après allumage le XBEE sur l'un des robot... l'autre robot qui a eu le temps de dialoguer en XBEE ne clignotera pas !
-			BLUE_LEDS = 0;
-			RED_LEDS = 0;
-			GREEN_LEDS = 0;
+			GPIO_ResetBits(BLUE_LEDS);
+			GPIO_ResetBits(GREEN_LEDS);
+			GPIO_ResetBits(RED_LEDS);
 		}
 		SELFTEST_process_500ms();
 	}

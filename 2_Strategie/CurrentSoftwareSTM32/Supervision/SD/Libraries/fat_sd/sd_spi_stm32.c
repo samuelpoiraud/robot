@@ -106,8 +106,8 @@ Uint8 dma_send_buffer[515] __attribute__ ((aligned(4)));  //Utilisé par le contr
 
 
 /* Card-Select Controls  (Platform dependent) */
-#define SELECT()        SD_CS=0    /* MMC CS = L */
-#define DESELECT()      SD_CS=1     /* MMC CS = H */
+#define SELECT()        GPIO_ResetBits(SD_CS)    /* MMC CS = L */
+#define DESELECT()      GPIO_SetBits(SD_CS)     /* MMC CS = H */
 
 /* Manley EK-STM32F board does not offer socket contacts -> dummy values: */
 #define SOCKPORT	1			/* Socket contact port */

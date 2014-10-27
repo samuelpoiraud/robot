@@ -143,14 +143,14 @@ void CAN_over_XBee_process_main(void)
 				return;
 			}
 			//Transition immédiate.
-			XBEE_RESET = 1;	//RESET du module XBee
+			GPIO_SetBits(XBEE_RESET); //RESET du module XBee
 			t = 2;	//2ms
 			state = WAIT_BEFORE_RELEASE_RESET;
 		break;
 		case WAIT_BEFORE_RELEASE_RESET:
 			if(!t)
 			{
-				XBEE_RESET = 0;
+				GPIO_ResetBits(XBEE_RESET);
 				t = 3000;
 				state = WAIT_FOR_NETWORK;
 			}
