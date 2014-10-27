@@ -119,7 +119,7 @@ char buffer_command[BUFFER_COMMAND_SIZE];
 
 volatile bool_e command_available = FALSE;
 
-void SD_char_from_user(char c)
+void char_from_user(char c)
 {
 	static Uint8 index = 0;
 	switch(c)
