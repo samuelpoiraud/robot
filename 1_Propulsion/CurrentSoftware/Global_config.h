@@ -75,14 +75,14 @@
 			//	-				 			  9
 			//	-				 			  10
 			//	-				 			  11
-		#define GYRO_CS				GPIOB,GPIO_PinSource12
-		#define GYRO_SCK			GPIOB,GPIO_PinSource13
-		#define GYRO_MISO			GPIOB,GPIO_PinSource14
-		#define GYRO_MOSI			GPIOB,GPIO_PinSource15
+		#define GYRO_CS				GPIOB,GPIO_Pin_12
+		#define GYRO_SCK			GPIOB,GPIO_Pin_13
+		#define GYRO_MISO			GPIOB,GPIO_Pin_14
+		#define GYRO_MOSI			GPIOB,GPIO_Pin_15
 
 
 	#define PORT_C_IO_MASK	0xE4FE
-			#define	USB_POWER_ON	GPIOC,GPIO_PinSource0
+			#define	USB_POWER_ON	GPIOC,GPIO_Pin_0
 			//	Capteur			 			  1
 			//	Capteur			 			  2
 			//	Capteur			 			  3
@@ -93,8 +93,8 @@
 			#define PWM_MOTEUR_1  3			//8
 			#define PWM_MOTEUR_2  4			//9
 			//	-				 			  10
-			#define SENS_MOTEUR_1 	GPIOC,GPIO_PinSource11
-			#define SENS_MOTEUR_2 	GPIOC,GPIO_PinSource12
+			#define SENS_MOTEUR_1 	GPIOC,GPIO_Pin_11
+			#define SENS_MOTEUR_2 	GPIOC,GPIO_Pin_12
 			#define PORT_ROBOT_ID  	GPIOC->IDR13
 			//	-	OSC32_in 			  	  14
 			//	-	OSC32_out 			  	  15
@@ -111,18 +111,18 @@
 			//	-				 			  7
 			//	-				 			  8
 			//	-				 			  9
-		#define LED_ERROR 			GPIOD,GPIO_PinSource10
-		#define LED_SELFTEST 		GPIOD,GPIO_PinSource11
-		#define LED_RUN  			GPIOD,GPIO_PinSource12
+		#define LED_ERROR 			GPIOD,GPIO_Pin_10
+		#define LED_SELFTEST 		GPIOD,GPIO_Pin_11
+		#define LED_RUN  			GPIOD,GPIO_Pin_12
 
 #ifdef LCD_TOUCH // Pour éviter les conflits avec les ports de l'écran
 		#define LED_CAN  			LED_RUN
 		#define LED_UART 			LED_RUN
 		#define LED_USER 			LED_RUN
 #else
-		#define LED_CAN  			GPIOD,GPIO_PinSource13
-		#define LED_UART 			GPIOD,GPIO_PinSource14
-		#define LED_USER 			GPIOD,GPIO_PinSource15
+		#define LED_CAN  			GPIOD,GPIO_Pin_13
+		#define LED_UART 			GPIOD,GPIO_Pin_14
+		#define LED_USER 			GPIOD,GPIO_Pin_15
 #endif
 
 	// Pour les leds inclues sur la carte STM32
