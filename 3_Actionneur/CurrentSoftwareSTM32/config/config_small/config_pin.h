@@ -17,7 +17,7 @@
 	//	AX12/U2TX					  2
 	//	AX12/U2RX					  3
 	//	-				 			  4
-	#define AX12_DIRECTION_PORT_RX24 GPIOA,GPIO_PinSource5
+	#define AX12_DIRECTION_PORT_RX24 GPIOA,GPIO_Pin_5
 	//	-				 			  6
 	//	-				 			  7
 	//	-				 			  8
@@ -41,7 +41,7 @@
 	//	-			 	  			  8
 	//	-				 			  9
 	//	-	 					  	  10
-	#define AX12_DIRECTION_PORT_AX12 GPIOA,GPIO_PinSource11
+	#define AX12_DIRECTION_PORT_AX12 GPIOA,GPIO_Pin_11
 	//	-				 			  12
 	//	-				 			  13
 	//	-				 			  14
@@ -77,15 +77,15 @@
 	//	-							  7
 	//	U3TX						  8
 	//	U3RX						  9
-	#define LED_ERROR 			GPIOD,GPIO_PinSource10
-	#define LED_SELFTEST 		GPIOD,GPIO_PinSource11
-	#define LED_RUN  			GPIOD,GPIO_PinSource12	// Led verte carte STM
+	#define LED_ERROR 			GPIOD,GPIO_Pin_10
+	#define LED_SELFTEST 		GPIOD,GPIO_Pin_11
+	#define LED_RUN  			GPIOD,GPIO_Pin_12	// Led verte carte STM
 		#define LED_GREEN 			LED_RUN
-	#define LED_CAN  			GPIOD,GPIO_PinSource13	// Led orange carte STM
+	#define LED_CAN  			GPIOD,GPIO_Pin_13	// Led orange carte STM
 		#define LED_ORANGE			LED_CAN
-	#define LED_UART 			GPIOD,GPIO_PinSource14	// Led rouge carte STM
+	#define LED_UART 			GPIOD,GPIO_Pin_14	// Led rouge carte STM
 		#define LED_ROUGE			LED_UART
-	#define LED_USER 			GPIOD,GPIO_PinSource15	// Led bleue carte STM
+	#define LED_USER 			GPIOD,GPIO_Pin_15	// Led bleue carte STM
 		#define LED_BLEU			LED_USER
 
 

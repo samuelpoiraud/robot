@@ -17,12 +17,12 @@
 // Définir les configurations pin propre à chaque robot dans config_big/config_pin.h ou config_small/config_pin.h !
 
 /* LEDs */
-#define LED_ERROR 			GPIOD,GPIO_PinSource10
-#define LED_SELFTEST 		GPIOD,GPIO_PinSource11
-#define LED_RUN  			GPIOD,GPIO_PinSource12
-#define LED_CAN  			GPIOD,GPIO_PinSource13
-#define LED_UART 			GPIOD,GPIO_PinSource14
-#define LED_USER 			GPIOD,GPIO_PinSource15
+#define LED_ERROR 			GPIOD,GPIO_Pin_10
+#define LED_SELFTEST 		GPIOD,GPIO_Pin_11
+#define LED_RUN  			GPIOD,GPIO_Pin_12
+#define LED_CAN  			GPIOD,GPIO_Pin_13
+#define LED_UART 			GPIOD,GPIO_Pin_14
+#define LED_USER 			GPIOD,GPIO_Pin_15
 
 /* Buttons */
 #define BUTTON1_PORT		(!GPIOE->IDR12)
