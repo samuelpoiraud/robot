@@ -36,6 +36,11 @@ double sin4096(Sint16 angle)
 	#endif
 }
 
+double tan4096(int angle)
+{
+		return tan(((double)angle)/4096.);
+}
+
 Sint16 atan4096(double tangent)
 {
 	return (Sint16)(atan(tangent)*4096);
@@ -46,13 +51,27 @@ Sint16 atan2_4096(double x, double y)
 	return (Sint16)(2*atan(y/((x+sqrt(x*x+y*y))*1.0))*4096);
 }
 
-Sint32 puissance(Sint32 value, Uint8 nb){
+Sint64 puissance(Sint64 value, Uint8 nb){
 	Uint8 i;
-	Sint32 answer=1;
+	Sint64 answer=1;
 	for(i=0;i<nb;i++){
 		answer*=value;
 	}
 	return answer;
+}
+
+float puissance_float(float value, int nb){
+	int i;
+	float answer=1;
+	for(i=0;i<nb;i++){
+		answer*=value;
+	}
+	return answer;
+}
+
+Uint64 factorielle (Uint32 nb){
+	if(nb==0) return 1;
+	return nb*factorielle(nb-1);
 }
 
 Uint16 GEOMETRY_distance(GEOMETRY_point_t a, GEOMETRY_point_t b)

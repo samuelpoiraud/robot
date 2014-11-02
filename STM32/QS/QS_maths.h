@@ -67,10 +67,13 @@
 
 	double cos4096(Sint16 angle);
 	double sin4096(Sint16 angle);
+	double tan4096(int angle);
 	Sint16 atan4096(double tangent);
-	Sint16 atan2_4096(double x, double y);
+	Sint16 atan2_4096(double y, double x);
 
-	Sint32 puissance(Sint32 value, Uint8 nb);
+	Sint64 puissance(Sint64 value, Uint8 nb);
+	float puissance_float(float value, int nb);
+	Uint64 factorielle (Uint32 nb);
 
 	typedef struct {
 		Sint16 x;
