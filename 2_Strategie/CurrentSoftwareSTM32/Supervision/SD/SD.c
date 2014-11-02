@@ -11,6 +11,8 @@
 #include "ff_test_term.h"
 #include "Libraries/fat_sd/ff.h"
 #include "Libraries/fat_sd/diskio.h"
+#include "../../stm32f4xx/stm32f4xx_pwr.h"
+#include "../../stm32f4xx/stm32f4xx_rcc.h"
 #include "term_io.h"
 #include <stdarg.h>
 #include "config_pin.h"
@@ -49,6 +51,11 @@ void SD_init(void)
 {
 	PORTS_spi_init();
 	SPI_init();
+	RCC_ClearFlag();
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+	PWR_PVDLevelConfig(PWR_PVDLevel_5);	//2,7V
+	PWR_PVDCmd(ENABLE);
+
 	SD_process_main();	//Permet d'ouvrir le plus vite possible le fichier de log.
 	OUTPUTLOG_set_callback_vargs(&SD_logprintf);
 	initialized = TRUE;
@@ -119,6 +126,12 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 
 	if(sd_ready == FALSE || file_opened == FALSE)
 		return;	//Nothing todo...
+
+	if(PWR_GetFlagStatus(PWR_FLAG_PVDO) == SET)
+	{
+		debug_printf("Power < 2.9V : no write on SD card\n");
+		return;
+	}
 
 	if(insert_time)
 	{
@@ -283,21 +296,26 @@ bool_e SD_open_file_for_next_match(void)
 	sprintf(path, "%04d.MCH", match_id);
 
 	//On enregistre le numéro match_id du nouveau match dans index.inf
-	if(f_open(&file_match, "index.inf", FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
+	if(PWR_GetFlagStatus(PWR_FLAG_PVDO) != SET)
 	{
-		f_write(&file_match, path, 4, (unsigned int *)&nb_written);	//On écrit les 4 premiers octets (juste le numéro).
-		f_close(&file_match);
-	}
+		if(f_open(&file_match, "index.inf", FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
+		{
+			f_write(&file_match, path, 4, (unsigned int *)&nb_written);	//On écrit les 4 premiers octets (juste le numéro).
+			f_close(&file_match);
+		}
 
-	if(f_open(&file_match, path, FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
-	{
-		debug_printf("File %s created\n",path);
-		file_opened = TRUE;
-		sd_ready = TRUE;
+
+		if(f_open(&file_match, path, FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
+		{
+			debug_printf("File %s created\n",path);
+			file_opened = TRUE;
+			sd_ready = TRUE;
+		}
+		else
+			debug_printf("WARNING : Unable to create file %s\nThe events will not be saved in the current match !\n",path);
 	}
 	else
-		debug_printf("WARNING : Unable to create file %s\nThe events will not be saved in the current match !\n",path);
-
+		debug_printf("Tension insuffisante pour ouvrir le fichier index.\n");
 	return TRUE;
 }
 
