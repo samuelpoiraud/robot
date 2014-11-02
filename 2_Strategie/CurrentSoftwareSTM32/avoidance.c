@@ -944,25 +944,14 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
 	widthRobot += 100;	//Marge !
 
-	if(!is_in_square(0+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p))			// Terrain
-		return FALSE;
-	if(is_in_circle(*p,(GEOMETRY_circle_t){(GEOMETRY_point_t){1050, 1500}, 150+widthRobot}))				// Foyer centre
-		return FALSE;
-	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, 125+widthRobot}))				// Foyer droite
-		return FALSE;
-	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, 125+widthRobot}))			// Foyer gauche
-		return FALSE;
-	if(is_in_square(0-(widthRobot), 300+(widthRobot), 400-(widthRobot), 1100+(widthRobot), *p))			// Bac à fruit jaune
-		return FALSE;
-	if(is_in_square(0-(widthRobot), 300+(widthRobot), 1900-(widthRobot), 2600+(widthRobot), *p))			// Bac à fruit rouge
-		return FALSE;
-	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 0}, 150+widthRobot}))				// Arbre rouge 1
-		return FALSE;
-	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 700}, 150+widthRobot}))				// Arbre rouge 2
-		return FALSE;
-	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 2300}, 150+widthRobot}))			// Arbre jaune 1
-		return FALSE;
-	if(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1300, 3000}, 150+widthRobot}))			// Arbre jaune 2
+	if(
+			!is_in_square(50+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p)		// Hors Terrain - la zone proche distributeurs...
+		|| 	is_in_square(0-(widthRobot), 500+(widthRobot), 950-(widthRobot), 2050+(widthRobot),*p)			// Escaliers
+		||  is_in_square(1800-(widthRobot), 2000+(widthRobot), 1100-(widthRobot), 1900+(widthRobot),*p)		// zone de dépose "Estrade".
+		||	is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1000, COLOR_Y(2500)}, 125+widthRobot})	// Zone de départ adverse
+		||	is_in_square(770-(widthRobot), 1230+(widthRobot), COLOR_Y(2600-widthRobot), COLOR_Y(3000+widthRobot),*p) // Zone de départ adverse
+		||	is_in_square(770-(widthRobot), 1230+(widthRobot), COLOR_Y(0-widthRobot), COLOR_Y(400+widthRobot),*p) // Zone de départ
+	  )
 		return FALSE;
 
 	return  TRUE;

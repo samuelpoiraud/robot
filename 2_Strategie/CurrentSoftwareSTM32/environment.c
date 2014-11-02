@@ -377,8 +377,8 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.env.prop.calibrated = TRUE;
 
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
-			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
-				PROP_set_correctors(FALSE, FALSE);
+			//if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+			//	PROP_set_correctors(FALSE, FALSE);
 			break;
 		case DEBUG_PROPULSION_COEF_IS:
 			if(incoming_msg->data[0] < PROPULSION_NUMBER_COEFS)
