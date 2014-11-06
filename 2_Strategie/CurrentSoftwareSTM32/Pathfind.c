@@ -30,82 +30,6 @@
 
 #ifndef USE_POLYGON
 
-#ifdef OLD_PATHFIND
-static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
-{
-	//Colonne 1 coté Rouge [A]
-	(pathfind_node_t){ 750, 400, neighbors : (1<<1)|(1<<2)|(1<<3)|(1<<4)},							//[A1] 0
-	(pathfind_node_t){ 1350, 400, neighbors : (1<<0)|(1<<3)|(1<<4)|(1<<5)},							//[A2] 1
-
-	//Colonne 2 coté rouge [B]
-	(pathfind_node_t){ 520, 750, neighbors : (1<<0)|(1<<3)|(1<<6)|(1<<7)},							//[B0] 2
-	(pathfind_node_t){ 850, 750, neighbors : (1<<0)|(1<<1)|(1<<2)|(1<<4)|(1<<6)|(1<<7)},			//[B1] 3
-	(pathfind_node_t){ 1250, 750, neighbors : (1<<0)|(1<<1)|(1<<3)|(1<<5)|(1<<8)|(1<<9)},			//[B2] 4
-	(pathfind_node_t){ 1550, 750, neighbors :(1<<1)|(1<<4)|(1<<8)|(1<<9)},							//[B3] 5
-
-	//Colonne 3 coté rouge [C]
-	(pathfind_node_t){ 520, 1100, neighbors : (1<<2)|(1<<3)|(1<<7)|(1<<10)|(1<<11)},				//[C0] 6
-	(pathfind_node_t){ 850, 1100, neighbors : (1<<2)|(1<<3)|(1<<6)|(1<<8)|(1<<10)|(1<<11)},			//[C1] 7
-	(pathfind_node_t){ 1250, 1100, neighbors : (1<<4)|(1<<5)|(1<<7)|(1<<9)|(1<<12)|(1<<13)},		//[C2] 8
-	(pathfind_node_t){ 1600, 1100, neighbors :(1<<4)|(1<<5)|(1<<8)|(1<<12)|(1<<13)},				//[C3] 9
-
-	//Colonne 4 milieu [M]
-	(pathfind_node_t){ 400, 1500, neighbors : (1<<6)|(1<<7)|(1<<11)|(1<<14)|(1<<15)},				//[M0] 10
-	(pathfind_node_t){ 650, 1500, neighbors : (1<<6)|(1<<7)|(1<<10)|(1<<14)|(1<<15)},				//[M1] 11
-	(pathfind_node_t){ 1450, 1500, neighbors : (1<<8)|(1<<9)|(1<<13)|(1<<16)|(1<<17)},				//[M2] 12
-	(pathfind_node_t){ 1700, 1500, neighbors :(1<<8)|(1<<9)|(1<<12)|(1<<16)|(1<<17)},				//[M3] 13
-
-	//Colonne 4 coté jaune [W]
-	(pathfind_node_t){ 520, 1900, neighbors : (1<<10)|(1<<11)|(1<<15)|(1<<18)|(1<<19)},				//[W0] 14
-	(pathfind_node_t){ 850, 1900, neighbors : (1<<10)|(1<<11)|(1<<14)|(1<<16)|(1<<18)|(1<<19)},		//[W1] 15
-	(pathfind_node_t){ 1250, 1900, neighbors : (1<<12)|(1<<13)|(1<<15)|(1<<17)|(1<<20)|(1<<21)},	//[W2] 16
-	(pathfind_node_t){ 1600, 1900, neighbors :(1<<12)|(1<<13)|(1<<16)|(1<<20)|(1<<21)},				//[W3] 17
-
-	//Colonne 5 coté jaune [Y]
-	(pathfind_node_t){ 520, 2250, neighbors : (1<<14)|(1<<15)|(1<<19)|(1<<22)},						//[Y0] 18
-	(pathfind_node_t){ 850, 2250, neighbors : (1<<14)|(1<<15)|(1<<18)|(1<<20)|(1<<22)|(1<<23)},		//[Y1] 19
-	(pathfind_node_t){ 1250, 2250, neighbors : (1<<16)|(1<<17)|(1<<19)|(1<<21)|(1<<22)|(1<<23)},	//[Y2] 20
-	(pathfind_node_t){ 1550, 2250, neighbors :(1<<16)|(1<<17)|(1<<20)|(1<<23)},						//[Y3] 21
-
-	//Colonne 6 coté Jaune [Z]
-	(pathfind_node_t){ 750, 2600, neighbors : (1<<18)|(1<<19)|(1<<20)|(1<<23)},				//[Z1] 22
-	(pathfind_node_t){ 1350, 2600, neighbors : (1<<19)|(1<<20)|(1<<21)|(1<<22)},					//[Z2] 23
-
-	(pathfind_node_t){ 0, 0, neighbors : 0} //[NOT_IN_NODE] 24 (invalid)
-};
-
-static Uint32 node_curve[PATHFIND_NODE_NB+1] =
-{
-	0 | (1<<1)|(0<<2)|(1<<3)|(1<<4),						//[A1] 0
-	0 | (1<<0)|(1<<3)|(1<<4)|(0<<5),						//[A2] 1
-	0 | (1<<0)|(1<<3)|(1<<6)|(0<<7),						//[B0] 2
-	0 | (1<<0)|(1<<1)|(0<<2)|(1<<4)|(1<<6)|(0<<7),			//[B1] 3
-	0 | (1<<0)|(0<<1)|(1<<3)|(0<<5)|(0<<8)|(1<<9),			//[B2] 4
-	0 | (1<<1)|(1<<4)|(0<<8)|(1<<9),						//[B3] 5
-	0 | (1<<2)|(1<<3)|(0<<7)|(1<<10)|(1<<11),				//[C0] 6
-	0 | (0<<2)|(1<<3)|(0<<6)|(1<<8)|(1<<10)|(1<<11),		//[C1] 7
-	0 | (1<<4)|(1<<5)|(1<<7)|(0<<9)|(1<<12)|(1<<13),		//[C2] 8
-	0 | (1<<4)|(1<<5)|(0<<8)|(1<<12)|(1<<13),				//[C3] 9
-	0 | (1<<6)|(1<<7)|(0<<11)|(1<<14)|(1<<15),				//[M0] 10
-	0 | (1<<6)|(1<<7)|(0<<10)|(1<<14)|(1<<15),				//[M1] 11
-	0 | (1<<8)|(0<<9)|(0<<13)|(1<<16)|(0<<17),				//[M2] 12
-	0 | (1<<8)|(1<<9)|(0<<12)|(1<<16)|(1<<17),				//[M3] 13
-	0 | (1<<10)|(1<<11)|(0<<15)|(1<<18)|(1<<19),			//[W0] 14
-	0 | (1<<10)|(1<<11)|(0<<14)|(1<<16)|(0<<18)|(1<<19),	//[W1] 15
-	0 | (1<<12)|(0<<13)|(1<<15)|(0<<17)|(1<<20)|(1<<21),	//[W2] 16
-	0 | (1<<12)|(1<<13)|(0<<16)|(1<<20)|(1<<21),			//[W3] 17
-	0 | (1<<14)|(0<<15)|(1<<19)|(0<<22),					//[Y0] 18
-	0 | (1<<14)|(0<<15)|(0<<18)|(1<<20)|(0<<22)|(1<<23),	//[Y1] 19
-	0 | (0<<16)|(1<<17)|(1<<19)|(0<<21)|(0<<22)|(0<<23),	//[Y2] 20
-	0 | (0<<16)|(1<<17)|(1<<20)|(0<<23),					//[Y3] 21
-	0 | (0<<18)|(1<<19)|(1<<20)|(1<<23),					//[Z0] 22
-	0 | (1<<19)|(1<<20)|(1<<21)|(1<<22),					//[Z1] 23
-	0
-};
-
-
-#else
-
 
 static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 {
@@ -179,7 +103,6 @@ static Uint32 node_curve[PATHFIND_NODE_NB+1] =
 	0 | (0<<18)|(1<<19)|(1<<20)|(1<<23),					//[Z0] 22
 	0
 };
-#endif
 
 
 static pathfind_node_list_t openList;
@@ -431,12 +354,10 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	openList = 0;
 	closedList = 0;
 
-#ifndef OLD_PATHFIND
 	if(global.env.color == BOT_COLOR)
 		closedList = closedList | (1<<1)|(1<<2); // Supprime les nodes au près du spawn Jaune
 	else
 		closedList = closedList | (1<<20)|(1<<21); // Supprime les nodes au près du spawn Vert
-#endif
 
 	/* On ajoute le point de depart dans la liste ouverte */
 	PATHFIND_SET_NODE_IN(from, openList);
@@ -473,8 +394,8 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
 
 			if ( (PATHFIND_TST_NODE_IN(n, nodes[current].neighbors)) &&
-				!(PATHFIND_TST_NODE_IN(n, closedList)) &&
-				!(PATHFIND_TST_NODE_IN(n,adversaries_nodes)) )
+				 !(PATHFIND_TST_NODE_IN(n, closedList)) &&
+				 !(PATHFIND_TST_NODE_IN(n,adversaries_nodes)))
 			{
 				cost = Pathfind_cost(n, to, TRUE);
 				/*
@@ -647,8 +568,8 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
 
 			if ( (PATHFIND_TST_NODE_IN(n, nodes[current].neighbors)) &&
-				!(PATHFIND_TST_NODE_IN(n, closedList)) &&
-				!(PATHFIND_TST_NODE_IN(n,adversaries_nodes)) )
+				 !(PATHFIND_TST_NODE_IN(n, closedList)) &&
+				 !(PATHFIND_TST_NODE_IN(n,adversaries_nodes)) )
 			{
 				lengthPath = Pathfind_cost_new(current, n, FALSE);
 				distEnd = Pathfind_cost_new(n, to, FALSE) * FACTEUR_DIRECTIF;
@@ -750,12 +671,12 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 	static bool_e dodge_nb_try;
 	Uint8 i;
 	CREATE_MAE_WITH_VERBOSE(SM_ID_PATHFIND_TRY_GOING,
-			INIT,
-			COMPUTE,
-			DISPLACEMENT,
-			FAIL,
-			SUCCESS
-		);
+							INIT,
+							COMPUTE,
+							DISPLACEMENT,
+							FAIL,
+							SUCCESS
+							);
 
 	switch(state)
 	{
@@ -839,25 +760,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 }
 
 
-#ifdef OLD_PATHFIND
-Uint16 PATHFING_get_symetric(Uint8 n){
-	if(global.env.color == TOP_COLOR){
-		if(n<2)
-			return n+22;
-		if(n<6 && n>1)
-			return n +16;
-		if(n<10 && n>5)
-			return n+8;
-		if(n>13 && n<18)
-			return n-8;
-		if(n>17 && n<22)
-			return n-16;
-		if(n>21 && n<24)
-			return n-22;
-	}
-	return n;
-}
-#else
+
 Uint16 PATHFING_get_symetric(Uint8 n){
 	if(global.env.color == TOP_COLOR){
 		if(n<4)
@@ -875,7 +778,6 @@ Uint16 PATHFING_get_symetric(Uint8 n){
 	}
 	return n;
 }
-#endif
 
 
 // Retourne le node le plus proche de notre position
@@ -1026,8 +928,8 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, PROP_
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
 
 			if ( (PATHFIND_TST_NODE_IN(n, nodes[current].neighbors)) &&
-				!(PATHFIND_TST_NODE_IN(n, closedList)) &&
-				!(handleOpponent && ((n == nodeOpponent[FOE_1])||(n == nodeOpponent[FOE_2]))))
+				 !(PATHFIND_TST_NODE_IN(n, closedList)) &&
+				 !(handleOpponent && ((n == nodeOpponent[FOE_1])||(n == nodeOpponent[FOE_2]))))
 			{
 
 				heuristic = Pathfind_heuristic(n, to, handleOpponent);
