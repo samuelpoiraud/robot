@@ -107,14 +107,12 @@ int main (void)
 
 	// Si le démarrage de la carte n'est pas consécutif à l'arrivée de l'alimentation
 	//		On reset les autres cartes
-	if(RCC_GetFlagStatus(RCC_FLAG_PORRST) == RESET){
-		while(global.env.absolute_time - begin_waiting_time < 200);
+	if(RCC_GetFlagStatus(RCC_FLAG_PORRST) == RESET)
 		CAN_send_sid(BROADCAST_RESET);
-	}
 
 	bool_e act_ready = FALSE, prop_ready = FALSE, ihm_ready = FALSE;
 	begin_waiting_time = global.env.absolute_time;
-	while(global.env.absolute_time - begin_waiting_time < 2000 && (!act_ready || !prop_ready || !ihm_ready)){
+	while(global.env.absolute_time - begin_waiting_time < 2500 && (!act_ready || !prop_ready || !ihm_ready)){
 
 		if(ACT_IS_READY && !act_ready){
 			act_ready = TRUE;
