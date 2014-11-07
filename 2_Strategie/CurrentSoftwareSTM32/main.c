@@ -41,6 +41,7 @@
 void test_bp_switchs(void);
 void test_leds(void);
 void pull_bp_and_switch(void);
+void RCON_read(void);
 
 void process_measure_loop_duration(void)
 {
@@ -66,7 +67,6 @@ void tests(void)
 int main (void)
 {
 
-	volatile Uint16 i,j;
 	// Commandes pour EVE
 	#ifdef USE_QSx86
 		// Initialisation des variables utiles
@@ -87,67 +87,58 @@ int main (void)
 	#ifdef VERBOSE_MODE
 		UART_init();
 	#endif /* def VERBOSE_MODE */
+	//RCON_read();
 	ENV_init();	//Pour être réceptif aux éventuels messages CAN envoyés très tôt...
 
 	GPIO_SetBits(LED_RUN);
-	debug_printf("\n-------\nDemarrage CarteS\n-------\n");
 	tests();
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+	debug_printf("------- Hello, I'm STRAT (%s) -------\n", QS_WHO_AM_I_get_name());
 
 	STACKS_init();
 	QUEUE_init();
 
 	CLOCK_init();
 	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
-/*
+
 	time32_t begin_waiting_time = global.env.absolute_time;
+
+	// Si le démarrage de la carte n'est pas consécutif à l'arrivée de l'alimentation
+	//		On reset les autres cartes
+	if(RCC_GetFlagStatus(RCC_FLAG_PORRST) == RESET){
+		while(global.env.absolute_time - begin_waiting_time < 200);
+		CAN_send_sid(BROADCAST_RESET);
+	}
+
 	bool_e act_ready = FALSE, prop_ready = FALSE, ihm_ready = FALSE;
-	CAN_msg_t waiting_msg;
-	while(global.env.absolute_time - begin_waiting_time < 200);
-	CAN_send_sid(BROADCAST_RESET);
 	begin_waiting_time = global.env.absolute_time;
-	while(global.env.absolute_time - begin_waiting_time < 2500
-		  ){
+	while(global.env.absolute_time - begin_waiting_time < 2000 && (!act_ready || !prop_ready || !ihm_ready)){
 
-		while (CAN_data_ready())
-		{
-			LED_CAN=!LED_CAN;
-			waiting_msg = CAN_get_next_msg();
-			if(waiting_msg.sid == BROADCAST_I_AM_READY){
-				switch(waiting_msg.data[0]){
-					case I_AM_READY_ACT :
-						act_ready = TRUE;
-						debug_printf("ACT READY !\n");
-						break;
-
-					case I_AM_READY_PROP :
-						prop_ready = TRUE;
-						debug_printf("PROP READY !\n");
-						break;
-
-					case I_AM_READY_IHM :
-						ihm_ready = TRUE;
-						debug_printf("IHM READY !\n");
-						break;
-
-					default:
-						break;
-				}
-			}
-			VERBOSE_CAN_MSG_print(&waiting_msg, VERB_INPUT_MSG);
+		if(ACT_IS_READY && !act_ready){
+			act_ready = TRUE;
+			debug_printf("ACT READY !\n");
+		}
+		if(PROP_IS_READY && !prop_ready){
+			prop_ready = TRUE;
+			debug_printf("PROP READY !\n");
+		}
+		if(IHM_IS_READY && !ihm_ready){
+			ihm_ready = TRUE;
+			debug_printf("IHM READY !\n");
 		}
 	}
+
 	CAN_send_sid(BROADCAST_FDP_READY);
 
 	if(!act_ready)
-		debug_printf("ACT NOT READY !\n");
+		debug_printf("ACT NOT READY !!!!!!\n");
 	if(!prop_ready)
-		debug_printf("PROP NOT READY !\n");
+		debug_printf("PROP NOT READY !!!!!!\n");
 	if(!ihm_ready)
-		debug_printf("IHM NOT READY !\n");
-*/
+		debug_printf("IHM NOT READY !!!!!!\n");
+
 	Supervision_init();
 	BRAIN_init();
 
@@ -267,5 +258,27 @@ void test_bp_switchs(void)
 		if(BUTTON5_PORT 	!= bp_print_match)	{	bp_print_match 	= BUTTON5_PORT;		debug_printf("bp_print_match = %s\n", (bp_print_match)?"ON":"OFF");	 }
 #endif
 	}
+}
+
+void RCON_read(void)
+{
+#if defined(STM32F40XX)
+	debug_printf("STM32F4xx reset source :\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_LPWRRST))
+		debug_printf("- Low power management\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_WWDGRST))
+		debug_printf("- Window watchdog time-out\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_IWDGRST))
+		debug_printf("- Independent watchdog time-out\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_SFTRST))
+		debug_printf("- Software reset\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_PORRST))
+		debug_printf("- POR\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_PINRST))
+		debug_printf("- Pin NRST\n");
+	if(RCC_GetFlagStatus(RCC_FLAG_BORRST))
+		debug_printf("- POR or BOR\n");
+	RCC_ClearFlag();
+#endif
 }
 

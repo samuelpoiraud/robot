@@ -16,4 +16,6 @@
 		#error "Il est interdit d'inclure directement Global_vars.h, lire le CQS."
 	#endif
 
+	time32_t absolute_time;
+
 #endif /* ndef GLOBAL_VARS_H */

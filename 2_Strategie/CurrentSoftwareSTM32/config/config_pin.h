@@ -126,6 +126,10 @@
 	#define BUTTON3_PORT		(!GPIOE->IDR14)	//LCD Menu +
 	#define BUTTON4_PORT		(!GPIOE->IDR15)	//LCD Menu -
 
+#define ACT_IS_READY			0
+#define PROP_IS_READY			0
+#define IHM_IS_READY			0
+
 #else
 
 
@@ -223,9 +227,9 @@
 	// - programmation -			5
 	// - programmation -			6
 	//								7
-	//								8
-	//								9
-	//								10
+	#define ACT_IS_READY			GPIOE->IDR8
+	#define PROP_IS_READY			GPIOE->IDR9
+	#define IHM_IS_READY			GPIOE->IDR10
 	//								11
 	//								12
 	//								13
