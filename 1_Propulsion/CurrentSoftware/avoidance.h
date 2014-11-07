@@ -18,7 +18,7 @@
 
 	bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose);
 
-	bool_e AVOIDANCE_target_safe_with_curve(way_e way, bool_e verbose);
+	bool_e AVOIDANCE_target_safe_curve(way_e way, bool_e verbose);
 
 	bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
 
