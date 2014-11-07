@@ -71,7 +71,7 @@
 			//	-				 			  5
 			//	-				 			  6
 			//	-				 			  7
-			//	-				 			  8
+		#define I_AM_READY			GPIOB,GPIO_Pin_8
 			//	-				 			  9
 			//	-				 			  10
 			//	-				 			  11

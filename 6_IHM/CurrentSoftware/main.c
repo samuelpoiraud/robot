@@ -22,6 +22,7 @@
 #include "switch.h"
 #include "led.h"
 #include "voltage_measure.h"
+#include "clock.h"
 
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
@@ -39,14 +40,37 @@ void initialisation(void){
 	volatile Uint32 i;
 	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????
 
+
 	UART_init();
 	CAN_init();
-	IT_init();
 	BUTTONS_IHM_init();
 	SWITCHS_init();
 	VOLTAGE_MEASURE_init();
+	CLOCK_init();
 
 	debug_printf("--- Hello, I'm IHM ---\n");
+	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
+
+	GPIO_SetBits(I_AM_READY);
+
+	time32_t begin_waiting_time = global.absolute_time;
+	bool_e FDP_init = FALSE;
+	CAN_msg_t waiting_msg;
+	while(global.absolute_time - begin_waiting_time < 2000 && !FDP_init){
+		while (CAN_data_ready())
+		{
+			waiting_msg = CAN_get_next_msg();
+			if(waiting_msg.sid == BROADCAST_FDP_READY)
+				FDP_init = TRUE;
+		}
+	}
+
+	if(FDP_init)
+		debug_printf("Démarrage synchronisé\n");
+	else
+		debug_printf("Démarrage non syncrhonisé via timeout\n");
+
+	IT_init();
 }
 
 int main (void){

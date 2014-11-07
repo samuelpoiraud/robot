@@ -73,7 +73,7 @@
 	#define BUTTON_SET_PORT			GPIOB->IDR5
 	//	U1TX							6
 	//	U1RX							7
-	//	-								8
+	#define I_AM_READY				GPIOB,GPIO_Pin_8
 	#define LCD_RESET_PORT			GPIOB,GPIO_Pin_9
 	//	I2C RTC/LCD						10
 	//	I2C RTC/LCD						11

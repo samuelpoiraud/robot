@@ -38,7 +38,7 @@
 	//	-				 			  5
 	//	U1TX						  6
 	//	U1RX						  7
-	//	-			 	  			  8
+	#define I_AM_READY				 GPIOB,GPIO_Pin_8
 	//	-			 	  			  9
 	//	-			 	  			  10
 	#define AX12_DIRECTION_PORT_AX12 GPIOB,GPIO_Pin_11

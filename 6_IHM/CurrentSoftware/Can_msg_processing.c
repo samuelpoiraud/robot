@@ -26,6 +26,9 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 	// Traitement des autres messages reçus
 	switch (msg->sid){
+		case BROADCAST_RESET:
+			NVIC_SystemReset();
+			break;
 		case IHM_GET_SWITCH:
 			if(msg->size == 0)
 				SWITCHS_send_all();
