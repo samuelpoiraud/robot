@@ -718,6 +718,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 		#endif
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
+			#ifdef CAN_SEND_OVER_UART
+				CANmsgToU1tx(msg);
+			#endif
 			DETECTION_new_adversary_position(msg, NULL, 0);
 			break;
 
