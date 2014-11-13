@@ -108,10 +108,6 @@
 	#define BUTTON4_PORT		(!GPIOE->IDR15)
 
 
-/* Config torch locker*/
-	#define TORCH_LOCKER_AX12_1_ID					7
-	#define TORCH_LOCKER_AX12_2_ID					11
-
 /* Config test servo*/
 	#define TEST_SERVO_ID							1
 

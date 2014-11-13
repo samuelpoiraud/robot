@@ -105,11 +105,11 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 		//Init des actionneurs
 	} else {
 		bool_e isReady = FALSE, responseReceived;
-		#ifdef I_AM_ROBOT_BIG
+		/*#ifdef I_AM_ROBOT_BIG
 				responseReceived = AX12_async_is_ready(TORCH_LOCKER_AX12_1_ID, &isReady);
 		#else
 				responseReceived = AX12_async_is_ready(SMALL_ARM_AX12_ID, &isReady);
-		#endif
+		#endif*/
 
 		if((responseReceived && isReady) || global.alim) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
 			debug_printf("Init pos\n");

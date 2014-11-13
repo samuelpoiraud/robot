@@ -1,16 +1,13 @@
 /*  Club Robot ESEO 2013 - 2014
  *	SMALL
  *
- *	Fichier : exemple.c
+ *	Fichier : Pince_Gauche.c
  *	Package : Carte actionneur
- *	Description : Gestion exemple ax12
- *  Auteur : Arnaud
+ *	Description : Gestion de l'ax12 de la pince gauche
+ *  Auteur : Valentin
  *  Version 20130219
  *  Robot : SMALL
  */
-
-#if 1
-
 #include "Pince_gauche.h"
 
 
@@ -89,11 +86,11 @@ static void PINCE_GAUCHE_initAX12() {
 		AX12_config_set_maximal_angle(PINCE_GAUCHE_AX12_ID, PINCE_GAUCHE_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(PINCE_GAUCHE_AX12_ID, PINCE_GAUCHE_AX12_MIN_VALUE);
 
-		AX12_config_set_error_before_led(SMALL_ARM_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
-		AX12_config_set_error_before_shutdown(SMALL_ARM_AX12_ID, AX12_ERROR_OVERHEATING);
-		debug_printf("Exemple init config DONE\n");
+		AX12_config_set_error_before_led(PINCE_GAUCHE_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
+		AX12_config_set_error_before_shutdown(PINCE_GAUCHE_AX12_ID, AX12_ERROR_OVERHEATING);
+		debug_printf("Pince gauche init config DONE\n");
 	}else if(ax12_is_initialized == FALSE)
-		debug_printf("Exemple init config FAIL\n");
+		debug_printf("Pince gauche init config FAIL\n");
 }
 
 
@@ -117,7 +114,7 @@ void PINCE_GAUCHE_init_pos(){
 	if(ax12_is_initialized == FALSE)
 		return;
 
-	debug_printf("Exemple init pos : \n");
+	debug_printf("Pince gauche init pos : \n");
 	if(!AX12_set_position(PINCE_GAUCHE_AX12_ID, PINCE_GAUCHE_AX12_INIT_POS))
 		debug_printf("   L'AX12 n°%d n'est pas là\n", PINCE_GAUCHE_AX12_ID);
 	else
@@ -220,7 +217,7 @@ static void PINCE_GAUCHE_command_init(queue_id_t queueId) {
 		return;
 	}
 	//La commande a été envoyée et l'AX12 l'a bien reçu
-	debug_printf("Move SMALL_ARM ax12 to %d\n", *ax12_goalPosition);
+	debug_printf("Move Pince gauche ax12 to %d\n", *ax12_goalPosition);
 }
 
 //Gère les états pendant le mouvement de l'AX12
@@ -231,7 +228,5 @@ static void PINCE_GAUCHE_command_run(queue_id_t queueId) {
 	if(ACTQ_check_status_ax12(queueId, PINCE_GAUCHE_AX12_ID, QUEUE_get_arg(queueId)->param, PINCE_GAUCHE_AX12_ASSER_POS_EPSILON, PINCE_GAUCHE_AX12_ASSER_TIMEOUT, PINCE_GAUCHE_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_PINCE_GAUCHE, result, errorCode, line);
 }
-
-#endif
 
 #endif

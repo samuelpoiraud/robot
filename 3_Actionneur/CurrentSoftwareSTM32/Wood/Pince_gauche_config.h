@@ -1,10 +1,10 @@
 /*  Club Robot ESEO 2013 - 2014
  *	SMALL
  *
- *	Fichier : exemple_config.c
+ *	Fichier : Pince_Gauche_config.h
  *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur d'exemple
- *  Auteur : Arnaud
+ *	Description : Gestion de l'ax12 de la pince gauche
+ *  Auteur : Valentin
  *  Version 20130219
  *  Robot : SMALL
  */
