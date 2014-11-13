@@ -9,7 +9,7 @@
  *	Auteurs Originaux : Jacen & Ronan
  *	Version 20110324
  */
- 
+
 #define QS_BUTTONS_C
 
 #include "QS_buttons.h"
@@ -17,10 +17,7 @@
 #ifdef USE_BUTTONS
 
 #include "QS_ports.h"
-
-#ifdef NEW_CONFIG_ORGANISATION
-	#include "config_pin.h"
-#endif
+#include "../config/config_pin.h"
 
 #if !defined(BUTTONS_TIMER) && !defined(BUTTONS_TIMER_USE_WATCHDOG)
 	#define BUTTONS_NO_IT
@@ -46,11 +43,11 @@ static Uint8 push_time[BUTTONS_NUMBER]={0};
 void BUTTONS_init()
 {
 	Uint8 i;
-	
+
 	static bool_e initialized = FALSE;
 	if(initialized)
 		return;
-		
+
 	for(i=0;i<BUTTONS_NUMBER;i++)
 	{
 		BUTTONS_define_actions((button_id_e)i,NULL,NULL,0);
@@ -70,16 +67,16 @@ void BUTTONS_define_actions(button_id_e button_id,button_action_t direct_push, b
 	button->long_push_time=long_push_time*10;
 }
 
-void BUTTONS_update() 
+void BUTTONS_update()
 {
 	static Uint8 buttons_were_pressed = 0x00; //état des boutons dans le passage précédent
 	Uint8 buttons_pressed = 0x00; //état des boutons
 	Uint8 buttons_falling_edge; //état des boutons
 	Uint8 buttons_rising_edge; //état des boutons
-	button_action_t action;	
+	button_action_t action;
 	button_t* button = NULL;
 	Uint8 i;
-	
+
 	buttons_pressed = 0;
 	#ifdef BUTTON0_PORT
 		buttons_pressed = (BUTTON0_PORT)? buttons_pressed|1 : buttons_pressed;
@@ -108,12 +105,12 @@ void BUTTONS_update()
 
 	//détection des fronts montant
 	buttons_rising_edge = (~buttons_were_pressed) & buttons_pressed;
-	
+
 	for(i=0;i<BUTTONS_NUMBER;i++)
 	{
 		button = &(buttons[i]);
 		if(buttons_rising_edge&(1<<i))
-		{			
+		{
 			push_time[i]=button->long_push_time;
 			button->long_push_already_detected = FALSE;
 		}
@@ -153,14 +150,14 @@ void BUTTONS_process_it(void)
 	for(i=0;i<BUTTONS_NUMBER;i++)
 	{
 		if(push_time[i] != 0)
-		{		
+		{
 			push_time[i]--;
 		}
 	}
 }
-	
+
 #ifndef BUTTONS_NO_IT
-	
+
 	void TIMER_SRC_TIMER_interrupt()
 	{
 		BUTTONS_process_it();

@@ -22,11 +22,9 @@
 
 #define XBEE_PING_PERIOD	500	//ms
 
-#ifdef NEW_CONFIG_ORGANISATION
-	#include "config_pin.h"
-#endif
+#include "config_pin.h"
 
-	#include <stdio.h>
+#include <stdio.h>
 
 
 	#ifdef XBEE_PLUGGED_ON_UART1

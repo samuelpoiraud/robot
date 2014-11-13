@@ -66,10 +66,11 @@
 	//	-	OSC32_out 			  	  15
 
 
-#define PORT_D_IO_MASK	0x03FF
+#define PORT_D_IO_MASK	0x03EF
 	//	CAN_RX						  0
 	//	CAN_TX						  1
 	//  -                             2
+#define SERVO0					GPIOD,GPIO_Pin_4
 	//	-				 			  3
 	//	-							  4
 	//	-	usb led red				  5

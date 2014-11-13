@@ -11,7 +11,6 @@
  *	Version 20080924
  */
 
-
 #include "main.h"
 #include "odometry.h"
 #include "copilot.h"
@@ -36,6 +35,8 @@
 #include "gyroscope.h"
 #include "detection.h"
 #include "clock.h"
+#include "config/config_pin.h"
+#include "config/config_use.h"
 
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"
@@ -50,6 +51,7 @@
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
 #endif
+
 
 
 #if  defined (LCD_TOUCH)			||					\

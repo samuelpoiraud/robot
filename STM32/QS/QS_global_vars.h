@@ -15,22 +15,14 @@
 	#define QS_GLOBAL_VARS_H
 
 	#include "QS_all.h"
-	#ifdef NEW_CONFIG_ORGANISATION
-		#include "config_global_vars_types.h"
-	#else
-		#include "../Global_vars_types.h"
-	#endif
+	#include "../config/config_global_vars_types.h"
+
 
 
 	typedef struct
 	{
 		/* INSERTION DES FLAGS UTILISATEUR */
-
-		#ifdef NEW_CONFIG_ORGANISATION
-			#include "config_global_flags.h"
-		#else
-			#include "../Global_flags.h"
-		#endif
+		#include "../config/config_global_flags.h"
 	} flag_list_t;
 
 
@@ -41,12 +33,7 @@
 		volatile flag_list_t flags;
 
 		/* INSERTION DES VARIABLES GLOBALES UTILISATEUR */
-
-		#ifdef NEW_CONFIG_ORGANISATION
-			#include "config_global_vars.h"
-		#else
-			#include "../Global_vars.h"
-		#endif
+		#include "../config/config_global_vars.h"
 	} global_data_storage_t;
 
 	extern global_data_storage_t global;

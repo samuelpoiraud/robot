@@ -20,9 +20,8 @@
 #include "QS_outputlog.h"
 #include "stm32f4xx_usart.h"
 
-#ifdef NEW_CONFIG_ORGANISATION
-	#include "config_pin.h"
-#endif
+#include "../config/config_pin.h"
+
 
 	/**********************************************************************/
 	/** Paramètres de configuration du driver AX12/RX24                        */

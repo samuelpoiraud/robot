@@ -9,9 +9,7 @@
  */
 
 #include "QS_outputlog.h"
-#ifdef NEW_CONFIG_ORGANISATION
-	#include "config_debug.h"
-#endif
+#include "../config/config_debug.h"
 
 #include <stdio.h>
 

@@ -15,9 +15,7 @@
 #include "QS_ports.h"
 #include "stm32f4xx_usart.h"
 
-#ifdef NEW_CONFIG_ORGANISATION
-	#include "config_pin.h"
-#endif
+#include "../config/config_pin.h"
 
 #ifndef USART_FOR_PRINTF
 	#define USART_FOR_PRINTF		1	//Default uart for output : 1.

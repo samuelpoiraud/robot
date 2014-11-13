@@ -12,10 +12,7 @@
  */
 #include "QS_who_am_i.h"
 
-
-#ifdef NEW_CONFIG_ORGANISATION
-	#include "config_pin.h"
-#endif
+	#include "../config/config_pin.h"
 
 
 	volatile robot_id_e robot_id = 0;

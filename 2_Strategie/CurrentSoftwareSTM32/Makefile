@@ -30,22 +30,22 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = C:/Users/Evan/Downloads/QtCreator-STM32/cmake/bin/cmake.exe
+CMAKE_COMMAND = D:/Robot/Qt/cmake/bin/cmake.exe
 
 # The command to remove a file.
-RM = C:/Users/Evan/Downloads/QtCreator-STM32/cmake/bin/cmake.exe -E remove -f
+RM = D:/Robot/Qt/cmake/bin/cmake.exe -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = C:/Users/Evan/Downloads/QtCreator-STM32/cmake/bin/cmake-gui.exe
+CMAKE_EDIT_COMMAND = D:/Robot/Qt/cmake/bin/cmake-gui.exe
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "C:/Users/Evan/Documents/ITII/Club robot/robot_eseo/2_Strategie/CurrentSoftwareSTM32"
+CMAKE_SOURCE_DIR = D:/Robot/SVN/2_Strategie/CurrentSoftwareSTM32
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "C:/Users/Evan/Documents/ITII/Club robot/robot_eseo/2_Strategie/CurrentSoftwareSTM32"
+CMAKE_BINARY_DIR = D:/Robot/SVN/2_Strategie/CurrentSoftwareSTM32
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -53,7 +53,7 @@ CMAKE_BINARY_DIR = "C:/Users/Evan/Documents/ITII/Club robot/robot_eseo/2_Strateg
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	C:/Users/Evan/Downloads/QtCreator-STM32/cmake/bin/cmake-gui.exe -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	D:/Robot/Qt/cmake/bin/cmake-gui.exe -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -63,7 +63,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	C:/Users/Evan/Downloads/QtCreator-STM32/cmake/bin/cmake.exe -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	D:/Robot/Qt/cmake/bin/cmake.exe -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "C:/Users/Evan/Documents/ITII/Club robot/robot_eseo/2_Strategie/CurrentSoftwareSTM32/CMakeFiles" "C:/Users/Evan/Documents/ITII/Club robot/robot_eseo/2_Strategie/CurrentSoftwareSTM32/CMakeFiles/progress.marks"
+	$(CMAKE_COMMAND) -E cmake_progress_start D:/Robot/SVN/2_Strategie/CurrentSoftwareSTM32/CMakeFiles D:/Robot/SVN/2_Strategie/CurrentSoftwareSTM32/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start "C:/Users/Evan/Documents/ITII/Club robot/robot_eseo/2_Strategie/CurrentSoftwareSTM32/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start D:/Robot/SVN/2_Strategie/CurrentSoftwareSTM32/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -177,6 +177,30 @@ Generic_functions.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Generic_functions.c.s
 .PHONY : Generic_functions.c.s
 
+Geometry.obj: Geometry.c.obj
+.PHONY : Geometry.obj
+
+# target to build an object file
+Geometry.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Geometry.c.obj
+.PHONY : Geometry.c.obj
+
+Geometry.i: Geometry.c.i
+.PHONY : Geometry.i
+
+# target to preprocess a source file
+Geometry.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Geometry.c.i
+.PHONY : Geometry.c.i
+
+Geometry.s: Geometry.c.s
+.PHONY : Geometry.s
+
+# target to generate assembly for a file
+Geometry.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Geometry.c.s
+.PHONY : Geometry.c.s
+
 Pathfind.obj: Pathfind.c.obj
 .PHONY : Pathfind.obj
 
@@ -249,30 +273,6 @@ QS/QS_DCMotor2.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_DCMotor2.c.s
 .PHONY : QS/QS_DCMotor2.c.s
 
-QS/QS_IHM.obj: QS/QS_IHM.c.obj
-.PHONY : QS/QS_IHM.obj
-
-# target to build an object file
-QS/QS_IHM.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_IHM.c.obj
-.PHONY : QS/QS_IHM.c.obj
-
-QS/QS_IHM.i: QS/QS_IHM.c.i
-.PHONY : QS/QS_IHM.i
-
-# target to preprocess a source file
-QS/QS_IHM.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_IHM.c.i
-.PHONY : QS/QS_IHM.c.i
-
-QS/QS_IHM.s: QS/QS_IHM.c.s
-.PHONY : QS/QS_IHM.s
-
-# target to generate assembly for a file
-QS/QS_IHM.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_IHM.c.s
-.PHONY : QS/QS_IHM.c.s
-
 QS/QS_Step_motor.obj: QS/QS_Step_motor.c.obj
 .PHONY : QS/QS_Step_motor.obj
 
@@ -296,30 +296,6 @@ QS/QS_Step_motor.s: QS/QS_Step_motor.c.s
 QS/QS_Step_motor.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_Step_motor.c.s
 .PHONY : QS/QS_Step_motor.c.s
-
-QS/QS_accelero.obj: QS/QS_accelero.c.obj
-.PHONY : QS/QS_accelero.obj
-
-# target to build an object file
-QS/QS_accelero.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_accelero.c.obj
-.PHONY : QS/QS_accelero.c.obj
-
-QS/QS_accelero.i: QS/QS_accelero.c.i
-.PHONY : QS/QS_accelero.i
-
-# target to preprocess a source file
-QS/QS_accelero.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_accelero.c.i
-.PHONY : QS/QS_accelero.c.i
-
-QS/QS_accelero.s: QS/QS_accelero.c.s
-.PHONY : QS/QS_accelero.s
-
-# target to generate assembly for a file
-QS/QS_accelero.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_accelero.c.s
-.PHONY : QS/QS_accelero.c.s
 
 QS/QS_adc.obj: QS/QS_adc.c.obj
 .PHONY : QS/QS_adc.obj
@@ -584,30 +560,6 @@ QS/QS_i2c.s: QS/QS_i2c.c.s
 QS/QS_i2c.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_i2c.c.s
 .PHONY : QS/QS_i2c.c.s
-
-QS/QS_maths.obj: QS/QS_maths.c.obj
-.PHONY : QS/QS_maths.obj
-
-# target to build an object file
-QS/QS_maths.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_maths.c.obj
-.PHONY : QS/QS_maths.c.obj
-
-QS/QS_maths.i: QS/QS_maths.c.i
-.PHONY : QS/QS_maths.i
-
-# target to preprocess a source file
-QS/QS_maths.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_maths.c.i
-.PHONY : QS/QS_maths.c.i
-
-QS/QS_maths.s: QS/QS_maths.c.s
-.PHONY : QS/QS_maths.s
-
-# target to generate assembly for a file
-QS/QS_maths.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/QS/QS_maths.c.s
-.PHONY : QS/QS_maths.c.s
 
 QS/QS_outputlog.obj: QS/QS_outputlog.c.obj
 .PHONY : QS/QS_outputlog.obj
@@ -1016,6 +968,78 @@ Supervision/Buzzer.s: Supervision/Buzzer.c.s
 Supervision/Buzzer.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/Buzzer.c.s
 .PHONY : Supervision/Buzzer.c.s
+
+Supervision/Eeprom.obj: Supervision/Eeprom.c.obj
+.PHONY : Supervision/Eeprom.obj
+
+# target to build an object file
+Supervision/Eeprom.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/Eeprom.c.obj
+.PHONY : Supervision/Eeprom.c.obj
+
+Supervision/Eeprom.i: Supervision/Eeprom.c.i
+.PHONY : Supervision/Eeprom.i
+
+# target to preprocess a source file
+Supervision/Eeprom.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/Eeprom.c.i
+.PHONY : Supervision/Eeprom.c.i
+
+Supervision/Eeprom.s: Supervision/Eeprom.c.s
+.PHONY : Supervision/Eeprom.s
+
+# target to generate assembly for a file
+Supervision/Eeprom.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/Eeprom.c.s
+.PHONY : Supervision/Eeprom.c.s
+
+Supervision/Eeprom_can_msg.obj: Supervision/Eeprom_can_msg.c.obj
+.PHONY : Supervision/Eeprom_can_msg.obj
+
+# target to build an object file
+Supervision/Eeprom_can_msg.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/Eeprom_can_msg.c.obj
+.PHONY : Supervision/Eeprom_can_msg.c.obj
+
+Supervision/Eeprom_can_msg.i: Supervision/Eeprom_can_msg.c.i
+.PHONY : Supervision/Eeprom_can_msg.i
+
+# target to preprocess a source file
+Supervision/Eeprom_can_msg.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/Eeprom_can_msg.c.i
+.PHONY : Supervision/Eeprom_can_msg.c.i
+
+Supervision/Eeprom_can_msg.s: Supervision/Eeprom_can_msg.c.s
+.PHONY : Supervision/Eeprom_can_msg.s
+
+# target to generate assembly for a file
+Supervision/Eeprom_can_msg.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/Eeprom_can_msg.c.s
+.PHONY : Supervision/Eeprom_can_msg.c.s
+
+Supervision/LCD_CAN_injector.obj: Supervision/LCD_CAN_injector.c.obj
+.PHONY : Supervision/LCD_CAN_injector.obj
+
+# target to build an object file
+Supervision/LCD_CAN_injector.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/LCD_CAN_injector.c.obj
+.PHONY : Supervision/LCD_CAN_injector.c.obj
+
+Supervision/LCD_CAN_injector.i: Supervision/LCD_CAN_injector.c.i
+.PHONY : Supervision/LCD_CAN_injector.i
+
+# target to preprocess a source file
+Supervision/LCD_CAN_injector.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/LCD_CAN_injector.c.i
+.PHONY : Supervision/LCD_CAN_injector.c.i
+
+Supervision/LCD_CAN_injector.s: Supervision/LCD_CAN_injector.c.s
+.PHONY : Supervision/LCD_CAN_injector.s
+
+# target to generate assembly for a file
+Supervision/LCD_CAN_injector.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/LCD_CAN_injector.c.s
+.PHONY : Supervision/LCD_CAN_injector.c.s
 
 Supervision/LCD_MIDAS_4x20.obj: Supervision/LCD_MIDAS_4x20.c.obj
 .PHONY : Supervision/LCD_MIDAS_4x20.obj
@@ -1881,30 +1905,6 @@ Supervision/Verbose_can_msg.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/Supervision/Verbose_can_msg.c.s
 .PHONY : Supervision/Verbose_can_msg.c.s
 
-act_avoidance.obj: act_avoidance.c.obj
-.PHONY : act_avoidance.obj
-
-# target to build an object file
-act_avoidance.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/act_avoidance.c.obj
-.PHONY : act_avoidance.c.obj
-
-act_avoidance.i: act_avoidance.c.i
-.PHONY : act_avoidance.i
-
-# target to preprocess a source file
-act_avoidance.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/act_avoidance.c.i
-.PHONY : act_avoidance.c.i
-
-act_avoidance.s: act_avoidance.c.s
-.PHONY : act_avoidance.s
-
-# target to generate assembly for a file
-act_avoidance.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/act_avoidance.c.s
-.PHONY : act_avoidance.c.s
-
 act_can.obj: act_can.c.obj
 .PHONY : act_can.obj
 
@@ -1952,6 +1952,30 @@ act_functions.s: act_functions.c.s
 act_functions.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/act_functions.c.s
 .PHONY : act_functions.c.s
+
+asser_functions.obj: asser_functions.c.obj
+.PHONY : asser_functions.obj
+
+# target to build an object file
+asser_functions.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/asser_functions.c.obj
+.PHONY : asser_functions.c.obj
+
+asser_functions.i: asser_functions.c.i
+.PHONY : asser_functions.i
+
+# target to preprocess a source file
+asser_functions.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/asser_functions.c.i
+.PHONY : asser_functions.c.i
+
+asser_functions.s: asser_functions.c.s
+.PHONY : asser_functions.s
+
+# target to generate assembly for a file
+asser_functions.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/asser_functions.c.s
+.PHONY : asser_functions.c.s
 
 avoidance.obj: avoidance.c.obj
 .PHONY : avoidance.obj
@@ -2217,6 +2241,30 @@ main.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/main.c.s
 .PHONY : main.c.s
 
+maths_home.obj: maths_home.c.obj
+.PHONY : maths_home.obj
+
+# target to build an object file
+maths_home.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/maths_home.c.obj
+.PHONY : maths_home.c.obj
+
+maths_home.i: maths_home.c.i
+.PHONY : maths_home.i
+
+# target to preprocess a source file
+maths_home.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/maths_home.c.i
+.PHONY : maths_home.c.i
+
+maths_home.s: maths_home.c.s
+.PHONY : maths_home.s
+
+# target to generate assembly for a file
+maths_home.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/maths_home.c.s
+.PHONY : maths_home.c.s
+
 polygon.obj: polygon.c.obj
 .PHONY : polygon.obj
 
@@ -2240,30 +2288,6 @@ polygon.s: polygon.c.s
 polygon.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/polygon.c.s
 .PHONY : polygon.c.s
-
-prop_functions.obj: prop_functions.c.obj
-.PHONY : prop_functions.obj
-
-# target to build an object file
-prop_functions.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/prop_functions.c.obj
-.PHONY : prop_functions.c.obj
-
-prop_functions.i: prop_functions.c.i
-.PHONY : prop_functions.i
-
-# target to preprocess a source file
-prop_functions.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/prop_functions.c.i
-.PHONY : prop_functions.c.i
-
-prop_functions.s: prop_functions.c.s
-.PHONY : prop_functions.s
-
-# target to generate assembly for a file
-prop_functions.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/prop_functions.c.s
-.PHONY : prop_functions.c.s
 
 queue.obj: queue.c.obj
 .PHONY : queue.obj
@@ -2289,6 +2313,30 @@ queue.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/queue.c.s
 .PHONY : queue.c.s
 
+sick.obj: sick.c.obj
+.PHONY : sick.obj
+
+# target to build an object file
+sick.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/sick.c.obj
+.PHONY : sick.c.obj
+
+sick.i: sick.c.i
+.PHONY : sick.i
+
+# target to preprocess a source file
+sick.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/sick.c.i
+.PHONY : sick.c.i
+
+sick.s: sick.c.s
+.PHONY : sick.s
+
+# target to generate assembly for a file
+sick.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/sick.c.s
+.PHONY : sick.c.s
+
 state_machine_helper.obj: state_machine_helper.c.obj
 .PHONY : state_machine_helper.obj
 
@@ -2313,101 +2361,149 @@ state_machine_helper.c.s:
 	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/state_machine_helper.c.s
 .PHONY : state_machine_helper.c.s
 
-stm32f4xx/stm32f4_discovery_lis302dl.obj: stm32f4xx/stm32f4_discovery_lis302dl.c.obj
-.PHONY : stm32f4xx/stm32f4_discovery_lis302dl.obj
+strats_2014/actions_Pfruit.obj: strats_2014/actions_Pfruit.c.obj
+.PHONY : strats_2014/actions_Pfruit.obj
 
 # target to build an object file
-stm32f4xx/stm32f4_discovery_lis302dl.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/stm32f4xx/stm32f4_discovery_lis302dl.c.obj
-.PHONY : stm32f4xx/stm32f4_discovery_lis302dl.c.obj
+strats_2014/actions_Pfruit.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_Pfruit.c.obj
+.PHONY : strats_2014/actions_Pfruit.c.obj
 
-stm32f4xx/stm32f4_discovery_lis302dl.i: stm32f4xx/stm32f4_discovery_lis302dl.c.i
-.PHONY : stm32f4xx/stm32f4_discovery_lis302dl.i
+strats_2014/actions_Pfruit.i: strats_2014/actions_Pfruit.c.i
+.PHONY : strats_2014/actions_Pfruit.i
 
 # target to preprocess a source file
-stm32f4xx/stm32f4_discovery_lis302dl.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/stm32f4xx/stm32f4_discovery_lis302dl.c.i
-.PHONY : stm32f4xx/stm32f4_discovery_lis302dl.c.i
+strats_2014/actions_Pfruit.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_Pfruit.c.i
+.PHONY : strats_2014/actions_Pfruit.c.i
 
-stm32f4xx/stm32f4_discovery_lis302dl.s: stm32f4xx/stm32f4_discovery_lis302dl.c.s
-.PHONY : stm32f4xx/stm32f4_discovery_lis302dl.s
+strats_2014/actions_Pfruit.s: strats_2014/actions_Pfruit.c.s
+.PHONY : strats_2014/actions_Pfruit.s
 
 # target to generate assembly for a file
-stm32f4xx/stm32f4_discovery_lis302dl.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/stm32f4xx/stm32f4_discovery_lis302dl.c.s
-.PHONY : stm32f4xx/stm32f4_discovery_lis302dl.c.s
+strats_2014/actions_Pfruit.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_Pfruit.c.s
+.PHONY : strats_2014/actions_Pfruit.c.s
 
-strats_2015/actions_both_2015.obj: strats_2015/actions_both_2015.c.obj
-.PHONY : strats_2015/actions_both_2015.obj
+strats_2014/actions_balls.obj: strats_2014/actions_balls.c.obj
+.PHONY : strats_2014/actions_balls.obj
 
 # target to build an object file
-strats_2015/actions_both_2015.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_both_2015.c.obj
-.PHONY : strats_2015/actions_both_2015.c.obj
+strats_2014/actions_balls.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_balls.c.obj
+.PHONY : strats_2014/actions_balls.c.obj
 
-strats_2015/actions_both_2015.i: strats_2015/actions_both_2015.c.i
-.PHONY : strats_2015/actions_both_2015.i
+strats_2014/actions_balls.i: strats_2014/actions_balls.c.i
+.PHONY : strats_2014/actions_balls.i
 
 # target to preprocess a source file
-strats_2015/actions_both_2015.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_both_2015.c.i
-.PHONY : strats_2015/actions_both_2015.c.i
+strats_2014/actions_balls.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_balls.c.i
+.PHONY : strats_2014/actions_balls.c.i
 
-strats_2015/actions_both_2015.s: strats_2015/actions_both_2015.c.s
-.PHONY : strats_2015/actions_both_2015.s
+strats_2014/actions_balls.s: strats_2014/actions_balls.c.s
+.PHONY : strats_2014/actions_balls.s
 
 # target to generate assembly for a file
-strats_2015/actions_both_2015.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_both_2015.c.s
-.PHONY : strats_2015/actions_both_2015.c.s
+strats_2014/actions_balls.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_balls.c.s
+.PHONY : strats_2014/actions_balls.c.s
 
-strats_2015/actions_holly.obj: strats_2015/actions_holly.c.obj
-.PHONY : strats_2015/actions_holly.obj
+strats_2014/actions_both_2014.obj: strats_2014/actions_both_2014.c.obj
+.PHONY : strats_2014/actions_both_2014.obj
 
 # target to build an object file
-strats_2015/actions_holly.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_holly.c.obj
-.PHONY : strats_2015/actions_holly.c.obj
+strats_2014/actions_both_2014.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_both_2014.c.obj
+.PHONY : strats_2014/actions_both_2014.c.obj
 
-strats_2015/actions_holly.i: strats_2015/actions_holly.c.i
-.PHONY : strats_2015/actions_holly.i
+strats_2014/actions_both_2014.i: strats_2014/actions_both_2014.c.i
+.PHONY : strats_2014/actions_both_2014.i
 
 # target to preprocess a source file
-strats_2015/actions_holly.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_holly.c.i
-.PHONY : strats_2015/actions_holly.c.i
+strats_2014/actions_both_2014.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_both_2014.c.i
+.PHONY : strats_2014/actions_both_2014.c.i
 
-strats_2015/actions_holly.s: strats_2015/actions_holly.c.s
-.PHONY : strats_2015/actions_holly.s
+strats_2014/actions_both_2014.s: strats_2014/actions_both_2014.c.s
+.PHONY : strats_2014/actions_both_2014.s
 
 # target to generate assembly for a file
-strats_2015/actions_holly.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_holly.c.s
-.PHONY : strats_2015/actions_holly.c.s
+strats_2014/actions_both_2014.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_both_2014.c.s
+.PHONY : strats_2014/actions_both_2014.c.s
 
-strats_2015/actions_wood.obj: strats_2015/actions_wood.c.obj
-.PHONY : strats_2015/actions_wood.obj
+strats_2014/actions_guy.obj: strats_2014/actions_guy.c.obj
+.PHONY : strats_2014/actions_guy.obj
 
 # target to build an object file
-strats_2015/actions_wood.c.obj:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_wood.c.obj
-.PHONY : strats_2015/actions_wood.c.obj
+strats_2014/actions_guy.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_guy.c.obj
+.PHONY : strats_2014/actions_guy.c.obj
 
-strats_2015/actions_wood.i: strats_2015/actions_wood.c.i
-.PHONY : strats_2015/actions_wood.i
+strats_2014/actions_guy.i: strats_2014/actions_guy.c.i
+.PHONY : strats_2014/actions_guy.i
 
 # target to preprocess a source file
-strats_2015/actions_wood.c.i:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_wood.c.i
-.PHONY : strats_2015/actions_wood.c.i
+strats_2014/actions_guy.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_guy.c.i
+.PHONY : strats_2014/actions_guy.c.i
 
-strats_2015/actions_wood.s: strats_2015/actions_wood.c.s
-.PHONY : strats_2015/actions_wood.s
+strats_2014/actions_guy.s: strats_2014/actions_guy.c.s
+.PHONY : strats_2014/actions_guy.s
 
 # target to generate assembly for a file
-strats_2015/actions_wood.c.s:
-	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2015/actions_wood.c.s
-.PHONY : strats_2015/actions_wood.c.s
+strats_2014/actions_guy.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_guy.c.s
+.PHONY : strats_2014/actions_guy.c.s
+
+strats_2014/actions_net.obj: strats_2014/actions_net.c.obj
+.PHONY : strats_2014/actions_net.obj
+
+# target to build an object file
+strats_2014/actions_net.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_net.c.obj
+.PHONY : strats_2014/actions_net.c.obj
+
+strats_2014/actions_net.i: strats_2014/actions_net.c.i
+.PHONY : strats_2014/actions_net.i
+
+# target to preprocess a source file
+strats_2014/actions_net.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_net.c.i
+.PHONY : strats_2014/actions_net.c.i
+
+strats_2014/actions_net.s: strats_2014/actions_net.c.s
+.PHONY : strats_2014/actions_net.s
+
+# target to generate assembly for a file
+strats_2014/actions_net.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_net.c.s
+.PHONY : strats_2014/actions_net.c.s
+
+strats_2014/actions_pierre.obj: strats_2014/actions_pierre.c.obj
+.PHONY : strats_2014/actions_pierre.obj
+
+# target to build an object file
+strats_2014/actions_pierre.c.obj:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_pierre.c.obj
+.PHONY : strats_2014/actions_pierre.c.obj
+
+strats_2014/actions_pierre.i: strats_2014/actions_pierre.c.i
+.PHONY : strats_2014/actions_pierre.i
+
+# target to preprocess a source file
+strats_2014/actions_pierre.c.i:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_pierre.c.i
+.PHONY : strats_2014/actions_pierre.c.i
+
+strats_2014/actions_pierre.s: strats_2014/actions_pierre.c.s
+.PHONY : strats_2014/actions_pierre.s
+
+# target to generate assembly for a file
+strats_2014/actions_pierre.c.s:
+	$(MAKE) -f CMakeFiles/SuperStrat.elf.dir/build.make CMakeFiles/SuperStrat.elf.dir/strats_2014/actions_pierre.c.s
+.PHONY : strats_2014/actions_pierre.c.s
 
 zone_mutex.obj: zone_mutex.c.obj
 .PHONY : zone_mutex.obj
@@ -2448,6 +2544,9 @@ help:
 	@echo "... Generic_functions.obj"
 	@echo "... Generic_functions.i"
 	@echo "... Generic_functions.s"
+	@echo "... Geometry.obj"
+	@echo "... Geometry.i"
+	@echo "... Geometry.s"
 	@echo "... Pathfind.obj"
 	@echo "... Pathfind.i"
 	@echo "... Pathfind.s"
@@ -2457,15 +2556,9 @@ help:
 	@echo "... QS/QS_DCMotor2.obj"
 	@echo "... QS/QS_DCMotor2.i"
 	@echo "... QS/QS_DCMotor2.s"
-	@echo "... QS/QS_IHM.obj"
-	@echo "... QS/QS_IHM.i"
-	@echo "... QS/QS_IHM.s"
 	@echo "... QS/QS_Step_motor.obj"
 	@echo "... QS/QS_Step_motor.i"
 	@echo "... QS/QS_Step_motor.s"
-	@echo "... QS/QS_accelero.obj"
-	@echo "... QS/QS_accelero.i"
-	@echo "... QS/QS_accelero.s"
 	@echo "... QS/QS_adc.obj"
 	@echo "... QS/QS_adc.i"
 	@echo "... QS/QS_adc.s"
@@ -2499,9 +2592,6 @@ help:
 	@echo "... QS/QS_i2c.obj"
 	@echo "... QS/QS_i2c.i"
 	@echo "... QS/QS_i2c.s"
-	@echo "... QS/QS_maths.obj"
-	@echo "... QS/QS_maths.i"
-	@echo "... QS/QS_maths.s"
 	@echo "... QS/QS_outputlog.obj"
 	@echo "... QS/QS_outputlog.i"
 	@echo "... QS/QS_outputlog.s"
@@ -2553,6 +2643,15 @@ help:
 	@echo "... Supervision/Buzzer.obj"
 	@echo "... Supervision/Buzzer.i"
 	@echo "... Supervision/Buzzer.s"
+	@echo "... Supervision/Eeprom.obj"
+	@echo "... Supervision/Eeprom.i"
+	@echo "... Supervision/Eeprom.s"
+	@echo "... Supervision/Eeprom_can_msg.obj"
+	@echo "... Supervision/Eeprom_can_msg.i"
+	@echo "... Supervision/Eeprom_can_msg.s"
+	@echo "... Supervision/LCD_CAN_injector.obj"
+	@echo "... Supervision/LCD_CAN_injector.i"
+	@echo "... Supervision/LCD_CAN_injector.s"
 	@echo "... Supervision/LCD_MIDAS_4x20.obj"
 	@echo "... Supervision/LCD_MIDAS_4x20.i"
 	@echo "... Supervision/LCD_MIDAS_4x20.s"
@@ -2661,15 +2760,15 @@ help:
 	@echo "... Supervision/Verbose_can_msg.obj"
 	@echo "... Supervision/Verbose_can_msg.i"
 	@echo "... Supervision/Verbose_can_msg.s"
-	@echo "... act_avoidance.obj"
-	@echo "... act_avoidance.i"
-	@echo "... act_avoidance.s"
 	@echo "... act_can.obj"
 	@echo "... act_can.i"
 	@echo "... act_can.s"
 	@echo "... act_functions.obj"
 	@echo "... act_functions.i"
 	@echo "... act_functions.s"
+	@echo "... asser_functions.obj"
+	@echo "... asser_functions.i"
+	@echo "... asser_functions.s"
 	@echo "... avoidance.obj"
 	@echo "... avoidance.i"
 	@echo "... avoidance.s"
@@ -2703,30 +2802,39 @@ help:
 	@echo "... main.obj"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... maths_home.obj"
+	@echo "... maths_home.i"
+	@echo "... maths_home.s"
 	@echo "... polygon.obj"
 	@echo "... polygon.i"
 	@echo "... polygon.s"
-	@echo "... prop_functions.obj"
-	@echo "... prop_functions.i"
-	@echo "... prop_functions.s"
 	@echo "... queue.obj"
 	@echo "... queue.i"
 	@echo "... queue.s"
+	@echo "... sick.obj"
+	@echo "... sick.i"
+	@echo "... sick.s"
 	@echo "... state_machine_helper.obj"
 	@echo "... state_machine_helper.i"
 	@echo "... state_machine_helper.s"
-	@echo "... stm32f4xx/stm32f4_discovery_lis302dl.obj"
-	@echo "... stm32f4xx/stm32f4_discovery_lis302dl.i"
-	@echo "... stm32f4xx/stm32f4_discovery_lis302dl.s"
-	@echo "... strats_2015/actions_both_2015.obj"
-	@echo "... strats_2015/actions_both_2015.i"
-	@echo "... strats_2015/actions_both_2015.s"
-	@echo "... strats_2015/actions_holly.obj"
-	@echo "... strats_2015/actions_holly.i"
-	@echo "... strats_2015/actions_holly.s"
-	@echo "... strats_2015/actions_wood.obj"
-	@echo "... strats_2015/actions_wood.i"
-	@echo "... strats_2015/actions_wood.s"
+	@echo "... strats_2014/actions_Pfruit.obj"
+	@echo "... strats_2014/actions_Pfruit.i"
+	@echo "... strats_2014/actions_Pfruit.s"
+	@echo "... strats_2014/actions_balls.obj"
+	@echo "... strats_2014/actions_balls.i"
+	@echo "... strats_2014/actions_balls.s"
+	@echo "... strats_2014/actions_both_2014.obj"
+	@echo "... strats_2014/actions_both_2014.i"
+	@echo "... strats_2014/actions_both_2014.s"
+	@echo "... strats_2014/actions_guy.obj"
+	@echo "... strats_2014/actions_guy.i"
+	@echo "... strats_2014/actions_guy.s"
+	@echo "... strats_2014/actions_net.obj"
+	@echo "... strats_2014/actions_net.i"
+	@echo "... strats_2014/actions_net.s"
+	@echo "... strats_2014/actions_pierre.obj"
+	@echo "... strats_2014/actions_pierre.i"
+	@echo "... strats_2014/actions_pierre.s"
 	@echo "... zone_mutex.obj"
 	@echo "... zone_mutex.i"
 	@echo "... zone_mutex.s"
