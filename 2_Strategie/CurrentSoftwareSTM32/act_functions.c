@@ -70,7 +70,14 @@
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
+bool_e ACT_pince_gauche(ACT_pince_gauche_cmd_e cmd) {
+	QUEUE_arg_t args;
 
+	ACT_arg_init(&args, ACT_PINCE_GAUCHE, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_PINCE_GAUCHE,  ACT_PINCE_GAUCHE_STOP);
+
+	return ACT_push_operation(ACT_QUEUE_Pince_Gauche, &args);
+}
 
 ////////////////////////////////////////
 //////////////// COMMON ////////////////

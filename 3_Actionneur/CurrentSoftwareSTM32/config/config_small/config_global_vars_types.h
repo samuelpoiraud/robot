@@ -14,5 +14,6 @@
 #endif
 
 typedef enum {
+	QUEUE_ACT_AX12_PINCE_GAUCHE,
 	NB_ACT
 } QUEUE_act_e;

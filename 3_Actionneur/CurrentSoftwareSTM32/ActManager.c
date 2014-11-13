@@ -20,6 +20,8 @@
 #include "act_queue_utils.h"
 #include "selftest.h"
 #include "config_pin.h"
+#include "Wood/Pince_gauche.h"
+#include "Wood/Pince_gauche_config.h"
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
@@ -31,9 +33,9 @@ static ACTQ_functions_t actionneurs[] = {
 	#endif
 
 	#ifdef I_AM_ROBOT_BIG
-		ACT_DECLARE(TEST_SERVO)
+		ACT_DECLARE(TEST_SERVO),
 	#else
-
+		ACT_DECLARE(PINCE_GAUCHE)
 	#endif
 };
 
