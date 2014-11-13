@@ -16,10 +16,8 @@
 
 #include "QS_timer.h"
 #include "QS_ports.h"
+#include "../config/config_pin.h"
 
-#ifdef NEW_CONFIG_ORGANISATION
-	#include "config_pin.h"
-#endif
 
 /*variables globales pour le pilote de servos */
 static volatile Sint16 m_SERVO_cmd[10];

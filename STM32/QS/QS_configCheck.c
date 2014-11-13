@@ -17,9 +17,7 @@
 
 	#include "QS_all.h"
 
-	#ifdef NEW_CONFIG_ORGANISATION
-		#include "config_pin.h"
-	#endif
+	#include "../config/config_pin.h"
 
 	#if !defined(HCLK_FREQUENCY_HZ) || HCLK_FREQUENCY_HZ > 168000000
 		#error "Une frequence d'horloge HCLK < 168Mhz doit être selectionnée"
@@ -50,7 +48,7 @@
 	#ifndef PORT_E_IO_MASK
 		#error "Le port E n'est pas configuré"
 	#endif
-	
+
 	#if defined(USE_UART2) && defined(USE_AX12_SERVO)
 		#error "Il est interdit d'utiliser le module QS_ax12 et l'UART2 !"
 	#endif /* def USE_UART2 */

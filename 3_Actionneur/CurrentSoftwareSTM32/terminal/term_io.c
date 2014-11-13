@@ -32,11 +32,11 @@ typedef struct{
 
 terminal_motor_s terminal_motor[] = {
 	// DECLARE_AX12_RX24(2, '0', EXEMPLE_AX12),
-	DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12)
+
 	#ifdef I_AM_ROBOT_BIG
 
 	#else
-
+	DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12)
 	#endif
 };
 

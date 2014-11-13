@@ -1,9 +1,9 @@
 /*
  *  Club Robot ESEO 2008 - 2014
  *
- *  $Id$
+ *  $Id: config_global_flags.h 897 2013-10-10 19:13:19Z amurzeau $
  *
- *  Package : Carte Actionneur
+ *  Package : Carte Strategie
  *  Description : Flags définis specifiquement pour
 					le code de la carte l'executant.
  *  Auteur : Jacen

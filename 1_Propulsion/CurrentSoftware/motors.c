@@ -12,6 +12,8 @@
 #define _MOTEUR_C
 
 #include "motors.h"
+#include "QS/QS_ports.h"
+#include "config/config_pin.h"
 #include "supervisor.h"
 #include "joystick.h"
 #include "QS/QS_pwm.h"
