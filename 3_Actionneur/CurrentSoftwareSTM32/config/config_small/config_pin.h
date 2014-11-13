@@ -110,6 +110,6 @@
 
 /* Config proto petit bras*/
 	#define SMALL_ARM_AX12_ID							0
-
+	#define PINCE_GAUCHE_AX12_ID						6
 
 #endif /* SMALL_CONFIG_PIN_H */

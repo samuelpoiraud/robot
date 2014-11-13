@@ -111,7 +111,7 @@ int main (void)
 
 	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
 
-	GPIO_SetBits(I_AM_READY);
+	//GPIO_SetBits(I_AM_READY);
 
 	time32_t begin_waiting_time = global.absolute_time;
 	bool_e FDP_init = FALSE;
@@ -133,7 +133,8 @@ int main (void)
 
 
 	//Init actioneurs
-	ACTMGR_init();
+AX12_init();
+		ACTMGR_init();
 	#ifdef I_AM_ROBOT_BIG
 	   TEST_SERVO_init();
 	#endif
@@ -191,20 +192,6 @@ int main (void)
 
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton0() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_TEST_SERVO;
-
-	if(state == 0)
-		msg.data[0] = ACT_TEST_SERVO_IDLE;
-	else if(state == 1)
-		msg.data[0] = ACT_TEST_SERVO_STATE_1;
-	else if(state == 2)
-		msg.data[0] = ACT_TEST_SERVO_STATE_2;
-
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton1() {
@@ -222,6 +209,20 @@ static void MAIN_onButton4() {
 #else // ROBOT_SMALL
 
 static void MAIN_onButton0() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_PINCE_GAUCHE;
+
+	if(state == 0)
+		msg.data[0] = ACT_PINCE_GAUCHE_IDLE	;
+	else if(state == 1)
+		msg.data[0] = ACT_PINCE_GAUCHE_STATE_1;
+	else if(state == 2)
+		msg.data[0] = ACT_PINCE_GAUCHE_STATE_2;
+
+	CAN_process_msg(&msg);
+	//state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton1() {

@@ -303,7 +303,9 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			break;*/
 
 		// Wood
-
+		case ACT_PINCE_GAUCHE & 0xFF:
+					act_id = ACT_QUEUE_Pince_Gauche;
+					break;
 		// Common
 
 
