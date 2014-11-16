@@ -12,6 +12,7 @@
 #else
 	#include "../config/config_small/config_pin.h"
 #include "../Wood/Pince_gauche_config.h"
+#include "../Wood/Pince_droite_config.h"
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);
@@ -36,7 +37,8 @@ terminal_motor_s terminal_motor[] = {
 	#ifdef I_AM_ROBOT_BIG
 
 	#else
-	DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12)
+	DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12),
+	DECLARE_AX12_RX24(2, '0', PINCE_DROITE_AX12)
 	#endif
 };
 

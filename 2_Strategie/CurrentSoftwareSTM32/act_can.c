@@ -306,6 +306,9 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		case ACT_PINCE_GAUCHE & 0xFF:
 					act_id = ACT_QUEUE_Pince_Gauche;
 					break;
+		case ACT_PINCE_DROITE & 0xFF:
+					act_id = ACT_QUEUE_Pince_Droite;
+					break;
 		// Common
 
 

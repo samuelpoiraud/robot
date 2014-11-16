@@ -132,8 +132,8 @@ bool_e PINCE_GAUCHE_CAN_process_msg(CAN_msg_t* msg) {
 		PINCE_GAUCHE_initAX12();
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
-			case ACT_PINCE_GAUCHE_STATE_1 :
-			case ACT_PINCE_GAUCHE_STATE_2 :
+			case ACT_PINCE_GAUCHE_CLOSED :
+			case ACT_PINCE_GAUCHE_OPEN :
 			case ACT_PINCE_GAUCHE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_PINCE_GAUCHE, &PINCE_GAUCHE_run_command, 0,TRUE);
 				break;
@@ -150,9 +150,9 @@ bool_e PINCE_GAUCHE_CAN_process_msg(CAN_msg_t* msg) {
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
 		SELFTEST_set_actions(&PINCE_GAUCHE_run_command, 3, (SELFTEST_action_t[]){
-								 {ACT_PINCE_GAUCHE_STATE_1,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
-								 {ACT_PINCE_GAUCHE_STATE_2,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
-								 {ACT_PINCE_GAUCHE_STATE_1,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE}
+								 {ACT_PINCE_GAUCHE_CLOSED,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
+								 {ACT_PINCE_GAUCHE_OPEN,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
+								 {ACT_PINCE_GAUCHE_CLOSED,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE}
 							 });
 	}
 	return FALSE;
@@ -183,8 +183,8 @@ static void PINCE_GAUCHE_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_PINCE_GAUCHE_STATE_1 : *ax12_goalPosition = PINCE_GAUCHE_AX12_IDLE_POS; break;
-		case ACT_PINCE_GAUCHE_STATE_2 : *ax12_goalPosition = PINCE_GAUCHE_AX12_DEPLOYED_POS; break;
+		case ACT_PINCE_GAUCHE_CLOSED : *ax12_goalPosition = PINCE_GAUCHE_AX12_IDLE_POS; break;
+		case ACT_PINCE_GAUCHE_OPEN : *ax12_goalPosition = PINCE_GAUCHE_AX12_DEPLOYED_POS; break;
 
 		case ACT_PINCE_GAUCHE_STOP :
 			AX12_set_torque_enabled(PINCE_GAUCHE_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

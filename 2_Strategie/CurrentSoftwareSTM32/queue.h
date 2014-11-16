@@ -28,7 +28,7 @@ typedef enum {
 	//Wood
 	ACT_QUEUE_Small_arm,
 	ACT_QUEUE_Pince_Gauche,
-
+	ACT_QUEUE_Pince_Droite,
 	//Common
 
 	NB_QUEUE
