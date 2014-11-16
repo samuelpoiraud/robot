@@ -665,9 +665,19 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	ACT_PINCE_GAUCHE = (ACT_FILTER | 0x10),
 		//Paramètres de TEST_SERVO (dans data[0])
 		#define ACT_PINCE_GAUCHE_IDLE				0x11
-		#define ACT_PINCE_GAUCHE_STATE_1			0x12
-		#define ACT_PINCE_GAUCHE_STATE_2			0x13
+		#define ACT_PINCE_GAUCHE_CLOSED				0x12
+		#define ACT_PINCE_GAUCHE_OPEN				0x13
 		#define ACT_PINCE_GAUCHE_STOP				0x14
+
+	///////////////////////////////////////////////
+
+	/////////////////PINCE DROITE//////////////////
+	ACT_PINCE_DROITE = (ACT_FILTER | 0x11),
+		//Paramètres de TEST_SERVO (dans data[0])
+		#define ACT_PINCE_DROITE_IDLE				0x11
+		#define ACT_PINCE_DROITE_OPEN			    0x12
+		#define ACT_PINCE_DROITE_CLOSED			    0x13
+		#define ACT_PINCE_DROITE_STOP				0x14
 
 	/////////////////////////////////////////////
 
