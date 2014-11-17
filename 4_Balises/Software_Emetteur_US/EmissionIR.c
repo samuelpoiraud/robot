@@ -19,7 +19,7 @@
 
 #define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
 #define FLASH_CYCLE (PERIODE_FLASH*NOMBRE_BALISES_EMETTRICES) //Un cycle d'émission des N balises
-#define NO_FLASH_TIME 2  //[nb de step] 4ms ou on emet rien au début et à la fin, pour avoir donc 4 ms entre la fin de l'émission d'un balise et le début de l'autre
+#define NO_FLASH_TIME 6  //[nb de step] 4ms ou on emet rien au début et à la fin, pour avoir donc 4 ms entre la fin de l'émission d'un balise et le début de l'autre
 
 
 #if (TOTAL_STEP_COUNT % FLASH_CYCLE) != 0
@@ -33,11 +33,13 @@
 void EmissionIR_ON(void)	//IR Toujours allumé
 {
 	IR_ON = 1;
+	IR_OFF = 0;
 	LED_UART = 1;
 }	
 
 void EmissionIR_OFF(void)	//IR Toujours éteint
 {
+	IR_ON = 0;
 	IR_OFF = 0;
 	LED_UART = 0;
 }
@@ -97,11 +99,12 @@ void EmissionIR_next_step(void)
 	{
 		Uint8 step_in_period = step_ir % FLASH_CYCLE;
 		#define BEGIN_FLASH_TIME (PERIODE_FLASH*(NUMERO_BALISE_EMETTRICE-1))
-
-		if(step_in_period == (BEGIN_FLASH_TIME + NO_FLASH_TIME))
-			EmissionIR_AUTO();
-		if(step_in_period == (BEGIN_FLASH_TIME + PERIODE_FLASH - NO_FLASH_TIME))
+		
+		if(step_in_period >= (BEGIN_FLASH_TIME + PERIODE_FLASH - NO_FLASH_TIME) || step_in_period < (BEGIN_FLASH_TIME + NO_FLASH_TIME))
 			EmissionIR_OFF();	//On impose l'extinction.
+		else if(step_in_period >= (BEGIN_FLASH_TIME + NO_FLASH_TIME))
+			EmissionIR_AUTO();
+			
 		
 	}
 	else
