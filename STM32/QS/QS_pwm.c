@@ -147,7 +147,7 @@ void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 		default:
 #ifdef VERBOSE_MODE
 			if(channel > 0 && channel <= 4)
-				fprintf(stderr, "PWM_run: PWM %d non active, USE_PWM%d n'a pas été défini dans la config_qs !\n", channel, channel);
+				fprintf(stderr, "PWM_run: PWM %d non active, USE_PWM%d n'a pas été défini dans la config_use !\n", channel, channel);
 			else
 				fprintf(stderr, "PWM_run: PWM %d invalide, seulement les PWM de 1 à 4 incluses existent\n", channel);
 			NVIC_SystemReset();
@@ -189,7 +189,7 @@ void PWM_run_fine(Uint16 duty, Uint8 channel)
 		default:
 #ifdef VERBOSE_MODE
 			if(channel > 0 && channel <= 4)
-				fprintf(stderr, "PWM_run_fine: PWM %d non active, USE_PWM%d n'a pas été défini dans la config_qs !\n", channel, channel);
+				fprintf(stderr, "PWM_run_fine: PWM %d non active, USE_PWM%d n'a pas été défini dans la config_use !\n", channel, channel);
 			else
 				fprintf(stderr, "PWM_run_fine: PWM %d invalide, seulement les PWM de 1 à 4 incluses existent\n", channel);
 			NVIC_SystemReset();

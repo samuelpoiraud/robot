@@ -1,5 +1,5 @@
 /*
- *  Club Robot ESEO 2013 - 2015
+ *  Club Robot ESEO 2013 - 2014
  *
  *  $Id$
  *
@@ -8,10 +8,10 @@
  *  Auteur : Jacen, Alexis
  */
 
-#ifndef BIG_CONFIG_QS_H
-#define BIG_CONFIG_QS_H
+#ifndef SMALL_CONFIG_USE_H
+#define SMALL_CONFIG_USE_H
 
-/* Definition des périphériques, connectiques capteurs et actionneurs du gros robot */
+/* Definition des périphériques, connectiques capteurs et actionneurs du petit robot */
 
 /**************** Périphériques ****************/
 
@@ -22,8 +22,4 @@
 	//#define USE_PWM4
 	#define FREQ_PWM_50KHZ
 
-/* Servo-Moteurs standart */
-	#define SERVO_TIMER 5
-	#define USE_SERVO
-
-#endif /* BIG_CONFIG_QS_H */
+#endif /* SMALL_CONFIG_USE_H */

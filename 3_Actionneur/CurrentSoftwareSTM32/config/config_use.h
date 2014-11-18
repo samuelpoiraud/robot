@@ -25,7 +25,7 @@
 #define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
 #define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 
-// Définir les configurations QS propre à chaque robot dans config_big/config_qs.h ou config_small/config_qs.h !
+// Définir les configurations QS propre à chaque robot dans config_big/config_use.h ou config_small/config_use.h !
 
 
 /* Clock */
@@ -74,9 +74,9 @@
 #if (defined(I_AM_ROBOT_BIG) && defined(I_AM_ROBOT_SMALL)) || (!defined(I_AM_ROBOT_BIG) && !defined(I_AM_ROBOT_SMALL))
 #	error "Veuillez définir I_AM_ROBOT_BIG ou I_AM_ROBOT_SMALL selon le robot cible dans config_global.h"
 #elif defined(I_AM_ROBOT_BIG)
-#	include "config_big/config_qs.h"
+#	include "config_big/config_use.h"
 #elif defined(I_AM_ROBOT_SMALL)
-#	include "config_small/config_qs.h"
+#	include "config_small/config_use.h"
 #endif
 
 #define FAST_COS_SIN
