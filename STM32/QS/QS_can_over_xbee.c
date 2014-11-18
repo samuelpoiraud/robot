@@ -22,7 +22,7 @@
 
 #define XBEE_PING_PERIOD	500	//ms
 
-#include "config_pin.h"
+#include "../config/config_pin.h"
 
 #include <stdio.h>
 

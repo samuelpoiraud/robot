@@ -17,7 +17,7 @@
 	//	AX12/U2TX					  2
 	//	AX12/U2RX					  3
 	//	-				 			  4
-	#define AX12_DIRECTION_PORT_RX24 GPIOA->ODR5
+	#define AX12_DIRECTION_PORT_RX24 GPIOA,GPIO_Pin_5
 	//	-				 			  6
 	//	-				 			  7
 	//	-				 			  8
@@ -41,7 +41,7 @@
 	#define I_AM_READY				GPIOB->IDR8
 	//	-				 			  9
 	//	-	 					  	  10
-	#define AX12_DIRECTION_PORT_AX12 GPIOB->ODR11
+	#define AX12_DIRECTION_PORT_AX12 GPIOB,GPIO_Pin_11
 	//	-				 			  12
 	//	-				 			  13
 	//	-				 			  14
