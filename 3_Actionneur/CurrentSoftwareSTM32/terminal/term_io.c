@@ -28,6 +28,12 @@ typedef struct{
 	sensor_position_fun_t fun;
 }terminal_motor_s;
 
+/*
+ * inc      -> nombre de degrés par incrémentation dans le terminale
+ * carac    -> le caractère que l'on doit envoyer pour sélectionner l'actionneur
+ * prefix   -> le nom de l'actionneur
+ * fun      -> fonction qui retourne la position du bras
+ */
 #define DECLARE_AX12_RX24(inc, cara, prefix) {TRUE, inc, cara, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, NULL}
 #define DECLARE_MOTOR(inc, cara, prefix, fun) {FALSE, inc, cara, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, fun}
 
@@ -38,7 +44,7 @@ terminal_motor_s terminal_motor[] = {
 
 	#else
 	DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12),
-	DECLARE_AX12_RX24(2, '0', PINCE_DROITE_AX12)
+	DECLARE_AX12_RX24(2, '1', PINCE_DROITE_AX12)
 	#endif
 };
 
