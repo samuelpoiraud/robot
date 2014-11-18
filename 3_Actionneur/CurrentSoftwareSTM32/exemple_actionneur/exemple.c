@@ -46,7 +46,7 @@
 #include "exemple_config.h"
 
 // Les différents define pour le verbose sur uart
-#include "config_debug.h"
+#include "../config/config_debug.h"
 #define LOG_PREFIX "exemple.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_EXEMPLE
 #include "../QS/QS_outputlog.h"

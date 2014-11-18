@@ -37,9 +37,10 @@
 #ifdef USE_CAN
 	#include "QS/QS_can.h"
 #endif
-	#include "Can_msg_processing.h"
-	#include "QS/QS_CANmsgList.h"
-#include "config_pin.h"
+
+#include "Can_msg_processing.h"
+#include "QS/QS_CANmsgList.h"
+#include "config/config_pin.h"
 
 static void MAIN_onButton0();
 static void MAIN_onButton1();
@@ -72,7 +73,6 @@ int main (void)
 	CLOCK_init();
 	QUEUE_init();
 	BUTTONS_init();
-	AX12_init();
 
 	GPIO_SetBits(LED_CAN);
 	#ifdef USE_CAN
@@ -133,7 +133,6 @@ int main (void)
 
 
 	//Init actioneurs
-AX12_init();
 		ACTMGR_init();
 	#ifdef I_AM_ROBOT_BIG
 	   TEST_SERVO_init();

@@ -20,7 +20,7 @@
 
 #include "ActManager.h"
 
-#include "config_debug.h"
+#include "config/config_debug.h"
 #define LOG_PREFIX "CANProcess: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANPROCESSMSG
 #include "QS/QS_outputlog.h"

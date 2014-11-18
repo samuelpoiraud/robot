@@ -15,7 +15,7 @@
 #include "QS/QS_DCMotor2.h"
 #include "QS/QS_ports.h"
 
-#include "config_pin.h"
+#include "config/config_pin.h"
 
 #ifdef CLOCK_TIMER_ID
 	#define TIMER_SRC_TIMER_ID CLOCK_TIMER_ID
