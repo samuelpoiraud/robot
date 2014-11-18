@@ -1165,9 +1165,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 
 static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* inst) {	//utilisation d'un pointeur pour eviter de provoquer une copie intégrale de la structure, qui pourrait prendre du temps si elle est trop grande
 	Uint16 i = 0;
-
-	assert(inst->id_servo < AX12_NUMBER);
-
+	assert(inst->id_servo < AX12_NUMBER || inst->id_servo == AX12_BROADCAST_ID);
 	while(AX12_instruction_queue_is_full() && i < 65000)	//boucle 65000 fois si le buffer reste full, si on atteint 65000, on échoue et retourne FALSE
 		i++;
 
