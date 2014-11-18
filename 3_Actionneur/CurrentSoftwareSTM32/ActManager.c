@@ -107,7 +107,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	if(init) {
 		//Init des actionneurs
 	} else {
-		bool_e isReady = FALSE, responseReceived;
+		bool_e isReady = FALSE, responseReceived = FALSE;
 		/*#ifdef I_AM_ROBOT_BIG
 				responseReceived = AX12_async_is_ready(TORCH_LOCKER_AX12_1_ID, &isReady);
 		#else
