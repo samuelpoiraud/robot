@@ -42,7 +42,7 @@
 #include "pince_gauche_config.h"
 
 // Les différents define pour le verbose sur uart
-#include "config_debug.h"
+#include "../config/config_debug.h"
 #define LOG_PREFIX "Pince_gauche.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PINCE_GAUCHE
 #include "../QS/QS_outputlog.h"

@@ -17,7 +17,7 @@
 #include "../selftest.h"
 #include "../config/config_big/config_pin.h"
 
-#include "config_debug.h"
+#include "../config/config_debug.h"
 #define LOG_PREFIX "TestServo.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_TEST_SERVO
 #include "../QS/QS_outputlog.h"

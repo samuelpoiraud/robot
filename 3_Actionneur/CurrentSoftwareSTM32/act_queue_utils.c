@@ -15,7 +15,7 @@
 #include "QS/QS_ax12.h"
 #include "QS/QS_DCMotor2.h"
 
-#include "config_debug.h"
+#include "config/config_debug.h"
 #define LOG_PREFIX "ActUtils: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTQUEUEUTILS
 #include "QS/QS_outputlog.h"

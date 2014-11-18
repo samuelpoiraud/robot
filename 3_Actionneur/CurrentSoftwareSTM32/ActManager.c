@@ -19,7 +19,7 @@
 #include "QS/QS_outputlog.h"
 #include "act_queue_utils.h"
 #include "selftest.h"
-#include "config_pin.h"
+#include "config/config_pin.h"
 #include "Wood/Pince_gauche.h"
 #include "Wood/Pince_gauche_config.h"
 #include "Wood/Pince_droite.h"
