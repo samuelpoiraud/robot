@@ -18,7 +18,6 @@
 #include "QS/QS_outputlog.h"		
 
 	Uint16 EYES_process_read_tsop(void);
-	Uint16 EYES_process_read_tsop(void);
 	void EYES_process_record(Uint16 reception);
 	void EYES_next_adversary(adversary_e next_adversary);
 
@@ -150,7 +149,7 @@
 		//TODO cas où la réception est super longue ! et dépasse la durée mini entre deux détections !			
 			if(time - detections[index].end > MINIMUM_DURATION_BETWEEN_TWO_DETECTIONS)
 			{
-				//CREATION NOUVELLE DETECTION	
+				//CREATION NOUVELLE DETECTION
 				index++;
 				if(index >= MAX_DETECTIONS_NUMBER)
 				{

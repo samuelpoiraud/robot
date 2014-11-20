@@ -101,7 +101,7 @@ void TIMER_init(void){
 	NVICInit.NVIC_IRQChannel = TIM8_UP_TIM13_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 14;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = 1;
 	NVICInit.NVIC_IRQChannel = TIM8_TRG_COM_TIM14_IRQn;
 	NVIC_Init(&NVICInit);
 

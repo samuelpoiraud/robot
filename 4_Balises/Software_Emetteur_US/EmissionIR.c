@@ -17,11 +17,6 @@
 #define TRIS_IR_ON 	TRISEbits.TRISE7
 #define TRIS_IR_OFF	TRISEbits.TRISE6
 
-#define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
-#define FLASH_CYCLE (PERIODE_FLASH*NOMBRE_BALISES_EMETTRICES) //Un cycle d'émission des N balises
-#define NO_FLASH_TIME 4  //[nb de step] 4ms ou on emet rien au début et à la fin, pour avoir donc 4 ms entre la fin de l'émission d'un balise et le début de l'autre
-
-
 #if (TOTAL_STEP_COUNT % FLASH_CYCLE) != 0
 #error "Le temps d'un cycle d'emission doit être un multiple du temps total de la base de temps de synchro rf"
 #endif

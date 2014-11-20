@@ -17,15 +17,22 @@
 #include "QS_outputlog.h"
 #include "Global_config.h"
 #include "QS/QS_rf.h"
+#include "EmissionIR.h"
+
+#define AROUND(x)   ((((x)>0)?((Sint16)(x)+0.5):((Sint16)(x)-0.5)))
 
 static volatile bool_e motor_enable;
+#define NB_EMISSION_TOUR        (Sint16)(2)     // Nombre d'emission par tour
 #define PERIOD_IT_MOTOR 2 //ms
 #define KV		 	(Sint16)(8)
 #define KP			(Sint16)(32)
 #define KD			(Sint16)(4)
 #define KI			(Sint16)(2)
-#define COMMAND 	(Sint16)(70)//pas par 2ms = 2048*17 pas par secondes = 17 tours par seconde
+//#define COMMAND               (Sint16)(70)//pas par 2ms = 2048*17 pas par secondes = 17 tours par seconde
 
+#define COMMAND                 (Sint16)(AROUND(2048 * (NB_EMISSION_TOUR * 1000. / (PERIODE_FLASH*2 - NO_FLASH_TIME*2))/500.))  // pas par 2ms
+                                        //2048*(nb_tour*1000/temps_emission) pas par secondes
+                                        //(nb_tour*1000/temps_emission) tours par seconde
 
 
 
@@ -73,7 +80,7 @@ void MOTOR_process_it(void)
 	count = QEI_get_count();			//Lecture codeur.
 	
 	speed = absolute(count - count_prec);	//Calcul vitesse
-		
+        
 	error = COMMAND - speed;			//Calcul de l'erreur sur la vitesse
 	
 	delta_error = error - error_prec;	//Calcul de la dérivée de l'erreur sur la vitesse

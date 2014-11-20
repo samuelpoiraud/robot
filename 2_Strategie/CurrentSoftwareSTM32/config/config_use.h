@@ -138,6 +138,6 @@ les caracteres recus sur UART */
 #define SD_ENABLE
 
 // Déporte l'évitement en propulsion
-//#define USE_PROP_AVOIDANCE
+#define USE_PROP_AVOIDANCE
 
 #endif /* CONFIG_USE_H */
