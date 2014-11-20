@@ -57,10 +57,10 @@
 
 	#define USE_HOKUYO	//Active le module HOKUYO et la détection des ennemis... !
 
-	#define USE_GYROSCOPE
+	//#define USE_GYROSCOPE
 
-	//#define USE_PROP_AVOIDANCE
-	//#define USE_ACT_AVOID
+	#define USE_PROP_AVOIDANCE
+	#define USE_ACT_AVOID
 
 	//#define USE_MATHS_FILTER
 

@@ -94,7 +94,7 @@ void BRAIN_process_main(void)
 		}		
 		/////////////////////////////////////////////////////////////////////
 		//Médianne des angles et distances obtenues.
-		adversary_location[next_adversary_detection->adversary].distance 	= BRAIN_find_mediane_distance();
+		adversary_location[next_adversary_detection->adversary].distance 	= (BRAIN_find_mediane_distance() + adversary_location[next_adversary_detection->adversary].distance)/2;
 		adversary_location[next_adversary_detection->adversary].angle 		= BRAIN_modulo_angle(BRAIN_find_mediane_angle() + OFFSET_ANGLE);
 		adversary_location[next_adversary_detection->adversary].error		= next_adversary_detection->error;
 		SECRETARY_set_new_datas_available();
