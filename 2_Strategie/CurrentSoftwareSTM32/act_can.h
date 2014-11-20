@@ -1,7 +1,7 @@
 #ifndef ACT_CAN_H
 #define ACT_CAN_H
 
-#include "QS/QS_types.h"
+#include "QS/QS_all.h"
 #include "queue.h"
 #include "avoidance.h"
 

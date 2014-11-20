@@ -16,7 +16,6 @@
 #include "Supervision/RTC.h"
 #include "Supervision/Supervision.h"
 #include "Supervision/Selftest.h"
-#include "config_pin.h"
 #include "QS/QS_can_over_xbee.h"
 #include "Supervision/Buzzer.h"
 #include "act_functions.h"

@@ -10,9 +10,7 @@
 
 #include "led.h"
 
-#include "QS/QS_macro.h"
 #include "QS/QS_ports.h"
-#include "config/config_global.h"
 
 #define LED_ID 0x00011111
 #define TIME_BLINK_OFF 0

@@ -40,13 +40,11 @@
 #include "../QS/QS_ax12.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
-#include "../config/config_pin.h"
 #include "../ActManager.h"
 
 #include "exemple_config.h"
 
 // Les différents define pour le verbose sur uart
-#include "../config/config_debug.h"
 #define LOG_PREFIX "exemple.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_EXEMPLE
 #include "../QS/QS_outputlog.h"

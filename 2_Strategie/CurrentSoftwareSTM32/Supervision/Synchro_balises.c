@@ -4,7 +4,6 @@
 #include "../QS/QS_timer.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_outputlog.h"
-#include "../config/config_pin.h"
 #include "../QS/impl/QS_uart_impl.h"
 #include "../QS/QS_ports.h"
 

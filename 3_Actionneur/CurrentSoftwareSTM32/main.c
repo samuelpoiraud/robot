@@ -18,6 +18,7 @@
 #include "QS/QS_pwm.h"
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_ax12.h"
 #include "terminal/term_io.h"
 #include "queue.h"
 #include "clock.h"
@@ -40,7 +41,6 @@
 
 #include "Can_msg_processing.h"
 #include "QS/QS_CANmsgList.h"
-#include "config/config_pin.h"
 
 static void MAIN_onButton0();
 static void MAIN_onButton1();

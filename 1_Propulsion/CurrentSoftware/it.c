@@ -13,11 +13,8 @@
 
 #include "it.h"
 
-
-
 #include "QS/QS_timer.h"
 #include "QS/QS_ports.h"
-#include "config/config_pin.h"
 #include "odometry.h"
 #include "copilot.h"
 #include "pilot.h"

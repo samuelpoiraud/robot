@@ -1,7 +1,7 @@
 #ifndef STATE_MACHINE_HELPER_H
 #define STATE_MACHINE_HELPER_H
 
-#include "QS/QS_types.h"
+#include "QS/QS_all.h"
 #include "queue.h"
 #include "avoidance.h"
 #include "foreach_preprocessor.h"

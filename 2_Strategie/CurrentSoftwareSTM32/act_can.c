@@ -1,8 +1,6 @@
 #include "act_can.h"
 #include "QS/QS_CANmsgList.h"
-#include "config_use.h"
 
-#include "config_debug.h"
 #define LOG_PREFIX "act_c: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "QS/QS_outputlog.h"

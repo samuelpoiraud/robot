@@ -11,8 +11,9 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
+#include "QS/QS_all.h"
+
 #include "QS/QS_IHM.h"
-#include "QS/QS_types.h"
 
 void SWITCHS_init();
 

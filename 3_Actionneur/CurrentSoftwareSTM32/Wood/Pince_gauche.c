@@ -36,13 +36,11 @@
 #include "../QS/QS_ax12.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
-#include "../config/config_pin.h"
 #include "../ActManager.h"
 
 #include "pince_gauche_config.h"
 
 // Les différents define pour le verbose sur uart
-#include "../config/config_debug.h"
 #define LOG_PREFIX "Pince_gauche.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PINCE_GAUCHE
 #include "../QS/QS_outputlog.h"

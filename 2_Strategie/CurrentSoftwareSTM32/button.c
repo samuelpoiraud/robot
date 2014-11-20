@@ -17,8 +17,6 @@
 #include "Supervision/Selftest.h"
 #include "QS/QS_who_am_i.h"
 #include "Supervision/SD/SD.h"
-#include "config_use.h"
-#include "config_pin.h"
 #include "elements.h"
 #include "Supervision/LCD_interface.h"
 #include "../QS/QS_IHM.h"

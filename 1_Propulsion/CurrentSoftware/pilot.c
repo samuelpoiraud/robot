@@ -12,7 +12,6 @@
 
 
 #include "pilot.h"
-#include "QS/QS_macro.h"
 #include "roadmap.h"
 #include "copilot.h"
 #include "corrector.h"

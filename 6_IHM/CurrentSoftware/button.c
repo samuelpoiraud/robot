@@ -10,8 +10,6 @@
 
 #include "button.h"
 
-#include "config/config_global.h"
-#include "QS/QS_types.h"
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_outputlog.h"

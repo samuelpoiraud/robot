@@ -12,7 +12,5 @@
 #ifndef MAIN_H
 	#define MAIN_H
 	
-	
-	
 #endif /* ndef MAIN_H */
 

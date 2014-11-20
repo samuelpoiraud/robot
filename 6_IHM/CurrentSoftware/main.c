@@ -10,15 +10,12 @@
 
 
 #include "main.h"
-#include "QS/QS_all.h"
 #include "QS/QS_ports.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "it.h"
-#include "config/config_global.h"
-#include "config/config_pin.h"
 #include "button.h"
 #include "switch.h"
 #include "led.h"

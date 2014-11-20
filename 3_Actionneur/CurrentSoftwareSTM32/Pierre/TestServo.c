@@ -15,7 +15,6 @@
 #include "../QS/QS_servo.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
-#include "../config/config_big/config_pin.h"
 
 #include "../config/config_debug.h"
 #define LOG_PREFIX "TestServo.c : "

@@ -14,8 +14,6 @@
 #ifndef MAIN_H
 	#define MAIN_H
 
-#define NEW_CONFIG_ORGANISATION
-
 	void MAIN_process_it(Uint8 ms);
 
 #endif /* ndef MAIN_H */

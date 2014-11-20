@@ -33,8 +33,6 @@
 #include "QS/QS_maths.h"
 #include "button.h"
 #include "elements.h"
-#include "config_use.h"
-#include "config_pin.h"
 #include "QS/QS_IHM.h"
 #include "Supervision/LCD_interface.h"
 #include "QS/QS_ports.h"

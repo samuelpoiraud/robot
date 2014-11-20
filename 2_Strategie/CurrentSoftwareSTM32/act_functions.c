@@ -12,9 +12,7 @@
 
 #include "act_functions.h"
 #include "act_can.h"
-#include "config/config_pin.h"
 
-#include "config_debug.h"
 
 #ifndef OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #  define OUTPUT_LOG_COMPONENT_ACTFUNCTION LOG_PRINT_Off

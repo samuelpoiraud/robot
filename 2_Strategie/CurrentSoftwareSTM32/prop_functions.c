@@ -14,7 +14,6 @@
 
 #include "prop_functions.h"
 #include "avoidance.h"
-#include "config_use.h"
 #include "QS/QS_outputlog.h"
 
 /*	Pile conservant les eventuels arguments pour les fonctions des actionneurs
@@ -196,7 +195,9 @@ Uint8 PROP_custom_speed_convertor(Uint16 speed){ // en mm/s
 }
 
 void PROP_debug_move_position(Sint16 x, Sint16 y, Sint16 teta){
+#ifdef USE_CAN
 	CAN_direct_send(DEBUG_PROP_MOVE_POSITION, 6, (Uint8[]){HIGHINT(x), LOWINT(x), HIGHINT(y), LOWINT(y), HIGHINT(teta), LOWINT(teta)});
+#endif
 }
 
 /* Accesseur en lecture sur les arguments de la pile PROP */

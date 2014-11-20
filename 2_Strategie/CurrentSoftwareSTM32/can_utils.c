@@ -12,9 +12,6 @@
 #define CAN_UTILS_C
 
 #include "can_utils.h"
-#include "config_debug.h"
-
-
 
 /* envoie un message CAN contenant le texte spécifié */
 void CAN_send_debug(char* string)

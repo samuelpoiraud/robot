@@ -11,6 +11,7 @@
 
 #ifndef ACT_QUEUE_UTILS_H
 #define	ACT_QUEUE_UTILS_H
+	#include "QS/QS_all.h"
 	#include "queue.h"
 
 	typedef void (*ACT_OnInit)();

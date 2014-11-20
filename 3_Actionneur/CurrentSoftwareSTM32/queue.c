@@ -10,8 +10,6 @@
  */
 
 #include "queue.h"
-#include "config/config_pin.h"
-#include "config/config_debug.h"
 
 #ifndef OUTPUT_LOG_COMPONENT_QUEUE
 #  define OUTPUT_LOG_COMPONENT_QUEUE LOG_PRINT_Off

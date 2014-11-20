@@ -24,7 +24,6 @@
 
 #include "prop_types.h"
 #include "QS/QS_maths.h"
-#include "config_use.h"
 
 #ifdef USE_POLYGON
 	#include "polygon.h"

@@ -9,7 +9,6 @@
 #include "QS/QS_spi.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_ports.h"
-#include "config/config_pin.h"
 
 static volatile Sint32 coef_gain = 4720;
 

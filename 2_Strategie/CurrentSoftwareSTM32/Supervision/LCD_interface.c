@@ -10,13 +10,11 @@
  */
 
 
-#include "../QS/QS_all.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_IHM.h"
 #include "LCD_MIDAS_4x20.h"
 #include "LCD_interface.h"
 #include "Buffer.h"
-#include "config_pin.h"
 #include "../QS/QS_who_am_i.h"
 #include "../environment.h"
 #include "Selftest.h"
@@ -24,11 +22,9 @@
 #include "SD/SD.h"
 #include "../brain.h"
 #include "stdarg.h"
-#include "config_use.h"
 #include "../brain.h"
 #include "Buzzer.h"
 #include "../QS/QS_i2c.h"
-#include "../config/config_use.h"
 
 #define LINE_NUMBER (4)
 	volatile bool_e flag_bp_set 	= FALSE;

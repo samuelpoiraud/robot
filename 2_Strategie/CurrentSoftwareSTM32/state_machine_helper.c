@@ -2,7 +2,6 @@
 #include <stdarg.h>
 #include "../act_functions.h"
 #include "Supervision/SD/SD.h"
-#include "config_debug.h"
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
 #include "../QS/QS_outputlog.h"
 

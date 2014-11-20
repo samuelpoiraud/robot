@@ -11,8 +11,9 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include "QS/QS_all.h"
+
 #include "QS/QS_IHM.h"
-#include "QS/QS_types.h"
 
 void BUTTONS_IHM_init();
 

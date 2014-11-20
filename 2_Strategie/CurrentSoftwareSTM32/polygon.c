@@ -10,13 +10,11 @@
  *	Version 20110227
  */
 
-#include "config_use.h"
 
 #ifdef USE_POLYGON
 	
 	#define POLYGON_C
 	#include "polygon.h"
-	#include "config_debug.h"
 
 	/* listes nécessaires au pathfinding */
 	static polygon_node_list_t open_list[POLYGON_LIST_WORD_N];
