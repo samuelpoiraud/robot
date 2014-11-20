@@ -11,13 +11,11 @@
 
 #define SELFTEST_C
 #include "selftest.h"
-#include "QS/QS_all.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can.h"
 #include "clock.h"
 #include "act_queue_utils.h"
 
-#include "config/config_debug.h"
 #define LOG_PREFIX "Selftest: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SELFTEST
 #include "QS/QS_outputlog.h"

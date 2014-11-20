@@ -17,11 +17,13 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_maths.h"
 #include "hokuyo.h"
+#include "../config/config_pin.h"
 
 volatile static Uint32 hokuyo_update_time = 0;
 
-#define BEACON_MAX_FOES		2
-#define FOE_DATA_LIFETIME	250		//[ms] Durée de vie des données envoyées par la propulsion et par la balise
+#define BEACON_MAX_FOES			2
+#define FOE_DATA_LIFETIME		250		//[ms] Durée de vie des données envoyées par la propulsion
+#define IR_FOE_DATA_LIFETIME	1000	//[ms] Durée de vie des données envoyées par la balise
 
 adversary_t adversaries[HOKUYO_MAX_FOES + BEACON_MAX_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
 volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
@@ -103,8 +105,13 @@ void DETECTION_process_it(void)
 		//on peut descendre ce flag ici grace au fait que la fonction qui remplit le tableau "adversaries" est non préemptible.
 		//(et donc l'IT qui suivra et appelera ce DETECTION_process_it aura pu voir les données cohérentes et complètes).
 
-		if((adversaries[i].enable) && (global.absolute_time - adversaries[i].update_time > FOE_DATA_LIFETIME))
-			adversaries[i].enable = FALSE;
+		if(i < HOKUYO_MAX_FOES){
+			if((adversaries[i].enable) && (global.absolute_time - adversaries[i].update_time > FOE_DATA_LIFETIME))
+				adversaries[i].enable = FALSE;
+		}else{
+			if((adversaries[i].enable) && (global.absolute_time - adversaries[i].update_time > IR_FOE_DATA_LIFETIME))
+				adversaries[i].enable = FALSE;
+		}
 	}
 
 }
@@ -171,40 +178,41 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 		{
 			for(i = 0; i<BEACON_MAX_FOES; i++)
 			{
-				//Extraction des données du msg.
-				adversaries[HOKUYO_MAX_FOES+i].fiability_error = msg->data[0+4*i];
-				adversaries[HOKUYO_MAX_FOES+i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
-				adversaries[HOKUYO_MAX_FOES+i].dist = (Uint16)(msg->data[3+4*i])*12;	//*12 : normalement, c'est *10, mais on corrige ici la précision de la distance.
 
-				//enable ou pas ?
-				adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
-				if	(global.absolute_time - hokuyo_update_time > FOE_DATA_LIFETIME
-						|| 	(		adversaries[HOKUYO_MAX_FOES+i].angle > PI4096/2-PI4096/3		//Angle entre 30° et 150° --> angle mort hokuyo + marge de 15° de chaque coté.
-								&& 	adversaries[HOKUYO_MAX_FOES+i].angle < PI4096/2+PI4096/3 )
-					)
-				{
-					if((adversaries[HOKUYO_MAX_FOES+i].fiability_error & ~SIGNAL_INSUFFISANT & ~TACHE_TROP_GRANDE) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
+				if((msg->data[0+4*i] & ~SIGNAL_INSUFFISANT & ~TACHE_TROP_GRANDE) == AUCUNE_ERREUR){
+
+					//Extraction des données du msg.
+					adversaries[HOKUYO_MAX_FOES+i].fiability_error = msg->data[0+4*i];
+					adversaries[HOKUYO_MAX_FOES+i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
+					adversaries[HOKUYO_MAX_FOES+i].dist = (Uint16)(msg->data[3+4*i])*12;	//*12 : normalement, c'est *10, mais on corrige ici la précision de la distance.
+
+					//enable ou pas ?
+					adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+					if	(global.absolute_time - hokuyo_update_time > FOE_DATA_LIFETIME
+							|| 	(		adversaries[HOKUYO_MAX_FOES+i].angle > PI4096/2-PI4096/3		//Angle entre 30° et 150° --> angle mort hokuyo + marge de 15° de chaque coté.
+									&& 	adversaries[HOKUYO_MAX_FOES+i].angle < PI4096/2+PI4096/3 )
+						)
 					{
 						adversaries[HOKUYO_MAX_FOES+i].enable = TRUE;
 						adversaries[HOKUYO_MAX_FOES+i].updated = TRUE;
 					}
+
+					//Traitement et correction des données
+					if(adversaries[HOKUYO_MAX_FOES+i].fiability_error & TACHE_TROP_GRANDE)
+						adversaries[HOKUYO_MAX_FOES+i].dist = 250;	//Lorsque l'on reçoit l'erreur TACHE TROP GRANDE, la distance est fausse, mais l'adversaire est probablement très proche. On impose 25cm.
+
+					//filtrage de la distance
+					adversaries[HOKUYO_MAX_FOES+i].dist = beacon_ir_distance_filter(adversaries[HOKUYO_MAX_FOES+i].enable,i,adversaries[HOKUYO_MAX_FOES+i].dist);
+
+					//Calcul x et y
+					COS_SIN_4096_get(adversaries[HOKUYO_MAX_FOES+i].angle, &cosinus, &sinus);
+					COS_SIN_4096_get(global.position.teta, &our_cos, &our_sin);
+					adversaries[HOKUYO_MAX_FOES+i].x = global.position.x + (adversaries[HOKUYO_MAX_FOES+i].dist * ((float){((Sint32)(cosinus) * (Sint32)(our_cos) - (Sint32)(sinus) * (Sint32)(our_sin))}/(4096*4096)));
+					adversaries[HOKUYO_MAX_FOES+i].y = global.position.y + (adversaries[HOKUYO_MAX_FOES+i].dist * ((float){((Sint32)(cosinus) * (Sint32)(our_sin) + (Sint32)(sinus) * (Sint32)(our_cos))}/(4096*4096)));
+
+					//Mise à jour de l'update_time
+					adversaries[HOKUYO_MAX_FOES+i].update_time = global.absolute_time;
 				}
-
-				//Traitement et correction des données
-				if(adversaries[HOKUYO_MAX_FOES+i].fiability_error & TACHE_TROP_GRANDE)
-					adversaries[HOKUYO_MAX_FOES+i].dist = 250;	//Lorsque l'on reçoit l'erreur TACHE TROP GRANDE, la distance est fausse, mais l'adversaire est probablement très proche. On impose 25cm.
-
-				//filtrage de la distance
-				adversaries[HOKUYO_MAX_FOES+i].dist = beacon_ir_distance_filter(adversaries[HOKUYO_MAX_FOES+i].enable,i,adversaries[HOKUYO_MAX_FOES+i].dist);
-
-				//Calcul x et y
-				COS_SIN_4096_get(adversaries[HOKUYO_MAX_FOES+i].angle, &cosinus, &sinus);
-				COS_SIN_4096_get(global.position.teta, &our_cos, &our_sin);
-				adversaries[HOKUYO_MAX_FOES+i].x = global.position.x + (adversaries[HOKUYO_MAX_FOES+i].dist * ((float){((Sint32)(cosinus) * (Sint32)(our_cos) - (Sint32)(sinus) * (Sint32)(our_sin))}/(4096*4096)));
-				adversaries[HOKUYO_MAX_FOES+i].y = global.position.y + (adversaries[HOKUYO_MAX_FOES+i].dist * ((float){((Sint32)(cosinus) * (Sint32)(our_sin) + (Sint32)(sinus) * (Sint32)(our_cos))}/(4096*4096)));
-
-				//Mise à jour de l'update_time
-				adversaries[HOKUYO_MAX_FOES+i].update_time = global.absolute_time;
 			}
 		}
 	}
@@ -230,6 +238,21 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 			}
 		}
 	}
+
+
+	debug_printf("Adv 1 : ");
+	if(adversaries[HOKUYO_MAX_FOES].enable == TRUE){
+		debug_printf("\nx : %d\ny : %d\n", adversaries[HOKUYO_MAX_FOES].x, adversaries[HOKUYO_MAX_FOES].y);
+		debug_printf("t : %d\nd : %d\n", adversaries[HOKUYO_MAX_FOES].angle*180/PI4096, adversaries[HOKUYO_MAX_FOES].dist);
+	}else
+		debug_printf("disabled\n");
+
+	debug_printf("Adv 2 : ");
+	if(adversaries[HOKUYO_MAX_FOES+1].enable == TRUE){
+		debug_printf("\nx : %d\ny : %d\n", adversaries[HOKUYO_MAX_FOES+1].x, adversaries[HOKUYO_MAX_FOES+1].y);
+		debug_printf("t : %d\nd : %d\n", adversaries[HOKUYO_MAX_FOES+1].angle*180/PI4096, adversaries[HOKUYO_MAX_FOES+1].dist);
+	}else
+		debug_printf("disabled\n\n");
 
 	TIMER1_enableInt();
 	//Fin de la section critique

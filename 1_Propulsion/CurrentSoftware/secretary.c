@@ -38,7 +38,6 @@
 #include "avoidance.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_ports.h"
-#include "config/config_pin.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)

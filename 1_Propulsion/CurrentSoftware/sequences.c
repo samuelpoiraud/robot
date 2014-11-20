@@ -2,7 +2,6 @@
 
 #include "sequences.h"
 #include "roadmap.h"
-#include "QS/QS_macro.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_maths.h"

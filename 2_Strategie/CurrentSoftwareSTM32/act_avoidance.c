@@ -1,7 +1,6 @@
 #include "act_avoidance.h"
 #include "avoidance.h"
 
-#include "config_debug.h"
 #define LOG_PREFIX "act_avoid: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "QS/QS_outputlog.h"

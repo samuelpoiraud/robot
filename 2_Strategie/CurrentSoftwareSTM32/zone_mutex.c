@@ -16,7 +16,6 @@
 #include "QS/QS_can_over_xbee.h"
 #include "state_machine_helper.h"
 
-#include "config_debug.h"
 #define LOG_PREFIX "zone_mutex: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
 #include "../QS/QS_outputlog.h"

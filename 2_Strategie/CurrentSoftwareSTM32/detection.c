@@ -14,8 +14,6 @@
 #include "QS/QS_CANmsgList.h"
 #include "can_utils.h"
 #include "QS/QS_outputlog.h"
-#include "config_use.h"
-#include "config_debug.h"
 #include "environment.h"
 #include "QS/QS_maths.h"
 #include "Supervision/Buzzer.h"

@@ -1,18 +1,15 @@
 #include <stdarg.h>
 #include "term_io.h"
-#include "../QS/QS_all.h"
 #include "../QS/QS_uart.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_outputlog.h"
 #include "../clock.h"
-#include "../config/config_global.h"
 #ifdef I_AM_ROBOT_BIG
-	#include "../config/config_big/config_pin.h"
+
 #else
-	#include "../config/config_small/config_pin.h"
-#include "../Wood/Pince_gauche_config.h"
-#include "../Wood/Pince_droite_config.h"
+	#include "../Wood/Pince_gauche_config.h"
+	#include "../Wood/Pince_droite_config.h"
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);

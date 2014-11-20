@@ -12,6 +12,8 @@
 #ifndef LCD_INTERFACE_H
 #define	LCD_INTERFACE_H
 
+
+#include "../QS/QS_all.h"
 #include "Selftest.h"
 
 

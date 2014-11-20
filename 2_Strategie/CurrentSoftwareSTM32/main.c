@@ -31,8 +31,6 @@
 		#include "stm32f4xx_gpio.h"
 		#include "stm32f4xx_rcc.h"
 	#endif
-#include "config/config_pin.h"
-#include "config/config_use.h"
 #include "QS/QS_IHM.h"
 #include "act_avoidance.h"
 #include "Supervision/Verbose_can_msg.h"

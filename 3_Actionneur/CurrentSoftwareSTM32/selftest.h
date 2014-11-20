@@ -12,7 +12,7 @@
 #ifndef SELFTEST_H
 #define SELFTEST_H
 
-#include "../QS/QS_all.h"
+#include "QS/QS_all.h"
 #include "queue.h"
 
 typedef enum {

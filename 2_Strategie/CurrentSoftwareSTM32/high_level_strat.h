@@ -17,8 +17,6 @@
 
 #include "../prop_functions.h"
 #include "../act_functions.h"
-#include "../QS/QS_types.h"
-#include "../config/config_pin.h"
 #include "../state_machine_helper.h"
 
 

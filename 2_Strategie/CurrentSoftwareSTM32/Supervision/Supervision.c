@@ -18,8 +18,6 @@
 #include "Selftest.h"
 #include "RTC.h"
 #include "Buffer.h"
-#include "config_use.h"
-#include "config_pin.h"
 #include "LCD_interface.h"
 #include "Buzzer.h"
 #include "Synchro_balises.h"
@@ -132,7 +130,7 @@ void Supervision_process_main(void)
 				SUPERVISION_send_pos_over_xbee();	//Envoi périodique de notre position en XBee (cet envoi ne fonctionnera que lorsque le module est initialisé, et qu'auprès des modules PINGés)
 		#endif
 	}
-	/* Gestion du selftest */
+	/* Gestion du selftest*/
 	SELFTEST_process_main();
 
 	SYNCHRO_process_main();
@@ -144,7 +142,7 @@ void Supervision_process_main(void)
 	#endif
 
 
-	/* Mise à jour des informations affichées à l'écran */
+	/* Mise à jour des informations affichées à l'écran*/
 	#ifdef USE_LCD
 		LCD_Update();
 	#endif

@@ -15,6 +15,7 @@
 #ifndef MAIN_H
 	#define MAIN_H
 
+	#include "QS/QS_types.h"
 
 	void MAIN_process_it(Uint8 ms);
 

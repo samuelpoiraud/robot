@@ -18,7 +18,6 @@
 	#include "../QS/QS_CANmsgList.h"
 	#include "../QS/QS_can.h"
 	#include "../QS/QS_outputlog.h"
-	#include "config_use.h"
 
 	#if defined(USE_RTC) && !defined(USE_I2C2)
 		#warning "RTC a besoin de I2C2 pour fonctionner. Veuiller definir USE_I2C2 dans config_qs.h. Le module RTC sera inactif ..."

@@ -11,8 +11,9 @@
 #ifndef LED_H
 #define LED_H
 
+#include "QS/QS_all.h"
+
 #include "QS/QS_IHM.h"
-#include "QS/QS_types.h"
 
 void LEDS_init();
 void LEDS_process_it(void);

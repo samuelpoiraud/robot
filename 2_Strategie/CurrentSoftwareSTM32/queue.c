@@ -11,8 +11,6 @@
 
 #include "queue.h"
 
-#include "config_debug.h"
-
 #ifndef OUTPUT_LOG_COMPONENT_QUEUE
 #  define OUTPUT_LOG_COMPONENT_QUEUE LOG_PRINT_Off
 #  warning "OUTPUT_LOG_COMPONENT_QUEUE is not defined, defaulting to Off"
