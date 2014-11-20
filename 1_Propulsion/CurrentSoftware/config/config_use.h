@@ -94,6 +94,8 @@ les caracteres recus sur UART */
 
 #define USE_FIFO
 
+#define FDP_2014
+
 /* Récapitulatif IT :
 * TIMER 1 : Gyroscope		(it.c/h)
 * TIMER 2 : IT principale	(it.c/h)

@@ -187,7 +187,7 @@ Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 	static Sint32 corrector_gyro = 0;
 
 	static Sint32 gyro_teta = 0;
-	bool_e gyro_valid;
+	bool_e gyro_valid = FALSE;
 	Sint16 degre;
 	Sint32 gyro_speed;
 

@@ -110,9 +110,9 @@
 		#define LED_BLEU			LED_USER
 
 	#define PORT_E_IO_MASK	0xFFFF
-		#define SWITCH_MIDDLE		(GPIOE->IDR7)
-		#define SWITCH_LEFT			(GPIOE->IDR8)
-		#define SWITCH_RIGHT		(GPIOE->IDR9)
+		#define SWITCH_MIDDLE_PORT	(GPIOE->IDR7)
+		#define SWITCH_LEFT_PORT	(GPIOE->IDR8)
+		#define SWITCH_RIGHT_PORT	(GPIOE->IDR9)
 		#define BUTTON1_PORT		(!GPIOE->IDR12)	//Calibration
 
 

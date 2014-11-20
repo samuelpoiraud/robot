@@ -309,15 +309,15 @@ void SWITCHS_update(void)
 	bool_e current_switch_middle;
 	bool_e current_switch_right;
 
-	current_switch_left 	= SWITCH_LEFT;
-	current_switch_middle 	= SWITCH_MIDDLE;
-	current_switch_right 	= SWITCH_RIGHT;
+	current_switch_left 	= SWITCH_LEFT_PORT;
+	current_switch_middle 	= SWITCH_MIDDLE_PORT;
+	current_switch_right 	= SWITCH_RIGHT_PORT;
 
-	if(current_switch_left 		&& !previous_switch_left) 	debug_printf("SW left enabled\n");
+	if(current_switch_left 		&& !previous_switch_left) 	debug_printf("SW ASSER enabled\n");
 	if(current_switch_middle 	&& !previous_switch_middle) debug_printf("SW middle enabled\n");
 	if(current_switch_right 	&& !previous_switch_right)	debug_printf("SW right enabled\n");
 
-	if(!current_switch_left 	&& previous_switch_left) 	debug_printf("SW left disabled\n");
+	if(!current_switch_left 	&& previous_switch_left) 	debug_printf("SW ASSER disabled\n");
 	if(!current_switch_middle 	&& previous_switch_middle) 	debug_printf("SW middle disabled\n");
 	if(!current_switch_right 	&& previous_switch_right)	debug_printf("SW right disabled\n");
 
