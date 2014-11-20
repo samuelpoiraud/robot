@@ -15,10 +15,6 @@
 #include <stdarg.h>
 #include "../main.h"
 
-#ifdef I_AM_CARTE_STRAT
-	#include "../config/config_pin.h"
-#endif
-
 #define SWITCH_ON       0x80
 #define SWITCH_OFF		0x00
 #define SWITCH_MASK		0x7F
@@ -142,6 +138,19 @@ bool_e IHM_switchs_get(switch_ihm_e swit){
 			break;
 		case SWITCH_STRAT_3:
 			value = SWITCH_STRAT_3_PORT;
+			break;
+		default:
+			break;
+	}
+
+	return value;
+
+	#elif defined(I_AM_CARTE_PROP)
+	bool_e value;
+
+	switch (swit) {
+		case SWITCH_ASSER:
+			value = SWITCH_LEFT_PORT;
 			break;
 		default:
 			break;
