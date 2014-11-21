@@ -249,10 +249,12 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 
 	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
-		// case ACT_EXEMPLE & 0xFF:			originalSidStr = "Exemple";		break;
-		case ACT_PINCE_GAUCHE & 0xFF:		originalSidStr = "PinceG";		break;
-		case ACT_PINCE_DROITE & 0xFF:		originalSidStr = "PinceD";		break;
-		default:                            originalSidStr = "Unknown";		break;
+		// case ACT_EXEMPLE & 0xFF:			originalSidStr = "Exemple";			break;
+		case ACT_PINCE_GAUCHE & 0xFF:		originalSidStr = "PinceG";			break;
+		case ACT_PINCE_DROITE & 0xFF:		originalSidStr = "PinceD";			break;
+		case ACT_POP_DROP_LEFT & 0xFF:		originalSidStr = "Pop_drop_left";	break;
+		case ACT_POP_DROP_RIGHT & 0xFF:		originalSidStr = "Pop_drop_right";	break;
+		default:                            originalSidStr = "Unknown";			break;
 	}
 	switch(result) {
 		case ACT_RESULT_DONE:        resultStr = "Done";       break;

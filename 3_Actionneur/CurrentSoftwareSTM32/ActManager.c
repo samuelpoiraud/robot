@@ -19,10 +19,19 @@
 #include "QS/QS_outputlog.h"
 #include "act_queue_utils.h"
 #include "selftest.h"
-#include "Wood/Pince_gauche.h"
-#include "Wood/Pince_gauche_config.h"
-#include "Wood/Pince_droite.h"
-#include "Wood/Pince_droite_config.h"
+
+#ifdef I_AM_ROBOT_BIG
+	#include "Holly/Pop_drop_left.h"
+	#include "Holly/Pop_drop_left_config.h"
+	#include "Holly/Pop_drop_right.h"
+	#include "Holly/Pop_drop_right_config.h"
+#else
+	#include "Wood/Pince_gauche.h"
+	#include "Wood/Pince_gauche_config.h"
+	#include "Wood/Pince_droite.h"
+	#include "Wood/Pince_droite_config.h"
+#endif
+
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
@@ -35,6 +44,8 @@ static ACTQ_functions_t actionneurs[] = {
 
 	#ifdef I_AM_ROBOT_BIG
 		ACT_DECLARE(TEST_SERVO),
+		ACT_DECLARE(POP_DROP_LEFT),
+		ACT_DECLARE(POP_DROP_RIGHT)
 	#else
 		ACT_DECLARE(PINCE_GAUCHE),
 		ACT_DECLARE(PINCE_DROITE)
