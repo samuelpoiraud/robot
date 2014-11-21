@@ -16,5 +16,7 @@
 typedef enum {
 	//avec QUEUE devant, n'importe ou dans le code on sait que ça fait référence à un actionneur lié à queue.h/c
 	QUEUE_ACT_Test_Servo,
+	QUEUE_ACT_AX12_POP_DROP_LEFT,
+	QUEUE_ACT_AX12_POP_DROP_RIGHT,
 	NB_ACT
 } QUEUE_act_e;

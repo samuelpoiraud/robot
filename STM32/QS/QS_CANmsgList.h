@@ -679,6 +679,22 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_PINCE_DROITE_CLOSED			    0x13
 		#define ACT_PINCE_DROITE_STOP				0x14
 
+
+
+	//////////////DROP POPCORN//////////////////
+	ACT_POP_DROP_LEFT = (ACT_FILTER | 0x12),
+		#define ACT_POP_DROP_LEFT_IDLE				0x11
+		#define ACT_POP_DROP_LEFT_OPEN			    0x12
+		#define ACT_POP_DROP_LEFT_CLOSED			0x13
+		#define ACT_POP_DROP_LEFT_STOP				0x14
+
+	/////////////////////////////////////////////
+	ACT_POP_DROP_RIGHT = (ACT_FILTER | 0x13)
+		#define ACT_POP_DROP_RIGHT_IDLE				0x11
+		#define ACT_POP_DROP_RIGHT_OPEN			    0x12
+		#define ACT_POP_DROP_RIGHT_CLOSED			0x13
+		#define ACT_POP_DROP_RIGHT_STOP				0x14
+
 	/////////////////////////////////////////////
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs

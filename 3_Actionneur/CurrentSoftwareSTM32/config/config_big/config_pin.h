@@ -111,4 +111,9 @@
 /* Config test servo*/
 	#define TEST_SERVO_ID							1
 
+
+#define POP_DROP_LEFT_AX12_ID		56
+#define POP_DROP_RIGHT_AX12_ID		57
+
+
 #endif /* BIG_CONFIG_PIN_H */
