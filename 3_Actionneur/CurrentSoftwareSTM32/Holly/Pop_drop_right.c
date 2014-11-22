@@ -15,12 +15,6 @@
 // Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
 // Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFEST)
 
-// En stratégie
-// ajout des fonctions actionneurs dans act_functions.c/h
-// ajout des fonctions actionneurs dans act_can.c (fonction ACT_process_result)
-// ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
-// ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
-// ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
 
 // If def à mettre si l'actionneur est seulement présent sur le petit robot (I_AM_ROBOT_SMALL) ou le gros (I_AM_ROBOT_BIG)
 #ifdef I_AM_ROBOT_BIG

@@ -8,6 +8,8 @@
 typedef enum{
 	//ACT_AVOID_TORCH_LOCKER,
 	// Lister les actionneurs modifiants l'évitement du robot
+	ACT_AVOID_POP_DROP_LEFT,
+	ACT_AVOID_POP_DROP_RIGHT,
 	ACT_AVOID_NB
 }act_avoid_e;
 
@@ -30,6 +32,16 @@ typedef struct{
 	ACT_AVOID_TORCH_Locker_Lock,
 	ACT_AVOID_TORCH_Locker_Unlock
 } ACT_AVOID_TORCH_LOCKER_CMD;*/
+
+typedef enum {
+	ACT_AVOID_POP_DROP_LEFT_Lock,
+	ACT_AVOID_POP_DROP_LEFT_Unlock
+} ACT_AVOID_POP_DROP_LEFT_CMD;
+
+typedef enum {
+	ACT_AVOID_POP_DROP_RIGHT_Lock,
+	ACT_AVOID_POP_DROP_RIGHT_Unlock
+} ACT_AVOID_POP_DROP_RIGHT_CMD;
 
 void ACT_AVOIDANCE_init();
 void ACT_AVOIDANCE_new_action(act_avoid_e act_avoid_id, Uint8 cmd, bool_e state);
