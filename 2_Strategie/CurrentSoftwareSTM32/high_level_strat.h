@@ -49,6 +49,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_GETOUT,
 
 	//--------------Sub action de holly
+	HOLLY_SUB_COLLECT_POPCORN,
 	HOLLY_SUB_DROP_POPCORN,
 	//Peu importe l'ordre des états... (sauf en cas de priorité égale)
 	//--------------Sub action de wood
