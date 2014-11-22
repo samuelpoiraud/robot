@@ -64,6 +64,23 @@
 
 	return ACT_push_operation(ACT_QUEUE_Torch_locker, &args);
 }*/
+bool_e ACT_pop_collect_left(ACT_pop_collect_left_cmd_e cmd) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_POP_COLLECT_LEFT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_POP_COLLECT_LEFT,  ACT_POP_COLLECT_LEFT_STOP);
+
+	return ACT_push_operation(ACT_QUEUE_Pop_collect_left, &args);
+}
+
+bool_e ACT_pop_collect_right(ACT_pop_collect_right_cmd_e cmd) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_POP_COLLECT_RIGHT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_POP_COLLECT_RIGHT,  ACT_POP_COLLECT_RIGHT_STOP);
+
+	return ACT_push_operation(ACT_QUEUE_Pop_collect_right, &args);
+}
 
 bool_e ACT_pop_drop_left(ACT_pop_drop_left_cmd_e cmd) {
 	QUEUE_arg_t args;

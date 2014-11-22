@@ -148,6 +148,13 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						failed_act_tests[i] = SELFTEST_ACT_EXEMPLE;
 						break;
 #endif
+					case ACT_POP_COLLECT_LEFT:
+						failed_act_tests[i] = SELFTEST_ACT_POP_COLLECT_LEFT;
+						break;
+					case ACT_POP_COLLECT_RIGHT:
+						failed_act_tests[i] = SELFTEST_ACT_POP_COLLECT_RIGHT;
+						break;
+
 					case ACT_POP_DROP_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_POP_DROP_LEFT;
 						break;

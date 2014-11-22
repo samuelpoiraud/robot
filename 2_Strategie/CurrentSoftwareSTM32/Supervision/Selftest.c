@@ -594,10 +594,12 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_BEACON_UNREACHABLE:				debug_printf("SELFTEST_BEACON_UNREACHABLE");					break;
 					// Actionneurs
 
-
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");						break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
-				//case SELFTEST_ACT_TORCH_LOCKER:					debug_printf("SELFTEST_ACT_TORCH_LOCKER");						break;
+
+				//case SELFTEST_ACT_TORCH_LOCKER:				debug_printf("SELFTEST_ACT_TORCH_LOCKER");						break;
+				case SELFTEST_ACT_POP_COLLECT_LEFT:				debug_printf("ACT Pop Collect Left");							break;
+				case SELFTEST_ACT_POP_COLLECT_RIGHT:			debug_printf("ACT Pop Collect Right");							break;
 				case SELFTEST_ACT_POP_DROP_LEFT:				debug_printf("ACT Pop Drop Left");								break;
 				case SELFTEST_ACT_POP_DROP_RIGHT:				debug_printf("ACT Pop Drop Right");								break;
 
@@ -850,7 +852,10 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";	break;
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
-		//case SELFTEST_ACT_TORCH_LOCKER:					return "ACT Torch Locker";		break;
+
+		//case SELFTEST_ACT_TORCH_LOCKER:				return "ACT Torch Locker";		break;
+		case SELFTEST_ACT_POP_COLLECT_LEFT:				return "ACT Pop collect Left";	break;
+		case SELFTEST_ACT_POP_COLLECT_RIGHT:			return "ACT Pop collect Right";	break;
 		case SELFTEST_ACT_POP_DROP_LEFT:				return "ACT Pop Drop Left";		break;
 		case SELFTEST_ACT_POP_DROP_RIGHT:				return "ACT Pop Drop Right";	break;
 

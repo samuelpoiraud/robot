@@ -55,6 +55,19 @@
 } ACT_torch_locker_cmd_e;*/
 
 typedef enum {
+	ACT_pop_collect_left_closed = ACT_POP_COLLECT_LEFT_CLOSED,
+	ACT_pop_collect_left_open = ACT_POP_COLLECT_LEFT_OPEN,
+	ACT_pop_collect_left_mid = ACT_POP_COLLECT_LEFT_MID,
+	ACT_pop_collect_left_stop = ACT_POP_COLLECT_LEFT_STOP
+} ACT_pop_collect_left_cmd_e;
+typedef enum {
+	ACT_pop_collect_right_closed = ACT_POP_COLLECT_RIGHT_CLOSED,
+	ACT_pop_collect_right_open = ACT_POP_COLLECT_RIGHT_OPEN,
+	ACT_pop_collect_right_mid = ACT_POP_COLLECT_RIGHT_MID,
+	ACT_pop_collect_right_stop = ACT_POP_COLLECT_RIGHT_STOP
+} ACT_pop_collect_right_cmd_e;
+
+typedef enum {
 	ACT_pop_drop_left_closed = ACT_POP_DROP_LEFT_CLOSED,
 	ACT_pop_drop_left_open = ACT_POP_DROP_LEFT_OPEN,
 	ACT_pop_drop_left_stop = ACT_POP_DROP_LEFT_STOP
@@ -88,6 +101,8 @@ typedef enum {
 
 // Holly
 //bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
+bool_e ACT_pop_collect_left(ACT_pop_collect_left_cmd_e cmd);
+bool_e ACT_pop_collect_right(ACT_pop_collect_right_cmd_e cmd);
 bool_e ACT_pop_drop_left(ACT_pop_drop_left_cmd_e cmd);
 bool_e ACT_pop_drop_right(ACT_pop_drop_right_cmd_e cmd);
 
