@@ -119,6 +119,8 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len, verbose_m
 
 		case ACT_RESULT:								print(string, len, "%x ACT_RESULT                             ", ACT_RESULT										);	break;
 		//case ACT_TORCH_LOCKER:						print(string, len, "%x ACT_TORCH_LOCKER						  ", ACT_TORCH_LOCKER								);	break;
+		case ACT_POP_COLLECT_LEFT:						print(string, len, "%x ACT_POP_COLLECT_LEFT                   ", ACT_POP_COLLECT_LEFT							);	break;
+		case ACT_POP_COLLECT_RIGHT:						print(string, len, "%x ACT_POP_COLLECT_RIGHT				  ", ACT_POP_COLLECT_RIGHT							);	break;
 		case ACT_POP_DROP_LEFT:							print(string, len, "%x ACT_POP_DROP_LEFT                      ", ACT_POP_DROP_LEFT								);	break;
 		case ACT_POP_DROP_RIGHT:						print(string, len, "%x ACT_POP_DROP_RIGHT					  ", ACT_POP_DROP_RIGHT								);	break;
 

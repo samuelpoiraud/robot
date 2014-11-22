@@ -389,6 +389,8 @@
 		SELFTEST_ACT_MISSING_TEST,	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 		SELFTEST_ACT_UNKNOWN_ACT,	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
 		//SELFTEST_ACT_EXEMPLE,
+		SELFTEST_ACT_POP_COLLECT_LEFT,
+		SELFTEST_ACT_POP_COLLECT_RIGHT,
 		SELFTEST_ACT_POP_DROP_LEFT,
 		SELFTEST_ACT_POP_DROP_RIGHT,
 
@@ -684,15 +686,31 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 
 
 
+	//////////////COLLECT POPCORN//////////////////
+	ACT_POP_COLLECT_LEFT = (ACT_FILTER | 0x12),
+		#define ACT_POP_COLLECT_LEFT_IDLE				0x11
+		#define ACT_POP_COLLECT_LEFT_OPEN			    0x12
+		#define ACT_POP_COLLECT_LEFT_MID			    0x13
+		#define ACT_POP_COLLECT_LEFT_CLOSED				0x14
+		#define ACT_POP_COLLECT_LEFT_STOP				0x15
+
+	/////////////////////////////////////////////
+	ACT_POP_COLLECT_RIGHT = (ACT_FILTER | 0x13),
+		#define ACT_POP_COLLECT_RIGHT_IDLE				0x11
+		#define ACT_POP_COLLECT_RIGHT_OPEN			    0x12
+		#define ACT_POP_COLLECT_RIGHT_MID			    0x13
+		#define ACT_POP_COLLECT_RIGHT_CLOSED			0x14
+		#define ACT_POP_COLLECT_RIGHT_STOP				0x15
+
 	//////////////DROP POPCORN//////////////////
-	ACT_POP_DROP_LEFT = (ACT_FILTER | 0x12),
+	ACT_POP_DROP_LEFT = (ACT_FILTER | 0x14),
 		#define ACT_POP_DROP_LEFT_IDLE				0x11
 		#define ACT_POP_DROP_LEFT_OPEN			    0x12
 		#define ACT_POP_DROP_LEFT_CLOSED			0x13
 		#define ACT_POP_DROP_LEFT_STOP				0x14
 
 	/////////////////////////////////////////////
-	ACT_POP_DROP_RIGHT = (ACT_FILTER | 0x13)
+	ACT_POP_DROP_RIGHT = (ACT_FILTER | 0x15)
 		#define ACT_POP_DROP_RIGHT_IDLE				0x11
 		#define ACT_POP_DROP_RIGHT_OPEN			    0x12
 		#define ACT_POP_DROP_RIGHT_CLOSED			0x13
