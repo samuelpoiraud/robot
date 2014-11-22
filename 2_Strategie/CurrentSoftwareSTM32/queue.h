@@ -24,6 +24,8 @@ typedef Uint8 queue_size_t;
 typedef enum {
 	//Holly
 	ACT_QUEUE_Torch_locker,
+	ACT_QUEUE_Pop_drop_left,
+	ACT_QUEUE_Pop_drop_right,
 
 	//Wood
 	ACT_QUEUE_Small_arm,

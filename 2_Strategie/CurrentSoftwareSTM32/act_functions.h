@@ -54,6 +54,17 @@
 	ACT_TORCH_Locker_Stop = ACT_TORCH_LOCKER_STOP
 } ACT_torch_locker_cmd_e;*/
 
+typedef enum {
+	ACT_pop_drop_left_closed = ACT_POP_DROP_LEFT_CLOSED,
+	ACT_pop_drop_left_open = ACT_POP_DROP_LEFT_OPEN,
+	ACT_pop_drop_left_stop = ACT_POP_DROP_LEFT_STOP
+} ACT_pop_drop_left_cmd_e;
+typedef enum {
+	ACT_pop_drop_right_closed = ACT_POP_DROP_RIGHT_CLOSED,
+	ACT_pop_drop_right_open = ACT_POP_DROP_RIGHT_OPEN,
+	ACT_pop_drop_right_stop = ACT_POP_DROP_RIGHT_STOP
+} ACT_pop_drop_right_cmd_e;
+
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
@@ -65,7 +76,7 @@ typedef enum {
 typedef enum {
 	ACT_pince_droite_closed = ACT_PINCE_DROITE_CLOSED,
 	ACT_pince_droite_open = ACT_PINCE_DROITE_OPEN,
-	ACT_pince_droite_stop = ACT_PINCE_GAUCHE_STOP
+	ACT_pince_droite_stop = ACT_PINCE_DROITE_STOP
 } ACT_pince_droite_cmd_e;
 ////////////////////////////////////////
 //////////////// COMMON ////////////////
@@ -77,8 +88,12 @@ typedef enum {
 
 // Holly
 //bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
+bool_e ACT_pop_drop_left(ACT_pop_drop_left_cmd_e cmd);
+bool_e ACT_pop_drop_right(ACT_pop_drop_right_cmd_e cmd);
 
 // Wood
+bool_e ACT_pince_gauche(ACT_pince_gauche_cmd_e cmd);
+bool_e ACT_pince_droite(ACT_pince_droite_cmd_e cmd);
 
 // Common
 

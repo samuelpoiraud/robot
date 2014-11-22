@@ -299,6 +299,12 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		/*case ACT_TORCH_LOCKER & 0xFF:
 			act_id = ACT_QUEUE_Torch_locker;
 			break;*/
+		case ACT_POP_DROP_LEFT & 0xFF:
+					act_id = ACT_QUEUE_Pop_drop_left;
+					break;
+		case ACT_POP_DROP_RIGHT & 0xFF:
+					act_id = ACT_QUEUE_Pop_drop_right;
+					break;
 
 		// Wood
 		case ACT_PINCE_GAUCHE & 0xFF:

@@ -65,6 +65,24 @@
 	return ACT_push_operation(ACT_QUEUE_Torch_locker, &args);
 }*/
 
+bool_e ACT_pop_drop_left(ACT_pop_drop_left_cmd_e cmd) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_POP_DROP_LEFT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_POP_DROP_LEFT,  ACT_POP_DROP_LEFT_STOP);
+
+	return ACT_push_operation(ACT_QUEUE_Pop_drop_left, &args);
+}
+
+bool_e ACT_pop_drop_right(ACT_pop_drop_right_cmd_e cmd) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_POP_DROP_RIGHT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_POP_DROP_RIGHT,  ACT_POP_DROP_RIGHT_STOP);
+
+	return ACT_push_operation(ACT_QUEUE_Pop_drop_right, &args);
+}
+
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
