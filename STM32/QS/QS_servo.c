@@ -5,7 +5,7 @@
  *	Fichier : QS_servo.c
  *	Package : Qualite Software
  *	Description : Driver par timer pour servomoteur
- *	Auteur : Jacen
+ *	Auteur : Jacen / Anthony(2014)
  *	Licence : CeCILL-C (voir LICENCE.txt)
  *	Version 20100620
  */
@@ -19,8 +19,18 @@
 #include "../config/config_pin.h"
 
 
+#define SPEED_FAST		1000	// Vitesse Max, ne pas dépasser inutile
+#define SPEED_SLOW		50		// (1000/50)*20ms = 400ms pour faire un tour complet(1000 positions) du servo
+#define SPEED_SNAIL		10		// (1000/10)*20ms = 2sec
+
+
+typedef struct{
+	SERVO_speed_e speed;
+	Uint16 value, valueEnd; // Ne varie qu'entre 1000 et 2000
+}SERVO_s;
+
 /*variables globales pour le pilote de servos */
-static volatile Sint16 m_SERVO_cmd[10];
+static volatile SERVO_s SERVOS[10];
 
 void SERVO_set_servo(Uint8 servo,bool_e stateUp);
 
@@ -54,8 +64,11 @@ void SERVO_init() {
 	initialized = TRUE;
 
 	// Initialisation de la commande; par défaut 0 (le moteur ne bouge pas)
-	for(i=0;i<10;i++)
-		m_SERVO_cmd[i] = 0 ;
+	for(i=0;i<10;i++){
+		SERVOS[i].value = 0;
+		SERVOS[i].valueEnd = 0;
+		SERVOS[i].speed = SERVO_FAST;
+	}
 
 	TIMER_SRC_TIMER_init();
 	// Lancement du timer
@@ -63,16 +76,23 @@ void SERVO_init() {
 }
 
 /*-------------------------------------
-Changement de la commande (entre 0 et 2000 us)
+Changement de la commande (entre 0 et 1000 us)
 -------------------------------------*/
 void SERVO_set_cmd(Uint16 cmd, Uint8 num_servo){
 	if(num_servo > 9 && num_servo < 0)
 		return;
 
-	if(cmd > 2000)
-		m_SERVO_cmd[num_servo] = 2000;
+	if(cmd > 1000)
+		SERVOS[num_servo].valueEnd = 1000 + MIN_INTERVAL; // Position Max
 	else
-		m_SERVO_cmd[num_servo] = cmd;
+		SERVOS[num_servo].valueEnd = cmd + MIN_INTERVAL;
+}
+
+/*-------------------------------------
+Changement de la vitesse de déplacement
+-------------------------------------*/
+void SERVO_set_speed(SERVO_speed_e speed, Uint8 num_servo){
+	SERVOS[num_servo].speed = speed;
 }
 
 
@@ -138,32 +158,54 @@ void SERVO_set_servo(Uint8 servo,bool_e stateUp){
 -------------------------------------*/
 
 void TIMER_SRC_TIMER_interrupt(){
-	static Uint8 etat=0;
-	static Uint8 servo=0;
+	static Uint8 etat = 0;
+	static Uint8 servo = 0;
 
 	TIMER_SRC_TIMER_resetFlag();
 
 	switch(etat){
-		case 0:
-			if (m_SERVO_cmd[servo]){ // Passe la pin à 1, si valeur différente de 0
-				SERVO_set_servo(servo,TRUE);
-				TIMER_SRC_TIMER_start_us(m_SERVO_cmd[servo]);
-			}else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+		case 0:{
+
+			if(SERVOS[servo].value != SERVOS[servo].valueEnd){ // Si différent, prendre la vitesse en compte pour aller jusqu'à la destination finale
+
+				Uint16 speed;
+				switch (SERVOS[servo].speed) {
+					case SERVO_SLOW:
+						speed = SPEED_SLOW;
+						break;
+					case SERVO_SNAIL:
+						speed = SPEED_SNAIL;
+						break;
+					case SERVO_FAST:
+					default:
+						speed = SPEED_FAST;
+						break;
+				}
+
+				if(SERVOS[servo].value < SERVOS[servo].valueEnd){ // Augmenter la valeur courante
+					SERVOS[servo].value += speed;
+
+					if(SERVOS[servo].value > SERVOS[servo].valueEnd)
+						SERVOS[servo].value = SERVOS[servo].valueEnd;
+				}else{ // Diminuer la valeur courante
+					SERVOS[servo].value -= speed;
+
+					if(SERVOS[servo].value < SERVOS[servo].valueEnd)
+						SERVOS[servo].value = SERVOS[servo].valueEnd;
+				}
+			}
+
+			SERVO_set_servo(servo,TRUE); // Passe la pin à 1, si valeur différente de 0
+			TIMER_SRC_TIMER_start_us(SERVOS[servo].value);
 
 			etat++;
 
-			break;
+			}break;
 		case 1:
 			SERVO_set_servo(servo,FALSE);  // Passe la pin à 0
-			if (m_SERVO_cmd[servo])
-				TIMER_SRC_TIMER_start_us((TIME_VARIATION - m_SERVO_cmd[servo] > 0)? TIME_VARIATION-m_SERVO_cmd[servo] : 5);
-			else
-				TIMER_SRC_TIMER_start_us(MIN_INTERVAL);
+			TIMER_SRC_TIMER_start_us((TIME_VARIATION - SERVOS[servo].value > 0)? TIME_VARIATION-SERVOS[servo].value : 5);
 
-			servo++;
-
-			if(servo >= NB_SERVO)
+			if(++servo >= NB_SERVO)
 				servo = 0;
 
 		default:
