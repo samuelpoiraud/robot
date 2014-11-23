@@ -12,7 +12,7 @@
 
 #include "QS/QS_ports.h"
 
-#define LED_ID 0x00011111
+#define LED_ID 0b00011111
 #define TIME_BLINK_OFF 0
 #define TIME_BLINK_1HZ 100
 #define TIME_BLINK_4HZ 25
