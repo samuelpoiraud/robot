@@ -21,6 +21,7 @@
 
 #define SPEED_FAST		1000	// Vitesse Max, ne pas dépasser inutile
 #define SPEED_SLOW		50		// (1000/50)*20ms = 400ms pour faire un tour complet(1000 positions) du servo
+#define SPEED_VERY_SLOW	20		// (1000/20)*20ms = 1sec
 #define SPEED_SNAIL		10		// (1000/10)*20ms = 2sec
 
 
@@ -172,6 +173,9 @@ void TIMER_SRC_TIMER_interrupt(){
 				switch (SERVOS[servo].speed) {
 					case SERVO_SLOW:
 						speed = SPEED_SLOW;
+						break;
+					case SERVO_VERY_SLOW:
+						speed = SPEED_VERY_SLOW;
 						break;
 					case SERVO_SNAIL:
 						speed = SPEED_SNAIL;
