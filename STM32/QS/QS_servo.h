@@ -22,6 +22,7 @@
 	typedef enum{
 		SERVO_FAST,
 		SERVO_SLOW,
+		SERVO_VERY_SLOW,
 		SERVO_SNAIL
 	}SERVO_speed_e;
 
