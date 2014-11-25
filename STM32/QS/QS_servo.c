@@ -63,10 +63,10 @@ void SERVO_init() {
 		return;
 	initialized = TRUE;
 
-	// Initialisation de la commande; par défaut 0 (le moteur ne bouge pas)
+	// Initialisation de la commande; par défaut MIN_INTERVAL (soit un ordre de position 0, le moteur se fixe à sa position initiale)
 	for(i=0;i<10;i++){
-		SERVOS[i].value = 0;
-		SERVOS[i].valueEnd = 0;
+		SERVOS[i].value = MIN_INTERVAL;
+		SERVOS[i].valueEnd = MIN_INTERVAL;
 		SERVOS[i].speed = SERVO_FAST;
 	}
 
