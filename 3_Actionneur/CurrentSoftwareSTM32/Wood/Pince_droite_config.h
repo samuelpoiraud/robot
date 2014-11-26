@@ -21,11 +21,11 @@
 /** Si le déplacement de l'ax12 timeout mais que sa position est à +/- PINCE_DROITE_AX12_ASSER_POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré. */
 	#define PINCE_DROITE_AX12_ASSER_POS_LARGE_EPSILON   10	//en degré
 /** Position en degré de l'ax12 lorsque PINCE_DROITE est rentré  */
-	#define PINCE_DROITE_AX12_IDLE_POS            230		//en degré
+	#define PINCE_DROITE_AX12_IDLE_POS            174		//en degré
 /** Position en degré de l'ax12 lorsque PINCE_DROITE est mi sortie */
-	#define PINCE_DROITE_AX12_MID_POS			   180		//en degré
+	#define PINCE_DROITE_AX12_MID_POS			   130		//en degré
 /** Position en degré de l'ax12 lorsque PINCE_DROITE est sortie */
-	#define PINCE_DROITE_AX12_DEPLOYED_POS        156		//en degré
+	#define PINCE_DROITE_AX12_DEPLOYED_POS        81		//en degré
 /** Tension maximale en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur  */
 	#define PINCE_DROITE_AX12_MAX_TORQUE_PERCENT  100		//A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 /** Position initiale de l'AX12. Doit être un define du type PINCE_DROITE_AX12_* */
