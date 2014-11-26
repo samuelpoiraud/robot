@@ -219,7 +219,7 @@ static void PINCE_DROITE_command_init(queue_id_t queueId) {
 		return;
 	}
 	//La commande a été envoyée et l'AX12 l'a bien reçu
-	debug_printf("Move SMALL_ARM ax12 to %d\n", *ax12_goalPosition);
+	debug_printf("Move PINCE_DROITE ax12 to %d\n", *ax12_goalPosition);
 }
 
 //Gère les états pendant le mouvement de l'AX12

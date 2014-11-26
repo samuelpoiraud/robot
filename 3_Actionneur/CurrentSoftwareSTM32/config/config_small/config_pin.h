@@ -111,5 +111,6 @@
 /* ID des différents AX12 */
 	#define PINCE_GAUCHE_AX12_ID						6
 	#define PINCE_DROITE_AX12_ID						2
+	#define CLAP_AX12_ID						        0
 
 #endif /* SMALL_CONFIG_PIN_H */

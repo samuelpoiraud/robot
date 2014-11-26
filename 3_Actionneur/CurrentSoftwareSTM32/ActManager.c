@@ -19,6 +19,8 @@
 #include "QS/QS_outputlog.h"
 #include "act_queue_utils.h"
 #include "selftest.h"
+#include "Wood/Clap.h"
+#include "Wood/Clap_config.h"
 
 #ifdef I_AM_ROBOT_BIG
 	#include "Holly/Popcorn/Pop_collect_left.h"
@@ -54,7 +56,8 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(POP_DROP_RIGHT)
 	#else
 		ACT_DECLARE(PINCE_GAUCHE),
-		ACT_DECLARE(PINCE_DROITE)
+		ACT_DECLARE(PINCE_DROITE),
+		ACT_DECLARE(CLAP)
 	#endif
 };
 
