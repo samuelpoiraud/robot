@@ -134,7 +134,7 @@ bool_e PINCE_DEVANT_CAN_process_msg(CAN_msg_t* msg) {
 		PINCE_DEVANT_initAX12();
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
-			case ACT_PINCE_DEVANT_IDLE :
+			case ACT_PINCE_DEVANT_OPEN :
 			case ACT_PINCE_DEVANT_MID_POS :
 			case ACT_PINCE_DEVANT_CLOSED :
 			case ACT_PINCE_DEVANT_STOP :
