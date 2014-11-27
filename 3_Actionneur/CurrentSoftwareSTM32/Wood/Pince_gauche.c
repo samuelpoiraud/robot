@@ -132,6 +132,7 @@ bool_e PINCE_GAUCHE_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_PINCE_GAUCHE_CLOSED :
 			case ACT_PINCE_GAUCHE_OPEN :
+			case ACT_PINCE_GAUCHE_MID_POS :
 			case ACT_PINCE_GAUCHE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_PINCE_GAUCHE, &PINCE_GAUCHE_run_command, 0,TRUE);
 				break;
@@ -183,6 +184,7 @@ static void PINCE_GAUCHE_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_PINCE_GAUCHE_CLOSED : *ax12_goalPosition = PINCE_GAUCHE_AX12_IDLE_POS; break;
 		case ACT_PINCE_GAUCHE_OPEN : *ax12_goalPosition = PINCE_GAUCHE_AX12_DEPLOYED_POS; break;
+		case ACT_PINCE_GAUCHE_MID_POS : *ax12_goalPosition = PINCE_GAUCHE_AX12_MID_POS; break;
 
 		case ACT_PINCE_GAUCHE_STOP :
 			AX12_set_torque_enabled(PINCE_GAUCHE_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
@@ -190,7 +192,7 @@ static void PINCE_GAUCHE_command_init(queue_id_t queueId) {
 			return;
 
 		default: {
-			error_printf("Invalid exemple command: %u, code is broken !\n", command);
+			error_printf("Invalid PINCE_GAUCHE command: %u, code is broken !\n", command);
 			QUEUE_next(queueId, ACT_PINCE_GAUCHE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 			return;
 		}

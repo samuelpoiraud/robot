@@ -671,18 +671,19 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		//Paramètres de TEST_SERVO (dans data[0])
 		#define ACT_PINCE_GAUCHE_IDLE				0x11
 		#define ACT_PINCE_GAUCHE_CLOSED				0x12
-		#define ACT_PINCE_GAUCHE_OPEN				0x13
-		#define ACT_PINCE_GAUCHE_STOP				0x14
+		#define ACT_PINCE_GAUCHE_MID_POS			0x13
+		#define ACT_PINCE_GAUCHE_OPEN				0x14
+		#define ACT_PINCE_GAUCHE_STOP				0x15
 
 	///////////////////////////////////////////////
 
 	/////////////////PINCE DROITE//////////////////
 	ACT_PINCE_DROITE = (ACT_FILTER | 0x11),
-		//Paramètres de TEST_SERVO (dans data[0])
 		#define ACT_PINCE_DROITE_IDLE				0x11
 		#define ACT_PINCE_DROITE_OPEN			    0x12
-		#define ACT_PINCE_DROITE_CLOSED			    0x13
-		#define ACT_PINCE_DROITE_STOP				0x14
+		#define ACT_PINCE_DROITE_MID_POS	        0x13
+		#define ACT_PINCE_DROITE_CLOSED			    0x14
+		#define ACT_PINCE_DROITE_STOP				0x15
 
 
 
@@ -717,13 +718,19 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_POP_DROP_RIGHT_STOP				0x14
 
 	/////////////////////////////////////////////
-	ACT_CLAP = (ACT_FILTER | 0x16)
+	ACT_CLAP = (ACT_FILTER | 0x16),
 		#define ACT_CLAP_IDLE				0x11
 		#define ACT_CLAP_OPEN			    0x12
 		#define ACT_CLAP_CLOSED			    0x13
 		#define ACT_CLAP_STOP				0x14
 
-	/////////////////////////////////////////////
+	/////////////////PINCE DEVANT//////////////////
+	ACT_PINCE_DEVANT = (ACT_FILTER | 0x17)
+		#define ACT_PINCE_DEVANT_IDLE				0x11
+		#define ACT_PINCE_DEVANT_OPEN			    0x12
+		#define ACT_PINCE_DEVANT_MID_POS		    0x13
+		#define ACT_PINCE_DEVANT_CLOSED			    0x14
+		#define ACT_PINCE_DEVANT_STOP				0x15
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs
 

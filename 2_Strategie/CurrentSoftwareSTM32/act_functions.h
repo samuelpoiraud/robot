@@ -84,17 +84,25 @@ typedef enum {
 typedef enum {
 	ACT_pince_gauche_closed = ACT_PINCE_GAUCHE_CLOSED,
 	ACT_pince_gauche_open = ACT_PINCE_GAUCHE_OPEN,
+	ACT_pince_gauche_mid_pos = ACT_PINCE_GAUCHE_MID_POS,
 	ACT_pince_gauche_stop = ACT_PINCE_GAUCHE_STOP
 } ACT_pince_gauche_cmd_e;
 typedef enum {
 	ACT_pince_droite_closed = ACT_PINCE_DROITE_CLOSED,
+	ACT_pince_droite_mid_pos = ACT_PINCE_DROITE_MID_POS,
 	ACT_pince_droite_open = ACT_PINCE_DROITE_OPEN,
 	ACT_pince_droite_stop = ACT_PINCE_DROITE_STOP
 } ACT_pince_droite_cmd_e;
 typedef enum {
-	ACT_clap_closed = ACT_PINCE_DROITE_CLOSED,
-	ACT_clap_open = ACT_PINCE_DROITE_OPEN,
-	ACT_clap_stop = ACT_PINCE_DROITE_STOP
+	ACT_pince_devant_closed = ACT_PINCE_DEVANT_CLOSED,
+	ACT_pince_devant_open = ACT_PINCE_DEVANT_OPEN,
+	ACT_pince_devant_mid_pos = ACT_PINCE_DEVANT_MID_POS,
+	ACT_pince_devant_stop = ACT_PINCE_DEVANT_STOP
+} ACT_pince_devant_cmd_e;
+typedef enum {
+	ACT_clap_closed = ACT_CLAP_CLOSED,
+	ACT_clap_open = ACT_CLAP_OPEN,
+	ACT_clap_stop = ACT_CLAP_STOP
 } ACT_clap_cmd_e;
 ////////////////////////////////////////
 //////////////// COMMON ////////////////
@@ -114,6 +122,7 @@ bool_e ACT_pop_drop_right(ACT_pop_drop_right_cmd_e cmd);
 // Wood
 bool_e ACT_pince_gauche(ACT_pince_gauche_cmd_e cmd);
 bool_e ACT_pince_droite(ACT_pince_droite_cmd_e cmd);
+bool_e ACT_pince_devant(ACT_pince_devant_cmd_e cmd);
 bool_e ACT_clap(ACT_clap_cmd_e cmd);
 // Common
 

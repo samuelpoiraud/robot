@@ -46,7 +46,7 @@
 
 // Les différents define pour le verbose sur uart
 #define LOG_PREFIX "Pince_droite.c : "
-#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_EXEMPLE
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PINCE_DROITE
 #include "../QS/QS_outputlog.h"
 
 // Les fonctions internes au fonctionnement de l'actionneur
@@ -116,7 +116,7 @@ void PINCE_DROITE_init_pos(){
 	if(ax12_is_initialized == FALSE)
 		return;
 
-	debug_printf("Exemple init pos : \n");
+	debug_printf("PINCE_DROITE init pos : \n");
 	if(!AX12_set_position(PINCE_DROITE_AX12_ID, PINCE_DROITE_AX12_INIT_POS))
 		debug_printf("   L'AX12 n°%d n'est pas là\n", PINCE_DROITE_AX12_ID);
 	else
@@ -187,6 +187,7 @@ static void PINCE_DROITE_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_PINCE_DROITE_CLOSED : *ax12_goalPosition = PINCE_DROITE_AX12_IDLE_POS; break;
 		case ACT_PINCE_DROITE_OPEN : *ax12_goalPosition = PINCE_DROITE_AX12_DEPLOYED_POS; break;
+		case ACT_PINCE_DROITE_MID_POS : *ax12_goalPosition = PINCE_DROITE_AX12_MID_POS; break;
 
 		case ACT_PINCE_DROITE_STOP :
 			AX12_set_torque_enabled(PINCE_DROITE_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
@@ -194,7 +195,7 @@ static void PINCE_DROITE_command_init(queue_id_t queueId) {
 			return;
 
 		default: {
-			error_printf("Invalid exemple command: %u, code is broken !\n", command);
+			error_printf("Invalid PINCE_DROITE command: %u, code is broken !\n", command);
 			QUEUE_next(queueId, ACT_PINCE_DROITE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 			return;
 		}

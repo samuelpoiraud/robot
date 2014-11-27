@@ -36,6 +36,10 @@
 	#include "Wood/Pince_gauche_config.h"
 	#include "Wood/Pince_droite.h"
 	#include "Wood/Pince_droite_config.h"
+	#include "Wood/Pince_devant.h"
+	#include "Wood/Pince_devant_config.h"
+	#include "Wood/Clap.h"
+	#include "Wood/Clap_config.h"
 #endif
 
 
@@ -57,6 +61,7 @@ static ACTQ_functions_t actionneurs[] = {
 	#else
 		ACT_DECLARE(PINCE_GAUCHE),
 		ACT_DECLARE(PINCE_DROITE),
+		ACT_DECLARE(PINCE_DEVANT),
 		ACT_DECLARE(CLAP)
 	#endif
 };

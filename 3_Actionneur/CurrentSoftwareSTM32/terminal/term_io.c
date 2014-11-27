@@ -14,6 +14,7 @@
 #else
 	#include "../Wood/Pince_gauche_config.h"
 	#include "../Wood/Pince_droite_config.h"
+	#include "../Wood/Pince_devant_config.h"
 	#include "../Wood/Clap_config.h"
 #endif
 
@@ -50,7 +51,8 @@ terminal_motor_s terminal_motor[] = {
 	#else
 		DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12),
 		DECLARE_AX12_RX24(2, '1', PINCE_DROITE_AX12),
-		DECLARE_AX12_RX24(2, '2', CLAP_AX12)
+		DECLARE_AX12_RX24(2, '2', PINCE_DEVANT_AX12),
+		DECLARE_AX12_RX24(2, '3', CLAP_AX12)
 	#endif
 };
 

@@ -33,6 +33,7 @@ typedef enum {
 	ACT_QUEUE_Small_arm,
 	ACT_QUEUE_Pince_Gauche,
 	ACT_QUEUE_Pince_Droite,
+	ACT_QUEUE_Pince_Devant,
 	ACT_QUEUE_Clap,
 	//Common
 

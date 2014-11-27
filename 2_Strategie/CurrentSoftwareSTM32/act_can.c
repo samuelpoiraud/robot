@@ -319,6 +319,9 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		case ACT_PINCE_DROITE & 0xFF:
 					act_id = ACT_QUEUE_Pince_Droite;
 					break;
+		 case ACT_PINCE_DEVANT & 0xFF:
+					act_id = ACT_QUEUE_Pince_Devant;
+					break;
 		case ACT_CLAP & 0xFF:
 					act_id = ACT_QUEUE_Clap;
 					break;
