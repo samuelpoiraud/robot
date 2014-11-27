@@ -660,7 +660,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			SECRETARY_send_all_coefs();
 		break;
 		case DEBUG_PROPULSION_SET_COEF:
-			if(msg->data[0] < PROPULSION_NUMBER_COEFS && msg->size == 5)
+			if(msg->data[0] < PROPULSION_NUMBER_COEFS && msg->size >= 5)
 			{
 				if(msg->data[0] <= ODOMETRY_COEF_CENTRIFUGAL)
 					ODOMETRY_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
