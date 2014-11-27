@@ -135,6 +135,7 @@ bool_e PINCE_DROITE_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_PINCE_DROITE_OPEN :
+			case ACT_PINCE_DROITE_MID_POS :
 			case ACT_PINCE_DROITE_CLOSED :
 			case ACT_PINCE_DROITE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_PINCE_DROITE, &PINCE_DROITE_run_command, 0,TRUE);
