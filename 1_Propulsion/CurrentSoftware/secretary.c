@@ -513,7 +513,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		break;
 
 		case PROP_GO_POSITION:
-			debug_printf("Receveid new go_position : x -> %d, y -> %d\n", U16FROMU8(msg->data[1],msg->data[2]), U16FROMU8(msg->data[3],msg->data[4]));
+			//debug_printf("Receveid new go_position : x -> %d, y -> %d\n", U16FROMU8(msg->data[1],msg->data[2]), U16FROMU8(msg->data[3],msg->data[4]));
 
 			//Réglage sens:
 			if ((msg->data[6] == BACKWARD) || (msg->data[6] == FORWARD))

@@ -294,7 +294,7 @@ bool_e is_in_quadri(GEOMETRY_point_t points[4], GEOMETRY_point_t tested_point){
 	return FALSE;
 }
 
-#ifdef USE_MATHS_FILTER
+
 void filter_future_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb_factor){
 	Uint16 i;
 	Uint8 y;
@@ -332,7 +332,6 @@ void filter_past_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb
 		values[i] = (Sint32)(new_value);
 	}
 }
-#endif
 
 #ifdef FAST_COS_SIN
 

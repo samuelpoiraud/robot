@@ -20,8 +20,6 @@
 	Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 
 
-	#ifdef USE_MATHS_FILTER
-
 	// IMPORTANT IL FAUT UTILISER UN TABLEAU DE TYPE SINT32, sinon ça va merder violement !
 
 	// L'utilisation d'un filtre à temps futur ou passé introduit un déphasage (avance pour temps futur, retard pour temps passé)
@@ -58,7 +56,6 @@
 			 *						effet de bord : values[0] = values[0];
 			 */
 		void filter_past_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb_factor);
-	#endif
 
 	#ifdef FAST_COS_SIN
 		void COS_SIN_4096_get(Sint16 teta,Sint16 * cos, Sint16 * sin);

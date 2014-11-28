@@ -11,19 +11,89 @@
 #ifndef CONFIG_USE_H
 #define CONFIG_USE_H
 
-//#define MODE_SIMULATION
-#ifdef MODE_SIMULATION
-#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
-#endif
-/* Pour certaines config particulieres, il faut definir qui on est
- * a l'aide d'une des valeurs du type cartes_e de QS_types.h */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///MODES////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
+	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
+	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+	//#define LCD_TOUCH								//Active le LCD tactile
+
+/*	MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
+ * 	 1 - activez les 4 defines ci-dessus
+ * 	 2 - activez MODE_SIMULATION sur la carte STRATEGIE
+ *   3 - avec 4 fils : reliez entre les cartes PROP et STRAT (éventuellement le 5V...) :
+ *   	GND<->GND
+ *   	5V<->5V
+ *   	PB6<->PB7
+ *   	PB7<->PB6
+ *   4 - désactivez le verbose stratégie en reliant PA7 à un potentiel GND. (par exemple jumper entre PA7 et PA5).
+ *   Vous avez un robot virtuel parfait...
+ */
+
+
+/* MODE d'EMPLOI : carte propulsion sur un fond de panier sans robot réel
+ *
+ * Activer les define SIMULATION_VIRTUAL_PERFECT_ROBOT et CAN_SEND_OVER_UART (et c'est tout !)
+ *
+ */
+
+/* ECRAN TACTILE - sans simulation (= à coté d'un fond de panier, avec un robot virtuel ou réel)
+ *
+ * Vous pouvez brancher une carte avec un LCD, avec les paramètres suivants :
+ * - Activer les 4 defines ci-dessus. (oui, oui !)
+ * - Relier l'UART Tx de la propulsion vers l'UART Rx de la carte supportant l'écran tactile.
+ */
+
+//MODES INDISPENSABLES EN MATCHS
+	#define PERIODE_IT_ASSER (5)	//[ms] ne pas y toucher sans savoir ce qu'on fait, (ou bien vous voulez vraiment tout casser !)
+
+	#define ENABLE_CAN			//Activation du bus CAN...
+
+	#define USE_CODEUR_SUR_IT_ET_QE		//Utiliser les IT externes et les QEx pour acquérir les infos codeurs au lieu du CPLD !
+
+	#define USE_HOKUYO	//Active le module HOKUYO et la détection des ennemis... !
+
+	//#define USE_GYROSCOPE
+
+	#define USE_PROP_AVOIDANCE
+	#define USE_ACT_AVOID
+
+	#define FAST_COS_SIN
+
+	//#define VERBOSE_MSG_SEND_OVER_UART
+
+//MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
+
+	//#define MODE_REGLAGE_KV
+	#ifdef MODE_REGLAGE_KV
+		#ifndef VERBOSE_MODE
+			#warning "Le mode réglage KV a besoin du VERBOSE_MODE"
+		#endif
+	#endif
 
 
 
-/* Les instructions suivantes permettent de configurer certaines
-* entrees/sorties du pic pour realiser des fonctionnalites
-* particulieres comme une entree analogique
-*/
+//	#define MODE_PRINTF_TABLEAU		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...
+
+ //	#define MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT	//Permet des affichage en débug d'un tas de variables
+													//Mais comme le temps passé à l'affichage est supérieur au rythme d'évolution des variables
+													//Il est pratique de figer une sauvegarde de toutes la structure global_t et d'afficher ensuite des données "cohérentes", prises au même "instant" !
+													//Voir le code associé à cette macro !
+
+//	#define SUPERVISOR_DISABLE_ERROR_DETECTION			//Dangereux, mais parfois utile !
+
+
+//	#define CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION //Inutile... Voir wiki...
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///QS////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 #define USE_CAN
 #ifndef USE_CAN
@@ -34,23 +104,18 @@
 pour traitement hors interuption */
 #define CAN_BUF_SIZE		32
 #if defined(STM32F40XX)
-#define QS_CAN_RX_IT_PRI	5	//Plus faible = plus prioritaire
+	#define QS_CAN_RX_IT_PRI	5	//Plus faible = plus prioritaire
 #else
-#define QS_CAN_RX_IT_PRI	CAN_INT_PRI_6	//Modif de la priorité de l'IT can pour rendre la priorité des codeurs plus grande !
+	#define QS_CAN_RX_IT_PRI	CAN_INT_PRI_6	//Modif de la priorité de l'IT can pour rendre la priorité des codeurs plus grande !
 #endif
 
 #define I_AM CARTE_PROP		//A voir avec Gwenn pour changer
 #define I_AM_CARTE_PROP
 
-#if defined(STM32F40XX)
 #define HCLK_FREQUENCY_HZ     168000000	//40Mhz, Max: 168Mhz
 #define PCLK1_FREQUENCY_HZ    42000000	//10Mhz, Max: 42Mhz
 #define PCLK2_FREQUENCY_HZ    84000000	//40Mhz, Max: 84Mhz
 #define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
-#else
-/* Il faut choisir à quelle frequence on fait tourner le PIC */
-#define FREQ_10MHZ
-#endif
 
 #define USE_UART1
 #define USE_UART1RXINTERRUPT
@@ -82,9 +147,9 @@ les caracteres recus sur UART */
 #include "../_Propulsion_config.h"
 
 #ifdef USE_CODEUR_SUR_IT_ET_QE
-#define USE_QEI_ON_IT
-#define QEI_ON_IT_QA 1
-#define QEI_ON_IT_QB 2
+	#define USE_QEI_ON_IT
+	#define QEI_ON_IT_QA 1
+	#define QEI_ON_IT_QB 2
 #endif
 
 #define USE_WATCHDOG
