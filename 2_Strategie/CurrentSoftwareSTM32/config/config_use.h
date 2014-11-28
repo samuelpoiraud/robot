@@ -11,8 +11,16 @@
 #ifndef CONFIG_USE_H
 #define CONFIG_USE_H
 
-//#define MODE_SIMULATION
+
+//#define ROBOT_VIRTUEL_PARFAIT		// Afin que les actionneurs et certaines fonction en strat renvoi true
+#ifdef ROBOT_VIRTUEL_PARFAIT
+#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+#endif
+
+
+//#define MODE_SIMULATION		// N'utilise pas le CAN
 #ifdef MODE_SIMULATION
+#define ROBOT_VIRTUEL_PARFAIT
 #warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
 #endif
 /* Pour certaines config particulieres, il faut definir qui on est
@@ -57,7 +65,7 @@ pour traitement hors interuption */
 #define CAN_SEND_TIMEOUT_ENABLE
 
 
-#define UART1_BAUDRATE	1382400
+#define UART1_BAUDRATE	115200
 #define USE_UART1
 #define USE_UART1RXINTERRUPT
 #define BUFFER_U1TX_SIZE 1280

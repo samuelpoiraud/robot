@@ -30,10 +30,12 @@ void ACT_AVOIDANCE_init(){
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
 		//init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Lock, ACT_TORCH_Locker_Lock,		0, 0, 60, 0);
 		//init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Unlock, ACT_TORCH_Locker_Unlock, 0, 0, 50, 0);
-		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Unlock, ACT_AVOID_POP_COLLECT_LEFT_Unlock, 60, 0, 0, 60);
-		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_RIGHT_Unlock, ACT_AVOID_POP_COLLECT_RIGHT_Unlock, 60, 0, 0, 60);
-		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_LEFT_Unlock, ACT_AVOID_POP_DROP_LEFT_Unlock, 0, 0, 0, 60);
-		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_RIGHT_Unlock, ACT_AVOID_POP_DROP_RIGHT_Unlock, 0, 0, 0, 60);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Open, ACT_pop_collect_left_open, 60, 0, 0, 60);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Mid, ACT_pop_collect_left_mid, 30, 0, 0, 30);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_RIGHT_Open, ACT_pop_collect_right_open, 0, 60, 0, 60);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_RIGHT_Mid, ACT_pop_collect_right_mid, 0, 30, 0, 30);
+		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_LEFT_Open, ACT_pop_drop_left_open, 0, 0, 0, 60);
+		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_RIGHT_Open, ACT_pop_drop_right_open, 0, 0, 0, 60);
 	}
 }
 
