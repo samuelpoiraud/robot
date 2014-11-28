@@ -33,7 +33,7 @@
 	
 	typedef struct
 	{
-		Uint8 counts[NOMBRE_TSOP];	//la valeur max de 255 serait atteinte en 75ms... (avec 1 ajouté chaque 300us)
+		Uint16 counts[NOMBRE_TSOP];	// 1 ajouté chaque 130us
 		time16_t begin;
 		time16_t end;
 	}detection_t;
