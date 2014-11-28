@@ -129,7 +129,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 
 	//Section critique. le tableau adversaries ne peut pas être consulté en IT pendant sa modification ici..
 	//Pour éviter cette section critique qui est "un peu" longue... il faudrait simplement mémoriser en tâche de fond msg et adv... et les traiter en IT.
-	TIMER1_disableInt();
+	TIMER2_disableInt();
 
 	if(msg != NULL)
 	{
@@ -240,7 +240,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 	}
 
 
-	debug_printf("Adv 1 : ");
+	/*debug_printf("Adv 1 : ");
 	if(adversaries[HOKUYO_MAX_FOES].enable == TRUE){
 		debug_printf("\nx : %d\ny : %d\n", adversaries[HOKUYO_MAX_FOES].x, adversaries[HOKUYO_MAX_FOES].y);
 		debug_printf("t : %d\nd : %d\n", adversaries[HOKUYO_MAX_FOES].angle*180/PI4096, adversaries[HOKUYO_MAX_FOES].dist);
@@ -252,9 +252,9 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 		debug_printf("\nx : %d\ny : %d\n", adversaries[HOKUYO_MAX_FOES+1].x, adversaries[HOKUYO_MAX_FOES+1].y);
 		debug_printf("t : %d\nd : %d\n", adversaries[HOKUYO_MAX_FOES+1].angle*180/PI4096, adversaries[HOKUYO_MAX_FOES+1].dist);
 	}else
-		debug_printf("disabled\n\n");
+		debug_printf("disabled\n\n");*/
 
-	TIMER1_enableInt();
+	TIMER2_enableInt();
 	//Fin de la section critique
 }
 
