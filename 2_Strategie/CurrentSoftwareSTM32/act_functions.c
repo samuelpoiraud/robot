@@ -60,7 +60,7 @@
 
 	debug_printf("Pushing torch locker Run cmd\n");
 
-	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_TORCH_LOCKER, cmd);
+*******   ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_TORCH_LOCKER, cmd); ***    <----  Prend en compte la position de l'actionneur pour l'évitement
 
 	return ACT_push_operation(ACT_QUEUE_Torch_locker, &args);
 }*/
@@ -69,6 +69,10 @@ bool_e ACT_pop_collect_left(ACT_pop_collect_left_cmd_e cmd) {
 
 	ACT_arg_init(&args, ACT_POP_COLLECT_LEFT, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_POP_COLLECT_LEFT,  ACT_POP_COLLECT_LEFT_STOP);
+
+	debug_printf("Pushing pop collect left Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_POP_COLLECT_LEFT, cmd);
 
 	return ACT_push_operation(ACT_QUEUE_Pop_collect_left, &args);
 }
@@ -79,6 +83,10 @@ bool_e ACT_pop_collect_right(ACT_pop_collect_right_cmd_e cmd) {
 	ACT_arg_init(&args, ACT_POP_COLLECT_RIGHT, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_POP_COLLECT_RIGHT,  ACT_POP_COLLECT_RIGHT_STOP);
 
+	debug_printf("Pushing pop collect right Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_POP_COLLECT_RIGHT, cmd);
+
 	return ACT_push_operation(ACT_QUEUE_Pop_collect_right, &args);
 }
 
@@ -88,6 +96,10 @@ bool_e ACT_pop_drop_left(ACT_pop_drop_left_cmd_e cmd) {
 	ACT_arg_init(&args, ACT_POP_DROP_LEFT, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_POP_DROP_LEFT,  ACT_POP_DROP_LEFT_STOP);
 
+	debug_printf("Pushing pop drop left Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_POP_DROP_LEFT, cmd);
+
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_left, &args);
 }
 
@@ -96,6 +108,10 @@ bool_e ACT_pop_drop_right(ACT_pop_drop_right_cmd_e cmd) {
 
 	ACT_arg_init(&args, ACT_POP_DROP_RIGHT, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_POP_DROP_RIGHT,  ACT_POP_DROP_RIGHT_STOP);
+
+	debug_printf("Pushing pop drop right Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_POP_DROP_RIGHT, cmd);
 
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_right, &args);
 }
