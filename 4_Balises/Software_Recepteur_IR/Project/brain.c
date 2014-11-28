@@ -203,8 +203,8 @@ volatile adversary_location_t * BRAIN_get_adversary_location(void)
 // (distance + angle)
 error_t BRAIN_find_main_tsop(Uint8 i)
 {
-	Uint8 tsop, main_count;
-	Uint8 main_tsop = 0;
+	Uint8 tsop, main_tsop = 0;
+	Uint16 main_count;
 	
 	main_count = 0;
 	//recherche du numéro du récepteur ayant vu la plus grande valeur

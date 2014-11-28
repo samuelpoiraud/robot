@@ -170,7 +170,7 @@
 			//MAJ des compteurs...
 			//On pourrait trouver une belle boucle... mais le but est de pas trainer à calculer des i ou des trucs longs à calculer...
 			//ICI, il faut pédaler dur ! (la récup du pointeur ci-dessous permet de gagner du temps !)
-			Uint8 * p_counts = detections[index].counts;
+			Uint16 * p_counts = detections[index].counts;
 
 			if(reception & 0b0000000000000001)	p_counts[0]++;
 			if(reception & 0b0000000000000010)	p_counts[1]++;
