@@ -14,7 +14,7 @@
 #include "QS/QS_pwm.h"
 #include <pwm.h>
 #include "QS/QS_timer.h"
-#include "QS_outputlog.h"
+#include "QS/QS_outputlog.h"
 #include "Global_config.h"
 #include "QS/QS_rf.h"
 #include "EmissionIR.h"

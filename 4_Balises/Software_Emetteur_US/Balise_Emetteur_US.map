@@ -1,64 +1,64 @@
 Archive member included because of file (symbol)
 
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenMCPWM.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenMCPWM.o)
                               QS_pwm.o (OpenMCPWM)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(SetDCMCPWM.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(SetDCMCPWM.o)
                               QS_pwm.o (SetDCMCPWM)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer1.o)
                               QS_timer.o (ConfigIntTimer1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer2.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer2.o)
                               QS_timer.o (ConfigIntTimer2)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer3.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer3.o)
                               QS_timer.o (ConfigIntTimer3)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer45.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer45.o)
                               QS_timer.o (ConfigIntTimer45)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer1.o)
                               QS_timer.o (WriteTimer1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer1.o)
                               QS_timer.o (CloseTimer1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer1.o)
                               QS_timer.o (OpenTimer1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer2.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer2.o)
                               QS_timer.o (WriteTimer2)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer2.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer2.o)
                               QS_timer.o (CloseTimer2)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer2.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer2.o)
                               QS_timer.o (OpenTimer2)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer3.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer3.o)
                               QS_timer.o (WriteTimer3)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer3.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer3.o)
                               QS_timer.o (CloseTimer3)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer3.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer3.o)
                               QS_timer.o (OpenTimer3)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer45.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer45.o)
                               QS_timer.o (WriteTimer45)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer45.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer45.o)
                               QS_timer.o (CloseTimer45)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer4.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer4.o)
                               QS_timer.o (OpenTimer4)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenUART1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenUART1.o)
                               QS_uart.o (OpenUART1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntUART1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntUART1.o)
                               QS_uart.o (ConfigIntUART1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadUART1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadUART1.o)
                               QS_uart.o (ReadUART1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(DataRdyUART1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(DataRdyUART1.o)
                               QS_uart.o (DataRdyUART1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(BusyUART1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(BusyUART1.o)
                               QS_uart.o (BusyUART1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteUART1.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteUART1.o)
                               QS_uart.o (WriteUART1)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenQEI.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenQEI.o)
                               QS_qei.o (OpenQEI)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadQEI.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadQEI.o)
                               QS_qei.o (ReadQEI)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenUART2.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenUART2.o)
                               QS_uart_dspic30f.o (OpenUART2)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntUART2.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntUART2.o)
                               QS_uart_dspic30f.o (ConfigIntUART2)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteUART2.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteUART2.o)
                               QS_uart_dspic30f.o (WriteUART2)
-M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadUART2.o)
+M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadUART2.o)
                               QS_uart_dspic30f.o (ReadUART2)
 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libpic30-coff.a(crt1.o)
                               (_resetALT)
@@ -225,13 +225,13 @@ Program Memory  [Origin = 0x100, Length = 0x17f00]
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x100              0x234a          0x34ef  (13551)
-.const                      0x244a               0x27e           0x3bd  (957)
-.text                       0x26c8              0x11c6          0x1aa9  (6825)
-.dinit                      0x388e               0x192           0x25b  (603)
-.text                       0x3a20               0x5ac           0x882  (2178)
-.isr                        0x3fcc                 0x2             0x3  (3)
+.const                      0x244a               0x2d8           0x444  (1092)
+.text                       0x2722              0x137c          0x1d3a  (7482)
+.dinit                      0x3a9e               0x19c           0x26a  (618)
+.text                       0x3c3a               0x4d6           0x741  (1857)
+.isr                        0x4110                 0x2             0x3  (3)
 
-                     Total program memory used (bytes):         0x5e35  (24117) 16%
+                     Total program memory used (bytes):         0x601b  (24603) 16%
 
 
 Data Memory  [Origin = 0x800, Length = 0x1fa0]
@@ -240,59 +240,61 @@ section                    address      alignment gaps    total length  (dec)
 -------                    -------      --------------    -------------------
 .nbss                        0x800                   0            0xa2  (162)
 .ndata                       0x8a2                   0             0x4  (4)
-.nbss                        0x8a6                   0             0xa  (10)
-.ndata                       0x8b0                   0             0x2  (2)
-.nbss                        0x8b2                   0             0x4  (4)
-.ndata                       0x8b6                   0             0x6  (6)
-.nbss                        0x8bc                   0             0x2  (2)
-.data                        0x8be                   0            0xd0  (208)
-.dconst                      0x98e                   0            0x32  (50)
-.data                        0x9c0                   0            0x34  (52)
-.dconst                      0x9f4                   0             0x8  (8)
-.data                        0x9fc                   0             0x6  (6)
-.bss                         0xa02                   0             0x2  (2)
-.data                        0xa04                   0             0x2  (2)
-.dconst                      0xa06                   0             0x2  (2)
+.nbss                        0x8a6                   0             0x4  (4)
+.ndata                       0x8aa                   0             0x4  (4)
+.nbss                        0x8ae                   0             0x6  (6)
+.ndata                       0x8b4                   0             0x2  (2)
+.nbss                        0x8b6                   0             0x4  (4)
+.ndata                       0x8ba                   0             0x6  (6)
+.nbss                        0x8c0                   0             0x2  (2)
+.data                        0x8c2                   0            0xd0  (208)
+.dconst                      0x992                   0            0x32  (50)
+.data                        0x9c4                   0            0x34  (52)
+.dconst                      0x9f8                   0             0x8  (8)
+.data                        0xa00                   0             0x6  (6)
+.bss                         0xa06                   0             0x2  (2)
 .data                        0xa08                   0             0x2  (2)
+.dconst                      0xa0a                   0             0x2  (2)
+.data                        0xa0c                   0             0x2  (2)
 
-                        Total data memory used (bytes):          0x20a  (522) 6%
+                        Total data memory used (bytes):          0x20e  (526) 6%
 
 
 Dynamic Memory Usage
 
 region                     address                      maximum length  (dec)
 ------                     -------                      ---------------------
-heap                         0xa0a                               0x100  (256)
-stack                        0xb0a                              0x1c96  (7318)
+heap                         0xa0e                               0x100  (256)
+stack                        0xb0e                              0x1c92  (7314)
 
-                        Maximum dynamic memory (bytes):         0x1d96  (7574)
+                        Maximum dynamic memory (bytes):         0x1d92  (7570)
 
 
 External Symbols in Data Memory (by address):
 
                     0x08a6                  _global
-                    0x08b0                  _step_ir
-                    0x08ba                  ___C30_UART
-                    0x08bc                  ___curbrk
-                    0x08be                  __Files
-                    0x08ce                  __Stderr
-                    0x08f6                  __Stdout
-                    0x091e                  __Stdin
-                    0x09fc                  __Size_block
-                    0x09fe                  __Aldata
+                    0x08b4                  _step_ir
+                    0x08be                  ___C30_UART
+                    0x08c0                  ___curbrk
+                    0x08c2                  __Files
+                    0x08d2                  __Stderr
+                    0x08fa                  __Stdout
+                    0x0922                  __Stdin
+                    0x0a00                  __Size_block
+                    0x0a02                  __Aldata
 
 External Symbols in Data Memory (by name):
 
-                    0x09fe                  __Aldata
-                    0x08be                  __Files
-                    0x09fc                  __Size_block
-                    0x08ce                  __Stderr
-                    0x091e                  __Stdin
-                    0x08f6                  __Stdout
-                    0x08ba                  ___C30_UART
-                    0x08bc                  ___curbrk
+                    0x0a02                  __Aldata
+                    0x08c2                  __Files
+                    0x0a00                  __Size_block
+                    0x08d2                  __Stderr
+                    0x0922                  __Stdin
+                    0x08fa                  __Stdout
+                    0x08be                  ___C30_UART
+                    0x08c0                  ___curbrk
                     0x08a6                  _global
-                    0x08b0                  _step_ir
+                    0x08b4                  _step_ir
 
 External Symbols in Program Memory (by address):
 
@@ -352,14 +354,14 @@ External Symbols in Program Memory (by address):
                   0x001b40                  ___divdi3
                   0x001b7a                  ___moddi3
                   0x001c4c                  ___muldi3
-                  0x001ca8                  ___eqdf2
                   0x001ca8                  ___ledf2
                   0x001ca8                  ___ltdf2
+                  0x001ca8                  ___eqdf2
                   0x001cb2                  ___fixdfsi
                   0x001d0a                  ___floatsidf
                   0x001d10                  ___subdf3
-                  0x001d14                  ___gtdf2
                   0x001d14                  ___gedf2
+                  0x001d14                  ___gtdf2
                   0x001d1e                  ___divsi3
                   0x001d3c                  ___muldf3
                   0x001e26                  ___divdf3
@@ -405,99 +407,101 @@ External Symbols in Program Memory (by address):
                   0x0023d8                  _ConfigIntUART2
                   0x002428                  _WriteUART2
                   0x002438                  _ReadUART2
-                  0x00270e                  _RF_init
-                  0x002746                  _RF_get_module_id
-                  0x0028da                  _RF_can_send
-                  0x00295a                  _RF_synchro_request
-                  0x00296c                  _RF_synchro_response
-                  0x002a4c                  _RF_state_machine
-                  0x002c2a                  _UART2_RX_Interrupt
-                  0x002c6a                  _RF_TX_Interrupt_
-                  0x002cb2                  _UART2_TX_Interrupt
-                  0x002cbe                  __T2Interrupt
-                  0x002cee                  _UART_IMPL_init
-                  0x002d0e                  _UART_IMPL_init_ex
-                  0x002e22                  _UART_IMPL_write
-                  0x002e56                  _UART_IMPL_read
-                  0x002e8a                  _UART_IMPL_isRxEmpty
-                  0x002ede                  _UART_IMPL_isTxFull
-                  0x002f1e                  _UART_IMPL_isIdle
-                  0x002f56                  _UART_IMPL_hasOverflow
-                  0x002f96                  _UART_IMPL_hasFrameError
-                  0x002fd6                  _UART_IMPL_resetErrors
-                  0x003062                  _UART_IMPL_setRxItPaused
-                  0x0030a6                  _UART_IMPL_setTxItPaused
-                  0x0030ea                  _UART_IMPL_setRxItEnabled
-                  0x00310c                  _UART_IMPL_setTxItEnabled
-                  0x00312e                  _UART_IMPL_ackRxIt
-                  0x003158                  _UART_IMPL_ackTxIt
-                  0x003182                  _UART_IMPL_isRxItTriggered
-                  0x0031be                  _UART_IMPL_isTxItTriggered
-                  0x0032fe                  _SYNCRF_init
-                  0x003330                  __T3Interrupt
-                  0x003356                  _SYNCRF_process_main
-                  0x0033ae                  _SYNCRF_sendRequest
-                  0x00343c                  SynchroRF.o:_rf_packet_received_callback
-                  0x0034ce                  SynchroRF.o:_rf_can_received_callback
-                  0x0034fa                  _EXTERN_IT_set_priority
-                  0x0035a0                  _EXTERN_IT_enable
-                  0x00364a                  _EXTERN_IT_disable
-                  0x00369a                  _EXTERN_IT_acknowledge
-                  0x0036e0                  _FIFO_init
-                  0x00370c                  _FIFO_availableElements
-                  0x00373c                  _FIFO_isEmpty
-                  0x00375a                  _FIFO_isFull
-                  0x003786                  _FIFO_insertData
-                  0x0037ec                  _FIFO_getData
-                  0x003a20                  _TIMER_init
-                  0x003a40                  _TIMER1_stop
-                  0x003a4e                  _TIMER1_run
-                  0x003a6c                  _TIMER1_run_us
-                  0x003a80                  _TIMER2_stop
-                  0x003a8e                  _TIMER2_run
-                  0x003aac                  _TIMER2_run_us
-                  0x003ac0                  _TIMER3_stop
-                  0x003ace                  _TIMER3_run
-                  0x003aec                  _TIMER3_run_us
-                  0x003b00                  _TIMER4_stop
-                  0x003b0e                  _TIMER4_run
-                  0x003b46                  _TIMER4_read
-                  0x003b70                  _UART_init
-                  0x003ba2                  _UART1_data_ready
-                  0x003baa                  __U1RXInterrupt
-                  0x003c2c                  _UART1_get_next_msg
-                  0x003c86                  _UART1_putc
-                  0x003c98                  _MOTOR_init
-                  0x003caa                  _MOTOR_process_it
-                  0x003d30                  _MOTOR_process_main
-                  0x003d36                  _MOTOR_togle_enable
-                  0x003d4e                  __T4Interrupt
-                  0x003d74                  _EmissionIR_ON
-                  0x003d7e                  _EmissionIR_OFF
-                  0x003d88                  _EmissionIR_AUTO
-                  0x003d94                  _EmissionIR_init
-                  0x003da0                  _EmissionIR_stop
-                  0x003da8                  _EmissionIR_step_init
-                  0x003db2                  _EmissionIR_next_step
-                  0x003e1e                  _main
-                  0x003e94                  _PWM_init
-                  0x003ebc                  _PWM_run
-                  0x003ee0                  _PWM_stop
-                  0x003efa                  _PORTS_init
-                  0x003f46                  _PORTS_adc_init
-                  0x003f5c                  _OUTPUTLOG_printf
-                  0x003f7c                  _OUTPUTLOG_set_level
-                  0x003f98                  _OUTPUTLOG_get_level
-                  0x003fa0                  _QEI_init
-                  0x003fb8                  _QEI_get_count
-                  0x003fc0                  _QEI_set_count
-                  0x003fcc                  __DefaultInterrupt
+                  0x002768                  _RF_init
+                  0x0027a0                  _RF_get_module_id
+                  0x002934                  _RF_can_send
+                  0x0029b4                  _RF_synchro_request
+                  0x0029c6                  _RF_synchro_response
+                  0x002aa6                  _RF_state_machine
+                  0x002c84                  _UART2_RX_Interrupt
+                  0x002cc4                  _RF_TX_Interrupt_
+                  0x002d0c                  _UART2_TX_Interrupt
+                  0x002d18                  __T2Interrupt
+                  0x002d48                  _UART_IMPL_init
+                  0x002d68                  _UART_IMPL_init_ex
+                  0x002e7c                  _UART_IMPL_write
+                  0x002eb0                  _UART_IMPL_read
+                  0x002ee4                  _UART_IMPL_isRxEmpty
+                  0x002f38                  _UART_IMPL_isTxFull
+                  0x002f78                  _UART_IMPL_isIdle
+                  0x002fb0                  _UART_IMPL_hasOverflow
+                  0x002ff0                  _UART_IMPL_hasFrameError
+                  0x003030                  _UART_IMPL_resetErrors
+                  0x0030bc                  _UART_IMPL_setRxItPaused
+                  0x003100                  _UART_IMPL_setTxItPaused
+                  0x003144                  _UART_IMPL_setRxItEnabled
+                  0x003166                  _UART_IMPL_setTxItEnabled
+                  0x003188                  _UART_IMPL_ackRxIt
+                  0x0031b2                  _UART_IMPL_ackTxIt
+                  0x0031dc                  _UART_IMPL_isRxItTriggered
+                  0x003218                  _UART_IMPL_isTxItTriggered
+                  0x003358                  _SYNCRF_init
+                  0x00338a                  __T3Interrupt
+                  0x0033b0                  _SYNCRF_process_main
+                  0x003412                  _SYNCRF_sendRequest
+                  0x0034a0                  SynchroRF.o:_rf_packet_received_callback
+                  0x003532                  SynchroRF.o:_rf_can_received_callback
+                  0x00355e                  _EXTERN_IT_set_priority
+                  0x003604                  _EXTERN_IT_enable
+                  0x0036ae                  _EXTERN_IT_disable
+                  0x0036fe                  _EXTERN_IT_acknowledge
+                  0x003744                  _FIFO_init
+                  0x003770                  _FIFO_availableElements
+                  0x0037a0                  _FIFO_isEmpty
+                  0x0037be                  _FIFO_isFull
+                  0x0037ea                  _FIFO_insertData
+                  0x003850                  _FIFO_getData
+                  0x0038f2                  _MOTOR_init
+                  0x003904                  _MOTOR_process_it
+                  0x0039bc                  _MOTOR_process_main
+                  0x0039c2                  _MOTOR_togle_enable
+                  0x0039da                  __T4Interrupt
+                  0x003a00                  _MOTOR_send_bat_low
+                  0x003a3c                  _MOTOR_send_bat_state
+                  0x003c3a                  _TIMER_init
+                  0x003c5a                  _TIMER1_stop
+                  0x003c68                  _TIMER1_run
+                  0x003c86                  _TIMER1_run_us
+                  0x003c9a                  _TIMER2_stop
+                  0x003ca8                  _TIMER2_run
+                  0x003cc6                  _TIMER2_run_us
+                  0x003cda                  _TIMER3_stop
+                  0x003ce8                  _TIMER3_run
+                  0x003d06                  _TIMER3_run_us
+                  0x003d1a                  _TIMER4_stop
+                  0x003d28                  _TIMER4_run
+                  0x003d60                  _TIMER4_read
+                  0x003d8a                  _UART_init
+                  0x003dbc                  _UART1_data_ready
+                  0x003dc4                  __U1RXInterrupt
+                  0x003e46                  _UART1_get_next_msg
+                  0x003ea0                  _UART1_putc
+                  0x003eb2                  _EmissionIR_ON
+                  0x003ebe                  _EmissionIR_OFF
+                  0x003eca                  _EmissionIR_AUTO
+                  0x003ed6                  _EmissionIR_init
+                  0x003ee2                  _EmissionIR_stop
+                  0x003eea                  _EmissionIR_step_init
+                  0x003ef4                  _EmissionIR_next_step
+                  0x003f62                  _main
+                  0x003fd8                  _PWM_init
+                  0x004000                  _PWM_run
+                  0x004024                  _PWM_stop
+                  0x00403e                  _PORTS_init
+                  0x00408a                  _PORTS_adc_init
+                  0x0040a0                  _OUTPUTLOG_printf
+                  0x0040c0                  _OUTPUTLOG_set_level
+                  0x0040dc                  _OUTPUTLOG_get_level
+                  0x0040e4                  _QEI_init
+                  0x0040fc                  _QEI_get_count
+                  0x004104                  _QEI_set_count
+                  0x004110                  __DefaultInterrupt
                   0xf8000a                  __FGS.sec
 
 External Symbols in Program Memory (by name):
 
-                  0x0034ce                  SynchroRF.o:_rf_can_received_callback
-                  0x00343c                  SynchroRF.o:_rf_packet_received_callback
+                  0x003532                  SynchroRF.o:_rf_can_received_callback
+                  0x0034a0                  SynchroRF.o:_rf_packet_received_callback
                   0x002396                  _BusyUART1
                   0x0022c8                  _CloseTimer1
                   0x0022dc                  _CloseTimer2
@@ -510,30 +514,32 @@ External Symbols in Program Memory (by name):
                   0x002328                  _ConfigIntUART1
                   0x0023d8                  _ConfigIntUART2
                   0x002390                  _DataRdyUART1
-                  0x00369a                  _EXTERN_IT_acknowledge
-                  0x00364a                  _EXTERN_IT_disable
-                  0x0035a0                  _EXTERN_IT_enable
-                  0x0034fa                  _EXTERN_IT_set_priority
-                  0x003d88                  _EmissionIR_AUTO
-                  0x003d7e                  _EmissionIR_OFF
-                  0x003d74                  _EmissionIR_ON
-                  0x003d94                  _EmissionIR_init
-                  0x003db2                  _EmissionIR_next_step
-                  0x003da8                  _EmissionIR_step_init
-                  0x003da0                  _EmissionIR_stop
-                  0x00370c                  _FIFO_availableElements
-                  0x0037ec                  _FIFO_getData
-                  0x0036e0                  _FIFO_init
-                  0x003786                  _FIFO_insertData
-                  0x00373c                  _FIFO_isEmpty
-                  0x00375a                  _FIFO_isFull
-                  0x003c98                  _MOTOR_init
-                  0x003caa                  _MOTOR_process_it
-                  0x003d30                  _MOTOR_process_main
-                  0x003d36                  _MOTOR_togle_enable
-                  0x003f98                  _OUTPUTLOG_get_level
-                  0x003f5c                  _OUTPUTLOG_printf
-                  0x003f7c                  _OUTPUTLOG_set_level
+                  0x0036fe                  _EXTERN_IT_acknowledge
+                  0x0036ae                  _EXTERN_IT_disable
+                  0x003604                  _EXTERN_IT_enable
+                  0x00355e                  _EXTERN_IT_set_priority
+                  0x003eca                  _EmissionIR_AUTO
+                  0x003ebe                  _EmissionIR_OFF
+                  0x003eb2                  _EmissionIR_ON
+                  0x003ed6                  _EmissionIR_init
+                  0x003ef4                  _EmissionIR_next_step
+                  0x003eea                  _EmissionIR_step_init
+                  0x003ee2                  _EmissionIR_stop
+                  0x003770                  _FIFO_availableElements
+                  0x003850                  _FIFO_getData
+                  0x003744                  _FIFO_init
+                  0x0037ea                  _FIFO_insertData
+                  0x0037a0                  _FIFO_isEmpty
+                  0x0037be                  _FIFO_isFull
+                  0x0038f2                  _MOTOR_init
+                  0x003904                  _MOTOR_process_it
+                  0x0039bc                  _MOTOR_process_main
+                  0x003a00                  _MOTOR_send_bat_low
+                  0x003a3c                  _MOTOR_send_bat_state
+                  0x0039c2                  _MOTOR_togle_enable
+                  0x0040dc                  _OUTPUTLOG_get_level
+                  0x0040a0                  _OUTPUTLOG_printf
+                  0x0040c0                  _OUTPUTLOG_set_level
                   0x0021fc                  _OpenMCPWM
                   0x0023ae                  _OpenQEI
                   0x0022d0                  _OpenTimer1
@@ -542,65 +548,65 @@ External Symbols in Program Memory (by name):
                   0x002316                  _OpenTimer4
                   0x002320                  _OpenUART1
                   0x0023d0                  _OpenUART2
-                  0x003f46                  _PORTS_adc_init
-                  0x003efa                  _PORTS_init
-                  0x003e94                  _PWM_init
-                  0x003ebc                  _PWM_run
-                  0x003ee0                  _PWM_stop
-                  0x003fb8                  _QEI_get_count
-                  0x003fa0                  _QEI_init
-                  0x003fc0                  _QEI_set_count
-                  0x002c6a                  _RF_TX_Interrupt_
-                  0x0028da                  _RF_can_send
-                  0x002746                  _RF_get_module_id
-                  0x00270e                  _RF_init
-                  0x002a4c                  _RF_state_machine
-                  0x00295a                  _RF_synchro_request
-                  0x00296c                  _RF_synchro_response
+                  0x00408a                  _PORTS_adc_init
+                  0x00403e                  _PORTS_init
+                  0x003fd8                  _PWM_init
+                  0x004000                  _PWM_run
+                  0x004024                  _PWM_stop
+                  0x0040fc                  _QEI_get_count
+                  0x0040e4                  _QEI_init
+                  0x004104                  _QEI_set_count
+                  0x002cc4                  _RF_TX_Interrupt_
+                  0x002934                  _RF_can_send
+                  0x0027a0                  _RF_get_module_id
+                  0x002768                  _RF_init
+                  0x002aa6                  _RF_state_machine
+                  0x0029b4                  _RF_synchro_request
+                  0x0029c6                  _RF_synchro_response
                   0x0023cc                  _ReadQEI
                   0x00237e                  _ReadUART1
                   0x002438                  _ReadUART2
-                  0x0032fe                  _SYNCRF_init
-                  0x003356                  _SYNCRF_process_main
-                  0x0033ae                  _SYNCRF_sendRequest
+                  0x003358                  _SYNCRF_init
+                  0x0033b0                  _SYNCRF_process_main
+                  0x003412                  _SYNCRF_sendRequest
                   0x002208                  _SetDCMCPWM
-                  0x003a4e                  _TIMER1_run
-                  0x003a6c                  _TIMER1_run_us
-                  0x003a40                  _TIMER1_stop
-                  0x003a8e                  _TIMER2_run
-                  0x003aac                  _TIMER2_run_us
-                  0x003a80                  _TIMER2_stop
-                  0x003ace                  _TIMER3_run
-                  0x003aec                  _TIMER3_run_us
-                  0x003ac0                  _TIMER3_stop
-                  0x003b46                  _TIMER4_read
-                  0x003b0e                  _TIMER4_run
-                  0x003b00                  _TIMER4_stop
-                  0x003a20                  _TIMER_init
-                  0x003ba2                  _UART1_data_ready
-                  0x003c2c                  _UART1_get_next_msg
-                  0x003c86                  _UART1_putc
-                  0x002c2a                  _UART2_RX_Interrupt
-                  0x002cb2                  _UART2_TX_Interrupt
-                  0x00312e                  _UART_IMPL_ackRxIt
-                  0x003158                  _UART_IMPL_ackTxIt
-                  0x002f96                  _UART_IMPL_hasFrameError
-                  0x002f56                  _UART_IMPL_hasOverflow
-                  0x002cee                  _UART_IMPL_init
-                  0x002d0e                  _UART_IMPL_init_ex
-                  0x002f1e                  _UART_IMPL_isIdle
-                  0x002e8a                  _UART_IMPL_isRxEmpty
-                  0x003182                  _UART_IMPL_isRxItTriggered
-                  0x002ede                  _UART_IMPL_isTxFull
-                  0x0031be                  _UART_IMPL_isTxItTriggered
-                  0x002e56                  _UART_IMPL_read
-                  0x002fd6                  _UART_IMPL_resetErrors
-                  0x0030ea                  _UART_IMPL_setRxItEnabled
-                  0x003062                  _UART_IMPL_setRxItPaused
-                  0x00310c                  _UART_IMPL_setTxItEnabled
-                  0x0030a6                  _UART_IMPL_setTxItPaused
-                  0x002e22                  _UART_IMPL_write
-                  0x003b70                  _UART_init
+                  0x003c68                  _TIMER1_run
+                  0x003c86                  _TIMER1_run_us
+                  0x003c5a                  _TIMER1_stop
+                  0x003ca8                  _TIMER2_run
+                  0x003cc6                  _TIMER2_run_us
+                  0x003c9a                  _TIMER2_stop
+                  0x003ce8                  _TIMER3_run
+                  0x003d06                  _TIMER3_run_us
+                  0x003cda                  _TIMER3_stop
+                  0x003d60                  _TIMER4_read
+                  0x003d28                  _TIMER4_run
+                  0x003d1a                  _TIMER4_stop
+                  0x003c3a                  _TIMER_init
+                  0x003dbc                  _UART1_data_ready
+                  0x003e46                  _UART1_get_next_msg
+                  0x003ea0                  _UART1_putc
+                  0x002c84                  _UART2_RX_Interrupt
+                  0x002d0c                  _UART2_TX_Interrupt
+                  0x003188                  _UART_IMPL_ackRxIt
+                  0x0031b2                  _UART_IMPL_ackTxIt
+                  0x002ff0                  _UART_IMPL_hasFrameError
+                  0x002fb0                  _UART_IMPL_hasOverflow
+                  0x002d48                  _UART_IMPL_init
+                  0x002d68                  _UART_IMPL_init_ex
+                  0x002f78                  _UART_IMPL_isIdle
+                  0x002ee4                  _UART_IMPL_isRxEmpty
+                  0x0031dc                  _UART_IMPL_isRxItTriggered
+                  0x002f38                  _UART_IMPL_isTxFull
+                  0x003218                  _UART_IMPL_isTxItTriggered
+                  0x002eb0                  _UART_IMPL_read
+                  0x003030                  _UART_IMPL_resetErrors
+                  0x003144                  _UART_IMPL_setRxItEnabled
+                  0x0030bc                  _UART_IMPL_setRxItPaused
+                  0x003166                  _UART_IMPL_setTxItEnabled
+                  0x003100                  _UART_IMPL_setTxItPaused
+                  0x002e7c                  _UART_IMPL_write
+                  0x003d8a                  _UART_init
                   0x0022c4                  _WriteTimer1
                   0x0022d8                  _WriteTimer2
                   0x0022ee                  _WriteTimer3
@@ -610,7 +616,7 @@ External Symbols in Program Memory (by name):
                   0x00116e                  __Atexit
                   0x000a78                  __Closreg
                   0x0004b0                  __DNKfflush
-                  0x003fcc                  __DefaultInterrupt
+                  0x004110                  __DefaultInterrupt
                   0x001574                  __Dnorm
                   0xf8000a                  __FGS.sec
                   0x000408                  __Fwprep
@@ -623,10 +629,10 @@ External Symbols in Program Memory (by name):
                   0x000296                  __Printf
                   0x0006da                  __Putfld
                   0x000546                  __Puttxt
-                  0x002cbe                  __T2Interrupt
-                  0x003330                  __T3Interrupt
-                  0x003d4e                  __T4Interrupt
-                  0x003baa                  __U1RXInterrupt
+                  0x002d18                  __T2Interrupt
+                  0x00338a                  __T3Interrupt
+                  0x0039da                  __T4Interrupt
+                  0x003dc4                  __U1RXInterrupt
                   0x00052a                  __Vacopy
                   0x00206a                  ___adddf3
                   0x0017ee                  ___addsf3
@@ -683,7 +689,7 @@ External Symbols in Program Memory (by name):
                   0x001106                  _free
                   0x0001ec                  _fwrite
                   0x0012d2                  _ldiv
-                  0x003e1e                  _main
+                  0x003f62                  _main
                   0x0009d4                  _malloc
                   0x00048e                  _memchr
                   0x0004a2                  _memcpy
@@ -734,7 +740,7 @@ LOAD QS_outputlog.o
 LOAD QS_uart_dspic30f.o
 LOAD QS_buffer_fifo.o
 LOAD SynchroRF.o
-LOAD M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a
+LOAD M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a
 LOAD c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib/dsPIC30F\libp30F6010A-coff.a
                     0xf80000                  __FOSC = 0xf80000
                     0xf80002                  __FWDT = 0xf80002
@@ -919,65 +925,65 @@ LOAD c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib/dsPIC30F\libp3
                   0x0021e0                  _dPropagateNaN
  *(.libdsp)
  *(.lib*)
- .libperi         0x0021fc          0xc M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenMCPWM.o)
+ .libperi         0x0021fc          0xc M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenMCPWM.o)
                   0x0021fc                  OpenMCPWM
- .libperi         0x002208         0x18 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(SetDCMCPWM.o)
+ .libperi         0x002208         0x18 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(SetDCMCPWM.o)
                   0x002208                  SetDCMCPWM
- .libperi         0x002220         0x2a M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer1.o)
+ .libperi         0x002220         0x2a M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer1.o)
                   0x002220                  ConfigIntTimer1
- .libperi         0x00224a         0x28 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer2.o)
+ .libperi         0x00224a         0x28 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer2.o)
                   0x00224a                  ConfigIntTimer2
- .libperi         0x002272         0x2a M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer3.o)
+ .libperi         0x002272         0x2a M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer3.o)
                   0x002272                  ConfigIntTimer3
- .libperi         0x00229c         0x28 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer45.o)
+ .libperi         0x00229c         0x28 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntTimer45.o)
                   0x00229c                  ConfigIntTimer45
- .libperi         0x0022c4          0x4 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer1.o)
+ .libperi         0x0022c4          0x4 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer1.o)
                   0x0022c4                  WriteTimer1
- .libperi         0x0022c8          0x8 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer1.o)
+ .libperi         0x0022c8          0x8 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer1.o)
                   0x0022c8                  CloseTimer1
- .libperi         0x0022d0          0x8 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer1.o)
+ .libperi         0x0022d0          0x8 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer1.o)
                   0x0022d0                  OpenTimer1
- .libperi         0x0022d8          0x4 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer2.o)
+ .libperi         0x0022d8          0x4 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer2.o)
                   0x0022d8                  WriteTimer2
- .libperi         0x0022dc          0x8 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer2.o)
+ .libperi         0x0022dc          0x8 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer2.o)
                   0x0022dc                  CloseTimer2
- .libperi         0x0022e4          0xa M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer2.o)
+ .libperi         0x0022e4          0xa M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer2.o)
                   0x0022e4                  OpenTimer2
- .libperi         0x0022ee          0x4 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer3.o)
+ .libperi         0x0022ee          0x4 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer3.o)
                   0x0022ee                  WriteTimer3
- .libperi         0x0022f2          0x8 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer3.o)
+ .libperi         0x0022f2          0x8 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer3.o)
                   0x0022f2                  CloseTimer3
- .libperi         0x0022fa          0x8 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer3.o)
+ .libperi         0x0022fa          0x8 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer3.o)
                   0x0022fa                  OpenTimer3
- .libperi         0x002302          0x6 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer45.o)
+ .libperi         0x002302          0x6 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteTimer45.o)
                   0x002302                  WriteTimer45
- .libperi         0x002308          0xe M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer45.o)
+ .libperi         0x002308          0xe M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(CloseTimer45.o)
                   0x002308                  CloseTimer45
- .libperi         0x002316          0xa M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer4.o)
+ .libperi         0x002316          0xa M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenTimer4.o)
                   0x002316                  OpenTimer4
- .libperi         0x002320          0x8 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenUART1.o)
+ .libperi         0x002320          0x8 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenUART1.o)
                   0x002320                  OpenUART1
- .libperi         0x002328         0x56 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntUART1.o)
+ .libperi         0x002328         0x56 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntUART1.o)
                   0x002328                  ConfigIntUART1
- .libperi         0x00237e         0x12 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadUART1.o)
+ .libperi         0x00237e         0x12 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadUART1.o)
                   0x00237e                  ReadUART1
- .libperi         0x002390          0x6 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(DataRdyUART1.o)
+ .libperi         0x002390          0x6 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(DataRdyUART1.o)
                   0x002390                  DataRdyUART1
- .libperi         0x002396          0x8 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(BusyUART1.o)
+ .libperi         0x002396          0x8 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(BusyUART1.o)
                   0x002396                  BusyUART1
- .libperi         0x00239e         0x10 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteUART1.o)
+ .libperi         0x00239e         0x10 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteUART1.o)
                   0x00239e                  WriteUART1
- .libperi         0x0023ae         0x1e M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenQEI.o)
+ .libperi         0x0023ae         0x1e M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenQEI.o)
                   0x0023ae                  OpenQEI
- .libperi         0x0023cc          0x4 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadQEI.o)
+ .libperi         0x0023cc          0x4 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadQEI.o)
                   0x0023cc                  ReadQEI
- .libperi         0x0023d0          0x8 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenUART2.o)
+ .libperi         0x0023d0          0x8 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(OpenUART2.o)
                   0x0023d0                  OpenUART2
- .libperi         0x0023d8         0x50 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntUART2.o)
+ .libperi         0x0023d8         0x50 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ConfigIntUART2.o)
                   0x0023d8                  ConfigIntUART2
- .libperi         0x002428         0x10 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteUART2.o)
+ .libperi         0x002428         0x10 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(WriteUART2.o)
                   0x002428                  WriteUART2
- .libperi         0x002438         0x12 M:\___ROBOT\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadUART2.o)
+ .libperi         0x002438         0x12 M:\Robot\__SVN_new\4_Balises\Software_Emetteur_US\QS\libp30F6010A-coff.a(ReadUART2.o)
                   0x002438                  ReadUART2
 
 usercode
@@ -1063,132 +1069,132 @@ userdata
  *(.debug_aranges)
 
 .ivt              0x000004         0x7c
-                  0x000004          0x4 LONG 0x3fcc DEFINED (__ReservedTrap0)?<code 337> (__ReservedTrap0):<code 337> (__DefaultInterrupt)
-                  0x000006          0x4 LONG 0x3fcc DEFINED (__OscillatorFail)?<code 337> (__OscillatorFail):<code 337> (__DefaultInterrupt)
-                  0x000008          0x4 LONG 0x3fcc DEFINED (__AddressError)?<code 337> (__AddressError):<code 337> (__DefaultInterrupt)
-                  0x00000a          0x4 LONG 0x3fcc DEFINED (__StackError)?<code 337> (__StackError):<code 337> (__DefaultInterrupt)
-                  0x00000c          0x4 LONG 0x3fcc DEFINED (__MathError)?<code 337> (__MathError):<code 337> (__DefaultInterrupt)
-                  0x00000e          0x4 LONG 0x3fcc DEFINED (__ReservedTrap5)?<code 337> (__ReservedTrap5):<code 337> (__DefaultInterrupt)
-                  0x000010          0x4 LONG 0x3fcc DEFINED (__ReservedTrap6)?<code 337> (__ReservedTrap6):<code 337> (__DefaultInterrupt)
-                  0x000012          0x4 LONG 0x3fcc DEFINED (__ReservedTrap7)?<code 337> (__ReservedTrap7):<code 337> (__DefaultInterrupt)
-                  0x000014          0x4 LONG 0x3fcc DEFINED (__INT0Interrupt)?<code 337> (__INT0Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000016          0x4 LONG 0x3fcc DEFINED (__IC1Interrupt)?<code 337> (__IC1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000018          0x4 LONG 0x3fcc DEFINED (__OC1Interrupt)?<code 337> (__OC1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00001a          0x4 LONG 0x3fcc DEFINED (__T1Interrupt)?<code 337> (__T1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00001c          0x4 LONG 0x3fcc DEFINED (__IC2Interrupt)?<code 337> (__IC2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00001e          0x4 LONG 0x3fcc DEFINED (__OC2Interrupt)?<code 337> (__OC2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000020          0x4 LONG 0x2cbe DEFINED (__T2Interrupt)?<code 337> (__T2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000022          0x4 LONG 0x3330 DEFINED (__T3Interrupt)?<code 337> (__T3Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000024          0x4 LONG 0x3fcc DEFINED (__SPI1Interrupt)?<code 337> (__SPI1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000026          0x4 LONG 0x3baa DEFINED (__U1RXInterrupt)?<code 337> (__U1RXInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000028          0x4 LONG 0x3250 DEFINED (__U1TXInterrupt)?<code 337> (__U1TXInterrupt):<code 337> (__DefaultInterrupt)
-                  0x00002a          0x4 LONG 0x3fcc DEFINED (__ADCInterrupt)?<code 337> (__ADCInterrupt):<code 337> (__DefaultInterrupt)
-                  0x00002c          0x4 LONG 0x3fcc DEFINED (__NVMInterrupt)?<code 337> (__NVMInterrupt):<code 337> (__DefaultInterrupt)
-                  0x00002e          0x4 LONG 0x3fcc DEFINED (__SI2CInterrupt)?<code 337> (__SI2CInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000030          0x4 LONG 0x3fcc DEFINED (__MI2CInterrupt)?<code 337> (__MI2CInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000032          0x4 LONG 0x3fcc DEFINED (__CNInterrupt)?<code 337> (__CNInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000034          0x4 LONG 0x3fcc DEFINED (__INT1Interrupt)?<code 337> (__INT1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000036          0x4 LONG 0x3fcc DEFINED (__IC7Interrupt)?<code 337> (__IC7Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000038          0x4 LONG 0x3fcc DEFINED (__IC8Interrupt)?<code 337> (__IC8Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00003a          0x4 LONG 0x3fcc DEFINED (__OC3Interrupt)?<code 337> (__OC3Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00003c          0x4 LONG 0x3fcc DEFINED (__OC4Interrupt)?<code 337> (__OC4Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00003e          0x4 LONG 0x3d4e DEFINED (__T4Interrupt)?<code 337> (__T4Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000040          0x4 LONG 0x3fcc DEFINED (__T5Interrupt)?<code 337> (__T5Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000042          0x4 LONG 0x3fcc DEFINED (__INT2Interrupt)?<code 337> (__INT2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000044          0x4 LONG 0x328a DEFINED (__U2RXInterrupt)?<code 337> (__U2RXInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000046          0x4 LONG 0x32c4 DEFINED (__U2TXInterrupt)?<code 337> (__U2TXInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000048          0x4 LONG 0x3fcc DEFINED (__SPI2Interrupt)?<code 337> (__SPI2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00004a          0x4 LONG 0x3fcc DEFINED (__C1Interrupt)?<code 337> (__C1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00004c          0x4 LONG 0x3fcc DEFINED (__IC3Interrupt)?<code 337> (__IC3Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00004e          0x4 LONG 0x3fcc DEFINED (__IC4Interrupt)?<code 337> (__IC4Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000050          0x4 LONG 0x3fcc DEFINED (__IC5Interrupt)?<code 337> (__IC5Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000052          0x4 LONG 0x3fcc DEFINED (__IC6Interrupt)?<code 337> (__IC6Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000054          0x4 LONG 0x3fcc DEFINED (__OC5Interrupt)?<code 337> (__OC5Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000056          0x4 LONG 0x3fcc DEFINED (__OC6Interrupt)?<code 337> (__OC6Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000058          0x4 LONG 0x3fcc DEFINED (__OC7Interrupt)?<code 337> (__OC7Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00005a          0x4 LONG 0x3fcc DEFINED (__OC8Interrupt)?<code 337> (__OC8Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00005c          0x4 LONG 0x3fcc DEFINED (__INT3Interrupt)?<code 337> (__INT3Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00005e          0x4 LONG 0x3fcc DEFINED (__INT4Interrupt)?<code 337> (__INT4Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000060          0x4 LONG 0x3fcc DEFINED (__C2Interrupt)?<code 337> (__C2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000062          0x4 LONG 0x3fcc DEFINED (__PWMInterrupt)?<code 337> (__PWMInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000064          0x4 LONG 0x3fcc DEFINED (__QEIInterrupt)?<code 337> (__QEIInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000066          0x4 LONG 0x3fcc DEFINED (__DCIInterrupt)?<code 337> (__DCIInterrupt):<code 337> (__DefaultInterrupt)
-                  0x000068          0x4 LONG 0x3fcc DEFINED (__LVDInterrupt)?<code 337> (__LVDInterrupt):<code 337> (__DefaultInterrupt)
-                  0x00006a          0x4 LONG 0x3fcc DEFINED (__FLTAInterrupt)?<code 337> (__FLTAInterrupt):<code 337> (__DefaultInterrupt)
-                  0x00006c          0x4 LONG 0x3fcc DEFINED (__FLTBInterrupt)?<code 337> (__FLTBInterrupt):<code 337> (__DefaultInterrupt)
-                  0x00006e          0x4 LONG 0x3fcc DEFINED (__Interrupt45)?<code 337> (__Interrupt45):<code 337> (__DefaultInterrupt)
-                  0x000070          0x4 LONG 0x3fcc DEFINED (__Interrupt46)?<code 337> (__Interrupt46):<code 337> (__DefaultInterrupt)
-                  0x000072          0x4 LONG 0x3fcc DEFINED (__Interrupt47)?<code 337> (__Interrupt47):<code 337> (__DefaultInterrupt)
-                  0x000074          0x4 LONG 0x3fcc DEFINED (__Interrupt48)?<code 337> (__Interrupt48):<code 337> (__DefaultInterrupt)
-                  0x000076          0x4 LONG 0x3fcc DEFINED (__Interrupt49)?<code 337> (__Interrupt49):<code 337> (__DefaultInterrupt)
-                  0x000078          0x4 LONG 0x3fcc DEFINED (__Interrupt50)?<code 337> (__Interrupt50):<code 337> (__DefaultInterrupt)
-                  0x00007a          0x4 LONG 0x3fcc DEFINED (__Interrupt51)?<code 337> (__Interrupt51):<code 337> (__DefaultInterrupt)
-                  0x00007c          0x4 LONG 0x3fcc DEFINED (__Interrupt52)?<code 337> (__Interrupt52):<code 337> (__DefaultInterrupt)
-                  0x00007e          0x4 LONG 0x3fcc DEFINED (__Interrupt53)?<code 337> (__Interrupt53):<code 337> (__DefaultInterrupt)
+                  0x000004          0x4 LONG 0x4110 DEFINED (__ReservedTrap0)?<code 337> (__ReservedTrap0):<code 337> (__DefaultInterrupt)
+                  0x000006          0x4 LONG 0x4110 DEFINED (__OscillatorFail)?<code 337> (__OscillatorFail):<code 337> (__DefaultInterrupt)
+                  0x000008          0x4 LONG 0x4110 DEFINED (__AddressError)?<code 337> (__AddressError):<code 337> (__DefaultInterrupt)
+                  0x00000a          0x4 LONG 0x4110 DEFINED (__StackError)?<code 337> (__StackError):<code 337> (__DefaultInterrupt)
+                  0x00000c          0x4 LONG 0x4110 DEFINED (__MathError)?<code 337> (__MathError):<code 337> (__DefaultInterrupt)
+                  0x00000e          0x4 LONG 0x4110 DEFINED (__ReservedTrap5)?<code 337> (__ReservedTrap5):<code 337> (__DefaultInterrupt)
+                  0x000010          0x4 LONG 0x4110 DEFINED (__ReservedTrap6)?<code 337> (__ReservedTrap6):<code 337> (__DefaultInterrupt)
+                  0x000012          0x4 LONG 0x4110 DEFINED (__ReservedTrap7)?<code 337> (__ReservedTrap7):<code 337> (__DefaultInterrupt)
+                  0x000014          0x4 LONG 0x4110 DEFINED (__INT0Interrupt)?<code 337> (__INT0Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000016          0x4 LONG 0x4110 DEFINED (__IC1Interrupt)?<code 337> (__IC1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000018          0x4 LONG 0x4110 DEFINED (__OC1Interrupt)?<code 337> (__OC1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00001a          0x4 LONG 0x4110 DEFINED (__T1Interrupt)?<code 337> (__T1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00001c          0x4 LONG 0x4110 DEFINED (__IC2Interrupt)?<code 337> (__IC2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00001e          0x4 LONG 0x4110 DEFINED (__OC2Interrupt)?<code 337> (__OC2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000020          0x4 LONG 0x2d18 DEFINED (__T2Interrupt)?<code 337> (__T2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000022          0x4 LONG 0x338a DEFINED (__T3Interrupt)?<code 337> (__T3Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000024          0x4 LONG 0x4110 DEFINED (__SPI1Interrupt)?<code 337> (__SPI1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000026          0x4 LONG 0x3dc4 DEFINED (__U1RXInterrupt)?<code 337> (__U1RXInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000028          0x4 LONG 0x32aa DEFINED (__U1TXInterrupt)?<code 337> (__U1TXInterrupt):<code 337> (__DefaultInterrupt)
+                  0x00002a          0x4 LONG 0x4110 DEFINED (__ADCInterrupt)?<code 337> (__ADCInterrupt):<code 337> (__DefaultInterrupt)
+                  0x00002c          0x4 LONG 0x4110 DEFINED (__NVMInterrupt)?<code 337> (__NVMInterrupt):<code 337> (__DefaultInterrupt)
+                  0x00002e          0x4 LONG 0x4110 DEFINED (__SI2CInterrupt)?<code 337> (__SI2CInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000030          0x4 LONG 0x4110 DEFINED (__MI2CInterrupt)?<code 337> (__MI2CInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000032          0x4 LONG 0x4110 DEFINED (__CNInterrupt)?<code 337> (__CNInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000034          0x4 LONG 0x4110 DEFINED (__INT1Interrupt)?<code 337> (__INT1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000036          0x4 LONG 0x4110 DEFINED (__IC7Interrupt)?<code 337> (__IC7Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000038          0x4 LONG 0x4110 DEFINED (__IC8Interrupt)?<code 337> (__IC8Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00003a          0x4 LONG 0x4110 DEFINED (__OC3Interrupt)?<code 337> (__OC3Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00003c          0x4 LONG 0x4110 DEFINED (__OC4Interrupt)?<code 337> (__OC4Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00003e          0x4 LONG 0x39da DEFINED (__T4Interrupt)?<code 337> (__T4Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000040          0x4 LONG 0x4110 DEFINED (__T5Interrupt)?<code 337> (__T5Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000042          0x4 LONG 0x4110 DEFINED (__INT2Interrupt)?<code 337> (__INT2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000044          0x4 LONG 0x32e4 DEFINED (__U2RXInterrupt)?<code 337> (__U2RXInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000046          0x4 LONG 0x331e DEFINED (__U2TXInterrupt)?<code 337> (__U2TXInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000048          0x4 LONG 0x4110 DEFINED (__SPI2Interrupt)?<code 337> (__SPI2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00004a          0x4 LONG 0x4110 DEFINED (__C1Interrupt)?<code 337> (__C1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00004c          0x4 LONG 0x4110 DEFINED (__IC3Interrupt)?<code 337> (__IC3Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00004e          0x4 LONG 0x4110 DEFINED (__IC4Interrupt)?<code 337> (__IC4Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000050          0x4 LONG 0x4110 DEFINED (__IC5Interrupt)?<code 337> (__IC5Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000052          0x4 LONG 0x4110 DEFINED (__IC6Interrupt)?<code 337> (__IC6Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000054          0x4 LONG 0x4110 DEFINED (__OC5Interrupt)?<code 337> (__OC5Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000056          0x4 LONG 0x4110 DEFINED (__OC6Interrupt)?<code 337> (__OC6Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000058          0x4 LONG 0x4110 DEFINED (__OC7Interrupt)?<code 337> (__OC7Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00005a          0x4 LONG 0x4110 DEFINED (__OC8Interrupt)?<code 337> (__OC8Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00005c          0x4 LONG 0x4110 DEFINED (__INT3Interrupt)?<code 337> (__INT3Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00005e          0x4 LONG 0x4110 DEFINED (__INT4Interrupt)?<code 337> (__INT4Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000060          0x4 LONG 0x4110 DEFINED (__C2Interrupt)?<code 337> (__C2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000062          0x4 LONG 0x4110 DEFINED (__PWMInterrupt)?<code 337> (__PWMInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000064          0x4 LONG 0x4110 DEFINED (__QEIInterrupt)?<code 337> (__QEIInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000066          0x4 LONG 0x4110 DEFINED (__DCIInterrupt)?<code 337> (__DCIInterrupt):<code 337> (__DefaultInterrupt)
+                  0x000068          0x4 LONG 0x4110 DEFINED (__LVDInterrupt)?<code 337> (__LVDInterrupt):<code 337> (__DefaultInterrupt)
+                  0x00006a          0x4 LONG 0x4110 DEFINED (__FLTAInterrupt)?<code 337> (__FLTAInterrupt):<code 337> (__DefaultInterrupt)
+                  0x00006c          0x4 LONG 0x4110 DEFINED (__FLTBInterrupt)?<code 337> (__FLTBInterrupt):<code 337> (__DefaultInterrupt)
+                  0x00006e          0x4 LONG 0x4110 DEFINED (__Interrupt45)?<code 337> (__Interrupt45):<code 337> (__DefaultInterrupt)
+                  0x000070          0x4 LONG 0x4110 DEFINED (__Interrupt46)?<code 337> (__Interrupt46):<code 337> (__DefaultInterrupt)
+                  0x000072          0x4 LONG 0x4110 DEFINED (__Interrupt47)?<code 337> (__Interrupt47):<code 337> (__DefaultInterrupt)
+                  0x000074          0x4 LONG 0x4110 DEFINED (__Interrupt48)?<code 337> (__Interrupt48):<code 337> (__DefaultInterrupt)
+                  0x000076          0x4 LONG 0x4110 DEFINED (__Interrupt49)?<code 337> (__Interrupt49):<code 337> (__DefaultInterrupt)
+                  0x000078          0x4 LONG 0x4110 DEFINED (__Interrupt50)?<code 337> (__Interrupt50):<code 337> (__DefaultInterrupt)
+                  0x00007a          0x4 LONG 0x4110 DEFINED (__Interrupt51)?<code 337> (__Interrupt51):<code 337> (__DefaultInterrupt)
+                  0x00007c          0x4 LONG 0x4110 DEFINED (__Interrupt52)?<code 337> (__Interrupt52):<code 337> (__DefaultInterrupt)
+                  0x00007e          0x4 LONG 0x4110 DEFINED (__Interrupt53)?<code 337> (__Interrupt53):<code 337> (__DefaultInterrupt)
 
 .aivt             0x000084         0x7c
-                  0x000084          0x4 LONG 0x3fcc DEFINED (__AltReservedTrap0)?<code 337> (__AltReservedTrap0):DEFINED (__ReservedTrap0)?<code 337> (__ReservedTrap0):<code 337> (__DefaultInterrupt)
-                  0x000086          0x4 LONG 0x3fcc DEFINED (__AltOscillatorFail)?<code 337> (__AltOscillatorFail):DEFINED (__OscillatorFail)?<code 337> (__OscillatorFail):<code 337> (__DefaultInterrupt)
-                  0x000088          0x4 LONG 0x3fcc DEFINED (__AltAddressError)?<code 337> (__AltAddressError):DEFINED (__AddressError)?<code 337> (__AddressError):<code 337> (__DefaultInterrupt)
-                  0x00008a          0x4 LONG 0x3fcc DEFINED (__AltStackError)?<code 337> (__AltStackError):DEFINED (__StackError)?<code 337> (__StackError):<code 337> (__DefaultInterrupt)
-                  0x00008c          0x4 LONG 0x3fcc DEFINED (__AltMathError)?<code 337> (__AltMathError):DEFINED (__MathError)?<code 337> (__MathError):<code 337> (__DefaultInterrupt)
-                  0x00008e          0x4 LONG 0x3fcc DEFINED (__AltReservedTrap5)?<code 337> (__AltReservedTrap5):DEFINED (__ReservedTrap5)?<code 337> (__ReservedTrap5):<code 337> (__DefaultInterrupt)
-                  0x000090          0x4 LONG 0x3fcc DEFINED (__AltReservedTrap6)?<code 337> (__AltReservedTrap6):DEFINED (__ReservedTrap6)?<code 337> (__ReservedTrap6):<code 337> (__DefaultInterrupt)
-                  0x000092          0x4 LONG 0x3fcc DEFINED (__AltReservedTrap7)?<code 337> (__AltReservedTrap7):DEFINED (__ReservedTrap7)?<code 337> (__ReservedTrap7):<code 337> (__DefaultInterrupt)
-                  0x000094          0x4 LONG 0x3fcc DEFINED (__AltINT0Interrupt)?<code 337> (__AltINT0Interrupt):DEFINED (__INT0Interrupt)?<code 337> (__INT0Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000096          0x4 LONG 0x3fcc DEFINED (__AltIC1Interrupt)?<code 337> (__AltIC1Interrupt):DEFINED (__IC1Interrupt)?<code 337> (__IC1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x000098          0x4 LONG 0x3fcc DEFINED (__AltOC1Interrupt)?<code 337> (__AltOC1Interrupt):DEFINED (__OC1Interrupt)?<code 337> (__OC1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00009a          0x4 LONG 0x3fcc DEFINED (__AltT1Interrupt)?<code 337> (__AltT1Interrupt):DEFINED (__T1Interrupt)?<code 337> (__T1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00009c          0x4 LONG 0x3fcc DEFINED (__AltIC2Interrupt)?<code 337> (__AltIC2Interrupt):DEFINED (__IC2Interrupt)?<code 337> (__IC2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x00009e          0x4 LONG 0x3fcc DEFINED (__AltOC2Interrupt)?<code 337> (__AltOC2Interrupt):DEFINED (__OC2Interrupt)?<code 337> (__OC2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000a0          0x4 LONG 0x2cbe DEFINED (__AltT2Interrupt)?<code 337> (__AltT2Interrupt):DEFINED (__T2Interrupt)?<code 337> (__T2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000a2          0x4 LONG 0x3330 DEFINED (__AltT3Interrupt)?<code 337> (__AltT3Interrupt):DEFINED (__T3Interrupt)?<code 337> (__T3Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000a4          0x4 LONG 0x3fcc DEFINED (__AltSPI1Interrupt)?<code 337> (__AltSPI1Interrupt):DEFINED (__SPI1Interrupt)?<code 337> (__SPI1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000a6          0x4 LONG 0x3baa DEFINED (__AltU1RXInterrupt)?<code 337> (__AltU1RXInterrupt):DEFINED (__U1RXInterrupt)?<code 337> (__U1RXInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000a8          0x4 LONG 0x3250 DEFINED (__AltU1TXInterrupt)?<code 337> (__AltU1TXInterrupt):DEFINED (__U1TXInterrupt)?<code 337> (__U1TXInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000aa          0x4 LONG 0x3fcc DEFINED (__AltADCInterrupt)?<code 337> (__AltADCInterrupt):DEFINED (__ADCInterrupt)?<code 337> (__ADCInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000ac          0x4 LONG 0x3fcc DEFINED (__AltNVMInterrupt)?<code 337> (__AltNVMInterrupt):DEFINED (__NVMInterrupt)?<code 337> (__NVMInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000ae          0x4 LONG 0x3fcc DEFINED (__AltSI2CInterrupt)?<code 337> (__AltSI2CInterrupt):DEFINED (__SI2CInterrupt)?<code 337> (__SI2CInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000b0          0x4 LONG 0x3fcc DEFINED (__AltMI2CInterrupt)?<code 337> (__AltMI2CInterrupt):DEFINED (__MI2CInterrupt)?<code 337> (__MI2CInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000b2          0x4 LONG 0x3fcc DEFINED (__AltCNInterrupt)?<code 337> (__AltCNInterrupt):DEFINED (__CNInterrupt)?<code 337> (__CNInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000b4          0x4 LONG 0x3fcc DEFINED (__AltINT1Interrupt)?<code 337> (__AltINT1Interrupt):DEFINED (__INT1Interrupt)?<code 337> (__INT1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000b6          0x4 LONG 0x3fcc DEFINED (__AltIC7Interrupt)?<code 337> (__AltIC7Interrupt):DEFINED (__IC7Interrupt)?<code 337> (__IC7Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000b8          0x4 LONG 0x3fcc DEFINED (__AltIC8Interrupt)?<code 337> (__AltIC8Interrupt):DEFINED (__IC8Interrupt)?<code 337> (__IC8Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000ba          0x4 LONG 0x3fcc DEFINED (__AltOC3Interrupt)?<code 337> (__AltOC3Interrupt):DEFINED (__OC3Interrupt)?<code 337> (__OC3Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000bc          0x4 LONG 0x3fcc DEFINED (__AltOC4Interrupt)?<code 337> (__AltOC4Interrupt):DEFINED (__OC4Interrupt)?<code 337> (__OC4Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000be          0x4 LONG 0x3d4e DEFINED (__AltT4Interrupt)?<code 337> (__AltT4Interrupt):DEFINED (__T4Interrupt)?<code 337> (__T4Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000c0          0x4 LONG 0x3fcc DEFINED (__AltT5Interrupt)?<code 337> (__AltT5Interrupt):DEFINED (__T5Interrupt)?<code 337> (__T5Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000c2          0x4 LONG 0x3fcc DEFINED (__AltINT2Interrupt)?<code 337> (__AltINT2Interrupt):DEFINED (__INT2Interrupt)?<code 337> (__INT2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000c4          0x4 LONG 0x328a DEFINED (__AltU2RXInterrupt)?<code 337> (__AltU2RXInterrupt):DEFINED (__U2RXInterrupt)?<code 337> (__U2RXInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000c6          0x4 LONG 0x32c4 DEFINED (__AltU2TXInterrupt)?<code 337> (__AltU2TXInterrupt):DEFINED (__U2TXInterrupt)?<code 337> (__U2TXInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000c8          0x4 LONG 0x3fcc DEFINED (__AltSPI2Interrupt)?<code 337> (__AltSPI2Interrupt):DEFINED (__SPI2Interrupt)?<code 337> (__SPI2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000ca          0x4 LONG 0x3fcc DEFINED (__AltC1Interrupt)?<code 337> (__AltC1Interrupt):DEFINED (__C1Interrupt)?<code 337> (__C1Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000cc          0x4 LONG 0x3fcc DEFINED (__AltIC3Interrupt)?<code 337> (__AltIC3Interrupt):DEFINED (__IC3Interrupt)?<code 337> (__IC3Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000ce          0x4 LONG 0x3fcc DEFINED (__AltIC4Interrupt)?<code 337> (__AltIC4Interrupt):DEFINED (__IC4Interrupt)?<code 337> (__IC4Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000d0          0x4 LONG 0x3fcc DEFINED (__AltIC5Interrupt)?<code 337> (__AltIC5Interrupt):DEFINED (__IC5Interrupt)?<code 337> (__IC5Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000d2          0x4 LONG 0x3fcc DEFINED (__AltIC6Interrupt)?<code 337> (__AltIC6Interrupt):DEFINED (__IC6Interrupt)?<code 337> (__IC6Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000d4          0x4 LONG 0x3fcc DEFINED (__AltOC5Interrupt)?<code 337> (__AltOC5Interrupt):DEFINED (__OC5Interrupt)?<code 337> (__OC5Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000d6          0x4 LONG 0x3fcc DEFINED (__AltOC6Interrupt)?<code 337> (__AltOC6Interrupt):DEFINED (__OC6Interrupt)?<code 337> (__OC6Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000d8          0x4 LONG 0x3fcc DEFINED (__AltOC7Interrupt)?<code 337> (__AltOC7Interrupt):DEFINED (__OC7Interrupt)?<code 337> (__OC7Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000da          0x4 LONG 0x3fcc DEFINED (__AltOC8Interrupt)?<code 337> (__AltOC8Interrupt):DEFINED (__OC8Interrupt)?<code 337> (__OC8Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000dc          0x4 LONG 0x3fcc DEFINED (__AltINT3Interrupt)?<code 337> (__AltINT3Interrupt):DEFINED (__INT3Interrupt)?<code 337> (__INT3Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000de          0x4 LONG 0x3fcc DEFINED (__AltINT4Interrupt)?<code 337> (__AltINT4Interrupt):DEFINED (__INT4Interrupt)?<code 337> (__INT4Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000e0          0x4 LONG 0x3fcc DEFINED (__AltC2Interrupt)?<code 337> (__AltC2Interrupt):DEFINED (__C2Interrupt)?<code 337> (__C2Interrupt):<code 337> (__DefaultInterrupt)
-                  0x0000e2          0x4 LONG 0x3fcc DEFINED (__AltPWMInterrupt)?<code 337> (__AltPWMInterrupt):DEFINED (__PWMInterrupt)?<code 337> (__PWMInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000e4          0x4 LONG 0x3fcc DEFINED (__AltQEIInterrupt)?<code 337> (__AltQEIInterrupt):DEFINED (__QEIInterrupt)?<code 337> (__QEIInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000e6          0x4 LONG 0x3fcc DEFINED (__AltDCIInterrupt)?<code 337> (__AltDCIInterrupt):DEFINED (__DCIInterrupt)?<code 337> (__DCIInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000e8          0x4 LONG 0x3fcc DEFINED (__AltLVDInterrupt)?<code 337> (__AltLVDInterrupt):DEFINED (__LVDInterrupt)?<code 337> (__LVDInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000ea          0x4 LONG 0x3fcc DEFINED (__AltFLTAInterrupt)?<code 337> (__AltFLTAInterrupt):DEFINED (__FLTAInterrupt)?<code 337> (__FLTAInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000ec          0x4 LONG 0x3fcc DEFINED (__AltFLTBInterrupt)?<code 337> (__AltFLTBInterrupt):DEFINED (__FLTBInterrupt)?<code 337> (__FLTBInterrupt):<code 337> (__DefaultInterrupt)
-                  0x0000ee          0x4 LONG 0x3fcc DEFINED (__AltInterrupt45)?<code 337> (__AltInterrupt45):DEFINED (__Interrupt45)?<code 337> (__Interrupt45):<code 337> (__DefaultInterrupt)
-                  0x0000f0          0x4 LONG 0x3fcc DEFINED (__AltInterrupt46)?<code 337> (__AltInterrupt46):DEFINED (__Interrupt46)?<code 337> (__Interrupt46):<code 337> (__DefaultInterrupt)
-                  0x0000f2          0x4 LONG 0x3fcc DEFINED (__AltInterrupt47)?<code 337> (__AltInterrupt47):DEFINED (__Interrupt47)?<code 337> (__Interrupt47):<code 337> (__DefaultInterrupt)
-                  0x0000f4          0x4 LONG 0x3fcc DEFINED (__AltInterrupt48)?<code 337> (__AltInterrupt48):DEFINED (__Interrupt48)?<code 337> (__Interrupt48):<code 337> (__DefaultInterrupt)
-                  0x0000f6          0x4 LONG 0x3fcc DEFINED (__AltInterrupt49)?<code 337> (__AltInterrupt49):DEFINED (__Interrupt49)?<code 337> (__Interrupt49):<code 337> (__DefaultInterrupt)
-                  0x0000f8          0x4 LONG 0x3fcc DEFINED (__AltInterrupt50)?<code 337> (__AltInterrupt50):DEFINED (__Interrupt50)?<code 337> (__Interrupt50):<code 337> (__DefaultInterrupt)
-                  0x0000fa          0x4 LONG 0x3fcc DEFINED (__AltInterrupt51)?<code 337> (__AltInterrupt51):DEFINED (__Interrupt51)?<code 337> (__Interrupt51):<code 337> (__DefaultInterrupt)
-                  0x0000fc          0x4 LONG 0x3fcc DEFINED (__AltInterrupt52)?<code 337> (__AltInterrupt52):DEFINED (__Interrupt52)?<code 337> (__Interrupt52):<code 337> (__DefaultInterrupt)
-                  0x0000fe          0x4 LONG 0x3fcc DEFINED (__AltInterrupt53)?<code 337> (__AltInterrupt53):DEFINED (__Interrupt53)?<code 337> (__Interrupt53):<code 337> (__DefaultInterrupt)
+                  0x000084          0x4 LONG 0x4110 DEFINED (__AltReservedTrap0)?<code 337> (__AltReservedTrap0):DEFINED (__ReservedTrap0)?<code 337> (__ReservedTrap0):<code 337> (__DefaultInterrupt)
+                  0x000086          0x4 LONG 0x4110 DEFINED (__AltOscillatorFail)?<code 337> (__AltOscillatorFail):DEFINED (__OscillatorFail)?<code 337> (__OscillatorFail):<code 337> (__DefaultInterrupt)
+                  0x000088          0x4 LONG 0x4110 DEFINED (__AltAddressError)?<code 337> (__AltAddressError):DEFINED (__AddressError)?<code 337> (__AddressError):<code 337> (__DefaultInterrupt)
+                  0x00008a          0x4 LONG 0x4110 DEFINED (__AltStackError)?<code 337> (__AltStackError):DEFINED (__StackError)?<code 337> (__StackError):<code 337> (__DefaultInterrupt)
+                  0x00008c          0x4 LONG 0x4110 DEFINED (__AltMathError)?<code 337> (__AltMathError):DEFINED (__MathError)?<code 337> (__MathError):<code 337> (__DefaultInterrupt)
+                  0x00008e          0x4 LONG 0x4110 DEFINED (__AltReservedTrap5)?<code 337> (__AltReservedTrap5):DEFINED (__ReservedTrap5)?<code 337> (__ReservedTrap5):<code 337> (__DefaultInterrupt)
+                  0x000090          0x4 LONG 0x4110 DEFINED (__AltReservedTrap6)?<code 337> (__AltReservedTrap6):DEFINED (__ReservedTrap6)?<code 337> (__ReservedTrap6):<code 337> (__DefaultInterrupt)
+                  0x000092          0x4 LONG 0x4110 DEFINED (__AltReservedTrap7)?<code 337> (__AltReservedTrap7):DEFINED (__ReservedTrap7)?<code 337> (__ReservedTrap7):<code 337> (__DefaultInterrupt)
+                  0x000094          0x4 LONG 0x4110 DEFINED (__AltINT0Interrupt)?<code 337> (__AltINT0Interrupt):DEFINED (__INT0Interrupt)?<code 337> (__INT0Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000096          0x4 LONG 0x4110 DEFINED (__AltIC1Interrupt)?<code 337> (__AltIC1Interrupt):DEFINED (__IC1Interrupt)?<code 337> (__IC1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x000098          0x4 LONG 0x4110 DEFINED (__AltOC1Interrupt)?<code 337> (__AltOC1Interrupt):DEFINED (__OC1Interrupt)?<code 337> (__OC1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00009a          0x4 LONG 0x4110 DEFINED (__AltT1Interrupt)?<code 337> (__AltT1Interrupt):DEFINED (__T1Interrupt)?<code 337> (__T1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00009c          0x4 LONG 0x4110 DEFINED (__AltIC2Interrupt)?<code 337> (__AltIC2Interrupt):DEFINED (__IC2Interrupt)?<code 337> (__IC2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x00009e          0x4 LONG 0x4110 DEFINED (__AltOC2Interrupt)?<code 337> (__AltOC2Interrupt):DEFINED (__OC2Interrupt)?<code 337> (__OC2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000a0          0x4 LONG 0x2d18 DEFINED (__AltT2Interrupt)?<code 337> (__AltT2Interrupt):DEFINED (__T2Interrupt)?<code 337> (__T2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000a2          0x4 LONG 0x338a DEFINED (__AltT3Interrupt)?<code 337> (__AltT3Interrupt):DEFINED (__T3Interrupt)?<code 337> (__T3Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000a4          0x4 LONG 0x4110 DEFINED (__AltSPI1Interrupt)?<code 337> (__AltSPI1Interrupt):DEFINED (__SPI1Interrupt)?<code 337> (__SPI1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000a6          0x4 LONG 0x3dc4 DEFINED (__AltU1RXInterrupt)?<code 337> (__AltU1RXInterrupt):DEFINED (__U1RXInterrupt)?<code 337> (__U1RXInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000a8          0x4 LONG 0x32aa DEFINED (__AltU1TXInterrupt)?<code 337> (__AltU1TXInterrupt):DEFINED (__U1TXInterrupt)?<code 337> (__U1TXInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000aa          0x4 LONG 0x4110 DEFINED (__AltADCInterrupt)?<code 337> (__AltADCInterrupt):DEFINED (__ADCInterrupt)?<code 337> (__ADCInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000ac          0x4 LONG 0x4110 DEFINED (__AltNVMInterrupt)?<code 337> (__AltNVMInterrupt):DEFINED (__NVMInterrupt)?<code 337> (__NVMInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000ae          0x4 LONG 0x4110 DEFINED (__AltSI2CInterrupt)?<code 337> (__AltSI2CInterrupt):DEFINED (__SI2CInterrupt)?<code 337> (__SI2CInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000b0          0x4 LONG 0x4110 DEFINED (__AltMI2CInterrupt)?<code 337> (__AltMI2CInterrupt):DEFINED (__MI2CInterrupt)?<code 337> (__MI2CInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000b2          0x4 LONG 0x4110 DEFINED (__AltCNInterrupt)?<code 337> (__AltCNInterrupt):DEFINED (__CNInterrupt)?<code 337> (__CNInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000b4          0x4 LONG 0x4110 DEFINED (__AltINT1Interrupt)?<code 337> (__AltINT1Interrupt):DEFINED (__INT1Interrupt)?<code 337> (__INT1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000b6          0x4 LONG 0x4110 DEFINED (__AltIC7Interrupt)?<code 337> (__AltIC7Interrupt):DEFINED (__IC7Interrupt)?<code 337> (__IC7Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000b8          0x4 LONG 0x4110 DEFINED (__AltIC8Interrupt)?<code 337> (__AltIC8Interrupt):DEFINED (__IC8Interrupt)?<code 337> (__IC8Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000ba          0x4 LONG 0x4110 DEFINED (__AltOC3Interrupt)?<code 337> (__AltOC3Interrupt):DEFINED (__OC3Interrupt)?<code 337> (__OC3Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000bc          0x4 LONG 0x4110 DEFINED (__AltOC4Interrupt)?<code 337> (__AltOC4Interrupt):DEFINED (__OC4Interrupt)?<code 337> (__OC4Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000be          0x4 LONG 0x39da DEFINED (__AltT4Interrupt)?<code 337> (__AltT4Interrupt):DEFINED (__T4Interrupt)?<code 337> (__T4Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000c0          0x4 LONG 0x4110 DEFINED (__AltT5Interrupt)?<code 337> (__AltT5Interrupt):DEFINED (__T5Interrupt)?<code 337> (__T5Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000c2          0x4 LONG 0x4110 DEFINED (__AltINT2Interrupt)?<code 337> (__AltINT2Interrupt):DEFINED (__INT2Interrupt)?<code 337> (__INT2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000c4          0x4 LONG 0x32e4 DEFINED (__AltU2RXInterrupt)?<code 337> (__AltU2RXInterrupt):DEFINED (__U2RXInterrupt)?<code 337> (__U2RXInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000c6          0x4 LONG 0x331e DEFINED (__AltU2TXInterrupt)?<code 337> (__AltU2TXInterrupt):DEFINED (__U2TXInterrupt)?<code 337> (__U2TXInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000c8          0x4 LONG 0x4110 DEFINED (__AltSPI2Interrupt)?<code 337> (__AltSPI2Interrupt):DEFINED (__SPI2Interrupt)?<code 337> (__SPI2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000ca          0x4 LONG 0x4110 DEFINED (__AltC1Interrupt)?<code 337> (__AltC1Interrupt):DEFINED (__C1Interrupt)?<code 337> (__C1Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000cc          0x4 LONG 0x4110 DEFINED (__AltIC3Interrupt)?<code 337> (__AltIC3Interrupt):DEFINED (__IC3Interrupt)?<code 337> (__IC3Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000ce          0x4 LONG 0x4110 DEFINED (__AltIC4Interrupt)?<code 337> (__AltIC4Interrupt):DEFINED (__IC4Interrupt)?<code 337> (__IC4Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000d0          0x4 LONG 0x4110 DEFINED (__AltIC5Interrupt)?<code 337> (__AltIC5Interrupt):DEFINED (__IC5Interrupt)?<code 337> (__IC5Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000d2          0x4 LONG 0x4110 DEFINED (__AltIC6Interrupt)?<code 337> (__AltIC6Interrupt):DEFINED (__IC6Interrupt)?<code 337> (__IC6Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000d4          0x4 LONG 0x4110 DEFINED (__AltOC5Interrupt)?<code 337> (__AltOC5Interrupt):DEFINED (__OC5Interrupt)?<code 337> (__OC5Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000d6          0x4 LONG 0x4110 DEFINED (__AltOC6Interrupt)?<code 337> (__AltOC6Interrupt):DEFINED (__OC6Interrupt)?<code 337> (__OC6Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000d8          0x4 LONG 0x4110 DEFINED (__AltOC7Interrupt)?<code 337> (__AltOC7Interrupt):DEFINED (__OC7Interrupt)?<code 337> (__OC7Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000da          0x4 LONG 0x4110 DEFINED (__AltOC8Interrupt)?<code 337> (__AltOC8Interrupt):DEFINED (__OC8Interrupt)?<code 337> (__OC8Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000dc          0x4 LONG 0x4110 DEFINED (__AltINT3Interrupt)?<code 337> (__AltINT3Interrupt):DEFINED (__INT3Interrupt)?<code 337> (__INT3Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000de          0x4 LONG 0x4110 DEFINED (__AltINT4Interrupt)?<code 337> (__AltINT4Interrupt):DEFINED (__INT4Interrupt)?<code 337> (__INT4Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000e0          0x4 LONG 0x4110 DEFINED (__AltC2Interrupt)?<code 337> (__AltC2Interrupt):DEFINED (__C2Interrupt)?<code 337> (__C2Interrupt):<code 337> (__DefaultInterrupt)
+                  0x0000e2          0x4 LONG 0x4110 DEFINED (__AltPWMInterrupt)?<code 337> (__AltPWMInterrupt):DEFINED (__PWMInterrupt)?<code 337> (__PWMInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000e4          0x4 LONG 0x4110 DEFINED (__AltQEIInterrupt)?<code 337> (__AltQEIInterrupt):DEFINED (__QEIInterrupt)?<code 337> (__QEIInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000e6          0x4 LONG 0x4110 DEFINED (__AltDCIInterrupt)?<code 337> (__AltDCIInterrupt):DEFINED (__DCIInterrupt)?<code 337> (__DCIInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000e8          0x4 LONG 0x4110 DEFINED (__AltLVDInterrupt)?<code 337> (__AltLVDInterrupt):DEFINED (__LVDInterrupt)?<code 337> (__LVDInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000ea          0x4 LONG 0x4110 DEFINED (__AltFLTAInterrupt)?<code 337> (__AltFLTAInterrupt):DEFINED (__FLTAInterrupt)?<code 337> (__FLTAInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000ec          0x4 LONG 0x4110 DEFINED (__AltFLTBInterrupt)?<code 337> (__AltFLTBInterrupt):DEFINED (__FLTBInterrupt)?<code 337> (__FLTBInterrupt):<code 337> (__DefaultInterrupt)
+                  0x0000ee          0x4 LONG 0x4110 DEFINED (__AltInterrupt45)?<code 337> (__AltInterrupt45):DEFINED (__Interrupt45)?<code 337> (__Interrupt45):<code 337> (__DefaultInterrupt)
+                  0x0000f0          0x4 LONG 0x4110 DEFINED (__AltInterrupt46)?<code 337> (__AltInterrupt46):DEFINED (__Interrupt46)?<code 337> (__Interrupt46):<code 337> (__DefaultInterrupt)
+                  0x0000f2          0x4 LONG 0x4110 DEFINED (__AltInterrupt47)?<code 337> (__AltInterrupt47):DEFINED (__Interrupt47)?<code 337> (__Interrupt47):<code 337> (__DefaultInterrupt)
+                  0x0000f4          0x4 LONG 0x4110 DEFINED (__AltInterrupt48)?<code 337> (__AltInterrupt48):DEFINED (__Interrupt48)?<code 337> (__Interrupt48):<code 337> (__DefaultInterrupt)
+                  0x0000f6          0x4 LONG 0x4110 DEFINED (__AltInterrupt49)?<code 337> (__AltInterrupt49):DEFINED (__Interrupt49)?<code 337> (__Interrupt49):<code 337> (__DefaultInterrupt)
+                  0x0000f8          0x4 LONG 0x4110 DEFINED (__AltInterrupt50)?<code 337> (__AltInterrupt50):DEFINED (__Interrupt50)?<code 337> (__Interrupt50):<code 337> (__DefaultInterrupt)
+                  0x0000fa          0x4 LONG 0x4110 DEFINED (__AltInterrupt51)?<code 337> (__AltInterrupt51):DEFINED (__Interrupt51)?<code 337> (__Interrupt51):<code 337> (__DefaultInterrupt)
+                  0x0000fc          0x4 LONG 0x4110 DEFINED (__AltInterrupt52)?<code 337> (__AltInterrupt52):DEFINED (__Interrupt52)?<code 337> (__Interrupt52):<code 337> (__DefaultInterrupt)
+                  0x0000fe          0x4 LONG 0x4110 DEFINED (__AltInterrupt53)?<code 337> (__AltInterrupt53):DEFINED (__Interrupt53)?<code 337> (__Interrupt53):<code 337> (__DefaultInterrupt)
                     0x0000                  WREG0 = 0x0
                     0x0000                  _WREG0 = 0x0
                     0x0002                  WREG1 = 0x2
@@ -2507,186 +2513,194 @@ LOAD default_isr
 .ndata              0x08a2          0x4
  .ndata             0x08a2          0x4 main.o
 
-.nbss               0x08a6          0xa
+.nbss               0x08a6          0x4
  .nbss              0x08a6          0x4 QS_global_vars.o
                     0x08a6                  global
- .nbss              0x08aa          0x2 QS_ports.o
- .nbss              0x08ac          0x2 QS_pwm.o
- .nbss              0x08ae          0x2 QS_timer.o
 
-.ndata              0x08b0          0x2
- .ndata             0x08b0          0x2 EmissionIR.o
-                    0x08b0                  step_ir
+.ndata              0x08aa          0x4
+ .ndata             0x08aa          0x4 motor.o
 
-.nbss               0x08b2          0x4
- .nbss              0x08b2          0x2 EmissionIR.o
- .nbss              0x08b4          0x2 QS_qei.o
+.nbss               0x08ae          0x6
+ .nbss              0x08ae          0x2 QS_ports.o
+ .nbss              0x08b0          0x2 QS_pwm.o
+ .nbss              0x08b2          0x2 QS_timer.o
 
-.ndata              0x08b6          0x6
- .ndata             0x08b6          0x2 QS_rf.o
- .ndata             0x08b8          0x2 QS_outputlog.o
- .ndata             0x08ba          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libpic30-coff.a(c30_uart.o)
-                    0x08ba                  __C30_UART
+.ndata              0x08b4          0x2
+ .ndata             0x08b4          0x2 EmissionIR.o
+                    0x08b4                  step_ir
 
-.nbss               0x08bc          0x2
- .nbss              0x08bc          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libpic30-coff.a(brk.o)
-                    0x08bc                  __curbrk
+.nbss               0x08b6          0x4
+ .nbss              0x08b6          0x2 EmissionIR.o
+ .nbss              0x08b8          0x2 QS_qei.o
 
-.data               0x08be         0xd0
- .data              0x08be         0x88 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xfiles.o)
-                    0x08be                  _Files
-                    0x08ce                  _Stderr
-                    0x08f6                  _Stdout
-                    0x091e                  _Stdin
- .data              0x0946         0x48 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xldtob.o)
+.ndata              0x08ba          0x6
+ .ndata             0x08ba          0x2 QS_rf.o
+ .ndata             0x08bc          0x2 QS_outputlog.o
+ .ndata             0x08be          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libpic30-coff.a(c30_uart.o)
+                    0x08be                  __C30_UART
 
-.dconst             0x098e         0x32
- .dconst            0x098e         0x32 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xldtob.o)
+.nbss               0x08c0          0x2
+ .nbss              0x08c0          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libpic30-coff.a(brk.o)
+                    0x08c0                  __curbrk
 
-.data               0x09c0         0x34
- .data              0x09c0         0x22 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xlitob.o)
- .data              0x09e2         0x12 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xprintf.o)
+.data               0x08c2         0xd0
+ .data              0x08c2         0x88 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xfiles.o)
+                    0x08c2                  _Files
+                    0x08d2                  _Stderr
+                    0x08fa                  _Stdout
+                    0x0922                  _Stdin
+ .data              0x094a         0x48 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xldtob.o)
 
-.dconst             0x09f4          0x8
- .dconst            0x09f4          0x8 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xprintf.o)
+.dconst             0x0992         0x32
+ .dconst            0x0992         0x32 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xldtob.o)
 
-.data               0x09fc          0x6
- .data              0x09fc          0x6 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(malloc.o)
-                    0x09fc                  _Size_block
-                    0x09fe                  _Aldata
+.data               0x09c4         0x34
+ .data              0x09c4         0x22 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xlitob.o)
+ .data              0x09e6         0x12 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xprintf.o)
 
-.bss                0x0a02          0x2
- .bss               0x0a02          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(fclose.o)
+.dconst             0x09f8          0x8
+ .dconst            0x09f8          0x8 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xprintf.o)
 
-.data               0x0a04          0x2
- .data              0x0a04          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(ldiv.o)
+.data               0x0a00          0x6
+ .data              0x0a00          0x6 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(malloc.o)
+                    0x0a00                  _Size_block
+                    0x0a02                  _Aldata
 
-.dconst             0x0a06          0x2
- .dconst            0x0a06          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xgenld.o)
+.bss                0x0a06          0x2
+ .bss               0x0a06          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(fclose.o)
 
 .data               0x0a08          0x2
- .data              0x0a08          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(div.o)
+ .data              0x0a08          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(ldiv.o)
 
-.const              0xa44a        0x27e load address 0x00244a  
+.dconst             0x0a0a          0x2
+ .dconst            0x0a0a          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(xgenld.o)
+
+.data               0x0a0c          0x2
+ .data              0x0a0c          0x2 c:/program files (x86)/microchip/mplab c30/bin/bin/../../lib\libc-coff.a(div.o)
+
+.const              0xa44a        0x2d8 load address 0x00244a  
  .const             0xa44a        0x158 QS_rf.o
  .const             0xa5a2         0x60 QS_outputlog.o
- .const             0xa602         0x54 QS_uart_dspic30f.o
- .const             0xa656         0x48 QS_buffer_fifo.o
- .const             0xa69e         0x22 SynchroRF.o
- .const             0xa6c0          0x8 main.o
+ .const             0xa602         0x5a motor.o
+ .const             0xa65c         0x54 QS_uart_dspic30f.o
+ .const             0xa6b0         0x48 QS_buffer_fifo.o
+ .const             0xa6f8         0x22 SynchroRF.o
+ .const             0xa71a          0x8 main.o
 
-.text             0x0026c8       0x11c6
- .text            0x0026c8        0x626 QS_rf.o
-                  0x00270e                  RF_init
-                  0x002746                  RF_get_module_id
-                  0x0028da                  RF_can_send
-                  0x00295a                  RF_synchro_request
-                  0x00296c                  RF_synchro_response
-                  0x002a4c                  RF_state_machine
-                  0x002c2a                  UART2_RX_Interrupt
-                  0x002c6a                  RF_TX_Interrupt_
-                  0x002cb2                  UART2_TX_Interrupt
-                  0x002cbe                  _T2Interrupt
- .text            0x002cee        0x610 QS_uart_dspic30f.o
-                  0x002cee                  UART_IMPL_init
-                  0x002d0e                  UART_IMPL_init_ex
-                  0x002e22                  UART_IMPL_write
-                  0x002e56                  UART_IMPL_read
-                  0x002e8a                  UART_IMPL_isRxEmpty
-                  0x002ede                  UART_IMPL_isTxFull
-                  0x002f1e                  UART_IMPL_isIdle
-                  0x002f56                  UART_IMPL_hasOverflow
-                  0x002f96                  UART_IMPL_hasFrameError
-                  0x002fd6                  UART_IMPL_resetErrors
-                  0x003062                  UART_IMPL_setRxItPaused
-                  0x0030a6                  UART_IMPL_setTxItPaused
-                  0x0030ea                  UART_IMPL_setRxItEnabled
-                  0x00310c                  UART_IMPL_setTxItEnabled
-                  0x00312e                  UART_IMPL_ackRxIt
-                  0x003158                  UART_IMPL_ackTxIt
-                  0x003182                  UART_IMPL_isRxItTriggered
-                  0x0031be                  UART_IMPL_isTxItTriggered
-                  0x0031fe                  UART1_RX_Interrupt
-                  0x003204                  UART1_TX_Interrupt
-                  0x003250                  _U1TXInterrupt
-                  0x00328a                  _U2RXInterrupt
-                  0x0032c4                  _U2TXInterrupt
- .text            0x0032fe        0x1fc SynchroRF.o
-                  0x0032fe                  SYNCRF_init
-                  0x003330                  _T3Interrupt
-                  0x003356                  SYNCRF_process_main
-                  0x0033ae                  SYNCRF_sendRequest
-                  0x00343c                  SynchroRF.o:_rf_packet_received_callback
-                  0x0034ce                  SynchroRF.o:_rf_can_received_callback
- .text            0x0034fa        0x1e6 QS_extern_it.o
-                  0x0034fa                  EXTERN_IT_set_priority
-                  0x0035a0                  EXTERN_IT_enable
-                  0x00364a                  EXTERN_IT_disable
-                  0x00369a                  EXTERN_IT_acknowledge
- .text            0x0036e0        0x1ae QS_buffer_fifo.o
-                  0x0036e0                  FIFO_init
-                  0x00370c                  FIFO_availableElements
-                  0x00373c                  FIFO_isEmpty
-                  0x00375a                  FIFO_isFull
-                  0x003786                  FIFO_insertData
-                  0x0037ec                  FIFO_getData
+.text             0x002722       0x137c
+ .text            0x002722        0x626 QS_rf.o
+                  0x002768                  RF_init
+                  0x0027a0                  RF_get_module_id
+                  0x002934                  RF_can_send
+                  0x0029b4                  RF_synchro_request
+                  0x0029c6                  RF_synchro_response
+                  0x002aa6                  RF_state_machine
+                  0x002c84                  UART2_RX_Interrupt
+                  0x002cc4                  RF_TX_Interrupt_
+                  0x002d0c                  UART2_TX_Interrupt
+                  0x002d18                  _T2Interrupt
+ .text            0x002d48        0x610 QS_uart_dspic30f.o
+                  0x002d48                  UART_IMPL_init
+                  0x002d68                  UART_IMPL_init_ex
+                  0x002e7c                  UART_IMPL_write
+                  0x002eb0                  UART_IMPL_read
+                  0x002ee4                  UART_IMPL_isRxEmpty
+                  0x002f38                  UART_IMPL_isTxFull
+                  0x002f78                  UART_IMPL_isIdle
+                  0x002fb0                  UART_IMPL_hasOverflow
+                  0x002ff0                  UART_IMPL_hasFrameError
+                  0x003030                  UART_IMPL_resetErrors
+                  0x0030bc                  UART_IMPL_setRxItPaused
+                  0x003100                  UART_IMPL_setTxItPaused
+                  0x003144                  UART_IMPL_setRxItEnabled
+                  0x003166                  UART_IMPL_setTxItEnabled
+                  0x003188                  UART_IMPL_ackRxIt
+                  0x0031b2                  UART_IMPL_ackTxIt
+                  0x0031dc                  UART_IMPL_isRxItTriggered
+                  0x003218                  UART_IMPL_isTxItTriggered
+                  0x003258                  UART1_RX_Interrupt
+                  0x00325e                  UART1_TX_Interrupt
+                  0x0032aa                  _U1TXInterrupt
+                  0x0032e4                  _U2RXInterrupt
+                  0x00331e                  _U2TXInterrupt
+ .text            0x003358        0x206 SynchroRF.o
+                  0x003358                  SYNCRF_init
+                  0x00338a                  _T3Interrupt
+                  0x0033b0                  SYNCRF_process_main
+                  0x003412                  SYNCRF_sendRequest
+                  0x0034a0                  SynchroRF.o:_rf_packet_received_callback
+                  0x003532                  SynchroRF.o:_rf_can_received_callback
+ .text            0x00355e        0x1e6 QS_extern_it.o
+                  0x00355e                  EXTERN_IT_set_priority
+                  0x003604                  EXTERN_IT_enable
+                  0x0036ae                  EXTERN_IT_disable
+                  0x0036fe                  EXTERN_IT_acknowledge
+ .text            0x003744        0x1ae QS_buffer_fifo.o
+                  0x003744                  FIFO_init
+                  0x003770                  FIFO_availableElements
+                  0x0037a0                  FIFO_isEmpty
+                  0x0037be                  FIFO_isFull
+                  0x0037ea                  FIFO_insertData
+                  0x003850                  FIFO_getData
+ .text            0x0038f2        0x1ac motor.o
+                  0x0038f2                  MOTOR_init
+                  0x003904                  MOTOR_process_it
+                  0x0039bc                  MOTOR_process_main
+                  0x0039c2                  MOTOR_togle_enable
+                  0x0039da                  _T4Interrupt
+                  0x003a00                  MOTOR_send_bat_low
+                  0x003a3c                  MOTOR_send_bat_state
 
-.dinit            0x00388e        0x192
- .dinit           0x00388e        0x192 data_init
+.dinit            0x003a9e        0x19c
+ .dinit           0x003a9e        0x19c data_init
 
-.text             0x003a20        0x5ac
- .text            0x003a20        0x150 QS_timer.o
-                  0x003a20                  TIMER_init
-                  0x003a40                  TIMER1_stop
-                  0x003a4e                  TIMER1_run
-                  0x003a6c                  TIMER1_run_us
-                  0x003a80                  TIMER2_stop
-                  0x003a8e                  TIMER2_run
-                  0x003aac                  TIMER2_run_us
-                  0x003ac0                  TIMER3_stop
-                  0x003ace                  TIMER3_run
-                  0x003aec                  TIMER3_run_us
-                  0x003b00                  TIMER4_stop
-                  0x003b0e                  TIMER4_run
-                  0x003b46                  TIMER4_read
- .text            0x003b70        0x128 QS_uart.o
-                  0x003b70                  UART_init
-                  0x003ba2                  UART1_data_ready
-                  0x003baa                  _U1RXInterrupt
-                  0x003c2c                  UART1_get_next_msg
-                  0x003c86                  UART1_putc
- .text            0x003c98         0xdc motor.o
-                  0x003c98                  MOTOR_init
-                  0x003caa                  MOTOR_process_it
-                  0x003d30                  MOTOR_process_main
-                  0x003d36                  MOTOR_togle_enable
-                  0x003d4e                  _T4Interrupt
- .text            0x003d74         0xaa EmissionIR.o
-                  0x003d74                  EmissionIR_ON
-                  0x003d7e                  EmissionIR_OFF
-                  0x003d88                  EmissionIR_AUTO
-                  0x003d94                  EmissionIR_init
-                  0x003da0                  EmissionIR_stop
-                  0x003da8                  EmissionIR_step_init
-                  0x003db2                  EmissionIR_next_step
- .text            0x003e1e         0x76 main.o
-                  0x003e1e                  main
- .text            0x003e94         0x66 QS_pwm.o
-                  0x003e94                  PWM_init
-                  0x003ebc                  PWM_run
-                  0x003ee0                  PWM_stop
- .text            0x003efa         0x62 QS_ports.o
-                  0x003efa                  PORTS_init
-                  0x003f46                  PORTS_adc_init
- .text            0x003f5c         0x44 QS_outputlog.o
-                  0x003f5c                  OUTPUTLOG_printf
-                  0x003f7c                  OUTPUTLOG_set_level
-                  0x003f98                  OUTPUTLOG_get_level
- .text            0x003fa0         0x2c QS_qei.o
-                  0x003fa0                  QEI_init
-                  0x003fb8                  QEI_get_count
-                  0x003fc0                  QEI_set_count
+.text             0x003c3a        0x4d6
+ .text            0x003c3a        0x150 QS_timer.o
+                  0x003c3a                  TIMER_init
+                  0x003c5a                  TIMER1_stop
+                  0x003c68                  TIMER1_run
+                  0x003c86                  TIMER1_run_us
+                  0x003c9a                  TIMER2_stop
+                  0x003ca8                  TIMER2_run
+                  0x003cc6                  TIMER2_run_us
+                  0x003cda                  TIMER3_stop
+                  0x003ce8                  TIMER3_run
+                  0x003d06                  TIMER3_run_us
+                  0x003d1a                  TIMER4_stop
+                  0x003d28                  TIMER4_run
+                  0x003d60                  TIMER4_read
+ .text            0x003d8a        0x128 QS_uart.o
+                  0x003d8a                  UART_init
+                  0x003dbc                  UART1_data_ready
+                  0x003dc4                  _U1RXInterrupt
+                  0x003e46                  UART1_get_next_msg
+                  0x003ea0                  UART1_putc
+ .text            0x003eb2         0xb0 EmissionIR.o
+                  0x003eb2                  EmissionIR_ON
+                  0x003ebe                  EmissionIR_OFF
+                  0x003eca                  EmissionIR_AUTO
+                  0x003ed6                  EmissionIR_init
+                  0x003ee2                  EmissionIR_stop
+                  0x003eea                  EmissionIR_step_init
+                  0x003ef4                  EmissionIR_next_step
+ .text            0x003f62         0x76 main.o
+                  0x003f62                  main
+ .text            0x003fd8         0x66 QS_pwm.o
+                  0x003fd8                  PWM_init
+                  0x004000                  PWM_run
+                  0x004024                  PWM_stop
+ .text            0x00403e         0x62 QS_ports.o
+                  0x00403e                  PORTS_init
+                  0x00408a                  PORTS_adc_init
+ .text            0x0040a0         0x44 QS_outputlog.o
+                  0x0040a0                  OUTPUTLOG_printf
+                  0x0040c0                  OUTPUTLOG_set_level
+                  0x0040dc                  OUTPUTLOG_get_level
+ .text            0x0040e4         0x2c QS_qei.o
+                  0x0040e4                  QEI_init
+                  0x0040fc                  QEI_get_count
+                  0x004104                  QEI_set_count
 
-.isr              0x003fcc          0x2
- .isr             0x003fcc          0x2 default_isr
-                  0x003fcc                  _DefaultInterrupt
+.isr              0x004110          0x2
+ .isr             0x004110          0x2 default_isr
+                  0x004110                  _DefaultInterrupt
