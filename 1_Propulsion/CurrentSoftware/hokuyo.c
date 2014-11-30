@@ -13,6 +13,7 @@
 	#include "QS/QS_outputlog.h"
 	#include "QS/QS_CANmsgList.h"
 	#include "QS/QS_who_am_i.h"
+	#include "QS/QS_can_over_uart.h"
 	#ifdef STM32F40XX
 		#include "QS/QS_sys.h"
 	#endif
@@ -34,8 +35,9 @@
 
 
 
-
 #ifdef USE_HOKUYO
+
+	//#define USE_COMMAND_ME	// afin de récupérer la distance et l'intensité, sinon récupére juste la distance
 
 	#define HOKUYO_BUFFER_READ_TIMEOUT	500		// ms
 
@@ -52,20 +54,24 @@
 	#define ROBOT_COORDY 150
 	#define DISTANCE_POINTS_IN_THE_SAME_OBJECT 150
 
-	#define NB_BYTES_FROM_HOKUYO	5000
+#ifdef USE_COMMAND_ME
+	#define NB_BYTES_FROM_HOKUYO	6750
+#else
+	#define NB_BYTES_FROM_HOKUYO	2500
+#endif
+
 	#define PERIOD_SEND_ADVERSARIES_DATAS	175	//[ms]
 
 	__ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core __ALIGN_END;
 	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
 
 
-
-
 	static Uint8 HOKUYO_datas[NB_BYTES_FROM_HOKUYO];				//Données brutes issues du capteur HOKUYO
 	static Uint32 datas_index=0;									//Index pour ces données
 
-	#define NB_DETECTED_VALID_POINTS	1000
+	#define NB_DETECTED_VALID_POINTS	1100
 	static HOKUYO_adversary_position detected_valid_points[NB_DETECTED_VALID_POINTS];	//Points valides détectés par le capteur (X, Y, teta, distance)
+	static Uint16 intensity_valid_dist[NB_DETECTED_VALID_POINTS];
 	static Uint16 nb_valid_points=0;								//Nombre de points valides détectés
 
 	static HOKUYO_adversary_position hokuyo_adversaries[HOKUYO_MAX_FOES];	//Positions des adversaires détectés
@@ -189,7 +195,12 @@ void HOKUYO_process_main(void)
 				state=ASK_NEW_MEASUREMENT;
 		break;
 		case ASK_NEW_MEASUREMENT:
-			hokuyo_write_command((Uint8*)"MS0000108001001");
+
+#ifdef USE_COMMAND_ME
+			hokuyo_write_command((Uint8*)"ME0000108001001"); // Distance et intensité Codé sur 3 code encoding chacun
+#else
+			hokuyo_write_command((Uint8*)"MS0000108001001"); // Distance Codé sur 2 code encoding
+#endif
 			robot_position_during_measurement = global.position;	//On garde en mémoire l'angle du robot au moment où on lance la mesure Hokuyo. (est-ce le moment le plus pertinent...?)
 			datas_index=0;
 			state=BUFFER_READ;
@@ -198,12 +209,22 @@ void HOKUYO_process_main(void)
 			if(entrance)
 				buffer_read_time_begin = global.absolute_time;
 			hokuyo_read_buffer();
+
+#ifdef USE_COMMAND_ME
+			if(HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=6730) // 0x0A -> LF (en ASCII)
+				state=REMOVE_LF;
+			else if(datas_index>6738)
+				state=ASK_NEW_MEASUREMENT;
+			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
+				state=ASK_NEW_MEASUREMENT;
+#else
 			if(HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
 				state=REMOVE_LF;
 			else if(datas_index>2278)
 				state=ASK_NEW_MEASUREMENT;
 			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
 				state=ASK_NEW_MEASUREMENT;
+#endif
 		break;
 		case REMOVE_LF:
 			hokuyo_format_data();
@@ -331,7 +352,7 @@ void hokuyo_read_buffer(void)
 	while(!UART_USB_isRxEmpty())
 	{
 		HOKUYO_datas[datas_index] = UART_USB_read();
-		//debug_printf("%c",tab[*i]);
+		//debug_printf("%c",HOKUYO_datas[datas_index]);
 		//UART1_putc(tab[*i]);
 		if(datas_index < NB_BYTES_FROM_HOKUYO)
 			datas_index++;
@@ -357,9 +378,135 @@ void hokuyo_format_data(void)
 	datas_index = i-1;*/
 }
 
+#ifdef USE_COMMAND_ME
 //Fonction qui renvoi les coordonnées des points detectés sur le terrain
-void hokuyo_find_valid_points(void)
-{
+void hokuyo_find_valid_points(void){
+	Uint16 a,b,c,d,e,f;
+	Uint16 i;
+	Sint32 distance;
+	Uint16 distance_intensity;
+	Sint32 angle=0;		//[°*100] centièmes de degrés
+	Sint16 teta_relative;	//[rad4096]
+	Sint16 teta_absolute;
+	Sint32 x_absolute;
+	Sint32 y_absolute;
+	Sint16 cos;
+	Sint16 sin;
+	Sint32 to_close_distance;
+	bool_e point_filtered;
+	nb_valid_points = 0;	//RAZ des points valides.
+
+	if(QS_WHO_AM_I_get() == BIG_ROBOT)
+		to_close_distance = GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
+	else
+		to_close_distance = PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
+
+	//TODO mesurer la durée d'exécution de cet algo...
+	for(i = 47; i<datas_index-3;)	//Les données commencent  l'octet 47...
+	{
+		if(HOKUYO_datas[i+1] == '\n') // Pour la checksum et LF en fin de chaque ligne
+			i+=2;
+		if(HOKUYO_datas[i] == '\n')	//FIN DES DONNEES !!
+			break;
+		a = (Uint16)HOKUYO_datas[i++];
+		b = (Uint16)HOKUYO_datas[i++];
+		if(HOKUYO_datas[i+1] == '\n')
+			i+=2;
+		c = (Uint16)HOKUYO_datas[i++];
+		d = (Uint16)HOKUYO_datas[i++];
+		if(HOKUYO_datas[i+1] == '\n')
+			i+=2;
+		e = (Uint16)HOKUYO_datas[i++];
+		f = (Uint16)HOKUYO_datas[i++];
+
+		distance = ((a-0x30)<<12) + (((b-0x30)&0x3f)<<6) +(((c-0x30)&0x3f));  //cf datasheet de l'hokuyo... pour comprendre comment les données sont codées.
+
+		if(distance	> to_close_distance)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
+		{
+			teta_relative = ((((Sint32)(angle))*183)>>8) -  PI4096/2;	//HOKUYO_OFFSET_ANGLE_RAD4096;	//Angle relatif au robot, du point en cours, en rad4096
+			teta_relative = CALCULATOR_modulo_angle(teta_relative);
+			teta_absolute = CALCULATOR_modulo_angle(teta_relative + 0);//robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
+
+			COS_SIN_4096_get(teta_absolute,&cos,&sin);
+			x_absolute = (distance*(Sint32)(cos))/4096 + 1000;//robot_position_during_measurement.x;
+			y_absolute = (distance*(Sint32)(sin))/4096 + 300;//robot_position_during_measurement.y;
+
+			if(		x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+					y_absolute 	< 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+					y_absolute 	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
+			{		//Un point est retenu s'il est sur le terrain
+
+				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
+
+
+				//if((x_absolute < 500 && x_absolute	> 50) && ((y_absolute < 400 && y_absolute >50) || (y_absolute < 2950 && y_absolute >2600)))
+				//		point_filtered = TRUE;	//on refuse les points de la zone de départ...
+
+
+				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
+					point_filtered = TRUE;
+
+				if(point_filtered == FALSE)
+				{
+					detected_valid_points[nb_valid_points].dist = distance;
+					detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
+					detected_valid_points[nb_valid_points].coordX = x_absolute;
+					detected_valid_points[nb_valid_points].coordY = y_absolute;
+
+					distance_intensity = (Uint16)((((d-0x30)<<12) + (((e-0x30)&0x3f)<<6) +(((f-0x30)&0x3f))) >> 2);
+					intensity_valid_dist[nb_valid_points] = distance_intensity;
+
+					if(nb_valid_points < NB_DETECTED_VALID_POINTS)
+						nb_valid_points++;
+				}
+			}
+		}
+		angle+=25;	//Centième de degré
+	}
+
+	static int time = 0;
+	if(time > 10){
+		CAN_msg_t msg, msg2;
+		msg.sid = DEBUG_HOKUYO_RESET;
+		msg.size = 0;
+		CANmsgToU1tx(&msg);
+		msg2.sid = DEBUG_HOKUYO_INTENSITY_RESET;
+		msg2.size = 0;
+		CANmsgToU1tx(&msg2);
+
+		msg.sid = DEBUG_HOKUYO_ADD_POINT;
+		msg.size = 8;
+		msg2.sid = DEBUG_HOKUYO_INTENSITY_ADD_POINT;
+		msg2.size = 8;
+		int j = 0, j2 = 0;
+		for(i = 0; i < nb_valid_points; i++) {
+			msg.data[j++] = detected_valid_points[i].coordX >> 4;
+			msg.data[j++] = detected_valid_points[i].coordY >> 4;
+
+			COS_SIN_4096_get(CALCULATOR_modulo_angle(detected_valid_points[i].teta + 0),&cos,&sin);		//robot_position_during_measurement.teta);
+			msg2.data[j2++] = ((intensity_valid_dist[i]*cos)/4096 + 1000) >> 4;  //robot_position_during_measurement.x;
+			msg2.data[j2++] = ((intensity_valid_dist[i]*sin)/4096 + 300) >> 4;   //robot_position_during_measurement.y;
+
+			if(j > 7){
+				CANmsgToU1tx(&msg);
+				CANmsgToU1tx(&msg2);
+				j = j2 = 0;
+			}
+		}
+
+		msg.size = j;
+		CANmsgToU1tx(&msg);
+		msg2.size = j;
+		CANmsgToU1tx(&msg2);
+		time = 0;
+	}
+	time++;
+}
+
+#else
+//Fonction qui renvoi les coordonnées des points detectés sur le terrain
+void hokuyo_find_valid_points(void){
 	Uint16 a,b;
 	Uint16 i;
 	Sint32 distance;
@@ -443,9 +590,35 @@ void hokuyo_find_valid_points(void)
 		}
 		angle+=25;	//Centième de degré
 	}
-	//debug_printf("val tot [%d]\n",compt_sushis);
-	//debug_printf("val bizarres [%d]\n",nb_val_bizarres);
+
+//	static int time = 0;
+//	if(time > 20){
+//		CAN_msg_t msg;
+//		msg.sid = DEBUG_HOKUYO_RESET;
+//		msg.size = 0;
+//		CANmsgToU1tx(&msg);
+
+//		msg.sid = DEBUG_HOKUYO_ADD_POINT;
+//		msg.size = 8;
+
+//		int j = 0;
+//		for(i = 0; i < nb_valid_points; i++) {
+//			msg.data[j++] = detected_valid_points[i].coordX >> 4;
+//			msg.data[j++] = detected_valid_points[i].coordY >> 4;
+
+//			if(j > 7){
+//				CANmsgToU1tx(&msg);
+//				j = 0;
+//			}
+//		}
+
+//		msg.size = j;
+//		CANmsgToU1tx(&msg);
+//		time = 0;
+//	}
+//	time++;
 }
+#endif
 
 //fonction qui renvoie la plus petite distance
 Sint32 hokuyo_dist_min(Uint16 compt)
