@@ -13,6 +13,7 @@
 	#include "QS/QS_outputlog.h"
 	#include "QS/QS_CANmsgList.h"
 	#include "QS/QS_who_am_i.h"
+	#include "QS/QS_maths.h"
 	#include "QS/QS_can_over_uart.h"
 	#ifdef STM32F40XX
 		#include "QS/QS_sys.h"
@@ -25,13 +26,12 @@
 	#include "usb_host/Class/MSC/usbh_msc_core.h"
 	#include "usb_host/Class/usbh_class_switch.h"
 	#include "uart_via_usb.h"
-	#include "QS/QS_maths.h"
 	#include "hokuyo.h"
 	#include "calculator.h"
 	#include "secretary.h"
 	#include "detection.h"
 	#include "odometry.h"
-	#include "QS/QS_maths.h"
+
 
 
 
@@ -46,6 +46,9 @@
 	#define HOKUYO_DETECTION_MARGE 130
 	#define HOKUYO_EVITEMENT_MIN 150
 	#define HOKUYO_MARGIN_FIELD_SIDE_IGNORE 100
+
+	#define HOKUYO_OFFSET_POS_X				4.5
+	#define HOKUYO_OFFSET_POS_Y				0
 
 	#define GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE		250	//Distance d'un point trop proche de nous qui doit être ignoré.
 	#define PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	150	//Distance d'un point trop proche de nous qui doit être ignoré.
@@ -119,7 +122,6 @@ void HOKUYO_init(void)
 
 	if(!hokuyo_initialized)
 	{
-		//USBH_Process(&USB_OTG_Core, &USB_Host);
 		UART_USB_init(19200);
 		debug_printf("\nInit usb for Hokuyo\n");
 		USBH_Init(&USB_OTG_Core,
@@ -174,7 +176,6 @@ void HOKUYO_process_main(void)
 
 	//Process main du périphérique USB.
 	USBH_Process(&USB_OTG_Core, &USB_Host);
-
 
 	if(flag_device_disconnected)
 	{
@@ -352,8 +353,6 @@ void hokuyo_read_buffer(void)
 	while(!UART_USB_isRxEmpty())
 	{
 		HOKUYO_datas[datas_index] = UART_USB_read();
-		//debug_printf("%c",HOKUYO_datas[datas_index]);
-		//UART1_putc(tab[*i]);
 		if(datas_index < NB_BYTES_FROM_HOKUYO)
 			datas_index++;
 		else
@@ -427,9 +426,14 @@ void hokuyo_find_valid_points(void){
 			teta_relative = CALCULATOR_modulo_angle(teta_relative);
 			teta_absolute = CALCULATOR_modulo_angle(teta_relative + 0);//robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
 
+
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
-			x_absolute = (distance*(Sint32)(cos))/4096 + 1000;//robot_position_during_measurement.x;
-			y_absolute = (distance*(Sint32)(sin))/4096 + 300;//robot_position_during_measurement.y;
+			offset_x = (Sint16)(HOKUYO_OFFSET_POS_X*cos/4096.);
+			offset_y = (Sint16)(HOKUYO_OFFSET_POS_Y*sin/4096.);
+
+			x_absolute = (distance*(Sint32)(cos))/4096 + 1000 /* robot_position_during_measurement.x */ + offset_x;
+			y_absolute = (distance*(Sint32)(sin))/4096 + 300 /*robot_position_during_measurement.y */ + offset_y;
+
 
 			if(		x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
 					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
@@ -440,8 +444,10 @@ void hokuyo_find_valid_points(void){
 				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
 
 
-				//if((x_absolute < 500 && x_absolute	> 50) && ((y_absolute < 400 && y_absolute >50) || (y_absolute < 2950 && y_absolute >2600)))
-				//		point_filtered = TRUE;	//on refuse les points de la zone de départ...
+				if(x_absolute < MARCHE_RECT_X + MARCHE_RECT_WIDTH + MARGIN
+						&& y_absolute > MARCHE_RECT_Y
+						&& y_absolute < MARCHE_RECT_Y + MARCHE_RECT_HEIGHT + MARGIN) 	//zones des marches
+						point_filtered = TRUE;	//on refuse les points
 
 
 				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
@@ -513,6 +519,7 @@ void hokuyo_find_valid_points(void){
 	Sint32 angle=0;		//[°*100] centièmes de degrés
 	Sint16 teta_relative;	//[rad4096]
 	Sint16 teta_absolute;
+	Sint16 offset_x, offset_y;
 	Sint32 x_absolute;
 	Sint32 y_absolute;
 	Sint16 cos;
@@ -544,8 +551,12 @@ void hokuyo_find_valid_points(void){
 			teta_absolute = CALCULATOR_modulo_angle(teta_relative + robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
 
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
-			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x;
-			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y;
+			offset_x = (Sint16)(HOKUYO_OFFSET_POS_X*cos/4096.);
+			offset_y = (Sint16)(HOKUYO_OFFSET_POS_Y*sin/4096.);
+
+			COS_SIN_4096_get(teta_absolute,&cos,&sin);
+			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_x;
+			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_y;
 
 			if(		x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
 					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
@@ -555,24 +566,23 @@ void hokuyo_find_valid_points(void){
 
 				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
 
-				#define MAMOUTH_RECTANGLES_X		300
-				#define MAMOUTH_RECTANGLES_Y_START	350
-				#define MAMOUTH_RECTANGLES_Y_STOP	1150
 				#define CORNER_SQUARE				150
 				#define MARGIN						100
+
+				#define MARCHE_RECT_X				0
+				#define	MARCHE_RECT_Y				967
+				#define	MARCHE_RECT_WIDTH			580			// Largeur en x
+				#define	MARCHE_RECT_HEIGHT			1066		// Longueur en y
 
 				//On va éliminer certaines zones volontairement.
 				if(x_absolute > FIELD_SIZE_X - MARGIN || x_absolute < MARGIN || absolute(x_absolute - FIELD_SIZE_X/2) < MARGIN)
 					if(y_absolute < MARGIN || y_absolute > FIELD_SIZE_Y - MARGIN)	//Les 4 coins et deux balises fixes
 						point_filtered = TRUE;	//on refuse les points
-				if(x_absolute < MAMOUTH_RECTANGLES_X)
-					if (  	(y_absolute > MAMOUTH_RECTANGLES_Y_START && y_absolute < MAMOUTH_RECTANGLES_Y_STOP) 	//zones de dépose devant mamouths
-						|| 	(y_absolute > FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_STOP && y_absolute < FIELD_SIZE_Y - MAMOUTH_RECTANGLES_Y_START)	)
+
+				if(x_absolute < MARCHE_RECT_X + MARCHE_RECT_WIDTH + MARGIN
+						&& y_absolute > MARCHE_RECT_Y
+						&& y_absolute < MARCHE_RECT_Y + MARCHE_RECT_HEIGHT + MARGIN) 	//zones des marches
 						point_filtered = TRUE;	//on refuse les points
-
-				//if((x_absolute < 500 && x_absolute	> 50) && ((y_absolute < 400 && y_absolute >50) || (y_absolute < 2950 && y_absolute >2600)))
-				//		point_filtered = TRUE;	//on refuse les points de la zone de départ...
-
 
 				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
 					point_filtered = TRUE;
