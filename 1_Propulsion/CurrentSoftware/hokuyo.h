@@ -7,7 +7,7 @@
 
 #ifndef HOKUYO_H_
 #define HOKUYO_H_
-//#define TRIANGULATION
+#define TRIANGULATION
 #define NB_MESURES_HOKUYO 4
 
 #include "QS/QS_all.h"
@@ -19,10 +19,17 @@
 
 	typedef struct{
 		Sint32 dist;
-		int teta;
+		Sint16 teta;
 		Sint32 coordX;
 		Sint32 coordY;
 	}HOKUYO_adversary_position;
+
+	typedef struct{
+		Sint16 power_intensity;
+		Sint16 teta;
+		Sint32 coordX;
+		Sint32 coordY;
+	}HOKUYO_point_position;
 
 	void HOKUYO_init(void);
 	void HOKUYO_process_main(void);

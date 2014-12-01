@@ -37,7 +37,7 @@
 
 #ifdef USE_HOKUYO
 
-	//#define USE_COMMAND_ME	// afin de récupérer la distance et l'intensité, sinon récupére juste la distance
+	#define USE_COMMAND_ME	// afin de récupérer la distance et l'intensité, sinon récupére juste la distance
 
 	#define HOKUYO_BUFFER_READ_TIMEOUT	500		// ms
 
@@ -57,6 +57,16 @@
 	#define ROBOT_COORDY 150
 	#define DISTANCE_POINTS_IN_THE_SAME_OBJECT 150
 
+
+	#define CORNER_SQUARE				150
+	#define MARGIN						100
+
+	#define MARCHE_RECT_X				0
+	#define	MARCHE_RECT_Y				967
+	#define	MARCHE_RECT_WIDTH			580			// Largeur en x
+	#define	MARCHE_RECT_HEIGHT			1066		// Longueur en y
+
+
 #ifdef USE_COMMAND_ME
 	#define NB_BYTES_FROM_HOKUYO	6750
 #else
@@ -73,8 +83,7 @@
 	static Uint32 datas_index=0;									//Index pour ces données
 
 	#define NB_DETECTED_VALID_POINTS	1100
-	static HOKUYO_adversary_position detected_valid_points[NB_DETECTED_VALID_POINTS];	//Points valides détectés par le capteur (X, Y, teta, distance)
-	static Uint16 intensity_valid_dist[NB_DETECTED_VALID_POINTS];
+	static HOKUYO_point_position detected_valid_points[NB_DETECTED_VALID_POINTS];	//Points valides détectés par le capteur (X, Y, teta, distance)
 	static Uint16 nb_valid_points=0;								//Nombre de points valides détectés
 
 	static HOKUYO_adversary_position hokuyo_adversaries[HOKUYO_MAX_FOES];	//Positions des adversaires détectés
@@ -92,6 +101,7 @@
 	void hokuyo_find_valid_points(void);
 	Sint32 hokuyo_dist_min(Uint16 compt);
 	void Compute_dist_and_teta(void);
+	Sint32 hokuyo_get_detected_valid_point_dist(Uint16 point);
 
 	//Deux fonctions pour detecter des regroupements de points
 	void hokuyo_detection_ennemis(void);
@@ -383,9 +393,10 @@ void hokuyo_find_valid_points(void){
 	Uint16 a,b,c,d,e,f;
 	Uint16 i;
 	Sint32 distance;
-	Uint16 distance_intensity;
+	Uint16 power_intensity;
 	Sint32 angle=0;		//[°*100] centièmes de degrés
 	Sint16 teta_relative;	//[rad4096]
+	Sint16 offset_x, offset_y;
 	Sint16 teta_absolute;
 	Sint32 x_absolute;
 	Sint32 y_absolute;
@@ -455,13 +466,12 @@ void hokuyo_find_valid_points(void){
 
 				if(point_filtered == FALSE)
 				{
-					detected_valid_points[nb_valid_points].dist = distance;
 					detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
 					detected_valid_points[nb_valid_points].coordX = x_absolute;
 					detected_valid_points[nb_valid_points].coordY = y_absolute;
 
-					distance_intensity = (Uint16)((((d-0x30)<<12) + (((e-0x30)&0x3f)<<6) +(((f-0x30)&0x3f))) >> 2);
-					intensity_valid_dist[nb_valid_points] = distance_intensity;
+					power_intensity = (Sint16)((((d-0x30)<<12) + (((e-0x30)&0x3f)<<6) +(((f-0x30)&0x3f))) >> 3); // Décale de 3, car 18 bits(16 bits ici) et bit de signe
+					detected_valid_points[nb_valid_points].power_intensity = power_intensity;
 
 					if(nb_valid_points < NB_DETECTED_VALID_POINTS)
 						nb_valid_points++;
@@ -471,43 +481,43 @@ void hokuyo_find_valid_points(void){
 		angle+=25;	//Centième de degré
 	}
 
-	static int time = 0;
-	if(time > 10){
-		CAN_msg_t msg, msg2;
-		msg.sid = DEBUG_HOKUYO_RESET;
-		msg.size = 0;
-		CANmsgToU1tx(&msg);
-		msg2.sid = DEBUG_HOKUYO_INTENSITY_RESET;
-		msg2.size = 0;
-		CANmsgToU1tx(&msg2);
+//	static int time = 0;
+//	if(time > 10){
+//		CAN_msg_t msg, msg2;
+//		msg.sid = DEBUG_HOKUYO_RESET;
+//		msg.size = 0;
+//		CANmsgToU1tx(&msg);
+//		msg2.sid = DEBUG_HOKUYO_INTENSITY_RESET;
+//		msg2.size = 0;
+//		CANmsgToU1tx(&msg2);
 
-		msg.sid = DEBUG_HOKUYO_ADD_POINT;
-		msg.size = 8;
-		msg2.sid = DEBUG_HOKUYO_INTENSITY_ADD_POINT;
-		msg2.size = 8;
-		int j = 0, j2 = 0;
-		for(i = 0; i < nb_valid_points; i++) {
-			msg.data[j++] = detected_valid_points[i].coordX >> 4;
-			msg.data[j++] = detected_valid_points[i].coordY >> 4;
+//		msg.sid = DEBUG_HOKUYO_ADD_POINT;
+//		msg.size = 8;
+//		msg2.sid = DEBUG_HOKUYO_INTENSITY_ADD_POINT;
+//		msg2.size = 8;
+//		int j = 0, j2 = 0;
+//		for(i = 0; i < nb_valid_points; i++) {
+//			msg.data[j++] = detected_valid_points[i].coordX >> 4;
+//			msg.data[j++] = detected_valid_points[i].coordY >> 4;
 
-			COS_SIN_4096_get(CALCULATOR_modulo_angle(detected_valid_points[i].teta + 0),&cos,&sin);		//robot_position_during_measurement.teta);
-			msg2.data[j2++] = ((intensity_valid_dist[i]*cos)/4096 + 1000) >> 4;  //robot_position_during_measurement.x;
-			msg2.data[j2++] = ((intensity_valid_dist[i]*sin)/4096 + 300) >> 4;   //robot_position_during_measurement.y;
+//			COS_SIN_4096_get(CALCULATOR_modulo_angle(detected_valid_points[i].teta + 0),&cos,&sin);		//robot_position_during_measurement.teta);
+//			msg2.data[j2++] = ((intensity_valid_dist[i]*cos)/4096 + 1000) >> 4;  //robot_position_during_measurement.x;
+//			msg2.data[j2++] = ((intensity_valid_dist[i]*sin)/4096 + 300) >> 4;   //robot_position_during_measurement.y;
 
-			if(j > 7){
-				CANmsgToU1tx(&msg);
-				CANmsgToU1tx(&msg2);
-				j = j2 = 0;
-			}
-		}
+//			if(j > 7){
+//				CANmsgToU1tx(&msg);
+//				CANmsgToU1tx(&msg2);
+//				j = j2 = 0;
+//			}
+//		}
 
-		msg.size = j;
-		CANmsgToU1tx(&msg);
-		msg2.size = j;
-		CANmsgToU1tx(&msg2);
-		time = 0;
-	}
-	time++;
+//		msg.size = j;
+//		CANmsgToU1tx(&msg);
+//		msg2.size = j;
+//		CANmsgToU1tx(&msg2);
+//		time = 0;
+//	}
+//	time++;
 }
 
 #else
@@ -566,14 +576,6 @@ void hokuyo_find_valid_points(void){
 
 				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
 
-				#define CORNER_SQUARE				150
-				#define MARGIN						100
-
-				#define MARCHE_RECT_X				0
-				#define	MARCHE_RECT_Y				967
-				#define	MARCHE_RECT_WIDTH			580			// Largeur en x
-				#define	MARCHE_RECT_HEIGHT			1066		// Longueur en y
-
 				//On va éliminer certaines zones volontairement.
 				if(x_absolute > FIELD_SIZE_X - MARGIN || x_absolute < MARGIN || absolute(x_absolute - FIELD_SIZE_X/2) < MARGIN)
 					if(y_absolute < MARGIN || y_absolute > FIELD_SIZE_Y - MARGIN)	//Les 4 coins et deux balises fixes
@@ -589,7 +591,6 @@ void hokuyo_find_valid_points(void){
 
 				if(point_filtered == FALSE)
 				{
-					detected_valid_points[nb_valid_points].dist = distance;
 					detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
 					detected_valid_points[nb_valid_points].coordX = x_absolute;
 					detected_valid_points[nb_valid_points].coordY = y_absolute;
@@ -635,16 +636,21 @@ Sint32 hokuyo_dist_min(Uint16 compt)
 {
 	Uint16 i;
 	Sint32 dist_min;
-	dist_min = detected_valid_points[0].dist;
+	dist_min = hokuyo_get_detected_valid_point_dist(0);
 	for(i=1;i<compt;i++)
 	{
-		if(detected_valid_points[i].dist < dist_min)
-			dist_min = detected_valid_points[i].dist;
+		if(hokuyo_get_detected_valid_point_dist(i) < dist_min)
+			dist_min = hokuyo_get_detected_valid_point_dist(i);
 	}
 	debug_printf("dist min [%ld mm] \n",dist_min);
 	//if(dist_min < HOKUYO_EVITEMENT_MIN)
-		//LCD_DisplayStringLineColon(10,LCD_LINE_27,"WARNING ENNEMY DETECTED");
+	//LCD_DisplayStringLineColon(10,LCD_LINE_27,"WARNING ENNEMY DETECTED");
 	return dist_min;
+}
+
+Sint32 hokuyo_get_detected_valid_point_dist(Uint16 point){
+	return (Sint32)(sqrt((detected_valid_points[point].coordX - robot_position_during_measurement.x)*(detected_valid_points[point].coordX - robot_position_during_measurement.x) +
+						 (detected_valid_points[point].coordY - robot_position_during_measurement.y)*(detected_valid_points[point].coordY - robot_position_during_measurement.y)));
 }
 
 //fonctions de detection des ennemis
@@ -886,7 +892,6 @@ void Hokuyo_validPointsAndBeacons(){
 
 				if(point_filtered == FALSE)
 				{
-					detected_valid_points[nb_valid_points].dist = distance;
 					detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
 					detected_valid_points[nb_valid_points].coordX = x_absolute;
 					detected_valid_points[nb_valid_points].coordY = y_absolute;
@@ -1220,16 +1225,16 @@ void tri_points(){
 		for(i=0;i<nb_valid_points;i++){
 			if(detected_valid_points[i].coordX>-62-ECART_BALISE && detected_valid_points[i].coordX<ECART_BALISE
 			   && detected_valid_points[i].coordY>-62-ECART_BALISE && detected_valid_points[i].coordY<ECART_BALISE){
-							points_beacons[0][nb_points_B1]=detected_valid_points[i];
-							nb_points_B1++;
+				points_beacons[0][nb_points_B1] = (HOKUYO_adversary_position){hokuyo_get_detected_valid_point_dist(i) , detected_valid_points[i].teta, detected_valid_points[i].coordX, detected_valid_points[i].coordY};
+				nb_points_B1++;
 			}else if(detected_valid_points[i].coordX>969-ECART_BALISE && detected_valid_points[i].coordX<969+ECART_BALISE
 					 && detected_valid_points[i].coordY>3000-ECART_BALISE && detected_valid_points[i].coordY<3062+ECART_BALISE){
-							points_beacons[1][nb_points_B2]=detected_valid_points[i];
-							nb_points_B2++;
+				points_beacons[1][nb_points_B2] = (HOKUYO_adversary_position){hokuyo_get_detected_valid_point_dist(i) , detected_valid_points[i].teta, detected_valid_points[i].coordX, detected_valid_points[i].coordY};
+				nb_points_B2++;
 			}else if(detected_valid_points[i].coordX>2000-ECART_BALISE && detected_valid_points[i].coordX<2062+ECART_BALISE
 					 && detected_valid_points[i].coordY>-62-ECART_BALISE && detected_valid_points[i].coordY<ECART_BALISE){
-							points_beacons[2][nb_points_B3]=detected_valid_points[i];
-							nb_points_B3++;
+				points_beacons[2][nb_points_B3] = (HOKUYO_adversary_position){hokuyo_get_detected_valid_point_dist(i) , detected_valid_points[i].teta, detected_valid_points[i].coordX, detected_valid_points[i].coordY};
+				nb_points_B3++;
 			}
 		}
 
