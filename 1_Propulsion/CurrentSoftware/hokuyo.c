@@ -47,8 +47,10 @@
 	#define HOKUYO_EVITEMENT_MIN 150
 	#define HOKUYO_MARGIN_FIELD_SIDE_IGNORE 100
 
-	#define HOKUYO_OFFSET_POS_X				4.5
-	#define HOKUYO_OFFSET_POS_Y				0
+	#define HOKUYO_OFFSET_BIG_POS_X			4.5
+	#define HOKUYO_OFFSET_BIG_POS_Y			0
+	#define HOKUYO_OFFSET_SMALL_POS_X		0
+	#define HOKUYO_OFFSET_SMALL_POS_Y		0
 
 	#define GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE		250	//Distance d'un point trop proche de nous qui doit être ignoré.
 	#define PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	150	//Distance d'un point trop proche de nous qui doit être ignoré.
@@ -397,13 +399,11 @@ void hokuyo_format_data(void)
 //Fonction qui renvoi les coordonnées des points detectés sur le terrain
 void hokuyo_find_valid_points(void){
 	Uint16 a,b,c,d,e,f;
-	Uint16 i;
+	Uint16 i, power_intensity;
 	Sint32 distance;
-	Uint16 power_intensity;
 	Sint32 angle=0;		//[°*100] centièmes de degrés
-	Sint16 teta_relative;	//[rad4096]
-	Sint16 offset_x, offset_y;
-	Sint16 teta_absolute;
+	Sint16 teta_relative, teta_absolute;	//[rad4096]
+	Sint16 offset_x, offset_y, offset_pos_x, offset_pos_y;
 	Sint32 x_absolute;
 	Sint32 y_absolute;
 	Sint16 cos;
@@ -412,10 +412,15 @@ void hokuyo_find_valid_points(void){
 	bool_e point_filtered;
 	nb_valid_points = 0;	//RAZ des points valides.
 
-	if(QS_WHO_AM_I_get() == BIG_ROBOT)
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
 		to_close_distance = GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
-	else
+		offset_pos_x = HOKUYO_OFFSET_BIG_POS_X;
+		offset_pos_y = HOKUYO_OFFSET_BIG_POS_Y;
+	}else{
 		to_close_distance = PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
+		offset_pos_x = HOKUYO_OFFSET_SMALL_POS_X;
+		offset_pos_y = HOKUYO_OFFSET_SMALL_POS_Y;
+	}
 
 	//TODO mesurer la durée d'exécution de cet algo...
 	for(i = 47; i<datas_index-3;)	//Les données commencent  l'octet 47...
@@ -439,17 +444,16 @@ void hokuyo_find_valid_points(void){
 
 		if(distance	> to_close_distance)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
-			teta_relative = ((((Sint32)(angle))*183)>>8) -  PI4096/2;	//HOKUYO_OFFSET_ANGLE_RAD4096;	//Angle relatif au robot, du point en cours, en rad4096
+			teta_relative = ((((Sint32)(angle))*183)>>8) + HOKUYO_OFFSET_ANGLE_RAD4096;	//Angle relatif au robot, du point en cours, en rad4096
 			teta_relative = CALCULATOR_modulo_angle(teta_relative);
-			teta_absolute = CALCULATOR_modulo_angle(teta_relative + 0);//robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
-
+			teta_absolute = CALCULATOR_modulo_angle(teta_relative + robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
 
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
-			offset_x = (Sint16)(HOKUYO_OFFSET_POS_X*cos/4096.);
-			offset_y = (Sint16)(HOKUYO_OFFSET_POS_Y*sin/4096.);
+			offset_x = (Sint16)(offset_pos_x*cos/4096.);
+			offset_y = (Sint16)(offset_pos_y*sin/4096.);
 
-			x_absolute = (distance*(Sint32)(cos))/4096 + 1000 /* robot_position_during_measurement.x */ + offset_x;
-			y_absolute = (distance*(Sint32)(sin))/4096 + 300 /*robot_position_during_measurement.y */ + offset_y;
+			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_x;
+			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_y;
 
 
 			if(		x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
@@ -476,8 +480,8 @@ void hokuyo_find_valid_points(void){
 					detected_valid_points[nb_valid_points].coordX = x_absolute;
 					detected_valid_points[nb_valid_points].coordY = y_absolute;
 
-					power_intensity = (Sint16)((((d-0x30)<<12) + (((e-0x30)&0x3f)<<6) +(((f-0x30)&0x3f))) >> 3); // Décale de 3, car 18 bits(16 bits ici) et bit de signe
-					detected_valid_points[nb_valid_points].power_intensity = power_intensity;
+					power_intensity = ((((Sint32)(d)-0x30)<<12) + ((((Sint32)(e)-0x30)&0x3f)<<6) +((((Sint32)(f)-0x30)&0x3f))) >> 3; // Décale de 3, car 18 bits(16 bits ici) et bit de signe
+					detected_valid_points[nb_valid_points].power_intensity = (power_intensity > 0)?power_intensity : -1;
 
 					if(nb_valid_points < NB_DETECTED_VALID_POINTS)
 						nb_valid_points++;
@@ -506,9 +510,17 @@ void hokuyo_find_valid_points(void){
 //			msg.data[j++] = detected_valid_points[i].coordX >> 4;
 //			msg.data[j++] = detected_valid_points[i].coordY >> 4;
 
-//			COS_SIN_4096_get(CALCULATOR_modulo_angle(detected_valid_points[i].teta + 0),&cos,&sin);		//robot_position_during_measurement.teta);
-//			msg2.data[j2++] = ((intensity_valid_dist[i]*cos)/4096 + 1000) >> 4;  //robot_position_during_measurement.x;
-//			msg2.data[j2++] = ((intensity_valid_dist[i]*sin)/4096 + 300) >> 4;   //robot_position_during_measurement.y;
+//			COS_SIN_4096_get(CALCULATOR_modulo_angle(detected_valid_points[i].teta + robot_position_during_measurement.teta),&cos,&sin);
+//			Sint16 x = (((Sint32)(detected_valid_points[i].power_intensity)*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_pos_x) >> 4;
+//			Sint16 y = (((Sint32)(detected_valid_points[i].power_intensity)*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_pos_y) >> 4;
+
+//			if( x < 0)
+//				x = 0;
+//			if(y < 0)
+//				y = 0;
+
+//			msg2.data[j2++] = x;
+//			msg2.data[j2++] = y;
 
 //			if(j > 7){
 //				CANmsgToU1tx(&msg);
@@ -535,7 +547,7 @@ void hokuyo_find_valid_points(void){
 	Sint32 angle=0;		//[°*100] centièmes de degrés
 	Sint16 teta_relative;	//[rad4096]
 	Sint16 teta_absolute;
-	Sint16 offset_x, offset_y;
+	Sint16 offset_x, offset_y, offset_pos_x, offset_pos_y;
 	Sint32 x_absolute;
 	Sint32 y_absolute;
 	Sint16 cos;
@@ -544,10 +556,15 @@ void hokuyo_find_valid_points(void){
 	bool_e point_filtered;
 	nb_valid_points = 0;	//RAZ des points valides.
 
-	if(QS_WHO_AM_I_get() == BIG_ROBOT)
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
 		to_close_distance = GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
-	else
+		offset_pos_x = HOKUYO_OFFSET_BIG_POS_X;
+		offset_pos_y = HOKUYO_OFFSET_BIG_POS_Y;
+	}else{
 		to_close_distance = PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
+		offset_pos_x = HOKUYO_OFFSET_SMALL_POS_X;
+		offset_pos_y = HOKUYO_OFFSET_SMALL_POS_Y;
+	}
 
 	//TODO mesurer la durée d'exécution de cet algo...
 	for(i = 47; i<datas_index-3;)	//Les données commencent  l'octet 47...
@@ -567,8 +584,8 @@ void hokuyo_find_valid_points(void){
 			teta_absolute = CALCULATOR_modulo_angle(teta_relative + robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
 
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
-			offset_x = (Sint16)(HOKUYO_OFFSET_POS_X*cos/4096.);
-			offset_y = (Sint16)(HOKUYO_OFFSET_POS_Y*sin/4096.);
+			offset_x = (Sint16)(offset_pos_x*cos/4096.);
+			offset_y = (Sint16)(offset_pos_y*sin/4096.);
 
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
 			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_x;

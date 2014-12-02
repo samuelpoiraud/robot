@@ -7,7 +7,7 @@
 
 #ifndef HOKUYO_H_
 #define HOKUYO_H_
-#define TRIANGULATION
+//#define TRIANGULATION
 #define NB_MESURES_HOKUYO 4
 
 #include "QS/QS_all.h"
