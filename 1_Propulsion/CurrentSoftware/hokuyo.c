@@ -112,9 +112,12 @@
 	void send_adversaries_datas(void);
 
 	#define ECART_HOKUYO_A_DROITE 20 //matérialise le fait que l'hokuyo est décalé d'une certaine distance à doite par rapport au centre du robot
+	#define ECART_BALISE 200
+	HOKUYO_point_position points_beacons_valid[NB_DETECTED_VALID_POINTS];
+	static Uint8 nb_valid_points_beacons=0;
+
 	#ifdef TRIANGULATION
 		void Hokuyo_validPointsAndBeacons();
-		#define ECART_BALISE 200
 		#define ECART_FIABILITE 80  //marge de la zone où les mesures sont considérées comme non-fiable
 		#define ECART_POSITION  100  //marge au delà de laquelle un point n'est pas pris en compte dans le calcul de la position (=erreur)
 		#define SEUIL_INTENSITE 100 //le seuil d'intensité à partir de laquelle on détecte une balise
@@ -411,6 +414,8 @@ void hokuyo_find_valid_points(void){
 	Sint32 to_close_distance;
 	bool_e point_filtered;
 	nb_valid_points = 0;	//RAZ des points valides.
+	//nb_valid_points_beacons=0;
+	color_e color= ODOMETRY_get_color();
 
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
 		to_close_distance = GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE;
@@ -487,7 +492,35 @@ void hokuyo_find_valid_points(void){
 						nb_valid_points++;
 				}
 			}
-		}
+
+			//filtrage des points correspondant aux balises extérieures
+			if( (color==BOT_COLOR && x_absolute<ECART_BALISE && x_absolute>-(62+ECART_BALISE) && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )  //un point est retenu s'il fait partie d'une balise fixe de sa couleur sur le bord du terrain
+							 || (color==BOT_COLOR && x_absolute<2062+ECART_BALISE && x_absolute>2000-ECART_BALISE && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )
+							 || (color==BOT_COLOR && x_absolute<1031+ECART_BALISE && x_absolute>979+ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )
+							 || (color==TOP_COLOR && x_absolute<ECART_BALISE && x_absolute>-62+ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )  //un point est retenu s'il fait partie d'une balise fixe de sa couleur sur le bord du terrain
+							 || (color==TOP_COLOR && x_absolute<2062+ECART_BALISE && x_absolute>2000-ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )
+							 || (color==TOP_COLOR && x_absolute<1031+ECART_BALISE && x_absolute>979+ECART_BALISE && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )
+						 )
+			{
+				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
+
+				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
+					point_filtered = TRUE;
+
+				if(point_filtered == FALSE)
+				{
+					points_beacons_valid[ nb_valid_points_beacons].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
+					points_beacons_valid[ nb_valid_points_beacons].coordX = x_absolute;
+					points_beacons_valid[ nb_valid_points_beacons].coordY = y_absolute;
+
+					power_intensity = ((((Sint32)(d)-0x30)<<12) + ((((Sint32)(e)-0x30)&0x3f)<<6) +((((Sint32)(f)-0x30)&0x3f))) >> 3; // Décale de 3, car 18 bits(16 bits ici) et bit de signe
+					points_beacons_valid[ nb_valid_points_beacons].power_intensity = (power_intensity > 0)?power_intensity : -1;
+
+					if( nb_valid_points_beacons < NB_DETECTED_VALID_POINTS)
+						 nb_valid_points_beacons++;
+				}
+			}
+	 }
 		angle+=25;	//Centième de degré
 	}
 
@@ -1257,17 +1290,16 @@ void tri_points(){
 
 		nb_balayages++;
 		for(i=0;i<nb_valid_points;i++){
-			if(detected_valid_points[i].coordX>-62-ECART_BALISE && detected_valid_points[i].coordX<ECART_BALISE
-			   && detected_valid_points[i].coordY>-62-ECART_BALISE && detected_valid_points[i].coordY<ECART_BALISE){
-				points_beacons[0][nb_points_B1] = (HOKUYO_adversary_position){hokuyo_get_detected_valid_point_dist(i) , detected_valid_points[i].teta, detected_valid_points[i].coordX, detected_valid_points[i].coordY};
-				nb_points_B1++;
-			}else if(detected_valid_points[i].coordX>969-ECART_BALISE && detected_valid_points[i].coordX<969+ECART_BALISE
-					 && detected_valid_points[i].coordY>3000-ECART_BALISE && detected_valid_points[i].coordY<3062+ECART_BALISE){
-				points_beacons[1][nb_points_B2] = (HOKUYO_adversary_position){hokuyo_get_detected_valid_point_dist(i) , detected_valid_points[i].teta, detected_valid_points[i].coordX, detected_valid_points[i].coordY};
+			if(points_beacons_valid[i].coordX>-62-ECART_BALISE && points_beacons_valid[i].coordX<ECART_BALISE
+			   && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<ECART_BALISE){
+				points_beacons[0][nb_points_B1] = points_beacons_valid[i];
+			}else if(points_beacons_valid[i].coordX>969-ECART_BALISE && points_beacons_valid[i].coordX<969+ECART_BALISE
+					 && points_beacons_valid[i].coordY>3000-ECART_BALISE && points_beacons_valid[i].coordY<3062+ECART_BALISE){
+				points_beacons[1][nb_points_B2] = points_beacons_valid[i];
 				nb_points_B2++;
-			}else if(detected_valid_points[i].coordX>2000-ECART_BALISE && detected_valid_points[i].coordX<2062+ECART_BALISE
-					 && detected_valid_points[i].coordY>-62-ECART_BALISE && detected_valid_points[i].coordY<ECART_BALISE){
-				points_beacons[2][nb_points_B3] = (HOKUYO_adversary_position){hokuyo_get_detected_valid_point_dist(i) , detected_valid_points[i].teta, detected_valid_points[i].coordX, detected_valid_points[i].coordY};
+			}else if(points_beacons_valid[i].coordX>2000-ECART_BALISE && points_beacons_valid[i].coordX<2062+ECART_BALISE
+					 && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<ECART_BALISE){
+				points_beacons[2][nb_points_B3] = points_beacons_valid[i];
 				nb_points_B3++;
 			}
 		}
