@@ -8,7 +8,7 @@
 
 #include "LCDTouch_Display.h"
 
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+#ifdef LCD_TOUCH
 #define LCDTOUCH_DISPLAY_C_
 
 #include "fonts.h"
@@ -20,7 +20,7 @@ volatile Uint8 pos = 0;
 void LCD_write_text(char *str){
 	LCD_SetTextColor(Green);
 	LCD_Clear(Black);
-	LCD_DisplayStringLine(LINE(1),str);
+	LCD_DisplayStringLine(LINE(1),(uint8_t *)str);
 }
 
 #endif

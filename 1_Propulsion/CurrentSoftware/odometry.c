@@ -39,6 +39,9 @@ volatile color_e color;
 volatile Sint16 calibration_backward_border_distance;
 volatile Sint16 calibration_forward_border_distance;
 
+#ifdef USE_GYROSCOPE
+	static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void);
+#endif
 
 void ODOMETRY_init()
 {
@@ -175,9 +178,10 @@ void ODOMETRY_correct_with_border(way_e way)
 	}
 }
 
+#ifdef USE_GYROSCOPE
 #define GYRO_BUFFER_SIZE	4096
 
-Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
+static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 {
 	static Uint8 loop = 0;
 	static Sint32 buffer_gyro[GYRO_BUFFER_SIZE];		//Buffer contenant les derniers écarts mesurés entre gyro et roues codeuses.
@@ -191,9 +195,8 @@ Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 	Sint16 degre;
 	Sint32 gyro_speed;
 
-#ifdef USE_GYROSCOPE
+
 	gyro_speed = -GYRO_get_speed_rotation(&gyro_valid, TRUE);	//Le '-' permet d'avoir le même signe entre le gyro et l'odométrie.
-#endif
 
 	if(gyro_valid)
 	{
@@ -224,10 +227,13 @@ Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 	}
 	else
 	{
+
 		gyro_teta += global.real_speed_rotation;
 		return global.real_speed_rotation;	//Gyro inaccessible :  aucune modif, confiance accordée aux roues codeuses.
+
 	}
 }
+#endif
 
 void ODOMETRY_update(void)
 {

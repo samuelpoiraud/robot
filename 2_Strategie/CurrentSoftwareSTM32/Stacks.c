@@ -31,8 +31,6 @@ static const char * timeout_name[] = {
 /* Piles contenant une action, un sommet et état de timeout */
 static stacks_t stacks[STACK_NB];
 
-void CAN_send_debug(char* string);
-
 void STACKS_init(void)
 {
 	static bool_e initialized = FALSE;
@@ -111,7 +109,6 @@ void STACKS_push(stack_id_e stack_id, generic_fun_t command, bool_e run)
 /* Retire la fonction en sommet de pile et reinitialise la suivante. */
 void STACKS_pull(stack_id_e stack_id)
 {
-	CAN_send_debug("AAAAAAA");
 	stacks_t* stack=&stacks[stack_id];
 	assert(stack->stack_top > 0);
 	stack->action[--stack->stack_top].initial_time=global.env.match_time;
@@ -122,7 +119,6 @@ void STACKS_pull(stack_id_e stack_id)
 /* vide la pile */
 void STACKS_flush(stack_id_e stack_id)
 {
-	CAN_send_debug("BBBBBBB");
 	stacks[stack_id].stack_top=0;
 }
 

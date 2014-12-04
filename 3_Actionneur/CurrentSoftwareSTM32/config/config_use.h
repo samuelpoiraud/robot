@@ -11,22 +11,35 @@
 #ifndef CONFIG_USE_H
 #define CONFIG_USE_H
 
-#include "config_global.h"
+//////////////////////////////////////////////////////////////////
+//-------------------------MODE ET USE--------------------------//
+//////////////////////////////////////////////////////////////////
 
-//#define MODE_SIMULATION
+//#define MODE_SIMULATION		//N'utilise pas le CAN
+#ifdef MODE_SIMULATION
+	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+#endif
 
-/* ID de la carte: cf le type cartes_e de QS_types.h */
-#define I_AM CARTE_ACT		//A voir avec Gwenn pour changer
-#define I_AM_CARTE_ACT
+#define FAST_COS_SIN			//Calcul rapide des cos et sin à l'aide d'un GRAND tableau de valeur
 
-/* Il faut choisir à quelle frequence on fait tourner le PIC */
-#define HCLK_FREQUENCY_HZ     160000000	//40Mhz, Max: 168Mhz
-#define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
-#define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
-#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
+#define VERBOSE_MODE			//Activation du verbose
+
+//////////////////////////////////////////////////////////////////
+//----------------------------QS--------------------------------//
+//////////////////////////////////////////////////////////////////
 
 // Définir les configurations QS propre à chaque robot dans config_big/config_use.h ou config_small/config_use.h !
 
+
+/* ID de la carte: cf le type cartes_e de QS_types.h */
+	#define I_AM CARTE_ACT		//A voir avec Gwenn pour changer
+	#define I_AM_CARTE_ACT
+
+/* Il faut choisir à quelle frequence on fait tourner le PIC */
+	#define HCLK_FREQUENCY_HZ     160000000	//40Mhz, Max: 168Mhz
+	#define PCLK1_FREQUENCY_HZ    40000000	//10Mhz, Max: 42Mhz
+	#define PCLK2_FREQUENCY_HZ    80000000	//40Mhz, Max: 84Mhz
+	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 
 /* Clock */
 	//#define CLOCK_USE_WATCHDOG
@@ -78,8 +91,6 @@
 #elif defined(I_AM_ROBOT_SMALL)
 #	include "config_small/config_use.h"
 #endif
-
-#define FAST_COS_SIN
 
 /* Récapitulatif IT :
  * TIMER 1 : ...

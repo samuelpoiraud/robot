@@ -394,6 +394,7 @@
 	bool_e CAN_data_ready() { return FALSE; }
 	void CAN_set_send_callback(CAN_callback_action_t action) {}
 	void CAN_send(CAN_msg_t* can_msg) {}
+	void CAN_direct_send(Uint11 sid, Uint8 size, Uint8 arg[]){}
 	void CAN_send_sid(Uint11 sid) {}
 	CAN_msg_t CAN_get_next_msg() { static CAN_msg_t msg = {0}; return msg; }
 	void CAN_set_direct_treatment_function(direct_treatment_function_pt fct) {}

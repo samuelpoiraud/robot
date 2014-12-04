@@ -71,28 +71,4 @@ trajectoire pour l'information de position de l'adversaire */
 	/* nettoyage des flags dans l'environnement */
 	void DETECTION_clear_updates();
 
-	#ifdef DETECTION_C
-
-
-		#include "QS/QS_maths.h"
-
-		#define BEACON_FAR_THRESHOLD	1000
-
-		#define MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION 260 // 260 ms
-
-		#define MAXIMUM_TIME_FOR_BEACON_REFRESH 300 // 500ms
-
-		#define BORDER_DELTA 50 // 50 mm
-
-
-		/* envoie position adversaire en debug */
-
-		#ifdef DEBUG_DETECTION
-			#define detection_printf(...)	debug_printf(__VA_ARGS__)
-		#else
-			#define detection_printf(...)	(void)0
-		#endif
-
-	#endif /* def DETECTION_C */
-
 #endif /* ndef DETECTION_H */

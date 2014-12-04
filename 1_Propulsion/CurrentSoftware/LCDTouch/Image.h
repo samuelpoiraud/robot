@@ -11,6 +11,8 @@
 
 #include "../QS/QS_all.h"
 
+#ifdef LCD_TOUCH
+
 #ifndef IMAGE_C_
 extern uint8_t ram_tableauImage[320*200];
 #endif
@@ -21,5 +23,7 @@ void image_Init(void);
 void Display_Tableau(uint32_t index);
 
 void LCD_Affiche_Image(void);
+
+#endif
 
 #endif /* IMAGE_H_ */

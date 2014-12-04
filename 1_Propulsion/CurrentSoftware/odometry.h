@@ -43,5 +43,4 @@
 	//(L'angle devient un multiple de PI/2 le plus logique et la distance en x OU en y est la distance entre l'arrière du robot et le centre.)
 	void ODOMETRY_correct_with_border(way_e way);
 
-
 #endif //def _ODOMETRY_H

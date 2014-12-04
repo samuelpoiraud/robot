@@ -13,8 +13,35 @@
 #define PROP_FUNCTIONS_C
 
 #include "prop_functions.h"
+#include "QS/QS_can.h"
+#include "QS/QS_CANmsgList.h"
+#include "QS/QS_maths.h"
 #include "avoidance.h"
+
+#define LOG_PREFIX "prop_fun: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PROP_FUNCTION
 #include "QS/QS_outputlog.h"
+
+typedef enum
+{CONFIG, XMSB, XLSB, YMSB, YLSB, VITESSE, MARCHE, RAYONCRB} PROP_CAN_msg_bytes_e;
+
+// Timeout en ms
+#define GOTO_TIMEOUT_TIME							5000	// On n'attend que 3 secondes sur les PROP_push_goto cette année
+															// car on ne fait pas de gros déplacements sur le terrain
+#define STOP_TIMEOUT_TIME							2000
+
+#define GOTO_MULTI_POINT_TIMEOUT_TIME				4000	//Nombre de secondes de timeout PAR POINT en mode multipoint.
+#define RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME	3000
+
+#define RUSH_TIMEOUT_TIME							25000
+// suffisant pour un demi tour en vitesse lente
+#define GOANGLE_TIMEOUT_TIME						6000
+
+#define WAIT_ADD_TIMEOUT_TIME						3000
+
+// Coefficient multiplicatif de la distance pour obtenir le temps avant le timeout
+#define COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST			4
+#define COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW			8
 
 /*	Pile conservant les eventuels arguments pour les fonctions des actionneurs
  *	tout en conservant le meme prototype pour tous les actionneurs, reduisant
@@ -22,7 +49,6 @@
  */
 static prop_arg_t prop_args[STACKS_SIZE];
 
-void CAN_send_debug(char*);
 static void PROP_goto (stack_id_e stack_id, bool_e init);
 static void PROP_goto_until_break (stack_id_e stack_id, bool_e init);
 static void PROP_relative_goto (stack_id_e stack_id, bool_e init);
@@ -195,9 +221,7 @@ Uint8 PROP_custom_speed_convertor(Uint16 speed){ // en mm/s
 }
 
 void PROP_debug_move_position(Sint16 x, Sint16 y, Sint16 teta){
-#ifdef USE_CAN
 	CAN_direct_send(DEBUG_PROP_MOVE_POSITION, 6, (Uint8[]){HIGHINT(x), LOWINT(x), HIGHINT(y), LOWINT(y), HIGHINT(teta), LOWINT(teta)});
-#endif
 }
 
 /* Accesseur en lecture sur les arguments de la pile PROP */
@@ -312,9 +336,12 @@ void PROP_dump_stack ()
 	int i;
 	generic_fun_t command;
 	prop_arg_t args;
-	char * speed;
-	char * way;
-	char * priority_order;
+	char * speed = NULL;
+	char * way = NULL;
+	char * priority_order = NULL;
+
+	// Dispositif anti-warning
+	priority_order = speed = way = priority_order;
 
 	debug_printf("\n----- PROP Stack dump -----\n");
 	debug_printf("stack top : %d/%d",STACKS_get_top(PROP), STACKS_SIZE);
@@ -329,9 +356,9 @@ void PROP_dump_stack ()
 			default   : speed = "undefined"; break;
 		}
 		switch (args.way) {
-			case FORWARD : way = "FORWARD"; break;
-			case BACKWARD    : way = "BACKWARD"; break;
-			default      : way = "undefined"; break;
+			case FORWARD	: way = "FORWARD"; break;
+			case BACKWARD	: way = "BACKWARD"; break;
+			default			: way = "undefined"; break;
 		}
 		switch (args.priority_order) {
 			case NOW 			: priority_order = "NOW"; break;
@@ -382,13 +409,12 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 		{
 			if (PROP_near_destination())
 			{
-				prop_fun_printf("\nPROP_goto : fini\n");
+				debug_printf("\nPROP_goto : fini\n");
 				STACKS_pull(PROP);
 			}
 			else
 			{
-				prop_fun_printf("\nPROP_goto : far_from_destination\n");
-				CAN_send_debug("CCCCCCC");
+				debug_printf("\nPROP_goto : far_from_destination\n");
 				#ifdef PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION
 				STACKS_pull(PROP);
 				#endif /* def PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION */
@@ -403,8 +429,7 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
 #endif
 			{
-				CAN_send_debug("0000000");
-				prop_fun_printf("\nPROP_goto : timeout(GOTO)\n");
+				debug_printf("\nPROP_goto : timeout(GOTO)\n");
 				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);
 			}
 		}
@@ -436,7 +461,7 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 	{
 		if (global.env.prop.ended || global.env.prop.freine)
 		{
-			prop_fun_printf("\nPROP_goto_until_break : fini\n");
+			debug_printf("\nPROP_goto_until_break : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
@@ -448,8 +473,7 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
 #endif
 			{
-				CAN_send_debug("0000000");
-				prop_fun_printf("\nPROP_goto_until_break : timeout(GOTO)\n");
+				debug_printf("\nPROP_goto_until_break : timeout(GOTO)\n");
 				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);
 			}
 		}
@@ -503,13 +527,13 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 		save_stack_bottom = (STACKS_get_top(stack_id)+1);
 		//STACKS_set_top(stack_id,STACKS_get_top(stack_id)+1);
 		STACKS_set_top(stack_id,save_stack_top);
-		prop_fun_printf("STACK PROP, TOP = %d, BOTTOM = %d\n",save_stack_top, save_stack_bottom);
+		debug_printf("STACK PROP, TOP = %d, BOTTOM = %d\n",save_stack_top, save_stack_bottom);
 	}
 	else
 	{
 		if (global.env.prop.ended)
 		{
-			prop_fun_printf("\nPROP_multi_point : freine dernier point\n");
+			debug_printf("\nPROP_multi_point : freine dernier point\n");
 			global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 			// Par sécurité, on met le pointeur de pile à la fin des multi-points
 			STACKS_set_top(stack_id,save_stack_bottom);
@@ -523,14 +547,14 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 			if(STACKS_get_top(stack_id) != save_stack_bottom)	//S'il ne s'agit pas du dernier point...
 			{
 				STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1);
-				prop_fun_printf("\nPROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
+				debug_printf("\nPROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
 			}
 		}
 		else
 		{
 			if (global.env.match_time > timeout)
 			{
-				prop_fun_printf("\nPROP_goto_multi_point : timeout(GOTO_MULTI_POINT)\n");
+				debug_printf("\nPROP_goto_multi_point : timeout(GOTO_MULTI_POINT)\n");
 				STACKS_set_timeout(stack_id,GOTO_MULTI_POINT_TIMEOUT);
 			}
 		}
@@ -587,14 +611,14 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 		save_stack_bottom = (STACKS_get_top(stack_id)+1);
 		//STACKS_set_top(stack_id,STACKS_get_top(stack_id)+1);
 		STACKS_set_top(stack_id,save_stack_top);
-		prop_fun_printf("STACK PROP, TOP = %d, BOTTOM = %d\n",save_stack_top, save_stack_bottom);
+		debug_printf("STACK PROP, TOP = %d, BOTTOM = %d\n",save_stack_top, save_stack_bottom);
 	}
 	else
 	{
 		//Si on à fini avant de freiner ... (on est déjà arrivé à destination avant de démarrer ?)
 		if (global.env.prop.ended)
 		{
-			prop_fun_printf("\nPROP_multi_point : fini dernier point\n");
+			debug_printf("\nPROP_multi_point : fini dernier point\n");
 			global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 			// Par sécurité, on met le pointeur de pile à la fin des multi-points
 			STACKS_set_top(stack_id,save_stack_bottom);
@@ -608,9 +632,9 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 			if(STACKS_get_top(stack_id) != save_stack_bottom)	//S'il ne s'agit pas du dernier point, on dépile sans initialiser la point suivant (ils ont déjà tous été envoyés)
 			{
 				STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1);
-				prop_fun_printf("\nPROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
+				debug_printf("\nPROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
 			} else {	//Dernier point et on freine => on à fini
-				prop_fun_printf("\nPROP_multi_point : freine dernier point\n");
+				debug_printf("\nPROP_multi_point : freine dernier point\n");
 				global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 				STACKS_pull(PROP);
 			}
@@ -619,7 +643,7 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 		{
 			if (global.env.match_time > timeout)
 			{
-				prop_fun_printf("\nPROP_goto_multi_point_until_break : timeout(GOTO_MULTI_POINT)\n");
+				debug_printf("\nPROP_goto_multi_point_until_break : timeout(GOTO_MULTI_POINT)\n");
 				STACKS_set_timeout(stack_id,GOTO_MULTI_POINT_TIMEOUT);
 			}
 		}
@@ -662,14 +686,14 @@ static void PROP_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 	{
 		if (global.env.prop.ended/* || (global.env.prop.freine && PROP_near_destination_angle())*/)
 		{
-			prop_fun_printf("\nPROP_relative_goangle_multi_point : fini\n");
+			debug_printf("\nPROP_relative_goangle_multi_point : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
 			if (global.env.match_time > timeout)
 			{
-				prop_fun_printf("\nPROP_relative_goangle_multi_point : timeout(RELATIVE_GOANGLE_MULTI_POINT)\n");
+				debug_printf("\nPROP_relative_goangle_multi_point : timeout(RELATIVE_GOANGLE_MULTI_POINT)\n");
 				STACKS_set_timeout(stack_id,RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT);
 			}
 		}
@@ -699,15 +723,14 @@ static void PROP_goangle (stack_id_e stack_id, bool_e init)
 	{
 		if (global.env.prop.ended)
 		{
-			prop_fun_printf("\nPROP_goangle : fini\n");
+			debug_printf("\nPROP_goangle : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOANGLE_TIMEOUT_TIME)))
 			{
-				CAN_send_debug("1111111");
-				prop_fun_printf("\nPROP_goangle : timeout(GOANGLE)\n");
+				debug_printf("\nPROP_goangle : timeout(GOANGLE)\n");
 				STACKS_set_timeout(stack_id,GOANGLE_TIMEOUT);
 			}
 		}
@@ -737,15 +760,14 @@ static void PROP_relative_goangle (stack_id_e stack_id, bool_e init)
 	{
 		if (global.env.prop.ended)
 		{
-			prop_fun_printf("\nPROP_relative_goangle : fini\n");
+			debug_printf("\nPROP_relative_goangle : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOANGLE_TIMEOUT_TIME)))
 			{
-				CAN_send_debug("3333333");
-				prop_fun_printf("\nPROP_relative_goangle : timeout(GOANGLE)\n");
+				debug_printf("\nPROP_relative_goangle : timeout(GOANGLE)\n");
 				STACKS_set_timeout(stack_id,GOANGLE_TIMEOUT);
 			}
 		}
@@ -777,15 +799,14 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 		{
 			if (PROP_near_destination())
 			{
-				prop_fun_printf("\nPROP_relative_goto : fini\n");
+				debug_printf("\nPROP_relative_goto : fini\n");
 				STACKS_pull(PROP);
 			}
 			else
 			{
-				prop_fun_printf("\nPROP_relative_goto : far_from_destination\n");
-				CAN_send_debug("CCCCCCC");
+				debug_printf("\nPROP_relative_goto : far_from_destination\n");
 				#ifdef PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION
-				STACKS_pull(PROP);
+					STACKS_pull(PROP);
 				#endif /* def PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION */
 			}
 		}
@@ -798,8 +819,7 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
 #endif
 			{
-				CAN_send_debug("0000000");
-				prop_fun_printf("\nPROP_relative_goto : timeout(GOTO)\n");
+				debug_printf("\nPROP_relative_goto : timeout(GOTO)\n");
 				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);
 			}
 		}
@@ -831,15 +851,14 @@ static void PROP_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 	{
 		if (global.env.prop.ended || global.env.prop.erreur)
 		{
-			prop_fun_printf("\nPROP_rush_in_the_wal : fini\n");
+			debug_printf("\nPROP_rush_in_the_wal : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(stack_id)) >= (RUSH_TIMEOUT_TIME)))
 			{
-				CAN_send_debug("2222222");
-				prop_fun_printf("\nPROP_rush_in_the_wal : timeout(RUSH)\n");
+				debug_printf("\nPROP_rush_in_the_wal : timeout(RUSH)\n");
 				STACKS_set_timeout(stack_id,RUSH_TIMEOUT);
 			}
 		}
@@ -857,14 +876,14 @@ static void PROP_stop(stack_id_e stack_id, bool_e init) {
 	} else {
 		if (global.env.prop.ended)
 		{
-			prop_fun_printf("\nPROP_stop : fini\n");
+			debug_printf("\nPROP_stop : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
 			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (STOP_TIMEOUT_TIME)))
 			{
-				prop_fun_printf("\nPROP_stop : timeout(STOP)\n");
+				debug_printf("\nPROP_stop : timeout(STOP)\n");
 				STACKS_set_timeout(stack_id,STOP_TIMEOUT);
 			}
 		}

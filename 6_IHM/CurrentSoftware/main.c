@@ -15,6 +15,7 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
+#include "QS/QS_sys.h"
 #include "it.h"
 #include "button.h"
 #include "switch.h"
@@ -22,18 +23,11 @@
 #include "voltage_measure.h"
 #include "clock.h"
 
-#if defined (STM32F40XX)
-	#include "QS/QS_sys.h"
-#endif
-
 volatile Uint8 t_10ms = 0;
 
 void initialisation(void){
-	#if defined(STM32F40XX)
-		SYS_init();
-	#endif
-	// Config des ports
-	PORTS_init();
+	SYS_init();		// Init système
+	PORTS_init();	// Config des ports
 
 	volatile Uint32 i;
 	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????

@@ -34,7 +34,7 @@
 #endif
 
 
-#if defined (LCD_TOUCH)
+#ifdef LCD_TOUCH
 	#include "LCDTouch/LCD.h"
 	#include "LCDTouch/zone.h"
 #endif
@@ -89,7 +89,7 @@ void _ISR _T2Interrupt()
 									#endif
 {
 	static Uint16 led_display_it = 0;
-#if defined (LCD_TOUCH)
+#ifdef LCD_TOUCH
 	static Uint8 count = 0;
 #endif
 	GPIO_ResetBits(LED_USER); //Permet de visualiser a l'oscillo le temps de passage dans l'IT

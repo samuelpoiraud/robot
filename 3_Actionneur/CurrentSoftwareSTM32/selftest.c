@@ -212,9 +212,7 @@ static bool_e SELFTEST_check_end(queue_id_t queueId) {
 		for(i = 0; i < msg.size; i++)
 			OUTPUTLOG_printf(LOG_LEVEL_Debug, "%3d ", msg.data[i]);
 		OUTPUTLOG_printf(LOG_LEVEL_Debug, "\n");
-#ifdef USE_CAN
 		CAN_send(&msg);
-#endif
 		return TRUE;
 	} else if(act_test_done_num > expected_act_num) {
 		error_printf("Recu plus de réponse que prévu, nb actioneurs = %d, reçu %d réponses\n", expected_act_num, act_test_done_num);

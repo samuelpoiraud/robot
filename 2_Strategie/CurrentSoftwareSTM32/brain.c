@@ -13,7 +13,6 @@
 
 #include "brain.h"
 
-#include "can_utils.h"
 #include "Stacks.h"
 #include "clock.h"
 #include "button.h"	//pour SWITCH_change_color

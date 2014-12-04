@@ -333,7 +333,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 }
 
 
-bool_e AVOIDANCE_target_safe_curve(way_e way, bool_e verbose){
+/*bool_e AVOIDANCE_target_safe_curve(way_e way, bool_e verbose){
 	Sint32 vtrans;		//[mm/4096/5ms]
 	Sint32 vrot;		//[rad/4096/1024/5ms]
 	Sint16 teta;		//[rad/4096]
@@ -402,7 +402,7 @@ bool_e AVOIDANCE_target_safe_curve(way_e way, bool_e verbose){
 	}
 
 	return in_path;
-}
+}*/
 
 void AVOIDANCE_refresh_avoid_poly(){
 	Point avoid[5];

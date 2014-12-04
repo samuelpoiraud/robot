@@ -24,6 +24,8 @@
 #include "write_lcd.h"
 #include "../QS/QS_all.h"
 
+#ifdef LCD_TOUCH
+
 typedef struct{
     uint16_t x;
     uint16_t y;
@@ -50,6 +52,8 @@ typedef struct{
 /* Private functions ---------------------------------------------------------*/
 void    Lcd_Touch_Calibration             (void);
 bool_e Calibration_Test_Dispose(display_robot_t * pos,robots_e *couleur_robot);
+
+#endif
 
 #endif
 
