@@ -10,16 +10,16 @@
  */
 
 #include "Pathfind.h"
-#include "QS/QS_outputlog.h"
 #include "config_use.h"
 #include "../state_machine_helper.h"
 #include "../Supervision/SD/SD.h"
 #include "avoidance.h"
 #include <math.h>
 
+#define LOG_PREFIX "path : "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PATHFIND
+#include "QS/QS_outputlog.h"
 
-#define pathfind_debug_printf(...)	debug_printf(__VA_ARGS__)
-//#define pathfind_debug_printf(...)	void(0)
 #define MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY	400		//Distance manhattan entre un advesaire et les noeuds dont il bloque l'accès
 #define DISTANCE_CONSIDERE_ADVERSARY				1200	//Distance entre nous et l'adversaire pour qu'il soit pris en compte (s'il est loin, on le néglige.. en espérant qu'il bouge d'ici à notre arrivée)
 #define	TIME_CONSIDERE_ADVERSARY					500		//[ms] temps au delà duquel un adversaire mis à jour n'est plus considéré
@@ -131,9 +131,9 @@ void PATHFIND_updateOpponentPosition(Uint8 foe_id)
 	if(dist>220)
 	{
 		nodeOpponent[foe_id] = NOT_IN_NODE;//invalid
-		pathfind_debug_printf("OPPONENT NOT ON A NODE (%d) cause dist=%d\n", NOT_IN_NODE, dist);
+		debug_printf("OPPONENT NOT ON A NODE (%d) cause dist=%d\n", NOT_IN_NODE, dist);
 	}
-	pathfind_debug_printf("UPDATE OPPONENT POSITION FOE %d: %d\n", foe_id, nodeOpponent[foe_id]);
+	debug_printf("UPDATE OPPONENT POSITION FOE %d: %d\n", foe_id, nodeOpponent[foe_id]);
 }
 
 Uint16 PATHFIND_manhattan_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
@@ -358,13 +358,13 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	//Une meilleure piste devrait être dans ce cas de choisir un point calculé permettant de s'extraire de l'adversaire.
 
 
-	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
+	debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
 
 	/* On reinitialise les listes et penalites */
 	openList = 0;
 	closedList = 0;
 
-	if(global.env.color == BOT_COLOR)
+	if(global.env.color == TOP_COLOR)
 		closedList = closedList | (1<<1)|(1<<2); // Supprime les nodes au près du spawn Jaune
 	else
 		closedList = closedList | (1<<20)|(1<<21); // Supprime les nodes au près du spawn Vert
@@ -398,7 +398,7 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 		/* On passe la case en cours dans la liste fermee */
 		PATHFIND_CLR_NODE_IN(current, openList);
 		PATHFIND_SET_NODE_IN(current, closedList);
-		//pathfind_debug_printf("current open->close %d\n", current);
+		//debug_printf("current open->close %d\n", current);
 
 		/* Pour toutes les cases adjacentes n'etant pas dans la liste fermee */
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
@@ -454,7 +454,7 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	//PATHFIND_delete_useless_node(from, to);
 	//for (n = 0; n < PATHFIND_NODE_NB; n++) {
 	//	if (PATHFIND_TST_NODE_IN(n, closedList))
-	//		pathfind_debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
+	//		debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
 	//}
 	/* On a le chemin inverse (to->from) */
 	nb_displacements = nodes[to].nb_nodes;
@@ -465,9 +465,9 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 	{	//Si le premier noeud est trop proche de nous pour qu'il faille le rejoindre, on considère qu'on y est déjà
 		nb_displacements--;	//Le premier déplacement ne compte pas...
 		//Comme ce serait le dernier à être enregistré... il ne sera pas enregistré.
-		pathfind_debug_printf("Le node %d est proche de nous. On ne va pas s'y rendre, on va sur le point suivant.\n",from);
+		debug_printf("Le node %d est proche de nous. On ne va pas s'y rendre, on va sur le point suivant.\n",from);
 	}
-	pathfind_debug_printf("Nodes : ");
+	debug_printf("Nodes : ");
 	for(i=0;i<nb_displacements;i++)
 	{
 		displacements[nb_displacements-i-1].point.x = nodes[n].x;
@@ -478,7 +478,7 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 		// une trajectoire du node courant (n) vers le node suivant (suivant)
 		//		autorise une trajectoire pour le déplacement d'après (nb_displacements-i-1+2)
 
-		pathfind_debug_printf("%d <- ",n);
+		debug_printf("%d <- ",n);
 		suivant = n;
 		n = nodes[n].parent;
 	}
@@ -486,7 +486,7 @@ error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_disp
 		displacements[0].curve = FALSE;
 	if(nb_displacements > 1)
 		displacements[1].curve = FALSE;
-	pathfind_debug_printf(" = %d displacements\n", nb_displacements);
+	debug_printf(" = %d displacements\n", nb_displacements);
 	*p_nb_displacements = nb_displacements;
 	return END_OK;
 }
@@ -709,7 +709,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 			state = COMPUTE;
 			break;
 		case COMPUTE:
-			pathfind_debug_printf("Compute\n");
+			debug_printf("Compute\n");
 			//Calcul d'un chemin pour atteindre l'objectif.
 			if(PATHFIND_compute(displacements, &nb_displacements, global.env.pos.x, global.env.pos.y, node_wanted) != END_OK)
 			{
@@ -722,14 +722,14 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 				{
 					for(i=0;i<nb_displacements;i++)
 					{
-						pathfind_debug_printf("[%d,%d]->\n",displacements[i].point.x, displacements[i].point.y);
+						debug_printf("[%d,%d]->\n",displacements[i].point.x, displacements[i].point.y);
 						displacements[i].speed = speed;
 					}
 					state = DISPLACEMENT;
 				}
 				else
 				{
-					pathfind_debug_printf("No displacements, we are already on the point\n");
+					debug_printf("No displacements, we are already on the point\n");
 					state = SUCCESS;	//aucun déplacement n'est nécessaire, on est déjà sur le point...
 				}
 			}
@@ -900,7 +900,7 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, PROP_
 
 	from = PATHFIND_closestNode(xFrom, yFrom, handleOpponent);
 
-	pathfind_debug_printf ("Noeud le plus proche : %d", from);
+	debug_printf ("Noeud le plus proche : %d", from);
 
 	/* On reinitialise les listes et penalites */
 	openList = 0;
