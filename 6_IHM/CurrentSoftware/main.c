@@ -39,29 +39,6 @@ void initialisation(void){
 	SWITCHS_init();
 	VOLTAGE_MEASURE_init();
 	CLOCK_init();
-
-	debug_printf("--- Hello, I'm IHM ---\n");
-	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
-
-	GPIO_SetBits(I_AM_READY);
-
-	time32_t begin_waiting_time = global.absolute_time;
-	bool_e FDP_init = FALSE;
-	CAN_msg_t waiting_msg;
-	while(global.absolute_time - begin_waiting_time < 2000 && !FDP_init){
-		while (CAN_data_ready())
-		{
-			waiting_msg = CAN_get_next_msg();
-			if(waiting_msg.sid == BROADCAST_FDP_READY)
-				FDP_init = TRUE;
-		}
-	}
-
-	if(FDP_init)
-		debug_printf("Démarrage synchronisé\n");
-	else
-		debug_printf("Démarrage non syncrhonisé via timeout\n");
-
 	IT_init();
 }
 

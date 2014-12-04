@@ -64,16 +64,14 @@ void tests(void)
 
 int main (void)
 {
-
+	volatile Uint16 i, j;
 	// Commandes pour EVE
 	#ifdef USE_QSx86
 		// Initialisation des variables utiles
 		EVE_manager_card_init();
 	#endif // USE_QSx86
-	#ifdef STM32F40XX
-		SYS_init();
-	#endif
-	PORTS_init();
+	SYS_init();		// Init système
+	PORTS_init();	// Config des ports
 
 	// Activation des pulls UP des capteurs de recalage
 	PORTS_set_pull(GPIOC, GPIO_Pin_1, GPIO_PuPd_UP);
@@ -89,7 +87,6 @@ int main (void)
 	ENV_init();	//Pour être réceptif aux éventuels messages CAN envoyés très tôt...
 
 	GPIO_SetBits(LED_RUN);
-	tests();
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
@@ -98,42 +95,21 @@ int main (void)
 	STACKS_init();
 	QUEUE_init();
 
-	CLOCK_init();
-	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
-
-	time32_t begin_waiting_time = global.env.absolute_time;
-
 	// Si le démarrage de la carte n'est pas consécutif à l'arrivée de l'alimentation
 	//		On reset les autres cartes
 	if(RCC_GetFlagStatus(RCC_FLAG_PORRST) == RESET)
 		CAN_send_sid(BROADCAST_RESET);
 
-	bool_e act_ready = FALSE, prop_ready = FALSE, ihm_ready = FALSE;
-	begin_waiting_time = global.env.absolute_time;
-	while(global.env.absolute_time - begin_waiting_time < 2500 && (!act_ready || !prop_ready || !ihm_ready)){
-
-		if(ACT_IS_READY && !act_ready){
-			act_ready = TRUE;
-			debug_printf("ACT READY !\n");
-		}
-		if(PROP_IS_READY && !prop_ready){
-			prop_ready = TRUE;
-			debug_printf("PROP READY !\n");
-		}
-		if(IHM_IS_READY && !ihm_ready){
-			ihm_ready = TRUE;
-			debug_printf("IHM READY !\n");
-		}
+	CLOCK_init();
+	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
+	//retard pour attendre l'initialisation des autres cartes
+	// voir si on peut faire mieux
+	for(j=0;j<100;j++)
+	{
+		for(i=1;i;i++);
+		if(j%10 == 0x00)
+			debug_printf(".");
 	}
-
-	CAN_send_sid(BROADCAST_FDP_READY);
-
-	if(!act_ready)
-		debug_printf("ACT NOT READY !!!!!!\n");
-	if(!prop_ready)
-		debug_printf("PROP NOT READY !!!!!!\n");
-	if(!ihm_ready)
-		debug_printf("IHM NOT READY !!!!!!\n");
 
 	Supervision_init();
 	BRAIN_init();

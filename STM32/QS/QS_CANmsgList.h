@@ -70,15 +70,6 @@
 
 
 	#define BROADCAST_RESET				0x0FF			// Envoyé par la stratégie et provoque la réinitialisation du fond de panier complet
-	#define BROADCAST_I_AM_READY		0x0FE			// Envoyé par toutes les autres cartes à la stratégie
-	#define BROADCAST_FDP_READY			0x0FD			// Envoyé par la stratégie vers les autres cartes
-	// data[0] :
-		typedef enum{
-			I_AM_READY_ACT=0,
-			I_AM_READY_PROP,
-			I_AM_READY_IHM
-		}broadcast_i_am_ready_e;
-
 
 	#define BROADCAST_ALIM				0x005		// Message envoyé lors d'un changement d'état de l'alimentation 24V
 		#define ALIM_OFF					(0b00000000)
