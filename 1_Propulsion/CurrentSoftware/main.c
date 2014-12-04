@@ -150,7 +150,6 @@ void initialisation(void)
 
 	CLOCK_init();
 
-	debug_printf("--- Hello, I'm PROP (%s) ---\n", QS_WHO_AM_I_get_name());
 	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
 
 	GPIO_SetBits(I_AM_READY);
