@@ -611,6 +611,9 @@
 	// data 4/5 : Uint16 Yfront
 	// data 6/7 : Uint16 Yback
 
+	#define PROP_SCAN_CUP						0x113
+	// A compléter !
+
 	#define PROP_DEBUG_FORCED_FOE				0x118
 	// Message CAN pour forcer la détection d'un adversaire
 
