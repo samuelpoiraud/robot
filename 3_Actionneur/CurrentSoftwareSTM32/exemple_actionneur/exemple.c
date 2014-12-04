@@ -90,9 +90,9 @@ static void EXEMPLE_initAX12() {
 
 		AX12_config_set_error_before_led(SMALL_ARM_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(SMALL_ARM_AX12_ID, AX12_ERROR_OVERHEATING);
-		debug_printf("Exemple init config DONE\n");
+		debug_printf("Init config DONE\n");
 	}else if(ax12_is_initialized == FALSE)
-		debug_printf("Exemple init config FAIL\n");
+		debug_printf("Init config FAIL\n");
 }
 
 
@@ -116,7 +116,7 @@ void EXEMPLE_init_pos(){
 	if(ax12_is_initialized == FALSE)
 		return;
 
-	debug_printf("Exemple init pos : \n");
+	debug_printf("Init pos : \n");
 	if(!AX12_set_position(EXEMPLE_AX12_ID, EXEMPLE_AX12_INIT_POS))
 		debug_printf("   L'AX12 n°%d n'est pas là\n", EXEMPLE_AX12_ID);
 	else

@@ -12,8 +12,6 @@
 #ifndef CLAP_H
 #define	CLAP_H
 
-#if 1
-
 #include "../QS/QS_all.h"
 
 #include "../queue.h"
@@ -55,8 +53,6 @@ void CLAP_run_command(queue_id_t queueId, bool_e init);
  * Réinitialise la configuration de l'AX12
  */
 void CLAP_reset_config();
-
-#endif
 
 #endif	/* CLAP_H */
 
