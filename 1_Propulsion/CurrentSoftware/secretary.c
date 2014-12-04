@@ -38,6 +38,7 @@
 #include "avoidance.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_ports.h"
+#include "scan_cup.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -254,6 +255,7 @@ void SECRETARY_send_trajectory_for_test_coefs_finished(Uint16 duration)
 	msg.size = 2;
 	SECRETARY_send_canmsg(&msg);
 }
+
 
 //x : mm, y : mm, teta : rad4096, distance : mm
 void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability)
@@ -720,6 +722,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 				DETECTION_new_adversary_position(msg, NULL, 0);
 			#endif
+			break;
+
+		case PROP_SCAN_CUP:
+			SCAN_CUP_canMsg(msg);
 			break;
 		default :
 		break;

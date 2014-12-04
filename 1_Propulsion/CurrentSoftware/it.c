@@ -120,6 +120,9 @@ void _ISR _T2Interrupt()
 
 	DETECTION_process_it();
 
+	#ifdef SCAN_CUP
+	SCAN_CUP_process_it();
+#endif
 	#ifdef MODE_PRINTF_TABLEAU
 		debug_print_tableau();
 	#endif
