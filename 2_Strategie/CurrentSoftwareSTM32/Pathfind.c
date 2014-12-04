@@ -537,7 +537,7 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 	//Une meilleure piste devrait être dans ce cas de choisir un point calculé permettant de s'extraire de l'adversaire.
 
 
-	pathfind_debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
+	debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
 
 	/* On reinitialise les listes et penalites */
 	openList = 0;
@@ -572,7 +572,7 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 		/* On passe la case en cours dans la liste fermee */
 		PATHFIND_CLR_NODE_IN(current, openList);
 		PATHFIND_SET_NODE_IN(current, closedList);
-		//pathfind_debug_printf("current open->close %d\n", current);
+		//debug_printf("current open->close %d\n", current);
 
 		/* Pour toutes les cases adjacentes n'etant pas dans la liste fermee */
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
@@ -632,7 +632,7 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 	//PATHFIND_delete_useless_node(from, to);
 	//for (n = 0; n < PATHFIND_NODE_NB; n++) {
 	//	if (PATHFIND_TST_NODE_IN(n, closedList))
-	//		pathfind_debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
+	//		debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
 	//}
 	/* On a le chemin inverse (to->from) */
 	nb_displacements = nodes[to].nb_nodes;
@@ -643,9 +643,9 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 	{	//Si le premier noeud est trop proche de nous pour qu'il faille le rejoindre, on considère qu'on y est déjà
 		nb_displacements--;	//Le premier déplacement ne compte pas...
 		//Comme ce serait le dernier à être enregistré... il ne sera pas enregistré.
-		pathfind_debug_printf("Le node %d est proche de nous. On ne va pas s'y rendre, on va sur le point suivant.\n",from);
+		debug_printf("Le node %d est proche de nous. On ne va pas s'y rendre, on va sur le point suivant.\n",from);
 	}
-	pathfind_debug_printf("Nodes : ");
+	debug_printf("Nodes : ");
 	for(i=0;i<nb_displacements;i++)
 	{
 		displacements[nb_displacements-i-1].point.x = nodes[n].x;
@@ -656,7 +656,7 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 		// une trajectoire du node courant (n) vers le node suivant (suivant)
 		//		autorise une trajectoire pour le déplacement d'après (nb_displacements-i-1+2)
 
-		pathfind_debug_printf("%d <- ",n);
+		debug_printf("%d <- ",n);
 		suivant = n;
 		n = nodes[n].parent;
 	}
@@ -664,7 +664,7 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 		displacements[0].curve = FALSE;
 	if(nb_displacements > 1)
 		displacements[1].curve = FALSE;
-	pathfind_debug_printf(" = %d displacements\n", nb_displacements);
+	debug_printf(" = %d displacements\n", nb_displacements);
 	*p_nb_displacements = nb_displacements;
 	return END_OK;
 }
