@@ -13,7 +13,6 @@
 
 #include "environment.h"
 #include "act_functions.h"
-#include "can_utils.h"
 #include "zone_mutex.h"
 #include "fix_beacon.h"
 #include "Supervision/Buffer.h"

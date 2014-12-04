@@ -56,9 +56,7 @@ CAN_msg_t mailbox[SECRETARY_MAILBOX_SIZE];  //Les messages CAN reçus dans le mai
 
 void SECRETARY_init(void)
 {
-	#ifdef ENABLE_CAN
-		CAN_init();
-	#endif
+	CAN_init();
 	index_read = 0;
 	index_write = 0;
 }
@@ -67,15 +65,13 @@ void SECRETARY_process_main(void)
 {
 
 	static CAN_msg_t receivedCanMsg_over_uart;
-	#ifdef ENABLE_CAN
 	static CAN_msg_t received_msg;
-		// gestion du CAN conforme QS
-		while(CAN_data_ready())
-		{
-				received_msg = CAN_get_next_msg();
-				SECRETARY_mailbox_add(&received_msg);
-		}
-	#endif
+	// gestion du CAN conforme QS
+	while(CAN_data_ready())
+	{
+			received_msg = CAN_get_next_msg();
+			SECRETARY_mailbox_add(&received_msg);
+	}
 
 	while(UART1_data_ready())
 	{
@@ -144,11 +140,7 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 	for(i=msg->size;i<8;i++)
 		msg->data[i]=0xFF;		//On remplace les données hors size par des FF (notamment pour verbose et envoi sur uart)
 
-	#ifdef ENABLE_CAN
-		CAN_send(msg);
-	#else
-		#warning "Messages can désactivés"
-	#endif
+	CAN_send(msg);
 
 	#ifdef CAN_SEND_OVER_UART
 		CANmsgToU1tx(msg);

@@ -12,12 +12,21 @@
 #define DETECTION_C
 #include "detection.h"
 #include "QS/QS_CANmsgList.h"
-#include "can_utils.h"
-#include "QS/QS_outputlog.h"
-#include "environment.h"
 #include "QS/QS_maths.h"
+#include "environment.h"
 #include "Supervision/Buzzer.h"
 
+#define LOG_PREFIX "detection: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_DETECTION
+#include "QS/QS_outputlog.h"
+
+#define BEACON_FAR_THRESHOLD	1000
+
+#define MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION 260 // 260 ms
+
+#define MAXIMUM_TIME_FOR_BEACON_REFRESH 300 // 500ms
+
+#define BORDER_DELTA 50 // 50 mm
 
 typedef struct
 {
@@ -398,7 +407,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				}
 			}
 			global.env.foe[foe_id].angle = global.env.sensor[BEACON_IR(foe_id)].angle;
-			//detection_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
+			//debug_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 
 		if(global.env.sensor[BEACON_US(foe_id)].updated && ultrasonic_fiable == TRUE)
@@ -422,7 +431,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			}
 			// On mets a jour la distance
 			global.env.foe[foe_id].dist = global.env.sensor[BEACON_US(foe_id)].distance;
-			//detection_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist,((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
+			//debug_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist,((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
 		}
 	}
 

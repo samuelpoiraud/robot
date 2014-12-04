@@ -114,7 +114,7 @@ void SWITCHS_update(){
 		if((switchs_rising_edge & (1<<i)) && initialized){// N'envoie pas, l'information si n'est pas encore init
 			SWITCHS_send_msg(i);
 
-#ifdef VERBOSE_ELEMENT
+#ifdef VERBOSE_BOUTON
 //			if(BIROUTE_IHM == i)	{debug_printf("sw_color = %s\n",	(BIROUTE_PORT)?	"ON":"OFF");}
 //			else if(SWITCH_COLOR_IHM == i)	{debug_printf("sw_color = %s\n",	(SWITCH_COLOR_PORT)?	"ON":"OFF");}
 //			else if(SWITCH_LCD_IHM 	== i)	{debug_printf("sw_lcd = %s\n",	 (SWITCH_LCD_PORT)?	"ON":"OFF");}

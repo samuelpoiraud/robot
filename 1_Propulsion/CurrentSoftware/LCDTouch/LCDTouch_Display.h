@@ -10,9 +10,10 @@
 
 #include "../QS/QS_all.h"
 
-
+#ifdef LCD_TOUCH
 
 void LCD_write_text(char *str);
 
+#endif
 
 #endif /* LCDTOUCH_DISPLAY_H_ */

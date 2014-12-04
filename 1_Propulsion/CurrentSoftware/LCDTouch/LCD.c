@@ -9,7 +9,8 @@
  */
 #include "LCD.h"
 
-#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+#ifdef LCD_TOUCH
+
 #include "stm32f4_discovery_lcd.h"
 #include "image.h"
 #include "LCD_Touch_Calibration.h"

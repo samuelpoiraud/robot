@@ -107,6 +107,7 @@
 	#define BUTTON3_PORT		(!GPIOE->IDR14)
 	#define BUTTON4_PORT		(!GPIOE->IDR15)
 
+//--------------------Configuration des ID des actionneurs-----------------------
 
 /* Config test servo*/
 	#define TEST_SERVO_ID							1

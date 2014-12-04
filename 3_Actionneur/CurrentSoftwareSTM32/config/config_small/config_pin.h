@@ -107,6 +107,7 @@
 	#define BUTTON3_PORT		(!GPIOE->IDR14)
 	#define BUTTON4_PORT		(!GPIOE->IDR15)
 
+//--------------------Configuration des ID des actionneurs-----------------------
 
 /* ID des différents AX12 */
 	#define PINCE_GAUCHE_AX12_ID						6

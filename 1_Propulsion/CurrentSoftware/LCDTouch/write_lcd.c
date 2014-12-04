@@ -9,7 +9,7 @@
 
 #include "write_lcd.h"
 
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+#ifdef LCD_TOUCH
 
 #include <stdio.h>
 #include <string.h>

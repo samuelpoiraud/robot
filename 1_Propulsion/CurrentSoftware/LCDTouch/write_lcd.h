@@ -9,6 +9,10 @@
 #ifndef WRITE_LCD_H_
 #define WRITE_LCD_H_
 
+#include "../QS/QS_all.h"
+
+#ifdef LCD_TOUCH
+
 #include "zone.h"
 #include "LCD.h"
 /**
@@ -39,4 +43,7 @@ void display_background(uint16_t y_prec,uint16_t x_prec);
 void display_robot(display_robot_t * robot);
 void display_bouton(couleur_robot_e couleur,uint8_t couleur_equipe);
 void rotation_angle_teta(Sint16 *x,Sint16 *y,Sint16 teta);
+
+#endif
+
 #endif /* WRITE_LCD_H_ */

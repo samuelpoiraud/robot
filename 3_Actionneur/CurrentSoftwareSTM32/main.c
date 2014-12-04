@@ -19,28 +19,22 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_ax12.h"
+#include "QS/QS_who_am_i.h"
+#include "QS/QS_servo.h"
+#include "QS/QS_can.h"
+#include "QS/QS_CANmsgList.h"
+#include "QS/QS_ax12.h"
+#include "QS/QS_CapteurCouleurCW.h"
 #include "terminal/term_io.h"
 #include "queue.h"
 #include "clock.h"
-#include "QS/QS_who_am_i.h"
-#include "QS/QS_servo.h"
+#include "ActManager.h"
+#include "Can_msg_processing.h"
 
 #ifdef I_AM_ROBOT_BIG
 	#include "Pierre/TestServo.h"
 #endif
 
-#include "ActManager.h"
-
-//Information pour le bouton 4
-#include "QS/QS_ax12.h"
-#include "QS/QS_CapteurCouleurCW.h"
-
-#ifdef USE_CAN
-	#include "QS/QS_can.h"
-#endif
-
-#include "Can_msg_processing.h"
-#include "QS/QS_CANmsgList.h"
 
 static void MAIN_onButton0();
 static void MAIN_onButton1();
@@ -51,6 +45,7 @@ static void MAIN_onButton4();
 int main (void)
 {
 	Sint8 lastSwitchState[2] = {-1, -1};
+	CAN_msg_t msg;
 	/*-------------------------------------
 		Démarrage
 	-------------------------------------*/
@@ -75,14 +70,7 @@ int main (void)
 	BUTTONS_init();
 
 	GPIO_SetBits(LED_CAN);
-	#ifdef USE_CAN
-		CAN_init();
-	#endif
-
-	// Gestion du CAN
-	#ifdef USE_CAN
-		CAN_msg_t msg;
-	#endif
+	CAN_init();
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
@@ -168,15 +156,13 @@ int main (void)
 		/*-------------------------------------
 			Réception CAN et exécution
 		-------------------------------------*/
-		#ifdef USE_CAN
-			while(CAN_data_ready()){
-				// Réception et acquittement
-				toggle_led(LED_CAN);
-				//debug_printf("Boucle CAN \n");
-				msg = CAN_get_next_msg();
-				CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
-			}
-		#endif
+		while(CAN_data_ready()){
+			// Réception et acquittement
+			toggle_led(LED_CAN);
+			//debug_printf("Boucle CAN \n");
+			msg = CAN_get_next_msg();
+			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
+		}
 
 		#ifdef USE_UART
 			while(UART1_data_ready()){

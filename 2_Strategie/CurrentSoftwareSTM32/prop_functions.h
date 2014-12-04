@@ -120,39 +120,4 @@
 	/* Affiche le contenu formaté de la pile asser, le haut de la pile en premier */
 	void PROP_dump_stack ();
 
-	#ifdef PROP_FUNCTIONS_C
-
-		#include "QS/QS_can.h"
-		#include "QS/QS_CANmsgList.h"
-		#include "QS/QS_maths.h"
-
-		typedef enum
-		{CONFIG, XMSB, XLSB, YMSB, YLSB, VITESSE, MARCHE, RAYONCRB} PROP_CAN_msg_bytes_e;
-
-		// Timeout en ms
-		#define GOTO_TIMEOUT_TIME							5000	// On n'attend que 3 secondes sur les PROP_push_goto cette année
-																	// car on ne fait pas de gros déplacements sur le terrain
-		#define STOP_TIMEOUT_TIME							2000
-
-		#define GOTO_MULTI_POINT_TIMEOUT_TIME				4000	//Nombre de secondes de timeout PAR POINT en mode multipoint.
-		#define RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME	3000
-
-		#define RUSH_TIMEOUT_TIME							25000
-		// suffisant pour un demi tour en vitesse lente
-		#define GOANGLE_TIMEOUT_TIME						6000
-
-		#define WAIT_ADD_TIMEOUT_TIME						3000
-
-		// Coefficient multiplicatif de la distance pour obtenir le temps avant le timeout
-		#define COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST			4
-		#define COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW			8
-
-		#ifdef DEBUG_PROP_FUN
-			#define prop_fun_printf(...)	debug_printf(__VA_ARGS__)
-		#else
-			#define prop_fun_printf(...)	(void)0
-		#endif
-
-	#endif /* def PROP_FUNCTIONS_C */
-
 #endif /* ndef PROP_FUNCTIONS_H */

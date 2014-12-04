@@ -110,7 +110,7 @@ void BUTTONS_IHM_update(){
 				push_time[i] = TIME_REPEAT;
 				BUTTONS_IHM_send_msg(i,TRUE);
 
-			#ifdef VERBOSE_ELEMENT
+			#ifdef VERBOSE_BOUTON
 				switch(i){
 					case BP_SELFTEST_IHM:	debug_printf("bp_selftest, long push\n"); break;
 					case BP_CALIBRATION_IHM:debug_printf("bp_calibration, long push\n");break;
@@ -127,7 +127,7 @@ void BUTTONS_IHM_update(){
 			else if((buttons_falling_edge & (1<<i)) && initialized && !buttons[i]){ // direct push
 				BUTTONS_IHM_send_msg(i,FALSE);
 
-			#ifdef VERBOSE_ELEMENT
+			#ifdef VERBOSE_BOUTON
 				switch(i){
 					case BP_SELFTEST_IHM:	debug_printf("bp_selftest, direct push\n"); break;
 					case BP_CALIBRATION_IHM:debug_printf("bp_calibration, direct push\n");break;

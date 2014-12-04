@@ -12,7 +12,6 @@
 #define CONFIG_DEBUG_H
 
 //mode d'activation des sorties debug_printf
-#define VERBOSE_MODE
 #define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
 
 

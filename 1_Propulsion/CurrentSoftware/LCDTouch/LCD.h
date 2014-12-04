@@ -13,6 +13,7 @@
 
 #include "../QS/QS_all.h"
 
+#ifdef LCD_TOUCH
 
 void LCD_init(void);
 
@@ -72,5 +73,7 @@ void set_robot_enable(robots_e robot);
 
 //x et y en cm.
 void LCD_update_robot(robots_e robot, Uint16 x, Uint16 y);
+
+#endif
 
 #endif /* LCD_H_ */

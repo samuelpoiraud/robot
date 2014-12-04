@@ -11,9 +11,10 @@
 #ifndef CONFIG_DEBUG_H
 #define CONFIG_DEBUG_H
 
-	//mode d'activation des sorties debug_printf
-	#define VERBOSE_MODE
-	#define VERBOSE_ELEMENT
-	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
+	//Mode d'activation des sorties debug_printf
+	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL		LOG_LEVEL_Debug
+
+	//Activation verbose de certainne section
+	#define VERBOSE_BOUTON		//Activation verbose des boutons de l'IHM
 
 #endif /* CONFIG_DEBUG_H */

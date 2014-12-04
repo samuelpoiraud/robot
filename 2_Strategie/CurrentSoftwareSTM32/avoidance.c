@@ -10,17 +10,19 @@
  */
 
 #include "avoidance.h"
-#include "can_utils.h"
+#include "QS/QS_maths.h"
+#include "QS/QS_IHM.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
 #include "prop_functions.h"
-#include "QS/QS_outputlog.h"
 #include "Supervision/Buzzer.h"
 #include "Supervision/SD/SD.h"
 #include "math.h"
 #include "state_machine_helper.h"
-#include "QS/QS_maths.h"
-#include "QS/QS_IHM.h"
+
+#define LOG_PREFIX "avoid: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_AVOIDANCE
+#include "QS/QS_outputlog.h"
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
@@ -35,12 +37,6 @@ static error_e wait_move_and_wait_foe();
 
 static Uint16 wait_timeout = WAIT_TIME_DETECTION;
 static bool_e prop_detected_foe = FALSE;
-
-#ifdef DEBUG_AVOIDANCE
-	#define avoidance_printf(format, ...)	debug_printf("t=%lums " format, global.env.match_time, ##__VA_ARGS__)
-#else
-	#define avoidance_printf(...)	(void)0
-#endif
 
 //------------------------------------------------------------------- Machines à états de déplacements
 
@@ -323,12 +319,12 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 			case END_OK:
 			case END_WITH_TIMEOUT:
 			case NOT_HANDLED:
-				avoidance_printf("wait_move_and_scan_foe: end state = %d\n", prop_stack_state);
+				debug_printf("wait_move_and_scan_foe: end state = %d\n", prop_stack_state);
 				ret = prop_stack_state;
 				break;
 
 			default: //Ne devrait jamais arriver, AVOIDANCE_watch_prop_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
-				avoidance_printf("wait_move_and_scan_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
+				debug_printf("wait_move_and_scan_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
 				ret = NOT_HANDLED;
 				break;
 		}
@@ -342,7 +338,7 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				avoidance_timeout_time = 0;
 				debug_foe_forced = FALSE;
 
-				avoidance_printf("wait_move_and_scan_foe: initialized\n");
+				debug_printf("wait_move_and_scan_foe: initialized\n");
 				state = NO_FOE;
 				break;
 
@@ -364,7 +360,7 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 					//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
 		//			if((global.env.prop.current_trajectory != TRAJECTORY_TRANSLATION && global.env.prop.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
 		//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
-		//				avoidance_printf("Not in translation but foe in path\n");
+		//				debug_printf("Not in translation but foe in path\n");
 
 					if(global.env.prop.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
 					{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
@@ -376,7 +372,7 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 							case NORMAL_WAIT:
 							case NO_DODGE_AND_WAIT:
 							case DODGE_AND_WAIT:
-								avoidance_printf("wait_move_and_scan_foe: foe detected, waiting\n");
+								debug_printf("wait_move_and_scan_foe: foe detected, waiting\n");
 
 								// adversaire détecté ! on s'arrête !
 								STACKS_push(PROP, &wait_forever, FALSE);
@@ -386,7 +382,7 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 								break;
 							case DODGE_AND_NO_WAIT:
 							case NO_DODGE_AND_NO_WAIT:
-								avoidance_printf("wait_move_and_scan_foe: foe detected\n");
+								debug_printf("wait_move_and_scan_foe: foe detected\n");
 								STACKS_flush(PROP);
 								PROP_push_stop();
 								state = WAIT_STOP;
@@ -408,7 +404,7 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 							case END_OK:
 							case END_WITH_TIMEOUT:
 							case NOT_HANDLED:
-								avoidance_printf("wait_move_and_scan_foe: end no foe state = %d\n", prop_stack_state);
+								debug_printf("wait_move_and_scan_foe: end no foe state = %d\n", prop_stack_state);
 								ret = prop_stack_state;
 								break;
 							case IN_PROGRESS:
@@ -426,7 +422,7 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				{
 					if(debug_foe_forced)
 					{			//L'evitement a été forcé pour debuggage, on sort direct
-						avoidance_printf("wait_move_and_scan_foe: forced foe detection, returning FOE_IN_PATH\n");
+						debug_printf("wait_move_and_scan_foe: forced foe detection, returning FOE_IN_PATH\n");
 						debug_foe_forced = FALSE;
 						ret = FOE_IN_PATH;
 					}
@@ -460,7 +456,7 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 				avoidance_timeout_time += current_match_time - last_match_time;
 				if(avoidance_timeout_time >= wait_timeout)
 				{
-					avoidance_printf("wait_move_and_scan_foe: timeout avec ennemi sur path\n");
+					debug_printf("wait_move_and_scan_foe: timeout avec ennemi sur path\n");
 					ret = FOE_IN_PATH;
 				}
 				else if(foe_in_path(FALSE))	//Si on vient de recevoir un update de sa position et qu'il est toujours devant nous...
@@ -473,7 +469,7 @@ static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
 					no_foe_count += current_match_time - last_match_time;
 					if(no_foe_count >= FOE_IS_LEFT_TIME) 	//L'adversaire est parti depuis FOE_IS_LEFT_TIME ms
 					{
-						avoidance_printf("wait_move_and_scan_foe: no more foe, continuing\n");
+						debug_printf("wait_move_and_scan_foe: no more foe, continuing\n");
 						STACKS_pull(PROP);	// on vire le wait_forever et on lance l'action suivante
 						state = NO_FOE;	// adversaire n'est plus dans notre chemin, on reprend le mouvement normal
 					}
@@ -510,12 +506,12 @@ static error_e wait_move_and_wait_foe() {
 		case END_OK:
 		case END_WITH_TIMEOUT:
 		case NOT_HANDLED:
-			avoidance_printf("wait_move_and_wait_foe: end state = %d\n", prop_stack_state);
+			debug_printf("wait_move_and_wait_foe: end state = %d\n", prop_stack_state);
 			ret = prop_stack_state;
 			break;
 
 		default: //Ne devrait jamais arriver, AVOIDANCE_watch_prop_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
-			avoidance_printf("wait_move_and_wait_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
+			debug_printf("wait_move_and_wait_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
 			ret = NOT_HANDLED;
 			break;
 	}
@@ -593,7 +589,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 	{
 		case CHECK_SCAN_FOE :
 			if(avoidance_type != NO_AVOIDANCE && foe_in_zone(TRUE, displacements[0].point.x, displacements[0].point.y, FALSE)){
-				avoidance_printf("goto_pos_with_scan_foe NOT HANDLED because foe in target zone");
+				debug_printf("goto_pos_with_scan_foe NOT HANDLED because foe in target zone");
 				state = CHECK_SCAN_FOE;
 				return FOE_IN_PATH;
 			}else
@@ -617,7 +613,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			else if(displacements_curve)
 				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?PROP_CURVES:0, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
 
-			avoidance_printf("goto_pos_with_scan_foe : load_move\n");
+			debug_printf("goto_pos_with_scan_foe : load_move\n");
 			if(displacements || displacements_curve)
 				state = WAIT_MOVE_AND_SCAN_FOE;
 			else
@@ -641,19 +637,19 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			switch(sub_action)
 			{
 				case END_OK:
-					avoidance_printf("wait_move_and_scan_foe -- fini\n");
+					debug_printf("wait_move_and_scan_foe -- fini\n");
 					state = DONE;
 					break;
 
 				case END_WITH_TIMEOUT:
 					timeout = TRUE;
-					avoidance_printf("wait_move_and_scan_foe -- timeout\n");
+					debug_printf("wait_move_and_scan_foe -- timeout\n");
 					SD_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
 					state = DONE;
 					break;
 
 				case NOT_HANDLED:
-					avoidance_printf("wait_move_and_scan_foe -- probleme\n");
+					debug_printf("wait_move_and_scan_foe -- probleme\n");
 					SD_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					#ifdef USE_PROP_AVOIDANCE
@@ -665,7 +661,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					break;
 
 				case FOE_IN_PATH:
-					avoidance_printf("wait_move_and_scan_foe -- foe in path\n");
+					debug_printf("wait_move_and_scan_foe -- foe in path\n");
 					SD_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					if(avoidance_type == DODGE_AND_WAIT || avoidance_type == DODGE_AND_NO_WAIT)
@@ -829,7 +825,7 @@ bool_e foe_in_path(bool_e verbose)
 		avoidance_rectangle_min_x = 0;
 
 	avoidance_rectangle_width_y = FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH);
-	//avoidance_printf("\n%d[%ld>%ld][%ld>%ld]\n", current_speed,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
+	//debug_printf("\n%d[%ld>%ld][%ld>%ld]\n", current_speed,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
 
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
@@ -1169,7 +1165,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 	{
 		case CHECK_SCAN_FOE :
 			if(foe_in_zone(TRUE, displacements.point.x, displacements.point.y, FALSE)){
-				avoidance_printf("goto_extract_with_avoidance NOT HANDLED because foe in target zone");
+				debug_printf("goto_extract_with_avoidance NOT HANDLED because foe in target zone");
 				state = CHECK_SCAN_FOE;
 				return NOT_HANDLED;
 			}else
@@ -1180,7 +1176,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 			clear_prop_detected_foe();
 			global.env.destination = displacements.point;
 			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, TRUE);
-			avoidance_printf("goto_extract_with_avoidance : load_move\n");
+			debug_printf("goto_extract_with_avoidance : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
 
@@ -1191,19 +1187,19 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 			switch(prop_stack_state)
 			{
 				case END_OK:
-					avoidance_printf("goto_extract_with_avoidance -- fini\n");
+					debug_printf("goto_extract_with_avoidance -- fini\n");
 					state = DONE;
 					break;
 
 				case END_WITH_TIMEOUT:
 					timeout = TRUE;
-					avoidance_printf("goto_extract_with_avoidance -- timeout\n");
+					debug_printf("goto_extract_with_avoidance -- timeout\n");
 					SD_printf("TIMEOUT on goto_extract_with_avoidance");
 					state = DONE;
 					break;
 
 				case NOT_HANDLED:
-					avoidance_printf("goto_extract_with_avoidance -- probleme\n");
+					debug_printf("goto_extract_with_avoidance -- probleme\n");
 					SD_printf("ERROR on goto_extract_with_avoidance");
 					state = LOAD_MOVE;
 					return NOT_HANDLED;
@@ -1241,14 +1237,14 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 				//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
 	//			if((global.env.prop.current_trajectory != TRAJECTORY_TRANSLATION && global.env.prop.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
 	//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
-	//				avoidance_printf("Not in translation but foe in path\n");
+	//				debug_printf("Not in translation but foe in path\n");
 
 				if(global.env.prop.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
 				{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
 					//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
 					//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 					BUZZER_play(20, DEFAULT_NOTE, 3);
-					avoidance_printf("goto_extract_with_avoidance: foe detected\n");
+					debug_printf("goto_extract_with_avoidance: foe detected\n");
 					STACKS_flush(PROP);
 					PROP_push_stop();
 					state = CHECK_SCAN_FOE;
@@ -1262,19 +1258,19 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 					switch(prop_stack_state)
 					{
 						case END_OK:
-							avoidance_printf("goto_extract_with_avoidance -- fini\n");
+							debug_printf("goto_extract_with_avoidance -- fini\n");
 							state = DONE;
 							break;
 
 						case END_WITH_TIMEOUT:
 							timeout = TRUE;
-							avoidance_printf("goto_extract_with_avoidance -- timeout\n");
+							debug_printf("goto_extract_with_avoidance -- timeout\n");
 							SD_printf("TIMEOUT on goto_extract_with_avoidance");
 							state = DONE;
 							break;
 
 						case NOT_HANDLED:
-							avoidance_printf("goto_extract_with_avoidance -- probleme\n");
+							debug_printf("goto_extract_with_avoidance -- probleme\n");
 							SD_printf("ERROR on goto_extract_with_avoidance");
 							state = CHECK_SCAN_FOE;
 							return NOT_HANDLED;

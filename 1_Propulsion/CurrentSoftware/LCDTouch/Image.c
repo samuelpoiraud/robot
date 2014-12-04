@@ -9,7 +9,7 @@
 
 #include "Image.h"
 
-#if defined (SIMULATION_VIRTUAL_PERFECT_ROBOT)
+#ifdef LCD_TOUCH
 
 #ifndef IMAGE_C_
 #define IMAGE_C_

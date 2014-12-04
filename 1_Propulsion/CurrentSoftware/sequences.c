@@ -40,7 +40,9 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed
 // Calibration de PIERRE ET GUY
 void SEQUENCES_calibrate()
 {
+#ifndef SIMULATION_VIRTUAL_PERFECT_ROBOT	// Pour ne pas avoir de warning
 	Sint16 x, y, teta;
+#endif
 	color_e color;
 	color = ODOMETRY_get_color();
 #ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
