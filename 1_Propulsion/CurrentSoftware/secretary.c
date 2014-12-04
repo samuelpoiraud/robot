@@ -725,7 +725,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 			break;
 
 		case PROP_SCAN_CUP:
-			SCAN_CUP_canMsg(msg);
+			#ifdef SCAN_CUP
+				SCAN_CUP_canMsg(msg);
+			#endif
 			break;
 		default :
 		break;
