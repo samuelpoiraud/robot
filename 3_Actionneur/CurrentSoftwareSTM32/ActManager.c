@@ -8,21 +8,14 @@
  */
 #include "ActManager.h"
 
-#ifdef I_AM_ROBOT_BIG
-	#include "Pierre/TestServo.h"
-#else
-
-#endif
-
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_ax12.h"
 #include "QS/QS_outputlog.h"
 #include "act_queue_utils.h"
 #include "selftest.h"
-#include "Wood/Clap.h"
-#include "Wood/Clap_config.h"
 
 #ifdef I_AM_ROBOT_BIG
+	#include "Pierre/TestServo.h"
 	#include "Holly/Popcorn/Pop_collect_left.h"
 	#include "Holly/Popcorn/Pop_collect_left_config.h"
 	#include "Holly/Popcorn/Pop_collect_right.h"
@@ -48,10 +41,6 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 #define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_reset_config, &prefix##_CAN_process_msg}
 
 static ACTQ_functions_t actionneurs[] = {
-	#if 0
-		ACT_DECLARE(EXEMPLE),
-	#endif
-
 	#ifdef I_AM_ROBOT_BIG
 		ACT_DECLARE(TEST_SERVO),
 		ACT_DECLARE(POP_COLLECT_LEFT),
@@ -132,11 +121,11 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 		//Init des actionneurs
 	} else {
 		bool_e isReady = FALSE, responseReceived = FALSE;
-		/*#ifdef I_AM_ROBOT_BIG
-				responseReceived = AX12_async_is_ready(TORCH_LOCKER_AX12_1_ID, &isReady);
+		#ifdef I_AM_ROBOT_BIG
+				responseReceived = AX12_async_is_ready(POP_COLLECT_LEFT_AX12_ID, &isReady);
 		#else
-				responseReceived = AX12_async_is_ready(SMALL_ARM_AX12_ID, &isReady);
-		#endif*/
+				responseReceived = AX12_async_is_ready(PINCE_GAUCHE_AX12_ID, &isReady);
+		#endif
 
 		if((responseReceived && isReady) || global.alim) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
 			debug_printf("Init pos\n");

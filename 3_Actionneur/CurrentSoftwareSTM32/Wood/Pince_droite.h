@@ -12,8 +12,6 @@
 #ifndef PINCE_DROITE_H
 #define	PINCE_DROITE_H
 
-#if 1
-
 #include "../QS/QS_all.h"
 
 #include "../queue.h"
@@ -55,8 +53,6 @@ void PINCE_DROITE_run_command(queue_id_t queueId, bool_e init);
  * Réinitialise la configuration de l'AX12
  */
 void PINCE_DROITE_reset_config();
-
-#endif
 
 #endif	/* PINCE_DROITE_H */
 

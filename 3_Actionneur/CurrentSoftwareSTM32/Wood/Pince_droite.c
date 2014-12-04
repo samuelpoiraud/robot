@@ -9,30 +9,8 @@
  *  Robot : SMALL
  */
 
-#if 1
-
 #include "Pince_droite.h"
 
-// Exemple d'un actionneur standart avec AX12
-
-// Ajout l'actionneur dans QS_CANmsgList.h ainsi que toutes ses différentes position
-// Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
-// Formatage : QUEUE_ACT_AX12_PINCE_DROITE
-// Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
-// Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
-// Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
-// Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFEST)
-// Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor
-// Un define PINCE_DROITE_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
-
-// En stratégie
-// ajout des fonctions actionneurs dans act_functions.c/h
-// ajout des fonctions actionneurs dans act_can.c (fonction ACT_process_result)
-// ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
-// ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
-// ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
-
-// If def à mettre si l'actionneur est seulement présent sur le petit robot (I_AM_ROBOT_SMALL) ou le gros (I_AM_ROBOT_BIG)
 #ifdef I_AM_ROBOT_SMALL
 
 // Les différents includes nécessaires...
@@ -90,9 +68,9 @@ static void PINCE_DROITE_initAX12() {
 
 		AX12_config_set_error_before_led(PINCE_DROITE_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 		AX12_config_set_error_before_shutdown(PINCE_DROITE_AX12_ID, AX12_ERROR_OVERHEATING);
-		debug_printf("Pince droite init config DONE\n");
+		debug_printf("Init config DONE\n");
 	}else if(ax12_is_initialized == FALSE)
-		debug_printf("Pince droite init config FAIL\n");
+		debug_printf("Init config FAIL\n");
 }
 
 
@@ -116,7 +94,7 @@ void PINCE_DROITE_init_pos(){
 	if(ax12_is_initialized == FALSE)
 		return;
 
-	debug_printf("PINCE_DROITE init pos : \n");
+	debug_printf("Init pos : \n");
 	if(!AX12_set_position(PINCE_DROITE_AX12_ID, PINCE_DROITE_AX12_INIT_POS))
 		debug_printf("   L'AX12 n°%d n'est pas là\n", PINCE_DROITE_AX12_ID);
 	else
@@ -232,7 +210,5 @@ static void PINCE_DROITE_command_run(queue_id_t queueId) {
 	if(ACTQ_check_status_ax12(queueId, PINCE_DROITE_AX12_ID, QUEUE_get_arg(queueId)->param, PINCE_DROITE_AX12_ASSER_POS_EPSILON, PINCE_DROITE_AX12_ASSER_TIMEOUT, PINCE_DROITE_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_PINCE_DROITE, result, errorCode, line);
 }
-
-#endif
 
 #endif
