@@ -88,19 +88,11 @@ void initialisation(void)
 		// Initialisation pour EVE
 		EVE_manager_card_init();
 	#endif	/* USE_QSx86 */
-	#if defined(STM32F40XX)
-		SYS_init();
-	#endif
-	// Config des ports
-	PORTS_init();
+	SYS_init();		// Init système
+	PORTS_init();	// Config des ports
 
 	GPIO_SetBits(LED_RUN);
 
-#ifdef __dsPIC30F6010A__
-	// Pour l'utilisation de la fenetre psv
-	//> ceci est utile pour le stockage d'un tableau de boeuf dans la mémoire programme
-	CORCONbits.PSV=1;
-#endif
 	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
 	volatile Uint32 i;
 	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????
@@ -149,30 +141,8 @@ void initialisation(void)
 	#endif
 
 	CLOCK_init();
-
-	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
-
-	GPIO_SetBits(I_AM_READY);
-
-	time32_t begin_waiting_time = global.absolute_time;
-	bool_e FDP_init = FALSE;
-	CAN_msg_t waiting_msg;
-	while(global.absolute_time - begin_waiting_time < 2000 && !FDP_init){
-		while (CAN_data_ready())
-		{
-			toggle_led(LED_CAN);
-			waiting_msg = CAN_get_next_msg();
-			if(waiting_msg.sid == BROADCAST_FDP_READY)
-				FDP_init = TRUE;
-		}
-	}
-
-	if(FDP_init)
-		debug_printf("Démarrage synchronisé\n");
-	else
-		debug_printf("Démarrage non syncrhonisé via timeout\n");
-
 	IT_init();
+
 	/*
 	Récapitulatif des priorités des ITs :
 	-> 7 : Codeurs QEI_on_it
@@ -182,8 +152,6 @@ void initialisation(void)
 	-> 3 : timer2 (100ms)
 	-> 0 : tâche de fond
 	*/
-
-
 }
 
 int main (void)
