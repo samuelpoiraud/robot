@@ -120,14 +120,13 @@
 		void Hokuyo_validPointsAndBeacons();
 		#define ECART_FIABILITE 80  //marge de la zone où les mesures sont considérées comme non-fiable
 		#define ECART_POSITION  100  //marge au delà de laquelle un point n'est pas pris en compte dans le calcul de la position (=erreur)
-		#define SEUIL_INTENSITE 100 //le seuil d'intensité à partir de laquelle on détecte une balise
+		#define SEUIL_INTENSITE 1000 //le seuil d'intensité à partir de laquelle on détecte une balise
 		static position robot, currentRobot[10]; //robot est la position stocké en mémoire et currentRobot correspond aux positions calculées par triangulation
 		HOKUYO_adversary_position beacon1, beacon2, beacon3; //position des balises mesurées centre de la balise, angle
 		static Uint8 B1detected=0, B2detected=0, B3detected=0; //variables indiquant si la balise est détectée
 		HOKUYO_point_position points_beacons[3][NB_MESURES_HOKUYO*20]; // mesures réalisées par l'hokuyo
 		static Uint16 nb_points_B1=0,nb_points_B2=0,nb_points_B3=0;  //le nombre de points de mesures par balises
 		static Uint8 nb_balayages=0; //correspond aux nombres de balayage de 270° réalisé par l'hokuyo
-		static Uint8 nb_passage=0;
 		//static Uint8 droiteRegression1[3], droiteRegression2[3];
 	#endif
 
@@ -254,12 +253,12 @@ void HOKUYO_process_main(void)
 			//debug_printf("nbpoints1=%ld  nbpoints2=%ld  nbpoints3=%ld \n", nb_points_B1, nb_points_B2, nb_points_B3);
 			//display(nb_passage);
 			if(global.match_over){
-				Hokuyo_validPointsAndBeacons();
+				//Hokuyo_validPointsAndBeacons();
 				//debug_printf("\nEntrer dans TRI POINTS \n");
-				if(nb_passage==0){
-					tri_points();
-				}
-				if(nb_balayages==NB_MESURES_HOKUYO && nb_passage==0){
+				nb_balayages++;
+				tri_points();
+
+				if(nb_balayages==NB_MESURES_HOKUYO){
 					debug_printf("\n##########Debut détection centres balises##########\n");
 					find_beacons_centres();
 					//nb_passage++;
@@ -1293,7 +1292,6 @@ void findCorrectPosition(){
 void tri_points(){
 	Uint16 i;
 
-		nb_balayages++;
 		for(i=0;i<nb_valid_points;i++){
 			if(points_beacons_valid[i].coordX>-62-ECART_BALISE && points_beacons_valid[i].coordX<ECART_BALISE
 			   && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<ECART_BALISE){
@@ -1317,41 +1315,24 @@ void tri_points(){
 
 }
 
-//Fonction de tri des tableaux de mesures (tri à bulles)
-void tri_tableau(HOKUYO_point_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon){
-	bool_e change = 0;
-	Uint16 i;
-	int aux;
 
-	while(change==1){
-		change=0;
-		for(i=0 ; i<nb_points-1; i++){
-			if(points_beacons[numero_beacon-1][i].teta>points_beacons[numero_beacon-1][i+1].teta){
-				aux=points_beacons[numero_beacon-1][i+1].teta;
-				points_beacons[numero_beacon-1][i+1].teta=points_beacons[numero_beacon-1][i].teta;
-				points_beacons[numero_beacon-1][i].teta=aux;
-				change=1;
-			}
-		}
-	}
-}
 
-void tri_mesures(HOKUYO_point_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon){
+void tri_mesures(HOKUYO_point_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 *nb_points, Uint8 numero_beacon){
 	Uint16 i, n=0;
 
 	//Elimination des points qui ne sont pas les points de la balise
-	for(i=0;i<nb_points;i++){
-		if(points_beacons[numero_beacon-1][i].power_intensity[i]>SEUIL_INTENSITE && i==n){
+	for(i=0;i<*nb_points;i++){
+		if(points_beacons[numero_beacon-1][i].power_intensity>SEUIL_INTENSITE && i==n){
 			//ne rien faire le pion est bien placé
 			n++;
-		}else if(points_beacons[numero_beacon-1][i].power_intensity[i]>SEUIL_INTENSITE){
+		}else if(points_beacons[numero_beacon-1][i].power_intensity>SEUIL_INTENSITE){
 			points_beacons[numero_beacon-1][n]=points_beacons[numero_beacon-1][i];
 			n++;
 		}
 	}
-	nb_points=n;
+	*nb_points=n;
 }
-
+/*
 //Fonction prenant la moyenne des points mesurés pour chaque angle donné (ie tout les 0,25°)
 void moyenne_mesures(HOKUYO_point_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon){
 	Uint32 nb_points_moyenne=1, nb_points_new=0, i, moyenneX, moyenneY;
@@ -1379,15 +1360,15 @@ void moyenne_mesures(HOKUYO_point_position points_beacons[3][NB_MESURES_HOKUYO*2
 	points_beacons[numero_beacon][nb_points_new].coordY = moyenneY;
 	nb_points = nb_points_new+1;
 
-	/*debug_printf("\nMoyenne Points \n\nx= ");
+	debug_printf("\nMoyenne Points \n\nx= ");
 	for(i=0;i<nb_points;i++){
 		debug_printf("%ld  ",points_beacons[numero_beacon-1][i].coordX) ;
 	}
 	debug_printf("\nMoyenne Points \n\ny= ");
 	for(i=0;i<nb_points;i++){
 		debug_printf("%ld  ",points_beacons[numero_beacon-1][i].coordY) ;
-	}*/
-}
+	}
+}*/
 
 //Fonction réalisant une régression circulaire d'un nuage de points
 HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 nb_points, Uint8 numero_beacon){
@@ -1450,12 +1431,12 @@ HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_bea
 
 	//debug_printf("ANGLE: %d\n", beacon.teta);
 
-	if(beacon.teta < 0)  beacon1.teta += 2*PI4096;
-	if(beacon.teta > 2*PI4096)  beacon1.teta -= 2*PI4096;
-	if(beacon.teta < 0)  beacon1.teta += 2*PI4096;
-	if(beacon.teta > 2*PI4096)  beacon1.teta -= 2*PI4096;
-	if(beacon.teta < 0)  beacon1.teta += 2*PI4096;
-	if(beacon.teta > 2*PI4096)  beacon1.teta -= 2*PI4096;
+	if(beacon.teta < 0)  beacon.teta += 2*PI4096;
+	if(beacon.teta > 2*PI4096) beacon.teta -= 2*PI4096;
+	if(beacon.teta < 0)  beacon.teta += 2*PI4096;
+	if(beacon.teta > 2*PI4096)  beacon.teta -= 2*PI4096;
+	if(beacon.teta < 0)  beacon.teta += 2*PI4096;
+	if(beacon.teta > 2*PI4096)  beacon.teta -= 2*PI4096;
 
 	debug_printf("centre balise x=%ld y=%ld dist=%ld teta=%d",beacon.coordX, beacon.coordY, beacon.dist, beacon.teta);
 
@@ -1472,25 +1453,19 @@ void find_beacons_centres(){
 
 
 	if(B1detected==1){
-		//tri_tableau(points_beacons, nb_points_B1, 1);
-		//moyenne_mesures(points_beacons, nb_points_B1, 1);
-		tri_mesures(points_beacons, nb_points_B1, 1);
+		tri_mesures(points_beacons, &nb_points_B1, 1);
 		debug_printf("\nCentre balise 1: ");
 		beacon1 = regression_circulaire(points_beacons, nb_points_B1,1);
 	}
 
 	if(B2detected==1){
-		//tri_tableau(points_beacons, nb_points_B2, 2);
-		//moyenne_mesures(points_beacons, nb_points_B2, 2);
-		tri_mesures(points_beacons, nb_points_B2, 2);
+		tri_mesures(points_beacons, &nb_points_B2, 2);
 		debug_printf("\nCentre balise 2: ");
 		beacon2 = regression_circulaire(points_beacons, nb_points_B2,2);
 	}
 
 	if(B3detected==1){
-		//tri_tableau(points_beacons, nb_points_B3, 3);
-		//moyenne_mesures(points_beacons, nb_points_B3, 3);
-		tri_mesures(points_beacons, nb_points_B3, 3);
+		tri_mesures(points_beacons, &nb_points_B3, 3);
 		debug_printf("\nCentre balise 3: ");
 		beacon3 = regression_circulaire(points_beacons, nb_points_B3,3);
 	}
@@ -1523,7 +1498,7 @@ void find_beacons_centres(){
 	triangulation();
 	findCorrectPosition();
 	//debug_printf("FIN TRIANGULATION\n");
-	nb_balayages=0;
+
 
 	nb_points_B1=0;
 	nb_points_B2=0;
