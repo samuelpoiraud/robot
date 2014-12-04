@@ -57,7 +57,7 @@
 
 /* Réglages UART */
 	#define USE_UART1
-	#define UART1_BAUDRATE		1382400
+	#define UART1_BAUDRATE		921600
 	#define USE_UART1RXINTERRUPT
 	#define UART_RX_BUF_SIZE	12
 
