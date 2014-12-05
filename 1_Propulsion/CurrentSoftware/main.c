@@ -66,6 +66,7 @@
 
 void RCON_read(void);
 void SWITCHS_update(void);
+static void MAIN_global_var_init();
 volatile Uint8 t_ms = 0;
 volatile bool_e flag_calibration_asked = FALSE;
 volatile bool_e flag_selftest_asked = FALSE;
@@ -88,14 +89,15 @@ void initialisation(void)
 		// Initialisation pour EVE
 		EVE_manager_card_init();
 	#endif	/* USE_QSx86 */
-	SYS_init();		// Init système
-	PORTS_init();	// Config des ports
+
+	// Initialisation du système
+	SYS_init();				// Init système
+	PORTS_init();			// Config des ports
+	MAIN_global_var_init();	// Init variable globale
 
 	GPIO_SetBits(LED_RUN);
 
 	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
-	volatile Uint32 i;
-	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????
 	GPIO_ResetBits(LED_RUN);
 	UART_init();
 
@@ -107,23 +109,17 @@ void initialisation(void)
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	debug_printf("--- Hello, I'm PROP (%s) ---\n", QS_WHO_AM_I_get_name());
 
-
 	ODOMETRY_init();
 	WATCHDOG_init();
 	SUPERVISOR_init();
 	COPILOT_init();
 	PILOT_init();
-	global.mode_best_effort_enable = FALSE;
-	global.match_started = FALSE;
-	global.match_over = FALSE;
-	global.absolute_time = 0;
-
 	ROADMAP_init();
 	WARNER_init();
-
 	JOYSTICK_init();
 	DEBUG_init();
 	BUTTONS_init();
+
 	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
 	BUTTONS_define_actions(BUTTON1,&calibration_button_action, NULL, 1);
 
@@ -297,4 +293,12 @@ void SWITCHS_update(void)
 void MAIN_process_it(Uint8 ms)
 {
 	t_ms += ms;
+}
+
+static void MAIN_global_var_init(){
+	// Initialisation de la variable global
+	global.mode_best_effort_enable = FALSE;
+	global.match_started = FALSE;
+	global.match_over = FALSE;
+	global.absolute_time = 0;
 }

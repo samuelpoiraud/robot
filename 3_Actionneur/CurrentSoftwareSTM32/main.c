@@ -41,6 +41,7 @@ static void MAIN_onButton1();
 static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
+static void MAIN_global_var_init();
 
 int main (void)
 {
@@ -50,27 +51,22 @@ int main (void)
 		Démarrage
 	-------------------------------------*/
 
-	//initialisations
-	SYS_init();		// Init système
-	PORTS_init();	// Config des ports
-
-	global.match_started = FALSE;
-	global.match_over = FALSE;
-	global.alim = FALSE;
-	global.alim_value = 0;
-	global.absolute_time = 0;
+	//Initialisation du système
+	SYS_init();				// Init système
+	PORTS_init();			// Config des ports
+	MAIN_global_var_init();	// Init variable globale
 
 	GPIO_SetBits(LED_RUN);
 	GPIO_ResetBits(LED_USER);
+	GPIO_SetBits(LED_CAN);
 
+	// Initialisation des périphériques
+	CAN_init();
 	UART_init();
 	TIMER_init();
 	CLOCK_init();
 	QUEUE_init();
 	BUTTONS_init();
-
-	GPIO_SetBits(LED_CAN);
-	CAN_init();
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
@@ -98,7 +94,7 @@ int main (void)
 	#undef ROBOT_CODE_NAME
 
 	//Init actioneurs
-		ACTMGR_init();
+	ACTMGR_init();
 	#ifdef I_AM_ROBOT_BIG
 	   TEST_SERVO_init();
 	#endif
@@ -136,7 +132,6 @@ int main (void)
 		while(CAN_data_ready()){
 			// Réception et acquittement
 			toggle_led(LED_CAN);
-			//debug_printf("Boucle CAN \n");
 			msg = CAN_get_next_msg();
 			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
 		}
@@ -199,3 +194,12 @@ static void MAIN_onButton3() {
 static void MAIN_onButton4() {
 }
 #endif // ROBOT_BIG et ROBOT_SMALL
+
+static void MAIN_global_var_init(){
+	// Initialisation de la variable global
+	global.match_started = FALSE;
+	global.match_over = FALSE;
+	global.alim = FALSE;
+	global.alim_value = 0;
+	global.absolute_time = 0;
+}
