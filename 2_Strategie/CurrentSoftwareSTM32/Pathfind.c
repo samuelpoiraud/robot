@@ -519,7 +519,7 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 
 	from_without_adversaries = 	PATHFIND_closestNode(xFrom, yFrom, 0);
 	from = 						PATHFIND_closestNode(xFrom, yFrom, adversaries_nodes);	//On cherche le noeud le plus proche (en enlevant les noeuds occupés par l'adversaire)
-	//from =						PATHFIND_closestNodeToEnd(xFrom, yFrom, adversaries_nodes, PATHFIND_get_node_x(to), PATHFIND_get_node_y(to));
+//	from =						PATHFIND_closestNodeToEnd(xFrom, yFrom, adversaries_nodes, PATHFIND_get_node_x(to), PATHFIND_get_node_y(to));
 
 	if(from == NOT_IN_NODE)
 		return NOT_HANDLED;	//Pas de chemin possible... c'est d'ailleurs très étrange...
@@ -810,15 +810,18 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
 		Uint16 y;
 	}vecteur_s;
 	Uint8 i;
-	Uint16 dist, minDist = 65535, minAngle;
+	Uint16 dist, minDist = 65535;
 	pathfind_node_id_t n, closestNode = NOT_IN_NODE, closestNodes[4] = {NOT_IN_NODE, NOT_IN_NODE, NOT_IN_NODE, NOT_IN_NODE};
 	vecteur_s vecteur[5];
-	float angle_vector[4];
+	Uint16 angle_vector[4], minAngle;
 
 	// On trouve les 4 plus proches node
 	for(i=0; i<4; i++){
 		for (n = 0; n < PATHFIND_NODE_NB; n++)
 		{
+			closestNode = NOT_IN_NODE;
+			minDist = 65535;
+
 			if (PATHFIND_TST_NODE_IN(n, filteredNodes) == FALSE)
 			{
 				dist = PATHFIND_manhattan_dist(x, y, nodes[n].x, nodes[n].y);
@@ -859,7 +862,7 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
 		if(closestNodes[i] != NOT_IN_NODE)
 			angle_vector[i] = acos(vecteur[i].x*final_x + vecteur[i].y*final_y /
 									(sqrt(SQUARE((float)vecteur[i].x) + SQUARE((float)vecteur[i].y))
-										* sqrt(SQUARE((float)final_x) + SQUARE((float)final_y))));
+										* sqrt(SQUARE((float)vecteur[4].x) + SQUARE((float)vecteur[4].y))))*4096;
 	}
 
 	// On cherche qui a le plus petit angle entre chaque vecteur (node -> nous) et le vecteur final (nous -> fin)
