@@ -147,10 +147,10 @@ void WARNER_process_main(void)
 
 	if(warnings != WARNING_NO)
 	{
-		TIMER1_disableInt();
+		TIMER2_disableInt();
 			warnings_local = warnings;
 			warnings = WARNING_NO;
-		TIMER1_enableInt();
+		TIMER2_enableInt();
 		SECRETARY_process_send(BROADCAST_POSITION_ROBOT,(Uint8)(warnings_local & 0xFF), error_source);
 	}
 	#ifdef MODE_REGLAGE_KV
