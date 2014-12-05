@@ -225,10 +225,10 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 				longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_min_x});
 				longueur[3] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_min_x});
 
-				avoid_poly[0] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[0])*longueur[0], 0), ecretage_debug_rect(global.position.y+sin4096(angle[0])*longueur[0])};
-				avoid_poly[1] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[1])*longueur[1], 2000), ecretage_debug_rect(global.position.y+sin4096(angle[1])*longueur[1])};
-				avoid_poly[2] = (GEOMETRY_point_t){MIN(global.position.x+cos4096(angle[2])*longueur[2], 2000), ecretage_debug_rect(global.position.y+sin4096(angle[2])*longueur[2])};
-				avoid_poly[3] = (GEOMETRY_point_t){MAX(global.position.x+cos4096(angle[3])*longueur[3], 0), ecretage_debug_rect(global.position.y+sin4096(angle[3])*longueur[3])};
+				avoid_poly[0] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[0])*longueur[0]), ecretage_debug_rect(global.position.y+sin4096(angle[0])*longueur[0])};
+				avoid_poly[1] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[1])*longueur[1]), ecretage_debug_rect(global.position.y+sin4096(angle[1])*longueur[1])};
+				avoid_poly[2] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[2])*longueur[2]), ecretage_debug_rect(global.position.y+sin4096(angle[2])*longueur[2])};
+				avoid_poly[3] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[3])*longueur[3]), ecretage_debug_rect(global.position.y+sin4096(angle[3])*longueur[3])};
 
 				Uint8 nb_point = 4;
 				Uint16 max = AROUND_UP((nb_point+1)/3.);
