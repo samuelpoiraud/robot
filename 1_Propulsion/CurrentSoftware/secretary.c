@@ -103,9 +103,9 @@ void SECRETARY_mailbox_add(CAN_msg_t * msg) //Fonction appelée en tâche de fond 
 	if(index_nb < SECRETARY_MAILBOX_SIZE)
 	{
 		mailbox[index_write] = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
-		TIMER1_disableInt();
+		TIMER2_disableInt();
 			index_nb++; //Il ne faut pas que la préemption ait lieu maintenant !
-		TIMER1_enableInt();
+		TIMER2_enableInt();
 		index_write = (index_write + 1) % SECRETARY_MAILBOX_SIZE;
 	}
 
@@ -721,6 +721,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case BROADCAST_ADVERSARIES_POSITION:
 			#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 				DETECTION_new_adversary_position(msg, NULL, 0);
+				CAN_send(msg);
 			#endif
 			break;
 
