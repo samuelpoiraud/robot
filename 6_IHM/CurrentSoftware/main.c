@@ -25,13 +25,13 @@
 
 volatile Uint8 t_10ms = 0;
 
+static void MAIN_global_var_init();
+
 void initialisation(void){
-	SYS_init();		// Init système
-	PORTS_init();	// Config des ports
-
-	volatile Uint32 i;
-	for(i=0;i<1000000;i++);	//tempo (env 50ms) pour un bon fonctionnement de l'UART lorsqu'on branche les cartes. Sinon, les premiers printf ne sont pas envoyés -> ????
-
+	// Initialisation du système
+	SYS_init();				// Init système
+	PORTS_init();			// Config des ports
+	MAIN_global_var_init();	// Init variable globale
 
 	UART_init();
 	CAN_init();
@@ -60,4 +60,9 @@ int main (void){
 
 void MAIN_process_it(Uint8 tp_10ms){
 	t_10ms += tp_10ms;
+}
+
+static void MAIN_global_var_init(){
+	// Initialisation de la variable global
+
 }
