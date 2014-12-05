@@ -523,56 +523,57 @@ void hokuyo_find_valid_points(void){
 		angle+=25;	//Centième de degré
 	}
 
-	static int time = 0;
-	if(time > 10){
-		CAN_msg_t msg, msg2;
-		msg.sid = DEBUG_HOKUYO_RESET;
-		msg.size = 0;
-		CANmsgToU1tx(&msg);
-		msg2.sid = DEBUG_HOKUYO_INTENSITY_RESET;
-		msg2.size = 0;
-		CANmsgToU1tx(&msg2);
+//	static int time = 0;
+//	if(time > 10){
+//		CAN_msg_t msg, msg2;
+//		msg.sid = DEBUG_HOKUYO_RESET;
+//		msg.size = 0;
+//		CANmsgToU1tx(&msg);
+//		msg2.sid = DEBUG_HOKUYO_INTENSITY_RESET;
+//		msg2.size = 0;
+//		CANmsgToU1tx(&msg2);
 
-		msg.sid = DEBUG_HOKUYO_ADD_POINT;
-		msg.size = 8;
-		msg2.sid = DEBUG_HOKUYO_INTENSITY_ADD_POINT;
-		msg2.size = 8;
-		int j = 0, j2 = 0;
-		for(i = 0; i < nb_valid_points; i++) {
-			msg.data[j++] = detected_valid_points[i].coordX >> 4;
-			msg.data[j++] = detected_valid_points[i].coordY >> 4;
+//		msg.sid = DEBUG_HOKUYO_ADD_POINT;
+//		msg.size = 8;
+//		msg2.sid = DEBUG_HOKUYO_INTENSITY_ADD_POINT;
+//		msg2.size = 8;
+//		int j = 0, j2 = 0;
+//		for(i = 0; i < nb_valid_points; i++) {
+//			msg.data[j++] = detected_valid_points[i].coordX >> 4;
+//			msg.data[j++] = detected_valid_points[i].coordY >> 4;
 
-			COS_SIN_4096_get(CALCULATOR_modulo_angle(detected_valid_points[i].teta + robot_position_during_measurement.teta),&cos,&sin);
-			Sint16 x = ((Sint32)(detected_valid_points[i].power_intensity)*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_pos_x;
-			Sint16 y = ((Sint32)(detected_valid_points[i].power_intensity)*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_pos_y;
+//			COS_SIN_4096_get(CALCULATOR_modulo_angle(detected_valid_points[i].teta + robot_position_during_measurement.teta),&cos,&sin);
+//			Sint16 x = ((Sint32)(detected_valid_points[i].power_intensity)*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_pos_x;
+//			Sint16 y = ((Sint32)(detected_valid_points[i].power_intensity)*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_pos_y;
 
-			if( x < 0){
-				Sint16 c = (x - robot_position_during_measurement.x)*x - (y - robot_position_during_measurement.y)*y;
-				y = -c/(y - robot_position_during_measurement.y);
-				x = 0;
-			}if(y < 0){
-				Sint16 c = (x - robot_position_during_measurement.x)*x - (y - robot_position_during_measurement.y)*y;
-				x = c/(x - robot_position_during_measurement.x);
-				y = 0;
-			}
+//			if( x < 0){
+//				float y2 = y - robot_position_during_measurement.y;
+//				Sint32 c = y2*y + (x - robot_position_during_measurement.x)*x;
+//				y = ((y2 != 0)? (float)(c)/y2 : 0);
+//				x = 0;
+//			}if(y < 0){
+//				Sint32 c = (x - robot_position_during_measurement.x)*x - (y - robot_position_during_measurement.y)*y;
+//				x = ((x - robot_position_during_measurement.x != 0)? (float)(c)/(float)(x - robot_position_during_measurement.x) : 0);
+//				y = 0;
+//			}
 
-			msg2.data[j2++] = x >> 4;
-			msg2.data[j2++] = y >> 4;
+//			msg2.data[j2++] = x >> 4;
+//			msg2.data[j2++] = y >> 4;
 
-			if(j > 7){
-				CANmsgToU1tx(&msg);
-				CANmsgToU1tx(&msg2);
-				j = j2 = 0;
-			}
-		}
+//			if(j > 7){
+//				CANmsgToU1tx(&msg);
+//				CANmsgToU1tx(&msg2);
+//				j = j2 = 0;
+//			}
+//		}
 
-		msg.size = j;
-		CANmsgToU1tx(&msg);
-		msg2.size = j;
-		CANmsgToU1tx(&msg2);
-		time = 0;
-	}
-	time++;
+//		msg.size = j;
+//		CANmsgToU1tx(&msg);
+//		msg2.size = j;
+//		CANmsgToU1tx(&msg2);
+//		time = 0;
+//	}
+//	time++;
 }
 
 #else
