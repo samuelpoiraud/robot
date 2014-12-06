@@ -37,7 +37,7 @@
 	//	-	programmation				14
 	//									15
 
-#define PORT_B_IO_MASK	0xFFFF
+#define PORT_B_IO_MASK	0xFCFF
 	#define SWITCH_LCD_PORT			GPIOB->IDR0
 	#define BUTTON_OK_PORT			GPIOB->IDR1
 	#define BUTTON_UP_PORT			GPIOB->IDR2
@@ -73,7 +73,7 @@
 	//	-								14
 	//	-								15
 
-#define PORT_D_IO_MASK	0x0CE3
+#define PORT_D_IO_MASK	0x03E3
 	//	CAN_RX							0
 	//	CAN_TX							1
 	#define RED_LED					GPIOD,GPIO_Pin_2

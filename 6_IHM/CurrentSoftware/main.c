@@ -16,12 +16,12 @@
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_sys.h"
+#include "QS/QS_who_am_i.h"
 #include "it.h"
 #include "button.h"
 #include "switch.h"
 #include "led.h"
 #include "voltage_measure.h"
-#include "clock.h"
 
 volatile Uint8 t_10ms = 0;
 
@@ -35,21 +35,35 @@ void initialisation(void){
 
 	UART_init();
 	CAN_init();
-	BUTTONS_IHM_init();
+	BUTTONS_init();
 	SWITCHS_init();
 	VOLTAGE_MEASURE_init();
-	CLOCK_init();
 	IT_init();
 }
 
 int main (void){
 	initialisation();
 
+	debug_printf("--- Hello, I'm IHM ---\n");
+
+	CAN_msg_t msg;
+	msg.sid = IHM_SET_LED;
+	msg.data[0] = ON << 5 | LED_GREEN_IHM;
+	msg.data[1] = OFF << 5 | LED_RED_IHM;
+	msg.data[2] = OFF << 5 | LED_2_IHM;
+	msg.data[3] = OFF << 5 | LED_3_IHM;
+	msg.data[4] = ON << 5 | LED_4_IHM;
+	msg.data[5] = OFF << 5 | LED_5_IHM;
+	msg.data[6] = OFF << 5 | LED_OK_IHM;
+	msg.data[7] = BLINK_1HZ << 5 | LED_UP_IHM;
+	msg.size = 8;
+	LEDS_get_msg(&msg);
+
 	while(1){
 
 		if(t_10ms > 2){	//Pour éviter les rebonds, au dessus de 20ms
 			t_10ms = 0;
-			BUTTONS_IHM_update();			//Gestion des boutons
+			BUTTONS_update();			//Gestion des boutons
 			SWITCHS_update();			//Surveillance des switchs
 		}
 	}
@@ -65,4 +79,5 @@ void MAIN_process_it(Uint8 tp_10ms){
 static void MAIN_global_var_init(){
 	// Initialisation de la variable global
 
+	global.absolute_time = 0;
 }

@@ -19,6 +19,7 @@
 #include "voltage_measure.h"
 
 #define IT_TIME		10		// en ms (maximum 65)
+#define CLOCK_TIME	1		// en ms (maximum 65)
 
 void IT_init(void){
 	//Et c'est parti pour les it !!!
@@ -28,15 +29,21 @@ void IT_init(void){
 
 	//Note : run_us 5000 est beaucoup plus précis que run tout court à 5...
 	TIMER1_run_us(1000*IT_TIME);			//IT principale vitesse de 10ms
+	TIMER2_run_us(1000*CLOCK_TIME);			//IT clock vitesse de 1ms
 }
-
 
 //Sur interruption timer 1...
 void _ISR _T1Interrupt(){
 	TIMER1_AckIT(); /* interruption traitée */
 
 	MAIN_process_it(IT_TIME);
-	BUTTONS_IHM_process_it(IT_TIME);
+	BUTTONS_process_it(IT_TIME);
 	LEDS_process_it();
 	VOLTAGE_MEASURE_process_it(IT_TIME);
+}
+
+//Sur interruption timer 2...
+void _ISR _T2Interrupt(){
+	TIMER2_AckIT(); /* interruption traitée */
+	global.absolute_time += IT_TIME;
 }

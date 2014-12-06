@@ -90,8 +90,8 @@ void set_LED(led_ihm_e led, bool_e stateUP){
 		case LED_0_IHM:
 			GPIO_WriteBit(LED0_PORT, stateUP);
 			break;
-#ifdef LED1_PORT
 #endif
+#ifdef LED1_PORT
 		case LED_1_IHM:
 			GPIO_WriteBit(LED1_PORT, stateUP);
 			break;
