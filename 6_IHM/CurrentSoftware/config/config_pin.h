@@ -63,9 +63,9 @@
 	#define BUTTON_RFU_PORT			GPIOC->IDR4
 	#define SWITCH2_PORT			GPIOC->IDR5
 	#define LED_IHM_OK				GPIOC,GPIO_Pin_6
-	#define LED_IHM_UP				GPIOC,GPIO_Pin_7
-	#define LED_IHM_DOWN			GPIOC,GPIO_Pin_8
-	#define LED_IHM_SET				GPIOC,GPIO_Pin_9
+	#define LED_IHM_SET				GPIOC,GPIO_Pin_7
+	#define LED_IHM_UP				GPIOC,GPIO_Pin_8
+	#define LED_IHM_DOWN			GPIOC,GPIO_Pin_9
 	//	-								10
 	//	-								11
 	//	-								12
@@ -76,9 +76,9 @@
 #define PORT_D_IO_MASK	0x03E3
 	//	CAN_RX							0
 	//	CAN_TX							1
-	#define RED_LED					GPIOD,GPIO_Pin_2
-	  #define LED_UART				RED_LED
-	#define GREEN_LED				GPIOD,GPIO_Pin_3
+	#define GREEN_LED				GPIOD,GPIO_Pin_2
+	  #define LED_UART				GREEN_LED
+	#define RED_LED					GPIOD,GPIO_Pin_3
 	#define BLUE_LED				GPIOD,GPIO_Pin_4
 	//	-								5
 	#define SWITCH_COLOR_PORT		GPIOD->IDR6

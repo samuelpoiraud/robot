@@ -813,6 +813,6 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 #define IHM_SET_LED 0x602
 // Envoie les messages pour configurer les leds
 // 5 bits de poids faible id : 0b...XXXXX
-// 3 bits de poids fort blink (clignotement) : 0bXXX.....
+// 3 bits de poids fort blink (clignotement) ou couleur pour LED_COLOR_IHM : 0bXXX.....
 
 #endif	/* ndef QS_CANMSGLIST_H */
