@@ -18,6 +18,13 @@
 #define TIME_BLINK_4HZ 25
 #define TIME_BLINK_10MS 10
 
+//Le poids faible : état de la led GREEN
+//Le poids moyen : état de la led RED
+//Le poids fort : état de la led BLUE
+#define LED_GREEN	0x01
+#define LED_RED		0x02
+#define LED_BLUE	0x04
+
 
 typedef struct{
 	blinkLED_ihm_e blink; // Temps de clignotement *10 en ms. Si 50, va clignoter toutes les 500ms
@@ -29,6 +36,7 @@ static LED_t leds[LED_NUMBER_IHM];
 
 void set_LED(led_ihm_e led, bool_e stateUP);
 Uint8 get_blink_state(blinkLED_ihm_e blink);
+void set_COLOR(led_color_e led_color);
 
 void LEDS_init(){
 	static bool_e initialized = FALSE;
@@ -71,21 +79,6 @@ void set_LED(led_ihm_e led, bool_e stateUP){
 			GPIO_WriteBit(LED_IHM_SET, stateUP);
 			break;
 #endif
-#ifdef GREEN_LED
-		case LED_GREEN_IHM:
-			GPIO_WriteBit(GREEN_LED, stateUP);
-			break;
-#endif
-#ifdef RED_LED
-		case LED_RED_IHM:
-			GPIO_WriteBit(RED_LED, stateUP);
-			break;
-#endif
-#ifdef BLUE_LED
-		case LED_BLUE_IHM:
-			GPIO_WriteBit(BLUE_LED, stateUP);
-			break;
-#endif
 #ifdef LED0_PORT
 		case LED_0_IHM:
 			GPIO_WriteBit(LED0_PORT, stateUP);
@@ -124,8 +117,8 @@ void set_LED(led_ihm_e led, bool_e stateUP){
 void LEDS_process_it(void){
 	Uint8 i; // Compteur pour la fréquence
 
-	for(i=0;i<BP_NUMBER_IHM;i++){
-		if(leds[i].blink == OFF) // Si led non active
+	for(i=0;i<LED_NUMBER_IHM;i++){
+		if(leds[i].blink == OFF || i == LED_COLOR_IHM) // Si led non active
 			continue;
 
 		// Led active
@@ -148,11 +141,15 @@ void LEDS_get_msg(CAN_msg_t *msg){
 		id = msg->data[i] & LED_ID;
 		blink = msg->data[i] >> 5;
 
-		leds[id].stateUp = (blink == OFF)?FALSE:TRUE;
-		leds[id].blink = blink;
-		leds[id].counter = get_blink_state(blink);
+		if(id == LED_COLOR_IHM)
+			set_COLOR(blink);
+		else{
+			leds[id].stateUp = (blink == OFF)?FALSE:TRUE;
+			leds[id].blink = blink;
+			leds[id].counter = get_blink_state(blink);
 
-		set_LED(id, leds[id].stateUp);
+			set_LED(id, leds[id].stateUp);
+		}
 	}
 }
 
@@ -177,4 +174,10 @@ Uint8 get_blink_state(blinkLED_ihm_e blink){
 	}
 
 	return value;
+}
+
+void set_COLOR(led_color_e led_color){
+	GPIO_WriteBit(GREEN_LED, ((int)(led_color & LED_GREEN)));
+	GPIO_WriteBit(RED_LED, ((int)(led_color & LED_RED) >> 1));
+	GPIO_WriteBit(BLUE_LED, ((int)(led_color & LED_BLUE) >> 2));
 }

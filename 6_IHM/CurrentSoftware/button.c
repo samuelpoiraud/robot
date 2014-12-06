@@ -20,7 +20,7 @@
 
 // Pour les buttons qui communiquent avec le monde extérieure
 static bool_e buttons[BP_NUMBER_IHM]; // Pour détecter les appuies long, pour la répitition évite de rentrer dans directe push à la fin de l'appuie
-static Uint16 push_time[BP_NUMBER_IHM]={0};
+static Sint16 push_time[BP_NUMBER_IHM]={0};
 
 // Au démarrage, n'envoyera pas de messsage CAN sur l'état des boutons
 static bool_e initialized = FALSE;
@@ -41,23 +41,14 @@ void BUTTONS_init(){
 
 
 void BUTTONS_update(){
-	static Uint16 buttons_were_pressed = 0x00; //état des buttons dans le passage précédent
-	Uint16 buttons_pressed = 0x00; //état des buttons
+	static Uint16 buttons_were_pressed = 0xFFFF; //état des buttons dans le passage précédent
+	Uint16 buttons_pressed = 0xFFFF; //état des buttons
 	Uint16 buttons_rising_edge; //état des buttons
 	Uint16 buttons_falling_edge; //état des boutons
 	Uint8 i;
 
 	// Gère tous les buttons qui envoient un message vers le monde extérieure
 	buttons_pressed = 0;
-#ifdef BUTTON_SELFTEST_PORT
-	buttons_pressed = (BUTTON_SELFTEST_PORT)? buttons_pressed|1 : buttons_pressed;
-#endif
-#ifdef BUTTON_CALIBRATION_PORT
-	buttons_pressed = (BUTTON_CALIBRATION_PORT)? buttons_pressed|(1<<1) : buttons_pressed;
-#endif
-#ifdef BUTTON_PRINTMATCH_PORT
-	buttons_pressed = (BUTTON_PRINTMATCH_PORT)? buttons_pressed|(1<<2) : buttons_pressed;
-#endif
 #ifdef BUTTON_OK_PORT
 	buttons_pressed = (BUTTON_OK_PORT)? buttons_pressed|(1<<3) : buttons_pressed;
 #endif
@@ -69,6 +60,15 @@ void BUTTONS_update(){
 #endif
 #ifdef BUTTON_SET_PORT
 	buttons_pressed = (BUTTON_SET_PORT)? buttons_pressed|(1<<6) : buttons_pressed;
+#endif
+#ifdef BUTTON_SELFTEST_PORT
+	buttons_pressed = (BUTTON_SELFTEST_PORT)? buttons_pressed|1 : buttons_pressed;
+#endif
+#ifdef BUTTON_CALIBRATION_PORT
+	buttons_pressed = (BUTTON_CALIBRATION_PORT)? buttons_pressed|(1<<1) : buttons_pressed;
+#endif
+#ifdef BUTTON_PRINTMATCH_PORT
+	buttons_pressed = (BUTTON_PRINTMATCH_PORT)? buttons_pressed|(1<<2) : buttons_pressed;
 #endif
 #ifdef BUTTON_RFU_PORT
 	buttons_pressed = (BUTTON_RFU_PORT)? buttons_pressed|(1<<7) : buttons_pressed;
@@ -94,43 +94,38 @@ void BUTTONS_update(){
 
 
 	//détection des fronts montant
-	buttons_rising_edge = (~buttons_were_pressed) & buttons_pressed;
+	buttons_falling_edge = buttons_were_pressed & (~buttons_pressed);
 
 	for(i=0;i<BP_NUMBER_IHM;i++){
 
-//		if(i == BP_SELFTEST_IHM)
-//			debug_printf("sw_e = %s\n",(BUTTON_SELFTEST_PORT)? "ON":"OFF");
-
-		if(buttons_rising_edge & (1<<i)){ // Détecte les fronts montant sur chaque bouton
+		if(buttons_falling_edge & (1<<i)){ // Détecte les fronts descendant sur chaque bouton
 			push_time[i] = TIME_LONG_PUSH;
 			buttons[i] = FALSE;
-
-			if(i == BP_SELFTEST_IHM)
-				debug_printf("sw_biroute = %s\n",(buttons_pressed & (1<<i))? "ON":"OFF");
 		}
 		else{
-			buttons_falling_edge = buttons_were_pressed & (~buttons_pressed);
+			buttons_rising_edge = (~buttons_were_pressed) & buttons_pressed;
 
-			if((buttons_pressed & (1<<i)) && push_time[i] == 0 && initialized){// long push
+			if((((~buttons_pressed) & (1<<i)) && push_time[i] <= 0) && initialized){// long push
 				buttons[i] = TRUE;
 				push_time[i] = TIME_REPEAT;
 				BUTTONS_send_msg(i,TRUE);
 
 			#ifdef VERBOSE_BOUTON
 				switch(i){
-					case BP_SELFTEST_IHM:		debug_printf("bp_selftest, long push\n");			break;
-					case BP_CALIBRATION_IHM:	debug_printf("bp_calibration, long push\n");		break;
-					case BP_PRINTMATCH_IHM:		debug_printf("bp_print_match, long push\n");		break;
-					case BP_OK_IHM:				debug_printf("bp_ok, long push\n");					break;
-					case BP_UP_IHM:				debug_printf("bp_up, long push\n");					break;
-					case BP_DOWN_IHM:			debug_printf("bp_down, long push\n");				break;
-					case BP_SET_IHM:			debug_printf("bp_set, long push\n");				break;
-					case BP_RFU_IHM	:			debug_printf("bp_rfu, long push\n");				break;
-					default:					debug_printf("Button %d active, long push\n",i);
+//					case BP_SELFTEST_IHM:		debug_printf("bp_selftest, long push\n");			break;
+//					case BP_CALIBRATION_IHM:	debug_printf("bp_calibration, long push\n");		break;
+//					case BP_PRINTMATCH_IHM:		debug_printf("bp_print_match, long push\n");		break;
+//					case BP_OK_IHM:				debug_printf("bp_ok, long push\n");					break;
+//					case BP_UP_IHM:				debug_printf("bp_up, long push\n");					break;
+//					case BP_DOWN_IHM:			debug_printf("bp_down, long push\n");				break;
+//					case BP_SET_IHM:			debug_printf("bp_set, long push\n");				break;
+//					case BP_RFU_IHM	:			debug_printf("bp_rfu, long push\n");				break;
+					case BP_4_IHM: debug_printf("Button acti444push\n"); break;
+						case BP_5_IHM: debug_printf("But5sh\n");
+					default:;//					debug_printf("Button %d active, long push\n",i-8);
 				}
 			#endif
-			}
-			else if((buttons_falling_edge & (1<<i)) && initialized && !buttons[i]){ // direct push
+			}else if((buttons_rising_edge & (1<<i)) && initialized && !buttons[i]){ // direct push
 				BUTTONS_send_msg(i,FALSE);
 
 			#ifdef VERBOSE_BOUTON
@@ -143,7 +138,7 @@ void BUTTONS_update(){
 					case BP_DOWN_IHM:			debug_printf("bp_down, direct push\n");				break;
 					case BP_SET_IHM:			debug_printf("bp_set, direct push\n");				break;
 					case BP_RFU_IHM	:			debug_printf("bp_rfu, direct push\n");				break;
-					default:					debug_printf("Button %d active, direct push\n",i);
+					default:					debug_printf("Button %d active, direct push\n",i-8);
 				}
 			#endif
 			}
