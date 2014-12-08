@@ -141,7 +141,7 @@
 		#define XBEE_RESET			GPIOA,GPIO_Pin_5
 		#define PIN_RF_CONFIG		GPIOA,GPIO_Pin_6
 		//								7
-		#define LED_IHM_SET			GPIOA,GPIO_Pin_8
+		//								8
 		//	-	usb						9
 		//	-	usb						10
 		//	-	usb						11
@@ -161,7 +161,7 @@
 		//	U1TX						6
 		//	U1RX						7
 		//	-							8
-		#define LCD_RESET_PORT		GPIOB,GPIO_Pin_9
+		//								9
 		//	I2C RTC/LCD	 				10
 		//	I2C RTC/LCD	 				11
 		#define SD_CS				GPIOB,GPIO_Pin_12
@@ -182,12 +182,8 @@
 		#define LED_BEACON_IR_RED	GPIOC,GPIO_Pin_7
 		#define SYNCHRO_BEACON		GPIOC,GPIO_Pin_8
 		#define BUZZER				GPIOC,GPIO_Pin_9
-		#define LED_IHM_OK			GPIOC,GPIO_Pin_10
+		//
 		#define EEPROM_WP			GPIOC,GPIO_Pin_11
-		#define LED_IHM_UP			GPIOC,GPIO_Pin_11
-		#define LED_IHM_DOWN		GPIOC,GPIO_Pin_12
-
-		//#define 				GPIOC->ODR11
 		#define EEPROM_HOLD			GPIOC,GPIO_Pin_12
 		#define PORT_ROBOT_ID  		GPIOC->IDR13
 		//	-	OSC32_in				14

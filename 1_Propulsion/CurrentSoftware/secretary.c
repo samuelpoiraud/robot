@@ -39,6 +39,7 @@
 #include "QS/QS_maths.h"
 #include "QS/QS_ports.h"
 #include "scan_cup.h"
+#include "QS/QS_IHM.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
@@ -203,6 +204,12 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 				debug_printf("FOE Detected !\n");
 				add_pos_datas = TRUE; // Permet de savoir ou est-ce que la détection à eu lieu sur le terrain
 				break;
+
+			case IHM_SWITCH_ALL:							print(string, len, "%x IHM_SWITCH_ALL						  ", IHM_SWITCH_ALL									);	break;
+			case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON							  ", IHM_BUTTON										);	break;
+			case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH							  ", IHM_SWITCH										);	break;
+			case IHM_POWER:									print(string, len, "%x IHM_POWER							  ", IHM_POWER										);	break;
+
 			default:
 				debug_printf("SID=%x ", msg->sid);
 			break;
@@ -730,6 +737,14 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 				SCAN_CUP_canMsg(msg);
 			#endif
 			break;
+
+		case IHM_SWITCH_ALL:
+		case IHM_BUTTON:
+		case IHM_SWITCH:
+		case IHM_POWER:
+			IHM_process_main(msg);
+			break;
+
 		default :
 		break;
 	}

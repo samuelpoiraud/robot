@@ -11,6 +11,7 @@
 
 #include "../QS/QS_i2c.h"
 #include "../QS/QS_outputlog.h"
+#include "LCD_MIDAS_4x20.h"
 
 #if defined(USE_LCD) && !defined(USE_I2C2)
 	#warning "LCD a besoin de I2C2 pour fonctionner. Veuiller definir USE_I2C2 dans config_qs.h. Le module LCD sera inactif ..."
@@ -126,9 +127,17 @@ void LCD_clear_display(void)
 void LCD_init(void){
 	volatile Uint32 i;
 
+#ifdef FDP_2014
 	GPIO_ResetBits(LCD_RESET_PORT);
+#else
+	LCD_bitsReset(FALSE);
+#endif
 	for(i=0;i<100000;i++);	//Delay > 10ms.
+#ifdef FDP_2014
 	GPIO_SetBits(LCD_RESET_PORT);
+#else
+	LCD_bitsReset(TRUE);
+#endif
 	for(i=0;i<10000;i++);	//Delay > 1ms
 
 	LCD_send_command(COMMAND_CLEAR_DISPLAY);	//Clear display
@@ -332,4 +341,13 @@ static void LCD_handle_i2c_result(bool_e result) {
 		debug_printf("LCD: trop d'erreur I2C, LCD off\n");
 	}
 #endif
+}
+
+// Envoie un message CAN pour set ou reset le bit du LCD qui se trouve sur la carte IHM  (fdp 2015)
+void LCD_bitsReset(bool_e set){
+	CAN_msg_t msg;
+	msg.sid = IHM_LCD_BIT_RESET;
+	msg.data[0] = set;
+	msg.size = 1;
+	CAN_send(&msg);
 }
