@@ -53,5 +53,10 @@ void LCD_test(void);
 */
 void LCD_clear_display(void);
 
+/*
+ * Envoie un message CAN pour set ou reset le bit du LCD qui se trouve sur la carte IHM (fdp 2015)
+*/
+void LCD_bitsReset(bool_e set);
+
 #endif	/* LCD_MIDAS_4X20_H */
 

@@ -173,12 +173,12 @@ void LCD_refresh_lines(void)
 void IHM_LEDS(bool_e led_set, bool_e led_down, bool_e led_up, bool_e led_ok)
 {
 #ifdef FDP_2014
-	IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
+	GPIO_WriteBit(LED_IHM_SET, led_set);
+	GPIO_WriteBit(LED_IHM_DOWN, led_down);
+	GPIO_WriteBit(LED_IHM_UP, led_up);
+	GPIO_WriteBit(LED_IHM_OK, led_ok);
 #else
-	LED_IHM_SET 	= led_set;
-	LED_IHM_DOWN 	= led_down;
-	LED_IHM_UP 		= led_up;
-	LED_IHM_OK 		= led_ok;
+	IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
 #endif
 }
 

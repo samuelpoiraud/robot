@@ -471,6 +471,15 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_ZONE_INFOS:
 			FIX_BEACON_process_msg(incoming_msg);
 			break;
+
+/************************************* Récupération des messages de la carte IHM ***************************/
+		case IHM_SWITCH_ALL:
+		case IHM_BUTTON:
+		case IHM_SWITCH:
+		case IHM_POWER:
+			IHM_process_main(incoming_msg);
+			break;
+
 		default:
 			break;
 	}

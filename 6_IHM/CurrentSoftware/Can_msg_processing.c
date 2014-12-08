@@ -14,6 +14,7 @@
 #include "Can_msg_processing.h"
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
+#include "../stm32f4xx/stm32f4xx_gpio.h"
 
 #define LOG_PREFIX "CANProcess: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANPROCESSMSG
@@ -40,6 +41,10 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case IHM_SET_LED:
 			debug_printf("Msg SID: IHM_SET_LED\n");
 			LEDS_get_msg(msg);
+			break;
+
+		case IHM_LCD_BIT_RESET:
+			GPIO_WriteBit(LCD_RESET_PORT, msg->data[0]);
 			break;
 
 		default:
