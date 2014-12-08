@@ -78,8 +78,11 @@
 	//	CAN_TX							1
 	#define GREEN_LED				GPIOD,GPIO_Pin_2
 	  #define LED_UART				GREEN_LED
+	  #define GREEN_LED_MASK		GPIO_Pin_2
 	#define RED_LED					GPIOD,GPIO_Pin_3
+		#define RED_LED_MASK		GPIO_Pin_3
 	#define BLUE_LED				GPIOD,GPIO_Pin_4
+		#define BLUE_LED_MASK		GPIO_Pin_4
 	//	-								5
 	#define SWITCH_COLOR_PORT		GPIOD->IDR6
 	#define BIROUTE_PORT			(!GPIOD->IDR7)	//La biroute doit être par défaut dans l'état NON par défaut... pour qu'on soit sur qu'elle est là.

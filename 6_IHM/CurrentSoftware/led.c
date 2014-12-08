@@ -177,7 +177,45 @@ Uint8 get_blink_state(blinkLED_ihm_e blink){
 }
 
 void set_COLOR(led_color_e led_color){
-	GPIO_WriteBit(GREEN_LED, ((int)(led_color & LED_GREEN)));
-	GPIO_WriteBit(RED_LED, ((int)(led_color & LED_RED) >> 1));
-	GPIO_WriteBit(BLUE_LED, ((int)(led_color & LED_BLUE) >> 2));
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+	if(led_color & 0b100){
+		GPIO_InitStructure.GPIO_Pin = RED_LED_MASK;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+		GPIO_Init(GPIOD, &GPIO_InitStructure);
+		GPIO_ResetBits(RED_LED);
+
+	}else{
+		GPIO_InitStructure.GPIO_Pin = RED_LED_MASK;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_Init(GPIOD, &GPIO_InitStructure);
+	}
+
+	if(led_color & 0b010){
+		GPIO_InitStructure.GPIO_Pin = GREEN_LED_MASK;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+		GPIO_Init(GPIOD, &GPIO_InitStructure);
+		GPIO_ResetBits(GREEN_LED);
+
+	}else{
+		GPIO_InitStructure.GPIO_Pin = GREEN_LED_MASK;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_Init(GPIOD, &GPIO_InitStructure);
+	}
+
+	if(led_color & 0b001){
+		GPIO_InitStructure.GPIO_Pin = BLUE_LED_MASK;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+		GPIO_Init(GPIOD, &GPIO_InitStructure);
+		GPIO_ResetBits(BLUE_LED);
+
+	}else{
+		GPIO_InitStructure.GPIO_Pin = BLUE_LED_MASK;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_Init(GPIOD, &GPIO_InitStructure);
+	}
 }
