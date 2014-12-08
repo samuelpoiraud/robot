@@ -47,7 +47,8 @@ int main (void){
 
 	initialisation();
 
-	debug_printf("--- Hello, I'm IHM ---\n");
+	QS_WHO_AM_I_find();
+	debug_printf("------- Hello, I'm IHM (%s) -------\n", QS_WHO_AM_I_get_name());
 
 	CAN_msg_t msg;
 	msg.sid = IHM_SET_LED;
