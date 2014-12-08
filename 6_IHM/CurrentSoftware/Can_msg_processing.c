@@ -30,17 +30,20 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			NVIC_SystemReset();
 			break;
 		case IHM_GET_SWITCH:
+			debug_printf("Msg SID: IHM_GET_SWITCH\n");
+
 			if(msg->size == 0)
 				SWITCHS_send_all();
 			else
 				SWITCHS_answer(msg);
 			break;
 		case IHM_SET_LED:
+			debug_printf("Msg SID: IHM_SET_LED\n");
 			LEDS_get_msg(msg);
 			break;
 
 		default:
-			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
+			debug_printf("Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
 			break;
 	}//End switch
 }
