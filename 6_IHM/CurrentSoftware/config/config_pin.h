@@ -77,7 +77,6 @@
 	//	CAN_RX							0
 	//	CAN_TX							1
 	#define GREEN_LED				GPIOD,GPIO_Pin_2
-	  #define LED_UART				GREEN_LED
 	  #define GREEN_LED_MASK		GPIO_Pin_2
 	#define RED_LED					GPIOD,GPIO_Pin_3
 		#define RED_LED_MASK		GPIO_Pin_3

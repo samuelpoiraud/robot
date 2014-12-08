@@ -447,7 +447,9 @@ int _write(int file, char *ptr, int len)
 				Uint8 * receiveddata = &(m_u1rxbuf[(m_u1rxnum%UART_RX_BUF_SIZE)]);
 
 				while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE)){
-					toggle_led(LED_UART);
+					#ifdef LED_UART
+						toggle_led(LED_UART);
+					#endif
 					#ifdef MODE_SIMULATION
 					static Uint8 we_are_receiving_can_msg = FALSE;
 					Uint8 c;
@@ -572,7 +574,9 @@ int _write(int file, char *ptr, int len)
 
 				while(USART_GetFlagStatus(USART2, USART_FLAG_RXNE))
 				{
-					toggle_led(LED_UART);
+					#ifdef LED_UART
+						toggle_led(LED_UART);
+					#endif
 					*(receiveddata++) = USART_ReceiveData(USART2);
 					m_u2rxnum++;
 					m_u2rx = 1;
@@ -694,7 +698,9 @@ int _write(int file, char *ptr, int len)
 
 				while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE))
 				{
-					LED_UART=!LED_UART;
+					#ifdef LED_UART
+						toggle_led(LED_UART);
+					#endif
 					*(receiveddata++) = USART_ReceiveData(USART3);
 					m_u3rxnum++;
 					m_u3rx = 1;
@@ -817,7 +823,9 @@ int _write(int file, char *ptr, int len)
 
 				while(USART_GetFlagStatus(UART4, USART_FLAG_RXNE))
 				{
-					LED_UART=!LED_UART;
+					#ifdef LED_UART
+						toggle_led(LED_UART);
+					#endif
 					*(receiveddata++) = USART_ReceiveData(UART4);
 					m_u4rxnum++;
 					m_u4rx = 1;
@@ -939,7 +947,9 @@ int _write(int file, char *ptr, int len)
 
 				while(USART_GetFlagStatus(UART5, USART_FLAG_RXNE))
 				{
-					LED_UART=!LED_UART;
+					#ifdef LED_UART
+						toggle_led(LED_UART);
+					#endif
 					*(receiveddata++) = USART_ReceiveData(UART5);
 					m_u5rxnum++;
 					m_u5rx = 1;
@@ -1061,7 +1071,9 @@ int _write(int file, char *ptr, int len)
 
 				while(USART_GetFlagStatus(USART6, USART_FLAG_RXNE))
 				{
-					LED_UART=!LED_UART;
+					#ifdef LED_UART
+						toggle_led(LED_UART);
+					#endif
 					*(receiveddata++) = USART_ReceiveData(USART6);
 					m_u6rxnum++;
 					m_u6rx = 1;
