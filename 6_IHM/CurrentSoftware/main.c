@@ -22,6 +22,7 @@
 #include "switch.h"
 #include "led.h"
 #include "voltage_measure.h"
+#include "Can_msg_processing.h"
 
 volatile Uint8 t_10ms = 0;
 
@@ -51,19 +52,14 @@ int main (void){
 	debug_printf("------- Hello, I'm IHM (%s) -------\n", QS_WHO_AM_I_get_name());
 
 	CAN_msg_t msg;
-	msg.sid = IHM_SET_LED;
-	msg.data[0] = OFF << 5 | LED_3_IHM;
-	msg.data[1] = OFF << 5 | LED_3_IHM;
-	msg.data[2] = OFF << 5 | LED_3_IHM;
-	msg.data[3] = OFF << 5 | LED_3_IHM;
-	msg.data[4] = OFF << 5 | LED_4_IHM;
-	msg.data[5] = ON << 5 | LED_5_IHM;
-	msg.data[6] = OFF << 5 | LED_UP_IHM;
-	msg.data[7] = LED_COLOR_BLACK << 5 | LED_COLOR_IHM;
-	msg.size = 8;
-	LEDS_get_msg(&msg);
 
 	while(1){
+
+		while(CAN_data_ready()){
+			// Réception et acquittement
+			msg = CAN_get_next_msg();
+			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
+		}
 
 		if(t_10ms > 2){	//Pour éviter les rebonds, au dessus de 20ms
 			t_10ms = 0;

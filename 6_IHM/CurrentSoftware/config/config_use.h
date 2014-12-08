@@ -61,7 +61,7 @@
 	#define WATCHDOG_QUANTUM 1
 
 /* Réglages entrées analogiques */
-	#define USE_AN4		// Mesure 12V hokuyo
+	#define USE_AN5		// Mesure 12V hokuyo
 	#define USE_AN6		// Mesure 24V puissance
 	#define USE_AN10	// Mesure 24V permanence
 

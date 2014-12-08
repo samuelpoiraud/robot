@@ -14,7 +14,7 @@
 #include "QS/QS_all.h"
 #include "QS/QS_adc.h"
 
-#define ADC_12_HOKUYO		ADC_4
+#define ADC_12_HOKUYO		ADC_5
 #define ADC_24_PUISSANCE	ADC_6
 #define ADC_24_PERMANENCE	ADC_10
 

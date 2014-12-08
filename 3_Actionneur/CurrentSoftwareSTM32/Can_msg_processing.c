@@ -97,6 +97,13 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			CAN_send(&answer);
 			break;
 
+		case IHM_SWITCH_ALL:
+		case IHM_BUTTON:
+		case IHM_SWITCH:
+		case IHM_POWER:
+			IHM_process_main(msg);
+			break;
+
 		default:
 			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
 			break;

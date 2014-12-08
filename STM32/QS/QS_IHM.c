@@ -72,8 +72,12 @@ void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 void switchs_update(CAN_msg_t * msg){
 	Uint8 i;
 
-	for(i=0;i<msg->size;i++)
-		switchs[msg->data[i] &SWITCH_MASK] = (msg->data[i] & SWITCH_ON)?TRUE:FALSE;
+	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
+		switchs[msg->data[i] & SWITCH_MASK] = (msg->data[i] & SWITCH_ON)?TRUE:FALSE;
+
+
+//	for(i=0;i<msg->size;i++)
+//		deb ;
 }
 
 void switchs_update_all(CAN_msg_t * msg){
@@ -81,7 +85,7 @@ void switchs_update_all(CAN_msg_t * msg){
 	Uint32 swit = U32FROMU8(msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
 
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
-		switchs[0] = swit & (1 << i);
+		switchs[i] = (swit >> i) & 1;
 }
 
 void button_update(CAN_msg_t * msg){
