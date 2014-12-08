@@ -492,13 +492,13 @@
 	bool_e AX12_config_lock(Uint8 id_servo);
 
 	/**
-	 * Change l'ID de TOUT les AX12/RX24 branché (à utiliser temporairement pour configurer un AX12/RX24 seulement !!!!)
+	 * Change l'ID d'un servo AX12/RX24 branché (à utiliser temporairement, de préférence avec un seul servo de branché sur le bus pour éviter les ambiguïté !)
 	 *
-	 * @param id_servo_begin	id du servo à changer
-	 * @param id_servo_end		id du servo une fois changé
+	 * @param id_servo_current	id du servo à changer
+	 * @param id_servo_new		id du servo une fois changé
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 */
-	bool_e AX12_config_set_id(Uint8 id_servo_begin, Uint8 id_servo_end);
+	bool_e AX12_config_set_id(Uint8 id_servo_current, Uint8 id_servo_new);
 
 	/**
 	 * Défini le délai de réponse que doit avoir le servo.
