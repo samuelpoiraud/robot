@@ -38,27 +38,13 @@
 #define SENSOR_NAME			ADC_SENSOR_BIG
 
 
-//------------------------------------------------------------------------------------ Prototype des fonctions local
-
-static void inArea(scan_result objet);
-static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points);
-
-
 //------------------------------------------------------------------------------------ Définition des structures et énumerations
 
 typedef struct{
 	GEOMETRY_point_t robot;
 	Uint8 dist;
-}scan_result;
+}scan_result_t;
 
-typedef enum{
-	INIT=0,
-	WAIT,
-	SCAN_LINEAR,
-	SCAN_CALCUL,
-	WAIT_CALCULATE,
-	SEND_COOR_CUP
-}state_e;
 
 typedef enum{
 	NO_MSG_CAN,
@@ -77,6 +63,13 @@ static Uint8 nb_mesure = 0;
 static bool_e run_calcul,end_scan;
 color_e color = ODOMETRY_get_color();
 
+
+//------------------------------------------------------------------------------------ Prototype des fonctions local
+
+static void inArea(scan_result_t * objet);
+static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points);
+
+
 //------------------------------------------------------------------------------------ Fonctions
 
 void SCAN_CUP_init(void){
@@ -85,8 +78,16 @@ void SCAN_CUP_init(void){
 }
 
 void SCAN_CUP_process_it(){
+	typedef enum{
+		INIT=0,
+		WAIT,
+		SCAN_LINEAR,
+		SCAN_CALCUL,
+		WAIT_CALCULATE,
+		SEND_COOR_CUP
+	}state_e;
 	static state_e state = INIT;
-	scan_result mesure_en_cours;
+	scan_result_t mesure_en_cours;
 	switch(state){
 
 		case INIT :
@@ -111,7 +112,7 @@ void SCAN_CUP_process_it(){
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;
 				mesure_en_cours.dist = conversion_capteur(ADC_getValue(SENSOR_NAME));
-				inArea(mesure_en_cours);
+				inArea(&mesure_en_cours);
 			}
 			if(end_scan == TRUE){		//On passe dans la phase de calcul
 				state = SCAN_CALCUL;
@@ -138,10 +139,10 @@ void SCAN_CUP_process_it(){
 	}
 }
 
-static void inArea(scan_result objet){
+static void inArea(scan_result_t * objet){
 	GEOMETRY_point_t cup;
-	cup.x = objet.robot.x;				//+ constante suivant où est placé le capteur
-	cup.y = objet.robot.y+objet.dist;	//Modifier la distance suivant emplacement capteur (+constante)
+	cup.x = objet->robot.x;				//+ constante suivant où est placé le capteur
+	cup.y = objet->robot.y+objet->dist;	//Modifier la distance suivant emplacement capteur (+constante)
 	if(color){
 		if(cup.x>=X1 && cup.x<=X2 && cup.y>=Y3 && cup.y<=Y4){ //Salle de cinema du haut
 			if(nbPointH>=NB_POINT_MAX){
@@ -214,7 +215,7 @@ void SCAN_CUP_canMsg(CAN_msg_t *msg){
 void SCAN_TRIANGLE_calculate(void){
 	if(run_calcul){
 		debug_printf("Calcul\n");
-		//Détermination des centres des goblets
+		//Détermination des centres des gobelets
 	}
 }
 
