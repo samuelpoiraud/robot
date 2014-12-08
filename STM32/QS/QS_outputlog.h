@@ -98,4 +98,7 @@ void OUTPUTLOG_set_callback(OUTPUTLOG_Callback callback);
 
 #endif
 
+// Affiche le chaine quoi qu'il arrive même si le log du fichier est désactivé (à n'utiliser que pour du débug SEULEMENT !)
+#define force_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Always, __VA_ARGS__)
+
 #endif // QS_OUTPUTLOG_H
