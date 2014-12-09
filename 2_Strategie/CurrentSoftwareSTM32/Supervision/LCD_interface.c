@@ -134,8 +134,7 @@ void clear_line(Uint8 line)
 ////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
 // Affiche à l'écran les lignes ayant été mises à jour, et affiche le curseur si demandé
-void LCD_refresh_lines(void)
-{
+void LCD_refresh_lines(void){
 	Uint8 i;
 	static cursor_e previous_cursor = CURSOR_OFF;
 	static Uint8 previous_cursor_line = 0;
@@ -170,15 +169,20 @@ void LCD_refresh_lines(void)
 
 
 
-void IHM_LEDS(bool_e led_set, bool_e led_down, bool_e led_up, bool_e led_ok)
-{
+void IHM_LEDS(bool_e led_set, bool_e led_down, bool_e led_up, bool_e led_ok){
 #ifdef FDP_2014
 	GPIO_WriteBit(LED_IHM_SET, led_set);
 	GPIO_WriteBit(LED_IHM_DOWN, led_down);
 	GPIO_WriteBit(LED_IHM_UP, led_up);
 	GPIO_WriteBit(LED_IHM_OK, led_ok);
 #else
-	IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
+	static time32_t timePrec = 0;
+
+	if(global.env.absolute_time - timePrec > 100 && (!global.env.match_started || global.env.match_over)){ // Si > 100ms et si match pas commence ou fini
+		IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
+
+		timePrec = global.env.absolute_time;
+	}
 #endif
 }
 

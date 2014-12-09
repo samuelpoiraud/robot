@@ -114,7 +114,8 @@ int main (void)
 	Supervision_init();
 	BRAIN_init();
 
-#ifdef FDP_2014
+
+#ifndef FDP_2014
 	IHM_init();
 #endif
 

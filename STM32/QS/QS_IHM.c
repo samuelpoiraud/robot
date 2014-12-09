@@ -46,11 +46,11 @@ void IHM_init(){
 }
 
 void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
-#ifndef FDP_2014
 	assert(size < 8);
 
 	Uint8 i = 0;
 	CAN_msg_t msg;
+	msg.sid = IHM_SET_LED;
 	msg.size = size;
 
 	va_list va;
@@ -66,7 +66,6 @@ void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 	va_end(va);
 
 	CAN_send(&msg);
-#endif
 }
 
 void switchs_update(CAN_msg_t * msg){
@@ -74,10 +73,6 @@ void switchs_update(CAN_msg_t * msg){
 
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
 		switchs[msg->data[i] & SWITCH_MASK] = (msg->data[i] & SWITCH_ON)?TRUE:FALSE;
-
-
-//	for(i=0;i<msg->size;i++)
-//		deb ;
 }
 
 void switchs_update_all(CAN_msg_t * msg){

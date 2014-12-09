@@ -44,6 +44,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		case IHM_LCD_BIT_RESET:
+			debug_printf("Msg SID: IHM_LCD_BIT_RESET\n");
 			GPIO_WriteBit(LCD_RESET_PORT, msg->data[0]);
 			break;
 

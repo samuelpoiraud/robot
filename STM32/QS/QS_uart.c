@@ -374,36 +374,6 @@ int _write(int file, char *ptr, int len)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		void UART1_putc(Uint8 c)
 		{
 			if(USART_GetFlagStatus(USART1, USART_IT_TXE))
