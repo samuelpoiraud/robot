@@ -815,4 +815,8 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 // 5 bits de poids faible id : 0b...XXXXX
 // 3 bits de poids fort blink (clignotement) ou couleur pour LED_COLOR_IHM : 0bXXX.....
 
+#define IHM_LCD_BIT_RESET 0x603
+// Set ou reset le bits LCD_RESET de la carte IHM
+// data 0 == TRUE si set sinon reset
+
 #endif	/* ndef QS_CANMSGLIST_H */

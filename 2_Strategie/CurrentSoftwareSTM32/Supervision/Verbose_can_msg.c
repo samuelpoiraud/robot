@@ -110,6 +110,11 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len, verbose_m
 		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING         ", BEACON_ENABLE_PERIODIC_SENDING					);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING        ", BEACON_DISABLE_PERIODIC_SENDING				);	break;
 
+		case IHM_SWITCH_ALL:							print(string, len, "%x IHM_SWITCH_ALL						  ", IHM_SWITCH_ALL									);	break;
+		case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON							  ", IHM_BUTTON										);	break;
+		case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH							  ", IHM_SWITCH										);	break;
+		case IHM_POWER:									print(string, len, "%x IHM_POWER							  ", IHM_POWER										);	break;
+
 		case XBEE_START_MATCH:							print(string, len, "%x XBEE_START_MATCH                       ", XBEE_START_MATCH								);	break;
 		case XBEE_PING:									print(string, len, "%x XBEE_PING                              ", XBEE_PING										);	break;
 		case XBEE_PONG:									print(string, len, "%x XBEE_PONG                              ", XBEE_PONG										);	break;
