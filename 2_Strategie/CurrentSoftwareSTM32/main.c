@@ -83,6 +83,11 @@ int main (void)
 		UART_init();
 	#endif /* def VERBOSE_MODE */
 	//RCON_read();
+
+	#ifndef FDP_2014
+		IHM_init();
+	#endif
+
 	ENV_init();	//Pour être réceptif aux éventuels messages CAN envoyés très tôt...
 
 	GPIO_SetBits(LED_RUN);
@@ -112,12 +117,6 @@ int main (void)
 
 	Supervision_init();
 	BRAIN_init();
-
-
-#ifndef FDP_2014
-	IHM_init();
-#endif
-
 	ACT_AVOIDANCE_init();
 
 	while(1)

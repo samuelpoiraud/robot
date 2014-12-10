@@ -126,15 +126,18 @@ void LCD_clear_display(void)
 */
 void LCD_init(void){
 	volatile Uint32 i;
+	for(i=0;i<100000;i++);
 
 #ifdef FDP_2014
 	GPIO_ResetBits(LCD_RESET_PORT);
+	LCD_bitsReset(FALSE);
 #else
 	LCD_bitsReset(FALSE);
 #endif
 	for(i=0;i<100000;i++);	//Delay > 10ms.
 #ifdef FDP_2014
 	GPIO_SetBits(LCD_RESET_PORT);
+	LCD_bitsReset(TRUE);
 #else
 	LCD_bitsReset(TRUE);
 #endif
@@ -336,9 +339,10 @@ static void LCD_handle_i2c_result(bool_e result) {
 		error_count = 0;
 
 	if(error_count > LCD_MAX_I2C_ERROR) {
-		initialized = FALSE;
+		//initialized = FALSE;
+		//debug_printf("LCD: trop d'erreur I2C, LCD off\n");
 		error_count = 0;
-		debug_printf("LCD: trop d'erreur I2C, LCD off\n");
+		debug_printf("LCD: trop d'erreur I2C\n");
 	}
 #endif
 }
