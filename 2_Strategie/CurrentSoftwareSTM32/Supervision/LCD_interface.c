@@ -100,7 +100,7 @@ void init_LCD_interface(void){
 		clear_line(i);
 	for(i=0;i<FREE_MSG_NB;i++)
 		free_msg[i][0] = 0;
-	IHM_LEDS(FALSE, FALSE, FALSE, FALSE);
+	//IHM_LEDS(FALSE, FALSE, FALSE, FALSE);
 
 	initialized = TRUE;
 }
