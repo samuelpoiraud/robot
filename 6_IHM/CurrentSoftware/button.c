@@ -108,41 +108,9 @@ void BUTTONS_update(){
 			if((((~buttons_pressed) & (1<<i)) && push_time[i] <= 0) && initialized){// long push
 				buttons[i] = TRUE;
 				push_time[i] = TIME_REPEAT;
-
-				if(i != BP_0_IHM)
-					BUTTONS_send_msg(i,TRUE);
-
-			#ifdef VERBOSE_BOUTON
-				switch(i){
-					case BP_SELFTEST_IHM:		debug_printf("bp_selftest, long push\n");			break;
-					case BP_CALIBRATION_IHM:	debug_printf("bp_calibration, long push\n");		break;
-					case BP_PRINTMATCH_IHM:		debug_printf("bp_print_match, long push\n");		break;
-					case BP_OK_IHM:				debug_printf("bp_ok, long push\n");					break;
-					case BP_UP_IHM:				debug_printf("bp_up, long push\n");					break;
-					case BP_DOWN_IHM:			debug_printf("bp_down, long push\n");				break;
-					case BP_SET_IHM:			debug_printf("bp_set, long push\n");				break;
-					case BP_RFU_IHM	:			debug_printf("bp_rfu, long push\n");				break;
-					default:					debug_printf("Button %d active, long push\n",i-8);
-				}
-			#endif
-			}else if((buttons_rising_edge & (1<<i)) && initialized && !buttons[i]){ // direct push
+				BUTTONS_send_msg(i,TRUE);
+			}else if((buttons_rising_edge & (1<<i)) && initialized && !buttons[i]) // direct push
 				BUTTONS_send_msg(i,FALSE);
-
-			#ifdef VERBOSE_BOUTON
-				switch(i){
-					case BP_SELFTEST_IHM:		debug_printf("bp_selftest, direct push\n");			break;
-					case BP_CALIBRATION_IHM:	debug_printf("bp_calibration, direct push\n");		break;
-					case BP_PRINTMATCH_IHM:		debug_printf("bp_print_match, direct push\n");		break;
-					case BP_OK_IHM:				debug_printf("bp_ok, direct push\n");				break;
-					case BP_UP_IHM:				debug_printf("bp_up, direct push\n");				break;
-					case BP_DOWN_IHM:			debug_printf("bp_down, direct push\n");				break;
-					case BP_SET_IHM:			debug_printf("bp_set, direct push\n");				break;
-					case BP_RFU_IHM	:			debug_printf("bp_rfu, direct push\n");				break;
-					default:					debug_printf("Button %d active, direct push\n",i-8);
-				}
-			#endif
-			}
-
 		}
 	}
 

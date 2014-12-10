@@ -113,18 +113,8 @@ void SWITCHS_update(){
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++){
 		// Mets à jour le tableau pour une éventuelle demande extérieure
 
-		if((switchs_edge & (1<<i)) && initialized){// N'envoie pas, l'information si n'est pas encore init
+		if((switchs_edge & (1<<i)) && initialized)// N'envoie pas, l'information si n'est pas encore init
 			SWITCHS_send_msg(i);
-
-#ifdef VERBOSE_BOUTON
-			switch (i) {
-				case BIROUTE_IHM:			debug_printf("sw_biroute = %s\n",(switchs_pressed & (1<<i))? "ON":"OFF");		break;
-				case SWITCH_COLOR_IHM:		debug_printf("sw_color = %s\n",(switchs_pressed & (1<<i))? "ON":"OFF");			break;
-				case SWITCH_LCD_IHM:		debug_printf("sw_lcd = %s\n",(switchs_pressed & (1<<i))? "ON":"OFF");			break;
-				default:					debug_printf("SWITCH %d = %s\n",i-3,(switchs_pressed & (1<<i))? "ON":"OFF");	// -3 car biroute, color, lcd avant
-			}
-#endif
-		}
 	}
 
 	switchs_were_pressed = switchs = switchs_pressed;

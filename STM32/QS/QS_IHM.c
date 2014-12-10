@@ -15,10 +15,6 @@
 #include <stdarg.h>
 #include "../main.h"
 
-#define SWITCH_ON       0x80
-#define SWITCH_OFF		0x00
-#define SWITCH_MASK		0x7F
-
 typedef struct{
 	ihm_button_action_t direct_push;
 	ihm_button_action_t after_long_push;
@@ -72,7 +68,7 @@ void switchs_update(CAN_msg_t * msg){
 	Uint8 i;
 
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
-		switchs[msg->data[i] & SWITCH_MASK] = (msg->data[i] & SWITCH_ON)?TRUE:FALSE;
+		switchs[msg->data[i] & IHM_SWITCH_MASK] = (msg->data[i] & IHM_SWITCH_ON)?TRUE:FALSE;
 }
 
 void switchs_update_all(CAN_msg_t * msg){
