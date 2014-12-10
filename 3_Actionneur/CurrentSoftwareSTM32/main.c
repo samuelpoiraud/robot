@@ -31,6 +31,7 @@
 #include "clock.h"
 #include "ActManager.h"
 #include "Can_msg_processing.h"
+#include "QS/QS_IHM.h"
 
 #ifdef I_AM_ROBOT_BIG
 	#include "Pierre/TestServo.h"
@@ -43,6 +44,15 @@ static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
 static void MAIN_global_var_init();
+
+static void test() {
+	debug_printf("pass direct cddcd\n");
+}
+
+
+static void longpush() {
+	debug_printf("pass longpush cddcd\n");
+}
 
 int main (void)
 {
@@ -108,6 +118,10 @@ int main (void)
 
 	debug_printf("---   ACT Ready    ---\n");
 
+
+	IHM_define_act_button(BP_3_IHM,&test,&longpush);
+	IHM_define_act_button(BP_4_IHM,&test,&longpush);
+
 	while(1)
 	{
 		/*-------------------------------------
@@ -151,8 +165,47 @@ int main (void)
 }
 
 
+#define SERVO 0
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton0() {
+
+	CAN_msg_t msg;
+	msg.sid = IHM_SET_LED;
+	msg.data[0] = ON << 5 | LED_0_IHM;
+	msg.data[1] = BLINK_1HZ << 5 | LED_1_IHM;
+	msg.data[2] = ON << 5 | LED_2_IHM;
+	msg.data[3] = BLINK_1HZ << 5 | LED_3_IHM;
+	msg.data[4] = ON << 5 | LED_4_IHM;
+	msg.data[5] = BLINK_1HZ << 5 | LED_5_IHM;
+	msg.data[6] = ON << 5 | LED_UP_IHM;
+	msg.data[7] = LED_COLOR_MAGENTA << 5 | LED_COLOR_IHM;
+	msg.size = 8;
+	CAN_send(&msg);
+
+	msg.sid = IHM_GET_SWITCH;
+	msg.data[0] = SWITCH0_IHM;
+	msg.data[1] = SWITCH6_IHM;
+	msg.data[2] = SWITCH5_IHM;
+	msg.data[3] = BLINK_1HZ << 5 | LED_3_IHM;
+	msg.data[4] = ON << 5 | LED_4_IHM;
+	msg.data[5] = BLINK_1HZ << 5 | LED_5_IHM;
+	msg.data[6] = ON << 5 | LED_UP_IHM;
+	msg.data[7] = LED_COLOR_MAGENTA << 5 | LED_COLOR_IHM;
+	msg.size = 3;
+	CAN_send(&msg);
+
+
+//	SERVO_set_speed(SERVO_VERY_SLOW,SERVO);
+
+//	static Uint8 state = 0;
+//	if(state == 0)
+//		SERVO_set_cmd(0,SERVO);
+//	else if(state == 1)
+//		SERVO_set_cmd(500,SERVO);
+//	else if(state == 2)
+//		SERVO_set_cmd(1000,SERVO);
+
+//	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton1() {

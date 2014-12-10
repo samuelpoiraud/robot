@@ -37,20 +37,17 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			NVIC_SystemReset();
 			break;
 		case IHM_GET_SWITCH:
-			debug_printf("Msg SID: IHM_GET_SWITCH\n");
-
 			if(msg->size == 0)
 				SWITCHS_send_all();
 			else
 				SWITCHS_answer(msg);
 			break;
 		case IHM_SET_LED:
-			debug_printf("Msg SID: IHM_SET_LED\n");
+			debug_printf("Msg IHM_SET_LED:\n");
 			LEDS_get_msg(msg);
 			break;
 
 		case IHM_LCD_BIT_RESET:
-			debug_printf("Msg SID: IHM_LCD_BIT_RESET\n");
 			GPIO_WriteBit(LCD_RESET_PORT, msg->data[0]);
 			break;
 

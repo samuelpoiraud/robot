@@ -37,11 +37,12 @@ void _ISR _T1Interrupt(){
 	TIMER1_AckIT(); /* interruption traitée */
 	global.absolute_time++;	//[ms]
 	t_ms++;					//[ms]
-	if(t_ms >= IT_TIME)	//Toutes les 10ms.
-	{
+	if(t_ms >= IT_TIME){	//Toutes les 10ms.
 		MAIN_process_it(IT_TIME);
 		BUTTONS_process_it(IT_TIME);
 		LEDS_process_it(IT_TIME);
 		VOLTAGE_MEASURE_process_it(IT_TIME);
+
+		t_ms = 0;
 	}
 }
