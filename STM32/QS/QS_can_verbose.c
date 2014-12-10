@@ -1,28 +1,29 @@
 /*
- *	Club Robot ESEO 2011
- *	Check Norris
+ *	Club Robot ESEO 2014 - 2015
+ *	Holly & Wood
  *
- *	Fichier : Verbose_can_msg.c
- *	Package : Supervision
- *	Description : Module d'affichage dans un texte "humain" du contenu d'un message can.
- *	Auteur : Nirgal
- *	Version 201302
+ *	Fichier : QS_can_verbose.c
+ *	Package : Qualité Soft
+ *	Description : Verbosité des messages CAN sur uart
+ *	Auteur : Arnaud
+ *	Licence : CeCILL-C (voir LICENCE.txt)
+ *	Version 20100111
  */
 
-#define VERBOSE_CAN_MSG_C
-#include "Verbose_can_msg.h"
-#include "../QS/QS_outputlog.h"
-void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
+#include "QS_can_verbose.h"
+#include "QS_outputlog.h"
 
-#define	u32(x1,x2,x3,x4) (U32FROMU8(msg->data[x1], msg->data[x2], msg->data[x3], msg->data[x4]))
-#define	u16(x,y)		(U16FROMU8(msg->data[x], msg->data[y]))
-#define s16(x,y)		((Sint16)(U16FROMU8(msg->data[x], msg->data[y])))
-#define	u8(x)			(msg->data[x])
-#define	s8(x)			((Sint8)(msg->data[x]))
-#define angle_deg(x, y) ((Sint16)((((Sint32)((Sint16)(U16FROMU8(msg->data[x], msg->data[y]))))*180/PI4096)))
-#define angle_rad(x, y) s16(x,y)
+static void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
+static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int len, QS_VERBOSE_msg_type_e verbose_msg_type);
+
+#define	u32(x1,x2,x3,x4)		(U32FROMU8(msg->data[x1], msg->data[x2], msg->data[x3], msg->data[x4]))
+#define	u16(x,y)				(U16FROMU8(msg->data[x], msg->data[y]))
+#define s16(x,y)				((Sint16)(U16FROMU8(msg->data[x], msg->data[y])))
+#define	u8(x)					(msg->data[x])
+#define	s8(x)					((Sint8)(msg->data[x]))
+#define angle_deg(x, y)			((Sint16)((((Sint32)((Sint16)(U16FROMU8(msg->data[x], msg->data[y]))))*180/PI4096)))
+#define angle_rad(x, y)			s16(x,y)
 //#define test(condition, string, len)	if(condition)	print(string, len, string)
-
 #define print(buffer, len, ...) \
 	do { \
 		int addlen = snprintf(buffer, len, __VA_ARGS__); \
@@ -31,14 +32,47 @@ void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
 		} \
 	} while(0)
 
-Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len, verbose_msg_type_e verbose_msg_type)
+void QS_CAN_VERBOSE_can_msg_print(CAN_msg_t * msg, QS_VERBOSE_msg_type_e verbose_msg_type)
+{
+	char str[512];
+
+	if(QS_CAN_VERBOSE_can_msg_sprint(msg, str, 512, verbose_msg_type) > 511)
+	{
+		debug_printf("ATTENTION, LA GENERATION DU MESSAGE CAN SUIVANT A DEBORDE DANS LA PILE, C'EST CRADE...\n");
+	}
+
+	printf(str);
+}
+
+
+
+
+static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int len, QS_VERBOSE_msg_type_e verbose_msg_type)
 {
 	char * ret = string;
 
 	// Lister ici tout les sid des messages auquel vous ne voulez aucun affichage
 	// Attention soyez bien sur de ce que vous entrez ici !
 	switch(msg->sid){
-		case DEBUG_AVOIDANCE_POLY:
+
+#ifdef I_AM_CARTE_STRAT			// Message ignoré par la stratégie
+
+#endif
+
+#ifdef I_AM_CARTE_PROP			// Message ignoré par la propulsion
+
+#endif
+
+#ifdef I_AM_CARTE_ACT			// Message ignoré par l'actionneur
+
+#endif
+
+#ifdef I_AM_CARTE_IHM			// Message ignoré par l'IHM
+
+#endif
+
+//-------------------------------- Message ignoré par tout le monde
+			case DEBUG_AVOIDANCE_POLY:
 
 			*string = '\0';
 			return 0;
@@ -110,11 +144,6 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len, verbose_m
 		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING         ", BEACON_ENABLE_PERIODIC_SENDING					);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING        ", BEACON_DISABLE_PERIODIC_SENDING				);	break;
 
-		case IHM_SWITCH_ALL:							print(string, len, "%x IHM_SWITCH_ALL						  ", IHM_SWITCH_ALL									);	break;
-		case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON							  ", IHM_BUTTON										);	break;
-		case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH							  ", IHM_SWITCH										);	break;
-		case IHM_POWER:									print(string, len, "%x IHM_POWER							  ", IHM_POWER										);	break;
-
 		case XBEE_START_MATCH:							print(string, len, "%x XBEE_START_MATCH                       ", XBEE_START_MATCH								);	break;
 		case XBEE_PING:									print(string, len, "%x XBEE_PING                              ", XBEE_PING										);	break;
 		case XBEE_PONG:									print(string, len, "%x XBEE_PONG                              ", XBEE_PONG										);	break;
@@ -171,19 +200,7 @@ Uint16 VERBOSE_CAN_MSG_sprint(CAN_msg_t * msg, char * string, int len, verbose_m
 	return string - ret;
 }
 
-void VERBOSE_CAN_MSG_print(CAN_msg_t * msg, verbose_msg_type_e verbose_msg_type)
-{
-	char str[512];
-
-	if(VERBOSE_CAN_MSG_sprint(msg, str, 512, verbose_msg_type) > 511)
-	{
-		debug_printf("ATTENTION, LA GENERATION DU MESSAGE CAN SUIVANT A DEBORDE DANS LA PILE, C'EST CRADE...\n");
-	}
-
-	printf(str);
-}
-
-void print_ir_result(CAN_msg_t * msg, char ** string, int * len){
+static void print_ir_result(CAN_msg_t * msg, char ** string, int * len){
 	print(*string, *len, "\n_____Infos erreurs balise(s) infrarouge____\n");
 	print(*string, *len, "%d erreurs de type 0 : AUCUNE_ERREUR\n",msg->data[0]);
 	print(*string, *len, "%d erreurs de type 1 : ERREUR_PAS_DE_SYNCHRO\n",msg->data[1]);

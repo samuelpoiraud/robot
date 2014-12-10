@@ -11,10 +11,10 @@
 
 #define BUFFER_C
 #include "Buffer.h"
-#include "Verbose_can_msg.h"
 
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_can_over_uart.h"
+#include "../QS/QS_can_verbose.h"
 
 
 typedef struct			//définition de la structure qui sera stockée dans le buffer circulaire
@@ -98,6 +98,6 @@ void BUFFER_flush()
 	{
 		debug_printf("t=%.2d.%03ds ",buffer.tab[index].temps/500, ((buffer.tab[index].temps)%500)*2);
 		pmsg = &(buffer.tab[index].message);
-		VERBOSE_CAN_MSG_print(pmsg, VERB_LOG_MSG);
+		QS_CAN_VERBOSE_can_msg_print(pmsg, VERB_LOG_MSG);
 	}
 }

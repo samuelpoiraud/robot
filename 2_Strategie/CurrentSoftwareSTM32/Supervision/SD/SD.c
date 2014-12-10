@@ -7,7 +7,7 @@
 #include "../../QS/QS_uart.h"
 #include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_IHM.h"
-#include "../Verbose_can_msg.h"
+#include "../../QS/QS_can_verbose.h"
 #include "ff_test_term.h"
 #include "Libraries/fat_sd/ff.h"
 #include "Libraries/fat_sd/diskio.h"
@@ -465,7 +465,7 @@ void SD_print_match(Uint16 nb_match){
 								if(read_byte != EOT)
 									debug_printf("Bad CAN_MSG format\n");
 								else
-									VERBOSE_CAN_MSG_print(&msg, VERB_LOG_MSG);
+									QS_CAN_VERBOSE_can_msg_print(&msg, VERB_LOG_MSG);
 								state = READ_TEXT;
 								break;
 							default:	//datas...

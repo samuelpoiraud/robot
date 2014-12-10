@@ -17,6 +17,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_sys.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_can_verbose.h"
 #include "it.h"
 #include "button.h"
 #include "switch.h"
@@ -35,7 +36,7 @@ void initialisation(void){
 	MAIN_global_var_init();	// Init variable globale
 
 	UART_init();
-	CAN_init();
+	CAN_process_init();
 	BUTTONS_init();
 	SWITCHS_init();
 	VOLTAGE_MEASURE_init();
@@ -59,6 +60,9 @@ int main (void){
 			// Réception et acquittement
 			msg = CAN_get_next_msg();
 			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
+			#ifdef CAN_VERBOSE_MODE
+				QS_CAN_VERBOSE_can_msg_print(&msg, VERB_INPUT_MSG);
+			#endif
 		}
 
 		if(t_ms > 20){	//Pour éviter les rebonds, au dessus de 20ms

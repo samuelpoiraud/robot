@@ -63,6 +63,8 @@
 
 	//#define VERBOSE_MSG_SEND_OVER_UART//Activation de la verbosité des messages CAN sur UART
 
+	#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
+
 	#define FDP_2014					//Define Temporaire pour l'ancien FDP
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
