@@ -49,48 +49,48 @@ void BUTTONS_update(){
 
 	// Gère tous les buttons qui envoient un message vers le monde extérieure
 	buttons_pressed = 0;
-#ifdef BUTTON_OK_PORT
-	buttons_pressed = (BUTTON_OK_PORT)? buttons_pressed|1 : buttons_pressed;
-#endif
-#ifdef BUTTON_UP_PORT
-	buttons_pressed = (BUTTON_UP_PORT)? buttons_pressed|(1<<1) : buttons_pressed;
-#endif
-#ifdef BUTTON_DOWN_PORT
-	buttons_pressed = (BUTTON_DOWN_PORT)? buttons_pressed|(1<<2) : buttons_pressed;
-#endif
-#ifdef BUTTON_SET_PORT
-	buttons_pressed = (BUTTON_SET_PORT)? buttons_pressed|(1<<3) : buttons_pressed;
-#endif
-#ifdef BUTTON_SELFTEST_PORT
-	buttons_pressed = (BUTTON_SELFTEST_PORT)? buttons_pressed|(1<<4) : buttons_pressed;
-#endif
-#ifdef BUTTON_CALIBRATION_PORT
-	buttons_pressed = (BUTTON_CALIBRATION_PORT)? buttons_pressed|(1<<5) : buttons_pressed;
-#endif
-#ifdef BUTTON_PRINTMATCH_PORT
-	buttons_pressed = (BUTTON_PRINTMATCH_PORT)? buttons_pressed|(1<<6) : buttons_pressed;
-#endif
-#ifdef BUTTON_RFU_PORT
-	buttons_pressed = (BUTTON_RFU_PORT)? buttons_pressed|(1<<7) : buttons_pressed;
-#endif
-#ifdef BUTTON0_PORT
-	buttons_pressed = (BUTTON0_PORT)? buttons_pressed|(1<<8) : buttons_pressed;
-#endif
-#ifdef BUTTON1_PORT
-	buttons_pressed = (BUTTON1_PORT)? buttons_pressed|(1<<9) : buttons_pressed;
-#endif
-#ifdef BUTTON2_PORT
-	buttons_pressed = (BUTTON2_PORT)? buttons_pressed|(1<<10) : buttons_pressed;
-#endif
-#ifdef BUTTON3_PORT
-	buttons_pressed = (BUTTON3_PORT)? buttons_pressed|(1<<11) : buttons_pressed;
-#endif
-#ifdef BUTTON4_PORT
-	buttons_pressed = (BUTTON4_PORT)? buttons_pressed|(1<<12) : buttons_pressed;
-#endif
-#ifdef BUTTON5_PORT
-	buttons_pressed = (BUTTON5_PORT)? buttons_pressed|(1<<13) : buttons_pressed;
-#endif
+	#ifdef BUTTON_OK_PORT
+		buttons_pressed |= (BUTTON_OK_PORT)? 			1 						: 0;
+	#endif
+	#ifdef BUTTON_UP_PORT
+		buttons_pressed |= (BUTTON_UP_PORT)? 			(1<<BP_UP_IHM) 			: 0;
+	#endif
+	#ifdef BUTTON_DOWN_PORT
+		buttons_pressed |= (BUTTON_DOWN_PORT)?			(1<<BP_DOWN_IHM) 		: 0;
+	#endif
+	#ifdef BUTTON_SET_PORT
+		buttons_pressed |= (BUTTON_SET_PORT)? 			(1<<BP_SET_IHM)			: 0;
+	#endif
+	#ifdef BUTTON_SELFTEST_PORT
+		buttons_pressed |= (BUTTON_SELFTEST_PORT)? 		(1<<BP_SELFTEST_IHM)	: 0;
+	#endif
+	#ifdef BUTTON_CALIBRATION_PORT
+		buttons_pressed |= (BUTTON_CALIBRATION_PORT)? 	(1<<BP_CALIBRATION_IHM) : 0;
+	#endif
+	#ifdef BUTTON_PRINTMATCH_PORT
+		buttons_pressed |= (BUTTON_PRINTMATCH_PORT)? 	(1<<BP_PRINTMATCH_IHM) 	: 0;
+	#endif
+	#ifdef BUTTON_RFU_PORT
+		buttons_pressed |= (BUTTON_RFU_PORT)? 			(1<<BP_RFU_IHM) 		: 0;
+	#endif
+	#ifdef BUTTON0_PORT
+		buttons_pressed |= (BUTTON0_PORT)? 				(1<<BP_0_IHM) 			: 0;
+	#endif
+	#ifdef BUTTON1_PORT
+		buttons_pressed |= (BUTTON1_PORT)? 				(1<<BP_1_IHM) 			: 0;
+	#endif
+	#ifdef BUTTON2_PORT
+		buttons_pressed |= (BUTTON2_PORT)? 				(1<<BP_2_IHM) 			: 0;
+	#endif
+	#ifdef BUTTON3_PORT
+		buttons_pressed |= (BUTTON3_PORT)? 				(1<<BP_3_IHM) 			: 0;
+	#endif
+	#ifdef BUTTON4_PORT
+		buttons_pressed |= (BUTTON4_PORT)? 				(1<<BP_4_IHM) 			: 0;
+	#endif
+	#ifdef BUTTON5_PORT
+		buttons_pressed |= (BUTTON5_PORT)? 				(1<<BP_5_IHM) 			: 0;
+	#endif
 
 
 	//détection des fronts montant

@@ -16,7 +16,7 @@
 #include "QS/QS_IHM.h"
 
 void LEDS_init();
-void LEDS_process_it(void);
+void LEDS_process_it(Uint8 ms);
 void LEDS_get_msg(CAN_msg_t *msg);
 
 #endif /* ndef LED_H */

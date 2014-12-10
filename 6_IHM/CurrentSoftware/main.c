@@ -24,7 +24,7 @@
 #include "voltage_measure.h"
 #include "Can_msg_processing.h"
 
-volatile Uint8 t_10ms = 0;
+volatile Uint8 t_ms = 0;
 
 static void MAIN_global_var_init();
 
@@ -61,19 +61,20 @@ int main (void){
 			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
 		}
 
-		if(t_10ms > 2){	//Pour éviter les rebonds, au dessus de 20ms
-			t_10ms = 0;
+		if(t_ms > 20){	//Pour éviter les rebonds, au dessus de 20ms
+			t_ms = 0;
 			BUTTONS_update();			//Gestion des boutons
 			SWITCHS_update();			//Surveillance des switchs
 		}
+		VOLTAGE_MEASURE_process_main();	//Surveillance des tensions
 	}
 
 	return 0;
 }
 
 
-void MAIN_process_it(Uint8 tp_10ms){
-	t_10ms += tp_10ms;
+void MAIN_process_it(Uint8 ms){
+	t_ms += ms;
 }
 
 static void MAIN_global_var_init(){
