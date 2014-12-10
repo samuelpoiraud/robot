@@ -34,7 +34,7 @@ void IT_init(void){
 //Sur interruption timer 1...
 void _ISR _T1Interrupt(){
 	static Uint8 t_ms = 0;
-	TIMER2_AckIT(); /* interruption traitée */
+	TIMER1_AckIT(); /* interruption traitée */
 	global.absolute_time++;	//[ms]
 	t_ms++;					//[ms]
 	if(t_ms >= IT_TIME)	//Toutes les 10ms.
