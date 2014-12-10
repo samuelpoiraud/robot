@@ -13,10 +13,10 @@
 #include "QS/QS_ports.h"
 
 #define LED_ID 0b00011111
-#define TIME_BLINK_OFF 0
-#define TIME_BLINK_1HZ 100
-#define TIME_BLINK_4HZ 25
-#define TIME_BLINK_10MS 10
+#define TIME_BLINK_OFF 	0
+#define TIME_BLINK_1HZ 	1000
+#define TIME_BLINK_4HZ 	250
+#define TIME_BLINK_10MS 100
 
 //Le poids faible : état de la led GREEN
 //Le poids moyen : état de la led RED
@@ -28,14 +28,14 @@
 
 typedef struct{
 	blinkLED_ihm_e blink; // Temps de clignotement *10 en ms. Si 50, va clignoter toutes les 500ms
-	Uint8 counter;
+	Uint16 counter;
 	bool_e stateUp;
 }LED_t;
 
 static LED_t leds[LED_NUMBER_IHM];
 
 void set_LED(led_ihm_e led, bool_e stateUP);
-Uint8 get_blink_state(blinkLED_ihm_e blink);
+Uint16 get_blink_state(blinkLED_ihm_e blink);
 void set_COLOR(led_color_e led_color);
 
 void LEDS_init(){
@@ -114,7 +114,7 @@ void set_LED(led_ihm_e led, bool_e stateUP){
 	}
 }
 
-void LEDS_process_it(void){
+void LEDS_process_it(Uint8 ms){
 	Uint8 i; // Compteur pour la fréquence
 
 	for(i=0;i<LED_NUMBER_IHM;i++){
@@ -122,14 +122,18 @@ void LEDS_process_it(void){
 			continue;
 
 		// Led active
-		if(leds[i].blink != ON){ // Clignotement
+		if(leds[i].blink != ON){ // Different de OFF et different de ON => Forcement l'un des modes de clignotement
+			//Ecoulement du temps.
+			if(leds[i].counter > ms)
+				leds[i].counter-= ms;
+			else
+				leds[i].counter = 0;
+
 			if(leds[i].counter == 0){
 				leds[i].counter = get_blink_state(leds[i].blink);
 				leds[i].stateUp = !leds[i].stateUp;
 				set_LED(i, leds[i].stateUp);
 			}
-
-			leds[i].counter--;
 		}
 	}
 }
@@ -153,8 +157,8 @@ void LEDS_get_msg(CAN_msg_t *msg){
 	}
 }
 
-Uint8 get_blink_state(blinkLED_ihm_e blink){
-	Uint8 value;
+Uint16 get_blink_state(blinkLED_ihm_e blink){
+	Uint16 value;
 
 	switch(blink){
 		case OFF:

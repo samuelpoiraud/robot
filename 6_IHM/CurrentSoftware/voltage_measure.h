@@ -19,6 +19,7 @@
 #define ADC_24_PERMANENCE	ADC_10
 
 void VOLTAGE_MEASURE_init();
+void VOLTAGE_MEASURE_process_main(void);
 void VOLTAGE_MEASURE_process_it(Uint8 ms);
 Uint16 VOLTAGE_MEASURE_measure24_mV(adc_id_e id);
 
