@@ -50,7 +50,7 @@ void BUTTONS_update(){
 	// Gère tous les buttons qui envoient un message vers le monde extérieure
 	buttons_pressed = 0;
 	#ifdef BUTTON_OK_PORT
-		buttons_pressed |= (BUTTON_OK_PORT)? 			1 						: 0;
+		buttons_pressed |= (BUTTON_OK_PORT)? 			(1<<BP_OK_IHM)			: 0;
 	#endif
 	#ifdef BUTTON_UP_PORT
 		buttons_pressed |= (BUTTON_UP_PORT)? 			(1<<BP_UP_IHM) 			: 0;
