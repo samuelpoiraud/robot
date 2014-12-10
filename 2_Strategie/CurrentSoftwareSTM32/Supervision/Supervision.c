@@ -149,7 +149,7 @@ void Supervision_process_main(void)
 
 	SD_process_main();
 
-	//BUZZER_process_main();
+	BUZZER_process_main();
 }
 
 

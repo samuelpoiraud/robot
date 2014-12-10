@@ -12,8 +12,10 @@
 
 #include "QS_can_verbose.h"
 #include "QS_outputlog.h"
+#include "QS_IHM.h"
 
 static void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
+static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len);
 static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int len, QS_VERBOSE_msg_type_e verbose_msg_type);
 
 #define	u32(x1,x2,x3,x4)		(U32FROMU8(msg->data[x1], msg->data[x2], msg->data[x3], msg->data[x4]))
@@ -204,6 +206,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_WARN_Y:						if(u8(0)) print(string, len, "| avertisseur en y=%d\n", u16(0,1));                                  else print(string, len, "désactivation de l'avertisseur en Y\n");		break;
 		case DEBUG_PROP_MOVE_POSITION:			print(string, len, "| offset d'aleration x : %d    y : %d    teta : %d\n", u16(0,1), u16(2,3), u16(4,5));	break;
 
+		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
+		case IHM_SWITCH:						print_ihm_result(msg, &string, &len);			break;
+		case IHM_GET_SWITCH:					print_ihm_result(msg, &string, &len);			break;
+
 		default:								print(string, len, "|\n");												break;
 	}
 	return string - ret;
@@ -218,4 +224,56 @@ static void print_ir_result(CAN_msg_t * msg, char ** string, int * len){
 	print(*string, *len, "%d erreurs de type 4 : ERREUR_TROP_PROCHE\n",msg->data[4]);
 	print(*string, *len, "%d erreurs de type 5 : ERREUR_TROP_LOIN\n",msg->data[5]);
 	print(*string, *len, "%d erreurs de type 6 : ERROR_OBSOLESCENCE\n",msg->data[6]);
+}
+
+static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
+	switch (msg->sid) {
+		case IHM_BUTTON:
+			switch(msg->data[0]){
+				case BP_SELFTEST_IHM:		print(*string, *len, "bp_selftest, %s\n",(msg->data[1])?"long push" : "direct push");			break;
+				case BP_CALIBRATION_IHM:	print(*string, *len, "bp_calibration, %s\n",(msg->data[1])?"long push" : "direct push");		break;
+				case BP_PRINTMATCH_IHM:		print(*string, *len, "bp_print_match, %s\n",(msg->data[1])?"long push" : "direct push");		break;
+				case BP_OK_IHM:				print(*string, *len, "bp_ok, %s\n",(msg->data[1])?"long push" : "direct push");					break;
+				case BP_UP_IHM:				print(*string, *len, "bp_up, %s\n",(msg->data[1])?"long push" : "direct push");					break;
+				case BP_DOWN_IHM:			print(*string, *len, "bp_down, %s\n",(msg->data[1])?"long push" : "direct push");				break;
+				case BP_SET_IHM:			print(*string, *len, "bp_set, %s\n",(msg->data[1])?"long push" : "direct push");				break;
+				case BP_RFU_IHM	:			print(*string, *len, "bp_rfu, %s\n",(msg->data[1])?"long push" : "direct push");				break;
+				default:					print(*string, *len, "Button %d active, %s\n",(msg->data[0])-8,(msg->data[1])?"long push" : "direct push");
+			}
+			break;
+		case IHM_SWITCH:{
+			Uint8 i;
+			for(i = 0; i < msg->size; i++)
+				switch ((msg->data[i]) & IHM_SWITCH_MASK) {
+					case BIROUTE_IHM:			print(*string, *len, "sw_biroute = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");					break;
+					case SWITCH_COLOR_IHM:		print(*string, *len, "sw_color = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");						break;
+					case SWITCH_LCD_IHM:		print(*string, *len, "sw_lcd = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");						break;
+					default:					print(*string, *len, "SWITCH %d = %s\n",(msg->data[i])-3,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");	// -3 car biroute, color, lcd avant
+				}
+
+		}break;
+		case IHM_GET_SWITCH:{
+			Uint8 i;
+			for(i = 0; i < msg->size; i++)
+				switch (msg->data[i]) {
+					case BIROUTE_IHM:			print(*string, *len, "sw_biroute\n");					break;
+					case SWITCH_COLOR_IHM:		print(*string, *len, "sw_color\n");						break;
+					case SWITCH_LCD_IHM:		print(*string, *len, "sw_lcd\n");						break;
+					default:					print(*string, *len, "SWITCH %d\n",i-3);	// -3 car biroute, color, lcd avant
+				}
+
+		}break;
+		case IHM_POWER:
+			switch(msg->data[0]){
+				case BATTERY_OFF:				print(*string, *len, "BATTERY_OFF\n");					break;
+				case BATTERY_LOW:				print(*string, *len, "BATTERY_LOW\n");					break;
+				case ARU_ENABLE:				print(*string, *len, "ARU_ENABLE\n");					break;
+				case ARU_DISABLE:				print(*string, *len, "ARU_DISABLE\n");					break;
+				case HOKUYO_POWER_FAIL:			print(*string, *len, "HOKUYO_POWER_FAIL\n");			break;
+				default:																				break;
+			}
+			break;
+		default:
+			break;
+	}
 }

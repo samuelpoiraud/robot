@@ -15,9 +15,6 @@
 #include "QS/QS_can_verbose.h"
 #include "../stm32f4xx/stm32f4xx_gpio.h"
 
-#define LOG_PREFIX "CANProcess: "
-#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CANPROCESSMSG
-#include "QS/QS_outputlog.h"
 #include "switch.h"
 #include "led.h"
 
@@ -43,7 +40,6 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				SWITCHS_answer(msg);
 			break;
 		case IHM_SET_LED:
-			debug_printf("Msg IHM_SET_LED:\n");
 			LEDS_get_msg(msg);
 			break;
 
@@ -52,7 +48,6 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		default:
-			debug_printf("Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
 			break;
 	}//End switch
 }
