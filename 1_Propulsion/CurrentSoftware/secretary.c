@@ -20,6 +20,10 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_adc.h"
+#include "QS/QS_maths.h"
+#include "QS/QS_ports.h"
+#include "QS/QS_IHM.h"
+#include "QS/QS_can_verbose.h"
 #include "pilot.h"
 #include "warner.h"
 #include "corrector.h"
@@ -36,29 +40,37 @@
 #include "gyroscope.h"
 #include "hokuyo.h"
 #include "avoidance.h"
-#include "QS/QS_maths.h"
-#include "QS/QS_ports.h"
 #include "scan_cup.h"
-#include "QS/QS_IHM.h"
 
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
 
+static void SECRETARY_send_callback(CAN_msg_t * can_msg);
 static void SECRETARY_send_report();
+static bool_e SECRETARY_mailbox_get(Uint8 * index);
+static void SECRETARY_send_pong(void);
+static void SECRETARY_send_coef(PROPULSION_coef_e i);
+static void SECRETARY_send_all_coefs(void);
 
-void SECRETARY_process_CANmsg(CAN_msg_t * msg);
-void SECRETARY_mailbox_add(CAN_msg_t * msg);
 volatile static Uint8 index_read;
 volatile static Uint8 index_write;
 volatile static Uint8 index_nb;
+volatile bool_e selftest_validated = FALSE;
 
 CAN_msg_t mailbox[SECRETARY_MAILBOX_SIZE];  //Les messages CAN reçus dans le main sont ajouté à la mailbox et traités en IT...
 //Cela permet d'éviter les nombreux problèmes liés à la préemption (notamment liés au buffer d'ordres... dont les fonctions ne peuvent être réentraintes)
 
 
+
+
+//////////////////////////////////////////////////////////////////
+//-------------------FONCTION PRINCIPALE------------------------//
+//////////////////////////////////////////////////////////////////
+
 void SECRETARY_init(void)
 {
 	CAN_init();
+	CAN_set_send_callback(SECRETARY_send_callback);
 	index_read = 0;
 	index_write = 0;
 }
@@ -73,6 +85,9 @@ void SECRETARY_process_main(void)
 	{
 			received_msg = CAN_get_next_msg();
 			SECRETARY_mailbox_add(&received_msg);
+			#ifdef CAN_VERBOSE_MODE
+				QS_CAN_VERBOSE_can_msg_print(&received_msg, VERB_INPUT_MSG);
+			#endif
 	}
 
 	while(UART1_data_ready())
@@ -98,32 +113,6 @@ void SECRETARY_process_main(void)
 	}
 }
 
-
-void SECRETARY_mailbox_add(CAN_msg_t * msg) //Fonction appelée en tâche de fond uniquement !
-{
-	if(index_nb < SECRETARY_MAILBOX_SIZE)
-	{
-		mailbox[index_write] = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
-		TIMER2_disableInt();
-			index_nb++; //Il ne faut pas que la préemption ait lieu maintenant !
-		TIMER2_enableInt();
-		index_write = (index_write + 1) % SECRETARY_MAILBOX_SIZE;
-	}
-
-}
-
-bool_e SECRETARY_mailbox_get(Uint8 * index)	 //Fonction appelée en IT uniquement !
-{
-	if(index_nb >0)
-	{
-		*index = index_read;
-		index_read = (index_read + 1) % SECRETARY_MAILBOX_SIZE;
-		index_nb--;
-		return TRUE;	//Il y a un message à traiter.
-	}
-	return FALSE;	//Pas de message à traiter.
-}
-
 void SECRETARY_process_it(void)
 {
 	Uint8 index;
@@ -135,280 +124,12 @@ void SECRETARY_process_it(void)
 
 
 
-void SECRETARY_send_canmsg(CAN_msg_t * msg)
-{
 
-	Uint8 i;
-	for(i=msg->size;i<8;i++)
-		msg->data[i]=0xFF;		//On remplace les données hors size par des FF (notamment pour verbose et envoi sur uart)
+//////////////////////////////////////////////////////////////////
+//--------------------FONCTION RECEPTION------------------------//
+//////////////////////////////////////////////////////////////////
 
-	CAN_send(msg);
-
-	#ifdef CAN_SEND_OVER_UART
-		CANmsgToU1tx(msg);
-	#endif
-
-	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		bool_e add_pos_datas;
-		add_pos_datas = TRUE;	//On suppose qu'il faut ajouter les données de position.
-		switch(msg->sid)
-		{
-			case BROADCAST_POSITION_ROBOT:
-				debug_printf("Pos:");
-			break;
-			case STRAT_TRAJ_FINIE:
-				debug_printf("TrajFinie:");
-			break;
-			case STRAT_PROP_ERREUR:
-				debug_printf("Err:0x%x", msg->data[7]&0b111);
-			break;
-			case STRAT_ROBOT_FREINE:
-				debug_printf("Freine:");
-			break;
-						//case PROP_SELFTEST:
-						//break;
-						case PROP_ROBOT_CALIBRE:
-						break;
-			case STRAT_PROP_PONG:
-				debug_printf("Pong\n");
-				add_pos_datas = FALSE;
-				break;
-			case STRAT_PROP_SELFTEST_DONE:
-				debug_printf("Selftest done :\n");
-				for(i=0;i<msg->size;i++)
-				{
-					switch(msg->data[i])
-					{
-						case SELFTEST_NO_ERROR:																											break;
-						case SELFTEST_PROP_FAILED:			debug_printf(" | error %x SELFTEST_PROP_FAILED\n"			,SELFTEST_PROP_FAILED);			break;
-						case SELFTEST_PROP_HOKUYO_FAILED:	debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"	,SELFTEST_PROP_HOKUYO_FAILED);	break;
-						case SELFTEST_PROP_IN_SIMULATION_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_SIMULATION_MODE\n"	,SELFTEST_PROP_IN_SIMULATION_MODE); break;
-						case SELFTEST_PROP_IN_LCD_TOUCH_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_LCD_TOUCH_MODE\n"	,SELFTEST_PROP_IN_LCD_TOUCH_MODE); 	break;
-						default:							debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);				break;
-					}
-				}
-				add_pos_datas = FALSE;
-				break;
-			case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
-				debug_printf ("Trajectory_for_test_coef_done : %d", U16FROMU8(msg->data[0], msg->data[1]) );
-				add_pos_datas = FALSE;
-				break;
-			case BROADCAST_ADVERSARIES_POSITION:
-				//Nothing. affichage déjà géré dans la fonction appelante.
-				add_pos_datas = FALSE;
-				break;
-			case DEBUG_PROPULSION_COEF_IS:
-				add_pos_datas = FALSE;
-				break;
-			case STRAT_PROP_FOE_DETECTED:
-				debug_printf("FOE Detected !\n");
-				add_pos_datas = TRUE; // Permet de savoir ou est-ce que la détection à eu lieu sur le terrain
-				break;
-
-			case IHM_SWITCH_ALL:							print(string, len, "%x IHM_SWITCH_ALL						  ", IHM_SWITCH_ALL									);	break;
-			case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON							  ", IHM_BUTTON										);	break;
-			case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH							  ", IHM_SWITCH										);	break;
-			case IHM_POWER:									print(string, len, "%x IHM_POWER							  ", IHM_POWER										);	break;
-
-			default:
-				debug_printf("SID=%x ", msg->sid);
-			break;
-		}
-		if(add_pos_datas)
-			debug_printf(" x=%d y=%d t=%d\n", global.position.x, global.position.y, global.position.teta);
-	#endif
-}
-
-volatile bool_e selftest_validated = FALSE;
-
-bool_e SECRETARY_is_selftest_validated(void)
-{
-	return selftest_validated;
-}
-
-//si result == TRUE : le selftest s'est bien déroulé, sinon on remonte l'erreur à la stratégie.
-void SECRETARY_send_selftest_result(bool_e result)
-{
-	CAN_msg_t msg;
-	Uint8 i;
-	selftest_validated = result;
-	msg.sid = STRAT_PROP_SELFTEST_DONE;
-	msg.size = 8;
-	i = 0;
-	if(result == FALSE)
-		msg.data[i++] = SELFTEST_PROP_FAILED;
-	if(HOKUYO_is_working_well() == FALSE)
-		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED;
-
-	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
-		msg.data[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
-	#endif
-	#ifdef LCD_TOUCH
-		msg.data[i++] = SELFTEST_PROP_IN_LCD_TOUCH_MODE;
-	#endif
-
-	for(;i<8;i++)
-		msg.data[i] = SELFTEST_NO_ERROR;
-
-	SECRETARY_send_canmsg(&msg);
-}
-
-void SECRETARY_send_trajectory_for_test_coefs_finished(Uint16 duration)
-{
-	CAN_msg_t msg;
-	msg.sid = DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE;
-	msg.data[0] = HIGHINT(duration);
-	msg.data[1] = LOWINT(duration);
-	msg.size = 2;
-	SECRETARY_send_canmsg(&msg);
-}
-
-
-//x : mm, y : mm, teta : rad4096, distance : mm
-void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability)
-{
-	CAN_msg_t msg;
-//force pos adversaries
-	/*		0 : ADVERSARY_NUMBER	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
-	 * 		1 :  x [2cm]
-	 * 		2 :  y [2cm]
-	 * 		3-4 : teta
-	 * 		5 : distance [2cm]
-	 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
-	 */
-	msg.sid = BROADCAST_ADVERSARIES_POSITION;
-	msg.data[0] = adversary_number | ((it_is_the_last_adversary)?IT_IS_THE_LAST_ADVERSARY:0);	//n° de l'ADVERSARY  + bit de poids fort si c'est le dernier adversaire
-	msg.data[1] = x/20;	//X [2cm]
-	msg.data[2] = y/20;	//Y [2cm]
-	msg.data[3] = HIGHINT(teta);	//teta
-	msg.data[4] = LOWINT(teta);	//teta
-	msg.data[5] = distance/20;	//distance [2cm]
-	msg.data[6] = fiability;	//fiability : x et y fiables
-	msg.size = 7;
-	SECRETARY_send_canmsg(&msg);
-	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		//debug_printf("Adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
-	#endif
-}
-
-
-void SECRETARY_send_pong(void)
-{
-	CAN_msg_t msg;
-	msg.sid = STRAT_PROP_PONG;
-	msg.size = 1;
-	msg.data[0] = QS_WHO_AM_I_get();
-	SECRETARY_send_canmsg(&msg);
-}
-
-
-void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
-{
-	CAN_msg_t msg;
-	Uint8 error_byte;
-	Sint32 rot_speed;
-	Uint8 trajectory_status; //3 bits
-
-	trajectory_status = (global.vitesse_translation != 0) << 2 | (global.vitesse_rotation != 0) << 1;
-	error_byte = ((Uint8)(trajectory_status) << 5) | (Uint8)(COPILOT_get_way()) << 3 | (Uint8)(error_source & 0x07);
-
-	msg.sid = sid;
-	msg.data[0] = (HIGHINT(global.position.x) & 0x1F) | (((absolute(global.real_speed_translation)>>10)/5) << 5);	//Vitesse sur 3 bits forts, en [250mm/s]
-	msg.data[1] = LOWINT(global.position.x);
-	rot_speed = ((absolute(global.real_speed_rotation)>>10)*200)>>12;
-	if(rot_speed > 7)
-		rot_speed = 7;	//ecretage pour tenir sur 3 bits
-	msg.data[2] = (HIGHINT(global.position.y) & 0x1F) | ((Uint8)(rot_speed) << 5);	//Vitesse angulaire en radians
-	msg.data[3] = LOWINT(global.position.y);
-	msg.data[4] = HIGHINT(global.position.teta);
-	msg.data[5] = LOWINT(global.position.teta);
-	msg.data[6] = reason;
-	msg.data[7] = error_byte;	//Octet d'erreur... voir warner.c qui rempli cet octet d'erreur...
-			/*	Octet d'erreur :   0bTTTWWEEE
-								 TTT = trajectory_e
-								 WW  = way_e
-								 EEE = SUPERVISOR_error_source_e
-									*/
-	msg.size = 8;
-	SECRETARY_send_canmsg(&msg);
-}
-
-#ifdef LCD_TOUCH
-	void SECRETARY_send_friend_position(Sint16 x, Sint16 y)
-	{
-		CAN_msg_t msg;
-		msg.sid = STRAT_FRIEND_FORCE_POSITION;
-		msg.data[0] = x/2;
-		msg.data[1] = y/2;
-		msg.size = 2;
-		SECRETARY_send_canmsg(&msg);
-	}
-#endif
-
-
-void SECRETARY_send_coef(PROPULSION_coef_e i)
-{
-	const char * PROPULSION_coefs_strings[PROPULSION_NUMBER_COEFS] = {
-																		"ODOMETRY_COEF_TRANSLATION",
-																		"ODOMETRY_COEF_SYM",
-																		"ODOMETRY_COEF_ROTATION",
-																		"ODOMETRY_COEF_CENTRIFUGAL",
-																		"CORRECTOR_COEF_KP_TRANSLATION",
-																		"CORRECTOR_COEF_KD_TRANSLATION",
-																		"CORRECTOR_COEF_KV_TRANSLATION",
-																		"CORRECTOR_COEF_KA_TRANSLATION",
-																		"CORRECTOR_COEF_KP_ROTATION",
-																		"CORRECTOR_COEF_KD_ROTATION",
-																		"CORRECTOR_COEF_KV_ROTATION",
-																		"CORRECTOR_COEF_KA_ROTATION",
-																		"GYRO_COEF_GAIN"};
-
-	CAN_msg_t msg;
-	Sint32 coef;
-	if(i < PROPULSION_NUMBER_COEFS)
-	{
-		if(i <= ODOMETRY_COEF_CENTRIFUGAL)
-			coef = ODOMETRY_get_coef(i);
-		else
-			coef = CORRECTOR_get_coef(i);
-		msg.sid = DEBUG_PROPULSION_COEF_IS;
-		msg.data[0] = i;
-		msg.data[1] = (Uint8)((coef >> 24) & 0xFF);
-		msg.data[2] = (Uint8)((coef >> 16) & 0xFF);
-		msg.data[3] = (Uint8)((coef >> 8) & 0xFF);
-		msg.data[4] = (Uint8)((coef 	) & 0xFF);
-		msg.size = 5;
-		debug_printf("Coef %d:%s is %ld\n",i,PROPULSION_coefs_strings[i],coef);
-		SECRETARY_send_canmsg(&msg);
-	}
-	else
-	{
-		debug_printf("WARNING : Coef %d > PROPULSION_NUMBER_COEFS=%d !\n",i,PROPULSION_NUMBER_COEFS);
-	}
-}
-
-void SECRETARY_send_all_coefs(void)
-{
-	PROPULSION_coef_e i;
-	for(i=(PROPULSION_coef_e)(0);i<PROPULSION_NUMBER_COEFS;i++)
-		SECRETARY_send_coef(i);
-}
-
-void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout){
-	CAN_msg_t msg;
-		msg.sid = STRAT_PROP_FOE_DETECTED;
-		msg.size = 5;
-		msg.data[0] = HIGHINT(x);
-		msg.data[1] = LOWINT(x);
-		msg.data[2] = HIGHINT(y);
-		msg.data[3] = LOWINT(y);
-		msg.data[4] = timeout;
-	SECRETARY_send_canmsg(&msg);
-}
-
-
-/*
-types d'ordres
+/* types d'ordres
 
 PROP_GO_ANGLE
 PROP_GO_POSITION
@@ -462,9 +183,6 @@ PROP_GO_POSITION
 		case PROP_WARN_Y:				y
 
 */
-
-
-
 void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 {
 	way_e sens_marche;
@@ -751,6 +469,249 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 
 }
 
+
+
+
+//////////////////////////////////////////////////////////////////
+//---------------------FONCTION EMISSION------------------------//
+//////////////////////////////////////////////////////////////////
+
+void SECRETARY_send_canmsg(CAN_msg_t * msg)
+{
+
+	Uint8 i;
+	for(i=msg->size;i<8;i++)
+		msg->data[i]=0xFF;		//On remplace les données hors size par des FF (notamment pour verbose et envoi sur uart)
+
+	CAN_send(msg);
+
+	#ifdef CAN_SEND_OVER_UART
+		CANmsgToU1tx(msg);
+	#endif
+
+	#ifdef VERBOSE_MSG_SEND_OVER_UART
+		bool_e add_pos_datas;
+		add_pos_datas = TRUE;	//On suppose qu'il faut ajouter les données de position.
+		switch(msg->sid)
+		{
+			case BROADCAST_POSITION_ROBOT:
+				debug_printf("Pos:");
+			break;
+			case STRAT_TRAJ_FINIE:
+				debug_printf("TrajFinie:");
+			break;
+			case STRAT_PROP_ERREUR:
+				debug_printf("Err:0x%x", msg->data[7]&0b111);
+			break;
+			case STRAT_ROBOT_FREINE:
+				debug_printf("Freine:");
+			break;
+						//case PROP_SELFTEST:
+						//break;
+						case PROP_ROBOT_CALIBRE:
+						break;
+			case STRAT_PROP_PONG:
+				debug_printf("Pong\n");
+				add_pos_datas = FALSE;
+				break;
+			case STRAT_PROP_SELFTEST_DONE:
+				debug_printf("Selftest done :\n");
+				for(i=0;i<msg->size;i++)
+				{
+					switch(msg->data[i])
+					{
+						case SELFTEST_NO_ERROR:																											break;
+						case SELFTEST_PROP_FAILED:			debug_printf(" | error %x SELFTEST_PROP_FAILED\n"			,SELFTEST_PROP_FAILED);			break;
+						case SELFTEST_PROP_HOKUYO_FAILED:	debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"	,SELFTEST_PROP_HOKUYO_FAILED);	break;
+						case SELFTEST_PROP_IN_SIMULATION_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_SIMULATION_MODE\n"	,SELFTEST_PROP_IN_SIMULATION_MODE); break;
+						case SELFTEST_PROP_IN_LCD_TOUCH_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_LCD_TOUCH_MODE\n"	,SELFTEST_PROP_IN_LCD_TOUCH_MODE); 	break;
+						default:							debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);				break;
+					}
+				}
+				add_pos_datas = FALSE;
+				break;
+			case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
+				debug_printf ("Trajectory_for_test_coef_done : %d", U16FROMU8(msg->data[0], msg->data[1]) );
+				add_pos_datas = FALSE;
+				break;
+			case BROADCAST_ADVERSARIES_POSITION:
+				//Nothing. affichage déjà géré dans la fonction appelante.
+				add_pos_datas = FALSE;
+				break;
+			case DEBUG_PROPULSION_COEF_IS:
+				add_pos_datas = FALSE;
+				break;
+			case STRAT_PROP_FOE_DETECTED:
+				debug_printf("FOE Detected !\n");
+				add_pos_datas = TRUE; // Permet de savoir ou est-ce que la détection à eu lieu sur le terrain
+				break;
+
+			case IHM_SWITCH_ALL:							print(string, len, "%x IHM_SWITCH_ALL						  ", IHM_SWITCH_ALL									);	break;
+			case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON							  ", IHM_BUTTON										);	break;
+			case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH							  ", IHM_SWITCH										);	break;
+			case IHM_POWER:									print(string, len, "%x IHM_POWER							  ", IHM_POWER										);	break;
+
+			default:
+				debug_printf("SID=%x ", msg->sid);
+			break;
+		}
+		if(add_pos_datas)
+			debug_printf(" x=%d y=%d t=%d\n", global.position.x, global.position.y, global.position.teta);
+	#endif
+}
+
+bool_e SECRETARY_is_selftest_validated(void)
+{
+	return selftest_validated;
+}
+
+//si result == TRUE : le selftest s'est bien déroulé, sinon on remonte l'erreur à la stratégie.
+void SECRETARY_send_selftest_result(bool_e result)
+{
+	CAN_msg_t msg;
+	Uint8 i;
+	selftest_validated = result;
+	msg.sid = STRAT_PROP_SELFTEST_DONE;
+	msg.size = 8;
+	i = 0;
+	if(result == FALSE)
+		msg.data[i++] = SELFTEST_PROP_FAILED;
+	if(HOKUYO_is_working_well() == FALSE)
+		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED;
+
+	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
+		msg.data[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
+	#endif
+	#ifdef LCD_TOUCH
+		msg.data[i++] = SELFTEST_PROP_IN_LCD_TOUCH_MODE;
+	#endif
+
+	for(;i<8;i++)
+		msg.data[i] = SELFTEST_NO_ERROR;
+
+	SECRETARY_send_canmsg(&msg);
+}
+
+void SECRETARY_send_trajectory_for_test_coefs_finished(Uint16 duration)
+{
+	CAN_msg_t msg;
+	msg.sid = DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE;
+	msg.data[0] = HIGHINT(duration);
+	msg.data[1] = LOWINT(duration);
+	msg.size = 2;
+	SECRETARY_send_canmsg(&msg);
+}
+
+//x : mm, y : mm, teta : rad4096, distance : mm
+void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability)
+{
+	CAN_msg_t msg;
+//force pos adversaries
+	/*		0 : ADVERSARY_NUMBER	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
+	 * 		1 :  x [2cm]
+	 * 		2 :  y [2cm]
+	 * 		3-4 : teta
+	 * 		5 : distance [2cm]
+	 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
+	 */
+	msg.sid = BROADCAST_ADVERSARIES_POSITION;
+	msg.data[0] = adversary_number | ((it_is_the_last_adversary)?IT_IS_THE_LAST_ADVERSARY:0);	//n° de l'ADVERSARY  + bit de poids fort si c'est le dernier adversaire
+	msg.data[1] = x/20;	//X [2cm]
+	msg.data[2] = y/20;	//Y [2cm]
+	msg.data[3] = HIGHINT(teta);	//teta
+	msg.data[4] = LOWINT(teta);	//teta
+	msg.data[5] = distance/20;	//distance [2cm]
+	msg.data[6] = fiability;	//fiability : x et y fiables
+	msg.size = 7;
+	SECRETARY_send_canmsg(&msg);
+	#ifdef VERBOSE_MSG_SEND_OVER_UART
+		//debug_printf("Adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
+	#endif
+}
+
+
+void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
+{
+	CAN_msg_t msg;
+	Uint8 error_byte;
+	Sint32 rot_speed;
+	Uint8 trajectory_status; //3 bits
+
+	trajectory_status = (global.vitesse_translation != 0) << 2 | (global.vitesse_rotation != 0) << 1;
+	error_byte = ((Uint8)(trajectory_status) << 5) | (Uint8)(COPILOT_get_way()) << 3 | (Uint8)(error_source & 0x07);
+
+	msg.sid = sid;
+	msg.data[0] = (HIGHINT(global.position.x) & 0x1F) | (((absolute(global.real_speed_translation)>>10)/5) << 5);	//Vitesse sur 3 bits forts, en [250mm/s]
+	msg.data[1] = LOWINT(global.position.x);
+	rot_speed = ((absolute(global.real_speed_rotation)>>10)*200)>>12;
+	if(rot_speed > 7)
+		rot_speed = 7;	//ecretage pour tenir sur 3 bits
+	msg.data[2] = (HIGHINT(global.position.y) & 0x1F) | ((Uint8)(rot_speed) << 5);	//Vitesse angulaire en radians
+	msg.data[3] = LOWINT(global.position.y);
+	msg.data[4] = HIGHINT(global.position.teta);
+	msg.data[5] = LOWINT(global.position.teta);
+	msg.data[6] = reason;
+	msg.data[7] = error_byte;	//Octet d'erreur... voir warner.c qui rempli cet octet d'erreur...
+			/*	Octet d'erreur :   0bTTTWWEEE
+								 TTT = trajectory_e
+								 WW  = way_e
+								 EEE = SUPERVISOR_error_source_e
+									*/
+	msg.size = 8;
+	SECRETARY_send_canmsg(&msg);
+}
+
+#ifdef LCD_TOUCH
+	void SECRETARY_send_friend_position(Sint16 x, Sint16 y)
+	{
+		CAN_msg_t msg;
+		msg.sid = STRAT_FRIEND_FORCE_POSITION;
+		msg.data[0] = x/2;
+		msg.data[1] = y/2;
+		msg.size = 2;
+		SECRETARY_send_canmsg(&msg);
+	}
+#endif
+
+void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout){
+	CAN_msg_t msg;
+		msg.sid = STRAT_PROP_FOE_DETECTED;
+		msg.size = 5;
+		msg.data[0] = HIGHINT(x);
+		msg.data[1] = LOWINT(x);
+		msg.data[2] = HIGHINT(y);
+		msg.data[3] = LOWINT(y);
+		msg.data[4] = timeout;
+	SECRETARY_send_canmsg(&msg);
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////
+//----------------------FONCTION AUTRE--------------------------//
+//////////////////////////////////////////////////////////////////
+
+void SECRETARY_mailbox_add(CAN_msg_t * msg) //Fonction appelée en tâche de fond uniquement !
+{
+	if(index_nb < SECRETARY_MAILBOX_SIZE)
+	{
+		mailbox[index_write] = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
+		TIMER2_disableInt();
+			index_nb++; //Il ne faut pas que la préemption ait lieu maintenant !
+		TIMER2_enableInt();
+		index_write = (index_write + 1) % SECRETARY_MAILBOX_SIZE;
+	}
+
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////
+//----------------------FONCTION INTERNE------------------------//
+//////////////////////////////////////////////////////////////////
+
 static void SECRETARY_send_report(){
 	CAN_msg_t msg;
 	msg.sid = STRAT_SEND_REPORT;
@@ -762,4 +723,80 @@ static void SECRETARY_send_report(){
 	msg.data[4] = HIGHINT(ODOMETRY_get_total_dist() >> 1);
 	msg.data[5] = LOWINT(ODOMETRY_get_total_dist() >> 1);
 	CAN_send(&msg);
+}
+
+static void SECRETARY_send_callback(CAN_msg_t * can_msg){
+	UNUSED_VAR(can_msg);
+#ifdef CAN_VERBOSE_MODE
+	QS_CAN_VERBOSE_can_msg_print(can_msg, VERB_OUTPUT_MSG);
+#endif
+}
+
+static bool_e SECRETARY_mailbox_get(Uint8 * index)	 //Fonction appelée en IT uniquement !
+{
+	if(index_nb >0)
+	{
+		*index = index_read;
+		index_read = (index_read + 1) % SECRETARY_MAILBOX_SIZE;
+		index_nb--;
+		return TRUE;	//Il y a un message à traiter.
+	}
+	return FALSE;	//Pas de message à traiter.
+}
+
+static void SECRETARY_send_pong(void)
+{
+	CAN_msg_t msg;
+	msg.sid = STRAT_PROP_PONG;
+	msg.size = 1;
+	msg.data[0] = QS_WHO_AM_I_get();
+	SECRETARY_send_canmsg(&msg);
+}
+
+static void SECRETARY_send_coef(PROPULSION_coef_e i)
+{
+	const char * PROPULSION_coefs_strings[PROPULSION_NUMBER_COEFS] = {
+																		"ODOMETRY_COEF_TRANSLATION",
+																		"ODOMETRY_COEF_SYM",
+																		"ODOMETRY_COEF_ROTATION",
+																		"ODOMETRY_COEF_CENTRIFUGAL",
+																		"CORRECTOR_COEF_KP_TRANSLATION",
+																		"CORRECTOR_COEF_KD_TRANSLATION",
+																		"CORRECTOR_COEF_KV_TRANSLATION",
+																		"CORRECTOR_COEF_KA_TRANSLATION",
+																		"CORRECTOR_COEF_KP_ROTATION",
+																		"CORRECTOR_COEF_KD_ROTATION",
+																		"CORRECTOR_COEF_KV_ROTATION",
+																		"CORRECTOR_COEF_KA_ROTATION",
+																		"GYRO_COEF_GAIN"};
+
+	CAN_msg_t msg;
+	Sint32 coef;
+	if(i < PROPULSION_NUMBER_COEFS)
+	{
+		if(i <= ODOMETRY_COEF_CENTRIFUGAL)
+			coef = ODOMETRY_get_coef(i);
+		else
+			coef = CORRECTOR_get_coef(i);
+		msg.sid = DEBUG_PROPULSION_COEF_IS;
+		msg.data[0] = i;
+		msg.data[1] = (Uint8)((coef >> 24) & 0xFF);
+		msg.data[2] = (Uint8)((coef >> 16) & 0xFF);
+		msg.data[3] = (Uint8)((coef >> 8) & 0xFF);
+		msg.data[4] = (Uint8)((coef 	) & 0xFF);
+		msg.size = 5;
+		debug_printf("Coef %d:%s is %ld\n",i,PROPULSION_coefs_strings[i],coef);
+		SECRETARY_send_canmsg(&msg);
+	}
+	else
+	{
+		debug_printf("WARNING : Coef %d > PROPULSION_NUMBER_COEFS=%d !\n",i,PROPULSION_NUMBER_COEFS);
+	}
+}
+
+static void SECRETARY_send_all_coefs(void)
+{
+	PROPULSION_coef_e i;
+	for(i=(PROPULSION_coef_e)(0);i<PROPULSION_NUMBER_COEFS;i++)
+		SECRETARY_send_coef(i);
 }

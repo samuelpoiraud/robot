@@ -25,6 +25,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_ax12.h"
 #include "QS/QS_CapteurCouleurCW.h"
+#include "QS/QS_can_verbose.h"
 #include "terminal/term_io.h"
 #include "queue.h"
 #include "clock.h"
@@ -61,7 +62,7 @@ int main (void)
 	GPIO_SetBits(LED_CAN);
 
 	// Initialisation des périphériques
-	CAN_init();
+	CAN_process_init();
 	UART_init();
 	TIMER_init();
 	CLOCK_init();
@@ -134,6 +135,9 @@ int main (void)
 			toggle_led(LED_CAN);
 			msg = CAN_get_next_msg();
 			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
+			#ifdef CAN_VERBOSE_MODE
+				QS_CAN_VERBOSE_can_msg_print(&msg, VERB_INPUT_MSG);
+			#endif
 		}
 
 		#ifdef USE_UART

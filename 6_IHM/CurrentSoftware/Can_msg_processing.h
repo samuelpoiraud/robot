@@ -12,6 +12,8 @@
 	#define CAN_MSG_PROCESSING_H
 	#include "QS/QS_all.h"
 
+	void CAN_process_init();
+
 	//Traite les messages CAN reçus
 	void CAN_process_msg(CAN_msg_t* msg_to_process);
 

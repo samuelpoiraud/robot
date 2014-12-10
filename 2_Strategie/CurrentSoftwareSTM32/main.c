@@ -33,7 +33,6 @@
 	#endif
 #include "QS/QS_IHM.h"
 #include "act_avoidance.h"
-#include "Supervision/Verbose_can_msg.h"
 
 
 void test_bp_switchs(void);

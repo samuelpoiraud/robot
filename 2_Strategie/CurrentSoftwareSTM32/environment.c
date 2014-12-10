@@ -19,7 +19,6 @@
 #include "Supervision/RTC.h"
 #include "Supervision/Selftest.h"
 #include "Supervision/Supervision.h"
-#include "Supervision/Verbose_can_msg.h"
 #include "Supervision/Buzzer.h"
 #include "QS/QS_can_over_uart.h"
 #include "QS/QS_can_over_xbee.h"
@@ -30,6 +29,7 @@
 #include "QS/QS_adc.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_maths.h"
+#include "QS/QS_can_verbose.h"
 #include "button.h"
 #include "elements.h"
 #include "QS/QS_IHM.h"
@@ -187,7 +187,7 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 		if(IHM_switchs_get(SWITCH_DEBUG) && bU1)
 		{
 			if(IHM_switchs_get(SWITCH_VERBOSE))
-				VERBOSE_CAN_MSG_print(incoming_msg, VERB_INPUT_MSG);
+				QS_CAN_VERBOSE_can_msg_print(incoming_msg, VERB_INPUT_MSG);
 			else
 			{
 				#ifndef MODE_SIMULATION	//Pour ne pas spammer l'UART en mode simulation... On ne doit y voir que les messages CAN réellement envoyés.
@@ -219,9 +219,9 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 	//UART1
 	if(IHM_switchs_get(SWITCH_DEBUG))
 	{
-		if(IHM_switchs_get(SWITCH_VERBOSE))
-			VERBOSE_CAN_MSG_print(sent_msg, VERB_OUTPUT_MSG);
-		else
+		if(IHM_switchs_get(SWITCH_VERBOSE)){
+			QS_CAN_VERBOSE_can_msg_print(sent_msg, VERB_OUTPUT_MSG);
+		}else
 			CANmsgToU1tx(sent_msg);
 	}
 

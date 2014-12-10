@@ -17,6 +17,8 @@
 
 #define VERBOSE_MODE			//Activation du verbose
 
+#define CAN_VERBOSE_MODE		//Activation de la verbosité des messages CAN
+
 
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//
