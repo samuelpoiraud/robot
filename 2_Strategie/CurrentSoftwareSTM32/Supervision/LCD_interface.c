@@ -168,22 +168,44 @@ void LCD_refresh_lines(void){
 
 
 
-
+/*
+ * Envoit la demande de mise à jour des leds à la carte IHM... SEULEMENT s'il y a un changement sur l'une des leds... (ou en cas d'initialisation)
+ */
 void IHM_LEDS(bool_e led_set, bool_e led_down, bool_e led_up, bool_e led_ok){
-#ifdef FDP_2014
-	GPIO_WriteBit(LED_IHM_SET, led_set);
-	GPIO_WriteBit(LED_IHM_DOWN, led_down);
-	GPIO_WriteBit(LED_IHM_UP, led_up);
-	GPIO_WriteBit(LED_IHM_OK, led_ok);
-#else
-	static time32_t timePrec = 0;
-
-	if(global.env.absolute_time - timePrec > 100 && (!global.env.match_started || global.env.match_over)){ // Si > 100ms et si match pas commence ou fini
-		IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
-
-		timePrec = global.env.absolute_time;
+	static bool_e previous_led_set = FALSE;
+	static bool_e previous_led_down = FALSE;
+	static bool_e previous_led_up = FALSE;
+	static bool_e previous_led_ok = FALSE;
+	static bool_e initialized = FALSE;
+	bool_e send_to_ihm = FALSE;
+	if(!initialized)
+	{
+		initialized = TRUE;
+		send_to_ihm = TRUE;
 	}
-#endif
+	if(	led_set 	!= previous_led_set 	||
+		led_down	!= previous_led_down 	||
+		led_up 		!= previous_led_up 		||
+		led_ok 		!= previous_led_ok			)
+	{
+		send_to_ihm = TRUE;
+	}
+
+	if(send_to_ihm)
+	{
+		#ifdef FDP_2014
+			GPIO_WriteBit(LED_IHM_SET, led_set);
+			GPIO_WriteBit(LED_IHM_DOWN, led_down);
+			GPIO_WriteBit(LED_IHM_UP, led_up);
+			GPIO_WriteBit(LED_IHM_OK, led_ok);
+		#else
+			IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
+		#endif
+		previous_led_set 	= led_set;
+		previous_led_down 	= led_down;
+		previous_led_up 	= led_up;
+		previous_led_ok 	= led_ok;
+	}
 }
 
 
