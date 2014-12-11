@@ -39,9 +39,8 @@ void IHM_init(){
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
 		switchs[i] = 0;
 
-	for(i=0;i<BP_NUMBER_IHM;i++){
+	for(i=0;i<BP_NUMBER_IHM;i++)
 		IHM_define_act_button((button_ihm_e)i,NULL,NULL);
-	}
 }
 
 void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
@@ -70,8 +69,8 @@ void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 void switchs_update(CAN_msg_t * msg){
 	Uint8 i;
 
-	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
-		switchs[msg->data[i] & IHM_SWITCH_MASK] = (msg->data[i] & IHM_SWITCH_ON)?TRUE:FALSE;
+	for(i=0; i<msg->size; i++)
+		switchs[msg->data[i] & IHM_SWITCH_MASK] = (msg->data[i] >> 7) & 1;
 }
 
 void switchs_update_all(CAN_msg_t * msg){
