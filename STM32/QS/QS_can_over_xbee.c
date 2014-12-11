@@ -18,6 +18,7 @@
 #include "QS_uart.h"
 #include "QS_CANmsgList.h"
 #include "QS_outputlog.h"
+#include "QS_ports.h"
 
 
 #define XBEE_PING_PERIOD	500	//ms
@@ -394,16 +395,22 @@ bool_e XBeeToCANmsg (CAN_msg_t* dest)
 					l'adresse network est décidée par le coordinateur, donc variable. 0xFFFE permet d'indiquer qu'on ne la connait pas (le module déterminera tout seul cette adresse !)
 */
 
-#define SEND(x)	XBee_putc(x); cs+=x
-#include "../Supervision/SD/SD.h"
+
+	#define SEND(x)	XBee_putc(x); cs+=x
+
+#ifdef SD_ENABLE
+	#include "../Supervision/SD/SD.h"
+#endif
 
 void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 {
 	Uint8 cs;
 	Uint8 i;
 
+#ifdef SD_ENABLE
 	if(src->sid != XBEE_PING)
 		SD_new_event(TO_XBEE_DESTINATION,src,NULL,TRUE);
+#endif
 
 	if(!XBee_ready_to_talk)
 		return;
