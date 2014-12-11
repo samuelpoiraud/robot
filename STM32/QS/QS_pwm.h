@@ -66,6 +66,12 @@
 	void PWM_set_frequency(Uint32 freq);
 
 
+	/**
+	 * Retourne la valeur du rapport cyclique de la PWM donné
+	 * @param channel numéro de la PWM
+	 */
+	Uint8 PWM_get_duty(Uint8 channel);
+
 	#define PWM_FINE_DUTY 25000
 #if PWM_FREQ <= (TIM_CLK2_FREQUENCY_HZ / PWM_FINE_DUTY)
 	/**
