@@ -125,11 +125,12 @@ void SWITCHS_send_msg(switch_ihm_e switch_id){
 	msg.size = 1;
 	msg.sid = IHM_SWITCH;
 	msg.data[0] = (((Uint8)(SWITCHS_get(switch_id))<< 7) | ((Uint8)switch_id & SWITCH_ID));
+
 	CAN_send(&msg);
 }
 
 bool_e SWITCHS_get(switch_ihm_e switch_id){
-	return switchs & (1<<switch_id);
+	return (switchs>>switch_id) & 1;
 }
 
 void SWITCHS_answer(CAN_msg_t *send){
