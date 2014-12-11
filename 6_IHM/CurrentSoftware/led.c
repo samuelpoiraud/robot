@@ -52,6 +52,8 @@ void LEDS_init(){
 		leds[i].blink = OFF;
 	}
 
+	set_COLOR(LED_COLOR_BLACK);
+
 	initialized = TRUE;
 }
 

@@ -39,6 +39,7 @@ void initialisation(void){
 	CAN_process_init();
 	BUTTONS_init();
 	SWITCHS_init();
+	LEDS_init();
 	VOLTAGE_MEASURE_init();
 	IT_init();
 }

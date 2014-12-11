@@ -177,7 +177,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 	switch(msg->sid)
 	{
 		case BROADCAST_ALIM:				    print(string, len, "| état : %s\n", (u8(0))?"ALIM_ON":"ALIM_OFF");		break;
-		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"JAUNE":"ROUGE"	);		break;
+		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"VERT":"JAUNE"	);		break;
 		case BROADCAST_POSITION_ROBOT :			print(string, len, "| JeSuisEn  x=%4d y=%4d t=0x%8x=%3d° Vt=%4dmm/s Vr=%2drd/s reas=0x%2x st=0x%2x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:		if(u8(0) || u8(4))
 												print(string, len, "ERRs:0x%2x 0x%2x|",u8(0), u8(4));
@@ -247,23 +247,59 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 			for(i = 0; i < msg->size; i++){
 				switch ((msg->data[i]) & IHM_SWITCH_MASK) {
 					case BIROUTE_IHM:			print(*string, *len, "| sw_biroute = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");					break;
-					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");					break;
+					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "YELLOW":"GREEN");				break;
 					case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");						break;
+					case SWITCH0_IHM:			print(*string, *len, "| %s = %s\n",SWITCH0_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH1_IHM:			print(*string, *len, "| %s = %s\n",SWITCH1_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH2_IHM:			print(*string, *len, "| %s = %s\n",SWITCH2_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH3_IHM:			print(*string, *len, "| %s = %s\n",SWITCH3_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH4_IHM:			print(*string, *len, "| %s = %s\n",SWITCH4_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH5_IHM:			print(*string, *len, "| %s = %s\n",SWITCH5_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH6_IHM:			print(*string, *len, "| %s = %s\n",SWITCH6_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH7_IHM:			print(*string, *len, "| %s = %s\n",SWITCH7_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH8_IHM:			print(*string, *len, "| %s = %s\n",SWITCH8_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH9_IHM:			print(*string, *len, "| %s = %s\n",SWITCH9_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH10_IHM:			print(*string, *len, "| %s = %s\n",SWITCH10_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH11_IHM:			print(*string, *len, "| %s = %s\n",SWITCH11_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH12_IHM:			print(*string, *len, "| %s = %s\n",SWITCH12_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH13_IHM:			print(*string, *len, "| %s = %s\n",SWITCH13_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH14_IHM:			print(*string, *len, "| %s = %s\n",SWITCH14_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH15_IHM:			print(*string, *len, "| %s = %s\n",SWITCH15_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH16_IHM:			print(*string, *len, "| %s = %s\n",SWITCH16_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH17_IHM:			print(*string, *len, "| %s = %s\n",SWITCH17_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
+					case SWITCH18_IHM:			print(*string, *len, "| %s = %s\n",SWITCH18_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
 					default:					print(*string, *len, "| SWITCH %d = %s\n",(msg->data[i] & IHM_SWITCH_MASK)-3,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");	// -3 car biroute, color, lcd avant
 				}
 			}
-
 		}break;
 		case IHM_GET_SWITCH:{
 			Uint8 i;
 			for(i = 0; i < msg->size; i++)
 				switch (msg->data[i]) {
-					case BIROUTE_IHM:			print(*string, *len, "| sw_biroute\n");				break;
-					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color\n");				break;
-					case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd\n");					break;
+					case BIROUTE_IHM:			print(*string, *len, "| sw_biroute\n");					break;
+					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color\n");					break;
+					case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd\n");						break;
+					case SWITCH0_IHM:			print(*string, *len, "| %s\n",SWITCH0_IHM_NAME);		break;
+					case SWITCH1_IHM:			print(*string, *len, "| %s\n",SWITCH1_IHM_NAME);		break;
+					case SWITCH2_IHM:			print(*string, *len, "| %s\n",SWITCH2_IHM_NAME);		break;
+					case SWITCH3_IHM:			print(*string, *len, "| %s\n",SWITCH3_IHM_NAME);		break;
+					case SWITCH4_IHM:			print(*string, *len, "| %s\n",SWITCH4_IHM_NAME);		break;
+					case SWITCH5_IHM:			print(*string, *len, "| %s\n",SWITCH5_IHM_NAME);		break;
+					case SWITCH6_IHM:			print(*string, *len, "| %s\n",SWITCH6_IHM_NAME);		break;
+					case SWITCH7_IHM:			print(*string, *len, "| %s\n",SWITCH7_IHM_NAME);		break;
+					case SWITCH8_IHM:			print(*string, *len, "| %s\n",SWITCH8_IHM_NAME);		break;
+					case SWITCH9_IHM:			print(*string, *len, "| %s\n",SWITCH9_IHM_NAME);		break;
+					case SWITCH10_IHM:			print(*string, *len, "| %s\n",SWITCH10_IHM_NAME);		break;
+					case SWITCH11_IHM:			print(*string, *len, "| %s\n",SWITCH11_IHM_NAME);		break;
+					case SWITCH12_IHM:			print(*string, *len, "| %s\n",SWITCH12_IHM_NAME);		break;
+					case SWITCH13_IHM:			print(*string, *len, "| %s\n",SWITCH13_IHM_NAME);		break;
+					case SWITCH14_IHM:			print(*string, *len, "| %s\n",SWITCH14_IHM_NAME);		break;
+					case SWITCH15_IHM:			print(*string, *len, "| %s\n",SWITCH15_IHM_NAME);		break;
+					case SWITCH16_IHM:			print(*string, *len, "| %s\n",SWITCH16_IHM_NAME);		break;
+					case SWITCH17_IHM:			print(*string, *len, "| %s\n",SWITCH17_IHM_NAME);		break;
+					case SWITCH18_IHM:			print(*string, *len, "| %s\n",SWITCH18_IHM_NAME);		break;
 					default:					print(*string, *len, "| SWITCH %d\n",i-3);	// -3 car biroute, color, lcd avant
 				}
-
 		}break;
 		case IHM_POWER:
 			switch(msg->data[0]){

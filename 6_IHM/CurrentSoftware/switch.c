@@ -14,7 +14,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_outputlog.h"
 
-#define SWITCH_ID 0b01111111
+#define SWITCH_ID 0x7F
 
 // Il y a deux types de switch ceux dont l'information sera envoyé vers l'extérieure
 static Uint32 switchs;
@@ -41,74 +41,75 @@ void SWITCHS_update(){
 	// Gère tous les switchs qui envoient un message vers le monde extérieure
 	switchs_pressed = 0;
 #ifdef BIROUTE_PORT
-	switchs_pressed = (BIROUTE_PORT)? switchs_pressed|1 : switchs_pressed;
+	switchs_pressed |= (BIROUTE_PORT)? (1<<BIROUTE_IHM) : 0;
 #endif
 #ifdef SWITCH_COLOR_PORT
-	switchs_pressed = (SWITCH_COLOR_PORT)? switchs_pressed|(1<<1) : switchs_pressed;
+	switchs_pressed |= (SWITCH_COLOR_PORT)?  (1<<SWITCH_COLOR_IHM) : 0;
 #endif
 #ifdef SWITCH_LCD_PORT
-	switchs_pressed = (SWITCH_LCD_PORT)? switchs_pressed|(1<<2) : switchs_pressed;
+	switchs_pressed |= (SWITCH_LCD_PORT)?  (1<<SWITCH_LCD_IHM) : 0;
 #endif
 #ifdef SWITCH0_PORT
-	switchs_pressed = (SWITCH0_PORT)? switchs_pressed|(1<<3) : switchs_pressed;
+	switchs_pressed |= (SWITCH0_PORT)?  (1<<SWITCH0_IHM) : 0;
 #endif
 #ifdef SWITCH1_PORT
-	switchs_pressed = (SWITCH1_PORT)? switchs_pressed|(1<<4) : switchs_pressed;
+	switchs_pressed |= (SWITCH1_PORT)?  (1<<SWITCH1_IHM) : 0;
 #endif
 #ifdef SWITCH2_PORT
-	switchs_pressed = (SWITCH2_PORT)? switchs_pressed|(1<<5) : switchs_pressed;
+	switchs_pressed |= (SWITCH2_PORT)?  (1<<SWITCH2_IHM) : 0;
 #endif
 #ifdef SWITCH3_PORT
-	switchs_pressed = (SWITCH3_PORT)? switchs_pressed|(1<<6) : switchs_pressed;
+	switchs_pressed |= (SWITCH3_PORT)?  (1<<SWITCH3_IHM) : 0;
 #endif
 #ifdef SWITCH4_PORT
-	switchs_pressed = (SWITCH4_PORT)? switchs_pressed|(1<<7) : switchs_pressed;
+	switchs_pressed |= (SWITCH4_PORT)?  (1<<SWITCH4_IHM) : 0;
 #endif
 #ifdef SWITCH5_PORT
-	switchs_pressed = (SWITCH5_PORT)? switchs_pressed|(1<<8) : switchs_pressed;
+	switchs_pressed |= (SWITCH5_PORT)?  (1<<SWITCH5_IHM) : 0;
 #endif
 #ifdef SWITCH6_PORT
-	switchs_pressed = (SWITCH6_PORT)? switchs_pressed|(1<<9) : switchs_pressed;
+	switchs_pressed |= (SWITCH6_PORT)?  (1<<SWITCH6_IHM) : 0;
 #endif
 #ifdef SWITCH7_PORT
-	switchs_pressed = (SWITCH7_PORT)? switchs_pressed|(1<<10) : switchs_pressed;
+	switchs_pressed |= (SWITCH7_PORT)?  (1<<SWITCH7_IHM) : 0;
 #endif
 #ifdef SWITCH8_PORT
-	switchs_pressed = (SWITCH8_PORT)? switchs_pressed|(1<<11) : switchs_pressed;
+	switchs_pressed |= (SWITCH8_PORT)?  (1<<SWITCH8_IHM) : 0;
 #endif
 #ifdef SWITCH9_PORT
-	switchs_pressed = (SWITCH9_PORT)? switchs_pressed|(1<<12) : switchs_pressed;
+	switchs_pressed |= (SWITCH9_PORT)?  (1<<SWITCH9_IHM) : 0;
 #endif
 #ifdef SWITCH10_PORT
-	switchs_pressed = (SWITCH10_PORT)? switchs_pressed|(1<<13) : switchs_pressed;
+	switchs_pressed |= (SWITCH10_PORT)?  (1<<SWITCH10_IHM) : 0;
 #endif
 #ifdef SWITCH11_PORT
-	switchs_pressed = (SWITCH11_PORT)? switchs_pressed|(1<<14) : switchs_pressed;
+	switchs_pressed |= (SWITCH11_PORT)?  (1<<SWITCH11_IHM) : 0;
 #endif
 #ifdef SWITCH12_PORT
-	switchs_pressed = (SWITCH12_PORT)? switchs_pressed|(1<<15) : switchs_pressed;
+	switchs_pressed |= (SWITCH12_PORT)?  (1<<SWITCH12_IHM) : 0;
 #endif
 #ifdef SWITCH13_PORT
-	switchs_pressed = (SWITCH13_PORT)? switchs_pressed|(1<<16) : switchs_pressed;
+	switchs_pressed |= (SWITCH13_PORT)?  (1<<SWITCH13_IHM) : 0;
 #endif
 #ifdef SWITCH14_PORT
-	switchs_pressed = (SWITCH14_PORT)? switchs_pressed|(1<<17) : switchs_pressed;
+	switchs_pressed |= (SWITCH14_PORT)?  (1<<SWITCH14_IHM) : 0;
 #endif
 #ifdef SWITCH15_PORT
-	switchs_pressed = (SWITCH15_PORT)? switchs_pressed|(1<<18) : switchs_pressed;
+	switchs_pressed |= (SWITCH15_PORT)?  (1<<SWITCH15_IHM) : 0;
 #endif
 #ifdef SWITCH16_PORT
-	switchs_pressed = (SWITCH16_PORT)? switchs_pressed|(1<<19) : switchs_pressed;
+	switchs_pressed |= (SWITCH16_PORT)?  (1<<SWITCH16_IHM) : 0;
 #endif
 #ifdef SWITCH17_PORT
-	switchs_pressed = (SWITCH17_PORT)? switchs_pressed|(1<<20) : switchs_pressed;
+	switchs_pressed |= (SWITCH17_PORT)?  (1<<SWITCH17_IHM) : 0;
 #endif
 #ifdef SWITCH18_PORT
-	switchs_pressed = (SWITCH18_PORT)? switchs_pressed|(1<<21) : switchs_pressed;
+	switchs_pressed |= (SWITCH18_PORT)?  (1<<SWITCH18_IHM) : 0;
 #endif
 
 	//détection des fronts
 	switchs_edge = switchs_were_pressed ^ switchs_pressed;
+	switchs_were_pressed = switchs = switchs_pressed;
 
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++){
 		// Mets à jour le tableau pour une éventuelle demande extérieure
@@ -116,8 +117,6 @@ void SWITCHS_update(){
 		if((switchs_edge & (1<<i)) && initialized)// N'envoie pas, l'information si n'est pas encore init
 			SWITCHS_send_msg(i);
 	}
-
-	switchs_were_pressed = switchs = switchs_pressed;
 }
 
 void SWITCHS_send_msg(switch_ihm_e switch_id){
@@ -125,12 +124,11 @@ void SWITCHS_send_msg(switch_ihm_e switch_id){
 	msg.size = 1;
 	msg.sid = IHM_SWITCH;
 	msg.data[0] = (((Uint8)(SWITCHS_get(switch_id))<< 7) | ((Uint8)switch_id & SWITCH_ID));
-
 	CAN_send(&msg);
 }
 
 bool_e SWITCHS_get(switch_ihm_e switch_id){
-	return (switchs>>switch_id) & 1;
+	return (switchs >> switch_id) & 1;
 }
 
 void SWITCHS_answer(CAN_msg_t *send){
