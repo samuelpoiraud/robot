@@ -47,7 +47,7 @@
 	//	-			 	  			  14
 	//	-			 	  			  15
 
-#define PORT_C_IO_MASK	0xFFFF
+#define PORT_C_IO_MASK	0xF3FF
 	//  -							  0
 	//	-				 			  1
 	//	-				 			  2
@@ -58,8 +58,8 @@
 	//  -							  7
 	//	-				 			  8
 	//	-				 			  9
-	//  -							  10
-	//  -							  11
+	#define SPOT_POMPE_RIGHT_SENS	GPIOC,GPIO_Pin_10
+	#define SPOT_POMPE_LEFT_SENS	GPIOC,GPIO_Pin_11
 	//	-				 			  12
 	//	-				 			  13
 	//	-	OSC32_in 			  	  14
@@ -116,6 +116,14 @@
 #define POP_COLLECT_RIGHT_AX12_ID		46
 #define POP_DROP_LEFT_AX12_ID			47
 #define POP_DROP_RIGHT_AX12_ID			48
+#define BACK_SPOT_RIGHT_AX12_ID			7
+#define BACK_SPOT_LEFT_AX12_ID			3
+#define CARPET_LAUNCHER_RIGHT_AX12_ID	35
+#define CARPET_LAUNCHER_LEFT_AX12_ID	37
+
+
+#define SPOT_POMPE_RIGHT_PWM_NUM		2
+#define SPOT_POMPE_LEFT_PWM_NUM			3
 
 
 #endif /* BIG_CONFIG_PIN_H */
