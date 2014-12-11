@@ -164,10 +164,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
 		case IHM_SET_LED:								print(string, len, "%x IHM_SET_LED                            ", IHM_SET_LED									);	break;
-		case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON                             ", IHM_BUTTON								);	break;
-		case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH                             ", IHM_SWITCH									);	break;
+		case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON                             ", IHM_BUTTON										);	break;
+		case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH                             ", IHM_SWITCH										);	break;
 		case IHM_SWITCH_ALL:							print(string, len, "%x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL									);	break;
-		case IHM_POWER:									print(string, len, "%x IHM_POWER                              ", IHM_POWER									);	break;
+		case IHM_POWER:									print(string, len, "%x IHM_POWER                              ", IHM_POWER										);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
 	}
@@ -209,6 +209,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_SWITCH:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_GET_SWITCH:					print_ihm_result(msg, &string, &len);			break;
+		case IHM_POWER:							print_ihm_result(msg, &string, &len);			break;
 
 		default:								print(string, len, "|\n");												break;
 	}
@@ -243,6 +244,7 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 			break;
 		case IHM_SWITCH:{
 			Uint8 i;
+			#warning "la récupération de l'etat des switchs ne marchait pas à retester"
 			for(i = 0; i < msg->size; i++)
 				switch ((msg->data[i]) & IHM_SWITCH_MASK) {
 					case BIROUTE_IHM:			print(*string, *len, "sw_biroute = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");					break;
