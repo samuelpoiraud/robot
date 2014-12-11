@@ -35,9 +35,11 @@
 				robot_id = BIG_ROBOT;
 			else
 				robot_id = SMALL_ROBOT;
+		#elif defined(I_AM_CARTE_BEACON_EYE)
+			robot_id = BEACON_EYE;
 		#elif 1-DISABLE_WHO_AM_I-1 == 2		//Permet de savoir si DISABLE_WHO_AM_I est défini à quelque chose. Si c'est pas le cas, on a 1--1 == 1+1 == 2
-			#warning "Definir DISABLE_WHO_AM_I a BIG ou SMALL pour definir le robot explicitement. Ici, TINY sera choisi par defaut."
-			robot_id = SMALL;	//Par défaut, le robot est ...
+			#warning "Definir DISABLE_WHO_AM_I a BIG ou SMALL pour definir le robot explicitement. Ici, SMALL sera choisi par defaut."
+			robot_id = SMALL_ROBOT;	//Par défaut, le robot est ...
 		#else
 			robot_id = DISABLE_WHO_AM_I;
 		#endif
@@ -64,6 +66,9 @@
 				break;
 			case SMALL_ROBOT :
 				return "Wood";
+				break;
+			case BEACON_EYE :
+				return "Beacon_Eye";
 				break;
 
 			//Pas de default pour avoir un warning quand un cas de robot_id n'est pas géré dans ce switch

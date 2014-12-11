@@ -19,8 +19,9 @@
 	{
 		HOLLY = 0,
 		WOOD,
+		BIG_ROBOT = HOLLY,
 		SMALL_ROBOT = WOOD,
-		BIG_ROBOT = HOLLY
+		BEACON_EYE
 	}robot_id_e;
 
 	/** @brief  Cette fonction doit être appelée lors de l'initialisation.

@@ -211,7 +211,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_GET_SWITCH:					print_ihm_result(msg, &string, &len);			break;
 		case IHM_POWER:							print_ihm_result(msg, &string, &len);			break;
 
-		default:								print(string, len, "|\n");												break;
+		default:								print(string, len, "|\n");						break;
 	}
 	return string - ret;
 }
@@ -231,48 +231,48 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 	switch (msg->sid) {
 		case IHM_BUTTON:
 			switch(msg->data[0]){
-				case BP_SELFTEST_IHM:		print(*string, *len, "bp_selftest, %s\n",(msg->data[1])?"long push" : "direct push");			break;
-				case BP_CALIBRATION_IHM:	print(*string, *len, "bp_calibration, %s\n",(msg->data[1])?"long push" : "direct push");		break;
-				case BP_PRINTMATCH_IHM:		print(*string, *len, "bp_print_match, %s\n",(msg->data[1])?"long push" : "direct push");		break;
-				case BP_OK_IHM:				print(*string, *len, "bp_ok, %s\n",(msg->data[1])?"long push" : "direct push");					break;
-				case BP_UP_IHM:				print(*string, *len, "bp_up, %s\n",(msg->data[1])?"long push" : "direct push");					break;
-				case BP_DOWN_IHM:			print(*string, *len, "bp_down, %s\n",(msg->data[1])?"long push" : "direct push");				break;
-				case BP_SET_IHM:			print(*string, *len, "bp_set, %s\n",(msg->data[1])?"long push" : "direct push");				break;
-				case BP_RFU_IHM	:			print(*string, *len, "bp_rfu, %s\n",(msg->data[1])?"long push" : "direct push");				break;
-				default:					print(*string, *len, "Button %d active, %s\n",(msg->data[0])-8,(msg->data[1])?"long push" : "direct push");
+				case BP_SELFTEST_IHM:		print(*string, *len, "| bp_selftest, %s\n",(msg->data[1])?"long push" : "direct push");			break;
+				case BP_CALIBRATION_IHM:	print(*string, *len, "| bp_calibration, %s\n",(msg->data[1])?"long push" : "direct push");		break;
+				case BP_PRINTMATCH_IHM:		print(*string, *len, "| bp_print_match, %s\n",(msg->data[1])?"long push" : "direct push");		break;
+				case BP_OK_IHM:				print(*string, *len, "| bp_ok, %s\n",(msg->data[1])?"long push" : "direct push");				break;
+				case BP_UP_IHM:				print(*string, *len, "| bp_up, %s\n",(msg->data[1])?"long push" : "direct push");				break;
+				case BP_DOWN_IHM:			print(*string, *len, "| bp_down, %s\n",(msg->data[1])?"long push" : "direct push");				break;
+				case BP_SET_IHM:			print(*string, *len, "| bp_set, %s\n",(msg->data[1])?"long push" : "direct push");				break;
+				case BP_RFU_IHM	:			print(*string, *len, "| bp_rfu, %s\n",(msg->data[1])?"long push" : "direct push");				break;
+				default:					print(*string, *len, "| Button %d active, %s\n",(msg->data[0])-8,(msg->data[1])?"long push" : "direct push");
 			}
 			break;
 		case IHM_SWITCH:{
 			Uint8 i;
-			#warning "la récupération de l'etat des switchs ne marchait pas à retester"
-			for(i = 0; i < msg->size; i++)
+			for(i = 0; i < msg->size; i++){
 				switch ((msg->data[i]) & IHM_SWITCH_MASK) {
-					case BIROUTE_IHM:			print(*string, *len, "sw_biroute = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");					break;
-					case SWITCH_COLOR_IHM:		print(*string, *len, "sw_color = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");						break;
-					case SWITCH_LCD_IHM:		print(*string, *len, "sw_lcd = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");						break;
-					default:					print(*string, *len, "SWITCH %d = %s\n",(msg->data[i])-3,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");	// -3 car biroute, color, lcd avant
+					case BIROUTE_IHM:			print(*string, *len, "| sw_biroute = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");					break;
+					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");					break;
+					case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");						break;
+					default:					print(*string, *len, "| SWITCH %d = %s\n",(msg->data[i] & IHM_SWITCH_MASK)-3,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");	// -3 car biroute, color, lcd avant
 				}
+			}
 
 		}break;
 		case IHM_GET_SWITCH:{
 			Uint8 i;
 			for(i = 0; i < msg->size; i++)
 				switch (msg->data[i]) {
-					case BIROUTE_IHM:			print(*string, *len, "sw_biroute\n");					break;
-					case SWITCH_COLOR_IHM:		print(*string, *len, "sw_color\n");						break;
-					case SWITCH_LCD_IHM:		print(*string, *len, "sw_lcd\n");						break;
-					default:					print(*string, *len, "SWITCH %d\n",i-3);	// -3 car biroute, color, lcd avant
+					case BIROUTE_IHM:			print(*string, *len, "| sw_biroute\n");				break;
+					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color\n");				break;
+					case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd\n");					break;
+					default:					print(*string, *len, "| SWITCH %d\n",i-3);	// -3 car biroute, color, lcd avant
 				}
 
 		}break;
 		case IHM_POWER:
 			switch(msg->data[0]){
-				case BATTERY_OFF:				print(*string, *len, "BATTERY_OFF\n");					break;
-				case BATTERY_LOW:				print(*string, *len, "BATTERY_LOW\n");					break;
-				case ARU_ENABLE:				print(*string, *len, "ARU_ENABLE\n");					break;
-				case ARU_DISABLE:				print(*string, *len, "ARU_DISABLE\n");					break;
-				case HOKUYO_POWER_FAIL:			print(*string, *len, "HOKUYO_POWER_FAIL\n");			break;
-				default:																				break;
+				case BATTERY_OFF:				print(*string, *len, "| BATTERY_OFF\n");			break;
+				case BATTERY_LOW:				print(*string, *len, "| BATTERY_LOW\n");			break;
+				case ARU_ENABLE:				print(*string, *len, "| ARU_ENABLE\n");				break;
+				case ARU_DISABLE:				print(*string, *len, "| ARU_DISABLE\n");			break;
+				case HOKUYO_POWER_FAIL:			print(*string, *len, "| HOKUYO_POWER_FAIL\n");		break;
+				default:																			break;
 			}
 			break;
 		default:

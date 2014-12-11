@@ -59,34 +59,24 @@ void VOLTAGE_MEASURE_process_main(void)
 		if(valuePerm < THRESHOLD_BATTERY_OFF && !BATTERY_Low){
 			send_msgCAN(BATTERY_OFF);
 			BATTERY_Low = TRUE;
-
-			//PAS DE PRINTF EN IT  !!! debug_printf("Battery OFF\n");
 		}else if(valuePerm < THRESHOLD_BATTERY_LOW && !BATTERY_Low){
 			send_msgCAN(BATTERY_LOW);
 			BATTERY_Low = TRUE;
-
-			//PAS DE PRINTF EN IT  !!! debug_printf("Battery LOW\n");
 		}
 
 
 		if(valuePcse < valuePerm - GAP_BETWEEN_ARU && !ARU_enable){ // L'ARU vient d'être enfoncé, plus de puissance
 			send_msgCAN(ARU_ENABLE);
 			ARU_enable = TRUE;
-
-			debug_printf("ARU enable\n");
 		}else if(valuePcse > valuePerm - GAP_BETWEEN_ARU && ARU_enable){ // L'ARU vient d'être relâché, retour de la puissance
 			send_msgCAN(ARU_DISABLE);
 			ARU_enable = FALSE;
-
-			debug_printf("ARU disable\n");
 		}
 
 
 		if((valueHokuyo < THRESHOLD_12V_HOKUYO_MIN || valueHokuyo > THRESHOLD_12V_HOKUYO_MAX)){
-			if(HOKUYO_enable){
+			if(HOKUYO_enable)
 				send_msgCAN(HOKUYO_POWER_FAIL);
-				debug_printf("HOKUYO power fail\n");
-			}
 
 			HOKUYO_enable = FALSE;
 		}else
