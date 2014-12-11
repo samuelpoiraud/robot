@@ -51,7 +51,6 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case BROADCAST_STOP_ALL :
 			global.match_started = FALSE;
 			global.match_over = TRUE;
-			component_printf(LOG_LEVEL_Info, "C:BROADCAST_STOP_ALL\n");
 			QUEUE_flush_all();
 			ACTMGR_stop();
 			#ifdef USE_DCMOTOR2
@@ -61,7 +60,6 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 		//Reprise de la partie
 		case BROADCAST_START :
-			component_printf(LOG_LEVEL_Info, "C:BROADCAST_START\n");
 			global.match_started = TRUE;
 			break;
 
@@ -79,11 +77,9 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 		case BROADCAST_ALIM:
 			if(msg->data[0] == ALIM_OFF){
-				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_OFF\n");
 				global.alim = FALSE;
 			}else if(msg->data[0] == ALIM_ON){
 				static bool_e first_on = TRUE;
-				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_ON\n");
 				global.alim = TRUE;
 				if(first_on)
 					first_on = FALSE;

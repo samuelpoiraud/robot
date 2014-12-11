@@ -101,6 +101,8 @@ int main (void)
 	   TEST_SERVO_init();
 	#endif
 
+	TERMINAL_init();
+
 	BUTTONS_define_actions(BUTTON0, &MAIN_onButton0, NULL, 1);
 	BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 1);
 	BUTTONS_define_actions(BUTTON2, &MAIN_onButton2, NULL, 1);
@@ -146,7 +148,7 @@ int main (void)
 
 		#ifdef USE_UART
 			while(UART1_data_ready()){
-				uart_checker(UART1_get_next_msg());
+				TERMINAL_uart_checker(UART1_get_next_msg());
 			}
 		#endif
 

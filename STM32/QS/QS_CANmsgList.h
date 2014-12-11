@@ -650,7 +650,7 @@
 		   // (0 à 100)
 	/////////////////////////////////////////////
 
-// Code des SID des messages: 0x30x = message pour Holly, 0x31x = message pour Wood.
+// Code des SID des messages: 0x30x = message pour Holly, 0x33x = message pour Wood.
 // Le SID 0x300 est reservé pour le self_test
 // Ceci est un enum de SID d'actionneur avec les paramètres de chaque actions définie par des defines. L'enum est utilisé pour vérifier que tous les messages de retour d'actionneurs sont géré en strat
 
@@ -663,82 +663,123 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_EXEMPLE_POS_1			0x11
 		#define ACT_EXEMPLE_POS_2			0x12
 		#define ACT_SMALL_ARM_STOP			0x13
-	/////////////////////////////////////////////
 #endif
 
-	/////////////////TEST SERVO//////////////////
-	ACT_TEST_SERVO = (ACT_FILTER | 0x02),
+	//////////////////////////////////////////////////////////////////
+	//----------------------------HOLLY-----------------------------//
+	//////////////////////////////////////////////////////////////////
+
+
+	/////////////////TEST SERVO///////////////////
+	ACT_TEST_SERVO = (ACT_FILTER | 0x01),
 		//Paramètres de TEST_SERVO (dans data[0])
-		#define ACT_TEST_SERVO_IDLE				0x11
-		#define ACT_TEST_SERVO_STATE_1			0x12
-		#define ACT_TEST_SERVO_STATE_2			0x13
-		#define ACT_TEST_SERVO_STOP				0x14
+		#define ACT_TEST_SERVO_IDLE					0x11
+		#define ACT_TEST_SERVO_STATE_1				0x12
+		#define ACT_TEST_SERVO_STATE_2				0x13
+		#define ACT_TEST_SERVO_STOP					0x14
+
+	///////////COLLECT POPCORN LEFT////////////////
+	ACT_POP_COLLECT_LEFT = (ACT_FILTER | 0x02),
+		#define ACT_POP_COLLECT_LEFT_IDLE			0x11
+		#define ACT_POP_COLLECT_LEFT_OPEN			0x12
+		#define ACT_POP_COLLECT_LEFT_MID			0x13
+		#define ACT_POP_COLLECT_LEFT_CLOSED			0x14
+		#define ACT_POP_COLLECT_LEFT_STOP			0x15
+
+	///////////COLLECT POPCORN RIGHT///////////////
+	ACT_POP_COLLECT_RIGHT = (ACT_FILTER | 0x03),
+		#define ACT_POP_COLLECT_RIGHT_IDLE			0x11
+		#define ACT_POP_COLLECT_RIGHT_OPEN			0x12
+		#define ACT_POP_COLLECT_RIGHT_MID			0x13
+		#define ACT_POP_COLLECT_RIGHT_CLOSED		0x14
+		#define ACT_POP_COLLECT_RIGHT_STOP			0x15
+
+	//////////////DROP POPCORN LEFT////////////////
+	ACT_POP_DROP_LEFT = (ACT_FILTER | 0x04),
+		#define ACT_POP_DROP_LEFT_IDLE				0x11
+		#define ACT_POP_DROP_LEFT_OPEN				0x12
+		#define ACT_POP_DROP_LEFT_CLOSED			0x13
+		#define ACT_POP_DROP_LEFT_STOP				0x14
+
+	//////////////DROP POPCORN RIGHT///////////////
+	ACT_POP_DROP_RIGHT = (ACT_FILTER | 0x05),
+		#define ACT_POP_DROP_RIGHT_IDLE				0x11
+		#define ACT_POP_DROP_RIGHT_OPEN				0x12
+		#define ACT_POP_DROP_RIGHT_CLOSED			0x13
+		#define ACT_POP_DROP_RIGHT_STOP				0x14
+
+
+
+	//////////////////////////////////////////////////////////////////
+	//----------------------------WOOD------------------------------//
+	//////////////////////////////////////////////////////////////////
 
 	/////////////////PINCE GAUCHE//////////////////
-	ACT_PINCE_GAUCHE = (ACT_FILTER | 0x10),
-		//Paramètres de TEST_SERVO (dans data[0])
+	ACT_PINCE_GAUCHE = (ACT_FILTER | 0x30),
 		#define ACT_PINCE_GAUCHE_IDLE				0x11
 		#define ACT_PINCE_GAUCHE_CLOSED				0x12
 		#define ACT_PINCE_GAUCHE_MID_POS			0x13
 		#define ACT_PINCE_GAUCHE_OPEN				0x14
 		#define ACT_PINCE_GAUCHE_STOP				0x15
 
-	///////////////////////////////////////////////
-
 	/////////////////PINCE DROITE//////////////////
-	ACT_PINCE_DROITE = (ACT_FILTER | 0x11),
+	ACT_PINCE_DROITE = (ACT_FILTER | 0x31),
 		#define ACT_PINCE_DROITE_IDLE				0x11
-		#define ACT_PINCE_DROITE_OPEN			    0x12
-		#define ACT_PINCE_DROITE_MID_POS	        0x13
-		#define ACT_PINCE_DROITE_CLOSED			    0x14
+		#define ACT_PINCE_DROITE_OPEN				0x12
+		#define ACT_PINCE_DROITE_MID_POS			0x13
+		#define ACT_PINCE_DROITE_CLOSED				0x14
 		#define ACT_PINCE_DROITE_STOP				0x15
 
-
-
-	//////////////COLLECT POPCORN//////////////////
-	ACT_POP_COLLECT_LEFT = (ACT_FILTER | 0x12),
-		#define ACT_POP_COLLECT_LEFT_IDLE				0x11
-		#define ACT_POP_COLLECT_LEFT_OPEN			    0x12
-		#define ACT_POP_COLLECT_LEFT_MID			    0x13
-		#define ACT_POP_COLLECT_LEFT_CLOSED				0x14
-		#define ACT_POP_COLLECT_LEFT_STOP				0x15
-
-	/////////////////////////////////////////////
-	ACT_POP_COLLECT_RIGHT = (ACT_FILTER | 0x13),
-		#define ACT_POP_COLLECT_RIGHT_IDLE				0x11
-		#define ACT_POP_COLLECT_RIGHT_OPEN			    0x12
-		#define ACT_POP_COLLECT_RIGHT_MID			    0x13
-		#define ACT_POP_COLLECT_RIGHT_CLOSED			0x14
-		#define ACT_POP_COLLECT_RIGHT_STOP				0x15
-
-	//////////////DROP POPCORN//////////////////
-	ACT_POP_DROP_LEFT = (ACT_FILTER | 0x14),
-		#define ACT_POP_DROP_LEFT_IDLE				0x11
-		#define ACT_POP_DROP_LEFT_OPEN			    0x12
-		#define ACT_POP_DROP_LEFT_CLOSED			0x13
-		#define ACT_POP_DROP_LEFT_STOP				0x14
-
-	/////////////////////////////////////////////
-	ACT_POP_DROP_RIGHT = (ACT_FILTER | 0x15),
-		#define ACT_POP_DROP_RIGHT_IDLE				0x11
-		#define ACT_POP_DROP_RIGHT_OPEN			    0x12
-		#define ACT_POP_DROP_RIGHT_CLOSED			0x13
-		#define ACT_POP_DROP_RIGHT_STOP				0x14
-
-	/////////////////////////////////////////////
-	ACT_CLAP = (ACT_FILTER | 0x16),
-		#define ACT_CLAP_IDLE				0x11
-		#define ACT_CLAP_OPEN			    0x12
-		#define ACT_CLAP_CLOSED			    0x13
-		#define ACT_CLAP_STOP				0x14
-
 	/////////////////PINCE DEVANT//////////////////
-	ACT_PINCE_DEVANT = (ACT_FILTER | 0x17)
+	ACT_PINCE_DEVANT = (ACT_FILTER | 0x32),
 		#define ACT_PINCE_DEVANT_IDLE				0x11
-		#define ACT_PINCE_DEVANT_OPEN			    0x12
-		#define ACT_PINCE_DEVANT_MID_POS		    0x13
-		#define ACT_PINCE_DEVANT_CLOSED			    0x14
+		#define ACT_PINCE_DEVANT_OPEN				0x12
+		#define ACT_PINCE_DEVANT_MID_POS			0x13
+		#define ACT_PINCE_DEVANT_CLOSED				0x14
 		#define ACT_PINCE_DEVANT_STOP				0x15
+
+	//////////////////CLAP/////////////////////////
+	ACT_CLAP = (ACT_FILTER | 0x33),
+		#define ACT_CLAP_IDLE						0x11
+		#define ACT_CLAP_OPEN						0x12
+		#define ACT_CLAP_CLOSED						0x13
+		#define ACT_CLAP_STOP						0x14
+
+	///////////////BACK SPOT RIGHT/////////////////
+	ACT_BACK_SPOT_RIGHT = (ACT_FILTER | 0x34),
+		#define ACT_BACK_SPOT_RIGHT_OPEN			0x11
+		#define ACT_BACK_SPOT_RIGHT_CLOSED			0x12
+		#define ACT_BACK_SPOT_RIGHT_STOP			0x13
+
+	///////////////BACK SPOT LEFT/////////////////
+	ACT_BACK_SPOT_LEFT = (ACT_FILTER | 0x35),
+		#define ACT_BACK_SPOT_LEFT_OPEN				0x11
+		#define ACT_BACK_SPOT_LEFT_CLOSED			0x12
+		#define ACT_BACK_SPOT_LEFT_STOP				0x13
+
+	///////////////SPOT POMPE LEFT/////////////////
+	ACT_SPOT_POMPE_LEFT = (ACT_FILTER | 0x36),
+		#define ACT_SPOT_POMPE_LEFT_NORMAL			0x11
+		#define ACT_SPOT_POMPE_LEFT_REVERSE			0x12
+		#define ACT_SPOT_POMPE_LEFT_STOP			0x13
+
+	///////////////BACK SPOT RIGHT/////////////////
+	ACT_SPOT_POMPE_RIGHT = (ACT_FILTER | 0x37),
+		#define ACT_SPOT_POMPE_RIGHT_NORMAL			0x11
+		#define ACT_SPOT_POMPE_RIGHT_REVERSE		0x12
+		#define ACT_SPOT_POMPE_RIGHT_STOP			0x13
+
+	//////////////CARPET LAUNCHER RIGHT/////////////
+	ACT_CARPET_LAUNCHER_RIGHT = (ACT_FILTER | 0x38),
+		#define ACT_CARPET_LAUNCHER_RIGHT_IDLE		0x11
+		#define ACT_CARPET_LAUNCHER_RIGHT_LAUNCH	0x12
+		#define ACT_CARPET_LAUNCHER_RIGHT_STOP		0x13
+
+	////////////CARPET LAUNCHER LEFT////////////////
+	ACT_CARPET_LAUNCHER_LEFT = (ACT_FILTER | 0x39)
+		#define ACT_CARPET_LAUNCHER_LEFT_IDLE		0x11
+		#define ACT_CARPET_LAUNCHER_LEFT_LAUNCH		0x12
+		#define ACT_CARPET_LAUNCHER_LEFT_STOP		0x13
 
 } ACT_sid_e; //FIN de l'enum des SID d'actionneurs
 
