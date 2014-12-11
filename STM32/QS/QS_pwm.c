@@ -156,6 +156,27 @@ void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 	}
 }
 
+Uint8 PWM_get_duty(Uint8 channel){
+	switch(channel)
+	{
+		case 1:
+			return TIM8->CCR1 * 100/PWM_PERIOD;
+
+		case 2:
+			return TIM8->CCR2 * 100/PWM_PERIOD;
+
+		case 3:
+			return TIM8->CCR3 * 100/PWM_PERIOD;
+
+		case 4:
+			return TIM8->CCR4 * 100/PWM_PERIOD;
+
+		default:
+			fprintf(stderr, "PWM_get_duty: PWM %d invalide, seulement les PWM de 1 à 4 incluses existent\n", channel);
+			return 0;
+	}
+}
+
 void PWM_stop(Uint8 channel)
 {
 	PWM_run(0, channel);
