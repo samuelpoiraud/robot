@@ -139,6 +139,9 @@ void initialisation(void)
 	CLOCK_init();
 	IT_init();
 
+	// Demande des états initiaux des switchs
+	CAN_send_sid(IHM_GET_SWITCH);
+
 	/*
 	Récapitulatif des priorités des ITs :
 	-> 7 : Codeurs QEI_on_it

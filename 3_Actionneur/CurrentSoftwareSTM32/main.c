@@ -109,6 +109,9 @@ int main (void)
 
 	debug_printf("---   ACT Ready    ---\n");
 
+	// Demande des états initiaux des switchs
+	CAN_send_sid(IHM_GET_SWITCH);
+
 	while(1)
 	{
 		/*-------------------------------------

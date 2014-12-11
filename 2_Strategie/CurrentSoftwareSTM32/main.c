@@ -119,6 +119,9 @@ int main (void)
 	BRAIN_init();
 	ACT_AVOIDANCE_init();
 
+	// Demande des états initiaux des switchs
+	CAN_send_sid(IHM_GET_SWITCH);
+
 	while(1)
 	{
 		toggle_led(LED_RUN);

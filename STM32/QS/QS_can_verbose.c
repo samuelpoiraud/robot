@@ -66,7 +66,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 #endif
 
 #ifdef I_AM_CARTE_ACT			// Message ignoré par l'actionneur
-
+			case BROADCAST_POSITION_ROBOT:
 #endif
 
 #ifdef I_AM_CARTE_IHM			// Message ignoré par l'IHM
