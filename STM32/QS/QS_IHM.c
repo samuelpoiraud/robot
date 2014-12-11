@@ -36,6 +36,9 @@ void IHM_init(){
 	if(initialized)
 		return;
 
+	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
+		switchs[i] = 0;
+
 	for(i=0;i<BP_NUMBER_IHM;i++){
 		IHM_define_act_button((button_ihm_e)i,NULL,NULL);
 	}
