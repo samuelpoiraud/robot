@@ -37,6 +37,8 @@
 		MODULE_3,
 		MODULE_NUMBER	//nombre de module... = forcément le nombre suivant dans l'énumération !
 	}module_id_e;
+
+	typedef void(*CAN_over_XBee_callback_action_t)(CAN_msg_t * can_msg);
 	
 	#ifdef QS_CAN_OVER_XBEE_C
 		//ADRESSES PHYSIQUE DES MODULES XBEE UTILISES !!! (= numéro de série = on ne peut pas le changer)
@@ -99,6 +101,9 @@
 	bool_e XBee_is_destination_reachable(void);
 	bool_e XBee_is_module_reachable(module_id_e module);
 	void XBEE_ping_pong_enable(bool_e enable);
+
+	//Enregistre un pointeur sur fonction qui sera appelé à chaque message CAN envoyé.
+	void CAN_over_XBee_set_send_callback(CAN_over_XBee_callback_action_t action);
 
 	
 #endif // def USE_XBEE

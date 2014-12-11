@@ -27,6 +27,8 @@
 
 #include <stdio.h>
 
+volatile static CAN_over_XBee_callback_action_t CAN_over_XBee_send_callback = NULL;
+
 
 	#ifdef XBEE_PLUGGED_ON_UART1
 		#define XBee_putc(c) UART1_putc(c)
@@ -482,6 +484,9 @@ void CANMsgToXbee(CAN_msg_t * src, bool_e broadcast)
 	}
 	else
 		CANMsgToXBeeDestination(src, XBee_module_id_destination);
+
+	if(CAN_over_XBee_send_callback)
+		(*CAN_over_XBee_send_callback)(src);
 }
 
 void XBEE_send_sid(Uint11 sid, bool_e broadcast)
@@ -504,6 +509,11 @@ bool_e XBee_is_module_reachable(module_id_e module)
 	if(initialized)
 		return module_reachable[module];
 	return FALSE;
+}
+
+void CAN_over_XBee_set_send_callback(CAN_over_XBee_callback_action_t action)
+{
+	CAN_over_XBee_send_callback = action;
 }
 
 
