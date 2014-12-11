@@ -25,8 +25,6 @@
 /*
  * Defines des noms des nodes
  */
-
-
 #define A0 0
 #define A1 1
 #define A2 2
@@ -111,81 +109,43 @@ typedef struct {
 	//Uint16 total_cost; // Soit F la somme de G et H
 } pathfind_node_t;
 
-/*typedef struct {
-	Sint8 length;
-	GEOMETRY_point_t * points;
-} PATHFIND_microb_path_t;*/
+// Fonction a appelée si l'on veut se déplacer sur un node
+Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, PROP_speed_e speed, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
-/*
- * Met la position de l'adversaire à jour.
- *
- * TODO Prise en compte de la direction et de la vitesse de l'adversaire
+/*	Fonction de sélection du node le plus proche
+ *	Sélectionne le node le plus proche qui présente le moins de différence d'angle
+ *	entre l'angle à faire et l'angle nous séparant du point d'arrivé
  */
-void PATHFIND_updateOpponentPosition(Uint8 foe_id);
-/*
- * Calcule la distance approximatique entre deux points : absolute(dx) + absolute(dy).
- */
-Uint16 PATHFIND_manhattan_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
+pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filteredNodes, Sint16 final_x, Sint16 final_y);
 
-/*
- * Calcule la distance au carré entre deux points x1,y1 et x2,y2
- */
-Uint32 PATHFIND_squared_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
-
-/*
- * Renvoie l'identifiant du noeud le plus proche du point (x,y)
+/*	Ancien fonction de sélection du node le plus proche
+ *	Pas de prise en compte du point d'arrivé
+ *	Sélection un point de départ non optimisé
  */
 pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, Uint32 filteredNodes);
 
-/*
- * Renvoie le noeud le plus proche de l'adversaire
- */
-pathfind_node_id_t PATHFIND_opponent_node(Uint8 foe_id);
-
-/*
- * Renvoie si l'adversaire est sur le chemin
- */
-bool_e PATHFIND_is_opponent_in_path(Uint8 foe_id);
-
-/*
- * Renvoie un noeud du neighbor du noeud of
- */
-//pathfind_node_id_t  PATHFIND_random_neighbor(pathfind_node_id_t of, bool_e handleOpponent[MAX_NB_FOES]);
-
-Sint16 PATHFIND_get_node_x (pathfind_node_id_t n);
-Sint16 PATHFIND_get_node_y (pathfind_node_id_t n);
-
-Sint16 PATHFIND_dist_node_to_node(pathfind_node_id_t n1, pathfind_node_id_t n2);
-
-/*
- * Optimise les deplacements en supprimant les
- * noeuds inutile. (si 3 noeuds 1,2 et 3 sont alignes,
- * le noeud n°2 sera supprimé de la liste des noeuds à
- * parcourir).
- */
-void PATHFIND_delete_useless_node(pathfind_node_id_t from, pathfind_node_id_t to);
-
-/*
- * Calcule le chemin le plus court pour aller au noeud to.
- * Utilise l'algorithme A*.
- */
-error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to);
-
-/*
- * Calcule le point symétrique au point rentré n
- */
-Uint16 PATHFING_get_symetric(Uint8 n);
-
-Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, PROP_speed_e speed, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
-// Ne pas utiliser pour le moment
-pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filteredNodes, Sint16 final_x, Sint16 final_y);
-
-/*
- *	Compare deux node et revoit la plus pres
- */
+// Compare deux node et revoit la plus pres
 pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2);
 
 // Retourne la longueur du chemin effectué par le pathfind
 Sint16 path_length(pathfind_node_id_t* tab_node, Uint8 nb_node);
+
+// Calcule la distance approximatique entre deux points : absolute(dx) + absolute(dy).
+Uint16 PATHFIND_manhattan_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
+
+// Calcule la distance au carré entre deux points x1,y1 et x2,y2
+Uint32 PATHFIND_squared_dist(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
+
+// Retourne le x d'un node
+Sint16 PATHFIND_get_node_x (pathfind_node_id_t n);
+
+// Retourne le y d'un node
+Sint16 PATHFIND_get_node_y (pathfind_node_id_t n);
+
+// Retourne le distance entre deux node
+Sint16 PATHFIND_dist_node_to_node(pathfind_node_id_t n1, pathfind_node_id_t n2);
+
+// Calcule le point symétrique au point rentré n
+Uint16 PATHFING_get_symetric(pathfind_node_id_t n);
 
 #endif /* PATHFIND_H */
