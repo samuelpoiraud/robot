@@ -9,6 +9,7 @@
  */
 
 #include "QS_maths.h"
+#include <math.h>
 
 Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2){
 	return sqrt((Sint32)(y1 - y2)*(y1 - y2) + (Sint32)(x1 - x2)*(x1 - x2));
@@ -338,11 +339,14 @@ void filter_past_time(Sint32 values[], Uint16 nb_value, float factor[], Uint8 nb
 Sint16 array_4096(Sint16 teta);
 Sint16 array_16384(Sint16 teta);
 
+#endif
+
 //Renvoi le cosinus et le sinus de l'angle teta.
 //Procédure très rapide.
 //@pre ATTENTION, aucune vérification n'est faite sur l'angle demandé.
-void COS_SIN_4096_get(Sint16 teta,Sint16 * cos, Sint16 * sin)
+void COS_SIN_4096_get(Sint16 teta,Sint16 * cosinus, Sint16 * sinus)
 {
+#ifdef FAST_COS_SIN
 	if(teta < 0)
 		teta += TWO_PI4096;	// rad/4096
 
@@ -350,28 +354,33 @@ void COS_SIN_4096_get(Sint16 teta,Sint16 * cos, Sint16 * sin)
 
 	if (teta < HALF_PI4096)				//premier quadrant
 	{
-		*cos = array_4096((Sint16)(teta));
-		*sin = array_4096((Sint16)(HALF_PI4096-teta));
+		*cosinus = array_4096((Sint16)(teta));
+		*sinus = array_4096((Sint16)(HALF_PI4096-teta));
 	}
 	else if(teta < PI4096)					//second quadrant
 	{
-		*cos = -array_4096((Sint16)(PI4096 - teta));
-		*sin = array_4096((Sint16)(teta - HALF_PI4096));
+		*cosinus = -array_4096((Sint16)(PI4096 - teta));
+		*sinus = array_4096((Sint16)(teta - HALF_PI4096));
 	}
 	else if(teta < THREE_HALF_PI4096)		//troisième quadrant
 	{
-		*cos = -array_4096((Sint16)(teta - PI4096));
-		*sin = -array_4096((Sint16)(THREE_HALF_PI4096 - teta));
+		*cosinus = -array_4096((Sint16)(teta - PI4096));
+		*sinus = -array_4096((Sint16)(THREE_HALF_PI4096 - teta));
 	}
 	else									//quatrième quadrant
 	{
-		*cos = array_4096((Sint16)(TWO_PI4096 - teta));
-		*sin = -array_4096((Sint16)(teta - THREE_HALF_PI4096));
+		*cosinus = array_4096((Sint16)(TWO_PI4096 - teta));
+		*sinus = -array_4096((Sint16)(teta - THREE_HALF_PI4096));
 	}
+#else
+	*sinus = sin(((double)teta)/4096.);
+	*cosinus = cos(((double)teta)/4096.);
+#endif
 }
 
-void COS_SIN_16384_get(Sint32 teta, Sint16 * cos, Sint16 * sin)
+void COS_SIN_16384_get(Sint32 teta, Sint16 * cosinus, Sint16 * sinus)
 {
+#ifdef FAST_COS_SIN
 	if(teta<0)
 		teta += TWO_PI16384;
 
@@ -379,27 +388,31 @@ void COS_SIN_16384_get(Sint32 teta, Sint16 * cos, Sint16 * sin)
 
 	if (teta < HALF_PI16384)				//premier quadrant
 	{
-		*cos = array_16384((Sint16)(teta));
-		*sin = array_16384((Sint16)(HALF_PI16384-teta));
+		*cosinus = array_16384((Sint16)(teta));
+		*sinus = array_16384((Sint16)(HALF_PI16384-teta));
 	}
 	else if(teta < PI16384)					//second quadrant
 	{
-		*cos = -array_16384((Sint16)(PI16384 - teta));
-		*sin = array_16384((Sint16)(teta - HALF_PI16384));
+		*cosinus = -array_16384((Sint16)(PI16384 - teta));
+		*sinus = array_16384((Sint16)(teta - HALF_PI16384));
 	}
 	else if(teta < THREE_HALF_PI16384)		//troisième quadrant
 	{
-		*cos = -array_16384((Sint16)(teta - PI16384));
-		*sin = -array_16384((Sint16)(THREE_HALF_PI16384 - teta));
+		*cosinus = -array_16384((Sint16)(teta - PI16384));
+		*sinus = -array_16384((Sint16)(THREE_HALF_PI16384 - teta));
 	}
 	else									//quatrième quadrant
 	{
-		*cos = array_16384((Sint16)(TWO_PI16384 - teta));
-		*sin = -array_16384((Sint16)(teta - THREE_HALF_PI16384));
+		*cosinus = array_16384((Sint16)(TWO_PI16384 - teta));
+		*sinus = -array_16384((Sint16)(teta - THREE_HALF_PI16384));
 	}
-
+#else
+	*sinus = sin(((double)teta)/16384.);
+	*cosinus = cos(((double)teta)/16384.);
+#endif
 }
 
+#ifdef FAST_COS_SIN
 
 // Fonctionnement interne
 
