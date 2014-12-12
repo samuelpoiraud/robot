@@ -46,6 +46,9 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg);
 
 void ENV_clean (void);
 
+/* Regarde si les switchs à risque sont activés et mets des avertissements (LED,LCD) */
+void ENV_warning_switch();
+
 #define ADC_THRESHOLD 10 //Valeur de l'ADC sans dispositif de connecté
 
 /* initialise les variables d'environnement */
@@ -301,6 +304,9 @@ void ENV_update(void)
 	}
 #endif
 
+#ifndef FDP_2014
+	ENV_warning_switch();
+#endif
 
 	/* Récupération des données des boutons */
 	BUTTON_update();
@@ -550,8 +556,6 @@ void ENV_clean (void)
 	FIX_BEACON_clean();	//Doit être après le any_match !
 }
 
-
-
 /* envoie un message CAN BROADCAST_COULEUR à jour */
 void ENV_set_color(color_e color)
 {
@@ -566,7 +570,18 @@ void ENV_set_color(color_e color)
 	CAN_send(&msg);
 }
 
+void ENV_warning_switch(){
+	static bool_e init = FALSE;
+	static bool_e asser_switch;
 
+	if(!init){
+		init = TRUE;
+		asser_switch = IHM_switchs_get(SWITCH_ASSER);
+	}
 
+	if(IHM_switchs_get(SWITCH_ASSER) != asser_switch){
+		IHM_leds_send_msg(1, (led_ihm_t){LED_0_IHM, SPEED_BLINK_4HZ});
 
-
+		asser_switch = IHM_switchs_get(SWITCH_ASSER);
+	}
+}

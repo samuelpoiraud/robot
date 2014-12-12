@@ -20,6 +20,7 @@
 #include "../QS/QS_adc.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_can_over_xbee.h"
+#include "../QS/QS_IHM.h"
 #include "../elements.h"
 #include "../act_functions.h"
 #include "SD/Libraries/fat_sd/ff.h"
@@ -294,6 +295,10 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				}
 				else
 					state = SELFTEST_BEACON_IR;
+
+				// Lever erreur si switch_asser n'est actif
+				if(IHM_switchs_get(SWITCH_ASSER))
+					SELFTEST_declare_errors(NULL,SELFTEST_PROP_SWITCH_ASSER_DISABLE);
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_PROP_SELFTEST_DONE)
@@ -579,6 +584,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");					break;
 				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");				break;
 				case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			debug_printf("SELFTEST_PROP_IN_LCD_TOUCH_MODE");				break;
+				case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		debug_printf("SELFTEST_PROP_SWITCH_ASSER_DISABLE");				break;
 				case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	debug_printf("SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE");		break;
 				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
 				case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE:debug_printf("SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE");	break;
@@ -837,6 +843,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";			break;
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
 		case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			return "PROP in LCD T mode"; 	break;
+		case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		return "Asser Switch disable"; 	break;
 		case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	return "Evit Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		return "XBee Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE: return "XBee dest unreach";	break;
