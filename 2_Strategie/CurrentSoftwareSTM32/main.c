@@ -119,8 +119,10 @@ int main (void)
 	BRAIN_init();
 	ACT_AVOIDANCE_init();
 
+#ifndef FDP_2014
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
+#endif
 
 	while(1)
 	{

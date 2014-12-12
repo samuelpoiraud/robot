@@ -157,6 +157,12 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_POP_COLLECT_RIGHT:						print(string, len, "%x ACT_POP_COLLECT_RIGHT                  ", ACT_POP_COLLECT_RIGHT							);	break;
 		case ACT_POP_DROP_LEFT:							print(string, len, "%x ACT_POP_DROP_LEFT                      ", ACT_POP_DROP_LEFT								);	break;
 		case ACT_POP_DROP_RIGHT:						print(string, len, "%x ACT_POP_DROP_RIGHT                     ", ACT_POP_DROP_RIGHT								);	break;
+		case ACT_BACK_SPOT_RIGHT:						print(string, len, "%x ACT_BACK_SPOT_RIGHT                    ", ACT_BACK_SPOT_RIGHT							);	break;
+		case ACT_BACK_SPOT_LEFT:						print(string, len, "%x ACT_BACK_SPOT_LEFT                     ", ACT_BACK_SPOT_LEFT								);	break;
+		case ACT_SPOT_POMPE_RIGHT:						print(string, len, "%x ACT_SPOT_POMPE_RIGHT                   ", ACT_SPOT_POMPE_RIGHT							);	break;
+		case ACT_SPOT_POMPE_LEFT:						print(string, len, "%x ACT_SPOT_POMPE_LEFT                    ", ACT_SPOT_POMPE_LEFT							);	break;
+		case ACT_CARPET_LAUNCHER_RIGHT:					print(string, len, "%x ACT_CARPET_LAUNCHER_RIGHT              ", ACT_CARPET_LAUNCHER_RIGHT						);	break;
+		case ACT_CARPET_LAUNCHER_LEFT:					print(string, len, "%x ACT_CARPET_LAUNCHER_LEFT               ", ACT_CARPET_LAUNCHER_LEFT						);	break;
 
 		case ACT_TEST_SERVO:							print(string, len, "%x ACT_TEST_SERVO                         ", ACT_TEST_SERVO									);	break;
 
@@ -164,10 +170,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
 		case IHM_SET_LED:								print(string, len, "%x IHM_SET_LED                            ", IHM_SET_LED									);	break;
-		case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON                             ", IHM_BUTTON										);	break;
-		case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH                             ", IHM_SWITCH										);	break;
-		case IHM_SWITCH_ALL:							print(string, len, "%x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL									);	break;
-		case IHM_POWER:									print(string, len, "%x IHM_POWER                              ", IHM_POWER										);	break;
+		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                             ", IHM_BUTTON										);	break;
+		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                             ", IHM_SWITCH										);	break;
+		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL									);	break;
+		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                              ", IHM_POWER										);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
 	}

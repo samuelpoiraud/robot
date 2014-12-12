@@ -13,6 +13,7 @@
 
 #include "QS/QS_all.h"
 #include "QS/QS_CANmsgList.h"
+#include "avoidance.h"
 
 
 typedef struct
