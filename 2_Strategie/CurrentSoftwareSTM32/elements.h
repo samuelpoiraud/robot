@@ -1,20 +1,24 @@
-/*
- *	Club Robot ESEO 2010 - 2011
- *	CkeckNorris
- *
- *	Fichier : elements.h
- *	Package : Carte Principale
- *	Description : Traitement des informations sur les éléments de jeu
- *	Auteur : Ronan, Adrien
- *	Version 20110430
- */
+#ifndef ELEMENTS_H
+#define ELEMENTS_H
 
 #include "QS/QS_all.h"
-#ifndef ELEMENTS_H
-	#define ELEMENTS_H
 
-	#include "QS/QS_maths.h"
-	#include "prop_types.h"
-	#include "avoidance.h"
+	#define NB_SPOT		16
+	#define NB_CUP		5
 
-#endif /* ndef ELEMENTS_H */
+	typedef enum{
+		AVAILABLE,
+		TAKE,
+		LOST
+	}ELEMENTS_state_s;
+
+	typedef struct{
+		ELEMENTS_state_s state;
+		color_e color;
+		Uint16 x;
+		Uint16 y;
+	}ELEMENTS_element_s;
+
+void ELEMENTS_init();
+
+#endif // ELEMENTS_H
