@@ -17,6 +17,7 @@
 
 	#include "prop_types.h"
 	#include "Stacks.h"
+	#include "avoidance.h"
 
 	typedef struct
 	{
