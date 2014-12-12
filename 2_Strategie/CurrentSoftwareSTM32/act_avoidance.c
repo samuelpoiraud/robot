@@ -36,6 +36,8 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_RIGHT_Mid, ACT_pop_collect_right_mid, 0, 30, 0, 30);
 		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_LEFT_Open, ACT_pop_drop_left_open, 0, 0, 0, 60);
 		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_RIGHT_Open, ACT_pop_drop_right_open, 0, 0, 0, 60);
+		init_new_offset(ACT_AVOID_BACK_SPOT_RIGHT, ACT_AVOID_BACK_SPOT_RIGHT_Open, ACT_back_spot_right_open, 0, 40, 0, 0);
+		init_new_offset(ACT_AVOID_BACK_SPOT_LEFT, ACT_AVOID_BACK_SPOT_LEFT_Open, ACT_back_spot_left_open, 40, 0, 0, 0);
 	}
 }
 

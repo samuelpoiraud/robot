@@ -110,6 +110,78 @@ bool_e ACT_pop_drop_right(ACT_pop_drop_right_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_right, &args);
 }
 
+
+bool_e ACT_back_spot_right(ACT_back_spot_right_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_BACK_SPOT_RIGHT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_BACK_SPOT_RIGHT,  ACT_BACK_SPOT_RIGHT_STOP);
+
+	debug_printf("Pushing back spot right Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_BACK_SPOT_RIGHT, cmd);
+
+	return ACT_push_operation(ACT_QUEUE_Back_spot_right, &args);
+}
+
+bool_e ACT_back_spot_left(ACT_back_spot_left_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_BACK_SPOT_LEFT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_BACK_SPOT_LEFT,  ACT_BACK_SPOT_LEFT_STOP);
+
+	debug_printf("Pushing back spot left Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_BACK_SPOT_LEFT, cmd);
+
+	return ACT_push_operation(ACT_QUEUE_Back_spot_left, &args);
+}
+
+bool_e ACT_spot_pompe_right(ACT_spot_pompe_right_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init_with_param(&args, ACT_SPOT_POMPE_RIGHT, cmd, 100);
+	ACT_arg_set_fallbackmsg(&args, ACT_SPOT_POMPE_RIGHT,  ACT_SPOT_POMPE_RIGHT_STOP);
+
+	debug_printf("Run stop pompe right cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Spot_pompe_right, &args);
+}
+
+bool_e ACT_spot_pompe_left(ACT_spot_pompe_left_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init_with_param(&args, ACT_SPOT_POMPE_LEFT, cmd, 100);
+	ACT_arg_set_fallbackmsg(&args, ACT_SPOT_POMPE_LEFT,  ACT_SPOT_POMPE_LEFT_STOP);
+
+	debug_printf("Run stop pompe left cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Spot_pompe_left, &args);
+}
+
+bool_e ACT_carpet_launcher_right(ACT_carpet_launcher_right_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_CARPET_LAUNCHER_RIGHT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_CARPET_LAUNCHER_RIGHT,  ACT_CARPET_LAUNCHER_RIGHT_STOP);
+
+	debug_printf("Pushing carpet launcher right Run cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Carpet_launcher_right, &args);
+}
+
+
+bool_e ACT_carpet_launcher_left(ACT_carpet_launcher_left_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_CARPET_LAUNCHER_LEFT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_CARPET_LAUNCHER_LEFT,  ACT_CARPET_LAUNCHER_LEFT_STOP);
+
+	debug_printf("Pushing carpet launcher left Run cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Carpet_launcher_left, &args);
+}
+
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
