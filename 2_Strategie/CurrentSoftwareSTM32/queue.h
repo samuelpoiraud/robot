@@ -28,6 +28,12 @@ typedef enum {
 	ACT_QUEUE_Pop_collect_right,
 	ACT_QUEUE_Pop_drop_left,
 	ACT_QUEUE_Pop_drop_right,
+	ACT_QUEUE_Back_spot_right,
+	ACT_QUEUE_Back_spot_left,
+	ACT_QUEUE_Spot_pompe_right,
+	ACT_QUEUE_Spot_pompe_left,
+	ACT_QUEUE_Carpet_launcher_right,
+	ACT_QUEUE_Carpet_launcher_left,
 
 	//Wood
 	ACT_QUEUE_Small_arm,

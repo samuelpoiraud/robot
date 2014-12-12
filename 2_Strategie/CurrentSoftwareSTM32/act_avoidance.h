@@ -12,6 +12,8 @@ typedef enum{
 	ACT_AVOID_POP_COLLECT_RIGHT,
 	ACT_AVOID_POP_DROP_LEFT,
 	ACT_AVOID_POP_DROP_RIGHT,
+	ACT_AVOID_BACK_SPOT_RIGHT,
+	ACT_AVOID_BACK_SPOT_LEFT,
 	ACT_AVOID_NB
 }act_avoid_e;
 
@@ -52,6 +54,14 @@ typedef enum {
 typedef enum {
 	ACT_AVOID_POP_DROP_RIGHT_Open
 } ACT_AVOID_POP_DROP_RIGHT_CMD;
+
+typedef enum {
+	ACT_AVOID_BACK_SPOT_RIGHT_Open
+} ACT_AVOID_BACK_SPOT_RIGHT_CMD;
+
+typedef enum {
+	ACT_AVOID_BACK_SPOT_LEFT_Open
+} ACT_AVOID_BACK_SPOT_LEFT_CMD;
 
 void ACT_AVOIDANCE_init();
 void ACT_AVOIDANCE_new_action(act_avoid_e act_avoid_id, Uint8 cmd, bool_e state);

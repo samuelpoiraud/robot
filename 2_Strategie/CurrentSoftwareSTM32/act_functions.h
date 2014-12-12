@@ -60,6 +60,7 @@ typedef enum {
 	ACT_pop_collect_left_mid = ACT_POP_COLLECT_LEFT_MID,
 	ACT_pop_collect_left_stop = ACT_POP_COLLECT_LEFT_STOP
 } ACT_pop_collect_left_cmd_e;
+
 typedef enum {
 	ACT_pop_collect_right_closed = ACT_POP_COLLECT_RIGHT_CLOSED,
 	ACT_pop_collect_right_open = ACT_POP_COLLECT_RIGHT_OPEN,
@@ -72,11 +73,48 @@ typedef enum {
 	ACT_pop_drop_left_open = ACT_POP_DROP_LEFT_OPEN,
 	ACT_pop_drop_left_stop = ACT_POP_DROP_LEFT_STOP
 } ACT_pop_drop_left_cmd_e;
+
 typedef enum {
 	ACT_pop_drop_right_closed = ACT_POP_DROP_RIGHT_CLOSED,
 	ACT_pop_drop_right_open = ACT_POP_DROP_RIGHT_OPEN,
 	ACT_pop_drop_right_stop = ACT_POP_DROP_RIGHT_STOP
 } ACT_pop_drop_right_cmd_e;
+
+typedef enum {
+	ACT_back_spot_right_open = ACT_BACK_SPOT_RIGHT_OPEN,
+	ACT_back_spot_right_closed = ACT_BACK_SPOT_RIGHT_CLOSED,
+	ACT_back_spot_right_stop = ACT_BACK_SPOT_RIGHT_STOP
+} ACT_back_spot_right_cmd_e;
+
+typedef enum {
+	ACT_back_spot_left_open = ACT_BACK_SPOT_LEFT_OPEN,
+	ACT_back_spot_left_closed = ACT_BACK_SPOT_LEFT_CLOSED,
+	ACT_back_spot_left_stop = ACT_BACK_SPOT_LEFT_STOP
+} ACT_back_spot_left_cmd_e;
+
+typedef enum {
+	ACT_spot_pompe_right_normal = ACT_SPOT_POMPE_RIGHT_NORMAL,
+	ACT_spot_pompe_right_reverse = ACT_SPOT_POMPE_RIGHT_REVERSE,
+	ACT_spot_pompe_right_stop = ACT_SPOT_POMPE_RIGHT_STOP
+} ACT_spot_pompe_right_cmd_e;
+
+typedef enum {
+	ACT_spot_pompe_left_normal = ACT_SPOT_POMPE_LEFT_NORMAL,
+	ACT_spot_pompe_left_reverse = ACT_SPOT_POMPE_LEFT_REVERSE,
+	ACT_spot_pompe_left_stop = ACT_SPOT_POMPE_LEFT_STOP
+} ACT_spot_pompe_left_cmd_e;
+
+typedef enum {
+	ACT_carpet_launcher_right_idle = ACT_CARPET_LAUNCHER_RIGHT_IDLE,
+	ACT_carpet_launcher_right_launch = ACT_CARPET_LAUNCHER_RIGHT_LAUNCH,
+	ACT_carpet_launcher_right_stop = ACT_CARPET_LAUNCHER_RIGHT_STOP
+} ACT_carpet_launcher_right_cmd_e;
+
+typedef enum {
+	ACT_carpet_launcher_left_idle = ACT_CARPET_LAUNCHER_LEFT_IDLE,
+	ACT_carpet_launcher_left_launch = ACT_CARPET_LAUNCHER_LEFT_LAUNCH,
+	ACT_carpet_launcher_left_stop = ACT_CARPET_LAUNCHER_LEFT_STOP
+} ACT_carpet_launcher_left_cmd_e;
 
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
@@ -116,8 +154,18 @@ typedef enum {
 //bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
 bool_e ACT_pop_collect_left(ACT_pop_collect_left_cmd_e cmd);
 bool_e ACT_pop_collect_right(ACT_pop_collect_right_cmd_e cmd);
+
 bool_e ACT_pop_drop_left(ACT_pop_drop_left_cmd_e cmd);
 bool_e ACT_pop_drop_right(ACT_pop_drop_right_cmd_e cmd);
+
+bool_e ACT_back_spot_right(ACT_back_spot_right_cmd_e cmd);
+bool_e ACT_back_spot_left(ACT_back_spot_left_cmd_e cmd);
+
+bool_e ACT_spot_pompe_right(ACT_spot_pompe_right_cmd_e cmd);
+bool_e ACT_spot_pompe_left(ACT_spot_pompe_left_cmd_e cmd);
+
+bool_e ACT_carpet_launcher_right(ACT_carpet_launcher_right_cmd_e cmd);
+bool_e ACT_carpet_launcher_left(ACT_carpet_launcher_left_cmd_e cmd);
 
 // Wood
 bool_e ACT_pince_gauche(ACT_pince_gauche_cmd_e cmd);
