@@ -341,7 +341,9 @@ void PROP_dump_stack ()
 	char * priority_order = NULL;
 
 	// Dispositif anti-warning
-	priority_order = speed = way = priority_order;
+	UNUSED_VAR(priority_order);
+	UNUSED_VAR(way);
+	UNUSED_VAR(speed);
 
 	debug_printf("\n----- PROP Stack dump -----\n");
 	debug_printf("stack top : %d/%d",STACKS_get_top(PROP), STACKS_SIZE);
@@ -533,7 +535,7 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 	{
 		if (global.env.prop.ended)
 		{
-			debug_printf("\nPROP_multi_point : freine dernier point\n");
+			debug_printf("PROP_multi_point : freine dernier point\n");
 			global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 			// Par sécurité, on met le pointeur de pile à la fin des multi-points
 			STACKS_set_top(stack_id,save_stack_bottom);
@@ -547,7 +549,7 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 			if(STACKS_get_top(stack_id) != save_stack_bottom)	//S'il ne s'agit pas du dernier point...
 			{
 				STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1);
-				debug_printf("\nPROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
+				debug_printf("PROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
 			}
 		}
 		else
@@ -618,7 +620,7 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 		//Si on à fini avant de freiner ... (on est déjà arrivé à destination avant de démarrer ?)
 		if (global.env.prop.ended)
 		{
-			debug_printf("\nPROP_multi_point : fini dernier point\n");
+			debug_printf("PROP_multi_point : fini dernier point\n");
 			global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 			// Par sécurité, on met le pointeur de pile à la fin des multi-points
 			STACKS_set_top(stack_id,save_stack_bottom);
@@ -632,9 +634,9 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 			if(STACKS_get_top(stack_id) != save_stack_bottom)	//S'il ne s'agit pas du dernier point, on dépile sans initialiser la point suivant (ils ont déjà tous été envoyés)
 			{
 				STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1);
-				debug_printf("\nPROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
+				debug_printf("PROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
 			} else {	//Dernier point et on freine => on à fini
-				debug_printf("\nPROP_multi_point : freine dernier point\n");
+				debug_printf("PROP_multi_point : freine dernier point\n");
 				global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 				STACKS_pull(PROP);
 			}
@@ -777,6 +779,7 @@ static void PROP_relative_goangle (stack_id_e stack_id, bool_e init)
 /* Va a la position relative indiquée, se termine à l'arret */
 static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 {
+
 	CAN_msg_t order;
 
 	if (init)
