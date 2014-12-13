@@ -580,7 +580,10 @@ void ENV_warning_switch(){
 	}
 
 	if(IHM_switchs_get(SWITCH_ASSER) != asser_switch){
-		IHM_leds_send_msg(1, (led_ihm_t){LED_0_IHM, SPEED_BLINK_4HZ});
+		if(IHM_switchs_get(SWITCH_ASSER))
+			IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, FLASH_BLINK_10MS});
+		else
+			IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, OFF});
 
 		asser_switch = IHM_switchs_get(SWITCH_ASSER);
 	}
