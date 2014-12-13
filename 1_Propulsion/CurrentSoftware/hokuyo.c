@@ -262,7 +262,7 @@ void HOKUYO_process_main(void)
 					debug_printf("\n##########Debut détection centres balises##########\n");
 					find_beacons_centres();
 					//nb_passage++;
-					nb_balayages=0;
+					//nb_balayages=0;
 
 				}
 			}
@@ -973,17 +973,17 @@ void triangulation(){
 	robot.teta = global.position.teta;
 	robot.x = global.position.x;
 	robot.y = global.position.y;
-	//debug_printf("Robot  x=%ld  y=%ld  teta=%ld \n\n",robot.x, robot.y, robot.teta);
+	debug_printf("Robot  x=%ld  y=%ld  teta=%ld \n\n",robot.x, robot.y, robot.teta);
 	//robot.x = robot.x - ECART_HOKUYO_A_DROITE*sin4096(robot.teta);
 	//robot.y = robot.y + ECART_HOKUYO_A_DROITE*cos4096(robot.teta);
-	/*debug_printf("\n####TRIANGULATION####");
+	debug_printf("\n####TRIANGULATION####");
 	debug_printf("B1_detected=%d \n", B1detected);
 	debug_printf("B2_detected=%d \n", B2detected);
 	debug_printf("B3_detected=%d \n\n", B3detected);
-	debug_printf("Beacon1  dist=%ld  teta=%d \n", beacon1.dist, beacon1.teta);
-	debug_printf("Beacon2  dist=%ld  teta=%d \n", beacon2.dist, beacon2.teta);
+	//debug_printf("Beacon1  dist=%ld  teta=%d \n", beacon1.dist, beacon1.teta);
+	//debug_printf("Beacon2  dist=%ld  teta=%d \n", beacon2.dist, beacon2.teta);
 	debug_printf("Beacon3  dist=%ld  teta=%d \n", beacon3.dist, beacon3.teta);
-	debug_printf("Après correction hokuyo Robot  x=%ld  y=%ld  teta=%ld \n\n",robot.x, robot.y, robot.teta);*/
+	//debug_printf("Après correction hokuyo Robot  x=%ld  y=%ld  teta=%ld \n\n",robot.x, robot.y, robot.teta);*/
 
 	//Repérage à une balise (nécessite d'avoir l'angle du robot)
 		//balise 1
@@ -1006,7 +1006,7 @@ void triangulation(){
 			currentRobot[0].weight=5;
 			//debug_printf("\n currentRobot[0]: x1=%d y1=%d ", x1, y1);
 			//debug_printf("\n currentRobot[0]: x2=%d y2=%d ", x2, y2);
-			//debug_printf("\n currentRobot[0]: x=%ld y=%ld ", currentRobot[0].x, currentRobot[0].y);
+			debug_printf("\n currentRobot[0]: x=%ld y=%ld ", currentRobot[0].x, currentRobot[0].y);
 			//debug_printf("FIN\n");
 		}
 
@@ -1031,7 +1031,7 @@ void triangulation(){
 			}
 			currentRobot[1].teta=robot.teta;
 			currentRobot[1].weight=5;
-			//debug_printf("\n currentRobot[1]: x=%ld y=%ld ", currentRobot[1].x, currentRobot[1].y);
+			debug_printf("\n currentRobot[1]: x=%ld y=%ld ", currentRobot[1].x, currentRobot[1].y);
 			//debug_printf("FIN\n");
 
 		}
@@ -1054,7 +1054,7 @@ void triangulation(){
 			}
 			currentRobot[2].teta=robot.teta;
 			currentRobot[2].weight=5;
-			//debug_printf("\n currentRobot[2]: x=%ld y=%ld ", currentRobot[2].x, currentRobot[2].y);
+			debug_printf("\n currentRobot[2]: x=%ld y=%ld ", currentRobot[2].x, currentRobot[2].y);
 			//debug_printf("FIN\n");
 		}
 
@@ -1112,9 +1112,9 @@ void triangulation(){
 			}
 			//debug_printf("1) atan2=%d       2) atan2=%d \n", atan2_4096(3000-y1,1000-x1), atan2_4096(3000-y2,1000-x2) );
 			/*debug_printf("\n currentRobot[3]: x1=%ld y1=%ld angle1=%ld angle2=%ld", x1, y1, a1, a2);
-			debug_printf("\n currentRobot[3]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);
+			debug_printf("\n currentRobot[3]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);*/
 			debug_printf("\n currentRobot[3]: x=%ld y=%ld angle=%ld  ", currentRobot[3].x, currentRobot[3].y, currentRobot[3].teta);
-			debug_printf("FIN\n");*/
+			//debug_printf("FIN\n");
 		}
 		//balises 1 et 3
 		if(B1detected==1 && B3detected==1){
@@ -1142,9 +1142,9 @@ void triangulation(){
 			currentRobot[4].weight=10;
 
 			/*debug_printf("\n currentRobot[4]: x1=%ld y1=%ld angle1=%ld angle2=%ld", x1, y1, a1, a2);
-			debug_printf("\n currentRobot[4]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);
+			debug_printf("\n currentRobot[4]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);*/
 			debug_printf("\n currentRobot[4]: x=%ld y=%ld angle=%ld  ", currentRobot[4].x, currentRobot[4].y,currentRobot[4].teta);
-			debug_printf("FIN\n");*/
+			//debug_printf("FIN\n");
 		}
 		//balises 2 et 3
 		if(B2detected==1 && B3detected==1){
@@ -1186,14 +1186,16 @@ void triangulation(){
 				currentRobot[5].weight=10;
 			}
 			/*debug_printf("\n currentRobot[5]: x1=%ld y1=%ld angle1=%ld angle2=%ld", x1, y1, a1, a2);
-			debug_printf("\n currentRobot[5]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);
-			debug_printf("\n currentRobot[5]: x=%ld y=%ld angle=%ld  ", currentRobot[5].x, currentRobot[5].y, currentRobot[5].teta);*/
+			debug_printf("\n currentRobot[5]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);*/
+			debug_printf("\n currentRobot[5]: x=%ld y=%ld angle=%ld  ", currentRobot[5].x, currentRobot[5].y, currentRobot[5].teta);
 		}
 
 		//debug_printf("FIN\n");
 	}
 
 void findCorrectPosition(){
+	Sint16 offset_x, offset_y, offset_pos_x, offset_pos_y;
+
 	//Gestion des erreurs: un point trop éloigné ne doit pas être pris en compte lorsqu'on a pluseurs mesures disponibles (2 ou 3 balises)
 	if(B1detected==1 && B2detected==1){
 		if(sqrt((currentRobot[0].x-currentRobot[1].x)*(currentRobot[0].x-currentRobot[1].x)+(currentRobot[0].y-currentRobot[1].y)*(currentRobot[0].y-currentRobot[1].y))>ECART_POSITION
@@ -1284,16 +1286,27 @@ void findCorrectPosition(){
 
 	//Correction du décalage de l'hokuyo
 	//debug_printf("Avant correction décalage Hokuyo Robot  x=%ld  y=%ld  teta=%ld \n\n",robot.x, robot.y, robot.teta);
-	//robot.x += ECART_HOKUYO_A_DROITE*sin4096(robot.teta);
-	//robot.y -= ECART_HOKUYO_A_DROITE*cos4096(robot.teta);
-	//debug_printf("POSITION ROBOT APRES TRIANGULATION: x=%ld   y=%ld \n", robot.x, robot.y);
+
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
+		offset_pos_x = HOKUYO_OFFSET_BIG_POS_X;
+		offset_pos_y = HOKUYO_OFFSET_BIG_POS_Y;
+	}else{
+		offset_pos_x = HOKUYO_OFFSET_SMALL_POS_X;
+		offset_pos_y = HOKUYO_OFFSET_SMALL_POS_Y;
+	}
+
+	offset_x = (Sint16)(offset_pos_x*cos4096(robot.teta));
+	offset_y = (Sint16)(offset_pos_y*sin4096(robot.teta));
+	robot.x -= offset_x;
+	robot.y -= offset_y;
+	debug_printf("POSITION ROBOT APRES TRIANGULATION: x=%ld   y=%ld \n", robot.x, robot.y);
 }
 
 
 void tri_points(){
 	Uint16 i;
 
-		for(i=0;i<nb_valid_points;i++){
+		for(i=0;i<nb_valid_points_beacons;i++){
 			if(points_beacons_valid[i].coordX>-62-ECART_BALISE && points_beacons_valid[i].coordX<ECART_BALISE
 			   && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<ECART_BALISE){
 				points_beacons[0][nb_points_B1] = points_beacons_valid[i];
@@ -1311,8 +1324,18 @@ void tri_points(){
 	if(nb_points_B1 > 7) B1detected=1;
 	if(nb_points_B2 > 7) B2detected=1;
 	if(nb_points_B3 > 7) B3detected=1;
-
-
+	//debug_printf("Tri points\n");
+	//debug_printf("nb_points_B1=%d\n", nb_points_B1);
+	//debug_printf("nb_points_B2=%d\n", nb_points_B2);
+	//debug_printf("nb_points_B3=%d\n", nb_points_B3);
+	/*debug_printf("Points balise 3 avant filtrage \n\nx= ");
+		for(i=0;i<nb_points_B3;i++){
+			debug_printf("%ld  ",points_beacons[2][i].coordX) ;
+		}
+		debug_printf("Points balise 3 \n\ny= ");
+		for(i=0;i<nb_points_B3;i++){
+			debug_printf("%ld  ",points_beacons[2][i].coordY) ;
+		}*/
 
 }
 
@@ -1320,18 +1343,26 @@ void tri_points(){
 
 void tri_mesures(HOKUYO_point_position points_beacons[3][NB_MESURES_HOKUYO*20], Uint16 *nb_points, Uint8 numero_beacon){
 	Uint16 i, n=0;
-
+	debug_printf("TRI MESURES\n");
 	//Elimination des points qui ne sont pas les points de la balise
 	for(i=0;i<*nb_points;i++){
-		if(points_beacons[numero_beacon-1][i].power_intensity>SEUIL_INTENSITE && i==n){
+		if(points_beacons[numero_beacon-1][i].power_intensity>SEUIL_INTENSITE && points_beacons[numero_beacon-1][i].coordX>-500 && points_beacons[numero_beacon-1][i].coordX<2500 && points_beacons[numero_beacon-1][i].coordY>-500 && points_beacons[numero_beacon-1][i].coordY<3500 && i==n){
 			//ne rien faire le pion est bien placé
 			n++;
-		}else if(points_beacons[numero_beacon-1][i].power_intensity>SEUIL_INTENSITE){
+		}else if(points_beacons[numero_beacon-1][i].power_intensity>SEUIL_INTENSITE && points_beacons[numero_beacon-1][i].coordX>-500 && points_beacons[numero_beacon-1][i].coordX<2500 && points_beacons[numero_beacon-1][i].coordY>-500 && points_beacons[numero_beacon-1][i].coordY<3500){
 			points_beacons[numero_beacon-1][n]=points_beacons[numero_beacon-1][i];
 			n++;
 		}
 	}
 	*nb_points=n;
+	/*debug_printf("Points balise 3 après filtrage\n\nx= ");
+		for(i=0;i<nb_points_B3;i++){
+			debug_printf("%ld  ",points_beacons[2][i].coordX) ;
+		}
+		debug_printf("Points balise 3 \n\ny= ");
+		for(i=0;i<nb_points_B3;i++){
+			debug_printf("%ld  ",points_beacons[2][i].coordY) ;
+		}*/
 }
 /*
 //Fonction prenant la moyenne des points mesurés pour chaque angle donné (ie tout les 0,25°)
@@ -1418,19 +1449,23 @@ HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_bea
 	beacon.coordY = ((c03+c21)*c20-(c30+c12)*c11)/(2.*(c20*c02-c11*c11));
 
 	beacon.dist   = sqrt(puissance(robot.x-beacon.coordX,2) + puissance(robot.x-beacon.coordX,2));
+	debug_printf("\n\nRobot x=%ld y=%ld teta=%ld\n", robot.x, robot.y, robot.teta);
+	debug_printf("\n\nBeacon x=%ld y=%ld\n", beacon.coordX, beacon.coordY);
 	switch(numero_beacon){
 		case 1:
-			beacon.teta = atan4096((robot.y-beacon.coordY)/(1.*(robot.x-beacon.coordX)))- robot.teta +PI4096/2.;
+			beacon.teta = (Sint16)(atan4096((robot.y-beacon.coordY)/(1.*(robot.x-beacon.coordX)))- robot.teta +PI4096/2.);
 			break;
 		case 2:
-			beacon.teta = atan2_4096(beacon.coordY-robot.y,beacon.coordX-robot.x) - robot.teta + PI4096 +PI4096/2.;
+			beacon.teta = (Sint16)( atan2_4096(beacon.coordY-robot.y,beacon.coordX-robot.x) - robot.teta + PI4096 +PI4096/2.);
 			break;
 		case 3:
-			beacon.teta = PI4096/2. - robot.teta + atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY))) +PI4096/2.;
+			beacon.teta = (Sint16)(PI4096 - robot.teta + atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY))));
+			debug_printf("Affectation angle atan=%d\n", atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY))));
+			debug_printf("Affectation beacon.teta=%d\n", (Sint16)(PI4096 - robot.teta + atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY)))));
 			break;
 	}
 
-	//debug_printf("ANGLE: %d\n", beacon.teta);
+	debug_printf("ANGLE: %d\n", beacon.teta);
 
 	if(beacon.teta < 0)  beacon.teta += 2*PI4096;
 	if(beacon.teta > 2*PI4096) beacon.teta -= 2*PI4096;
@@ -1450,9 +1485,9 @@ void find_beacons_centres(){
 	robot.y = global.position.y;
 	robot.teta = global.position.teta;
 	robot.weight = 1;
-	Uint16 i;
+	//Uint16 i;
 
-
+	/*
 	if(B1detected==1){
 		tri_mesures(points_beacons, &nb_points_B1, 1);
 		debug_printf("\nCentre balise 1: ");
@@ -1464,13 +1499,15 @@ void find_beacons_centres(){
 		debug_printf("\nCentre balise 2: ");
 		beacon2 = regression_circulaire(points_beacons, nb_points_B2,2);
 	}
-
+	*/
 	if(B3detected==1){
 		tri_mesures(points_beacons, &nb_points_B3, 3);
+		//debug_printf("Tri mesures\n");
+		debug_printf("nb_points_B3=%d\n", nb_points_B3);
 		debug_printf("\nCentre balise 3: ");
 		beacon3 = regression_circulaire(points_beacons, nb_points_B3,3);
 	}
-
+	/*
 	debug_printf("\n\nPoints balise 1 \n\nx= ");
 	for(i=0;i<nb_points_B1;i++){
 		debug_printf("%ld  ",points_beacons[0][i].coordX) ;
@@ -1478,7 +1515,7 @@ void find_beacons_centres(){
 	debug_printf("\n\nPoints balise 1 \n\ny= ");
 	for(i=0;i<nb_points_B1;i++){
 		debug_printf("%ld  ", points_beacons[0][i].coordY) ;
-	}
+	}*/
 	/*debug_printf("\n\nPoints balise 2 \n\nx= ");
 	for(i=0;i<nb_points_B2;i++){
 		debug_printf("%ld  ", points_beacons[1][i].coordX) ;
@@ -1498,7 +1535,7 @@ void find_beacons_centres(){
 
 	triangulation();
 	findCorrectPosition();
-	//debug_printf("FIN TRIANGULATION\n");
+	debug_printf("FIN TRIANGULATION\n");
 
 
 	nb_points_B1=0;
