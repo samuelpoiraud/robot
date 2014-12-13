@@ -11,6 +11,8 @@
 #ifndef SPOT_POMPE_RIGHT_H
 #define	SPOT_POMPE_RIGHT_H
 
+#ifdef I_AM_ROBOT_BIG
+
 #include "../QS/QS_all.h"
 #include "../queue.h"
 
@@ -45,6 +47,7 @@ bool_e SPOT_POMPE_RIGHT_CAN_process_msg(CAN_msg_t* msg);
  */
 void SPOT_POMPE_RIGHT_reset_config();
 
+#endif
 
 #endif	/* PSPOT_POMPE_RIGHT_H */
 

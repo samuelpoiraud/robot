@@ -12,6 +12,8 @@
 #ifndef PSPOT_POMPE_LEFT_H
 #define	PSPOT_POMPE_LEFT_H
 
+#ifdef I_AM_ROBOT_BIG
+
 #include "../QS/QS_all.h"
 #include "../queue.h"
 
@@ -45,6 +47,8 @@ bool_e SPOT_POMPE_LEFT_CAN_process_msg(CAN_msg_t* msg);
  * Réinitialise la configuration de l'AX12
  */
 void SPOT_POMPE_LEFT_reset_config();
+
+#endif
 
 #endif	/* PSPOT_POMPE_LEFT_H */
 

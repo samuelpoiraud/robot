@@ -9,6 +9,9 @@
  */
 
 #include "spot_pompe_right.h"
+
+#ifdef I_AM_ROBOT_BIG
+
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_pwm.h"
@@ -142,3 +145,5 @@ static void SPOT_POMPE_RIGHT_do_order(Uint8 command, Uint8 param){
 	param = (param > 100) ? 100 : param;
 	PWM_run(param, SPOT_POMPE_RIGHT_PWM_NUM);
 }
+
+#endif
