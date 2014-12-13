@@ -19,6 +19,11 @@
 		Uint16 y;
 	}ELEMENTS_element_s;
 
+	typedef enum{
+		OUR_ELEMENT,
+		ADV_ELEMENT
+	}element_group_e;
+
 void ELEMENTS_init();
 
 #endif // ELEMENTS_H
