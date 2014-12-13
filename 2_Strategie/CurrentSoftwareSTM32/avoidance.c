@@ -645,6 +645,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					timeout = TRUE;
 					debug_printf("wait_move_and_scan_foe -- timeout\n");
 					SD_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
+					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 					state = DONE;
 					break;
 
@@ -657,6 +658,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					#else
 						state = CHECK_SCAN_FOE;
 					#endif
+					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 					return NOT_HANDLED;
 					break;
 
@@ -673,6 +675,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 						#else
 							state = CHECK_SCAN_FOE;
 						#endif
+						global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 						return FOE_IN_PATH;			//Pas d'extraction demandée... on retourne tel quel FOE_IN_PATH !
 					}
 					break;
@@ -686,6 +689,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					#else
 						state = CHECK_SCAN_FOE;
 					#endif
+					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 					return NOT_HANDLED;
 					break;
 			}
@@ -701,41 +705,21 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					#else
 						state = CHECK_SCAN_FOE;
 					#endif
-					return FOE_IN_PATH;
-					break;
-
-				case END_WITH_TIMEOUT:
-					timeout = TRUE;
-					state = DONE;
-					break;
-
-				case NOT_HANDLED:
-					#ifdef USE_PROP_AVOIDANCE
-						state = LOAD_MOVE;
-					#else
-						state = CHECK_SCAN_FOE;
-					#endif
-					return NOT_HANDLED;
-					break;
-
-				case FOE_IN_PATH:
-					#ifdef USE_PROP_AVOIDANCE
-						state = LOAD_MOVE;
-					#else
-						state = CHECK_SCAN_FOE;
-					#endif
+					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 					return FOE_IN_PATH;
 					break;
 
 				case IN_PROGRESS:
 					break;
 
+				case NOT_HANDLED:
 				default:
 					#ifdef USE_PROP_AVOIDANCE
 						state = LOAD_MOVE;
 					#else
 						state = CHECK_SCAN_FOE;
 					#endif
+					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 					return NOT_HANDLED;
 					break;
 			}
@@ -758,6 +742,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			#else
 				state = CHECK_SCAN_FOE;
 			#endif
+			global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
 			return NOT_HANDLED;
 	}
 	return IN_PROGRESS;
@@ -959,8 +944,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 		TURN_TRIGO,
 		TURN_HORAIRE,
 		WAIT,
-		DONE,
-		ERROR
+		DONE
 	);
 	static Uint8 remaining_try;
 	static Uint8 sens = TURN_TRIGO;							//Si il arrive pas à trouver un point au bout de 3 coups tourne sur lui-même pour permettre à l'hokuyo de voir partout
@@ -1130,11 +1114,9 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 			return END_OK;
 			break;
 
-		case ERROR:
+		default:
 			state = IDLE;
 			return NOT_HANDLED;
-			break;
-		default:
 			break;
 	}
 
