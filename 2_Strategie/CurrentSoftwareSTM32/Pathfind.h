@@ -98,15 +98,15 @@ typedef struct {
 	/*
 	 * Variables utilisées dans l'algo.
 	 */
-	Uint16 cost;
-	Uint16 total_cost;
+	Uint16 length_path; // Soit G la distance parcourue depuis le point de départ pour arriver au node courant
+	Uint16 dist_end;	// Soit H la distance à vol d'oiseau entre le node courant et le node d'arrivée
+	Uint32 total_cost;	// Soit F la somme de G et H
+
 	pathfind_node_id_t parent;
 	Uint16 nb_nodes;
 
-	// Variable temporaire pour test
-	Uint16 length_path; // Soit G la distance parcourue depuis le point de départ pour arriver au node courant
-	Uint16 dist_end; // Soit H la distance à vol d'oiseau entre le node courant et le node d'arrivée
-	//Uint16 total_cost; // Soit F la somme de G et H
+	// Variable ancienne
+	//Uint16 cost;
 } pathfind_node_t;
 
 // Fonction a appelée si l'on veut se déplacer sur un node
