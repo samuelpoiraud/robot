@@ -26,8 +26,6 @@
 #define NB_TRY_WHEN_DODGE							3		//Nombre de tentatives d'évitement (recalcul de chemin..)
 #define IGNORE_FIRST_POINT_DISTANCE					150		//Distance du noeud en dessous de laquelle on ne s'y rend pas et on attaque directement le voisin
 
-#define FACTEUR_DIRECTIF							10		//Facteur permettant d'avoir un compute plus rapide car priorité à ce qui est proche de la destination, mais perte d'efficacité
-
 #ifndef USE_POLYGON
 
 static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to);
@@ -294,7 +292,7 @@ static Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool
 	Uint32 dist;
 	/* On se base sur un manhattan */
 	Uint16 cost;
-	cost = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, nodes[to].x, nodes[to].y);
+	cost = dist_point_to_point(nodes[from].x, nodes[from].y, nodes[to].x, nodes[to].y);
 
 	if (handleOpponent)
 	{
@@ -307,7 +305,7 @@ static Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool
 		{
 			if(global.env.foe[i].enable	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
 			{
-				dist = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
+				dist = dist_point_to_point(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
 				if (dist < ((Uint32)900))	//Si l'adversaire proche de nous est proche du noeud en question... on allourdi sérieusement le coût de ce noeud.
 					cost += (((Uint32)900) - dist);
 			}
@@ -333,7 +331,8 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 {
 	pathfind_node_id_t from, n, current, from_without_adversaries, suivant;
 	pathfind_node_list_t adversaries_nodes;
-	Uint16 minCost, cost;
+	Uint16 lengthPath, distEnd;
+	Uint32 minTotalCost;
 	Uint8 i;
 	Uint8 nb_displacements = 0;
 	//On identifie les noeuds placés à moins de 500mm manhattan d'un adversaire.
@@ -402,11 +401,11 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 		 * On cherche la case ayant le cout F le plus faible dans la
 		 * liste ouverte. Elle devient la case en cours.
 		 */
-		minCost = 0xFFFF;	//On suppose que le cout est max.
+		minTotalCost = 0xFFFFFFFF;	//On suppose que le cout est max.
 		current = 0;
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
-			if (PATHFIND_TST_NODE_IN(n, openList) && nodes[n].total_cost < minCost) {
-				minCost = nodes[n].total_cost;
+			if (PATHFIND_TST_NODE_IN(n, openList) && nodes[n].total_cost < minTotalCost) {
+				minTotalCost = nodes[n].total_cost;
 				current = n;
 			}
 		}
@@ -414,7 +413,6 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 		/* On passe la case en cours dans la liste fermee */
 		PATHFIND_CLR_NODE_IN(current, openList);
 		PATHFIND_SET_NODE_IN(current, closedList);
-		//debug_printf("current open->close %d\n", current);
 
 		/* Pour toutes les cases adjacentes n'etant pas dans la liste fermee */
 		for (n = 0; n < PATHFIND_NODE_NB; n++) {
@@ -423,7 +421,9 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 				 !(PATHFIND_TST_NODE_IN(n, closedList)) &&
 				 !(PATHFIND_TST_NODE_IN(n,adversaries_nodes)))
 			{
-				cost = Pathfind_cost(n, to, TRUE);
+				lengthPath = Pathfind_cost(current, n, FALSE);
+				distEnd = Pathfind_cost(n, to, TRUE);
+
 				/*
 				 * Si elle n'est pas dans la liste ouverte, on l'y ajoute.
 				 * La case en cours devient le parent de cette case.
@@ -433,8 +433,9 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 				{
 					PATHFIND_SET_NODE_IN(n, openList);
 					nodes[n].parent = current;
-					nodes[n].cost = cost;
-					nodes[n].total_cost = nodes[current].total_cost + cost;
+					nodes[n].length_path = nodes[current].length_path + lengthPath;
+					nodes[n].dist_end = distEnd;
+					nodes[n].total_cost = nodes[n].length_path + distEnd;
 					nodes[n].nb_nodes = nodes[current].nb_nodes + 1;
 				}
 				/*
@@ -447,9 +448,10 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 				 */
 				else {
 
-					if (cost < nodes[n].cost) {
-						nodes[n].cost = cost;
-						nodes[n].total_cost = nodes[current].total_cost + cost;
+					if (nodes[current].length_path + lengthPath < nodes[n].length_path) {
+						nodes[n].length_path = nodes[current].length_path + lengthPath;
+						nodes[n].dist_end = distEnd;
+						nodes[n].total_cost = nodes[n].length_path + distEnd;
 						nodes[n].parent = current;
 						nodes[n].nb_nodes = nodes[current].nb_nodes + 1;
 					}
@@ -850,7 +852,7 @@ error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_
 				 !(PATHFIND_TST_NODE_IN(n,adversaries_nodes)) )
 			{
 				lengthPath = Pathfind_cost_new(current, n, FALSE);
-				distEnd = Pathfind_cost_new(n, to, FALSE) * FACTEUR_DIRECTIF;
+				distEnd = Pathfind_cost_new(n, to, TRUE) * FACTEUR_DIRECTIF;
 
 				/*
 				 * Si elle n'est pas dans la liste ouverte, on l'y ajoute.
