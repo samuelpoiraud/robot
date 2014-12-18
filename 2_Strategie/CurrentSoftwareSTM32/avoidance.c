@@ -605,13 +605,17 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			{
 				if(displacements)
 					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, FALSE);
-				else if(displacements_curve)
-					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, displacements_curve[i].curve?PROP_CURVES:0, avoidance_type, END_OF_BUFFER, end_condition, FALSE);
+				else if(displacements_curve && displacements_curve[i].curve)
+					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, FALSE);
+				else
+					PROP_push_goto(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, 0, avoidance_type, end_condition, FALSE);
 			}
 			if(displacements)
 				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
-			else if(displacements_curve)
-				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, displacements_curve[0].curve?PROP_CURVES:0, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
+			else if(displacements_curve && displacements_curve[0].curve)
+				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
+			else
+				PROP_push_goto(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, 0, avoidance_type, end_condition, TRUE);
 
 			debug_printf("goto_pos_with_scan_foe : load_move\n");
 			if(displacements || displacements_curve)
