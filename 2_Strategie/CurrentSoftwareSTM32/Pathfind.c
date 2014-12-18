@@ -48,7 +48,7 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 
 	//Colonne 3 coté rouge [C]
 	(pathfind_node_t){ 850, 1150,	/* neighbors : */(1<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10)},										//[C1] 7
-	(pathfind_node_t){ 1200, 1150,	/* neighbors : */(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<9)|(1<<10)|(1<<11)|(1<<12)|},		//[C2] 8
+	(pathfind_node_t){ 1200, 1150,	/* neighbors : */(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<9)|(1<<10)|(1<<11)|(1<<12)},		//[C2] 8
 	(pathfind_node_t){ 1550, 1150,	/* neighbors : */(1<<6)|(1<<5)|(1<<8)|(1<<11)|(1<<12)},										//[C3] 9
 
 	//Colonne 4 milieu [M]
