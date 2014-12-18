@@ -124,6 +124,12 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
  */
 pathfind_node_id_t PATHFIND_closestNode(Sint16 x, Sint16 y, Uint32 filteredNodes);
 
+
+/*	Fonction de sélection du node le plus proche
+*	En fonction des positions adversaires afin de trouver le node le plus sécurisé
+*/
+pathfind_node_id_t PATHFIND_closestNodeWithoutAdversary(Sint16 x, Sint16 y, Uint32 filteredNodes);
+
 // Compare deux node et revoit la plus pres
 pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2);
 

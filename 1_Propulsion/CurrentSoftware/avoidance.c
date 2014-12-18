@@ -26,6 +26,7 @@
 #define WAIT_TIME_DISPLAY_AVOID		50
 #define NB_SAMPLE					30
 #define SAMPLE_TIME					5		//(en ms)
+#define AVOID_WAIT_TIME				2000
 
 static Sint16 ecretage_debug_rect(Sint16 val);
 
@@ -113,7 +114,7 @@ void AVOIDANCE_process_it(){
 		buffer_order = COPILOT_get_buffer_order();
 
 		// Si il y a timeout
-		if(buffer_order->total_wait_time + global.absolute_time - buffer_order->wait_time_begin > 3000){
+		if(buffer_order->total_wait_time + global.absolute_time - buffer_order->wait_time_begin > AVOID_WAIT_TIME){
 
 			debug_printf("t : %ld      timeout !\n", global.absolute_time);
 

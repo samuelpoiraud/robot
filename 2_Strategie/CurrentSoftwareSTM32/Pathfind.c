@@ -25,6 +25,7 @@
 #define	TIME_CONSIDERE_ADVERSARY					500		//[ms] temps au delà duquel un adversaire mis à jour n'est plus considéré
 #define NB_TRY_WHEN_DODGE							3		//Nombre de tentatives d'évitement (recalcul de chemin..)
 #define IGNORE_FIRST_POINT_DISTANCE					150		//Distance du noeud en dessous de laquelle on ne s'y rend pas et on attaque directement le voisin
+#define DISTANCE_CHANGING_FIRST_NODE_FOE			600		//Distance à laquelle on décide de choisir le node de départ le plus éloigné de tout les adversaires
 
 #ifndef USE_POLYGON
 
@@ -110,7 +111,7 @@ static Uint32 node_curve[PATHFIND_NODE_NB+1] =
 	(0<<3)|(1<<2)|(1<<5)|(1<<8)|(1<<9),								//[B3] 6
 
 	//Colonne 3 coté rouge [C]
-	(1<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10),							//[C1] 7
+	(0<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10),							//[C1] 7
 	(1<<4)|(1<<5)|(1<<6)|(0<<9)|(1<<12)|(1<<11)|(1<<10)|(0<<7),		//[C2] 8
 	(1<<6)|(1<<5)|(1<<8)|(1<<11)|(1<<12),							//[C3] 9
 
@@ -120,7 +121,7 @@ static Uint32 node_curve[PATHFIND_NODE_NB+1] =
 	(1<<9)|(1<<8)|(1<<11)|(1<<14)|(1<<15),							//[M3] 12
 
 	//Colonne 5 coté jaune [W]
-	(1<<10)|(1<<11)|(1<<14)|(1<<17)|(1<<16),						//[W1] 13
+	(1<<10)|(1<<11)|(1<<14)|(1<<17)|(0<<16),						//[W1] 13
 	(1<<10)|(1<<11)|(1<<12)|(0<<15)|(1<<18)|(1<<17)|(1<<16)|(0<<13),//[W2] 14
 	(1<<12)|(1<<11)|(1<<14)|(1<<17)|(1<<18),						//[W3] 15
 
@@ -209,24 +210,22 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
 
 	// On trouve les 4 plus proches node
 	for(i=0; i<4; i++){
-
 		closestNode = NOT_IN_NODE;
 		minDist = 65535;
 
-		for (n = 0; n < PATHFIND_NODE_NB; n++)
-		{
-			if (PATHFIND_TST_NODE_IN(n, filteredNodes) == FALSE)
-			{
+		for (n = 0; n < PATHFIND_NODE_NB; n++){
+			if (PATHFIND_TST_NODE_IN(n, filteredNodes) == FALSE){
 				dist = PATHFIND_manhattan_dist(x, y, nodes[n].x, nodes[n].y);
-				if (dist < minDist)
-				{
+				if (dist < minDist){
 					minDist = dist;
 					closestNode = n;
 				}
 			}
 		}
+
 		if(i == 0 && closestNode == NOT_IN_NODE)
 			return closestNode;
+
 		closestNodes[i] = closestNode;
 		filteredNodes |= ((Uint32)1) << closestNode;
 	}
@@ -271,6 +270,82 @@ pathfind_node_id_t PATHFIND_closestNodeToEnd(Sint16 x, Sint16 y, Uint32 filtered
 	// On retourne le node le plus optimisé
 	return closestNode;
 }
+
+/**
+ * @brief PATHFIND_closestNodeWithoutAdversary
+ *		Fonction de sélection du node le plus proche
+ *		En fonction des positions adversaires afin de trouver le node le plus sécurisé
+ *
+ * @param x	: notre position en x
+ * @param y : notre position en y
+ * @param filteredNodes : liste des nodes filtrés (nodes "désactivés")
+ *
+ * @return l'id du node le plus proche
+ */
+pathfind_node_id_t PATHFIND_closestNodeWithoutAdversary(Sint16 x, Sint16 y, Uint32 filteredNodes){
+	Uint8 i, indexMinValue;
+	Uint16 dist, minValue, minDist;
+	pathfind_node_id_t n, closestNode, closestNodes[4] = {NOT_IN_NODE, NOT_IN_NODE, NOT_IN_NODE, NOT_IN_NODE};
+	Uint16 nodeValue[4] = {0, 0, 0, 0};
+
+	// On trouve les 4 plus proches node
+	for(i=0; i<4; i++){
+		closestNode = NOT_IN_NODE;
+		minDist = 65535;
+
+		for (n = 0; n < PATHFIND_NODE_NB; n++){
+			if (PATHFIND_TST_NODE_IN(n, filteredNodes) == FALSE){
+				dist = PATHFIND_manhattan_dist(x, y, nodes[n].x, nodes[n].y);
+				if (dist < minDist){
+					minDist = dist;
+					closestNode = n;
+				}
+			}
+		}
+
+		if(i == 0 && closestNode == NOT_IN_NODE)
+			return closestNode;
+
+		closestNodes[i] = closestNode;
+		filteredNodes |= ((Uint32)1) << closestNode;
+	}
+
+	// On retire les nodes qui ne sont pas voisin avec le node le plus proche
+	for(i=1;i<4;i++){
+		if(closestNodes[i] == NOT_IN_NODE || ((((Uint32)1) << closestNodes[i]) & nodes[closestNodes[0]].neighbors) == 0)
+			closestNodes[i] = NOT_IN_NODE;
+	}
+
+	// On calcul la valeur des nodes choisis avec la distance des adversaires
+	for(i=0;i<MAX_NB_FOES;i++){
+		for(n = 0; n < 4; n++){
+			if(closestNodes[i] != NOT_IN_NODE){
+				dist = dist_point_to_point(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y);
+				if(dist < DISTANCE_CONSIDERE_ADVERSARY)
+					nodeValue[n] = dist_point_to_point(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y);
+			}
+		}
+	}
+
+	// On choisie le node le plus éloignés des adversaires
+	indexMinValue = NOT_IN_NODE;
+	minValue = 0xFFFF;
+	for(i=0;i<MAX_NB_FOES;i++){
+		for(n = 0; n < 4; n++){
+			if(closestNodes[i] != NOT_IN_NODE){
+				if(nodeValue[n] < minValue){
+					minValue = dist;
+					indexMinValue = n;
+				}
+			}
+		}
+	}
+
+	// On retourne le node le plus sécurisé
+	return indexMinValue;
+}
+
+
 
 /**
  * @brief Pathfind_cost
@@ -331,10 +406,11 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 {
 	pathfind_node_id_t from, n, current, from_without_adversaries, suivant;
 	pathfind_node_list_t adversaries_nodes;
-	Uint16 lengthPath, distEnd;
+	Uint16 lengthPath, distEnd, closestAdv = 0xFFFF, dist;
 	Uint32 minTotalCost;
 	Uint8 i;
 	Uint8 nb_displacements = 0;
+	bool_e first_node_deleted = FALSE;
 	//On identifie les noeuds placés à moins de 500mm manhattan d'un adversaire.
 	adversaries_nodes = 0;
 	for(i=0;i<MAX_NB_FOES;i++)
@@ -350,12 +426,20 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 					SD_printf("Adv%d in node %d\n",i,n);
 				}
 			}
+			dist = dist_point_to_point(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y);
+			if(dist < closestAdv)
+				closestAdv = dist;
 		}
 	}
 
-	from_without_adversaries = 	PATHFIND_closestNode(xFrom, yFrom, 0);
-	//from = 						PATHFIND_closestNode(xFrom, yFrom, adversaries_nodes);	//On cherche le noeud le plus proche (en enlevant les noeuds occupés par l'adversaire)
-	from =						PATHFIND_closestNodeToEnd(xFrom, yFrom, adversaries_nodes, PATHFIND_get_node_x(to), PATHFIND_get_node_y(to));
+	if(closestAdv < DISTANCE_CHANGING_FIRST_NODE_FOE){
+		from_without_adversaries = 	PATHFIND_closestNode(xFrom, yFrom, 0);
+		from =						PATHFIND_closestNodeWithoutAdversary(xFrom, yFrom, adversaries_nodes);
+	}else{
+		from_without_adversaries = 	PATHFIND_closestNode(xFrom, yFrom, 0);
+		//from = 						PATHFIND_closestNode(xFrom, yFrom, adversaries_nodes);	//On cherche le noeud le plus proche (en enlevant les noeuds occupés par l'adversaire)
+		from =						PATHFIND_closestNodeToEnd(xFrom, yFrom, adversaries_nodes, PATHFIND_get_node_x(to), PATHFIND_get_node_y(to));
+	}
 
 	if(from == NOT_IN_NODE)
 		return NOT_HANDLED;	//Pas de chemin possible... c'est d'ailleurs très étrange...
@@ -468,23 +552,21 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 	/*le noeud de départ ne doit pas avoir de parent*/
 	nodes[from].parent=from;
 
-	/* Permet d'optimiser les deplacements*/
-	//PATHFIND_delete_useless_node(from, to);
-	//for (n = 0; n < PATHFIND_NODE_NB; n++) {
-	//	if (PATHFIND_TST_NODE_IN(n, closedList))
-	//		debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
-	//}
 	/* On a le chemin inverse (to->from) */
-	nb_displacements = nodes[to].nb_nodes;
-	n = to;
-	suivant = to;
 
+	/* On regarde si la distance avec le premier node peut être négligeable */
+	nb_displacements = nodes[to].nb_nodes;
 	if(nb_displacements>1 && PATHFIND_manhattan_dist(xFrom, yFrom, nodes[from].x, nodes[from].y) < IGNORE_FIRST_POINT_DISTANCE)
 	{	//Si le premier noeud est trop proche de nous pour qu'il faille le rejoindre, on considère qu'on y est déjà
 		nb_displacements--;	//Le premier déplacement ne compte pas...
+		first_node_deleted = TRUE;
 		//Comme ce serait le dernier à être enregistré... il ne sera pas enregistré.
 		debug_printf("Le node %d est proche de nous. On ne va pas s'y rendre, on va sur le point suivant.\n",from);
 	}
+
+	/* On remplie le tableau de déplacements */
+	n = to;
+	suivant = to;
 	debug_printf("Nodes : ");
 	for(i=0;i<nb_displacements;i++)
 	{
@@ -499,11 +581,18 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 		debug_printf("%d <- ",n);
 		suivant = n;
 		n = nodes[n].parent;
+
+		// Gestion de la courbe dans le cas ou l'on supprime le premier node par optimisation
+		if(i == nb_displacements-1 && first_node_deleted)
+			displacements[nb_displacements-i-1+2-1].curve = (node_curve[n] & (1<<suivant))?TRUE:FALSE;
 	}
+
 	if(nb_displacements > 0)
 		displacements[0].curve = FALSE;
-	if(nb_displacements > 1)
+
+	if(nb_displacements > 1 && first_node_deleted == FALSE)
 		displacements[1].curve = FALSE;
+
 	debug_printf(" = %d displacements\n", nb_displacements);
 	*p_nb_displacements = nb_displacements;
 	return END_OK;
