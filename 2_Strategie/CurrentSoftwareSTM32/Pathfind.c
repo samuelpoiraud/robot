@@ -36,41 +36,41 @@ static Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool
 static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 {
 	//Colonne 1 coté Rouge [A]
-	(pathfind_node_t){ 400, 500,	/* neighbors : */(1<<1)|(1<<4)},												//[A0] 0
-	(pathfind_node_t){ 800, 600,	/* neighbors : */(1<<0)|(1<<4)|(1<<5)|(1<<2)},									//[A1] 1
-	(pathfind_node_t){ 1200, 600,	/* neighbors : */(1<<1)|(1<<4)|(1<<5)|(1<<6)|(1<<3)},							//[A2] 2
-	(pathfind_node_t){ 1600, 500,	/* neighbors : */(1<<2)|(1<<5)|(1<<6)},											//[A3] 3
+	(pathfind_node_t){ 400, 500,	/* neighbors : */(1<<1)|(1<<4)},															//[A0] 0
+	(pathfind_node_t){ 800, 600,	/* neighbors : */(1<<0)|(1<<4)|(1<<5)|(1<<2)},												//[A1] 1
+	(pathfind_node_t){ 1200, 600,	/* neighbors : */(1<<1)|(1<<4)|(1<<5)|(1<<6)|(1<<3)},										//[A2] 2
+	(pathfind_node_t){ 1600, 500,	/* neighbors : */(1<<2)|(1<<5)|(1<<6)},														//[A3] 3
 
 	//Colonne 2 coté rouge [B]
-	(pathfind_node_t){ 700, 800,	/* neighbors : */(1<<0)|(1<<1)|(1<<2)|(1<<5)|(1<<8)|(1<<7)},					//[B1] 4
-	(pathfind_node_t){ 1150, 800,	/* neighbors : */(1<<1)|(1<<2)|(1<<3)|(1<<6)|(1<<9)|(1<<8)|(1<<7)|(1<<4)},		//[B2] 5
-	(pathfind_node_t){ 1550, 800,	/* neighbors : */(1<<3)|(1<<2)|(1<<5)|(1<<8)|(1<<9)},							//[B3] 6
+	(pathfind_node_t){ 700, 800,	/* neighbors : */(1<<0)|(1<<1)|(1<<2)|(1<<5)|(1<<8)|(1<<7)},								//[B1] 4
+	(pathfind_node_t){ 1150, 800,	/* neighbors : */(1<<1)|(1<<2)|(1<<3)|(1<<6)|(1<<9)|(1<<8)|(1<<7)|(1<<4)},					//[B2] 5
+	(pathfind_node_t){ 1550, 800,	/* neighbors : */(1<<3)|(1<<2)|(1<<5)|(1<<8)|(1<<9)},										//[B3] 6
 
 	//Colonne 3 coté rouge [C]
-	(pathfind_node_t){ 850, 1150,	/* neighbors : */(1<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10)},							//[C1] 7
-	(pathfind_node_t){ 1200, 1150,	/* neighbors : */(1<<4)|(1<<5)|(1<<6)|(1<<9)|(1<<12)|(1<<11)|(1<<10)|(1<<7)},	//[C2] 8
-	(pathfind_node_t){ 1550, 1150,	/* neighbors : */(1<<6)|(1<<5)|(1<<8)|(1<<11)|(1<<12)},							//[C3] 9
+	(pathfind_node_t){ 850, 1150,	/* neighbors : */(1<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10)},										//[C1] 7
+	(pathfind_node_t){ 1200, 1150,	/* neighbors : */(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<9)|(1<<10)|(1<<11)|(1<<12)|},		//[C2] 8
+	(pathfind_node_t){ 1550, 1150,	/* neighbors : */(1<<6)|(1<<5)|(1<<8)|(1<<11)|(1<<12)},										//[C3] 9
 
 	//Colonne 4 milieu [M]
-	(pathfind_node_t){ 850, 1500,	/* neighbors : */(1<<7)|(1<<8)|(1<<11)|(1<<14)|(1<<13)},						//[M1] 10
-	(pathfind_node_t){ 1200, 1500,	/* neighbors : */(1<<7)|(1<<8)|(1<<9)|(1<<12)|(1<<15)|(1<<14)|(1<<13)|(1<<10)},	//[M2] 11
-	(pathfind_node_t){ 1550, 1500,	/* neighbors : */(1<<9)|(1<<8)|(1<<11)|(1<<14)|(1<<15)},						//[M3] 12
+	(pathfind_node_t){ 850, 1500,	/* neighbors : */(1<<7)|(1<<8)|(1<<11)|(1<<14)|(1<<13)},									//[M1] 10
+	(pathfind_node_t){ 1200, 1500,	/* neighbors : */(1<<7)|(1<<8)|(1<<9)|(1<<12)|(1<<15)|(1<<14)|(1<<13)|(1<<10)},				//[M2] 11
+	(pathfind_node_t){ 1550, 1500,	/* neighbors : */(1<<9)|(1<<8)|(1<<11)|(1<<14)|(1<<15)},									//[M3] 12
 
 	//Colonne 5 coté jaune [W]
-	(pathfind_node_t){ 850, 1850,	/* neighbors : */(1<<10)|(1<<11)|(1<<14)|(1<<17)|(1<<16)},						//[W1] 13
-	(pathfind_node_t){ 1200, 1850,	/* neighbors : */(1<<10)|(1<<11)|(1<<12)|(1<<15)|(1<<18)|(1<<17)|(1<<16)|(1<<13)},//[W2] 14
-	(pathfind_node_t){ 1550, 1850,	/* neighbors : */(1<<12)|(1<<11)|(1<<14)|(1<<17)|(1<<18)},						//[W3] 15
+	(pathfind_node_t){ 850, 1850,	/* neighbors : */(1<<10)|(1<<11)|(1<<14)|(1<<17)|(1<<16)},									//[W1] 13
+	(pathfind_node_t){ 1200, 1850,	/* neighbors : */(1<<10)|(1<<11)|(1<<12)|(1<<15)|(1<<18)|(1<<17)|(1<<16)|(1<<13)|(1<<22)},	//[W2] 14
+	(pathfind_node_t){ 1550, 1850,	/* neighbors : */(1<<12)|(1<<11)|(1<<14)|(1<<17)|(1<<18)},									//[W3] 15
 
 	//Colonne 6 coté jaune [Y]
-	(pathfind_node_t){ 700, 2200,	/* neighbors : */(1<<13)|(1<<14)|(1<<17)|(1<<21)|(1<<20)|(1<<19)},				//[Y1] 16
-	(pathfind_node_t){ 1150, 2200,	/* neighbors : */(1<<13)|(1<<14)|(1<<15)|(1<<18)|(1<<22)|(1<<21)|(1<<20)|(1<<16)},//[Y2] 17
-	(pathfind_node_t){ 1550, 2200,	/* neighbors : */(1<<15)|(1<<14)|(1<<17)|(1<<21)|(1<<22)},						//[Y3] 18
+	(pathfind_node_t){ 700, 2200,	/* neighbors : */(1<<13)|(1<<14)|(1<<17)|(1<<21)|(1<<20)|(1<<19)},							//[Y1] 16
+	(pathfind_node_t){ 1150, 2200,	/* neighbors : */(1<<13)|(1<<14)|(1<<15)|(1<<18)|(1<<22)|(1<<21)|(1<<20)|(1<<16)},			//[Y2] 17
+	(pathfind_node_t){ 1550, 2200,	/* neighbors : */(1<<15)|(1<<14)|(1<<17)|(1<<21)|(1<<22)},									//[Y3] 18
 
 	//Colonne 7 coté Jaune [Z]
-	(pathfind_node_t){ 400, 2500,	/* neighbors : */(1<<16)|(1<<20)},												//[Z0] 19
-	(pathfind_node_t){ 800, 2400,	/* neighbors : */(1<<19)|(1<<16)|(1<<17)|(1<<21)},								//[Z1] 20
-	(pathfind_node_t){ 1200, 2400,	/* neighbors : */(1<<20)|(1<<16)|(1<<17)|(1<<18)|(1<<22)},						//[Z2] 21
-	(pathfind_node_t){ 1600, 2500,	/* neighbors : */(1<<21)|(1<<17)|(1<<18)},										//[Z3] 22
+	(pathfind_node_t){ 400, 2500,	/* neighbors : */(1<<16)|(1<<20)},															//[Z0] 19
+	(pathfind_node_t){ 800, 2400,	/* neighbors : */(1<<19)|(1<<16)|(1<<17)|(1<<21)},											//[Z1] 20
+	(pathfind_node_t){ 1200, 2400,	/* neighbors : */(1<<20)|(1<<16)|(1<<17)|(1<<18)|(1<<22)},									//[Z2] 21
+	(pathfind_node_t){ 1600, 2500,	/* neighbors : */(1<<21)|(1<<17)|(1<<18)},													//[Z3] 22
 
 	(pathfind_node_t){ 0, 0,		/* neighbors : */0} //[NOT_IN_NODE] 23 (invalid)
 };
@@ -100,41 +100,41 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 static Uint32 node_curve[PATHFIND_NODE_NB+1] =
 {
 	//Colonne 1 coté Rouge [A]
-	(1<<1)|(1<<4),													//[A0] 0
-	(0<<0)|(1<<4)|(1<<5)|(1<<2),									//[A1] 1
-	(1<<1)|(1<<4)|(1<<5)|(1<<6)|(0<<3),								//[A2] 2
-	(1<<2)|(1<<5)|(1<<6),											//[A3] 3
+	(1<<1)|(1<<4),																//[A0] 0
+	(0<<0)|(1<<4)|(1<<5)|(1<<2),												//[A1] 1
+	(1<<1)|(1<<4)|(1<<5)|(1<<6)|(0<<3),											//[A2] 2
+	(1<<2)|(1<<5)|(1<<6),														//[A3] 3
 
 	//Colonne 2 coté rouge [B]
-	(0<<0)|(0<<1)|(1<<2)|(1<<5)|(1<<8)|(1<<7),						//[B1] 4
-	(1<<1)|(0<<2)|(0<<3)|(0<<6)|(1<<9)|(1<<8)|(1<<7)|(1<<4),		//[B2] 5
-	(0<<3)|(1<<2)|(1<<5)|(1<<8)|(1<<9),								//[B3] 6
+	(0<<0)|(0<<1)|(1<<2)|(1<<5)|(1<<8)|(1<<7),									//[B1] 4
+	(1<<1)|(0<<2)|(0<<3)|(0<<6)|(1<<9)|(1<<8)|(1<<7)|(1<<4),					//[B2] 5
+	(0<<3)|(1<<2)|(1<<5)|(1<<8)|(1<<9),											//[B3] 6
 
 	//Colonne 3 coté rouge [C]
-	(0<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10),							//[C1] 7
-	(1<<4)|(1<<5)|(1<<6)|(0<<9)|(1<<12)|(1<<11)|(1<<10)|(0<<7),		//[C2] 8
-	(1<<6)|(1<<5)|(1<<8)|(1<<11)|(1<<12),							//[C3] 9
+	(0<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10),										//[C1] 7
+	(0<<3)|(1<<4)|(1<<5)|(1<<6)|(0<<9)|(1<<12)|(1<<11)|(1<<10)|(0<<7),			//[C2] 8
+	(1<<6)|(1<<5)|(1<<8)|(1<<11)|(1<<12),										//[C3] 9
 
 	//Colonne 4 milieu [M]
-	(1<<7)|(1<<8)|(1<<11)|(1<<14)|(1<<13),							//[M1] 10
-	(1<<7)|(1<<8)|(1<<9)|(0<<12)|(1<<15)|(1<<14)|(1<<13)|(0<<10),	//[M2] 11
-	(1<<9)|(1<<8)|(1<<11)|(1<<14)|(1<<15),							//[M3] 12
+	(1<<7)|(1<<8)|(1<<11)|(1<<14)|(1<<13),										//[M1] 10
+	(1<<7)|(1<<8)|(1<<9)|(0<<12)|(1<<15)|(1<<14)|(1<<13)|(0<<10),				//[M2] 11
+	(1<<9)|(1<<8)|(1<<11)|(1<<14)|(1<<15),										//[M3] 12
 
 	//Colonne 5 coté jaune [W]
-	(1<<10)|(1<<11)|(1<<14)|(1<<17)|(0<<16),						//[W1] 13
-	(1<<10)|(1<<11)|(1<<12)|(0<<15)|(1<<18)|(1<<17)|(1<<16)|(0<<13),//[W2] 14
-	(1<<12)|(1<<11)|(1<<14)|(1<<17)|(1<<18),						//[W3] 15
+	(1<<10)|(1<<11)|(1<<14)|(1<<17)|(0<<16),									//[W1] 13
+	(1<<10)|(1<<11)|(1<<12)|(0<<15)|(1<<18)|(1<<17)|(1<<16)|(0<<13)|(0<<22),	//[W2] 14
+	(1<<12)|(1<<11)|(1<<14)|(1<<17)|(1<<18),									//[W3] 15
 
 	//Colonne 6 coté jaune [Y]
-	(1<<13)|(1<<14)|(1<<17)|(1<<21)|(0<<20)|(0<<19),				//[Y1] 16
-	(1<<13)|(1<<14)|(1<<15)|(0<<18)|(0<<22)|(0<<21)|(1<<20)|(1<<16),//[Y2] 17
-	(1<<15)|(1<<14)|(1<<17)|(1<<21)|(0<<22),						//[Y3] 18
+	(1<<13)|(1<<14)|(1<<17)|(1<<21)|(0<<20)|(0<<19),							//[Y1] 16
+	(1<<13)|(1<<14)|(1<<15)|(0<<18)|(0<<22)|(0<<21)|(1<<20)|(1<<16),			//[Y2] 17
+	(1<<15)|(1<<14)|(1<<17)|(1<<21)|(0<<22),									//[Y3] 18
 
 	//Colonne 7 coté Jaune [Z]
-	(1<<16)|(1<<20),												//[Z0] 19
-	(0<<19)|(0<<16)|(1<<17)|(1<<21),								//[Z1] 20
-	(1<<20)|(0<<16)|(1<<17)|(1<<18)|(0<<22),						//[Z2] 21
-	(1<<21)|(1<<17)|(1<<18),										//[Z3] 22
+	(1<<16)|(1<<20),															//[Z0] 19
+	(0<<19)|(0<<16)|(1<<17)|(1<<21),											//[Z1] 20
+	(1<<20)|(0<<16)|(1<<17)|(1<<18)|(0<<22),									//[Z2] 21
+	(1<<21)|(1<<17)|(1<<18),													//[Z3] 22
 	0
 };
 
@@ -508,6 +508,9 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 				lengthPath = Pathfind_cost(current, n, FALSE);
 				distEnd = Pathfind_cost(n, to, TRUE);
 
+				//if(n == Z3)
+					debug_printf("focus %d, current %d, total %d, just %d\n", n, current, nodes[current].length_path + lengthPath, lengthPath);
+
 				/*
 				 * Si elle n'est pas dans la liste ouverte, on l'y ajoute.
 				 * La case en cours devient le parent de cette case.
@@ -848,220 +851,6 @@ void PATHFIND_updateOpponentPosition(Uint8 foe_id)
 	}
 	debug_printf("UPDATE OPPONENT POSITION FOE %d: %d\n", foe_id, nodeOpponent[foe_id]);
 }
-
-
-/* Test d'une nouvelle fonction de compute (2014) */
-error_e PATHFIND_compute_new(displacement_curve_t * displacements, Uint8 * p_nb_displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to)
-{
-	pathfind_node_id_t from, n, current, from_without_adversaries, suivant;
-	pathfind_node_list_t adversaries_nodes;
-	Uint16 minLengthPath, lengthPath, distEnd;
-	Uint8 i;
-	Uint8 nb_displacements = 0;
-	//On identifie les noeuds placés à moins de 500mm manhattan d'un adversaire.
-	adversaries_nodes = 0;
-	for(i=0;i<MAX_NB_FOES;i++)
-	{
-		if(global.env.foe[i].enable && global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
-		{
-			for(n = 0; n < PATHFIND_NODE_NB; n++)	//Pour chaque noeud
-			{	//Si l'adversaire en question est proche du noeud : on ajoute le noeud dans la liste des noeuds innaccessibles.
-
-				if(PATHFIND_manhattan_dist(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y)<MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY)
-				{
-					PATHFIND_SET_NODE_IN(n,adversaries_nodes);
-					SD_printf("Adv%d in node %d\n",i,n);
-				}
-			}
-		}
-	}
-
-	from_without_adversaries = 	PATHFIND_closestNode(xFrom, yFrom, 0);
-	from = 						PATHFIND_closestNode(xFrom, yFrom, adversaries_nodes);	//On cherche le noeud le plus proche (en enlevant les noeuds occupés par l'adversaire)
-//	from =						PATHFIND_closestNodeToEnd(xFrom, yFrom, adversaries_nodes, PATHFIND_get_node_x(to), PATHFIND_get_node_y(to));
-
-	if(from == NOT_IN_NODE)
-		return NOT_HANDLED;	//Pas de chemin possible... c'est d'ailleurs très étrange...
-
-	//si le noeud le plus proche est un noeud situé de l'autre coté d'un obstacle car les adversaires empêchent l'accès aux autres noeuds !!!!
-	//Le noeud le plus proche sans filtrage adverse... correspond à notre position, doit permettre d'accéder par la logique des voisinages au noeud le plus proche avec filtrage adverse/
-	//Sinon : pas de chemin !
-	//AUTREMENT DIT.... (la même chose en différent)
-	//Si le noeud 'from' (le plus proche parmi ceux qui ne sont pas recouvert par des adversaires)
-	//		n'est pas dans la liste des voisins du noeud réel le plus proche (from_without_adversaries)..
-	//Alors, on ne peut pas considérer que l'on se trouve sur le noeud from...
-	if((from != from_without_adversaries) && !(PATHFIND_TST_NODE_IN(from, nodes[from_without_adversaries].neighbors)))
-		return NOT_HANDLED;
-
-	//Une meilleure piste devrait être dans ce cas de choisir un point calculé permettant de s'extraire de l'adversaire.
-
-
-	debug_printf ("x:%d | y:%d | from:%d | to:%d\n", xFrom, yFrom, from, to);
-
-	/* On reinitialise les listes et penalites */
-	openList = 0;
-	closedList = 0;
-
-	/* On ajoute le point de depart dans la liste ouverte */
-	PATHFIND_SET_NODE_IN(from, openList);
-	/* TODO mettre le cout a la distance que le robot doit parcourir pour atteindre le noeud */
-	nodes[from].total_cost = 0;
-	nodes[from].nb_nodes = 1;
-
-
-	/* Tant que la destination n'est pas dans la liste fermee
-	 * et que la liste ouverte n'est pas vide
-	 */
-	while ((!PATHFIND_TST_NODE_IN(to, closedList)) && (openList != 0))
-	{
-
-		/*
-		 * On cherche la case ayant le cout F le plus faible dans la
-		 * liste ouverte. Elle devient la case en cours.
-		 */
-		minLengthPath = 0xFFFF;	//On suppose que le cout est max.
-		current = 0;
-		for (n = 0; n < PATHFIND_NODE_NB; n++) {
-			if (PATHFIND_TST_NODE_IN(n, openList) && nodes[n].total_cost < minLengthPath) {
-				minLengthPath = nodes[n].total_cost;
-				current = n;
-			}
-		}
-
-		/* On passe la case en cours dans la liste fermee */
-		PATHFIND_CLR_NODE_IN(current, openList);
-		PATHFIND_SET_NODE_IN(current, closedList);
-		//debug_printf("current open->close %d\n", current);
-
-		/* Pour toutes les cases adjacentes n'etant pas dans la liste fermee */
-		for (n = 0; n < PATHFIND_NODE_NB; n++) {
-
-			if ( (PATHFIND_TST_NODE_IN(n, nodes[current].neighbors)) &&
-				 !(PATHFIND_TST_NODE_IN(n, closedList)) &&
-				 !(PATHFIND_TST_NODE_IN(n,adversaries_nodes)) )
-			{
-				lengthPath = Pathfind_cost_new(current, n, FALSE);
-				distEnd = Pathfind_cost_new(n, to, TRUE) * FACTEUR_DIRECTIF;
-
-				/*
-				 * Si elle n'est pas dans la liste ouverte, on l'y ajoute.
-				 * La case en cours devient le parent de cette case.
-				 * On calcule les couts F, G et H de cette case.
-				 */
-				if (!PATHFIND_TST_NODE_IN(n, openList))
-				{
-					PATHFIND_SET_NODE_IN(n, openList);
-					nodes[n].parent = current;
-					nodes[n].length_path = nodes[current].length_path + lengthPath;
-					nodes[n].dist_end = distEnd;
-					nodes[n].total_cost = nodes[n].length_path + distEnd;
-					nodes[n].nb_nodes = nodes[current].nb_nodes + 1;
-				}
-				/*
-				 * Si elle est deja  dans la liste ouverte, on teste si le
-				 * chemin passant par la case en cours est meilleur en
-				 * comparant les couts G. Un cout G inferieur signifie un
-				 * meilleur chemin. Si c'est le cas, on change le parent de
-				 * la case pour devenir la case en cours, en on recalcule les
-				 * couts F et G.
-				 */
-				else {
-
-					if (lengthPath < nodes[n].length_path) {
-						nodes[n].length_path = nodes[current].length_path + lengthPath;
-						nodes[n].dist_end = distEnd;
-						nodes[n].total_cost = nodes[n].length_path + distEnd;
-						nodes[n].parent = current;
-						nodes[n].nb_nodes = nodes[current].nb_nodes + 1;
-					}
-				}
-			}
-		}
-	}
-
-	/* Si le chemin n'a pas été trouvé */
-	if (!PATHFIND_TST_NODE_IN(to, closedList))
-		return NOT_HANDLED;
-
-
-	/*le noeud de départ ne doit pas avoir de parent*/
-	nodes[from].parent=from;
-
-	/* Permet d'optimiser les deplacements*/
-	//PATHFIND_delete_useless_node(from, to);
-	//for (n = 0; n < PATHFIND_NODE_NB; n++) {
-	//	if (PATHFIND_TST_NODE_IN(n, closedList))
-	//		debug_printf(" Node %d : cost = %d | total_cost = %d | parent = %d\n", n, nodes[n].cost, nodes[n].total_cost, nodes[n].parent);
-	//}
-	/* On a le chemin inverse (to->from) */
-	nb_displacements = nodes[to].nb_nodes;
-	n = to;
-	suivant = to;
-
-	if(nb_displacements>1 && PATHFIND_manhattan_dist(xFrom, yFrom, nodes[from].x, nodes[from].y) < IGNORE_FIRST_POINT_DISTANCE)
-	{	//Si le premier noeud est trop proche de nous pour qu'il faille le rejoindre, on considère qu'on y est déjà
-		nb_displacements--;	//Le premier déplacement ne compte pas...
-		//Comme ce serait le dernier à être enregistré... il ne sera pas enregistré.
-		debug_printf("Le node %d est proche de nous. On ne va pas s'y rendre, on va sur le point suivant.\n",from);
-	}
-	debug_printf("Nodes : ");
-	for(i=0;i<nb_displacements;i++)
-	{
-		displacements[nb_displacements-i-1].point.x = nodes[n].x;
-		displacements[nb_displacements-i-1].point.y = nodes[n].y;
-		if(suivant != to && nb_displacements-i-1+2 < nb_displacements)
-			displacements[nb_displacements-i-1+2].curve = (node_curve[n] & (1<<suivant))?TRUE:FALSE;
-		// On attribue le droit à la trajectoire de faire une courbe si :
-		// une trajectoire du node courant (n) vers le node suivant (suivant)
-		//		autorise une trajectoire pour le déplacement d'après (nb_displacements-i-1+2)
-
-		debug_printf("%d <- ",n);
-		suivant = n;
-		n = nodes[n].parent;
-	}
-	if(nb_displacements > 0)
-		displacements[0].curve = FALSE;
-	if(nb_displacements > 1)
-		displacements[1].curve = FALSE;
-	debug_printf(" = %d displacements\n", nb_displacements);
-	*p_nb_displacements = nb_displacements;
-	return END_OK;
-}
-
-
-
-/* Test d'une nouvelle fonction de calcul de coût (2014) */
-Uint16 Pathfind_cost_new(pathfind_node_id_t from, pathfind_node_id_t to, bool_e handleOpponent)
-{
-	/* On se base sur un manhattan */
-	Uint16 cost;
-	Uint16 already_compute[PATHFIND_NODE_NB][PATHFIND_NODE_NB] = {{0}};
-
-	if(already_compute[from][to] != 0)
-		cost = already_compute[from][to];
-	else
-		already_compute[from][to] = cost = GEOMETRY_distance((GEOMETRY_point_t){nodes[from].x, nodes[from].y}, (GEOMETRY_point_t){nodes[to].x, nodes[to].y});
-
-	/*if (handleOpponent)
-	{
-
-	 * Si l'adversaire est à moins de 90 cm du noeud, on
-	 * ajoute une pénalité importante, inversement proportionnelle à la distance adversaire-noeud
-
-
-		for(i=0; i<MAX_NB_FOES; i++)
-		{
-			if(global.env.foe[i].enable	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
-			{
-				dist = PATHFIND_manhattan_dist(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
-				if (dist < ((Uint32)900))	//Si l'adversaire proche de nous est proche du noeud en question... on allourdi sérieusement le coût de ce noeud.
-					cost += (((Uint32)900) - dist);
-			}
-		}
-	}*/
-	return cost;
-}
-
 
 /*
 pathfind_node_id_t  PATHFIND_random_neighbor(pathfind_node_id_t of, bool_e handleOpponent[MAX_NB_FOES])
