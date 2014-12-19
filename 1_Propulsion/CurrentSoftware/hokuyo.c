@@ -81,7 +81,7 @@
 	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
 
 
-	static Uint8 HOKUYO_datas[NB_BYTES_FROM_HOKUYO];				//Données brutes issues du capteur HOKUYO
+	static Uint8 HOKUYO_datas[NB_BYTES_FROM_HOKUYO]__attribute__((section(".ccm")));				//Données brutes issues du capteur HOKUYO
 	static Uint32 datas_index=0;									//Index pour ces données
 
 	#define NB_DETECTED_VALID_POINTS	1100
