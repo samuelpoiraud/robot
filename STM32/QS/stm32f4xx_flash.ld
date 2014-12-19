@@ -133,7 +133,6 @@ SECTIONS
 	} >RAM
 
 
-
 	/* This is the uninitialized data section */
 	.bss :
 	{
@@ -160,6 +159,15 @@ SECTIONS
 		. = ALIGN(4);
 		_enoinit = . ;
 	} >RAM
+
+	.ccm :
+    {
+	    . = ALIGN(4);
+        
+        *(.ccm)
+        
+	    . = ALIGN(4);
+    } > CCMRAM
 
 	PROVIDE ( end = _enoinit );
 	PROVIDE ( _end = _enoinit );
