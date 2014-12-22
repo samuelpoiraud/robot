@@ -51,12 +51,15 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	//--------------Sub action de holly
 	HOLLY_SUB_COLLECT_POPCORN,
 	HOLLY_SUB_DROP_POPCORN,
+	HOLLY_SUB_COLLECT_POPCORN_ADV,
 	//Peu importe l'ordre des états... (sauf en cas de priorité égale)
 	//--------------Sub action de wood
 	WOOD_SUB_INITIAL,
 	WOOD_SUB_ADV_CLAP,
+	WOOD_SUB_OUR_CLAP,
 	WOOD_SUB_ADV_POPCORN,
 	WOOD_SUB_CUP_DISPOSE,
+	WOOD_SUB_PROTECT_POPCORN,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
