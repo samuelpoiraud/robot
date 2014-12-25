@@ -47,7 +47,7 @@ Sint16 atan4096(double tangent)
 	return (Sint16)(atan(tangent)*4096);
 }
 
-Sint16 atan2_4096(double x, double y)
+Sint16 atan2_4096(double y, double x)
 {
 	return (Sint16)(2*atan(y/((x+sqrt(x*x+y*y))*1.0))*4096);
 }
