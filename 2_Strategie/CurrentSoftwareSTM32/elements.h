@@ -25,5 +25,7 @@
 	}element_group_e;
 
 void ELEMENTS_init();
+void visit_salle_Cinema(Uint8 salle_Number);
+bool_e salle_Cinema_Available(Uint8 salle_Number);
 
 #endif // ELEMENTS_H

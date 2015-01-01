@@ -7,7 +7,7 @@
 
 ELEMENTS_element_s ELEMENTS_spot[NB_SPOT];
 ELEMENTS_element_s ELEMENTS_cup[NB_CUP];
-
+ELEMENTS_element_s ELEMENTS_salle_cinema[3];  //salle0(chez nous) salle 1(chez l'adversaire côté marches), salle 2(chez l'adversaire côté claps)
 
 void ELEMENTS_init(){
 	Uint8 i;
@@ -18,7 +18,8 @@ void ELEMENTS_init(){
 	for(i=0;i<NB_CUP;i++)
 		ELEMENTS_cup[i].state = AVAILABLE;
 
-
+	for(i=0;i<3;i++)
+		ELEMENTS_salle_cinema[i].state = AVAILABLE;
 	// Initialisation des positions de chaques élements
 
 	// Spot Jaune
@@ -104,4 +105,12 @@ void ELEMENTS_init(){
 
 	ELEMENTS_cup[4].x = 1750;
 	ELEMENTS_cup[4].y = 2750;
+}
+
+void visit_salle_Cinema(Uint8 salle_Number){
+	ELEMENTS_salle_cinema[salle_Number].state = TAKE;
+}
+
+bool_e salle_Cinema_Available(Uint8 salle_Number){
+	return (ELEMENTS_salle_cinema[salle_Number].state==AVAILABLE);
 }
