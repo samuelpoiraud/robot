@@ -967,21 +967,25 @@ void Hokuyo_validPointsAndBeacons(){
 	//debug_printf("val bizarres [%d]\n",nb_val_bizarres);
 }
 
+Sint32 x1, x2, y2;
+Sint16 a1=0, a2=0, a3=0, a4=0, moyAngle12=0, moyAngle34=0, condition12=0, condition34=0; //abscisse, ordonnée et angle
 void triangulation(){
-	Sint32 x1, y1, x2, y2;
-	Uint32 a1, a2, a3, a4, moyAngle12, moyAngle34, condition12, condition34;; //abscisse, ordonnée et angle
-	robot.teta = global.position.teta;
-	robot.x = global.position.x;
-	robot.y = global.position.y;
+	Sint32 y1;
+	//robot.teta = global.position.teta;
+	//robot.x = global.position.x;
+	//robot.y = global.position.y;
+	robot.x = 700;  //test
+	robot.y = 1500;
+	robot.teta= -PI4096;
 	debug_printf("Robot  x=%ld  y=%ld  teta=%ld \n\n",robot.x, robot.y, robot.teta);
 	//robot.x = robot.x - ECART_HOKUYO_A_DROITE*sin4096(robot.teta);
 	//robot.y = robot.y + ECART_HOKUYO_A_DROITE*cos4096(robot.teta);
-	debug_printf("\n####TRIANGULATION####");
+	debug_printf("\n####TRIANGULATION####\n");
 	debug_printf("B1_detected=%d \n", B1detected);
 	debug_printf("B2_detected=%d \n", B2detected);
 	debug_printf("B3_detected=%d \n\n", B3detected);
-	//debug_printf("Beacon1  dist=%ld  teta=%d \n", beacon1.dist, beacon1.teta);
-	//debug_printf("Beacon2  dist=%ld  teta=%d \n", beacon2.dist, beacon2.teta);
+	debug_printf("Beacon1  dist=%ld  teta=%d \n", beacon1.dist, beacon1.teta);
+	debug_printf("Beacon2  dist=%ld  teta=%d \n", beacon2.dist, beacon2.teta);
 	debug_printf("Beacon3  dist=%ld  teta=%d \n", beacon3.dist, beacon3.teta);
 	//debug_printf("Après correction hokuyo Robot  x=%ld  y=%ld  teta=%ld \n\n",robot.x, robot.y, robot.teta);*/
 
@@ -989,11 +993,11 @@ void triangulation(){
 		//balise 1
 		if(B1detected==1){
 			//debug_printf("\nTriangulation B1");
-			x1 = -beacon1.dist*sin4096(beacon1.teta+robot.teta)-62;
-			y1 = beacon1.dist*cos4096(beacon1.teta+robot.teta)-62;
+			x1 = -beacon1.dist*sin((beacon1.teta+robot.teta)/4096.)-62;
+			y1 = beacon1.dist*cos((beacon1.teta+robot.teta)/4096.)-62;
 
-			x2 = beacon1.dist*sin4096(beacon1.teta+robot.teta)-62;
-			y2 = -beacon1.dist*cos4096(beacon1.teta+robot.teta)-62;
+			x2 = beacon1.dist*sin((beacon1.teta+robot.teta)/4096.)-62;
+			y2 = -beacon1.dist*cos((beacon1.teta+robot.teta)/4096.)-62;
 
 			if(x1>0 && x1<2000 && y1>0 && y1<3000){
 				currentRobot[0].x = x1;
@@ -1004,8 +1008,9 @@ void triangulation(){
 			}
 			currentRobot[0].teta=robot.teta;
 			currentRobot[0].weight=5;
-			//debug_printf("\n currentRobot[0]: x1=%d y1=%d ", x1, y1);
-			//debug_printf("\n currentRobot[0]: x2=%d y2=%d ", x2, y2);
+
+			debug_printf("\n currentRobot[0]: x1=%ld y1=%ld ", x1, y1);
+			debug_printf("\n currentRobot[0]: x2=%ld y2=%ld ", x2, y2);
 			debug_printf("\n currentRobot[0]: x=%ld y=%ld ", currentRobot[0].x, currentRobot[0].y);
 			//debug_printf("FIN\n");
 		}
@@ -1014,14 +1019,18 @@ void triangulation(){
 		if(B2detected==1){
 
 			//debug_printf("\nTriangulation B2");
-			x1= - ( puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2)*(beacon2.dist-1000)-beacon2.dist-1000) / (puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2)+1) ;
-			y1 = 2*( (beacon2.dist*tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096)+1531*puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2)+1531) / (puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2)+1) );
+			x1= - ( puissance_float(tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4)),2)*(beacon2.dist-1000)-beacon2.dist-1000) / (puissance_float(tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4)),2)+1) ;
+			y1 = 2*( (beacon2.dist*tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4))+1531*puissance_float(tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4)),2)+1531) / (puissance_float(tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4)),2)+1) );
 
-			x2= ( puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2)*(beacon2.dist+1000)-beacon2.dist+1000) / (puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2)+1) ;
-			y2 = -2*( (beacon2.dist*tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096)-1531*puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2)-1531) / (puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2)+1) );
-
-			//debug_printf("\n currentRobot[1]: x1=%d y1=%d ", x1, y1);
-			//debug_printf("\n currentRobot[1]: x2=%d y2=%d ", x2, y2);
+			x2= ( puissance_float(tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4)),2)*(beacon2.dist+1000)-beacon2.dist+1000) / (puissance_float(tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4)),2)+1) ;
+			y2 = -2*( (beacon2.dist*tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4))-1531*puissance_float(tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4)),2)-1531) / (puissance_float(tan4096((Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4)),2)+1) );
+			//debug_printf("robot.teta/2=%d\n",robot.teta/2);
+			//debug_printf("robot.teta/2+beacon2.teta/2+PI4096/4=%d\n",(Sint16)(robot.teta/2 + beacon2.teta/2 + PI4096/4));
+			//display_float(tan4096(robot.teta/2+beacon2.teta/2+PI4096/4));
+			//display_float(puissance_float(tan4096(robot.teta/2+beacon2.teta/2+PI4096/4),2));
+			//debug_printf("puissance valeur a tester= %f\n",puissance_float(tan4096(1/2.0*robot.teta+1/2.0*beacon2.teta+1/4.*PI4096),2));
+			debug_printf("\n currentRobot[1]: x1=%ld y1=%ld ", x1, y1);
+			debug_printf("\n currentRobot[1]: x2=%ld y2=%ld ", x2, y2);
 			if(x1>0 && x1<2000 && y1>0 && y1<3000){
 				currentRobot[1].x = x1;
 				currentRobot[1].y = y1;
@@ -1064,13 +1073,13 @@ void triangulation(){
 			//debug_printf("\nTriangulation B1 & B2");
 			x1=((531/10887220.0)*(puissance(beacon1.dist,2)-puissance(beacon2.dist,2))+469-(781/5443610.0)*sqrt(-puissance(beacon1.dist,4)+2*puissance(beacon1.dist,2)*puissance(beacon2.dist,2)-puissance(beacon2.dist,4)+21774440*(puissance(beacon1.dist,2)+puissance(beacon2.dist,2))-118531559328400ULL));
 			y1=(781/5443610.0)*(puissance(beacon1.dist,2)-puissance(beacon2.dist,2))+1500+(531/10887220.0)*sqrt(-puissance(beacon1.dist,4)+2*puissance(beacon1.dist,2)*puissance(beacon2.dist,2)-puissance(beacon2.dist,4)+21774440*(puissance(beacon1.dist,2)+puissance(beacon2.dist,2))-118531559328400ULL);
-			a1= PI4096/2. - beacon1.teta + atan4096(y1/(1.*x1));
-			a2= atan2_4096(3000-y1,1000-x1)-PI4096/2. -beacon2.teta;
+			a1= (PI4096/2 - beacon1.teta +atan4096(y1/(1.*x1)));
+			a2= atan2_4096(3000-y1,1000-x1)-PI4096/2 -beacon2.teta;
 
 			x2=(531/10887220.0)*(puissance(beacon1.dist,2)-puissance(beacon2.dist,2))+469+(781/5443610.0)*sqrt(-puissance(beacon1.dist,4)+2*puissance(beacon1.dist,2)*puissance(beacon2.dist,2)-puissance(beacon2.dist,4)+21774440*(puissance(beacon1.dist,2)+puissance(beacon2.dist,2))-(118531559328400ULL));
 			y2=(781/5443610.0)*(puissance(beacon1.dist,2)-puissance(beacon2.dist,2))+1500-(531/10887220.0)*sqrt(-puissance(beacon1.dist,4)+2*puissance(beacon1.dist,2)*puissance(beacon2.dist,2)-puissance(beacon2.dist,4)+21774440*(puissance(beacon1.dist,2)+puissance(beacon2.dist,2))-(118531559328400ULL));
-			a3= PI4096/2. - beacon1.teta + atan4096(y2/(1.*x2));
-			a4= atan2_4096(3000-y2,1000-x2)-PI4096/2. -beacon2.teta;
+			a3= PI4096/2 - beacon1.teta + atan4096(y2/(1.*x2));
+			a4= atan2_4096(3000-y2,1000-x2)-PI4096/2 -beacon2.teta;
 
 			if(a1>PI4096)  a1-=2*PI4096;
 			if(a1<-PI4096) a1+=2*PI4096;
@@ -1080,26 +1089,53 @@ void triangulation(){
 			if(a3<-PI4096) a3+=2*PI4096;
 			if(a4>PI4096)  a4-=2*PI4096;
 			if(a4<-PI4096) a4+=2*PI4096;
-			moyAngle12=(a1+a2)/2.;
-			moyAngle34=(a3+a4)/2.;
 
-			if(moyAngle12<atan4096(y1/(1.*x1))+PI4096/2 && moyAngle12>PI4096/2){
-				condition12= PI4096/2. - moyAngle12 + atan4096(y1/(1.*x1));
-			}else{
-				condition12= 2*PI4096+ PI4096/2. - moyAngle12 + atan4096(y1/(1.*x1));
-			}
-			if(moyAngle34<atan4096(y2/(1.*x2))+PI4096/2 && moyAngle34>PI4096/2){
-				condition34= PI4096/2. - moyAngle34 + atan4096(y2/(1.*x2));
-			}else{
-				condition34= 2*PI4096+ PI4096/2. - moyAngle34 + atan4096(y2/(1.*x2));
-			}
+
+			//debug_printf("moyangle12=%d  moyangle34=%d\n", moyAngle12, moyAngle34);
+
+			//if(moyAngle12<atan4096(y1/(1.*x1))+PI4096/2 && moyAngle12>PI4096/2){		//inutile
+			//	condition12= PI4096/2 - moyAngle12 + atan4096(y1/(1.*x1));
+
+			//}else{
+				condition12= 2*PI4096+ PI4096/2 - a1 + atan4096(y1/(1.*x1));  //moyAngle12
+			//}
+			//if(moyAngle34<atan4096(y2/(1.*x2))+PI4096/2 && moyAngle34>PI4096/2){
+			//	condition34= PI4096/2 - moyAngle34 + atan4096(y2/(1.*x2));
+			//}else{
+				condition34= PI4096/2 - a3 + atan4096(y2/(1.*x2));    //moyAngle34
+				//debug_printf("atan4096(y2/(1.*x2))=%d\n", atan4096(y2/(1.*x2)));
+				//debug_printf("PI4096/2 - moyAngle34 + atan4096(y2/(1.*x2))=%d\n", PI4096/2 - moyAngle34 + atan4096(y2/(1.*x2)));
+			//}
 			//debug_printf("cond12=%d   cond34=%d \n", condition12, condition34);
+
 			if(condition12<0) condition12+=2*PI4096;
 			if(condition34<0) condition34+=2*PI4096;
 			if(condition12>2*PI4096) condition12-=2*PI4096;
 			if(condition34>2*PI4096) condition34-=2*PI4096;
+
+			//On gère la coupure en -PI
+			if(a1>1000 && a2<-10000){
+				a2+=2*PI4096;
+			}else if(a1<-1000 && a2>10000){
+				 a1+=2*PI4096;
+			}
+			moyAngle12=(a1+a2)/2;
+
+			if(a3>1000 && a4<-10000){
+				a4+=2*PI4096;
+			}else if(a3<-1000 && a4>10000){
+				 a3+=2*PI4096;
+			}
+			moyAngle34=(a3+a4)/2;
+
+			if(moyAngle12>PI4096)  moyAngle12-=2*PI4096;
+			if(moyAngle12<-PI4096) moyAngle12+=2*PI4096;
+			if(moyAngle34>PI4096)  moyAngle34-=2*PI4096;
+			if(moyAngle34<-PI4096) moyAngle34+=2*PI4096;
+
 			//la mesure des angles permet de déterminer quelle position est correcte
-			if(	fabs(beacon1.teta-condition12) < fabs(beacon1.teta-condition34) ){
+			//if(	fabs(beacon1.teta-condition12) < fabs(beacon1.teta-condition34) ){
+			if(puissance(robot.x-x1,2)+puissance(robot.y-y1,2) < puissance(robot.x-x2,2)+puissance(robot.y-y2,2)){
 				currentRobot[3].x=x1;
 				currentRobot[3].y=y1;
 				currentRobot[3].teta=moyAngle12;
@@ -1111,8 +1147,8 @@ void triangulation(){
 				currentRobot[3].weight=10;
 			}
 			//debug_printf("1) atan2=%d       2) atan2=%d \n", atan2_4096(3000-y1,1000-x1), atan2_4096(3000-y2,1000-x2) );
-			/*debug_printf("\n currentRobot[3]: x1=%ld y1=%ld angle1=%ld angle2=%ld", x1, y1, a1, a2);
-			debug_printf("\n currentRobot[3]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);*/
+			debug_printf("\n currentRobot[3]: x1=%ld y1=%ld angle1=%ld angle2=%ld", x1, y1, a1, a2);
+			debug_printf("\n currentRobot[3]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);
 			debug_printf("\n currentRobot[3]: x=%ld y=%ld angle=%ld  ", currentRobot[3].x, currentRobot[3].y, currentRobot[3].teta);
 			//debug_printf("FIN\n");
 		}
@@ -1125,15 +1161,22 @@ void triangulation(){
 			x2=x1;//l'abscisse est identique
 			y2=-62-sqrt((-puissance(beacon1.dist,4)+2*puissance(beacon1.dist,2)*puissance(beacon3.dist,2)-puissance(beacon3.dist,4)+9022752*(puissance(beacon1.dist,2)+puissance(beacon3.dist,2))-20352513413376ULL)/4248.);
 
-			a1= PI4096/2. - beacon1.teta + atan4096(y1/(1.*x1));
+			a1= PI4096/2 - beacon1.teta + atan4096(y1/(1.*x1));
 			a2= PI4096-beacon3.teta+atan4096((2000-x1)/(1.*y1));
-			a3= PI4096/2. - beacon1.teta + atan4096(y2/(1.*x2));
+			a3= PI4096/2 - beacon1.teta + atan4096(y2/(1.*x2));
 			a4= PI4096-beacon3.teta+atan4096((2000-x2)/(1.*y2));
 			if(a1>PI4096)  a1-=2*PI4096;
 			if(a1<-PI4096) a1+=2*PI4096;
 			if(a2>PI4096)  a2-=2*PI4096;
 			if(a2<-PI4096) a2+=2*PI4096;
-			moyAngle12=(a1+a2)/2.;
+
+			//On gère la coupure en -PI
+			if(a1>1000 && a2<-10000){
+				a2+=2*PI4096;
+			}else if(a1<-1000 && a2>10000){
+				 a1+=2*PI4096;
+			}
+			moyAngle12=(a1+a2)/2;
 
 			//la mesure des angles permet de déterminer quelle position est correcte
 			currentRobot[4].x=x1;
@@ -1152,12 +1195,12 @@ void triangulation(){
 			x1=(531/10887220.0)*(puissance(beacon2.dist,2)-puissance(beacon3.dist,2))+1531+(781/5443610.0)*sqrt(-puissance(beacon2.dist,4)+2*puissance(beacon2.dist,2)*puissance(beacon3.dist,2)-puissance(beacon3.dist,4)+21774440*(puissance(beacon2.dist,2)+puissance(beacon3.dist,2))-118531559328400ULL);
 			y1=-(781/5443610.0)*(puissance(beacon2.dist,2)-puissance(beacon3.dist,2))+1500+(531/10887220.0)*sqrt(-puissance(beacon2.dist,4)+2*puissance(beacon2.dist,2)*puissance(beacon3.dist,2)-puissance(beacon3.dist,4)+21774440*(puissance(beacon2.dist,2)+puissance(beacon3.dist,2))-118531559328400ULL);
 			a1= PI4096-beacon3.teta+atan4096((2000-x1)/(1.*y1));
-			a2= atan2_4096(3000-y1,1000-x1)-PI4096/2. -beacon2.teta;
+			a2= atan2_4096(3000-y1,1000-x1)-PI4096/2 -beacon2.teta;
 
 			x2=(531/10887220.0)*(puissance(beacon2.dist,2)-puissance(beacon3.dist,2))+1531-(781/5443610.0)*sqrt(-puissance(beacon2.dist,4)+2*puissance(beacon2.dist,2)*puissance(beacon3.dist,2)-puissance(beacon3.dist,4)+21774440*(puissance(beacon2.dist,2)+puissance(beacon3.dist,2))-118531559328400ULL);
 			y2=-(781/5443610.0)*(puissance(beacon2.dist,2)-puissance(beacon3.dist,2))+1500-(531/10887220.0)*sqrt(-puissance(beacon2.dist,4)+2*puissance(beacon2.dist,2)*puissance(beacon3.dist,2)-puissance(beacon3.dist,4)+21774440*(puissance(beacon2.dist,2)+puissance(beacon3.dist,2))-118531559328400ULL);
 			a3= PI4096-beacon3.teta+atan4096((2000-x2)/(1.*y2));
-			a4= atan2_4096(3000-y2,1000-x2)-PI4096/2. -beacon2.teta;
+			a4= atan2_4096(3000-y2,1000-x2)-PI4096/2 -beacon2.teta;
 
 			if(a1>PI4096)  a1-=2*PI4096;
 			if(a1<-PI4096) a1+=2*PI4096;
@@ -1167,14 +1210,41 @@ void triangulation(){
 			if(a3<-PI4096) a3+=2*PI4096;
 			if(a4>PI4096)  a4-=2*PI4096;
 			if(a4<-PI4096) a4+=2*PI4096;
-			moyAngle12=(a1+a2)/2.;
-			moyAngle34=(a3+a4)/2.;
 
-			condition12= (moyAngle12<-PI4096+atan4096((2000-x1)/(y1*1.)) && moyAngle12>-PI4096) ? -PI4096-moyAngle12 + atan4096((2000-x1)/(1.*y1)): PI4096-moyAngle12 + atan4096((2000-x1)/(1.*y1));
-			condition34= (moyAngle34<-PI4096+atan4096((2000-x2)/(y2*1.)) && moyAngle34>-PI4096) ? -PI4096-moyAngle34 + atan4096((2000-x2)/(1.*y2)): PI4096-moyAngle34 + atan4096((2000-x2)/(1.*y2));
-			//debug_printf("\ncond12=%ld   cond34=%ld \n", condition12, condition34);
+
+			//condition12= (moyAngle12<-PI4096+atan4096((2000-x1)/(y1*1.)) && moyAngle12>-PI4096) ? -PI4096-moyAngle12 + atan4096((2000-x1)/(1.*y1)): PI4096-moyAngle12 + atan4096((2000-x1)/(1.*y1));  //inutile
+			//condition34= (moyAngle34<-PI4096+atan4096((2000-x2)/(y2*1.)) && moyAngle34>-PI4096) ? -PI4096-moyAngle34 + atan4096((2000-x2)/(1.*y2)): PI4096-moyAngle34 + atan4096((2000-x2)/(1.*y2));
+			condition12= -PI4096- a1 + atan4096((2000-x1)/(1.*y1));	//moyAngle12
+			condition34=  -PI4096- a3 + atan4096((2000-x2)/(1.*y2));  //moyAngle34
+			if(condition12<0) condition12+=2*PI4096;
+			if(condition34<0) condition34+=2*PI4096;
+			if(condition12>2*PI4096) condition12-=2*PI4096;
+			if(condition34>2*PI4096) condition34-=2*PI4096;
+			debug_printf("\ncond12=%ld   cond34=%ld \n", condition12, condition34);
+
+			//On gère la coupure en -PI
+			if(a1>1000 && a2<-10000){
+				a2+=2*PI4096;
+			}else if(a1<-1000 && a2>10000){
+				 a1+=2*PI4096;
+			}
+			moyAngle12=(a1+a2)/2;
+
+			if(a3>1000 && a4<-10000){
+				a4+=2*PI4096;
+			}else if(a3<-1000 && a4>10000){
+				 a3+=2*PI4096;
+			}
+			moyAngle34=(a3+a4)/2;
+
+			if(moyAngle12>PI4096)  moyAngle12-=2*PI4096;
+			if(moyAngle12<-PI4096) moyAngle12+=2*PI4096;
+			if(moyAngle34>PI4096)  moyAngle34-=2*PI4096;
+			if(moyAngle34<-PI4096) moyAngle34+=2*PI4096;
+
 			//la mesure des angles permet de déterminer quelle position est correcte
-			if(	fabs(beacon3.teta-condition12) < fabs(beacon3.teta-condition34) ){
+			//if(	fabs(beacon3.teta-condition12) < fabs(beacon3.teta-condition34) ){
+			if(puissance(robot.x-x1,2)+puissance(robot.y-y1,2) < puissance(robot.x-x2,2)+puissance(robot.y-y2,2)){
 				currentRobot[5].x=x1;
 				currentRobot[5].y=y1;
 				currentRobot[5].teta=moyAngle12;
@@ -1185,9 +1255,9 @@ void triangulation(){
 				currentRobot[5].teta=moyAngle34;
 				currentRobot[5].weight=10;
 			}
-			/*debug_printf("\n currentRobot[5]: x1=%ld y1=%ld angle1=%ld angle2=%ld", x1, y1, a1, a2);
-			debug_printf("\n currentRobot[5]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);*/
-			debug_printf("\n currentRobot[5]: x=%ld y=%ld angle=%ld  ", currentRobot[5].x, currentRobot[5].y, currentRobot[5].teta);
+			debug_printf("\n currentRobot[5]: x1=%ld y1=%ld angle1=%ld angle2=%ld", x1, y1, a1, a2);
+			debug_printf("\n currentRobot[5]: x2=%ld y2=%ld angle3=%ld angle4=%ld", x2, y2, a3, a4);
+			debug_printf("\n currentRobot[5]: x=%ld y=%ld angle=%ld \n ", currentRobot[5].x, currentRobot[5].y, currentRobot[5].teta);
 		}
 
 		//debug_printf("FIN\n");
@@ -1200,75 +1270,75 @@ void findCorrectPosition(){
 	if(B1detected==1 && B2detected==1){
 		if(sqrt((currentRobot[0].x-currentRobot[1].x)*(currentRobot[0].x-currentRobot[1].x)+(currentRobot[0].y-currentRobot[1].y)*(currentRobot[0].y-currentRobot[1].y))>ECART_POSITION
 			&& sqrt((currentRobot[0].x-currentRobot[3].x)*(currentRobot[0].x-currentRobot[3].x)+(currentRobot[0].y-currentRobot[3].y)*(currentRobot[0].y-currentRobot[3].y))>ECART_POSITION ){
-			currentRobot[0].weight=0;
+			currentRobot[0].weight=1;
 		}
 		if(sqrt((currentRobot[0].x-currentRobot[1].x)*(currentRobot[0].x-currentRobot[1].x)+(currentRobot[0].y-currentRobot[1].y)*(currentRobot[0].y-currentRobot[1].y))>ECART_POSITION
 			&& sqrt((currentRobot[1].x-currentRobot[3].x)*(currentRobot[1].x-currentRobot[3].x)+(currentRobot[1].y-currentRobot[3].y)*(currentRobot[1].y-currentRobot[3].y))>ECART_POSITION ){
-			currentRobot[1].weight=0;
+			currentRobot[1].weight=1;
 		}
 		if(sqrt((currentRobot[3].x-currentRobot[1].x)*(currentRobot[3].x-currentRobot[1].x)+(currentRobot[3].y-currentRobot[1].y)*(currentRobot[3].y-currentRobot[1].y))>ECART_POSITION
 			&& sqrt((currentRobot[0].x-currentRobot[3].x)*(currentRobot[0].x-currentRobot[3].x)+(currentRobot[0].y-currentRobot[3].y)*(currentRobot[0].y-currentRobot[3].y))>ECART_POSITION ){
-			currentRobot[3].weight=0;
+			currentRobot[3].weight=1;
 		}
 	}
 	if(B1detected==1 && B3detected==1){
 		if(sqrt((currentRobot[0].x-currentRobot[2].x)*(currentRobot[0].x-currentRobot[2].x)+(currentRobot[0].y-currentRobot[2].y)*(currentRobot[0].y-currentRobot[2].y))>ECART_POSITION
 			&& sqrt((currentRobot[0].x-currentRobot[4].x)*(currentRobot[0].x-currentRobot[4].x)+(currentRobot[0].y-currentRobot[4].y)*(currentRobot[0].y-currentRobot[4].y))>ECART_POSITION ){
-			currentRobot[0].weight=0;
+			currentRobot[0].weight=1;
 		}
 		if(sqrt((currentRobot[2].x-currentRobot[0].x)*(currentRobot[2].x-currentRobot[0].x)+(currentRobot[2].y-currentRobot[0].y)*(currentRobot[2].y-currentRobot[0].y))>ECART_POSITION
 			&& sqrt((currentRobot[2].x-currentRobot[4].x)*(currentRobot[2].x-currentRobot[4].x)+(currentRobot[2].y-currentRobot[4].y)*(currentRobot[2].y-currentRobot[4].y))>ECART_POSITION ){
-			currentRobot[2].weight=0;
+			currentRobot[2].weight=1;
 		}
 		if(sqrt((currentRobot[4].x-currentRobot[0].x)*(currentRobot[4].x-currentRobot[0].x)+(currentRobot[4].y-currentRobot[0].y)*(currentRobot[4].y-currentRobot[0].y))>ECART_POSITION
 			&& sqrt((currentRobot[4].x-currentRobot[2].x)*(currentRobot[4].x-currentRobot[2].x)+(currentRobot[4].y-currentRobot[2].y)*(currentRobot[4].y-currentRobot[2].y))>ECART_POSITION ){
-			currentRobot[4].weight=0;
+			currentRobot[4].weight=1;
 		}
 	}
 	if(B2detected==1 && B3detected==1){
 		if(sqrt((currentRobot[1].x-currentRobot[2].x)*(currentRobot[1].x-currentRobot[2].x)+(currentRobot[1].y-currentRobot[2].y)*(currentRobot[1].y-currentRobot[2].y))>ECART_POSITION
 			&& sqrt((currentRobot[1].x-currentRobot[5].x)*(currentRobot[1].x-currentRobot[5].x)+(currentRobot[1].y-currentRobot[5].y)*(currentRobot[1].y-currentRobot[5].y))>ECART_POSITION ){
-			currentRobot[1].weight=0;
+			currentRobot[1].weight=1;
 		}
 		if(sqrt((currentRobot[2].x-currentRobot[1].x)*(currentRobot[2].x-currentRobot[1].x)+(currentRobot[2].y-currentRobot[1].y)*(currentRobot[2].y-currentRobot[1].y))>ECART_POSITION
 			&& sqrt((currentRobot[2].x-currentRobot[5].x)*(currentRobot[2].x-currentRobot[5].x)+(currentRobot[2].y-currentRobot[5].y)*(currentRobot[2].y-currentRobot[5].y))>ECART_POSITION ){
-			currentRobot[2].weight=0;
+			currentRobot[2].weight=1;
 		}
 		if(sqrt((currentRobot[5].x-currentRobot[1].x)*(currentRobot[5].x-currentRobot[1].x)+(currentRobot[5].y-currentRobot[1].y)*(currentRobot[5].y-currentRobot[1].y))>ECART_POSITION
 			&& sqrt((currentRobot[5].x-currentRobot[2].x)*(currentRobot[5].x-currentRobot[2].x)+(currentRobot[5].y-currentRobot[2].y)*(currentRobot[5].y-currentRobot[2].y))>ECART_POSITION ){
-			currentRobot[5].weight=0;
+			currentRobot[5].weight=1;
 		}
 	}
 	if(B1detected==1 && B2detected==1 && B3detected==1){
 			if(sqrt((currentRobot[0].x-currentRobot[1].x)*(currentRobot[0].x-currentRobot[1].x)+(currentRobot[0].y-currentRobot[1].y)*(currentRobot[0].y-currentRobot[1].y))>ECART_POSITION
 				&& sqrt((currentRobot[0].x-currentRobot[2].x)*(currentRobot[0].x-currentRobot[2].x)+(currentRobot[0].y-currentRobot[2].y)*(currentRobot[0].y-currentRobot[2].y))>ECART_POSITION ){
-				currentRobot[0].weight=0; //la mesure avec la balise B1 a raté
-				currentRobot[3].weight=0;
-				currentRobot[4].weight=0;
+				currentRobot[0].weight=1; //la mesure avec la balise B1 a raté
+				currentRobot[3].weight=1;
+				currentRobot[4].weight=1;
 			}
 			if(sqrt((currentRobot[1].x-currentRobot[0].x)*(currentRobot[1].x-currentRobot[0].x)+(currentRobot[1].y-currentRobot[0].y)*(currentRobot[1].y-currentRobot[0].y))>ECART_POSITION
 				&& sqrt((currentRobot[1].x-currentRobot[2].x)*(currentRobot[1].x-currentRobot[2].x)+(currentRobot[1].y-currentRobot[2].y)*(currentRobot[1].y-currentRobot[2].y))>ECART_POSITION ){
-				currentRobot[1].weight=0; //la mesure avec la balise B2 a raté
-				currentRobot[3].weight=0;
-				currentRobot[5].weight=0;
+				currentRobot[1].weight=1; //la mesure avec la balise B2 a raté
+				currentRobot[3].weight=1;
+				currentRobot[5].weight=1;
 			}
 			if(sqrt((currentRobot[2].x-currentRobot[0].x)*(currentRobot[2].x-currentRobot[0].x)+(currentRobot[2].y-currentRobot[0].y)*(currentRobot[2].y-currentRobot[0].y))>ECART_POSITION
 				&& sqrt((currentRobot[2].x-currentRobot[1].x)*(currentRobot[2].x-currentRobot[1].x)+(currentRobot[2].y-currentRobot[1].y)*(currentRobot[2].y-currentRobot[1].y))>ECART_POSITION ){
-				currentRobot[2].weight=0; //la mesure avec la balise B3 a raté
-				currentRobot[4].weight=0;
-				currentRobot[5].weight=0;
+				currentRobot[2].weight=1; //la mesure avec la balise B3 a raté
+				currentRobot[4].weight=1;
+				currentRobot[5].weight=1;
 			}
 	}
 
 	//Le poids des points mesurées dans les zones sensibles à chaque balises sont diminués
 	if(B1detected==1 && (currentRobot[0].x<ECART_FIABILITE || currentRobot[0].y<ECART_FIABILITE )){
-		currentRobot[0].weight=1;
+		currentRobot[0].weight=2;
 	}
 	if(B2detected==1 && (currentRobot[0].x>2000-ECART_FIABILITE || currentRobot[0].y<ECART_FIABILITE )){
-		currentRobot[1].weight=1;
+		currentRobot[1].weight=2;
 	}
 	if(B3detected==1 && ((currentRobot[0].x>1000-ECART_FIABILITE && currentRobot[0].x<1000+ECART_FIABILITE) || currentRobot[0].y>3000-ECART_FIABILITE )){
-		currentRobot[2].weight=1;
+		currentRobot[2].weight=2;
 	}
 
 	if(B1detected==1 && B2detected==0 && B3detected==0){
@@ -1278,7 +1348,38 @@ void findCorrectPosition(){
 	}else if(B1detected==0 && B2detected==0 && B3detected==1){
 		robot.teta=currentRobot[2].teta;
 	}else{
-		robot.teta=(currentRobot[3].teta*currentRobot[3].weight+currentRobot[4].teta*currentRobot[4].weight+currentRobot[5].teta*currentRobot[5].weight)/(1.0*(currentRobot[3].weight+currentRobot[4].weight+currentRobot[5].weight));
+		/*debug_printf("Affectation finale angle\n");
+		debug_printf("currentRobot[3].teta*currentRobot[3].weight=%d\n",currentRobot[3].teta*currentRobot[3].weight);
+		debug_printf("currentRobot[4].teta*currentRobot[4].weight=%d\n",currentRobot[4].teta*currentRobot[4].weight);
+		debug_printf("currentRobot[5].teta*currentRobot[5].weight=%d\n",currentRobot[5].teta*currentRobot[5].weight);
+		debug_printf("robot.teta=%d\n",(Sint16)(((Sint32)(currentRobot[3].teta*currentRobot[3].weight+currentRobot[4].teta*currentRobot[4].weight+currentRobot[5].teta*currentRobot[5].weight)/(currentRobot[3].weight+currentRobot[4].weight+currentRobot[5].weight))));
+		debug_printf("poids=%d\n",(currentRobot[3].weight+currentRobot[4].weight+currentRobot[5].weight));
+		debug_printf("somme=%ld\n",(Sint32)(currentRobot[3].teta*currentRobot[3].weight+currentRobot[4].teta*currentRobot[4].weight+currentRobot[5].teta*currentRobot[5].weight));
+		debug_printf("condition du A: %d %d %d = %d\n",(Sint16)currentRobot[3].teta>(Sint16)10000,currentRobot[4].teta>10000, currentRobot[5].teta<-10000,((currentRobot[3].teta>10000) && (currentRobot[4].teta>10000) && (currentRobot[5].teta<-10000)));
+		debug_printf("currentRobot[3].teta=%d\n", currentRobot[3].teta);
+		debug_printf("currentRobot[4].teta=%d\n", currentRobot[4].teta);
+		debug_printf("currentRobot[5].teta=%d\n", currentRobot[5].teta);*/
+		if(((Sint16)currentRobot[3].teta>(Sint16)10000) && ((Sint16)currentRobot[4].teta>(Sint16)10000) && ((Sint16)currentRobot[5].teta<(Sint16)-10000)){
+			currentRobot[5].teta+=2*PI4096;
+			debug_printf("A\n");
+		}else if(((Sint16)currentRobot[3].teta) > (Sint16)10000 && ((Sint16)currentRobot[4].teta < (Sint16)-10000) && ((Sint16)currentRobot[5].teta >(Sint16)10000)){
+			currentRobot[4].teta+=2*PI4096;
+			debug_printf("B\n");
+		}else if(((Sint16)currentRobot[3].teta) < (Sint16)-10000 && ((Sint16)currentRobot[4].teta > (Sint16)10000) && ((Sint16)currentRobot[5].teta > (Sint16)10000)){
+			currentRobot[3].teta+=2*PI4096;
+			debug_printf("C\n");
+		}else if(((Sint16)currentRobot[3].teta) > (Sint16)10000 && ((Sint16)currentRobot[4].teta < (Sint16)-10000) && ((Sint16)currentRobot[5].teta < (Sint16)-10000)){
+			currentRobot[3].teta-=2*PI4096;
+			debug_printf("D\n");
+		}else if(((Sint16)currentRobot[3].teta) < (Sint16)-10000 && ((Sint16)currentRobot[4].teta > (Sint16)10000) && ((Sint16)currentRobot[5].teta < (Sint16)-10000)){
+			currentRobot[4].teta-=2*PI4096;
+			debug_printf("E\n");
+		}else if(((Sint16)currentRobot[3].teta) < (Sint16)-10000 && ((Sint16)currentRobot[4].teta < (Sint16)-10000) && ((Sint16)currentRobot[5].teta > (Sint16)10000)){
+			currentRobot[5].teta-=2*PI4096;
+			debug_printf("F\n");
+		}
+
+		robot.teta= (Sint16)((Sint32)(currentRobot[3].teta*currentRobot[3].weight+currentRobot[4].teta*currentRobot[4].weight+currentRobot[5].teta*currentRobot[5].weight)/((Sint32)(currentRobot[3].weight+currentRobot[4].weight+currentRobot[5].weight)));
 	}
 
 	robot.x=(currentRobot[0].x*currentRobot[0].weight+currentRobot[1].x*currentRobot[1].weight+currentRobot[2].x*currentRobot[2].weight+currentRobot[3].x*currentRobot[3].weight+currentRobot[4].x*currentRobot[4].weight+currentRobot[5].x*currentRobot[5].weight)/(1.0*(currentRobot[0].weight+currentRobot[1].weight+currentRobot[2].weight+currentRobot[3].weight+currentRobot[4].weight+currentRobot[5].weight));
@@ -1299,27 +1400,46 @@ void findCorrectPosition(){
 	offset_y = (Sint16)(offset_pos_y*sin4096(robot.teta));
 	robot.x -= offset_x;
 	robot.y -= offset_y;
-	debug_printf("POSITION ROBOT APRES TRIANGULATION: x=%ld   y=%ld \n", robot.x, robot.y);
+	debug_printf("POSITION ROBOT APRES TRIANGULATION: x=%ld   y=%ld teta=%d\n", robot.x, robot.y, robot.teta);
 }
 
 
 void tri_points(){
 	Uint16 i;
+	color_e color= ODOMETRY_get_color();
 
+	if(color==BOT_COLOR){
 		for(i=0;i<nb_valid_points_beacons;i++){
-			if(points_beacons_valid[i].coordX>-62-ECART_BALISE && points_beacons_valid[i].coordX<ECART_BALISE
-			   && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<ECART_BALISE){
+			if(points_beacons_valid[i].coordX>-62-ECART_BALISE && points_beacons_valid[i].coordX<-62+ECART_BALISE
+			   && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<-62+ECART_BALISE){
 				points_beacons[0][nb_points_B1] = points_beacons_valid[i];
-			}else if(points_beacons_valid[i].coordX>969-ECART_BALISE && points_beacons_valid[i].coordX<969+ECART_BALISE
-					 && points_beacons_valid[i].coordY>3000-ECART_BALISE && points_beacons_valid[i].coordY<3062+ECART_BALISE){
+			}else if(points_beacons_valid[i].coordX>1000-ECART_BALISE && points_beacons_valid[i].coordX<1000+ECART_BALISE
+					 && points_beacons_valid[i].coordY>3062-ECART_BALISE && points_beacons_valid[i].coordY<3062+ECART_BALISE){
 				points_beacons[1][nb_points_B2] = points_beacons_valid[i];
 				nb_points_B2++;
-			}else if(points_beacons_valid[i].coordX>2000-ECART_BALISE && points_beacons_valid[i].coordX<2062+ECART_BALISE
-					 && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<ECART_BALISE){
+			}else if(points_beacons_valid[i].coordX>2062-ECART_BALISE && points_beacons_valid[i].coordX<2062+ECART_BALISE
+					 && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<-62+ECART_BALISE){
 				points_beacons[2][nb_points_B3] = points_beacons_valid[i];
 				nb_points_B3++;
 			}
 		}
+	}else{
+		for(i=0;i<nb_valid_points_beacons;i++){
+			if(points_beacons_valid[i].coordX>2062-ECART_BALISE && points_beacons_valid[i].coordX<2062+ECART_BALISE
+			   && points_beacons_valid[i].coordY>3062-ECART_BALISE && points_beacons_valid[i].coordY<3062+ECART_BALISE){
+				points_beacons[0][nb_points_B1] = points_beacons_valid[i];
+			}else if(points_beacons_valid[i].coordX>1000-ECART_BALISE && points_beacons_valid[i].coordX<1000+ECART_BALISE
+					 && points_beacons_valid[i].coordY>-62-ECART_BALISE && points_beacons_valid[i].coordY<-62+ECART_BALISE){
+				points_beacons[1][nb_points_B2] = points_beacons_valid[i];
+				nb_points_B2++;
+			}else if(points_beacons_valid[i].coordX>-62-ECART_BALISE && points_beacons_valid[i].coordX<-62+ECART_BALISE
+					 && points_beacons_valid[i].coordY>3062-ECART_BALISE && points_beacons_valid[i].coordY<3062+ECART_BALISE){
+				points_beacons[2][nb_points_B3] = points_beacons_valid[i];
+				nb_points_B3++;
+			}
+		}
+
+	}
 
 	if(nb_points_B1 > 7) B1detected=1;
 	if(nb_points_B2 > 7) B2detected=1;
@@ -1448,24 +1568,45 @@ HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_bea
 	beacon.coordX = ((c30+c12)*c02-(c03+c21)*c11)/(2.*(c20*c02-c11*c11));
 	beacon.coordY = ((c03+c21)*c20-(c30+c12)*c11)/(2.*(c20*c02-c11*c11));
 
-	beacon.dist   = sqrt(puissance(robot.x-beacon.coordX,2) + puissance(robot.x-beacon.coordX,2));
-	debug_printf("\n\nRobot x=%ld y=%ld teta=%ld\n", robot.x, robot.y, robot.teta);
-	debug_printf("\n\nBeacon x=%ld y=%ld\n", beacon.coordX, beacon.coordY);
+	//########################TEST TRIANGULATION#########################
 	switch(numero_beacon){
 		case 1:
-			beacon.teta = (Sint16)(atan4096((robot.y-beacon.coordY)/(1.*(robot.x-beacon.coordX)))- robot.teta +PI4096/2.);
+			beacon.coordX=-62;
+			beacon.coordY=-62;
 			break;
 		case 2:
-			beacon.teta = (Sint16)( atan2_4096(beacon.coordY-robot.y,beacon.coordX-robot.x) - robot.teta + PI4096 +PI4096/2.);
+			beacon.coordX=1000;
+			beacon.coordY=3062;
 			break;
 		case 3:
-			beacon.teta = (Sint16)(PI4096 - robot.teta + atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY))));
-			debug_printf("Affectation angle atan=%d\n", atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY))));
-			debug_printf("Affectation beacon.teta=%d\n", (Sint16)(PI4096 - robot.teta + atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY)))));
+			beacon.coordX=2062;
+			beacon.coordY=-62;
 			break;
 	}
 
-	debug_printf("ANGLE: %d\n", beacon.teta);
+
+
+
+	beacon.dist   = sqrt(puissance(robot.x-beacon.coordX,2) + puissance(robot.y-beacon.coordY,2));
+	debug_printf("\n\nRobot x=%ld y=%ld teta=%ld\n", robot.x, robot.y, robot.teta);
+	debug_printf("\n\nBeacon x=%ld y=%ld dist=%ld\n", beacon.coordX, beacon.coordY, beacon.dist);
+	switch(numero_beacon){
+		case 1:
+			beacon.teta = (Sint16)((Sint16)atan4096((robot.y-beacon.coordY)/(1.0*(robot.x-beacon.coordX)))- robot.teta +PI4096/2);
+			display(atan4096((robot.y-beacon.coordY)/(1.0*(robot.x-beacon.coordX))));
+			debug_printf("ANGLE=%d\n", beacon.teta);
+			break;
+		case 2:
+			beacon.teta = (Sint16)( atan2_4096(beacon.coordY-robot.y,beacon.coordX-robot.x)) - robot.teta -PI4096/2;
+			debug_printf("ATAN2=%d\n",(Sint16)( atan2_4096(beacon.coordY-robot.y,beacon.coordX-robot.x)));
+			break;
+		case 3:
+			beacon.teta = (Sint16)(PI4096 - robot.teta + atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY))));
+			//debug_printf("Affectation angle atan=%d\n", atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY))));
+			//debug_printf("Affectation beacon.teta=%d\n", (Sint16)(PI4096 - robot.teta + atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY)))));
+			break;
+	}
+
 
 	if(beacon.teta < 0)  beacon.teta += 2*PI4096;
 	if(beacon.teta > 2*PI4096) beacon.teta -= 2*PI4096;
@@ -1481,13 +1622,22 @@ HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_bea
 
 //Fonction trouvant le centre des balises
 void find_beacons_centres(){
-	robot.x = global.position.x;
-	robot.y = global.position.y;
-	robot.teta = global.position.teta;
+	//robot.x = global.position.x;
+	//robot.y = global.position.y;
+	//TEST TRIANGULATION
+	robot.x = 700;
+	robot.y = 1500;
+	robot.teta= -PI4096;
+	B1detected=1;
+	B2detected=1;
+	B3detected=1;
+	//FIN TEST
+	//robot.teta = global.position.teta;
 	robot.weight = 1;
 	//Uint16 i;
+	color_e color= ODOMETRY_get_color();
 
-	/*
+
 	if(B1detected==1){
 		tri_mesures(points_beacons, &nb_points_B1, 1);
 		debug_printf("\nCentre balise 1: ");
@@ -1499,13 +1649,31 @@ void find_beacons_centres(){
 		debug_printf("\nCentre balise 2: ");
 		beacon2 = regression_circulaire(points_beacons, nb_points_B2,2);
 	}
-	*/
+
 	if(B3detected==1){
 		tri_mesures(points_beacons, &nb_points_B3, 3);
 		//debug_printf("Tri mesures\n");
 		debug_printf("nb_points_B3=%d\n", nb_points_B3);
 		debug_printf("\nCentre balise 3: ");
 		beacon3 = regression_circulaire(points_beacons, nb_points_B3,3);
+	}
+	//------------------Modification des paramètres pour le coté vert---------------------------
+	if(color==TOP_COLOR){
+		//position du robot
+		robot.x=2000-robot.x;
+		robot.y=3000-robot.y;
+		robot.teta+=PI4096;
+		if(robot.teta>PI4096)  robot.teta-=2*PI4096;
+		if(robot.teta<-PI4096)  robot.teta+=2*PI4096;
+
+		//positions des balises
+		beacon1.coordX=2000-beacon1.coordX;
+		beacon1.coordY=3000-beacon1.coordY;
+		beacon2.coordX=2000-beacon2.coordX;
+		beacon2.coordY=3000-beacon2.coordY;
+		beacon3.coordX=2000-beacon3.coordX;
+		beacon3.coordY=3000-beacon3.coordY;
+
 	}
 	/*
 	debug_printf("\n\nPoints balise 1 \n\nx= ");
@@ -1535,6 +1703,15 @@ void find_beacons_centres(){
 
 	triangulation();
 	findCorrectPosition();
+	//------------------Modification des paramètres pour le coté vert---------------------------
+	if(color==TOP_COLOR){
+		//position du robot
+		robot.x=2000-robot.x;
+		robot.y=3000-robot.y;
+		robot.teta+=PI4096;
+		if(robot.teta>PI4096)  robot.teta-=2*PI4096;
+		if(robot.teta<-PI4096)  robot.teta+=2*PI4096;
+	}
 	debug_printf("FIN TRIANGULATION\n");
 
 
