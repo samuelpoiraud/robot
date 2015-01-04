@@ -5,22 +5,27 @@
 #include "QS/QS_outputlog.h"
 
 
-ELEMENTS_element_s ELEMENTS_spot[NB_SPOT];
-ELEMENTS_element_s ELEMENTS_cup[NB_CUP];
-ELEMENTS_element_s ELEMENTS_salle_cinema[3];  //salle0(chez nous) salle 1(chez l'adversaire côté marches), salle 2(chez l'adversaire côté claps)
+volatile ELEMENTS_element_t ELEMENTS_spot[NB_SPOT];
+volatile ELEMENTS_element_t ELEMENTS_cup[NB_CUP];
+volatile bool_e dispensers_done[NB_DISPENSERS];
+
+volatile Uint8 holly_left_spot_level;	//Nb de pied dans un spot. La balle ne compte pas.
+volatile Uint8 holly_right_spot_level;	//Nb de pied dans un spot. La balle ne compte pas.
+
+volatile bool_e elements_flags[ELEMENTS_FLAGS_NB];
+
 
 void ELEMENTS_init(){
 	Uint8 i;
 
+	holly_left_spot_level = 0;	//Nb de pied dans un spot. La balle ne compte pas.
+	holly_right_spot_level = 0;	//Nb de pied dans un spot. La balle ne compte pas.
+
+	for(i=0;i<ELEMENTS_FLAGS_NB;i++)
+		elements_flags[i] = FALSE;
+
 	for(i=0;i<NB_SPOT;i++)
 		ELEMENTS_spot[i].state = AVAILABLE;
-
-	for(i=0;i<NB_CUP;i++)
-		ELEMENTS_cup[i].state = AVAILABLE;
-
-	for(i=0;i<3;i++)
-		ELEMENTS_salle_cinema[i].state = AVAILABLE;
-	// Initialisation des positions de chaques élements
 
 	// Spot Jaune
 	ELEMENTS_spot[0].color = YELLOW;
@@ -55,7 +60,6 @@ void ELEMENTS_init(){
 	ELEMENTS_spot[7].x = 1400;
 	ELEMENTS_spot[7].y = 1300;
 
-
 	// Spot Vert
 	ELEMENTS_spot[8].color = GREEN;
 	ELEMENTS_spot[8].x = 200;
@@ -89,8 +93,10 @@ void ELEMENTS_init(){
 	ELEMENTS_spot[15].x = 1400;
 	ELEMENTS_spot[15].y = 1700;
 
-
 	//Cup
+	for(i=0;i<NB_CUP;i++)
+		ELEMENTS_cup[i].state = AVAILABLE;
+
 	ELEMENTS_cup[0].x = 830;
 	ELEMENTS_cup[0].y = 910;
 
@@ -107,22 +113,102 @@ void ELEMENTS_init(){
 	ELEMENTS_cup[4].y = 2750;
 }
 
-void visit_salle_Cinema(Uint8 salle_Number){
-	ELEMENTS_salle_cinema[salle_Number].state = TAKE;
+
+bool_e ELEMENTS_get_flag(elements_flags_e flag_id)
+{
+	assert(flag_id < ELEMENTS_FLAGS_NB);
+	return elements_flags[flag_id];
 }
 
-bool_e salle_Cinema_Available(Uint8 salle_Number){
-	return (ELEMENTS_salle_cinema[salle_Number].state==AVAILABLE);
+void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state)
+{
+	assert(flag_id < ELEMENTS_FLAGS_NB);
+	elements_flags[flag_id] = new_state;
+}
+
+// Récupérer l'état ET les coordonnées d'un clap dont l'id est passé en paramètre.
+void ELEMENTS_get_clap_state(elements_flags_e clap_id, bool_e * clap_done,  Uint16 * x, Uint16 * y)
+{
+	switch(clap_id)
+	{
+		case BORDER_CLAP:
+			*y = COLOR_Y(240);
+			break;
+		case ESTRAD_CLAP:
+			*y = COLOR_Y(540);
+			break;
+		case IN_ADVERSARY_ZONE_CLAP:
+			*y = COLOR_Y(2460);
+			break;
+		default:
+			assert(0);
+			return;
+	}
+	*x = 2000;
+	*clap_done = elements_flags[clap_id];
 }
 
 
-/*
- * Ajouter les gestions :
- * - possession de gobelet
- * - possession de popcorns
- * - possession de pieds à l'arrière
- * - remplissage des ascenseurs
- * - présence des tapis dans le robot
- * - dépose effectuée sur l'estrade / dans la zone de départ / dans le bac à popcorn...
- *
- */
+
+// Récupérer l'état ET les coordonnées d'un distributeur de popcorns dont l'id est passé en paramètre.
+void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispenser_done, Uint16 * x, Uint16 * y)
+{
+	switch(dispenser_id)
+	{
+		case OUR_BORDER_DISPENSER:
+			*y = COLOR_Y(300);
+			break;
+		case OUR_STAIRS_DISPENSER:
+			*y = COLOR_Y(600);
+			break;
+		case ADVERSARY_STAIRS_DISPENSER:
+			*y = COLOR_Y(2400);
+			break;
+		case ADVERSARY_BORDER_DISPENSER:
+			*y = COLOR_Y(2700);
+			break;
+		default:
+			assert(0);
+			return;
+	}
+	*dispenser_done = elements_flags[dispenser_id];
+	*x = 24;
+}
+
+
+//Savoir le nombre de pied dans l'ascenceur gauche
+Uint8 ELEMENTS_get_holly_left_spot_level(void)
+{
+	return holly_left_spot_level;
+}
+
+//Indiquer la récupération d'un nouveau pied dans l'ascenceur de gauche
+void ELEMENTS_inc_holly_left_spot_level(void)
+{
+	holly_left_spot_level++;
+}
+
+//Indiquer le vidage de l'ascenceur de gauche
+void ELEMENTS_reset_holly_left_spot_level(void)
+{
+	holly_left_spot_level = 0;
+}
+
+//Savoir le nombre de pied dans l'ascenceur droite
+Uint8 ELEMENTS_get_holly_right_spot_level(void)
+{
+	return holly_right_spot_level;
+}
+
+//Indiquer la récupération d'un nouveau pied dans l'ascenceur de droite
+void ELEMENTS_inc_holly_right_spot_level(void)
+{
+	holly_right_spot_level++;
+}
+
+//Indiquer le vidage de l'ascenceur de droite
+void ELEMENTS_reset_holly_right_spot_level(void)
+{
+	holly_right_spot_level = 0;
+}
+

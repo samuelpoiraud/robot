@@ -13,6 +13,11 @@
 
 #ifndef ENVIRONMENT_H
 	#define ENVIRONMENT_H
+// Macros permettant de symétriser le terrain
+	#define COLOR_Y(y)		((global.env.color == BOT_COLOR) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
+	#define COLOR_ANGLE(a)	((global.env.color == BOT_COLOR) ? (a) : (-(a)))
+
+
 	#include "QS/QS_CANmsgList.h"
 	#include "detection.h"
 	#include "elements.h"
@@ -23,20 +28,9 @@
 	#define GAME_ZONE_SIZE_X			2000 //2000 mm
 	#define GAME_ZONE_SIZE_Y			3000 //3000 mm
 
+
 	//une couleur erronnée pour forcer la maj de la couleur
 	#define COLOR_INIT_VALUE 0xFF
-
-	// Dimensions des éléments de jeu
-	#define CD_RADIUS				60
-	#define CD_DIAMETER				120
-	#define CD_SQUARED_RADIUS		3600
-	#define CD_SQUARED_DIAMETER		14400
-	#define GOLD_BAR_LENGTH_BOTTOM	150
-	#define GOLD_BAR_WIDTH_BOTTOM	70
-	#define GOLD_BAR_LENGTH_TOP		124
-	#define GOLD_BAR_WIDTH_TOP		44
-	#define GOLD_BAR_HEIGHT			48,5
-	#define DISTANCE_CLAMPCENTER_ROBOT_CENTER 207
 
 
 	typedef struct

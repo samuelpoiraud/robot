@@ -24,14 +24,12 @@
 
 #include "prop_types.h"
 #include "QS/QS_maths.h"
+#include "environment.h"
 
 #ifdef USE_POLYGON
 	#include "polygon.h"
 #endif
 
-// Macros permettant de symétriser le terrain
-#define COLOR_Y(y)		((global.env.color == BOT_COLOR) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
-#define COLOR_ANGLE(a)	((global.env.color == BOT_COLOR) ? (a) : (-(a)))
 
 // Macro permettant d'utiliser les courbes ou pas selon USE_PROP_MULTI_POINT
 // En effet, on ne fait des courbes que si l'on est en multi-poinrs car sinon
