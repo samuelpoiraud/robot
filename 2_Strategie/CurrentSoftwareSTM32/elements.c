@@ -114,3 +114,15 @@ void visit_salle_Cinema(Uint8 salle_Number){
 bool_e salle_Cinema_Available(Uint8 salle_Number){
 	return (ELEMENTS_salle_cinema[salle_Number].state==AVAILABLE);
 }
+
+
+/*
+ * Ajouter les gestions :
+ * - possession de gobelet
+ * - possession de popcorns
+ * - possession de pieds à l'arrière
+ * - remplissage des ascenseurs
+ * - présence des tapis dans le robot
+ * - dépose effectuée sur l'estrade / dans la zone de départ / dans le bac à popcorn...
+ *
+ */
