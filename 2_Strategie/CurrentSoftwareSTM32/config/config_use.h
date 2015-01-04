@@ -15,7 +15,7 @@
 //-------------------------MODE ET USE--------------------------//
 //////////////////////////////////////////////////////////////////
 
-//#define ROBOT_VIRTUEL_PARFAIT		// Afin que les actionneurs et certaines fonction en strat renvoi true
+#define ROBOT_VIRTUEL_PARFAIT		// Afin que les actionneurs et certaines fonction en strat renvoi true
 #ifdef ROBOT_VIRTUEL_PARFAIT
 	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
 #endif
@@ -45,7 +45,7 @@
 
 #define USE_PROP_AVOIDANCE		//Activation de l'évitement en propulsion
 
-#define FDP_2014				//Define Temporaire pour l'ancien FDP
+//#define FDP_2014				//Define Temporaire pour l'ancien FDP
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
