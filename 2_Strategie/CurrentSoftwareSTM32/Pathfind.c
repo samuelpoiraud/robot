@@ -742,7 +742,7 @@ Sint16 PATHFIND_get_node_y (pathfind_node_id_t n) {
 /**
  * @brief PATHFING_get_symetric
  * @param n : id du node
- * @return le node symétrique à ce node
+ * @return le node symétrique à ce node SI la couleur actuelle est TOP... sinon, retourne le node lui-même...
  */
 Uint16 PATHFING_get_symetric(pathfind_node_id_t n){
 	if(global.env.color == TOP_COLOR){
