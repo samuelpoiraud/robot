@@ -16,6 +16,7 @@
 #include "supervisor.h"
 #include "joystick.h"
 #include "QS/QS_pwm.h"
+#include "QS/QS_IHM.h"
 
 void MOTORS_init(void)
 {
@@ -45,7 +46,7 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 	}
 	else	// qu'en absence de joystick... donc TOUT LE TEMPS !
 	{
-		if (state == SUPERVISOR_ERROR || state == SUPERVISOR_MATCH_ENDED)
+		if (state == SUPERVISOR_ERROR || state == SUPERVISOR_MATCH_ENDED || !IHM_switchs_get(SWITCH_ASSER))
 		{	//Moteurs ne bougent pas...
 			duty_left = 0;
 			duty_right = 0;
