@@ -460,6 +460,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case IHM_BUTTON:
 		case IHM_SWITCH:
 		case IHM_POWER:
+			#ifdef USE_SIMULATION_IHM
+				CAN_send(msg);
+			#endif
+
 			IHM_process_main(msg);
 			break;
 
@@ -520,12 +524,12 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 				{
 					switch(msg->data[i])
 					{
-						case SELFTEST_NO_ERROR:																											break;
-						case SELFTEST_PROP_FAILED:			debug_printf(" | error %x SELFTEST_PROP_FAILED\n"			,SELFTEST_PROP_FAILED);			break;
-						case SELFTEST_PROP_HOKUYO_FAILED:	debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"	,SELFTEST_PROP_HOKUYO_FAILED);	break;
+						case SELFTEST_NO_ERROR:																														break;
+						case SELFTEST_PROP_FAILED:				debug_printf(" | error %x SELFTEST_PROP_FAILED\n"				,SELFTEST_PROP_FAILED);				break;
+						case SELFTEST_PROP_HOKUYO_FAILED:		debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"		,SELFTEST_PROP_HOKUYO_FAILED);		break;
 						case SELFTEST_PROP_IN_SIMULATION_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_SIMULATION_MODE\n"	,SELFTEST_PROP_IN_SIMULATION_MODE); break;
 						case SELFTEST_PROP_IN_LCD_TOUCH_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_LCD_TOUCH_MODE\n"	,SELFTEST_PROP_IN_LCD_TOUCH_MODE); 	break;
-						default:							debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);				break;
+						default:								debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);			break;
 					}
 				}
 				add_pos_datas = FALSE;
@@ -545,11 +549,6 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 				debug_printf("FOE Detected !\n");
 				add_pos_datas = TRUE; // Permet de savoir ou est-ce que la détection à eu lieu sur le terrain
 				break;
-
-			case IHM_SWITCH_ALL:							print(string, len, "%x IHM_SWITCH_ALL						  ", IHM_SWITCH_ALL									);	break;
-			case IHM_BUTTON:								print(string, len, "%x IHM_BUTTON							  ", IHM_BUTTON										);	break;
-			case IHM_SWITCH:								print(string, len, "%x IHM_SWITCH							  ", IHM_SWITCH										);	break;
-			case IHM_POWER:									print(string, len, "%x IHM_POWER							  ", IHM_POWER										);	break;
 
 			default:
 				debug_printf("SID=%x ", msg->sid);
