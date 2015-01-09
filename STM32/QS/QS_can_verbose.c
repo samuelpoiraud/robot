@@ -58,7 +58,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 	switch(msg->sid){
 
 #ifdef I_AM_CARTE_STRAT			// Message ignoré par la stratégie
-		case BROADCAST_POSITION_ROBOT:
+
 #endif
 
 #ifdef I_AM_CARTE_PROP			// Message ignoré par la propulsion
