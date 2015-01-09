@@ -100,7 +100,7 @@ bool_e CORRECTOR_PD_enable_get_rotation(void)
 
 bool_e CORRECTOR_PD_enable_get_translation(void)
 {
-	return corrector_pd_rotation;
+	return corrector_pd_translation;
 }
 
 void CORRECTOR_mode_reglage_kv(void)

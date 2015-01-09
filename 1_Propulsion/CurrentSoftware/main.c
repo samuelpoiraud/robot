@@ -95,6 +95,10 @@ void initialisation(void)
 	PORTS_init();			// Config des ports
 	MAIN_global_var_init();	// Init variable globale
 
+	#ifdef FDP_2014
+		PORTS_set_pull(GPIOE, GPIO_Pin_8, GPIO_PuPd_UP); // Pull up sur le switch asser dans le cas d'un fdp incomplet
+	#endif
+
 	GPIO_SetBits(LED_RUN);
 
 	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
