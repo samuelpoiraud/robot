@@ -20,6 +20,7 @@
 	//#define MODE_SIMULATION							//Dans ce mode, le bus CAN est désactivé.
 	//#define CAN_SEND_OVER_UART						//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
 	//#define LCD_TOUCH								//Active le LCD tactile
+	//#define USE_SIMULATION_IHM						//Envoient les msg sur le bus CAN venant de l'UART simulant l'IHM
 
 /* MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
  *  1 - activez les 4 defines ci-dessus
