@@ -12,9 +12,10 @@
 #ifndef PSPOT_POMPE_LEFT_H
 #define	PSPOT_POMPE_LEFT_H
 
+#include "../QS/QS_all.h"
+
 #ifdef I_AM_ROBOT_BIG
 
-#include "../QS/QS_all.h"
 #include "../queue.h"
 
 /** Initialisation du gestionnaire de SPOT_POMPE_LEFT.
