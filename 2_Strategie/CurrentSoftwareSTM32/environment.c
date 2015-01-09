@@ -106,7 +106,8 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 	{
 		//FILTRAGE POUR NE PAS ETRE SPAMMES PAR LE MESSAGE DE POSITION_ROBOT....
 		case BROADCAST_POSITION_ROBOT:
-			if(! (msg->data[6] & 0xF0))	//on ne filtre pas les messages dont l'une des raisons est un WARN.
+			//si le message est porteur d'un warning, on ne le filtre pas.
+			if(!msg->data[6])	//Si le message ne porte pas de warning : on filtre.
 			{
 				//On ne propage pas les messages de BROADCAST_POSITION_ROBOT (dans le cas où les raisons ne sont pas des WARN).
 				*bSAVE_filter = FALSE;
@@ -117,7 +118,7 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 					*bUART_filter = FALSE;	//Ca passe pas...
 			}
 
-		break;
+			break;
 		case BROADCAST_ADVERSARIES_POSITION:
 			*bUART_filter = FALSE;	//Ca passe pas... 				(mieux vaut carrément afficher 	ponctuellement les infos qui découlent de ce message)
 			*bSAVE_filter = FALSE;	//Pas d'enregistrement non plus	(mieux vaut carrément sauver 	ponctuellement les infos qui découlent de ce message)
@@ -128,10 +129,14 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 			//else
 			*bUART_filter = FALSE;	//Ca passe pas...
 			*bSAVE_filter = FALSE;
-		break;
+			break;
+		case DEBUG_AVOIDANCE_POLY:
+			*bUART_filter = FALSE;	//Ca passe pas...
+			*bSAVE_filter = FALSE;
+			break;
 		default:
 			//Message autorisé.
-		break;
+			break;
 	}
 
 	if	( ((msg->sid & 0xF00) == STRAT_FILTER) ||  ((msg->sid & 0xF00) == XBEE_FILTER) || ((msg->sid & 0xF00) == BROADCAST_FILTER))
