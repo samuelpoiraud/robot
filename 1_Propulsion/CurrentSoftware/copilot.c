@@ -26,7 +26,7 @@
 #include "QS/QS_watchdog.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
-#include "QS/QS_IHM.h"
+
 
 volatile order_t current_order;
 volatile order_t buffer_order;
@@ -128,7 +128,7 @@ void COPILOT_process_it(void)
 	if(current_order.trajectory == TRAJECTORY_STOP && arrived == ARRIVED && global.match_over == TRUE && id_end_enslavement == 0xFF)
 		id_end_enslavement = WATCHDOG_create_flag(1500, &flag_end_enslavement);
 
-	if(flag_end_enslavement || !IHM_switchs_get(SWITCH_ASSER))
+	if(flag_end_enslavement)
 		CORRECTOR_PD_enable(CORRECTOR_DISABLE);
 
 	if(COPILOT_decision_change_order(&change_order_in_multipoint_without_reaching_destination))
