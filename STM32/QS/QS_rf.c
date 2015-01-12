@@ -18,6 +18,7 @@
 #endif
 #include "QS_buffer_fifo.h"
 #include "QS_outputlog.h"
+#include <stdio.h>
 
 //>1.5 STOP BIT !!!
 //CRC8 poly: 0x2F (HD=4 @data size < 120)
