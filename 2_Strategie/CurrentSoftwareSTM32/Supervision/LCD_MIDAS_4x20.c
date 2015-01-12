@@ -12,6 +12,7 @@
 #include "../QS/QS_i2c.h"
 #include "../QS/QS_outputlog.h"
 #include "LCD_MIDAS_4x20.h"
+#include <stdio.h>
 
 #if defined(USE_LCD) && !defined(USE_I2C2)
 	#warning "LCD a besoin de I2C2 pour fonctionner. Veuiller definir USE_I2C2 dans config_qs.h. Le module LCD sera inactif ..."

@@ -3,6 +3,7 @@
 #include "../../QS/QS_all.h"
 #include "../../QS/QS_uart.h"
 #include "../../QS/QS_outputlog.h"
+#include <stdio.h>
 
 int xatoi (const char **str, long *res)
 {

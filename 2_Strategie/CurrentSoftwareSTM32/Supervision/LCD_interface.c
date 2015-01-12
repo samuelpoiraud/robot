@@ -25,6 +25,7 @@
 #include "../brain.h"
 #include "Buzzer.h"
 #include "../QS/QS_i2c.h"
+#include <stdio.h>
 
 #define LINE_NUMBER (4)
 	volatile bool_e flag_bp_set 	= FALSE;

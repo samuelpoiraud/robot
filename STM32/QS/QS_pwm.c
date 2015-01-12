@@ -172,7 +172,9 @@ Uint8 PWM_get_duty(Uint8 channel){
 			return TIM8->CCR4 * 100/PWM_PERIOD;
 
 		default:
+		#ifdef VERBOSE_MODE
 			fprintf(stderr, "PWM_get_duty: PWM %d invalide, seulement les PWM de 1 à 4 incluses existent\n", channel);
+		#endif
 			return 0;
 	}
 }

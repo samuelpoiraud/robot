@@ -13,6 +13,7 @@
 #include "QS_can_verbose.h"
 #include "QS_outputlog.h"
 #include "QS_IHM.h"
+#include <stdio.h>
 
 static void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
 static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len);
