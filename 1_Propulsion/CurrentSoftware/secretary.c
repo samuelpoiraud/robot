@@ -45,6 +45,11 @@
 //Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
 #define SECRETARY_MAILBOX_SIZE (32)
 
+typedef struct{
+	CAN_msg_t can_msg;
+	MAIL_from_e from;
+}mailbox_t;
+
 static void SECRETARY_send_callback(CAN_msg_t * can_msg);
 static void SECRETARY_send_report();
 static bool_e SECRETARY_mailbox_get(Uint8 * index);
@@ -57,7 +62,7 @@ volatile static Uint8 index_write;
 volatile static Uint8 index_nb;
 volatile bool_e selftest_validated = FALSE;
 
-CAN_msg_t mailbox[SECRETARY_MAILBOX_SIZE];  //Les messages CAN reçus dans le main sont ajouté à la mailbox et traités en IT...
+mailbox_t mailbox[SECRETARY_MAILBOX_SIZE];  //Les messages CAN reçus dans le main sont ajouté à la mailbox et traités en IT...
 //Cela permet d'éviter les nombreux problèmes liés à la préemption (notamment liés au buffer d'ordres... dont les fonctions ne peuvent être réentraintes)
 
 
@@ -84,7 +89,7 @@ void SECRETARY_process_main(void)
 	while(CAN_data_ready())
 	{
 			received_msg = CAN_get_next_msg();
-			SECRETARY_mailbox_add(&received_msg);
+			SECRETARY_mailbox_add(&received_msg, FROM_CAN);
 			#ifdef CAN_VERBOSE_MODE
 				QS_CAN_VERBOSE_can_msg_print(&received_msg, VERB_INPUT_MSG);
 			#endif
@@ -104,11 +109,11 @@ void SECRETARY_process_main(void)
 					receivedCanMsg_over_uart.sid == BROADCAST_COULEUR
 					)
 				#endif
-					SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
+					SECRETARY_mailbox_add(&receivedCanMsg_over_uart, FROM_UART);
 			}
 		#else
 			if(u1rxToCANmsg(&receivedCanMsg_over_uart))
-				SECRETARY_mailbox_add(&receivedCanMsg_over_uart);
+				SECRETARY_mailbox_add(&receivedCanMsg_over_uart, FROM_UART);
 		#endif
 	}
 }
@@ -118,7 +123,7 @@ void SECRETARY_process_it(void)
 	Uint8 index;
 	while(SECRETARY_mailbox_get(&index))  //Tant qu'il y a un message à traiter...
 	{
-		SECRETARY_process_CANmsg(&mailbox[index]);  //Traitement du message CAN.
+		SECRETARY_process_CANmsg(&(mailbox[index].can_msg), mailbox[index].from);  //Traitement du message CAN.
 	}
 }
 
@@ -183,7 +188,7 @@ PROP_GO_POSITION
 		case PROP_WARN_Y:				y
 
 */
-void SECRETARY_process_CANmsg(CAN_msg_t* msg)
+void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_e from)
 {
 	way_e sens_marche;
 	toggle_led(LED_CAN);
@@ -460,9 +465,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg)
 		case IHM_BUTTON:
 		case IHM_SWITCH:
 		case IHM_POWER:
-			#ifdef USE_SIMULATION_IHM
+			if(from == FROM_UART) // Le message vient de la simulation sur pc, le message doit être répété pour les autres cartes
 				CAN_send(msg);
-			#endif
 
 			IHM_process_main(msg);
 			break;
@@ -691,11 +695,12 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout){
 //----------------------FONCTION AUTRE--------------------------//
 //////////////////////////////////////////////////////////////////
 
-void SECRETARY_mailbox_add(CAN_msg_t * msg) //Fonction appelée en tâche de fond uniquement !
+void SECRETARY_mailbox_add(CAN_msg_t * msg, MAIL_from_e from) //Fonction appelée en tâche de fond uniquement !
 {
 	if(index_nb < SECRETARY_MAILBOX_SIZE)
 	{
-		mailbox[index_write] = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
+		mailbox[index_write].can_msg = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
+		mailbox[index_write].from = from;
 		TIMER2_disableInt();
 			index_nb++; //Il ne faut pas que la préemption ait lieu maintenant !
 		TIMER2_enableInt();

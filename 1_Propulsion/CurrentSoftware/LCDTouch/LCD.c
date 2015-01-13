@@ -203,7 +203,7 @@ void LCD_send_message(void)
 			for(i=0;i<msg.size;i++){
 				msg.data[i] = data[i];
 			}
-			SECRETARY_process_CANmsg(&msg);
+			SECRETARY_process_CANmsg(&msg, FROM_LCD);
 #else
 			SECRETARY_send_canmsg(PROP_GO_POSITION, data, 8);
 #endif
@@ -224,7 +224,7 @@ void LCD_send_message(void)
 			for(i=0;i<msg.size;i++){
 				msg.data[i] = data[i];
 			}
-			SECRETARY_process_CANmsg(&msg);
+			SECRETARY_process_CANmsg(&msg, FROM_LCD);
 #else
 			SECRETARY_send_canmsg(PROP_GO_POSITION, data, 8);
 #endif

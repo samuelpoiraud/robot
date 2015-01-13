@@ -14,6 +14,13 @@
 	#include "QS/QS_all.h"
 	#include "LCDTouch/LCD.h"
 
+	typedef enum{
+		FROM_CAN = 0,
+		FROM_UART,
+		FROM_XBEE,
+		FROM_LCD
+	}MAIL_from_e;
+
 		void SECRETARY_init(void);
 
 		void SECRETARY_process_main(void);
@@ -21,7 +28,7 @@
 	Fonction qui traite les messages reçus.
 	Selon le cas, elle peut ajouter des ordres dans la roadmap, configurer le système...
 	*/
-	void SECRETARY_process_CANmsg(CAN_msg_t* msg);
+	void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_e from);
 
 	void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability);
 
@@ -42,7 +49,7 @@
 
 	void SECRETARY_process_it(void);
 
-	void SECRETARY_mailbox_add(CAN_msg_t * msg);
+	void SECRETARY_mailbox_add(CAN_msg_t * msg, MAIL_from_e from);
 
 	void SECRETARY_send_selftest_result(bool_e result);
 
