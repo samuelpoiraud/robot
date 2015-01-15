@@ -227,7 +227,7 @@ void HOKUYO_process_main(void)
 			hokuyo_read_buffer();
 
 #ifdef USE_COMMAND_ME
-			if(HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=6730) // 0x0A -> LF (en ASCII)
+			if(datas_index > 1 && HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=6730) // 0x0A -> LF (en ASCII)
 				state=REMOVE_LF;
 			else if(datas_index>6738)
 				state=ASK_NEW_MEASUREMENT;
