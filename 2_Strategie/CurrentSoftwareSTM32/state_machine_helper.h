@@ -43,6 +43,8 @@ typedef enum {
 	SM_ID_SUB_NORTH_GATHERING_NO_REAR_FOOT	= 0x020B,
 	SM_ID_SUB_NORTH_GATHERING_REAR_FEET		= 0x020C,
 	SM_ID_SUB_NORTH_GATHERING_STAIRS_FEET	= 0x020D,
+	SM_ID_SUB_DISPOSE_CARPETS				= 0x020E,
+	SM_ID_SUB_HOLLY_CARPET_LAUNCHER			= 0x020F,
 
 	SM_ID_SUB_BOTH_WAIT						= 0x0230,
 
@@ -84,7 +86,7 @@ typedef enum {
 
 // La même sans verbose afin de pouvoir crée rapidement une machine à état avec la gestion de l'entrance automatique
 // et de pouvoir utiliser ON_LEAVING et RESET_MAE pour améliorer la lisibilité du code
-#define CREATE_MAE(state_machine_id, init_state, ...) \
+#define CREATE_MAE(init_state, ...) \
 	enum state_e { init_state = 0, __VA_ARGS__ }; \
 	static enum state_e state = init_state; \
 	static enum state_e last_state = init_state; \

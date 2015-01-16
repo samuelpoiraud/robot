@@ -9,17 +9,16 @@
 #ifndef QS_MEASURE_H
 	#define QS_MEASURE_H
 
+// Mensuration des robots
+// BIG
+#define BIG_ROBOT_WIDTH					285		//Largeur du gros robot [mm]
+#define BIG_ROBOT_CALIB_BACK			155		//Distance entre le 'centre' du robot et l'arrière en calage [mm]
+#define BIG_ROBOT_CALIB_FRONT			155		//Distance entre le 'centre' du robot et l'avant en calage [mm]
 
-#define SMALL_ROBOT_WIDTH				200		//Largeur du petit robot [mm]
-#define BIG_ROBOT_WIDTH					300		//Largeur du gros robot [mm]
-
-#define CENTRAL_HEARTH_RADIUS			150		//Rayon du foyer centrale [mm]
-#define RADIUS_TORCH					80		//Rayon d'une torche [mm]
-
-#define LARGEUR_LABIUM					235		//Largeur du labium par rapport au centre du robot [mm]
-#define ELOIGNEMENT_ARBRE				(LARGEUR_LABIUM+100) // Distance à laquel on doit se tenir par rapport à l'arbre [mm]
-#define ELOIGNEMENT_POSE_BAC_FRUIT		470		// Distance à laquel on doit se tenir par rapport au bac à fruit [mm]
-
+// SMALL
+#define SMALL_ROBOT_WIDTH				190		//Largeur du petit robot [mm]
+#define SMALL_ROBOT_CALIB_BACK			81		//Distance entre le 'centre' du robot et l'arrière en calage [mm]
+#define SMALL_ROBOT_CALIB_FRONT			81		//Distance entre le 'centre' du robot et l'avant en calage [mm]
 
 
 // Variable commune à la stratégie et la propulsion pour la gestion de l'évitement
