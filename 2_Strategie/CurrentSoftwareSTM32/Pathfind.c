@@ -508,9 +508,6 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 				lengthPath = Pathfind_cost(current, n, FALSE);
 				distEnd = Pathfind_cost(n, to, TRUE);
 
-				//if(n == Z3)
-					debug_printf("focus %d, current %d, total %d, just %d\n", n, current, nodes[current].length_path + lengthPath, lengthPath);
-
 				/*
 				 * Si elle n'est pas dans la liste ouverte, on l'y ajoute.
 				 * La case en cours devient le parent de cette case.

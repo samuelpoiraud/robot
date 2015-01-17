@@ -107,7 +107,7 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 		//FILTRAGE POUR NE PAS ETRE SPAMMES PAR LE MESSAGE DE POSITION_ROBOT....
 		case BROADCAST_POSITION_ROBOT:
 			//si le message est porteur d'un warning, on ne le filtre pas.
-			if(!msg->data[6])	//Si le message ne porte pas de warning : on filtre.
+			if((msg->data[6] & (WARNING_TRANSLATION | WARNING_ROTATION | WARNING_TIMER)) || !msg->data[0])	//Si le message ne porte pas de warning : on filtre.
 			{
 				//On ne propage pas les messages de BROADCAST_POSITION_ROBOT (dans le cas où les raisons ne sont pas des WARN).
 				*bSAVE_filter = FALSE;
