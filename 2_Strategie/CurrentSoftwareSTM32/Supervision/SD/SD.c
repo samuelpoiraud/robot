@@ -105,7 +105,7 @@ static int SD_vprintf(const char * s, va_list args)
 
 	SD_new_event(FROM_SOFT, NULL, buf, b_insert_time);
 	if(IHM_switchs_get(SWITCH_VERBOSE))
-		puts(buf);	//On en profite pour Verboser l'événement.
+		OUTPUTLOG_printf(LOG_LEVEL_Always, buf); //On en profite pour Verboser l'événement.
 
 //	was_newline = buf[ret-1] == '\n'; //Si la ligne à un '\n' à la fin, on ajoutera un timestamp au prochain printf
 
