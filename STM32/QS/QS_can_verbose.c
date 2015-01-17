@@ -44,7 +44,7 @@ void QS_CAN_VERBOSE_can_msg_print(CAN_msg_t * msg, QS_VERBOSE_msg_type_e verbose
 		debug_printf("ATTENTION, LA GENERATION DU MESSAGE CAN SUIVANT A DEBORDE DANS LA PILE, C'EST CRADE...\n");
 	}
 
-	printf(str);
+	OUTPUTLOG_printf(LOG_LEVEL_Always, str);
 }
 
 
