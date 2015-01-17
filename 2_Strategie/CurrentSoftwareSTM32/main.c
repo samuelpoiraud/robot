@@ -79,9 +79,8 @@ int main (void)
 	#ifdef MODE_SIMULATION
 		pull_bp_and_switch();
 	#endif
-	#ifdef VERBOSE_MODE
-		UART_init();
-	#endif /* def VERBOSE_MODE */
+
+	UART_init();
 	//RCON_read();
 
 	#ifndef FDP_2014
@@ -114,6 +113,7 @@ int main (void)
 		if(j%10 == 0x00)
 			debug_printf(".");
 	}
+	debug_printf("\n");
 
 	Supervision_init();
 	BRAIN_init();

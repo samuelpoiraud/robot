@@ -2,6 +2,7 @@
 #define STATE_MACHINE_HELPER_H
 
 #include "QS/QS_all.h"
+#include "QS/QS_outputlog.h"
 #include "queue.h"
 #include "avoidance.h"
 #include "foreach_preprocessor.h"
@@ -74,14 +75,17 @@ typedef enum {
 #define CREATE_MAE_WITH_VERBOSE(state_machine_id, init_state, ...) \
 	enum state_e { init_state = 0, __VA_ARGS__ }; \
 	static const char * const state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }; \
+	static Uint8 size_MAE = sizeof(state_str) / sizeof(const char *); \
 	static enum state_e state = init_state; \
 	static enum state_e last_state = init_state; \
 	static enum state_e last_state_for_check_entrance = init_state; \
 	static bool_e initialized = FALSE; \
 	bool_e entrance = last_state_for_check_entrance != state || !initialized; \
+	assert(state >= 0 && state < size_MAE); \
 	if(entrance) last_state = last_state_for_check_entrance; \
 	last_state_for_check_entrance = state; \
 	if(entrance && initialized) UTILS_LOG_state_changed(#state_machine_id, state_machine_id, state_str[last_state], last_state, state_str[state], state); \
+	if(!initialized) OUTPUTLOG_printf(LOG_LEVEL_Always, "  # %s(0x%04X): %s(%d)\n", #state_machine_id, state_machine_id, #init_state, init_state); \
 	initialized = TRUE
 
 // La même sans verbose afin de pouvoir crée rapidement une machine à état avec la gestion de l'entrance automatique
