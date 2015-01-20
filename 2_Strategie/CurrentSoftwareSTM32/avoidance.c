@@ -1440,3 +1440,6 @@ error_e ACTION_prop_stop()
 	return IN_PROGRESS;
 }
 
+bool_e i_am_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2){
+	return is_in_square(x1, x2, COLOR_Y(y1), COLOR_Y(y2), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y});
+}
