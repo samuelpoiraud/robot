@@ -17,7 +17,7 @@
 #include "QS_outputlog.h"
 #include "QS_timer.h"
 #include "../stm32f4xx/stm32f4xx_i2c.h"
-
+#include "../stm32f4xx/stm32f4xx_dma.h"
 
 #if defined(USE_I2C1) || defined(USE_I2C2)
 
@@ -25,10 +25,23 @@ void I2C_init(void)
 {
 	I2C_InitTypeDef I2C_InitStructure;
 
+	#ifdef USE_I2C2
+		/* Enable IOE_I2C and IOE_I2C_GPIO_PORT & Alternate Function clocks */
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+		/* Reset I2C2 */
+		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, ENABLE);
+
+		/* Release reset signal of I2C2 */
+		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
+	#endif
+
 	PORTS_i2c_init();
 	WATCHDOG_init();
 
-	I2C_InitStructure.I2C_ClockSpeed = 50000; //100kHz   					/*!< Specifies the clock frequency. This parameter must be set to a value lower than 400kHz */
+	I2C_InitStructure.I2C_ClockSpeed = 100000; //100kHz   					/*!< Specifies the clock frequency. This parameter must be set to a value lower than 400kHz */
 	I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;                				/*!< Specifies the I2C mode. This parameter can be a value of @ref I2C_mode */
 	I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;           			/*!< Specifies the I2C fast mode duty cycle. This parameter can be a value of @ref I2C_duty_cycle_in_fast_mode */
 	I2C_InitStructure.I2C_OwnAddress1 = 0;         							/*!< Specifies the first device own address. This parameter can be a 7-bit or 10-bit address. */
@@ -41,7 +54,6 @@ void I2C_init(void)
 	#endif /* def USE_I2C1 */
 
 	#ifdef USE_I2C2
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
 		I2C_Init(I2C2_I2C_HANDLE, &I2C_InitStructure);
 		I2C_Cmd(I2C2_I2C_HANDLE, ENABLE);
 		I2C_ITConfig(I2C2_I2C_HANDLE,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
@@ -81,21 +93,21 @@ void error_exit(void)
 	if(failed_sr2 & I2C_FLAG_SMBDEFAULT)	debug_printf(" - I2C_FLAG_SMBDEFAULT\n");	// SMBus default header (Slave mode)
 	if(failed_sr2 & I2C_FLAG_GENCALL)		debug_printf(" - I2C_FLAG_GENCALL\n");		// General call header flag (Slave mode)
 	if(failed_sr2 & I2C_FLAG_TRA)			debug_printf(" - I2C_FLAG_TRA\n");			// Transmitter/Receiver flag
-	if(failed_sr2 & I2C_FLAG_BUSY)			debug_printf(" - I2C_FLAG_BUSY\n");		// Bus busy flag
+	if(failed_sr2 & I2C_FLAG_BUSY)			debug_printf(" - I2C_FLAG_BUSY\n");			// Bus busy flag
 	if(failed_sr2 & I2C_FLAG_MSL  )			debug_printf(" - I2C_FLAG_MSL\n");			// Master/Slave flag
-	if(failed_sr1 & I2C_FLAG_SMBALERT)		debug_printf(" - I2C_FLAG_SMBALERT\n");	// SMBus Alert flag
+	if(failed_sr1 & I2C_FLAG_SMBALERT)		debug_printf(" - I2C_FLAG_SMBALERT\n");		// SMBus Alert flag
 	if(failed_sr1 & I2C_FLAG_TIMEOUT)		debug_printf(" - I2C_FLAG_TIMEOUT\n");		// Timeout or Tlow error flag
 	if(failed_sr1 & I2C_FLAG_PECERR)		debug_printf(" - I2C_FLAG_PECERR\n");		// PEC error in reception flag
 	if(failed_sr1 & I2C_FLAG_OVR)			debug_printf(" - I2C_FLAG_OVR\n");			// Overrun/Underrun flag (Slave mode)
 	if(failed_sr1 & I2C_FLAG_AF)			debug_printf(" - I2C_FLAG_AF\n");			// Acknowledge failure flag
-	if(failed_sr1 & I2C_FLAG_ARLO)			debug_printf(" - I2C_FLAG_ARLO\n");		// Arbitration lost flag (Master mode)
-	if(failed_sr1 & I2C_FLAG_BERR)			debug_printf(" - I2C_FLAG_BERR\n");		// Bus error flag
+	if(failed_sr1 & I2C_FLAG_ARLO)			debug_printf(" - I2C_FLAG_ARLO\n");			// Arbitration lost flag (Master mode)
+	if(failed_sr1 & I2C_FLAG_BERR)			debug_printf(" - I2C_FLAG_BERR\n");			// Bus error flag
 	if(failed_sr1 & I2C_FLAG_TXE)			debug_printf(" - I2C_FLAG_TXE\n");			// Data register empty flag (Transmitter)
-	if(failed_sr1 & I2C_FLAG_RXNE)			debug_printf(" - I2C_FLAG_RXNE\n");		// Data register not empty (Receiver) flag
+	if(failed_sr1 & I2C_FLAG_RXNE)			debug_printf(" - I2C_FLAG_RXNE\n");			// Data register not empty (Receiver) flag
 	if(failed_sr1 & I2C_FLAG_STOPF)			debug_printf(" - I2C_FLAG_STOPF\n");		// Stop detection flag (Slave mode)
 	if(failed_sr1 & I2C_FLAG_ADD10)			debug_printf(" - I2C_FLAG_ADD10\n");		// 10-bit header sent flag (Master mode)
 	if(failed_sr1 & I2C_FLAG_BTF)			debug_printf(" - I2C_FLAG_BTF\n");			// Byte transfer finished flag
-	if(failed_sr1 & I2C_FLAG_ADDR)			debug_printf(" - I2C_FLAG_ADDR\n");		// Address sent flag (Master mode) "ADSL", Address matched flag (Slave mode)"ENDAD"
+	if(failed_sr1 & I2C_FLAG_ADDR)			debug_printf(" - I2C_FLAG_ADDR\n");			// Address sent flag (Master mode) "ADSL", Address matched flag (Slave mode)"ENDAD"
 	if(failed_sr1 & I2C_FLAG_SB)			debug_printf(" - I2C_FLAG_SB\n");			// Start bit flag (Master mode)
 	failed_sr2 = 0;
 	failed_sr1 = 0;
@@ -108,11 +120,11 @@ void error_exit(void)
 	GPIOB->ODR10 = 1;
 	GPIOB->ODR11 = 1;
 	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,DISABLE);
-*/
+
 	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,ENABLE);
 	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,DISABLE);
 	I2C_DeInit(I2C2_I2C_HANDLE);
-	I2C_init();
+	I2C_init();*/
 }
 
 void I2C_reset(void){
@@ -247,12 +259,9 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 	}
 	return TRUE;
 }
-
 #endif
 
-#define Timed(x) while (x) { if (timeout || i2c_bus_error) goto errReturn;}
-
-
+#define Timed(x) while (x) { if (timeout || i2c_bus_error){ error_exit(); goto errReturn;}}
 
 
 //code inspiré de ceci : https://github.com/geoffreymbrown/STM32-Template/blob/master/Library/i2c.c
@@ -394,14 +403,18 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 		return FALSE;
 	}
 
+	//Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_TXE));
+
 	/* Enable Error IT (used in all modes: DMA, Polling and Interrupts */
 	//    I2C2_I2C_HANDLE->CR2 |= I2C_IT_ERR;
 
 	if (size)
 	{
+		//delay_50ns();
+		//Timed(I2C2_I2C_HANDLE->SR2 & 0b00000010);
 		//Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY));
 
-		// Intiate Start Sequence
+		// Intiate Start Sequence 
 
 		I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE);
 		Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_MODE_SELECT));
@@ -420,6 +433,7 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 		while (--size) {
 
 		  // wait on BTF
+
 
 		  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
 		  I2C_SendData(I2C2_I2C_HANDLE, *data++);
@@ -441,6 +455,7 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 		WATCHDOG_stop(watchdog_id);
 	return FALSE;
 }
+
 #endif
 
 

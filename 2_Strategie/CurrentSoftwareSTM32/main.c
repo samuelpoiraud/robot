@@ -118,6 +118,7 @@ int main (void)
 	Supervision_init();
 	BRAIN_init();
 	ACT_AVOIDANCE_init();
+	ELEMENTS_init();
 
 #ifndef FDP_2014
 	// Demande des états initiaux des switchs
