@@ -13,6 +13,7 @@
 
 #include "QS_all.h"
 #include <stdarg.h>
+#include <stdio.h>
 
 /* Macro de d'affichage d'une expression rapide */
 #define display(x) debug_printf("%s : %ld\n", #x, (Sint32)(x))
