@@ -126,29 +126,6 @@ void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state)
 	elements_flags[flag_id] = new_state;
 }
 
-// Récupérer l'état ET les coordonnées d'un clap dont l'id est passé en paramètre.
-void ELEMENTS_get_clap_state(elements_flags_e clap_id, bool_e * clap_done,  Uint16 * x, Uint16 * y)
-{
-	switch(clap_id)
-	{
-		case BORDER_CLAP:
-			*y = COLOR_Y(240);
-			break;
-		case ESTRAD_CLAP:
-			*y = COLOR_Y(540);
-			break;
-		case IN_ADVERSARY_ZONE_CLAP:
-			*y = COLOR_Y(2460);
-			break;
-		default:
-			assert(0);
-			return;
-	}
-	*x = 2000;
-	*clap_done = elements_flags[clap_id];
-}
-
-
 
 // Récupérer l'état ET les coordonnées d'un distributeur de popcorns dont l'id est passé en paramètre.
 void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispenser_done, Uint16 * x, Uint16 * y)

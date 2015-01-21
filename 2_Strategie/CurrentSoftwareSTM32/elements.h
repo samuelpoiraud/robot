@@ -54,9 +54,9 @@
 		HOLLY_STOLE_SOUTH_ADVERSARY_CUP,	//vol dans la salle de cinéma adverse du SUD.
 		WOOD_DISPOSED_CUP_IN_SOUTH_ADVERSARY_CINEMA,
 		WOOD_DISPOSED_CUP_IN_NORTH_ADVERSARY_CINEMA,
-		BORDER_CLAP,
-		ESTRAD_CLAP,
-		IN_ADVERSARY_ZONE_CLAP,
+		ELEMENTS_BORDER_CLAP,
+		ELEMENTS_ESTRAD_CLAP,
+		ELEMENTS_IN_ADVERSARY_ZONE_CLAP,
 		ELEMENTS_NORTH_CORNER_FOOT_TOOK,
 		ELEMENTS_NORTH_STAIRS_FEET_TOOK,
 		ELEMENTS_MIDDLE_FEET_TOOK,
@@ -81,8 +81,6 @@ void ELEMENTS_reset_holly_right_spot_level(void);
 
 // Récupérer l'état ET les coordonnées d'un distributeur de popcorns dont l'id est passé en paramètre.
 void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispenser_done, Uint16 * x, Uint16 * y);
-// Récupérer l'état ET les coordonnées d'un clap dont l'id est passé en paramètre.
-void ELEMENTS_get_clap_state(elements_flags_e clap_id, bool_e * clap_done,  Uint16 * x, Uint16 * y);
 
 
 #endif // ELEMENTS_H
