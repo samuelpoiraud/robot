@@ -22,6 +22,12 @@
 	}ELEMENTS_element_t;
 
 	typedef enum{
+		DISPOSE_SPOT_RIGHT,
+		DISPOSE_SPOT_LEFT,
+		DISPOSE_SPOT_RIGHT_AND_LEFT
+	}ELEMENTS_dispose_spot_e;
+
+	typedef enum{
 		OUR_ELEMENT = 0,
 		ADV_ELEMENT
 	}element_group_e;
