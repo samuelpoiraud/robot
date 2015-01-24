@@ -108,9 +108,9 @@ void BUTTON_change_color()
 
 void SWITCH_change_color()
 {
-	if((IHM_switchs_get(SWITCH_COLOR) == (global.env.color == 1)? TRUE:FALSE) || global.env.color == COLOR_INIT_VALUE){
+	if((IHM_switchs_get(SWITCH_COLOR) != (global.env.color == 1)? TRUE:FALSE) || global.env.color == COLOR_INIT_VALUE){
 		global.env.color_updated = TRUE;
-		global.env.wanted_color = ((IHM_switchs_get(SWITCH_COLOR)==1)?BOT_COLOR:TOP_COLOR);
+		global.env.wanted_color = ((IHM_switchs_get(SWITCH_COLOR)==1)?TOP_COLOR:BOT_COLOR);
 		debug_printf("COLOR\r\n");
 	}
 
