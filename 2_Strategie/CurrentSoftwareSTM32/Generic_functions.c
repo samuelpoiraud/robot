@@ -25,7 +25,7 @@ Uint8 wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 	{
 		IDLE,
 		WAIT,
-		END_OK
+		END
 	}state_e;
 	static state_e state = IDLE;
 	static time32_t timeEnd;
@@ -38,10 +38,10 @@ Uint8 wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 
 		case WAIT:
 			if(timeEnd <= global.env.match_time)
-				state = END_OK;
+				state = END;
 			break;
 
-		case END_OK:
+		case END:
 			state = IDLE;
 			return success_state;
 	}
