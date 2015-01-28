@@ -460,7 +460,7 @@ void COPILOT_do_order(order_t * order)
 	}else{
 	#endif
 
-		debug_printf("t : %ld next trajectory ! %s %s\n", global.absolute_time, trajectory_name_e[order->trajectory], (order->avoidance != AVOID_DISABLED)?"with avoidance":"without avoidance");
+	//	debug_printf("t : %ld next trajectory ! %s %s\n", global.absolute_time, trajectory_name_e[order->trajectory], (order->avoidance != AVOID_DISABLED)?"with avoidance":"without avoidance");
 
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
