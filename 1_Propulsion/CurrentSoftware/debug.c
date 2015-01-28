@@ -266,6 +266,36 @@ void affichage_global(void)
 						global.position.y = FIELD_SIZE_Y-robotSize;
 						we_touch_border = TRUE;
 					}
+
+
+					//Spécifique terrain 2015
+					if(global.position.y > 1000 && global.position.y < 2000 && global.position.x < 580+robotSize)	//Escaliers
+					{
+						global.real_speed_translation = 0;
+						global.position.x = 580+robotSize;
+						we_touch_border = TRUE;
+					}
+					if(global.position.y > 1200 && global.position.y < 1800 && global.position.x > 1900-robotSize)	//Estrade
+					{
+						global.real_speed_translation = 0;
+						global.position.x = 1900-robotSize;
+						we_touch_border = TRUE;
+					}
+					if(global.position.x > 800 && global.position.x < 1200)	//Zones de départ
+					{
+						if(global.position.y < 70+robotSize)
+						{
+							global.real_speed_translation = 0;
+							global.position.y = 70+robotSize;
+							we_touch_border = TRUE;
+						}
+						else if(global.position.y > 3000-robotSize)
+						{
+							global.real_speed_translation = 0;
+							global.position.y = 3000-robotSize;
+							we_touch_border = TRUE;
+						}
+					}
 				}
 			}
 			/*	en gros, la vitesse à prendre en début d'IT est l'écart entre le robot et le nouveau point fictif
