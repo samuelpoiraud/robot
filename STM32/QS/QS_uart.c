@@ -376,6 +376,12 @@ int _write(int file, char *ptr, int len)
 
 		void UART1_putc(Uint8 c)
 		{
+			static bool_e reentrance_detection = FALSE;
+
+			if(reentrance_detection)
+				return;					//Si printf en IT pendant un printf, on abandonne le caractère du printf en IT..
+
+			reentrance_detection = TRUE;
 			if(USART_GetFlagStatus(USART1, USART_IT_TXE))
 				USART_SendData(USART1, c);
 			else
@@ -385,7 +391,8 @@ int _write(int file, char *ptr, int len)
 				assert(buffer1tx.nb_datas < buffer1tx.size + 1);
 				//Critical section (Interrupt inibition)
 
-				while(buffer1tx.nb_datas >= buffer1tx.size);	//ON BLOQUE ICI
+				while(buffer1tx.nb_datas >= buffer1tx.size);	//ON BLOQUE ICI*
+				//Si vous êtes bloqués ici....... vérifiez qu'aucun printf n'est fait en IT...
 
 				NVIC_DisableIRQ(USART1_IRQn);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
 
@@ -399,6 +406,7 @@ int _write(int file, char *ptr, int len)
 				NVIC_EnableIRQ(USART1_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
 				USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
 			}
+			reentrance_detection = FALSE;
 		}
 	#else	/* def USE_UART1TXINTERRUPT */
 
