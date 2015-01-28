@@ -2,7 +2,6 @@
 #define STATE_MACHINE_HELPER_H
 
 #include "QS/QS_all.h"
-#include "QS/QS_outputlog.h"
 #include "queue.h"
 #include "avoidance.h"
 #include "foreach_preprocessor.h"
@@ -61,6 +60,9 @@ typedef enum {
 
 #define STATE_CONVERT_TO_STRING(val) #val
 
+// Fonction d'affichage de l'état initiale prototyper ici car besoin dans les macros suivantes
+void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, const char* init_state_name, Uint8 init_state_val);
+
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------Machine à état rapide verbosée ou non------------------------------------------------------------------------------
@@ -88,7 +90,7 @@ typedef enum {
 	if(entrance) last_state = last_state_for_check_entrance; \
 	last_state_for_check_entrance = state; \
 	if(entrance && initialized) UTILS_LOG_state_changed(#state_machine_id, state_machine_id, state_str[last_state], last_state, state_str[state], state); \
-	if(!initialized) OUTPUTLOG_printf(LOG_LEVEL_Always, "  # %s(0x%04X): %s(%d)\n", #state_machine_id, state_machine_id, #init_state, init_state); \
+	if(!initialized) UTILS_LOG_init_state(#state_machine_id, state_machine_id, state_str[state], state); \
 	initialized = TRUE
 
 // La même sans verbose afin de pouvoir crée rapidement une machine à état avec la gestion de l'entrance automatique

@@ -74,3 +74,9 @@ Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8
 			return failed_state;
 	}
 }
+
+void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, const char* init_state_name, Uint8 init_state_val){
+	SD_printf("  # %s(0x%04X): %s\n",
+			sm_name, sm_id,
+			init_state_name);
+}
