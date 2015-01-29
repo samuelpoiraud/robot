@@ -332,6 +332,7 @@ void LCD_test(void)
 
 static void LCD_handle_i2c_result(bool_e result) {
 	static Uint8 error_count = 0;
+	static bool_e error_displayed = FALSE;
 
 #if defined(LCD_MAX_I2C_ERROR) && LCD_MAX_I2C_ERROR >= 0
 	if(result == FALSE)
@@ -341,9 +342,10 @@ static void LCD_handle_i2c_result(bool_e result) {
 
 	if(error_count > LCD_MAX_I2C_ERROR) {
 		//initialized = FALSE;
-		//debug_printf("LCD: trop d'erreur I2C, LCD off\n");
 		error_count = 0;
-		debug_printf("LCD: trop d'erreur I2C\n");
+		if(error_displayed == FALSE)
+			debug_printf("LCD: trop d'erreur I2C\n");
+		error_displayed = TRUE;
 	}
 #endif
 }

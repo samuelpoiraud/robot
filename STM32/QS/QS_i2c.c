@@ -261,7 +261,8 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 }
 #endif
 
-#define Timed(x) while (x) { if (timeout || i2c_bus_error){ error_exit(); goto errReturn;}}
+// décomenter error_exit pour afficher les erreurs I2C
+#define Timed(x) while (x) { if (timeout || i2c_bus_error){ /*error_exit();*/ goto errReturn;}}
 
 
 //code inspiré de ceci : https://github.com/geoffreymbrown/STM32-Template/blob/master/Library/i2c.c
@@ -414,7 +415,7 @@ bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_co
 		//Timed(I2C2_I2C_HANDLE->SR2 & 0b00000010);
 		//Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY));
 
-		// Intiate Start Sequence 
+		// Intiate Start Sequence
 
 		I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE);
 		Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_MODE_SELECT));

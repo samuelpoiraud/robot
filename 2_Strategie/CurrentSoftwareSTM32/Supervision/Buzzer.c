@@ -9,10 +9,12 @@
  *  Licence : CeCILL-C (voir LICENCE.txt)
  *	Version 201401
  */
-
 #include "Buzzer.h"
-#include "../QS/QS_outputlog.h"
 #include "../QS/QS_pwm.h"
+
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BUZZER
+#define LOG_PREFIX "Buzzer : "
+#include "../QS/QS_outputlog.h"
 
 volatile time32_t t = 0;
 time32_t buzz_duration = 0;
@@ -28,8 +30,10 @@ void BUZZER_process_1ms(void)
 //exemple d'utilisation pour 5 bips de 50ms : BUZZER_play(50, NOTE_DO, 5);
 
 //Demander un buzz pour une durée donnée en ms
-void BUZZER_play(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz)
+void BUZZER_play_fct_dont_use(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz, const char* fonction, Uint16 ligne)
 {
+	debug_printf("request fct:%s line:%d\n", fonction, ligne);
+
 	buzz_duration = duration_ms;
 	nb_buzz_remaining = nb_buzz;
 	if(current_note != note)
