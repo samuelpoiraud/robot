@@ -16,15 +16,17 @@
 
 	typedef enum
 	{
-		NOW=0x00, 
-		END_OF_BUFFER=0x10, 
-		NO_MULTIPOINT=0x00, 
+		NOW=0x00,
+		END_OF_BUFFER=0x10,
+		NO_MULTIPOINT=0x00,
 		MULTIPOINT=0x20,
-		ABSOLUTE=0x00, 
-		RELATIVE=0x0F
+		ABSOLUTE=0x00,
+		RELATIVE=0x0F,
+		BORDER_MODE=0x02,
+		NO_BORDER_MODE=0x00
 	} PROP_mode_e;
-	
-	
+
+
 	typedef enum
 	{
 		END_AT_LAST_POINT = 0,

@@ -45,7 +45,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
-	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition);
+	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, FALSE);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -67,7 +67,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	error_e sub_action;
-	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition);
+	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition, FALSE);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -157,7 +157,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			break;
 
 		case GO :
-			sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},30}}, NULL, 1, way, avoidance, END_AT_LAST_POINT);
+			sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},30}}, NULL, 1, way, avoidance, END_AT_LAST_POINT, TRUE);
 			switch(sub_action){
 				case IN_PROGRESS:
 					state = GO;
@@ -176,12 +176,12 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 
 		case ERROR :
 			PROP_set_threshold_error_translation(0,TRUE);
-			state = IDLE;
+			RESET_MAE();
 			return fail_state;
 
 		case DONE :
 			PROP_set_threshold_error_translation(0,TRUE);
-			state = IDLE;
+			RESET_MAE();
 			return success_state;
 	}
 	return in_progress;
@@ -555,7 +555,7 @@ void AVOIDANCE_set_timeout(Uint16 msec) {
  * return END_WITH_TIMEOUT : Timeout
  * return FOE_IN_PATH : un adversaire nous bloque
  */
-error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition)
+error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, bool_e border_mode)
 {
 	enum state_e
 	{
@@ -604,18 +604,18 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			for(i=nb_displacements-1;i>=1;i--)
 			{
 				if(displacements)
-					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, FALSE);
+					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, border_mode, FALSE);
 				else if(displacements_curve && displacements_curve[i].curve)
-					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, FALSE);
+					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, border_mode, FALSE);
 				else
-					PROP_push_goto(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, 0, avoidance_type, end_condition, FALSE);
+					PROP_push_goto(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, 0, avoidance_type, end_condition, border_mode, FALSE);
 			}
 			if(displacements)
-				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
+				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, border_mode, TRUE);
 			else if(displacements_curve && displacements_curve[0].curve)
-				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, TRUE);
+				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, border_mode, TRUE);
 			else
-				PROP_push_goto(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, 0, avoidance_type, end_condition, TRUE);
+				PROP_push_goto(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, 0, avoidance_type, end_condition, border_mode, TRUE);
 
 			debug_printf("goto_pos_with_scan_foe : load_move\n");
 			if(displacements || displacements_curve)
@@ -1161,7 +1161,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 		case LOAD_MOVE:
 			clear_prop_detected_foe();
 			global.env.destination = displacements.point;
-			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, TRUE);
+			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, FALSE, TRUE);
 			debug_printf("goto_extract_with_avoidance : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;

@@ -244,7 +244,7 @@ void set_prop_detected_foe(CAN_msg_t *msg);
  * return END_WITH_TIMEOUT : Timeout
  * return FOE_IN_PATH : un adversaire nous bloque
  */
-error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition);
+error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, bool_e border_mode);
 
 //------------------------------------------------------------------- Fonctions autres
 

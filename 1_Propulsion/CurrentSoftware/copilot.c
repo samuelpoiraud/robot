@@ -59,15 +59,6 @@ void COPILOT_update_brake_state(void);
 braking_e COPILOT_update_brake_state_rotation(void);
 braking_e COPILOT_update_brake_state_translation(void);
 
-static char * trajectory_name_e[] = {
-	"TRAJECTORY_TRANSLATION",
-	"TRAJECTORY_ROTATION",
-	"TRAJECTORY_STOP",
-	"TRAJECTORY_AUTOMATIC_CURVE",
-	"TRAJECTORY_NONE",
-	"WAIT_FOREVER"
-};
-
 void COPILOT_init(void)
 {
 	arrived = ARRIVED;
@@ -459,8 +450,6 @@ void COPILOT_do_order(order_t * order)
 
 	}else{
 	#endif
-
-	//	debug_printf("t : %ld next trajectory ! %s %s\n", global.absolute_time, trajectory_name_e[order->trajectory], (order->avoidance != AVOID_DISABLED)?"with avoidance":"without avoidance");
 
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!

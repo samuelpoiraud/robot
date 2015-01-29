@@ -28,6 +28,7 @@
 		Uint8 curve;
 		Uint8 priority_order;
 		avoidance_e avoidance;
+		bool_e border_mode;
 	}prop_arg_t;
 
 // ---------------------------------------------------------------------------- Fonctions de déplacement
@@ -36,13 +37,13 @@
 	void PROP_push_stop ();
 
 	/* ajoute une instruction goto sur la pile asser */
-	void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, PROP_end_condition_e end_condition, bool_e run);
+	void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, PROP_end_condition_e end_condition, bool_e border_mode, bool_e run);
 
 	/* ajoute une instruction goangle sur la pile asser */
 	void PROP_push_goangle (Sint16 angle, PROP_speed_e speed, bool_e run);
 
 	/* ajoute une instruction goto_multi_point sur la pile asser */
-	void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition, bool_e run);
+	void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition, bool_e border_mode, bool_e run);
 
 	/* ajoute une instruction rush_in_the_wall sur la pile asser */
 	void PROP_push_rush_in_the_wall (way_e way, bool_e prop_rotate,Sint16 angle, bool_e run);

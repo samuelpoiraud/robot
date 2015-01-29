@@ -492,6 +492,9 @@
 							|
 							|.... ...0 - ordre dans referentiel pas relatif (donc absolu)
 							|.... ...1 - ou relatif
+							|
+							|.... ..0. - sans mode bordure
+							|.... ..1. - avec mode bordure
 		XHIGH : Uint8	bits les plus significatifs de X, (mm)
 		XLOW : Uint8	bits les moins significatifs de X
 		YHIGH : Uint8	bits les plus significatifs de Y, (mm)

@@ -69,7 +69,7 @@ void PROP_push_stop ()
 }
 
 /* ajoute une instruction goto sur la pile asser */
-void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, PROP_end_condition_e end_condition ,bool_e run)
+void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, PROP_end_condition_e end_condition, bool_e border_mode, bool_e run)
 {
 	debug_printf("\nD=%d\n",x);
 	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
@@ -79,6 +79,7 @@ void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 cu
 	pos->speed = speed;
 	pos->way = way;
 	pos->curve = curve;
+	pos->border_mode = border_mode;
 	if(avoidance == NORMAL_WAIT || avoidance == NO_DODGE_AND_WAIT || avoidance == DODGE_AND_WAIT)
 		pos->avoidance = AVOID_ENABLED_AND_WAIT;
 	else if(avoidance == NO_DODGE_AND_NO_WAIT || avoidance == DODGE_AND_NO_WAIT)
@@ -91,7 +92,7 @@ void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 cu
 		STACKS_push (PROP, &PROP_goto_until_break, run);
 }
 
-void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition ,bool_e run)
+void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition, bool_e border_mode, bool_e run)
 {
 	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
 
@@ -101,6 +102,7 @@ void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e w
 	pos->way = way;
 	pos->curve = curve;
 	pos->priority_order = priority_order;
+	pos->border_mode = border_mode;
 	if(avoidance == NORMAL_WAIT || avoidance == NO_DODGE_AND_WAIT || avoidance == DODGE_AND_WAIT)
 		pos->avoidance = AVOID_ENABLED_AND_WAIT;
 	else if(avoidance == NO_DODGE_AND_NO_WAIT || avoidance == DODGE_AND_NO_WAIT)
@@ -394,7 +396,7 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW+NO_MULTIPOINT+ABSOLUTE;
+		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
 		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);
@@ -448,7 +450,7 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW+NO_MULTIPOINT+ABSOLUTE;
+		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
 		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);
@@ -501,7 +503,7 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 		{
 			args=&prop_args[STACKS_get_top(stack_id)];
 			order.sid = PROP_GO_POSITION;
-			order.data[CONFIG]=args->priority_order+MULTIPOINT+ABSOLUTE;
+			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
 			order.data[XMSB]=HIGHINT(args->x);
 			order.data[XLSB]=LOWINT(args->x);
 			order.data[YMSB]=HIGHINT(args->y);
@@ -585,7 +587,7 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 		{
 			args=&prop_args[STACKS_get_top(stack_id)];
 			order.sid = PROP_GO_POSITION;
-			order.data[CONFIG]=args->priority_order+MULTIPOINT+ABSOLUTE;
+			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
 			order.data[XMSB]=HIGHINT(args->x);
 			order.data[XLSB]=LOWINT(args->x);
 			order.data[YMSB]=HIGHINT(args->y);
@@ -664,7 +666,7 @@ static void PROP_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 		for( ; STACKS_get_action(PROP,STACKS_get_top(stack_id)) == &PROP_relative_goangle_multi_point ; STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1))
 		{
 			order.sid = PROP_GO_ANGLE;
-			order.data[CONFIG]=END_OF_BUFFER+MULTIPOINT+RELATIVE;
+			order.data[CONFIG]=END_OF_BUFFER | MULTIPOINT | RELATIVE;
 			order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].angle);
 			order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].angle);
 			order.data[YLSB]=0x0;
@@ -710,7 +712,7 @@ static void PROP_goangle (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_ANGLE;
-		order.data[CONFIG]=NOW+NO_MULTIPOINT+ABSOLUTE;
+		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE;
 		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].angle);
 		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].angle);
 		order.data[YLSB]=0x0;
@@ -747,7 +749,7 @@ static void PROP_relative_goangle (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_ANGLE;
-		order.data[CONFIG]=END_OF_BUFFER+NO_MULTIPOINT+RELATIVE;
+		order.data[CONFIG]=END_OF_BUFFER | NO_MULTIPOINT | RELATIVE;
 		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].angle);
 		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].angle);
 		order.data[YLSB]=0x0;
@@ -785,7 +787,7 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW+NO_MULTIPOINT+RELATIVE;
+		order.data[CONFIG]=NOW | NO_MULTIPOINT | RELATIVE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
 		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);
