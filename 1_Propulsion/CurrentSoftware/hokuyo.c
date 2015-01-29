@@ -128,7 +128,9 @@
 		static Uint16 nb_points_B1=0,nb_points_B2=0,nb_points_B3=0;  //le nombre de points de mesures par balises
 		static Uint8 nb_balayages=0; //correspond aux nombres de balayage de 270° réalisé par l'hokuyo
 		//static Uint8 droiteRegression1[3], droiteRegression2[3];
+
 	#endif
+		Uint8 cpt=0;
 
 
 //Fonction d'initialisation du périphérique USB
@@ -248,14 +250,20 @@ void HOKUYO_process_main(void)
 		break;
 		case TREATMENT_DATA:
 			hokuyo_find_valid_points();
+			cpt++;
+			if(cpt==4){
+				debug_printf("\nCOMPTEUR cpt=%d\n", cpt);
+				cpt=0;
+			}
 			#ifdef TRIANGULATION
 			//debug_printf("Pouet %s\n", (global.match_over)?"over":"");
 			//debug_printf("nbpoints1=%ld  nbpoints2=%ld  nbpoints3=%ld \n", nb_points_B1, nb_points_B2, nb_points_B3);
 			//display(nb_passage);
 			if(global.match_over){
 				//Hokuyo_validPointsAndBeacons();
-				//debug_printf("\nEntrer dans TRI POINTS \n");
+				debug_printf("\n##############Entrer dans TRI POINTS############## \n");
 				nb_balayages++;
+				debug_printf("nb_balayages=%d\n", nb_balayages );
 				tri_points();
 
 				if(nb_balayages==NB_MESURES_HOKUYO){
@@ -971,15 +979,16 @@ Sint32 x1, x2, y2;
 Sint16 a1=0, a2=0, a3=0, a4=0, moyAngle12=0, moyAngle34=0, condition12=0, condition34=0; //abscisse, ordonnée et angle
 void triangulation(){
 	Sint32 y1;
-	//robot.teta = global.position.teta;
+	robot.teta = global.position.teta;
+	robot.x = global.position.x - ECART_HOKUYO_A_DROITE*sin4096(robot.teta);
+	robot.y = global.position.y + ECART_HOKUYO_A_DROITE*cos4096(robot.teta);
 	//robot.x = global.position.x;
 	//robot.y = global.position.y;
-	robot.x = 700;  //test
+	/*robot.x = 700;  //test
 	robot.y = 1500;
-	robot.teta= -PI4096;
+	robot.teta= -PI4096;*/
 	debug_printf("Robot  x=%ld  y=%ld  teta=%ld \n\n",robot.x, robot.y, robot.teta);
-	//robot.x = robot.x - ECART_HOKUYO_A_DROITE*sin4096(robot.teta);
-	//robot.y = robot.y + ECART_HOKUYO_A_DROITE*cos4096(robot.teta);
+
 	debug_printf("\n####TRIANGULATION####\n");
 	debug_printf("B1_detected=%d \n", B1detected);
 	debug_printf("B2_detected=%d \n", B2detected);
@@ -1400,7 +1409,7 @@ void findCorrectPosition(){
 	offset_y = (Sint16)(offset_pos_y*sin4096(robot.teta));
 	robot.x -= offset_x;
 	robot.y -= offset_y;
-	debug_printf("POSITION ROBOT APRES TRIANGULATION: x=%ld   y=%ld teta=%d\n", robot.x, robot.y, robot.teta);
+	//debug_printf("POSITION ROBOT APRES TRIANGULATION: x=%ld   y=%ld teta=%d\n", robot.x, robot.y, robot.teta);
 }
 
 
@@ -1568,7 +1577,7 @@ HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_bea
 	beacon.coordX = ((c30+c12)*c02-(c03+c21)*c11)/(2.*(c20*c02-c11*c11));
 	beacon.coordY = ((c03+c21)*c20-(c30+c12)*c11)/(2.*(c20*c02-c11*c11));
 
-	//########################TEST TRIANGULATION#########################
+	/*//########################TEST TRIANGULATION#########################
 	switch(numero_beacon){
 		case 1:
 			beacon.coordX=-62;
@@ -1583,7 +1592,7 @@ HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_bea
 			beacon.coordY=-62;
 			break;
 	}
-
+*/
 
 
 
@@ -1593,12 +1602,12 @@ HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_bea
 	switch(numero_beacon){
 		case 1:
 			beacon.teta = (Sint16)((Sint16)atan4096((robot.y-beacon.coordY)/(1.0*(robot.x-beacon.coordX)))- robot.teta +PI4096/2);
-			display(atan4096((robot.y-beacon.coordY)/(1.0*(robot.x-beacon.coordX))));
-			debug_printf("ANGLE=%d\n", beacon.teta);
+			//display(atan4096((robot.y-beacon.coordY)/(1.0*(robot.x-beacon.coordX))));
+			//debug_printf("ANGLE=%d\n", beacon.teta);
 			break;
 		case 2:
 			beacon.teta = (Sint16)( atan2_4096(beacon.coordY-robot.y,beacon.coordX-robot.x)) - robot.teta -PI4096/2;
-			debug_printf("ATAN2=%d\n",(Sint16)( atan2_4096(beacon.coordY-robot.y,beacon.coordX-robot.x)));
+			//debug_printf("ATAN2=%d\n",(Sint16)( atan2_4096(beacon.coordY-robot.y,beacon.coordX-robot.x)));
 			break;
 		case 3:
 			beacon.teta = (Sint16)(PI4096 - robot.teta + atan4096((beacon.coordX-robot.x)/(1.*(robot.y-beacon.coordY))));
@@ -1622,17 +1631,17 @@ HOKUYO_adversary_position regression_circulaire(HOKUYO_point_position points_bea
 
 //Fonction trouvant le centre des balises
 void find_beacons_centres(){
-	//robot.x = global.position.x;
-	//robot.y = global.position.y;
-	//TEST TRIANGULATION
+	robot.teta = global.position.teta;
+	robot.x = global.position.x - ECART_HOKUYO_A_DROITE*sin4096(robot.teta);
+	robot.y = global.position.y + ECART_HOKUYO_A_DROITE*cos4096(robot.teta);
+	/*//TEST TRIANGULATION
 	robot.x = 700;
 	robot.y = 1500;
 	robot.teta= -PI4096;
 	B1detected=1;
 	B2detected=1;
 	B3detected=1;
-	//FIN TEST
-	//robot.teta = global.position.teta;
+	//FIN TEST*/
 	robot.weight = 1;
 	//Uint16 i;
 	color_e color= ODOMETRY_get_color();
@@ -1712,6 +1721,7 @@ void find_beacons_centres(){
 		if(robot.teta>PI4096)  robot.teta-=2*PI4096;
 		if(robot.teta<-PI4096)  robot.teta+=2*PI4096;
 	}
+
 	debug_printf("FIN TRIANGULATION\n");
 
 
