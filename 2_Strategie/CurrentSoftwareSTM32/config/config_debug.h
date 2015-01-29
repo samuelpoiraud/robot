@@ -23,6 +23,7 @@
 #define OUTPUT_LOG_COMPONENT_AVOIDANCE				LOG_PRINT_Off
 #define OUTPUT_LOG_COMPONENT_PATHFIND				LOG_PRINT_Off
 #define OUTPUT_LOG_COMPONENT_ELEMENTS				LOG_PRINT_On
+#define OUTPUT_LOG_COMPONENT_BUZZER					LOG_PRINT_On
 
 //Activation de define pour l'affichage de debug
 //#define DEBUG_POLYGON

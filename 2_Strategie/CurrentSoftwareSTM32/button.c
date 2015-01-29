@@ -40,8 +40,8 @@ void BUTTON_init()
 #ifndef FDP_2014
 	IHM_define_act_button(BP_SELFTEST,SELFTEST_ask_launch, NULL);
 	IHM_define_act_button(BP_OK,LCD_button_ok, NULL);
-	IHM_define_act_button(BP_UP,LCD_button_up, NULL);
-	IHM_define_act_button(BP_DOWN,LCD_button_down, NULL);
+	IHM_define_act_button(BP_UP,LCD_button_up, LCD_button_up);
+	IHM_define_act_button(BP_DOWN,LCD_button_down, LCD_button_down);
 
 	#ifdef EEPROM_CAN_MSG_ENABLE
 		IHM_define_act_button(BP_PRINTMATCH,EEPROM_CAN_MSG_verbose_previous_match, NULL);

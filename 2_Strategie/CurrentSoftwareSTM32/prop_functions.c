@@ -503,7 +503,7 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 		{
 			args=&prop_args[STACKS_get_top(stack_id)];
 			order.sid = PROP_GO_POSITION;
-			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
+			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((args->border_mode)? BORDER_MODE : NO_BORDER_MODE);
 			order.data[XMSB]=HIGHINT(args->x);
 			order.data[XLSB]=LOWINT(args->x);
 			order.data[YMSB]=HIGHINT(args->y);
@@ -587,7 +587,7 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 		{
 			args=&prop_args[STACKS_get_top(stack_id)];
 			order.sid = PROP_GO_POSITION;
-			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
+			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((args->border_mode)? BORDER_MODE : NO_BORDER_MODE);
 			order.data[XMSB]=HIGHINT(args->x);
 			order.data[XLSB]=LOWINT(args->x);
 			order.data[YMSB]=HIGHINT(args->y);

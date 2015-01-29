@@ -110,9 +110,16 @@ Uint8 RTC_set_time  (date_t * date)
 
 	local_date_updated = FALSE;	//La date locale n'est plus à jour. On ne prend pas pour autant la nouvelle date comme date locale, puisqu'en cas d'échec, mieux vaut avoir relu la date RTC réelle.
 
-	return I2C2_write(DS1307_I2C_ADDRESS, datas, 9, TRUE);
-	#else
+	if(I2C2_write(DS1307_I2C_ADDRESS, datas, 9, TRUE))
+		debug_printf("RTC mise à jours\n");
+	else{
+		debug_printf("RTC ERROR I2C\n");
 		return FALSE;
+	}
+
+	return TRUE;
+	#else
+
 	#endif
 
 
