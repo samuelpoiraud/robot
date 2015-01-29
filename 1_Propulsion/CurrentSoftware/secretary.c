@@ -252,7 +252,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_e from)
 								(msg->data[0] & 0x01)?RELATIVE:NOT_RELATIVE,	//relative
 								(msg->data[0] & 0x10)?NOT_NOW:NOW,//maintenant
 								sens_marche,						//sens de marche
-								NOT_BORDER_MODE,					//mode bordure
+								(msg->data[0] & 0x02)?BORDER_MODE:NOT_BORDER_MODE,	//mode bordure
 								(msg->data[0] & 0x20)?MULTIPOINT:NO_MULTIPOINT, //mode multipoints
 								msg->data[5],						//Vitesse
 								ACKNOWLEDGE_ASKED,
@@ -496,71 +496,6 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 	#ifdef CAN_SEND_OVER_UART
 		CANmsgToU1tx(msg);
 	#endif
-
-	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		bool_e add_pos_datas;
-		add_pos_datas = TRUE;	//On suppose qu'il faut ajouter les données de position.
-		switch(msg->sid)
-		{
-			case BROADCAST_POSITION_ROBOT:
-				debug_printf("Pos:");
-			break;
-			case STRAT_TRAJ_FINIE:
-				debug_printf("TrajFinie:");
-			break;
-			case STRAT_PROP_ERREUR:
-				debug_printf("Err:0x%x", msg->data[7]&0b111);
-			break;
-			case STRAT_ROBOT_FREINE:
-				debug_printf("Freine:");
-			break;
-						//case PROP_SELFTEST:
-						//break;
-						case PROP_ROBOT_CALIBRE:
-						break;
-			case STRAT_PROP_PONG:
-				debug_printf("Pong\n");
-				add_pos_datas = FALSE;
-				break;
-			case STRAT_PROP_SELFTEST_DONE:
-				debug_printf("Selftest done :\n");
-				for(i=0;i<msg->size;i++)
-				{
-					switch(msg->data[i])
-					{
-						case SELFTEST_NO_ERROR:																														break;
-						case SELFTEST_PROP_FAILED:				debug_printf(" | error %x SELFTEST_PROP_FAILED\n"				,SELFTEST_PROP_FAILED);				break;
-						case SELFTEST_PROP_HOKUYO_FAILED:		debug_printf(" | error %x SELFTEST_PROP_HOKUYO_FAILED\n"		,SELFTEST_PROP_HOKUYO_FAILED);		break;
-						case SELFTEST_PROP_IN_SIMULATION_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_SIMULATION_MODE\n"	,SELFTEST_PROP_IN_SIMULATION_MODE); break;
-						case SELFTEST_PROP_IN_LCD_TOUCH_MODE:	debug_printf(" | error %x SELFTEST_PROP_IN_LCD_TOUCH_MODE\n"	,SELFTEST_PROP_IN_LCD_TOUCH_MODE); 	break;
-						default:								debug_printf(" | error %x UNKNOW_ERROR you should add it in secretaty.c\n", msg->data[i]);			break;
-					}
-				}
-				add_pos_datas = FALSE;
-				break;
-			case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
-				debug_printf ("Trajectory_for_test_coef_done : %d", U16FROMU8(msg->data[0], msg->data[1]) );
-				add_pos_datas = FALSE;
-				break;
-			case BROADCAST_ADVERSARIES_POSITION:
-				//Nothing. affichage déjà géré dans la fonction appelante.
-				add_pos_datas = FALSE;
-				break;
-			case DEBUG_PROPULSION_COEF_IS:
-				add_pos_datas = FALSE;
-				break;
-			case STRAT_PROP_FOE_DETECTED:
-				debug_printf("FOE Detected !\n");
-				add_pos_datas = TRUE; // Permet de savoir ou est-ce que la détection à eu lieu sur le terrain
-				break;
-
-			default:
-				debug_printf("SID=%x ", msg->sid);
-			break;
-		}
-		if(add_pos_datas)
-			debug_printf(" x=%d y=%d t=%d\n", global.position.x, global.position.y, global.position.teta);
-	#endif
 }
 
 bool_e SECRETARY_is_selftest_validated(void)
@@ -627,9 +562,7 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 	msg.data[6] = fiability;	//fiability : x et y fiables
 	msg.size = 7;
 	SECRETARY_send_canmsg(&msg);
-	#ifdef VERBOSE_MSG_SEND_OVER_UART
-		//debug_printf("Adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
-	#endif
+	//debug_printf("Adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
 }
 
 
