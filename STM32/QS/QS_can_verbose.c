@@ -254,7 +254,7 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 			for(i = 0; i < msg->size; i++){
 				switch ((msg->data[i]) & IHM_SWITCH_MASK) {
 					case BIROUTE_IHM:			print(*string, *len, "| sw_biroute = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");					break;
-					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "YELLOW":"GREEN");				break;
+					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "VERT":"JAUNE");				break;
 					case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd = %s\n",(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");						break;
 					case SWITCH0_IHM:			print(*string, *len, "| %s = %s\n",SWITCH0_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;
 					case SWITCH1_IHM:			print(*string, *len, "| %s = %s\n",SWITCH1_IHM_NAME,(msg->data[i] & IHM_SWITCH_ON)? "ON":"OFF");		break;

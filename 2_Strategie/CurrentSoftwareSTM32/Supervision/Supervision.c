@@ -116,7 +116,6 @@ void Supervision_process_main(void)
 			Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
 
 			//A partir de maintenant, on peut loguer sur la carte SD...
-			debug_printf("--- Hello, I'm STRAT (%s) ---\n", QS_WHO_AM_I_get_name());
 			RTC_print_time();
 		}
 	}
