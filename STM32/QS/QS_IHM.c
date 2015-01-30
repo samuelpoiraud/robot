@@ -37,10 +37,18 @@ void IHM_init(){
 		return;
 
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
-		switchs[i] = 0;
+		switchs[i] = FALSE;
 
 	for(i=0;i<BP_NUMBER_IHM;i++)
 		IHM_define_act_button((button_ihm_e)i,NULL,NULL);
+
+	switchs[SWITCH_DEBUG] = TRUE;		// Activation Debug
+	switchs[SWITCH_VERBOSE] = TRUE;		// Activation Verbose
+	switchs[SWITCH_XBEE] = TRUE;		// Activation Xbee
+	switchs[SWITCH_SAVE] = TRUE;		// Activation Save
+	switchs[SWITCH_EVIT] = TRUE;		// Activation Evit
+	switchs[SWITCH_ASSER] = TRUE;		// Activation Asser
+
 }
 
 void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
