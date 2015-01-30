@@ -118,6 +118,8 @@
 	#define USE_AN8
 	#define ADC_CHANNEL_MEASURE24	ADC_8
 	//#define USE_AN12			// Fresque 2 et 3 // Changement fresque 3 sur PB1
+	#define ADC_SENSOR_BIG_XUK_RIGHT	ADC_14
+	#define ADC_SENSOR_BIG_XUK_LEFT		ADC_14
 	#define USE_AN14			// Capteur laser torche
 
 /* Réglages XBEE */
