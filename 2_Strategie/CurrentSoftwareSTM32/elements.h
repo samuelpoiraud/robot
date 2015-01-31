@@ -83,6 +83,8 @@ void ELEMENTS_reset_holly_left_spot_level(void);
 Uint8 ELEMENTS_get_holly_right_spot_level(void);
 void ELEMENTS_inc_holly_right_spot_level(void);
 void ELEMENTS_reset_holly_right_spot_level(void);
+void ELEMENTS_set_cup(Uint8 number);
+ELEMENTS_state_s ELEMENTS_get_cup(Uint8 number);
 
 
 // Récupérer l'état ET les coordonnées d'un distributeur de popcorns dont l'id est passé en paramètre.
