@@ -56,7 +56,7 @@
 				point = POLYGON_get_point(&minimal,current);
 
 
-				PROP_push_goto_multi_point((*point).x,(*point).y, speed, way, curve, END_OF_BUFFER, END_AT_LAST_POINT, FALSE, FALSE);
+				PROP_push_goto_multi_point((*point).x,(*point).y, speed, way, curve, END_OF_BUFFER, END_AT_LAST_POINT, PROP_NO_BORDER_MODE, FALSE);
 
 				minimal.destination.cost -= minimal.destination.cost - (*point).cost;
 				current = (*point).parent;

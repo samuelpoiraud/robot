@@ -69,7 +69,7 @@ void PROP_push_stop ()
 }
 
 /* ajoute une instruction goto sur la pile asser */
-void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, PROP_end_condition_e end_condition, bool_e border_mode, bool_e run)
+void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, PROP_end_condition_e end_condition, prop_border_mode_e border_mode, bool_e run)
 {
 	debug_printf("\nD=%d\n",x);
 	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
@@ -92,7 +92,7 @@ void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 cu
 		STACKS_push (PROP, &PROP_goto_until_break, run);
 }
 
-void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition, bool_e border_mode, bool_e run)
+void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition, prop_border_mode_e border_mode, bool_e run)
 {
 	prop_arg_t* pos = &prop_args[STACKS_get_top(PROP)+1];
 
@@ -396,7 +396,7 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
+		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
 		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);
@@ -450,7 +450,7 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
+		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
 		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);
@@ -503,7 +503,7 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 		{
 			args=&prop_args[STACKS_get_top(stack_id)];
 			order.sid = PROP_GO_POSITION;
-			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((args->border_mode)? BORDER_MODE : NO_BORDER_MODE);
+			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((args->border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
 			order.data[XMSB]=HIGHINT(args->x);
 			order.data[XLSB]=LOWINT(args->x);
 			order.data[YMSB]=HIGHINT(args->y);
@@ -587,7 +587,7 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 		{
 			args=&prop_args[STACKS_get_top(stack_id)];
 			order.sid = PROP_GO_POSITION;
-			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((args->border_mode)? BORDER_MODE : NO_BORDER_MODE);
+			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((args->border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
 			order.data[XMSB]=HIGHINT(args->x);
 			order.data[XLSB]=LOWINT(args->x);
 			order.data[YMSB]=HIGHINT(args->y);
@@ -787,7 +787,7 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW | NO_MULTIPOINT | RELATIVE | ((prop_args[STACKS_get_top(stack_id)].border_mode)? BORDER_MODE : NO_BORDER_MODE);
+		order.data[CONFIG]=NOW | NO_MULTIPOINT | RELATIVE | ((prop_args[STACKS_get_top(stack_id)].border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
 		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
 		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);

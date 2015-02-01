@@ -10,15 +10,15 @@
  */
 
 #include "Pathfind.h"
-#include "config_use.h"
-#include "../state_machine_helper.h"
-#include "../Supervision/SD/SD.h"
+#include "config/config_use.h"
+#include "state_machine_helper.h"
 #include "avoidance.h"
 #include <math.h>
 
 #define LOG_PREFIX ""
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PATHFIND
 #include "QS/QS_outputlog.h"
+#include "Supervision/SD/SD.h"
 
 #define MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY	400		//Distance manhattan entre un advesaire et les noeuds dont il bloque l'accès
 #define DISTANCE_CONSIDERE_ADVERSARY				1200	//Distance entre nous et l'adversaire pour qu'il soit pris en compte (s'il est loin, on le néglige.. en espérant qu'il bouge d'ici à notre arrivée)
@@ -679,7 +679,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 			}
 			break;
 		case DISPLACEMENT:
-			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, avoidance, end_condition, FALSE);
+			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
 			switch(sub_action)
 			{
 				case IN_PROGRESS:
