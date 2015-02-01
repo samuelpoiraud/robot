@@ -10,19 +10,19 @@
  */
 
 #include "avoidance.h"
+#include "prop_functions.h"
+#include "Supervision/Buzzer.h"
+#include "math.h"
+#include "state_machine_helper.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
-#include "prop_functions.h"
-#include "Supervision/Buzzer.h"
-#include "Supervision/SD/SD.h"
-#include "math.h"
-#include "state_machine_helper.h"
 
 #define LOG_PREFIX "avoid: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_AVOIDANCE
 #include "QS/QS_outputlog.h"
+#include "Supervision/SD/SD.h"
 
 #define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
@@ -45,7 +45,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
-	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, FALSE);
+	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -67,7 +67,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	error_e sub_action;
-	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition, FALSE);
+	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -157,7 +157,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			break;
 
 		case GO :
-			sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},30}}, NULL, 1, way, avoidance, END_AT_LAST_POINT, TRUE);
+			sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},30}}, NULL, 1, way, avoidance, END_AT_LAST_POINT, PROP_BORDER_MODE);
 			switch(sub_action){
 				case IN_PROGRESS:
 					state = GO;
@@ -555,7 +555,7 @@ void AVOIDANCE_set_timeout(Uint16 msec) {
  * return END_WITH_TIMEOUT : Timeout
  * return FOE_IN_PATH : un adversaire nous bloque
  */
-error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, bool_e border_mode)
+error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode)
 {
 	enum state_e
 	{
@@ -1161,7 +1161,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 		case LOAD_MOVE:
 			clear_prop_detected_foe();
 			global.env.destination = displacements.point;
-			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, FALSE, TRUE);
+			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, PROP_NO_BORDER_MODE, TRUE);
 			debug_printf("goto_extract_with_avoidance : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
@@ -1345,7 +1345,6 @@ void clear_prop_detected_foe(){
 
 void set_prop_detected_foe(CAN_msg_t *msg){
 	prop_detected_foe = TRUE;
-	SD_printf("PROP FOE found in zone x[%d] y[%d] %s\n", U16FROMU8(msg->data[0], msg->data[1]), U16FROMU8(msg->data[2], msg->data[3]), (msg->data[4])?"with timeout":"");
 }
 
 //------------------------------------------------------------------- Fonctions autress

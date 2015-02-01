@@ -80,6 +80,12 @@ typedef struct
 	bool_e curve;
 }displacement_curve_t;
 
+/* Définition du type mode de bordure qui permet la gestion de bordure fictive en propulsion */
+typedef enum{
+	PROP_NO_BORDER_MODE,
+	PROP_BORDER_MODE
+}prop_border_mode_e;
+
 //------------------------------------------------------------------- Machines à états de déplacements
 
 /*
@@ -244,7 +250,7 @@ void set_prop_detected_foe(CAN_msg_t *msg);
  * return END_WITH_TIMEOUT : Timeout
  * return FOE_IN_PATH : un adversaire nous bloque
  */
-error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, bool_e border_mode);
+error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode);
 
 //------------------------------------------------------------------- Fonctions autres
 
