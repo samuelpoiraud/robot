@@ -1,9 +1,9 @@
 #include "state_machine_helper.h"
 #include <stdarg.h>
 #include "../act_functions.h"
-#include "Supervision/SD/SD.h"
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES
 #include "../QS/QS_outputlog.h"
+#include "Supervision/SD/SD.h"
 
 void UTILS_CAN_send_state_changed(Uint16 state_machine_id, Uint8 old_state, Uint8 new_state, Uint8 nb_params, ...) {
 	va_list l;

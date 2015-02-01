@@ -11,7 +11,6 @@
 
 
 #include "Selftest.h"
-#include "SD/SD.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_uart.h"

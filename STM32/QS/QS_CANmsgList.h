@@ -330,7 +330,6 @@
 	#define ACT_PING			0x316	//16 = IG = PING
 
 	/* Carte super vers carte propulsion */
-
 	#define PROP_DO_SELFTEST	0x100
 	#define PROP_PING			0x116	//16 = IG = PING
 
@@ -484,7 +483,7 @@
 	/* carte stratégie vers carte propulsion */
 	#define PROP_GO_POSITION					0x155
 	/* arguments :
-		CONFIG : Uint8	=>	|..0. .... - ordre non multipoint
+		CONFIG	: Uint8	=>	|..0. .... - ordre non multipoint
 							|..1. .... - ou multipoint
 							|
 							|...0 .... - ordre a executer maintenant
