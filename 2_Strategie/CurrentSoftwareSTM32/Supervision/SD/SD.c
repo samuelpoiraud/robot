@@ -43,7 +43,7 @@ volatile Uint16	match_id = 0xFFFF;
 volatile Uint16	read_match_id = 0xFFFF;
 static bool_e initialized = FALSE;
 
-static int SD_vprintf(const char * s, va_list args);
+static int SD_vprintf(bool_e verbose, const char * s, va_list args);
 static int SD_logprintf(log_level_e level, const char* format, va_list vargs);
 
 //@post	SD_printf peut être appelée... (si tout s'est bien passé, les logs peuvent être enregistrés...)
@@ -63,17 +63,17 @@ void SD_init(void)
 
 static int SD_logprintf(log_level_e level, const char* format, va_list vargs) {
 	if(level <= LOG_LEVEL_Info)
-		SD_vprintf(format, vargs);
+		SD_vprintf(TRUE, format, vargs);
 
 	return 0;
 }
 
-int SD_printf(const char *format, ...) {
+int printf_SD_verbose(bool_e verbose, const char *format, ...) {
 	int ret;
 
 	va_list args_list;
 	va_start(args_list, format);
-	ret = SD_vprintf(format, args_list);
+	ret = SD_vprintf(verbose, format, args_list);
 	va_end(args_list);
 
 	return ret;
@@ -82,7 +82,7 @@ int SD_printf(const char *format, ...) {
 /*
  * Si la chaine fabriquée contient un '\n', l'évènement sera envoyé sur la carte SD avec une info de date et de source... Sinon, le texte demandé sera envoyé tel quel.
  */
-static int SD_vprintf(const char * s, va_list args)
+static int SD_vprintf(bool_e verbose, const char * s, va_list args)
 {
 	Uint16 ret;
 	Uint16 i;
@@ -104,7 +104,7 @@ static int SD_vprintf(const char * s, va_list args)
 		ret = PRINTF_BUFFER_SIZE-1;
 
 	SD_new_event(FROM_SOFT, NULL, buf, b_insert_time);
-	if(IHM_switchs_get(SWITCH_VERBOSE))
+	if(IHM_switchs_get(SWITCH_VERBOSE) && verbose)
 		OUTPUTLOG_printf(LOG_LEVEL_Always, buf); //On en profite pour Verboser l'événement.
 
 //	was_newline = buf[ret-1] == '\n'; //Si la ligne à un '\n' à la fin, on ajoutera un timestamp au prochain printf

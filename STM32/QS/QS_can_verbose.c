@@ -114,10 +114,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case DEBUG_SET_ERROR_TRESHOLD_TRANSLATION:		print(string, len, "%x DEBUG_SET_ERROR_TRESHOLD_TRANSLATION   ", DEBUG_SET_ERROR_TRESHOLD_TRANSLATION			);	break;
 
 		case STRAT_BUZZER_PLAY:							print(string, len, "%x STRAT_BUZZER_PLAY                      ", STRAT_BUZZER_PLAY								);	break;
-		case STRAT_ACT_SELFTEST_DONE :					print(string, len, "%x STRAT_ACT_SELFTEST_DONE                ", STRAT_ACT_SELFTEST_DONE						);	break;
-		case STRAT_PROP_SELFTEST_DONE :					print(string, len, "%x STRAT_PROP_SELFTEST_DONE               ", STRAT_PROP_SELFTEST_DONE						);	break;
-		case STRAT_BEACON_IR_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_IR_SELFTEST_DONE          ", STRAT_BEACON_IR_SELFTEST_DONE					);	break;
-		case STRAT_BEACON_US_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_US_SELFTEST_DONE          ", STRAT_BEACON_US_SELFTEST_DONE					);	break;
 		case STRAT_BALISE_BATTERY_STATE	:				print(string, len, "%x STRAT_BALISE_BATTERY_STATE             ", STRAT_BALISE_BATTERY_STATE						);	break;
 		case STRAT_TRAJ_FINIE:							print(string, len, "%x STRAT_TRAJ_FINIE                       ", STRAT_TRAJ_FINIE								);	break;
 		case STRAT_PROP_ERREUR:							print(string, len, "%x STRAT_PROP_ERREUR                      ", STRAT_PROP_ERREUR								);	break;
@@ -128,6 +124,18 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_DO_SELFTEST:							print(string, len, "%x ACT_DO_SELFTEST                        ", ACT_DO_SELFTEST								);	break;
 		case PROP_DO_SELFTEST:							print(string, len, "%x PROP_DO_SELFTEST                       ", PROP_DO_SELFTEST								);	break;
 		case BEACON_DO_SELFTEST:						print(string, len, "%x BEACON_DO_SELFTEST                     ", BEACON_DO_SELFTEST								);	break;
+		case STRAT_ACT_SELFTEST_DONE:					print(string, len, "%x STRAT_ACT_SELFTEST_DONE                ", STRAT_ACT_SELFTEST_DONE						);	break;
+		case STRAT_PROP_SELFTEST_DONE:					print(string, len, "%x STRAT_PROP_SELFTEST_DONE               ", STRAT_PROP_SELFTEST_DONE						);	break;
+		case STRAT_BEACON_IR_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_IR_SELFTEST_DONE          ", STRAT_BEACON_IR_SELFTEST_DONE					);	break;
+		case STRAT_BEACON_US_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_US_SELFTEST_DONE          ", STRAT_BEACON_US_SELFTEST_DONE					);	break;
+		case ACT_PING:									print(string, len, "%x ACT_PING                               ", ACT_PING										);	break;
+		case PROP_PING:									print(string, len, "%x PROP_PING                              ", PROP_PING										);	break;
+		case BEACON_PING:								print(string, len, "%x BEACON_PING                            ", BEACON_PING									);	break;
+		case STRAT_ACT_PONG:							print(string, len, "%x STRAT_ACT_PONG                         ", STRAT_ACT_PONG									);	break;
+		case STRAT_PROP_PONG:							print(string, len, "%x STRAT_PROP_PONG                        ", STRAT_PROP_PONG								);	break;
+		case STRAT_BEACON_PONG:							print(string, len, "%x STRAT_BEACON_PONG                      ", STRAT_BEACON_PONG								);	break;
+
+
 
 		case PROP_ROBOT_CALIBRE:						print(string, len, "%x PROP_ROBOT_CALIBRE                     ", PROP_ROBOT_CALIBRE								);	break;
 		case PROP_GO_ANGLE:								print(string, len, "%x PROPO_GO_ANGLE                         ", PROP_GO_ANGLE									);	break;
@@ -171,10 +179,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
 		case IHM_SET_LED:								print(string, len, "%x IHM_SET_LED                            ", IHM_SET_LED									);	break;
-		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                             ", IHM_BUTTON										);	break;
-		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                             ", IHM_SWITCH										);	break;
-		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL									);	break;
-		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                              ", IHM_POWER										);	break;
+		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                             ", IHM_BUTTON									);	break;
+		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                             ", IHM_SWITCH									);	break;
+		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL								);	break;
+		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                              ", IHM_POWER									);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
 	}
@@ -199,11 +207,12 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case STRAT_TRAJ_FINIE:					print(string, len, "| J'arrive  x=%4d y=%4d t=0x%8x=%3d° Vt=%4dmm/s Vr=%2drd/s reas=0x%2x st=0x%2x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
 		case STRAT_PROP_ERREUR:					print(string, len, "| J'erreur  x=%4d y=%4d t=0x%8x=%3d° Vt=%4dmm/s Vr=%2drd/s reas=0x%2x st=0x%2x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
 		case STRAT_ROBOT_FREINE:				print(string, len, "| J'freine  x=%4d y=%4d t=0x%8x=%3d° Vt=%4dmm/s Vr=%2drd/s reas=0x%2x st=0x%2x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;
+		case STRAT_PROP_FOE_DETECTED:			print(string, len, "| x : %d   y : %d   %s\n", u16(0,1), u16(2,3), (u8(4))?"avec timeout":"");	break;
 		case STRAT_SEND_REPORT:					print(string, len, "| Distance : %ld | Rotation : %lu | Rotation max : %ld\n", ((Uint32)u16(4,5))<<1, ((Sint32)s16(0,1)<<3)*180/PI4096, ((Sint32)s16(2,3)<<3)*180/PI4096);	break;
 
-		case PROP_GO_ANGLE:						print(string, len, "| VaAngle   teta=%d=%d° %s %s %s %d%s %s\n",  angle_rad(1, 2),  angle_deg(1, 2), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"marche avant":((u8(6)&0x10)?"marche arrière":"")	);						break;
+		case PROP_GO_ANGLE:						print(string, len, "| VaAngle   teta=%d=%d° %s %s %s %d%s %s\n",  angle_rad(1, 2),  angle_deg(1, 2), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"avant":((u8(6)&0x10)?"arrière":"")	);						break;
 		case PROP_OFFSET_AVOID:					print(string, len, "| Xleft : %d  Xright : %d  Yfront : %d  Yback : %d\n",u16(0,1), u16(2,3), u16(4,5), u16(6,7));		break;
-		case PROP_GO_POSITION:					print(string, len, "| VaPos     x=%d y=%d %s %s %s vitesse %d%s %s\n", u16(1,2), u16(3,4), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"marche avant":((u8(6)&0x10)?"marche arrière":"")	);	break;
+		case PROP_GO_POSITION:					print(string, len, "| VaPos     x=%d y=%d %s %s %s vitesse %d%s %s %s\n", u16(1,2), u16(3,4), (u8(0) & 0x20)?"multi":" ", (u8(0) & 0x10)?"pas_now":"now", (u8(0) & 0x01)?"relatif":" ", u8(5),(u8(5)==0x00)?"=rapide":((u8(5)==0x01)?"=lente":""), (u8(6)&0x01)?"avant":((u8(6)&0x10)?"arrière":"any_way"), ((u8(0)&0x02)?"mode bordure":""));	break;
 		case PROP_SET_POSITION:					print(string, len, "| PrendPos  X=%d | Y=%d | teta=0x%x=%d°\n", u16(0,1), u16(2,3),angle_rad(4, 5),  angle_deg(4, 5));													break;
 		case PROP_SEND_PERIODICALLY_POSITION: 	print(string, len, "| DitPos    période=%d | translation = %dmm | rotation = %d°\n", u16(0,1),u16(2, 3),  angle_deg(4, 5));										break;
 		case PROP_RUSH_IN_THE_WALL:				print(string, len, "| sens %s | asservissement rotation %sactivée\n", (u8(0)==1)?"arrière":((u8(0)==2)?"avant":"quelconque"), (u8(1))?"":"dés");				break;
