@@ -294,7 +294,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_e from)
 
 		//Stop tout
 		case BROADCAST_STOP_ALL:
-			debug_printf("Broadcast_stop\n");
+			//debug_printf("Broadcast_stop\n");
 			global.match_over = TRUE;
 			ROADMAP_add_order(  TRAJECTORY_STOP,
 								0,
@@ -318,18 +318,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_e from)
 		break;
 
 		case BROADCAST_START:
-			debug_printf("Broadcast_start, \n");
+			//debug_printf("Broadcast_start, \n");
 			global.match_started = TRUE;
 		break;
 
 		case BROADCAST_ALIM :
-			if(msg->data[0] == ALIM_OFF){
-				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_OFF\n");
-				global.alim = FALSE;
-			}else if(msg->data[0] == ALIM_ON){
-				component_printf(LOG_LEVEL_Info, "C:BROADCAST_ALIM -> ALIM_ON\n");
-				global.alim = TRUE;
-			}
 			global.alim_value = (((Uint16)(msg->data[1]) << 8) & 0xFF00) | ((Uint16)(msg->data[2]) & 0x00FF);
 			break;
 
