@@ -78,7 +78,7 @@ void AVOIDANCE_process_it(){
 
 			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
 
-				debug_printf("t : %ld      buffering !\n", global.absolute_time);
+				//debug_printf("t : %ld      buffering !\n", global.absolute_time);
 
 				// On met l'ordre actuel dans le buffer
 				COPILOT_buffering_order();
@@ -116,7 +116,7 @@ void AVOIDANCE_process_it(){
 		// Si il y a timeout
 		if(buffer_order->total_wait_time + global.absolute_time - buffer_order->wait_time_begin > AVOID_WAIT_TIME){
 
-			debug_printf("t : %ld      timeout !\n", global.absolute_time);
+			//debug_printf("t : %ld      timeout !\n", global.absolute_time);
 
 			// On remplace la trajectoire courante
 			ROADMAP_add_order(  TRAJECTORY_STOP,
@@ -137,8 +137,8 @@ void AVOIDANCE_process_it(){
 			SECRETARY_send_foe_detected(adversary->x, adversary->y, TRUE);
 
 		}else if(AVOIDANCE_target_safe(buffer_order->way, FALSE) == FALSE){
-			debug_printf("t : %ld      free !\n", global.absolute_time);
-			debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
+			//debug_printf("t : %ld      free !\n", global.absolute_time);
+			//debug_printf("Rien sur la trajectoire %dx %dy\n", buffer_order->x, buffer_order->y);
 			buffer_order->total_wait_time += global.absolute_time - buffer_order->wait_time_begin;
 			ROADMAP_add_simple_order(*buffer_order, TRUE, FALSE, TRUE);
 			ROADMAP_launch_next_order();
