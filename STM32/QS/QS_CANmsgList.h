@@ -259,11 +259,6 @@
 	// [6/7]	: x/16 (x>>4) / y/16 (y>>4) point n+3
 	#define DEBUG_HOKUYO_RESET					0x792
 	#define DEBUG_HOKUYO_INTENSITY_ADD_POINT	0x793
-	#define DEBUG_HOKUYO_ADD_POINT				0x791
-	// [0/1]	: x/16 (x>>4) / y/16 (y>>4) point n
-	// [2/3]	: x/16 (x>>4) / y/16 (y>>4) point n+1
-	// [4/5]	: x/16 (x>>4) / y/16 (y>>4) point n+2
-	// [6/7]	: x/16 (x>>4) / y/16 (y>>4) point n+3
 	#define DEBUG_HOKUYO_INTENSITY_RESET		0x794
 
 /*****************************************************************
