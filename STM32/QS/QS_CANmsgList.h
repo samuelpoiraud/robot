@@ -279,6 +279,10 @@
 		#define XBEE_ZONE_TRY_LOCK       0	//Dans data[1]: la zone, type: map_zone_e. La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT
 		#define XBEE_ZONE_LOCK_RESULT    1	//Dans data[1]: la zone concernée, data[2]: TRUE/FALSE suivant si le verouillage à été accepté ou non
 		#define XBEE_ZONE_UNLOCK         2  //Dans data[1]: la zone libérée. Libère une zone qui a été verouillée
+
+	#define XBEE_CAN_WOOD_ACCESS_SCAN		0x5B0
+	#define XBEE_WOOD_ACCESS_SCAN			0x5B1	//Réponse...
+		//data[0]... cf le code qui utilise ces messages.
 	#define XBEE_MY_POSITION_IS				0x5FF
 			/*
 				X : Sint16 (mm)
