@@ -60,6 +60,8 @@ static Uint8 nbPointH = 0;
 static Uint8 nbPointB = 0;
 static Uint32 old_measure = 0;
 static Uint8 nb_mesure = 0;
+static Uint8 nb_cup = 0;
+static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker les indices des tableaux puis les coordonnées des gobelets
 static bool_e run_calcul,end_scan;
 color_e color = ODOMETRY_get_color();
 
@@ -87,6 +89,7 @@ void SCAN_CUP_process_it(){
 		SEND_COOR_CUP
 	}state_e;
 	static state_e state = INIT;
+	Uint8 i;
 	scan_result_t mesure_en_cours;
 	switch(state){
 
@@ -108,7 +111,7 @@ void SCAN_CUP_process_it(){
 			break;
 
 		case SCAN_LINEAR:
-			if(abs(old_measure-global.position.x) >= PAS_DE_MESURE){
+			if(abs(old_measure-global.position.x) >= QUANTUM_MESURE){
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;
 				mesure_en_cours.dist = conversion_capteur(ADC_getValue(SENSOR_NAME));
@@ -130,12 +133,14 @@ void SCAN_CUP_process_it(){
 			break;
 
 		case SEND_COOR_CUP:
-			//data = (Uint8)(val >> 8);
-			//data = (Uint8)(val & 0x00FF)
-			SECRETARY_send_cup_position();
+			for(i=0;i<nb_cup;i++){
+				if(i<nb_cup-1){
+					SECRETARY_send_cup_position(FALSE,GEOMETRY_point_t p);
+				}else{
+					SECRETARY_send_cup_position(TRUE,GEOMETRY_point_t p);
+				}
+			}
 			break;
-
-
 	}
 }
 
