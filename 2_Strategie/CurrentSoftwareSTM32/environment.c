@@ -428,6 +428,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			LCD_printf(1, TRUE, FALSE, "Dist:%d", U16FROMU8(incoming_msg->data[4], incoming_msg->data[5]) << 1);
 			LCD_printf(2, TRUE, FALSE, "Rot :%4ld MRot:%4ld", ((Sint32)((Sint16)(U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]))) << 3)*180/PI4096, ((Sint32)((Sint16)(U16FROMU8(incoming_msg->data[2], incoming_msg->data[3]))) << 3)*180/PI4096);
 			break;
+		case STRAT_CUP_POSITION:
+			collect_cup_coord(incoming_msg);
+			break;
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
 			ACT_process_result(incoming_msg);
@@ -593,3 +596,4 @@ void ENV_warning_switch(){
 		asser_switch = IHM_switchs_get(SWITCH_ASSER);
 	}
 }
+

@@ -33,6 +33,12 @@
 	}element_group_e;
 
 
+	typedef struct{
+	   Uint16 x,y;
+	   ELEMENTS_state_s state_cup;
+	}ELEMENTS_position;
+
+
 	typedef enum
 	{
 		OUR_BORDER_DISPENSER = 0,
@@ -73,6 +79,8 @@
 		ELEMENTS_ESTRAD_FOOT_TOOK,
 		ELEMENTS_SOUTH_CUP_TOOK,
 		ELEMENTS_SOUTH_CORNER_FEET_TOOK,
+		ELEMENTS_STEAL_CUP_IN_NORTH_CINEMA,
+		ELEMENTS_STEAL_CUP_IN_SOUTH_CINEMA,
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 
@@ -89,10 +97,15 @@ void ELEMENTS_inc_holly_right_spot_level(void);
 void ELEMENTS_reset_holly_right_spot_level(void);
 void ELEMENTS_set_cup(Uint8 number);
 ELEMENTS_state_s ELEMENTS_get_cup(Uint8 number);
-
+bool_e get_cup_transmission(void);
+Uint8 get_number_cup(void);
+void copy_cup_position(ELEMENTS_position cup_copy[]);
 
 // Récupérer l'état ET les coordonnées d'un distributeur de popcorns dont l'id est passé en paramètre.
 void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispenser_done, Uint16 * x, Uint16 * y);
+
+//Message CAN de récupération du centre des gobelets
+ void collect_cup_coord( CAN_msg_t *msg);
 
 
 #endif // ELEMENTS_H

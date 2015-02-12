@@ -344,6 +344,7 @@
 	/* Carte propulsion vers Strat */
 	#define STRAT_PROP_SELFTEST_DONE 				0x2E1
 	#define STRAT_PROP_PONG							0x216
+	#define STRAT_CUP_POSITION                      0x219
 		//Data[0] contient l'ID du robot (WHO_AM_I)
 
 	/* Carte balise vers Strat */
@@ -670,7 +671,6 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	//////////////////////////////////////////////////////////////////
 	//----------------------------HOLLY-----------------------------//
 	//////////////////////////////////////////////////////////////////
-
 
 	/////////////////TEST SERVO///////////////////
 	ACT_TEST_SERVO = (ACT_FILTER | 0x01),
