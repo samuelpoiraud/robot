@@ -14,6 +14,10 @@ volatile Uint8 holly_right_spot_level;	//Nb de pied dans un spot. La balle ne co
 
 volatile bool_e elements_flags[ELEMENTS_FLAGS_NB];
 
+ELEMENTS_position cup[3];
+Uint8 nb_cup=0;
+bool_e end_transmission_cup=FALSE;
+
 
 void ELEMENTS_init(){
 	Uint8 i;
@@ -197,3 +201,35 @@ void ELEMENTS_set_cup(Uint8 number){
  ELEMENTS_state_s ELEMENTS_get_cup(Uint8 number){
 	return ELEMENTS_cup[number].state;
 }
+
+ void collect_cup_coord(CAN_msg_t *msg){
+	 cup[nb_cup].x=U16FROMU8(msg->data[1],msg->data[2]);
+	 cup[nb_cup].y=U16FROMU8(msg->data[3],msg->data[4]);
+	 nb_cup++;
+	 if(msg->data[0] & 0x01)
+		 end_transmission_cup=TRUE;
+	 else
+		 end_transmission_cup=FALSE;
+ }
+
+ bool_e get_cup_transmission(void){
+	 return end_transmission_cup;
+ }
+
+ Uint8 get_number_cup(void){
+	 return nb_cup;
+ }
+
+ void copy_cup_position(ELEMENTS_position cup_copy[]){
+	 Uint8 i;
+	 if(nb_cup<=3){
+		 for(i=0;i<nb_cup;i++){
+			 cup_copy[i].x=cup[i].x;
+			 cup_copy[i].y=cup[i].y;
+			 cup_copy[i].state_cup=AVAILABLE;
+		 }
+		 for(i=nb_cup;i<3;i++){
+			 cup_copy[i].state_cup=LOST;
+		 }
+	 }
+ }
